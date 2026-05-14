@@ -1,18 +1,18 @@
 deno.json:
-  - import: jsr:@sys/cli@0.0.278
-  - import: jsr:@sys/color@0.0.244
+  - import: jsr:@sys/cli@0.0.279
+  - import: jsr:@sys/color@0.0.245
     subpaths: [ t ]
-  - import: jsr:@sys/driver-deno@0.0.337
+  - import: jsr:@sys/driver-deno@0.0.338
     subpaths: [ cloud, runtime, t ]
-  - import: jsr:@sys/driver-vite@0.0.398
+  - import: jsr:@sys/driver-vite@0.0.399
     subpaths: [ main, t ]
-  - import: jsr:@sys/fs@0.0.301
+  - import: jsr:@sys/fs@0.0.302
     subpaths: [ t ]
-  - import: jsr:@sys/http@0.0.277
+  - import: jsr:@sys/http@0.0.278
     subpaths: [ client, t ]
-  - import: jsr:@sys/process@0.0.281
+  - import: jsr:@sys/process@0.0.282
     subpaths: [ t ]
-  - import: jsr:@sys/std@0.0.349
+  - import: jsr:@sys/std@0.0.350
     subpaths:
       [
         args,
@@ -33,26 +33,26 @@ deno.json:
         try,
         url
       ]
-  - import: jsr:@sys/testing@0.0.292
+  - import: jsr:@sys/testing@0.0.293
     subpaths: [ server, t ]
-  - import: jsr:@sys/tmpl@0.0.393
+  - import: jsr:@sys/tmpl@0.0.394
     subpaths: [ t ]
-  - import: jsr:@sys/tools@0.0.409
+  - import: jsr:@sys/tools@0.0.410
     subpaths: [ t ]
-  - import: jsr:@sys/types@0.0.285
-  - import: jsr:@sys/ui-css@0.0.279
+  - import: jsr:@sys/types@0.0.286
+  - import: jsr:@sys/ui-css@0.0.280
     subpaths: [ t ]
-  - import: jsr:@sys/ui-dom@0.0.286
+  - import: jsr:@sys/ui-dom@0.0.287
     subpaths: [ t ]
-  - import: jsr:@sys/ui-react@0.0.309
+  - import: jsr:@sys/ui-react@0.0.310
     subpaths: [ t ]
-  - import: jsr:@sys/ui-react-components@0.0.272
+  - import: jsr:@sys/ui-react-components@0.0.273
     subpaths: [ button, cropmarks, icon, key-value, object-view, t ]
-  - import: jsr:@sys/ui-react-devharness@0.0.307
+  - import: jsr:@sys/ui-react-devharness@0.0.308
     subpaths: [ t ]
-  - import: jsr:@sys/workspace@0.0.88
+  - import: jsr:@sys/workspace@0.0.89
     subpaths: [ cli, t, testing ]
-  - import: jsr:@sys/esm@0.0.45
+  - import: jsr:@sys/esm@0.0.46
     subpaths: [ testing ]
 package.json:
   - import: npm:react@19.2.6
@@ -60,13 +60,13 @@ package.json:
   - import: npm:react-icons@5.6.0
   - import: npm:@deno/vite-plugin@2.0.2
     dev: true
-  - import: npm:@vitejs/plugin-react@6.0.1
+  - import: npm:@vitejs/plugin-react@6.0.2
     dev: true
-  - import: npm:rollup@4.60.3
+  - import: npm:rollup@4.60.4
     dev: true
   - import: npm:rollup-plugin-visualizer@7.0.1
     dev: true
-  - import: npm:vite@8.0.12
+  - import: npm:vite@8.0.13
     dev: true
   - import: npm:vite-plugin-wasm@3.6.0
     dev: true
