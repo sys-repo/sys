@@ -17,8 +17,8 @@ A Cell's state and meaning are carried by ordinary files that can function as a
 interpreted, viewed, and validly rewritten within the folder that bounds them.
 
 Concretely, the medium is a folder of ordinary files: [Markdown][commonmark], [YAML][yaml],
-[HTML][html], [TypeScript][typescript], [JSON][json], [binary data][octet-stream], and other
-file-carried forms.
+[HTML][html], [TypeScript][typescript], [JSON][json], [binary data][octet-stream] (including
+file-backed databases), and other file-carried forms.
 
 [commonmark]: https://spec.commonmark.org/current/
 [yaml]: https://yaml.org/spec/1.2.2/
