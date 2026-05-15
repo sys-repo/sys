@@ -41,12 +41,16 @@ type SelectedBinding = {
 
 const ServiceModePattern = new RegExp(IdPattern);
 
+export function isServiceMode(value: string): value is t.Cell.Services.ServiceMode {
+  return value === 'default' || ServiceModePattern.test(value);
+}
+
 function serviceModeOf(value: unknown, context: string): t.Cell.Services.ServiceMode {
-  if (value === undefined || value === 'default') return 'default';
-  if (!Is.str(value) || !ServiceModePattern.test(value)) {
+  if (value === undefined) return 'default';
+  if (!Is.str(value) || !isServiceMode(value)) {
     throw new Error(`${context}: invalid service mode '${String(value)}'.`);
   }
-  return value as t.Cell.Services.ServiceMode;
+  return value;
 }
 
 function selectServiceBinding(

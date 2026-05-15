@@ -73,6 +73,11 @@ describe(`@sys/cell/cli`, () => {
     expect(res.kind).to.eql('help');
     expect(text).to.contain('@sys/cell start');
     guidance.services.forEach((line) => expect(text).to.contain(line));
+    guidance.options.forEach(([name, detail]) => {
+      expect(text).to.contain(name);
+      expect(text).to.contain(detail);
+    });
+    expect(text).to.contain('--mode <mode>');
     expect(text).to.not.contain('--agent');
     expect(text).to.not.contain('--dry-run');
   });
@@ -360,6 +365,44 @@ describe(`@sys/cell/cli`, () => {
     expect(text.indexOf(divider)).to.be.lessThan(text.indexOf('api'));
   });
 
+  it('start --mode → starts selected service variants', async () => {
+    const fs = await Testing.dir('CellCli.start.mode');
+    await Fs.write(
+      Fs.join(fs.dir, '-config/@sys.cell/cell.yaml'),
+      Str.dedent(`
+        kind: cell
+        version: 1
+
+        services:
+          - name: view
+            use: BaseService
+            from: npm:untrusted-base
+            config: ./-config/view.yaml
+            variants:
+              dev:
+                use: DevService
+                from: ./-services/dev.ts
+                config: ./-config/view.dev.yaml
+      `).trimStart(),
+    );
+    await Fs.write(Fs.join(fs.dir, '-services/dev.ts'), devServiceSource());
+
+    const res = await silent(() => CellCli.run({ argv: ['start', fs.dir, '--mode', 'dev'] }));
+    const text = stripAnsi(res.text);
+
+    expect(res.kind).to.eql('start');
+    if (res.kind !== 'start') throw new Error('expected start result');
+    expect(res.mode).to.eql('dev');
+    expect(res.services).to.eql(1);
+    expect(text).to.contain('mode');
+    expect(text).to.contain('dev');
+    expect(text).to.contain('./-services/dev.ts');
+    expect(text).to.contain(Fs.join(fs.dir, '-config/view.dev.yaml'));
+    expect(text).to.contain('services   1');
+    expect(text).to.not.contain('npm:untrusted-base');
+    expect(text).to.not.contain(Fs.join(fs.dir, '-config/view.yaml'));
+  });
+
   it('service renderer shows non-default selected service mode', () => {
     const now = Time.now.timestamp;
     const text = stripAnsi(Fmt.Services.started({
@@ -430,9 +473,36 @@ describe(`@sys/cell/cli`, () => {
     expect(start).to.contain('Unexpected option for start: --plan');
   });
 
+  it('--mode is scoped to start only', async () => {
+    const root = stripAnsi((await silent(() => CellCli.run({ argv: ['--mode', 'dev'] }))).text);
+    const init = stripAnsi(
+      (await silent(() => CellCli.run({ argv: ['init', '--mode', 'dev'] }))).text,
+    );
+    const dsl = stripAnsi(
+      (await silent(() => CellCli.run({ argv: ['dsl', '--mode', 'dev'] }))).text,
+    );
+    const task = stripAnsi(
+      (await silent(() => CellCli.run({ argv: ['task', 'capture', '--mode', 'dev'] }))).text,
+    );
+
+    expect(root).to.contain('Unexpected option without command: --mode');
+    expect(init).to.contain('Unexpected option for init: --mode');
+    expect(dsl).to.contain('Unexpected option for dsl: --mode');
+    expect(task).to.contain('Unexpected option for task: --mode');
+  });
+
   it('start → rejects unsupported command options and extra args', async () => {
     const help = stripAnsi(
       (await silent(() => CellCli.run({ argv: ['start', '--dry-run'] }))).text,
+    );
+    const missingMode = stripAnsi(
+      (await silent(() => CellCli.run({ argv: ['start', '--mode'] }))).text,
+    );
+    const repeatedMode = stripAnsi(
+      (await silent(() => CellCli.run({ argv: ['start', '--mode', 'dev', '--mode', 'prod'] }))).text,
+    );
+    const invalidMode = stripAnsi(
+      (await silent(() => CellCli.run({ argv: ['start', '--mode', 'Bad'] }))).text,
     );
     const extra = stripAnsi(
       (await silent(() => CellCli.run({ argv: ['start', '.', 'extra'] }))).text,
@@ -440,6 +510,12 @@ describe(`@sys/cell/cli`, () => {
 
     expect(help).to.contain('Unexpected option for start: --dry-run');
     expect(help).to.contain('@sys/cell start');
+    expect(missingMode).to.contain('Option requires a value: --mode');
+    expect(missingMode).to.contain('@sys/cell start');
+    expect(repeatedMode).to.contain('Repeated option for start: --mode');
+    expect(repeatedMode).to.contain('@sys/cell start');
+    expect(invalidMode).to.contain("Invalid start mode: 'Bad'");
+    expect(invalidMode).to.contain('@sys/cell start');
     expect(extra).to.contain('Unexpected argument: extra');
     expect(extra).to.contain('@sys/cell start');
   });
@@ -504,6 +580,22 @@ function statusServiceSource() {
               ],
               details: [{ label: 'dist', value: 'dist/' }],
             };
+          },
+        };
+      },
+    };
+  `).trimStart();
+}
+
+function devServiceSource() {
+  return Str.dedent(`
+    export const DevService = {
+      start() {
+        return {
+          finished: Promise.resolve('done'),
+          close() {},
+          status() {
+            return { state: 'ready' };
           },
         };
       },

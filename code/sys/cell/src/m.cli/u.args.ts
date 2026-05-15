@@ -9,9 +9,10 @@ export function parseArgs(argv: readonly string[] = []): t.CellCli.ParsedArgs {
     'dry-run'?: boolean;
     plan?: boolean;
     format?: string | boolean | (string | boolean)[];
+    mode?: string | boolean | (string | boolean)[];
   }>([...normalized], {
     boolean: ['help', 'agent', 'dry-run', 'plan'],
-    string: ['format'],
+    string: ['format', 'mode'],
     alias: { h: ['help'] },
     unknown(flag) {
       unknown.push(flag);
@@ -25,6 +26,7 @@ export function parseArgs(argv: readonly string[] = []): t.CellCli.ParsedArgs {
     agent: args.agent ?? false,
     plan: args.plan ?? false,
     format: args.format,
+    mode: args.mode,
     unknown,
     _: args._,
   };

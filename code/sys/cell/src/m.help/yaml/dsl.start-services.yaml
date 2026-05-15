@@ -15,6 +15,7 @@ sections:
     items: |
       Use Cell CLI: `@sys/cell start [dir]`.
       Pass `[dir]` when the Cell root is not the current folder.
+      Pass `--mode <mode>` only to select complete service variants already declared in the descriptor.
       This loads the Cell descriptor, starts declared `services[]`, waits, and closes services.
       If startup fails for a named service, inspect that service's owner config and owner `--help`.
       If a selected endpoint contract is ambiguous, inspect the published JSR package docs/source.
@@ -22,6 +23,7 @@ sections:
   - label: Command
     items: |
       deno run -ERWN jsr:@sys/cell start [dir]
+      deno run -ERWN jsr:@sys/cell start [dir] --mode <mode>
       deno run -ERWN jsr:@sys/cell start .
 
   - label: 'Project task'
@@ -34,6 +36,7 @@ sections:
   - label: Services
     items: |
       Cell start calls `Cell.load`, then `Cell.Services.start`, then `Cell.Services.wait`.
+      `--mode <mode>` selects declared service variant bindings before endpoints are imported.
       `Cell.Services.wait` waits for started service handles that expose `finished`.
       Services that should keep `@sys/cell start` alive should return a started handle with `finished`.
       Service owners keep their own config schema, mechanics, ports, URLs, permissions, and display.

@@ -4,15 +4,19 @@ summary: |
 
 usage:
   - deno run -ERWN jsr:@sys/cell start [dir]
+  - deno run -ERWN jsr:@sys/cell start [dir] --mode <mode>
   - deno run -ERWN jsr:@sys/cell start [dir] --help
 
 options:
   - name: -h, --help
     text: show start help
+  - name: --mode <mode>
+    text: select declared service variants for this start; omit or use `default` for base bindings
 
 services:
   - Cell loads `[dir]` or `.` as the Cell root.
   - Cell starts services declared in `services[]`.
+  - '`--mode <mode>` selects complete service variant bindings declared by that mode.'
   - Service owners keep their own config schema, mechanics, and display.
   - Add any extra permissions required by declared owner services.
   - Cell calls `Cell.Services.wait` for started service handles that expose `finished`.

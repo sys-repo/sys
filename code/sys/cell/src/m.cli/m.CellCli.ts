@@ -1,3 +1,4 @@
+import { isServiceMode } from '../m.cell/u.services/u.plan.ts';
 import { c, Err, Is, Str, type t } from './common.ts';
 import { parseArgs } from './u.args.ts';
 import { FmtHelp } from './u.help.ts';
@@ -21,8 +22,19 @@ export const CellCli: t.CellCli.Lib = {
       return fail({ argv }, 'Unexpected option without command: --format', help);
     }
 
-    if ((!command && args.agent) || (!command && args.dryRun) || (!command && args.plan)) {
-      const flag = args.agent ? '--agent' : args.dryRun ? '--dry-run' : '--plan';
+    if (
+      (!command && args.agent) ||
+      (!command && args.dryRun) ||
+      (!command && args.plan) ||
+      (!command && args.mode !== undefined)
+    ) {
+      const flag = args.agent
+        ? '--agent'
+        : args.dryRun
+        ? '--dry-run'
+        : args.plan
+        ? '--plan'
+        : '--mode';
       return fail({ argv }, `Unexpected option without command: ${flag}`, help);
     }
 
@@ -39,6 +51,9 @@ export const CellCli: t.CellCli.Lib = {
         return fail({ argv }, 'Unexpected option for init: --format', initHelp);
       }
       if (args.plan) return fail({ argv }, 'Unexpected option for init: --plan', initHelp);
+      if (args.mode !== undefined) {
+        return fail({ argv }, 'Unexpected option for init: --mode', initHelp);
+      }
       if (args.help) {
         print(initHelp);
         return { kind: 'help', input: { argv }, text: initHelp };
@@ -71,8 +86,14 @@ export const CellCli: t.CellCli.Lib = {
 
       if (!format.ok) return fail({ argv }, format.message, await rootHelp());
 
-      if (args.agent || args.dryRun || args.plan) {
-        const flag = args.agent ? '--agent' : args.dryRun ? '--dry-run' : '--plan';
+      if (args.agent || args.dryRun || args.plan || args.mode !== undefined) {
+        const flag = args.agent
+          ? '--agent'
+          : args.dryRun
+          ? '--dry-run'
+          : args.plan
+          ? '--plan'
+          : '--mode';
         return fail({ argv }, `Unexpected option for dsl: ${flag}`, await rootHelp());
       }
 
@@ -94,8 +115,8 @@ export const CellCli: t.CellCli.Lib = {
         print(taskHelp);
         return { kind: 'help', input: { argv }, text: taskHelp };
       }
-      if (args.agent || args.dryRun) {
-        const flag = args.agent ? '--agent' : '--dry-run';
+      if (args.agent || args.dryRun || args.mode !== undefined) {
+        const flag = args.agent ? '--agent' : args.dryRun ? '--dry-run' : '--mode';
         return fail({ argv }, `Unexpected option for task: ${flag}`, taskHelp);
       }
       if (args._.length < 2) return fail({ argv }, 'Missing task name.', taskHelp);
@@ -134,11 +155,17 @@ export const CellCli: t.CellCli.Lib = {
         const flag = args.agent ? '--agent' : args.dryRun ? '--dry-run' : '--plan';
         return fail({ argv }, `Unexpected option for start: ${flag}`, startHelp);
       }
+      const mode = startMode(args.mode);
+      if (!mode.ok) return fail({ argv }, mode.message, startHelp);
       if (args._.length > 2) return fail({ argv }, `Unexpected argument: ${args._[2]}`, startHelp);
 
       try {
         const { formatStartResult, startCell, toStartResult } = await import('./u.start.ts');
-        const started = await startCell({ dir: args._[1], onStarted: print });
+        const started = await startCell({
+          dir: args._[1],
+          mode: mode.value,
+          onStarted: print,
+        });
         const res = toStartResult({ argv }, started);
         print(formatStartResult(started));
         return res;
@@ -154,6 +181,24 @@ export const CellCli: t.CellCli.Lib = {
 /**
  * Helpers:
  */
+type StartModeResult =
+  | { readonly ok: true; readonly value?: t.Cell.Services.ServiceMode }
+  | { readonly ok: false; readonly message: string };
+
+function startMode(value: t.CellCli.ParsedArgs['mode']): StartModeResult {
+  if (value === undefined) return { ok: true };
+  if (Is.array<string | boolean>(value)) {
+    return { ok: false, message: 'Repeated option for start: --mode' };
+  }
+  if (!Is.str(value) || value.length === 0) {
+    return { ok: false, message: 'Option requires a value: --mode' };
+  }
+  if (!isServiceMode(value)) {
+    return { ok: false, message: `Invalid start mode: '${value}'` };
+  }
+  return { ok: true, value };
+}
+
 type DslFormatResult =
   | { readonly ok: true; readonly value: t.CellCli.Dsl.Format }
   | { readonly ok: false; readonly message: string };

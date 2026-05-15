@@ -1,3 +1,5 @@
+import type { t } from './common.ts';
+
 /**
  * Cell operator CLI.
  */
@@ -26,6 +28,8 @@ export declare namespace CellCli {
     readonly plan: boolean;
     /** Raw `--format` flag value, accepted only by `dsl`. */
     readonly format?: string | boolean | readonly (string | boolean)[];
+    /** Raw `--mode` flag value, accepted only by `start`. */
+    readonly mode?: string | boolean | readonly (string | boolean)[];
     /** Unknown flag tokens rejected by argument parsing. */
     readonly unknown: readonly string[];
     /** Positional argv tokens. */
@@ -134,6 +138,8 @@ export declare namespace CellCli {
       readonly root: string;
       /** Number of services started. */
       readonly services: number;
+      /** Non-default service graph mode selected for this start. */
+      readonly mode?: t.Cell.Services.ServiceMode;
     };
   }
 
