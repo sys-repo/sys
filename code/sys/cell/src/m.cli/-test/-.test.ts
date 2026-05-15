@@ -360,6 +360,45 @@ describe(`@sys/cell/cli`, () => {
     expect(text.indexOf(divider)).to.be.lessThan(text.indexOf('api'));
   });
 
+  it('service renderer shows non-default selected service mode', () => {
+    const now = Time.now.timestamp;
+    const text = stripAnsi(Fmt.Services.started({
+      services: [{
+        service: {
+          name: 'view' as t.Cell.Id,
+          use: 'ViteDev',
+          from: 'jsr:@sys/driver-vite/service',
+          config: './-config/view.dev.yaml' as t.Cell.Path,
+        },
+        selection: {
+          name: 'view' as t.Cell.Id,
+          mode: 'dev',
+          variant: 'dev' as t.Cell.Id,
+          descriptor: {
+            name: 'view' as t.Cell.Id,
+            use: 'Serve',
+            from: 'jsr:@sys/tools/serve',
+            config: './-config/view.yaml' as t.Cell.Path,
+          },
+          binding: {
+            use: 'ViteDev',
+            from: 'jsr:@sys/driver-vite/service',
+            config: './-config/view.dev.yaml' as t.Cell.Path,
+          },
+        },
+        paths: { config: '/cell/-config/view.dev.yaml' as t.StringPath },
+        metrics: { start: { startedAt: now, resolvedAt: now } },
+      }],
+    }));
+
+    expect(text).to.contain('service');
+    expect(text).to.contain('view');
+    expect(text).to.contain('mode');
+    expect(text).to.contain('dev');
+    expect(text).to.contain('jsr:@sys/driver-vite/service');
+    expect(text).to.not.contain('jsr:@sys/tools/serve');
+  });
+
   it('task → rejects missing names, unsupported options, and extra args', async () => {
     const missing = stripAnsi(
       (await silent(() => CellCli.run({ argv: ['task'] }))).text,

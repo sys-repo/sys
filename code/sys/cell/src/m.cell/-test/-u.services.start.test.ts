@@ -62,6 +62,30 @@ describe('Cell.Services.start', () => {
     await Cell.Services.wait(started);
   });
 
+  it('starts selected mode variants with selected config refs', async () => {
+    const source =
+      `export const Variant = { start(args) { return { ...args, finished: Promise.resolve('done') }; } };`;
+    const from = `data:application/javascript;base64,${btoa(source)}`;
+    const root = await tempCell('services-start-mode-variant', variantDescriptor({ from }));
+    const cell = await Cell.load(root);
+
+    const started = await Cell.Services.start(cell, { mode: 'dev', trusted: ['data:'] });
+    const service = started.services[0];
+    const handle = service.handle as Record<string, unknown>;
+
+    expect(service.service).to.eql({
+      name: 'view',
+      use: 'Variant',
+      from,
+      config: './-config/view.dev.yaml',
+    });
+    expect(service.selection.variant).to.eql('dev');
+    expect(service.selection.descriptor.from).to.eql('npm:untrusted-base');
+    expect(handle.cwd).to.eql(root);
+    expect(handle.paths).to.eql({ config: Fs.join(root, '-config/view.dev.yaml') });
+    await Cell.Services.wait(started);
+  });
+
   it('passes lifecycle until to service endpoints when provided', async () => {
     const source =
       `export const Capture = { start(args) { return { ...args, finished: Promise.resolve('done') }; } };`;
@@ -185,6 +209,24 @@ function staticConfig() {
     port: 0
     hostname: 127.0.0.1
     silent: true
+  `).trimStart();
+}
+
+function variantDescriptor(args: { readonly from: string }) {
+  return Str.dedent(`
+    kind: cell
+    version: 1
+
+    services:
+      - name: view
+        use: Base
+        from: 'npm:untrusted-base'
+        config: ./-config/base.yaml
+        variants:
+          dev:
+            use: Variant
+            from: '${args.from}'
+            config: ./-config/view.dev.yaml
   `).trimStart();
 }
 

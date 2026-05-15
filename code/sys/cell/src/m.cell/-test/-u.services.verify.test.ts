@@ -60,6 +60,27 @@ describe('Cell.Services.verify', () => {
     expect(Is.func(verified.services[0].endpoint.start)).to.eql(true);
   });
 
+  it('verifies selected mode variants without resolving base bindings', async () => {
+    const source = `export const Variant = { start() { return { close() {} }; } };`;
+    const from = `data:application/javascript;base64,${btoa(source)}`;
+    const root = await tempCell('services-verify-mode-variant', variantDescriptor({ from }));
+    const cell = await Cell.load(root);
+
+    const verified = await Cell.Services.verify(cell, { mode: 'dev', trusted: ['data:'] });
+    const service = verified.services[0];
+
+    expect(service.service).to.eql({
+      name: 'view',
+      use: 'Variant',
+      from,
+      config: './-config/view.dev.yaml',
+    });
+    expect(service.selection.variant).to.eql('dev');
+    expect(service.selection.descriptor.from).to.eql('npm:untrusted-base');
+    expect(service.paths.config).to.eql(Fs.join(root, '-config/view.dev.yaml'));
+    expect(Is.func(service.endpoint.start)).to.eql(true);
+  });
+
   it('does not read or parse service config refs', async () => {
     const root = await tempCell('services-config-ref-only', descriptor());
     await Fs.write(Fs.join(root, '-config/@sys.http/static.view.yaml'), `dir: .:\n`, {
@@ -177,9 +198,10 @@ describe('Cell.Services.verify', () => {
 
 async function catchVerify(
   cell: Awaited<ReturnType<typeof Cell.load>>,
+  options?: Parameters<typeof Cell.Services.verify>[1],
 ): Promise<Error | undefined> {
   try {
-    await Cell.Services.verify(cell);
+    await Cell.Services.verify(cell, options);
   } catch (err) {
     return err as Error;
   }
@@ -187,6 +209,24 @@ async function catchVerify(
 
 async function writeStaticConfig(root: string) {
   await Fs.write(Fs.join(root, '-config/@sys.http/static.view.yaml'), `dir: .\n`, { force: true });
+}
+
+function variantDescriptor(args: { readonly from: string }) {
+  return Str.dedent(`
+    kind: cell
+    version: 1
+
+    services:
+      - name: view
+        use: Base
+        from: 'npm:untrusted-base'
+        config: ./-config/base.yaml
+        variants:
+          dev:
+            use: Variant
+            from: '${args.from}'
+            config: ./-config/view.dev.yaml
+  `).trimStart();
 }
 
 function descriptor(overrides: Partial<{ use: string; from: string; config: string }> = {}) {

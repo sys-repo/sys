@@ -23,6 +23,9 @@ function renderServiceStatus(service: StartedServiceStatus): string {
   const owner = service.owner;
 
   table.push([serviceLabel('service'), c.white(service.service.name)]);
+  if (service.selection.variant) {
+    table.push([serviceLabel('mode'), serviceSubtle(service.selection.variant)]);
+  }
   table.push([serviceLabel('module'), serviceSubtle(service.service.from)]);
   table.push([serviceLabel('config'), servicePath(service.paths.config)]);
 

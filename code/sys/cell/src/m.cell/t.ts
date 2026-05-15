@@ -276,7 +276,7 @@ export declare namespace Cell {
     };
 
     /** Services verification options. */
-    export type VerifyOptions = TrustOptions;
+    export type VerifyOptions = PlanOptions;
 
     /** Services start options. */
     export type StartOptions = VerifyOptions & {
@@ -351,9 +351,12 @@ export declare namespace Cell {
       close(reason?: unknown): Promise<void>;
     };
 
-    /** Verified service with resolved config ref and lifecycle endpoint. */
+    /** Verified service with selected binding, resolved config ref, and lifecycle endpoint. */
     export type VerifiedService<Handle = unknown> = {
-      readonly service: Service;
+      /** Effective selected service facts. */
+      readonly service: SelectedService;
+      /** Selection audit trail back to the descriptor and requested mode. */
+      readonly selection: ServiceSelection;
       readonly paths: { readonly config: t.StringPath };
       readonly endpoint: LifecycleEndpoint<Handle>;
     };

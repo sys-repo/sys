@@ -1,8 +1,10 @@
 import { Err, Is, type t } from './common.ts';
 
 export type StartedServiceStatus = {
-  /** Cell descriptor facts remain authoritative in Cell output. */
-  readonly service: t.Cell.Services.Service;
+  /** Effective selected Cell service facts remain authoritative in Cell output. */
+  readonly service: t.Cell.Services.SelectedService;
+  /** Selection audit trail back to the descriptor and requested mode. */
+  readonly selection: t.Cell.Services.ServiceSelection;
   readonly paths: { readonly config: t.StringPath };
   readonly metrics: t.Cell.Services.ServiceMetrics;
   /** Optional renderer-neutral owner snapshot. */
@@ -23,6 +25,7 @@ export function serviceStatusOf(
   const owner = statusFromHandle(service.handle);
   return {
     service: service.service,
+    selection: service.selection,
     paths: service.paths,
     metrics: service.metrics,
     ...(owner ? { owner } : {}),

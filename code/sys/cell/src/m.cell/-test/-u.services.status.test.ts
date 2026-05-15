@@ -74,16 +74,31 @@ describe('Cell.Services.status', () => {
  */
 function startedService(input: { readonly handle: unknown }): t.Cell.Services.StartedService {
   const now = Time.now.timestamp;
+  const service = selectedService();
   return {
-    service: {
-      name: 'descriptor-name' as t.Cell.Id,
-      use: 'Service',
-      from: './-services/service.ts',
-      config: './-config/service.yaml' as t.Cell.Path,
+    service,
+    selection: {
+      name: service.name,
+      mode: 'default',
+      descriptor: service,
+      binding: {
+        use: service.use,
+        from: service.from,
+        config: service.config,
+      },
     },
     paths: { config: '/cell/-config/service.yaml' as t.StringPath },
     endpoint: { start: () => input.handle },
     handle: input.handle,
     metrics: { start: { startedAt: now, resolvedAt: now } },
+  };
+}
+
+function selectedService(): t.Cell.Services.SelectedService {
+  return {
+    name: 'descriptor-name' as t.Cell.Id,
+    use: 'Service',
+    from: './-services/service.ts',
+    config: './-config/service.yaml' as t.Cell.Path,
   };
 }
