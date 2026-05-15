@@ -27,8 +27,10 @@ file-carried forms.
 [json]: https://www.rfc-editor.org/rfc/rfc8259
 [octet-stream]: https://www.iana.org/assignments/media-types/application/octet-stream
 
-The DSL may be formal or semi-formal: a JSON schema, a YAML contract, a TypeScript type surface, or
-Markdown whose structure, conventions, and "prose schema" carry stable meaning.
+**A Cell DSL may be prose-shaped, semi-formal, or formal.** It can begin as plain text: Markdown
+sections, naming conventions, folder layout, and other human-readable agreements that carry stable
+meaning. When those meanings need enforcement, they can harden into YAML contracts, JSON schemas, or
+TypeScript type surfaces.
 
 ```text
 @sys/cell               boot/composition kernel
