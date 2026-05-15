@@ -7,7 +7,7 @@ type WorkflowArgs = {
   readonly on?: t.WorkspaceCi.WorkflowOn;
   readonly env?: t.WorkspaceCi.WorkflowEntries;
   readonly jobConfig?: string;
-  readonly checkoutLfs?: boolean;
+  readonly verifyCleanCheckout?: boolean;
   readonly body: string;
 };
 
@@ -19,20 +19,16 @@ export function workflowTemplate(args: WorkflowArgs) {
     ? `    env:\n${wrangle.map(Object.fromEntries(envEntries), 6)}\n`
     : '';
   const jobConfig = args.jobConfig ? `${args.jobConfig}\n` : '';
-  const checkout = args.checkoutLfs
+  const verifyCheckout = args.verifyCleanCheckout
     ? Str.dedent(`
-        - uses: actions/checkout@v5
-          with:
-            lfs: true
-
-        - name: Hydrate Git LFS assets
-          run: git lfs pull
-
         - name: Verify clean checkout
           run: |
             git status --short
             test -z "$(git status --porcelain)"
       `).trim()
+    : '';
+  const checkout = verifyCheckout
+    ? `- uses: actions/checkout@v5\n\n${verifyCheckout}`
     : '- uses: actions/checkout@v5';
   const steps = Str.dedent(
     `

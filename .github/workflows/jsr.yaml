@@ -19,10 +19,6 @@ jobs:
     environment: dev
     steps:
       - uses: actions/checkout@v5
-        with:
-          lfs: true
-      - name: Hydrate Git LFS assets
-        run: git lfs pull
       - name: Verify clean checkout
         run: |
           git status --short

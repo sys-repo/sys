@@ -30,7 +30,7 @@ export async function text(args: t.WorkspaceCi.Jsr.TextArgs) {
     },
     on: args.on,
     env: args.env,
-    checkoutLfs: true,
+    verifyCleanCheckout: true,
     body: JSR_MODULES_PLACEHOLDER,
   }).replace(JSR_MODULES_PLACEHOLDER, body);
 
