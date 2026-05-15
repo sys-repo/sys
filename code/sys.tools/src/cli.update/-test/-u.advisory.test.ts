@@ -84,7 +84,7 @@ describe('cli.update advisory', () => {
     expect(text).to.not.contain('@sys/tools');
     expect(lines.length).to.eql(3);
     expect(lines[1]?.startsWith('Run sys update --latest')).to.eql(true);
-    expect(lines[1]?.endsWith('next 9.9.9')).to.eql(true);
+    expect(lines[1]?.endsWith('next available 9.9.9')).to.eql(true);
     expect(lines[1]?.length).to.eql(lines[0]?.length);
   });
 
@@ -99,9 +99,11 @@ describe('cli.update advisory', () => {
     const message = lines[1] ?? '';
 
     expect(
-      message.startsWith(`${c.gray('Run ')}${c.white('sys ')}${c.magenta('update --latest')}`),
+      message.startsWith(`${c.gray('Run ')}${c.white('sys update ')}${c.magenta('--latest')}`),
     ).to.eql(true);
-    expect(message.endsWith(c.gray('next 9.9.9'))).to.eql(true);
+    expect(
+      message.endsWith(`${c.gray('next available ')}${c.white('9.9.9')}`),
+    ).to.eql(true);
   });
 
   it('writes and reads success advisory records', async () => {
