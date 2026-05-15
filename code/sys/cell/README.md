@@ -4,32 +4,34 @@ A **Cell** is a folder-shaped [metamedium](https://en.wikipedia.org/wiki/Metamed
 
 ---
 
-`@sys/cell` is the boot/composition kernel for that folder boundary.
-It loads `cell.yaml`: a small descriptor that names trusted lifecycle services, finite tasks that run
-to completion, and the owner config files those endpoints use.
+`@sys/cell` is the boot and composition kernel for a Cell: a folder boundary that lets
+ordinary files behave as one coherent medium.
+It loads `cell.yaml`: a lightweight descriptor that names trusted lifecycle services, finite tasks
+that run to completion, and the owner config files those endpoints use.
 
-Naming convention: **Cell** names the folder-shaped medium; `cell.yaml` names its descriptor;
-`@sys/cell` names the package that loads and starts it.
+Terminology: **Cell** names the bounded medium — the folder itself. `cell.yaml` names its
+descriptor: the declaration of services, tasks, and owner config refs. `@sys/cell` names the package
+that loads the descriptor and runs the Cell lifecycle.
 
 #### State
 
 Cell does not define the folder's ontology, state model, view model, or config schemas.
 Those meanings live in ordinary files and in the endpoint modules that interpret them.
-Those modules define their own contracts; Cell composes their endpoints.
+The modules define their own contracts; Cell composes their endpoints.
 
-Cell is late-bound by design. `cell.yaml` points to endpoint modules and config files; it does not
-absorb their meanings. New media, workflows, and services enter through files and modules without
-growing the kernel.
+Cell is [late-bound](https://en.wikipedia.org/wiki/Late_binding) by design. `cell.yaml` points to
+endpoint modules and config files; it does not absorb their meanings. New media, workflows, and
+services enter through files and modules without growing the kernel.
 
-A Cell's state and meaning are carried by ordinary files that can function as a
-[DSL](https://martinfowler.com/dsl.html) (domain-specific-language): their meaning can be
-interpreted, viewed, and validly rewritten within the folder that bounds them.
+A Cell's state and meaning are carried by ordinary files that can function as a [DSL][dsl]
+(domain-specific-language): their meaning can be interpreted, viewed, and validly rewritten within
+the folder that bounds them.
 
 #### Medium
 
 Concretely, the medium is a folder of ordinary files: [Markdown][commonmark], [YAML][yaml],
 [HTML][html], [TypeScript][typescript], [JSON][json], [binary data][octet-stream] (including
-file-backed databases), and other file-carried forms.
+file-backed databases), and any other file-carried forms.
 
 [commonmark]: https://spec.commonmark.org/current/
 [yaml]: https://yaml.org/spec/1.2.2/
@@ -37,12 +39,12 @@ file-backed databases), and other file-carried forms.
 [typescript]: https://www.typescriptlang.org/docs/
 [json]: https://www.rfc-editor.org/rfc/rfc8259
 [octet-stream]: https://www.iana.org/assignments/media-types/application/octet-stream
+[dsl]: https://martinfowler.com/dsl.html
 
-**A Cell DSL may be prose-shaped, semi-formal, or formal.** It can begin as plain text: Markdown
-sections, naming conventions, folder layout, and other human-readable agreements that carry stable
-meaning. When those meanings need enforcement, they can harden into YAML contracts, JSON schemas, or
-TypeScript type surfaces.
-
+**A Cell [DSL][dsl] may be prose-shaped, semi-formal, or formal.** It can begin as plain text:
+Markdown sections, naming conventions, folder layout, and other human-readable agreements that carry
+stable meaning. When those meanings need enforcement, they can harden into YAML contracts, JSON
+schemas, or TypeScript type surfaces.
 
 ```text
 @sys/cell             boot/composition kernel
@@ -83,35 +85,15 @@ Options    -h, --help   show help
 
 <p>&nbsp;</p>
 
-
 ## Prompting `cell dsl`
 
-| Intent                    | [Speech act](https://en.wikipedia.org/wiki/Speech_act) examples:                       |
-| ------------------------- | -------------------------------------------------------------------------------------- |
-| create: Cell              | Initialize this folder as an `@sys/cell`.                                              |
-| create: Cell at path      | Initialize `./foo` as an `@sys/cell`.                                                  |
-| add: pulled view          | Add a pulled view from `<dist-url>`.                                                   |
-| refresh: pulled views     | Pull latest configured views.                                                          |
-| add: static serve service | Add an `@sys/tools/serve` static service for `<dir>`.                                  |
-| add: service              | Add a service named `<service-name>` using endpoint `<endpoint>` from module `<module>`. |
-| add: proxy service        | Add a proxy service named `<service-name>`.                                            |
-| route: proxy root         | Route `/` to `<view/service/upstream>`.                                                |
-| route: proxy mount        | Route `<path-prefix>` to `<view/service/upstream>`.                                    |
-| run: task                 | Run a task named `<task-name>`.                                                        |
-| start: services           | Start the **Cell** services.                                                           |
-| start: services in mode   | Start services with complete variant bindings for `<mode>`.                            |
+Use `dsl` for Cell edit language: speech acts, mappings, owner boundaries, and operational
+examples. The README gives the shape; the DSL help carries the working rules.
 
-Sample slot values, not DSL grammar:
-
-- `<dist-url>`: `https://fs.db.team/driver.stripe/dist.json`
-- `<dist-url>`: `https://fs.db.team/ui.components/dist.json`
-- `<service-name>`: `ui:static:views` for the sample static view service
-- `<service-name>`: `stripe:dev:fixture` for the Stripe fixture service
-- `<service-name>`: `cell:proxy` for the sample public proxy
-- `<module>` / `<endpoint>`: `jsr:@sys/driver-stripe/server/fixture` / `StripeFixture`
-- `<config>`: `./-config/@sys.driver-stripe/fixture.yaml`
-- `<view>`: `stripe.dev`, `hello`
-
+```sh
+deno run -ER jsr:@sys/cell dsl
+deno run -ER jsr:@sys/cell dsl examples
+```
 
 <p>&nbsp;</p>
 
