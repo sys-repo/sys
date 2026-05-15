@@ -5,12 +5,16 @@ A **Cell** is a folder-shaped [metamedium](https://en.wikipedia.org/wiki/Metamed
 ---
 
 `@sys/cell` is the boot/composition microkernel for the **Cell folder boundary**.
-It loads a small descriptor that names trusted lifecycle services, finite task endpoints, and owner
-config references.
+It loads a small descriptor that names trusted lifecycle services, finite task endpoints, and the
+config files those endpoints use.
 
-Cell does not define the folder's ontology, state model, view model, or owner config schemas.
-Those meanings live in ordinary files and in the owner packages that interpret them.
-Owners interpret files; Cell composes owners.
+Cell does not define the folder's ontology, state model, view model, or config schemas.
+Those meanings live in ordinary files and in the endpoint modules that interpret them.
+Those modules define their own contracts; Cell composes their endpoints.
+
+Cell stays deliberately late-bound: `cell.yaml` points to endpoint modules and config files rather
+than absorbing their meanings. New media, workflows, and services can enter through files and modules
+without growing the kernel.
 
 A Cell's state and meaning are carried by ordinary files that can function as a
 [DSL](https://martinfowler.com/dsl.html) (domain-specific-language): their meaning can be
@@ -38,6 +42,8 @@ TypeScript type surfaces.
  ↓ services 🧫          active interpretation by declared services
  ↓ view     👁️          owner-defined projections that make Cell state perceivable
 ```
+
+<p>&nbsp;</p>
 
 ### Command Line `--help`
 
