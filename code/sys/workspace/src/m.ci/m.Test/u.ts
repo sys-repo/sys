@@ -1,4 +1,5 @@
-import { type t, Err, Fs, Is, Json } from '../common.ts';
+import { Err, Fs, Is, Json, type t } from '../common.ts';
+import { WorkflowSafe } from '../u.safe.ts';
 import { TEST_MATRIX_ITEM_TEMPLATE } from './u.tmpl.ts';
 
 export async function loadModule(cwd: t.StringDir, path: t.StringPath) {
@@ -11,7 +12,9 @@ export async function loadModule(cwd: t.StringDir, path: t.StringPath) {
 }
 
 export function toMatrixItemYaml(module: { path: t.StringPath; name: string; browser?: boolean }) {
-  const yaml = TEST_MATRIX_ITEM_TEMPLATE.replace(/NAME/g, module.name).replace(/PATH/g, module.path);
+  const name = WorkflowSafe.scalar(module.name, 'matrix name');
+  const path = WorkflowSafe.scalar(module.path, 'matrix path');
+  const yaml = TEST_MATRIX_ITEM_TEMPLATE.replace(/NAME/g, name).replace(/PATH/g, path);
   return module.browser ? `${yaml}\n  browser: true` : yaml;
 }
 

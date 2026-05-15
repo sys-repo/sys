@@ -1,4 +1,4 @@
-import { type t, describe, expect, expectError, Fs, it, Jsr, Testing } from '../../-test.ts';
+import { describe, expect, expectError, Fs, it, Jsr, type t, Testing } from '../../-test.ts';
 import { WorkspaceCi } from '../mod.ts';
 
 describe('WorkspaceCi.Jsr', () => {
@@ -40,6 +40,33 @@ describe('WorkspaceCi.Jsr', () => {
     expect(await Fs.exists(target)).to.eql(true);
     const text = (await Fs.readText(target)).data ?? '';
     expect(text).to.eql(res.yaml);
+  });
+
+  it('fails closed before rendering unsafe package names into publish workflow YAML', async () => {
+    const fs = await Testing.dir('WorkspaceCi.Jsr.safe.name');
+    const moduleDir = fs.join('code/sys/alpha');
+
+    await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), {
+      name: '@scope/alpha";echo',
+      version: '1.0.0',
+    });
+
+    await expectError(
+      async () => await WorkspaceCi.Jsr.text({ paths: [moduleDir] }),
+      'Unsafe workflow package name',
+    );
+  });
+
+  it('fails closed before rendering unsafe package paths into publish workflow YAML', async () => {
+    const fs = await Testing.dir('WorkspaceCi.Jsr.safe.path');
+    const moduleDir = fs.join('code/sys/bad;echo');
+
+    await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
+
+    await expectError(
+      async () => await WorkspaceCi.Jsr.text({ paths: [moduleDir] }),
+      'Unsafe workflow package path',
+    );
   });
 
   it('returns unchanged when the rendered workflow already matches disk', async () => {

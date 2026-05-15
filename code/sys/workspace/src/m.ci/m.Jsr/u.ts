@@ -1,4 +1,5 @@
 import { Err, Fs, Is, type t } from '../common.ts';
+import { WorkflowSafe } from '../u.safe.ts';
 import { JSR_BODY_TEMPLATE } from './u.tmpl.ts';
 
 export type Module = {
@@ -38,5 +39,7 @@ export async function loadModule(cwd: t.StringDir, path: t.StringPath): Promise<
 }
 
 export function toModuleYaml(module: Pick<Module, 'path' | 'name'>) {
-  return JSR_BODY_TEMPLATE.replace(/NAME/g, module.name).replace(/PATH/g, module.path);
+  const name = WorkflowSafe.scalar(module.name, 'package name');
+  const path = WorkflowSafe.scalar(module.path, 'package path');
+  return JSR_BODY_TEMPLATE.replace(/NAME/g, name).replace(/PATH/g, path);
 }

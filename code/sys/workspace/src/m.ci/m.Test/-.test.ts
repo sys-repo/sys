@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it, Testing } from '../../-test.ts';
+import { describe, expect, expectError, Fs, it, Testing } from '../../-test.ts';
 import { WorkspaceCi } from '../mod.ts';
 
 describe('WorkspaceCi.Test', () => {
@@ -18,30 +18,33 @@ describe('WorkspaceCi.Test', () => {
     });
 
     const yaml = await WorkspaceCi.Test.text({ paths: [a, b] });
-    expect(yaml.includes('name: test')).to.eql(true);
-    expect(yaml.includes('test module → "${{ matrix.name }}"')).to.eql(true);
-    expect(yaml.includes('name: ${{ matrix.name }}')).to.eql(true);
-    expect(yaml.includes(`path: ${a}`)).to.eql(true);
-    expect(yaml.includes('name: "@scope/alpha"')).to.eql(true);
-    expect(yaml.includes(`path: ${b}`)).to.eql(true);
-    expect(yaml.includes('name: "@scope/beta"')).to.eql(true);
-    expect(yaml.indexOf('@scope/alpha') < yaml.indexOf('@scope/beta')).to.eql(true);
-    expect(yaml.includes('Configure Browser Runtime: Chrome')).to.eql(true);
-    expect(yaml.includes('if: ${{ matrix.browser == true }}')).to.eql(true);
-    expect(yaml.includes('browser-actions/setup-chrome@v1')).to.eql(false);
-    expect(yaml.includes('FORCE_JAVASCRIPT_ACTIONS_TO_NODE24')).to.eql(false);
-    expect(yaml.includes('for bin in google-chrome google-chrome-stable chromium chromium-browser')).to.eql(true);
-    expect(yaml.includes('echo "CHROME_BIN=$path" >> "$GITHUB_ENV"')).to.eql(true);
-    expect(yaml.includes('browser: true')).to.eql(true);
-    expect(yaml.includes('Verify workspace graph')).to.eql(true);
-    expect(yaml.includes('run: deno task check:graph')).to.eql(true);
-    expect(yaml.includes('deno task test')).to.eql(true);
-    expect(yaml.includes('max_attempts=3')).to.eql(true);
-    expect(yaml.includes('if deno task install; then')).to.eql(true);
-    expect(yaml.includes('dependency install failed')).to.eql(true);
-    expect(yaml.includes('push:')).to.eql(true);
-    expect(yaml.includes('- main')).to.eql(true);
-    expect(yaml.includes('pull_request:')).to.eql(false);
+
+    const incl = yaml.includes;
+
+    expect(incl('name: test')).to.be.true;
+    expect(incl('test module → "${{ matrix.name }}"')).to.be.true;
+    expect(incl('name: ${{ matrix.name }}')).to.be.true;
+    expect(incl(`path: ${a}`)).to.be.true;
+    expect(incl('name: "@scope/alpha"')).to.be.true;
+    expect(incl(`path: ${b}`)).to.be.true;
+    expect(incl('name: "@scope/beta"')).to.be.true;
+    expect(yaml.indexOf('@scope/alpha') < yaml.indexOf('@scope/beta')).to.be.true;
+    expect(incl('Configure Browser Runtime: Chrome')).to.be.true;
+    expect(incl('if: ${{ matrix.browser == true }}')).to.be.true;
+    expect(incl('browser-actions/setup-chrome@v1')).to.be.false;
+    expect(incl('FORCE_JAVASCRIPT_ACTIONS_TO_NODE24')).to.be.false;
+    expect(incl('for bin in google-chrome google-chrome-stable chromium chromium-browser')).be.true;
+    expect(incl('echo "CHROME_BIN=$path" >> "$GITHUB_ENV"')).to.be.true;
+    expect(incl('browser: true')).to.be.true;
+    expect(incl('Verify workspace graph')).to.be.true;
+    expect(incl('run: deno task check:graph')).to.be.true;
+    expect(incl('deno task test')).to.be.true;
+    expect(incl('max_attempts=3')).to.be.true;
+    expect(incl('if deno task install; then')).to.be.true;
+    expect(incl('dependency install failed')).to.be.true;
+    expect(incl('push:')).to.be.true;
+    expect(incl('- main')).to.be.true;
+    expect(incl('pull_request:')).to.be.false;
   });
 
   it('writes YAML to disk', async () => {
@@ -57,9 +60,24 @@ describe('WorkspaceCi.Test', () => {
 
     expect(res.target).to.eql(target);
     expect(res.count).to.eql(1);
-    expect(await Fs.exists(target)).to.eql(true);
+    expect(await Fs.exists(target)).to.be.true;
     const text = (await Fs.readText(target)).data ?? '';
     expect(text).to.eql(res.yaml);
+  });
+
+  it('fails closed before rendering unsafe matrix values into test workflow YAML', async () => {
+    const fs = await Testing.dir('WorkspaceCi.Test.safe');
+    const moduleDir = fs.join('code/sys/alpha');
+
+    await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), {
+      name: '@scope/alpha";echo',
+      tasks: { test: 'deno task info' },
+    });
+
+    await expectError(
+      async () => await WorkspaceCi.Test.text({ paths: [moduleDir] }),
+      'Unsafe workflow matrix name',
+    );
   });
 
   it('returns unchanged when the rendered workflow already matches disk', async () => {
@@ -72,7 +90,11 @@ describe('WorkspaceCi.Test', () => {
       tasks: { test: 'deno task info' },
     });
 
-    const first = await WorkspaceCi.Test.sync({ cwd: fs.dir, source: { paths: [moduleDir] }, target });
+    const first = await WorkspaceCi.Test.sync({
+      cwd: fs.dir,
+      source: { paths: [moduleDir] },
+      target,
+    });
     expect(first.kind).to.eql('written');
 
     const second = await WorkspaceCi.Test.sync({
@@ -104,11 +126,11 @@ describe('WorkspaceCi.Test', () => {
       paths: [moduleDir],
     });
 
-    expect(yaml.includes('push:')).to.eql(true);
-    expect(yaml.includes('pull_request:')).to.eql(true);
-    expect(yaml.includes('- sample-branch')).to.eql(true);
-    expect(yaml.includes('paths-ignore:')).to.eql(true);
-    expect(yaml.includes('.github/workflows/jsr.yaml')).to.eql(true);
+    expect(yaml.includes('push:')).to.be.true;
+    expect(yaml.includes('pull_request:')).to.be.true;
+    expect(yaml.includes('- sample-branch')).to.be.true;
+    expect(yaml.includes('paths-ignore:')).to.be.true;
+    expect(yaml.includes('.github/workflows/jsr.yaml')).to.be.true;
   });
 
   it('falls back to the module path when name is missing', async () => {
@@ -118,7 +140,7 @@ describe('WorkspaceCi.Test', () => {
     await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { tasks: { test: 'deno task info' } });
     const yaml = await WorkspaceCi.Test.text({ paths: [moduleDir] });
 
-    expect(yaml.includes(`name: "${moduleDir}"`)).to.eql(true);
+    expect(yaml.includes(`name: "${moduleDir}"`)).to.be.true;
   });
 
   it('syncs from a source root and removes the workflow when no test modules exist', async () => {
@@ -132,12 +154,12 @@ describe('WorkspaceCi.Test', () => {
     const written = await WorkspaceCi.Test.sync({ cwd: fs.dir, source: { root }, target });
     expect(written.kind).to.eql('written');
     expect(written.count).to.eql(1);
-    expect(await Fs.exists(fs.join(target))).to.eql(true);
+    expect(await Fs.exists(fs.join(target))).to.be.true;
 
     await Fs.remove(Fs.join(root, 'alpha'));
     const removed = await WorkspaceCi.Test.sync({ cwd: fs.dir, source: { root }, target });
     expect(removed.kind).to.eql('removed');
-    expect(await Fs.exists(fs.join(target))).to.eql(false);
+    expect(await Fs.exists(fs.join(target))).to.be.false;
 
     const skipped = await WorkspaceCi.Test.sync({ cwd: fs.dir, source: { root }, target });
     expect(skipped.kind).to.eql('skipped');
@@ -160,7 +182,7 @@ describe('WorkspaceCi.Test', () => {
     expect(written.kind).to.eql('written');
     if (written.kind !== 'written') throw new Error('expected written result');
     expect(written.count).to.eql(1);
-    expect(written.yaml.includes(testDir)).to.eql(true);
-    expect(written.yaml.includes(buildDir)).to.eql(false);
+    expect(written.yaml.includes(testDir)).to.be.true;
+    expect(written.yaml.includes(buildDir)).to.be.false;
   });
 });
