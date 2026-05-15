@@ -22,6 +22,7 @@
     "./types": "./src/types.ts",
     "./entry": "./src/-entry/mod.ts",
     "./main": "./src/-entry/-main.ts",
+    "./service": "./src/m.service/mod.ts",
     "./plugins": "./src/m.vite.plugins/mod.ts",
     "./sample-imports": "./src/-test/-sample-imports.ts"
   },

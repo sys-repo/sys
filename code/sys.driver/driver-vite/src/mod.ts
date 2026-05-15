@@ -23,5 +23,6 @@ export type * as t from './types.ts';
  */
 export { ViteEntry } from './-entry/mod.ts';
 export { ViteConfig } from './m.vite.config/mod.ts';
+export { ViteService } from './m.service/mod.ts';
 export { ViteTransport } from './m.vite.transport/mod.ts';
 export { Vite } from './m.vite/mod.ts';

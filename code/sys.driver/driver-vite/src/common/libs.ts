@@ -1,5 +1,5 @@
 /**
- * System
+ * @system
  */
 export { Esm } from '@sys/esm';
 export { Args } from '@sys/std/args';
@@ -23,5 +23,6 @@ export { FileMap, Fs, Path, Pkg } from '@sys/fs';
 export { Http } from '@sys/http/server';
 export { Net } from '@sys/net';
 export { Process } from '@sys/process';
+export { Yaml } from '@sys/yaml';
 
 export { DenoDeps, DenoFile } from '@sys/driver-deno/runtime';
