@@ -49,7 +49,20 @@
       "read": true,
       "write": true,
       "env": true,
-      "net": true
+      "net": true,
+      "run": true,
+      "ffi": true,
+      "sys": {
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname",
+          "osRelease",
+          "homedir",
+          "uid",
+          "gid"
+        ]
+      }
     }
   }
 }

@@ -47,21 +47,21 @@ describe('Cell.Services.plan', () => {
     expect(plan.services.map((item) => item.service.name)).to.eql(['view', 'api']);
     expect(view.service).to.eql({
       name: 'view',
-      use: 'ViteDev',
-      from: './-services/vite.dev.ts',
+      use: 'DevService',
+      from: './-services/view.dev.ts',
       config: './-config/view.dev.yaml',
     });
     expect(view.selection).to.include({ name: 'view', mode: 'dev', variant: 'dev' });
     expect(view.selection.descriptor.from).to.eql('./-services/static.ts');
     expect(view.selection.binding).to.eql({
-      use: 'ViteDev',
-      from: './-services/vite.dev.ts',
+      use: 'DevService',
+      from: './-services/view.dev.ts',
       config: './-config/view.dev.yaml',
     });
     expect(view.paths.config).to.eql(Fs.join(root, '-config/view.dev.yaml'));
     expect(view.endpoint).to.include({
-      use: 'ViteDev',
-      from: './-services/vite.dev.ts',
+      use: 'DevService',
+      from: './-services/view.dev.ts',
       source: 'local',
     });
 
@@ -187,8 +187,8 @@ function descriptor(options: DescriptorOptions = {}) {
         config: ./-config/static.yaml
         variants:
           dev:
-            use: ${options.variantUse ?? 'ViteDev'}
-            from: '${options.variantFrom ?? './-services/vite.dev.ts'}'
+            use: ${options.variantUse ?? 'DevService'}
+            from: '${options.variantFrom ?? './-services/view.dev.ts'}'
             config: ${options.variantConfig ?? './-config/view.dev.yaml'}
   `).trimStart();
 }
@@ -205,8 +205,8 @@ function twoServiceDescriptor() {
         config: ./-config/static.yaml
         variants:
           dev:
-            use: ViteDev
-            from: './-services/vite.dev.ts'
+            use: DevService
+            from: './-services/view.dev.ts'
             config: ./-config/view.dev.yaml
       - name: api
         use: ApiService

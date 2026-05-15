@@ -42,7 +42,7 @@ describe(`Cell.Schema`, () => {
             ...service('view', { use: 'Serve', from: 'jsr:@sys/tools/serve' }),
             variants: {
               dev: {
-                use: 'ViteDev',
+                use: 'ViteService',
                 from: 'jsr:@sys/driver-vite/service',
                 config: './-config/@sys.driver-vite/view.dev.yaml',
               },
@@ -185,8 +185,8 @@ describe(`Cell.Schema`, () => {
 
     it('rejects incomplete service variant bindings', () => {
       const cases: readonly unknown[] = [
-        { use: 'ViteDev', from: 'jsr:@sys/driver-vite/service' },
-        { use: 'ViteDev', config: './-config/@sys.driver-vite/view.dev.yaml' },
+        { use: 'ViteService', from: 'jsr:@sys/driver-vite/service' },
+        { use: 'ViteService', config: './-config/@sys.driver-vite/view.dev.yaml' },
         { from: 'jsr:@sys/driver-vite/service', config: './-config/@sys.driver-vite/view.dev.yaml' },
       ];
 
@@ -521,7 +521,7 @@ function service(
 
 function serviceVariant(overrides: EndpointOverrides = {}): t.Cell.Services.ServiceVariant {
   return {
-    use: overrides.use ?? 'ViteDev',
+    use: overrides.use ?? 'ViteService',
     from: overrides.from ?? 'jsr:@sys/driver-vite/service',
     config: overrides.config ?? './-config/@sys.driver-vite/view.dev.yaml',
   };

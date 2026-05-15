@@ -409,7 +409,7 @@ describe(`@sys/cell/cli`, () => {
       services: [{
         service: {
           name: 'view' as t.Cell.Id,
-          use: 'ViteDev',
+          use: 'ViteService',
           from: 'jsr:@sys/driver-vite/service',
           config: './-config/view.dev.yaml' as t.Cell.Path,
         },
@@ -424,7 +424,7 @@ describe(`@sys/cell/cli`, () => {
             config: './-config/view.yaml' as t.Cell.Path,
           },
           binding: {
-            use: 'ViteDev',
+            use: 'ViteService',
             from: 'jsr:@sys/driver-vite/service',
             config: './-config/view.dev.yaml' as t.Cell.Path,
           },
