@@ -1,0 +1,60 @@
+id: examples
+title: Cell DSL examples
+summary: |
+  Recognition examples for informal Cell edit prompts. Use after a speech act is recognized but slots remain incomplete or ambiguous.
+
+sections:
+  - label: Rule
+    items: |
+      Use this chapter only after the prompt resembles a Cell DSL speech act but slots are incomplete or informal.
+      These are sample slot values, not DSL grammar, defaults, or required values.
+      Confirm missing values before editing owner configs or `cell.yaml`.
+      Do not inspect implementation source just to infer these examples.
+
+  - label: 'Common prompt shapes'
+    items: |
+      A prompt mentioning `fs.db.team` likely points to an HTTP dist bundle URL slot.
+      Ask for or confirm a complete `https://.../dist.json` URL before configuring a pull.
+      Depending on wording, likely operations are `add: pulled view` or `refresh: pulled views`.
+      Do not put dist URL, local target, pull mechanics, or view registry entries in `cell.yaml`.
+
+  - label: 'Sample slot values'
+    items:
+      - '<dist-url>: `https://fs.db.team/driver.stripe/dist.json`'
+      - '<dist-url>: `https://fs.db.team/ui.components/dist.json`'
+      - '<service-name>: `ui:static:views` for a sample static view service'
+      - '<service-name>: `stripe:dev:fixture` for a sample Stripe fixture service'
+      - '<service-name>: `cell:proxy` for a sample public proxy'
+      - '<module> / <endpoint>: `jsr:@sys/driver-stripe/server/fixture` / `StripeFixture`'
+      - '<config>: `./-config/@sys.driver-stripe/fixture.yaml`'
+      - '<view>: `stripe.dev`, `hello`'
+
+  - label: 'Descriptor shapes'
+    items: |
+      Current Cell descriptor entries use this generic shape:
+      ```yaml
+      services:
+        - name:
+          use:
+          from:
+          config:
+      tasks:
+        - name:
+          use:
+          from:
+          config:
+      ```
+      Service and task names are Cell descriptor IDs.
+      Owner config internals stay outside `cell.yaml`.
+
+  - label: 'Owner flow reminders'
+    items: |
+      Pulled view config is owned by `@sys/tools/pull`.
+      Static serving is owned by `@sys/tools/serve`.
+      Proxy routing is owned by `@sys/http/server/proxy`.
+      Cell records only services, tasks, endpoint refs, and owner config refs.
+
+  - label: 'Source-reading guardrail'
+    items: |
+      Prefer root DSL, the matching operation chapter, this examples chapter, and owner `--help` before package source.
+      Source inspection is a last resort for public exports, types, or lifecycle/task contracts only.

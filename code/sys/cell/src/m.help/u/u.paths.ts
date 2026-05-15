@@ -26,6 +26,7 @@ export const HelpResource = {
       chapter('service', 'yaml/dsl.service.yaml'),
       chapter('proxy-service', 'yaml/dsl.proxy-service.yaml'),
       chapter('start-services', 'yaml/dsl.start-services.yaml'),
+      chapter('examples', 'yaml/dsl.examples.yaml'),
     ]),
   },
   Source: {

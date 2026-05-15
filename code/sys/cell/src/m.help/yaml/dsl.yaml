@@ -11,6 +11,7 @@ sections:
       - Agents MUST NOT read every chapter by default.
       - Agents MUST identify the intended speech act from Speech acts and Mappings.
       - 'Agents MUST read each matching chapter from the chapter index before editing: `deno run -ER jsr:@sys/cell dsl <chapter>`.'
+      - If slot interpretation remains unclear after the matching chapter, read the examples chapter before guessing or inspecting source.
       - If no chapter index entry matches, stop and ask.
 
   - label: Rule
@@ -65,6 +66,7 @@ sections:
       - Do not hand-author owner YAML just because cached public help was stale.
       - Use owning CLI/API to create, validate, or execute config.
       - If no owner affordance exists, stop and ask.
+      - If examples may resolve unclear prompt slots, read the examples chapter before inspecting package source.
       - If a selected endpoint contract is still ambiguous, inspect the published JSR package docs/source.
       - Use source inspection only to confirm public exports, types, and lifecycle contracts.
       - Do not use source inspection to bypass owner CLI/API config affordances.
@@ -72,6 +74,7 @@ sections:
   - label: Mappings
     items:
       - add pulled view → run `@sys/tools pull add` against confirmed owner config
+      - prompt mentions `fs.db.team` → likely dist bundle URL shape; read examples before guessing
       - owner pull config owns dist URL and local target
       - do not register pulled views in `cell.yaml`
       - pull latest configured views → run `@sys/tools pull` against confirmed pull config(s)

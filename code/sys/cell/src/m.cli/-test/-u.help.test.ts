@@ -101,6 +101,7 @@ describe('FmtHelp', () => {
       { path: ['service'], name: 'sys-cell-dsl-service' },
       { path: ['proxy-service'], name: 'sys-cell-dsl-proxy-service' },
       { path: ['start-services'], name: 'sys-cell-dsl-start-services' },
+      { path: ['examples'], name: 'sys-cell-dsl-examples' },
     ] as const;
 
     for (const item of cases) {
@@ -180,6 +181,21 @@ describe('FmtHelp', () => {
     expect(text).to.not.contain('driver.stripe');
     expect(text).to.not.contain('example.com');
     expect(text).to.not.contain('http://127.0.0.1:4040/');
+  });
+
+  it('dsl examples → faithfully renders operational examples', async () => {
+    const path = ['examples'] as const;
+    const text = stripAnsi(await FmtHelp.dslOutput({ path }));
+    const guidance = await CellHelp.Dsl.load(path);
+
+    expectDslChapterPage(text, guidance);
+    expect(text).to.contain('fs.db.team');
+    expect(text).to.contain('jsr:@sys/driver-stripe/server/fixture');
+    expect(text).to.contain('StripeFixture');
+    expect(text).to.contain('services:');
+    expect(text).to.contain('tasks:');
+    expect(text).to.not.contain('runtime.services');
+    expect(text).to.not.contain('export:');
   });
 });
 

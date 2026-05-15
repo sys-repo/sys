@@ -23,6 +23,7 @@ describe('CellHelp.Dsl', () => {
       'service',
       'proxy-service',
       'start-services',
+      'examples',
     ]);
     chapter.chapters.forEach((child) => {
       expect(child.path).to.eql([child.id]);
@@ -121,6 +122,39 @@ describe('CellHelp.Dsl', () => {
     expect(chapter.chapters).to.eql([]);
   });
 
+  it('loads the examples DSL chapter by path', async () => {
+    const chapter = await CellHelp.Dsl.load(['examples']);
+    const text = chapterText(chapter);
+
+    expect(chapter.id).to.eql('examples');
+    expect(chapter.path).to.eql(['examples']);
+    expect(chapter.title).to.eql('Cell DSL examples');
+    expect(chapter.sections.map((section) => section.label)).to.eql([
+      'Rule',
+      'Common prompt shapes',
+      'Sample slot values',
+      'Descriptor shapes',
+      'Owner flow reminders',
+      'Source-reading guardrail',
+    ]);
+    expect(chapter.chapters).to.eql([]);
+    expect(text).to.contain('fs.db.team');
+    expect(text).to.contain('jsr:@sys/driver-stripe/server/fixture');
+    expect(text).to.contain('StripeFixture');
+    expect(text).to.contain('services:');
+    expect(text).to.contain('tasks:');
+  });
+
+  it('keeps branded examples out of generic operation chapters', async () => {
+    const service = chapterText(await CellHelp.Dsl.load(['service']));
+    const proxy = chapterText(await CellHelp.Dsl.load(['proxy-service']));
+
+    expect(service).to.not.contain('StripeFixture');
+    expect(service).to.not.contain('fs.db.team');
+    expect(proxy).to.not.contain('StripeFixture');
+    expect(proxy).to.not.contain('fs.db.team');
+  });
+
   it('fails clearly when a DSL chapter path is missing', async () => {
     const error = await catchError(() => CellHelp.Dsl.load(['missing']));
 
@@ -152,6 +186,10 @@ describe('CellHelp.Dsl', () => {
     expect(resolveChapterResource(root, ['pulled-view', 'missing'])).to.eql(undefined);
   });
 });
+
+function chapterText(chapter: t.CellHelp.Dsl.Chapter): string {
+  return chapter.sections.flatMap((section) => section.items).join('\n');
+}
 
 async function catchError(fn: () => Promise<unknown>): Promise<Error | undefined> {
   try {

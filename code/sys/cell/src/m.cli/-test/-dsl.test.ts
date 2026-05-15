@@ -110,6 +110,34 @@ describe('@sys/cell/cli dsl', () => {
     expect(text).to.contain('@sys/cell dsl start-services');
   });
 
+  it('dsl examples → routes to the examples chapter', async () => {
+    const res = await silent(() => CellCli.run({ argv: ['dsl', 'examples'] }));
+    const text = stripAnsi(res.text);
+
+    expect(res.kind).to.eql('help');
+    expect(text).to.contain('@sys/cell dsl examples');
+    expect(text).to.contain('fs.db.team');
+    expect(text).to.contain('services:');
+    expect(text).to.contain('tasks:');
+  });
+
+  it('dsl examples --format skill → routes to the examples skill projection', async () => {
+    const guidance = await CellHelp.Dsl.load(['examples']);
+    const res = await silent(() =>
+      CellCli.run({ argv: ['dsl', 'examples', '--format', 'skill'] })
+    );
+    const text = stripAnsi(res.text);
+
+    expect(res.kind).to.eql('help');
+    expect(res.text).to.eql(text);
+    expect(text).to.contain('name: "sys-cell-dsl-examples"');
+    expect(text).to.contain(`# ${guidance.title}`);
+    expect(text).to.contain('fs.db.team');
+    expect(text).to.contain('jsr:@sys/driver-stripe/server/fixture');
+    expect(text).to.contain('StripeFixture');
+    expect(text).to.not.contain('@sys/cell dsl examples');
+  });
+
   it('dsl unknown → fails with root DSL help', async () => {
     const res = await silent(() => CellCli.run({ argv: ['dsl', 'missing'] }));
     const text = stripAnsi(res.text);
