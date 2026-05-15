@@ -17,6 +17,8 @@
     "sample:deploy:start": "deno run -P=sample @sys/cell start ./-sample/cell.deploy",
     "sample:deploy:prep": "deno run -P=sample @sys/cell task sample:deploy:prep ./-sample/cell.deploy",
     "sample:deploy": "deno run -P=sample @sys/cell task sample:deploy ./-sample/cell.deploy",
+    "sample:vite": "deno run -P=sample @sys/cell start ./-sample/cell.vite",
+    "sample:vite:dev": "deno run -P=sample-vite-dev @sys/cell start ./-sample/cell.vite --mode dev",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
@@ -45,6 +47,25 @@
       "net": true,
       "run": true
     },
+    "sample-vite-dev": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true,
+      "run": true,
+      "ffi": true,
+      "sys": {
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname",
+          "osRelease",
+          "homedir",
+          "uid",
+          "gid"
+        ]
+      }
+    },
     "test": {
       "read": true,
       "write": true,
@@ -66,4 +87,3 @@
     }
   }
 }
-

@@ -1,0 +1,6 @@
+# Static UI React Components dist service.
+
+name: view
+dir: ../../../../sys.ui/ui-react-components/dist
+info:
+  path: /
