@@ -30,14 +30,17 @@ export async function text(args: t.WorkspaceCi.Jsr.TextArgs) {
     },
     on: args.on,
     env: args.env,
+    checkoutLfs: true,
     body: JSR_MODULES_PLACEHOLDER,
   }).replace(JSR_MODULES_PLACEHOLDER, body);
 
-  return `${[
-    '# Publish trigger workflow.',
-    '# The `jsr-publish` tag refreshes a branch-capable publish trigger.',
-    '# The `jsr-publish-main` tag refreshes a strict main-only publish trigger.',
-    '# Package versions remain the provenance/release identity.',
-    workflow,
-  ].join('\n')}\n`;
+  return `${
+    [
+      '# Publish trigger workflow.',
+      '# The `jsr-publish` tag refreshes a branch-capable publish trigger.',
+      '# The `jsr-publish-main` tag refreshes a strict main-only publish trigger.',
+      '# Package versions remain the provenance/release identity.',
+      workflow,
+    ].join('\n')
+  }\n`;
 }

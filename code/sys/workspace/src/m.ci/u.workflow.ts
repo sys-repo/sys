@@ -1,4 +1,4 @@
-import { type t, Str } from './common.ts';
+import { Str, type t } from './common.ts';
 import { CI_DENO_VERSION } from './u.deno.ts';
 
 type WorkflowArgs = {
@@ -7,6 +7,7 @@ type WorkflowArgs = {
   readonly on?: t.WorkspaceCi.WorkflowOn;
   readonly env?: t.WorkspaceCi.WorkflowEntries;
   readonly jobConfig?: string;
+  readonly checkoutLfs?: boolean;
   readonly body: string;
 };
 
@@ -18,10 +19,17 @@ export function workflowTemplate(args: WorkflowArgs) {
     ? `    env:\n${wrangle.map(Object.fromEntries(envEntries), 6)}\n`
     : '';
   const jobConfig = args.jobConfig ? `${args.jobConfig}\n` : '';
+  const checkout = args.checkoutLfs
+    ? Str.dedent(`
+        - uses: actions/checkout@v5
+          with:
+            lfs: true
+      `).trim()
+    : '- uses: actions/checkout@v5';
   const steps = Str.dedent(
     `
     steps:
-      - uses: actions/checkout@v5
+      ${checkout.replace(/\n/g, '\n      ')}
 
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
