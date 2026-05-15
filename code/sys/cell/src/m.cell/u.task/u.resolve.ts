@@ -1,6 +1,6 @@
-import { D, Path, Str, type t } from './common.ts';
+import { Path, Str, type t } from './common.ts';
 import { endpointNameOf } from '../u.endpoint.ts';
-import { Fs } from '@sys/fs';
+import { resolveEndpointRef } from '../u.endpointRef.ts';
 
 export function resolveTaskEndpointAddress(
   cell: t.Cell.Instance,
@@ -8,35 +8,21 @@ export function resolveTaskEndpointAddress(
   options: t.Cell.Task.TrustOptions,
   context: string,
 ): t.Cell.Task.PlannedEndpoint {
-  const from = task.from.trim();
   const use = endpointNameOf(task);
-
-  if (Path.Is.absolute(from)) {
-    throw new Error(
-      `${context}: absolute task import for '${task.name}' is not allowed: ${from}`,
-    );
-  }
-
-  if (isRelativeSpecifier(from)) {
-    return {
-      use,
-      from: task.from,
-      specifier: resolveLocalImportSpecifier(cell, task, from, context),
-      source: 'local',
-    };
-  }
-
-  const trusted = options.trusted ?? D.trusted;
-  const ok = trusted.some((prefix) => from.startsWith(prefix));
-  if (!ok) {
-    throw new Error(`${context}: untrusted task import for '${task.name}': ${from}`);
-  }
+  const ref = resolveEndpointRef({
+    root: cell.root,
+    from: task.from,
+    name: task.name,
+    kind: 'task',
+    context,
+    trusted: options.trusted,
+  });
 
   return {
     use,
     from: task.from,
-    specifier: from,
-    source: 'trusted',
+    specifier: ref.specifier,
+    source: ref.source,
   };
 }
 
@@ -62,29 +48,8 @@ export function resolveTaskConfigPath(
 /**
  * Helpers:
  */
-function resolveLocalImportSpecifier(
-  cell: t.Cell.Instance,
-  task: t.Cell.Task.Leaf,
-  from: string,
-  context: string,
-): string {
-  const root = Path.resolve(cell.root, '.');
-  const path = Path.resolve(root, from);
-
-  if (!isInsideRoot(root, path)) {
-    throw new Error(
-      `${context}: local task import for '${task.name}' escapes Cell root: ${from}`,
-    );
-  }
-
-  return String(Fs.Path.toFileUrl(path));
-}
-
 function isInsideRoot(root: string, path: string) {
   const relative = Path.relative(root, path);
   return relative === '' || (!relative.startsWith('..') && !Path.Is.absolute(relative));
 }
 
-function isRelativeSpecifier(value: string) {
-  return value.startsWith('./') || value.startsWith('../');
-}

@@ -28,6 +28,34 @@ describe('Cell.Task.plan', () => {
     expect(plan.leaves[0].endpoint.specifier).to.contain('/-tasks/capture.ts');
   });
 
+  it('plans explicit JSR sys task refs through workspace resolution', async () => {
+    const root = await tempCell(
+      'task-plan-jsr-sys-ref',
+      descriptor([leaf('capture', { use: 'Cell', from: 'jsr:@sys/cell' }, false)]),
+    );
+
+    const plan = await Cell.Task.plan(await Cell.load(root), 'capture');
+
+    expect(plan.leaves[0].endpoint.from).to.eql('jsr:@sys/cell');
+    expect(plan.leaves[0].endpoint.use).to.eql('Cell');
+    expect(plan.leaves[0].endpoint.source).to.eql('trusted');
+    expect(plan.leaves[0].endpoint.specifier).to.contain('/code/sys/cell/src/mod.ts');
+  });
+
+  it('plans bare sys task refs through workspace resolution', async () => {
+    const root = await tempCell(
+      'task-plan-bare-sys-ref',
+      descriptor([leaf('capture', { use: 'Cell', from: "'@sys/cell'" }, false)]),
+    );
+
+    const plan = await Cell.Task.plan(await Cell.load(root), 'capture');
+
+    expect(plan.leaves[0].endpoint.from).to.eql('@sys/cell');
+    expect(plan.leaves[0].endpoint.use).to.eql('Cell');
+    expect(plan.leaves[0].endpoint.source).to.eql('trusted');
+    expect(plan.leaves[0].endpoint.specifier).to.contain('/code/sys/cell/src/mod.ts');
+  });
+
   it('preserves nested composite shape and repeated leaf occurrences', async () => {
     const root = await tempCell(
       'task-plan-composite-shape',

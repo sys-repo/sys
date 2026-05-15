@@ -38,6 +38,32 @@ describe('Cell.Task.verify', () => {
     expect(all.kind).to.eql('composite');
   });
 
+  it('imports explicit JSR sys task refs through workspace resolution', async () => {
+    const root = await tempCell(
+      'task-verify-jsr-sys-ref',
+      descriptor([leaf('capture', { use: 'pkg', from: 'jsr:@sys/cell' }, false)]),
+    );
+
+    const error = await catchVerify(await Cell.load(root));
+
+    expect(error?.message).to.eql(
+      "Cell.Task.verify: 'jsr:@sys/cell' use 'pkg' must expose run(...) for task 'capture'.",
+    );
+  });
+
+  it('imports bare sys task refs through workspace resolution', async () => {
+    const root = await tempCell(
+      'task-verify-bare-sys-ref',
+      descriptor([leaf('capture', { use: 'pkg', from: "'@sys/cell'" }, false)]),
+    );
+
+    const error = await catchVerify(await Cell.load(root));
+
+    expect(error?.message).to.eql(
+      "Cell.Task.verify: '@sys/cell' use 'pkg' must expose run(...) for task 'capture'.",
+    );
+  });
+
   it('does not read or parse task config refs', async () => {
     const root = await tempCell(
       'task-config-ref-only',

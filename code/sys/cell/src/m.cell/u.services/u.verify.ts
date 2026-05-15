@@ -1,12 +1,19 @@
-import { D, Is, Path, Str, type t } from './common.ts';
+import { Is, Path, Str, type t } from './common.ts';
 import { endpointNameOf } from '../u.endpoint.ts';
-import { Fs } from '@sys/fs';
+import { resolveEndpointRef } from '../u.endpointRef.ts';
 
 export const verify: t.Cell.Services.Lib['verify'] = async (cell, options = {}) => {
   const services: t.Cell.Services.VerifiedService[] = [];
 
   for (const service of cell.descriptor.services ?? []) {
-    const specifier = resolveImportSpecifier(cell, service, options);
+    const specifier = resolveEndpointRef({
+      root: cell.root,
+      from: service.from,
+      name: service.name,
+      kind: 'service',
+      context: 'Cell.Services.verify',
+      trusted: options.trusted,
+    }).specifier;
     const configPath = resolveCellPath(cell.root, service.config);
     const endpoint = await loadEndpoint(service, specifier);
 
@@ -23,48 +30,6 @@ export const verify: t.Cell.Services.Lib['verify'] = async (cell, options = {}) 
 /**
  * Helpers:
  */
-function resolveImportSpecifier(
-  cell: t.Cell.Instance,
-  service: t.Cell.Services.Service,
-  options: t.Cell.Services.VerifyOptions,
-): string {
-  const from = service.from.trim();
-
-  if (Path.Is.absolute(from)) {
-    throw new Error(
-      `Cell.Services.verify: absolute service import for '${service.name}' is not allowed: ${from}`,
-    );
-  }
-
-  if (isRelativeSpecifier(from)) return resolveLocalImportSpecifier(cell, service, from);
-
-  const trusted = options.trusted ?? D.trusted;
-  const ok = trusted.some((prefix) => from.startsWith(prefix));
-  if (!ok) {
-    const err = `Cell.Services.verify: untrusted service import for '${service.name}': ${from}`;
-    throw new Error(err);
-  }
-
-  return from;
-}
-
-function resolveLocalImportSpecifier(
-  cell: t.Cell.Instance,
-  service: t.Cell.Services.Service,
-  from: string,
-): string {
-  const root = Path.resolve(cell.root, '.');
-  const path = Path.resolve(root, from);
-
-  if (!isInsideRoot(root, path)) {
-    throw new Error(
-      `Cell.Services.verify: local service import for '${service.name}' escapes Cell root: ${from}`,
-    );
-  }
-
-  return String(Fs.Path.toFileUrl(path));
-}
-
 async function loadEndpoint(
   service: t.Cell.Services.Service,
   specifier: string,
@@ -107,6 +72,3 @@ function isInsideRoot(root: string, path: string) {
   return relative === '' || (!relative.startsWith('..') && !Path.Is.absolute(relative));
 }
 
-function isRelativeSpecifier(value: string) {
-  return value.startsWith('./') || value.startsWith('../');
-}

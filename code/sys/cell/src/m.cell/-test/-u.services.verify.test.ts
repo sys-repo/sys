@@ -28,12 +28,36 @@ describe('Cell.Services.verify', () => {
     const verify = await Cell.Services.verify(cell);
 
     expect(verify.services.map((service) => service.service.name)).to.eql(['deploy:view']);
-    expect(verify.services[0].service.from).to.eql('@sys/tools/serve');
+    expect(verify.services[0].service.from).to.eql('jsr:@sys/tools/serve');
     expect(verify.services[0].service.use).to.eql('Serve');
     expect(Is.func(verify.services[0].endpoint.start)).to.eql(true);
     expect(verify.services[0].paths.config).to.eql(
       Fs.join(cell.root, '-config/@sys.tools.serve/view.yaml'),
     );
+  });
+
+  it('verifies explicit JSR sys service refs through workspace resolution', async () => {
+    const root = await tempCell(
+      'services-jsr-sys-ref',
+      descriptor({ use: 'Serve', from: 'jsr:@sys/tools/serve' }),
+    );
+    const cell = await Cell.load(root);
+    const verified = await Cell.Services.verify(cell);
+
+    expect(verified.services[0].service.from).to.eql('jsr:@sys/tools/serve');
+    expect(Is.func(verified.services[0].endpoint.start)).to.eql(true);
+  });
+
+  it('verifies bare sys service refs through workspace resolution', async () => {
+    const root = await tempCell(
+      'services-bare-sys-ref',
+      descriptor({ use: 'HttpStatic', from: '@sys/http/server/static' }),
+    );
+    const cell = await Cell.load(root);
+    const verified = await Cell.Services.verify(cell);
+
+    expect(verified.services[0].service.from).to.eql('@sys/http/server/static');
+    expect(Is.func(verified.services[0].endpoint.start)).to.eql(true);
   });
 
   it('does not read or parse service config refs', async () => {
@@ -111,7 +135,7 @@ describe('Cell.Services.verify', () => {
     const error = await catchVerify(cell);
 
     expect(error?.message).to.eql(
-      "Cell.Services.verify: failed to import service for 'view': @sys/cell/missing-services",
+      "Cell.Services.verify: failed to resolve service import for 'view': @sys/cell/missing-services. Use explicit 'jsr:' refs for portable descriptors.",
     );
   });
 
