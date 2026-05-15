@@ -70,19 +70,19 @@ Options    -h, --help   show help
 
 ## Prompting `cell dsl`
 
-| Intent                   | [Speech act](https://en.wikipedia.org/wiki/Speech_act) examples:       |
-| ------------------------ | ---------------------------------------------------------------------- |
-| create: Cell         | Initialize this folder as an `@sys/cell`.                              |
-| create: Cell at path | Initialize `./foo` as an `@sys/cell`.                                  |
-| add: pulled view         | Add a pulled view from `<dist-url>`.                                   |
-| refresh: pulled views    | Pull latest configured views.                                          |
-| add: static HTTP service | Add an `@sys/http` static service for `<view>`.                        |
-| add: service             | Add a service named `<service-name>` use `<endpoint>` from `<module>`. |
-| add: proxy service       | Add a proxy service named `<service-name>`.                            |
-| route: proxy root        | Route `/` to `<view/service/upstream>`.                                |
-| route: proxy mount       | Route `<path-prefix>` to `<view/service/upstream>`.                    |
-| run: task                | Run a task named `<task-name>`.                                        |
-| start: services          | Start the **Cell** services.                                           |
+| Intent                    | [Speech act](https://en.wikipedia.org/wiki/Speech_act) examples:       |
+| ------------------------- | ---------------------------------------------------------------------- |
+| create: Cell              | Initialize this folder as an `@sys/cell`.                              |
+| create: Cell at path      | Initialize `./foo` as an `@sys/cell`.                                  |
+| add: pulled view          | Add a pulled view from `<dist-url>`.                                   |
+| refresh: pulled views     | Pull latest configured views.                                          |
+| add: static serve service | Add an `@sys/tools/serve` static service for `<dir>`.                  |
+| add: service              | Add a service named `<service-name>` use `<endpoint>` from `<module>`. |
+| add: proxy service        | Add a proxy service named `<service-name>`.                            |
+| route: proxy root         | Route `/` to `<view/service/upstream>`.                                |
+| route: proxy mount        | Route `<path-prefix>` to `<view/service/upstream>`.                    |
+| run: task                 | Run a task named `<task-name>`.                                        |
+| start: services           | Start the **Cell** services.                                           |
 
 <p>&nbsp;</p>
 
@@ -143,7 +143,7 @@ deno run -ER   jsr:@sys/cell --help
 deno run -ERW  jsr:@sys/cell init --help
 deno run -ER   jsr:@sys/cell dsl
 
-deno run -ERWN jsr:@sys/cell task sample:deploy .
+deno run -ERWN jsr:@sys/cell task <task-name> .
 deno run -ERWN jsr:@sys/cell start
 ```
 
