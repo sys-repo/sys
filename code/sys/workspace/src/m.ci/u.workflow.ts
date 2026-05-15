@@ -24,6 +24,14 @@ export function workflowTemplate(args: WorkflowArgs) {
         - uses: actions/checkout@v5
           with:
             lfs: true
+
+        - name: Hydrate Git LFS assets
+          run: git lfs pull
+
+        - name: Verify clean checkout
+          run: |
+            git status --short
+            test -z "$(git status --porcelain)"
       `).trim()
     : '- uses: actions/checkout@v5';
   const steps = Str.dedent(

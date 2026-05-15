@@ -20,6 +20,9 @@ describe('WorkspaceCi.Jsr', () => {
     expect(yaml.includes('deno task test\n')).to.eql(true);
     expect(yaml.includes('deno task test --trace-leaks')).to.eql(false);
     expect(yaml).to.include('uses: actions/checkout@v5\n        with:\n          lfs: true');
+    expect(yaml).to.include('name: Hydrate Git LFS assets\n        run: git lfs pull');
+    expect(yaml).to.include('name: Verify clean checkout\n        run: |');
+    expect(yaml).to.include('test -z "$(git status --porcelain)"');
     expect(yaml.includes('if deno publish; then')).to.eql(true);
     expect(yaml.includes('deno publish --allow-dirty')).to.eql(false);
     expect(yaml.includes('max_attempts=3')).to.eql(true);
