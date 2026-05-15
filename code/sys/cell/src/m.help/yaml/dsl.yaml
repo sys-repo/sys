@@ -45,6 +45,7 @@ sections:
       - pull latest configured views
       - add a static serve service for <dir>
       - add a service named <service-name> using endpoint <endpoint> from module <module>
+      - add service mode <mode> for <service-name> using endpoint <endpoint> from module <module>
       - add a proxy service named <service-name>
       - add a leaf task named <task-name> using endpoint <endpoint> from module <module>
       - add a local task adapter at <relative-task-module>
@@ -87,6 +88,9 @@ sections:
       - local service adapter → keep adapter code under the Cell root, typically `./-services/*.ts`
       - use owner config affordance when available
       - then record `services[]` with `name`, `use`, `from`, and `config`
+      - add service mode → update the named service's `variants.<mode>` with a complete binding
+      - service variants → record `use`, `from`, and `config`; do not write partial overlays or owner settings
+      - mode selection key → not forwarded to owner endpoints
       - add proxy → use proxy owner flow
       - then record service name and config ref
       - root route → run `@sys/http/server/proxy root set`

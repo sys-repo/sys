@@ -153,6 +153,11 @@ describe('FmtHelp', () => {
     expect(text).to.not.contain('stripe');
     expect(text).to.not.contain('driver.stripe');
     expect(text).to.not.contain('127.0.0.1');
+    expect(text).to.contain('complete endpoint binding');
+    expect(text).to.contain('variants.dev');
+    expect(text).to.contain("from: 'jsr:@sys/driver-vite/service'");
+    expect(text).to.contain('config: ./-config/@sys.driver-vite/view.dev.yaml');
+    expect(text).to.contain('Mode is not forwarded');
   });
 
   it('dsl start-services → faithfully renders the requested chapter', async () => {
@@ -163,6 +168,8 @@ describe('FmtHelp', () => {
     expectDslChapterPage(text, guidance);
     expect(text).to.not.contain('Stripe');
     expect(text).to.not.contain('stripe');
+    expect(text).to.contain('read `dsl service` before adding or changing variants');
+    expect(text).to.contain('Cell chooses the complete binding');
   });
 
   it('dsl proxy-service → faithfully renders the requested chapter', async () => {

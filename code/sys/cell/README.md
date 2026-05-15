@@ -176,37 +176,3 @@ deno run -ERWN jsr:@sys/cell task <task-name> .
 deno run -ERWN jsr:@sys/cell start
 deno run -ERWN jsr:@sys/cell start . --mode dev
 ```
-
-## Service modes
-
-A service may declare complete alternative endpoint bindings under `variants`. At start time,
-`--mode <mode>` selects matching variants while preserving one conceptual service identity. Services
-without the selected variant keep their base binding.
-
-Mode is a Cell selection key, not an owner-service setting. It is not forwarded. Cell uses it to
-choose a complete binding, then starts that endpoint through the same lifecycle contract as every
-other service: Cell root, selected owner config ref, quiet output preference, and shutdown signal.
-Everything behind the binding stays owned by the endpoint: ports, serving strategy, Vite/HMR
-behavior, and config schema.
-
-Live dev is the canonical example: keep a static service as the default `view` binding, and select a
-Vite binding only for `mode: dev`:
-
-```yaml
-services:
-  - name: view
-    use: Serve
-    from: 'jsr:@sys/tools/serve'
-    config: ./-config/@sys.tools.serve/view.yaml
-    variants:
-      dev:
-        use: ViteService
-        from: 'jsr:@sys/driver-vite/service'
-        config: ./-config/@sys.driver-vite/view.dev.yaml
-```
-
-Then start the dev binding:
-
-```sh
-deno run -ERWN jsr:@sys/cell start . --mode dev
-```

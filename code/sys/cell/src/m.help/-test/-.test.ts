@@ -5,6 +5,7 @@ import { HelpResource, resolveChapterResource } from '../u/u.paths.ts';
 describe('CellHelp.Dsl', () => {
   it('loads the root DSL chapter as a concise chapter index', async () => {
     const chapter = await CellHelp.Dsl.load();
+    const text = chapterText(chapter);
 
     expect(chapter.id).to.eql('dsl');
     expect(chapter.path).to.eql([]);
@@ -30,6 +31,8 @@ describe('CellHelp.Dsl', () => {
       expect(child.title.length).to.be.greaterThan(0);
       expect(child.summary.length).to.be.greaterThan(0);
     });
+    expect(text).to.contain('add service mode <mode>');
+    expect(text).to.contain('variants.<mode>');
   });
 
   it('loads child DSL chapters by path', async () => {
