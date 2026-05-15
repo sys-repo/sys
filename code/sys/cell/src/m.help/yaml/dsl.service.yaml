@@ -6,10 +6,10 @@ sections:
   - label: Rule
     items: |
       Classify prompt shape:
-      "add a service named <service-name> use <endpoint> from <module>"
+      "add a service named <service-name> using endpoint <endpoint> from module <module>"
       as `add: service`.
-      Cell records service composition.
-      The service owner owns config schema and mechanics.
+      A service entry records a lifecycle endpoint and an owner config reference.
+      Cell composes the service; the owner owns config schema and mechanics.
       Service imports must be trusted by `Cell.Services.verify/start`.
       The default trusted prefix is `@sys/`.
       Do not put service config internals directly in `cell.yaml`.
@@ -37,12 +37,10 @@ sections:
 
   - label: 'Lifecycle contract'
     items: |
-      The selected endpoint must implement `Cell.Services.LifecycleEndpoint`.
-      `Cell.Services.LifecycleEndpoint` exposes `start(args)`.
-      Cell resolves the service-owned config ref, then calls `start(args)`.
-      Base args include the Cell root and the service-owned config reference.
-      Service adapters must accept those base args directly; Cell does not rewrite endpoint args.
-      Cell does not derive args from service kind or view links.
+      The selected endpoint must implement `Cell.Services.LifecycleEndpoint` with `start(args)`.
+      Cell resolves the owner config ref before it starts the endpoint.
+      Start args are deliberately small: Cell root, selected owner config ref, quiet output preference, and shutdown signal.
+      Service adapters must accept those args directly; Cell does not rewrite them by service kind or view link.
       The started handle should expose `close(reason)` or `dispose(reason)` for Cell shutdown.
       Standard full @sys lifecycle handles can be `t.LifecycleAsync` compatible.
       If the selected endpoint contract is ambiguous, inspect the published JSR package docs/source.
@@ -75,6 +73,17 @@ sections:
       Do not duplicate the owner config schema in the Cell edit.
       Cell records only the service and config reference.
 
+  - label: 'Service modes'
+    items: |
+      Use `variants` when one conceptual service needs alternative complete endpoint bindings.
+      A mode such as `dev` selects `variants.dev` at start time with `@sys/cell start --mode dev`.
+      Variants must be complete bindings with `use`, `from`, and `config`; do not write partial overlays.
+      `default` is reserved and means the base service binding.
+      Services without the selected mode keep their base binding.
+      Mode is a Cell selection key, not an owner-service setting. It is not forwarded.
+      For live dev, prefer a normal lifecycle endpoint such as `jsr:@sys/driver-vite/service` / `ViteService`.
+      Cell may display the selected mode and endpoint. Endpoint owners keep ports, serving strategy, Vite/HMR behavior, and config schema.
+
   - label: 'Descriptor patch'
     items:
       - |
@@ -83,3 +92,14 @@ sections:
               use: <endpoint>
               from: '<module>'
               config: <config>
+      - |
+          services:
+            - name: view
+              use: Serve
+              from: 'jsr:@sys/tools/serve'
+              config: ./-config/@sys.tools.serve/view.yaml
+              variants:
+                dev:
+                  use: ViteService
+                  from: 'jsr:@sys/driver-vite/service'
+                  config: ./-config/@sys.driver-vite/view.dev.yaml

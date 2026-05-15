@@ -16,7 +16,8 @@ sections:
       Use Cell CLI: `@sys/cell start [dir]`.
       Pass `[dir]` when the Cell root is not the current folder.
       Pass `--mode <mode>` only to select complete service variants already declared in the descriptor.
-      This loads the Cell descriptor, starts declared `services[]`, waits, and closes services.
+      For live dev, a common shape is `--mode dev` selecting an owner endpoint such as `jsr:@sys/driver-vite/service` / `ViteService`.
+      Start loads the Cell descriptor, starts declared `services[]`, waits, and closes services.
       If startup fails for a named service, inspect that service's owner config and owner `--help`.
       If a selected endpoint contract is ambiguous, inspect the published JSR package docs/source.
 
@@ -24,7 +25,7 @@ sections:
     items: |
       deno run -ERWN jsr:@sys/cell start [dir]
       deno run -ERWN jsr:@sys/cell start [dir] --mode <mode>
-      deno run -ERWN jsr:@sys/cell start .
+      deno run -ERWN jsr:@sys/cell start . --mode dev
 
   - label: 'Project task'
     items: |
@@ -35,10 +36,14 @@ sections:
 
   - label: Services
     items: |
-      Cell start calls `Cell.load`, then `Cell.Services.start`, then `Cell.Services.wait`.
+      `@sys/cell start` loads the descriptor, starts selected services, then waits.
       `--mode <mode>` selects declared service variant bindings before endpoints are imported.
+      Services without the selected variant keep their base binding.
+      Mode is a Cell selection key, not an owner-service setting. It is not forwarded.
       `Cell.Services.wait` waits for started service handles that expose `finished`.
       Services that should keep `@sys/cell start` alive should return a started handle with `finished`.
-      Service owners keep their own config schema, mechanics, ports, URLs, permissions, and display.
+      Service owners keep config schema, mechanics, ports, URLs, permissions, and display.
+      Cell may render the selected mode and endpoint. It does not own Vite, HMR, static-serving, or owner config semantics.
+      Do not claim full browser HMR unless a browser-backed edit/update proof exists.
       Add any extra permissions required by declared owner services.
       Cell closes started services when service wait completes or startup fails.

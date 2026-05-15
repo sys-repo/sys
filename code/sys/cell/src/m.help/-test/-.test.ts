@@ -79,6 +79,7 @@ describe('CellHelp.Dsl', () => {
       'Lifecycle contract',
       'Dialogue',
       'Owner flow',
+      'Service modes',
       'Descriptor patch',
     ]);
     expect(chapter.chapters).to.eql([]);

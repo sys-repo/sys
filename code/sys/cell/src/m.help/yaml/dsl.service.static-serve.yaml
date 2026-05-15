@@ -8,7 +8,7 @@ sections:
       Classify "add a static serve service for <dir>" as `add: static serve service`.
       Also classify "serve <dir> as a Cell service" as this act.
       Treat the speech act as intent plus partial slots.
-      Cell registers a service name, `use`, `from`, and owner config reference.
+      Cell records only the service binding and owner config reference.
       `@sys/tools/serve` is the blessed Cell DSL path for static-file serving.
       Do not use a direct `@sys/tools serve` CLI shortcut to bypass Cell services.
       Do not put static-serving mechanics directly in `cell.yaml`.
@@ -40,12 +40,12 @@ sections:
   - label: 'Owner flow'
     items: |
       Use `@sys/tools/serve` as the service owner.
-      The owner config is a serve-tool profile resolved by `Serve.start` from `paths.config`.
+      `Serve.start` reads the selected serve-tool owner config from `paths.config`.
       Start from public `@sys/tools serve --help` if the owner config shape or options are unclear.
       Create or update only the confirmed serve-tool owner config.
       Do not shell to `@sys/tools serve` from a project task to preview a Cell service.
       Cell records only service name, `use`, `from`, and config reference.
-      Cell starts the service through `Cell.Services.start`, which calls `Serve.start(args)`.
+      Cell starts the service through the normal service lifecycle.
 
   - label: 'Owner config'
     items: |

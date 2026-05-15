@@ -17,7 +17,9 @@ services:
   - Cell loads `[dir]` or `.` as the Cell root.
   - Cell starts services declared in `services[]`.
   - '`--mode <mode>` selects complete service variant bindings declared by that mode.'
-  - Service owners keep their own config schema, mechanics, and display.
+  - Live-dev modes are ordinary service variants, for example `dev` selecting `jsr:@sys/driver-vite/service` / `ViteService`.
+  - Mode selection is not passed to owner services; selected endpoints receive only normal lifecycle start args.
+  - Service owners keep their own config schema, mechanics, ports, URLs, and display.
   - Add any extra permissions required by declared owner services.
   - Cell calls `Cell.Services.wait` for started service handles that expose `finished`.
   - Services that should keep `@sys/cell start` alive should return a started handle with `finished`.

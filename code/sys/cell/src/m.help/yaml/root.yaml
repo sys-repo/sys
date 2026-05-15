@@ -11,6 +11,7 @@ usage:
   - deno run -ERW  jsr:@sys/cell init [dir]
   - deno run -ERWN jsr:@sys/cell task <name> [dir]
   - deno run -ERWN jsr:@sys/cell start [dir]
+  - deno run -ERWN jsr:@sys/cell start [dir] --mode <mode>
 
 commands:
   - name: dsl

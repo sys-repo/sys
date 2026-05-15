@@ -8,14 +8,14 @@ sections:
       Classify "add a pulled view from <dist-url>" as `add: pulled view`.
       Classify "pull latest configured views" as `refresh: pulled views`.
       Treat add prompts as intent plus partial slots.
-      Treat refresh prompts as an owner materialization operation.
+      Treat refresh prompts as owner materialization, not Cell descriptor edits.
       Do not guess missing values.
       Configure first; materialize only when needed or approved.
 
   - label: 'Slot policy'
     items: |
       `<dist-url>` is given by the prompt.
-      `<name>` must ask; view names are semantic/user-facing owner handles.
+      Ask for `<name>`; view names are semantic/user-facing owner handles.
       `<name>` is not a Cell descriptor field.
       Prefer lowercase segmented names for owner-facing handles.
       Avoid `_`, `/`, spaces, uppercase letters, and path-like values in view handles.
@@ -51,7 +51,7 @@ sections:
       Do not hand-author `@sys/tools/pull` YAML.
       Use owner CLI when it can create config.
       Owner pull config records `<dist-url>` and `<local-target>`.
-      Cell descriptor is unchanged for pulled-view setup.
+      Pulled-view setup does not change the Cell descriptor.
       Do not put `<dist-url>`, `<local-target>`, or view registry entries in `cell.yaml`.
 
   - label: 'Materialize'
