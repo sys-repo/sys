@@ -1,4 +1,5 @@
-import { c, Cli, CliTable, Fs, Str, type t, Time } from './common.ts';
+import { c, Cli, CliTable, Str, type t, Time } from './common.ts';
+import { FmtPath } from './u.fmt.path.ts';
 
 type TaskResult = {
   root: string;
@@ -21,7 +22,7 @@ type TaskProgressSpinner = t.CliSpinner.Instance;
 export const FmtTask = {
   result(res: TaskResult): string {
     const table = CliTable.create([]);
-    table.push([c.gray('root'), rootPath(res.root)]);
+    table.push([c.gray('root'), FmtPath.display(res.root)]);
     table.push([c.gray('task'), c.white(res.task.name)]);
     table.push([c.gray('steps'), c.white(String(res.steps.length))]);
     return `\n${Str.trimEdgeNewlines(String(table))}\n`;
@@ -30,7 +31,7 @@ export const FmtTask = {
   plan(res: TaskPlanResult): string {
     const { plan } = res;
     const table = CliTable.create([]);
-    table.push([c.gray('root'), rootPath(res.root)]);
+    table.push([c.gray('root'), FmtPath.display(res.root)]);
     table.push([c.gray('task'), c.white(plan.task.name)]);
     table.push([c.gray('steps'), c.white(String(plan.leaves.length))]);
 
@@ -92,10 +93,6 @@ export const FmtTask = {
 /**
  * Helpers:
  */
-function rootPath(path: string): string {
-  return c.gray(Cli.Fmt.path(Fs.trimCwd(path), Cli.Fmt.Path.fmt()));
-}
-
 function runningTaskText(name: string): string {
   return `${Cli.Fmt.spinnerText('running task ', false)}${c.cyan(name)}`;
 }

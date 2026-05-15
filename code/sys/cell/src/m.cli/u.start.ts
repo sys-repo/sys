@@ -2,6 +2,7 @@ import { Cell } from '../m.cell/mod.ts';
 import { serviceStatusesOf } from '../m.cell/u.services/u.status.ts';
 import { c, CliTable, Str, type t } from './common.ts';
 import { Fmt } from './u.fmt.ts';
+import { FmtPath } from './u.fmt.path.ts';
 import { createShutdownSignal, isSignalShutdownReason } from './u.shutdown.ts';
 
 export type StartCellArgs = {
@@ -51,7 +52,7 @@ export async function startCell(args: StartCellArgs = {}): Promise<StartCellResu
 
 export function formatStartResult(res: StartCellResult): string {
   const table = CliTable.create([]);
-  table.push([c.gray('root'), c.white(res.root)]);
+  table.push([c.gray('root'), FmtPath.display(res.root)]);
   table.push([c.gray('services'), c.white(String(res.services))]);
   if (res.mode !== 'default') table.push([c.gray('mode'), c.white(res.mode)]);
   return Str.trimEdgeNewlines(String(table));

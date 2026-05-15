@@ -1,5 +1,6 @@
 import type { StartedServiceStatus } from '../m.cell/u.services/u.status.ts';
-import { c, Cli, CliTable, Fs, Is, Str, type t } from './common.ts';
+import { c, Cli, CliTable, Is, Str, type t } from './common.ts';
+import { FmtPath } from './u.fmt.path.ts';
 import { FmtUrl } from './u.fmt.url.ts';
 
 type ServicesStartedResult = {
@@ -24,14 +25,14 @@ function renderServiceStatus(service: StartedServiceStatus): string {
 
   table.push([serviceLabel('service'), c.white(service.service.name)]);
   if (service.selection.variant) {
-    table.push([serviceLabel('mode'), serviceSubtle(service.selection.variant)]);
+    table.push([serviceLabel('mode'), serviceMode(service.selection.variant)]);
   }
   table.push([serviceLabel('module'), serviceSubtle(service.service.from)]);
-  table.push([serviceLabel('config'), servicePath(service.paths.config)]);
+  table.push([serviceLabel('config'), FmtPath.display(service.paths.config)]);
 
   if (owner) {
     if (owner.state !== 'ready') table.push([serviceLabel('state'), serviceState(owner.state)]);
-    if (Is.str(owner.root)) table.push([serviceLabel('root'), servicePath(owner.root)]);
+    if (Is.str(owner.root)) table.push([serviceLabel('root'), FmtPath.display(owner.root)]);
     for (const detail of serviceDetails(owner)) {
       table.push([serviceLabel(detail.label), serviceSubtle(detail.value)]);
     }
@@ -65,12 +66,12 @@ function serviceLabel(label: string): string {
   return c.gray(label);
 }
 
-function servicePath(path: string): string {
-  return c.gray(Cli.Fmt.path(Fs.trimCwd(path), Cli.Fmt.Path.fmt()));
-}
-
 function serviceSubtle(text: string): string {
   return c.gray(text);
+}
+
+function serviceMode(mode: string): string {
+  return c.magenta(mode);
 }
 
 function serviceDivider(): string {

@@ -1,5 +1,6 @@
-import { c, CliTable, Fmt, Fs, TmplEngine, Yaml } from './common.ts';
+import { c, CliTable, Fs, TmplEngine, Yaml } from './common.ts';
 import { Cell } from '../m.cell/mod.ts';
+import { FmtPath } from './u.fmt.path.ts';
 import type { CellTmpl } from '../m.tmpl/t.ts';
 import { writeTmpl } from '../m.tmpl/u/u.write.ts';
 
@@ -41,7 +42,7 @@ export function formatInitResult(res: InitCellResult) {
     `\n  ${c.cyan('@sys/cell/cli init')}`,
     '',
     renderRows([
-      ['target', formatDisplayPath(res.target)],
+      ['target', FmtPath.display(res.target)],
       ...(res.dryRun ? [['mode', 'dry-run; no files written'] as const] : []),
       ['status', status(res)],
     ]),
@@ -72,10 +73,6 @@ async function validateExistingDescriptor(root: string) {
 function status(res: InitCellResult) {
   if (res.already) return 'already initialized';
   return res.dryRun ? 'would initialize' : 'initialized';
-}
-
-function formatDisplayPath(path: string) {
-  return Fmt.Path.str(path);
 }
 
 function renderRows(rows: readonly (readonly [string, string])[]) {

@@ -4,6 +4,7 @@ import { CellHelp } from '../../m.help/mod.ts';
 import { c, Cli, stripAnsi, type t } from '../common.ts';
 import { CellCli } from '../mod.ts';
 import { Fmt } from '../u.fmt.ts';
+import { formatStartResult } from '../u.start.ts';
 import { silent } from './u.fixture.ts';
 
 describe(`@sys/cell/cli`, () => {
@@ -299,6 +300,20 @@ describe(`@sys/cell/cli`, () => {
     expect(text).to.contain('services   0');
   });
 
+  it('start summary renderer trims cwd from filesystem paths', () => {
+    const cwd = Fs.cwd();
+    const root = Fs.join(cwd, '-sample/cell.vite');
+    const text = stripAnsi(formatStartResult({
+      root,
+      services: 1,
+      mode: 'default',
+      serviceText: '',
+    }));
+
+    expect(text).to.contain('-sample/cell.vite');
+    expect(text).to.not.contain(`${cwd}/`);
+  });
+
   it('start → renders started service status blocks uniformly', async () => {
     const fs = await Testing.dir('CellCli.start.service-status');
     await Fs.write(
@@ -405,6 +420,9 @@ describe(`@sys/cell/cli`, () => {
 
   it('service renderer shows non-default selected service mode', () => {
     const now = Time.now.timestamp;
+    const cwd = Fs.cwd();
+    const config = Fs.join(cwd, '-config/view.dev.yaml') as t.StringPath;
+    const root = Fs.join(cwd, 'view') as t.StringDir;
     const text = stripAnsi(Fmt.Services.started({
       services: [{
         service: {
@@ -429,8 +447,9 @@ describe(`@sys/cell/cli`, () => {
             config: './-config/view.dev.yaml' as t.Cell.Path,
           },
         },
-        paths: { config: '/cell/-config/view.dev.yaml' as t.StringPath },
+        paths: { config },
         metrics: { start: { startedAt: now, resolvedAt: now } },
+        owner: { state: 'ready', root },
       }],
     }));
 
@@ -439,6 +458,9 @@ describe(`@sys/cell/cli`, () => {
     expect(text).to.contain('mode');
     expect(text).to.contain('dev');
     expect(text).to.contain('jsr:@sys/driver-vite/service');
+    expect(text).to.contain('-config/view.dev.yaml');
+    expect(text).to.contain('view');
+    expect(text).to.not.contain(`${cwd}/`);
     expect(text).to.not.contain('jsr:@sys/tools/serve');
   });
 
