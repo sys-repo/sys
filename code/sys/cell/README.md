@@ -85,15 +85,33 @@ Options    -h, --help   show help
 
 <p>&nbsp;</p>
 
-## Prompting `cell dsl`
+## Prompting `dsl`
 
-Use `dsl` for Cell edit language: speech acts, mappings, owner boundaries, and operational
-examples. The README gives the shape; the DSL help carries the working rules.
+| Intent                    | [Speech act](https://en.wikipedia.org/wiki/Speech_act) examples:                       |
+| ------------------------- | -------------------------------------------------------------------------------------- |
+| create: Cell              | Initialize this folder as an `@sys/cell`.                                              |
+| create: Cell at path      | Initialize `./foo` as an `@sys/cell`.                                                  |
+| add: pulled view          | Add a pulled view from `<dist-url>`.                                                   |
+| refresh: pulled views     | Pull latest configured views.                                                          |
+| add: static serve service | Add an `@sys/tools/serve` static service for `<dir>`.                                  |
+| add: service              | Add a service named `<service-name>` using endpoint `<endpoint>` from module `<module>`. |
+| add: proxy service        | Add a proxy service named `<service-name>`.                                            |
+| route: proxy root         | Route `/` to `<view/service/upstream>`.                                                |
+| route: proxy mount        | Route `<path-prefix>` to `<view/service/upstream>`.                                    |
+| run: task                 | Run a task named `<task-name>`.                                                        |
+| start: services           | Start the **Cell** services.                                                           |
+| start: services in mode   | Start services with complete variant bindings for `<mode>`.                            |
 
-```sh
-deno run -ER jsr:@sys/cell dsl
-deno run -ER jsr:@sys/cell dsl examples
-```
+Sample slot values, not DSL grammar:
+
+- `<dist-url>`: `https://fs.db.team/driver.stripe/dist.json`
+- `<dist-url>`: `https://fs.db.team/ui.components/dist.json`
+- `<service-name>`: `ui:static:views` for the sample static view service
+- `<service-name>`: `stripe:dev:fixture` for the Stripe fixture service
+- `<service-name>`: `cell:proxy` for the sample public proxy
+- `<module>` / `<endpoint>`: `jsr:@sys/driver-stripe/server/fixture` / `StripeFixture`
+- `<config>`: `./-config/@sys.driver-stripe/fixture.yaml`
+- `<view>`: `stripe.dev`, `hello`
 
 <p>&nbsp;</p>
 
