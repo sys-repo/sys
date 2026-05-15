@@ -6,7 +6,7 @@ export const JSR_BODY_TEMPLATE = `- name: publish module → "NAME"
     deno task test
     max_attempts=5
     for attempt in $(seq 1 $max_attempts); do
-        if deno publish --allow-dirty; then
+        if deno publish; then
           exit 0
         fi
         if [ "$attempt" -lt "$max_attempts" ]; then
