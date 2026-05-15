@@ -98,5 +98,5 @@ sections:
       services:
         - name: <service-name>
           use: HttpProxy
-          from: '@sys/http/server/proxy'
+          from: 'jsr:@sys/http/server/proxy'
           config: <proxy-config>

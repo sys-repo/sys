@@ -134,7 +134,7 @@ describe('FmtHelp', () => {
     expect(text).to.not.contain('views: [<view>]');
     expect(text).to.not.contain('./-config/@sys.http/static/web.yaml');
     expect(text).to.not.contain('./view/web');
-    expect(text).to.contain("from: '@sys/tools/serve'");
+    expect(text).to.contain("from: 'jsr:@sys/tools/serve'");
     expect(text).to.contain('use: Serve');
   });
 

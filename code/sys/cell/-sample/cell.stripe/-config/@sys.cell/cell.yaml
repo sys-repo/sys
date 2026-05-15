@@ -6,15 +6,15 @@ version: 1
 services:
   - name: ui:static:views
     use: HttpStatic
-    from: '@sys/http/server/static'
+    from: 'jsr:@sys/http/server/static'
     config: ./-config/@sys.http/static.view.yaml
 
   - name: stripe:dev:fixture
     use: StripeFixture
-    from: '@sys/driver-stripe/server/fixture'
+    from: 'jsr:@sys/driver-stripe/server/fixture'
     config: ./-config/@sys.driver-stripe/fixture.yaml
 
   - name: cell:proxy
     use: HttpProxy
-    from: '@sys/http/server/proxy'
+    from: 'jsr:@sys/http/server/proxy'
     config: ./-config/@sys.http/proxy.yaml

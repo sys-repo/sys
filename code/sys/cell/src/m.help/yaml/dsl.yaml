@@ -18,6 +18,9 @@ sections:
       Cell owns boot/composition, service orchestration, and Cell CLI terminal lifecycle.
       Owner configs own mechanics and state interpretation.
       `cell.yaml` names trusted services, finite tasks, and owner config references.
+      Public package endpoint refs should use explicit JSR authority such as `jsr:@sys/...`.
+      Cell-local adapters should use relative refs such as `./-services/local.ts` or `./-tasks/local.ts`.
+      Cell verifies trusted public refs by package identity, not by duplicating registry spellings.
       Views are owner-defined projections that make Cell state perceivable.
       Tasks are finite workflow declarations; endpoint modules own execution mechanics.
       Do not register views or service-to-view relationships in `cell.yaml`.
@@ -74,7 +77,7 @@ sections:
       - if no pull config is specified or known, ask for it
       - do not edit `cell.yaml` for refresh-only pulls
       - add static serve service → use the `@sys/tools/serve` service endpoint
-      - "then register `services[]` with `name`, `use: Serve`, `from: '@sys/tools/serve'`, and `config`"
+      - "then register `services[]` with `name`, `use: Serve`, `from: 'jsr:@sys/tools/serve'`, and `config`"
       - do not bypass Cell services with `@sys/tools serve --non-interactive` task shortcuts
       - add generic service → confirm `Cell.Services.LifecycleEndpoint`
       - local service adapter → keep adapter code under the Cell root, typically `./-services/*.ts`
@@ -85,6 +88,7 @@ sections:
       - root route → run `@sys/http/server/proxy root set`
       - mount route → run `@sys/http/server/proxy mount add`
       - add leaf task → confirm the endpoint exposes `run(args)` and owner config affordance when config is needed
+      - public service/task endpoint refs → prefer explicit `jsr:@sys/...` refs
       - local task adapter → keep adapter code under the Cell root, typically `./-tasks/*.ts`
       - task config → owner-owned ref resolved relative to the Cell root and passed as `paths.config`
       - leaf task descriptor → register `tasks[]` with `name`, `use`, `from`, and optional `config`

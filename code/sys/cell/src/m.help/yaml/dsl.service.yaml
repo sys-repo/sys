@@ -23,7 +23,10 @@ sections:
       Treat service names as opaque identifiers for display, logs, and review.
       Do not treat service names as raw paths, URLs, imports, task names, or config filenames.
       `<module>` is a trusted import specifier or Cell-local relative adapter path.
-      Module examples: `@scope/pkg`, `@scope/pkg/server`, `@scope/pkg/service`, `./-services/local.ts`.
+      Public @sys package refs should use explicit JSR authority such as `jsr:@sys/tools/serve`.
+      Other public scopes require explicit trust before `Cell.Services.verify/start` will accept them.
+      Cell-local adapters should use relative refs such as `./-services/local.ts`.
+      Module examples: `jsr:@sys/tools/serve`, `jsr:@scope/pkg/service`, `./-services/local.ts`.
       `<endpoint>` is the named ESM binding selected by `use` that implements `Cell.Services.LifecycleEndpoint`.
       Endpoint examples: `Server`, `Worker`, `Service`, `Fixture`.
       `<config>` is a Cell-relative owner config path.
@@ -62,7 +65,7 @@ sections:
   - label: 'Owner flow'
     items: |
       Start with owner help for `<module>`.
-      Run `deno run -E jsr:<module> --help` when `<module>` is a JSR CLI entrypoint.
+      Run `deno run -E <module> --help` when `<module>` is an explicit JSR CLI entrypoint such as `jsr:@scope/pkg`.
       Use the exact import specifier confirmed for the owner.
       Add permissions only when owner help says they are required.
       Check for owner config affordances such as `config` or `config add`.

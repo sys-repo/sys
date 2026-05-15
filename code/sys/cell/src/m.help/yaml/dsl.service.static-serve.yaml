@@ -60,5 +60,5 @@ sections:
       services:
         - name: <service-name>
           use: Serve
-          from: '@sys/tools/serve'
+          from: 'jsr:@sys/tools/serve'
           config: <serve-config>

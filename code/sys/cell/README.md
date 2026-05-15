@@ -99,7 +99,7 @@ Sample slot values, not DSL grammar:
 - `<service-name>`: `ui:static:views` for the sample static view service
 - `<service-name>`: `stripe:dev:fixture` for the Stripe fixture service
 - `<service-name>`: `cell:proxy` for the sample public proxy
-- `<module>` / `<endpoint>`: `@sys/driver-stripe/server/fixture` / `StripeFixture`
+- `<module>` / `<endpoint>`: `jsr:@sys/driver-stripe/server/fixture` / `StripeFixture`
 - `<config>`: `./-config/@sys.driver-stripe/fixture.yaml`
 - `<view>`: `stripe.dev`, `hello`
 

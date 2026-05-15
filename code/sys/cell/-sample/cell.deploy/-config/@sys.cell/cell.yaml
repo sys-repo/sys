@@ -6,7 +6,7 @@ version: 1
 services:
   - name: deploy:view
     use: Serve
-    from: '@sys/tools/serve'
+    from: 'jsr:@sys/tools/serve'
     config: ./-config/@sys.tools.serve/view.yaml
 
 tasks:
