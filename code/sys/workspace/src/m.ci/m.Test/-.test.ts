@@ -19,7 +19,7 @@ describe('WorkspaceCi.Test', () => {
 
     const yaml = await WorkspaceCi.Test.text({ paths: [a, b] });
 
-    const incl = yaml.includes;
+    const incl = (value: string) => yaml.includes(value);
 
     expect(incl('name: test')).to.be.true;
     expect(incl('test module → "${{ matrix.name }}"')).to.be.true;
@@ -33,7 +33,7 @@ describe('WorkspaceCi.Test', () => {
     expect(incl('if: ${{ matrix.browser == true }}')).to.be.true;
     expect(incl('browser-actions/setup-chrome@v1')).to.be.false;
     expect(incl('FORCE_JAVASCRIPT_ACTIONS_TO_NODE24')).to.be.false;
-    expect(incl('for bin in google-chrome google-chrome-stable chromium chromium-browser')).be.true;
+    expect(incl('for bin in google-chrome google-chrome-stable chromium chromium-browser')).to.be.true;
     expect(incl('echo "CHROME_BIN=$path" >> "$GITHUB_ENV"')).to.be.true;
     expect(incl('browser: true')).to.be.true;
     expect(incl('Verify workspace graph')).to.be.true;
