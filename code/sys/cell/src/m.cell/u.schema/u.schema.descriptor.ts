@@ -9,12 +9,22 @@ const EndpointSelector = {
   use: T.String({ pattern: EndpointNamePattern }),
 };
 
+const ServiceBinding = T.Object(
+  {
+    ...EndpointSelector,
+    from: T.String({ minLength: 1 }),
+    config: CellPath,
+  },
+  { additionalProperties: false },
+);
+
 const Service = T.Object(
   {
     name: Id,
     ...EndpointSelector,
     from: T.String({ minLength: 1 }),
     config: CellPath,
+    variants: T.Optional(T.Record(Id, ServiceBinding)),
   },
   { additionalProperties: false },
 );

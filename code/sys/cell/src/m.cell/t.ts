@@ -253,17 +253,30 @@ export declare namespace Cell {
   export namespace Services {
     /** Services verification/activation API. */
     export type Lib = {
+      plan(cell: Instance, options?: PlanOptions): Promise<Plan>;
       verify(cell: Instance, options?: VerifyOptions): Promise<Verification>;
       start(cell: Instance, options?: StartOptions): Promise<Started>;
       /** Wait for started service lifecycle handles that expose `finished`. */
       wait(started: Started): Promise<void>;
     };
 
-    /** Services verification options. */
-    export type VerifyOptions = {
+    /** Service graph mode selected for this run. */
+    export type ServiceMode = Id | 'default';
+
+    /** Trusted endpoint import policy options. */
+    export type TrustOptions = {
       /** Trusted import specifier prefixes. Defaults to `['@sys/']`. */
       trusted?: string[];
     };
+
+    /** Services planning options. */
+    export type PlanOptions = TrustOptions & {
+      /** Select service variants for this plan. Omit or use `default` for base bindings. */
+      mode?: ServiceMode;
+    };
+
+    /** Services verification options. */
+    export type VerifyOptions = TrustOptions;
 
     /** Services start options. */
     export type StartOptions = VerifyOptions & {
@@ -279,6 +292,52 @@ export declare namespace Cell {
       silent?: boolean;
       /** Canonical lifecycle bridge supplied by the service runner. */
       until?: t.UntilInput;
+    };
+
+    /** Services plan result without endpoint imports or lifecycle starts. */
+    export type Plan = {
+      /** Loaded Cell root folder. */
+      readonly root: t.StringDir;
+      /** Requested service graph mode after normalization. */
+      readonly mode: ServiceMode;
+      /** Planned services in descriptor order. */
+      readonly services: readonly PlannedService[];
+    };
+
+    /** Planned service with selected binding, resolved config path, and endpoint import address. */
+    export type PlannedService = {
+      /** Effective selected service facts. */
+      readonly service: SelectedService;
+      /** Selection audit trail back to the descriptor and requested mode. */
+      readonly selection: ServiceSelection;
+      readonly paths: { readonly config: t.StringPath };
+      readonly endpoint: PlannedEndpoint;
+    };
+
+    /** Planned service endpoint address accepted by Cell. */
+    export type PlannedEndpoint = {
+      /** Descriptor-authored Cell-side endpoint selector. */
+      readonly use: string;
+      /** Descriptor-authored module specifier. */
+      readonly from: string;
+      /** Import address Cell would use later during verify/start. */
+      readonly specifier: string;
+      /** How Cell accepted `from`. */
+      readonly source: 'local' | 'trusted';
+    };
+
+    /** Audit trail for service binding selection. */
+    export type ServiceSelection = {
+      /** Stable conceptual service identity. */
+      readonly name: Id;
+      /** Requested service graph mode. */
+      readonly mode: ServiceMode;
+      /** Selected variant name when this service used a variant binding. */
+      readonly variant?: Id;
+      /** Authored descriptor service entry. */
+      readonly descriptor: Service;
+      /** Effective selected binding. */
+      readonly binding: ServiceBinding;
     };
 
     /** Services verification result. */
@@ -321,12 +380,23 @@ export declare namespace Cell {
       start(args: StartArgs): Handle | Promise<Handle>;
     };
 
-    /** Service resolved through `use` + `from` and service-owned `config`. */
-    export type Service = {
-      name: Id;
+    /** Service endpoint/config binding. */
+    export type ServiceBinding = {
       use: string;
       from: string;
       config: Path;
+    };
+
+    /** Service variant binding. */
+    export type ServiceVariant = ServiceBinding;
+
+    /** Effective selected service facts. */
+    export type SelectedService = { name: Id } & ServiceBinding;
+
+    /** Service resolved through `use` + `from` and service-owned `config`. */
+    export type Service = SelectedService & {
+      /** Optional alternative bindings selected by explicit service graph mode. */
+      variants?: Record<Id, ServiceVariant>;
     };
   }
 

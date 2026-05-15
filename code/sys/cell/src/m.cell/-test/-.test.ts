@@ -7,6 +7,7 @@ describe(`Cell`, () => {
     expect(m.Cell).to.equal(Cell);
     expect(m.Cell.Schema).to.equal(Cell.Schema);
     expect(m.Cell.Services).to.equal(Cell.Services);
+    expect(m.Cell.Services.plan).to.equal(Cell.Services.plan);
     expect(m.Cell.Services.verify).to.equal(Cell.Services.verify);
     expect(m.Cell.Services.start).to.equal(Cell.Services.start);
     expect(m.Cell.Services.wait).to.equal(Cell.Services.wait);

@@ -1,4 +1,4 @@
-import { Is, Schema, type t } from './common.ts';
+import { IdPattern, Is, Schema, type t } from './common.ts';
 import { DescriptorSchema } from './u.schema.descriptor.ts';
 
 export function validateDescriptor(value: unknown): t.Cell.Schema.Validation {
@@ -15,6 +15,8 @@ export function validateDescriptor(value: unknown): t.Cell.Schema.Validation {
   return { ok: errors.length === 0, errors };
 }
 
+const Id = new RegExp(IdPattern);
+
 function validateDescriptorSemantics(descriptor: t.Cell.Descriptor): t.Cell.Schema.Issue[] {
   const errors: t.Cell.Schema.Issue[] = [];
   const serviceNames = new Set<string>();
@@ -30,6 +32,22 @@ function validateDescriptorSemantics(descriptor: t.Cell.Descriptor): t.Cell.Sche
       });
     }
     serviceNames.add(service.name);
+
+    for (const variant of Object.keys(service.variants ?? {})) {
+      if (variant === 'default') {
+        errors.push({
+          kind: 'semantic',
+          path: `${servicePath}/variants/default`,
+          message: 'Reserved service variant name: default',
+        });
+      } else if (!Id.test(variant)) {
+        errors.push({
+          kind: 'semantic',
+          path: `${servicePath}/variants/${variant}`,
+          message: `Invalid service variant name: ${variant}`,
+        });
+      }
+    }
   });
 
   errors.push(...validateTaskSemantics(descriptor.tasks ?? []));

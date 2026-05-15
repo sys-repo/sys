@@ -33,6 +33,27 @@ describe(`Cell.Schema`, () => {
       expect(CellSchema.Descriptor.validate(descriptor)).to.eql({ ok: true, errors: [] });
     });
 
+    it('accepts complete service variant bindings', () => {
+      const descriptor: unknown = {
+        kind: 'cell',
+        version: 1,
+        services: [
+          {
+            ...service('view', { use: 'Serve', from: 'jsr:@sys/tools/serve' }),
+            variants: {
+              dev: {
+                use: 'ViteDev',
+                from: 'jsr:@sys/driver-vite/service',
+                config: './-config/@sys.driver-vite/view.dev.yaml',
+              },
+            },
+          },
+        ],
+      };
+
+      expect(CellSchema.Descriptor.validate(descriptor)).to.eql({ ok: true, errors: [] });
+    });
+
     it('accepts root leaf and composite task descriptors', () => {
       const descriptor: unknown = {
         kind: 'cell',
@@ -160,6 +181,76 @@ describe(`Cell.Schema`, () => {
       const result = CellSchema.Descriptor.validate(descriptor);
       expect(result.ok).to.eql(false);
       expect(result.errors.some((e) => e.kind === 'schema')).to.eql(true);
+    });
+
+    it('rejects incomplete service variant bindings', () => {
+      const cases: readonly unknown[] = [
+        { use: 'ViteDev', from: 'jsr:@sys/driver-vite/service' },
+        { use: 'ViteDev', config: './-config/@sys.driver-vite/view.dev.yaml' },
+        { from: 'jsr:@sys/driver-vite/service', config: './-config/@sys.driver-vite/view.dev.yaml' },
+      ];
+
+      cases.forEach((dev) => {
+        const descriptor: unknown = {
+          kind: 'cell',
+          version: 1,
+          services: [{ ...service('view'), variants: { dev } }],
+        };
+
+        const result = CellSchema.Descriptor.validate(descriptor);
+        expect(result.ok).to.eql(false);
+        expect(result.errors.some((e) => e.kind === 'schema')).to.eql(true);
+      });
+    });
+
+    it('rejects reserved and invalid service variant names', () => {
+      const reserved: unknown = {
+        kind: 'cell',
+        version: 1,
+        services: [{ ...service('view'), variants: { default: serviceVariant() } }],
+      };
+      const invalid: unknown = {
+        kind: 'cell',
+        version: 1,
+        services: [{ ...service('view'), variants: { Bad: serviceVariant() } }],
+      };
+
+      const reservedResult = CellSchema.Descriptor.validate(reserved);
+      const invalidResult = CellSchema.Descriptor.validate(invalid);
+
+      expect(reservedResult.ok).to.eql(false);
+      expect(reservedResult.errors).to.deep.include({
+        kind: 'semantic',
+        path: '/services/0/variants/default',
+        message: 'Reserved service variant name: default',
+      });
+      expect(invalidResult.ok).to.eql(false);
+      expect(invalidResult.errors).to.deep.include({
+        kind: 'semantic',
+        path: '/services/0/variants/Bad',
+        message: 'Invalid service variant name: Bad',
+      });
+    });
+
+    it('rejects nested variants and unknown variant fields', () => {
+      const nested: unknown = {
+        kind: 'cell',
+        version: 1,
+        services: [{ ...service('view'), variants: { dev: { ...serviceVariant(), variants: {} } } }],
+      };
+      const unknown: unknown = {
+        kind: 'cell',
+        version: 1,
+        services: [{ ...service('view'), variants: { dev: { ...serviceVariant(), label: 'Dev' } } }],
+      };
+
+      const nestedResult = CellSchema.Descriptor.validate(nested);
+      const unknownResult = CellSchema.Descriptor.validate(unknown);
+
+      expect(nestedResult.ok).to.eql(false);
+      expect(unknownResult.ok).to.eql(false);
+      expect(nestedResult.errors.some((e) => e.kind === 'schema')).to.eql(true);
+      expect(unknownResult.errors.some((e) => e.kind === 'schema')).to.eql(true);
     });
   });
 
@@ -425,6 +516,14 @@ function service(
     use: overrides.use ?? 'StripeFixture',
     from: overrides.from ?? '@sys/driver-stripe/server/fixture',
     config: overrides.config ?? './-config/@sys.driver-stripe/fixture.yaml',
+  };
+}
+
+function serviceVariant(overrides: EndpointOverrides = {}): t.Cell.Services.ServiceVariant {
+  return {
+    use: overrides.use ?? 'ViteDev',
+    from: overrides.from ?? 'jsr:@sys/driver-vite/service',
+    config: overrides.config ?? './-config/@sys.driver-vite/view.dev.yaml',
   };
 }
 

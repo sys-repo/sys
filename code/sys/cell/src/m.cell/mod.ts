@@ -15,6 +15,19 @@ import { createTaskMethod } from './u.task.root.ts';
 export const Cell: t.Cell.Lib = {
   Schema: CellSchema,
   Services: {
+    async plan(cell, options) {
+      /**
+       * Services-only planner import.
+       *
+       * Keep this specifier constructed and marked `@vite-ignore` so Vite/Rollup
+       * does not scan FS/import-aware services helpers into browser bundles
+       * that only import `@sys/cell` for descriptor/schema work. Do NOT simplify
+       * this string.
+       */
+      const SERVICES_SPEC = './u.' + 'services/mod.ts';
+      const { CellServices } = await import(/* @vite-ignore */ SERVICES_SPEC);
+      return CellServices.plan(cell, options);
+    },
     async verify(cell, options) {
       /**
        * Services-only verifier import.
