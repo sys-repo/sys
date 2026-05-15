@@ -1,7 +1,8 @@
 import { WorkspacePrep } from '../m.prep/mod.ts';
 import { runPhase } from '../u.phase.ts';
-import { type t, Cli, Fs, Str } from './common.ts';
+import { Cli, Fs, type t } from './common.ts';
 import { Build } from './m.Build/mod.ts';
+import { Fmt } from './m.Fmt.ts';
 import { Jsr } from './m.Jsr/mod.ts';
 import { Test } from './m.Test/mod.ts';
 import { formatSyncResult } from './u.source.ts';
@@ -84,7 +85,14 @@ export async function sync(args: t.WorkspaceCi.SyncArgs) {
       done: (result) => formatSyncResult('test', result),
     });
 
-    if (!silent) wrangle.log({ versionFilter, final: args.final, prepared: args.prepared, jsr });
+    if (!silent) {
+      wrangle.log({
+        versionFilter,
+        final: args.final,
+        refreshedWorkspacePackageCount: args.prepared,
+        jsr,
+      });
+    }
     return { jsr, build, test };
   } finally {
     spinner.stop();
@@ -95,7 +103,7 @@ const wrangle = {
   async jsrPaths(paths: readonly t.StringPath[], cwd: t.StringDir, scopes?: readonly string[]) {
     const results = await Promise.all(
       paths.map(async (path) =>
-        (await Jsr.Is.publishable(path, cwd, { scopes })) ? path : undefined,
+        (await Jsr.Is.publishable(path, cwd, { scopes })) ? path : undefined
       ),
     );
     return results.filter((item): item is t.StringPath => !!item);
@@ -130,13 +138,12 @@ const wrangle = {
   log(args: {
     readonly versionFilter: t.WorkspaceCi.Jsr.VersionFilter;
     readonly final?: boolean;
-    readonly prepared?: number;
+    readonly refreshedWorkspacePackageCount?: number;
     readonly jsr: t.WorkspaceCi.SyncResult;
   }) {
-    const commit =
-      args.versionFilter === 'ahead'
-        ? 'chore(ci): refresh ahead-only GitHub workflow outputs'
-        : 'chore(ci): refresh generated GitHub workflow outputs';
+    const commit = args.versionFilter === 'ahead'
+      ? 'chore(ci): refresh ahead-only GitHub workflow outputs'
+      : 'chore(ci): refresh generated GitHub workflow outputs';
     const suggestion = Cli.Fmt.Commit.suggestion(commit, {
       title: false,
       message: { color: 'gray' },
@@ -144,20 +151,17 @@ const wrangle = {
     console.info();
     console.info(`  ${suggestion}`);
 
-    if (!args.final || typeof args.prepared !== 'number') {
+    if (!args.final || typeof args.refreshedWorkspacePackageCount !== 'number') {
       console.info();
       return;
     }
 
-    const packages = `${args.prepared} workspace ${Str.plural(args.prepared, 'package')}`;
-    const modules = `${args.jsr.count} jsr:publish ${Str.plural(args.jsr.count, 'module')}`;
-    const msg = `chore(workspace): refreshed ${packages} (${modules})`;
     console.info();
     console.info(Cli.Fmt.hr('cyan'));
     console.info(
-      Cli.Fmt.Commit.suggestion(msg, {
-        title: { text: 'final commit msg:', color: 'cyan', bold: false },
-        message: { color: 'white' },
+      Fmt.finalCommitSuggestion({
+        refreshedWorkspacePackageCount: args.refreshedWorkspacePackageCount,
+        jsrPublishModuleCount: args.jsr.count,
       }),
     );
     console.info();

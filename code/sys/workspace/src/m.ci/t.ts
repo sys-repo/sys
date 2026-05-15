@@ -12,6 +12,8 @@ export namespace WorkspaceCi {
     readonly Build: Build.Lib;
     /** Test workflow helpers. */
     readonly Test: Test.Lib;
+    /** Commit-summary formatters for workspace CI close-out output. */
+    readonly Fmt: Fmt.Lib;
     /** Sync workspace CI workflows and emit prep summaries. */
     sync(args: SyncArgs): Promise<SyncSummary>;
   };
@@ -26,7 +28,7 @@ export namespace WorkspaceCi {
     readonly versionFilter?: Jsr.VersionFilter;
     /** Optional package scopes allowed in the generated JSR publish workflow. */
     readonly jsrScopes?: readonly string[];
-    /** Optional count of workspace packages that ran `deno task prep` for final commit-summary output. */
+    /** Optional prep count rendered as refreshed workspace packages in the final commit summary. */
     readonly prepared?: number;
     /** Emit the final aggregate commit-summary block. */
     readonly final?: boolean;
@@ -57,6 +59,25 @@ export namespace WorkspaceCi {
     readonly build: SyncResult;
     readonly test: SyncResult;
   };
+
+  /** Commit-summary formatters for workspace CI close-out output. */
+  export namespace Fmt {
+    /** Workspace CI formatter helper surface. */
+    export type Lib = {
+      /** Format the final aggregate workspace refresh commit message. */
+      finalCommitMessage(args: FinalCommitMessageArgs): string;
+      /** Format the final aggregate workspace refresh commit-message suggestion block. */
+      finalCommitSuggestion(args: FinalCommitMessageArgs): string;
+    };
+
+    /** Counts used to format the final aggregate workspace refresh commit message. */
+    export type FinalCommitMessageArgs = {
+      /** Count rendered as refreshed workspace packages. */
+      readonly refreshedWorkspacePackageCount: number;
+      /** Count rendered as JSR publish modules. */
+      readonly jsrPublishModuleCount: number;
+    };
+  }
 
   /**
    * JSR publish workflow generation.
@@ -290,37 +311,37 @@ export namespace WorkspaceCi {
   /** Result from syncing a generated workflow file. */
   export type SyncResult =
     | {
-        /** Sync wrote a new workflow file. */
-        readonly kind: 'written';
-        /** Workflow file path. */
-        readonly target: t.StringPath;
-        /** Rendered workflow YAML. */
-        readonly yaml: string;
-        /** Number of workflow matrix items rendered. */
-        readonly count: number;
-      }
+      /** Sync wrote a new workflow file. */
+      readonly kind: 'written';
+      /** Workflow file path. */
+      readonly target: t.StringPath;
+      /** Rendered workflow YAML. */
+      readonly yaml: string;
+      /** Number of workflow matrix items rendered. */
+      readonly count: number;
+    }
     | {
-        /** Sync removed a stale workflow file. */
-        readonly kind: 'removed';
-        /** Workflow file path. */
-        readonly target: t.StringPath;
-        /** Number of workflow matrix items rendered. */
-        readonly count: 0;
-      }
+      /** Sync removed a stale workflow file. */
+      readonly kind: 'removed';
+      /** Workflow file path. */
+      readonly target: t.StringPath;
+      /** Number of workflow matrix items rendered. */
+      readonly count: 0;
+    }
     | {
-        /** Sync found the workflow file already up to date. */
-        readonly kind: 'unchanged';
-        /** Workflow file path. */
-        readonly target: t.StringPath;
-        /** Number of workflow matrix items rendered. */
-        readonly count: number;
-      }
+      /** Sync found the workflow file already up to date. */
+      readonly kind: 'unchanged';
+      /** Workflow file path. */
+      readonly target: t.StringPath;
+      /** Number of workflow matrix items rendered. */
+      readonly count: number;
+    }
     | {
-        /** Sync skipped because no workflow file should exist. */
-        readonly kind: 'skipped';
-        /** Workflow file path. */
-        readonly target: t.StringPath;
-        /** Number of workflow matrix items rendered. */
-        readonly count: 0;
-      };
+      /** Sync skipped because no workflow file should exist. */
+      readonly kind: 'skipped';
+      /** Workflow file path. */
+      readonly target: t.StringPath;
+      /** Number of workflow matrix items rendered. */
+      readonly count: 0;
+    };
 }
