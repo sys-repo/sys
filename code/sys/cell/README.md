@@ -38,7 +38,7 @@ file-backed databases), and other file-carried forms.
 [json]: https://www.rfc-editor.org/rfc/rfc8259
 [octet-stream]: https://www.iana.org/assignments/media-types/application/octet-stream
 
-**A Cell DSL may be "prose-shaped", semi-formal, or formal.** It can begin as plain text: Markdown
+**A Cell DSL may be prose-shaped, semi-formal, or formal.** It can begin as plain text: Markdown
 sections, naming conventions, folder layout, and other human-readable agreements that carry stable
 meaning. When those meanings need enforcement, they can harden into YAML contracts, JSON schemas, or
 TypeScript type surfaces.
@@ -49,7 +49,7 @@ TypeScript type surfaces.
  ↓ dsl         🧬     stored meaning in ordinary files
  ↓ services    🧫     active interpretation by declared services
  ↓ view        👁️     owner-defined projections that make Cell state perceivable
- ```
+```
 
 <p>&nbsp;</p>
 
@@ -112,6 +112,9 @@ Sample slot values, not DSL grammar:
 - `<config>`: `./-config/@sys.driver-stripe/fixture.yaml`
 - `<view>`: `stripe.dev`, `hello`
 
+
+<p>&nbsp;</p>
+
 ## Usage
 
 ### Programmatic
@@ -144,7 +147,7 @@ try {
 }
 ```
 
-Run a named task:
+Run a named task. A task may be a single endpoint or a sequence of named tasks.
 
 ```ts
 import { Cell } from 'jsr:@sys/cell';
@@ -207,10 +210,3 @@ Then start the dev binding:
 ```sh
 deno run -ERWN jsr:@sys/cell start . --mode dev
 ```
-
-The Vite path passes Cell's service-lifecycle proof: it starts through Cell, renders the selected
-mode and module in status output, serves HTML containing Vite's `@vite/client`, serves the Vite client
-module, serves the app entry module, and closes through Cell shutdown.
-
-That proof stops at the dev-server boundary. Full browser HMR needs a browser-backed edit/update
-proof. The Cell boundary stays the same.
