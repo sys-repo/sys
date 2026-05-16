@@ -48,7 +48,7 @@ schemas, or TypeScript type surfaces.
 
 ```text
 @sys/cell             boot/composition kernel
- ↓ dsl         🧬     stored meaning in ordinary files
+ ↓ dsl         🧬     stored meaning in ordinary files (state)
  ↓ services    🧫     active interpretation by declared services
  ↓ view        👁️     owner-defined projections that make Cell state perceivable
 ```
