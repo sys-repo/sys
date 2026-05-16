@@ -56,5 +56,6 @@ sections:
       Skip prep-output checks in `--dry-run` mode.
       Confirm no template initializer `.tmpl.ts` was copied into the target.
       Run `deno task ci` from the generated repo when dependencies can resolve.
+      After later adding or removing workspace packages, rerun `deno task prep` from the repo root before workspace-level CI.
       If prep fails, fix the reported repo-level dependency/import issue.
       Do not hand-copy template internals.

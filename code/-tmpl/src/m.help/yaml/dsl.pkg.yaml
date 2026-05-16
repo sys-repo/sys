@@ -47,6 +47,8 @@ sections:
       Replaces template placeholder `@sample/foo` with `--pkgName` across scaffolded files.
       Adds the package directory to the host workspace `deno.json` workspace array.
       Inserts the package directory into the host workspace `-scripts/-PATHS.ts` modules array.
+      The new workspace entry leaves generated workspace graph/CI surfaces stale until repo prep runs.
+      Workspace-level tasks may report `0 packages ordered` until refreshed.
       `--dry-run` previews copied files but does not run setup side effects.
 
   - label: Verify
@@ -56,5 +58,9 @@ sections:
       Confirm the workspace entry is sorted with existing entries.
       Confirm root `-scripts/-PATHS.ts` includes `<package-dir>` exactly once.
       Confirm no `@sample/foo` placeholder remains under the new package.
-      Run `deno task check` from the package directory.
+      Run `deno task check` from the package directory for package-local type proof.
+      MUST run `deno task prep` from the workspace root after package scaffold and before workspace-level CI.
+      Then run workspace-level `deno task ci` or `deno task check` from the workspace root.
+      Confirm the new package appears in "packages ordered".
+      Package-local `deno task check` does not prove workspace graph freshness.
       If the workspace root cannot be found, stop and ask for the correct target.
