@@ -1,6 +1,6 @@
 /**
  * @module
- * Server primitives for system packages.
+ * Primitives and entrypoint surfaces for system server packages.
  */
 export { pkg } from './pkg.ts';
 
