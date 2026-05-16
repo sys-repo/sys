@@ -41,7 +41,7 @@ file-backed databases), and any other file-carried forms.
 [octet-stream]: https://www.iana.org/assignments/media-types/application/octet-stream
 [dsl]: https://martinfowler.com/dsl.html
 
-**A Cell [DSL][dsl] may be prose-shaped, semi-formal, or formal.** It can begin as plain text:
+A Cell's [DSL][dsl] may be **prose-shaped, semi-formal, or formal.** It can begin as plain text:
 Markdown sections, naming conventions, folder layout, and other human-readable agreements that carry
 stable meaning. When those meanings need enforcement, they can harden into YAML contracts, JSON
 schemas, or TypeScript type surfaces.
