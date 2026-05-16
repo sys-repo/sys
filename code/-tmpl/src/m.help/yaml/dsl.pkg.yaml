@@ -25,18 +25,19 @@ sections:
       Required: `--dir <package-dir>`.
       Required: `--pkgName <@scope/name>`.
       Run from the workspace root when using a relative `<package-dir>`.
-      `<package-dir>` resolves relative to the current working directory unless absolute.
+      Relative `<package-dir>` values resolve from the current working directory.
+      Absolute `<package-dir>` values are preserved.
       `<@scope/name>` is the intended package import/publish name.
       Ask when either slot is missing, ambiguous, or likely mistyped.
 
   - label: Command
     items: |
       Preview:
-      `deno run -ERW jsr:@sys/tmpl --non-interactive --dir <package-dir> pkg`.
-      Add `--pkgName <@scope/name> --dry-run`.
+      `deno run -ERW jsr:@sys/tmpl --non-interactive --dir <package-dir>`.
+      Add `pkg --pkgName <@scope/name> --dry-run`.
       Write:
-      `deno run -ERW jsr:@sys/tmpl --non-interactive --dir <package-dir> pkg`.
-      Add `--pkgName <@scope/name>`.
+      `deno run -ERW jsr:@sys/tmpl --non-interactive --dir <package-dir>`.
+      Add `pkg --pkgName <@scope/name>`.
       Existing target with approval: add `--force`.
       Do not use `jsr:@sys/tmpl/pkg`.
 
@@ -44,9 +45,11 @@ sections:
     items: |
       Creates package files including `deno.json`, `README.md`, `src/`, and scripts.
       Also creates test harness files and UI/fs subpath stubs.
-      Replaces template placeholder `@sample/foo` with `--pkgName` across scaffolded files.
+      Replaces template placeholder `@sample/foo` with `--pkgName`.
+      Applies replacement across scaffolded files.
       Adds the package directory to the host workspace `deno.json` workspace array.
-      The new workspace entry leaves generated workspace graph/CI surfaces stale until repo prep runs.
+      The new workspace entry leaves generated workspace graph/CI surfaces stale.
+      They stay stale until repo prep runs.
       Workspace-level tasks may report `0 packages ordered` until refreshed.
       `--dry-run` previews copied files but does not run setup side effects.
 
@@ -61,7 +64,8 @@ sections:
       Run it before workspace-level CI.
       `deno task prep` runs the generated `@sys/workspace` refresh flow.
       It refreshes dependency/import, graph, package metadata, and CI surfaces.
-      Then run workspace-level `deno task ci` or `deno task check` from the workspace root.
+      Then run workspace-level verification from the workspace root.
+      Use `deno task ci` or `deno task check`.
       Confirm the new package appears in "packages ordered".
       Package-local `deno task check` does not prove workspace graph freshness.
       If the workspace root cannot be found, stop and ask for the correct target.

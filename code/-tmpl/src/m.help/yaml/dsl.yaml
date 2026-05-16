@@ -7,10 +7,14 @@ summary: |
 sections:
   - label: Agent reading protocol
     items: |
-      Agents MUST read this root DSL layer before scaffolding: `deno run -ERW jsr:@sys/tmpl dsl`.
+      Agents MUST read this root DSL layer before scaffolding.
+      Command: `deno run -ERW jsr:@sys/tmpl dsl`.
       Agents MUST NOT read every chapter by default.
-      Agents MUST identify the intended scaffold boundary from Speech acts and Decision protocol.
-      Agents MUST read each matching template chapter from the chapter index before running `@sys/tmpl`: `deno run -ERW jsr:@sys/tmpl dsl <template>`.
+      Agents MUST identify the intended scaffold boundary.
+      Use Speech acts and Decision protocol.
+      Agents MUST read each matching template chapter from the chapter index.
+      Do this before running `@sys/tmpl`.
+      Command: `deno run -ERW jsr:@sys/tmpl dsl <template>`.
       If no chapter index entry matches, stop and ask.
 
   - label: Rule
@@ -19,13 +23,18 @@ sections:
       Use `@sys/tmpl` with a positional template name.
       Never use `jsr:@sys/tmpl/<template>` subpaths.
       Do not invoke `@sys/tmpl-engine` directly to scaffold; use `@sys/tmpl`.
-      Pick one scaffold boundary per operation; do not silently cascade repo → pkg → module → component.
-      In agent runs, prefer `--non-interactive` and provide every required slot explicitly.
-      Choose command cwd deliberately: repo from intended parent, pkg from workspace root.
+      Pick one scaffold boundary per operation.
+      Do not silently cascade repo → pkg → module → component.
+      In agent runs, prefer `--non-interactive`.
+      Provide every required slot explicitly.
+      Choose command cwd deliberately.
+      Run repo scaffolds from the intended parent.
+      Run pkg scaffolds from the workspace root.
       Run module/UI scaffolds from the containing package root.
       Relative `--dir` values resolve from the command cwd.
-      If a slot, target, overwrite policy, or side-effect boundary is unclear, stop and ask.
-      Use `--dry-run` first when the target, write set, or side effects are not confirmed.
+      If any slot, target, overwrite policy, or side-effect boundary is unclear,
+      stop and ask before proceeding.
+      Use `--dry-run` first when target, write set, or side effects are unconfirmed.
 
   - label: Decision protocol
     items: |
@@ -56,15 +65,18 @@ sections:
       `repo` has no template-specific name flag.
       Repo identity comes from the target directory and later metadata.
       `m.mod` has no `--name` flag; module identity comes from the target directory.
-      Ask for missing slots; do not invent names from vibes or rewrite user names silently.
-      If a proposed package/component name needs normalization, ask before changing it.
+      Ask for missing slots.
+      Do not invent names from vibes or rewrite user names silently.
+      If a proposed package/component name needs normalization, ask first.
+      Do not change it silently.
 
   - label: Command grammar
     items: |
       Normal form:
       `deno run -ERW jsr:@sys/tmpl --non-interactive --dir <target-dir>`.
       Then pass `<template> [template-flags]` as positional arguments.
-      Template selection is positional: `repo`, `pkg`, `m.mod`, `m.mod.ui`, or `m.mod.ui.controller`.
+      Template selection is positional.
+      Valid templates: `repo`, `pkg`, `m.mod`, `m.mod.ui`, `m.mod.ui.controller`.
       Preview form: add `--dry-run`.
       Existing target with approval: add `--force`.
       Do not run `deno run -ERW jsr:@sys/tmpl/repo` or any other template subpath.
@@ -75,7 +87,8 @@ sections:
       Read the suggested commit message line.
       Inspect the target folder and nearest parent `types.ts` as applicable.
       Inspect workspace `deno.json` or `src/-test/-specs.ts` when applicable.
-      Prefer the narrowest relevant check: package `deno task check`, repo `deno task ci`, or targeted tests.
+      Prefer the narrowest relevant check.
+      Use package `deno task check`, repo `deno task ci`, or targeted tests.
       If setup logs a missing `types.ts` warning, stop.
       Decide whether to create one or choose a different target.
       Do not hand-wire guessed exports.

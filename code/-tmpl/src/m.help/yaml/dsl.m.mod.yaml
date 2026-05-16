@@ -25,7 +25,8 @@ sections:
     items: |
       Required: `--dir <module-dir>`.
       Run from the containing package root when using a relative `<module-dir>`.
-      `<module-dir>` resolves relative to the current working directory unless absolute.
+      Relative `<module-dir>` values resolve from the current working directory.
+      Absolute `<module-dir>` values are preserved.
       No component or package name flag is accepted.
       Ask when the prompt gives a concept but not a target directory.
       Ask before creating nested modules if the package boundary is unclear.
@@ -33,15 +34,18 @@ sections:
   - label: Command
     items: |
       Preview:
-      `deno run -ERW jsr:@sys/tmpl --non-interactive --dir <module-dir> m.mod --dry-run`.
+      `deno run -ERW jsr:@sys/tmpl --non-interactive --dir <module-dir>`.
+      Add `m.mod --dry-run`.
       Write:
-      `deno run -ERW jsr:@sys/tmpl --non-interactive --dir <module-dir> m.mod`.
+      `deno run -ERW jsr:@sys/tmpl --non-interactive --dir <module-dir>`.
+      Add `m.mod`.
       Existing target with approval: add `--force`.
       Do not use `jsr:@sys/tmpl/m.mod`.
 
   - label: Side effects
     items: |
-      Creates a module folder with `mod.ts`, `t.ts`, `common.ts`, and test scaffold files.
+      Creates a module folder with `mod.ts`, `t.ts`, and `common.ts`.
+      Also creates test scaffold files.
       Updates the nearest parent `types.ts`.
       Verify that file is inside the intended package boundary.
       Setup warns when the containing package or parent `types.ts` cannot be found.
