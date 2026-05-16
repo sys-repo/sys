@@ -1,7 +1,7 @@
 id: examples
 title: Cell DSL examples
 summary: |
-  Recognition examples for informal Cell edit prompts. Use after a speech act is recognized but slots remain incomplete or ambiguous.
+  Resolve incomplete or ambiguous slots after matching a Cell speech act.
 
 sections:
   - label: Rule
