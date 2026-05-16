@@ -4,8 +4,8 @@ A **Cell** is a folder-shaped [metamedium](https://en.wikipedia.org/wiki/Metamed
 
 ---
 
-`@sys/cell` is the boot and composition kernel for a Cell: a folder boundary that lets
-ordinary files behave as one coherent medium.
+`@sys/cell` is the boot and composition kernel for a Cell: a folder boundary that gives
+ordinary file state a declared runtime.
 It loads `cell.yaml`: a lightweight descriptor that names trusted lifecycle services, finite tasks
 that run to completion, and the owner config files those endpoints use.
 
