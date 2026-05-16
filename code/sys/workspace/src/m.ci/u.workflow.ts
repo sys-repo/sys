@@ -30,6 +30,17 @@ export function workflowTemplate(args: WorkflowArgs) {
   const checkout = verifyCheckout
     ? `- uses: actions/checkout@v5\n\n${verifyCheckout}`
     : '- uses: actions/checkout@v5';
+  const verifyCleanInstall = args.verifyCleanCheckout
+    ? wrangle.indent(
+      Str.dedent(`
+        - name: Verify clean dependency install
+          run: |
+            git status --short
+            test -z "$(git status --porcelain)"
+      `).trim(),
+      6,
+    )
+    : '';
   const steps = Str.dedent(
     `
     steps:
@@ -55,6 +66,8 @@ export function workflowTemplate(args: WorkflowArgs) {
           done
           echo "dependency install failed after $max_attempts attempts"
           exit 1
+
+      __VERIFY_CLEAN_INSTALL__
 
       - name: Workspace Info
         run: deno task info
@@ -87,7 +100,13 @@ export function workflowTemplate(args: WorkflowArgs) {
     .replace(/^\s*__PERMISSIONS__$/m, permissions)
     .replace(/^\s*__ENV__$/m, env.trimEnd())
     .replace(/^\s*__JOB_CONFIG__$/m, jobConfig.trimEnd())
-    .replace(/^\s*__STEPS__$/m, wrangle.indent(steps, 4))
+    .replace(
+      /^\s*__STEPS__$/m,
+      wrangle.indent(steps, 4).replace(
+        /\n\s*__VERIFY_CLEAN_INSTALL__\n/m,
+        verifyCleanInstall ? `\n${verifyCleanInstall}\n` : '\n',
+      ),
+    )
     .replace(/^\s*__BODY__$/m, args.body);
 }
 

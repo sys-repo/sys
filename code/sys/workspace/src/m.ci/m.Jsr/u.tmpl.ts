@@ -3,7 +3,9 @@ export const JSR_MODULES_PLACEHOLDER = '__MODULES__';
 export const JSR_BODY_TEMPLATE = `- name: publish module → "NAME"
   run: |
     cd PATH
-    deno task test
+    deno task test --frozen
+    git status --short
+    test -z "$(git status --porcelain)"
     max_attempts=5
     for attempt in $(seq 1 $max_attempts); do
         if deno publish; then

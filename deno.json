@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "install": "deno install --reload",
+    "install": "deno install --frozen --reload",
     "info": "deno run -P=dev ./-scripts/task.info.ts",
     "ci": "deno task check && deno task dry && deno task test && deno task info",
     "test": "deno run -P=test ./-scripts/task.test.ts",
@@ -145,4 +145,3 @@
     }
   }
 }
-
