@@ -44,7 +44,7 @@ sections:
       Creates root workspace files such as `deno.json`, `imports.json`, and `deps.yaml`.
       Also creates `package.json`, `README.md`, `code/`, and `-scripts/`.
       Runs the generated repo prep flow after writing when not in `--dry-run` mode.
-      Repo prep syncs dependency/import surfaces and workspace graph outputs.
+      Repo prep uses `@sys/workspace` to sync dependency/import surfaces and workspace graph outputs.
       It also syncs package metadata and CI workflows when packages exist.
       `--dry-run` previews copied files but does not run setup side effects.
 
@@ -56,6 +56,7 @@ sections:
       Skip prep-output checks in `--dry-run` mode.
       Confirm no template initializer `.tmpl.ts` was copied into the target.
       Run `deno task ci` from the generated repo when dependencies can resolve.
-      After later adding or removing workspace packages, rerun `deno task prep` from the repo root before workspace-level CI.
+      After later adding or removing workspace packages, rerun `deno task prep` from the repo root.
+      Run it before workspace-level CI.
       If prep fails, fix the reported repo-level dependency/import issue.
       Do not hand-copy template internals.
