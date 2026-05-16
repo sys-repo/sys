@@ -11,16 +11,16 @@ that run to completion, and the owner config files those endpoints use.
 
 Terminology: **Cell** names the bounded medium — the folder itself. `cell.yaml` names its
 descriptor: the declaration of services, tasks, and owner config refs. `@sys/cell` names the package
-that loads the descriptor and runs the Cell lifecycle.
+that loads the descriptor and runs a Cell's lifecycle.
 
 #### State
 
-Cell does not define the folder's ontology, state model, view model, or config schemas.
+A Cell does not define the folder's ontology, state model, view model, or config schemas.
 Those meanings live in ordinary files and in the endpoint modules that interpret them.
-The modules define their own contracts; Cell composes their endpoints.
+The modules define their own contracts; `@sys/cell` only composes their endpoints.
 
-Cell is [late-bound](https://en.wikipedia.org/wiki/Late_binding) by design. `cell.yaml` points to
-endpoint modules and config files; it does not absorb their meanings. New media, workflows, and
+A Cell is [late-bound](https://en.wikipedia.org/wiki/Late_binding) by design: `cell.yaml` points to
+endpoint modules and config files without absorbing their meanings. New media, workflows, and
 services enter through files and modules without growing the kernel.
 
 A Cell's state and meaning are carried by ordinary files that can function as a [DSL][dsl]
@@ -50,7 +50,7 @@ schemas, or TypeScript type surfaces.
 @sys/cell             boot/composition kernel
  ↓ dsl         🧬     stored meaning in ordinary files (state)
  ↓ services    🧫     active interpretation by declared services
- ↓ view        👁️     owner-defined projections that make Cell state perceivable
+ ↓ view        👁️     owner-defined projections that make a Cell's state perceivable
 ```
 
 <p>&nbsp;</p>
@@ -65,7 +65,7 @@ schemas, or TypeScript type surfaces.
 A Cell is a folder-shaped metamedium whose ordinary files
 carry DSL-shaped meaning that can be interpreted, viewed,
 and validly rewritten within the folder that bounds it.
-Agents must read `dsl` before changing Cell config, owner configs,
+Agents must read `dsl` before changing `cell.yaml`, owner configs,
 tasks, services, or routes, then read the matching chapter from the DSL chapter index.
 
 Usage      deno run -ER   jsr:@sys/cell --help
@@ -78,7 +78,7 @@ Usage      deno run -ER   jsr:@sys/cell --help
 Commands   dsl     agent must read first — root speech acts, owner rules, mappings, and chapter index
            init    initialize a folder as a Cell
            task    run a named trusted task from tasks[]
-           start   start the Cell services
+           start   start a Cell's services
 
 Options    -h, --help   show help
 ```
@@ -99,7 +99,7 @@ Options    -h, --help   show help
 | route: proxy root         | Route `/` to `<view/service/upstream>`.                                                |
 | route: proxy mount        | Route `<path-prefix>` to `<view/service/upstream>`.                                    |
 | run: task                 | Run a task named `<task-name>`.                                                        |
-| start: services           | Start the **Cell** services.                                                           |
+| start: services           | Start a Cell's services.                                                              |
 | start: services in mode   | Start services with complete variant bindings for `<mode>`.                            |
 
 Sample slot values, not DSL grammar:
