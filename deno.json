@@ -81,6 +81,7 @@
     "code/sys/process",
     "code/sys/registry",
     "code/sys/schema",
+    "code/sys/server",
     "code/sys/std",
     "code/sys/testing",
     "code/sys/text",
@@ -145,3 +146,4 @@
     }
   }
 }
+

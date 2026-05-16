@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1778831167659,
+    "createdAt": 1778962547812,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-10142ae652999d0b85c3393e447cf31f84cf3fe5904080e5fe7cd7823849f50a",
+      "/graph": "sha256-233a2dfaac070b452f73d0cb505d8f63343e47a2a30eeaf118b8e6b0594472b8",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.93/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,12 +15,13 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.93/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1778831167664
+    "modifiedAt": 1778962547818
   },
   "graph": {
     "orderedPaths": [
       "code/sys/types",
       "code/sys/crdt",
+      "code/sys/server",
       "code/sys/std",
       "code/sys/color",
       "code/sys.ui/ui-css",
@@ -1363,6 +1364,10 @@
       {
         "from": "code/sys/types",
         "to": "code/sys/schema"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys/server"
       },
       {
         "from": "code/sys/types",

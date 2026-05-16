@@ -22,6 +22,8 @@ jobs:
             path: code/sys/types
           - name: "@sys/crdt"
             path: code/sys/crdt
+          - name: "@sys/server"
+            path: code/sys/server
           - name: "@sys/std"
             path: code/sys/std
           - name: "@sys/color"
