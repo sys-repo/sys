@@ -1,5 +1,5 @@
 # Server
-Primitives and entrypoint surfaces for system server packages.
+System primitives and entrypoint surfaces for server packages.
 
 ```ts
 import { pkg } from 'jsr:@sys/server';
