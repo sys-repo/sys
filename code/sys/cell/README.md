@@ -9,8 +9,10 @@ ordinary file state a declared runtime.
 It loads `cell.yaml` - a lightweight descriptor that names trusted lifecycle services, finite tasks
 that run to completion, and the owner config files those endpoints use.
 
-Terminology: **Cell** names the bounded medium — the folder itself. `cell.yaml` names its
-descriptor: the declaration of services, tasks, and owner config refs. `@sys/cell` names the package
+#### Terminology
+
+**“Cell”** names the bounded medium — the folder itself. `cell.yaml` names its
+descriptor: the declaration of services, tasks, and owner configs. `@sys/cell` names the package
 that loads the descriptor and runs a Cell's lifecycle.
 
 #### State
