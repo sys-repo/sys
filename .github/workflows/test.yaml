@@ -38,8 +38,6 @@ jobs:
             path: code/sys.ui/ui-dom
           - name: "@sys/net"
             path: code/sys/net
-          - name: "@sys/server"
-            path: code/sys/server
           - name: "@sys/text"
             path: code/sys/text
           - name: "@sys/cli"
@@ -92,6 +90,8 @@ jobs:
             browser: true
           - name: "@sys/cell"
             path: code/sys/cell
+          - name: "@sys/server"
+            path: code/sys/server
           - name: "@sys/workspace"
             path: code/sys/workspace
           - name: "@sys/driver-deno"

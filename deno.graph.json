@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1779008856152,
+    "createdAt": 1779012214029,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-5ab501cdc5744dbbda8d6c75a871160d21158edc57efa871530ed50d841b6f0b",
+      "/graph": "sha256-d2195e088e4f3a4014f285e5d03792c7d1e8a291df24ae7cdf4ceb4c961189d2",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.94/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,7 +15,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.94/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1779008856158
+    "modifiedAt": 1779012214035
   },
   "graph": {
     "orderedPaths": [
@@ -29,7 +29,6 @@
       "code/sys/immutable",
       "code/sys.ui/ui-dom",
       "code/sys/net",
-      "code/sys/server",
       "code/sys/text",
       "code/sys/cli",
       "code/sys/crypto",
@@ -55,6 +54,7 @@
       "code/sys.driver/driver-prosemirror",
       "code/sys.driver/driver-stripe",
       "code/sys/cell",
+      "code/sys/server",
       "code/sys/workspace",
       "code/sys.driver/driver-deno",
       "code/-tmpl",
@@ -479,6 +479,10 @@
       },
       {
         "from": "code/sys/cli",
+        "to": "code/sys/server"
+      },
+      {
+        "from": "code/sys/cli",
         "to": "code/sys/tmpl-engine"
       },
       {
@@ -716,6 +720,10 @@
       {
         "from": "code/sys/fs",
         "to": "code/sys/registry"
+      },
+      {
+        "from": "code/sys/fs",
+        "to": "code/sys/server"
       },
       {
         "from": "code/sys/fs",
@@ -1488,6 +1496,10 @@
       {
         "from": "code/sys/yaml",
         "to": "code/sys/schema"
+      },
+      {
+        "from": "code/sys/yaml",
+        "to": "code/sys/server"
       },
       {
         "from": "code/sys/yaml",
