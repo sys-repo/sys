@@ -24,13 +24,13 @@ export declare namespace WebSocketServer {
     R extends t.Cmd.Result.Map<N> = t.Cmd.Result.Map<N>,
     E extends t.Cmd.Event.Map<N> = t.Cmd.Event.Map<N>,
   > = {
-    /** Hostname passed to `Deno.serve`. Defaults to `127.0.0.1`. */
+    /** Hostname passed to `Deno.serve`. Defaults to the module default hostname. */
     hostname?: t.StringHostname;
 
-    /** TCP port passed to `Deno.serve`. */
+    /** TCP port passed to `Deno.serve`. Defaults to the module default port. */
     port?: t.PortNumber;
 
-    /** URL path accepted for WebSocket upgrades. Defaults to `/`. */
+    /** URL path accepted for WebSocket upgrades. Defaults to the module default path. */
     path?: t.StringUrlRoute;
 
     /** Typed command host grammar and handlers. */
@@ -40,14 +40,17 @@ export declare namespace WebSocketServer {
     accept?: Accept;
 
     /** Optional low-level hook for each accepted socket. */
-    onSocket?: (context: SocketContext<N, P, R, E>) => void;
+    onSocket?: (context: SocketContext<N, P, R, E>) => void | Promise<void>;
+
+    /** Structured, renderer-neutral status metadata for the running service handle. */
+    status?: StatusOptions;
 
     /** Optional lifecycle boundary for auto-closing the server. */
     until?: t.UntilInput;
   };
 
   /** Running WebSocket command server handle. */
-  export type Started = t.LifecycleAsync & {
+  export type Started = t.LifecycleAsync & t.Service.Handle & {
     /** Underlying Deno HTTP server. */
     readonly server: Deno.HttpServer<Deno.NetAddr>;
 
@@ -60,7 +63,7 @@ export declare namespace WebSocketServer {
     /** Bound TCP port. */
     readonly port: t.PortNumber;
 
-    /** Local HTTP origin, e.g. `http://127.0.0.1:8080`. */
+    /** Local HTTP origin, e.g. `http://localhost:8080`. */
     readonly origin: t.StringUrl;
 
     /** Local WebSocket URL for the accepted path. */
@@ -72,8 +75,32 @@ export declare namespace WebSocketServer {
     /** Resolves when the underlying Deno server has finished. */
     readonly finished: Promise<void>;
 
+    /** Renderer-neutral service status snapshot. */
+    status(): t.Service.Status;
+
     /** WebSocket/domain alias for `dispose()`. */
     close(reason?: unknown): Promise<void>;
+  };
+
+  /** Structured status metadata passed to `WebSocketServer.create`. */
+  export type StatusOptions = {
+    /** Optional owner-local display name. */
+    readonly name?: string;
+
+    /** Owner-local kind. Defaults to `websocket:cmd`. */
+    readonly kind?: string;
+
+    /** Primary served filesystem root, if this service has one. */
+    readonly root?: t.StringDir;
+
+    /** Owner config path, if the owner knows it. */
+    readonly config?: t.StringPath;
+
+    /** Label for the WebSocket URL. Defaults to `websocket`. */
+    readonly urlLabel?: string;
+
+    /** Extra owner facts that are not URLs and not lifecycle control. */
+    readonly details?: readonly t.Service.Detail[];
   };
 
   /** Request admission hook. Return `false` to reject or a `Response` to return it directly. */

@@ -12,19 +12,11 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts"
+    "./types": "./src/types.ts",
+    "./websocket": "./src/websocket/mod.ts"
   },
   "permissions": {
-    "clean": {
-      "read": true,
-      "write": true,
-      "env": true
-    },
-    "test": {
-      "read": true,
-      "write": true,
-      "env": true
-    }
+    "clean": { "read": true, "write": true, "env": true },
+    "test": { "read": true, "write": true, "env": true, "net": true }
   }
 }
-
