@@ -1,27 +1,26 @@
 {
   ".meta": {
-    "createdAt": 1778962547812,
+    "createdAt": 1779008856152,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-233a2dfaac070b452f73d0cb505d8f63343e47a2a30eeaf118b8e6b0594472b8",
-      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.93/src/m.graph/m.snapshot/m.Hash.ts"
+      "/graph": "sha256-5ab501cdc5744dbbda8d6c75a871160d21158edc57efa871530ed50d841b6f0b",
+      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.94/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
       "pkg": {
         "name": "@sys/workspace",
-        "version": "0.0.93"
+        "version": "0.0.94"
       },
       "types": {
-        "/graph": "https://jsr.io/@sys/workspace/0.0.93/src/m.graph/t.ts"
+        "/graph": "https://jsr.io/@sys/workspace/0.0.94/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1778962547818
+    "modifiedAt": 1779008856158
   },
   "graph": {
     "orderedPaths": [
       "code/sys/types",
       "code/sys/crdt",
-      "code/sys/server",
       "code/sys/std",
       "code/sys/color",
       "code/sys.ui/ui-css",
@@ -30,6 +29,7 @@
       "code/sys/immutable",
       "code/sys.ui/ui-dom",
       "code/sys/net",
+      "code/sys/server",
       "code/sys/text",
       "code/sys/cli",
       "code/sys/crypto",
@@ -658,6 +658,10 @@
         "to": "code/sys/http"
       },
       {
+        "from": "code/sys/event",
+        "to": "code/sys/server"
+      },
+      {
         "from": "code/sys/fs",
         "to": "code/-tmpl"
       },
@@ -852,6 +856,10 @@
       {
         "from": "code/sys/net",
         "to": "code/sys/http"
+      },
+      {
+        "from": "code/sys/net",
+        "to": "code/sys/server"
       },
       {
         "from": "code/sys/process",
@@ -1088,6 +1096,10 @@
       {
         "from": "code/sys/std",
         "to": "code/sys/schema"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys/server"
       },
       {
         "from": "code/sys/std",

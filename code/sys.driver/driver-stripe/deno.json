@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-stripe",
-  "version": "0.0.91",
+  "version": "0.0.92",
   "license": "MIT",
   "tasks": {
     "test": "deno task check && deno task test:unit && deno task build && deno task test:dist",

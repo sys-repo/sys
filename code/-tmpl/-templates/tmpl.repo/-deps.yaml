@@ -36,11 +36,11 @@ deno.json:
       ]
   - import: jsr:@sys/testing@0.0.294
     subpaths: [ server, t ]
-  - import: jsr:@sys/tmpl@0.0.399
+  - import: jsr:@sys/tmpl@0.0.400
     subpaths: [ t ]
   - import: jsr:@sys/tmpl-engine@0.0.306
     subpaths: [ t ]
-  - import: jsr:@sys/tools@0.0.415
+  - import: jsr:@sys/tools@0.0.416
     subpaths: [ t ]
   - import: jsr:@sys/types@0.0.286
   - import: jsr:@sys/ui-css@0.0.280

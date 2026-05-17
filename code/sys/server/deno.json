@@ -1,6 +1,6 @@
 {
   "name": "@sys/server",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -16,7 +16,17 @@
     "./websocket": "./src/websocket/mod.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
-    "test": { "read": true, "write": true, "env": true, "net": true }
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true
+    }
   }
 }
+

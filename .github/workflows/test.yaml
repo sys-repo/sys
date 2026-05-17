@@ -22,8 +22,6 @@ jobs:
             path: code/sys/types
           - name: "@sys/crdt"
             path: code/sys/crdt
-          - name: "@sys/server"
-            path: code/sys/server
           - name: "@sys/std"
             path: code/sys/std
           - name: "@sys/color"
@@ -40,6 +38,8 @@ jobs:
             path: code/sys.ui/ui-dom
           - name: "@sys/net"
             path: code/sys/net
+          - name: "@sys/server"
+            path: code/sys/server
           - name: "@sys/text"
             path: code/sys/text
           - name: "@sys/cli"
