@@ -1,4 +1,4 @@
-import { type t, describe, expect, it } from '../../-test.ts';
+import { describe, expect, it, type t } from '../../-test.ts';
 import { CmdIs } from '../m.Is.ts';
 
 describe('Cmd.Is', () => {
@@ -83,8 +83,12 @@ describe('Cmd.Is', () => {
       expect(CmdIs.response({ kind: 'cmd:result', id: '123', name: 'foo' })).to.eql(false);
       expect(CmdIs.response({ kind: 'cmd:result', id: 'req-', name: 'foo' })).to.eql(false);
       expect(CmdIs.response({ kind: 'cmd:result', id: 'req-123', name: '' })).to.eql(false);
-      expect(CmdIs.response({ kind: 'cmd:result', id: 'req-123', name: 'foo', ns: false })).to.eql(false);
-      expect(CmdIs.response({ kind: 'cmd:result', id: 'req-123', name: 'foo', error: 123 })).to.eql(false);
+      expect(CmdIs.response({ kind: 'cmd:result', id: 'req-123', name: 'foo', ns: false })).to.eql(
+        false,
+      );
+      expect(CmdIs.response({ kind: 'cmd:result', id: 'req-123', name: 'foo', error: 123 })).to.eql(
+        false,
+      );
     });
   });
 
@@ -111,7 +115,9 @@ describe('Cmd.Is', () => {
       expect(CmdIs.cancel({ kind: 'cmd:cancel', id: '123', name: 'foo' })).to.eql(false);
       expect(CmdIs.cancel({ kind: 'cmd:cancel', id: 'req-', name: 'foo' })).to.eql(false);
       expect(CmdIs.cancel({ kind: 'cmd:cancel', id: 'req-123', name: '' })).to.eql(false);
-      expect(CmdIs.cancel({ kind: 'cmd:cancel', id: 'req-123', name: 'foo', reason: 1 })).to.eql(false);
+      expect(CmdIs.cancel({ kind: 'cmd:cancel', id: 'req-123', name: 'foo', reason: 1 })).to.eql(
+        false,
+      );
     });
   });
 
@@ -146,8 +152,8 @@ describe('Cmd.Is', () => {
 /**
  * Helpers:
  */
-function makeError(kind: t.CmdErrorKind) {
-  const err = new Error('x') as t.DeepMutable<t.CmdError>;
+function makeError(kind: t.Cmd.Error.Kind) {
+  const err = new Error('x') as t.DeepMutable<t.Cmd.Error.Instance>;
   err.name = kind;
   return err;
 }

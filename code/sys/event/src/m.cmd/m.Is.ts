@@ -1,15 +1,15 @@
-import { type t, Is } from './common.ts';
+import { Is, type t } from './common.ts';
 
 /**
  * Type guards.
  */
-export const CmdIs: t.CmdIsLib = {
-  request: (input: unknown): input is t.CmdEnvelope => isWire(input, 'cmd'),
-  event: (input: unknown): input is t.CmdEventEnvelope => isWire(input, 'cmd:event'),
-  response: (input: unknown): input is t.CmdResultEnvelope => isWire(input, 'cmd:result'),
-  cancel: (input: unknown): input is t.CmdCancelEnvelope => isWire(input, 'cmd:cancel'),
+export const CmdIs: t.Cmd.Is.Lib = {
+  request: (input: unknown): input is t.Cmd.Wire.Request => isWire(input, 'cmd'),
+  event: (input: unknown): input is t.Cmd.Wire.Event => isWire(input, 'cmd:event'),
+  response: (input: unknown): input is t.Cmd.Wire.Result => isWire(input, 'cmd:result'),
+  cancel: (input: unknown): input is t.Cmd.Wire.Cancel => isWire(input, 'cmd:cancel'),
 
-  error(input: unknown): input is t.CmdError {
+  error(input: unknown): input is t.Cmd.Error.Instance {
     return input instanceof Error && isCmdErrorKind(input.name);
   },
 };
@@ -17,7 +17,7 @@ export const CmdIs: t.CmdIsLib = {
 /**
  * Helpers:
  */
-function isWire(input: unknown, kind: t.CmdKind) {
+function isWire(input: unknown, kind: t.Cmd.Wire.Kind) {
   if (!Is.record(input)) return false;
 
   const msg = input as Record<string, unknown>;
@@ -31,29 +31,29 @@ function isWire(input: unknown, kind: t.CmdKind) {
   );
 }
 
-function isReqId(input: unknown): input is t.CmdReqId {
+function isReqId(input: unknown): input is t.Cmd.ReqId {
   return Is.string(input) && input.startsWith('req-') && input.length > 'req-'.length;
 }
 
-function isName(input: unknown): input is t.CmdName {
+function isName(input: unknown): input is t.Cmd.Name {
   return Is.string(input) && input.length > 0;
 }
 
-function isNamespace(input: unknown): input is t.CmdNamespace | undefined {
+function isNamespace(input: unknown): input is t.Cmd.Namespace | undefined {
   return input === undefined || Is.string(input);
 }
 
-function isResponseError(kind: t.CmdKind, input: unknown) {
+function isResponseError(kind: t.Cmd.Wire.Kind, input: unknown) {
   if (kind !== 'cmd:result') return true;
   return input === undefined || Is.string(input);
 }
 
-function isCancelReason(kind: t.CmdKind, input: unknown) {
+function isCancelReason(kind: t.Cmd.Wire.Kind, input: unknown) {
   if (kind !== 'cmd:cancel') return true;
   return input === undefined || Is.string(input);
 }
 
-function isCmdErrorKind(input: string): input is t.CmdErrorKind {
+function isCmdErrorKind(input: string): input is t.Cmd.Error.Kind {
   switch (input) {
     case 'CmdErrorTimeout':
     case 'CmdErrorClientDisposed':

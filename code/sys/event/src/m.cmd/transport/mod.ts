@@ -6,6 +6,6 @@ export { fromWebSocket };
 /**
  * Transport adapters for wiring Cmd to various message endpoints.
  */
-export const Transport: t.CmdTransportLib = {
+export const Transport: t.Cmd.Transport.Lib = {
   fromWebSocket,
 };

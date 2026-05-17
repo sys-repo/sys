@@ -6,8 +6,8 @@ export type * from './t.Automerge.ts';
 
 export type {
   FC,
-  ReactElement,
   MouseEventHandler as ReactMouseEventHandler,
+  ReactElement,
   ReactNode,
 } from 'react';
 
@@ -17,7 +17,7 @@ export type {
 export type * from '@sys/types';
 
 export type { ColorTheme } from '@sys/color/t';
-export type { CmdClient, CmdEndpoint, CmdFactory, CmdHandlers, CmdHost } from '@sys/event/t';
+export type { Cmd } from '@sys/event/t';
 export type { Fs } from '@sys/fs/t';
 export type { Graph } from '@sys/immutable/t';
 export type { HistoryStack, TimeDelayPromise } from '@sys/std/t';

@@ -74,15 +74,15 @@ describe('Cmd over WebSocket', () => {
        * 9. Abort server.
        * 10. Await all closure promises.
        */
-      type CmdName = 'ping';
-      type CmdPayload = { ping: { count: number } };
-      type CmdResult = { ping: { count: number; ok: boolean } };
+      type Name = 'ping';
+      type Payload = { ping: { count: number } };
+      type Result = { ping: { count: number; ok: boolean } };
 
       const port = Net.port();
       const ac = new AbortController();
-      const cmd = Cmd.make<CmdName, CmdPayload, CmdResult>();
+      const cmd = Cmd.make<Name, Payload, Result>();
 
-      let serverEndpoint: t.CmdEndpoint | undefined;
+      let serverEndpoint: t.Cmd.Endpoint | undefined;
 
       Deno.serve({ hostname: '127.0.0.1', port, signal: ac.signal }, (req) => {
         const { socket, response } = Deno.upgradeWebSocket(req);

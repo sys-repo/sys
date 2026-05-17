@@ -1,15 +1,15 @@
-import { type t, Rx } from './common.ts';
+import { Rx, type t } from './common.ts';
 import { CmdIs } from './m.Is.ts';
 import { createId } from './u.id.ts';
 import { sameNamespace } from './u.namespace.ts';
 
-type ClientRuntimeOptions = t.CmdClientOptions & {
-  readonly ns?: t.CmdNamespace;
+type ClientRuntimeOptions = t.Cmd.Client.Options & {
+  readonly ns?: t.Cmd.Namespace;
 };
 
 // Internal: pending call entry (client side).
 type PendingEntry = {
-  readonly name: t.CmdName;
+  readonly name: t.Cmd.Name;
   readonly resolve: (value: unknown) => void;
   readonly reject: (error: unknown) => void;
 };
@@ -28,20 +28,20 @@ type StreamTerminalHandler = (terminal: StreamTerminal) => void;
  */
 export function makeClient<
   N extends string,
-  P extends t.CmdPayloadMap<N>,
-  R extends t.CmdPayloadResultMap<N>,
-  E extends t.CmdPayloadEventMap<N> = t.CmdPayloadEventMap<N>,
+  P extends t.Cmd.Payload.Map<N>,
+  R extends t.Cmd.Result.Map<N>,
+  E extends t.Cmd.Event.Map<N> = t.Cmd.Event.Map<N>,
 >(
-  endpoint: t.CmdEndpoint,
+  endpoint: t.Cmd.Endpoint,
   opts: ClientRuntimeOptions = {},
-): t.CmdClient<N, P, R, E> {
+): t.Cmd.Client.Handle<N, P, R, E> {
   const { timeout, ns, closeEndpoint = false } = opts;
   const life = Rx.lifecycle();
 
-  const pending = new Map<t.CmdReqId, PendingEntry>();
-  const timers = new Map<t.CmdReqId, TimeoutHandle>();
-  const eventHandlers = new Map<t.CmdReqId, Set<(event: unknown) => void>>();
-  const terminalHandlers = new Map<t.CmdReqId, Set<StreamTerminalHandler>>();
+  const pending = new Map<t.Cmd.ReqId, PendingEntry>();
+  const timers = new Map<t.Cmd.ReqId, TimeoutHandle>();
+  const eventHandlers = new Map<t.Cmd.ReqId, Set<(event: unknown) => void>>();
+  const terminalHandlers = new Map<t.Cmd.ReqId, Set<StreamTerminalHandler>>();
 
   /**
    * ---------------------------------------------------------------------------
@@ -72,7 +72,8 @@ export function makeClient<
       if (entry.name !== msg.name) {
         const error = makeError({
           kind: 'CmdErrorRemote',
-          message: `Command response name mismatch: expected "${entry.name}", received "${msg.name}".`,
+          message:
+            `Command response name mismatch: expected "${entry.name}", received "${msg.name}".`,
           meta: { name: entry.name, id: msg.id, ns },
         });
         rejectPending(msg.id, error);
@@ -116,7 +117,7 @@ export function makeClient<
   /**
    * Track a pending request and (optionally) arm a timeout for it.
    */
-  function registerPendingWithTimeout(id: t.CmdReqId, name: t.CmdName, entry: PendingEntry) {
+  function registerPendingWithTimeout(id: t.Cmd.ReqId, name: t.Cmd.Name, entry: PendingEntry) {
     pending.set(id, entry);
 
     if (timeout === undefined) return;
@@ -140,13 +141,17 @@ export function makeClient<
   /**
    * Sends a unary command and resolves with its result.
    */
-  const send: t.CmdClient<N, P, R, E>['send'] = (name, payload) => {
+  const send: t.Cmd.Client.Handle<N, P, R, E>['send'] = (name, payload) => {
     const id = createId();
     if (life.disposed) return Promise.reject(makeClientDisposedError(name, id));
 
-    const envelope: t.CmdEnvelope = { kind: 'cmd', ns, id, name, payload };
+    const envelope: t.Cmd.Wire.Request = { kind: 'cmd', ns, id, name, payload };
     const done = new Promise<R[typeof name]>((resolve, reject) => {
-      const entry: PendingEntry = { name, resolve: (value) => resolve(value as R[typeof name]), reject };
+      const entry: PendingEntry = {
+        name,
+        resolve: (value) => resolve(value as R[typeof name]),
+        reject,
+      };
       registerPendingWithTimeout(id, name, entry);
     });
 
@@ -157,11 +162,11 @@ export function makeClient<
   /**
    * Sends a streaming command and returns its event stream handle.
    */
-  function stream<K extends N>(name: K, payload: P[K]): t.CmdStream<N, R, E, K> {
+  function stream<K extends N>(name: K, payload: P[K]): t.Cmd.Stream.Handle<N, R, E, K> {
     const id = createId();
     if (life.disposed) return closedStream<K>(id, makeClientDisposedError(name, id));
 
-    const envelope: t.CmdEnvelope = { kind: 'cmd', ns, id, name, payload };
+    const envelope: t.Cmd.Wire.Request = { kind: 'cmd', ns, id, name, payload };
     let terminal: StreamTerminal | undefined;
 
     addTerminalHandler(id, (next) => {
@@ -198,7 +203,7 @@ export function makeClient<
       return life;
     };
 
-    const streamHandle: t.CmdStream<N, R, E, K> = {
+    const streamHandle: t.Cmd.Stream.Handle<N, R, E, K> = {
       id,
       done,
       dispose,
@@ -255,12 +260,15 @@ export function makeClient<
   /**
    * API:
    */
-  return Rx.toLifecycle<t.CmdClient<N, P, R, E>>(life, { send, stream });
+  return Rx.toLifecycle<t.Cmd.Client.Handle<N, P, R, E>>(life, { send, stream });
 
   /**
    * Helpers:
    */
-  function closedStream<K extends N>(id: t.CmdReqId, error: t.CmdError): t.CmdStream<N, R, E, K> {
+  function closedStream<K extends N>(
+    id: t.Cmd.ReqId,
+    error: t.Cmd.Error.Instance,
+  ): t.Cmd.Stream.Handle<N, R, E, K> {
     const done = Promise.reject(error) as Promise<R[K]>;
     const terminal: StreamTerminal = { ok: false, error };
 
@@ -279,7 +287,7 @@ export function makeClient<
     };
   }
 
-  function makeClientDisposedError(name: t.CmdName, id: t.CmdReqId) {
+  function makeClientDisposedError(name: t.Cmd.Name, id: t.Cmd.ReqId) {
     return makeError({
       kind: 'CmdErrorClientDisposed',
       message: `Command "${name}" was not sent because the client is disposed.`,
@@ -287,7 +295,7 @@ export function makeClient<
     });
   }
 
-  function postRequest(id: t.CmdReqId, envelope: t.CmdEnvelope) {
+  function postRequest(id: t.Cmd.ReqId, envelope: t.Cmd.Wire.Request) {
     try {
       endpoint.postMessage(envelope);
     } catch (err) {
@@ -295,8 +303,8 @@ export function makeClient<
     }
   }
 
-  function postCancel(id: t.CmdReqId, name: t.CmdName, reason: string) {
-    const envelope: t.CmdCancelEnvelope = { kind: 'cmd:cancel', ns, id, name, reason };
+  function postCancel(id: t.Cmd.ReqId, name: t.Cmd.Name, reason: string) {
+    const envelope: t.Cmd.Wire.Cancel = { kind: 'cmd:cancel', ns, id, name, reason };
     try {
       endpoint.postMessage(envelope);
     } catch {
@@ -304,7 +312,7 @@ export function makeClient<
     }
   }
 
-  function cancelPending(id: t.CmdReqId, error: unknown, reason: string) {
+  function cancelPending(id: t.Cmd.ReqId, error: unknown, reason: string) {
     const entry = pending.get(id);
     if (!entry) return;
 
@@ -312,7 +320,7 @@ export function makeClient<
     rejectPending(id, error);
   }
 
-  function resolvePending(id: t.CmdReqId, payload: unknown) {
+  function resolvePending(id: t.Cmd.ReqId, payload: unknown) {
     const entry = pending.get(id);
     if (!entry) return;
 
@@ -320,7 +328,7 @@ export function makeClient<
     entry.resolve(payload);
   }
 
-  function rejectPending(id: t.CmdReqId, error: unknown) {
+  function rejectPending(id: t.Cmd.ReqId, error: unknown) {
     const entry = pending.get(id);
     if (!entry) return;
 
@@ -328,14 +336,14 @@ export function makeClient<
     entry.reject(error);
   }
 
-  function cleanupPending(id: t.CmdReqId, terminal: StreamTerminal) {
+  function cleanupPending(id: t.Cmd.ReqId, terminal: StreamTerminal) {
     pending.delete(id);
     clearTimer(id);
     eventHandlers.delete(id);
     notifyTerminal(id, terminal);
   }
 
-  function clearTimer(id: t.CmdReqId) {
+  function clearTimer(id: t.Cmd.ReqId) {
     const timer = timers.get(id);
     if (!timer) return;
 
@@ -343,7 +351,7 @@ export function makeClient<
     timers.delete(id);
   }
 
-  function addEventHandler(id: t.CmdReqId, handler: (event: unknown) => void) {
+  function addEventHandler(id: t.Cmd.ReqId, handler: (event: unknown) => void) {
     let handlers = eventHandlers.get(id);
     if (!handlers) {
       handlers = new Set();
@@ -352,7 +360,7 @@ export function makeClient<
     handlers.add(handler);
   }
 
-  function removeEventHandler(id: t.CmdReqId, handler: (event: unknown) => void) {
+  function removeEventHandler(id: t.Cmd.ReqId, handler: (event: unknown) => void) {
     const handlers = eventHandlers.get(id);
     if (!handlers) return;
 
@@ -360,7 +368,7 @@ export function makeClient<
     if (handlers.size === 0) eventHandlers.delete(id);
   }
 
-  function addTerminalHandler(id: t.CmdReqId, handler: StreamTerminalHandler) {
+  function addTerminalHandler(id: t.Cmd.ReqId, handler: StreamTerminalHandler) {
     let handlers = terminalHandlers.get(id);
     if (!handlers) {
       handlers = new Set();
@@ -377,7 +385,7 @@ export function makeClient<
     };
   }
 
-  function notifyTerminal(id: t.CmdReqId, terminal: StreamTerminal) {
+  function notifyTerminal(id: t.Cmd.ReqId, terminal: StreamTerminal) {
     const handlers = terminalHandlers.get(id);
     terminalHandlers.delete(id);
     if (!handlers) return;
@@ -400,12 +408,12 @@ function createClosedAsyncIterator<T>(terminal: StreamTerminal): AsyncIterator<T
 }
 
 function createAsyncIterator<T>(args: {
-  readonly id: t.CmdReqId;
+  readonly id: t.Cmd.ReqId;
   readonly onEvent: (fn: (event: T) => void) => t.Lifecycle;
   readonly dispose: () => void;
   readonly terminal: () => StreamTerminal | undefined;
   readonly addTerminalHandler: (
-    id: t.CmdReqId,
+    id: t.Cmd.ReqId,
     handler: StreamTerminalHandler,
   ) => () => void;
 }): AsyncIterator<T> {
@@ -480,13 +488,13 @@ function done<T>() {
 }
 
 const makeError = (args: {
-  readonly kind: t.CmdErrorKind;
+  readonly kind: t.Cmd.Error.Kind;
   readonly message: string;
-  readonly meta?: t.CmdErrorMeta;
-}): t.CmdError => {
+  readonly meta?: t.Cmd.Error.Meta;
+}): t.Cmd.Error.Instance => {
   const { kind, message, meta } = args;
 
-  const err = new Error(message) as t.DeepMutable<t.CmdError>;
+  const err = new Error(message) as t.DeepMutable<t.Cmd.Error.Instance>;
   err.name = kind;
 
   if (meta) {

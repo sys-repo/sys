@@ -1,4 +1,4 @@
-import { type t, describe, expect, it, Schedule } from '../../-test.ts';
+import { describe, expect, it, Schedule, type t } from '../../-test.ts';
 import { Cmd } from '../mod.ts';
 
 describe('Cmd: core command behavior', () => {
@@ -30,14 +30,14 @@ describe('Cmd: core command behavior', () => {
       type Payload = { inspect: { value: number } };
       type Result = { inspect: { ok: boolean; value: number } };
 
-      const ns: t.CmdNamespace = 'ctx/ns';
+      const ns: t.Cmd.Namespace = 'ctx/ns';
       const cmd = Cmd.make<Name, Payload, Result>({ ns });
       const { port1, port2 } = new MessageChannel();
 
       let context: {
-        readonly id: t.CmdReqId;
+        readonly id: t.Cmd.ReqId;
         readonly name: Name;
-        readonly ns?: t.CmdNamespace;
+        readonly ns?: t.Cmd.Namespace;
         readonly aborted: boolean;
         readonly emit: 'function' | 'other';
       } | undefined;
@@ -591,7 +591,7 @@ describe('Cmd: core command behavior', () => {
       type Payload = { ping: {} };
       type Result = { ping: { reply: string } };
 
-      const ns: t.CmdNamespace = 'ns/exact';
+      const ns: t.Cmd.Namespace = 'ns/exact';
       const plain = Cmd.make<Name, Payload, Result>();
       const named = Cmd.make<Name, Payload, Result>({ ns });
       const { port1, port2 } = new MessageChannel();
@@ -636,7 +636,7 @@ describe('Cmd: core command behavior', () => {
       type Payload = { fail: {} };
       type Result = { fail: {} };
 
-      const ns: t.CmdNamespace = 'worker/fail';
+      const ns: t.Cmd.Namespace = 'worker/fail';
       const cmd = Cmd.make<Name, Payload, Result>({ ns });
       const { port1, port2 } = new MessageChannel();
 
@@ -667,10 +667,10 @@ describe('Cmd: core command behavior', () => {
 /**
  * Helpers:
  */
-function expectCmdError(input: unknown, kind: t.CmdErrorKind) {
+function expectCmdError(input: unknown, kind: t.Cmd.Error.Kind) {
   expect(input).to.be.instanceOf(Error);
 
-  const err = input as t.CmdError;
+  const err = input as t.Cmd.Error.Instance;
   expect(err.name).to.eql(kind);
   return err;
 }
@@ -696,5 +696,5 @@ function trackEndpoint(port: MessagePort) {
       port.close();
     },
     closed: () => closed,
-  } satisfies t.CmdEndpoint & { readonly closed: () => number };
+  } satisfies t.Cmd.Endpoint & { readonly closed: () => number };
 }

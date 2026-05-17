@@ -1,13 +1,13 @@
-import { type t, Json } from '../common.ts';
+import { Json, type t } from '../common.ts';
 
 /**
- * Test utilities for wrapping WebSocket → MessagePort → CmdEndpoint.
+ * Test utilities for wrapping WebSocket → MessagePort → Cmd endpoint.
  */
 export const Fixture = {
   /**
    * Wrap a WebSocket in a MessagePort-like interface.
    */
-  portFromWebSocket(ws: WebSocket): t.CmdMessagePort {
+  portFromWebSocket(ws: WebSocket): t.Cmd.Transport.MessagePort {
     const listeners = new Set<(event: { data: unknown }) => void>();
 
     ws.onmessage = (ev) => {

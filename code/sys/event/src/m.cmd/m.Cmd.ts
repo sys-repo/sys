@@ -7,7 +7,7 @@ import { Transport } from './transport/mod.ts';
  * Small, transport-agnostic command bus providing typed
  * request/response and streaming events over any MessagePort-like endpoint.
  */
-export const Cmd: t.CmdLib = {
+export const Cmd: t.Cmd.Lib = {
   Is,
   make,
   Transport,

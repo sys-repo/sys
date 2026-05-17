@@ -97,7 +97,7 @@ export type HttpCacheCmdEventMap = {
 };
 
 export type HttpCacheCmdHandlerContext<K extends HttpCacheCmdName = HttpCacheCmdName> =
-  TCmd.CmdHandlerContext<HttpCacheCmdName, HttpCacheCmdEventMap, K>;
+  TCmd.Cmd.Handler.Context<HttpCacheCmdName, HttpCacheCmdEventMap, K>;
 
 /**
  * Handler for the `http.cache.clear` command.
@@ -190,7 +190,7 @@ export type HttpCacheCmdListenArgs = {
    * Optional default namespace for hosted command traffic.
    * A string `ns` from the handshake message overrides this per connection.
    */
-  readonly ns?: TCmd.CmdNamespace;
+  readonly ns?: TCmd.Cmd.Namespace;
 
   /**
    * Optional handshake kind override.
@@ -236,8 +236,8 @@ export type HttpCacheCmdLib = {
    * satisfies the `Cmd` endpoint contract.
    */
   readonly make: (args?: {
-    readonly ns?: TCmd.CmdNamespace;
-  }) => TCmd.CmdFactory<
+    readonly ns?: TCmd.Cmd.Namespace;
+  }) => TCmd.Cmd.Factory<
     HttpCacheCmdName,
     HttpCacheCmdPayloadMap,
     HttpCacheCmdResultMap,

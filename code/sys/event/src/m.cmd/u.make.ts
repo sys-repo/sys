@@ -6,11 +6,11 @@ import { makeHost } from './u.host.ts';
  * Create a typed command-bus instance for a concrete command set.
  */
 export function make<
-  N extends string = t.CmdName,
-  P extends t.CmdPayloadMap<N> = t.CmdPayloadMap<N>,
-  R extends t.CmdPayloadResultMap<N> = t.CmdPayloadResultMap<N>,
-  E extends t.CmdPayloadEventMap<N> = t.CmdPayloadEventMap<N>,
->(opts: t.CmdMakeOptions = {}): t.CmdFactory<N, P, R, E> {
+  N extends string = t.Cmd.Name,
+  P extends t.Cmd.Payload.Map<N> = t.Cmd.Payload.Map<N>,
+  R extends t.Cmd.Result.Map<N> = t.Cmd.Result.Map<N>,
+  E extends t.Cmd.Event.Map<N> = t.Cmd.Event.Map<N>,
+>(opts: t.Cmd.Make.Options = {}): t.Cmd.Factory<N, P, R, E> {
   const { ns } = opts;
   return {
     client(endpoint, clientOpts) {

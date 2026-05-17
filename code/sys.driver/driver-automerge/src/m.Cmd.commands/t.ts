@@ -22,7 +22,7 @@ export type CrdtCmdName =
  * For each command name:
  *   handler(args) → result | Promise<result>
  */
-export type CrdtCmdHandlers = t.CmdHandlers<Name, Payload, Result>;
+export type CrdtCmdHandlers = t.Cmd.Handler.Map<Name, Payload, Result>;
 
 /**
  * Payloads keyed by command name.

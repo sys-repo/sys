@@ -1,4 +1,4 @@
-import { type t, Cmd, CrdtCmd, CrdtIs, Is, Try } from './common.ts';
+import { Cmd, CrdtCmd, CrdtIs, Is, type t, Try } from './common.ts';
 
 /**
  * Publish the repo's command set over a WebSocket endpoint.
@@ -34,7 +34,7 @@ export function publishCommands(args: { repo: t.Crdt.Repo } & t.CrdtWorkerFsPubl
       const { socket, response } = Deno.upgradeWebSocket(req);
 
       try {
-        // Adapt WebSocket → CmdEndpoint and attach CRDT command handlers.
+        // Adapt WebSocket → Cmd endpoint and attach CRDT command handlers.
         const endpoint = Cmd.Transport.fromWebSocket(socket);
         CrdtCmd.attachHost(repo, endpoint);
       } catch (error) {

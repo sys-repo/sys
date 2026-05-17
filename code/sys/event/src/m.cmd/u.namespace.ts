@@ -3,6 +3,6 @@ import type { t } from './common.ts';
 /**
  * Exact namespace matching for Cmd wire envelopes.
  */
-export function sameNamespace(a: t.CmdNamespace | undefined, b: t.CmdNamespace | undefined) {
+export function sameNamespace(a: t.Cmd.Namespace | undefined, b: t.Cmd.Namespace | undefined) {
   return a === b;
 }

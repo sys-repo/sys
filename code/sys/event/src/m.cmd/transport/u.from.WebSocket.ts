@@ -1,13 +1,13 @@
-import { type t, Json } from '../common.ts';
+import { Json, type t } from '../common.ts';
 
 /**
- * Adapt a WebSocket into a CmdEndpoint using JSON-encoded messages.
+ * Adapt a WebSocket into a Cmd endpoint using JSON-encoded messages.
  *
  * Outbound messages are sent with `Json.stringify`, and inbound messages are
  * parsed with `Json.safeParse` when possible. Parsed values are delivered to
  * listeners as `MessageEvent` instances carrying the decoded `data`.
  */
-export function fromWebSocket(ws: WebSocket): t.CmdEndpoint {
+export function fromWebSocket(ws: WebSocket): t.Cmd.Endpoint {
   const listeners = new Set<(event: MessageEvent) => void>();
 
   ws.onmessage = (ev) => {
@@ -25,7 +25,7 @@ export function fromWebSocket(ws: WebSocket): t.CmdEndpoint {
     addEventListener: (_type: 'message', handler: H) => listeners.add(handler),
     removeEventListener: (_type: 'message', handler: H) => listeners.delete(handler),
     start() {
-      // No-op: WebSocket is already active once open. Included for CmdEndpoint shape.
+      // No-op: WebSocket is already active once open. Included for Cmd endpoint shape.
     },
     close() {
       ws.close();

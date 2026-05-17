@@ -10,9 +10,9 @@ type Result = t.CrdtCmdResult;
  * Factory for the typed CRDT command set.
  * Produced by `Crdt.Cmd.make()`, providing `.client(port)` and `.host(port, handlers)`.
  */
-export type CrdtCmdFactory = t.CmdFactory<Name, Payload, Result>;
+export type CrdtCmdFactory = t.Cmd.Factory<Name, Payload, Result>;
 
 /**
  * Command client: `.send(name, payload)` → Promise<result>.
  */
-export type CrdtCmdClient = t.CmdClient<Name, Payload, Result>;
+export type CrdtCmdClient = t.Cmd.Client.Handle<Name, Payload, Result>;

@@ -15,11 +15,11 @@ import { make } from './u.make.ts';
  * (Worker hosts still use their own attach handler/factory logic.)
  */
 export const attachHandlers = (args: {
-  endpoint: t.CmdEndpoint;
+  endpoint: t.Cmd.Endpoint;
   repo: t.CrdtRepoInput;
   handlers?: Partial<t.CrdtCmdHandlers>;
   closeEndpoint?: boolean;
-}): t.CmdHost => {
+}): t.Cmd.Host.Handle => {
   const { endpoint } = args;
   const cmd = make();
   const getRepo = () => (Is.func(args.repo) ? args.repo() : args.repo);

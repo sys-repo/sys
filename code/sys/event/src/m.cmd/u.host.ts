@@ -1,13 +1,13 @@
-import { type t, Rx } from './common.ts';
+import { Rx, type t } from './common.ts';
 import { CmdIs } from './m.Is.ts';
 import { sameNamespace } from './u.namespace.ts';
 
-type HostRuntimeOptions = t.CmdHostOptions & {
-  readonly ns?: t.CmdNamespace;
+type HostRuntimeOptions = t.Cmd.Host.Options & {
+  readonly ns?: t.Cmd.Namespace;
 };
 
 type ActiveRequest = {
-  readonly name: t.CmdName;
+  readonly name: t.Cmd.Name;
   readonly controller: AbortController;
 };
 
@@ -16,17 +16,17 @@ type ActiveRequest = {
  */
 export function makeHost<
   N extends string,
-  P extends t.CmdPayloadMap<N>,
-  R extends t.CmdPayloadResultMap<N>,
-  E extends t.CmdPayloadEventMap<N> = t.CmdPayloadEventMap<N>,
+  P extends t.Cmd.Payload.Map<N>,
+  R extends t.Cmd.Result.Map<N>,
+  E extends t.Cmd.Event.Map<N> = t.Cmd.Event.Map<N>,
 >(
-  endpoint: t.CmdEndpoint,
-  handlers: t.CmdHandlers<N, P, R, E>,
+  endpoint: t.Cmd.Endpoint,
+  handlers: t.Cmd.Handler.Map<N, P, R, E>,
   opts: HostRuntimeOptions = {},
-): t.CmdHost {
+): t.Cmd.Host.Handle {
   const { ns, closeEndpoint = false } = opts;
   const life = Rx.lifecycle();
-  const active = new Map<t.CmdReqId, ActiveRequest>();
+  const active = new Map<t.Cmd.ReqId, ActiveRequest>();
 
   const onMessage = async (event: MessageEvent) => {
     const msg = event.data;
@@ -52,7 +52,7 @@ export function makeHost<
     try {
       if (!handler) throw new Error(`No handler registered for command "${name}".`);
 
-      const ctx: t.CmdHandlerContext<N, E, N> = {
+      const ctx: t.Cmd.Handler.Context<N, E, N> = {
         id,
         name,
         ns,
@@ -61,7 +61,7 @@ export function makeHost<
           if (controller.signal.aborted) return;
           if (active.get(id)?.controller !== controller) return;
 
-          const envelope: t.CmdEventEnvelope = {
+          const envelope: t.Cmd.Wire.Event = {
             kind: 'cmd:event',
             ns,
             id,
@@ -82,7 +82,7 @@ export function makeHost<
 
     if (controller.signal.aborted || current?.controller !== controller) return;
 
-    const envelope: t.CmdResultEnvelope = {
+    const envelope: t.Cmd.Wire.Result = {
       kind: 'cmd:result',
       ns,
       id,
@@ -114,12 +114,12 @@ export function makeHost<
   endpoint.addEventListener('message', onMessage);
   endpoint.start?.();
   life.dispose$.subscribe(teardown);
-  return Rx.toLifecycle<t.CmdHost>(life, {});
+  return Rx.toLifecycle<t.Cmd.Host.Handle>(life, {});
 
   /**
    * Helpers:
    */
-  function cancelActive(id: t.CmdReqId, reason?: string) {
+  function cancelActive(id: t.Cmd.ReqId, reason?: string) {
     const item = active.get(id);
     if (!item) return;
 
@@ -127,8 +127,8 @@ export function makeHost<
     item.controller.abort(reason ?? 'cancelled');
   }
 
-  function postHostDisposed(id: t.CmdReqId, name: t.CmdName) {
-    const envelope: t.CmdResultEnvelope = {
+  function postHostDisposed(id: t.Cmd.ReqId, name: t.Cmd.Name) {
+    const envelope: t.Cmd.Wire.Result = {
       kind: 'cmd:result',
       ns,
       id,
