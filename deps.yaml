@@ -55,7 +55,7 @@ deno.json:
   - import: npm:fast-json-patch@3.1.1
   - import: npm:happy-dom@20.9.0
   - import: npm:hash-it@7.0.2
-  - import: npm:hono@4.12.18
+  - import: npm:hono@4.12.19
     subpaths: [ cors, deno, types ]
   - import: npm:ignore@7.0.5
   - import: npm:ora@9.4.0
