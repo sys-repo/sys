@@ -2,6 +2,7 @@
  * @system
  */
 export type * from '@sys/types';
+export type * from '@sys/event/t';
 
 /**
  * @local
