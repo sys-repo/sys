@@ -28,6 +28,19 @@ sections:
       deno run -ERWN jsr:@sys/cell start [dir] --mode <mode>
       deno run -ERWN jsr:@sys/cell start . --mode dev
 
+  - label: Verification
+    items: |
+      After a descriptor edit, prove startup with the exact operator command the human is
+      expected to run.
+      If the final instruction is `deno run -ERWN jsr:@sys/cell start .`, that exact
+      unversioned command must be the proof command.
+      If only `jsr:@sys/cell@<version>` passes, either establish effective Deno dependency
+      authority and re-test the unversioned command, or report the versioned command.
+      If unversioned latest is intended, run one targeted `--reload=jsr:@sys/cell` refresh,
+      then prove the final non-`--reload` command.
+      For long-running services, proof means startup reaches the expected ready/running state;
+      it does not require the command to exit.
+
   - label: 'Project task'
     items: |
       Add a project task only when the user asks for a persistent convenience command.

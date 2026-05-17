@@ -461,6 +461,26 @@ describe(`Cell.Schema`, () => {
   });
 
   describe('strictness', () => {
+    it('accepts top-level services and rejects a dsl.services wrapper', () => {
+      const topLevel: unknown = {
+        kind: 'cell',
+        version: 1,
+        services: [service('view')],
+      };
+      const wrapped: unknown = {
+        kind: 'cell',
+        version: 1,
+        dsl: { services: [service('view')] },
+      };
+
+      const topLevelResult = CellSchema.Descriptor.validate(topLevel);
+      const wrappedResult = CellSchema.Descriptor.validate(wrapped);
+
+      expect(topLevelResult).to.eql({ ok: true, errors: [] });
+      expect(wrappedResult.ok).to.eql(false);
+      expect(wrappedResult.errors.some((e) => e.kind === 'schema')).to.eql(true);
+    });
+
     it('rejects descriptor fields that model Cell state ontology', () => {
       const descriptor: unknown = {
         kind: 'cell',

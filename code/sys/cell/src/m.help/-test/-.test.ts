@@ -12,10 +12,12 @@ describe('CellHelp.Dsl', () => {
     expect(chapter.title).to.eql('Cell DSL');
     expect(chapter.sections.map((section) => section.label)).to.eql([
       'Agent reading protocol',
+      'Runtime authority',
       'Rule',
       'Descriptor IDs',
       'Speech acts',
       'Owners',
+      'Diagnostics',
       'Mappings',
     ]);
     expect(chapter.chapters.map((child) => child.id)).to.eql([
@@ -33,6 +35,8 @@ describe('CellHelp.Dsl', () => {
     });
     expect(text).to.contain('add service mode <mode>');
     expect(text).to.contain('variants.<mode>');
+    expect(text).to.contain('same `@sys/cell` runtime authority');
+    expect(text).to.contain('/services: Unexpected property');
   });
 
   it('loads child DSL chapters by path', async () => {
@@ -119,6 +123,7 @@ describe('CellHelp.Dsl', () => {
       'Rule',
       'Operator flow',
       'Command',
+      'Verification',
       'Project task',
       'Services',
     ]);

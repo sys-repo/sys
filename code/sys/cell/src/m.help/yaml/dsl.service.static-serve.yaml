@@ -21,9 +21,13 @@ sections:
       Reject invalid service names such as `serve/static`, `StaticServe`, `serve_static`, or `bad..id`.
       `<service-name>` is semantic; propose `<area>:view` or `<area>:static` and confirm if not obvious.
       `<config>` is an owner config reference; propose `./-config/@sys.tools.serve/<profile>.yaml`.
+      `<cell-runtime>` is the Cell CLI/runtime authority used to verify the descriptor.
+      For persistent folders, confirm effective Deno dependency authority for `jsr:@sys/cell`
+      before reporting an unversioned startup command.
       Do not derive config paths by embedding raw service IDs without confirmation.
       Use owner defaults for hostname and port unless the user specifies them.
-      Confirm service name, serve config path, and static root before writing.
+      Confirm service name, serve config path, static root, and Cell runtime authority
+      before writing.
 
   - label: Dialogue
     items: |
@@ -44,6 +48,10 @@ sections:
       Start from public `@sys/tools serve --help` if the owner config shape or options are unclear.
       Create or update only the confirmed serve-tool owner config.
       Do not shell to `@sys/tools serve` from a project task to preview a Cell service.
+      If the descriptor uses the clean public ref `from: 'jsr:@sys/tools/serve'`, pin that
+      package through effective Deno dependency authority when deterministic resolution is needed.
+      Do not put version literals in `cell.yaml` solely to pin package resolution when effective
+      dependency authority can own it.
       Cell records only service name, `use`, `from`, and config reference.
       Cell starts the service through the normal service lifecycle.
 

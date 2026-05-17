@@ -12,6 +12,10 @@ describe('@sys/cell/cli dsl', () => {
     expect(res.kind).to.eql('help');
     expect(text).to.contain('@sys/cell dsl');
     expect(text).to.contain('Chapter');
+    expect(text).to.contain('Runtime authority');
+    expect(text).to.contain('same `@sys/cell` runtime authority');
+    expect(text).to.contain('/services: Unexpected property');
+    expect(text).to.contain('--reload=jsr:@sys/cell');
   });
 
   it('dsl pulled-view → routes to the pulled-view chapter', async () => {
@@ -84,6 +88,8 @@ describe('@sys/cell/cli dsl', () => {
 
     expect(res.kind).to.eql('help');
     expect(text).to.contain('@sys/cell dsl static-serve-service');
+    expect(text).to.contain('effective Deno dependency authority');
+    expect(text).to.contain("from: 'jsr:@sys/tools/serve'");
   });
 
   it('dsl service → routes to the service chapter', async () => {
@@ -108,6 +114,8 @@ describe('@sys/cell/cli dsl', () => {
 
     expect(res.kind).to.eql('help');
     expect(text).to.contain('@sys/cell dsl start-services');
+    expect(text).to.contain('exact operator command');
+    expect(text).to.contain('long-running services');
   });
 
   it('dsl examples → routes to the examples chapter', async () => {
