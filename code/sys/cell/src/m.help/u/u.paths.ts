@@ -15,10 +15,10 @@ export function resolveChapterResource(
 }
 
 export const HelpResource = {
-  Root: path('yaml/root.yaml'),
-  Init: path('yaml/init.yaml'),
-  Task: path('yaml/task.yaml'),
-  Start: path('yaml/start.yaml'),
+  Root: 'yaml/root.yaml',
+  Init: 'yaml/init.yaml',
+  Task: 'yaml/task.yaml',
+  Start: 'yaml/start.yaml',
   Dsl: {
     Root: chapter('dsl', 'yaml/dsl.yaml', [
       chapter('pulled-view', 'yaml/dsl.pulled-view.yaml'),
@@ -45,14 +45,10 @@ export const HelpResource = {
 /**
  * Helpers:
  */
-function path(value: string): t.StringPath {
-  return value;
-}
-
 function chapter(
   id: string,
-  file: string,
+  file: t.StringPath,
   children: readonly t.CellHelp.Dsl.ChapterResource[] = [],
 ): t.CellHelp.Dsl.ChapterResource {
-  return { id, file: path(file), children };
+  return { id, file, children };
 }
