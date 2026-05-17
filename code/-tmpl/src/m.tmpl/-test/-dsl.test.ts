@@ -12,7 +12,7 @@ type RunResult = {
 };
 
 const dslCommand = 'deno run -ERW jsr:@sys/tmpl dsl';
-const templateChapters = ['repo', 'pkg', 'm.mod', 'm.mod.ui', 'm.mod.ui.controller'];
+const templateChapters = ['repo', 'pkg', 'pkg.help', 'm.mod', 'm.mod.ui', 'm.mod.ui.controller'];
 
 describe('m.tmpl/-entry dsl', () => {
   it('resources define root as the progressive scaffold router', async () => {

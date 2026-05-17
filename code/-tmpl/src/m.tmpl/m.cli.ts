@@ -7,6 +7,21 @@ import { Fmt } from './u.fmt.ts';
 type SetupOptions = {
   pkgName?: string;
   name?: string;
+  force?: boolean;
+  dryRun?: boolean;
+};
+
+type TemplateSetup = (
+  dir: t.StringAbsoluteDir,
+  options?: SetupOptions,
+) => unknown | Promise<unknown>;
+type TemplatePreflight = (
+  dir: t.StringAbsoluteDir,
+  options?: SetupOptions,
+) => unknown | Promise<unknown>;
+type TemplateModule = {
+  default?: TemplateSetup;
+  preflight?: TemplatePreflight;
 };
 
 const DslCommand = 'deno run -ERW jsr:@sys/tmpl dsl';
@@ -23,7 +38,11 @@ export async function cli(
   const root = await resolveTemplate(args);
   const tmplName = assertLocalTemplate(root);
   const targetDir = await resolveTargetDir(cwd, args);
-  if ((await Fs.exists(targetDir)) && !args.force) {
+  const targetExists = await Fs.exists(targetDir);
+
+  if (isExistingPackageTemplate(tmplName)) {
+    await assertExistingPackageTarget(tmplName, targetDir);
+  } else if (targetExists && !args.force) {
     if (args.interactive) {
       const noChange = c.green('No Change');
       const msg = `${
@@ -41,20 +60,23 @@ export async function cli(
     );
   }
 
-  const tmplSetup = await Templates[tmplName]();
+  const tmplSetup = (await Templates[tmplName]()) as TemplateModule;
   if (!Is.func(tmplSetup.default)) {
     throw new Error(
       `The template named "${root}" does not export a default function from its '.tmpl.ts' file.`,
     );
   }
 
-  const options = resolveSetupOptions(tmplName, args);
+  const templateOptions = resolveSetupOptions(tmplName, args);
+  const runOptions = { ...templateOptions, dryRun: args.dryRun, force: args.force };
+  if (Is.func(tmplSetup.preflight)) await tmplSetup.preflight(targetDir, runOptions);
+
   const tmpl = await makeTmpl(tmplName);
   const res = await tmpl.write(targetDir, { dryRun: args.dryRun, force: args.force });
   if (!args.dryRun) {
-    await tmplSetup.default(res.dir.target, options);
+    await tmplSetup.default(res.dir.target, runOptions);
   }
-  const commitOptions = await resolveCommitOptions(tmplName, targetDir, options);
+  const commitOptions = await resolveCommitOptions(tmplName, targetDir, templateOptions);
 
   const { ops } = res;
   const location = Cli.Fmt.Path.str(`${Fs.trimCwd(targetDir)}/`);
@@ -107,8 +129,26 @@ async function resolveTargetDir(
   );
 }
 
+async function assertExistingPackageTarget(
+  tmplName: t.TemplateName,
+  targetDir: t.StringAbsoluteDir,
+) {
+  const denoJson = Fs.join(targetDir, 'deno.json');
+  if (await Fs.exists(denoJson)) return;
+
+  throw scaffoldArgError(
+    `Template "${tmplName}" requires --dir to target an existing package root with deno.json.`,
+    tmplName,
+  );
+}
+
+function isExistingPackageTemplate(tmplName: t.TemplateName): boolean {
+  return tmplName === 'pkg.help';
+}
+
 function resolveSetupOptions(tmplName: t.TemplateName, args: CliParsedArgs): SetupOptions {
   if (tmplName === 'pkg') {
+    assertTemplateFlags(tmplName, args, ['pkgName']);
     if (!Is.str(args.pkgName) && !args.interactive) {
       throw scaffoldArgError(
         `Template "${tmplName}" requires --pkgName in --non-interactive mode.`,
@@ -119,6 +159,7 @@ function resolveSetupOptions(tmplName: t.TemplateName, args: CliParsedArgs): Set
   }
 
   if (tmplName === 'm.mod.ui' || tmplName === 'm.mod.ui.controller') {
+    assertTemplateFlags(tmplName, args, ['name']);
     if (!Is.str(args.name) && !args.interactive) {
       throw scaffoldArgError(
         `Template "${tmplName}" requires --name in --non-interactive mode.`,
@@ -128,7 +169,22 @@ function resolveSetupOptions(tmplName: t.TemplateName, args: CliParsedArgs): Set
     return { name: args.name };
   }
 
+  assertTemplateFlags(tmplName, args, []);
   return {};
+}
+
+function assertTemplateFlags(
+  tmplName: t.TemplateName,
+  args: CliParsedArgs,
+  allowed: readonly ('pkgName' | 'name')[],
+) {
+  const unexpected: string[] = [];
+  if (args.pkgName !== undefined && !allowed.includes('pkgName')) unexpected.push('--pkgName');
+  if (args.name !== undefined && !allowed.includes('name')) unexpected.push('--name');
+  if (unexpected.length === 0) return;
+
+  const flags = unexpected.join(', ');
+  throw scaffoldArgError(`Template "${tmplName}" does not accept ${flags}.`, tmplName);
 }
 
 function scaffoldArgError(message: string, tmplName?: string): Error {

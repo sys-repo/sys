@@ -1,3 +1,4 @@
+import type { CliFormatChapters } from '@sys/cli/t';
 import type { t } from './common.ts';
 
 /**
@@ -17,10 +18,7 @@ export declare namespace CellHelp {
   export type Pair = readonly [string, string];
 
   /** Authored help section with display label and ordered items. */
-  export type Section = {
-    readonly label: string;
-    readonly items: readonly string[];
-  };
+  export type Section = CliFormatChapters.Section;
 
   /** Root CLI help resources. */
   export namespace Root {
@@ -100,28 +98,12 @@ export declare namespace CellHelp {
     };
 
     /** Navigable DSL chapter used by CLI composition. */
-    export type Chapter = {
-      readonly id: string;
-      readonly path: readonly string[];
-      readonly title: string;
-      readonly summary: string;
-      readonly sections: readonly Section[];
-      readonly chapters: readonly ChapterLink[];
-    };
+    export type Chapter = CliFormatChapters.Chapter;
 
     /** Child chapter shown as a drill-down link. */
-    export type ChapterLink = {
-      readonly id: string;
-      readonly path: readonly string[];
-      readonly title: string;
-      readonly summary: string;
-    };
+    export type ChapterLink = CliFormatChapters.Chapter.Link;
 
     /** Authored DSL chapter resource registered for recursive lookup. */
-    export type ChapterResource = {
-      readonly id: string;
-      readonly file: t.StringPath;
-      readonly children: readonly ChapterResource[];
-    };
+    export type ChapterResource = CliFormatChapters.Chapter.Resource<t.StringPath>;
   }
 }

@@ -1,6 +1,7 @@
 {
   "imports": {
     "@sys/cli": "jsr:@sys/cli@0.0.279",
+    "@sys/cli/t": "jsr:@sys/cli@0.0.279/t",
     "@sys/color": "jsr:@sys/color@0.0.245",
     "@sys/color/t": "jsr:@sys/color@0.0.245/t",
     "@sys/driver-deno": "jsr:@sys/driver-deno@0.0.342",
@@ -40,6 +41,8 @@
     "@sys/types": "jsr:@sys/types@0.0.286",
     "@sys/tmpl": "jsr:@sys/tmpl@0.0.399",
     "@sys/tmpl/t": "jsr:@sys/tmpl@0.0.399/t",
+    "@sys/tmpl-engine": "jsr:@sys/tmpl-engine@0.0.306",
+    "@sys/tmpl-engine/t": "jsr:@sys/tmpl-engine@0.0.306/t",
     "@sys/tools": "jsr:@sys/tools@0.0.415",
     "@sys/tools/t": "jsr:@sys/tools@0.0.415/t",
     "@sys/ui-css": "jsr:@sys/ui-css@0.0.280",
@@ -52,6 +55,8 @@
     "@sys/ui-react-components/t": "jsr:@sys/ui-react-components@0.0.275/t",
     "@sys/ui-react-devharness": "jsr:@sys/ui-react-devharness@0.0.309",
     "@sys/ui-react-devharness/t": "jsr:@sys/ui-react-devharness@0.0.309/t",
+    "@sys/yaml": "jsr:@sys/yaml@0.0.154",
+    "@sys/yaml/t": "jsr:@sys/yaml@0.0.154/t",
     "@sys/esm/testing": "jsr:@sys/esm@0.0.47/testing",
     "@sys/std/obj": "jsr:@sys/std@0.0.350/obj",
     "@sys/std/path": "jsr:@sys/std@0.0.350/path",

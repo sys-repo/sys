@@ -6,6 +6,7 @@ export const Templates = {
   'm.mod.ui': () => import('../-templates/tmpl.m.mod.ui/.tmpl.ts'),
   'm.mod.ui.controller': () => import('../-templates/tmpl.m.mod.ui.controller/.tmpl.ts'),
   pkg: () => import('../-templates/tmpl.pkg/.tmpl.ts'),
+  'pkg.help': () => import('../-templates/tmpl.pkg.help/.tmpl.ts'),
   'repo': () => import('../-templates/tmpl.repo/.tmpl.ts'),
 } as const;
 
@@ -16,5 +17,6 @@ export const TemplateSourceRoots: Record<TemplateName, string> = {
   'm.mod.ui': 'm.mod.ui',
   'm.mod.ui.controller': 'm.mod.ui.controller',
   pkg: 'pkg.deno',
+  'pkg.help': 'pkg.help',
   repo: 'repo',
 } as const;

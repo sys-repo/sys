@@ -1,5 +1,6 @@
 deno.json:
   - import: jsr:@sys/cli@0.0.279
+    subpaths: [ t ]
   - import: jsr:@sys/color@0.0.245
     subpaths: [ t ]
   - import: jsr:@sys/driver-deno@0.0.342
@@ -37,6 +38,8 @@ deno.json:
     subpaths: [ server, t ]
   - import: jsr:@sys/tmpl@0.0.399
     subpaths: [ t ]
+  - import: jsr:@sys/tmpl-engine@0.0.306
+    subpaths: [ t ]
   - import: jsr:@sys/tools@0.0.415
     subpaths: [ t ]
   - import: jsr:@sys/types@0.0.286
@@ -52,6 +55,8 @@ deno.json:
     subpaths: [ t ]
   - import: jsr:@sys/workspace@0.0.93
     subpaths: [ cli, t, testing ]
+  - import: jsr:@sys/yaml@0.0.154
+    subpaths: [ t ]
   - import: jsr:@sys/esm@0.0.47
     subpaths: [ testing ]
 package.json:

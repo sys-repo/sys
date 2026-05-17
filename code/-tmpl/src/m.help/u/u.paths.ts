@@ -5,6 +5,7 @@ export const HelpResource = {
     Root: chapter('dsl', 'yaml/dsl.yaml', [
       chapter('repo', 'yaml/dsl.repo.yaml'),
       chapter('pkg', 'yaml/dsl.pkg.yaml'),
+      chapter('pkg.help', 'yaml/dsl.pkg.help.yaml'),
       chapter('m.mod', 'yaml/dsl.m.mod.yaml'),
       chapter('m.mod.ui', 'yaml/dsl.m.mod.ui.yaml'),
       chapter('m.mod.ui.controller', 'yaml/dsl.m.mod.ui.controller.yaml'),

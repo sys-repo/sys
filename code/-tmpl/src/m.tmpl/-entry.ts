@@ -31,8 +31,8 @@ function printHelp() {
   Cli.Fmt.Help.render({
     tool: `${pkg.name} ${pkg.version}`,
     summary: [
-      'Scaffold system repos, packages, modules, and UI components.',
-      'Agents must read `dsl` before scaffolding, then read the matching template chapter from the DSL chapter index.',
+      'Scaffold system repos, packages, modules, UI components, and package affordances.',
+      'Agents must read `dsl` before applying a template, then read the matching chapter from the DSL chapter index.',
     ].join('\n'),
     sections: [
       {
@@ -50,9 +50,9 @@ function printHelp() {
         items: [
           [
             'dsl',
-            'agent must read first — classify scaffold boundary, required slots, command grammar, and chapter index',
+            'agent must read first — classify target boundary, required slots, command grammar, and chapter index',
           ],
-          ['<template>', 'scaffold one template by name; see Templates below'],
+          ['<template>', 'apply one template by name; see Templates below'],
         ],
       },
       {
@@ -78,6 +78,7 @@ function printHelp() {
         items: [
           ['repo', 'no extra flags; identity from --dir'],
           ['pkg', '--pkgName <@scope/name>'],
+          ['pkg.help', 'no extra flags; target existing sys package root'],
           ['m.mod.ui, m.mod.ui.controller', '--name <value>'],
         ],
       },
@@ -92,6 +93,7 @@ function printHelp() {
           'deno run -ERW jsr:@sys/tmpl --dir my-thing repo',
           'deno run -ERW jsr:@sys/tmpl --non-interactive --dir my-thing repo',
           'deno run -ERW jsr:@sys/tmpl --non-interactive --dir pkg/foo pkg --pkgName @acme/foo',
+          'deno run -ERW jsr:@sys/tmpl --non-interactive --dir pkg/foo pkg.help',
         ],
       },
       {
@@ -100,6 +102,7 @@ function printHelp() {
         items: [
           ['workspace root', 'repo'],
           ['package inside workspace', 'pkg (--pkgName)'],
+          ['YAML help-resource spine inside package', 'pkg.help'],
           ['TS module folder', 'm.mod'],
           ['React UI component', 'm.mod.ui (--name)'],
           ['React UI + controller/state', 'm.mod.ui.controller (--name)'],
