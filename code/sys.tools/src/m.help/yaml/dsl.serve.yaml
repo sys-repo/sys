@@ -1,6 +1,6 @@
 id: serve
 title: Serve DSL
-summary: Agent contract for `@sys/tools/serve` filesystem roots and public paths.
+summary: Serve roots and public paths.
 
 sections:
   - label: Rule
