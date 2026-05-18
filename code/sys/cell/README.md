@@ -2,6 +2,15 @@
 
 A **Cell** is a folder-shaped [metamedium](https://en.wikipedia.org/wiki/Metamedia).
 
+[commonmark]: https://spec.commonmark.org/current/
+[yaml]: https://yaml.org/spec/1.2.2/
+[html]: https://html.spec.whatwg.org/
+[typescript]: https://www.typescriptlang.org/docs/
+[json]: https://www.rfc-editor.org/rfc/rfc8259
+[octet-stream]: https://www.iana.org/assignments/media-types/application/octet-stream
+[dsl]: https://martinfowler.com/dsl.html
+
+
 ---
 
 `@sys/cell` is the boot and composition kernel for a Cell: a folder boundary that gives
@@ -35,13 +44,6 @@ Concretely, the medium is a folder of ordinary files: [Markdown][commonmark], [Y
 [HTML][html], [TypeScript][typescript], [JSON][json], [binary data][octet-stream] (including
 file-backed databases), and any other file-carried forms.
 
-[commonmark]: https://spec.commonmark.org/current/
-[yaml]: https://yaml.org/spec/1.2.2/
-[html]: https://html.spec.whatwg.org/
-[typescript]: https://www.typescriptlang.org/docs/
-[json]: https://www.rfc-editor.org/rfc/rfc8259
-[octet-stream]: https://www.iana.org/assignments/media-types/application/octet-stream
-[dsl]: https://martinfowler.com/dsl.html
 
 A Cell's [DSL][dsl] may be **prose-shaped, semi-formal, or formal.** It can begin as plain text:
 Markdown sections, naming conventions, folder layout, and other human-readable agreements that carry

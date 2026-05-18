@@ -95,8 +95,8 @@ describe('WebSocketServer/Cmd transport', () => {
       cmd: {
         ns,
         handlers: {
-          async count({ from }, ctx) {
-            ctx.emit({ value: from });
+          async count(e, ctx) {
+            ctx.emit({ value: e.from });
             ctx.signal.addEventListener('abort', () => aborted.resolve(ctx.signal.reason), {
               once: true,
             });
