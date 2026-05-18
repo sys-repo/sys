@@ -1,10 +1,11 @@
-import { Net, type t } from '../../-test.ts';
+import { Cmd, expect, Net, type t } from '../../-test.ts';
 
 /** Shared fixtures for WebSocket server contract tests. */
 export const Fixture = {
   closeSocket,
   deferred,
   detail,
+  expectCmdError,
   rawUpgrade,
   waitForClose,
 } as const;
@@ -14,6 +15,18 @@ export const Fixture = {
  */
 function detail(status: t.Service.Status, label: string): string | undefined {
   return status.details?.find((item) => item.label === label)?.value;
+}
+
+function expectCmdError(
+  input: unknown,
+  kind: t.Cmd.Error.Kind,
+  name: t.Cmd.Name,
+): t.Cmd.Error.Instance {
+  expect(Cmd.Is.error(input)).to.eql(true);
+  const error = input as t.Cmd.Error.Instance;
+  expect(error.name).to.eql(kind);
+  expect(error.cmd?.name).to.eql(name);
+  return error;
 }
 
 function closeSocket(ws: WebSocket) {

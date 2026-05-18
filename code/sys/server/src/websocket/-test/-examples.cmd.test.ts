@@ -1,4 +1,4 @@
-import { Cmd, describe, expect, it, Net, type t, Time } from '../../-test.ts';
+import { Cmd, describe, expect, it, Net, Time } from '../../-test.ts';
 import { WebSocketServer } from '../mod.ts';
 import { Fixture } from './u.fixture.ts';
 
@@ -100,11 +100,11 @@ describe('WebSocketServer/Cmd examples', () => {
       client.dispose();
 
       const sendErr = await client.send('ping', {}).catch((error: unknown) => error);
-      expectCmdError(sendErr, 'CmdErrorClientDisposed', 'ping');
+      Fixture.expectCmdError(sendErr, 'CmdErrorClientDisposed', 'ping');
 
       const stream = client.stream('ping', {});
       const streamErr = await stream.done.catch((error: unknown) => error);
-      expectCmdError(streamErr, 'CmdErrorClientDisposed', 'ping');
+      Fixture.expectCmdError(streamErr, 'CmdErrorClientDisposed', 'ping');
 
       const subscription = stream.onEvent(() => {});
       expect(subscription.disposed).to.eql(true);
@@ -116,13 +116,3 @@ describe('WebSocketServer/Cmd examples', () => {
     }
   });
 });
-
-/**
- * Helpers:
- */
-function expectCmdError(input: unknown, kind: t.Cmd.Error.Kind, name: t.Cmd.Name) {
-  expect(Cmd.Is.error(input)).to.eql(true);
-  const error = input as t.Cmd.Error.Instance;
-  expect(error.name).to.eql(kind);
-  expect(error.cmd?.name).to.eql(name);
-}
