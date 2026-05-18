@@ -168,7 +168,8 @@ describe('FmtHelp', () => {
     expectDslChapterPage(text, guidance);
     expect(text).to.not.contain('Stripe');
     expect(text).to.not.contain('stripe');
-    expect(text).to.contain('read `dsl service` before adding or changing variants');
+    expect(text).to.contain('read `dsl service` before adding');
+    expect(text).to.contain('or changing variants');
     expect(text).to.contain('Cell chooses the complete binding');
   });
 

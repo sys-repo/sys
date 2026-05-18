@@ -6,7 +6,8 @@ summary: |
 sections:
   - label: Rule
     items: |
-      Use this chapter only after the prompt resembles a Cell DSL speech act but slots are incomplete or informal.
+      Use this chapter only after the prompt resembles a Cell DSL speech act but slots are
+      incomplete or informal.
       These are sample slot values, not DSL grammar, defaults, or required values.
       Confirm missing values before editing owner configs or `cell.yaml`.
       Do not inspect implementation source just to infer these examples.
@@ -50,11 +51,13 @@ sections:
   - label: 'Owner flow reminders'
     items: |
       Pulled view config is owned by `@sys/tools/pull`.
-      Static serving is owned by `@sys/tools/serve`.
+      Default static serving is owned by `@sys/tools/serve`.
       Proxy routing is owned by `@sys/http/server/proxy`.
       Cell records only services, tasks, endpoint refs, and owner config refs.
 
   - label: 'Source-reading guardrail'
     items: |
-      Prefer root DSL, the matching operation chapter, this examples chapter, and owner `--help` before package source.
-      Source inspection is a last resort for public exports, types, or lifecycle/task contracts only.
+      Prefer root DSL, the matching operation chapter, this examples chapter, and owner
+      `--help` before package source.
+      Source inspection is a last resort for public exports, types, or lifecycle/task
+      contracts only.

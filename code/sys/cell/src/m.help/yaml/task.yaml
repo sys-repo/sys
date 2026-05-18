@@ -15,7 +15,9 @@ options:
 
 task:
   - Cell loads `[dir]` or `.` as the Cell root.
-  - Cell validates the `tasks[]` graph, then verifies only the requested task closure before execution.
+  - |-
+    Cell validates the `tasks[]` graph, then verifies only the requested task closure before
+    execution.
   - Use `--plan` to inspect the requested task closure before Cell imports endpoint modules.
   - Root tasks are runnable by name.
   - Leaf tasks resolve Cell-local or trusted package endpoints with `run(args)`.

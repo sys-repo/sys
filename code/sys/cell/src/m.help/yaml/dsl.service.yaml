@@ -12,7 +12,8 @@ sections:
       "add service mode <mode> for <service-name> using endpoint <endpoint> from module <module>"
       as `add: service mode`.
       A service entry records a lifecycle endpoint and an owner config reference.
-      A service variant records an alternative complete endpoint binding for the same service identity.
+      A service variant records an alternative complete endpoint binding for the same service
+      identity.
       Cell composes the service; the owner owns config schema and mechanics.
       Service imports must be trusted by `Cell.Services.verify/start`.
       The default trusted prefix is `@sys/`.
@@ -22,19 +23,23 @@ sections:
   - label: 'Slot policy'
     items: |
       `<service-name>` is semantic; examples: `worker`, `api`, `dev:fixture`, `app.proxy-v1`.
-      `<service-name>` is a Cell descriptor service ID and must match `^[a-z][a-z0-9]*(?:[.:-][a-z0-9]+)*$`.
+      `<service-name>` is a Cell descriptor service ID and must match
+      `^[a-z][a-z0-9]*(?:[.:-][a-z0-9]+)*$`.
       Reject invalid service names such as `service/path`, `BadService`, `worker_1`, or `bad..id`.
       Treat service names as opaque identifiers for display, logs, and review.
       Do not treat service names as raw paths, URLs, imports, task names, or config filenames.
       `<mode>` is a service variant ID and must match the same descriptor ID pattern.
       `default` is reserved and means the base service binding; do not write `variants.default`.
-      Do not treat modes as owner-service settings, environment names, task names, or config filenames.
+      Do not treat modes as owner-service settings, environment names, task names, or config
+      filenames.
       `<module>` is a trusted import specifier or Cell-local relative adapter path.
       Public @sys package refs should use explicit JSR authority such as `jsr:@sys/tools/serve`.
-      Other public scopes require explicit trust before `Cell.Services.verify/start` will accept them.
+      Other public scopes require explicit trust before `Cell.Services.verify/start` will
+      accept them.
       Cell-local adapters should use relative refs such as `./-services/local.ts`.
       Module examples: `jsr:@sys/tools/serve`, `jsr:@scope/pkg/service`, `./-services/local.ts`.
-      `<endpoint>` is the named ESM binding selected by `use` that implements `Cell.Services.LifecycleEndpoint`.
+      `<endpoint>` is the named ESM binding selected by `use` that implements
+      `Cell.Services.LifecycleEndpoint`.
       Endpoint examples: `Server`, `Worker`, `Service`, `Fixture`.
       `<config>` is a Cell-relative owner config path.
       Config examples: `./-config/@scope.pkg/service.yaml`.
@@ -46,8 +51,10 @@ sections:
     items: |
       The selected endpoint must implement `Cell.Services.LifecycleEndpoint` with `start(args)`.
       Cell resolves the owner config ref before it starts the endpoint.
-      Start args are deliberately small: Cell root, selected owner config ref, quiet output preference, and shutdown signal.
-      Service adapters must accept those args directly; Cell does not rewrite them by service kind or view link.
+      Start args are deliberately small: Cell root, selected owner config ref, quiet output
+      preference, and shutdown signal.
+      Service adapters must accept those args directly; Cell does not rewrite them by service
+      kind or view link.
       The started handle should expose `close(reason)` or `dispose(reason)` for Cell shutdown.
       Standard full @sys lifecycle handles can be `t.LifecycleAsync` compatible.
       If the selected endpoint contract is ambiguous, inspect the published JSR package docs/source.
@@ -70,7 +77,8 @@ sections:
   - label: 'Owner flow'
     items: |
       Start with owner help for `<module>`.
-      Run `deno run -E <module> --help` when `<module>` is an explicit JSR CLI entrypoint such as `jsr:@scope/pkg`.
+      Run `deno run -E <module> --help` when `<module>` is an explicit JSR CLI entrypoint
+      such as `jsr:@scope/pkg`.
       Use the exact import specifier confirmed for the owner.
       Add permissions only when owner help says they are required.
       Check for owner config affordances such as `config` or `config add`.
@@ -84,15 +92,23 @@ sections:
     items: |
       A service mode is a Cell selection key for choosing among descriptor bindings.
       Use `variants` when one conceptual service needs alternative complete endpoint bindings.
-      At start time, `--mode <mode>` selects matching `variants.<mode>` while preserving one conceptual service identity.
+      At start time, `--mode <mode>` selects matching `variants.<mode>` while preserving
+      one conceptual service identity.
       Services without the selected mode keep their base binding.
-      A variant is a full binding with `use`, `from`, and `config`; do not write partial overlays or owner-service settings.
+      A variant is a full binding with `use`, `from`, and `config`; do not write partial
+      overlays or owner-service settings.
       `default` is reserved and means the base service binding.
       Mode is not forwarded to owner endpoints.
-      Cell chooses the binding, then starts it through the same lifecycle contract as every service: Cell root, selected owner config ref, quiet output preference, and shutdown signal.
-      Endpoint owners keep everything behind the binding: ports, serving strategy, Vite/HMR behavior, display, permissions, and config schema.
-      For live dev, keep a static service as the base `view` binding and select a normal lifecycle endpoint such as `jsr:@sys/driver-vite/service` / `ViteService` under `variants.dev`.
-      When modifying an existing service mode, preserve the base binding and unrelated variants unless the user explicitly asks to change them.
+      Cell chooses the binding, then starts it through the same lifecycle contract as every
+      service: Cell root, selected owner config ref, quiet output preference, and shutdown
+      signal.
+      Endpoint owners keep everything behind the binding: ports, serving strategy,
+      Vite/HMR behavior, display, permissions, and config schema.
+      For live dev, keep a static service as the base `view` binding and select a normal
+      lifecycle endpoint such as `jsr:@sys/driver-vite/service` / `ViteService` under
+      `variants.dev`.
+      When modifying an existing service mode, preserve the base binding and unrelated
+      variants unless the user explicitly asks to change them.
 
   - label: 'Descriptor patch'
     items:
