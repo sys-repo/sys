@@ -51,6 +51,9 @@ export type StringHostname = string;
 /** String contains a regular-expression */
 export type StringReg = string;
 
+/** String that represents a glob-like path/name selection pattern. */
+export type StringGlob = string;
+
 /** String that represents a `tx` (transaction identifier). */
 export type StringTx = string;
 
