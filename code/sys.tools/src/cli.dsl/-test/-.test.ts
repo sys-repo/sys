@@ -7,15 +7,15 @@ describe('@sys/tools dsl', () => {
 
     expect(text).to.contain('@sys/tools dsl');
     expect(text).to.contain('Tools DSL');
-    expect(text).to.contain('Published chapter: `serve`.');
+    expect(text).to.contain('@sys/tools dsl serve');
   });
 
   it('renders the serve chapter', async () => {
     const text = Cli.stripAnsi(await FmtDslHelp.output({ path: ['serve'] }));
 
     expect(text).to.contain('@sys/tools dsl serve');
-    expect(text).to.contain('Agent contract for `@sys/tools/serve`');
     expect(text).to.contain('`dir` is the filesystem root');
+    expect(text).to.contain('public URL paths are not filesystem roots');
   });
 
   it('renders skill metadata', async () => {
