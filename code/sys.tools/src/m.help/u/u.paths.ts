@@ -6,12 +6,22 @@ export const HelpResource = {
     Root: {
       id: 'dsl',
       file: 'yaml/dsl.yaml',
-      children: [],
+      children: [
+        {
+          id: 'serve',
+          file: 'yaml/dsl.serve.yaml',
+          children: [],
+        },
+      ],
     },
   },
   Source: {
     get Files(): readonly t.StringPath[] {
-      return [HelpResource.Root, HelpResource.Dsl.Root.file];
+      return [
+        HelpResource.Root,
+        HelpResource.Dsl.Root.file,
+        ...HelpResource.Dsl.Root.children.map((child) => child.file),
+      ];
     },
   },
 } as const;

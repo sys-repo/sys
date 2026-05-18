@@ -51,6 +51,7 @@ sections:
       For the default owner selection, use `@sys/tools/serve`.
       `Serve.start` reads the selected serve-tool owner config from `paths.config`.
       Start from public `@sys/tools serve --help` if the owner config shape or options are unclear.
+      Read `@sys/tools dsl serve` for serve-root versus public-path guardrails.
       Serve config semantics for `dir`, `info.path`, ports, URL display, and path resolution
       belong to `@sys/tools/serve`.
       Cell does not reinterpret serve-tool fields as Cell descriptor mechanics.
