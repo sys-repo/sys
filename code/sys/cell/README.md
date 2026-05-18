@@ -87,7 +87,7 @@ Options    -h, --help   show help
 
 <p>&nbsp;</p>
 
-## Prompting `dsl`
+## Prompting - [DSL][dsl] speech acts
 
 | Intent                    | [Speech act](https://en.wikipedia.org/wiki/Speech_act) examples:                       |
 | ------------------------- | -------------------------------------------------------------------------------------- |
