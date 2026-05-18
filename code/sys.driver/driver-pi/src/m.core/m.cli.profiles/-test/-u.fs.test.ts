@@ -27,7 +27,6 @@ describe(`@sys/driver-pi/cli/Profiles/u.fs`, () => {
         'move:',
         'copy:',
         'enabled: true',
-        'enabled: false',
         'recursive: true',
       ]
     ) {

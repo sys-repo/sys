@@ -13,7 +13,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.schema`, () => {
       },
       tools: {
         remove: { enabled: true, recursive: true },
-        move: { enabled: false },
+        move: { enabled: true },
         copy: { enabled: true },
       },
     });

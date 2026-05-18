@@ -12,7 +12,7 @@ const COPY_ENABLED_PATH = ['tools', 'copy', 'enabled'];
 /**
  * Migration 05:
  * - add explicit `tools.move` and `tools.copy` defaults for discoverability.
- * - default bounded copy/import to enabled while preserving explicit disabled policy.
+ * - default bounded move/rename and copy/import to enabled while preserving explicit disabled policy.
  */
 export const migrate05 = {
   async dir(cwd: t.StringDir): Promise<MigrateResult> {
@@ -74,7 +74,7 @@ export const migrate05 = {
  * Helpers:
  */
 function defaultMovePolicy(): t.PiCliProfiles.Tools.Move {
-  return { enabled: false };
+  return { enabled: true };
 }
 
 function defaultCopyPolicy(): t.PiCliProfiles.Tools.Copy {

@@ -38,7 +38,7 @@ export const ProfilesFs = {
           enabled: true   # filesystem cleanup tool is available by default
           recursive: true # normal directory-tree cleanup through the protected remove tool
         move:
-          enabled: false  # opt-in filesystem move/rename tool
+          enabled: true   # filesystem move/rename tool is available by default
         copy:
           enabled: true   # filesystem copy/import tool is available by default
 

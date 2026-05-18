@@ -15,7 +15,7 @@ export const ProfileSchema = {
       },
       tools: {
         remove: { enabled: true, recursive: true },
-        move: { enabled: false },
+        move: { enabled: true },
         copy: { enabled: true },
       },
     };

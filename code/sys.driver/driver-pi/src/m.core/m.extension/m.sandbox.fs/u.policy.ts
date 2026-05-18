@@ -24,7 +24,7 @@ export function resolvePolicy(
       enabled: input.remove?.enabled !== false,
       recursive: input.remove?.recursive !== false,
     },
-    move: { enabled: input.move?.enabled === true },
+    move: { enabled: input.move?.enabled !== false },
     copy: { enabled: input.copy?.enabled !== false },
   };
 }

@@ -86,6 +86,15 @@ describe(`Pi: sandbox filesystem extension`, () => {
     });
   });
 
+  it('resolvePolicy → defaults wrapper-owned filesystem tools to enabled', () => {
+    const root = '/tmp/driver-pi-sandbox-fs' as t.StringDir;
+    const policy = SandboxFs.resolvePolicy({ cwd: { invoked: root, git: root } });
+
+    expect(policy.remove).to.eql({ enabled: true, recursive: true });
+    expect(policy.move).to.eql({ enabled: true });
+    expect(policy.copy).to.eql({ enabled: true });
+  });
+
   it('toPromptArgs → appends truthful contracts only for enabled tools', () => {
     const disabled = SandboxFs.toPromptArgs({
       readRoots: [],

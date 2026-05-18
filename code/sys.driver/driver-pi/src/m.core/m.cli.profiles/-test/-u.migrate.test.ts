@@ -159,7 +159,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.migrate`, () => {
         expect(checked.ok).to.eql(true);
         if (checked.ok) {
           expect(checked.doc.tools?.remove).to.eql({ enabled: true, recursive: true });
-          expect(checked.doc.tools?.move).to.eql({ enabled: false });
+          expect(checked.doc.tools?.move).to.eql({ enabled: true });
           expect(checked.doc.tools?.copy).to.eql({ enabled: true });
         }
       } finally {
@@ -189,7 +189,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.migrate`, () => {
         expect(checked.ok).to.eql(true);
         if (checked.ok) {
           expect(checked.doc.tools?.remove).to.eql({ enabled: true, recursive: true });
-          expect(checked.doc.tools?.move).to.eql({ enabled: false });
+          expect(checked.doc.tools?.move).to.eql({ enabled: true });
           expect(checked.doc.tools?.copy).to.eql({ enabled: true });
         }
       } finally {
@@ -287,7 +287,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.migrate`, () => {
         expect(checked.ok).to.eql(true);
         if (checked.ok) {
           expect(checked.doc.tools?.remove).to.eql({ enabled: true, recursive: true });
-          expect(checked.doc.tools?.move).to.eql({ enabled: false });
+          expect(checked.doc.tools?.move).to.eql({ enabled: true });
           expect(checked.doc.tools?.copy).to.eql({ enabled: true });
         }
       } finally {
@@ -314,7 +314,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.migrate`, () => {
         expect(checked.ok).to.eql(true);
         if (checked.ok) {
           expect(checked.doc.tools?.remove).to.eql({ enabled: true, recursive: true });
-          expect(checked.doc.tools?.move).to.eql({ enabled: false });
+          expect(checked.doc.tools?.move).to.eql({ enabled: true });
           expect(checked.doc.tools?.copy).to.eql({ enabled: false });
         }
       } finally {
@@ -341,7 +341,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.migrate`, () => {
         expect(checked.ok).to.eql(true);
         if (checked.ok) {
           expect(checked.doc.tools?.remove).to.eql({ enabled: true, recursive: true });
-          expect(checked.doc.tools?.move).to.eql({ enabled: false });
+          expect(checked.doc.tools?.move).to.eql({ enabled: true });
           expect(checked.doc.tools?.copy).to.eql({ enabled: true });
         }
       } finally {
@@ -369,7 +369,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.migrate`, () => {
         expect(checked.ok).to.eql(true);
         if (checked.ok) {
           expect(checked.doc.tools?.remove).to.eql({ enabled: false, recursive: true });
-          expect(checked.doc.tools?.move).to.eql({ enabled: false });
+          expect(checked.doc.tools?.move).to.eql({ enabled: true });
           expect(checked.doc.tools?.copy).to.eql({ enabled: true });
         }
       } finally {
@@ -397,7 +397,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.migrate`, () => {
         expect(checked.ok).to.eql(true);
         if (checked.ok) {
           expect(checked.doc.tools?.remove).to.eql({ enabled: true, recursive: false });
-          expect(checked.doc.tools?.move).to.eql({ enabled: false });
+          expect(checked.doc.tools?.move).to.eql({ enabled: true });
           expect(checked.doc.tools?.copy).to.eql({ enabled: true });
         }
       } finally {
@@ -518,7 +518,7 @@ function profileWithToolDefaults(prefix: string) {
         enabled: true
         recursive: true
       move:
-        enabled: false
+        enabled: true
       copy:
         enabled: true
     `,
