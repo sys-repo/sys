@@ -1,7 +1,7 @@
 # @sys/server
 System primitives and entrypoint surfaces for server packages.
 
-[dsl]: https://en.wikipedia.org/wiki/Domain-specific_language/
+[dsl]: https://martinfowler.com/dsl.html
 
 
 <p>&nbsp;</p>
@@ -41,7 +41,7 @@ const server = WebSocketServer.create<Name, Payload, Result, Event>({
     ns,
     handlers: {
       hello: ({ name }) => ({ msg: `Hello, ${name}.` }),
-      count: ({ to }, ctx) => {
+      count({ to }, ctx) {
         for (let tick = 1; tick <= to; tick++) ctx.emit({ tick });
         return { done: true };
       },
@@ -61,14 +61,12 @@ await new Promise<void>((resolve) => {
 const endpoint = Cmd.Transport.fromWebSocket(ws);
 const client = cmd.client(endpoint, { timeout: 1_000 });
 try {
-  console.info(await client.send('hello', { name: 'Ada' }));
+  const res = await client.send('hello', { name: 'Ada' });
+  console.info(res.msg);
 
   const stream = client.stream('count', { to: 3 });
   const sub = stream.onEvent((e) => console.info(e.tick));
-  await stream.done.finally(() => {
-    sub.dispose();
-    stream.dispose();
-  });
+  await stream.done.finally(() => sub.dispose());
 } finally {
   client.dispose();
   ws.close();
