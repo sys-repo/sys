@@ -4,6 +4,9 @@ import { runtimeRoot } from '../../m.cli/u.runtime-root.ts';
 const PROTECTED_SEGMENTS = [
   ['.git'],
   ['.pi'],
+
+  // Legacy wrapper-owned runtime scars. Keep them protected so remove/move/copy
+  // cannot mutate pre-migration state if an older workspace still contains it.
   ['.tmp', 'pi.cli'],
   ['.tmp', 'pi.cli.pi'],
   ['.log', '@sys.driver-pi'],
