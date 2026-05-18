@@ -23,3 +23,4 @@ export type { UpdateTool } from './cli.update/t.namespace.ts';
 export type { VideoTool } from './cli.video/t.namespace.ts';
 export type { Tools } from './t.namespace.ts';
 export type { TmplTool } from './cli.tmpl/t.ts';
+export type * from './m.help/t.ts';

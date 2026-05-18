@@ -31,7 +31,8 @@ export namespace Root {
     | 'video'
     | 'copy'
     | 'tmpl'
-    | 'update';
+    | 'update'
+    | 'dsl';
 
   /** Invocation origin passed from the root launcher to selected tools. */
   export type ToolCliOrigin = 'argv' | 'root-menu';

@@ -19,7 +19,8 @@ export namespace Tools {
     | t.VideoTool.Id
     | t.PullTool.Id
     | t.ShellTool.Id
-    | t.TmplTool.Id;
+    | t.TmplTool.Id
+    | 'dsl';
 
   /** Command line arguments (argv). */
   /** Common flags. */

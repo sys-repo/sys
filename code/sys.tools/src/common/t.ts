@@ -67,3 +67,4 @@ export type * from '../cli.shell/t.ts';
 export type * from '../cli.tmpl/t.ts';
 export type * from '../cli.update/t.ts';
 export type * from '../cli.video/t.ts';
+export type * from '../m.help/t.ts';

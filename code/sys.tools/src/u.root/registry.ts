@@ -33,6 +33,7 @@ export const ROOT_REGISTRY: readonly ToolRegistryItem[] = [
     specifier: '../cli.clipboard/mod.ts',
   },
   { id: 'update', aliases: ['up', 'info'], group: 'utility', specifier: '../cli.update/mod.ts' },
+  { id: 'dsl', aliases: undefined, group: 'secondary', specifier: '../cli.dsl/mod.ts' },
 ] as const;
 
 export const TOOL_IDS = ROOT_REGISTRY.map((item) => item.id) as readonly t.Root.Command[];

@@ -18,6 +18,7 @@ describe('Root Help', () => {
     const output = await captureInfo(async () => void await printRootHelp({ help: true, _: [] }));
     const text = Cli.stripAnsi(output);
     expect(text).to.contain('@sys/tools shell');
+    expect(text).to.contain('@sys/tools dsl');
   });
 
   it('documents the update-advisory opt-out flag and env var', async () => {

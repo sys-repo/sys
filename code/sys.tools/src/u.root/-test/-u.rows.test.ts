@@ -27,6 +27,7 @@ describe('Root Rows', () => {
       'video',
       'crypto',
       'copy',
+      'dsl',
     ]);
     expect(rootRows('utility').map((item) => item.command)).to.eql(['update']);
   });

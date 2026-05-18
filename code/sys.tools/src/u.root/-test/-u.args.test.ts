@@ -41,6 +41,12 @@ describe('Root Args', () => {
     expect(toRootDispatchArgv(['shell', 'doctor'], res)).eql(['shell', 'doctor']);
   });
 
+  it('recognizes dsl as a root command under more tools', () => {
+    const res = parseArgs(['dsl']);
+    expect(res.command).eql('dsl');
+    expect(res._).eql(['dsl']);
+  });
+
   it('does not accept removed fn command', () => {
     const res = parseArgs(['fn', 'x']);
     expect(res.command).eql(undefined);
