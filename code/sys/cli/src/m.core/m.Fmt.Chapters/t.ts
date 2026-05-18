@@ -26,6 +26,9 @@ export declare namespace CliFormatChapters {
 
     /** Create loaders for authored chapter-book resources. */
     readonly Book: Book.Lib;
+
+    /** Create readers for embedded help/chapter resource bundles. */
+    readonly Resources: Resources.Lib;
   };
 
   /** Terminal chapter guide rendering input. */
@@ -100,6 +103,37 @@ export declare namespace CliFormatChapters {
 
     /** Resource record reader. */
     export type Reader<TFile extends string = string> = (file: TFile) => unknown | Promise<unknown>;
+  }
+
+  /** Embedded help/chapter resource bundle reader. */
+  export type Resources<TFile extends string = string> = {
+    /** Read a bundled resource as text. */
+    readText(file: TFile): string;
+    /** Read and parse a bundled resource. */
+    readParsedRecord(file: TFile): unknown;
+    /** Read a parsed record and require fields. */
+    readRecord(file: TFile, fields: readonly string[]): Record<string, unknown>;
+  };
+
+  export namespace Resources {
+    /** Embedded resource reader factory surface. */
+    export type Lib = {
+      /** Create a reusable reader for bundled text records. */
+      create<TFile extends string>(input: Input<TFile>): Resources<TFile>;
+    };
+
+    /** Input used to create an embedded resource reader. */
+    export type Input<TFile extends string = string> = {
+      /** Bundle map from resource path to data URI. */
+      readonly json: Record<string, string>;
+      /** Error prefix used for diagnostics. Defaults to `ChapterResources`. */
+      readonly label?: string;
+      /** Parse text into the caller-owned record shape. */
+      readonly parse: Parser<TFile>;
+    };
+
+    /** Parse a text resource into a caller-owned record shape. */
+    export type Parser<TFile extends string = string> = (text: string, file: TFile) => unknown;
   }
 
   /** Navigable help chapter rendered by a CLI help surface. */

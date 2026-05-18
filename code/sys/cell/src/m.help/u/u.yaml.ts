@@ -38,12 +38,6 @@ export const HelpYaml = {
     }
     return value.map((item) => [item.name, item.text] as const);
   },
-
-  require(data: O, fields: readonly string[]) {
-    fields.forEach((field) => {
-      if (!(field in data)) throw new Error(`CellHelp: missing field: ${field}`);
-    });
-  },
 } as const;
 
 /**

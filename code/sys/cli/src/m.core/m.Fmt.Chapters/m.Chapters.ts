@@ -1,6 +1,7 @@
 import { c, Str, stripAnsi, type t } from '../common.ts';
 import { Help } from '../m.Fmt/m.Fmt.Help.ts';
 import { Book } from './m.Book.ts';
+import { Resources } from './m.Resources.ts';
 import { files, resolve } from './u.resources.ts';
 import { hr } from '../m.Fmt/m.Fmt.Hr.ts';
 import { Table } from '../m.Table/mod.ts';
@@ -13,6 +14,7 @@ export const Chapters: t.CliFormatChapters.Lib = {
   files,
   resolve,
   Book,
+  Resources,
 };
 
 function format(input: t.CliFormatChapters.FormatInput): string {

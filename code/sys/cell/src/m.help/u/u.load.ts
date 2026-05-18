@@ -1,12 +1,23 @@
 import { Fmt as CliFmt } from '@sys/cli/fmt';
 import { json } from '../-bundle/-bundle.ts';
-import { FileMap, Is, type t } from '../common.ts';
+import { type t } from '../common.ts';
 import { HelpResource } from './u.paths.ts';
 import { HelpYaml } from './u.yaml.ts';
 
+const Resource = CliFmt.Chapters.Resources.create<t.StringPath>({
+  json,
+  label: 'CellHelp',
+  parse: HelpYaml.record,
+});
+
 export const RootHelp: t.CellHelp.Root.Lib = {
   load() {
-    const data = readRecord(HelpResource.Root, ['summary', 'usage', 'commands', 'options']);
+    const data = Resource.readRecord(HelpResource.Root, [
+      'summary',
+      'usage',
+      'commands',
+      'options',
+    ]);
     return Promise.resolve({
       summary: HelpYaml.string(data, 'summary'),
       usage: HelpYaml.list(data, 'usage'),
@@ -18,7 +29,13 @@ export const RootHelp: t.CellHelp.Root.Lib = {
 
 export const InitHelp: t.CellHelp.Init.Lib = {
   load() {
-    const data = readRecord(HelpResource.Init, ['summary', 'usage', 'options', 'safety', 'agent']);
+    const data = Resource.readRecord(HelpResource.Init, [
+      'summary',
+      'usage',
+      'options',
+      'safety',
+      'agent',
+    ]);
     return Promise.resolve({
       summary: HelpYaml.string(data, 'summary'),
       usage: HelpYaml.list(data, 'usage'),
@@ -31,7 +48,7 @@ export const InitHelp: t.CellHelp.Init.Lib = {
 
 export const TaskHelp: t.CellHelp.Task.Lib = {
   load() {
-    const data = readRecord(HelpResource.Task, ['summary', 'usage', 'options', 'task']);
+    const data = Resource.readRecord(HelpResource.Task, ['summary', 'usage', 'options', 'task']);
     return Promise.resolve({
       summary: HelpYaml.string(data, 'summary'),
       usage: HelpYaml.list(data, 'usage'),
@@ -43,7 +60,12 @@ export const TaskHelp: t.CellHelp.Task.Lib = {
 
 export const StartHelp: t.CellHelp.Start.Lib = {
   load() {
-    const data = readRecord(HelpResource.Start, ['summary', 'usage', 'options', 'services']);
+    const data = Resource.readRecord(HelpResource.Start, [
+      'summary',
+      'usage',
+      'options',
+      'services',
+    ]);
     return Promise.resolve({
       summary: HelpYaml.string(data, 'summary'),
       usage: HelpYaml.list(data, 'usage'),
@@ -58,7 +80,7 @@ const DslBook = CliFmt.Chapters.Book.create<t.StringPath>({
   label: 'CellHelp',
   noun: 'DSL chapter',
   recordKind: 'YAML record',
-  read: readParsedRecord,
+  read: Resource.readParsedRecord,
 });
 
 export const DslHelp: t.CellHelp.Dsl.Lib = {
@@ -66,27 +88,3 @@ export const DslHelp: t.CellHelp.Dsl.Lib = {
     return DslBook.load(path);
   },
 };
-
-/**
- * Helpers:
- */
-
-function readRecord(path: t.StringPath, fields: readonly string[]) {
-  const data = readParsedRecord(path);
-  HelpYaml.require(data, fields);
-  return data;
-}
-
-function readParsedRecord(path: t.StringPath) {
-  const text = readText(path);
-  return HelpYaml.record(text, path);
-}
-
-function readText(path: t.StringPath): string {
-  const dataUri = json[path];
-  if (!Is.str(dataUri)) throw new Error(`CellHelp: resource not found: ${path}`);
-
-  const data = FileMap.Data.decode(dataUri);
-  if (!Is.str(data)) throw new Error(`CellHelp: resource is not text: ${path}`);
-  return data;
-}

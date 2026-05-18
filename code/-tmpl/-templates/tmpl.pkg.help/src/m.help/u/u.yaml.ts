@@ -1,4 +1,4 @@
-import { Is, Str, Yaml, type t } from '../common.ts';
+import { Is, Str, type t, Yaml } from '../common.ts';
 
 type O = Record<string, unknown>;
 
@@ -33,12 +33,6 @@ export const HelpYaml = {
       label: item.label,
       items: sectionItems(item.items),
     }));
-  },
-
-  require(data: O, fields: readonly string[]) {
-    fields.forEach((field) => {
-      if (!(field in data)) throw new Error(`Help: missing field: ${field}`);
-    });
   },
 } as const;
 

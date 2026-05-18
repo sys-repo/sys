@@ -1,4 +1,4 @@
 import file from './-bundle.json' with { type: 'json' };
-import type { FileMapJson } from '../common.ts';
+import type { FileMap } from '@sys/fs/t';
 
-export const json = file as FileMapJson;
+export const json = file as FileMap;

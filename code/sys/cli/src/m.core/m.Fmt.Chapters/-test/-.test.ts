@@ -136,6 +136,30 @@ describe('Cli.Fmt.Chapters', () => {
     await expectFailure(() => book.load(), 'ExampleHelp: missing field: title');
   });
 
+  it('reads embedded text records from bundled resource data URIs', () => {
+    const resources = Fmt.Chapters.Resources.create({
+      json: {
+        'root.yaml': 'data:text/plain;base64,aWQ6IHJvb3Q=',
+        'binary.png': 'data:image/png;base64,AQID',
+      },
+      label: 'ExampleHelp',
+      parse: (text, file) => ({ id: text.split(': ')[1], file }),
+    });
+
+    expect(resources.readText('root.yaml')).to.eql('id: root');
+    expect(resources.readParsedRecord('root.yaml')).to.eql({ id: 'root', file: 'root.yaml' });
+    expect(resources.readRecord('root.yaml', ['id'])).to.eql({ id: 'root', file: 'root.yaml' });
+    expect(() => resources.readText('missing.yaml')).to.throw(
+      'ExampleHelp: resource not found: missing.yaml',
+    );
+    expect(() => resources.readText('binary.png')).to.throw(
+      'ExampleHelp: resource is not text: binary.png',
+    );
+    expect(() => resources.readRecord('root.yaml', ['title'])).to.throw(
+      'ExampleHelp: missing field: title',
+    );
+  });
+
   it('renders sections and a parameterized child chapter index', () => {
     const text = Fmt.Chapters.format({ command, chapter });
     const plain = Cli.stripAnsi(text);
