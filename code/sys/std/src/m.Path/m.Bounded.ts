@@ -17,7 +17,7 @@ export const Bounded: t.PathBoundedLib = Object.freeze({
     if (!Is.string(input)) throw invalid('Path must be a string');
     if (input.includes('\0')) throw invalid('Path contains NUL');
     if (input.includes('\\')) throw invalid('Path must use POSIX separators');
-    if (ops.Is.absolute(input) || Bounded.Is.windowsDrive(input)) {
+    if (ops.isAbsolute(input) || Bounded.Is.windowsDrive(input)) {
       throw invalid('Path must be root-relative');
     }
     if (input.split('/').includes('..')) {
@@ -48,10 +48,8 @@ export const Bounded: t.PathBoundedLib = Object.freeze({
   },
 });
 
-const POSIX_IS = Object.freeze({ absolute: isAbsolute });
-
 const POSIX_PATH: t.PathBoundedPosixOps = Object.freeze({
-  Is: POSIX_IS,
+  isAbsolute,
   join(...parts) {
     return normalize(parts.join('/'));
   },

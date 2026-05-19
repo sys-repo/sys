@@ -71,7 +71,7 @@ export type PathDirOptions = { platform?: PathJoinPlatform };
 
 /** Path operations required by bounded-path canonicalization. */
 export type PathBoundedOps = {
-  readonly Is: { readonly absolute: (path: t.StringPath) => boolean };
+  readonly isAbsolute: (path: t.StringPath) => boolean;
   readonly normalize: (path: t.StringPath) => t.StringPath;
 };
 
@@ -96,7 +96,7 @@ export type PathBoundedLib = {
    * Canonicalize a path for safe visibility inside a bounded resource tree.
    *
    * Empty, `undefined`, and `.` resolve to the bounded root (`''`).
-   * Rejects absolute paths, Windows-drive paths, NUL, backslashes, and raw `..` traversal.
+   * Rejects absolute paths, Windows-drive paths, NUL, backslashes, and `..` traversal.
    */
   readonly visible: (
     ops: PathBoundedOps,

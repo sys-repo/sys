@@ -14,7 +14,7 @@ describe('Path.Bounded', () => {
     expect(Object.isFrozen(Bounded)).to.eql(true);
     expect(Object.isFrozen(Bounded.Is)).to.eql(true);
     expect(Object.isFrozen(Bounded.posix())).to.eql(true);
-    expect(Object.isFrozen(Bounded.posix().Is)).to.eql(true);
+    expect('Is' in Bounded.posix()).to.eql(false);
     expect(() => {
       (Bounded.posix() as { normalize: unknown }).normalize = () => '../outside';
     }).to.throw(TypeError);
@@ -76,23 +76,23 @@ describe('Path.Bounded', () => {
 
   it('rejects paths made unsafe by hostile path-normalization implementations', () => {
     const absoluteAfterNormalize: t.PathBoundedOps = {
-      Is: { absolute: () => false },
+      isAbsolute: () => false,
       normalize: () => '/outside',
     };
     const driveAfterNormalize: t.PathBoundedOps = {
-      Is: { absolute: () => false },
+      isAbsolute: () => false,
       normalize: () => 'C:/outside',
     };
     const traversalAfterNormalize: t.PathBoundedOps = {
-      Is: { absolute: () => false },
+      isAbsolute: () => false,
       normalize: () => '../outside',
     };
     const trailingTraversalAfterNormalize: t.PathBoundedOps = {
-      Is: { absolute: () => false },
+      isAbsolute: () => false,
       normalize: () => 'safe/..',
     };
     const nulAfterNormalize: t.PathBoundedOps = {
-      Is: { absolute: () => false },
+      isAbsolute: () => false,
       normalize: () => 'bad\0path',
     };
 
@@ -110,9 +110,9 @@ describe('Path.Bounded', () => {
   it('provides deterministic POSIX path operations for structural backings', () => {
     const path = Bounded.posix();
 
-    expect(path.Is.absolute('/root')).to.eql(true);
-    expect(path.Is.absolute('C:/root')).to.eql(true);
-    expect(path.Is.absolute('docs/readme.md')).to.eql(false);
+    expect(path.isAbsolute('/root')).to.eql(true);
+    expect(path.isAbsolute('C:/root')).to.eql(true);
+    expect(path.isAbsolute('docs/readme.md')).to.eql(false);
     expect(path.join('/root', 'docs', '..', 'readme.md')).to.eql('/root/readme.md');
     expect(path.resolve('/root', 'docs/readme.md')).to.eql('/root/docs/readme.md');
     expect(path.relative('/root/docs', '/root/docs/nested/guide.md')).to.eql('nested/guide.md');
