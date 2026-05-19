@@ -1,5 +1,8 @@
 import type { t } from './common.ts';
 
+/**
+ * Type namespace for the `Time` runtime surface.
+ */
 export declare namespace Time {
   /**
    * Helpers for working with time.
