@@ -13,6 +13,8 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
+    "./files": "./src/m.files/mod.ts",
+    "./files/t": "./src/m.files/t.ts",
     "./timecode/playback": "./src/m.timecode.playback/mod.ts",
     "./timecode/playback/t": "./src/m.timecode.playback/t.ts"
   },
@@ -29,4 +31,3 @@
     }
   }
 }
-
