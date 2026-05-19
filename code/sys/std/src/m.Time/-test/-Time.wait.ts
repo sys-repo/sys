@@ -46,12 +46,13 @@ describe('waiting', () => {
     });
 
     it('has correct type signature', () => {
-      expectTypeOf(Time.wait).toEqualTypeOf<t.TimeLib['wait']>();
+      expectTypeOf(Time).toEqualTypeOf<t.Time.Lib>();
+      expectTypeOf(Time.wait).toEqualTypeOf<t.Time.Lib['wait']>();
 
       type WaitShape = (
         msecs?: t.Msecs,
         options?: { readonly signal?: AbortSignal } | AbortSignal,
-      ) => t.TimeDelayPromise;
+      ) => t.Time.Delay.Promise;
       expectTypeOf(Time.wait).toEqualTypeOf<WaitShape>();
     });
   });

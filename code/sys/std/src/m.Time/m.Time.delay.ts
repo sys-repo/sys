@@ -15,7 +15,7 @@ import { type t, Is, Schedule } from './common.ts';
  * Errors:
  * - If the callback throws, the promise rejects with that error, and `is.done` is set.
  */
-export function delay(...args: any[]): t.TimeDelayPromise {
+export function delay(...args: any[]): t.Time.Delay.Promise {
   const { msecs, fn, options } = Wrangle.delayArgs(args);
   const timeout = Wrangle.normalizeMsecs(msecs);
   const { signal } = Wrangle.delayOptions(options);
@@ -125,7 +125,7 @@ export function delay(...args: any[]): t.TimeDelayPromise {
       // Handle edge where signal aborts between checks.
       if (signal.aborted) onAbort();
     }
-  }) as t.TimeDelayPromise;
+  }) as t.Time.Delay.Promise;
 
   /**
    * Cancel function:

@@ -11,7 +11,7 @@ export function until(until?: t.UntilInput) {
   const life = Dispose.lifecycle(until);
 
   const api: t.TimeUntil = {
-    delay(...args: any[]): t.TimeDelayPromise {
+    delay(...args: any[]): t.Time.Delay.Promise {
       const { msecs, fn } = Wrangle.delayArgs(args);
 
       const done$ = Rx.subject<void>();

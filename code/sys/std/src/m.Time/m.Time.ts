@@ -11,7 +11,7 @@ import { wait, waitFor } from './m.Time.wait.ts';
 /**
  * Library: Helpers for working with time and timers (delays).
  */
-export const Time: t.TimeLib = {
+export const Time: t.Time.Lib = {
   get now() {
     return utc();
   },
