@@ -67,10 +67,10 @@
     "jsr:@sys/ui-state@^0.0.93": "0.0.93",
     "jsr:@sys/workspace@^0.0.82": "0.0.82",
     "jsr:@sys/yaml@^0.0.147": "0.0.147",
-    "npm:@automerge/automerge-repo-network-websocket@2.5.5": "2.5.5",
-    "npm:@automerge/automerge-repo-storage-indexeddb@2.5.5": "2.5.5",
-    "npm:@automerge/automerge-repo-storage-nodefs@2.5.5": "2.5.5",
-    "npm:@automerge/automerge-repo@2.5.5": "2.5.5",
+    "npm:@automerge/automerge-repo-network-websocket@2.5.6": "2.5.6",
+    "npm:@automerge/automerge-repo-storage-indexeddb@2.5.6": "2.5.6",
+    "npm:@automerge/automerge-repo-storage-nodefs@2.5.6": "2.5.6",
+    "npm:@automerge/automerge-repo@2.5.6": "2.5.6",
     "npm:@automerge/automerge@3.2.6": "3.2.6",
     "npm:@automerge/prosemirror@0.2.0": "0.2.0",
     "npm:@deno/vite-plugin@*": "2.0.2_vite@8.0.13__esbuild@0.28.0__yaml@2.9.0_esbuild@0.28.0_yaml@2.9.0",
@@ -85,7 +85,7 @@
     "npm:@preact/signals-react@3.10.1": "3.10.1_react@19.2.6",
     "npm:@sinclair/typebox-codegen@0.11.1": "0.11.1",
     "npm:@sinclair/typebox@0.34.49": "0.34.49",
-    "npm:@stripe/stripe-js@9.5.0": "9.5.0",
+    "npm:@stripe/stripe-js@9.6.0": "9.6.0",
     "npm:@svgdotjs/svg.js@3.2.5": "3.2.5",
     "npm:@testing-library/react@16.3.2": "16.3.2_@types+react@19.2.14_@types+react-dom@19.2.3__@types+react@19.2.14_react@19.2.6_react-dom@19.2.6__react@19.2.6",
     "npm:@types/ramda@0.31.1": "0.31.1",
@@ -96,7 +96,7 @@
     "npm:bowser@2.14.1": "2.14.1",
     "npm:chai@6.2.2": "6.2.2",
     "npm:csstype@3.2.3": "3.2.3",
-    "npm:date-fns@4.1.0": "4.1.0",
+    "npm:date-fns@4.2.1": "4.2.1",
     "npm:diff@9.0.0": "9.0.0",
     "npm:esbuild@0.23.1": "0.23.1",
     "npm:esbuild@0.27.2": "0.27.2",
@@ -119,7 +119,6 @@
     "npm:prettier@3.8.3": "3.8.3",
     "npm:pretty-bytes@7.1.0": "7.1.0",
     "npm:prosemirror-example-setup@1.2.3": "1.2.3",
-    "npm:prosemirror-model@1.25.6": "1.25.6",
     "npm:prosemirror-schema-basic@1.2.4": "1.2.4",
     "npm:prosemirror-state@1.4.4": "1.4.4",
     "npm:prosemirror-view@1.41.8": "1.41.8",
@@ -349,10 +348,6 @@
         "jsr:@sys/ui-react-components",
         "jsr:@sys/ui-react-devharness",
         "npm:@automerge/automerge",
-        "npm:@automerge/automerge-repo",
-        "npm:@automerge/automerge-repo-network-websocket",
-        "npm:@automerge/automerge-repo-storage-indexeddb",
-        "npm:@automerge/automerge-repo-storage-nodefs",
         "npm:@types/react",
         "npm:@types/ws",
         "npm:react-icons",
@@ -500,7 +495,6 @@
         "npm:@preact/signals-core@1.14.1",
         "npm:@types/ramda",
         "npm:chai",
-        "npm:date-fns",
         "npm:happy-dom",
         "npm:hash-it",
         "npm:ignore",
@@ -714,8 +708,8 @@
       ],
       "bin": true
     },
-    "@automerge/automerge-repo-network-websocket@2.5.5": {
-      "integrity": "sha512-pwHNXTsTTfofU3X/wtFa9L3lWfAJBI7v1+3EKgFDgEodUJo9FPDH0hcy4HUsQiDrQPADO7FP9fVOQSXVm8n5VA==",
+    "@automerge/automerge-repo-network-websocket@2.5.6": {
+      "integrity": "sha512-xs/xzOCTf5ZuqhDUtBO1VQ3QOnunEobjtgEqGNu7UcoD2uYWET1ANHVfS+ZzSV8IOA1O9jFAPXxzc4FXoSL0hQ==",
       "dependencies": [
         "@automerge/automerge-repo",
         "cbor-x",
@@ -725,21 +719,21 @@
         "ws@8.20.1"
       ]
     },
-    "@automerge/automerge-repo-storage-indexeddb@2.5.5": {
-      "integrity": "sha512-pH8tw8uLqEtv1POhy2IFnpBDFpGqiR6YM3w4Rk0NkmerstUxQwrqkkeABlkvF5Al6krlu6dC47LnF8v5cHB3Fg==",
+    "@automerge/automerge-repo-storage-indexeddb@2.5.6": {
+      "integrity": "sha512-3349orECq2Mj3mo9q6f9ZeXwDkP3lAm6KaivP5+znUpv6Ze+IraE36DdL5GVdzIm+cXej0yWSOCQOalnTMPcQg==",
       "dependencies": [
         "@automerge/automerge-repo"
       ]
     },
-    "@automerge/automerge-repo-storage-nodefs@2.5.5": {
-      "integrity": "sha512-mdGU5CI/04dAV9UnqW9ImKqtilJXCcga3h/yQtw24SDB6HSMXRl3S748FYFF+dc37bFyUgAcaAXQqavCN8siJw==",
+    "@automerge/automerge-repo-storage-nodefs@2.5.6": {
+      "integrity": "sha512-euCoSvlcGLVBMzBHSr7txUXIdVI0WwkdXqIbRgGtltdynS/Id2Ps4ngbKSI/1kocRsrTzvx1dW77DxwjArV8xg==",
       "dependencies": [
         "@automerge/automerge-repo",
         "rimraf"
       ]
     },
-    "@automerge/automerge-repo@2.5.5": {
-      "integrity": "sha512-A7vrMvIx5axW3smczZStONaZsksFSjKK8e0Th0u+oEV3aMsylaExpDvjRE2ZIZotJT30+l3tCUlge/n/XGK25Q==",
+    "@automerge/automerge-repo@2.5.6": {
+      "integrity": "sha512-ZXM6TOAwm192g3+zIxYvlB+Z3O00NP+psErOwvbSype8fFO+dhc8tB/jPwfZJqmn1ULUz5w7gssKEynwcYFRSA==",
       "dependencies": [
         "@automerge/automerge",
         "bs58check",
@@ -2885,8 +2879,8 @@
     "@stablelib/base64@1.0.1": {
       "integrity": "sha512-1bnPQqSxSuc3Ii6MhBysoWCg58j97aUjuCSZrGSmDxNqtytIi0k8utUenAwTZN4V5mXXYGsVUI9zeBqy+jBOSQ=="
     },
-    "@stripe/stripe-js@9.5.0": {
-      "integrity": "sha512-dTQWkJRw5lhcQipPuw6qZRBK2zY5eWWZ1Srw9mSjhIXSLdsNYO3uaIV+YRMkI0/tB/D7yQdHYStrcZrbeHI5Jg=="
+    "@stripe/stripe-js@9.6.0": {
+      "integrity": "sha512-v5MebYvJbddSRn15fknxTVwypJPzjeIXI1Q2HBxCBrQieWna8PC+RXEVUZ3F4ANAeILEj97HzFlr0r7CXvG7ZA=="
     },
     "@svgdotjs/svg.js@3.2.5": {
       "integrity": "sha512-/VNHWYhNu+BS7ktbYoVGrCmsXDh+chFMaONMwGNdIBcFHrWqk2jY8fNyr3DLdtQUIalvkPfM554ZSFa3dm3nxQ=="
@@ -3233,8 +3227,8 @@
     "data-uri-to-buffer@6.0.2": {
       "integrity": "sha512-7hvf7/GW8e86rW0ptuwS3OcBGDjIi6SZva7hCyWC0yYry2cOPmLIjXAUHI6DK2HsnwJd9ifmt57i8eV2n4YNpw=="
     },
-    "date-fns@4.1.0": {
-      "integrity": "sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg=="
+    "date-fns@4.2.1": {
+      "integrity": "sha512-37RhSdxaG1suen6VDCza6rNrQfooyQh57HFVPwQGEq2QWliVLzPQZ8Oa017weOu+HZCnzI7N3Pf/wyoBKfEqrA=="
     },
     "debug@4.4.3": {
       "integrity": "sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==",
@@ -5013,8 +5007,8 @@
         "powershell-utils"
       ]
     },
-    "xstate@5.31.0": {
-      "integrity": "sha512-5B+0DqC0uNUrcLUEY3pn3iNy+swvK2E0ZpYp5gnV3oxMX5y87vzXkU5YXv9CAtyG5c5FOJ1SzvTWHrwE8fMZNQ=="
+    "xstate@5.31.1": {
+      "integrity": "sha512-3P7t7GQ61BvLu+8Cj6Zq7rcS34vecL9pvfN2ucUWmIFIUG+rAREviOs4Xy4OO3BuJHSz6RLU8eqDXxSbVotjDQ=="
     },
     "y18n@5.0.8": {
       "integrity": "sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA=="
@@ -5094,10 +5088,10 @@
       "jsr:@std/semver@1.0.8",
       "jsr:@std/testing@1.0.18",
       "jsr:@std/uuid@1.1.1",
-      "npm:@automerge/automerge-repo-network-websocket@2.5.5",
-      "npm:@automerge/automerge-repo-storage-indexeddb@2.5.5",
-      "npm:@automerge/automerge-repo-storage-nodefs@2.5.5",
-      "npm:@automerge/automerge-repo@2.5.5",
+      "npm:@automerge/automerge-repo-network-websocket@2.5.6",
+      "npm:@automerge/automerge-repo-storage-indexeddb@2.5.6",
+      "npm:@automerge/automerge-repo-storage-nodefs@2.5.6",
+      "npm:@automerge/automerge-repo@2.5.6",
       "npm:@automerge/automerge@3.2.6",
       "npm:@automerge/prosemirror@0.2.0",
       "npm:@deno/vite-plugin@2.0.2",
@@ -5108,7 +5102,7 @@
       "npm:@preact/signals-core@1.14.2",
       "npm:@preact/signals-react@3.10.1",
       "npm:@sinclair/typebox-codegen@0.11.1",
-      "npm:@stripe/stripe-js@9.5.0",
+      "npm:@stripe/stripe-js@9.6.0",
       "npm:@svgdotjs/svg.js@3.2.5",
       "npm:@types/ramda@0.31.1",
       "npm:@types/ws@8.18.1",
@@ -5116,7 +5110,7 @@
       "npm:bowser@2.14.1",
       "npm:chai@6.2.2",
       "npm:csstype@3.2.3",
-      "npm:date-fns@4.1.0",
+      "npm:date-fns@4.2.1",
       "npm:diff@9.0.0",
       "npm:esbuild@0.28.0",
       "npm:fake-indexeddb@6.2.5",
@@ -5130,7 +5124,7 @@
       "npm:ora@9.4.0",
       "npm:pretty-bytes@7.1.0",
       "npm:prosemirror-example-setup@1.2.3",
-      "npm:prosemirror-model@1.25.6",
+      "npm:prosemirror-model@1.25.7",
       "npm:prosemirror-schema-basic@1.2.4",
       "npm:prosemirror-state@1.4.4",
       "npm:prosemirror-view@1.41.8",

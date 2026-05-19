@@ -34,14 +34,14 @@ deno.json:
   - import: npm:@sinclair/typebox-codegen@0.11.1
   - import: npm:gpt-tokenizer@3.4.0
   - import: npm:@automerge/automerge@3.2.6
-  - import: npm:@automerge/automerge-repo@2.5.5
-  - import: npm:@automerge/automerge-repo-network-websocket@2.5.5
-  - import: npm:@automerge/automerge-repo-storage-indexeddb@2.5.5
-  - import: npm:@automerge/automerge-repo-storage-nodefs@2.5.5
+  - import: npm:@automerge/automerge-repo@2.5.6
+  - import: npm:@automerge/automerge-repo-network-websocket@2.5.6
+  - import: npm:@automerge/automerge-repo-storage-indexeddb@2.5.6
+  - import: npm:@automerge/automerge-repo-storage-nodefs@2.5.6
   - import: npm:@automerge/prosemirror@0.2.0
   - import: npm:@monaco-editor/react@4.7.0
   - import: npm:monaco-editor@0.55.1
-  - import: npm:prosemirror-model@1.25.6
+  - import: npm:prosemirror-model@1.25.7
   - import: npm:prosemirror-state@1.4.4
   - import: npm:prosemirror-view@1.41.8
   - import: npm:prosemirror-example-setup@1.2.3
@@ -50,7 +50,7 @@ deno.json:
   - import: jsr:@cliffy/keypress@1.1.0
   - import: jsr:@cliffy/prompt@1.1.0
   - import: jsr:@cliffy/table@1.1.0
-  - import: npm:date-fns@4.1.0
+  - import: npm:date-fns@4.2.1
   - import: npm:diff@9.0.0
   - import: npm:fast-json-patch@3.1.1
   - import: npm:happy-dom@20.9.0
@@ -73,7 +73,7 @@ deno.json:
   - import: npm:tinycolor2@1.6.0
   - import: npm:ts-essentials@10.2.0
   - import: npm:@octokit/rest@22.0.1
-  - import: npm:@stripe/stripe-js@9.5.0
+  - import: npm:@stripe/stripe-js@9.6.0
   - import: npm:ws@8.20.1
   - import: npm:@types/ws@8.18.1
   - import: npm:csstype@3.2.3
@@ -109,4 +109,4 @@ package.json:
   - import: npm:@types/react@19.2.14
   - import: npm:@types/react-dom@19.2.3
   - import: npm:@testing-library/react@16.3.2
-  - import: npm:motion@12.38.0
+  - import: npm:motion@12.39.0
