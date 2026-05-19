@@ -19,6 +19,8 @@
     "./files/fs/t": "./src/m.files.fs/t.ts",
     "./files/memory": "./src/m.files.memory/mod.ts",
     "./files/memory/t": "./src/m.files.memory/t.ts",
+    "./files/static": "./src/m.files.static/mod.ts",
+    "./files/static/t": "./src/m.files.static/t.ts",
     "./timecode/playback": "./src/m.timecode.playback/mod.ts",
     "./timecode/playback/t": "./src/m.timecode.playback/t.ts"
   },

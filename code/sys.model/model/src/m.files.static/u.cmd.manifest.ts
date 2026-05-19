@@ -1,0 +1,63 @@
+import { page, validatePageInput } from '../m.files/u.page.ts';
+import { allowed, manifestAllowed } from '../m.files/u.policy.ts';
+import { type t } from './common.ts';
+import { fail, invalidPath } from './u.error.ts';
+import type { StaticIndex } from './u.index.ts';
+import { listEntries } from './u.listEntries.ts';
+import { visiblePath } from './u.path.ts';
+
+/** Implementation of the `files:manifest` command for static dist metadata. */
+export const manifest = (
+  index: StaticIndex,
+  policy: t.Files.Policy.Shape,
+  payload: t.Files.Cmd.Manifest.Payload,
+  capabilities: t.Files.Capabilities,
+  defaultLimit: t.Files.Limit,
+): t.Files.Manifest => {
+  const path = visiblePath(payload.path);
+  if (!manifestAllowed(policy, path)) {
+    throw fail('FilesStaticError.PolicyDenied', `Manifest denied: ${path}`);
+  }
+  validatePageInput({
+    kind: 'manifest',
+    cursor: payload.cursor,
+    limit: payload.limit,
+    defaultLimit,
+  }, invalidPath);
+
+  const entries = listEntries(index, policy, {
+    path,
+    depth: payload.depth,
+    match: payload.match,
+    exclude: payload.exclude,
+  });
+  const res = page({
+    kind: 'manifest',
+    items: entries,
+    cursor: payload.cursor,
+    limit: payload.limit,
+    defaultLimit,
+  }, invalidPath);
+
+  return {
+    version: 'sys.files.manifest.v1',
+    capabilities,
+    entries: res.items,
+    ...(payload.content === true ? { content: contentRefs(index, policy, res.items) } : {}),
+    ...(index.generated === undefined ? {} : { generated: index.generated }),
+    ...(res.cursor === undefined ? {} : { cursor: res.cursor }),
+    ...(res.truncated === undefined ? {} : { truncated: res.truncated }),
+  };
+};
+
+function contentRefs(
+  index: StaticIndex,
+  policy: t.Files.Policy.Shape,
+  entries: readonly t.Files.Entry[],
+): readonly t.Files.ContentRef[] {
+  return entries
+    .filter((entry): entry is t.Files.Entry.File => entry.kind === 'file')
+    .filter((entry) => allowed(policy, 'read', entry.path))
+    .map((entry) => index.filesByPath.get(entry.path)?.contentRef)
+    .filter((ref): ref is t.Files.ContentRef => ref !== undefined);
+}
