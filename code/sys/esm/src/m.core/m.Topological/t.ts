@@ -47,8 +47,10 @@ export namespace EsmTopological {
 
   /** Structured cycle result when ordering cannot be linearized. */
   export type Cycle = {
-    /** Node keys participating in the detected cycle. */
+    /** Node keys remaining after deterministic ordering cannot continue. */
     readonly keys: readonly string[];
+    /** One deterministic closed cycle path; the first key repeats as the final key. */
+    readonly path: readonly string[];
   };
 
   /** Canonical invalid-input code. */
