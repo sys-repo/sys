@@ -1,7 +1,7 @@
 # @sys/server
 System primitives and entrypoint surfaces for server packages.
 
-[dsl]: https://martinfowler.com/dsl.html
+[dsl]: https://en.wikipedia.org/wiki/Domain-specific_language
 
 
 <p>&nbsp;</p>

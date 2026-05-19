@@ -8,7 +8,7 @@ A **Cell** is a folder-shaped [metamedium](https://en.wikipedia.org/wiki/Metamed
 [typescript]: https://www.typescriptlang.org/docs/
 [json]: https://www.rfc-editor.org/rfc/rfc8259
 [octet-stream]: https://www.iana.org/assignments/media-types/application/octet-stream
-[dsl]: https://martinfowler.com/dsl.html
+[dsl]: https://en.wikipedia.org/wiki/Domain-specific_language
 
 
 ---
