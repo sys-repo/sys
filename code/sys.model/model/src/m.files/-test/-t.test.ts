@@ -193,6 +193,28 @@ describe('Files/t', () => {
     expect(badRef.kind).to.eql('ref');
   });
 
+  it('backing error kinds share the canonical Files error suffix set', () => {
+    type FsSuffix = t.FilesFs.Error.Kind extends `FilesFsError.${infer S}` ? S : never;
+    type MemorySuffix = t.FilesMemory.Error.Kind extends `FilesMemoryError.${infer S}` ? S : never;
+
+    const fs: t.FilesFs.Error.Kind = 'FilesFsError.InvalidPath';
+    const memory: t.FilesMemory.Error.Kind = 'FilesMemoryError.InvalidPath';
+
+    expectTypeOf({} as FsSuffix).toEqualTypeOf<t.Files.Error.KindSuffix>();
+    expectTypeOf({} as MemorySuffix).toEqualTypeOf<t.Files.Error.KindSuffix>();
+    expect(fs).to.eql('FilesFsError.InvalidPath');
+    expect(memory).to.eql('FilesMemoryError.InvalidPath');
+
+    // @ts-expect-error Backing error suffixes must be canonical Files suffixes.
+    const badFs: t.FilesFs.Error.Kind = 'FilesFsError.Bad';
+
+    // @ts-expect-error Backing error prefixes are adapter-specific.
+    const badMemory: t.FilesMemory.Error.Kind = 'FilesFsError.InvalidPath';
+
+    expect(badFs).to.eql('FilesFsError.Bad');
+    expect(badMemory).to.eql('FilesFsError.InvalidPath');
+  });
+
   it('handlers and clients bind to nested Cmd contracts', () => {
     const handlers = {
       'files:capabilities': () => capabilities,
