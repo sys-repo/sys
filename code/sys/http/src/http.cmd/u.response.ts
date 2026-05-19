@@ -9,18 +9,18 @@ export async function readResponse(
 ): Promise<t.Cmd.Wire.Result> {
   let data: unknown;
 
-  const throwError = (msg: string): never => {
+  const fail = (msg: string): never => {
     throw cmdError('CmdError.Remote', msg, expected);
   };
 
   const parsed = await readJson(response);
   if (parsed.ok) data = parsed.data;
-  else throwError(`HTTP Cmd response was not JSON: ${parsed.error.message}`);
+  else fail(`HTTP Cmd response was not JSON: ${parsed.error.message}`);
 
-  if (!Cmd.Is.response(data)) return throwError('HTTP Cmd response was not a Cmd result.');
-  if (data.id !== expected.id) throwError('HTTP Cmd response id mismatch.');
-  if (data.name !== expected.name) throwError('HTTP Cmd response name mismatch.');
-  if (data.ns !== expected.ns) throwError('HTTP Cmd response namespace mismatch.');
+  if (!Cmd.Is.response(data)) return fail('HTTP Cmd response was not a Cmd result.');
+  if (data.id !== expected.id) fail('HTTP Cmd response id mismatch.');
+  if (data.name !== expected.name) fail('HTTP Cmd response name mismatch.');
+  if (data.ns !== expected.ns) fail('HTTP Cmd response namespace mismatch.');
 
   return data;
 }

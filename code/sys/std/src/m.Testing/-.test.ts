@@ -1,5 +1,5 @@
 import { Random } from '../m.Random/mod.ts';
-import { Testing, describe, expect, expectError, expectTypeOf, it } from './mod.ts';
+import { describe, expect, expectError, expectTypeOf, it, Testing } from './mod.ts';
 import { Time } from '../m.Time/mod.ts';
 
 Deno.test('Deno.test: sample (down at the test runner metal)', async (test) => {
@@ -42,19 +42,19 @@ describe('Testing', () => {
   });
 
   describe('expectError', () => {
-    const throwError = (message: string) => {
+    const fail = (message: string) => {
       throw new Error(message);
     };
 
     it('succeeds (default message)', async () => {
       await expectError(async () => {
         await Testing.wait(0);
-        throwError('Foo');
+        fail('Foo');
       });
     });
 
     it('succeeds (custom message)', async () => {
-      await expectError(() => throwError('Bar'), 'Bar');
+      await expectError(() => fail('Bar'), 'Bar');
     });
 
     it('fails when error not thrown', async () => {

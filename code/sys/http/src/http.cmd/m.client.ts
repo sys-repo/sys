@@ -23,11 +23,11 @@ export function client<
   const send = async <K extends N>(name: K, payload: P[K]): Promise<R[K]> => {
     const id = createId();
     const meta = { id, name, ns };
-    const throwError = (kind: t.Cmd.Error.Kind, msg: string): never => {
+    const fail = (kind: t.Cmd.Error.Kind, msg: string): never => {
       throw cmdError(kind, msg, meta);
     };
 
-    if (life.disposed) throwError('CmdError.ClientDisposed', 'Command client is disposed.');
+    if (life.disposed) fail('CmdError.ClientDisposed', 'Command client is disposed.');
 
     const controller = new AbortController();
     active.add(controller);
@@ -49,23 +49,23 @@ export function client<
 
       if (!response.ok) {
         const msg = `HTTP Cmd request failed: ${response.status} ${response.statusText}`;
-        throwError('CmdError.Remote', msg);
+        fail('CmdError.Remote', msg);
       }
 
       const msg = await readResponse(response, meta);
-      if (msg.error !== undefined) throwError('CmdError.Remote', msg.error);
+      if (msg.error !== undefined) fail('CmdError.Remote', msg.error);
 
       return msg.payload as R[K];
     } catch (cause) {
       if (Cmd.Is.error(cause)) throw cause;
       if (timedOut) {
         const timeout = timeoutTimer?.timeout ?? options.timeout;
-        throwError('CmdError.Timeout', `Command "${name}" timed out after ${timeout}ms.`);
+        fail('CmdError.Timeout', `Command "${name}" timed out after ${timeout}ms.`);
       }
       if (life.disposed) {
-        throwError('CmdError.ClientDisposed', 'Command client disposed before response.');
+        fail('CmdError.ClientDisposed', 'Command client disposed before response.');
       }
-      return throwError('CmdError.Remote', Err.std(cause).message);
+      return fail('CmdError.Remote', Err.std(cause).message);
     } finally {
       timeoutTimer?.cancel();
       active.delete(controller);
