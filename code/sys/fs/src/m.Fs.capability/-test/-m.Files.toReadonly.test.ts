@@ -1,0 +1,60 @@
+import type { t as TModel } from '@sys/model';
+import { FilesFs } from '@sys/model/files/fs';
+import { describe, expect, expectTypeOf, it } from '../../-test.ts';
+import { Fs } from '../../mod.ts';
+import { context, expectFilesFsError, POLICY, setupFixture } from './u.fixture.ts';
+
+describe('Fs.Capability.Files.toReadonly', () => {
+  it('adapts @sys/fs to the files/fs readonly capability', async () => {
+    const fixture = await setupFixture();
+    try {
+      const cap = Fs.Capability.Files.toReadonly(Fs);
+      expectTypeOf(cap).toEqualTypeOf<TModel.FilesFs.Capability.Readonly>();
+
+      const backing = FilesFs.readonly({ fs: cap, root: fixture.root, policy: POLICY });
+      const read = await backing.handlers['files:read'](
+        { path: 'docs/readme.md' },
+        context('files:read'),
+      );
+      expect(read).to.eql({
+        kind: 'inline',
+        file: { path: 'docs/readme.md', kind: 'file', size: 6 },
+        encoding: 'utf8',
+        content: 'hello\n',
+      });
+
+      const list = await backing.handlers['files:list']({ path: 'docs' }, context('files:list'));
+      expect(list.entries.map((entry) => entry.path)).to.eql(['docs/readme.md']);
+    } finally {
+      await Fs.remove(fixture.workspace);
+    }
+  });
+
+  it('does not widen Files authority through real file symlink escapes', async () => {
+    const fixture = await setupFixture();
+    try {
+      await Deno.symlink(fixture.outsideSecret, fixture.fileLink, { type: 'file' });
+
+      const cap = Fs.Capability.Files.toReadonly(Fs);
+      const backing = FilesFs.readonly({ fs: cap, root: fixture.root, policy: POLICY });
+
+      await expectFilesFsError(
+        () => backing.handlers['files:stat']({ path: 'docs/leak.txt' }, context('files:stat')),
+        'FilesFsError.PathOutsideRoot',
+        fixture,
+      );
+      await expectFilesFsError(
+        () => backing.handlers['files:read']({ path: 'docs/leak.txt' }, context('files:read')),
+        'FilesFsError.PathOutsideRoot',
+        fixture,
+      );
+      await expectFilesFsError(
+        () => backing.handlers['files:list']({ path: 'docs' }, context('files:list')),
+        'FilesFsError.PathOutsideRoot',
+        fixture,
+      );
+    } finally {
+      await Fs.remove(fixture.workspace);
+    }
+  });
+});
