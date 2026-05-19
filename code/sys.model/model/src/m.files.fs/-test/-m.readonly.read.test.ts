@@ -1,0 +1,60 @@
+import { describe, expect, it } from '../../-test.ts';
+import { Files } from '../../m.files/mod.ts';
+import { allowDocsPolicy, cmd, expectFilesFsError, setup } from './u.fixture.ts';
+
+describe('FilesFs.readonly: read', () => {
+  it('enforces the strictest read byte limit and prevents payload widening', async () => {
+    const policy = Files.Policy.readonly('big.txt', { maxReadBytes: 4 });
+    const large = setup({ policy, maxReadBytes: 6 });
+
+    expect(await cmd.capabilities(large.backing)).to.eql({
+      list: true,
+      stat: true,
+      read: true,
+      watch: false,
+      manifest: true,
+      maxReadBytes: 4,
+      encodings: ['utf8'],
+    });
+
+    await expectFilesFsError(
+      () => cmd.read(large.backing, { path: 'big.txt', maxBytes: 10 }),
+      'FilesFsError.ReadTooLarge',
+    );
+    expect(large.calls.readText).to.eql(0);
+
+    const narrowed = setup({ policy: allowDocsPolicy, maxReadBytes: 64 });
+    await expectFilesFsError(
+      () => cmd.read(narrowed.backing, { path: 'docs/readme.md', maxBytes: 4 }),
+      'FilesFsError.ReadTooLarge',
+    );
+    expect(narrowed.calls.readText).to.eql(0);
+  });
+
+  it('rejects unsupported read encodings before content is read', async () => {
+    const { backing, calls } = setup({ policy: allowDocsPolicy });
+
+    await expectFilesFsError(
+      () => cmd.read(backing, { path: 'docs/readme.md', encoding: 'utf16' }),
+      'FilesFsError.Unsupported',
+    );
+    expect(calls.readText).to.eql(0);
+  });
+
+  it('rejects invalid read limits', async () => {
+    const { backing } = setup({ policy: allowDocsPolicy });
+
+    await expectFilesFsError(
+      () => setup({ policy: allowDocsPolicy, maxReadBytes: -1 }),
+      'FilesFsError.InvalidPath',
+    );
+    await expectFilesFsError(
+      () => setup({ policy: { ...allowDocsPolicy, maxReadBytes: Number.POSITIVE_INFINITY } }),
+      'FilesFsError.InvalidPath',
+    );
+    await expectFilesFsError(
+      () => cmd.read(backing, { path: 'docs/readme.md', maxBytes: -1 }),
+      'FilesFsError.InvalidPath',
+    );
+  });
+});
