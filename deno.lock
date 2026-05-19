@@ -111,7 +111,7 @@
     "npm:hono@4.12.19": "4.12.19",
     "npm:ignore@7.0.5": "7.0.5",
     "npm:monaco-editor@0.55.1": "0.55.1",
-    "npm:motion@12.38.0": "12.38.0_react@19.2.6_react-dom@19.2.6__react@19.2.6",
+    "npm:motion@12.39.0": "12.39.0_react@19.2.6_react-dom@19.2.6__react@19.2.6",
     "npm:ora@9.4.0": "9.4.0",
     "npm:orbiter@*": "1.0.2",
     "npm:picomatch@4.0.3": "4.0.3",
@@ -630,7 +630,6 @@
         "jsr:@sys/yaml",
         "npm:@svgdotjs/svg.js",
         "npm:@types/react",
-        "npm:motion",
         "npm:react-error-boundary",
         "npm:react-icons",
         "npm:react-inspector",
@@ -3563,8 +3562,8 @@
         "fetch-blob"
       ]
     },
-    "framer-motion@12.38.0_react@19.2.6_react-dom@19.2.6__react@19.2.6": {
-      "integrity": "sha512-rFYkY/pigbcswl1XQSb7q424kSTQ8q6eAC+YUsSKooHQYuLdzdHjrt6uxUC+PRAO++q5IS7+TamgIw1AphxR+g==",
+    "framer-motion@12.39.0_react@19.2.6_react-dom@19.2.6__react@19.2.6": {
+      "integrity": "sha512-+vnLfzrv0MzjLzNl+nvNvR7jdg3q4cxxjz/YvzfifHl0TREtL00cs1RoMTxs+1PzLiEqZGV6gYsBY0oEAYZ24w==",
       "dependencies": [
         "motion-dom",
         "motion-utils",
@@ -4004,17 +4003,17 @@
         "marked@14.0.0"
       ]
     },
-    "motion-dom@12.38.0": {
-      "integrity": "sha512-pdkHLD8QYRp8VfiNLb8xIBJis1byQ9gPT3Jnh2jqfFtAsWUA3dEepDlsWe/xMpO8McV+VdpKVcp+E+TGJEtOoA==",
+    "motion-dom@12.39.0": {
+      "integrity": "sha512-Xn7aAcGDhco/JZTXOub64UmaYn73C6J1Po7Fk+8EvkJsNGTqfhon6UJY53vJKXW5v5Zl8HrYsVxv6oPXeGoGLQ==",
       "dependencies": [
         "motion-utils"
       ]
     },
-    "motion-utils@12.36.0": {
-      "integrity": "sha512-eHWisygbiwVvf6PZ1vhaHCLamvkSbPIeAYxWUuL3a2PD/TROgE7FvfHWTIH4vMl798QLfMw15nRqIaRDXTlYRg=="
+    "motion-utils@12.39.0": {
+      "integrity": "sha512-8nadJAJjTtqRkmRF36FoJTrywK9nnFmnPwnSMyxaOCU7GDjN9RTMJIxx9De8ErM+vpPhMccr/6fo5WciyQLnMQ=="
     },
-    "motion@12.38.0_react@19.2.6_react-dom@19.2.6__react@19.2.6": {
-      "integrity": "sha512-uYfXzeHlgThchzwz5Te47dlv5JOUC7OB4rjJ/7XTUgtBZD8CchMN8qEJ4ZVsUmTyYA44zjV0fBwsiktRuFnn+w==",
+    "motion@12.39.0_react@19.2.6_react-dom@19.2.6__react@19.2.6": {
+      "integrity": "sha512-H4a+Ze+a9j+/NTla5ezfb/g9vmIOxC+viDj++NGDZyTZkdRKjiOz3kSv6TalRWM8ZmD2y/CfC6TkQc97ybyqSA==",
       "dependencies": [
         "framer-motion",
         "react@19.2.6",
@@ -5154,7 +5153,7 @@
         "npm:@types/react@19.2.14",
         "npm:@vitejs/plugin-react@6.0.2",
         "npm:esbuild@0.28.0",
-        "npm:motion@12.38.0",
+        "npm:motion@12.39.0",
         "npm:prettier@3.8.3",
         "npm:react-dom@19.2.6",
         "npm:react-icons@5.6.0",
