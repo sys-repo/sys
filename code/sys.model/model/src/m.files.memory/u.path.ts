@@ -4,7 +4,7 @@ import { fail } from './u.error.ts';
 
 export const ROOT = '/memory' as t.StringAbsolutePath;
 
-export const path: t.FilesFs.Capability.Path = FilesPath.posix();
+export const path = FilesPath.posix() satisfies t.FilesFs.Capability.Path;
 
 export const visiblePath = (input: unknown): t.Files.StringPath => {
   return FilesPath.visible(path, input, invalidPath);

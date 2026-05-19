@@ -16,7 +16,7 @@ export const visiblePath = (
   fs: t.FilesFs.Capability.Readonly,
   input?: t.Files.StringPath,
 ): t.Files.StringPath => {
-  return FilesPath.visible(fs.path, input, invalidPath);
+  return FilesPath.visible(toBoundedPathOps(fs.path), input, invalidPath);
 };
 
 export const requiredVisiblePath = (
@@ -60,6 +60,11 @@ export const assertRealInside = async (
  */
 
 const invalidPath = (message: string): Error => fail('FilesFsError.InvalidPath', message);
+
+const toBoundedPathOps = (path: t.FilesFs.Capability.Path): t.PathBoundedOps => ({
+  isAbsolute: path.Is.absolute,
+  normalize: path.normalize,
+});
 
 const assertInside = (scope: Scope, path: t.StringPath) => {
   const relative = scope.fs.path.relative(scope.root, path).replaceAll('\\', '/');

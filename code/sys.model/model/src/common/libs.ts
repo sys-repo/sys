@@ -1,4 +1,5 @@
 export { Arr } from '@sys/std/arr';
+export { Bytes } from '@sys/std/bytes';
 export { Err } from '@sys/std/error';
 export { Glob } from '@sys/std/glob';
 export { Is } from '@sys/std/is';

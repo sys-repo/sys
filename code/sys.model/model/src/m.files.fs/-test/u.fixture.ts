@@ -228,7 +228,7 @@ export async function expectFilesFsError(
   throw new Error(`Expected ${name}.`);
 }
 
-const path: t.FilesFs.Capability.Path = FilesPath.posix();
+const path = FilesPath.posix() satisfies t.FilesFs.Capability.Path;
 
 function statFromNode(node: Node): t.FilesFs.Capability.Stat {
   return {
