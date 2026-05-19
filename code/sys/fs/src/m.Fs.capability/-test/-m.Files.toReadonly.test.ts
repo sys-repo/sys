@@ -57,4 +57,41 @@ describe('Fs.Capability.Files.toReadonly', () => {
       await Fs.remove(fixture.workspace);
     }
   });
+
+  it('rejects real directory symlink escapes for list and manifest', async () => {
+    const fixture = await setupFixture();
+    try {
+      await Deno.symlink(fixture.outsideDir, fixture.dirLink, { type: 'dir' });
+
+      const cap = Fs.Capability.Files.toReadonly(Fs);
+      const backing = FilesFs.readonly({ fs: cap, root: fixture.root, policy: POLICY });
+
+      await expectFilesFsError(
+        () => backing.handlers['files:list']({ path: 'docs/leak-dir' }, context('files:list')),
+        'FilesFsError.PathOutsideRoot',
+        fixture,
+      );
+      await expectFilesFsError(
+        () => backing.handlers['files:list']({ path: 'docs' }, context('files:list')),
+        'FilesFsError.PathOutsideRoot',
+        fixture,
+      );
+      await expectFilesFsError(
+        () =>
+          backing.handlers['files:manifest'](
+            { path: 'docs/leak-dir' },
+            context('files:manifest'),
+          ),
+        'FilesFsError.PathOutsideRoot',
+        fixture,
+      );
+      await expectFilesFsError(
+        () => backing.handlers['files:manifest']({ path: 'docs' }, context('files:manifest')),
+        'FilesFsError.PathOutsideRoot',
+        fixture,
+      );
+    } finally {
+      await Fs.remove(fixture.workspace);
+    }
+  });
 });

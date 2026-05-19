@@ -12,6 +12,7 @@ export type Fixture = {
   readonly outsideDir: string;
   readonly outsideSecret: string;
   readonly fileLink: string;
+  readonly dirLink: string;
 };
 
 export async function setupFixture(): Promise<Fixture> {
@@ -21,6 +22,7 @@ export async function setupFixture(): Promise<Fixture> {
   const outside = Fs.join(workspace.absolute, 'outside');
   const outsideSecret = Fs.join(outside, 'secret.txt');
   const fileLink = Fs.join(docs, 'leak.txt');
+  const dirLink = Fs.join(docs, 'leak-dir');
 
   await Fs.ensureDir(docs);
   await Fs.ensureDir(outside);
@@ -33,6 +35,7 @@ export async function setupFixture(): Promise<Fixture> {
     outsideDir: outside,
     outsideSecret,
     fileLink,
+    dirLink,
   };
 }
 
