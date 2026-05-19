@@ -4,8 +4,8 @@ import { translate } from './u.error.ts';
 export const handlers = (
   base: t.Files.Cmd.HandlerMap,
   capabilities: t.Files.Capabilities,
-): t.Files.Cmd.HandlerMap =>
-  Object.freeze({
+): t.Files.Cmd.HandlerMap => {
+  return Object.freeze({
     'files:capabilities'() {
       return capabilities;
     },
@@ -31,6 +31,7 @@ export const handlers = (
       return { ...manifest, capabilities };
     },
   });
+};
 
 async function attempt<T>(fn: () => t.Awaitable<T>): Promise<T> {
   try {

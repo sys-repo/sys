@@ -167,24 +167,27 @@ describe('FilesMemory.readonly', () => {
       'FilesMemoryError.InvalidPath',
     );
     await expectFilesMemoryError(
-      () =>
-        FilesMemory.readonly({
+      () => {
+        return FilesMemory.readonly({
           files: { 'bad.txt': { content: 'nope', modified: 123 as never } },
-        }),
+        });
+      },
       'FilesMemoryError.InvalidPath',
     );
     await expectFilesMemoryError(
-      () =>
-        FilesMemory.readonly({
+      () => {
+        return FilesMemory.readonly({
           files: { 'bad.txt': { content: 'nope', hash: 123 as never } },
-        }),
+        });
+      },
       'FilesMemoryError.InvalidPath',
     );
     await expectFilesMemoryError(
-      () =>
-        FilesMemory.readonly({
+      () => {
+        return FilesMemory.readonly({
           files: { 'bad.txt': { content: 'nope', mediaType: 123 as never } },
-        }),
+        });
+      },
       'FilesMemoryError.InvalidPath',
     );
 

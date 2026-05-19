@@ -1,7 +1,12 @@
-import { Glob, Num, type t } from './common.ts';
+import { Glob, type t } from './common.ts';
+import {
+  type ListEntriesOptions,
+  snapshotListOptions,
+  withinDepth,
+  withinScope,
+} from '../m.files/u.list.ts';
 import { entryFromStat, statFromWalkEntry } from './u.entry.ts';
 import { fail } from './u.error.ts';
-import { snapshotOptionalMatch } from './u.match.ts';
 import { allowed } from './u.policy.ts';
 import {
   absolutePath,
@@ -11,12 +16,7 @@ import {
   type Scope,
 } from './u.path.ts';
 
-export type ListEntriesOptions = {
-  readonly path: t.Files.StringPath;
-  readonly depth?: t.Files.Depth;
-  readonly match?: t.Files.Match;
-  readonly exclude?: t.Files.Match;
-};
+const invalidPath = (message: string): Error => fail('FilesFsError.InvalidPath', message);
 
 /**
  * Traverse a bounded files/fs scope and return visible list entries.
@@ -26,7 +26,7 @@ export const listEntries = async (
   policy: t.Files.Policy.Shape,
   options: ListEntriesOptions,
 ): Promise<readonly t.Files.Entry[]> => {
-  const query = snapshotListOptions(options);
+  const query = snapshotListOptions(options, invalidPath);
   if (!allowed(policy, 'list', query.path)) {
     throw fail('FilesFsError.PolicyDenied', `List denied: ${query.path}`);
   }
@@ -55,8 +55,8 @@ export const listEntries = async (
 
     const path = relativePath(canonicalScope, absoluteEntry);
     if (path === '') continue;
-    if (!withinScope(scope, path, query.path)) continue;
-    if (!withinDepth(scope, path, query.path, query.depth)) continue;
+    if (!withinScope(path, query.path, scope.fs.Path.relative)) continue;
+    if (!withinDepth(path, query.path, query.depth, scope.fs.Path.relative)) continue;
     if (!allowed(policy, 'list', path)) continue;
     if (query.match && !Glob.matches(query.match, path)) continue;
     if (query.exclude && Glob.matches(query.exclude, path)) continue;
@@ -66,46 +66,4 @@ export const listEntries = async (
   }
 
   return entries.sort((a, b) => a.path.localeCompare(b.path));
-};
-
-/**
- * Helpers:
- */
-
-const snapshotListOptions = (options: ListEntriesOptions): ListEntriesOptions => {
-  if (options.depth !== undefined && (!Num.Is.safeInt(options.depth) || options.depth < 0)) {
-    throw fail('FilesFsError.InvalidPath', 'Invalid Files depth');
-  }
-  return Object.freeze({
-    path: options.path,
-    ...(options.depth === undefined ? {} : { depth: options.depth }),
-    ...(options.match === undefined
-      ? {}
-      : { match: snapshotOptionalMatch(options.match, 'Invalid Files match') }),
-    ...(options.exclude === undefined
-      ? {}
-      : { exclude: snapshotOptionalMatch(options.exclude, 'Invalid Files exclude') }),
-  });
-};
-
-const withinScope = (
-  scope: Scope,
-  path: t.Files.StringPath,
-  base: t.Files.StringPath,
-): boolean => {
-  if (base === '') return true;
-  const relative = scope.fs.Path.relative(base, path).replaceAll('\\', '/');
-  return relative === '' || (!relative.startsWith('../') && relative !== '..');
-};
-
-const withinDepth = (
-  scope: Scope,
-  path: t.Files.StringPath,
-  base: t.Files.StringPath,
-  depth?: t.Files.Depth,
-): boolean => {
-  if (depth === undefined) return true;
-  const relative = base === '' ? path : scope.fs.Path.relative(base, path).replaceAll('\\', '/');
-  if (relative === '') return true;
-  return relative.split('/').filter(Boolean).length <= depth;
 };

@@ -60,11 +60,12 @@ describe('FilesFs.readonly: paging', () => {
 
     const invalidManifestExclude = setup({ policy: allowDocsPolicy });
     await expectFilesFsError(
-      () =>
-        cmd.manifest(invalidManifestExclude.backing, {
+      () => {
+        return cmd.manifest(invalidManifestExclude.backing, {
           path: 'docs',
           exclude: new Map() as unknown as t.Files.Match,
-        }),
+        });
+      },
       'FilesFsError.InvalidPath',
     );
     expect(invalidManifestExclude.calls.realPath).to.eql(0);

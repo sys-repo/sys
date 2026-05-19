@@ -26,7 +26,8 @@ export const handlers = (args: HandlerArgs): t.Files.Cmd.HandlerMap => {
     'files:watch': () => {
       throw fail('FilesFsError.Unsupported', 'Readonly files/fs backing does not support watch');
     },
-    'files:manifest': async (payload) =>
-      manifest(args.scope, args.policy, payload, args.capabilities, args.defaultLimit),
+    'files:manifest': async (payload) => {
+      return manifest(args.scope, args.policy, payload, args.capabilities, args.defaultLimit);
+    },
   });
 };
