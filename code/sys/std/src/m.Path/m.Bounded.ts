@@ -4,7 +4,7 @@ const WINDOWS_DRIVE = /^[a-zA-Z]:/;
 
 const defaultInvalid: t.PathBoundedInvalid = (message) => new Error(message);
 
-/** Helpers for bounded, root-relative, POSIX-visible resource paths. */
+/** String-only helpers for bounded, root-relative, POSIX-visible resource paths. */
 export const Bounded: t.PathBoundedLib = Object.freeze({
   Is: Object.freeze({
     windowsDrive(input: t.StringPath) {
@@ -37,8 +37,9 @@ export const Bounded: t.PathBoundedLib = Object.freeze({
     return path;
   },
 
-  parent(input: t.StringRelativePath) {
-    const parts = input.split('/').filter(Boolean);
+  parent(input: t.StringRelativePath, invalid = defaultInvalid) {
+    const path = Bounded.visible(POSIX_PATH, input, invalid);
+    const parts = path.split('/').filter(Boolean);
     parts.pop();
     return parts.join('/') as t.StringRelativePath;
   },

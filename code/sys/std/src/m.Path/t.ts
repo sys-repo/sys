@@ -75,7 +75,10 @@ export type PathBoundedOps = {
   readonly normalize: (path: t.StringPath) => t.StringPath;
 };
 
-/** POSIX structural path operations for virtual/bounded resource trees. */
+/**
+ * POSIX structural path operations for virtual/bounded resource trees.
+ * These are string-only operations, not host filesystem or realpath semantics.
+ */
 export type PathBoundedPosixOps = PathBoundedOps & {
   readonly join: (...parts: readonly string[]) => t.StringPath;
   readonly resolve: (...parts: readonly string[]) => t.StringAbsolutePath;
@@ -104,10 +107,13 @@ export type PathBoundedLib = {
     invalid?: PathBoundedInvalid,
   ) => t.StringRelativePath;
 
-  /** Return the POSIX parent of a root-relative visible path. */
-  readonly parent: (input: t.StringRelativePath) => t.StringRelativePath;
+  /** Canonicalize input as a bounded-visible POSIX path, then return its parent. */
+  readonly parent: (
+    input: t.StringRelativePath,
+    invalid?: PathBoundedInvalid,
+  ) => t.StringRelativePath;
 
-  /** Frozen POSIX path operations for structural resource trees. */
+  /** Frozen string-only POSIX operations for structural resource trees, not host paths. */
   readonly posix: () => PathBoundedPosixOps;
 };
 

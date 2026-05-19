@@ -37,8 +37,15 @@ describe('Path.Bounded', () => {
     expect(Bounded.visible(path, 'docs//nested/./guide.md', invalid)).to.eql(
       'docs/nested/guide.md',
     );
-    expect(Bounded.parent('docs/nested/guide.md')).to.eql('docs/nested');
-    expect(Bounded.parent('readme.md')).to.eql('');
+  });
+
+  it('derives parents through bounded visible-path canonicalization', () => {
+    expect(Bounded.parent('./docs/nested/guide.md', invalid)).to.eql('docs/nested');
+    expect(Bounded.parent('readme.md', invalid)).to.eql('');
+    expect(() => Bounded.parent('../outside.txt' as t.StringRelativePath, invalid)).to.throw(
+      TypeError,
+      'Path cannot traverse above root',
+    );
   });
 
   it('rejects unsafe visible path input before a bounded backing can use it', () => {
