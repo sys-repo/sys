@@ -18,8 +18,7 @@ export const Graph: t.WorkspacePrep.Graph.Lib = {
         const err = `Workspace.Prep.Graph.build: failed to order workspace paths (${ordered.invalid.code}): ${keys}`;
         throw new Error(err);
       }
-      const err = `Workspace.Prep.Graph.build: failed to order workspace paths (cycle): ${ordered.cycle.keys.join(', ')}`;
-      throw new Error(err);
+      throw new Error(wrangle.cycleError(packages, ordered.cycle));
     }
 
     return {
@@ -116,6 +115,44 @@ export const Graph: t.WorkspacePrep.Graph.Lib = {
  * Helpers:
  */
 const wrangle = {
+  cycleError(graph: t.WorkspaceGraph.PackageGraph, cycle: t.WorkspaceGraph.Cyclic['cycle']) {
+    const cyclePath = cycle.path.length > 0 ? cycle.path : cycle.keys;
+    const message = [
+      'Workspace.Prep.Graph.build: failed to order workspace paths (cycle):',
+      cyclePath.join(' → '),
+    ].join(' ');
+    const lines = [message, `remaining: ${cycle.keys.join(', ')}`];
+    const witnesses = wrangle.cycleWitnesses(graph, cyclePath);
+    if (witnesses.length > 0) {
+      lines.push('witness imports:');
+      for (const witness of witnesses) {
+        lines.push(`  ${witness.edge.from} → ${witness.edge.to}`);
+        const moduleEdge = witness.moduleEdge;
+        lines.push(`    ${moduleEdge.from} → ${moduleEdge.to} (${moduleEdge.kind})`);
+      }
+    }
+    return lines.join('\n');
+  },
+
+  cycleWitnesses(
+    graph: t.WorkspaceGraph.PackageGraph,
+    cyclePath: readonly t.WorkspaceGraph.Package['path'][],
+  ) {
+    const witnesses: {
+      readonly edge: t.WorkspaceGraph.PackageEdge;
+      readonly moduleEdge: t.WorkspaceGraph.ModuleEdge;
+    }[] = [];
+    // Paired path segments require adjacent cursor access.
+    for (let offset = 0; offset < cyclePath.length - 1; offset++) {
+      const from = cyclePath[offset];
+      const to = cyclePath[offset + 1];
+      const edge = graph.edges.find((item) => item.from === from && item.to === to);
+      const first = edge?.imports[0];
+      if (edge && first) witnesses.push({ edge, moduleEdge: first });
+    }
+    return witnesses;
+  },
+
   async assertCurrent(cwd = Fs.cwd()) {
     const res = await Graph.check(cwd);
     if (!res.existing) {

@@ -150,7 +150,11 @@ export declare namespace WorkspaceGraph {
   export type Cyclic = {
     readonly ok: false;
     readonly graph: PackageGraph;
-    readonly cycle: { readonly keys: readonly Package['path'][] };
+    readonly cycle: {
+      readonly keys: readonly Package['path'][];
+      /** One deterministic closed cycle path; the first package repeats as the final package. */
+      readonly path: readonly Package['path'][];
+    };
   };
 
   /** Package-order result. */

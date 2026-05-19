@@ -300,7 +300,10 @@ function topologyBlockedUpgrade(): t.WorkspaceUpgrade.Result {
     },
     topological: {
       ok: false,
-      cycle: { keys: ['jsr:@std/path', 'npm:react-dom'] },
+      cycle: {
+        keys: ['jsr:@std/path', 'npm:react-dom'],
+        path: ['jsr:@std/path', 'npm:react-dom', 'jsr:@std/path'],
+      },
     },
   };
 }
