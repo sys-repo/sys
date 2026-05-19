@@ -1,7 +1,6 @@
-import { type t } from './common.ts';
+import { Glob, type t } from './common.ts';
 import { entryFromStat, statFromWalkEntry } from './u.entry.ts';
 import { fail } from './u.error.ts';
-import { matches } from './u.glob.ts';
 import { allowed } from './u.policy.ts';
 import { absolutePath, assertRealInside, relativePath, type Scope } from './u.path.ts';
 
@@ -50,8 +49,8 @@ export const listEntries = async (
     if (!withinScope(scope, path, options.path)) continue;
     if (!withinDepth(scope, path, options.path, options.depth)) continue;
     if (!allowed(policy, 'list', path)) continue;
-    if (options.match && !matches(options.match, path)) continue;
-    if (options.exclude && matches(options.exclude, path)) continue;
+    if (options.match && !Glob.matches(options.match, path)) continue;
+    if (options.exclude && Glob.matches(options.exclude, path)) continue;
 
     const info = item.stat ?? statFromWalkEntry(item);
     entries.push(entryFromStat(path, info));
