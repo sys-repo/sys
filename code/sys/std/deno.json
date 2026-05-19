@@ -23,6 +23,7 @@
     "./dispose": "./src/m.Dispose/mod.ts",
     "./error": "./src/-exports/-err.ts",
     "./fn": "./src/m.Fn/mod.ts",
+    "./glob": "./src/m.Glob/mod.ts",
     "./history": "./src/m.History/mod.ts",
     "./ignore": "./src/m.Ignore/mod.ts",
     "./lazy": "./src/m.Lazy/mod.ts",

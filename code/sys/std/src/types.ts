@@ -14,6 +14,7 @@ export type * from './m.Effect/t.ts';
 export type * from './m.EffectController/t.ts';
 export type * from './m.Err/t.ts';
 export type * from './m.Fn/t.ts';
+export type * from './m.Glob/t.ts';
 export type * from './m.History/t.ts';
 export type * from './m.Ignore/t.ts';
 export type * from './m.IndexedDb/t.ts';
