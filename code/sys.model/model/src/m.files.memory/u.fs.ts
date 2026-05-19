@@ -8,7 +8,7 @@ export const memoryFs = (options: t.FilesMemory.ReadonlyOptions = {}) => {
   const nodes = memoryIndex(options);
 
   const fs: t.FilesFs.Capability.Readonly = {
-    path,
+    Path: path,
 
     realPath(input) {
       const absolute = path.resolve(input);

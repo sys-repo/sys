@@ -1,5 +1,12 @@
 import { describe, expect, it, type t } from '../../-test.ts';
-import { allowAllPolicy, allowDocsPolicy, cmd, expectFilesFsError, setup } from './u.fixture.ts';
+import {
+  allowAllPolicy,
+  allowDocsPolicy,
+  cmd,
+  expectFilesFsError,
+  file,
+  setup,
+} from './u.fixture.ts';
 
 describe('FilesFs.readonly: path safety', () => {
   it('lists, stats, reads, and manifests only root-relative entries under policy', async () => {
@@ -75,6 +82,37 @@ describe('FilesFs.readonly: path safety', () => {
       () => cmd.list(backing, { path: 'docs/readme.md' }),
       'FilesFsError.NotDirectory',
     );
+  });
+
+  it('lists entries against the canonical real root when the host root has an alias', async () => {
+    const { backing } = setup({
+      policy: allowAllPolicy,
+      fs: {
+        nodes: {
+          '/real/root': { kind: 'dir' },
+          '/real/root/docs': { kind: 'dir' },
+          '/real/root/docs/readme.md': file('hello\n', 'text/markdown'),
+        },
+        realPaths: {
+          '/root': '/real/root' as t.StringAbsolutePath,
+          '/root/docs': '/real/root/docs' as t.StringAbsolutePath,
+          '/root/docs/readme.md': '/real/root/docs/readme.md' as t.StringAbsolutePath,
+        },
+      },
+    });
+
+    const list = await cmd.list(backing, { path: 'docs' });
+    expect(list).to.eql({
+      entries: [{ path: 'docs/readme.md', kind: 'file', size: 6, mediaType: 'text/markdown' }],
+    });
+
+    const read = await cmd.read(backing, { path: 'docs/readme.md' });
+    expect(read).to.eql({
+      kind: 'inline',
+      file: { path: 'docs/readme.md', kind: 'file', size: 6, mediaType: 'text/markdown' },
+      encoding: 'utf8',
+      content: 'hello\n',
+    });
   });
 
   it('rejects missing required command paths', async () => {

@@ -100,29 +100,29 @@ export function fsFixture(options: FsFixtureOptions = {}): FsFixture {
   const calls: FsCalls = { realPath: 0, stat: 0, readText: 0, walk: 0 };
 
   const fs: t.FilesFs.Capability.Readonly = {
-    path,
+    Path,
 
     realPath(input) {
       calls.realPath++;
-      const absolute = path.resolve(input);
+      const absolute = Path.resolve(input);
       return realPaths[absolute] ?? (nodes[absolute] ? absolute : undefined);
     },
 
     stat(input) {
       calls.stat++;
-      const node = nodes[path.resolve(input)];
+      const node = nodes[Path.resolve(input)];
       return node ? statFromNode(node) : undefined;
     },
 
     readText(input) {
       calls.readText++;
-      const node = nodes[path.resolve(input)];
+      const node = nodes[Path.resolve(input)];
       return node?.kind === 'file' ? node.content : undefined;
     },
 
     walk(input) {
       calls.walk++;
-      const dir = path.resolve(input);
+      const dir = Path.resolve(input);
       const prefix = dir === '/' ? '/' : `${dir}/`;
       return Object.entries(nodes)
         .filter(([entryPath]) => entryPath !== dir && entryPath.startsWith(prefix))
@@ -228,7 +228,7 @@ export async function expectFilesFsError(
   throw new Error(`Expected ${name}.`);
 }
 
-const path = FilesPath.posix() satisfies t.FilesFs.Capability.Path;
+const Path = FilesPath.posix() satisfies t.FilesFs.Capability.Path;
 
 function statFromNode(node: Node): t.FilesFs.Capability.Stat {
   return {

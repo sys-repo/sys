@@ -39,8 +39,8 @@ export declare namespace FilesFs {
   /** Structural capabilities required by the readonly Files backing. */
   export namespace Capability {
     export type Readonly = {
-      /** Path operations with the same semantics as the backing. */
-      readonly path: Path;
+      /** Path namespace operations with the same semantics as the backing. */
+      readonly Path: Path;
 
       /** Resolve real/canonical path, following symlinks. */
       readonly realPath: (path: t.StringPath) => t.Awaitable<t.StringAbsolutePath | undefined>;
