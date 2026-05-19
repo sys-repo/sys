@@ -8,6 +8,7 @@ export type * from './m.Arr/t.ts';
 export type * from './m.Async.Await/t.ts';
 export type * from './m.Async.Schedule/t.ts';
 export type * from './m.Async/t.ts';
+export type * from './m.Bytes/t.ts';
 export type * from './m.Delete/t.ts';
 export type * from './m.Dispose/t.ts';
 export type * from './m.Effect/t.ts';
