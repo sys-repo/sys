@@ -4,14 +4,63 @@ export namespace FsCapability {
   export type Lib = {
     readonly fromFs: (fs: t.Fs.Lib) => Instance;
 
-    /** Files-model capability adapters. */
+    /** Files capability adapters. */
     readonly Files: Files.Lib;
   };
 
   export namespace Files {
     export type Lib = {
-      /** Adapt `@sys/fs` into the readonly capability expected by `@sys/model/files/fs`. */
-      readonly toReadonly: (fs: t.Fs.Lib) => t.FilesFs.Capability.Readonly;
+      /** Adapt `@sys/fs` into a structural readonly Files backing capability. */
+      readonly toReadonly: (fs: t.Fs.Lib) => Readonly;
+    };
+
+    /** Structural readonly filesystem capability compatible with `@sys/model/files/fs`. */
+    export type Readonly = {
+      /** Path namespace operations with the same semantics as the backing. */
+      readonly Path: Path;
+
+      /** Resolve real/canonical path, following symlinks. */
+      readonly realPath: (path: t.StringPath) => t.Awaitable<t.StringAbsolutePath | undefined>;
+
+      /** Stat a backing path. */
+      readonly stat: (path: t.StringPath) => t.Awaitable<Stat | undefined>;
+
+      /** Read UTF-8 text content from a backing path. */
+      readonly readText: (path: t.StringPath) => t.Awaitable<string | undefined>;
+
+      /** Walk entries under a backing directory. */
+      readonly walk: (
+        path: t.StringPath,
+      ) => t.Awaitable<Iterable<WalkEntry> | AsyncIterable<WalkEntry>>;
+    };
+
+    /** Path operations required by the readonly Files capability. */
+    export type Path = {
+      readonly Is: PathIs;
+      readonly join: (...parts: readonly string[]) => t.StringPath;
+      readonly resolve: (...parts: readonly string[]) => t.StringAbsolutePath;
+      readonly relative: (from: t.StringPath, to: t.StringPath) => t.StringRelativePath;
+      readonly normalize: (path: t.StringPath) => t.StringPath;
+    };
+
+    /** Path predicates required by the readonly Files capability. */
+    export type PathIs = {
+      readonly absolute: (path: t.StringPath) => boolean;
+    };
+
+    /** Minimal stat shape produced by the readonly Files capability. */
+    export type Stat = {
+      readonly isFile?: boolean;
+      readonly isDirectory?: boolean;
+      readonly isSymlink?: boolean;
+      readonly size?: t.NumberBytes;
+    };
+
+    /** Minimal walk entry shape produced by the readonly Files capability. */
+    export type WalkEntry = {
+      readonly path: t.StringPath;
+      readonly isFile?: boolean;
+      readonly isDirectory?: boolean;
     };
   }
 

@@ -9,7 +9,7 @@ describe('Fs.Capability.Files.toReadonly', () => {
     const fixture = await setupFixture();
     try {
       const cap = Fs.Capability.Files.toReadonly(Fs);
-      expectTypeOf(cap).toEqualTypeOf<TModel.FilesFs.Capability.Readonly>();
+      expectTypeOf(cap).toMatchTypeOf<TModel.FilesFs.Capability.Readonly>();
 
       const backing = FilesFs.readonly({ fs: cap, root: fixture.root, policy: POLICY });
       const read = await backing.handlers['files:read'](

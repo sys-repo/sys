@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 
-/** Resolve a real path, preserving FilesFs' not-found-as-undefined contract. */
+/** Resolve a real path, preserving the readonly Files not-found-as-undefined contract. */
 export async function realPath(
   fs: t.Fs.Lib,
   path: t.StringPath,
@@ -13,7 +13,7 @@ export async function realPath(
   }
 }
 
-/** Read UTF-8 text, preserving FilesFs' not-found/unreadable-as-undefined contract. */
+/** Read UTF-8 text, preserving the readonly Files not-found/unreadable-as-undefined contract. */
 export async function readText(fs: t.Fs.Lib, path: t.StringPath): Promise<string | undefined> {
   const res = await fs.readText(path);
   return res.ok ? res.data : undefined;
