@@ -9,13 +9,22 @@ describe(`FS: Capability`, () => {
     expect(m.FsCapability).to.equal(FsCapability);
   });
 
-  it('fromFs', () => {
-    const cap = FsCapability.fromFs(Fs);
-    expectTypeOf(cap).toEqualTypeOf<t.FsCapability.Instance>();
-    expect(cap.cwd).to.equal(Fs.cwd);
-    expect(cap.resolve).to.equal(Fs.resolve);
-    expect(cap.walk).to.equal(Fs.walk);
-    expect(cap.remove).to.equal(Fs.remove);
-    expect('tildeExpand' in cap).to.equal(false);
+  describe('adapter surfaces', () => {
+    it('fromFs', () => {
+      const cap = FsCapability.fromFs(Fs);
+      expectTypeOf(cap).toEqualTypeOf<t.FsCapability.Instance>();
+      expect(cap.cwd).to.equal(Fs.cwd);
+      expect(cap.resolve).to.equal(Fs.resolve);
+      expect(cap.walk).to.equal(Fs.walk);
+      expect(cap.remove).to.equal(Fs.remove);
+      expect('tildeExpand' in cap).to.eql(false);
+    });
+
+    it('Files.toReadonly', () => {
+      expect(FsCapability.Files).to.equal(Fs.Capability.Files);
+      expect(FsCapability.Files.toReadonly).to.equal(Fs.Capability.Files.toReadonly);
+      expectTypeOf(FsCapability.Files).toEqualTypeOf<t.FsCapability.Files.Lib>();
+      expect('toFilesFsReadonly' in FsCapability).to.eql(false);
+    });
   });
 });

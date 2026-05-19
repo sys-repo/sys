@@ -3,7 +3,17 @@ import type { t } from './common.ts';
 export namespace FsCapability {
   export type Lib = {
     readonly fromFs: (fs: t.Fs.Lib) => Instance;
+
+    /** Files-model capability adapters. */
+    readonly Files: Files.Lib;
   };
+
+  export namespace Files {
+    export type Lib = {
+      /** Adapt `@sys/fs` into the readonly capability expected by `@sys/model/files/fs`. */
+      readonly toReadonly: (fs: t.Fs.Lib) => t.FilesFs.Capability.Readonly;
+    };
+  }
 
   /**
    * Portable filesystem/path runtime capability surface.
