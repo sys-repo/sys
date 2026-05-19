@@ -63,6 +63,22 @@ describe('FilesFs.readonly: symlink containment', () => {
     expect(manifestCase.calls.walk).to.eql(1);
     expect(manifestCase.calls.readText).to.eql(0);
   });
+
+  it('rejects sibling-prefix real-path escapes', async () => {
+    const statCase = setup({ fs: escapingSiblingPrefixFixture(), policy: allowAllPolicy });
+    await expectFilesFsError(
+      () => cmd.stat(statCase.backing, { path: 'link-prefix.txt' }),
+      'FilesFsError.PathOutsideRoot',
+    );
+    expect(statCase.calls.stat).to.eql(0);
+
+    const listCase = setup({ fs: escapingSiblingPrefixFixture(), policy: allowAllPolicy });
+    await expectFilesFsError(
+      () => cmd.list(listCase.backing),
+      'FilesFsError.PathOutsideRoot',
+    );
+    expect(listCase.calls.walk).to.eql(1);
+  });
 });
 
 /**
@@ -78,6 +94,19 @@ function escapingDirectoryFixture(): FsFixtureOptions {
     },
     realPaths: {
       '/root/link-out-dir': '/outside' as t.StringAbsolutePath,
+    },
+  };
+}
+
+function escapingSiblingPrefixFixture(): FsFixtureOptions {
+  return {
+    nodes: {
+      '/root/link-prefix.txt': file('secret', 'text/plain'),
+      '/root-escape': { kind: 'dir' },
+      '/root-escape/secret.txt': file('secret', 'text/plain'),
+    },
+    realPaths: {
+      '/root/link-prefix.txt': '/root-escape/secret.txt' as t.StringAbsolutePath,
     },
   };
 }
