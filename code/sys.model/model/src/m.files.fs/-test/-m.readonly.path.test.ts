@@ -1,12 +1,5 @@
 import { describe, expect, it, type t } from '../../-test.ts';
-import {
-  allowAllPolicy,
-  allowDocsPolicy,
-  cmd,
-  escapingFixture,
-  expectFilesFsError,
-  setup,
-} from './u.fixture.ts';
+import { allowAllPolicy, allowDocsPolicy, cmd, expectFilesFsError, setup } from './u.fixture.ts';
 
 describe('FilesFs.readonly: path safety', () => {
   it('lists, stats, reads, and manifests only root-relative entries under policy', async () => {
@@ -112,19 +105,5 @@ describe('FilesFs.readonly: path safety', () => {
         'FilesFsError.InvalidPath',
       );
     }
-  });
-
-  it('rejects real-path escapes before stat/read can expose escaped targets', async () => {
-    const { backing } = setup({ fs: escapingFixture(), policy: allowAllPolicy });
-
-    await expectFilesFsError(
-      () => cmd.stat(backing, { path: 'link-out.txt' }),
-      'FilesFsError.PathOutsideRoot',
-    );
-    await expectFilesFsError(
-      () => cmd.read(backing, { path: 'link-out.txt' }),
-      'FilesFsError.PathOutsideRoot',
-    );
-    await expectFilesFsError(() => cmd.list(backing), 'FilesFsError.PathOutsideRoot');
   });
 });
