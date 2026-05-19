@@ -1,4 +1,4 @@
-import { Rx, type t } from './common.ts';
+import { Rx, Time, type t } from './common.ts';
 import { CmdIs } from './m.Is.ts';
 import { createId } from './u.id.ts';
 import { sameNamespace } from './u.namespace.ts';
@@ -15,7 +15,7 @@ type PendingEntry = {
 };
 
 // Internal: handle type for timeout timers.
-type TimeoutHandle = ReturnType<typeof setTimeout>;
+type TimeoutHandle = t.TimeDelayPromise;
 
 type StreamTerminal =
   | { readonly ok: true }
@@ -71,7 +71,7 @@ export function makeClient<
 
       if (entry.name !== msg.name) {
         const error = makeError({
-          kind: 'CmdErrorRemote',
+          kind: 'CmdError.Remote',
           message:
             `Command response name mismatch: expected "${entry.name}", received "${msg.name}".`,
           meta: { name: entry.name, id: msg.id, ns },
@@ -82,7 +82,7 @@ export function makeClient<
 
       if (msg.error !== undefined) {
         const error = makeError({
-          kind: 'CmdErrorRemote',
+          kind: 'CmdError.Remote',
           message: msg.error,
           meta: { name: msg.name, id: msg.id, ns },
         });
@@ -127,29 +127,29 @@ export function makeClient<
       if (!pendingEntry) return;
 
       const error = makeError({
-        kind: 'CmdErrorTimeout',
+        kind: 'CmdError.Timeout',
         message: `Command "${name}" timed out after ${timeout}ms.`,
         meta: { name, id, ns },
       });
       cancelPending(id, error, 'timeout');
     }
 
-    const handle: TimeoutHandle = setTimeout(onTimeout, timeout);
+    const handle: TimeoutHandle = Time.delay(timeout, onTimeout);
     timers.set(id, handle);
   }
 
   /**
    * Sends a unary command and resolves with its result.
    */
-  const send: t.Cmd.Client.Handle<N, P, R, E>['send'] = (name, payload) => {
+  const send = <K extends N>(name: K, payload: P[K]): Promise<R[K]> => {
     const id = createId();
     if (life.disposed) return Promise.reject(makeClientDisposedError(name, id));
 
     const envelope: t.Cmd.Wire.Request = { kind: 'cmd', ns, id, name, payload };
-    const done = new Promise<R[typeof name]>((resolve, reject) => {
+    const done = new Promise<R[K]>((resolve, reject) => {
       const entry: PendingEntry = {
         name,
-        resolve: (value) => resolve(value as R[typeof name]),
+        resolve: (value) => resolve(value as R[K]),
         reject,
       };
       registerPendingWithTimeout(id, name, entry);
@@ -182,7 +182,7 @@ export function makeClient<
       if (terminal) return;
 
       const error = makeError({
-        kind: 'CmdErrorCancelled',
+        kind: 'CmdError.Cancelled',
         message: `Command "${name}" was cancelled.`,
         meta: { name, id, ns },
       });
@@ -233,7 +233,7 @@ export function makeClient<
 
     const entries = Array.from(pending.entries());
     const error = makeError({
-      kind: 'CmdErrorClientDisposed',
+      kind: 'CmdError.ClientDisposed',
       message: 'Command client disposed before response was received.',
     });
 
@@ -243,7 +243,7 @@ export function makeClient<
     }
 
     for (const handle of timers.values()) {
-      clearTimeout(handle);
+      handle.cancel();
     }
     timers.clear();
     pending.clear();
@@ -289,7 +289,7 @@ export function makeClient<
 
   function makeClientDisposedError(name: t.Cmd.Name, id: t.Cmd.ReqId) {
     return makeError({
-      kind: 'CmdErrorClientDisposed',
+      kind: 'CmdError.ClientDisposed',
       message: `Command "${name}" was not sent because the client is disposed.`,
       meta: { name, id, ns },
     });
@@ -347,7 +347,7 @@ export function makeClient<
     const timer = timers.get(id);
     if (!timer) return;
 
-    clearTimeout(timer);
+    timer.cancel();
     timers.delete(id);
   }
 

@@ -67,7 +67,7 @@ describe('WebSocketServer/Cmd transport', () => {
       const client = cmd.client(Cmd.Transport.fromWebSocket(ws), { timeout: 1_000 });
       try {
         const error = await client.send('fail', { message: 'boom' }).catch((e: unknown) => e);
-        Fixture.expectCmdError(error, 'CmdErrorRemote', 'fail');
+        Fixture.expectCmdError(error, 'CmdError.Remote', 'fail');
         expect((error as Error).message).to.eql('boom');
       } finally {
         client.dispose();
@@ -121,7 +121,7 @@ describe('WebSocketServer/Cmd transport', () => {
           stream.dispose();
 
           const error = await stream.done.catch((e: unknown) => e);
-          Fixture.expectCmdError(error, 'CmdErrorCancelled', 'count');
+          Fixture.expectCmdError(error, 'CmdError.Cancelled', 'count');
           expect(await aborted.promise).to.eql('stream-dispose');
         } finally {
           stream.dispose();
@@ -167,7 +167,7 @@ describe('WebSocketServer/Cmd transport', () => {
       const wrong = wrongCmd.client(endpoint, { timeout: 25 });
       try {
         const error = await wrong.send('ping', {}).catch((e: unknown) => e);
-        Fixture.expectCmdError(error, 'CmdErrorTimeout', 'ping');
+        Fixture.expectCmdError(error, 'CmdError.Timeout', 'ping');
         await Time.wait(0);
         expect(handled).to.eql(0);
       } finally {

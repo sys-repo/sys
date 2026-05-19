@@ -100,11 +100,11 @@ describe('WebSocketServer/Cmd examples', () => {
       client.dispose();
 
       const sendErr = await client.send('ping', {}).catch((error: unknown) => error);
-      Fixture.expectCmdError(sendErr, 'CmdErrorClientDisposed', 'ping');
+      Fixture.expectCmdError(sendErr, 'CmdError.ClientDisposed', 'ping');
 
       const stream = client.stream('ping', {});
       const streamErr = await stream.done.catch((error: unknown) => error);
-      Fixture.expectCmdError(streamErr, 'CmdErrorClientDisposed', 'ping');
+      Fixture.expectCmdError(streamErr, 'CmdError.ClientDisposed', 'ping');
 
       const subscription = stream.onEvent(() => {});
       expect(subscription.disposed).to.eql(true);

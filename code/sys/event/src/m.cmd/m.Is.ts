@@ -55,10 +55,10 @@ function isCancelReason(kind: t.Cmd.Wire.Kind, input: unknown) {
 
 function isCmdErrorKind(input: string): input is t.Cmd.Error.Kind {
   switch (input) {
-    case 'CmdErrorTimeout':
-    case 'CmdErrorClientDisposed':
-    case 'CmdErrorRemote':
-    case 'CmdErrorCancelled':
+    case 'CmdError.Timeout':
+    case 'CmdError.ClientDisposed':
+    case 'CmdError.Remote':
+    case 'CmdError.Cancelled':
       return true;
     default:
       return false;

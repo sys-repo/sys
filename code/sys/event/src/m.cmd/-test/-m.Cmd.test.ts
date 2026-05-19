@@ -184,7 +184,7 @@ describe('Cmd: core command behavior', () => {
       port2.close();
     });
 
-    it('stream.dispose rejects done with CmdErrorCancelled and aborts host work', async () => {
+    it('stream.dispose rejects done with CmdError.Cancelled and aborts host work', async () => {
       type Name = 'slow';
       type Payload = { slow: {} };
       type Result = { slow: { ok: boolean } };
@@ -226,7 +226,7 @@ describe('Cmd: core command behavior', () => {
       stream.dispose();
 
       const err = await done;
-      expectCmdError(err, 'CmdErrorCancelled');
+      expectCmdError(err, 'CmdError.Cancelled');
       await abortSeen;
 
       client.dispose();
@@ -278,7 +278,7 @@ describe('Cmd: core command behavior', () => {
       expect(returned).to.eql({ done: true, value: undefined });
 
       const err = await done;
-      expectCmdError(err, 'CmdErrorCancelled');
+      expectCmdError(err, 'CmdError.Cancelled');
       await abortSeen;
 
       client.dispose();
@@ -318,7 +318,7 @@ describe('Cmd: core command behavior', () => {
       const client = cmd.client(port2, { timeout: 10 });
       const res = await client.send('slow', {}).catch((err: unknown) => err);
 
-      const err = expectCmdError(res, 'CmdErrorTimeout');
+      const err = expectCmdError(res, 'CmdError.Timeout');
       expect(err.message).to.contain('timed out');
       expect(err.cmd?.name).to.eql('slow');
       expect(err.cmd?.id).to.match(/^req-/);
@@ -364,7 +364,7 @@ describe('Cmd: core command behavior', () => {
       client.dispose();
 
       const err = await pending;
-      expectCmdError(err, 'CmdErrorClientDisposed');
+      expectCmdError(err, 'CmdError.ClientDisposed');
       await abortSeen;
 
       host.dispose();
@@ -391,7 +391,7 @@ describe('Cmd: core command behavior', () => {
       const client = cmd.client(port2);
       const err = await client.send('fail', {}).catch((err: unknown) => err);
 
-      const error = expectCmdError(err, 'CmdErrorRemote');
+      const error = expectCmdError(err, 'CmdError.Remote');
       expect(error.message).to.eql('boom');
       expect(error.cmd?.name).to.eql('fail');
       expect(error.cmd?.id).to.match(/^req-/);
@@ -420,7 +420,7 @@ describe('Cmd: core command behavior', () => {
       const client = cmd.client(port2);
       const err = await client.send('fail', {}).catch((err: unknown) => err);
 
-      const error = expectCmdError(err, 'CmdErrorRemote');
+      const error = expectCmdError(err, 'CmdError.Remote');
       expect(error.message).to.eql('');
       expect(error.cmd?.name).to.eql('fail');
 
@@ -444,7 +444,7 @@ describe('Cmd: core command behavior', () => {
       // @ts-expect-error name is wrong — runtime should error too.
       const err = await client.send('bar', {}).catch((err: unknown) => err);
 
-      const error = expectCmdError(err, 'CmdErrorRemote');
+      const error = expectCmdError(err, 'CmdError.Remote');
       expect(error.message).to.match(/No handler registered for command "bar"/);
       expect(error.cmd?.name).to.eql('bar');
       expect(error.cmd?.id).to.match(/^req-/);
@@ -520,7 +520,7 @@ describe('Cmd: core command behavior', () => {
       host.dispose();
 
       const err = await pending;
-      const error = expectCmdError(err, 'CmdErrorRemote');
+      const error = expectCmdError(err, 'CmdError.Remote');
       expect(error.message).to.eql('Command host disposed before response was sent.');
       expect(error.cmd?.name).to.eql('slow');
       expect(error.cmd?.id).to.match(/^req-/);
@@ -544,18 +544,18 @@ describe('Cmd: core command behavior', () => {
       client.dispose();
 
       const sendErr = await client.send('ping', {}).catch((err: unknown) => err);
-      const sendError = expectCmdError(sendErr, 'CmdErrorClientDisposed');
+      const sendError = expectCmdError(sendErr, 'CmdError.ClientDisposed');
       expect(sendError.cmd?.name).to.eql('ping');
       expect(sendError.cmd?.id).to.match(/^req-/);
 
       const stream = client.stream('ping', {});
       const streamErr = await stream.done.catch((err: unknown) => err);
-      const streamError = expectCmdError(streamErr, 'CmdErrorClientDisposed');
+      const streamError = expectCmdError(streamErr, 'CmdError.ClientDisposed');
       expect(streamError.cmd?.name).to.eql('ping');
       expect(streamError.cmd?.id).to.match(/^req-/);
 
       const iteratorErr = await stream[Symbol.asyncIterator]().next().catch((err: unknown) => err);
-      expectCmdError(iteratorErr, 'CmdErrorClientDisposed');
+      expectCmdError(iteratorErr, 'CmdError.ClientDisposed');
 
       const subscription = stream.onEvent(() => {});
       expect(subscription.disposed).to.eql(true);
@@ -649,7 +649,7 @@ describe('Cmd: core command behavior', () => {
       const client = cmd.client(port2);
       const err = await client.send('fail', {}).catch((err: unknown) => err);
 
-      const error = expectCmdError(err, 'CmdErrorRemote');
+      const error = expectCmdError(err, 'CmdError.Remote');
       expect(error.message).to.eql('ns-boom');
       expect(error.ns).to.eql(ns);
       expect(error.cmd?.name).to.eql('fail');

@@ -1,6 +1,10 @@
 export { Args } from '@sys/std/args';
+export { Arr } from '@sys/std/arr';
 export { Err } from '@sys/std/error';
 export { Is, isObject, isRecord } from '@sys/std/is';
+export { Json } from '@sys/std/json';
+export { Num } from '@sys/std/num';
+export { Obj } from '@sys/std/obj';
 export { Path } from '@sys/std/path';
 export { R } from '@sys/std/r';
 export { Str } from '@sys/std/str';
@@ -11,5 +15,6 @@ export { Log } from '@sys/std/log';
 export { Pkg } from '@sys/std/pkg';
 export { Await, Schedule } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';
+export { slug } from '@sys/std/random';
 export { Time } from '@sys/std/time';
 export { Net } from '@sys/net';

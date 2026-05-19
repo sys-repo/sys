@@ -3,6 +3,7 @@
  */
 export type * from './-serve/t.ts';
 export type * from './http/t.ts';
+export type * from './http.cmd/t.ts';
 
 export type * from './http.client/m.HttpCache.Cmd/t.ts';
 export type * from './http.client/m.HttpCache/t.ts';

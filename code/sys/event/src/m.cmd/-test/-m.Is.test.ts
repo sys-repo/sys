@@ -123,10 +123,10 @@ describe('Cmd.Is', () => {
 
   describe('Cmd.Is.error', () => {
     it('returns true for known CmdError names', () => {
-      const timeout = makeError('CmdErrorTimeout');
-      const disposed = makeError('CmdErrorClientDisposed');
-      const remote = makeError('CmdErrorRemote');
-      const cancelled = makeError('CmdErrorCancelled');
+      const timeout = makeError('CmdError.Timeout');
+      const disposed = makeError('CmdError.ClientDisposed');
+      const remote = makeError('CmdError.Remote');
+      const cancelled = makeError('CmdError.Cancelled');
 
       expect(CmdIs.error(timeout)).to.eql(true);
       expect(CmdIs.error(disposed)).to.eql(true);
@@ -143,8 +143,8 @@ describe('Cmd.Is', () => {
       expect(CmdIs.error(undefined)).to.eql(false);
       expect(CmdIs.error(null)).to.eql(false);
       expect(CmdIs.error({})).to.eql(false);
-      expect(CmdIs.error({ name: 'CmdErrorTimeout' })).to.eql(false);
-      expect(CmdIs.error({ name: 'CmdErrorTimeout', message: 'x' })).to.eql(false);
+      expect(CmdIs.error({ name: 'CmdError.Timeout' })).to.eql(false);
+      expect(CmdIs.error({ name: 'CmdError.Timeout', message: 'x' })).to.eql(false);
     });
   });
 });

@@ -204,10 +204,10 @@ export declare namespace Cmd {
   export namespace Error {
     /** Classification for command-client errors. */
     export type Kind =
-      | 'CmdErrorTimeout'
-      | 'CmdErrorClientDisposed'
-      | 'CmdErrorRemote'
-      | 'CmdErrorCancelled';
+      | 'CmdError.Timeout'
+      | 'CmdError.ClientDisposed'
+      | 'CmdError.Remote'
+      | 'CmdError.Cancelled';
 
     /** Context attached to command-client errors. */
     export type Meta = {

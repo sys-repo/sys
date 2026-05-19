@@ -11,6 +11,12 @@ export type HttpStatusCode = number;
  */
 export type HttpMethod = 'HEAD' | 'GET' | 'PUT' | 'POST' | 'DELETE' | 'PATCH' | 'OPTIONS';
 
+/** Input accepted by the Web Fetch API. */
+export type FetchInput = RequestInfo | URL;
+
+/** Web Fetch API compatible function. */
+export type Fetch = (input: FetchInput, init?: RequestInit) => Promise<Response>;
+
 /**
  * An object map of HTTP headers.
  */
