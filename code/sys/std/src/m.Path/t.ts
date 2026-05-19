@@ -12,6 +12,9 @@ export type PathLib = {
   /** Tools for formatting standard output (strings) within a CLI. */
   Format: t.PathFormatLib;
 
+  /** Helpers for bounded, root-relative, POSIX-visible resource paths. */
+  Bounded: t.PathBoundedLib;
+
   /** Granular, platform specific, path joining tools. */
   Join: t.PathJoinLib;
 
@@ -65,6 +68,48 @@ export type PathLib = {
 
 /** Options passed to the `Path.dir` method. */
 export type PathDirOptions = { platform?: PathJoinPlatform };
+
+/** Path operations required by bounded-path canonicalization. */
+export type PathBoundedOps = {
+  readonly Is: { readonly absolute: (path: t.StringPath) => boolean };
+  readonly normalize: (path: t.StringPath) => t.StringPath;
+};
+
+/** POSIX structural path operations for virtual/bounded resource trees. */
+export type PathBoundedPosixOps = PathBoundedOps & {
+  readonly join: (...parts: readonly string[]) => t.StringPath;
+  readonly resolve: (...parts: readonly string[]) => t.StringAbsolutePath;
+  readonly relative: (from: t.StringPath, to: t.StringPath) => t.StringRelativePath;
+};
+
+/** Error factory for domain-specific bounded path failures. */
+export type PathBoundedInvalid = (message: string) => Error;
+
+/** Helpers for bounded, root-relative, POSIX-visible resource paths. */
+export type PathBoundedLib = {
+  readonly Is: {
+    /** True when the input starts with a Windows drive prefix such as `C:`. */
+    readonly windowsDrive: (input: t.StringPath) => boolean;
+  };
+
+  /**
+   * Canonicalize a path for safe visibility inside a bounded resource tree.
+   *
+   * Empty, `undefined`, and `.` resolve to the bounded root (`''`).
+   * Rejects absolute paths, Windows-drive paths, NUL, backslashes, and raw `..` traversal.
+   */
+  readonly visible: (
+    ops: PathBoundedOps,
+    input: unknown,
+    invalid?: PathBoundedInvalid,
+  ) => t.StringRelativePath;
+
+  /** Return the POSIX parent of a root-relative visible path. */
+  readonly parent: (input: t.StringRelativePath) => t.StringRelativePath;
+
+  /** Frozen POSIX path operations for structural resource trees. */
+  readonly posix: () => PathBoundedPosixOps;
+};
 
 /**
  * Path verification flags.
@@ -121,7 +166,6 @@ export type PathFormatterArgs = t.PathFormatterPart & {
    * ```ts
    * e.change(c.green(e.text));
    * ```
-   *
    */
   change(to: string): void;
 

@@ -1,5 +1,5 @@
-import { describe, expect, it, type t } from '../-test.ts';
-import { Format, Path } from './mod.ts';
+import { describe, expect, it, type t } from '../../-test.ts';
+import { Format, Path } from '../mod.ts';
 
 describe('Path.Format', () => {
   const wrap = (outer: string) => (inner: string) => `[${outer}]${inner}[/${outer}]`;

@@ -11,6 +11,7 @@ import {
 
 import type { PathLib } from './t.ts';
 
+import { Bounded } from './m.Bounded.ts';
 import { Format } from './m.Fmt.ts';
 import { Is } from './m.Is.ts';
 import { Join } from './m.Join.ts';
@@ -24,6 +25,7 @@ import { relativePosix } from './u.rel.ts';
 export const Path: PathLib = {
   Is,
   Format,
+  Bounded,
   Join,
   join: Join.auto,
   joinGlobs,
