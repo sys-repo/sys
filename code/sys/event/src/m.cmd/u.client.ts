@@ -15,7 +15,7 @@ type PendingEntry = {
 };
 
 // Internal: handle type for timeout timers.
-type TimeoutHandle = t.TimeDelayPromise;
+type TimeoutHandle = t.Time.Delay.Promise;
 
 type StreamTerminal =
   | { readonly ok: true }

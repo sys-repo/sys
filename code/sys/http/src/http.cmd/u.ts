@@ -30,7 +30,7 @@ export function requestHeaders(input: HeadersInit | undefined): Headers {
 export function startTimeout(
   timeout: t.Msecs | undefined,
   fn: () => void,
-): t.TimeDelayPromise | undefined {
+): t.Time.Delay.Promise | undefined {
   if (!Is.number(timeout)) return undefined;
   return Time.delay(timeout, fn);
 }
