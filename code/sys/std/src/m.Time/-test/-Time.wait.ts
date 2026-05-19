@@ -1,4 +1,4 @@
-import { type t, describe, expect, expectTypeOf, it } from '../../-test.ts';
+import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
 import { Time } from '../mod.ts';
 
 describe('waiting', () => {
@@ -87,7 +87,7 @@ describe('waiting', () => {
     });
 
     it('has correct type signature', () => {
-      expectTypeOf(Time.waitFor).toEqualTypeOf<t.TimeLib['waitFor']>();
+      expectTypeOf(Time.waitFor).toEqualTypeOf<t.Time.Lib['waitFor']>();
 
       type WaitForShape = <T>(
         fn: () => T | Promise<T>,

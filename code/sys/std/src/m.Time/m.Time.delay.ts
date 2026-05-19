@@ -1,4 +1,4 @@
-import { type t, Is, Schedule } from './common.ts';
+import { Is, Schedule, type t } from './common.ts';
 
 /**
  * Delay for a specified amount of time.
@@ -21,7 +21,7 @@ export function delay(...args: any[]): t.Time.Delay.Promise {
   const { signal } = Wrangle.delayOptions(options);
 
   // Mutable runtime state to satisfy the extended API.
-  const is: t.DeepMutable<t.TimeDelay['is']> = {
+  const is: t.DeepMutable<t.Time.Delay.Handle['is']> = {
     done: false,
     completed: false,
     cancelled: false,
@@ -165,7 +165,7 @@ export const Wrangle = {
    */
   delayArgs(input: any[]) {
     let msecs: number | undefined = undefined;
-    let fn: t.TimeDelayCallback | undefined;
+    let fn: t.Time.Delay.Callback | undefined;
     let options: unknown;
 
     // First param:
@@ -186,7 +186,7 @@ export const Wrangle = {
   /**
    * Normalize options to a consistent shape { signal? }.
    * Accepts:
-   *   - TimeDelayOptions
+   *   - Time.Delay.Options
    *   - AbortSignal
    *   - AbortController
    *   - undefined / anything else → {}
@@ -202,7 +202,7 @@ export const Wrangle = {
 
     // Options object shape
     if (typeof input === 'object') {
-      const o = input as t.TimeDelayOptions & { signal?: unknown };
+      const o = input as t.Time.Delay.Options & { signal?: unknown };
       if (Is.abortSignal(o.signal)) return { signal: o.signal as AbortSignal };
     }
 

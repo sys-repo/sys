@@ -62,7 +62,7 @@ describe('Vite.dev', () => {
       } as const;
       const port = Testing.randomPort();
       let server: t.ViteProcess | undefined;
-      let timeout: t.TimeDelayPromise | undefined;
+      let timeout: t.Time.Delay.Promise | undefined;
       const controller = new AbortController();
       let stderr = '';
 

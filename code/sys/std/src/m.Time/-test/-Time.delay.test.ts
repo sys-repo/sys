@@ -1,4 +1,4 @@
-import { Testing, describe, expect, it } from '../../-test.ts';
+import { describe, expect, it, Testing } from '../../-test.ts';
 import { Rx } from '../../m.Rx/mod.ts';
 import { Time } from '../mod.ts';
 
@@ -6,7 +6,7 @@ describe('Time Delay/Wait', () => {
   const calcDiff = (a: Date, b: Date = new Date()) => b.getTime() - a.getTime();
 
   describe('Time.delay', () => {
-    it('response structure: <TimeDelayPromise>', () => {
+    it('response structure: <Time.Delay.Promise>', () => {
       const res = Time.delay(0);
       expect(typeof res.cancel).to.eql('function');
       expect(res.is).to.eql({ cancelled: false, completed: false, done: false });

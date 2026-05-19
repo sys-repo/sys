@@ -17,7 +17,7 @@ export declare namespace Time {
     /** Generate a new UTC datetime instance. */
     utc(input?: t.DateTimeInput): t.DateTime;
 
-    /** Create a new TimeDuration */
+    /** Create a new duration helper. */
     duration: Duration.Lib['create'];
 
     /** Time elapsed between two instants. */
@@ -93,8 +93,8 @@ export declare namespace Time {
     /** The starting datetime. */
     readonly startedAt: Date;
 
-    /** The duration elapsed */
-    readonly elapsed: t.TimeDuration;
+    /** The duration elapsed. */
+    readonly elapsed: Duration.Instance;
 
     /** Reset the timer. */
     reset: () => Timer;
@@ -102,39 +102,128 @@ export declare namespace Time {
 
   /** Delay timer types. */
   export namespace Delay {
-    export type Fn = t.TimeDelayFn;
-    export type Options = t.TimeDelayOptions;
-    export type Callback = t.TimeDelayCallback;
-    export type Promise = t.TimeDelayPromise;
-    export type Handle = t.TimeDelay;
+    /** Overloaded delay. */
+    export type Fn =
+      & ((
+        msecs: t.Msecs,
+        fn?: Callback,
+        options?: Options | AbortSignal | AbortController,
+      ) => Promise)
+      & ((fn?: Callback, options?: Options | AbortSignal | AbortController) => Promise)
+      & ((options: Options | AbortSignal | AbortController) => Promise);
+
+    /** Options for `Time.delay`. */
+    export type Options = {
+      /** Abort to cancel the pending delay. */
+      readonly signal?: AbortSignal;
+    };
+
+    /** A function called at the completion of a delay timer. */
+    export type Callback = () => void;
+
+    /** An extended Promise API that represents a running timer. */
+    export type Promise = globalThis.Promise<void> & Handle;
+
+    /** Extended properties on a delay Promise that represent a running timer. */
+    export type Handle = t.Cancellable & {
+      /** Duration of the delay. */
+      readonly timeout: t.Msecs;
+      /** Boolean status flags. */
+      readonly is: {
+        /** True if the timer was cancelled. */
+        readonly cancelled: boolean;
+        /** True if the timer completed successfully. */
+        readonly completed: boolean;
+        /** True if the timer is done (completed OR failed). */
+        readonly done: boolean;
+      };
+    };
   }
 
   /** Interval timer types. */
   export namespace Interval {
-    export type Fn = t.TimeIntervalFn;
-    export type Options = t.TimeIntervalOptions;
-    export type Callback = t.TimeIntervalCallback;
-    export type Handle = t.TimeInterval;
+    /** Overloaded interval. */
+    export type Fn =
+      & ((
+        msecs: t.Msecs,
+        fn: Callback,
+        options?: Options | AbortSignal | AbortController,
+      ) => Handle)
+      & ((
+        msecs: t.Msecs,
+        options: Options | AbortSignal | AbortController,
+        fn: Callback,
+      ) => Handle);
+
+    /** Options for `Time.interval`. */
+    export type Options = {
+      /** Abort to cancel the running interval. */
+      readonly signal?: AbortSignal;
+      /** Run the callback once immediately before scheduling the repeating interval. */
+      readonly immediate?: boolean;
+    };
+
+    /** One callback invoked on each interval tick. */
+    export type Callback = () => void;
+
+    /** Handle for one running interval. */
+    export type Handle = t.Cancellable & {
+      /** Configured interval duration. */
+      readonly interval: t.Msecs;
+      /** Boolean status flags. */
+      readonly is: {
+        /** True if the interval has been cancelled. */
+        readonly cancelled: boolean;
+        /** True if the interval is no longer running. */
+        readonly done: boolean;
+        /** True while the interval is still active. */
+        readonly running: boolean;
+      };
+    };
   }
 
   /** Duration helper types. */
   export namespace Duration {
-    export type Lib = t.TimeDurationLib;
-    export type Input = t.TimeInput;
-    export type Options = t.TimeDurationOptions;
-    export type To = t.TimeDurationTo;
+    /** Tools for working with an elapsed duration of time. */
+    export type Lib = {
+      /** Time duration conversions. */
+      readonly To: To;
+
+      /** Create a new duration helper. */
+      create(duration: Input, options?: Options): Instance;
+
+      /** Parses a string or a number (eg. "3.5h") into a duration helper. */
+      parse(input: Input, options?: Options): Instance;
+
+      /** Format milliseconds to a display string. */
+      format(msec: t.Msecs, unit: t.TimeUnit, round?: number): string;
+
+      /**
+       * Time elapsed between two instants.
+       * @param start earlier instant (ms or ISO string).
+       * @param end later instant (default `Date.now()`).
+       */
+      elapsed(start: Input, end?: Input, options?: Options): Instance;
+    };
+
+    /** Input for time-duration helpers. */
+    export type Input = string | t.Msecs;
+
+    /** Options passed to a duration helper. */
+    export type Options = {
+      /** Number of decimal places to round to. */
+      round?: number;
+    };
+
+    /** Time duration conversions. */
+    export type To = {
+      sec(msec: t.Msecs, round?: number): t.Secs;
+      min(msec: t.Msecs, round?: number): t.Secs;
+      hour(msec: t.Msecs, round?: number): t.Secs;
+      day(msec: t.Msecs, round?: number): t.Secs;
+    };
+
+    /** Represents an elapsed duration of time. */
     export type Instance = t.TimeDuration;
   }
 }
-
-/** Compatibility alias for `Time.Lib`. */
-export type TimeLib = Time.Lib;
-
-/** Compatibility alias for `Time.FrameOptions`. */
-export type TimeFrameOptions = Time.FrameOptions;
-
-/** Compatibility alias for `Time.Until`. */
-export type TimeUntil = Time.Until;
-
-/** Compatibility alias for `Time.Timer`. */
-export type Timer = Time.Timer;

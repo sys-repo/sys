@@ -1,5 +1,5 @@
 import { Test } from './mod.ts';
-import { describe, expect, it, Time, type t } from '../../-test.ts';
+import { describe, expect, it, type t, Time } from '../../-test.ts';
 import { TestTree } from '../TestSuite.helpers/mod.ts';
 
 describe('TestSuiteModel', () => {
@@ -753,7 +753,7 @@ describe('TestSuiteModel', () => {
       });
 
       it('error: test throws error (timeout, deep)', async () => {
-        let _timer: t.TimeDelayPromise | undefined;
+        let _timer: t.Time.Delay.Promise | undefined;
         let count = 0;
         const root = Test.describe('root', (e) => {
           e.it('test-1', () => count++);

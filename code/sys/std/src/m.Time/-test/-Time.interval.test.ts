@@ -1,4 +1,4 @@
-import { type t, Testing, describe, expect, expectTypeOf, it } from '../../-test.ts';
+import { describe, expect, expectTypeOf, it, type t, Testing } from '../../-test.ts';
 import { Rx } from '../../m.Rx/mod.ts';
 import { Time } from '../mod.ts';
 
@@ -81,11 +81,19 @@ describe('Time.interval', () => {
   });
 
   it('has the correct type signature', () => {
-    expectTypeOf(Time.interval).toEqualTypeOf<t.TimeLib['interval']>();
+    expectTypeOf(Time.interval).toEqualTypeOf<t.Time.Lib['interval']>();
 
     type IntervalShape =
-      & ((msecs: t.Msecs, fn: t.TimeIntervalCallback, options?: t.TimeIntervalOptions | AbortSignal | AbortController) => t.TimeInterval)
-      & ((msecs: t.Msecs, options: t.TimeIntervalOptions | AbortSignal | AbortController, fn: t.TimeIntervalCallback) => t.TimeInterval);
+      & ((
+        msecs: t.Msecs,
+        fn: t.Time.Interval.Callback,
+        options?: t.Time.Interval.Options | AbortSignal | AbortController,
+      ) => t.Time.Interval.Handle)
+      & ((
+        msecs: t.Msecs,
+        options: t.Time.Interval.Options | AbortSignal | AbortController,
+        fn: t.Time.Interval.Callback,
+      ) => t.Time.Interval.Handle);
 
     expectTypeOf(Time.interval).toEqualTypeOf<IntervalShape>();
   });

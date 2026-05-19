@@ -1,17 +1,21 @@
 import { Is } from './common.ts';
 import type { t } from './common.ts';
 
-type IntervalInput = t.TimeIntervalCallback | AbortSignal | AbortController | t.TimeIntervalOptions;
+type IntervalInput =
+  | t.Time.Interval.Callback
+  | AbortSignal
+  | AbortController
+  | t.Time.Interval.Options;
 
 export function interval(
   msecs: t.Msecs,
   fnOrOptions: IntervalInput,
   optionsOrFn?: IntervalInput,
-): t.TimeInterval {
+): t.Time.Interval.Handle {
   const every = wrangle.normalizeMsecs(msecs);
   const { fn, signal, immediate } = wrangle.input(fnOrOptions, optionsOrFn);
 
-  const is: t.DeepMutable<t.TimeInterval['is']> = {
+  const is: t.DeepMutable<t.Time.Interval.Handle['is']> = {
     cancelled: false,
     done: false,
     running: false,
@@ -74,7 +78,7 @@ const wrangle = {
   input(
     fnOrOptions: IntervalInput,
     optionsOrFn?: IntervalInput,
-  ): { fn: t.TimeIntervalCallback; signal?: AbortSignal; immediate: boolean } {
+  ): { fn: t.Time.Interval.Callback; signal?: AbortSignal; immediate: boolean } {
     if (typeof fnOrOptions === 'function') {
       return {
         fn: fnOrOptions,
@@ -95,10 +99,12 @@ const wrangle = {
   options(input: unknown): { signal?: AbortSignal; immediate: boolean } {
     if (!input) return { immediate: false };
     if (Is.abortSignal(input)) return { signal: input as AbortSignal, immediate: false };
-    if (Is.abortController(input)) return { signal: (input as AbortController).signal, immediate: false };
+    if (Is.abortController(input)) {
+      return { signal: (input as AbortController).signal, immediate: false };
+    }
     if (typeof input !== 'object') return { immediate: false };
 
-    const options = input as t.TimeIntervalOptions;
+    const options = input as t.Time.Interval.Options;
     return {
       signal: Is.abortSignal(options.signal) ? options.signal : undefined,
       immediate: options.immediate === true,

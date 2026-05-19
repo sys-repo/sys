@@ -1,9 +1,7 @@
-import type { TimeDurationLib } from './t.ts';
-
 import { Num, StdDate, type t } from './common.ts';
 const { MINUTE, SECOND, DAY, HOUR } = StdDate;
 
-const To: t.TimeDurationTo = {
+const To: t.Time.Duration.To = {
   sec: (msec: number, round?: number) => Num.round(msec / 1000, round),
   min: (msec: number, round?: number) => Num.round(msec / 1000 / 60, round),
   hour: (msec: number, round?: number) => Num.round(msec / 1000 / 60 / 60, round),
@@ -13,7 +11,7 @@ const To: t.TimeDurationTo = {
 /**
  * Library: tools for working with an elapsed duration of time.
  */
-export const Duration: TimeDurationLib = {
+export const Duration: t.Time.Duration.Lib = {
   /** Time duration conversions. */
   To,
 
@@ -26,7 +24,7 @@ export const Duration: TimeDurationLib = {
     const { round = 1 } = options;
     const msecs = input < 0 ? -1 : input;
 
-    const api: t.TimeDuration = {
+    const api: t.Time.Duration.Instance = {
       ok: msecs >= 0,
       msec: msecs,
       sec: To.sec(msecs, round),
@@ -143,7 +141,7 @@ export const Duration: TimeDurationLib = {
  * Helpers:
  */
 const wrangle = {
-  msecs(input: t.TimeInput): t.Msecs {
+  msecs(input: t.Time.Duration.Input): t.Msecs {
     if (typeof input === 'number') return input as t.Msecs;
 
     // Try a purely numeric string first.
@@ -154,6 +152,6 @@ const wrangle = {
     const parsed = Date.parse(input);
     if (!Number.isNaN(parsed)) return parsed as t.Msecs;
 
-    throw new Error(`Invalid TimeInput: “${input}”`);
+    throw new Error(`Invalid Time.Duration.Input: “${input}”`);
   },
 } as const;

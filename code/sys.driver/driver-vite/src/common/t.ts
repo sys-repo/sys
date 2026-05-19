@@ -2,13 +2,13 @@
  * External
  */
 export type {
-  Rollup,
   Alias as ViteAlias,
   BuildEnvironmentOptions as ViteBuildEnvironmentOptions,
   ConfigEnv as ViteConfigEnv,
   LibraryOptions as ViteLibraryOptions,
   Plugin as VitePlugin,
   PluginOption as VitePluginOption,
+  Rollup,
   UserConfig as ViteUserConfig,
 } from 'vite';
 
@@ -27,7 +27,7 @@ export type {
   Dep,
 } from '@sys/driver-deno/t';
 export type { Process } from '@sys/process/t';
-export type { TimeDelayPromise } from '@sys/std/t';
+export type { Time } from '@sys/std/t';
 export type { CssValue } from '@sys/ui-css/t';
 
 /**

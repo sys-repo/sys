@@ -20,7 +20,7 @@ export type { ColorTheme } from '@sys/color/t';
 export type { Cmd } from '@sys/event/t';
 export type { Fs } from '@sys/fs/t';
 export type { Graph } from '@sys/immutable/t';
-export type { HistoryStack, TimeDelayPromise } from '@sys/std/t';
+export type { HistoryStack, Time } from '@sys/std/t';
 export type { SpecImports } from '@sys/testing/t';
 export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';
 export type { KeyboardModifierFlags, LocalStorageImmutable } from '@sys/ui-dom/t';

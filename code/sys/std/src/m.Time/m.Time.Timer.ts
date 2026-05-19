@@ -6,7 +6,7 @@ import { Duration } from './m.Time.Duration.ts';
  */
 export function timer(start?: Date, options: { round?: number } = {}) {
   let startedAt = start || new Date();
-  const api: t.Timer = {
+  const api: t.Time.Timer = {
     startedAt,
     reset() {
       startedAt = new Date();

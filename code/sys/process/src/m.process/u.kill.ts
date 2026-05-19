@@ -1,4 +1,4 @@
-import { Time, type t } from './common.ts';
+import { type t, Time } from './common.ts';
 
 /**
  * Kills a child process.
@@ -9,7 +9,7 @@ export async function kill(
 ) {
   const { log = false, timeout = 5_000 } = options;
 
-  let timer: t.TimeDelayPromise | undefined;
+  let timer: t.Time.Delay.Promise | undefined;
   let killed = false;
 
   const forceKill = async () => {

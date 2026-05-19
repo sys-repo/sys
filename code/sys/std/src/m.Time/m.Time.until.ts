@@ -10,7 +10,7 @@ import { interval } from './m.Time.interval.ts';
 export function until(until?: t.UntilInput) {
   const life = Dispose.lifecycle(until);
 
-  const api: t.TimeUntil = {
+  const api: t.Time.Until = {
     delay(...args: any[]): t.Time.Delay.Promise {
       const { msecs, fn } = Wrangle.delayArgs(args);
 
@@ -67,6 +67,6 @@ const wrangle = {
 
   immediate(input: unknown) {
     if (!input || typeof input !== 'object') return false;
-    return (input as t.TimeIntervalOptions).immediate === true;
+    return (input as t.Time.Interval.Options).immediate === true;
   },
 } as const;

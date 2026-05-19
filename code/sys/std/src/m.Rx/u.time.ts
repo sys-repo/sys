@@ -20,7 +20,7 @@ export function withinTimeThreshold<T>(
 
     const { dispose, dispose$ } = Dispose.disposable(options.until);
 
-    let timer: t.TimeDelayPromise | undefined;
+    let timer: t.Time.Delay.Promise | undefined;
     const cancelTimer = () => {
       try {
         timer?.cancel?.();

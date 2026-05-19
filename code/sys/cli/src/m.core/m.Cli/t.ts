@@ -41,7 +41,7 @@ export type CliLib = {
   spinner: t.CliSpinner.Lib['start'];
 
   /** Wait for the specified milliseconds. */
-  wait: t.TimeLib['wait'];
+  wait: t.Time.Lib['wait'];
 
   /** Listen to keypress events. */
   keypress: t.CliKeyboardLib['keypress'];
