@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 import { listEntries } from './u.listEntries.ts';
-import { page } from './u.page.ts';
+import { page, validatePageInput } from './u.page.ts';
 import { type Scope, visiblePath } from './u.path.ts';
 
 /**
@@ -13,6 +13,12 @@ export const list = async (
   defaultLimit: t.Files.Limit,
 ): Promise<t.Files.Cmd.List.Result> => {
   const path = visiblePath(scope.fs, payload.path);
+  validatePageInput({
+    kind: 'list',
+    cursor: payload.cursor,
+    limit: payload.limit,
+    defaultLimit,
+  });
   const entries = await listEntries(scope, policy, {
     path,
     depth: payload.depth,

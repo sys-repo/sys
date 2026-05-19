@@ -6,7 +6,10 @@ describe('FilesFs.readonly: API', () => {
     const { backing } = setup({ policy: allowDocsPolicy, maxReadBytes: 64, defaultLimit: 2 });
 
     expect(backing.kind).to.eql('files/fs:readonly');
-    expect(backing.policy).to.equal(allowDocsPolicy);
+    expect(backing.policy).to.eql(allowDocsPolicy);
+    expect(Object.isFrozen(backing.policy)).to.eql(true);
+    expect(Object.isFrozen(backing.capabilities)).to.eql(true);
+    expect(Object.isFrozen(backing.handlers)).to.eql(true);
     expect('root' in backing).to.eql(false);
     expect(Object.keys(backing.handlers).sort()).to.eql([
       'files:capabilities',

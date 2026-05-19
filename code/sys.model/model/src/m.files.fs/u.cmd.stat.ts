@@ -2,7 +2,7 @@ import { type t } from './common.ts';
 import { entryFromStat } from './u.entry.ts';
 import { fail } from './u.error.ts';
 import { allowed } from './u.policy.ts';
-import { absolutePath, assertRealInside, type Scope, visiblePath } from './u.path.ts';
+import { absolutePath, assertRealInside, requiredVisiblePath, type Scope } from './u.path.ts';
 
 /**
  * Implementation of the `files:stat` command.
@@ -12,7 +12,7 @@ export const stat = async (
   policy: t.Files.Policy.Shape,
   payload: t.Files.Cmd.Stat.Payload,
 ): Promise<t.Files.Cmd.Stat.Result> => {
-  const path = visiblePath(scope.fs, payload.path);
+  const path = requiredVisiblePath(scope.fs, payload.path);
   if (!allowed(policy, 'stat', path)) {
     throw fail('FilesFsError.PolicyDenied', `Stat denied: ${path}`);
   }

@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 import { listEntries } from './u.listEntries.ts';
-import { page } from './u.page.ts';
+import { page, validatePageInput } from './u.page.ts';
 import { fail } from './u.error.ts';
 import { manifestAllowed } from './u.policy.ts';
 import { type Scope, visiblePath } from './u.path.ts';
@@ -19,6 +19,12 @@ export const manifest = async (
   if (!manifestAllowed(policy, path)) {
     throw fail('FilesFsError.PolicyDenied', `Manifest denied: ${path}`);
   }
+  validatePageInput({
+    kind: 'manifest',
+    cursor: payload.cursor,
+    limit: payload.limit,
+    defaultLimit,
+  });
 
   const entries = await listEntries(scope, policy, {
     path,

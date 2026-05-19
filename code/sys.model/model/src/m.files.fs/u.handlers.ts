@@ -18,7 +18,7 @@ export type HandlerArgs = {
  * Build the Files Cmd handler map for a readonly files/fs backing.
  */
 export const handlers = (args: HandlerArgs): t.Files.Cmd.HandlerMap => {
-  return {
+  return Object.freeze({
     'files:capabilities': () => args.capabilities,
     'files:list': async (payload) => list(args.scope, args.policy, payload, args.defaultLimit),
     'files:stat': async (payload) => stat(args.scope, args.policy, payload),
@@ -28,5 +28,5 @@ export const handlers = (args: HandlerArgs): t.Files.Cmd.HandlerMap => {
     },
     'files:manifest': async (payload) =>
       manifest(args.scope, args.policy, payload, args.capabilities, args.defaultLimit),
-  };
+  });
 };

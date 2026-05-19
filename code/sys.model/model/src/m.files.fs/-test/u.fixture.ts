@@ -1,4 +1,6 @@
 import { expect, type t } from '../../-test.ts';
+import { utf8ByteLength } from '../../m.files/u.bytes.ts';
+import { FilesPath } from '../../m.files/u.path.ts';
 import { FilesFs } from '../mod.ts';
 
 export const ROOT = '/root' as t.StringAbsolutePath;
@@ -87,7 +89,7 @@ export function file(content: string, mediaType?: t.StringMimeType): FileNode {
   return {
     kind: 'file',
     content,
-    size: new TextEncoder().encode(content).byteLength,
+    size: utf8ByteLength(content),
     ...(mediaType === undefined ? {} : { mediaType }),
   };
 }
@@ -226,34 +228,7 @@ export async function expectFilesFsError(
   throw new Error(`Expected ${name}.`);
 }
 
-const path: t.FilesFs.Capability.Path = {
-  Is: { absolute: isAbsolute },
-  join(...parts) {
-    return normalize(parts.join('/'));
-  },
-  resolve(...parts) {
-    let current = '';
-    for (const part of parts) {
-      if (part === '') continue;
-      current = isAbsolute(part) ? part : current ? `${current}/${part}` : `/${part}`;
-    }
-    return normalize(current || '/') as t.StringAbsolutePath;
-  },
-  relative(from, to) {
-    const fromParts = split(path.resolve(from));
-    const toParts = split(path.resolve(to));
-    let index = 0;
-    while (
-      fromParts[index] === toParts[index] && index < fromParts.length && index < toParts.length
-    ) {
-      index++;
-    }
-    const up = fromParts.slice(index).map(() => '..');
-    const down = toParts.slice(index);
-    return [...up, ...down].join('/') as t.StringRelativePath;
-  },
-  normalize,
-};
+const path: t.FilesFs.Capability.Path = FilesPath.posix();
 
 function statFromNode(node: Node): t.FilesFs.Capability.Stat {
   return {
@@ -265,31 +240,4 @@ function statFromNode(node: Node): t.FilesFs.Capability.Stat {
     ...(node.kind === 'file' && node.hash !== undefined ? { hash: node.hash } : {}),
     ...(node.kind === 'file' && node.mediaType !== undefined ? { mediaType: node.mediaType } : {}),
   };
-}
-
-function isAbsolute(input: t.StringPath): boolean {
-  return input.startsWith('/') || /^[a-zA-Z]:/.test(input);
-}
-
-function normalize(input: t.StringPath): t.StringPath {
-  const absolute = isAbsolute(input);
-  const segments: string[] = [];
-
-  for (const segment of input.replaceAll('\\', '/').split('/')) {
-    if (segment === '' || segment === '.') continue;
-    if (segment === '..') {
-      if (segments.length > 0 && segments[segments.length - 1] !== '..') segments.pop();
-      else if (!absolute) segments.push('..');
-    } else {
-      segments.push(segment);
-    }
-  }
-
-  const output = segments.join('/');
-  if (absolute) return `/${output}`;
-  return output === '' ? '.' : output;
-}
-
-function split(input: t.StringPath): readonly string[] {
-  return path.resolve(input).split('/').filter(Boolean);
 }

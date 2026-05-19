@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../-test.ts';
+import { describe, expect, it, type t } from '../../-test.ts';
 import {
   allowAllPolicy,
   allowDocsPolicy,
@@ -84,11 +84,22 @@ describe('FilesFs.readonly: path safety', () => {
     );
   });
 
+  it('rejects missing required command paths', async () => {
+    const { backing } = setup({ policy: allowAllPolicy });
+
+    await expectFilesFsError(
+      () => cmd.stat(backing, {} as t.Files.Cmd.Stat.Payload),
+      'FilesFsError.InvalidPath',
+    );
+  });
+
   it('rejects host-absolute and root-escaping visible paths', async () => {
     const { backing } = setup({ policy: allowAllPolicy });
     const invalid = [
       '/etc/passwd',
       '../outside.txt',
+      'docs/..',
+      'docs/../readme.md',
       'docs/../../outside.txt',
       'docs\\readme.md',
       'bad\0path',

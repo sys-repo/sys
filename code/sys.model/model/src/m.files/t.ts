@@ -198,6 +198,19 @@ export declare namespace Files {
     readonly encodings?: readonly Encoding[];
   };
 
+  /** Shared backing error kind suffixes for Files command adapters. */
+  export namespace Error {
+    export type KindSuffix =
+      | 'InvalidPath'
+      | 'PathOutsideRoot'
+      | 'NotFound'
+      | 'NotFile'
+      | 'NotDirectory'
+      | 'PolicyDenied'
+      | 'ReadTooLarge'
+      | 'Unsupported';
+  }
+
   /** Pure policy model for bounded Files views. */
   export namespace Policy {
     /** Policy document shape. Default posture is deny unless allowed. */

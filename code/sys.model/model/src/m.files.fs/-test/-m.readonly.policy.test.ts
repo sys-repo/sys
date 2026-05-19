@@ -74,9 +74,45 @@ describe('FilesFs.readonly: policy', () => {
     );
   });
 
-  it('allows readonly policy helper output without widening readonly backing authority', async () => {
-    const { backing } = setup({ policy: allowDocsPolicy });
+  it('rejects invalid policy shapes at creation', async () => {
+    await expectFilesFsError(
+      () => setup({ policy: null as never }),
+      'FilesFsError.InvalidPath',
+    );
+    await expectFilesFsError(
+      () => setup({ policy: new Map() as never }),
+      'FilesFsError.InvalidPath',
+    );
+    await expectFilesFsError(
+      () => setup({ policy: { read: 123 as never } }),
+      'FilesFsError.InvalidPath',
+    );
+    await expectFilesFsError(
+      () => setup({ policy: { list: ['docs/**', 123] as never } }),
+      'FilesFsError.InvalidPath',
+    );
+    await expectFilesFsError(
+      () => setup({ policy: { manifest: 'true' as never } }),
+      'FilesFsError.InvalidPath',
+    );
+  });
 
+  it('snapshots policy and capabilities so caller mutation cannot widen authority', async () => {
+    const allow = ['docs/**'];
+    const policy = {
+      list: allow,
+      stat: allow,
+      read: allow,
+      manifest: true,
+    } satisfies t.Files.Policy.Shape;
+    const { backing } = setup({ policy });
+
+    allow.push('public/**');
+    (policy as Record<string, unknown>).read = '**';
+
+    expect(Object.isFrozen(backing.policy)).to.eql(true);
+    expect(Object.isFrozen(backing.capabilities)).to.eql(true);
+    expect(Object.isFrozen(backing.capabilities.encodings)).to.eql(true);
     expect(await cmd.capabilities(backing)).to.eql({
       list: true,
       stat: true,

@@ -27,7 +27,7 @@ export const effectiveMaxReadBytes = (
  * Capability facts for a readonly files/fs backing.
  */
 export const readonlyCapabilities = (args: ReadonlyCapabilitiesArgs): t.Files.Capabilities => {
-  return {
+  return Object.freeze({
     list: true,
     stat: true,
     read: true,
@@ -35,5 +35,5 @@ export const readonlyCapabilities = (args: ReadonlyCapabilitiesArgs): t.Files.Ca
     manifest: args.policy.manifest === true,
     ...(args.maxReadBytes === undefined ? {} : { maxReadBytes: args.maxReadBytes }),
     encodings: D.encodings,
-  };
+  });
 };

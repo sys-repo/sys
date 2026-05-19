@@ -1,6 +1,7 @@
-import { Glob, type t } from './common.ts';
+import { Glob, Num, type t } from './common.ts';
 import { entryFromStat, statFromWalkEntry } from './u.entry.ts';
 import { fail } from './u.error.ts';
+import { snapshotOptionalMatch } from './u.match.ts';
 import { allowed } from './u.policy.ts';
 import { absolutePath, assertRealInside, relativePath, type Scope } from './u.path.ts';
 
@@ -19,19 +20,20 @@ export const listEntries = async (
   policy: t.Files.Policy.Shape,
   options: ListEntriesOptions,
 ): Promise<readonly t.Files.Entry[]> => {
-  if (!allowed(policy, 'list', options.path)) {
-    throw fail('FilesFsError.PolicyDenied', `List denied: ${options.path}`);
+  const query = snapshotListOptions(options);
+  if (!allowed(policy, 'list', query.path)) {
+    throw fail('FilesFsError.PolicyDenied', `List denied: ${query.path}`);
   }
 
-  const absolute = absolutePath(scope, options.path);
+  const absolute = absolutePath(scope, query.path);
   const real = await assertRealInside(scope, absolute);
-  if (!real) throw fail('FilesFsError.NotFound', `Directory not found: ${options.path}`);
+  if (!real) throw fail('FilesFsError.NotFound', `Directory not found: ${query.path}`);
 
   const rootInfo = await scope.fs.stat(real);
-  if (!rootInfo) throw fail('FilesFsError.NotFound', `Directory not found: ${options.path}`);
-  const rootEntry = entryFromStat(options.path, rootInfo);
+  if (!rootInfo) throw fail('FilesFsError.NotFound', `Directory not found: ${query.path}`);
+  const rootEntry = entryFromStat(query.path, rootInfo);
   if (rootEntry.kind !== 'dir') {
-    throw fail('FilesFsError.NotDirectory', `Not a directory: ${options.path}`);
+    throw fail('FilesFsError.NotDirectory', `Not a directory: ${query.path}`);
   }
 
   const entries: t.Files.Entry[] = [];
@@ -46,11 +48,11 @@ export const listEntries = async (
 
     const path = relativePath(scope, absoluteEntry);
     if (path === '') continue;
-    if (!withinScope(scope, path, options.path)) continue;
-    if (!withinDepth(scope, path, options.path, options.depth)) continue;
+    if (!withinScope(scope, path, query.path)) continue;
+    if (!withinDepth(scope, path, query.path, query.depth)) continue;
     if (!allowed(policy, 'list', path)) continue;
-    if (options.match && !Glob.matches(options.match, path)) continue;
-    if (options.exclude && Glob.matches(options.exclude, path)) continue;
+    if (query.match && !Glob.matches(query.match, path)) continue;
+    if (query.exclude && Glob.matches(query.exclude, path)) continue;
 
     const info = item.stat ?? statFromWalkEntry(item);
     entries.push(entryFromStat(path, info));
@@ -62,6 +64,22 @@ export const listEntries = async (
 /**
  * Helpers:
  */
+
+const snapshotListOptions = (options: ListEntriesOptions): ListEntriesOptions => {
+  if (options.depth !== undefined && (!Num.Is.safeInt(options.depth) || options.depth < 0)) {
+    throw fail('FilesFsError.InvalidPath', 'Invalid Files depth');
+  }
+  return Object.freeze({
+    path: options.path,
+    ...(options.depth === undefined ? {} : { depth: options.depth }),
+    ...(options.match === undefined
+      ? {}
+      : { match: snapshotOptionalMatch(options.match, 'Invalid Files match') }),
+    ...(options.exclude === undefined
+      ? {}
+      : { exclude: snapshotOptionalMatch(options.exclude, 'Invalid Files exclude') }),
+  });
+};
 
 const withinScope = (
   scope: Scope,

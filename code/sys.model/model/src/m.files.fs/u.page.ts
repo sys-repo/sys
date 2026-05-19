@@ -2,18 +2,26 @@ import { Files } from '../m.files/mod.ts';
 import { Num, type t } from './common.ts';
 import { fail } from './u.error.ts';
 
-export type PageArgs<K extends t.Files.Cursor.Kind, T> = {
+export type PageInput<K extends t.Files.Cursor.Kind> = {
   readonly kind: K;
-  readonly items: readonly T[];
   readonly cursor?: t.Files.StringCursor<K>;
   readonly limit?: t.Files.Limit;
   readonly defaultLimit: t.Files.Limit;
+};
+
+export type PageArgs<K extends t.Files.Cursor.Kind, T> = PageInput<K> & {
+  readonly items: readonly T[];
 };
 
 export type Page<T, K extends t.Files.Cursor.Kind> = {
   readonly items: readonly T[];
   readonly cursor?: t.Files.StringCursor<K>;
   readonly truncated?: boolean;
+};
+
+export const validatePageInput = <K extends t.Files.Cursor.Kind>(args: PageInput<K>): void => {
+  offsetFromCursor(args.kind, args.cursor);
+  pageLimit(args.limit, args.defaultLimit);
 };
 
 export const page = <K extends t.Files.Cursor.Kind, T>(args: PageArgs<K, T>): Page<T, K> => {

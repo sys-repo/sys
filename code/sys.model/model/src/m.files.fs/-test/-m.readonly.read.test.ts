@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../-test.ts';
+import { describe, expect, it, type t } from '../../-test.ts';
 import { Files } from '../../m.files/mod.ts';
 import { allowDocsPolicy, cmd, expectFilesFsError, setup } from './u.fixture.ts';
 
@@ -31,19 +31,18 @@ describe('FilesFs.readonly: read', () => {
     expect(narrowed.calls.readText).to.eql(0);
   });
 
-  it('rejects unsupported read encodings before content is read', async () => {
+  it('rejects unsupported read encodings before host stat/read IO', async () => {
     const { backing, calls } = setup({ policy: allowDocsPolicy });
 
     await expectFilesFsError(
       () => cmd.read(backing, { path: 'docs/readme.md', encoding: 'utf16' }),
       'FilesFsError.Unsupported',
     );
+    expect(calls.stat).to.eql(0);
     expect(calls.readText).to.eql(0);
   });
 
-  it('rejects invalid read limits', async () => {
-    const { backing } = setup({ policy: allowDocsPolicy });
-
+  it('rejects invalid read limits before host stat/read IO', async () => {
     await expectFilesFsError(
       () => setup({ policy: allowDocsPolicy, maxReadBytes: -1 }),
       'FilesFsError.InvalidPath',
@@ -52,9 +51,24 @@ describe('FilesFs.readonly: read', () => {
       () => setup({ policy: { ...allowDocsPolicy, maxReadBytes: Number.POSITIVE_INFINITY } }),
       'FilesFsError.InvalidPath',
     );
+
+    const invalidPayload = setup({ policy: allowDocsPolicy });
     await expectFilesFsError(
-      () => cmd.read(backing, { path: 'docs/readme.md', maxBytes: -1 }),
+      () => cmd.read(invalidPayload.backing, { path: 'docs/readme.md', maxBytes: -1 }),
       'FilesFsError.InvalidPath',
     );
+    expect(invalidPayload.calls.stat).to.eql(0);
+    expect(invalidPayload.calls.readText).to.eql(0);
+  });
+
+  it('rejects missing read paths before host stat/read IO', async () => {
+    const { backing, calls } = setup({ policy: allowDocsPolicy });
+
+    await expectFilesFsError(
+      () => cmd.read(backing, {} as t.Files.Cmd.Read.Payload),
+      'FilesFsError.InvalidPath',
+    );
+    expect(calls.stat).to.eql(0);
+    expect(calls.readText).to.eql(0);
   });
 });

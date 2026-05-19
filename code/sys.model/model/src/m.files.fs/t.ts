@@ -91,14 +91,6 @@ export declare namespace FilesFs {
 
   /** Files/fs error surface. */
   export namespace Error {
-    export type Kind =
-      | 'FilesFsError.InvalidPath'
-      | 'FilesFsError.PathOutsideRoot'
-      | 'FilesFsError.NotFound'
-      | 'FilesFsError.NotFile'
-      | 'FilesFsError.NotDirectory'
-      | 'FilesFsError.PolicyDenied'
-      | 'FilesFsError.ReadTooLarge'
-      | 'FilesFsError.Unsupported';
+    export type Kind = `FilesFsError.${t.Files.Error.KindSuffix}`;
   }
 }
