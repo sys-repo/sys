@@ -44,7 +44,7 @@ export type ReadPayloadInput = Omit<t.FilesCmd.Read.Payload, 'encoding'> & {
 };
 
 export function setup(options: SetupOptions = {}) {
-  const backing = FilesMemory.readonly({
+  const backing = FilesMemory.Readonly.create({
     files: options.files ?? defaultFiles,
     dirs: options.dirs ?? ['empty'],
     policy: options.policy ?? allowAllPolicy,

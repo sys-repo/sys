@@ -5,7 +5,7 @@ import { createBaseRuntime } from './u/u.runtime.base.ts';
 /**
  * Create a bounded readonly Files backing from an in-memory source tree.
  */
-export const createReadonly: t.FilesMemory.Lib['readonly'] = (options = {}) => {
+export const createReadonly: t.FilesMemory.ReadonlyLib['create'] = (options = {}) => {
   try {
     const base = createBaseRuntime(options);
 

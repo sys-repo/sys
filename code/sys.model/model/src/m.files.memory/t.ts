@@ -9,11 +9,23 @@ import type { Live as TLive } from '../m.files/t/t.u.live.ts';
 export declare namespace FilesMemory {
   /** Runtime library surface. */
   export type Lib = {
-    /** Create a bounded readonly Files backing from an in-memory source tree. */
-    readonly readonly: (options?: Options) => Readonly;
+    /** Readonly in-memory Files backing constructors. */
+    readonly Readonly: ReadonlyLib;
 
+    /** Writable in-memory Files backing constructors. */
+    readonly Writable: WritableLib;
+  };
+
+  /** Readonly in-memory Files backing constructors. */
+  export type ReadonlyLib = {
+    /** Create a bounded readonly Files backing from an in-memory source tree. */
+    readonly create: (options?: Options) => Readonly;
+  };
+
+  /** Writable in-memory Files backing constructors. */
+  export type WritableLib = {
     /** Create a bounded writable Files backing from an in-memory source tree. */
-    readonly writable: (options?: Options) => Writable;
+    readonly create: (options?: Options) => Writable;
 
     /** Create a bounded live Files backing from an in-memory source tree. */
     readonly live: (options?: Options) => Live;

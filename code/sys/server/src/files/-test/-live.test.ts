@@ -21,7 +21,7 @@ const REAL_FS_LIVE_POLICY = Files.Policy.readonly('docs/**', { watch: 'docs/**' 
 
 describe('FilesServer.WebSocket.create: live files watch', () => {
   it('streams memory files watch events over websocket while Cmd read remains truth', async () => {
-    const backing = FilesMemory.live({ dirs: ['docs'], policy: MEMORY_LIVE_POLICY });
+    const backing = FilesMemory.Writable.live({ dirs: ['docs'], policy: MEMORY_LIVE_POLICY });
     const server = FilesServer.WebSocket.create({ path: '/files', files: backing });
 
     try {

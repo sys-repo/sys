@@ -12,9 +12,12 @@ const WRITABLE_SUPPORTS = {
   manifest: true,
 } satisfies Partial<t.FilesCapability.Map>;
 
-describe('FilesMemory.writable', () => {
+describe('FilesMemory.Writable.create', () => {
   it('creates a bounded writable backing without live diagnostics', async () => {
-    const backing = FilesMemory.writable({ policy: allowAllMutablePolicy, maxReadBytes: 64 });
+    const backing = FilesMemory.Writable.create({
+      policy: allowAllMutablePolicy,
+      maxReadBytes: 64,
+    });
 
     expect(backing.kind).to.eql('files/memory:writable');
     expect(Object.isFrozen(backing.policy)).to.eql(true);
@@ -43,7 +46,10 @@ describe('FilesMemory.writable', () => {
   });
 
   it('derives writable capability truth from Files.Authority', async () => {
-    const backing = FilesMemory.writable({ policy: allowAllMutablePolicy, maxReadBytes: 64 });
+    const backing = FilesMemory.Writable.create({
+      policy: allowAllMutablePolicy,
+      maxReadBytes: 64,
+    });
     const authority = Files.Authority.resolve({
       policy: backing.policy,
       backing: {

@@ -15,7 +15,7 @@ describe('FilesServer.WebSocket.create', () => {
   });
 
   it('serves a bounded Files backing over websocket without widening authority', async () => {
-    const backing = FilesMemory.readonly({
+    const backing = FilesMemory.Readonly.create({
       files: {
         'foo.json': { content: '{ "foo": true }\n', mediaType: 'application/json' },
         'notes/baz.md': { content: '# Baz\n', mediaType: 'text/markdown' },

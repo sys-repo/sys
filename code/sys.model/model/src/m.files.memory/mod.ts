@@ -13,7 +13,11 @@ export type * from './t.ts';
  * In-memory backing adapters for the Files model.
  */
 export const FilesMemory: t.FilesMemory.Lib = {
-  readonly: createReadonly,
-  writable: createWritable,
-  live: createLive,
+  Readonly: {
+    create: createReadonly,
+  },
+  Writable: {
+    create: createWritable,
+    live: createLive,
+  },
 };
