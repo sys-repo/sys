@@ -1,9 +1,9 @@
-import { page, validatePageInput } from '../../m.files/u.page.ts';
+import { page, validatePageInput } from '../../m.files/u/u.page.ts';
 import { type t } from '../common.ts';
 import { assertPayload } from './u.cmd.payload.ts';
-import { listEntries } from '../u.listEntries.ts';
-import { type MemoryNodes } from '../u.index.ts';
-import { invalidPath, visiblePath } from '../u.path.ts';
+import { listEntries } from '../u/u.listEntries.ts';
+import { type MemoryNodes } from '../u/u.index.ts';
+import { invalidPath, visiblePath } from '../u/u.path.ts';
 
 /** Implementation of the `files:list` command for memory nodes. */
 export const list = (

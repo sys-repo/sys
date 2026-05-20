@@ -1,8 +1,8 @@
-import { allowed } from '../../m.files/u.policy.ts';
+import { allowed } from '../../m.files/u/u.policy.ts';
 import { D, type t } from '../common.ts';
-import { fail } from '../u.error.ts';
-import type { StaticIndex } from '../u.index.ts';
-import { requiredVisiblePath } from '../u.path.ts';
+import { fail } from '../u/u.error.ts';
+import type { StaticIndex } from '../u/u.index.ts';
+import { requiredVisiblePath } from '../u/u.path.ts';
 
 /** Implementation of the `files:read` command for static dist metadata. */
 export const read = (

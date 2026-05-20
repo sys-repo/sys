@@ -1,6 +1,6 @@
 import { expect, type t } from '../../-test.ts';
-import { utf8ByteLength } from '../../m.files/u.bytes.ts';
-import { FilesPath } from '../../m.files/u.path.ts';
+import { utf8ByteLength } from '../../m.files/u/u.bytes.ts';
+import { FilesPath } from '../../m.files/u/u.path.ts';
 import { FilesFs } from '../mod.ts';
 
 export type FileNode = {

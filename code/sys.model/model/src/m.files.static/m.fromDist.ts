@@ -1,9 +1,9 @@
-import { validatePageInput } from '../m.files/u.page.ts';
-import { snapshotPolicy } from '../m.files/u.policy.ts';
+import { validatePageInput } from '../m.files/u/u.page.ts';
+import { snapshotPolicy } from '../m.files/u/u.policy.ts';
 import { D, Is, type t } from './common.ts';
-import { invalidPath } from './u.error.ts';
-import { handlers } from './u.handlers.ts';
-import { staticIndex } from './u.index.ts';
+import { invalidPath } from './u/u.error.ts';
+import { handlers } from './u/u.handlers.ts';
+import { staticIndex } from './u/u.index.ts';
 
 /** Create a bounded static Files backing from canonical dist metadata. */
 export const fromDist: t.FilesStatic.Lib['fromDist'] = (options) => {

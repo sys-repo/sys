@@ -1,5 +1,5 @@
 import { Bytes, describe, expect, it } from '../../-test.ts';
-import { utf8ByteLength } from '../u.bytes.ts';
+import { utf8ByteLength } from '../u/u.bytes.ts';
 
 describe('Files/u.bytes', () => {
   it('delegates primitive byte-length truth to @sys/std/bytes', () => {

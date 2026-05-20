@@ -1,10 +1,10 @@
-import { page, validatePageInput } from '../../m.files/u.page.ts';
-import { allowed, manifestAllowed } from '../../m.files/u.policy.ts';
+import { page, validatePageInput } from '../../m.files/u/u.page.ts';
+import { allowed, manifestAllowed } from '../../m.files/u/u.policy.ts';
 import { type t } from '../common.ts';
-import { fail, invalidPath } from '../u.error.ts';
-import type { StaticIndex } from '../u.index.ts';
-import { listEntries } from '../u.listEntries.ts';
-import { visiblePath } from '../u.path.ts';
+import { fail, invalidPath } from '../u/u.error.ts';
+import type { StaticIndex } from '../u/u.index.ts';
+import { listEntries } from '../u/u.listEntries.ts';
+import { visiblePath } from '../u/u.path.ts';
 
 /** Implementation of the `files:manifest` command for static dist metadata. */
 export const manifest = (

@@ -1,11 +1,11 @@
 import { D, type t } from '../common.ts';
-import { effectiveMaxReadBytes } from '../u.capabilities.ts';
+import { effectiveMaxReadBytes } from '../u/u.capabilities.ts';
 import { assertPayload } from './u.cmd.payload.ts';
-import { fail } from '../u.error.ts';
-import { type MemoryNodes } from '../u.index.ts';
-import { entryFromNode } from '../u.node.ts';
-import { absolutePath, requiredVisiblePath } from '../u.path.ts';
-import { allowed } from '../u.policy.ts';
+import { fail } from '../u/u.error.ts';
+import { type MemoryNodes } from '../u/u.index.ts';
+import { entryFromNode } from '../u/u.node.ts';
+import { absolutePath, requiredVisiblePath } from '../u/u.path.ts';
+import { allowed } from '../u/u.policy.ts';
 
 /** Implementation of the `files:read` command for memory nodes. */
 export const read = (

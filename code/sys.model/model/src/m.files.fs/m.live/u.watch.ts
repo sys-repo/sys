@@ -1,7 +1,7 @@
 import { Files } from '../../m.files/mod.ts';
 import { type t } from '../common.ts';
 import type { Live } from '../../m.files/t/t.u.live.ts';
-import { fail } from '../u.error.ts';
+import { fail } from '../u/u.error.ts';
 import { changesFromEvent } from './u.change.ts';
 import { type WatchQuery, watchQuery, type WatchScope } from './u.query.ts';
 

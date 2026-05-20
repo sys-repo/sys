@@ -1,8 +1,8 @@
 import { Glob, type t } from '../common.ts';
-import { withinScope } from '../../m.files/u.list.ts';
-import { entryFromStat } from '../u.entry.ts';
-import { allowed } from '../u.policy.ts';
-import { absolutePath, assertInsideRealScope, relativePath } from '../u.path.ts';
+import { withinScope } from '../../m.files/u/u.list.ts';
+import { entryFromStat } from '../u/u.entry.ts';
+import { allowed } from '../u/u.policy.ts';
+import { absolutePath, assertInsideRealScope, relativePath } from '../u/u.path.ts';
 import { type WatchQuery, type WatchScope } from './u.query.ts';
 
 type NextSeq = () => t.Files.Seq;

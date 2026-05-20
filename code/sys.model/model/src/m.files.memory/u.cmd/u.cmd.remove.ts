@@ -1,8 +1,8 @@
 import { Is, type t } from '../common.ts';
-import { fail } from '../u.error.ts';
-import { type MemoryNodes } from '../u.index.ts';
-import { absolutePath, visibleFromAbsolute, visiblePath } from '../u.path.ts';
-import { allowed } from '../u.policy.ts';
+import { fail } from '../u/u.error.ts';
+import { type MemoryNodes } from '../u/u.index.ts';
+import { absolutePath, visibleFromAbsolute, visiblePath } from '../u/u.path.ts';
+import { allowed } from '../u/u.policy.ts';
 
 type RemovedEntry = {
   readonly absolute: t.StringAbsolutePath;

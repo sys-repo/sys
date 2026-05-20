@@ -1,8 +1,8 @@
 import { type t } from '../common.ts';
-import { entryFromStat } from '../u.entry.ts';
-import { fail } from '../u.error.ts';
-import { allowed } from '../u.policy.ts';
-import { absolutePath, assertRealInside, requiredVisiblePath, type Scope } from '../u.path.ts';
+import { entryFromStat } from '../u/u.entry.ts';
+import { fail } from '../u/u.error.ts';
+import { allowed } from '../u/u.policy.ts';
+import { absolutePath, assertRealInside, requiredVisiblePath, type Scope } from '../u/u.path.ts';
 
 /**
  * Implementation of the `files:stat` command.

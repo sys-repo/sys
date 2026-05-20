@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it, Path, type t } from '../../-test.ts';
-import { FilesPath, type InvalidPath, type PathOps } from '../u.path.ts';
+import { FilesPath, type InvalidPath, type PathOps } from '../u/u.path.ts';
 
 describe('Files/u.path', () => {
   const invalid: InvalidPath = (message) => new Error(message);

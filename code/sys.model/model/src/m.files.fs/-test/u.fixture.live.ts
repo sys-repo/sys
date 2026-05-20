@@ -1,5 +1,5 @@
 import { type t } from '../../-test.ts';
-import { FilesPath } from '../../m.files/u.path.ts';
+import { FilesPath } from '../../m.files/u/u.path.ts';
 import { FilesFs } from '../mod.ts';
 import { allowAllPolicy, allowDocsPolicy } from './u.fixture.ts';
 

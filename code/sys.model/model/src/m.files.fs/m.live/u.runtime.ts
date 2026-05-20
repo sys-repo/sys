@@ -1,7 +1,7 @@
 import { type t } from '../common.ts';
-import { liveCapabilities } from '../u.capabilities.ts';
-import { createBaseRuntime } from '../u.runtime.base.ts';
-import { withCapabilities } from '../../m.files/u.handlers.ts';
+import { liveCapabilities } from '../u/u.capabilities.ts';
+import { createBaseRuntime } from '../u/u.runtime.base.ts';
+import { withCapabilities } from '../../m.files/u/u.handlers.ts';
 import { createWatch } from './u.watch.ts';
 
 type LiveRuntime = {

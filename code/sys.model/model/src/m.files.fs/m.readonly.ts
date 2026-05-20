@@ -1,5 +1,5 @@
 import { type t } from './common.ts';
-import { createBaseRuntime } from './u.runtime.base.ts';
+import { createBaseRuntime } from './u/u.runtime.base.ts';
 
 /**
  * Create a bounded readonly Files backing from a structural filesystem capability.

@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
 import { Files } from '../mod.ts';
-import { allowed, snapshotPolicy } from '../u.policy.ts';
+import { allowed, snapshotPolicy } from '../u/u.policy.ts';
 
 describe('Files write/remove contracts', () => {
   it('exposes write/remove as first-class Cmd names', () => {

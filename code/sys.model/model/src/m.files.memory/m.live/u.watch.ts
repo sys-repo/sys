@@ -1,12 +1,16 @@
 import { Files } from '../../m.files/mod.ts';
 import { Glob, type t } from '../common.ts';
 import type { Live } from '../../m.files/t/t.u.live.ts';
-import { type ListEntriesOptions, snapshotListOptions, withinScope } from '../../m.files/u.list.ts';
-import { type MemoryNodes } from '../u.index.ts';
-import { entryFromNode, type MemoryNode } from '../u.node.ts';
-import { absolutePath, invalidPath, path as pathOps, visiblePath } from '../u.path.ts';
-import { fail } from '../u.error.ts';
-import { allowed } from '../u.policy.ts';
+import {
+  type ListEntriesOptions,
+  snapshotListOptions,
+  withinScope,
+} from '../../m.files/u/u.list.ts';
+import { type MemoryNodes } from '../u/u.index.ts';
+import { entryFromNode, type MemoryNode } from '../u/u.node.ts';
+import { absolutePath, invalidPath, path as pathOps, visiblePath } from '../u/u.path.ts';
+import { fail } from '../u/u.error.ts';
+import { allowed } from '../u/u.policy.ts';
 
 type WatchContext = t.Cmd.Handler.Context<
   t.FilesCmd.Name,

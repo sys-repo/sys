@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
-import { translate } from './u.error.ts';
-import { createBaseRuntime } from './u.runtime.base.ts';
+import { translate } from './u/u.error.ts';
+import { createBaseRuntime } from './u/u.runtime.base.ts';
 
 /**
  * Create a bounded readonly Files backing from an in-memory source tree.

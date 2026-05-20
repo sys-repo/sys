@@ -1,8 +1,8 @@
 import { type t } from '../common.ts';
-import { liveCapabilities } from '../u.capabilities.ts';
-import { translate } from '../u.error.ts';
-import { createWritableRuntime } from '../u.writable.ts';
-import { withCapabilities } from '../../m.files/u.handlers.ts';
+import { liveCapabilities } from '../u/u.capabilities.ts';
+import { translate } from '../u/u.error.ts';
+import { createWritableRuntime } from '../u/u.writable.ts';
+import { withCapabilities } from '../../m.files/u/u.handlers.ts';
 import { createWatch } from './u.watch.ts';
 
 type LiveRuntime = {

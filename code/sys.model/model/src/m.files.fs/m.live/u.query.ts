@@ -1,9 +1,9 @@
 import { type t } from '../common.ts';
-import { type ListEntriesOptions, snapshotListOptions } from '../../m.files/u.list.ts';
-import { realDirectory } from '../u.dir.ts';
-import { fail } from '../u.error.ts';
-import { allowed } from '../u.policy.ts';
-import { type Scope, visiblePath } from '../u.path.ts';
+import { type ListEntriesOptions, snapshotListOptions } from '../../m.files/u/u.list.ts';
+import { realDirectory } from '../u/u.dir.ts';
+import { fail } from '../u/u.error.ts';
+import { allowed } from '../u/u.policy.ts';
+import { type Scope, visiblePath } from '../u/u.path.ts';
 
 export type WatchScope = Scope<t.FilesFs.Capability.Live>;
 
