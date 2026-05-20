@@ -46,6 +46,14 @@ export declare namespace WorkspaceInfo {
     readonly v8: string;
   };
 
+  /** Matched physical line count partition. */
+  export type LineBreakdown = {
+    /** Physical lines in matched files not classified as test-owned. */
+    readonly source: number;
+    /** Physical lines in matched files classified as test-owned. */
+    readonly tests: number;
+  };
+
   /** Aggregate source statistics result. */
   export type StatsResult = {
     /** Runtime versions used for the scan. */
@@ -61,5 +69,7 @@ export declare namespace WorkspaceInfo {
     readonly files: number;
     /** Aggregate line count when requested. */
     readonly lines?: number;
+    /** Optional partition of the aggregate line count. */
+    readonly lineBreakdown?: LineBreakdown;
   };
 }

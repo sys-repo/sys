@@ -19,6 +19,7 @@ describe(`Workspace.Info.stats`, () => {
     expect(result.runtime.v8).to.eql(Deno.version.v8);
     expect(result.files).to.eql(2);
     expect(result.lines).to.eql(undefined);
+    expect(result.lineBreakdown).to.eql(undefined);
     expect(result.source).to.eql({ include: ['code/**/*.{ts,tsx}'], exclude: [] });
   });
 
@@ -58,6 +59,7 @@ describe(`Workspace.Info.stats`, () => {
 
     expect(result.files).to.eql(2);
     expect(result.lines).to.eql(4);
+    expect(result.lineBreakdown).to.eql({ source: 4, tests: 0 });
     expect(result.source).to.eql({
       include: ['code/**/*.ts', 'code/**/*.{ts,tsx}'],
       exclude: [],
@@ -80,6 +82,35 @@ describe(`Workspace.Info.stats`, () => {
 
     expect(result.files).to.eql(4);
     expect(result.lines).to.eql(7);
+    expect(result.lineBreakdown).to.eql({ source: 7, tests: 0 });
+  });
+
+  it('partitions line totals into source and tests', async () => {
+    const fs = await Testing.dir('WorkspaceInfo.stats.line-breakdown');
+
+    await Fs.write(fs.join('code/src/source.ts'), 's\n');
+    await Fs.write(fs.join('code/src/foo.test.ts'), 'a\nb');
+    await Fs.write(fs.join('code/src/foo-test.ts'), 'c\n');
+    await Fs.write(fs.join('code/src/foo_test.tsx'), 'd');
+    await Fs.write(fs.join('code/src/.test.ts'), 'e\n');
+    await Fs.write(fs.join('code/src/-test.ts'), 'f');
+    await Fs.write(fs.join('code/src/-test/helper.ts'), 'g\nh\n');
+    await Fs.write(fs.join('code/src/m.foo/-test.external/fixture.ts'), '');
+    await Fs.write(fs.join('code/src/__tests__/fixture.tsx'), 'i\n');
+    await Fs.write(fs.join('code/sys/testing/src/mod.ts'), 'j\n');
+
+    const result = await WorkspaceInfo.stats({
+      cwd: fs.dir,
+      source: { include: ['code/**/*.{ts,tsx}'] },
+      totals: { lines: true },
+    });
+
+    expect(result.files).to.eql(10);
+    expect(result.lines).to.eql(18);
+    expect(result.lineBreakdown).to.eql({ source: 4, tests: 14 });
+    expect(result.lines).to.eql(
+      (result.lineBreakdown?.source ?? 0) + (result.lineBreakdown?.tests ?? 0),
+    );
   });
 
   it('computes line totals when requested', async () => {
@@ -96,5 +127,6 @@ describe(`Workspace.Info.stats`, () => {
 
     expect(result.files).to.eql(2);
     expect(result.lines).to.eql(5);
+    expect(result.lineBreakdown).to.eql({ source: 5, tests: 0 });
   });
 });

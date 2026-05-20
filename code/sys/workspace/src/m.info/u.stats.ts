@@ -11,15 +11,28 @@ type NormalizedArgs = {
   };
 };
 
+type LineStats = {
+  readonly total: number;
+  readonly source: number;
+  readonly tests: number;
+};
+
+type FileLineStats = {
+  readonly kind: 'source' | 'test';
+  readonly lines: number;
+};
+
+const TEST_ENTRY_BASENAME = /(^|[._-])test\.tsx?$/;
+
 /**
  * Compute aggregate source statistics from explicit include and exclude globs.
  */
 export async function stats(args: t.WorkspaceInfo.StatsArgs): Promise<t.WorkspaceInfo.StatsResult> {
   const input = normalizeArgs(args);
   const paths = await collectSourcePaths(input.cwd, input.source);
-  const lines = input.totals.lines ? await countLines(paths) : undefined;
+  const lineStats = input.totals.lines ? await countLineStats(paths) : undefined;
 
-  return toResult(input, paths, lines);
+  return toResult(input, paths, lineStats);
 }
 
 function normalizeArgs(args: t.WorkspaceInfo.StatsArgs): NormalizedArgs {
@@ -57,20 +70,44 @@ async function isRegularFile(path: t.StringPath): Promise<boolean> {
   return info.isFile;
 }
 
-async function countLines(paths: readonly t.StringPath[]): Promise<number> {
-  const counts = await Promise.all(paths.map((path) => countFileLines(path)));
-  return counts.reduce((total, count) => total + count, 0);
+async function countLineStats(paths: readonly t.StringPath[]): Promise<LineStats> {
+  const files = await Promise.all(paths.map((path) => countFileLines(path)));
+
+  return files.reduce<LineStats>(
+    (acc, file) => {
+      return {
+        total: acc.total + file.lines,
+        source: acc.source + (file.kind === 'source' ? file.lines : 0),
+        tests: acc.tests + (file.kind === 'test' ? file.lines : 0),
+      };
+    },
+    { total: 0, source: 0, tests: 0 },
+  );
 }
 
-async function countFileLines(path: t.StringPath): Promise<number> {
+async function countFileLines(path: t.StringPath): Promise<FileLineStats> {
   const text = (await Fs.readText(path)).data ?? '';
-  return text.split('\n').length;
+  return {
+    kind: isTestOwnedPath(path) ? 'test' : 'source',
+    lines: text.split('\n').length,
+  };
+}
+
+function isTestOwnedPath(path: t.StringPath): boolean {
+  const segments = path.split(/[\\/]+/);
+  const basename = segments.at(-1) ?? '';
+
+  return TEST_ENTRY_BASENAME.test(basename) || segments.some(isTestDirectorySegment);
+}
+
+function isTestDirectorySegment(segment: string): boolean {
+  return segment === '-test' || segment.startsWith('-test.') || segment === '__tests__';
 }
 
 function toResult(
   input: NormalizedArgs,
   paths: readonly t.StringPath[],
-  lines: number | undefined,
+  lineStats: LineStats | undefined,
 ): t.WorkspaceInfo.StatsResult {
   return {
     runtime: {
@@ -80,6 +117,9 @@ function toResult(
     },
     source: input.source,
     files: paths.length,
-    ...(lines === undefined ? {} : { lines }),
+    ...(lineStats === undefined ? {} : {
+      lines: lineStats.total,
+      lineBreakdown: { source: lineStats.source, tests: lineStats.tests },
+    }),
   };
 }

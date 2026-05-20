@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../-test.ts';
+import { c, describe, expect, it } from '../../-test.ts';
 import { WorkspaceInfo } from '../mod.ts';
 
 describe(`Workspace.Info`, () => {
@@ -21,5 +21,20 @@ describe(`Workspace.Info`, () => {
     expect(text.includes('code/**/*.{ts,tsx}')).to.eql(true);
     expect(text.includes('12')).to.eql(true);
     expect(text.includes('345')).to.eql(true);
+    expect(text.includes('source')).to.eql(false);
+    expect(text.includes('tests')).to.eql(false);
+  });
+
+  it('formats line breakdown rows as dim subrows', () => {
+    const text = WorkspaceInfo.fmt({
+      runtime: { deno: '2.7.4', typescript: '5.9.2', v8: '14.x' },
+      source: { include: ['code/**/*.{ts,tsx}'], exclude: [] },
+      files: 12,
+      lines: 123,
+      lineBreakdown: { source: 111, tests: 2 },
+    });
+
+    expect(text.includes(c.dim(`${' '.repeat(17)}111 source`))).to.eql(true);
+    expect(text.includes(c.dim(`${' '.repeat(17)}  2 tests`))).to.eql(true);
   });
 });
