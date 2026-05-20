@@ -1,5 +1,5 @@
 import type { t } from '../common.ts';
-import type { FilesBase } from './t.base.ts';
+import type { FilesCore } from './t.core.ts';
 
 /**
  * Capability facts for bounded Files views.
@@ -14,12 +14,12 @@ export declare namespace FilesCapability {
   /** Capability facts for a bounded Files view. */
   export type Capabilities = Map & {
     /** Backing/transport fidelity for this view. */
-    readonly fidelity?: FilesBase.Fidelity;
+    readonly fidelity?: FilesCore.Fidelity;
 
     /** Maximum inline read size, when enforced by the backing. */
     readonly maxReadBytes?: t.NumberBytes;
 
     /** Inline encodings supported by this view. */
-    readonly encodings?: readonly FilesBase.Encoding[];
+    readonly encodings?: readonly FilesCore.Encoding[];
   };
 }

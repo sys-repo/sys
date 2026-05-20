@@ -1,4 +1,4 @@
-import type { FilesBase } from './t/t.base.ts';
+import type { FilesCore } from './t/t.core.ts';
 import type { FilesCapability } from './t/t.capability.ts';
 import type { FilesChange } from './t/t.change.ts';
 import type { FilesCmd } from './t/t.cmd.ts';
@@ -41,7 +41,7 @@ export declare namespace Files {
   export type Client = FilesCmd.Client;
 
   /** Canonical root-relative file path visible inside a bounded Files view. */
-  export type StringPath = FilesBase.StringPath;
+  export type StringPath = FilesCore.StringPath;
 
   /** Opaque, versioned cursor token for paged Files command surfaces. */
   export type StringCursor<
@@ -50,22 +50,22 @@ export declare namespace Files {
   > = FilesCursor.StringCursor<K, V>;
 
   /** Monotonic sequence number for change hints. */
-  export type Seq = FilesBase.Seq;
+  export type Seq = FilesCore.Seq;
 
   /** Non-negative traversal depth for list/manifest scopes. */
-  export type Depth = FilesBase.Depth;
+  export type Depth = FilesCore.Depth;
 
   /** Page-size limit for paged command surfaces. */
-  export type Limit = FilesBase.Limit;
+  export type Limit = FilesCore.Limit;
 
   /** Supported inline text encodings for first-land reads. */
-  export type Encoding = FilesBase.Encoding;
+  export type Encoding = FilesCore.Encoding;
 
   /** Path/name selector. Glob-like; not shell syntax and not content search. */
-  export type Match = FilesBase.Match;
+  export type Match = FilesCore.Match;
 
   /** Transport/backing fidelity class for a Files view. */
-  export type Fidelity = FilesBase.Fidelity;
+  export type Fidelity = FilesCore.Fidelity;
 
   /** File or directory entry visible inside a bounded Files view. */
   export type Entry = FilesEntry.Entry;

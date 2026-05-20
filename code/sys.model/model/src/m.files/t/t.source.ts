@@ -1,5 +1,5 @@
 import type { t } from '../common.ts';
-import type { FilesBase } from './t.base.ts';
+import type { FilesCore } from './t.core.ts';
 
 /**
  * Source values accepted by text-ingesting Files backings.
@@ -17,7 +17,7 @@ export declare namespace FilesSource {
   export type TextFileInput = string | TextFile;
 
   /** Text file sources keyed by canonical root-relative Files path. */
-  export type TextFileMap = { readonly [path: FilesBase.StringPath]: TextFileInput };
+  export type TextFileMap = { readonly [path: FilesCore.StringPath]: TextFileInput };
 
   /** Text-file source tree; empty directories must be explicit. */
   export type TextTree = {
@@ -25,6 +25,6 @@ export declare namespace FilesSource {
     readonly files?: TextFileMap;
 
     /** Additional empty directories to expose. Parent directories are derived automatically. */
-    readonly dirs?: readonly FilesBase.StringPath[];
+    readonly dirs?: readonly FilesCore.StringPath[];
   };
 }

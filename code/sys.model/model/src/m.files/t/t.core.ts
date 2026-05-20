@@ -3,7 +3,7 @@ import type { t } from '../common.ts';
 /**
  * Primitive Files-domain scalars shared across the Files type graph.
  */
-export declare namespace FilesBase {
+export declare namespace FilesCore {
   /** Canonical root-relative file path visible inside a bounded Files view. */
   export type StringPath = t.StringRelativePath;
 

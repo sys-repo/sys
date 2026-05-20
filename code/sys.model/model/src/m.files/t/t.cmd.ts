@@ -1,5 +1,5 @@
 import type { t } from '../common.ts';
-import type { FilesBase } from './t.base.ts';
+import type { FilesCore } from './t.core.ts';
 import type { FilesCapability } from './t.capability.ts';
 import type { FilesChange } from './t.change.ts';
 import type { FilesContentRef } from './t.content-ref.ts';
@@ -97,19 +97,19 @@ export declare namespace FilesCmd {
   export namespace List {
     export type Payload = {
       /** Root-relative directory/scope. Defaults to root. */
-      readonly path?: FilesBase.StringPath;
+      readonly path?: FilesCore.StringPath;
 
       /** Path/name selection. Glob-like; not shell syntax and not content search. */
-      readonly match?: FilesBase.Match;
+      readonly match?: FilesCore.Match;
 
       /** Omit paths. Applied after policy. */
-      readonly exclude?: FilesBase.Match;
+      readonly exclude?: FilesCore.Match;
 
       /** Bound traversal. */
-      readonly depth?: FilesBase.Depth;
+      readonly depth?: FilesCore.Depth;
 
       /** Page size. */
-      readonly limit?: FilesBase.Limit;
+      readonly limit?: FilesCore.Limit;
 
       /** Page cursor. */
       readonly cursor?: FilesCursor.List;
@@ -124,15 +124,15 @@ export declare namespace FilesCmd {
 
   /** Stat command. */
   export namespace Stat {
-    export type Payload = { readonly path: FilesBase.StringPath };
+    export type Payload = { readonly path: FilesCore.StringPath };
     export type Result = { readonly entry: FilesEntry.Entry };
   }
 
   /** Read command. */
   export namespace Read {
     export type Payload = {
-      readonly path: FilesBase.StringPath;
-      readonly encoding?: FilesBase.Encoding;
+      readonly path: FilesCore.StringPath;
+      readonly encoding?: FilesCore.Encoding;
       readonly maxBytes?: t.NumberBytes;
     };
 
@@ -141,7 +141,7 @@ export declare namespace FilesCmd {
     export type InlineResult = {
       readonly kind: 'inline';
       readonly file: FilesEntry.File;
-      readonly encoding: FilesBase.Encoding;
+      readonly encoding: FilesCore.Encoding;
       readonly content: string;
       readonly truncated?: boolean;
     };
@@ -157,16 +157,16 @@ export declare namespace FilesCmd {
   export namespace Watch {
     export type Payload = {
       /** Root-relative directory/scope. Defaults to root. */
-      readonly path?: FilesBase.StringPath;
+      readonly path?: FilesCore.StringPath;
 
       /** Path/name selection. */
-      readonly match?: FilesBase.Match;
+      readonly match?: FilesCore.Match;
 
       /** Omit paths. Applied after policy. */
-      readonly exclude?: FilesBase.Match;
+      readonly exclude?: FilesCore.Match;
 
       /** Resume after a known sequence, when supported. */
-      readonly since?: FilesBase.Seq;
+      readonly since?: FilesCore.Seq;
     };
 
     export type Result = {
@@ -179,22 +179,22 @@ export declare namespace FilesCmd {
   export namespace Manifest {
     export type Payload = {
       /** Root-relative directory/scope. Defaults to root. */
-      readonly path?: FilesBase.StringPath;
+      readonly path?: FilesCore.StringPath;
 
       /** Path/name selection. */
-      readonly match?: FilesBase.Match;
+      readonly match?: FilesCore.Match;
 
       /** Omit paths. Applied after policy. */
-      readonly exclude?: FilesBase.Match;
+      readonly exclude?: FilesCore.Match;
 
       /** Bound traversal. */
-      readonly depth?: FilesBase.Depth;
+      readonly depth?: FilesCore.Depth;
 
       /** Include content refs when available. */
       readonly content?: boolean;
 
       /** Page size. */
-      readonly limit?: FilesBase.Limit;
+      readonly limit?: FilesCore.Limit;
 
       /** Page cursor. */
       readonly cursor?: FilesCursor.Manifest;

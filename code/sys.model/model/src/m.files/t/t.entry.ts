@@ -1,5 +1,5 @@
 import type { t } from '../common.ts';
-import type { FilesBase } from './t.base.ts';
+import type { FilesCore } from './t.core.ts';
 
 /**
  * Entry metadata visible inside a bounded Files view.
@@ -14,7 +14,7 @@ export declare namespace FilesEntry {
   /** Common entry metadata. */
   export type Base = {
     /** Canonical root-relative path. */
-    readonly path: FilesBase.StringPath;
+    readonly path: FilesCore.StringPath;
 
     /** Entry kind. */
     readonly kind: Kind;
