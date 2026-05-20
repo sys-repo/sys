@@ -1,3 +1,4 @@
+import type { t } from '../common.ts';
 import type { Core } from './t.u.core.ts';
 import type { FilesEntry } from './t.entry.ts';
 
@@ -5,6 +6,9 @@ import type { FilesEntry } from './t.entry.ts';
  * Files change hints. List/stat/read remain truth.
  */
 export declare namespace FilesChange {
+  /** Source of a change hint. */
+  export type Origin = 'command' | 'fs-watch';
+
   /** Change event hint. List/stat/read remain truth. */
   export type Change = {
     /** Change kind. */
@@ -18,5 +22,11 @@ export declare namespace FilesChange {
 
     /** Monotonic sequence number, when provided by the backing. */
     readonly seq?: Core.Seq;
+
+    /** Change hint origin, when provided by the backing. */
+    readonly origin?: Origin;
+
+    /** Request/correlation id for command-origin hints, when provided. */
+    readonly correlation?: t.Cmd.ReqId;
   };
 }

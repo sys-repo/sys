@@ -11,17 +11,21 @@ export const write = (
   nodes: MemoryNodes,
   policy: t.FilesPolicy.Shape,
   payload: t.FilesCmd.Write.Payload,
+  maxWriteBytes?: t.NumberBytes,
 ): t.FilesCmd.Write.Result => {
   if (!Is.plainObject(payload)) {
     throw fail('FilesMemoryError.InvalidPath', 'Files write payload must be a plain object');
   }
 
   const path = visiblePath(payload.path);
-  const node = writeFileNode(payload);
-
   if (!allowed(policy, 'write', path)) {
     throw fail('FilesMemoryError.PolicyDenied', `Write denied: ${path}`);
   }
+
+  const node = writeFileNode(payload, {
+    path,
+    ...(maxWriteBytes === undefined ? {} : { maxWriteBytes }),
+  });
 
   const { previous } = putWriteFile(nodes, path, node);
   const kind = previous?.kind === 'file' ? 'modified' : 'created';

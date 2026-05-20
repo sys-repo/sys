@@ -34,6 +34,8 @@ export declare namespace FilesAuthority {
     readonly fidelity?: Core.Fidelity;
     /** Backing-level maximum inline read size. */
     readonly maxReadBytes?: t.NumberBytes;
+    /** Backing-level maximum write payload size. */
+    readonly maxWriteBytes?: t.NumberBytes;
     /** Inline encodings supported by this backing. */
     readonly encodings?: readonly Core.Encoding[];
   };

@@ -25,6 +25,7 @@ export const snapshotPolicy = (
     ...(input.manifest === undefined ? {} : { manifest: input.manifest }),
     ...(input.deny === undefined ? {} : { deny: snapshotPolicyMatch(input.deny, invalid) }),
     ...(input.maxReadBytes === undefined ? {} : { maxReadBytes: input.maxReadBytes }),
+    ...(input.maxWriteBytes === undefined ? {} : { maxWriteBytes: input.maxWriteBytes }),
   });
 };
 

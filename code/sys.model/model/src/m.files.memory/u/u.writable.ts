@@ -21,7 +21,11 @@ export type WritableMutations = {
 export const createWritableRuntime = (options: t.FilesMemory.Options = {}): WritableRuntime => {
   try {
     const core = createRuntimeCore('writable', options);
-    const mutations = createWritableMutations(core.nodes, core.policy);
+    const mutations = createWritableMutations(
+      core.nodes,
+      core.policy,
+      core.capabilities.maxWriteBytes,
+    );
     const writableHandlers = Object.freeze({
       ...core.baseHandlers,
       'files:write': mutations.write,
@@ -48,9 +52,10 @@ export const createWritableRuntime = (options: t.FilesMemory.Options = {}): Writ
 export const createWritableMutations = (
   nodes: MemoryNodes,
   policy: t.FilesPolicy.Shape,
+  maxWriteBytes?: t.NumberBytes,
 ): WritableMutations => {
   return Object.freeze({
-    write: (payload) => write(nodes, policy, payload),
+    write: (payload) => write(nodes, policy, payload, maxWriteBytes),
     remove: (payload) => remove(nodes, policy, payload),
   });
 };

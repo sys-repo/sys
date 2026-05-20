@@ -267,6 +267,8 @@ export declare namespace FilesCmd {
       readonly entry?: FilesEntry.File;
       /** Monotonic sequence number, when provided by the backing. */
       readonly seq?: Core.Seq;
+      /** Request/correlation id for command-origin changes, when provided. */
+      readonly correlation?: t.Cmd.ReqId;
     };
   }
 
@@ -288,6 +290,8 @@ export declare namespace FilesCmd {
       readonly path: Core.StringPath;
       /** Monotonic sequence number, when provided by the backing. */
       readonly seq?: Core.Seq;
+      /** Request/correlation id for command-origin changes, when provided. */
+      readonly correlation?: t.Cmd.ReqId;
     };
   }
 

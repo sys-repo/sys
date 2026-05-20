@@ -16,6 +16,8 @@ export declare namespace FilesCapability {
     readonly fidelity?: Core.Fidelity;
     /** Maximum inline read size, when enforced by the backing. */
     readonly maxReadBytes?: t.NumberBytes;
+    /** Maximum write payload size, when enforced by the backing. */
+    readonly maxWriteBytes?: t.NumberBytes;
     /** Inline encodings supported by this view. */
     readonly encodings?: readonly Core.Encoding[];
   };

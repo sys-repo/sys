@@ -44,6 +44,7 @@ export declare namespace FilesMemory {
   export type Options =
     & Runtime.Options
     & Runtime.InlineReadOptions
+    & Runtime.InlineWriteOptions
     & t.FilesSource.TextTree;
 
   /** Files/memory error surface. */

@@ -12,5 +12,7 @@ export declare namespace Error {
     | 'DirectoryNotEmpty'
     | 'PolicyDenied'
     | 'ReadTooLarge'
+    | 'WriteTooLarge'
+    | 'PartialFailure'
     | 'Unsupported';
 }

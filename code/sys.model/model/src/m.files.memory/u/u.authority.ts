@@ -8,6 +8,7 @@ export type MemoryAuthorityKind = 'readonly' | 'writable' | 'live';
 export type MemoryAuthorityOptions = {
   readonly policy?: t.FilesPolicy.Shape;
   readonly maxReadBytes?: t.NumberBytes;
+  readonly maxWriteBytes?: t.NumberBytes;
 };
 
 type SupportMap = Record<MemoryAuthorityKind, Partial<t.FilesCapability.Map>>;
@@ -80,6 +81,7 @@ export const resolveMemoryAuthority = (
       supports: SUPPORTS[kind],
       fidelity: FIDELITY[kind],
       maxReadBytes: options.maxReadBytes,
+      maxWriteBytes: options.maxWriteBytes,
       encodings: D.encodings,
     },
     errors: ERROR_FACTORIES,

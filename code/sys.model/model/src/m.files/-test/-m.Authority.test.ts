@@ -43,20 +43,30 @@ describe('Files.Authority', () => {
     expect(Object.isFrozen(authority.capabilities.encodings)).to.eql(true);
   });
 
-  it('owns strictest maxReadBytes reconciliation and validates inputs once', () => {
-    const fromBacking = Authority.resolve({
+  it('owns strictest byte-limit reconciliation and validates inputs once', () => {
+    const readFromBacking = Authority.resolve({
       policy: { read: '**', maxReadBytes: 256 },
       backing: { supports: { read: true }, maxReadBytes: 32 },
     });
-    const fromPolicy = Authority.resolve({
+    const readFromPolicy = Authority.resolve({
       policy: { read: '**', maxReadBytes: 16 },
       backing: { supports: { read: true }, maxReadBytes: 128 },
     });
+    const writeFromBacking = Authority.resolve({
+      policy: { write: '**', maxWriteBytes: 256 },
+      backing: { supports: { write: true }, maxWriteBytes: 32 },
+    });
+    const writeFromPolicy = Authority.resolve({
+      policy: { write: '**', maxWriteBytes: 16 },
+      backing: { supports: { write: true }, maxWriteBytes: 128 },
+    });
 
-    expect(fromBacking.capabilities.maxReadBytes).to.eql(32);
-    expect(fromPolicy.capabilities.maxReadBytes).to.eql(16);
+    expect(readFromBacking.capabilities.maxReadBytes).to.eql(32);
+    expect(readFromPolicy.capabilities.maxReadBytes).to.eql(16);
+    expect(writeFromBacking.capabilities.maxWriteBytes).to.eql(32);
+    expect(writeFromPolicy.capabilities.maxWriteBytes).to.eql(16);
 
-    const error = (() => {
+    const readError = (() => {
       try {
         Authority.resolve({
           policy: { read: '**', maxReadBytes: -1 as t.NumberBytes },
@@ -66,8 +76,47 @@ describe('Files.Authority', () => {
         return cause;
       }
     })();
-    expect(error).to.be.instanceOf(Error);
-    expect((error as Error).name).to.eql('FilesAuthorityError.InvalidPath');
+    expect(readError).to.be.instanceOf(Error);
+    expect((readError as Error).name).to.eql('FilesAuthorityError.InvalidPath');
+
+    const writeError = (() => {
+      try {
+        Authority.resolve({
+          policy: { write: '**', maxWriteBytes: -1 as t.NumberBytes },
+          backing: { supports: { write: true } },
+        });
+      } catch (cause) {
+        return cause;
+      }
+    })();
+    expect(writeError).to.be.instanceOf(Error);
+    expect((writeError as Error).name).to.eql('FilesAuthorityError.InvalidPath');
+  });
+
+  it('does not project byte limits for unsupported read/write capabilities', () => {
+    const authority = Authority.resolve({
+      policy: { maxReadBytes: 8, maxWriteBytes: 16 },
+      backing: { supports: {}, maxReadBytes: 4, maxWriteBytes: 4 },
+    });
+
+    expect(authority.capabilities).to.eql({
+      list: false,
+      stat: false,
+      read: false,
+      write: false,
+      remove: false,
+      watch: false,
+      manifest: false,
+    });
+
+    expectError(
+      () =>
+        Authority.resolve({
+          policy: { maxWriteBytes: -1 as t.NumberBytes },
+          backing: { supports: {} },
+        }),
+      { name: 'FilesAuthorityError.InvalidPath', message: 'Invalid Files write byte limit' },
+    );
   });
 
   it('checks support, allow, deny, and manifest from one resolved authority value', () => {

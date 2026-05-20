@@ -6,6 +6,7 @@ type CapabilitiesFromArgs = {
   readonly policy: t.FilesPolicy.Shape;
   readonly fidelity?: t.Files.Fidelity;
   readonly maxReadBytes?: t.NumberBytes;
+  readonly maxWriteBytes?: t.NumberBytes;
   readonly encodings?: readonly t.Files.Encoding[];
 };
 
@@ -37,9 +38,16 @@ export const resolve: t.FilesAuthority.Lib['resolve'] = (input) => {
   const denied = errors.denied ?? deniedError;
   const policy = snapshotPolicy(input.policy, invalid);
   const supports = normalizeSupports(input.backing.supports);
-  const maxReadBytes = effectiveMaxReadBytes(
+  const maxReadBytes = effectiveByteLimit(
+    'read',
     input.backing.maxReadBytes,
     policy.maxReadBytes,
+    invalid,
+  );
+  const maxWriteBytes = effectiveByteLimit(
+    'write',
+    input.backing.maxWriteBytes,
+    policy.maxWriteBytes,
     invalid,
   );
   const capabilities = capabilitiesFrom({
@@ -47,6 +55,7 @@ export const resolve: t.FilesAuthority.Lib['resolve'] = (input) => {
     policy,
     fidelity: input.backing.fidelity,
     maxReadBytes,
+    maxWriteBytes,
     encodings: input.backing.encodings,
   });
 
@@ -97,12 +106,18 @@ function capabilitiesFrom(args: CapabilitiesFromArgs): t.Files.Capabilities {
     watch: args.supports.watch,
     manifest: args.supports.manifest && args.policy.manifest === true,
     ...(args.fidelity === undefined ? {} : { fidelity: args.fidelity }),
-    ...(args.maxReadBytes === undefined ? {} : { maxReadBytes: args.maxReadBytes }),
+    ...(args.supports.read && args.maxReadBytes !== undefined
+      ? { maxReadBytes: args.maxReadBytes }
+      : {}),
+    ...(args.supports.write && args.maxWriteBytes !== undefined
+      ? { maxWriteBytes: args.maxWriteBytes }
+      : {}),
     ...(args.encodings === undefined ? {} : { encodings: Object.freeze([...args.encodings]) }),
   });
 }
 
-function effectiveMaxReadBytes(
+function effectiveByteLimit(
+  label: 'read' | 'write',
   backing: t.NumberBytes | undefined,
   policy: t.NumberBytes | undefined,
   invalid: (message: string) => Error,
@@ -111,7 +126,7 @@ function effectiveMaxReadBytes(
   for (const value of [backing, policy]) {
     if (value === undefined) continue;
     if (!Num.Is.safeInt(value) || value < 0) {
-      throw invalid('Invalid Files read byte limit');
+      throw invalid(`Invalid Files ${label} byte limit`);
     }
     max = max === undefined || value < max ? value : max;
   }

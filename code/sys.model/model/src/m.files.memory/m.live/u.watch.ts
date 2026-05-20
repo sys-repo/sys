@@ -32,6 +32,7 @@ type WatchRuntime = {
   readonly emit: (
     kind: t.Files.Change['kind'],
     path: t.Files.String.Path,
+    correlation: t.Cmd.ReqId,
   ) => t.Files.Change;
 };
 
@@ -75,10 +76,10 @@ export const createWatch = (nodes: MemoryNodes, policy: t.FilesPolicy.Shape): Wa
         notifyActive();
       });
     },
-    emit(kind, path) {
+    emit(kind, path, correlation) {
       const includeEntry = allowed(policy, 'stat', path);
       const node = includeEntry ? nodes.get(absolutePath(path)) : undefined;
-      const change = changeFrom(kind, path, node, nextSeq());
+      const change = changeFrom(kind, path, node, nextSeq(), correlation);
 
       for (const watcher of [...watchers]) {
         if (!watcherMatches(watcher.query, change.path, policy)) continue;
@@ -149,11 +150,14 @@ function changeFrom(
   path: t.Files.String.Path,
   node: MemoryNode | undefined,
   seq: t.Files.Seq,
+  correlation: t.Cmd.ReqId,
 ): t.Files.Change {
   return {
     kind,
     path,
     seq,
+    origin: 'command',
+    correlation,
     ...(kind === 'deleted' || node === undefined ? {} : { entry: entryFromNode(path, node) }),
   };
 }

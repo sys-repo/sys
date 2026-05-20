@@ -46,6 +46,7 @@ export const createRuntimeCore = (
   const authority = resolveMemoryAuthority(kind, {
     policy: options.policy,
     maxReadBytes: options.maxReadBytes,
+    maxWriteBytes: options.maxWriteBytes,
   });
   const policy = authority.policy;
   const capabilities = authority.capabilities;

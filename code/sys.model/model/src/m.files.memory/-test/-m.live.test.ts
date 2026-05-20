@@ -41,7 +41,7 @@ describe('FilesMemory.Writable.live', () => {
   });
 
   describe('write/remove projection', () => {
-    it('projects writable write/remove results with only live sequence hints added', async () => {
+    it('projects writable write/remove results with only live sequence/correlation hints added', async () => {
       const options = {
         dirs: ['docs'],
         policy: allowAllMutablePolicy,
@@ -62,8 +62,13 @@ describe('FilesMemory.Writable.live', () => {
       } satisfies t.FilesCmd.Write.Payload;
       const writableCreated = await cmd.write(writable, createPayload);
       const liveCreated = await cmd.write(live, createPayload);
-      expect(withoutSeq(liveCreated)).to.eql(writableCreated);
-      expect(events.at(-1)).to.eql({ ...writableCreated, seq: liveCreated.seq });
+      expect(withoutLiveMeta(liveCreated)).to.eql(writableCreated);
+      expect(events.at(-1)).to.eql({
+        ...writableCreated,
+        seq: liveCreated.seq,
+        origin: 'command',
+        correlation: liveCreated.correlation,
+      });
 
       const modifyPayload = {
         kind: 'text',
@@ -72,14 +77,24 @@ describe('FilesMemory.Writable.live', () => {
       } satisfies t.FilesCmd.Write.Payload;
       const writableModified = await cmd.write(writable, modifyPayload);
       const liveModified = await cmd.write(live, modifyPayload);
-      expect(withoutSeq(liveModified)).to.eql(writableModified);
-      expect(events.at(-1)).to.eql({ ...writableModified, seq: liveModified.seq });
+      expect(withoutLiveMeta(liveModified)).to.eql(writableModified);
+      expect(events.at(-1)).to.eql({
+        ...writableModified,
+        seq: liveModified.seq,
+        origin: 'command',
+        correlation: liveModified.correlation,
+      });
 
       const removePayload = { path: 'docs/readme.md' } satisfies t.FilesCmd.Remove.Payload;
       const writableRemoved = await cmd.remove(writable, removePayload);
       const liveRemoved = await cmd.remove(live, removePayload);
-      expect(withoutSeq(liveRemoved)).to.eql(writableRemoved);
-      expect(events.at(-1)).to.eql({ ...writableRemoved, seq: liveRemoved.seq });
+      expect(withoutLiveMeta(liveRemoved)).to.eql(writableRemoved);
+      expect(events.at(-1)).to.eql({
+        ...writableRemoved,
+        seq: liveRemoved.seq,
+        origin: 'command',
+        correlation: liveRemoved.correlation,
+      });
       expect(events.map((event) => event.seq)).to.eql([1, 2, 3]);
 
       watcher.stop();
@@ -108,6 +123,8 @@ describe('FilesMemory.Writable.live', () => {
           kind: 'created',
           path: 'docs/new.md',
           seq: 1,
+          origin: 'command',
+          correlation: 'req-files-memory-test',
           entry: {
             path: 'docs/new.md',
             kind: 'file',
@@ -128,6 +145,8 @@ describe('FilesMemory.Writable.live', () => {
         kind: 'modified',
         path: 'docs/new.md',
         seq: 2,
+        origin: 'command',
+        correlation: 'req-files-memory-test',
         entry: { path: 'docs/new.md', kind: 'file', size: 6 },
       });
       expect(await cmd.read(backing, { path: 'docs/new.md' })).to.eql({
@@ -138,7 +157,13 @@ describe('FilesMemory.Writable.live', () => {
       });
 
       await cmd.remove(backing, { path: 'docs/new.md' });
-      expect(events.at(-1)).to.eql({ kind: 'deleted', path: 'docs/new.md', seq: 3 });
+      expect(events.at(-1)).to.eql({
+        kind: 'deleted',
+        path: 'docs/new.md',
+        seq: 3,
+        origin: 'command',
+        correlation: 'req-files-memory-test',
+      });
       await expectFilesMemoryError(
         () => cmd.stat(backing, { path: 'docs/new.md' }),
         'FilesMemoryError.NotFound',
@@ -170,7 +195,12 @@ describe('FilesMemory.Writable.live', () => {
       expect(backing.diagnostics.Active.watchCount()).to.eql(2);
 
       const removed = await cmd.remove(backing, { path: 'docs/tmp', recursive: true });
-      expect(removed).to.eql({ kind: 'deleted', path: 'docs/tmp', seq: 6 });
+      expect(removed).to.eql({
+        kind: 'deleted',
+        path: 'docs/tmp',
+        seq: 6,
+        correlation: 'req-files-memory-test',
+      });
       expect(rootEvents.map((event) => event.path)).to.eql([
         'docs/tmp/nested/b.txt',
         'docs/tmp/nested',
@@ -243,7 +273,13 @@ describe('FilesMemory.Writable.live', () => {
       await backing.diagnostics.Active.whenActive();
       await cmd.write(backing, { kind: 'text', path: 'docs/readme.md', content: 'hello\n' });
 
-      expect(events).to.eql([{ kind: 'created', path: 'docs/readme.md', seq: 1 }]);
+      expect(events).to.eql([{
+        kind: 'created',
+        path: 'docs/readme.md',
+        seq: 1,
+        origin: 'command',
+        correlation: 'req-files-memory-test',
+      }]);
 
       stop();
       await done;
@@ -273,6 +309,7 @@ describe('FilesMemory.Writable.live', () => {
         path: 'docs/readme.md',
         entry: { path: 'docs/readme.md', kind: 'file', size: 2 },
         seq: 1,
+        correlation: 'req-files-memory-test',
       });
       expect(await cmd.read(backing, { path: 'docs/readme.md' })).to.eql({
         kind: 'inline',
@@ -406,10 +443,10 @@ describe('FilesMemory.Writable.live', () => {
   });
 });
 
-function withoutSeq<R extends t.FilesCmd.Write.Result | t.FilesCmd.Remove.Result>(
+function withoutLiveMeta<R extends t.FilesCmd.Write.Result | t.FilesCmd.Remove.Result>(
   result: R,
-): Omit<R, 'seq'> {
-  const { seq: _seq, ...rest } = result;
+): Omit<R, 'seq' | 'correlation'> {
+  const { seq: _seq, correlation: _correlation, ...rest } = result;
   return rest;
 }
 

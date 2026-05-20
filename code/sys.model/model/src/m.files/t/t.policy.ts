@@ -31,6 +31,8 @@ export declare namespace FilesPolicy {
     readonly deny?: Core.Match;
     /** Maximum inline read size for this policy. */
     readonly maxReadBytes?: t.NumberBytes;
+    /** Maximum write payload size for this policy. */
+    readonly maxWriteBytes?: t.NumberBytes;
   };
 
   /** Options for the readonly policy helper. */

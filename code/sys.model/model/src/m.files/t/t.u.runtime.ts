@@ -38,4 +38,10 @@ export declare namespace Runtime {
     /** Maximum bytes returned by `files:read`. */
     readonly maxReadBytes?: t.NumberBytes;
   };
+
+  /** Shared options for backings that can write complete file values. */
+  export type InlineWriteOptions = {
+    /** Maximum bytes accepted by `files:write`. */
+    readonly maxWriteBytes?: t.NumberBytes;
+  };
 }
