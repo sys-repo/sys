@@ -1,5 +1,5 @@
-import { type t } from './common.ts';
-import { createLiveRuntime } from './u.live/u.runtime.ts';
+import { type t } from '../common.ts';
+import { createLiveRuntime } from './u.runtime.ts';
 
 /**
  * Create a bounded live Files backing from an in-memory source tree.

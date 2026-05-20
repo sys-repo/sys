@@ -3,7 +3,7 @@
  * In-memory backing adapters for the Files model.
  */
 import type { t } from './common.ts';
-import { createLive } from './m.live.ts';
+import { createLive } from './m.live/mod.ts';
 import { createReadonly } from './m.readonly.ts';
 import { createWritable } from './m.writable.ts';
 
