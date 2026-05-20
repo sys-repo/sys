@@ -38,6 +38,101 @@ describe('FilesMemory.live', () => {
     });
   });
 
+  it('projects writable write/remove results with only live sequence hints added', async () => {
+    const options = {
+      dirs: ['docs'],
+      policy: allowAllMutablePolicy,
+    } satisfies t.FilesMemory.Options;
+    const writable = FilesMemory.writable(options);
+    const live = FilesMemory.live(options);
+    const events: t.Files.Change[] = [];
+    const watcher = watchContext(events);
+    const done = live.handlers['files:watch']({ path: 'docs' }, watcher.context);
+
+    await live.diagnostics.Active.whenActive();
+
+    const createPayload = {
+      kind: 'text',
+      path: 'docs/readme.md',
+      content: 'hello\n',
+      mediaType: 'text/markdown',
+    } satisfies t.FilesCmd.Write.Payload;
+    const writableCreated = await cmd.write(writable, createPayload);
+    const liveCreated = await cmd.write(live, createPayload);
+    expect(withoutSeq(liveCreated)).to.eql(writableCreated);
+    expect(events.at(-1)).to.eql({ ...writableCreated, seq: liveCreated.seq });
+
+    const modifyPayload = {
+      kind: 'text',
+      path: 'docs/readme.md',
+      content: 'hello again\n',
+    } satisfies t.FilesCmd.Write.Payload;
+    const writableModified = await cmd.write(writable, modifyPayload);
+    const liveModified = await cmd.write(live, modifyPayload);
+    expect(withoutSeq(liveModified)).to.eql(writableModified);
+    expect(events.at(-1)).to.eql({ ...writableModified, seq: liveModified.seq });
+
+    const removePayload = { path: 'docs/readme.md' } satisfies t.FilesCmd.Remove.Payload;
+    const writableRemoved = await cmd.remove(writable, removePayload);
+    const liveRemoved = await cmd.remove(live, removePayload);
+    expect(withoutSeq(liveRemoved)).to.eql(writableRemoved);
+    expect(events.at(-1)).to.eql({ ...writableRemoved, seq: liveRemoved.seq });
+    expect(events.map((event) => event.seq)).to.eql([1, 2, 3]);
+
+    watcher.stop();
+    await done;
+  });
+
+  it('does not emit or consume sequence hints when live write/remove rejects', async () => {
+    const backing = FilesMemory.live({
+      files: { 'docs/keep.md': 'keep\n' },
+      policy: {
+        list: '**',
+        stat: '**',
+        read: '**',
+        write: 'docs/tmp/**',
+        remove: 'docs/tmp/**',
+        watch: '**',
+        manifest: true,
+      },
+    });
+    const events: t.Files.Change[] = [];
+    const watcher = watchContext(events);
+    const done = backing.handlers['files:watch']({}, watcher.context);
+
+    await backing.diagnostics.Active.whenActive();
+
+    await expectFilesMemoryError(
+      () => cmd.write(backing, { kind: 'text', path: 'docs/blocked.md', content: 'nope\n' }),
+      'FilesMemoryError.PolicyDenied',
+    );
+    expect(events).to.eql([]);
+
+    const created = await cmd.write(backing, {
+      kind: 'text',
+      path: 'docs/tmp/ok.md',
+      content: 'ok\n',
+    });
+    expect(created.seq).to.eql(1);
+    expect(events.map((event) => event.seq)).to.eql([1]);
+
+    await expectFilesMemoryError(
+      () => cmd.remove(backing, { path: 'docs/keep.md' }),
+      'FilesMemoryError.PolicyDenied',
+    );
+    expect(events.map((event) => event.seq)).to.eql([1]);
+
+    const removed = await cmd.remove(backing, { path: 'docs/tmp/ok.md' });
+    expect(removed.seq).to.eql(2);
+    expect(events.map(({ kind, path, seq }) => ({ kind, path, seq }))).to.eql([
+      { kind: 'created', path: 'docs/tmp/ok.md', seq: 1 },
+      { kind: 'deleted', path: 'docs/tmp/ok.md', seq: 2 },
+    ]);
+
+    watcher.stop();
+    await done;
+  });
+
   it('emits created, modified, and deleted change hints while list/stat/read remain truth', async () => {
     const backing = FilesMemory.live({
       files: { 'docs/readme.md': 'hello\n' },
@@ -161,11 +256,13 @@ describe('FilesMemory.live', () => {
       'docs/tmp/a.txt',
       'docs/tmp',
     ]);
+    expect(rootEvents.map((event) => event.seq)).to.eql([3, 4, 5, 6]);
     expect(rootEvents.every((event) => event.kind === 'deleted')).to.eql(true);
     expect(childEvents.map((event) => event.path)).to.eql([
       'docs/tmp/nested/b.txt',
       'docs/tmp/nested',
     ]);
+    expect(childEvents.map((event) => event.seq)).to.eql([3, 4]);
 
     root.stop();
     child.stop();
@@ -291,6 +388,13 @@ describe('FilesMemory.live', () => {
     expect(backing.diagnostics.Active.watchCount()).to.eql(0);
   });
 });
+
+function withoutSeq<R extends t.FilesCmd.Write.Result | t.FilesCmd.Remove.Result>(
+  result: R,
+): Omit<R, 'seq'> {
+  const { seq: _seq, ...rest } = result;
+  return rest;
+}
 
 function watchContext(events: t.Files.Change[]) {
   const controller = new AbortController();
