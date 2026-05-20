@@ -2,11 +2,11 @@ import { Files } from '../../m.files/mod.ts';
 import { Glob, type t } from '../common.ts';
 import type { Live } from '../../m.files/t/t.u.live.ts';
 import { type ListEntriesOptions, snapshotListOptions, withinScope } from '../../m.files/u.list.ts';
-import { allowed } from '../../m.files/u.policy.ts';
 import { type MemoryNodes } from '../u.index.ts';
-import { type MemoryNode, statFromNode } from '../u.node.ts';
-import { absolutePath, path as pathOps, visiblePath } from '../u.path.ts';
+import { entryFromNode, type MemoryNode } from '../u.node.ts';
+import { absolutePath, invalidPath, path as pathOps, visiblePath } from '../u.path.ts';
 import { fail } from '../u.error.ts';
+import { allowed } from '../u.policy.ts';
 
 type WatchContext = t.Cmd.Handler.Context<
   t.FilesCmd.Name,
@@ -18,8 +18,6 @@ type Watcher = {
   readonly query: ListEntriesOptions;
   readonly context: WatchContext;
 };
-
-const invalidPath = (message: string): Error => fail('FilesMemoryError.InvalidPath', message);
 
 /** Create live watch state and Cmd handler for an in-memory node graph. */
 export const createWatch = (nodes: MemoryNodes, policy: t.FilesPolicy.Shape): WatchRuntime => {
@@ -68,7 +66,11 @@ export const createWatch = (nodes: MemoryNodes, policy: t.FilesPolicy.Shape): Wa
 
       for (const watcher of [...watchers]) {
         if (!watcherMatches(watcher.query, change.path, policy)) continue;
-        watcher.context.emit(change);
+        try {
+          watcher.context.emit(change);
+        } catch {
+          // Watch events are hints; subscriber failure must not poison the mutation.
+        }
       }
 
       return change;
@@ -149,23 +151,5 @@ function changeFrom(
     path,
     seq,
     ...(kind === 'deleted' || node === undefined ? {} : { entry: entryFromNode(path, node) }),
-  };
-}
-
-function entryFromNode(path: t.Files.String.Path, node: MemoryNode): t.Files.Entry {
-  const stat = statFromNode(node);
-  const base = {
-    path,
-    kind: stat.kind ?? node.kind,
-    ...(stat.modifiedAt === undefined ? {} : { modifiedAt: stat.modifiedAt }),
-    ...(stat.hash === undefined ? {} : { hash: stat.hash }),
-  };
-
-  if (node.kind === 'dir') return { ...base, kind: 'dir' };
-  return {
-    ...base,
-    kind: 'file',
-    ...(stat.size === undefined ? {} : { size: stat.size }),
-    ...(stat.mediaType === undefined ? {} : { mediaType: stat.mediaType }),
   };
 }

@@ -1,11 +1,10 @@
 import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
 import { Files } from '../../m.files/mod.ts';
 import { FilesMemory } from '../mod.ts';
-import { createLiveForTesting } from './u.live.ts';
-import { cmd, expectFilesMemoryError } from './u.fixture.ts';
+import { allowAllMutablePolicy, cmd, expectFilesMemoryError } from './u.fixture.ts';
 
 describe('FilesMemory.live', () => {
-  it('creates a bounded live backing without changing the readonly surface', async () => {
+  it('creates a bounded live backing with writable commands and watch diagnostics', async () => {
     const backing = FilesMemory.live({
       files: { 'docs/readme.md': 'hello\n' },
       policy: Files.Policy.readonly('**'),
@@ -29,8 +28,8 @@ describe('FilesMemory.live', () => {
       list: true,
       stat: true,
       read: true,
-      write: false,
-      remove: false,
+      write: true,
+      remove: true,
       watch: true,
       manifest: true,
       fidelity: 'live',
@@ -40,9 +39,9 @@ describe('FilesMemory.live', () => {
   });
 
   it('emits created, modified, and deleted change hints while list/stat/read remain truth', async () => {
-    const { backing, testing } = createLiveForTesting({
+    const backing = FilesMemory.live({
       files: { 'docs/readme.md': 'hello\n' },
-      policy: Files.Policy.readonly('**'),
+      policy: allowAllMutablePolicy,
     });
     const events: t.Files.Change[] = [];
     const { context, stop } = watchContext(events);
@@ -50,10 +49,11 @@ describe('FilesMemory.live', () => {
 
     await backing.diagnostics.Active.whenActive();
 
-    const modifiedAt = 1_700_000_000_000 as t.UnixTimestamp;
-    await testing.mutate.writeText('docs/new.md', 'new\n', {
+    await cmd.write(backing, {
+      kind: 'text',
+      path: 'docs/new.md',
+      content: 'new\n',
       mediaType: 'text/markdown',
-      modifiedAt,
     });
     expect(events).to.eql([
       {
@@ -64,19 +64,18 @@ describe('FilesMemory.live', () => {
           path: 'docs/new.md',
           kind: 'file',
           size: 4,
-          modifiedAt,
           mediaType: 'text/markdown',
         },
       },
     ]);
     expect(await cmd.read(backing, { path: 'docs/new.md' })).to.eql({
       kind: 'inline',
-      file: { path: 'docs/new.md', kind: 'file', size: 4, modifiedAt, mediaType: 'text/markdown' },
+      file: { path: 'docs/new.md', kind: 'file', size: 4, mediaType: 'text/markdown' },
       encoding: 'utf8',
       content: 'new\n',
     });
 
-    await testing.mutate.writeText('docs/new.md', 'newer\n');
+    await cmd.write(backing, { kind: 'text', path: 'docs/new.md', content: 'newer\n' });
     expect(events.at(-1)).to.eql({
       kind: 'modified',
       path: 'docs/new.md',
@@ -90,7 +89,7 @@ describe('FilesMemory.live', () => {
       content: 'newer\n',
     });
 
-    await testing.mutate.remove('docs/new.md');
+    await cmd.remove(backing, { path: 'docs/new.md' });
     expect(events.at(-1)).to.eql({ kind: 'deleted', path: 'docs/new.md', seq: 3 });
     await expectFilesMemoryError(
       () => cmd.stat(backing, { path: 'docs/new.md' }),
@@ -105,20 +104,19 @@ describe('FilesMemory.live', () => {
   });
 
   it('filters watch hints through policy, scope, match, and exclude', async () => {
-    const deny = ['docs/secret/**'];
     const policy = {
       list: '**',
       stat: '**',
       read: '**',
-      watch: '**',
+      write: '**',
+      remove: '**',
+      watch: 'docs/**',
       manifest: true,
-      deny,
     } satisfies t.FilesPolicy.Shape;
-    const { backing, testing } = createLiveForTesting({
+    const backing = FilesMemory.live({
       files: { 'docs/readme.md': 'hello\n' },
       policy,
     });
-    deny.length = 0;
     (policy as Record<string, unknown>).watch = 'other/**';
     const events: t.Files.Change[] = [];
     const { context, stop } = watchContext(events);
@@ -128,11 +126,10 @@ describe('FilesMemory.live', () => {
     );
 
     await backing.diagnostics.Active.whenActive();
-    await testing.mutate.writeText('docs/readme.md', 'visible\n');
-    await testing.mutate.writeText('docs/draft.md', 'excluded\n');
-    await testing.mutate.writeText('docs/secret/readme.md', 'denied\n');
-    await testing.mutate.writeText('other/readme.md', 'outside scope\n');
-    await testing.mutate.writeText('docs/data.json', '{}\n');
+    await cmd.write(backing, { kind: 'text', path: 'docs/readme.md', content: 'visible\n' });
+    await cmd.write(backing, { kind: 'text', path: 'docs/draft.md', content: 'excluded\n' });
+    await cmd.write(backing, { kind: 'text', path: 'other/readme.md', content: 'outside scope\n' });
+    await cmd.write(backing, { kind: 'text', path: 'docs/data.json', content: '{}\n' });
 
     expect(events.map((event) => event.path)).to.eql(['docs/readme.md']);
     expect(events[0].kind).to.eql('modified');
@@ -141,10 +138,79 @@ describe('FilesMemory.live', () => {
     await done;
   });
 
+  it('emits recursive delete hints for removed descendants deepest-first', async () => {
+    const backing = FilesMemory.live({ dirs: ['docs/tmp'], policy: allowAllMutablePolicy });
+    await cmd.write(backing, { kind: 'text', path: 'docs/tmp/a.txt', content: 'a' });
+    await cmd.write(backing, { kind: 'text', path: 'docs/tmp/nested/b.txt', content: 'b' });
+
+    const rootEvents: t.Files.Change[] = [];
+    const childEvents: t.Files.Change[] = [];
+    const root = watchContext(rootEvents);
+    const child = watchContext(childEvents);
+    const rootDone = backing.handlers['files:watch']({ path: 'docs/tmp' }, root.context);
+    const childDone = backing.handlers['files:watch']({ path: 'docs/tmp/nested' }, child.context);
+
+    await backing.diagnostics.Active.whenActive();
+    expect(backing.diagnostics.Active.watchCount()).to.eql(2);
+
+    const removed = await cmd.remove(backing, { path: 'docs/tmp', recursive: true });
+    expect(removed).to.eql({ kind: 'deleted', path: 'docs/tmp', seq: 6 });
+    expect(rootEvents.map((event) => event.path)).to.eql([
+      'docs/tmp/nested/b.txt',
+      'docs/tmp/nested',
+      'docs/tmp/a.txt',
+      'docs/tmp',
+    ]);
+    expect(rootEvents.every((event) => event.kind === 'deleted')).to.eql(true);
+    expect(childEvents.map((event) => event.path)).to.eql([
+      'docs/tmp/nested/b.txt',
+      'docs/tmp/nested',
+    ]);
+
+    root.stop();
+    child.stop();
+    await rootDone;
+    await childDone;
+  });
+
+  it('keeps mutation truth when a watch subscriber rejects a hint', async () => {
+    const backing = FilesMemory.live({ dirs: ['docs'], policy: allowAllMutablePolicy });
+    const watcher = watchContext([]);
+    const context = {
+      ...watcher.context,
+      emit() {
+        throw new Error('subscriber failed');
+      },
+    };
+    const done = backing.handlers['files:watch']({ path: 'docs' }, context);
+
+    await backing.diagnostics.Active.whenActive();
+    const result = await cmd.write(backing, {
+      kind: 'text',
+      path: 'docs/readme.md',
+      content: 'ok',
+    });
+    expect(result).to.eql({
+      kind: 'created',
+      path: 'docs/readme.md',
+      entry: { path: 'docs/readme.md', kind: 'file', size: 2 },
+      seq: 1,
+    });
+    expect(await cmd.read(backing, { path: 'docs/readme.md' })).to.eql({
+      kind: 'inline',
+      file: { path: 'docs/readme.md', kind: 'file', size: 2 },
+      encoding: 'utf8',
+      content: 'ok',
+    });
+
+    watcher.stop();
+    await done;
+  });
+
   it('supports multiple active watchers and per-stream cancellation', async () => {
-    const { backing, testing } = createLiveForTesting({
+    const backing = FilesMemory.live({
       dirs: ['docs'],
-      policy: Files.Policy.readonly('**'),
+      policy: allowAllMutablePolicy,
     });
     const docsEvents: t.Files.Change[] = [];
     const markdownEvents: t.Files.Change[] = [];
@@ -159,7 +225,7 @@ describe('FilesMemory.live', () => {
     await backing.diagnostics.Active.whenActive();
     expect(backing.diagnostics.Active.watchCount()).to.eql(2);
 
-    await testing.mutate.writeText('docs/readme.md', 'hello\n');
+    await cmd.write(backing, { kind: 'text', path: 'docs/readme.md', content: 'hello\n' });
     expect(docsEvents.map((event) => event.path)).to.eql(['docs/readme.md']);
     expect(markdownEvents.map((event) => event.path)).to.eql(['docs/readme.md']);
 
@@ -167,7 +233,7 @@ describe('FilesMemory.live', () => {
     await docsDone;
     expect(backing.diagnostics.Active.watchCount()).to.eql(1);
 
-    await testing.mutate.writeText('docs/next.md', 'next\n');
+    await cmd.write(backing, { kind: 'text', path: 'docs/next.md', content: 'next\n' });
     expect(docsEvents.map((event) => event.path)).to.eql(['docs/readme.md']);
     expect(markdownEvents.map((event) => event.path)).to.eql(['docs/readme.md', 'docs/next.md']);
 
@@ -177,15 +243,15 @@ describe('FilesMemory.live', () => {
   });
 
   it('omits event entry metadata when stat policy is not granted', async () => {
-    const { backing, testing } = createLiveForTesting({
-      policy: { list: '**', read: '**', watch: '**', manifest: true },
+    const backing = FilesMemory.live({
+      policy: { list: '**', read: '**', write: '**', watch: '**', manifest: true },
     });
     const events: t.Files.Change[] = [];
     const { context, stop } = watchContext(events);
     const done = backing.handlers['files:watch']({}, context);
 
     await backing.diagnostics.Active.whenActive();
-    await testing.mutate.writeText('docs/readme.md', 'hello\n');
+    await cmd.write(backing, { kind: 'text', path: 'docs/readme.md', content: 'hello\n' });
 
     expect(events).to.eql([{ kind: 'created', path: 'docs/readme.md', seq: 1 }]);
 

@@ -1,53 +1,71 @@
 import { type t } from '../common.ts';
-import { FilesFs } from '../../m.files.fs/mod.ts';
+import { liveCapabilities } from '../u.capabilities.ts';
+import { remove } from '../u.cmd.remove.ts';
+import { write } from '../u.cmd.write.ts';
 import { translate } from '../u.error.ts';
-import { memoryFs } from '../u.fs.ts';
-import { handlers } from '../u.handlers.ts';
-import { createLiveDriver, type LiveDriver } from './u.driver.ts';
+import { createWritableRuntime } from '../u.writable.ts';
 import { createWatch } from './u.watch.ts';
 
 /** Internal live memory runtime; not exported from the public module. */
 export const createLiveRuntime = (options: t.FilesMemory.Options = {}): LiveRuntime => {
   try {
-    const { fs, root, nodes } = memoryFs(options);
-    const backing = FilesFs.readonly({
-      fs,
-      root,
-      ...(options.policy === undefined ? {} : { policy: options.policy }),
-      ...(options.maxReadBytes === undefined ? {} : { maxReadBytes: options.maxReadBytes }),
-      ...(options.defaultLimit === undefined ? {} : { defaultLimit: options.defaultLimit }),
-    });
-    const capabilities = Object.freeze(
-      {
-        ...backing.capabilities,
-        fidelity: 'live',
-        watch: true,
-      } satisfies t.Files.Capabilities,
-    );
-    const watch = createWatch(nodes, backing.policy);
-    const driver = createLiveDriver(nodes, watch.emit);
-    const base = handlers(backing.handlers, capabilities);
+    const { backing: writable, nodes } = createWritableRuntime(options);
+    const capabilities = liveCapabilities(writable.capabilities);
+    const watch = createWatch(nodes, writable.policy);
 
     return Object.freeze({
       backing: {
         kind: 'files/memory:live',
-        policy: backing.policy,
+        policy: writable.policy,
         capabilities,
         handlers: Object.freeze({
-          ...base,
+          ...writable.handlers,
+          'files:capabilities': () => capabilities,
+          'files:manifest': async (
+            payload: t.FilesCmd.Manifest.Payload,
+            context: t.Cmd.Handler.Context<
+              t.FilesCmd.Name,
+              t.FilesCmd.Event,
+              t.FilesCmd.Name.Manifest
+            >,
+          ) => {
+            const manifest = await writable.handlers['files:manifest'](payload, context);
+            return { ...manifest, capabilities };
+          },
+          'files:write': (payload: t.FilesCmd.Write.Payload) => {
+            const result = write(nodes, writable.policy, payload);
+            const change = watch.emit(result.kind, result.path);
+            return withSeq(result, change);
+          },
+          'files:remove': (payload: t.FilesCmd.Remove.Payload) => {
+            const mutation = remove(nodes, writable.policy, payload);
+            let rootChange: t.Files.Change | undefined;
+            for (const path of mutation.deleted) {
+              const change = watch.emit('deleted', path);
+              if (path === mutation.result.path) rootChange = change;
+            }
+            return withSeq(mutation.result, rootChange);
+          },
           'files:watch': watch.handler,
         }),
         diagnostics: watch.diagnostics,
       },
-      driver,
     });
   } catch (error) {
     throw translate(error);
   }
 };
 
-/** Owner-only deterministic runtime; delete when Files write/remove commands exist. */
 export type LiveRuntime = {
   readonly backing: t.FilesMemory.Live;
-  readonly driver: LiveDriver;
 };
+
+function withSeq<R extends t.FilesCmd.Write.Result | t.FilesCmd.Remove.Result>(
+  result: R,
+  change: t.Files.Change | undefined,
+): R {
+  return {
+    ...result,
+    ...(change?.seq === undefined ? {} : { seq: change.seq }),
+  };
+}
