@@ -44,6 +44,44 @@ describe(`Workspace.Info.stats`, () => {
     });
   });
 
+  it('deduplicates files matched by multiple include globs', async () => {
+    const fs = await Testing.dir('WorkspaceInfo.stats.dedupe');
+
+    await Fs.write(fs.join('code/src/a.ts'), 'export const a = 1;\n');
+    await Fs.write(fs.join('code/src/b.tsx'), 'export const b = 2;\n');
+
+    const result = await WorkspaceInfo.stats({
+      cwd: fs.dir,
+      source: { include: ['code/**/*.ts', 'code/**/*.{ts,tsx}'] },
+      totals: { lines: true },
+    });
+
+    expect(result.files).to.eql(2);
+    expect(result.lines).to.eql(4);
+    expect(result.source).to.eql({
+      include: ['code/**/*.ts', 'code/**/*.{ts,tsx}'],
+      exclude: [],
+    });
+  });
+
+  it('preserves physical line count semantics', async () => {
+    const fs = await Testing.dir('WorkspaceInfo.stats.line-semantics');
+
+    await Fs.write(fs.join('code/empty.ts'), '');
+    await Fs.write(fs.join('code/no-eof.ts'), 'a');
+    await Fs.write(fs.join('code/trailing.ts'), 'a\n');
+    await Fs.write(fs.join('code/multi.ts'), 'a\nb\n');
+
+    const result = await WorkspaceInfo.stats({
+      cwd: fs.dir,
+      source: { include: ['code/**/*.ts'] },
+      totals: { lines: true },
+    });
+
+    expect(result.files).to.eql(4);
+    expect(result.lines).to.eql(7);
+  });
+
   it('computes line totals when requested', async () => {
     const fs = await Testing.dir('WorkspaceInfo.stats.lines');
 
