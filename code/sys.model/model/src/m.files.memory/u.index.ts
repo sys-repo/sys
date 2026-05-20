@@ -4,37 +4,63 @@ import { fail } from './u.error.ts';
 import { fileNode, type MemoryNode } from './u.node.ts';
 import { absolutePath, visiblePath } from './u.path.ts';
 
+export type MemoryNodes = Map<t.StringAbsolutePath, MemoryNode>;
 export type MemoryIndex = ReadonlyMap<t.StringAbsolutePath, MemoryNode>;
 
-export const memoryIndex = (options: t.FilesMemory.ReadonlyOptions = {}): MemoryIndex => {
+export const memoryIndex = (options: t.FilesMemory.Options = {}): MemoryNodes => {
   assertOptions(options);
 
-  const nodes = new Map<t.StringAbsolutePath, MemoryNode>();
-  const putDirNode = (input: t.Files.StringPath) => putNode(nodes, input, { kind: 'dir' });
-  const putDir = (input: t.Files.StringPath) => {
-    const segments = input.split('/').filter(Boolean);
-    let current = '' as t.Files.StringPath;
-    putDirNode(current);
-
-    for (const segment of segments) {
-      current = (current ? `${current}/${segment}` : segment) as t.Files.StringPath;
-      putDirNode(current);
-    }
-  };
-
-  putDir('' as t.Files.StringPath);
-  for (const dir of options.dirs ?? []) putDir(visiblePath(dir));
-  for (const [name, file] of Object.entries(options.files ?? {})) {
-    const path = visiblePath(name);
-    if (path === '') throw fail('FilesMemoryError.InvalidPath', 'File path cannot be root');
-    putDir(FilesPath.parent(path));
-    putNode(nodes, path, fileNode(file));
-  }
+  const nodes: MemoryNodes = new Map<t.StringAbsolutePath, MemoryNode>();
+  putDir(nodes, '' as t.Files.StringPath);
+  for (const dir of options.dirs ?? []) putDir(nodes, dir);
+  for (const [name, file] of Object.entries(options.files ?? {})) putFile(nodes, name, file);
 
   return nodes;
 };
 
-function assertOptions(options: unknown): asserts options is t.FilesMemory.ReadonlyOptions {
+export function putDir(nodes: MemoryNodes, input: t.Files.StringPath) {
+  const path = visiblePath(input);
+  const segments = path.split('/').filter(Boolean);
+  let current = '' as t.Files.StringPath;
+  putNode(nodes, current, { kind: 'dir' });
+
+  for (const segment of segments) {
+    current = (current ? `${current}/${segment}` : segment) as t.Files.StringPath;
+    putNode(nodes, current, { kind: 'dir' });
+  }
+}
+
+export function putFile(
+  nodes: MemoryNodes,
+  input: t.Files.StringPath,
+  file: t.FilesSource.TextFileInput,
+): t.Files.StringPath {
+  const path = visiblePath(input);
+  if (path === '') throw fail('FilesMemoryError.InvalidPath', 'File path cannot be root');
+  putDir(nodes, FilesPath.parent(path));
+  putNode(nodes, path, fileNode(file));
+  return path;
+}
+
+export function removePath(
+  nodes: MemoryNodes,
+  input: t.Files.StringPath,
+): { readonly path: t.Files.StringPath; readonly node: MemoryNode } | undefined {
+  const path = visiblePath(input);
+  if (path === '') throw fail('FilesMemoryError.InvalidPath', 'Cannot remove memory root');
+
+  const absolute = absolutePath(path);
+  const node = nodes.get(absolute);
+  if (!node) return undefined;
+
+  const prefix = `${absolute}/`;
+  for (const entry of [...nodes.keys()]) {
+    if (entry === absolute || entry.startsWith(prefix)) nodes.delete(entry);
+  }
+  return { path, node };
+}
+
+function assertOptions(options: unknown): asserts options is t.FilesMemory.Options {
   if (!Is.plainObject(options)) {
     throw fail('FilesMemoryError.InvalidPath', 'Memory options must be a plain object');
   }

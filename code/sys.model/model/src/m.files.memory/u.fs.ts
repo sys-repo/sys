@@ -4,7 +4,7 @@ import { statFromNode } from './u.node.ts';
 import { path, ROOT } from './u.path.ts';
 
 /** Create a structural readonly filesystem capability from in-memory nodes. */
-export const memoryFs = (options: t.FilesMemory.ReadonlyOptions = {}) => {
+export const memoryFs = (options: t.FilesMemory.Options = {}) => {
   const nodes = memoryIndex(options);
 
   const fs: t.FilesFs.Capability.Readonly = {
@@ -41,5 +41,5 @@ export const memoryFs = (options: t.FilesMemory.ReadonlyOptions = {}) => {
     },
   };
 
-  return { fs, root: ROOT };
+  return { fs, root: ROOT, nodes };
 };

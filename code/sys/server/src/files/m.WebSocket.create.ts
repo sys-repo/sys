@@ -5,10 +5,10 @@ export const create: t.FilesServer.WebSocket.Lib['create'] = (options) => {
   const { files, status, ...server } = options;
 
   return WebSocketServer.create<
-    t.Files.Cmd.Name,
-    t.Files.Cmd.Payload,
-    t.Files.Cmd.Result,
-    t.Files.Cmd.Event
+    t.FilesCmd.Name,
+    t.FilesCmd.Payload,
+    t.FilesCmd.Result,
+    t.FilesCmd.Event
   >({
     ...server,
     path: server.path ?? D.path,
@@ -54,6 +54,6 @@ function filesDetails(files: t.FilesServer.Backing): readonly t.Service.Detail[]
 
 function activeCapabilities(
   capabilities: t.Files.Capabilities,
-): readonly t.Files.Capability.Name[] {
+): readonly t.FilesCapability.Name[] {
   return D.capabilities.filter((name) => capabilities[name]);
 }

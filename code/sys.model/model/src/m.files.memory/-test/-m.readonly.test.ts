@@ -108,7 +108,7 @@ describe('FilesMemory.readonly', () => {
       stat: allow,
       read: allow,
       manifest: true,
-    } satisfies t.Files.Policy.Shape;
+    } satisfies t.FilesPolicy.Shape;
     const { backing } = setup({ policy });
 
     allow.push('notes/**');
@@ -169,7 +169,7 @@ describe('FilesMemory.readonly', () => {
     await expectFilesMemoryError(
       () => {
         return FilesMemory.readonly({
-          files: { 'bad.txt': { content: 'nope', modified: 123 as never } },
+          files: { 'bad.txt': { content: 'nope', modifiedAt: 'nope' as never } },
         });
       },
       'FilesMemoryError.InvalidPath',

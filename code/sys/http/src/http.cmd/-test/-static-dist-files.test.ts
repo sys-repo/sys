@@ -1,5 +1,5 @@
 import { Files } from '@sys/model/files';
-import type { Files as FilesType } from '@sys/model/files/t';
+import type { Files as FilesType, FilesCmd } from '@sys/model/files/t';
 import { FilesStatic } from '@sys/model/files/static';
 import type { FilesStatic as FilesStaticType } from '@sys/model/files/static/t';
 import { describe, expect, it, Pkg, type t, Testing } from '../../-test.ts';
@@ -49,11 +49,11 @@ describe('HttpCmd + FilesStatic dist integration', () => {
 
     const origin = server.url.toURL().origin as t.StringUrl;
     const cmdUrl = `${origin}${ROUTE.cmd}` as t.StringUrl;
-    const client = HttpCmd.client<
-      FilesType.Cmd.Name,
-      FilesType.Cmd.Payload,
-      FilesType.Cmd.Result
-    >({ url: cmdUrl, ns: Files.Cmd.ns, timeout: 1_000 });
+    const client = HttpCmd.client<FilesCmd.Name, FilesCmd.Payload, FilesCmd.Result>({
+      url: cmdUrl,
+      ns: Files.Cmd.ns,
+      timeout: 1_000,
+    });
 
     try {
       const fetched = await Pkg.Dist.fetch({ origin });
@@ -181,7 +181,7 @@ function entryPaths(entries: readonly FilesType.Entry[]): readonly FilesType.Str
 
 async function expectRemoteCmdError(
   fn: () => Promise<unknown>,
-  name: FilesType.Cmd.Name,
+  name: FilesCmd.Name,
 ): Promise<t.Cmd.Error.Instance> {
   try {
     await fn();

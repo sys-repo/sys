@@ -37,7 +37,7 @@ describe('FilesFs.readonly: policy', () => {
       list: 'docs/**',
       stat: 'docs/**',
       read: 'docs/**',
-    } satisfies t.Files.Policy.Shape;
+    } satisfies t.FilesPolicy.Shape;
     const { backing } = setup({ policy });
 
     expect(await cmd.capabilities(backing)).to.eql({
@@ -104,7 +104,7 @@ describe('FilesFs.readonly: policy', () => {
       stat: allow,
       read: allow,
       manifest: true,
-    } satisfies t.Files.Policy.Shape;
+    } satisfies t.FilesPolicy.Shape;
     const { backing } = setup({ policy });
 
     allow.push('public/**');

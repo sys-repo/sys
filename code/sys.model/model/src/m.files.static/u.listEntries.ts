@@ -13,7 +13,7 @@ import { relativePath } from './u.path.ts';
 /** Traverse a static dist index and return visible list entries. */
 export const listEntries = (
   index: StaticIndex,
-  policy: t.Files.Policy.Shape,
+  policy: t.FilesPolicy.Shape,
   options: ListEntriesOptions,
 ): readonly t.Files.Entry[] => {
   const query = snapshotListOptions(options, invalidPath);

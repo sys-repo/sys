@@ -3,7 +3,7 @@
  */
 export type * from '@sys/types';
 export type * from '@sys/event/t';
-export type { Files } from '@sys/model/files/t';
+export type { Files, FilesCapability, FilesCmd } from '@sys/model/files/t';
 
 /**
  * @local

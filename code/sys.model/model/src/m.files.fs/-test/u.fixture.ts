@@ -9,7 +9,7 @@ export type FileNode = {
   readonly kind: 'file';
   readonly content: string;
   readonly size?: t.NumberBytes;
-  readonly modified?: t.StringIsoDate;
+  readonly modifiedAt?: t.UnixTimestamp;
   readonly hash?: t.StringHash;
   readonly mediaType?: t.StringMimeType;
 };
@@ -39,16 +39,16 @@ export type FsFixture = {
 
 export type SetupOptions = {
   readonly fs?: FsFixtureOptions;
-  readonly policy?: t.Files.Policy.Shape;
+  readonly policy?: t.FilesPolicy.Shape;
   readonly maxReadBytes?: t.NumberBytes;
   readonly defaultLimit?: t.Files.Limit;
 };
 
-export type ListPayloadInput = Omit<t.Files.Cmd.List.Payload, 'cursor'> & {
+export type ListPayloadInput = Omit<t.FilesCmd.List.Payload, 'cursor'> & {
   readonly cursor?: t.Files.StringCursor;
 };
 
-export type ReadPayloadInput = Omit<t.Files.Cmd.Read.Payload, 'encoding'> & {
+export type ReadPayloadInput = Omit<t.FilesCmd.Read.Payload, 'encoding'> & {
   readonly encoding?: string;
 };
 
@@ -57,19 +57,19 @@ export const allowDocsPolicy = {
   stat: 'docs/**',
   read: 'docs/**',
   manifest: true,
-} satisfies t.Files.Policy.Shape;
+} satisfies t.FilesPolicy.Shape;
 
 export const allowAllPolicy = {
   list: '**',
   stat: '**',
   read: '**',
   manifest: true,
-} satisfies t.Files.Policy.Shape;
+} satisfies t.FilesPolicy.Shape;
 
 export const denyPrivatePolicy = {
   ...allowDocsPolicy,
   deny: 'docs/private/**',
-} satisfies t.Files.Policy.Shape;
+} satisfies t.FilesPolicy.Shape;
 
 export const defaultNodes = {
   '/root': { kind: 'dir' },
@@ -172,40 +172,40 @@ export const cmd = {
 
   list(backing: t.FilesFs.Readonly, payload: ListPayloadInput = {}) {
     return backing.handlers['files:list'](
-      payload as t.Files.Cmd.List.Payload,
+      payload as t.FilesCmd.List.Payload,
       context('files:list'),
     );
   },
 
-  stat(backing: t.FilesFs.Readonly, payload: t.Files.Cmd.Stat.Payload) {
+  stat(backing: t.FilesFs.Readonly, payload: t.FilesCmd.Stat.Payload) {
     return backing.handlers['files:stat'](payload, context('files:stat'));
   },
 
   read(backing: t.FilesFs.Readonly, payload: ReadPayloadInput) {
     return backing.handlers['files:read'](
-      payload as t.Files.Cmd.Read.Payload,
+      payload as t.FilesCmd.Read.Payload,
       context('files:read'),
     );
   },
 
-  watch(backing: t.FilesFs.Readonly, payload: t.Files.Cmd.Watch.Payload = {}) {
+  watch(backing: t.FilesFs.Readonly, payload: t.FilesCmd.Watch.Payload = {}) {
     return backing.handlers['files:watch'](payload, context('files:watch'));
   },
 
-  manifest(backing: t.FilesFs.Readonly, payload: t.Files.Cmd.Manifest.Payload = {}) {
+  manifest(backing: t.FilesFs.Readonly, payload: t.FilesCmd.Manifest.Payload = {}) {
     return backing.handlers['files:manifest'](payload, context('files:manifest'));
   },
 };
 
-export function context<K extends t.Files.Cmd.Name>(
+export function context<K extends t.FilesCmd.Name>(
   name: K,
-): t.Cmd.Handler.Context<t.Files.Cmd.Name, t.Files.Cmd.Event, K> {
+): t.Cmd.Handler.Context<t.FilesCmd.Name, t.FilesCmd.Event, K> {
   const controller = new AbortController();
   return {
     id: 'req-files-fs-test' as t.Cmd.ReqId,
     name,
     signal: controller.signal,
-    emit(_event: t.Files.Cmd.Event[K]) {
+    emit(_event: t.FilesCmd.Event[K]) {
       return undefined;
     },
   };
@@ -236,7 +236,9 @@ function statFromNode(node: Node): t.FilesFs.Capability.Stat {
     isFile: node.kind === 'file',
     isDirectory: node.kind === 'dir',
     ...(node.kind === 'file' && node.size !== undefined ? { size: node.size } : {}),
-    ...(node.kind === 'file' && node.modified !== undefined ? { modified: node.modified } : {}),
+    ...(node.kind === 'file' && node.modifiedAt !== undefined
+      ? { modifiedAt: node.modifiedAt }
+      : {}),
     ...(node.kind === 'file' && node.hash !== undefined ? { hash: node.hash } : {}),
     ...(node.kind === 'file' && node.mediaType !== undefined ? { mediaType: node.mediaType } : {}),
   };

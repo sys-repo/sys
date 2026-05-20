@@ -12,10 +12,10 @@ export type { Page, PageArgs, PageInput };
 
 const invalidPath = (message: string): Error => fail('FilesFsError.InvalidPath', message);
 
-export const validatePageInput = <K extends t.Files.Cursor.Kind>(args: PageInput<K>): void => {
+export const validatePageInput = <K extends t.FilesCursor.Kind>(args: PageInput<K>): void => {
   validateFilesPageInput(args, invalidPath);
 };
 
-export const page = <K extends t.Files.Cursor.Kind, T>(args: PageArgs<K, T>): Page<T, K> => {
+export const page = <K extends t.FilesCursor.Kind, T>(args: PageArgs<K, T>): Page<T, K> => {
   return pageFiles(args, invalidPath);
 };

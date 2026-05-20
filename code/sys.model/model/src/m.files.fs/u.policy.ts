@@ -12,6 +12,6 @@ export { allowed, manifestAllowed };
 
 const invalidPath = (message: string): Error => fail('FilesFsError.InvalidPath', message);
 
-export const snapshotPolicy = (policy?: t.Files.Policy.Shape): t.Files.Policy.Shape => {
+export const snapshotPolicy = (policy?: t.FilesPolicy.Shape): t.FilesPolicy.Shape => {
   return snapshotFilesPolicy(policy, invalidPath);
 };

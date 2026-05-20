@@ -8,7 +8,7 @@ import type { Scope } from './u.path.ts';
 
 export type HandlerArgs = {
   readonly scope: Scope;
-  readonly policy: t.Files.Policy.Shape;
+  readonly policy: t.FilesPolicy.Shape;
   readonly capabilities: t.Files.Capabilities;
   readonly maxReadBytes?: t.NumberBytes;
   readonly defaultLimit: t.Files.Limit;
@@ -17,7 +17,7 @@ export type HandlerArgs = {
 /**
  * Build the Files Cmd handler map for a readonly files/fs backing.
  */
-export const handlers = (args: HandlerArgs): t.Files.Cmd.HandlerMap => {
+export const handlers = (args: HandlerArgs): t.FilesCmd.HandlerMap => {
   return Object.freeze({
     'files:capabilities': () => args.capabilities,
     'files:list': async (payload) => list(args.scope, args.policy, payload, args.defaultLimit),

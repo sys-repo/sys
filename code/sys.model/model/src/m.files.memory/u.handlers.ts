@@ -2,9 +2,9 @@ import { type t } from './common.ts';
 import { translate } from './u.error.ts';
 
 export const handlers = (
-  base: t.Files.Cmd.HandlerMap,
+  base: t.FilesCmd.HandlerMap,
   capabilities: t.Files.Capabilities,
-): t.Files.Cmd.HandlerMap => {
+): t.FilesCmd.HandlerMap => {
   return Object.freeze({
     'files:capabilities'() {
       return capabilities;

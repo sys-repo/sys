@@ -6,9 +6,9 @@ export type PolicyAction = 'list' | 'stat' | 'read' | 'watch';
 
 /** Snapshot a Files policy so caller mutation cannot widen authority. */
 export const snapshotPolicy = (
-  policy: t.Files.Policy.Shape | undefined,
+  policy: t.FilesPolicy.Shape | undefined,
   invalid: FilesInvalid,
-): t.Files.Policy.Shape => {
+): t.FilesPolicy.Shape => {
   const input = policy === undefined ? {} : policy;
   if (!Is.plainObject(input)) throw invalid('Invalid Files policy');
   if (input.manifest !== undefined && !Is.bool(input.manifest)) {
@@ -28,7 +28,7 @@ export const snapshotPolicy = (
 
 /** True when a policy allows the action for the visible Files path. */
 export const allowed = (
-  policy: t.Files.Policy.Shape,
+  policy: t.FilesPolicy.Shape,
   action: PolicyAction,
   path: t.Files.StringPath,
 ): boolean => {
@@ -38,7 +38,7 @@ export const allowed = (
 
 /** True when a policy allows manifest projection for the visible Files path. */
 export const manifestAllowed = (
-  policy: t.Files.Policy.Shape,
+  policy: t.FilesPolicy.Shape,
   path: t.Files.StringPath,
 ): boolean => {
   if (Glob.matches(policy.deny, path)) return false;

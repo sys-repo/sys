@@ -10,16 +10,16 @@ export declare namespace FilesServer {
     readonly WebSocket: WebSocket.Lib;
   };
 
-  /** Structural readonly Files backing accepted by server facades. */
-  export type Backing = {
-    /** Optional owner-local backing kind, surfaced only as service metadata. */
-    readonly kind?: string;
+  /** Structural Files Cmd backing accepted by server facades. */
+  export type Backing<K extends string = string> = {
+    /** Backing kind, when surfaced as owner-local metadata. */
+    readonly kind?: K;
 
     /** Capability facts for the bounded Files view. */
     readonly capabilities: t.Files.Capabilities;
 
     /** Canonical Files Cmd handlers. */
-    readonly handlers: t.Files.Cmd.HandlerMap;
+    readonly handlers: t.FilesCmd.HandlerMap;
   };
 
   /** WebSocket service facade. */
@@ -33,10 +33,10 @@ export declare namespace FilesServer {
     /** Base WebSocket options accepted by the Files facade. */
     export type WebSocketOptions = Omit<
       t.WebSocketServer.CreateOptions<
-        t.Files.Cmd.Name,
-        t.Files.Cmd.Payload,
-        t.Files.Cmd.Result,
-        t.Files.Cmd.Event
+        t.FilesCmd.Name,
+        t.FilesCmd.Payload,
+        t.FilesCmd.Result,
+        t.FilesCmd.Event
       >,
       'cmd' | 'status'
     >;

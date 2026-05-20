@@ -5,7 +5,7 @@ import { memoryFs } from './u.fs.ts';
 import { handlers } from './u.handlers.ts';
 
 /**
- * Create a bounded readonly Files backing from an in-memory file map.
+ * Create a bounded readonly Files backing from an in-memory source tree.
  */
 export const createReadonly: t.FilesMemory.Lib['readonly'] = (options = {}) => {
   try {

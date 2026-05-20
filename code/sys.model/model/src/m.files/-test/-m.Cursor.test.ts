@@ -8,7 +8,7 @@ describe('Files.Cursor', () => {
     expect(Cursor.prefix).to.eql('files:cursor');
     expect(Cursor.version).to.eql('v1');
     expect(Cursor.Kind).to.eql({ list: 'list', watch: 'watch', manifest: 'manifest' });
-    expectTypeOf(Cursor).toEqualTypeOf<t.Files.Cursor.Lib>();
+    expectTypeOf(Cursor).toEqualTypeOf<t.FilesCursor.Lib>();
   });
 
   it('create: returns versioned scoped cursor strings', () => {
@@ -20,16 +20,16 @@ describe('Files.Cursor', () => {
     expect(watch).to.eql('files:cursor:watch:v1:seq-20');
     expect(manifest).to.eql('files:cursor:manifest:v1:page-2');
 
-    expectTypeOf(list).toEqualTypeOf<t.Files.Cursor.List>();
-    expectTypeOf(watch).toEqualTypeOf<t.Files.Cursor.Watch>();
-    expectTypeOf(manifest).toEqualTypeOf<t.Files.Cursor.Manifest>();
+    expectTypeOf(list).toEqualTypeOf<t.FilesCursor.List>();
+    expectTypeOf(watch).toEqualTypeOf<t.FilesCursor.Watch>();
+    expectTypeOf(manifest).toEqualTypeOf<t.FilesCursor.Manifest>();
   });
 
   it('create: rejects invalid runtime tokens', () => {
     expect(() => Cursor.create('list', '')).to.throw(
       'Files cursor token must be a non-empty string',
     );
-    expect(() => Cursor.create('missing' as t.Files.Cursor.Kind, 'page-1')).to.throw(
+    expect(() => Cursor.create('missing' as t.FilesCursor.Kind, 'page-1')).to.throw(
       'Invalid Files cursor kind: missing',
     );
   });
@@ -47,8 +47,8 @@ describe('Files.Cursor', () => {
     });
 
     if (parsed) {
-      expectTypeOf(parsed).toMatchTypeOf<t.Files.Cursor.Parsed>();
-      if (parsed.kind === 'list') expectTypeOf(parsed.value).toEqualTypeOf<t.Files.Cursor.List>();
+      expectTypeOf(parsed).toMatchTypeOf<t.FilesCursor.Parsed>();
+      if (parsed.kind === 'list') expectTypeOf(parsed.value).toEqualTypeOf<t.FilesCursor.List>();
       expect(parsed.value).to.eql(cursor);
     }
   });
@@ -80,10 +80,10 @@ describe('Files.Cursor', () => {
     expect(Cursor.Is.kind('list', list)).to.eql(true);
     expect(Cursor.Is.kind('manifest', list)).to.eql(false);
 
-    if (Cursor.Is.list(list)) expectTypeOf(list).toEqualTypeOf<t.Files.Cursor.List>();
-    if (Cursor.Is.watch(watch)) expectTypeOf(watch).toEqualTypeOf<t.Files.Cursor.Watch>();
+    if (Cursor.Is.list(list)) expectTypeOf(list).toEqualTypeOf<t.FilesCursor.List>();
+    if (Cursor.Is.watch(watch)) expectTypeOf(watch).toEqualTypeOf<t.FilesCursor.Watch>();
     if (Cursor.Is.manifest(manifest)) {
-      expectTypeOf(manifest).toEqualTypeOf<t.Files.Cursor.Manifest>();
+      expectTypeOf(manifest).toEqualTypeOf<t.FilesCursor.Manifest>();
     }
   });
 });

@@ -169,7 +169,7 @@ describe('FilesStatic.fromDist', () => {
       stat: '**',
       read: 'foo.json',
       manifest: true,
-    } satisfies t.Files.Policy.Shape;
+    } satisfies t.FilesPolicy.Shape;
     const { backing } = setup({ policy });
 
     const manifest = await cmd.manifest(backing, { content: true });

@@ -17,7 +17,7 @@ export const DEFAULTS = {
     'read',
     'watch',
     'manifest',
-  ] as const satisfies readonly t.Files.Capability.Name[],
+  ] as const satisfies readonly t.FilesCapability.Name[],
 } as const;
 
 /** Short local alias for module defaults. */

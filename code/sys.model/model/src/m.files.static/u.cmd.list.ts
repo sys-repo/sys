@@ -8,10 +8,10 @@ import { visiblePath } from './u.path.ts';
 /** Implementation of the `files:list` command for static dist metadata. */
 export const list = (
   index: StaticIndex,
-  policy: t.Files.Policy.Shape,
-  payload: t.Files.Cmd.List.Payload,
+  policy: t.FilesPolicy.Shape,
+  payload: t.FilesCmd.List.Payload,
   defaultLimit: t.Files.Limit,
-): t.Files.Cmd.List.Result => {
+): t.FilesCmd.List.Result => {
   const path = visiblePath(payload.path);
   validatePageInput({
     kind: 'list',

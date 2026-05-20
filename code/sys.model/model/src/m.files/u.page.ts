@@ -3,25 +3,25 @@ import { Cursor } from './m.Cursor.ts';
 
 export type FilesInvalid = (message: string) => Error;
 
-export type PageInput<K extends t.Files.Cursor.Kind> = {
+export type PageInput<K extends t.FilesCursor.Kind> = {
   readonly kind: K;
   readonly cursor?: t.Files.StringCursor<K>;
   readonly limit?: t.Files.Limit;
   readonly defaultLimit: t.Files.Limit;
 };
 
-export type PageArgs<K extends t.Files.Cursor.Kind, T> = PageInput<K> & {
+export type PageArgs<K extends t.FilesCursor.Kind, T> = PageInput<K> & {
   readonly items: readonly T[];
 };
 
-export type Page<T, K extends t.Files.Cursor.Kind> = {
+export type Page<T, K extends t.FilesCursor.Kind> = {
   readonly items: readonly T[];
   readonly cursor?: t.Files.StringCursor<K>;
   readonly truncated?: boolean;
 };
 
 /** Validate shared Files page/cursor input. */
-export const validatePageInput = <K extends t.Files.Cursor.Kind>(
+export const validatePageInput = <K extends t.FilesCursor.Kind>(
   args: PageInput<K>,
   invalid: FilesInvalid,
 ): void => {
@@ -30,7 +30,7 @@ export const validatePageInput = <K extends t.Files.Cursor.Kind>(
 };
 
 /** Page a deterministic Files item list. */
-export const page = <K extends t.Files.Cursor.Kind, T>(
+export const page = <K extends t.FilesCursor.Kind, T>(
   args: PageArgs<K, T>,
   invalid: FilesInvalid,
 ): Page<T, K> => {
@@ -61,7 +61,7 @@ const pageLimit = (
   return value;
 };
 
-const offsetFromCursor = <K extends t.Files.Cursor.Kind>(
+const offsetFromCursor = <K extends t.FilesCursor.Kind>(
   kind: K,
   cursor: t.Files.StringCursor<K> | undefined,
   invalid: FilesInvalid,

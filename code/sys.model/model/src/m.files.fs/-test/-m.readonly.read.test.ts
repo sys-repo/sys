@@ -65,7 +65,7 @@ describe('FilesFs.readonly: read', () => {
     const { backing, calls } = setup({ policy: allowDocsPolicy });
 
     await expectFilesFsError(
-      () => cmd.read(backing, {} as t.Files.Cmd.Read.Payload),
+      () => cmd.read(backing, {} as t.FilesCmd.Read.Payload),
       'FilesFsError.InvalidPath',
     );
     expect(calls.stat).to.eql(0);

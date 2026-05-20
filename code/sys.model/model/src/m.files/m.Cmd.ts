@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /** Files Cmd grammar names and namespace. */
-export const Cmd: t.Files.Cmd.Lib = {
+export const Cmd: t.FilesCmd.Lib = {
   ns: 'sys.files',
   Name: {
     capabilities: 'files:capabilities',

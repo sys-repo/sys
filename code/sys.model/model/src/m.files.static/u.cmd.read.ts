@@ -7,9 +7,9 @@ import { requiredVisiblePath } from './u.path.ts';
 /** Implementation of the `files:read` command for static dist metadata. */
 export const read = (
   index: StaticIndex,
-  policy: t.Files.Policy.Shape,
-  payload: t.Files.Cmd.Read.Payload,
-): t.Files.Cmd.Read.Result => {
+  policy: t.FilesPolicy.Shape,
+  payload: t.FilesCmd.Read.Payload,
+): t.FilesCmd.Read.Result => {
   const path = requiredVisiblePath(payload.path);
   if (!allowed(policy, 'read', path)) {
     throw fail('FilesStaticError.PolicyDenied', `Read denied: ${path}`);

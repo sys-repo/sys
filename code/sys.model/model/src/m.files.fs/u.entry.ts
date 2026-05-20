@@ -13,7 +13,7 @@ export const entryFromStat = (
   const base = {
     path,
     kind,
-    ...(stat.modified === undefined ? {} : { modified: stat.modified }),
+    ...(stat.modifiedAt === undefined ? {} : { modifiedAt: stat.modifiedAt }),
     ...(stat.hash === undefined ? {} : { hash: stat.hash }),
   };
 

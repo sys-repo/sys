@@ -23,7 +23,7 @@ const invalidPath = (message: string): Error => fail('FilesFsError.InvalidPath',
  */
 export const listEntries = async (
   scope: Scope,
-  policy: t.Files.Policy.Shape,
+  policy: t.FilesPolicy.Shape,
   options: ListEntriesOptions,
 ): Promise<readonly t.Files.Entry[]> => {
   const query = snapshotListOptions(options, invalidPath);

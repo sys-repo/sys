@@ -39,14 +39,14 @@ export async function setupFixture(): Promise<Fixture> {
   };
 }
 
-export function context<K extends TModel.Files.Cmd.Name>(
+export function context<K extends TModel.FilesCmd.Name>(
   name: K,
-): TCmd.Handler.Context<TModel.Files.Cmd.Name, TModel.Files.Cmd.Event, K> {
+): TCmd.Handler.Context<TModel.FilesCmd.Name, TModel.FilesCmd.Event, K> {
   return {
     id: 'req-files-fs-bridge-test' as TCmd.ReqId,
     name,
     signal: new AbortController().signal,
-    emit(_event: TModel.Files.Cmd.Event[K]) {
+    emit(_event: TModel.FilesCmd.Event[K]) {
       return undefined;
     },
   };

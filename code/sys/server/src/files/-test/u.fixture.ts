@@ -1,6 +1,6 @@
 import { Cmd, expect, Net, type t } from '../../-test.ts';
 import { Files } from '@sys/model/files';
-import type { Files as FilesType } from '@sys/model/files/t';
+import type { Files as FilesType, FilesCmd } from '@sys/model/files/t';
 
 /** Shared fixtures for Files server contract tests. */
 export const Fixture = {
@@ -19,10 +19,10 @@ async function connect(url: t.StringUrl): Promise<Connected> {
 
   await Net.waitFor(ws);
   const cmd = Cmd.make<
-    FilesType.Cmd.Name,
-    FilesType.Cmd.Payload,
-    FilesType.Cmd.Result,
-    FilesType.Cmd.Event
+    FilesCmd.Name,
+    FilesCmd.Payload,
+    FilesCmd.Result,
+    FilesCmd.Event
   >({ ns: Files.Cmd.ns });
   const client = cmd.client(Cmd.Transport.fromWebSocket(ws), { timeout: 1_000 });
 
@@ -47,11 +47,11 @@ function detail(status: t.Service.Status, label: string): string | undefined {
   return status.details?.find((item) => item.label === label)?.value;
 }
 
-function direct<K extends FilesType.Cmd.Name>(
-  backing: { readonly handlers: FilesType.Cmd.HandlerMap },
+function direct<K extends FilesCmd.Name>(
+  backing: { readonly handlers: FilesCmd.HandlerMap },
   name: K,
-  payload: FilesType.Cmd.Payload[K],
-): Promise<FilesType.Cmd.Result[K]> {
+  payload: FilesCmd.Payload[K],
+): Promise<FilesCmd.Result[K]> {
   const controller = new AbortController();
   const context = {
     id: 'req-direct' as t.Cmd.ReqId,
@@ -63,13 +63,13 @@ function direct<K extends FilesType.Cmd.Name>(
     },
   };
   const result = backing.handlers[name](payload, context as never);
-  return Promise.resolve(result as FilesType.Cmd.Result[K]);
+  return Promise.resolve(result as FilesCmd.Result[K]);
 }
 
 function expectCmdError(
   input: unknown,
   kind: t.Cmd.Error.Kind,
-  name: FilesType.Cmd.Name,
+  name: FilesCmd.Name,
 ): t.Cmd.Error.Instance {
   expect(Cmd.Is.error(input)).to.eql(true);
   const error = input as t.Cmd.Error.Instance;

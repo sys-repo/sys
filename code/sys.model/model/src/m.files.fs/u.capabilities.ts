@@ -2,7 +2,7 @@ import { D, Num, type t } from './common.ts';
 import { fail } from './u.error.ts';
 
 export type ReadonlyCapabilitiesArgs = {
-  readonly policy: t.Files.Policy.Shape;
+  readonly policy: t.FilesPolicy.Shape;
   readonly maxReadBytes?: t.NumberBytes;
 };
 

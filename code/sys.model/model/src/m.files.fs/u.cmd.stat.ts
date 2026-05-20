@@ -9,9 +9,9 @@ import { absolutePath, assertRealInside, requiredVisiblePath, type Scope } from 
  */
 export const stat = async (
   scope: Scope,
-  policy: t.Files.Policy.Shape,
-  payload: t.Files.Cmd.Stat.Payload,
-): Promise<t.Files.Cmd.Stat.Result> => {
+  policy: t.FilesPolicy.Shape,
+  payload: t.FilesCmd.Stat.Payload,
+): Promise<t.FilesCmd.Stat.Result> => {
   const path = requiredVisiblePath(scope.fs, payload.path);
   if (!allowed(policy, 'stat', path)) {
     throw fail('FilesFsError.PolicyDenied', `Stat denied: ${path}`);

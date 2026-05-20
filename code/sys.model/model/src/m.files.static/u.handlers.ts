@@ -8,13 +8,13 @@ import type { StaticIndex } from './u.index.ts';
 
 export type HandlerArgs = {
   readonly index: StaticIndex;
-  readonly policy: t.Files.Policy.Shape;
+  readonly policy: t.FilesPolicy.Shape;
   readonly capabilities: t.Files.Capabilities;
   readonly defaultLimit: t.Files.Limit;
 };
 
 /** Build the Files Cmd handler map for a static dist backing. */
-export const handlers = (args: HandlerArgs): t.Files.Cmd.HandlerMap => {
+export const handlers = (args: HandlerArgs): t.FilesCmd.HandlerMap => {
   return Object.freeze({
     'files:capabilities': () => args.capabilities,
     'files:list': (payload) => list(args.index, args.policy, payload, args.defaultLimit),

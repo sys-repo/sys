@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+import type { FilesBacking } from '../m.files/t/t.backing.ts';
 
 /**
  * Readonly filesystem-shaped backing adapter for the Files model.
@@ -11,30 +12,19 @@ export declare namespace FilesFs {
   };
 
   /** Bounded readonly Files backing. */
-  export type Readonly = {
-    readonly kind: 'files/fs:readonly';
-    readonly policy: t.Files.Policy.Shape;
-    readonly capabilities: t.Files.Capabilities;
-    readonly handlers: t.Files.Cmd.HandlerMap;
-  };
+  export type Readonly = FilesBacking.Runtime<'files/fs:readonly'>;
 
   /** Options for creating a readonly Files backing. */
-  export type ReadonlyOptions = {
-    /** Structural filesystem capability. */
-    readonly fs: Capability.Readonly;
+  export type ReadonlyOptions =
+    & FilesBacking.Options
+    & FilesBacking.InlineReadOptions
+    & {
+      /** Structural filesystem capability. */
+      readonly fs: Capability.Readonly;
 
-    /** Host/backing root. Never exposed through Files results. */
-    readonly root: t.StringPath;
-
-    /** Files access policy. Defaults to deny-all. */
-    readonly policy?: t.Files.Policy.Shape;
-
-    /** Maximum bytes returned by `files:read`. */
-    readonly maxReadBytes?: t.NumberBytes;
-
-    /** Default page size for list/manifest results. */
-    readonly defaultLimit?: t.NumberTotal;
-  };
+      /** Host/backing root. Never exposed through Files results. */
+      readonly root: t.StringPath;
+    };
 
   /** Structural capabilities required by the readonly Files backing. */
   export namespace Capability {
@@ -70,19 +60,19 @@ export declare namespace FilesFs {
     };
 
     export type Stat = {
-      readonly kind?: t.Files.Entry.Kind;
+      readonly kind?: t.FilesEntry.Kind;
       readonly isFile?: boolean;
       readonly isDirectory?: boolean;
       readonly isSymlink?: boolean;
       readonly size?: t.NumberBytes;
-      readonly modified?: t.StringIsoDate;
+      readonly modifiedAt?: t.UnixTimestamp;
       readonly hash?: t.StringHash;
       readonly mediaType?: t.StringMimeType;
     };
 
     export type WalkEntry = {
       readonly path: t.StringPath;
-      readonly kind?: t.Files.Entry.Kind;
+      readonly kind?: t.FilesEntry.Kind;
       readonly isFile?: boolean;
       readonly isDirectory?: boolean;
       readonly stat?: Stat;
@@ -91,6 +81,6 @@ export declare namespace FilesFs {
 
   /** Files/fs error surface. */
   export namespace Error {
-    export type Kind = `FilesFsError.${t.Files.Error.KindSuffix}`;
+    export type Kind = `FilesFsError.${t.FilesError.KindSuffix}`;
   }
 }

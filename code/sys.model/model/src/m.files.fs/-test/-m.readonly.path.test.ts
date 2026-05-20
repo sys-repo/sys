@@ -119,7 +119,7 @@ describe('FilesFs.readonly: path safety', () => {
     const { backing } = setup({ policy: allowAllPolicy });
 
     await expectFilesFsError(
-      () => cmd.stat(backing, {} as t.Files.Cmd.Stat.Payload),
+      () => cmd.stat(backing, {} as t.FilesCmd.Stat.Payload),
       'FilesFsError.InvalidPath',
     );
   });
