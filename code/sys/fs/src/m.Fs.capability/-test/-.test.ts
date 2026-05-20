@@ -20,9 +20,10 @@ describe(`FS: Capability`, () => {
       expect('tildeExpand' in cap).to.eql(false);
     });
 
-    it('Files.toReadonly', () => {
+    it('Files adapters', () => {
       expect(FsCapability.Files).to.equal(Fs.Capability.Files);
       expect(FsCapability.Files.toReadonly).to.equal(Fs.Capability.Files.toReadonly);
+      expect(FsCapability.Files.toLive).to.equal(Fs.Capability.Files.toLive);
       expectTypeOf(FsCapability.Files).toEqualTypeOf<t.FsCapability.Files.Lib>();
       expect('toFilesFsReadonly' in FsCapability).to.eql(false);
     });

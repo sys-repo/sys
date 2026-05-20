@@ -12,6 +12,9 @@ export namespace FsCapability {
     export type Lib = {
       /** Adapt `@sys/fs` into a structural readonly Files backing capability. */
       readonly toReadonly: (fs: t.Fs.Lib) => Readonly;
+
+      /** Adapt `@sys/fs` into a structural live Files backing capability. */
+      readonly toLive: (fs: t.Fs.Lib) => Live;
     };
 
     /** Structural readonly filesystem capability compatible with `@sys/model/files/fs`. */
@@ -33,6 +36,47 @@ export namespace FsCapability {
         path: t.StringPath,
       ) => t.Awaitable<Iterable<WalkEntry> | AsyncIterable<WalkEntry>>;
     };
+
+    /** Structural live filesystem capability compatible with `@sys/model/files/fs`. */
+    export type Live = Readonly & {
+      /** Watch backing paths for filesystem changes. */
+      readonly watch: Watch;
+    };
+
+    /** Start a backing filesystem watcher. */
+    export type Watch = (path: t.StringPath, options?: WatchOptions) => t.Awaitable<Watcher>;
+
+    /** Options passed to the structural watch capability. */
+    export type WatchOptions = {
+      readonly recursive?: boolean;
+    };
+
+    /** Live backing filesystem watcher. */
+    export type Watcher = t.DisposableLike & {
+      readonly $: WatchObservable;
+      readonly paths: readonly t.StringPath[];
+      readonly exists: boolean;
+      readonly error?: t.StdError;
+    };
+
+    /** Minimal observable shape consumed by the model adapter. */
+    export type WatchObservable = {
+      readonly subscribe: (next: (event: WatchEvent) => void) => WatchSubscription;
+    };
+
+    /** Minimal subscription shape consumed by the model adapter. */
+    export type WatchSubscription = {
+      readonly unsubscribe: () => void;
+    };
+
+    /** Minimal filesystem watch event shape consumed by the model adapter. */
+    export type WatchEvent = {
+      readonly kind: WatchEventKind;
+      readonly paths: readonly t.StringPath[];
+    };
+
+    /** Filesystem watch event kinds understood by the model adapter. */
+    export type WatchEventKind = 'any' | 'access' | 'create' | 'modify' | 'remove' | 'other';
 
     /** Path operations required by the readonly Files capability. */
     export type Path = {
