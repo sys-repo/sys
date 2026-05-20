@@ -26,6 +26,10 @@ export type FsCalls = {
   stat: number;
   readText: number;
   walk: number;
+  lstat: number;
+  ensureDir: number;
+  writeFileAtomic: number;
+  removeEntry: number;
 };
 
 export type FsFixture = {
@@ -35,11 +39,19 @@ export type FsFixture = {
   readonly calls: FsCalls;
 };
 
+export type WritableFsFixture = Omit<FsFixture, 'fs'> & {
+  readonly fs: t.FilesFs.Capability.Writable;
+};
+
 export type SetupOptions = {
   readonly fs?: FsFixtureOptions;
   readonly policy?: t.FilesPolicy.Shape;
   readonly maxReadBytes?: t.NumberBytes;
   readonly defaultLimit?: t.Files.Limit;
+};
+
+export type SetupWritableOptions = SetupOptions & {
+  readonly maxWriteBytes?: t.NumberBytes;
 };
 
 export type ListPayloadInput = Omit<t.FilesCmd.List.Payload, 'cursor'> & {
@@ -99,7 +111,16 @@ export function file(content: string, mediaType?: t.StringMimeType): FileNode {
 export function fsFixture(options: FsFixtureOptions = {}): FsFixture {
   const nodes: NodeMap = { ...defaultNodes, ...options.nodes };
   const realPaths = options.realPaths ?? {};
-  const calls: FsCalls = { realPath: 0, stat: 0, readText: 0, walk: 0 };
+  const calls: FsCalls = {
+    realPath: 0,
+    stat: 0,
+    readText: 0,
+    walk: 0,
+    lstat: 0,
+    ensureDir: 0,
+    writeFileAtomic: 0,
+    removeEntry: 0,
+  };
 
   const fs: t.FilesFs.Capability.Readonly = {
     Path,
@@ -149,6 +170,75 @@ export function setup(options: SetupOptions = {}) {
     root: fixture.root,
     ...(options.policy === undefined ? {} : { policy: options.policy }),
     ...(options.maxReadBytes === undefined ? {} : { maxReadBytes: options.maxReadBytes }),
+    ...(options.defaultLimit === undefined ? {} : { defaultLimit: options.defaultLimit }),
+  });
+  return { ...fixture, backing };
+}
+
+export function writableFsFixture(options: FsFixtureOptions = {}): WritableFsFixture {
+  const fixture = fsFixture(options);
+  const realPaths = options.realPaths ?? {};
+  const fs: t.FilesFs.Capability.Writable = {
+    ...fixture.fs,
+
+    lstat(input) {
+      fixture.calls.lstat++;
+      const absolute = Path.resolve(input);
+      const real = realPaths[absolute];
+      if (real !== undefined && real !== absolute) return { isSymlink: true };
+      const node = fixture.nodes[absolute];
+      return node ? statFromNode(node) : undefined;
+    },
+
+    async ensureDir(input) {
+      fixture.calls.ensureDir++;
+      const absolute = Path.resolve(input);
+      const relative = Path.relative(ROOT, absolute).replaceAll('\\', '/');
+      if (relative === '' || relative === '.') return;
+      let current = ROOT;
+      for (const segment of relative.split('/').filter(Boolean)) {
+        current = Path.join(current, segment) as t.StringAbsolutePath;
+        const node = fixture.nodes[current];
+        if (node?.kind === 'file') throw new Error(`Not a directory: ${current}`);
+        fixture.nodes[current] = { kind: 'dir' };
+      }
+    },
+
+    writeFileAtomic(input, content, options = {}) {
+      fixture.calls.writeFileAtomic++;
+      const absolute = Path.resolve(input);
+      fixture.nodes[absolute] = file(
+        new TextDecoder().decode(content),
+        options.mediaType,
+      );
+    },
+
+    removeEntry(input) {
+      fixture.calls.removeEntry++;
+      const absolute = Path.resolve(input);
+      const node = fixture.nodes[absolute];
+      if (!node) throw new Error(`Path not found: ${absolute}`);
+      if (node.kind === 'dir') {
+        const prefix = `${absolute}/`;
+        if (Object.keys(fixture.nodes).some((path) => path.startsWith(prefix))) {
+          throw new Error(`Directory not empty: ${absolute}`);
+        }
+      }
+      delete fixture.nodes[absolute];
+    },
+  };
+
+  return { ...fixture, fs };
+}
+
+export function setupWritable(options: SetupWritableOptions = {}) {
+  const fixture = writableFsFixture(options.fs);
+  const backing = FilesFs.Writable.create({
+    fs: fixture.fs,
+    root: fixture.root,
+    ...(options.policy === undefined ? {} : { policy: options.policy }),
+    ...(options.maxReadBytes === undefined ? {} : { maxReadBytes: options.maxReadBytes }),
+    ...(options.maxWriteBytes === undefined ? {} : { maxWriteBytes: options.maxWriteBytes }),
     ...(options.defaultLimit === undefined ? {} : { defaultLimit: options.defaultLimit }),
   });
   return { ...fixture, backing };
