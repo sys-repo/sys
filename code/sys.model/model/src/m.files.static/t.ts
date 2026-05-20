@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 import type { Runtime } from '../m.files/t/t.u.runtime.ts';
-import type { Error as TError } from '../m.files/t/t.error.ts';
+import type { Error as TError } from '../m.files/t/t.u.error.ts';
 
 /**
  * Static `dist.json` backing adapter for the Files model.

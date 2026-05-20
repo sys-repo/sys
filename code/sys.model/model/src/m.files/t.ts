@@ -72,7 +72,7 @@ export declare namespace Files {
   export type ContentRef = FilesContentRef.ContentRef;
 
   /** Read-oriented capability name for a bounded Files view. */
-  export type Capability = FilesCapability.Capability;
+  export type Capability = FilesCapability.Name;
 
   /** Capability facts for a bounded Files view. */
   export type Capabilities = FilesCapability.Capabilities;

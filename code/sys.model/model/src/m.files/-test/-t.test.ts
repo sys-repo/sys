@@ -5,7 +5,7 @@ import type {
   FilesCursor as TFilesCursor,
   FilesEntry as TFilesEntry,
 } from '@sys/model/files/t';
-import type { Error as TError } from '../t/t.error.ts';
+import type { Error as TError } from '../t/t.u.error.ts';
 
 const capabilities: t.Files.Capabilities = {
   list: true,

@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 import type { Runtime } from '../m.files/t/t.u.runtime.ts';
-import type { Error as TError } from '../m.files/t/t.error.ts';
+import type { Error as TError } from '../m.files/t/t.u.error.ts';
 
 /**
  * In-memory backing adapters for the Files model.
@@ -10,10 +10,12 @@ export declare namespace FilesMemory {
   export type Lib = {
     /** Create a bounded readonly Files backing from an in-memory source tree. */
     readonly readonly: (options?: Options) => Readonly;
+
   };
 
   /** Bounded readonly in-memory Files backing. */
   export type Readonly = Runtime.Shape<'files/memory:readonly'>;
+
 
   /** Options for creating an in-memory Files backing. */
   export type Options =
