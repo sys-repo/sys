@@ -1,4 +1,4 @@
-import { Cmd, expect, Net, type t } from '../../-test.ts';
+import { Cmd, expect, Net, type t, Time } from '../../-test.ts';
 import { Files } from '@sys/model/files';
 import type { Files as FilesType, FilesCmd } from '@sys/model/files/t';
 
@@ -8,12 +8,13 @@ export const Fixture = {
   detail,
   direct,
   expectCmdError,
+  waitFor,
 } as const;
 
 /**
  * Helpers:
  */
-async function connect(url: t.StringUrl): Promise<Connected> {
+async function connect(url: t.StringUrl, options: ConnectOptions = {}): Promise<Connected> {
   const ws = new WebSocket(url);
   const closed = waitForClose(ws);
 
@@ -24,7 +25,7 @@ async function connect(url: t.StringUrl): Promise<Connected> {
     FilesCmd.Result,
     FilesCmd.Event
   >({ ns: Files.Cmd.ns });
-  const client = cmd.client(Cmd.Transport.fromWebSocket(ws), { timeout: 1_000 });
+  const client = cmd.client(Cmd.Transport.fromWebSocket(ws), clientOptions(options));
 
   return {
     ws,
@@ -37,11 +38,40 @@ async function connect(url: t.StringUrl): Promise<Connected> {
   };
 }
 
+type ConnectOptions = {
+  /** Per-command timeout in milliseconds. Use `false` for intentionally long-lived streams. */
+  readonly timeout?: number | false;
+};
+
 type Connected = {
   readonly ws: WebSocket;
   readonly client: FilesType.Client;
   close(): Promise<void>;
 };
+
+type WaitForOptions = {
+  readonly timeout?: number;
+  readonly interval?: number;
+  readonly message?: string;
+};
+
+function clientOptions(options: ConnectOptions): t.Cmd.Client.Options {
+  if (options.timeout === false) return {};
+  return { timeout: options.timeout ?? 1_000 };
+}
+
+async function waitFor(fn: () => boolean, options: WaitForOptions = {}): Promise<void> {
+  const timeout = options.timeout ?? 1_200;
+  const interval = options.interval ?? 20;
+  const startedAt = Date.now();
+
+  while (Date.now() - startedAt < timeout) {
+    if (fn()) return;
+    await Time.wait(interval);
+  }
+
+  throw new Error(options.message ?? `Timed out waiting for Files server test condition.`);
+}
 
 function detail(status: t.Service.Status, label: string): string | undefined {
   return status.details?.find((item) => item.label === label)?.value;
