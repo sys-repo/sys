@@ -13,6 +13,13 @@ import {
   setup,
 } from './u.fixture.ts';
 
+const STATIC_SUPPORTS = {
+  list: true,
+  stat: true,
+  read: true,
+  manifest: true,
+} satisfies Partial<t.FilesCapability.Map>;
+
 describe('FilesStatic.fromDist', () => {
   it('exports the public runtime surface', async () => {
     const m = await import('@sys/model/files/static');
@@ -53,6 +60,12 @@ describe('FilesStatic.fromDist', () => {
       fidelity: 'snapshot',
     });
     expectTypeOf(backing).toEqualTypeOf<t.FilesStatic.Readonly>();
+
+    const authority = Files.Authority.resolve({
+      policy: backing.policy,
+      backing: { supports: STATIC_SUPPORTS, fidelity: 'snapshot' },
+    });
+    expect(backing.capabilities).to.eql(authority.capabilities);
   });
 
   it('lists, stats, reads refs, and manifests root-relative static entries', async () => {
@@ -392,6 +405,10 @@ describe('FilesStatic.fromDist', () => {
     );
     await expectFilesStaticError(
       () => cmd.watch(backing),
+      'FilesStaticError.Unsupported',
+    );
+    await expectFilesStaticError(
+      () => cmd.watch(backing, null as never),
       'FilesStaticError.Unsupported',
     );
   });

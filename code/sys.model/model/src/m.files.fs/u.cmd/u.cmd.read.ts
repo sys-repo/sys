@@ -1,6 +1,6 @@
 import { utf8ByteLength } from '../../m.files/u/u.bytes.ts';
 import { D, type t } from '../common.ts';
-import { effectiveMaxReadBytes } from '../u/u.capabilities.ts';
+import { effectiveMaxReadBytes } from '../u/u.read-limit.ts';
 import { entryFromStat } from '../u/u.entry.ts';
 import { fail } from '../u/u.error.ts';
 import { allowed } from '../u/u.policy.ts';

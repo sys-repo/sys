@@ -1,6 +1,6 @@
 import { validatePageInput } from '../m.files/u/u.page.ts';
-import { snapshotPolicy } from '../m.files/u/u.policy.ts';
 import { D, Is, type t } from './common.ts';
+import { authorityHandlerOptions, resolveStaticAuthority } from './u/u.authority.ts';
 import { invalidPath } from './u/u.error.ts';
 import { handlers } from './u/u.handlers.ts';
 import { staticIndex } from './u/u.index.ts';
@@ -9,27 +9,18 @@ import { staticIndex } from './u/u.index.ts';
 export const fromDist: t.FilesStatic.Lib['fromDist'] = (options) => {
   if (!Is.plainObject(options)) throw invalidPath('Static dist options must be a plain object');
 
-  const policy = snapshotPolicy(options.policy, invalidPath);
+  const authority = resolveStaticAuthority({ policy: options.policy });
+  const policy = authority.policy;
+  const capabilities = authority.capabilities;
   const defaultLimit = options.defaultLimit ?? D.defaultLimit;
   validatePageInput({ kind: 'list', defaultLimit }, invalidPath);
   const index = staticIndex({ dist: options.dist, baseUrl: options.baseUrl });
-  const capabilities = Object.freeze(
-    {
-      list: true,
-      stat: true,
-      read: true,
-      write: false,
-      remove: false,
-      watch: false,
-      manifest: policy.manifest === true,
-      fidelity: D.fidelity,
-    } satisfies t.Files.Capabilities,
-  );
+  const baseHandlers = handlers({ index, policy, capabilities, defaultLimit });
 
   return {
     kind: 'files/static:dist',
     policy,
     capabilities,
-    handlers: handlers({ index, policy, capabilities, defaultLimit }),
+    handlers: authority.handlers(baseHandlers, authorityHandlerOptions),
   };
 };

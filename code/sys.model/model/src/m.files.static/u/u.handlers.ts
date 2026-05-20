@@ -13,7 +13,12 @@ export type HandlerArgs = {
   readonly defaultLimit: t.Files.Limit;
 };
 
-/** Build the Files Cmd handler map for a static dist backing. */
+/**
+ * Build the Files Cmd handler map for a static dist backing.
+ *
+ * Command-local policy checks intentionally remain below the authority gate for
+ * descendant filtering, content-ref filtering, and precise static index errors.
+ */
 export const handlers = (args: HandlerArgs): t.FilesCmd.HandlerMap => {
   return Object.freeze({
     'files:capabilities': () => args.capabilities,

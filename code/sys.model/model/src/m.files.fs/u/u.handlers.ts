@@ -16,6 +16,9 @@ type HandlerArgs = {
 
 /**
  * Build the Files Cmd handler map for a readonly files/fs backing.
+ *
+ * Command-local policy checks intentionally remain below the authority gate for
+ * descendant filtering, real-path containment, and result filtering.
  */
 export const handlers = (args: HandlerArgs): t.FilesCmd.HandlerMap => {
   return Object.freeze({

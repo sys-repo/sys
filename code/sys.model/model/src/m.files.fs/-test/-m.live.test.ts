@@ -22,6 +22,14 @@ type ChangeMatch = {
 type LiveSetup = Awaited<ReturnType<typeof setupLive>>;
 type SetupInput = Parameters<typeof setupLive>[0];
 
+const LIVE_SUPPORTS = {
+  list: true,
+  stat: true,
+  read: true,
+  watch: true,
+  manifest: true,
+} satisfies Partial<t.FilesCapability.Map>;
+
 const activeWatchContexts = new Set<WatchContext>();
 
 describe('FilesFs.live', () => {
@@ -69,6 +77,17 @@ describe('FilesFs.live', () => {
       maxReadBytes: 64,
       encodings: ['utf8'],
     });
+
+    const authority = Files.Authority.resolve({
+      policy: backing.policy,
+      backing: {
+        supports: LIVE_SUPPORTS,
+        fidelity: 'live',
+        maxReadBytes: 64,
+        encodings: ['utf8'],
+      },
+    });
+    expect(backing.capabilities).to.eql(authority.capabilities);
   });
 
   it('keeps live watch separate from write/remove authority', async () => {

@@ -1,38 +1,83 @@
 import { D, type t } from '../common.ts';
-import { effectiveMaxReadBytes, readonlyCapabilities } from './u.capabilities.ts';
+import {
+  authorityHandlerOptions,
+  type FsAuthorityKind,
+  resolveFsAuthority,
+} from './u.authority.ts';
 import { handlers } from './u.handlers.ts';
 import { validatePageInput } from './u.page.ts';
 import { type Scope, scope } from './u.path.ts';
-import { snapshotPolicy } from './u.policy.ts';
 
 type BaseRuntimeOptions<Fs extends t.FilesFs.Capability.Readonly> =
   & Omit<t.FilesFs.ReadonlyOptions, 'fs'>
   & { readonly fs: Fs };
 
-type BaseRuntime<Fs extends t.FilesFs.Capability.Readonly> = {
+export type FsRuntimeSource<Fs extends t.FilesFs.Capability.Readonly> = {
+  readonly scope: Scope<Fs>;
+  readonly defaultLimit: t.Files.Limit;
+};
+
+export type FsRuntimeCore<Fs extends t.FilesFs.Capability.Readonly> = FsRuntimeSource<Fs> & {
+  readonly authority: t.FilesAuthority.Instance;
+  readonly policy: t.FilesPolicy.Shape;
+  readonly capabilities: t.Files.Capabilities;
+  readonly baseHandlers: t.FilesCmd.HandlerMap;
+};
+
+type BaseRuntime<Fs extends t.FilesFs.Capability.Readonly> = FsRuntimeSource<Fs> & {
   readonly policy: t.FilesPolicy.Shape;
   readonly capabilities: t.Files.Capabilities;
   readonly handlers: t.FilesCmd.HandlerMap;
-  readonly scope: Scope<Fs>;
 };
 
-/** Build the shared readonly command base over a bounded filesystem scope. */
+/** Build shared files/fs source state for concrete runtime variants. */
+const createRuntimeSource = <Fs extends t.FilesFs.Capability.Readonly>(
+  options: BaseRuntimeOptions<Fs>,
+): FsRuntimeSource<Fs> => {
+  const defaultLimit = options.defaultLimit ?? D.pageLimit;
+  validatePageInput({ kind: 'list', defaultLimit });
+  return { scope: scope(options.fs, options.root), defaultLimit };
+};
+
+/** Resolve authority and raw base handlers for a concrete files/fs runtime kind. */
+export const createRuntimeCore = <Fs extends t.FilesFs.Capability.Readonly>(
+  kind: FsAuthorityKind,
+  options: BaseRuntimeOptions<Fs>,
+): FsRuntimeCore<Fs> => {
+  const source = createRuntimeSource(options);
+  const authority = resolveFsAuthority(kind, {
+    policy: options.policy,
+    maxReadBytes: options.maxReadBytes,
+  });
+  const policy = authority.policy;
+  const capabilities = authority.capabilities;
+
+  return {
+    ...source,
+    authority,
+    policy,
+    capabilities,
+    baseHandlers: handlers({
+      scope: source.scope,
+      policy,
+      capabilities,
+      maxReadBytes: capabilities.maxReadBytes,
+      defaultLimit: source.defaultLimit,
+    }),
+  };
+};
+
+/** Build the readonly command base over a bounded filesystem scope. */
 export const createBaseRuntime = <Fs extends t.FilesFs.Capability.Readonly>(
   options: BaseRuntimeOptions<Fs>,
 ): BaseRuntime<Fs> => {
-  const policy = snapshotPolicy(options.policy);
-  const maxReadBytes = effectiveMaxReadBytes(options.maxReadBytes, policy.maxReadBytes);
-  const defaultLimit = options.defaultLimit ?? D.pageLimit;
-  validatePageInput({ kind: 'list', defaultLimit });
-  const fsScope = scope(options.fs, options.root);
-  const capabilities = readonlyCapabilities({ policy, maxReadBytes });
-  const baseHandlers = handlers({
-    scope: fsScope,
-    policy,
-    capabilities,
-    maxReadBytes,
-    defaultLimit,
-  });
+  const core = createRuntimeCore('readonly', options);
 
-  return { policy, capabilities, handlers: baseHandlers, scope: fsScope };
+  return {
+    scope: core.scope,
+    defaultLimit: core.defaultLimit,
+    policy: core.policy,
+    capabilities: core.capabilities,
+    handlers: core.authority.handlers(core.baseHandlers, authorityHandlerOptions(core.scope.fs)),
+  };
 };

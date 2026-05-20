@@ -1,7 +1,6 @@
 import { type t } from '../common.ts';
-import { liveCapabilities } from '../u/u.capabilities.ts';
-import { createBaseRuntime } from '../u/u.runtime.base.ts';
-import { withCapabilities } from '../../m.files/u/u.handlers.ts';
+import { authorityHandlerOptions } from '../u/u.authority.ts';
+import { createRuntimeCore } from '../u/u.runtime.base.ts';
 import { createWatch } from './u.watch.ts';
 
 type LiveRuntime = {
@@ -10,19 +9,19 @@ type LiveRuntime = {
 
 /** Internal live files/fs runtime; not exported from the public module. */
 export const createLiveRuntime = (options: t.FilesFs.LiveOptions): LiveRuntime => {
-  const base = createBaseRuntime(options);
-  const capabilities = liveCapabilities(base.capabilities);
-  const watch = createWatch(base.scope, base.policy);
+  const core = createRuntimeCore('live', options);
+  const watch = createWatch(core.scope, core.policy);
+  const liveHandlers = Object.freeze({
+    ...core.baseHandlers,
+    'files:watch': watch.handler,
+  });
 
   return Object.freeze({
     backing: {
       kind: 'files/fs:live',
-      policy: base.policy,
-      capabilities,
-      handlers: Object.freeze({
-        ...withCapabilities(base.handlers, capabilities),
-        'files:watch': watch.handler,
-      }),
+      policy: core.policy,
+      capabilities: core.capabilities,
+      handlers: core.authority.handlers(liveHandlers, authorityHandlerOptions(core.scope.fs)),
       diagnostics: watch.diagnostics,
     },
   });

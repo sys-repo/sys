@@ -1,5 +1,13 @@
 import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
-import { allowDocsPolicy, cmd, setup } from './u.fixture.ts';
+import { Files } from '../../m.files/mod.ts';
+import { allowDocsPolicy, cmd, expectFilesFsError, setup } from './u.fixture.ts';
+
+const READONLY_SUPPORTS = {
+  list: true,
+  stat: true,
+  read: true,
+  manifest: true,
+} satisfies Partial<t.FilesCapability.Map>;
 
 describe('FilesFs.readonly: API', () => {
   it('creates a bounded readonly backing without exposing the host root', async () => {
@@ -33,5 +41,28 @@ describe('FilesFs.readonly: API', () => {
       encodings: ['utf8'],
     });
     expectTypeOf(backing).toEqualTypeOf<t.FilesFs.Readonly>();
+  });
+
+  it('derives readonly capability truth from Files.Authority', async () => {
+    const { backing } = setup({ policy: allowDocsPolicy, maxReadBytes: 64 });
+    const authority = Files.Authority.resolve({
+      policy: backing.policy,
+      backing: {
+        supports: READONLY_SUPPORTS,
+        maxReadBytes: 64,
+        encodings: ['utf8'],
+      },
+    });
+
+    expect(backing.capabilities).to.eql(authority.capabilities);
+    expect(await cmd.capabilities(backing)).to.eql(authority.capabilities);
+
+    const manifest = await cmd.manifest(backing, { path: 'docs' });
+    expect(manifest.capabilities).to.eql(authority.capabilities);
+
+    await expectFilesFsError(
+      () => cmd.write(backing, null as never),
+      'FilesFsError.Unsupported',
+    );
   });
 });
