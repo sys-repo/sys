@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-import type { Backing } from '../m.files/t/t.backing.ts';
+import type * as Backing from '../m.files/t/t.backing.ts';
 
 /**
  * Static `dist.json` backing adapter for the Files model.
@@ -12,10 +12,10 @@ export declare namespace FilesStatic {
   };
 
   /** Bounded static Files backing. */
-  export type Readonly = Backing.Runtime<'files/static:dist'>;
+  export type Readonly = Backing.Runtime.Shape<'files/static:dist'>;
 
   /** Options for creating a static Files backing from dist metadata. */
-  export type FromDistOptions = Backing.Options & {
+  export type FromDistOptions = Backing.Runtime.Options & {
     /** Canonical static distribution metadata. */
     readonly dist: t.DistPkg;
 

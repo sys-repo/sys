@@ -6,7 +6,7 @@ import type { FilesPolicy } from './t.policy.ts';
 /**
  * Runtime structural surfaces and option fragments for Files backing adapters.
  */
-export declare namespace BackingRuntime {
+export declare namespace Runtime {
   /** Minimal Cmd surface exposed by a bounded Files backing. */
   export type CmdSurface<K extends string = string> = {
     /** Backing kind, when surfaced as owner-local metadata. */
@@ -20,7 +20,7 @@ export declare namespace BackingRuntime {
   };
 
   /** Runtime shape shared by model-owned Files backing adapters. */
-  export type Runtime<K extends string> = CmdSurface<K> & {
+  export type Shape<K extends string> = CmdSurface<K> & {
     /** Backing kind, surfaced only as owner-local metadata. */
     readonly kind: K;
 

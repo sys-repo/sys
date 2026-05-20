@@ -1,3 +1,2 @@
-export type { Backing } from './t.backing.contract.ts';
-export type { BackingLive } from './t.backing.live.ts';
-export type { BackingRuntime } from './t.backing.runtime.ts';
+export type { Live } from './t.backing.live.ts';
+export type { Runtime } from './t.backing.runtime.ts';
