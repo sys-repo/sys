@@ -156,24 +156,31 @@ describe('FilesFs.live', () => {
 
   it('filters watch hints through policy, scope, match, and exclude', async () => {
     const { backing, writeText } = await setup({ policy: allowDocsLivePolicy });
+    await writeText('docs/filter/.keep' as t.Files.String.Path, '');
+
     const events: t.Files.Change[] = [];
     const watcher = watchContext(events);
     const done = backing.handlers['files:watch'](
-      { path: 'docs', match: '**/*.md', exclude: 'docs/draft.md' },
+      { path: 'docs/filter', match: '**/*.md', exclude: 'docs/filter/draft.md' },
       watcher.context,
     );
 
     await waitForActive(backing);
 
-    await writeText('docs/readme.md' as t.Files.String.Path, 'visible\n');
-    await writeText('docs/draft.md' as t.Files.String.Path, 'excluded\n');
-    await writeText('other/readme.md' as t.Files.String.Path, 'outside\n');
-    await writeText('docs/data.json' as t.Files.String.Path, '{}\n');
+    await writeText('docs/filter/readme.md' as t.Files.String.Path, 'visible\n');
+    await waitForChange(events, { path: 'docs/filter/readme.md' as t.Files.String.Path });
 
-    await waitForChange(events, { path: 'docs/readme.md' as t.Files.String.Path });
-    await Time.wait(80);
-    expect(events.length > 0).to.eql(true);
-    expect(events.every((event) => event.path === 'docs/readme.md')).to.eql(true);
+    const beforeFilteredWrites = events.length;
+    await writeText('docs/filter/draft.md' as t.Files.String.Path, 'excluded\n');
+    await writeText('docs/readme.md' as t.Files.String.Path, 'outside scope\n');
+    await writeText('docs/filter/data.json' as t.Files.String.Path, '{}\n');
+
+    await Time.wait(120);
+    const filteredEvents = events.slice(beforeFilteredWrites);
+    const leakedPaths = new Set(filteredEvents.map((event) => event.path));
+    expect(leakedPaths.has('docs/filter/draft.md' as t.Files.String.Path)).to.eql(false);
+    expect(leakedPaths.has('docs/readme.md' as t.Files.String.Path)).to.eql(false);
+    expect(leakedPaths.has('docs/filter/data.json' as t.Files.String.Path)).to.eql(false);
 
     watcher.stop();
     await done;
