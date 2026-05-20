@@ -1,6 +1,6 @@
 {
   "name": "@sys/server",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -33,3 +33,4 @@
     }
   }
 }
+

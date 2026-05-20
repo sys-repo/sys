@@ -87,10 +87,10 @@
     "npm:@sinclair/typebox@0.34.49": "0.34.49",
     "npm:@stripe/stripe-js@9.6.0": "9.6.0",
     "npm:@svgdotjs/svg.js@3.2.5": "3.2.5",
-    "npm:@testing-library/react@16.3.2": "16.3.2_@types+react@19.2.14_@types+react-dom@19.2.3__@types+react@19.2.14_react@19.2.6_react-dom@19.2.6__react@19.2.6",
+    "npm:@testing-library/react@16.3.2": "16.3.2_@types+react@19.2.15_@types+react-dom@19.2.3__@types+react@19.2.15_react@19.2.6_react-dom@19.2.6__react@19.2.6",
     "npm:@types/ramda@0.31.1": "0.31.1",
-    "npm:@types/react-dom@19.2.3": "19.2.3_@types+react@19.2.14",
-    "npm:@types/react@19.2.14": "19.2.14",
+    "npm:@types/react-dom@19.2.3": "19.2.3_@types+react@19.2.15",
+    "npm:@types/react@19.2.15": "19.2.15",
     "npm:@types/ws@8.18.1": "8.18.1",
     "npm:@vitejs/plugin-react@6.0.2": "6.0.2_vite@8.0.13__esbuild@0.28.0__yaml@2.9.0_esbuild@0.28.0_yaml@2.9.0",
     "npm:bowser@2.14.1": "2.14.1",
@@ -349,7 +349,6 @@
         "jsr:@sys/ui-react-components",
         "jsr:@sys/ui-react-devharness",
         "npm:@automerge/automerge",
-        "npm:@types/react",
         "npm:@types/ws",
         "npm:react-icons",
         "npm:react@19.2.5",
@@ -560,8 +559,7 @@
         "jsr:@sys/ui-css",
         "jsr:@sys/ui-dom@^0.0.283",
         "jsr:@sys/ui-react-devharness",
-        "jsr:@sys/yaml",
-        "npm:@types/react"
+        "jsr:@sys/yaml"
       ]
     },
     "@sys/types@0.0.282": {
@@ -581,8 +579,7 @@
       "dependencies": [
         "jsr:@sys/color",
         "jsr:@sys/std",
-        "jsr:@sys/types",
-        "npm:@types/react"
+        "jsr:@sys/types"
       ]
     },
     "@sys/ui-dom@0.0.247": {
@@ -609,7 +606,6 @@
         "jsr:@sys/ui-dom@^0.0.283",
         "npm:@preact/signals-react@3.10.0",
         "npm:@testing-library/react",
-        "npm:@types/react",
         "npm:react@19.2.5"
       ]
     },
@@ -630,7 +626,6 @@
         "jsr:@sys/ui-state",
         "jsr:@sys/yaml",
         "npm:@svgdotjs/svg.js",
-        "npm:@types/react",
         "npm:react-error-boundary",
         "npm:react-icons",
         "npm:react-inspector",
@@ -654,7 +649,6 @@
         "jsr:@sys/ui-css",
         "jsr:@sys/ui-dom@^0.0.283",
         "jsr:@sys/ui-react",
-        "npm:@types/react",
         "npm:react-error-boundary",
         "npm:react-icons",
         "npm:react@19.2.5"
@@ -2898,7 +2892,7 @@
         "pretty-format"
       ]
     },
-    "@testing-library/react@16.3.2_@types+react@19.2.14_@types+react-dom@19.2.3__@types+react@19.2.14_react@19.2.6_react-dom@19.2.6__react@19.2.6": {
+    "@testing-library/react@16.3.2_@types+react@19.2.15_@types+react-dom@19.2.3__@types+react@19.2.15_react@19.2.6_react-dom@19.2.6__react@19.2.6": {
       "integrity": "sha512-XU5/SytQM+ykqMnAnvB2umaJNIOsLF3PVv//1Ew4CTcpz0/BRyy/af40qqrt7SjKpDdT1saBMc42CUok5gaw+g==",
       "dependencies": [
         "@babel/runtime",
@@ -2965,14 +2959,14 @@
         "types-ramda"
       ]
     },
-    "@types/react-dom@19.2.3_@types+react@19.2.14": {
+    "@types/react-dom@19.2.3_@types+react@19.2.15": {
       "integrity": "sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==",
       "dependencies": [
         "@types/react"
       ]
     },
-    "@types/react@19.2.14": {
-      "integrity": "sha512-ilcTH/UniCkMdtexkoCN0bI7pMcJDvmQFPvuPvmEaYA/NSfFTAgdUSLAoVjaRJm7+6PvcM+q1zYOwS4wTYMF9w==",
+    "@types/react@19.2.15": {
+      "integrity": "sha512-eRwcGNHve+E8qtEQSSRl6urh+rFop4v8gm6O8rGv25CodbvFdLjA1vVQ1KkiFE0w0UPOnb8tDiFKL5lp0rtY5Q==",
       "dependencies": [
         "csstype"
       ]
@@ -5151,7 +5145,7 @@
         "npm:@deno/vite-plugin@2.0.2",
         "npm:@testing-library/react@16.3.2",
         "npm:@types/react-dom@19.2.3",
-        "npm:@types/react@19.2.14",
+        "npm:@types/react@19.2.15",
         "npm:@vitejs/plugin-react@6.0.2",
         "npm:esbuild@0.28.0",
         "npm:motion@12.39.0",
