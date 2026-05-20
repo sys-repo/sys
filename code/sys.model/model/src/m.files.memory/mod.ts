@@ -5,6 +5,7 @@
 import type { t } from './common.ts';
 import { createLive } from './m.live.ts';
 import { createReadonly } from './m.readonly.ts';
+import { createWritable } from './m.writable.ts';
 
 export type * from './t.ts';
 
@@ -13,5 +14,6 @@ export type * from './t.ts';
  */
 export const FilesMemory: t.FilesMemory.Lib = {
   readonly: createReadonly,
+  writable: createWritable,
   live: createLive,
 };

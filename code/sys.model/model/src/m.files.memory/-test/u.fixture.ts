@@ -4,6 +4,16 @@ import { FilesMemory } from '../mod.ts';
 
 export const allowAllPolicy = Files.Policy.readonly('**');
 
+export const allowAllMutablePolicy = {
+  list: '**',
+  stat: '**',
+  read: '**',
+  write: '**',
+  remove: '**',
+  watch: '**',
+  manifest: true,
+} satisfies t.FilesPolicy.Shape;
+
 export const defaultFiles = {
   'foo.json': {
     content: '{ "foo": true }\n',
@@ -44,7 +54,7 @@ export function setup(options: SetupOptions = {}) {
   return { backing };
 }
 
-type MemoryBacking = t.FilesMemory.Readonly | t.FilesMemory.Live;
+type MemoryBacking = t.FilesMemory.Readonly | t.FilesMemory.Writable | t.FilesMemory.Live;
 
 export const cmd = {
   capabilities(backing: MemoryBacking) {
@@ -67,6 +77,14 @@ export const cmd = {
       payload as t.FilesCmd.Read.Payload,
       context('files:read'),
     );
+  },
+
+  write(backing: MemoryBacking, payload: t.FilesCmd.Write.Payload) {
+    return backing.handlers['files:write'](payload, context('files:write'));
+  },
+
+  remove(backing: MemoryBacking, payload: t.FilesCmd.Remove.Payload) {
+    return backing.handlers['files:remove'](payload, context('files:remove'));
   },
 
   watch(backing: MemoryBacking, payload: t.FilesCmd.Watch.Payload = {}) {

@@ -1,42 +1,59 @@
 import { type t } from './common.ts';
-import { translate } from './u.error.ts';
+import { list } from './u.cmd.list.ts';
+import { manifest } from './u.cmd.manifest.ts';
+import { read } from './u.cmd.read.ts';
+import { stat } from './u.cmd.stat.ts';
+import { fail, translate } from './u.error.ts';
+import { type MemoryNodes } from './u.index.ts';
 
-export const handlers = (
-  base: t.FilesCmd.HandlerMap,
-  capabilities: t.Files.Capabilities,
-): t.FilesCmd.HandlerMap => {
+export type HandlerArgs = {
+  readonly nodes: MemoryNodes;
+  readonly policy: t.FilesPolicy.Shape;
+  readonly capabilities: t.Files.Capabilities;
+  readonly maxReadBytes?: t.NumberBytes;
+  readonly defaultLimit: t.Files.Limit;
+};
+
+export const handlers = (args: HandlerArgs): t.FilesCmd.HandlerMap => {
   return Object.freeze({
     'files:capabilities'() {
-      return capabilities;
+      return args.capabilities;
     },
 
-    'files:list'(payload, context) {
-      return attempt(() => base['files:list'](payload, context));
+    'files:list'(payload) {
+      return attempt(() => list(args.nodes, args.policy, payload, args.defaultLimit));
     },
 
-    'files:stat'(payload, context) {
-      return attempt(() => base['files:stat'](payload, context));
+    'files:stat'(payload) {
+      return attempt(() => stat(args.nodes, args.policy, payload));
     },
 
-    'files:read'(payload, context) {
-      return attempt(() => base['files:read'](payload, context));
+    'files:read'(payload) {
+      return attempt(() => read(args.nodes, args.policy, payload, args.maxReadBytes));
     },
 
-    'files:write'(payload, context) {
-      return attempt(() => base['files:write'](payload, context));
+    'files:write'() {
+      throw fail(
+        'FilesMemoryError.Unsupported',
+        'Readonly memory Files backing does not support write',
+      );
     },
 
-    'files:remove'(payload, context) {
-      return attempt(() => base['files:remove'](payload, context));
+    'files:remove'() {
+      throw fail(
+        'FilesMemoryError.Unsupported',
+        'Readonly memory Files backing does not support remove',
+      );
     },
 
-    'files:watch'(payload, context) {
-      return attempt(() => base['files:watch'](payload, context));
+    'files:watch'() {
+      throw fail('FilesMemoryError.Unsupported', 'Memory Files backing does not support watch');
     },
 
-    async 'files:manifest'(payload, context) {
-      const manifest = await attempt(() => base['files:manifest'](payload, context));
-      return { ...manifest, capabilities };
+    'files:manifest'(payload) {
+      return attempt(() => {
+        return manifest(args.nodes, args.policy, payload, args.capabilities, args.defaultLimit);
+      });
     },
   });
 };

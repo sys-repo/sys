@@ -1,7 +1,7 @@
 import { FilesPath } from '../m.files/u.path.ts';
 import { Is, type t } from './common.ts';
 import { fail } from './u.error.ts';
-import { fileNode, type MemoryNode } from './u.node.ts';
+import { fileNode, type MemoryFileNode, type MemoryNode } from './u.node.ts';
 import { absolutePath, visiblePath } from './u.path.ts';
 
 export type MemoryNodes = Map<t.StringAbsolutePath, MemoryNode>;
@@ -42,22 +42,20 @@ export function putFile(
   return path;
 }
 
-export function removePath(
+export function putWriteFile(
   nodes: MemoryNodes,
   input: t.Files.String.Path,
-): { readonly path: t.Files.String.Path; readonly node: MemoryNode } | undefined {
+  node: MemoryFileNode,
+): { readonly path: t.Files.String.Path; readonly previous?: MemoryNode } {
   const path = visiblePath(input);
-  if (path === '') throw fail('FilesMemoryError.InvalidPath', 'Cannot remove memory root');
+  if (path === '') throw fail('FilesMemoryError.InvalidPath', 'File path cannot be root');
 
-  const absolute = absolutePath(path);
-  const node = nodes.get(absolute);
-  if (!node) return undefined;
+  const previous = nodes.get(absolutePath(path));
+  if (previous?.kind === 'dir') throw fail('FilesMemoryError.NotFile', `Not a file: ${path}`);
 
-  const prefix = `${absolute}/`;
-  for (const entry of [...nodes.keys()]) {
-    if (entry === absolute || entry.startsWith(prefix)) nodes.delete(entry);
-  }
-  return { path, node };
+  putDir(nodes, FilesPath.parent(path));
+  putNode(nodes, path, node);
+  return { path, ...(previous === undefined ? {} : { previous }) };
 }
 
 function assertOptions(options: unknown): asserts options is t.FilesMemory.Options {

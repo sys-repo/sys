@@ -12,12 +12,18 @@ export declare namespace FilesMemory {
     /** Create a bounded readonly Files backing from an in-memory source tree. */
     readonly readonly: (options?: Options) => Readonly;
 
+    /** Create a bounded writable Files backing from an in-memory source tree. */
+    readonly writable: (options?: Options) => Writable;
+
     /** Create a bounded live Files backing from an in-memory source tree. */
     readonly live: (options?: Options) => Live;
   };
 
   /** Bounded readonly in-memory Files backing. */
   export type Readonly = Runtime.Shape<'files/memory:readonly'>;
+
+  /** Bounded writable in-memory Files backing. */
+  export type Writable = Runtime.Shape<'files/memory:writable'>;
 
   /** Bounded live in-memory Files backing. */
   export type Live = TLive.Shape<'files/memory:live'>;

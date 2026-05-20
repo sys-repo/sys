@@ -9,6 +9,7 @@ export declare namespace Error {
     | 'NotFound'
     | 'NotFile'
     | 'NotDirectory'
+    | 'DirectoryNotEmpty'
     | 'PolicyDenied'
     | 'ReadTooLarge'
     | 'Unsupported';
