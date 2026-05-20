@@ -32,6 +32,10 @@ export declare namespace FilesCmd {
     readonly stat: Name.Stat;
     /** Read command name. */
     readonly read: Name.Read;
+    /** Write command name. */
+    readonly write: Name.Write;
+    /** Remove command name. */
+    readonly remove: Name.Remove;
     /** Watch command name. */
     readonly watch: Name.Watch;
     /** Manifest command name. */
@@ -44,6 +48,8 @@ export declare namespace FilesCmd {
     | Name.List
     | Name.Stat
     | Name.Read
+    | Name.Write
+    | Name.Remove
     | Name.Watch
     | Name.Manifest;
 
@@ -56,6 +62,10 @@ export declare namespace FilesCmd {
     export type Stat = 'files:stat';
     /** Read command name. */
     export type Read = 'files:read';
+    /** Write command name. */
+    export type Write = 'files:write';
+    /** Remove command name. */
+    export type Remove = 'files:remove';
     /** Watch command name. */
     export type Watch = 'files:watch';
     /** Manifest command name. */
@@ -72,6 +82,10 @@ export declare namespace FilesCmd {
     readonly 'files:stat': Stat.Payload;
     /** Read payload. */
     readonly 'files:read': Read.Payload;
+    /** Write payload. */
+    readonly 'files:write': Write.Payload;
+    /** Remove payload. */
+    readonly 'files:remove': Remove.Payload;
     /** Watch payload. */
     readonly 'files:watch': Watch.Payload;
     /** Manifest payload. */
@@ -88,6 +102,10 @@ export declare namespace FilesCmd {
     readonly 'files:stat': Stat.Result;
     /** Read result. */
     readonly 'files:read': Read.Result;
+    /** Write result. */
+    readonly 'files:write': Write.Result;
+    /** Remove result. */
+    readonly 'files:remove': Remove.Result;
     /** Watch result. */
     readonly 'files:watch': Watch.Result;
     /** Manifest result. */
@@ -104,6 +122,10 @@ export declare namespace FilesCmd {
     readonly 'files:stat': never;
     /** Read events. */
     readonly 'files:read': never;
+    /** Write events. */
+    readonly 'files:write': never;
+    /** Remove events. */
+    readonly 'files:remove': never;
     /** Watch events. */
     readonly 'files:watch': FilesChange.Change;
     /** Manifest events. */
@@ -201,6 +223,71 @@ export declare namespace FilesCmd {
       readonly file: FilesEntry.File;
       /** Portable content reference. */
       readonly contentRef: FilesContentRef.ContentRef;
+    };
+  }
+
+  /** Write command. */
+  export namespace Write {
+    /** Write request payload. */
+    export type Payload = TextPayload | BytesPayload;
+
+    /** Complete text-file value write. Not a patch/edit operation. */
+    export type TextPayload = {
+      /** Write payload kind. */
+      readonly kind: 'text';
+      /** Root-relative file path. */
+      readonly path: Core.StringPath;
+      /** Complete text content to write. */
+      readonly content: string;
+      /** Text encoding. */
+      readonly encoding?: Core.Encoding;
+      /** Media/content type, when known by the caller. */
+      readonly mediaType?: t.StringMimeType;
+    };
+
+    /** Complete binary-file value write. Not a JSON transport shape. */
+    export type BytesPayload = {
+      /** Write payload kind. */
+      readonly kind: 'bytes';
+      /** Root-relative file path. */
+      readonly path: Core.StringPath;
+      /** Complete binary content to write. */
+      readonly content: Uint8Array;
+      /** Media/content type, when known by the caller. */
+      readonly mediaType?: t.StringMimeType;
+    };
+
+    /** Write result. */
+    export type Result = {
+      /** Change kind produced by the write. */
+      readonly kind: 'created' | 'modified';
+      /** Root-relative file path written. */
+      readonly path: Core.StringPath;
+      /** File metadata, when returned by the backing. */
+      readonly entry?: FilesEntry.File;
+      /** Monotonic sequence number, when provided by the backing. */
+      readonly seq?: Core.Seq;
+    };
+  }
+
+  /** Remove command. */
+  export namespace Remove {
+    /** Remove request payload. */
+    export type Payload = {
+      /** Root-relative file or directory path. */
+      readonly path: Core.StringPath;
+      /** Allow recursive directory removal. */
+      readonly recursive?: boolean;
+    };
+
+    /** Remove result. */
+    export type Result = {
+      /** Change kind produced by the remove. */
+      readonly kind: 'deleted';
+      /** Root-relative path removed. */
+      readonly path: Core.StringPath;
+      /** Monotonic sequence number, when provided by the backing. */
+      readonly seq?: Core.Seq;
     };
   }
 

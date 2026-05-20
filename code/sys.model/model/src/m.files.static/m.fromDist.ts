@@ -18,6 +18,8 @@ export const fromDist: t.FilesStatic.Lib['fromDist'] = (options) => {
       list: true,
       stat: true,
       read: true,
+      write: false,
+      remove: false,
       watch: false,
       manifest: policy.manifest === true,
       fidelity: D.fidelity,

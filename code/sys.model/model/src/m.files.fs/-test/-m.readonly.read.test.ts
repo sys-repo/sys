@@ -11,6 +11,8 @@ describe('FilesFs.readonly: read', () => {
       list: true,
       stat: true,
       read: true,
+      write: false,
+      remove: false,
       watch: false,
       manifest: true,
       maxReadBytes: 4,

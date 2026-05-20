@@ -5,8 +5,8 @@ import type { Core } from './t.u.core.ts';
  * Capability facts for bounded Files views.
  */
 export declare namespace FilesCapability {
-  /** Read-oriented capability name. */
-  export type Name = 'list' | 'stat' | 'read' | 'watch' | 'manifest';
+  /** Files capability name. */
+  export type Name = 'list' | 'stat' | 'read' | 'write' | 'remove' | 'watch' | 'manifest';
   /** Boolean capability map. */
   export type Map = { readonly [K in Name]: boolean };
 

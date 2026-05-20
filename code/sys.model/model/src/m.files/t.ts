@@ -74,7 +74,7 @@ export declare namespace Files {
   /** Portable reference to file content outside an inline Cmd result. */
   export type ContentRef = FilesContentRef.ContentRef;
 
-  /** Read-oriented capability name for a bounded Files view. */
+  /** Capability name for a bounded Files view. */
   export type Capability = FilesCapability.Name;
 
   /** Capability facts for a bounded Files view. */

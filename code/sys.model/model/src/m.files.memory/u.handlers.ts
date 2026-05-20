@@ -22,6 +22,14 @@ export const handlers = (
       return attempt(() => base['files:read'](payload, context));
     },
 
+    'files:write'(payload, context) {
+      return attempt(() => base['files:write'](payload, context));
+    },
+
+    'files:remove'(payload, context) {
+      return attempt(() => base['files:remove'](payload, context));
+    },
+
     'files:watch'(payload, context) {
       return attempt(() => base['files:watch'](payload, context));
     },

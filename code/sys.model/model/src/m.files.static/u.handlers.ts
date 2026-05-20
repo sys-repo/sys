@@ -20,6 +20,12 @@ export const handlers = (args: HandlerArgs): t.FilesCmd.HandlerMap => {
     'files:list': (payload) => list(args.index, args.policy, payload, args.defaultLimit),
     'files:stat': (payload) => stat(args.index, args.policy, payload),
     'files:read': (payload) => read(args.index, args.policy, payload),
+    'files:write': () => {
+      throw fail('FilesStaticError.Unsupported', 'Static dist backing does not support write');
+    },
+    'files:remove': () => {
+      throw fail('FilesStaticError.Unsupported', 'Static dist backing does not support remove');
+    },
     'files:watch': () => {
       throw fail('FilesStaticError.Unsupported', 'Static dist backing does not support watch');
     },

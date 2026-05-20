@@ -11,6 +11,8 @@ const capabilities: t.Files.Capabilities = {
   list: true,
   stat: true,
   read: true,
+  write: false,
+  remove: false,
   watch: false,
   manifest: true,
 };
@@ -238,6 +240,12 @@ describe('Files/t', () => {
         file: { kind: 'file', path: payload.path },
         contentRef: { kind: 'ref', path: payload.path, ref: 'content:1' },
       }),
+      'files:write': (payload) => ({
+        kind: 'created',
+        path: payload.path,
+        entry: { kind: 'file', path: payload.path },
+      }),
+      'files:remove': (payload) => ({ kind: 'deleted', path: payload.path }),
       'files:watch': (_payload, ctx) => {
         ctx.emit({ kind: 'modified', path: 'docs/readme.md' });
 

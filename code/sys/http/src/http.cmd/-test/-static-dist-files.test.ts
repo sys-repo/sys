@@ -72,6 +72,8 @@ describe('HttpCmd + FilesStatic dist integration', () => {
         list: true,
         stat: true,
         read: true,
+        write: false,
+        remove: false,
         watch: false,
         manifest: true,
         fidelity: 'snapshot',
@@ -175,7 +177,7 @@ function part(hash: t.StringHash, size: t.NumberBytes): t.StringFileHashUri {
   return `${hash}:size=${size}`;
 }
 
-function entryPaths(entries: readonly FilesType.Entry[]): readonly FilesType.StringPath[] {
+function entryPaths(entries: readonly FilesType.Entry[]): readonly FilesType.String.Path[] {
   return entries.map((entry) => entry.path);
 }
 

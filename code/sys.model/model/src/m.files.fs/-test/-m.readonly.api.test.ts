@@ -16,13 +16,17 @@ describe('FilesFs.readonly: API', () => {
       'files:list',
       'files:manifest',
       'files:read',
+      'files:remove',
       'files:stat',
       'files:watch',
+      'files:write',
     ]);
     expect(await cmd.capabilities(backing)).to.eql({
       list: true,
       stat: true,
       read: true,
+      write: false,
+      remove: false,
       watch: false,
       manifest: true,
       maxReadBytes: 64,

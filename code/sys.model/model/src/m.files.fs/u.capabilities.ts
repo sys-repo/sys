@@ -31,6 +31,8 @@ export const readonlyCapabilities = (args: ReadonlyCapabilitiesArgs): t.Files.Ca
     list: true,
     stat: true,
     read: true,
+    write: false,
+    remove: false,
     watch: false,
     manifest: args.policy.manifest === true,
     ...(args.maxReadBytes === undefined ? {} : { maxReadBytes: args.maxReadBytes }),

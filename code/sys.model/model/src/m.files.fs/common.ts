@@ -3,7 +3,7 @@ import type { t } from '../common.ts';
 export * from '../common.ts';
 
 /**
- * Defaults.
+ * Defaults for the readonly files/fs backing.
  *
  * Runtime freeze is intentional: these values are reused as advertised
  * capability facts, so mutation must not widen or misreport authority.

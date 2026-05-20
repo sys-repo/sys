@@ -11,6 +11,8 @@ describe('Files.Cmd', () => {
       list: 'files:list',
       stat: 'files:stat',
       read: 'files:read',
+      write: 'files:write',
+      remove: 'files:remove',
       watch: 'files:watch',
       manifest: 'files:manifest',
     });

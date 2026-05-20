@@ -2,7 +2,7 @@ import { Glob, Is, type t } from './common.ts';
 import { snapshotMatch } from './u.match.ts';
 
 export type FilesInvalid = (message: string) => Error;
-export type PolicyAction = 'list' | 'stat' | 'read' | 'watch';
+export type PolicyAction = 'list' | 'stat' | 'read' | 'write' | 'remove' | 'watch';
 
 /** Snapshot a Files policy so caller mutation cannot widen authority. */
 export const snapshotPolicy = (
@@ -19,6 +19,8 @@ export const snapshotPolicy = (
     ...(input.list === undefined ? {} : { list: snapshotPolicyMatch(input.list, invalid) }),
     ...(input.stat === undefined ? {} : { stat: snapshotPolicyMatch(input.stat, invalid) }),
     ...(input.read === undefined ? {} : { read: snapshotPolicyMatch(input.read, invalid) }),
+    ...(input.write === undefined ? {} : { write: snapshotPolicyMatch(input.write, invalid) }),
+    ...(input.remove === undefined ? {} : { remove: snapshotPolicyMatch(input.remove, invalid) }),
     ...(input.watch === undefined ? {} : { watch: snapshotPolicyMatch(input.watch, invalid) }),
     ...(input.manifest === undefined ? {} : { manifest: input.manifest }),
     ...(input.deny === undefined ? {} : { deny: snapshotPolicyMatch(input.deny, invalid) }),

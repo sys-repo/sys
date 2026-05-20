@@ -54,6 +54,8 @@ describe('FilesFs.readonly: path safety', () => {
         list: true,
         stat: true,
         read: true,
+        write: false,
+        remove: false,
         watch: false,
         manifest: true,
         encodings: ['utf8'],

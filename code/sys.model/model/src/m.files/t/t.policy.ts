@@ -19,6 +19,10 @@ export declare namespace FilesPolicy {
     readonly stat?: Core.Match;
     /** Allow reading matching files. */
     readonly read?: Core.Match;
+    /** Allow writing matching files. */
+    readonly write?: Core.Match;
+    /** Allow removing matching entries. */
+    readonly remove?: Core.Match;
     /** Allow watching matching entries/scopes. */
     readonly watch?: Core.Match;
     /** Allow producing a manifest for this view. */

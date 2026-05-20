@@ -29,6 +29,8 @@ describe('FilesMemory.live', () => {
       list: true,
       stat: true,
       read: true,
+      write: false,
+      remove: false,
       watch: true,
       manifest: true,
       fidelity: 'live',

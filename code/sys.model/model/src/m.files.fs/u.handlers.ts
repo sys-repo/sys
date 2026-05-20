@@ -23,6 +23,12 @@ export const handlers = (args: HandlerArgs): t.FilesCmd.HandlerMap => {
     'files:list': async (payload) => list(args.scope, args.policy, payload, args.defaultLimit),
     'files:stat': async (payload) => stat(args.scope, args.policy, payload),
     'files:read': async (payload) => read(args.scope, args.policy, payload, args.maxReadBytes),
+    'files:write': () => {
+      throw fail('FilesFsError.Unsupported', 'Readonly files/fs backing does not support write');
+    },
+    'files:remove': () => {
+      throw fail('FilesFsError.Unsupported', 'Readonly files/fs backing does not support remove');
+    },
     'files:watch': () => {
       throw fail('FilesFsError.Unsupported', 'Readonly files/fs backing does not support watch');
     },
