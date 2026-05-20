@@ -12,10 +12,16 @@ export declare namespace Live {
 
   /** Read-only diagnostics for deterministic live backing orchestration/tests. */
   export type Diagnostics = {
+    /** Diagnostics for active live subscriptions. */
+    readonly Active: ActiveDiagnostics;
+  };
+
+  /** Diagnostics for active live subscriptions. */
+  export type ActiveDiagnostics = {
     /** Number of currently active `files:watch` subscriptions. */
-    readonly activeWatchCount: () => number;
+    readonly watchCount: () => number;
 
     /** Resolve when at least one `files:watch` subscription is active. */
-    readonly whenWatchActive: () => Promise<void>;
+    readonly whenActive: () => Promise<void>;
   };
 }

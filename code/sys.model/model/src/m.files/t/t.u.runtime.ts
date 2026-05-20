@@ -4,7 +4,7 @@ import type { FilesCmd } from './t.cmd.ts';
 import type { FilesPolicy } from './t.policy.ts';
 
 /**
- * Runtime structural surfaces and option fragments for Files backing adapters.
+ * Runtime structural surfaces and option fragments for backing adapters.
  */
 export declare namespace Runtime {
   /** Minimal Cmd surface exposed by a bounded Files backing. */
