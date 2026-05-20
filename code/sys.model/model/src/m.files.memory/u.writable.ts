@@ -5,6 +5,7 @@ import { write } from './u.cmd.write.ts';
 import { translate } from './u.error.ts';
 import { type MemoryNodes } from './u.index.ts';
 import { createBaseRuntime } from './u.runtime.base.ts';
+import { withCapabilities } from '../m.files/u.handlers.ts';
 
 type WritableRuntime = {
   readonly nodes: MemoryNodes;
@@ -32,19 +33,7 @@ export const createWritableRuntime = (options: t.FilesMemory.Options = {}): Writ
         policy: base.policy,
         capabilities,
         handlers: Object.freeze({
-          ...base.handlers,
-          'files:capabilities': () => capabilities,
-          'files:manifest': async (
-            payload: t.FilesCmd.Manifest.Payload,
-            context: t.Cmd.Handler.Context<
-              t.FilesCmd.Name,
-              t.FilesCmd.Event,
-              t.FilesCmd.Name.Manifest
-            >,
-          ) => {
-            const manifest = await base.handlers['files:manifest'](payload, context);
-            return { ...manifest, capabilities };
-          },
+          ...withCapabilities(base.handlers, capabilities),
           'files:write': mutations.write,
           'files:remove': (payload: t.FilesCmd.Remove.Payload) => {
             return mutations.remove(payload).result;

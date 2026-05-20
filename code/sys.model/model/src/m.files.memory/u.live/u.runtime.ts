@@ -2,6 +2,7 @@ import { type t } from '../common.ts';
 import { liveCapabilities } from '../u.capabilities.ts';
 import { translate } from '../u.error.ts';
 import { createWritableRuntime } from '../u.writable.ts';
+import { withCapabilities } from '../../m.files/u.handlers.ts';
 import { createWatch } from './u.watch.ts';
 
 type LiveRuntime = {
@@ -21,19 +22,7 @@ export const createLiveRuntime = (options: t.FilesMemory.Options = {}): LiveRunt
         policy: writable.policy,
         capabilities,
         handlers: Object.freeze({
-          ...writable.handlers,
-          'files:capabilities': () => capabilities,
-          'files:manifest': async (
-            payload: t.FilesCmd.Manifest.Payload,
-            context: t.Cmd.Handler.Context<
-              t.FilesCmd.Name,
-              t.FilesCmd.Event,
-              t.FilesCmd.Name.Manifest
-            >,
-          ) => {
-            const manifest = await writable.handlers['files:manifest'](payload, context);
-            return { ...manifest, capabilities };
-          },
+          ...withCapabilities(writable.handlers, capabilities),
           'files:write': (payload: t.FilesCmd.Write.Payload) => {
             const result = mutations.write(payload);
             const change = watch.emit(result.kind, result.path);
