@@ -45,7 +45,7 @@ export type SetupOptions = {
 };
 
 export type ListPayloadInput = Omit<t.FilesCmd.List.Payload, 'cursor'> & {
-  readonly cursor?: t.Files.StringCursor;
+  readonly cursor?: t.Files.String.Cursor;
 };
 
 export type ReadPayloadInput = Omit<t.FilesCmd.Read.Payload, 'encoding'> & {

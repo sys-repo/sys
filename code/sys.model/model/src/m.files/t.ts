@@ -38,14 +38,17 @@ export declare namespace Files {
   /** Stable client facade type for Files Cmd users. */
   export type Client = FilesCmd.Client;
 
-  /** Canonical root-relative file path visible inside a bounded Files view. */
-  export type StringPath = Core.StringPath;
+  /** Files string-shaped scalar contracts. */
+  export namespace String {
+    /** Canonical root-relative file path visible inside a bounded Files view. */
+    export type Path = Core.StringPath;
 
-  /** Opaque, versioned cursor token for paged Files command surfaces. */
-  export type StringCursor<
-    K extends FilesCursor.Kind = FilesCursor.Kind,
-    V extends FilesCursor.Version = FilesCursor.Version,
-  > = FilesCursor.StringCursor<K, V>;
+    /** Opaque, versioned cursor token for paged Files command surfaces. */
+    export type Cursor<
+      K extends FilesCursor.Kind = FilesCursor.Kind,
+      V extends FilesCursor.Version = FilesCursor.Version,
+    > = FilesCursor.StringCursor<K, V>;
+  }
 
   /** Monotonic sequence number for change hints. */
   export type Seq = Core.Seq;

@@ -4,15 +4,15 @@ import { snapshotOptionalMatch } from './u.match.ts';
 export type FilesInvalid = (message: string) => Error;
 
 export type ListEntriesOptions = {
-  readonly path: t.Files.StringPath;
+  readonly path: t.Files.String.Path;
   readonly depth?: t.Files.Depth;
   readonly match?: t.Files.Match;
   readonly exclude?: t.Files.Match;
 };
 
 export type RelativePath = (
-  base: t.Files.StringPath,
-  path: t.Files.StringPath,
+  base: t.Files.String.Path,
+  path: t.Files.String.Path,
 ) => t.StringRelativePath;
 
 /** Snapshot and validate shared Files list-entry options. */
@@ -37,8 +37,8 @@ export const snapshotListOptions = (
 
 /** True when `path` is inside the bounded list scope `base`. */
 export const withinScope = (
-  path: t.Files.StringPath,
-  base: t.Files.StringPath,
+  path: t.Files.String.Path,
+  base: t.Files.String.Path,
   relative: RelativePath,
 ): boolean => {
   if (base === '') return true;
@@ -47,8 +47,8 @@ export const withinScope = (
 
 /** True when `path` is within the requested traversal depth under `base`. */
 export const withinDepth = (
-  path: t.Files.StringPath,
-  base: t.Files.StringPath,
+  path: t.Files.String.Path,
+  base: t.Files.String.Path,
   depth: t.Files.Depth | undefined,
   relative: RelativePath,
 ): boolean => {
@@ -62,8 +62,8 @@ export const withinDepth = (
  * Helpers:
  */
 function relativePath(
-  path: t.Files.StringPath,
-  base: t.Files.StringPath,
+  path: t.Files.String.Path,
+  base: t.Files.String.Path,
   relative: RelativePath,
 ): t.StringRelativePath {
   return relative(base, path).replaceAll('\\', '/') as t.StringRelativePath;

@@ -74,7 +74,7 @@ describe('Files/t', () => {
     const list: t.FilesCursor.List = 'files:cursor:list:v1:page-1';
     const watch: t.FilesCursor.Watch = 'files:cursor:watch:v1:seq-1';
     const manifest: t.FilesCursor.Manifest = 'files:cursor:manifest:v1:page-1';
-    const generic: t.Files.StringCursor = manifest;
+    const generic: t.Files.String.Cursor = manifest;
 
     expect(list).to.eql('files:cursor:list:v1:page-1');
     expect(watch).to.eql('files:cursor:watch:v1:seq-1');
@@ -84,7 +84,7 @@ describe('Files/t', () => {
     expectTypeOf(list).toEqualTypeOf<t.FilesCursor.List>();
     expectTypeOf(watch).toEqualTypeOf<t.FilesCursor.Watch>();
     expectTypeOf(manifest).toEqualTypeOf<t.FilesCursor.Manifest>();
-    expectTypeOf(generic).toMatchTypeOf<t.Files.StringCursor>();
+    expectTypeOf(generic).toMatchTypeOf<t.Files.String.Cursor>();
 
     const widened = 'files:cursor:list:v1:page-1' as string;
     const versionless = 'files:cursor:list:page-1';
@@ -97,7 +97,7 @@ describe('Files/t', () => {
     const wrongVersion: t.FilesCursor.List = versionless;
 
     // @ts-expect-error Cursor kinds are limited to list/watch/manifest.
-    const wrongKind: t.Files.StringCursor = unknownKind;
+    const wrongKind: t.Files.String.Cursor = unknownKind;
 
     // @ts-expect-error List cursors must not be accepted as manifest cursors.
     const wrongScope: t.FilesCursor.Manifest = list;

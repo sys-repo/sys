@@ -2,7 +2,7 @@ import { type t } from './common.ts';
 import { fail } from './u.error.ts';
 
 export const entryFromStat = (
-  path: t.Files.StringPath,
+  path: t.Files.String.Path,
   stat: t.FilesFs.Capability.Stat,
 ): t.Files.Entry => {
   const kind = stat.kind ?? (stat.isFile ? 'file' : stat.isDirectory ? 'dir' : undefined);

@@ -11,30 +11,30 @@ export const memoryIndex = (options: t.FilesMemory.Options = {}): MemoryNodes =>
   assertOptions(options);
 
   const nodes: MemoryNodes = new Map<t.StringAbsolutePath, MemoryNode>();
-  putDir(nodes, '' as t.Files.StringPath);
+  putDir(nodes, '' as t.Files.String.Path);
   for (const dir of options.dirs ?? []) putDir(nodes, dir);
   for (const [name, file] of Object.entries(options.files ?? {})) putFile(nodes, name, file);
 
   return nodes;
 };
 
-export function putDir(nodes: MemoryNodes, input: t.Files.StringPath) {
+export function putDir(nodes: MemoryNodes, input: t.Files.String.Path) {
   const path = visiblePath(input);
   const segments = path.split('/').filter(Boolean);
-  let current = '' as t.Files.StringPath;
+  let current = '' as t.Files.String.Path;
   putNode(nodes, current, { kind: 'dir' });
 
   for (const segment of segments) {
-    current = (current ? `${current}/${segment}` : segment) as t.Files.StringPath;
+    current = (current ? `${current}/${segment}` : segment) as t.Files.String.Path;
     putNode(nodes, current, { kind: 'dir' });
   }
 }
 
 export function putFile(
   nodes: MemoryNodes,
-  input: t.Files.StringPath,
+  input: t.Files.String.Path,
   file: t.FilesSource.TextFileInput,
-): t.Files.StringPath {
+): t.Files.String.Path {
   const path = visiblePath(input);
   if (path === '') throw fail('FilesMemoryError.InvalidPath', 'File path cannot be root');
   putDir(nodes, FilesPath.parent(path));
@@ -44,8 +44,8 @@ export function putFile(
 
 export function removePath(
   nodes: MemoryNodes,
-  input: t.Files.StringPath,
-): { readonly path: t.Files.StringPath; readonly node: MemoryNode } | undefined {
+  input: t.Files.String.Path,
+): { readonly path: t.Files.String.Path; readonly node: MemoryNode } | undefined {
   const path = visiblePath(input);
   if (path === '') throw fail('FilesMemoryError.InvalidPath', 'Cannot remove memory root');
 
@@ -74,7 +74,7 @@ function assertOptions(options: unknown): asserts options is t.FilesMemory.Optio
 
 function putNode(
   nodes: Map<t.StringAbsolutePath, MemoryNode>,
-  input: t.Files.StringPath,
+  input: t.Files.String.Path,
   node: MemoryNode,
 ) {
   const absolute = absolutePath(input);

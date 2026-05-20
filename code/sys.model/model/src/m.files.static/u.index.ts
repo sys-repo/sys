@@ -10,8 +10,8 @@ export type StaticFile = {
 
 export type StaticIndex = {
   readonly entries: readonly t.Files.Entry[];
-  readonly entriesByPath: ReadonlyMap<t.Files.StringPath, t.Files.Entry>;
-  readonly filesByPath: ReadonlyMap<t.Files.StringPath, StaticFile>;
+  readonly entriesByPath: ReadonlyMap<t.Files.String.Path, t.Files.Entry>;
+  readonly filesByPath: ReadonlyMap<t.Files.String.Path, StaticFile>;
   readonly generated?: t.StringIsoDate;
 };
 
@@ -26,11 +26,11 @@ export function staticIndex(options: {
     throw invalidPath('Invalid static Files base URL');
   }
 
-  const dirs = new Set<t.Files.StringPath>(['' as t.Files.StringPath]);
-  const files = new Map<t.Files.StringPath, StaticFile>();
+  const dirs = new Set<t.Files.String.Path>(['' as t.Files.String.Path]);
+  const files = new Map<t.Files.String.Path, StaticFile>();
 
   for (const [rawPath, rawPart] of Object.entries(dist.hash.parts)) {
-    const path = visiblePath(rawPath as t.Files.StringPath);
+    const path = visiblePath(rawPath as t.Files.String.Path);
     if (path === '') throw invalidPath('Static file path cannot be root');
     if (dirs.has(path)) throw invalidPath(`file conflicts with dir: ${path}`);
 
@@ -44,7 +44,7 @@ export function staticIndex(options: {
 
   const entries = [...dirEntries(dirs), ...[...files.values()].map((item) => item.entry)]
     .sort((a, b) => a.path.localeCompare(b.path));
-  const entriesByPath = new Map<t.Files.StringPath, t.Files.Entry>();
+  const entriesByPath = new Map<t.Files.String.Path, t.Files.Entry>();
   for (const entry of entries) entriesByPath.set(entry.path, entry);
 
   const generatedAt = generated(dist);
@@ -61,20 +61,20 @@ export function staticIndex(options: {
  * Helpers:
  */
 function putParentDirs(
-  dirs: Set<t.Files.StringPath>,
-  files: ReadonlyMap<t.Files.StringPath, StaticFile>,
-  path: t.Files.StringPath,
+  dirs: Set<t.Files.String.Path>,
+  files: ReadonlyMap<t.Files.String.Path, StaticFile>,
+  path: t.Files.String.Path,
 ) {
   const parts = parentPath(path).split('/').filter(Boolean);
-  let current = '' as t.Files.StringPath;
+  let current = '' as t.Files.String.Path;
   for (const part of parts) {
-    current = (current ? `${current}/${part}` : part) as t.Files.StringPath;
+    current = (current ? `${current}/${part}` : part) as t.Files.String.Path;
     if (files.has(current)) throw invalidPath(`dir conflicts with file: ${current}`);
     dirs.add(current);
   }
 }
 
-function dirEntries(dirs: ReadonlySet<t.Files.StringPath>): readonly t.FilesEntry.Dir[] {
+function dirEntries(dirs: ReadonlySet<t.Files.String.Path>): readonly t.FilesEntry.Dir[] {
   return [...dirs]
     .filter((path) => path !== '')
     .map((path) => Object.freeze({ path, kind: 'dir' as const }));
@@ -82,7 +82,7 @@ function dirEntries(dirs: ReadonlySet<t.Files.StringPath>): readonly t.FilesEntr
 
 type PartInfo = { readonly hash: t.StringHash; readonly size?: t.NumberBytes };
 
-function fileEntry(path: t.Files.StringPath, info: PartInfo): t.FilesEntry.File {
+function fileEntry(path: t.Files.String.Path, info: PartInfo): t.FilesEntry.File {
   return Object.freeze({
     path,
     kind: 'file',

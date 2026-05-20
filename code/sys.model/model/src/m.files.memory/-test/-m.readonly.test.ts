@@ -193,11 +193,11 @@ describe('FilesMemory.readonly', () => {
 
     const { backing } = setup();
     await expectFilesMemoryError(
-      () => cmd.stat(backing, { path: '/etc/passwd' as t.Files.StringPath }),
+      () => cmd.stat(backing, { path: '/etc/passwd' as t.Files.String.Path }),
       'FilesMemoryError.InvalidPath',
     );
     await expectFilesMemoryError(
-      () => cmd.stat(backing, { path: 'notes/..' as t.Files.StringPath }),
+      () => cmd.stat(backing, { path: 'notes/..' as t.Files.String.Path }),
       'FilesMemoryError.InvalidPath',
     );
     await expectFilesMemoryError(

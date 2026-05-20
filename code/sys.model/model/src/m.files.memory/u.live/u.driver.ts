@@ -12,16 +12,16 @@ import { fail } from '../u.error.ts';
  */
 export type LiveDriver = {
   readonly writeText: (
-    path: t.Files.StringPath,
+    path: t.Files.String.Path,
     content: string,
     file?: Omit<t.FilesSource.TextFile, 'content'>,
   ) => Promise<t.Files.Change>;
-  readonly remove: (path: t.Files.StringPath) => Promise<t.Files.Change | undefined>;
+  readonly remove: (path: t.Files.String.Path) => Promise<t.Files.Change | undefined>;
 };
 
 export type EmitChange = (
   kind: t.Files.Change['kind'],
-  path: t.Files.StringPath,
+  path: t.Files.String.Path,
 ) => t.Files.Change;
 
 /** Create the transitional owner-side mutation driver. */

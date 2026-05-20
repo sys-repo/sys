@@ -30,7 +30,7 @@ export const snapshotPolicy = (
 export const allowed = (
   policy: t.FilesPolicy.Shape,
   action: PolicyAction,
-  path: t.Files.StringPath,
+  path: t.Files.String.Path,
 ): boolean => {
   if (Glob.matches(policy.deny, path)) return false;
   return Glob.matches(policy[action], path);
@@ -39,7 +39,7 @@ export const allowed = (
 /** True when a policy allows manifest projection for the visible Files path. */
 export const manifestAllowed = (
   policy: t.FilesPolicy.Shape,
-  path: t.Files.StringPath,
+  path: t.Files.String.Path,
 ): boolean => {
   if (Glob.matches(policy.deny, path)) return false;
   return policy.manifest === true;

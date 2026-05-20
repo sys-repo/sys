@@ -10,8 +10,8 @@ export type FilesPathLib = {
   readonly Is: {
     readonly windowsDrive: (input: t.StringPath) => boolean;
   };
-  readonly visible: (ops: PathOps, input: unknown, invalid: InvalidPath) => t.Files.StringPath;
-  readonly parent: (input: t.Files.StringPath, invalid?: InvalidPath) => t.Files.StringPath;
+  readonly visible: (ops: PathOps, input: unknown, invalid: InvalidPath) => t.Files.String.Path;
+  readonly parent: (input: t.Files.String.Path, invalid?: InvalidPath) => t.Files.String.Path;
   readonly posix: () => PosixPathOps;
 };
 
@@ -22,11 +22,11 @@ export const FilesPath: FilesPathLib = Object.freeze({
   Is: Path.Bounded.Is,
 
   visible(ops, input, invalid) {
-    return Path.Bounded.visible(ops, input, filesInvalid(invalid)) as t.Files.StringPath;
+    return Path.Bounded.visible(ops, input, filesInvalid(invalid)) as t.Files.String.Path;
   },
 
   parent(input, invalid = defaultInvalid) {
-    return Path.Bounded.parent(input, filesInvalid(invalid)) as t.Files.StringPath;
+    return Path.Bounded.parent(input, filesInvalid(invalid)) as t.Files.String.Path;
   },
 
   posix() {

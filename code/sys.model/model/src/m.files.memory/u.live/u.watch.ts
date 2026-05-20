@@ -94,7 +94,7 @@ export type WatchRuntime = {
   ) => Promise<t.FilesCmd.Watch.Result>;
   readonly emit: (
     kind: t.Files.Change['kind'],
-    path: t.Files.StringPath,
+    path: t.Files.String.Path,
   ) => t.Files.Change;
 };
 
@@ -128,7 +128,7 @@ function watchQuery(
 
 function watcherMatches(
   query: ListEntriesOptions,
-  path: t.Files.StringPath,
+  path: t.Files.String.Path,
   policy: t.FilesPolicy.Shape,
 ): boolean {
   if (!withinScope(path, query.path, pathOps.relative)) return false;
@@ -140,7 +140,7 @@ function watcherMatches(
 
 function changeFrom(
   kind: t.Files.Change['kind'],
-  path: t.Files.StringPath,
+  path: t.Files.String.Path,
   node: MemoryNode | undefined,
   seq: t.Files.Seq,
 ): t.Files.Change {
@@ -152,7 +152,7 @@ function changeFrom(
   };
 }
 
-function entryFromNode(path: t.Files.StringPath, node: MemoryNode): t.Files.Entry {
+function entryFromNode(path: t.Files.String.Path, node: MemoryNode): t.Files.Entry {
   const stat = statFromNode(node);
   const base = {
     path,

@@ -31,7 +31,7 @@ export function contentRef(args: {
 /**
  * Helpers:
  */
-function contentUrl(baseUrl: t.StringUrl, path: t.Files.StringPath): t.StringUrl {
+function contentUrl(baseUrl: t.StringUrl, path: t.Files.String.Path): t.StringUrl {
   try {
     const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
     const encoded = path.split('/').map(encodeURIComponent).join('/');

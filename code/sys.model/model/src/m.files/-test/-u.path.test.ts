@@ -26,7 +26,7 @@ describe('Files/u.path', () => {
   it('derives parents through bounded visible-path canonicalization', () => {
     expect(FilesPath.parent('./docs/nested/guide.md', invalid)).to.eql('docs/nested');
     expect(FilesPath.parent('readme.md', invalid)).to.eql('');
-    expect(() => FilesPath.parent('../outside.txt' as t.Files.StringPath, invalid)).to.throw(
+    expect(() => FilesPath.parent('../outside.txt' as t.Files.String.Path, invalid)).to.throw(
       Error,
       'Files path cannot traverse above root',
     );

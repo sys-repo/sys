@@ -5,7 +5,7 @@ export type FilesInvalid = (message: string) => Error;
 
 export type PageInput<K extends t.FilesCursor.Kind> = {
   readonly kind: K;
-  readonly cursor?: t.Files.StringCursor<K>;
+  readonly cursor?: t.Files.String.Cursor<K>;
   readonly limit?: t.Files.Limit;
   readonly defaultLimit: t.Files.Limit;
 };
@@ -16,7 +16,7 @@ export type PageArgs<K extends t.FilesCursor.Kind, T> = PageInput<K> & {
 
 export type Page<T, K extends t.FilesCursor.Kind> = {
   readonly items: readonly T[];
-  readonly cursor?: t.Files.StringCursor<K>;
+  readonly cursor?: t.Files.String.Cursor<K>;
   readonly truncated?: boolean;
 };
 
@@ -63,7 +63,7 @@ const pageLimit = (
 
 const offsetFromCursor = <K extends t.FilesCursor.Kind>(
   kind: K,
-  cursor: t.Files.StringCursor<K> | undefined,
+  cursor: t.Files.String.Cursor<K> | undefined,
   invalid: FilesInvalid,
 ): number => {
   if (cursor === undefined) return 0;

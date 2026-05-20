@@ -6,11 +6,11 @@ export const ROOT = '/memory' as t.StringAbsolutePath;
 
 export const path = FilesPath.posix() satisfies t.FilesFs.Capability.Path;
 
-export const visiblePath = (input: unknown): t.Files.StringPath => {
+export const visiblePath = (input: unknown): t.Files.String.Path => {
   return FilesPath.visible(path, input, invalidPath);
 };
 
-export function absolutePath(input: t.Files.StringPath): t.StringAbsolutePath {
+export function absolutePath(input: t.Files.String.Path): t.StringAbsolutePath {
   return path.resolve(ROOT, input);
 }
 

@@ -14,26 +14,26 @@ export const scope = (fs: t.FilesFs.Capability.Readonly, root: t.StringPath): Sc
 
 export const visiblePath = (
   fs: t.FilesFs.Capability.Readonly,
-  input?: t.Files.StringPath,
-): t.Files.StringPath => {
+  input?: t.Files.String.Path,
+): t.Files.String.Path => {
   return FilesPath.visible(toBoundedPathOps(fs.Path), input, invalidPath);
 };
 
 export const requiredVisiblePath = (
   fs: t.FilesFs.Capability.Readonly,
-  input?: t.Files.StringPath,
-): t.Files.StringPath => {
+  input?: t.Files.String.Path,
+): t.Files.String.Path => {
   if (input === undefined) throw invalidPath('Files path is required');
   return visiblePath(fs, input);
 };
 
-export const absolutePath = (scope: Scope, path: t.Files.StringPath): t.StringAbsolutePath => {
+export const absolutePath = (scope: Scope, path: t.Files.String.Path): t.StringAbsolutePath => {
   const target = path ? scope.fs.Path.resolve(scope.root, path) : scope.root;
   assertInside(scope, target);
   return target;
 };
 
-export const relativePath = (scope: Scope, path: t.StringPath): t.Files.StringPath => {
+export const relativePath = (scope: Scope, path: t.StringPath): t.Files.String.Path => {
   const absolute = scope.fs.Path.Is.absolute(path) ? path : scope.fs.Path.resolve(scope.root, path);
   assertInside(scope, absolute);
   const relative = scope.fs.Path.relative(scope.root, absolute).replaceAll('\\', '/');

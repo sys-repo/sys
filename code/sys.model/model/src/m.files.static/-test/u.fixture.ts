@@ -26,7 +26,7 @@ export type SetupOptions = Omit<t.FilesStatic.FromDistOptions, 'dist' | 'policy'
 };
 
 export type ListPayloadInput = Omit<t.FilesCmd.List.Payload, 'cursor'> & {
-  readonly cursor?: t.Files.StringCursor;
+  readonly cursor?: t.Files.String.Cursor;
 };
 
 export function setup(options: SetupOptions = {}) {

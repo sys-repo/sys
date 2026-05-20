@@ -21,12 +21,12 @@ export const defaultFiles = {
 
 export type SetupOptions = Omit<t.FilesMemory.Options, 'files' | 'dirs' | 'policy'> & {
   readonly files?: t.FilesSource.TextFileMap;
-  readonly dirs?: readonly t.Files.StringPath[];
+  readonly dirs?: readonly t.Files.String.Path[];
   readonly policy?: t.FilesPolicy.Shape;
 };
 
 export type ListPayloadInput = Omit<t.FilesCmd.List.Payload, 'cursor'> & {
-  readonly cursor?: t.Files.StringCursor;
+  readonly cursor?: t.Files.String.Cursor;
 };
 
 export type ReadPayloadInput = Omit<t.FilesCmd.Read.Payload, 'encoding'> & {

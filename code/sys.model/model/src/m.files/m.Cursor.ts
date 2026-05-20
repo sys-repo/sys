@@ -22,13 +22,13 @@ const fail = (message: string) => Err.std(message, { name: 'FilesCursorError' })
 const create = <K extends t.FilesCursor.Kind>(kind: K, token: t.FilesCursor.Token) => {
   if (!isKind(kind)) throw fail(`Invalid Files cursor kind: ${String(kind)}`);
   if (!isToken(token)) throw fail('Files cursor token must be a non-empty string');
-  return `${prefix}:${kind}:${version}:${token}` as t.Files.StringCursor<K>;
+  return `${prefix}:${kind}:${version}:${token}` as t.Files.String.Cursor<K>;
 };
 
 const toParsed = <K extends t.FilesCursor.Kind>(
   kind: K,
   token: t.FilesCursor.Token,
-  value: t.Files.StringCursor<K>,
+  value: t.Files.String.Cursor<K>,
 ): t.FilesCursor.Parsed.Shape<K> => {
   return { prefix, kind, version, token, value };
 };
@@ -53,7 +53,7 @@ const parse = (input: unknown): t.FilesCursor.Parsed | undefined => {
 };
 
 const IsCursor: t.FilesCursor.IsLib = {
-  cursor(input: unknown): input is t.Files.StringCursor {
+  cursor(input: unknown): input is t.Files.String.Cursor {
     return parse(input) !== undefined;
   },
   list(input: unknown): input is t.FilesCursor.List {
@@ -65,7 +65,7 @@ const IsCursor: t.FilesCursor.IsLib = {
   manifest(input: unknown): input is t.FilesCursor.Manifest {
     return parse(input)?.kind === Kind.manifest;
   },
-  kind<K extends t.FilesCursor.Kind>(kind: K, input: unknown): input is t.Files.StringCursor<K> {
+  kind<K extends t.FilesCursor.Kind>(kind: K, input: unknown): input is t.Files.String.Cursor<K> {
     return parse(input)?.kind === kind;
   },
 };
