@@ -1,15 +1,17 @@
 import { type t } from '../common.ts';
 import { liveCapabilities } from '../u.capabilities.ts';
-import { remove } from '../u.cmd.remove.ts';
-import { write } from '../u.cmd.write.ts';
 import { translate } from '../u.error.ts';
 import { createWritableRuntime } from '../u.writable.ts';
 import { createWatch } from './u.watch.ts';
 
+type LiveRuntime = {
+  readonly backing: t.FilesMemory.Live;
+};
+
 /** Internal live memory runtime; not exported from the public module. */
 export const createLiveRuntime = (options: t.FilesMemory.Options = {}): LiveRuntime => {
   try {
-    const { backing: writable, nodes } = createWritableRuntime(options);
+    const { backing: writable, mutations, nodes } = createWritableRuntime(options);
     const capabilities = liveCapabilities(writable.capabilities);
     const watch = createWatch(nodes, writable.policy);
 
@@ -33,12 +35,12 @@ export const createLiveRuntime = (options: t.FilesMemory.Options = {}): LiveRunt
             return { ...manifest, capabilities };
           },
           'files:write': (payload: t.FilesCmd.Write.Payload) => {
-            const result = write(nodes, writable.policy, payload);
+            const result = mutations.write(payload);
             const change = watch.emit(result.kind, result.path);
             return withSeq(result, change);
           },
           'files:remove': (payload: t.FilesCmd.Remove.Payload) => {
-            const mutation = remove(nodes, writable.policy, payload);
+            const mutation = mutations.remove(payload);
             let rootChange: t.Files.Change | undefined;
             for (const path of mutation.deleted) {
               const change = watch.emit('deleted', path);
@@ -54,10 +56,6 @@ export const createLiveRuntime = (options: t.FilesMemory.Options = {}): LiveRunt
   } catch (error) {
     throw translate(error);
   }
-};
-
-export type LiveRuntime = {
-  readonly backing: t.FilesMemory.Live;
 };
 
 function withSeq<R extends t.FilesCmd.Write.Result | t.FilesCmd.Remove.Result>(
