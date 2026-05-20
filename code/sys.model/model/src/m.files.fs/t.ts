@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-import type * as Backing from '../m.files/t/t.backing.ts';
+import type { Runtime } from '../m.files/t/t.u.runtime.ts';
 import type { Error as TError } from '../m.files/t/t.error.ts';
 
 /**
@@ -13,12 +13,12 @@ export declare namespace FilesFs {
   };
 
   /** Bounded readonly Files backing. */
-  export type Readonly = Backing.Runtime.Shape<'files/fs:readonly'>;
+  export type Readonly = Runtime.Shape<'files/fs:readonly'>;
 
   /** Options for creating a readonly Files backing. */
   export type ReadonlyOptions =
-    & Backing.Runtime.Options
-    & Backing.Runtime.InlineReadOptions
+    & Runtime.Options
+    & Runtime.InlineReadOptions
     & {
       /** Structural filesystem capability. */
       readonly fs: Capability.Readonly;

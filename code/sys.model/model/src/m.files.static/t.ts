@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-import type * as Backing from '../m.files/t/t.backing.ts';
+import type { Runtime } from '../m.files/t/t.u.runtime.ts';
 import type { Error as TError } from '../m.files/t/t.error.ts';
 
 /**
@@ -13,10 +13,10 @@ export declare namespace FilesStatic {
   };
 
   /** Bounded static Files backing. */
-  export type Readonly = Backing.Runtime.Shape<'files/static:dist'>;
+  export type Readonly = Runtime.Shape<'files/static:dist'>;
 
   /** Options for creating a static Files backing from dist metadata. */
-  export type FromDistOptions = Backing.Runtime.Options & {
+  export type FromDistOptions = Runtime.Options & {
     /** Canonical static distribution metadata. */
     readonly dist: t.DistPkg;
 

@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-import type * as Backing from '../m.files/t/t.backing.ts';
+import type { Runtime } from '../m.files/t/t.u.runtime.ts';
 import type { Error as TError } from '../m.files/t/t.error.ts';
 
 /**
@@ -13,12 +13,12 @@ export declare namespace FilesMemory {
   };
 
   /** Bounded readonly in-memory Files backing. */
-  export type Readonly = Backing.Runtime.Shape<'files/memory:readonly'>;
+  export type Readonly = Runtime.Shape<'files/memory:readonly'>;
 
   /** Options for creating an in-memory Files backing. */
   export type Options =
-    & Backing.Runtime.Options
-    & Backing.Runtime.InlineReadOptions
+    & Runtime.Options
+    & Runtime.InlineReadOptions
     & t.FilesSource.TextTree;
 
   /** Files/memory error surface. */

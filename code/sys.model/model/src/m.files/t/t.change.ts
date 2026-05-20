@@ -1,4 +1,4 @@
-import type { Core } from './t.core.ts';
+import type { Core } from './t.u.core.ts';
 import type { FilesEntry } from './t.entry.ts';
 
 /**

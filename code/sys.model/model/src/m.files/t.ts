@@ -1,4 +1,4 @@
-import type { Core } from './t/t.core.ts';
+import type { Core } from './t/t.u.core.ts';
 import type { FilesCapability } from './t/t.capability.ts';
 import type { FilesChange } from './t/t.change.ts';
 import type { FilesCmd } from './t/t.cmd.ts';

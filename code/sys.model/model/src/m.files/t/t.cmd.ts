@@ -2,7 +2,7 @@ import type { t } from '../common.ts';
 import type { FilesCapability } from './t.capability.ts';
 import type { FilesChange } from './t.change.ts';
 import type { FilesContentRef } from './t.content-ref.ts';
-import type { Core } from './t.core.ts';
+import type { Core } from './t.u.core.ts';
 import type { FilesCursor } from './t.cursor.ts';
 import type { FilesEntry } from './t.entry.ts';
 import type { FilesManifest } from './t.manifest.ts';

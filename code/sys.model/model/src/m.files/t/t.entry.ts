@@ -1,5 +1,5 @@
 import type { t } from '../common.ts';
-import type { Core } from './t.core.ts';
+import type { Core } from './t.u.core.ts';
 
 /**
  * Entry metadata visible inside a bounded Files view.
