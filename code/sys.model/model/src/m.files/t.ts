@@ -1,4 +1,5 @@
 import type { Core } from './t/t.u.core.ts';
+import type { FilesAuthority } from './t/t.authority.ts';
 import type { FilesCapability } from './t/t.capability.ts';
 import type { FilesChange } from './t/t.change.ts';
 import type { FilesCmd } from './t/t.cmd.ts';
@@ -8,6 +9,7 @@ import type { FilesEntry } from './t/t.entry.ts';
 import type { FilesManifest } from './t/t.manifest.ts';
 import type { FilesPolicy } from './t/t.policy.ts';
 
+export type { FilesAuthority } from './t/t.authority.ts';
 export type { FilesCapability } from './t/t.capability.ts';
 export type { FilesChange } from './t/t.change.ts';
 export type { FilesCmd } from './t/t.cmd.ts';
@@ -27,6 +29,8 @@ export declare namespace Files {
 
   /** Namespace-style public runtime surface. */
   export type Lib = {
+    /** Files authority resolver. */
+    readonly Authority: FilesAuthority.Lib;
     /** Files Cmd grammar names and namespace. */
     readonly Cmd: FilesCmd.Lib;
     /** Cursor codec for paged Files command surfaces. */
