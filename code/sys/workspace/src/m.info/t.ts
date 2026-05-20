@@ -6,6 +6,8 @@ import type { t } from './common.ts';
 export declare namespace WorkspaceInfo {
   /** Source statistics surface. */
   export type Lib = {
+    /** Canonical default policy used by workspace info helpers. */
+    readonly DEFAULTS: Defaults;
     /** Compute source statistics from include and exclude globs. */
     stats(args: StatsArgs): Promise<StatsResult>;
     /** Format source statistics for console output. */
@@ -46,12 +48,38 @@ export declare namespace WorkspaceInfo {
     readonly v8: string;
   };
 
+  /** Matched line classification kind. */
+  export type LineKind = 'source' | 'unit-test' | 'ui-spec-test';
+
+  /** Path classification rule for non-source line kinds. */
+  export type TestPathRule = {
+    /** Line kind returned when this rule matches. */
+    readonly kind: Exclude<LineKind, 'source'>;
+    /** Basename patterns that classify a matched file. */
+    readonly basenamePatterns?: readonly RegExp[];
+    /** Directory segment rules that classify a matched file. */
+    readonly directorySegments?: {
+      /** Exact directory segment names. */
+      readonly exact?: readonly string[];
+      /** Directory segment prefixes, including their intended delimiter. */
+      readonly prefixes?: readonly string[];
+    };
+  };
+
+  /** Default workspace info policy. */
+  export type Defaults = {
+    /** Ordered path classification rules. */
+    readonly testPathRules: readonly TestPathRule[];
+  };
+
   /** Matched physical line count partition. */
   export type LineBreakdown = {
     /** Physical lines in matched files not classified as test-owned. */
     readonly source: number;
-    /** Physical lines in matched files classified as test-owned. */
-    readonly tests: number;
+    /** Physical lines in matched files classified as conventional tests. */
+    readonly unitTests: number;
+    /** Physical lines in matched files classified as UI/dev-harness specs. */
+    readonly uiSpecTests: number;
   };
 
   /** Aggregate source statistics result. */

@@ -21,12 +21,12 @@ export function fmt(stats: t.WorkspaceInfo.StatsResult) {
 function lineBreakdownRows(breakdown: t.WorkspaceInfo.LineBreakdown | undefined) {
   if (!breakdown) return [];
 
-  const source = breakdown.source.toLocaleString();
-  const tests = breakdown.tests.toLocaleString();
-  const width = Math.max(source.length, tests.length);
-
-  return [
-    c.dim(`${' '.repeat(17)}${source.padStart(width)} source`),
-    c.dim(`${' '.repeat(17)}${tests.padStart(width)} tests`),
+  const rows = [
+    { label: 'source', value: breakdown.source.toLocaleString() },
+    { label: 'unit tests', value: breakdown.unitTests.toLocaleString() },
+    { label: 'ui spec/tests', value: breakdown.uiSpecTests.toLocaleString() },
   ];
+  const width = Math.max(...rows.map((row) => row.value.length));
+
+  return rows.map((row) => c.dim(`${' '.repeat(17)}${row.value.padStart(width)} ${row.label}`));
 }

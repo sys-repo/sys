@@ -5,6 +5,7 @@ describe(`Workspace.Info`, () => {
   it('API', async () => {
     const m = await import('@sys/workspace/info');
     expect(m.WorkspaceInfo).to.equal(WorkspaceInfo);
+    expect(WorkspaceInfo.DEFAULTS.testPathRules.length).to.eql(2);
   });
 
   it('formats a runtime and workspace stats block', () => {
@@ -31,10 +32,11 @@ describe(`Workspace.Info`, () => {
       source: { include: ['code/**/*.{ts,tsx}'], exclude: [] },
       files: 12,
       lines: 123,
-      lineBreakdown: { source: 111, tests: 2 },
+      lineBreakdown: { source: 111, unitTests: 10, uiSpecTests: 2 },
     });
 
     expect(text.includes(c.dim(`${' '.repeat(17)}111 source`))).to.eql(true);
-    expect(text.includes(c.dim(`${' '.repeat(17)}  2 tests`))).to.eql(true);
+    expect(text.includes(c.dim(`${' '.repeat(17)} 10 unit tests`))).to.eql(true);
+    expect(text.includes(c.dim(`${' '.repeat(17)}  2 ui spec/tests`))).to.eql(true);
   });
 });

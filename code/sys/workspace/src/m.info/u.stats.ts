@@ -1,4 +1,5 @@
 import { Fs, type t } from './common.ts';
+import { classifyPath } from './u.classify.ts';
 
 type NormalizedArgs = {
   readonly cwd: t.StringDir;
@@ -14,15 +15,14 @@ type NormalizedArgs = {
 type LineStats = {
   readonly total: number;
   readonly source: number;
-  readonly tests: number;
+  readonly unitTests: number;
+  readonly uiSpecTests: number;
 };
 
 type FileLineStats = {
-  readonly kind: 'source' | 'test';
+  readonly kind: t.WorkspaceInfo.LineKind;
   readonly lines: number;
 };
-
-const TEST_ENTRY_BASENAME = /(^|[._-])test\.tsx?$/;
 
 /**
  * Compute aggregate source statistics from explicit include and exclude globs.
@@ -78,30 +78,20 @@ async function countLineStats(paths: readonly t.StringPath[]): Promise<LineStats
       return {
         total: acc.total + file.lines,
         source: acc.source + (file.kind === 'source' ? file.lines : 0),
-        tests: acc.tests + (file.kind === 'test' ? file.lines : 0),
+        unitTests: acc.unitTests + (file.kind === 'unit-test' ? file.lines : 0),
+        uiSpecTests: acc.uiSpecTests + (file.kind === 'ui-spec-test' ? file.lines : 0),
       };
     },
-    { total: 0, source: 0, tests: 0 },
+    { total: 0, source: 0, unitTests: 0, uiSpecTests: 0 },
   );
 }
 
 async function countFileLines(path: t.StringPath): Promise<FileLineStats> {
   const text = (await Fs.readText(path)).data ?? '';
   return {
-    kind: isTestOwnedPath(path) ? 'test' : 'source',
+    kind: classifyPath(path),
     lines: text.split('\n').length,
   };
-}
-
-function isTestOwnedPath(path: t.StringPath): boolean {
-  const segments = path.split(/[\\/]+/);
-  const basename = segments.at(-1) ?? '';
-
-  return TEST_ENTRY_BASENAME.test(basename) || segments.some(isTestDirectorySegment);
-}
-
-function isTestDirectorySegment(segment: string): boolean {
-  return segment === '-test' || segment.startsWith('-test.') || segment === '__tests__';
 }
 
 function toResult(
@@ -119,7 +109,11 @@ function toResult(
     files: paths.length,
     ...(lineStats === undefined ? {} : {
       lines: lineStats.total,
-      lineBreakdown: { source: lineStats.source, tests: lineStats.tests },
+      lineBreakdown: {
+        source: lineStats.source,
+        unitTests: lineStats.unitTests,
+        uiSpecTests: lineStats.uiSpecTests,
+      },
     }),
   };
 }
