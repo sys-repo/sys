@@ -6,6 +6,13 @@ import { invalidPath } from './u.path.ts';
 import { snapshotPolicy } from './u.policy.ts';
 import { validatePageInput } from '../m.files/u.page.ts';
 
+type BaseRuntime = {
+  readonly policy: t.FilesPolicy.Shape;
+  readonly capabilities: t.Files.Capabilities;
+  readonly handlers: t.FilesCmd.HandlerMap;
+  readonly nodes: MemoryNodes;
+};
+
 /** Build the shared readonly command base over mutable memory nodes. */
 export const createBaseRuntime = (options: t.FilesMemory.Options = {}): BaseRuntime => {
   const nodes = memoryIndex(options);
@@ -17,11 +24,4 @@ export const createBaseRuntime = (options: t.FilesMemory.Options = {}): BaseRunt
   const baseHandlers = handlers({ nodes, policy, capabilities, maxReadBytes, defaultLimit });
 
   return { policy, capabilities, handlers: baseHandlers, nodes };
-};
-
-export type BaseRuntime = {
-  readonly policy: t.FilesPolicy.Shape;
-  readonly capabilities: t.Files.Capabilities;
-  readonly handlers: t.FilesCmd.HandlerMap;
-  readonly nodes: MemoryNodes;
 };

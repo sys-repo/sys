@@ -5,7 +5,6 @@ import { fileNode, type MemoryFileNode, type MemoryNode } from './u.node.ts';
 import { absolutePath, visiblePath } from './u.path.ts';
 
 export type MemoryNodes = Map<t.StringAbsolutePath, MemoryNode>;
-export type MemoryIndex = ReadonlyMap<t.StringAbsolutePath, MemoryNode>;
 
 export const memoryIndex = (options: t.FilesMemory.Options = {}): MemoryNodes => {
   assertOptions(options);

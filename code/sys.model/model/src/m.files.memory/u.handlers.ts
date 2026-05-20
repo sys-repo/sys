@@ -6,7 +6,7 @@ import { stat } from './u.cmd.stat.ts';
 import { fail, translate } from './u.error.ts';
 import { type MemoryNodes } from './u.index.ts';
 
-export type HandlerArgs = {
+type HandlerArgs = {
   readonly nodes: MemoryNodes;
   readonly policy: t.FilesPolicy.Shape;
   readonly capabilities: t.Files.Capabilities;

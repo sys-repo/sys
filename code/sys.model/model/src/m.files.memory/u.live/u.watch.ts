@@ -19,6 +19,18 @@ type Watcher = {
   readonly context: WatchContext;
 };
 
+type WatchRuntime = {
+  readonly diagnostics: Live.Diagnostics;
+  readonly handler: (
+    payload: t.FilesCmd.Watch.Payload,
+    context: WatchContext,
+  ) => Promise<t.FilesCmd.Watch.Result>;
+  readonly emit: (
+    kind: t.Files.Change['kind'],
+    path: t.Files.String.Path,
+  ) => t.Files.Change;
+};
+
 /** Create live watch state and Cmd handler for an in-memory node graph. */
 export const createWatch = (nodes: MemoryNodes, policy: t.FilesPolicy.Shape): WatchRuntime => {
   const watchers = new Set<Watcher>();
@@ -86,18 +98,6 @@ export const createWatch = (nodes: MemoryNodes, policy: t.FilesPolicy.Shape): Wa
     for (const resolve of activeWaiters) resolve();
     activeWaiters.clear();
   }
-};
-
-export type WatchRuntime = {
-  readonly diagnostics: Live.Diagnostics;
-  readonly handler: (
-    payload: t.FilesCmd.Watch.Payload,
-    context: WatchContext,
-  ) => Promise<t.FilesCmd.Watch.Result>;
-  readonly emit: (
-    kind: t.Files.Change['kind'],
-    path: t.Files.String.Path,
-  ) => t.Files.Change;
 };
 
 function watchQuery(
