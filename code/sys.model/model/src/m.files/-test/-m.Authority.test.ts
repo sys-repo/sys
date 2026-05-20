@@ -130,6 +130,16 @@ describe('Files.Authority', () => {
         ),
       { name: 'FilesAuthorityError.Unsupported', message: 'Write unsupported' },
     );
+
+    const supportFirstHandlers = authority.handlers(Fixture.handlerMap([]), {
+      path() {
+        throw new Error('Path resolver should not run for unsupported commands');
+      },
+    });
+    expectError(
+      () => supportFirstHandlers['files:write'](null as never, Fixture.context('files:write')),
+      { name: 'FilesAuthorityError.Unsupported', message: 'Write unsupported' },
+    );
     expect(calls).to.eql(['files:read', 'files:manifest']);
   });
 });

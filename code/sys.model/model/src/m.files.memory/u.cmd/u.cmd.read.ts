@@ -1,5 +1,5 @@
 import { D, type t } from '../common.ts';
-import { effectiveMaxReadBytes } from '../u/u.capabilities.ts';
+import { effectiveMaxReadBytes } from '../u/u.read-limit.ts';
 import { assertPayload } from './u.cmd.payload.ts';
 import { fail } from '../u/u.error.ts';
 import { type MemoryNodes } from '../u/u.index.ts';

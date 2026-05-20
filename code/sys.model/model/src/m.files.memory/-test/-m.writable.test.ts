@@ -1,6 +1,16 @@
 import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
+import { Files } from '../../m.files/mod.ts';
 import { FilesMemory } from '../mod.ts';
 import { allowAllMutablePolicy, cmd, expectFilesMemoryError } from './u.fixture.ts';
+
+const WRITABLE_SUPPORTS = {
+  list: true,
+  stat: true,
+  read: true,
+  write: true,
+  remove: true,
+  manifest: true,
+} satisfies Partial<t.FilesCapability.Map>;
 
 describe('FilesMemory.writable', () => {
   it('creates a bounded writable backing without live diagnostics', async () => {
@@ -30,5 +40,24 @@ describe('FilesMemory.writable', () => {
       () => cmd.watch(backing, { path: '' }),
       'FilesMemoryError.Unsupported',
     );
+  });
+
+  it('derives writable capability truth from Files.Authority', async () => {
+    const backing = FilesMemory.writable({ policy: allowAllMutablePolicy, maxReadBytes: 64 });
+    const authority = Files.Authority.resolve({
+      policy: backing.policy,
+      backing: {
+        supports: WRITABLE_SUPPORTS,
+        fidelity: 'dynamic',
+        maxReadBytes: 64,
+        encodings: ['utf8'],
+      },
+    });
+
+    expect(backing.capabilities).to.eql(authority.capabilities);
+    expect(await cmd.capabilities(backing)).to.eql(authority.capabilities);
+
+    const manifest = await cmd.manifest(backing);
+    expect(manifest.capabilities).to.eql(authority.capabilities);
   });
 });

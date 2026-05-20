@@ -132,8 +132,8 @@ function gatedHandlers(args: GatedHandlersArgs): t.FilesCmd.HandlerMap {
     ) => {
       const action = actionFor(name);
       if (action) {
-        const path = handlerPath({ name, payload }, args.options);
         if (!args.supports[action]) throw args.unsupported(action);
+        const path = handlerPath({ name, payload }, args.options);
         if (!allows({ action, path, supports: args.supports, policy: args.policy })) {
           throw args.denied(action, path);
         }

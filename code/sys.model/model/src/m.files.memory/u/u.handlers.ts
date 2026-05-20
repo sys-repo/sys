@@ -14,6 +14,12 @@ type HandlerArgs = {
   readonly defaultLimit: t.Files.Limit;
 };
 
+/**
+ * Build command handlers over memory nodes.
+ *
+ * Command-local policy checks intentionally remain below the authority gate for
+ * descendant filtering, result filtering, and mutation atomicity.
+ */
 export const handlers = (args: HandlerArgs): t.FilesCmd.HandlerMap => {
   return Object.freeze({
     'files:capabilities'() {
