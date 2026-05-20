@@ -3,8 +3,6 @@ import { utf8ByteLength } from '../../m.files/u.bytes.ts';
 import { FilesPath } from '../../m.files/u.path.ts';
 import { FilesFs } from '../mod.ts';
 
-export const ROOT = '/root' as t.StringAbsolutePath;
-
 export type FileNode = {
   readonly kind: 'file';
   readonly content: string;
@@ -51,6 +49,10 @@ export type ListPayloadInput = Omit<t.FilesCmd.List.Payload, 'cursor'> & {
 export type ReadPayloadInput = Omit<t.FilesCmd.Read.Payload, 'encoding'> & {
   readonly encoding?: string;
 };
+
+type FilesFsBacking = { readonly handlers: t.FilesCmd.HandlerMap };
+
+export const ROOT = '/root' as t.StringAbsolutePath;
 
 export const allowDocsPolicy = {
   list: 'docs/**',
@@ -166,33 +168,41 @@ export function escapingFixture(): FsFixtureOptions {
 }
 
 export const cmd = {
-  capabilities(backing: t.FilesFs.Readonly) {
+  capabilities(backing: FilesFsBacking) {
     return backing.handlers['files:capabilities']({}, context('files:capabilities'));
   },
 
-  list(backing: t.FilesFs.Readonly, payload: ListPayloadInput = {}) {
+  list(backing: FilesFsBacking, payload: ListPayloadInput = {}) {
     return backing.handlers['files:list'](
       payload as t.FilesCmd.List.Payload,
       context('files:list'),
     );
   },
 
-  stat(backing: t.FilesFs.Readonly, payload: t.FilesCmd.Stat.Payload) {
+  stat(backing: FilesFsBacking, payload: t.FilesCmd.Stat.Payload) {
     return backing.handlers['files:stat'](payload, context('files:stat'));
   },
 
-  read(backing: t.FilesFs.Readonly, payload: ReadPayloadInput) {
+  read(backing: FilesFsBacking, payload: ReadPayloadInput) {
     return backing.handlers['files:read'](
       payload as t.FilesCmd.Read.Payload,
       context('files:read'),
     );
   },
 
-  watch(backing: t.FilesFs.Readonly, payload: t.FilesCmd.Watch.Payload = {}) {
+  write(backing: FilesFsBacking, payload: t.FilesCmd.Write.Payload) {
+    return backing.handlers['files:write'](payload, context('files:write'));
+  },
+
+  remove(backing: FilesFsBacking, payload: t.FilesCmd.Remove.Payload) {
+    return backing.handlers['files:remove'](payload, context('files:remove'));
+  },
+
+  watch(backing: FilesFsBacking, payload: t.FilesCmd.Watch.Payload = {}) {
     return backing.handlers['files:watch'](payload, context('files:watch'));
   },
 
-  manifest(backing: t.FilesFs.Readonly, payload: t.FilesCmd.Manifest.Payload = {}) {
+  manifest(backing: FilesFsBacking, payload: t.FilesCmd.Manifest.Payload = {}) {
     return backing.handlers['files:manifest'](payload, context('files:manifest'));
   },
 };
