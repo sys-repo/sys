@@ -7,15 +7,17 @@ import type { FilesFsCapability } from './t.capability.ts';
 /**
  * Filesystem-shaped backing adapters for the Files model.
  *
- * Current scope: the Readonly namespace owns readonly Files truth and optional watch hints.
- * A Writable namespace is introduced only with durable write/remove support; no inert
- * writable stubs or root aliases are exposed before backing authority exists.
+ * Authority namespaces declare readonly vs writable construction at the call site.
+ * Liveness remains a constructor inside the selected authority namespace.
  */
 export declare namespace FilesFs {
   /** Runtime library surface. */
   export type Lib = {
     /** Readonly filesystem-shaped Files backing constructors. */
     readonly Readonly: ReadonlyLib;
+
+    /** Writable filesystem-shaped Files backing constructors. */
+    readonly Writable: WritableLib;
   };
 
   /** Readonly filesystem-shaped Files backing constructors. */
@@ -27,11 +29,26 @@ export declare namespace FilesFs {
     readonly live: (options: LiveOptions) => Live;
   };
 
+  /** Writable filesystem-shaped Files backing constructors. */
+  export type WritableLib = {
+    /** Create a bounded writable Files backing from a structural filesystem capability. */
+    readonly create: (options: WritableOptions) => Writable;
+
+    /** Create a bounded writable+watch Files backing from a filesystem watch capability. */
+    readonly live: (options: WritableLiveOptions) => WritableLive;
+  };
+
   /** Bounded readonly Files backing. */
   export type Readonly = Runtime.Shape<'files/fs:readonly'>;
 
+  /** Bounded writable Files backing. */
+  export type Writable = Runtime.Shape<'files/fs:writable'>;
+
   /** Bounded live readonly+watch Files backing. Write/remove remain unsupported. */
   export type Live = TLive.Shape<'files/fs:live'>;
+
+  /** Bounded live writable+watch Files backing. */
+  export type WritableLive = TLive.Shape<'files/fs:writable-live'>;
 
   /** Options for creating a readonly Files backing. */
   export type ReadonlyOptions = Options<Capability.Readonly>;
@@ -39,10 +56,19 @@ export declare namespace FilesFs {
   /** Options for creating a live readonly+watch Files backing. */
   export type LiveOptions = Options<Capability.Live>;
 
+  /** Options for creating a writable Files backing. */
+  export type WritableOptions = WritableOptionsBase<Capability.Writable>;
+
+  /** Options for creating a live writable+watch Files backing. */
+  export type WritableLiveOptions = WritableOptionsBase<Capability.LiveWritable>;
+
   /** Structural host-filesystem capabilities consumed by this adapter. */
   export namespace Capability {
     export type Readonly = FilesFsCapability.Readonly;
+    export type Writable = FilesFsCapability.Writable;
     export type Live = FilesFsCapability.Live;
+    export type LiveWritable = FilesFsCapability.LiveWritable;
+    export type WriteFileOptions = FilesFsCapability.WriteFileOptions;
     export type Watch = FilesFsCapability.Watch;
     export type WatchOptions = FilesFsCapability.WatchOptions;
     export type Watcher = FilesFsCapability.Watcher;
@@ -66,6 +92,10 @@ export declare namespace FilesFs {
       /** Host/backing root. Never exposed through Files results. */
       readonly root: t.StringPath;
     };
+
+  type WritableOptionsBase<Fs extends Capability.Writable> =
+    & Options<Fs>
+    & Runtime.InlineWriteOptions;
 
   /** Files/fs error surface. */
   export namespace Error {

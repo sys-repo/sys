@@ -3,11 +3,12 @@ import { D, Is, type t } from '../common.ts';
 import { fail } from './u.error.ts';
 import { requiredVisiblePath, visiblePath } from './u.path.ts';
 
-export type FsAuthorityKind = 'readonly' | 'live';
+export type FsAuthorityKind = 'readonly' | 'live' | 'writable' | 'writable-live';
 
 export type FsAuthorityOptions = {
   readonly policy?: t.FilesPolicy.Shape;
   readonly maxReadBytes?: t.NumberBytes;
+  readonly maxWriteBytes?: t.NumberBytes;
 };
 
 type SupportMap = Record<FsAuthorityKind, Partial<t.FilesCapability.Map>>;
@@ -18,11 +19,33 @@ const SUPPORTS = Object.freeze(
   {
     readonly: Object.freeze({ list: true, stat: true, read: true, manifest: true }),
     live: Object.freeze({ list: true, stat: true, read: true, watch: true, manifest: true }),
+    writable: Object.freeze({
+      list: true,
+      stat: true,
+      read: true,
+      write: true,
+      remove: true,
+      manifest: true,
+    }),
+    'writable-live': Object.freeze({
+      list: true,
+      stat: true,
+      read: true,
+      write: true,
+      remove: true,
+      watch: true,
+      manifest: true,
+    }),
   } satisfies SupportMap,
 );
 
 const FIDELITY = Object.freeze(
-  { readonly: undefined, live: 'live' } satisfies FidelityMap,
+  {
+    readonly: undefined,
+    live: 'live',
+    writable: 'dynamic',
+    'writable-live': 'live',
+  } satisfies FidelityMap,
 );
 
 const ERROR_FACTORIES = Object.freeze(
@@ -59,6 +82,7 @@ export const resolveFsAuthority = (
       supports: SUPPORTS[kind],
       ...(fidelity === undefined ? {} : { fidelity }),
       maxReadBytes: options.maxReadBytes,
+      maxWriteBytes: options.maxWriteBytes,
       encodings: D.encodings,
     },
     errors: ERROR_FACTORIES,

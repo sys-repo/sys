@@ -10,7 +10,7 @@ import { type Scope, scope } from './u.path.ts';
 
 type BaseRuntimeOptions<Fs extends t.FilesFs.Capability.Readonly> =
   & Omit<t.FilesFs.ReadonlyOptions, 'fs'>
-  & { readonly fs: Fs };
+  & { readonly fs: Fs; readonly maxWriteBytes?: t.NumberBytes };
 
 export type FsRuntimeSource<Fs extends t.FilesFs.Capability.Readonly> = {
   readonly scope: Scope<Fs>;
@@ -48,6 +48,7 @@ export const createRuntimeCore = <Fs extends t.FilesFs.Capability.Readonly>(
   const authority = resolveFsAuthority(kind, {
     policy: options.policy,
     maxReadBytes: options.maxReadBytes,
+    maxWriteBytes: options.maxWriteBytes,
   });
   const policy = authority.policy;
   const capabilities = authority.capabilities;

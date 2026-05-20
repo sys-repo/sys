@@ -2,7 +2,7 @@ import { Files } from '../../m.files/mod.ts';
 import { type t } from '../common.ts';
 import type { Live } from '../../m.files/t/t.u.live.ts';
 import { fail } from '../u/u.error.ts';
-import { changesFromEvent } from './u.change.ts';
+import { changesFromEvent, commandChange, watcherMatches } from './u.change.ts';
 import { type WatchQuery, watchQuery, type WatchScope } from './u.query.ts';
 
 type WatchContext = t.Cmd.Handler.Context<
@@ -17,9 +17,16 @@ type WatchRuntime = {
     payload: t.FilesCmd.Watch.Payload,
     context: WatchContext,
   ) => Promise<t.FilesCmd.Watch.Result>;
+  readonly emit: (
+    kind: t.Files.Change['kind'],
+    path: t.Files.String.Path,
+    correlation: t.Cmd.ReqId,
+  ) => Promise<t.Files.Change>;
 };
 
 type ActiveWatch = {
+  readonly query: WatchQuery;
+  readonly context: WatchContext;
   readonly watcher: t.FilesFs.Capability.Watcher;
   readonly subscription: t.FilesFs.Capability.WatchSubscription;
 };
@@ -63,7 +70,7 @@ export const createWatch = (scope: WatchScope, policy: t.FilesPolicy.Shape): Wat
         const subscription = watcher.$.subscribe((event) => {
           void emitEvent(query, policy, event, context).catch(() => undefined);
         });
-        const record: ActiveWatch = { watcher, subscription };
+        const record: ActiveWatch = { query, context, watcher, subscription };
         const stop = () => {
           if (settled) return;
           settled = true;
@@ -83,6 +90,20 @@ export const createWatch = (scope: WatchScope, policy: t.FilesPolicy.Shape): Wat
         context.signal.addEventListener('abort', stop, { once: true });
         notifyActive();
       });
+    },
+    async emit(kind, path, correlation) {
+      const change = await commandChange(scope, policy, kind, path, nextSeq(), correlation);
+
+      for (const watcher of [...active]) {
+        if (!watcherMatches(watcher.query, change.path, policy)) continue;
+        try {
+          watcher.context.emit(change);
+        } catch {
+          // Watch events are hints; subscriber failure must not poison the mutation.
+        }
+      }
+
+      return change;
     },
   });
 

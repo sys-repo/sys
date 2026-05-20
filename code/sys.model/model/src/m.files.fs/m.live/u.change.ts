@@ -7,6 +7,29 @@ import { type WatchQuery, type WatchScope } from './u.query.ts';
 
 type NextSeq = () => t.Files.Seq;
 
+/** Build a command-origin change hint from current filesystem truth. */
+export const commandChange = async (
+  scope: WatchScope,
+  policy: t.FilesPolicy.Shape,
+  kind: t.Files.Change['kind'],
+  path: t.Files.String.Path,
+  seq: t.Files.Seq,
+  correlation: t.Cmd.ReqId,
+): Promise<t.Files.Change> => {
+  const entry = kind === 'deleted' || !allowed(policy, 'stat', path)
+    ? undefined
+    : await statEntry(scope, path);
+
+  return {
+    kind,
+    path,
+    seq,
+    origin: 'command',
+    correlation,
+    ...(entry === undefined ? {} : { entry }),
+  };
+};
+
 /** Project a structural filesystem watch event into Files change hints. */
 export const changesFromEvent = async (
   query: WatchQuery,
@@ -46,7 +69,7 @@ async function visibleEventPath(
   }
 }
 
-function watcherMatches(
+export function watcherMatches(
   query: WatchQuery,
   path: t.Files.String.Path,
   policy: t.FilesPolicy.Shape,
@@ -88,11 +111,12 @@ async function changeFrom(
     kind,
     path,
     seq,
+    origin: 'fs-watch',
     ...(entry === undefined ? {} : { entry }),
   };
 }
 
-async function statEntry(
+export async function statEntry(
   scope: WatchScope,
   path: t.Files.String.Path,
 ): Promise<t.Files.Entry | undefined> {
