@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-import type { FilesBacking } from '../m.files/t/t.backing.ts';
+import type { Backing } from '../m.files/t/t.backing.ts';
 
 /**
  * In-memory backing adapters for the Files model.
@@ -12,12 +12,12 @@ export declare namespace FilesMemory {
   };
 
   /** Bounded readonly in-memory Files backing. */
-  export type Readonly = FilesBacking.Runtime<'files/memory:readonly'>;
+  export type Readonly = Backing.Runtime<'files/memory:readonly'>;
 
   /** Options for creating an in-memory Files backing. */
   export type Options =
-    & FilesBacking.Options
-    & FilesBacking.InlineReadOptions
+    & Backing.Options
+    & Backing.InlineReadOptions
     & t.FilesSource.TextTree;
 
   /** Files/memory error surface. */

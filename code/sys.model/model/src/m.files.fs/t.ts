@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-import type { FilesBacking } from '../m.files/t/t.backing.ts';
+import type { Backing } from '../m.files/t/t.backing.ts';
 
 /**
  * Readonly filesystem-shaped backing adapter for the Files model.
@@ -12,12 +12,12 @@ export declare namespace FilesFs {
   };
 
   /** Bounded readonly Files backing. */
-  export type Readonly = FilesBacking.Runtime<'files/fs:readonly'>;
+  export type Readonly = Backing.Runtime<'files/fs:readonly'>;
 
   /** Options for creating a readonly Files backing. */
   export type ReadonlyOptions =
-    & FilesBacking.Options
-    & FilesBacking.InlineReadOptions
+    & Backing.Options
+    & Backing.InlineReadOptions
     & {
       /** Structural filesystem capability. */
       readonly fs: Capability.Readonly;

@@ -1,11 +1,11 @@
-import type { FilesBackingRuntime } from './t.backing.runtime.ts';
+import type { BackingRuntime } from './t.backing.runtime.ts';
 
 /**
  * Live Files backing surfaces.
  */
-export declare namespace FilesBackingLive {
+export declare namespace BackingLive {
   /** Runtime shape shared by live Files backing adapters. */
-  export type Runtime<K extends string> = FilesBackingRuntime.Runtime<K> & {
+  export type Runtime<K extends string> = BackingRuntime.Runtime<K> & {
     /** Read-only live backing diagnostics; not Files authority. */
     readonly diagnostics: Diagnostics;
   };
