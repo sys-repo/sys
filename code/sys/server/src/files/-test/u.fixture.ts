@@ -1,6 +1,29 @@
-import { Cmd, expect, Net, type t, Time } from '../../-test.ts';
+import { Cmd, expect, Is, Net, type t, Time } from '../../-test.ts';
 import { Files } from '@sys/model/files';
 import type { Files as FilesType, FilesCmd } from '@sys/model/files/t';
+
+type ConnectOptions = {
+  /** Per-command timeout in milliseconds. Use `false` for intentionally long-lived streams. */
+  readonly timeout?: number | false;
+};
+
+type Connected = {
+  readonly ws: WebSocket;
+  readonly client: FilesType.Client;
+  close(): Promise<void>;
+};
+
+type WaitForOptions = {
+  readonly timeout?: number;
+  readonly interval?: number;
+  readonly message?: string;
+};
+
+type ChangeMatch = {
+  readonly path: FilesType.String.Path;
+  readonly seq?: FilesType.Seq;
+  readonly kind?: FilesType.Change['kind'] | readonly FilesType.Change['kind'][];
+};
 
 /** Shared fixtures for Files server contract tests. */
 export const Fixture = {
@@ -9,6 +32,7 @@ export const Fixture = {
   direct,
   expectCmdError,
   waitFor,
+  waitForChange,
 } as const;
 
 /**
@@ -38,23 +62,6 @@ async function connect(url: t.StringUrl, options: ConnectOptions = {}): Promise<
   };
 }
 
-type ConnectOptions = {
-  /** Per-command timeout in milliseconds. Use `false` for intentionally long-lived streams. */
-  readonly timeout?: number | false;
-};
-
-type Connected = {
-  readonly ws: WebSocket;
-  readonly client: FilesType.Client;
-  close(): Promise<void>;
-};
-
-type WaitForOptions = {
-  readonly timeout?: number;
-  readonly interval?: number;
-  readonly message?: string;
-};
-
 function clientOptions(options: ConnectOptions): t.Cmd.Client.Options {
   if (options.timeout === false) return {};
   return { timeout: options.timeout ?? 1_000 };
@@ -71,6 +78,32 @@ async function waitFor(fn: () => boolean, options: WaitForOptions = {}): Promise
   }
 
   throw new Error(options.message ?? `Timed out waiting for Files server test condition.`);
+}
+
+async function waitForChange(
+  events: readonly FilesType.Change[],
+  match: ChangeMatch,
+): Promise<FilesType.Change> {
+  let found: FilesType.Change | undefined;
+  await waitFor(
+    () => {
+      found = events.find((event) => changeMatches(event, match));
+      return found !== undefined;
+    },
+    { message: `Timed out waiting for websocket Files.Change: ${match.path}.` },
+  );
+  if (!found) throw new Error(`Timed out waiting for websocket Files.Change: ${match.path}.`);
+  return found;
+}
+
+function changeMatches(event: FilesType.Change, match: ChangeMatch): boolean {
+  if (event.path !== match.path) return false;
+  if (match.seq !== undefined && event.seq !== match.seq) return false;
+  if (match.kind !== undefined) {
+    const kinds = Is.array<FilesType.Change['kind']>(match.kind) ? match.kind : [match.kind];
+    if (!kinds.includes(event.kind)) return false;
+  }
+  return true;
 }
 
 function detail(status: t.Service.Status, label: string): string | undefined {
