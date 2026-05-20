@@ -1,84 +1,64 @@
 import type { t } from './common.ts';
 import type { Runtime } from '../m.files/t/t.u.runtime.ts';
 import type { Error as TError } from '../m.files/t/t.u.error.ts';
+import type { Live as TLive } from '../m.files/t/t.u.live.ts';
+import type { FilesFsCapability } from './t.capability.ts';
 
 /**
- * Readonly filesystem-shaped backing adapter for the Files model.
+ * Filesystem-shaped backing adapters for the Files model.
+ *
+ * Symmetry note: `live` means readonly Files truth plus watch hints.
+ * This adapter does not provide write/remove authority.
  */
 export declare namespace FilesFs {
   /** Runtime library surface. */
   export type Lib = {
     /** Create a bounded readonly Files backing from a structural filesystem capability. */
     readonly readonly: (options: ReadonlyOptions) => Readonly;
+
+    /** Create a bounded live readonly+watch Files backing from a filesystem watch capability. */
+    readonly live: (options: LiveOptions) => Live;
   };
 
   /** Bounded readonly Files backing. */
   export type Readonly = Runtime.Shape<'files/fs:readonly'>;
 
+  /** Bounded live readonly+watch Files backing. Write/remove remain unsupported. */
+  export type Live = TLive.Shape<'files/fs:live'>;
+
   /** Options for creating a readonly Files backing. */
-  export type ReadonlyOptions =
+  export type ReadonlyOptions = Options<Capability.Readonly>;
+
+  /** Options for creating a live readonly+watch Files backing. */
+  export type LiveOptions = Options<Capability.Live>;
+
+  /** Structural host-filesystem capabilities consumed by this adapter. */
+  export namespace Capability {
+    export type Readonly = FilesFsCapability.Readonly;
+    export type Live = FilesFsCapability.Live;
+    export type Watch = FilesFsCapability.Watch;
+    export type WatchOptions = FilesFsCapability.WatchOptions;
+    export type Watcher = FilesFsCapability.Watcher;
+    export type WatchObservable = FilesFsCapability.WatchObservable;
+    export type WatchSubscription = FilesFsCapability.WatchSubscription;
+    export type WatchEvent = FilesFsCapability.WatchEvent;
+    export type WatchEventKind = FilesFsCapability.WatchEventKind;
+    export type Path = FilesFsCapability.Path;
+    export type PathIs = FilesFsCapability.PathIs;
+    export type Stat = FilesFsCapability.Stat;
+    export type WalkEntry = FilesFsCapability.WalkEntry;
+  }
+
+  type Options<Fs extends Capability.Readonly> =
     & Runtime.Options
     & Runtime.InlineReadOptions
     & {
       /** Structural filesystem capability. */
-      readonly fs: Capability.Readonly;
+      readonly fs: Fs;
 
       /** Host/backing root. Never exposed through Files results. */
       readonly root: t.StringPath;
     };
-
-  /** Structural capabilities required by the readonly Files backing. */
-  export namespace Capability {
-    export type Readonly = {
-      /** Path namespace operations with the same semantics as the backing. */
-      readonly Path: Path;
-
-      /** Resolve real/canonical path, following symlinks. */
-      readonly realPath: (path: t.StringPath) => t.Awaitable<t.StringAbsolutePath | undefined>;
-
-      /** Stat a backing path. */
-      readonly stat: (path: t.StringPath) => t.Awaitable<Stat | undefined>;
-
-      /** Read UTF-8 text content from a backing path. */
-      readonly readText: (path: t.StringPath) => t.Awaitable<string | undefined>;
-
-      /** Walk entries under a backing directory. */
-      readonly walk: (
-        path: t.StringPath,
-      ) => t.Awaitable<Iterable<WalkEntry> | AsyncIterable<WalkEntry>>;
-    };
-
-    export type Path = {
-      readonly Is: PathIs;
-      readonly join: (...parts: readonly string[]) => t.StringPath;
-      readonly resolve: (...parts: readonly string[]) => t.StringAbsolutePath;
-      readonly relative: (from: t.StringPath, to: t.StringPath) => t.StringRelativePath;
-      readonly normalize: (path: t.StringPath) => t.StringPath;
-    };
-
-    export type PathIs = {
-      readonly absolute: (path: t.StringPath) => boolean;
-    };
-
-    export type Stat = {
-      readonly kind?: t.FilesEntry.Kind;
-      readonly isFile?: boolean;
-      readonly isDirectory?: boolean;
-      readonly isSymlink?: boolean;
-      readonly size?: t.NumberBytes;
-      readonly modifiedAt?: t.UnixTimestamp;
-      readonly hash?: t.StringHash;
-      readonly mediaType?: t.StringMimeType;
-    };
-
-    export type WalkEntry = {
-      readonly path: t.StringPath;
-      readonly kind?: t.FilesEntry.Kind;
-      readonly isFile?: boolean;
-      readonly isDirectory?: boolean;
-      readonly stat?: Stat;
-    };
-  }
 
   /** Files/fs error surface. */
   export namespace Error {

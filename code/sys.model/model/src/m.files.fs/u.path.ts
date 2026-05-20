@@ -2,12 +2,15 @@ import { FilesPath } from '../m.files/u.path.ts';
 import { type t } from './common.ts';
 import { fail } from './u.error.ts';
 
-export type Scope = {
-  readonly fs: t.FilesFs.Capability.Readonly;
+export type Scope<Fs extends t.FilesFs.Capability.Readonly = t.FilesFs.Capability.Readonly> = {
+  readonly fs: Fs;
   readonly root: t.StringAbsolutePath;
 };
 
-export const scope = (fs: t.FilesFs.Capability.Readonly, root: t.StringPath): Scope => {
+export const scope = <Fs extends t.FilesFs.Capability.Readonly>(
+  fs: Fs,
+  root: t.StringPath,
+): Scope<Fs> => {
   const absolute = fs.Path.resolve(root);
   return { fs, root: absolute };
 };
@@ -40,7 +43,9 @@ export const relativePath = (scope: Scope, path: t.StringPath): t.Files.String.P
   return visiblePath(scope.fs, relative);
 };
 
-export const realScope = async (scope: Scope): Promise<Scope> => {
+export const realScope = async <Fs extends t.FilesFs.Capability.Readonly>(
+  scope: Scope<Fs>,
+): Promise<Scope<Fs>> => {
   const root = await scope.fs.realPath(scope.root);
   if (!root) throw fail('FilesFsError.NotFound', 'Files root does not exist');
   return { ...scope, root };

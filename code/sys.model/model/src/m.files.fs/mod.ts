@@ -1,8 +1,9 @@
 /**
  * @module
- * Readonly filesystem-shaped backing adapter for the Files model.
+ * Filesystem-shaped backing adapters for the Files model.
  */
 import type { t } from './common.ts';
+import { createLive } from './m.live.ts';
 import { createReadonly } from './m.readonly.ts';
 
 export type * from './t.ts';
@@ -12,4 +13,5 @@ export type * from './t.ts';
  */
 export const FilesFs: t.FilesFs.Lib = {
   readonly: createReadonly,
+  live: createLive,
 };

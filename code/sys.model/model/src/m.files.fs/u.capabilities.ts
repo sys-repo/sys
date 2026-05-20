@@ -1,7 +1,7 @@
 import { D, Num, type t } from './common.ts';
 import { fail } from './u.error.ts';
 
-export type ReadonlyCapabilitiesArgs = {
+type ReadonlyCapabilitiesArgs = {
   readonly policy: t.FilesPolicy.Shape;
   readonly maxReadBytes?: t.NumberBytes;
 };
@@ -37,5 +37,16 @@ export const readonlyCapabilities = (args: ReadonlyCapabilitiesArgs): t.Files.Ca
     manifest: args.policy.manifest === true,
     ...(args.maxReadBytes === undefined ? {} : { maxReadBytes: args.maxReadBytes }),
     encodings: D.encodings,
+  });
+};
+
+/**
+ * Capability facts for a live files/fs backing.
+ */
+export const liveCapabilities = (base: t.Files.Capabilities): t.Files.Capabilities => {
+  return Object.freeze({
+    ...base,
+    fidelity: 'live',
+    watch: true,
   });
 };

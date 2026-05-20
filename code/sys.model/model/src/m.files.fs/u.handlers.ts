@@ -6,7 +6,7 @@ import { stat } from './u.cmd.stat.ts';
 import { fail } from './u.error.ts';
 import type { Scope } from './u.path.ts';
 
-export type HandlerArgs = {
+type HandlerArgs = {
   readonly scope: Scope;
   readonly policy: t.FilesPolicy.Shape;
   readonly capabilities: t.Files.Capabilities;
