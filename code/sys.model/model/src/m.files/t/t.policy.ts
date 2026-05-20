@@ -1,30 +1,30 @@
 import type { t } from '../common.ts';
-import type { FilesCore } from './t.core.ts';
+import type { Core } from './t.core.ts';
 
 /**
  * Pure policy model for bounded Files views.
  */
 export declare namespace FilesPolicy {
+  /** Pure policy helper surface. */
+  export type Lib = {
+    /** Build a read-oriented policy from one allow-list. */
+    readonly readonly: (allow: Core.Match, options?: ReadonlyOptions) => Shape;
+  };
+
   /** Policy document shape. Default posture is deny unless allowed. */
   export type Shape = {
     /** Allow listing matching entries/scopes. */
-    readonly list?: FilesCore.Match;
-
+    readonly list?: Core.Match;
     /** Allow statting matching entries. */
-    readonly stat?: FilesCore.Match;
-
+    readonly stat?: Core.Match;
     /** Allow reading matching files. */
-    readonly read?: FilesCore.Match;
-
+    readonly read?: Core.Match;
     /** Allow watching matching entries/scopes. */
-    readonly watch?: FilesCore.Match;
-
+    readonly watch?: Core.Match;
     /** Allow producing a manifest for this view. */
     readonly manifest?: boolean;
-
     /** Deny path/name matches after allow rules. */
-    readonly deny?: FilesCore.Match;
-
+    readonly deny?: Core.Match;
     /** Maximum inline read size for this policy. */
     readonly maxReadBytes?: t.NumberBytes;
   };
@@ -32,18 +32,10 @@ export declare namespace FilesPolicy {
   /** Options for the readonly policy helper. */
   export type ReadonlyOptions = {
     /** Deny path/name matches after allow rules. */
-    readonly deny?: FilesCore.Match;
-
-    /** Override watch allow-list. Use false to disable watch. */
-    readonly watch?: FilesCore.Match | false;
-
+    readonly deny?: Core.Match;
+    /** Override watch allow-list; false disables watch. */
+    readonly watch?: Core.Match | false;
     /** Maximum inline read size for this policy. */
     readonly maxReadBytes?: t.NumberBytes;
-  };
-
-  /** Pure policy helper surface. */
-  export type Lib = {
-    /** Build a read-oriented policy from one allow-list. */
-    readonly readonly: (allow: FilesCore.Match, options?: ReadonlyOptions) => Shape;
   };
 }

@@ -1,5 +1,5 @@
 import type { t } from '../common.ts';
-import type { FilesCore } from './t.core.ts';
+import type { Core } from './t.core.ts';
 
 /**
  * Portable references to file content outside inline Cmd results.
@@ -14,7 +14,7 @@ export declare namespace FilesContentRef {
   /** Common content-ref metadata. */
   export type Base = {
     /** Canonical root-relative file path represented by this ref. */
-    readonly path: FilesCore.StringPath;
+    readonly path: Core.StringPath;
 
     /** Content size in bytes, when known. */
     readonly size?: t.NumberBytes;
@@ -23,7 +23,7 @@ export declare namespace FilesContentRef {
     readonly mediaType?: t.StringMimeType;
 
     /** Text encoding when this ref points at textual content. */
-    readonly encoding?: FilesCore.Encoding;
+    readonly encoding?: Core.Encoding;
   };
 
   /** Fetchable URL ref, suitable for dynamic/static HTTP projections. */

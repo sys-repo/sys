@@ -1,8 +1,8 @@
 import type { t } from '../common.ts';
-import type { FilesCore } from './t.core.ts';
 import type { FilesCapability } from './t.capability.ts';
 import type { FilesChange } from './t.change.ts';
 import type { FilesContentRef } from './t.content-ref.ts';
+import type { Core } from './t.core.ts';
 import type { FilesCursor } from './t.cursor.ts';
 import type { FilesEntry } from './t.entry.ts';
 import type { FilesManifest } from './t.manifest.ts';
@@ -11,22 +11,30 @@ import type { FilesManifest } from './t.manifest.ts';
  * Files Cmd grammar.
  */
 export declare namespace FilesCmd {
-  /** Cmd namespace used when sharing a generic transport. */
-  export type Namespace = 'sys.files';
-
   /** Runtime command names and namespace. */
   export type Lib = {
+    /** Cmd namespace used when sharing a generic transport. */
     readonly ns: Namespace;
+    /** Runtime command names. */
     readonly Name: NameMap;
   };
 
+  /** Cmd namespace used when sharing a generic transport. */
+  export type Namespace = 'sys.files';
+
   /** Command name value object. */
   export type NameMap = {
+    /** Capabilities command name. */
     readonly capabilities: Name.Capabilities;
+    /** List command name. */
     readonly list: Name.List;
+    /** Stat command name. */
     readonly stat: Name.Stat;
+    /** Read command name. */
     readonly read: Name.Read;
+    /** Watch command name. */
     readonly watch: Name.Watch;
+    /** Manifest command name. */
     readonly manifest: Name.Manifest;
   };
 
@@ -40,41 +48,65 @@ export declare namespace FilesCmd {
     | Name.Manifest;
 
   export namespace Name {
+    /** Capabilities command name. */
     export type Capabilities = 'files:capabilities';
+    /** List command name. */
     export type List = 'files:list';
+    /** Stat command name. */
     export type Stat = 'files:stat';
+    /** Read command name. */
     export type Read = 'files:read';
+    /** Watch command name. */
     export type Watch = 'files:watch';
+    /** Manifest command name. */
     export type Manifest = 'files:manifest';
   }
 
   /** Per-command payload map. */
   export type Payload = {
+    /** Capabilities payload. */
     readonly 'files:capabilities': Capabilities.Payload;
+    /** List payload. */
     readonly 'files:list': List.Payload;
+    /** Stat payload. */
     readonly 'files:stat': Stat.Payload;
+    /** Read payload. */
     readonly 'files:read': Read.Payload;
+    /** Watch payload. */
     readonly 'files:watch': Watch.Payload;
+    /** Manifest payload. */
     readonly 'files:manifest': Manifest.Payload;
   };
 
   /** Per-command result map. */
   export type Result = {
+    /** Capabilities result. */
     readonly 'files:capabilities': Capabilities.Result;
+    /** List result. */
     readonly 'files:list': List.Result;
+    /** Stat result. */
     readonly 'files:stat': Stat.Result;
+    /** Read result. */
     readonly 'files:read': Read.Result;
+    /** Watch result. */
     readonly 'files:watch': Watch.Result;
+    /** Manifest result. */
     readonly 'files:manifest': Manifest.Result;
   };
 
   /** Per-command streaming event map. */
   export type Event = {
+    /** Capabilities events. */
     readonly 'files:capabilities': never;
+    /** List events. */
     readonly 'files:list': never;
+    /** Stat events. */
     readonly 'files:stat': never;
+    /** Read events. */
     readonly 'files:read': never;
+    /** Watch events. */
     readonly 'files:watch': FilesChange.Change;
+    /** Manifest events. */
     readonly 'files:manifest': never;
   };
 
@@ -89,117 +121,133 @@ export declare namespace FilesCmd {
 
   /** Capabilities command. */
   export namespace Capabilities {
+    /** Capabilities request payload. */
     export type Payload = Record<string, never>;
+    /** Capability facts for the bounded Files view. */
     export type Result = FilesCapability.Capabilities;
   }
 
   /** List command. */
   export namespace List {
+    /** List request payload. */
     export type Payload = {
-      /** Root-relative directory/scope. Defaults to root. */
-      readonly path?: FilesCore.StringPath;
-
-      /** Path/name selection. Glob-like; not shell syntax and not content search. */
-      readonly match?: FilesCore.Match;
-
-      /** Omit paths. Applied after policy. */
-      readonly exclude?: FilesCore.Match;
-
-      /** Bound traversal. */
-      readonly depth?: FilesCore.Depth;
-
+      /** Root-relative directory/scope; defaults to root. */
+      readonly path?: Core.StringPath;
+      /** Path/name selection; glob-like, not shell syntax. */
+      readonly match?: Core.Match;
+      /** Omit paths after policy filtering. */
+      readonly exclude?: Core.Match;
+      /** Traversal depth bound. */
+      readonly depth?: Core.Depth;
       /** Page size. */
-      readonly limit?: FilesCore.Limit;
-
+      readonly limit?: Core.Limit;
       /** Page cursor. */
       readonly cursor?: FilesCursor.List;
     };
 
+    /** List result. */
     export type Result = {
+      /** Visible entries. */
       readonly entries: readonly FilesEntry.Entry[];
+      /** Cursor for additional list pages. */
       readonly cursor?: FilesCursor.List;
+      /** True when the result is intentionally partial. */
       readonly truncated?: boolean;
     };
   }
 
   /** Stat command. */
   export namespace Stat {
-    export type Payload = { readonly path: FilesCore.StringPath };
+    /** Stat request payload. */
+    export type Payload = { readonly path: Core.StringPath };
+    /** Stat result. */
     export type Result = { readonly entry: FilesEntry.Entry };
   }
 
   /** Read command. */
   export namespace Read {
+    /** Read request payload. */
     export type Payload = {
-      readonly path: FilesCore.StringPath;
-      readonly encoding?: FilesCore.Encoding;
+      /** Root-relative file path. */
+      readonly path: Core.StringPath;
+      /** Requested text encoding. */
+      readonly encoding?: Core.Encoding;
+      /** Caller-requested maximum bytes. */
       readonly maxBytes?: t.NumberBytes;
     };
 
+    /** Read result. */
     export type Result = InlineResult | RefResult;
 
+    /** Inline text read result. */
     export type InlineResult = {
+      /** Result kind. */
       readonly kind: 'inline';
+      /** File metadata. */
       readonly file: FilesEntry.File;
-      readonly encoding: FilesCore.Encoding;
+      /** Text encoding. */
+      readonly encoding: Core.Encoding;
+      /** Inline file content. */
       readonly content: string;
+      /** True when content is intentionally partial. */
       readonly truncated?: boolean;
     };
 
+    /** Content-reference read result. */
     export type RefResult = {
+      /** Result kind. */
       readonly kind: 'ref';
+      /** File metadata. */
       readonly file: FilesEntry.File;
+      /** Portable content reference. */
       readonly contentRef: FilesContentRef.ContentRef;
     };
   }
 
   /** Watch command. */
   export namespace Watch {
+    /** Watch request payload. */
     export type Payload = {
-      /** Root-relative directory/scope. Defaults to root. */
-      readonly path?: FilesCore.StringPath;
-
+      /** Root-relative directory/scope; defaults to root. */
+      readonly path?: Core.StringPath;
       /** Path/name selection. */
-      readonly match?: FilesCore.Match;
-
-      /** Omit paths. Applied after policy. */
-      readonly exclude?: FilesCore.Match;
-
+      readonly match?: Core.Match;
+      /** Omit paths after policy filtering. */
+      readonly exclude?: Core.Match;
       /** Resume after a known sequence, when supported. */
-      readonly since?: FilesCore.Seq;
+      readonly since?: Core.Seq;
     };
 
+    /** Watch result. */
     export type Result = {
+      /** True when the watch subscription ended cleanly. */
       readonly ok: true;
+      /** Cursor for resuming from the last observed change. */
       readonly cursor?: FilesCursor.Watch;
     };
   }
 
   /** Manifest command. */
   export namespace Manifest {
+    /** Manifest request payload. */
     export type Payload = {
-      /** Root-relative directory/scope. Defaults to root. */
-      readonly path?: FilesCore.StringPath;
-
+      /** Root-relative directory/scope; defaults to root. */
+      readonly path?: Core.StringPath;
       /** Path/name selection. */
-      readonly match?: FilesCore.Match;
-
-      /** Omit paths. Applied after policy. */
-      readonly exclude?: FilesCore.Match;
-
-      /** Bound traversal. */
-      readonly depth?: FilesCore.Depth;
-
+      readonly match?: Core.Match;
+      /** Omit paths after policy filtering. */
+      readonly exclude?: Core.Match;
+      /** Traversal depth bound. */
+      readonly depth?: Core.Depth;
       /** Include content refs when available. */
       readonly content?: boolean;
-
       /** Page size. */
-      readonly limit?: FilesCore.Limit;
-
+      readonly limit?: Core.Limit;
       /** Page cursor. */
       readonly cursor?: FilesCursor.Manifest;
     };
 
+    /** Manifest result. */
     export type Result = FilesManifest.Manifest;
   }
 }

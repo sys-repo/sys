@@ -1,5 +1,6 @@
 import type { t } from './common.ts';
 import type * as Backing from '../m.files/t/t.backing.ts';
+import type { Error as TError } from '../m.files/t/t.error.ts';
 
 /**
  * In-memory backing adapters for the Files model.
@@ -22,6 +23,6 @@ export declare namespace FilesMemory {
 
   /** Files/memory error surface. */
   export namespace Error {
-    export type Kind = `FilesMemoryError.${t.FilesError.KindSuffix}`;
+    export type Kind = `FilesMemoryError.${TError.KindSuffix}`;
   }
 }

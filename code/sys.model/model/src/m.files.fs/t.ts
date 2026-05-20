@@ -1,5 +1,6 @@
 import type { t } from './common.ts';
 import type * as Backing from '../m.files/t/t.backing.ts';
+import type { Error as TError } from '../m.files/t/t.error.ts';
 
 /**
  * Readonly filesystem-shaped backing adapter for the Files model.
@@ -81,6 +82,6 @@ export declare namespace FilesFs {
 
   /** Files/fs error surface. */
   export namespace Error {
-    export type Kind = `FilesFsError.${t.FilesError.KindSuffix}`;
+    export type Kind = `FilesFsError.${TError.KindSuffix}`;
   }
 }

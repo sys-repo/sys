@@ -4,8 +4,8 @@ import type {
   FilesCmd as TFilesCmd,
   FilesCursor as TFilesCursor,
   FilesEntry as TFilesEntry,
-  FilesError as TFilesError,
 } from '@sys/model/files/t';
+import type { Error as TError } from '../t/t.error.ts';
 
 const capabilities: t.Files.Capabilities = {
   list: true,
@@ -209,8 +209,8 @@ describe('Files/t', () => {
     const fs: t.FilesFs.Error.Kind = 'FilesFsError.InvalidPath';
     const memory: t.FilesMemory.Error.Kind = 'FilesMemoryError.InvalidPath';
 
-    expectTypeOf({} as FsSuffix).toEqualTypeOf<t.FilesError.KindSuffix>();
-    expectTypeOf({} as MemorySuffix).toEqualTypeOf<TFilesError.KindSuffix>();
+    expectTypeOf({} as FsSuffix).toEqualTypeOf<TError.KindSuffix>();
+    expectTypeOf({} as MemorySuffix).toEqualTypeOf<TError.KindSuffix>();
     expect(fs).to.eql('FilesFsError.InvalidPath');
     expect(memory).to.eql('FilesMemoryError.InvalidPath');
 

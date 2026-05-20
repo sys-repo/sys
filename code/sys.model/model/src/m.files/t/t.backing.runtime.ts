@@ -11,10 +11,8 @@ export declare namespace Runtime {
   export type CmdSurface<K extends string = string> = {
     /** Backing kind, when surfaced as owner-local metadata. */
     readonly kind?: K;
-
     /** Capability facts for the bounded Files view. */
     readonly capabilities: FilesCapability.Capabilities;
-
     /** Canonical Files Cmd handlers. */
     readonly handlers: FilesCmd.HandlerMap;
   };
@@ -23,16 +21,14 @@ export declare namespace Runtime {
   export type Shape<K extends string> = CmdSurface<K> & {
     /** Backing kind, surfaced only as owner-local metadata. */
     readonly kind: K;
-
     /** Snapshotted Files access policy used by this backing. */
     readonly policy: FilesPolicy.Shape;
   };
 
   /** Shared options for bounded Files backing creation. */
   export type Options = {
-    /** Files access policy. Defaults to deny-all. */
+    /** Files access policy; defaults to deny-all. */
     readonly policy?: FilesPolicy.Shape;
-
     /** Default page size for list/manifest results. */
     readonly defaultLimit?: t.NumberTotal;
   };

@@ -1,5 +1,6 @@
 import type { t } from './common.ts';
 import type * as Backing from '../m.files/t/t.backing.ts';
+import type { Error as TError } from '../m.files/t/t.error.ts';
 
 /**
  * Static `dist.json` backing adapter for the Files model.
@@ -25,6 +26,6 @@ export declare namespace FilesStatic {
 
   /** Files/static error surface. */
   export namespace Error {
-    export type Kind = `FilesStaticError.${t.FilesError.KindSuffix}`;
+    export type Kind = `FilesStaticError.${TError.KindSuffix}`;
   }
 }

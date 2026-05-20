@@ -1,4 +1,4 @@
-import type { FilesCore } from './t/t.core.ts';
+import type { Core } from './t/t.core.ts';
 import type { FilesCapability } from './t/t.capability.ts';
 import type { FilesChange } from './t/t.change.ts';
 import type { FilesCmd } from './t/t.cmd.ts';
@@ -14,7 +14,6 @@ export type { FilesCmd } from './t/t.cmd.ts';
 export type { FilesContentRef } from './t/t.content-ref.ts';
 export type { FilesCursor } from './t/t.cursor.ts';
 export type { FilesEntry } from './t/t.entry.ts';
-export type { FilesError } from './t/t.error.ts';
 export type { FilesManifest } from './t/t.manifest.ts';
 export type { FilesPolicy } from './t/t.policy.ts';
 export type { FilesSource } from './t/t.source.ts';
@@ -23,16 +22,15 @@ export type { FilesSource } from './t/t.source.ts';
  * Bounded, transport-independent Files model.
  */
 export declare namespace Files {
-  // NOTE: Keep this root namespace narrow; detailed contracts live beside it.
+  // NOTE: Keep this root namespace narrow;
+  //       detailed contracts live beside it.
 
   /** Namespace-style public runtime surface. */
   export type Lib = {
     /** Files Cmd grammar names and namespace. */
     readonly Cmd: FilesCmd.Lib;
-
     /** Cursor codec for paged Files command surfaces. */
     readonly Cursor: FilesCursor.Lib;
-
     /** Pure policy helpers for bounded Files views. */
     readonly Policy: FilesPolicy.Lib;
   };
@@ -41,7 +39,7 @@ export declare namespace Files {
   export type Client = FilesCmd.Client;
 
   /** Canonical root-relative file path visible inside a bounded Files view. */
-  export type StringPath = FilesCore.StringPath;
+  export type StringPath = Core.StringPath;
 
   /** Opaque, versioned cursor token for paged Files command surfaces. */
   export type StringCursor<
@@ -50,22 +48,22 @@ export declare namespace Files {
   > = FilesCursor.StringCursor<K, V>;
 
   /** Monotonic sequence number for change hints. */
-  export type Seq = FilesCore.Seq;
+  export type Seq = Core.Seq;
 
   /** Non-negative traversal depth for list/manifest scopes. */
-  export type Depth = FilesCore.Depth;
+  export type Depth = Core.Depth;
 
   /** Page-size limit for paged command surfaces. */
-  export type Limit = FilesCore.Limit;
+  export type Limit = Core.Limit;
 
   /** Supported inline text encodings for first-land reads. */
-  export type Encoding = FilesCore.Encoding;
+  export type Encoding = Core.Encoding;
 
-  /** Path/name selector. Glob-like; not shell syntax and not content search. */
-  export type Match = FilesCore.Match;
+  /** Path/name selector; glob-like, not shell syntax. */
+  export type Match = Core.Match;
 
   /** Transport/backing fidelity class for a Files view. */
-  export type Fidelity = FilesCore.Fidelity;
+  export type Fidelity = Core.Fidelity;
 
   /** File or directory entry visible inside a bounded Files view. */
   export type Entry = FilesEntry.Entry;
@@ -82,6 +80,6 @@ export declare namespace Files {
   /** Portable manifest for a bounded Files view. */
   export type Manifest = FilesManifest.Manifest;
 
-  /** Change event hint. List/stat/read remain truth. */
+  /** Change event hint; list/stat/read remain truth. */
   export type Change = FilesChange.Change;
 }
