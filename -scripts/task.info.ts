@@ -10,7 +10,7 @@ const Fmt = {
   scanned(stats: t.WorkspaceInfo.StatsResult, startedAt: number) {
     return Cli.Fmt.spinnerText(
       `scanned ${stats.files.toLocaleString()} files in ${Time.elapsed(startedAt)}`,
-      false,
+      true,
     );
   },
 
@@ -52,7 +52,6 @@ export async function main() {
   /**
    * System/Repo info.
    */
-  console.log();
   await info();
   console.info();
 }
