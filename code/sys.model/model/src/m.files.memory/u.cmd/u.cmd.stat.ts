@@ -1,10 +1,10 @@
-import { type t } from './common.ts';
+import { type t } from '../common.ts';
 import { assertPayload } from './u.cmd.payload.ts';
-import { fail } from './u.error.ts';
-import { type MemoryNodes } from './u.index.ts';
-import { entryFromNode } from './u.node.ts';
-import { absolutePath, requiredVisiblePath } from './u.path.ts';
-import { allowed } from './u.policy.ts';
+import { fail } from '../u.error.ts';
+import { type MemoryNodes } from '../u.index.ts';
+import { entryFromNode } from '../u.node.ts';
+import { absolutePath, requiredVisiblePath } from '../u.path.ts';
+import { allowed } from '../u.policy.ts';
 
 /** Implementation of the `files:stat` command for memory nodes. */
 export const stat = (

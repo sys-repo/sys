@@ -1,8 +1,8 @@
 import { type t } from './common.ts';
-import { list } from './u.cmd.list.ts';
-import { manifest } from './u.cmd.manifest.ts';
-import { read } from './u.cmd.read.ts';
-import { stat } from './u.cmd.stat.ts';
+import { list } from './u.cmd/u.cmd.list.ts';
+import { manifest } from './u.cmd/u.cmd.manifest.ts';
+import { read } from './u.cmd/u.cmd.read.ts';
+import { stat } from './u.cmd/u.cmd.stat.ts';
 import { fail } from './u.error.ts';
 import type { StaticIndex } from './u.index.ts';
 

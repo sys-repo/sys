@@ -1,8 +1,8 @@
-import { allowed } from '../m.files/u.policy.ts';
-import { type t } from './common.ts';
-import { fail } from './u.error.ts';
-import type { StaticIndex } from './u.index.ts';
-import { requiredVisiblePath } from './u.path.ts';
+import { allowed } from '../../m.files/u.policy.ts';
+import { type t } from '../common.ts';
+import { fail } from '../u.error.ts';
+import type { StaticIndex } from '../u.index.ts';
+import { requiredVisiblePath } from '../u.path.ts';
 
 /** Implementation of the `files:stat` command for static dist metadata. */
 export const stat = (

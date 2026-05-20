@@ -1,11 +1,11 @@
-import { page, validatePageInput } from '../m.files/u.page.ts';
-import { type t } from './common.ts';
+import { page, validatePageInput } from '../../m.files/u.page.ts';
+import { type t } from '../common.ts';
 import { assertPayload } from './u.cmd.payload.ts';
-import { fail } from './u.error.ts';
-import { type MemoryNodes } from './u.index.ts';
-import { listEntries } from './u.listEntries.ts';
-import { invalidPath, visiblePath } from './u.path.ts';
-import { manifestAllowed } from './u.policy.ts';
+import { fail } from '../u.error.ts';
+import { type MemoryNodes } from '../u.index.ts';
+import { listEntries } from '../u.listEntries.ts';
+import { invalidPath, visiblePath } from '../u.path.ts';
+import { manifestAllowed } from '../u.policy.ts';
 
 /** Implementation of the `files:manifest` command for memory nodes. */
 export const manifest = (

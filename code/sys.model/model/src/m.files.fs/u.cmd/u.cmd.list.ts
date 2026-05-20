@@ -1,7 +1,7 @@
-import { type t } from './common.ts';
-import { listEntries } from './u.listEntries.ts';
-import { page, validatePageInput } from './u.page.ts';
-import { type Scope, visiblePath } from './u.path.ts';
+import { type t } from '../common.ts';
+import { listEntries } from '../u.listEntries.ts';
+import { page, validatePageInput } from '../u.page.ts';
+import { type Scope, visiblePath } from '../u.path.ts';
 
 /**
  * Implementation of the `files:list` command.

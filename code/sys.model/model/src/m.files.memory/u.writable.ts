@@ -1,7 +1,7 @@
 import { type t } from './common.ts';
 import { writableCapabilities } from './u.capabilities.ts';
-import { remove, type RemoveMutation } from './u.cmd.remove.ts';
-import { write } from './u.cmd.write.ts';
+import { remove, type RemoveMutation } from './u.cmd/u.cmd.remove.ts';
+import { write } from './u.cmd/u.cmd.write.ts';
 import { translate } from './u.error.ts';
 import { type MemoryNodes } from './u.index.ts';
 import { createBaseRuntime } from './u.runtime.base.ts';

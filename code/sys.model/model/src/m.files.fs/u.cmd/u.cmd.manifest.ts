@@ -1,9 +1,9 @@
-import { type t } from './common.ts';
-import { listEntries } from './u.listEntries.ts';
-import { page, validatePageInput } from './u.page.ts';
-import { fail } from './u.error.ts';
-import { manifestAllowed } from './u.policy.ts';
-import { type Scope, visiblePath } from './u.path.ts';
+import { type t } from '../common.ts';
+import { listEntries } from '../u.listEntries.ts';
+import { page, validatePageInput } from '../u.page.ts';
+import { fail } from '../u.error.ts';
+import { manifestAllowed } from '../u.policy.ts';
+import { type Scope, visiblePath } from '../u.path.ts';
 
 /**
  * Implementation of the `files:manifest` command.

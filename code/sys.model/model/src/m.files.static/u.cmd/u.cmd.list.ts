@@ -1,9 +1,9 @@
-import { page, validatePageInput } from '../m.files/u.page.ts';
-import { type t } from './common.ts';
-import { invalidPath } from './u.error.ts';
-import type { StaticIndex } from './u.index.ts';
-import { listEntries } from './u.listEntries.ts';
-import { visiblePath } from './u.path.ts';
+import { page, validatePageInput } from '../../m.files/u.page.ts';
+import { type t } from '../common.ts';
+import { invalidPath } from '../u.error.ts';
+import type { StaticIndex } from '../u.index.ts';
+import { listEntries } from '../u.listEntries.ts';
+import { visiblePath } from '../u.path.ts';
 
 /** Implementation of the `files:list` command for static dist metadata. */
 export const list = (

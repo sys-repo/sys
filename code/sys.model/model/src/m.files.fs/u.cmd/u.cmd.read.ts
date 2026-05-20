@@ -1,10 +1,10 @@
-import { utf8ByteLength } from '../m.files/u.bytes.ts';
-import { D, type t } from './common.ts';
-import { effectiveMaxReadBytes } from './u.capabilities.ts';
-import { entryFromStat } from './u.entry.ts';
-import { fail } from './u.error.ts';
-import { allowed } from './u.policy.ts';
-import { absolutePath, assertRealInside, requiredVisiblePath, type Scope } from './u.path.ts';
+import { utf8ByteLength } from '../../m.files/u.bytes.ts';
+import { D, type t } from '../common.ts';
+import { effectiveMaxReadBytes } from '../u.capabilities.ts';
+import { entryFromStat } from '../u.entry.ts';
+import { fail } from '../u.error.ts';
+import { allowed } from '../u.policy.ts';
+import { absolutePath, assertRealInside, requiredVisiblePath, type Scope } from '../u.path.ts';
 
 /**
  * Implementation of the `files:read` command.

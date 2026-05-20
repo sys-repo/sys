@@ -1,10 +1,10 @@
-import { Is, type t } from './common.ts';
-import { fail } from './u.error.ts';
-import { type MemoryNodes, putWriteFile } from './u.index.ts';
-import { writeFileNode } from './u.node.write.ts';
-import { entryFromNode } from './u.node.ts';
-import { visiblePath } from './u.path.ts';
-import { allowed } from './u.policy.ts';
+import { Is, type t } from '../common.ts';
+import { fail } from '../u.error.ts';
+import { type MemoryNodes, putWriteFile } from '../u.index.ts';
+import { writeFileNode } from '../u.node.write.ts';
+import { entryFromNode } from '../u.node.ts';
+import { visiblePath } from '../u.path.ts';
+import { allowed } from '../u.policy.ts';
 
 /** Implementation of the `files:write` command for mutable memory nodes. */
 export const write = (
