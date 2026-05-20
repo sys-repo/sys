@@ -85,7 +85,7 @@ describe('FilesServer.WebSocket.create: live files watch', () => {
       const root = Fs.join(workspace.absolute, 'root');
       await Fs.ensureDir(Fs.join(root, 'docs'));
 
-      const backing = FilesFs.live({
+      const backing = FilesFs.Readonly.live({
         fs: Fs.Capability.Files.toLive(Fs),
         root,
         policy: REAL_FS_LIVE_POLICY,

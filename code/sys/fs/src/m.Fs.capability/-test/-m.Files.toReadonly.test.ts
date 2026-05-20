@@ -11,7 +11,7 @@ describe('Fs.Capability.Files.toReadonly', () => {
       const cap = Fs.Capability.Files.toReadonly(Fs);
       expectTypeOf(cap).toMatchTypeOf<TModel.FilesFs.Capability.Readonly>();
 
-      const backing = FilesFs.readonly({ fs: cap, root: fixture.root, policy: POLICY });
+      const backing = FilesFs.Readonly.create({ fs: cap, root: fixture.root, policy: POLICY });
       const read = await backing.handlers['files:read'](
         { path: 'docs/readme.md' },
         context('files:read'),
@@ -36,7 +36,7 @@ describe('Fs.Capability.Files.toReadonly', () => {
       await Deno.symlink(fixture.outsideSecret, fixture.fileLink, { type: 'file' });
 
       const cap = Fs.Capability.Files.toReadonly(Fs);
-      const backing = FilesFs.readonly({ fs: cap, root: fixture.root, policy: POLICY });
+      const backing = FilesFs.Readonly.create({ fs: cap, root: fixture.root, policy: POLICY });
 
       await expectFilesFsError(
         () => backing.handlers['files:stat']({ path: 'docs/leak.txt' }, context('files:stat')),
@@ -64,7 +64,7 @@ describe('Fs.Capability.Files.toReadonly', () => {
       await Deno.symlink(fixture.outsideDir, fixture.dirLink, { type: 'dir' });
 
       const cap = Fs.Capability.Files.toReadonly(Fs);
-      const backing = FilesFs.readonly({ fs: cap, root: fixture.root, policy: POLICY });
+      const backing = FilesFs.Readonly.create({ fs: cap, root: fixture.root, policy: POLICY });
 
       await expectFilesFsError(
         () => backing.handlers['files:list']({ path: 'docs/leak-dir' }, context('files:list')),

@@ -144,7 +144,7 @@ export function fsFixture(options: FsFixtureOptions = {}): FsFixture {
 
 export function setup(options: SetupOptions = {}) {
   const fixture = fsFixture(options.fs);
-  const backing = FilesFs.readonly({
+  const backing = FilesFs.Readonly.create({
     fs: fixture.fs,
     root: fixture.root,
     ...(options.policy === undefined ? {} : { policy: options.policy }),

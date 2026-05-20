@@ -7,14 +7,21 @@ import type { FilesFsCapability } from './t.capability.ts';
 /**
  * Filesystem-shaped backing adapters for the Files model.
  *
- * Symmetry note: `live` means readonly Files truth plus watch hints.
- * This adapter does not provide write/remove authority.
+ * Current scope: the Readonly namespace owns readonly Files truth and optional watch hints.
+ * A Writable namespace is introduced only with durable write/remove support; no inert
+ * writable stubs or root aliases are exposed before backing authority exists.
  */
 export declare namespace FilesFs {
   /** Runtime library surface. */
   export type Lib = {
+    /** Readonly filesystem-shaped Files backing constructors. */
+    readonly Readonly: ReadonlyLib;
+  };
+
+  /** Readonly filesystem-shaped Files backing constructors. */
+  export type ReadonlyLib = {
     /** Create a bounded readonly Files backing from a structural filesystem capability. */
-    readonly readonly: (options: ReadonlyOptions) => Readonly;
+    readonly create: (options: ReadonlyOptions) => Readonly;
 
     /** Create a bounded live readonly+watch Files backing from a filesystem watch capability. */
     readonly live: (options: LiveOptions) => Live;

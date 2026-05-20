@@ -2,8 +2,8 @@ import { type t } from '../common.ts';
 import { createLiveRuntime } from './u.runtime.ts';
 
 /**
- * Create a bounded live Files backing from a structural filesystem watch capability.
+ * Create a bounded readonly+watch Files backing from a structural filesystem watch capability.
  */
-export const createLive: t.FilesFs.Lib['live'] = (options) => {
+export const createLive: t.FilesFs.ReadonlyLib['live'] = (options) => {
   return createLiveRuntime(options).backing;
 };

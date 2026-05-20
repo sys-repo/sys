@@ -74,7 +74,7 @@ export async function liveFsFixture(): Promise<LiveFsFixture> {
 
 export async function setupLive(options: SetupLiveOptions = {}) {
   const fixture = await liveFsFixture();
-  const backing = FilesFs.live({
+  const backing = FilesFs.Readonly.live({
     fs: fixture.fs,
     root: fixture.root,
     ...(options.policy === undefined ? {} : { policy: options.policy }),

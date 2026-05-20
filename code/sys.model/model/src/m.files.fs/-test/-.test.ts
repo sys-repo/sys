@@ -7,8 +7,8 @@ describe('FilesFs', () => {
     const m = await import('@sys/model/files/fs');
 
     expect(m.FilesFs).to.equal(FilesFs);
-    expect(m.FilesFs.readonly).to.equal(FilesFs.readonly);
-    expect(m.FilesFs.live).to.equal(FilesFs.live);
+    expect(Object.keys(FilesFs).sort()).to.eql(['Readonly']);
+    expect(Object.keys(FilesFs.Readonly).sort()).to.eql(['create', 'live']);
     expectTypeOf(m.FilesFs).toEqualTypeOf<t.FilesFs.Lib>();
     expectTypeOf(m.FilesFs).toEqualTypeOf<TFilesFs.Lib>();
   });

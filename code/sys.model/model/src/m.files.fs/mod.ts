@@ -12,6 +12,8 @@ export type * from './t.ts';
  * Filesystem-shaped backing adapters for the Files model.
  */
 export const FilesFs: t.FilesFs.Lib = {
-  readonly: createReadonly,
-  live: createLive,
+  Readonly: {
+    create: createReadonly,
+    live: createLive,
+  },
 };
