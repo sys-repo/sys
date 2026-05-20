@@ -44,34 +44,36 @@ export function setup(options: SetupOptions = {}) {
   return { backing };
 }
 
+type MemoryBacking = t.FilesMemory.Readonly | t.FilesMemory.Live;
+
 export const cmd = {
-  capabilities(backing: t.FilesMemory.Readonly) {
+  capabilities(backing: MemoryBacking) {
     return backing.handlers['files:capabilities']({}, context('files:capabilities'));
   },
 
-  list(backing: t.FilesMemory.Readonly, payload: ListPayloadInput = {}) {
+  list(backing: MemoryBacking, payload: ListPayloadInput = {}) {
     return backing.handlers['files:list'](
       payload as t.FilesCmd.List.Payload,
       context('files:list'),
     );
   },
 
-  stat(backing: t.FilesMemory.Readonly, payload: t.FilesCmd.Stat.Payload) {
+  stat(backing: MemoryBacking, payload: t.FilesCmd.Stat.Payload) {
     return backing.handlers['files:stat'](payload, context('files:stat'));
   },
 
-  read(backing: t.FilesMemory.Readonly, payload: ReadPayloadInput) {
+  read(backing: MemoryBacking, payload: ReadPayloadInput) {
     return backing.handlers['files:read'](
       payload as t.FilesCmd.Read.Payload,
       context('files:read'),
     );
   },
 
-  watch(backing: t.FilesMemory.Readonly, payload: t.FilesCmd.Watch.Payload = {}) {
+  watch(backing: MemoryBacking, payload: t.FilesCmd.Watch.Payload = {}) {
     return backing.handlers['files:watch'](payload, context('files:watch'));
   },
 
-  manifest(backing: t.FilesMemory.Readonly, payload: t.FilesCmd.Manifest.Payload = {}) {
+  manifest(backing: MemoryBacking, payload: t.FilesCmd.Manifest.Payload = {}) {
     return backing.handlers['files:manifest'](payload, context('files:manifest'));
   },
 };
