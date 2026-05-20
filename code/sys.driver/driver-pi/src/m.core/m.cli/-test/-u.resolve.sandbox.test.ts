@@ -38,7 +38,7 @@ describe(`@sys/driver-pi/cli/u.resolve.sandbox`, () => {
     const prevTmp = Deno.env.get('TMPDIR');
     const cwd = '/tmp/pi-cli-test' as t.StringDir;
     try {
-      Deno.env.set('TMPDIR', '/var/tmp/pi-cli-runtime');
+      Deno.env.set('TMPDIR', '/var/tmp/pi-cli-runtime/');
 
       const res = await resolveSandboxSummary({
         cwd: { invoked: cwd, git: cwd },
@@ -48,6 +48,7 @@ describe(`@sys/driver-pi/cli/u.resolve.sandbox`, () => {
       expect(res.permissions).to.eql('scoped');
       expect(res.write?.summary).to.include.members(['cwd', 'temp', 'extra']);
       expect(res.write?.detail).to.include('/var/tmp/pi-cli-runtime');
+      expect(res.write?.detail).not.to.include('/var/tmp/pi-cli-runtime/');
       expect(res.write?.detail).to.include('./out');
     } finally {
       restoreEnv('TMPDIR', prevTmp);

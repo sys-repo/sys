@@ -1,5 +1,5 @@
-import { Fs, type t } from './common.ts';
-import { runtimeRoot } from '../../m.cli/u.runtime-root.ts';
+import { Arr, Fs, type t } from './common.ts';
+import { runtimeRoot } from '../../m.cli/u.runtime.ts';
 
 const PROTECTED_SEGMENTS = [
   ['.git'],
@@ -20,8 +20,8 @@ export function resolvePolicy(
   const root = runtimeRoot(input.cwd, 'Pi sandbox filesystem extension');
 
   return {
-    readRoots: uniquePaths([root, ...resolvePaths(root, input.read ?? [])]),
-    writeRoots: uniquePaths([root, ...resolvePaths(root, input.write ?? [])]),
+    readRoots: Arr.uniq([root, ...resolvePaths(root, input.read ?? [])]),
+    writeRoots: Arr.uniq([root, ...resolvePaths(root, input.write ?? [])]),
     protectedRoots: protectedRoots(root),
     remove: {
       enabled: input.remove?.enabled !== false,
@@ -43,13 +43,3 @@ function protectedRoots(root: t.StringDir) {
   return PROTECTED_SEGMENTS.map((segments) => Fs.join(root, ...segments) as t.StringPath);
 }
 
-function uniquePaths(paths: readonly t.StringPath[]) {
-  const seen = new Set<string>();
-  const next: t.StringPath[] = [];
-  for (const path of paths) {
-    if (seen.has(path)) continue;
-    seen.add(path);
-    next.push(path);
-  }
-  return next;
-}

@@ -1,5 +1,5 @@
 import { Fs, pkg, slug, type t } from './common.ts';
-import { runtimeRoot } from './u.runtime-root.ts';
+import { runtimeRoot } from './u.runtime.ts';
 import { PiFs } from '../u.fs.ts';
 
 type Input = {

@@ -1,5 +1,5 @@
 import { Fs, type t } from './common.ts';
-import { isGitlessRoot } from './u.runtime-root.ts';
+import { isGitlessRoot } from './u.runtime.ts';
 
 /**
  * Upstream Pi auto-discovers ancestor .agents/skills and probes for a .git root

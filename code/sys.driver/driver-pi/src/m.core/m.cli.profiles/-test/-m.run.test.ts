@@ -1,8 +1,23 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Process } from '../../m.cli/common.ts';
-import { Fs, Str, type t } from '../common.ts';
+import { Fs, Path, Str, type t } from '../common.ts';
 import { Profiles } from '../mod.ts';
 import { DEFAULT_SYSTEM_PROMPT } from '../u.prompt.ts';
+
+type RegisteredTool = {
+  readonly name: string;
+  execute(
+    toolCallId: string,
+    params: Record<string, unknown>,
+    signal: AbortSignal | undefined,
+    onUpdate: unknown,
+    ctx: { readonly cwd: string },
+  ): Promise<{ readonly isError?: boolean; readonly details?: unknown }>;
+};
+
+type GeneratedSandboxFsModule = {
+  readonly default: (pi: { registerTool(tool: RegisteredTool): void }) => void;
+};
 
 describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
   it('run → merges typed profile sandbox policy and invocation args into raw Pi launch', async () => {
@@ -73,10 +88,14 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
 
   it('run → materializes enabled sandbox filesystem extension with truthful prompt contracts', async () => {
     const prev = Process.inherit;
+    const prevTmpDir = Deno.env.get('TMPDIR');
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.run.test.' }))
+      .absolute as t.StringDir;
+    const tmpDir = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.clipboard.' }))
       .absolute as t.StringDir;
     const config = `${cwd}/profiles.yaml` as t.StringPath;
     try {
+      Deno.env.set('TMPDIR', `${tmpDir}/`);
       await Fs.write(
         config,
         Str.dedent(
@@ -126,6 +145,9 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
         expect(text).to.contain("name: 'remove'");
         expect(text).to.contain("name: 'move'");
         expect(text).to.contain("name: 'copy'");
+        expect(text).to.contain(tmpDir);
+        expect(text).not.to.contain(`${tmpDir}/`);
+        expect(countOccurrences(text, tmpDir)).to.eql(1);
         expect(text).to.contain(`${cwd}/allowed`);
         expect(text).to.contain(`${cwd}/.git`);
         expect(text).to.contain(`${cwd}/.pi`);
@@ -133,6 +155,24 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
         expect(text).not.to.contain("from '@sys/fs'");
         expect(text).not.to.contain('__SANDBOX_FS_POLICY__');
         expect(text).not.to.contain(`${cwd}/.pi/@sys/tmp`);
+
+        const clipboard = Fs.join(tmpDir, 'pi-clipboard-test.png') as t.StringPath;
+        const imported = Fs.join(cwd, 'clipboard.png') as t.StringPath;
+        await Fs.write(clipboard, 'png bytes');
+
+        const mod = await importGenerated(extensionPath);
+        const tools: RegisteredTool[] = [];
+        mod.default({ registerTool: (tool) => tools.push(tool) });
+        const copied = await findTool(tools, 'copy').execute(
+          'copy-1',
+          { from: clipboard, to: 'clipboard.png' },
+          undefined,
+          undefined,
+          { cwd },
+        );
+        expect(copied.isError).to.eql(undefined);
+        expect((await Fs.readText(imported)).data).to.eql('png bytes');
+
         return { code: 0, success: true, signal: null };
       };
 
@@ -140,7 +180,10 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
       expect(res.success).to.eql(true);
     } finally {
       Process.inherit = prev;
+      if (prevTmpDir === undefined) Deno.env.delete('TMPDIR');
+      else Deno.env.set('TMPDIR', prevTmpDir);
       await Fs.remove(cwd);
+      await Fs.remove(tmpDir);
     }
   });
 
@@ -561,6 +604,23 @@ function appendSystemPrompts(args: readonly string[]) {
   return args.flatMap((arg, index) =>
     arg === '--append-system-prompt' ? [args[index + 1] ?? ''] : []
   );
+}
+
+function countOccurrences(text: string, value: string) {
+  if (!value) return 0;
+  return text.split(value).length - 1;
+}
+
+async function importGenerated(path: t.StringPath): Promise<GeneratedSandboxFsModule> {
+  const url = Path.toFileUrl(path);
+  url.search = `v=${Date.now()}.${Math.random()}`;
+  return await import(url.href) as GeneratedSandboxFsModule;
+}
+
+function findTool(tools: readonly RegisteredTool[], name: string) {
+  const tool = tools.find((item) => item.name === name);
+  if (!tool) throw new Error(`Missing generated sandbox filesystem tool: ${name}`);
+  return tool;
 }
 
 function findArg(args: readonly string[], prefix: string) {

@@ -1,7 +1,7 @@
 import { Fs, Process, type t } from './common.ts';
 import { PiArgs } from './u.args.ts';
 import { toAncestorDiscoveryReadScope } from './u.ancestor.discovery.read.ts';
-import { runtimeRoot } from './u.runtime-root.ts';
+import { runtimeRoot } from './u.runtime.ts';
 import { Settings } from '../m.settings/mod.ts';
 
 export const run: t.PiCli.Lib['run'] = async (input) => {

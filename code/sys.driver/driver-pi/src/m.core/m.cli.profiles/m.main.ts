@@ -2,7 +2,7 @@ import { run } from '../m.cli/m.run.ts';
 import { PiSandboxFmt } from '../m.cli/u.fmt.sandbox.ts';
 import { PiSandboxReport } from '../m.cli/u.report.sandbox.ts';
 import { resolveCwd } from '../m.cli/u.resolve.cwd.ts';
-import { runtimeRoot } from '../m.cli/u.runtime-root.ts';
+import { runtimeRoot } from '../m.cli/u.runtime.ts';
 
 import { Fs, type t, YamlConfig } from './common.ts';
 import { ProfileArgs } from './u.args.ts';

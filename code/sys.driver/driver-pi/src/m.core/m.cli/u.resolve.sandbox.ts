@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { Arr, type t } from './common.ts';
 import { PiEnv } from './u.env.ts';
 import { resolveRead } from './u.resolve.read.ts';
 import { resolveWrite } from './u.resolve.write.ts';
@@ -7,7 +7,7 @@ import {
   isAncestorDiscoveryRead,
   toAncestorDiscoveryReadScope,
 } from './u.ancestor.discovery.read.ts';
-import { runtimeRoot } from './u.runtime-root.ts';
+import { resolveTempArtifactRoots, runtimeRoot } from './u.runtime.ts';
 
 const SHELLS = new Set(['/bin/bash', '/bin/sh', '/bin/zsh']);
 
@@ -20,7 +20,7 @@ export async function resolveSandboxSummary(args: {
 }): Promise<t.PiCli.SandboxSummary> {
   const root = runtimeRoot(args.cwd);
   const denoDir = PiArgs.toDenoDir(root);
-  const tmpDir = await PiEnv.toTmpDir();
+  const tempArtifactRoots = await resolveTempArtifactRoots();
   const read = await resolveRead(root, denoDir, [
     ...(args.read ?? []),
     ...toAncestorDiscoveryReadScope(args.cwd),
@@ -32,8 +32,8 @@ export async function resolveSandboxSummary(args: {
   return {
     permissions: args.allowAll === true ? 'allow-all' : 'scoped',
     cwd: args.cwd,
-    read: toReadScope(args.cwd, root, read, tmpDir),
-    write: toWriteScope(root, write, tmpDir),
+    read: toReadScope(args.cwd, root, read, tempArtifactRoots),
+    write: toWriteScope(root, write, tempArtifactRoots),
     context,
   };
 }
@@ -42,15 +42,15 @@ function toReadScope(
   cwd: t.PiCli.Cwd,
   root: t.StringDir,
   paths: readonly t.StringPath[],
-  tmpDir?: t.StringDir,
+  tempArtifactRoots: readonly t.StringPath[],
 ): t.PiCli.SandboxSummary.Scope {
   const groups = new Set<string>(['cwd']);
   const detail: t.StringPath[] = [];
 
-  for (const path of unique(paths)) {
+  for (const path of Arr.uniq(paths)) {
     if (path === root) continue;
 
-    if (isRuntimeRead(root, path, tmpDir) || isAncestorDiscoveryRead(cwd, path)) {
+    if (isRuntimeRead(root, path, tempArtifactRoots) || isAncestorDiscoveryRead(cwd, path)) {
       groups.add('runtime');
       detail.push(path);
       continue;
@@ -69,20 +69,20 @@ function toReadScope(
 function toContext(
   input?: t.PiCli.SandboxSummary['context'],
 ): t.PiCli.SandboxSummary['context'] {
-  return { include: unique(input?.include ?? []) };
+  return { include: Arr.uniq(input?.include ?? []) };
 }
 
 function toWriteScope(
   cwd: t.StringDir,
   paths: readonly t.StringPath[],
-  tmpDir?: t.StringDir,
+  tempArtifactRoots: readonly t.StringPath[],
 ): t.PiCli.SandboxSummary.Scope {
   const groups = new Set<string>(['cwd']);
   const detail: t.StringPath[] = [];
 
-  for (const path of unique(paths)) {
+  for (const path of Arr.uniq(paths)) {
     if (path === cwd) continue;
-    if (isTempPath(path, tmpDir)) groups.add('temp');
+    if (isTempArtifactPath(path, tempArtifactRoots)) groups.add('temp');
     else groups.add('extra');
     detail.push(path);
   }
@@ -93,26 +93,19 @@ function toWriteScope(
   };
 }
 
-function unique(paths: readonly t.StringPath[]) {
-  const seen = new Set<string>();
-  const next: t.StringPath[] = [];
-  for (const path of paths) {
-    if (seen.has(path)) continue;
-    seen.add(path);
-    next.push(path);
-  }
-  return next;
-}
-
-function isRuntimeRead(cwd: t.StringDir, path: t.StringPath, tmpDir?: t.StringDir) {
+function isRuntimeRead(
+  cwd: t.StringDir,
+  path: t.StringPath,
+  tempArtifactRoots: readonly t.StringPath[],
+) {
   return (
     path === PiArgs.toDenoDir(cwd) ||
     path === PiEnv.toShellPath() ||
     SHELLS.has(path) ||
-    isTempPath(path, tmpDir)
+    isTempArtifactPath(path, tempArtifactRoots)
   );
 }
 
-function isTempPath(path: t.StringPath, tmpDir?: t.StringDir) {
-  return tmpDir ? path === tmpDir || path.startsWith(`${tmpDir}/`) : false;
+function isTempArtifactPath(path: t.StringPath, roots: readonly t.StringPath[]) {
+  return roots.some((root) => path === root || path.startsWith(`${root}/`));
 }

@@ -1,5 +1,6 @@
 import { Fs, type t } from './common.ts';
 import { resolveSandboxSummary } from '../m.cli/u.resolve.sandbox.ts';
+import { resolveTempArtifactRoots } from '../m.cli/u.runtime.ts';
 import { ProfilesFs } from './u.fs.ts';
 import { ProfileContext } from './u.context.ts';
 import { ProfilePath } from './u.path.ts';
@@ -48,9 +49,13 @@ export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<Resolv
     ...profileWrite,
     ...callerWrite,
   ] as readonly t.StringPath[];
+  const tempArtifactRoots = await resolveTempArtifactRoots();
   const sandboxFsPolicy = SandboxFs.resolvePolicy({
     cwd,
-    read: ProfilePath.resolveAll(root, [...(capability?.read ?? []), ...(input.read ?? [])]),
+    read: [
+      ...ProfilePath.resolveAll(root, [...(capability?.read ?? []), ...(input.read ?? [])]),
+      ...tempArtifactRoots,
+    ],
     write: [...profileWrite, ...ProfilePath.resolveAll(root, callerWrite)],
     remove: profile.tools?.remove,
     move: profile.tools?.move,

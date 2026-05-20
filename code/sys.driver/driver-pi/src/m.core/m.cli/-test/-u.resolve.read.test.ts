@@ -12,8 +12,9 @@ describe(`@sys/driver-pi/cli/u.resolve.read`, () => {
     const prevTmp = Deno.env.get('TMPDIR');
 
     try {
+      const tmpDir = Fs.join(root, 'tmp');
       Deno.env.set('HOME', root);
-      Deno.env.set('TMPDIR', Fs.join(root, 'tmp'));
+      Deno.env.set('TMPDIR', `${tmpDir}/`);
       await Fs.ensureDir(denoDir);
       await Fs.write(Fs.join(root, 'AGENTS.md'), '# root');
       await Fs.write(Fs.join(root, 'AGENTS.MD'), '# root uppercase');
@@ -24,7 +25,8 @@ describe(`@sys/driver-pi/cli/u.resolve.read`, () => {
       expect(paths).to.include(denoDir);
       expect(paths).to.include('./extra-read');
       expect(paths).to.include('/bin/bash');
-      expect(paths).to.include(Fs.join(root, 'tmp'));
+      expect(paths).to.include(tmpDir);
+      expect(paths).not.to.include(`${tmpDir}/`);
       expect(paths).not.to.include(root);
       expect(paths).not.to.include(Fs.join(root, 'AGENTS.md'));
       expect(paths).not.to.include(Fs.join(root, 'AGENTS.MD'));

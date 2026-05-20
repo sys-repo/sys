@@ -1,5 +1,5 @@
 import { c, Cli, Fs, Is, Num, Path, Str, type t } from './common.ts';
-import { isGitlessRoot, runtimeRoot } from './u.runtime-root.ts';
+import { isGitlessRoot, runtimeRoot } from './u.runtime.ts';
 
 type PiSandboxTableOptions = {
   readonly width?: number;
