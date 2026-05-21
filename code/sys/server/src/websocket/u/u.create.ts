@@ -1,4 +1,4 @@
-import { Cmd, D, Dispose, Is, type t, Time } from './common.ts';
+import { Cmd, D, Dispose, Is, type t, Time } from '../common.ts';
 import { acceptRequest } from './u.accept.ts';
 import { closeConnections, trackConnection } from './u.lifecycle.ts';
 import { localOrigin, localWebSocketUrl, normalizePath } from './u.origin.ts';

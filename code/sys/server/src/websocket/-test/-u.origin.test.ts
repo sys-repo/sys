@@ -1,5 +1,5 @@
 import { describe, expect, it, type t } from '../../-test.ts';
-import { localOrigin, localWebSocketUrl, normalizePath } from '../u.origin.ts';
+import { localOrigin, localWebSocketUrl, normalizePath } from '../u/u.origin.ts';
 
 describe('WebSocketServer/origin', () => {
   it('normalizes accepted route paths', () => {

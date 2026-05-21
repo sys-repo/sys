@@ -1,4 +1,4 @@
-import { D, Str, type t } from './common.ts';
+import { D, Str, type t } from '../common.ts';
 
 /** Normalize a WebSocket route path. */
 export function normalizePath(path: t.StringUrlRoute = D.path): t.StringUrlRoute {

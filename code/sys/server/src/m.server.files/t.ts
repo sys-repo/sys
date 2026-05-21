@@ -57,6 +57,9 @@ export declare namespace FilesServer {
     export type StartOptions = CreateOptions & {
       /** Lifecycle ownership model. Defaults to `manual`; use `process` for standalone CLIs. */
       readonly lifecycle?: t.WebSocketServer.Lifecycle;
+
+      /** Suppress direct-startup reporting for service runners that render their own status. */
+      readonly silent?: boolean;
     };
 
     /** Status metadata accepted by the Files WebSocket facade. */

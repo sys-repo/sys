@@ -1,5 +1,6 @@
-import type { t } from './common.ts';
+import type { t } from '../common.ts';
 import { create } from './u.create.ts';
+import { printStarted } from './u.fmt.ts';
 
 /** Hosted startup convenience over `create`, with optional host-process lifecycle wiring. */
 export function start<
@@ -12,6 +13,7 @@ export function start<
   const server = create<N, P, R, E>(input);
 
   if (lifecycle === 'process') bindProcessLifecycle(server);
+  if (!input.silent) printStarted(server, { lifecycle });
   return server;
 }
 

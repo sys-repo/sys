@@ -1,4 +1,4 @@
-import { D, type t } from './common.ts';
+import { D, type t } from '../common.ts';
 import { closeSocket } from './u.socket.ts';
 
 export type WebSocketConnection = {

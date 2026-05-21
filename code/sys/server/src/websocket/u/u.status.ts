@@ -1,4 +1,4 @@
-import { D, Err, Is, type t } from './common.ts';
+import { D, Err, Is, type t } from '../common.ts';
 
 /** Mutable runtime status tracked by the owning server handle. */
 export type RuntimeStatus = {

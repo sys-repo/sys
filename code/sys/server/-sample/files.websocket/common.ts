@@ -5,7 +5,6 @@ export type { t };
 /**
  * Libraries:
  */
-export { c, Cli } from '@sys/cli';
 export { Fs } from '@sys/fs';
 export { HttpServer } from '@sys/http/server';
 export { Files } from '@sys/model/files/fs';
@@ -16,11 +15,12 @@ export { Str } from '@sys/std/str';
 /**
  * Sample default values.
  */
+const port = 1234;
 export const DEFAULTS = {
-  name: '@sys/server • sample:files',
-  port: 1234,
+  name: '@sys/server:sample:files',
   path: '/files',
-  url: 'ws://127.0.0.1:1234/files' as t.StringUrl,
+  port,
+  url: `ws://127.0.0.1:${port}/files`,
 } as const;
 
 /** Short alias for sample defaults. */

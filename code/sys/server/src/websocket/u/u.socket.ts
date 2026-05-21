@@ -1,4 +1,4 @@
-import { Try } from './common.ts';
+import { Try } from '../common.ts';
 
 export type WebSocketCloseArgs = {
   readonly code?: number;

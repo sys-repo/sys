@@ -71,6 +71,9 @@ export declare namespace WebSocketServer {
   > = CreateOptions<N, P, R, E> & {
     /** Lifecycle ownership model. Defaults to `manual`; use `process` for standalone CLIs. */
     readonly lifecycle?: Lifecycle;
+
+    /** Suppress direct-startup reporting for service runners that render their own status. */
+    readonly silent?: boolean;
   };
 
   /** Running WebSocket command server handle. */

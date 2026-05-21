@@ -1,5 +1,5 @@
 import { SampleFiles } from './-config.ts';
-import { c, Cli, Files, FilesServer, Fs, HttpServer, type t } from './common.ts';
+import { Files, FilesServer, Fs, HttpServer } from './common.ts';
 
 const files = Files.Fs.Readonly.live({
   fs: Fs.Capability.Files.Readonly.live(Fs), // ← capability narrows host FS authority to `readonly + watch`.
@@ -15,11 +15,8 @@ const server = FilesServer.WebSocket.start({
   status: {
     name: SampleFiles.name,
     root: SampleFiles.root,
-    details: SampleFiles.details,
   },
 });
-
-printStarted(server);
 
 void HttpServer.keyboard({
   port: server.port,
@@ -30,17 +27,3 @@ void HttpServer.keyboard({
 });
 
 await server.finished;
-
-/**
- * Helpers:
- */
-function printStarted(server: t.WebSocketServer.Started) {
-  const status = server.status();
-  const table = Cli.table([]);
-  table.push([c.gray('server'), c.white(status.name ?? SampleFiles.name)]);
-  table.push([c.gray('url'), c.cyan(server.url)]);
-  table.push([c.gray('namespace'), c.dim(Files.Cmd.ns)]);
-  table.push([c.gray('root'), c.dim(Fs.trimCwd(SampleFiles.root))]);
-  table.push([c.dim(c.gray('quit')), c.dim(c.gray('Ctrl+C or Q'))]);
-  console.info(`${table}\n`);
-}

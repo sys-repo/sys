@@ -1,4 +1,6 @@
 export * from '../common.ts';
+export { c, Cli } from '@sys/cli';
+export { Fs } from '@sys/fs';
 
 const localhost = '127.0.0.1';
 const publicHost = '0.0.0.0';
