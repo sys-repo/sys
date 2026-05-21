@@ -3,8 +3,7 @@ import { Files } from '@sys/model/files';
 import type { FilesPolicy } from '@sys/model/files/t';
 import { FilesFs } from '@sys/model/files/fs';
 import { FilesMemory } from '@sys/model/files/memory';
-import { describe, expect, it, type t } from '../../-test.ts';
-import { FilesServer } from '../mod.ts';
+import { describe, expect, Is, it, type t } from '../../-test.ts';
 import { Fixture } from './u.fixture.ts';
 
 const MEMORY_LIVE_POLICY = {
@@ -19,19 +18,22 @@ const MEMORY_LIVE_POLICY = {
 
 const REAL_FS_LIVE_POLICY = Files.Policy.readonly('docs/**', { watch: 'docs/**' });
 
+const REAL_FS_WRITABLE_LIVE_POLICY = {
+  list: 'docs/**',
+  stat: 'docs/**',
+  read: 'docs/**',
+  write: 'docs/**',
+  remove: 'docs/**',
+  watch: 'docs/**',
+  manifest: true,
+} satisfies FilesPolicy.Shape;
+
 describe('FilesServer.WebSocket.create: live files watch', () => {
   it('streams memory files watch events over websocket while Cmd read remains truth', async () => {
     const backing = FilesMemory.Writable.live({ dirs: ['docs'], policy: MEMORY_LIVE_POLICY });
-    const server = FilesServer.WebSocket.create({ path: '/files', files: backing });
 
-    try {
-      const remote = await Fixture.connect(server.url, { timeout: false });
-      const events: t.Files.Change[] = [];
-      const stream = remote.client.stream(Files.Cmd.Name.watch, { path: 'docs' });
-      const done = stream.done.catch((error: unknown) => error);
-      const subscription = stream.onEvent((event) => events.push(event));
-
-      try {
+    await Fixture.withFilesServer(backing, async (server) => {
+      await Fixture.withWatchedRemote(server, async ({ remote, events, closeWatch }) => {
         await Fixture.waitFor(
           () => backing.diagnostics.Active.watchCount() === 1,
           { message: 'Timed out waiting for websocket memory watch to become active.' },
@@ -47,10 +49,16 @@ describe('FilesServer.WebSocket.create: live files watch', () => {
           content: 'live\n',
           mediaType: 'text/markdown',
         });
-        expect(created).to.eql(expectedChange);
+        expect(created).to.include({ kind: expectedChange.kind, path, seq: expectedChange.seq });
+        expect(created.entry).to.eql(entry);
+        expect(Is.str(created.correlation)).to.eql(true);
 
         const event = await Fixture.waitForChange(events, { path, seq: expectedChange.seq });
-        expect(event).to.eql(expectedChange);
+        expect(event).to.eql({
+          ...expectedChange,
+          origin: 'command',
+          correlation: created.correlation,
+        });
 
         const read = await remote.client.send(Files.Cmd.Name.read, { path });
         expect(read).to.eql({
@@ -60,46 +68,25 @@ describe('FilesServer.WebSocket.create: live files watch', () => {
           content: 'live\n',
         });
 
-        stream.dispose();
-        const error = await done;
-        Fixture.expectCmdError(error, 'CmdError.Cancelled', Files.Cmd.Name.watch);
+        await closeWatch();
         await Fixture.waitFor(
           () => backing.diagnostics.Active.watchCount() === 0,
           { message: 'Timed out waiting for websocket memory watch to stop.' },
         );
-      } finally {
-        subscription.dispose();
-        stream.dispose();
-        await done;
-        await remote.close();
-      }
-    } finally {
-      await server.close('test.cleanup');
-    }
+      });
+    });
   });
 
   it('streams real filesystem watch events over websocket while Cmd read remains truth', async () => {
-    const workspace = await Fs.makeTempDir({ prefix: 'sys-server-files-live-' });
-
-    try {
-      const root = Fs.join(workspace.absolute, 'root');
-      await Fs.ensureDir(Fs.join(root, 'docs'));
-
+    await Fixture.withWorkspace('sys-server-files-live-', async ({ workspace, root }) => {
       const backing = FilesFs.Readonly.live({
-        fs: Fs.Capability.Files.toLive(Fs),
+        fs: Fs.Capability.Files.Readonly.live(Fs),
         root,
         policy: REAL_FS_LIVE_POLICY,
       });
-      const server = FilesServer.WebSocket.create({ path: '/files', files: backing });
 
-      try {
-        const remote = await Fixture.connect(server.url, { timeout: false });
-        const events: t.Files.Change[] = [];
-        const stream = remote.client.stream(Files.Cmd.Name.watch, { path: 'docs' });
-        const done = stream.done.catch((error: unknown) => error);
-        const subscription = stream.onEvent((event) => events.push(event));
-
-        try {
+      await Fixture.withFilesServer(backing, async (server) => {
+        await Fixture.withWatchedRemote(server, async ({ remote, events, closeWatch }) => {
           expect(Fixture.detail(server.status(), 'files.kind')).to.eql('files/fs:live');
           expect(Fixture.detail(server.status(), 'files.fidelity')).to.eql('live');
 
@@ -119,7 +106,7 @@ describe('FilesServer.WebSocket.create: live files watch', () => {
           expect(event.path).to.eql(path);
           expect(Fs.Path.Is.absolute(event.path)).to.eql(false);
           expect(event.path).not.to.contain(root);
-          expect(event.path).not.to.contain(workspace.absolute);
+          expect(event.path).not.to.contain(workspace);
           if (event.entry) {
             expect(event.entry.path).to.eql(path);
             expect(event.entry.kind).to.eql('file');
@@ -134,24 +121,131 @@ describe('FilesServer.WebSocket.create: live files watch', () => {
             content: 'real\n',
           });
 
-          stream.dispose();
-          const error = await done;
-          Fixture.expectCmdError(error, 'CmdError.Cancelled', Files.Cmd.Name.watch);
+          await closeWatch();
           await Fixture.waitFor(
             () => backing.diagnostics.Active.watchCount() === 0,
             { message: 'Timed out waiting for websocket real fs watch to stop.' },
           );
-        } finally {
-          subscription.dispose();
-          stream.dispose();
-          await done;
-          await remote.close();
-        }
-      } finally {
-        await server.close('test.cleanup');
-      }
-    } finally {
-      await Fs.remove(workspace.absolute);
-    }
+        });
+      });
+    });
+  });
+
+  it('writes and removes durable real filesystem entries over websocket', async () => {
+    await Fixture.withWorkspace('sys-server-files-write-', async ({ root }) => {
+      const backing = FilesFs.Writable.live({
+        fs: Fs.Capability.Files.Writable.live(Fs),
+        root,
+        policy: REAL_FS_WRITABLE_LIVE_POLICY,
+      });
+
+      await Fixture.withFilesServer(backing, async (server) => {
+        await Fixture.withWatchedRemote(server, async ({ remote, events, closeWatch }) => {
+          expect(Fixture.detail(server.status(), 'files.kind')).to.eql('files/fs:writable-live');
+          expect(Fixture.detail(server.status(), 'files.fidelity')).to.eql('live');
+          expect(Fixture.detail(server.status(), 'files.capabilities')).to.eql(
+            'list,stat,read,write,remove,watch,manifest',
+          );
+
+          await Fixture.waitFor(
+            () => backing.diagnostics.Active.watchCount() === 1,
+            { message: 'Timed out waiting for websocket writable real fs watch to become active.' },
+          );
+
+          const path = 'docs/ws-real.md' as t.Files.String.Path;
+          const entry = { path, kind: 'file', size: 5 } as const;
+          const created = await remote.client.send(Files.Cmd.Name.write, {
+            kind: 'text',
+            path,
+            content: 'real\n',
+            mediaType: 'text/markdown',
+          });
+
+          expect(created).to.include({ kind: 'created', path });
+          expect(Is.number(created.seq)).to.eql(true);
+          expect(created.entry).to.eql(entry);
+          expect(Is.str(created.correlation)).to.eql(true);
+
+          const createdEvent = await Fixture.waitForChange(events, { path, seq: created.seq });
+          expect(createdEvent).to.eql({
+            kind: 'created',
+            path,
+            entry,
+            seq: created.seq,
+            origin: 'command',
+            correlation: created.correlation,
+          });
+
+          const hostPath = Fs.join(root, path);
+          const hostStat = await Fs.stat(hostPath);
+          expect(hostStat?.isFile).to.eql(true);
+          expect(hostStat?.size).to.eql(5);
+          const hostList = await Fs.ls(Fs.join(root, 'docs'));
+          expect(hostList).to.eql([hostPath]);
+          const hostRead = await Fs.readText(hostPath);
+          expect(hostRead.ok).to.eql(true);
+          expect(hostRead.data).to.eql('real\n');
+
+          const cmdStat = await remote.client.send(Files.Cmd.Name.stat, { path });
+          expect(cmdStat).to.eql({ entry });
+          const cmdList = await remote.client.send(Files.Cmd.Name.list, { path: 'docs' });
+          expect(cmdList.entries).to.eql([{ path, kind: 'file' }]);
+          const cmdRead = await remote.client.send(Files.Cmd.Name.read, { path });
+          expect(cmdRead).to.eql({
+            kind: 'inline',
+            file: entry,
+            encoding: 'utf8',
+            content: 'real\n',
+          });
+
+          const removed = await remote.client.send(Files.Cmd.Name.remove, { path });
+          expect(removed).to.include({ kind: 'deleted', path });
+          expect(Is.number(removed.seq)).to.eql(true);
+          expect(Is.str(removed.correlation)).to.eql(true);
+
+          const removedEvent = await Fixture.waitForChange(events, { path, seq: removed.seq });
+          expect(removedEvent).to.eql({
+            kind: 'deleted',
+            path,
+            seq: removed.seq,
+            origin: 'command',
+            correlation: removed.correlation,
+          });
+
+          const hostAfterStat = await Fs.stat(hostPath);
+          expect(hostAfterStat).to.eql(undefined);
+          const hostAfterList = await Fs.ls(Fs.join(root, 'docs'));
+          expect(hostAfterList).to.eql([]);
+          const hostAfterRemove = await Fs.readText(hostPath);
+          expect(hostAfterRemove.exists).to.eql(false);
+
+          const cmdListAfterRemove = await remote.client.send(Files.Cmd.Name.list, {
+            path: 'docs',
+          });
+          expect(cmdListAfterRemove.entries).to.eql([]);
+          const deniedStat = await remote.client
+            .send(Files.Cmd.Name.stat, { path })
+            .catch((error: unknown) => error);
+          Fixture.expectCmdError(deniedStat, 'CmdError.Remote', Files.Cmd.Name.stat);
+          const deniedRead = await remote.client
+            .send(Files.Cmd.Name.read, { path })
+            .catch((error: unknown) => error);
+          Fixture.expectCmdError(deniedRead, 'CmdError.Remote', Files.Cmd.Name.read);
+
+          await Fixture.waitFor(() => events.length >= 2, {
+            message: 'Timed out waiting for durable real fs command-origin events.',
+          });
+          expect(events.every((event) => event.origin === 'command' || event.origin === 'fs-watch'))
+            .to.eql(true);
+          expect(events.some((event) => event.path.includes('.sys-files-atomic-'))).to.eql(false);
+
+          await closeWatch();
+          await Fixture.waitFor(
+            () => backing.diagnostics.Active.watchCount() === 0,
+            { message: 'Timed out waiting for websocket writable real fs watch to stop.' },
+          );
+        });
+      });
+    });
   });
 });

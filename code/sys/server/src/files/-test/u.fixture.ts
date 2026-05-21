@@ -1,6 +1,8 @@
-import { Cmd, expect, Is, Net, type t, Time } from '../../-test.ts';
+import { Fs } from '@sys/fs';
 import { Files } from '@sys/model/files';
 import type { Files as FilesType, FilesCmd } from '@sys/model/files/t';
+import { Cmd, expect, Is, Net, type t, Time } from '../../-test.ts';
+import { FilesServer } from '../mod.ts';
 
 type ConnectOptions = {
   /** Per-command timeout in milliseconds. Use `false` for intentionally long-lived streams. */
@@ -25,6 +27,15 @@ type ChangeMatch = {
   readonly kind?: FilesType.Change['kind'] | readonly FilesType.Change['kind'][];
 };
 
+type FilesBacking = Parameters<typeof FilesServer.WebSocket.create>[0]['files'];
+type FilesSocketServer = ReturnType<typeof FilesServer.WebSocket.create>;
+type Workspace = { readonly workspace: string; readonly root: string };
+type WatchedRemote = {
+  readonly remote: Connected;
+  readonly events: FilesType.Change[];
+  closeWatch(): Promise<void>;
+};
+
 /** Shared fixtures for Files server contract tests. */
 export const Fixture = {
   connect,
@@ -33,6 +44,9 @@ export const Fixture = {
   expectCmdError,
   waitFor,
   waitForChange,
+  withFilesServer,
+  withWatchedRemote,
+  withWorkspace,
 } as const;
 
 /**
@@ -127,6 +141,61 @@ function direct<K extends FilesCmd.Name>(
   };
   const result = backing.handlers[name](payload, context as never);
   return Promise.resolve(result as FilesCmd.Result[K]);
+}
+
+async function withWorkspace<T>(
+  prefix: string,
+  fn: (workspace: Workspace) => Promise<T>,
+): Promise<T> {
+  const workspace = await Fs.makeTempDir({ prefix });
+  try {
+    const root = Fs.join(workspace.absolute, 'root');
+    await Fs.ensureDir(Fs.join(root, 'docs'));
+    return await fn({ workspace: workspace.absolute, root });
+  } finally {
+    await Fs.remove(workspace.absolute);
+  }
+}
+
+async function withFilesServer<T>(
+  files: FilesBacking,
+  fn: (server: FilesSocketServer) => Promise<T>,
+): Promise<T> {
+  const server = FilesServer.WebSocket.create({ path: '/files', files });
+  try {
+    return await fn(server);
+  } finally {
+    await server.close('test.cleanup');
+  }
+}
+
+async function withWatchedRemote<T>(
+  server: FilesSocketServer,
+  fn: (remote: WatchedRemote) => Promise<T>,
+): Promise<T> {
+  const remote = await connect(server.url, { timeout: false });
+  const events: FilesType.Change[] = [];
+  const stream = remote.client.stream(Files.Cmd.Name.watch, { path: 'docs' });
+  const done = stream.done.catch((error: unknown) => error);
+  const subscription = stream.onEvent((event) => events.push(event));
+  let closed = false;
+
+  const closeWatch = async () => {
+    if (closed) return;
+    closed = true;
+    stream.dispose();
+    const error = await done;
+    expectCmdError(error, 'CmdError.Cancelled', Files.Cmd.Name.watch);
+  };
+
+  try {
+    return await fn({ remote, events, closeWatch });
+  } finally {
+    subscription.dispose();
+    stream.dispose();
+    await done;
+    await remote.close();
+  }
 }
 
 function expectCmdError(

@@ -15,6 +15,8 @@ export const DEFAULTS = {
     'list',
     'stat',
     'read',
+    'write',
+    'remove',
     'watch',
     'manifest',
   ] as const satisfies readonly t.FilesCapability.Name[],
