@@ -2,11 +2,20 @@
 
 ## Status
 
-Active reference.
+Closed reference.
 
-This plan remains the live context record for the Cell DSL/runtime-authority
+This plan remains the final context record for the Cell DSL/runtime-authority
 hardening. The implementation has shipped in the product commit below; the plan
 artifact is intentionally separate from the product commit.
+
+## Lifecycle cleanup
+
+This file is complete and ready to retire from live working context once the
+cleanup commit below is present in history.
+
+```text
+plan(archive): close cell DSL runtime authority hardening
+```
 
 ## Related product commit
 
