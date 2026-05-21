@@ -1,5 +1,5 @@
-import { type t, Fs, Is, Path } from './common.ts';
-import { Is as FileMapIs } from './m.Is.ts';
+import { type t, Fs, Is, Path } from '../common.ts';
+import { Is as FileMapIs } from '../m.Is.ts';
 import { toMap } from './u.toMap.ts';
 
 type F = t.FileMapLib['bundle'];

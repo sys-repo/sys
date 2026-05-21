@@ -1,5 +1,5 @@
-import { type t, Path } from './common.ts';
-import { Data } from './m.Data.ts';
+import { type t, Path } from '../common.ts';
+import { Data } from '../m.Data.ts';
 
 /**
  * Filter a FileMap by predicate.

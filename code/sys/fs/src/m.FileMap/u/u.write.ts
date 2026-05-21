@@ -1,7 +1,7 @@
-import { D, Delete, Fs, Path, type t } from './common.ts';
+import { D, Delete, Fs, Path, type t } from '../common.ts';
 
-import { Data } from './m.Data.ts';
-import { Is } from './m.Is.ts';
+import { Data } from '../m.Data.ts';
+import { Is } from '../m.Is.ts';
 import { validate } from './u.validate.ts';
 
 export async function write(

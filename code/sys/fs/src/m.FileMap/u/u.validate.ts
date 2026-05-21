@@ -1,4 +1,4 @@
-import { type t, Err, Is } from './common.ts';
+import { type t, Err, Is } from '../common.ts';
 
 export function validate(input: unknown): t.FileMapValidateResult {
   let json: unknown = input;

@@ -1,6 +1,6 @@
-import { type t, Fs, Obj } from './common.ts';
-import { Data } from './m.Data.ts';
-import { Is } from './m.Is.ts';
+import { type t, Fs, Obj } from '../common.ts';
+import { Data } from '../m.Data.ts';
+import { Is } from '../m.Is.ts';
 import { toFilterArgs } from './u.filter.ts';
 
 export const toMap: t.FileMapLib['toMap'] = async (dir, opt) => {
