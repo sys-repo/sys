@@ -2,6 +2,7 @@ import { Files } from '../../m.files/mod.ts';
 import { type t } from '../common.ts';
 import type { Live } from '../../m.files/t/t.u.live.ts';
 import { fail } from '../u/u.error.ts';
+import { realScope } from '../u/u.path.ts';
 import { changesFromEvent, commandChange, watcherMatches } from './u.change.ts';
 import { type WatchQuery, watchQuery, type WatchScope } from './u.query.ts';
 
@@ -92,7 +93,8 @@ export const createWatch = (scope: WatchScope, policy: t.FilesPolicy.Shape): Wat
       });
     },
     async emit(kind, path, correlation) {
-      const change = await commandChange(scope, policy, kind, path, nextSeq(), correlation);
+      const canonical = await realScope(scope);
+      const change = await commandChange(canonical, policy, kind, path, nextSeq(), correlation);
 
       for (const watcher of [...active]) {
         if (!watcherMatches(watcher.query, change.path, policy)) continue;
