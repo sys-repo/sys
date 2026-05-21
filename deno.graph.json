@@ -1,21 +1,21 @@
 {
   ".meta": {
-    "createdAt": 1779274930806,
+    "createdAt": 1779358336481,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-aebeefd673bd1b2e9708cdc0c5c4c55a35eb622d83ae9b2cd744f1a52f79e07e",
-      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.97/src/m.graph/m.snapshot/m.Hash.ts"
+      "/graph": "sha256-60259662b41ee22dfc9f6a9d80b721760c60159fffdc0b93756987833566a06f",
+      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.98/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
       "pkg": {
         "name": "@sys/workspace",
-        "version": "0.0.97"
+        "version": "0.0.98"
       },
       "types": {
-        "/graph": "https://jsr.io/@sys/workspace/0.0.97/src/m.graph/t.ts"
+        "/graph": "https://jsr.io/@sys/workspace/0.0.98/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1779274930811
+    "modifiedAt": 1779358336487
   },
   "graph": {
     "orderedPaths": [
@@ -864,6 +864,10 @@
       {
         "from": "code/sys/net",
         "to": "code/sys.driver/driver-vite"
+      },
+      {
+        "from": "code/sys/net",
+        "to": "code/sys.model/model"
       },
       {
         "from": "code/sys/net",
