@@ -10,11 +10,29 @@ export namespace FsCapability {
 
   export namespace Files {
     export type Lib = {
-      /** Adapt `@sys/fs` into a structural readonly Files backing capability. */
-      readonly toReadonly: (fs: t.Fs.Lib) => Readonly;
+      /** Readonly Files capability adapters. */
+      readonly Readonly: ReadonlyLib;
 
-      /** Adapt `@sys/fs` into a structural live Files backing capability. */
-      readonly toLive: (fs: t.Fs.Lib) => Live;
+      /** Writable Files capability adapters. */
+      readonly Writable: WritableLib;
+    };
+
+    /** Readonly Files adapter namespace. */
+    export type ReadonlyLib = {
+      /** Adapt `@sys/fs` into a structural readonly Files backing capability. */
+      readonly create: (fs: t.Fs.Lib) => Readonly;
+
+      /** Adapt `@sys/fs` into a structural readonly+live Files backing capability. */
+      readonly live: (fs: t.Fs.Lib) => Live;
+    };
+
+    /** Writable Files adapter namespace. */
+    export type WritableLib = {
+      /** Adapt `@sys/fs` into a structural writable Files backing capability. */
+      readonly create: (fs: t.Fs.Lib) => Writable;
+
+      /** Adapt `@sys/fs` into a structural writable+live Files backing capability. */
+      readonly live: (fs: t.Fs.Lib) => LiveWritable;
     };
 
     /** Structural readonly filesystem capability compatible with `@sys/model/files/fs`. */
@@ -37,14 +55,41 @@ export namespace FsCapability {
       ) => t.Awaitable<Iterable<WalkEntry> | AsyncIterable<WalkEntry>>;
     };
 
+    /** Structural writable filesystem capability compatible with `@sys/model/files/fs`. */
+    export type Writable = Readonly & {
+      /** Stat a backing path without following the final symlink. */
+      readonly lstat: (path: t.StringPath) => t.Awaitable<Stat | undefined>;
+
+      /** Ensure a backing directory exists. */
+      readonly ensureDir: (path: t.StringPath) => t.Awaitable<void>;
+
+      /** Atomically replace a complete file value at the target path. */
+      readonly writeFileAtomic: (
+        path: t.StringPath,
+        content: Uint8Array,
+        options?: WriteFileOptions,
+      ) => t.Awaitable<void>;
+
+      /** Remove one backing file or empty directory. Recursive deletion is model-owned. */
+      readonly removeEntry: (path: t.StringPath) => t.Awaitable<void>;
+    };
+
     /** Structural live filesystem capability compatible with `@sys/model/files/fs`. */
     export type Live = Readonly & {
       /** Watch backing paths for filesystem changes. */
       readonly watch: Watch;
     };
 
+    /** Structural writable live filesystem capability compatible with `@sys/model/files/fs`. */
+    export type LiveWritable = Writable & Live;
+
     /** Start a backing filesystem watcher. */
     export type Watch = (path: t.StringPath, options?: WatchOptions) => t.Awaitable<Watcher>;
+
+    /** Options passed to the structural atomic write capability. */
+    export type WriteFileOptions = {
+      readonly mediaType?: t.StringMimeType;
+    };
 
     /** Options passed to the structural watch capability. */
     export type WatchOptions = {

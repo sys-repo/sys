@@ -7,7 +7,7 @@ import { walk } from './u.Files.walk.ts';
 /**
  * Adapt `@sys/fs` into the readonly capability expected by `@sys/model/files/fs`.
  */
-export const toReadonly: t.FsCapability.Files.Lib['toReadonly'] = (fs) => {
+export const toReadonly: t.FsCapability.Files.ReadonlyLib['create'] = (fs) => {
   return {
     Path: toPathCapability(fs),
     realPath: (path) => realPath(fs, path),

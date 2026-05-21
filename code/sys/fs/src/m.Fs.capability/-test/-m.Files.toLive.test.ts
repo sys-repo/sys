@@ -28,11 +28,11 @@ const LIVE_POLICY = {
   watch: '**',
 } satisfies TModel.FilesPolicy.Shape;
 
-describe('Fs.Capability.Files.toLive', () => {
+describe('Fs.Capability.Files.Readonly.live', () => {
   it('adapts @sys/fs to the live files/fs capability without write/remove authority', async () => {
     const fixture = await setupFixture();
     try {
-      const cap = Fs.Capability.Files.toLive(Fs);
+      const cap = Fs.Capability.Files.Readonly.live(Fs);
       expectTypeOf(cap).toMatchTypeOf<TModel.FilesFs.Capability.Live>();
       expect('write' in cap).to.eql(false);
       expect('remove' in cap).to.eql(false);
@@ -71,7 +71,7 @@ describe('Fs.Capability.Files.toLive', () => {
     let done: Promise<TModel.FilesCmd.Watch.Result> | undefined;
 
     try {
-      const cap = Fs.Capability.Files.toLive(Fs);
+      const cap = Fs.Capability.Files.Readonly.live(Fs);
       const backing = FilesFs.Readonly.live({ fs: cap, root: fixture.root, policy: LIVE_POLICY });
       const started = Promise.resolve(
         backing.handlers['files:watch']({ path: 'docs' }, watcher.context),
@@ -116,7 +116,7 @@ describe('Fs.Capability.Files.toLive', () => {
     try {
       await Deno.symlink(fixture.outsideDir, fixture.dirLink, { type: 'dir' });
 
-      const cap = Fs.Capability.Files.toLive(Fs);
+      const cap = Fs.Capability.Files.Readonly.live(Fs);
       const backing = FilesFs.Readonly.live({ fs: cap, root: fixture.root, policy: LIVE_POLICY });
 
       await expectFilesFsError(
@@ -146,7 +146,7 @@ describe('Fs.Capability.Files.toLive', () => {
     let done: Promise<TModel.FilesCmd.Watch.Result> | undefined;
 
     try {
-      const cap = Fs.Capability.Files.toLive(fs);
+      const cap = Fs.Capability.Files.Readonly.live(fs);
       const backing = FilesFs.Readonly.live({ fs: cap, root: fixture.root, policy: LIVE_POLICY });
       const started = Promise.resolve(
         backing.handlers['files:watch']({ path: 'docs' }, watcher.context),

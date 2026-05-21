@@ -4,11 +4,11 @@ import { describe, expect, expectTypeOf, it } from '../../-test.ts';
 import { Fs } from '../../mod.ts';
 import { context, expectFilesFsError, POLICY, setupFixture } from './u.fixture.ts';
 
-describe('Fs.Capability.Files.toReadonly', () => {
+describe('Fs.Capability.Files.Readonly.create', () => {
   it('adapts @sys/fs to the files/fs readonly capability', async () => {
     const fixture = await setupFixture();
     try {
-      const cap = Fs.Capability.Files.toReadonly(Fs);
+      const cap = Fs.Capability.Files.Readonly.create(Fs);
       expectTypeOf(cap).toMatchTypeOf<TModel.FilesFs.Capability.Readonly>();
 
       const backing = FilesFs.Readonly.create({ fs: cap, root: fixture.root, policy: POLICY });
@@ -30,12 +30,42 @@ describe('Fs.Capability.Files.toReadonly', () => {
     }
   });
 
+  it('normalizes unreadable host stat/walk failures to Files-scoped absence', async () => {
+    const fixture = await setupFixture();
+    try {
+      const fs = {
+        ...Fs,
+        stat: async (path: Parameters<typeof Fs.stat>[0]) => {
+          if (String(path).endsWith('readme.md')) {
+            throw new Error(`host stat leak: ${fixture.root}`);
+          }
+          return Fs.stat(path);
+        },
+        walk: async function* () {
+          throw new Error(`host walk leak: ${fixture.root}`);
+        },
+      } satisfies typeof Fs;
+      const cap = Fs.Capability.Files.Readonly.create(fs);
+      const backing = FilesFs.Readonly.create({ fs: cap, root: fixture.root, policy: POLICY });
+
+      await expectFilesFsError(
+        () => backing.handlers['files:stat']({ path: 'docs/readme.md' }, context('files:stat')),
+        'FilesFsError.NotFound',
+        fixture,
+      );
+      const list = await backing.handlers['files:list']({ path: 'docs' }, context('files:list'));
+      expect(list.entries).to.eql([]);
+    } finally {
+      await Fs.remove(fixture.workspace);
+    }
+  });
+
   it('does not widen Files authority through real file symlink escapes', async () => {
     const fixture = await setupFixture();
     try {
       await Deno.symlink(fixture.outsideSecret, fixture.fileLink, { type: 'file' });
 
-      const cap = Fs.Capability.Files.toReadonly(Fs);
+      const cap = Fs.Capability.Files.Readonly.create(Fs);
       const backing = FilesFs.Readonly.create({ fs: cap, root: fixture.root, policy: POLICY });
 
       await expectFilesFsError(
@@ -63,7 +93,7 @@ describe('Fs.Capability.Files.toReadonly', () => {
     try {
       await Deno.symlink(fixture.outsideDir, fixture.dirLink, { type: 'dir' });
 
-      const cap = Fs.Capability.Files.toReadonly(Fs);
+      const cap = Fs.Capability.Files.Readonly.create(Fs);
       const backing = FilesFs.Readonly.create({ fs: cap, root: fixture.root, policy: POLICY });
 
       await expectFilesFsError(
