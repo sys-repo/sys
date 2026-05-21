@@ -1,7 +1,6 @@
 import type { Cmd as TCmd } from '@sys/event/t';
 import type { t as TModel } from '@sys/model';
-import { Files } from '@sys/model/files';
-import { FilesFs } from '@sys/model/files/fs';
+import { Files } from '@sys/model/files/fs';
 
 import { describe, expect, expectTypeOf, it, type t, Time } from '../../-test.ts';
 import { Fs } from '../../mod.ts';
@@ -37,7 +36,7 @@ describe('Fs.Capability.Files.Readonly.live', () => {
       expect('write' in cap).to.eql(false);
       expect('remove' in cap).to.eql(false);
 
-      const backing = FilesFs.Readonly.live({ fs: cap, root: fixture.root, policy: LIVE_POLICY });
+      const backing = Files.Fs.Readonly.live({ fs: cap, root: fixture.root, policy: LIVE_POLICY });
       expect(backing.capabilities).to.include({
         list: true,
         stat: true,
@@ -72,7 +71,7 @@ describe('Fs.Capability.Files.Readonly.live', () => {
 
     try {
       const cap = Fs.Capability.Files.Readonly.live(Fs);
-      const backing = FilesFs.Readonly.live({ fs: cap, root: fixture.root, policy: LIVE_POLICY });
+      const backing = Files.Fs.Readonly.live({ fs: cap, root: fixture.root, policy: LIVE_POLICY });
       const started = Promise.resolve(
         backing.handlers['files:watch']({ path: 'docs' }, watcher.context),
       );
@@ -117,7 +116,7 @@ describe('Fs.Capability.Files.Readonly.live', () => {
       await Deno.symlink(fixture.outsideDir, fixture.dirLink, { type: 'dir' });
 
       const cap = Fs.Capability.Files.Readonly.live(Fs);
-      const backing = FilesFs.Readonly.live({ fs: cap, root: fixture.root, policy: LIVE_POLICY });
+      const backing = Files.Fs.Readonly.live({ fs: cap, root: fixture.root, policy: LIVE_POLICY });
 
       await expectFilesFsError(
         () => backing.handlers['files:watch']({ path: 'docs/leak-dir' }, watcher.context),
@@ -147,7 +146,7 @@ describe('Fs.Capability.Files.Readonly.live', () => {
 
     try {
       const cap = Fs.Capability.Files.Readonly.live(fs);
-      const backing = FilesFs.Readonly.live({ fs: cap, root: fixture.root, policy: LIVE_POLICY });
+      const backing = Files.Fs.Readonly.live({ fs: cap, root: fixture.root, policy: LIVE_POLICY });
       const started = Promise.resolve(
         backing.handlers['files:watch']({ path: 'docs' }, watcher.context),
       );

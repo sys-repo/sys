@@ -1,6 +1,6 @@
 import { type t } from '../../-test.ts';
 import { FilesPath } from '../../m.files/u/u.path.ts';
-import { FilesFs } from '../mod.ts';
+import { Files } from '../mod.ts';
 import { allowAllPolicy, allowDocsPolicy } from './u.fixture.ts';
 
 export type LiveFsFixture = {
@@ -74,7 +74,7 @@ export async function liveFsFixture(): Promise<LiveFsFixture> {
 
 export async function setupLive(options: SetupLiveOptions = {}) {
   const fixture = await liveFsFixture();
-  const backing = FilesFs.Readonly.live({
+  const backing = Files.Fs.Readonly.live({
     fs: fixture.fs,
     root: fixture.root,
     ...(options.policy === undefined ? {} : { policy: options.policy }),

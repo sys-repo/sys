@@ -1,5 +1,5 @@
 import type { t as TModel } from '@sys/model';
-import { FilesFs } from '@sys/model/files/fs';
+import { Files } from '@sys/model/files/fs';
 import { describe, expect, expectTypeOf, it } from '../../-test.ts';
 import { Fs } from '../../mod.ts';
 import { context, expectFilesFsError, POLICY, setupFixture } from './u.fixture.ts';
@@ -11,7 +11,7 @@ describe('Fs.Capability.Files.Readonly.create', () => {
       const cap = Fs.Capability.Files.Readonly.create(Fs);
       expectTypeOf(cap).toMatchTypeOf<TModel.FilesFs.Capability.Readonly>();
 
-      const backing = FilesFs.Readonly.create({ fs: cap, root: fixture.root, policy: POLICY });
+      const backing = Files.Fs.Readonly.create({ fs: cap, root: fixture.root, policy: POLICY });
       const read = await backing.handlers['files:read'](
         { path: 'docs/readme.md' },
         context('files:read'),
@@ -46,7 +46,7 @@ describe('Fs.Capability.Files.Readonly.create', () => {
         },
       } satisfies typeof Fs;
       const cap = Fs.Capability.Files.Readonly.create(fs);
-      const backing = FilesFs.Readonly.create({ fs: cap, root: fixture.root, policy: POLICY });
+      const backing = Files.Fs.Readonly.create({ fs: cap, root: fixture.root, policy: POLICY });
 
       await expectFilesFsError(
         () => backing.handlers['files:stat']({ path: 'docs/readme.md' }, context('files:stat')),
@@ -66,7 +66,7 @@ describe('Fs.Capability.Files.Readonly.create', () => {
       await Deno.symlink(fixture.outsideSecret, fixture.fileLink, { type: 'file' });
 
       const cap = Fs.Capability.Files.Readonly.create(Fs);
-      const backing = FilesFs.Readonly.create({ fs: cap, root: fixture.root, policy: POLICY });
+      const backing = Files.Fs.Readonly.create({ fs: cap, root: fixture.root, policy: POLICY });
 
       await expectFilesFsError(
         () => backing.handlers['files:stat']({ path: 'docs/leak.txt' }, context('files:stat')),
@@ -94,7 +94,7 @@ describe('Fs.Capability.Files.Readonly.create', () => {
       await Deno.symlink(fixture.outsideDir, fixture.dirLink, { type: 'dir' });
 
       const cap = Fs.Capability.Files.Readonly.create(Fs);
-      const backing = FilesFs.Readonly.create({ fs: cap, root: fixture.root, policy: POLICY });
+      const backing = Files.Fs.Readonly.create({ fs: cap, root: fixture.root, policy: POLICY });
 
       await expectFilesFsError(
         () => backing.handlers['files:list']({ path: 'docs/leak-dir' }, context('files:list')),

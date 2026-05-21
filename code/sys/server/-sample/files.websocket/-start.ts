@@ -1,7 +1,7 @@
 import { SampleFiles } from './-config.ts';
-import { c, Cli, Files, FilesFs, FilesServer, Fs, HttpServer, type t } from './common.ts';
+import { c, Cli, Files, FilesServer, Fs, HttpServer, type t } from './common.ts';
 
-const files = FilesFs.Readonly.live({
+const files = Files.Fs.Readonly.live({
   fs: Fs.Capability.Files.Readonly.live(Fs), // ← capability narrows host FS authority to `readonly + watch`.
   root: SampleFiles.root,
   policy: SampleFiles.policy,

@@ -3,22 +3,15 @@
  * Filesystem-shaped backing adapters for the Files model.
  */
 import type { t } from './common.ts';
-import { createLive, createWritableLive } from './m.live/mod.ts';
-import { createReadonly } from './m.readonly.ts';
-import { createWritable } from './m.writable.ts';
+import { Files as FilesBase } from '../m.files/mod.ts';
+import { Fs } from './m.Fs.ts';
 
 export type * from './t.ts';
 
 /**
- * Filesystem-shaped backing adapters for the Files model.
+ * Bounded Files model with filesystem-shaped backing adapters attached at `Files.Fs`.
  */
-export const FilesFs: t.FilesFs.Lib = {
-  Readonly: {
-    create: createReadonly,
-    live: createLive,
-  },
-  Writable: {
-    create: createWritable,
-    live: createWritableLive,
-  },
+export const Files: t.FilesFs.FilesLib = {
+  ...FilesBase,
+  Fs,
 };

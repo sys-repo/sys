@@ -1,5 +1,5 @@
 import type { t as TModel } from '@sys/model';
-import { FilesFs } from '@sys/model/files/fs';
+import { Files } from '@sys/model/files/fs';
 import { describe, expect, expectTypeOf, Is, it, type t } from '../../-test.ts';
 import { Fs } from '../../mod.ts';
 import { context, expectFilesFsError, setupFixture } from './u.fixture.ts';
@@ -21,7 +21,7 @@ describe('Fs.Capability.Files.Writable', () => {
       expectTypeOf(cap).toMatchTypeOf<TModel.FilesFs.Capability.Writable>();
       expect('watch' in cap).to.eql(false);
 
-      const backing = FilesFs.Writable.create({
+      const backing = Files.Fs.Writable.create({
         fs: cap,
         root: fixture.root,
         policy: MUTABLE_POLICY,
@@ -64,7 +64,7 @@ describe('Fs.Capability.Files.Writable', () => {
       await Deno.symlink(fixture.outsideSecret, fixture.fileLink, { type: 'file' });
 
       const cap = Fs.Capability.Files.Writable.create(Fs);
-      const backing = FilesFs.Writable.create({
+      const backing = Files.Fs.Writable.create({
         fs: cap,
         root: fixture.root,
         policy: MUTABLE_POLICY,

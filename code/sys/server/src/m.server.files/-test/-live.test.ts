@@ -1,7 +1,6 @@
 import { Fs } from '@sys/fs';
-import { Files } from '@sys/model/files';
 import type { FilesPolicy } from '@sys/model/files/t';
-import { FilesFs } from '@sys/model/files/fs';
+import { Files } from '@sys/model/files/fs';
 import { FilesMemory } from '@sys/model/files/memory';
 import { describe, expect, Is, it, type t } from '../../-test.ts';
 import { Fixture } from './u.fixture.ts';
@@ -79,7 +78,7 @@ describe('FilesServer.WebSocket.create: live files watch', () => {
 
   it('streams real filesystem watch events over websocket while Cmd read remains truth', async () => {
     await Fixture.withWorkspace('sys-server-files-live-', async ({ workspace, root }) => {
-      const backing = FilesFs.Readonly.live({
+      const backing = Files.Fs.Readonly.live({
         fs: Fs.Capability.Files.Readonly.live(Fs),
         root,
         policy: REAL_FS_LIVE_POLICY,
@@ -133,7 +132,7 @@ describe('FilesServer.WebSocket.create: live files watch', () => {
 
   it('writes and removes durable real filesystem entries over websocket', async () => {
     await Fixture.withWorkspace('sys-server-files-write-', async ({ root }) => {
-      const backing = FilesFs.Writable.live({
+      const backing = Files.Fs.Writable.live({
         fs: Fs.Capability.Files.Writable.live(Fs),
         root,
         policy: REAL_FS_WRITABLE_LIVE_POLICY,

@@ -1,7 +1,7 @@
 import { expect, type t } from '../../-test.ts';
 import { utf8ByteLength } from '../../m.files/u/u.bytes.ts';
 import { FilesPath } from '../../m.files/u/u.path.ts';
-import { FilesFs } from '../mod.ts';
+import { Files } from '../mod.ts';
 
 export type FileNode = {
   readonly kind: 'file';
@@ -165,7 +165,7 @@ export function fsFixture(options: FsFixtureOptions = {}): FsFixture {
 
 export function setup(options: SetupOptions = {}) {
   const fixture = fsFixture(options.fs);
-  const backing = FilesFs.Readonly.create({
+  const backing = Files.Fs.Readonly.create({
     fs: fixture.fs,
     root: fixture.root,
     ...(options.policy === undefined ? {} : { policy: options.policy }),
@@ -233,7 +233,7 @@ export function writableFsFixture(options: FsFixtureOptions = {}): WritableFsFix
 
 export function setupWritable(options: SetupWritableOptions = {}) {
   const fixture = writableFsFixture(options.fs);
-  const backing = FilesFs.Writable.create({
+  const backing = Files.Fs.Writable.create({
     fs: fixture.fs,
     root: fixture.root,
     ...(options.policy === undefined ? {} : { policy: options.policy }),

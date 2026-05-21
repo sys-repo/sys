@@ -1,6 +1,5 @@
 import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
-import { Files } from '../../m.files/mod.ts';
-import { FilesFs } from '../mod.ts';
+import { Files } from '../mod.ts';
 import {
   cmd,
   escapingFixture,
@@ -132,7 +131,7 @@ describe('FilesFs.Writable', () => {
   it('live emits command-origin write/remove hints while read remains truth', async () => {
     const fixture = writableFsFixture();
     const fs = liveWritableFs(fixture.fs);
-    const backing = FilesFs.Writable.live({
+    const backing = Files.Fs.Writable.live({
       fs,
       root: fixture.root,
       policy: { ...allowAllMutablePolicy, watch: '**' },
@@ -306,7 +305,7 @@ describe('FilesFs.Writable', () => {
           throw new Error(`host write failed: ${absolute}`);
         },
       };
-      const backing = FilesFs.Writable.create({
+      const backing = Files.Fs.Writable.create({
         fs,
         root: fixture.root,
         policy: allowAllMutablePolicy,
@@ -338,7 +337,7 @@ describe('FilesFs.Writable', () => {
           return fixture.fs.writeFileAtomic(input, content, options);
         },
       };
-      const backing = FilesFs.Writable.create({
+      const backing = Files.Fs.Writable.create({
         fs,
         root: fixture.root,
         policy: allowAllMutablePolicy,
@@ -426,7 +425,7 @@ describe('FilesFs.Writable', () => {
           return hostileParent.fs.lstat(input);
         },
       };
-      const hostileBacking = FilesFs.Writable.create({
+      const hostileBacking = Files.Fs.Writable.create({
         fs: hostileFs,
         root: hostileParent.root,
         policy: allowAllMutablePolicy,
@@ -453,7 +452,7 @@ describe('FilesFs.Writable', () => {
           throw new Error(`lstat failed: ${input}`);
         },
       };
-      const backing = FilesFs.Writable.create({
+      const backing = Files.Fs.Writable.create({
         fs,
         root: fixture.root,
         policy: allowAllMutablePolicy,
@@ -510,7 +509,7 @@ describe('FilesFs.Writable', () => {
           return [{ path: '/outside/secret.txt' as t.StringAbsolutePath, kind: 'file' }];
         },
       };
-      const backing = FilesFs.Writable.create({
+      const backing = Files.Fs.Writable.create({
         fs,
         root: fixture.root,
         policy: { ...allowAllMutablePolicy, remove: 'docs/tmp' },
@@ -550,7 +549,7 @@ describe('FilesFs.Writable', () => {
           return fixture.fs.removeEntry(input);
         },
       };
-      const backing = FilesFs.Writable.create({
+      const backing = Files.Fs.Writable.create({
         fs,
         root: fixture.root,
         policy: allowAllMutablePolicy,
