@@ -1,4 +1,4 @@
-import { type t, c } from './common.ts';
+import { type t, c } from '../common.ts';
 
 export const toModuleString = (pkg: t.Pkg, hash?: string) => {
   const version = `${c.white(pkg.name)}@${c.cyan(pkg.version)}`;
