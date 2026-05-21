@@ -142,7 +142,7 @@ describe('HttpCmd + FilesStatic dist integration', () => {
         () => client.send(Files.Cmd.Name.watch, {}),
         Files.Cmd.Name.watch,
       );
-      expect(watch.message).to.eql('Watch unsupported');
+      expect(watch.message).to.eql('Static dist backing does not support watch');
 
       const getRequests = requests.filter((request) => request.startsWith('GET '));
       expect(getRequests).to.eql([`GET ${ROUTE.dist}`]);

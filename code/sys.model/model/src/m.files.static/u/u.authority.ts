@@ -20,7 +20,10 @@ const ERROR_FACTORIES = Object.freeze(
   {
     invalid: invalidPath,
     unsupported(action) {
-      return fail('FilesStaticError.Unsupported', `${label(action)} unsupported`);
+      return fail(
+        'FilesStaticError.Unsupported',
+        `Static dist backing does not support ${action}`,
+      );
     },
     denied(action, path) {
       return fail('FilesStaticError.PolicyDenied', `${label(action)} denied: ${path}`);
@@ -80,3 +83,4 @@ function requiredPayloadPath(payload: unknown): t.Files.String.Path {
 function label(action: t.FilesAuthority.Action): string {
   return action[0].toUpperCase() + action.slice(1);
 }
+

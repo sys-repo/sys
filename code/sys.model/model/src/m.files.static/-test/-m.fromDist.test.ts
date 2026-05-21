@@ -403,10 +403,11 @@ describe('FilesStatic.fromDist', () => {
       () => cmd.read(backing, { path: 'foo.json', encoding: 'latin1' as t.Files.Encoding }),
       'FilesStaticError.Unsupported',
     );
-    await expectFilesStaticError(
+    const watch = await expectFilesStaticError(
       () => cmd.watch(backing),
       'FilesStaticError.Unsupported',
     );
+    expect(watch.message).to.eql('Static dist backing does not support watch');
     await expectFilesStaticError(
       () => cmd.watch(backing, null as never),
       'FilesStaticError.Unsupported',
