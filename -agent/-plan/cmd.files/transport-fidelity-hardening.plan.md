@@ -256,11 +256,13 @@ Landed commit for the final client/sample-doc/type-cleanup unit:
 
 ### 15.9 — Server DSL/help and speech-act reality pass
 
-- [ ] Re-read `code/sys/server/src/m.help/yaml/*` against the current server/model reality.
-- [ ] Update `@sys/server --help`, DSL chapters, and skill projections so speech acts include hosted startup (`WebSocketServer.start(...)`, `FilesServer.WebSocket.start(...)`), process lifecycle, startup reporting, and the `silent` option where appropriate.
-- [ ] Update examples/speech acts that still imply `WebSocketServer.create(...)` is the only constructor; keep `create(...)` documented as the silent caller-owned primitive.
-- [ ] Reflect current folder/module reality: generic WebSocket internals live under `src/m.server.websocket`, while the public import remains `@sys/server/websocket`.
-- [ ] Keep the generic WebSocket DSL honest: it owns transport hosting, upgrade admission, lifecycle, and service status; it does not own Files grammar or a generic app client SDK.
-- [ ] Add or update Files-specific help/docs where needed so `Files.Client.websocket(url)` is the canonical Files client call-site instead of manual `Cmd.make<FilesCmd...>` plus `Cmd.Transport.fromWebSocket(...)` wiring.
-- [ ] Ensure speech acts distinguish generic Cmd-over-WebSocket usage from Files-over-WebSocket usage.
-- [ ] Update help tests if current text assertions or bundled YAML outputs lag the new speech acts.
+Status: completed in the current working tree; commit/hash pending.
+
+- [x] Re-read `code/sys/server/src/m.help/yaml/*` against the current server/model reality.
+- [x] Update `@sys/server --help`, DSL chapters, and skill projections so speech acts include hosted startup (`WebSocketServer.start(...)`, `FilesServer.WebSocket.start(...)`), process lifecycle, startup reporting, and the `silent` option where appropriate.
+- [x] Update examples/speech acts that still imply `WebSocketServer.create(...)` is the only constructor; keep `create(...)` documented as the silent caller-owned primitive.
+- [x] Reflect current folder/module reality: generic WebSocket internals live under `src/m.server.websocket`, while the public import remains `@sys/server/websocket`.
+- [x] Keep the generic WebSocket DSL honest: it owns transport hosting, upgrade admission, lifecycle, and service status; it does not own Files grammar or a generic app client SDK.
+- [x] Add or update Files-specific help/docs where needed so `Files.Client.websocket(url)` is the canonical Files client call-site instead of manual `Cmd.make<FilesCmd...>` plus `Cmd.Transport.fromWebSocket(...)` wiring.
+- [x] Ensure speech acts distinguish generic Cmd-over-WebSocket usage from Files-over-WebSocket usage.
+- [x] Update help tests if current text assertions or bundled YAML outputs lag the new speech acts.

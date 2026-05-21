@@ -17,6 +17,6 @@
   - [ ] Tighten dynamic binary read behavior for memory/fs backings.
   - [ ] Preserve structured Files domain errors over remote Cmd transports.
   - [ ] Run/maintain boundary and regression validation across model/fs/http/server/event.
-  - [ ] Update server DSL/help/speech acts to match hosted startup and `Files.Client.websocket(...)`.
+  - [x] Update server DSL/help/speech acts to match hosted startup and `Files.Client.websocket(...)`.
 - `server-websocket-sample-polish.plan.md`
   - [ ] Factor keyboard-related server types into a dedicated namespace, e.g. `WebSocketServer.Keyboard.Options` / `WebSocketServer.Keyboard.Input`.
