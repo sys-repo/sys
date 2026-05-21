@@ -62,6 +62,9 @@ export declare namespace FilesServer {
       readonly silent?: boolean;
     };
 
+    /** Running Files/WebSocket service handle. */
+    export type Started = t.WebSocketServer.Started;
+
     /** Status metadata accepted by the Files WebSocket facade. */
     export type StatusOptions = t.WebSocketServer.StatusOptions;
   }

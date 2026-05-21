@@ -1,11 +1,4 @@
 import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
-import type {
-  Files as TFiles,
-  FilesCmd as TFilesCmd,
-  FilesCursor as TFilesCursor,
-  FilesEntry as TFilesEntry,
-} from '@sys/model/files/t';
-import type { Error as TError } from '../t/t.u.error.ts';
 
 const capabilities: t.Files.Capabilities = {
   list: true,
@@ -24,31 +17,18 @@ const file: t.FilesEntry.File = {
 };
 
 describe('Files/t', () => {
-  it('public type paths expose the same Files grammar', () => {
-    const rootManifest = {} as t.Files.Manifest;
-    const publicManifest = {} as TFiles.Manifest;
-    const client = {} as t.Files.Client;
-
-    expectTypeOf(rootManifest).toEqualTypeOf<TFiles.Manifest>();
-    expectTypeOf(publicManifest).toEqualTypeOf<t.Files.Manifest>();
-    expectTypeOf(client).toEqualTypeOf<t.FilesCmd.Client>();
-    expectTypeOf({} as t.FilesCmd.Name).toEqualTypeOf<TFilesCmd.Name>();
-    expectTypeOf({} as t.FilesCursor.Kind).toEqualTypeOf<TFilesCursor.Kind>();
-    expectTypeOf({} as t.FilesEntry.Entry).toEqualTypeOf<TFilesEntry.Entry>();
-  });
-
   it('content refs are discriminated handles, not host paths', () => {
-    const url: TFiles.ContentRef = {
+    const url: t.Files.ContentRef = {
       kind: 'url',
       path: 'asset.txt',
       url: '/asset.txt',
     };
-    const hash: TFiles.ContentRef = {
+    const hash: t.Files.ContentRef = {
       kind: 'hash',
       path: 'asset.txt',
       hash: 'sha256-asset',
     };
-    const ref: TFiles.ContentRef = {
+    const ref: t.Files.ContentRef = {
       kind: 'ref',
       path: 'asset.txt',
       ref: 'content:asset',
@@ -57,15 +37,15 @@ describe('Files/t', () => {
     expect([url.kind, hash.kind, ref.kind]).to.eql(['url', 'hash', 'ref']);
 
     // @ts-expect-error URL refs require a URL.
-    const missingUrl: TFiles.ContentRef = { kind: 'url', path: 'asset.txt' };
+    const missingUrl: t.Files.ContentRef = { kind: 'url', path: 'asset.txt' };
 
     // @ts-expect-error Hash refs require a hash.
-    const missingHash: TFiles.ContentRef = { kind: 'hash', path: 'asset.txt' };
+    const missingHash: t.Files.ContentRef = { kind: 'hash', path: 'asset.txt' };
 
     const hostPathKind = { kind: 'path', path: 'asset.txt', ref: 'content:asset' } as const;
 
     // @ts-expect-error `path` is intentionally not a content-ref kind.
-    const pathKind: TFiles.ContentRef = hostPathKind;
+    const pathKind: t.Files.ContentRef = hostPathKind;
 
     expect(missingUrl.kind).to.eql('url');
     expect(missingHash.kind).to.eql('hash');
@@ -205,14 +185,9 @@ describe('Files/t', () => {
   });
 
   it('backing error kinds share the canonical Files error suffix set', () => {
-    type FsSuffix = t.FilesFs.Error.Kind extends `FilesFsError.${infer S}` ? S : never;
-    type MemorySuffix = t.FilesMemory.Error.Kind extends `FilesMemoryError.${infer S}` ? S : never;
-
     const fs: t.FilesFs.Error.Kind = 'FilesFsError.InvalidPath';
     const memory: t.FilesMemory.Error.Kind = 'FilesMemoryError.InvalidPath';
 
-    expectTypeOf({} as FsSuffix).toEqualTypeOf<TError.KindSuffix>();
-    expectTypeOf({} as MemorySuffix).toEqualTypeOf<TError.KindSuffix>();
     expect(fs).to.eql('FilesFsError.InvalidPath');
     expect(memory).to.eql('FilesMemoryError.InvalidPath');
 

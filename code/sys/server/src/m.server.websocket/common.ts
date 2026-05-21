@@ -1,5 +1,6 @@
 export * from '../common.ts';
 export { c, Cli } from '@sys/cli';
+export type { CliTable } from '@sys/cli/t';
 export { Fs } from '@sys/fs';
 
 const localhost = '127.0.0.1';

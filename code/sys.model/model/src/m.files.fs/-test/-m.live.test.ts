@@ -1,7 +1,13 @@
 import { afterEach, describe, expect, expectTypeOf, it, type t, Time } from '../../-test.ts';
 import { Files } from '../../m.files/mod.ts';
 import { cmd, expectFilesFsError } from './u.fixture.ts';
-import { allowAllLivePolicy, allowDocsLivePolicy, setupLive } from './u.fixture.live.ts';
+import {
+  allowAllLivePolicy,
+  allowDocsLivePolicy,
+  setupLive,
+  type LiveSetup,
+  type SetupLiveOptions,
+} from './u.fixture.live.ts';
 
 type WatchContext = {
   readonly context: t.Cmd.Handler.Context<
@@ -18,9 +24,6 @@ type ChangeMatch = {
   readonly afterSeq?: number;
   readonly entrySize?: number;
 };
-
-type LiveSetup = Awaited<ReturnType<typeof setupLive>>;
-type SetupInput = Parameters<typeof setupLive>[0];
 
 const LIVE_SUPPORTS = {
   list: true,
@@ -41,7 +44,7 @@ describe('FilesFs.Readonly.live', () => {
     setups.clear();
   });
 
-  const setup = async (options: SetupInput = {}) => {
+  const setup = async (options: SetupLiveOptions = {}) => {
     const res = await setupLive(options);
     setups.add(res);
     return res;

@@ -17,7 +17,9 @@ export type SetupLiveOptions = {
   readonly defaultLimit?: t.Files.Limit;
 };
 
-type NativeWatcher = t.DisposableLike;
+export type LiveSetup = LiveFsFixture & {
+  readonly backing: t.FilesFs.Live;
+};
 
 export const allowDocsLivePolicy = {
   ...allowDocsPolicy,
@@ -33,7 +35,7 @@ const Path = FilesPath.posix() satisfies t.FilesFs.Capability.Path;
 
 export async function liveFsFixture(): Promise<LiveFsFixture> {
   const root = await Deno.makeTempDir({ prefix: 'sys-model-files-live-' }) as t.StringAbsolutePath;
-  const watchers = new Set<NativeWatcher>();
+  const watchers = new Set<t.DisposableLike>();
   let disposed = false;
 
   const fs: t.FilesFs.Capability.Live = {
@@ -72,7 +74,7 @@ export async function liveFsFixture(): Promise<LiveFsFixture> {
   }
 }
 
-export async function setupLive(options: SetupLiveOptions = {}) {
+export async function setupLive(options: SetupLiveOptions = {}): Promise<LiveSetup> {
   const fixture = await liveFsFixture();
   const backing = Files.Fs.Readonly.live({
     fs: fixture.fs,
@@ -156,7 +158,7 @@ async function collect(
 async function startWatcher(
   path: t.StringAbsolutePath,
   options: t.FilesFs.Capability.WatchOptions,
-  active: Set<NativeWatcher>,
+  active: Set<t.DisposableLike>,
 ): Promise<t.FilesFs.Capability.Watcher> {
   const exists = await isDirectory(path);
   if (!exists) return inertWatcher(path, false);
@@ -165,7 +167,7 @@ async function startWatcher(
   const subscribers = new Set<(event: t.FilesFs.Capability.WatchEvent) => void>();
   let disposed = false;
 
-  const watcher: NativeWatcher = {
+  const watcher: t.DisposableLike = {
     dispose() {
       if (disposed) return;
       disposed = true;

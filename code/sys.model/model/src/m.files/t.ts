@@ -2,6 +2,7 @@ import type { Core } from './t/t.u.core.ts';
 import type { FilesAuthority } from './t/t.authority.ts';
 import type { FilesCapability } from './t/t.capability.ts';
 import type { FilesChange } from './t/t.change.ts';
+import type { FilesClient } from './t/t.client.ts';
 import type { FilesCmd } from './t/t.cmd.ts';
 import type { FilesContentRef } from './t/t.content-ref.ts';
 import type { FilesCursor } from './t/t.cursor.ts';
@@ -12,6 +13,7 @@ import type { FilesPolicy } from './t/t.policy.ts';
 export type { FilesAuthority } from './t/t.authority.ts';
 export type { FilesCapability } from './t/t.capability.ts';
 export type { FilesChange } from './t/t.change.ts';
+export type { FilesClient } from './t/t.client.ts';
 export type { FilesCmd } from './t/t.cmd.ts';
 export type { FilesContentRef } from './t/t.content-ref.ts';
 export type { FilesCursor } from './t/t.cursor.ts';
@@ -21,7 +23,7 @@ export type { FilesPolicy } from './t/t.policy.ts';
 export type { FilesSource } from './t/t.source.ts';
 
 /**
- * Bounded, transport-independent Files model.
+ * Bounded Files model, command grammar, and typed client adapters.
  */
 export declare namespace Files {
   // NOTE: Keep this root namespace narrow;
@@ -33,6 +35,8 @@ export declare namespace Files {
     readonly Authority: FilesAuthority.Lib;
     /** Files Cmd grammar names and namespace. */
     readonly Cmd: FilesCmd.Lib;
+    /** Typed client adapters for Files command surfaces. */
+    readonly Client: FilesClient.Lib;
     /** Cursor codec for paged Files command surfaces. */
     readonly Cursor: FilesCursor.Lib;
     /** Pure policy helpers for bounded Files views. */

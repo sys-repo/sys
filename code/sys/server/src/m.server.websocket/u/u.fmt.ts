@@ -1,4 +1,4 @@
-import { c, Cli, Fs, Is, Str, type t } from '../common.ts';
+import { c, Cli, Fs, Is, Str, type CliTable, type t } from '../common.ts';
 
 /** Print the renderer-owned startup summary for a directly-started WebSocket service. */
 export function printStarted(
@@ -33,7 +33,7 @@ export function formatStarted(
 /**
  * Helpers:
  */
-function pushUrls(table: ReturnType<typeof Cli.table>, urls: readonly t.Service.Url[]) {
+function pushUrls(table: CliTable, urls: readonly t.Service.Url[]) {
   const ordered = Cli.Fmt.Url.orderBaseLast(urls);
   ordered.forEach((url, index) => {
     const highlightOrigin = index === ordered.length - 1;

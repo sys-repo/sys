@@ -1,7 +1,6 @@
 import { Fs } from '@sys/fs';
 import { Files } from '@sys/model/files';
-import type { Files as FilesType, FilesCmd } from '@sys/model/files/t';
-import { Cmd, expect, Is, Net, type t, Time } from '../../-test.ts';
+import { Cmd, expect, Is, type t, Time } from '../../-test.ts';
 import { FilesServer } from '../mod.ts';
 
 type ConnectOptions = {
@@ -10,9 +9,8 @@ type ConnectOptions = {
 };
 
 type Connected = {
-  readonly ws: WebSocket;
-  readonly client: FilesType.Client;
-  close(): Promise<void>;
+  readonly client: t.FilesClient.WebSocket;
+  close(reason?: unknown): Promise<void>;
 };
 
 type WaitForOptions = {
@@ -22,17 +20,15 @@ type WaitForOptions = {
 };
 
 type ChangeMatch = {
-  readonly path: FilesType.String.Path;
-  readonly seq?: FilesType.Seq;
-  readonly kind?: FilesType.Change['kind'] | readonly FilesType.Change['kind'][];
+  readonly path: t.Files.String.Path;
+  readonly seq?: t.Files.Seq;
+  readonly kind?: t.Files.Change['kind'] | readonly t.Files.Change['kind'][];
 };
 
-type FilesBacking = Parameters<typeof FilesServer.WebSocket.create>[0]['files'];
-type FilesSocketServer = ReturnType<typeof FilesServer.WebSocket.create>;
 type Workspace = { readonly workspace: string; readonly root: string };
 type WatchedRemote = {
   readonly remote: Connected;
-  readonly events: FilesType.Change[];
+  readonly events: t.Files.Change[];
   closeWatch(): Promise<void>;
 };
 
@@ -53,30 +49,15 @@ export const Fixture = {
  * Helpers:
  */
 async function connect(url: t.StringUrl, options: ConnectOptions = {}): Promise<Connected> {
-  const ws = new WebSocket(url);
-  const closed = waitForClose(ws);
-
-  await Net.waitFor(ws);
-  const cmd = Cmd.make<
-    FilesCmd.Name,
-    FilesCmd.Payload,
-    FilesCmd.Result,
-    FilesCmd.Event
-  >({ ns: Files.Cmd.ns });
-  const client = cmd.client(Cmd.Transport.fromWebSocket(ws), clientOptions(options));
+  const client = await Files.Client.websocket(url, clientOptions(options));
 
   return {
-    ws,
     client,
-    async close() {
-      client.dispose();
-      closeSocket(ws);
-      await closed;
-    },
+    close: (reason?: unknown) => client.close(reason ?? 'test.cleanup'),
   };
 }
 
-function clientOptions(options: ConnectOptions): t.Cmd.Client.Options {
+function clientOptions(options: ConnectOptions): t.FilesClient.WebSocketOptions {
   if (options.timeout === false) return {};
   return { timeout: options.timeout ?? 1_000 };
 }
@@ -95,10 +76,10 @@ async function waitFor(fn: () => boolean, options: WaitForOptions = {}): Promise
 }
 
 async function waitForChange(
-  events: readonly FilesType.Change[],
+  events: readonly t.Files.Change[],
   match: ChangeMatch,
-): Promise<FilesType.Change> {
-  let found: FilesType.Change | undefined;
+): Promise<t.Files.Change> {
+  let found: t.Files.Change | undefined;
   await waitFor(
     () => {
       found = events.find((event) => changeMatches(event, match));
@@ -110,11 +91,11 @@ async function waitForChange(
   return found;
 }
 
-function changeMatches(event: FilesType.Change, match: ChangeMatch): boolean {
+function changeMatches(event: t.Files.Change, match: ChangeMatch): boolean {
   if (event.path !== match.path) return false;
   if (match.seq !== undefined && event.seq !== match.seq) return false;
   if (match.kind !== undefined) {
-    const kinds = Is.array<FilesType.Change['kind']>(match.kind) ? match.kind : [match.kind];
+    const kinds = Is.array<t.Files.Change['kind']>(match.kind) ? match.kind : [match.kind];
     if (!kinds.includes(event.kind)) return false;
   }
   return true;
@@ -124,11 +105,11 @@ function detail(status: t.Service.Status, label: string): string | undefined {
   return status.details?.find((item) => item.label === label)?.value;
 }
 
-function direct<K extends FilesCmd.Name>(
-  backing: { readonly handlers: FilesCmd.HandlerMap },
+function direct<K extends t.FilesCmd.Name>(
+  backing: { readonly handlers: t.FilesCmd.HandlerMap },
   name: K,
-  payload: FilesCmd.Payload[K],
-): Promise<FilesCmd.Result[K]> {
+  payload: t.FilesCmd.Payload[K],
+): Promise<t.FilesCmd.Result[K]> {
   const controller = new AbortController();
   const context = {
     id: 'req-direct' as t.Cmd.ReqId,
@@ -140,7 +121,7 @@ function direct<K extends FilesCmd.Name>(
     },
   };
   const result = backing.handlers[name](payload, context as never);
-  return Promise.resolve(result as FilesCmd.Result[K]);
+  return Promise.resolve(result as t.FilesCmd.Result[K]);
 }
 
 async function withWorkspace<T>(
@@ -158,8 +139,8 @@ async function withWorkspace<T>(
 }
 
 async function withFilesServer<T>(
-  files: FilesBacking,
-  fn: (server: FilesSocketServer) => Promise<T>,
+  files: t.FilesServer.Backing,
+  fn: (server: t.FilesServer.WebSocket.Started) => Promise<T>,
 ): Promise<T> {
   const server = FilesServer.WebSocket.create({ path: '/files', files });
   try {
@@ -170,11 +151,11 @@ async function withFilesServer<T>(
 }
 
 async function withWatchedRemote<T>(
-  server: FilesSocketServer,
+  server: t.FilesServer.WebSocket.Started,
   fn: (remote: WatchedRemote) => Promise<T>,
 ): Promise<T> {
   const remote = await connect(server.url, { timeout: false });
-  const events: FilesType.Change[] = [];
+  const events: t.Files.Change[] = [];
   const stream = remote.client.stream(Files.Cmd.Name.watch, { path: 'docs' });
   const done = stream.done.catch((error: unknown) => error);
   const subscription = stream.onEvent((event) => events.push(event));
@@ -201,7 +182,7 @@ async function withWatchedRemote<T>(
 function expectCmdError(
   input: unknown,
   kind: t.Cmd.Error.Kind,
-  name: FilesCmd.Name,
+  name: t.FilesCmd.Name,
 ): t.Cmd.Error.Instance {
   expect(Cmd.Is.error(input)).to.eql(true);
   const error = input as t.Cmd.Error.Instance;
@@ -211,14 +192,3 @@ function expectCmdError(
   return error;
 }
 
-function closeSocket(ws: WebSocket) {
-  if (ws.readyState === WebSocket.CLOSING || ws.readyState === WebSocket.CLOSED) return;
-  ws.close();
-}
-
-function waitForClose(ws: WebSocket): Promise<CloseEvent | undefined> {
-  if (ws.readyState === WebSocket.CLOSED) return Promise.resolve(undefined);
-  return new Promise((resolve) => {
-    ws.addEventListener('close', (event) => resolve(event as CloseEvent), { once: true });
-  });
-}

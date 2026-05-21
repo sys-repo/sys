@@ -1,5 +1,5 @@
-import { Cmd, describe, expect, it, Net, Time, type t } from '../../../src/-test.ts';
-import { D, Files, Fs, Process } from '../common.ts';
+import { describe, expect, it, Time } from '../../../src/-test.ts';
+import { D, Files, Fs, Process, type t } from '../common.ts';
 
 describe('sample:files:ws', () => {
   it('starts the sample server and serves the docs corpus over websocket', async () => {
@@ -10,28 +10,18 @@ describe('sample:files:ws', () => {
       silent: true,
     });
 
-    let ws: WebSocket | undefined;
-    let client: t.FilesCmd.Client | undefined;
+    let client: t.FilesClient.WebSocket | undefined;
 
     try {
       await Time.waitFor(async () => {
-        const next = new WebSocket(D.url);
         try {
-          await Net.waitFor(next);
-          ws = next;
+          client = await Files.Client.websocket(D.url, { timeout: 1_000 });
           return true;
         } catch {
-          if (next.readyState < WebSocket.CLOSING) next.close();
           return false;
         }
       }, { interval: 20, timeout: 5_000 });
-
-      client = Cmd.make<
-        t.FilesCmd.Name,
-        t.FilesCmd.Payload,
-        t.FilesCmd.Result,
-        t.FilesCmd.Event
-      >({ ns: Files.Cmd.ns }).client(Cmd.Transport.fromWebSocket(ws!), { timeout: 1_000 });
+      if (client === undefined) throw new Error('Timed out connecting Files websocket client.');
 
       const txt = await client.send(Files.Cmd.Name.read, { path: 'hello.txt' });
       const yaml = await client.send(Files.Cmd.Name.read, { path: 'hello.yaml' });
@@ -44,8 +34,7 @@ describe('sample:files:ws', () => {
       if (yaml.kind === 'inline') expect(yaml.content).to.contain('hello from @sys/server');
       if (json.kind === 'inline') expect(json.content).to.contain('"kind": "sample"');
     } finally {
-      client?.dispose();
-      if (ws && ws.readyState < WebSocket.CLOSING) ws.close();
+      await client?.close('test.cleanup');
       await process.dispose();
     }
   });
