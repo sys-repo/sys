@@ -93,3 +93,12 @@ Edit with: sys shell ...
 
 This plan is complete. The resulting primitives are pure, deterministic toolkit-level utilities,
 and the shell adapter now composes them without leaking shell behavior back into `@sys/text`.
+
+## Lifecycle cleanup
+
+This file is complete and ready to retire from live working context once the cleanup commit below is
+present in history.
+
+```text
+plan(archive): close sys text block primitive
+```
