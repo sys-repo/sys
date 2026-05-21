@@ -1,9 +1,10 @@
-import { describe, expect, Fs, it, Json, Process, ROOT, SAMPLE } from '../../-test.ts';
+import { describe, expect, Fs, it, Json, Process, ROOT, SAMPLE, slug } from '../../-test.ts';
 import { Wrangle } from '../u.wrangle.ts';
 
 describe('Vite published external minimal-crutch world', () => {
   it('fixture stages an external pure-JSR driver world without local-source alias privilege', async () => {
-    const config = (await Fs.readText(`${SAMPLE.Dirs.samplePublishedBaseline}/vite.config.ts`)).data ?? '';
+    const config =
+      (await Fs.readText(`${SAMPLE.Dirs.samplePublishedBaseline}/vite.config.ts`)).data ?? '';
     const imports = (
       await Fs.readJson<{ imports?: Record<string, string> }>(
         `${SAMPLE.Dirs.samplePublishedBaseline}/imports.json`,
@@ -25,7 +26,9 @@ describe('Vite published external minimal-crutch world', () => {
       expect(sample.data.imports?.['@sys/http/client']).to.eql('jsr:@sys/http@0.0.260/client');
       expect(sample.data.imports?.['@sys/driver-vite']).to.eql(undefined);
       expect(sample.data.imports?.['@sys/http']).to.eql(undefined);
-      expect(sample.data.imports?.['#module-sync-enabled']).to.match(/^file:.*module-sync-enabled\.mjs$/);
+      expect(sample.data.imports?.['#module-sync-enabled']).to.match(
+        /^file:.*module-sync-enabled\.mjs$/,
+      );
       const nonStartupFiles = Object.entries(sample.data.imports ?? {})
         .filter(([key, value]) => key !== '#module-sync-enabled' && value.startsWith('file:'));
       expect(nonStartupFiles).to.eql([]);
@@ -48,7 +51,8 @@ describe('Vite published external minimal-crutch world', () => {
     expect(data.moduleTexts.some((text) => text.includes('.vite.bootstrap.'))).to.eql(false);
     expect(data.moduleTexts.some((text) => text.includes('#module-sync-enabled'))).to.eql(false);
     expect(data.moduleTexts.some((text) => text.includes("from '@sys/driver-vite'"))).to.eql(false);
-    expect(data.moduleTexts.some((text) => text.includes('file:///Users/phil/code/org.sys'))).to.eql(false);
+    expect(data.moduleTexts.some((text) => text.includes('file:///Users/phil/code/org.sys'))).to
+      .eql(false);
     expect(data.stdout.includes('built in')).to.eql(true);
   });
 
@@ -73,7 +77,8 @@ describe('Vite published external minimal-crutch world', () => {
     expect(data.moduleTexts.some((text) => text.includes('.vite.bootstrap.'))).to.eql(false);
     expect(data.moduleTexts.some((text) => text.includes('#module-sync-enabled'))).to.eql(false);
     expect(data.moduleTexts.some((text) => text.includes("from '@sys/driver-vite'"))).to.eql(false);
-    expect(data.moduleTexts.some((text) => text.includes('file:///Users/phil/code/org.sys'))).to.eql(false);
+    expect(data.moduleTexts.some((text) => text.includes('file:///Users/phil/code/org.sys'))).to
+      .eql(false);
   });
 });
 
@@ -126,7 +131,7 @@ function parseProbeJson<T>(stdout: string): T {
 
 async function runProbe(source: string) {
   const cwd = ROOT.resolve('code/sys.driver/driver-vite');
-  const path = Fs.join(cwd, `.tmp.published-minimal-crutch.${crypto.randomUUID()}.ts`);
+  const path = Fs.join(cwd, `.tmp.published-minimal-crutch.${slug()}.ts`);
   await Fs.write(path, source);
 
   try {
@@ -159,7 +164,9 @@ async function externalStartupImportMap(arg: string) {
   const importMapArg = res.args.find((item) => item.startsWith('--import-map='));
   const path = importMapArg?.replace('--import-map=', '') ?? '';
   const loaded = path
-    ? await Fs.readJson<{ imports?: Record<string, string>; scopes?: Record<string, unknown> }>(path)
+    ? await Fs.readJson<{ imports?: Record<string, string>; scopes?: Record<string, unknown> }>(
+      path,
+    )
     : { data: undefined };
 
   return {
@@ -171,4 +178,3 @@ async function externalStartupImportMap(arg: string) {
     },
   } as const;
 }
-

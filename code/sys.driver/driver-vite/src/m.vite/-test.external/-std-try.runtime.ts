@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it, Json, Process, ROOT, Str } from '../../-test.ts';
+import { describe, expect, Fs, it, Json, Process, ROOT, slug, Str } from '../../-test.ts';
 
 describe('Vite external std try runtime', () => {
   it('consumer dev entry importing @sys/std/try evaluates without Try TDZ crash', async () => {
@@ -103,7 +103,7 @@ function parseProbeJson<T>(stdout: string): T {
 
 async function runProbe(source: string) {
   const cwd = ROOT.resolve('code/sys.driver/driver-vite');
-  const path = Fs.join(cwd, `.tmp.std-try-runtime.${crypto.randomUUID()}.ts`);
+  const path = Fs.join(cwd, `.tmp.std-try-runtime.${slug()}.ts`);
   await Fs.write(path, source);
 
   try {
