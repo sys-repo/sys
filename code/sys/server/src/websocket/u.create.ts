@@ -5,7 +5,7 @@ import { localOrigin, localWebSocketUrl, normalizePath } from './u.origin.ts';
 import { closeSocket } from './u.socket.ts';
 import { type RuntimeStatus, serviceError, serviceStatus } from './u.status.ts';
 
-/** Start a WebSocket server bound to a typed command grammar. */
+/** Create a running WebSocket command server with caller-owned lifecycle. */
 export function create<
   N extends string = t.Cmd.Name,
   P extends t.Cmd.Payload.Map<N> = t.Cmd.Payload.Map<N>,

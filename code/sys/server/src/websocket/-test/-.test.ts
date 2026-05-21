@@ -5,5 +5,6 @@ describe('WebSocketServer/API', () => {
   it('exports the public runtime surface', async () => {
     const m = await import('@sys/server/websocket');
     expect(m.WebSocketServer).to.equal(WebSocketServer);
+    expect(Object.keys(WebSocketServer).sort()).to.eql(['create', 'start']);
   });
 });

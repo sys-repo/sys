@@ -1,16 +1,20 @@
 import type { t } from '../common.ts';
 
-export * from '../common.ts';
+/**
+ * Libraries:
+ */
 export { Files } from '@sys/model/files';
+export * from '../common.ts';
 export { WebSocketServer } from '../websocket/mod.ts';
 
-/** Default values for the Files server facade. */
+type TStatus = Pick<t.WebSocketServer.StatusOptions, 'kind' | 'urlLabel'>;
+
+/**
+ * Default values for the Files server facade.
+ */
 export const DEFAULTS = {
   path: '/files',
-  status: { kind: 'files:websocket', urlLabel: 'files:websocket' } as const satisfies Pick<
-    t.WebSocketServer.StatusOptions,
-    'kind' | 'urlLabel'
-  >,
+  status: { kind: 'files:websocket', urlLabel: 'files:websocket' } satisfies TStatus,
   capabilities: [
     'list',
     'stat',
@@ -19,7 +23,7 @@ export const DEFAULTS = {
     'remove',
     'watch',
     'manifest',
-  ] as const satisfies readonly t.FilesCapability.Name[],
+  ] satisfies readonly t.FilesCapability.Name[],
 } as const;
 
 /** Short local alias for module defaults. */

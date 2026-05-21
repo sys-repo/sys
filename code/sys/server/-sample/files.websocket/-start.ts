@@ -7,10 +7,11 @@ const files = Files.Fs.Readonly.live({
   policy: SampleFiles.policy,
 });
 
-const server = FilesServer.WebSocket.create({
+const server = FilesServer.WebSocket.start({
   port: SampleFiles.port,
   path: SampleFiles.path,
   files,
+  lifecycle: 'process',
   status: {
     name: SampleFiles.name,
     root: SampleFiles.root,
@@ -19,8 +20,6 @@ const server = FilesServer.WebSocket.create({
 });
 
 printStarted(server);
-Deno.addSignalListener('SIGINT', () => void server.close('SIGINT'));
-Deno.addSignalListener('SIGTERM', () => void server.close('SIGTERM'));
 
 void HttpServer.keyboard({
   port: server.port,

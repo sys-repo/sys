@@ -26,8 +26,11 @@ export declare namespace FilesServer {
   export namespace WebSocket {
     /** Public WebSocket facade surface. */
     export type Lib = {
-      /** Start a WebSocket Cmd service for a bounded Files backing. */
+      /** Create a running Files/WebSocket service with caller-owned lifecycle. */
       readonly create: (options: CreateOptions) => t.WebSocketServer.Started;
+
+      /** Hosted startup convenience for a Files/WebSocket service. */
+      readonly start: (options: StartOptions) => t.WebSocketServer.Started;
     };
 
     /** Base WebSocket options accepted by the Files facade. */
@@ -41,13 +44,19 @@ export declare namespace FilesServer {
       'cmd' | 'status'
     >;
 
-    /** Options for starting a Files WebSocket service. */
+    /** Options for creating a Files/WebSocket service with caller-owned lifecycle. */
     export type CreateOptions = WebSocketOptions & {
       /** Bounded Files backing to expose over Cmd/WebSocket. */
       readonly files: FilesServer.Backing;
 
       /** Structured, renderer-neutral status metadata for the running service handle. */
       readonly status?: StatusOptions;
+    };
+
+    /** Options for hosted Files/WebSocket service startup. */
+    export type StartOptions = CreateOptions & {
+      /** Lifecycle ownership model. Defaults to `manual`; use `process` for standalone CLIs. */
+      readonly lifecycle?: t.WebSocketServer.Lifecycle;
     };
 
     /** Status metadata accepted by the Files WebSocket facade. */

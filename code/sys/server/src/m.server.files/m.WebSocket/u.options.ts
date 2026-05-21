@@ -1,21 +1,23 @@
-import { D, Files, Is, type t, WebSocketServer } from './common.ts';
+import { D, Files, Is, type t } from '../common.ts';
 
-/** Start a WebSocket Cmd service for a bounded Files backing. */
-export const create: t.FilesServer.WebSocket.Lib['create'] = (options) => {
+/** Convert Files/WebSocket facade options to the underlying typed WebSocket server options. */
+export function toWebSocketOptions(
+  options: t.FilesServer.WebSocket.StartOptions,
+): t.WebSocketServer.StartOptions<
+  t.FilesCmd.Name,
+  t.FilesCmd.Payload,
+  t.FilesCmd.Result,
+  t.FilesCmd.Event
+> {
   const { files, status, ...server } = options;
 
-  return WebSocketServer.create<
-    t.FilesCmd.Name,
-    t.FilesCmd.Payload,
-    t.FilesCmd.Result,
-    t.FilesCmd.Event
-  >({
+  return {
     ...server,
     path: server.path ?? D.path,
     cmd: { ns: Files.Cmd.ns, handlers: files.handlers },
     status: statusOptions(files, status),
-  });
-};
+  };
+}
 
 /**
  * Helpers:

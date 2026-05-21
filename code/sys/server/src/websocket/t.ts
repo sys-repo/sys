@@ -6,7 +6,7 @@ import type { t } from './common.ts';
 export declare namespace WebSocketServer {
   /** Public WebSocket command server surface. */
   export type Lib = {
-    /** Start a WebSocket server bound to a typed command grammar. */
+    /** Create a running WebSocket command server with caller-owned lifecycle. */
     create<
       N extends string = t.Cmd.Name,
       P extends t.Cmd.Payload.Map<N> = t.Cmd.Payload.Map<N>,
@@ -15,9 +15,22 @@ export declare namespace WebSocketServer {
     >(
       options: CreateOptions<N, P, R, E>,
     ): Started;
+
+    /** Hosted startup convenience over `create`; optionally binds to host-process lifecycle. */
+    start<
+      N extends string = t.Cmd.Name,
+      P extends t.Cmd.Payload.Map<N> = t.Cmd.Payload.Map<N>,
+      R extends t.Cmd.Result.Map<N> = t.Cmd.Result.Map<N>,
+      E extends t.Cmd.Event.Map<N> = t.Cmd.Event.Map<N>,
+    >(
+      options: StartOptions<N, P, R, E>,
+    ): Started;
   };
 
-  /** Options for starting a WebSocket command server. */
+  /** Lifecycle ownership model for a running WebSocket server. */
+  export type Lifecycle = 'manual' | 'process';
+
+  /** Options for creating a WebSocket command server with caller-owned lifecycle. */
   export type CreateOptions<
     N extends string = t.Cmd.Name,
     P extends t.Cmd.Payload.Map<N> = t.Cmd.Payload.Map<N>,
@@ -47,6 +60,17 @@ export declare namespace WebSocketServer {
 
     /** Optional lifecycle boundary for auto-closing the server. */
     until?: t.UntilInput;
+  };
+
+  /** Options for hosted WebSocket command server startup. */
+  export type StartOptions<
+    N extends string = t.Cmd.Name,
+    P extends t.Cmd.Payload.Map<N> = t.Cmd.Payload.Map<N>,
+    R extends t.Cmd.Result.Map<N> = t.Cmd.Result.Map<N>,
+    E extends t.Cmd.Event.Map<N> = t.Cmd.Event.Map<N>,
+  > = CreateOptions<N, P, R, E> & {
+    /** Lifecycle ownership model. Defaults to `manual`; use `process` for standalone CLIs. */
+    readonly lifecycle?: Lifecycle;
   };
 
   /** Running WebSocket command server handle. */
@@ -82,7 +106,7 @@ export declare namespace WebSocketServer {
     close(reason?: unknown): Promise<void>;
   };
 
-  /** Structured status metadata passed to `WebSocketServer.create`. */
+  /** Structured status metadata surfaced by WebSocket server handles. */
   export type StatusOptions = {
     /** Optional owner-local display name. */
     readonly name?: string;
