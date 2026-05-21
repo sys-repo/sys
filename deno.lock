@@ -67,9 +67,13 @@
     "jsr:@sys/ui-state@^0.0.93": "0.0.93",
     "jsr:@sys/workspace@^0.0.82": "0.0.82",
     "jsr:@sys/yaml@^0.0.147": "0.0.147",
+    "npm:@automerge/automerge-repo-network-websocket@2.5.5": "2.5.5",
     "npm:@automerge/automerge-repo-network-websocket@2.5.6": "2.5.6",
+    "npm:@automerge/automerge-repo-storage-indexeddb@2.5.5": "2.5.5",
     "npm:@automerge/automerge-repo-storage-indexeddb@2.5.6": "2.5.6",
+    "npm:@automerge/automerge-repo-storage-nodefs@2.5.5": "2.5.5",
     "npm:@automerge/automerge-repo-storage-nodefs@2.5.6": "2.5.6",
+    "npm:@automerge/automerge-repo@2.5.5": "2.5.5",
     "npm:@automerge/automerge-repo@2.5.6": "2.5.6",
     "npm:@automerge/automerge@3.2.6": "3.2.6",
     "npm:@automerge/prosemirror@0.2.0": "0.2.0",
@@ -90,12 +94,14 @@
     "npm:@testing-library/react@16.3.2": "16.3.2_@types+react@19.2.15_@types+react-dom@19.2.3__@types+react@19.2.15_react@19.2.6_react-dom@19.2.6__react@19.2.6",
     "npm:@types/ramda@0.31.1": "0.31.1",
     "npm:@types/react-dom@19.2.3": "19.2.3_@types+react@19.2.15",
+    "npm:@types/react@19.2.14": "19.2.14",
     "npm:@types/react@19.2.15": "19.2.15",
     "npm:@types/ws@8.18.1": "8.18.1",
     "npm:@vitejs/plugin-react@6.0.2": "6.0.2_vite@8.0.13__esbuild@0.28.0__yaml@2.9.0_esbuild@0.28.0_yaml@2.9.0",
     "npm:bowser@2.14.1": "2.14.1",
     "npm:chai@6.2.2": "6.2.2",
     "npm:csstype@3.2.3": "3.2.3",
+    "npm:date-fns@4.1.0": "4.1.0",
     "npm:date-fns@4.2.1": "4.2.1",
     "npm:diff@9.0.0": "9.0.0",
     "npm:esbuild@0.23.1": "0.23.1",
@@ -111,6 +117,7 @@
     "npm:hono@4.12.21": "4.12.21",
     "npm:ignore@7.0.5": "7.0.5",
     "npm:monaco-editor@0.55.1": "0.55.1",
+    "npm:motion@12.38.0": "12.38.0_react@19.2.6_react-dom@19.2.6__react@19.2.6",
     "npm:motion@12.39.0": "12.39.0_react@19.2.6_react-dom@19.2.6__react@19.2.6",
     "npm:ora@9.4.0": "9.4.0",
     "npm:orbiter@*": "1.0.2",
@@ -349,6 +356,11 @@
         "jsr:@sys/ui-react-components",
         "jsr:@sys/ui-react-devharness",
         "npm:@automerge/automerge",
+        "npm:@automerge/automerge-repo-network-websocket@2.5.5",
+        "npm:@automerge/automerge-repo-storage-indexeddb@2.5.5",
+        "npm:@automerge/automerge-repo-storage-nodefs@2.5.5",
+        "npm:@automerge/automerge-repo@2.5.5",
+        "npm:@types/react@19.2.14",
         "npm:@types/ws",
         "npm:react-icons",
         "npm:react@19.2.5",
@@ -495,6 +507,7 @@
         "npm:@preact/signals-core@1.14.1",
         "npm:@types/ramda",
         "npm:chai",
+        "npm:date-fns@4.1.0",
         "npm:happy-dom",
         "npm:hash-it",
         "npm:ignore",
@@ -559,7 +572,8 @@
         "jsr:@sys/ui-css",
         "jsr:@sys/ui-dom@^0.0.283",
         "jsr:@sys/ui-react-devharness",
-        "jsr:@sys/yaml"
+        "jsr:@sys/yaml",
+        "npm:@types/react@19.2.14"
       ]
     },
     "@sys/types@0.0.282": {
@@ -579,7 +593,8 @@
       "dependencies": [
         "jsr:@sys/color",
         "jsr:@sys/std",
-        "jsr:@sys/types"
+        "jsr:@sys/types",
+        "npm:@types/react@19.2.14"
       ]
     },
     "@sys/ui-dom@0.0.247": {
@@ -606,6 +621,7 @@
         "jsr:@sys/ui-dom@^0.0.283",
         "npm:@preact/signals-react@3.10.0",
         "npm:@testing-library/react",
+        "npm:@types/react@19.2.14",
         "npm:react@19.2.5"
       ]
     },
@@ -626,6 +642,8 @@
         "jsr:@sys/ui-state",
         "jsr:@sys/yaml",
         "npm:@svgdotjs/svg.js",
+        "npm:@types/react@19.2.14",
+        "npm:motion@12.38.0",
         "npm:react-error-boundary",
         "npm:react-icons",
         "npm:react-inspector",
@@ -649,6 +667,7 @@
         "jsr:@sys/ui-css",
         "jsr:@sys/ui-dom@^0.0.283",
         "jsr:@sys/ui-react",
+        "npm:@types/react@19.2.14",
         "npm:react-error-boundary",
         "npm:react-icons",
         "npm:react@19.2.5"
@@ -702,10 +721,10 @@
       ],
       "bin": true
     },
-    "@automerge/automerge-repo-network-websocket@2.5.6": {
-      "integrity": "sha512-xs/xzOCTf5ZuqhDUtBO1VQ3QOnunEobjtgEqGNu7UcoD2uYWET1ANHVfS+ZzSV8IOA1O9jFAPXxzc4FXoSL0hQ==",
+    "@automerge/automerge-repo-network-websocket@2.5.5": {
+      "integrity": "sha512-pwHNXTsTTfofU3X/wtFa9L3lWfAJBI7v1+3EKgFDgEodUJo9FPDH0hcy4HUsQiDrQPADO7FP9fVOQSXVm8n5VA==",
       "dependencies": [
-        "@automerge/automerge-repo",
+        "@automerge/automerge-repo@2.5.5",
         "cbor-x",
         "debug",
         "eventemitter3",
@@ -713,17 +732,54 @@
         "ws@8.20.1"
       ]
     },
+    "@automerge/automerge-repo-network-websocket@2.5.6": {
+      "integrity": "sha512-xs/xzOCTf5ZuqhDUtBO1VQ3QOnunEobjtgEqGNu7UcoD2uYWET1ANHVfS+ZzSV8IOA1O9jFAPXxzc4FXoSL0hQ==",
+      "dependencies": [
+        "@automerge/automerge-repo@2.5.6",
+        "cbor-x",
+        "debug",
+        "eventemitter3",
+        "isomorphic-ws",
+        "ws@8.20.1"
+      ]
+    },
+    "@automerge/automerge-repo-storage-indexeddb@2.5.5": {
+      "integrity": "sha512-pH8tw8uLqEtv1POhy2IFnpBDFpGqiR6YM3w4Rk0NkmerstUxQwrqkkeABlkvF5Al6krlu6dC47LnF8v5cHB3Fg==",
+      "dependencies": [
+        "@automerge/automerge-repo@2.5.5"
+      ]
+    },
     "@automerge/automerge-repo-storage-indexeddb@2.5.6": {
       "integrity": "sha512-3349orECq2Mj3mo9q6f9ZeXwDkP3lAm6KaivP5+znUpv6Ze+IraE36DdL5GVdzIm+cXej0yWSOCQOalnTMPcQg==",
       "dependencies": [
-        "@automerge/automerge-repo"
+        "@automerge/automerge-repo@2.5.6"
+      ]
+    },
+    "@automerge/automerge-repo-storage-nodefs@2.5.5": {
+      "integrity": "sha512-mdGU5CI/04dAV9UnqW9ImKqtilJXCcga3h/yQtw24SDB6HSMXRl3S748FYFF+dc37bFyUgAcaAXQqavCN8siJw==",
+      "dependencies": [
+        "@automerge/automerge-repo@2.5.5",
+        "rimraf"
       ]
     },
     "@automerge/automerge-repo-storage-nodefs@2.5.6": {
       "integrity": "sha512-euCoSvlcGLVBMzBHSr7txUXIdVI0WwkdXqIbRgGtltdynS/Id2Ps4ngbKSI/1kocRsrTzvx1dW77DxwjArV8xg==",
       "dependencies": [
-        "@automerge/automerge-repo",
+        "@automerge/automerge-repo@2.5.6",
         "rimraf"
+      ]
+    },
+    "@automerge/automerge-repo@2.5.5": {
+      "integrity": "sha512-A7vrMvIx5axW3smczZStONaZsksFSjKK8e0Th0u+oEV3aMsylaExpDvjRE2ZIZotJT30+l3tCUlge/n/XGK25Q==",
+      "dependencies": [
+        "@automerge/automerge",
+        "bs58check",
+        "cbor-x",
+        "debug",
+        "eventemitter3",
+        "fast-sha256",
+        "uuid@9.0.1",
+        "xstate"
       ]
     },
     "@automerge/automerge-repo@2.5.6": {
@@ -2897,13 +2953,13 @@
       "dependencies": [
         "@babel/runtime",
         "@testing-library/dom",
-        "@types/react",
+        "@types/react@19.2.15",
         "@types/react-dom",
         "react@19.2.6",
         "react-dom"
       ],
       "optionalPeers": [
-        "@types/react",
+        "@types/react@19.2.15",
         "@types/react-dom"
       ]
     },
@@ -2962,7 +3018,13 @@
     "@types/react-dom@19.2.3_@types+react@19.2.15": {
       "integrity": "sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==",
       "dependencies": [
-        "@types/react"
+        "@types/react@19.2.15"
+      ]
+    },
+    "@types/react@19.2.14": {
+      "integrity": "sha512-ilcTH/UniCkMdtexkoCN0bI7pMcJDvmQFPvuPvmEaYA/NSfFTAgdUSLAoVjaRJm7+6PvcM+q1zYOwS4wTYMF9w==",
+      "dependencies": [
+        "csstype"
       ]
     },
     "@types/react@19.2.15": {
@@ -3220,6 +3282,9 @@
     },
     "data-uri-to-buffer@6.0.2": {
       "integrity": "sha512-7hvf7/GW8e86rW0ptuwS3OcBGDjIi6SZva7hCyWC0yYry2cOPmLIjXAUHI6DK2HsnwJd9ifmt57i8eV2n4YNpw=="
+    },
+    "date-fns@4.1.0": {
+      "integrity": "sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg=="
     },
     "date-fns@4.2.1": {
       "integrity": "sha512-37RhSdxaG1suen6VDCza6rNrQfooyQh57HFVPwQGEq2QWliVLzPQZ8Oa017weOu+HZCnzI7N3Pf/wyoBKfEqrA=="
@@ -4006,6 +4071,19 @@
     },
     "motion-utils@12.39.0": {
       "integrity": "sha512-8nadJAJjTtqRkmRF36FoJTrywK9nnFmnPwnSMyxaOCU7GDjN9RTMJIxx9De8ErM+vpPhMccr/6fo5WciyQLnMQ=="
+    },
+    "motion@12.38.0_react@19.2.6_react-dom@19.2.6__react@19.2.6": {
+      "integrity": "sha512-uYfXzeHlgThchzwz5Te47dlv5JOUC7OB4rjJ/7XTUgtBZD8CchMN8qEJ4ZVsUmTyYA44zjV0fBwsiktRuFnn+w==",
+      "dependencies": [
+        "framer-motion",
+        "react@19.2.6",
+        "react-dom",
+        "tslib"
+      ],
+      "optionalPeers": [
+        "react@19.2.6",
+        "react-dom"
+      ]
     },
     "motion@12.39.0_react@19.2.6_react-dom@19.2.6__react@19.2.6": {
       "integrity": "sha512-H4a+Ze+a9j+/NTla5ezfb/g9vmIOxC+viDj++NGDZyTZkdRKjiOz3kSv6TalRWM8ZmD2y/CfC6TkQc97ybyqSA==",
