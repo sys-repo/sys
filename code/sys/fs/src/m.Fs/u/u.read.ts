@@ -1,4 +1,4 @@
-import { type t, exists, Err, Json, Path } from './common.ts';
+import { type t, exists, Err, Json, Path } from '../common.ts';
 
 /**
  * Asynchronously reads and returns the entire contents of a binary file (Uint8Array).

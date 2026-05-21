@@ -1,4 +1,4 @@
-import { type t, Json, ensureDir, Err, exists as fileExists, Path } from './common.ts';
+import { type t, Json, ensureDir, Err, exists as fileExists, Path } from '../common.ts';
 
 /**
  * Writes a string or binary file ensuring it's parent directory exists.

@@ -1,4 +1,4 @@
-import { Err, exists, pkg, type t } from './common.ts';
+import { Err, exists, pkg, type t } from '../common.ts';
 import { copyFile } from './u.copy.file.ts';
 import { Wrangle } from './u.copy.util.ts';
 import { remove } from './u.remove.ts';

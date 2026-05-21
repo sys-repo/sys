@@ -1,4 +1,4 @@
-import { Path, type t } from './common.ts';
+import { Path, type t } from '../common.ts';
 
 /** Retrieve lstat information without following a final-path symlink. */
 export const lstat: t.Fs.GetStat = async (path) => {

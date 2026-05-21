@@ -1,4 +1,4 @@
-import { type t, exists, ls, StdPath } from './common.ts';
+import { type t, exists, ls, StdPath } from '../common.ts';
 import { toFile } from './u.toFile.ts';
 
 /**

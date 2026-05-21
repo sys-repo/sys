@@ -1,4 +1,4 @@
-import { type t, StdPath } from './common.ts';
+import { type t, StdPath } from '../common.ts';
 
 /**
  * Convert a path into a `FsFile` data-structure.

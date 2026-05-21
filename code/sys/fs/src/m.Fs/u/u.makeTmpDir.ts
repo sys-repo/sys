@@ -1,4 +1,4 @@
-import { type t, Path } from './common.ts';
+import { type t, Path } from '../common.ts';
 import { toDir } from './u.toDir.ts';
 
 export const makeTempDir: t.Fs.Lib['makeTempDir'] = async (options = {}) => {

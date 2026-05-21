@@ -1,5 +1,5 @@
 import { walk, type WalkEntry } from '@std/fs';
-import { Path, type t } from './common.ts';
+import { Path, type t } from '../common.ts';
 
 export { walk };
 

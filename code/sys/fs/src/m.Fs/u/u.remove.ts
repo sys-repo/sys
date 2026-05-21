@@ -1,4 +1,4 @@
-import { c, Path, type t } from './common.ts';
+import { c, Path, type t } from '../common.ts';
 import { lstat } from './u.lstat.ts';
 
 /**
