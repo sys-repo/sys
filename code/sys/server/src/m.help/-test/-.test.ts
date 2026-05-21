@@ -13,7 +13,7 @@ describe('m.help', () => {
     expect(root.commands).to.eql([
       [
         'dsl',
-        'agent must read first — server primitive boundaries, speech acts, Cmd transport rules, lifecycle, and service contracts',
+        'agent must read first — server primitive boundaries, speech acts, Cmd transport rules, Files WebSocket facade, lifecycle, and service contracts',
       ],
     ]);
     expect(root.options).to.eql([['-h, --help', 'show help']]);
@@ -29,6 +29,7 @@ describe('m.help', () => {
       'websocket.cmd',
       'websocket.lifecycle',
       'websocket.service',
+      'files.websocket',
     ]);
     expect(root.sections.map((section) => section.label)).to.eql([
       'Agent reading protocol',
@@ -46,11 +47,13 @@ describe('m.help', () => {
     const cmd = await ServerHelp.Dsl.load(['websocket.cmd']);
     const lifecycle = await ServerHelp.Dsl.load(['websocket.lifecycle']);
     const service = await ServerHelp.Dsl.load(['websocket.service']);
+    const files = await ServerHelp.Dsl.load(['files.websocket']);
 
     expect(websocket.title).to.eql('WebSocketServer');
     expect(cmd.title).to.eql('WebSocketServer Cmd binding');
     expect(lifecycle.title).to.eql('WebSocketServer lifecycle');
     expect(service.title).to.eql('WebSocketServer service handle');
+    expect(files.title).to.eql('FilesServer WebSocket facade');
   });
 
   it('fails clearly for unknown DSL chapters', async () => {

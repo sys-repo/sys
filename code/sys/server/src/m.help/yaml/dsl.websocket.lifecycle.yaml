@@ -1,7 +1,7 @@
 id: websocket.lifecycle
 title: WebSocketServer lifecycle
 summary: |
-  Close, dispose, observe, and externally bound a WebSocket command server
+  Close, dispose, observe, and externally bind a WebSocket command server
   without leaking sockets or command hosts.
 
 sections:
@@ -11,6 +11,8 @@ sections:
       `close(reason?)` is the WebSocket/domain alias for `dispose(reason?)`.
       `finished` resolves when the underlying Deno HTTP server has finished.
       `signal` aborts when the server lifecycle closes.
+      `create(...)` is caller-owned and binds only `until` when provided.
+      `start(...)` is hosted and may bind process signals or keyboard controls.
       Server shutdown must close active WebSockets and dispose their command hosts.
       Socket close must dispose the matching command host and remove the connection.
       Hook failure must be local to that socket/host.
@@ -22,6 +24,8 @@ sections:
       dispose a WebSocket command server
       wait for server.finished
       bind server lifetime to until
+      bind hosted server lifetime to process signals
+      bind hosted keyboard quit controls
       close active sockets during shutdown
       dispose command hosts when sockets close
       handle Deno server shutdown from below
@@ -30,9 +34,16 @@ sections:
   - label: Lifecycle facts
     items: |
       `WebSocketServer.create(...)` returns a started handle immediately.
+      `WebSocketServer.start(...)` returns the same started handle shape.
       `dispose(reason?)` requests shutdown and cleanup.
       `close(reason?)` calls the same lifecycle path as `dispose(reason?)`.
       `until` may close the server from an external lifecycle boundary.
+      `WebSocketServer.start({ lifecycle: 'process' })` binds process signals best-effort.
+      `SIGINT` and `SIGTERM` are the hosted process signals.
+      Process signal listeners are removed when lifecycle completes/errors.
+      Process signal listeners are also removed when `finished` settles.
+      `WebSocketServer.start({ keyboard: true })` closes the server on terminal quit.
+      Keyboard quit controls apply only when terminal binding succeeds.
       Direct underlying `server.server.shutdown()` is still a supported lifecycle case.
       Closing the Deno HTTP server is not enough for upgraded WebSocket command hosts.
       The wrapper owns explicit socket/host cleanup.
@@ -50,6 +61,9 @@ sections:
       Prove `dispose()` closes active sockets and command hosts.
       Prove client socket close disposes the command host and removes the connection.
       Prove `until` closes the server and active sockets.
+      Prove hosted process signal listeners are cleaned up when lifecycle completes.
+      Prove hosted keyboard controls stay out of `create(...)`.
+      Prove hosted keyboard controls are bound only by `start(...)`.
       Prove direct underlying `server.server.shutdown()` bridges into wrapper lifecycle.
       Prove sync and async `onSocket` failures do not tear down unrelated sockets.
       Prove sync and async `onSocket` failures do not tear down the server.

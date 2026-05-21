@@ -1,0 +1,73 @@
+id: files.websocket
+title: FilesServer WebSocket facade
+summary: |
+  Host a bounded `@sys/model/files` backing over WebSocket with
+  `FilesServer.WebSocket`, then connect with `Files.Client.websocket(url)`.
+
+sections:
+  - label: One-minute shape
+    items: |
+      Server: `import { FilesServer } from '@sys/server/files'`.
+      Backing: `import { Files } from '@sys/model/files/fs'` and build `Files.Fs.*`.
+      Host FS: `import { Fs } from '@sys/fs'` when adapting the real filesystem.
+      Host: `FilesServer.WebSocket.create({ files, ... })` for embedding/tests/Cell.
+      Host: `FilesServer.WebSocket.start({ files, ... })` for standalone hosted startup.
+      Client: `const client = await Files.Client.websocket(server.url)`.
+      Use: `await client.send(Files.Cmd.Name.read, { path })`.
+
+  - label: Rule
+    items: |
+      `@sys/server/files` only hosts a supplied bounded Files backing.
+      It does not define Files grammar, policy, filesystem authority, or app routing.
+      Files grammar/client APIs live in `@sys/model/files`.
+      Filesystem backing ergonomics live at `Files.Fs` from `@sys/model/files/fs`.
+      Host filesystem authority comes from `@sys/fs` capability bridges.
+      The facade binds canonical `Files.Cmd.ns` for you.
+      Files consumers use `Files.Client.websocket(url)`.
+      Do not repeat raw `WebSocket` + Cmd transport wiring in Files code.
+      This is not a static-file HTTP server, router, auth layer, or framework.
+
+  - label: Golden path
+    items: |
+      `const fs = Fs.Capability.Files.Readonly.live(Fs)`.
+      `const files = Files.Fs.Readonly.live({ fs, root, policy })`.
+      `const server = FilesServer.WebSocket.start({ files, lifecycle: 'process' })`.
+      Add `keyboard: true` and `status: { root }` for hosted sample UX.
+      `const client = await Files.Client.websocket(server.url)`.
+      `const res = await client.send(Files.Cmd.Name.read, { path: 'README.md' })`.
+      `await client.close('done')`.
+      `await server.close('done')`.
+
+  - label: create vs start
+    items: |
+      Use `create(...)` when another owner controls lifecycle, output, and shutdown.
+      Use `create(...)` in tests, embedded services, and Cell adapters.
+      Pass `until` to `create(...)` when the owner supplies a lifecycle boundary.
+      Use `start(...)` for direct standalone programs and samples.
+      `start(...)` adds hosted-only options: `lifecycle`, `silent`, and `keyboard`.
+      `create(...)` is silent and has no process-signal or keyboard side effects.
+
+  - label: Hosted startup
+    items: |
+      Default path is `/files`.
+      `lifecycle: 'process'` binds process signals for standalone usage.
+      `keyboard: true` enables terminal quit controls when a terminal is available.
+      `silent: true` suppresses direct startup output for service runners.
+      Startup output is rendered from `status()` and includes Files facade metadata.
+
+  - label: Known hardening edges
+    items: |
+      Text/document workflows are usable now.
+      JSON byte payload fidelity remains a transport hardening task.
+      `files:watch` events are hints; verify truth through `list`, `stat`, or `read`.
+      Watch resume cursors and structured remote Files errors remain hardening tasks.
+      Do not document those as solved until tests prove them.
+
+  - label: Verify
+    items: |
+      Assert `await import('@sys/server/files')` exposes `FilesServer`.
+      Stand up a real `FilesServer.WebSocket.create(...)` or `start(...)` service.
+      Connect with `Files.Client.websocket(server.url)`.
+      Prove list/read/stat and write/remove when the backing is writable.
+      Prove `create(...)` stays silent and caller-owned.
+      Prove hosted behavior through `start(...)`, not sample-local lifecycle glue.

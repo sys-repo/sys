@@ -13,6 +13,11 @@ sections:
       Do not invent a second WebSocket JSON protocol beside Cmd transport frames.
       `WebSocketServer` owns transport binding.
       Applications own command names, payloads, results, events, and handlers.
+      This chapter is for generic Cmd-over-WebSocket usage.
+      Files-specific consumers should use `Files.Client.websocket(url)`.
+      Do not repeat raw WebSocket/Cmd client wiring in Files consumers.
+      WebSocket Cmd frames are JSON transport frames.
+      Do not assume byte payload fidelity until an explicit codec is implemented.
 
   - label: Speech acts
     items: |
@@ -21,8 +26,9 @@ sections:
       attach t.Cmd.Handler.Map handlers
       serve unary Cmd requests over WebSocket
       stream Cmd events from ctx.emit(...)
-      use Cmd.Transport.fromWebSocket as the transport seam
+      use Cmd.Transport.fromWebSocket as the generic transport seam
       avoid inventing a second WebSocket JSON protocol
+      distinguish generic Cmd-over-WebSocket from Files-over-WebSocket
       verify a typed Cmd roundtrip over a real WebSocket server
 
   - label: Type grammar
@@ -34,6 +40,8 @@ sections:
       Handler maps use `t.Cmd.Handler.Map<N, P, R, E>`.
       Keep concrete command grammar close to the consuming package.
       Do not put application command grammar inside `@sys/server`.
+      Files command grammar belongs to `@sys/model/files`.
+      Files command grammar is hosted by the `@sys/server/files` facade.
 
   - label: Server options
     items: |
@@ -53,3 +61,5 @@ sections:
       Prove streamed events when event behavior is relevant.
       Prove disposed clients reject safely without hitting the server.
       Do not retest all of `@sys/event/cmd`; prove the server transport binding.
+      For Files-specific flows, prove behavior through `Files.Client.websocket(url)`.
+      Prove Files-specific hosting through the Files server facade.

@@ -14,6 +14,7 @@ export const HelpResource = {
       chapter('websocket.cmd', 'yaml/dsl.websocket.cmd.yaml'),
       chapter('websocket.lifecycle', 'yaml/dsl.websocket.lifecycle.yaml'),
       chapter('websocket.service', 'yaml/dsl.websocket.service.yaml'),
+      chapter('files.websocket', 'yaml/dsl.files.websocket.yaml'),
     ]),
   },
   Source: {

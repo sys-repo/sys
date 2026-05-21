@@ -10,7 +10,7 @@ commands:
   - name: dsl
     text: >-
       agent must read first — server primitive boundaries, speech acts, Cmd transport rules,
-      lifecycle, and service contracts
+      Files WebSocket facade, lifecycle, and service contracts
 
 options:
   - name: -h, --help

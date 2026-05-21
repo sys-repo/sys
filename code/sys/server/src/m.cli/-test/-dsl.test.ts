@@ -12,8 +12,9 @@ describe('m.cli dsl', () => {
     expect(text).to.contain('@sys/server dsl');
     expect(text).to.contain('Chapter');
     expect(text).to.contain('Agent reading protocol');
-    expect(text).to.contain('Prompt asks for WebSocket command transport');
+    expect(text).to.contain('Prompt asks for generic WebSocket command transport');
     expect(text).to.contain('websocket.cmd');
+    expect(text).to.contain('files.websocket');
   });
 
   it('dsl websocket routes to the WebSocketServer chapter', async () => {
@@ -25,6 +26,19 @@ describe('m.cli dsl', () => {
     expect(text).to.contain('WebSocketServer');
     expect(text).to.contain('Deno.serve');
     expect(text).to.contain('Deno.upgradeWebSocket');
+    expect(text).to.contain('WebSocketServer.start');
+  });
+
+  it('dsl files.websocket routes to the FilesServer WebSocket chapter', async () => {
+    const res = await silent(() => ServerCli.run({ argv: ['dsl', 'files.websocket'] }));
+    const text = stripAnsi(res.text);
+
+    expect(res.kind).to.eql('help');
+    expect(text).to.contain('@sys/server dsl files.websocket');
+    expect(text).to.contain('FilesServer.WebSocket');
+    expect(text).to.contain('FilesServer.WebSocket.start');
+    expect(text).to.contain('Files.Client.websocket(url)');
+    expect(text).to.contain('Golden path');
   });
 
   it('dsl websocket.cmd routes to the Cmd chapter', async () => {
