@@ -10,7 +10,7 @@ sections:
       Import the runtime value from `@sys/server/websocket`.
       The public value is `WebSocketServer`.
       The constructor is `WebSocketServer.create(...)`.
-      Keep `src/websocket/mod.ts` export-only.
+      Keep `src/m.server.websocket/mod.ts` export-only.
       Keep the Deno seam visible and truthful.
       The Deno seam is `Deno.serve` and `Deno.upgradeWebSocket`.
       The primitive owns WebSocket upgrade and command transport binding.

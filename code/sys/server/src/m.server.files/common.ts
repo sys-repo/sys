@@ -5,7 +5,7 @@ import type { t } from '../common.ts';
  */
 export { Files } from '@sys/model/files';
 export * from '../common.ts';
-export { WebSocketServer } from '../websocket/mod.ts';
+export { WebSocketServer } from '../m.server.websocket/mod.ts';
 
 type TStatus = Pick<t.WebSocketServer.StatusOptions, 'kind' | 'urlLabel'>;
 
