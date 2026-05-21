@@ -16,8 +16,8 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./websocket": "./src/websocket/mod.ts",
-    "./files": "./src/files/mod.ts",
-    "./files/t": "./src/files/t.ts"
+    "./files": "./src/m.server.files/mod.ts",
+    "./files/t": "./src/m.server.files/t.ts"
   },
   "permissions": {
     "clean": {

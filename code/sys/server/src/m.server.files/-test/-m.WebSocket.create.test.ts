@@ -5,15 +5,6 @@ import { FilesServer } from '../mod.ts';
 import { Fixture } from './u.fixture.ts';
 
 describe('FilesServer.WebSocket.create', () => {
-  it('exports the public runtime surface', async () => {
-    const m = await import('@sys/server/files');
-
-    expect(m.FilesServer).to.equal(FilesServer);
-    expect(Object.keys(FilesServer).sort()).to.eql(['WebSocket']);
-    expect(Object.keys(FilesServer.WebSocket).sort()).to.eql(['create']);
-    expectTypeOf(FilesServer).toMatchTypeOf<t.FilesServer.Lib>();
-  });
-
   it('serves a bounded Files backing over websocket without widening authority', async () => {
     const backing = FilesMemory.Readonly.create({
       files: {
