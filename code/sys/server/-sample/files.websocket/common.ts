@@ -6,7 +6,6 @@ export type { t };
  * Libraries:
  */
 export { Fs } from '@sys/fs';
-export { HttpServer } from '@sys/http/server';
 export { Files } from '@sys/model/files/fs';
 export { Process } from '@sys/process';
 export { FilesServer } from '@sys/server/files';

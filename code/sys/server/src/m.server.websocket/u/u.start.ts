@@ -1,6 +1,7 @@
 import type { t } from '../common.ts';
 import { create } from './u.create.ts';
 import { printStarted } from './u.fmt.ts';
+import { bindKeyboard } from './u.keyboard.ts';
 
 /** Hosted startup convenience over `create`, with optional host-process lifecycle wiring. */
 export function start<
@@ -9,11 +10,12 @@ export function start<
   R extends t.Cmd.Result.Map<N> = t.Cmd.Result.Map<N>,
   E extends t.Cmd.Event.Map<N> = t.Cmd.Event.Map<N>,
 >(input: t.WebSocketServer.StartOptions<N, P, R, E>): t.WebSocketServer.Started {
-  const lifecycle = input.lifecycle ?? 'manual';
-  const server = create<N, P, R, E>(input);
+  const { lifecycle = 'manual', silent, keyboard: keyboardInput, ...createOptions } = input;
+  const server = create<N, P, R, E>(createOptions);
 
   if (lifecycle === 'process') bindProcessLifecycle(server);
-  if (!input.silent) printStarted(server, { lifecycle });
+  const keyboard = bindKeyboard(server, keyboardInput);
+  if (!silent) printStarted(server, { lifecycle, keyboard });
   return server;
 }
 

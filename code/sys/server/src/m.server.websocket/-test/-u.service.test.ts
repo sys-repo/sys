@@ -1,8 +1,18 @@
 import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
 import { WebSocketServer } from '../mod.ts';
+import { formatStarted } from '../u/u.fmt.ts';
 import { Fixture } from './u.fixture.ts';
 
 describe('WebSocketServer/service handle', () => {
+  it('renders direct-startup quit controls from hosted lifecycle options', () => {
+    const status: t.Service.Status = { state: 'ready', kind: 'websocket:cmd' };
+
+    expect(formatStarted(status, { lifecycle: 'manual', keyboard: false })).to.not.contain('quit');
+    expect(formatStarted(status, { lifecycle: 'process', keyboard: false })).to.contain('Ctrl+C');
+    expect(formatStarted(status, { lifecycle: 'manual', keyboard: true })).to.contain('Ctrl+C or Q');
+    expect(formatStarted(status, { lifecycle: 'process', keyboard: true })).to.contain('Ctrl+C or Q');
+  });
+
   it('exposes a Cell-compatible service status', async () => {
     type Name = 'ping';
     type Payload = { ping: { count: number } };

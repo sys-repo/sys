@@ -3,6 +3,23 @@ import { WebSocketServer } from '../mod.ts';
 import { Fixture } from './u.fixture.ts';
 
 describe('WebSocketServer/lifecycle', () => {
+  it('start accepts hosted keyboard controls without affecting caller-owned close', async () => {
+    const server = WebSocketServer.start({
+      path: '/socket',
+      silent: true,
+      keyboard: true,
+      cmd: { handlers: { ping: () => 'pong' } },
+    });
+
+    try {
+      expect(server.status().state).to.eql('ready');
+    } finally {
+      await server.close('test.cleanup');
+    }
+
+    expect(server.status().state).to.eql('stopped');
+  });
+
   it('client socket close disposes the command host and removes the connection', async () => {
     const hostDisposed = Fixture.deferred<void>();
 

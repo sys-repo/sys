@@ -53,14 +53,19 @@ export declare namespace FilesServer {
       readonly status?: StatusOptions;
     };
 
-    /** Options for hosted Files/WebSocket service startup. */
-    export type StartOptions = CreateOptions & {
-      /** Lifecycle ownership model. Defaults to `manual`; use `process` for standalone CLIs. */
-      readonly lifecycle?: t.WebSocketServer.Lifecycle;
+    /** Hosted startup controls inherited from the WebSocket server primitive. */
+    export type HostedOptions = Pick<
+      t.WebSocketServer.StartOptions<
+        t.FilesCmd.Name,
+        t.FilesCmd.Payload,
+        t.FilesCmd.Result,
+        t.FilesCmd.Event
+      >,
+      'lifecycle' | 'silent' | 'keyboard'
+    >;
 
-      /** Suppress direct-startup reporting for service runners that render their own status. */
-      readonly silent?: boolean;
-    };
+    /** Options for hosted Files/WebSocket service startup. */
+    export type StartOptions = CreateOptions & HostedOptions;
 
     /** Running Files/WebSocket service handle. */
     export type Started = t.WebSocketServer.Started;

@@ -1,5 +1,5 @@
 import { SampleFiles } from './-config.ts';
-import { Files, FilesServer, Fs, HttpServer } from './common.ts';
+import { Files, FilesServer, Fs } from './common.ts';
 
 const files = Files.Fs.Readonly.live({
   fs: Fs.Capability.Files.Readonly.live(Fs), // ← capability narrows host FS authority to `readonly + watch`.
@@ -12,18 +12,11 @@ const server = FilesServer.WebSocket.start({
   path: SampleFiles.path,
   files,
   lifecycle: 'process',
+  keyboard: true,
   status: {
     name: SampleFiles.name,
     root: SampleFiles.root,
   },
-});
-
-void HttpServer.keyboard({
-  port: server.port,
-  url: server.origin,
-  print: false,
-  exit: true,
-  dispose: async () => void await server.close('keyboard'),
 });
 
 await server.finished;

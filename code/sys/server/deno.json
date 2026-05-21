@@ -24,6 +24,6 @@
   "permissions": {
     "clean": { "read": true, "write": true, "env": true },
     "test": { "read": true, "write": true, "env": true, "net": true, "run": true },
-    "sample-files-ws": { "read": true, "env": true, "net": true, "run": true }
+    "sample-files-ws": { "read": true, "env": true, "net": true }
   }
 }

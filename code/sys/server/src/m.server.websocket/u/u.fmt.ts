@@ -3,17 +3,14 @@ import { c, Cli, Fs, Is, Str, type CliTable, type t } from '../common.ts';
 /** Print the renderer-owned startup summary for a directly-started WebSocket service. */
 export function printStarted(
   server: t.WebSocketServer.Started,
-  options: { readonly lifecycle: t.WebSocketServer.Lifecycle },
+  options: StartFormatOptions,
 ) {
   const text = formatStarted(server.status(), options);
   if (text) console.info(`\n${text}\n`);
 }
 
 /** Render a service status snapshot for direct WebSocket server startup. */
-export function formatStarted(
-  status: t.Service.Status,
-  options: { readonly lifecycle: t.WebSocketServer.Lifecycle },
-): string {
+export function formatStarted(status: t.Service.Status, options: StartFormatOptions): string {
   const table = Cli.table([]);
 
   table.push([label('service'), serviceName(status)]);
@@ -25,10 +22,16 @@ export function formatStarted(
     table.push([childLabel(detail.label), value(detail.value)]);
   }
   if (Is.stdError(status.error)) table.push([childLabel('error'), serviceError(status.error)]);
-  if (options.lifecycle === 'process') table.push([quitLabel('quit'), quitValue('Ctrl+C')]);
+  const quit = quitKeys(options);
+  if (quit) table.push([quitLabel('quit'), quitValue(quit)]);
 
   return Str.trimEdgeNewlines(String(table));
 }
+
+type StartFormatOptions = {
+  readonly lifecycle: t.WebSocketServer.Lifecycle;
+  readonly keyboard: boolean;
+};
 
 /**
  * Helpers:
@@ -68,6 +71,13 @@ function value(input: string): string {
 
 function path(input: string): string {
   return value(Fs.trimCwd(input));
+}
+
+function quitKeys(options: StartFormatOptions): string | undefined {
+  const keys: string[] = [];
+  if (options.lifecycle === 'process' || options.keyboard) keys.push('Ctrl+C');
+  if (options.keyboard) keys.push('Q');
+  return keys.length > 0 ? keys.join(' or ') : undefined;
 }
 
 function quitLabel(input: string): string {
