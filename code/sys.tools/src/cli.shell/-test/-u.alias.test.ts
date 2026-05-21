@@ -11,15 +11,16 @@ describe('cli.shell Alias', () => {
     const report = await aliasList({
       env: (name) => ({ HOME: home, SHELL: '/bin/zsh' })[name],
       exists: async (path) => path === zshrc,
-      readText: async () =>
-        `secret before\n# ━━━ BEGIN: @sys/tools:shell ${'━'.repeat(54)}
+      async readText() {
+        return `secret before\n# ━━━ BEGIN: @sys/tools:shell ${'━'.repeat(54)}
 # Generated settings. Do not manually edit. Update with \`sys shell\`.
 
 # alias: sys
 alias sys="deno run -A jsr:@sys/tools"
 
 # ━━━ END: @sys/tools:shell ${'━'.repeat(56)}
-secret after\n`,
+secret after\n`;
+      },
     });
     const text = Cli.stripAnsi(formatAliasList(report));
 
@@ -79,8 +80,9 @@ secret after\n`,
       env: (name) => ({ HOME: home, SHELL: '/bin/zsh' })[name],
       exists: async (path) => path === zshrc,
       readText: async () => original,
-      writeText: async (path, text, options) =>
-        void writes.push({ path, text, force: options?.force }),
+      async writeText(path, text, options) {
+        void writes.push({ path, text, force: options?.force });
+      },
       now: () => NOW,
     });
     const text = Cli.stripAnsi(formatAliasEnable(report));

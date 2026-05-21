@@ -51,8 +51,9 @@ describe('cli.shell init', () => {
       env: (name) => ({ HOME: home, SHELL: '/bin/zsh', PATH: '/usr/bin' })[name],
       exists: async (path) => path === zshrc || path === denoBin,
       readText: async () => original,
-      writeText: async (path, text, options) =>
-        void writes.push({ path, text, force: options?.force }),
+      async writeText(path, text, options) {
+        void writes.push({ path, text, force: options?.force });
+      },
       now: () => NOW,
     });
     const text = Cli.stripAnsi(formatApply(report));

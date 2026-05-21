@@ -234,12 +234,13 @@ describe('FilesFs.Writable', () => {
         'FilesFsError.WriteTooLarge',
       );
       await expectFilesFsError(
-        () =>
-          cmd.write(backing, {
+        () => {
+          return cmd.write(backing, {
             kind: 'bytes',
             path: 'docs/two.bin',
             content: new Uint8Array([0, 1]),
-          }),
+          });
+        },
         'FilesFsError.WriteTooLarge',
       );
       expect(calls.writeFileAtomic).to.eql(0);
@@ -396,12 +397,13 @@ describe('FilesFs.Writable', () => {
         policy: allowAllMutablePolicy,
       });
       await expectFilesFsError(
-        () =>
-          cmd.write(parent.backing, {
+        () => {
+          return cmd.write(parent.backing, {
             kind: 'text',
             path: 'docs/link-out/new.md',
             content: 'x',
-          }),
+          });
+        },
         'FilesFsError.PathOutsideRoot',
       );
       expect(parent.calls.writeFileAtomic).to.eql(0);
@@ -430,12 +432,13 @@ describe('FilesFs.Writable', () => {
         policy: allowAllMutablePolicy,
       });
       await expectFilesFsError(
-        () =>
-          cmd.write(hostileBacking, {
+        () => {
+          return cmd.write(hostileBacking, {
             kind: 'text',
             path: 'docs/alias/new.md',
             content: 'x',
-          }),
+          });
+        },
         'FilesFsError.PathOutsideRoot',
       );
       expect(hostileParent.calls.writeFileAtomic).to.eql(0);

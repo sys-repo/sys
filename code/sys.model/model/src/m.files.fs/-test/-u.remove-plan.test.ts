@@ -82,13 +82,14 @@ describe('FilesFs remove planning utilities', () => {
     });
 
     await expectFilesFsError(
-      () =>
-        removalEntries(
+      () => {
+        return removalEntries(
           { fs: fixture.fs, root: fixture.root },
           { remove: 'docs/tmp' },
           target(),
           true,
-        ),
+        );
+      },
       'FilesFsError.PolicyDenied',
     );
     expect(fixture.calls.removeEntry).to.eql(0);

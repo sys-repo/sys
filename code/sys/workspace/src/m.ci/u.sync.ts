@@ -40,8 +40,8 @@ export async function sync(args: t.WorkspaceCi.SyncArgs) {
       spinner,
       label: 'syncing JSR workflow...',
       silent,
-      fn: () =>
-        Jsr.sync({
+      fn() {
+        return Jsr.sync({
           cwd,
           env,
           log: false,
@@ -49,7 +49,8 @@ export async function sync(args: t.WorkspaceCi.SyncArgs) {
           source: { paths: jsrPaths },
           target: targets.jsr,
           versionFilter,
-        }),
+        });
+      },
       done: (result) => formatSyncResult('jsr', result),
     });
 
@@ -57,15 +58,16 @@ export async function sync(args: t.WorkspaceCi.SyncArgs) {
       spinner,
       label: 'syncing build workflow...',
       silent,
-      fn: () =>
-        Build.sync({
+      fn() {
+        return Build.sync({
           cwd,
           env,
           log: false,
           on,
           source: { paths: sourcePaths },
           target: targets.build,
-        }),
+        });
+      },
       done: (result) => formatSyncResult('build', result),
     });
 
@@ -73,15 +75,16 @@ export async function sync(args: t.WorkspaceCi.SyncArgs) {
       spinner,
       label: 'syncing test workflow...',
       silent,
-      fn: () =>
-        Test.sync({
+      fn() {
+        return Test.sync({
           cwd,
           env,
           log: false,
           on,
           source: { paths: sourcePaths },
           target: targets.test,
-        }),
+        });
+      },
       done: (result) => formatSyncResult('test', result),
     });
 

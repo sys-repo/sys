@@ -1,4 +1,4 @@
-import { type t, Path } from './common.ts';
+import { Path, type t } from './common.ts';
 import { PullMap } from './u.map.ts';
 
 /**
@@ -69,8 +69,8 @@ export function makeEventQueue<T>() {
   };
 
   const iterator: AsyncIterator<T> = {
-    next: () =>
-      new Promise<IteratorResult<T>>((resolve) => {
+    next() {
+      return new Promise<IteratorResult<T>>((resolve) => {
         if (buffer.length) {
           const value = buffer.shift()!;
           resolve({ value, done: false });
@@ -79,7 +79,8 @@ export function makeEventQueue<T>() {
         } else {
           waiters.push(resolve);
         }
-      }),
+      });
+    },
   };
 
   return {

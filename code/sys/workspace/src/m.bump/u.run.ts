@@ -91,8 +91,9 @@ export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
     spinner,
     label: Fmt.phase({ kind: 'integrity' }),
     silent: !log,
-    fn: () =>
-      wrangle.assertUnselectedStable(collected.candidates, planned.selectedPaths, untouched),
+    fn() {
+      return wrangle.assertUnselectedStable(collected.candidates, planned.selectedPaths, untouched);
+    },
   });
 
   return {

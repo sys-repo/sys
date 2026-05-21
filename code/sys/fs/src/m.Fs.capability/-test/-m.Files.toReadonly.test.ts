@@ -77,11 +77,12 @@ describe('Fs.Capability.Files.toReadonly', () => {
         fixture,
       );
       await expectFilesFsError(
-        () =>
-          backing.handlers['files:manifest'](
+        () => {
+          return backing.handlers['files:manifest'](
             { path: 'docs/leak-dir' },
             context('files:manifest'),
-          ),
+          );
+        },
         'FilesFsError.PathOutsideRoot',
         fixture,
       );

@@ -35,20 +35,21 @@ describe('FilesFs write body utilities', () => {
       'FilesFsError.WriteTooLarge',
     );
     await expectFilesFsError(
-      () =>
-        writeBody(
+      () => {
+        return writeBody(
           { kind: 'bytes', path: PATH, content: new Uint8Array([1, 2]) },
           PATH,
           1 as t.NumberBytes,
-        ),
+        );
+      },
       'FilesFsError.WriteTooLarge',
     );
   });
 
   it('rejects invalid write payload fields with files/fs errors', async () => {
     await expectFilesFsError(
-      () =>
-        writeBody(
+      () => {
+        return writeBody(
           {
             kind: 'text',
             path: PATH,
@@ -57,30 +58,33 @@ describe('FilesFs write body utilities', () => {
           } as unknown as t.FilesCmd.Write.Payload,
           PATH,
           undefined,
-        ),
+        );
+      },
       'FilesFsError.Unsupported',
     );
     await expectFilesFsError(
-      () =>
-        writeBody(
+      () => {
+        return writeBody(
           { kind: 'text', path: PATH, content: 1 } as unknown as t.FilesCmd.Write.Payload,
           PATH,
           undefined,
-        ),
+        );
+      },
       'FilesFsError.InvalidPath',
     );
     await expectFilesFsError(
-      () =>
-        writeBody(
+      () => {
+        return writeBody(
           { kind: 'bytes', path: PATH, content: [1, 2] } as unknown as t.FilesCmd.Write.Payload,
           PATH,
           undefined,
-        ),
+        );
+      },
       'FilesFsError.InvalidPath',
     );
     await expectFilesFsError(
-      () =>
-        writeBody(
+      () => {
+        return writeBody(
           {
             kind: 'text',
             path: PATH,
@@ -89,16 +93,18 @@ describe('FilesFs write body utilities', () => {
           } as unknown as t.FilesCmd.Write.Payload,
           PATH,
           undefined,
-        ),
+        );
+      },
       'FilesFsError.InvalidPath',
     );
     await expectFilesFsError(
-      () =>
-        writeBody(
+      () => {
+        return writeBody(
           { kind: 'other', path: PATH, content: 'x' } as unknown as t.FilesCmd.Write.Payload,
           PATH,
           undefined,
-        ),
+        );
+      },
       'FilesFsError.InvalidPath',
     );
   });

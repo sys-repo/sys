@@ -11,8 +11,8 @@ describe('cli.shell Path', () => {
     const report = await pathList({
       env: (name) => ({ HOME: home, SHELL: '/bin/zsh', PATH: `${home}/.deno/bin:/usr/bin` })[name],
       exists: async (path) => path === zshrc,
-      readText: async () =>
-        `secret before\n# ━━━ BEGIN: @sys/tools:shell ${'━'.repeat(54)}
+      async readText() {
+        return `secret before\n# ━━━ BEGIN: @sys/tools:shell ${'━'.repeat(54)}
 # Generated settings. Do not manually edit. Update with \`sys shell\`.
 
 # path: deno
@@ -23,7 +23,8 @@ case ":$PATH:" in
 esac
 
 # ━━━ END: @sys/tools:shell ${'━'.repeat(56)}
-secret after\n`,
+secret after\n`;
+      },
     });
     const text = Cli.stripAnsi(formatPathList(report));
 
@@ -90,8 +91,9 @@ secret after\n`,
       env: (name) => ({ HOME: home, SHELL: '/bin/zsh', PATH: '/usr/bin' })[name],
       exists: async (path) => path === zshrc,
       readText: async () => original,
-      writeText: async (path, text, options) =>
-        void writes.push({ path, text, force: options?.force }),
+      async writeText(path, text, options) {
+        void writes.push({ path, text, force: options?.force });
+      },
       now: () => NOW,
     });
     const text = Cli.stripAnsi(formatPathAdd(report));

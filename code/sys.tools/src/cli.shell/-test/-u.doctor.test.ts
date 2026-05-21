@@ -7,23 +7,25 @@ describe('cli.shell doctor', () => {
     const home = '/tmp/sys-tools-shell-home' as t.StringDir;
     const zshrc = `${home}/.zshrc` as t.StringPath;
     const report = await doctor({
-      env: (name) =>
-        ({
+      env(name) {
+        return {
           HOME: home,
           SHELL: '/bin/zsh',
           DENO_INSTALL: `${home}/deno`,
           PATH: `/usr/bin:${home}/deno/bin`,
-        })[name],
+        }[name];
+      },
       exists: async (path) => path === zshrc,
-      readText: async () =>
-        `# ━━━ BEGIN: @sys/tools:shell ${'━'.repeat(54)}
+      async readText() {
+        return `# ━━━ BEGIN: @sys/tools:shell ${'━'.repeat(54)}
 # Generated settings. Do not manually edit. Update with \`sys shell\`.
 
 # alias: sys
 alias sys="deno run -A jsr:@sys/tools"
 
 # ━━━ END: @sys/tools:shell ${'━'.repeat(56)}
-`,
+`;
+      },
     });
 
     expect(report.shell).to.eql({ path: '/bin/zsh', dialect: 'zsh', support: 'write' });

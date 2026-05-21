@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fs, Is, Obj, Str, Time } from './common.ts';
+import { c, Cli, Fs, Is, Obj, Str, type t, Time } from './common.ts';
 import { WorkspaceGraph } from '../m.graph/mod.ts';
 import { State } from './m.State.ts';
 import { runPhase } from '../u.phase.ts';
@@ -15,7 +15,8 @@ export const Graph: t.WorkspacePrep.Graph.Lib = {
     if (!ordered.ok) {
       if ('invalid' in ordered) {
         const keys = ordered.invalid.keys.join(', ');
-        const err = `Workspace.Prep.Graph.build: failed to order workspace paths (${ordered.invalid.code}): ${keys}`;
+        const err =
+          `Workspace.Prep.Graph.build: failed to order workspace paths (${ordered.invalid.code}): ${keys}`;
         throw new Error(err);
       }
       throw new Error(wrangle.cycleError(packages, ordered.cycle));
@@ -99,14 +100,15 @@ export const Graph: t.WorkspacePrep.Graph.Lib = {
       label: 'writing workspace graph snapshot...',
       silent,
       fn: () => Graph.write({ cwd, snapshot }),
-      done: (res) =>
-        wrangle.done({
+      done(res) {
+        return wrangle.done({
           cwd,
           graph,
           path: res.path,
           changed: res.changed,
           startedAt: ensureStartedAt,
-        }),
+        });
+      },
     });
   },
 };

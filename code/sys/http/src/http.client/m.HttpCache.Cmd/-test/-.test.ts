@@ -158,10 +158,11 @@ describe('Http.Cache.Cmd', () => {
         open: async (name: string) => {
           if (name === 'my-pkg:media-range-files') {
             return {
-              keys: async () =>
-                index['my-pkg:media-range-files'].map(
+              async keys() {
+                return index['my-pkg:media-range-files'].map(
                   (key) => new Request(`https://example.com/${key}`),
-                ),
+                );
+              },
               match: async (key: string) => {
                 if (key !== '__sys_http_media_range_meta__') return undefined;
                 return new Response(
@@ -234,10 +235,11 @@ describe('Http.Cache.Cmd', () => {
         open: async (name: string) => {
           if (name === 'my-pkg:media-range-files') {
             return {
-              keys: async () =>
-                index['my-pkg:media-range-files'].map(
+              async keys() {
+                return index['my-pkg:media-range-files'].map(
                   (key) => new Request(`https://example.com/${key}`),
-                ),
+                );
+              },
               match: async (key: string) => {
                 if (key !== '__sys_http_media_range_meta__') return undefined;
                 return new Response(
