@@ -1,7 +1,7 @@
 /**
  * Cliffy:
  */
-export type { keypress as CliffyKeypress } from '@cliffy/keypress';
+export type { KeyPressEvent as CliffyKeyPressEvent, keypress as CliffyKeypress } from '@cliffy/keypress';
 export type {
   Checkbox as CliffyCheckbox,
   Confirm as CliffyConfirm,

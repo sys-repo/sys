@@ -25,6 +25,16 @@ describe('CLI: core / m.Cli', () => {
     expect(Cli.copyToClipboard).to.equal(copyToClipboard);
   });
 
+  it('Cli.Keyboard', () => {
+    expect(Cli.Keyboard.isQuit({ key: 'q', ctrlKey: false })).to.eql(true);
+    expect(Cli.Keyboard.isQuit({ key: 'Q', ctrlKey: false })).to.eql(true);
+    expect(Cli.Keyboard.isQuit({ key: 'c', ctrlKey: true })).to.eql(true);
+    expect(Cli.Keyboard.isQuit({ key: 'c', ctrlKey: false })).to.eql(false);
+    expect(Cli.Keyboard.isUnavailableError(new Error('ENOTTY'))).to.eql(true);
+    expect(Cli.Keyboard.isUnavailableError(new Error('boom'))).to.eql(false);
+    expect(Cli.Keyboard.bind({ onQuit() {} })).to.eql(undefined);
+  });
+
   it('Cli.stripAnsi', () => {
     const test = (input: string, output: string) => {
       expect(Cli.stripAnsi(input)).to.eql(output);
