@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t } from '../common.ts';
 
 /** Walk a directory through `@sys/fs`, preserving the readonly Files empty-on-failure contract. */
 export async function* walk(

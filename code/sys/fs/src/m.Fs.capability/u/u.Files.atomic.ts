@@ -1,4 +1,4 @@
-import { slug, type t } from './common.ts';
+import { slug, type t } from '../common.ts';
 
 const TEMP_PREFIX = '.sys-files-atomic-';
 const TEMP_SUFFIX = '.tmp';

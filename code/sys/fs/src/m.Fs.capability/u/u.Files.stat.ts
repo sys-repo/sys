@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t } from '../common.ts';
 
 /** Stat a path through `@sys/fs`, preserving the readonly Files absence contract. */
 export async function stat(

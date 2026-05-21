@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t } from '../common.ts';
 
 type WatchOptions = t.FsCapability.Files.WatchOptions & {
   readonly includePath?: (path: t.StringPath) => boolean;

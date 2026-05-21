@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t } from '../common.ts';
 
 /** Resolve a real path, preserving the readonly Files not-found/unreadable-as-undefined contract. */
 export async function realPath(

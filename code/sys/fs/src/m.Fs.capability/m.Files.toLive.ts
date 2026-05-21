@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 import { toReadonly } from './m.Files.toReadonly.ts';
-import { watch } from './u.Files.watch.ts';
+import { watch } from './u/u.Files.watch.ts';
 
 /**
  * Adapt `@sys/fs` into the live readonly+watch capability expected by `@sys/model/files/fs`.

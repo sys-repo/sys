@@ -1,7 +1,7 @@
 import { type t } from './common.ts';
 import { toWritable } from './m.Files.toWritable.ts';
-import { isAtomicTempPath } from './u.Files.atomic.ts';
-import { watch } from './u.Files.watch.ts';
+import { isAtomicTempPath } from './u/u.Files.atomic.ts';
+import { watch } from './u/u.Files.watch.ts';
 
 /**
  * Adapt `@sys/fs` into the writable live capability expected by `@sys/model/files/fs`.

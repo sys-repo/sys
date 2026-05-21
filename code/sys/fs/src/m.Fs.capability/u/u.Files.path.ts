@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t } from '../common.ts';
 
 /** Adapt the `@sys/fs` Path namespace to the readonly Files path capability. */
 export const toPathCapability = (fs: t.Fs.Lib): t.FsCapability.Files.Path => ({
