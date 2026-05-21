@@ -4,6 +4,15 @@
 
 This arc is complete and retired as of the final root-menu surfacing commit.
 
+## Lifecycle cleanup
+
+This file is complete and ready to retire from live working context once the cleanup commit below is
+present in history.
+
+```text
+plan(archive): close sys shell path alias helper
+```
+
 Implemented commit sequence:
 
 ```text
