@@ -10,7 +10,18 @@ export async function keyboard(args: {
   dispose?: () => Promise<void>;
 }) {
   try {
-    if (!Deno.stdin.isTerminal()) return;
+    const sh = Process.sh();
+    const handle = Cli.Keyboard.bind({
+      exit: args.exit ?? true,
+      onQuit: async () => void await args.dispose?.(),
+      onKey(e) {
+        if (e.key !== 'o') return;
+        const url = args.url ?? `http://localhost:${args.port}`;
+        sh.run(`open ${url}`);
+      },
+    });
+    if (!handle) return;
+
     if (args.print) {
       const branch = (isLast: boolean, indent = 0) => {
         const b = Cli.Fmt.Tree.branch(isLast);
@@ -26,33 +37,9 @@ export async function keyboard(args: {
       console.info(String(str));
     }
 
-    const sh = Process.sh();
-    for await (const e of Cli.keypress()) {
-      /**
-       * OPEN → open the local browser and point it at the running port.
-       */
-      if (e.key === 'o') {
-        const url = args.url ?? `http://localhost:${args.port}`;
-        sh.run(`open ${url}`);
-      }
-
-      /**
-       * QUIT → shutdown server and optionally exit.
-       */
-      let isQuit = false;
-      if (e.ctrlKey && e.key === 'c') isQuit = true;
-      if (e.key === 'q') isQuit = true;
-      if (isQuit) {
-        await args.dispose?.();
-        if (args.exit ?? true) Deno.exit(0);
-        return;
-      }
-    }
+    await handle.finished;
   } catch (error) {
-    if (error instanceof Deno.errors.BadResource) return;
-    if (
-      error instanceof Error && /ENODEV|ENOTTY|No such device|Not a typewriter/i.test(error.message)
-    ) return;
+    if (Cli.Keyboard.isUnavailableError(error)) return;
     throw error;
   }
 }
