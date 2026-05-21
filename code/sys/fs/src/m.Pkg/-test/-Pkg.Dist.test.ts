@@ -1,10 +1,10 @@
-import { type t, describe, expect, it, pkg } from '../-test.ts';
-import { pkg as fsPkg } from '../pkg.ts';
-import { Dir } from '../mod.ts';
-import { Sample } from './-u.ts';
-import { D, Fs, Ignore, Is, JsrUrl, Path, R, Str, Time, c } from './common.ts';
-import { Dist } from './m.Pkg.Dist.ts';
-import { Pkg } from './mod.ts';
+import { type t, describe, expect, it, pkg } from '../../-test.ts';
+import { pkg as fsPkg } from '../../pkg.ts';
+import { Dir } from '../../mod.ts';
+import { Sample } from './-u.fixture.ts';
+import { D, Fs, Ignore, Is, JsrUrl, Path, R, Str, Time, c } from '../common.ts';
+import { Dist } from '../m.Pkg.Dist.ts';
+import { Pkg } from '../mod.ts';
 
 describe('Pkg.Dist', () => {
   const renderDist = (dist: t.DistPkg) => {

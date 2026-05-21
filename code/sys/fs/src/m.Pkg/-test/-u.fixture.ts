@@ -1,6 +1,6 @@
-import { pkg } from '../-test.ts';
-import { Fs } from './common.ts';
-import { Pkg } from './mod.ts';
+import { pkg } from '../../-test.ts';
+import { Fs } from '../common.ts';
+import { Pkg } from '../mod.ts';
 
 export const Sample = {
   dir: Fs.resolve('./src/-test/-sample-5'),

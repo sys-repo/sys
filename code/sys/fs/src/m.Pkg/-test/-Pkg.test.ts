@@ -1,5 +1,5 @@
-import { describe, expect, it } from '../-test.ts';
-import { Pkg } from './mod.ts';
+import { describe, expect, it } from '../../-test.ts';
+import { Pkg } from '../mod.ts';
 
 describe('Pkg (Server Tools)', () => {
   it('is not the [sys.std] client version, but surfaces all the [sys.std] interface', async () => {
