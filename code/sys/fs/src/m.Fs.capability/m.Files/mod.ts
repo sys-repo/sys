@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t } from '../common.ts';
 import { toLive } from './m.Files.toLive.ts';
 import { toLiveWritable } from './m.Files.toLiveWritable.ts';
 import { toReadonly } from './m.Files.toReadonly.ts';
