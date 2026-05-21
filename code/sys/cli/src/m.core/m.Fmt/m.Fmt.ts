@@ -9,6 +9,7 @@ import { Help } from './m.Fmt.Help.ts';
 import { hr } from './m.Fmt.Hr.ts';
 import { spinnerRaw, spinnerText } from './m.Fmt.spinnerText.ts';
 import { Tree } from './m.Fmt.Tree.ts';
+import { UrlFmt } from './m.Fmt.Url.ts';
 
 export const Path: t.CliFormat.Lib['Path'] = {
   str: (path) => c.gray(Fmt.path(path, Fmt.Path.fmt())),
@@ -27,6 +28,7 @@ export const Fmt: t.CliFormat.Lib = {
   Chapters,
   Tree,
   Path,
+  Url: UrlFmt,
   path: PathFormat.string,
   spinnerRaw,
   spinnerText,

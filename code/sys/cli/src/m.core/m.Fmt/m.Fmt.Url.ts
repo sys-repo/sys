@@ -1,4 +1,4 @@
-import { c, type t, Url } from './common.ts';
+import { c, Str, type t, Url } from '../common.ts';
 
 type ServiceUrlBaseScore = readonly [
   depth: number,
@@ -8,8 +8,9 @@ type ServiceUrlBaseScore = readonly [
   hrefLength: number,
 ];
 
-export const FmtUrl = {
-  service(url: t.Service.Url, options: { readonly highlightOrigin?: boolean } = {}): string {
+/** CLI formatting helpers for service URLs. */
+export const UrlFmt: t.CliFormat.Lib['Url'] = {
+  service(url, options = {}) {
     const origin = options.highlightOrigin ? c.cyan : c.gray;
     const parsed = Url.parse(url.href);
     if (!parsed.ok) return origin(url.href);
@@ -19,7 +20,7 @@ export const FmtUrl = {
     return `${origin(value.origin)}${c.gray(suffix)}`;
   },
 
-  orderBaseLast(urls: readonly t.Service.Url[]): readonly t.Service.Url[] {
+  orderBaseLast(urls) {
     const baseIndex = mostBaseUrlIndex(urls);
     if (baseIndex < 0 || baseIndex === urls.length - 1) return urls;
 
@@ -28,7 +29,7 @@ export const FmtUrl = {
     ordered.push(base);
     return ordered;
   },
-} as const;
+};
 
 /**
  * Helpers:
@@ -38,7 +39,7 @@ function mostBaseUrlIndex(urls: readonly t.Service.Url[]): number {
   urls.forEach((url, index) => {
     const score = serviceUrlBaseScore(url);
     if (!score) return;
-    if (!best || compareBaseScore(score, best.score) < 0) best = { index, score };
+    if (!best || compareScore(score, best.score) < 0) best = { index, score };
   });
   return best?.index ?? urls.length - 1;
 }
@@ -48,7 +49,7 @@ function serviceUrlBaseScore(url: t.Service.Url): ServiceUrlBaseScore | undefine
   if (!parsed.ok) return;
 
   const value = parsed.toURL();
-  const pathname = normalizePathname(value.pathname);
+  const pathname = Str.trimTrailingSlashes(value.pathname) || '/';
   return [
     pathDepth(pathname),
     pathname.length,
@@ -58,19 +59,16 @@ function serviceUrlBaseScore(url: t.Service.Url): ServiceUrlBaseScore | undefine
   ];
 }
 
-function compareBaseScore(a: ServiceUrlBaseScore, b: ServiceUrlBaseScore): number {
-  for (let i = 0; i < a.length; i++) {
+function compareScore(a: readonly number[], b: readonly number[]): number {
+  const length = Math.min(a.length, b.length);
+  for (let i = 0; i < length; i++) {
     const diff = a[i] - b[i];
     if (diff !== 0) return diff;
   }
-  return 0;
-}
-
-function normalizePathname(pathname: string): string {
-  return pathname.replace(/\/+$/, '') || '/';
+  return a.length - b.length;
 }
 
 function pathDepth(pathname: string): number {
   if (pathname === '/') return 0;
-  return pathname.split('/').filter(Boolean).length;
+  return Str.splitPathSegments(pathname).length;
 }

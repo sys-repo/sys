@@ -1,7 +1,7 @@
 import type { StartedServiceStatus } from '../m.cell/u.services/u.status.ts';
 import { c, Cli, CliTable, Is, Str, type t } from './common.ts';
 import { FmtPath } from './u.fmt.path.ts';
-import { FmtUrl } from './u.fmt.url.ts';
+
 
 type ServicesStartedResult = {
   services: readonly StartedServiceStatus[];
@@ -47,10 +47,13 @@ function pushServiceUrls(
   table: ReturnType<typeof CliTable.create>,
   urls: readonly t.Service.Url[],
 ) {
-  const ordered = FmtUrl.orderBaseLast(urls);
+  const ordered = Cli.Fmt.Url.orderBaseLast(urls);
   ordered.forEach((url, index) => {
     const highlightOrigin = index === ordered.length - 1;
-    table.push([index === 0 ? serviceLabel('url') : '', FmtUrl.service(url, { highlightOrigin })]);
+    table.push([
+      index === 0 ? serviceLabel('url') : '',
+      Cli.Fmt.Url.service(url, { highlightOrigin }),
+    ]);
   });
 }
 

@@ -1,5 +1,5 @@
-import { describe, expect, it } from '../../-test.ts';
-import { c, Cli, type t } from '../common.ts';
+import { c, describe, expect, it, type t } from '../../../-test.ts';
+import { Fmt } from '../mod.ts';
 
 describe('Cli.Fmt.Url', () => {
   it('orders the most base URL last', () => {
@@ -10,7 +10,7 @@ describe('Cli.Fmt.Url', () => {
       serviceUrl('http://localhost:8081/-/stripe/'),
     ];
 
-    expect(Cli.Fmt.Url.orderBaseLast(urls).map((url) => url.href)).to.eql([
+    expect(Fmt.Url.orderBaseLast(urls).map((url) => url.href)).to.eql([
       'http://localhost:8081/payments/',
       'http://localhost:8081/view/',
       'http://localhost:8081/-/stripe/',
@@ -26,7 +26,7 @@ describe('Cli.Fmt.Url', () => {
       serviceUrl('http://localhost:8081/'),
     ];
 
-    expect(Cli.Fmt.Url.orderBaseLast(urls).map((url) => url.href)).to.eql([
+    expect(Fmt.Url.orderBaseLast(urls).map((url) => url.href)).to.eql([
       'http://localhost:8081/view/',
       'http://localhost:8081/?preview=true',
       'http://localhost:8081/#status',
@@ -35,10 +35,10 @@ describe('Cli.Fmt.Url', () => {
   });
 
   it('highlights only the selected origin', () => {
-    expect(
-      Cli.Fmt.Url.service(serviceUrl('http://localhost:8081/'), { highlightOrigin: true }),
-    ).to.eql(`${c.cyan('http://localhost:8081')}${c.gray('/')}`);
-    expect(Cli.Fmt.Url.service(serviceUrl('http://localhost:8081/payments/'))).to.eql(
+    expect(Fmt.Url.service(serviceUrl('http://localhost:8081/'), { highlightOrigin: true })).to.eql(
+      `${c.cyan('http://localhost:8081')}${c.gray('/')}`,
+    );
+    expect(Fmt.Url.service(serviceUrl('http://localhost:8081/payments/'))).to.eql(
       `${c.gray('http://localhost:8081')}${c.gray('/payments/')}`,
     );
   });

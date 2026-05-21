@@ -42,6 +42,15 @@ export declare namespace CliFormat {
       fmt: (opts?: {}) => t.PathFormatter;
     };
 
+    /** Service URL formatting and presentation ordering helpers. */
+    readonly Url: {
+      service(
+        url: t.Service.Url,
+        options?: { readonly highlightOrigin?: boolean },
+      ): string;
+      orderBaseLast(urls: readonly t.Service.Url[]): readonly t.Service.Url[];
+    };
+
     /** Glyphs and helpers for rendering a tree hierarchy. */
     readonly Tree: {
       readonly vert: '│';
