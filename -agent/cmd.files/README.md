@@ -1,0 +1,22 @@
+# Files plans
+
+- `static-dist-seam-hardening.plan.md`
+  - [ ] Add FilesManifest vs DistPkg seam notes/JSDoc.
+  - [ ] Add a production source-boundary test forbidding dist coupling outside the static seam.
+  - [ ] Keep/sharpen existing graph-boundary tests.
+  - [ ] Optionally narrow the model common helper pool only if seam tests prove friction.
+  - [ ] Add canon/truth note after the seam test proves the invariant.
+  - [ ] Do not brand `FilesManifest` / `DistPkg` unless their shapes converge enough to create real assignment risk.
+  - [ ] Best small next task: seam notes + source-boundary test as one boundary commit.
+- `transport-fidelity-hardening.plan.md`
+  - [ ] Decide/document JSON-safe representation for Files byte payloads over JSON transports.
+  - [ ] Prove and implement byte writes over WebSocket Cmd.
+  - [ ] Prove and implement byte writes over HTTP Cmd.
+  - [ ] Make HTTP Files `watch` semantics explicit for unary transport.
+  - [ ] Resolve `Watch.Payload.since` cursor/resume semantics.
+  - [ ] Tighten dynamic binary read behavior for memory/fs backings.
+  - [ ] Preserve structured Files domain errors over remote Cmd transports.
+  - [ ] Run/maintain boundary and regression validation across model/fs/http/server/event.
+  - [ ] Update server DSL/help/speech acts to match hosted startup and `Files.Client.websocket(...)`.
+- `server-websocket-sample-polish.plan.md`
+  - [ ] Factor keyboard-related server types into a dedicated namespace, e.g. `WebSocketServer.Keyboard.Options` / `WebSocketServer.Keyboard.Input`.
