@@ -1,4 +1,4 @@
-import type { t } from './common.ts';
+import type { t } from '../common.ts';
 
 /** Filter on file paths. */
 export type FsFileFilter = (file: t.FsFile) => boolean;

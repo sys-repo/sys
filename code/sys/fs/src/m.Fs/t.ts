@@ -4,9 +4,9 @@ import type * as StdPath from '@std/path';
 import type { WalkEntry } from '@std/fs';
 import type { t } from './common.ts';
 
-export type * from './t.Dir.ts';
-export type * from './t.File.ts';
-export type * from './t.Fmt.ts';
+export type * from './t/t.Dir.ts';
+export type * from './t/t.File.ts';
+export type * from './t/t.Fmt.ts';
 export type { WalkEntry };
 
 type Methods = StdMethods & DenoMethods & NamespaceMembers & GlobMethods;
