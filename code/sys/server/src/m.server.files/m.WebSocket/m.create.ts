@@ -4,9 +4,9 @@ import { toWebSocketOptions } from './u.options.ts';
 /** Create a running Files/WebSocket service with caller-owned lifecycle. */
 export const create: t.FilesServer.WebSocket.Lib['create'] = (options) => {
   return WebSocketServer.create<
-    t.FilesCmd.Name,
-    t.FilesCmd.Payload,
-    t.FilesCmd.Result,
-    t.FilesCmd.Event
+    t.Files.Cmd.Name,
+    t.Files.Cmd.Payload,
+    t.Files.Cmd.Result,
+    t.Files.Cmd.Event
   >(toWebSocketOptions(options));
 };

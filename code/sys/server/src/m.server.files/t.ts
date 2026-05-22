@@ -19,7 +19,7 @@ export declare namespace FilesServer {
     readonly capabilities: t.Files.Capabilities;
 
     /** Canonical Files Cmd handlers. */
-    readonly handlers: t.FilesCmd.HandlerMap;
+    readonly handlers: t.Files.Cmd.HandlerMap;
   };
 
   /** WebSocket service facade. */
@@ -36,10 +36,10 @@ export declare namespace FilesServer {
     /** Base WebSocket options accepted by the Files facade. */
     export type WebSocketOptions = Omit<
       t.WebSocketServer.CreateOptions<
-        t.FilesCmd.Name,
-        t.FilesCmd.Payload,
-        t.FilesCmd.Result,
-        t.FilesCmd.Event
+        t.Files.Cmd.Name,
+        t.Files.Cmd.Payload,
+        t.Files.Cmd.Result,
+        t.Files.Cmd.Event
       >,
       'cmd' | 'status'
     >;
@@ -56,10 +56,10 @@ export declare namespace FilesServer {
     /** Hosted startup controls inherited from the WebSocket server primitive. */
     export type HostedOptions = Pick<
       t.WebSocketServer.StartOptions<
-        t.FilesCmd.Name,
-        t.FilesCmd.Payload,
-        t.FilesCmd.Result,
-        t.FilesCmd.Event
+        t.Files.Cmd.Name,
+        t.Files.Cmd.Payload,
+        t.Files.Cmd.Result,
+        t.Files.Cmd.Event
       >,
       'lifecycle' | 'silent' | 'keyboard'
     >;

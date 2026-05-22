@@ -8,9 +8,9 @@ import { context, expectFilesFsError, POLICY, setupFixture } from './u.fixture.t
 
 type WatchContext = {
   readonly context: TCmd.Handler.Context<
-    TModel.FilesCmd.Name,
-    TModel.FilesCmd.Event,
-    TModel.FilesCmd.Name.Watch
+    TModel.Files.Cmd.Name,
+    TModel.Files.Cmd.Event,
+    TModel.Files.Cmd.Name.Watch
   >;
   readonly stop: () => void;
 };
@@ -25,7 +25,7 @@ type ChangeMatch = {
 const LIVE_POLICY = {
   ...POLICY,
   watch: '**',
-} satisfies TModel.FilesPolicy.Shape;
+} satisfies TModel.Files.Policy.Shape;
 
 describe('Fs.Capability.Files.Readonly.live', () => {
   it('adapts @sys/fs to the live files/fs capability without write/remove authority', async () => {
@@ -67,7 +67,7 @@ describe('Fs.Capability.Files.Readonly.live', () => {
     const fixture = await setupFixture();
     const events: TModel.Files.Change[] = [];
     const watcher = watchContext(events);
-    let done: Promise<TModel.FilesCmd.Watch.Result> | undefined;
+    let done: Promise<TModel.Files.Cmd.Watch.Result> | undefined;
 
     try {
       const cap = Fs.Capability.Files.Readonly.live(Fs);
@@ -142,7 +142,7 @@ describe('Fs.Capability.Files.Readonly.live', () => {
       },
     } satisfies t.Fs.Lib;
     const watcher = watchContext([]);
-    let done: Promise<TModel.FilesCmd.Watch.Result> | undefined;
+    let done: Promise<TModel.Files.Cmd.Watch.Result> | undefined;
 
     try {
       const cap = Fs.Capability.Files.Readonly.live(fs);

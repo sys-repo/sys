@@ -1,11 +1,11 @@
 import type {
-  Context as HonoContext,
+  Context as THonoContext,
   Hono,
-  MiddlewareHandler as HonoMiddlewareHandler,
-  Schema as HonoSchema,
+  MiddlewareHandler as THonoMiddlewareHandler,
+  Schema as THonoSchema,
 } from 'hono';
 import type { cors } from 'hono/cors';
-import type { BlankSchema as HonoBlankSchema, Env as HonoEnv } from 'hono/types';
+import type { BlankSchema as THonoBlankSchema, Env as THonoEnv } from 'hono/types';
 import type { t } from './common.ts';
 
 /**
@@ -151,21 +151,25 @@ export type HttpServeStatic = (
 ) => t.HonoMiddlewareHandler;
 
 /** Options passed to the static server middleware. */
-export type HttpServeStaticOptions<E extends HonoEnv = HonoEnv> = {
+export type HttpServeStaticOptions<E extends THonoEnv = THonoEnv> = {
   root?: string;
   path?: string;
   precompressed?: boolean;
   mimes?: Record<string, string>;
   rewriteRequestPath?: (path: string) => string;
-  onFound?: (path: string, c: HonoContext<E>) => void | Promise<void>;
-  onNotFound?: (path: string, c: HonoContext<E>) => void | Promise<void>;
+  onFound?: (path: string, c: THonoContext<E>) => void | Promise<void>;
+  onNotFound?: (path: string, c: THonoContext<E>) => void | Promise<void>;
 };
 
 /**
  * Hono Server (application instnace).
  */
-export type HonoApp = Hono<HonoEnv, HonoBlankSchema, '/'>;
-export type { HonoBlankSchema, HonoContext, HonoEnv, HonoMiddlewareHandler, HonoSchema };
+export type HonoApp = Hono<THonoEnv, THonoBlankSchema, '/'>;
+export type HonoBlankSchema = THonoBlankSchema;
+export type HonoContext = THonoContext;
+export type HonoEnv = THonoEnv;
+export type HonoMiddlewareHandler = THonoMiddlewareHandler;
+export type HonoSchema = THonoSchema;
 
 /**
  * Context passed into route handlers.

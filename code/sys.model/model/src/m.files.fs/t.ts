@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-import type { Files as FilesModel } from '../m.files/t.ts';
+import type { Files as TFilesModel } from '../m.files/t.ts';
 import type { Runtime } from '../m.files/t/t.u.runtime.ts';
 import type { Error as TError } from '../m.files/t/t.u.error.ts';
 import type { Live as TLive } from '../m.files/t/t.u.live.ts';
@@ -13,7 +13,7 @@ import type { FilesFsCapability } from './t.capability.ts';
  */
 export declare namespace FilesFs {
   /** Files model runtime surface with filesystem backing adapters attached at `Files.Fs`. */
-  export type FilesLib = FilesModel.Lib & {
+  export type FilesLib = TFilesModel.Lib & {
     /** Filesystem-shaped backing adapters. */
     readonly Fs: Lib;
   };

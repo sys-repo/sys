@@ -4,9 +4,9 @@ import { toWebSocketOptions } from './u.options.ts';
 /** Hosted startup convenience for a Files/WebSocket service. */
 export const start: t.FilesServer.WebSocket.Lib['start'] = (options) => {
   return WebSocketServer.start<
-    t.FilesCmd.Name,
-    t.FilesCmd.Payload,
-    t.FilesCmd.Result,
-    t.FilesCmd.Event
+    t.Files.Cmd.Name,
+    t.Files.Cmd.Payload,
+    t.Files.Cmd.Result,
+    t.Files.Cmd.Event
   >(toWebSocketOptions(options));
 };

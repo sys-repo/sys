@@ -38,7 +38,7 @@ describe('FilesServer.WebSocket.create', () => {
         await Fixture.direct(backing, Files.Cmd.Name.capabilities, {}),
       );
 
-      const listPayload = { depth: 2 } satisfies t.FilesCmd.List.Payload;
+      const listPayload = { depth: 2 } satisfies t.Files.Cmd.List.Payload;
       const list = await remote.client.send(Files.Cmd.Name.list, listPayload);
       expect(list).to.eql(await Fixture.direct(backing, Files.Cmd.Name.list, listPayload));
       expect(list.entries.map((entry) => entry.path)).to.eql([
@@ -47,7 +47,7 @@ describe('FilesServer.WebSocket.create', () => {
         'notes/baz.md',
       ]);
 
-      const readPayload = { path: 'foo.json' } satisfies t.FilesCmd.Read.Payload;
+      const readPayload = { path: 'foo.json' } satisfies t.Files.Cmd.Read.Payload;
       const read = await remote.client.send(Files.Cmd.Name.read, readPayload);
       expect(read).to.eql(await Fixture.direct(backing, Files.Cmd.Name.read, readPayload));
       expect(read).to.eql({

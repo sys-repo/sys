@@ -1,6 +1,6 @@
 import type { Cmd } from '@sys/event/t';
 import { Files } from '@sys/model/files/fs';
-import type { FilesCmd } from '@sys/model/files/t';
+import type * as TFiles from '@sys/model/files/t';
 import { Fs } from '../../-test.ts';
 
 type ReadTextOptions = {
@@ -31,9 +31,9 @@ async function readText(options: ReadTextOptions): Promise<string> {
   return read.content;
 }
 
-function context<K extends FilesCmd.Name>(
+function context<K extends TFiles.Files.Cmd.Name>(
   name: K,
-): Cmd.Handler.Context<FilesCmd.Name, FilesCmd.Event, K> {
+): Cmd.Handler.Context<TFiles.Files.Cmd.Name, TFiles.Files.Cmd.Event, K> {
   const controller = new AbortController();
   return {
     id: 'req-fixture' as Cmd.ReqId,

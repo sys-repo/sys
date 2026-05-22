@@ -11,7 +11,7 @@ const MUTABLE_POLICY = {
   write: '**',
   remove: '**',
   manifest: true,
-} satisfies TModel.FilesPolicy.Shape;
+} satisfies TModel.Files.Policy.Shape;
 
 describe('Fs.Capability.Files.Writable', () => {
   it('adapts @sys/fs to the files/fs writable capability', async () => {

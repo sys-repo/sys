@@ -1,7 +1,7 @@
 import { Files } from '@sys/model/files';
-import type { Files as FilesType, FilesCmd } from '@sys/model/files/t';
+import type * as TFiles from '@sys/model/files/t';
 import { FilesStatic } from '@sys/model/files/static';
-import type { FilesStatic as FilesStaticType } from '@sys/model/files/static/t';
+import type * as TFilesStatic from '@sys/model/files/static/t';
 import { describe, expect, it, Pkg, type t, Testing } from '../../-test.ts';
 import { HttpCmd } from '../mod.ts';
 
@@ -26,7 +26,7 @@ describe('HttpCmd + FilesStatic dist integration', () => {
     });
     const policy = Files.Policy.readonly('**', { deny: 'notes/baz.md' });
     const requests: string[] = [];
-    let backing: FilesStaticType.Readonly | undefined;
+    let backing: TFilesStatic.FilesStatic.Readonly | undefined;
 
     const server = Testing.Http.server((request) => {
       const url = new URL(request.url);
@@ -49,7 +49,7 @@ describe('HttpCmd + FilesStatic dist integration', () => {
 
     const origin = server.url.toURL().origin as t.StringUrl;
     const cmdUrl = `${origin}${ROUTE.cmd}` as t.StringUrl;
-    const client = HttpCmd.client<FilesCmd.Name, FilesCmd.Payload, FilesCmd.Result>({
+    const client = HttpCmd.client<TFiles.Files.Cmd.Name, TFiles.Files.Cmd.Payload, TFiles.Files.Cmd.Result>({
       url: cmdUrl,
       ns: Files.Cmd.ns,
       timeout: 1_000,
@@ -177,13 +177,13 @@ function part(hash: t.StringHash, size: t.NumberBytes): t.StringFileHashUri {
   return `${hash}:size=${size}`;
 }
 
-function entryPaths(entries: readonly FilesType.Entry[]): readonly FilesType.String.Path[] {
+function entryPaths(entries: readonly TFiles.Files.Entry[]): readonly TFiles.Files.String.Path[] {
   return entries.map((entry) => entry.path);
 }
 
 async function expectRemoteCmdError(
   fn: () => Promise<unknown>,
-  name: FilesCmd.Name,
+  name: TFiles.Files.Cmd.Name,
 ): Promise<t.Cmd.Error.Instance> {
   try {
     await fn();

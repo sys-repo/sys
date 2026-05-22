@@ -10,7 +10,7 @@ describe('sample:files:ws', () => {
       silent: true,
     });
 
-    let client: t.FilesClient.WebSocket | undefined;
+    let client: t.Files.Client.WebSocket | undefined;
 
     try {
       await Time.waitFor(async () => {

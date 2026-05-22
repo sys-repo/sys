@@ -1,5 +1,4 @@
 import { Fs } from '@sys/fs';
-import type { FilesPolicy } from '@sys/model/files/t';
 import { Files } from '@sys/model/files/fs';
 import { FilesMemory } from '@sys/model/files/memory';
 import { describe, expect, Is, it, type t } from '../../-test.ts';
@@ -13,7 +12,7 @@ const MEMORY_LIVE_POLICY = {
   remove: '**',
   watch: '**',
   manifest: true,
-} satisfies FilesPolicy.Shape;
+} satisfies t.Files.Policy.Shape;
 
 const REAL_FS_LIVE_POLICY = Files.Policy.readonly('docs/**', { watch: 'docs/**' });
 
@@ -25,7 +24,7 @@ const REAL_FS_WRITABLE_LIVE_POLICY = {
   remove: 'docs/**',
   watch: 'docs/**',
   manifest: true,
-} satisfies FilesPolicy.Shape;
+} satisfies t.Files.Policy.Shape;
 
 describe('FilesServer.WebSocket.create: live files watch', () => {
   it('streams memory files watch events over websocket while Cmd read remains truth', async () => {
