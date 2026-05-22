@@ -16,6 +16,35 @@ deno run -ER jsr:@sys/server dsl websocket
 deno run -ER jsr:@sys/server dsl websocket.cmd --format skill
 ```
 
+#### Files WebSocket service endpoint
+
+Use `FilesWebSocketService` from `jsr:@sys/server/files/service` when Cell should own a
+bounded Files-over-WebSocket service lifecycle.
+
+```yaml
+services:
+  - name: shell:files
+    use: FilesWebSocketService
+    from: 'jsr:@sys/server/files/service'
+    config: ./-config/@sys.server.files/shell.yaml
+```
+
+Service config is strict, schema-backed YAML:
+
+```yaml
+name: shell:files
+root: ./-sample/app
+path: /files
+port: 5176
+watch: true
+policy: '**'
+```
+
+`root` resolves relative to the service `cwd` and may not escape it. Defaults are
+`path: /files`, `policy: '**'`, and `watch: false`. The endpoint accepts Cell `silent` args for
+compatibility, but calls `FilesServer.WebSocket.create(...)`; hosted output, keyboard, and process
+signal behavior remain `start(...)` concerns.
+
 #### WebSocket Cmd transport
 
 Use `WebSocketServer` to bind typed [`@sys/event/cmd`](https://jsr.io/@sys/event/doc/cmd)
