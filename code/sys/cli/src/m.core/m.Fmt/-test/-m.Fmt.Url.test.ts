@@ -1,4 +1,4 @@
-import { c, describe, expect, it, type t } from '../../../-test.ts';
+import { describe, expect, it, stripAnsi, type t } from '../../../-test.ts';
 import { Fmt } from '../mod.ts';
 
 describe('Cli.Fmt.Url', () => {
@@ -34,13 +34,20 @@ describe('Cli.Fmt.Url', () => {
     ]);
   });
 
-  it('highlights only the selected origin, with emphasized port', () => {
-    expect(Fmt.Url.service(serviceUrl('http://localhost:8081/'), { highlightOrigin: true })).to.eql(
-      `${c.cyan('http://localhost:')}${c.bold(c.cyan('8081'))}${c.gray('/')}`,
+  it('formats service URLs', () => {
+    expect(stripAnsi(Fmt.Url.service(serviceUrl('http://localhost:8081/'), { highlightOrigin: true })))
+      .to.eql('http://localhost:8081/');
+    expect(stripAnsi(Fmt.Url.service(serviceUrl('http://localhost:8081/payments/')))).to.eql(
+      'http://localhost:8081/payments/',
     );
-    expect(Fmt.Url.service(serviceUrl('http://localhost:8081/payments/'))).to.eql(
-      `${c.gray('http://localhost:8081')}${c.gray('/payments/')}`,
+  });
+
+  it('displays loopback IPv4 URLs as localhost', () => {
+    expect(stripAnsi(Fmt.Url.service(serviceUrl('ws://127.0.0.1:5176/files')))).to.eql(
+      'ws://localhost:5176/files',
     );
+    expect(stripAnsi(Fmt.Url.service(serviceUrl('ws://127.0.0.1:5176/files'), { highlightOrigin: true })))
+      .to.eql('ws://localhost:5176/files');
   });
 });
 

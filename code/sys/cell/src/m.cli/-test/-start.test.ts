@@ -74,26 +74,26 @@ describe(`@sys/cell/cli start`, () => {
     expect(text).to.contain('module');
     expect(text).to.contain('./-services/status.ts');
     expect(text).to.contain(Fs.join(fs.dir, 'view'));
-    expect(text).to.contain('http://127.0.0.1:4321/view/');
-    expect(text).to.contain('http://127.0.0.1:4321/payments/');
-    expect(text).to.contain('http://127.0.0.1:4321/');
-    const highlightedOrigin = `${c.cyan('http://127.0.0.1:')}${c.bold(c.cyan('4321'))}`;
+    expect(text).to.contain('http://localhost:4321/view/');
+    expect(text).to.contain('http://localhost:4321/payments/');
+    expect(text).to.contain('http://localhost:4321/');
+    const highlightedOrigin = `${c.cyan('http://localhost:')}${c.bold(c.cyan('4321'))}`;
     expect(res.text).to.contain(highlightedOrigin);
     expect(res.text.split(highlightedOrigin).length - 1).to.eql(2);
-    expect(res.text.split(c.gray('http://127.0.0.1:4321')).length - 1).to.eql(4);
+    expect(res.text.split(c.gray('http://localhost:4321')).length - 1).to.eql(4);
     expect(res.text).to.contain(`${highlightedOrigin}${c.gray('/')}`);
     expect(res.text).to.contain(c.gray('/view/'));
     expect(text).to.contain('dist');
     expect(text).to.contain('dist/');
-    expect(text.indexOf('dist/')).to.be.lessThan(text.indexOf('http://127.0.0.1:4321/view/'));
+    expect(text.indexOf('dist/')).to.be.lessThan(text.indexOf('http://localhost:4321/view/'));
     expect(text).to.contain('services   2');
 
     const divider = stripAnsi(c.dim(c.gray(Cli.Fmt.hr())));
     const previewBlock = text.slice(0, text.indexOf(divider));
     expect(serviceUrlsOf(previewBlock)).to.eql([
-      'http://127.0.0.1:4321/view/',
-      'http://127.0.0.1:4321/payments/',
-      'http://127.0.0.1:4321/',
+      'http://localhost:4321/view/',
+      'http://localhost:4321/payments/',
+      'http://localhost:4321/',
     ]);
     expect(text.split(divider).length - 1).to.eql(1);
     expect(text.indexOf('preview')).to.be.lessThan(text.indexOf(divider));

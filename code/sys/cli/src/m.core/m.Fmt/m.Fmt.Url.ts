@@ -15,7 +15,7 @@ export const UrlFmt: t.CliFormat.Lib['Url'] = {
     if (!parsed.ok) return (options.highlightOrigin ? c.cyan : c.gray)(url.href);
 
     const value = parsed.toURL();
-    const origin = options.highlightOrigin ? highlightOrigin(value) : c.gray(value.origin);
+    const origin = options.highlightOrigin ? highlightOrigin(value) : c.gray(displayOrigin(value));
     const suffix = `${value.pathname}${value.search}${value.hash}` || '/';
     return `${origin}${c.gray(suffix)}`;
   },
@@ -35,8 +35,20 @@ export const UrlFmt: t.CliFormat.Lib['Url'] = {
  * Helpers:
  */
 function highlightOrigin(url: URL): string {
-  if (!url.port) return c.cyan(url.origin);
-  return `${c.cyan(`${url.protocol}//${url.hostname}:`)}${c.bold(c.cyan(url.port))}`;
+  if (!url.port) return c.cyan(displayOrigin(url));
+  return `${c.cyan(`${url.protocol}//${displayHostname(url)}:`)}${c.bold(c.cyan(url.port))}`;
+}
+
+function displayOrigin(url: URL): string {
+  return `${url.protocol}//${displayHost(url)}`;
+}
+
+function displayHost(url: URL): string {
+  return url.port ? `${displayHostname(url)}:${url.port}` : displayHostname(url);
+}
+
+function displayHostname(url: URL): string {
+  return url.hostname === '127.0.0.1' ? 'localhost' : url.hostname;
 }
 
 function mostBaseUrlIndex(urls: readonly t.Service.Url[]): number {
