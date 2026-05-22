@@ -89,6 +89,7 @@
     "code/sys/types",
     "code/sys/workspace",
     "code/sys/yaml",
+    "deploy/@draft.shell",
     "deploy/@tdb.data",
     "deploy/@tdb.edu.slug",
     "deploy/@tdb.slc",
@@ -146,4 +147,3 @@
     }
   }
 }
-
