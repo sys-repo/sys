@@ -1,4 +1,4 @@
-export type { PathFormatLib, PathFormatter, PathFormatterArgs, Time } from '@sys/std/t';
+export type { Path, Time } from '@sys/std/t';
 export type { AnsiColor } from '@sys/color/t';
 
 export type * from '@sys/types';

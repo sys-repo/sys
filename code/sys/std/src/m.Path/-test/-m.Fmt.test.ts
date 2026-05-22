@@ -28,7 +28,7 @@ describe('Path.Format', () => {
 
     it('part splitting', () => {
       const test = (path: string, expectTotal: number) => {
-        const fired: t.PathFormatterArgs[] = [];
+        const fired: t.Path.Format.Args[] = [];
         const res = Format.string(path, (e) => fired.push(e));
         expect(res).to.eql(path);
         expect(fired.length).to.eql(expectTotal);
@@ -58,7 +58,7 @@ describe('Path.Format', () => {
 
     it('derives kind correctly with and without trailing slash', () => {
       const kinds = (path: string) => {
-        const out: t.PathFormatterPart['kind'][] = [];
+        const out: t.Path.Format.Part['kind'][] = [];
         Format.string(path, (e) => out.push(e.kind));
         return out;
       };
@@ -68,7 +68,7 @@ describe('Path.Format', () => {
 
     it('conditional formatting', () => {
       const path = 'foo/bar/a.ts';
-      const test = (expected: string, fmt: t.PathFormatter) => {
+      const test = (expected: string, fmt: t.Path.Format.Formatter) => {
         const res = Format.string(path, fmt);
         expect(res).to.eql(expected);
       };

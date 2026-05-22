@@ -1,11 +1,11 @@
 import { extname as base } from '@std/path';
-import { type t } from './common.ts';
+import { Is, type t } from './common.ts';
 
-export const extname: t.PathLib['extname'] = (input) => {
-  return typeof input === 'string' ? base(input) : '';
+export const extname: t.Path.Lib['extname'] = (input) => {
+  return Is.string(input) ? base(input) : '';
 };
 
-export const ext: t.PathLib['ext'] = (...exts) => {
+export const ext: t.Path.Lib['ext'] = (...exts) => {
   const suffixes = [
     ...new Set(
       exts
@@ -15,7 +15,7 @@ export const ext: t.PathLib['ext'] = (...exts) => {
     ),
   ];
 
-  const api: t.PathFileExtension = {
+  const api: t.Path.FileExtension = {
     suffixes: Array.from(suffixes) as readonly string[],
     is(...path) {
       return path.every((path) => suffixes.some((ext) => path.endsWith(ext)));

@@ -101,7 +101,7 @@ export namespace Fs {
   /**
    * Filesystem/Path type verification flags.
    */
-  export type IsLib = t.PathLib['Is'] & {
+  export type IsLib = t.Path.Lib['Is'] & {
     /** Determine if the given path points to a directory. */
     dir(path: t.StringPath | URL): Promise<boolean>;
 
@@ -369,7 +369,7 @@ type GlobMethods = {
  */
 type StdMethods = {
   /** Joins a sequence of paths, then normalizes the resulting path. */
-  readonly join: t.PathLib['join'];
+  readonly join: t.Path.Lib['join'];
 
   /** Resolves path segments into a path. */
   readonly resolve: t.Fs.Resolve;

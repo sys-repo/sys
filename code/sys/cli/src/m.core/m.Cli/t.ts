@@ -1,4 +1,4 @@
-import type { ArgsLib, PathLib } from '@sys/std/t';
+import type { ArgsLib } from '@sys/std/t';
 import type { t } from '../common.ts';
 
 /**
@@ -9,7 +9,7 @@ export type CliLib = {
   readonly Args: ArgsLib;
 
   /** Tools for for working with string paths. */
-  readonly Path: PathLib;
+  readonly Path: t.Path.Lib;
 
   /** Tools for working with CLI tables. */
   readonly Table: t.CliTableLib;

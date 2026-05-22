@@ -2,7 +2,7 @@ import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
 import { Bounded, Path } from '../mod.ts';
 
 describe('Path.Bounded', () => {
-  const invalid: t.PathBoundedInvalid = (message) => new TypeError(message);
+  const invalid: t.PathBounded.Invalid = (message) => new TypeError(message);
 
   it('API', async () => {
     const m = await import('@sys/std/path');
@@ -18,7 +18,7 @@ describe('Path.Bounded', () => {
     expect(() => {
       (Bounded.posix() as { normalize: unknown }).normalize = () => '../outside';
     }).to.throw(TypeError);
-    expectTypeOf(Bounded).toEqualTypeOf<t.PathBoundedLib>();
+    expectTypeOf(Bounded).toEqualTypeOf<t.PathBounded.Lib>();
   });
 
   it('detects Windows drive prefixes without needing host OS semantics', () => {
@@ -82,23 +82,23 @@ describe('Path.Bounded', () => {
   });
 
   it('rejects paths made unsafe by hostile path-normalization implementations', () => {
-    const absoluteAfterNormalize: t.PathBoundedOps = {
+    const absoluteAfterNormalize: t.PathBounded.Ops = {
       isAbsolute: () => false,
       normalize: () => '/outside',
     };
-    const driveAfterNormalize: t.PathBoundedOps = {
+    const driveAfterNormalize: t.PathBounded.Ops = {
       isAbsolute: () => false,
       normalize: () => 'C:/outside',
     };
-    const traversalAfterNormalize: t.PathBoundedOps = {
+    const traversalAfterNormalize: t.PathBounded.Ops = {
       isAbsolute: () => false,
       normalize: () => '../outside',
     };
-    const trailingTraversalAfterNormalize: t.PathBoundedOps = {
+    const trailingTraversalAfterNormalize: t.PathBounded.Ops = {
       isAbsolute: () => false,
       normalize: () => 'safe/..',
     };
-    const nulAfterNormalize: t.PathBoundedOps = {
+    const nulAfterNormalize: t.PathBounded.Ops = {
       isAbsolute: () => false,
       normalize: () => 'bad\0path',
     };

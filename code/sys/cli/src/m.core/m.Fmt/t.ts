@@ -34,12 +34,12 @@ export declare namespace CliFormat {
     readonly Commit: CliFormatCommitLib;
 
     /** Path display formatting. */
-    path: t.PathFormatLib['string'];
+    path: t.Path.Format.Lib['string'];
 
     /** Pretty path formatting helpers. */
     readonly Path: {
       str: (path: string) => string;
-      fmt: (opts?: {}) => t.PathFormatter;
+      fmt: (opts?: {}) => t.Path.Format.Formatter;
     };
 
     /** Service URL formatting and presentation ordering helpers. */

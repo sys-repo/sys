@@ -1,15 +1,14 @@
-import type { t } from './common.ts';
-import type { PathFormatLib } from './t.ts';
+import { Is, type t } from './common.ts';
 
 /**
  * CLI Formatting tools.
  */
-export const Format: PathFormatLib = {
+export const Format: t.Path.Format.Lib = {
   /**
    * Path color formatting.
    */
   string(path, fmt) {
-    if (typeof path !== 'string') return `[Invalid:${typeof path}]`;
+    if (!Is.string(path)) return `[Invalid:${typeof path}]`;
     if (!fmt) return path;
 
     const divider = '/';
@@ -43,11 +42,11 @@ const wrangle = {
       .flatMap((part, index, array) => (index < array.length - 1 ? [part, divider] : [part]))
       .filter((part) => !!part);
 
-    return parts.map((part, index, array): t.PathFormatterPart => {
+    return parts.map((part, index, array): t.Path.Format.Part => {
       const first = index === 0;
       const last = index === array.length - 1;
       const kind = wrangle.kind(part, divider, index, array);
-      const is: t.PathFormatterPart['is'] = {
+      const is: t.Path.Format.Part['is'] = {
         first,
         last,
         slash: kind === 'slash',
@@ -76,7 +75,7 @@ const wrangle = {
     divider: string,
     index: number,
     array: readonly string[],
-  ): t.PathFormatterPart['kind'] {
+  ): t.Path.Format.Part['kind'] {
     if (part === divider) return 'slash';
 
     // Find the index of the last non-slash element in the flattened parts array.

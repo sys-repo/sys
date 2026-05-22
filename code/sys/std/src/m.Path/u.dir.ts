@@ -1,13 +1,13 @@
-import { type t } from './common.ts';
+import { Is, type t } from './common.ts';
 import { Join } from './m.Join.ts';
 
 /**
  * Curry a directory path for URLs.
  */
-export const dir: t.PathLib['dir'] = (base, input) => {
+export const dir: t.Path.Lib['dir'] = (base, input) => {
   const options = wrangle.options(input);
   const join = Join.platform(options.platform);
-  const api: t.PathDirBuilder = {
+  const api: t.Path.Dir.Builder = {
     dir: (path: string) => dir(join(base, path), options),
     path: (...parts: string[]) => join(base, ...parts),
     toString: () => base,
@@ -19,9 +19,9 @@ export const dir: t.PathLib['dir'] = (base, input) => {
  * Helpers:
  */
 const wrangle = {
-  options(input?: t.PathDirOptions | t.PathJoinPlatform): t.PathDirOptions {
+  options(input?: t.Path.Dir.Options | t.Path.Join.Platform): t.Path.Dir.Options {
     if (!input) return {};
-    if (typeof input === 'string') return { platform: input };
+    if (Is.string(input)) return { platform: input };
     return input;
   },
 } as const;

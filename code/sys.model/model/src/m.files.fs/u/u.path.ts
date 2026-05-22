@@ -76,7 +76,7 @@ export const assertInsideRealScope = async (
 
 const invalidPath = (message: string): Error => fail('FilesFsError.InvalidPath', message);
 
-const toBoundedPathOps = (path: TCapability.Path): t.PathBoundedOps => ({
+const toBoundedPathOps = (path: TCapability.Path): t.PathBounded.Ops => ({
   isAbsolute: path.Is.absolute,
   normalize: path.normalize,
 });

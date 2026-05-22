@@ -2,17 +2,17 @@ import { Is, type t } from './common.ts';
 
 const WINDOWS_DRIVE = /^[a-zA-Z]:/;
 
-const defaultInvalid: t.PathBoundedInvalid = (message) => new Error(message);
+const defaultInvalid: t.PathBounded.Invalid = (message) => new Error(message);
 
 /** String-only helpers for bounded, root-relative, POSIX-visible resource paths. */
-export const Bounded: t.PathBoundedLib = Object.freeze({
+export const Bounded: t.PathBounded.Lib = Object.freeze({
   Is: Object.freeze({
     windowsDrive(input: t.StringPath) {
       return WINDOWS_DRIVE.test(input);
     },
   }),
 
-  visible(ops: t.PathBoundedOps, input: unknown, invalid = defaultInvalid) {
+  visible(ops: t.PathBounded.Ops, input: unknown, invalid = defaultInvalid) {
     if (input === undefined || input === '' || input === '.') return '';
     if (!Is.string(input)) throw invalid('Path must be a string');
     if (input.includes('\0')) throw invalid('Path contains NUL');
@@ -49,7 +49,7 @@ export const Bounded: t.PathBoundedLib = Object.freeze({
   },
 });
 
-const POSIX_PATH: t.PathBoundedPosixOps = Object.freeze({
+const POSIX_PATH: t.PathBounded.PosixOps = Object.freeze({
   isAbsolute,
   join(...parts) {
     return normalize(parts.join('/'));

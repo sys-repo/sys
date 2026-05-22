@@ -9,7 +9,7 @@ import {
   toFileUrl,
 } from '@std/path';
 
-import type { PathLib } from './t.ts';
+import type { t } from './common.ts';
 
 import { Bounded } from './m.Bounded.ts';
 import { Format } from './m.Fmt.ts';
@@ -22,7 +22,7 @@ import { relativePosix } from './u.rel.ts';
 /**
  * Helpers for working with resource paths.
  */
-export const Path: PathLib = {
+export const Path: t.Path.Lib = {
   Is,
   Format,
   Bounded,

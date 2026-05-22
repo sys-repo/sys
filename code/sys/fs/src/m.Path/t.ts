@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * Library: helpers for working with resource paths with the existence of the server FS tools.
  */
-export type FsPathLib = t.PathLib & {
+export type FsPathLib = t.Path.Lib & {
   /** Convert the path to it's parent directory if it is not already a directory target. */
   asDir(path: t.StringPath): Promise<t.StringPath>;
 

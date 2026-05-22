@@ -1,10 +1,10 @@
 import { Path, type t } from '../common.ts';
 
-export type PathOps = t.PathBoundedOps;
-export type PosixPathOps = t.PathBoundedPosixOps & {
+export type PathOps = t.PathBounded.Ops;
+export type PosixPathOps = t.PathBounded.PosixOps & {
   readonly Is: { readonly absolute: (path: t.StringPath) => boolean };
 };
-export type InvalidPath = t.PathBoundedInvalid;
+export type InvalidPath = t.PathBounded.Invalid;
 
 export type FilesPathLib = {
   readonly Is: {

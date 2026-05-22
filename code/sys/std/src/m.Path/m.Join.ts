@@ -1,10 +1,10 @@
-import type { PathJoinLib } from './t.ts';
+import type { t } from './common.ts';
 
 import { join as auto } from '@std/path/join';
 import { join as posix } from '@std/path/posix/join';
 import { join as windows } from '@std/path/windows/join';
 
-export const Join: PathJoinLib = {
+export const Join: t.Path.Join.Lib = {
   auto,
   posix,
   windows,
