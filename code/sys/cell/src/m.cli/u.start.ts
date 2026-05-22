@@ -1,8 +1,8 @@
 import { Cell } from '../m.cell/mod.ts';
 import { serviceStatusesOf } from '../m.cell/u.services/u.status.ts';
-import { c, CliTable, Str, type t } from './common.ts';
-import { Fmt } from './u.fmt.ts';
+import { c, Cli, CliTable, Str, type t, Try } from './common.ts';
 import { FmtPath } from './u.fmt.path.ts';
+import { Fmt } from './u.fmt.ts';
 import { createShutdownSignal, isSignalShutdownReason } from './u.shutdown.ts';
 
 export type StartCellArgs = {
@@ -27,17 +27,13 @@ export async function startCell(args: StartCellArgs = {}): Promise<StartCellResu
   let finalReason: string | undefined;
 
   try {
-    started = await Cell.start(cell, { until: shutdown.signal, mode });
+    started = await startServices(cell, { until: shutdown.signal, mode });
     serviceText = Fmt.Services.started({ services: serviceStatusesOf(started) });
     if (serviceText) args.onStarted?.(serviceText);
     await Promise.race([Cell.Services.wait(started), shutdown.done]);
   } finally {
-    try {
-      await started?.close(shutdown.reason ?? 'cell.start.finished');
-    } finally {
-      finalReason = shutdown.reason;
-      shutdown.dispose();
-    }
+    finalReason = shutdown.reason;
+    await closeAndDispose(started, shutdown);
   }
 
   if (isSignalShutdownReason(finalReason)) Deno.exitCode = 130;
@@ -48,6 +44,31 @@ export async function startCell(args: StartCellArgs = {}): Promise<StartCellResu
     mode,
     serviceText,
   };
+}
+
+async function startServices(
+  cell: t.Cell.Instance,
+  options: t.Cell.Services.StartOptions,
+): Promise<t.Cell.Services.Started> {
+  const silent = !Cli.Keyboard.isTerminal();
+  const spinner = Cli.spinner(Cli.Fmt.spinnerText('starting services...'), { silent });
+  try {
+    return await Cell.start(cell, options);
+  } finally {
+    spinner.stop();
+  }
+}
+
+async function closeAndDispose(
+  started: t.Cell.Services.Started | undefined,
+  shutdown: ReturnType<typeof createShutdownSignal>,
+) {
+  const close = await Try.run(async () => started?.close(shutdown.reason ?? 'cell.start.finished'));
+  try {
+    if (!close.result.ok) throw close.result.error;
+  } finally {
+    shutdown.dispose();
+  }
 }
 
 export function formatStartResult(res: StartCellResult): string {

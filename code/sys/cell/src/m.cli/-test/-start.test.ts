@@ -75,10 +75,11 @@ describe(`@sys/cell/cli start`, () => {
     expect(text).to.contain('http://127.0.0.1:4321/');
     expect(text).to.not.contain('http://127.0.0.1:4321/view/ path');
     expect(text).to.not.contain('route.payments');
-    expect(res.text).to.contain(c.cyan('http://127.0.0.1:4321'));
-    expect(res.text.split(c.cyan('http://127.0.0.1:4321')).length - 1).to.eql(2);
+    const highlightedOrigin = `${c.cyan('http://127.0.0.1:')}${c.bold(c.cyan('4321'))}`;
+    expect(res.text).to.contain(highlightedOrigin);
+    expect(res.text.split(highlightedOrigin).length - 1).to.eql(2);
     expect(res.text.split(c.gray('http://127.0.0.1:4321')).length - 1).to.eql(4);
-    expect(res.text).to.contain(`${c.cyan('http://127.0.0.1:4321')}${c.gray('/')}`);
+    expect(res.text).to.contain(`${highlightedOrigin}${c.gray('/')}`);
     expect(res.text).to.contain(c.gray('/view/'));
     expect(res.text).to.not.contain(`${c.cyan('http://127.0.0.1:4321')}${c.gray('/view/')}`);
     expect(res.text).to.not.contain(c.cyan('http://127.0.0.1:4321/view/'));
