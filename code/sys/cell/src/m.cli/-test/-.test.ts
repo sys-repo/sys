@@ -464,6 +464,55 @@ describe(`@sys/cell/cli`, () => {
     expect(text).to.not.contain('jsr:@sys/tools/serve');
   });
 
+  it('service renderer shows current-directory owner root as ./ and hides URL-redundant port detail', () => {
+    const now = Time.now.timestamp;
+    const cwd = Fs.cwd();
+    const config = Fs.join(cwd, '-config/view.dev.yaml') as t.StringPath;
+    const text = stripAnsi(Fmt.Services.started({
+      services: [{
+        service: {
+          name: 'view' as t.Cell.Id,
+          use: 'ViteService',
+          from: 'jsr:@sys/driver-vite/service',
+          config: './-config/view.dev.yaml' as t.Cell.Path,
+        },
+        selection: {
+          name: 'view' as t.Cell.Id,
+          mode: 'dev',
+          variant: 'dev' as t.Cell.Id,
+          descriptor: {
+            name: 'view' as t.Cell.Id,
+            use: 'Serve',
+            from: 'jsr:@sys/tools/serve',
+            config: './-config/view.yaml' as t.Cell.Path,
+          },
+          binding: {
+            use: 'ViteService',
+            from: 'jsr:@sys/driver-vite/service',
+            config: './-config/view.dev.yaml' as t.Cell.Path,
+          },
+        },
+        paths: { config },
+        metrics: { start: { startedAt: now, resolvedAt: now } },
+        owner: {
+          state: 'ready',
+          root: cwd,
+          urls: [{ href: 'http://localhost:5175/' as t.StringUrl, label: 'local' }],
+          details: [
+            { label: 'port', value: '5175' },
+            { label: 'dist', value: 'dist/' },
+          ],
+        },
+      }],
+    }));
+
+    expect(text).to.contain('root      ./');
+    expect(text).to.contain('http://localhost:5175/');
+    expect(text).to.contain('dist');
+    expect(text).to.contain('dist/');
+    expect(text).to.not.contain('port');
+  });
+
   it('task → rejects missing names, unsupported options, and extra args', async () => {
     const missing = stripAnsi(
       (await silent(() => CellCli.run({ argv: ['task'] }))).text,
@@ -521,7 +570,8 @@ describe(`@sys/cell/cli`, () => {
       (await silent(() => CellCli.run({ argv: ['start', '--mode'] }))).text,
     );
     const repeatedMode = stripAnsi(
-      (await silent(() => CellCli.run({ argv: ['start', '--mode', 'dev', '--mode', 'prod'] }))).text,
+      (await silent(() => CellCli.run({ argv: ['start', '--mode', 'dev', '--mode', 'prod'] })))
+        .text,
     );
     const invalidMode = stripAnsi(
       (await silent(() => CellCli.run({ argv: ['start', '--mode', 'Bad'] }))).text,

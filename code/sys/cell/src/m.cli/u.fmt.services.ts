@@ -1,7 +1,6 @@
 import type { StartedServiceStatus } from '../m.cell/u.services/u.status.ts';
-import { c, Cli, CliTable, Is, Str, type t } from './common.ts';
+import { c, Cli, CliTable, Fs, Is, Str, type t } from './common.ts';
 import { FmtPath } from './u.fmt.path.ts';
-
 
 type ServicesStartedResult = {
   services: readonly StartedServiceStatus[];
@@ -32,7 +31,7 @@ function renderServiceStatus(service: StartedServiceStatus): string {
 
   if (owner) {
     if (owner.state !== 'ready') table.push([serviceLabel('state'), serviceState(owner.state)]);
-    if (Is.str(owner.root)) table.push([serviceLabel('root'), FmtPath.display(owner.root)]);
+    if (Is.str(owner.root)) table.push([serviceLabel('root'), serviceRoot(owner.root)]);
     for (const detail of serviceDetails(owner)) {
       table.push([serviceLabel(detail.label), serviceSubtle(detail.value)]);
     }
@@ -62,7 +61,14 @@ function serviceUrls(status: t.Service.Status): readonly t.Service.Url[] {
 }
 
 function serviceDetails(status: t.Service.Status): readonly t.Service.Detail[] {
-  return status.details ?? [];
+  const details = status.details ?? [];
+  if ((status.urls?.length ?? 0) === 0) return details;
+  return details.filter((detail) => detail.label !== 'port');
+}
+
+function serviceRoot(root: string): string {
+  const path = Fs.trimCwd(root);
+  return path.trim() === '' ? c.gray('./') : Cli.Fmt.Path.str(path);
 }
 
 function serviceLabel(label: string): string {
