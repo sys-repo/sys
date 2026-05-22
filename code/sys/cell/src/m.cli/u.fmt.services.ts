@@ -22,7 +22,7 @@ function renderServiceStatus(service: StartedServiceStatus): string {
   const table = CliTable.create([]);
   const owner = service.owner;
 
-  table.push([serviceLabel('service'), c.white(service.service.name)]);
+  table.push([serviceRootLabel('service'), c.white(service.service.name)]);
   if (service.selection.variant) {
     table.push([serviceLabel('mode'), serviceMode(service.selection.variant)]);
   }
@@ -68,6 +68,10 @@ function serviceDetails(status: t.Service.Status): readonly t.Service.Detail[] {
 
 function serviceRoot(root: string): string {
   return FmtPath.display(root);
+}
+
+function serviceRootLabel(label: string): string {
+  return c.bold(c.white(label));
 }
 
 function serviceLabel(label: string): string {
