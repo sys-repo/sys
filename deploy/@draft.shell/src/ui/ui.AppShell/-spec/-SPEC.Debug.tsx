@@ -1,6 +1,5 @@
 import React from 'react';
-import { type t, Color, css, D, LocalStorage, Obj, Signal } from './common.ts';
-import { Button, ObjectView } from './common.ts';
+import { Button, type t, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from './common.ts';
 
 type P = t.AppShell.Props;
 type Storage = Pick<P, 'debug' | 'theme'>;

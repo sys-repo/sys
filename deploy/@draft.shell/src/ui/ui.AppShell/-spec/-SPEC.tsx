@@ -1,5 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { type t, D } from './common.ts';
+import { D } from './common.ts';
 import { AppShell } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
@@ -24,10 +24,7 @@ export default Spec.describe(D.displayName, async (e) => {
     Signal.effect(update);
     Dev.Theme.signalEffect(ctx, p.theme, 1);
 
-    ctx.subject
-      .size([360, null])
-      .display('grid')
-      .render(() => <Root />);
+    ctx.subject.size('fill').display('grid').render(() => <Root />);
   });
 
   e.it('ui:debug', (e) => {

@@ -9,5 +9,5 @@ export const ns = 'draft.shell';
  * Specs:
  */
 export const Specs = {
-  [`${ns}: ui.AppShell`]: () => import('../ui/ui.AppShell/-spec/-SPEC.tsx'),
+  [`${ns}: AppShell`]: () => import('../ui/ui.AppShell/-spec/-SPEC.tsx'),
 } as t.SpecImports;

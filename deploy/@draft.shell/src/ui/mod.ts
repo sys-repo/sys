@@ -2,4 +2,4 @@
  * @module
  * Browser/UI-specific package exports.
  */
-import type { t } from './common.ts';
+export { AppShell } from './ui.AppShell/mod.ts';
