@@ -1,0 +1,5 @@
+# Vite dev service for @draft/shell.
+
+name: view
+dir: .
+port: 5175

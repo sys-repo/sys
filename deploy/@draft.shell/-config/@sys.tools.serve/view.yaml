@@ -1,0 +1,6 @@
+# Static @draft/shell dist service.
+
+name: view
+dir: ./dist
+info:
+  path: /
