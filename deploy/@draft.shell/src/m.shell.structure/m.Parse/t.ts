@@ -1,8 +1,8 @@
-/** Parse raw input into a Shell.Structure document. */
+/** Parse raw input into a Shell.Structure value. */
 export declare namespace Parse {
-  /** Raw parse input accepted by Shell.Structure.parse. */
-  export type Input = string | unknown;
+  /** Raw parse input accepted by ShellStructure.parse; strings are parsed as YAML. */
+  export type Input = unknown;
 
-  /** Parse raw input into a typed document. */
-  export type Fn<Document> = (input: Input) => Document;
+  /** Parse raw input into a typed Shell.Structure value. */
+  export type Fn<Structure> = (input: Input) => Structure;
 }

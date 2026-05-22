@@ -13,5 +13,6 @@ export {
   it,
   Testing,
 } from '@sys/testing/server';
+export { Fs } from '@sys/fs';
 
 export * from '../common.ts';
