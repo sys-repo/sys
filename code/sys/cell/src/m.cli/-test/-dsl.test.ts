@@ -131,9 +131,7 @@ describe('@sys/cell/cli dsl', () => {
 
   it('dsl examples --format skill → routes to the examples skill projection', async () => {
     const guidance = await CellHelp.Dsl.load(['examples']);
-    const res = await silent(() =>
-      CellCli.run({ argv: ['dsl', 'examples', '--format', 'skill'] })
-    );
+    const res = await silent(() => CellCli.run({ argv: ['dsl', 'examples', '--format', 'skill'] }));
     const text = stripAnsi(res.text);
 
     expect(res.kind).to.eql('help');
