@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1779358336481,
+    "createdAt": 1779491309422,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-60259662b41ee22dfc9f6a9d80b721760c60159fffdc0b93756987833566a06f",
+      "/graph": "sha256-90a301b4210a6f0a4d77f8090528fa519716735413702c72b48e3b409a1212bc",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.98/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,11 +15,12 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.98/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1779358336487
+    "modifiedAt": 1779491309428
   },
   "graph": {
     "orderedPaths": [
       "code/sys/types",
+      "code/sys.dev",
       "code/sys/crdt",
       "code/sys/std",
       "code/sys/color",
@@ -50,7 +51,6 @@
       "code/sys.ui/ui-react-components",
       "code/sys.driver/driver-automerge",
       "code/sys.driver/driver-monaco",
-      "code/sys.dev",
       "code/sys.driver/driver-prosemirror",
       "code/sys.driver/driver-stripe",
       "code/sys/cell",
@@ -61,6 +61,7 @@
       "code/sys.driver/driver-pi",
       "code/sys.driver/driver-vite",
       "code/sys.tools",
+      "deploy/@draft.shell",
       "deploy/@tdb.data",
       "deploy/@tdb.slc",
       "deploy/@tdb.slc.fs",
@@ -69,10 +70,6 @@
       "deploy/sample.proxy"
     ],
     "edges": [
-      {
-        "from": "code/sys.driver/driver-automerge",
-        "to": "code/sys.dev"
-      },
       {
         "from": "code/sys.driver/driver-automerge",
         "to": "code/sys.driver/driver-monaco"
@@ -112,10 +109,6 @@
       {
         "from": "code/sys.driver/driver-deno",
         "to": "deploy/sample.proxy"
-      },
-      {
-        "from": "code/sys.driver/driver-monaco",
-        "to": "code/sys.dev"
       },
       {
         "from": "code/sys.driver/driver-monaco",
@@ -171,10 +164,6 @@
       },
       {
         "from": "code/sys.ui/ui-css",
-        "to": "code/sys.dev"
-      },
-      {
-        "from": "code/sys.ui/ui-css",
         "to": "code/sys.driver/driver-automerge"
       },
       {
@@ -215,6 +204,10 @@
       },
       {
         "from": "code/sys.ui/ui-css",
+        "to": "deploy/@draft.shell"
+      },
+      {
+        "from": "code/sys.ui/ui-css",
         "to": "deploy/@tdb.data"
       },
       {
@@ -232,10 +225,6 @@
       {
         "from": "code/sys.ui/ui-dom",
         "to": "code/-tmpl"
-      },
-      {
-        "from": "code/sys.ui/ui-dom",
-        "to": "code/sys.dev"
       },
       {
         "from": "code/sys.ui/ui-dom",
@@ -275,6 +264,10 @@
       },
       {
         "from": "code/sys.ui/ui-dom",
+        "to": "deploy/@draft.shell"
+      },
+      {
+        "from": "code/sys.ui/ui-dom",
         "to": "deploy/@tdb.data"
       },
       {
@@ -292,10 +285,6 @@
       {
         "from": "code/sys.ui/ui-react",
         "to": "code/-tmpl"
-      },
-      {
-        "from": "code/sys.ui/ui-react",
-        "to": "code/sys.dev"
       },
       {
         "from": "code/sys.ui/ui-react",
@@ -323,6 +312,10 @@
       },
       {
         "from": "code/sys.ui/ui-react",
+        "to": "deploy/@draft.shell"
+      },
+      {
+        "from": "code/sys.ui/ui-react",
         "to": "deploy/@tdb.data"
       },
       {
@@ -343,10 +336,6 @@
       },
       {
         "from": "code/sys.ui/ui-react-components",
-        "to": "code/sys.dev"
-      },
-      {
-        "from": "code/sys.ui/ui-react-components",
         "to": "code/sys.driver/driver-automerge"
       },
       {
@@ -360,6 +349,10 @@
       {
         "from": "code/sys.ui/ui-react-components",
         "to": "code/sys.driver/driver-stripe"
+      },
+      {
+        "from": "code/sys.ui/ui-react-components",
+        "to": "deploy/@draft.shell"
       },
       {
         "from": "code/sys.ui/ui-react-components",
@@ -408,6 +401,10 @@
       {
         "from": "code/sys.ui/ui-react-devharness",
         "to": "code/sys.ui/ui-react-components"
+      },
+      {
+        "from": "code/sys.ui/ui-react-devharness",
+        "to": "deploy/@draft.shell"
       },
       {
         "from": "code/sys.ui/ui-react-devharness",
@@ -511,10 +508,6 @@
       },
       {
         "from": "code/sys/color",
-        "to": "code/sys.dev"
-      },
-      {
-        "from": "code/sys/color",
         "to": "code/sys.driver/driver-automerge"
       },
       {
@@ -568,6 +561,10 @@
       {
         "from": "code/sys/color",
         "to": "code/sys/workspace"
+      },
+      {
+        "from": "code/sys/color",
+        "to": "deploy/@draft.shell"
       },
       {
         "from": "code/sys/color",
@@ -815,10 +812,6 @@
       },
       {
         "from": "code/sys/immutable",
-        "to": "code/sys.dev"
-      },
-      {
-        "from": "code/sys/immutable",
         "to": "code/sys.driver/driver-automerge"
       },
       {
@@ -947,10 +940,6 @@
       },
       {
         "from": "code/sys/schema",
-        "to": "code/sys.dev"
-      },
-      {
-        "from": "code/sys/schema",
         "to": "code/sys.driver/driver-monaco"
       },
       {
@@ -975,7 +964,15 @@
       },
       {
         "from": "code/sys/schema",
+        "to": "code/sys/server"
+      },
+      {
+        "from": "code/sys/schema",
         "to": "code/sys/workspace"
+      },
+      {
+        "from": "code/sys/schema",
+        "to": "deploy/@draft.shell"
       },
       {
         "from": "code/sys/schema",
@@ -988,10 +985,6 @@
       {
         "from": "code/sys/std",
         "to": "code/-tmpl"
-      },
-      {
-        "from": "code/sys/std",
-        "to": "code/sys.dev"
       },
       {
         "from": "code/sys/std",
@@ -1143,6 +1136,10 @@
       },
       {
         "from": "code/sys/std",
+        "to": "deploy/@draft.shell"
+      },
+      {
+        "from": "code/sys/std",
         "to": "deploy/@tdb.data"
       },
       {
@@ -1160,10 +1157,6 @@
       {
         "from": "code/sys/testing",
         "to": "code/-tmpl"
-      },
-      {
-        "from": "code/sys/testing",
-        "to": "code/sys.dev"
       },
       {
         "from": "code/sys/testing",
@@ -1204,6 +1197,10 @@
       {
         "from": "code/sys/testing",
         "to": "code/sys/cell"
+      },
+      {
+        "from": "code/sys/testing",
+        "to": "deploy/@draft.shell"
       },
       {
         "from": "code/sys/testing",
@@ -1427,6 +1424,10 @@
       },
       {
         "from": "code/sys/types",
+        "to": "deploy/@draft.shell"
+      },
+      {
+        "from": "code/sys/types",
         "to": "deploy/@tdb.data"
       },
       {
@@ -1456,10 +1457,6 @@
       {
         "from": "code/sys/yaml",
         "to": "code/-tmpl"
-      },
-      {
-        "from": "code/sys/yaml",
-        "to": "code/sys.dev"
       },
       {
         "from": "code/sys/yaml",
@@ -1512,6 +1509,10 @@
       {
         "from": "code/sys/yaml",
         "to": "code/sys/server"
+      },
+      {
+        "from": "code/sys/yaml",
+        "to": "deploy/@draft.shell"
       },
       {
         "from": "code/sys/yaml",
