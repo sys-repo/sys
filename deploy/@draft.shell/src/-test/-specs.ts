@@ -3,11 +3,11 @@
  * DevHarness visual specs.
  */
 import type { t } from './common.ts';
-export const ns = 'sys.🐷';
+export const ns = 'draft.shell';
 
 /**
  * Specs:
  */
 export const Specs = {
-  // [`${ns}: name`]: () => import('../ui/component/-spec/-SPEC.tsx'),
+  [`${ns}: ui.AppShell`]: () => import('../ui/ui.AppShell/-spec/-SPEC.tsx'),
 } as t.SpecImports;

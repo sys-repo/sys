@@ -1,4 +1,4 @@
 /**
  * @module types
  */
-export type {};
+export type * from './ui/ui.AppShell/t.ts';
