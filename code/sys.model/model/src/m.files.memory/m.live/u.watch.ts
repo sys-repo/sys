@@ -1,6 +1,5 @@
 import { Files } from '../../m.files/mod.ts';
 import { Glob, type t } from '../common.ts';
-import type { Live } from '../../m.files/t/t.u.live.ts';
 import {
   type ListEntriesOptions,
   snapshotListOptions,
@@ -24,7 +23,7 @@ type Watcher = {
 };
 
 type WatchRuntime = {
-  readonly diagnostics: Live.Diagnostics;
+  readonly diagnostics: t.Files.Live.Diagnostics;
   readonly handler: (
     payload: t.Files.Cmd.Watch.Payload,
     context: WatchContext,
@@ -42,7 +41,7 @@ export const createWatch = (nodes: MemoryNodes, policy: t.Files.Policy.Shape): W
   const activeWaiters = new Set<() => void>();
   let seq = 0;
 
-  const diagnostics: Live.Diagnostics = Object.freeze({
+  const diagnostics: t.Files.Live.Diagnostics = Object.freeze({
     Active: Object.freeze({
       watchCount() {
         return watchers.size;

@@ -1,9 +1,6 @@
 import type { t } from './common.ts';
-import type { Files as TFilesModel } from '../m.files/t.ts';
-import type { Runtime } from '../m.files/t/t.u.runtime.ts';
-import type { Error as TError } from '../m.files/t/t.u.error.ts';
-import type { Live as TLive } from '../m.files/t/t.u.live.ts';
-import type { FilesFsCapability } from './t.capability.ts';
+import type { Files as TFiles } from '../m.files/t.ts';
+import type * as TCapability from './t/t.capability.ts';
 
 /**
  * Filesystem-shaped backing adapters for the Files model.
@@ -13,7 +10,7 @@ import type { FilesFsCapability } from './t.capability.ts';
  */
 export declare namespace FilesFs {
   /** Files model runtime surface with filesystem backing adapters attached at `Files.Fs`. */
-  export type FilesLib = TFilesModel.Lib & {
+  export type FilesLib = TFiles.Lib & {
     /** Filesystem-shaped backing adapters. */
     readonly Fs: Lib;
   };
@@ -46,16 +43,16 @@ export declare namespace FilesFs {
   };
 
   /** Bounded readonly Files backing. */
-  export type Readonly = Runtime.Shape<'files/fs:readonly'>;
+  export type Readonly = TFiles.Backing.Shape<'files/fs:readonly'>;
 
   /** Bounded writable Files backing. */
-  export type Writable = Runtime.Shape<'files/fs:writable'>;
+  export type Writable = TFiles.Backing.Shape<'files/fs:writable'>;
 
   /** Bounded live readonly+watch Files backing. Write/remove remain unsupported. */
-  export type Live = TLive.Shape<'files/fs:live'>;
+  export type Live = TFiles.Live.Shape<'files/fs:live'>;
 
   /** Bounded live writable+watch Files backing. */
-  export type WritableLive = TLive.Shape<'files/fs:writable-live'>;
+  export type WritableLive = TFiles.Live.Shape<'files/fs:writable-live'>;
 
   /** Options for creating a readonly Files backing. */
   export type ReadonlyOptions = Options<Capability.Readonly>;
@@ -71,27 +68,27 @@ export declare namespace FilesFs {
 
   /** Structural host-filesystem capabilities consumed by this adapter. */
   export namespace Capability {
-    export type Readonly = FilesFsCapability.Readonly;
-    export type Writable = FilesFsCapability.Writable;
-    export type Live = FilesFsCapability.Live;
-    export type LiveWritable = FilesFsCapability.LiveWritable;
-    export type WriteFileOptions = FilesFsCapability.WriteFileOptions;
-    export type Watch = FilesFsCapability.Watch;
-    export type WatchOptions = FilesFsCapability.WatchOptions;
-    export type Watcher = FilesFsCapability.Watcher;
-    export type WatchObservable = FilesFsCapability.WatchObservable;
-    export type WatchSubscription = FilesFsCapability.WatchSubscription;
-    export type WatchEvent = FilesFsCapability.WatchEvent;
-    export type WatchEventKind = FilesFsCapability.WatchEventKind;
-    export type Path = FilesFsCapability.Path;
-    export type PathIs = FilesFsCapability.PathIs;
-    export type Stat = FilesFsCapability.Stat;
-    export type WalkEntry = FilesFsCapability.WalkEntry;
+    export type Readonly = TCapability.Readonly;
+    export type Writable = TCapability.Writable;
+    export type Live = TCapability.Live;
+    export type LiveWritable = TCapability.LiveWritable;
+    export type WriteFileOptions = TCapability.WriteFileOptions;
+    export type Watch = TCapability.Watch;
+    export type WatchOptions = TCapability.WatchOptions;
+    export type Watcher = TCapability.Watcher;
+    export type WatchObservable = TCapability.WatchObservable;
+    export type WatchSubscription = TCapability.WatchSubscription;
+    export type WatchEvent = TCapability.WatchEvent;
+    export type WatchEventKind = TCapability.WatchEventKind;
+    export type Path = TCapability.Path;
+    export type PathIs = TCapability.PathIs;
+    export type Stat = TCapability.Stat;
+    export type WalkEntry = TCapability.WalkEntry;
   }
 
   type Options<Fs extends Capability.Readonly> =
-    & Runtime.Options
-    & Runtime.InlineReadOptions
+    & TFiles.Backing.Options
+    & TFiles.Backing.InlineReadOptions
     & {
       /** Structural filesystem capability. */
       readonly fs: Fs;
@@ -102,10 +99,10 @@ export declare namespace FilesFs {
 
   type WritableOptionsBase<Fs extends Capability.Writable> =
     & Options<Fs>
-    & Runtime.InlineWriteOptions;
+    & TFiles.Backing.InlineWriteOptions;
 
   /** Files/fs error surface. */
   export namespace Error {
-    export type Kind = `FilesFsError.${TError.KindSuffix}`;
+    export type Kind = `FilesFsError.${TFiles.Backing.ErrorKindSuffix}`;
   }
 }

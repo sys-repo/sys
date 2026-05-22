@@ -33,6 +33,89 @@ export declare namespace Files {
   };
 
   /**
+   * Structural backing surfaces shared by Files adapters.
+   */
+  export namespace Backing {
+    /** Minimal Cmd surface exposed by a bounded Files backing. */
+    export type CmdSurface<K extends string = string> = {
+      /** Backing kind, when surfaced as owner-local metadata. */
+      readonly kind?: K;
+      /** Capability facts for the bounded Files view. */
+      readonly capabilities: Capabilities;
+      /** Canonical Files Cmd handlers. */
+      readonly handlers: Cmd.HandlerMap;
+    };
+
+    /** Runtime shape shared by model-owned Files backing adapters. */
+    export type Shape<K extends string> = CmdSurface<K> & {
+      /** Backing kind, surfaced only as owner-local metadata. */
+      readonly kind: K;
+      /** Snapshotted Files access policy used by this backing. */
+      readonly policy: Policy.Shape;
+    };
+
+    /** Shared options for bounded Files backing creation. */
+    export type Options = {
+      /** Files access policy; defaults to deny-all. */
+      readonly policy?: Policy.Shape;
+      /** Default page size for list/manifest results. */
+      readonly defaultLimit?: t.NumberTotal;
+    };
+
+    /** Shared options for backings that can return inline text. */
+    export type InlineReadOptions = {
+      /** Maximum bytes returned by `files:read`. */
+      readonly maxReadBytes?: t.NumberBytes;
+    };
+
+    /** Shared options for backings that can write complete file values. */
+    export type InlineWriteOptions = {
+      /** Maximum bytes accepted by `files:write`. */
+      readonly maxWriteBytes?: t.NumberBytes;
+    };
+
+    /** Canonical suffixes used by Files backing-specific error names. */
+    export type ErrorKindSuffix =
+      | 'InvalidPath'
+      | 'PathOutsideRoot'
+      | 'NotFound'
+      | 'NotFile'
+      | 'NotDirectory'
+      | 'DirectoryNotEmpty'
+      | 'PolicyDenied'
+      | 'ReadTooLarge'
+      | 'WriteTooLarge'
+      | 'PartialFailure'
+      | 'Unsupported';
+  }
+
+  /**
+   * Live Files backing surfaces.
+   */
+  export namespace Live {
+    /** Runtime shape shared by live Files backing adapters. */
+    export type Shape<K extends string> = Backing.Shape<K> & {
+      /** Read-only live backing diagnostics; not Files authority. */
+      readonly diagnostics: Diagnostics;
+    };
+
+    /** Read-only diagnostics for deterministic live backing orchestration/tests. */
+    export type Diagnostics = {
+      /** Diagnostics for active live subscriptions. */
+      readonly Active: ActiveDiagnostics;
+    };
+
+    /** Diagnostics for active live subscriptions. */
+    export type ActiveDiagnostics = {
+      /** Number of currently active `files:watch` subscriptions. */
+      readonly watchCount: () => number;
+
+      /** Resolve when at least one `files:watch` subscription is active. */
+      readonly whenActive: () => Promise<void>;
+    };
+  }
+
+  /**
    * Files string-shaped scalar contracts.
    */
   export namespace String {

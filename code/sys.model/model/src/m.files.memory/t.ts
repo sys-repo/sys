@@ -1,7 +1,5 @@
 import type { t } from './common.ts';
-import type { Runtime } from '../m.files/t/t.u.runtime.ts';
-import type { Error as TError } from '../m.files/t/t.u.error.ts';
-import type { Live as TLive } from '../m.files/t/t.u.live.ts';
+import type { Files as TFiles } from '../m.files/t.ts';
 
 /**
  * In-memory backing adapters for the Files model.
@@ -32,23 +30,23 @@ export declare namespace FilesMemory {
   };
 
   /** Bounded readonly in-memory Files backing. */
-  export type Readonly = Runtime.Shape<'files/memory:readonly'>;
+  export type Readonly = TFiles.Backing.Shape<'files/memory:readonly'>;
 
   /** Bounded writable in-memory Files backing. */
-  export type Writable = Runtime.Shape<'files/memory:writable'>;
+  export type Writable = TFiles.Backing.Shape<'files/memory:writable'>;
 
   /** Bounded live in-memory Files backing. */
-  export type Live = TLive.Shape<'files/memory:live'>;
+  export type Live = TFiles.Live.Shape<'files/memory:live'>;
 
   /** Options for creating an in-memory Files backing. */
   export type Options =
-    & Runtime.Options
-    & Runtime.InlineReadOptions
-    & Runtime.InlineWriteOptions
+    & TFiles.Backing.Options
+    & TFiles.Backing.InlineReadOptions
+    & TFiles.Backing.InlineWriteOptions
     & t.Files.Source.TextTree;
 
   /** Files/memory error surface. */
   export namespace Error {
-    export type Kind = `FilesMemoryError.${TError.KindSuffix}`;
+    export type Kind = `FilesMemoryError.${TFiles.Backing.ErrorKindSuffix}`;
   }
 }

@@ -1,6 +1,5 @@
 import { Files } from '../../m.files/mod.ts';
 import { type t } from '../common.ts';
-import type { Live } from '../../m.files/t/t.u.live.ts';
 import { fail } from '../u/u.error.ts';
 import { realScope } from '../u/u.path.ts';
 import { changesFromEvent, commandChange, watcherMatches } from './u.change.ts';
@@ -13,7 +12,7 @@ type WatchContext = t.Cmd.Handler.Context<
 >;
 
 type WatchRuntime = {
-  readonly diagnostics: Live.Diagnostics;
+  readonly diagnostics: t.Files.Live.Diagnostics;
   readonly handler: (
     payload: t.Files.Cmd.Watch.Payload,
     context: WatchContext,
@@ -38,7 +37,7 @@ export const createWatch = (scope: WatchScope, policy: t.Files.Policy.Shape): Wa
   const activeWaiters = new Set<() => void>();
   let seq = 0;
 
-  const diagnostics: Live.Diagnostics = Object.freeze({
+  const diagnostics: t.Files.Live.Diagnostics = Object.freeze({
     Active: Object.freeze({
       watchCount() {
         return active.size;

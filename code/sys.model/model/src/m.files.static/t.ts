@@ -1,6 +1,5 @@
 import type { t } from './common.ts';
-import type { Runtime } from '../m.files/t/t.u.runtime.ts';
-import type { Error as TError } from '../m.files/t/t.u.error.ts';
+import type { Files as TFiles } from '../m.files/t.ts';
 
 /**
  * Static `dist.json` backing adapter for the Files model.
@@ -13,10 +12,10 @@ export declare namespace FilesStatic {
   };
 
   /** Bounded static Files backing. */
-  export type Readonly = Runtime.Shape<'files/static:dist'>;
+  export type Readonly = TFiles.Backing.Shape<'files/static:dist'>;
 
   /** Options for creating a static Files backing from dist metadata. */
-  export type FromDistOptions = Runtime.Options & {
+  export type FromDistOptions = TFiles.Backing.Options & {
     /** Canonical static distribution metadata. */
     readonly dist: t.DistPkg;
 
@@ -26,6 +25,6 @@ export declare namespace FilesStatic {
 
   /** Files/static error surface. */
   export namespace Error {
-    export type Kind = `FilesStaticError.${TError.KindSuffix}`;
+    export type Kind = `FilesStaticError.${TFiles.Backing.ErrorKindSuffix}`;
   }
 }
