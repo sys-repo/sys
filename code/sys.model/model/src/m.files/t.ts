@@ -4,6 +4,20 @@ import type { t } from './common.ts';
  * Bounded Files model, command grammar, and typed client adapters.
  */
 export declare namespace Files {
+  /**
+   * Type-spine note:
+   *
+   * This namespace is intentionally kept as one monolithic contract file.
+   * Earlier split-out `t/*` subfiles made the public surface easier to misuse:
+   * sub-namespaces that were not exported from `Files` became tempting direct
+   * imports, and human/agent callers propagated those private seams instead of
+   * using the single `Files` contract.
+   *
+   * Keeping the contract here forces consumers through the one public namespace
+   * and keeps nested shapes scanable in context. The file is larger, but the
+   * boundary is clearer; that is the lesser coupling.
+   */
+
   /** Namespace-style public runtime surface. */
   export type Lib = {
     /** Files authority resolver. */
@@ -18,7 +32,9 @@ export declare namespace Files {
     readonly Policy: Policy.Lib;
   };
 
-  /** Files string-shaped scalar contracts. */
+  /**
+   * Files string-shaped scalar contracts.
+   */
   export namespace String {
     /** Canonical root-relative file path visible inside a bounded Files view. */
     export type Path = t.StringRelativePath;
@@ -48,7 +64,9 @@ export declare namespace Files {
   /** Transport/backing fidelity class for a Files view. */
   export type Fidelity = 'live' | 'dynamic' | 'snapshot' | 'cache';
 
-  /** Capability facts for bounded Files views. */
+  /**
+   * Capability facts for bounded Files views.
+   */
   export namespace Capability {
     /** Files capability name. */
     export type Name = 'list' | 'stat' | 'read' | 'write' | 'remove' | 'watch' | 'manifest';
@@ -78,7 +96,9 @@ export declare namespace Files {
   /** Capability facts for a bounded Files view. */
   export type Capabilities = Capability.Capabilities;
 
-  /** Entry metadata visible inside a bounded Files view. */
+  /**
+   * Entry metadata visible inside a bounded Files view.
+   */
   export namespace Entry {
     /** File or directory entry visible inside a bounded Files view. */
     export type Entry = File | Dir;
@@ -120,7 +140,9 @@ export declare namespace Files {
   /** Directory entry metadata. */
   export type Dir = Entry.Dir;
 
-  /** Portable references to file content outside inline Cmd results. */
+  /**
+   * Portable references to file content outside inline Cmd results.
+   */
   export namespace ContentRef {
     /** Portable reference to file content outside an inline Cmd result. */
     export type ContentRef = Url | Hash | Ref;
@@ -164,7 +186,9 @@ export declare namespace Files {
   /** Portable reference to file content outside an inline Cmd result. */
   export type ContentRef = ContentRef.ContentRef;
 
-  /** Files change hints. List/stat/read remain truth. */
+  /**
+   * Files change hints. List/stat/read remain truth.
+   */
   export namespace Change {
     /** Source of a change hint. */
     export type Origin = 'command' | 'fs-watch';
@@ -189,7 +213,9 @@ export declare namespace Files {
   /** Change event hint; list/stat/read remain truth. */
   export type Change = Change.Change;
 
-  /** Cursor contracts for paged Files command surfaces. */
+  /**
+   * Cursor contracts for paged Files command surfaces.
+   */
   export namespace Cursor {
     /** Cursor codec runtime surface. */
     export type Lib = {
@@ -241,6 +267,9 @@ export declare namespace Files {
     /** Parsed cursor metadata. */
     export type Parsed = Parsed.List | Parsed.Watch | Parsed.Manifest;
 
+    /**
+     * Parsed cursor variants.
+     */
     export namespace Parsed {
       /** Parsed cursor shape. */
       export type Shape<K extends Kind> = {
@@ -297,7 +326,9 @@ export declare namespace Files {
     readonly truncated?: boolean;
   };
 
-  /** Pure policy model for bounded Files views. */
+  /**
+   * Pure policy model for bounded Files views.
+   */
   export namespace Policy {
     /** Pure policy helper surface. */
     export type Lib = {
@@ -340,7 +371,9 @@ export declare namespace Files {
     };
   }
 
-  /** Files Cmd grammar. */
+  /**
+   * Files Cmd grammar.
+   */
   export namespace Cmd {
     /** Runtime command names and namespace. */
     export type Lib = {
@@ -384,6 +417,9 @@ export declare namespace Files {
       | Name.Watch
       | Name.Manifest;
 
+    /**
+     * Command name literal contracts.
+     */
     export namespace Name {
       /** Capabilities command name. */
       export type Capabilities = 'files:capabilities';
@@ -472,7 +508,9 @@ export declare namespace Files {
     /** Unary-only Files Cmd client for transports without streaming fidelity. */
     export type UnaryClient = t.Cmd.Client.Unary<Name, Payload, Result>;
 
-    /** Capabilities command. */
+    /**
+     * Capabilities command.
+     */
     export namespace Capabilities {
       /** Capabilities request payload. */
       export type Payload = Record<string, never>;
@@ -480,7 +518,9 @@ export declare namespace Files {
       export type Result = Files.Capabilities;
     }
 
-    /** List command. */
+    /**
+     * List command.
+     */
     export namespace List {
       /** List request payload. */
       export type Payload = {
@@ -509,7 +549,9 @@ export declare namespace Files {
       };
     }
 
-    /** Stat command. */
+    /**
+     * Stat command.
+     */
     export namespace Stat {
       /** Stat request payload. */
       export type Payload = { readonly path: String.Path };
@@ -517,7 +559,9 @@ export declare namespace Files {
       export type Result = { readonly entry: Entry };
     }
 
-    /** Read command. */
+    /**
+     * Read command.
+     */
     export namespace Read {
       /** Read request payload. */
       export type Payload = {
@@ -557,7 +601,9 @@ export declare namespace Files {
       };
     }
 
-    /** Write command. */
+    /**
+     * Write command.
+     */
     export namespace Write {
       /** Write request payload. */
       export type Payload = TextPayload | BytesPayload;
@@ -603,7 +649,9 @@ export declare namespace Files {
       };
     }
 
-    /** Remove command. */
+    /**
+     * Remove command.
+     */
     export namespace Remove {
       /** Remove request payload. */
       export type Payload = {
@@ -626,7 +674,9 @@ export declare namespace Files {
       };
     }
 
-    /** Watch command. */
+    /**
+     * Watch command.
+     */
     export namespace Watch {
       /** Watch request payload. */
       export type Payload = {
@@ -649,7 +699,9 @@ export declare namespace Files {
       };
     }
 
-    /** Manifest command. */
+    /**
+     * Manifest command.
+     */
     export namespace Manifest {
       /** Manifest request payload. */
       export type Payload = {
@@ -674,7 +726,9 @@ export declare namespace Files {
     }
   }
 
-  /** Files client adapters. */
+  /**
+   * Files client adapters.
+   */
   export namespace Client {
     /** Runtime client adapter surface. */
     export type Lib = {
@@ -699,7 +753,9 @@ export declare namespace Files {
     };
   }
 
-  /** Resolved Files authority. */
+  /**
+   * Resolved Files authority.
+   */
   export namespace Authority {
     /** Runtime helper surface. */
     export type Lib = {
@@ -778,7 +834,9 @@ export declare namespace Files {
     };
   }
 
-  /** Source values accepted by text-ingesting Files backings. */
+  /**
+   * Source values accepted by text-ingesting Files backings.
+   */
   export namespace Source {
     /** Text file source value without path/kind/size; those are derived by the backing. */
     export type TextFile = {
