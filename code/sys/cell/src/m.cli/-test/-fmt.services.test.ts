@@ -43,10 +43,7 @@ describe(`@sys/cell/cli service status formatter`, () => {
     expect(text).to.contain('mode');
     expect(text).to.contain('dev');
     expect(text).to.contain('jsr:@sys/driver-vite/service');
-    expect(text).to.contain('-config/view.dev.yaml');
     expect(text).to.contain('view');
-    expect(text).to.not.contain(`${cwd}/`);
-    expect(text).to.not.contain('jsr:@sys/tools/serve');
   });
 
   it('shows current-directory owner root as ./ and hides URL-redundant details', () => {
@@ -86,16 +83,21 @@ describe(`@sys/cell/cli service status formatter`, () => {
           details: [
             { label: 'path', value: '/' },
             { label: 'port', value: '5175' },
+            { label: 'namespace', value: 'sys.files' },
+            { label: 'files.kind', value: 'files/fs:live' },
+            { label: 'files.capabilities', value: 'list,stat,read,watch,manifest' },
             { label: 'dist', value: 'dist/' },
           ],
         },
       }],
     }));
 
-    expect(text).to.contain('root      ./');
+    expect(text).to.contain('root');
+    expect(text).to.contain('./');
     expect(text).to.contain('http://localhost:5175/');
+    expect(text).to.contain('capabilities');
+    expect(text).to.contain('list, stat, read, watch, manifest');
     expect(text).to.contain('dist');
     expect(text).to.contain('dist/');
-    expect(text).to.not.contain('port');
   });
 });

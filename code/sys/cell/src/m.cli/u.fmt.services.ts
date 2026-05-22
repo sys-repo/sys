@@ -32,7 +32,6 @@ function serviceStatusRows(service: StartedServiceStatus): ServiceStatusRow[] {
     rows.push([serviceLabel('mode'), serviceMode(service.selection.variant)]);
   }
   rows.push([serviceLabel('module'), serviceSubtle(service.service.from)]);
-  rows.push([serviceLabel('config'), FmtPath.display(service.paths.config)]);
 
   if (owner) {
     if (owner.state !== 'ready') rows.push([serviceLabel('state'), serviceState(owner.state)]);
@@ -78,12 +77,23 @@ function serviceUrls(status: t.Service.Status): readonly t.Service.Url[] {
 
 function serviceDetails(status: t.Service.Status): readonly t.Service.Detail[] {
   const details = status.details ?? [];
-  return details.filter((detail) => {
-    if (detail.label === 'connections') return false;
-    if ((status.urls?.length ?? 0) > 0 && detail.label === 'path') return false;
-    if ((status.urls?.length ?? 0) > 0 && detail.label === 'port') return false;
-    return true;
+  const hasUrls = (status.urls?.length ?? 0) > 0;
+
+  return details.flatMap((detail): readonly t.Service.Detail[] => {
+    if (detail.label === 'connections') return [];
+    if (detail.label === 'namespace') return [];
+    if (detail.label === 'files.kind') return [];
+    if (hasUrls && detail.label === 'path') return [];
+    if (hasUrls && detail.label === 'port') return [];
+    if (detail.label === 'files.capabilities') {
+      return [{ label: 'capabilities', value: formatCapabilities(detail.value) }];
+    }
+    return [detail];
   });
+}
+
+function formatCapabilities(value: string): string {
+  return value.split(',').map((part) => part.trim()).filter(Boolean).join(', ');
 }
 
 function serviceRoot(root: string): string {
