@@ -19,6 +19,7 @@
     "./types": "./src/types.ts",
     "./websocket": "./src/m.server.websocket/mod.ts",
     "./files": "./src/m.server.files/mod.ts",
+    "./files/service": "./src/m.server.files/m.Service/mod.ts",
     "./files/t": "./src/m.server.files/t.ts"
   },
   "permissions": {
@@ -41,4 +42,3 @@
     }
   }
 }
-

@@ -9,7 +9,7 @@ type ConnectOptions = {
 };
 
 type Connected = {
-  readonly client: t.FilesClient.WebSocket;
+  readonly client: t.Files.Client.WebSocket;
   close(reason?: unknown): Promise<void>;
 };
 
@@ -57,7 +57,7 @@ async function connect(url: t.StringUrl, options: ConnectOptions = {}): Promise<
   };
 }
 
-function clientOptions(options: ConnectOptions): t.FilesClient.WebSocketOptions {
+function clientOptions(options: ConnectOptions): { readonly timeout?: number } {
   if (options.timeout === false) return {};
   return { timeout: options.timeout ?? 1_000 };
 }
@@ -105,11 +105,11 @@ function detail(status: t.Service.Status, label: string): string | undefined {
   return status.details?.find((item) => item.label === label)?.value;
 }
 
-function direct<K extends t.FilesCmd.Name>(
-  backing: { readonly handlers: t.FilesCmd.HandlerMap },
+function direct<K extends t.Files.Cmd.Name>(
+  backing: { readonly handlers: t.Files.Cmd.HandlerMap },
   name: K,
-  payload: t.FilesCmd.Payload[K],
-): Promise<t.FilesCmd.Result[K]> {
+  payload: t.Files.Cmd.Payload[K],
+): Promise<t.Files.Cmd.Result[K]> {
   const controller = new AbortController();
   const context = {
     id: 'req-direct' as t.Cmd.ReqId,
@@ -121,7 +121,7 @@ function direct<K extends t.FilesCmd.Name>(
     },
   };
   const result = backing.handlers[name](payload, context as never);
-  return Promise.resolve(result as t.FilesCmd.Result[K]);
+  return Promise.resolve(result as t.Files.Cmd.Result[K]);
 }
 
 async function withWorkspace<T>(
@@ -182,7 +182,7 @@ async function withWatchedRemote<T>(
 function expectCmdError(
   input: unknown,
   kind: t.Cmd.Error.Kind,
-  name: t.FilesCmd.Name,
+  name: t.Files.Cmd.Name,
 ): t.Cmd.Error.Instance {
   expect(Cmd.Is.error(input)).to.eql(true);
   const error = input as t.Cmd.Error.Instance;
@@ -191,4 +191,3 @@ function expectCmdError(
   expect(error.cmd?.ns).to.eql(Files.Cmd.ns);
   return error;
 }
-

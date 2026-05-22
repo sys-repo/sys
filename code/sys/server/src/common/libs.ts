@@ -1,4 +1,6 @@
 export { Cmd } from '@sys/event/cmd';
+export { Fs } from '@sys/fs';
+export { Files } from '@sys/model/files';
 export { Net } from '@sys/net';
 export { Obj } from '@sys/std/obj';
 export { Try } from '@sys/std/try';

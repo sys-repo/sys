@@ -3,11 +3,12 @@ import { WebSocketServer } from '../mod.ts';
 import { Fixture } from './u.fixture.ts';
 
 describe('WebSocketServer/lifecycle', () => {
-  it('start accepts hosted keyboard controls without affecting caller-owned close', async () => {
+  it('start accepts hosted lifecycle options without affecting caller-owned close', async () => {
     const server = WebSocketServer.start({
       path: '/socket',
+      lifecycle: 'manual',
       silent: true,
-      keyboard: true,
+      keyboard: false,
       cmd: { handlers: { ping: () => 'pong' } },
     });
 
