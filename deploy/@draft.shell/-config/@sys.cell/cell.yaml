@@ -4,6 +4,11 @@ kind: cell
 version: 1
 
 services:
+  - name: shell:files
+    use: FilesWebSocketService
+    from: 'jsr:@sys/server/files/service'
+    config: ./-config/@sys.server.files/shell.yaml
+
   - name: view
     use: Serve
     from: 'jsr:@sys/tools/serve'

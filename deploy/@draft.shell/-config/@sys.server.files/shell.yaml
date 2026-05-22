@@ -1,0 +1,6 @@
+name: shell:files
+root: ./-sample/app
+path: /files
+port: 5176
+watch: true
+policy: '**'
