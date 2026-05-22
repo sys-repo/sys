@@ -52,6 +52,7 @@
     "./prose": "./src/ui/Prose/mod.ts",
     "./sheet": "./src/ui/Sheet/mod.ts",
     "./slider": "./src/ui/Slider/mod.ts",
+    "./splash": "./src/ui/Splash/mod.ts",
     "./specs": "./src/-test/-specs.ts",
     "./spinners": "./src/ui/Spinners/mod.ts",
     "./text": "./src/ui/Text/mod.ts",
