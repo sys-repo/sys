@@ -27,7 +27,8 @@ export async function startCell(args: StartCellArgs = {}): Promise<StartCellResu
   let finalReason: string | undefined;
 
   try {
-    started = await startServices(cell, { until: shutdown.signal, mode });
+    const serviceCount = cell.descriptor.services?.length ?? 0;
+    started = await startServices(cell, { until: shutdown.signal, mode }, serviceCount);
     serviceText = Fmt.Services.started({ services: serviceStatusesOf(started) });
     if (serviceText) args.onStarted?.(serviceText);
     await Promise.race([Cell.Services.wait(started), shutdown.done]);
@@ -49,9 +50,10 @@ export async function startCell(args: StartCellArgs = {}): Promise<StartCellResu
 async function startServices(
   cell: t.Cell.Instance,
   options: t.Cell.Services.StartOptions,
+  serviceCount: number,
 ): Promise<t.Cell.Services.Started> {
   const silent = !Cli.Keyboard.isTerminal();
-  const spinner = Cli.spinner(Cli.Fmt.spinnerText('starting services...'), { silent });
+  const spinner = Cli.spinner(Cli.Fmt.spinnerText(startServicesText(serviceCount)), { silent });
   try {
     return await Cell.start(cell, options);
   } finally {
@@ -69,6 +71,11 @@ async function closeAndDispose(
   } finally {
     shutdown.dispose();
   }
+}
+
+export function startServicesText(count: number): string {
+  if (count === 1) return 'starting service...';
+  return `starting ${count} ${Str.plural(count, 'service')}...`;
 }
 
 export function formatStartResult(res: StartCellResult): string {

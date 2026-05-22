@@ -1,10 +1,16 @@
 import { describe, expect, Fs, it, Str, Testing } from '../../-test.ts';
 import { c, Cli, stripAnsi } from '../common.ts';
 import { CellCli } from '../mod.ts';
-import { formatStartResult } from '../u.start.ts';
+import { formatStartResult, startServicesText } from '../u.start.ts';
 import { devServiceSource, serviceUrlsOf, silent, statusServiceSource } from './u.fixture.ts';
 
 describe(`@sys/cell/cli start`, () => {
+  it('formats startup spinner text from service count', () => {
+    expect(startServicesText(0)).to.eql('starting 0 services...');
+    expect(startServicesText(1)).to.eql('starting service...');
+    expect(startServicesText(3)).to.eql('starting 3 services...');
+  });
+
   it('start → loads and starts an empty Cell services set', async () => {
     const fs = await Testing.dir('CellCli.start.empty-services');
     await silent(() => CellCli.run({ argv: ['init', fs.dir] }));
