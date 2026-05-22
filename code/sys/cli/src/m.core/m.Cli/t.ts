@@ -1,4 +1,3 @@
-import type { ArgsLib } from '@sys/std/t';
 import type { t } from '../common.ts';
 
 /**
@@ -6,7 +5,7 @@ import type { t } from '../common.ts';
  */
 export type CliLib = {
   /** Argument parsing helpers */
-  readonly Args: ArgsLib;
+  readonly Args: t.Args.Lib;
 
   /** Tools for for working with string paths. */
   readonly Path: t.Path.Lib;
@@ -32,7 +31,7 @@ export type CliLib = {
   readonly Screen: t.CliScreenLib;
 
   /** Parse command-line argments into an object (argv). */
-  args: ArgsLib['parse'];
+  args: t.Args.Lib['parse'];
 
   /** Create a new Table generator instance. */
   table: t.CliTableLib['create'];

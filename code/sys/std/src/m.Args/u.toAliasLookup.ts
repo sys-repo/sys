@@ -6,7 +6,7 @@ import { type t, Obj } from './common.ts';
  * This is a pure transform used to normalize argv where the first positional
  * may be an alias (e.g. "cp" → "copy").
  */
-export function toAliasLookup<T extends Record<string, t.ArgsAliasList>>(
+export function toAliasLookup<T extends Record<string, t.Args.Alias.List>>(
   map: T,
 ): Record<string, keyof T> {
   const lookup: Record<string, keyof T> = {};
