@@ -1,5 +1,5 @@
 import type { StartedServiceStatus } from '../m.cell/u.services/u.status.ts';
-import { c, Cli, CliTable, Fs, Is, Str, type t } from './common.ts';
+import { c, Cli, CliTable, Is, Str, type t } from './common.ts';
 import { FmtPath } from './u.fmt.path.ts';
 
 type ServicesStartedResult = {
@@ -67,8 +67,7 @@ function serviceDetails(status: t.Service.Status): readonly t.Service.Detail[] {
 }
 
 function serviceRoot(root: string): string {
-  const path = Fs.trimCwd(root);
-  return path.trim() === '' ? c.gray('./') : Cli.Fmt.Path.str(path);
+  return FmtPath.display(root);
 }
 
 function serviceLabel(label: string): string {

@@ -2,7 +2,7 @@
  * @module
  * Command-line formatting tools (e.g. color, tree, path).
  */
-import { type t, c, PathFormat } from '../common.ts';
+import { type t, c, Path as StdPath, PathFormat } from '../common.ts';
 import { Chapters } from '../m.Fmt.Chapters/mod.ts';
 import { Commit } from './m.Fmt.Commit.ts';
 import { Help } from './m.Fmt.Help.ts';
@@ -12,13 +12,25 @@ import { Tree } from './m.Fmt.Tree.ts';
 import { UrlFmt } from './m.Fmt.Url.ts';
 
 export const Path: t.CliFormat.Lib['Path'] = {
-  str: (path) => c.gray(Fmt.path(path, Fmt.Path.fmt())),
+  str(path) {
+    const display = displayPath(path);
+    if (display === './') return c.gray('./');
+    return c.gray(Fmt.path(display, Fmt.Path.fmt()));
+  },
   fmt(_opts = {}) {
     return (e) => {
       if (e.is.basename) e.change(c.white(e.part));
     };
   },
 };
+
+function displayPath(path: string): string {
+  const value = path.trim();
+  if (value === '' || value === '.') return './';
+  if (StdPath.Is.absolute(value)) return value;
+  if (value.startsWith('./') || value.startsWith('../')) return value;
+  return `./${value}`;
+}
 
 /** Command-line formatting helper library. */
 export const Fmt: t.CliFormat.Lib = {
