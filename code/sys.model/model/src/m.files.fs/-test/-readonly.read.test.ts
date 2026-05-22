@@ -70,7 +70,7 @@ describe('FilesFs.Readonly.create: read', () => {
       const { backing, calls } = setup({ policy: allowDocsPolicy });
 
       await expectFilesFsError(
-        () => cmd.read(backing, {} as t.FilesCmd.Read.Payload),
+        () => cmd.read(backing, {} as t.Files.Cmd.Read.Payload),
         'FilesFsError.InvalidPath',
       );
       expect(calls.stat).to.eql(0);

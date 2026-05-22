@@ -1,39 +1,39 @@
 import { Err, Is, type t } from './common.ts';
 
-const prefix: t.FilesCursor.Prefix = 'files:cursor';
-const version: t.FilesCursor.Version = 'v1';
+const prefix: t.Files.Cursor.Prefix = 'files:cursor';
+const version: t.Files.Cursor.Version = 'v1';
 
-const Kind: t.FilesCursor.KindMap = {
+const Kind: t.Files.Cursor.KindMap = {
   list: 'list',
   watch: 'watch',
   manifest: 'manifest',
 };
 
-const isKind = (input: unknown): input is t.FilesCursor.Kind => {
+const isKind = (input: unknown): input is t.Files.Cursor.Kind => {
   return input === Kind.list || input === Kind.watch || input === Kind.manifest;
 };
 
-const isToken = (input: unknown): input is t.FilesCursor.Token => {
+const isToken = (input: unknown): input is t.Files.Cursor.Token => {
   return Is.string(input) && input.length > 0;
 };
 
 const fail = (message: string) => Err.std(message, { name: 'FilesCursorError' });
 
-const create = <K extends t.FilesCursor.Kind>(kind: K, token: t.FilesCursor.Token) => {
+const create = <K extends t.Files.Cursor.Kind>(kind: K, token: t.Files.Cursor.Token) => {
   if (!isKind(kind)) throw fail(`Invalid Files cursor kind: ${String(kind)}`);
   if (!isToken(token)) throw fail('Files cursor token must be a non-empty string');
   return `${prefix}:${kind}:${version}:${token}` as t.Files.String.Cursor<K>;
 };
 
-const toParsed = <K extends t.FilesCursor.Kind>(
+const toParsed = <K extends t.Files.Cursor.Kind>(
   kind: K,
-  token: t.FilesCursor.Token,
+  token: t.Files.Cursor.Token,
   value: t.Files.String.Cursor<K>,
-): t.FilesCursor.Parsed.Shape<K> => {
+): t.Files.Cursor.Parsed.Shape<K> => {
   return { prefix, kind, version, token, value };
 };
 
-const parse = (input: unknown): t.FilesCursor.Parsed | undefined => {
+const parse = (input: unknown): t.Files.Cursor.Parsed | undefined => {
   if (!Is.string(input)) return undefined;
 
   const parts = input.split(':');
@@ -47,31 +47,31 @@ const parse = (input: unknown): t.FilesCursor.Parsed | undefined => {
   const token = tokenParts.join(':');
   if (!isToken(token)) return undefined;
 
-  if (kind === Kind.list) return toParsed(kind, token, input as t.FilesCursor.List);
-  if (kind === Kind.watch) return toParsed(kind, token, input as t.FilesCursor.Watch);
-  return toParsed(kind, token, input as t.FilesCursor.Manifest);
+  if (kind === Kind.list) return toParsed(kind, token, input as t.Files.Cursor.List);
+  if (kind === Kind.watch) return toParsed(kind, token, input as t.Files.Cursor.Watch);
+  return toParsed(kind, token, input as t.Files.Cursor.Manifest);
 };
 
-const IsCursor: t.FilesCursor.IsLib = {
+const IsCursor: t.Files.Cursor.IsLib = {
   cursor(input: unknown): input is t.Files.String.Cursor {
     return parse(input) !== undefined;
   },
-  list(input: unknown): input is t.FilesCursor.List {
+  list(input: unknown): input is t.Files.Cursor.List {
     return parse(input)?.kind === Kind.list;
   },
-  watch(input: unknown): input is t.FilesCursor.Watch {
+  watch(input: unknown): input is t.Files.Cursor.Watch {
     return parse(input)?.kind === Kind.watch;
   },
-  manifest(input: unknown): input is t.FilesCursor.Manifest {
+  manifest(input: unknown): input is t.Files.Cursor.Manifest {
     return parse(input)?.kind === Kind.manifest;
   },
-  kind<K extends t.FilesCursor.Kind>(kind: K, input: unknown): input is t.Files.String.Cursor<K> {
+  kind<K extends t.Files.Cursor.Kind>(kind: K, input: unknown): input is t.Files.String.Cursor<K> {
     return parse(input)?.kind === kind;
   },
 };
 
 /** Cursor codec for paged Files command surfaces. */
-export const Cursor: t.FilesCursor.Lib = {
+export const Cursor: t.Files.Cursor.Lib = {
   prefix,
   version,
   Kind,

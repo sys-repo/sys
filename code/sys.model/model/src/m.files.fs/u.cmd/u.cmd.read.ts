@@ -11,10 +11,10 @@ import { absolutePath, assertRealInside, requiredVisiblePath, type Scope } from 
  */
 export const read = async (
   scope: Scope,
-  policy: t.FilesPolicy.Shape,
-  payload: t.FilesCmd.Read.Payload,
+  policy: t.Files.Policy.Shape,
+  payload: t.Files.Cmd.Read.Payload,
   maxReadBytes: t.NumberBytes | undefined,
-): Promise<t.FilesCmd.Read.Result> => {
+): Promise<t.Files.Cmd.Read.Result> => {
   const path = requiredVisiblePath(scope.fs, payload.path);
   if (!allowed(policy, 'read', path)) {
     throw fail('FilesFsError.PolicyDenied', `Read denied: ${path}`);

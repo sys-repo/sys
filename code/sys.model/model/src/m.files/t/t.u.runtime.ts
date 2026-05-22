@@ -1,7 +1,5 @@
 import type { t } from '../common.ts';
-import type { FilesCapability } from './t.capability.ts';
-import type { FilesCmd } from './t.cmd.ts';
-import type { FilesPolicy } from './t.policy.ts';
+import type { Files } from '../t.ts';
 
 /**
  * Runtime structural surfaces and option fragments for backing adapters.
@@ -12,9 +10,9 @@ export declare namespace Runtime {
     /** Backing kind, when surfaced as owner-local metadata. */
     readonly kind?: K;
     /** Capability facts for the bounded Files view. */
-    readonly capabilities: FilesCapability.Capabilities;
+    readonly capabilities: Files.Capabilities;
     /** Canonical Files Cmd handlers. */
-    readonly handlers: FilesCmd.HandlerMap;
+    readonly handlers: Files.Cmd.HandlerMap;
   };
 
   /** Runtime shape shared by model-owned Files backing adapters. */
@@ -22,13 +20,13 @@ export declare namespace Runtime {
     /** Backing kind, surfaced only as owner-local metadata. */
     readonly kind: K;
     /** Snapshotted Files access policy used by this backing. */
-    readonly policy: FilesPolicy.Shape;
+    readonly policy: Files.Policy.Shape;
   };
 
   /** Shared options for bounded Files backing creation. */
   export type Options = {
     /** Files access policy; defaults to deny-all. */
-    readonly policy?: FilesPolicy.Shape;
+    readonly policy?: Files.Policy.Shape;
     /** Default page size for list/manifest results. */
     readonly defaultLimit?: t.NumberTotal;
   };

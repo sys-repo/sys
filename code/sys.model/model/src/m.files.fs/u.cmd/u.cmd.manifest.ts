@@ -10,8 +10,8 @@ import { type Scope, visiblePath } from '../u/u.path.ts';
  */
 export const manifest = async (
   scope: Scope,
-  policy: t.FilesPolicy.Shape,
-  payload: t.FilesCmd.Manifest.Payload,
+  policy: t.Files.Policy.Shape,
+  payload: t.Files.Cmd.Manifest.Payload,
   capabilities: t.Files.Capabilities,
   defaultLimit: t.Files.Limit,
 ): Promise<t.Files.Manifest> => {

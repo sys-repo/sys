@@ -3,17 +3,17 @@ import { Cmd as FilesCmd } from '../m.Cmd.ts';
 import { openWebSocket } from './u.open.ts';
 
 /** Open a WebSocket and return a typed Files Cmd client bound to it. */
-export const websocket: t.FilesClient.Lib['websocket'] = async (url, options = {}) => {
+export const websocket: t.Files.Client.Lib['websocket'] = async (url, options = {}) => {
   const { timeout } = options;
   const href = String(url) as t.StringUrl;
   const { ws, finished } = await openWebSocket(href, options.protocols);
 
   const endpoint = Cmd.Transport.fromWebSocket(ws);
   const client = Cmd.make<
-    t.FilesCmd.Name,
-    t.FilesCmd.Payload,
-    t.FilesCmd.Result,
-    t.FilesCmd.Event
+    t.Files.Cmd.Name,
+    t.Files.Cmd.Payload,
+    t.Files.Cmd.Result,
+    t.Files.Cmd.Event
   >({ ns: FilesCmd.ns }).client(endpoint, { timeout, closeEndpoint: true });
 
   void finished.then((event) => client.dispose(event ?? 'websocket.close'));

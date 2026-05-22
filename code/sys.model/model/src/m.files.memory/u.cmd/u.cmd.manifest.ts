@@ -10,8 +10,8 @@ import { manifestAllowed } from '../u/u.policy.ts';
 /** Implementation of the `files:manifest` command for memory nodes. */
 export const manifest = (
   nodes: MemoryNodes,
-  policy: t.FilesPolicy.Shape,
-  payload: t.FilesCmd.Manifest.Payload,
+  policy: t.Files.Policy.Shape,
+  payload: t.Files.Cmd.Manifest.Payload,
   capabilities: t.Files.Capabilities,
   defaultLimit: t.Files.Limit,
 ): t.Files.Manifest => {

@@ -9,7 +9,7 @@ export type WritableScope = Scope<t.FilesFs.Capability.Writable>;
 
 export type WriteTarget = {
   readonly absolute: t.StringAbsolutePath;
-  readonly previous?: t.FilesEntry.File;
+  readonly previous?: t.Files.Entry.File;
 };
 
 /** Preflight the target and parent directory for a complete-file write. */
@@ -28,7 +28,7 @@ export const writtenFileEntry = async (
   scope: WritableScope,
   path: t.Files.String.Path,
   absolute: t.StringAbsolutePath,
-): Promise<t.FilesEntry.File> => {
+): Promise<t.Files.Entry.File> => {
   const real = await assertRealInside(scope, absolute);
   if (!real) throw fail('FilesFsError.NotFound', `File not found: ${path}`);
   const info = await scope.fs.stat(real);
@@ -42,7 +42,7 @@ const existingFile = async (
   scope: WritableScope,
   path: t.Files.String.Path,
   absolute: t.StringAbsolutePath,
-): Promise<t.FilesEntry.File | undefined> => {
+): Promise<t.Files.Entry.File | undefined> => {
   const lstat = await scope.fs.lstat(absolute);
   if (!lstat) return undefined;
   if (lstat.isSymlink) await rejectSymlink(scope, absolute);

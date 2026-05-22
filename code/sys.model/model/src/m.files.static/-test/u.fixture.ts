@@ -22,10 +22,10 @@ export const sampleDist = dist({
 
 export type SetupOptions = Omit<t.FilesStatic.FromDistOptions, 'dist' | 'policy'> & {
   readonly dist?: t.DistPkg;
-  readonly policy?: t.FilesPolicy.Shape;
+  readonly policy?: t.Files.Policy.Shape;
 };
 
-export type ListPayloadInput = Omit<t.FilesCmd.List.Payload, 'cursor'> & {
+export type ListPayloadInput = Omit<t.Files.Cmd.List.Payload, 'cursor'> & {
   readonly cursor?: t.Files.String.Cursor;
 };
 
@@ -46,24 +46,24 @@ export const cmd = {
 
   list(backing: t.FilesStatic.Readonly, payload: ListPayloadInput = {}) {
     return backing.handlers['files:list'](
-      payload as t.FilesCmd.List.Payload,
+      payload as t.Files.Cmd.List.Payload,
       context('files:list'),
     );
   },
 
-  stat(backing: t.FilesStatic.Readonly, payload: t.FilesCmd.Stat.Payload) {
+  stat(backing: t.FilesStatic.Readonly, payload: t.Files.Cmd.Stat.Payload) {
     return backing.handlers['files:stat'](payload, context('files:stat'));
   },
 
-  read(backing: t.FilesStatic.Readonly, payload: t.FilesCmd.Read.Payload) {
+  read(backing: t.FilesStatic.Readonly, payload: t.Files.Cmd.Read.Payload) {
     return backing.handlers['files:read'](payload, context('files:read'));
   },
 
-  watch(backing: t.FilesStatic.Readonly, payload: t.FilesCmd.Watch.Payload = {}) {
+  watch(backing: t.FilesStatic.Readonly, payload: t.Files.Cmd.Watch.Payload = {}) {
     return backing.handlers['files:watch'](payload, context('files:watch'));
   },
 
-  manifest(backing: t.FilesStatic.Readonly, payload: t.FilesCmd.Manifest.Payload = {}) {
+  manifest(backing: t.FilesStatic.Readonly, payload: t.Files.Cmd.Manifest.Payload = {}) {
     return backing.handlers['files:manifest'](payload, context('files:manifest'));
   },
 };
@@ -89,15 +89,15 @@ export function part(hash: t.StringHash, size?: number): t.StringFileHashUri {
   return size === undefined ? hash : `${hash}:size=${size}`;
 }
 
-export function context<K extends t.FilesCmd.Name>(
+export function context<K extends t.Files.Cmd.Name>(
   name: K,
-): t.Cmd.Handler.Context<t.FilesCmd.Name, t.FilesCmd.Event, K> {
+): t.Cmd.Handler.Context<t.Files.Cmd.Name, t.Files.Cmd.Event, K> {
   const controller = new AbortController();
   return {
     id: 'req-files-static-test' as t.Cmd.ReqId,
     name,
     signal: controller.signal,
-    emit(_event: t.FilesCmd.Event[K]) {
+    emit(_event: t.Files.Cmd.Event[K]) {
       return undefined;
     },
   };

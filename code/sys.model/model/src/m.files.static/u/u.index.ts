@@ -4,7 +4,7 @@ import { parentPath, visiblePath } from './u.path.ts';
 import { contentRef } from './u.ref.ts';
 
 export type StaticFile = {
-  readonly entry: t.FilesEntry.File;
+  readonly entry: t.Files.Entry.File;
   readonly contentRef: t.Files.ContentRef;
 };
 
@@ -74,7 +74,7 @@ function putParentDirs(
   }
 }
 
-function dirEntries(dirs: ReadonlySet<t.Files.String.Path>): readonly t.FilesEntry.Dir[] {
+function dirEntries(dirs: ReadonlySet<t.Files.String.Path>): readonly t.Files.Entry.Dir[] {
   return [...dirs]
     .filter((path) => path !== '')
     .map((path) => Object.freeze({ path, kind: 'dir' as const }));
@@ -82,7 +82,7 @@ function dirEntries(dirs: ReadonlySet<t.Files.String.Path>): readonly t.FilesEnt
 
 type PartInfo = { readonly hash: t.StringHash; readonly size?: t.NumberBytes };
 
-function fileEntry(path: t.Files.String.Path, info: PartInfo): t.FilesEntry.File {
+function fileEntry(path: t.Files.String.Path, info: PartInfo): t.Files.Entry.File {
   return Object.freeze({
     path,
     kind: 'file',

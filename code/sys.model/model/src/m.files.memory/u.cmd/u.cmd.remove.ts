@@ -10,15 +10,15 @@ type RemovedEntry = {
 };
 
 export type RemoveMutation = {
-  readonly result: t.FilesCmd.Remove.Result;
+  readonly result: t.Files.Cmd.Remove.Result;
   readonly deleted: readonly t.Files.String.Path[];
 };
 
 /** Implementation of the `files:remove` command for mutable memory nodes. */
 export const remove = (
   nodes: MemoryNodes,
-  policy: t.FilesPolicy.Shape,
-  payload: t.FilesCmd.Remove.Payload,
+  policy: t.Files.Policy.Shape,
+  payload: t.Files.Cmd.Remove.Payload,
 ): RemoveMutation => {
   if (!Is.plainObject(payload)) {
     throw fail('FilesMemoryError.InvalidPath', 'Files remove payload must be a plain object');

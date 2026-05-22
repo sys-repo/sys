@@ -18,7 +18,7 @@ const WRITABLE_SUPPORTS = {
   write: true,
   remove: true,
   manifest: true,
-} satisfies Partial<t.FilesCapability.Map>;
+} satisfies Partial<t.Files.Capability.Map>;
 
 const allowAllMutablePolicy = {
   list: '**',
@@ -27,7 +27,7 @@ const allowAllMutablePolicy = {
   write: '**',
   remove: '**',
   manifest: true,
-} satisfies t.FilesPolicy.Shape;
+} satisfies t.Files.Policy.Shape;
 
 describe('FilesFs.Writable', () => {
   it('create exposes bounded writable commands without live diagnostics', async () => {
@@ -143,7 +143,7 @@ describe('FilesFs.Writable', () => {
       name: Files.Cmd.Name.watch,
       ns: Files.Cmd.ns,
       signal: controller.signal,
-      emit(event) {
+      emit(event: t.Files.Change) {
         events.push(event);
       },
     });

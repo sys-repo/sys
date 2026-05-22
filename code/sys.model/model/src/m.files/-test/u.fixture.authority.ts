@@ -7,7 +7,7 @@ export const Fixture = {
   handlerMap,
 } as const;
 
-function handlerMap(calls: t.FilesCmd.Name[]): t.FilesCmd.HandlerMap {
+function handlerMap(calls: t.Files.Cmd.Name[]): t.Files.Cmd.HandlerMap {
   const file = { path: 'docs/readme.md', kind: 'file', size: 2 } as const;
   const capabilities = {
     list: true,
@@ -52,9 +52,9 @@ function handlerMap(calls: t.FilesCmd.Name[]): t.FilesCmd.HandlerMap {
   };
 }
 
-function context<K extends t.FilesCmd.Name>(
+function context<K extends t.Files.Cmd.Name>(
   name: K,
-): t.Cmd.Handler.Context<t.FilesCmd.Name, t.FilesCmd.Event, K> {
+): t.Cmd.Handler.Context<t.Files.Cmd.Name, t.Files.Cmd.Event, K> {
   return {
     id: 'req-files-authority-test' as t.Cmd.ReqId,
     name,

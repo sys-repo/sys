@@ -7,17 +7,17 @@ import { changesFromEvent, commandChange, watcherMatches } from './u.change.ts';
 import { type WatchQuery, watchQuery, type WatchScope } from './u.query.ts';
 
 type WatchContext = t.Cmd.Handler.Context<
-  t.FilesCmd.Name,
-  t.FilesCmd.Event,
-  t.FilesCmd.Name.Watch
+  t.Files.Cmd.Name,
+  t.Files.Cmd.Event,
+  t.Files.Cmd.Name.Watch
 >;
 
 type WatchRuntime = {
   readonly diagnostics: Live.Diagnostics;
   readonly handler: (
-    payload: t.FilesCmd.Watch.Payload,
+    payload: t.Files.Cmd.Watch.Payload,
     context: WatchContext,
-  ) => Promise<t.FilesCmd.Watch.Result>;
+  ) => Promise<t.Files.Cmd.Watch.Result>;
   readonly emit: (
     kind: t.Files.Change['kind'],
     path: t.Files.String.Path,
@@ -33,7 +33,7 @@ type ActiveWatch = {
 };
 
 /** Create live watch state and Cmd handler for a bounded filesystem scope. */
-export const createWatch = (scope: WatchScope, policy: t.FilesPolicy.Shape): WatchRuntime => {
+export const createWatch = (scope: WatchScope, policy: t.Files.Policy.Shape): WatchRuntime => {
   const active = new Set<ActiveWatch>();
   const activeWaiters = new Set<() => void>();
   let seq = 0;
@@ -66,7 +66,7 @@ export const createWatch = (scope: WatchScope, policy: t.FilesPolicy.Shape): Wat
         throw fail('FilesFsError.Unsupported', 'Filesystem watch failed');
       }
 
-      return new Promise<t.FilesCmd.Watch.Result>((resolve) => {
+      return new Promise<t.Files.Cmd.Watch.Result>((resolve) => {
         let settled = false;
         const subscription = watcher.$.subscribe((event) => {
           void emitEvent(query, policy, event, context).catch(() => undefined);
@@ -111,7 +111,7 @@ export const createWatch = (scope: WatchScope, policy: t.FilesPolicy.Shape): Wat
 
   async function emitEvent(
     query: WatchQuery,
-    policy: t.FilesPolicy.Shape,
+    policy: t.Files.Policy.Shape,
     event: t.FilesFs.Capability.WatchEvent,
     context: WatchContext,
   ) {
@@ -130,7 +130,7 @@ export const createWatch = (scope: WatchScope, policy: t.FilesPolicy.Shape): Wat
     return seq as t.Files.Seq;
   }
 
-  function cursor(): t.FilesCursor.Watch {
+  function cursor(): t.Files.Cursor.Watch {
     return Files.Cursor.create('watch', String(seq));
   }
 

@@ -11,10 +11,10 @@ export type WritableScope = Scope<t.FilesFs.Capability.Writable>;
 /** Implementation of the `files:write` command for writable files/fs backings. */
 export const write = async (
   scope: WritableScope,
-  policy: t.FilesPolicy.Shape,
-  payload: t.FilesCmd.Write.Payload,
+  policy: t.Files.Policy.Shape,
+  payload: t.Files.Cmd.Write.Payload,
   maxWriteBytes: t.NumberBytes | undefined,
-): Promise<t.FilesCmd.Write.Result> => {
+): Promise<t.Files.Cmd.Write.Result> => {
   if (!Is.plainObject(payload)) {
     throw fail('FilesFsError.InvalidPath', 'Files write payload must be a plain object');
   }
@@ -37,10 +37,10 @@ export const write = async (
 
 async function writeChecked(
   scope: WritableScope,
-  policy: t.FilesPolicy.Shape,
+  policy: t.Files.Policy.Shape,
   path: t.Files.String.Path,
   body: WriteBody,
-): Promise<t.FilesCmd.Write.Result> {
+): Promise<t.Files.Cmd.Write.Result> {
   const canonical = await realScope(scope);
   const target = await writeTarget(canonical, path);
 

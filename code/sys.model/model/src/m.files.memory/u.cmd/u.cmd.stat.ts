@@ -9,9 +9,9 @@ import { allowed } from '../u/u.policy.ts';
 /** Implementation of the `files:stat` command for memory nodes. */
 export const stat = (
   nodes: MemoryNodes,
-  policy: t.FilesPolicy.Shape,
-  payload: t.FilesCmd.Stat.Payload,
-): t.FilesCmd.Stat.Result => {
+  policy: t.Files.Policy.Shape,
+  payload: t.Files.Cmd.Stat.Payload,
+): t.Files.Cmd.Stat.Result => {
   assertPayload(payload, 'stat');
   const path = requiredVisiblePath(payload.path);
   if (!allowed(policy, 'stat', path)) {

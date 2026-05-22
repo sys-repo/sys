@@ -18,7 +18,7 @@ const STATIC_SUPPORTS = {
   stat: true,
   read: true,
   manifest: true,
-} satisfies Partial<t.FilesCapability.Map>;
+} satisfies Partial<t.Files.Capability.Map>;
 
 describe('FilesStatic.fromDist', () => {
   it('exports the public runtime surface', async () => {
@@ -79,7 +79,7 @@ describe('FilesStatic.fromDist', () => {
         { path: 'private', kind: 'dir' },
       ],
     });
-    expect(root.entries.every((entry) => !entry.path.startsWith('/'))).to.eql(true);
+    expect(root.entries.every((entry: t.Files.Entry) => !entry.path.startsWith('/'))).to.eql(true);
 
     const stat = await cmd.stat(backing, { path: 'notes/baz.md' });
     expect(stat).to.eql({
@@ -173,7 +173,7 @@ describe('FilesStatic.fromDist', () => {
     (policy as Record<string, unknown>).deny = undefined;
 
     const root = await cmd.list(backing, { depth: 2 });
-    expect(root.entries.map((entry) => entry.path)).to.eql([
+    expect(root.entries.map((entry: t.Files.Entry) => entry.path)).to.eql([
       'foo.json',
       'notes',
       'notes/baz.md',
@@ -190,11 +190,11 @@ describe('FilesStatic.fromDist', () => {
       stat: '**',
       read: 'foo.json',
       manifest: true,
-    } satisfies t.FilesPolicy.Shape;
+    } satisfies t.Files.Policy.Shape;
     const { backing } = setup({ policy });
 
     const manifest = await cmd.manifest(backing, { content: true });
-    expect(manifest.entries.map((entry) => entry.path)).to.eql([
+    expect(manifest.entries.map((entry: t.Files.Entry) => entry.path)).to.eql([
       'foo.json',
       'notes',
       'notes/baz.md',
@@ -210,7 +210,7 @@ describe('FilesStatic.fromDist', () => {
     const { backing } = setup({ defaultLimit: 2 });
 
     const first = await cmd.list(backing);
-    expect(first.entries.map((entry) => entry.path)).to.eql(['foo.json', 'notes']);
+    expect(first.entries.map((entry: t.Files.Entry) => entry.path)).to.eql(['foo.json', 'notes']);
     expect(first.truncated).to.eql(true);
     expect(Files.Cursor.Is.list(first.cursor)).to.eql(true);
 
@@ -273,21 +273,21 @@ describe('FilesStatic.fromDist', () => {
     });
 
     const matched = await cmd.list(backing, { match: '**/*.md' });
-    expect(matched.entries.map((entry) => entry.path)).to.eql([
+    expect(matched.entries.map((entry: t.Files.Entry) => entry.path)).to.eql([
       'docs/deep/nested.md',
       'docs/readme.md',
       'other.md',
     ]);
 
     const excluded = await cmd.list(backing, { exclude: ['docs/deep', 'docs/deep/**'] });
-    expect(excluded.entries.map((entry) => entry.path)).to.eql([
+    expect(excluded.entries.map((entry: t.Files.Entry) => entry.path)).to.eql([
       'docs',
       'docs/readme.md',
       'other.md',
     ]);
 
     const scoped = await cmd.list(backing, { path: 'docs', depth: 1 });
-    expect(scoped.entries.map((entry) => entry.path)).to.eql(['docs/deep', 'docs/readme.md']);
+    expect(scoped.entries.map((entry: t.Files.Entry) => entry.path)).to.eql(['docs/deep', 'docs/readme.md']);
   });
 
   it('handles dist refs and URL edge cases without widening authority', async () => {

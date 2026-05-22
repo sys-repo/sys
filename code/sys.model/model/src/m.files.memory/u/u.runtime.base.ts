@@ -15,16 +15,16 @@ export type MemoryRuntimeSource = {
 };
 
 export type MemoryRuntimeCore = MemoryRuntimeSource & {
-  readonly authority: t.FilesAuthority.Instance;
-  readonly policy: t.FilesPolicy.Shape;
+  readonly authority: t.Files.Authority.Instance;
+  readonly policy: t.Files.Policy.Shape;
   readonly capabilities: t.Files.Capabilities;
-  readonly baseHandlers: t.FilesCmd.HandlerMap;
+  readonly baseHandlers: t.Files.Cmd.HandlerMap;
 };
 
 type BaseRuntime = MemoryRuntimeSource & {
-  readonly policy: t.FilesPolicy.Shape;
+  readonly policy: t.Files.Policy.Shape;
   readonly capabilities: t.Files.Capabilities;
-  readonly handlers: t.FilesCmd.HandlerMap;
+  readonly handlers: t.Files.Cmd.HandlerMap;
 };
 
 /** Build shared memory source state for concrete runtime variants. */

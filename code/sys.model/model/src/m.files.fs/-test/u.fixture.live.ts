@@ -12,7 +12,7 @@ export type LiveFsFixture = {
 };
 
 export type SetupLiveOptions = {
-  readonly policy?: t.FilesPolicy.Shape;
+  readonly policy?: t.Files.Policy.Shape;
   readonly maxReadBytes?: t.NumberBytes;
   readonly defaultLimit?: t.Files.Limit;
 };
@@ -24,12 +24,12 @@ export type LiveSetup = LiveFsFixture & {
 export const allowDocsLivePolicy = {
   ...allowDocsPolicy,
   watch: 'docs/**',
-} satisfies t.FilesPolicy.Shape;
+} satisfies t.Files.Policy.Shape;
 
 export const allowAllLivePolicy = {
   ...allowAllPolicy,
   watch: '**',
-} satisfies t.FilesPolicy.Shape;
+} satisfies t.Files.Policy.Shape;
 
 const Path = FilesPath.posix() satisfies t.FilesFs.Capability.Path;
 

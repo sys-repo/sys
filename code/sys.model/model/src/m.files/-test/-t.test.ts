@@ -1,4 +1,5 @@
 import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
+import type * as TPublicFiles from '../t.ts';
 
 const capabilities: t.Files.Capabilities = {
   list: true,
@@ -10,13 +11,24 @@ const capabilities: t.Files.Capabilities = {
   manifest: true,
 };
 
-const file: t.FilesEntry.File = {
+const file: t.Files.Entry.File = {
   kind: 'file',
   path: 'docs/readme.md',
   mediaType: 'text/markdown',
 };
 
 describe('Files/t', () => {
+  it('publishes Files as the public type namespace', () => {
+    const policy = { read: '**' } satisfies TPublicFiles.Files.Policy.Shape;
+    const name = 'files:list' as TPublicFiles.Files.Cmd.Name;
+
+    // @ts-expect-error Sibling namespaces stay private; consumers use Files.Cmd.
+    type NoPublicFilesCmd = TPublicFiles.FilesCmd;
+
+    expect(policy.read).to.eql('**');
+    expectTypeOf(name).toMatchTypeOf<string>();
+  });
+
   it('content refs are discriminated handles, not host paths', () => {
     const url: t.Files.ContentRef = {
       kind: 'url',
@@ -53,9 +65,9 @@ describe('Files/t', () => {
   });
 
   it('cursor strings are versioned, scoped, and not plain strings', () => {
-    const list: t.FilesCursor.List = 'files:cursor:list:v1:page-1';
-    const watch: t.FilesCursor.Watch = 'files:cursor:watch:v1:seq-1';
-    const manifest: t.FilesCursor.Manifest = 'files:cursor:manifest:v1:page-1';
+    const list: t.Files.Cursor.List = 'files:cursor:list:v1:page-1';
+    const watch: t.Files.Cursor.Watch = 'files:cursor:watch:v1:seq-1';
+    const manifest: t.Files.Cursor.Manifest = 'files:cursor:manifest:v1:page-1';
     const generic: t.Files.String.Cursor = manifest;
 
     expect(list).to.eql('files:cursor:list:v1:page-1');
@@ -63,9 +75,9 @@ describe('Files/t', () => {
     expect(manifest).to.eql('files:cursor:manifest:v1:page-1');
     expect(generic).to.eql(manifest);
 
-    expectTypeOf(list).toEqualTypeOf<t.FilesCursor.List>();
-    expectTypeOf(watch).toEqualTypeOf<t.FilesCursor.Watch>();
-    expectTypeOf(manifest).toEqualTypeOf<t.FilesCursor.Manifest>();
+    expectTypeOf(list).toEqualTypeOf<t.Files.Cursor.List>();
+    expectTypeOf(watch).toEqualTypeOf<t.Files.Cursor.Watch>();
+    expectTypeOf(manifest).toEqualTypeOf<t.Files.Cursor.Manifest>();
     expectTypeOf(generic).toMatchTypeOf<t.Files.String.Cursor>();
 
     const widened = 'files:cursor:list:v1:page-1' as string;
@@ -73,16 +85,16 @@ describe('Files/t', () => {
     const unknownKind = 'files:cursor:read:v1:page-1';
 
     // @ts-expect-error Widened strings are not accepted as typed Files cursors.
-    const wrongWidened: t.FilesCursor.List = widened;
+    const wrongWidened: t.Files.Cursor.List = widened;
 
     // @ts-expect-error Cursor strings must include the version segment.
-    const wrongVersion: t.FilesCursor.List = versionless;
+    const wrongVersion: t.Files.Cursor.List = versionless;
 
     // @ts-expect-error Cursor kinds are limited to list/watch/manifest.
     const wrongKind: t.Files.String.Cursor = unknownKind;
 
     // @ts-expect-error List cursors must not be accepted as manifest cursors.
-    const wrongScope: t.FilesCursor.Manifest = list;
+    const wrongScope: t.Files.Cursor.Manifest = list;
 
     expect(wrongWidened).to.eql(widened);
     expect(wrongVersion).to.eql(versionless);
@@ -91,14 +103,14 @@ describe('Files/t', () => {
   });
 
   it('command cursor slots preserve their scope', () => {
-    const list: t.FilesCursor.List = 'files:cursor:list:v1:page-1';
-    const watch: t.FilesCursor.Watch = 'files:cursor:watch:v1:seq-1';
-    const manifest: t.FilesCursor.Manifest = 'files:cursor:manifest:v1:page-1';
+    const list: t.Files.Cursor.List = 'files:cursor:list:v1:page-1';
+    const watch: t.Files.Cursor.Watch = 'files:cursor:watch:v1:seq-1';
+    const manifest: t.Files.Cursor.Manifest = 'files:cursor:manifest:v1:page-1';
 
-    const listPayload: t.FilesCmd.List.Payload = { cursor: list };
-    const listResult: t.FilesCmd.List.Result = { entries: [], cursor: list };
-    const watchResult: t.FilesCmd.Watch.Result = { ok: true, cursor: watch };
-    const manifestPayload: t.FilesCmd.Manifest.Payload = { cursor: manifest };
+    const listPayload: t.Files.Cmd.List.Payload = { cursor: list };
+    const listResult: t.Files.Cmd.List.Result = { entries: [], cursor: list };
+    const watchResult: t.Files.Cmd.Watch.Result = { ok: true, cursor: watch };
+    const manifestPayload: t.Files.Cmd.Manifest.Payload = { cursor: manifest };
     const manifestResult: t.Files.Manifest = {
       version: 'sys.files.manifest.v1',
       capabilities,
@@ -123,13 +135,13 @@ describe('Files/t', () => {
     };
 
     // @ts-expect-error List payloads accept only list cursors.
-    const badListPayload: t.FilesCmd.List.Payload = wrongListSlot;
+    const badListPayload: t.Files.Cmd.List.Payload = wrongListSlot;
 
     // @ts-expect-error Watch results accept only watch cursors.
-    const badWatchResult: t.FilesCmd.Watch.Result = wrongWatchSlot;
+    const badWatchResult: t.Files.Cmd.Watch.Result = wrongWatchSlot;
 
     // @ts-expect-error Manifest payloads accept only manifest cursors.
-    const badManifestPayload: t.FilesCmd.Manifest.Payload = wrongManifestSlot;
+    const badManifestPayload: t.Files.Cmd.Manifest.Payload = wrongManifestSlot;
 
     // @ts-expect-error Manifests expose only manifest cursors.
     const badManifestResult: t.Files.Manifest = wrongManifestResult;
@@ -141,19 +153,19 @@ describe('Files/t', () => {
   });
 
   it('read results discriminate inline content from content refs', () => {
-    const inline: t.FilesCmd.Read.Result = {
+    const inline: t.Files.Cmd.Read.Result = {
       kind: 'inline',
       file,
       encoding: 'utf8',
       content: '# Readme',
     };
-    const ref: t.FilesCmd.Read.Result = {
+    const ref: t.Files.Cmd.Read.Result = {
       kind: 'ref',
       file,
       contentRef: { kind: 'hash', path: file.path, hash: 'sha256-readme' },
     };
 
-    const read = (input: t.FilesCmd.Read.Result) => {
+    const read = (input: t.Files.Cmd.Read.Result) => {
       if (input.kind === 'inline') {
         expectTypeOf(input.content).toEqualTypeOf<string>();
         return input.content;
@@ -175,10 +187,10 @@ describe('Files/t', () => {
     const refWithContent = { kind: 'ref', file, content: '# Readme' } as const;
 
     // @ts-expect-error Inline read results carry content, not content refs.
-    const badInline: t.FilesCmd.Read.InlineResult = inlineWithRef;
+    const badInline: t.Files.Cmd.Read.InlineResult = inlineWithRef;
 
     // @ts-expect-error Ref read results carry content refs, not inline content.
-    const badRef: t.FilesCmd.Read.RefResult = refWithContent;
+    const badRef: t.Files.Cmd.Read.RefResult = refWithContent;
 
     expect(badInline.kind).to.eql('inline');
     expect(badRef.kind).to.eql('ref');
@@ -234,22 +246,22 @@ describe('Files/t', () => {
         capabilities,
         entries: [],
       }),
-    } satisfies t.FilesCmd.HandlerMap;
+    } satisfies t.Files.Cmd.HandlerMap;
 
-    const client = {} as t.FilesCmd.Client;
-    const unary = {} as t.FilesCmd.UnaryClient;
+    const client = {} as t.Files.Cmd.Client;
+    const unary = {} as t.Files.Cmd.UnaryClient;
 
-    expectTypeOf(handlers).toMatchTypeOf<t.FilesCmd.HandlerMap>();
+    expectTypeOf(handlers).toMatchTypeOf<t.Files.Cmd.HandlerMap>();
     expectTypeOf(client).toMatchTypeOf<
       t.Cmd.Client.Handle<
-        t.FilesCmd.Name,
-        t.FilesCmd.Payload,
-        t.FilesCmd.Result,
-        t.FilesCmd.Event
+        t.Files.Cmd.Name,
+        t.Files.Cmd.Payload,
+        t.Files.Cmd.Result,
+        t.Files.Cmd.Event
       >
     >();
     expectTypeOf(unary).toMatchTypeOf<
-      t.Cmd.Client.Unary<t.FilesCmd.Name, t.FilesCmd.Payload, t.FilesCmd.Result>
+      t.Cmd.Client.Unary<t.Files.Cmd.Name, t.Files.Cmd.Payload, t.Files.Cmd.Result>
     >();
   });
 });

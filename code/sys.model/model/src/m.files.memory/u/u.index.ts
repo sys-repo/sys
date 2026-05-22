@@ -32,7 +32,7 @@ export function putDir(nodes: MemoryNodes, input: t.Files.String.Path) {
 export function putFile(
   nodes: MemoryNodes,
   input: t.Files.String.Path,
-  file: t.FilesSource.TextFileInput,
+  file: t.Files.Source.TextFileInput,
 ): t.Files.String.Path {
   const path = visiblePath(input);
   if (path === '') throw fail('FilesMemoryError.InvalidPath', 'File path cannot be root');

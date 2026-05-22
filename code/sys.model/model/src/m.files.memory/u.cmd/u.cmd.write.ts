@@ -9,10 +9,10 @@ import { allowed } from '../u/u.policy.ts';
 /** Implementation of the `files:write` command for mutable memory nodes. */
 export const write = (
   nodes: MemoryNodes,
-  policy: t.FilesPolicy.Shape,
-  payload: t.FilesCmd.Write.Payload,
+  policy: t.Files.Policy.Shape,
+  payload: t.Files.Cmd.Write.Payload,
   maxWriteBytes?: t.NumberBytes,
-): t.FilesCmd.Write.Result => {
+): t.Files.Cmd.Write.Result => {
   if (!Is.plainObject(payload)) {
     throw fail('FilesMemoryError.InvalidPath', 'Files write payload must be a plain object');
   }

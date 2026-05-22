@@ -3,7 +3,7 @@ import { D, Is, type t } from '../common.ts';
 import { fail, invalidPath } from './u.error.ts';
 import { requiredVisiblePath, visiblePath } from './u.path.ts';
 
-type SupportMap = Record<'readonly', Partial<t.FilesCapability.Map>>;
+type SupportMap = Record<'readonly', Partial<t.Files.Capability.Map>>;
 
 const SUPPORTS = Object.freeze(
   {
@@ -28,20 +28,20 @@ const ERROR_FACTORIES = Object.freeze(
     denied(action, path) {
       return fail('FilesStaticError.PolicyDenied', `${label(action)} denied: ${path}`);
     },
-  } satisfies t.FilesAuthority.ErrorFactories,
+  } satisfies t.Files.Authority.ErrorFactories,
 );
 
 /** Shared handler-gate options for static Files backings. */
 export const authorityHandlerOptions = Object.freeze(
   {
     path: handlerPath,
-  } satisfies t.FilesAuthority.HandlerOptions,
+  } satisfies t.Files.Authority.HandlerOptions,
 );
 
 /** Resolve static Files authority. */
 export const resolveStaticAuthority = (
-  options: { readonly policy?: t.FilesPolicy.Shape } = {},
-): t.FilesAuthority.Instance => {
+  options: { readonly policy?: t.Files.Policy.Shape } = {},
+): t.Files.Authority.Instance => {
   return Files.Authority.resolve({
     policy: options.policy,
     backing: {
@@ -52,8 +52,8 @@ export const resolveStaticAuthority = (
   });
 };
 
-function handlerPath<K extends t.FilesCmd.Name>(
-  args: t.FilesAuthority.PathResolverArgs<K>,
+function handlerPath<K extends t.Files.Cmd.Name>(
+  args: t.Files.Authority.PathResolverArgs<K>,
 ): t.Files.String.Path | undefined {
   switch (args.name) {
     case 'files:capabilities':
@@ -80,7 +80,6 @@ function requiredPayloadPath(payload: unknown): t.Files.String.Path {
   return requiredVisiblePath(payload.path as t.Files.String.Path | undefined);
 }
 
-function label(action: t.FilesAuthority.Action): string {
+function label(action: t.Files.Authority.Action): string {
   return action[0].toUpperCase() + action.slice(1);
 }
-

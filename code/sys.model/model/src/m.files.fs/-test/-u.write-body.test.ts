@@ -55,7 +55,7 @@ describe('FilesFs write body utilities', () => {
             path: PATH,
             content: 'x',
             encoding: 'utf16',
-          } as unknown as t.FilesCmd.Write.Payload,
+          } as unknown as t.Files.Cmd.Write.Payload,
           PATH,
           undefined,
         );
@@ -65,7 +65,7 @@ describe('FilesFs write body utilities', () => {
     await expectFilesFsError(
       () => {
         return writeBody(
-          { kind: 'text', path: PATH, content: 1 } as unknown as t.FilesCmd.Write.Payload,
+          { kind: 'text', path: PATH, content: 1 } as unknown as t.Files.Cmd.Write.Payload,
           PATH,
           undefined,
         );
@@ -75,7 +75,7 @@ describe('FilesFs write body utilities', () => {
     await expectFilesFsError(
       () => {
         return writeBody(
-          { kind: 'bytes', path: PATH, content: [1, 2] } as unknown as t.FilesCmd.Write.Payload,
+          { kind: 'bytes', path: PATH, content: [1, 2] } as unknown as t.Files.Cmd.Write.Payload,
           PATH,
           undefined,
         );
@@ -90,7 +90,7 @@ describe('FilesFs write body utilities', () => {
             path: PATH,
             content: 'x',
             mediaType: 1,
-          } as unknown as t.FilesCmd.Write.Payload,
+          } as unknown as t.Files.Cmd.Write.Payload,
           PATH,
           undefined,
         );
@@ -100,7 +100,7 @@ describe('FilesFs write body utilities', () => {
     await expectFilesFsError(
       () => {
         return writeBody(
-          { kind: 'other', path: PATH, content: 'x' } as unknown as t.FilesCmd.Write.Payload,
+          { kind: 'other', path: PATH, content: 'x' } as unknown as t.Files.Cmd.Write.Payload,
           PATH,
           undefined,
         );

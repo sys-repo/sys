@@ -45,7 +45,7 @@ export type WritableFsFixture = Omit<FsFixture, 'fs'> & {
 
 export type SetupOptions = {
   readonly fs?: FsFixtureOptions;
-  readonly policy?: t.FilesPolicy.Shape;
+  readonly policy?: t.Files.Policy.Shape;
   readonly maxReadBytes?: t.NumberBytes;
   readonly defaultLimit?: t.Files.Limit;
 };
@@ -54,15 +54,15 @@ export type SetupWritableOptions = SetupOptions & {
   readonly maxWriteBytes?: t.NumberBytes;
 };
 
-export type ListPayloadInput = Omit<t.FilesCmd.List.Payload, 'cursor'> & {
+export type ListPayloadInput = Omit<t.Files.Cmd.List.Payload, 'cursor'> & {
   readonly cursor?: t.Files.String.Cursor;
 };
 
-export type ReadPayloadInput = Omit<t.FilesCmd.Read.Payload, 'encoding'> & {
+export type ReadPayloadInput = Omit<t.Files.Cmd.Read.Payload, 'encoding'> & {
   readonly encoding?: string;
 };
 
-type FilesFsBacking = { readonly handlers: t.FilesCmd.HandlerMap };
+type FilesFsBacking = { readonly handlers: t.Files.Cmd.HandlerMap };
 
 export const ROOT = '/root' as t.StringAbsolutePath;
 
@@ -71,19 +71,19 @@ export const allowDocsPolicy = {
   stat: 'docs/**',
   read: 'docs/**',
   manifest: true,
-} satisfies t.FilesPolicy.Shape;
+} satisfies t.Files.Policy.Shape;
 
 export const allowAllPolicy = {
   list: '**',
   stat: '**',
   read: '**',
   manifest: true,
-} satisfies t.FilesPolicy.Shape;
+} satisfies t.Files.Policy.Shape;
 
 export const denyPrivatePolicy = {
   ...allowDocsPolicy,
   deny: 'docs/private/**',
-} satisfies t.FilesPolicy.Shape;
+} satisfies t.Files.Policy.Shape;
 
 export const defaultNodes = {
   '/root': { kind: 'dir' },
@@ -264,48 +264,48 @@ export const cmd = {
 
   list(backing: FilesFsBacking, payload: ListPayloadInput = {}) {
     return backing.handlers['files:list'](
-      payload as t.FilesCmd.List.Payload,
+      payload as t.Files.Cmd.List.Payload,
       context('files:list'),
     );
   },
 
-  stat(backing: FilesFsBacking, payload: t.FilesCmd.Stat.Payload) {
+  stat(backing: FilesFsBacking, payload: t.Files.Cmd.Stat.Payload) {
     return backing.handlers['files:stat'](payload, context('files:stat'));
   },
 
   read(backing: FilesFsBacking, payload: ReadPayloadInput) {
     return backing.handlers['files:read'](
-      payload as t.FilesCmd.Read.Payload,
+      payload as t.Files.Cmd.Read.Payload,
       context('files:read'),
     );
   },
 
-  write(backing: FilesFsBacking, payload: t.FilesCmd.Write.Payload) {
+  write(backing: FilesFsBacking, payload: t.Files.Cmd.Write.Payload) {
     return backing.handlers['files:write'](payload, context('files:write'));
   },
 
-  remove(backing: FilesFsBacking, payload: t.FilesCmd.Remove.Payload) {
+  remove(backing: FilesFsBacking, payload: t.Files.Cmd.Remove.Payload) {
     return backing.handlers['files:remove'](payload, context('files:remove'));
   },
 
-  watch(backing: FilesFsBacking, payload: t.FilesCmd.Watch.Payload = {}) {
+  watch(backing: FilesFsBacking, payload: t.Files.Cmd.Watch.Payload = {}) {
     return backing.handlers['files:watch'](payload, context('files:watch'));
   },
 
-  manifest(backing: FilesFsBacking, payload: t.FilesCmd.Manifest.Payload = {}) {
+  manifest(backing: FilesFsBacking, payload: t.Files.Cmd.Manifest.Payload = {}) {
     return backing.handlers['files:manifest'](payload, context('files:manifest'));
   },
 };
 
-export function context<K extends t.FilesCmd.Name>(
+export function context<K extends t.Files.Cmd.Name>(
   name: K,
-): t.Cmd.Handler.Context<t.FilesCmd.Name, t.FilesCmd.Event, K> {
+): t.Cmd.Handler.Context<t.Files.Cmd.Name, t.Files.Cmd.Event, K> {
   const controller = new AbortController();
   return {
     id: 'req-files-fs-test' as t.Cmd.ReqId,
     name,
     signal: controller.signal,
-    emit(_event: t.FilesCmd.Event[K]) {
+    emit(_event: t.Files.Cmd.Event[K]) {
       return undefined;
     },
   };

@@ -9,15 +9,15 @@ import { absolutePath, realScope, requiredVisiblePath, type Scope } from '../u/u
 export type WritableScope = Scope<t.FilesFs.Capability.Writable>;
 
 export type RemoveMutation = {
-  readonly result: t.FilesCmd.Remove.Result;
+  readonly result: t.Files.Cmd.Remove.Result;
   readonly deleted: readonly t.Files.String.Path[];
 };
 
 /** Implementation of the `files:remove` command for writable files/fs backings. */
 export const remove = async (
   scope: WritableScope,
-  policy: t.FilesPolicy.Shape,
-  payload: t.FilesCmd.Remove.Payload,
+  policy: t.Files.Policy.Shape,
+  payload: t.Files.Cmd.Remove.Payload,
 ): Promise<RemoveMutation> => {
   if (!Is.plainObject(payload)) {
     throw fail('FilesFsError.InvalidPath', 'Files remove payload must be a plain object');
@@ -42,7 +42,7 @@ export const remove = async (
 
 async function removeChecked(
   scope: WritableScope,
-  policy: t.FilesPolicy.Shape,
+  policy: t.Files.Policy.Shape,
   path: t.Files.String.Path,
   recursive: boolean,
 ): Promise<RemoveMutation> {

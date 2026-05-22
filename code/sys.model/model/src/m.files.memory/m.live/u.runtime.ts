@@ -22,11 +22,11 @@ export const createLiveRuntime = (options: t.FilesMemory.Options = {}): LiveRunt
     const liveHandlers = Object.freeze({
       ...core.baseHandlers,
       'files:write': (
-        payload: t.FilesCmd.Write.Payload,
+        payload: t.Files.Cmd.Write.Payload,
         context: t.Cmd.Handler.Context<
-          t.FilesCmd.Name,
-          t.FilesCmd.Event,
-          t.FilesCmd.Name.Write
+          t.Files.Cmd.Name,
+          t.Files.Cmd.Event,
+          t.Files.Cmd.Name.Write
         >,
       ) => {
         const result = mutations.write(payload);
@@ -34,11 +34,11 @@ export const createLiveRuntime = (options: t.FilesMemory.Options = {}): LiveRunt
         return withSeq(result, change, context.id);
       },
       'files:remove': (
-        payload: t.FilesCmd.Remove.Payload,
+        payload: t.Files.Cmd.Remove.Payload,
         context: t.Cmd.Handler.Context<
-          t.FilesCmd.Name,
-          t.FilesCmd.Event,
-          t.FilesCmd.Name.Remove
+          t.Files.Cmd.Name,
+          t.Files.Cmd.Event,
+          t.Files.Cmd.Name.Remove
         >,
       ) => {
         const mutation = mutations.remove(payload);
@@ -66,7 +66,7 @@ export const createLiveRuntime = (options: t.FilesMemory.Options = {}): LiveRunt
   }
 };
 
-function withSeq<R extends t.FilesCmd.Write.Result | t.FilesCmd.Remove.Result>(
+function withSeq<R extends t.Files.Cmd.Write.Result | t.Files.Cmd.Remove.Result>(
   result: R,
   change: t.Files.Change | undefined,
   correlation: t.Cmd.ReqId,

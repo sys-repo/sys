@@ -7,8 +7,8 @@ describe('Files.Client', () => {
     expect(Files.Client).to.equal(Client);
     expect(Object.keys(Client).sort()).to.eql(['websocket']);
 
-    expectTypeOf(Client).toEqualTypeOf<t.FilesClient.Lib>();
-    expectTypeOf(Client.websocket).toEqualTypeOf<t.FilesClient.Lib['websocket']>();
+    expectTypeOf(Client).toEqualTypeOf<t.Files.Client.Lib>();
+    expectTypeOf(Client.websocket).toEqualTypeOf<t.Files.Client.Lib['websocket']>();
   });
 
   it('wraps open failures with Files client context', async () => {

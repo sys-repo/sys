@@ -6,12 +6,12 @@ import { invalidPath, requiredVisiblePath, visiblePath } from './u.path.ts';
 export type MemoryAuthorityKind = 'readonly' | 'writable' | 'live';
 
 export type MemoryAuthorityOptions = {
-  readonly policy?: t.FilesPolicy.Shape;
+  readonly policy?: t.Files.Policy.Shape;
   readonly maxReadBytes?: t.NumberBytes;
   readonly maxWriteBytes?: t.NumberBytes;
 };
 
-type SupportMap = Record<MemoryAuthorityKind, Partial<t.FilesCapability.Map>>;
+type SupportMap = Record<MemoryAuthorityKind, Partial<t.Files.Capability.Map>>;
 
 type FidelityMap = Record<MemoryAuthorityKind, t.Files.Fidelity>;
 
@@ -60,21 +60,21 @@ const ERROR_FACTORIES = Object.freeze(
     denied(action, path) {
       return fail('FilesMemoryError.PolicyDenied', `${label(action)} denied: ${path}`);
     },
-  } satisfies t.FilesAuthority.ErrorFactories,
+  } satisfies t.Files.Authority.ErrorFactories,
 );
 
 /** Shared handler-gate options for memory Files backings. */
 export const authorityHandlerOptions = Object.freeze(
   {
     path: handlerPath,
-  } satisfies t.FilesAuthority.HandlerOptions,
+  } satisfies t.Files.Authority.HandlerOptions,
 );
 
 /** Resolve memory Files authority for a concrete backing kind. */
 export const resolveMemoryAuthority = (
   kind: MemoryAuthorityKind,
   options: MemoryAuthorityOptions = {},
-): t.FilesAuthority.Instance => {
+): t.Files.Authority.Instance => {
   return Files.Authority.resolve({
     policy: options.policy,
     backing: {
@@ -88,8 +88,8 @@ export const resolveMemoryAuthority = (
   });
 };
 
-function handlerPath<K extends t.FilesCmd.Name>(
-  args: t.FilesAuthority.PathResolverArgs<K>,
+function handlerPath<K extends t.Files.Cmd.Name>(
+  args: t.Files.Authority.PathResolverArgs<K>,
 ): t.Files.String.Path | undefined {
   switch (args.name) {
     case 'files:capabilities':
@@ -116,6 +116,6 @@ function requiredPayloadPath(payload: unknown): t.Files.String.Path {
   return requiredVisiblePath(payload.path);
 }
 
-function label(action: t.FilesAuthority.Action): string {
+function label(action: t.Files.Authority.Action): string {
   return action[0].toUpperCase() + action.slice(1);
 }

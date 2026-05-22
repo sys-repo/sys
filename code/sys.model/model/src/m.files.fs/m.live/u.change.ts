@@ -10,7 +10,7 @@ type NextSeq = () => t.Files.Seq;
 /** Build a command-origin change hint from current filesystem truth. */
 export const commandChange = async (
   scope: WatchScope,
-  policy: t.FilesPolicy.Shape,
+  policy: t.Files.Policy.Shape,
   kind: t.Files.Change['kind'],
   path: t.Files.String.Path,
   seq: t.Files.Seq,
@@ -33,7 +33,7 @@ export const commandChange = async (
 /** Project a structural filesystem watch event into Files change hints. */
 export const changesFromEvent = async (
   query: WatchQuery,
-  policy: t.FilesPolicy.Shape,
+  policy: t.Files.Policy.Shape,
   event: t.FilesFs.Capability.WatchEvent,
   nextSeq: NextSeq,
 ): Promise<readonly t.Files.Change[]> => {
@@ -72,7 +72,7 @@ async function visibleEventPath(
 export function watcherMatches(
   query: WatchQuery,
   path: t.Files.String.Path,
-  policy: t.FilesPolicy.Shape,
+  policy: t.Files.Policy.Shape,
 ): boolean {
   if (!withinScope(path, query.path, query.scope.fs.Path.relative)) return false;
   if (!allowed(policy, 'watch', path)) return false;
@@ -98,7 +98,7 @@ async function changeKind(
 
 async function changeFrom(
   query: WatchQuery,
-  policy: t.FilesPolicy.Shape,
+  policy: t.Files.Policy.Shape,
   kind: t.Files.Change['kind'],
   path: t.Files.String.Path,
   seq: t.Files.Seq,

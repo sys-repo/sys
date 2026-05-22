@@ -12,7 +12,7 @@ export const allowAllMutablePolicy = {
   remove: '**',
   watch: '**',
   manifest: true,
-} satisfies t.FilesPolicy.Shape;
+} satisfies t.Files.Policy.Shape;
 
 export const defaultFiles = {
   'foo.json': {
@@ -27,19 +27,19 @@ export const defaultFiles = {
     content: '# Baz\n',
     mediaType: 'text/markdown',
   },
-} satisfies t.FilesSource.TextFileMap;
+} satisfies t.Files.Source.TextFileMap;
 
 export type SetupOptions = Omit<t.FilesMemory.Options, 'files' | 'dirs' | 'policy'> & {
-  readonly files?: t.FilesSource.TextFileMap;
+  readonly files?: t.Files.Source.TextFileMap;
   readonly dirs?: readonly t.Files.String.Path[];
-  readonly policy?: t.FilesPolicy.Shape;
+  readonly policy?: t.Files.Policy.Shape;
 };
 
-export type ListPayloadInput = Omit<t.FilesCmd.List.Payload, 'cursor'> & {
+export type ListPayloadInput = Omit<t.Files.Cmd.List.Payload, 'cursor'> & {
   readonly cursor?: t.Files.String.Cursor;
 };
 
-export type ReadPayloadInput = Omit<t.FilesCmd.Read.Payload, 'encoding'> & {
+export type ReadPayloadInput = Omit<t.Files.Cmd.Read.Payload, 'encoding'> & {
   readonly encoding?: string;
 };
 
@@ -63,48 +63,48 @@ export const cmd = {
 
   list(backing: MemoryBacking, payload: ListPayloadInput = {}) {
     return backing.handlers['files:list'](
-      payload as t.FilesCmd.List.Payload,
+      payload as t.Files.Cmd.List.Payload,
       context('files:list'),
     );
   },
 
-  stat(backing: MemoryBacking, payload: t.FilesCmd.Stat.Payload) {
+  stat(backing: MemoryBacking, payload: t.Files.Cmd.Stat.Payload) {
     return backing.handlers['files:stat'](payload, context('files:stat'));
   },
 
   read(backing: MemoryBacking, payload: ReadPayloadInput) {
     return backing.handlers['files:read'](
-      payload as t.FilesCmd.Read.Payload,
+      payload as t.Files.Cmd.Read.Payload,
       context('files:read'),
     );
   },
 
-  write(backing: MemoryBacking, payload: t.FilesCmd.Write.Payload) {
+  write(backing: MemoryBacking, payload: t.Files.Cmd.Write.Payload) {
     return backing.handlers['files:write'](payload, context('files:write'));
   },
 
-  remove(backing: MemoryBacking, payload: t.FilesCmd.Remove.Payload) {
+  remove(backing: MemoryBacking, payload: t.Files.Cmd.Remove.Payload) {
     return backing.handlers['files:remove'](payload, context('files:remove'));
   },
 
-  watch(backing: MemoryBacking, payload: t.FilesCmd.Watch.Payload = {}) {
+  watch(backing: MemoryBacking, payload: t.Files.Cmd.Watch.Payload = {}) {
     return backing.handlers['files:watch'](payload, context('files:watch'));
   },
 
-  manifest(backing: MemoryBacking, payload: t.FilesCmd.Manifest.Payload = {}) {
+  manifest(backing: MemoryBacking, payload: t.Files.Cmd.Manifest.Payload = {}) {
     return backing.handlers['files:manifest'](payload, context('files:manifest'));
   },
 };
 
-export function context<K extends t.FilesCmd.Name>(
+export function context<K extends t.Files.Cmd.Name>(
   name: K,
-): t.Cmd.Handler.Context<t.FilesCmd.Name, t.FilesCmd.Event, K> {
+): t.Cmd.Handler.Context<t.Files.Cmd.Name, t.Files.Cmd.Event, K> {
   const controller = new AbortController();
   return {
     id: 'req-files-memory-test' as t.Cmd.ReqId,
     name,
     signal: controller.signal,
-    emit(_event: t.FilesCmd.Event[K]) {
+    emit(_event: t.Files.Cmd.Event[K]) {
       return undefined;
     },
   };

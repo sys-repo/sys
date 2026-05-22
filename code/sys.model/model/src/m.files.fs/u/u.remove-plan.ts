@@ -14,13 +14,13 @@ export type RemovalEntry = {
 
 export type RemovalTarget = RemovalEntry & {
   readonly real: t.StringAbsolutePath;
-  readonly kind: t.FilesEntry.Kind;
+  readonly kind: t.Files.Entry.Kind;
 };
 
 /** Build the deletion order for a remove command after target validation. */
 export const removalEntries = async (
   scope: WritableScope,
-  policy: t.FilesPolicy.Shape,
+  policy: t.Files.Policy.Shape,
   target: RemovalTarget,
   recursive: boolean,
 ): Promise<readonly RemovalEntry[]> => {
@@ -86,7 +86,7 @@ export const descendantEntries = async (
 /** Preflight all recursive descendants before any remove mutation is attempted. */
 export const assertRecursiveRemovalAllowed = async (
   scope: WritableScope,
-  policy: t.FilesPolicy.Shape,
+  policy: t.Files.Policy.Shape,
   rootPath: t.Files.String.Path,
   entries: readonly RemovalEntry[],
 ): Promise<void> => {

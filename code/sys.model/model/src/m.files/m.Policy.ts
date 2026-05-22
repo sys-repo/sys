@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /** Pure policy helpers for bounded Files views. */
-export const Policy: t.FilesPolicy.Lib = {
+export const Policy: t.Files.Policy.Lib = {
   readonly(allow, options = {}) {
     return {
       list: allow,

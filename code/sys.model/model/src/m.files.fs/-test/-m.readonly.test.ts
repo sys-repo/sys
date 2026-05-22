@@ -7,7 +7,7 @@ const READONLY_SUPPORTS = {
   stat: true,
   read: true,
   manifest: true,
-} satisfies Partial<t.FilesCapability.Map>;
+} satisfies Partial<t.Files.Capability.Map>;
 
 describe('FilesFs.Readonly.create', () => {
   describe('surface', () => {

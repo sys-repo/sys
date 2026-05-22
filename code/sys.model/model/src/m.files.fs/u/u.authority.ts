@@ -6,12 +6,12 @@ import { requiredVisiblePath, visiblePath } from './u.path.ts';
 export type FsAuthorityKind = 'readonly' | 'live' | 'writable' | 'writable-live';
 
 export type FsAuthorityOptions = {
-  readonly policy?: t.FilesPolicy.Shape;
+  readonly policy?: t.Files.Policy.Shape;
   readonly maxReadBytes?: t.NumberBytes;
   readonly maxWriteBytes?: t.NumberBytes;
 };
 
-type SupportMap = Record<FsAuthorityKind, Partial<t.FilesCapability.Map>>;
+type SupportMap = Record<FsAuthorityKind, Partial<t.Files.Capability.Map>>;
 
 type FidelityMap = Record<FsAuthorityKind, t.Files.Fidelity | undefined>;
 
@@ -57,13 +57,13 @@ const ERROR_FACTORIES = Object.freeze(
     denied(action, path) {
       return fail('FilesFsError.PolicyDenied', `${label(action)} denied: ${path}`);
     },
-  } satisfies t.FilesAuthority.ErrorFactories,
+  } satisfies t.Files.Authority.ErrorFactories,
 );
 
 /** Shared handler-gate options for files/fs backings. */
 export const authorityHandlerOptions = (
   fs: t.FilesFs.Capability.Readonly,
-): t.FilesAuthority.HandlerOptions => {
+): t.Files.Authority.HandlerOptions => {
   return Object.freeze({
     path: (args) => handlerPath(fs, args),
   });
@@ -73,7 +73,7 @@ export const authorityHandlerOptions = (
 export const resolveFsAuthority = (
   kind: FsAuthorityKind,
   options: FsAuthorityOptions = {},
-): t.FilesAuthority.Instance => {
+): t.Files.Authority.Instance => {
   const fidelity = FIDELITY[kind];
 
   return Files.Authority.resolve({
@@ -89,9 +89,9 @@ export const resolveFsAuthority = (
   });
 };
 
-function handlerPath<K extends t.FilesCmd.Name>(
+function handlerPath<K extends t.Files.Cmd.Name>(
   fs: t.FilesFs.Capability.Readonly,
-  args: t.FilesAuthority.PathResolverArgs<K>,
+  args: t.Files.Authority.PathResolverArgs<K>,
 ): t.Files.String.Path | undefined {
   switch (args.name) {
     case 'files:capabilities':
@@ -128,6 +128,6 @@ function invalidPath(message: string): Error {
   return fail('FilesFsError.InvalidPath', message);
 }
 
-function label(action: t.FilesAuthority.Action): string {
+function label(action: t.Files.Authority.Action): string {
   return action[0].toUpperCase() + action.slice(1);
 }

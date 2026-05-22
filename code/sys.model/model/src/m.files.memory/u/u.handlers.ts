@@ -8,7 +8,7 @@ import { type MemoryNodes } from './u.index.ts';
 
 type HandlerArgs = {
   readonly nodes: MemoryNodes;
-  readonly policy: t.FilesPolicy.Shape;
+  readonly policy: t.Files.Policy.Shape;
   readonly capabilities: t.Files.Capabilities;
   readonly maxReadBytes?: t.NumberBytes;
   readonly defaultLimit: t.Files.Limit;
@@ -20,7 +20,7 @@ type HandlerArgs = {
  * Command-local policy checks intentionally remain below the authority gate for
  * descendant filtering, result filtering, and mutation atomicity.
  */
-export const handlers = (args: HandlerArgs): t.FilesCmd.HandlerMap => {
+export const handlers = (args: HandlerArgs): t.Files.Cmd.HandlerMap => {
   return Object.freeze({
     'files:capabilities'() {
       return args.capabilities;

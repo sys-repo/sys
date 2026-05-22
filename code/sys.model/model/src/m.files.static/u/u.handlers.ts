@@ -8,7 +8,7 @@ import type { StaticIndex } from './u.index.ts';
 
 export type HandlerArgs = {
   readonly index: StaticIndex;
-  readonly policy: t.FilesPolicy.Shape;
+  readonly policy: t.Files.Policy.Shape;
   readonly capabilities: t.Files.Capabilities;
   readonly defaultLimit: t.Files.Limit;
 };
@@ -19,7 +19,7 @@ export type HandlerArgs = {
  * Command-local policy checks intentionally remain below the authority gate for
  * descendant filtering, content-ref filtering, and precise static index errors.
  */
-export const handlers = (args: HandlerArgs): t.FilesCmd.HandlerMap => {
+export const handlers = (args: HandlerArgs): t.Files.Cmd.HandlerMap => {
   return Object.freeze({
     'files:capabilities': () => args.capabilities,
     'files:list': (payload) => list(args.index, args.policy, payload, args.defaultLimit),

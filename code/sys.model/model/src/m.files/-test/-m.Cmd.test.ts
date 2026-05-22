@@ -17,7 +17,7 @@ describe('Files.Cmd', () => {
       manifest: 'files:manifest',
     });
 
-    expectTypeOf(Cmd).toEqualTypeOf<t.FilesCmd.Lib>();
-    expectTypeOf(Cmd.Name.list).toEqualTypeOf<t.FilesCmd.Name.List>();
+    expectTypeOf(Cmd).toEqualTypeOf<t.Files.Cmd.Lib>();
+    expectTypeOf(Cmd.Name.list).toEqualTypeOf<t.Files.Cmd.Name.List>();
   });
 });

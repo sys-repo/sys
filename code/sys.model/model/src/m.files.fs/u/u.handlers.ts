@@ -8,7 +8,7 @@ import type { Scope } from './u.path.ts';
 
 type HandlerArgs = {
   readonly scope: Scope;
-  readonly policy: t.FilesPolicy.Shape;
+  readonly policy: t.Files.Policy.Shape;
   readonly capabilities: t.Files.Capabilities;
   readonly maxReadBytes?: t.NumberBytes;
   readonly defaultLimit: t.Files.Limit;
@@ -20,7 +20,7 @@ type HandlerArgs = {
  * Command-local policy checks intentionally remain below the authority gate for
  * descendant filtering, real-path containment, and result filtering.
  */
-export const handlers = (args: HandlerArgs): t.FilesCmd.HandlerMap => {
+export const handlers = (args: HandlerArgs): t.Files.Cmd.HandlerMap => {
   return Object.freeze({
     'files:capabilities': () => args.capabilities,
     'files:list': async (payload) => list(args.scope, args.policy, payload, args.defaultLimit),

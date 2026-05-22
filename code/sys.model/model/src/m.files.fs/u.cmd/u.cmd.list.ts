@@ -8,10 +8,10 @@ import { type Scope, visiblePath } from '../u/u.path.ts';
  */
 export const list = async (
   scope: Scope,
-  policy: t.FilesPolicy.Shape,
-  payload: t.FilesCmd.List.Payload,
+  policy: t.Files.Policy.Shape,
+  payload: t.Files.Cmd.List.Payload,
   defaultLimit: t.Files.Limit,
-): Promise<t.FilesCmd.List.Result> => {
+): Promise<t.Files.Cmd.List.Result> => {
   const path = visiblePath(scope.fs, payload.path);
   validatePageInput({
     kind: 'list',

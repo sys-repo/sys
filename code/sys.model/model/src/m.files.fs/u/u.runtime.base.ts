@@ -18,16 +18,16 @@ export type FsRuntimeSource<Fs extends t.FilesFs.Capability.Readonly> = {
 };
 
 export type FsRuntimeCore<Fs extends t.FilesFs.Capability.Readonly> = FsRuntimeSource<Fs> & {
-  readonly authority: t.FilesAuthority.Instance;
-  readonly policy: t.FilesPolicy.Shape;
+  readonly authority: t.Files.Authority.Instance;
+  readonly policy: t.Files.Policy.Shape;
   readonly capabilities: t.Files.Capabilities;
-  readonly baseHandlers: t.FilesCmd.HandlerMap;
+  readonly baseHandlers: t.Files.Cmd.HandlerMap;
 };
 
 type BaseRuntime<Fs extends t.FilesFs.Capability.Readonly> = FsRuntimeSource<Fs> & {
-  readonly policy: t.FilesPolicy.Shape;
+  readonly policy: t.Files.Policy.Shape;
   readonly capabilities: t.Files.Capabilities;
-  readonly handlers: t.FilesCmd.HandlerMap;
+  readonly handlers: t.Files.Cmd.HandlerMap;
 };
 
 /** Build shared files/fs source state for concrete runtime variants. */

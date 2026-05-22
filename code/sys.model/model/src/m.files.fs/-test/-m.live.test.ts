@@ -11,9 +11,9 @@ import {
 
 type WatchContext = {
   readonly context: t.Cmd.Handler.Context<
-    t.FilesCmd.Name,
-    t.FilesCmd.Event,
-    t.FilesCmd.Name.Watch
+    t.Files.Cmd.Name,
+    t.Files.Cmd.Event,
+    t.Files.Cmd.Name.Watch
   >;
   readonly stop: () => void;
 };
@@ -31,7 +31,7 @@ const LIVE_SUPPORTS = {
   read: true,
   watch: true,
   manifest: true,
-} satisfies Partial<t.FilesCapability.Map>;
+} satisfies Partial<t.Files.Capability.Map>;
 
 const activeWatchContexts = new Set<WatchContext>();
 
@@ -377,9 +377,9 @@ function lastSeq(events: readonly t.Files.Change[]): number {
 function watchContext(events: t.Files.Change[]): WatchContext {
   const controller = new AbortController();
   const context: t.Cmd.Handler.Context<
-    t.FilesCmd.Name,
-    t.FilesCmd.Event,
-    t.FilesCmd.Name.Watch
+    t.Files.Cmd.Name,
+    t.Files.Cmd.Event,
+    t.Files.Cmd.Name.Watch
   > = {
     id: 'req-files-fs-live-test' as t.Cmd.ReqId,
     name: Files.Cmd.Name.watch,

@@ -59,7 +59,7 @@ describe('FilesMemory.Writable.live', () => {
         path: 'docs/readme.md',
         content: 'hello\n',
         mediaType: 'text/markdown',
-      } satisfies t.FilesCmd.Write.Payload;
+      } satisfies t.Files.Cmd.Write.Payload;
       const writableCreated = await cmd.write(writable, createPayload);
       const liveCreated = await cmd.write(live, createPayload);
       expect(withoutLiveMeta(liveCreated)).to.eql(writableCreated);
@@ -74,7 +74,7 @@ describe('FilesMemory.Writable.live', () => {
         kind: 'text',
         path: 'docs/readme.md',
         content: 'hello again\n',
-      } satisfies t.FilesCmd.Write.Payload;
+      } satisfies t.Files.Cmd.Write.Payload;
       const writableModified = await cmd.write(writable, modifyPayload);
       const liveModified = await cmd.write(live, modifyPayload);
       expect(withoutLiveMeta(liveModified)).to.eql(writableModified);
@@ -85,7 +85,7 @@ describe('FilesMemory.Writable.live', () => {
         correlation: liveModified.correlation,
       });
 
-      const removePayload = { path: 'docs/readme.md' } satisfies t.FilesCmd.Remove.Payload;
+      const removePayload = { path: 'docs/readme.md' } satisfies t.Files.Cmd.Remove.Payload;
       const writableRemoved = await cmd.remove(writable, removePayload);
       const liveRemoved = await cmd.remove(live, removePayload);
       expect(withoutLiveMeta(liveRemoved)).to.eql(writableRemoved);
@@ -232,7 +232,7 @@ describe('FilesMemory.Writable.live', () => {
         remove: '**',
         watch: 'docs/**',
         manifest: true,
-      } satisfies t.FilesPolicy.Shape;
+      } satisfies t.Files.Policy.Shape;
       const backing = FilesMemory.Writable.live({
         files: { 'docs/readme.md': 'hello\n' },
         policy,
@@ -443,7 +443,7 @@ describe('FilesMemory.Writable.live', () => {
   });
 });
 
-function withoutLiveMeta<R extends t.FilesCmd.Write.Result | t.FilesCmd.Remove.Result>(
+function withoutLiveMeta<R extends t.Files.Cmd.Write.Result | t.Files.Cmd.Remove.Result>(
   result: R,
 ): Omit<R, 'seq' | 'correlation'> {
   const { seq: _seq, correlation: _correlation, ...rest } = result;
@@ -453,9 +453,9 @@ function withoutLiveMeta<R extends t.FilesCmd.Write.Result | t.FilesCmd.Remove.R
 function watchContext(events: t.Files.Change[]) {
   const controller = new AbortController();
   const context: t.Cmd.Handler.Context<
-    t.FilesCmd.Name,
-    t.FilesCmd.Event,
-    t.FilesCmd.Name.Watch
+    t.Files.Cmd.Name,
+    t.Files.Cmd.Event,
+    t.Files.Cmd.Name.Watch
   > = {
     id: 'req-files-memory-live-test' as t.Cmd.ReqId,
     name: Files.Cmd.Name.watch,

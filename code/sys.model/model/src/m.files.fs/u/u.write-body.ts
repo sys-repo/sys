@@ -9,7 +9,7 @@ export type WriteBody = {
 
 /** Validate and encode a complete Files write payload before filesystem mutation. */
 export const writeBody = (
-  payload: t.FilesCmd.Write.Payload,
+  payload: t.Files.Cmd.Write.Payload,
   path: t.Files.String.Path,
   maxWriteBytes: t.NumberBytes | undefined,
 ): WriteBody => {

@@ -22,11 +22,11 @@ export const createWritableLiveRuntime = (
   const liveHandlers = Object.freeze({
     ...core.baseHandlers,
     'files:write': async (
-      payload: t.FilesCmd.Write.Payload,
+      payload: t.Files.Cmd.Write.Payload,
       context: t.Cmd.Handler.Context<
-        t.FilesCmd.Name,
-        t.FilesCmd.Event,
-        t.FilesCmd.Name.Write
+        t.Files.Cmd.Name,
+        t.Files.Cmd.Event,
+        t.Files.Cmd.Name.Write
       >,
     ) => {
       const result = await mutations.write(payload);
@@ -34,11 +34,11 @@ export const createWritableLiveRuntime = (
       return withSeq(result, change, context.id);
     },
     'files:remove': async (
-      payload: t.FilesCmd.Remove.Payload,
+      payload: t.Files.Cmd.Remove.Payload,
       context: t.Cmd.Handler.Context<
-        t.FilesCmd.Name,
-        t.FilesCmd.Event,
-        t.FilesCmd.Name.Remove
+        t.Files.Cmd.Name,
+        t.Files.Cmd.Event,
+        t.Files.Cmd.Name.Remove
       >,
     ) => {
       const mutation = await mutations.remove(payload);
@@ -63,7 +63,7 @@ export const createWritableLiveRuntime = (
   });
 };
 
-function withSeq<R extends t.FilesCmd.Write.Result | t.FilesCmd.Remove.Result>(
+function withSeq<R extends t.Files.Cmd.Write.Result | t.Files.Cmd.Remove.Result>(
   result: R,
   change: t.Files.Change | undefined,
   correlation: t.Cmd.ReqId,

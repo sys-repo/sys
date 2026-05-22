@@ -14,7 +14,7 @@ import { allowed } from './u.policy.ts';
 /** Traverse memory nodes and return visible list entries. */
 export const listEntries = (
   nodes: MemoryNodes,
-  policy: t.FilesPolicy.Shape,
+  policy: t.Files.Policy.Shape,
   options: ListEntriesOptions,
 ): readonly t.Files.Entry[] => {
   const query = snapshotListOptions(options, invalidPath);

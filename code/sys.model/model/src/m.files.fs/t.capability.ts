@@ -127,7 +127,7 @@ export declare namespace FilesFsCapability {
 
   /** Minimal stat shape consumed by the files/fs adapter. */
   export type Stat = {
-    readonly kind?: t.FilesEntry.Kind;
+    readonly kind?: t.Files.Entry.Kind;
     readonly isFile?: boolean;
     readonly isDirectory?: boolean;
     readonly isSymlink?: boolean;
@@ -140,7 +140,7 @@ export declare namespace FilesFsCapability {
   /** Minimal walk entry shape consumed by the files/fs adapter. */
   export type WalkEntry = {
     readonly path: t.StringPath;
-    readonly kind?: t.FilesEntry.Kind;
+    readonly kind?: t.Files.Entry.Kind;
     readonly isFile?: boolean;
     readonly isDirectory?: boolean;
     readonly stat?: Stat;

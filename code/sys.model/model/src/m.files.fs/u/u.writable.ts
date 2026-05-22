@@ -10,8 +10,8 @@ export type WritableRuntime = {
 };
 
 export type WritableMutations = {
-  readonly write: (payload: t.FilesCmd.Write.Payload) => Promise<t.FilesCmd.Write.Result>;
-  readonly remove: (payload: t.FilesCmd.Remove.Payload) => Promise<RemoveMutation>;
+  readonly write: (payload: t.Files.Cmd.Write.Payload) => Promise<t.Files.Cmd.Write.Result>;
+  readonly remove: (payload: t.Files.Cmd.Remove.Payload) => Promise<RemoveMutation>;
 };
 
 /** Internal writable files/fs runtime; not exported from the public module. */
@@ -25,7 +25,7 @@ export const createWritableRuntime = (options: t.FilesFs.WritableOptions): Writa
   const writableHandlers = Object.freeze({
     ...core.baseHandlers,
     'files:write': mutations.write,
-    'files:remove': async (payload: t.FilesCmd.Remove.Payload) => {
+    'files:remove': async (payload: t.Files.Cmd.Remove.Payload) => {
       return (await mutations.remove(payload)).result;
     },
   });
@@ -43,7 +43,7 @@ export const createWritableRuntime = (options: t.FilesFs.WritableOptions): Writa
 
 export const createWritableMutations = (
   scope: WritableScope,
-  policy: t.FilesPolicy.Shape,
+  policy: t.Files.Policy.Shape,
   maxWriteBytes?: t.NumberBytes,
 ): WritableMutations => {
   return Object.freeze({

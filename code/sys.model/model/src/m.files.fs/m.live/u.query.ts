@@ -17,8 +17,8 @@ const invalidPath = (message: string): Error => fail('FilesFsError.InvalidPath',
 /** Snapshot and validate a live files/fs watch query. */
 export const watchQuery = async (
   scope: WatchScope,
-  policy: t.FilesPolicy.Shape,
-  payload: t.FilesCmd.Watch.Payload,
+  policy: t.Files.Policy.Shape,
+  payload: t.Files.Cmd.Watch.Payload,
 ): Promise<WatchQuery> => {
   const path = visiblePath(scope.fs, payload.path);
   const query = snapshotListOptions(

@@ -25,7 +25,7 @@ export type MemoryBytesFileNode = MemoryFileBase & {
   readonly content: Uint8Array;
 };
 
-export function fileNode(input: t.FilesSource.TextFileInput): MemoryTextFileNode {
+export function fileNode(input: t.Files.Source.TextFileInput): MemoryTextFileNode {
   const file = Is.string(input) ? { content: input } : input;
   if (!Is.plainObject(file) || !Is.string(file.content)) {
     throw fail('FilesMemoryError.InvalidPath', 'Memory file content must be a string');

@@ -10,10 +10,10 @@ import { allowed } from '../u/u.policy.ts';
 /** Implementation of the `files:read` command for memory nodes. */
 export const read = (
   nodes: MemoryNodes,
-  policy: t.FilesPolicy.Shape,
-  payload: t.FilesCmd.Read.Payload,
+  policy: t.Files.Policy.Shape,
+  payload: t.Files.Cmd.Read.Payload,
   maxReadBytes: t.NumberBytes | undefined,
-): t.FilesCmd.Read.Result => {
+): t.Files.Cmd.Read.Result => {
   assertPayload(payload, 'read');
   const path = requiredVisiblePath(payload.path);
   if (!allowed(policy, 'read', path)) {

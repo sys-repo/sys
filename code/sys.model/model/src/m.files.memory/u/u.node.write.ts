@@ -11,7 +11,7 @@ type WriteFileNodeOptions = {
 
 /** Build a memory file node from a complete `files:write` payload. */
 export function writeFileNode(
-  payload: t.FilesCmd.Write.Payload,
+  payload: t.Files.Cmd.Write.Payload,
   options: WriteFileNodeOptions,
 ): MemoryFileNode {
   const mediaType = optionalString(payload.mediaType, 'mediaType');

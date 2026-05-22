@@ -2,7 +2,7 @@ import { describe, expect, it, type t } from '../../-test.ts';
 import { removalEntries, type RemovalTarget } from '../u/u.remove-plan.ts';
 import { expectFilesFsError, file, ROOT, writableFsFixture } from './u.fixture.ts';
 
-const allowAllRemove = { remove: '**' } satisfies t.FilesPolicy.Shape;
+const allowAllRemove = { remove: '**' } satisfies t.Files.Policy.Shape;
 
 const target = (path = 'docs/tmp'): RemovalTarget => ({
   path: path as t.Files.String.Path,

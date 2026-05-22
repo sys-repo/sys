@@ -9,8 +9,8 @@ import { visiblePath } from '../u/u.path.ts';
 /** Implementation of the `files:manifest` command for static dist metadata. */
 export const manifest = (
   index: StaticIndex,
-  policy: t.FilesPolicy.Shape,
-  payload: t.FilesCmd.Manifest.Payload,
+  policy: t.Files.Policy.Shape,
+  payload: t.Files.Cmd.Manifest.Payload,
   capabilities: t.Files.Capabilities,
   defaultLimit: t.Files.Limit,
 ): t.Files.Manifest => {
@@ -52,11 +52,11 @@ export const manifest = (
 
 function contentRefs(
   index: StaticIndex,
-  policy: t.FilesPolicy.Shape,
+  policy: t.Files.Policy.Shape,
   entries: readonly t.Files.Entry[],
 ): readonly t.Files.ContentRef[] {
   return entries
-    .filter((entry): entry is t.FilesEntry.File => entry.kind === 'file')
+    .filter((entry): entry is t.Files.Entry.File => entry.kind === 'file')
     .filter((entry) => allowed(policy, 'read', entry.path))
     .map((entry) => index.filesByPath.get(entry.path)?.contentRef)
     .filter((ref): ref is t.Files.ContentRef => ref !== undefined);

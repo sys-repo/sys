@@ -8,10 +8,10 @@ import { invalidPath, visiblePath } from '../u/u.path.ts';
 /** Implementation of the `files:list` command for memory nodes. */
 export const list = (
   nodes: MemoryNodes,
-  policy: t.FilesPolicy.Shape,
-  payload: t.FilesCmd.List.Payload,
+  policy: t.Files.Policy.Shape,
+  payload: t.Files.Cmd.List.Payload,
   defaultLimit: t.Files.Limit,
-): t.FilesCmd.List.Result => {
+): t.Files.Cmd.List.Result => {
   assertPayload(payload, 'list');
   const path = visiblePath(payload.path);
   validatePageInput({

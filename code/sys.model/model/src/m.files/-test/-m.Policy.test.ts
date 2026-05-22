@@ -5,7 +5,7 @@ import { Files } from '../mod.ts';
 describe('Files.Policy', () => {
   it('API', () => {
     expect(Files.Policy).to.equal(Policy);
-    expectTypeOf(Policy).toEqualTypeOf<t.FilesPolicy.Lib>();
+    expectTypeOf(Policy).toEqualTypeOf<t.Files.Policy.Lib>();
   });
 
   it('readonly: expands one allow-list across read-oriented capabilities', () => {
@@ -24,7 +24,7 @@ describe('Files.Policy', () => {
       maxReadBytes: 1024,
     });
 
-    expectTypeOf(policy).toEqualTypeOf<t.FilesPolicy.Shape>();
+    expectTypeOf(policy).toEqualTypeOf<t.Files.Policy.Shape>();
   });
 
   it('readonly: can override or disable watch', () => {

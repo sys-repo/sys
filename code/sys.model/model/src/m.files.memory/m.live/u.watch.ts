@@ -13,9 +13,9 @@ import { fail } from '../u/u.error.ts';
 import { allowed } from '../u/u.policy.ts';
 
 type WatchContext = t.Cmd.Handler.Context<
-  t.FilesCmd.Name,
-  t.FilesCmd.Event,
-  t.FilesCmd.Name.Watch
+  t.Files.Cmd.Name,
+  t.Files.Cmd.Event,
+  t.Files.Cmd.Name.Watch
 >;
 
 type Watcher = {
@@ -26,9 +26,9 @@ type Watcher = {
 type WatchRuntime = {
   readonly diagnostics: Live.Diagnostics;
   readonly handler: (
-    payload: t.FilesCmd.Watch.Payload,
+    payload: t.Files.Cmd.Watch.Payload,
     context: WatchContext,
-  ) => Promise<t.FilesCmd.Watch.Result>;
+  ) => Promise<t.Files.Cmd.Watch.Result>;
   readonly emit: (
     kind: t.Files.Change['kind'],
     path: t.Files.String.Path,
@@ -37,7 +37,7 @@ type WatchRuntime = {
 };
 
 /** Create live watch state and Cmd handler for an in-memory node graph. */
-export const createWatch = (nodes: MemoryNodes, policy: t.FilesPolicy.Shape): WatchRuntime => {
+export const createWatch = (nodes: MemoryNodes, policy: t.Files.Policy.Shape): WatchRuntime => {
   const watchers = new Set<Watcher>();
   const activeWaiters = new Set<() => void>();
   let seq = 0;
@@ -58,7 +58,7 @@ export const createWatch = (nodes: MemoryNodes, policy: t.FilesPolicy.Shape): Wa
     diagnostics,
     handler(payload, context) {
       const query = watchQuery(nodes, policy, payload);
-      return new Promise<t.FilesCmd.Watch.Result>((resolve) => {
+      return new Promise<t.Files.Cmd.Watch.Result>((resolve) => {
         const watcher: Watcher = { query, context };
         const stop = () => {
           watchers.delete(watcher);
@@ -107,8 +107,8 @@ export const createWatch = (nodes: MemoryNodes, policy: t.FilesPolicy.Shape): Wa
 
 function watchQuery(
   nodes: MemoryNodes,
-  policy: t.FilesPolicy.Shape,
-  payload: t.FilesCmd.Watch.Payload,
+  policy: t.Files.Policy.Shape,
+  payload: t.Files.Cmd.Watch.Payload,
 ): ListEntriesOptions {
   const path = visiblePath(payload.path);
   const query = snapshotListOptions(
@@ -136,7 +136,7 @@ function watchQuery(
 function watcherMatches(
   query: ListEntriesOptions,
   path: t.Files.String.Path,
-  policy: t.FilesPolicy.Shape,
+  policy: t.Files.Policy.Shape,
 ): boolean {
   if (!withinScope(path, query.path, pathOps.relative)) return false;
   if (!allowed(policy, 'watch', path)) return false;

@@ -8,12 +8,12 @@ const SUPPORTS_READ_MANIFEST = {
   stat: true,
   read: true,
   manifest: true,
-} satisfies Partial<t.FilesCapability.Map>;
+} satisfies Partial<t.Files.Capability.Map>;
 
 describe('Files.Authority', () => {
   it('API', () => {
     expect(Files.Authority).to.equal(Authority);
-    expectTypeOf(Authority).toEqualTypeOf<t.FilesAuthority.Lib>();
+    expectTypeOf(Authority).toEqualTypeOf<t.Files.Authority.Lib>();
   });
 
   it('projects capabilities from backing support facts and resolved policy', () => {
@@ -142,7 +142,7 @@ describe('Files.Authority', () => {
   });
 
   it('overlays a total handler map with capabilities and authority gates', async () => {
-    const calls: t.FilesCmd.Name[] = [];
+    const calls: t.Files.Cmd.Name[] = [];
     const authority = Authority.resolve({
       policy: { read: 'docs/**', manifest: true },
       backing: { supports: SUPPORTS_READ_MANIFEST },

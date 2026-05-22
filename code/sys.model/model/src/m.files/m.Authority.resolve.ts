@@ -2,8 +2,8 @@ import { Is, Num, type t } from './common.ts';
 import { allowed, manifestAllowed, type PolicyAction, snapshotPolicy } from './u/u.policy.ts';
 
 type CapabilitiesFromArgs = {
-  readonly supports: t.FilesCapability.Map;
-  readonly policy: t.FilesPolicy.Shape;
+  readonly supports: t.Files.Capability.Map;
+  readonly policy: t.Files.Policy.Shape;
   readonly fidelity?: t.Files.Fidelity;
   readonly maxReadBytes?: t.NumberBytes;
   readonly maxWriteBytes?: t.NumberBytes;
@@ -11,27 +11,27 @@ type CapabilitiesFromArgs = {
 };
 
 type AllowsArgs = {
-  readonly action: t.FilesAuthority.Action;
+  readonly action: t.Files.Authority.Action;
   readonly path: t.Files.String.Path;
-  readonly supports: t.FilesCapability.Map;
-  readonly policy: t.FilesPolicy.Shape;
+  readonly supports: t.Files.Capability.Map;
+  readonly policy: t.Files.Policy.Shape;
 };
 
 type AllowsArgsBase = {
-  readonly supports: t.FilesCapability.Map;
-  readonly policy: t.FilesPolicy.Shape;
+  readonly supports: t.Files.Capability.Map;
+  readonly policy: t.Files.Policy.Shape;
 };
 
 type GatedHandlersArgs = AllowsArgsBase & {
-  readonly handlers: t.FilesCmd.HandlerMap;
+  readonly handlers: t.Files.Cmd.HandlerMap;
   readonly capabilities: t.Files.Capabilities;
-  readonly unsupported: (action: t.FilesAuthority.Action) => Error;
-  readonly denied: (action: t.FilesAuthority.Action, path: t.Files.String.Path) => Error;
-  readonly options: t.FilesAuthority.HandlerOptions;
+  readonly unsupported: (action: t.Files.Authority.Action) => Error;
+  readonly denied: (action: t.Files.Authority.Action, path: t.Files.String.Path) => Error;
+  readonly options: t.Files.Authority.HandlerOptions;
 };
 
 /** Resolve Files policy and backing facts into runtime authority. */
-export const resolve: t.FilesAuthority.Lib['resolve'] = (input) => {
+export const resolve: t.Files.Authority.Lib['resolve'] = (input) => {
   const errors = input.errors ?? {};
   const invalid = errors.invalid ?? invalidError;
   const unsupported = errors.unsupported ?? unsupportedError;
@@ -84,7 +84,7 @@ export const resolve: t.FilesAuthority.Lib['resolve'] = (input) => {
   });
 };
 
-function normalizeSupports(input: Partial<t.FilesCapability.Map>): t.FilesCapability.Map {
+function normalizeSupports(input: Partial<t.Files.Capability.Map>): t.Files.Capability.Map {
   return Object.freeze({
     list: input.list === true,
     stat: input.stat === true,
@@ -139,11 +139,11 @@ function allows(args: AllowsArgs): boolean {
   return allowed(args.policy, args.action satisfies PolicyAction, args.path);
 }
 
-function gatedHandlers(args: GatedHandlersArgs): t.FilesCmd.HandlerMap {
-  const gate = <K extends t.FilesCmd.Name>(name: K) => {
+function gatedHandlers(args: GatedHandlersArgs): t.Files.Cmd.HandlerMap {
+  const gate = <K extends t.Files.Cmd.Name>(name: K) => {
     return ((
-      payload: t.FilesCmd.Payload[K],
-      context: t.Cmd.Handler.Context<t.FilesCmd.Name, t.FilesCmd.Event, K>,
+      payload: t.Files.Cmd.Payload[K],
+      context: t.Cmd.Handler.Context<t.Files.Cmd.Name, t.Files.Cmd.Event, K>,
     ) => {
       const action = actionFor(name);
       if (action) {
@@ -154,7 +154,7 @@ function gatedHandlers(args: GatedHandlersArgs): t.FilesCmd.HandlerMap {
         }
       }
       return args.handlers[name](payload as never, context as never);
-    }) as t.FilesCmd.HandlerMap[K];
+    }) as t.Files.Cmd.HandlerMap[K];
   };
 
   const manifest = gate('files:manifest');
@@ -170,11 +170,11 @@ function gatedHandlers(args: GatedHandlersArgs): t.FilesCmd.HandlerMap {
     'files:manifest': (async (payload, context) => {
       const result = await manifest(payload, context);
       return { ...result, capabilities: args.capabilities };
-    }) as t.FilesCmd.HandlerMap['files:manifest'],
+    }) as t.Files.Cmd.HandlerMap['files:manifest'],
   });
 }
 
-function actionFor(name: t.FilesCmd.Name): t.FilesAuthority.Action | undefined {
+function actionFor(name: t.Files.Cmd.Name): t.Files.Authority.Action | undefined {
   switch (name) {
     case 'files:capabilities':
       return undefined;
@@ -195,9 +195,9 @@ function actionFor(name: t.FilesCmd.Name): t.FilesAuthority.Action | undefined {
   }
 }
 
-function handlerPath<K extends t.FilesCmd.Name>(
-  args: t.FilesAuthority.PathResolverArgs<K>,
-  options: t.FilesAuthority.HandlerOptions,
+function handlerPath<K extends t.Files.Cmd.Name>(
+  args: t.Files.Authority.PathResolverArgs<K>,
+  options: t.Files.Authority.HandlerOptions,
 ): t.Files.String.Path {
   const resolved = options.path?.(args);
   if (resolved !== undefined) return resolved;
@@ -210,11 +210,11 @@ function invalidError(message: string): Error {
   return namedError('FilesAuthorityError.InvalidPath', message);
 }
 
-function unsupportedError(action: t.FilesAuthority.Action): Error {
+function unsupportedError(action: t.Files.Authority.Action): Error {
   return namedError('FilesAuthorityError.Unsupported', `${label(action)} unsupported`);
 }
 
-function deniedError(action: t.FilesAuthority.Action, path: t.Files.String.Path): Error {
+function deniedError(action: t.Files.Authority.Action, path: t.Files.String.Path): Error {
   return namedError('FilesAuthorityError.PolicyDenied', `${label(action)} denied: ${path}`);
 }
 
@@ -224,6 +224,6 @@ function namedError(name: string, message: string): Error {
   return error;
 }
 
-function label(action: t.FilesAuthority.Action): string {
+function label(action: t.Files.Authority.Action): string {
   return action[0].toUpperCase() + action.slice(1);
 }

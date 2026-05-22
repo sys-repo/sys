@@ -3,7 +3,7 @@ import { invalidPath } from './u.error.ts';
 
 /** Build a portable content ref for a static file entry. */
 export function contentRef(args: {
-  readonly file: t.FilesEntry.File;
+  readonly file: t.Files.Entry.File;
   readonly baseUrl?: t.StringUrl;
 }): t.Files.ContentRef {
   const { file, baseUrl } = args;

@@ -10,7 +10,7 @@ const WRITABLE_SUPPORTS = {
   write: true,
   remove: true,
   manifest: true,
-} satisfies Partial<t.FilesCapability.Map>;
+} satisfies Partial<t.Files.Capability.Map>;
 
 describe('FilesMemory.Writable.create', () => {
   it('creates a bounded writable backing without live diagnostics', async () => {
