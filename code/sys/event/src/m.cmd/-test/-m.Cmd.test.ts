@@ -1,5 +1,6 @@
 import { describe, expect, it, Schedule, type t } from '../../-test.ts';
 import { Cmd } from '../mod.ts';
+import { Fixture } from './u.fixture.ts';
 
 describe('Cmd: core command behavior', () => {
   describe('unary: request/response', () => {
@@ -18,6 +19,42 @@ describe('Cmd: core command behavior', () => {
       const client = cmd.client(port2);
       const res = await client.send('echo', { msg: 'hi' });
       expect(res).to.eql({ reply: 'HI' });
+
+      client.dispose();
+      host.dispose();
+      port1.close();
+      port2.close();
+    });
+
+    it('concurrent sends multiplex over one endpoint and resolve by request id', async () => {
+      type Key = 'a' | 'b';
+      type Name = 'hold';
+      type Payload = { hold: { key: Key } };
+      type Result = { hold: { key: Key; order: number } };
+
+      const cmd = Cmd.make<Name, Payload, Result>();
+      const { port1, port2 } = new MessageChannel();
+      const pending = new Map<Key, (value: Result['hold']) => void>();
+      const bothStarted = Fixture.waitForCount(2);
+
+      const host = cmd.host(port1, {
+        hold({ key }) {
+          bothStarted.tick();
+          return new Promise<Result['hold']>((resolve) => pending.set(key, resolve));
+        },
+      });
+
+      const client = cmd.client(port2);
+      const first = client.send('hold', { key: 'a' });
+      const second = client.send('hold', { key: 'b' });
+
+      await bothStarted.done;
+      Fixture.resolvePending(pending, 'b', { key: 'b', order: 1 });
+      Fixture.resolvePending(pending, 'a', { key: 'a', order: 2 });
+
+      const [a, b] = await Promise.all([first, second]);
+      expect(a).to.eql({ key: 'a', order: 2 });
+      expect(b).to.eql({ key: 'b', order: 1 });
 
       client.dispose();
       host.dispose();
@@ -464,8 +501,8 @@ describe('Cmd: core command behavior', () => {
 
       const cmd = Cmd.make<Name, Payload, Result>();
       const { port1, port2 } = new MessageChannel();
-      const endpoint1 = trackEndpoint(port1);
-      const endpoint2 = trackEndpoint(port2);
+      const endpoint1 = Fixture.trackEndpoint(port1);
+      const endpoint2 = Fixture.trackEndpoint(port2);
 
       const host = cmd.host(endpoint1, { ping: () => ({}) });
       const client = cmd.client(endpoint2);
@@ -571,8 +608,8 @@ describe('Cmd: core command behavior', () => {
 
       const cmd = Cmd.make<Name, Payload, Result>();
       const { port1, port2 } = new MessageChannel();
-      const endpoint1 = trackEndpoint(port1);
-      const endpoint2 = trackEndpoint(port2);
+      const endpoint1 = Fixture.trackEndpoint(port1);
+      const endpoint2 = Fixture.trackEndpoint(port2);
 
       const host = cmd.host(endpoint1, { ping: () => ({}) }, { closeEndpoint: true });
       const client = cmd.client(endpoint2, { closeEndpoint: true });
@@ -673,28 +710,4 @@ function expectCmdError(input: unknown, kind: t.Cmd.Error.Kind) {
   const err = input as t.Cmd.Error.Instance;
   expect(err.name).to.eql(kind);
   return err;
-}
-
-function trackEndpoint(port: MessagePort) {
-  let closed = 0;
-
-  return {
-    postMessage(data: unknown) {
-      port.postMessage(data);
-    },
-    addEventListener(type: 'message', handler: (event: MessageEvent) => void) {
-      port.addEventListener(type, handler);
-    },
-    removeEventListener(type: 'message', handler: (event: MessageEvent) => void) {
-      port.removeEventListener(type, handler);
-    },
-    start() {
-      port.start();
-    },
-    close() {
-      closed += 1;
-      port.close();
-    },
-    closed: () => closed,
-  } satisfies t.Cmd.Endpoint & { readonly closed: () => number };
 }

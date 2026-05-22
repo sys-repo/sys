@@ -137,6 +137,21 @@ const res = await client.send('sum', { values: [1, 2, 3] });
 res.total; // 6
 ```
 
+`Cmd` multiplexes concurrent in-flight requests over the same endpoint. Start
+independent commands before awaiting them when you want one latency window rather
+than sequential round-trips:
+
+```ts
+const [a, b, c] = await Promise.all([
+  client.send('sum', { values: [1] }),
+  client.send('sum', { values: [2] }),
+  client.send('sum', { values: [3] }),
+]);
+```
+
+Each result is correlated by request id, so host responses may arrive out of
+order without changing the caller's result association.
+
 <p>&nbsp;</p>
 
 ### Streaming: events + terminal result

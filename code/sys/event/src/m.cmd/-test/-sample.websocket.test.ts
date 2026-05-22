@@ -1,9 +1,8 @@
 import { Net } from '@sys/net';
 import { describe, expect, it, type t } from '../../-test.ts';
 import { Cmd } from '../mod.ts';
-import { Fixture } from './u.fixture.ts';
-
 import { fromWebSocket } from '../transport/mod.ts';
+import { WebSocketFixture } from './u.fixture.websocket.ts';
 
 describe('Cmd over WebSocket', () => {
   describe('vanilla WebSocket networking baseline', () => {
@@ -14,7 +13,7 @@ describe('Cmd over WebSocket', () => {
       // Server: upgrade to WebSocket and echo "ping" → "pong", then close.
       Deno.serve({ hostname: '127.0.0.1', port, signal: ac.signal }, (req) => {
         const { socket, response } = Deno.upgradeWebSocket(req);
-        const serverPort = Fixture.portFromWebSocket(socket);
+        const serverPort = WebSocketFixture.portFromWebSocket(socket);
 
         serverPort.addEventListener('message', (event) => {
           const msg = event.data as { id: string; type: 'ping' | 'pong' };
@@ -34,9 +33,9 @@ describe('Cmd over WebSocket', () => {
         ws.onclose = () => resolve();
       });
 
-      await Fixture.waitForOpen(ws);
+      await WebSocketFixture.waitForOpen(ws);
 
-      const clientPort = Fixture.portFromWebSocket(ws);
+      const clientPort = WebSocketFixture.portFromWebSocket(ws);
       const id = '1';
 
       const result = await new Promise<{ id: string; type: string }>((resolve) => {
@@ -97,7 +96,7 @@ describe('Cmd over WebSocket', () => {
 
       const ws = new WebSocket(`ws://127.0.0.1:${port}`);
       const clientClosed = new Promise<void>((resolve) => (ws.onclose = () => resolve()));
-      await Fixture.waitForOpen(ws);
+      await WebSocketFixture.waitForOpen(ws);
 
       const clientEndpoint = fromWebSocket(ws);
       const client = cmd.client(clientEndpoint);
