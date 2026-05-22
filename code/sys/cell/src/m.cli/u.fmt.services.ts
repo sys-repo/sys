@@ -1,16 +1,21 @@
 import type { StartedServiceStatus } from '../m.cell/u.services/u.status.ts';
-import { c, Cli, CliTable, Is, Str, type t } from './common.ts';
+import { c, Cli, Is, Str, stripAnsi, type t } from './common.ts';
 import { FmtPath } from './u.fmt.path.ts';
 
 type ServicesStartedResult = {
   services: readonly StartedServiceStatus[];
 };
 
+type ServiceStatusRow = readonly [label: string, value: string];
+
 export const FmtServices = {
   started(res: ServicesStartedResult): string {
-    const blocks = res.services.map(renderServiceStatus);
+    const blocks = res.services.map(serviceStatusRows);
     if (blocks.length === 0) return '';
-    const text = blocks.join(`\n${serviceDivider()}\n`);
+    const labelWidth = maxLabelWidth(blocks.flat());
+    const text = blocks.map((rows) => renderServiceStatus(rows, labelWidth)).join(
+      `\n${serviceDivider()}\n`,
+    );
     return `\n${Str.trimEdgeNewlines(text)}\n`;
   },
 } as const;
@@ -18,42 +23,53 @@ export const FmtServices = {
 /**
  * Helpers:
  */
-function renderServiceStatus(service: StartedServiceStatus): string {
-  const table = CliTable.create([]);
+function serviceStatusRows(service: StartedServiceStatus): ServiceStatusRow[] {
+  const rows: ServiceStatusRow[] = [];
   const owner = service.owner;
 
-  table.push([serviceRootLabel('service'), c.white(service.service.name)]);
+  rows.push([serviceRootLabel('service'), c.white(service.service.name)]);
   if (service.selection.variant) {
-    table.push([serviceLabel('mode'), serviceMode(service.selection.variant)]);
+    rows.push([serviceLabel('mode'), serviceMode(service.selection.variant)]);
   }
-  table.push([serviceLabel('module'), serviceSubtle(service.service.from)]);
-  table.push([serviceLabel('config'), FmtPath.display(service.paths.config)]);
+  rows.push([serviceLabel('module'), serviceSubtle(service.service.from)]);
+  rows.push([serviceLabel('config'), FmtPath.display(service.paths.config)]);
 
   if (owner) {
-    if (owner.state !== 'ready') table.push([serviceLabel('state'), serviceState(owner.state)]);
-    if (Is.str(owner.root)) table.push([serviceLabel('root'), serviceRoot(owner.root)]);
+    if (owner.state !== 'ready') rows.push([serviceLabel('state'), serviceState(owner.state)]);
+    if (Is.str(owner.root)) rows.push([serviceLabel('root'), serviceRoot(owner.root)]);
     for (const detail of serviceDetails(owner)) {
-      table.push([serviceLabel(detail.label), serviceSubtle(detail.value)]);
+      rows.push([serviceLabel(detail.label), serviceSubtle(detail.value)]);
     }
-    if (Is.stdError(owner.error)) table.push([serviceLabel('error'), serviceError(owner.error)]);
-    pushServiceUrls(table, serviceUrls(owner));
+    if (Is.stdError(owner.error)) rows.push([serviceLabel('error'), serviceError(owner.error)]);
+    pushServiceUrls(rows, serviceUrls(owner));
   }
 
-  return Str.trimEdgeNewlines(String(table));
+  return rows;
 }
 
-function pushServiceUrls(
-  table: ReturnType<typeof CliTable.create>,
-  urls: readonly t.Service.Url[],
-) {
+function renderServiceStatus(rows: readonly ServiceStatusRow[], labelWidth: number): string {
+  const lines = rows.map(([label, value]) => `${padLabel(label, labelWidth)}   ${value}`);
+  return Str.trimEdgeNewlines(lines.join('\n'));
+}
+
+function pushServiceUrls(rows: ServiceStatusRow[], urls: readonly t.Service.Url[]) {
   const ordered = Cli.Fmt.Url.orderBaseLast(urls);
   ordered.forEach((url, index) => {
     const highlightOrigin = index === ordered.length - 1;
-    table.push([
+    rows.push([
       index === 0 ? serviceLabel('url') : '',
       Cli.Fmt.Url.service(url, { highlightOrigin }),
     ]);
   });
+}
+
+function maxLabelWidth(rows: readonly ServiceStatusRow[]): number {
+  return rows.reduce((max, [label]) => Math.max(max, stripAnsi(label).length), 0);
+}
+
+function padLabel(label: string, width: number): string {
+  const pad = Math.max(0, width - stripAnsi(label).length);
+  return `${label}${' '.repeat(pad)}`;
 }
 
 function serviceUrls(status: t.Service.Status): readonly t.Service.Url[] {
