@@ -34,9 +34,9 @@ describe('Cli.Fmt.Url', () => {
     ]);
   });
 
-  it('highlights only the selected origin', () => {
+  it('highlights only the selected origin, with emphasized port', () => {
     expect(Fmt.Url.service(serviceUrl('http://localhost:8081/'), { highlightOrigin: true })).to.eql(
-      `${c.cyan('http://localhost:8081')}${c.gray('/')}`,
+      `${c.cyan('http://localhost:')}${c.bold(c.cyan('8081'))}${c.gray('/')}`,
     );
     expect(Fmt.Url.service(serviceUrl('http://localhost:8081/payments/'))).to.eql(
       `${c.gray('http://localhost:8081')}${c.gray('/payments/')}`,

@@ -11,13 +11,13 @@ type ServiceUrlBaseScore = readonly [
 /** CLI formatting helpers for service URLs. */
 export const UrlFmt: t.CliFormat.Lib['Url'] = {
   service(url, options = {}) {
-    const origin = options.highlightOrigin ? c.cyan : c.gray;
     const parsed = Url.parse(url.href);
-    if (!parsed.ok) return origin(url.href);
+    if (!parsed.ok) return (options.highlightOrigin ? c.cyan : c.gray)(url.href);
 
     const value = parsed.toURL();
+    const origin = options.highlightOrigin ? highlightOrigin(value) : c.gray(value.origin);
     const suffix = `${value.pathname}${value.search}${value.hash}` || '/';
-    return `${origin(value.origin)}${c.gray(suffix)}`;
+    return `${origin}${c.gray(suffix)}`;
   },
 
   orderBaseLast(urls) {
@@ -34,6 +34,11 @@ export const UrlFmt: t.CliFormat.Lib['Url'] = {
 /**
  * Helpers:
  */
+function highlightOrigin(url: URL): string {
+  if (!url.port) return c.cyan(url.origin);
+  return `${c.cyan(`${url.protocol}//${url.hostname}:`)}${c.bold(c.cyan(url.port))}`;
+}
+
 function mostBaseUrlIndex(urls: readonly t.Service.Url[]): number {
   let best: { readonly index: number; readonly score: ServiceUrlBaseScore } | undefined;
   urls.forEach((url, index) => {
