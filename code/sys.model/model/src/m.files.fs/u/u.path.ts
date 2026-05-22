@@ -1,5 +1,6 @@
 import { FilesPath } from '../../m.files/u/u.path.ts';
 import { type t } from '../common.ts';
+import type * as TCapability from '../t/t.capability.ts';
 import { fail } from './u.error.ts';
 
 export type Scope<Fs extends t.FilesFs.Capability.Readonly = t.FilesFs.Capability.Readonly> = {
@@ -75,7 +76,7 @@ export const assertInsideRealScope = async (
 
 const invalidPath = (message: string): Error => fail('FilesFsError.InvalidPath', message);
 
-const toBoundedPathOps = (path: t.FilesFs.Capability.Path): t.PathBoundedOps => ({
+const toBoundedPathOps = (path: TCapability.Path): t.PathBoundedOps => ({
   isAbsolute: path.Is.absolute,
   normalize: path.normalize,
 });

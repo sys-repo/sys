@@ -1,9 +1,10 @@
 import { type t } from '../common.ts';
+import type * as TCapability from '../t/t.capability.ts';
 import { fail } from './u.error.ts';
 
 export const entryFromStat = (
   path: t.Files.String.Path,
-  stat: t.FilesFs.Capability.Stat,
+  stat: TCapability.Stat,
 ): t.Files.Entry => {
   const kind = stat.kind ?? (stat.isFile ? 'file' : stat.isDirectory ? 'dir' : undefined);
   if (kind === undefined) {
@@ -28,8 +29,8 @@ export const entryFromStat = (
 };
 
 export const statFromWalkEntry = (
-  entry: t.FilesFs.Capability.WalkEntry,
-): t.FilesFs.Capability.Stat => {
+  entry: TCapability.WalkEntry,
+): TCapability.Stat => {
   return {
     kind: entry.kind,
     isFile: entry.isFile,

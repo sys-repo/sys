@@ -1,5 +1,6 @@
 import { Files } from '../../m.files/mod.ts';
 import { type t } from '../common.ts';
+import type * as TCapability from '../t/t.capability.ts';
 import { fail } from '../u/u.error.ts';
 import { realScope } from '../u/u.path.ts';
 import { changesFromEvent, commandChange, watcherMatches } from './u.change.ts';
@@ -27,8 +28,8 @@ type WatchRuntime = {
 type ActiveWatch = {
   readonly query: WatchQuery;
   readonly context: WatchContext;
-  readonly watcher: t.FilesFs.Capability.Watcher;
-  readonly subscription: t.FilesFs.Capability.WatchSubscription;
+  readonly watcher: TCapability.Watcher;
+  readonly subscription: TCapability.WatchSubscription;
 };
 
 /** Create live watch state and Cmd handler for a bounded filesystem scope. */
@@ -111,7 +112,7 @@ export const createWatch = (scope: WatchScope, policy: t.Files.Policy.Shape): Wa
   async function emitEvent(
     query: WatchQuery,
     policy: t.Files.Policy.Shape,
-    event: t.FilesFs.Capability.WatchEvent,
+    event: TCapability.WatchEvent,
     context: WatchContext,
   ) {
     const changes = await changesFromEvent(query, policy, event, nextSeq);
@@ -142,7 +143,7 @@ export const createWatch = (scope: WatchScope, policy: t.Files.Policy.Shape): Wa
 async function startWatcher(
   scope: WatchScope,
   query: WatchQuery,
-): Promise<t.FilesFs.Capability.Watcher> {
+): Promise<TCapability.Watcher> {
   try {
     return await scope.fs.watch(query.real, { recursive: true });
   } catch {

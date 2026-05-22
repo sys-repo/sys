@@ -1,6 +1,7 @@
 import { type t } from '../../-test.ts';
 import { FilesPath } from '../../m.files/u/u.path.ts';
 import { Files } from '../mod.ts';
+import type * as TCapability from '../t/t.capability.ts';
 import { allowAllPolicy, allowDocsPolicy } from './u.fixture.ts';
 
 export type LiveFsFixture = {
@@ -31,7 +32,7 @@ export const allowAllLivePolicy = {
   watch: '**',
 } satisfies t.Files.Policy.Shape;
 
-const Path = FilesPath.posix() satisfies t.FilesFs.Capability.Path;
+const Path = FilesPath.posix() satisfies TCapability.Path;
 
 export async function liveFsFixture(): Promise<LiveFsFixture> {
   const root = await Deno.makeTempDir({ prefix: 'sys-model-files-live-' }) as t.StringAbsolutePath;
@@ -68,7 +69,7 @@ export async function liveFsFixture(): Promise<LiveFsFixture> {
   await seed(root);
   return fixture;
 
-  function watch(input: t.StringPath, options: t.FilesFs.Capability.WatchOptions = {}) {
+  function watch(input: t.StringPath, options: TCapability.WatchOptions = {}) {
     const path = Path.resolve(input);
     return startWatcher(path, options, watchers);
   }
@@ -105,7 +106,7 @@ async function realPath(input: t.StringPath): Promise<t.StringAbsolutePath | und
   }
 }
 
-async function stat(input: t.StringPath): Promise<t.FilesFs.Capability.Stat | undefined> {
+async function stat(input: t.StringPath): Promise<TCapability.Stat | undefined> {
   try {
     return statFromInfo(await Deno.stat(input));
   } catch {
@@ -121,16 +122,16 @@ async function readText(input: t.StringPath): Promise<string | undefined> {
   }
 }
 
-async function walk(input: t.StringPath): Promise<readonly t.FilesFs.Capability.WalkEntry[]> {
+async function walk(input: t.StringPath): Promise<readonly TCapability.WalkEntry[]> {
   const root = Path.resolve(input);
-  const entries: t.FilesFs.Capability.WalkEntry[] = [];
+  const entries: TCapability.WalkEntry[] = [];
   await collect(root, entries);
   return entries.sort((a, b) => a.path.localeCompare(b.path));
 }
 
 async function collect(
   dir: t.StringAbsolutePath,
-  entries: t.FilesFs.Capability.WalkEntry[],
+  entries: TCapability.WalkEntry[],
 ): Promise<void> {
   let listing: Deno.DirEntry[];
   try {
@@ -157,14 +158,14 @@ async function collect(
 
 async function startWatcher(
   path: t.StringAbsolutePath,
-  options: t.FilesFs.Capability.WatchOptions,
+  options: TCapability.WatchOptions,
   active: Set<t.DisposableLike>,
-): Promise<t.FilesFs.Capability.Watcher> {
+): Promise<TCapability.Watcher> {
   const exists = await isDirectory(path);
   if (!exists) return inertWatcher(path, false);
 
   const native = Deno.watchFs(path, { recursive: options.recursive ?? true });
-  const subscribers = new Set<(event: t.FilesFs.Capability.WatchEvent) => void>();
+  const subscribers = new Set<(event: TCapability.WatchEvent) => void>();
   let disposed = false;
 
   const watcher: t.DisposableLike = {
@@ -194,13 +195,13 @@ async function startWatcher(
 
 async function pump(
   native: Deno.FsWatcher,
-  subscribers: Set<(event: t.FilesFs.Capability.WatchEvent) => void>,
+  subscribers: Set<(event: TCapability.WatchEvent) => void>,
   disposed: () => boolean,
 ): Promise<void> {
   try {
     for await (const event of native) {
       if (disposed()) return;
-      const next: t.FilesFs.Capability.WatchEvent = {
+      const next: TCapability.WatchEvent = {
         kind: watchKind(event.kind),
         paths: event.paths,
       };
@@ -211,14 +212,14 @@ async function pump(
   }
 }
 
-function watchKind(kind: Deno.FsEvent['kind']): t.FilesFs.Capability.WatchEventKind {
+function watchKind(kind: Deno.FsEvent['kind']): TCapability.WatchEventKind {
   return kind === 'rename' ? 'other' : kind;
 }
 
 function inertWatcher(
   path: t.StringAbsolutePath,
   exists: boolean,
-): t.FilesFs.Capability.Watcher {
+): TCapability.Watcher {
   return {
     paths: [path],
     exists,
@@ -254,7 +255,7 @@ function absolute(root: t.StringAbsolutePath, path: t.Files.String.Path): t.Stri
   return Path.resolve(root, path);
 }
 
-function statFromInfo(info: Deno.FileInfo): t.FilesFs.Capability.Stat {
+function statFromInfo(info: Deno.FileInfo): TCapability.Stat {
   const kind = info.isFile ? 'file' : info.isDirectory ? 'dir' : undefined;
   return {
     kind,

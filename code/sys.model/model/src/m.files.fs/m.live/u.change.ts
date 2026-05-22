@@ -1,5 +1,6 @@
 import { Glob, type t } from '../common.ts';
 import { withinScope } from '../../m.files/u/u.list.ts';
+import type * as TCapability from '../t/t.capability.ts';
 import { entryFromStat } from '../u/u.entry.ts';
 import { allowed } from '../u/u.policy.ts';
 import { absolutePath, assertInsideRealScope, relativePath } from '../u/u.path.ts';
@@ -34,7 +35,7 @@ export const commandChange = async (
 export const changesFromEvent = async (
   query: WatchQuery,
   policy: t.Files.Policy.Shape,
-  event: t.FilesFs.Capability.WatchEvent,
+  event: TCapability.WatchEvent,
   nextSeq: NextSeq,
 ): Promise<readonly t.Files.Change[]> => {
   const changes: t.Files.Change[] = [];
@@ -84,7 +85,7 @@ export function watcherMatches(
 async function changeKind(
   query: WatchQuery,
   path: t.Files.String.Path,
-  kind: t.FilesFs.Capability.WatchEventKind,
+  kind: TCapability.WatchEventKind,
 ): Promise<t.Files.Change['kind'] | undefined> {
   if (kind === 'create') return 'created';
   if (kind === 'modify') return 'modified';

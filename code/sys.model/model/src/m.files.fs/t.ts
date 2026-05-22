@@ -72,18 +72,6 @@ export declare namespace FilesFs {
     export type Writable = TCapability.Writable;
     export type Live = TCapability.Live;
     export type LiveWritable = TCapability.LiveWritable;
-    export type WriteFileOptions = TCapability.WriteFileOptions;
-    export type Watch = TCapability.Watch;
-    export type WatchOptions = TCapability.WatchOptions;
-    export type Watcher = TCapability.Watcher;
-    export type WatchObservable = TCapability.WatchObservable;
-    export type WatchSubscription = TCapability.WatchSubscription;
-    export type WatchEvent = TCapability.WatchEvent;
-    export type WatchEventKind = TCapability.WatchEventKind;
-    export type Path = TCapability.Path;
-    export type PathIs = TCapability.PathIs;
-    export type Stat = TCapability.Stat;
-    export type WalkEntry = TCapability.WalkEntry;
   }
 
   type Options<Fs extends Capability.Readonly> =

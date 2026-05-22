@@ -2,6 +2,7 @@ import { expect, type t } from '../../-test.ts';
 import { utf8ByteLength } from '../../m.files/u/u.bytes.ts';
 import { FilesPath } from '../../m.files/u/u.path.ts';
 import { Files } from '../mod.ts';
+import type * as TCapability from '../t/t.capability.ts';
 
 export type FileNode = {
   readonly kind: 'file';
@@ -328,9 +329,9 @@ export async function expectFilesFsError(
   throw new Error(`Expected ${name}.`);
 }
 
-const Path = FilesPath.posix() satisfies t.FilesFs.Capability.Path;
+const Path = FilesPath.posix() satisfies TCapability.Path;
 
-function statFromNode(node: Node): t.FilesFs.Capability.Stat {
+function statFromNode(node: Node): TCapability.Stat {
   return {
     kind: node.kind,
     isFile: node.kind === 'file',
