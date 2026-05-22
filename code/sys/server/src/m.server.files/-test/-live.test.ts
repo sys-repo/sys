@@ -86,7 +86,7 @@ describe('FilesServer.WebSocket.create: live files watch', () => {
       await Fixture.withFilesServer(backing, async (server) => {
         await Fixture.withWatchedRemote(server, async ({ remote, events, closeWatch }) => {
           expect(Fixture.detail(server.status(), 'files.kind')).to.eql('files/fs:live');
-          expect(Fixture.detail(server.status(), 'files.fidelity')).to.eql('live');
+          expect(Fixture.detail(server.status(), 'files.fidelity')).to.eql(undefined);
 
           await Fixture.waitFor(
             () => backing.diagnostics.Active.watchCount() === 1,
@@ -140,7 +140,7 @@ describe('FilesServer.WebSocket.create: live files watch', () => {
       await Fixture.withFilesServer(backing, async (server) => {
         await Fixture.withWatchedRemote(server, async ({ remote, events, closeWatch }) => {
           expect(Fixture.detail(server.status(), 'files.kind')).to.eql('files/fs:writable-live');
-          expect(Fixture.detail(server.status(), 'files.fidelity')).to.eql('live');
+          expect(Fixture.detail(server.status(), 'files.fidelity')).to.eql(undefined);
           expect(Fixture.detail(server.status(), 'files.capabilities')).to.eql(
             'list,stat,read,write,remove,watch,manifest',
           );

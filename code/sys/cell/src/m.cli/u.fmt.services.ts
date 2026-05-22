@@ -78,8 +78,12 @@ function serviceUrls(status: t.Service.Status): readonly t.Service.Url[] {
 
 function serviceDetails(status: t.Service.Status): readonly t.Service.Detail[] {
   const details = status.details ?? [];
-  if ((status.urls?.length ?? 0) === 0) return details;
-  return details.filter((detail) => detail.label !== 'port');
+  return details.filter((detail) => {
+    if (detail.label === 'connections') return false;
+    if ((status.urls?.length ?? 0) > 0 && detail.label === 'path') return false;
+    if ((status.urls?.length ?? 0) > 0 && detail.label === 'port') return false;
+    return true;
+  });
 }
 
 function serviceRoot(root: string): string {

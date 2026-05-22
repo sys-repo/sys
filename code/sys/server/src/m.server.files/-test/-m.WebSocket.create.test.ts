@@ -30,7 +30,7 @@ describe('FilesServer.WebSocket.create', () => {
       expect(status.urls).to.eql([{ href: server.url, label: 'files:websocket' }]);
       expect(Fixture.detail(status, 'namespace')).to.eql(Files.Cmd.ns);
       expect(Fixture.detail(status, 'files.kind')).to.eql('files/memory:readonly');
-      expect(Fixture.detail(status, 'files.fidelity')).to.eql('snapshot');
+      expect(Fixture.detail(status, 'files.fidelity')).to.eql(undefined);
       expect(Fixture.detail(status, 'files.capabilities')).to.eql('list,stat,read,manifest');
 
       const capabilities = await remote.client.send(Files.Cmd.Name.capabilities, {});

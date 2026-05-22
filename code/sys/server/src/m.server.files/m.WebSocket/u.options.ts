@@ -42,13 +42,9 @@ function statusOptions(
 function filesDetails(files: t.FilesServer.Backing): readonly t.Service.Detail[] {
   const details: t.Service.Detail[] = [];
   const kind = files.kind;
-  const fidelity = files.capabilities.fidelity;
   const capabilities = activeCapabilities(files.capabilities);
 
   if (Is.str(kind) && kind.length > 0) details.push({ label: 'files.kind', value: kind });
-  if (Is.str(fidelity) && fidelity.length > 0) {
-    details.push({ label: 'files.fidelity', value: fidelity });
-  }
   if (capabilities.length > 0) {
     details.push({ label: 'files.capabilities', value: capabilities.join(',') });
   }

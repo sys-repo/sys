@@ -49,7 +49,7 @@ describe(`@sys/cell/cli service status formatter`, () => {
     expect(text).to.not.contain('jsr:@sys/tools/serve');
   });
 
-  it('shows current-directory owner root as ./ and hides URL-redundant port detail', () => {
+  it('shows current-directory owner root as ./ and hides URL-redundant details', () => {
     const now = Time.now.timestamp;
     const cwd = Fs.cwd();
     const config = Fs.join(cwd, '-config/view.dev.yaml') as t.StringPath;
@@ -84,6 +84,7 @@ describe(`@sys/cell/cli service status formatter`, () => {
           root: cwd,
           urls: [{ href: 'http://localhost:5175/' as t.StringUrl, label: 'local' }],
           details: [
+            { label: 'path', value: '/' },
             { label: 'port', value: '5175' },
             { label: 'dist', value: 'dist/' },
           ],
