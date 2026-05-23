@@ -4,7 +4,7 @@ kind: cell
 version: 1
 
 services:
-  - name: sample:source
+  - name: sample:files
     use: FilesWebSocketService
     from: 'jsr:@sys/server/files/service'
     config: ./-config/@sys.server.files/shell.yaml

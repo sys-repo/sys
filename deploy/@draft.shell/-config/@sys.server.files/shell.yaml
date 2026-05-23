@@ -1,4 +1,4 @@
-name: sample:source
+name: sample:files
 root: ./-sample/app
 path: /files
 port: 5176
