@@ -4,11 +4,6 @@ kind: cell
 version: 1
 
 services:
-  - name: sample:files
-    use: FilesWebSocketService
-    from: 'jsr:@sys/server/files/service'
-    config: ./-config/@sys.server.files/shell.yaml
-
   - name: sample:view
     use: Serve
     from: 'jsr:@sys/tools/serve'
@@ -18,3 +13,8 @@ services:
         use: ViteService
         from: 'jsr:@sys/driver-vite/service'
         config: ./-config/@sys.driver-vite/view.dev.yaml
+
+  - name: sample:files
+    use: FilesWebSocketService
+    from: 'jsr:@sys/server/files/service'
+    config: ./-config/@sys.server.files/shell.yaml
