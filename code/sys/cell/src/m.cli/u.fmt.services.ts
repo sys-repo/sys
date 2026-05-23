@@ -27,10 +27,7 @@ function serviceStatusRows(service: StartedServiceStatus): ServiceStatusRow[] {
   const rows: ServiceStatusRow[] = [];
   const owner = service.owner;
 
-  rows.push([serviceRootLabel('service'), c.white(service.service.name)]);
-  if (service.selection.variant) {
-    rows.push([serviceLabel('mode'), serviceMode(service.selection.variant)]);
-  }
+  rows.push([serviceRootLabel('service'), serviceTitle(service)]);
   rows.push([serviceLabel('module'), serviceSubtle(service.service.from)]);
 
   if (owner) {
@@ -112,8 +109,10 @@ function serviceSubtle(text: string): string {
   return c.gray(text);
 }
 
-function serviceMode(mode: string): string {
-  return c.magenta(mode);
+function serviceTitle(service: StartedServiceStatus): string {
+  const name = c.white(service.service.name);
+  const mode = service.selection.variant;
+  return mode ? `${name} ${c.dim(c.cyan(`--mode=${mode}`))}` : name;
 }
 
 function serviceDivider(): string {

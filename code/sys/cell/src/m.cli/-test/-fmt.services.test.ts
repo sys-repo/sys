@@ -39,9 +39,7 @@ describe(`@sys/cell/cli service status formatter`, () => {
     }));
 
     expect(text).to.contain('service');
-    expect(text).to.contain('view');
-    expect(text).to.contain('mode');
-    expect(text).to.contain('dev');
+    expect(text).to.contain('view --mode=dev');
     expect(text).to.contain('jsr:@sys/driver-vite/service');
     expect(text).to.contain('view');
   });

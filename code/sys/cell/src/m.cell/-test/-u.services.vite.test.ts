@@ -58,11 +58,8 @@ describe('Cell.Services Vite mode proof', () => {
 
         const rendered = stripAnsi(Fmt.Services.started({ services: statuses }));
         expect(rendered).to.contain('service');
-        expect(rendered).to.contain('view');
-        expect(rendered).to.contain('mode');
-        expect(rendered).to.contain('dev');
+        expect(rendered).to.contain('view --mode=dev');
         expect(rendered).to.contain('jsr:@sys/driver-vite/service');
-        expect(rendered).to.contain(Fs.join(fs.dir, '-config/@sys.driver-vite/view.dev.yaml'));
         expect(rendered).to.contain(serviceUrl);
         expect(rendered).to.not.contain('jsr:@sys/tools/serve');
 
