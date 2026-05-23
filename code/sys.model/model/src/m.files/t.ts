@@ -464,10 +464,18 @@ export declare namespace Files {
       readonly ns: Namespace;
       /** Runtime command names. */
       readonly Name: NameMap;
+      /** Create a typed Cmd<T> factory bound to the Files grammar. */
+      readonly make: MakeFactory;
     };
 
     /** Cmd namespace used when sharing a generic transport. */
     export type Namespace = 'sys.files';
+
+    /** Typed Cmd<T> factory bound to the Files grammar. */
+    export type Factory = t.Cmd.Factory<Name, Payload, Result, Event>;
+
+    /** Factory constructor for the typed Files Cmd<T> grammar. */
+    export type MakeFactory = () => Factory;
 
     /** Command name value object. */
     export type NameMap = {
@@ -815,24 +823,43 @@ export declare namespace Files {
   export namespace Client {
     /** Runtime client adapter surface. */
     export type Lib = {
-      /** Open a WebSocket and return a typed Files Cmd client bound to it. */
+      /** Bind a generic Cmd endpoint and return a Files client handle. */
+      transport(endpoint: t.Cmd.Endpoint, options?: TransportOptions): Transport;
+      /** Open a WebSocket and return a Files client handle bound to it. */
       websocket(url: t.StringUrl | URL, options?: WebSocketOptions): Promise<WebSocket>;
     };
 
-    /** Options for `Files.Client.websocket(...)`. */
-    export type WebSocketOptions = Pick<t.Cmd.Client.Options, 'timeout'> & {
-      /** Optional WebSocket subprotocols passed to the platform constructor. */
-      readonly protocols?: string | string[];
+    /** Humane Files client handle backed by the raw Cmd escape hatch. */
+    export type Handle = t.Lifecycle & {
+      /** Raw typed Cmd client for structured/advanced Files command access. */
+      readonly cmd: Cmd.Client;
+      /** Read a text file as a string through the typed `files:read` command. */
+      readText(path: String.Path, options?: ReadTextOptions): Promise<string>;
     };
 
-    /** Files Cmd client backed by a WebSocket transport. */
-    export type WebSocket = Cmd.Client & t.WaitableHandle & {
+    /** Files client handle backed by a generic Cmd endpoint. */
+    export type Transport = Handle;
+
+    /** Files client handle backed by a WebSocket transport. */
+    export type WebSocket = Handle & t.WaitableHandle & {
       /** Concrete URL used to open the socket. */
       readonly url: t.StringUrl;
       /** Resolves when the underlying WebSocket closes; the client lifecycle disposes with it. */
       readonly finished: Promise<CloseEvent | undefined>;
       /** Dispose the client and await WebSocket close. */
       close(reason?: unknown): Promise<void>;
+    };
+
+    /** Options for `Files.Client.readText(...)`. */
+    export type ReadTextOptions = Omit<Cmd.Read.Payload, 'path'>;
+
+    /** Options for `Files.Client.transport(...)`. */
+    export type TransportOptions = Pick<t.Cmd.Client.Options, 'timeout' | 'closeEndpoint'>;
+
+    /** Options for `Files.Client.websocket(...)`. */
+    export type WebSocketOptions = Pick<t.Cmd.Client.Options, 'timeout'> & {
+      /** Optional WebSocket subprotocols passed to the platform constructor. */
+      readonly protocols?: string | string[];
     };
   }
 
