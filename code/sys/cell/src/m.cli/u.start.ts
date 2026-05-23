@@ -1,6 +1,7 @@
 import { Cell } from '../m.cell/mod.ts';
 import { serviceStatusesOf } from '../m.cell/u.services/u.status.ts';
 import { c, Cli, CliTable, Str, type t, Try } from './common.ts';
+import { smallCountText } from './u.fmt.count.ts';
 import { FmtPath } from './u.fmt.path.ts';
 import { Fmt } from './u.fmt.ts';
 import { createShutdownSignal, isSignalShutdownReason } from './u.shutdown.ts';
@@ -75,7 +76,7 @@ async function closeAndDispose(
 
 export function startServicesText(count: number): string {
   if (count === 1) return 'starting service...';
-  return `starting ${count} ${Str.plural(count, 'service')}...`;
+  return `starting ${smallCountText(count)} ${Str.plural(count, 'service')}...`;
 }
 
 export function formatStartResult(res: StartCellResult): string {

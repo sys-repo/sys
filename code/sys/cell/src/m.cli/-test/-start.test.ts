@@ -6,9 +6,11 @@ import { devServiceSource, serviceUrlsOf, silent, statusServiceSource } from './
 
 describe(`@sys/cell/cli start`, () => {
   it('formats startup spinner text from service count', () => {
-    expect(startServicesText(0)).to.eql('starting 0 services...');
+    expect(startServicesText(0)).to.eql('starting zero services...');
     expect(startServicesText(1)).to.eql('starting service...');
-    expect(startServicesText(3)).to.eql('starting 3 services...');
+    expect(startServicesText(3)).to.eql('starting three services...');
+    expect(startServicesText(10)).to.eql('starting ten services...');
+    expect(startServicesText(11)).to.eql('starting 11 services...');
   });
 
   it('start → loads and starts an empty Cell services set', async () => {

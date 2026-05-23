@@ -98,7 +98,7 @@ function serviceRoot(root: string): string {
 }
 
 function serviceRootLabel(label: string): string {
-  return c.bold(c.white(label));
+  return c.gray(label);
 }
 
 function serviceLabel(label: string): string {
