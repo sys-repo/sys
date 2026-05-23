@@ -16,11 +16,11 @@
     "clean": "deno run -P=clean ./scripts/task.clean.ts"
   },
   "exports": {
-    ".": "./src/ns.client/mod.ts",
+    ".": "./src/m.client/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./spec": "./src/ns.client/m.Spec/mod.ts",
-    "./server": "./src/ns.server/mod.ts",
+    "./spec": "./src/m.client/m.Spec/mod.ts",
+    "./server": "./src/m.server/mod.ts",
     "./web": "./src/m.web/mod.ts"
   },
   "permissions": {
