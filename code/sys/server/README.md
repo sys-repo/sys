@@ -23,7 +23,7 @@ bounded Files-over-WebSocket service lifecycle.
 
 ```yaml
 services:
-  - name: shell:files
+  - name: sample:files
     use: FilesWebSocketService
     from: 'jsr:@sys/server/files/service'
     config: ./-config/@sys.server.files/shell.yaml
@@ -32,10 +32,10 @@ services:
 Service config is strict, schema-backed YAML:
 
 ```yaml
-name: shell:files
+name: sample:files
 root: ./-sample/app
 path: /files
-port: 5176
+port: 5050
 watch: true
 policy: '**'
 ```
