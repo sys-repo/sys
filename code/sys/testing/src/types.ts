@@ -4,3 +4,4 @@
 export type * from './ns.client/m.Spec/t.ts';
 export type * from './ns.server/m.Browser/t.ts';
 export type * from './ns.server/m.Testing/t.ts';
+export type * from './m.web/t.ts';
