@@ -1,5 +1,11 @@
 type O = Record<string, unknown>;
 
+/** Parsed argument result with positional values in `._`. */
+export type ParsedArgs<T extends O = O> = Args.Parse.Result<T>;
+
+/** Command → aliases registry for CLI command normalization. */
+export type ArgsAliasMap<T extends string> = Args.Alias.Map<T>;
+
 /**
  * Command-line argument handling types.
  */
@@ -18,7 +24,7 @@ export declare namespace Args {
      * Convert a command → aliases map into an alias → command lookup.
      * Useful for normalizing `argv` where the first positional may be an alias.
      */
-    toAliasLookup<T extends Record<string, Alias.List>>(map: T): Record<string, keyof T>;
+    toAliasLookup<T extends Record<string, Alias.List>>(map: T): Record<string, Extract<keyof T, string>>;
 
     /**
      * Normalize `argv` by rewriting the first positional token via an alias lookup.
