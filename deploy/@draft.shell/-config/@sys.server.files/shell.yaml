@@ -1,4 +1,4 @@
-name: sample:files
+name: draft:files
 root: ./-sample/app
 path: /files
 port: 5050

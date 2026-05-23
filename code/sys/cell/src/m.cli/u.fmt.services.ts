@@ -32,7 +32,7 @@ function serviceStatusRows(service: StartedServiceStatus): ServiceStatusRow[] {
 
   if (owner) {
     if (owner.state !== 'ready') rows.push([serviceLabel('state'), serviceState(owner.state)]);
-    if (Is.str(owner.root)) rows.push([serviceLabel('root'), serviceRoot(owner.root)]);
+    if (Is.str(owner.root)) pushServiceRoot(rows, owner.root);
     for (const detail of serviceDetails(owner)) {
       rows.push([serviceLabel(detail.label), serviceSubtle(detail.value)]);
     }
@@ -91,6 +91,12 @@ function serviceDetails(status: t.Service.Status): readonly t.Service.Detail[] {
 
 function formatCapabilities(value: string): string {
   return value.split(',').map((part) => part.trim()).filter(Boolean).join(', ');
+}
+
+function pushServiceRoot(rows: ServiceStatusRow[], root: string) {
+  const value = serviceRoot(root);
+  if (stripAnsi(value) === './') return;
+  rows.push([serviceLabel('root'), value]);
 }
 
 function serviceRoot(root: string): string {

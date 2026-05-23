@@ -1,5 +1,5 @@
-# Vite dev service for @draft/shell.
+# Dev view service for @draft/shell.
+# Omits dir so ViteService uses the Cell root as its app context.
 
-name: view
-dir: .
+name: draft:view
 port: 1234

@@ -41,10 +41,11 @@ describe(`@sys/cell/cli service status formatter`, () => {
     expect(text).to.contain('service');
     expect(text).to.contain('view --mode=dev');
     expect(text).to.contain('jsr:@sys/driver-vite/service');
-    expect(text).to.contain('view');
+    expect(text).to.contain('\nroot');
+    expect(text).to.contain('./view');
   });
 
-  it('shows current-directory owner root as ./ and hides URL-redundant details', () => {
+  it('hides current-directory owner root and URL-redundant details', () => {
     const now = Time.now.timestamp;
     const cwd = Fs.cwd();
     const config = Fs.join(cwd, '-config/view.dev.yaml') as t.StringPath;
@@ -90,8 +91,7 @@ describe(`@sys/cell/cli service status formatter`, () => {
       }],
     }));
 
-    expect(text).to.contain('root');
-    expect(text).to.contain('./');
+    expect(text).not.to.contain('\nroot');
     expect(text).to.contain('http://localhost:5175/');
     expect(text).to.contain('capabilities');
     expect(text).to.contain('list, stat, read, watch, manifest');

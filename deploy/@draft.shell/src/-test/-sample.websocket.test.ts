@@ -15,7 +15,7 @@ const EXPECTED = {
 } as const;
 
 describe('draft shell sample over Files websocket', () => {
-  it('composes sample:files through Cell planning', async () => {
+  it('composes draft:files through Cell planning', async () => {
     const service = await plannedShellFilesService();
 
     expect(service?.service.use).to.eql('FilesWebSocketService');
@@ -43,12 +43,12 @@ describe('draft shell sample over Files websocket', () => {
 async function plannedShellFilesService() {
   const cell = await Cell.load(ROOT);
   const plan = await Cell.Services.plan(cell, { mode: 'dev' });
-  return plan.services.find((service) => service.service.name === 'sample:files');
+  return plan.services.find((service) => service.service.name === 'draft:files');
 }
 
 async function readCheckedInServiceConfig(): Promise<string> {
   const config = await readText(SERVICE_CONFIG);
-  expect(config).to.contain('name: sample:files');
+  expect(config).to.contain('name: draft:files');
   expect(config).to.contain(`root: ${SAMPLE_ROOT}`);
   expect(config).to.contain('path: /files');
   expect(config).to.contain('watch: true');
