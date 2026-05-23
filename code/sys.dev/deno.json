@@ -4,7 +4,7 @@
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev    ./-scripts/task.vite.ts --cmd=dev   --in=./src/index.html",
-    "test": "deno test -P=test",
+    "test": "deno test -P=test --permit-no-files",
     "build": "deno run -P=dev  ./-scripts/task.vite.ts --cmd=build --in=./src/index.html",
     "serve": "deno run -P=dev  ./-scripts/task.vite.ts --cmd=serve",
     "dry": "deno publish --allow-dirty --dry-run",
