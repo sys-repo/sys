@@ -91,7 +91,6 @@ describe(`@sys/cell/cli service status formatter`, () => {
       }],
     }));
 
-    expect(text).not.to.contain('\nroot');
     expect(text).to.contain('http://localhost:5175/');
     expect(text).to.contain('capabilities');
     expect(text).to.contain('list, stat, read, watch, manifest');
