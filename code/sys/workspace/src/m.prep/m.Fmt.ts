@@ -6,7 +6,7 @@ export const Fmt: t.WorkspacePrep.Fmt.Lib = {
     const cwd = args.cwd ?? Fs.cwd();
     const header = c.brightGreen(c.bold('Workspace import map'));
     const summary = c.gray(`${total} dependencies written to:`);
-    const paths = args.paths.map((path) => Cli.Fmt.Path.str(Fs.trimCwd(path, { cwd, prefix: true })));
+    const paths = args.paths.map((path) => Cli.Fmt.Path.str(Fs.trimCwd(path, { cwd })));
 
     if (paths.length <= 1) {
       const suffix = paths[0] ? ` ${paths[0]}` : '';

@@ -1,6 +1,8 @@
 import { Cli, describe, expect, it, Str } from '../../-test.ts';
 import { WorkspacePrep } from '../mod.ts';
 
+const path = (value: string) => Cli.stripAnsi(Cli.Fmt.Path.str(value));
+
 describe('Workspace.Prep.Fmt', () => {
   it('formats a single import-map output path on one line with a cwd-trimmed graph path', () => {
     const text = Cli.stripAnsi(
@@ -14,7 +16,7 @@ describe('Workspace.Prep.Fmt', () => {
     expect(text).to.eql(
       Str.dedent(`
         Workspace import map
-        47 dependencies written to: imports.json
+        47 dependencies written to: ${path('imports.json')}
       `),
     );
   });
@@ -32,8 +34,8 @@ describe('Workspace.Prep.Fmt', () => {
       Str.dedent(`
         Workspace import map
         47 dependencies written to:
-          - imports.json
-          - package.json
+          - ${path('imports.json')}
+          - ${path('package.json')}
       `),
     );
   });
@@ -64,8 +66,8 @@ describe('Workspace.Prep.Fmt', () => {
       Str.dedent(`
         Workspace import map
         47 dependencies written to:
-          - imports.json
-          - package.json
+          - ${path('imports.json')}
+          - ${path('package.json')}
       `),
     );
   });
