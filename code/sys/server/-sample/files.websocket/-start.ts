@@ -13,10 +13,7 @@ const server = FilesServer.WebSocket.start({
   files,
   lifecycle: 'process',
   keyboard: true,
-  status: {
-    name: SampleFiles.name,
-    root: SampleFiles.root,
-  },
+  status: { name: SampleFiles.name, root: SampleFiles.root },
 });
 
 await server.finished;
