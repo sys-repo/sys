@@ -1,5 +1,5 @@
 import { Cell } from '@sys/cell';
-import { Files } from '@sys/model/files';
+import { Files } from '@sys/model/files/fs';
 import { FilesWebSocketService } from '@sys/server/files/service';
 import { describe, expect, Fs, it, Path, type t, Testing } from '../-test.ts';
 import { ShellStructure } from '../m.shell.structure/mod.ts';
@@ -14,7 +14,7 @@ const EXPECTED = {
   name: 'Sample Shell',
 } as const;
 
-describe('draft shell sample over Files websocket', () => {
+describe('draft shell sample through Files client', () => {
   it('composes draft:files through Cell planning', async () => {
     const service = await plannedShellFilesService();
 
@@ -23,12 +23,15 @@ describe('draft shell sample over Files websocket', () => {
     expect(service?.paths.config).to.eql(SERVICE_CONFIG);
   });
 
-  it('reads the checked-in shell sample over websocket into ShellStructure', async () => {
+  it('reads the checked-in shell sample through local and websocket Files client', async () => {
     const config = await readCheckedInServiceConfig();
     expect(config).to.contain('port: 5050');
 
-    const yaml = await readSampleYamlOverWebSocket(config);
-    const structure = ShellStructure.parse(yaml);
+    const localYaml = await readSampleYamlThroughLocalFilesClient();
+    const websocketYaml = await readSampleYamlOverWebSocket(config);
+    expect(websocketYaml).to.eql(localYaml);
+
+    const structure = ShellStructure.parse(localYaml);
     const resolved = ShellStructure.resolve(structure);
 
     expect(structure).to.eql(EXPECTED);
@@ -39,7 +42,6 @@ describe('draft shell sample over Files websocket', () => {
 /**
  * Helpers:
  */
-
 async function plannedShellFilesService() {
   const cell = await Cell.load(ROOT);
   const plan = await Cell.Services.plan(cell, { mode: 'dev' });
@@ -56,6 +58,21 @@ async function readCheckedInServiceConfig(): Promise<string> {
   return config;
 }
 
+async function readSampleYamlThroughLocalFilesClient(): Promise<string> {
+  const backing = Files.Fs.Readonly.create({
+    fs: Fs.Capability.Files.Readonly.create(Fs),
+    root: Fs.join(ROOT, '-sample/app'),
+    policy: Files.Policy.readonly(SAMPLE_FILE),
+  });
+  const files = Files.Client.local(backing);
+
+  try {
+    return await files.readText(SAMPLE_FILE);
+  } finally {
+    files.dispose('test.cleanup');
+  }
+}
+
 async function readSampleYamlOverWebSocket(serviceConfig: string): Promise<string> {
   const dir = await Testing.dir('draft.shell.files.websocket');
   const runtimeConfig = Fs.join(dir.dir, 'shell.files.yaml') as t.StringPath;
@@ -70,9 +87,7 @@ async function readSampleYamlOverWebSocket(serviceConfig: string): Promise<strin
     expect(server.status().root).to.eql(Fs.join(ROOT, '-sample/app'));
     const client = await Files.Client.websocket(server.url);
     try {
-      const read = await client.send(Files.Cmd.Name.read, { path: SAMPLE_FILE });
-      if (read.kind !== 'inline') throw new Error('Expected inline Files<T> read result.');
-      return read.content;
+      return await client.readText(SAMPLE_FILE);
     } finally {
       await client.close('test.cleanup');
     }
