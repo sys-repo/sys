@@ -9,7 +9,6 @@ export { Fs } from '@sys/fs';
 export { Files } from '@sys/model/files/fs';
 export { Process } from '@sys/process';
 export { FilesServer } from '@sys/server/files';
-export { Str } from '@sys/std/str';
 
 /**
  * Sample default values.

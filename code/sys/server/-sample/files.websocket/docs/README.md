@@ -18,7 +18,7 @@ const text = await local.readText('README.md');
 
 const server = FilesServer.WebSocket.start({ files: backing });
 const remote = await Files.Client.websocket(server.url);
-const res = await remote.cmd.send(Files.Cmd.Name.read, { path: 'README.md' });
+const remoteText = await remote.readText('README.md');
 ```
 
 The shape is intentionally simple:
@@ -57,11 +57,7 @@ const server = FilesServer.WebSocket.start({
 const client = await Files.Client.websocket(server.url);
 
 try {
-  const readme = await client.cmd.send(Files.Cmd.Name.read, { path: 'README.md' });
-
-  if (readme.kind === 'inline') {
-    console.info(readme.content);
-  }
+  console.info(await client.readText('README.md'));
 } finally {
   await client.close('done');
   await server.close('done');

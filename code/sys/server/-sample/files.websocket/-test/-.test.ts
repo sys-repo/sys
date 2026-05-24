@@ -17,16 +17,13 @@ describe('sample:files:ws', () => {
       await waitForReady(process);
       client = await Files.Client.websocket(D.url, { timeout: 1_000 });
 
-      const txt = await client.cmd.send(Files.Cmd.Name.read, { path: 'hello.txt' });
-      const yaml = await client.cmd.send(Files.Cmd.Name.read, { path: 'hello.yaml' });
-      const json = await client.cmd.send(Files.Cmd.Name.read, { path: 'hello.json' });
+      const txt = await client.readText('hello.txt');
+      const yaml = await client.readText('hello.yaml');
+      const json = await client.readText('hello.json');
 
-      expect(txt.kind).to.eql('inline');
-      expect(yaml.kind).to.eql('inline');
-      expect(json.kind).to.eql('inline');
-      if (txt.kind === 'inline') expect(txt.content).to.contain('hello from @sys/server');
-      if (yaml.kind === 'inline') expect(yaml.content).to.contain('hello from @sys/server');
-      if (json.kind === 'inline') expect(json.content).to.contain('"kind": "sample"');
+      expect(txt).to.contain('hello from @sys/server');
+      expect(yaml).to.contain('hello from @sys/server');
+      expect(json).to.contain('"kind": "sample"');
     } finally {
       await client?.close('test.cleanup');
       await process.dispose();

@@ -68,6 +68,22 @@ Recently completed and retired plan ledgers:
 
 ## Active plan index
 
+### `files-static-sample.plan.md`
+
+Highest-value next sample. Proves the generated/static publication path that complements the live
+WebSocket authoring sample.
+
+- [ ] Add a tiny checked-in `dist.json` bundle and static assets.
+- [ ] Start a plain `@sys/http` static server for the bundle.
+- [ ] Fetch `dist.json` client-side, construct `FilesStatic.fromDist({ dist, baseUrl, policy })`,
+      and bind it with `Files.Client.local(...)`.
+- [ ] Prove `manifest({ content: true })` and `read(...)` return Files entries/content refs, not
+      `DistPkg` and not inline text.
+- [ ] Fetch a URL content ref through plain static HTTP.
+
+BMIND: this is not a WebSocket sample and not an HTTP Cmd sample. It proves generated dist/runtime
+publication mode.
+
 ### `transport-fidelity-hardening.plan.md`
 
 Cross-package fidelity plan; keep it about representation/transport semantics, not completed service
