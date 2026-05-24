@@ -16,7 +16,13 @@ export declare namespace FilesStatic {
 
   /** Options for creating a static Files backing from dist metadata. */
   export type FromDistOptions = TFiles.Backing.Options & {
-    /** Canonical static distribution metadata. */
+    /**
+     * Canonical frozen distribution metadata.
+     *
+     * This is the only production Files seam that accepts `DistPkg`; the static
+     * adapter translates it into ordinary Files entries/content refs before any
+     * Files command result is emitted.
+     */
     readonly dist: t.DistPkg;
 
     /** Optional static base URL used to produce URL content refs. */

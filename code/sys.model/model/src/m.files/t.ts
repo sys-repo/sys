@@ -391,7 +391,13 @@ export declare namespace Files {
     };
   }
 
-  /** Portable manifest for a bounded Files view. */
+  /**
+   * Portable runtime manifest for a bounded Files view.
+   *
+   * Frozen distribution/package metadata is translated through the static Files
+   * adapter before command handlers emit this shape; manifest results must stay
+   * on the Files runtime contract.
+   */
   export type Manifest = {
     /** Manifest model version. */
     readonly version: 'sys.files.manifest.v1';
