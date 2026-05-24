@@ -79,7 +79,7 @@
     "npm:@automerge/prosemirror@0.2.0": "0.2.0",
     "npm:@deno/vite-plugin@*": "2.0.2_vite@8.0.14__esbuild@0.28.0__yaml@2.9.0_esbuild@0.28.0_yaml@2.9.0",
     "npm:@deno/vite-plugin@2.0.2": "2.0.2_vite@8.0.14__esbuild@0.28.0__yaml@2.9.0_esbuild@0.28.0_yaml@2.9.0",
-    "npm:@mariozechner/pi-coding-agent@0.73.0": "0.73.0_ws@8.20.0",
+    "npm:@mariozechner/pi-coding-agent@0.73.0": "0.73.0_ws@8.21.0",
     "npm:@monaco-editor/react@4.7.0": "4.7.0_monaco-editor@0.55.1_react@19.2.6_react-dom@19.2.6__react@19.2.6",
     "npm:@noble/hashes@2.2.0": "2.2.0",
     "npm:@octokit/rest@22.0.1": "22.0.1",
@@ -152,6 +152,7 @@
     "npm:vite@*": "8.0.14_esbuild@0.28.0_yaml@2.9.0",
     "npm:vite@8.0.14": "8.0.14_esbuild@0.28.0_yaml@2.9.0",
     "npm:ws@8.20.0": "8.20.0",
+    "npm:ws@8.21.0": "8.21.0",
     "npm:yaml@2.8.4": "2.8.4",
     "npm:yaml@2.9.0": "2.9.0"
   },
@@ -363,7 +364,7 @@
         "npm:@types/ws",
         "npm:react-icons",
         "npm:react@19.2.5",
-        "npm:ws"
+        "npm:ws@8.20.0"
       ]
     },
     "@sys/driver-deno@0.0.292": {
@@ -728,7 +729,7 @@
         "debug",
         "eventemitter3",
         "isomorphic-ws",
-        "ws"
+        "ws@8.21.0"
       ]
     },
     "@automerge/automerge-repo-network-websocket@2.5.6": {
@@ -739,7 +740,7 @@
         "debug",
         "eventemitter3",
         "isomorphic-ws",
-        "ws"
+        "ws@8.21.0"
       ]
     },
     "@automerge/automerge-repo-storage-indexeddb@2.5.5": {
@@ -1878,7 +1879,7 @@
         "google-auth-library",
         "p-retry",
         "protobufjs",
-        "ws"
+        "ws@8.21.0"
       ],
       "scripts": true
     },
@@ -1994,7 +1995,7 @@
       ],
       "bin": true
     },
-    "@mariozechner/pi-agent-core@0.73.0_ws@8.20.0": {
+    "@mariozechner/pi-agent-core@0.73.0_ws@8.21.0": {
       "integrity": "sha512-ugcpvq0X9fr9fTSK29/3S4+KU/eeVMrBb7ZU3HqiF3xD7I1GlgumLj4FYmDrYSEA6+rzgNWlJUKwjKh9o0Z6AA==",
       "dependencies": [
         "@mariozechner/pi-ai",
@@ -2002,7 +2003,7 @@
       ],
       "deprecated": true
     },
-    "@mariozechner/pi-ai@0.73.0_ws@8.20.0": {
+    "@mariozechner/pi-ai@0.73.0_ws@8.21.0": {
       "integrity": "sha512-phKOpcde/ssz6UYszkmaGJ9LF9mgt/AP8LrtSwsfap+kMSeFfSQ2/mCSBT1mLJ2BqVuff9uXs1/+op1aQeaafQ==",
       "dependencies": [
         "@anthropic-ai/sdk",
@@ -2020,7 +2021,7 @@
       "deprecated": true,
       "bin": true
     },
-    "@mariozechner/pi-coding-agent@0.73.0_ws@8.20.0": {
+    "@mariozechner/pi-coding-agent@0.73.0_ws@8.21.0": {
       "integrity": "sha512-Fs2dRIgtjDT8X5VDGNGzxj251B0FvkRsgX03YJv1FK4wg5Maj+jkf8/5A6tbPnPcXsCgs41xxJRf3tF5vJRccA==",
       "dependencies": [
         "@mariozechner/jiti",
@@ -2068,7 +2069,7 @@
     "@mistralai/mistralai@2.2.1": {
       "integrity": "sha512-uKU8CZmL2RzYKmplsU01hii4p3pe4HqJefpWNRWXm1Tcm0Sm4xXfwSLIy4k7ZCPlbETCGcp69E7hZs+WOJ5itQ==",
       "dependencies": [
-        "ws",
+        "ws@8.21.0",
         "zod",
         "zod-to-json-schema"
       ]
@@ -3728,7 +3729,7 @@
         "@types/ws",
         "entities",
         "whatwg-mimetype",
-        "ws"
+        "ws@8.21.0"
       ]
     },
     "has-flag@4.0.0": {
@@ -3832,10 +3833,10 @@
     "isexe@2.0.0": {
       "integrity": "sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw=="
     },
-    "isomorphic-ws@5.0.0_ws@8.20.0": {
+    "isomorphic-ws@5.0.0_ws@8.21.0": {
       "integrity": "sha512-muId7Zzn9ywDsyXgTIafTry2sV3nySZeUDe6YedVd1Hvuuep5AsIlqK+XefWpYTyJG5e503F2xIuT2lcU6rCSw==",
       "dependencies": [
-        "ws"
+        "ws@8.21.0"
       ]
     },
     "jackspeak@3.4.3": {
@@ -4188,14 +4189,14 @@
         "wsl-utils"
       ]
     },
-    "openai@6.26.0_ws@8.20.0": {
+    "openai@6.26.0_ws@8.21.0": {
       "integrity": "sha512-zd23dbWTjiJ6sSAX6s0HrCZi41JwTA1bQVs0wLQPZ2/5o2gxOJA5wh7yOAUgwYybfhDXyhwlpeQf7Mlgx8EOCA==",
       "dependencies": [
-        "ws",
+        "ws@8.21.0",
         "zod"
       ],
       "optionalPeers": [
-        "ws",
+        "ws@8.21.0",
         "zod"
       ],
       "bin": true
@@ -5067,6 +5068,9 @@
     },
     "ws@8.20.0": {
       "integrity": "sha512-sAt8BhgNbzCtgGbt2OxmpuryO63ZoDk/sqaB/znQm94T4fCEsy/yV+7CdC1kJhOU9lboAEU7R3kquuycDoibVA=="
+    },
+    "ws@8.21.0": {
+      "integrity": "sha512-Vsp28b7DRcimFQvrqu2Wek3z1iYxDCWqHYB8Qsnk/S4RfaCQzPGPyBNuVjJV3cd6UiKtUtp6sNM77gWvzcCH+g=="
     },
     "wsl-utils@0.3.1": {
       "integrity": "sha512-g/eziiSUNBSsdDJtCLB8bdYEUMj4jR7AGeUo96p/3dTafgjHhpF4RiCFPiRILwjQoDXx5MqkBr4fwWtR3Ky4Wg==",
