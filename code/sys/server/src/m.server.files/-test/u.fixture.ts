@@ -156,7 +156,7 @@ async function withWatchedRemote<T>(
 ): Promise<T> {
   const remote = await connect(server.url, { timeout: false });
   const events: t.Files.Change[] = [];
-  const stream = remote.client.stream(Files.Cmd.Name.watch, { path: 'docs' });
+  const stream = remote.client.cmd.stream(Files.Cmd.Name.watch, { path: 'docs' });
   const done = stream.done.catch((error: unknown) => error);
   const subscription = stream.onEvent((event) => events.push(event));
   let closed = false;

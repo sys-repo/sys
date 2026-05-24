@@ -33,13 +33,13 @@ describe('FilesServer.WebSocket.create', () => {
       expect(Fixture.detail(status, 'files.fidelity')).to.eql(undefined);
       expect(Fixture.detail(status, 'files.capabilities')).to.eql('list,stat,read,manifest');
 
-      const capabilities = await remote.client.send(Files.Cmd.Name.capabilities, {});
+      const capabilities = await remote.client.cmd.send(Files.Cmd.Name.capabilities, {});
       expect(capabilities).to.eql(
         await Fixture.direct(backing, Files.Cmd.Name.capabilities, {}),
       );
 
       const listPayload = { depth: 2 } satisfies t.Files.Cmd.List.Payload;
-      const list = await remote.client.send(Files.Cmd.Name.list, listPayload);
+      const list = await remote.client.cmd.send(Files.Cmd.Name.list, listPayload);
       expect(list).to.eql(await Fixture.direct(backing, Files.Cmd.Name.list, listPayload));
       expect(list.entries.map((entry) => entry.path)).to.eql([
         'foo.json',
@@ -48,7 +48,7 @@ describe('FilesServer.WebSocket.create', () => {
       ]);
 
       const readPayload = { path: 'foo.json' } satisfies t.Files.Cmd.Read.Payload;
-      const read = await remote.client.send(Files.Cmd.Name.read, readPayload);
+      const read = await remote.client.cmd.send(Files.Cmd.Name.read, readPayload);
       expect(read).to.eql(await Fixture.direct(backing, Files.Cmd.Name.read, readPayload));
       expect(read).to.eql({
         kind: 'inline',
@@ -57,7 +57,7 @@ describe('FilesServer.WebSocket.create', () => {
         content: '{ "foo": true }\n',
       });
 
-      const denied = await remote.client
+      const denied = await remote.client.cmd
         .send(Files.Cmd.Name.read, { path: 'secret.txt' })
         .catch((error: unknown) => error);
       const error = Fixture.expectCmdError(denied, 'CmdError.Remote', Files.Cmd.Name.read);

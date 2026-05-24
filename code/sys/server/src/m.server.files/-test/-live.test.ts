@@ -41,7 +41,7 @@ describe('FilesServer.WebSocket.create: live files watch', () => {
         const entry = { path, kind: 'file', size: 5, mediaType: 'text/markdown' } as const;
         const expectedChange = { kind: 'created', path, seq: 1 as t.Files.Seq, entry } as const;
 
-        const created = await remote.client.send(Files.Cmd.Name.write, {
+        const created = await remote.client.cmd.send(Files.Cmd.Name.write, {
           kind: 'text',
           path,
           content: 'live\n',
@@ -58,7 +58,7 @@ describe('FilesServer.WebSocket.create: live files watch', () => {
           correlation: created.correlation,
         });
 
-        const read = await remote.client.send(Files.Cmd.Name.read, { path });
+        const read = await remote.client.cmd.send(Files.Cmd.Name.read, { path });
         expect(read).to.eql({
           kind: 'inline',
           file: entry,
@@ -111,7 +111,7 @@ describe('FilesServer.WebSocket.create: live files watch', () => {
             expect(Fs.Path.Is.absolute(event.entry.path)).to.eql(false);
           }
 
-          const read = await remote.client.send(Files.Cmd.Name.read, { path });
+          const read = await remote.client.cmd.send(Files.Cmd.Name.read, { path });
           expect(read).to.eql({
             kind: 'inline',
             file: { path, kind: 'file', size: 5 },
@@ -152,7 +152,7 @@ describe('FilesServer.WebSocket.create: live files watch', () => {
 
           const path = 'docs/ws-real.md' as t.Files.String.Path;
           const entry = { path, kind: 'file', size: 5 } as const;
-          const created = await remote.client.send(Files.Cmd.Name.write, {
+          const created = await remote.client.cmd.send(Files.Cmd.Name.write, {
             kind: 'text',
             path,
             content: 'real\n',
@@ -184,11 +184,11 @@ describe('FilesServer.WebSocket.create: live files watch', () => {
           expect(hostRead.ok).to.eql(true);
           expect(hostRead.data).to.eql('real\n');
 
-          const cmdStat = await remote.client.send(Files.Cmd.Name.stat, { path });
+          const cmdStat = await remote.client.cmd.send(Files.Cmd.Name.stat, { path });
           expect(cmdStat).to.eql({ entry });
-          const cmdList = await remote.client.send(Files.Cmd.Name.list, { path: 'docs' });
+          const cmdList = await remote.client.cmd.send(Files.Cmd.Name.list, { path: 'docs' });
           expect(cmdList.entries).to.eql([{ path, kind: 'file' }]);
-          const cmdRead = await remote.client.send(Files.Cmd.Name.read, { path });
+          const cmdRead = await remote.client.cmd.send(Files.Cmd.Name.read, { path });
           expect(cmdRead).to.eql({
             kind: 'inline',
             file: entry,
@@ -196,7 +196,7 @@ describe('FilesServer.WebSocket.create: live files watch', () => {
             content: 'real\n',
           });
 
-          const removed = await remote.client.send(Files.Cmd.Name.remove, { path });
+          const removed = await remote.client.cmd.send(Files.Cmd.Name.remove, { path });
           expect(removed).to.include({ kind: 'deleted', path });
           expect(Is.number(removed.seq)).to.eql(true);
           expect(Is.str(removed.correlation)).to.eql(true);
@@ -217,15 +217,15 @@ describe('FilesServer.WebSocket.create: live files watch', () => {
           const hostAfterRemove = await Fs.readText(hostPath);
           expect(hostAfterRemove.exists).to.eql(false);
 
-          const cmdListAfterRemove = await remote.client.send(Files.Cmd.Name.list, {
+          const cmdListAfterRemove = await remote.client.cmd.send(Files.Cmd.Name.list, {
             path: 'docs',
           });
           expect(cmdListAfterRemove.entries).to.eql([]);
-          const deniedStat = await remote.client
+          const deniedStat = await remote.client.cmd
             .send(Files.Cmd.Name.stat, { path })
             .catch((error: unknown) => error);
           Fixture.expectCmdError(deniedStat, 'CmdError.Remote', Files.Cmd.Name.stat);
-          const deniedRead = await remote.client
+          const deniedRead = await remote.client.cmd
             .send(Files.Cmd.Name.read, { path })
             .catch((error: unknown) => error);
           Fixture.expectCmdError(deniedRead, 'CmdError.Remote', Files.Cmd.Name.read);

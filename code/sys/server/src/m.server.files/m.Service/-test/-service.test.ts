@@ -32,7 +32,7 @@ describe('FilesWebSocketService', () => {
       expect(status.config).to.eql(config);
       expect(status.urls).to.eql([{ href: server.url, label: 'files:websocket' }]);
 
-      const read = await client.send(Files.Cmd.Name.read, { path: 'shell.yaml' });
+      const read = await client.cmd.send(Files.Cmd.Name.read, { path: 'shell.yaml' });
       expect(read.kind).to.eql('inline');
       if (read.kind === 'inline') expect(read.content).to.contain('kind: shell.structure');
     } finally {

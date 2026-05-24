@@ -1,19 +1,31 @@
 # Files WebSocket Sample
 
+Run sample with:
+
+```sh
+deno task sample:files
+```
+
+---
+
 A bounded Files backing, hosted over WebSocket, consumed through a typed `Files` client.
 
 ```ts
-const files = Files.Fs.Readonly.live({ fs, root, policy });
-const server = FilesServer.WebSocket.start({ files });
+const backing = Files.Fs.Readonly.live({ fs, root, policy });
 
-const client = await Files.Client.websocket(server.url);
-const res = await client.send(Files.Cmd.Name.read, { path: 'README.md' });
+const local = Files.Client.local(backing);
+const text = await local.readText('README.md');
+
+const server = FilesServer.WebSocket.start({ files: backing });
+const remote = await Files.Client.websocket(server.url);
+const res = await remote.cmd.send(Files.Cmd.Name.read, { path: 'README.md' });
 ```
 
 The shape is intentionally simple:
 
 ```text
-Files backing → Files WebSocket server → Files client
+Files backing → local client
+              → Files WebSocket server → remote client
 ```
 
 Full version:
@@ -30,17 +42,22 @@ const files = Files.Fs.Readonly.live({
   policy: Files.Policy.readonly('**'),
 });
 
-// 2. Host it over WebSocket.
+// 2. Use the same handle shape locally.
+const local = Files.Client.local(files);
+console.info(await local.readText('README.md'));
+local.dispose('done');
+
+// 3. Or host it over WebSocket.
 const server = FilesServer.WebSocket.start({
   path: '/files',
   files,
 });
 
-// 3. Connect a typed Files client.
+// 4. Connect a typed Files client.
 const client = await Files.Client.websocket(server.url);
 
 try {
-  const readme = await client.send(Files.Cmd.Name.read, { path: 'README.md' });
+  const readme = await client.cmd.send(Files.Cmd.Name.read, { path: 'README.md' });
 
   if (readme.kind === 'inline') {
     console.info(readme.content);
@@ -51,8 +68,3 @@ try {
 }
 ```
 
-Run it with:
-
-```sh
-deno task sample:files
-```
