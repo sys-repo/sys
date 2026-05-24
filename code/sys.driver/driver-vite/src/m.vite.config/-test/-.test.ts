@@ -1,4 +1,3 @@
-import { defineConfig } from 'vite';
 import { type t, c, describe, expect, it } from '../../-test.ts';
 import { Vite } from '../../mod.ts';
 import { Is } from '../m.Is.ts';
@@ -9,9 +8,10 @@ describe('ViteConfig', () => {
   const { brightCyan: cyan, bold } = c;
 
   it('API', () => {
+    const config = { root: '.' };
     expect(Vite.Config).to.equal(ViteConfig);
     expect(ViteConfig.Is).to.equal(Is);
-    expect(ViteConfig.define).to.equal(defineConfig);
+    expect(ViteConfig.define(config)).to.equal(config);
     expect(ViteConfig.alias).to.equal(toAlias);
   });
 
