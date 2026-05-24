@@ -1,9 +1,9 @@
-import { describe, expect, it, Time } from '../../../src/-test.ts';
-import { D, Files, Fs, Process, type t } from '../common.ts';
+import { describe, expect, it, Time } from '../../src/-test.ts';
+import { D, Files, Fs, Process, type t } from './common.ts';
 
 describe('sample:files:ws', () => {
   it('starts the sample server and serves the docs corpus over websocket', async () => {
-    const root = Fs.Path.fromFileUrl(new URL('../../..', import.meta.url));
+    const root = Fs.Path.fromFileUrl(new URL('../..', import.meta.url));
     const process = Process.spawn({
       args: ['run', '-P=sample-files-ws', './-sample/files.websocket/-start.ts'],
       cwd: root,

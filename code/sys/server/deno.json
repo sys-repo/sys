@@ -5,12 +5,13 @@
   "tasks": {
     "test": "deno test -P=test",
     "dry": "deno publish --allow-dirty --dry-run",
-    "check": "deno check -- ./src/ ./-scripts/* ./-sample/files.websocket/*",
+    "check": "deno check -- ./src/ ./-scripts/* ./-sample/files.websocket/* ./-sample/files.static/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "prep": "deno task help:bundle",
     "help:bundle": "deno run -RWE ./src/m.help/-bundle/mod.ts",
     "sample:files": "deno task sample:files:ws",
     "sample:files:ws": "deno run -P=sample-files-ws ./-sample/files.websocket/-start.ts",
+    "sample:files:static": "deno run -P=sample-files-static ./-sample/files.static/-start.ts",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
@@ -36,6 +37,11 @@
       "run": true
     },
     "sample-files-ws": {
+      "read": true,
+      "env": true,
+      "net": true
+    },
+    "sample-files-static": {
       "read": true,
       "env": true,
       "net": true
