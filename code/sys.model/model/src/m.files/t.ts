@@ -823,6 +823,8 @@ export declare namespace Files {
   export namespace Client {
     /** Runtime client adapter surface. */
     export type Lib = {
+      /** Bind an in-process Files backing and return a Files client handle. */
+      local(backing: Backing.CmdSurface, options?: LocalOptions): Local;
       /** Bind a generic Cmd endpoint and return a Files client handle. */
       transport(endpoint: t.Cmd.Endpoint, options?: TransportOptions): Transport;
       /** Open a WebSocket and return a Files client handle bound to it. */
@@ -836,6 +838,9 @@ export declare namespace Files {
       /** Read a text file as a string through the typed `files:read` command. */
       readText(path: String.Path, options?: ReadTextOptions): Promise<string>;
     };
+
+    /** Files client handle backed by an in-process Files backing. */
+    export type Local = Handle;
 
     /** Files client handle backed by a generic Cmd endpoint. */
     export type Transport = Handle;
@@ -852,6 +857,9 @@ export declare namespace Files {
 
     /** Options for `Files.Client.readText(...)`. */
     export type ReadTextOptions = Omit<Cmd.Read.Payload, 'path'>;
+
+    /** Options for `Files.Client.local(...)`. */
+    export type LocalOptions = Pick<t.Cmd.Client.Options, 'timeout'>;
 
     /** Options for `Files.Client.transport(...)`. */
     export type TransportOptions = Pick<t.Cmd.Client.Options, 'timeout' | 'closeEndpoint'>;
