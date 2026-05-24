@@ -42,6 +42,13 @@ Completed and reusable:
     metadata.
   - A source-level seam test now forbids dist/package coupling tokens outside the static adapter
     allowlist.
+- `Files.ContentRef.bytes/text` exists in `@sys/model/files`.
+  - It resolves Files-domain URL content refs, not arbitrary URLs or generic Fetch requests.
+  - It verifies size/hash metadata by default when present.
+  - It supports injected fetch, global Web Fetch, `AbortSignal`, and `UntilInput` cancellation.
+  - It keeps `Files.Client.readText(...)` inline-only; read-ref materialization remains explicit.
+  - The static Files sample now proves the real sequence: read returns a URL content ref, then
+    `Files.ContentRef.text(read.contentRef)` materializes the content.
 
 Recently completed and retired plan ledgers:
 
@@ -76,6 +83,14 @@ Recently completed and retired plan ledgers:
     `Files.Client.local(...)` → Files manifest/read-ref → plain HTTP asset fetch.
   - Keeps static read semantics honest: static `read` returns URL content refs; it does not use
     `readText(...)` or introduce a content-ref fetch facade.
+- Files ContentRef resolver rollout:
+  - `8bebdf7b95aa3e23770cd8335e0ec3798c900f02` — `feat(model): add Files ContentRef resolvers`
+  - Adds `Files.ContentRef.bytes(ref, options?)` and `Files.ContentRef.text(ref, options?)`.
+  - Resolves URL refs with Files-domain error policy and default size/hash verification.
+  - Uses `@sys/crypto/hash`, `@sys/std/error`, `@sys/std/dispose`, and `@sys/std/is` rather than
+    ad-hoc helper policy.
+  - Updates the static sample to replace ad-hoc asset fetch with explicit Files-domain content-ref
+    resolution.
 
 ## Active plan index
 
