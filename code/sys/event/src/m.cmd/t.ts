@@ -238,8 +238,43 @@ export declare namespace Cmd {
   /** Transport adapters for wiring Cmd to message endpoints. */
   export namespace Transport {
     export type Lib = {
+      /** Create a local Cmd<T> host bound to one side of a MessageChannel. */
+      local: LocalFactory;
       /** Adapt a WebSocket into a Cmd endpoint using JSON-encoded messages. */
       fromWebSocket(ws: WebSocket): Endpoint;
+    };
+
+    /** Factory for local MessageChannel-backed Cmd<T> transports. */
+    export type LocalFactory = <
+      N extends string,
+      P extends Payload.Map<N>,
+      R extends Result.Map<N>,
+      E extends Event.Map<N> = Event.Map<N>,
+    >(
+      input: LocalInput<N, P, R, E>,
+    ) => LocalTransport;
+
+    /** Input for creating a local MessageChannel-backed Cmd<T> transport. */
+    export type LocalInput<
+      N extends string,
+      P extends Payload.Map<N>,
+      R extends Result.Map<N>,
+      E extends Event.Map<N> = Event.Map<N>,
+    > = {
+      /** Typed Cmd<T> factory to host. */
+      readonly factory: Cmd.Factory<N, P, R, E>;
+      /** Host-side command handlers. */
+      readonly handlers: Handler.Map<N, P, R, E>;
+      /** Optional host options. The transport still owns explicit MessagePort closure. */
+      readonly hostOptions?: Host.Options;
+    };
+
+    /** Local MessageChannel-backed Cmd<T> transport. */
+    export type LocalTransport = t.DisposableLike & {
+      /** Client-side endpoint to pass into a Cmd<T> client. */
+      readonly endpoint: Endpoint;
+      /** Host lifecycle bound to the transport handlers. */
+      readonly host: Host.Handle;
     };
 
     /** Minimal MessagePort-like type. */
