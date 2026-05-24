@@ -127,9 +127,8 @@ Define explicit app paths, then hand the rest of the baseline config assembly to
 
 ```ts
 import { Vite } from 'jsr:@sys/driver-vite';
-import { defineConfig } from 'vite';
 
-export default defineConfig(() => {
+export default Vite.Config.define(() => {
   const paths = Vite.Config.paths({
     app: {
       entry: 'src/index.html',
@@ -149,15 +148,14 @@ export default defineConfig(() => {
 
 It also preserves two explicit extension paths:
 - `vitePlugins` for caller-supplied Vite plugins appended after the driver/common plugin set
-- normal outer `defineConfig(...)` composition for any broader raw Vite config shaping
+- normal outer `Vite.Config.define(...)` composition for any broader raw Vite config shaping
 
 You can still constrain workspace visibility and customize bundle behavior:
 
 ```ts
 import { Vite } from 'jsr:@sys/driver-vite';
-import { defineConfig } from 'vite';
 
-export default defineConfig(async () => {
+export default Vite.Config.define(async () => {
   const paths = Vite.Config.paths({
     app: {
       entry: 'src/index.html',
