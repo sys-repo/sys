@@ -85,6 +85,8 @@ Recently completed and retired plan ledgers:
     `readText(...)` or introduce a content-ref fetch facade.
 - Files ContentRef resolver rollout:
   - `8bebdf7b95aa3e23770cd8335e0ec3798c900f02` — `feat(model): add Files ContentRef resolvers`
+  - `294f6ae70` — `plan(files): mark ContentRef resolver plan landed`
+  - `161ac1c33ee1f4a64792e69215b17078414103bf` — `plan(files): retire ContentRef resolver plan`
   - Adds `Files.ContentRef.bytes(ref, options?)` and `Files.ContentRef.text(ref, options?)`.
   - Resolves URL refs with Files-domain error policy and default size/hash verification.
   - Uses `@sys/crypto/hash`, `@sys/std/error`, `@sys/std/dispose`, and `@sys/std/is` rather than
