@@ -22,9 +22,9 @@ The remaining gaps are not another backing-authority seam like the earlier writa
 
 Re-checked the implementation before writing this plan:
 
-- `code/sys.model/model/src/m.files/t/t.cmd.ts`
+- `code/sys.model/model/src/m.files/t.ts`
   - `Write.BytesPayload.content` is `Uint8Array` and explicitly notes it is not a JSON transport shape.
-  - `Watch.Payload.since?: Core.Seq` exists.
+  - `Watch.Payload.since?: Seq` exists.
 - `code/sys/event/src/m.cmd/transport/u.from.WebSocket.ts`
   - WebSocket Cmd transport sends envelopes with `Json.stringify` and parses with `Json.safeParse`.
 - `code/sys/http/src/http.cmd/t.ts`
@@ -47,8 +47,10 @@ Fresh pass against current reality:
 - Hosted keyboard controls are upstream: `Cli.Keyboard.bind(...)` owns terminal keypress mechanics, and `WebSocketServer.start({ keyboard: true })` / `FilesServer.WebSocket.start({ keyboard: true })` own service quit wiring without sample-local `HttpServer.keyboard(...)` glue.
 - Generic WebSocket server internals now live under `code/sys/server/src/m.server.websocket`.
 - The Files WebSocket sample serves a real filesystem docs corpus and its own README.
-- `Files.Client.websocket(url)` exists in `@sys/model/files` and owns raw WebSocket readiness, canonical `Files.Cmd.ns` binding, and client/socket lifecycle.
+- `Files.Client.local(backing)`, `Files.Client.transport(endpoint)`, and `Files.Client.websocket(url)` return the same Files client handle grammar.
+- `Files.Client.websocket(url)` owns raw WebSocket readiness, canonical `Files.Cmd.ns` binding, and client/socket lifecycle.
 - Files-specific call-sites should no longer repeat `Cmd.make<FilesCmd...>` plus `Cmd.Transport.fromWebSocket(...)`; generic Cmd/WebSocket tests may still do so because they test the transport primitive.
+- Normal consumer/sample reads use `files.readText(path)`; raw Cmd remains available explicitly under `files.cmd`.
 
 BMIND conclusion: the remaining plan should stay focused on fidelity and documentation truth, not re-litigate the completed ergonomics. The most important new follow-on is a docs/help pass so `@sys/server --help`, DSL chapters, and speech acts describe the current API shape rather than the earlier create-only/manual-client era.
 
@@ -56,20 +58,28 @@ BMIND conclusion: the remaining plan should stay focused on fidelity and documen
 
 Reality scan after the Files WebSocket sample polish and client commit:
 
-- Files-specific consumers now have a single canonical remote client call-site: `Files.Client.websocket(url)`.
+- Files-specific consumers now have canonical client call-sites for local, generic transport, and WebSocket binding: `Files.Client.local(...)`, `Files.Client.transport(...)`, and `Files.Client.websocket(url)`.
 - The implementation lives under `code/sys.model/model/src/m.files/m.Client/`:
   - `mod.ts` assembles the public `Client` surface.
+  - `m.local.ts` owns `Files.Client.local(...)`.
+  - `m.transport.ts` owns `Files.Client.transport(...)`.
   - `m.websocket.ts` owns `Files.Client.websocket(...)`.
   - `u.open.ts`, `u.error.ts`, and `u.socket.ts` isolate open/readiness/error/socket lifecycle concerns.
 - The old single-file `m.Client.ts` is gone; no stale imports remain.
 - Files server tests and the WebSocket sample use the first-class Files client.
+- Draft shell proves the checked-in sample through both local and WebSocket Files clients using `readText(...)`.
 - Remaining manual `Cmd.make(...)` plus `Cmd.Transport.fromWebSocket(...)` call-sites are generic WebSocket/Cmd substrate tests or server internals, which is correct.
 - `code/sys/server/src/m.cli/-test/-dsl.test.ts` still expects help text mentioning `Cmd.Transport.fromWebSocket`; that is intentionally left to Phase 15.9 rather than smuggled into the client feature commit.
 - Touched surfaces were scanned for `ReturnType<typeof ...>`, `Parameters<typeof ...>`, `Awaited<ReturnType<...>>`, `typeof Files.Client.websocket`, and junk `expectTypeOf({} as ...)` assertions; no relevant residue remains.
 
-Landed commit for the final client/sample-doc/type-cleanup unit:
+Landed commits for the client/sample-doc/type-cleanup units:
 
 - [x] `6f37235cd` feat(model): add Files websocket client
+- [x] `68da168ce` feat(model): add Files client handle facade with readText
+- [x] `914d9fafc` feat(event): add Cmd<T> local transport adapter
+- [x] `e247ec973` feat(model): add local Files client binding
+- [x] `d26e8bc06` test(server): migrate Files websocket clients to handle.cmd grammar
+- [x] `e7ac20129` test(draft.shell): read shell sample through Files client
 
 ## Completed sequence
 
@@ -199,6 +209,23 @@ Landed commit for the final client/sample-doc/type-cleanup unit:
   - Kept HTTP-specific open-browser behavior local while removing duplicate keyboard loop mechanics.
 - [x] `90324e825` feat(server): add keyboard controls to websocket start
   - Added hosted keyboard quit controls to `WebSocketServer.start(...)` and `FilesServer.WebSocket.start(...)`, removed sample-local `HttpServer.keyboard(...)` wiring, and kept `create(...)` side-effect free.
+- [x] `7a131e2d6` refactor(server): namespace websocket keyboard types
+  - Completed the server-local polish by moving flat keyboard option aliases under `WebSocketServer.Keyboard.Options` / `WebSocketServer.Keyboard.Input`.
+
+### Phase 14.6 — Files local client facade and static seam hardening
+
+- [x] `68da168ce` feat(model): add Files client handle facade with readText
+  - Added the humane Files client handle grammar and kept raw Cmd under `files.cmd`.
+- [x] `914d9fafc` feat(event): add Cmd<T> local transport adapter
+  - Promoted reusable in-process Cmd local transport infrastructure.
+- [x] `e247ec973` feat(model): add local Files client binding
+  - Added `Files.Client.local(backing)` over the production Cmd local transport.
+- [x] `d26e8bc06` test(server): migrate Files websocket clients to handle.cmd grammar
+  - Migrated server raw Cmd proofs to the explicit `client.cmd.send(...)` / `client.cmd.stream(...)` escape hatch.
+- [x] `e7ac20129` test(draft.shell): read shell sample through Files client
+  - Proved the draft shell sample through local and WebSocket Files client `readText(...)`.
+- [x] `06ea48f41` feat(model): confine DistPkg Files coupling to static seam
+  - Added type-seam docs and a production source-boundary test so `DistPkg` can enter Files only through the static adapter seam.
 
 ## Phase 15 — Files transport fidelity hardening
 
@@ -256,7 +283,11 @@ Landed commit for the final client/sample-doc/type-cleanup unit:
 
 ### 15.9 — Server DSL/help and speech-act reality pass
 
-Status: completed in the current working tree; commit/hash pending.
+Status: completed.
+
+Landed in:
+
+- [x] `4d6f177e8` docs(server): update DSL for hosted Files websocket reality
 
 - [x] Re-read `code/sys/server/src/m.help/yaml/*` against the current server/model reality.
 - [x] Update `@sys/server --help`, DSL chapters, and skill projections so speech acts include hosted startup (`WebSocketServer.start(...)`, `FilesServer.WebSocket.start(...)`), process lifecycle, startup reporting, and the `silent` option where appropriate.

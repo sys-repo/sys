@@ -37,6 +37,11 @@ Completed and reusable:
   - Loopback URL display is centralized in `@sys/cli` URL formatting (`127.0.0.1` displays as
     `localhost`); raw status/config values remain unchanged.
 - Server Files WebSocket status no longer emits redundant `files.fidelity` detail.
+- `DistPkg` may enter production Files runtime code only through the static dist seam.
+  - `Files.Manifest` is documented as bounded runtime Files-view metadata, not frozen package
+    metadata.
+  - A source-level seam test now forbids dist/package coupling tokens outside the static adapter
+    allowlist.
 
 Recently completed and retired plan ledgers:
 
@@ -58,24 +63,10 @@ Recently completed and retired plan ledgers:
   - `2d0fe866f` — `refactor(http): use CLI keyboard binding helper`
   - `90324e825` — `feat(server): add keyboard controls to websocket start`
   - `7a131e2d6` — `refactor(server): namespace websocket keyboard types`
+- Static DistPkg seam hardening:
+  - `06ea48f41` — `feat(model): confine DistPkg Files coupling to static seam`
 
 ## Active plan index
-
-### `static-dist-seam-hardening.plan.md`
-
-Boundary-hardening plan; no implementation has landed from this plan yet.
-
-- [ ] Add FilesManifest vs DistPkg seam notes/JSDoc.
-- [ ] Add a production source-boundary test forbidding dist coupling outside the static seam.
-- [ ] Keep/sharpen existing graph-boundary tests.
-- [ ] Optionally narrow the model common helper pool only if seam tests prove friction.
-- [ ] Add canon/truth note after the seam test proves the invariant.
-- [ ] Do not brand `FilesManifest` / `DistPkg` unless their shapes converge enough to create real
-      assignment risk.
-- [ ] Best small next task: seam notes + source-boundary test as one boundary commit.
-
-BMIND: the live risk is accidental package/dist coupling leaking into the runtime Files grammar, not
-structural type assignability today.
 
 ### `transport-fidelity-hardening.plan.md`
 
