@@ -25,7 +25,7 @@ describe('sample:files:static', () => {
 
       files = Files.Client.local(backing);
       await assertManifest(files);
-      await assertReadRefFetchesAsset(files, origin);
+      await assertReadRefResolvesAsset(files, origin);
     }
 
     try {
@@ -66,7 +66,7 @@ async function assertManifest(files: t.Files.Client.Local) {
   ]);
 }
 
-async function assertReadRefFetchesAsset(files: t.Files.Client.Local, origin: t.StringUrl) {
+async function assertReadRefResolvesAsset(files: t.Files.Client.Local, origin: t.StringUrl) {
   const read = await files.cmd.send(Files.Cmd.Name.read, { path: SampleFiles.paths.readme });
   expect(read.kind).to.eql('ref');
   if (read.kind !== 'ref') throw new Error('Expected static Files read to return a ref.');
@@ -76,7 +76,6 @@ async function assertReadRefFetchesAsset(files: t.Files.Client.Local, origin: t.
   if (ref.kind !== 'url') throw new Error('Expected static Files ref to be a URL.');
   expect(ref.url).to.eql(`${origin}/docs/README.md`);
 
-  const asset = await fetch(ref.url);
-  expect(asset.status).to.eql(200);
-  expect(await asset.text()).to.contain('Files static sample');
+  const text = await Files.ContentRef.text(ref);
+  expect(text).to.contain('Files static sample');
 }

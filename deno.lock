@@ -79,7 +79,7 @@
     "npm:@automerge/prosemirror@0.2.0": "0.2.0",
     "npm:@deno/vite-plugin@*": "2.0.2_vite@8.0.14__esbuild@0.28.0__yaml@2.9.0_esbuild@0.28.0_yaml@2.9.0",
     "npm:@deno/vite-plugin@2.0.2": "2.0.2_vite@8.0.14__esbuild@0.28.0__yaml@2.9.0_esbuild@0.28.0_yaml@2.9.0",
-    "npm:@mariozechner/pi-coding-agent@0.73.0": "0.73.0_ws@8.20.1",
+    "npm:@mariozechner/pi-coding-agent@0.73.0": "0.73.0_ws@8.20.0",
     "npm:@monaco-editor/react@4.7.0": "4.7.0_monaco-editor@0.55.1_react@19.2.6_react-dom@19.2.6__react@19.2.6",
     "npm:@noble/hashes@2.2.0": "2.2.0",
     "npm:@octokit/rest@22.0.1": "22.0.1",
@@ -102,7 +102,7 @@
     "npm:chai@6.2.2": "6.2.2",
     "npm:csstype@3.2.3": "3.2.3",
     "npm:date-fns@4.1.0": "4.1.0",
-    "npm:date-fns@4.2.1": "4.2.1",
+    "npm:date-fns@4.3.0": "4.3.0",
     "npm:diff@9.0.0": "9.0.0",
     "npm:esbuild@0.23.1": "0.23.1",
     "npm:esbuild@0.27.2": "0.27.2",
@@ -114,7 +114,7 @@
     "npm:happy-dom@20.9.0": "20.9.0",
     "npm:hash-it@7.0.2": "7.0.2",
     "npm:hono@4.12.18": "4.12.18",
-    "npm:hono@4.12.21": "4.12.21",
+    "npm:hono@4.12.22": "4.12.22",
     "npm:ignore@7.0.5": "7.0.5",
     "npm:monaco-editor@0.55.1": "0.55.1",
     "npm:motion@12.38.0": "12.38.0_react@19.2.6_react-dom@19.2.6__react@19.2.6",
@@ -152,7 +152,6 @@
     "npm:vite@*": "8.0.14_esbuild@0.28.0_yaml@2.9.0",
     "npm:vite@8.0.14": "8.0.14_esbuild@0.28.0_yaml@2.9.0",
     "npm:ws@8.20.0": "8.20.0",
-    "npm:ws@8.20.1": "8.20.1",
     "npm:yaml@2.8.4": "2.8.4",
     "npm:yaml@2.9.0": "2.9.0"
   },
@@ -364,7 +363,7 @@
         "npm:@types/ws",
         "npm:react-icons",
         "npm:react@19.2.5",
-        "npm:ws@8.20.0"
+        "npm:ws"
       ]
     },
     "@sys/driver-deno@0.0.292": {
@@ -729,7 +728,7 @@
         "debug",
         "eventemitter3",
         "isomorphic-ws",
-        "ws@8.20.1"
+        "ws"
       ]
     },
     "@automerge/automerge-repo-network-websocket@2.5.6": {
@@ -740,7 +739,7 @@
         "debug",
         "eventemitter3",
         "isomorphic-ws",
-        "ws@8.20.1"
+        "ws"
       ]
     },
     "@automerge/automerge-repo-storage-indexeddb@2.5.5": {
@@ -1879,7 +1878,7 @@
         "google-auth-library",
         "p-retry",
         "protobufjs",
-        "ws@8.20.1"
+        "ws"
       ],
       "scripts": true
     },
@@ -1995,7 +1994,7 @@
       ],
       "bin": true
     },
-    "@mariozechner/pi-agent-core@0.73.0_ws@8.20.1": {
+    "@mariozechner/pi-agent-core@0.73.0_ws@8.20.0": {
       "integrity": "sha512-ugcpvq0X9fr9fTSK29/3S4+KU/eeVMrBb7ZU3HqiF3xD7I1GlgumLj4FYmDrYSEA6+rzgNWlJUKwjKh9o0Z6AA==",
       "dependencies": [
         "@mariozechner/pi-ai",
@@ -2003,7 +2002,7 @@
       ],
       "deprecated": true
     },
-    "@mariozechner/pi-ai@0.73.0_ws@8.20.1": {
+    "@mariozechner/pi-ai@0.73.0_ws@8.20.0": {
       "integrity": "sha512-phKOpcde/ssz6UYszkmaGJ9LF9mgt/AP8LrtSwsfap+kMSeFfSQ2/mCSBT1mLJ2BqVuff9uXs1/+op1aQeaafQ==",
       "dependencies": [
         "@anthropic-ai/sdk",
@@ -2021,7 +2020,7 @@
       "deprecated": true,
       "bin": true
     },
-    "@mariozechner/pi-coding-agent@0.73.0_ws@8.20.1": {
+    "@mariozechner/pi-coding-agent@0.73.0_ws@8.20.0": {
       "integrity": "sha512-Fs2dRIgtjDT8X5VDGNGzxj251B0FvkRsgX03YJv1FK4wg5Maj+jkf8/5A6tbPnPcXsCgs41xxJRf3tF5vJRccA==",
       "dependencies": [
         "@mariozechner/jiti",
@@ -2069,7 +2068,7 @@
     "@mistralai/mistralai@2.2.1": {
       "integrity": "sha512-uKU8CZmL2RzYKmplsU01hii4p3pe4HqJefpWNRWXm1Tcm0Sm4xXfwSLIy4k7ZCPlbETCGcp69E7hZs+WOJ5itQ==",
       "dependencies": [
-        "ws@8.20.1",
+        "ws",
         "zod",
         "zod-to-json-schema"
       ]
@@ -3286,8 +3285,8 @@
     "date-fns@4.1.0": {
       "integrity": "sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg=="
     },
-    "date-fns@4.2.1": {
-      "integrity": "sha512-37RhSdxaG1suen6VDCza6rNrQfooyQh57HFVPwQGEq2QWliVLzPQZ8Oa017weOu+HZCnzI7N3Pf/wyoBKfEqrA=="
+    "date-fns@4.3.0": {
+      "integrity": "sha512-OYcL+3N/jyWbYdFGqoMAhytDgxP9pbYPUUiRCOgn4Fewaadk9l/Wam4Avciiyp2BgkpfQyBV9B+ehnVJych+eQ=="
     },
     "debug@4.4.3": {
       "integrity": "sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==",
@@ -3729,7 +3728,7 @@
         "@types/ws",
         "entities",
         "whatwg-mimetype",
-        "ws@8.20.1"
+        "ws"
       ]
     },
     "has-flag@4.0.0": {
@@ -3766,8 +3765,8 @@
     "hono@4.12.18": {
       "integrity": "sha512-RWzP96k/yv0PQfyXnWjs6zot20TqfpfsNXhOnev8d1InAxubW93L11/oNUc3tQqn2G0bSdAOBpX+2uDFHV7kdQ=="
     },
-    "hono@4.12.21": {
-      "integrity": "sha512-uV63apnb0kyPtAUwoWgaGh9HyIFcv8lgmzPZSiTBQAFOFGIzka5EZ1dZocmGnn0XdX0+XTqJ6Tqv7selMuGLRQ=="
+    "hono@4.12.22": {
+      "integrity": "sha512-7fvVPbB92zNRsQke+uiRGwtTuef0tB2Dg4hWxYfFNvkQhIltWoyi0ONReM5LWA+jJWS3nfT5lTq+qbsIpX0IQw=="
     },
     "hosted-git-info@9.0.3": {
       "integrity": "sha512-Hc+ghLoSt6QaYZUv0WBiIvmMDZuZZ7oaDvdH8MbfOO4lOsxdXLEvuC6ePoGs9H1X9oCLyq6+NVN0MKqD+ydxyg==",
@@ -3833,10 +3832,10 @@
     "isexe@2.0.0": {
       "integrity": "sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw=="
     },
-    "isomorphic-ws@5.0.0_ws@8.20.1": {
+    "isomorphic-ws@5.0.0_ws@8.20.0": {
       "integrity": "sha512-muId7Zzn9ywDsyXgTIafTry2sV3nySZeUDe6YedVd1Hvuuep5AsIlqK+XefWpYTyJG5e503F2xIuT2lcU6rCSw==",
       "dependencies": [
-        "ws@8.20.1"
+        "ws"
       ]
     },
     "jackspeak@3.4.3": {
@@ -4189,14 +4188,14 @@
         "wsl-utils"
       ]
     },
-    "openai@6.26.0_ws@8.20.1": {
+    "openai@6.26.0_ws@8.20.0": {
       "integrity": "sha512-zd23dbWTjiJ6sSAX6s0HrCZi41JwTA1bQVs0wLQPZ2/5o2gxOJA5wh7yOAUgwYybfhDXyhwlpeQf7Mlgx8EOCA==",
       "dependencies": [
-        "ws@8.20.1",
+        "ws",
         "zod"
       ],
       "optionalPeers": [
-        "ws@8.20.1",
+        "ws",
         "zod"
       ],
       "bin": true
@@ -5069,9 +5068,6 @@
     "ws@8.20.0": {
       "integrity": "sha512-sAt8BhgNbzCtgGbt2OxmpuryO63ZoDk/sqaB/znQm94T4fCEsy/yV+7CdC1kJhOU9lboAEU7R3kquuycDoibVA=="
     },
-    "ws@8.20.1": {
-      "integrity": "sha512-It4dO0K5v//JtTXuPkfEOaI3uUN87iYPnqo/ZzqCoG3g8uhA66QUMs/SrM0YK7/NAu+r4LMh/9dq2A7k+rHs+w=="
-    },
     "wsl-utils@0.3.1": {
       "integrity": "sha512-g/eziiSUNBSsdDJtCLB8bdYEUMj4jR7AGeUo96p/3dTafgjHhpF4RiCFPiRILwjQoDXx5MqkBr4fwWtR3Ky4Wg==",
       "dependencies": [
@@ -5182,7 +5178,7 @@
       "npm:bowser@2.14.1",
       "npm:chai@6.2.2",
       "npm:csstype@3.2.3",
-      "npm:date-fns@4.2.1",
+      "npm:date-fns@4.3.0",
       "npm:diff@9.0.0",
       "npm:esbuild@0.28.0",
       "npm:fake-indexeddb@6.2.5",
@@ -5190,7 +5186,7 @@
       "npm:gpt-tokenizer@3.4.0",
       "npm:happy-dom@20.9.0",
       "npm:hash-it@7.0.2",
-      "npm:hono@4.12.21",
+      "npm:hono@4.12.22",
       "npm:ignore@7.0.5",
       "npm:monaco-editor@0.55.1",
       "npm:ora@9.4.0",
@@ -5215,7 +5211,7 @@
       "npm:typebox@1.1.38",
       "npm:vite-plugin-wasm@3.6.0",
       "npm:vite@8.0.14",
-      "npm:ws@8.20.1",
+      "npm:ws@8.21.0",
       "npm:yaml@2.9.0"
     ],
     "packageJson": {

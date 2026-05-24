@@ -7,7 +7,14 @@ describe('Files', () => {
     const m = await import('@sys/model/files');
 
     expect(m.Files).to.equal(Files);
-    expect(Object.keys(Files).sort()).to.eql(['Authority', 'Client', 'Cmd', 'Cursor', 'Policy']);
+    expect(Object.keys(Files).sort()).to.eql([
+      'Authority',
+      'Client',
+      'Cmd',
+      'ContentRef',
+      'Cursor',
+      'Policy',
+    ]);
     expectTypeOf(m.Files).toEqualTypeOf<t.Files.Lib>();
     expectTypeOf(m.Files).toEqualTypeOf<TFiles.Lib>();
   });

@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /**
- * Bounded Files model, command grammar, and typed client adapters.
+ * Bounded Files model, command grammar, content refs, and typed client adapters.
  */
 export declare namespace Files {
   /**
@@ -26,6 +26,8 @@ export declare namespace Files {
     readonly Cmd: Cmd.Lib;
     /** Typed client adapters for Files command surfaces. */
     readonly Client: Client.Lib;
+    /** Files-domain content-reference resolvers. */
+    readonly ContentRef: ContentRef.Lib;
     /** Cursor codec for paged Files command surfaces. */
     readonly Cursor: Cursor.Lib;
     /** Pure policy helpers for bounded Files views. */
@@ -227,6 +229,55 @@ export declare namespace Files {
    * Portable references to file content outside inline Cmd results.
    */
   export namespace ContentRef {
+    /** Files-domain content-reference resolver surface. */
+    export type Lib = {
+      /** Resolve a Files content reference to bytes. */
+      readonly bytes: (ref: ContentRef, options?: Options) => Promise<Uint8Array>;
+      /** Resolve a Files content reference to UTF-8 text. */
+      readonly text: (ref: ContentRef, options?: TextOptions) => Promise<string>;
+    };
+
+    /** Options for resolving Files content references. */
+    export type Options = {
+      /** Fetch implementation; defaults to the global Web Fetch API when available. */
+      readonly fetch?: t.Fetch;
+      /** Abort signal passed to the underlying content fetch. */
+      readonly signal?: AbortSignal;
+      /** Lifecycle input that aborts the underlying content fetch when disposed. */
+      readonly until?: t.UntilInput;
+      /** Integrity checks; defaults to verifying size and hash metadata when present. */
+      readonly verify?: boolean | VerifyOptions;
+    };
+
+    /** Options for resolving Files content references as text. */
+    export type TextOptions = Options & {
+      /** Text encoding; defaults to the ref encoding, then `utf8`. */
+      readonly encoding?: Encoding;
+    };
+
+    /** Integrity verification switches for metadata carried by a content ref. */
+    export type VerifyOptions = {
+      /** Verify `ContentRef.size` when present. */
+      readonly size?: boolean;
+      /** Verify `ContentRef.hash` when present. */
+      readonly hash?: boolean;
+    };
+
+    /** Files content-ref resolver error names. */
+    export namespace Error {
+      /** Files content-ref resolver error name. */
+      export type Kind =
+        | 'FilesContentRefError.Unsupported'
+        | 'FilesContentRefError.FetchUnavailable'
+        | 'FilesContentRefError.FetchFailed'
+        | 'FilesContentRefError.HttpFailure'
+        | 'FilesContentRefError.SizeMismatch'
+        | 'FilesContentRefError.HashMismatch'
+        | 'FilesContentRefError.HashUnsupported'
+        | 'FilesContentRefError.UnsupportedEncoding'
+        | 'FilesContentRefError.DecodeFailed';
+    }
+
     /** Portable reference to file content outside an inline Cmd result. */
     export type ContentRef = Url | Hash | Ref;
 

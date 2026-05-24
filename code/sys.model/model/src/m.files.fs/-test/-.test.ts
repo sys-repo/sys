@@ -10,7 +10,15 @@ describe('FilesFs', () => {
     expect(m.Files).to.equal(Files);
     expect(m.Files.Fs).to.equal(Fs);
 
-    expect(Object.keys(Files).sort()).to.eql(['Authority', 'Client', 'Cmd', 'Cursor', 'Fs', 'Policy']);
+    expect(Object.keys(Files).sort()).to.eql([
+      'Authority',
+      'Client',
+      'Cmd',
+      'ContentRef',
+      'Cursor',
+      'Fs',
+      'Policy',
+    ]);
     expect(Object.keys(Files.Fs).sort()).to.eql(['Readonly', 'Writable']);
     expect(Object.keys(Files.Fs.Readonly).sort()).to.eql(['create', 'live']);
     expect(Object.keys(Files.Fs.Writable).sort()).to.eql(['create', 'live']);

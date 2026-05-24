@@ -18,6 +18,9 @@ if (!fetched.dist) throw new Error('Expected dist.json.');
 const backing = FilesStatic.fromDist({ dist: fetched.dist, baseUrl: origin, policy });
 const files = Files.Client.local(backing);
 const read = await files.cmd.send(Files.Cmd.Name.read, { path: 'docs/README.md' });
+if (read.kind !== 'ref') throw new Error('Expected a content ref.');
+
+const text = await Files.ContentRef.text(read.contentRef);
 ```
 
 The shape is intentionally simple:
@@ -54,11 +57,10 @@ try {
 
   try {
     const read = await files.cmd.send(Files.Cmd.Name.read, { path: 'docs/README.md' });
+    if (read.kind !== 'ref') throw new Error('Expected a content ref.');
 
-    if (read.kind === 'ref' && read.contentRef.kind === 'url') {
-      const asset = await fetch(read.contentRef.url);
-      console.info(await asset.text());
-    }
+    const text = await Files.ContentRef.text(read.contentRef);
+    console.info(text);
   } finally {
     files.dispose('done');
   }
