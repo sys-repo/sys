@@ -28,8 +28,8 @@ Completed and reusable:
 - `@draft/shell` proves the checked-in sample through the Files client facade.
   - The proof reads the sample through both `Files.Client.local(...).readText(...)` and
     `Files.Client.websocket(...).readText(...)`.
-  - Server raw WebSocket/Cmd contract tests use `client.cmd.send(...)` /
-    `client.cmd.stream(...)`; draft-shell stays on the humane consumer grammar.
+  - Server raw WebSocket/Cmd contract tests use `client.cmd.send(...)` / `client.cmd.stream(...)`;
+    draft-shell stays on the humane consumer grammar.
 - Cell startup output has been trimmed for operator DX.
   - Normal Cell output hides low-signal `config`, URL-redundant `path`/`port`, protocol internals
     (`namespace`, `files.kind`), and startup-noisy `connections`.
@@ -46,11 +46,14 @@ Completed and reusable:
 Recently completed and retired plan ledgers:
 
 - Files client local facade rollout:
-  - `68da168ce0cb37377e88ada988cc79e53cc0a8a2` — `feat(model): add Files client handle facade with readText`
+  - `68da168ce0cb37377e88ada988cc79e53cc0a8a2` —
+    `feat(model): add Files client handle facade with readText`
   - `914d9fafce2cf5ed4d9f61d4bb7e211b34e1df20` — `feat(event): add Cmd<T> local transport adapter`
   - `e247ec9737442e120664a7f8317aae5c83d8e752` — `feat(model): add local Files client binding`
-  - `d26e8bc06c35de6d70d653079253b8dbbb867a41` — `test(server): migrate Files websocket clients to handle.cmd grammar`
-  - `e7ac2012901d15c7c89cc8e5def5627ff55e89c7` — `test(draft.shell): read shell sample through Files client`
+  - `d26e8bc06c35de6d70d653079253b8dbbb867a41` —
+    `test(server): migrate Files websocket clients to handle.cmd grammar`
+  - `e7ac2012901d15c7c89cc8e5def5627ff55e89c7` —
+    `test(draft.shell): read shell sample through Files client`
   - `9ca6c494e` — `plan(files): add Files client local facade plan`
   - `2a407d631` — `plan(files): retire Files client local facade plan`
 - Files WebSocket sample polish rollout:
@@ -65,24 +68,16 @@ Recently completed and retired plan ledgers:
   - `7a131e2d6` — `refactor(server): namespace websocket keyboard types`
 - Static DistPkg seam hardening:
   - `06ea48f41` — `feat(model): confine DistPkg Files coupling to static seam`
+- Files static sample rollout:
+  - `62958485b` — `sample(server): add static Files dist sample`
+  - Adds `code/sys/server/-sample/files.static` adjacent to `files.websocket`.
+  - Proves generated publication/runtime mode: plain `@sys/http` static server →
+    `Pkg.Dist.fetch({ origin })` → `FilesStatic.fromDist({ dist, baseUrl, policy })` →
+    `Files.Client.local(...)` → Files manifest/read-ref → plain HTTP asset fetch.
+  - Keeps static read semantics honest: static `read` returns URL content refs; it does not use
+    `readText(...)` or introduce a content-ref fetch facade.
 
 ## Active plan index
-
-### `files-static-sample.plan.md`
-
-Highest-value next sample. Proves the generated/static publication path that complements the live
-WebSocket authoring sample.
-
-- [ ] Add a tiny checked-in `dist.json` bundle and static assets.
-- [ ] Start a plain `@sys/http` static server for the bundle.
-- [ ] Fetch `dist.json` client-side, construct `FilesStatic.fromDist({ dist, baseUrl, policy })`,
-      and bind it with `Files.Client.local(...)`.
-- [ ] Prove `manifest({ content: true })` and `read(...)` return Files entries/content refs, not
-      `DistPkg` and not inline text.
-- [ ] Fetch a URL content ref through plain static HTTP.
-
-BMIND: ready to implement. This is not a WebSocket sample and not an HTTP Cmd sample. It proves
-generated dist/runtime publication mode with narrow primitive ownership.
 
 ### `transport-fidelity-hardening.plan.md`
 
@@ -100,4 +95,3 @@ or sample ergonomics.
 - [x] Update server DSL/help/speech acts to match hosted startup and `Files.Client.websocket(...)`.
 
 BMIND: remaining work is transport fidelity, not another backing-authority redesign.
-
