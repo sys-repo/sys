@@ -81,8 +81,8 @@ WebSocket authoring sample.
       `DistPkg` and not inline text.
 - [ ] Fetch a URL content ref through plain static HTTP.
 
-BMIND: this is not a WebSocket sample and not an HTTP Cmd sample. It proves generated dist/runtime
-publication mode.
+BMIND: ready to implement. This is not a WebSocket sample and not an HTTP Cmd sample. It proves
+generated dist/runtime publication mode with narrow primitive ownership.
 
 ### `transport-fidelity-hardening.plan.md`
 
