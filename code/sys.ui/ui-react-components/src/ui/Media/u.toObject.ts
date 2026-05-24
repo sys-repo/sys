@@ -7,8 +7,8 @@
  * - toObject(input): routed single entry
  */
 
-import { type t } from './common.ts';
-import { Is } from './m.Is.ts';
+import { Is, type t } from './common.ts';
+import { Is as MediaIs } from './m.Is.ts';
 
 /**
  * Device → POJO
@@ -52,9 +52,9 @@ export const toTrackObject = (
       sampleRate: st.sampleRate,
       sampleSize: st.sampleSize,
       channelCount: st.channelCount,
-      echoCancellation: st.echoCancellation,
-      noiseSuppression: st.noiseSuppression,
-      autoGainControl: st.autoGainControl,
+      echoCancellation: boolSetting(st.echoCancellation),
+      noiseSuppression: boolSetting(st.noiseSuppression),
+      autoGainControl: boolSetting(st.autoGainControl),
     };
     return compact(out);
   })();
@@ -115,9 +115,9 @@ export function toObject(input: MediaStreamTrack, opts?: t.MediaToObjectOptions)
 export function toObject(input?: t.AnyMedia, opts?: t.MediaToObjectOptions): t.AnyMediaObject;
 export function toObject(input?: t.AnyMedia, opts?: t.MediaToObjectOptions): t.AnyMediaObject {
   if (!input) return undefined;
-  if (Is.deviceInfo(input)) return toDeviceObject(input, opts)!;
-  if (Is.mediaStream(input)) return toStreamObject(input, opts)!; // ← use existing Is
-  if (Is.track(input)) return toTrackObject(input, opts)!;
+  if (MediaIs.deviceInfo(input)) return toDeviceObject(input, opts)!;
+  if (MediaIs.mediaStream(input)) return toStreamObject(input, opts)!; // ← use existing Is
+  if (MediaIs.track(input)) return toTrackObject(input, opts)!;
   return undefined;
 }
 
@@ -125,5 +125,6 @@ export function toObject(input?: t.AnyMedia, opts?: t.MediaToObjectOptions): t.A
  * Helpers:
  */
 const trim = (s: string | undefined, max = 32) => (s && s.length > max ? `${s.slice(0, max)}…` : s);
+const boolSetting = (value: unknown) => (Is.bool(value) ? value : undefined);
 const compact = <T extends Record<string, unknown>>(o: T) =>
   Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined)) as T;
