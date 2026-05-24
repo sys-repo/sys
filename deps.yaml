@@ -50,12 +50,12 @@ deno.json:
   - import: jsr:@cliffy/keypress@1.1.0
   - import: jsr:@cliffy/prompt@1.1.0
   - import: jsr:@cliffy/table@1.1.0
-  - import: npm:date-fns@4.2.1
+  - import: npm:date-fns@4.3.0
   - import: npm:diff@9.0.0
   - import: npm:fast-json-patch@3.1.1
   - import: npm:happy-dom@20.9.0
   - import: npm:hash-it@7.0.2
-  - import: npm:hono@4.12.21
+  - import: npm:hono@4.12.22
     subpaths: [ cors, deno, types ]
   - import: npm:ignore@7.0.5
   - import: npm:ora@9.4.0
@@ -74,7 +74,7 @@ deno.json:
   - import: npm:ts-essentials@10.2.0
   - import: npm:@octokit/rest@22.0.1
   - import: npm:@stripe/stripe-js@9.6.0
-  - import: npm:ws@8.20.1
+  - import: npm:ws@8.21.0
   - import: npm:@types/ws@8.18.1
   - import: npm:csstype@3.2.3
   - import: npm:bowser@2.14.1
