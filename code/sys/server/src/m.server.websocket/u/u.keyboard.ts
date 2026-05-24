@@ -3,7 +3,7 @@ import { Cli, type t } from '../common.ts';
 /** Bind terminal keyboard quit controls to a hosted WebSocket server. */
 export function bindKeyboard(
   server: t.WebSocketServer.Started,
-  input: t.WebSocketServer.KeyboardInput | undefined,
+  input: t.WebSocketServer.Keyboard.Input | undefined,
 ): boolean {
   if (!input) return false;
   const options = input === true ? {} : input;

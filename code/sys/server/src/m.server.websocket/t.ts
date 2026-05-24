@@ -30,11 +30,14 @@ export declare namespace WebSocketServer {
   /** Lifecycle ownership model for a running WebSocket server. */
   export type Lifecycle = 'manual' | 'process';
 
-  /** Keyboard options supported by hosted WebSocket startup. */
-  export type KeyboardOptions = Pick<t.CliKeyboardBindOptions, 'exit'>;
+  /** Hosted terminal keyboard controls. */
+  export namespace Keyboard {
+    /** Keyboard options supported by hosted WebSocket startup. */
+    export type Options = Pick<t.CliKeyboardBindOptions, 'exit'>;
 
-  /** Keyboard input accepted by hosted WebSocket startup. */
-  export type KeyboardInput = boolean | KeyboardOptions;
+    /** Keyboard input accepted by hosted WebSocket startup. */
+    export type Input = boolean | Options;
+  }
 
   /** Options for creating a WebSocket command server with caller-owned lifecycle. */
   export type CreateOptions<
@@ -82,7 +85,7 @@ export declare namespace WebSocketServer {
     readonly silent?: boolean;
 
     /** Enable terminal keyboard quit controls for direct hosted startup. */
-    readonly keyboard?: KeyboardInput;
+    readonly keyboard?: Keyboard.Input;
   };
 
   /** Running WebSocket command server handle. */
