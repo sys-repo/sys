@@ -1,3 +1,4 @@
+import type { defineConfig } from 'vite';
 import type { t } from './common.ts';
 
 export type * from './t.app.ts';
@@ -12,6 +13,11 @@ export type CodeRegistry = 'jsr' | 'npm';
  */
 export type ViteConfigLib = {
   readonly Is: t.ViteConfigIsLib;
+
+  /**
+   * Wrap a Vite config without exposing leaf packages to direct Vite imports.
+   */
+  define: typeof defineConfig;
 
   /**
    * Construct an "application" configuration (index.html).

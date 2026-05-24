@@ -1,3 +1,4 @@
+import { defineConfig } from 'vite';
 import { type t, c, describe, expect, it } from '../../-test.ts';
 import { Vite } from '../../mod.ts';
 import { Is } from '../m.Is.ts';
@@ -10,6 +11,7 @@ describe('ViteConfig', () => {
   it('API', () => {
     expect(Vite.Config).to.equal(ViteConfig);
     expect(ViteConfig.Is).to.equal(Is);
+    expect(ViteConfig.define).to.equal(defineConfig);
     expect(ViteConfig.alias).to.equal(toAlias);
   });
 

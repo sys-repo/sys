@@ -1,4 +1,5 @@
 import type { ViteConfigLib } from './t.ts';
+import { defineConfig as define } from 'vite';
 
 import { workspace } from '../m.vite.config.workspace/mod.ts';
 import { Is } from './m.Is.ts';
@@ -12,6 +13,7 @@ import { paths } from './u.paths.ts';
  */
 export const ViteConfig: ViteConfigLib = {
   Is,
+  define,
   app,
   alias,
   paths,
