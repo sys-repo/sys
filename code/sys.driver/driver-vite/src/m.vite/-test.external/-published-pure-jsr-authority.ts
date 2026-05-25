@@ -2,6 +2,21 @@ import { describe, expect, Fs, it, Json, Process, ROOT, SAMPLE, slug } from '../
 import { DEFAULTS } from '../common.ts';
 import { Wrangle } from '../u.wrangle.ts';
 
+type BuildProbeJson = {
+  ok: boolean;
+  stderr: string;
+  stdout: string;
+  moduleTexts: string[];
+};
+
+type DevProbeJson = {
+  ok: boolean;
+  htmlStatus: number;
+  entryStatus: number;
+  entryText: string;
+  moduleTexts: string[];
+};
+
 describe('Vite published external pure-JSR authority world', () => {
   it('fixture stages an external pure-JSR driver world without local-source alias privilege', async () => {
     const config =
@@ -39,12 +54,7 @@ describe('Vite published external pure-JSR authority world', () => {
     const res = await runProbe(BUILD_PROBE_SOURCE);
 
     expect(res.success).to.eql(true);
-    const data = parseProbeJson<{
-      ok: boolean;
-      stderr: string;
-      stdout: string;
-      moduleTexts: string[];
-    }>(res.text.stdout);
+    const data = parseProbeJson<BuildProbeJson>(res.text.stdout);
     expect(data.ok).to.eql(true);
     expect(data.moduleTexts.some((text) => text.includes('.vite.bootstrap.'))).to.eql(false);
     expect(data.moduleTexts.some((text) => text.includes('#module-sync-enabled'))).to.eql(false);
@@ -58,13 +68,7 @@ describe('Vite published external pure-JSR authority world', () => {
     const res = await runProbe(DEV_PROBE_SOURCE);
 
     expect(res.success).to.eql(true);
-    const data = parseProbeJson<{
-      ok: boolean;
-      htmlStatus: number;
-      entryStatus: number;
-      entryText: string;
-      moduleTexts: string[];
-    }>(res.text.stdout);
+    const data = parseProbeJson<DevProbeJson>(res.text.stdout);
     expect(data.ok).to.eql(true);
     expect(data.htmlStatus).to.eql(200);
     expect(data.entryStatus).to.eql(200);
