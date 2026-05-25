@@ -1,6 +1,6 @@
 # Static @draft/shell dist service.
 
-name: draft:view
+name: draft:ui
 dir: ./dist
 info:
   path: /

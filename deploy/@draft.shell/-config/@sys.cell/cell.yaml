@@ -4,7 +4,7 @@ kind: cell
 version: 1
 
 services:
-  - name: draft:view
+  - name: draft:ui
     use: Serve
     from: 'jsr:@sys/tools/serve'
     config: ./-config/@sys.tools.serve/view.yaml
