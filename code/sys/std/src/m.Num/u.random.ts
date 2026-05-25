@@ -4,17 +4,17 @@ const POW_2_53 = 9_007_199_254_740_992;
 const POW_2_26 = 67_108_864;
 const U32_MAX_PLUS_ONE = 4_294_967_296;
 
-const randomFloat: t.Num.Random = ((
+const randomFloat: t.Num.Random.Fn = ((
   min?: number,
   max?: number,
-  options?: t.Num.RandomOptions,
+  options?: t.Num.Random.Options,
 ): number => {
   const [lo, hi] = normalizeFloatBounds(min, max);
   assertOrderedBounds(lo, hi);
   if (lo === hi) return lo;
   const unit = randomUnit(resolveSource(options));
   return lo + unit * (hi - lo);
-}) as t.Num.Random;
+}) as t.Num.Random.Fn;
 
 randomFloat.int = (min, max, options): number => {
   assertFiniteNumber(min, 'min');
@@ -66,7 +66,7 @@ function assertInteger(value: number, name: string): void {
   }
 }
 
-const resolveSource = (options?: t.Num.RandomOptions): t.Num.RandomSource => {
+const resolveSource = (options?: t.Num.Random.Options): t.Num.Random.Source => {
   return options?.source ?? 'math';
 };
 
@@ -78,7 +78,7 @@ const randomUnitFromCrypto = (): number => {
   return (high * POW_2_26 + low) / POW_2_53;
 };
 
-const randomUnit = (source: t.Num.RandomSource): number => {
+const randomUnit = (source: t.Num.Random.Source): number => {
   if (source === 'math') return Math.random();
   if (source === 'crypto') return randomUnitFromCrypto();
   const value = source();

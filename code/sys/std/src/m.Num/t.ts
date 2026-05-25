@@ -3,13 +3,16 @@ import type { t } from './common.ts';
 export type * from './t.percent.ts';
 export type * from './t.ratio.ts';
 
+/**
+ * Number utility contracts.
+ */
 export declare namespace Num {
   /**
    * Tools for working with numbers.
    */
   export type Lib = {
     /** Predicates over number values. */
-    readonly Is: IsLib;
+    readonly Is: Is.Lib;
 
     /** Tools for working with percentages. */
     readonly Percent: t.PercentLib;
@@ -35,7 +38,7 @@ export declare namespace Num {
     readonly INFINITY: number;
 
     /** Random number tools. */
-    readonly random: Random;
+    readonly random: Random.Fn;
 
     /** Rounds a number to the specified number of decimal places. */
     round(value: number, precision?: number): number;
@@ -57,44 +60,53 @@ export declare namespace Num {
   };
 
   /**
-   * Predicates over number values.
+   * Number predicate contracts.
    */
-  export type IsLib = {
-    /** True when the input is a finite number. */
-    finite(input?: unknown): input is number;
+  export namespace Is {
+    /** Predicates over number values. */
+    export type Lib = {
+      /** True when the input is a finite number. */
+      finite(input?: unknown): input is number;
 
-    /** True when the input is an integer number. */
-    int(input?: unknown): input is number;
+      /** True when the input is an integer number. */
+      int(input?: unknown): input is number;
 
-    /** True when the input is a safe integer number. */
-    safeInt(input?: unknown): input is number;
-  };
+      /** True when the input is a safe integer number. */
+      safeInt(input?: unknown): input is number;
+    };
+  }
 
-  export type RandomSource = 'math' | 'crypto' | (() => number);
+  /**
+   * Random number contracts.
+   */
+  export namespace Random {
+    /** Random number generator with float and integer helpers. */
+    export type Fn = {
+      /**
+       * Random float in [min, max).
+       * Defaults:
+       * - () => [0, 1)
+       * - (max) => [0, max)
+       * - (min, max) => [min, max)
+       */
+      (min?: number, max?: number, opts?: Options): number;
 
-  export type RandomOptions = {
-    /**
-     * Random source to use.
-     * - 'math': Math.random (default)
-     * - 'crypto': crypto.getRandomValues
-     * - fn: custom RNG that must return [0, 1)
-     */
-    readonly source?: RandomSource;
-  };
+      /** Random integer in [min, max] (inclusive). */
+      int(min: number, max: number, opts?: Options): number;
+    };
 
-  export type Random = {
-    /**
-     * Random float in [min, max).
-     * Defaults:
-     * - () => [0, 1)
-     * - (max) => [0, max)
-     * - (min, max) => [min, max)
-     */
-    (min?: number, max?: number, opts?: RandomOptions): number;
+    /** Options for random number generation. */
+    export type Options = {
+      /**
+       * Random source to use.
+       * - 'math': Math.random (default)
+       * - 'crypto': crypto.getRandomValues
+       * - fn: custom RNG that must return [0, 1)
+       */
+      readonly source?: Source;
+    };
 
-    /**
-     * Random integer in [min, max] (inclusive).
-     */
-    int(min: number, max: number, opts?: RandomOptions): number;
-  };
+    /** Random source selector or custom RNG returning values in [0, 1). */
+    export type Source = 'math' | 'crypto' | (() => number);
+  }
 }

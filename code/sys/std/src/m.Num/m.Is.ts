@@ -3,7 +3,7 @@ import { Is as StdIs, type t } from './common.ts';
 /**
  * Predicates over numeric values.
  */
-export const Is: t.Num.IsLib = {
+export const Is: t.Num.Is.Lib = {
   finite(input?: unknown): input is number {
     return StdIs.number(input) && Number.isFinite(input);
   },
