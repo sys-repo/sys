@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { type t } from '../common.ts';
+import { D, type t } from '../common.ts';
 import { CellSchema } from '../mod.ts';
 import { loadStripeDescriptor } from '../../-test/u.fixture.ts';
 
@@ -47,6 +47,21 @@ describe(`Cell.Schema`, () => {
                 config: './-config/@sys.driver-vite/view.dev.yaml',
               },
             },
+          },
+        ],
+      };
+
+      expect(CellSchema.Descriptor.validate(descriptor)).to.eql({ ok: true, errors: [] });
+    });
+
+    it('accepts service startup timeouts', () => {
+      const descriptor: unknown = {
+        kind: 'cell',
+        version: 1,
+        services: [
+          {
+            ...service('view', { timeout: D.services.start.timeout }),
+            variants: { dev: serviceVariant({ timeout: 5_000 }) },
           },
         ],
       };
@@ -130,6 +145,26 @@ describe(`Cell.Schema`, () => {
       const result = CellSchema.Descriptor.validate(descriptor);
       expect(result.ok).to.eql(false);
       expect(result.errors.filter((e) => e.kind === 'schema').length).to.be.greaterThan(0);
+    });
+
+    it('rejects invalid service startup timeouts', () => {
+      const cases: readonly unknown[] = [0, -1, 1.5, '1000', '20_000'];
+
+      cases.forEach((timeout) => {
+        const base: unknown = {
+          kind: 'cell',
+          version: 1,
+          services: [{ ...service('view'), timeout }],
+        };
+        const variant: unknown = {
+          kind: 'cell',
+          version: 1,
+          services: [{ ...service('view'), variants: { dev: { ...serviceVariant(), timeout } } }],
+        };
+
+        expect(CellSchema.Descriptor.validate(base).ok).to.eql(false);
+        expect(CellSchema.Descriptor.validate(variant).ok).to.eql(false);
+      });
     });
 
     it('rejects stale service export selector fields', () => {
@@ -525,6 +560,7 @@ type EndpointOverrides = Partial<{
   use: string;
   from: string;
   config: string;
+  timeout: t.Msecs;
 }>;
 
 function service(
@@ -536,6 +572,7 @@ function service(
     use: overrides.use ?? 'StripeFixture',
     from: overrides.from ?? '@sys/driver-stripe/server/fixture',
     config: overrides.config ?? './-config/@sys.driver-stripe/fixture.yaml',
+    ...(overrides.timeout === undefined ? {} : { timeout: overrides.timeout }),
   };
 }
 
@@ -544,6 +581,7 @@ function serviceVariant(overrides: EndpointOverrides = {}): t.Cell.Services.Serv
     use: overrides.use ?? 'ViteService',
     from: overrides.from ?? 'jsr:@sys/driver-vite/service',
     config: overrides.config ?? './-config/@sys.driver-vite/view.dev.yaml',
+    ...(overrides.timeout === undefined ? {} : { timeout: overrides.timeout }),
   };
 }
 

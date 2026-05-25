@@ -4,6 +4,7 @@ export { Log } from '@sys/std/log';
 export { Pkg } from '@sys/std/pkg';
 export { Schedule } from '@sys/std/async';
 export { Arr } from '@sys/std/arr';
+export { Dispose } from '@sys/std/dispose';
 export { Err } from '@sys/std/error';
 export { Is } from '@sys/std/is';
 export { Num } from '@sys/std/num';

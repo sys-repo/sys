@@ -70,6 +70,7 @@ function bindingOf(service: t.Cell.Services.Service): t.Cell.Services.ServiceBin
     use: service.use,
     from: service.from,
     config: service.config,
+    ...(service.timeout === undefined ? {} : { timeout: service.timeout }),
   };
 }
 

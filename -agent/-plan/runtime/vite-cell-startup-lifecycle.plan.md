@@ -1,0 +1,239 @@
+# Cell + Vite service startup lifecycle hardening
+
+## Commit plan
+
+- [x] fix(driver-vite): avoid runtime vite import in config define facade
+- [x] feat(cell): show elapsed service startup progress
+- [x] feat(cell): bound service startup with timeout
+- [ ] fix(driver-vite): harden cell vite startup readiness
+
+## Status
+
+Cell startup progress and generic startup timeout implementation are applied. Cell timeout
+validation is deterministic and does not depend on live Vite/JSR startup. Vite-specific
+strict-port/readiness hardening remains a follow-up.
+
+## Trigger
+
+`deno task dev` runs:
+
+```sh
+deno run -P=dev @sys/cell start . --mode dev
+```
+
+In `deploy/@draft.shell`, `--mode dev` selects:
+
+```yaml
+service: draft:ui
+use: ViteService
+from: jsr:@sys/driver-vite/service
+config: ./-config/@sys.driver-vite/view.dev.yaml
+```
+
+A previous timed-out run left a `deno` process listening on `1234`. Direct `dev:vite` fell forward
+to another port, while Cell startup stayed in the startup phase with weak failure signal.
+
+## Diagnosis
+
+Four seams need tightening together:
+
+1. **Startup progress visibility**
+   - The CLI currently shows only `starting two services...` while startup is pending.
+   - If startup takes longer than expected, there is no elapsed-time signal and no clue whether work is
+     still alive.
+   - Existing repo examples avoid noisy sub-second elapsed text and show elapsed only after 1s:
+     - `code/sys.tools/src/cli.deploy/u.menu/run.stagingWithSpinner.ts`
+     - `code/sys.driver/driver-vite/src/m.vite/u.build.ts`
+   - Cell should follow that pattern: no elapsed suffix before 1s; after that, refresh spinner text with
+     elapsed time, e.g. `starting two services... 1s`.
+
+2. **Service startup timeout**
+   - Cell service startup currently has no generic bounded startup window.
+   - A service import/start promise can hang and leave the CLI spinner alive indefinitely.
+   - Add a Cell-owned startup timeout around service verify/start composition. Default should be
+     long enough for normal Vite cold start but short enough to be humane; start with `10s` unless
+     real app evidence says `5s` is safe.
+   - Add an optional per-service `timeout` descriptor field for known slow services.
+
+3. **Service port contract**
+   - A Cell service config port is operational intent.
+   - If `port: 1234` is occupied, startup should fail clearly instead of silently falling forward.
+   - Ad-hoc `dev:vite` may still keep Vite's fall-forward behavior.
+
+4. **Child readiness failure and cleanup**
+   - `Vite.dev(...)` waits for readiness from process output / HTTP probes.
+   - If the child exits before readiness, startup must reject with useful cause/context.
+   - A readiness promise must not hang forever after child failure.
+   - On startup failure, timeout, or cancellation, any in-flight child process must be disposed.
+   - Cell should close already-started services in reverse order, but not learn Vite-specific details.
+
+## Target behavior
+
+For Cell mode:
+
+```text
+Cell.Services.start: failed to start service 'draft:ui'.
+caused by: ViteService: port 1234 is already in use
+```
+
+Invariants:
+
+- Cell remains service-generic.
+- Cell owns generic startup UX: elapsed spinner and bounded startup timeout.
+- `@sys/driver-vite` owns Vite port/readiness semantics.
+- `@sys/process` owns child process completion/readiness primitives.
+- Direct `dev:vite` behavior is not broken by strict Cell service behavior.
+- No stale child process remains after failed startup.
+
+## Implementation plan
+
+### 1. Add elapsed startup spinner text
+
+Likely files:
+
+```text
+code/sys/cell/src/m.cli/u.start.ts
+code/sys/cell/src/m.cli/-test/-start.test.ts
+```
+
+Plan:
+
+- Start with existing text: `starting two services...`.
+- Refresh spinner text every second while startup is pending.
+- Show no elapsed suffix before 1s.
+- After 1s, append dim/gray elapsed using `Time.elapsed(startedAt).toString()`.
+- Clear the interval in all paths.
+
+### 2. Add generic startup timeout to Cell services
+
+Likely files:
+
+```text
+code/sys/cell/src/common/libs.ts
+code/sys/cell/src/m.cell/common.ts
+code/sys/cell/src/m.cell/t.ts
+code/sys/cell/src/m.cell/u.services/u.start.ts
+code/sys/cell/src/m.cell/u.schema/u.schema.descriptor.ts
+code/sys/cell/src/m.cell/u.schema/-test/-.test.ts
+code/sys/cell/src/m.cell/-test/-u.services.start.test.ts
+```
+
+Plan:
+
+- Use a simple earned timeout API:
+  - runtime option: `Cell.Services.start(cell, { timeout?: t.Msecs })`
+  - descriptor binding field: `timeout?: t.Msecs`
+  - no `startupTimeout`, no `startupTimeoutMs`, and no nested `{ timeout: { startup } }` until
+    additional timeout dimensions prove real.
+- Add the default at the closest Cell default seam:
+  - `D.services.start.timeout = 10_000 as t.Msecs`
+- Effective per-service timeout precedence:
+  - `options.timeout ?? selectedService.timeout ?? D.services.start.timeout`
+- Start selected services concurrently. Cell has no dependency model, so descriptor order must not
+  imply serialized startup. If ordered dependencies are needed later, they should be explicit DSL.
+- Apply timeout per selected service, not as an accumulated startup timeout for the full set.
+  Total normal startup is therefore bounded by roughly the max selected service timeout.
+- Preserve descriptor ordering in the returned `started.services` array and close services in reverse
+  descriptor order.
+- Use Cell-owned abortable lifecycles:
+  - bridge caller `until` into a batch lifecycle
+  - create one per-service abortable lifecycle
+  - pass the per-service signal as endpoint `args.until`
+  - timeout/cancel aborts that service's lifecycle
+  - `started.close(reason)` aborts Cell-owned lifecycles and then closes/disposes owner handles
+- Bound endpoint import/verify and `endpoint.start(args)` wait. Keep dynamic `import()` as the runtime
+  endpoint mechanism; `import defer` is not expected to help because Cell must access the selected
+  export before calling `start(...)`, which is where deferred evaluation would occur.
+- Best-effort late cleanup: if a timed-out import/start promise resolves after failure with a handle,
+  close/dispose that late handle.
+- On timeout, throw a clear named-service cause while preserving the outer start error shape:
+  - `Cell.Services.start: failed to start service 'view'.`
+  - cause: `Cell.Services.start: service 'view' startup timed out after 10s.`
+- On first startup failure or cancellation, abort sibling service startup lifecycles and close any
+  handles that already resolved.
+- BMIND caveat: dynamic `import()` cannot be force-killed in-process. This commit bounds Cell's wait
+  and aborts compliant services; full preemption of hostile top-level-await modules would require
+  Worker/process isolation and is outside this commit.
+
+### 3. Add strict-port path for Cell-owned Vite services
+
+Likely files:
+
+```text
+code/sys.driver/driver-vite/src/m.service/t.ts
+code/sys.driver/driver-vite/src/m.service/u.dev.ts
+code/sys.driver/driver-vite/src/m.vite/t.ts
+code/sys.driver/driver-vite/src/m.vite/u.dev.ts
+code/sys.driver/driver-vite/src/m.vite/u.wrangle.ts
+```
+
+Plan:
+
+- Add `strictPort?: boolean` to the driver Vite dev path.
+- Have `ViteService` use strict port when owner config declares a concrete `port`.
+- Keep direct/template `dev:vite` fall-forward unchanged unless it opts in.
+
+### 4. Make child readiness failure-aware
+
+Likely files:
+
+```text
+code/sys/process/src/m.process/u.proc.spawn.ts
+code/sys/process/src/m.process/t.proc.ts
+code/sys.driver/driver-vite/src/m.vite/u.dev.ts
+```
+
+Plan:
+
+- Expose or use a child completion/error signal from `Process.spawn`.
+- Make `whenReady()` reject if the child exits before the ready signal.
+- In `Vite.dev(...)`, race readiness against child failure and startup timeout.
+- Preserve useful stderr/stdout context where available.
+
+### 5. Verify cleanup on failed startup
+
+Likely files:
+
+```text
+code/sys.driver/driver-vite/src/m.vite/-test/-dev.test.ts
+code/sys.driver/driver-vite/src/m.service/-test/-.test.ts
+code/sys/cell/src/m.cell/-test/-u.services.start.test.ts
+```
+
+Plan:
+
+- Test startup spinner hides elapsed before 1s and shows elapsed after 1s.
+- Test default service start timeout is `D.services.start.timeout === 10_000`.
+- Test services start concurrently and preserve descriptor-order result ordering.
+- Test service start timeout names the timed-out service and closes already-started services.
+- Test descriptor accepts per-service `timeout` and rejects invalid values.
+- Test hung endpoint import/verify times out.
+- Test hung endpoint start times out.
+- Test caller `until` cancels startup cleanly.
+- Test late-resolving handles after timeout are closed/disposed best-effort.
+- Test strict service port occupied → startup rejects.
+- Test child exits before ready → `Vite.dev` rejects; no hanging readiness promise.
+- Test Cell startup failure closes prior services and does not leave the failed child alive.
+
+## Validation
+
+Run narrow first:
+
+```sh
+cd /Users/phil/code/org.sys/sys/code/sys/cell
+deno task check
+deno test -P=test --trace-leaks ./src/m.cell/-test/-u.services.start.test.ts ./src/m.cell/u.schema/-test/-.test.ts
+```
+
+Then prove the affected app:
+
+```sh
+cd /Users/phil/code/org.sys/sys/deploy/@draft.shell
+deno task dev
+```
+
+## Non-goals
+
+- Do not make Cell know about Vite.
+- Do not remove Vite's normal fall-forward behavior from direct `dev:vite`.
+- Do not fold this into the Vite config facade plan; that is a separate dependency-ownership cleanup.

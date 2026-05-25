@@ -280,6 +280,8 @@ export declare namespace Cell {
 
     /** Services start options. */
     export type StartOptions = VerifyOptions & {
+      /** Per-service startup timeout. */
+      timeout?: t.Msecs;
       /** Canonical lifecycle bridge forwarded to owner service endpoints. */
       until?: t.UntilInput;
     };
@@ -388,6 +390,8 @@ export declare namespace Cell {
       use: string;
       from: string;
       config: Path;
+      /** Optional per-service startup timeout. */
+      timeout?: t.Msecs;
     };
 
     /** Service variant binding. */

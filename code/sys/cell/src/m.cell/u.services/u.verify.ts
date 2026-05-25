@@ -6,7 +6,7 @@ export const verify: t.Cell.Services.Lib['verify'] = async (cell, options = {}) 
   const services: t.Cell.Services.VerifiedService[] = [];
 
   for (const service of plan.services) {
-    const endpoint = await loadEndpoint(service);
+    const endpoint = await loadEndpoint(service, 'Cell.Services.verify');
 
     services.push({
       service: service.service,
@@ -22,15 +22,16 @@ export const verify: t.Cell.Services.Lib['verify'] = async (cell, options = {}) 
 /**
  * Helpers:
  */
-async function loadEndpoint(
+export async function loadEndpoint(
   service: t.Cell.Services.PlannedService,
+  context: string,
 ): Promise<t.Cell.Services.LifecycleEndpoint> {
   let mod: unknown;
   try {
     mod = await import(/* @vite-ignore */ service.endpoint.specifier);
   } catch (cause) {
     const { name, from } = service.service;
-    const err = `Cell.Services.verify: failed to import service for '${name}': ${from}`;
+    const err = `${context}: failed to import service for '${name}': ${from}`;
     throw new Error(err, { cause });
   }
 
@@ -39,7 +40,7 @@ async function loadEndpoint(
 
   if (!Is.record(endpoint) || !Is.func(endpoint.start)) {
     const err =
-      `Cell.Services.verify: '${service.service.from}' use '${endpointName}' must expose start(...) for service '${service.service.name}'.`;
+      `${context}: '${service.service.from}' use '${endpointName}' must expose start(...) for service '${service.service.name}'.`;
     throw new Error(err);
   }
 
