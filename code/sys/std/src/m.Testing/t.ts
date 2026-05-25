@@ -7,7 +7,7 @@ import type { t } from './common.ts';
 export type TestingLib = {
   readonly FALSY: t.Falsy[];
   readonly Bdd: BddLib;
-  slug: t.RandomLib['slug'];
+  slug: t.Random.Lib['slug'];
 
   /** Wait for n-milliseconds, or a "tick" (micrso-task queue) if no delay specified. */
   wait(delay?: t.Msecs): Promise<void>;
