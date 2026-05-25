@@ -2,12 +2,7 @@ import { describe, expect, Fs, it, Path, ROOT } from '../../-test.ts';
 
 const DIRECT_DEFINE_CONFIG_IMPORT = /import\s+\{[^}]*\bdefineConfig\b[^}]*\}\s+from\s+['"](?:npm:)?vite['"]/;
 
-const rawDefineConfigExpectedIn = [
-  'code/-tmpl/-templates/tmpl.pkg/vite.config.ts',
-  'code/sys.driver/driver-vite/src/-test/vite.sample-published-baseline/vite.config.ts',
-  'code/sys.driver/driver-vite/src/-test/vite.sample-published-ui-baseline/vite.config.ts',
-  'code/sys.driver/driver-vite/src/-test/vite.sample-published-ui-components/vite.config.ts',
-];
+const rawDefineConfigExpectedIn: string[] = [];
 
 describe('Vite config facade ownership boundary', () => {
   it('routes live vite.config.ts files through @sys/driver-vite', async () => {

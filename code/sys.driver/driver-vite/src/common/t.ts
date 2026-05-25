@@ -6,6 +6,7 @@ export type {
   BuildEnvironmentOptions as ViteBuildEnvironmentOptions,
   ConfigEnv as ViteConfigEnv,
   LibraryOptions as ViteLibraryOptions,
+  UserConfigExport as ViteUserConfigExport,
   Plugin as VitePlugin,
   PluginOption as VitePluginOption,
   Rollup,

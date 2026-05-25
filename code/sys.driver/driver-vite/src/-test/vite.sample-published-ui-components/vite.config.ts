@@ -1,7 +1,6 @@
 import { Vite } from 'jsr:@sys/driver-vite@0.0.408';
-import { defineConfig } from 'vite';
 
-export default defineConfig(async () =>
+export default Vite.Config.define(async () =>
   await Vite.Config.app({
     workspace: false,
     chunks(e) {

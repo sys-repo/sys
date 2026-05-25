@@ -1,4 +1,3 @@
-import type { defineConfig } from 'vite';
 import type { t } from './common.ts';
 
 export type * from './t.app.ts';
@@ -17,7 +16,7 @@ export type ViteConfigLib = {
   /**
    * Wrap a Vite config without exposing leaf packages to direct Vite imports.
    */
-  define: typeof defineConfig;
+  define(config: t.ViteUserConfigExport): t.ViteUserConfigExport;
 
   /**
    * Construct an "application" configuration (index.html).

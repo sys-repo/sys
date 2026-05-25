@@ -67,8 +67,7 @@ const PROBE_SOURCE = Str.dedent(`
     Fs.join(dir, 'vite.config.ts'),
     Str.dedent(\`
       import { Vite } from '@sys/driver-vite';
-      import { defineConfig } from 'npm:vite';
-      export default defineConfig(async () => await Vite.Config.app({
+      export default Vite.Config.define(async () => await Vite.Config.app({
         paths: Vite.Config.paths({ app: { entry: './index.html' } }),
         plugins: { react: false },
         workspace: false,

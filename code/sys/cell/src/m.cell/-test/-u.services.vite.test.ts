@@ -103,6 +103,7 @@ async function writeViteCellFixture(root: t.StringDir, port: number) {
               use: ViteService
               from: 'jsr:@sys/driver-vite/service'
               config: ./-config/@sys.driver-vite/view.dev.yaml
+              timeout: 20_000
     `).trimStart(),
   );
   await Fs.write(
@@ -123,9 +124,9 @@ async function writeViteCellFixture(root: t.StringDir, port: number) {
   await Fs.write(
     Fs.join(root, 'view/vite.config.ts'),
     Str.dedent(`
-      import { defineConfig } from 'npm:vite';
+      import { Vite } from '@sys/driver-vite';
 
-      export default defineConfig({
+      export default Vite.Config.define({
         root: '.',
       });
     `).trimStart(),
