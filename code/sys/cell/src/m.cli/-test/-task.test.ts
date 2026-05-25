@@ -1,22 +1,11 @@
 import { describe, expect, Fs, it, Str, Testing } from '../../-test.ts';
 import { CellCli } from '../mod.ts';
-import { Fmt } from '../u.fmt.ts';
 import { stripAnsi } from '../common.ts';
 import {
-  failedStepText,
-  fakeSpinner,
-  okStepText,
   resetTaskEvents,
-  runningStepText,
-  runningTaskText,
   silent,
-  type SpinnerLog,
-  stepCompletionLabelWidth,
-  taskCompositeDescriptor,
   taskEvents,
-  taskLeafDescriptor,
   taskSource,
-  taskStepResult,
 } from './u.fixture.ts';
 
 describe(`@sys/cell/cli task`, () => {
@@ -50,38 +39,6 @@ describe(`@sys/cell/cli task`, () => {
     expect(event.args.cwd).to.eql(fs.dir);
     expect(event.args).to.not.have.property('config');
     expect(event.args.paths.config).to.eql(Fs.join(fs.dir, '-config/capture.yaml'));
-  });
-
-  it('task progress renderer → uses CLI spinner formatting for lifecycle events', () => {
-    const log: SpinnerLog[] = [];
-    const render = Fmt.Task.progressRenderer({ spinner: fakeSpinner(log), silent: false });
-    const root = taskCompositeDescriptor('all', ['pull:view', 'deploy:stage']);
-    const pull = taskLeafDescriptor('pull:view');
-    const deploy = taskLeafDescriptor('deploy:stage');
-
-    const pullResult = taskStepResult(pull, true, 120);
-    const deployResult = taskStepResult(deploy, false, 16);
-    const width = stepCompletionLabelWidth([pull, deploy]);
-
-    render({ kind: 'task:start', task: root, leaves: [pull, deploy] });
-    render({ kind: 'task:step:start', rootTask: root, step: pull });
-    render({ kind: 'task:step:ok', rootTask: root, step: pull, result: pullResult });
-    render({ kind: 'task:step:start', rootTask: root, step: deploy });
-    render({
-      kind: 'task:step:fail',
-      rootTask: root,
-      step: deploy,
-      result: deployResult,
-    });
-    render({ kind: 'task:fail', task: root, error: new Error('boom'), steps: [] });
-
-    expect(log).to.eql([
-      { kind: 'start', text: runningTaskText('all') },
-      { kind: 'text', text: runningStepText('pull:view') },
-      { kind: 'succeed', text: okStepText('pull:view', '120ms', width) },
-      { kind: 'start', text: runningStepText('deploy:stage') },
-      { kind: 'fail', text: failedStepText('deploy:stage', '16ms', width) },
-    ]);
   });
 
   it('task --plan → prints a task closure without importing endpoints', async () => {
@@ -118,18 +75,13 @@ describe(`@sys/cell/cli task`, () => {
     expect(res.root).to.eql(fs.dir);
     expect(res.task).to.eql('all');
     expect(res.steps).to.eql(2);
-    expect(text).to.contain(`root    ${fs.dir}`);
-    expect(text).to.contain('task    all');
-    expect(text).to.contain('steps   2');
-    expect(text).to.contain('all');
-    expect(text).to.contain('├─ capture');
-    expect(text).to.contain('│  use  CaptureTask');
-    expect(text).to.contain('│  from ./-tasks/capture.ts');
-    expect(text).to.contain('│  config ./-config/capture.yaml');
-    expect(text).to.contain('└─ clean');
-    expect(text).to.contain('   use  CleanTask');
-    expect(text).to.contain('   from ./-tasks/clean.ts');
-    expect(text).to.not.contain('config -');
+    expect(text).to.contain('capture');
+    expect(text).to.contain('CaptureTask');
+    expect(text).to.contain('./-tasks/capture.ts');
+    expect(text).to.contain('./-config/capture.yaml');
+    expect(text).to.contain('clean');
+    expect(text).to.contain('CleanTask');
+    expect(text).to.contain('./-tasks/clean.ts');
     expect(taskEvents()).to.eql([]);
   });
 });

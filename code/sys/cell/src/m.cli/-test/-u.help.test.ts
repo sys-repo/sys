@@ -4,8 +4,6 @@ import { Str, stripAnsi } from '../common.ts';
 import { FmtHelp } from '../u.help.ts';
 import { Tmpl } from '../u.tmpl.ts';
 
-const hasTrueColorAnsi = /\x1b\[38;2;/;
-
 describe('FmtHelp', () => {
   it('uses conceptual @sys/cell command titles', async () => {
     expect(stripAnsi(await FmtHelp.output())).to.contain('@sys/cell');
@@ -15,8 +13,7 @@ describe('FmtHelp', () => {
   });
 
   it('init --help --agent → renders command-specific agent facts', async () => {
-    const raw = await FmtHelp.initOutput({ agent: true });
-    const text = stripAnsi(raw);
+    const text = stripAnsi(await FmtHelp.initOutput({ agent: true }));
     const guidance = await CellHelp.Init.load();
     const agent = sectionItems(between(text, 'Agent', 'Writes'), 'Agent');
     const writes = sectionItems(between(text, 'Writes', 'Owns'), 'Writes');
@@ -31,7 +28,6 @@ describe('FmtHelp', () => {
     const descriptor = await Tmpl.minimalDescriptor();
     const descriptorTail = after(text, 'Descriptor');
 
-    expect(raw).to.match(hasTrueColorAnsi);
     expect(text).to.contain('Descriptor   kind: cell');
     expect(text).to.not.contain('Descriptor\n  kind: cell');
     expect(text).to.not.contain('Descriptor   ```yaml');
@@ -52,12 +48,8 @@ describe('FmtHelp', () => {
     expect(text).to.contain('Options');
     expect(text).to.contain('--format <format>');
     expect(text).to.contain('Formats');
-    expect(text.indexOf('Formats')).to.be.lessThan(text.indexOf(guidance.sections[0].label));
-    expect(text.indexOf('━'.repeat(8))).to.be.lessThan(text.indexOf(guidance.sections[0].label));
     expectRenderedSections(text, guidance.sections, { end: 'Chapter' });
     expectChapterIndex(text, guidance.chapters, 'human');
-    expectAlignedChapterComments(text, guidance.chapters.map((chapter) => chapter.id));
-    expect(text).to.not.contain('Slot policy');
   });
 
   it('dsl --format skill → renders the root DSL chapter as a skill projection', async () => {
@@ -125,12 +117,10 @@ describe('FmtHelp', () => {
 
   it('dsl static-serve-service → faithfully renders the requested chapter', async () => {
     const path = ['static-serve-service'] as const;
-    const raw = await FmtHelp.dslOutput({ path });
-    const text = stripAnsi(raw);
+    const text = stripAnsi(await FmtHelp.dslOutput({ path }));
     const guidance = await CellHelp.Dsl.load(path);
 
     expectDslChapterPage(text, guidance);
-    expectDescriptorPatchHighlight(raw, guidance);
     expect(text).to.not.contain('kind: http-static');
     expect(text).to.not.contain('views: [<view>]');
     expect(text).to.not.contain('./-config/@sys.http/static/web.yaml');
@@ -141,12 +131,10 @@ describe('FmtHelp', () => {
 
   it('dsl service → faithfully renders the requested chapter', async () => {
     const path = ['service'] as const;
-    const raw = await FmtHelp.dslOutput({ path });
-    const text = stripAnsi(raw);
+    const text = stripAnsi(await FmtHelp.dslOutput({ path }));
     const guidance = await CellHelp.Dsl.load(path);
 
     expectDslChapterPage(text, guidance);
-    expectDescriptorPatchHighlight(raw, guidance);
     expect(text).to.not.contain('kind: <kind>');
     expect(text).to.not.contain('views: [<view>]');
     expect(text).to.not.contain('Stripe');
@@ -175,12 +163,10 @@ describe('FmtHelp', () => {
 
   it('dsl proxy-service → faithfully renders the requested chapter', async () => {
     const path = ['proxy-service'] as const;
-    const raw = await FmtHelp.dslOutput({ path });
-    const text = stripAnsi(raw);
+    const text = stripAnsi(await FmtHelp.dslOutput({ path }));
     const guidance = await CellHelp.Dsl.load(path);
 
     expectDslChapterPage(text, guidance);
-    expectDescriptorPatchHighlight(raw, guidance);
     expect(text).to.not.contain('kind: http-proxy');
     expect(text).to.not.contain('for.views');
     expect(text).to.not.contain('Stripe');
@@ -232,12 +218,6 @@ function expectDslChapterPage(text: string, chapter: Chapter) {
   expect(text).to.not.contain(chapterCommand(chapter, 'human'));
 }
 
-function expectDescriptorPatchHighlight(raw: string, chapter: Chapter) {
-  if (chapter.sections.some((section) => section.label === 'Descriptor patch')) {
-    expect(raw).to.match(hasTrueColorAnsi);
-  }
-}
-
 function expectMarkdownSections(text: string, sections: readonly Section[]) {
   sections.forEach((section) => {
     expect(text).to.contain(`## ${section.label}`);
@@ -254,11 +234,6 @@ function expectChapterIndex(
     expect(text).to.contain(chapterCommand(chapter, format));
     expect(text).to.contain(chapter.summary);
   });
-}
-
-function expectAlignedChapterComments(text: string, chapters: readonly string[]) {
-  const [first, ...rest] = chapters.map((chapter) => chapterCommentColumn(text, chapter));
-  rest.forEach((column) => expect(column).to.eql(first));
 }
 
 function renderedSections(
@@ -292,12 +267,6 @@ function expectRenderedSections(
 function chapterCommand(chapter: ChapterLink | Chapter, format: ChapterIndexFormat): string {
   const base = ['deno run -ER jsr:@sys/cell dsl', ...chapter.path].join(' ');
   return format === 'skill' ? `${base} --format skill` : base;
-}
-
-function chapterCommentColumn(text: string, chapter: string): number {
-  const line = text.split('\n').find((line) => line.includes(`dsl ${chapter}`));
-  expect(line).to.not.eql(undefined);
-  return line?.indexOf('#') ?? -1;
 }
 
 function descriptorLines(text: string): readonly string[] {

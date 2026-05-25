@@ -1,8 +1,9 @@
 /**
  * Shared CLI test fixtures.
  */
-import { Fs, Str, Time } from '../../-test.ts';
-import { c, Cli, type t } from '../common.ts';
+import { expect, Fs, Str } from '../../-test.ts';
+import { stripAnsi } from '../common.ts';
+import { CellCli } from '../mod.ts';
 
 /** Suppress command presentation while preserving the returned CLI result. */
 export async function silent<T>(fn: () => Promise<T>) {
@@ -21,11 +22,6 @@ export type TaskEvent = {
     readonly cwd: string;
     readonly paths: { readonly config?: string };
   };
-};
-
-export type SpinnerLog = {
-  readonly kind: 'start' | 'text' | 'succeed' | 'fail' | 'stop';
-  readonly text: string;
 };
 
 type TaskGlobal = typeof globalThis & { __cellCliTaskEvents?: TaskEvent[] };
@@ -95,114 +91,14 @@ export function devServiceSource() {
   `).trimStart();
 }
 
-export function serviceUrlsOf(text: string): string[] {
-  return text.match(/https?:\/\/\S+/g) ?? [];
-}
+export async function expectCliError(argv: string[], message: string) {
+  const res = await silent(() => CellCli.run({ argv }));
+  const text = stripAnsi(res.text);
 
-export function runningTaskText(name: string): string {
-  return `${Cli.Fmt.spinnerText('running task ', false)}${c.cyan(name)}`;
-}
-
-export function runningStepText(name: string): string {
-  return `${Cli.Fmt.spinnerText('running ', false)}${c.cyan(name)}`;
-}
-
-export function okStepText(name: string, elapsed: string, width: number): string {
-  return stepCompletionText('ok', name, elapsed, width);
-}
-
-export function failedStepText(name: string, elapsed: string, width: number): string {
-  return stepCompletionText('failed', name, elapsed, width);
-}
-
-function stepCompletionText(
-  status: 'ok' | 'failed',
-  name: string,
-  elapsed: string,
-  width: number,
-): string {
-  const color = status === 'ok' ? c.green : c.yellow;
-  const prefix = `${color(status)} ${c.gray('step')} ${c.white(name)}`;
-  const labelWidth = stepCompletionLabel(status, name);
-  const targetWidth = Math.max(width, labelWidth);
-  const pad = ' '.repeat(targetWidth - labelWidth + 2);
-  return Cli.Fmt.spinnerRaw(`${prefix}${pad}${c.gray(elapsed)}`, false);
-}
-
-export function stepCompletionLabelWidth(leaves: Iterable<t.Cell.Task.Leaf>): number {
-  let width = 0;
-  for (const leaf of leaves) {
-    width = Math.max(
-      width,
-      stepCompletionLabel('ok', leaf.name),
-      stepCompletionLabel('failed', leaf.name),
-    );
-  }
-  return width;
-}
-
-function stepCompletionLabel(status: 'ok' | 'failed', name: string): number {
-  return `${status} step ${name}`.length;
-}
-
-export function fakeSpinner(log: SpinnerLog[]): t.CliSpinner.Lib['start'] {
-  return (text = '') => {
-    log.push({ kind: 'start', text });
-    let value = text;
-    let spinner: t.CliSpinner.Instance;
-    spinner = {
-      get text() {
-        return value;
-      },
-      set text(next: string) {
-        value = next;
-        log.push({ kind: 'text', text: next });
-      },
-      start(next = value) {
-        value = next;
-        log.push({ kind: 'start', text: next });
-        return spinner;
-      },
-      stop() {
-        log.push({ kind: 'stop', text: value });
-        return spinner;
-      },
-      succeed(next = value) {
-        value = next;
-        log.push({ kind: 'succeed', text: next });
-        return spinner;
-      },
-      fail(next = value) {
-        value = next;
-        log.push({ kind: 'fail', text: next });
-        return spinner;
-      },
-    };
-    return spinner;
-  };
-}
-
-export function taskLeafDescriptor(name: string): t.Cell.Task.Leaf {
-  return { name, use: 'Task', from: './-tasks/task.ts' };
-}
-
-export function taskCompositeDescriptor(
-  name: string,
-  tasks: string[],
-): t.Cell.Task.Composite {
-  return { name, steps: tasks.map((task) => ({ task })) };
-}
-
-export function taskStepResult(
-  task: t.Cell.Task.Leaf,
-  ok = true,
-  elapsed = 0,
-): t.Cell.Task.StepResult {
-  const startedAt = Time.now.timestamp;
-  const resolvedAt = startedAt + elapsed;
-  const metrics: t.Cell.Task.RunMetrics = { run: { startedAt, resolvedAt } };
-  if (ok) return { task, ok: true, result: { ok: true }, metrics };
-  return { task, ok: false, error: new Error('boom'), metrics };
+  expect(res.kind).to.eql('error');
+  if (res.kind !== 'error') throw new Error('expected error result');
+  expect(res.code).to.eql(1);
+  expect(text).to.contain(message);
 }
 
 export async function read(path: string) {
