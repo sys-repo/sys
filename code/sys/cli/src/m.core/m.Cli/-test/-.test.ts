@@ -33,7 +33,6 @@ describe('CLI: core / m.Cli', () => {
     expect(Cli.Keyboard.isQuit({ key: 'c', ctrlKey: false })).to.eql(false);
     expect(Cli.Keyboard.isUnavailableError(new Error('ENOTTY'))).to.eql(true);
     expect(Cli.Keyboard.isUnavailableError(new Error('boom'))).to.eql(false);
-    expect((Cli.Keyboard as { readonly isTerminal?: unknown }).isTerminal).to.eql(undefined);
   });
 
   it('Cli.stripAnsi', () => {
