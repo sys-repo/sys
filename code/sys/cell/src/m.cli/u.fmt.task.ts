@@ -1,4 +1,5 @@
 import { c, Cli, CliTable, Str, type t, Time } from './common.ts';
+import { elapsedSuffix } from './u.fmt.elapsed.ts';
 import { FmtPath } from './u.fmt.path.ts';
 
 type TaskResult = {
@@ -18,6 +19,7 @@ type TaskProgressRendererDeps = {
 };
 
 type TaskProgressSpinner = t.CliSpinner.Instance;
+type TaskProgressTimer = ReturnType<typeof globalThis.setInterval>;
 
 export const FmtTask = {
   result(res: TaskResult): string {
@@ -45,32 +47,47 @@ export const FmtTask = {
     const startSpinner = deps.spinner ?? Cli.spinner;
     const silent = deps.silent ?? !isTerminal();
     let spinner: TaskProgressSpinner | undefined;
+    let timer: TaskProgressTimer | undefined;
     let completionLabelWidth = 0;
 
-    const start = (text: string) => {
+    const stopTimer = () => {
+      if (timer === undefined) return;
+      globalThis.clearInterval(timer);
+      timer = undefined;
+    };
+    const start = (render: () => string) => {
       if (silent) return;
+      stopTimer();
+      const text = render();
       if (spinner) {
         spinner.text = text;
-        return;
+      } else {
+        spinner = startSpinner(text);
       }
-      spinner = startSpinner(text);
+      timer = globalThis.setInterval(() => {
+        if (spinner) spinner.text = render();
+      }, 1000);
     };
     const succeedStep = (result: t.Cell.Task.StepResult) => {
+      stopTimer();
       if (!spinner) return;
       spinner.succeed(okStepText(result, completionLabelWidth));
       spinner = undefined;
     };
     const failStep = (result: t.Cell.Task.StepResult) => {
+      stopTimer();
       if (!spinner) return;
       spinner.fail(failedStepText(result, completionLabelWidth));
       spinner = undefined;
     };
     const succeedTask = (name: string) => {
+      stopTimer();
       if (!spinner) return;
       spinner.succeed(okTaskText(name));
       spinner = undefined;
     };
     const failTask = (name: string) => {
+      stopTimer();
       if (!spinner) return;
       spinner.fail(failedTaskText(name));
       spinner = undefined;
@@ -79,9 +96,13 @@ export const FmtTask = {
     return (event) => {
       if (event.kind === 'task:start') {
         completionLabelWidth = stepCompletionLabelWidth(event.leaves);
-        return start(runningTaskText(event.task.name));
+        const startedAt = Time.now.timestamp;
+        return start(() => runningTaskText(event.task.name, startedAt));
       }
-      if (event.kind === 'task:step:start') return start(runningStepText(event.step.name));
+      if (event.kind === 'task:step:start') {
+        const startedAt = Time.now.timestamp;
+        return start(() => runningStepText(event.step.name, startedAt));
+      }
       if (event.kind === 'task:step:ok') return succeedStep(event.result);
       if (event.kind === 'task:step:fail') return failStep(event.result);
       if (event.kind === 'task:ok') return succeedTask(event.task.name);
@@ -93,12 +114,14 @@ export const FmtTask = {
 /**
  * Helpers:
  */
-function runningTaskText(name: string): string {
-  return `${Cli.Fmt.spinnerText('running task ', false)}${c.cyan(name)}`;
+function runningTaskText(name: string, startedAt?: t.UnixTimestamp): string {
+  const elapsed = elapsedSuffix({ startedAt });
+  return `${Cli.Fmt.spinnerText('running task ', false)}${c.cyan(name)}${elapsed}`;
 }
 
-function runningStepText(name: string): string {
-  return `${Cli.Fmt.spinnerText('running ', false)}${c.cyan(name)}`;
+function runningStepText(name: string, startedAt?: t.UnixTimestamp): string {
+  const elapsed = elapsedSuffix({ startedAt });
+  return `${Cli.Fmt.spinnerText('running ', false)}${c.cyan(name)}${elapsed}`;
 }
 
 function okTaskText(name: string): string {

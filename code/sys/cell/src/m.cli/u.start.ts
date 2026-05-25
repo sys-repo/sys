@@ -1,6 +1,7 @@
 import { Cell } from '../m.cell/mod.ts';
 import { serviceStatusesOf } from '../m.cell/u.services/u.status.ts';
 import { c, Cli, CliTable, Str, type t, Time, Try } from './common.ts';
+import { elapsedSuffix } from './u.fmt.elapsed.ts';
 import { smallCountText } from './u.fmt.count.ts';
 import { FmtPath } from './u.fmt.path.ts';
 import { Fmt } from './u.fmt.ts';
@@ -88,15 +89,7 @@ export function startServicesText(
   const text = count === 1
     ? 'starting service...'
     : `starting ${smallCountText(count)} ${Str.plural(count, 'service')}...`;
-  const suffix = elapsedSuffix(startedAt, now);
-  return suffix ? `${text} ${suffix}` : text;
-}
-
-function elapsedSuffix(startedAt: t.UnixTimestamp | undefined, now: t.UnixTimestamp): string {
-  if (startedAt === undefined) return '';
-  const elapsed = Time.elapsed(startedAt, now);
-  if (elapsed.msec < 1000) return '';
-  return c.gray(c.dim(elapsed.toString()));
+  return `${text}${elapsedSuffix({ startedAt, now })}`;
 }
 
 export function formatStartResult(res: StartCellResult): string {
