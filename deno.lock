@@ -70,7 +70,7 @@
     "npm:gpt-tokenizer@3.4.0": "3.4.0",
     "npm:happy-dom@20.9.0": "20.9.0",
     "npm:hash-it@7.0.2": "7.0.2",
-    "npm:hono@4.12.22": "4.12.22",
+    "npm:hono@4.12.23": "4.12.23",
     "npm:ignore@7.0.5": "7.0.5",
     "npm:monaco-editor@0.55.1": "0.55.1",
     "npm:motion@12.40.0": "12.40.0_react@19.2.6_react-dom@19.2.6__react@19.2.6",
@@ -84,7 +84,7 @@
     "npm:prosemirror-view@1.41.8": "1.41.8",
     "npm:ramda@0.32.0": "0.32.0",
     "npm:react-dom@19.2.6": "19.2.6_react@19.2.6",
-    "npm:react-error-boundary@6.1.1": "6.1.1_react@19.2.6",
+    "npm:react-error-boundary@6.1.2": "6.1.2_react@19.2.6",
     "npm:react-icons@5.6.0": "5.6.0_react@19.2.6",
     "npm:react-inspector@9.0.0": "9.0.0_react@19.2.6",
     "npm:react-spinners@0.17.0": "0.17.0_react@19.2.6_react-dom@19.2.6__react@19.2.6",
@@ -2226,8 +2226,8 @@
     "highlight.js@10.7.3": {
       "integrity": "sha512-tzcUFauisWKNHaRkN4Wjl/ZA07gENAjFl3J/c480dprkGTg5EQstgaNFqBfUqCq54kZRIEcreTsAgF/m2quD7A=="
     },
-    "hono@4.12.22": {
-      "integrity": "sha512-7fvVPbB92zNRsQke+uiRGwtTuef0tB2Dg4hWxYfFNvkQhIltWoyi0ONReM5LWA+jJWS3nfT5lTq+qbsIpX0IQw=="
+    "hono@4.12.23": {
+      "integrity": "sha512-eIaZ9qDgu7XV0pxOCrg7/WhnQ6Ivm22UcxhXx/A3dcbqbbYgBEkc6e/J/s7j2tS96zoB0S9VBdLwQNCWwUo4LA=="
     },
     "hosted-git-info@9.0.3": {
       "integrity": "sha512-Hc+ghLoSt6QaYZUv0WBiIvmMDZuZZ7oaDvdH8MbfOO4lOsxdXLEvuC6ePoGs9H1X9oCLyq6+NVN0MKqD+ydxyg==",
@@ -2935,8 +2935,8 @@
         "scheduler"
       ]
     },
-    "react-error-boundary@6.1.1_react@19.2.6": {
-      "integrity": "sha512-BrYwPOdXi5mqkk5lw+Uvt0ThHx32rCt3BkukS4X23A2AIWDPSGX6iaWTc0y9TU/mHDA/6qOSGel+B2ERkOvD1w==",
+    "react-error-boundary@6.1.2_react@19.2.6": {
+      "integrity": "sha512-3DpCr5HVdZ0caUjYE/kIHBEJN0mNP3ZCgf16c48uJ5TbWjorKVp+YG8W3XqlJ7vJAVNw6wNIImyPXmFydwmyng==",
       "dependencies": [
         "react"
       ]
@@ -3549,7 +3549,7 @@
       "npm:gpt-tokenizer@3.4.0",
       "npm:happy-dom@20.9.0",
       "npm:hash-it@7.0.2",
-      "npm:hono@4.12.22",
+      "npm:hono@4.12.23",
       "npm:ignore@7.0.5",
       "npm:monaco-editor@0.55.1",
       "npm:ora@9.4.0",
@@ -3560,7 +3560,7 @@
       "npm:prosemirror-state@1.4.4",
       "npm:prosemirror-view@1.41.8",
       "npm:ramda@0.32.0",
-      "npm:react-error-boundary@6.1.1",
+      "npm:react-error-boundary@6.1.2",
       "npm:react-icons@5.6.0",
       "npm:react-inspector@9.0.0",
       "npm:react-spinners@0.17.0",
