@@ -1,6 +1,5 @@
 import type { StartedServiceStatus } from '../m.cell/u.services/u.status.ts';
-import { c, Cli, Is, Str, stripAnsi, type t } from './common.ts';
-import { FmtPath } from './u.fmt.path.ts';
+import { c, Cli, Fs, Is, Str, stripAnsi, type t } from './common.ts';
 
 type ServicesStartedResult = {
   services: readonly StartedServiceStatus[];
@@ -100,7 +99,8 @@ function pushServiceRoot(rows: ServiceStatusRow[], root: string) {
 }
 
 function serviceRoot(root: string): string {
-  return FmtPath.display(root);
+  const path = Fs.trimCwd(root, { prefix: true });
+  return c.gray(path || './');
 }
 
 function serviceRootLabel(label: string): string {

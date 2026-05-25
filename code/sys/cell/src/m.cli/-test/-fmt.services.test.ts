@@ -1,5 +1,5 @@
 import { describe, expect, Fs, it, Time } from '../../-test.ts';
-import { stripAnsi, type t } from '../common.ts';
+import { c, stripAnsi, type t } from '../common.ts';
 import { Fmt } from '../u.fmt.ts';
 
 describe(`@sys/cell/cli service status formatter`, () => {
@@ -96,5 +96,43 @@ describe(`@sys/cell/cli service status formatter`, () => {
     expect(text).to.contain('list, stat, read, watch, manifest');
     expect(text).to.contain('dist');
     expect(text).to.contain('dist/');
+  });
+
+  it('renders service roots as plain grey paths', () => {
+    const now = Time.now.timestamp;
+    const cwd = Fs.cwd();
+    const config = Fs.join(cwd, '-config/view.dev.yaml') as t.StringPath;
+    const root = Fs.join(cwd, 'view') as t.StringDir;
+    const text = Fmt.Services.started({
+      services: [{
+        service: {
+          name: 'view' as t.Cell.Id,
+          use: 'ViteService',
+          from: 'jsr:@sys/driver-vite/service',
+          config: './-config/view.dev.yaml' as t.Cell.Path,
+        },
+        selection: {
+          name: 'view' as t.Cell.Id,
+          mode: 'dev',
+          variant: 'dev' as t.Cell.Id,
+          descriptor: {
+            name: 'view' as t.Cell.Id,
+            use: 'Serve',
+            from: 'jsr:@sys/tools/serve',
+            config: './-config/view.yaml' as t.Cell.Path,
+          },
+          binding: {
+            use: 'ViteService',
+            from: 'jsr:@sys/driver-vite/service',
+            config: './-config/view.dev.yaml' as t.Cell.Path,
+          },
+        },
+        paths: { config },
+        metrics: { start: { startedAt: now, resolvedAt: now } },
+        owner: { state: 'ready', root },
+      }],
+    });
+
+    expect(text).to.contain(c.gray('./view'));
   });
 });
