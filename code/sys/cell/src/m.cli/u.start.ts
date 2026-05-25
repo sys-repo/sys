@@ -1,6 +1,6 @@
 import { Cell } from '../m.cell/mod.ts';
 import { serviceStatusesOf } from '../m.cell/u.services/u.status.ts';
-import { c, Cli, CliTable, Str, type t, Try } from './common.ts';
+import { c, Cli, CliTable, Str, type t, Time, Try } from './common.ts';
 import { smallCountText } from './u.fmt.count.ts';
 import { FmtPath } from './u.fmt.path.ts';
 import { Fmt } from './u.fmt.ts';
@@ -54,10 +54,16 @@ async function startServices(
   serviceCount: number,
 ): Promise<t.Cell.Services.Started> {
   const silent = !Cli.Keyboard.isTerminal();
+  const startedAt = Time.now.timestamp;
   const spinner = Cli.spinner(Cli.Fmt.spinnerText(startServicesText(serviceCount)), { silent });
+  const timer = silent ? undefined : globalThis.setInterval(() => {
+    spinner.text = Cli.Fmt.spinnerText(startServicesText(serviceCount, startedAt));
+  }, 1000);
+
   try {
     return await Cell.start(cell, options);
   } finally {
+    if (timer !== undefined) globalThis.clearInterval(timer);
     spinner.stop();
   }
 }
@@ -74,9 +80,23 @@ async function closeAndDispose(
   }
 }
 
-export function startServicesText(count: number): string {
-  if (count === 1) return 'starting service...';
-  return `starting ${smallCountText(count)} ${Str.plural(count, 'service')}...`;
+export function startServicesText(
+  count: number,
+  startedAt?: t.UnixTimestamp,
+  now: t.UnixTimestamp = Time.now.timestamp,
+): string {
+  const text = count === 1
+    ? 'starting service...'
+    : `starting ${smallCountText(count)} ${Str.plural(count, 'service')}...`;
+  const suffix = elapsedSuffix(startedAt, now);
+  return suffix ? `${text} ${suffix}` : text;
+}
+
+function elapsedSuffix(startedAt: t.UnixTimestamp | undefined, now: t.UnixTimestamp): string {
+  if (startedAt === undefined) return '';
+  const elapsed = Time.elapsed(startedAt, now);
+  if (elapsed.msec < 1000) return '';
+  return c.gray(c.dim(elapsed.toString()));
 }
 
 export function formatStartResult(res: StartCellResult): string {

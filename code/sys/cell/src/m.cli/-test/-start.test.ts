@@ -13,6 +13,12 @@ describe(`@sys/cell/cli start`, () => {
     expect(startServicesText(11)).to.eql('starting 11 services...');
   });
 
+  it('startup spinner text → shows elapsed only after one second', () => {
+    expect(stripAnsi(startServicesText(2, 1000, 1999))).to.eql('starting two services...');
+    expect(stripAnsi(startServicesText(2, 1000, 2000))).to.eql('starting two services... 1s');
+    expect(stripAnsi(startServicesText(2, 1000, 2500))).to.eql('starting two services... 2s');
+  });
+
   it('start → loads and starts an empty Cell services set', async () => {
     const fs = await Testing.dir('CellCli.start.empty-services');
     await silent(() => CellCli.run({ argv: ['init', fs.dir] }));
