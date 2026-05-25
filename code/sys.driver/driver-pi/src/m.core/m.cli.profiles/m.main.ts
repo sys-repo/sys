@@ -4,7 +4,7 @@ import { PiSandboxReport } from '../m.cli/u.report.sandbox.ts';
 import { resolveCwd } from '../m.cli/u.resolve.cwd.ts';
 import { runtimeRoot } from '../m.cli/u.runtime.ts';
 
-import { Fs, type t, YamlConfig } from './common.ts';
+import { Cli, Fs, type t, YamlConfig } from './common.ts';
 import { ProfileArgs } from './u.args.ts';
 import { ProfilesFmt } from './u.fmt.help.ts';
 import { ProfilesFs } from './u.fs.ts';
@@ -96,7 +96,10 @@ const ProfileMenuNonTtyError = [
 ].join(' ');
 
 function resolveTty(input: t.PiCliProfiles.Input): t.PiCliProfiles.Tty {
-  return input.tty ?? { stdin: Deno.stdin.isTerminal(), stdout: Deno.stdout.isTerminal() };
+  return input.tty ?? {
+    stdin: Cli.Is.terminal('stdin'),
+    stdout: Cli.Is.terminal('stdout'),
+  };
 }
 
 function resolveProfileSelector(root: t.StringDir, value: string) {

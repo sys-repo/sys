@@ -1,3 +1,5 @@
+import { Cli } from './common.ts';
+
 export function clearInteractiveScreen() {
-  if (Deno.stdout.isTerminal()) console.clear();
+  if (Cli.Is.terminal('stdout')) console.clear();
 }

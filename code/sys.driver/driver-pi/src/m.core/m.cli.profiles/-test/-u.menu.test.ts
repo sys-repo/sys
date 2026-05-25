@@ -203,7 +203,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     const originalPrompt = Cli.Input.Select.prompt;
     const prevInfo = console.info;
     const prevClear = console.clear;
-    const prevIsTerminal = Deno.stdout.isTerminal.bind(Deno.stdout);
+    const prevTerminal = Cli.Is.terminal;
     const screen = Cli.Screen as { size: () => { width: number; height: number } };
     const prevScreenSize = screen.size;
     const config = Fs.join(cwd, '-config/@sys.driver-pi/default.yaml');
@@ -225,8 +225,8 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
         throw new Error(`Unexpected prompt: ${input.message}`);
       },
     });
-    Object.defineProperty(Deno.stdout, 'isTerminal', {
-      value: () => true,
+    Object.defineProperty(Cli.Is, 'terminal', {
+      value: (stream: 'stdin' | 'stdout' | 'stderr') => stream === 'stdout',
       configurable: true,
       writable: true,
     });
@@ -244,8 +244,8 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(events.indexOf('clear')).to.be.lessThan(events.indexOf('sandbox'));
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: originalPrompt });
-      Object.defineProperty(Deno.stdout, 'isTerminal', {
-        value: prevIsTerminal,
+      Object.defineProperty(Cli.Is, 'terminal', {
+        value: prevTerminal,
         configurable: true,
         writable: true,
       });
