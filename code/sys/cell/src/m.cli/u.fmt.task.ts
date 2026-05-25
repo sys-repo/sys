@@ -45,7 +45,7 @@ export const FmtTask = {
 
   progressRenderer(deps: TaskProgressRendererDeps = {}): t.Cell.Task.Run.EventHandler {
     const startSpinner = deps.spinner ?? Cli.spinner;
-    const silent = deps.silent ?? !isTerminal();
+    const silent = deps.silent ?? !Cli.Is.terminal('stdout');
     let spinner: TaskProgressSpinner | undefined;
     let timer: TaskProgressTimer | undefined;
     let completionLabelWidth = 0;
@@ -174,10 +174,6 @@ function stepCompletionLabel(status: 'ok' | 'failed', name: string): string {
 
 function elapsedText(metric: t.Cell.Task.RunMetrics['run']): string {
   return Time.elapsed(metric.startedAt, metric.resolvedAt).toString();
-}
-
-function isTerminal(): boolean {
-  return Deno.stdout.isTerminal();
 }
 
 function renderPlanTree(node: t.Cell.Task.PlanNode): string {

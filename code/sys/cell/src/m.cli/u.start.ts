@@ -54,7 +54,7 @@ async function startServices(
   options: t.Cell.Services.StartOptions,
   serviceCount: number,
 ): Promise<t.Cell.Services.Started> {
-  const silent = !Cli.Keyboard.isTerminal();
+  const silent = !Cli.Is.terminal('stdout');
   const startedAt = Time.now.timestamp;
   const spinner = Cli.spinner(Cli.Fmt.spinnerText(startServicesText(serviceCount)), { silent });
   const timer = silent ? undefined : globalThis.setInterval(() => {
