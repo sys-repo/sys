@@ -1,29 +1,27 @@
 import { describe, expect, Fs, it, Json, Process, ROOT, SAMPLE, slug } from '../../-test.ts';
+import { DEFAULTS } from '../common.ts';
 import { Wrangle } from '../u.wrangle.ts';
 
-describe('Vite published external minimal-crutch world', () => {
+describe('Vite published external pure-JSR authority world', () => {
   it('fixture stages an external pure-JSR driver world without local-source alias privilege', async () => {
     const config =
       (await Fs.readText(`${SAMPLE.Dirs.samplePublishedBaseline}/vite.config.ts`)).data ?? '';
-    const imports = (
-      await Fs.readJson<{ imports?: Record<string, string> }>(
-        `${SAMPLE.Dirs.samplePublishedBaseline}/imports.json`,
-      )
-    ).data?.imports ?? {};
+    const imports = await samplePublishedImports();
 
     expect(config).to.match(/from 'jsr:@sys\/driver-vite@\d+\.\d+\.\d+'/);
-    expect(imports['@sys/http/client']).to.eql('jsr:@sys/http@0.0.260/client');
+    expect(imports['@sys/http/client']).to.match(/^jsr:@sys\/http@\d+\.\d+\.\d+\/client$/);
     expect(Object.keys(imports).includes('@sys/driver-vite')).to.eql(false);
     expect(Object.values(imports).some((value) => value.startsWith('file:'))).to.eql(false);
   });
 
   it('startup authority for an external pure-JSR consumer stays consumer-visible and published-boundary honest', async () => {
+    const imports = await samplePublishedImports();
     const sample = await externalStartupImportMap('build');
 
     try {
       expect(sample.path.includes('node_modules/.vite/.sys-driver-vite/startup')).to.eql(true);
       expect(sample.data.scopes).to.eql(undefined);
-      expect(sample.data.imports?.['@sys/http/client']).to.eql('jsr:@sys/http@0.0.260/client');
+      expect(sample.data.imports?.['@sys/http/client']).to.eql(imports['@sys/http/client']);
       expect(sample.data.imports?.['@sys/driver-vite']).to.eql(undefined);
       expect(sample.data.imports?.['@sys/http']).to.eql(undefined);
       expect(sample.data.imports?.['#module-sync-enabled']).to.match(
@@ -87,15 +85,15 @@ const BUILD_PROBE_SOURCE = `
   import { Json, SAMPLE } from './src/-test.ts';
 
   const res = await buildSample({
-    sampleName: 'Vite.published.minimal-crutch.build.probe',
+    sampleName: 'Vite.published.pure-jsr-authority.build.probe',
     sampleDir: SAMPLE.Dirs.samplePublishedBaseline,
   });
-  console.log(Json.stringify({
+  console.log('${DEFAULTS.probeJsonPrefix}' + Json.stringify({
     ok: res.build.ok,
     stderr: res.build.cmd.output.text.stderr,
     stdout: res.build.cmd.output.text.stdout,
     moduleTexts: res.files.js.map((file) => file.text),
-  }));
+  }, 0));
 `;
 
 const DEV_PROBE_SOURCE = `
@@ -103,7 +101,7 @@ const DEV_PROBE_SOURCE = `
   import { Json, SAMPLE } from './src/-test.ts';
 
   const res = await devSample({
-    sampleName: 'Vite.published.minimal-crutch.dev.probe',
+    sampleName: 'Vite.published.pure-jsr-authority.dev.probe',
     sampleDir: SAMPLE.Dirs.samplePublishedBaseline,
     moduleMode: 'none',
   });
@@ -111,33 +109,43 @@ const DEV_PROBE_SOURCE = `
     const moduleTexts = await Promise.all(
       res.entry.imports.map(async (url) => (await res.fetch(url)).text),
     );
-    console.log(Json.stringify({
+    console.log('${DEFAULTS.probeJsonPrefix}' + Json.stringify({
       ok: true,
       htmlStatus: res.html.status,
       entryStatus: res.entry.status,
       entryText: res.entry.text,
       moduleTexts,
-    }));
+    }, 0));
   } finally {
     await res.dev.dispose();
   }
 `;
 
 function parseProbeJson<T>(stdout: string): T {
-  const lines = stdout.trim().split('\n').filter(Boolean);
-  const line = lines.at(-1) ?? '{}';
-  return Json.parse(line) as T;
+  const line = stdout.trim().split('\n').findLast((line) =>
+    line.startsWith(DEFAULTS.probeJsonPrefix)
+  );
+  if (!line) throw new Error(`Probe JSON marker not found in stdout:\n${stdout.trim()}`);
+  return Json.parse(line.slice(DEFAULTS.probeJsonPrefix.length)) as T;
+}
+
+async function samplePublishedImports() {
+  return (
+    await Fs.readJson<{ imports?: Record<string, string> }>(
+      `${SAMPLE.Dirs.samplePublishedBaseline}/imports.json`,
+    )
+  ).data?.imports ?? {};
 }
 
 async function runProbe(source: string) {
   const cwd = ROOT.resolve('code/sys.driver/driver-vite');
-  const path = Fs.join(cwd, `.tmp.published-minimal-crutch.${slug()}.ts`);
+  const path = Fs.join(cwd, `.tmp.published-pure-jsr-authority.${slug()}.ts`);
   await Fs.write(path, source);
 
   try {
     return await Process.invoke({
       cmd: 'deno',
-      args: ['run', '-P=test', '--node-modules-dir=auto', path],
+      args: ['run', '-P=test', '--no-lock', '--node-modules-dir=auto', path],
       cwd,
       silent: true,
     });
@@ -147,7 +155,7 @@ async function runProbe(source: string) {
 }
 
 async function externalStartupImportMap(arg: string) {
-  const fs = await Fs.makeTempDir({ prefix: 'Vite.published.minimal-crutch.startup.' });
+  const fs = await Fs.makeTempDir({ prefix: 'Vite.published.pure-jsr-authority.startup.' });
   const dir = Fs.join(fs.absolute, Fs.basename(SAMPLE.Dirs.samplePublishedBaseline));
   await Fs.copy(SAMPLE.Dirs.samplePublishedBaseline, dir);
 

@@ -1,4 +1,5 @@
 import { describe, expect, Fs, it, Json, Process, ROOT, slug, Str } from '../../-test.ts';
+import { DEFAULTS } from '../common.ts';
 
 describe('Vite external std try runtime', () => {
   it('consumer dev entry importing @sys/std/try evaluates without Try TDZ crash', async () => {
@@ -29,6 +30,15 @@ describe('Vite external std try runtime', () => {
   });
 });
 
+/**
+ * Driver-vite runtime canary, not a generic std test: the old failure only
+ * appeared after Vite served/transformed `@sys/std/try` and Deno evaluated the
+ * localhost module graph.
+ *
+ * Keep this as generated child-source instead of a published fixture file: the
+ * probe must dynamically import a runtime localhost URL, which is intentionally
+ * unanalyzable at publish time.
+ */
 const PROBE_SOURCE = Str.dedent(`
   import { Fs, Json, Testing } from './src/-test.ts';
   import { writeLocalFixtureImports } from './src/m.vite/-test/u.bridge.fixture.ts';
@@ -81,12 +91,12 @@ const PROBE_SOURCE = Str.dedent(`
   try {
     const entryUrl = dev.url + 'main.ts';
     const mod = await import(entryUrl);
-    console.log(Json.stringify({
+    console.log('${DEFAULTS.probeJsonPrefix}' + Json.stringify({
       ok: mod.tryOk === true && mod.tryMessage === 'ok',
       tryOk: mod.tryOk ?? null,
       tryMessage: mod.tryMessage ?? null,
       entryUrl,
-    }));
+    }, 0));
   } finally {
     await dev.dispose();
     await restore();
@@ -95,9 +105,11 @@ const PROBE_SOURCE = Str.dedent(`
 `);
 
 function parseProbeJson<T>(stdout: string): T {
-  const lines = stdout.trim().split('\n').filter(Boolean);
-  const line = lines.at(-1) ?? '{}';
-  return Json.parse(line) as T;
+  const line = stdout.trim().split('\n').findLast((line) =>
+    line.startsWith(DEFAULTS.probeJsonPrefix)
+  );
+  if (!line) throw new Error(`Probe JSON marker not found in stdout:\n${stdout.trim()}`);
+  return Json.parse(line.slice(DEFAULTS.probeJsonPrefix.length)) as T;
 }
 
 async function runProbe(source: string) {
@@ -108,7 +120,14 @@ async function runProbe(source: string) {
   try {
     return await Process.invoke({
       cmd: 'deno',
-      args: ['run', '-P=test', '--allow-import=jsr.io,localhost', '--node-modules-dir=auto', path],
+      args: [
+        'run',
+        '-P=test',
+        '--no-lock',
+        '--allow-import=jsr.io,localhost',
+        '--node-modules-dir=auto',
+        path,
+      ],
       cwd,
       silent: true,
     });
