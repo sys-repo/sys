@@ -19,6 +19,9 @@ export type CliLib = {
   /** Common formatting heleprs. */
   readonly Fmt: t.CliFormat.Lib;
 
+  /** Predicate helpers for CLI runtime capabilities. */
+  readonly Is: t.CliIsLib;
+
   /** Tools for working with the keyboard within a CLI. */
   readonly Keyboard: t.CliKeyboardLib;
 

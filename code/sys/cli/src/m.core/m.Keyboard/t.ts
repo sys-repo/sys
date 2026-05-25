@@ -19,9 +19,6 @@ export type CliKeyboardLib = {
    */
   readonly keypress: typeof CliffyKeypress;
 
-  /** True when stdin is a terminal that can receive keyboard input. */
-  isTerminal(): boolean;
-
   /** True for canonical terminal quit keys. */
   isQuit(event: CliKeyboardEvent): boolean;
 

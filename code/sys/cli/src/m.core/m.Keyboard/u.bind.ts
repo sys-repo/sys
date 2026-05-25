@@ -1,11 +1,11 @@
 import { keypress } from '@cliffy/keypress';
 import type { t } from '../common.ts';
+import { Is } from '../m.Is/mod.ts';
 import { isQuit } from './u.isQuit.ts';
-import { isTerminal } from './u.isTerminal.ts';
 import { isUnavailableError } from './u.isUnavailableError.ts';
 
 export function bind(options: t.CliKeyboardBindOptions): t.CliKeyboardBindHandle | undefined {
-  if (!isTerminal()) return undefined;
+  if (!Is.terminal('stdin')) return undefined;
 
   const keys = keypress();
   let disposed = false;

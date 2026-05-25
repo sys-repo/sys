@@ -2,6 +2,7 @@ import { type t, Args, Path, Time, stripAnsi } from '../common.ts';
 
 import { Fmt } from '../m.Fmt/mod.ts';
 import { Input } from '../m.Input/mod.ts';
+import { Is } from '../m.Is/mod.ts';
 import { Keyboard } from '../m.Keyboard/mod.ts';
 import { Prompt } from '../m.Prompt/mod.ts';
 import { Screen } from '../m.Screen/mod.ts';
@@ -18,6 +19,7 @@ export const Cli: t.CliLib = {
   Spinner,
   Path,
   Fmt,
+  Is,
   Keyboard,
   Screen,
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Args, Path } from '../../common.ts';
 import { Input } from '../../m.Input/mod.ts';
-import { c, Cli, Fmt, Keyboard, Prompt, Spinner, Table } from '../../mod.ts';
+import { c, Cli, Fmt, Is, Keyboard, Prompt, Spinner, Table } from '../../mod.ts';
 import { copyToClipboard } from '../../u/mod.ts';
 
 describe('CLI: core / m.Cli', () => {
@@ -13,6 +13,7 @@ describe('CLI: core / m.Cli', () => {
     expect(Cli.Args).to.equal(Args);
 
     expect(Cli.Fmt).to.equal(Fmt);
+    expect(Cli.Is).to.equal(Is);
     expect(Cli.Keyboard).to.equal(Keyboard);
     expect(Cli.Spinner).to.equal(Spinner);
     expect(Cli.Table).to.equal(Table);
@@ -32,6 +33,7 @@ describe('CLI: core / m.Cli', () => {
     expect(Cli.Keyboard.isQuit({ key: 'c', ctrlKey: false })).to.eql(false);
     expect(Cli.Keyboard.isUnavailableError(new Error('ENOTTY'))).to.eql(true);
     expect(Cli.Keyboard.isUnavailableError(new Error('boom'))).to.eql(false);
+    expect((Cli.Keyboard as { readonly isTerminal?: unknown }).isTerminal).to.eql(undefined);
   });
 
   it('Cli.stripAnsi', () => {
