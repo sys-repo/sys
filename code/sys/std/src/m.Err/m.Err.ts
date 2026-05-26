@@ -11,7 +11,7 @@ import { summary } from './u.summary.ts';
 /**
  * Helpers for working with errors.
  */
-export const Err: t.ErrLib = {
+export const Err: t.Err.Lib = {
   Is,
   Name,
   Try,

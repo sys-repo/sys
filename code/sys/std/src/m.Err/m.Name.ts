@@ -1,10 +1,10 @@
-import type { ErrNameLib } from './t.ts';
+import type { t } from './common.ts';
 
 /**
  * The standard named error types (JS).
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors
  */
-export const Name: ErrNameLib = {
+export const Name: t.Err.Name.Lib = {
   error: 'Error',
   aggregate: 'AggregateError',
   eval: 'EvalError',

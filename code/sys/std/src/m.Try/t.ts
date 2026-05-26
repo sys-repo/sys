@@ -1,42 +1,47 @@
 import type { t } from './common.ts';
 
 /**
- * Helpers for safe try/catch execution.
+ * Safe try/catch execution contracts.
  */
-export type TryLib = {
+export declare namespace Try {
   /**
-   * Execute a function (sync or async) and optionally handle failures via a chained handler.
-   *
-   * Sync:
-   *   Try
-   *     .run(() => doSomething())
-   *     .catch((err) => console.error('sync failure', err));
-   *
-   * Sync with result:
-   *   const { result } = Try.run(() => computeValue());
-   *   if (!result.ok) {
-   *     console.error('sync failure', result.error);
-   *   } else {
-   *     console.log('value:', result.data);
-   *   }
-   *
-   * Async:
-   *   const { result } = await Try.run(async () => doSomethingAsync());
-   *   if (!result.ok) {
-   *     console.error('async failure', result.error);
-   *   }
-   *
-   * Async with handler:
-   *   const result = (await Try.run(async () => saveToStore(input)))
-   *     .catch((err) => {
-   *       console.error('save failed', err);
-   *     });
-   *   if (result.ok) {
-   *     console.log('saved:', result.data);
-   *   }
+   * Helpers for safe try/catch execution.
    */
-  readonly run: TryRun;
-};
+  export type Lib = {
+    /**
+     * Execute a function (sync or async) and optionally handle failures via a chained handler.
+     *
+     * Sync:
+     *   Try
+     *     .run(() => doSomething())
+     *     .catch((err) => console.error('sync failure', err));
+     *
+     * Sync with result:
+     *   const { result } = Try.run(() => computeValue());
+     *   if (!result.ok) {
+     *     console.error('sync failure', result.error);
+     *   } else {
+     *     console.log('value:', result.data);
+     *   }
+     *
+     * Async:
+     *   const { result } = await Try.run(async () => doSomethingAsync());
+     *   if (!result.ok) {
+     *     console.error('async failure', result.error);
+     *   }
+     *
+     * Async with handler:
+     *   const result = (await Try.run(async () => saveToStore(input)))
+     *     .catch((err) => {
+     *       console.error('save failed', err);
+     *     });
+     *   if (result.ok) {
+     *     console.log('saved:', result.data);
+     *   }
+     */
+    readonly run: TryRun;
+  };
+}
 
 /** Result of a Try.run invocation, with a handler helper. */
 export type TryRunResult<T> = {

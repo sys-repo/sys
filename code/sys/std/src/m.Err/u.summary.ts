@@ -6,7 +6,7 @@ import { type t, Str } from './common.ts';
  * - `Error` → "Name: message" (+ optional cause and stack).
  * - All other values → `String(input)`.
  */
-export const summary: t.ErrLib['summary'] = (input, opts) => {
+export const summary: t.Err.Lib['summary'] = (input, opts) => {
   const options: t.ErrSummaryOptions = opts ?? {};
   const visited = new WeakSet<Error>();
 

@@ -50,16 +50,16 @@ export type StdIsLib = {
   /**
    * Determine if the given value is an Error instance.
    */
-  error: t.ErrIsLib['error'];
+  error: t.Err.Is.Lib['error'];
   /**
    * Determine if the value is like an Error object.
    */
-  errorLike: t.ErrIsLib['errorLike'];
+  errorLike: t.Err.Is.Lib['errorLike'];
 
   /**
    * Determine if the given value conforms to the [StdError] type.
    */
-  stdError: t.ErrIsLib['stdError'];
+  stdError: t.Err.Is.Lib['stdError'];
 
   /**
    * Determine if the value is a number.

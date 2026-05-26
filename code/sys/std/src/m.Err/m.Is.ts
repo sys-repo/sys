@@ -1,7 +1,7 @@
 import { isRecord } from '../common.ts';
 import type { t } from '../common.ts';
 
-export const Is: t.ErrIsLib = {
+export const Is: t.Err.Is.Lib = {
   error(input: unknown): input is Error {
     return input instanceof Error;
   },
