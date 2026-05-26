@@ -3,7 +3,7 @@
  * Tools for working with semantic-versions.
  * https://semver.org
  */
-import type { SemverLib } from './t.ts';
+import type { Semver as SemverType } from './t.ts';
 
 import { compare, format, increment } from '@std/semver';
 import { Release } from './common.ts';
@@ -17,7 +17,7 @@ import { sort } from './u.sort.ts';
 /**
  * Tools for working with Semver ("Semantic Versions").
  */
-export const Semver: SemverLib = {
+export const Semver: SemverType.Lib = {
   /** Semver value assertions. */
   Is,
 

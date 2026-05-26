@@ -1,6 +1,6 @@
-import { type t, Base, c } from './common.ts';
+import { Base, c, type t } from './common.ts';
 
-export const Fmt: t.SemverServerFmt = {
+export const Fmt: t.Semver.Server.Fmt = {
   colorize(input, options = {}) {
     const {
       highlight,
