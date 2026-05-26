@@ -14,6 +14,7 @@ export { Is, isRecord } from '@sys/std/is';
 export { Num } from '@sys/std/num';
 export { Str } from '@sys/std/str';
 export { Time } from '@sys/std/time';
+export { Try } from '@sys/std/try';
 export { Url } from '@sys/std/url';
 
 export { c, Cli, stripAnsi } from '@sys/cli';

@@ -16,8 +16,6 @@ import { Perf } from '../common/u.perf.ts';
 import { keyboardFactory } from './u.keyboard.ts';
 import { Log, Wrangle } from './u.ts';
 
-type D = t.ViteLib['dev'];
-
 export const REGEX = {
   // Example matches:
   //  "VITE v7.1.9  ready in 123 ms"
@@ -39,8 +37,8 @@ export const REGEX = {
 /**
  * Run the <vite:dev> command (long-running spawn).
  */
-export const dev: D = async (input) => {
-  const { silent = false, pkg } = input;
+export const dev: t.ViteLib['dev'] = async (input) => {
+  const { silent = false, pkg, strictPort = false } = input;
   const startedAt = Time.now.timestamp as t.Msecs;
   const end = Perf.section('dev.parent.total', { cwd: input.cwd ?? '', silent }, { level: 1 });
   const paths = input.paths ??
@@ -53,7 +51,15 @@ export const dev: D = async (input) => {
       { level: 2 },
     ));
   const cwd = paths.cwd;
-  const requestedPort = Net.port(input.port ?? DEFAULTS.port);
+  const preferredPort = input.port ?? DEFAULTS.port;
+  let requestedPort: number;
+  try {
+    requestedPort = strictPort
+      ? Net.port(preferredPort, { throw: true })
+      : Net.port(preferredPort);
+  } catch (cause) {
+    throw startupError({ cwd, requestedPort: preferredPort, strictPort, stderr: '', cause });
+  }
   const { dist } = await Perf.measure(
     'dev.parent.dist',
     async () => await Pkg.Dist.load(Path.resolve('./dist/dist.json')),
@@ -71,14 +77,14 @@ export const dev: D = async (input) => {
     async () =>
       await Wrangle.command(
         paths,
-        `dev --port=${requestedPort} --host`,
+        `dev --port=${requestedPort} --host${strictPort ? ' --strictPort' : ''}`,
       ),
     { cwd, port: requestedPort },
     { level: 2 },
   );
   if (!silent && pkg) Log.Entry.log(pkg, Path.join(cwd, paths.app.entry));
 
-  // Readiness from process output (fast path), or HTTP fallback:
+  // Readiness from process output establishes the resolved URL; HTTP confirms it serves.
   const readySignal: t.Process.ReadySignalFilter = (e) => {
     const lines = stripAnsi(e.toString())
       .split('\n')
@@ -100,6 +106,7 @@ export const dev: D = async (input) => {
     return isReady;
   };
 
+  let stderr = '';
   const proc = Process.spawn({
     cwd,
     args,
@@ -107,6 +114,9 @@ export const dev: D = async (input) => {
     silent,
     readySignal,
     until: input.until,
+  });
+  proc.onStdErr((e) => {
+    stderr += e.toString();
   });
   const { dispose } = proc;
   const cleanup = async () => {
@@ -118,21 +128,10 @@ export const dev: D = async (input) => {
   };
 
   try {
-    const readyAbort = new AbortController();
-    try {
-      const waitForReady = Perf.section('dev.parent.waitForReady', { requestedUrl }, { level: 2 });
-      await Promise.race([
-        proc.whenReady().catch(() => new Promise<never>(() => {})), // NB: never resolve on failure
-        Http.Client.waitFor(requestedUrl, {
-          timeout: 30_000,
-          interval: 150,
-          signal: readyAbort.signal,
-        }),
-      ]);
-      waitForReady({ resolvedUrl });
-    } finally {
-      readyAbort.abort();
-    }
+    const waitForReady = Perf.section('dev.parent.waitForReady', { requestedUrl }, { level: 2 });
+    await proc.whenReady();
+    waitForReady({ resolvedUrl });
+
     await Perf.measure(
       'dev.parent.waitForResolvedUrl',
       async () => await Http.Client.waitFor(resolvedUrl, { timeout: 30_000, interval: 150 }),
@@ -147,10 +146,22 @@ export const dev: D = async (input) => {
     } catch {
       // Best effort cleanup: preserve original startup failure.
     }
-    throw error;
+    throw startupError({ cwd, requestedPort, strictPort, stderr, cause: error });
   }
 
   const port = DevParse.port(resolvedUrl, requestedPort);
+  if (strictPort && port !== requestedPort) {
+    const cause = new Error(
+      `Vite.dev: strict port mismatch: requested ${requestedPort}, resolved ${port}.`,
+    );
+    try {
+      await cleanup();
+    } catch {
+      // Best effort cleanup: preserve strict-port failure.
+    }
+    throw startupError({ cwd, requestedPort, strictPort, stderr, cause });
+  }
+
   Perf.log('dev.parent.ready', {
     requestedPort,
     port,
@@ -193,6 +204,24 @@ export const dev: D = async (input) => {
   };
   return api;
 };
+
+function startupError(args: {
+  cwd: t.StringDir;
+  requestedPort: number;
+  strictPort: boolean;
+  stderr: string;
+  cause: unknown;
+}) {
+  const { cwd, requestedPort, strictPort, cause } = args;
+  const stderr = args.stderr.trim();
+  const mode = strictPort ? ' strict' : '';
+  const message = [
+    `Vite.dev: failed to start${mode} dev server on port ${requestedPort}.`,
+    `cwd: ${cwd}`,
+    stderr ? `stderr:\n${stderr}` : '',
+  ].filter(Boolean).join('\n\n');
+  return new Error(message, { cause });
+}
 
 /**
  * Standardised `dev` parsing helpers:

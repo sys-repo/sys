@@ -10,6 +10,7 @@ import {
   type t,
   Testing,
   Time,
+  Try,
 } from '../../-test.ts';
 import { writeLocalFixtureImports } from '../../m.vite/-test/u.bridge.fixture.ts';
 import { Vite } from '../mod.ts';
@@ -121,6 +122,41 @@ describe('Vite.dev', () => {
     });
   });
 
+  it('rejects strict startup when requested port is occupied', async () => {
+    await Testing.retry(2, async () => {
+      const fs = await SAMPLE.fs('Vite.dev-strict-port-occupied');
+      const cwd = fs.join('fixture');
+      await Fs.copy(SAMPLE.Dirs.sample2, cwd);
+      await prepareDevEntryFixture(cwd);
+      const restore = await writeLocalFixtureImports(cwd, 'vite.config.ts', { skipTsconfig: true });
+      const paths = {
+        cwd,
+        app: {
+          entry: 'index.html',
+          outDir: 'dist',
+          base: './',
+        },
+      } as const;
+      const requestedPort = Testing.randomPort();
+      const blocker = Deno.listen({ hostname: '0.0.0.0', port: requestedPort });
+
+      try {
+        const error = await catchError(() =>
+          Vite.dev({ cwd, paths, port: requestedPort, strictPort: true, silent: true })
+        );
+
+        expect(error?.message).to.contain('Vite.dev: failed to start strict dev server');
+        expect(error?.message).to.contain(`port ${requestedPort}`);
+        expect((error?.cause as Error | undefined)?.message).to.contain(
+          `Port already in use: ${requestedPort}`,
+        );
+      } finally {
+        blocker.close();
+        await restore();
+      }
+    });
+  });
+
   it('falls forward to the next port when requested port is occupied', async () => {
     await Testing.retry(2, async () => {
       const fs = await SAMPLE.fs('Vite.dev-port-fallback');
@@ -199,6 +235,11 @@ async function prepareDevEntryFixture(cwd: string) {
       root.render(React.createElement('div', { style: { border: 'solid 1px blue' } }, 'dev ok'));
     `),
   );
+}
+
+async function catchError(fn: () => Promise<unknown>): Promise<Error | undefined> {
+  const { result } = await Try.run(fn);
+  return result.ok ? undefined : result.error;
 }
 
 async function fetchWhenReady(

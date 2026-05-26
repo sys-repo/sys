@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it, Rx, Str, type t, Testing } from '../../-test.ts';
+import { describe, expect, Fs, it, Rx, Str, type t, Testing, Try } from '../../-test.ts';
 import { ViteService } from '../mod.ts';
 import { startDev } from '../u.dev.ts';
 
@@ -40,6 +40,7 @@ describe('@sys/driver-vite/service', () => {
     expect(captured).to.eql({
       cwd: fs.join('view'),
       port: 5173,
+      strictPort: true,
       silent: true,
       until,
     });
@@ -158,10 +159,6 @@ function fakeServer(options: FakeServerOptions = {}): t.ViteProcess {
 }
 
 async function catchError(fn: () => unknown | Promise<unknown>): Promise<Error | undefined> {
-  try {
-    await fn();
-    return undefined;
-  } catch (error) {
-    return error instanceof Error ? error : new Error(String(error));
-  }
+  const { result } = await Try.run(fn);
+  return result.ok ? undefined : result.error;
 }

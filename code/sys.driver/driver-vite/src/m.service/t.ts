@@ -25,7 +25,7 @@ export declare namespace ViteService {
     readonly name?: string;
     /** Vite project directory, resolved relative to `StartArgs.cwd`. Defaults to `.`. */
     readonly dir?: t.StringDir;
-    /** Preferred dev-server port. Vite may fall forward if occupied. */
+    /** Preferred dev-server port for this service binding. */
     readonly port?: number;
   };
 

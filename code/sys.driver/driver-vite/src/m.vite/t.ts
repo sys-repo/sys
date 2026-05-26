@@ -57,6 +57,8 @@ export type ViteDevArgs = {
   /** Explicit path authority, bypassing config file discovery when known. */
   paths?: t.ViteConfigPaths;
   port?: number;
+  /** Fail startup if the requested port is unavailable. */
+  strictPort?: boolean;
   pkg?: t.Pkg; // Consumer module.
   silent?: boolean;
   until?: t.UntilInput;

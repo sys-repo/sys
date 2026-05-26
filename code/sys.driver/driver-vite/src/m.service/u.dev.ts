@@ -13,6 +13,7 @@ export async function startDev(
   const server = await (deps.dev ?? Vite.dev)({
     cwd: location.dir,
     port: location.port,
+    ...(location.port === undefined ? {} : { strictPort: true }),
     silent: args.silent ?? true,
     until: args.until,
   });
