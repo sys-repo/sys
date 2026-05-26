@@ -1,5 +1,7 @@
 import { c, Cli, Str, type t, Time } from './common.ts';
 
+const SUMMARY_REPEAT_MIN_PACKAGES = 11;
+
 export const Fmt: t.WorkspaceRun.Fmt.Lib = {
   result(result) {
     const rows = Cli.table([]);
@@ -25,18 +27,15 @@ export const Fmt: t.WorkspaceRun.Fmt.Lib = {
     ]);
     rows.push([c.gray('failed'), counts.failed > 0 ? c.red(String(counts.failed)) : c.gray('0')]);
 
+    const summary = wrangle.indentedTable(rows);
     const str = Str.builder();
     str.line(title);
     str.line(Cli.Fmt.hr(color));
-    str.line(
-      String(rows)
-        .split('\n')
-        .map((line) => (line.trim() ? ` ${line}` : line))
-        .join('\n'),
-    );
+    str.blank().line(summary);
 
     const packages = Fmt.packages(result);
     if (packages) str.blank().line(packages);
+    if (result.packages.length >= SUMMARY_REPEAT_MIN_PACKAGES) str.blank().line(summary).blank();
     str.line(Cli.Fmt.hr(color));
 
     return Str.trimEdgeNewlines(String(str));
@@ -80,5 +79,15 @@ const wrangle = {
     if (task === 'test') return 'tests';
     if (task === 'dry') return 'dry runs';
     return 'checks';
+  },
+
+  indentedTable(table: ReturnType<typeof Cli.table>) {
+    const lines = String(table).split('\n');
+    while (lines[0]?.trim() === '') lines.shift();
+    while (lines.at(-1)?.trim() === '') lines.pop();
+
+    return lines
+      .map((line) => (line.trim() ? ` ${line}` : line))
+      .join('\n');
   },
 } as const;

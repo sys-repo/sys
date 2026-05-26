@@ -126,6 +126,43 @@ describe('WorkspaceRun', () => {
     expect(formatted.endsWith(Cli.Fmt.hr('green'))).to.eql(true);
   });
 
+  it('repeats the status summary after long package tables', () => {
+    const packages = Array.from({ length: 11 }, (_, count) => ({
+      kind: 'ran' as const,
+      path: `code/pkg-${count}`,
+      code: 0,
+      success: true,
+      signal: null,
+      elapsed: 1,
+    }));
+    const formatted = WorkspaceRun.Fmt.result({
+      ok: true,
+      task: 'test',
+      cwd: '/tmp/workspace',
+      elapsed: 1,
+      orderedPaths: packages.map((item) => item.path),
+      packages,
+    });
+    const text = normalizeSummary(formatted);
+    const lines = Cli.stripAnsi(formatted).split('\n').map((line) => line.trimEnd());
+    const statusRows = lines
+      .map((line, count) => line.trim().startsWith('status') ? count : undefined)
+      .filter((count): count is number => count !== undefined);
+    const headerStatus = statusRows[0]!;
+    const footerStatus = statusRows[1]!;
+    const footerFailed = footerStatus + 4;
+
+    expect(text.match(/status success/g)?.length).to.eql(2);
+    expect(text.match(/task test/g)?.length).to.eql(2);
+    expect(text.match(/ran 11/g)?.length).to.eql(2);
+    expect(lines[headerStatus - 1]).to.eql('');
+    expect(lines[headerStatus - 2]?.trim().startsWith('━')).to.eql(true);
+    expect(lines[footerStatus - 1]).to.eql('');
+    expect(lines[footerStatus - 2]?.trim()).to.not.eql('');
+    expect(lines[footerFailed + 1]).to.eql('');
+    expect(lines[footerFailed + 2]?.trim().startsWith('━')).to.eql(true);
+  });
+
   it('stops on the first failing package check', async () => {
     const fs = await Testing.dir('WorkspaceRun.check');
     await writeWorkspace(fs.dir, { failCheck: true });
