@@ -8,7 +8,7 @@ import type { t } from './common.ts';
  * - Never removes more than once
  * - Safe for undefined / empty input
  */
-export const stripPrefixOnce: t.StrLib['stripPrefixOnce'] = (str = '', prefix) => {
+export const stripPrefixOnce: t.Str.Lib['stripPrefixOnce'] = (str = '', prefix) => {
   if (!prefix) return str;
   return str.startsWith(prefix) ? str.slice(prefix.length) : str;
 };
@@ -21,7 +21,7 @@ export const stripPrefixOnce: t.StrLib['stripPrefixOnce'] = (str = '', prefix) =
  * - Preserves leading structure
  * - Safe for undefined / empty input
  */
-export const stripTrailingPathSegment: t.StrLib['stripTrailingPathSegment'] = (str = '') => {
+export const stripTrailingPathSegment: t.Str.Lib['stripTrailingPathSegment'] = (str = '') => {
   const i = str.lastIndexOf('/');
   return i === -1 ? '' : str.slice(0, i);
 };

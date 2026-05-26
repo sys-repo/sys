@@ -6,7 +6,7 @@ import { type t } from './common.ts';
  * - Blank/whitespace-only lines are left untouched.
  * - Default indent character is a single space.
  */
-export const indent: t.StrLib['indent'] = (str, chars, opts = {}) => {
+export const indent: t.Str.Lib['indent'] = (str, chars, opts = {}) => {
   if (!str || chars <= 0) return str;
 
   const ch = opts.char ?? ' ';

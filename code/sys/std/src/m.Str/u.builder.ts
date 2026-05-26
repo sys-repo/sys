@@ -1,6 +1,6 @@
 import { type t, SPACE } from './common.ts';
 
-export const builder: t.StrLib['builder'] = (options = {}) => {
+export const builder: t.Str.Lib['builder'] = (options = {}) => {
   const {
     eol = '\n',
     defaultEmpty = SPACE,

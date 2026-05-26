@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 
-export const replaceAll: t.StrLib['replaceAll'] = (before, pattern, replacement) => {
+export const replaceAll: t.Str.Lib['replaceAll'] = (before, pattern, replacement) => {
   const regex = normalizeRegex(pattern);
   const after = before.replace(regex, replacement);
   const changed = before !== after;

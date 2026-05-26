@@ -28,7 +28,7 @@ import { truncate } from './u.truncate.ts';
 
 export { bytes, capitalize, diff, plural };
 
-export const Str: t.StrLib = {
+export const Str: t.Str.Lib = {
   SPACE,
   Compare,
   Lorem,

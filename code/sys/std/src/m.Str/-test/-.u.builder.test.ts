@@ -6,8 +6,8 @@ describe('Str.builder', () => {
    * Type surface
    */
   describe('types', () => {
-    it('type: Str.builder matches t.StrLib["builder"]', () => {
-      expectTypeOf(Str.builder).toEqualTypeOf<t.StrLib['builder']>();
+    it('type: Str.builder matches t.Str.Lib["builder"]', () => {
+      expectTypeOf(Str.builder).toEqualTypeOf<t.Str.Lib['builder']>();
     });
 
     it('type: instance exposes the minimal chainable API', () => {

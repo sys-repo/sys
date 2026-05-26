@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 
-type F = t.StrLib['ellipsize'];
+type F = t.Str.Lib['ellipsize'];
 
 export const ellipsize: F = (text = '', max, opts = {}) => {
   const { ellipsis = '…' } = wrangle.opts(opts);

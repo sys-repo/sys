@@ -8,7 +8,7 @@ import { type t } from './common.ts';
  * - Pops a single trailing empty line *after* de-indentation (from closing backtick indentation).
  *   (Preserves whitespace-only lines elsewhere.)
  */
-export const dedent: t.StrLib['dedent'] = (str) => {
+export const dedent: t.Str.Lib['dedent'] = (str) => {
   const normalized = str.replace(/\r\n?/g, '\n');
   const lines = normalized.replace(/^\n/, '').split('\n');
 

@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * Remove leading/trailing newlines only — preserves internal and first-char whitespace.
  */
-export const trimEdgeNewlines: t.StrLib['trimEdgeNewlines'] = (str = '') => {
+export const trimEdgeNewlines: t.Str.Lib['trimEdgeNewlines'] = (str = '') => {
   return (
     str
       // Normalize all CRLF → LF:
@@ -16,21 +16,21 @@ export const trimEdgeNewlines: t.StrLib['trimEdgeNewlines'] = (str = '') => {
 /**
  * Remove all leading and trailing forward slashes (`/`) from a string.
  */
-export const trimSlashes: t.StrLib['trimSlashes'] = (str = '') => {
+export const trimSlashes: t.Str.Lib['trimSlashes'] = (str = '') => {
   return trimTrailingSlashes(trimLeadingSlashes(str));
 };
 
 /**
  * Remove all leading forward slashes (`/`) from a string.
  */
-export const trimLeadingSlashes: t.StrLib['trimLeadingSlashes'] = (str = '') => {
+export const trimLeadingSlashes: t.Str.Lib['trimLeadingSlashes'] = (str = '') => {
   return str.replace(/^\/+/, '');
 };
 
 /**
  * Remove all trailing forward slashes (`/`) from a string.
  */
-export const trimTrailingSlashes: t.StrLib['trimTrailingSlashes'] = (str = '') => {
+export const trimTrailingSlashes: t.Str.Lib['trimTrailingSlashes'] = (str = '') => {
   return str.replace(/\/+$/, '');
 };
 
@@ -45,7 +45,7 @@ export const trimTrailingSlashes: t.StrLib['trimTrailingSlashes'] = (str = '') =
  * Str.trimHttpScheme("https://example.com") // → "example.com"
  * Str.trimHttpScheme("http://example.com")  // → "example.com"
  */
-export const trimHttpScheme: t.StrLib['trimHttpScheme'] = (str = '') => {
+export const trimHttpScheme: t.Str.Lib['trimHttpScheme'] = (str = '') => {
   return str.replace(/^https?:\/\//, '');
 };
 
@@ -62,6 +62,6 @@ export const trimHttpScheme: t.StrLib['trimHttpScheme'] = (str = '') => {
  * Str.trimLeadingDotSlash("././foo")   // → "foo"
  * Str.trimLeadingDotSlash("foo/bar")   // → "foo/bar"
  */
-export const trimLeadingDotSlash: t.StrLib['trimLeadingDotSlash'] = (str = '') => {
+export const trimLeadingDotSlash: t.Str.Lib['trimLeadingDotSlash'] = (str = '') => {
   return str.replace(/^(?:\.\/)+/, '');
 };

@@ -7,7 +7,7 @@ import type { t } from './common.ts';
  * - Removes empty segments
  * - Purely lexical (no path semantics)
  */
-export const splitPathSegments: t.StrLib['splitPathSegments'] = (str = '') => {
+export const splitPathSegments: t.Str.Lib['splitPathSegments'] = (str = '') => {
   if (!str) return [];
   return str.split(/[\\/]+/).filter(Boolean);
 };

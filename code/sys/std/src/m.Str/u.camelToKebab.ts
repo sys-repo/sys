@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * Converts a "camelCase" string to "kebab-case".
  */
-export const camelToKebab: t.StrLib['camelToKebab'] = (text) => {
+export const camelToKebab: t.Str.Lib['camelToKebab'] = (text) => {
   if (typeof text !== 'string') return '';
   return text.replace(
     /[A-Z]/g,

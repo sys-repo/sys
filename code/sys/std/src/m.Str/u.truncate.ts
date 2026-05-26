@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 
-export const truncate: t.StrLib['truncate'] = (text = '', max, opts = {}) => {
+export const truncate: t.Str.Lib['truncate'] = (text = '', max, opts = {}) => {
   const { ellipsis = '…' } = opts;
   if (!text) return '';
   if (max <= 0) return '';
