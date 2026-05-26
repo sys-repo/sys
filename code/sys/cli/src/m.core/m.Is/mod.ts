@@ -1,6 +1,5 @@
 import type { t } from '../common.ts';
-import { interactive } from './u.interactive.ts';
-import { terminal } from './u.terminal.ts';
+import { interactive, terminal } from './u.terminal.ts';
 
 /** Predicate helpers for CLI runtime capabilities. */
 export const Is: t.CliIsLib = {

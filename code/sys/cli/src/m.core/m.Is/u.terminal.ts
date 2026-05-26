@@ -7,3 +7,7 @@ export const terminal: t.CliIsLib['terminal'] = (stream) => {
     return false;
   }
 };
+
+export const interactive: t.CliIsLib['interactive'] = () => {
+  return terminal('stdin') && terminal('stdout');
+};

@@ -45,7 +45,6 @@ Use a directory module, not a single `m.Is.ts` file:
 code/sys/cli/src/m.core/m.Is/
   mod.ts
   t.ts
-  u.interactive.ts
   u.terminal.ts
 ```
 
@@ -58,10 +57,12 @@ and type contract cleanly factored without adding noise to `m.Cli/mod.ts`.
 Type surface:
 
 ```ts
-export type CliTerminalStream = 'stdin' | 'stdout' | 'stderr';
+// @sys/types/src/t/t.Io.ts
+export type StdioName = 'stdin' | 'stdout' | 'stderr';
 
+// @sys/cli
 export type CliIsLib = {
-  readonly terminal: (stream: CliTerminalStream) => boolean;
+  readonly terminal: (stream: t.StdioName) => boolean;
   readonly interactive: () => boolean;
 };
 ```
@@ -115,10 +116,11 @@ feat(cli): add terminal capability predicates
 
 Changes:
 
+- Add `StdioName` to `code/sys/types/src/t/t.Io.ts`.
 - Add `code/sys/cli/src/m.core/m.Is/` with:
-  - `t.ts` for `CliTerminalStream` and `CliIsLib`.
-  - `u.terminal.ts` as the only direct `Deno.*.isTerminal()` implementation.
-  - `u.interactive.ts` for the stdin+stdout interactive predicate.
+  - `t.ts` for `CliIsLib` using `t.StdioName`.
+  - `u.terminal.ts` as the only direct `Deno.*.isTerminal()` implementation and home of the
+    stdin+stdout interactive predicate.
   - `mod.ts` exporting `Is`.
 - Add `Cli.Is` to:
   - `code/sys/cli/src/m.core/m.Cli/mod.ts`

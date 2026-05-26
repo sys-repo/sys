@@ -226,7 +226,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       },
     });
     Object.defineProperty(Cli.Is, 'terminal', {
-      value: (stream: 'stdin' | 'stdout' | 'stderr') => stream === 'stdout',
+      value: (stream: t.StdioName) => stream === 'stdout',
       configurable: true,
       writable: true,
     });
