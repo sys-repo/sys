@@ -1,4 +1,4 @@
-import { type t, D, Is, Signal } from './common.ts';
+import { D, Is, Signal, type t } from './common.ts';
 import { cleanHexColor } from './u.ts';
 
 /**
@@ -8,7 +8,7 @@ import { cleanHexColor } from './u.ts';
  * - Enabled: `enabled?: t.ReadableSignal<boolean>` (defaults to true). Parent AND child are combined.
  * - Browser styling: when `Is.browser()` is true, the prefix uses `%c` with a subtle CSS accent.
  */
-export const makeLogger: t.LogLib['logger'] = (category, opts = {}) => {
+export const makeLogger: t.Log.Lib['logger'] = (category, opts = {}) => {
   const parentOpts = opts ?? {};
 
   function create(cat: string, childOpts: t.LogOptions = {}): t.Logger {

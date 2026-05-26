@@ -8,7 +8,7 @@ import { tick, waitFor } from './u.turn.ts';
  * Minimal, consistent API for deferring work (microtask, macrotask, or frame),
  * with lifecycle-aware and static forms.
  */
-export const Schedule: t.SchedulerLib = {
+export const Schedule: t.Schedule.Lib = {
   make: (life, mode = 'micro') => makeScheduleFn(mode, life),
   queue,
   sleep,

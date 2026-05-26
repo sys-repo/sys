@@ -9,7 +9,7 @@ import { Schedule } from './m.Schedule.ts';
  * - If `andThen` is provided, performs a hop on that scheduler queue after the timer.
  * - If `andThen` is omitted/undefined (or explicitly false/null), no extra hop is performed.
  */
-export const sleep: t.SchedulerLib['sleep'] = async (
+export const sleep: t.Schedule.Lib['sleep'] = async (
   ms: t.Msecs,
   andThen?: t.AsyncSchedule | null | false,
 ) => {

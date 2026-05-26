@@ -9,7 +9,7 @@ export async function tick() {
   await micro();
 }
 
-export const waitFor: t.SchedulerLib['waitFor'] = async (pred, timeout = 1500) => {
+export const waitFor: t.Schedule.Lib['waitFor'] = async (pred, timeout = 1500) => {
   const deadline = Date.now() + timeout;
   await tick(); // initial settle
   while (Date.now() < deadline) {

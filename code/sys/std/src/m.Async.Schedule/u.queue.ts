@@ -1,7 +1,7 @@
 import { Rx, type t } from './common.ts';
 import { makeScheduleFn } from './u.scheduleFunction.ts';
 
-type F = t.SchedulerLib['queue'];
+type F = t.Schedule.Lib['queue'];
 
 /**
  * Canonical implementation of `Schedule.once`, built on the same scheduling

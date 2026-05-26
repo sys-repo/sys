@@ -1,4 +1,4 @@
-import { type t, describe, expect, expectTypeOf, it } from '../../-test.ts';
+import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
 import { D, Is } from '../common.ts';
 import { Log } from '../mod.ts';
 import { stubConsole } from './-u.stub.ts';
@@ -6,7 +6,7 @@ import { stubConsole } from './-u.stub.ts';
 describe('Log.logger (make)', () => {
   it('types', () => {
     // Function shape via exported types (no ad-hoc clones):
-    expectTypeOf(Log.logger).toMatchTypeOf<t.LogLib['logger']>();
+    expectTypeOf(Log.logger).toMatchTypeOf<t.Log.Lib['logger']>();
 
     // Return type + members are correctly typed:
     const log = Log.logger('Foobar');
