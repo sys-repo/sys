@@ -116,6 +116,9 @@ export declare namespace Obj {
      */
     keys<T extends object>(obj?: T): Array<keyof T>;
 
+    /** Determine whether an object owns the given property key. */
+    hasOwn<K extends PropertyKey>(input: unknown, key: K): input is Record<K, unknown>;
+
     /**
      * Typed variant of native `Object.entries` that preserves key/value relationships.
      *

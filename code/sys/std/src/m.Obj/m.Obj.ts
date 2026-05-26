@@ -7,11 +7,12 @@ import { isEmptyRecord, isObject, isRecord, R } from './common.ts';
 import { asGetter } from './u.asGetter.ts';
 import { clone } from './u.clone.ts';
 import { extend } from './u.extend.ts';
+import { entries } from './u.entries.ts';
 import { hash } from './u.hash.ts';
+import { hasOwn } from './u.hasOwn.ts';
 import { truncateStrings } from './u.truncate.ts';
 import { keys, pick, sortKeys, toArray } from './u.ts';
 import { walk } from './u.walk.ts';
-import { entries } from './u.entries.ts';
 
 export const Obj: t.Obj.Lib = {
   Path,
@@ -22,6 +23,7 @@ export const Obj: t.Obj.Lib = {
   truncateStrings,
   pick,
   keys,
+  hasOwn,
   entries,
   sortKeys,
   clone,
