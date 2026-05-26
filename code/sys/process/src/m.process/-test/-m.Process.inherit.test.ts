@@ -1,18 +1,17 @@
 import { describe, expect, it } from '../../-test.ts';
 import { Process } from '../mod.ts';
+import { ProcessTest } from './u.fixture.ts';
 
 describe('Process.inherit', () => {
-  const evalArgs = (code: string) => ['eval', code];
-
   it('returns success for a command that exits 0', async () => {
-    const res = await Process.inherit({ args: evalArgs('Deno.exit(0)') });
+    const res = await Process.inherit({ args: ProcessTest.evalArgs('Deno.exit(0)') });
     expect(res.code).to.eql(0);
     expect(res.success).to.eql(true);
     expect(res.signal).to.eql(null);
   });
 
   it('returns failure for a command that exits non-zero', async () => {
-    const res = await Process.inherit({ args: evalArgs('Deno.exit(7)') });
+    const res = await Process.inherit({ args: ProcessTest.evalArgs('Deno.exit(7)') });
     expect(res.code).to.eql(7);
     expect(res.success).to.eql(false);
     expect(res.signal).to.eql(null);
@@ -27,7 +26,7 @@ describe('Process.inherit', () => {
         Deno.exit(Deno.cwd().endsWith(expected) ? 0 : 1);
       `;
       const res = await Process.inherit({
-        args: evalArgs(script),
+        args: ProcessTest.evalArgs(script),
         cwd,
         env: { EXPECTED_CWD_SUFFIX: suffix },
         silent: true, // NB: no-op for Process.inherit.
@@ -46,7 +45,7 @@ describe('Process.inherit', () => {
       Deno.exit(value === 'ok' ? 0 : 1);
     `;
     const res = await Process.inherit({
-      args: evalArgs(script),
+      args: ProcessTest.evalArgs(script),
       env: { [key]: 'ok' },
     });
     expect(res.success).to.eql(true);
@@ -63,12 +62,12 @@ describe('Process.inherit', () => {
       Deno.exit(value === '0' ? 0 : 1);
     `;
 
-    const a = await Process.inherit({ args: evalArgs(defaultScript) });
+    const a = await Process.inherit({ args: ProcessTest.evalArgs(defaultScript) });
     expect(a.success).to.eql(true);
     expect(a.code).to.eql(0);
 
     const b = await Process.inherit({
-      args: evalArgs(overrideScript),
+      args: ProcessTest.evalArgs(overrideScript),
       env: { FORCE_COLOR: '0' },
       silent: false, // NB: no-op for Process.inherit.
     });

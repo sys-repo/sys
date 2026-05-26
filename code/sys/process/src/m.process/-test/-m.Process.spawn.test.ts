@@ -1,10 +1,11 @@
 import { describe, expect, it, Rx, slug, type t, Testing, Time } from '../../-test.ts';
 import { Process } from '../mod.ts';
+import { ProcessTest } from './u.fixture.ts';
 
 describe('Process.spawn (async long-lived)', () => {
   describe('lifecycle', () => {
     it('spawn → dispose', async () => {
-      const args = ['eval', 'console.log("👋")'];
+      const args = ProcessTest.evalArgs('console.log("👋")');
       const handle = Process.spawn({ args, silent: true });
 
       const fired: t.DisposeAsyncEvent[] = [];
@@ -20,7 +21,7 @@ describe('Process.spawn (async long-lived)', () => {
 
     it('spawn → until', async () => {
       const { dispose$, dispose } = Rx.lifecycle();
-      const args = ['eval', 'console.log("👋")'];
+      const args = ProcessTest.evalArgs('console.log("👋")');
       const handle = Process.spawn({ args, silent: true, until: dispose$ });
 
       const fired: t.DisposeAsyncEvent[] = [];
@@ -41,7 +42,7 @@ describe('Process.spawn (async long-lived)', () => {
           setInterval(() => console.log(Deno.env.get('FOO')), 30);
           console.info('${readySignal}');
         `;
-      const args = ['eval', cmd];
+      const args = ProcessTest.evalArgs(cmd);
       const handle = Process.spawn({ args, env, readySignal, silent: true });
 
       const firedWhenReady: t.Process.ReadyHandlerArgs[] = [];
@@ -78,19 +79,19 @@ describe('Process.spawn (async long-lived)', () => {
   });
 
   it('spawn → wait rejects when child exits before ready', async () => {
-    const args = ['eval', 'Deno.exit(7)'];
+    const args = ProcessTest.evalArgs('Deno.exit(7)');
     const handle = Process.spawn({ args, readySignal: 'NEVER_READY', silent: true });
 
-    const error = await catchErrorWithin(() => handle.whenReady());
+    const error = await ProcessTest.catchErrorWithin(() => handle.whenReady());
 
     expect(error?.message).to.contain('Process.spawn: child exited before ready:');
     expect(error?.message).to.contain('code=7');
   });
 
   it('spawn → wait rejects when disposed before ready', async () => {
-    const args = ['eval', 'setInterval(() => {}, 1_000)'];
+    const args = ProcessTest.evalArgs('setInterval(() => {}, 1_000)');
     const handle = Process.spawn({ args, readySignal: 'NEVER_READY', silent: true });
-    const errorPromise = catchErrorWithin(() => handle.whenReady());
+    const errorPromise = ProcessTest.catchErrorWithin(() => handle.whenReady());
 
     await handle.dispose('test:dispose-before-ready');
     const error = await errorPromise;
@@ -112,7 +113,7 @@ describe('Process.spawn (async long-lived)', () => {
           console.info(\`foo:\${count}\`);
         }, 100);
     `;
-    const args = ['eval', cmd];
+    const args = ProcessTest.evalArgs(cmd);
     const handle = Process.spawn({ args, readySignal, silent: true });
 
     expect(fired).to.eql(0);
@@ -132,7 +133,7 @@ describe('Process.spawn (async long-lived)', () => {
         Deno.serve({ port: ${port} }, () => new Response('${text}'));
         console.info('${Process.Signal.ready}');
       `;
-    const args = ['eval', cmd];
+    const args = ProcessTest.evalArgs(cmd);
     const child = await Process.spawn({ args, readySignal, silent: true }).whenReady();
 
     /**
@@ -148,29 +149,3 @@ describe('Process.spawn (async long-lived)', () => {
     await child.dispose();
   });
 });
-
-async function catchErrorWithin(
-  fn: () => Promise<unknown>,
-  timeout: t.Msecs = 1_000,
-): Promise<Error | undefined> {
-  let timer: t.Time.Delay.Promise | undefined;
-  try {
-    return await Promise.race([
-      catchError(fn),
-      new Promise<Error>((resolve) => {
-        timer = Time.delay(timeout, () => resolve(new Error('Timed out waiting for rejection')));
-      }),
-    ]);
-  } finally {
-    timer?.cancel();
-  }
-}
-
-async function catchError(fn: () => Promise<unknown>): Promise<Error | undefined> {
-  try {
-    await fn();
-    return undefined;
-  } catch (error) {
-    return error instanceof Error ? error : new Error(String(error));
-  }
-}

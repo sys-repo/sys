@@ -1,5 +1,6 @@
 import { c, describe, expect, it } from '../../-test.ts';
 import { Process } from '../mod.ts';
+import { ProcessTest } from './u.fixture.ts';
 
 describe('Process', () => {
   describe('Process.sh', () => {
@@ -41,7 +42,7 @@ describe('Process', () => {
 
   describe('Process.invoke (sync)', () => {
     it('invoke → stdout', async () => {
-      const args = ['eval', `console.log("👋 hello ${c.green('world')}")`];
+      const args = ProcessTest.evalArgs(`console.log("👋 hello ${c.green('world')}")`);
       const res = await Process.invoke({ args, silent: false });
 
       expect(res.code).to.eql(0);
@@ -53,7 +54,7 @@ describe('Process', () => {
     });
 
     it('invoke → stderr', async () => {
-      const args = ['eval', 'throw new Error("my-error")'];
+      const args = ProcessTest.evalArgs('throw new Error("my-error")');
       const res = await Process.invoke({ args, silent: true });
 
       expect(res.code).to.eql(1);
