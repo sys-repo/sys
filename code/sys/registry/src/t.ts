@@ -9,8 +9,8 @@ export declare namespace Registry {
     export type ClientLib = J.JsrClientLib;
     export type ServerLib = J.JsrServerLib;
     export type ImportLib = J.JsrImportLib;
-    export type UrlLib = J.JsrUrlLib;
-    export type UrlPkgLib = J.JsrUrlPkgLib;
+    export type UrlLib = J.JsrUrl.Lib;
+    export type UrlPkgLib = J.JsrUrl.Pkg.Lib;
     export type ManifestLib = J.JsrManifestLib;
     export type Manifest = J.JsrManifest;
     export type ManifestFetchResponse = J.JsrManifestFetchResponse;

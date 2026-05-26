@@ -3,9 +3,9 @@ import type { t } from './common.ts';
 type UrlInput = t.UrlLike | t.StringUrl;
 
 /**
- * Immutable URL helpers layered on top of the standard UrlLib.
+ * Immutable URL helpers layered on top of the standard URL helpers.
  */
-export type ImmutableUrlLib = t.StdUrlLib & {
+export type ImmutableUrlLib = t.Url.Lib & {
   /**
    * Construct an ImmutableRef<URL> from a URL-like input.
    *

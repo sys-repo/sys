@@ -9,7 +9,7 @@ export namespace JsrFetch {
     /** Package-scoped fetch helpers. */
     readonly Pkg: PkgLib;
     /** JSR registry URL helpers. */
-    readonly Url: t.JsrUrlLib;
+    readonly Url: t.JsrUrl.Lib;
   };
 
   /**

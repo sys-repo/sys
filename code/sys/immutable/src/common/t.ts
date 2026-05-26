@@ -1,7 +1,7 @@
 /**
  * @system
  */
-export type { Is, UrlLib as StdUrlLib } from '@sys/std/t';
+export type { Is, Url } from '@sys/std/t';
 export type * from '@sys/types';
 
 /**

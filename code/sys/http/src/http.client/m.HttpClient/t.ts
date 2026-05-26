@@ -17,9 +17,9 @@ export type HttpClientLib = {
   /**
    * URL helpers for working with the HTTP lib.
    */
-  readonly Url: t.UrlLib;
+  readonly Url: t.Url.Lib;
   /** Generator function for a new URL. */
-  readonly url: t.UrlLib['parse'];
+  readonly url: t.Url.Lib['parse'];
 
   /**
    * Preloader for warming HTTP cache/network only.
