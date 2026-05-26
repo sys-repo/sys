@@ -1,13 +1,13 @@
-import type { PkgLib } from '@sys/std/t';
+import type { Pkg } from '@sys/std/t';
 import type { t } from './common.ts';
 
 /**
- * PkgLib (server extenions)
+ * Pkg.Lib (server extenions)
  *
  * Tools for working with the standard system
  * `{pkg}` package meta-data structure.
  */
-export type PkgFsLib = PkgLib & {
+export type PkgFsLib = Pkg.Lib & {
   /** Tools for working with distribution packages. */
   readonly Dist: t.PkgDistFsLib;
 };
@@ -16,7 +16,7 @@ export type PkgFsLib = PkgLib & {
  * Tools for working with "distribution-package"
  * ie. an ESM output typically written to a `/dist` folder.
  */
-export type PkgDistFsLib = t.PkgDistLib & {
+export type PkgDistFsLib = t.Pkg.Dist.Lib & {
   /**
    * Load a `dist.json` file into a \<DistPackage\> type.
    */

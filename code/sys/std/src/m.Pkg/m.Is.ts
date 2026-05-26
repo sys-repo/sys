@@ -1,6 +1,6 @@
-import { type t, D, Is } from './common.ts';
+import { D, Is, type t } from './common.ts';
 
-export const PkgIs: t.PkgIsLib = {
+export const PkgIs: t.Pkg.Is.Lib = {
   unknown(input) {
     if (Is.object(input)) {
       const { name, version } = input;

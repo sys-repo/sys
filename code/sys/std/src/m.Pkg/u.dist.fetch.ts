@@ -1,7 +1,7 @@
-import { type t, Err, Path, Rx, Url } from './common.ts';
+import { Err, Path, Rx, type t, Url } from './common.ts';
 import { PkgIs } from './m.Is.ts';
 
-export const fetchDist: t.PkgDistLib['fetch'] = async (opts = {}) => {
+export const fetchDist: t.Pkg.Dist.Lib['fetch'] = async (opts = {}) => {
   const options = wrangle.options(opts);
   const { origin = location.origin, pathname = 'dist.json' } = options;
   const errors = Err.errors();
@@ -54,7 +54,7 @@ export const fetchDist: t.PkgDistLib['fetch'] = async (opts = {}) => {
  * Helpers:
  */
 const wrangle = {
-  options(input: Parameters<t.PkgDistLib['fetch']>[0]): t.PkgDistFetchOptions {
+  options(input: Parameters<t.Pkg.Dist.Lib['fetch']>[0]): t.PkgDistFetchOptions {
     if (!input) return {};
     if (typeof input === 'string') {
       const url = Url.parse(input);

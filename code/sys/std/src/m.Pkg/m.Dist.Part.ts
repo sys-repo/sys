@@ -25,7 +25,7 @@ function parseString(input: string): t.PkgDistPartInfo | undefined {
   return { hash, size };
 }
 
-export const Part: t.PkgDistPartLib = {
+export const Part: t.Pkg.Dist.Part.Lib = {
   parse(value: unknown): t.PkgDistPartInfo | undefined {
     if (typeof value !== 'string') return undefined;
     return parseString(value);

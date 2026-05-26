@@ -1,7 +1,7 @@
-import { type t, describe, expect, it } from '../-test.ts';
+import { describe, expect, it, type t } from '../-test.ts';
 import { Ignore } from './mod.ts';
 
-type P = Parameters<t.IgnoreLib['create']>[0];
+type P = Parameters<t.Ignore.Lib['create']>[0];
 
 describe('Ignore', () => {
   const gitignore = `

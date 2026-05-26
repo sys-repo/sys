@@ -1,6 +1,6 @@
-import { type t, D, isRecord } from './common.ts';
+import { D, isRecord, type t } from './common.ts';
 
-export const toString: t.PkgLib['toString'] = (pkg, suffix, input) => {
+export const toString: t.Pkg.Lib['toString'] = (pkg, suffix, input) => {
   const options = wrangle.options(input);
   if (!pkg || !isRecord(pkg)) return toString(D.unknown());
 
@@ -20,7 +20,7 @@ export const toString: t.PkgLib['toString'] = (pkg, suffix, input) => {
  * Helpers:
  */
 const wrangle = {
-  options(input: Parameters<t.PkgLib['toString']>[2]): t.PkgToStringOptions {
+  options(input: Parameters<t.Pkg.Lib['toString']>[2]): t.PkgToStringOptions {
     if (input == null) return {};
     if (typeof input === 'boolean') return { version: input };
     return input;

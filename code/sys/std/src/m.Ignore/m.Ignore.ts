@@ -1,10 +1,10 @@
 import { default as BaseLib } from 'ignore';
-import { type t, Path } from './common.ts';
+import { Path, type t } from './common.ts';
 
 /**
  * Tools for working with ignore files (eg. ".gitignore").
  */
-export const Ignore: t.IgnoreLib = {
+export const Ignore: t.Ignore.Lib = {
   normalize(input) {
     return wrangle.normalize(input);
   },

@@ -4,7 +4,7 @@ import { Pkg as Base } from '@sys/std/pkg';
 import { Dist } from './m.Pkg.Dist.ts';
 
 /**
- * PkgLib (server extenions).
+ * Pkg.Lib (server extenions).
  *
  * Tools for working with the standard system
  * `{pkg}` package meta-data structure.

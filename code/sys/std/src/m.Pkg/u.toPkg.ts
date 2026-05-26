@@ -1,6 +1,6 @@
-import { type t, D, isRecord } from './common.ts';
+import { D, isRecord, type t } from './common.ts';
 
-export const toPkg: t.PkgLib['toPkg'] = (input) => {
+export const toPkg: t.Pkg.Lib['toPkg'] = (input) => {
   /**
    * String form ­- "<name>@<version>".
    * Handles scoped names (e.g. "@scope/pkg@1.2.3").
