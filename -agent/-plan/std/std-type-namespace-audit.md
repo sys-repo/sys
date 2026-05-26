@@ -1,5 +1,22 @@
 # std type namespace audit
 
+## Status — retired
+
+This plan is fully complete and retired as of 2026-05-26.
+
+STIER closure:
+
+- all planned namespace refactor slices completed and committed;
+- follow-on public tail cleanup completed and committed;
+- `@sys/std` package check and dry-run passed after tail cleanup;
+- root `/sys` workspace check passed after downstream callsite repair;
+- old planned flat std type names have no active `code/sys/std/src` hits;
+- no compatibility aliases or deprecated flat std contract aliases were kept;
+- `RLib` remains intentionally unchanged as an internal-ish Ramda adapter surface.
+
+Do not reopen this plan for unrelated `*Lib` names in non-std packages or package-local
+extensions. Start a new scoped plan if a separate package wants its own namespace cleanup.
+
 ## Intent
 
 Audit `@sys/std` type spines for flat exported contracts that should be
