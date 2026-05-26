@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 
-export const Ratio: t.RatioLib = {
+export const Ratio: t.Num.Ratio.Lib = {
   parse(value) {
     if (value == null) return undefined;
     if (typeof value === 'number') return isFinite(value) && value > 0 ? value : undefined;
