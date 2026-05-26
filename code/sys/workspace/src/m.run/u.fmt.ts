@@ -31,11 +31,19 @@ export const Fmt: t.WorkspaceRun.Fmt.Lib = {
     const str = Str.builder();
     str.line(title);
     str.line(Cli.Fmt.hr(color));
-    str.blank().line(summary);
+    str.line('');
+    str.line(summary);
 
     const packages = Fmt.packages(result);
-    if (packages) str.blank().line(packages);
-    if (result.packages.length >= SUMMARY_REPEAT_MIN_PACKAGES) str.blank().line(summary).blank();
+    if (packages) {
+      str.line('');
+      str.line(packages);
+    }
+    if (result.packages.length >= SUMMARY_REPEAT_MIN_PACKAGES) {
+      str.line('');
+      str.line(summary);
+      str.line('');
+    }
     str.line(Cli.Fmt.hr(color));
 
     return Str.trimEdgeNewlines(String(str));

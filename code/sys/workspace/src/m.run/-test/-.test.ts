@@ -143,24 +143,26 @@ describe('WorkspaceRun', () => {
       orderedPaths: packages.map((item) => item.path),
       packages,
     });
-    const text = normalizeSummary(formatted);
-    const lines = Cli.stripAnsi(formatted).split('\n').map((line) => line.trimEnd());
-    const statusRows = lines
-      .map((line, count) => line.trim().startsWith('status') ? count : undefined)
-      .filter((count): count is number => count !== undefined);
-    const headerStatus = statusRows[0]!;
-    const footerStatus = statusRows[1]!;
-    const footerFailed = footerStatus + 4;
+    const rows = Cli.stripAnsi(formatted)
+      .split('\n')
+      .map((line) => line.trim().replace(/\s+/g, ' '));
+    const summary = ['status success', 'task test', 'ran 11', 'skipped 0', 'failed 0'];
+    const headerStatus = rows.indexOf(summary[0]!);
+    const footerStatus = rows.lastIndexOf(summary[0]!);
+    const packageHeader = rows.indexOf('package status elapsed');
 
-    expect(text.match(/status success/g)?.length).to.eql(2);
-    expect(text.match(/task test/g)?.length).to.eql(2);
-    expect(text.match(/ran 11/g)?.length).to.eql(2);
-    expect(lines[headerStatus - 1]).to.eql('');
-    expect(lines[headerStatus - 2]?.trim().startsWith('━')).to.eql(true);
-    expect(lines[footerStatus - 1]).to.eql('');
-    expect(lines[footerStatus - 2]?.trim()).to.not.eql('');
-    expect(lines[footerFailed + 1]).to.eql('');
-    expect(lines[footerFailed + 2]?.trim().startsWith('━')).to.eql(true);
+    expect(headerStatus >= 0).to.eql(true);
+    expect(footerStatus > headerStatus).to.eql(true);
+    expect(packageHeader > headerStatus).to.eql(true);
+    expect(packageHeader < footerStatus).to.eql(true);
+    expect(rows.slice(headerStatus, headerStatus + summary.length)).to.eql(summary);
+    expect(rows.slice(footerStatus, footerStatus + summary.length)).to.eql(summary);
+    expect(rows[headerStatus - 2]?.startsWith('━')).to.eql(true);
+    expect(rows[headerStatus - 1]).to.eql('');
+    expect(rows[footerStatus - 2] !== '').to.eql(true);
+    expect(rows[footerStatus - 1]).to.eql('');
+    expect(rows[footerStatus + summary.length]).to.eql('');
+    expect(rows[footerStatus + summary.length + 1]?.startsWith('━')).to.eql(true);
   });
 
   it('stops on the first failing package check', async () => {
