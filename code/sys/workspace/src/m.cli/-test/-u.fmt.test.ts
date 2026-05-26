@@ -285,6 +285,7 @@ function applied(): t.WorkspaceUpgrade.ApplyResult {
         packageFilePath: '/workspace/package.json',
         dependencies: {},
         devDependencies: {},
+        overrides: {},
       },
     },
   };
@@ -371,6 +372,7 @@ function appliedWithShorthandVersion(): t.WorkspaceUpgrade.ApplyResult {
         packageFilePath: '/workspace/package.json',
         dependencies: {},
         devDependencies: {},
+        overrides: {},
       },
     },
   };

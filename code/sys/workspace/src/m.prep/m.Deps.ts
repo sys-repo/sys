@@ -16,8 +16,9 @@ export const PrepDeps: t.WorkspacePrep.Deps.Lib = {
     }
 
     const entries = manifest.data.entries;
+    const packageJson = manifest.data.packageJson;
     const deno = await DepsBase.applyDeno(denoFilePath, entries);
-    const pkg = await DepsBase.applyPackage(packageFilePath, entries);
+    const pkg = await DepsBase.applyPackage(packageFilePath, entries, { packageJson });
     const result = {
       total: entries.length,
       depsPath,

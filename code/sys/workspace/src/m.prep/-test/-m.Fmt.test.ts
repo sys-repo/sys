@@ -57,6 +57,7 @@ describe('Workspace.Prep.Fmt', () => {
             packageFilePath: '/repo/package.json',
             dependencies: {},
             devDependencies: {},
+            overrides: {},
           },
         },
       }),

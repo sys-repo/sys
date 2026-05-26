@@ -20,12 +20,18 @@ describe('Workspace.Prep.Deps', () => {
           - import: ${reactImport}
           - import: ${viteImport}
             dev: true
+          - overrides:
+              "@automerge/automerge-repo":
+                uuid: '11.1.1'
+              monaco-editor:
+                dompurify: '3.4.0'
         `),
     );
 
     type O = Record<string, string>;
+    type TOverrides = Record<string, string | O>;
     type TImports = { imports?: O };
-    type TPackage = { dependencies?: O; devDependencies?: O };
+    type TPackage = { dependencies?: O; devDependencies?: O; overrides?: TOverrides };
 
     const result = await WorkspacePrep.Deps.sync({ cwd: fs.dir });
     const imports = await Fs.readJson<TImports>(Fs.join(fs.dir, 'imports.json'));
@@ -40,8 +46,14 @@ describe('Workspace.Prep.Deps', () => {
       '@sys/std': denoImport,
       '@sys/std/async': `${denoImport}/async`,
     });
+    const overrides = {
+      '@automerge/automerge-repo': { uuid: '11.1.1' },
+      'monaco-editor': { dompurify: '3.4.0' },
+    };
     expect(pkg.data?.dependencies).to.eql({ react: '19.2.5' });
     expect(pkg.data?.devDependencies).to.eql({ vite: '7.3.2' });
+    expect(pkg.data?.overrides).to.eql(overrides);
+    expect(result.package?.overrides).to.eql(overrides);
   });
 
   it('emits the canonical import-map summary when log is enabled', async () => {
