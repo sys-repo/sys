@@ -12,6 +12,38 @@ describe('Workspace.Cli.Fmt', () => {
     expect(text).to.not.include('Dependency   Current');
   });
 
+  it('shows override policy count when package overrides exist', () => {
+    const plan = Fmt.plan(upgradeWithOverrides());
+    const text = Cli.stripAnsi(plan);
+
+    expect(text).to.include('Overrides');
+    expect(Fmt.overrideCount(upgradeWithOverrides())).to.eql(2);
+  });
+
+  it('omits override policy count when package overrides do not exist', () => {
+    const plan = Fmt.plan(upgrade());
+    const text = Cli.stripAnsi(plan);
+
+    expect(text).to.not.include('Overrides');
+  });
+
+  it('marks direct override-parent candidates in interactive selection rows', () => {
+    const options = Fmt.selectionOptions(upgradeWithOverrides(), {
+      include: [],
+      exclude: [],
+      dryRun: false,
+      deps: 'deps.yaml',
+      mode: 'interactive',
+      policy: 'minor',
+      prerelease: false,
+    });
+    const labels = new Map(options.map((option) => [option.value, Cli.stripAnsi(option.name)]));
+
+    expect(labels.get('monaco-editor')).to.include('override parent');
+    expect(labels.get('@automerge/automerge-repo')).to.include('override parent');
+    expect(labels.get('dompurify')).to.not.include('override parent');
+  });
+
   it('shows an actionable note when the full interactive upgrade set cannot be ordered', () => {
     const plan = Fmt.plan(topologyBlockedUpgrade());
     const text = Cli.stripAnsi(plan);
@@ -199,6 +231,72 @@ function upgrade(): t.WorkspaceUpgrade.Result {
     policy: {
       decisions: [pathDecision, reactDomDecision, reactDecision],
     },
+  };
+}
+
+function upgradeWithOverrides(): t.WorkspaceUpgrade.Result {
+  const monacoDecision = decisionOk(
+    'monaco-editor',
+    '0.55.1',
+    ['0.56.0', '0.55.1'],
+    '0.56.0',
+  );
+  const automergeDecision = decisionBlocked(
+    '@automerge/automerge-repo',
+    '2.5.6',
+    ['2.6.0', '2.5.6'],
+  );
+  const dompurifyDecision = decisionOk(
+    'dompurify',
+    '3.4.0',
+    ['3.5.0', '3.4.0'],
+    '3.5.0',
+  );
+  const decisions = [monacoDecision, automergeDecision, dompurifyDecision];
+  const nodes: t.EsmTopologicalInput['nodes'] = [monacoDecision, dompurifyDecision].map((decision) => ({
+    key: Fmt.key(decision.input.subject.entry),
+    value: decision,
+  }));
+  const base = upgrade();
+
+  return {
+    ...base,
+    totals: {
+      dependencies: 3,
+      allowed: 2,
+      blocked: 1,
+      planned: 2,
+    },
+    collect: {
+      ...base.collect,
+      candidates: [
+        candidate('monaco-editor', '0.55.1', '0.56.0'),
+        candidate('@automerge/automerge-repo', '2.5.6', '2.6.0'),
+        candidate('dompurify', '3.4.0', '3.5.0'),
+      ],
+      totals: {
+        dependencies: 3,
+        collected: 3,
+        skipped: 0,
+        failed: 0,
+      },
+      packageJson: {
+        overrides: {
+          '@automerge/automerge-repo': { uuid: '11.1.1' },
+          'monaco-editor': { dompurify: '3.4.0' },
+        },
+      },
+    },
+    graph: {
+      nodes,
+      edges: [],
+      unresolved: [],
+    },
+    topological: {
+      ok: true,
+      items: nodes.map((node, index) => ({ node, index, after: [] })),
+    },
+    policy: { decisions },
   };
 }
 

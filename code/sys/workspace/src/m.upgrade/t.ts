@@ -186,6 +186,8 @@ export declare namespace WorkspaceUpgrade {
     readonly candidates: readonly Candidate[];
     /** Dependencies not collected into upgrade candidates. */
     readonly uncollected: readonly Uncollected[];
+    /** Parsed package.json resolver policy from the canonical manifest. */
+    readonly packageJson?: t.EsmDeps.PackageJsonPolicy;
   };
 
   /** Derived dependency graph used for ordered upgrade planning. */

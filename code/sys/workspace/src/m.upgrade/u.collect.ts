@@ -106,6 +106,7 @@ export async function collectWithSession(
     },
     candidates,
     uncollected,
+    packageJson: manifest.data.packageJson,
   };
 }
 

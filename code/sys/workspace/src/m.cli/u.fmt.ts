@@ -1,5 +1,6 @@
-import { type t, Cli, Semver, Str, c } from './common.ts';
+import { c, Cli, Semver, Str, type t } from './common.ts';
 
+type SelectionState = 'selected' | 'blocked' | 'current';
 type SelectionOption = {
   readonly name: string;
   readonly value: string;
@@ -7,16 +8,21 @@ type SelectionOption = {
   readonly disabled?: boolean;
 };
 
-type SelectionLayoutInput = {
-  readonly collect: { readonly candidates: readonly t.WorkspaceUpgrade.Candidate[] };
-  readonly policy: { readonly decisions: readonly t.EsmPolicyDecision[] };
-};
-
 type SelectionLayout = {
   readonly name: number;
   readonly current: number;
   readonly latest: number;
   readonly note: number;
+  readonly overrideParents: ReadonlySet<string>;
+};
+
+type PackagePolicyCollect = { readonly packageJson?: t.EsmDeps.PackageJsonPolicy };
+type PackagePolicyCarrier = { readonly collect: PackagePolicyCollect };
+type SelectionLayoutInput = {
+  readonly policy: { readonly decisions: readonly t.EsmPolicyDecision[] };
+  readonly collect: PackagePolicyCollect & {
+    readonly candidates: readonly t.WorkspaceUpgrade.Candidate[];
+  };
 };
 
 type UpdatedRow = {
@@ -24,8 +30,6 @@ type UpdatedRow = {
   readonly from: t.StringSemver;
   readonly to: t.StringSemver;
 };
-
-type SelectionState = 'selected' | 'blocked' | 'current';
 
 type SummaryCounts = {
   readonly dependencies: number;
@@ -43,6 +47,7 @@ type BlockedCode =
   | 'version:not-allowed';
 
 const NAME_MIN_WIDTH = 25;
+const EMPTY_OVERRIDE_PARENTS: ReadonlySet<string> = new Set();
 
 export const Fmt = {
   spinnerText(text: string, spacing: t.CliFormat.Spinner.Spacing = true): string {
@@ -56,13 +61,17 @@ export const Fmt = {
   spinnerProgress(progress: t.WorkspaceUpgrade.Progress): string {
     if (!Fmt.isRegistryProgress(progress)) {
       return Fmt.spinnerText(
-        c.gray(progress.kind === 'plan' ? 'composing upgrade plan...' : 'applying workspace upgrades...'),
+        c.gray(
+          progress.kind === 'plan' ? 'composing upgrade plan...' : 'applying workspace upgrades...',
+        ),
       );
     }
     const registry = progress;
 
     const percent = Fmt.progressPercent(registry);
-    const current = `${Fmt.spinnerRegistryCount('jsr', registry.current.jsr, registry.total.jsr)} ${Fmt.spinnerRegistryCount('npm', registry.current.npm, registry.total.npm)}`;
+    const current = `${Fmt.spinnerRegistryCount('jsr', registry.current.jsr, registry.total.jsr)} ${
+      Fmt.spinnerRegistryCount('npm', registry.current.npm, registry.total.npm)
+    }`;
     const label = Fmt.spinnerText('checking registry... ', false);
     const open = Fmt.spinnerText('(', false);
     const close = Fmt.spinnerText(') - ', false);
@@ -129,11 +138,16 @@ export const Fmt = {
 
     table.push([c.gray('Release Policy'), c.white(upgrade.options.policy.mode)]);
     table.push([c.gray('Dependencies'), String(counts.dependencies)]);
-    table.push([c.gray('Already latest'), counts.current > 0 ? c.gray(String(counts.current)) : '0']);
+    table.push([
+      c.gray('Already latest'),
+      counts.current > 0 ? c.gray(String(counts.current)) : '0',
+    ]);
     table.push([
       c.gray('Blocked'),
       counts.blocked > 0 ? c.yellow(String(counts.blocked)) : '0',
     ]);
+    const overrides = Fmt.overrideCount(upgrade);
+    if (overrides > 0) table.push([c.gray('Overrides'), c.magenta(String(overrides))]);
     table.push([c.gray('Planned'), c.cyan(String(upgrade.totals.planned))]);
 
     return String(table)
@@ -202,7 +216,9 @@ export const Fmt = {
       },
     );
     if (options.length === 0) return '';
-    return c.yellow('The full upgrade set cannot be ordered together. Pick a smaller set to continue.');
+    return c.yellow(
+      'The full upgrade set cannot be ordered together. Pick a smaller set to continue.',
+    );
   },
 
   selectionOptions(
@@ -259,8 +275,7 @@ export const Fmt = {
     decision?: t.EsmPolicyDecision,
     layout?: SelectionLayout,
   ): string {
-    const widths =
-      layout ??
+    const widths = layout ??
       Fmt.selectionLayout(
         { collect: { candidates: [candidate] }, policy: { decisions: decision ? [decision] : [] } },
         new Map(decision ? [[Fmt.key(candidate.entry), decision] as const] : []),
@@ -269,10 +284,13 @@ export const Fmt = {
     const current = Fmt.pad(c.white(candidate.current), widths.current);
     const state = Fmt.selectionState(candidate, decision);
     const nextText = Fmt.selectionVersion(candidate, decision);
-    const nextColor =
-      state === 'blocked' ? c.yellow(nextText) : state === 'selected' ? c.green(nextText) : c.gray(nextText);
+    const nextColor = state === 'blocked'
+      ? c.yellow(nextText)
+      : state === 'selected'
+      ? c.green(nextText)
+      : c.gray(nextText);
     const latest = Fmt.pad(nextColor, widths.latest);
-    const note = Fmt.selectionNote(candidate, decision, state);
+    const note = Fmt.selectionNote(candidate, decision, state, widths.overrideParents);
     return `${name}  ${current} ${c.gray('→')} ${latest}${note}`;
   },
 
@@ -289,7 +307,9 @@ export const Fmt = {
     candidate: t.WorkspaceUpgrade.Candidate,
     decision?: t.EsmPolicyDecision,
   ): t.StringSemver {
-    if (decision?.ok && decision.selection.selected?.version) return decision.selection.selected.version;
+    if (decision?.ok && decision.selection.selected?.version) {
+      return decision.selection.selected.version;
+    }
     return candidate.latest ?? candidate.current;
   },
 
@@ -297,15 +317,42 @@ export const Fmt = {
     candidate: t.WorkspaceUpgrade.Candidate,
     decision: t.EsmPolicyDecision | undefined,
     state: SelectionState,
+    overrideParents: ReadonlySet<string> = EMPTY_OVERRIDE_PARENTS,
   ): string {
+    const override = Fmt.selectionOverrideHint(candidate, overrideParents);
     if (state === 'blocked' && decision && !decision.ok) {
-      return c.gray(c.italic(`  ${Fmt.blockedReason(decision.reason.code)}`));
+      return `${c.gray(c.italic(`  ${Fmt.blockedReason(decision.reason.code)}`))}${override}`;
     }
     const selected = decision?.ok ? decision.selection.selected?.version : undefined;
     if (state === 'selected' && selected && candidate.latest && candidate.latest !== selected) {
-      return `${c.gray(c.italic('  newer blocked by policy - '))}${c.yellow(candidate.latest)}`;
+      return `${c.gray(c.italic('  newer blocked by policy - '))}${
+        c.yellow(candidate.latest)
+      }${override}`;
     }
-    return '';
+    return override;
+  },
+
+  overrideParents(upgrade: PackagePolicyCarrier): readonly string[] {
+    const overrides = upgrade.collect.packageJson?.overrides;
+    if (!overrides) return [];
+    return Object.keys(overrides).toSorted((a, b) => a.localeCompare(b));
+  },
+
+  overrideParentSet(upgrade: PackagePolicyCarrier): ReadonlySet<string> {
+    return new Set(Fmt.overrideParents(upgrade));
+  },
+
+  overrideCount(upgrade: PackagePolicyCarrier): number {
+    return Fmt.overrideParents(upgrade).length;
+  },
+
+  selectionOverrideHint(
+    candidate: t.WorkspaceUpgrade.Candidate,
+    overrideParents: ReadonlySet<string>,
+  ): string {
+    return overrideParents.has(candidate.entry.module.name)
+      ? c.magenta(c.italic('  override parent'))
+      : '';
   },
 
   summaryCounts(upgrade: t.WorkspaceUpgrade.Result): SummaryCounts {
@@ -357,6 +404,7 @@ export const Fmt = {
       upgrade.policy.decisions.map((decision) => [Fmt.key(decision.input.subject.entry), decision]),
     ),
   ): SelectionLayout {
+    const overrideParents = Fmt.overrideParentSet(upgrade);
     const widths = { name: 0, current: 0, latest: 0, note: 0 };
 
     for (const candidate of upgrade.collect.candidates) {
@@ -367,7 +415,10 @@ export const Fmt = {
       widths.name = Math.max(widths.name, Fmt.width(Fmt.name(candidate.entry)));
       widths.current = Math.max(widths.current, candidate.current.length);
       widths.latest = Math.max(widths.latest, Fmt.selectionVersion(candidate, decision).length);
-      widths.note = Math.max(widths.note, Fmt.selectionNote(candidate, decision, state).length);
+      widths.note = Math.max(
+        widths.note,
+        Fmt.width(Fmt.selectionNote(candidate, decision, state, overrideParents)),
+      );
     }
 
     const screen = Cli.Screen.size();
@@ -377,6 +428,7 @@ export const Fmt = {
     return {
       ...widths,
       name: Math.max(NAME_MIN_WIDTH, Math.min(widths.name, budget - reserved)),
+      overrideParents,
     };
   },
 

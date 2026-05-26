@@ -36,6 +36,39 @@ describe('Workspace.Upgrade.collect', () => {
     );
   });
 
+  it('carries package override policy from deps.yaml', async () => {
+    const fs = await Testing.dir('WorkspaceUpgrade.collect.package-policy');
+    await writeDepsYaml(fs, `
+      deno.json:
+        - import: npm:monaco-editor@0.55.1
+      package.json:
+        - overrides:
+            "@automerge/automerge-repo":
+              uuid: '11.1.1'
+            monaco-editor:
+              dompurify: '3.4.0'
+    `);
+
+    await withVersions(
+      {
+        jsr: {},
+        npm: {
+          'monaco-editor': versionsNpm('monaco-editor', '0.56.0', { '0.55.1': {}, '0.56.0': {} }),
+        },
+      },
+      async () => {
+        const result = await WorkspaceUpgrade.collect({ cwd: fs.dir, deps: fs.join('deps.yaml') });
+
+        expect(result.packageJson).to.eql({
+          overrides: {
+            '@automerge/automerge-repo': { uuid: '11.1.1' },
+            'monaco-editor': { dompurify: '3.4.0' },
+          },
+        });
+      },
+    );
+  });
+
   it('skips unpinned dependencies before registry fetch', async () => {
     const fs = await Testing.dir('WorkspaceUpgrade.collect.unpinned');
     await writeDepsYaml(fs, `
