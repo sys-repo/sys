@@ -110,3 +110,10 @@ package.json:
   - import: npm:@types/react-dom@19.2.3
   - import: npm:@testing-library/react@16.3.2
   - import: npm:motion@12.40.0
+  - import: npm:@automerge/automerge-repo@2.5.6
+  - import: npm:monaco-editor@0.55.1
+  - overrides:
+      "@automerge/automerge-repo":
+        uuid: '11.1.1'
+      monaco-editor:
+        dompurify: '3.4.0'
