@@ -38,7 +38,7 @@ const applyGlobals = (win: Window) => {
  * - Repeated calls reuse the same Window instance.
  * - If called with a custom URL, it must take effect (i.e., create a new Window).
  */
-export const polyfill: t.DomMockLib['polyfill'] = (options = {}) => {
+export const polyfill: t.DomMock.Lib['polyfill'] = (options = {}) => {
   const { url = 'http://localhost:1234' } = options;
 
   // If a custom URL is requested, force a new Window so location updates.
@@ -56,7 +56,7 @@ export const polyfill: t.DomMockLib['polyfill'] = (options = {}) => {
  * Contract (as exercised by std tests):
  * - After unpolyfill, the next polyfill must create a NEW Window instance.
  */
-export const unpolyfill: t.DomMockLib['unpolyfill'] = () => {
+export const unpolyfill: t.DomMock.Lib['unpolyfill'] = () => {
   // Reset instance so next polyfill creates a fresh Window (test expects this).
   _window = undefined;
 

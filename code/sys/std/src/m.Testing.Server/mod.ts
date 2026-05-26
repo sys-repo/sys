@@ -2,7 +2,7 @@
  * @module
  * Test HTTP server tools.
  */
-import type { TestingHttpLib } from './t.ts';
+import type { t } from '../common/mod.ts';
 
 import { Testing as Base } from '../m.Testing/mod.ts';
 export {
@@ -23,7 +23,7 @@ export { DomMock } from '../m.Testing.DomMock/mod.ts';
 /**
  * Testing helpers including light-weight HTTP server helpers (Deno).
  */
-export const Testing: TestingHttpLib = {
+export const Testing: t.Testing.Server.Lib = {
   ...Base,
   Http,
 };

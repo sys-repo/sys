@@ -2,33 +2,51 @@ import type { afterAll, afterEach, beforeAll, beforeEach, describe, it } from '@
 import type { t } from './common.ts';
 
 /**
- * Testing helpers.
+ * Testing helper contracts.
  */
-export type TestingLib = {
-  readonly FALSY: t.Falsy[];
-  readonly Bdd: BddLib;
-  slug: t.Random.Lib['slug'];
+export namespace Testing {
+  /**
+   * Testing helpers.
+   */
+  export type Lib = {
+    readonly FALSY: t.Falsy[];
+    readonly Bdd: BddLib;
+    slug: t.Random.Lib['slug'];
 
-  /** Wait for n-milliseconds, or a "tick" (micrso-task queue) if no delay specified. */
-  wait(delay?: t.Msecs): Promise<void>;
+    /** Wait for n-milliseconds, or a "tick" (micrso-task queue) if no delay specified. */
+    wait(delay?: t.Msecs): Promise<void>;
 
-  /** Generate a random (unused) port number. */
-  randomPort(): number;
+    /** Generate a random (unused) port number. */
+    randomPort(): number;
 
-  /** Attempt to run the test function <n>-times before throwing. */
-  retry(times: number, fn?: TestRetryRunner): Promise<void>;
-  retry(times: number, options: TestRetryOptions, fn?: TestRetryRunner): Promise<void>;
+    /** Attempt to run the test function <n>-times before throwing. */
+    retry(times: number, fn?: TestRetryRunner): Promise<void>;
+    retry(times: number, options: TestRetryOptions, fn?: TestRetryRunner): Promise<void>;
+
+    /**
+     * Poll until `pred()` returns true. Uses retry under the hood.
+     * @param pred    Synchronous or async predicate.
+     * @param options times: max attempts (default 50), delay: ms between (default 5)
+     */
+    until(
+      pred: () => boolean | Promise<boolean>,
+      options?: { times?: number; delay?: t.Msecs },
+    ): Promise<void>;
+  };
 
   /**
-   * Poll until `pred()` returns true. Uses retry under the hood.
-   * @param pred    Synchronous or async predicate.
-   * @param options times: max attempts (default 50), delay: ms between (default 5)
+   * HTTP server testing helper contracts.
    */
-  until(
-    pred: () => boolean | Promise<boolean>,
-    options?: { times?: number; delay?: t.Msecs },
-  ): Promise<void>;
-};
+  export namespace Server {
+    /**
+     * Library: HTTP testing helpers.
+     */
+    export type Lib = Testing.Lib & {
+      /** Helpers for working with an HTTP server. */
+      readonly Http: t.TestHttpServer;
+    };
+  }
+}
 
 export type TestRetryRunner = () => t.IgnoredResult;
 export type TestRetryOptions = {

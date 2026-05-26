@@ -17,8 +17,6 @@
  *
  * DomMock.init({ beforeAll, afterAll });
  * ```
- *
- *
  */
 import type { t } from './common.ts';
 
@@ -30,7 +28,7 @@ import { init } from './u.init.ts';
 /**
  * Helpers for testing DOM related action in unit-tests.
  */
-export const DomMock: t.DomMockLib = {
+export const DomMock: t.DomMock.Lib = {
   Fake,
   Keyboard,
   init,

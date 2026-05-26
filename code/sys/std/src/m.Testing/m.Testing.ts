@@ -1,12 +1,10 @@
-import type { TestingLib } from './t.ts';
-
-import { Bdd, slug } from './common.ts';
+import { Bdd, slug, type t } from './common.ts';
 import { randomPort, retry, waitUntil } from './u.ts';
 
 /**
  * Testing helpers.
  */
-export const Testing: TestingLib = {
+export const Testing: t.Testing.Lib = {
   FALSY: [false, 0, '', null, undefined],
   Bdd,
   slug,

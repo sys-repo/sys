@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * Testing helpers for working on a known server (eg. HTTP/network and file-system).
  */
-export type TestingServerLib = t.TestingHttpLib & {
+export type TestingServerLib = t.Testing.Server.Lib & {
   /**
    * Generates a new test directory on the file-system.
    */
