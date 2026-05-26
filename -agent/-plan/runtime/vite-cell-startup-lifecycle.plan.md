@@ -2,16 +2,37 @@
 
 ## Commit plan
 
-- [x] fix(driver-vite): avoid runtime vite import in config define facade
-- [x] feat(cell): show elapsed service startup progress
-- [x] feat(cell): bound service startup with timeout
-- [ ] fix(driver-vite): harden cell vite startup readiness
+- [x] fix(driver-vite): avoid runtime vite import in config define facade — 4e0ba7190
+- [x] feat(cell): show elapsed service startup progress — 3911f958d
+- [x] feat(cell): bound service startup with timeout — 229b715dc
+- [x] fix(process): reject spawn readiness on early child exit — 51e048615
+- [x] test(process): factor shared process test fixtures — ccbb0cab3
+- [x] fix(driver-vite): harden cell vite startup readiness — 4a0483843
 
 ## Status
 
-Cell startup progress and generic startup timeout implementation are applied. Cell timeout
-validation is deterministic and does not depend on live Vite/JSR startup. Vite-specific
-strict-port/readiness hardening remains a follow-up.
+This plan is complete. Cell startup progress, generic Cell startup timeout, the prerequisite
+`@sys/process` readiness contract fix, and Vite-specific strict-port/readiness hardening are
+committed. Cell timeout validation remains deterministic and does not depend on live Vite/JSR
+startup.
+
+Current stable commits:
+
+```text
+4e0ba7190 fix(driver-vite): avoid runtime vite import in config define facade
+3911f958d feat(cell): show elapsed service startup progress
+229b715dc feat(cell): bound service startup with timeout
+51e048615 fix(process): reject spawn readiness on early child exit
+ccbb0cab3 test(process): factor shared process test fixtures
+4a0483843 fix(driver-vite): harden cell vite startup readiness
+```
+
+Final tree hygiene:
+
+- Commit this completed plan as a plan lifecycle artifact only.
+- Do not include unrelated external probe edits unless explicitly approved.
+- Do not reintroduce a live Vite/JSR startup proof into `@sys/cell` CI.
+- Do not commit random localhost URL lockfile churn from Vite dev/test runs.
 
 ## Trigger
 
@@ -155,7 +176,34 @@ Plan:
   and aborts compliant services; full preemption of hostile top-level-await modules would require
   Worker/process isolation and is outside this commit.
 
-### 3. Add strict-port path for Cell-owned Vite services
+### 3. Fix spawned process readiness contract
+
+Likely files:
+
+```text
+code/sys/process/src/m.process/t.proc.ts
+code/sys/process/src/m.process/u.proc.spawn.ts
+code/sys/process/src/m.process/-test/-m.Process.spawn.test.ts
+```
+
+Plan:
+
+- Treat `Process.spawn(...).whenReady()` as a real readiness contract:
+  - resolve only when the ready signal is observed,
+  - reject if the child exits before readiness,
+  - reject if the handle is disposed before readiness.
+- Surface a useful error with command/pid/status context.
+- Keep existing ready-signal behavior intact for successful long-running children.
+- Add bounded process tests with short `deno eval` children; no sleeps longer than necessary.
+
+Committed:
+
+```text
+51e048615 fix(process): reject spawn readiness on early child exit
+ccbb0cab3 test(process): factor shared process test fixtures
+```
+
+### 4. Add strict-port path for Cell-owned Vite services
 
 Likely files:
 
@@ -170,10 +218,11 @@ code/sys.driver/driver-vite/src/m.vite/u.wrangle.ts
 Plan:
 
 - Add `strictPort?: boolean` to the driver Vite dev path.
-- Have `ViteService` use strict port when owner config declares a concrete `port`.
-- Keep direct/template `dev:vite` fall-forward unchanged unless it opts in.
+- Add `--strictPort` to the Vite command only when explicitly opted in.
+- Have `ViteService` pass `strictPort: true` when owner config declares a concrete `port`.
+- Keep direct/template `Vite.dev` and `dev:vite` fall-forward unchanged unless they opt in.
 
-### 4. Make child readiness failure-aware
+### 5. Make driver-vite readiness failure-aware
 
 Likely files:
 
@@ -185,12 +234,23 @@ code/sys.driver/driver-vite/src/m.vite/u.dev.ts
 
 Plan:
 
-- Expose or use a child completion/error signal from `Process.spawn`.
-- Make `whenReady()` reject if the child exits before the ready signal.
-- In `Vite.dev(...)`, race readiness against child failure and startup timeout.
+- Remove the readiness failure mask:
+  - no `proc.whenReady().catch(() => new Promise<never>(() => {}))`.
+- Use process output readiness as the authority for the resolved Vite URL.
+- After output readiness, HTTP-probe the resolved URL to confirm the server is reachable.
+- Do not let an arbitrary HTTP server on the requested port falsely satisfy startup readiness.
+- Fail fast on child early exit or caller disposal.
+- On startup failure, dispose the child process and bootstrap resources.
 - Preserve useful stderr/stdout context where available.
+- Keep Cell generic: driver-vite owns Vite-specific startup causes; Cell only reports the service cause.
 
-### 5. Verify cleanup on failed startup
+Committed:
+
+```text
+4a0483843 fix(driver-vite): harden cell vite startup readiness
+```
+
+### 6. Verify cleanup on failed startup
 
 Likely files:
 
@@ -211,18 +271,23 @@ Plan:
 - Test hung endpoint start times out.
 - Test caller `until` cancels startup cleanly.
 - Test late-resolving handles after timeout are closed/disposed best-effort.
-- Test strict service port occupied → startup rejects.
+- Test `Process.spawn(...).whenReady()` rejects when a child exits before the ready signal.
+- Test direct `Vite.dev` still falls forward to the next port by default.
+- Test `Vite.dev({ strictPort: true })` with occupied port rejects quickly and disposes.
+- Test `ViteService` passes `strictPort: true` when owner config declares `port`.
 - Test child exits before ready → `Vite.dev` rejects; no hanging readiness promise.
-- Test Cell startup failure closes prior services and does not leave the failed child alive.
+- Do not restore a live Vite/JSR proof inside `@sys/cell` CI.
 
 ## Validation
 
 Run narrow first:
 
 ```sh
-cd /Users/phil/code/org.sys/sys/code/sys/cell
-deno task check
-deno test -P=test --trace-leaks ./src/m.cell/-test/-u.services.start.test.ts ./src/m.cell/u.schema/-test/-.test.ts
+cd /Users/phil/code/org.sys/sys/code/sys/process
+deno test -P=test --trace-leaks ./src/m.process/-test/-m.Process.spawn.test.ts
+
+cd /Users/phil/code/org.sys/sys/code/sys.driver/driver-vite
+deno task test --trace-leaks ./src/m.vite/-test/-dev.test.ts ./src/m.service/-test/-.test.ts
 ```
 
 Then prove the affected app:
