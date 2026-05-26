@@ -1,16 +1,16 @@
 deno.json:
   - import: jsr:@std/datetime@0.225.7
-  - import: jsr:@std/dotenv@0.225.6
+  - import: jsr:@std/dotenv@0.225.7
   - import: jsr:@std/encoding@1.0.10
   - import: jsr:@std/jsonc@1.0.2
-  - import: jsr:@std/fs@1.0.23
-  - import: jsr:@std/http@1.1.0
+  - import: jsr:@std/fs@1.0.24
+  - import: jsr:@std/http@1.1.1
     subpaths: [ file-server ]
-  - import: jsr:@std/path@1.1.4
+  - import: jsr:@std/path@1.1.5
     subpaths: [ join, posix/join, windows/join ]
   - import: jsr:@std/semver@1.0.8
   - import: jsr:@std/uuid@1.1.1
-  - import: jsr:@std/testing@1.0.18
+  - import: jsr:@std/testing@1.0.19
     subpaths: [ bdd ]
   - import: npm:chai@6.2.2
   - import: npm:fake-indexeddb@6.2.5
@@ -73,7 +73,7 @@ deno.json:
   - import: npm:tinycolor2@1.6.0
   - import: npm:ts-essentials@10.2.0
   - import: npm:@octokit/rest@22.0.1
-  - import: npm:@stripe/stripe-js@9.6.0
+  - import: npm:@stripe/stripe-js@9.7.0
   - import: npm:ws@8.21.0
   - import: npm:@types/ws@8.18.1
   - import: npm:csstype@3.2.3
