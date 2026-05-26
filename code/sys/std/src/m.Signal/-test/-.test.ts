@@ -161,7 +161,7 @@ describe('Signal', () => {
   });
 
   describe('Signal.listen', () => {
-    const test = (subject: Parameters<t.SignalLib['listen']>[0], deep: boolean = false) => {
+    const test = (subject: Parameters<t.Signal.Lib['listen']>[0], deep: boolean = false) => {
       let fired = 0;
       Signal.effect(() => {
         Signal.listen(subject, deep);

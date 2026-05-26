@@ -7,7 +7,7 @@ type O = Record<string, unknown>;
 /**
  * Create a new listeners collection.
  */
-export const listeners: t.SignalLib['listeners'] = (until) => {
+export const listeners: t.Signal.Lib['listeners'] = (until) => {
   const life = Dispose.lifecycle(until);
   const disposers = new Set<() => void>();
 

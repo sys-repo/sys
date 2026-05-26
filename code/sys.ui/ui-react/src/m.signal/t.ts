@@ -1,5 +1,5 @@
 import type Preact from '@preact/signals-react';
-import type { SignalLib } from '@sys/std/t';
+import type { Signal as StdSignal } from '@sys/std/t';
 import type { t } from './common.ts';
 
 export type { ReadonlySignal, Signal, SignalValue, UnwrapSignals } from '@sys/types';
@@ -8,7 +8,7 @@ export type * from './t.effect.ts';
 /**
  * Reactive Signals (React Extensions)
  */
-export type SignalReactLib = SignalLib & {
+export type SignalReactLib = StdSignal.Lib & {
   /**
    * React hook: create a reactive Signal bound to component render lifecycle.
    *
