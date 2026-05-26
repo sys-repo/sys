@@ -27,7 +27,7 @@ export {
 /**
  * BDD semantics ("Behavior Driven Development") helpers.
  */
-export const Bdd: t.BddLib = {
+export const Bdd: t.Bdd.Lib = {
   describe,
   it,
 
