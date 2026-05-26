@@ -2,7 +2,7 @@
 
 ## Status
 
-Planned. No implementation changes yet.
+Implemented.
 
 ## Scope
 
@@ -68,21 +68,21 @@ it is a Deno task affordance for the Cell package. The script should be boring: 
 show them, and run the chosen task. Anything more risks turning a package-local index into a second
 sample platform.
 
-## Proposed implementation
+## Final implementation
 
 ### 1. Wire the root sample task
 
-Update `code/sys/cell/deno.json` tasks:
+Updated `code/sys/cell/deno.json` tasks:
 
 ```json
 "sample": "deno run -P=sample ./-scripts/task.sample.ts"
 ```
 
-Keep the existing `sample:*` tasks unchanged.
+Kept the existing `sample:*` tasks unchanged.
 
 ### 2. Replace the current sample starter script
 
-Rewrite `code/sys/cell/-scripts/task.sample.ts` so it:
+Rewrote `code/sys/cell/-scripts/task.sample.ts` so it:
 
 1. reads the package-local `deno.json`;
 2. extracts task names matching `sample:*`;
@@ -91,11 +91,11 @@ Rewrite `code/sys/cell/-scripts/task.sample.ts` so it:
 5. runs the selected task through `deno task <task-name>`;
 6. exits cleanly on cancel/exit.
 
-The script should not import `@sys/cell`.
+The script does not import `@sys/cell`.
 
 ### 3. Keep optional flags small, if added
 
-Only add flags if they are cheap and useful:
+Added only the cheap inspection flags:
 
 - `--help` / `-h` prints the script purpose and examples;
 - `--list` prints discovered sample task names without prompting.
@@ -104,7 +104,7 @@ Do not add filtering, categories, aliases, or config files in this pass.
 
 ### 4. Presentation target
 
-Default prompt should show a compact list similar to:
+Default prompt shows a compact list similar to:
 
 ```text
 @sys/cell samples
@@ -125,25 +125,21 @@ Selection dispatches the existing task exactly.
 
 ### Narrow proof
 
-If extraction earns a helper, add a test for the pure task-index function:
-
-- includes only names starting with `sample:`;
-- excludes root `sample`;
-- preserves input order;
-- returns an empty list cleanly when no sample tasks exist.
+No extra test helper was added. The index logic stayed inside the package-local script because the
+behavior is small and runtime-facing.
 
 ### Runtime proof
 
-From `code/sys/cell`:
+Verified from `code/sys/cell`:
 
 ```sh
 deno task check
+deno task sample -- --list
+deno task sample -- --help
 deno task test --trace-leaks ./src/m.cli ./src/m.cell
-deno task sample
 ```
 
-For `deno task sample`, manually verify the prompt lists the current `sample:*` tasks and that
-selecting one dispatches the matching existing task.
+`deno task sample -- --list` lists the current `sample:*` tasks in `deno.json` order.
 
 ## Non-goals
 

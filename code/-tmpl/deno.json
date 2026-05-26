@@ -1,6 +1,6 @@
 {
   "name": "@sys/tmpl",
-  "version": "0.0.408",
+  "version": "0.0.409",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",

@@ -1,6 +1,6 @@
 {
   "name": "@sys/cell",
-  "version": "0.0.35",
+  "version": "0.0.36",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test ./src",
@@ -13,6 +13,7 @@
     "tmpl:bundle": "deno run -RWE ./src/m.tmpl/-bundle/mod.ts",
     "help:bundle": "deno run -RWE ./src/m.help/-bundle/mod.ts",
     "start": "deno task sample:stripe",
+    "sample": "deno run -P=sample ./-scripts/task.sample.ts",
     "sample:stripe": "deno run -P=sample @sys/cell start ./-sample/cell.stripe",
     "sample:deploy:start": "deno run -P=sample @sys/cell start ./-sample/cell.deploy",
     "sample:deploy:prep": "deno run -P=sample @sys/cell task sample:deploy:prep ./-sample/cell.deploy",
