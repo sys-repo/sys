@@ -122,7 +122,7 @@ function serviceTitle(service: StartedServiceStatus): string {
 }
 
 function serviceDivider(): string {
-  return c.dim(c.gray(Cli.Fmt.hr()));
+  return c.dim(c.gray(Cli.Fmt.hr({ weight: 'dashed' })));
 }
 
 function serviceState(state: t.Service.State): string {

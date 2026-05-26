@@ -40,6 +40,17 @@ describe('Cli.Fmt.hr', () => {
   it('accepts options with width and color', () => {
     expect(Fmt.hr({ width: 5, color: 'magenta' })).to.eql(c.magenta('━'.repeat(5)));
   });
+
+  it('accepts rule weights', () => {
+    expect(Fmt.hr({ width: 5, weight: 'heavy' })).to.eql('━'.repeat(5));
+    expect(Fmt.hr({ width: 5, weight: 'light' })).to.eql('─'.repeat(5));
+    expect(Fmt.hr({ width: 5, weight: 'double' })).to.eql('═'.repeat(5));
+    expect(Fmt.hr({ width: 5, weight: 'dashed' })).to.eql('┄'.repeat(5));
+  });
+
+  it('accepts weight with color', () => {
+    expect(Fmt.hr({ width: 5, color: 'gray', weight: 'light' })).to.eql(c.gray('─'.repeat(5)));
+  });
 });
 
 function stubScreenWidth(width: number): () => void {

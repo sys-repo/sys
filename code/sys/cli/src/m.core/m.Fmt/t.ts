@@ -76,12 +76,17 @@ export declare namespace CliFormat {
     /** Foreground color name accepted by the horizontal rule formatter. */
     export type Color = AnsiColor.Name;
 
+    /** Visual rule stroke weight. */
+    export type Weight = 'heavy' | 'light' | 'double' | 'dashed';
+
     /** Horizontal rule formatting options. */
     export type Options = {
       /** Explicit rule width. Omit to use the current screen width. */
       readonly width?: number;
       /** Optional rule foreground color. */
       readonly color?: Color;
+      /** Optional rule stroke weight. Defaults to `heavy`. */
+      readonly weight?: Weight;
     };
 
     /**
