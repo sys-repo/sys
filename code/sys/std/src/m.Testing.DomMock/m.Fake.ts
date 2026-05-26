@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 
-export const Fake: t.DomMockFakeLib = {
+export const Fake: t.DomMock.Fake.Lib = {
   Media: {
     stream(input?: Partial<{ id: string; active: boolean }>): MediaStream {
       const id = input?.id ?? 'stream-1';
