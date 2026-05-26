@@ -3,7 +3,7 @@ import { StdDate, type t } from './common.ts';
 /**
  * Library: Tools for working with Day date values.
  */
-export const Day: t.DayLib = {
+export const Day: t.Date.Day.Lib = {
   /** Returns the number of the day in the year in the local time zone. */
   ofYear: StdDate.dayOfYear,
 

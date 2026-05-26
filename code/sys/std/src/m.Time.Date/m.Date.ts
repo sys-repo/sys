@@ -11,7 +11,7 @@ export { Day, Format };
 /**
  * Library: Tools for working with Dates.
  */
-export const Date: t.DateLib = {
+export const Date: t.Date.Lib = {
   Is,
   Day,
   Format,
