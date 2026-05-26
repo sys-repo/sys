@@ -1,6 +1,6 @@
 import { type t, Str } from './common.ts';
 
-export const sanitize: t.ObjPathLib['sanitize'] = (text, opts) => {
+export const sanitize: t.Obj.Path.Lib['sanitize'] = (text, opts) => {
   const fixes: t.ObjPathFix[] = [];
   const codecKind = resolveCodecKind(opts?.codec);
 

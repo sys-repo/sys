@@ -4,7 +4,7 @@ import { type t } from './common.ts';
  * Deeply clone the given object (circular-reference safe)
  * with support for Date and RegExp.
  */
-export const clone: t.ObjLib['clone'] = (obj) => deepClone(obj);
+export const clone: t.Obj.Lib['clone'] = (obj) => deepClone(obj);
 
 /**
  * Helpers

@@ -7,7 +7,7 @@ import type { t } from './common.ts';
  *  - `dot`       — dot/bracket notation, ergonomic for developer use.
  *  - `default`   — the canonical codec (`pointer`).
  */
-export type ObjPathCodecLib = {
+export type Lib = {
   readonly default: t.ObjPathCodec;
 
   /**

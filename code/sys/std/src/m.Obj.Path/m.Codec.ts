@@ -85,7 +85,7 @@ const dot: t.ObjPathCodec = {
   },
 };
 
-export const Codec: t.ObjPathCodecLib = {
+export const Codec: t.Obj.Path.Codec.Lib = {
   default: pointer,
   pointer,
   dot,

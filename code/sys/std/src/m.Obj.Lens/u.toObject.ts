@@ -1,7 +1,7 @@
 import { type t, isPlainObject } from './common.ts';
 import { Is } from './m.Is.ts';
 
-export const toObject: t.ObjLensLib['toObject'] = (input, opts = {}) => {
+export const toObject: t.Obj.Lens.Lib['toObject'] = (input, opts = {}) => {
   const { depth = 32, includeGetters = false } = opts;
   const seen = new WeakMap<object, unknown>();
 

@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 
-export const eql: t.ObjPathLib['eql'] = (a, b) => {
+export const eql: t.Obj.Path.Lib['eql'] = (a, b) => {
   // <undefined> never equals.
   if (!a || !b) return false;
 

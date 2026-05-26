@@ -1,6 +1,6 @@
 import { type t, isRecord, Path } from './common.ts';
 
-export const Is: t.ObjLensIsLib = {
+export const Is: t.Obj.Lens.Is.Lib = {
   lens: isLensUnbound,
   lensRef: isLensRefAny,
   lensRefReadonly: isLensRefReadonly,

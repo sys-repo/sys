@@ -12,7 +12,7 @@ export type PathRelation = 'equal' | 'ancestor' | 'descendant' | 'disjoint';
 /**
  * Utilities for determining relationships between object-paths.
  */
-export type ObjPathRelLib = {
+export type Lib = {
   /** Classify the relation between two paths. */
   relate(a?: t.ObjectPath, b?: t.ObjectPath): t.PathRelation;
 

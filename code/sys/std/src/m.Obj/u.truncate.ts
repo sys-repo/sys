@@ -5,7 +5,7 @@ import { walk } from './u.walk.ts';
 /**
  * Walk the tree and ensure all strings are less than the given max-length.
  */
-export const truncateStrings: t.ObjLib['truncateStrings'] = (
+export const truncateStrings: t.Obj.Lib['truncateStrings'] = (
   obj?: unknown,
   options?: t.ObjTruncateStringsOptions | number,
 ) => {

@@ -8,7 +8,7 @@ import { set } from './m.Mutate.set.ts';
  * Tools that mutate an object in-place using
  * an abstract path arrays.
  */
-export const Mutate: t.ObjPathMutateLib = {
+export const Mutate: t.Obj.Path.Mutate.Lib = {
   diff,
   set,
   ensure,

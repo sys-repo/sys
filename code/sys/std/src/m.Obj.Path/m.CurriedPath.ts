@@ -7,7 +7,7 @@ import { get } from './m.Path.get.ts';
 
 type O = Record<string, unknown>;
 
-export const CurriedPath: t.CurriedPathLib = {
+export const CurriedPath: t.Obj.Path.Curried.Lib = {
   make<T = unknown>(path: t.ObjectPath) {
     path = Array.isArray(path) ? path : [];
 

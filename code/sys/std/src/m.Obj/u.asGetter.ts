@@ -13,7 +13,7 @@ type O = Record<string, unknown>;
  * - When `keys` is omitted or `null`, all own enumerable keys are wrapped.
  * - When a single key or list of keys is provided, only those are wrapped.
  */
-export const asGetter: t.ObjLib['asGetter'] = (
+export const asGetter: t.Obj.Lib['asGetter'] = (
   obj: O,
   keysOrOptions?: unknown,
   maybeOptions?: t.ObjAsGetterOptions,

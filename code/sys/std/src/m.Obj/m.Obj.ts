@@ -13,7 +13,7 @@ import { keys, pick, sortKeys, toArray } from './u.ts';
 import { walk } from './u.walk.ts';
 import { entries } from './u.entries.ts';
 
-export const Obj: t.ObjLib = {
+export const Obj: t.Obj.Lib = {
   Path,
   Lens,
 

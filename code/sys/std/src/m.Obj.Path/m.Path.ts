@@ -15,7 +15,7 @@ import { sanitize } from './m.Path.sanitize.ts';
 import { slice } from './m.Path.slice.ts';
 import { Rel } from './m.Rel.ts';
 
-export const Path: t.ObjPathLib = {
+export const Path: t.Obj.Path.Lib = {
   Rel,
   Mutate,
   Is,

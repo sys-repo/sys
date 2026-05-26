@@ -4,7 +4,7 @@ import { clone as deepClone } from './u.clone.ts';
 /**
  * Deeply clones and extends the given object with a set of extra properties.
  */
-export const extend: t.ObjLib['extend'] = <T extends object, U extends object>(
+export const extend: t.Obj.Lib['extend'] = <T extends object, U extends object>(
   src: T,
   extra: U,
 ): t.ObjExtend<T, U> => {

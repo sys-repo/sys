@@ -11,7 +11,7 @@ type PathInput = t.PathLike | undefined | null;
  * Obj.Path-based lenses.
  * Thin sugar over Obj.Path.curry + Mutate.
  */
-export const Lens: t.ObjLensLib = {
+export const Lens: t.Obj.Lens.Lib = {
   Is,
   toObject,
 

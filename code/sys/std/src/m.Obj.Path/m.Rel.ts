@@ -3,7 +3,7 @@ import { type t } from './common.ts';
 /**
  * Utilities for determining relationships between object-paths.
  */
-export const Rel: t.ObjPathRelLib = {
+export const Rel: t.Obj.Path.Rel.Lib = {
   relate(a, b) {
     const A = normalize(a);
     const B = normalize(b);

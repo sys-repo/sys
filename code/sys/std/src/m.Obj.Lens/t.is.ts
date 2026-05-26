@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * Guard checks on value types.
  */
-export type ObjLensIsLib = {
+export type Lib = {
   /** True if `v` is a bound lens and exposes no mutating ops. */
   readonly(v?: unknown): boolean;
   /** Unbound lens (path-only builder). */
