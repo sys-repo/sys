@@ -5,7 +5,7 @@ import { expand } from './u.expand.ts';
 import { expandChain } from './u.expandChain.ts';
 import { make } from './u.make.ts';
 
-export const AliasResolver: t.AliasResolverLib = {
+export const AliasResolver: t.AliasResolver.Lib = {
   Is,
   make,
   analyze,

@@ -7,7 +7,7 @@ import { type t, Is } from './common.ts';
 //    :assets-2025
 const ALIAS_KEY = /^:([a-z0-9]+(-[a-z0-9]+)*)$/;
 
-export const AliasIs: t.AliasResolverIsLib = {
+export const AliasIs: t.AliasResolver.Is.Lib = {
   aliasKey(input?: unknown): input is t.Alias.Key {
     return Is.string(input) && ALIAS_KEY.test(input);
   },
