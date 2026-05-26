@@ -33,8 +33,8 @@ export type RxLib = RxjsLib & {
  */
 export type RxIs = {
   event(input: any, type?: string | { startsWith: string }): boolean;
-  observable: t.StdIsLib['observable'];
-  subject: t.StdIsLib['subject'];
+  observable: t.Is.Lib['observable'];
+  subject: t.Is.Lib['subject'];
 };
 
 /**

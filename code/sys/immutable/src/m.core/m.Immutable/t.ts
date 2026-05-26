@@ -8,7 +8,7 @@ export type * from './t.internal.ts';
  * Immutable Flags (type guards).
  */
 export type ImmutableIsLib = {
-  readonly objectPath: t.StdIsLib['objectPath'];
+  readonly objectPath: t.Is.Lib['objectPath'];
   proxy<T extends O>(input: any): input is T;
 
   immutable<D, P = unknown>(input: any): input is t.Immutable<D, P>;

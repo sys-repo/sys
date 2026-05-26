@@ -1,5 +1,3 @@
-import type { StdIsLib } from './t.ts';
-
 import {
   isEmptyRecord,
   isObject,
@@ -19,7 +17,7 @@ import { browser } from './u.browser.ts';
 /**
  * Common flag evaluators.
  */
-export const Is: StdIsLib = {
+export const Is: t.Is.Lib = {
   get error() {
     return Err.Is.error;
   },

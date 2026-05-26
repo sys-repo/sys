@@ -5,7 +5,7 @@ import type { t } from './common.ts';
  */
 export type AwaitLib = {
   /** Determine if the value is a Promise. */
-  isPromise: t.StdIsLib['promise'];
+  isPromise: t.Is.Lib['promise'];
 
   /** Wait for the promise to complete if the value is a promise; otherwise resolve immediately. */
   maybeWait<T>(value: T | Promise<T>): Promise<T>;
