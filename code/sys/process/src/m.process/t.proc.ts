@@ -126,11 +126,17 @@ export declare namespace Process {
    * a running child-process.
    */
   export type Handle = t.LifecycleAsync & {
+    /** Child process ID. */
     readonly pid: number;
+    /** Stream of stdout/stderr events emitted by the child. */
     readonly $: t.Observable<t.Process.Event>;
+    /** Runtime readiness flags. */
     readonly is: { readonly ready: boolean };
+    /** Resolves on readiness; rejects if the child exits/disposes before readiness. */
     whenReady(fn?: ReadyHandler): Promise<t.Process.Handle>;
+    /** Register a stdout event handler. */
     onStdOut(fn: t.Process.EventHandler): t.Process.Handle;
+    /** Register a stderr event handler. */
     onStdErr(fn: t.Process.EventHandler): t.Process.Handle;
   };
 

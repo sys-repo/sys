@@ -77,6 +77,27 @@ describe('Process.spawn (async long-lived)', () => {
     await test(`MY_SIGNAL_${slug()}`);
   });
 
+  it('spawn → wait rejects when child exits before ready', async () => {
+    const args = ['eval', 'Deno.exit(7)'];
+    const handle = Process.spawn({ args, readySignal: 'NEVER_READY', silent: true });
+
+    const error = await catchErrorWithin(() => handle.whenReady());
+
+    expect(error?.message).to.contain('Process.spawn: child exited before ready:');
+    expect(error?.message).to.contain('code=7');
+  });
+
+  it('spawn → wait rejects when disposed before ready', async () => {
+    const args = ['eval', 'setInterval(() => {}, 1_000)'];
+    const handle = Process.spawn({ args, readySignal: 'NEVER_READY', silent: true });
+    const errorPromise = catchErrorWithin(() => handle.whenReady());
+
+    await handle.dispose('test:dispose-before-ready');
+    const error = await errorPromise;
+
+    expect(error?.message).to.contain('Process.spawn: disposed before ready:');
+  });
+
   it('spawn → wait ("ready signal" function) → events', async () => {
     let fired = 0;
     const readySignal: t.Process.ReadySignalFilter = (e) => {
@@ -127,3 +148,29 @@ describe('Process.spawn (async long-lived)', () => {
     await child.dispose();
   });
 });
+
+async function catchErrorWithin(
+  fn: () => Promise<unknown>,
+  timeout: t.Msecs = 1_000,
+): Promise<Error | undefined> {
+  let timer: t.Time.Delay.Promise | undefined;
+  try {
+    return await Promise.race([
+      catchError(fn),
+      new Promise<Error>((resolve) => {
+        timer = Time.delay(timeout, () => resolve(new Error('Timed out waiting for rejection')));
+      }),
+    ]);
+  } finally {
+    timer?.cancel();
+  }
+}
+
+async function catchError(fn: () => Promise<unknown>): Promise<Error | undefined> {
+  try {
+    await fn();
+    return undefined;
+  } catch (error) {
+    return error instanceof Error ? error : new Error(String(error));
+  }
+}

@@ -3,6 +3,7 @@ import { asCommand, kill } from './u.ts';
 
 type H = t.Process.Handle;
 type E = { source: t.Process.StdStream; fn: t.Process.EventHandler };
+type ReadyWaiter = { resolve(handle: H): void; reject(cause: Error): void };
 
 /**
  * Spawn a child process to run a <unix> command
@@ -45,20 +46,23 @@ export const spawn: t.Process.Lib['spawn'] = (config) => {
   /**
    * Readiness monitoring.
    */
+  const cmd = config.args.join(' ');
+  const readyWaiters = new Set<ReadyWaiter>();
   let ready = false;
-  let resolveWhenReady: (handle: H) => void;
-  const whenReadyPromise = new Promise<H>((resolve) => {
-    resolveWhenReady = (handle) => {
-      const cmd = config.args.join(' ');
-      const toString = toStringFactory({ pid, cmd });
-      Array.from(whenReadyHandlers).forEach((fn) => fn({ pid, cmd, toString }));
-      resolve(handle);
-    };
-  });
+  let readyFailure: Error | undefined;
   const markAsReady = () => {
-    if (ready) return;
+    if (ready || readyFailure) return;
     ready = true;
-    resolveWhenReady(api);
+    const toString = toStringFactory({ pid, cmd });
+    Array.from(whenReadyHandlers).forEach((fn) => fn({ pid, cmd, toString }));
+    Array.from(readyWaiters).forEach((waiter) => waiter.resolve(api));
+    readyWaiters.clear();
+  };
+  const rejectWhenReady = (cause: Error) => {
+    if (ready || readyFailure) return;
+    readyFailure = cause;
+    Array.from(readyWaiters).forEach((waiter) => waiter.reject(cause));
+    readyWaiters.clear();
   };
 
   /**
@@ -91,6 +95,19 @@ export const spawn: t.Process.Lib['spawn'] = (config) => {
   const stderrReader = child.stderr.getReader();
   handleStream('stdout', stdoutReader);
   handleStream('stderr', stderrReader);
+  child.status.then(
+    (status) => {
+      if (!ready) rejectWhenReady(childExitedBeforeReadyError({ pid, cmd, status }));
+    },
+    (cause) => {
+      if (!ready) rejectWhenReady(childStatusFailedBeforeReadyError({ pid, cmd, cause }));
+    },
+  );
+  life.dispose$.subscribe((e) => {
+    if (e.payload.stage === 'start' && !ready) {
+      rejectWhenReady(disposedBeforeReadyError({ pid, cmd, reason: e.payload.reason }));
+    }
+  });
 
   /**
    * API
@@ -106,7 +123,11 @@ export const spawn: t.Process.Lib['spawn'] = (config) => {
     },
     whenReady(fn) {
       if (fn) whenReadyHandlers.add(fn);
-      return whenReadyPromise;
+      if (ready) return Promise.resolve(api);
+      if (readyFailure) return Promise.reject(readyFailure);
+      return new Promise<H>((resolve, reject) => {
+        readyWaiters.add({ resolve, reject });
+      });
     },
 
     onStdOut(fn) {
@@ -145,4 +166,28 @@ process ${c.gray('pid:')}${c.green(String(pid))}
 ${c.gray(cmd)}
 `.substring(1);
   };
+}
+
+function childExitedBeforeReadyError(args: {
+  pid: number;
+  cmd: string;
+  status: Deno.CommandStatus;
+}) {
+  const { pid, cmd, status } = args;
+  const signal = status.signal ? ` signal=${status.signal}` : '';
+  return new Error(
+    `Process.spawn: child exited before ready: pid=${pid} code=${status.code}${signal} cmd=${cmd}`,
+  );
+}
+
+function childStatusFailedBeforeReadyError(args: { pid: number; cmd: string; cause: unknown }) {
+  const { pid, cmd, cause } = args;
+  return new Error(`Process.spawn: failed waiting for child before ready: pid=${pid} cmd=${cmd}`, {
+    cause,
+  });
+}
+
+function disposedBeforeReadyError(args: { pid: number; cmd: string; reason: unknown }) {
+  const { pid, cmd, reason } = args;
+  return new Error(`Process.spawn: disposed before ready: pid=${pid} cmd=${cmd}`, { cause: reason });
 }
