@@ -1,4 +1,5 @@
 import { type t, Yaml } from './common.ts';
+import { CellMigrate } from './u.migrate/mod.ts';
 import { CellSchema } from './u.schema/mod.ts';
 
 /**
@@ -14,6 +15,8 @@ const DescriptorFile = '-config/@sys.cell/cell.yaml';
 
 export const loadCell: t.Cell.Lib['load'] = async (root = Fs.cwd('process')) => {
   const cellRoot = Fs.resolve(root);
+  await CellMigrate.dir(cellRoot);
+
   const descriptorPath = Fs.join(cellRoot, DescriptorFile);
 
   const read = await Fs.readText(descriptorPath);
