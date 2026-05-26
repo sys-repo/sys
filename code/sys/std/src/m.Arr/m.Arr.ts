@@ -1,12 +1,11 @@
 import type { t } from '../common.ts';
-import type { ArrayLib } from './t.ts';
 
 import { asArray } from './u.asArray.ts';
 import { equal } from './u.equality.ts';
 import { sortBy } from './u.sortBy.ts';
 import { startsWith } from './u.startsWith.ts';
 
-export const Arr: ArrayLib = {
+export const Arr: t.Arr.Lib = {
   asArray,
   sortBy,
   startsWith,

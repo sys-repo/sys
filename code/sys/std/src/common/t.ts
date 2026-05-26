@@ -2,6 +2,7 @@ import type * as ramda from 'ramda';
 export type * from '../types.ts';
 
 type R = typeof ramda;
+export type { Json } from '../types.ts';
 export type * from '@sys/types';
 
 /**
