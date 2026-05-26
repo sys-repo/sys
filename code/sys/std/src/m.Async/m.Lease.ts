@@ -3,7 +3,7 @@ import { type t, Rx } from './common.ts';
 /**
  * Library for managing "latest-wins" ownership leases over keys.
  */
-export const Lease: t.LeaseLib = {
+export const Lease: t.Lease.Lib = {
   guard,
   make,
 };
