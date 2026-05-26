@@ -8,7 +8,7 @@ type BuiltFiles = {
   readonly js: readonly BuiltJsFile[];
 };
 export type BuiltSample = {
-  readonly build: t.ViteBuildResponse;
+  readonly build: t.Vite.Build.Response;
   readonly outDir: string;
   readonly files: BuiltFiles;
 };

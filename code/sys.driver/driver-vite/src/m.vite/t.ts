@@ -1,89 +1,92 @@
 import type { t } from './common.ts';
 
-type ToStringOptions = { pad?: boolean };
-
 /**
- * Library: Tools for running Vite via commands issued to a child process.
+ * Tools for running Vite via commands issued to a child process.
  */
-export type ViteLib = {
-  readonly Config: t.ViteConfigLib;
-  readonly Startup: t.ViteStartup.Lib;
+export declare namespace Vite {
+  /** Public Vite command driver surface. */
+  export type Lib = {
+    readonly Config: t.ViteConfigLib;
+    readonly Startup: t.ViteStartup.Lib;
+
+    /** Run the Vite `build` command to produce an output `/dist` bundle. */
+    build(args: Build.Args): Promise<Build.Response>;
+
+    /**
+     * Run the Vite `dev` command.
+     * Long running processes (spawn → child process).
+     *
+     * Command:
+     *    $ vite dev --port=<1234>
+     *
+     * Terminal Output:
+     *
+     *    VITE v<x.x.x>  ready in 350 ms
+     *
+     *    ➜  Local:   http://localhost:1234/
+     *    ➜  Network: use --host to expose
+     */
+    dev(args: Dev.Args): Promise<Dev.Process>;
+  };
 
   /**
-   * Run the Vite `build` command to produce an output `/dist` bundle.
+   * Vite build command contract.
    */
-  build(args: ViteBuildArgs): Promise<t.ViteBuildResponse>;
+  export namespace Build {
+    /** Arguments passed to the [Vite.build] method. */
+    export type Args = {
+      /** Override the current-working-directory path */
+      cwd?: t.StringAbsoluteDir;
+      /** Explicit path authority, bypassing config file discovery when known. */
+      paths?: t.ViteConfigPaths;
+      /** Consuming module being built. */
+      pkg?: t.Pkg;
+      /** Suppress all log output. */
+      silent?: boolean;
+      /** Show wait spinner. */
+      spinner?: boolean;
+      /** Exit the process with a non-zero code on failure (default: false). */
+      exitOnError?: boolean;
+    };
+
+    /** Response from a Vite command such as `build`. */
+    export type Response = {
+      readonly ok: boolean;
+      readonly paths: t.ViteConfigPaths;
+      readonly dist: t.DistPkg;
+      readonly cmd: { readonly input: string; readonly output: t.Process.Output };
+      readonly elapsed: t.Msecs;
+      toString(options?: ToStringOptions): string;
+    };
+
+    /** Formatting options for command response text. */
+    export type ToStringOptions = { pad?: boolean };
+  }
 
   /**
-   * Run the Vite `dev` command.
-   * Long running processes (spawn → child process).
-   *
-   * Command:
-   *    $ vite dev --port=<1234>
-   *
-   * Terminal Output:
-   *
-   *    VITE v<x.x.x>  ready in 350 ms
-   *
-   *    ➜  Local:   http://localhost:1234/
-   *    ➜  Network: use --host to expose
+   * Vite dev command contract.
    */
-  dev(args: ViteDevArgs): Promise<t.ViteProcess>;
-};
+  export namespace Dev {
+    /** Arguments passed to the [Vite.dev] method. */
+    export type Args = {
+      cwd?: t.StringAbsoluteDir;
+      /** Explicit path authority, bypassing config file discovery when known. */
+      paths?: t.ViteConfigPaths;
+      port?: number;
+      /** Fail startup if the requested port is unavailable. */
+      strictPort?: boolean;
+      pkg?: t.Pkg; // Consumer module.
+      silent?: boolean;
+      until?: t.UntilInput;
+    };
 
-/**
- * Arguments passed to the [Vite.build] method.
- */
-export type ViteBuildArgs = {
-  /** Override the current-working-directory path */
-  cwd?: t.StringAbsoluteDir;
-  /** Explicit path authority, bypassing config file discovery when known. */
-  paths?: t.ViteConfigPaths;
-  /** Consuming module being built. */
-  pkg?: t.Pkg;
-  /** Supress all log output. */
-  silent?: boolean;
-  /** Show wait spinner. */
-  spinner?: boolean;
-  /** Exit the process with a non-zero code on failure (default: false). */
-  exitOnError?: boolean;
-};
-
-/**
- * Arguments passed to the [Vite.dev] method.
- */
-export type ViteDevArgs = {
-  cwd?: t.StringAbsoluteDir;
-  /** Explicit path authority, bypassing config file discovery when known. */
-  paths?: t.ViteConfigPaths;
-  port?: number;
-  /** Fail startup if the requested port is unavailable. */
-  strictPort?: boolean;
-  pkg?: t.Pkg; // Consumer module.
-  silent?: boolean;
-  until?: t.UntilInput;
-};
-
-/**
- * Vite Child Process.
- * A long running process, for instance when running: "$ vite dev"
- */
-export type ViteProcess = t.LifecycleAsync & {
-  readonly proc: t.Process.Handle;
-  readonly port: number;
-  readonly url: t.StringPath;
-  listen(): Promise<void>;
-  keyboard(): Promise<void>;
-};
-
-/**
- * Response from a vite command (such as `build`).
- */
-export type ViteBuildResponse = {
-  readonly ok: boolean;
-  readonly paths: t.ViteConfigPaths;
-  readonly dist: t.DistPkg;
-  readonly cmd: { readonly input: string; readonly output: t.Process.Output };
-  readonly elapsed: t.Msecs;
-  toString(options?: ToStringOptions): string;
-};
+    /** Vite child process for long-running commands such as `$ vite dev`. */
+    export type Process = t.LifecycleAsync & {
+      readonly proc: t.Process.Handle;
+      readonly port: number;
+      readonly url: t.StringPath;
+      listen(): Promise<void>;
+      keyboard(): Promise<void>;
+    };
+  }
+}

@@ -121,7 +121,7 @@ const perf = {
     return index === 0 ? 'cold' : 'warm';
   },
 
-  detailFromBuild(res: t.ViteBuildResponse) {
+  detailFromBuild(res: t.Vite.Build.Response) {
     const stderr = perf.stripAnsi(res.cmd.output.text.stderr).trim();
     const stdout = perf.stripAnsi(res.cmd.output.text.stdout).trim();
     return stderr || stdout || 'build failed';

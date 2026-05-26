@@ -2,7 +2,7 @@ import { type t, pkg as builder, c, Cli, CompositeHash, Fs, Json, Pkg, Process, 
 import { ViteLog } from '../m.fmt/mod.ts';
 import { Log, Wrangle } from './u.ts';
 
-type B = t.ViteLib['build'];
+type B = t.Vite.Lib['build'];
 
 /**
  * Run the <vite:build> command.
@@ -31,7 +31,7 @@ export const build: B = async (input) => {
     return res.dist;
   };
 
-  type R = t.ViteBuildResponse;
+  type R = t.Vite.Build.Response;
   type RArgs = { ok: boolean; output: t.Process.Output; elapsed: t.Msecs; dist: t.DistPkg };
   const response = (args: RArgs): R => {
     const { ok, output, elapsed, dist } = args;

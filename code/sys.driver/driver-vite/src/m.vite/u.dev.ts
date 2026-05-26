@@ -37,7 +37,7 @@ export const REGEX = {
 /**
  * Run the <vite:dev> command (long-running spawn).
  */
-export const dev: t.ViteLib['dev'] = async (input) => {
+export const dev: t.Vite.Lib['dev'] = async (input) => {
   const { silent = false, pkg, strictPort = false } = input;
   const startedAt = Time.now.timestamp as t.Msecs;
   const end = Perf.section('dev.parent.total', { cwd: input.cwd ?? '', silent }, { level: 1 });
@@ -184,7 +184,7 @@ export const dev: t.ViteLib['dev'] = async (input) => {
   /**
    * API:
    */
-  const api: t.ViteProcess = {
+  const api: t.Vite.Dev.Process = {
     port,
     url: resolvedUrl,
     listen,

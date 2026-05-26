@@ -3,7 +3,7 @@ import { Err, Rx, type t } from './common.ts';
 /** Wrap the running Vite process in a renderer-neutral service handle. */
 export function handleOf(
   location: t.ViteService.Location,
-  server: t.ViteProcess,
+  server: t.Vite.Dev.Process,
 ): t.ViteService.DevHandle {
   const runtime: RuntimeState = { state: 'ready' };
   const finished = finishedOf(server, runtime);
@@ -37,7 +37,7 @@ type RuntimeState = {
   error?: t.StdError;
 };
 
-function finishedOf(server: t.ViteProcess, runtime: RuntimeState): Promise<void> {
+function finishedOf(server: t.Vite.Dev.Process, runtime: RuntimeState): Promise<void> {
   if (server.disposed) return Promise.resolve();
 
   return Rx.firstValueFrom(
@@ -58,7 +58,7 @@ function finishedOf(server: t.ViteProcess, runtime: RuntimeState): Promise<void>
 
 function statusOf(
   location: t.ViteService.Location,
-  server: t.ViteProcess,
+  server: t.Vite.Dev.Process,
   runtime: RuntimeState,
 ): t.Service.Status {
   return {

@@ -25,7 +25,7 @@ describe('@sys/driver-vite/service', () => {
     );
     const until = new AbortController().signal;
     const server = fakeServer({ port: 5179, url: 'http://localhost:5179/' });
-    let captured: t.ViteDevArgs | undefined;
+    let captured: t.Vite.Dev.Args | undefined;
 
     const handle = await startDev(
       { cwd: fs.dir, paths: { config }, silent: true, until },
@@ -69,7 +69,7 @@ describe('@sys/driver-vite/service', () => {
     const configRel = '-config/@sys.driver-vite/view.yaml';
     const config = fs.join(configRel);
     await Fs.write(config, '{}\n');
-    let captured: t.ViteDevArgs | undefined;
+    let captured: t.Vite.Dev.Args | undefined;
 
     const handle = await startDev(
       { cwd: fs.dir, paths: { config: configRel } },
@@ -139,7 +139,7 @@ type FakeServerOptions = {
   readonly url?: string;
 };
 
-function fakeServer(options: FakeServerOptions = {}): t.ViteProcess {
+function fakeServer(options: FakeServerOptions = {}): t.Vite.Dev.Process {
   const port = options.port ?? 4321;
   const life = Rx.lifecycleAsync();
   return {

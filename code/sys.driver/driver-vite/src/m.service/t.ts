@@ -52,7 +52,7 @@ export declare namespace ViteService {
     /** Absolute owner config path. */
     readonly config: t.StringPath;
     /** Running Vite process handle. */
-    readonly server: t.ViteProcess;
+    readonly server: t.Vite.Dev.Process;
     /** Actual resolved dev-server port. */
     readonly port: number;
     /** Actual resolved dev-server URL. */
@@ -69,6 +69,6 @@ export declare namespace ViteService {
 
   /** Test seam for the thin service adapter. */
   export type StartDevDeps = {
-    readonly dev?: t.ViteLib['dev'];
+    readonly dev?: t.Vite.Lib['dev'];
   };
 }

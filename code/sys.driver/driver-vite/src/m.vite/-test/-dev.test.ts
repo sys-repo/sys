@@ -62,7 +62,7 @@ describe('Vite.dev', () => {
         },
       } as const;
       const port = Testing.randomPort();
-      let server: t.ViteProcess | undefined;
+      let server: t.Vite.Dev.Process | undefined;
       let timeout: t.Time.Delay.Promise | undefined;
       const controller = new AbortController();
       let stderr = '';
@@ -174,7 +174,7 @@ describe('Vite.dev', () => {
       } as const;
       const requestedPort = Testing.randomPort();
       const blocker = Deno.listen({ hostname: '0.0.0.0', port: requestedPort });
-      let server: t.ViteProcess | undefined;
+      let server: t.Vite.Dev.Process | undefined;
       let stderr = '';
 
       try {
@@ -246,7 +246,7 @@ async function fetchWhenReady(
   url: string,
   args: {
     signal: AbortSignal;
-    server: t.ViteProcess;
+    server: t.Vite.Dev.Process;
     stderr: () => string;
   },
 ) {
@@ -284,7 +284,7 @@ async function fetchEntryWhenReady(
   url: string,
   args: {
     signal: AbortSignal;
-    server: t.ViteProcess;
+    server: t.Vite.Dev.Process;
     stderr: () => string;
   },
 ) {
