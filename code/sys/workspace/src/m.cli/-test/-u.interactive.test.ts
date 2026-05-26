@@ -1,6 +1,6 @@
 import { describe, expect, Fs, it, Testing } from '../../-test.ts';
 import { Cli } from '../common.ts';
-import { runInteractive } from '../u.interactive.ts';
+import { runInteractive } from '../u/u.interactive.ts';
 import * as fixture from '../../m.upgrade/-test/u.fixture.ts';
 
 describe('Workspace.Cli.runInteractive', () => {
@@ -50,15 +50,15 @@ describe('Workspace.Cli.runInteractive', () => {
               const result = await runInteractive(
                 { cwd: fs.dir, deps: fs.join('deps.yaml') },
                 {
-                deps: fs.join('deps.yaml'),
-                mode: 'interactive',
-                policy: 'minor',
-                prerelease: false,
-                include: [],
-                exclude: [],
-                dryRun: false,
-              },
-            );
+                  deps: fs.join('deps.yaml'),
+                  mode: 'interactive',
+                  policy: 'minor',
+                  prerelease: false,
+                  include: [],
+                  exclude: [],
+                  dryRun: false,
+                },
+              );
 
               expect(result.selection).to.eql({
                 include: ['react-spinners'],

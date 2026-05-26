@@ -1,8 +1,8 @@
-import { type t, Cli } from './common.ts';
-import { applyWithSession } from '../m.upgrade/u.apply.ts';
-import { createSession } from '../m.upgrade/u.session.ts';
-import { upgradeWithSession } from '../m.upgrade/u.upgrade.ts';
-import { Fmt } from './u.fmt.ts';
+import { Cli, type t } from '../common.ts';
+import { applyWithSession } from '../../m.upgrade/u.apply.ts';
+import { createSession } from '../../m.upgrade/u.session.ts';
+import { upgradeWithSession } from '../../m.upgrade/u.upgrade.ts';
+import { Fmt } from '../u.fmt/u.fmt.ts';
 
 type InteractiveResult = {
   readonly selection: t.WorkspaceCli.Selection;
@@ -15,14 +15,19 @@ export async function runInteractive(
   options: t.WorkspaceCli.ResolvedOptions,
 ): Promise<InteractiveResult> {
   const session = createSession();
-  const initial = await Cli.Spinner.with(Fmt.spinnerProgress({ kind: 'plan' }), (spinner) =>
-    upgradeWithSession(
-      input,
-      wrangle.upgradeOptions(options.policy, options.exclude, options.prerelease, (progress) =>
-        spinner.start(Fmt.spinnerProgress(progress)),
+  const initial = await Cli.Spinner.with(
+    Fmt.spinnerProgress({ kind: 'plan' }),
+    (spinner) =>
+      upgradeWithSession(
+        input,
+        wrangle.upgradeOptions(
+          options.policy,
+          options.exclude,
+          options.prerelease,
+          (progress) => spinner.start(Fmt.spinnerProgress(progress)),
+        ),
+        session,
       ),
-      session,
-    ),
   );
 
   console.info();
@@ -37,15 +42,20 @@ export async function runInteractive(
   const upgrade =
     policy === options.policy && wrangle.sameExclude(selection.exclude, options.exclude)
       ? initial
-      : await Cli.Spinner.with(Fmt.spinnerProgress({ kind: 'plan' }), (spinner) =>
+      : await Cli.Spinner.with(
+        Fmt.spinnerProgress({ kind: 'plan' }),
+        (spinner) =>
           upgradeWithSession(
             input,
-            wrangle.upgradeOptions(policy, selection.exclude, options.prerelease, (progress) =>
-              spinner.start(Fmt.spinnerProgress(progress)),
+            wrangle.upgradeOptions(
+              policy,
+              selection.exclude,
+              options.prerelease,
+              (progress) => spinner.start(Fmt.spinnerProgress(progress)),
             ),
             session,
           ),
-        );
+      );
 
   console.info(Fmt.selected(selection));
 
@@ -57,14 +67,19 @@ export async function runInteractive(
   }
   if (upgrade.totals.planned === 0) return { selection, upgrade };
 
-  const applied = await Cli.Spinner.with(Fmt.spinnerProgress({ kind: 'apply' }), (spinner) =>
-    applyWithSession(
-      input,
-      wrangle.upgradeOptions(policy, selection.exclude, options.prerelease, (progress) =>
-        spinner.start(Fmt.spinnerProgress(progress)),
+  const applied = await Cli.Spinner.with(
+    Fmt.spinnerProgress({ kind: 'apply' }),
+    (spinner) =>
+      applyWithSession(
+        input,
+        wrangle.upgradeOptions(
+          policy,
+          selection.exclude,
+          options.prerelease,
+          (progress) => spinner.start(Fmt.spinnerProgress(progress)),
+        ),
+        session,
       ),
-      session,
-    ),
   );
   console.info(Fmt.applied(applied));
   const commit = Fmt.commitSuggestion(applied);
@@ -114,12 +129,11 @@ const wrangle = {
     const promptOptions = Fmt.selectionOptions(upgrade, options);
     if (promptOptions.length === 0) return { include: [], exclude: options.exclude };
 
-    const picked =
-      (await Cli.Input.Checkbox.prompt<string>({
-        message: `Dependencies to upgrade (${promptOptions.length.toLocaleString()})`,
-        options: [...promptOptions],
-        maxRows: Math.min(50, promptOptions.length),
-      })) ?? [];
+    const picked = (await Cli.Input.Checkbox.prompt<string>({
+      message: `Dependencies to upgrade (${promptOptions.length.toLocaleString()})`,
+      options: [...promptOptions],
+      maxRows: Math.min(50, promptOptions.length),
+    })) ?? [];
 
     const pickedSet = new Set(picked);
     const exclude = new Set(options.exclude);

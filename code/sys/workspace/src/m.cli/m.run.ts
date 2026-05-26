@@ -1,9 +1,9 @@
 import { Cli, Fs, type t } from './common.ts';
 import { WorkspaceUpgrade } from '../m.upgrade/mod.ts';
-import { parseArgs, wantsHelp } from './u.args.ts';
-import { Fmt } from './u.fmt.ts';
-import { FmtHelp } from './u.fmt.help.ts';
-import { runInteractive } from './u.interactive.ts';
+import { parseArgs, wantsHelp } from './u/u.args.ts';
+import { runInteractive } from './u/u.interactive.ts';
+import { Fmt } from './u.fmt/u.fmt.ts';
+import { FmtHelp } from './u.fmt/u.fmt.help.ts';
 
 export const run: t.WorkspaceCli.Lib['run'] = async (input = {}) => {
   const cwd = input.cwd ?? Fs.cwd('process');

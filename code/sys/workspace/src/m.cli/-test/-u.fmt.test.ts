@@ -1,5 +1,5 @@
-import { describe, expect, it, Cli, Esm, c, type t } from '../../-test.ts';
-import { Fmt } from '../u.fmt.ts';
+import { c, Cli, describe, Esm, expect, it, type t } from '../../-test.ts';
+import { Fmt } from '../u.fmt/u.fmt.ts';
 
 describe('Workspace.Cli.Fmt', () => {
   it('omits the duplicate candidates table from the interactive plan output', () => {
@@ -253,7 +253,9 @@ function upgradeWithOverrides(): t.WorkspaceUpgrade.Result {
     '3.5.0',
   );
   const decisions = [monacoDecision, automergeDecision, dompurifyDecision];
-  const nodes: t.EsmTopologicalInput['nodes'] = [monacoDecision, dompurifyDecision].map((decision) => ({
+  const nodes: t.EsmTopologicalInput['nodes'] = [monacoDecision, dompurifyDecision].map((
+    decision,
+  ) => ({
     key: Fmt.key(decision.input.subject.entry),
     value: decision,
   }));

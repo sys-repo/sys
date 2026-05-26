@@ -1,4 +1,4 @@
-import { Cli } from './common.ts';
+import { Cli } from '../common.ts';
 
 const D = {
   tool: '@sys/workspace/cli',
@@ -9,7 +9,8 @@ export const FmtHelp = {
     return {
       tool: toolname,
       summary: 'Upgrade workspace dependencies from canonical deps.yaml.',
-      note: 'Interactive by default; non-interactive applies deterministically, and --dry-run previews without writing.',
+      note:
+        'Interactive by default; non-interactive applies deterministically, and --dry-run previews without writing.',
       usage: [`${toolname} [options]`],
       options: [
         ['-h, --help', 'show help'],

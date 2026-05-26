@@ -1,4 +1,4 @@
-import { type t, Args, Err, Is, Path } from './common.ts';
+import { Args, Err, Is, Path, type t } from '../common.ts';
 
 export function wantsHelp(argv: readonly string[]): boolean {
   const args = Args.parse<t.WorkspaceCli.ParsedArgs>(wrangle.argv(argv), {
@@ -49,7 +49,7 @@ const wrangle = {
       item
         .split(',')
         .map((s) => s.trim())
-        .filter(Boolean),
+        .filter(Boolean)
     );
     return [...new Set(flat)].sort((a, b) => a.localeCompare(b));
   },
