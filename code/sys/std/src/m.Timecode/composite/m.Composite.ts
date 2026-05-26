@@ -10,7 +10,7 @@ import { Time } from './u.time.ts';
 import { toVirtualTimeline } from './u.toVirtualTimeline.ts';
 import { validate } from './u.validate.ts';
 
-export const Composite: t.TimecodeCompositeLib = {
+export const Composite: t.Timecode.Composite.Lib = {
   Ops,
   Map,
   Durations,

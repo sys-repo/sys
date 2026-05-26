@@ -8,7 +8,7 @@ import { Experience } from './experience/mod.ts';
 import { Pattern } from './m.Pattern.ts';
 import { Slice } from './slice/mod.ts';
 
-export const Timecode: t.TimecodeLib = {
+export const Timecode: t.Timecode.Lib = {
   Ops,
   Pattern,
   Experience,

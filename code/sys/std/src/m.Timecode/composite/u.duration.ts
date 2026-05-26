@@ -1,7 +1,7 @@
 import { type t } from './common.ts';
 import { normalize } from './u.normalize.ts';
 
-export const Durations: t.TimecodeCompositeLib['Durations'] = {
+export const Durations: t.Timecode.Composite.Lib['Durations'] = {
   diff,
   probe,
   with: merge,
@@ -52,8 +52,8 @@ function merge(
     const eff = finiteNonNeg(inline)
       ? inline
       : finiteNonNeg(fromMap)
-        ? (fromMap as t.Msecs)
-        : undefined;
+      ? (fromMap as t.Msecs)
+      : undefined;
     return eff === undefined ? p : { ...p, duration: eff };
   });
 }

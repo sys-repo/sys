@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 
-export const Time: t.TimecodeCompositeLib['Time'] = {
+export const Time: t.Timecode.Composite.Lib['Time'] = {
   toVirtual,
   clamp,
 };

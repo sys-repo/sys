@@ -4,6 +4,6 @@ import { toTimeline } from './u.toTimeline.ts';
 /**
  * Public experience library.
  */
-export const Experience: t.TimecodeExperienceLib = {
+export const Experience: t.Timecode.Experience.Lib = {
   toTimeline,
 };

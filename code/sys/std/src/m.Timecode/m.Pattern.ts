@@ -5,9 +5,10 @@ import type { t } from './common.ts';
  * - .timecode: MM:SS | HH:MM:SS | HH:MM:SS.mmm  (HH optional, .mmm optional)
  * - .slice:    "<from>..<to>" where bounds are timecode | "" (open) | "-timecode" (relEnd)
  */
-export const Pattern: t.TimecodeLib['Pattern'] = {
+export const Pattern: t.Timecode.Lib['Pattern'] = {
   timecode: `^(?:\\d{2}:)?[0-5]\\d:[0-5]\\d(?:\\.\\d{3})?$`,
-  slice: `^\\s*(?:(?:\\d{2}:)?[0-5]\\d:[0-5]\\d(?:\\.\\d{3})?|)\\s*\\.\\.\\s*(?:(?:\\d{2}:)?[0-5]\\d:[0-5]\\d(?:\\.\\d{3})?|-(?:\\d{2}:)?[0-5]\\d:[0-5]\\d(?:\\.\\d{3})?)\\s*$`,
+  slice:
+    `^\\s*(?:(?:\\d{2}:)?[0-5]\\d:[0-5]\\d(?:\\.\\d{3})?|)\\s*\\.\\.\\s*(?:(?:\\d{2}:)?[0-5]\\d:[0-5]\\d(?:\\.\\d{3})?|-(?:\\d{2}:)?[0-5]\\d:[0-5]\\d(?:\\.\\d{3})?)\\s*$`,
 };
 
 /**

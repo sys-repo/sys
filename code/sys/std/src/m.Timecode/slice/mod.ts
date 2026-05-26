@@ -17,7 +17,7 @@ import { duration, from, positions, split, toString } from './u.string.ts';
  *
  * Resolution yields a concrete [from, to) millisecond window.
  */
-export const Slice: t.TimecodeSliceLib = {
+export const Slice: t.Timecode.Slice.Lib = {
   is,
   parse,
   resolve,

@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * Mapping operations between the virtual timeline and source/slice domains.
  */
-export const Map: t.TimecodeCompositeMapLib = {
+export const Map: t.Timecode.Composite.Map.Lib = {
   toSource,
 };
 
