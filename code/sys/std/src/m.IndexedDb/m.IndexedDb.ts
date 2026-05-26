@@ -1,11 +1,11 @@
-import type { IndexedDbLib } from './t.ts';
+import type * as Type from './t.ts';
 
 type DeleteResponse = { name: string; error?: string };
 
 /**
  * A promise based wrapper into the IndexedDB API.
  */
-export const IndexedDb: IndexedDbLib = {
+export const IndexedDb: Type.IndexedDb.Lib = {
   /**
    * Create a promised base interface into an IndexedDb
    */
