@@ -1,4 +1,4 @@
-import type { DisposeLib } from './t.ts';
+import type { t } from './common.ts';
 
 import { disposable, disposableAsync } from './u.dispose.ts';
 import { done } from './u.done.ts';
@@ -10,7 +10,7 @@ import { abortable } from './u.abortable.ts';
 /**
  * Toolkit for working with disposable interfaces.
  */
-export const Dispose: DisposeLib = {
+export const Dispose: t.Dispose.Lib = {
   done,
   until,
 

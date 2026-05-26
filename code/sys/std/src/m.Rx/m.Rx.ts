@@ -19,7 +19,7 @@ const {
 /**
  * Tools for working with Observables (via the RXJS library).
  */
-export const Rx: t.RxLib = {
+export const Rx: t.Rx.Lib = {
   ...lib,
   Is,
   noop$: new lib.Subject(),

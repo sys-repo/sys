@@ -5,7 +5,7 @@ type Event = { type: string; payload: unknown };
 /**
  * Type guards (boolean evaluators).
  */
-export const Is: t.RxIs = {
+export const Is: t.Rx.Is.Lib = {
   observable: StdIs.observable,
   subject: StdIs.subject,
 

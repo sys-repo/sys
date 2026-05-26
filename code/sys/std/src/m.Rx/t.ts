@@ -2,40 +2,50 @@ import type * as rxjs from 'rxjs';
 import type { t } from '../common.ts';
 
 /**
- * Tools for working with Observables (via `rxjs`).
+ * Type contracts for Observable helpers.
  */
-export type RxLib = RxjsLib & {
-  readonly Is: RxIs;
-  readonly noop$: rxjs.Subject<any>;
+export namespace Rx {
+  /**
+   * Tools for working with Observables (via `rxjs`).
+   */
+  export type Lib = RxjsLib & {
+    readonly Is: Is.Lib;
+    readonly noop$: rxjs.Subject<any>;
 
-  // Lifecycle:
-  done: t.DisposeLib['done'];
-  abortable: t.DisposeLib['abortable'];
-  disposable: t.DisposeLib['disposable'];
-  disposableAsync: t.DisposeLib['disposableAsync'];
-  lifecycle: t.DisposeLib['lifecycle'];
-  lifecycleAsync: t.DisposeLib['lifecycleAsync'];
-  toLifecycle: t.DisposeLib['toLifecycle'];
-  toLifecycleView: t.DisposeLib['toLifecycleView'];
+    // Lifecycle:
+    done: t.Dispose.Lib['done'];
+    abortable: t.Dispose.Lib['abortable'];
+    disposable: t.Dispose.Lib['disposable'];
+    disposableAsync: t.Dispose.Lib['disposableAsync'];
+    lifecycle: t.Dispose.Lib['lifecycle'];
+    lifecycleAsync: t.Dispose.Lib['lifecycleAsync'];
+    toLifecycle: t.Dispose.Lib['toLifecycle'];
+    toLifecycleView: t.Dispose.Lib['toLifecycleView'];
 
-  // Helpers:
-  subject<T = void>(): rxjs.Subject<T>;
-  behaviorSubject<T = void>(initial: T): rxjs.BehaviorSubject<T>;
-  withinTimeThreshold<T>(
-    $: t.Observable<T>,
-    timeout: t.Msecs,
-    options?: { until?: t.UntilInput },
-  ): t.TimeThreshold<T>;
-};
+    // Helpers:
+    subject<T = void>(): rxjs.Subject<T>;
+    behaviorSubject<T = void>(initial: T): rxjs.BehaviorSubject<T>;
+    withinTimeThreshold<T>(
+      $: t.Observable<T>,
+      timeout: t.Msecs,
+      options?: { until?: t.UntilInput },
+    ): t.TimeThreshold<T>;
+  };
 
-/**
- * Type guards (boolean evaluators).
- */
-export type RxIs = {
-  event(input: any, type?: string | { startsWith: string }): boolean;
-  observable: t.Is.Lib['observable'];
-  subject: t.Is.Lib['subject'];
-};
+  /**
+   * Type contracts for Observable type guards.
+   */
+  export namespace Is {
+    /**
+     * Type guards (boolean evaluators).
+     */
+    export type Lib = {
+      event(input: any, type?: string | { startsWith: string }): boolean;
+      observable: t.Is.Lib['observable'];
+      subject: t.Is.Lib['subject'];
+    };
+  }
+}
 
 /**
  * Default methods exported from the [rxjs] library.
