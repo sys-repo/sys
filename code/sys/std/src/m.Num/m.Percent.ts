@@ -1,11 +1,10 @@
 import { type t } from './common.ts';
 import { PercentRange as Range } from './m.Percent.Range.ts';
-import type { PercentLib } from './t.ts';
 
 /**
  * Tools for working with numbers that represent percentages.
  */
-export const Percent: PercentLib = {
+export const Percent: t.Num.Percent.Lib = {
   Range,
 
   /**
