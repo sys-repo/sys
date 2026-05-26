@@ -110,8 +110,16 @@ export declare namespace EsmDeps {
     readonly entries: Entry[];
     /** Parsed ESM module set derived from the entries. */
     readonly modules: t.EsmModules;
+    /** Parsed package.json resolver policy. */
+    readonly packageJson?: PackageJsonPolicy;
     /** Render the manifest state back to YAML. */
     toYaml(options?: YamlOptions): Yaml;
+  };
+
+  /** Canonical package.json resolver policy parsed from `deps.yaml`. */
+  export type PackageJsonPolicy = {
+    /** npm-compatible package override policy. */
+    readonly overrides?: t.PkgNodeOverrides;
   };
 
   /** YAML manifest wrapper. */
@@ -128,6 +136,8 @@ export declare namespace EsmDeps {
   export type YamlOptions = {
     /** Optional grouping callback for named dependency groups. */
     groupBy?: CategorizeByGroup;
+    /** Optional package.json resolver policy to render. */
+    packageJson?: PackageJsonPolicy;
   };
 
   /** Categorize a dependency into a named group. */
@@ -206,5 +216,8 @@ export declare namespace EsmDeps {
      * Only relevant when projecting to `package.json`.
      */
     dev?: boolean;
+
+    /** npm-compatible package override policy. */
+    overrides?: t.PkgNodeOverrides;
   };
 }

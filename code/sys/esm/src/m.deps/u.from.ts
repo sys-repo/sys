@@ -1,12 +1,18 @@
-import { type t, Arr, Yaml, Err, Esm, Fs, Is, Semver } from './common.ts';
+import { Arr, Err, Esm, Fs, Is, Semver, type t, Yaml } from './common.ts';
+import { PackageJsonPolicy } from './u.packageJson.policy.ts';
 import { toYaml } from './u.toYaml.ts';
 
 export const from: t.EsmDeps.Lib['from'] = async (input) => {
   const errors = Err.errors();
+  let fatal = false;
 
   const fail = (err: string | t.StdError) => {
     errors.push(err);
     return done();
+  };
+  const reject = (err: string | t.StdError) => {
+    fatal = true;
+    errors.push(err);
   };
   const done = (data?: t.EsmDeps.State): t.EsmDeps.Result => {
     let error = errors.toError();
@@ -23,7 +29,9 @@ export const from: t.EsmDeps.Lib['from'] = async (input) => {
   } else {
     const parsed = Yaml.parse<t.EsmDeps.YamlShape>(input);
     if (parsed.error) {
-      return fail(Err.std('Failed while parsing given YAML', { cause: parsed.error.cause ?? parsed.error }));
+      return fail(
+        Err.std('Failed while parsing given YAML', { cause: parsed.error.cause ?? parsed.error }),
+      );
     }
     yaml = parsed.data ?? undefined;
   }
@@ -32,6 +40,16 @@ export const from: t.EsmDeps.Lib['from'] = async (input) => {
   }
 
   const groups = Is.object(yaml.groups) ? yaml.groups : {};
+  const overrides: t.PkgNodeOverrides = {};
+
+  Object.entries(groups).forEach(([groupName, group]) => {
+    if (!Array.isArray(group)) return;
+    group.forEach((item, index) => {
+      if (PackageJsonPolicy.hasOverridesItem(item)) {
+        reject(`Invalid deps.yaml: overrides are not allowed in groups.${groupName}[${index}]`);
+      }
+    });
+  });
 
   const entries: t.EsmDeps.Entry[] = [];
   const addEntry = (
@@ -72,12 +90,29 @@ export const from: t.EsmDeps.Lib['from'] = async (input) => {
   };
 
   if (Array.isArray(yaml['deno.json'])) {
-    yaml['deno.json'].forEach((item) => addEntry(item, 'deno.json', false, item.subpaths, item.name)!);
+    yaml['deno.json'].forEach((item, index) => {
+      if (PackageJsonPolicy.hasOverridesItem(item)) {
+        reject(`Invalid deps.yaml: overrides are not allowed in deno.json[${index}]`);
+        return;
+      }
+      addEntry(item, 'deno.json', false, item.subpaths, item.name)!;
+    });
   }
   if (Array.isArray(yaml['package.json'])) {
-    yaml['package.json'].forEach((item) => addEntry(item, 'package.json', item.dev, item.subpaths, item.name)!);
+    yaml['package.json'].forEach((item, index) => {
+      if (PackageJsonPolicy.hasOverridesItem(item)) {
+        const parsed = PackageJsonPolicy.parseOverridesItem(item, index);
+        if (parsed.error) reject(parsed.error);
+        if (parsed.overrides) PackageJsonPolicy.mergeOverrides(overrides, parsed.overrides, reject);
+        return;
+      }
+      addEntry(item, 'package.json', item.dev, item.subpaths, item.name)!;
+    });
   }
 
+  if (fatal) return done();
+
+  const packageJson = PackageJsonPolicy.toPolicy(overrides);
   const dedupedMap = new Map<string, t.EsmDeps.Entry>();
   for (const entry of entries) {
     const id = wrangle.entryId(entry);
@@ -93,7 +128,14 @@ export const from: t.EsmDeps.Lib['from'] = async (input) => {
   return done({
     entries: deduped,
     modules: Esm.modules(deduped.map((entry) => entry.module)),
-    toYaml: (options) => toYaml(deduped, options),
+    packageJson,
+    toYaml: (options = {}) => {
+      const hasPackageJson = PackageJsonPolicy.hasOwn(options, 'packageJson');
+      return toYaml(deduped, {
+        ...options,
+        packageJson: hasPackageJson ? options.packageJson : packageJson,
+      });
+    },
   });
 };
 

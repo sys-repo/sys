@@ -57,6 +57,59 @@ describe('Deps state', () => {
     }
   });
 
+  it('toYaml: preserves package override policy through state round-trip', async () => {
+    const yaml = `
+      package.json:
+        - import: npm:react@19.2.6
+        - overrides:
+            monaco-editor:
+              dompurify: '3.4.0'
+            "@automerge/automerge-repo":
+              uuid: '11.1.1'
+    `;
+
+    const { data, error } = await Deps.from(yaml);
+    expect(data).to.exist;
+    expect(error).to.eql(undefined);
+
+    if (data) {
+      const rendered = data.toYaml();
+      const parsed = await Deps.from(rendered.text);
+
+      expect(rendered.obj['package.json']).to.eql([
+        { import: 'npm:react@19.2.6' },
+        {
+          overrides: {
+            '@automerge/automerge-repo': { uuid: '11.1.1' },
+            'monaco-editor': { dompurify: '3.4.0' },
+          },
+        },
+      ]);
+      expect(parsed.error).to.eql(undefined);
+      expect(parsed.data?.packageJson).to.eql(data.packageJson);
+    }
+  });
+
+  it('toYaml: renders caller-supplied package override policy', () => {
+    const rendered = Deps.toYaml([], {
+      packageJson: {
+        overrides: {
+          zed: { beta: '2.0.0', alpha: '1.0.0' },
+          alpha: 'npm:alpha@1.0.0',
+        },
+      },
+    });
+
+    expect(rendered.obj['package.json']).to.eql([
+      {
+        overrides: {
+          alpha: 'npm:alpha@1.0.0',
+          zed: { alpha: '1.0.0', beta: '2.0.0' },
+        },
+      },
+    ]);
+  });
+
   it('toYaml: grouped and ungrouped round-trip', async () => {
     const yaml = `
       groups:

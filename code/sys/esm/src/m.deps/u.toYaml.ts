@@ -1,4 +1,5 @@
-import { type t, Delete, Err, Is, Yaml, isEmptyRecord } from './common.ts';
+import { Delete, Err, Is, isEmptyRecord, type t, Yaml } from './common.ts';
+import { PackageJsonPolicy } from './u.packageJson.policy.ts';
 
 type RequiredYamlShape = Required<t.EsmDeps.YamlShape>;
 
@@ -27,6 +28,12 @@ export const toYaml: t.EsmDeps.Lib['toYaml'] = (entries, options = {}) => {
     target('deno.json', entry);
     target('package.json', entry);
   });
+
+  if (options.packageJson?.overrides) {
+    obj['package.json']?.push({
+      overrides: PackageJsonPolicy.cloneOverrides(options.packageJson.overrides),
+    });
+  }
 
   clean(obj);
   dedupeGroups(obj, 'deno.json');
