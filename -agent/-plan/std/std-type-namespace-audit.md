@@ -49,16 +49,17 @@ These already have a proper root namespace shape:
 - `Bytes` → `Bytes.Lib`
 - `Time` → `Time.Lib`, `Time.Delay.*`, etc.
 
-Partial:
+Completed by this plan:
 
-- `Num` has `namespace Num`, but still has flat subcontracts:
-  - `Num.IsLib` should likely become `Num.Is.Lib`
-  - `Num.Random` should likely become `Num.Random.Fn`
-  - `Num.RandomOptions` should likely become `Num.Random.Options`
+- `Num` already had `namespace Num`; the cleanup completed its subcontracts:
+  - `Num.IsLib` → `Num.Is.Lib`
+  - `Num.Random` → `Num.Random.Fn`
+  - `Num.RandomOptions` → `Num.Random.Options`
+  - `Num.RandomSource` → `Num.Random.Source`
 
-## Due for namespace refactor: root surfaces
+## Completed namespace refactor: root surfaces
 
-High-confidence flat root contracts:
+Completed flat-to-namespace root contract maps:
 
 ```text
 ArrayLib              → Arr.Lib
@@ -78,8 +79,8 @@ JsonLib               → Json.Lib
 LazyLib               → Lazy.Lib
 LogLib                → Log.Lib
 ObjLib                → Obj.Lib
-ObjPathLib            → ObjPath.Lib or Obj.Path.Lib
-ObjLensLib            → ObjLens.Lib or Obj.Lens.Lib
+ObjPathLib            → Obj.Path.Lib
+ObjLensLib            → Obj.Lens.Lib
 PkgLib                → Pkg.Lib
 RandomLib             → Random.Lib
 RegexLib              → Regex.Lib
@@ -97,9 +98,9 @@ UrlLib                → Url.Lib
 JsrUrlLib             → JsrUrl.Lib
 ```
 
-## Due for namespace refactor: sub-surfaces
+## Completed namespace refactor: sub-surfaces
 
-Examples of flat sub-surfaces that should move under their owning noun:
+Completed flat-to-namespace sub-surface maps:
 
 ```text
 StrLoremLib           → Str.Lorem.Lib
@@ -111,7 +112,7 @@ SemverReleaseLib      → Semver.Release.Lib
 SemverPrefixLib       → Semver.Prefix.Lib
 ShardSha256Lib        → Shard.Sha256.Lib
 SignalIsLib           → Signal.Is.Lib
-SignalValueHelpersLib → Signal.Value.Lib / Signal.ValueHelpers.Lib
+SignalValueHelpersLib → Signal.Value.Lib
 DateLib               → Date.Lib
 DayLib                → Date.Day.Lib
 DateIsLib             → Date.Is.Lib
@@ -120,13 +121,12 @@ IndexedDbRecord       → IndexedDb.Record.Lib
 IndexedDbDatabase     → IndexedDb.Database.Lib
 ```
 
-## Source-guided ideal refactor chunks
+## Completed source-guided refactor chunks
 
-Do this in small, independently verifiable commits.
-Avoid a repo-wide mega-rename.
+This was completed in small, independently verifiable commits, avoiding a repo-wide mega-rename.
 
-BMIND read of `code/sys/std/src` says the ideal chunks are not alphabetical.
-Group by runtime noun, module folder, and direct type-dependency edges:
+The completed order followed runtime noun, module folder, and direct type-dependency edges rather
+than alphabetical order:
 
 - Use the exported runtime noun as the namespace owner:
   - `ArrayLib` becomes `Arr.Lib`, not `Array.Lib`.
@@ -145,26 +145,50 @@ Group by runtime noun, module folder, and direct type-dependency edges:
   commit unit. `ArrayLib` is core data utility work; `AwaitLib` and `SchedulerLib`
   are async/runtime work.
 
-Minimal optimum commit sequence:
+Completed commit sequence:
 
     [x] refactor(std): namespace number type contracts — 16bca8910
     [x] refactor(std): namespace leaf type contracts — 4ea97ec75
     [x] refactor(std): namespace error type contracts — 13d098075
     [x] refactor(std): namespace is type contract — ca5c09a8c
     [x] refactor(std): namespace core data type contracts — 0dab53745
-    [ ] refactor(std): namespace object type contracts
-    [ ] refactor(std): namespace string type contracts
-    [ ] refactor(std): namespace lifecycle type contracts
-    [ ] refactor(std): namespace effect type contracts
-    [ ] refactor(std): namespace runtime utility type contracts
-    [ ] refactor(std): namespace testing type contracts
-    [ ] refactor(std): namespace package type contracts
-    [ ] refactor(std): namespace semver type contracts
-    [ ] refactor(std): namespace url type contracts
-    [ ] refactor(std): namespace signal type contracts
-    [ ] refactor(std): namespace structured type contracts
-    [ ] refactor(std): namespace date type contracts
-    [ ] refactor(std): namespace timecode type contracts
+    [x] refactor(std): namespace object type contracts — a136c8026
+    [x] refactor(std): namespace string type contracts — 92a460fc3
+    [x] refactor(std): namespace lifecycle type contracts — 31993e447
+    [x] refactor(std): namespace effect type contracts — 9e7513c84
+    [x] refactor(std): namespace runtime utility type contracts — bc1620289
+    [x] refactor(std): namespace testing type contracts — d28fa7b13
+    [x] refactor(std): namespace package type contracts — 73598740d
+    [x] refactor(std): namespace semver type contracts — d69dbbb75
+    [x] refactor(std): namespace url type contracts — aa9346fa2
+    [x] refactor(std): namespace signal type contracts — 3c81db3d8
+    [x] refactor(std): namespace structured type contracts — c8fe9865e
+    [x] refactor(std): namespace date type contracts — 50dbd63bd
+    [x] refactor(std): namespace timecode type contracts — 1743da4a5
+    [x] refactor(std): namespace alias resolver type contracts — d41b7b26d
+    [x] refactor(std): namespace async lease type contract — f335ab7d0
+    [x] refactor(std): namespace testing bdd type contract — 7ea3eeb04
+    [x] refactor(std): namespace number ratio type contract — 57bc7eaa6
+    [x] refactor(std): namespace number percent type contracts — 5d8a61ba7
+    [x] refactor(std): namespace dom mock type contracts — b4f91ed2b
+    [x] refactor(std): update lease type callsite — 2c3543592
+
+Follow-on tail cleanup:
+
+- Leave `RLib` as-is. It is an internal-ish Ramda adapter surface and not exported through
+  `@sys/std/t` as a named public type.
+- Clean up the remaining public flat `*Lib` contracts that became visible after the main
+  namespace surface was made consistent:
+  - `AliasResolverLib` → `AliasResolver.Lib`
+  - `AliasResolverIsLib` → `AliasResolver.Is.Lib`
+  - `LeaseLib` → `Lease.Lib`
+  - `BddLib` → `Bdd.Lib`
+  - `RatioLib` → `Num.Ratio.Lib`
+  - `PercentLib` → `Num.Percent.Lib`
+  - `PercentRangeLib` → `Num.Percent.Range.Lib`
+  - `DomMockKeyboardLib` → `DomMock.Keyboard.Lib`
+  - `DomMockFakeLib` → `DomMock.Fake.Lib`
+  - `DomMockFakeMediaLib` → `DomMock.Fake.Media.Lib`
 
 ### 0. Num partial cleanup
 
@@ -283,7 +307,7 @@ Targets:
   - `ObjPathRelLib` → `Obj.Path.Rel.Lib`
   - `ObjPathCodecLib` → `Obj.Path.Codec.Lib`
   - `ObjPathMutateLib` → `Obj.Path.Mutate.Lib`
-  - `CurriedPathLib` → likely `Obj.Path.Curried.Lib` or `Obj.Path.Curry.Lib`
+  - `CurriedPathLib` → `Obj.Path.Curried.Lib`
   - `ObjLensIsLib` → `Obj.Lens.Is.Lib`
 
 Why this chunk:
@@ -448,55 +472,57 @@ Expected commit:
 refactor(std): namespace semver type contracts
 ```
 
-### 13. URL family
+### 13. URL family — DONE `aa9346fa2`
 
-Targets:
+Final map:
 
 - `UrlLib` → `Url.Lib`
 - `JsrUrlLib` → `JsrUrl.Lib`
+- `JsrUrlPkgLib` → `JsrUrl.Pkg.Lib`
+- `JsrUrlRef` → `JsrUrl.Ref`
 
 Why this chunk:
 
-- `Url.Lib` has downstream hits in `http` and `immutable`.
-- `JsrUrl.Lib` has downstream hits in `registry`.
-- Keep them together as URL-family work unless the downstream repair gets noisy; if it does,
-  split into `Url` first and `JsrUrl` second.
+- `Url.Lib` had downstream hits in `http` and `immutable`.
+- `JsrUrl.Lib` had downstream hits in `registry`.
+- The completed slice also repaired downstream references in `text`.
 
-Expected commit:
+Completed commit:
 
 ```text
-refactor(std): namespace url type contracts
+aa9346fa2 refactor(std): namespace url type contracts
 ```
 
-Downstream checks likely needed:
+Downstream checks run:
 
 - `code/sys/http`
 - `code/sys/immutable`
 - `code/sys/registry`
+- `code/sys/text`
 
-### 14. Signal family
+### 14. Signal family — DONE `3c81db3d8`
 
-Targets:
+Final map:
 
 - `SignalLib` → `Signal.Lib`
 - `SignalIsLib` → `Signal.Is.Lib`
-- `SignalValueHelpersLib` → likely `Signal.Value.Lib`
+- `SignalValueHelpersLib` → `Signal.Value.Lib`
 
 Why this chunk:
 
-- `Signal.Lib` is already a composed type (`Signal core & value helpers`).
-- Keep value-helper naming deliberate; prefer `Signal.Value.Lib` unless source review
-  shows `ValueHelpers` is the clearer public noun.
+- `Signal.Lib` is a composed type (`Signal` core and value helpers).
+- `Signal.Value.Lib` won over `ValueHelpers` as the clearer public noun.
+- The completed slice repaired downstream references in `ui-react`.
 
-Expected commit:
+Completed commit:
 
 ```text
-refactor(std): namespace signal type contracts
+3c81db3d8 refactor(std): namespace signal type contracts
 ```
 
-### 15. Self-contained structured roots
+### 15. Self-contained structured roots — DONE `c8fe9865e`
 
-Targets:
+Final map:
 
 - `IndexedDbLib` → `IndexedDb.Lib`
 - `IndexedDbRecord` → `IndexedDb.Record.Lib`
@@ -506,18 +532,18 @@ Targets:
 
 Why this chunk:
 
-- Source hits are std-local and mechanically similar.
-- These can share one commit if the diff stays small; split by domain if either side grows.
+- Source hits were std-local and mechanically similar.
+- The combined commit stayed coherent and did not require a domain split.
 
-Expected commit:
+Completed commit:
 
 ```text
-refactor(std): namespace structured type contracts
+c8fe9865e refactor(std): namespace structured type contracts
 ```
 
-### 16. Date/time family
+### 16. Date/time family — DONE `50dbd63bd`
 
-Targets:
+Final map:
 
 - `DateLib` → `Date.Lib`
 - `DayLib` → `Date.Day.Lib`
@@ -527,31 +553,42 @@ Targets:
 Why this chunk:
 
 - The source spine is `m.Time.Date/t.ts`, but the runtime value exposed is `Date`.
-- Keep this separate from `Timecode`; both are temporal, but the source modules and
+- This stayed separate from `Timecode`; both are temporal, but the source modules and
   contracts are independent.
 
-Expected commit:
+Completed commit:
 
 ```text
-refactor(std): namespace date type contracts
+50dbd63bd refactor(std): namespace date type contracts
 ```
 
-### 17. Timecode family
+### 17. Timecode family — DONE `1743da4a5`
 
-Timecode has many flat `Timecode*` contracts and enough domain weight to deserve
-its own pass.
-
-Targets include at least:
+Final map:
 
 - `TimecodeLib` → `Timecode.Lib`
-- subordinate `Timecode*Lib` surfaces under `Timecode.Ops`, `Timecode.Slice`,
-  `Timecode.Composite`, `Timecode.Experience`, `Timecode.VTime`, and `Timecode.VirtualClock`
-  after reading the relevant `m.Timecode/**/t.ts` spines.
+- `TimecodeOpsLib` → `Timecode.Ops.Lib`
+- `TimecodeSliceLib` → `Timecode.Slice.Lib`
+- `TimecodeCompositeLib` → `Timecode.Composite.Lib`
+- `TimecodeCompositeMapLib` → `Timecode.Composite.Map.Lib`
+- `TimecodeExperienceLib` → `Timecode.Experience.Lib`
+- `VTimeLib` → `VTime.Lib`
+- `VirtualClockLib` → `VirtualClock.Lib`
 
-Expected commit:
+Final file shape:
+
+- Timecode namespace contracts are centralized in `m.Timecode/t.namespace.ts`.
+- Runtime-value namespaces `VTime` and `VirtualClock` stay in their clock spines.
+- Obsolete flat-contract files were removed:
+  - `m.Timecode/t.lib.ts`
+  - `m.Timecode/core.ops/t.ts`
+  - `m.Timecode/composite/t.map.ts`
+  - `m.Timecode/experience/t.lib.ts`
+
+Completed commit:
 
 ```text
-refactor(std): namespace timecode type contracts
+1743da4a5 refactor(std): namespace timecode type contracts
 ```
 
 ## Per-slice execution protocol
@@ -568,10 +605,10 @@ For each slice:
 8. Run package checks for touched packages.
 9. Commit only associated files.
 
-## Search probes
+## Historical search probes
 
-Use narrow searches per slice. Prefer source folders first, then widen to `code/sys`
-for downstream repairs. Examples:
+These probes drove the completed slices. Keep them as historical audit tooling for future checks.
+Prefer source folders first, then widen to `code/sys` for downstream repairs. Examples:
 
 ```sh
 rg "\bNum\.IsLib\b|\bNum\.Random\b|\bNum\.RandomOptions\b|\bNum\.RandomSource\b" code/sys/std/src
@@ -645,9 +682,46 @@ rg "\bDateLib\b|\bDayLib\b|\bDateIsLib\b|\bDateFormatLib\b" code/sys
 rg "\bTimecode[A-Za-z0-9_]*Lib\b|\bVTimeLib\b|\bVirtualClockLib\b" code/sys/std/src/m.Timecode code/sys
 ```
 
-Old names should have no active source hits after each completed slice.
-Historical plan notes may be ignored deliberately. Watch for unrelated local names like
-`Registry.*.Fetch.PkgLib`; do not rename non-std contracts just because a broad probe finds them.
+Old std flat names from the main completed slices have no active std source hits.
+Historical plan notes may be ignored deliberately. Remaining broad-probe hits are unrelated
+non-std/domain-local names such as registry `*.Fetch.PkgLib` or registry-owned `UrlLib` aliases;
+do not rename non-std contracts just because a broad probe finds them.
+
+Follow-on tail probes:
+
+```sh
+rg "\bAliasResolverLib\b|\bAliasResolverIsLib\b" code/sys/std/src
+```
+
+```sh
+rg "\bLeaseLib\b" code/sys/std/src
+```
+
+```sh
+rg "\bBddLib\b" code/sys/std/src
+```
+
+```sh
+rg "\bRatioLib\b" code/sys/std/src
+```
+
+```sh
+rg "\bPercentLib\b|\bPercentRangeLib\b" code/sys/std/src
+```
+
+```sh
+rg "\bDomMockKeyboardLib\b|\bDomMockFakeLib\b|\bDomMockFakeMediaLib\b" code/sys/std/src
+```
+
+## Final verification state
+
+Final sweep after `1743da4a5`:
+
+- `code/sys/std`: `deno task check` passed.
+- `code/sys/std`: `deno test -P=test src/m.Timecode` passed after final formatting.
+- `code/sys/std`: `deno task test` passed during the final timecode sweep.
+- `code/sys/std`: `deno task dry` passed after all namespace commits.
+- No compatibility aliases or deprecated flat std contract aliases were kept.
 
 ## Verification baseline
 
