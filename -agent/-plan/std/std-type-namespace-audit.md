@@ -682,10 +682,16 @@ rg "\bDateLib\b|\bDayLib\b|\bDateIsLib\b|\bDateFormatLib\b" code/sys
 rg "\bTimecode[A-Za-z0-9_]*Lib\b|\bVTimeLib\b|\bVirtualClockLib\b" code/sys/std/src/m.Timecode code/sys
 ```
 
-Old std flat names from the main completed slices have no active std source hits.
-Historical plan notes may be ignored deliberately. Remaining broad-probe hits are unrelated
-non-std/domain-local names such as registry `*.Fetch.PkgLib` or registry-owned `UrlLib` aliases;
-do not rename non-std contracts just because a broad probe finds them.
+Old std flat names from the main completed slices and tail cleanup have no active
+`code/sys/std/src` hits. Historical plan notes may be ignored deliberately. Remaining
+broad-probe hits are unrelated non-std/domain-local names such as registry
+`*.Fetch.PkgLib` or registry-owned `UrlLib` aliases; do not rename non-std contracts
+just because a broad probe finds them.
+
+A broad follow-on tail scan still sees `code/sys.ui/ui-react`'s package-local
+`LeaseLib` React extension. That is not an `@sys/std` compatibility alias or public
+std type leak; the downstream import was updated from the removed `LeaseLib` name to
+`StdLease.Lib` in `2c3543592`.
 
 Follow-on tail probes:
 
@@ -721,6 +727,19 @@ Final sweep after `1743da4a5`:
 - `code/sys/std`: `deno test -P=test src/m.Timecode` passed after final formatting.
 - `code/sys/std`: `deno task test` passed during the final timecode sweep.
 - `code/sys/std`: `deno task dry` passed after all namespace commits.
+
+Final STIER sweep after the tail cleanup commits through `2c3543592`:
+
+- All completed commit hashes in the sequence resolve to the expected messages.
+- `code/sys/std`: `deno task check` passed for each follow-on slice before commit.
+- `code/sys/std`: `deno task dry` passed after the follow-on tail cleanup.
+- Root `/sys`: `deno task check` passed after the follow-on tail cleanup and downstream
+  lease callsite repair.
+- Old planned flat names, including the tail set, have no `code/sys/std/src` hits.
+- The remaining broad repo hits are outside `@sys/std` and are either registry-owned
+  domain-local `PkgLib`/`UrlLib` contracts or the `ui-react` package-local `LeaseLib`
+  extension noted above.
+- `RLib` remains intentionally unchanged as an internal-ish Ramda adapter surface.
 - No compatibility aliases or deprecated flat std contract aliases were kept.
 
 ## Verification baseline
