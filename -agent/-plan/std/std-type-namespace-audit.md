@@ -150,7 +150,7 @@ Minimal optimum commit sequence:
     [x] refactor(std): namespace number type contracts — 16bca8910
     [x] refactor(std): namespace leaf type contracts — 4ea97ec75
     [x] refactor(std): namespace error type contracts — 13d098075
-    [ ] refactor(std): namespace is type contract
+    [x] refactor(std): namespace is type contract — ca5c09a8c
     [ ] refactor(std): namespace core data type contracts
     [ ] refactor(std): namespace object type contracts
     [ ] refactor(std): namespace string type contracts
