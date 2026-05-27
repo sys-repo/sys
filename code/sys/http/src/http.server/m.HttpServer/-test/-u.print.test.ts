@@ -16,9 +16,13 @@ describe('HttpServer.print', () => {
 
     expect(lines.length).to.eql(3);
     expect(lines[0]).to.contain('one');
+    expect(lines[0]?.startsWith('\n')).to.eql(true);
+    expect(lines[0]?.endsWith('\n')).to.eql(true);
     expect(lines[1]).to.contain(c.dim(c.gray(Cli.Fmt.hr())));
     expect(Cli.stripAnsi(lines[1] ?? '')).to.match(/^━+$/);
     expect(lines[2]).to.contain('two');
+    expect(lines[2]?.startsWith('\n')).to.eql(true);
+    expect(lines[2]?.endsWith('\n')).to.eql(true);
   });
 
   it('prints service before module provenance', () => {
@@ -36,6 +40,19 @@ describe('HttpServer.print', () => {
     expect(output).to.not.contain('module:');
   });
 
+  it('prints a stable service fallback when no display name is provided', () => {
+    const lines = capturePrint(() => {
+      HttpServer.print({
+        addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
+        status: { kind: 'static' },
+      });
+    });
+
+    const output = Cli.stripAnsi(lines.join('\n'));
+    expect(output).to.contain('service');
+    expect(output).to.contain('static');
+  });
+
   it('keeps service identity and module provenance readable without bold weight', () => {
     const raw = capturePrint(() => {
       HttpServer.print({
@@ -48,6 +65,24 @@ describe('HttpServer.print', () => {
     expect(raw).to.contain(c.white('stripe:dev:fixture'));
     expect(raw).to.not.contain(c.bold(c.white('stripe:dev:fixture')));
     expect(raw).to.not.contain(c.bold(c.white(pkg.name)));
+  });
+
+  it('renders keyboard affordances inside the service-status block', () => {
+    const lines = capturePrint(() => {
+      HttpServer.print({
+        addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
+        name: 'svc',
+        keyboard: { open: 'O', quit: 'Ctrl+C or Q' },
+      });
+    });
+
+    const output = Cli.stripAnsi(lines.join('\n'));
+    expect(output).to.contain('service');
+    expect(output).to.contain('  open');
+    expect(output).to.contain('O');
+    expect(output).to.contain('  quit');
+    expect(output).to.contain('Ctrl+C or Q');
+    expect(output).to.not.contain('keyboard:');
   });
 
   it('prints info as details and uses explicit owner URL paths for URLs', () => {
@@ -79,8 +114,10 @@ describe('HttpServer.print', () => {
     });
 
     const output = Cli.stripAnsi(lines.join('\n'));
-    expect(output).to.contain('view   /foo/bar/');
-    expect(output).to.contain('url    http://localhost:8080/');
+    expect(output).to.contain('view');
+    expect(output).to.contain('/foo/bar/');
+    expect(output).to.contain('url');
+    expect(output).to.contain('http://localhost:8080/');
     expect(output).not.to.contain('http://localhost:8080/foo/bar/');
   });
 

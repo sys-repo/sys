@@ -1,4 +1,4 @@
-import { c, Str, type t } from './common.ts';
+import { c, Is, Str, type t } from './common.ts';
 import { localHost, localOrigin } from './u.origin.ts';
 
 /**
@@ -24,7 +24,7 @@ function formatPort(port: number) {
 }
 
 function pathOf(input: t.HttpServerStatusUrlPath): string {
-  return typeof input === 'string' ? input : input.path;
+  return Is.str(input) ? input : input.path;
 }
 
 function formatDisplayHref(origin: string, path: string) {

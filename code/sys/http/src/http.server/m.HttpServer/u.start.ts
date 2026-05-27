@@ -1,9 +1,11 @@
-import { Dispose, Err, Str, type t } from './common.ts';
-import { keyboard } from './u.keyboard.ts';
+import { Dispose, Err, Is, Str, type t } from './common.ts';
+import { bindKeyboard } from './u.keyboard.ts';
 import { localOrigin } from './u.origin.ts';
 import { options as createOptions } from './u.options.ts';
+import { print as printStarted } from './u.print.ts';
 
 type F = t.HttpServerLib['start'];
+type KeyboardOptions = { readonly print: boolean; readonly exit: boolean } | undefined;
 
 /**
  * Start a Hono app as a managed HTTP server lifecycle.
@@ -11,13 +13,14 @@ type F = t.HttpServerLib['start'];
 export const start: F = (app, input = {}) => {
   const hostname = (input.hostname ?? '127.0.0.1') as t.StringHostname;
   const controller = new AbortController();
+  const keyboardOptions = wrangle.keyboardOptions(input.keyboard);
   const baseOptions = createOptions({
     port: input.port,
     pkg: input.pkg,
     hash: input.hash,
     name: input.name,
     info: input.info,
-    silent: input.silent,
+    silent: true,
     dir: input.dir,
     status: input.status,
   });
@@ -76,7 +79,8 @@ export const start: F = (app, input = {}) => {
   };
 
   wrangle.serverFinished(server, life);
-  wrangle.keyboard(input.keyboard, context);
+  const keyboardBound = wrangle.keyboard(keyboardOptions, context);
+  wrangle.print(input, context, keyboardOptions, keyboardBound);
 
   return context;
 };
@@ -126,8 +130,8 @@ const wrangle = {
   ): readonly t.Service.Url[] {
     const items = paths && paths.length > 0 ? paths : ['/'] as const;
     return items.map((item) => {
-      const path = typeof item === 'string' ? item : item.path;
-      const label = typeof item === 'string' ? undefined : item.label;
+      const path = Is.str(item) ? item : item.path;
+      const label = Is.str(item) ? undefined : item.label;
       const href = wrangle.url(origin, path);
       return label ? { href, label } : { href };
     });
@@ -158,18 +162,15 @@ const wrangle = {
     );
   },
 
-  keyboard(input: t.HttpServerStartOptions['keyboard'], context: t.HttpServerStarted) {
-    const options = wrangle.keyboardOptions(input);
-    if (!options) return;
-
-    void keyboard({
+  keyboard(options: KeyboardOptions, context: t.HttpServerStarted): boolean {
+    if (!options) return false;
+    return bindKeyboard({
       port: context.port,
       url: context.origin,
-      print: options.print,
+      print: false,
       exit: options.exit,
       dispose: () => context.close('keyboard'),
-    }).catch((error) => {
-      if (!context.disposed) console.warn(error);
+      until: context.finished,
     });
   },
 
@@ -180,5 +181,33 @@ const wrangle = {
       print: input.print ?? true,
       exit: input.exit ?? false,
     };
+  },
+
+  print(
+    input: t.HttpServerStartOptions,
+    context: t.HttpServerStarted,
+    keyboardOptions: KeyboardOptions,
+    keyboardBound: boolean,
+  ) {
+    if (input.silent) return;
+    printStarted({
+      addr: context.addr,
+      pkg: input.pkg,
+      hash: input.hash,
+      name: input.name,
+      info: input.info,
+      requestedPort: input.port,
+      dir: input.dir,
+      status: input.status,
+      keyboard: wrangle.printKeyboard(keyboardOptions, keyboardBound),
+    });
+  },
+
+  printKeyboard(
+    options: KeyboardOptions,
+    keyboardBound: boolean,
+  ): t.HttpServerPrintKeyboardOptions | undefined {
+    if (!options?.print || !keyboardBound) return undefined;
+    return { open: 'O', quit: 'Ctrl+C or Q' };
   },
 } as const;

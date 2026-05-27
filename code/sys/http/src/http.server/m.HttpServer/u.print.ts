@@ -16,26 +16,22 @@ export const print: HttpServerLib['print'] = (options) => {
   const table = Cli.Table.create([]);
   const hx = pkg ? wrangle.hashDigest(hash) : '';
 
-  if (name) table.push([formatLabel('service'), formatServiceName(name)]);
+  table.push([label('service'), serviceName(name ?? options.status?.kind ?? 'http')]);
 
   if (pkg) {
     const pkgName = pkg.name ?? '<🐷 deno.json:name Not Found 🐷>';
     const pkgVersion = pkg.version ?? '<🐷 deno.json:version Not Found 🐷>';
-    table.push([formatLabel('module'), `${pkgName} ${formatSubtle(`${pkgVersion}`)}`]);
-  }
-  if (root) table.push([formatLabel('root'), formatSubtle(Fs.trimCwd(root))]);
-  for (const detail of details) table.push([formatLabel(detail.label), formatSubtle(detail.value)]);
-  if (hx) {
-    table.push([
-      formatLabel('dist'),
-      `${formatSubtle(`${hx}`)} ${formatSubtle('← dist/dist.json')}`,
-    ]);
+    table.push([childLabel('module'), value(`${pkgName} ${pkgVersion}`)]);
   }
   pushUrls(table, urls);
-  if (fallback) table.push(['', fallback]);
+  if (root) table.push([childLabel('root'), path(root)]);
+  for (const detail of details) table.push([childLabel(detail.label), value(detail.value)]);
+  if (hx) table.push([childLabel('dist'), value(`${hx} ← dist/dist.json`)]);
+  if (fallback) table.push([childLabel('port'), value(fallback)]);
+  pushKeyboard(table, options.keyboard);
 
   if (wrangle.shouldPrintDivider()) console.info(formatDivider());
-  console.info(Str.trimEdgeNewlines(String(table)));
+  console.info(`\n${Str.trimEdgeNewlines(String(table))}\n`);
 };
 
 /**
@@ -46,32 +42,53 @@ function infoDetails(info: Record<string, string> | undefined): readonly t.Servi
 }
 
 function pushUrls(table: ReturnType<typeof Cli.Table.create>, urls: readonly string[]) {
-  urls.forEach((url, index) => table.push([index === 0 ? formatLabel('url') : '', url]));
+  urls.forEach((url, index) => table.push([index === 0 ? childLabel('url') : '', url]));
 }
 
-function formatLabel(label: string) {
-  return formatSubtle(label);
+function pushKeyboard(
+  table: ReturnType<typeof Cli.Table.create>,
+  keyboard: t.HttpServerPrintKeyboardOptions | undefined,
+) {
+  if (keyboard?.open) table.push([keyboardLabel('open'), keyboardValue(keyboard.open)]);
+  if (keyboard?.quit) table.push([keyboardLabel('quit'), keyboardValue(keyboard.quit)]);
 }
 
-function formatServiceName(name: string) {
+function label(input: string) {
+  return c.gray(input);
+}
+
+function childLabel(input: string) {
+  return label(`  ${input}`);
+}
+
+function keyboardLabel(input: string) {
+  return c.dim(c.gray(`  ${input}`));
+}
+
+function serviceName(name: string) {
   return c.white(name);
 }
 
-function formatSubtle(text: string) {
-  return c.dim(c.gray(text));
+function value(input: string) {
+  return c.gray(input);
+}
+
+function path(input: string) {
+  return value(Fs.trimCwd(input));
+}
+
+function keyboardValue(input: string) {
+  return c.dim(c.gray(input));
 }
 
 function formatDivider() {
-  return formatSubtle(Cli.Fmt.hr());
+  return c.dim(c.gray(Cli.Fmt.hr()));
 }
-
-const URL_NOTE_INDENT = 17;
 
 function formatPortFallback(input: { requestedPort?: number; actualPort: number }) {
   const { requestedPort, actualPort } = input;
   if (!requestedPort || requestedPort === actualPort) return '';
-  const indent = ' '.repeat(URL_NOTE_INDENT);
-  return `${indent}${formatSubtle(`${requestedPort} already in use`)}`;
+  return `${requestedPort} already in use; using ${actualPort}`;
 }
 
 let printSink: typeof console.info | undefined;

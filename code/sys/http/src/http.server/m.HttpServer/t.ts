@@ -133,6 +133,16 @@ export type HttpServerPrintOptions = {
   requestedPort?: t.PortNumber;
   dir?: t.StringDir;
   status?: HttpServerStatusOptions;
+  keyboard?: HttpServerPrintKeyboardOptions;
+};
+
+/** Keyboard affordances rendered in HTTP startup output. */
+export type HttpServerPrintKeyboardOptions = {
+  /** Key used to open the primary URL in a browser. */
+  readonly open?: string;
+
+  /** Keys used to stop the server. */
+  readonly quit?: string;
 };
 
 /** Options passed to the creation of a server. */
