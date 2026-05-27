@@ -67,6 +67,7 @@ describe('Cell.load', () => {
       legacyDescriptor,
       canonicalDescriptor,
     });
+    expect(await Fs.exists(canonicalDescriptor)).to.eql(false);
   });
 
   it('fails clearly when canonical and legacy descriptors both exist', async () => {

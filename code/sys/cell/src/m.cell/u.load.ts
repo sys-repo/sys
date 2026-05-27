@@ -1,5 +1,4 @@
 import { type t, Yaml } from './common.ts';
-import { CellMigrate } from './u.migrate/mod.ts';
 import { CellPaths } from './u.paths.ts';
 import { CellSchema } from './u.schema/mod.ts';
 
@@ -16,8 +15,6 @@ type DescriptorSelection = {
 
 export const loadCell: t.Cell.Lib['load'] = async (root = Fs.cwd('process')) => {
   const cellRoot = Fs.resolve(root);
-  await CellMigrate.dir(cellRoot);
-
   const selection = await selectDescriptor(cellRoot);
   const descriptorPath = selection.path;
 

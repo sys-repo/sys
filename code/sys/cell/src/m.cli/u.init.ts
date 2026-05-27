@@ -1,6 +1,5 @@
 import { c, CliTable, Fs, Str, TmplEngine, Yaml } from './common.ts';
 import { Cell } from '../m.cell/mod.ts';
-import { CellMigrate } from '../m.cell/u.migrate/mod.ts';
 import { CellPaths } from '../m.cell/u.paths.ts';
 import { FmtPath } from './u.fmt.path.ts';
 import type { CellTmpl } from '../m.tmpl/t.ts';
@@ -23,7 +22,6 @@ export async function initCell(options: InitCellOptions = {}): Promise<InitCellR
   const target = Fs.resolve(options.dir ?? '.');
   const dryRun = options.dryRun === true;
 
-  if (!dryRun) await CellMigrate.dir(target);
   await validateExistingDescriptor(target);
 
   const res = await writeTmpl('default', target, { dryRun });
