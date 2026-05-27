@@ -81,15 +81,16 @@ Treat the legacy path as a migration fallback, not as the long-term canonical sh
 - If both old and new descriptor paths exist, fail clearly unless a migration command explicitly
   resolves the conflict.
 
-## Migration strategy
+## Migration sequence
 
-1. Add central path helpers for Cell metadata paths.
-2. Make loading prefer `-cell/cell.yaml`.
-3. Add legacy fallback for `-config/@sys.cell/cell.yaml` with a clear migration note.
-4. Make `init` write only the new canonical path.
-5. Update templates and tests to use `-cell/cell.yaml`.
-6. Add a migration command or safe one-shot migration path if existing users need it.
-7. Later, after a compatibility window, remove the legacy fallback.
+- [x] `84f67f822` refactor(cell): add migration spine
+- [x] Add central path helpers for Cell metadata paths.
+- [ ] Make loading prefer `-cell/cell.yaml`.
+- [ ] Add legacy fallback for `-config/@sys.cell/cell.yaml` with a clear migration note.
+- [ ] Make `init` write only the new canonical path.
+- [ ] Update templates and tests to use `-cell/cell.yaml`.
+- [ ] Add a migration command or safe one-shot migration path if existing users need it.
+- [ ] Later, after a compatibility window, remove the legacy fallback.
 
 ## CLI/DX changes
 

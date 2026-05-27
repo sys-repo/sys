@@ -23,6 +23,24 @@ export declare namespace Cell {
   /** Path declared in `cell.yaml`, resolved relative to the Cell root. */
   export type Path = t.StringPath;
 
+  /** Cell metadata/control paths relative to the Cell root. */
+  export type MetadataPaths = {
+    /** Cell metadata/control directory: `<root>/-cell`. */
+    readonly metaDir: t.StringPath;
+    /** Canonical Cell descriptor path: `<root>/-cell/cell.yaml`. */
+    readonly descriptor: t.StringPath;
+    /** Cell-owned owner/package config directory: `<root>/-cell/-config`. */
+    readonly configDir: t.StringPath;
+    /** Previous metadata paths accepted during the compatibility window. */
+    readonly legacy: LegacyMetadataPaths;
+  };
+
+  /** Previous Cell metadata paths accepted during migration compatibility. */
+  export type LegacyMetadataPaths = {
+    /** Previous descriptor path: `<root>/-config/@sys.cell/cell.yaml`. */
+    readonly descriptor: t.StringPath;
+  };
+
   /** Options for loading a Cell folder. */
   export type LoadOptions = {};
 
@@ -33,7 +51,7 @@ export declare namespace Cell {
     readonly descriptor: Descriptor;
   };
 
-  /** Parsed `-config/@sys.cell/cell.yaml` boot/composition descriptor. */
+  /** Parsed Cell boot/composition descriptor. */
   export type Descriptor = {
     kind: 'cell';
     version: 1;

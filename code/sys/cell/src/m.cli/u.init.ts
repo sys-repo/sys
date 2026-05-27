@@ -1,11 +1,10 @@
 import { c, CliTable, Fs, TmplEngine, Yaml } from './common.ts';
 import { Cell } from '../m.cell/mod.ts';
 import { CellMigrate } from '../m.cell/u.migrate/mod.ts';
+import { CellPaths } from '../m.cell/u.paths.ts';
 import { FmtPath } from './u.fmt.path.ts';
 import type { CellTmpl } from '../m.tmpl/t.ts';
 import { writeTmpl } from '../m.tmpl/u/u.write.ts';
-
-const DescriptorPath = '-config/@sys.cell/cell.yaml';
 
 type InitCellOptions = {
   readonly dir?: string;
@@ -54,7 +53,8 @@ export function formatInitResult(res: InitCellResult) {
 }
 
 async function validateExistingDescriptor(root: string) {
-  const path = Fs.join(root, ...DescriptorPath.split('/'));
+  const descriptor = CellPaths.legacy.descriptor;
+  const path = Fs.join(root, descriptor);
   if (!(await Fs.exists(path))) return;
 
   const read = await Fs.readText(path);
@@ -62,7 +62,7 @@ async function validateExistingDescriptor(root: string) {
 
   const parsed = Yaml.parse<unknown>(read.data ?? '');
   if (parsed.error) {
-    throw new Error(`Cell init: existing descriptor is invalid YAML: ${DescriptorPath}`);
+    throw new Error(`Cell init: existing descriptor is invalid YAML: ${descriptor}`);
   }
 
   const validation = Cell.Schema.Descriptor.validate(parsed.data);

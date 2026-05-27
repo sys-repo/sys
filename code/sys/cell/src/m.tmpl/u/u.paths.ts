@@ -1,9 +1,8 @@
 import { type t } from '../common.ts';
 import { json } from '../-bundle/-bundle.ts';
 import type { CellTmpl } from '../t.ts';
+import { CellPaths } from '../../m.cell/u.paths.ts';
 import { ROOTS } from './u.roots.ts';
-
-const DescriptorPath = '-config/@sys.cell/cell.yaml';
 
 export function listTmplPaths(name: CellTmpl.Name): readonly t.StringPath[] {
   const root = ROOTS[name];
@@ -14,7 +13,7 @@ export function listTmplPaths(name: CellTmpl.Name): readonly t.StringPath[] {
 }
 
 export function tmplDescriptorPath(name: CellTmpl.Name): t.StringPath {
-  return requireTmplPath(name, DescriptorPath);
+  return requireTmplPath(name, CellPaths.legacy.descriptor);
 }
 
 export function listTmplOwnedPaths(name: CellTmpl.Name): readonly t.StringPath[] {
