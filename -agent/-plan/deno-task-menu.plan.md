@@ -4,12 +4,18 @@
 
 Driver helper and Cell sample-menu refactor are complete. Server sample-menu update remains.
 
+Current commits:
+
+- `6519b285f` — `chore(tmpl:m.mod): scaffold DenoTask runtime module`
+- `6eaeb1e18` — `feat(driver-deno): add Deno task menu helper`
+- `f2553d490` — `refactor(cell): use DenoTask menu for sample index`
+
 
 ## Commit sequence
 
-- [x] chore(tmpl:m.mod): scaffold DenoTask runtime module
-- [x] feat(driver-deno): add Deno task menu helper
-- [x] refactor(cell): use DenoTask menu for sample index
+- [x] `6519b285f` chore(tmpl:m.mod): scaffold DenoTask runtime module
+- [x] `6eaeb1e18` feat(driver-deno): add Deno task menu helper
+- [x] `f2553d490` refactor(cell): use DenoTask menu for sample index
 - [ ] feat(server): add discoverable sample task menu
 
 
