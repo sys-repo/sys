@@ -84,9 +84,10 @@ Treat the legacy path as a migration fallback, not as the long-term canonical sh
 ## Migration sequence
 
 - [x] `84f67f822` refactor(cell): add migration spine
-- [x] Add central path helpers for Cell metadata paths.
-- [ ] Make loading prefer `-cell/cell.yaml`.
-- [ ] Add legacy fallback for `-config/@sys.cell/cell.yaml` with a clear migration note.
+- [x] `fc8b0f32e` refactor(cell): centralize Cell metadata paths
+- [x] `d51529523` refactor(cell): split root service and task surfaces
+- [x] Make loading prefer `-cell/cell.yaml`.
+- [x] Add legacy fallback for `-config/@sys.cell/cell.yaml` with a clear migration note.
 - [ ] Make `init` write only the new canonical path.
 - [ ] Update templates and tests to use `-cell/cell.yaml`.
 - [ ] Add a migration command or safe one-shot migration path if existing users need it.

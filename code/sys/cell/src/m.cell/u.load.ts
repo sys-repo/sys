@@ -4,19 +4,22 @@ import { CellPaths } from './u.paths.ts';
 import { CellSchema } from './u.schema/mod.ts';
 
 /**
- * FS is intentionally isolated to this loader seam.
- *
- * The public `@sys/cell` import graph must stay FS-free so descriptor types and
- * schema can be imported in browser/Vite contexts. `Cell.load(...)` lazy-loads
- * this module when a caller explicitly asks to read a Cell folder from disk.
+ * WHAT: this file is the only Cell descriptor filesystem read seam.
+ * WHY: the public `@sys/cell` graph must stay FS-free for browser/Vite descriptor and schema imports.
  */
 import { Fs } from '@sys/fs';
+
+type DescriptorSelection = {
+  readonly path: t.StringPath;
+  readonly compatibility?: t.Cell.LoadCompatibility;
+};
 
 export const loadCell: t.Cell.Lib['load'] = async (root = Fs.cwd('process')) => {
   const cellRoot = Fs.resolve(root);
   await CellMigrate.dir(cellRoot);
 
-  const descriptorPath = Fs.join(cellRoot, CellPaths.legacy.descriptor);
+  const selection = await selectDescriptor(cellRoot);
+  const descriptorPath = selection.path;
 
   const read = await Fs.readText(descriptorPath);
   if (!read.ok) {
@@ -40,5 +43,43 @@ export const loadCell: t.Cell.Lib['load'] = async (root = Fs.cwd('process')) => 
     root: cellRoot,
     paths: { descriptor: descriptorPath },
     descriptor: parsed.data as t.Cell.Descriptor,
+    ...(selection.compatibility ? { compatibility: selection.compatibility } : {}),
   };
 };
+
+/**
+ * Helpers:
+ */
+async function selectDescriptor(root: t.StringDir): Promise<DescriptorSelection> {
+  const canonicalDescriptor = Fs.join(root, CellPaths.descriptor);
+  const legacyDescriptor = Fs.join(root, CellPaths.legacy.descriptor);
+  const [hasCanonical, hasLegacy] = await Promise.all([
+    Fs.exists(canonicalDescriptor),
+    Fs.exists(legacyDescriptor),
+  ]);
+
+  if (hasCanonical && hasLegacy) {
+    throw new Error(
+      `Cell.load: multiple descriptors found: ${canonicalDescriptor}; ${legacyDescriptor}. Resolve the descriptor conflict before loading.`,
+    );
+  }
+
+  if (hasCanonical) return { path: canonicalDescriptor };
+
+  if (hasLegacy) {
+    return {
+      path: legacyDescriptor,
+      compatibility: {
+        kind: 'legacy-descriptor',
+        message:
+          `Cell.load: loaded legacy descriptor ${legacyDescriptor}. Move it to ${canonicalDescriptor}; legacy fallback is temporary.`,
+        legacyDescriptor,
+        canonicalDescriptor,
+      },
+    };
+  }
+
+  throw new Error(
+    `Cell.load: failed to find descriptor. Checked canonical ${canonicalDescriptor}; legacy fallback ${legacyDescriptor}.`,
+  );
+}

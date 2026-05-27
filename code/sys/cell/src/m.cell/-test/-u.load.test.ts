@@ -1,5 +1,6 @@
 import { describe, expect, Fs, it, Str } from '../../-test.ts';
 import { Cell } from '../mod.ts';
+import { CellPaths } from '../u.paths.ts';
 import { catchLoad, sampleRoot, tempCell } from './u.fixture.ts';
 
 describe('Cell.load', () => {
@@ -8,7 +9,7 @@ describe('Cell.load', () => {
     const cell = await Cell.load(root);
 
     expect(cell.root).to.eql(Fs.resolve(root));
-    expect(cell.paths.descriptor).to.eql(Fs.join(cell.root, '-config/@sys.cell/cell.yaml'));
+    expect(cell.paths.descriptor).to.eql(Fs.join(cell.root, CellPaths.legacy.descriptor));
     expect(cell.descriptor.kind).to.eql('cell');
     expect(cell.descriptor.version).to.eql(1);
     expect(cell.descriptor.services?.map((service) => service.name)).to.eql([
@@ -20,9 +21,12 @@ describe('Cell.load', () => {
 
   it('defaults to the process cwd when no root is given', async () => {
     const error = await catchLoad();
-    const descriptor = Fs.join(Fs.cwd('process'), '-config/@sys.cell/cell.yaml');
+    const canonical = Fs.join(Fs.cwd('process'), CellPaths.descriptor);
+    const legacy = Fs.join(Fs.cwd('process'), CellPaths.legacy.descriptor);
 
-    expect(error?.message).to.contain(`Cell.load: failed to read descriptor: ${descriptor}`);
+    expect(error?.message).to.contain('Cell.load: failed to find descriptor.');
+    expect(error?.message).to.contain(canonical);
+    expect(error?.message).to.contain(legacy);
   });
 
   it('loads and validates the Deploy sample descriptor', async () => {
@@ -30,10 +34,50 @@ describe('Cell.load', () => {
     const cell = await Cell.load(root);
 
     expect(cell.root).to.eql(Fs.resolve(root));
-    expect(cell.paths.descriptor).to.eql(Fs.join(cell.root, '-config/@sys.cell/cell.yaml'));
+    expect(cell.paths.descriptor).to.eql(Fs.join(cell.root, CellPaths.legacy.descriptor));
     expect(cell.descriptor.kind).to.eql('cell');
     expect(cell.descriptor.version).to.eql(1);
     expect(cell.descriptor.services?.map((service) => service.name)).to.eql(['deploy:view']);
+  });
+
+  it('loads canonical descriptors before legacy fallback is needed', async () => {
+    const root = Fs.resolve('./.tmp/cell.load/canonical');
+    const descriptor = Fs.join(root, CellPaths.descriptor);
+    await Fs.write(descriptor, `kind: cell\nversion: 1\n`, { force: true });
+
+    const cell = await Cell.load(root);
+
+    expect(cell.paths.descriptor).to.eql(descriptor);
+    expect(cell.compatibility).to.eql(undefined);
+    expect(cell.descriptor).to.eql({ kind: 'cell', version: 1 });
+  });
+
+  it('loads legacy descriptors with a clear compatibility note', async () => {
+    const root = await tempCell('legacy-fallback', `kind: cell\nversion: 1\n`);
+    const legacyDescriptor = Fs.join(root, CellPaths.legacy.descriptor);
+    const canonicalDescriptor = Fs.join(root, CellPaths.descriptor);
+
+    const cell = await Cell.load(root);
+
+    expect(cell.paths.descriptor).to.eql(legacyDescriptor);
+    expect(cell.compatibility).to.eql({
+      kind: 'legacy-descriptor',
+      message:
+        `Cell.load: loaded legacy descriptor ${legacyDescriptor}. Move it to ${canonicalDescriptor}; legacy fallback is temporary.`,
+      legacyDescriptor,
+      canonicalDescriptor,
+    });
+  });
+
+  it('fails clearly when canonical and legacy descriptors both exist', async () => {
+    const root = await tempCell('ambiguous-descriptor', `kind: cell\nversion: 1\n`);
+    await Fs.write(Fs.join(root, CellPaths.descriptor), `kind: cell\nversion: 1\n`, { force: true });
+
+    const error = await catchLoad(root);
+
+    expect(error?.message).to.contain('Cell.load: multiple descriptors found:');
+    expect(error?.message).to.contain(CellPaths.descriptor);
+    expect(error?.message).to.contain(CellPaths.legacy.descriptor);
   });
 
   it('loads and validates descriptors with task composition', async () => {
@@ -88,8 +132,9 @@ describe('Cell.load', () => {
     const root = Fs.resolve('./.tmp/cell.missing');
     const error = await catchLoad(root);
 
-    expect(error?.message).to.contain('Cell.load: failed to read descriptor:');
-    expect(error?.message).to.contain('-config/@sys.cell/cell.yaml');
+    expect(error?.message).to.contain('Cell.load: failed to find descriptor.');
+    expect(error?.message).to.contain(Fs.join(root, CellPaths.descriptor));
+    expect(error?.message).to.contain(Fs.join(root, CellPaths.legacy.descriptor));
   });
 
   it('fails clearly when descriptor YAML is invalid', async () => {
@@ -97,7 +142,7 @@ describe('Cell.load', () => {
     const error = await catchLoad(root);
 
     expect(error?.message).to.contain('Cell.load: failed to parse descriptor YAML:');
-    expect(error?.message).to.contain('-config/@sys.cell/cell.yaml');
+    expect(error?.message).to.contain(CellPaths.legacy.descriptor);
   });
 
   it('fails clearly when descriptor schema is invalid', async () => {

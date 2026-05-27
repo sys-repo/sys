@@ -44,11 +44,20 @@ export declare namespace Cell {
   /** Options for loading a Cell folder. */
   export type LoadOptions = {};
 
+  /** Compatibility note emitted when a Cell loads through a migration fallback. */
+  export type LoadCompatibility = {
+    readonly kind: 'legacy-descriptor';
+    readonly message: string;
+    readonly legacyDescriptor: t.StringPath;
+    readonly canonicalDescriptor: t.StringPath;
+  };
+
   /** Loaded Cell folder context. */
   export type Instance = {
     readonly root: t.StringDir;
     readonly paths: { readonly descriptor: t.StringPath };
     readonly descriptor: Descriptor;
+    readonly compatibility?: LoadCompatibility;
   };
 
   /** Parsed Cell boot/composition descriptor. */
