@@ -52,6 +52,7 @@ export async function main(
 
   if (tasks.length === 0) return fail('No matching Deno tasks.');
 
+  print('');
   const picked = await promptTask(options.title, tasks);
   if (!Is.str(picked)) return { kind: 'exit' };
 
@@ -94,7 +95,7 @@ async function promptTask(
     message: menuMessage(title),
     options: [
       ...tasks.map((task, index) => ({
-        name: `${c.dim(Cli.Fmt.Tree.branch([index, tasks], 1))} ${task.name}`,
+        name: ` ${c.dim(Cli.Fmt.Tree.branch([index, tasks], 1))} ${task.name}`,
         value: task.name,
       })),
       { name: c.gray('(exit)'), value: D.Menu.exit },
