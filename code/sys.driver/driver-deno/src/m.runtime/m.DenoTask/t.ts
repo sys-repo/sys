@@ -72,7 +72,7 @@ export declare namespace DenoTask {
   export namespace Menu {
     /** Library surface for the task menu entrypoint. */
     export type Lib = {
-      /** Run a task menu from raw CLI argv. */
+      /** Run a wrapper-script task menu. */
       main(options: MainOptions): Promise<Result>;
     };
 
