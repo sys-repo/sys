@@ -1,6 +1,7 @@
 import { describe, expect, Fs, it } from '../../-test.ts';
 import { CellTmpl } from '../../m.tmpl/mod.ts';
 import { Cell } from '../mod.ts';
+import { CellPaths } from '../u.paths.ts';
 
 describe('CellTmpl', () => {
   it('materializes the default Cell folder', async () => {
@@ -15,7 +16,8 @@ describe('CellTmpl', () => {
       expect(await read(root, '.gitignore')).to.eql('.env\n.pi/\n');
       expect(await Fs.exists(Fs.join(root, 'data', 'README.md'))).to.eql(true);
       expect(await Fs.exists(Fs.join(root, 'view', 'README.md'))).to.eql(true);
-      expect(await Fs.exists(Fs.join(root, '-config/@sys.cell/cell.yaml'))).to.eql(true);
+      expect(await Fs.exists(Fs.join(root, CellPaths.descriptor))).to.eql(true);
+      expect(await Fs.exists(Fs.join(root, CellPaths.legacy.descriptor))).to.eql(false);
 
       const cell = await Cell.load(root);
       expect(cell.descriptor).to.eql({

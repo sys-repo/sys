@@ -13,7 +13,7 @@ export function listTmplPaths(name: CellTmpl.Name): readonly t.StringPath[] {
 }
 
 export function tmplDescriptorPath(name: CellTmpl.Name): t.StringPath {
-  return requireTmplPath(name, CellPaths.legacy.descriptor);
+  return requireTmplPath(name, CellPaths.descriptor);
 }
 
 export function listTmplOwnedPaths(name: CellTmpl.Name): readonly t.StringPath[] {

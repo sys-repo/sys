@@ -1,4 +1,4 @@
-import { c, CliTable, Fs, TmplEngine, Yaml } from './common.ts';
+import { c, CliTable, Fs, Str, TmplEngine, Yaml } from './common.ts';
 import { Cell } from '../m.cell/mod.ts';
 import { CellMigrate } from '../m.cell/u.migrate/mod.ts';
 import { CellPaths } from '../m.cell/u.paths.ts';
@@ -39,24 +39,49 @@ export async function initCell(options: InitCellOptions = {}): Promise<InitCellR
 }
 
 export function formatInitResult(res: InitCellResult) {
-  return [
-    `\n  ${c.cyan('@sys/cell/cli init')}`,
-    '',
-    renderRows([
-      ['target', FmtPath.display(res.target)],
-      ...(res.dryRun ? [['mode', 'dry-run; no files written'] as const] : []),
-      ['status', status(res)],
-    ]),
-    '',
-    TmplEngine.Log.table(res.ops, { preset: 'plan' }).trim(),
-  ].join('\n');
+  const rows = renderRows([
+    ['target', FmtPath.display(res.target)],
+    ...(res.dryRun ? [['mode', 'dry-run; no files written'] as const] : []),
+    ['status', status(res)],
+  ]);
+  const ops = TmplEngine.Log.table(res.ops, { preset: 'plan' }).trim();
+
+  return Str.dedent(`
+    ${c.cyan('@sys/cell/cli init')}
+
+    ${rows}
+
+    ${ops}
+  `).trimEnd();
 }
 
 async function validateExistingDescriptor(root: string) {
-  const descriptor = CellPaths.legacy.descriptor;
-  const path = Fs.join(root, descriptor);
-  if (!(await Fs.exists(path))) return;
+  const canonical = CellPaths.descriptor;
+  const legacy = CellPaths.legacy.descriptor;
+  const canonicalPath = Fs.join(root, canonical);
+  const legacyPath = Fs.join(root, legacy);
+  const [hasCanonical, hasLegacy] = await Promise.all([
+    Fs.exists(canonicalPath),
+    Fs.exists(legacyPath),
+  ]);
 
+  if (hasCanonical && hasLegacy) {
+    throw new Error(
+      `Cell init: multiple descriptors found: ${canonical}; ${legacy}. Resolve the descriptor conflict before initializing.`,
+    );
+  }
+
+  if (hasCanonical) return validateDescriptor(canonical, canonicalPath);
+
+  if (hasLegacy) {
+    await validateDescriptor(legacy, legacyPath);
+    throw new Error(
+      `Cell init: existing legacy descriptor found: ${legacy}. Move it to ${canonical} before initializing.`,
+    );
+  }
+}
+
+async function validateDescriptor(descriptor: string, path: string) {
   const read = await Fs.readText(path);
   if (!read.ok) throw read.error;
 
