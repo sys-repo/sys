@@ -1,5 +1,19 @@
 # Cell shell structure plan
 
+## Migration sequence
+
+- [x] `84f67f822` refactor(cell): add migration spine
+- [x] `fc8b0f32e` refactor(cell): centralize Cell metadata paths
+- [x] `d51529523` refactor(cell): split root service and task surfaces
+- [x] `47fdc5794` feat(cell): prefer canonical descriptor with legacy fallback
+- [x] `ed2641959` feat(cell): write canonical descriptor on init
+- [x] `ed2641959` Update templates and tests to use `-cell/cell.yaml`.
+- [x] Add a migration command or safe one-shot migration path if existing users need it.
+- [ ] Run a help/DSL cleanup sweep that names `-cell/cell.yaml` as the canonical descriptor path.
+- [ ] Later, after a compatibility window, remove the legacy fallback.
+
+
+
 ## Position
 
 The Cell concept is becoming earned enough to deserve a visible filesystem marker.
@@ -81,17 +95,6 @@ Treat the legacy path as a migration fallback, not as the long-term canonical sh
 - If both old and new descriptor paths exist, fail clearly unless a migration command explicitly
   resolves the conflict.
 
-## Migration sequence
-
-- [x] `84f67f822` refactor(cell): add migration spine
-- [x] `fc8b0f32e` refactor(cell): centralize Cell metadata paths
-- [x] `d51529523` refactor(cell): split root service and task surfaces
-- [x] `47fdc5794` feat(cell): prefer canonical descriptor with legacy fallback
-- [x] `47fdc5794` feat(cell): prefer canonical descriptor with legacy fallback
-- [x] Make `init` write only the new canonical path.
-- [ ] Update templates and tests to use `-cell/cell.yaml`.
-- [ ] Add a migration command or safe one-shot migration path if existing users need it.
-- [ ] Later, after a compatibility window, remove the legacy fallback.
 
 ## CLI/DX changes
 

@@ -17,6 +17,7 @@ export function resolveChapterResource(
 export const HelpResource = {
   Root: 'yaml/root.yaml',
   Init: 'yaml/init.yaml',
+  Migrate: 'yaml/migrate.yaml',
   Task: 'yaml/task.yaml',
   Start: 'yaml/start.yaml',
   Dsl: {
@@ -34,6 +35,7 @@ export const HelpResource = {
       return [
         HelpResource.Root,
         HelpResource.Init,
+        HelpResource.Migrate,
         HelpResource.Task,
         HelpResource.Start,
         ...chapterResourceFiles(HelpResource.Dsl.Root),

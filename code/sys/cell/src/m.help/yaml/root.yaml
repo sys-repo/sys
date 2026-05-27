@@ -9,6 +9,7 @@ usage:
   - deno run -ER   jsr:@sys/cell --help
   - deno run -ER   jsr:@sys/cell dsl [chapter...] [--format human|skill]
   - deno run -ERW  jsr:@sys/cell init [dir]
+  - deno run -ERW  jsr:@sys/cell migrate [dir]
   - deno run -ERWN jsr:@sys/cell task <name> [dir]
   - deno run -ERWN jsr:@sys/cell start [dir]
   - deno run -ERWN jsr:@sys/cell start [dir] --mode <mode>
@@ -18,6 +19,8 @@ commands:
     text: agent must read first — root speech acts, owner rules, mappings, and chapter index
   - name: init
     text: initialize a folder as a Cell
+  - name: migrate
+    text: move a legacy descriptor to the canonical Cell path
   - name: task
     text: run a named trusted task from tasks[]
   - name: start

@@ -5,6 +5,7 @@ describe(`@sys/cell/cli args`, () => {
   it('--format is scoped to dsl only', async () => {
     await expectCliError(['--format', 'skill'], 'Unexpected option without command: --format');
     await expectCliError(['init', '--format', 'skill'], 'Unexpected option for init: --format');
+    await expectCliError(['migrate', '--format', 'skill'], 'Unexpected option for migrate: --format');
     await expectCliError(['task', '--format', 'skill'], 'Unexpected option for task: --format');
     await expectCliError(['start', '--format', 'skill'], 'Unexpected option for start: --format');
   });
@@ -18,6 +19,7 @@ describe(`@sys/cell/cli args`, () => {
   it('--plan is scoped to task only', async () => {
     await expectCliError(['--plan'], 'Unexpected option without command: --plan');
     await expectCliError(['init', '--plan'], 'Unexpected option for init: --plan');
+    await expectCliError(['migrate', '--plan'], 'Unexpected option for migrate: --plan');
     await expectCliError(['dsl', '--plan'], 'Unexpected option for dsl: --plan');
     await expectCliError(['start', '--plan'], 'Unexpected option for start: --plan');
   });
@@ -25,11 +27,17 @@ describe(`@sys/cell/cli args`, () => {
   it('--mode is scoped to start only', async () => {
     await expectCliError(['--mode', 'dev'], 'Unexpected option without command: --mode');
     await expectCliError(['init', '--mode', 'dev'], 'Unexpected option for init: --mode');
+    await expectCliError(['migrate', '--mode', 'dev'], 'Unexpected option for migrate: --mode');
     await expectCliError(['dsl', '--mode', 'dev'], 'Unexpected option for dsl: --mode');
     await expectCliError(
       ['task', 'capture', '--mode', 'dev'],
       'Unexpected option for task: --mode',
     );
+  });
+
+  it('migrate → rejects invalid invocation shapes', async () => {
+    await expectCliError(['migrate', '--agent'], 'Unexpected option for migrate: --agent');
+    await expectCliError(['migrate', '.', 'extra'], 'Unexpected argument: extra');
   });
 
   it('start → rejects invalid invocation shapes', async () => {

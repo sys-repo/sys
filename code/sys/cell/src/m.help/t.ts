@@ -9,6 +9,7 @@ export declare namespace CellHelp {
   export type Lib = {
     readonly Root: Root.Lib;
     readonly Init: Init.Lib;
+    readonly Migrate: Migrate.Lib;
     readonly Task: Task.Lib;
     readonly Start: Start.Lib;
     readonly Dsl: Dsl.Lib;
@@ -52,6 +53,23 @@ export declare namespace CellHelp {
       readonly options: readonly Pair[];
       readonly safety: readonly string[];
       readonly agent: readonly string[];
+    };
+  }
+
+  /** Migrate command help resources. */
+  export namespace Migrate {
+    /** Loader for authored migrate help. */
+    export type Lib = {
+      /** Load authored migrate help from the embedded bundle. */
+      load(): Promise<Guidance>;
+    };
+
+    /** Authored migrate help used by CLI composition. */
+    export type Guidance = {
+      readonly summary: string;
+      readonly usage: readonly string[];
+      readonly options: readonly Pair[];
+      readonly safety: readonly string[];
     };
   }
 

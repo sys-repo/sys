@@ -46,6 +46,23 @@ export const InitHelp: t.CellHelp.Init.Lib = {
   },
 };
 
+export const MigrateHelp: t.CellHelp.Migrate.Lib = {
+  load() {
+    const data = Resource.readRecord(HelpResource.Migrate, [
+      'summary',
+      'usage',
+      'options',
+      'safety',
+    ]);
+    return Promise.resolve({
+      summary: HelpYaml.string(data, 'summary'),
+      usage: HelpYaml.list(data, 'usage'),
+      options: HelpYaml.pairs(data, 'options'),
+      safety: HelpYaml.list(data, 'safety'),
+    });
+  },
+};
+
 export const TaskHelp: t.CellHelp.Task.Lib = {
   load() {
     const data = Resource.readRecord(HelpResource.Task, ['summary', 'usage', 'options', 'task']);

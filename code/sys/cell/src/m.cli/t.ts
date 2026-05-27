@@ -43,7 +43,7 @@ export declare namespace CellCli {
   }
 
   /** Result from a Cell CLI run. */
-  export type Result = Help | Init.Result | Task.Result | Start.Result | Error;
+  export type Result = Help | Init.Result | Migrate.Result | Task.Result | Start.Result | Error;
 
   /** Help-only CLI run result. */
   export type Help = {
@@ -83,6 +83,39 @@ export declare namespace CellCli {
       readonly reason?: string;
       /** True when operation was previewed only. */
       readonly dryRun?: boolean;
+    };
+  }
+
+  /** Types for the `migrate` command. */
+  export namespace Migrate {
+    /** Successful Cell migration result. */
+    export type Result = {
+      /** Result discriminant. */
+      readonly kind: 'migrate';
+      /** Raw input passed to the CLI entrypoint. */
+      readonly input: Input;
+      /** Rendered migrate output. */
+      readonly text: string;
+      /** Target folder. */
+      readonly target: string;
+      /** True when no files were moved. */
+      readonly dryRun: boolean;
+      /** Planned migration operations. */
+      readonly planned: readonly Op[];
+      /** Applied migration operations. */
+      readonly migrated: readonly Op[];
+      /** Skipped migration operations. */
+      readonly skipped: readonly Op[];
+    };
+
+    /** Migrate operation. */
+    export type Op = {
+      /** Source relative path. */
+      readonly from: string;
+      /** Destination relative path. */
+      readonly to: string;
+      /** Optional reason for skipped operations. */
+      readonly reason?: string;
     };
   }
 

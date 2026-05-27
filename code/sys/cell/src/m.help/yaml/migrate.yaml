@@ -1,0 +1,21 @@
+summary: |
+  Move a legacy Cell descriptor to the canonical Cell metadata path.
+  Migration is explicit and only touches the Cell descriptor path.
+
+usage:
+  - deno run -ERW jsr:@sys/cell migrate [dir]
+  - deno run -ERW jsr:@sys/cell migrate [dir] --dry-run
+  - deno run -ERW jsr:@sys/cell migrate [dir] --help
+
+options:
+  - name: -h, --help
+    text: show migrate help
+  - name: --dry-run
+    text: preview descriptor migration without moving files
+
+safety:
+  - legacy-only valid descriptor moves from -config/@sys.cell/cell.yaml to -cell/cell.yaml
+  - canonical-only descriptor is a no-op
+  - canonical and legacy descriptors together fail without mutation
+  - invalid legacy descriptors fail without mutation
+  - descriptor bytes are moved; YAML is not reformatted

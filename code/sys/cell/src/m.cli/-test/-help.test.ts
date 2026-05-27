@@ -36,6 +36,18 @@ describe(`@sys/cell/cli help`, () => {
     expect(text).to.contain('--agent');
   });
 
+  it('migrate -h → shows resource-backed migrate help', async () => {
+    const res = await silent(() => CellCli.run({ argv: ['migrate', '-h'] }));
+    const text = stripAnsi(res.text);
+    const guidance = await CellHelp.Migrate.load();
+
+    expect(res.kind).to.eql('help');
+    expect(text).to.contain('@sys/cell migrate');
+    guidance.usage.forEach((line) => expect(text).to.contain(line));
+    guidance.safety.forEach((line) => expect(text).to.contain(line));
+    expect(text).to.contain('--dry-run');
+  });
+
   it('task -h → shows resource-backed task help', async () => {
     const res = await silent(() => CellCli.run({ argv: ['task', '-h'] }));
     const text = stripAnsi(res.text);
@@ -76,6 +88,7 @@ describe(`@sys/cell/cli help`, () => {
     expect(run.code).to.eql(1);
     expect(text).to.contain('Unknown command: run');
     expect(text).to.contain('@sys/cell');
+    expect(text).to.contain('@sys/cell migrate');
     expect(text).to.not.contain('@sys/cell run');
   });
 });
