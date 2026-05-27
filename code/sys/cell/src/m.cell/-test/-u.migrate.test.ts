@@ -1,6 +1,6 @@
 import { describe, expect, Fs, it, Testing } from '../../-test.ts';
 import { CellMigrate } from '../u.migrate/mod.ts';
-import { CellPaths } from '../u.paths.ts';
+import { CellPaths } from '../u/paths.ts';
 
 const validDescriptor = '# keep exact text\nkind: cell\nversion: 1\n';
 

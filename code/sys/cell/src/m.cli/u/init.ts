@@ -1,5 +1,5 @@
 import { Cell } from '../../m.cell/mod.ts';
-import { CellPaths } from '../../m.cell/u.paths.ts';
+import { CellPaths } from '../../m.cell/u/paths.ts';
 import type { CellTmpl } from '../../m.tmpl/t.ts';
 import { writeTmpl } from '../../m.tmpl/u/u.write.ts';
 import { c, CliTable, Fs, Str, TmplEngine, Yaml } from '../common.ts';

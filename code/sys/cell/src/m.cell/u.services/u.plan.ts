@@ -1,7 +1,6 @@
 import { Is, Path, Str, type t } from './common.ts';
 import { IdPattern } from '../u.schema/common.ts';
-import { endpointNameOf } from '../u.endpoint.ts';
-import { resolveEndpointRef } from '../u.endpointRef.ts';
+import { endpointNameOf, resolveEndpointRef } from '../u/endpoints.ts';
 
 export const plan: t.Cell.Services.Lib['plan'] = async (cell, options = {}) => {
   return planServices(cell, options, 'Cell.Services.plan');

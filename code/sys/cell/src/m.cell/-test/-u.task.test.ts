@@ -1,6 +1,6 @@
 import { describe, expect, Fs, it, Str, type t } from '../../-test.ts';
 import { Cell } from '../mod.ts';
-import { createTaskMethod } from '../u.task.root.ts';
+import { createTaskMethod } from '../u/task.root.ts';
 import { tempCell } from './u.fixture.ts';
 
 describe('Cell.Task', () => {

@@ -1,4 +1,4 @@
-import type { t } from './common.ts';
+import type { t } from '../common.ts';
 
 /** Cell metadata/control paths relative to the Cell root. */
 export const CellPaths: t.Cell.MetadataPaths = {

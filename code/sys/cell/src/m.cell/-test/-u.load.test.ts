@@ -1,6 +1,6 @@
 import { describe, expect, Fs, it, Str } from '../../-test.ts';
 import { Cell } from '../mod.ts';
-import { CellPaths } from '../u.paths.ts';
+import { CellPaths } from '../u/paths.ts';
 import { catchLoad, sampleRoot, tempCell } from './u.fixture.ts';
 
 describe('Cell.load', () => {

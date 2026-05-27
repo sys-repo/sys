@@ -26,7 +26,7 @@ describe(`Cell`, () => {
       entry: Path.resolve(root, '../../mod.ts'),
       forbiddenImports: ['@sys/fs'],
       forbiddenPathIncludes: [
-        '/src/m.cell/u.load.ts',
+        '/src/m.cell/u/load.ts',
         '/src/m.cell/u.services/',
         '/src/m.cell/u.task/',
       ],

@@ -1,7 +1,7 @@
 import { describe, expect, Fs, it } from '../../-test.ts';
 import { CellTmpl } from '../../m.tmpl/mod.ts';
 import { Cell } from '../mod.ts';
-import { CellPaths } from '../u.paths.ts';
+import { CellPaths } from '../u/paths.ts';
 
 describe('CellTmpl', () => {
   it('materializes the default Cell folder', async () => {

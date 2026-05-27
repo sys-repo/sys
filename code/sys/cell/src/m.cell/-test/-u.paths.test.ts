@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
-import { CellPaths } from '../u.paths.ts';
+import { CellPaths } from '../u/paths.ts';
 
 describe('CellPaths', () => {
   it('names Cell metadata paths relative to the Cell root', () => {

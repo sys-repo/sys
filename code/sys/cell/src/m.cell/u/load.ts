@@ -1,6 +1,6 @@
-import { type t, Yaml } from './common.ts';
-import { CellPaths } from './u.paths.ts';
-import { CellSchema } from './u.schema/mod.ts';
+import { type t, Yaml } from '../common.ts';
+import { CellSchema } from '../u.schema/mod.ts';
+import { CellPaths } from './paths.ts';
 
 /**
  * WHAT: this file is the only Cell descriptor filesystem read seam.

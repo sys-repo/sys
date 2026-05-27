@@ -1,6 +1,5 @@
 import { Path, Str, type t } from './common.ts';
-import { endpointNameOf } from '../u.endpoint.ts';
-import { resolveEndpointRef } from '../u.endpointRef.ts';
+import { endpointNameOf, resolveEndpointRef } from '../u/endpoints.ts';
 
 export function resolveTaskEndpointAddress(
   cell: t.Cell.Instance,

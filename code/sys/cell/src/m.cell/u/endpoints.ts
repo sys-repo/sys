@@ -1,4 +1,4 @@
-import { D, Path, type t } from './common.ts';
+import { D, Path, type t } from '../common.ts';
 import { Fs } from '@sys/fs';
 
 export type EndpointRefKind = 'service' | 'task';
@@ -29,6 +29,11 @@ export type ResolveEndpointRefOptions = {
   readonly trusted?: readonly string[];
   readonly resolve?: EndpointRefResolver;
 };
+
+/** Resolve the named endpoint selected by a task/service descriptor. */
+export function endpointNameOf(ref: t.Cell.EndpointSelector): string {
+  return ref.use;
+}
 
 export function resolveEndpointRef(options: ResolveEndpointRefOptions): EndpointRef {
   const { context, kind, name, root } = options;

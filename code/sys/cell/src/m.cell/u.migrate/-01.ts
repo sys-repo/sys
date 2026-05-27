@@ -1,5 +1,5 @@
 import { type t, Yaml } from '../common.ts';
-import { CellPaths } from '../u.paths.ts';
+import { CellPaths } from '../u/paths.ts';
 import { CellSchema } from '../u.schema/mod.ts';
 import type { CellMigrateOptions, CellMigrateResult } from './mod.ts';
 

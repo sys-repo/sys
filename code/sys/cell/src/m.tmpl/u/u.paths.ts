@@ -1,7 +1,7 @@
 import { type t } from '../common.ts';
 import { json } from '../-bundle/-bundle.ts';
 import type { CellTmpl } from '../t.ts';
-import { CellPaths } from '../../m.cell/u.paths.ts';
+import { CellPaths } from '../../m.cell/u/paths.ts';
 import { ROOTS } from './u.roots.ts';
 
 export function listTmplPaths(name: CellTmpl.Name): readonly t.StringPath[] {

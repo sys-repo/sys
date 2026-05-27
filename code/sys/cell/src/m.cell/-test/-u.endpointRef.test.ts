@@ -4,7 +4,7 @@ import {
   trustIdentityOf,
   type EndpointRefKind,
   type EndpointRefResolver,
-} from '../u.endpointRef.ts';
+} from '../u/endpoints.ts';
 
 const ROOT = Fs.resolve('./.tmp/cell.endpoint-ref');
 

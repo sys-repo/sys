@@ -12,7 +12,7 @@ import type { t } from './common.ts';
 import { Services } from './m.Services.ts';
 import { Task } from './m.Task.ts';
 import { CellSchema } from './u.schema/mod.ts';
-import { createTaskMethod } from './u.task.root.ts';
+import { createTaskMethod } from './u/task.root.ts';
 
 export const Cell: t.Cell.Lib = {
   Schema: CellSchema,
@@ -26,7 +26,7 @@ export const Cell: t.Cell.Lib = {
      * does not scan the FS-aware loader into browser bundles that only import
      * `@sys/cell` for descriptor/schema work. Do NOT simplify this string.
      */
-    const LOAD_SPEC = './u.' + 'load.ts';
+    const LOAD_SPEC = './u/load.ts';
     const { loadCell } = await import(/* @vite-ignore */ LOAD_SPEC);
     return loadCell(root, options);
   },
