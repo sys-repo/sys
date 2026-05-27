@@ -10,7 +10,6 @@
     "prep": "deno task help:bundle",
     "help:bundle": "deno run -RWE ./src/m.help/-bundle/mod.ts",
     "sample": "deno run -P=sample ./-scripts/task.sample.ts",
-    "sample:files": "deno task sample:files:ws",
     "sample:files:ws": "deno run -P=sample-files-ws ./-sample/files.websocket/-start.ts",
     "sample:files:static": "deno run -P=sample-files-static ./-sample/files.static/-start.ts",
     "sample:files:http": "deno run -P=sample-files-http ./-sample/files.http/-start.ts",
