@@ -241,6 +241,7 @@ Initial high fidelity design emphasis on the `1:1` (dyad) and `1:3` (tradic tend
 <img width="1999" alt="smor-model-group-scale-n-dimension-cell" src="https://github.com/cellplatform/platform-0.2.0/assets/185555/58aa1409-d745-4b6c-a20b-828d6858437a">
 
 
+
 <p>&nbsp;</p>
 
 **Identity** is not one simple reductive thing (or a "rented" database ID owned by some arbitrary vendor).  Each and every one of us inhabit many contexturally dependent and diverse identities.  Overall system design must ultimately bridge all the way to that complexity if it is to be of enduring value.
@@ -265,8 +266,8 @@ The inverse proposition also appears to be true:
 
 
 <p>&nbsp;</p>
-<img width="5171" height="3653" alt="smor-sys crdt-cell" src="https://github.com/user-attachments/assets/036f81d1-d5d4-4352-b1f4-6643ae45e765" />
 
+<img width="5171" height="3653" alt="smor-sys crdt-cell" src="https://github.com/user-attachments/assets/b1cb84c3-a74c-4139-96fb-d8d2788b426a" />
 
 
 <p>&nbsp;</p>
