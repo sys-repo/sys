@@ -5,13 +5,15 @@
   "tasks": {
     "test": "deno test -P=test",
     "dry": "deno publish --allow-dirty --dry-run",
-    "check": "deno check -- ./src/ ./-scripts/* ./-sample/files.websocket/* ./-sample/files.static/*",
+    "check": "deno check -- ./src/ ./-scripts/* ./-sample/files.websocket/* ./-sample/files.static/* ./-sample/files.http/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "prep": "deno task help:bundle",
     "help:bundle": "deno run -RWE ./src/m.help/-bundle/mod.ts",
+    "sample": "deno run -P=sample ./-scripts/task.sample.ts",
     "sample:files": "deno task sample:files:ws",
     "sample:files:ws": "deno run -P=sample-files-ws ./-sample/files.websocket/-start.ts",
     "sample:files:static": "deno run -P=sample-files-static ./-sample/files.static/-start.ts",
+    "sample:files:http": "deno run -P=sample-files-http ./-sample/files.http/-start.ts",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
@@ -24,28 +26,11 @@
     "./files/t": "./src/m.server.files/t.ts"
   },
   "permissions": {
-    "clean": {
-      "read": true,
-      "write": true,
-      "env": true
-    },
-    "test": {
-      "read": true,
-      "write": true,
-      "env": true,
-      "net": true,
-      "run": true
-    },
-    "sample-files-ws": {
-      "read": true,
-      "env": true,
-      "net": true
-    },
-    "sample-files-static": {
-      "read": true,
-      "env": true,
-      "net": true
-    }
+    "clean": { "read": true, "write": true, "env": true },
+    "test": { "read": true, "write": true, "env": true, "net": true, "run": true },
+    "sample": { "read": true, "env": true, "run": true },
+    "sample-files-ws": { "read": true, "env": true, "net": true },
+    "sample-files-static": { "read": true, "env": true, "net": true },
+    "sample-files-http": { "read": true, "env": true, "net": true }
   }
 }
-
