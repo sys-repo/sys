@@ -21,6 +21,7 @@ describe('sample:files:http', () => {
 
     try {
       await waitForReady(process);
+      await assertGetHelp();
       await assertCapabilities(client);
       await assertDocsCorpus(client);
     } finally {
@@ -46,6 +47,19 @@ async function waitForReady(process: ReturnType<typeof Process.spawn>): Promise<
   } finally {
     timeout.cancel();
   }
+}
+
+async function assertGetHelp() {
+  const res = await fetch(D.url);
+  expect(res.status).to.eql(200);
+  expect(res.headers.get('content-type')).to.contain('text/plain');
+
+  const text = await res.text();
+  expect(text).to.contain('👋 Files<T>');
+  expect(text).to.contain('POST /files');
+  expect(text).to.contain('curl -s');
+  expect(text).to.contain('"id":"req-curl"');
+  expect(text).to.contain('"name":"files:read"');
 }
 
 async function assertCapabilities(client: Client) {

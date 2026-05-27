@@ -1,5 +1,5 @@
 import { SampleFiles } from './-config.ts';
-import { Files, Fs, HttpCmd, HttpServer } from './common.ts';
+import { Files, Fs, HttpCmd, HttpServer, Str } from './common.ts';
 
 const files = Files.Fs.Readonly.create({
   fs: Fs.Capability.Files.Readonly.create(Fs),
@@ -8,6 +8,18 @@ const files = Files.Fs.Readonly.create({
 });
 
 const app = HttpServer.create({ static: false });
+
+app.get(SampleFiles.path, (c) => {
+  return c.text(Str.dedent(`
+    👋 Files<T>
+
+    POST ${SampleFiles.path} with a Cmd JSON request.
+
+    curl -s http://127.0.0.1:${SampleFiles.port}${SampleFiles.path} \\
+      -H 'content-type: application/json' \\
+      -d '{"kind":"cmd","id":"req-curl","ns":"${Files.Cmd.ns}","name":"${Files.Cmd.Name.read}","payload":{"path":"hello.txt"}}'
+  `));
+});
 
 app.post(SampleFiles.path, (c) => {
   return HttpCmd.handle(c.req.raw, {
