@@ -5,7 +5,9 @@ import { expect, Fs, Str } from '../../-test.ts';
 import { stripAnsi } from '../common.ts';
 import { CellCli } from '../mod.ts';
 
-/** Suppress command presentation while preserving the returned CLI result. */
+/**
+ * Suppress command presentation while preserving the returned CLI result.
+ */
 export async function silent<T>(fn: () => Promise<T>) {
   const info = console.info;
   console.info = () => undefined;

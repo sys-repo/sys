@@ -13,7 +13,9 @@ type Args = {
   options?: t.Cell.Task.Run.Options;
 };
 
-/** Create the root happy-path `Cell.task(...)` method implementation. */
+/**
+ * Create the root happy-path `Cell.task(...)` method implementation.
+ */
 export function createTaskMethod(deps: Deps): t.Cell.Lib['task'] {
   const task: t.Cell.Lib['task'] = async (...raw: RawArgs) => {
     const args = wrangle.args(raw);

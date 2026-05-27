@@ -7,7 +7,9 @@ export declare namespace CellTmpl {
   /** Available Cell template names. Add new names here as templates are introduced. */
   export type Name = 'default';
 
-  /** Execution-safe template materialization types. */
+  /**
+   * Execution-safe template materialization types.
+   */
   export namespace Write {
     /** Options for writing an embedded Cell template. */
     export type Options = { readonly dryRun?: boolean };

@@ -30,7 +30,9 @@ export type ResolveEndpointRefOptions = {
   readonly resolve?: EndpointRefResolver;
 };
 
-/** Resolve the named endpoint selected by a task/service descriptor. */
+/**
+ * Resolve the named endpoint selected by a task/service descriptor.
+ */
 export function endpointNameOf(ref: t.Cell.EndpointSelector): string {
   return ref.use;
 }

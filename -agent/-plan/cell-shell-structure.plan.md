@@ -8,7 +8,11 @@
 - [x] `47fdc5794` feat(cell): prefer canonical descriptor with legacy fallback
 - [x] `ed2641959` feat(cell): write canonical descriptor on init
 - [x] `ed2641959` Update templates and tests to use `-cell/cell.yaml`.
-- [x] Add a migration command or safe one-shot migration path if existing users need it.
+- [x] `ad8a5ee1c` feat(cell): add descriptor migration API
+- [x] `efca6becd` feat(cell): expose descriptor migration in cli
+- [x] `a34ebb1f2` refactor(cell): group cli utility modules
+- [x] `135a6f706` refactor(cell): group cell utility modules
+- [x] `8cd0830ab` refactor(cell): tidy cli module layout
 - [ ] Run a help/DSL cleanup sweep that names `-cell/cell.yaml` as the canonical descriptor path.
 - [ ] Later, after a compatibility window, remove the legacy fallback.
 

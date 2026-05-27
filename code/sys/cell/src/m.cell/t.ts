@@ -80,7 +80,9 @@ export declare namespace Cell {
     use: string;
   };
 
-  /** Finite operator workflows declared by the Cell descriptor. */
+  /**
+   * Finite operator workflows declared by the Cell descriptor.
+   */
   export namespace Task {
     /** Task planning/verification/execution API. */
     export type Lib = {
@@ -101,7 +103,9 @@ export declare namespace Cell {
     /** Task verification options. */
     export type VerifyOptions = TrustOptions;
 
-    /** Task execution telemetry namespace. */
+    /**
+     * Task execution telemetry namespace.
+     */
     export namespace Run {
       /** Task run options. */
       export type Options = VerifyOptions & {
@@ -276,7 +280,9 @@ export declare namespace Cell {
     };
   }
 
-  /** Services declared by the Cell descriptor. */
+  /**
+   * Services declared by the Cell descriptor.
+   */
   export namespace Services {
     /** Services verification/activation API. */
     export type Lib = {
@@ -434,7 +440,9 @@ export declare namespace Cell {
     };
   }
 
-  /** Schema/validation surface. */
+  /**
+   * Schema/validation surface.
+   */
   export namespace Schema {
     /** Schema library exposed on `Cell.Schema`. */
     export type Lib = {

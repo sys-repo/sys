@@ -36,7 +36,9 @@ export declare namespace CellCli {
     readonly _: readonly string[];
   };
 
-  /** Types for the `dsl` command. */
+  /**
+   * Types for the `dsl` command.
+   */
   export namespace Dsl {
     /** Supported DSL chapter output formats. */
     export type Format = 'human' | 'skill';
@@ -55,7 +57,9 @@ export declare namespace CellCli {
     readonly text: string;
   };
 
-  /** Types for the `init` command. */
+  /**
+   * Types for the `init` command.
+   */
   export namespace Init {
     /** Successful Cell init result. */
     export type Result = {
@@ -86,7 +90,9 @@ export declare namespace CellCli {
     };
   }
 
-  /** Types for the `migrate` command. */
+  /**
+   * Types for the `migrate` command.
+   */
   export namespace Migrate {
     /** Successful Cell migration result. */
     export type Result = {
@@ -119,7 +125,9 @@ export declare namespace CellCli {
     };
   }
 
-  /** Types for the `task` command. */
+  /**
+   * Types for the `task` command.
+   */
   export namespace Task {
     /** Successful finite Cell task result. */
     export type Result = RunResult | PlanResult;
@@ -157,7 +165,9 @@ export declare namespace CellCli {
     };
   }
 
-  /** Types for the `start` command. */
+  /**
+   * Types for the `start` command.
+   */
   export namespace Start {
     /** Successful Cell services start result. */
     export type Result = {

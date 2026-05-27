@@ -21,7 +21,9 @@ export declare namespace CellHelp {
   /** Authored help section with display label and ordered items. */
   export type Section = CliFormatChapters.Section;
 
-  /** Root CLI help resources. */
+  /**
+   * Root CLI help resources.
+   */
   export namespace Root {
     /** Loader for authored root help. */
     export type Lib = {
@@ -38,7 +40,9 @@ export declare namespace CellHelp {
     };
   }
 
-  /** Init command help resources. */
+  /**
+   * Init command help resources.
+   */
   export namespace Init {
     /** Loader for authored init help. */
     export type Lib = {
@@ -56,7 +60,9 @@ export declare namespace CellHelp {
     };
   }
 
-  /** Migrate command help resources. */
+  /**
+   * Migrate command help resources.
+   */
   export namespace Migrate {
     /** Loader for authored migrate help. */
     export type Lib = {
@@ -73,7 +79,9 @@ export declare namespace CellHelp {
     };
   }
 
-  /** Task command help resources. */
+  /**
+   * Task command help resources.
+   */
   export namespace Task {
     /** Loader for authored task help. */
     export type Lib = {
@@ -90,7 +98,9 @@ export declare namespace CellHelp {
     };
   }
 
-  /** Start command help resources. */
+  /**
+   * Start command help resources.
+   */
   export namespace Start {
     /** Loader for authored start help. */
     export type Lib = {
@@ -107,7 +117,9 @@ export declare namespace CellHelp {
     };
   }
 
-  /** Cell DSL guidance resources. */
+  /**
+   * Cell DSL guidance resources.
+   */
   export namespace Dsl {
     /** Loader for authored DSL guidance. */
     export type Lib = {

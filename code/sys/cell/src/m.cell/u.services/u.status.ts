@@ -11,14 +11,18 @@ export type StartedServiceStatus = {
   readonly owner?: t.Service.Status;
 };
 
-/** Normalize all started services into Cell-owned service status view models. */
+/**
+ * Normalize all started services into Cell-owned service status view models.
+ */
 export function serviceStatusesOf(
   started: t.Cell.Services.Started,
 ): readonly StartedServiceStatus[] {
   return started.services.map(serviceStatusOf);
 }
 
-/** Normalize one started service without probing owner-specific handle fields. */
+/**
+ * Normalize one started service without probing owner-specific handle fields.
+ */
 export function serviceStatusOf(
   service: t.Cell.Services.StartedService,
 ): StartedServiceStatus {
