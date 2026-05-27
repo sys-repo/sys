@@ -2,9 +2,13 @@
  * @module
  * Cell operator CLI.
  */
-import { CellCli } from './m.CellCli.ts';
+import type { t } from './common.ts';
+import { run } from './m.run/mod.ts';
 
-export { CellCli };
+/**
+ * Cell operator CLI.
+ */
+export const CellCli: t.CellCli.Lib = { run };
 
 /**
  * Main entry:

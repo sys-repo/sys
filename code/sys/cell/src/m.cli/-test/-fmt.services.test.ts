@@ -1,6 +1,6 @@
 import { describe, expect, Fs, it, Time } from '../../-test.ts';
 import { stripAnsi, type t } from '../common.ts';
-import { Fmt } from '../u.fmt/mod.ts';
+import { Fmt } from '../u.fmt/u.mod.ts';
 
 describe(`@sys/cell/cli service status formatter`, () => {
   it('shows non-default selected service mode', () => {

@@ -1,6 +1,6 @@
 import { Cell } from '../../m.cell/mod.ts';
 import type { t } from '../common.ts';
-import { Fmt } from '../u.fmt/mod.ts';
+import { Fmt } from '../u.fmt/u.mod.ts';
 
 export type RunCellTaskArgs = {
   name: t.Cell.Id;

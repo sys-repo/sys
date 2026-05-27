@@ -1,6 +1,6 @@
 import { CellMigrate, type CellMigrateItem } from '../../m.cell/u.migrate/mod.ts';
 import { c, CliTable, Fs, Str } from '../common.ts';
-import { FmtPath } from '../u.fmt/path.ts';
+import { FmtPath } from '../u.fmt/u.path.ts';
 
 type MigrateCellOptions = {
   readonly dir?: string;

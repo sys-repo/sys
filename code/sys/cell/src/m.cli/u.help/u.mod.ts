@@ -1,9 +1,9 @@
-import { FmtDslHelp } from './dsl.ts';
-import { FmtInitHelp } from './init.ts';
-import { FmtMigrateHelp } from './migrate.ts';
-import { FmtRootHelp } from './root.ts';
-import { FmtStartHelp } from './start.ts';
-import { FmtTaskHelp } from './task.ts';
+import { FmtDslHelp } from './u.dsl.ts';
+import { FmtInitHelp } from './u.init.ts';
+import { FmtMigrateHelp } from './u.migrate.ts';
+import { FmtRootHelp } from './u.root.ts';
+import { FmtStartHelp } from './u.start.ts';
+import { FmtTaskHelp } from './u.task.ts';
 
 export const FmtHelp = {
   input: FmtRootHelp.input,
