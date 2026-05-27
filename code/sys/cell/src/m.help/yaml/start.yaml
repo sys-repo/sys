@@ -1,6 +1,6 @@
 summary: |
   Start Cell services from a Cell folder.
-  Loads `cell.yaml`, starts declared services, and waits for service completion.
+  Loads canonical `-cell/cell.yaml`, starts declared services, and waits for service completion.
 
 usage:
   - deno run -ERWN jsr:@sys/cell start [dir]

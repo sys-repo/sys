@@ -43,27 +43,28 @@ sections:
     items: |
       Cell owns the folder boundary: boot, composition, service orchestration, and CLI lifecycle.
       Owner configs own mechanics and state interpretation.
-      `cell.yaml` names trusted services, tasks that run to completion, and owner config references.
+      `-cell/cell.yaml` is the canonical Cell descriptor path.
+      It names trusted services, tasks that run to completion, and owner config references.
       Public package endpoint refs should use explicit JSR authority such as `jsr:@sys/...`.
       Cell-local adapters should use relative refs such as `./-services/local.ts` or
       `./-tasks/local.ts`.
       Cell verifies trusted public refs by package identity, not by duplicating registry spellings.
       Views are owner-defined projections that make Cell state perceivable.
       Tasks name workflows that run to completion; endpoint modules own execution mechanics.
-      Do not register views or service-to-view relationships in `cell.yaml`.
-      Do not put pull/service/proxy/mount/task mechanics in `cell.yaml`.
-      Do not turn `cell.yaml` into a mega-config.
+      Do not register views or service-to-view relationships in `-cell/cell.yaml`.
+      Do not put pull/service/proxy/mount/task mechanics in `-cell/cell.yaml`.
+      Do not turn `-cell/cell.yaml` into a mega-config.
 
   - label: 'Descriptor IDs'
     items: |
-      Service and task names in `cell.yaml` use the pattern `^[a-z][a-z0-9]*(?:[.:-][a-z0-9]+)*$`.
+      Service and task names in `-cell/cell.yaml` use the pattern `^[a-z][a-z0-9]*(?:[.:-][a-z0-9]+)*$`.
       Allowed separators are `.`, `:`, and `-` between lowercase alphanumeric segments.
       Do not use `_`, `/`, spaces, uppercase letters, leading/trailing separators, or
       repeated separators.
       Treat service and task names as opaque identifiers for display, logs, and review.
       Do not treat names as raw paths, URLs, import specifiers, Deno task names, or config
       filenames.
-      Validate user-provided name slots before editing `cell.yaml`.
+      Validate user-provided name slots before editing `-cell/cell.yaml`.
       If a requested name is invalid, stop and ask for a valid name; do not silently rewrite it.
 
   - label: Speech acts
@@ -131,10 +132,10 @@ sections:
       - add pulled view → run `@sys/tools pull add` against confirmed owner config
       - prompt mentions `fs.db.team` → likely dist bundle URL shape; read examples before guessing
       - owner pull config owns dist URL and local target
-      - do not register pulled views in `cell.yaml`
+      - do not register pulled views in `-cell/cell.yaml`
       - pull latest configured views → run `@sys/tools pull` against confirmed pull config(s)
       - if no pull config is specified or known, ask for it
-      - do not edit `cell.yaml` for refresh-only pulls
+      - do not edit `-cell/cell.yaml` for refresh-only pulls
       - |-
         add static serve service → default unqualified requests to the `@sys/tools/serve`
         service endpoint
@@ -170,8 +171,8 @@ sections:
       - composite task descriptor → record `tasks[]` with `name` and `steps[]` task refs only
       - do not put shell commands, `deno task`, or inline executable fields in `tasks[].steps[]`
       - |-
-        `cell.yaml` only names services, tasks that run to completion, endpoint refs, and
-        owner config refs
+        `-cell/cell.yaml` only names services, tasks that run to completion, endpoint refs,
+        and owner config refs
       - verify/load → run `Cell.load` against the folder
       - run finite task → run `@sys/cell task <task-name>`
       - start services → run `@sys/cell start`

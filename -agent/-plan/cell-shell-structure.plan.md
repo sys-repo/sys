@@ -13,7 +13,7 @@
 - [x] `a34ebb1f2` refactor(cell): group cli utility modules
 - [x] `135a6f706` refactor(cell): group cell utility modules
 - [x] `8cd0830ab` refactor(cell): tidy cli module layout
-- [ ] Run a help/DSL cleanup sweep that names `-cell/cell.yaml` as the canonical descriptor path.
+- [x] Run a help/DSL cleanup sweep that names `-cell/cell.yaml` as the canonical descriptor path.
 - [ ] Later, after a compatibility window, remove the legacy fallback.
 
 

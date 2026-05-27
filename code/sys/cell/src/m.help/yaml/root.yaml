@@ -2,7 +2,7 @@ summary: |
   A Cell is a folder-shaped metamedium whose ordinary files
   carry DSL-shaped meaning that can be interpreted, viewed,
   and validly rewritten within the folder that bounds it.
-  Agents must read `dsl` before changing `cell.yaml`, owner configs,
+  Agents must read `dsl` before changing `-cell/cell.yaml`, owner configs,
   tasks, services, or routes, then read the matching chapter from the DSL chapter index.
 
 usage:
@@ -20,7 +20,7 @@ commands:
   - name: init
     text: initialize a folder as a Cell
   - name: migrate
-    text: move a legacy descriptor to the canonical Cell path
+    text: move a legacy descriptor to the canonical `-cell/cell.yaml` path
   - name: task
     text: run a named trusted task from tasks[]
   - name: start

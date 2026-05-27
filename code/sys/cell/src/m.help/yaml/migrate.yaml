@@ -1,5 +1,5 @@
 summary: |
-  Move a legacy Cell descriptor to the canonical Cell metadata path.
+  Move a legacy Cell descriptor to the canonical `-cell/cell.yaml` metadata path.
   Migration is explicit and only touches the Cell descriptor path.
 
 usage:
@@ -14,7 +14,7 @@ options:
     text: preview descriptor migration without moving files
 
 safety:
-  - legacy-only valid descriptor moves from -config/@sys.cell/cell.yaml to -cell/cell.yaml
+  - legacy-only valid descriptor moves from `-config/@sys.cell/cell.yaml` to `-cell/cell.yaml`
   - canonical-only descriptor is a no-op
   - canonical and legacy descriptors together fail without mutation
   - invalid legacy descriptors fail without mutation
