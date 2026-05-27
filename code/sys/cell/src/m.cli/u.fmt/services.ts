@@ -1,5 +1,5 @@
-import type { StartedServiceStatus } from '../m.cell/u.services/u.status.ts';
-import { c, Cli, Fs, Is, Str, stripAnsi, type t } from './common.ts';
+import type { StartedServiceStatus } from '../../m.cell/u.services/u.status.ts';
+import { c, Cli, Fs, Is, Str, stripAnsi, type t } from '../common.ts';
 
 type ServicesStartedResult = {
   services: readonly StartedServiceStatus[];

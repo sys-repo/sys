@@ -1,4 +1,4 @@
-import { c, type t, Time } from './common.ts';
+import { c, type t, Time } from '../common.ts';
 
 export type ElapsedSuffixOptions = {
   readonly startedAt?: t.UnixTimestamp;

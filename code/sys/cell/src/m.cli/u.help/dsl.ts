@@ -1,5 +1,5 @@
-import { CellHelp } from '../m.help/mod.ts';
-import { Fmt, Str, type t } from './common.ts';
+import { CellHelp } from '../../m.help/mod.ts';
+import { Fmt, Str, type t } from '../common.ts';
 
 const command = 'deno run -ER jsr:@sys/cell dsl';
 

@@ -1,5 +1,5 @@
-import { CellHelp } from '../m.help/mod.ts';
-import { Fmt } from './common.ts';
+import { CellHelp } from '../../m.help/mod.ts';
+import { Fmt } from '../common.ts';
 
 export const FmtMigrateHelp = {
   async input(toolname = '@sys/cell migrate') {

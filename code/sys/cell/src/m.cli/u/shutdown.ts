@@ -1,4 +1,4 @@
-import { Is } from './common.ts';
+import { Is } from '../common.ts';
 
 export type ShutdownSignal = {
   readonly signal: AbortSignal;

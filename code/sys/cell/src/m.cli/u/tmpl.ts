@@ -1,6 +1,6 @@
-import { GITIGNORE_ENTRIES, GITIGNORE_PATH } from '../m.tmpl/u/u.gitignore.ts';
-import { listTmplOwnedPaths, listTmplPaths, tmplDescriptorPath } from '../m.tmpl/u/u.paths.ts';
-import { readTmplText } from '../m.tmpl/u/u.text.ts';
+import { GITIGNORE_ENTRIES, GITIGNORE_PATH } from '../../m.tmpl/u/u.gitignore.ts';
+import { listTmplOwnedPaths, listTmplPaths, tmplDescriptorPath } from '../../m.tmpl/u/u.paths.ts';
+import { readTmplText } from '../../m.tmpl/u/u.text.ts';
 
 const MinimalTemplate = 'default';
 

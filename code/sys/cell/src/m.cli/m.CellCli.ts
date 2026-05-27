@@ -1,7 +1,7 @@
 import { isServiceMode } from '../m.cell/u.services/u.plan.ts';
 import { c, Err, Is, Str, type t } from './common.ts';
-import { parseArgs } from './u.args.ts';
-import { FmtHelp } from './u.help.ts';
+import { parseArgs } from './u/args.ts';
+import { FmtHelp } from './u.help/mod.ts';
 
 /**
  * Cell operator CLI.
@@ -62,7 +62,7 @@ export const CellCli: t.CellCli.Lib = {
       if (args._.length > 2) return fail({ argv }, `Unexpected argument: ${args._[2]}`, initHelp);
 
       try {
-        const { formatInitResult, initCell } = await import('./u.init.ts');
+        const { formatInitResult, initCell } = await import('./u/init.ts');
         const res = await initCell({ dir: args._[1] ?? '.', dryRun: args.dryRun });
         const text = formatInitResult(res);
         print(text);
@@ -96,7 +96,7 @@ export const CellCli: t.CellCli.Lib = {
       if (args._.length > 2) return fail({ argv }, `Unexpected argument: ${args._[2]}`, migrateHelp);
 
       try {
-        const { formatMigrateResult, migrateCell } = await import('./u.migrate.ts');
+        const { formatMigrateResult, migrateCell } = await import('./u/migrate.ts');
         const res = await migrateCell({ dir: args._[1] ?? '.', dryRun: args.dryRun });
         const text = formatMigrateResult(res);
         print(text);
@@ -160,7 +160,7 @@ export const CellCli: t.CellCli.Lib = {
 
       try {
         const { planCellTask, runCellTask, toTaskPlanResult, toTaskResult } = await import(
-          './u.task.ts'
+          './u/task.ts'
         );
         const res = args.plan
           ? toTaskPlanResult(
@@ -196,7 +196,7 @@ export const CellCli: t.CellCli.Lib = {
       if (args._.length > 2) return fail({ argv }, `Unexpected argument: ${args._[2]}`, startHelp);
 
       try {
-        const { formatStartResult, startCell, toStartResult } = await import('./u.start.ts');
+        const { formatStartResult, startCell, toStartResult } = await import('./u/start.ts');
         const started = await startCell({
           dir: args._[1],
           mode: mode.value,

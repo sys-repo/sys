@@ -1,7 +1,7 @@
-import { CellHelp } from '../m.help/mod.ts';
-import { c, CliTable, Fmt, Str } from './common.ts';
-import { composeHelpBlocks } from './u.help.compose.ts';
-import { Tmpl } from './u.tmpl.ts';
+import { CellHelp } from '../../m.help/mod.ts';
+import { c, CliTable, Fmt, Str } from '../common.ts';
+import { composeHelpBlocks } from './compose.ts';
+import { Tmpl } from '../u/tmpl.ts';
 
 type OutputOptions = {
   readonly toolname?: string;

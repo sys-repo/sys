@@ -1,4 +1,4 @@
-import { Str } from './common.ts';
+import { Str } from '../common.ts';
 
 /** Compose already-rendered help/table blocks using the shared help frame. */
 export function composeHelpBlocks(...blocks: readonly string[]): string {

@@ -1,6 +1,6 @@
-import { c, Cli, CliTable, Str, type t, Time } from './common.ts';
-import { elapsedSuffix } from './u.fmt.elapsed.ts';
-import { FmtPath } from './u.fmt.path.ts';
+import { c, Cli, CliTable, Str, type t, Time } from '../common.ts';
+import { elapsedSuffix } from './elapsed.ts';
+import { FmtPath } from './path.ts';
 
 type TaskResult = {
   root: string;

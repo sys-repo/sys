@@ -1,8 +1,8 @@
 import { describe, expect, it } from '../../-test.ts';
 import { CellHelp } from '../../m.help/mod.ts';
 import { Str, stripAnsi } from '../common.ts';
-import { FmtHelp } from '../u.help.ts';
-import { Tmpl } from '../u.tmpl.ts';
+import { FmtHelp } from '../u.help/mod.ts';
+import { Tmpl } from '../u/tmpl.ts';
 
 describe('FmtHelp', () => {
   it('uses conceptual @sys/cell command titles', async () => {

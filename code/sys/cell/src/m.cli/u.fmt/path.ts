@@ -1,4 +1,4 @@
-import { Cli, Fs } from './common.ts';
+import { Cli, Fs } from '../common.ts';
 
 export const FmtPath = {
   display(path: string): string {

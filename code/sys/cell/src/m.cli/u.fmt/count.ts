@@ -1,4 +1,4 @@
-import { Num } from './common.ts';
+import { Num } from '../common.ts';
 
 const SMALL_COUNT_WORDS = [
   'zero',
