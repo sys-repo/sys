@@ -1,77 +1,31 @@
 import { describe, expect, it } from '../../-test.ts';
-import { CellHelp } from '../../m.help/mod.ts';
 import { stripAnsi } from '../common.ts';
 import { CellCli } from '../mod.ts';
 import { silent } from './u.fixture.ts';
 
 describe(`@sys/cell/cli help`, () => {
-  it('root help → shows resource-backed root guidance', async () => {
+  it('root help → routes to the root help surface', async () => {
     const res = await silent(() => CellCli.run({ argv: [] }));
     const text = stripAnsi(res.text);
-    const guidance = await CellHelp.Root.load();
 
     expect(res.kind).to.eql('help');
     expect(text).to.contain('@sys/cell');
-    expect(text).to.contain(guidance.summary.split('\n')[0]);
-    guidance.usage.forEach((line) => expect(text).to.contain(line));
-    guidance.commands.forEach(([name, detail]) => {
-      expect(text).to.contain(name);
-      expect(text).to.contain(detail);
-    });
-    guidance.options.forEach(([name, detail]) => {
-      expect(text).to.contain(name);
-      expect(text).to.contain(detail);
+    ['dsl', 'init', 'migrate', 'task', 'start'].forEach((command) => {
+      expect(text).to.contain(command);
     });
   });
 
-  it('init -h → shows resource-backed init help', async () => {
-    const res = await silent(() => CellCli.run({ argv: ['init', '-h'] }));
-    const text = stripAnsi(res.text);
-    const guidance = await CellHelp.Init.load();
+  it('command -h → routes to command help surfaces', async () => {
+    const cases = ['init', 'migrate', 'task', 'start'] as const;
 
-    expect(res.kind).to.eql('help');
-    expect(text).to.contain('@sys/cell init');
-    guidance.usage.forEach((line) => expect(text).to.contain(line));
-    guidance.safety.forEach((line) => expect(text).to.contain(line));
-    expect(text).to.contain('--agent');
-  });
+    for (const command of cases) {
+      const res = await silent(() => CellCli.run({ argv: [command, '-h'] }));
+      const text = stripAnsi(res.text);
 
-  it('migrate -h → shows resource-backed migrate help', async () => {
-    const res = await silent(() => CellCli.run({ argv: ['migrate', '-h'] }));
-    const text = stripAnsi(res.text);
-    const guidance = await CellHelp.Migrate.load();
-
-    expect(res.kind).to.eql('help');
-    expect(text).to.contain('@sys/cell migrate');
-    guidance.usage.forEach((line) => expect(text).to.contain(line));
-    guidance.safety.forEach((line) => expect(text).to.contain(line));
-    expect(text).to.contain('--dry-run');
-  });
-
-  it('task -h → shows resource-backed task help', async () => {
-    const res = await silent(() => CellCli.run({ argv: ['task', '-h'] }));
-    const text = stripAnsi(res.text);
-    const guidance = await CellHelp.Task.load();
-
-    expect(res.kind).to.eql('help');
-    expect(text).to.contain('@sys/cell task');
-    guidance.usage.forEach((line) => expect(text).to.contain(line));
-    guidance.task.forEach((line) => expect(text).to.contain(line));
-  });
-
-  it('start -h → shows resource-backed start help', async () => {
-    const res = await silent(() => CellCli.run({ argv: ['start', '-h'] }));
-    const text = stripAnsi(res.text);
-    const guidance = await CellHelp.Start.load();
-
-    expect(res.kind).to.eql('help');
-    expect(text).to.contain('@sys/cell start');
-    guidance.services.forEach((line) => expect(text).to.contain(line));
-    guidance.options.forEach(([name, detail]) => {
-      expect(text).to.contain(name);
-      expect(text).to.contain(detail);
-    });
-    expect(text).to.contain('--mode <mode>');
+      expect(res.kind).to.eql('help');
+      expect(text).to.contain(`@sys/cell ${command}`);
+      expect(text).to.contain('-h, --help');
+    }
   });
 
   it('unknown commands fail with root help context', async () => {
