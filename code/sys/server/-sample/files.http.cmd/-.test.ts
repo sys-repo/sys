@@ -3,11 +3,11 @@ import { D, Files, Fs, HttpCmd, Process, type t } from './common.ts';
 
 type Client = t.HttpCmd.Client<t.Files.Cmd.Name, t.Files.Cmd.Payload, t.Files.Cmd.Result>;
 
-describe('sample:files:http', () => {
+describe('sample:files:http:cmd', () => {
   it('starts the sample server and serves the docs corpus over unary HTTP Cmd', async () => {
     const root = Fs.Path.fromFileUrl(new URL('../..', import.meta.url));
     const process = Process.spawn({
-      args: ['run', '-P=sample-files-http', './-sample/files.http/-start.ts'],
+      args: ['run', '-P=sample-files-http-cmd', './-sample/files.http.cmd/-start.ts'],
       cwd: root,
       readySignal: (event) => event.toString().includes(D.path),
       silent: true,

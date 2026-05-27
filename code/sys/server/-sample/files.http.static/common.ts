@@ -16,7 +16,7 @@ export { Pkg } from '@sys/std/pkg';
  */
 const port = 1235;
 export const DEFAULTS = {
-  name: '@sys/server:sample:files:static',
+  name: '@sys/server:sample:files:http:static',
   port,
   url: `http://127.0.0.1:${port}`,
   dist: '/dist.json',

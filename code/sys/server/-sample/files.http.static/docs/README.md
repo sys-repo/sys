@@ -1,9 +1,9 @@
-# Files Static Sample
+# Files HTTP Static Sample
 
 Run sample with:
 
 ```sh
-deno task sample:files:static
+deno task sample:files:http:static
 ```
 
 ---
@@ -29,11 +29,12 @@ The shape is intentionally simple:
 dist.json + assets → static HTTP server → FilesStatic backing → Files client → URL content ref
 ```
 
-This complements the WebSocket sample:
+Files sample lanes:
 
 ```text
-files.websocket = live authoring/dev mode over WebSocket
-files.static    = generated publication/runtime mode over static HTTP
+sample:files:ws           = live authoring/dev mode over WebSocket
+sample:files:http:cmd     = unary request/response Cmd mode over HTTP JSON
+sample:files:http:static  = generated publication/runtime mode over static HTTP
 ```
 
 Full version:

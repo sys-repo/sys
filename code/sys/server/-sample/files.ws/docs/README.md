@@ -3,7 +3,7 @@
 Run sample with:
 
 ```sh
-deno task sample:files
+deno task sample:files:ws
 ```
 
 ---
@@ -63,4 +63,3 @@ try {
   await server.close('done');
 }
 ```
-

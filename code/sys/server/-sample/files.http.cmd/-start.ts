@@ -34,8 +34,8 @@ const server = HttpServer.start(app, {
   name: SampleFiles.name,
   keyboard: true,
   status: {
-    kind: 'files:http',
-    urlPaths: [{ path: SampleFiles.path, label: 'files:http' }],
+    kind: 'files:http:cmd',
+    urlPaths: [{ path: SampleFiles.path, label: 'files:http:cmd' }],
     details: [
       { label: 'files.kind', value: files.kind },
       { label: 'files.transport', value: 'http.cmd:unary' },

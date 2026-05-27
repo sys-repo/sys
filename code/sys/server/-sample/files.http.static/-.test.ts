@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../src/-test.ts';
 import { SampleFiles } from './-config.ts';
 import { Files, FilesStatic, HttpStatic, Pkg, type t } from './common.ts';
 
-describe('sample:files:static', () => {
+describe('sample:files:http:static', () => {
   it('serves dist.json and reconstructs static Files content refs over plain HTTP', async () => {
     const server = await HttpStatic.start({
       dir: SampleFiles.root,

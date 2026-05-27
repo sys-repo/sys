@@ -6,19 +6,21 @@ export type { t };
  * Libraries:
  */
 export { Fs } from '@sys/fs';
+export { HttpCmd } from '@sys/http/cmd';
+export { HttpServer } from '@sys/http/server';
 export { Files } from '@sys/model/files/fs';
 export { Process } from '@sys/process';
-export { FilesServer } from '@sys/server/files';
+export { Str } from '@sys/std/str';
 
 /**
  * Sample default values.
  */
-const port = 1234;
+const port = 1236;
 export const DEFAULTS = {
-  name: '@sys/server:sample:files',
+  name: '@sys/server:sample:files:http:cmd',
   path: '/files',
   port,
-  url: `ws://127.0.0.1:${port}/files`,
+  url: `http://127.0.0.1:${port}/files`,
 } as const;
 
 /** Short alias for sample defaults. */
