@@ -66,6 +66,11 @@ async function assertGetHelp() {
   expect(text).to.contain('Files manifest JSON.');
   expect(text).to.contain('POST http://localhost:1236/files');
   expect(text).to.contain('Unary Cmd<T> JSON endpoint.');
+  expect(text).to.contain('Capabilities:');
+  expect(text).to.contain('- list');
+  expect(text).to.contain('- stat');
+  expect(text).to.contain('- read');
+  expect(text).to.contain('- manifest');
   expect(text).to.contain('runtime dist.json');
   expect(text).to.contain('content refs');
   expect(text).to.contain('curl -s');

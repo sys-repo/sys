@@ -9,6 +9,7 @@ import {
   HttpServer,
   Pkg,
   Str,
+  type t,
 } from './common.ts';
 
 const runtime = await prepareRuntime();
@@ -18,6 +19,7 @@ try {
     dist: runtime.dist,
     policy: SampleFiles.policy,
   });
+  const capabilities = activeCapabilities(files.capabilities);
 
   const manifest = FilesServer.Http.manifest({ files, path: SampleFiles.path });
   if (!manifest) throw new Error('Expected sample Files backing to support manifest projection.');
@@ -35,6 +37,9 @@ try {
 
       POST ${url}
            Unary Cmd<T> JSON endpoint.
+
+      Capabilities:
+      - ${capabilities.join('\n      - ')}
 
       This sample generates a runtime dist.json before startup.
       File reads return content refs carrying static dist hash/size metadata.
@@ -70,7 +75,7 @@ try {
       details: [
         { label: 'files.kind', value: files.kind },
         { label: 'files.transport', value: 'http.cmd:unary' },
-        { label: 'files.capabilities', value: 'list, stat, read, manifest' },
+        { label: 'files.capabilities', value: capabilities.join(', ') },
         {
           label: 'dist',
           value: Cli.Fmt.Path.tty(runtime.distPath, {
@@ -86,6 +91,21 @@ try {
   await server.finished;
 } finally {
   await Fs.remove(runtime.root);
+}
+
+function activeCapabilities(
+  capabilities: t.Files.Capabilities,
+): readonly t.Files.Capability[] {
+  const order: readonly t.Files.Capability[] = [
+    'list',
+    'stat',
+    'read',
+    'write',
+    'remove',
+    'watch',
+    'manifest',
+  ];
+  return order.filter((name) => capabilities[name]);
 }
 
 function sampleUrl(path: string): string {
