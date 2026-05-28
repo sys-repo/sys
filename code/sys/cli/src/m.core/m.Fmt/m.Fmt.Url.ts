@@ -7,7 +7,13 @@ export const UrlFmt: t.CliFormat.Lib['Url'] = {
   },
 
   serviceList(urls) {
-    return urls.map((url, index) => UrlFmt.service(url, { highlightOrigin: index === 0 }));
+    const origins = new Set<string>();
+    return urls.map((url, index) => {
+      const origin = originKey(url);
+      const highlightOrigin = origin ? !origins.has(origin) : index === 0;
+      if (origin) origins.add(origin);
+      return UrlFmt.service(url, { highlightOrigin });
+    });
   },
 };
 
@@ -21,6 +27,11 @@ function format(url: t.Service.Url, highlightOrigin: boolean): string {
   const value = parsed.toURL();
   const origin = highlightOrigin ? highlightOriginText(value) : c.gray(displayOrigin(value));
   return `${origin}${c.gray(formatSuffix(value))}`;
+}
+
+function originKey(url: t.Service.Url): string | undefined {
+  const parsed = Url.parse(url.href);
+  return parsed.ok ? displayOrigin(parsed.toURL()) : undefined;
 }
 
 function highlightOriginText(url: URL): string {
