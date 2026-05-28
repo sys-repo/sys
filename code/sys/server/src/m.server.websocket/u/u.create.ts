@@ -5,6 +5,9 @@ import { localOrigin, localWebSocketUrl, normalizePath } from './u.origin.ts';
 import { closeSocket } from './u.socket.ts';
 import { type RuntimeStatus, serviceError, serviceStatus } from './u.status.ts';
 
+type ListenAddress = t.WebSocketServer.ListenAddress;
+type AddressInUseError = t.WebSocketServer.AddressInUseError;
+
 /** Create a running WebSocket command server with caller-owned lifecycle. */
 export function create<
   N extends string = t.Cmd.Name,
@@ -18,31 +21,23 @@ export function create<
   const connections = new Set<{ readonly socket: WebSocket; readonly host: t.Cmd.Host.Handle }>();
   const cmd = Cmd.make<N, P, R, E>({ ns: input.cmd.ns });
 
-  const server = Deno.serve(
-    {
-      hostname,
-      port: input.port ?? D.serve.port,
-      onListen() {
-        // Keep the primitive silent by default.
-      },
-    },
-    async (request) => {
-      const httpResponse = await input.http?.handle(request);
-      if (httpResponse) return httpResponse;
+  const requestedAddress: ListenAddress = { hostname, port: input.port ?? D.serve.port };
+  const server = createServer(requestedAddress, async (request) => {
+    const httpResponse = await input.http?.handle(request);
+    if (httpResponse) return httpResponse;
 
-      const accepted = await acceptRequest(request, { path, accept: input.accept });
-      if (!accepted.ok) return accepted.response;
+    const accepted = await acceptRequest(request, { path, accept: input.accept });
+    if (!accepted.ok) return accepted.response;
 
-      const { socket, response } = Deno.upgradeWebSocket(request);
-      const endpoint = Cmd.Transport.fromWebSocket(socket);
-      const host = cmd.host(endpoint, input.cmd.handlers);
-      trackConnection(connections, { socket, host });
+    const { socket, response } = Deno.upgradeWebSocket(request);
+    const endpoint = Cmd.Transport.fromWebSocket(socket);
+    const host = cmd.host(endpoint, input.cmd.handlers);
+    trackConnection(connections, { socket, host });
 
-      callSocketHook(input.onSocket, { request, socket, endpoint, host });
+    callSocketHook(input.onSocket, { request, socket, endpoint, host });
 
-      return response;
-    },
-  );
+    return response;
+  });
 
   const addr = server.addr as Deno.NetAddr;
   const port = addr.port as t.PortNumber;
@@ -115,6 +110,43 @@ export function create<
 /**
  * Helpers:
  */
+function createServer(address: ListenAddress, handler: Deno.ServeHandler) {
+  try {
+    return Deno.serve(
+      {
+        hostname: address.hostname,
+        port: address.port,
+        onListen() {
+          // Keep the primitive silent by default.
+        },
+      },
+      handler,
+    );
+  } catch (cause) {
+    if (cause instanceof Deno.errors.AddrInUse) throw addressInUseError(address, cause);
+    throw cause;
+  }
+}
+
+function addressInUseError(
+  address: ListenAddress,
+  cause: Deno.errors.AddrInUse,
+): AddressInUseError {
+  const error = new Error(
+    `WebSocketServer.create: address already in use: ${formatListenAddress(address)}.`,
+    { cause },
+  ) as AddressInUseError;
+  Object.assign(error, { kind: 'WebSocketServerAddressInUse', address });
+  return error;
+}
+
+function formatListenAddress(address: ListenAddress) {
+  const hostname = address.hostname.includes(':') && !address.hostname.startsWith('[')
+    ? `[${address.hostname}]`
+    : address.hostname;
+  return `${hostname}:${address.port}`;
+}
+
 function callSocketHook<
   N extends string,
   P extends t.Cmd.Payload.Map<N>,

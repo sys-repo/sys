@@ -1,4 +1,4 @@
-import { describe, expect, Files, Fs, it, type t, Testing } from '../../../-test.ts';
+import { describe, expect, Files, Fs, it, Str, type t, Testing } from '../../../-test.ts';
 import { FilesWebSocketService } from '../mod.ts';
 
 describe('FilesWebSocketService', () => {
@@ -6,6 +6,38 @@ describe('FilesWebSocketService', () => {
     const mod = await import('@sys/server/files/service');
     expect(mod.FilesWebSocketService).to.equal(FilesWebSocketService);
     expect(mod.FilesWebSocketService.start).to.equal(FilesWebSocketService.start);
+  });
+
+  it('reports the resolved listen address when the service port is already in use', async () => {
+    const blocker = Deno.listen({ hostname: '127.0.0.1', port: 0 });
+    const addr = blocker.addr as Deno.NetAddr;
+    const dir = await Testing.dir('FilesWebSocketService.port-in-use');
+    const config = Fs.join(dir.dir, '-config/files.yaml');
+    await Fs.write(
+      config,
+      Str.dedent(`
+        name: shell:files
+        root: .
+        path: /files
+        port: ${addr.port}
+      `).trimStart(),
+    );
+
+    try {
+      const error = await catchStart(() => {
+        return FilesWebSocketService.start({
+          cwd: dir.dir as t.StringDir,
+          paths: { config },
+          silent: true,
+        });
+      });
+
+      expect(error?.message).to.eql(
+        `WebSocketServer.create: address already in use: 127.0.0.1:${addr.port}.`,
+      );
+    } finally {
+      blocker.close();
+    }
   });
 
   it('starts from config and serves a bounded Files root over websocket', async () => {
@@ -49,3 +81,14 @@ describe('FilesWebSocketService', () => {
     }
   });
 });
+
+/**
+ * Helpers:
+ */
+async function catchStart(fn: () => unknown | Promise<unknown>): Promise<Error | undefined> {
+  try {
+    await fn();
+  } catch (cause) {
+    return cause as Error;
+  }
+}

@@ -30,6 +30,24 @@ export declare namespace WebSocketServer {
   /** Lifecycle ownership model for a running WebSocket server. */
   export type Lifecycle = 'manual' | 'process';
 
+  /** Network listen address requested by WebSocket startup. */
+  export type ListenAddress = {
+    /** Hostname passed to `Deno.serve`. */
+    readonly hostname: t.StringHostname;
+    /** TCP port passed to `Deno.serve`. */
+    readonly port: t.PortNumber;
+  };
+
+  /** Address-in-use failure with the attempted listen address preserved. */
+  export type AddressInUseError = Error & {
+    /** Stable discriminator for catch-site narrowing. */
+    readonly kind: 'WebSocketServerAddressInUse';
+    /** Hostname and port attempted when the bind failed. */
+    readonly address: ListenAddress;
+    /** Original Deno bind error. */
+    readonly cause: Deno.errors.AddrInUse;
+  };
+
   /** Hosted terminal keyboard controls. */
   export namespace Keyboard {
     /** Keyboard options supported by hosted WebSocket startup. */

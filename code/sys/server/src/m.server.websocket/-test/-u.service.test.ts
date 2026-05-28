@@ -61,6 +61,37 @@ describe('WebSocketServer/service handle', () => {
     expect(serviceOpenUrl(status)).to.eql('http://127.0.0.1:5050/files/manifest');
   });
 
+  it('reports the attempted address when the listen port is already in use', () => {
+    const blocker = Deno.listen({ hostname: '127.0.0.1', port: 0 });
+    const addr = blocker.addr as Deno.NetAddr;
+
+    try {
+      const caught = catchSync(() => {
+        WebSocketServer.create({
+          hostname: '127.0.0.1',
+          port: addr.port as t.PortNumber,
+          path: '/cmd',
+          cmd: { ns: 'test.service', handlers: {} },
+        });
+      });
+      if (!caught) throw new Error('expected address-in-use failure');
+      const error = caught as Error & {
+        readonly kind?: string;
+        readonly address?: unknown;
+        readonly cause?: unknown;
+      };
+
+      expect(error.message).to.eql(
+        `WebSocketServer.create: address already in use: 127.0.0.1:${addr.port}.`,
+      );
+      expect(error.kind).to.eql('WebSocketServerAddressInUse');
+      expect(error.address).to.eql({ hostname: '127.0.0.1', port: addr.port });
+      expect(error.cause).to.be.instanceOf(Deno.errors.AddrInUse);
+    } finally {
+      blocker.close();
+    }
+  });
+
   it('exposes a Cell-compatible service status', async () => {
     type Name = 'ping';
     type Payload = { ping: { count: number } };
@@ -98,3 +129,14 @@ describe('WebSocketServer/service handle', () => {
     expect(server.status().state).to.eql('stopped');
   });
 });
+
+/**
+ * Helpers:
+ */
+function catchSync(fn: () => unknown): Error | undefined {
+  try {
+    fn();
+  } catch (cause) {
+    return cause as Error;
+  }
+}

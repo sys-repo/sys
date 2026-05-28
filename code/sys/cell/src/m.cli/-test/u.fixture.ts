@@ -103,6 +103,21 @@ export function failingServiceSource() {
   `).trimStart();
 }
 
+export function addressInUseServiceSource() {
+  return Str.dedent(`
+    export const AddressInUseService = {
+      start() {
+        const cause = new Error('Address already in use (os error 48)');
+        cause.name = 'AddrInUse';
+        throw new Error(
+          'WebSocketServer.create: address already in use: 127.0.0.1:5050.',
+          { cause },
+        );
+      },
+    };
+  `).trimStart();
+}
+
 export async function expectCliError(argv: string[], message: string) {
   const res = await silent(() => CellCli.run({ argv }));
   const text = stripAnsi(res.text);
