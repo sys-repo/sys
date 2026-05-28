@@ -1,5 +1,5 @@
 import { Num, type t } from '../common.ts';
-import { Cursor } from '../m.Cursor.ts';
+import { Cursor } from '../m.Cursor/mod.ts';
 
 export type FilesInvalid = (message: string) => Error;
 

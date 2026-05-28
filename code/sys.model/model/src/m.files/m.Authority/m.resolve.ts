@@ -1,5 +1,5 @@
-import { Is, Num, type t } from './common.ts';
-import { allowed, manifestAllowed, type PolicyAction, snapshotPolicy } from './u/u.policy.ts';
+import { Is, Num, type t } from '../common.ts';
+import { allowed, manifestAllowed, type PolicyAction, snapshotPolicy } from '../u/u.policy.ts';
 
 type CapabilitiesFromArgs = {
   readonly supports: t.Files.Capability.Map;
@@ -30,7 +30,9 @@ type GatedHandlersArgs = AllowsArgsBase & {
   readonly options: t.Files.Authority.HandlerOptions;
 };
 
-/** Resolve Files policy and backing facts into runtime authority. */
+/**
+ * Resolve Files policy and backing facts into runtime authority.
+ */
 export const resolve: t.Files.Authority.Lib['resolve'] = (input) => {
   const errors = input.errors ?? {};
   const invalid = errors.invalid ?? invalidError;
@@ -83,6 +85,10 @@ export const resolve: t.Files.Authority.Lib['resolve'] = (input) => {
     },
   });
 };
+
+/**
+ * Helpers:
+ */
 
 function normalizeSupports(input: Partial<t.Files.Capability.Map>): t.Files.Capability.Map {
   return Object.freeze({

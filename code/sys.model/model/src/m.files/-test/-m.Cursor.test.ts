@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
-import { Cursor } from '../m.Cursor.ts';
+import { Cursor } from '../m.Cursor/mod.ts';
 import { Files } from '../mod.ts';
 
 describe('Files.Cursor', () => {

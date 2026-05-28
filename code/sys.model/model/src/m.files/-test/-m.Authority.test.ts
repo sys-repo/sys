@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
-import { Authority } from '../m.Authority.ts';
+import { Authority } from '../m.Authority/mod.ts';
 import { Files } from '../mod.ts';
 import { Fixture } from './u.fixture.authority.ts';
 
