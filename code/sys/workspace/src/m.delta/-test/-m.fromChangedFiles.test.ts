@@ -1,15 +1,16 @@
-import { describe, expect, it, type t } from '../../-test.ts';
+import { describe, expect, it } from '../../-test.ts';
 import { WorkspaceDelta } from '../mod.ts';
+import { Fixture } from './u.fixture.ts';
 
 describe('@sys/workspace Delta.fromChangedFiles', () => {
   it('derives bump roots and dependent closure from changed files', () => {
-    const collect = fixture.collect({
+    const collect = Fixture.collect({
       orderedPaths: ['code/sys/std', 'code/sys/cell', 'code/sys/tools'],
       edges: [{ from: 'code/sys/cell', to: 'code/sys/tools' }],
       candidates: [
-        fixture.candidate('code/sys/std', '@sys/std'),
-        fixture.candidate('code/sys/cell', '@sys/cell'),
-        fixture.candidate('code/sys/tools', '@sys/tools'),
+        Fixture.candidate('code/sys/std', '@sys/std'),
+        Fixture.candidate('code/sys/cell', '@sys/cell'),
+        Fixture.candidate('code/sys/tools', '@sys/tools'),
       ],
     });
 
@@ -30,9 +31,9 @@ describe('@sys/workspace Delta.fromChangedFiles', () => {
   });
 
   it('reports changed files outside bumpable packages', () => {
-    const collect = fixture.collect({
+    const collect = Fixture.collect({
       orderedPaths: ['code/sys/cell', 'deploy/private'],
-      candidates: [fixture.candidate('code/sys/cell', '@sys/cell')],
+      candidates: [Fixture.candidate('code/sys/cell', '@sys/cell')],
     });
 
     const res = WorkspaceDelta.fromChangedFiles({
@@ -50,12 +51,12 @@ describe('@sys/workspace Delta.fromChangedFiles', () => {
   });
 
   it('uses package path segment boundaries and longest owner matches', () => {
-    const collect = fixture.collect({
+    const collect = Fixture.collect({
       orderedPaths: ['code/pkg', 'code/pkg-extra', 'code/pkg/sub'],
       candidates: [
-        fixture.candidate('code/pkg', '@scope/pkg'),
-        fixture.candidate('code/pkg-extra', '@scope/pkg-extra'),
-        fixture.candidate('code/pkg/sub', '@scope/pkg-sub'),
+        Fixture.candidate('code/pkg', '@scope/pkg'),
+        Fixture.candidate('code/pkg-extra', '@scope/pkg-extra'),
+        Fixture.candidate('code/pkg/sub', '@scope/pkg-sub'),
       ],
     });
 
@@ -72,34 +73,3 @@ describe('@sys/workspace Delta.fromChangedFiles', () => {
     expect(res.skipped).to.eql([]);
   });
 });
-
-/**
- * Helpers:
- */
-const fixture = {
-  collect(args: {
-    readonly orderedPaths: readonly t.StringPath[];
-    readonly edges?: readonly t.WorkspaceBump.PackageEdge[];
-    readonly candidates: readonly t.WorkspaceBump.Candidate[];
-  }): t.WorkspaceBump.CollectResult {
-    return {
-      cwd: '/tmp/workspace',
-      release: 'patch',
-      orderedPaths: args.orderedPaths,
-      edges: args.edges ?? [],
-      candidates: args.candidates,
-    };
-  },
-
-  candidate(pkgPath: t.StringPath, name: string): t.WorkspaceBump.Candidate {
-    return {
-      pkgPath,
-      denoFilePath: `${pkgPath}/deno.json`,
-      name,
-      version: {
-        current: { major: 1, minor: 0, patch: 0, prerelease: [], build: [] },
-        next: { major: 1, minor: 0, patch: 1, prerelease: [], build: [] },
-      },
-    };
-  },
-} as const;

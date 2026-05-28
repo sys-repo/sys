@@ -8,6 +8,8 @@ export declare namespace WorkspaceDelta {
   export type Lib = {
     /** Derive package bump roots and closure from changed workspace-relative files. */
     fromChangedFiles(args: FromChangedFilesArgs): Result;
+    /** Git-backed workspace delta adapters. */
+    readonly Git: Git.Lib;
   };
 
   /** Inputs for deriving one workspace delta from a changed-file list. */
@@ -42,4 +44,39 @@ export declare namespace WorkspaceDelta {
 
   /** Stable skip reasons emitted by delta derivation. */
   export type SkipReason = 'outside-workspace-package' | 'outside-bump-candidates';
+
+  /**
+   * Git-backed workspace delta adapters.
+   */
+  export namespace Git {
+    /** Git delta adapter helper surface. */
+    export type Lib = {
+      /** Derive package bump roots and closure from git name-status records. */
+      fromNameStatus(args: FromNameStatusArgs): WorkspaceDelta.Result;
+    };
+
+    /** Inputs for deriving one workspace delta from git name-status records. */
+    export type FromNameStatusArgs = {
+      /** Collected workspace bump inputs. */
+      readonly collect: t.WorkspaceBump.CollectResult;
+      /** Git name-status records or raw tab-delimited name-status lines. */
+      readonly nameStatus: readonly NameStatusInput[];
+    };
+
+    /** One supported git name-status input item. */
+    export type NameStatusInput = NameStatusRecord | NameStatusLine;
+
+    /** Raw tab-delimited line from `git diff --name-status`. */
+    export type NameStatusLine = string;
+
+    /** Structured git name-status record. */
+    export type NameStatusRecord = {
+      /** Git status token, such as `M`, `A`, `D`, `R100`, or `C75`. */
+      readonly status: string;
+      /** Current path, or the deleted path for deletion records. */
+      readonly path: t.StringPath;
+      /** Previous path for rename and copy records when present. */
+      readonly previousPath?: t.StringPath;
+    };
+  }
 }
