@@ -1,21 +1,21 @@
 {
   ".meta": {
-    "createdAt": 1779846925824,
+    "createdAt": 1779969536117,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-1b1daf6e6c1b316454782a260609117ca803a90952e251d702f5ed41a8511c0b",
-      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.101/src/m.graph/m.snapshot/m.Hash.ts"
+      "/graph": "sha256-a9608809d7824bc9c46d192221f94ad35ac8a22a1cdf19194a81babcba3946b4",
+      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.102/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
       "pkg": {
         "name": "@sys/workspace",
-        "version": "0.0.101"
+        "version": "0.0.102"
       },
       "types": {
-        "/graph": "https://jsr.io/@sys/workspace/0.0.101/src/m.graph/t.ts"
+        "/graph": "https://jsr.io/@sys/workspace/0.0.102/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1779846925829
+    "modifiedAt": 1779969536127
   },
   "graph": {
     "orderedPaths": [
@@ -912,6 +912,10 @@
       },
       {
         "from": "code/sys/process",
+        "to": "code/sys/server"
+      },
+      {
+        "from": "code/sys/process",
         "to": "code/sys/testing"
       },
       {
@@ -1513,6 +1517,10 @@
       {
         "from": "code/sys/yaml",
         "to": "code/sys/server"
+      },
+      {
+        "from": "code/sys/yaml",
+        "to": "code/sys/workspace"
       },
       {
         "from": "code/sys/yaml",

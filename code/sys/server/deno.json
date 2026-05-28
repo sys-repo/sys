@@ -1,6 +1,6 @@
 {
   "name": "@sys/server",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -25,9 +25,31 @@
     "./files/t": "./src/m.server.files/t.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
-    "test": { "read": true, "write": true, "env": true, "net": true, "run": true },
-    "sample": { "read": true, "env": true, "run": true },
-    "sample-files-tty": { "read": true, "env": true, "net": true, "run": ["sh"] }
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true,
+      "run": true
+    },
+    "sample": {
+      "read": true,
+      "env": true,
+      "run": true
+    },
+    "sample-files-tty": {
+      "read": true,
+      "env": true,
+      "net": true,
+      "run": [
+        "sh"
+      ]
+    }
   }
 }
+

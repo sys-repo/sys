@@ -1,6 +1,6 @@
 {
   "name": "@sys/workspace",
-  "version": "0.0.101",
+  "version": "0.0.102",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -30,9 +30,30 @@
     "./testing": "./src/m.testing/mod.ts"
   },
   "permissions": {
-    "cli": { "read": true, "write": true, "env": true, "net": true, "run": true },
-    "clean": { "read": true, "write": true, "env": true },
-    "test": { "read": true, "write": true, "env": true, "run": true },
-    "test:cli": { "read": true, "write": true, "env": true, "ffi": true }
+    "cli": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true,
+      "run": true
+    },
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "run": true
+    },
+    "test:cli": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "ffi": true
+    }
   }
 }
+

@@ -56,6 +56,206 @@ jobs:
           git fetch origin main:refs/remotes/origin/main
           git merge-base --is-ancestor HEAD refs/remotes/origin/main
 
+      - name: publish module → "@sys/cli"
+        run: |
+          cd code/sys/cli
+          deno task test --frozen
+          git status --short
+          test -z "$(git status --porcelain)"
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/crypto"
+        run: |
+          cd code/sys/crypto
+          deno task test --frozen
+          git status --short
+          test -z "$(git status --porcelain)"
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/fs"
+        run: |
+          cd code/sys/fs
+          deno task test --frozen
+          git status --short
+          test -z "$(git status --porcelain)"
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/process"
+        run: |
+          cd code/sys/process
+          deno task test --frozen
+          git status --short
+          test -z "$(git status --porcelain)"
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/driver-process"
+        run: |
+          cd code/sys.driver/driver-process
+          deno task test --frozen
+          git status --short
+          test -z "$(git status --porcelain)"
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/driver-signer"
+        run: |
+          cd code/sys.driver/driver-signer
+          deno task test --frozen
+          git status --short
+          test -z "$(git status --porcelain)"
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/testing"
+        run: |
+          cd code/sys/testing
+          deno task test --frozen
+          git status --short
+          test -z "$(git status --porcelain)"
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/tmpl-engine"
+        run: |
+          cd code/sys/tmpl-engine
+          deno task test --frozen
+          git status --short
+          test -z "$(git status --porcelain)"
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/yaml"
+        run: |
+          cd code/sys/yaml
+          deno task test --frozen
+          git status --short
+          test -z "$(git status --porcelain)"
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/esm"
+        run: |
+          cd code/sys/esm
+          deno task test --frozen
+          git status --short
+          test -z "$(git status --porcelain)"
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
       - name: publish module → "@sys/http"
         run: |
           cd code/sys/http
@@ -119,6 +319,46 @@ jobs:
       - name: publish module → "@sys/registry"
         run: |
           cd code/sys/registry
+          deno task test --frozen
+          git status --short
+          test -z "$(git status --porcelain)"
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/schema"
+        run: |
+          cd code/sys/schema
+          deno task test --frozen
+          git status --short
+          test -z "$(git status --porcelain)"
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/model"
+        run: |
+          cd code/sys.model/model
           deno task test --frozen
           git status --short
           test -z "$(git status --porcelain)"
