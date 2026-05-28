@@ -5,7 +5,7 @@ describe('sample:files:ws', () => {
   it('starts the sample server and serves the docs corpus over websocket', async () => {
     const root = Fs.Path.fromFileUrl(new URL('../..', import.meta.url));
     const process = Process.spawn({
-      args: ['run', '-P=sample-files-ws', './-sample/files.ws/-start.ts'],
+      args: ['run', '-P=sample-files-tty', './-sample/files.ws/-start.ts'],
       cwd: root,
       readySignal: (event) => event.toString().includes(D.path),
       silent: true,

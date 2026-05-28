@@ -7,7 +7,12 @@ describe('sample:files:http:cmd', () => {
   it('starts the sample server and serves dist-backed Files metadata over unary HTTP Cmd', async () => {
     const root = Fs.Path.fromFileUrl(new URL('../..', import.meta.url));
     const process = Process.spawn({
-      args: ['run', '-P=sample-files-http-cmd', './-sample/files.http.cmd/-start.ts'],
+      args: [
+        'run',
+        '-P=sample-files-tty',
+        '--allow-write',
+        './-sample/files.http.cmd/-start.ts',
+      ],
       cwd: root,
       readySignal: (event) => event.toString().includes(D.path),
       silent: true,

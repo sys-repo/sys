@@ -10,9 +10,9 @@
     "prep": "deno task help:bundle",
     "help:bundle": "deno run -RWE ./src/m.help/-bundle/mod.ts",
     "sample": "deno run -P=sample ./-scripts/task.sample.ts",
-    "sample:files:ws": "deno run -P=sample-files-ws ./-sample/files.ws/-start.ts",
-    "sample:files:http:cmd": "deno run -P=sample-files-http-cmd ./-sample/files.http.cmd/-start.ts",
-    "sample:files:http:static": "deno run -P=sample-files-http-static ./-sample/files.http.static/-start.ts",
+    "sample:files:ws": "deno run -P=sample-files-tty ./-sample/files.ws/-start.ts",
+    "sample:files:http:cmd": "deno run -P=sample-files-tty --allow-write ./-sample/files.http.cmd/-start.ts",
+    "sample:files:http:static": "deno run -P=sample-files-tty ./-sample/files.http.static/-start.ts",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
@@ -28,14 +28,6 @@
     "clean": { "read": true, "write": true, "env": true },
     "test": { "read": true, "write": true, "env": true, "net": true, "run": true },
     "sample": { "read": true, "env": true, "run": true },
-    "sample-files-ws": { "read": true, "env": true, "net": true, "run": ["sh"] },
-    "sample-files-http-static": { "read": true, "env": true, "net": true },
-    "sample-files-http-cmd": {
-      "read": true,
-      "write": true,
-      "env": true,
-      "net": true,
-      "run": ["sh"]
-    }
+    "sample-files-tty": { "read": true, "env": true, "net": true, "run": ["sh"] }
   }
 }
