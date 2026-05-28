@@ -18,7 +18,7 @@ export { Str } from '@sys/std/str';
  */
 const port = 1236;
 export const DEFAULTS = {
-  name: '@sys/server:sample:files:http:cmd',
+  name: 'sample:files:http:cmd',
   path: '/files',
   port,
   url: `http://127.0.0.1:${port}/files`,

@@ -15,7 +15,7 @@ export { FilesServer } from '@sys/server/files';
  */
 const port = 1234;
 export const DEFAULTS = {
-  name: '@sys/server:sample:files:ws',
+  name: 'sample:files:ws',
   path: '/files',
   port,
   url: `ws://127.0.0.1:${port}/files`,
