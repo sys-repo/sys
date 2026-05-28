@@ -69,7 +69,14 @@ try {
         { label: 'files.kind', value: files.kind },
         { label: 'files.transport', value: 'http.cmd:unary' },
         { label: 'files.capabilities', value: 'list, stat, read, manifest' },
-        { label: 'dist', value: Cli.Fmt.Path.tty(runtime.distPath, { reserve: 28, min: 32 }) },
+        {
+          label: 'dist',
+          value: Cli.Fmt.Path.tty(runtime.distPath, {
+            reserve: 28,
+            min: 32,
+            highlightBasename: false,
+          }),
+        },
       ],
     },
   });

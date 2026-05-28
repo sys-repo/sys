@@ -35,6 +35,20 @@ describe('Cli.Fmt.Path', () => {
     expect(res).to.contain(c.cyan('…'));
   });
 
+  it('tty: can keep the basename gray for table detail values', () => {
+    const path = '/abcdefghij/klmnopqr/file.txt';
+    const res = Fmt.Path.tty(path, {
+      terminal: true,
+      width: 14,
+      min: 1,
+      highlightBasename: false,
+    });
+
+    expect(stripAnsi(res)).to.eql('/abcdef…le.txt');
+    expect(res).to.contain(c.cyan('…'));
+    expect(res).not.to.contain(c.white('le.txt'));
+  });
+
   it('tty: does not color literal ellipses that already exist in paths', () => {
     const path = '/abcdefghij/kl…mnopqr/extra/file.txt';
     const res = Fmt.Path.tty(path, { terminal: true, width: 30, min: 1 });

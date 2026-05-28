@@ -21,7 +21,7 @@ export const Path: t.CliFormat.Lib['Path'] = {
     const display = displayPath(path);
     const stream = options.stream ?? 'stdout';
     const terminal = options.terminal ?? isTerminal(stream);
-    if (!terminal) return formatDisplayPath(display);
+    if (!terminal) return formatDisplayPath(display, options);
 
     const width = numberOr(options.width, screenSize().width);
     const reserve = numberOr(options.reserve, 0);
@@ -29,13 +29,13 @@ export const Path: t.CliFormat.Lib['Path'] = {
     const max = Math.max(min, width - reserve);
     const shortened = Str.ellipsize(display, max, { ellipsis: ELLIPSIS_SENTINEL });
     const [head, tail] = shortened.split(ELLIPSIS_SENTINEL);
-    if (tail === undefined) return formatDisplayPath(display);
+    if (tail === undefined) return formatDisplayPath(display, options);
 
-    return `${formatPathFragment(head)}${c.cyan('…')}${formatPathFragment(tail)}`;
+    return `${formatPathFragment(head, options)}${c.cyan('…')}${formatPathFragment(tail, options)}`;
   },
-  fmt(_opts = {}) {
+  fmt(opts = {}) {
     return (e) => {
-      if (e.is.basename) e.change(c.white(e.part));
+      if (opts.highlightBasename !== false && e.is.basename) e.change(c.white(e.part));
     };
   },
 };
@@ -50,13 +50,13 @@ function displayPath(path: string): string {
   return `./${value}`;
 }
 
-function formatDisplayPath(display: string): string {
+function formatDisplayPath(display: string, options: t.CliFormat.Path.FormatOptions = {}): string {
   if (display === './') return c.gray('./');
-  return formatPathFragment(display);
+  return formatPathFragment(display, options);
 }
 
-function formatPathFragment(display: string): string {
-  return c.gray(Fmt.path(display, Fmt.Path.fmt()));
+function formatPathFragment(display: string, options: t.CliFormat.Path.FormatOptions): string {
+  return c.gray(Fmt.path(display, Fmt.Path.fmt(options)));
 }
 
 function numberOr(value: number | undefined, fallback: number): number {
