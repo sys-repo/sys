@@ -2,6 +2,7 @@ export * from '../common.ts';
 export { c, Cli } from '@sys/cli';
 export type { CliTable } from '@sys/cli/t';
 export { Fs } from '@sys/fs';
+export { Process } from '@sys/process';
 
 const localhost = '127.0.0.1';
 const publicHost = '0.0.0.0';

@@ -2,6 +2,7 @@ import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
 import { Cli } from '../common.ts';
 import { WebSocketServer } from '../mod.ts';
 import { formatStarted } from '../u/u.fmt.ts';
+import { serviceOpenUrl } from '../u/u.status.ts';
 import { Fixture } from './u.fixture.ts';
 
 describe('WebSocketServer/service handle', () => {
@@ -24,17 +25,40 @@ describe('WebSocketServer/service handle', () => {
     expect(websocket < manifest).to.eql(true);
   });
 
-  it('renders direct-startup quit controls from hosted lifecycle options', () => {
-    const status: t.Service.Status = { state: 'ready', kind: 'websocket:cmd' };
+  it('renders direct-startup keyboard controls from hosted lifecycle options', () => {
+    const status: t.Service.Status = {
+      state: 'ready',
+      kind: 'websocket:cmd',
+      urls: [
+        { href: 'ws://127.0.0.1:5050/files' as t.StringUrl },
+        { href: 'http://127.0.0.1:5050/files/manifest' as t.StringUrl },
+      ],
+    };
 
     expect(formatStarted(status, { lifecycle: 'manual', keyboard: false })).to.not.contain('quit');
+    expect(formatStarted(status, { lifecycle: 'manual', keyboard: false })).to.not.contain('open');
     expect(formatStarted(status, { lifecycle: 'process', keyboard: false })).to.contain('Ctrl+C');
+    expect(formatStarted(status, { lifecycle: 'manual', keyboard: true })).to.contain('open');
+    expect(formatStarted(status, { lifecycle: 'manual', keyboard: true })).to.contain('O');
     expect(formatStarted(status, { lifecycle: 'manual', keyboard: true })).to.contain(
       'Ctrl+C or Q',
     );
     expect(formatStarted(status, { lifecycle: 'process', keyboard: true })).to.contain(
       'Ctrl+C or Q',
     );
+  });
+
+  it('uses the HTTP sidecar URL for direct-startup open controls', () => {
+    const status: t.Service.Status = {
+      state: 'ready',
+      kind: 'websocket:cmd',
+      urls: [
+        { href: 'ws://127.0.0.1:5050/files' as t.StringUrl },
+        { href: 'http://127.0.0.1:5050/files/manifest' as t.StringUrl },
+      ],
+    };
+
+    expect(serviceOpenUrl(status)).to.eql('http://127.0.0.1:5050/files/manifest');
   });
 
   it('exposes a Cell-compatible service status', async () => {

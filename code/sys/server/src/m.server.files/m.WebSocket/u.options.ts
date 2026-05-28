@@ -59,7 +59,7 @@ function filesDetails(files: t.FilesServer.Backing): readonly t.Service.Detail[]
 
   if (Is.str(kind) && kind.length > 0) details.push({ label: 'files.kind', value: kind });
   if (capabilities.length > 0) {
-    details.push({ label: 'files.capabilities', value: capabilities.join(',') });
+    details.push({ label: 'files.capabilities', value: capabilities.join(', ') });
   }
 
   return details;

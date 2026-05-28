@@ -1,4 +1,5 @@
 import { c, Cli, type CliTable, Fs, Is, Str, type t } from '../common.ts';
+import { serviceOpenUrl } from './u.status.ts';
 
 /** Print the renderer-owned startup summary for a directly-started WebSocket service. */
 export function printStarted(
@@ -22,6 +23,8 @@ export function formatStarted(status: t.Service.Status, options: StartFormatOpti
     table.push([childLabel(detail.label), value(detail.value)]);
   }
   if (Is.stdError(status.error)) table.push([childLabel('error'), serviceError(status.error)]);
+  const open = openKey(status, options);
+  if (open) table.push([quitLabel('open'), quitValue(open)]);
   const quit = quitKeys(options);
   if (quit) table.push([quitLabel('quit'), quitValue(quit)]);
 
@@ -66,6 +69,11 @@ function value(input: string): string {
 
 function path(input: string): string {
   return value(Fs.trimCwd(input));
+}
+
+function openKey(status: t.Service.Status, options: StartFormatOptions): string | undefined {
+  if (!options.keyboard) return undefined;
+  return serviceOpenUrl(status) ? 'O' : undefined;
 }
 
 function quitKeys(options: StartFormatOptions): string | undefined {

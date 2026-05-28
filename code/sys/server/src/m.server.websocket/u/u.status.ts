@@ -37,6 +37,14 @@ export function serviceStatus(args: {
   };
 }
 
+/** Select the URL used by hosted keyboard/browser-open affordances. */
+export function serviceOpenUrl(status: t.Service.Status): t.StringUrl | undefined {
+  return status.urls?.find((url) =>
+    url.href.startsWith('http://') || url.href.startsWith('https://')
+  )
+    ?.href ?? status.urls?.[0]?.href;
+}
+
 /** Convert an unknown lifecycle failure into the standard service error shape. */
 export function serviceError(cause: unknown): t.StdError {
   return Err.std(cause);

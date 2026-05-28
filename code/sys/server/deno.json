@@ -28,7 +28,7 @@
     "clean": { "read": true, "write": true, "env": true },
     "test": { "read": true, "write": true, "env": true, "net": true, "run": true },
     "sample": { "read": true, "env": true, "run": true },
-    "sample-files-ws": { "read": true, "env": true, "net": true },
+    "sample-files-ws": { "read": true, "env": true, "net": true, "run": ["sh"] },
     "sample-files-http-static": { "read": true, "env": true, "net": true },
     "sample-files-http-cmd": {
       "read": true,

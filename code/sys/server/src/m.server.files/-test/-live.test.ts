@@ -142,7 +142,7 @@ describe('FilesServer.WebSocket.create: live files watch', () => {
           expect(Fixture.detail(server.status(), 'files.kind')).to.eql('files/fs:writable-live');
           expect(Fixture.detail(server.status(), 'files.fidelity')).to.eql(undefined);
           expect(Fixture.detail(server.status(), 'files.capabilities')).to.eql(
-            'list,stat,read,write,remove,watch,manifest',
+            'list, stat, read, write, remove, watch, manifest',
           );
 
           await Fixture.waitFor(

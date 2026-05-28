@@ -34,7 +34,7 @@ describe('FilesServer.WebSocket.create', () => {
       expect(Fixture.detail(status, 'namespace')).to.eql(Files.Cmd.ns);
       expect(Fixture.detail(status, 'files.kind')).to.eql('files/memory:readonly');
       expect(Fixture.detail(status, 'files.fidelity')).to.eql(undefined);
-      expect(Fixture.detail(status, 'files.capabilities')).to.eql('list,stat,read,manifest');
+      expect(Fixture.detail(status, 'files.capabilities')).to.eql('list, stat, read, manifest');
 
       const httpManifest = await fetch(`${server.origin}/files/manifest`);
       expect(httpManifest.status).to.eql(200);
