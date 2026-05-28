@@ -93,6 +93,16 @@ export function devServiceSource() {
   `).trimStart();
 }
 
+export function failingServiceSource() {
+  return Str.dedent(`
+    export const FailingService = {
+      start() {
+        throw new Error('Address already in use (os error 48)');
+      },
+    };
+  `).trimStart();
+}
+
 export async function expectCliError(argv: string[], message: string) {
   const res = await silent(() => CellCli.run({ argv }));
   const text = stripAnsi(res.text);

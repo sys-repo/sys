@@ -35,7 +35,7 @@ export async function runStart(ctx: RunContext): Promise<t.CellCli.Result> {
     print(formatStartResult(started));
     return res;
   } catch (error) {
-    return fail({ argv }, Err.summary(error));
+    return fail({ argv }, Err.summary(error, { cause: true }));
   }
 }
 
