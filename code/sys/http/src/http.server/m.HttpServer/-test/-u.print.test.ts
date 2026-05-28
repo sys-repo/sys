@@ -121,7 +121,7 @@ describe('HttpServer.print', () => {
     expect(output).not.to.contain('http://localhost:8080/foo/bar/');
   });
 
-  it('keeps the first URL origin cyan and mutes repeated origins', () => {
+  it('keeps the first URL origin cyan and renders later URLs gray', () => {
     const raw = capturePrint(() => {
       HttpServer.print({
         addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
@@ -129,10 +129,11 @@ describe('HttpServer.print', () => {
       });
     }).join('\n');
 
-    const firstOrigin = c.cyan(`http://localhost:${c.bold(c.brightCyan('8080'))}`);
-    const repeatedOrigin = c.dim(c.gray('http://localhost:8080'));
+    const firstOrigin = `${c.cyan('http://localhost:')}${c.bold(c.cyan('8080'))}`;
+    const repeatedOrigin = c.gray('http://localhost:8080');
     expect(raw).to.contain(firstOrigin);
     expect(raw).to.contain(repeatedOrigin);
+    expect(raw).to.not.contain(c.dim(c.gray('http://localhost:8080')));
     expect(raw.indexOf(firstOrigin)).to.be.lessThan(raw.indexOf(repeatedOrigin));
 
     const output = Cli.stripAnsi(raw);

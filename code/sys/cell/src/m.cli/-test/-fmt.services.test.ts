@@ -78,7 +78,13 @@ describe(`@sys/cell/cli service status formatter`, () => {
         owner: {
           state: 'ready',
           root: cwd,
-          urls: [{ href: 'http://localhost:5175/' as t.StringUrl, label: 'local' }],
+          urls: [
+            { href: 'ws://127.0.0.1:5175/files' as t.StringUrl, label: 'files:websocket' },
+            {
+              href: 'http://127.0.0.1:5175/files/manifest' as t.StringUrl,
+              label: 'files:manifest',
+            },
+          ],
           details: [
             { label: 'path', value: '/' },
             { label: 'port', value: '5175' },
@@ -91,7 +97,12 @@ describe(`@sys/cell/cli service status formatter`, () => {
       }],
     }));
 
-    expect(text).to.contain('http://localhost:5175/');
+    const websocket = text.indexOf('ws://localhost:5175/files');
+    const manifest = text.indexOf('http://localhost:5175/files/manifest');
+
+    expect(websocket >= 0).to.eql(true);
+    expect(manifest >= 0).to.eql(true);
+    expect(websocket < manifest).to.eql(true);
     expect(text).to.contain('capabilities');
     expect(text).to.contain('list, stat, read, watch, manifest');
     expect(text).to.contain('dist');

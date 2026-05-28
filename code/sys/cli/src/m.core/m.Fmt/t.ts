@@ -48,7 +48,7 @@ export declare namespace CliFormat {
         url: t.Service.Url,
         options?: { readonly highlightOrigin?: boolean },
       ): string;
-      orderBaseLast(urls: readonly t.Service.Url[]): readonly t.Service.Url[];
+      serviceList(urls: readonly t.Service.Url[]): readonly string[];
     };
 
     /** Glyphs and helpers for rendering a tree hierarchy. */
@@ -108,4 +108,3 @@ export declare namespace CliFormat {
     };
   }
 }
-

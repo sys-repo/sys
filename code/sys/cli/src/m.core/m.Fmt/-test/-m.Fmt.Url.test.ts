@@ -1,52 +1,47 @@
-import { describe, expect, it, stripAnsi, type t } from '../../../-test.ts';
+import { c, describe, expect, it, stripAnsi, type t } from '../../../-test.ts';
 import { Fmt } from '../mod.ts';
 
 describe('Cli.Fmt.Url', () => {
-  it('orders the most base URL last', () => {
-    const urls = [
-      serviceUrl('http://localhost:8081/'),
-      serviceUrl('http://localhost:8081/payments/'),
-      serviceUrl('http://localhost:8081/view/'),
-      serviceUrl('http://localhost:8081/-/stripe/'),
-    ];
-
-    expect(Fmt.Url.orderBaseLast(urls).map((url) => url.href)).to.eql([
-      'http://localhost:8081/payments/',
-      'http://localhost:8081/view/',
-      'http://localhost:8081/-/stripe/',
-      'http://localhost:8081/',
-    ]);
-  });
-
-  it('prefers shallower paths, then shorter query/hash variants', () => {
-    const urls = [
-      serviceUrl('http://localhost:8081/view/'),
-      serviceUrl('http://localhost:8081/?preview=true'),
-      serviceUrl('http://localhost:8081/#status'),
-      serviceUrl('http://localhost:8081/'),
-    ];
-
-    expect(Fmt.Url.orderBaseLast(urls).map((url) => url.href)).to.eql([
-      'http://localhost:8081/view/',
-      'http://localhost:8081/?preview=true',
-      'http://localhost:8081/#status',
-      'http://localhost:8081/',
-    ]);
-  });
-
   it('formats service URLs', () => {
-    expect(stripAnsi(Fmt.Url.service(serviceUrl('http://localhost:8081/'), { highlightOrigin: true })))
+    expect(
+      stripAnsi(Fmt.Url.service(serviceUrl('http://localhost:8081/'), { highlightOrigin: true })),
+    )
       .to.eql('http://localhost:8081/');
     expect(stripAnsi(Fmt.Url.service(serviceUrl('http://localhost:8081/payments/')))).to.eql(
       'http://localhost:8081/payments/',
     );
   });
 
+  it('formats service URL lists in owner order', () => {
+    const urls = [
+      serviceUrl('ws://127.0.0.1:5050/files'),
+      serviceUrl('http://127.0.0.1:5050/files/manifest'),
+    ];
+
+    const res = Fmt.Url.serviceList(urls);
+
+    expect(res.map(stripAnsi)).to.eql([
+      'ws://localhost:5050/files',
+      'http://localhost:5050/files/manifest',
+    ]);
+    expect(res[0]).to.eql(
+      `${c.cyan('ws://localhost:')}${c.bold(c.cyan('5050'))}${c.gray('/files')}`,
+    );
+    expect(res[1]).to.eql(
+      `${c.gray('http://localhost:5050')}${c.gray('/files/manifest')}`,
+    );
+    expect(res.join('\n')).to.not.contain(c.dim(c.gray('http://localhost:5050')));
+  });
+
   it('displays loopback IPv4 URLs as localhost', () => {
     expect(stripAnsi(Fmt.Url.service(serviceUrl('ws://127.0.0.1:5176/files')))).to.eql(
       'ws://localhost:5176/files',
     );
-    expect(stripAnsi(Fmt.Url.service(serviceUrl('ws://127.0.0.1:5176/files'), { highlightOrigin: true })))
+    expect(
+      stripAnsi(
+        Fmt.Url.service(serviceUrl('ws://127.0.0.1:5176/files'), { highlightOrigin: true }),
+      ),
+    )
       .to.eql('ws://localhost:5176/files');
   });
 });

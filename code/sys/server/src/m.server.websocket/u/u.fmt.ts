@@ -37,11 +37,8 @@ type StartFormatOptions = {
  * Helpers:
  */
 function pushUrls(table: CliTable, urls: readonly t.Service.Url[]) {
-  urls.forEach((url, index) => {
-    table.push([
-      index === 0 ? childLabel('url') : '',
-      Cli.Fmt.Url.service(url, { highlightOrigin: index === 0 }),
-    ]);
+  Cli.Fmt.Url.serviceList(urls).forEach((url, index) => {
+    table.push([index === 0 ? childLabel('url') : '', url]);
   });
 }
 

@@ -1,8 +1,9 @@
-import { Dispose, Err, Is, Str, type t } from './common.ts';
+import { Dispose, Err, type t } from './common.ts';
 import { bindKeyboard } from './u.keyboard.ts';
 import { localOrigin } from './u.origin.ts';
 import { options as createOptions } from './u.options.ts';
 import { print as printStarted } from './u.print.ts';
+import { statusUrls } from './u.status.url.ts';
 
 type F = t.HttpServerLib['start'];
 type KeyboardOptions = { readonly print: boolean; readonly exit: boolean } | undefined;
@@ -115,32 +116,13 @@ const wrangle = {
     return {
       state: context.state,
       kind: status?.kind ?? 'http',
-      urls: wrangle.urls(context.origin, status?.urlPaths),
+      urls: statusUrls(context.origin, status?.urlPaths),
       ...(input.name ? { name: input.name } : {}),
       ...(root ? { root } : {}),
       ...(status?.config ? { config: status.config } : {}),
       ...(details.length > 0 ? { details } : {}),
       ...(error ? { error } : {}),
     };
-  },
-
-  urls(
-    origin: t.StringUrl,
-    paths: readonly t.HttpServerStatusUrlPath[] | undefined,
-  ): readonly t.Service.Url[] {
-    const items = paths && paths.length > 0 ? paths : ['/'] as const;
-    return items.map((item) => {
-      const path = Is.str(item) ? item : item.path;
-      const label = Is.str(item) ? undefined : item.label;
-      const href = wrangle.url(origin, path);
-      return label ? { href, label } : { href };
-    });
-  },
-
-  url(origin: t.StringUrl, path: string): t.StringUrl {
-    const suffix = Str.trimLeadingSlashes(path);
-    if (!suffix) return `${origin}/` as t.StringUrl;
-    return `${origin}/${suffix}` as t.StringUrl;
   },
 
   details(info: Record<string, string> | undefined): readonly t.Service.Detail[] {

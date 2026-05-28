@@ -1,42 +1,35 @@
-import { c, Str, type t, Url } from '../common.ts';
-
-type ServiceUrlBaseScore = readonly [
-  depth: number,
-  pathLength: number,
-  searchLength: number,
-  hashLength: number,
-  hrefLength: number,
-];
+import { c, type t, Url } from '../common.ts';
 
 /** CLI formatting helpers for service URLs. */
 export const UrlFmt: t.CliFormat.Lib['Url'] = {
   service(url, options = {}) {
-    const parsed = Url.parse(url.href);
-    if (!parsed.ok) return (options.highlightOrigin ? c.cyan : c.gray)(url.href);
-
-    const value = parsed.toURL();
-    const origin = options.highlightOrigin ? highlightOrigin(value) : c.gray(displayOrigin(value));
-    const suffix = `${value.pathname}${value.search}${value.hash}` || '/';
-    return `${origin}${c.gray(suffix)}`;
+    return format(url, options.highlightOrigin === true);
   },
 
-  orderBaseLast(urls) {
-    const baseIndex = mostBaseUrlIndex(urls);
-    if (baseIndex < 0 || baseIndex === urls.length - 1) return urls;
-
-    const ordered = [...urls];
-    const [base] = ordered.splice(baseIndex, 1);
-    ordered.push(base);
-    return ordered;
+  serviceList(urls) {
+    return urls.map((url, index) => UrlFmt.service(url, { highlightOrigin: index === 0 }));
   },
 };
 
 /**
  * Helpers:
  */
-function highlightOrigin(url: URL): string {
+function format(url: t.Service.Url, highlightOrigin: boolean): string {
+  const parsed = Url.parse(url.href);
+  if (!parsed.ok) return (highlightOrigin ? c.cyan : c.gray)(url.href);
+
+  const value = parsed.toURL();
+  const origin = highlightOrigin ? highlightOriginText(value) : c.gray(displayOrigin(value));
+  return `${origin}${c.gray(formatSuffix(value))}`;
+}
+
+function highlightOriginText(url: URL): string {
   if (!url.port) return c.cyan(displayOrigin(url));
   return `${c.cyan(`${url.protocol}//${displayHostname(url)}:`)}${c.bold(c.cyan(url.port))}`;
+}
+
+function formatSuffix(url: URL): string {
+  return `${url.pathname}${url.search}${url.hash}` || '/';
 }
 
 function displayOrigin(url: URL): string {
@@ -49,43 +42,4 @@ function displayHost(url: URL): string {
 
 function displayHostname(url: URL): string {
   return url.hostname === '127.0.0.1' ? 'localhost' : url.hostname;
-}
-
-function mostBaseUrlIndex(urls: readonly t.Service.Url[]): number {
-  let best: { readonly index: number; readonly score: ServiceUrlBaseScore } | undefined;
-  urls.forEach((url, index) => {
-    const score = serviceUrlBaseScore(url);
-    if (!score) return;
-    if (!best || compareScore(score, best.score) < 0) best = { index, score };
-  });
-  return best?.index ?? urls.length - 1;
-}
-
-function serviceUrlBaseScore(url: t.Service.Url): ServiceUrlBaseScore | undefined {
-  const parsed = Url.parse(url.href);
-  if (!parsed.ok) return;
-
-  const value = parsed.toURL();
-  const pathname = Str.trimTrailingSlashes(value.pathname) || '/';
-  return [
-    pathDepth(pathname),
-    pathname.length,
-    value.search.length,
-    value.hash.length,
-    value.href.length,
-  ];
-}
-
-function compareScore(a: readonly number[], b: readonly number[]): number {
-  const length = Math.min(a.length, b.length);
-  for (let i = 0; i < length; i++) {
-    const diff = a[i] - b[i];
-    if (diff !== 0) return diff;
-  }
-  return a.length - b.length;
-}
-
-function pathDepth(pathname: string): number {
-  if (pathname === '/') return 0;
-  return Str.splitPathSegments(pathname).length;
 }

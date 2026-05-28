@@ -48,13 +48,8 @@ function renderServiceStatus(rows: readonly ServiceStatusRow[], labelWidth: numb
 }
 
 function pushServiceUrls(rows: ServiceStatusRow[], urls: readonly t.Service.Url[]) {
-  const ordered = Cli.Fmt.Url.orderBaseLast(urls);
-  ordered.forEach((url, index) => {
-    const highlightOrigin = index === ordered.length - 1;
-    rows.push([
-      index === 0 ? serviceLabel('url') : '',
-      Cli.Fmt.Url.service(url, { highlightOrigin }),
-    ]);
+  Cli.Fmt.Url.serviceList(urls).forEach((url, index) => {
+    rows.push([index === 0 ? serviceLabel('url') : '', url]);
   });
 }
 
