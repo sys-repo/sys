@@ -34,10 +34,12 @@ try {
            Files manifest JSON.
 
       POST ${url}
-           Unary Cmd JSON endpoint.
+           Unary Cmd<T> JSON endpoint.
 
-      This sample generates a runtime dist.json before startup. File reads return content refs
-      carrying static dist hash/size metadata.
+      This sample generates a runtime dist.json before startup.
+      File reads return content refs carrying static dist hash/size metadata.
+
+      ---
 
       curl -s ${url} \\
         -H 'content-type: application/json' \\
