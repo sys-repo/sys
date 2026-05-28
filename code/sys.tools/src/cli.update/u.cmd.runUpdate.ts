@@ -155,7 +155,7 @@ export async function runUpdate(
 
 function formatUpgradeOption(args: { prefix: string; latest: t.StringSemver }) {
   const { prefix, latest } = args;
-  return `${prefix}${c.magenta('upgrade now to')} ${c.white(latest)}`;
+  return `${prefix}${c.green('upgrade now to')} ${c.white(latest)}`;
 }
 
 function formatUpgradeSpinnerText(version: t.UpdateTool.VersionInfo) {

@@ -250,7 +250,7 @@ describe('cli.update.runUpdate', () => {
 
     expect(result).to.eql({ kind: 'back' });
     expect(refreshed).to.eql(false);
-    expect(rawOptions[0]).to.eql(`  ${c.magenta('upgrade now to')} ${c.white('0.0.319')}`);
+    expect(rawOptions[0]).to.eql(`  ${c.green('upgrade now to')} ${c.white('0.0.319')}`);
     expect(options).to.eql([
       '  upgrade now to 0.0.319',
       '← back',
