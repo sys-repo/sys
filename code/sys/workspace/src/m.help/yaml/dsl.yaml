@@ -1,0 +1,17 @@
+id: dsl
+title: Workspace DSL
+summary: |
+  Navigable package guidance for workspace concepts and command workflows.
+
+sections:
+  - label: Scope
+    items: |
+      Keep stable workspace guidance as focused chapters under this root.
+      Keep executable behavior in the owning workspace modules.
+      Keep CLI routing and rendering outside `m.help`.
+
+  - label: Maintenance
+    items: |
+      Register every chapter in `src/m.help/u/u.paths.ts`.
+      Run `deno task help:bundle` after editing chapter YAML.
+      Test chapter loading and projection contracts without snapshotting prose.

@@ -7,6 +7,7 @@ export type * from './m.ci/t.ts';
 export type * from './m.cli/t.ts';
 export type * from './m.delta/t.ts';
 export type * from './m.graph/t.ts';
+export type * from './m.help/t.ts';
 export type * from './m.info/t.ts';
 export type * from './m.pkg/t.ts';
 export type * from './m.prep/t.ts';
