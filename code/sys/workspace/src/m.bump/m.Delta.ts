@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { Str, type t } from './common.ts';
 import { dependentClosure } from './u/u.plan.ts';
 
 export const Delta: t.WorkspaceBump.Delta.Lib = {
@@ -44,9 +44,8 @@ const wrangle = {
   },
 
   normalizeFile(file: t.StringPath) {
-    let path = file.trim().replace(/\\/g, '/').replace(/\/+/g, '/');
-    while (path.startsWith('./')) path = path.slice(2);
-    return path;
+    const path = Str.splitPathSegments(file.trim()).join('/');
+    return Str.trimLeadingDotSlash(path);
   },
 
   candidatePaths(collect: t.WorkspaceBump.CollectResult) {
@@ -62,7 +61,8 @@ const wrangle = {
   orderedKnownPaths(known: ReadonlySet<t.StringPath>, orderedPaths: readonly t.StringPath[]) {
     const ordered = orderedPaths.filter((path) => known.has(path));
     const seen = new Set(ordered);
-    const remainder = [...known].filter((path) => !seen.has(path)).toSorted();
+    const compare = Str.Compare.codeUnit();
+    const remainder = [...known].filter((path) => !seen.has(path)).toSorted(compare);
     return [...ordered, ...remainder];
   },
 
@@ -70,7 +70,8 @@ const wrangle = {
     const matches = pkgPaths.filter((pkgPath) =>
       file === pkgPath || file.startsWith(`${pkgPath}/`)
     );
-    return matches.toSorted((a, b) => b.length - a.length || a.localeCompare(b))[0];
+    const compare = Str.Compare.codeUnit();
+    return matches.toSorted((a, b) => b.length - a.length || compare(a, b))[0];
   },
 
   unique(values: readonly t.StringPath[]) {
