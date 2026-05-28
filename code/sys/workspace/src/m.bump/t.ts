@@ -265,7 +265,7 @@ export declare namespace WorkspaceBump {
     /** Console output formatting surface for workspace bumps. */
     export type Lib = {
       /** Render canonical help for the bump task surface. */
-      help(): void;
+      help(toolname?: string): string;
       /** Format one unsupported release warning for script edges. */
       invalidRelease(input: string): string;
       /** Format one canonical spinner label for bump orchestration. */

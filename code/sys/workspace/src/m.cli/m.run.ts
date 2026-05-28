@@ -1,4 +1,6 @@
 import { Cli, Err, Fs, Is, type t } from './common.ts';
+import { WorkspaceBump } from '../m.bump/mod.ts';
+import { WorkspaceDelta } from '../m.delta/mod.ts';
 import { WorkspaceUpgrade } from '../m.upgrade/mod.ts';
 import { commandOf, parseArgs, parseDslArgs, wantsHelp } from './u/u.args.ts';
 import { runInteractive } from './u/u.interactive.ts';
@@ -11,14 +13,35 @@ export const run: t.WorkspaceCli.Lib['run'] = async (input = {}) => {
   const command = commandOf(argv);
 
   if (command === 'dsl') return await runDsl({ argv, cwd });
+  if (command === 'bump') return await runBump({ argv, cwd });
+  if (command === 'upgrade') return await runUpgrade({ argv, cwd });
 
-  if (wantsHelp(argv)) {
+  if (argv.length === 0 || wantsHelp(argv)) {
     const text = FmtHelp.output();
     console.info(text);
     return { kind: 'help', input: { argv, cwd }, text };
   }
 
-  const options = parseArgs(cwd, argv);
+  throw Err.std(`Unknown command: ${command}`);
+};
+
+/**
+ * Helpers:
+ */
+
+async function runUpgrade(input: {
+  readonly argv: readonly string[];
+  readonly cwd: t.StringDir;
+}): Promise<t.WorkspaceCli.Result> {
+  const { argv, cwd } = input;
+  const upgradeArgv = wrangle.commandArgs(argv, 'upgrade');
+  if (wantsHelp(upgradeArgv)) {
+    const text = FmtHelp.upgradeOutput();
+    console.info(text);
+    return { kind: 'help', input: { argv, cwd }, text } as const;
+  }
+
+  const options = parseArgs(cwd, upgradeArgv);
   const upgradeInput = { cwd, deps: options.deps };
 
   if (options.mode === 'interactive') {
@@ -85,15 +108,42 @@ export const run: t.WorkspaceCli.Lib['run'] = async (input = {}) => {
     upgrade: applied.upgrade,
     applied,
   };
-};
+}
 
-/**
- * Helpers:
- */
+async function runBump(input: {
+  readonly argv: readonly string[];
+  readonly cwd: t.StringDir;
+}): Promise<t.WorkspaceCli.Result> {
+  const { argv, cwd } = input;
+  const bumpArgv = wrangle.commandArgs(argv, 'bump');
+  const args = WorkspaceBump.Args.run({ argv: bumpArgv, options: { cwd } });
 
-async function runDsl(input: { readonly argv: readonly string[]; readonly cwd: t.StringDir }) {
+  if (args.help) {
+    const text = WorkspaceBump.Fmt.help('@sys/workspace bump');
+    return { kind: 'help', input: { argv, cwd }, text } as const;
+  }
+  if (args.conflict) throw Err.std(args.conflict.message);
+  if (args.invalidRelease) console.warn(WorkspaceBump.Fmt.invalidRelease(args.invalidRelease));
+
+  const bump = args.since === undefined
+    ? await WorkspaceBump.run(args.run)
+    : await wrangle.runSinceBump(args, cwd);
+
+  return { kind: 'bump', input: { argv, cwd }, bump } as const;
+}
+
+async function runDsl(input: {
+  readonly argv: readonly string[];
+  readonly cwd: t.StringDir;
+}): Promise<t.WorkspaceCli.Result> {
   const { argv, cwd } = input;
   const args = parseDslArgs(argv);
+  if (args.help) {
+    const text = await FmtHelp.dslOutput({ path: args._.map(String), format: 'human' });
+    console.info(text);
+    return { kind: 'help', input: { argv, cwd }, text } as const;
+  }
+
   const format = wrangle.dslFormat(args.format);
 
   if (args.unknown.length > 0) throw Err.std(`Unknown option for dsl: ${args.unknown.join(', ')}`);
@@ -105,6 +155,43 @@ async function runDsl(input: { readonly argv: readonly string[]; readonly cwd: t
 }
 
 const wrangle = {
+  commandArgs(input: readonly string[], command: string): string[] {
+    const argv = input[0] === '--' ? input.slice(1) : input;
+    return argv[0] === command ? argv.slice(1) : [...argv];
+  },
+
+  async runSinceBump(
+    args: t.WorkspaceBump.Args.RunResolved,
+    cwd: t.StringDir,
+  ): Promise<t.WorkspaceBump.RunResult> {
+    const delta = await WorkspaceDelta.Git.fromRef({
+      cwd,
+      ref: args.since ?? '',
+      release: args.run.release,
+      policy: args.run.policy,
+    });
+    wrangle.printDelta(delta);
+    return await WorkspaceBump.run({
+      ...args.run,
+      collect: delta.collect,
+      from: delta.bumpRootPkgPaths,
+    });
+  },
+
+  printDelta(delta: t.WorkspaceDelta.Git.FromRefResult) {
+    console.info();
+    console.info(`Delta since ${delta.ref}..${delta.head}`);
+    console.info(`  changed         ${wrangle.formatList(delta.changedPkgPaths)}`);
+    console.info(`  needs bump      ${wrangle.formatList(delta.needsBumpPkgPaths)}`);
+    console.info(`  already bumped  ${wrangle.formatList(delta.alreadyBumpedPkgPaths)}`);
+    console.info(`  new packages    ${wrangle.formatList(delta.newPkgPaths)}`);
+    console.info();
+  },
+
+  formatList(paths: readonly string[]) {
+    return paths.length === 0 ? '0' : `${paths.length} (${paths.join(', ')})`;
+  },
+
   upgradeOptions(
     options: t.WorkspaceCli.ResolvedOptions,
     exclude: readonly string[],

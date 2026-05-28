@@ -2,29 +2,29 @@ import { c, Cli, type t } from './common.ts';
 import { Semver } from '@sys/std/semver/server';
 
 export const Fmt: t.WorkspaceBump.Fmt.Lib = {
-  help() {
-    Cli.Fmt.Help.render({
-      tool: 'deno task bump',
+  help(toolname = 'deno task bump') {
+    const argsPrefix = toolname === 'deno task bump' ? `${toolname} --` : toolname;
+    const text = Cli.Fmt.Help.build({
+      tool: toolname,
       summary: 'Bump workspace packages from selected roots or a git baseline ref.',
       note: 'Interactive by default; use `--since` to derive bump roots from git history.',
       usage: [
-        'deno task bump',
-        'deno task bump -- --release minor',
-        'deno task bump -- --since=jsr-publish --dry-run',
-        'deno task bump -- --from=@scope/pkg --from=code/sys/fs --non-interactive --dry-run',
+        toolname,
+        `${argsPrefix} --release minor`,
+        `${argsPrefix} --since=jsr-publish --dry-run`,
+        `${argsPrefix} --from=code/sys/fs --dry-run`,
       ],
       options: [
         ['-h, --help', 'show help'],
-        ['--release <patch|minor|major>', 'choose the semver bump kind (default: patch)'],
-        ['--since <git-ref>', 'derive bump roots from changes since a git ref or tag'],
-        [
-          '--from <package-name|package-path>',
-          'select bump roots without the interactive picker (repeatable; conflicts with --since)',
-        ],
-        ['--dry-run', 'render the plan without writing files'],
-        ['--non-interactive', 'skip interactive confirmation once bump roots are known'],
+        ['--release <patch|minor|major>', 'choose bump kind (default patch)'],
+        ['--since <git-ref>', 'derive roots from git ref/tag'],
+        ['--from <pkg|path>', 'select roots; conflicts with --since'],
+        ['--dry-run', 'render plan without writing files'],
+        ['--non-interactive', 'skip confirmation after root selection'],
       ],
     });
+    console.info(text);
+    return text;
   },
 
   invalidRelease(input) {

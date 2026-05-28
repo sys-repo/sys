@@ -8,7 +8,7 @@ describe('Workspace.Cli.Fmt', () => {
     const text = Cli.stripAnsi(await FmtHelp.dslOutput());
     const guidance = await WorkspaceHelp.Dsl.load();
 
-    expect(text).to.contain('@sys/workspace/cli dsl');
+    expect(text).to.contain('@sys/workspace dsl');
     expect(text).to.contain('Usage');
     expect(text).to.contain('Options');
     expect(text).to.contain('Formats');
@@ -27,11 +27,20 @@ describe('Workspace.Cli.Fmt', () => {
     const chapter = await WorkspaceHelp.Dsl.load(path);
     const skill = await FmtHelp.dslOutput({ path, format: 'skill' });
 
-    expect(text).to.contain('@sys/workspace/cli dsl delta');
+    expect(text).to.contain('@sys/workspace dsl delta');
     expectSectionLabels(text, chapter.sections.map(({ label }) => label));
     expect(text).to.not.contain(chapterCommand(chapter));
     expect(skill).to.eql(Cli.stripAnsi(skill));
     expect(skill).to.contain('name: "sys-workspace-dsl-delta"');
+  });
+
+  it('keeps root, upgrade, and DSL help within 80 visible columns', async () => {
+    expectMaxVisibleWidth(FmtHelp.output(), 80);
+    expectMaxVisibleWidth(FmtHelp.upgradeOutput(), 80);
+    expectMaxVisibleWidth(await FmtHelp.dslOutput(), 80);
+    expectMaxVisibleWidth(await FmtHelp.dslOutput({ format: 'skill' }), 80);
+    expectMaxVisibleWidth(await FmtHelp.dslOutput({ path: ['delta'] }), 80);
+    expectMaxVisibleWidth(await FmtHelp.dslOutput({ path: ['delta'], format: 'skill' }), 80);
   });
 
   it('omits the duplicate candidates table from the interactive plan output', () => {
@@ -603,7 +612,15 @@ function expectSectionLabels(text: string, labels: readonly string[]) {
 }
 
 function chapterCommand(chapter: { readonly path: readonly string[] }): string {
-  return ['deno run -ER jsr:@sys/workspace/cli dsl', ...chapter.path].join(' ');
+  return ['deno run -ER jsr:@sys/workspace dsl', ...chapter.path].join(' ');
+}
+
+function expectMaxVisibleWidth(text: string, width: number) {
+  const wide = Cli.stripAnsi(text)
+    .split('\n')
+    .map((line) => line.trimEnd())
+    .filter((line) => line.length > width);
+  expect(wide, wide.join('\n')).to.eql([]);
 }
 
 function stubScreenWidth(width: number): () => void {

@@ -2,8 +2,8 @@ import { WorkspaceHelp } from '../../m.help/mod.ts';
 import { Cli, Str, type t } from '../common.ts';
 
 const D = {
-  tool: '@sys/workspace/cli',
-  dslCommand: 'deno run -ER jsr:@sys/workspace/cli dsl',
+  tool: '@sys/workspace',
+  dslCommand: 'deno run -ER jsr:@sys/workspace dsl',
 } as const;
 
 export type DslHelpInput = {
@@ -16,19 +16,58 @@ export const FmtHelp = {
   input(toolname: string = D.tool) {
     return {
       tool: toolname,
+      summary: 'Workspace dependency and package-version tooling.',
+      note: 'Use a command for DSL guidance, package bumps, or dependency upgrades.',
+      sections: [
+        { kind: 'lines', label: 'Usage', items: [`${toolname} [command] [options]`] },
+        {
+          kind: 'pairs',
+          label: 'Commands',
+          items: [
+            ['dsl', 'show workspace DSL guidance'],
+            ['bump', 'bump workspace package versions'],
+            ['upgrade', 'upgrade workspace dependencies from deps.yaml'],
+          ],
+        },
+        {
+          kind: 'pairs',
+          label: 'Options',
+          items: [['-h, --help', 'show help']],
+        },
+        {
+          kind: 'lines',
+          label: 'Examples',
+          tone: 'muted',
+          items: [
+            'deno run -ER   jsr:@sys/workspace dsl',
+            'deno run -ER   jsr:@sys/workspace dsl delta --format skill',
+            'deno run -ERW  jsr:@sys/workspace bump --help',
+            'deno run -ERWN jsr:@sys/workspace upgrade --help',
+          ],
+        },
+      ],
+    } as const;
+  },
+
+  output(toolname: string = D.tool): string {
+    return Cli.Fmt.Help.build(FmtHelp.input(toolname));
+  },
+
+  upgradeInput(toolname: string = `${D.tool} upgrade`) {
+    return {
+      tool: toolname,
       summary: 'Upgrade workspace dependencies from canonical deps.yaml.',
-      note:
-        'Interactive by default; non-interactive applies deterministically, and --dry-run previews without writing.',
+      note: 'Interactive by default; use --dry-run to preview without writing.',
       usage: [`${toolname} [options]`],
       options: [
         ['-h, --help', 'show help'],
         ['--non-interactive', 'run without prompts'],
         ['--policy <none|patch|minor|latest>', 'set the upgrade policy'],
-        ['--dry-run', 'render the upgrade result without writing files'],
-        ['--prerelease', 'include prerelease versions in planning'],
-        ['--deps <path>', 'override the deps.yaml path'],
-        ['--include <name[,name]>', 'limit the run to named dependencies'],
-        ['--exclude <name[,name]>', 'exclude named dependencies from the run'],
+        ['--dry-run', 'preview result without writing'],
+        ['--prerelease', 'include prerelease versions'],
+        ['--deps <path>', 'override deps.yaml path'],
+        ['--include <name[,name]>', 'limit run to named deps'],
+        ['--exclude <name[,name]>', 'exclude named deps'],
       ] as const,
       examples: [
         `${toolname}`,
@@ -36,13 +75,12 @@ export const FmtHelp = {
         `${toolname} --non-interactive --policy latest`,
         `${toolname} --non-interactive --policy latest --prerelease`,
         `${toolname} --non-interactive --policy latest --dry-run`,
-        `${toolname} dsl`,
       ],
     } as const;
   },
 
-  output(toolname: string = D.tool): string {
-    return Cli.Fmt.Help.build(FmtHelp.input(toolname));
+  upgradeOutput(toolname?: string): string {
+    return Cli.Fmt.Help.build(FmtHelp.upgradeInput(toolname));
   },
 
   async dslOutput(input: DslHelpInput = {}): Promise<string> {
@@ -52,7 +90,7 @@ export const FmtHelp = {
 
     if (format === 'skill') return skill(chapter);
 
-    const toolname = input.toolname ?? ['@sys/workspace/cli dsl', ...path].join(' ');
+    const toolname = input.toolname ?? ['@sys/workspace dsl', ...path].join(' ');
     return Cli.Fmt.Chapters.page({
       command: D.dslCommand,
       chapter,
@@ -109,10 +147,7 @@ function skillName(chapter: t.WorkspaceHelp.Dsl.Chapter): string {
 
 function skillDescription(chapter: t.WorkspaceHelp.Dsl.Chapter): string {
   if (chapter.path.length === 0) {
-    return [
-      'Guides @sys/workspace graph, delta, and bump-since workflows;',
-      'use before changing workspace planning or package version-bump guidance.',
-    ].join(' ');
+    return 'Use before @sys/workspace graph, delta, or bump edits.';
   }
 
   const summary = Str.trimEdgeNewlines(chapter.summary)
@@ -120,7 +155,7 @@ function skillDescription(chapter: t.WorkspaceHelp.Dsl.Chapter): string {
     .replace(/\.$/, '')
     .split(/\s+/)
     .join(' ');
-  return `Guides @sys/workspace workflows; use when you need to ${lowerFirst(summary)}.`;
+  return `Use for @sys/workspace: ${lowerFirst(summary)}.`;
 }
 
 function lowerFirst(input: string): string {

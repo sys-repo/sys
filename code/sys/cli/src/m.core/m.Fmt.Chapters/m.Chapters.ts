@@ -6,6 +6,9 @@ import { files, resolve } from './u.resources.ts';
 import { hr } from '../m.Fmt/m.Fmt.Hr.ts';
 import { Table } from '../m.Table/mod.ts';
 
+const MAX_WIDTH = 80;
+const TABLE_GAP_WIDTH = 3;
+
 /** Navigable help chapter formatting and tree helpers. */
 export const Chapters: t.CliFormatChapters.Lib = {
   format,
@@ -29,14 +32,21 @@ function format(input: t.CliFormatChapters.FormatInput): string {
   });
 
   if (chapter.chapters.length > 0) {
+    const label = input.label ?? 'Chapter';
+    const labelWidth = maxVisibleWidth([
+      ...chapter.sections.map((section) => section.label),
+      label,
+    ]);
+    const rowWidth = Math.max(0, MAX_WIDTH - labelWidth - TABLE_GAP_WIDTH);
+
     if (chapter.sections.length > 0) table.push(['', '']);
     const commandWidth = maxVisibleWidth(
       chapter.chapters.map((item) => chapterCommand(input, item)),
     );
     chapter.chapters.forEach((item, itemIndex) => {
       table.push([
-        itemIndex === 0 ? c.gray(input.label ?? 'Chapter') : '',
-        chapterLine(input, item, commandWidth),
+        itemIndex === 0 ? c.gray(label) : '',
+        chapterLine(input, item, commandWidth, rowWidth),
       ]);
     });
   }
@@ -74,7 +84,7 @@ function markdown(input: t.CliFormatChapters.MarkdownInput): string {
   if (chapter.chapters.length > 0) {
     lines.push('', `## ${input.label ?? 'Chapters'}`, '');
     chapter.chapters.forEach((item) => {
-      lines.push(`- \`${markdownChapterCommand(input, item)}\` — ${singleLine(item.summary)}`);
+      lines.push(markdownChapterLine(input, item));
     });
   }
 
@@ -85,9 +95,12 @@ function chapterLine(
   input: t.CliFormatChapters.FormatInput,
   chapter: t.CliFormatChapters.Chapter.Link,
   commandWidth: number,
+  rowWidth: number,
 ): string {
   const command = chapterCommand(input, chapter);
-  return `${padVisibleEnd(command, commandWidth)}  ${c.gray(`# ${chapter.summary}`)}`;
+  const summary = c.gray(chapter.summary);
+  const inline = `${padVisibleEnd(command, commandWidth)}  ${summary}`;
+  return visibleWidth(inline) <= rowWidth ? inline : `${command}\n${summary}`;
 }
 
 function chapterCommand(
@@ -97,6 +110,16 @@ function chapterCommand(
   const prefix = c.dim(c.cyan(input.command));
   const path = chapter.path.join(' ');
   return path ? `${prefix} ${c.cyan(path)}` : prefix;
+}
+
+function markdownChapterLine(
+  input: t.CliFormatChapters.MarkdownInput,
+  chapter: t.CliFormatChapters.Chapter.Link,
+): string {
+  const command = markdownChapterCommand(input, chapter);
+  const summary = singleLine(chapter.summary);
+  const inline = `- \`${command}\` — ${summary}`;
+  return inline.length <= MAX_WIDTH ? inline : `- \`${command}\`\n  — ${summary}`;
 }
 
 function markdownChapterCommand(

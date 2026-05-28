@@ -4,17 +4,19 @@ import * as fixture from '../../m.upgrade/-test/u.fixture.ts';
 
 describe('Workspace.Cli.run', () => {
   it('renders help without entering planning or apply flow', async () => {
+    const empty = await WorkspaceCli.run({ argv: [] });
     const result = await WorkspaceCli.run({ argv: ['--help'] });
 
+    expect(empty.kind).to.eql('help');
     expect(result.kind).to.eql('help');
     if (result.kind === 'help') {
-      expect(result.text).to.include('@sys/workspace/cli');
+      expect(result.text).to.include('@sys/workspace');
       expect(result.text).to.include('Usage');
+      expect(result.text).to.include('Commands');
       expect(result.text).to.include('Examples');
-      expect(result.text).to.include('--prerelease');
-      expect(result.text).to.include('--non-interactive');
-      expect(result.text).to.include('--policy');
-      expect(result.text).to.include('--dry-run');
+      expect(result.text).to.include('upgrade');
+      expect(result.text).to.include('dsl');
+      expect(result.text).to.include('bump');
     }
   });
 
@@ -23,9 +25,33 @@ describe('Workspace.Cli.run', () => {
 
     expect(result.kind).to.eql('help');
     if (result.kind === 'help') {
-      expect(result.text).to.include('@sys/workspace/cli');
+      expect(result.text).to.include('@sys/workspace');
       expect(result.text).to.include('Usage');
       expect(result.text).to.include('Examples');
+    }
+  });
+
+  it('routes upgrade help without entering planning', async () => {
+    const result = await silent(() => WorkspaceCli.run({ argv: ['upgrade', '-h'] }));
+
+    expect(result.kind).to.eql('help');
+    if (result.kind === 'help') {
+      expect(result.text).to.include('@sys/workspace upgrade');
+      expect(result.text).to.include('--prerelease');
+      expect(result.text).to.include('--non-interactive');
+      expect(result.text).to.include('--policy');
+      expect(result.text).to.include('--dry-run');
+    }
+  });
+
+  it('routes bump help without entering upgrade planning', async () => {
+    const result = await silent(() => WorkspaceCli.run({ argv: ['bump', '-h'] }));
+
+    expect(result.kind).to.eql('help');
+    if (result.kind === 'help') {
+      expect(result.text).to.include('@sys/workspace bump');
+      expect(result.text).to.include('--since <git-ref>');
+      expect(result.text).to.include('--from <pkg|path>');
     }
   });
 
@@ -35,7 +61,7 @@ describe('Workspace.Cli.run', () => {
     expect(result.kind).to.eql('help');
     if (result.kind === 'help') {
       const text = Cli.stripAnsi(result.text);
-      expect(text).to.include('@sys/workspace/cli dsl delta');
+      expect(text).to.include('@sys/workspace dsl delta');
       expect(text).to.include('Usage');
       expect(text).to.include('Options');
       expect(text).to.include('Classification');
@@ -51,6 +77,20 @@ describe('Workspace.Cli.run', () => {
     if (result.kind === 'help') {
       expect(result.text).to.eql(Cli.stripAnsi(result.text));
       expect(result.text).to.include('name: "sys-workspace-dsl-delta"');
+    }
+  });
+
+  it('gives dsl help precedence over format projection', async () => {
+    const result = await silent(() =>
+      WorkspaceCli.run({ argv: ['dsl', 'delta', '--format', 'skill', '-h'] })
+    );
+
+    expect(result.kind).to.eql('help');
+    if (result.kind === 'help') {
+      const text = Cli.stripAnsi(result.text);
+      expect(text).to.include('@sys/workspace dsl delta');
+      expect(text).to.include('Usage');
+      expect(text).to.not.include('name: "sys-workspace-dsl-delta"');
     }
   });
 
@@ -83,7 +123,7 @@ describe('Workspace.Cli.run', () => {
 
             const result = await WorkspaceCli.run({
               cwd: fs.dir,
-              argv: ['--non-interactive', '--policy', 'latest'],
+              argv: ['upgrade', '--non-interactive', '--policy', 'latest'],
             });
 
             const afterDeps = await Fs.readText(fs.join('deps.yaml'));
@@ -146,7 +186,7 @@ describe('Workspace.Cli.run', () => {
 
             const result = await WorkspaceCli.run({
               cwd: fs.dir,
-              argv: ['--non-interactive', '--policy', 'latest', '--dry-run'],
+              argv: ['upgrade', '--non-interactive', '--policy', 'latest', '--dry-run'],
             });
             const afterDeps = await Fs.readText(fs.join('deps.yaml'));
             const afterDeno = await Fs.readText(fs.join('deno.json'));
@@ -201,7 +241,7 @@ describe('Workspace.Cli.run', () => {
           async () => {
             const result = await WorkspaceCli.run({
               cwd: fs.dir,
-              argv: ['--non-interactive', '--policy', 'latest', '--include', 'react'],
+              argv: ['upgrade', '--non-interactive', '--policy', 'latest', '--include', 'react'],
             });
             const depsText = await Fs.readText(fs.join('deps.yaml'));
 
@@ -249,7 +289,7 @@ describe('Workspace.Cli.run', () => {
           async () => {
             const result = await WorkspaceCli.run({
               cwd: fs.dir,
-              argv: ['--non-interactive', '--policy', 'latest', '--prerelease'],
+              argv: ['upgrade', '--non-interactive', '--policy', 'latest', '--prerelease'],
             });
 
             expect(result.kind).to.eql('apply');

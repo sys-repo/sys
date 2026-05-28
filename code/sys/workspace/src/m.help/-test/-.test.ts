@@ -16,7 +16,11 @@ describe('WorkspaceHelp', () => {
     expect(chapter.id).to.eql('dsl');
     expect(chapter.path).to.eql([]);
     expect(chapter.title).to.eql('Workspace DSL');
-    expect(chapter.sections.map(({ label }) => label)).to.eql(['Scope', 'Maintenance']);
+    expect(chapter.sections.map(({ label }) => label)).to.eql([
+      'Agent reading protocol',
+      'Rule',
+      'Command surfaces',
+    ]);
     expect(chapter.chapters.map(({ id, path }) => ({ id, path }))).to.eql([
       { id: 'delta', path: ['delta'] },
     ]);

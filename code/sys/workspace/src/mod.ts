@@ -14,3 +14,11 @@ export type * as t from './types.ts';
  * Library:
  */
 export { Workspace } from './mod.Workspace.ts';
+
+/**
+ * Main entry:
+ */
+if (import.meta.main) {
+  const { WorkspaceCli } = await import('./m.cli/mod.ts');
+  await WorkspaceCli.run({ argv: Deno.args });
+}

@@ -172,12 +172,12 @@ describe('Cli.Fmt.Chapters', () => {
     expect(plain).to.contain('Chapter');
     expect(plain).to.contain('deno run jsr:@sys/example dsl short');
     expect(plain).to.contain('deno run jsr:@sys/example dsl longer-chapter');
-    expect(plain).to.contain('# Short chapter.');
-    expect(plain).to.contain('# Longer chapter.');
+    expect(plain).to.contain('Short chapter.');
+    expect(plain).to.contain('Longer chapter.');
     expect(plain).to.not.contain('@sys/cell');
 
-    expect(chapterCommentColumn(plain, 'short')).to.eql(
-      chapterCommentColumn(plain, 'longer-chapter'),
+    expect(chapterSummaryColumn(plain, 'short', 'Short chapter.')).to.eql(
+      chapterSummaryColumn(plain, 'longer-chapter', 'Longer chapter.'),
     );
   });
 
@@ -188,6 +188,30 @@ describe('Cli.Fmt.Chapters', () => {
     expect(plain).to.contain('Topic');
     expect(plain).to.contain('deno run jsr:@sys/example dsl short');
     expect(plain).to.not.contain('Chapter');
+  });
+
+  it('wraps long child chapter index rows within 80 visible columns', () => {
+    const long = {
+      ...chapter,
+      sections: [{ label: 'Agent reading protocol', items: ['Read root.'] }],
+      chapters: [
+        {
+          id: 'delta',
+          path: ['delta'],
+          title: 'Delta',
+          summary: 'Map git changes to bump roots.',
+        },
+      ],
+    } as const;
+    const text = Fmt.Chapters.format({
+      command: 'deno run -ER jsr:@sys/workspace dsl',
+      chapter: long,
+    });
+    const plain = Cli.stripAnsi(text);
+
+    expect(plain).to.contain('deno run -ER jsr:@sys/workspace dsl delta');
+    expect(plain).to.contain('Map git changes to bump roots.');
+    expectMaxVisibleWidth(plain, 80);
   });
 
   it('renders a full terminal chapter help page', () => {
@@ -272,9 +296,9 @@ describe('Cli.Fmt.Chapters', () => {
     expect(text).to.contain(
       '- `deno run jsr:@sys/example dsl short --format skill` — Short chapter.',
     );
-    expect(text).to.contain(
-      '- `deno run jsr:@sys/example dsl longer-chapter --format skill` — Longer chapter.',
-    );
+    expect(text).to.contain('deno run jsr:@sys/example dsl longer-chapter --format skill');
+    expect(text).to.contain('Longer chapter.');
+    expectMaxVisibleWidth(text, 80);
     expect(text).to.not.contain('@sys/cell');
   });
 
@@ -318,8 +342,16 @@ async function expectFailure(fn: () => Promise<unknown>, message: string) {
   if (error instanceof Error) expect(error.message).to.eql(message);
 }
 
-function chapterCommentColumn(text: string, chapter: string): number {
+function chapterSummaryColumn(text: string, chapter: string, summary: string): number {
   const line = text.split('\n').find((line) => line.includes(`dsl ${chapter}`));
   expect(line).to.not.eql(undefined);
-  return line?.indexOf('#') ?? -1;
+  return line?.indexOf(summary) ?? -1;
+}
+
+function expectMaxVisibleWidth(text: string, width: number) {
+  const wide = Cli.stripAnsi(text)
+    .split('\n')
+    .map((line) => line.trimEnd())
+    .filter((line) => line.length > width);
+  expect(wide, wide.join('\n')).to.eql([]);
 }

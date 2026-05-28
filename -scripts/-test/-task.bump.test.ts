@@ -1,4 +1,5 @@
 import { describe, expect, Fs, it, Testing } from '@sys/testing/server';
+import { Cli } from '@sys/cli';
 import { Process } from '@sys/process';
 import { WorkspaceGraph } from '@sys/workspace';
 import { main } from '../task.bump.ts';
@@ -36,7 +37,8 @@ describe('scripts/task.bump', () => {
     expect(output).to.include('deno task bump');
     expect(output).to.include('--release <patch|minor|major>');
     expect(output).to.include('--since <git-ref>');
-    expect(output).to.include('--from <package-name|package-path>');
+    expect(output).to.include('--from <pkg|path>');
+    expectMaxVisibleWidth(output, 80);
   });
 
   it('derives dry-run bump roots from a since ref', async () => {
@@ -105,6 +107,14 @@ describe('scripts/task.bump', () => {
 /**
  * Helpers:
  */
+function expectMaxVisibleWidth(text: string, width: number) {
+  const wide = Cli.stripAnsi(text)
+    .split('\n')
+    .map((line) => line.trimEnd())
+    .filter((line) => line.length > width);
+  expect(wide, wide.join('\n')).to.eql([]);
+}
+
 async function gitBaselineWorkspace() {
   const fs = await Testing.dir('task.bump.since');
   const cwd = fs.dir;

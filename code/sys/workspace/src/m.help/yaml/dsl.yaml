@@ -1,17 +1,36 @@
 id: dsl
 title: Workspace DSL
 summary: |
-  Navigable package guidance for workspace concepts and command workflows.
+  Workspace DSL: operating contract for agents changing workspace
+  dependency, graph, delta, and package-version workflows.
+  Read root layer before changing workspace tooling; then read
+  the matching chapter from the chapter index.
 
 sections:
-  - label: Scope
+  - label: Agent reading protocol
     items: |
-      Keep stable workspace guidance as focused chapters under this root.
-      Keep executable behavior in the owning workspace modules.
-      Keep CLI routing and rendering outside `m.help`.
+      Agents MUST read root DSL before workspace edits.
+      Command: `deno run -ER jsr:@sys/workspace dsl`.
+      Agents MUST NOT read every chapter by default.
+      Agents MUST identify the target workspace boundary.
+      Agents MUST identify the target command surface.
+      Agents MUST read each matching chapter before editing.
+      Form: `deno run -ER jsr:@sys/workspace dsl <chapter>`.
+      If no chapter index entry matches, stop and ask.
 
-  - label: Maintenance
+  - label: Rule
     items: |
-      Register every chapter in `src/m.help/u/u.paths.ts`.
-      Run `deno task help:bundle` after editing chapter YAML.
-      Test chapter loading and projection contracts without snapshotting prose.
+      Use `@sys/workspace` as the public authority for:
+      dependency upgrades, graph facts, delta derivation,
+      package-version bump planning, and task helpers.
+      Let CLI/API derive paths; do not infer manually.
+      Read command help before changing command behavior.
+      Prefer deterministic inputs over ambient reasoning.
+
+  - label: Command surfaces
+    items: |
+      DSL      `deno run -ER   jsr:@sys/workspace dsl`
+      Bump     `deno run -ERW  jsr:@sys/workspace bump -h`
+      Upgrade  `deno run -ERWN jsr:@sys/workspace upgrade -h`
+      For `--since`, read `delta` before changing behavior.
+

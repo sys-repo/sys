@@ -86,7 +86,7 @@ export declare namespace WorkspaceCli {
   };
 
   /** Result from a workspace CLI run. */
-  export type Result = Help | Planned | Applied;
+  export type Result = Help | Planned | Applied | Bumped;
 
   /** Help-only CLI run result. */
   export type Help = {
@@ -96,6 +96,16 @@ export declare namespace WorkspaceCli {
     readonly input: Input;
     /** Rendered help output. */
     readonly text: string;
+  };
+
+  /** Bump command run result. */
+  export type Bumped = {
+    /** Result discriminant. */
+    readonly kind: 'bump';
+    /** Raw input passed to the CLI entrypoint. */
+    readonly input: Input;
+    /** Workspace package bump result. */
+    readonly bump: t.WorkspaceBump.RunResult;
   };
 
   /** Planned-only CLI run result. */
