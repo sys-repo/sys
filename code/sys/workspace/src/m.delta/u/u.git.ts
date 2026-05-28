@@ -10,6 +10,35 @@ export function changedFilesFromNameStatus(
 }
 
 /**
+ * Parse NUL-delimited output from `git diff --name-status -z`.
+ */
+export function nameStatusRecordsFromNul(input: string) {
+  const tokens = input.split('\0').filter((token) => token.length > 0);
+  const records: t.WorkspaceDelta.Git.NameStatusRecord[] = [];
+  let cursor = 0;
+
+  // Cursor loop required: git name-status records consume two or three NUL-delimited tokens.
+  while (cursor < tokens.length) {
+    const status = tokens[cursor++];
+    if (!status) throw malformedNul(input);
+
+    if (isRename(status) || isCopy(status)) {
+      const previousPath = tokens[cursor++];
+      const path = tokens[cursor++];
+      if (!previousPath || !path) throw malformedNul(input);
+      records.push({ status, previousPath, path });
+      continue;
+    }
+
+    const path = tokens[cursor++];
+    if (!path) throw malformedNul(input);
+    records.push({ status, path });
+  }
+
+  return records;
+}
+
+/**
  * Helpers:
  */
 function pathsFromLine(line: string) {
@@ -65,4 +94,8 @@ function isCopy(status: string) {
 
 function malformed(line: string) {
   return new Error(`Malformed git name-status line: ${line}`);
+}
+
+function malformedNul(input: string) {
+  return new Error(`Malformed NUL-delimited git name-status output: ${input}`);
 }

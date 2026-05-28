@@ -7,6 +7,7 @@ describe('@sys/workspace/bump args', () => {
     expect(res).to.eql({
       help: undefined,
       from: ['@scope/a'],
+      since: undefined,
       release: 'minor',
       dryRun: true,
       nonInteractive: false,
@@ -18,6 +19,7 @@ describe('@sys/workspace/bump args', () => {
     expect(res).to.eql({
       help: undefined,
       from: ['@scope/a'],
+      since: undefined,
       release: 'minor',
       dryRun: true,
       nonInteractive: false,
@@ -41,6 +43,7 @@ describe('@sys/workspace/bump args', () => {
     expect(res).to.eql({
       help: undefined,
       from: ['@scope/a', 'code/pkg-b'],
+      since: undefined,
       release: undefined,
       dryRun: false,
       nonInteractive: false,
@@ -58,6 +61,8 @@ describe('@sys/workspace/bump args', () => {
     expect(res).to.eql({
       help: false,
       invalidRelease: undefined,
+      since: undefined,
+      conflict: undefined,
       run: {
         cwd: '/tmp/workspace',
         release: 'minor',
@@ -67,5 +72,34 @@ describe('@sys/workspace/bump args', () => {
         policy,
       },
     });
+  });
+
+  it('parses since refs and reports since/from conflicts after help handling', () => {
+    const parsed = Args.parse(['--since', 'baseline', '--dry-run']);
+    expect(parsed).to.eql({
+      help: undefined,
+      from: undefined,
+      since: 'baseline',
+      release: undefined,
+      dryRun: true,
+      nonInteractive: false,
+    });
+
+    const missingRef = Args.run({ argv: ['--since'] });
+    expect(missingRef.since).to.eql('');
+    expect(missingRef.conflict).to.eql(undefined);
+
+    const conflict = Args.run({ argv: ['--since', 'baseline', '--from', '@scope/a'] });
+    expect(conflict.conflict).to.eql({
+      code: 'since-and-from',
+      message: '--since cannot be used with --from.',
+    });
+
+    const missingConflict = Args.run({ argv: ['--since', '--from', '@scope/a'] });
+    expect(missingConflict.conflict?.code).to.eql('since-and-from');
+
+    const help = Args.run({ argv: ['--help', '--since', 'baseline', '--from', '@scope/a'] });
+    expect(help.help).to.eql(true);
+    expect(help.conflict).to.eql(undefined);
   });
 });

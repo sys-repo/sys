@@ -112,4 +112,39 @@ describe('@sys/workspace Delta.Git.fromNameStatus', () => {
       expect(fn).to.throw(/malformed git name-status line/i);
     });
   });
+
+  describe('git ref baselines', () => {
+    it('classifies changed packages by baseline version state', async () => {
+      const { cwd, graphPath } = await Fixture.gitBaselineWorkspace();
+
+      const res = await WorkspaceDelta.Git.fromRef({ cwd, graphPath, ref: 'baseline' });
+
+      expect(res.ref).to.eql('baseline');
+      expect(res.head).to.eql('HEAD');
+      expect(res.graphPath).to.eql(graphPath);
+      expect(res.changedPkgPaths).to.eql(['code/pkg-a', 'code/pkg-b', 'code/pkg-c']);
+      expect(res.needsBumpPkgPaths).to.eql(['code/pkg-a']);
+      expect(res.alreadyBumpedPkgPaths).to.eql(['code/pkg-b']);
+      expect(res.newPkgPaths).to.eql(['code/pkg-c']);
+      expect(res.bumpRootPkgPaths).to.eql(['code/pkg-a']);
+      expect(res.bumpClosurePkgPaths).to.eql(['code/pkg-a', 'code/pkg-c']);
+    });
+
+    it('fails clearly when the graph snapshot is missing', async () => {
+      const { cwd } = await Fixture.gitBaselineWorkspace();
+
+      let error: Error | undefined;
+      try {
+        await WorkspaceDelta.Git.fromRef({
+          cwd,
+          ref: 'baseline',
+          graphPath: `${cwd}/missing.graph.json`,
+        });
+      } catch (err) {
+        error = err as Error;
+      }
+
+      expect(error?.message).to.include('Workspace graph snapshot not found');
+    });
+  });
 });

@@ -1,4 +1,4 @@
-import { Cli, describe, expect, Fs, it, Json, Testing } from '../../-test.ts';
+import { Cli, describe, expect, Fs, it, Json, Testing, type t } from '../../-test.ts';
 import { run } from '../u/u.run.ts';
 
 const FS_MOD = new URL('../../../../fs/src/mod.ts', import.meta.url).href;
@@ -53,6 +53,30 @@ describe('@sys/workspace/bump run', () => {
     expect(res.apply?.writes).to.have.length(1);
     expect(denoJson.data?.version).to.eql('1.0.1');
     expect(followup.data).to.eql(fs.dir);
+  });
+
+  it('returns a clean no-op for explicit empty precomputed roots', async () => {
+    const collect: t.WorkspaceBump.CollectResult = {
+      cwd: '/tmp/workspace',
+      release: 'patch',
+      orderedPaths: ['code/pkg-a'],
+      edges: [],
+      candidates: [{
+        pkgPath: 'code/pkg-a',
+        denoFilePath: '/tmp/workspace/code/pkg-a/deno.json',
+        name: '@scope/a',
+        version: {
+          current: { major: 1, minor: 0, patch: 0, prerelease: [], build: [] },
+          next: { major: 1, minor: 0, patch: 1, prerelease: [], build: [] },
+        },
+      }],
+    };
+
+    const res = await run({ collect, from: [], dryRun: true, log: false });
+
+    expect(res.dryRun).to.eql(true);
+    expect(res.plan).to.eql({ roots: [], selected: [], selectedPaths: [] });
+    expect(res.apply).to.eql(undefined);
   });
 
   it('applies one cumulative multi-root plan once', async () => {

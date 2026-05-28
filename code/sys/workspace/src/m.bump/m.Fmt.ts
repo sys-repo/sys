@@ -5,19 +5,21 @@ export const Fmt: t.WorkspaceBump.Fmt.Lib = {
   help() {
     Cli.Fmt.Help.render({
       tool: 'deno task bump',
-      summary: 'Bump workspace packages from one or more selected topological roots.',
-      note: 'Interactive by default; repeat `--from` for scripted multi-root bumps.',
+      summary: 'Bump workspace packages from selected roots or a git baseline ref.',
+      note: 'Interactive by default; use `--since` to derive bump roots from git history.',
       usage: [
         'deno task bump',
         'deno task bump -- --release minor',
+        'deno task bump -- --since=jsr-publish --dry-run',
         'deno task bump -- --from=@scope/pkg --from=code/sys/fs --non-interactive --dry-run',
       ],
       options: [
         ['-h, --help', 'show help'],
         ['--release <patch|minor|major>', 'choose the semver bump kind (default: patch)'],
+        ['--since <git-ref>', 'derive bump roots from changes since a git ref or tag'],
         [
           '--from <package-name|package-path>',
-          'select bump roots without the interactive picker (repeatable)',
+          'select bump roots without the interactive picker (repeatable; conflicts with --since)',
         ],
         ['--dry-run', 'render the plan without writing files'],
         ['--non-interactive', 'skip interactive confirmation once bump roots are known'],
@@ -91,11 +93,7 @@ export const Fmt: t.WorkspaceBump.Fmt.Lib = {
 
   planSummary(args) {
     const roots = args.plan.roots.map((root) => root.name);
-    const selectedRoots = roots.length === 1
-      ? c.gray(`Selected root: ${c.white(roots[0]!)}`)
-      : c.gray(
-        `Selected roots: ${c.white(String(roots.length))} ${c.dim(`(${wrangle.list(roots)})`)}`,
-      );
+    const selectedRoots = wrangle.selectedRoots(roots);
     return [
       selectedRoots,
       c.gray(`Affected packages: ${c.white(String(args.plan.selected.length))}`),
@@ -111,6 +109,14 @@ export const Fmt: t.WorkspaceBump.Fmt.Lib = {
  * Helpers:
  */
 const wrangle = {
+  selectedRoots(roots: readonly string[]) {
+    if (roots.length === 0) return c.gray(`Selected roots: ${c.white('0')}`);
+    if (roots.length === 1) return c.gray(`Selected root: ${c.white(roots[0]!)}`);
+    return c.gray(
+      `Selected roots: ${c.white(String(roots.length))} ${c.dim(`(${wrangle.list(roots)})`)}`,
+    );
+  },
+
   pad(value: string, width: number) {
     const visible = Cli.stripAnsi(value).length;
     return visible >= width ? value : `${value}${' '.repeat(width - visible)}`;

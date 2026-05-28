@@ -22,9 +22,9 @@ export declare namespace WorkspaceBump {
 
   /** One package-level dependency edge in the local workspace graph. */
   export type PackageEdge = {
-    /** Package path that depends on `to`. */
+    /** Dependency package path that must be ordered first. */
     readonly from: t.StringPath;
-    /** Package path required by `from`. */
+    /** Dependent package path that requires `from`. */
     readonly to: t.StringPath;
   };
 
@@ -179,6 +179,8 @@ export declare namespace WorkspaceBump {
   export type RunArgs = {
     /** Working directory used to resolve the local workspace. */
     readonly cwd?: t.StringDir;
+    /** Optional precomputed workspace package data. */
+    readonly collect?: CollectResult;
     /** Release type used to derive next versions. Defaults to `patch`. */
     readonly release?: t.SemverReleaseType;
     /** Optional preselected bump roots by package name or package path. */
@@ -211,6 +213,7 @@ export declare namespace WorkspaceBump {
     export type Parsed = {
       readonly help?: boolean;
       readonly from?: readonly string[];
+      readonly since?: string;
       readonly release?: string;
       readonly dryRun: boolean;
       readonly nonInteractive: boolean;
@@ -219,7 +222,10 @@ export declare namespace WorkspaceBump {
     /** Optional run-argument overrides from a script edge. */
     export type RunOptions = Partial<
       Pick<RunArgs, 'cwd' | 'release' | 'from' | 'dryRun' | 'nonInteractive'>
-    >;
+    > & {
+      /** Optional git baseline ref supplied by a script edge. */
+      readonly since?: string;
+    };
 
     /** Inputs for resolving one canonical bump run invocation. */
     export type RunInput = {
@@ -237,8 +243,20 @@ export declare namespace WorkspaceBump {
       readonly help: boolean;
       /** Invalid raw release string from argv, when one was supplied. */
       readonly invalidRelease?: string;
+      /** Optional git baseline ref supplied by the script edge. */
+      readonly since?: string;
+      /** Parsed conflict that should stop execution after help handling. */
+      readonly conflict?: Conflict;
       /** Canonical args for `Workspace.Bump.run(...)`. */
       readonly run: RunArgs;
+    };
+
+    /** Parsed argument conflict. */
+    export type Conflict = {
+      /** Stable conflict code. */
+      readonly code: 'since-and-from';
+      /** Human-readable conflict message. */
+      readonly message: string;
     };
   }
 

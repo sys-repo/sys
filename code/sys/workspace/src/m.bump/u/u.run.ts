@@ -6,29 +6,32 @@ import { collect } from './u.collect.ts';
 import { plan } from './u.plan.ts';
 
 export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
-  const cwd = args.cwd ?? Fs.cwd();
+  const cwd = args.cwd ?? args.collect?.cwd ?? Fs.cwd();
   const log = args.log ?? true;
   const spinner = Cli.Spinner.create('');
-  args.progress?.({ kind: 'collect' });
-  const collected = await runPhase({
+  const collected = args.collect ?? await wrangle.collect({
+    cwd,
+    release: args.release,
+    policy: args.policy,
+    log,
     spinner,
-    label: Fmt.phase({ kind: 'collect' }),
-    silent: !log,
-    fn: () => collect({ cwd, release: args.release, policy: args.policy }),
+    progress: args.progress,
   });
   const selected = await wrangle.select({
     candidates: [...collected.candidates],
     release: collected.release,
-    from: args.from ? [...args.from] : undefined,
+    from: args.from !== undefined ? [...args.from] : undefined,
   });
-  let planned = await wrangle.planSelection({
-    clear: selected.prompted,
-    collect: collected,
-    log,
-    rootPkgPaths: selected.pkgPaths,
-    spinner,
-    progress: args.progress,
-  });
+  let planned = selected.pkgPaths.length === 0
+    ? wrangle.emptyPlan({ collect: collected, log })
+    : await wrangle.planSelection({
+      clear: selected.prompted,
+      collect: collected,
+      log,
+      rootPkgPaths: selected.pkgPaths,
+      spinner,
+      progress: args.progress,
+    });
 
   if (args.dryRun) {
     if (log) {
@@ -38,8 +41,12 @@ export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
     return { collect: collected, plan: planned, dryRun: true };
   }
 
+  if (planned.selectedPaths.length === 0) {
+    return { collect: collected, plan: planned, dryRun: false };
+  }
+
   if (!args.nonInteractive) {
-    const allowBack = !args.from?.length;
+    const allowBack = selected.prompted;
     let confirmed = await wrangle.confirm({ allowBack });
     while (allowBack && confirmed === 'back') {
       const next = await wrangle.select({
@@ -105,6 +112,33 @@ export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
 };
 
 const wrangle = {
+  async collect(args: {
+    readonly cwd: t.StringDir;
+    readonly release?: t.SemverReleaseType;
+    readonly policy?: t.WorkspaceBump.Policy;
+    readonly log: boolean;
+    readonly spinner: t.CliSpinner.Instance;
+    readonly progress?: t.WorkspaceBump.ProgressHandler;
+  }) {
+    args.progress?.({ kind: 'collect' });
+    return await runPhase({
+      spinner: args.spinner,
+      label: Fmt.phase({ kind: 'collect' }),
+      silent: !args.log,
+      fn: () => collect({ cwd: args.cwd, release: args.release, policy: args.policy }),
+    });
+  },
+
+  emptyPlan(args: { readonly collect: t.WorkspaceBump.CollectResult; readonly log: boolean }) {
+    const plan = { roots: [], selected: [], selectedPaths: [] } satisfies t.WorkspaceBump.PlanResult;
+    if (args.log) {
+      console.info();
+      for (const line of Fmt.planSummary({ plan })) console.info(line);
+      console.info();
+    }
+    return plan;
+  },
+
   async planSelection(args: {
     clear: boolean;
     collect: t.WorkspaceBump.CollectResult;
@@ -147,7 +181,7 @@ const wrangle = {
     release: t.SemverReleaseType;
     from?: readonly string[];
   }): Promise<{ readonly pkgPaths: readonly t.StringPath[]; readonly prompted: boolean }> {
-    if (args.from && args.from.length > 0) {
+    if (args.from !== undefined) {
       const pkgPaths = wrangle.resolveFrom(args.candidates, args.from);
       return { pkgPaths, prompted: false };
     }

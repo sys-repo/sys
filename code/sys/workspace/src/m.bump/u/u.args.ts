@@ -5,8 +5,9 @@ export const Args: t.WorkspaceBump.Args.Lib = {
     const normalized = argv[0] === '--' ? argv.slice(1) : argv;
     const args = StdArgs.parse<{
       help?: boolean;
-      from?: string | string[];
-      release?: string;
+      from?: string | string[] | boolean;
+      since?: string | string[] | boolean;
+      release?: string | boolean;
       'dry-run'?: boolean;
       'non-interactive'?: boolean;
     }>([...normalized], {
@@ -17,7 +18,8 @@ export const Args: t.WorkspaceBump.Args.Lib = {
     return {
       help: args.help,
       from: wrangle.from(args.from),
-      release: args.release,
+      since: wrangle.since(args.since),
+      release: wrangle.release(args.release),
       dryRun: args['dry-run'] ?? false,
       nonInteractive: args['non-interactive'] ?? false,
     };
@@ -33,15 +35,19 @@ export const Args: t.WorkspaceBump.Args.Lib = {
   run(input: t.WorkspaceBump.Args.RunInput = {}) {
     const args = Args.parse(input.argv);
     const release = Args.release(args.release);
+    const from = input.options?.from ?? args.from;
+    const since = input.options?.since ?? args.since;
     return {
       help: args.help ?? false,
       invalidRelease: args.release !== undefined && release === undefined
         ? args.release
         : undefined,
+      since,
+      conflict: wrangle.conflict({ help: args.help ?? false, from, since }),
       run: {
         cwd: input.options?.cwd ?? Fs.cwd(),
         release: input.options?.release ?? release ?? 'patch',
-        from: input.options?.from ?? args.from,
+        from,
         dryRun: input.options?.dryRun ?? args.dryRun,
         nonInteractive: input.options?.nonInteractive ?? args.nonInteractive,
         policy: input.policy,
@@ -54,8 +60,32 @@ export const Args: t.WorkspaceBump.Args.Lib = {
  * Helpers:
  */
 const wrangle = {
-  from(input?: string | string[]) {
-    if (input === undefined) return undefined;
+  release(input?: string | boolean) {
+    return Is.str(input) ? input : undefined;
+  },
+
+  from(input?: string | string[] | boolean) {
+    if (input === undefined || input === false) return undefined;
+    if (input === true) return [''];
     return Is.str(input) ? [input] : [...input];
+  },
+
+  since(input?: string | string[] | boolean) {
+    if (input === undefined || input === false) return undefined;
+    if (input === true) return '';
+    return Is.str(input) ? input : input.at(-1);
+  },
+
+  conflict(args: {
+    readonly help: boolean;
+    readonly from?: readonly string[];
+    readonly since?: string;
+  }): t.WorkspaceBump.Args.Conflict | undefined {
+    if (args.help) return undefined;
+    if (args.since === undefined || !args.from || args.from.length === 0) return undefined;
+    return {
+      code: 'since-and-from',
+      message: '--since cannot be used with --from.',
+    };
   },
 } as const;

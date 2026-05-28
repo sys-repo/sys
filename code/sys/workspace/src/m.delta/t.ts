@@ -53,6 +53,8 @@ export declare namespace WorkspaceDelta {
     export type Lib = {
       /** Derive package bump roots and closure from git name-status records. */
       fromNameStatus(args: FromNameStatusArgs): WorkspaceDelta.Result;
+      /** Derive package delta facts from one git baseline ref. */
+      fromRef(args: FromRefArgs): Promise<FromRefResult>;
     };
 
     /** Inputs for deriving one workspace delta from git name-status records. */
@@ -61,6 +63,40 @@ export declare namespace WorkspaceDelta {
       readonly collect: t.WorkspaceBump.CollectResult;
       /** Git name-status records or raw tab-delimited name-status lines. */
       readonly nameStatus: readonly NameStatusInput[];
+    };
+
+    /** Inputs for deriving one workspace delta from a git baseline ref. */
+    export type FromRefArgs = {
+      /** Working directory used for git and graph snapshot reads. */
+      readonly cwd?: t.StringDir;
+      /** Git baseline ref. The bump CLI maps `--since=<ref>` to this field. */
+      readonly ref: string;
+      /** Git head ref to compare against. Defaults to `HEAD`. */
+      readonly head?: string;
+      /** Persisted graph snapshot path. Defaults to `<cwd>/deno.graph.json`. */
+      readonly graphPath?: t.StringPath;
+      /** Release type used when collecting current bump candidates. Defaults to `patch`. */
+      readonly release?: t.SemverReleaseType;
+      /** Repo-specific bump policy. */
+      readonly policy?: t.WorkspaceBump.Policy;
+    };
+
+    /** Result of deriving one workspace delta from a git baseline ref. */
+    export type FromRefResult = WorkspaceDelta.Result & {
+      /** Collected current workspace bump inputs used by downstream bump planning. */
+      readonly collect: t.WorkspaceBump.CollectResult;
+      /** Git baseline ref used for the comparison. */
+      readonly ref: string;
+      /** Git head ref used for the comparison. */
+      readonly head: string;
+      /** Persisted graph snapshot path read for the comparison. */
+      readonly graphPath: t.StringPath;
+      /** Changed packages whose current version already differs from the baseline ref. */
+      readonly alreadyBumpedPkgPaths: readonly t.StringPath[];
+      /** Changed packages whose current version still matches the baseline ref. */
+      readonly needsBumpPkgPaths: readonly t.StringPath[];
+      /** Changed packages that had no bumpable manifest version at the baseline ref. */
+      readonly newPkgPaths: readonly t.StringPath[];
     };
 
     /** One supported git name-status input item. */
