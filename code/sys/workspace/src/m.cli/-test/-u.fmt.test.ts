@@ -1,7 +1,39 @@
 import { c, Cli, describe, Esm, expect, it, type t } from '../../-test.ts';
+import { WorkspaceHelp } from '../../m.help/mod.ts';
 import { Fmt } from '../u.fmt/u.fmt.ts';
+import { FmtHelp } from '../u.fmt/u.fmt.help.ts';
 
 describe('Workspace.Cli.Fmt', () => {
+  it('renders DSL root help and skill projections', async () => {
+    const text = Cli.stripAnsi(await FmtHelp.dslOutput());
+    const guidance = await WorkspaceHelp.Dsl.load();
+
+    expect(text).to.contain('@sys/workspace/cli dsl');
+    expect(text).to.contain('Usage');
+    expect(text).to.contain('Options');
+    expect(text).to.contain('Formats');
+    expectSectionLabels(text, guidance.sections.map(({ label }) => label));
+    guidance.chapters.forEach((chapter) => expect(text).to.contain(chapterCommand(chapter)));
+
+    const skill = await FmtHelp.dslOutput({ format: 'skill' });
+    expect(skill).to.eql(Cli.stripAnsi(skill));
+    expect(skill).to.contain('name: "sys-workspace-dsl"');
+    expect(skill).to.contain(`${chapterCommand(guidance.chapters[0]!)} --format skill`);
+  });
+
+  it('renders the delta DSL chapter without snapshotting prose', async () => {
+    const path = ['delta'] as const;
+    const text = Cli.stripAnsi(await FmtHelp.dslOutput({ path }));
+    const chapter = await WorkspaceHelp.Dsl.load(path);
+    const skill = await FmtHelp.dslOutput({ path, format: 'skill' });
+
+    expect(text).to.contain('@sys/workspace/cli dsl delta');
+    expectSectionLabels(text, chapter.sections.map(({ label }) => label));
+    expect(text).to.not.contain(chapterCommand(chapter));
+    expect(skill).to.eql(Cli.stripAnsi(skill));
+    expect(skill).to.contain('name: "sys-workspace-dsl-delta"');
+  });
+
   it('omits the duplicate candidates table from the interactive plan output', () => {
     const plan = Fmt.plan(upgrade());
     const text = Cli.stripAnsi(plan);
@@ -555,6 +587,23 @@ function upgradeWithShorthandCurrent(): t.WorkspaceUpgrade.Result {
       ],
     },
   };
+}
+
+function expectSectionLabels(text: string, labels: readonly string[]) {
+  const lines = text.split('\n');
+  let previous = -1;
+
+  labels.forEach((label) => {
+    const index = lines.findIndex((line, lineIndex) => {
+      return lineIndex > previous && line.startsWith(label);
+    });
+    expect(index).to.be.greaterThan(previous);
+    previous = index;
+  });
+}
+
+function chapterCommand(chapter: { readonly path: readonly string[] }): string {
+  return ['deno run -ER jsr:@sys/workspace/cli dsl', ...chapter.path].join(' ');
 }
 
 function stubScreenWidth(width: number): () => void {

@@ -1,0 +1,30 @@
+id: delta
+title: Workspace Delta
+summary: |
+  Explain changed workspace files as package bump candidates from a git baseline.
+
+sections:
+  - label: Concept
+    items: |
+      Delta is the source-agnostic package-change view between a baseline and the current workspace.
+      Git adapters derive changed file paths, then the pure workspace delta core maps those files to package owners.
+      Bump planning consumes delta roots; delta does not mutate versions or apply package edits.
+
+  - label: Bump since
+    items: |
+      `deno task bump -- --since=<git-ref> --dry-run` asks git for `ref..HEAD`, classifies changed packages, then plans from the packages that still need a bump.
+      The CLI owns the `--since` flag and passes the git ref into `Workspace.Delta.Git.fromRef(...)`.
+      `Workspace.Bump.run(...)` receives precomputed bump roots and stays independent of git or baseline semantics.
+
+  - label: Classification
+    items: |
+      `needsBumpPkgPaths` are changed package manifests whose current version matches the baseline version.
+      `alreadyBumpedPkgPaths` changed since the baseline but already have a different current version.
+      `newPkgPaths` exist now but not at the baseline and are reported separately before mutation decisions.
+      Skipped files stay visible when they do not belong to a current bump candidate package.
+
+  - label: Closure
+    items: |
+      The bump root set starts with packages that still need a version bump.
+      The bump closure adds dependents that must move because they depend on those roots.
+      Empty roots are a clean no-op plan, not a fallback to manual path reasoning.

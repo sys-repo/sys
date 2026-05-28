@@ -1,6 +1,6 @@
-import { Cli, Fs, type t } from './common.ts';
+import { Cli, Err, Fs, Is, type t } from './common.ts';
 import { WorkspaceUpgrade } from '../m.upgrade/mod.ts';
-import { parseArgs, wantsHelp } from './u/u.args.ts';
+import { commandOf, parseArgs, parseDslArgs, wantsHelp } from './u/u.args.ts';
 import { runInteractive } from './u/u.interactive.ts';
 import { Fmt } from './u.fmt/u.fmt.ts';
 import { FmtHelp } from './u.fmt/u.fmt.help.ts';
@@ -8,6 +8,10 @@ import { FmtHelp } from './u.fmt/u.fmt.help.ts';
 export const run: t.WorkspaceCli.Lib['run'] = async (input = {}) => {
   const cwd = input.cwd ?? Fs.cwd('process');
   const argv = [...(input.argv ?? [])];
+  const command = commandOf(argv);
+
+  if (command === 'dsl') return await runDsl({ argv, cwd });
+
   if (wantsHelp(argv)) {
     const text = FmtHelp.output();
     console.info(text);
@@ -87,6 +91,19 @@ export const run: t.WorkspaceCli.Lib['run'] = async (input = {}) => {
  * Helpers:
  */
 
+async function runDsl(input: { readonly argv: readonly string[]; readonly cwd: t.StringDir }) {
+  const { argv, cwd } = input;
+  const args = parseDslArgs(argv);
+  const format = wrangle.dslFormat(args.format);
+
+  if (args.unknown.length > 0) throw Err.std(`Unknown option for dsl: ${args.unknown.join(', ')}`);
+  if (!format.ok) throw Err.std(format.message);
+
+  const text = await FmtHelp.dslOutput({ path: args._.map(String), format: format.value });
+  console.info(text);
+  return { kind: 'help', input: { argv, cwd }, text } as const;
+}
+
 const wrangle = {
   upgradeOptions(
     options: t.WorkspaceCli.ResolvedOptions,
@@ -101,6 +118,20 @@ const wrangle = {
       prerelease: options.prerelease,
       progress,
     };
+  },
+
+  dslFormat(
+    value: t.WorkspaceCli.ParsedDslArgs['format'],
+  ):
+    | { readonly ok: true; readonly value: t.WorkspaceCli.Dsl.Format }
+    | { readonly ok: false; readonly message: string } {
+    if (value === undefined) return { ok: true, value: 'human' };
+    if (Is.array<string | boolean>(value)) {
+      return { ok: false, message: 'Repeated option for dsl: --format' };
+    }
+    if (!Is.str(value)) return { ok: false, message: 'Option requires a value: --format' };
+    if (value === 'human' || value === 'skill') return { ok: true, value };
+    return { ok: false, message: `Unsupported dsl format: ${value} (expected: human, skill)` };
   },
 
   async selection(

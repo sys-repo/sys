@@ -41,6 +41,24 @@ export declare namespace WorkspaceCli {
     readonly exclude?: string | readonly string[];
   };
 
+  /** Typed argv shape for the workspace DSL help command. */
+  export type ParsedDslArgs = {
+    /** Show help and exit. */
+    readonly help: boolean;
+    /** Raw `--format` flag value, accepted only by `dsl`. */
+    readonly format?: string | boolean | readonly (string | boolean)[];
+    /** Unknown flag tokens rejected by argument parsing. */
+    readonly unknown: readonly string[];
+    /** Positional DSL chapter path tokens. */
+    readonly _: readonly string[];
+  };
+
+  /** Types for the `dsl` command. */
+  export namespace Dsl {
+    /** Supported DSL chapter output formats. */
+    export type Format = 'human' | 'skill';
+  }
+
   /** Fully normalized CLI options for one run. */
   export type ResolvedOptions = {
     /** Canonical dependency manifest path for the run. */

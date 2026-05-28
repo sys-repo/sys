@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it, Testing } from '../../-test.ts';
+import { Cli, describe, expect, Fs, it, Testing } from '../../-test.ts';
 import { WorkspaceCli } from '../mod.ts';
 import * as fixture from '../../m.upgrade/-test/u.fixture.ts';
 
@@ -26,6 +26,31 @@ describe('Workspace.Cli.run', () => {
       expect(result.text).to.include('@sys/workspace/cli');
       expect(result.text).to.include('Usage');
       expect(result.text).to.include('Examples');
+    }
+  });
+
+  it('routes dsl help without entering upgrade planning', async () => {
+    const result = await silent(() => WorkspaceCli.run({ argv: ['dsl', 'delta'] }));
+
+    expect(result.kind).to.eql('help');
+    if (result.kind === 'help') {
+      const text = Cli.stripAnsi(result.text);
+      expect(text).to.include('@sys/workspace/cli dsl delta');
+      expect(text).to.include('Usage');
+      expect(text).to.include('Options');
+      expect(text).to.include('Classification');
+    }
+  });
+
+  it('routes dsl skill projection', async () => {
+    const result = await silent(() =>
+      WorkspaceCli.run({ argv: ['dsl', 'delta', '--format', 'skill'] })
+    );
+
+    expect(result.kind).to.eql('help');
+    if (result.kind === 'help') {
+      expect(result.text).to.eql(Cli.stripAnsi(result.text));
+      expect(result.text).to.include('name: "sys-workspace-dsl-delta"');
     }
   });
 
@@ -244,3 +269,14 @@ describe('Workspace.Cli.run', () => {
     );
   });
 });
+
+async function silent<T>(fn: () => Promise<T>): Promise<T> {
+  const info = console.info;
+  console.info = () => undefined;
+
+  try {
+    return await fn();
+  } finally {
+    console.info = info;
+  }
+}

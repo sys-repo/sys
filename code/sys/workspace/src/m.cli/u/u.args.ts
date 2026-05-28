@@ -1,5 +1,10 @@
 import { Args, Err, Is, Path, type t } from '../common.ts';
 
+export function commandOf(argv: readonly string[]): string | undefined {
+  const first = wrangle.argv(argv)[0];
+  return Is.str(first) && !first.startsWith('-') ? first : undefined;
+}
+
 export function wantsHelp(argv: readonly string[]): boolean {
   const args = Args.parse<t.WorkspaceCli.ParsedArgs>(wrangle.argv(argv), {
     boolean: ['help'],
@@ -29,6 +34,29 @@ export function parseArgs(
   };
 }
 
+export function parseDslArgs(argv: readonly string[]): t.WorkspaceCli.ParsedDslArgs {
+  const unknown: string[] = [];
+  const args = Args.parse<{
+    help?: boolean;
+    format?: string | boolean | (string | boolean)[];
+  }>(wrangle.commandArgs(argv, 'dsl'), {
+    boolean: ['help'],
+    string: ['format'],
+    alias: { h: 'help' },
+    unknown(flag) {
+      unknown.push(flag);
+      return false;
+    },
+  });
+
+  return {
+    help: args.help ?? false,
+    format: args.format,
+    unknown,
+    _: args._,
+  };
+}
+
 const wrangle = {
   policy(input: unknown): t.EsmPolicyMode {
     const mode = wrangle.one(input);
@@ -52,6 +80,11 @@ const wrangle = {
         .filter(Boolean)
     );
     return [...new Set(flat)].sort((a, b) => a.localeCompare(b));
+  },
+
+  commandArgs(input: readonly string[], command: string): string[] {
+    const argv = wrangle.argv(input);
+    return argv[0] === command ? argv.slice(1) : argv;
   },
 
   argv(input: readonly string[]): string[] {
