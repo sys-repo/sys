@@ -1,16 +1,40 @@
 import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
+import { Cli } from '../common.ts';
 import { WebSocketServer } from '../mod.ts';
 import { formatStarted } from '../u/u.fmt.ts';
 import { Fixture } from './u.fixture.ts';
 
 describe('WebSocketServer/service handle', () => {
+  it('renders direct-startup URLs in owner-reported order', () => {
+    const text = formatStarted({
+      state: 'ready',
+      kind: 'fixture:websocket',
+      urls: [
+        { href: 'ws://127.0.0.1:5050/files' as t.StringUrl, label: 'files:websocket' },
+        { href: 'http://127.0.0.1:5050/files/manifest' as t.StringUrl, label: 'files:manifest' },
+      ],
+    }, { lifecycle: 'manual', keyboard: false });
+
+    const clean = Cli.stripAnsi(text);
+    const websocket = clean.indexOf('ws://localhost:5050/files');
+    const manifest = clean.indexOf('http://localhost:5050/files/manifest');
+
+    expect(websocket >= 0).to.eql(true);
+    expect(manifest >= 0).to.eql(true);
+    expect(websocket < manifest).to.eql(true);
+  });
+
   it('renders direct-startup quit controls from hosted lifecycle options', () => {
     const status: t.Service.Status = { state: 'ready', kind: 'websocket:cmd' };
 
     expect(formatStarted(status, { lifecycle: 'manual', keyboard: false })).to.not.contain('quit');
     expect(formatStarted(status, { lifecycle: 'process', keyboard: false })).to.contain('Ctrl+C');
-    expect(formatStarted(status, { lifecycle: 'manual', keyboard: true })).to.contain('Ctrl+C or Q');
-    expect(formatStarted(status, { lifecycle: 'process', keyboard: true })).to.contain('Ctrl+C or Q');
+    expect(formatStarted(status, { lifecycle: 'manual', keyboard: true })).to.contain(
+      'Ctrl+C or Q',
+    );
+    expect(formatStarted(status, { lifecycle: 'process', keyboard: true })).to.contain(
+      'Ctrl+C or Q',
+    );
   });
 
   it('exposes a Cell-compatible service status', async () => {

@@ -10,6 +10,7 @@ export type RuntimeStatus = {
 export function serviceStatus(args: {
   readonly options?: t.WebSocketServer.StatusOptions;
   readonly url: t.StringUrl;
+  readonly httpUrls?: readonly t.Service.Url[];
   readonly path: t.StringUrlRoute;
   readonly ns?: t.Cmd.Namespace;
   readonly connections: number;
@@ -24,7 +25,10 @@ export function serviceStatus(args: {
   return {
     state: args.runtime.state,
     kind: status?.kind ?? D.status.kind,
-    urls: [{ href: args.url, label: status?.urlLabel ?? D.status.urlLabel }],
+    urls: [
+      { href: args.url, label: status?.urlLabel ?? D.status.urlLabel },
+      ...(args.httpUrls ?? []),
+    ],
     ...(Is.str(name) && name.length > 0 ? { name } : {}),
     ...(Is.str(root) && root.length > 0 ? { root } : {}),
     ...(Is.str(config) && config.length > 0 ? { config } : {}),

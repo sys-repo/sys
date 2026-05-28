@@ -14,7 +14,7 @@ describe('FilesWebSocketService', () => {
     const config = Fs.join(dir.dir, '-config/files.yaml');
     await Fs.write(
       config,
-      'name: shell:files\nroot: ./app\npath: /files\nport: 0\nwatch: true\npolicy: "**"\n',
+      'name: shell:files\nroot: ./app\npath: /draft/files\nport: 0\nwatch: true\npolicy: "**"\n',
     );
 
     const server = await FilesWebSocketService.start({
@@ -30,7 +30,15 @@ describe('FilesWebSocketService', () => {
       expect(status.kind).to.eql('files:websocket');
       expect(status.root).to.eql(Fs.join(dir.dir, 'app'));
       expect(status.config).to.eql(config);
-      expect(status.urls).to.eql([{ href: server.url, label: 'files:websocket' }]);
+      expect(status.urls).to.eql([
+        { href: server.url, label: 'files:websocket' },
+        { href: `${server.origin}/draft/files/manifest`, label: 'files:manifest' },
+      ]);
+
+      const manifest = await fetch(`${server.origin}/draft/files/manifest`);
+      expect(manifest.status).to.eql(200);
+      const json = await manifest.json();
+      expect(json.entries.map((e: t.Files.Entry) => e.path)).to.eql(['shell.yaml']);
 
       const read = await client.cmd.send(Files.Cmd.Name.read, { path: 'shell.yaml' });
       expect(read.kind).to.eql('inline');

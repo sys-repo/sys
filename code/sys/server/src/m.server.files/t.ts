@@ -6,6 +6,9 @@ import type { t } from './common.ts';
 export declare namespace FilesServer {
   /** Public Files server facade surface. */
   export type Lib = {
+    /** HTTP projections for bounded Files backings. */
+    readonly Http: Http.Lib;
+
     /** WebSocket service facade for a Files Cmd backing. */
     readonly WebSocket: WebSocket.Lib;
   };
@@ -21,6 +24,39 @@ export declare namespace FilesServer {
     /** Canonical Files Cmd handlers. */
     readonly handlers: t.Files.Cmd.HandlerMap;
   };
+
+  /** HTTP projections for bounded Files backings. */
+  export namespace Http {
+    /** Public Files HTTP projection surface. */
+    export type Lib = {
+      /** Create a GET JSON projection of the Files manifest command when supported. */
+      readonly manifest: (options: ManifestOptions) => ManifestProjection | undefined;
+    };
+
+    /** Options for creating a manifest HTTP projection. */
+    export type ManifestOptions = {
+      /** Bounded Files backing to project. */
+      readonly files: FilesServer.Backing;
+
+      /** Base Files HTTP/WebSocket path. Defaults to the Files server path. */
+      readonly path?: t.StringUrlRoute;
+    };
+
+    /** GET JSON projection of a bounded Files manifest. */
+    export type ManifestProjection = {
+      /** Derived manifest route, e.g. `/files/manifest`. */
+      readonly path: t.StringUrlRoute;
+
+      /** Status URL label for owner service reporting. */
+      readonly label: 'files:manifest';
+
+      /** True when the request targets this projection path. */
+      readonly matches: (request: Request) => boolean;
+
+      /** Build the HTTP response for a matching request. */
+      readonly response: (request: Request) => Promise<Response>;
+    };
+  }
 
   /** WebSocket service facade. */
   export namespace WebSocket {
@@ -41,7 +77,7 @@ export declare namespace FilesServer {
         t.Files.Cmd.Result,
         t.Files.Cmd.Event
       >,
-      'cmd' | 'status'
+      'cmd' | 'status' | 'http'
     >;
 
     /** Options for creating a Files/WebSocket service with caller-owned lifecycle. */

@@ -1,5 +1,5 @@
 import { SampleFiles } from './-config.ts';
-import { Files, Fs, HttpCmd, HttpServer, Str } from './common.ts';
+import { Files, FilesServer, Fs, HttpCmd, HttpServer, Str } from './common.ts';
 
 const files = Files.Fs.Readonly.create({
   fs: Fs.Capability.Files.Readonly.create(Fs),
@@ -7,12 +7,16 @@ const files = Files.Fs.Readonly.create({
   policy: SampleFiles.policy,
 });
 
+const manifest = FilesServer.Http.manifest({ files, path: SampleFiles.path });
+if (!manifest) throw new Error('Expected sample Files backing to support manifest projection.');
+
 const app = HttpServer.create({ static: false });
 
 app.get(SampleFiles.path, (c) => {
   return c.text(Str.dedent(`
     👋 Files<T>
 
+    GET ${manifest.path} for the Files manifest JSON.
     POST ${SampleFiles.path} with a Cmd JSON request.
 
     curl -s http://127.0.0.1:${SampleFiles.port}${SampleFiles.path} \\
@@ -20,6 +24,8 @@ app.get(SampleFiles.path, (c) => {
       -d '{"kind":"cmd","id":"req-curl","ns":"${Files.Cmd.ns}","name":"${Files.Cmd.Name.read}","payload":{"path":"hello.txt"}}'
   `));
 });
+
+app.get(manifest.path, (c) => manifest.response(c.req.raw));
 
 app.post(SampleFiles.path, (c) => {
   return HttpCmd.handle(c.req.raw, {
@@ -35,7 +41,10 @@ const server = HttpServer.start(app, {
   keyboard: true,
   status: {
     kind: 'files:http:cmd',
-    urlPaths: [{ path: SampleFiles.path, label: 'files:http:cmd' }],
+    urlPaths: [
+      { path: SampleFiles.path, label: 'files:http:cmd' },
+      { path: manifest.path, label: manifest.label },
+    ],
     details: [
       { label: 'files.kind', value: files.kind },
       { label: 'files.transport', value: 'http.cmd:unary' },

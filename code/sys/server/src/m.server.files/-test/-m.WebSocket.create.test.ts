@@ -27,11 +27,20 @@ describe('FilesServer.WebSocket.create', () => {
       const status = server.status();
       expect(status.name).to.eql('Fixture Files');
       expect(status.kind).to.eql('files:websocket');
-      expect(status.urls).to.eql([{ href: server.url, label: 'files:websocket' }]);
+      expect(status.urls).to.eql([
+        { href: server.url, label: 'files:websocket' },
+        { href: `${server.origin}/files/manifest`, label: 'files:manifest' },
+      ]);
       expect(Fixture.detail(status, 'namespace')).to.eql(Files.Cmd.ns);
       expect(Fixture.detail(status, 'files.kind')).to.eql('files/memory:readonly');
       expect(Fixture.detail(status, 'files.fidelity')).to.eql(undefined);
       expect(Fixture.detail(status, 'files.capabilities')).to.eql('list,stat,read,manifest');
+
+      const httpManifest = await fetch(`${server.origin}/files/manifest`);
+      expect(httpManifest.status).to.eql(200);
+      expect(await httpManifest.json()).to.eql(
+        await Fixture.direct(backing, Files.Cmd.Name.manifest, {}),
+      );
 
       const capabilities = await remote.client.cmd.send(Files.Cmd.Name.capabilities, {});
       expect(capabilities).to.eql(
@@ -65,6 +74,55 @@ describe('FilesServer.WebSocket.create', () => {
       expect(error.message).not.to.contain('FilesMemoryError');
     } finally {
       await remote.close();
+      await server.close('test.cleanup');
+    }
+  });
+
+  it('derives the HTTP manifest projection from default and custom websocket paths', async () => {
+    const backing = FilesMemory.Readonly.create({
+      files: { 'foo.txt': 'foo\n' },
+      policy: Files.Policy.readonly('**'),
+    });
+    const defaultPath = FilesServer.WebSocket.create({ files: backing });
+    const customPath = FilesServer.WebSocket.create({ path: '/draft/files', files: backing });
+
+    try {
+      expect(defaultPath.url).to.eql(`${defaultPath.origin}/files`.replace('http:', 'ws:'));
+      expect(defaultPath.status().urls).to.eql([
+        { href: defaultPath.url, label: 'files:websocket' },
+        { href: `${defaultPath.origin}/files/manifest`, label: 'files:manifest' },
+      ]);
+      expect(customPath.status().urls).to.eql([
+        { href: customPath.url, label: 'files:websocket' },
+        { href: `${customPath.origin}/draft/files/manifest`, label: 'files:manifest' },
+      ]);
+
+      const res = await fetch(`${customPath.origin}/draft/files/manifest`);
+      expect(res.status).to.eql(200);
+      expect(await res.json()).to.eql(await Fixture.direct(backing, Files.Cmd.Name.manifest, {}));
+    } finally {
+      await defaultPath.close('test.cleanup');
+      await customPath.close('test.cleanup');
+    }
+  });
+
+  it('does not expose an HTTP manifest projection when unsupported', async () => {
+    const backing = FilesMemory.Readonly.create({
+      files: { 'foo.txt': 'foo\n' },
+      policy: Files.Policy.readonly('**'),
+    });
+    const unsupported: t.FilesServer.Backing = {
+      ...backing,
+      capabilities: { ...backing.capabilities, manifest: false },
+    };
+    const server = FilesServer.WebSocket.create({ path: '/files', files: unsupported });
+
+    try {
+      expect(server.status().urls).to.eql([{ href: server.url, label: 'files:websocket' }]);
+      const res = await fetch(`${server.origin}/files/manifest`);
+      await res.body?.cancel();
+      expect(res.status).to.eql(404);
+    } finally {
       await server.close('test.cleanup');
     }
   });

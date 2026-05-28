@@ -61,6 +61,9 @@ export declare namespace WebSocketServer {
     /** Optional request admission hook before WebSocket upgrade. */
     accept?: Accept;
 
+    /** Optional owner HTTP sidecar for same-port diagnostics/projections. */
+    http?: HttpOptions;
+
     /** Optional low-level hook for each accepted socket. */
     onSocket?: (context: SocketContext<N, P, R, E>) => void | Promise<void>;
 
@@ -141,6 +144,25 @@ export declare namespace WebSocketServer {
     /** Extra owner facts that are not URLs and not lifecycle control. */
     readonly details?: readonly t.Service.Detail[];
   };
+
+  /** Owner HTTP sidecar mounted on the same server as the WebSocket route. */
+  export type HttpOptions = {
+    /** Return a response to handle the request, or `undefined` to continue WebSocket admission. */
+    readonly handle: HttpHandler;
+
+    /** Requestable owner HTTP URLs to report in service status. */
+    readonly urls?: readonly HttpStatusUrl[];
+  };
+
+  /** Owner HTTP sidecar handler. */
+  export type HttpHandler = (
+    request: Request,
+  ) => Response | undefined | Promise<Response | undefined>;
+
+  /** HTTP status URL path resolved against the server origin. */
+  export type HttpStatusUrl =
+    | t.StringUrlRoute
+    | { readonly path: t.StringUrlRoute; readonly label?: string };
 
   /** Request admission hook. Return `false` to reject or a `Response` to return it directly. */
   export type Accept = (request: Request) => boolean | Response | Promise<boolean | Response>;

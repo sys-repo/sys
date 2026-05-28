@@ -6,7 +6,8 @@ describe('@sys/server/files', () => {
     const m = await import('@sys/server/files');
 
     expect(m.FilesServer).to.equal(FilesServer);
-    expect(Object.keys(FilesServer).sort()).to.eql(['WebSocket']);
+    expect(Object.keys(FilesServer).sort()).to.eql(['Http', 'WebSocket']);
+    expect(Object.keys(FilesServer.Http).sort()).to.eql(['manifest']);
     expect(Object.keys(FilesServer.WebSocket).sort()).to.eql(['create', 'start']);
     expectTypeOf(FilesServer).toMatchTypeOf<t.FilesServer.Lib>();
   });

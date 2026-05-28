@@ -11,6 +11,7 @@ export { Arr } from '@sys/std/arr';
 export { Dispose } from '@sys/std/dispose';
 export { Err } from '@sys/std/error';
 export { Is } from '@sys/std/is';
+export { Json } from '@sys/std/json';
 export { Num } from '@sys/std/num';
 export { Path } from '@sys/std/path';
 export { Rx } from '@sys/std/rx';

@@ -1,4 +1,5 @@
 import { D, Files, Is, type t } from '../common.ts';
+import { Http } from '../m.Http/mod.ts';
 
 /**
  * Convert Files/WebSocket facade options to the underlying typed WebSocket server options.
@@ -12,11 +13,14 @@ export function toWebSocketOptions(
   t.Files.Cmd.Event
 > {
   const { files, status, ...server } = options;
+  const path = server.path ?? D.path;
+  const manifest = Http.manifest({ files, path });
 
   return {
     ...server,
-    path: server.path ?? D.path,
+    path,
     cmd: { ns: Files.Cmd.ns, handlers: files.handlers },
+    ...(manifest === undefined ? {} : { http: httpOptions(manifest) }),
     status: statusOptions(files, status),
   };
 }
@@ -24,6 +28,15 @@ export function toWebSocketOptions(
 /**
  * Helpers:
  */
+function httpOptions(
+  manifest: t.FilesServer.Http.ManifestProjection,
+): t.WebSocketServer.HttpOptions {
+  return {
+    handle: (request) => manifest.matches(request) ? manifest.response(request) : undefined,
+    urls: [{ path: manifest.path, label: manifest.label }],
+  };
+}
+
 function statusOptions(
   files: t.FilesServer.Backing,
   status: t.FilesServer.WebSocket.StatusOptions | undefined,

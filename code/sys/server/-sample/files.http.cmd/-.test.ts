@@ -22,6 +22,7 @@ describe('sample:files:http:cmd', () => {
     try {
       await waitForReady(process);
       await assertGetHelp();
+      await assertManifestGet(client);
       await assertCapabilities(client);
       await assertDocsCorpus(client);
     } finally {
@@ -56,10 +57,18 @@ async function assertGetHelp() {
 
   const text = await res.text();
   expect(text).to.contain('👋 Files<T>');
+  expect(text).to.contain('GET /files/manifest');
   expect(text).to.contain('POST /files');
   expect(text).to.contain('curl -s');
   expect(text).to.contain('"id":"req-curl"');
   expect(text).to.contain('"name":"files:read"');
+}
+
+async function assertManifestGet(client: Client) {
+  const res = await fetch(`${D.url}/manifest`);
+  expect(res.status).to.eql(200);
+  expect(res.headers.get('content-type')).to.contain('application/json');
+  expect(await res.json()).to.eql(await client.send(Files.Cmd.Name.manifest, {}));
 }
 
 async function assertCapabilities(client: Client) {

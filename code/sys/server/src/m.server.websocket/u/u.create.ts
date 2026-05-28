@@ -27,6 +27,9 @@ export function create<
       },
     },
     async (request) => {
+      const httpResponse = await input.http?.handle(request);
+      if (httpResponse) return httpResponse;
+
       const accepted = await acceptRequest(request, { path, accept: input.accept });
       if (!accepted.ok) return accepted.response;
 
@@ -45,6 +48,7 @@ export function create<
   const port = addr.port as t.PortNumber;
   const origin = localOrigin({ hostname, port });
   const url = localWebSocketUrl({ origin, path });
+  const httpUrls = statusHttpUrls(origin, input.http?.urls);
   const runtime: RuntimeStatus = { state: 'ready' };
   let closing: Promise<void> | undefined;
 
@@ -82,6 +86,7 @@ export function create<
       return serviceStatus({
         options: input.status,
         url,
+        httpUrls,
         path,
         ns: input.cmd.ns,
         connections: connections.size,
@@ -148,6 +153,18 @@ function failSocketHook<
 >(context: t.WebSocketServer.SocketContext<N, P, R, E>, error: unknown) {
   closeSocket(context.socket, D.socketHookFailure);
   if (!context.host.disposed) context.host.dispose(error);
+}
+
+function statusHttpUrls(
+  origin: t.StringUrl,
+  input: readonly t.WebSocketServer.HttpStatusUrl[] | undefined,
+): readonly t.Service.Url[] {
+  return (input ?? []).map((item) => {
+    const path = Is.str(item) ? item : item.path;
+    const label = Is.str(item) ? undefined : item.label;
+    const href = new URL(normalizePath(path), origin).href as t.StringUrl;
+    return label === undefined ? { href } : { href, label };
+  });
 }
 
 function disposeWhenServerFinishes(args: {
