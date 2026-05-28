@@ -2,7 +2,8 @@
 
 ## Status
 
-Implemented.
+Implemented. Current implementation is a thin package task that delegates menu/list/non-interactive
+behavior to the upstream `@sys/driver-deno/runtime` `DenoTask.Menu` helper.
 
 ## Scope
 
@@ -12,8 +13,8 @@ Make Cell samples discoverable from the package task surface:
 deno task sample
 ```
 
-This work is limited to the `@sys/cell` package sample-task entrypoint and its Deno task wiring.
-It does not change Cell descriptor semantics, service/task execution semantics, sample contents, or
+This work is limited to the `@sys/cell` package sample-task entrypoint and its Deno task wiring. It
+does not change Cell descriptor semantics, service/task execution semantics, sample contents, or
 `CellCli` command behavior.
 
 ## TMIND review
@@ -24,7 +25,8 @@ The sample list must not be copied into a script. The authoritative sample surfa
 `deno.json.tasks`. If the script owns a second list, it will drift the first time a sample task is
 renamed.
 
-Resolution: derive the index from `deno.json.tasks` at runtime.
+Resolution: derive the index from `deno.json.tasks` at runtime through the shared Deno task menu
+helper.
 
 ### Hostile view: CLI command creep
 
@@ -39,8 +41,9 @@ Resolution: make `deno task sample` the UX seam; keep `CellCli` unchanged.
 A script that imports `@sys/cell` just to list samples is not pure. It would pull in Cell runtime
 concerns for a package-local task index.
 
-Resolution: keep the script independent of the Cell runtime. It should read `deno.json`, render the
-sample task index, and dispatch the selected existing Deno task.
+Resolution: keep the script independent of the Cell runtime. The package script delegates to
+`DenoTask.Menu.main(...)`, and the upstream helper reads `deno.json`, filters matching tasks,
+renders the sample task index, and dispatches the selected existing Deno task.
 
 ### Hostile view: interactive automation hazard
 
@@ -48,8 +51,8 @@ sample task index, and dispatch the selected existing Deno task.
 Interactive-by-default is acceptable for ambiguity, but the behavior should remain bounded and
 legible.
 
-Resolution: provide a small help/list surface if implementation wants non-interactive inspection;
-otherwise keep the default prompt simple, cancellable, and no-write until a sample is selected.
+Resolution: the shared helper provides bounded `--help`, `--list`, and `--non-interactive` surfaces.
+The default prompt remains simple, cancellable, and no-write until a sample is selected.
 
 ## S-tier essence
 
@@ -63,10 +66,10 @@ otherwise keep the default prompt simple, cancellable, and no-write until a samp
 
 ## BMIND review
 
-The simplest correct model is: samples are tasks. Therefore the sample browser is not a Cell feature;
-it is a Deno task affordance for the Cell package. The script should be boring: discover task names,
-show them, and run the chosen task. Anything more risks turning a package-local index into a second
-sample platform.
+The simplest correct model is: samples are tasks. Therefore the sample browser is not a Cell
+feature; it is a Deno task affordance for the Cell package. The local script should stay boring:
+bind Cell's sample task pattern into the shared Deno task menu helper. Anything more risks turning a
+package-local index into a second sample platform.
 
 ## Final implementation
 
@@ -82,64 +85,71 @@ Kept the existing `sample:*` tasks unchanged.
 
 ### 2. Replace the current sample starter script
 
-Rewrote `code/sys/cell/-scripts/task.sample.ts` so it:
+`code/sys/cell/-scripts/task.sample.ts` is now only the Cell-specific binding into the shared Deno
+task menu helper:
 
-1. reads the package-local `deno.json`;
-2. extracts task names matching `sample:*`;
-3. preserves `deno.json` task order;
-4. renders an indexed interactive menu using `@sys/cli`;
-5. runs the selected task through `deno task <task-name>`;
-6. exits cleanly on cancel/exit.
+```ts
+import { DenoTask } from '@sys/driver-deno/runtime';
 
-The script does not import `@sys/cell`.
+await DenoTask.Menu.main({
+  cwd: '.',
+  argv: Deno.args,
+  title: '@sys/cell samples',
+  include: ['sample:*'],
+});
+```
 
-### 3. Keep optional flags small, if added
+The script does not import `@sys/cell`, does not duplicate the sample registry, and does not own
+menu mechanics locally. `deno.json.tasks` remains the source of truth.
 
-Added only the cheap inspection flags:
+### 3. Keep optional flags small
 
-- `--help` / `-h` prints the script purpose and examples;
-- `--list` prints discovered sample task names without prompting.
+The local Cell package owns no custom flags. The upstream helper currently exposes the small generic
+menu surface:
 
-Do not add filtering, categories, aliases, or config files in this pass.
+- `--help` / `-h` prints the helper purpose, examples, and matched tasks;
+- `--list` / `-l` prints discovered sample task names without prompting;
+- `--non-interactive <task-name>` dispatches a selected task deterministically and fails instead of
+  prompting when no task name is given.
+
+Do not add Cell-local filtering, categories, aliases, or config files in this pass.
 
 ### 4. Presentation target
 
-Default prompt shows a compact list similar to:
+Inspection output from `deno task sample -- --list` is compact and task-shaped:
 
 ```text
 @sys/cell samples
-
-├─ sample:stripe
-├─ sample:deploy:start
-├─ sample:deploy:prep
-├─ sample:deploy
-├─ sample:vite
-└─ sample:vite:dev
-
-(exit)
+sample:stripe
+sample:deploy:start
+sample:deploy:prep
+sample:deploy
+sample:vite
+sample:vite:dev
 ```
 
-Selection dispatches the existing task exactly.
+Interactive selection and `--non-interactive <task-name>` dispatch the existing Deno task exactly.
 
 ## Test and verification plan
 
 ### Narrow proof
 
-No extra test helper was added. The index logic stayed inside the package-local script because the
-behavior is small and runtime-facing.
+No extra Cell-local test helper was added. The package script is now a thin delegation seam;
+behavior coverage for menu parsing/listing/dispatch belongs to the upstream Deno task helper.
 
 ### Runtime proof
 
-Verified from `code/sys/cell`:
+Verified from `code/sys/cell` on 2026-05-28:
 
 ```sh
 deno task check
+deno task test --trace-leaks ./src/m.cli ./src/m.cell
 deno task sample -- --list
 deno task sample -- --help
-deno task test --trace-leaks ./src/m.cli ./src/m.cell
 ```
 
-`deno task sample -- --list` lists the current `sample:*` tasks in `deno.json` order.
+`deno task sample -- --list` lists the current `sample:*` tasks in `deno.json` order through the
+shared helper.
 
 ## Non-goals
 

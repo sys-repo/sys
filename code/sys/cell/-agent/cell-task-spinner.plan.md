@@ -111,14 +111,15 @@ Implementation commits already in history:
 Core task telemetry:
 
 - `src/m.cell/t.ts`
-- `src/m.cell/u.task.root.ts`
+- `src/m.cell/u/task.root.ts` (historical path: `src/m.cell/u.task.root.ts`)
 - `src/m.cell/u.task/u.run.ts`
 
-CLI presentation:
+CLI presentation/orchestration:
 
 - `src/common/t.ts`
-- `src/m.cli/u.fmt.ts`
-- `src/m.cli/u.task.ts`
+- `src/m.cli/m.run/u.task.ts`
+- `src/m.cli/u.fmt/u.task.ts`
+- `src/m.cli/u/u.task.ts`
 
 Tests/fixtures:
 
@@ -135,8 +136,9 @@ Tests/fixtures:
 4. Emitted lifecycle telemetry around root start/ok/fail and leaf step start/ok/fail.
 5. Preserved semantics by swallowing observer errors.
 6. Kept preflight behavior: reachable task closure is verified before any leaf endpoint executes.
-7. Moved task CLI formatting/spinner rendering into `src/m.cli/u.fmt.ts`.
-8. Refactored `src/m.cli/u.task.ts` to orchestration/result shaping only.
+7. Moved task CLI formatting/spinner rendering into `src/m.cli/u.fmt/u.task.ts`.
+8. Refactored `src/m.cli/u/u.task.ts` to orchestration/result shaping only, with
+   `src/m.cli/m.run/u.task.ts` remaining the command router.
 9. Used `Cli.spinner`, `Cli.Fmt.spinnerText`, and `Cli.Fmt.spinnerRaw` for spinner presentation.
 10. Removed duplicate per-step summary rows; spinner completion lines now carry that evidence.
 11. Added canonical elapsed display from `StepResult.metrics.run` via `Time.elapsed(...)`.
@@ -173,6 +175,13 @@ deno task test --trace-leaks ./src/m.cli/-test/-.test.ts ./src/m.cell/-test/-u.t
 deno task test
 ```
 
+Current baseline verification from `code/sys/cell` on 2026-05-28:
+
+```sh
+deno task check
+deno task test --trace-leaks ./src/m.cli ./src/m.cell
+```
+
 ## BMIND conclusion
 
 The implementation preserves the Cell microkernel split:
@@ -181,4 +190,4 @@ The implementation preserves the Cell microkernel split:
 - CLI owns human presentation.
 - Owner endpoints own their own work and any domain-specific progress.
 
-The feature work is committed. This plan is ready to commit as design/history documentation.
+The feature work is committed. This plan is current as a baseline record before the next Cell pass.
