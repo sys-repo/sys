@@ -34,7 +34,7 @@ describe('scripts/task.bump', () => {
     }
 
     const output = calls.join('\n');
-    expect(output).to.include('deno task bump');
+    expect(output).to.include('@sys/workspace bump');
     expect(output).to.include('--release <patch|minor|major>');
     expect(output).to.include('--since <git-ref>');
     expect(output).to.include('--from <pkg|path>');

@@ -16,6 +16,8 @@ export declare namespace WorkspaceCli {
     readonly argv?: readonly string[];
     /** Optional working directory override. */
     readonly cwd?: t.StringDir;
+    /** Optional policy override for the bump command. */
+    readonly bumpPolicy?: t.WorkspaceBump.Policy;
   };
 
   /** Interaction mode for one CLI run. */

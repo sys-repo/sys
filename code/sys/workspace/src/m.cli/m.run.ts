@@ -13,7 +13,7 @@ export const run: t.WorkspaceCli.Lib['run'] = async (input = {}) => {
   const command = commandOf(argv);
 
   if (command === 'dsl') return await runDsl({ argv, cwd });
-  if (command === 'bump') return await runBump({ argv, cwd });
+  if (command === 'bump') return await runBump({ argv, cwd, policy: input.bumpPolicy });
   if (command === 'upgrade') return await runUpgrade({ argv, cwd });
 
   if (argv.length === 0 || wantsHelp(argv)) {
@@ -113,10 +113,11 @@ async function runUpgrade(input: {
 async function runBump(input: {
   readonly argv: readonly string[];
   readonly cwd: t.StringDir;
+  readonly policy?: t.WorkspaceBump.Policy;
 }): Promise<t.WorkspaceCli.Result> {
-  const { argv, cwd } = input;
+  const { argv, cwd, policy } = input;
   const bumpArgv = wrangle.commandArgs(argv, 'bump');
-  const args = WorkspaceBump.Args.run({ argv: bumpArgv, options: { cwd } });
+  const args = WorkspaceBump.Args.run({ argv: bumpArgv, options: { cwd }, policy });
 
   if (args.help) {
     const text = WorkspaceBump.Fmt.help('@sys/workspace bump');
