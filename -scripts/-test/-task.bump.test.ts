@@ -55,11 +55,9 @@ describe('scripts/task.bump', () => {
 
     const output = calls.join('\n');
     const deno = await Fs.readJson<{ version?: string }>(Fs.join(cwd, 'code/pkg-a/deno.json'));
-    expect(output).to.include('Delta since baseline..HEAD');
-    expect(output).to.include('needs bump      1 (code/pkg-a)');
-    expect(output).to.include('already bumped  1 (code/pkg-b)');
-    expect(output).to.include('new packages    1 (code/pkg-c)');
-    expect(output).to.include('Selected root:');
+    expect(output).to.not.include('Delta since baseline..HEAD');
+    expect(output).to.include('Root package:');
+    expect(output).to.include('@scope/a');
     expect(deno.data?.version).to.eql('1.0.0');
   });
 

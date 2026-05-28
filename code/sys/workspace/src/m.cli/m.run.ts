@@ -171,26 +171,11 @@ const wrangle = {
       release: args.run.release,
       policy: args.run.policy,
     });
-    wrangle.printDelta(delta);
     return await WorkspaceBump.run({
       ...args.run,
       collect: delta.collect,
       from: delta.bumpRootPkgPaths,
     });
-  },
-
-  printDelta(delta: t.WorkspaceDelta.Git.FromRefResult) {
-    console.info();
-    console.info(`Delta since ${delta.ref}..${delta.head}`);
-    console.info(`  changed         ${wrangle.formatList(delta.changedPkgPaths)}`);
-    console.info(`  needs bump      ${wrangle.formatList(delta.needsBumpPkgPaths)}`);
-    console.info(`  already bumped  ${wrangle.formatList(delta.alreadyBumpedPkgPaths)}`);
-    console.info(`  new packages    ${wrangle.formatList(delta.newPkgPaths)}`);
-    console.info();
-  },
-
-  formatList(paths: readonly string[]) {
-    return paths.length === 0 ? '0' : `${paths.length} (${paths.join(', ')})`;
   },
 
   upgradeOptions(

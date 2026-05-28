@@ -156,20 +156,22 @@ const wrangle = {
       fn: () => plan({ collect: args.collect, rootPkgPaths: args.rootPkgPaths }),
     });
 
+    const rootPaths = new Set(planned.roots.map((root) => root.pkgPath));
     const selectedPaths = new Set(planned.selectedPaths);
     if (args.log) {
       const table = Cli.table(['Module', 'Current', '', 'Next']);
       args.collect.candidates.forEach((candidate) => {
         table.push(Fmt.preflightRow({
           candidate,
+          rootPaths,
           selectedPaths,
           release: args.collect.release,
         }));
       });
       console.info();
-      for (const line of Fmt.planSummary({ plan: planned })) console.info(line);
-      console.info();
       console.info(c.gray(table.toString()));
+      console.info();
+      for (const line of Fmt.planSummary({ plan: planned })) console.info(line);
       console.info();
     }
 

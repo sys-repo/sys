@@ -71,21 +71,27 @@ export const Fmt: t.WorkspaceBump.Fmt.Lib = {
   },
 
   preflightRow(args) {
+    const root = args.rootPaths.has(args.candidate.pkgPath);
     const affected = args.selectedPaths.has(args.candidate.pkgPath);
     const { name, version } = args.candidate;
     const [modScope = '', ...modParts] = name.split('/');
     const modName = modParts.join('/');
-    const pkg = affected
-      ? `${c.gray(modScope)}/${c.white(c.bold(modName))}`
-      : c.gray(`${modScope}/${modName}`);
+    const rootPkg = `${c.cyan(c.bold(modScope))}/${c.cyan(c.bold(modName))}`;
+    const autoPkg = c.cyan(c.dim(`${modScope}/${modName}`));
+    const idlePkg = c.gray(c.dim(`${modScope}/${modName}`));
+    const pkg = root ? rootPkg : affected ? autoPkg : idlePkg;
 
-    const bullet = affected ? c.cyan(' •') : c.gray(c.dim(' •'));
-    const current = affected
+    const bullet = root ? c.cyan(' •') : affected ? c.cyan(c.dim(' •')) : c.gray(c.dim(' •'));
+    const current = root
       ? c.gray(Semver.toString(version.current))
+      : affected
+      ? c.cyan(c.dim(Semver.toString(version.current)))
       : c.gray(c.dim(Semver.toString(version.current)));
-    const arrow = affected ? '→' : c.gray(c.dim('→'));
-    const next = affected
+    const arrow = root ? '→' : affected ? c.cyan(c.dim('→')) : c.gray(c.dim('→'));
+    const next = root
       ? Semver.Fmt.colorize(version.next, { highlight: args.release })
+      : affected
+      ? c.cyan(c.dim(Semver.toString(version.next)))
       : c.gray(c.dim(Semver.toString(version.next)));
 
     return [`${bullet} ${pkg}`, current, arrow, next];
@@ -93,10 +99,10 @@ export const Fmt: t.WorkspaceBump.Fmt.Lib = {
 
   planSummary(args) {
     const roots = args.plan.roots.map((root) => root.name);
-    const selectedRoots = wrangle.selectedRoots(roots);
     return [
-      selectedRoots,
       c.gray(`Affected packages: ${c.white(String(args.plan.selected.length))}`),
+      wrangle.rootHeader(roots),
+      ...roots.map((root) => c.cyan(`  ${root}`)),
     ];
   },
 
@@ -109,22 +115,14 @@ export const Fmt: t.WorkspaceBump.Fmt.Lib = {
  * Helpers:
  */
 const wrangle = {
-  selectedRoots(roots: readonly string[]) {
-    if (roots.length === 0) return c.gray(`Selected roots: ${c.white('0')}`);
-    if (roots.length === 1) return c.gray(`Selected root: ${c.white(roots[0]!)}`);
-    return c.gray(
-      `Selected roots: ${c.white(String(roots.length))} ${c.dim(`(${wrangle.list(roots)})`)}`,
-    );
+  rootHeader(roots: readonly string[]) {
+    if (roots.length === 0) return c.gray(`Root packages: ${c.white('0')}`);
+    if (roots.length === 1) return c.gray(`Root package: ${c.cyan(roots[0]!)}`);
+    return c.gray(`Root packages: ${c.white(String(roots.length))}`);
   },
 
   pad(value: string, width: number) {
     const visible = Cli.stripAnsi(value).length;
     return visible >= width ? value : `${value}${' '.repeat(width - visible)}`;
-  },
-
-  list(values: readonly string[]) {
-    if (values.length <= 3) return values.join(', ');
-    const head = values.slice(0, 3).join(', ');
-    return `${head}, +${values.length - 3} more`;
   },
 } as const;

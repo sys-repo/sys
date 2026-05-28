@@ -304,6 +304,8 @@ export declare namespace WorkspaceBump {
     export type PreflightRowArgs = {
       /** Candidate being rendered in the table. */
       readonly candidate: Candidate;
+      /** Root package paths explicitly selected for the bump. */
+      readonly rootPaths: ReadonlySet<string>;
       /** Selected package paths affected by the bump. */
       readonly selectedPaths: ReadonlySet<string>;
       /** Release type highlighted in the next-version column. */
