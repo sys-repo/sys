@@ -24,7 +24,7 @@ describe('sample:files:http:static', () => {
       });
 
       files = Files.Client.local(backing);
-      await assertManifest(files);
+      await assertManifest(files, dist);
       await assertReadRefResolvesAsset(files, origin);
     }
 
@@ -50,9 +50,10 @@ async function fetchDist(origin: t.StringUrl): Promise<t.DistPkg> {
   return fetched.dist;
 }
 
-async function assertManifest(files: t.Files.Client.Local) {
+async function assertManifest(files: t.Files.Client.Local, dist: t.DistPkg) {
   const manifest = await files.cmd.send(Files.Cmd.Name.manifest, { content: true });
-  expect(manifest.version).to.eql('sys.files.manifest:v1');
+  expect(manifest['.meta'].version).to.eql('sys.files.manifest:v1');
+  expect(manifest['.meta'].dist?.build.time).to.eql(dist.build.time);
   expect(manifest.entries.map((entry) => entry.path)).to.eql([
     'docs',
     'docs/README.md',

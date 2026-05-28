@@ -72,17 +72,19 @@ describe('FilesMemory.Readonly.create', () => {
 
       const manifest = await cmd.manifest(backing, { path: 'notes' });
       expect(manifest).to.eql({
-        version: 'sys.files.manifest:v1',
-        capabilities: {
-          list: true,
-          stat: true,
-          read: true,
-          write: false,
-          remove: false,
-          watch: false,
-          manifest: true,
-          fidelity: 'snapshot',
-          encodings: ['utf8'],
+        '.meta': {
+          version: 'sys.files.manifest:v1',
+          capabilities: {
+            list: true,
+            stat: true,
+            read: true,
+            write: false,
+            remove: false,
+            watch: false,
+            manifest: true,
+            fidelity: 'snapshot',
+            encodings: ['utf8'],
+          },
         },
         entries: [
           { path: 'notes/baz.md', kind: 'file', size: 6, mediaType: 'text/markdown' },

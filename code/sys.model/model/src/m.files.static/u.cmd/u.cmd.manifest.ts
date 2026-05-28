@@ -1,3 +1,4 @@
+import { manifestMeta, pageMeta } from '../../m.files/u/u.manifest.ts';
 import { page, validatePageInput } from '../../m.files/u/u.page.ts';
 import { allowed, manifestAllowed } from '../../m.files/u/u.policy.ts';
 import { type t } from '../common.ts';
@@ -40,13 +41,15 @@ export const manifest = (
   }, invalidPath);
 
   return {
-    version: 'sys.files.manifest:v1',
-    capabilities,
+    '.meta': manifestMeta({
+      capabilities,
+      page: pageMeta(res),
+      ...(index.distBuildTime === undefined
+        ? {}
+        : { dist: { build: { time: index.distBuildTime } } }),
+    }),
     entries: res.items,
     ...(payload.content === true ? { content: contentRefs(index, policy, res.items) } : {}),
-    ...(index.generated === undefined ? {} : { generated: index.generated }),
-    ...(res.cursor === undefined ? {} : { cursor: res.cursor }),
-    ...(res.truncated === undefined ? {} : { truncated: res.truncated }),
   };
 };
 

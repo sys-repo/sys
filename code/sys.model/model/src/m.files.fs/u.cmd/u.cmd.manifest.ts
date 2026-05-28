@@ -1,4 +1,5 @@
 import { type t } from '../common.ts';
+import { manifestMeta, pageMeta } from '../../m.files/u/u.manifest.ts';
 import { listEntries } from '../u/u.listEntries.ts';
 import { page, validatePageInput } from '../u/u.page.ts';
 import { fail } from '../u/u.error.ts';
@@ -41,10 +42,7 @@ export const manifest = async (
   });
 
   return {
-    version: 'sys.files.manifest:v1',
-    capabilities,
+    '.meta': manifestMeta({ capabilities, page: pageMeta(res) }),
     entries: res.items,
-    ...(res.cursor === undefined ? {} : { cursor: res.cursor }),
-    ...(res.truncated === undefined ? {} : { truncated: res.truncated }),
   };
 };

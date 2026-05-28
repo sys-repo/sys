@@ -64,6 +64,6 @@ describe('FilesMemory.Writable.create', () => {
     expect(await cmd.capabilities(backing)).to.eql(authority.capabilities);
 
     const manifest = await cmd.manifest(backing);
-    expect(manifest.capabilities).to.eql(authority.capabilities);
+    expect(manifest['.meta'].capabilities).to.eql(authority.capabilities);
   });
 });

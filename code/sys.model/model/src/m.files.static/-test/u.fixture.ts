@@ -11,7 +11,7 @@ const HASHES = {
 } as const satisfies Record<string, t.StringHash>;
 
 export const baseUrl = 'https://example.test/data/' as t.StringUrl;
-export const generated = '2023-11-14T22:13:20.000Z' as t.StringIsoDate;
+export const buildTime = 1_700_000_000_000 as t.UnixTimestamp;
 export const allowAllPolicy = Files.Policy.readonly('**');
 
 export const sampleDist = dist({
@@ -72,7 +72,7 @@ export function dist(parts: t.CompositeHashParts): t.DistPkg {
   return {
     type: 'https://jsr.io/@sys/types/0.0.0/src/types/t.Pkg.dist.ts',
     build: {
-      time: 1_700_000_000_000,
+      time: buildTime,
       size: { total: 27, pkg: 0 },
       builder: 'fixture@0.0.0',
       runtime: 'deno=fixture',

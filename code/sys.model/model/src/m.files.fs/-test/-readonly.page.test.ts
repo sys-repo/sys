@@ -25,8 +25,8 @@ describe('FilesFs.Readonly.create: paging', () => {
 
       const manifest = await cmd.manifest(backing, { path: 'docs', limit: 1 });
       expect(manifest.entries.map((entry) => entry.path)).to.eql(['docs/nested']);
-      expect(manifest.truncated).to.eql(true);
-      expect(Files.Cursor.Is.manifest(manifest.cursor)).to.eql(true);
+      expect(manifest['.meta'].page?.truncated).to.eql(true);
+      expect(Files.Cursor.Is.manifest(manifest['.meta'].page?.cursor)).to.eql(true);
     });
   });
 

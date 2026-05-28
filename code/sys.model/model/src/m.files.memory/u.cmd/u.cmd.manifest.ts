@@ -1,3 +1,4 @@
+import { manifestMeta, pageMeta } from '../../m.files/u/u.manifest.ts';
 import { page, validatePageInput } from '../../m.files/u/u.page.ts';
 import { type t } from '../common.ts';
 import { assertPayload } from './u.cmd.payload.ts';
@@ -42,10 +43,7 @@ export const manifest = (
   }, invalidPath);
 
   return {
-    version: 'sys.files.manifest:v1',
-    capabilities,
+    '.meta': manifestMeta({ capabilities, page: pageMeta(res) }),
     entries: res.items,
-    ...(res.cursor === undefined ? {} : { cursor: res.cursor }),
-    ...(res.truncated === undefined ? {} : { truncated: res.truncated }),
   };
 };

@@ -164,7 +164,7 @@ describe('Files.Authority', () => {
     expect(calls).to.eql(['files:read']);
 
     const manifest = await handlers['files:manifest']({}, Fixture.context('files:manifest'));
-    expect(manifest.capabilities).to.eql(authority.capabilities);
+    expect(manifest['.meta'].capabilities).to.eql(authority.capabilities);
     expect(calls).to.eql(['files:read', 'files:manifest']);
 
     expectError(

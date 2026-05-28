@@ -88,17 +88,19 @@ describe('Files/t public contract', () => {
     const watchResult = { ok: true, cursor: watch } satisfies t.Files.Cmd.Watch.Result;
     const manifestPayload = { cursor: manifest } satisfies t.Files.Cmd.Manifest.Payload;
     const manifestResult = {
-      version: 'sys.files.manifest:v1',
-      capabilities,
+      '.meta': {
+        version: 'sys.files.manifest:v1',
+        capabilities,
+        page: { cursor: manifest },
+      },
       entries: [],
-      cursor: manifest,
     } satisfies t.Files.Manifest;
 
     expectTypeOf(listPayload.cursor).toEqualTypeOf<t.Files.Cursor.List>();
     expectTypeOf(listResult.cursor).toEqualTypeOf<t.Files.Cursor.List>();
     expectTypeOf(watchResult.cursor).toEqualTypeOf<t.Files.Cursor.Watch>();
     expectTypeOf(manifestPayload.cursor).toEqualTypeOf<t.Files.Cursor.Manifest>();
-    expectTypeOf(manifestResult.cursor).toEqualTypeOf<t.Files.Cursor.Manifest>();
+    expectTypeOf(manifestResult['.meta'].page?.cursor).toEqualTypeOf<t.Files.Cursor.Manifest>();
 
     if (false) {
       const widened = 'files:cursor:list:v1:page-1' as string;
@@ -126,8 +128,16 @@ describe('Files/t public contract', () => {
       // @ts-expect-error Manifest payloads accept only manifest cursors.
       const badManifestPayload: t.Files.Cmd.Manifest.Payload = { cursor: list };
 
-      // @ts-expect-error Manifests expose only manifest cursors.
-      const badManifestResult: t.Files.Manifest = { ...manifestResult, cursor: list };
+      const badManifestResult: t.Files.Manifest = {
+        ...manifestResult,
+        '.meta': {
+          ...manifestResult['.meta'],
+          page: {
+            // @ts-expect-error Manifests expose only manifest cursors.
+            cursor: list,
+          },
+        },
+      };
     }
   });
 
@@ -209,8 +219,7 @@ describe('Files/t public contract', () => {
         return { ok: true };
       },
       'files:manifest': () => ({
-        version: 'sys.files.manifest:v1',
-        capabilities,
+        '.meta': { version: 'sys.files.manifest:v1', capabilities },
         entries: [],
       }),
     } satisfies t.Files.Cmd.HandlerMap;

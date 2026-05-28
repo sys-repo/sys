@@ -4,10 +4,10 @@ import { FilesStatic } from '../mod.ts';
 import {
   allowAllPolicy,
   baseUrl,
+  buildTime,
   cmd,
   dist,
   expectFilesStaticError,
-  generated,
   Hash,
   part,
   setup,
@@ -101,16 +101,19 @@ describe('FilesStatic.fromDist', () => {
 
     const manifest = await cmd.manifest(backing, { path: 'notes', content: true });
     expect(manifest).to.eql({
-      version: 'sys.files.manifest:v1',
-      capabilities: {
-        list: true,
-        stat: true,
-        read: true,
-        write: false,
-        remove: false,
-        watch: false,
-        manifest: true,
-        fidelity: 'snapshot',
+      '.meta': {
+        version: 'sys.files.manifest:v1',
+        capabilities: {
+          list: true,
+          stat: true,
+          read: true,
+          write: false,
+          remove: false,
+          watch: false,
+          manifest: true,
+          fidelity: 'snapshot',
+        },
+        dist: { build: { time: buildTime } },
       },
       entries: [
         { path: 'notes/baz.md', kind: 'file', size: 6, hash: Hash.baz },
@@ -124,7 +127,6 @@ describe('FilesStatic.fromDist', () => {
           url: `${baseUrl}notes/baz.md`,
         },
       ],
-      generated,
     });
   });
 
@@ -229,8 +231,8 @@ describe('FilesStatic.fromDist', () => {
     expect(manifest.content).to.eql([
       { kind: 'url', path: 'foo.json', size: 16, hash: Hash.foo, url: `${baseUrl}foo.json` },
     ]);
-    expect(manifest.truncated).to.eql(true);
-    expect(Files.Cursor.Is.manifest(manifest.cursor)).to.eql(true);
+    expect(manifest['.meta'].page?.truncated).to.eql(true);
+    expect(Files.Cursor.Is.manifest(manifest['.meta'].page?.cursor)).to.eql(true);
   });
 
   it('classifies static command errors precisely', async () => {

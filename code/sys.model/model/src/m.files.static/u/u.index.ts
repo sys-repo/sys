@@ -12,7 +12,7 @@ export type StaticIndex = {
   readonly entries: readonly t.Files.Entry[];
   readonly entriesByPath: ReadonlyMap<t.Files.String.Path, t.Files.Entry>;
   readonly filesByPath: ReadonlyMap<t.Files.String.Path, StaticFile>;
-  readonly generated?: t.StringIsoDate;
+  readonly distBuildTime?: t.UnixTimestamp;
 };
 
 /** Build the static Files index from canonical dist metadata. */
@@ -47,13 +47,13 @@ export function staticIndex(options: {
   const entriesByPath = new Map<t.Files.String.Path, t.Files.Entry>();
   for (const entry of entries) entriesByPath.set(entry.path, entry);
 
-  const generatedAt = generated(dist);
+  const distBuildTime = buildTime(dist);
 
   return Object.freeze({
     entries: Object.freeze(entries),
     entriesByPath,
     filesByPath: files,
-    ...(generatedAt === undefined ? {} : { generated: generatedAt }),
+    ...(distBuildTime === undefined ? {} : { distBuildTime }),
   });
 }
 
@@ -91,10 +91,7 @@ function fileEntry(path: t.Files.String.Path, info: PartInfo): t.Files.Entry.Fil
   });
 }
 
-function generated(dist: t.DistPkg): t.StringIsoDate | undefined {
+function buildTime(dist: t.DistPkg): t.UnixTimestamp | undefined {
   const time = dist.build.time;
-  if (!Num.Is.finite(time)) return undefined;
-  const date = new Date(time);
-  if (!Num.Is.finite(date.valueOf())) return undefined;
-  return date.toISOString() as t.StringIsoDate;
+  return Num.Is.finite(time) ? time : undefined;
 }

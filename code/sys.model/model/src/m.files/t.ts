@@ -450,16 +450,40 @@ export declare namespace Files {
    * on the Files runtime contract.
    */
   export type Manifest = {
-    /** Manifest model version. */
-    readonly version: 'sys.files.manifest:v1';
-    /** Capability facts for this view. */
-    readonly capabilities: Capabilities;
+    /** Manifest control/provenance metadata. */
+    readonly '.meta': ManifestMeta;
     /** Visible entries. */
     readonly entries: readonly Entry[];
     /** Content refs available for entries, when this is a snapshot/static view. */
     readonly content?: readonly ContentRef[];
-    /** Snapshot/build timestamp, when known. */
-    readonly generated?: t.StringIsoDate;
+  };
+
+  /** Manifest model version. */
+  export type ManifestVersion = 'sys.files.manifest:v1';
+
+  /** Manifest control/provenance metadata. */
+  export type ManifestMeta = {
+    /** Manifest model version. */
+    readonly version: ManifestVersion;
+    /** Capability facts for this view. */
+    readonly capabilities: Capabilities;
+    /** Static distribution provenance, when known. */
+    readonly dist?: ManifestDistMeta;
+    /** Page facts, when additional data is available. */
+    readonly page?: ManifestPageMeta;
+  };
+
+  /** Static distribution provenance attached to a manifest. */
+  export type ManifestDistMeta = {
+    /** Static distribution build metadata, matching dist.json shape where it overlaps. */
+    readonly build: {
+      /** Timestamp of dist build. */
+      readonly time: t.UnixTimestamp;
+    };
+  };
+
+  /** Manifest paging metadata. */
+  export type ManifestPageMeta = {
     /** Cursor for additional manifest pages, when paged. */
     readonly cursor?: Cursor.Manifest;
     /** True when the manifest is intentionally partial. */

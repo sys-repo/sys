@@ -91,7 +91,8 @@ async function assertCapabilities(client: Client) {
 
 async function assertDocsCorpus(client: Client) {
   const manifest = await client.send(Files.Cmd.Name.manifest, {});
-  expect(manifest.version).to.eql('sys.files.manifest:v1');
+  expect(manifest['.meta'].version).to.eql('sys.files.manifest:v1');
+  expect(manifest['.meta'].dist?.build.time).to.be.a('number');
   expect(manifest.entries.map((entry) => entry.path).sort()).to.eql([
     'README.md',
     'hello.json',

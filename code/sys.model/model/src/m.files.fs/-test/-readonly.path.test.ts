@@ -50,16 +50,18 @@ describe('FilesFs.Readonly.create: path safety', () => {
 
       const manifest = await cmd.manifest(backing, { path: 'docs', depth: 1 });
       expect(manifest).to.eql({
-        version: 'sys.files.manifest:v1',
-        capabilities: {
-          list: true,
-          stat: true,
-          read: true,
-          write: false,
-          remove: false,
-          watch: false,
-          manifest: true,
-          encodings: ['utf8'],
+        '.meta': {
+          version: 'sys.files.manifest:v1',
+          capabilities: {
+            list: true,
+            stat: true,
+            read: true,
+            write: false,
+            remove: false,
+            watch: false,
+            manifest: true,
+            encodings: ['utf8'],
+          },
         },
         entries: [
           { path: 'docs/nested', kind: 'dir' },

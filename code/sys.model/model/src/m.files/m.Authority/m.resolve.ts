@@ -175,7 +175,10 @@ function gatedHandlers(args: GatedHandlersArgs): t.Files.Cmd.HandlerMap {
     'files:watch': gate('files:watch'),
     'files:manifest': (async (payload, context) => {
       const result = await manifest(payload, context);
-      return { ...result, capabilities: args.capabilities };
+      return {
+        ...result,
+        '.meta': { ...result['.meta'], capabilities: args.capabilities },
+      };
     }) as t.Files.Cmd.HandlerMap['files:manifest'],
   });
 }
