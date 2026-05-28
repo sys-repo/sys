@@ -40,7 +40,7 @@ export const manifest = (
   }, invalidPath);
 
   return {
-    version: 'sys.files.manifest.v1',
+    version: 'sys.files.manifest:v1',
     capabilities,
     entries: res.items,
     ...(payload.content === true ? { content: contentRefs(index, policy, res.items) } : {}),

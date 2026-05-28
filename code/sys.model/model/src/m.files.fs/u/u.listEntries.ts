@@ -45,7 +45,7 @@ export const listEntries = async (
     if (query.match && !Glob.matches(query.match, path)) continue;
     if (query.exclude && Glob.matches(query.exclude, path)) continue;
 
-    const info = item.stat ?? statFromWalkEntry(item);
+    const info = item.stat ?? await scope.fs.stat(realEntry) ?? statFromWalkEntry(item);
     entries.push(entryFromStat(path, info));
   }
 

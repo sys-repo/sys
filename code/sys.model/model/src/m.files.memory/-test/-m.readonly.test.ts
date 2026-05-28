@@ -53,7 +53,9 @@ describe('FilesMemory.Readonly.create', () => {
           { path: 'notes', kind: 'dir' },
         ],
       });
-      expect(root.entries.every((entry: t.Files.Entry) => !entry.path.startsWith('/'))).to.eql(true);
+      expect(root.entries.every((entry: t.Files.Entry) => !entry.path.startsWith('/'))).to.eql(
+        true,
+      );
 
       const stat = await cmd.stat(backing, { path: 'notes/baz.md' });
       expect(stat).to.eql({
@@ -70,7 +72,7 @@ describe('FilesMemory.Readonly.create', () => {
 
       const manifest = await cmd.manifest(backing, { path: 'notes' });
       expect(manifest).to.eql({
-        version: 'sys.files.manifest.v1',
+        version: 'sys.files.manifest:v1',
         capabilities: {
           list: true,
           stat: true,

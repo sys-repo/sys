@@ -4,7 +4,7 @@ import { D, Files, Fs, HttpCmd, Process, type t } from './common.ts';
 type Client = t.HttpCmd.Client<t.Files.Cmd.Name, t.Files.Cmd.Payload, t.Files.Cmd.Result>;
 
 describe('sample:files:http:cmd', () => {
-  it('starts the sample server and serves the docs corpus over unary HTTP Cmd', async () => {
+  it('starts the sample server and serves dist-backed Files metadata over unary HTTP Cmd', async () => {
     const root = Fs.Path.fromFileUrl(new URL('../..', import.meta.url));
     const process = Process.spawn({
       args: ['run', '-P=sample-files-http-cmd', './-sample/files.http.cmd/-start.ts'],
@@ -59,6 +59,8 @@ async function assertGetHelp() {
   expect(text).to.contain('👋 Files<T>');
   expect(text).to.contain('GET /files/manifest');
   expect(text).to.contain('POST /files');
+  expect(text).to.contain('runtime dist.json');
+  expect(text).to.contain('content refs');
   expect(text).to.contain('curl -s');
   expect(text).to.contain('"id":"req-curl"');
   expect(text).to.contain('"name":"files:read"');
@@ -81,36 +83,39 @@ async function assertCapabilities(client: Client) {
     remove: false,
     watch: false,
     manifest: true,
-    encodings: ['utf8'],
+    fidelity: 'snapshot',
   });
 }
 
 async function assertDocsCorpus(client: Client) {
   const manifest = await client.send(Files.Cmd.Name.manifest, {});
-  expect(manifest.version).to.eql('sys.files.manifest.v1');
+  expect(manifest.version).to.eql('sys.files.manifest:v1');
   expect(manifest.entries.map((entry) => entry.path).sort()).to.eql([
     'README.md',
     'hello.json',
     'hello.txt',
   ]);
 
+  const hello = manifest.entries.find((entry) => entry.path === 'hello.txt');
+  if (!hello || hello.kind !== 'file') throw new Error('Expected hello.txt file entry.');
+  expect(hello.size).to.eql(41);
+  expect(typeof hello.hash).to.eql('string');
+  expect(hello.hash?.startsWith('sha256-')).to.eql(true);
+
   const listed = await client.send(Files.Cmd.Name.list, { path: '' });
-  expect(listed.entries.map((entry) => entry.path).sort()).to.eql([
-    'README.md',
-    'hello.json',
-    'hello.txt',
-  ]);
+  expect(listed.entries).to.eql(manifest.entries);
 
   const stat = await client.send(Files.Cmd.Name.stat, { path: 'hello.txt' });
-  expect(stat.entry).to.eql({ path: 'hello.txt', kind: 'file', size: 41 });
+  expect(stat.entry).to.eql(hello);
 
   const txt = await client.send(Files.Cmd.Name.read, { path: 'hello.txt' });
-  expect(txt.kind).to.eql('inline');
-  if (txt.kind !== 'inline') throw new Error('Expected inline text result.');
-  expect(txt.content).to.contain('hello from @sys/server HTTP Files sample');
-
-  const json = await client.send(Files.Cmd.Name.read, { path: 'hello.json' });
-  expect(json.kind).to.eql('inline');
-  if (json.kind !== 'inline') throw new Error('Expected inline JSON result.');
-  expect(json.content).to.contain('"transport": "http.cmd"');
+  expect(txt.kind).to.eql('ref');
+  if (txt.kind !== 'ref') throw new Error('Expected static dist read ref result.');
+  expect(txt.file).to.eql(hello);
+  expect(txt.contentRef).to.eql({
+    kind: 'hash',
+    path: 'hello.txt',
+    size: 41,
+    hash: hello.hash,
+  });
 }

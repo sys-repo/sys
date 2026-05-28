@@ -47,7 +47,7 @@ function handlerMap(calls: t.Files.Cmd.Name[]): t.Files.Cmd.HandlerMap {
     },
     'files:manifest': () => {
       calls.push('files:manifest');
-      return { version: 'sys.files.manifest.v1', capabilities, entries: [file] };
+      return { version: 'sys.files.manifest:v1', capabilities, entries: [file] };
     },
   };
 }

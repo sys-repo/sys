@@ -101,7 +101,7 @@ describe('FilesStatic.fromDist', () => {
 
     const manifest = await cmd.manifest(backing, { path: 'notes', content: true });
     expect(manifest).to.eql({
-      version: 'sys.files.manifest.v1',
+      version: 'sys.files.manifest:v1',
       capabilities: {
         list: true,
         stat: true,
@@ -287,7 +287,10 @@ describe('FilesStatic.fromDist', () => {
     ]);
 
     const scoped = await cmd.list(backing, { path: 'docs', depth: 1 });
-    expect(scoped.entries.map((entry: t.Files.Entry) => entry.path)).to.eql(['docs/deep', 'docs/readme.md']);
+    expect(scoped.entries.map((entry: t.Files.Entry) => entry.path)).to.eql([
+      'docs/deep',
+      'docs/readme.md',
+    ]);
   });
 
   it('handles dist refs and URL edge cases without widening authority', async () => {

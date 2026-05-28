@@ -52,7 +52,7 @@ async function fetchDist(origin: t.StringUrl): Promise<t.DistPkg> {
 
 async function assertManifest(files: t.Files.Client.Local) {
   const manifest = await files.cmd.send(Files.Cmd.Name.manifest, { content: true });
-  expect(manifest.version).to.eql('sys.files.manifest.v1');
+  expect(manifest.version).to.eql('sys.files.manifest:v1');
   expect(manifest.entries.map((entry) => entry.path)).to.eql([
     'docs',
     'docs/README.md',

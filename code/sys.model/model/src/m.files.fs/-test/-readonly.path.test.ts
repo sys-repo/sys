@@ -50,7 +50,7 @@ describe('FilesFs.Readonly.create: path safety', () => {
 
       const manifest = await cmd.manifest(backing, { path: 'docs', depth: 1 });
       expect(manifest).to.eql({
-        version: 'sys.files.manifest.v1',
+        version: 'sys.files.manifest:v1',
         capabilities: {
           list: true,
           stat: true,

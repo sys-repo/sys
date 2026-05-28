@@ -451,7 +451,7 @@ export declare namespace Files {
    */
   export type Manifest = {
     /** Manifest model version. */
-    readonly version: 'sys.files.manifest.v1';
+    readonly version: 'sys.files.manifest:v1';
     /** Capability facts for this view. */
     readonly capabilities: Capabilities;
     /** Visible entries. */

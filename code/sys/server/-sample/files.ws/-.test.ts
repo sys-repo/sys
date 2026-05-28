@@ -24,6 +24,12 @@ describe('sample:files:ws', () => {
       expect(txt).to.contain('hello from @sys/server');
       expect(yaml).to.contain('hello from @sys/server');
       expect(json).to.contain('"kind": "sample"');
+
+      const manifest = await client.cmd.send(Files.Cmd.Name.manifest, {});
+      const hello = manifest.entries.find((entry) => entry.path === 'hello.txt');
+      if (!hello || hello.kind !== 'file') throw new Error('Expected hello.txt file entry.');
+      expect(hello.size).to.be.greaterThan(0);
+      expect(hello.hash).to.eql(undefined);
     } finally {
       await client?.close('test.cleanup');
       await process.dispose();

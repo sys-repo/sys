@@ -88,7 +88,7 @@ describe('Files/t public contract', () => {
     const watchResult = { ok: true, cursor: watch } satisfies t.Files.Cmd.Watch.Result;
     const manifestPayload = { cursor: manifest } satisfies t.Files.Cmd.Manifest.Payload;
     const manifestResult = {
-      version: 'sys.files.manifest.v1',
+      version: 'sys.files.manifest:v1',
       capabilities,
       entries: [],
       cursor: manifest,
@@ -209,7 +209,7 @@ describe('Files/t public contract', () => {
         return { ok: true };
       },
       'files:manifest': () => ({
-        version: 'sys.files.manifest.v1',
+        version: 'sys.files.manifest:v1',
         capabilities,
         entries: [],
       }),

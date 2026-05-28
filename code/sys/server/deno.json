@@ -49,6 +49,7 @@
     },
     "sample-files-http-cmd": {
       "read": true,
+      "write": true,
       "env": true,
       "net": true
     },
@@ -59,4 +60,3 @@
     }
   }
 }
-

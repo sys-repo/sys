@@ -31,7 +31,8 @@ async function manifestResponse(
     const data = await readManifest(request, files);
     return jsonResponse(data);
   } catch (cause) {
-    return jsonResponse({ error: Err.std(cause) }, 500);
+    const error = Err.std(cause);
+    return jsonResponse({ error }, errorStatus(error));
   }
 }
 
@@ -86,6 +87,18 @@ function jsonResponse(data: unknown, status = 200): Response {
     status,
     headers: { 'content-type': 'application/json; charset=utf-8' },
   });
+}
+
+function errorStatus(error: t.StdError): number {
+  const name = error.name;
+  if (name.endsWith('.InvalidPath')) return 400;
+  if (name.endsWith('.PolicyDenied')) return 403;
+  if (name.endsWith('.PathOutsideRoot')) return 403;
+  if (name.endsWith('.NotFound')) return 404;
+  if (name.endsWith('.NotDirectory')) return 404;
+  if (name.endsWith('.NotFile')) return 404;
+  if (name.endsWith('.Unsupported')) return 501;
+  return 500;
 }
 
 function textResponse(body: string, status: number, headers?: HeadersInit): Response {

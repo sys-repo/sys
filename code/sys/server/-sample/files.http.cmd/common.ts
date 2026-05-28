@@ -5,10 +5,11 @@ export type { t };
 /**
  * Libraries:
  */
-export { Fs } from '@sys/fs';
+export { Fs, Pkg } from '@sys/fs';
 export { HttpCmd } from '@sys/http/cmd';
 export { HttpServer } from '@sys/http/server';
-export { Files } from '@sys/model/files/fs';
+export { Files } from '@sys/model/files';
+export { FilesStatic } from '@sys/model/files/static';
 export { FilesServer } from '@sys/server/files';
 export { Process } from '@sys/process';
 export { Str } from '@sys/std/str';

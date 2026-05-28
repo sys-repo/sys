@@ -42,7 +42,7 @@ export const manifest = (
   }, invalidPath);
 
   return {
-    version: 'sys.files.manifest.v1',
+    version: 'sys.files.manifest:v1',
     capabilities,
     entries: res.items,
     ...(res.cursor === undefined ? {} : { cursor: res.cursor }),

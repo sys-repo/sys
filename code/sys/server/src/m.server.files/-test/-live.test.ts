@@ -187,7 +187,7 @@ describe('FilesServer.WebSocket.create: live files watch', () => {
           const cmdStat = await remote.client.cmd.send(Files.Cmd.Name.stat, { path });
           expect(cmdStat).to.eql({ entry });
           const cmdList = await remote.client.cmd.send(Files.Cmd.Name.list, { path: 'docs' });
-          expect(cmdList.entries).to.eql([{ path, kind: 'file' }]);
+          expect(cmdList.entries).to.eql([entry]);
           const cmdRead = await remote.client.cmd.send(Files.Cmd.Name.read, { path });
           expect(cmdRead).to.eql({
             kind: 'inline',

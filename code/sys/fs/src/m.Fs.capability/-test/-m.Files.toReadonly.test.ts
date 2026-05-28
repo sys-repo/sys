@@ -24,7 +24,7 @@ describe('Fs.Capability.Files.Readonly.create', () => {
       });
 
       const list = await backing.handlers['files:list']({ path: 'docs' }, context('files:list'));
-      expect(list.entries.map((entry) => entry.path)).to.eql(['docs/readme.md']);
+      expect(list.entries).to.eql([{ path: 'docs/readme.md', kind: 'file', size: 6 }]);
     } finally {
       await Fs.remove(fixture.workspace);
     }
