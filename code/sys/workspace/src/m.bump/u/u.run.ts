@@ -2,26 +2,46 @@ import { runPhase } from '../../u.phase.ts';
 import { c, Cli, Dir, Fs, Path, type t } from '../common.ts';
 import { Fmt } from '../m.Fmt.ts';
 import { runFollowup, toFollowups, writePlan } from './u.apply.ts';
-import { collect } from './u.collect.ts';
+import { collect, collectSelection } from './u.collect.ts';
 import { plan } from './u.plan.ts';
 
 export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
   const cwd = args.cwd ?? args.collect?.cwd ?? Fs.cwd();
   const log = args.log ?? true;
   const spinner = Cli.Spinner.create('');
-  const collected = args.collect ?? await wrangle.collect({
-    cwd,
-    release: args.release,
-    policy: args.policy,
-    log,
-    spinner,
-    progress: args.progress,
-  });
+  const promptFirst = args.collect === undefined && args.from === undefined;
+  const selectionCollect = promptFirst
+    ? await wrangle.collectSelection({
+      cwd,
+      release: args.release,
+      policy: args.policy,
+      log,
+      spinner,
+      progress: args.progress,
+    })
+    : args.collect ?? await wrangle.collect({
+      cwd,
+      release: args.release,
+      policy: args.policy,
+      log,
+      spinner,
+      progress: args.progress,
+    });
   const selected = await wrangle.select({
-    candidates: [...collected.candidates],
-    release: collected.release,
+    candidates: [...selectionCollect.candidates],
+    release: selectionCollect.release,
     from: args.from !== undefined ? [...args.from] : undefined,
   });
+  const collected = promptFirst && selected.pkgPaths.length > 0
+    ? await wrangle.collect({
+      cwd,
+      release: args.release,
+      policy: args.policy,
+      log,
+      spinner,
+      progress: args.progress,
+    })
+    : selectionCollect;
   let planned = selected.pkgPaths.length === 0
     ? wrangle.emptyPlan({ collect: collected, log })
     : await wrangle.planSelection({
@@ -112,6 +132,23 @@ export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
 };
 
 const wrangle = {
+  async collectSelection(args: {
+    readonly cwd: t.StringDir;
+    readonly release?: t.SemverReleaseType;
+    readonly policy?: t.WorkspaceBump.Policy;
+    readonly log: boolean;
+    readonly spinner: t.CliSpinner.Instance;
+    readonly progress?: t.WorkspaceBump.ProgressHandler;
+  }) {
+    args.progress?.({ kind: 'collect' });
+    return await runPhase({
+      spinner: args.spinner,
+      label: 'loading workspace packages...',
+      silent: !args.log,
+      fn: () => collectSelection({ cwd: args.cwd, release: args.release, policy: args.policy }),
+    });
+  },
+
   async collect(args: {
     readonly cwd: t.StringDir;
     readonly release?: t.SemverReleaseType;

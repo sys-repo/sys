@@ -11,7 +11,7 @@ describe(`@sys/workspace/bump`, () => {
 
   it('formats canonical bump phase labels', () => {
     expect(WorkspaceBump.Fmt.phase({ kind: 'collect' })).to.eql(
-      'calculating workspace bump plan...',
+      'building workspace dependency graph...',
     );
     expect(WorkspaceBump.Fmt.phase({ kind: 'plan' })).to.eql(
       'calculating workspace bump plan...',

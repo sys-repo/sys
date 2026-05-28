@@ -11,7 +11,7 @@ describe(`@sys/workspace/bump Fmt`, () => {
     const a = WorkspaceBump.Fmt.phase({ kind: 'collect' });
     const b = WorkspaceBump.Fmt.phase({ kind: 'followup', followup: 'post-bump prep' });
     const c = WorkspaceBump.Fmt.phase({ kind: 'integrity' });
-    expect(a).to.eql('calculating workspace bump plan...');
+    expect(a).to.eql('building workspace dependency graph...');
     expect(b).to.eql('running post-bump prep...');
     expect(c).to.eql('checking non-bumped package integrity...');
   });
