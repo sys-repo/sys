@@ -10,6 +10,8 @@ export declare namespace WorkspaceBump {
     readonly Args: Args.Lib;
     /** Console output formatters for workspace bump flows. */
     readonly Fmt: Fmt.Lib;
+    /** Package-level change delta helpers for bump root planning. */
+    readonly Delta: Delta.Lib;
     /** Collect bumpable workspace packages from the local workspace. */
     collect(args?: CollectArgs): Promise<CollectResult>;
     /** Plan one workspace package bump from selected roots. */
