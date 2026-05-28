@@ -2,7 +2,7 @@
  * @module
  * Command-line formatting tools (e.g. color, tree, path).
  */
-import { type t, c, Path as StdPath, PathFormat } from '../common.ts';
+import { c, Num, Path as StdPath, PathFormat, Str, type t } from '../common.ts';
 import { Chapters } from '../m.Fmt.Chapters/mod.ts';
 import { Commit } from './m.Fmt.Commit.ts';
 import { Help } from './m.Fmt.Help.ts';
@@ -10,12 +10,28 @@ import { hr } from './m.Fmt.Hr.ts';
 import { spinnerRaw, spinnerText } from './m.Fmt.spinnerText.ts';
 import { Tree } from './m.Fmt.Tree.ts';
 import { UrlFmt } from './m.Fmt.Url.ts';
+import { terminal as isTerminal } from '../m.Is/u.terminal.ts';
+import { size as screenSize } from '../m.Screen/u.size.ts';
 
 export const Path: t.CliFormat.Lib['Path'] = {
   str(path) {
+    return formatDisplayPath(displayPath(path));
+  },
+  tty(path, options = {}) {
     const display = displayPath(path);
-    if (display === './') return c.gray('./');
-    return c.gray(Fmt.path(display, Fmt.Path.fmt()));
+    const stream = options.stream ?? 'stdout';
+    const terminal = options.terminal ?? isTerminal(stream);
+    if (!terminal) return formatDisplayPath(display);
+
+    const width = numberOr(options.width, screenSize().width);
+    const reserve = numberOr(options.reserve, 0);
+    const min = numberOr(options.min, 32);
+    const max = Math.max(min, width - reserve);
+    const shortened = Str.ellipsize(display, max, { ellipsis: ELLIPSIS_SENTINEL });
+    const [head, tail] = shortened.split(ELLIPSIS_SENTINEL);
+    if (tail === undefined) return formatDisplayPath(display);
+
+    return `${formatPathFragment(head)}${c.cyan('…')}${formatPathFragment(tail)}`;
   },
   fmt(_opts = {}) {
     return (e) => {
@@ -24,12 +40,27 @@ export const Path: t.CliFormat.Lib['Path'] = {
   },
 };
 
+const ELLIPSIS_SENTINEL = '\uE000';
+
 function displayPath(path: string): string {
   const value = path.trim();
   if (value === '' || value === '.') return './';
   if (StdPath.Is.absolute(value)) return value;
   if (value.startsWith('./') || value.startsWith('../')) return value;
   return `./${value}`;
+}
+
+function formatDisplayPath(display: string): string {
+  if (display === './') return c.gray('./');
+  return formatPathFragment(display);
+}
+
+function formatPathFragment(display: string): string {
+  return c.gray(Fmt.path(display, Fmt.Path.fmt()));
+}
+
+function numberOr(value: number | undefined, fallback: number): number {
+  return Num.Is.finite(value) ? value : fallback;
 }
 
 /** Command-line formatting helper library. */

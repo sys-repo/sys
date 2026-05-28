@@ -39,6 +39,7 @@ export declare namespace CliFormat {
     /** Pretty path formatting helpers. */
     readonly Path: {
       str: (path: string) => string;
+      tty: (path: string, options?: Path.TtyOptions) => string;
       fmt: (opts?: {}) => t.Path.Format.Formatter;
     };
 
@@ -60,6 +61,22 @@ export declare namespace CliFormat {
       branch(isLastOrTuple: boolean | [t.Index, t.Ary<unknown>], extend?: number): string;
     };
   };
+
+  export namespace Path {
+    /** Terminal-adaptive path shortening options. */
+    export type TtyOptions = {
+      /** Standard stream used to detect terminal output. Defaults to `stdout`. */
+      readonly stream?: t.StdioName;
+      /** Terminal detection override for deterministic tests. */
+      readonly terminal?: boolean;
+      /** Terminal width override for deterministic tests/layouts. */
+      readonly width?: number;
+      /** Width reserved for surrounding table/label content. Defaults to 0. */
+      readonly reserve?: number;
+      /** Minimum path width before shortening. Defaults to 32. */
+      readonly min?: number;
+    };
+  }
 
   export namespace Spinner {
     /** Spacing input accepted by spinner text helpers. */

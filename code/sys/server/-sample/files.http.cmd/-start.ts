@@ -1,6 +1,5 @@
 import { SampleFiles } from './-config.ts';
 import {
-  c,
   Cli,
   Files,
   FilesServer,
@@ -70,7 +69,7 @@ try {
         { label: 'files.kind', value: files.kind },
         { label: 'files.transport', value: 'http.cmd:unary' },
         { label: 'files.capabilities', value: 'list, stat, read, manifest' },
-        { label: 'dist', value: formatDistPath(runtime.distPath) },
+        { label: 'dist', value: Cli.Fmt.Path.tty(runtime.distPath, { reserve: 28, min: 32 }) },
       ],
     },
   });
@@ -82,13 +81,6 @@ try {
 
 function sampleUrl(path: string): string {
   return `http://localhost:${SampleFiles.port}${path}`;
-}
-
-function formatDistPath(path: string): string {
-  if (!Cli.Is.terminal('stdout')) return path;
-  const value = Str.ellipsize(path, Math.max(32, Cli.Screen.size().width - 28));
-  const [head, tail] = value.split('…');
-  return tail === undefined ? value : `${c.gray(head)}${c.cyan('…')}${c.gray(tail)}`;
 }
 
 async function prepareRuntime() {
