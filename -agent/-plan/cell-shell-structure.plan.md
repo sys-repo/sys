@@ -13,10 +13,17 @@
 - [x] `a34ebb1f2` refactor(cell): group cli utility modules
 - [x] `135a6f706` refactor(cell): group cell utility modules
 - [x] `8cd0830ab` refactor(cell): tidy cli module layout
-- [x] Run a help/DSL cleanup sweep that names `-cell/cell.yaml` as the canonical descriptor path.
-- [ ] Later, after a compatibility window, remove the legacy fallback.
+- [x] `284c1d4a0` docs(cell): name canonical descriptor in help
+- [x] `6d042c10a` test(cell): tighten help dsl coverage
+- [ ] Later, after a released compatibility window, remove the legacy descriptor fallback.
 
+## Current state
 
+This arc is complete. `-cell/cell.yaml` is the canonical Cell descriptor path. New Cells initialize
+with the canonical descriptor only. Existing legacy Cells can still load through the compatibility
+fallback, and descriptor migration is explicit through `@sys/cell migrate` / `CellMigrate`.
+
+Legacy fallback removal is intentionally deferred to a later compatibility-breaking arc.
 
 ## Position
 
@@ -99,7 +106,6 @@ Treat the legacy path as a migration fallback, not as the long-term canonical sh
 - If both old and new descriptor paths exist, fail clearly unless a migration command explicitly
   resolves the conflict.
 
-
 ## CLI/DX changes
 
 Examples should shift from:
@@ -119,12 +125,14 @@ as the place for referenced owner configs.
 
 ## Acceptance checks
 
-- New `cell init` creates `./-cell/cell.yaml`.
-- Load/start/task flows resolve the canonical new descriptor.
-- Legacy projects with `./-config/@sys.cell/cell.yaml` still load during the compatibility phase.
-- Both-descriptor ambiguity fails with a precise message.
-- Docs/tests do not describe `-cell/` as the content root.
-- Existing DSL guidance still prevents service/proxy/task mechanics from accumulating in
+- [x] New `cell init` creates `./-cell/cell.yaml`.
+- [x] Load/start/task flows resolve the canonical new descriptor.
+- [x] Legacy projects with `./-config/@sys.cell/cell.yaml` still load during the compatibility phase.
+- [x] Both-descriptor ambiguity fails with a precise message.
+- [x] Explicit descriptor migration is available through API and CLI.
+- [x] Help/DSL surfaces name `-cell/cell.yaml` as the canonical descriptor path.
+- [x] Docs/tests do not describe `-cell/` as the content root.
+- [x] Existing DSL guidance still prevents service/proxy/task mechanics from accumulating in
   `cell.yaml`.
 
 ## DMIND / STIER review
