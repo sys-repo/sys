@@ -41,7 +41,8 @@ describe(`@sys/cell/cli service status formatter`, () => {
     expect(text).to.contain('service');
     expect(text).to.contain('view --mode=dev');
     expect(text).to.contain('jsr:@sys/driver-vite/service');
-    expect(text).to.contain('\nroot');
+    expect(text).to.contain('\n  module');
+    expect(text).to.contain('\n  root');
     expect(text).to.contain('./view');
   });
 
@@ -99,19 +100,39 @@ describe(`@sys/cell/cli service status formatter`, () => {
 
     const websocket = text.indexOf('ws://localhost:5175/files');
     const manifest = text.indexOf('http://localhost:5175/files/manifest');
+    const lines = text.split('\n');
+    const labels = rowLabels(text);
+    const urlLine = lines.find((line) => line.includes('ws://localhost:5175/files')) ?? '';
+    const manifestLine =
+      lines.find((line) => line.includes('http://localhost:5175/files/manifest')) ?? '';
 
     expect(websocket >= 0).to.eql(true);
     expect(manifest >= 0).to.eql(true);
     expect(websocket < manifest).to.eql(true);
-    expect(text).to.contain('capabilities');
+    expect(urlLine.startsWith('  url')).to.eql(true);
+    expect(manifestLine.indexOf('http://localhost:5175/files/manifest')).to.eql(
+      urlLine.indexOf('ws://localhost:5175/files'),
+    );
+    expect(labels).to.contain('capabilities');
     expect(text).to.contain('list, stat, read, watch, manifest');
-    expect(text).to.contain('dist');
+    expect(labels).to.contain('dist');
     expect(text).to.contain('dist/');
-    expect(text).to.not.contain('\nroot');
-    expect(text).to.not.contain('\npath');
-    expect(text).to.not.contain('\nport');
+    expect(labels).to.not.contain('root');
+    expect(labels).to.not.contain('path');
+    expect(labels).to.not.contain('port');
     expect(text).to.not.contain('namespace');
     expect(text).to.not.contain('files.kind');
     expect(text).to.not.contain('files.capabilities');
   });
 });
+
+/**
+ * Helpers:
+ */
+function rowLabels(text: string): readonly string[] {
+  return text.split('\n').flatMap((line): string[] => {
+    const trimmed = line.trimStart();
+    if (!trimmed || trimmed.includes('://')) return [];
+    return [trimmed.split(/\s+/, 1)[0]];
+  });
+}

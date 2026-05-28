@@ -103,7 +103,7 @@ function serviceRootLabel(label: string): string {
 }
 
 function serviceLabel(label: string): string {
-  return c.dim(c.gray(label));
+  return c.dim(c.gray(`  ${label}`));
 }
 
 function serviceSubtle(text: string): string {
