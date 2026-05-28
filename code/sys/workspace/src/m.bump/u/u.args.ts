@@ -1,4 +1,4 @@
-import { Args as StdArgs, Fs, Is, type t } from './common.ts';
+import { Args as StdArgs, Fs, Is, type t } from '../common.ts';
 
 export const Args: t.WorkspaceBump.Args.Lib = {
   parse(argv = Deno.args) {

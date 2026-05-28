@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
-import { dependentClosure, plan } from '../u.plan.ts';
+import { dependentClosure, plan } from '../u/u.plan.ts';
 
 describe('@sys/workspace/bump plan helpers', () => {
   it('includes generated tmpl coupling in the bump closure', () => {

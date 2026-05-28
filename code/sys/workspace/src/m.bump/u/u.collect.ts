@@ -1,5 +1,5 @@
-import { Graph } from '../m.prep/m.Graph.ts';
-import { Fs, Is, Path, Semver, type t } from './common.ts';
+import { Graph } from '../../m.prep/m.Graph.ts';
+import { Fs, Is, Path, Semver, type t } from '../common.ts';
 
 export const collect: t.WorkspaceBump.Lib['collect'] = async (args = {}) => {
   const cwd = args.cwd ?? Fs.cwd();

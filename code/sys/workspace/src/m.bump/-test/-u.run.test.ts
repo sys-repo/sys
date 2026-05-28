@@ -1,5 +1,5 @@
 import { Cli, describe, expect, Fs, it, Json, Testing } from '../../-test.ts';
-import { run } from '../u.run.ts';
+import { run } from '../u/u.run.ts';
 
 const FS_MOD = new URL('../../../../fs/src/mod.ts', import.meta.url).href;
 const fsWriteEval = (path: string, value: string) => {

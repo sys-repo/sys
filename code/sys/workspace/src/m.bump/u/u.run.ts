@@ -1,6 +1,6 @@
-import { runPhase } from '../u.phase.ts';
-import { c, Cli, Dir, Fs, Path, type t } from './common.ts';
-import { Fmt } from './m.Fmt.ts';
+import { runPhase } from '../../u.phase.ts';
+import { c, Cli, Dir, Fs, Path, type t } from '../common.ts';
+import { Fmt } from '../m.Fmt.ts';
 import { runFollowup, toFollowups, writePlan } from './u.apply.ts';
 import { collect } from './u.collect.ts';
 import { plan } from './u.plan.ts';

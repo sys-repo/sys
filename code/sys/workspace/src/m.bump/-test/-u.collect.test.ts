@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
-import { bumpOrderedPaths, orderCandidates } from '../u.collect.ts';
+import { bumpOrderedPaths, orderCandidates } from '../u/u.collect.ts';
 
 describe('@sys/workspace/bump collect helpers', () => {
   it('orders bump rows by topological workspace package path order', () => {
@@ -9,7 +9,11 @@ describe('@sys/workspace/bump collect helpers', () => {
       { pkgPath: 'code/sys/types', name: '@sys/types' },
     ];
 
-    const res = orderCandidates(candidates, ['code/sys/types', 'code/sys/std', 'code/sys/workspace']);
+    const res = orderCandidates(candidates, [
+      'code/sys/types',
+      'code/sys/std',
+      'code/sys/workspace',
+    ]);
 
     expect(res.map((candidate) => candidate.name)).to.eql([
       '@sys/types',

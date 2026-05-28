@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
-import { Args } from '../u.args.ts';
+import { Args } from '../u/u.args.ts';
 
 describe('@sys/workspace/bump args', () => {
   it('parses canonical bump cli args', () => {

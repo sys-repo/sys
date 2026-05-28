@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t } from '../common.ts';
 
 export const plan: t.WorkspaceBump.Lib['plan'] = async (args) => {
   const rootPkgPaths = [...new Set(args.rootPkgPaths)];

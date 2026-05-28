@@ -1,4 +1,4 @@
-import { Fs, Json, Process, Semver, type t } from './common.ts';
+import { Fs, Json, Process, Semver, type t } from '../common.ts';
 
 export const apply: t.WorkspaceBump.Lib['apply'] = async (args) => {
   const cwd = args.cwd ?? Fs.cwd();
