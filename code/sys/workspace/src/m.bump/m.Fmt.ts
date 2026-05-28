@@ -37,7 +37,6 @@ export const Fmt: t.WorkspaceBump.Fmt.Lib = {
   phase(args) {
     switch (args.kind) {
       case 'collect':
-        return 'building workspace dependency graph...';
       case 'plan':
         return 'calculating workspace bump plan...';
       case 'integrity':

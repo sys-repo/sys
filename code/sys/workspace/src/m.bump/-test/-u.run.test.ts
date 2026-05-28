@@ -1,5 +1,4 @@
 import { Cli, describe, expect, Fs, it, Json, Testing, type t } from '../../-test.ts';
-import { Graph } from '../../m.prep/m.Graph.ts';
 import { run } from '../u/u.run.ts';
 
 const FS_MOD = new URL('../../../../fs/src/mod.ts', import.meta.url).href;
@@ -99,45 +98,6 @@ describe('@sys/workspace/bump run', () => {
     expect(res.apply?.writes).to.have.length(2);
     expect(a.data?.version).to.eql('1.0.1');
     expect(b.data?.version).to.eql('1.0.1');
-  });
-
-  it('defers dependency graph collection until after root selection', async () => {
-    const fs = await Testing.dir('WorkspaceBump.run.deferGraph');
-    await writeWorkspace(fs.dir);
-    const prevCheckbox = Cli.Input.Checkbox.prompt;
-    const prevBuild = Graph.build;
-    const events: string[] = [];
-
-    try {
-      Object.defineProperty(Cli.Input.Checkbox, 'prompt', {
-        configurable: true,
-        value: async <TValue>() => {
-          events.push('prompt');
-          return ['code/pkg-a'] as TValue[];
-        },
-      });
-      Object.defineProperty(Graph, 'build', {
-        configurable: true,
-        value: async () => {
-          events.push('build');
-          return { orderedPaths: ['code/pkg-a'], edges: [] };
-        },
-      });
-
-      const res = await run({ cwd: fs.dir, dryRun: true, log: false });
-
-      expect(res.plan.roots.map((root) => root.name)).to.eql(['@scope/a']);
-      expect(events).to.eql(['prompt', 'build']);
-    } finally {
-      Object.defineProperty(Cli.Input.Checkbox, 'prompt', {
-        configurable: true,
-        value: prevCheckbox,
-      });
-      Object.defineProperty(Graph, 'build', {
-        configurable: true,
-        value: prevBuild,
-      });
-    }
   });
 
   it('lets interactive confirmation go back to root selection before saving', async () => {

@@ -1,20 +1,6 @@
 import { Graph } from '../../m.prep/m.Graph.ts';
 import { Fs, Is, Path, Semver, type t } from '../common.ts';
 
-type WorkspaceChild = {
-  readonly denofile: Record<string, unknown>;
-  readonly path: {
-    readonly pkg: t.StringPath;
-    readonly dir: t.StringDir;
-    readonly denofile: t.StringPath;
-  };
-};
-
-type Workspace = {
-  readonly file: t.StringPath;
-  readonly children: readonly WorkspaceChild[];
-};
-
 export const collect: t.WorkspaceBump.Lib['collect'] = async (args = {}) => {
   const cwd = args.cwd ?? Fs.cwd();
   const release = args.release ?? 'patch';
@@ -23,30 +9,28 @@ export const collect: t.WorkspaceBump.Lib['collect'] = async (args = {}) => {
   const orderedPaths = bumpOrderedPaths(graph.orderedPaths, couplings);
   const edges = [...graph.edges, ...couplings];
   const workspace = await wrangle.workspace(cwd);
-  const candidates = wrangle.candidates({ workspace, orderedPaths, release, policy: args.policy });
+
+  const exclude = args.policy?.exclude ?? (() => false);
+  const candidates = orderCandidates(
+    workspace.children
+      .filter((child) => !exclude(child.path.pkg))
+      .flatMap((child) => {
+        const version = child.denofile.version;
+        const name = child.denofile.name;
+        if (!Is.str(version) || !Is.str(name)) return [];
+        const current = Semver.parse(version).version;
+        return {
+          pkgPath: child.path.pkg,
+          denoFilePath: child.path.denofile,
+          name,
+          version: { current, next: increment(current, release) },
+        };
+      }),
+    orderedPaths,
+  );
 
   return { cwd, release, orderedPaths, edges, candidates };
 };
-
-export async function collectSelection(args: t.WorkspaceBump.CollectArgs = {}) {
-  const cwd = args.cwd ?? Fs.cwd();
-  const release = args.release ?? 'patch';
-  const workspace = await wrangle.workspace(cwd);
-  const snapshot = await Graph.read(cwd);
-  const baseOrder = args.orderedPaths ?? snapshot?.graph.orderedPaths ??
-    workspace.children.map((child) => child.path.pkg);
-  const couplings = wrangle.couplings(args.policy?.couplings, baseOrder);
-  const orderedPaths = bumpOrderedPaths(baseOrder, couplings);
-  const candidates = wrangle.candidates({ workspace, orderedPaths, release, policy: args.policy });
-
-  return {
-    cwd,
-    release,
-    orderedPaths,
-    edges: [],
-    candidates,
-  } satisfies t.WorkspaceBump.CollectResult;
-}
 
 export function orderCandidates<T extends { pkgPath: t.StringPath }>(
   candidates: readonly T[],
@@ -141,31 +125,7 @@ const wrangle = {
     return couplings.filter((edge) => known.has(edge.from) && known.has(edge.to));
   },
 
-  candidates(args: {
-    readonly workspace: Workspace;
-    readonly orderedPaths: readonly t.StringPath[];
-    readonly release: t.SemverReleaseType;
-    readonly policy?: t.WorkspaceBump.Policy;
-  }) {
-    const exclude = args.policy?.exclude ?? (() => false);
-    const candidates = args.workspace.children
-      .filter((child) => !exclude(child.path.pkg))
-      .flatMap((child) => {
-        const version = child.denofile.version;
-        const name = child.denofile.name;
-        if (!Is.str(version) || !Is.str(name)) return [];
-        const current = Semver.parse(version).version;
-        return {
-          pkgPath: child.path.pkg,
-          denoFilePath: child.path.denofile,
-          name,
-          version: { current, next: increment(current, args.release) },
-        };
-      });
-    return orderCandidates(candidates, args.orderedPaths);
-  },
-
-  async workspace(cwd: t.StringDir): Promise<Workspace> {
+  async workspace(cwd: t.StringDir) {
     const file = await wrangle.resolveDenoFile(cwd);
     const deno = (await Fs.readJson<Record<string, unknown>>(file)).data ?? {};
     const workspace = Array.isArray(deno.workspace) ? deno.workspace.filter(Is.str) : [];
