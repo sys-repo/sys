@@ -1,4 +1,4 @@
-import { type t, Fs, Is, Str } from './common.ts';
+import { type t, Fs, Is, Str } from '../common.ts';
 
 const compare = Str.Compare.codeUnit();
 

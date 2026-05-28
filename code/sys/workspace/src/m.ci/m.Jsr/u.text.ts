@@ -1,5 +1,5 @@
 import type { t } from '../common.ts';
-import { workflowTemplate, wrangle } from '../u.workflow.ts';
+import { workflowTemplate, wrangle } from '../u/u.workflow.ts';
 import { filterModules } from './u.filter.ts';
 import { toModuleYaml } from './u.ts';
 import { JSR_MODULES_PLACEHOLDER } from './u.tmpl.ts';

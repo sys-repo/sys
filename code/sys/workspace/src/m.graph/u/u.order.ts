@@ -1,4 +1,4 @@
-import { type t, Esm } from './common.ts';
+import { type t, Esm } from '../common.ts';
 
 export const order: t.WorkspaceGraph.Lib['order'] = (graph) => {
   const result = Esm.Topological.build({

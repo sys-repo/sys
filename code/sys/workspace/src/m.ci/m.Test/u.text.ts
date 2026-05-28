@@ -1,5 +1,5 @@
 import { type t, Fs } from '../common.ts';
-import { workflowTemplate, wrangle } from '../u.workflow.ts';
+import { workflowTemplate, wrangle } from '../u/u.workflow.ts';
 import { loadModule, toMatrixItemYaml } from './u.ts';
 import { TEST_BODY_TEMPLATE, TEST_JOB_CONFIG_TEMPLATE } from './u.tmpl.ts';
 

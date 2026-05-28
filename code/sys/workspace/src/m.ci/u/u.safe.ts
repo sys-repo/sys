@@ -1,4 +1,4 @@
-import { Is, Json } from './common.ts';
+import { Is, Json } from '../common.ts';
 
 const SAFE_WORKFLOW_SCALAR = /^\/?[A-Za-z0-9@._/-]+$/;
 

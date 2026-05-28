@@ -1,4 +1,4 @@
-import { c, Fs, Json, Path, Str, type t } from './common.ts';
+import { c, Fs, Json, Path, Str, type t } from '../common.ts';
 
 type SyncSubject = 'build' | 'test' | 'jsr';
 

@@ -1,5 +1,5 @@
 import { Err, Fs, Is, Json, type t } from '../common.ts';
-import { WorkflowSafe } from '../u.safe.ts';
+import { WorkflowSafe } from '../u/u.safe.ts';
 import { BUILD_MATRIX_ITEM_TEMPLATE } from './u.tmpl.ts';
 
 export async function loadModule(cwd: t.StringDir, path: t.StringPath) {

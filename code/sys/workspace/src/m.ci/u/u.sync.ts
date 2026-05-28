@@ -1,10 +1,10 @@
-import { WorkspacePrep } from '../m.prep/mod.ts';
-import { runPhase } from '../u.phase.ts';
-import { Cli, Fs, type t } from './common.ts';
-import { Build } from './m.Build/mod.ts';
-import { Fmt } from './m.Fmt.ts';
-import { Jsr } from './m.Jsr/mod.ts';
-import { Test } from './m.Test/mod.ts';
+import { WorkspacePrep } from '../../m.prep/mod.ts';
+import { runPhase } from '../../u.phase.ts';
+import { Cli, Fs, type t } from '../common.ts';
+import { Build } from '../m.Build/mod.ts';
+import { Fmt } from '../m.Fmt.ts';
+import { Jsr } from '../m.Jsr/mod.ts';
+import { Test } from '../m.Test/mod.ts';
 import { formatSyncResult } from './u.source.ts';
 
 type OTarget = {

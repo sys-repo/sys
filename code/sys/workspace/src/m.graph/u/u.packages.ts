@@ -1,5 +1,5 @@
-import { type t, Fs, Is, Str } from './common.ts';
-import { resolvePackagePaths } from '../m.pkg/u.source.ts';
+import { type t, Fs, Is, Str } from '../common.ts';
+import { resolvePackagePaths } from '../../m.pkg/u.source.ts';
 
 const compare = Str.Compare.codeUnit();
 
