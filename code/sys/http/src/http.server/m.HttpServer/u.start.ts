@@ -80,7 +80,7 @@ export const start: F = (app, input = {}) => {
   };
 
   wrangle.serverFinished(server, life);
-  const keyboardBound = wrangle.keyboard(keyboardOptions, context);
+  const keyboardBound = wrangle.keyboard(keyboardOptions, context, input);
   wrangle.print(input, context, keyboardOptions, keyboardBound);
 
   return context;
@@ -144,11 +144,15 @@ const wrangle = {
     );
   },
 
-  keyboard(options: KeyboardOptions, context: t.HttpServerStarted): boolean {
+  keyboard(
+    options: KeyboardOptions,
+    context: t.HttpServerStarted,
+    input: t.HttpServerStartOptions,
+  ): boolean {
     if (!options) return false;
     return bindKeyboard({
       port: context.port,
-      url: context.origin,
+      url: wrangle.openUrl(input, context.origin),
       print: false,
       exit: options.exit,
       dispose: () => context.close('keyboard'),
@@ -163,6 +167,10 @@ const wrangle = {
       print: input.print ?? true,
       exit: input.exit ?? false,
     };
+  },
+
+  openUrl(input: t.HttpServerStartOptions, origin: t.StringUrl): t.StringUrl {
+    return statusUrls(origin, input.status?.urlPaths)[0]?.href ?? origin;
   },
 
   print(

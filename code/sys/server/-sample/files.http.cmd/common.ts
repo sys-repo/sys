@@ -5,6 +5,7 @@ export type { t };
 /**
  * Libraries:
  */
+export { c, Cli } from '@sys/cli';
 export { Fs, Pkg } from '@sys/fs';
 export { HttpCmd } from '@sys/http/cmd';
 export { HttpServer } from '@sys/http/server';

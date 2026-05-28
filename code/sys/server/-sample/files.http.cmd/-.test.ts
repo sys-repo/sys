@@ -57,8 +57,10 @@ async function assertGetHelp() {
 
   const text = await res.text();
   expect(text).to.contain('👋 Files<T>');
-  expect(text).to.contain('GET /files/manifest');
-  expect(text).to.contain('POST /files');
+  expect(text).to.contain('GET  http://localhost:1236/files/manifest');
+  expect(text).to.contain('Files manifest JSON.');
+  expect(text).to.contain('POST http://localhost:1236/files');
+  expect(text).to.contain('Unary Cmd JSON endpoint.');
   expect(text).to.contain('runtime dist.json');
   expect(text).to.contain('content refs');
   expect(text).to.contain('curl -s');

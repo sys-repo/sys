@@ -1,5 +1,16 @@
 import { SampleFiles } from './-config.ts';
-import { Files, FilesServer, FilesStatic, Fs, HttpCmd, HttpServer, Pkg, Str } from './common.ts';
+import {
+  c,
+  Cli,
+  Files,
+  FilesServer,
+  FilesStatic,
+  Fs,
+  HttpCmd,
+  HttpServer,
+  Pkg,
+  Str,
+} from './common.ts';
 
 const runtime = await prepareRuntime();
 
@@ -15,16 +26,21 @@ try {
   const app = HttpServer.create({ static: false });
 
   app.get(SampleFiles.path, (c) => {
+    const url = sampleUrl(SampleFiles.path);
+    const manifestUrl = sampleUrl(manifest.path);
     return c.text(Str.dedent(`
       👋 Files<T>
 
-      GET ${manifest.path} for the Files manifest JSON.
-      POST ${SampleFiles.path} with a Cmd JSON request.
+      GET  ${manifestUrl}
+           Files manifest JSON.
+
+      POST ${url}
+           Unary Cmd JSON endpoint.
 
       This sample generates a runtime dist.json before startup. File reads return content refs
       carrying static dist hash/size metadata.
 
-      curl -s http://127.0.0.1:${SampleFiles.port}${SampleFiles.path} \\
+      curl -s ${url} \\
         -H 'content-type: application/json' \\
         -d '{"kind":"cmd","id":"req-curl","ns":"${Files.Cmd.ns}","name":"${Files.Cmd.Name.read}","payload":{"path":"hello.txt"}}'
     `));
@@ -53,8 +69,8 @@ try {
       details: [
         { label: 'files.kind', value: files.kind },
         { label: 'files.transport', value: 'http.cmd:unary' },
-        { label: 'files.capabilities', value: 'list,stat,read,manifest' },
-        { label: 'dist', value: runtime.distPath },
+        { label: 'files.capabilities', value: 'list, stat, read, manifest' },
+        { label: 'dist', value: formatDistPath(runtime.distPath) },
       ],
     },
   });
@@ -62,6 +78,17 @@ try {
   await server.finished;
 } finally {
   await Fs.remove(runtime.root);
+}
+
+function sampleUrl(path: string): string {
+  return `http://localhost:${SampleFiles.port}${path}`;
+}
+
+function formatDistPath(path: string): string {
+  if (!Cli.Is.terminal('stdout')) return path;
+  const value = Str.ellipsize(path, Math.max(32, Cli.Screen.size().width - 28));
+  const [head, tail] = value.split('…');
+  return tail === undefined ? value : `${c.gray(head)}${c.cyan('…')}${c.gray(tail)}`;
 }
 
 async function prepareRuntime() {
