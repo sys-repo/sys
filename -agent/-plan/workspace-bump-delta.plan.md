@@ -9,7 +9,7 @@
 - [x] `740814fd4` feat(workspace): add git name-status delta adapter
 - [x] `77900d992` feat(workspace): wire bump since planning
 - [x] `82a3a290d` feat(workspace): add package help resource surface
-- [ ] feat(workspace): add delta DSL help
+- [x] `65ec2697d` feat(workspace): add delta DSL help
 
 ## Current state
 
