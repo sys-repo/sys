@@ -1,7 +1,7 @@
 import { describe, expect, it, type t } from '../../-test.ts';
-import { WorkspaceBump } from '../mod.ts';
+import { WorkspaceDelta } from '../mod.ts';
 
-describe('@sys/workspace/bump Delta', () => {
+describe('@sys/workspace Delta.fromChangedFiles', () => {
   it('derives bump roots and dependent closure from changed files', () => {
     const collect = fixture.collect({
       orderedPaths: ['code/sys/std', 'code/sys/cell', 'code/sys/tools'],
@@ -13,7 +13,7 @@ describe('@sys/workspace/bump Delta', () => {
       ],
     });
 
-    const res = WorkspaceBump.Delta.fromChangedFiles({
+    const res = WorkspaceDelta.fromChangedFiles({
       collect,
       changedFiles: [
         './code/sys/cell/src/mod.ts',
@@ -35,7 +35,7 @@ describe('@sys/workspace/bump Delta', () => {
       candidates: [fixture.candidate('code/sys/cell', '@sys/cell')],
     });
 
-    const res = WorkspaceBump.Delta.fromChangedFiles({
+    const res = WorkspaceDelta.fromChangedFiles({
       collect,
       changedFiles: ['README.md', 'deploy/private/src/mod.ts'],
     });
@@ -59,7 +59,7 @@ describe('@sys/workspace/bump Delta', () => {
       ],
     });
 
-    const res = WorkspaceBump.Delta.fromChangedFiles({
+    const res = WorkspaceDelta.fromChangedFiles({
       collect,
       changedFiles: [
         'code/pkg/sub/src/mod.ts',

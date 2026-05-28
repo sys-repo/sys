@@ -2,6 +2,7 @@ import type { t } from './common.ts';
 import { WorkspaceBump as Bump } from './m.bump/mod.ts';
 import { WorkspaceCi as Ci } from './m.ci/mod.ts';
 import { WorkspaceCli as Cli } from './m.cli/mod.ts';
+import { WorkspaceDelta as Delta } from './m.delta/mod.ts';
 import { WorkspaceGraph as Graph } from './m.graph/mod.ts';
 import { WorkspaceInfo as Info } from './m.info/mod.ts';
 import { WorkspacePkg as Pkg } from './m.pkg/mod.ts';
@@ -17,6 +18,7 @@ export const Workspace: t.Workspace.Lib = {
   Upgrade,
   Ci,
   Cli,
+  Delta,
   Graph,
   Prep,
   Run,

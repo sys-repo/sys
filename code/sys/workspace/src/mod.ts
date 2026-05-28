@@ -3,6 +3,7 @@
  * Workspace orchestration helpers for multi-package repositories.
  */
 export { pkg } from './pkg.ts';
+export { WorkspaceDelta } from './m.delta/mod.ts';
 export { WorkspaceGraph } from './m.graph/mod.ts';
 export { WorkspaceRun } from './m.run/mod.ts';
 

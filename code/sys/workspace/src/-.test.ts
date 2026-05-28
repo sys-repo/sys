@@ -2,6 +2,7 @@ import { describe, expect, it } from './-test.ts';
 import { WorkspaceBump } from './m.bump/mod.ts';
 import { WorkspaceCi } from './m.ci/mod.ts';
 import { WorkspaceCli } from './m.cli/mod.ts';
+import { WorkspaceDelta } from './m.delta/mod.ts';
 import { WorkspaceGraph } from './m.graph/mod.ts';
 import { WorkspaceInfo } from './m.info/mod.ts';
 import { WorkspacePkg } from './m.pkg/mod.ts';
@@ -19,6 +20,7 @@ describe(`@sys/workspace`, () => {
     expect(m.Workspace.Info).to.equal(WorkspaceInfo);
     expect(m.Workspace.Upgrade).to.equal(WorkspaceUpgrade);
     expect(m.Workspace.Cli).to.equal(WorkspaceCli);
+    expect(m.Workspace.Delta).to.equal(WorkspaceDelta);
     expect(m.Workspace.Graph).to.equal(WorkspaceGraph);
     expect(m.Workspace.Ci).to.equal(WorkspaceCi);
     expect(m.Workspace.Ci.Jsr).to.equal(WorkspaceCi.Jsr);

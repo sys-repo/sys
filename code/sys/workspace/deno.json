@@ -17,6 +17,7 @@
     "./bump": "./src/m.bump/mod.ts",
     "./ci": "./src/m.ci/mod.ts",
     "./cli": "./src/m.cli/mod.ts",
+    "./delta": "./src/m.delta/mod.ts",
     "./graph": "./src/m.graph/mod.ts",
     "./info": "./src/m.info/mod.ts",
     "./pkg": "./src/m.pkg/mod.ts",
@@ -26,23 +27,8 @@
     "./testing": "./src/m.testing/mod.ts"
   },
   "permissions": {
-    "clean": {
-      "read": true,
-      "write": true,
-      "env": true
-    },
-    "test": {
-      "read": true,
-      "write": true,
-      "env": true,
-      "run": true
-    },
-    "test:cli": {
-      "read": true,
-      "write": true,
-      "env": true,
-      "ffi": true
-    }
+    "clean": { "read": true, "write": true, "env": true },
+    "test": { "read": true, "write": true, "env": true, "run": true },
+    "test:cli": { "read": true, "write": true, "env": true, "ffi": true }
   }
 }
-

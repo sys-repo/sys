@@ -7,7 +7,6 @@ describe(`@sys/workspace/bump`, () => {
     expect(m.WorkspaceBump).to.equal(WorkspaceBump);
     expect(m.WorkspaceBump.Args).to.equal(WorkspaceBump.Args);
     expect(m.WorkspaceBump.Fmt).to.equal(WorkspaceBump.Fmt);
-    expect(m.WorkspaceBump.Delta).to.equal(WorkspaceBump.Delta);
   });
 
   it('formats canonical bump phase labels', () => {
