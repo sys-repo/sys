@@ -1,7 +1,6 @@
 import { Fs, Path, Process, type t } from '../common.ts';
 import { WorkspaceBump } from '../../m.bump/mod.ts';
 import { WorkspaceGraph } from '../../m.graph/mod.ts';
-import { dependentClosure } from '../u/u.closure.ts';
 import { nameStatusRecordsFromNul } from '../u/u.git.ts';
 import { classify } from './u.classify.ts';
 import { fromNameStatus } from './u.fromNameStatus.ts';
@@ -27,8 +26,16 @@ export async function fromRef(args: t.WorkspaceDelta.Git.FromRefArgs) {
   const nameStatus = await wrangle.nameStatus({ cwd, ref, head });
   const delta = fromNameStatus({ collect, nameStatus });
   const classification = await classify({ cwd, ref, collect, delta });
-  const bumpRootPkgPaths = classification.needsBumpPkgPaths;
-  const bumpClosurePkgPaths = dependentClosure(bumpRootPkgPaths, collect.edges, collect.orderedPaths);
+  const bumpRootPkgPaths = WorkspaceGraph.minimalDependentRoots(
+    classification.needsBumpPkgPaths,
+    collect.edges,
+    collect.orderedPaths,
+  );
+  const bumpClosurePkgPaths = WorkspaceGraph.dependentClosure(
+    bumpRootPkgPaths,
+    collect.edges,
+    collect.orderedPaths,
+  );
 
   return {
     ...delta,

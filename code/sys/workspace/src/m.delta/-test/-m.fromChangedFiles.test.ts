@@ -30,6 +30,41 @@ describe('@sys/workspace Delta.fromChangedFiles', () => {
     expect(res.skipped).to.eql([]);
   });
 
+  it('minimizes changed roots already covered by dependent closure', () => {
+    const collect = Fixture.collect({
+      orderedPaths: ['code/pkg-a', 'code/pkg-b', 'code/pkg-c', 'code/pkg-d'],
+      edges: [
+        { from: 'code/pkg-a', to: 'code/pkg-b' },
+        { from: 'code/pkg-b', to: 'code/pkg-c' },
+      ],
+      candidates: [
+        Fixture.candidate('code/pkg-a', '@scope/a'),
+        Fixture.candidate('code/pkg-b', '@scope/b'),
+        Fixture.candidate('code/pkg-c', '@scope/c'),
+        Fixture.candidate('code/pkg-d', '@scope/d'),
+      ],
+    });
+
+    const res = WorkspaceDelta.fromChangedFiles({
+      collect,
+      changedFiles: [
+        'code/pkg-a/src/mod.ts',
+        'code/pkg-b/src/mod.ts',
+        'code/pkg-c/src/mod.ts',
+        'code/pkg-d/src/mod.ts',
+      ],
+    });
+
+    expect(res.changedPkgPaths).to.eql(['code/pkg-a', 'code/pkg-b', 'code/pkg-c', 'code/pkg-d']);
+    expect(res.bumpRootPkgPaths).to.eql(['code/pkg-a', 'code/pkg-d']);
+    expect(res.bumpClosurePkgPaths).to.eql([
+      'code/pkg-a',
+      'code/pkg-b',
+      'code/pkg-c',
+      'code/pkg-d',
+    ]);
+  });
+
   it('reports changed files outside bumpable packages', () => {
     const collect = Fixture.collect({
       orderedPaths: ['code/sys/cell', 'deploy/private'],

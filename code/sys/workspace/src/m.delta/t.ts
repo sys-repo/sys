@@ -26,7 +26,7 @@ export declare namespace WorkspaceDelta {
     readonly changedFiles: readonly t.StringPath[];
     /** Changed bump-candidate package paths in stable workspace order. */
     readonly changedPkgPaths: readonly t.StringPath[];
-    /** Package paths that should be passed as bump roots. */
+    /** Minimal package paths that should be passed as bump roots. */
     readonly bumpRootPkgPaths: readonly t.StringPath[];
     /** Full dependent bump closure in stable workspace order. */
     readonly bumpClosurePkgPaths: readonly t.StringPath[];

@@ -99,11 +99,10 @@ export const Fmt: t.WorkspaceBump.Fmt.Lib = {
 
   planSummary(args) {
     const roots = args.plan.roots.map((root) => root.name);
-    return [
-      c.gray(`Affected packages: ${c.white(String(args.plan.selected.length))}`),
-      wrangle.rootHeader(roots),
-      ...roots.map((root) => c.cyan(`  ${root}`)),
-    ];
+    const affected = c.gray(`Affected packages: ${c.white(String(args.plan.selected.length))}`);
+    const lines = [affected, wrangle.rootHeader(roots)];
+    if (roots.length > 1) lines.push(...roots.map((root) => c.cyan(`  ${root}`)));
+    return lines;
   },
 
   dryRun() {

@@ -23,6 +23,18 @@ export declare namespace WorkspaceGraph {
     packageEdges(graph: LocalModuleGraph): PackageGraph;
     /** Order packages deterministically via `@sys/esm` topological planning. */
     order(graph: PackageGraph): PackageOrderResult;
+    /** Derive the dependent package closure for selected package roots. */
+    dependentClosure(
+      rootPkgPaths: readonly t.StringPath[],
+      edges: readonly DirectedEdge[],
+      orderedPaths: readonly t.StringPath[],
+    ): readonly t.StringPath[];
+    /** Reduce selected package roots to the minimal stable dependent source set. */
+    minimalDependentRoots(
+      rootPkgPaths: readonly t.StringPath[],
+      edges: readonly DirectedEdge[],
+      orderedPaths: readonly t.StringPath[],
+    ): readonly t.StringPath[];
     /** Persisted graph snapshot helpers. */
     readonly Snapshot: Snapshot.Lib;
   };
@@ -94,12 +106,16 @@ export declare namespace WorkspaceGraph {
     readonly edges: readonly ModuleEdge[];
   };
 
-  /** Directed dependency edge between workspace packages. */
-  export type PackageEdge = {
+  /** Directed package edge from a dependency package to a dependent package. */
+  export type DirectedEdge = {
     /** Dependency package path that must be ordered first. */
     readonly from: Package['path'];
     /** Dependent package path that requires `from`. */
     readonly to: Package['path'];
+  };
+
+  /** Directed dependency edge between workspace packages. */
+  export type PackageEdge = DirectedEdge & {
     /** Local module imports that witness this package edge. */
     readonly imports: readonly ModuleEdge[];
   };
@@ -161,10 +177,7 @@ export declare namespace WorkspaceGraph {
   export type PackageOrderResult = Ordered | Invalid | Cyclic;
 
   /** Persisted package-edge payload used by downstream tooling. */
-  export type PersistedEdge = {
-    readonly from: Package['path'];
-    readonly to: Package['path'];
-  };
+  export type PersistedEdge = DirectedEdge;
 
   /** Persisted workspace graph payload. */
   export type PersistedGraph = {

@@ -1,10 +1,12 @@
-import { dependentClosure } from '../../m.delta/u/u.closure.ts';
+import { WorkspaceGraph } from '../../m.graph/mod.ts';
 import { type t } from '../common.ts';
 
-export { dependentClosure } from '../../m.delta/u/u.closure.ts';
-
 export const plan: t.WorkspaceBump.Lib['plan'] = async (args) => {
-  const rootPkgPaths = [...new Set(args.rootPkgPaths)];
+  const rootPkgPaths = WorkspaceGraph.minimalDependentRoots(
+    args.rootPkgPaths,
+    args.collect.edges,
+    args.collect.orderedPaths,
+  );
   if (rootPkgPaths.length === 0) throw new Error('At least one bump root is required.');
 
   const rootSet = new Set(rootPkgPaths);
@@ -14,7 +16,7 @@ export const plan: t.WorkspaceBump.Lib['plan'] = async (args) => {
   );
   if (missing.length > 0) throw new Error(`Unknown bump roots: ${missing.join(', ')}`);
 
-  const selectedPaths = dependentClosure(
+  const selectedPaths = WorkspaceGraph.dependentClosure(
     rootPkgPaths,
     args.collect.edges,
     args.collect.orderedPaths,

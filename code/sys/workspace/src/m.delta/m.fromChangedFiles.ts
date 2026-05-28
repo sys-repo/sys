@@ -1,5 +1,5 @@
+import { WorkspaceGraph } from '../m.graph/mod.ts';
 import { type t } from './common.ts';
-import { dependentClosure } from './u/u.closure.ts';
 import { normalizeChangedFiles } from './u/u.files.ts';
 import { candidatePaths, ownerOf, workspacePaths } from './u/u.owners.ts';
 
@@ -28,8 +28,12 @@ export const fromChangedFiles: t.WorkspaceDelta.Lib['fromChangedFiles'] = (args)
   }
 
   const changedPkgPaths = candidates.filter((path) => changed.has(path));
-  const bumpRootPkgPaths = [...changedPkgPaths];
-  const bumpClosurePkgPaths = dependentClosure(
+  const bumpRootPkgPaths = WorkspaceGraph.minimalDependentRoots(
+    changedPkgPaths,
+    args.collect.edges,
+    args.collect.orderedPaths,
+  );
+  const bumpClosurePkgPaths = WorkspaceGraph.dependentClosure(
     bumpRootPkgPaths,
     args.collect.edges,
     args.collect.orderedPaths,
