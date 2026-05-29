@@ -203,7 +203,13 @@ async function writeTask(root: string, path: string, source: string) {
 }
 
 function descriptor(tasks: readonly string[]) {
-  return `kind: cell\nversion: 1\n\ntasks:\n${tasks.join('\n')}\n`;
+  const header = Str.dedent(`
+    kind: cell
+    version: 1
+
+    tasks:
+  `).trimStart();
+  return `${header}\n${Str.indent(tasks.join('\n'), 2)}\n`;
 }
 
 function leaf(
@@ -213,21 +219,21 @@ function leaf(
 ) {
   const task: t.Cell.Task.Leaf = leafDescriptor(name, overrides);
   const config = withConfig ? task.config ?? './-config/capture.yaml' : undefined;
-
-  return [
-    `  - name: ${task.name}`,
-    `    use: ${task.use}`,
-    `    from: ${task.from}`,
-    ...(config ? [`    config: ${config}`] : []),
-  ].join('\n');
+  const source = Str.dedent(`
+    - name: ${task.name}
+      use: ${task.use}
+      from: ${task.from}
+  `).trimStart();
+  return config ? `${source}\n  config: ${config}\n` : `${source}\n`;
 }
 
 function composite(name: string, tasks: readonly string[]) {
-  return [
-    `  - name: ${name}`,
-    `    steps:`,
-    ...tasks.map((task) => `      - task: ${task}`),
-  ].join('\n');
+  const source = Str.dedent(`
+    - name: ${name}
+      steps:
+  `).trimStart();
+  const steps = tasks.map((task) => `- task: ${task}`).join('\n');
+  return `${source}\n${Str.indent(steps, 4)}\n`;
 }
 
 function leafDescriptor(
