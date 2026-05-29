@@ -4,7 +4,7 @@ import { toModuleString } from './u.log.ts';
 /**
  * String:
  */
-export const dist: t.PkgDistLog['dist'] = (dist, options = {}) => {
+export const dist: t.Pkg.Dist.Log.Lib['dist'] = (dist, options = {}) => {
   if (!dist) return c.yellow(`dist: nothing to display`);
 
   // Input:

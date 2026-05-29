@@ -268,6 +268,10 @@ describe('Pkg.Dist', () => {
 
       const json = (await Fs.readJson(filepath)).data;
       expect(json).to.eql(res.dist);
+
+      const text = (await Fs.readText(filepath)).data ?? '';
+      expect(text.endsWith('\n')).to.eql(true);
+      expect(text.endsWith('\n\n')).to.eql(false);
     });
 
     it('error: directory does not exist', async () => {

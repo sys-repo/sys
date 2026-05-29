@@ -1,108 +1,136 @@
-import type { Pkg } from '@sys/std/t';
+import type { Pkg as StdPkg } from '@sys/std/t';
 import type { t } from './common.ts';
 
-/**
- * Pkg.Lib (server extenions)
- *
- * Tools for working with the standard system
- * `{pkg}` package meta-data structure.
- */
-export type PkgFsLib = Pkg.Lib & {
-  /** Tools for working with distribution packages. */
-  readonly Dist: t.PkgDistFsLib;
-};
+export type Pkg = StdPkg;
 
 /**
- * Tools for working with "distribution-package"
- * ie. an ESM output typically written to a `/dist` folder.
+ * Filesystem-extended package metadata helper contracts.
  */
-export type PkgDistFsLib = t.Pkg.Dist.Lib & {
-  /**
-   * Load a `dist.json` file into a \<DistPackage\> type.
-   */
-  load(dir: t.StringPath): Promise<t.PkgDistLoadResponse>;
+export declare namespace Pkg {
+  /** Filesystem-extended package metadata helper library. */
+  export type Lib = StdPkg.Lib & {
+    /** Tools for working with distribution packages on the filesystem. */
+    readonly Dist: Dist.Lib;
+  };
 
   /**
-   * Prepare and save a "distribution package" meta-data file, `pkg.json`.
+   * Distribution package filesystem contracts.
    */
-  compute(args: t.PkgDistComputeArgs): Promise<t.PkgDistComputeResponse>;
+  export namespace Dist {
+    /** Filesystem helpers for distribution-package metadata. */
+    export type Lib = StdPkg.Dist.Lib & {
+      /** Load a `dist.json` file. */
+      load: Load.Method;
 
-  /**
-   * Verify a folder with hash definitions of the distribution-package.
-   */
-  verify(
-    dir: t.StringPath,
-    hash?: t.StringHash | t.CompositeHash,
-  ): Promise<t.PkgDistVerifyResponse>;
+      /** Compute distribution-package metadata. */
+      compute: Compute.Method;
 
-  /** Logging helpers for the PkgDist data. */
-  readonly Log: PkgDistLog;
-};
+      /** Verify a folder against distribution-package hash definitions. */
+      verify: Verify.Method;
 
-/**
- * Logging helpers for the PkgDist data.
- */
-export type PkgDistLog = {
-  /** Convert a <DistPkg> to a string for logging. */
-  dist(dist?: t.DistPkg, options?: LogOptions): string;
-  /** Prepare a string showing a tree child-packages for logging. */
-  children(dir: t.StringDir, dist: t.DistPkg): Promise<string>;
-};
-type LogOptions = { title?: string | false; dir?: t.StringDir; indent?: number };
+      /** Logging helpers for distribution-package metadata. */
+      readonly Log: Log.Lib;
+    };
 
-/**
- * Arguments passed to the `Pkg.Dist.compute` method.
- */
-export type PkgDistComputeArgs = {
-  dir: t.StringPath;
-  pkg?: t.Pkg;
-  builder?: t.Pkg;
-  ignore?: string | string[];
-  save?: boolean;
-  filter?(path: t.StringPath): boolean;
-  onHashProgress?(e: t.DirHashComputeProgressEvent): void | Promise<void>;
-  /**
-   * Reuse child `dist.hash.parts` to avoid re-hashing nested bundles.
-   *
-   * Behavior:
-   * - Child content hash parts are merged into the parent hash tree.
-   * - Child `dist.json` file bytes are intentionally NOT included in the parent hash.
-   *
-   * Rationale:
-   * - Keeps parent digest content-stable across rebuilds where only child metadata
-   *   (for example `build.time`) changes.
-   */
-  trustChildDist?: boolean;
-};
+    /**
+     * Distribution-package logging contracts.
+     */
+    export namespace Log {
+      /** Logging helper library. */
+      export type Lib = {
+        /** Convert a `DistPkg` to a string for logging. */
+        dist(dist?: t.DistPkg, options?: Options): string;
 
-/**
- * Response from the `Pkg.Dist.compute` method call.
- */
-export type PkgDistComputeResponse = {
-  exists: boolean;
-  dir: t.StringDir;
-  dist: t.DistPkg;
-  error?: t.StdError;
-};
+        /** Render child distribution packages for logging. */
+        children(dir: t.StringDir, dist: t.DistPkg): Promise<string>;
+      };
 
-/**
- * Response to a `Pkg.Dist.load` method call.
- */
-export type PkgDistLoadResponse = {
-  exists: boolean;
-  path: t.StringPath;
-  kind: 'canonical' | 'legacy' | 'invalid' | 'missing';
-  dist?: t.DistPkg;
-  legacy?: t.DistPkgLegacy;
-  error?: t.StdError;
-};
+      /** Options for distribution-package log rendering. */
+      export type Options = {
+        title?: string | false;
+        dir?: t.StringDir;
+        indent?: number;
+      };
+    }
 
-/**
- * Response to a `Pkg.Dist.verify` method call.
- */
-export type PkgDistVerifyResponse = {
-  is: t.HashVerifyResponse['is'];
-  exists: boolean;
-  dist?: t.DistPkg;
-  error?: t.StdError;
-};
+    /**
+     * Distribution-package compute contracts.
+     */
+    export namespace Compute {
+      /** Compute distribution-package metadata. */
+      export type Method = (args: Args) => Promise<Response>;
+
+      /** Arguments passed to `Pkg.Dist.compute`. */
+      export type Args = {
+        dir: t.StringPath;
+        pkg?: StdPkg;
+        builder?: StdPkg;
+        ignore?: string | string[];
+        save?: boolean;
+        filter?(path: t.StringPath): boolean;
+        onHashProgress?(e: t.DirHashComputeProgressEvent): void | Promise<void>;
+
+        /**
+         * Reuse child `dist.hash.parts` to avoid re-hashing nested bundles.
+         *
+         * Behavior:
+         * - Child content hash parts are merged into the parent hash tree.
+         * - Child `dist.json` file bytes are intentionally NOT included in the parent hash.
+         *
+         * Rationale:
+         * - Keeps parent digest content-stable across rebuilds where only child metadata
+         *   (for example `build.time`) changes.
+         */
+        trustChildDist?: boolean;
+      };
+
+      /** Response from `Pkg.Dist.compute`. */
+      export type Response = {
+        exists: boolean;
+        dir: t.StringDir;
+        dist: t.DistPkg;
+        error?: t.StdError;
+      };
+    }
+
+    /**
+     * Distribution-package load contracts.
+     */
+    export namespace Load {
+      /** Load a `dist.json` file. */
+      export type Method = (dir: t.StringPath) => Promise<Response>;
+
+      /** Classification of a loaded distribution-package file. */
+      export type Kind = 'canonical' | 'legacy' | 'invalid' | 'missing';
+
+      /** Response from `Pkg.Dist.load`. */
+      export type Response = {
+        exists: boolean;
+        path: t.StringPath;
+        kind: Kind;
+        dist?: t.DistPkg;
+        legacy?: t.DistPkgLegacy;
+        error?: t.StdError;
+      };
+    }
+
+    /**
+     * Distribution-package verification contracts.
+     */
+    export namespace Verify {
+      /** Verify a folder against distribution-package hash definitions. */
+      export type Method = (
+        dir: t.StringPath,
+        hash?: t.StringHash | t.CompositeHash,
+      ) => Promise<Response>;
+
+      /** Response from `Pkg.Dist.verify`. */
+      export type Response = {
+        is: t.HashVerifyResponse['is'];
+        exists: boolean;
+        dist?: t.DistPkg;
+        error?: t.StdError;
+      };
+    }
+  }
+}

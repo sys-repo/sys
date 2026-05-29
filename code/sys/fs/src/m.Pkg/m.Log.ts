@@ -5,7 +5,7 @@ import { dist } from './u/u.log.dist.ts';
 /**
  * Logging helpers for the PkgDist data.
  */
-export const Log: t.PkgDistLog = {
+export const Log: t.Pkg.Dist.Log.Lib = {
   dist,
   children,
 };

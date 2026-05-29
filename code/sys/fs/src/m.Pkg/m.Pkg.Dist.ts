@@ -1,18 +1,31 @@
-import type { PkgDistFsLib } from './t.ts';
-
 import { Pkg } from '@sys/std/pkg';
 import { pkg as typesPkg } from '@sys/types';
 import { DirHash } from '../m.Dir.Hash/mod.ts';
 import { pkg as fsPkg } from '../pkg.ts';
 
-import { type t, Arr, CompositeHash, D, Delete, Err, Fs, Ignore, JsrUrl, Path, R, Str, Time } from './common.ts';
+import {
+  type t,
+  Arr,
+  CompositeHash,
+  D,
+  Delete,
+  Err,
+  Fs,
+  Ignore,
+  Json,
+  JsrUrl,
+  Path,
+  R,
+  Str,
+  Time,
+} from './common.ts';
 import { Log } from './m.Log.ts';
 
 /**
  * Tools for working with "distribution-package"
  * ie. an ESM output typically written to a `/dist` folder.
  */
-export const Dist: PkgDistFsLib = {
+export const Dist: t.Pkg.Dist.Lib = {
   ...Pkg.Dist,
   Log,
 
@@ -20,7 +33,13 @@ export const Dist: PkgDistFsLib = {
    * Prepare and save a "distribution package" meta-data file `dist.json`.
    */
   async compute(args) {
-    const { save = false, filter, trustChildDist = false, onHashProgress, ignore: ignoreInput } = args;
+    const {
+      save = false,
+      filter,
+      trustChildDist = false,
+      onHashProgress,
+      ignore: ignoreInput,
+    } = args;
     const dir = Fs.resolve(args.dir);
     let error: t.StdError | undefined;
     const ignore = await wrangle.ignore(ignoreInput);
@@ -75,16 +94,16 @@ export const Dist: PkgDistFsLib = {
     /**
      * Prepare response.
      */
-    const res = Delete.undefined<t.PkgDistComputeResponse>({ dir, exists, dist, error });
+    const res = Delete.undefined<t.Pkg.Dist.Compute.Response>({ dir, exists, dist, error });
 
     /**
      * Save to the file-system.
      */
     if (save && exists && !error) {
       const path = Fs.join(dir, 'dist.json');
-      const json = `${JSON.stringify(dist, null, '  ')}\n`;
-      await Fs.ensureDir(dir);
-      await Deno.writeTextFile(path, json);
+      const json = Json.stringify(dist, 2);
+      const written = await Fs.write(path, json);
+      if (written.error) throw written.error;
     }
 
     // Finish up.
@@ -104,7 +123,7 @@ export const Dist: PkgDistFsLib = {
       errors.push(`File at path does not exist: ${path}`);
     }
 
-    let kind: t.PkgDistLoadResponse['kind'] = exists ? 'invalid' : 'missing';
+    let kind: t.Pkg.Dist.Load.Kind = exists ? 'invalid' : 'missing';
     let dist: t.DistPkg | undefined;
     let legacy: t.DistPkgLegacy | undefined;
     if (exists) {
@@ -121,7 +140,7 @@ export const Dist: PkgDistFsLib = {
     }
 
     // Finish up.
-    const res: t.PkgDistLoadResponse = {
+    const res: t.Pkg.Dist.Load.Response = {
       exists,
       kind,
       path,
@@ -146,7 +165,7 @@ export const Dist: PkgDistFsLib = {
       errors.push(`Cannot verify non-canonical dist.json (${loaded.kind}): ${path}`);
     }
 
-    const res: t.PkgDistVerifyResponse = {
+    const res: t.Pkg.Dist.Verify.Response = {
       exists,
       dist,
       is: { valid: undefined },

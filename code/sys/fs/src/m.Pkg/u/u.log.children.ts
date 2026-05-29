@@ -2,7 +2,7 @@ import { Arr, c, CliFmt, CliTable, Fs, Num, Path, Pkg, Str, type t } from '../co
 import { Dist } from '../m.Pkg.Dist.ts';
 import { toModuleString } from './u.log.ts';
 
-export const children: t.PkgDistLog['children'] = async (dir, dist) => {
+export const children: t.Pkg.Dist.Log.Lib['children'] = async (dir, dist) => {
   const paths = Object.keys(dist.hash.parts);
   const { CompositeHash } = await import('../common.ts'); // NB: avoid cyclicic import error.
 
