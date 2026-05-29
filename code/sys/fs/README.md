@@ -48,7 +48,7 @@ Json files can be `.json` or `.jsonc` (comments + trailing commas). JSONC is par
 import type * as t from '@sys/fs/t';
 import { JsonFile } from '@sys/fs/file';
 
-type Doc = t.JsonFileDoc & { msg?: string; count: number };
+type Doc = t.JsonFile.Doc & { msg?: string; count: number };
 const initial = JsonFile.default<Doc>({ count: 123 });
 //       ↑
 //       ↑ { '.meta': { createdAt: 0 }, count: 123 }

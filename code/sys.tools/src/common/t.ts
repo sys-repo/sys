@@ -34,7 +34,7 @@ export type {
   Shell,
 } from '@sys/cli/t';
 export type { ColorTheme } from '@sys/color/t';
-export type { FileMap, FileMapProcessor, JsonFile, JsonFileDoc, WalkEntry } from '@sys/fs/t';
+export type { FileMap, FileMapProcessor, JsonFile, WalkEntry } from '@sys/fs/t';
 export type { HonoMiddlewareHandler, HttpPullEvent, HttpPullToDirResult } from '@sys/http/t';
 export type { Graph } from '@sys/immutable/t';
 export type { Process } from '@sys/process/t';

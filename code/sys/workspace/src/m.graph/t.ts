@@ -195,7 +195,7 @@ export declare namespace WorkspaceGraph {
     };
 
     /** Snapshot document metadata. */
-    export type Meta = t.JsonFileMeta & {
+    export type Meta = t.JsonFile.Meta & {
       readonly schemaVersion: 2;
       /**
        * `:<qualifier>` suffixes attach provenance metadata to the base object-path key.

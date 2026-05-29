@@ -93,8 +93,8 @@ export namespace DeployTool {
   }
 
   export namespace Config {
-    export type File = t.JsonFile<Doc>;
-    export type Doc = t.JsonFileDoc & {
+    export type File = t.JsonFile.Instance<Doc>;
+    export type Doc = t.JsonFile.Doc & {
       name: string;
       /**
        * Thin index:

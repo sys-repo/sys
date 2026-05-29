@@ -14,7 +14,7 @@ export type {
   EsmTopologicalInput,
   EsmTopologicalResult,
 } from '@sys/esm/t';
-export type { JsonFileMeta } from '@sys/fs/t';
+export type { JsonFile } from '@sys/fs/t';
 export type { Process } from '@sys/process/t';
 export type { Registry } from '@sys/registry/t';
 

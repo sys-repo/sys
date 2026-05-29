@@ -13,7 +13,7 @@ export type {
   CliFormatHelpTone,
   CliTable,
 } from '@sys/cli/t';
-export type { JsonFile, JsonFileDoc } from '@sys/fs/t';
+export type { JsonFile } from '@sys/fs/t';
 export type { Process } from '@sys/process/t';
 export type { Schema } from '@sys/schema/t';
 export type { Yaml, YamlConfig } from '@sys/yaml/t';

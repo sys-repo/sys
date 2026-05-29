@@ -10,7 +10,7 @@ import { Singleton } from './m.Singleton.ts';
 /**
  * Simple JSON based file-persitence for configuration settings file.
  */
-export const JsonFile: t.JsonFileLib = {
+export const JsonFile: t.JsonFile.Lib = {
   Singleton,
   get,
   default: defaultDoc,
