@@ -75,7 +75,7 @@ describe('Fs.Watch', () => {
   });
 
   describe('⚡️ change events', () => {
-    type E = t.FsWatchEvent;
+    type E = t.Watch.Event;
     const waitFor = async (fn: () => boolean, timeout = 1200, interval = 20) => {
       const startedAt = Date.now();
       while (Date.now() - startedAt < timeout) {

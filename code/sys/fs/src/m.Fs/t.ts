@@ -62,7 +62,7 @@ export namespace Fs {
     readonly findAncestor: FindAncestor;
 
     /** Start a file-system watcher. */
-    readonly watch: t.FsWatchLib['start'];
+    readonly watch: t.Watch.Lib['start'];
 
     /**
      * Current working directory.
@@ -347,7 +347,7 @@ type NamespaceMembers = {
   readonly Size: t.Fs.SizeLib;
 
   /** Helpers for watching file-system changes. */
-  readonly Watch: t.FsWatchLib;
+  readonly Watch: t.Watch.Lib;
 
   /** Formatting helpers (pretty console output). */
   readonly Fmt: t.FsFmtLib;

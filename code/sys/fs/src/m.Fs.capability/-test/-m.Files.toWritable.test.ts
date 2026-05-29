@@ -1,6 +1,6 @@
 import type { t as TModel } from '@sys/model';
 import { Files } from '@sys/model/files/fs';
-import { describe, expect, expectTypeOf, Is, it, type t } from '../../-test.ts';
+import { describe, expect, expectTypeOf, Is, it, Rx, type t } from '../../-test.ts';
 import { Fs } from '../../mod.ts';
 import { context, expectFilesFsError, setupFixture } from './u.fixture.ts';
 
@@ -104,33 +104,27 @@ describe('Fs.Capability.Files.Writable', () => {
   it('filters live-writable atomic temp artifacts from backing watch events', async () => {
     const tempPath = Fs.join('/tmp/root', '.sys-files-atomic-test.tmp');
     const userPath = Fs.join('/tmp/root', 'docs/live.md');
-    let sourceNext: ((event: t.FsWatchEvent) => void) | undefined;
+    let sourceNext: ((event: t.Watch.Event) => void) | undefined;
     let sourceDisposed = false;
     const fs = {
       ...Fs,
       watch: async (path, options) => {
         const paths = Is.array<t.StringPath>(path) ? [...path] : [path];
-        return {
-          $: {
-            subscribe(next) {
-              sourceNext = (event) => {
-                if (Is.func(next)) next(event);
-                else next?.next?.(event);
-              };
-              return { unsubscribe: () => (sourceNext = undefined) };
-            },
-          },
-          dispose$: { subscribe: () => ({ unsubscribe() {} }) },
+        const life = Rx.lifecycle();
+        const $$ = Rx.subject<t.Watch.Event>();
+        const $ = $$.pipe(Rx.takeUntil(life.dispose$));
+        sourceNext = (event) => $$.next(event);
+        life.dispose$.subscribe(() => {
+          sourceDisposed = true;
+          sourceNext = undefined;
+        });
+
+        return Rx.toLifecycle<t.Watch.Instance>(life, {
+          $,
           paths,
           exists: true,
           is: { recursive: options?.recursive },
-          get disposed() {
-            return sourceDisposed;
-          },
-          dispose() {
-            sourceDisposed = true;
-          },
-        } as t.FsWatcher;
+        });
       },
     } satisfies t.Fs.Lib;
 

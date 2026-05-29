@@ -39,7 +39,7 @@ export async function watch(
 }
 
 function toWatchEvent(
-  event: t.FsWatchEvent,
+  event: t.Watch.Event,
   includePath: WatchOptions['includePath'],
 ): t.FsCapability.Files.WatchEvent {
   const paths = includePath ? event.paths.filter(includePath) : [...event.paths];
@@ -49,7 +49,7 @@ function toWatchEvent(
   };
 }
 
-function watchKind(kind: t.FsWatchEvent['kind']): t.FsCapability.Files.WatchEventKind {
+function watchKind(kind: t.Watch.Event['kind']): t.FsCapability.Files.WatchEventKind {
   switch (kind) {
     case 'any':
     case 'access':

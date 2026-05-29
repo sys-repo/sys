@@ -132,7 +132,7 @@ describe('Fs.Capability.Files.Readonly.live', () => {
 
   it('disposes the underlying Fs watcher when the Files watch stops', async () => {
     const fixture = await setupFixture();
-    const active = new Set<t.FsWatcher>();
+    const active = new Set<t.Watch.Instance>();
     const fs = {
       ...Fs,
       watch: async (...args: Parameters<t.Fs.Lib['watch']>) => {
