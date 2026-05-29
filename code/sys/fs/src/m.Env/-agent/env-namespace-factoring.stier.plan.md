@@ -1,6 +1,6 @@
 # Env namespace factoring STIER plan
 
-- [ ] refactor(fs): namespace Env contract surface
+- [x] e4ea5c9bb refactor(fs): namespace Env contract surface
 
 ## Scope
 
@@ -92,18 +92,52 @@ Then, before closing:
 deno task test
 ```
 
-## Implementation status
+## Final reality
 
-Working tree implementation completed and verified.
+Landed in:
 
-Proof run:
+- `e4ea5c9bb refactor(fs): namespace Env contract surface`
+
+Actual changes:
+
+- `m.Env` runtime annotations use the canonical `t.Env.*` namespace surface.
+- `u.load.ts` imports `DotEnv`, `Obj`, and `StdPath` through the local `common.ts` lane.
+- `src/common/libs.ts` re-exports `DotEnv` as the package-local dependency lane.
+- `u.load.ts` uses `Obj.hasOwn(...)` instead of a local ownership helper.
+- `u.init.ts` removed the self-package `@sys/fs` import and uses a package-local dynamic import.
+- Runtime behavior was intentionally preserved for dotenv lookup, process env fallback, VSCode
+  detection, and VSCode settings initialization.
+
+Final proof:
 
 ```sh
 cd /Users/phil/code/org.sys/sys/code/sys/fs && deno fmt --check src/m.Env/t.ts src/m.Env/m.Env.ts src/m.Env/m.Is.ts src/m.Env/u.init.ts src/m.Env/u.load.ts src/common/libs.ts src/m.Env/-agent/env-namespace-factoring.stier.plan.md
+# Checked 7 files
+
 cd /Users/phil/code/org.sys/sys/code/sys/fs && deno task check
+# passed
+
 cd /Users/phil/code/org.sys/sys/code/sys/fs && deno task test --trace-leaks src/m.Env
+# 1 passed (12 steps), 0 failed
+
 cd /Users/phil/code/org.sys/sys/code/sys/fs && deno task test
+# 34 passed (400 steps), 0 failed
 ```
+
+Final residue searches:
+
+```sh
+rg -n "\bEnv(?:Lib|LoadOptions|LoadSearch|IsLib)\b|import type \{ EnvLib \}|\bt\.Env\s*[;=,)]" /Users/phil/code/org.sys/sys/code/sys/fs/src --glob '!**/-agent/**'
+# no matches
+
+rg -n "from ['\"]@std/dotenv['\"]|await import\(['\"]@sys/fs['\"]\)|function hasOwn|Object\.prototype\.hasOwnProperty" /Users/phil/code/org.sys/sys/code/sys/fs/src/m.Env /Users/phil/code/org.sys/sys/code/sys/fs/src/common/libs.ts --glob '!**/-agent/**'
+# expected remaining match only: src/common/libs.ts re-exports DotEnv
+```
+
+Final review result: SHIP.
+
+Remaining risk: intentional public type-name break for external consumers of the old flat aliases
+(`t.EnvLib`, `t.EnvLoadOptions`, `t.EnvLoadSearch`, `t.EnvIsLib`). No accidental risk found.
 
 ## STIER residue pass
 
