@@ -18,6 +18,12 @@ export declare namespace Process {
       readonly ready: 'PROCESS_READY';
     };
 
+    /** Determine whether an OS process currently accepts signal delivery. */
+    isRunning(pid: number): boolean;
+
+    /** Process termination helpers. */
+    readonly Terminate: TerminateLib;
+
     /**
      * Execute a <unix> command on a child process
      * and wait for response.
@@ -74,6 +80,40 @@ export declare namespace Process {
      */
     tight(strings: TemplateStringsArray, ...values: unknown[]): string;
   };
+
+  /** Process termination helper API. */
+  export type TerminateLib = {
+    /** Terminate an arbitrary process id with bounded graceful escalation. */
+    pid(pid: number, options?: Terminate.Options): Promise<Terminate.Result>;
+  };
+
+  /** Process termination contracts. */
+  export namespace Terminate {
+    /** Result status for arbitrary process id termination. */
+    export type Status = 'not-running' | 'terminated' | 'killed' | 'still-running';
+
+    /** Signal attempt emitted while terminating an arbitrary process id. */
+    export type Action = {
+      readonly signal: Deno.Signal;
+      readonly ok: boolean;
+      readonly error?: unknown;
+    };
+
+    /** Options for arbitrary process id termination. */
+    export type Options = {
+      /** Grace window after SIGTERM before SIGKILL escalation. Defaults to 1000ms. */
+      readonly timeout?: t.Msecs;
+      /** Send SIGKILL immediately instead of attempting SIGTERM first. */
+      readonly force?: boolean;
+    };
+
+    /** Result from arbitrary process id termination. */
+    export type Result = {
+      readonly pid: number;
+      readonly status: Status;
+      readonly actions: readonly Action[];
+    };
+  }
 
   /** Ways to handle `stdin` on a spawned child process. */
   export type Stdio = 'piped' | 'inherit' | 'null';

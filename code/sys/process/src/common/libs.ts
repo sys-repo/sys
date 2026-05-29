@@ -1,4 +1,6 @@
 export { c } from '@sys/cli/fmt';
+export { Is } from '@sys/std/is';
+export { Num } from '@sys/std/num';
 export { slug } from '@sys/std/random';
 export { Rx } from '@sys/std/rx';
 export { Str } from '@sys/std/str';

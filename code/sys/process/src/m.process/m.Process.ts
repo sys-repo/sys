@@ -1,6 +1,8 @@
 import type { t } from './common.ts';
 
 import { Script } from './m.Script.ts';
+import { Terminate } from './m.Terminate.ts';
+import { isRunning } from './u.pid.ts';
 import { inherit } from './u.proc.inherit.ts';
 import { invoke, invokeDetached } from './u.proc.invoke.ts';
 import { run } from './u.proc.run.ts';
@@ -14,6 +16,8 @@ import { spawn } from './u.proc.spawn.ts';
 export const Process: t.Process.Lib = {
   Script,
   Signal: { ready: 'PROCESS_READY' },
+  isRunning,
+  Terminate,
   invoke,
   inherit,
   invokeDetached,
