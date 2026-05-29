@@ -14,11 +14,20 @@ Completed and reusable:
   - It returns a Files client handle, not a raw Cmd client.
 - `Files.Client.transport(endpoint, options?)` exists and centralizes typed Files Cmd binding.
 - `Files.Client.websocket(url, options?)` returns the same Files client handle grammar.
-  - Normal consumer/sample call-sites use `client.readText(path)`.
+  - Normal consumer/sample call-sites use the humane Files client query/read/watch surface.
   - Raw Cmd remains available explicitly at `client.cmd.send(...)` and `client.cmd.stream(...)`.
-- `files.readText(path, options?)` is the first and only humane convenience method.
-  - Do not add `read`, `stat`, `list`, `write`, `remove`, or `watch` convenience methods without a
-    fresh capability/API review.
+- `Files.Client.Handle` exposes a small humane surface over the typed Files Cmd grammar:
+  - `client.capabilities()` returns bounded-view capability facts.
+  - `client.list(input?)` returns the lightweight catalog query result.
+  - `client.stat(path)` returns the `Entry` directly, not `{ entry }`.
+  - `client.manifest(input?)` returns the runtime manifest snapshot.
+  - `client.manifest({ contentRefs: true })` returns a manifest with a present `contentRefs` array.
+  - `client.readText(path, options?)` remains inline-text-only; content refs materialize through
+    `Files.ContentRef.bytes/text(...)`.
+  - `client.watch(input?)` returns the typed Cmd stream handle; stream disposal owns event
+    subscription cleanup.
+  - Do not add `write`, `remove`, pagination managers, content prefetching, or Files-specific watch
+    lifecycle managers without a fresh capability/API review.
 - `Cmd.Transport.local({ factory, handlers, hostOptions? })` exists in production `@sys/event/cmd`.
   - Files local binding uses this shared adapter rather than Files-only `MessageChannel` glue.
 - `@sys/server/files/service` exists as `FilesWebSocketService`.
@@ -28,6 +37,8 @@ Completed and reusable:
 - `@draft/shell` proves the checked-in sample through the Files client facade.
   - The proof reads the sample through both `Files.Client.local(...).readText(...)` and
     `Files.Client.websocket(...).readText(...)`.
+  - The AppShell Files client sample uses `client.capabilities()`, `client.list()`,
+    `client.manifest({ contentRefs: true })`, `client.readText(path)`, and `client.watch()`.
   - Server raw WebSocket/Cmd contract tests use `client.cmd.send(...)` / `client.cmd.stream(...)`;
     draft-shell stays on the humane consumer grammar.
 - Cell startup output has been trimmed for operator DX.
@@ -95,6 +106,16 @@ Recently completed and retired plan ledgers:
     resolution.
 
 ## Active plan index
+
+### `files-client-query-surface.plan.md`
+
+Completed rollout for lifting Files capability/list/stat/manifest/watch onto the humane client handle
+while keeping manifest content-ref semantics tight and explicit.
+
+- `65f6658ad` — `refactor(model): rename manifest content refs`
+- `382d585bd` — `fix(event): dispose Cmd stream event subscriptions`
+- `7d792fdd9` — `feat(model): add Files client query surface`
+- `cf86f5ce4` — `refactor(draft-shell): consume Files client query surface`
 
 ### `transport-fidelity-hardening.plan.md`
 
