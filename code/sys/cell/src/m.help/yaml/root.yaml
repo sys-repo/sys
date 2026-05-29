@@ -1,9 +1,9 @@
 summary: |
-  A Cell is a folder-shaped metamedium whose ordinary files
-  carry DSL-shaped meaning that can be interpreted, viewed,
-  and validly rewritten within the folder that bounds it.
+  A Cell is a folder with an explicit runtime contract.
+  Its ordinary files describe services, tasks, owner configs, and views
+  inside that folder boundary.
   Agents must read `dsl` before changing `-cell/cell.yaml`, owner configs,
-  tasks, services, or routes, then read the matching chapter from the DSL chapter index.
+  tasks, services, or routes, then read the matching DSL chapter.
 
 usage:
   - deno run -ER   jsr:@sys/cell --help
@@ -13,10 +13,14 @@ usage:
   - deno run -ERWN jsr:@sys/cell task <name> [dir]
   - deno run -ERWN jsr:@sys/cell start [dir]
   - deno run -ERWN jsr:@sys/cell start [dir] --mode <mode>
+  - deno run -ERW --allow-run jsr:@sys/cell kill [dir]
+  - deno run -ERW --allow-run jsr:@sys/cell kill [dir] --mode <mode>
 
 commands:
   - name: dsl
-    text: agent must read first — root speech acts, owner rules, mappings, and chapter index
+    text: >-
+      read the Cell editing contract, owner boundaries, mappings,
+      and chapter index
   - name: init
     text: initialize a folder as a Cell
   - name: migrate
@@ -25,6 +29,8 @@ commands:
     text: run a named trusted task from tasks[]
   - name: start
     text: start a Cell's services
+  - name: kill
+    text: break-glass cleanup for live Cell start sessions
 
 options:
   - name: -h, --help

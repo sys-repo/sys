@@ -11,6 +11,7 @@ export async function runInit(ctx: RunContext): Promise<t.CellCli.Result> {
     return fail({ argv }, 'Unexpected option for init: --format', initHelp);
   }
   if (args.plan) return fail({ argv }, 'Unexpected option for init: --plan', initHelp);
+  if (args.force) return fail({ argv }, 'Unexpected option for init: --force', initHelp);
   if (args.mode !== undefined) {
     return fail({ argv }, 'Unexpected option for init: --mode', initHelp);
   }

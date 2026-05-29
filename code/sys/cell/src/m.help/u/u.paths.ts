@@ -20,6 +20,7 @@ export const HelpResource = {
   Migrate: 'yaml/migrate.yaml',
   Task: 'yaml/task.yaml',
   Start: 'yaml/start.yaml',
+  Kill: 'yaml/kill.yaml',
   Dsl: {
     Root: chapter('dsl', 'yaml/dsl.yaml', [
       chapter('pulled-view', 'yaml/dsl.pulled-view.yaml'),
@@ -38,6 +39,7 @@ export const HelpResource = {
         HelpResource.Migrate,
         HelpResource.Task,
         HelpResource.Start,
+        HelpResource.Kill,
         ...chapterResourceFiles(HelpResource.Dsl.Root),
       ];
     },

@@ -92,6 +92,23 @@ export const StartHelp: t.CellHelp.Start.Lib = {
   },
 };
 
+export const KillHelp: t.CellHelp.Kill.Lib = {
+  load() {
+    const data = Resource.readRecord(HelpResource.Kill, [
+      'summary',
+      'usage',
+      'options',
+      'safety',
+    ]);
+    return Promise.resolve({
+      summary: HelpYaml.string(data, 'summary'),
+      usage: HelpYaml.list(data, 'usage'),
+      options: HelpYaml.pairs(data, 'options'),
+      safety: HelpYaml.list(data, 'safety'),
+    });
+  },
+};
+
 const DslBook = CliFmt.Chapters.Book.create<t.StringPath>({
   root: HelpResource.Dsl.Root,
   label: 'CellHelp',

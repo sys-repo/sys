@@ -10,6 +10,7 @@ describe('FmtHelp', () => {
     expect(stripAnsi(await FmtHelp.initOutput())).to.contain('@sys/cell init');
     expect(stripAnsi(await FmtHelp.migrateOutput())).to.contain('@sys/cell migrate');
     expect(stripAnsi(await FmtHelp.taskOutput())).to.contain('@sys/cell task');
+    expect(stripAnsi(await FmtHelp.killOutput())).to.contain('@sys/cell kill');
     expect(stripAnsi(await FmtHelp.dslOutput())).to.contain('@sys/cell dsl');
   });
 

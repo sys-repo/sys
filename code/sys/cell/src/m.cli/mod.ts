@@ -15,5 +15,5 @@ export const CellCli: t.CellCli.Lib = { run };
  */
 if (import.meta.main) {
   const res = await CellCli.run({ argv: Deno.args });
-  if (res.kind === 'error') Deno.exitCode = res.code;
+  if (res.kind === 'error' || res.kind === 'kill') Deno.exitCode = res.code;
 }

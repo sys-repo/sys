@@ -11,6 +11,7 @@ export async function runMigrate(ctx: RunContext): Promise<t.CellCli.Result> {
     return fail({ argv }, 'Unexpected option for migrate: --format', migrateHelp);
   }
   if (args.plan) return fail({ argv }, 'Unexpected option for migrate: --plan', migrateHelp);
+  if (args.force) return fail({ argv }, 'Unexpected option for migrate: --force', migrateHelp);
   if (args.mode !== undefined) {
     return fail({ argv }, 'Unexpected option for migrate: --mode', migrateHelp);
   }

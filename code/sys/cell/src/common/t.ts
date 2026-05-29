@@ -10,6 +10,7 @@ export type {
   FileMapWriteResult,
 } from '@sys/fs/t';
 export type { TSchema } from '@sys/schema/t';
+export type { Process } from '@sys/process/t';
 export type { Time } from '@sys/std/t';
 export type { SpecImports, TestingDir } from '@sys/testing/t';
 export type { Tmpl, TmplProcessFile } from '@sys/tmpl-engine/t';

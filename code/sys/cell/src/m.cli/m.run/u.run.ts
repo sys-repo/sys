@@ -6,6 +6,7 @@ import { runDsl } from './u.dsl.ts';
 import { runInit } from './u.init.ts';
 import { runMigrate } from './u.migrate.ts';
 import { fail, print } from './u.output.ts';
+import { runKill } from './u.kill.ts';
 import { runStart } from './u.start.ts';
 import { runTask } from './u.task.ts';
 
@@ -28,6 +29,7 @@ export const run: t.CellCli.Lib['run'] = async (input = {}) => {
     (!command && args.agent) ||
     (!command && args.dryRun) ||
     (!command && args.plan) ||
+    (!command && args.force) ||
     (!command && args.mode !== undefined)
   ) {
     const flag = args.agent
@@ -36,6 +38,8 @@ export const run: t.CellCli.Lib['run'] = async (input = {}) => {
       ? '--dry-run'
       : args.plan
       ? '--plan'
+      : args.force
+      ? '--force'
       : '--mode';
     return fail({ argv }, `Unexpected option without command: ${flag}`, help);
   }
@@ -52,6 +56,7 @@ export const run: t.CellCli.Lib['run'] = async (input = {}) => {
   if (command === 'dsl') return runDsl(ctx);
   if (command === 'task') return runTask(ctx);
   if (command === 'start') return runStart(ctx);
+  if (command === 'kill') return runKill(ctx);
 
   return fail({ argv }, `Unknown command: ${command}`, help);
 };

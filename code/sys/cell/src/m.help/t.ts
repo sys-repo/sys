@@ -12,6 +12,7 @@ export declare namespace CellHelp {
     readonly Migrate: Migrate.Lib;
     readonly Task: Task.Lib;
     readonly Start: Start.Lib;
+    readonly Kill: Kill.Lib;
     readonly Dsl: Dsl.Lib;
   };
 
@@ -114,6 +115,25 @@ export declare namespace CellHelp {
       readonly usage: readonly string[];
       readonly options: readonly Pair[];
       readonly services: readonly string[];
+    };
+  }
+
+  /**
+   * Kill command help resources.
+   */
+  export namespace Kill {
+    /** Loader for authored kill help. */
+    export type Lib = {
+      /** Load authored kill help from the embedded bundle. */
+      load(): Promise<Guidance>;
+    };
+
+    /** Authored kill help used by CLI composition. */
+    export type Guidance = {
+      readonly summary: string;
+      readonly usage: readonly string[];
+      readonly options: readonly Pair[];
+      readonly safety: readonly string[];
     };
   }
 

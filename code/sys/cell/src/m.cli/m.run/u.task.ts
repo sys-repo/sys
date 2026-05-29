@@ -14,8 +14,14 @@ export async function runTask(ctx: RunContext): Promise<t.CellCli.Result> {
     print(taskHelp);
     return { kind: 'help', input: { argv }, text: taskHelp };
   }
-  if (args.agent || args.dryRun || args.mode !== undefined) {
-    const flag = args.agent ? '--agent' : args.dryRun ? '--dry-run' : '--mode';
+  if (args.agent || args.dryRun || args.force || args.mode !== undefined) {
+    const flag = args.agent
+      ? '--agent'
+      : args.dryRun
+      ? '--dry-run'
+      : args.force
+      ? '--force'
+      : '--mode';
     return fail({ argv }, `Unexpected option for task: ${flag}`, taskHelp);
   }
   if (args._.length < 2) return fail({ argv }, 'Missing task name.', taskHelp);

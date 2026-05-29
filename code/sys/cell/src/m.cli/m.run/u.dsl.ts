@@ -11,13 +11,15 @@ export async function runDsl(ctx: RunContext): Promise<t.CellCli.Result> {
 
   if (!format.ok) return fail({ argv }, format.message, await rootHelp());
 
-  if (args.agent || args.dryRun || args.plan || args.mode !== undefined) {
+  if (args.agent || args.dryRun || args.plan || args.force || args.mode !== undefined) {
     const flag = args.agent
       ? '--agent'
       : args.dryRun
       ? '--dry-run'
       : args.plan
       ? '--plan'
+      : args.force
+      ? '--force'
       : '--mode';
     return fail({ argv }, `Unexpected option for dsl: ${flag}`, await rootHelp());
   }

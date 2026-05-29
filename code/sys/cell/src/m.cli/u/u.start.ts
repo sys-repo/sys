@@ -5,7 +5,9 @@ import { smallCountText } from '../u.fmt/u.count.ts';
 import { elapsedSuffix } from '../u.fmt/u.elapsed.ts';
 import { Fmt } from '../u.fmt/u.mod.ts';
 import { FmtPath } from '../u.fmt/u.path.ts';
-import { createShutdownSignal, isSignalShutdownReason } from './u.shutdown.ts';
+import { canonicalRoot } from './u.root.ts';
+import { CellSession } from './u.session.ts';
+import { createShutdownSignal, isSignalShutdownReason, type ShutdownSignal } from './u.shutdown.ts';
 
 export type StartCellArgs = {
   readonly dir?: string;
@@ -23,20 +25,39 @@ export type StartCellResult = {
 export async function startCell(args: StartCellArgs = {}): Promise<StartCellResult> {
   const cell = await Cell.load(args.dir);
   const mode = args.mode ?? 'default';
+  const sessionRoot = await canonicalRoot(cell.root);
   const shutdown = createShutdownSignal();
   let started: t.Cell.Services.Started | undefined;
   let serviceText = '';
   let finalReason: string | undefined;
+  let session: CellSession.Handle | undefined;
 
   try {
-    const serviceCount = cell.descriptor.services?.length ?? 0;
-    started = await startServices(cell, { until: shutdown.signal, mode }, serviceCount);
+    const plan = await Cell.Services.plan(cell, { mode });
+    session = await CellSession.create({
+      root: sessionRoot,
+      mode,
+      pid: Deno.pid,
+      services: plan.services.map((item) => ({
+        name: item.service.name,
+        use: item.service.use,
+        from: item.service.from,
+      })),
+    });
+
+    started = await startServices(cell, { until: shutdown.signal, mode }, plan.services.length);
+    await session.ready();
     serviceText = Fmt.Services.started({ services: serviceStatusesOf(started) });
     if (serviceText) args.onStarted?.(serviceText);
     await Promise.race([Cell.Services.wait(started), shutdown.done]);
   } finally {
     finalReason = shutdown.reason;
-    await closeAndDispose(started, shutdown);
+    await session?.stopping().catch(() => undefined);
+    try {
+      await closeAndDispose(started, shutdown);
+    } finally {
+      await session?.dispose().catch(() => undefined);
+    }
   }
 
   if (isSignalShutdownReason(finalReason)) Deno.exitCode = 130;
@@ -71,7 +92,7 @@ async function startServices(
 
 async function closeAndDispose(
   started: t.Cell.Services.Started | undefined,
-  shutdown: ReturnType<typeof createShutdownSignal>,
+  shutdown: ShutdownSignal,
 ) {
   const close = await Try.run(async () => started?.close(shutdown.reason ?? 'cell.start.finished'));
   try {

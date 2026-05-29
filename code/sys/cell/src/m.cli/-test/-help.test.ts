@@ -10,13 +10,13 @@ describe(`@sys/cell/cli help`, () => {
 
     expect(res.kind).to.eql('help');
     expect(text).to.contain('@sys/cell');
-    ['dsl', 'init', 'migrate', 'task', 'start'].forEach((command) => {
+    ['dsl', 'init', 'migrate', 'task', 'start', 'kill'].forEach((command) => {
       expect(text).to.contain(command);
     });
   });
 
   it('command -h → routes to command help surfaces', async () => {
-    const cases = ['init', 'migrate', 'task', 'start'] as const;
+    const cases = ['init', 'migrate', 'task', 'start', 'kill'] as const;
 
     for (const command of cases) {
       const res = await silent(() => CellCli.run({ argv: [command, '-h'] }));

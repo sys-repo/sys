@@ -20,15 +20,17 @@ export declare namespace CellCli {
   export type ParsedArgs = {
     /** Show CLI help and exit. */
     readonly help: boolean;
-    /** Preview writes without changing the filesystem. */
+    /** Preview mutating operations without applying them. */
     readonly dryRun: boolean;
     /** Include command-specific agent guidance with help. */
     readonly agent: boolean;
     /** Preview a finite task closure without importing or running endpoints. */
     readonly plan: boolean;
+    /** Use hard process termination for trusted kill targets. */
+    readonly force: boolean;
     /** Raw `--format` flag value, accepted only by `dsl`. */
     readonly format?: string | boolean | readonly (string | boolean)[];
-    /** Raw `--mode` flag value, accepted only by `start`. */
+    /** Raw `--mode` flag value, accepted by `start` and `kill`. */
     readonly mode?: string | boolean | readonly (string | boolean)[];
     /** Unknown flag tokens rejected by argument parsing. */
     readonly unknown: readonly string[];
@@ -45,7 +47,14 @@ export declare namespace CellCli {
   }
 
   /** Result from a Cell CLI run. */
-  export type Result = Help | Init.Result | Migrate.Result | Task.Result | Start.Result | Error;
+  export type Result =
+    | Help
+    | Init.Result
+    | Migrate.Result
+    | Task.Result
+    | Start.Result
+    | Kill.Result
+    | Error;
 
   /** Help-only CLI run result. */
   export type Help = {
@@ -183,6 +192,61 @@ export declare namespace CellCli {
       readonly services: number;
       /** Non-default service graph mode selected for this start. */
       readonly mode?: t.Cell.Services.ServiceMode;
+    };
+  }
+
+  /**
+   * Types for the `kill` command.
+   */
+  export namespace Kill {
+    /** Successful Cell kill-switch result. */
+    export type Result = {
+      /** Result discriminant. */
+      readonly kind: 'kill';
+      /** Raw input passed to the CLI entrypoint. */
+      readonly input: Input;
+      /** Rendered kill output. */
+      readonly text: string;
+      /** Suggested process exit code. */
+      readonly code: number;
+      /** Loaded or discovered Cell root. */
+      readonly root: string;
+      /** Selected service graph mode when `--mode` was supplied. */
+      readonly mode?: t.Cell.Services.ServiceMode;
+      /** True when no process or registry mutation was performed. */
+      readonly dryRun: boolean;
+      /** True when trusted live sessions used hard termination. */
+      readonly force: boolean;
+      /** Per-session kill audit. */
+      readonly sessions: readonly SessionResult[];
+    };
+
+    /** Result status for one matching runtime session. */
+    export type SessionStatus =
+      | 'would-terminate'
+      | 'would-remove-stale'
+      | 'not-running'
+      | 'terminated'
+      | 'killed'
+      | 'still-running'
+      | 'stale-running';
+
+    /** Kill audit for one matching runtime session. */
+    export type SessionResult = {
+      /** Runtime session id. */
+      readonly id: string;
+      /** Runtime session mode. */
+      readonly mode: t.Cell.Services.ServiceMode;
+      /** Runtime session supervisor pid. */
+      readonly pid: number;
+      /** Last recorded runtime session state. */
+      readonly state: 'starting' | 'ready' | 'stopping';
+      /** Per-session kill status. */
+      readonly status: SessionStatus;
+      /** True when the heartbeat was fresh enough to trust the pid identity. */
+      readonly fresh: boolean;
+      /** Last heartbeat timestamp. */
+      readonly updatedAt: t.UnixTimestamp;
     };
   }
 
