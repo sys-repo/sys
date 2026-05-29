@@ -1,6 +1,6 @@
 # Env namespace factoring STIER plan
 
-- [ ] refactor(fs): namespace Env contract surface
+- [x] 3dbdb6009 refactor(fs): namespace Env contract surface
 
 ## Scope
 
@@ -208,3 +208,37 @@ Before calling complete:
   cannot be preserved. Prefer a clean cut.
 - **Import-surface creep risk:** promoting `@std/dotenv` into package common widens the package-local
   helper surface for no type-rename benefit. Keep the direct local import.
+
+## Final reality
+
+Landed in:
+
+- [x] `3dbdb6009` refactor(fs): namespace Env contract surface
+
+Actual changes:
+
+- Replaced flat Env type aliases with the canonical `Env` namespace contract.
+- Added `Env.Lib`, `Env.Reader`, `Env.InitOptions`, `Env.Load.Method`, `Env.Load.Options`,
+  `Env.Load.Search`, and `Env.Is.Lib`.
+- Updated runtime annotations in `m.Env.ts`, `m.Is.ts`, `u.load.ts`, and `u.init.ts` to use
+  `t.Env.*`.
+- Preserved the existing `m.Env.ts` implementation filename.
+- Preserved direct local `@std/dotenv` import locality in `u.load.ts`.
+- Preserved the local `hasOwn` helper and existing runtime behavior.
+
+Final proof:
+
+- `deno fmt --check src/m.Env src/common/libs.ts`
+- `deno task check`
+- `deno task test --trace-leaks src/m.Env`
+- `deno task test`
+- Source residue search found no stale flat Env type references outside this plan's historical text.
+
+SHIP/HOLD review:
+
+- SHIP: the landed change is a mechanical type-surface namespace refactor with no intended runtime
+  behavior change.
+- HOLD: none.
+- Remaining risk: external consumers importing old flat type aliases such as `EnvLib` or using `t.Env`
+  as the reader type must migrate to the canonical namespace names. This was an intentional clean cut;
+  no partial compatibility aliases were kept.
