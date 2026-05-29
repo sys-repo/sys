@@ -13,5 +13,4 @@ export { Str } from '@sys/std/str';
 export { Time } from '@sys/std/time';
 export { Url } from '@sys/std/url';
 export { Schema } from '@sys/schema';
-export { Files } from '@sys/model/files';
 export { Yaml } from '@sys/yaml';
