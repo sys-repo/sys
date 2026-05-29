@@ -13,13 +13,12 @@ export function disposeActiveFilesWatch() {
 export async function startFilesWatch(url: t.StringUrl | URL) {
   disposeActiveFilesWatch();
   const client = await Files.Client.websocket(url);
-  const stream = client.cmd.stream(Files.Cmd.Name.watch, {});
-  const events = stream.onEvent(logWatchEvent);
+  const stream = client.watch();
+  stream.onEvent(logWatchEvent);
   let disposed = false;
 
   logWatchStarted({ url: String(url), id: stream.id });
   void stream.done.then(logWatchDone, logWatchClosed).finally(async () => {
-    events.dispose();
     if (!client.disposed) await client.close('files:websocket watch done');
     if (activeWatch?.dispose === dispose) activeWatch = undefined;
   });
@@ -27,7 +26,6 @@ export async function startFilesWatch(url: t.StringUrl | URL) {
   function dispose() {
     if (disposed) return;
     disposed = true;
-    events.dispose();
     stream.dispose();
     void client.close('files:websocket watch dispose');
   }
