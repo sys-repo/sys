@@ -212,7 +212,7 @@ const wrangle = {
     options: {
       filter?: (path: t.StringPath) => boolean;
       trustChildDist?: boolean;
-      onHashProgress?: (e: t.DirHashComputeProgressEvent) => void | Promise<void>;
+      onHashProgress?: (e: t.DirHash.Compute.ProgressEvent) => t.Awaitable<void>;
       ignore?: IgnorePolicy;
     } = {},
   ) {
@@ -261,7 +261,7 @@ const wrangle = {
   async hashesBase(
     path: t.StringDir,
     filter?: (path: t.StringPath) => boolean,
-    onHashProgress?: (e: t.DirHashComputeProgressEvent) => void | Promise<void>,
+    onHashProgress?: (e: t.DirHash.Compute.ProgressEvent) => t.Awaitable<void>,
     ignore?: IgnorePolicy,
   ) {
     const mergedFilter = (value: string) => {

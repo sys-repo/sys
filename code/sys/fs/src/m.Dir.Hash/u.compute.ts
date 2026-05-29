@@ -1,15 +1,14 @@
-import { type t, Err, Fs, Hash, CompositeHash } from './common.ts';
+import { type t, CompositeHash, Err, Fs } from './common.ts';
 
 /**
  * Compute a `CompositeHash` for the given directory.
  */
-export const compute: t.DirHashLib['compute'] = async (dir, options = {}) => {
+export const compute: t.DirHash.Compute.Method = async (dir, options = {}) => {
   dir = Fs.resolve(dir);
   const { filter, onProgress } = wrangle.computeOptions(options);
   const errors = Err.errors();
   const exists = await Fs.exists(dir);
   const builder = CompositeHash.builder();
-  const res: t.DirHash = { exists, dir, hash: builder.toObject() };
 
   if (!exists) {
     errors.push(Err.std('Directory does not exist.'));
@@ -27,19 +26,17 @@ export const compute: t.DirHashLib['compute'] = async (dir, options = {}) => {
         const file = await Fs.read(Fs.join(dir, path));
         if (file.exists) builder.add(path, file.data);
       }
-      res.hash = builder.toObject();
     }
   }
 
-  res.error = errors.toError();
-  return res;
+  return { exists, dir, hash: builder.toObject(), error: errors.toError() };
 };
 
 /**
  * Helpers
  */
 const wrangle = {
-  computeOptions(input?: t.DirHashComputeOptions | t.Fs.Path.Filter) {
+  computeOptions(input?: t.DirHash.Compute.Options | t.Fs.Path.Filter) {
     if (!input) return {};
     if (typeof input === 'function') return { filter: input };
     return input;

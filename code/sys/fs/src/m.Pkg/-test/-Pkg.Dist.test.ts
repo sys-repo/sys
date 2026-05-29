@@ -122,7 +122,7 @@ describe('Pkg.Dist', () => {
     it('Dist.compute(): forwards onHashProgress during hashing', async () => {
       const sample = await Sample.init();
       const { dir } = sample.path;
-      const events: t.DirHashComputeProgressEvent[] = [];
+      const events: t.DirHash.Compute.ProgressEvent[] = [];
 
       const res = await Pkg.Dist.compute({
         dir,

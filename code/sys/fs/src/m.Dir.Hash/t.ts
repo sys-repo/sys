@@ -1,52 +1,74 @@
 import type { t } from './common.ts';
 
 /**
- * Tools for working hashes of a file-system directory.
+ * Directory hashing contracts.
  */
-export type DirHashLib = {
-  /** Hash related console logging helpers. */
-  readonly Fmt: t.HashFmtLib;
+export declare namespace DirHash {
+  /** Directory hashing helper library. */
+  export type Lib = {
+    /** Hash related console logging helpers. */
+    readonly Fmt: t.HashFmtLib;
 
-  /** Calculate the hash of a directory. */
-  compute(dir: t.StringDir, options?: t.DirHashComputeOptions | t.Fs.Path.Filter): Promise<DirHash>;
+    /** Calculate the hash of a directory. */
+    readonly compute: Compute.Method;
 
-  /** Verify a directory against the given [CompositeHash] value. */
-  verify(dir: t.StringDir, hash: t.StringHash | t.CompositeHash): Promise<DirHashVerifyResponse>;
-};
+    /** Verify a directory against a composite hash or hash file. */
+    readonly verify: Verify.Method;
+  };
 
-/** Options passed to the `Hash.Dir.compute` method. */
-export type DirHashComputeOptions = {
-  filter?: t.Fs.Path.Filter;
-  onProgress?: (e: DirHashComputeProgressEvent) => void | Promise<void>;
-};
+  /** Result from hashing a directory. */
+  export type Result = {
+    /** The composite hash value. */
+    readonly hash: t.CompositeHash;
 
-export type DirHashComputeProgressEvent = {
-  readonly dir: t.StringDir;
-  readonly path: t.StringPath;
-  readonly current: number;
-  readonly total: number;
-};
+    /** Path to the base directory the relative filepath hashes pertain to. */
+    readonly dir: t.StringDir;
 
-/**
- * Represents a hash of a directory.
- */
-export type DirHash = {
-  /** The composite hash value. */
-  hash: t.CompositeHash;
+    /** Flag indicating if the directory exists. */
+    readonly exists: boolean;
 
-  /** Path to the base directory the relative filepath hashes pertain to. */
-  dir: t.StringDir;
+    /** Error details if any occurred. */
+    readonly error?: t.StdError;
+  };
 
-  /** Flag indicating if the directory exists. */
-  exists: boolean;
+  /**
+   * Directory hash computation contracts.
+   */
+  export namespace Compute {
+    /** Calculate the hash of a directory. */
+    export type Method = (
+      dir: t.StringDir,
+      options?: Options | t.Fs.Path.Filter,
+    ) => Promise<DirHash.Result>;
 
-  /** Error details if any occured. */
-  error?: t.StdError;
-};
+    /** Options passed to `DirHash.compute`. */
+    export type Options = {
+      filter?: t.Fs.Path.Filter;
+      onProgress?: (e: ProgressEvent) => t.Awaitable<void>;
+    };
 
-/**
- * The results of a verification of a directory.
- */
-export type DirHashVerifyResponse = DirHash & {
-  is: t.HashVerifyResponse['is'];
-};
+    /** Progress emitted for each hashed file. */
+    export type ProgressEvent = {
+      readonly dir: t.StringDir;
+      readonly path: t.StringRelativePath;
+      readonly current: number;
+      readonly total: number;
+    };
+  }
+
+  /**
+   * Directory hash verification contracts.
+   */
+  export namespace Verify {
+    /** Verify a directory against a composite hash or hash file. */
+    export type Method = (dir: t.StringDir, input: Input) => Promise<Response>;
+
+    /** Composite hash object or path to a JSON file containing `{ hash }`. */
+    export type Input = t.CompositeHash | t.StringPath;
+
+    /** Result from verifying a directory hash. */
+    export type Response = DirHash.Result & {
+      readonly is: t.HashVerifyResponse['is'];
+    };
+  }
+}

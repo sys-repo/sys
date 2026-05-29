@@ -68,7 +68,7 @@ export declare namespace Pkg {
         ignore?: string | string[];
         save?: boolean;
         filter?(path: t.StringPath): boolean;
-        onHashProgress?(e: t.DirHashComputeProgressEvent): void | Promise<void>;
+        onHashProgress?(e: t.DirHash.Compute.ProgressEvent): t.Awaitable<void>;
 
         /**
          * Reuse child `dist.hash.parts` to avoid re-hashing nested bundles.
@@ -121,7 +121,7 @@ export declare namespace Pkg {
       /** Verify a folder against distribution-package hash definitions. */
       export type Method = (
         dir: t.StringPath,
-        hash?: t.StringHash | t.CompositeHash,
+        hash?: t.DirHash.Verify.Input,
       ) => Promise<Response>;
 
       /** Response from `Pkg.Dist.verify`. */

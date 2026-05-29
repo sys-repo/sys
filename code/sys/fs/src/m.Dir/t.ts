@@ -5,5 +5,5 @@ import type { t } from './common.ts';
  */
 export type FsDirLib = {
   /** Tools for working hashes of a file-system directory. */
-  readonly Hash: t.DirHashLib;
+  readonly Hash: t.DirHash.Lib;
 };
