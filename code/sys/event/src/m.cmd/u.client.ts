@@ -41,6 +41,7 @@ export function makeClient<
   const pending = new Map<t.Cmd.ReqId, PendingEntry>();
   const timers = new Map<t.Cmd.ReqId, TimeoutHandle>();
   const eventHandlers = new Map<t.Cmd.ReqId, Set<(event: unknown) => void>>();
+  const eventSubscriptions = new Map<t.Cmd.ReqId, Set<t.Lifecycle>>();
   const terminalHandlers = new Map<t.Cmd.ReqId, Set<StreamTerminalHandler>>();
 
   /**
@@ -198,8 +199,12 @@ export function makeClient<
 
       const handler = (event: unknown) => fn(event as E[K]);
       addEventHandler(id, handler);
+      addEventSubscription(id, life);
 
-      life.dispose$.subscribe(() => removeEventHandler(id, handler));
+      life.dispose$.subscribe(() => {
+        removeEventHandler(id, handler);
+        removeEventSubscription(id, life);
+      });
       return life;
     };
 
@@ -248,6 +253,7 @@ export function makeClient<
     timers.clear();
     pending.clear();
     eventHandlers.clear();
+    eventSubscriptions.clear();
     terminalHandlers.clear();
 
     if (closeEndpoint) endpoint.close?.();
@@ -339,6 +345,7 @@ export function makeClient<
   function cleanupPending(id: t.Cmd.ReqId, terminal: StreamTerminal) {
     pending.delete(id);
     clearTimer(id);
+    disposeEventSubscriptions(id);
     eventHandlers.delete(id);
     notifyTerminal(id, terminal);
   }
@@ -366,6 +373,33 @@ export function makeClient<
 
     handlers.delete(handler);
     if (handlers.size === 0) eventHandlers.delete(id);
+  }
+
+  function addEventSubscription(id: t.Cmd.ReqId, subscription: t.Lifecycle) {
+    let subscriptions = eventSubscriptions.get(id);
+    if (!subscriptions) {
+      subscriptions = new Set();
+      eventSubscriptions.set(id, subscriptions);
+    }
+    subscriptions.add(subscription);
+  }
+
+  function removeEventSubscription(id: t.Cmd.ReqId, subscription: t.Lifecycle) {
+    const subscriptions = eventSubscriptions.get(id);
+    if (!subscriptions) return;
+
+    subscriptions.delete(subscription);
+    if (subscriptions.size === 0) eventSubscriptions.delete(id);
+  }
+
+  function disposeEventSubscriptions(id: t.Cmd.ReqId) {
+    const subscriptions = eventSubscriptions.get(id);
+    eventSubscriptions.delete(id);
+    if (!subscriptions) return;
+
+    for (const subscription of subscriptions) {
+      subscription.dispose();
+    }
   }
 
   function addTerminalHandler(id: t.Cmd.ReqId, handler: StreamTerminalHandler) {

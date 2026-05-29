@@ -1,4 +1,4 @@
-import { type t } from '../common.ts';
+import { expect, type t } from '../../-test.ts';
 
 /**
  * General Cmd test helpers.
@@ -59,5 +59,16 @@ export const Fixture = {
 
     pending.delete(key);
     resolve(value);
+  },
+
+  /**
+   * Assert and return a typed Cmd error instance.
+   */
+  expectCmdError(input: unknown, kind: t.Cmd.Error.Kind) {
+    expect(input).to.be.instanceOf(Error);
+
+    const err = input as t.Cmd.Error.Instance;
+    expect(err.name).to.eql(kind);
+    return err;
   },
 } as const;
