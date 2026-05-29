@@ -1,5 +1,6 @@
 import React from 'react';
-import { Button, type t, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from './common.ts';
+import { Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal, type t } from './common.ts';
+import { probeFilesWebSocket } from './-u.files.websocket.ts';
 
 type P = t.AppShell.Props;
 type Storage = Pick<P, 'debug' | 'theme'>;
@@ -90,8 +91,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <Button
+        block
+        label={() => 'files:websocket probe'}
+        onClick={() => void probeFilesWebSocket()}
+      />
+
+      <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
+
       <ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
     </div>
   );
