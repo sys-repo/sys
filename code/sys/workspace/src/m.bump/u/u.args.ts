@@ -2,7 +2,7 @@ import { Args as StdArgs, Fs, Is, type t } from '../common.ts';
 
 export const Args: t.WorkspaceBump.Args.Lib = {
   parse(argv = Deno.args) {
-    const normalized = argv[0] === '--' ? argv.slice(1) : argv;
+    const normalized = argv.filter((item) => item !== '--');
     const args = StdArgs.parse<{
       help?: boolean;
       from?: string | string[] | boolean;
@@ -10,8 +10,9 @@ export const Args: t.WorkspaceBump.Args.Lib = {
       release?: string | boolean;
       'dry-run'?: boolean;
       'non-interactive'?: boolean;
+      'explain-delta'?: boolean;
     }>([...normalized], {
-      boolean: ['help', 'dry-run', 'non-interactive'],
+      boolean: ['help', 'dry-run', 'non-interactive', 'explain-delta'],
       alias: { h: ['help'] },
     });
 
@@ -22,6 +23,7 @@ export const Args: t.WorkspaceBump.Args.Lib = {
       release: wrangle.release(args.release),
       dryRun: args['dry-run'] ?? false,
       nonInteractive: args['non-interactive'] ?? false,
+      explainDelta: args['explain-delta'] ?? false,
     };
   },
 
@@ -37,13 +39,15 @@ export const Args: t.WorkspaceBump.Args.Lib = {
     const release = Args.release(args.release);
     const from = input.options?.from ?? args.from;
     const since = input.options?.since ?? args.since;
+    const explainDelta = input.options?.explainDelta ?? args.explainDelta;
     return {
       help: args.help ?? false,
       invalidRelease: args.release !== undefined && release === undefined
         ? args.release
         : undefined,
       since,
-      conflict: wrangle.conflict({ help: args.help ?? false, from, since }),
+      explainDelta,
+      conflict: wrangle.conflict({ help: args.help ?? false, from, since, explainDelta }),
       run: {
         cwd: input.options?.cwd ?? Fs.cwd(),
         release: input.options?.release ?? release ?? 'patch',
@@ -80,12 +84,21 @@ const wrangle = {
     readonly help: boolean;
     readonly from?: readonly string[];
     readonly since?: string;
+    readonly explainDelta: boolean;
   }): t.WorkspaceBump.Args.Conflict | undefined {
     if (args.help) return undefined;
-    if (args.since === undefined || !args.from || args.from.length === 0) return undefined;
-    return {
-      code: 'since-and-from',
-      message: '--since cannot be used with --from.',
-    };
+    if (args.since !== undefined && args.from && args.from.length > 0) {
+      return {
+        code: 'since-and-from',
+        message: '--since cannot be used with --from.',
+      };
+    }
+    if (args.explainDelta && args.since === undefined) {
+      return {
+        code: 'explain-delta-without-since',
+        message: '--explain-delta requires --since.',
+      };
+    }
+    return undefined;
   },
 } as const;

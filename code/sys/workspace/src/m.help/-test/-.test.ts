@@ -34,6 +34,7 @@ describe('WorkspaceHelp', () => {
     expect(chapter.sections.map(({ label }) => label)).to.eql([
       'Concept',
       'Bump since',
+      'Explain delta',
       'Classification',
       'Closure',
     ]);

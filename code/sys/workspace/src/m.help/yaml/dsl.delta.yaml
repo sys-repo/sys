@@ -23,6 +23,17 @@ sections:
       `Workspace.Bump.run(...)` receives precomputed bump roots.
       It stays independent of git or baseline semantics.
 
+  - label: Explain delta
+    items: |
+      Add `--explain-delta` with `--since` when the root
+      selection needs a changed-file sanity check.
+      The explanation is evidence only: it lists the git
+      baseline range, changed-file counts, classified changed
+      packages, selected bump roots, and bounded per-package
+      file samples.
+      It does not alter bump planning, release type, dry-run
+      behavior, or version writes.
+
   - label: Classification
     items: |
       `needsBumpPkgPaths` are changed candidate package paths

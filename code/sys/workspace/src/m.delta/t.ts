@@ -8,6 +8,8 @@ export declare namespace WorkspaceDelta {
   export type Lib = {
     /** Derive package bump roots and closure from changed workspace-relative files. */
     fromChangedFiles(args: FromChangedFilesArgs): Result;
+    /** Console output formatters for workspace deltas. */
+    readonly Fmt: Fmt.Lib;
     /** Git-backed workspace delta adapters. */
     readonly Git: Git.Lib;
   };
@@ -44,6 +46,25 @@ export declare namespace WorkspaceDelta {
 
   /** Stable skip reasons emitted by delta derivation. */
   export type SkipReason = 'outside-workspace-package' | 'outside-bump-candidates';
+
+  /**
+   * Console output formatters for workspace deltas.
+   */
+  export namespace Fmt {
+    /** Console output formatting surface for workspace deltas. */
+    export type Lib = {
+      /** Render changed-file evidence for one git-derived delta root selection. */
+      explain(args: ExplainArgs): string;
+    };
+
+    /** Arguments for rendering changed-file evidence for a git-derived delta. */
+    export type ExplainArgs = {
+      /** Git-derived workspace delta to explain. */
+      readonly delta: Git.FromRefResult;
+      /** Maximum changed files rendered per package or skipped-file group. Defaults to 12. */
+      readonly maxFilesPerPackage?: number;
+    };
+  }
 
   /**
    * Git-backed workspace delta adapters.

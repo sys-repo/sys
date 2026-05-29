@@ -32,5 +32,6 @@ sections:
       DSL      `deno run -ER   jsr:@sys/workspace dsl`
       Bump     `deno run -ERW  jsr:@sys/workspace bump -h`
       Upgrade  `deno run -ERWN jsr:@sys/workspace upgrade -h`
-      For `--since`, read `delta` before changing behavior.
+      For `--since` or `--explain-delta`, read `delta`
+      before changing behavior.
 

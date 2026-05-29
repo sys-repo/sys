@@ -217,6 +217,7 @@ export declare namespace WorkspaceBump {
       readonly release?: string;
       readonly dryRun: boolean;
       readonly nonInteractive: boolean;
+      readonly explainDelta: boolean;
     };
 
     /** Optional run-argument overrides from a script edge. */
@@ -225,6 +226,8 @@ export declare namespace WorkspaceBump {
     > & {
       /** Optional git baseline ref supplied by a script edge. */
       readonly since?: string;
+      /** Render changed-file evidence when deriving roots from `since`. */
+      readonly explainDelta?: boolean;
     };
 
     /** Inputs for resolving one canonical bump run invocation. */
@@ -245,6 +248,8 @@ export declare namespace WorkspaceBump {
       readonly invalidRelease?: string;
       /** Optional git baseline ref supplied by the script edge. */
       readonly since?: string;
+      /** Whether to render changed-file evidence for git-derived root selection. */
+      readonly explainDelta: boolean;
       /** Parsed conflict that should stop execution after help handling. */
       readonly conflict?: Conflict;
       /** Canonical args for `Workspace.Bump.run(...)`. */
@@ -254,7 +259,7 @@ export declare namespace WorkspaceBump {
     /** Parsed argument conflict. */
     export type Conflict = {
       /** Stable conflict code. */
-      readonly code: 'since-and-from';
+      readonly code: 'since-and-from' | 'explain-delta-without-since';
       /** Human-readable conflict message. */
       readonly message: string;
     };

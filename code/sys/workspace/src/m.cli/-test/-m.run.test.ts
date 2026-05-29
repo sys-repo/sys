@@ -1,5 +1,6 @@
 import { Cli, describe, expect, Fs, it, Testing } from '../../-test.ts';
 import { WorkspaceCli } from '../mod.ts';
+import { Fixture as DeltaFixture } from '../../m.delta/-test/u.fixture.ts';
 import * as fixture from '../../m.upgrade/-test/u.fixture.ts';
 
 describe('Workspace.Cli.run', () => {
@@ -52,7 +53,25 @@ describe('Workspace.Cli.run', () => {
       expect(result.text).to.include('@sys/workspace bump');
       expect(result.text).to.include('--since <git-ref>');
       expect(result.text).to.include('--from <pkg|path>');
+      expect(result.text).to.include('--explain-delta');
     }
+  });
+
+  it('explains git-derived bump roots when requested', async () => {
+    const { cwd } = await DeltaFixture.gitBaselineWorkspace();
+
+    const { result, text } = await captureInfo(() =>
+      WorkspaceCli.run({
+        cwd,
+        argv: ['bump', '--since', 'baseline', '--dry-run', '--explain-delta'],
+      })
+    );
+
+    expect(result.kind).to.eql('bump');
+    expect(Cli.stripAnsi(text)).to.include('Delta: baseline → HEAD');
+    expect(Cli.stripAnsi(text)).to.include('Bump roots: @scope/a');
+    expect(Cli.stripAnsi(text)).to.include('@scope/a  code/pkg-a  needs bump');
+    expect(Cli.stripAnsi(text)).to.include('Dry run only. No files updated.');
   });
 
   it('routes dsl help without entering upgrade planning', async () => {
@@ -316,6 +335,23 @@ async function silent<T>(fn: () => Promise<T>): Promise<T> {
 
   try {
     return await fn();
+  } finally {
+    console.info = info;
+  }
+}
+
+async function captureInfo<T>(
+  fn: () => Promise<T>,
+): Promise<{ readonly result: T; readonly text: string }> {
+  const info = console.info;
+  const lines: string[] = [];
+  console.info = (...args: unknown[]) => {
+    lines.push(args.map(String).join(' '));
+  };
+
+  try {
+    const result = await fn();
+    return { result, text: lines.join('\n') };
   } finally {
     console.info = info;
   }

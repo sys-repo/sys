@@ -12,6 +12,7 @@ export const Fmt: t.WorkspaceBump.Fmt.Lib = {
         toolname,
         `${argsPrefix} --release minor`,
         `${argsPrefix} --since=jsr-publish --dry-run`,
+        `${argsPrefix} --since=jsr-publish --dry-run --explain-delta`,
         `${argsPrefix} --from=code/sys/fs --dry-run`,
       ],
       options: [
@@ -19,6 +20,7 @@ export const Fmt: t.WorkspaceBump.Fmt.Lib = {
         ['--release <patch|minor|major>', 'choose bump kind (default patch)'],
         ['--since <git-ref>', 'derive roots from git ref/tag'],
         ['--from <pkg|path>', 'select roots; conflicts with --since'],
+        ['--explain-delta', 'explain --since root selection'],
         ['--dry-run', 'render plan without writing files'],
         ['--non-interactive', 'skip confirmation after root selection'],
       ],

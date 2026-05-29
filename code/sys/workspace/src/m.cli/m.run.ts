@@ -171,6 +171,10 @@ const wrangle = {
       release: args.run.release,
       policy: args.run.policy,
     });
+    if (args.explainDelta) {
+      console.info(WorkspaceDelta.Fmt.explain({ delta }));
+      console.info();
+    }
     return await WorkspaceBump.run({
       ...args.run,
       collect: delta.collect,
