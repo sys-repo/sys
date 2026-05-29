@@ -17,6 +17,7 @@ export { Rx } from '@sys/std/rx';
 export { HashFmt } from '@sys/crypto/fmt';
 export { CompositeHash, Hash } from '@sys/crypto/hash';
 
+export * as DotEnv from '@std/dotenv';
 export { decodeBase64, encodeBase64 } from '@std/encoding';
 export { ensureDir, ensureSymlink, exists, move } from '@std/fs';
 export { c, Fmt as CliFmt, stripAnsi, Table as CliTable } from '@sys/cli/fmt';

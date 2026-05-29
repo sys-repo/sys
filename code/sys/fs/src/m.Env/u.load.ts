@@ -1,5 +1,4 @@
-import * as DotEnv from '@std/dotenv';
-import { StdPath, type t } from './common.ts';
+import { DotEnv, Obj, StdPath, type t } from './common.ts';
 
 export const load: t.Env.Lib['load'] = async (options = {}) => {
   const cwd = options.cwd ?? (Deno.cwd() as t.StringDir);
@@ -11,10 +10,10 @@ export const load: t.Env.Lib['load'] = async (options = {}) => {
   const dotenv = await loadDotEnvFiles(envPaths);
   const api: t.Env.Reader = {
     get(key) {
-      return hasOwn(dotenv, key) ? dotenv[key] : Deno.env.get(key) || '';
+      return Obj.hasOwn(dotenv, key) ? dotenv[key] : Deno.env.get(key) || '';
     },
     has(key) {
-      return hasOwn(dotenv, key) || Deno.env.has(key);
+      return Obj.hasOwn(dotenv, key) || Deno.env.has(key);
     },
   };
   return api;
@@ -53,7 +52,3 @@ const fileExists = async (path: t.StringFile): Promise<boolean> => {
     return false;
   }
 };
-
-function hasOwn(obj: Record<string, string>, key: string): boolean {
-  return Object.prototype.hasOwnProperty.call(obj, key);
-}
