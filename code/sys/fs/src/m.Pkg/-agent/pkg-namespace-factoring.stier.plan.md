@@ -1,6 +1,6 @@
 # Pkg namespace factoring S-tier plan
 
-- [ ] refactor(fs): namespace Pkg contract surface
+- [x] 465eb4f05 refactor(fs): namespace Pkg contract surface
 
 ## Purpose
 
@@ -156,3 +156,37 @@ Before calling complete:
 - **Compatibility residue risk:** deprecated flat aliases are easy but lower finish quality unless there is an explicit compatibility reason.
 - **Behavior drift risk:** `Json.stringify` already appends a trailing newline for multiline JSON; do not append another newline.
 - **Scope creep risk:** `@sys/std/pkg` still has some flat `PkgDist*` support types. Do not widen this fs-local refactor into std unless separately requested.
+
+## Final reality
+
+Landed implementation commit:
+
+- `465eb4f05 refactor(fs): namespace Pkg contract surface`
+
+Actual changes:
+
+- `m.Pkg/t.ts` now exports `type Pkg = StdPkg` plus a `Pkg` namespace with `Lib` first.
+- Distribution-package filesystem contracts are namespaced under `Pkg.Dist.*` with `Dist.Lib` first.
+- `src/common/t.ts` routes `Pkg` to the local package type surface, avoiding the old std `Pkg` shadow.
+- Runtime files consume `t.Pkg.*` through the canonical local `common.ts` lane.
+- `Pkg.Dist.compute` uses the canonical `Json` helper while preserving the one-trailing-newline `dist.json` byte contract.
+- `-Pkg.Dist.test.ts` pins saved `dist.json` to exactly one trailing newline.
+
+Final proof:
+
+```sh
+cd /Users/phil/code/org.sys/sys/code/sys/fs && deno task check
+```
+
+```sh
+cd /Users/phil/code/org.sys/sys/code/sys/fs && deno task test --trace-leaks ./src/m.Pkg
+```
+
+```sh
+cd /Users/phil/code/org.sys/sys/code/sys/fs && deno task test
+```
+
+Final review result:
+
+- SHIP after TMIND + S-tier review.
+- Remaining risk: external consumers importing removed flat `Pkg*` type aliases need migration; internal repo residue search found no consumers.
