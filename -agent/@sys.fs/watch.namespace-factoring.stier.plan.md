@@ -1,6 +1,6 @@
 # Watch namespace factoring STIER plan
 
-- [ ] refactor(fs): namespace watch type surface
+- [x] f2a95620c refactor(fs): namespace watch type surface
 
 ## Scope
 
@@ -201,3 +201,71 @@ Before calling complete:
   readonly contract.
 - **Archive churn risk:** archive references are not active package surface. Do not migrate them in
   this commit.
+
+## Final reality
+
+Landed commit:
+
+- `f2a95620c refactor(fs): namespace watch type surface`
+
+Actual changes:
+
+- Replaced flat watch aliases with the `Watch` type namespace:
+  - `FsWatchLib` -> `Watch.Lib`
+  - `FsWatcher` -> `Watch.Instance`
+  - `FsWatchEvent` -> `Watch.Event`
+- Added `Watch.Start.PathInput` and `Watch.Start.Options` for the start operation contract.
+- Updated active `@sys/fs` runtime and type consumers to use `t.Watch.*`:
+  - `m.Watch/m.Watch.ts`
+  - `m.Fs/t.ts`
+  - `m.Fs.capability/u/u.Files.watch.ts`
+  - related Watch and capability tests
+- Removed the direct `FsWatchLib` import from `m.Watch/m.Watch.ts`.
+- Marked the background watch listener with `void listen(...)` to avoid floating-promise ambiguity.
+- Hardened `Watch.Instance.paths` by returning a copy from the runtime getter.
+- Preserved non-goals: no archive migration, no `m.Watch.ts` rename, no event/recursive semantics change,
+  and no runtime error-message text change.
+
+Final verification:
+
+```sh
+cd /Users/phil/code/org.sys/sys/code/sys/fs && deno task test --trace-leaks ./src/m.Watch
+```
+
+Result: passed.
+
+```sh
+cd /Users/phil/code/org.sys/sys/code/sys/fs && deno task test --trace-leaks ./src/m.Fs.capability
+```
+
+Result: passed.
+
+```sh
+cd /Users/phil/code/org.sys/sys/code/sys/fs && deno task check
+```
+
+Result: passed.
+
+```sh
+cd /Users/phil/code/org.sys/sys/code/sys/fs && deno task test
+```
+
+Result: passed (`34 passed (400 steps) | 0 failed`).
+
+Residue proof:
+
+```sh
+rg -n "FsWatchLib|FsWatchEvent|t\.FsWatch|t\.FsWatcher|\bt\.Watch<" /Users/phil/code/org.sys/sys/code/sys/fs/src
+```
+
+Result: no output.
+
+## Final SHIP/HOLD review
+
+SHIP.
+
+The active `@sys/fs` watch type surface is now canon-conformant, mechanically migrated, and verified
+against targeted Watch tests, capability adapter tests, package check, and the full package test suite.
+The remaining risk is limited to external consumers still using removed flat public type aliases
+(`FsWatchLib`, `FsWatcher`, `FsWatchEvent`). That break is intentional for the namespace cut and was
+not softened with compatibility aliases to avoid long-lived residue.
