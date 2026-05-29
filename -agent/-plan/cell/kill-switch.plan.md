@@ -3,7 +3,7 @@
 - [x] 5207dee69 feat(process): add pid cleanup primitives
 - [x] c6c533bd4 feat(process): add port cleanup primitives
 - [x] 308582e6b feat(cell): add session-backed kill switch
-- [ ] feat(cell): reap declared kill resources
+- [x] 6225747e2 feat(cell): reap declared kill resources
 
 ## TMIND / STIER position
 
@@ -139,7 +139,7 @@ Cell should call those primitives rather than using shell scripts or ad-hoc `kil
 
 Port cleanup is a fallback cleanup axis, not the identity model.
 
-Service endpoints should be able to declare resources without starting the service:
+Service endpoints can declare resources without starting the service:
 
 ```ts
 type LifecycleEndpoint<Args = unknown, THandle = t.Service.Handle> = {
@@ -159,8 +159,8 @@ type TcpListenerResource = {
 `@sys/cell kill` may reap only resources declared by the targeted Cell plan/mode. This is how the
 command can clear an orphaned `127.0.0.1:5050` listener without becoming a generic unsafe port killer.
 
-The first resource implementation is TCP listeners only. Resource reaping should land only with
-explicit tests proving it is Cell-plan bounded.
+The landed resource implementation is TCP listeners only. Resource reaping landed with explicit
+tests proving it is Cell-plan bounded.
 
 ## Output contract
 
@@ -185,38 +185,35 @@ done            cleared 1 session, 1 listener
 
 No silent success. No ambiguous “killed port.” Always show what Cell identity was targeted.
 
-## Implementation sequence
+## Implementation ledger
 
 ### Phase 1 — Cell-aware session kill
 
-- Add kill command parsing/help.
-- Add canonical Cell root discovery/resolution.
-- Add runtime session registry module.
-- Register/unregister sessions from `@sys/cell start`.
-- Add `@sys/process` pid termination primitives.
-- Implement `@sys/cell kill` against matching session records.
-- Tests:
-  - start registers a session;
-  - normal start cleanup unregisters it;
-  - `kill` from another cwd clears the matching session;
-  - `kill --mode dev` does not clear other modes;
-  - no-mode `kill` clears all modes for the root;
-  - stale records are reported and removed safely.
+- [x] Added kill command parsing/help.
+- [x] Added canonical Cell root discovery/resolution.
+- [x] Added runtime session registry module.
+- [x] Registered/unregistered sessions from `@sys/cell start`.
+- [x] Added `@sys/process` pid termination primitives.
+- [x] Implemented `@sys/cell kill` against matching session records.
+- [x] Tested session registration, normal cleanup, cross-cwd kill, mode isolation,
+      no-mode session scope, and stale-record handling.
 
 ### Phase 2 — Declared resources
 
-- Add optional service `resources(...)` hook.
-- Add resource planning for selected Cell service graph mode.
-- Teach sys-owned Vite, static HTTP, and Files WebSocket services to declare configured listeners.
-- Include declared resources in session records where possible.
-- Tests prove resource plans are generated from service-owned config parsing, not Cell YAML scraping.
+- [x] Added optional service `resources(...)` hook.
+- [x] Added resource planning for selected Cell service graph mode.
+- [x] Taught sys-owned Vite, static HTTP, and Files WebSocket services to declare configured
+      listeners.
+- [x] Included declared resources in session records where possible.
+- [x] Tested that resource plans come from service-owned config parsing, not Cell YAML scraping.
 
 ### Phase 3 — Reaping fallback
 
-- Add `@sys/process` listener discovery per supported OS.
-- Reap only declared resources for the targeted Cell root/mode scope.
-- Ensure `--dry-run` prints exact would-kill pids/resources.
-- Tests prove unrelated Cell roots are not targeted.
+- [x] Added `@sys/process` listener discovery per supported OS.
+- [x] Reaped only declared resources for the targeted Cell root/mode scope.
+- [x] Made `--dry-run` print exact would-kill pids/resources without mutation.
+- [x] Tested that unrelated roots, modes, hosts, stale-running sessions, and descriptor variants are
+      not targeted outside the declared Cell scope.
 
 ## Non-goals
 
@@ -225,6 +222,23 @@ No silent success. No ambiguous “killed port.” Always show what Cell identit
 - Do not add a generic `killport` command under the Cell name.
 - Do not require the kill command to run from the original terminal.
 - Do not commit runtime session state into the Cell folder.
+
+## Final reality
+
+The kill switch is now implemented as a root/mode-scoped Cell lifecycle cleanup path, not a generic
+port killer.
+
+- Session cleanup targets only trusted runtime records for the canonical Cell root and selected mode
+  scope.
+- Resource cleanup targets only TCP listeners declared by service owners through `resources(args)`.
+- With `--mode <mode>`, resource planning is limited to that mode.
+- With no `--mode`, resource planning is limited to modes present in matching session records.
+- With no sessions and no `--mode`, Cell does not scan descriptor variants.
+- Stale-running sessions block listener cleanup for that mode, even with `--force`.
+- `--dry-run` reports matching sessions and declared listeners without mutation.
+- `--force` may accelerate eligible termination; it does not bypass identity or heartbeat safety.
+- Cell does not scrape owner configs. Vite, static HTTP, and Files WebSocket owners declare their own
+  configured TCP listeners.
 
 ## Operator truth
 
