@@ -1,6 +1,6 @@
 # DirHash namespace factoring S-tier plan
 
-- [ ] refactor(fs): namespace DirHash contract surface
+- [x] 855fec8f6 refactor(fs): namespace DirHash contract surface
 
 ## Purpose
 
@@ -140,6 +140,29 @@ export declare namespace DirHash {
 }
 ```
 
+## Final reality
+
+Landed commit:
+
+- `855fec8f6 refactor(fs): namespace DirHash contract surface`
+
+Actual changes:
+
+- `m.Dir.Hash/t.ts` now exposes `DirHash.Lib`, `DirHash.Result`, `DirHash.Compute.*`, and `DirHash.Verify.*`.
+- `DirHash.Verify.Input` models the actual runtime contract: composite hash object or path to a JSON hash file.
+- `DirHash.Compute.ProgressEvent.path` is typed as `t.StringRelativePath`.
+- `m.Dir.Hash/m.DirHash.ts`, `u.compute.ts`, and `u.verify.ts` use the local `t` lane and namespace-first contracts.
+- `u.compute.ts` no longer mutates a public readonly result shape and no longer imports unused `Hash`.
+- `u.verify.ts` no longer mutates a public readonly response shape and documents hash-file path behavior.
+- `m.Dir/t.ts` points `Hash` at `t.DirHash.Lib`.
+- `m.Pkg` call sites use `t.DirHash.Compute.ProgressEvent` and `t.DirHash.Verify.Input` where they forward DirHash contracts.
+- Touched `m.Dir.Hash` tests avoid direct `Deno.writeTextFile`, raw `JSON.stringify`, and `as any`.
+
+SHIP/HOLD review result:
+
+- SHIP.
+- Remaining risk: external type consumers using old flat aliases must migrate; no runtime behavior drift found.
+
 ## Implementation notes
 
 - `m.Dir.Hash/m.DirHash.ts` exports `DirHash: t.DirHash.Lib`.
@@ -203,9 +226,15 @@ deno task test
 
 Completed proof runs:
 
-- `deno task check`
-- `deno task test --trace-leaks ./src/m.Dir.Hash ./src/m.Dir ./src/m.Pkg`
-- `deno task test`
+- `cd /Users/phil/code/org.sys/sys/code/sys/fs && deno task check`
+- `cd /Users/phil/code/org.sys/sys/code/sys/fs && deno task test --trace-leaks ./src/m.Dir.Hash ./src/m.Dir ./src/m.Pkg`
+- `cd /Users/phil/code/org.sys/sys/code/sys/fs && deno task test`
+
+Completed residue checks:
+
+- no old flat `DirHash*` type names outside `-agent` notes;
+- no direct `./t.ts` imports in `m.Dir.Hash` runtime files;
+- no direct `Deno.writeTextFile`, raw `JSON.stringify`, or `as any` in touched `m.Dir.Hash` tests.
 
 ## S-tier residue pass
 
