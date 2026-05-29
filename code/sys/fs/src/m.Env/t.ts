@@ -3,41 +3,62 @@ import { type t } from './common.ts';
 /**
  * Helpers for retrieving environment variables (aka. "secrets").
  */
-export type EnvLib = Readonly<{
-  Is: t.EnvIsLib;
+export declare namespace Env {
+  /** Environment helper library. */
+  export type Lib = {
+    /** Boolean evaluators for environment conditions. */
+    readonly Is: Is.Lib;
 
-  /** Creates a reader for accessing env-vars. */
-  load(options?: EnvLoadOptions): Promise<Env>;
+    /** Creates a reader for accessing env-vars. */
+    readonly load: Load.Method;
 
-  /** Initializes for known environments (eg. "VSCode"). */
-  init(opts?: { silent?: boolean }): Promise<void>;
-}>;
+    /** Initializes for known environments (eg. "VSCode"). */
+    readonly init: (options?: InitOptions) => Promise<void>;
+  };
 
-export type EnvLoadOptions = {
-  /** Base directory for loading `.env` files (defaults to current working directory). */
-  cwd?: t.StringDir;
+  /** Reads env-vars from loaded dotenv values or the running process. */
+  export type Reader = {
+    /** Resolve an env var value. Missing keys resolve to an empty string for backwards compatibility. */
+    readonly get: (key: string) => string;
 
-  /** `.env` file lookup strategy. */
-  search?: EnvLoadSearch;
-};
+    /** True when the key exists in loaded dotenv values or process env, including present-empty values. */
+    readonly has: (key: string) => boolean;
+  };
 
-export type EnvLoadSearch = 'cwd' | 'upward';
+  /** Options for environment initialization. */
+  export type InitOptions = {
+    /** Suppress console output. */
+    silent?: boolean;
+  };
 
-/**
- * Reads env-vars from either a [.env] file if present or
- * directly from the running process via [Deno.env].
- */
-export type Env = {
-  /** Resolve an env var value. Missing keys resolve to an empty string for backwards compatibility. */
-  get(key: string): string;
+  /**
+   * Dotenv loading contracts.
+   */
+  export namespace Load {
+    /** Creates a reader for accessing env-vars. */
+    export type Method = (options?: Options) => Promise<Reader>;
 
-  /** True when the key exists in loaded dotenv values or process env, including present-empty values. */
-  has(key: string): boolean;
-};
+    /** Options for loading `.env` values. */
+    export type Options = {
+      /** Base directory for loading `.env` files (defaults to current working directory). */
+      cwd?: t.StringDir;
 
-/**
- * Boolean evaluators for environment conditions.
- */
-export type EnvIsLib = Readonly<{
-  vscode: boolean;
-}>;
+      /** `.env` file lookup strategy. */
+      search?: Search;
+    };
+
+    /** `.env` file lookup strategy. */
+    export type Search = 'cwd' | 'upward';
+  }
+
+  /**
+   * Boolean evaluators for environment conditions.
+   */
+  export namespace Is {
+    /** Environment predicate library. */
+    export type Lib = {
+      /** True when running inside VSCode. */
+      readonly vscode: boolean;
+    };
+  }
+}

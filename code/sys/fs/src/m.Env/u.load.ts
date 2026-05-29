@@ -1,16 +1,15 @@
 import * as DotEnv from '@std/dotenv';
-import { type t, StdPath } from './common.ts';
+import { StdPath, type t } from './common.ts';
 
-export const load: t.EnvLib['load'] = async (options = {}) => {
+export const load: t.Env.Lib['load'] = async (options = {}) => {
   const cwd = options.cwd ?? (Deno.cwd() as t.StringDir);
   const search = options.search ?? 'cwd';
 
-  const envPaths =
-    search === 'upward'
-      ? await resolveDotEnvPaths(cwd)
-      : [StdPath.join(cwd, '.env') as t.StringFile];
+  const envPaths = search === 'upward'
+    ? await resolveDotEnvPaths(cwd)
+    : [StdPath.join(cwd, '.env') as t.StringFile];
   const dotenv = await loadDotEnvFiles(envPaths);
-  const api: t.Env = {
+  const api: t.Env.Reader = {
     get(key) {
       return hasOwn(dotenv, key) ? dotenv[key] : Deno.env.get(key) || '';
     },

@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 
-export const Is: t.EnvIsLib = {
+export const Is: t.Env.Is.Lib = {
   get vscode() {
     return isVsCode();
   },
