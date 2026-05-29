@@ -68,9 +68,9 @@ describe('Workspace.Cli.run', () => {
     );
 
     expect(result.kind).to.eql('bump');
-    expect(Cli.stripAnsi(text)).to.include('Delta: baseline → HEAD');
-    expect(Cli.stripAnsi(text)).to.include('Bump roots: @scope/a');
-    expect(Cli.stripAnsi(text)).to.include('@scope/a  code/pkg-a  needs bump');
+    expect(Cli.stripAnsi(text)).to.include('delta      baseline → HEAD');
+    expect(Cli.stripAnsi(text)).to.include('roots      @scope/a');
+    expect(Cli.stripAnsi(text)).to.include('@scope/a • code/pkg-a ← needs bump');
     expect(Cli.stripAnsi(text)).to.include('Dry run only. No files updated.');
   });
 

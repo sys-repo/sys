@@ -1,4 +1,4 @@
-import { c, Cli, type t } from './common.ts';
+import { c, Cli, Str, type t } from './common.ts';
 import { Semver } from '@sys/std/semver/server';
 
 export const Fmt: t.WorkspaceBump.Fmt.Lib = {
@@ -101,8 +101,10 @@ export const Fmt: t.WorkspaceBump.Fmt.Lib = {
 
   planSummary(args) {
     const roots = args.plan.roots.map((root) => root.name);
-    const affected = c.gray(`Affected packages: ${c.white(String(args.plan.selected.length))}`);
-    const lines = [affected, wrangle.rootHeader(roots)];
+    const table = Cli.Table.create([]);
+    table.push([c.gray('affected'), c.white(wrangle.packageCount(args.plan.selected.length))]);
+    table.push([c.gray(roots.length === 1 ? 'root' : 'roots'), wrangle.rootValue(roots)]);
+    const lines = Str.trimEdgeNewlines(String(table)).split('\n');
     if (roots.length > 1) lines.push(...roots.map((root) => c.cyan(`  ${root}`)));
     return lines;
   },
@@ -116,10 +118,14 @@ export const Fmt: t.WorkspaceBump.Fmt.Lib = {
  * Helpers:
  */
 const wrangle = {
-  rootHeader(roots: readonly string[]) {
-    if (roots.length === 0) return c.gray(`Root packages: ${c.white('0')}`);
-    if (roots.length === 1) return c.gray(`Root package: ${c.cyan(roots[0]!)}`);
-    return c.gray(`Root packages: ${c.white(String(roots.length))}`);
+  rootValue(roots: readonly string[]) {
+    if (roots.length === 0) return c.white(wrangle.packageCount(0));
+    if (roots.length === 1) return c.cyan(roots[0]!);
+    return c.white(wrangle.packageCount(roots.length));
+  },
+
+  packageCount(count: number) {
+    return `${count} ${Str.plural(count, 'package')}`;
   },
 
   pad(value: string, width: number) {

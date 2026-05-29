@@ -61,8 +61,14 @@ export declare namespace WorkspaceDelta {
     export type ExplainArgs = {
       /** Git-derived workspace delta to explain. */
       readonly delta: Git.FromRefResult;
-      /** Maximum changed files rendered per package or skipped-file group. Defaults to 12. */
+      /**
+       * Hard cap for rendered changed files per package or skipped-file group.
+       * When omitted, the formatter renders up to five rows: one column on narrow
+       * screens, or two columns when the paths fit.
+       */
       readonly maxFilesPerPackage?: number;
+      /** Console width used for adaptive path layout. Defaults to the current screen width. */
+      readonly width?: number;
     };
   }
 

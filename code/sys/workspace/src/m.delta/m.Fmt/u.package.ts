@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { c, type t } from './common.ts';
 import { classification } from './u.classification.ts';
 
 export type CandidateMap = ReadonlyMap<t.StringPath, t.WorkspaceBump.Candidate>;
@@ -21,5 +21,6 @@ export function packageHeader(
   candidates: CandidateMap,
 ) {
   const name = candidates.get(pkgPath)?.name ?? pkgPath;
-  return `${name}  ${pkgPath}  ${classification(pkgPath, delta)}`;
+  const status = c.gray(c.italic(`← ${classification(pkgPath, delta)}`));
+  return `${c.cyan(name)} ${c.gray('•')} ${c.gray(pkgPath)} ${status}`;
 }
