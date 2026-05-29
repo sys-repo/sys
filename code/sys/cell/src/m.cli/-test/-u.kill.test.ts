@@ -1,6 +1,7 @@
 import { describe, expect, Fs, it, Testing, Time } from '../../-test.ts';
 import { Process, stripAnsi } from '../common.ts';
 import { CellCli } from '../mod.ts';
+import { formatKillResult } from '../u/u.kill.fmt.ts';
 import { killCell } from '../u/u.kill.ts';
 import { CellSession } from '../u/u.session.ts';
 import { silent } from './u.fixture.ts';
@@ -152,8 +153,8 @@ describe('@sys/cell/cli u.kill', () => {
       const text = stripAnsi(new TextDecoder().decode(output.stdout));
 
       expect(output.code).to.eql(0);
-      expect(text).to.contain('Cell kill');
-      expect(text).to.contain('mode: dev');
+      expect(text).to.contain('@sys/cell kill');
+      expect(text).to.contain('mode:      dev');
       expect(text).to.contain('would-terminate');
     });
   });
@@ -271,8 +272,10 @@ describe('@sys/cell/cli u.kill', () => {
       const child = await spawnReadyServer(port, '127.0.0.1');
       try {
         const res = await killCell({ dir: fs.dir, mode: 'dev', sessionDir: runtime.dir });
+        const text = stripAnsi(formatKillResult(res));
 
         expect(res.resources.map((item) => item.status)).to.eql(['not-listening']);
+        expect(text).to.contain('done: no live sessions or listeners to clear');
         expect(Process.isRunning(child.pid)).to.eql(true);
       } finally {
         await cleanup(child);

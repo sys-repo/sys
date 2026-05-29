@@ -1,6 +1,6 @@
 import { Cell } from '../../m.cell/mod.ts';
-import { c, CliTable, Process, Str, type t } from '../common.ts';
-import { FmtPath } from '../u.fmt/u.path.ts';
+import { Process, type t } from '../common.ts';
+import { formatKillResult } from './u.kill.fmt.ts';
 import { loadCanonicalRoot } from './u.root.ts';
 import { CellSession } from './u.session.ts';
 
@@ -72,32 +72,6 @@ export async function killCell(args: KillCellArgs = {}): Promise<KillCellResult>
     resources,
     code: exitCode(sessionResults, resources, args.dryRun ?? false),
   };
-}
-
-export function formatKillResult(res: KillCellResult): string {
-  const lines: string[] = [];
-  lines.push(`${c.cyan('Cell kill')}: ${FmtPath.display(res.root)}`);
-  lines.push(`mode: ${res.mode ?? 'all'}`);
-  if (res.dryRun) lines.push('dry-run: true');
-  if (res.force) lines.push('force: true');
-  lines.push('');
-
-  if (res.sessions.length === 0) {
-    lines.push('sessions: none');
-  } else {
-    res.sessions.forEach((session) => lines.push(String(sessionTable(session))));
-  }
-
-  lines.push('');
-  if (res.resources.length === 0) {
-    lines.push('resources: none');
-  } else {
-    res.resources.forEach((resource) => lines.push(String(resourceTable(resource))));
-  }
-
-  lines.push('');
-  lines.push(doneText(res));
-  return Str.trimEdgeNewlines(lines.join('\n'));
 }
 
 export function toKillResult(
@@ -370,93 +344,6 @@ function publicResourceResult(resource: KillResourceResult): t.CellCli.Kill.Reso
   };
 }
 
-function sessionTable(session: KillSessionResult) {
-  const table = CliTable.create([]);
-  table.push([c.gray('session'), c.white(session.id)]);
-  table.push([c.gray('  mode'), c.white(session.mode)]);
-  table.push([c.gray('  pid'), c.white(String(session.pid))]);
-  table.push([c.gray('  state'), c.white(session.state)]);
-  table.push([c.gray('  heartbeat'), c.white(session.fresh ? 'fresh' : 'stale')]);
-  table.push([c.gray('  status'), c.white(session.status)]);
-  const action = sessionActionText(session);
-  if (action) table.push([c.gray('  action'), c.white(action)]);
-  return table;
-}
-
-function resourceTable(resource: KillResourceResult) {
-  const table = CliTable.create([]);
-  table.push([c.gray('resource'), c.white(resourceLabel(resource))]);
-  table.push([c.gray('  service'), c.white(resource.service)]);
-  table.push([c.gray('  mode'), c.white(resource.mode)]);
-  table.push([c.gray('  status'), c.white(resource.status)]);
-  if (resource.listeners.length > 0) {
-    table.push([c.gray('  listeners'), c.white(listenerText(resource.listeners))]);
-  }
-  const action = resourceActionText(resource);
-  if (action) table.push([c.gray('  action'), c.white(action)]);
-  if (resource.reason) table.push([c.gray('  reason'), c.white(resource.reason)]);
-  return table;
-}
-
-function sessionActionText(session: KillSessionResult) {
-  if (session.terminate) {
-    return session.terminate.actions.map((action) => action.signal).join(' → ');
-  }
-  if (session.status === 'would-terminate') return 'would signal supervisor';
-  if (session.status === 'would-remove-stale') return 'would remove stale record';
-  if (session.status === 'not-running') return 'removed stale record';
-  if (session.status === 'stale-running') return 'skipped stale heartbeat';
-  return undefined;
-}
-
-function resourceActionText(resource: KillResourceResult) {
-  if (resource.terminate) {
-    const signals = resource.terminate.results.flatMap((result) => {
-      return result.actions.map((action) => action.signal);
-    });
-    return signals.length === 0 ? undefined : signals.join(' → ');
-  }
-  if (resource.status === 'would-terminate') return 'would signal listener';
-  if (resource.status === 'skipped') return 'skipped listener cleanup';
-  return undefined;
-}
-
-function listenerText(listeners: readonly t.CellCli.Kill.ResourceListener[]) {
-  return listeners.map((listener) => {
-    return listener.command ? `${listener.pid} ${listener.command}` : String(listener.pid);
-  }).join(', ');
-}
-
-function resourceLabel(resource: t.CellCli.Kill.ResourceResult) {
-  const host = resource.host ?? '*';
-  return `tcp ${host}:${resource.port}`;
-}
-
-function doneText(res: KillCellResult) {
-  const totalSessions = res.sessions.length;
-  const clearedSessions = res.sessions.filter(isClearedSession).length;
-  const skippedSessions = res.sessions.filter(isSkippedSession).length;
-  const wouldSessions = res.sessions.filter((session) => session.status.startsWith('would-')).length;
-  const totalResources = res.resources.length;
-  const clearedResources = res.resources.filter(isClearedResource).length;
-  const skippedResources = res.resources.filter(isSkippedResource).length;
-  const wouldResources = res.resources.filter((resource) => resource.status === 'would-terminate')
-    .length;
-
-  const parts = res.dryRun
-    ? [
-      `would target ${wouldSessions} ${Str.plural(wouldSessions, 'session')}`,
-      `would target ${wouldResources} ${Str.plural(wouldResources, 'listener')}`,
-    ]
-    : [
-      `cleared ${clearedSessions} ${Str.plural(clearedSessions, 'session')}`,
-      `skipped ${skippedSessions} ${Str.plural(skippedSessions, 'session')}`,
-      `cleared ${clearedResources} ${Str.plural(clearedResources, 'listener')}`,
-      `skipped ${skippedResources} ${Str.plural(skippedResources, 'listener')}`,
-    ];
-  return `done: ${parts.join(', ')} (${totalSessions} sessions, ${totalResources} resources matched)`;
-}
-
 function exitCode(
   sessions: readonly KillSessionResult[],
   resources: readonly KillResourceResult[],
@@ -467,16 +354,8 @@ function exitCode(
   return resources.some(isSkippedResource) ? 1 : 0;
 }
 
-function isClearedSession(session: KillSessionResult) {
-  return ['not-running', 'terminated', 'killed'].includes(session.status);
-}
-
 function isSkippedSession(session: KillSessionResult) {
   return session.status === 'still-running' || session.status === 'stale-running';
-}
-
-function isClearedResource(resource: KillResourceResult) {
-  return ['not-listening', 'terminated', 'killed'].includes(resource.status);
 }
 
 function isSkippedResource(resource: KillResourceResult) {
