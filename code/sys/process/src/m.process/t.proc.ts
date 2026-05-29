@@ -21,8 +21,11 @@ export declare namespace Process {
     /** Determine whether an OS process currently accepts signal delivery. */
     isRunning(pid: number): boolean;
 
+    /** Local port inspection helpers. */
+    readonly Port: Port.Lib;
+
     /** Process termination helpers. */
-    readonly Terminate: TerminateLib;
+    readonly Terminate: Terminate.Lib;
 
     /**
      * Execute a <unix> command on a child process
@@ -64,31 +67,69 @@ export declare namespace Process {
     run(script: string, opts?: t.Process.ShellOptions): Promise<t.Process.Output>;
   };
 
-  /**
-   * Script helpers for preparing shell template strings.
-   */
+  /** Script helpers for preparing shell template strings. */
   export type ScriptLib = {
-    /**
-     * Dedent a template literal (standard behavior).
-     * Matches repo-wide `Str.dedent`.
-     */
+    /** Dedent a template literal. Matches repo-wide `Str.dedent`. */
     t(strings: TemplateStringsArray, ...values: unknown[]): string;
 
-    /**
-     * Dedent and tightly trim (remove all outer blank lines).
-     * Ideal for clean `sh -c` scripts.
-     */
+    /** Dedent and trim all outer blank lines. */
     tight(strings: TemplateStringsArray, ...values: unknown[]): string;
   };
 
-  /** Process termination helper API. */
-  export type TerminateLib = {
-    /** Terminate an arbitrary process id with bounded graceful escalation. */
-    pid(pid: number, options?: Terminate.Options): Promise<Terminate.Result>;
-  };
+  /**
+   * Local port inspection contracts.
+   */
+  export namespace Port {
+    /** Local port inspection helper API. */
+    export type Lib = {
+      /** Discover TCP LISTEN sockets matching a local port target. */
+      listeners(input: Input): Promise<readonly Listener[]>;
+    };
 
-  /** Process termination contracts. */
+    /** Supported listener protocol for local port inspection. */
+    export type Protocol = 'tcp';
+
+    /** Port target shorthand or structured target. */
+    export type Input = number | TargetInput;
+
+    /** Structured local port target. */
+    export type TargetInput = {
+      readonly port: number;
+      readonly host?: string;
+      readonly protocol?: Protocol;
+    };
+
+    /** Normalized local port target. */
+    export type Target = {
+      readonly port: number;
+      readonly protocol: Protocol;
+      readonly host?: string;
+    };
+
+    /** TCP listener discovered for a local port target. */
+    export type Listener = {
+      readonly pid: number;
+      readonly protocol: Protocol;
+      readonly port: number;
+      readonly name: string;
+      readonly host?: string;
+      readonly command?: string;
+    };
+  }
+
+  /**
+   * Process termination contracts.
+   */
   export namespace Terminate {
+    /** Process termination helper API. */
+    export type Lib = {
+      /** Terminate an arbitrary process id with bounded graceful escalation. */
+      pid(pid: number, options?: Options): Promise<Result>;
+
+      /** Terminate TCP listener process ids bound to a local port target. */
+      port(input: Process.Port.Input, options?: Options): Promise<Port.Result>;
+    };
+
     /** Result status for arbitrary process id termination. */
     export type Status = 'not-running' | 'terminated' | 'killed' | 'still-running';
 
@@ -113,6 +154,27 @@ export declare namespace Process {
       readonly status: Status;
       readonly actions: readonly Action[];
     };
+
+    /**
+     * Port listener termination contracts.
+     */
+    export namespace Port {
+      /** Aggregate status for port listener cleanup. */
+      export type Status =
+        | 'not-listening'
+        | 'terminated'
+        | 'killed'
+        | 'partial'
+        | 'still-running';
+
+      /** Result from terminating listener process ids for a local port target. */
+      export type Result = {
+        readonly target: Process.Port.Target;
+        readonly status: Status;
+        readonly listeners: readonly Process.Port.Listener[];
+        readonly results: readonly Terminate.Result[];
+      };
+    }
   }
 
   /** Ways to handle `stdin` on a spawned child process. */
@@ -158,7 +220,7 @@ export declare namespace Process {
     readySignal?: string | t.Process.ReadySignalFilter;
   };
 
-  /** A function that determines if the given process/stdio event represents a "ready" signal. */
+  /** A function that determines if a process/stdio event is a "ready" signal. */
   export type ReadySignalFilter = (e: t.Process.Event) => boolean;
 
   /**
@@ -190,15 +252,13 @@ export declare namespace Process {
     toString(): string;
   };
 
-  /**
-   * A shell command ("sh").
-   */
+  /** A shell command ("sh"). */
   export type Shell = {
     readonly path: string;
     run(...args: string[]): Promise<t.Process.Output>;
   };
 
-  /** Options passed to the `Process.sh` method.  */
+  /** Options passed to the `Process.sh` method. */
   export type ShellOptions = {
     readonly args?: string[];
     readonly silent?: boolean;
@@ -213,9 +273,7 @@ export declare namespace Process {
     readonly strict?: boolean;
   };
 
-  /**
-   * Command Output as strings
-   */
+  /** Command output with lazy decoded text. */
   export type Output = {
     readonly code: number;
     readonly success: boolean;
@@ -236,10 +294,10 @@ export declare namespace Process {
     readonly signal: Deno.Signal | null;
   };
 
-  /** Handles events on a Process. */
+  /** Handles events on a process. */
   export type EventHandler = (e: t.Process.Event) => void;
 
-  /** An event fired when data is emmited by the Process. */
+  /** Event fired when data is emitted by the process. */
   export type Event = {
     readonly source: t.Process.StdStream;
     readonly data: Uint8Array;

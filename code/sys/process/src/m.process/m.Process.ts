@@ -1,5 +1,6 @@
 import type { t } from './common.ts';
 
+import { Port } from './m.Port.ts';
 import { Script } from './m.Script.ts';
 import { Terminate } from './m.Terminate.ts';
 import { isRunning } from './u.pid.ts';
@@ -17,6 +18,7 @@ export const Process: t.Process.Lib = {
   Script,
   Signal: { ready: 'PROCESS_READY' },
   isRunning,
+  Port,
   Terminate,
   invoke,
   inherit,
