@@ -11,14 +11,19 @@ describe('Files.Client.websocket', () => {
     try {
       files = await Client.websocket('ws://example.test/files' as t.StringUrl);
       expect(Object.keys(files).sort()).to.eql([
+        'capabilities',
         'close',
         'cmd',
         'dispose',
         'dispose$',
         'disposed',
         'finished',
+        'list',
+        'manifest',
         'readText',
+        'stat',
         'url',
+        'watch',
       ]);
       expect(files.url).to.eql('ws://example.test/files');
       expect('send' in files).to.eql(false);

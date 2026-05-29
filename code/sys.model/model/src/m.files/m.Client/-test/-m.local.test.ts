@@ -13,11 +13,16 @@ describe('Files.Client.local', () => {
 
     try {
       expect(Object.keys(files).sort()).to.eql([
+        'capabilities',
         'cmd',
         'dispose',
         'dispose$',
         'disposed',
+        'list',
+        'manifest',
         'readText',
+        'stat',
+        'watch',
       ]);
       expect(await files.readText('hello.txt')).to.eql('Hello from local Files\n');
       const result = await files.cmd.send(Files.Cmd.Name.read, { path: 'hello.txt' });

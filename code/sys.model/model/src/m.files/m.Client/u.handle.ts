@@ -17,6 +17,27 @@ export function createHandle(
     }
   });
 
+  const capabilities: t.Files.Client.Handle['capabilities'] = () => {
+    return cmd.send(Cmd.Name.capabilities, {});
+  };
+
+  const list: t.Files.Client.Handle['list'] = (input = {}) => {
+    return cmd.send(Cmd.Name.list, input);
+  };
+
+  const stat: t.Files.Client.Handle['stat'] = async (path) => {
+    const result = await cmd.send(Cmd.Name.stat, { path });
+    return result.entry;
+  };
+
+  function manifest(): Promise<t.Files.Manifest>;
+  function manifest(
+    options: t.Files.Client.ManifestWithContentRefsOptions,
+  ): Promise<t.Files.Client.ManifestWithContentRefs>;
+  function manifest(options?: t.Files.Client.ManifestOptions): Promise<t.Files.Manifest> {
+    return cmd.send(Cmd.Name.manifest, options ?? {});
+  }
+
   const readText: t.Files.Client.Handle['readText'] = async (path, options) => {
     let result: t.Files.Cmd.Read.Result;
 
@@ -34,6 +55,17 @@ export function createHandle(
     throw contentRefUnavailable(path);
   };
 
-  return Dispose.toLifecycle<t.Files.Client.Handle>(life, { cmd, readText });
-}
+  const watch: t.Files.Client.Handle['watch'] = (input = {}) => {
+    return cmd.stream(Cmd.Name.watch, input);
+  };
 
+  return Dispose.toLifecycle<t.Files.Client.Handle>(life, {
+    cmd,
+    capabilities,
+    list,
+    stat,
+    manifest,
+    readText,
+    watch,
+  });
+}

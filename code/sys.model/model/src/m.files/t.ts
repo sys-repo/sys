@@ -916,8 +916,22 @@ export declare namespace Files {
     export type Handle = t.Lifecycle & {
       /** Raw typed Cmd client for structured/advanced Files command access. */
       readonly cmd: Cmd.Client;
+      /** Get capability facts for the bounded Files view. */
+      capabilities(): Promise<Capabilities>;
+      /** Query visible entries without manifest metadata. */
+      list(input?: ListOptions): Promise<Cmd.List.Result>;
+      /** Query one visible entry and return the entry directly. */
+      stat(path: String.Path): Promise<Entry>;
+      /** Produce a runtime manifest without optional content refs. */
+      manifest(): Promise<Files.Manifest>;
+      /** Produce a runtime manifest with a present contentRefs array. */
+      manifest(options: ManifestWithContentRefsOptions): Promise<ManifestWithContentRefs>;
+      /** Produce a runtime manifest for the bounded Files view. */
+      manifest(options?: ManifestOptions): Promise<Files.Manifest>;
       /** Read a text file as a string through the typed `files:read` command. */
       readText(path: String.Path, options?: ReadTextOptions): Promise<string>;
+      /** Watch for change hints and return the typed Cmd stream handle. */
+      watch(input?: WatchOptions): Watch;
     };
 
     /** Files client handle backed by an in-process Files backing. */
@@ -936,8 +950,32 @@ export declare namespace Files {
       close(reason?: unknown): Promise<void>;
     };
 
+    /** Options for `Files.Client.list(...)`. */
+    export type ListOptions = Cmd.List.Payload;
+
+    /** Options for `Files.Client.manifest(...)`. */
+    export type ManifestOptions = Cmd.Manifest.Payload;
+
+    /** Manifest result with content refs present because the caller requested them. */
+    export type ManifestWithContentRefs = Omit<Files.Manifest, 'contentRefs'> & {
+      /** Portable content refs available for entries; never inline content. */
+      readonly contentRefs: readonly ContentRef[];
+    };
+
+    /** Options for `Files.Client.manifest(...)` that request content refs. */
+    export type ManifestWithContentRefsOptions = ManifestOptions & {
+      /** Include portable content refs when available; never inline content. */
+      readonly contentRefs: true;
+    };
+
     /** Options for `Files.Client.readText(...)`. */
     export type ReadTextOptions = Omit<Cmd.Read.Payload, 'path'>;
+
+    /** Options for `Files.Client.watch(...)`. */
+    export type WatchOptions = Cmd.Watch.Payload;
+
+    /** Typed watch stream returned by `Files.Client.watch(...)`. */
+    export type Watch = t.Cmd.Stream.Handle<Cmd.Name, Cmd.Result, Cmd.Event, Cmd.Name.Watch>;
 
     /** Options for `Files.Client.local(...)`. */
     export type LocalOptions = Pick<t.Cmd.Client.Options, 'timeout'>;
