@@ -30,9 +30,9 @@
     "./video": "./src/cli.video/mod.ts",
     "./serve": "./src/cli.serve/mod.ts",
     "./deploy": "./src/cli.deploy/mod.ts",
-    "./up": "./src/cli.update/mod.ts",
-    "./update": "./src/cli.update/mod.ts",
-    "./update/advisory-probe": "./src/cli.update/u.advisory.probe.ts",
+    "./up": "./src/cli.upgrade/mod.ts",
+    "./upgrade": "./src/cli.upgrade/mod.ts",
+    "./upgrade/advisory-probe": "./src/cli.upgrade/u.advisory.probe.ts",
     "./env": "./src/-exports/-env.ts"
   },
   "permissions": {

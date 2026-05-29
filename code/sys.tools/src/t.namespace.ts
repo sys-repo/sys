@@ -15,7 +15,7 @@ export namespace Tools {
     | t.CryptoTool.Id
     | t.CrdtTool.Id
     | t.DeployTool.Id
-    | t.UpdateTool.Id
+    | t.UpgradeTool.Id
     | t.VideoTool.Id
     | t.PullTool.Id
     | t.ShellTool.Id
@@ -25,8 +25,11 @@ export namespace Tools {
   /** Command line arguments (argv). */
   /** Common flags. */
   export type CliArgs = { help: boolean; debug?: boolean };
-  /** Root-entry-only flags */
-  export type CliRootArgs = CliArgs & {};
+  /** Root-entry-only flags. */
+  export type CliRootArgs = CliArgs & {
+    readonly noUpgradeCheck?: boolean;
+    readonly 'no-upgrade-check'?: boolean;
+  };
   /** Root parse result (adds typed command from first positional). */
   export type CliRootParsedArgs = t.ParsedArgs<CliRootArgs> & { readonly command?: Command };
 

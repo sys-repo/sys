@@ -4,7 +4,7 @@
  */
 import { Fs } from './common.ts';
 import { cli } from './m.cli.ts';
-import { runWithRootUpdateAdvisory } from '../u.root/u.updateAdvisory.ts';
+import { runWithRootUpgradeAdvisory } from '../u.root/u.upgradeAdvisory.ts';
 export { cli };
 
 /**
@@ -16,5 +16,5 @@ export { ShellTools } from './m.ShellTools.ts';
  * CLI entry-point:
  */
 if (import.meta.main) {
-  await runWithRootUpdateAdvisory(() => cli(Fs.cwd('terminal'), Deno.args));
+  await runWithRootUpgradeAdvisory(() => cli(Fs.cwd('terminal'), Deno.args));
 }

@@ -24,13 +24,13 @@ describe('common/Fmt', () => {
   });
 
   it('builds help pages via the shared cli help formatter surface', async () => {
-    const help = await Fmt.help('sys update', {
-      usage: ['sys update [options]'],
+    const help = await Fmt.help('sys upgrade', {
+      usage: ['sys upgrade [options]'],
       options: [['-h, --help', 'show help']],
     });
     const plain = Cli.stripAnsi(help);
 
-    expect(plain).to.include('sys update');
+    expect(plain).to.include('sys upgrade');
     expect(plain).to.include('@sys/tools');
     expect(plain).to.include('Usage');
     expect(plain).to.include('Options');
@@ -38,10 +38,10 @@ describe('common/Fmt', () => {
   });
 
   it('preserves inline ansi styling in shared help notes', async () => {
-    const help = await Fmt.help('sys update', {
-      note: `@sys/tools/${c.white('update')}`,
+    const help = await Fmt.help('sys upgrade', {
+      note: `@sys/tools/${c.white('upgrade')}`,
     });
 
-    expect(Cli.stripAnsi(help)).to.include('@sys/tools/update');
+    expect(Cli.stripAnsi(help)).to.include('@sys/tools/upgrade');
   });
 });

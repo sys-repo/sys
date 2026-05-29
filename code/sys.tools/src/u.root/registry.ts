@@ -32,7 +32,7 @@ export const ROOT_REGISTRY: readonly ToolRegistryItem[] = [
     group: 'secondary',
     specifier: '../cli.clipboard/mod.ts',
   },
-  { id: 'update', aliases: ['up', 'info'], group: 'utility', specifier: '../cli.update/mod.ts' },
+  { id: 'upgrade', aliases: ['up'], group: 'utility', specifier: '../cli.upgrade/mod.ts' },
   { id: 'dsl', aliases: undefined, group: 'secondary', specifier: '../cli.dsl/mod.ts' },
 ] as const;
 

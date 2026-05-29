@@ -6,13 +6,13 @@ describe('Root CLI', () => {
     const events: string[] = [];
 
     await cli('/tmp/sys.tools.root' as never, ['pi', '--flag'], {
-      async prepareRootUpdateAdvisory() {
+      async prepareRootUpgradeAdvisory() {
         events.push('prepare');
         return {
           path: '/tmp/advisory.json' as never,
           record: undefined,
-          hasUpdate: true,
-          prelude: 'Run sys update --latest',
+          hasUpgrade: true,
+          prelude: 'Run sys upgrade --latest',
         };
       },
       async dispatchRootCommand(cwd, command, argv, context) {
@@ -28,7 +28,7 @@ describe('Root CLI', () => {
 
     expect(events).to.eql([
       'prepare',
-      'info:Run sys update --latest',
+      'info:Run sys upgrade --latest',
       'dispatch:/tmp/sys.tools.root:pi:pi --flag:argv',
     ]);
   });
@@ -37,18 +37,18 @@ describe('Root CLI', () => {
     const events: string[] = [];
 
     await cli('/tmp/sys.tools.root' as never, [], {
-      async prepareRootUpdateAdvisory() {
+      async prepareRootUpgradeAdvisory() {
         events.push('prepare');
         return {
           path: undefined,
           record: undefined,
-          hasUpdate: true,
+          hasUpgrade: true,
           prelude: undefined,
         };
       },
       async rootMenu(args) {
-        events.push(`menu:${args.highlightUpdate}`);
-        return { kind: 'selected', command: 'update' };
+        events.push(`menu:${args.highlightUpgrade}`);
+        return { kind: 'selected', command: 'upgrade' };
       },
       async dispatchRootCommand(cwd, command, argv, context) {
         events.push(`dispatch:${cwd}:${command}:${argv.join(' ')}:${context.origin}`);
@@ -58,7 +58,7 @@ describe('Root CLI', () => {
     expect(events).to.eql([
       'prepare',
       'menu:true',
-      'dispatch:/tmp/sys.tools.root:update:update:root-menu',
+      'dispatch:/tmp/sys.tools.root:upgrade:upgrade:root-menu',
     ]);
   });
 
@@ -67,19 +67,19 @@ describe('Root CLI', () => {
     let menuCount = 0;
 
     await cli('/tmp/sys.tools.root' as never, [], {
-      async prepareRootUpdateAdvisory() {
+      async prepareRootUpgradeAdvisory() {
         events.push('prepare');
         return {
           path: undefined,
           record: undefined,
-          hasUpdate: false,
+          hasUpgrade: false,
           prelude: undefined,
         };
       },
       async rootMenu(args) {
         menuCount += 1;
-        events.push(`menu:${menuCount}:${args.highlightUpdate}`);
-        return menuCount === 1 ? { kind: 'selected', command: 'update' } : { kind: 'exit' };
+        events.push(`menu:${menuCount}:${args.highlightUpgrade}`);
+        return menuCount === 1 ? { kind: 'selected', command: 'upgrade' } : { kind: 'exit' };
       },
       async dispatchRootCommand(cwd, command, argv, context) {
         events.push(`dispatch:${cwd}:${command}:${argv.join(' ')}:${context.origin}`);
@@ -90,7 +90,7 @@ describe('Root CLI', () => {
     expect(events).to.eql([
       'prepare',
       'menu:1:false',
-      'dispatch:/tmp/sys.tools.root:update:update:root-menu',
+      'dispatch:/tmp/sys.tools.root:upgrade:upgrade:root-menu',
       'menu:2:false',
     ]);
   });
@@ -99,7 +99,7 @@ describe('Root CLI', () => {
     const events: string[] = [];
 
     await cli('/tmp/sys.tools.root' as never, ['pi'], {
-      async prepareRootUpdateAdvisory() {
+      async prepareRootUpgradeAdvisory() {
         events.push('prepare');
         throw new Error('cache unavailable');
       },
@@ -114,16 +114,16 @@ describe('Root CLI', () => {
     ]);
   });
 
-  it('passes --no-update-check only to the advisory seam and not the selected tool', async () => {
+  it('passes --no-upgrade-check only to the advisory seam and not the selected tool', async () => {
     const events: string[] = [];
 
-    await cli('/tmp/sys.tools.root' as never, ['--no-update-check', 'pi', '--flag'], {
-      async prepareRootUpdateAdvisory(options) {
-        events.push(`prepare:${options?.noUpdateCheck}`);
+    await cli('/tmp/sys.tools.root' as never, ['--no-upgrade-check', 'pi', '--flag'], {
+      async prepareRootUpgradeAdvisory(options) {
+        events.push(`prepare:${options?.noUpgradeCheck}`);
         return {
           path: undefined,
           record: undefined,
-          hasUpdate: false,
+          hasUpgrade: false,
           prelude: undefined,
         };
       },
@@ -148,7 +148,7 @@ describe('Root CLI', () => {
       printRootHelp() {
         events.push('help');
       },
-      async prepareRootUpdateAdvisory() {
+      async prepareRootUpgradeAdvisory() {
         events.push('prepare');
         throw new Error('should not prepare advisory for help-only root invocation');
       },
@@ -164,13 +164,13 @@ describe('Root CLI', () => {
     const events: string[] = [];
 
     await cli('/tmp/sys.tools.root' as never, ['pi', '--help'], {
-      async prepareRootUpdateAdvisory() {
+      async prepareRootUpgradeAdvisory() {
         events.push('prepare');
         return {
           path: '/tmp/advisory.json' as never,
           record: undefined,
-          hasUpdate: true,
-          prelude: 'Run sys update --latest',
+          hasUpgrade: true,
+          prelude: 'Run sys upgrade --latest',
         };
       },
       async dispatchRootCommand(cwd, command, argv, context) {
@@ -186,7 +186,7 @@ describe('Root CLI', () => {
 
     expect(events).to.eql([
       'prepare',
-      'info:Run sys update --latest',
+      'info:Run sys upgrade --latest',
       'dispatch:/tmp/sys.tools.root:pi:pi --help:argv',
     ]);
   });

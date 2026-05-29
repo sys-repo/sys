@@ -1,7 +1,7 @@
 import type { StringDir } from '@sys/types';
-import type { UpdateTool } from './t.namespace.ts';
+import type { UpgradeTool } from './t.namespace.ts';
 
-/** @system: common update-visible types */
+/** @system: common upgrade-visible types */
 export type * from '@sys/types';
 export type { ParsedArgs } from '@sys/std/t';
 export type {
@@ -10,7 +10,7 @@ export type {
   CliFormatHelpInputShorthand,
 } from '@sys/cli/t';
 
-/** Minimal root-tool vocabulary used by update. */
+/** Minimal root-tool vocabulary used by upgrade. */
 export namespace Tools {
   export type CliArgs = { help: boolean; debug?: boolean };
 }
@@ -21,15 +21,15 @@ export type RunReturn = {
   exit: number | boolean;
 };
 
-/** Local update types. */
+/** Local upgrade types. */
 export type * from './t.namespace.ts';
 
-/** CLI helpers for updating the locally installed `@sys/tools` module. */
-export type UpdateToolsLib = {
+/** CLI helpers for upgrading the locally installed `@sys/tools` module. */
+export type UpgradeToolsLib = {
   /** Run the interactive CLI flow (prompts + spinner). */
   cli(
     cwd?: StringDir,
     argv?: string[],
-    context?: UpdateTool.CliContext,
-  ): Promise<UpdateTool.CliResult>;
+    context?: UpgradeTool.CliContext,
+  ): Promise<UpgradeTool.CliResult>;
 };

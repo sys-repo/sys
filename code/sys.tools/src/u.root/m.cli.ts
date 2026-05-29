@@ -1,14 +1,14 @@
 import { Is, type t } from './common.ts';
 import { parseArgs, toRootDispatchArgv } from './u.args.ts';
-import type { UpdateAdvisoryState } from '../cli.update/u.advisory.ts';
-import type { RootUpdateAdvisoryOptions } from './u.updateAdvisory.policy.ts';
+import type { UpgradeAdvisoryState } from '../cli.upgrade/u.advisory.ts';
+import type { RootUpgradeAdvisoryOptions } from './u.upgradeAdvisory.policy.ts';
 
 type CliDeps = {
   readonly printRootHelp?: (args: t.Root.CliRootParsedArgs) => unknown;
-  readonly prepareRootUpdateAdvisory?: (
-    options?: RootUpdateAdvisoryOptions,
-  ) => Promise<UpdateAdvisoryState>;
-  readonly rootMenu?: (args: { highlightUpdate?: boolean }) => Promise<
+  readonly prepareRootUpgradeAdvisory?: (
+    options?: RootUpgradeAdvisoryOptions,
+  ) => Promise<UpgradeAdvisoryState>;
+  readonly rootMenu?: (args: { highlightUpgrade?: boolean }) => Promise<
     { kind: 'exit' } | { kind: 'selected'; command: t.Root.Command }
   >;
   readonly dispatchRootCommand?: (
@@ -31,21 +31,21 @@ export async function cli(cwd: t.StringDir, argv: string[], deps: CliDeps = {}) 
     return;
   }
 
-  const prepareRootUpdateAdvisory = deps.prepareRootUpdateAdvisory ??
-    (await import('./u.updateAdvisory.ts')).prepareRootUpdateAdvisory;
+  const prepareRootUpgradeAdvisory = deps.prepareRootUpgradeAdvisory ??
+    (await import('./u.upgradeAdvisory.ts')).prepareRootUpgradeAdvisory;
   const info = deps.info ?? console.info;
 
-  let advisory: UpdateAdvisoryState;
-  const advisoryOptions = { noUpdateCheck: args.noUpdateCheck } as const;
+  let advisory: UpgradeAdvisoryState;
+  const advisoryOptions = { noUpgradeCheck: args.noUpgradeCheck } as const;
   try {
-    advisory = await prepareRootUpdateAdvisory(advisoryOptions);
+    advisory = await prepareRootUpgradeAdvisory(advisoryOptions);
     try {
       if (advisory.prelude) info(advisory.prelude);
     } catch {
       // Advisory display must never block the selected tool.
     }
   } catch {
-    advisory = emptyUpdateAdvisoryState;
+    advisory = emptyUpgradeAdvisoryState;
   }
 
   if (args.command) {
@@ -57,7 +57,7 @@ export async function cli(cwd: t.StringDir, argv: string[], deps: CliDeps = {}) 
 
   const rootMenu = deps.rootMenu ?? (await import('./u.menu.ts')).rootMenu;
   while (true) {
-    const picked = await rootMenu({ highlightUpdate: advisory.hasUpdate });
+    const picked = await rootMenu({ highlightUpgrade: advisory.hasUpgrade });
     if (picked.kind === 'exit') return;
 
     const result = await dispatchRootCommand(cwd, picked.command, [picked.command], {
@@ -68,10 +68,10 @@ export async function cli(cwd: t.StringDir, argv: string[], deps: CliDeps = {}) 
   }
 }
 
-const emptyUpdateAdvisoryState: UpdateAdvisoryState = {
+const emptyUpgradeAdvisoryState: UpgradeAdvisoryState = {
   path: undefined,
   record: undefined,
-  hasUpdate: false,
+  hasUpgrade: false,
   prelude: undefined,
 };
 

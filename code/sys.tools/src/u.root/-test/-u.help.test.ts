@@ -21,12 +21,12 @@ describe('Root Help', () => {
     expect(text).to.contain('@sys/tools dsl');
   });
 
-  it('documents the update-advisory opt-out flag and env var', async () => {
+  it('documents the upgrade-advisory opt-out flag and env var', async () => {
     const output = await captureInfo(async () => void await printRootHelp({ help: true, _: [] }));
     const text = Cli.stripAnsi(output);
 
-    expect(text).to.contain('--no-update-check');
-    expect(text).to.contain('SYS_TOOLS_NO_UPDATE_CHECK=1');
-    expect(text).to.contain('Disable automatic update advisory checks and notices.');
+    expect(text).to.contain('--no-upgrade-check');
+    expect(text).to.contain('SYS_TOOLS_NO_UPGRADE_CHECK=1');
+    expect(text).to.contain('Disable automatic upgrade advisory checks and notices.');
   });
 });

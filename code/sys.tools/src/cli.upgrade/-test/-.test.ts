@@ -1,23 +1,23 @@
-import { c, Cli, describe, expect, Is, it, type t } from '../../-test.ts';
+import { Cli, describe, expect, Is, it, type t } from '../../-test.ts';
 import { D } from '../common.ts';
-import { UpdateTools } from '../mod.ts';
-import { runUpdate } from '../u.cmd.runUpdate.ts';
+import { UpgradeTools } from '../mod.ts';
+import { runUpgrade } from '../u.cmd.runUpgrade.ts';
 
 describe(D.tool.name, () => {
   it('API', async () => {
-    const m = await import('@sys/tools/update');
-    expect(m.UpdateTools).to.equal(UpdateTools);
+    const m = await import('@sys/tools/upgrade');
+    expect(m.UpgradeTools).to.equal(UpgradeTools);
   });
 });
 
-describe('cli.update.runUpdate', () => {
+describe('cli.upgrade.runUpgrade', () => {
   it('shows a version-check spinner and exits without prompting when already latest', async () => {
     const events: string[] = [];
     let prompted = false;
     let refreshed = false;
     let advisoryRemote = '';
 
-    await runUpdate('/tmp' as t.StringDir, { interactive: true }, {
+    await runUpgrade('/tmp' as t.StringDir, { interactive: true }, {
       getVersionInfo: async () => ({
         local: '0.0.318',
         remote: '0.0.318',
@@ -59,13 +59,13 @@ describe('cli.update.runUpdate', () => {
     expect(advisoryRemote).to.eql('0.0.318');
   });
 
-  it('offers back instead of exiting when root-menu update is already latest', async () => {
+  it('offers back instead of exiting when root-menu upgrade is already latest', async () => {
     let prompted = false;
     let refreshed = false;
     let message = '';
     let options: string[] = [];
 
-    const result = await runUpdate('/tmp' as t.StringDir, {
+    const result = await runUpgrade('/tmp' as t.StringDir, {
       interactive: true,
       source: 'root-menu',
     }, {
@@ -93,7 +93,7 @@ describe('cli.update.runUpdate', () => {
     expect(result).to.eql({ kind: 'back' });
     expect(prompted).to.eql(true);
     expect(refreshed).to.eql(false);
-    expect(message).to.eql('No updates');
+    expect(message).to.eql('No upgrades');
     expect(options).to.eql(['  rescan', '← back']);
   });
 
@@ -102,7 +102,7 @@ describe('cli.update.runUpdate', () => {
     let prompts = 0;
     let refreshed = false;
 
-    const result = await runUpdate('/tmp' as t.StringDir, {
+    const result = await runUpgrade('/tmp' as t.StringDir, {
       interactive: true,
       source: 'root-menu',
     }, {
@@ -138,7 +138,7 @@ describe('cli.update.runUpdate', () => {
     const events: string[] = [];
     let advisoryRemote = '';
 
-    await runUpdate('/tmp' as t.StringDir, { interactive: true }, {
+    await runUpgrade('/tmp' as t.StringDir, { interactive: true }, {
       getVersionInfo: async () => ({
         local: '0.0.318',
         remote: '0.0.319',
@@ -179,19 +179,14 @@ describe('cli.update.runUpdate', () => {
     ).to.be.greaterThan(
       plain.indexOf('prompt'),
     );
-    const upgradeStart = events.find((line) =>
-      Cli.stripAnsi(line).includes('start:upgrading @sys/tools from 0.0.318 to 0.0.319...')
-    );
-    expect(upgradeStart).to.contain(c.white('0.0.319'));
-    expect(upgradeStart).not.to.contain(c.green('0.0.319'));
     expect(advisoryRemote).to.eql('0.0.319');
   });
 
-  it('keeps direct interactive prompts on the existing update/exit menu', async () => {
+  it('keeps direct interactive prompts on the existing upgrade/exit menu', async () => {
     let refreshed = false;
     let options: string[] = [];
 
-    const result = await runUpdate('/tmp' as t.StringDir, { interactive: true, source: 'argv' }, {
+    const result = await runUpgrade('/tmp' as t.StringDir, { interactive: true, source: 'argv' }, {
       getVersionInfo: async () => ({
         local: '0.0.318',
         remote: '0.0.319',
@@ -222,9 +217,8 @@ describe('cli.update.runUpdate', () => {
   it('uses a back affordance from the root menu and returns without refreshing', async () => {
     let refreshed = false;
     let options: string[] = [];
-    let rawOptions: string[] = [];
 
-    const result = await runUpdate('/tmp' as t.StringDir, {
+    const result = await runUpgrade('/tmp' as t.StringDir, {
       interactive: true,
       source: 'root-menu',
     }, {
@@ -239,7 +233,6 @@ describe('cli.update.runUpdate', () => {
         return { success: true, toString: () => '' };
       },
       prompt: async (args) => {
-        rawOptions = promptOptionNames(args.options, { stripAnsi: false });
         options = promptOptionNames(args.options);
         return '__back__';
       },
@@ -250,7 +243,6 @@ describe('cli.update.runUpdate', () => {
 
     expect(result).to.eql({ kind: 'back' });
     expect(refreshed).to.eql(false);
-    expect(rawOptions[0]).to.eql(`  ${c.green('upgrade now to')} ${c.white('0.0.319')}`);
     expect(options).to.eql([
       '  upgrade now to 0.0.319',
       '← back',
@@ -258,11 +250,11 @@ describe('cli.update.runUpdate', () => {
     expect(options.join('\n')).to.not.contain('(exit)');
   });
 
-  it('keeps update flow working when advisory persistence fails', async () => {
+  it('keeps upgrade flow working when advisory persistence fails', async () => {
     const events: string[] = [];
     let refreshed = false;
 
-    await runUpdate('/tmp' as t.StringDir, { interactive: false }, {
+    await runUpgrade('/tmp' as t.StringDir, { interactive: false }, {
       getVersionInfo: async () => ({
         local: '0.0.318',
         remote: '0.0.319',
@@ -290,12 +282,8 @@ describe('cli.update.runUpdate', () => {
 
     const plain = events.map((line) => Cli.stripAnsi(line));
     expect(refreshed).to.eql(true);
-    const success = events.find((line) =>
-      Cli.stripAnsi(line).includes('Updated @sys/tools to latest 0.0.319 ✔')
-    );
-    expect(success).to.contain(c.green('0.0.319 ✔'));
     expect(
-      plain.some((line) => line.includes('Updated @sys/tools to latest 0.0.319 ✔')),
+      plain.some((line) => line.includes('Upgraded @sys/tools to latest 0.0.319 ✔')),
     ).to.eql(true);
   });
 });

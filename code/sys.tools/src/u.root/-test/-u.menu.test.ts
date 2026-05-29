@@ -6,13 +6,13 @@ describe('Root Menu', () => {
     const lines = optionLines([
       '                                                         ',
       '├─ @sys/tools pi             (← aliases agent, harness)  ',
-      '└─ @sys/tools update         (← alias up, info)          ',
+      '└─ @sys/tools upgrade        (← alias up)                ',
       '  (exit)                                                 ',
     ].join('\n'));
 
     expect(lines).to.eql([
       '├─ @sys/tools pi             (← aliases agent, harness)  ',
-      '└─ @sys/tools update         (← alias up, info)          ',
+      '└─ @sys/tools upgrade        (← alias up)                ',
       '  (exit)                                                 ',
     ]);
   });
@@ -56,7 +56,7 @@ describe('Root Menu', () => {
       Str.dedent([
         '├─ @sys/tools deploy',
         '│     more...',
-        '└─ @sys/tools update',
+        '└─ @sys/tools upgrade',
         '  (exit)',
       ].join('\n')),
     );
@@ -67,6 +67,6 @@ describe('Root Menu', () => {
   it('renders the root menu header without inline advisory detail', () => {
     const text = Cli.stripAnsi(menuMessage());
     expect(text).to.contain('system:tools@');
-    expect(text).to.not.contain('Update available:');
+    expect(text).to.not.contain('Upgrade available:');
   });
 });

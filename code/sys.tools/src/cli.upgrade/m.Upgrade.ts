@@ -2,6 +2,6 @@ import { type t } from './common.ts';
 import { cli } from './m.cli.ts';
 
 /**
- * Update tools.
+ * Upgrade tools.
  */
-export const UpdateTools: t.UpdateToolsLib = { cli };
+export const UpgradeTools: t.UpgradeToolsLib = { cli };

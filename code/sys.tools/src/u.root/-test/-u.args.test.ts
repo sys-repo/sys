@@ -85,41 +85,41 @@ describe('Root Args', () => {
     expect(res._).eql(['serve']);
   });
 
-  it('parses --no-update-check as a root-only advisory flag', () => {
-    const res = parseArgs(['--no-update-check', 'pi']);
-    expect(res.noUpdateCheck).eql(true);
+  it('parses --no-upgrade-check as a root-only advisory flag', () => {
+    const res = parseArgs(['--no-upgrade-check', 'pi']);
+    expect(res.noUpgradeCheck).eql(true);
     expect(res.command).eql('pi');
     expect(res._).eql(['pi']);
   });
 
   it('normalizes the first positional alias even when root flags come first', () => {
-    const res = parseArgs(['--no-update-check', 'agent', 'x']);
+    const res = parseArgs(['--no-upgrade-check', 'agent', 'x']);
     expect(res.command).eql('pi');
     expect(res._).eql(['pi', 'x']);
   });
 
   it('creates child argv with the command first and strips root-only advisory flags', () => {
-    const res = parseArgs(['--no-update-check', 'agent', '--help']);
-    expect(toRootDispatchArgv(['--no-update-check', 'agent', '--help'], res)).eql([
+    const res = parseArgs(['--no-upgrade-check', 'agent', '--help']);
+    expect(toRootDispatchArgv(['--no-upgrade-check', 'agent', '--help'], res)).eql([
       'pi',
       '--help',
     ]);
   });
 
   it('strips the root-only advisory flag after the command too', () => {
-    const res = parseArgs(['pi', '--no-update-check', '--flag']);
-    expect(toRootDispatchArgv(['pi', '--no-update-check', '--flag'], res)).eql([
+    const res = parseArgs(['pi', '--no-upgrade-check', '--flag']);
+    expect(toRootDispatchArgv(['pi', '--no-upgrade-check', '--flag'], res)).eql([
       'pi',
       '--flag',
     ]);
   });
 
   it('does not strip root-only advisory flag text after the positional separator', () => {
-    const res = parseArgs(['pi', '--', '--no-update-check']);
-    expect(toRootDispatchArgv(['pi', '--', '--no-update-check'], res)).eql([
+    const res = parseArgs(['pi', '--', '--no-upgrade-check']);
+    expect(toRootDispatchArgv(['pi', '--', '--no-upgrade-check'], res)).eql([
       'pi',
       '--',
-      '--no-update-check',
+      '--no-upgrade-check',
     ]);
   });
 });

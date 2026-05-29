@@ -9,11 +9,11 @@ export type RootMenuPick =
 
 const ROOT_MENU_MAX_ROWS = 20;
 
-export async function rootMenu(args: { highlightUpdate?: boolean } = {}): Promise<RootMenuPick> {
+export async function rootMenu(args: { highlightUpgrade?: boolean } = {}): Promise<RootMenuPick> {
   let scope: 'primary' | 'secondary' = 'primary';
 
   while (true) {
-    const picked = await promptMenu(scope, args.highlightUpdate);
+    const picked = await promptMenu(scope, args.highlightUpgrade);
 
     if (picked === 'exit') return { kind: 'exit' };
     if (picked === 'more') {
@@ -54,15 +54,15 @@ export function menuMessage(): string {
 
 async function promptMenu(
   scope: 'primary' | 'secondary',
-  highlightUpdate?: boolean,
+  highlightUpgrade?: boolean,
 ): Promise<RootMenuAction> {
   const rows = scope === 'primary'
     ? [
-      ...toolMenuRows('primary', highlightUpdate),
+      ...toolMenuRows('primary', highlightUpgrade),
       specialRow('more'),
-      ...toolMenuRows('utility', highlightUpdate),
+      ...toolMenuRows('utility', highlightUpgrade),
     ]
-    : [...toolMenuRows('secondary', highlightUpdate), specialRow('back')];
+    : [...toolMenuRows('secondary', highlightUpgrade), specialRow('back')];
   const options = rowsToOptions(rows);
 
   const picked = await Cli.Input.Select.prompt<RootMenuAction>({
@@ -80,9 +80,9 @@ type MenuRow = { readonly value: RootMenuAction; readonly columns: readonly stri
 
 function toolMenuRows(
   group: 'primary' | 'secondary' | 'utility',
-  highlightUpdate?: boolean,
+  highlightUpgrade?: boolean,
 ): MenuRow[] {
-  const highlightCommand = highlightUpdate ? 'update' : undefined;
+  const highlightCommand = highlightUpgrade ? 'upgrade' : undefined;
   return rootRows(group, { highlightCommand }).map((row) => ({
     value: row.command,
     columns: row.columns,

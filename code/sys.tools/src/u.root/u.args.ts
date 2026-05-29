@@ -1,10 +1,10 @@
 import { Args, D, type t } from './common.ts';
 import { ALIAS } from './registry.ts';
-import { RootUpdateAdvisoryPolicy } from './u.updateAdvisory.policy.ts';
+import { RootUpgradeAdvisoryPolicy } from './u.upgradeAdvisory.policy.ts';
 
 const TOOLSET: ReadonlySet<string> = new Set(D.TOOLS);
 const ROOT_ONLY_FLAGS: ReadonlySet<string> = new Set([
-  RootUpdateAdvisoryPolicy.flag.noUpdateCheck,
+  RootUpgradeAdvisoryPolicy.flag.noUpgradeCheck,
 ]);
 
 /**
@@ -14,7 +14,7 @@ const ROOT_ONLY_FLAGS: ReadonlySet<string> = new Set([
 export function parseArgs(argv: string[]): t.Root.CliRootParsedArgs {
   const args = Args.parse<t.Root.CliRootArgs>(argv, {
     alias: { h: 'help' },
-    boolean: ['help', RootUpdateAdvisoryPolicy.flag.noUpdateCheckKey],
+    boolean: ['help', RootUpgradeAdvisoryPolicy.flag.noUpgradeCheckKey],
   });
   const positionals = wrangle.normalizePositionals(args._);
   const head = positionals[0];
@@ -24,7 +24,7 @@ export function parseArgs(argv: string[]): t.Root.CliRootParsedArgs {
     ...args,
     _: positionals,
     command,
-    noUpdateCheck: args[RootUpdateAdvisoryPolicy.flag.noUpdateCheckKey] === true,
+    noUpgradeCheck: args[RootUpgradeAdvisoryPolicy.flag.noUpgradeCheckKey] === true,
   };
 }
 

@@ -1,6 +1,6 @@
 import { c, Cli, Fmt, pkg, Str, type t } from './common.ts';
 import { rootRows } from './u.rows.ts';
-import { RootUpdateAdvisoryPolicy } from './u.updateAdvisory.policy.ts';
+import { RootUpgradeAdvisoryPolicy } from './u.upgradeAdvisory.policy.ts';
 
 export async function printRootHelp(args: t.Root.CliRootParsedArgs) {
   const table = Cli.table([]);
@@ -26,10 +26,10 @@ export async function printRootHelp(args: t.Root.CliRootParsedArgs) {
   if (args.help) {
     const cmd = Fmt.invoke();
     const alias = `${c.italic(c.cyan('alias'))} ${c.white('sys')}=${c.yellow(`"${cmd}"`)}`;
-    const op = c.white(RootUpdateAdvisoryPolicy.flag.noUpdateCheck);
-    const env = c.white(`${RootUpdateAdvisoryPolicy.env.noUpdateCheck}=1`);
+    const op = c.white(RootUpgradeAdvisoryPolicy.flag.noUpgradeCheck);
+    const env = c.white(`${RootUpgradeAdvisoryPolicy.env.noUpgradeCheck}=1`);
     console.info(c.gray(`  shortcut: ${alias}`));
-    console.info(c.gray(`  option: ${op} Disable automatic update advisory checks and notices.`));
+    console.info(c.gray(`  option: ${op} Disable automatic upgrade advisory checks and notices.`));
     console.info(c.gray(`  env: ${env} Same advisory opt-out for shell and CI.\n`));
   }
 }

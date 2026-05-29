@@ -2,7 +2,7 @@ import { c, Cli, pkg, type t } from './common.ts';
 import { Fmt } from './u.fmt.ts';
 import { refreshCache } from './u.refreshCache.ts';
 import { getVersionInfo } from './u.ts';
-import { writeUpdateAdvisorySuccess } from './u.advisory.ts';
+import { writeUpgradeAdvisorySuccess } from './u.advisory.ts';
 
 type Spinner = {
   text: string;
@@ -17,33 +17,33 @@ type RefreshResult = {
   toString(): string;
 };
 
-type RunUpdateSource = NonNullable<t.UpdateTool.CliContext['origin']>;
-type RunUpdateResult = t.UpdateTool.CliResult;
+type RunUpgradeSource = NonNullable<t.UpgradeTool.CliContext['origin']>;
+type RunUpgradeResult = t.UpgradeTool.CliResult;
 
-type RunUpdateDeps = {
+type RunUpgradeDeps = {
   readonly getVersionInfo: typeof getVersionInfo;
   readonly refreshCache: (cwd: t.StringDir, opts?: { silent?: boolean }) => Promise<RefreshResult>;
   readonly prompt: typeof Cli.Input.Select.prompt<string>;
   readonly spinner: (text?: string) => Spinner;
   readonly info: (...data: unknown[]) => void;
-  readonly writeAdvisorySuccess: typeof writeUpdateAdvisorySuccess;
+  readonly writeAdvisorySuccess: typeof writeUpgradeAdvisorySuccess;
 };
 
 /**
- * Update JUST the @sys/tools CLI by refreshing the JSR cache.
+ * Upgrade JUST the @sys/tools CLI by refreshing the JSR cache.
  */
-export async function runUpdate(
+export async function runUpgrade(
   cwd: t.StringDir,
-  opts: { interactive?: boolean; source?: RunUpdateSource } = {},
-  deps: RunUpdateDeps = {
+  opts: { interactive?: boolean; source?: RunUpgradeSource } = {},
+  deps: RunUpgradeDeps = {
     getVersionInfo,
     refreshCache,
     prompt: Cli.Input.Select.prompt<string>,
     spinner: Cli.spinner,
     info: console.info,
-    writeAdvisorySuccess: writeUpdateAdvisorySuccess,
+    writeAdvisorySuccess: writeUpgradeAdvisorySuccess,
   },
-): Promise<RunUpdateResult> {
+): Promise<RunUpgradeResult> {
   const { interactive = false, source = 'argv' } = opts;
   const UPGRADE = 'upgrade';
   const EXIT = '__exit__';
@@ -79,7 +79,7 @@ export async function runUpdate(
 
       if (interactive && source === 'root-menu') {
         const answer = await deps.prompt({
-          message: 'No updates',
+          message: 'No upgrades',
           options: [
             { name: '  rescan', value: RESCAN },
             { name: Fmt.back(), value: BACK },
@@ -158,7 +158,7 @@ function formatUpgradeOption(args: { prefix: string; latest: t.StringSemver }) {
   return `${prefix}${c.green('upgrade now to')} ${c.white(latest)}`;
 }
 
-function formatUpgradeSpinnerText(version: t.UpdateTool.VersionInfo) {
+function formatUpgradeSpinnerText(version: t.UpgradeTool.VersionInfo) {
   return [
     c.gray(c.italic('upgrading ')),
     c.white(pkg.name),
@@ -170,7 +170,7 @@ function formatUpgradeSpinnerText(version: t.UpdateTool.VersionInfo) {
 
 function formatUpgradeSuccess(latest: t.StringSemver) {
   return [
-    c.gray('Updated '),
+    c.gray('Upgraded '),
     c.white(pkg.name),
     c.gray(' to latest '),
     c.green(`${latest} ✔`),

@@ -1,58 +1,58 @@
 import { Fs, Is, Json, Num, Path, pkg, Semver, type t, Time } from './common.ts';
 import { Fmt } from './u.fmt.ts';
-import { resolveUpdateAdvisoryPath } from './u.advisory.path.ts';
+import { resolveUpgradeAdvisoryPath } from './u.advisory.path.ts';
 
-const DEBUG_REMOTE_ENV = 'SYS_TOOLS_DEBUG_UPDATE_ADVISORY_REMOTE';
+const DEBUG_REMOTE_ENV = 'SYS_TOOLS_DEBUG_UPGRADE_ADVISORY_REMOTE';
 
 type Now = () => t.UnixTimestamp;
 type ReadDeps = { readonly path?: t.StringPath };
 type WriteDeps = { readonly now?: Now; readonly path?: t.StringPath };
-type UpdateAdvisoryRecord = t.UpdateTool.AdvisoryRecord;
+type UpgradeAdvisoryRecord = t.UpgradeTool.AdvisoryRecord;
 
-export type UpdateAdvisoryState = {
+export type UpgradeAdvisoryState = {
   readonly path?: t.StringPath;
-  readonly record?: t.UpdateTool.AdvisoryRecord;
-  readonly hasUpdate: boolean;
+  readonly record?: t.UpgradeTool.AdvisoryRecord;
+  readonly hasUpgrade: boolean;
   readonly prelude?: string;
 };
 
-export async function readUpdateAdvisoryState(deps: ReadDeps = {}): Promise<UpdateAdvisoryState> {
+export async function readUpgradeAdvisoryState(deps: ReadDeps = {}): Promise<UpgradeAdvisoryState> {
   const debugRecord = wrangle.debugRecord();
   if (debugRecord) {
-    const hasUpdate = wrangle.hasUpdate(debugRecord);
+    const hasUpgrade = wrangle.hasUpgrade(debugRecord);
     return {
       path: undefined,
       record: debugRecord,
-      hasUpdate,
-      prelude: hasUpdate ? toRootUpdateAdvisoryPrelude(debugRecord) : undefined,
+      hasUpgrade,
+      prelude: hasUpgrade ? toRootUpgradeAdvisoryPrelude(debugRecord) : undefined,
     };
   }
 
-  const path = deps.path ?? resolveUpdateAdvisoryPath();
+  const path = deps.path ?? resolveUpgradeAdvisoryPath();
   if (!path) {
     return {
       path: undefined,
       record: undefined,
-      hasUpdate: false,
+      hasUpgrade: false,
       prelude: undefined,
     };
   }
 
-  const record = await readUpdateAdvisoryRecord(path);
-  const hasUpdate = wrangle.hasUpdate(record);
+  const record = await readUpgradeAdvisoryRecord(path);
+  const hasUpgrade = wrangle.hasUpgrade(record);
   return {
     path,
     record,
-    hasUpdate,
-    prelude: hasUpdate ? toRootUpdateAdvisoryPrelude(record) : undefined,
+    hasUpgrade,
+    prelude: hasUpgrade ? toRootUpgradeAdvisoryPrelude(record) : undefined,
   };
 }
 
-export async function writeUpdateAdvisorySuccess(remote: t.StringSemver, deps: WriteDeps = {}) {
-  const path = deps.path ?? resolveUpdateAdvisoryPath();
+export async function writeUpgradeAdvisorySuccess(remote: t.StringSemver, deps: WriteDeps = {}) {
+  const path = deps.path ?? resolveUpgradeAdvisoryPath();
   if (!path) return;
 
-  await writeUpdateAdvisoryRecord(path, {
+  await writeUpgradeAdvisoryRecord(path, {
     package: pkg.name,
     checkedAt: wrangle.checkedAt(deps.now),
     ok: true,
@@ -60,11 +60,11 @@ export async function writeUpdateAdvisorySuccess(remote: t.StringSemver, deps: W
   });
 }
 
-export async function writeUpdateAdvisoryFailure(error: unknown, deps: WriteDeps = {}) {
-  const path = deps.path ?? resolveUpdateAdvisoryPath();
+export async function writeUpgradeAdvisoryFailure(error: unknown, deps: WriteDeps = {}) {
+  const path = deps.path ?? resolveUpgradeAdvisoryPath();
   if (!path) return;
 
-  await writeUpdateAdvisoryRecord(path, {
+  await writeUpgradeAdvisoryRecord(path, {
     package: pkg.name,
     checkedAt: wrangle.checkedAt(deps.now),
     ok: false,
@@ -72,34 +72,34 @@ export async function writeUpdateAdvisoryFailure(error: unknown, deps: WriteDeps
   });
 }
 
-export function toRootUpdateAdvisoryPrelude(record?: UpdateAdvisoryRecord): string | undefined {
+export function toRootUpgradeAdvisoryPrelude(record?: UpgradeAdvisoryRecord): string | undefined {
   if (!record?.ok) return undefined;
-  if (!wrangle.hasUpdate(record)) return undefined;
+  if (!wrangle.hasUpgrade(record)) return undefined;
   return Fmt.rootAdvisoryPrelude(record.remote);
 }
 
-export function toUpdateAdvisoryStateFromRemote(
+export function toUpgradeAdvisoryStateFromRemote(
   remote: t.StringSemver,
   deps: { readonly now?: Now; readonly path?: t.StringPath } = {},
-): UpdateAdvisoryState {
-  const record: UpdateAdvisoryRecord = {
+): UpgradeAdvisoryState {
+  const record: UpgradeAdvisoryRecord = {
     package: pkg.name,
     checkedAt: wrangle.checkedAt(deps.now),
     ok: true,
     remote,
   };
-  const hasUpdate = wrangle.hasUpdate(record);
+  const hasUpgrade = wrangle.hasUpgrade(record);
   return {
     path: deps.path,
     record,
-    hasUpdate,
-    prelude: hasUpdate ? toRootUpdateAdvisoryPrelude(record) : undefined,
+    hasUpgrade,
+    prelude: hasUpgrade ? toRootUpgradeAdvisoryPrelude(record) : undefined,
   };
 }
 
-async function readUpdateAdvisoryRecord(
+async function readUpgradeAdvisoryRecord(
   path: t.StringPath,
-): Promise<UpdateAdvisoryRecord | undefined> {
+): Promise<UpgradeAdvisoryRecord | undefined> {
   if (!(await Fs.exists(path))) return undefined;
 
   const read = await Fs.readText(path);
@@ -113,7 +113,7 @@ async function readUpdateAdvisoryRecord(
   }
 }
 
-async function writeUpdateAdvisoryRecord(path: t.StringPath, record: UpdateAdvisoryRecord) {
+async function writeUpgradeAdvisoryRecord(path: t.StringPath, record: UpgradeAdvisoryRecord) {
   await Fs.ensureDir(Path.dirname(path));
   await Fs.write(path, Json.stringify(record, 2));
 }
@@ -129,7 +129,7 @@ const wrangle = {
     return 'probe-failed';
   },
 
-  debugRecord(): UpdateAdvisoryRecord | undefined {
+  debugRecord(): UpgradeAdvisoryRecord | undefined {
     const remote = Deno.env.get(DEBUG_REMOTE_ENV)?.trim();
     if (!remote || !Semver.Is.valid(remote)) return undefined;
     return {
@@ -140,7 +140,7 @@ const wrangle = {
     };
   },
 
-  hasUpdate(record?: UpdateAdvisoryRecord) {
+  hasUpgrade(record?: UpgradeAdvisoryRecord) {
     if (!record?.ok) return false;
     if (record.package !== pkg.name) return false;
     const local = pkg.version;
@@ -148,7 +148,7 @@ const wrangle = {
     return Boolean(latest && latest !== local);
   },
 
-  record(value: unknown): UpdateAdvisoryRecord | undefined {
+  record(value: unknown): UpgradeAdvisoryRecord | undefined {
     if (!Is.record(value)) return undefined;
 
     const record = value;
@@ -177,10 +177,10 @@ const wrangle = {
   },
 } as const;
 
-export const UpdateAdvisory = {
-  readState: readUpdateAdvisoryState,
-  toRootPrelude: toRootUpdateAdvisoryPrelude,
-  toStateFromRemote: toUpdateAdvisoryStateFromRemote,
-  writeSuccess: writeUpdateAdvisorySuccess,
-  writeFailure: writeUpdateAdvisoryFailure,
+export const UpgradeAdvisory = {
+  readState: readUpgradeAdvisoryState,
+  toRootPrelude: toRootUpgradeAdvisoryPrelude,
+  toStateFromRemote: toUpgradeAdvisoryStateFromRemote,
+  writeSuccess: writeUpgradeAdvisorySuccess,
+  writeFailure: writeUpgradeAdvisoryFailure,
 } as const;

@@ -1,11 +1,11 @@
 import type { t } from './common.ts';
 
 /**
- * The `@sys/tools/update` namespace.
+ * The `@sys/tools/upgrade` namespace.
  */
-export namespace UpdateTool {
-  export const ID = 'update' as const;
-  export const NAME = 'system/update:tools' as const;
+export namespace UpgradeTool {
+  export const ID = 'upgrade' as const;
+  export const NAME = 'system/upgrade:tools' as const;
   export type Id = typeof ID;
   export type Name = typeof NAME;
 
@@ -30,7 +30,7 @@ export namespace UpdateTool {
       readonly error: string;
     };
 
-  /** Table of update versions. */
+  /** Table of upgrade versions. */
   export type VersionInfo = {
     readonly local: t.StringSemver;
     readonly remote: t.StringSemver;

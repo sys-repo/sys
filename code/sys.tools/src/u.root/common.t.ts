@@ -31,7 +31,7 @@ export namespace Root {
     | 'video'
     | 'copy'
     | 'tmpl'
-    | 'update'
+    | 'upgrade'
     | 'dsl';
 
   /** Invocation origin passed from the root launcher to selected tools. */
@@ -39,10 +39,10 @@ export namespace Root {
   export type ToolCliContext = { readonly origin: ToolCliOrigin };
 
   /** Shared root CLI flags accepted before tool dispatch. */
-  export type CliArgs = { help: boolean; debug?: boolean; noUpdateCheck?: boolean };
+  export type CliArgs = { help: boolean; debug?: boolean; noUpgradeCheck?: boolean };
 
   /** Root-level argument shape parsed from the launcher argv. */
-  export type CliRootArgs = CliArgs & { readonly 'no-update-check'?: boolean };
+  export type CliRootArgs = CliArgs & { readonly 'no-upgrade-check'?: boolean };
 
   /** Parsed root args, with an optional resolved tool command. */
   export type CliRootParsedArgs = ParsedArgs<CliRootArgs> & { readonly command?: Command };
