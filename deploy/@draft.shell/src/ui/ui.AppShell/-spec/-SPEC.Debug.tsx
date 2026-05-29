@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal, type t } from './common.ts';
-import { probeFilesWebSocket } from './-u.Files/mod.ts';
+import { probeFilesWebSocket } from './-u.Files.client/mod.ts';
 
 type P = t.AppShell.Props;
 type Storage = Pick<P, 'debug' | 'theme'>;
