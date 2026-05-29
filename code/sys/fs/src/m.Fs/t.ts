@@ -358,10 +358,10 @@ type NamespaceMembers = {
 
 type GlobMethods = {
   /** List the file-paths within a directory (simple glob). */
-  readonly ls: t.GlobPathList;
+  readonly ls: t.Glob.PathList;
 
   /** Factory for a glob helper. */
-  readonly glob: t.GlobFactory;
+  readonly glob: t.Glob.Factory;
 };
 
 /**

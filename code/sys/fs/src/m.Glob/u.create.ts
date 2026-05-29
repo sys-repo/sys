@@ -1,24 +1,24 @@
-import { type WalkEntry, expandGlob } from '@std/fs';
+import { expandGlob } from '@std/fs';
 import { type t, Path } from './common.ts';
 
 /**
  * Run a glob pattern against the file-system.
  */
-export const create: t.GlobFactory = (dir = '.', baseOptions = {}) => {
+export const create: t.Glob.Factory = (dir = '.', baseOptions = {}) => {
   dir = Path.resolve(dir);
 
-  const api: t.Glob = {
+  const api: t.Glob.Instance = {
     get base() {
       return dir;
     },
 
-    async find(pattern, options = {}): Promise<WalkEntry[]> {
+    async find(pattern, options = {}): Promise<t.WalkEntry[]> {
       const params = { ...baseOptions, ...options };
       const { includeDirs, trimCwd, depth } = params;
       const exclude = params.exclude as string[] | undefined;
 
       pattern = Path.join(dir, pattern);
-      const res: WalkEntry[] = [];
+      const res: t.WalkEntry[] = [];
       const expanded = expandGlob(pattern, { exclude, includeDirs });
       for await (const file of expanded) {
         if (typeof depth === 'number') {
