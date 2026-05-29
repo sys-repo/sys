@@ -5,7 +5,7 @@ import { verify } from './u.verify.ts';
 /**
  * Tools for working hashes of a file-system directory.
  */
-export const DirHash: t.DirHash.Lib = {
+export const DirHash: t.Dir.Hash.Lib = {
   Fmt,
   compute,
   verify,

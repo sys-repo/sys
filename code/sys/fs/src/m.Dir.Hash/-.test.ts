@@ -63,7 +63,7 @@ describe('Dir.Hash', () => {
     it('compute → progress callback reports current/total for hashed files', async () => {
       const sample = await Sample.init();
       const dir = sample.dir;
-      const seen: t.DirHash.Compute.ProgressEvent[] = [];
+      const seen: t.Dir.Hash.Compute.ProgressEvent[] = [];
 
       const res = await DirHash.compute(dir, {
         onProgress: (e) => {

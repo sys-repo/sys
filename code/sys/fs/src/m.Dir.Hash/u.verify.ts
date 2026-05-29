@@ -3,7 +3,7 @@ import { type t, CompositeHash, Err, Fs, Hash, Path } from './common.ts';
 /**
  * Verify a directory against a composite hash or hash file.
  */
-export const verify: t.DirHash.Verify.Method = async (dir, hashInput) => {
+export const verify: t.Dir.Hash.Verify.Method = async (dir, hashInput) => {
   dir = Fs.resolve(dir);
   const errors = Err.errors();
   const exists = await Fs.exists(dir);

@@ -3,7 +3,7 @@ import { type t, CompositeHash, Err, Fs } from './common.ts';
 /**
  * Compute a `CompositeHash` for the given directory.
  */
-export const compute: t.DirHash.Compute.Method = async (dir, options = {}) => {
+export const compute: t.Dir.Hash.Compute.Method = async (dir, options = {}) => {
   dir = Fs.resolve(dir);
   const { filter, onProgress } = wrangle.computeOptions(options);
   const errors = Err.errors();
@@ -36,7 +36,7 @@ export const compute: t.DirHash.Compute.Method = async (dir, options = {}) => {
  * Helpers
  */
 const wrangle = {
-  computeOptions(input?: t.DirHash.Compute.Options | t.Fs.Path.Filter) {
+  computeOptions(input?: t.Dir.Hash.Compute.Options | t.Fs.Path.Filter) {
     if (!input) return {};
     if (typeof input === 'function') return { filter: input };
     return input;
