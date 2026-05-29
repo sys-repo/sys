@@ -91,3 +91,4 @@ behavior, not complete containment.
 - John McCarthy, creator of Lisp —
   [A programming language based on speech acts](https://www-formal.stanford.edu/jmc/elephant.pdf)
   (1990)
+- Birgitta Böckeler, [Harness Engineering](https://martinfowler.com/articles/harness-engineering.html) — MartinFowler.com, 2026
