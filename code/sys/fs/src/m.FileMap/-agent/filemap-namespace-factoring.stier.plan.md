@@ -1,6 +1,6 @@
 # FileMap namespace factoring S-tier plan
 
-- [ ] refactor(fs): namespace FileMap contract surface
+- [x] a6e681a54 refactor(fs): namespace FileMap contract surface
 
 ## Purpose
 
@@ -125,7 +125,9 @@ export type FileMapOpOfKind<K extends FileMapOp['kind']> = FileMap.Write.Op.OfKi
 
 ## Implementation reality
 
-Completed in the working tree.
+Landed in `a6e681a54 refactor(fs): namespace FileMap contract surface`.
+
+Actual changes:
 
 - `t.ts` now owns the FileMap namespace-first public contract surface.
 - Compatibility aliases remain for downstream `@sys/fs/t` consumers.
@@ -133,6 +135,7 @@ Completed in the working tree.
 - Stale `m.FileMap.ts`, `t.bundle.ts`, `t.toMap.ts`, and `t.write.ts` are removed.
 - FileMap runtime code uses the local common lane for `Json` and base64 helpers.
 - Local FileMap tests use canonical namespace type names where annotations were touched.
+- The public runtime value remains `FileMap` with the existing method/object shape.
 
 ## Acceptance checks
 
@@ -157,6 +160,14 @@ deno task test --trace-leaks ./src/m.FileMap
 deno task check
 deno task test
 ```
+
+## Final review
+
+SHIP.
+
+Final TMIND/S-tier review found no remaining behavior drift, API creep, type-plane impurity, stale FileMap split-spine files, or runtime dependency-lane violations.
+
+Remaining risk: none found.
 
 ## Non-goals
 
