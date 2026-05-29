@@ -2,9 +2,7 @@ import { type t, Fs, Is, Path } from '../common.ts';
 import { Is as FileMapIs } from '../m.Is.ts';
 import { toMap } from './u.toMap.ts';
 
-type F = t.FileMapLib['bundle'];
-
-export const bundle: F = async (sourceDir, opt) => {
+export const bundle: t.FileMap.Bundle.Method = async (sourceDir, opt) => {
   const { targetFile, filter, beforeWrite } = wrangle.options(opt);
   const file = Path.resolve(targetFile) as t.StringPath;
   await Fs.ensureDir(Path.dirname(file));
@@ -41,13 +39,17 @@ export const bundle: F = async (sourceDir, opt) => {
  * Helpers:
  */
 const wrangle = {
-  options(input: Parameters<F>[1]): t.FileMapBundleOptions {
+  options(input: t.FileMap.Bundle.OptionsInput): t.FileMap.Bundle.Options {
     if (Is.string(input)) return { targetFile: input };
     return input;
   },
 } as const;
 
-function runBeforeWrite(fileMap: t.FileMap, file: t.StringPath, fn: t.FileMapBundleBeforeWrite) {
+function runBeforeWrite(
+  fileMap: t.FileMap,
+  file: t.StringPath,
+  fn: t.FileMap.Bundle.BeforeWrite.Method,
+) {
   let modified = false;
   const clone = { ...fileMap };
   fn({

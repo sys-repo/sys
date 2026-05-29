@@ -1,11 +1,10 @@
-import { decodeBase64, encodeBase64 } from '@std/encoding';
-import { type t, D, Path } from './common.ts';
+import { type t, D, decodeBase64, encodeBase64, Path } from './common.ts';
 import { Is } from './m.Is.ts';
 
 /** Cache a plain ext→mime map (avoid pulling the all() function into the type). */
 const EXT_TO_MIME: Record<string, string> = D.contentTypes.all();
 
-export const Data: t.FileMapDataLib = {
+export const Data: t.FileMap.Data.Lib = {
   contentType: {
     fromPath(path) {
       const filename = Path.basename(path);

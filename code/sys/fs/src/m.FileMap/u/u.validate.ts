@@ -1,14 +1,20 @@
-import { type t, Err, Is } from '../common.ts';
+import { type t, Err, Is, Json } from '../common.ts';
 
-export function validate(input: unknown): t.FileMapValidateResult {
+export function validate(input: unknown): t.FileMap.Validate.Result {
   let json: unknown = input;
 
   if (Is.string(input)) {
-    try {
-      json = JSON.parse(input);
-    } catch (cause) {
+    if (input.trim().length === 0) {
+      const cause = new SyntaxError('Unexpected end of JSON input');
       return { error: Err.std('Invalid FileMap: JSON parse failed', { cause }) };
     }
+
+    const parsed = Json.safeParse<unknown>(input);
+    if (!parsed.ok) {
+      const cause = parsed.error?.cause ?? parsed.error;
+      return { error: Err.std('Invalid FileMap: JSON parse failed', { cause }) };
+    }
+    json = parsed.data;
   }
 
   if (!Is.record(json)) {

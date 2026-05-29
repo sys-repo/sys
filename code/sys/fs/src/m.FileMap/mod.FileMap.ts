@@ -8,7 +8,7 @@ import { toMap } from './u/u.toMap.ts';
 import { validate } from './u/u.validate.ts';
 import { write } from './u/u.write.ts';
 
-export const FileMap: t.FileMapLib = {
+export const FileMap: t.FileMap.Lib = {
   Is,
   Data,
   toMap,

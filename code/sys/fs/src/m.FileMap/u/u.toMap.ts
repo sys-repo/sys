@@ -3,7 +3,7 @@ import { Data } from '../m.Data.ts';
 import { Is } from '../m.Is.ts';
 import { toFilterArgs } from './u.filter.ts';
 
-export const toMap: t.FileMapLib['toMap'] = async (dir, opt) => {
+export const toMap: t.FileMap.ToMap.Method = async (dir, opt) => {
   const res: t.FileMap = {};
   const options = wrangle.options(opt);
 
@@ -53,7 +53,7 @@ const wrangle = {
     return res.data ? Data.encode(mime, res.data) : undefined;
   },
 
-  options(input?: t.FileMapToMapOptions | t.FileMapFilter) {
+  options(input?: t.FileMap.ToMap.OptionsInput) {
     if (!input) return {};
     if (typeof input === 'function') return { filter: input };
     return input;

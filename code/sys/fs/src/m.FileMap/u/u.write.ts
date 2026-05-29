@@ -7,8 +7,8 @@ import { validate } from './u.validate.ts';
 export async function write(
   map: t.FileMap,
   dir: t.StringDir,
-  options: t.FileMapWriteOptions = {},
-): Promise<t.FileMapWriteResult> {
+  options: t.FileMap.Write.Options = {},
+): Promise<t.FileMap.Write.Result> {
   const { force = D.force, dryRun = D.dryRun, ctx, processFile } = options;
 
   // Validate the input FileMap once (fail fast with a clear error):
@@ -16,8 +16,8 @@ export async function write(
   if (parsed.error) throw parsed.error;
   map = parsed.fileMap!;
 
-  const ops: t.FileMapOp[] = [];
-  const pushOp = (op: t.FileMapOp, forced?: boolean) => {
+  const ops: t.FileMap.Write.Op.Any[] = [];
+  const pushOp = (op: t.FileMap.Write.Op.Any, forced?: boolean) => {
     op = {
       ...op,
       forced: forced === true ? true : undefined,
@@ -55,7 +55,7 @@ export async function write(
     const absolute = () => Path.resolve(Path.join(dir, relative));
     const exists = async () => (await Fs.exists(absolute())) === true;
 
-    const args: t.FileMapProcessorArgs = {
+    const args: t.FileMap.Write.Processor.Args = {
       path: origKey as t.StringPath,
       contentType,
       get text() {
@@ -135,7 +135,7 @@ export async function write(
 
     // Compute write-kind:
     const wouldWrite = dryRun && existedBefore && (changed || force);
-    let kind: t.FileMapOp['kind'];
+    let kind: t.FileMap.Write.Op.Any['kind'];
     if (skipped) {
       kind = 'skip';
     } else if (!existedBefore) {
@@ -151,14 +151,14 @@ export async function write(
     const common = {
       dryRun: dryRun || undefined,
       forced: forced || undefined,
-    } satisfies t.FileMapOpCommon;
+    } satisfies t.FileMap.Write.Op.Common;
 
     // Attach renamed meta only on writes (create/modify) and only if path actually changed.
     const renamed = prevPath && prevPath !== relative && (kind === 'create' || kind === 'modify')
-      ? Delete.undefined<t.FileMapOpRenamed>({ from: prevPath, silent: silentRename })
+      ? Delete.undefined<t.FileMap.Write.Op.Renamed>({ from: prevPath, silent: silentRename })
       : undefined;
 
-    let resolved: t.FileMapOp;
+    let resolved: t.FileMap.Write.Op.Any;
     if (kind === 'create') {
       resolved = { kind: 'create', path: relative, renamed, ...common };
     } else if (kind === 'modify') {
@@ -178,7 +178,7 @@ export async function write(
   /**
    * API:
    */
-  let _total: t.FileMapWriteResult['total'] | undefined;
+  let _total: t.FileMap.Write.Result['total'] | undefined;
   return {
     ops,
     get total() {
@@ -191,8 +191,8 @@ export async function write(
  * Helpers:
  */
 const wrangle = {
-  total(ops: t.FileMapOp[]): t.FileMapWriteResult['total'] {
-    type Total = { [K in t.FileMapOp['kind']]: number };
+  total(ops: t.FileMap.Write.Op.Any[]): t.FileMap.Write.Result['total'] {
+    type Total = { [K in t.FileMap.Write.Op.Any['kind']]: number };
     return ops.reduce<Total>(
       (acc, o) => {
         acc[o.kind] = (acc[o.kind] ?? 0) + 1;

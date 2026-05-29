@@ -7,7 +7,7 @@ describe('FileMap.write', () => {
   const dir = Sample.source.dir;
   const makeMap = async () => FileMap.toMap(dir);
 
-  const logOps = (title: string, ops: readonly t.FileMapOp[]) => {
+  const logOps = (title: string, ops: readonly t.FileMap.Write.Op.Any[]) => {
     console.info(Str.SPACE);
     console.info(c.bold(c.cyan(title)), '\n');
     console.info(ops);
@@ -90,7 +90,7 @@ describe('FileMap.write', () => {
       const hasGitignore = keys.includes('.gitignore');
 
       // Run the write operation:
-      const fired: t.FileMapProcessorArgs[] = [];
+      const fired: t.FileMap.Write.Processor.Args[] = [];
       const res = await FileMap.write(bundle, sample.target, {
         processFile: async (e) => {
           fired.push(e);
@@ -114,7 +114,7 @@ describe('FileMap.write', () => {
 
       // Rename emits canonical { from, to } - only if .gitignore existed:
       if (hasGitignore) {
-        type R = t.FileMapOpOfKind<'create'> | t.FileMapOpOfKind<'modify'>;
+        type R = t.FileMap.Write.Op.OfKind<'create'> | t.FileMap.Write.Op.OfKind<'modify'>;
         const renamed = res.ops.find(
           (o) => (o.kind === 'create' || o.kind === 'modify') && o.renamed?.from === '.gitignore',
         ) as R;
@@ -151,8 +151,8 @@ describe('FileMap.write', () => {
       const keys = Object.keys(bundle);
 
       function renamed(path: string) {
-        type R = t.FileMapOpOfKind<'create'> | t.FileMapOpOfKind<'modify'>;
-        return (o: t.FileMapOp): o is R => {
+        type R = t.FileMap.Write.Op.OfKind<'create'> | t.FileMap.Write.Op.OfKind<'modify'>;
+        return (o: t.FileMap.Write.Op.Any): o is R => {
           if (!(o.kind === 'create' || o.kind === 'modify')) return false;
           return o.path === path;
         };
@@ -263,7 +263,7 @@ describe('FileMap.write', () => {
 
     const op = res.ops.find((o) => o.path === to)!;
     expect(op?.kind).to.eql('create');
-    expect((op as t.FileMapOpOfKind<'create'>).renamed?.from).to.eql(from);
+    expect((op as t.FileMap.Write.Op.OfKind<'create'>).renamed?.from).to.eql(from);
     expect(await Fs.exists(Path.join(sample.target, to))).to.eql(true);
   });
 
@@ -293,7 +293,7 @@ describe('FileMap.write', () => {
 
     const op = res.ops.find((o) => o.path === to)!;
     expect(op?.kind).to.eql('modify'); // existing destination changed
-    expect((op as t.FileMapOpOfKind<'modify'>).renamed?.from).to.eql(from); // rename facet preserved
+    expect((op as t.FileMap.Write.Op.OfKind<'modify'>).renamed?.from).to.eql(from); // rename facet preserved
     const dest = await Fs.readText(Path.join(sample.target, to));
     expect(dest.data?.includes('// rename+patch')).to.eql(true);
   });
@@ -316,7 +316,7 @@ describe('FileMap.write', () => {
     const op = res.ops.find((o) => o.path === anyKey + '.ignored') ??
       res.ops.find((o) => o.path === anyKey)!;
     expect(op.kind).to.eql('skip');
-    expect((op as t.FileMapOpOfKind<'skip'>).reason).to.eql('filtered');
+    expect((op as t.FileMap.Write.Op.OfKind<'skip'>).reason).to.eql('filtered');
     expect((op as any).renamed).to.eql(undefined);
   });
 
@@ -353,7 +353,7 @@ describe('FileMap.write', () => {
       const sample = await Sample.init();
       const bundle = await FileMap.toMap(Sample.source.dir);
 
-      const processFile: t.FileMapProcessor = (e) => {
+      const processFile: t.FileMap.Write.Processor.Method = (e) => {
         if (e.text && (e.target.filename === 'index.md' || e.target.filename === 'mod.ts')) {
           e.modify(new Uint8Array([1, 2, 3]) as any); // wrong type → should throw
         } else {
@@ -371,7 +371,7 @@ describe('FileMap.write', () => {
       const sample = await Sample.init();
       const bundle = await FileMap.toMap(Sample.source.dir);
 
-      const processFile: t.FileMapProcessor = (e) => {
+      const processFile: t.FileMap.Write.Processor.Method = (e) => {
         if (e.target.filename === 'pixels.png') {
           e.modify('nope' as any); // wrong type → should throw
         } else {
