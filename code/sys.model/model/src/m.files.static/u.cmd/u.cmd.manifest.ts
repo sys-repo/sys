@@ -49,11 +49,13 @@ export const manifest = (
         : { dist: { build: { time: index.distBuildTime } } }),
     }),
     entries: res.items,
-    ...(payload.content === true ? { content: contentRefs(index, policy, res.items) } : {}),
+    ...(payload.contentRefs === true
+      ? { contentRefs: manifestContentRefs(index, policy, res.items) }
+      : {}),
   };
 };
 
-function contentRefs(
+function manifestContentRefs(
   index: StaticIndex,
   policy: t.Files.Policy.Shape,
   entries: readonly t.Files.Entry[],

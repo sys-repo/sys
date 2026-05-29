@@ -454,8 +454,8 @@ export declare namespace Files {
     readonly '.meta': ManifestMeta;
     /** Visible entries. */
     readonly entries: readonly Entry[];
-    /** Content refs available for entries, when this is a snapshot/static view. */
-    readonly content?: readonly ContentRef[];
+    /** Content refs available for entries, when requested and available. */
+    readonly contentRefs?: readonly ContentRef[];
   };
 
   /** Manifest model version. */
@@ -885,8 +885,8 @@ export declare namespace Files {
         readonly exclude?: Match;
         /** Traversal depth bound. */
         readonly depth?: Depth;
-        /** Include content refs when available. */
-        readonly content?: boolean;
+        /** Include portable content refs when available; never inline content. */
+        readonly contentRefs?: boolean;
         /** Page size. */
         readonly limit?: Limit;
         /** Page cursor. */

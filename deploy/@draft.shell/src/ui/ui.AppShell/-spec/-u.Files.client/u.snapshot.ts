@@ -10,7 +10,7 @@ export async function readFilesSnapshot(
   // Keep capability/list/manifest/watch probing on the typed Cmd<T> escape hatch until the API is designed.
   const capabilities = await client.cmd.send(Files.Cmd.Name.capabilities, {});
   const list = await client.cmd.send(Files.Cmd.Name.list, {});
-  const manifest = await client.cmd.send(Files.Cmd.Name.manifest, { content: true });
+  const manifest = await client.cmd.send(Files.Cmd.Name.manifest, { contentRefs: true });
   const text = await client.readText(path);
 
   return { url: String(url), path, capabilities, list, manifest, text };

@@ -45,5 +45,6 @@ export const manifest = (
   return {
     '.meta': manifestMeta({ capabilities, page: pageMeta(res) }),
     entries: res.items,
+    ...(payload.contentRefs === true ? { contentRefs: [] } : {}),
   };
 };

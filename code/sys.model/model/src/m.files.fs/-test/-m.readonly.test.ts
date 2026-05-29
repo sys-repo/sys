@@ -60,8 +60,9 @@ describe('FilesFs.Readonly.create', () => {
       expect(backing.capabilities).to.eql(authority.capabilities);
       expect(await cmd.capabilities(backing)).to.eql(authority.capabilities);
 
-      const manifest = await cmd.manifest(backing, { path: 'docs' });
+      const manifest = await cmd.manifest(backing, { path: 'docs', contentRefs: true });
       expect(manifest['.meta'].capabilities).to.eql(authority.capabilities);
+      expect(manifest.contentRefs).to.eql([]);
 
       await expectFilesFsError(
         () => cmd.write(backing, null as never),

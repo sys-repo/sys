@@ -86,7 +86,10 @@ describe('Files/t public contract', () => {
     const listPayload = { cursor: list } satisfies t.Files.Cmd.List.Payload;
     const listResult = { entries: [], cursor: list } satisfies t.Files.Cmd.List.Result;
     const watchResult = { ok: true, cursor: watch } satisfies t.Files.Cmd.Watch.Result;
-    const manifestPayload = { cursor: manifest } satisfies t.Files.Cmd.Manifest.Payload;
+    const manifestPayload = {
+      cursor: manifest,
+      contentRefs: true,
+    } satisfies t.Files.Cmd.Manifest.Payload;
     const manifestResult = {
       '.meta': {
         version: 'sys.files.manifest:v1',
@@ -94,6 +97,7 @@ describe('Files/t public contract', () => {
         page: { cursor: manifest },
       },
       entries: [],
+      contentRefs: [],
     } satisfies t.Files.Manifest;
 
     expectTypeOf(listPayload.cursor).toEqualTypeOf<t.Files.Cursor.List>();
@@ -127,6 +131,12 @@ describe('Files/t public contract', () => {
 
       // @ts-expect-error Manifest payloads accept only manifest cursors.
       const badManifestPayload: t.Files.Cmd.Manifest.Payload = { cursor: list };
+
+      // @ts-expect-error Manifest payloads ask for content refs, not content.
+      const badManifestContentPayload: t.Files.Cmd.Manifest.Payload = { content: true };
+
+      // @ts-expect-error Manifests expose content refs, not content.
+      const badManifestContentResult: t.Files.Manifest = { ...manifestResult, content: [] };
 
       const badManifestResult: t.Files.Manifest = {
         ...manifestResult,

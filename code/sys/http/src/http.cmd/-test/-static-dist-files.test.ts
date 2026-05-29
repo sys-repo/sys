@@ -113,9 +113,9 @@ describe('HttpCmd + FilesStatic dist integration', () => {
         },
       });
 
-      const manifest = await client.send(Files.Cmd.Name.manifest, { content: true });
+      const manifest = await client.send(Files.Cmd.Name.manifest, { contentRefs: true });
       expect(entryPaths(manifest.entries)).to.eql(['docs', 'docs/read me.md', 'foo.json', 'notes']);
-      expect(manifest.content).to.eql([
+      expect(manifest.contentRefs).to.eql([
         {
           kind: 'url',
           path: 'docs/read me.md',

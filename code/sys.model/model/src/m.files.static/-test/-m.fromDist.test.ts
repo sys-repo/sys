@@ -99,7 +99,7 @@ describe('FilesStatic.fromDist', () => {
       },
     });
 
-    const manifest = await cmd.manifest(backing, { path: 'notes', content: true });
+    const manifest = await cmd.manifest(backing, { path: 'notes', contentRefs: true });
     expect(manifest).to.eql({
       '.meta': {
         version: 'sys.files.manifest:v1',
@@ -118,7 +118,7 @@ describe('FilesStatic.fromDist', () => {
       entries: [
         { path: 'notes/baz.md', kind: 'file', size: 6, hash: Hash.baz },
       ],
-      content: [
+      contentRefs: [
         {
           kind: 'url',
           path: 'notes/baz.md',
@@ -195,7 +195,7 @@ describe('FilesStatic.fromDist', () => {
     } satisfies t.Files.Policy.Shape;
     const { backing } = setup({ policy });
 
-    const manifest = await cmd.manifest(backing, { content: true });
+    const manifest = await cmd.manifest(backing, { contentRefs: true });
     expect(manifest.entries.map((entry: t.Files.Entry) => entry.path)).to.eql([
       'foo.json',
       'notes',
@@ -203,7 +203,7 @@ describe('FilesStatic.fromDist', () => {
       'private',
       'private/secret.txt',
     ]);
-    expect(manifest.content).to.eql([
+    expect(manifest.contentRefs).to.eql([
       { kind: 'url', path: 'foo.json', size: 16, hash: Hash.foo, url: `${baseUrl}foo.json` },
     ]);
   });
@@ -226,9 +226,9 @@ describe('FilesStatic.fromDist', () => {
       truncated: true,
     });
 
-    const manifest = await cmd.manifest(backing, { limit: 1, content: true });
+    const manifest = await cmd.manifest(backing, { limit: 1, contentRefs: true });
     expect(manifest.entries).to.eql([{ path: 'foo.json', kind: 'file', size: 16, hash: Hash.foo }]);
-    expect(manifest.content).to.eql([
+    expect(manifest.contentRefs).to.eql([
       { kind: 'url', path: 'foo.json', size: 16, hash: Hash.foo, url: `${baseUrl}foo.json` },
     ]);
     expect(manifest['.meta'].page?.truncated).to.eql(true);

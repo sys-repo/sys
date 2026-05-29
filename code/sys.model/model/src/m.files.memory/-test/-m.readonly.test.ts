@@ -70,7 +70,7 @@ describe('FilesMemory.Readonly.create', () => {
         content: '{ "foo": true }\n',
       });
 
-      const manifest = await cmd.manifest(backing, { path: 'notes' });
+      const manifest = await cmd.manifest(backing, { path: 'notes', contentRefs: true });
       expect(manifest).to.eql({
         '.meta': {
           version: 'sys.files.manifest:v1',
@@ -89,6 +89,7 @@ describe('FilesMemory.Readonly.create', () => {
         entries: [
           { path: 'notes/baz.md', kind: 'file', size: 6, mediaType: 'text/markdown' },
         ],
+        contentRefs: [],
       });
     });
   });
