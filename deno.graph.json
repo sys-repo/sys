@@ -1,21 +1,21 @@
 {
   ".meta": {
-    "createdAt": 1779970899248,
+    "createdAt": 1780050580997,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-a9608809d7824bc9c46d192221f94ad35ac8a22a1cdf19194a81babcba3946b4",
-      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.103/src/m.graph/m.snapshot/m.Hash.ts"
+      "/graph": "sha256-b770eacbb33707c01f6755803db60e1f3ce1388c7d8dfa45b7790bfb9adc6574",
+      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.104/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
       "pkg": {
         "name": "@sys/workspace",
-        "version": "0.0.103"
+        "version": "0.0.104"
       },
       "types": {
-        "/graph": "https://jsr.io/@sys/workspace/0.0.103/src/m.graph/t.ts"
+        "/graph": "https://jsr.io/@sys/workspace/0.0.104/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1779970899253
+    "modifiedAt": 1780050581002
   },
   "graph": {
     "orderedPaths": [
@@ -141,6 +141,10 @@
       {
         "from": "code/sys.model/model",
         "to": "code/sys/server"
+      },
+      {
+        "from": "code/sys.model/model",
+        "to": "deploy/@draft.shell"
       },
       {
         "from": "code/sys.model/model",
@@ -612,6 +616,10 @@
       },
       {
         "from": "code/sys/crypto",
+        "to": "code/sys/cell"
+      },
+      {
+        "from": "code/sys/crypto",
         "to": "code/sys/fs"
       },
       {
@@ -905,6 +913,10 @@
       {
         "from": "code/sys/process",
         "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys/process",
+        "to": "code/sys/cell"
       },
       {
         "from": "code/sys/process",
