@@ -103,6 +103,18 @@ export function failingServiceSource() {
   `).trimStart();
 }
 
+export function objectCauseServiceSource() {
+  return Str.dedent(`
+    export const ObjectCauseService = {
+      start() {
+        throw new Error('Strict dev port failed', {
+          cause: { code: 'EADDRINUSE', port: 1234, cwd: '/tmp/private' },
+        });
+      },
+    };
+  `).trimStart();
+}
+
 export function addressInUseServiceSource() {
   return Str.dedent(`
     export const AddressInUseService = {

@@ -7,7 +7,7 @@ import {
   isRecord,
   type t,
 } from '../common.ts';
-import { Err } from '../m.Err/mod.ts';
+import { Is as ErrIs } from '../m.Err/m.Is.ts';
 import { number, numeric } from './u.number.ts';
 import { string } from './u.string.ts';
 import { urlLike, urlString } from './u.url.ts';
@@ -19,13 +19,13 @@ import { browser } from './u.browser.ts';
  */
 export const Is: t.Is.Lib = {
   get error() {
-    return Err.Is.error;
+    return ErrIs.error;
   },
   get errorLike() {
-    return Err.Is.errorLike;
+    return ErrIs.errorLike;
   },
   get stdError() {
-    return Err.Is.stdError;
+    return ErrIs.stdError;
   },
 
   object: isObject,

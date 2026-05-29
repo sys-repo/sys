@@ -4,6 +4,7 @@ import {
   addressInUseServiceSource,
   devServiceSource,
   failingServiceSource,
+  objectCauseServiceSource,
   silent,
   statusServiceSource,
 } from './u.fixture.ts';
@@ -130,5 +131,32 @@ describe(`@sys/cell/cli start`, () => {
     expect(res.kind).to.eql('error');
     expect(res.text).to.contain("Cell.Services.start: failed to start service 'view'.");
     expect(res.text).to.contain('Cause: Error: Address already in use (os error 48)');
+  });
+
+  it('start failure → renders object causes without leaking arbitrary fields', async () => {
+    const fs = await Testing.dir('CellCli.start.object-cause');
+    await Fs.write(
+      Fs.join(fs.dir, '-config/@sys.cell/cell.yaml'),
+      Str.dedent(`
+        kind: cell
+        version: 1
+
+        services:
+          - name: view
+            use: ObjectCauseService
+            from: ./-services/object-cause.ts
+            config: ./-config/view.yaml
+      `).trimStart(),
+    );
+    await Fs.write(Fs.join(fs.dir, '-services/object-cause.ts'), objectCauseServiceSource());
+
+    const res = await silent(() => CellCli.run({ argv: ['start', fs.dir] }));
+
+    expect(res.kind).to.eql('error');
+    expect(res.text).to.contain("Cell.Services.start: failed to start service 'view'.");
+    expect(res.text).to.contain('Cause: Error: Strict dev port failed');
+    expect(res.text).to.contain('Cause: Object (code=EADDRINUSE, port=1234)');
+    expect(res.text).not.to.contain('/tmp/private');
+    expect(res.text).not.to.contain('[object Object]');
   });
 });
