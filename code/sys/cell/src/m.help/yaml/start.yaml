@@ -29,7 +29,8 @@ services:
   - Service owners keep their own config schema, mechanics, ports, URLs, and display.
   - >-
     Configured port conflicts are not auto-fixed;
-    clear an old session with `@sys/cell kill` or fix the owner config.
+    clear an old session/listener with `@sys/cell kill`
+    or fix the owner config.
   - Add any extra permissions required by declared owner services.
   - Cell calls `Cell.Services.wait` for started service handles that expose `finished`.
   - |-

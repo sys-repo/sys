@@ -5,7 +5,10 @@ import type { t } from './common.ts';
  */
 export declare namespace ViteService {
   /** Public Cell lifecycle endpoint surface. */
-  export type Lib = t.Service.LifecycleEndpoint<StartArgs, DevHandle>;
+  export type Lib = t.Service.LifecycleEndpoint<StartArgs, DevHandle> & {
+    /** Declare configured resources without starting Vite. */
+    resources(args: t.Service.Resource.Args): Promise<readonly t.Service.Resource.Any[]>;
+  };
 
   /** Cell lifecycle start args accepted by the Vite dev service endpoint. */
   export type StartArgs = {

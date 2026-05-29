@@ -5,7 +5,49 @@ describe('FilesWebSocketService', () => {
   it('API: public export resolves to the Files websocket lifecycle endpoint', async () => {
     const mod = await import('@sys/server/files/service');
     expect(mod.FilesWebSocketService).to.equal(FilesWebSocketService);
+    expect(mod.FilesWebSocketService.resources).to.equal(FilesWebSocketService.resources);
     expect(mod.FilesWebSocketService.start).to.equal(FilesWebSocketService.start);
+  });
+
+  it('declares configured websocket listener resources without starting services', async () => {
+    const dir = await Testing.dir('FilesWebSocketService.resources');
+    const config = Fs.join(dir.dir, '-config/files.yaml');
+    await Fs.write(
+      config,
+      Str.dedent(`
+        name: shell:files
+        root: .
+        path: /files
+        port: 5050
+      `).trimStart(),
+    );
+
+    const resources = await FilesWebSocketService.resources({
+      cwd: dir.dir as t.StringDir,
+      paths: { config },
+    });
+
+    expect(resources).to.eql([{ kind: 'tcp-listener', host: '127.0.0.1', port: 5050 }]);
+  });
+
+  it('omits websocket resources for ephemeral configured ports', async () => {
+    const dir = await Testing.dir('FilesWebSocketService.resources.ephemeral');
+    const config = Fs.join(dir.dir, '-config/files.yaml');
+    await Fs.write(
+      config,
+      Str.dedent(`
+        root: .
+        path: /files
+        port: 0
+      `).trimStart(),
+    );
+
+    const resources = await FilesWebSocketService.resources({
+      cwd: dir.dir as t.StringDir,
+      paths: { config },
+    });
+
+    expect(resources).to.eql([]);
   });
 
   it('reports the resolved listen address when the service port is already in use', async () => {

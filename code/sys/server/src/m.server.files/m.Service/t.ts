@@ -5,7 +5,10 @@ import type { t } from './common.ts';
  */
 export declare namespace FilesWebSocketService {
   /** Public lifecycle endpoint surface. */
-  export type Lib = t.Service.LifecycleEndpoint<StartArgs, t.FilesServer.WebSocket.Started>;
+  export type Lib = t.Service.LifecycleEndpoint<StartArgs, t.FilesServer.WebSocket.Started> & {
+    /** Declare configured resources without starting the service. */
+    resources(args: t.Service.Resource.Args): Promise<readonly t.Service.Resource.Any[]>;
+  };
 
   /** Cell lifecycle start args accepted by the Files WebSocket service endpoint. */
   export type StartArgs = {

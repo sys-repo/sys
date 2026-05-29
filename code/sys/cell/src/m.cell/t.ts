@@ -288,6 +288,7 @@ export declare namespace Cell {
     export type Lib = {
       plan(cell: Instance, options?: PlanOptions): Promise<Plan>;
       verify(cell: Instance, options?: VerifyOptions): Promise<Verification>;
+      resources(cell: Instance, options?: ResourceOptions): Promise<ResourcePlan>;
       start(cell: Instance, options?: StartOptions): Promise<Started>;
       /** Wait for started service lifecycle handles that expose `finished`. */
       wait(started: Started): Promise<void>;
@@ -311,6 +312,9 @@ export declare namespace Cell {
     /** Services verification options. */
     export type VerifyOptions = PlanOptions;
 
+    /** Services resource declaration options. */
+    export type ResourceOptions = VerifyOptions;
+
     /** Services start options. */
     export type StartOptions = VerifyOptions & {
       /** Per-service startup timeout. */
@@ -328,6 +332,9 @@ export declare namespace Cell {
       /** Canonical lifecycle bridge supplied by the service runner. */
       until?: t.UntilInput;
     };
+
+    /** Arguments passed to service resource declaration hooks. */
+    export type ResourceArgs = t.Service.Resource.Args;
 
     /** Services plan result without endpoint imports or lifecycle starts. */
     export type Plan = {
@@ -380,6 +387,27 @@ export declare namespace Cell {
       readonly services: readonly VerifiedService<Handle>[];
     };
 
+    /** Planned service resources declared by owner endpoints. */
+    export type ResourcePlan = {
+      /** Loaded Cell root folder. */
+      readonly root: t.StringDir;
+      /** Requested service graph mode after normalization. */
+      readonly mode: ServiceMode;
+      /** Declared resources in descriptor order. */
+      readonly resources: readonly PlannedResource[];
+    };
+
+    /** One owner-declared resource with Cell selection audit facts. */
+    export type PlannedResource = {
+      /** Effective selected service facts. */
+      readonly service: SelectedService;
+      /** Selection audit trail back to the descriptor and requested mode. */
+      readonly selection: ServiceSelection;
+      readonly paths: { readonly config: t.StringPath };
+      readonly endpoint: PlannedEndpoint;
+      readonly resource: t.Service.Resource.Any;
+    };
+
     /** Started services aggregate. */
     export type Started<Handle = unknown> = {
       readonly services: readonly StartedService<Handle>[];
@@ -416,6 +444,7 @@ export declare namespace Cell {
     /** Service lifecycle endpoint. */
     export type LifecycleEndpoint<Handle = unknown> = {
       start(args: StartArgs): Handle | Promise<Handle>;
+      resources?(args: ResourceArgs): readonly t.Service.Resource.Any[] | Promise<readonly t.Service.Resource.Any[]>;
     };
 
     /** Service endpoint/config binding. */

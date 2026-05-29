@@ -50,6 +50,8 @@ sections:
   - label: 'Lifecycle contract'
     items: |
       The selected endpoint must implement `Cell.Services.LifecycleEndpoint` with `start(args)`.
+      Endpoints may also expose `resources(args)` to declare deterministic configured
+      runtime resources without starting the service.
       Cell resolves the owner config ref before it starts the endpoint.
       Start args are deliberately small: Cell root, selected owner config ref, quiet output
       preference, and shutdown signal.
@@ -103,7 +105,7 @@ sections:
       service: Cell root, selected owner config ref, quiet output preference, and shutdown
       signal.
       Endpoint owners keep everything behind the binding: ports, serving strategy,
-      Vite/HMR behavior, display, permissions, and config schema.
+      Vite/HMR behavior, display, permissions, resource declarations, and config schema.
       For live dev, keep a static service as the base `view` binding and select a normal
       lifecycle endpoint such as `jsr:@sys/driver-vite/service` / `ViteService` under
       `variants.dev`.

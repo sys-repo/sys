@@ -219,6 +219,8 @@ export declare namespace CellCli {
       readonly force: boolean;
       /** Per-session kill audit. */
       readonly sessions: readonly SessionResult[];
+      /** Per-resource listener cleanup audit. */
+      readonly resources: readonly ResourceResult[];
     };
 
     /** Result status for one matching runtime session. */
@@ -230,6 +232,42 @@ export declare namespace CellCli {
       | 'killed'
       | 'still-running'
       | 'stale-running';
+
+    /** Result status for one declared runtime resource. */
+    export type ResourceStatus =
+      | 'would-terminate'
+      | 'not-listening'
+      | 'terminated'
+      | 'killed'
+      | 'partial'
+      | 'still-running'
+      | 'skipped';
+
+    /** Listener process discovered for one declared runtime resource. */
+    export type ResourceListener = {
+      /** Listener process id. */
+      readonly pid: number;
+      /** Optional command name reported by the operating system. */
+      readonly command?: string;
+    };
+
+    /** Kill audit for one declared runtime resource. */
+    export type ResourceResult = {
+      /** Service that declared the resource. */
+      readonly service: string;
+      /** Runtime resource kind. */
+      readonly kind: t.Service.Resource.Any['kind'];
+      /** Optional listen host declared by the owner. */
+      readonly host?: string;
+      /** Listen port declared by the owner. */
+      readonly port: t.PortNumber;
+      /** Per-resource cleanup status. */
+      readonly status: ResourceStatus;
+      /** Discovered listener process ids. */
+      readonly listeners: readonly ResourceListener[];
+      /** Reason a resource was not observed or reaped. */
+      readonly reason?: string;
+    };
 
     /** Kill audit for one matching runtime session. */
     export type SessionResult = {

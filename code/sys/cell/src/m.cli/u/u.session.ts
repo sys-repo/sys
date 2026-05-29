@@ -13,12 +13,18 @@ export declare namespace CellSession {
     readonly updatedAt: t.UnixTimestamp;
     readonly state: State;
     readonly services: readonly Service[];
+    readonly resources: readonly Resource[];
   };
 
   export type Service = {
     readonly name: string;
     readonly use: string;
     readonly from: string;
+  };
+
+  export type Resource = {
+    readonly service: string;
+    readonly resource: t.Service.Resource.Any;
   };
 
   export type Options = {
@@ -32,10 +38,12 @@ export declare namespace CellSession {
     readonly mode: t.Cell.Services.ServiceMode;
     readonly pid: number;
     readonly services: readonly Service[];
+    readonly resources?: readonly Resource[];
   };
 
   export type Handle = {
     readonly current: Session;
+    resources(resources: readonly Resource[]): Promise<void>;
     ready(): Promise<void>;
     stopping(): Promise<void>;
     dispose(): Promise<void>;
@@ -70,6 +78,7 @@ async function create(
     updatedAt: now(options),
     state: 'starting',
     services: input.services,
+    resources: input.resources ?? [],
   };
   let disposed = false;
   let writes: Promise<void> = Promise.resolve();
@@ -81,9 +90,9 @@ async function create(
     return writes;
   };
 
-  const save = async (state = current.state) => {
+  const save = async (patch: Partial<CellSession.Session> = {}) => {
     if (disposed) return;
-    current = { ...current, state, updatedAt: now(options) };
+    current = { ...current, ...patch, updatedAt: now(options) };
     await enqueueWrite(current);
   };
 
@@ -96,8 +105,9 @@ async function create(
     get current() {
       return current;
     },
-    ready: async () => await save('ready'),
-    stopping: async () => await save('stopping'),
+    resources: async (resources) => await save({ resources }),
+    ready: async () => await save({ state: 'ready' }),
+    stopping: async () => await save({ state: 'stopping' }),
     async dispose() {
       disposed = true;
       globalThis.clearInterval(timer);
@@ -186,12 +196,20 @@ function sessionOf(input: unknown): CellSession.Session | undefined {
   if (!Is.num(input.updatedAt) || !Num.Is.safeInt(input.updatedAt)) return undefined;
   if (!isSessionState(input.state)) return undefined;
   if (!Is.array(input.services)) return undefined;
+  if (input.resources !== undefined && !Is.array(input.resources)) return undefined;
 
   const services: CellSession.Service[] = [];
   for (const item of input.services) {
     const service = serviceOf(item);
     if (!service) return undefined;
     services.push(service);
+  }
+
+  const resources: CellSession.Resource[] = [];
+  for (const item of input.resources ?? []) {
+    const resource = resourceOf(item);
+    if (!resource) return undefined;
+    resources.push(resource);
   }
 
   return {
@@ -203,6 +221,7 @@ function sessionOf(input: unknown): CellSession.Session | undefined {
     updatedAt: input.updatedAt,
     state: input.state,
     services,
+    resources,
   };
 }
 
@@ -212,6 +231,28 @@ function serviceOf(input: unknown): CellSession.Service | undefined {
   if (!Is.str(input.use)) return undefined;
   if (!Is.str(input.from)) return undefined;
   return { name: input.name, use: input.use, from: input.from };
+}
+
+function resourceOf(input: unknown): CellSession.Resource | undefined {
+  if (!Is.record(input)) return undefined;
+  if (!Is.str(input.service)) return undefined;
+  const resource = serviceResourceOf(input.resource);
+  if (!resource) return undefined;
+  return { service: input.service, resource };
+}
+
+function serviceResourceOf(input: unknown): t.Service.Resource.Any | undefined {
+  if (!Is.record(input)) return undefined;
+  if (input.kind !== 'tcp-listener') return undefined;
+  if (!Is.num(input.port) || !Num.Is.safeInt(input.port) || input.port < 1 || input.port > 65_535) {
+    return undefined;
+  }
+  if (input.host !== undefined && (!Is.str(input.host) || input.host.trim().length === 0)) {
+    return undefined;
+  }
+  const port = input.port as t.PortNumber;
+  const host = input.host?.trim();
+  return host ? { kind: 'tcp-listener', host, port } : { kind: 'tcp-listener', port };
 }
 
 function isSessionState(input: unknown): input is CellSession.State {

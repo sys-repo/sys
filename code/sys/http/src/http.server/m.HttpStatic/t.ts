@@ -5,7 +5,10 @@ import type { t } from './common.ts';
  */
 export declare namespace HttpStatic {
   /** Public static-server lifecycle API. */
-  export type Lib = {
+  export type Lib = t.Service.LifecycleEndpoint<StartArgs | undefined, t.HttpServerStarted> & {
+    /** Declare configured static-server resources without starting the service. */
+    resources(args: t.Service.Resource.Args): Promise<readonly t.Service.Resource.Any[]>;
+
     /** Start a static file server and return the standard HTTP server lifecycle handle. */
     start(args?: StartArgs): Promise<t.HttpServerStarted>;
 

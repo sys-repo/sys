@@ -25,6 +25,8 @@ sections:
       waits, and closes services.
       If an old Cell session is blocking restart, use
       `@sys/cell kill [dir] [--mode <mode>]`.
+      Kill may clear owner-declared TCP listeners for the selected Cell mode, but it is
+      not a generic port killer.
       Do not edit declared ports just to dodge a conflict.
       If startup fails for a named service, inspect that service's owner config and owner
       `--help`.
@@ -72,7 +74,7 @@ sections:
       Services that should keep `@sys/cell start` alive should return a started handle
       with `finished`.
       Service owners keep config schema, mechanics, ports, URLs, permissions, serving
-      strategy, Vite/HMR behavior, and display.
+      strategy, Vite/HMR behavior, resource declarations, and display.
       Cell does not rewrite ports to avoid conflicts.
       Cell may render the selected mode and endpoint. It does not own Vite, HMR,
       static-serving, or owner config semantics.

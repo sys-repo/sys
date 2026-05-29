@@ -1,7 +1,7 @@
 summary: |
   Break-glass cleanup for Cell start sessions.
   Sends process signals only to trusted, fresh session supervisors
-  registered for the selected Cell root and mode scope.
+  and owner-declared listeners for the selected Cell root/mode scope.
 
 usage:
   - deno run -ERW --allow-run jsr:@sys/cell kill [dir]
@@ -26,13 +26,19 @@ options:
 
 safety:
   - Cell kill targets runtime sessions for one canonical Cell root.
-  - It is not a port killer or a process-name killer.
+  - It may also clear TCP listeners declared by selected service owners.
+  - It is not a generic port killer or a process-name killer.
   - >-
     With no `[dir]`, Cell discovers the nearest Cell root
     from the current directory.
-  - With no `--mode`, Cell targets all live sessions for the root.
+  - >-
+    With no `--mode`, Cell targets all live sessions for the root;
+    it does not scan every descriptor variant.
   - >-
     A fresh session heartbeat is required before sending a signal
     to a running pid.
   - Stale records for dead pids are removed unless `--dry-run` is set.
   - Stale running sessions are reported and skipped, even with `--force`.
+  - >-
+    Resource cleanup never bypasses the heartbeat guard;
+    stale-running modes skip declared listeners too.

@@ -29,17 +29,41 @@ describe('Types: Service', () => {
     expectTypeOf(handle).toMatchTypeOf<t.Service.LifecycleHandle>();
   });
 
+  it('defines service-owned resource declarations', async () => {
+    const resource = {
+      kind: 'tcp-listener',
+      host: '127.0.0.1',
+      port: 5050,
+    } satisfies t.Service.Resource.TcpListener;
+    const args = {
+      cwd: '/tmp/cell' as t.StringDir,
+      paths: { config: '/tmp/cell/-config/service.yaml' as t.StringPath },
+    } satisfies t.Service.Resource.Args;
+
+    expectTypeOf(resource).toMatchTypeOf<t.Service.Resource.Any>();
+    expectTypeOf(args).toMatchTypeOf<t.Service.Resource.Args>();
+  });
+
   it('defines generic lifecycle endpoints', async () => {
     type Args = { readonly until?: t.UntilInput };
 
     const endpoint: t.Service.LifecycleEndpoint<Args> = {
+      resources() {
+        return [{ kind: 'tcp-listener', port: 5050 }];
+      },
       start(args) {
         expectTypeOf(args).toMatchTypeOf<Args>();
         return { status: () => ({ state: 'ready' }) };
       },
     };
 
+    const resources = await endpoint.resources?.({
+      cwd: '/tmp/cell' as t.StringDir,
+      paths: { config: '/tmp/cell/-config/service.yaml' as t.StringPath },
+    });
     const started = await endpoint.start({});
+
+    expectTypeOf(resources).toMatchTypeOf<readonly t.Service.Resource.Any[] | undefined>();
     expectTypeOf(started).toMatchTypeOf<t.Service.Handle>();
   });
 });

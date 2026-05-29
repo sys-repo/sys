@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it, type t, Testing } from '../../../-test.ts';
+import { describe, expect, Fs, it, Str, type t, Testing } from '../../../-test.ts';
 import { HttpStatic } from '../mod.ts';
 
 async function close(server: t.HttpServerStarted) {
@@ -26,8 +26,47 @@ describe('HttpStatic', () => {
     const mod = await import('@sys/http/server/static');
 
     expect(mod.HttpStatic).to.equal(HttpStatic);
+    expect(mod.HttpStatic.resources).to.equal(HttpStatic.resources);
     expect(mod.HttpStatic.start).to.equal(HttpStatic.start);
     expect(mod.HttpStatic.Config).to.equal(HttpStatic.Config);
+  });
+
+  it('declares configured static listener resources without starting services', async () => {
+    const fs = await Testing.dir('HttpStatic.resources');
+    const config = Fs.join(fs.dir, '-config/static.yaml');
+    await Fs.write(
+      config,
+      Str.dedent(`
+        name: static
+        dir: .
+        hostname: 127.0.0.1
+        port: 4040
+        silent: true
+      `).trimStart(),
+    );
+
+    const resources = await HttpStatic.resources({ cwd: fs.dir, paths: { config } });
+
+    expect(resources).to.eql([{ kind: 'tcp-listener', host: '127.0.0.1', port: 4040 }]);
+  });
+
+  it('omits static resources for ephemeral configured ports', async () => {
+    const fs = await Testing.dir('HttpStatic.resources.ephemeral');
+    const config = Fs.join(fs.dir, '-config/static.yaml');
+    await Fs.write(
+      config,
+      Str.dedent(`
+        name: static
+        dir: .
+        hostname: 127.0.0.1
+        port: 0
+        silent: true
+      `).trimStart(),
+    );
+
+    const resources = await HttpStatic.resources({ cwd: fs.dir, paths: { config } });
+
+    expect(resources).to.eql([]);
   });
 
   it('starts a static server and serves index.html', async () => {

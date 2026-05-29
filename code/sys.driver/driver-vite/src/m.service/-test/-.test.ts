@@ -9,7 +9,35 @@ describe('@sys/driver-vite/service', () => {
     expect(m.ViteService).to.equal(ViteService);
     expect('ViteDev' in m).to.eql(false);
     expect('startDev' in m).to.eql(false);
+    expect(typeof ViteService.resources).to.eql('function');
     expect(typeof ViteService.start).to.eql('function');
+  });
+
+  it('declares configured Vite listener resources without starting dev', async () => {
+    const fs = await Testing.dir('driver-vite.service.resources');
+    const config = fs.join('-config/@sys.driver-vite/view.yaml');
+    await Fs.write(
+      config,
+      Str.dedent(`
+        name: View
+        dir: ./view
+        port: 5173
+      `).trimStart(),
+    );
+
+    const resources = await ViteService.resources({ cwd: fs.dir, paths: { config } });
+
+    expect(resources).to.eql([{ kind: 'tcp-listener', host: 'localhost', port: 5173 }]);
+  });
+
+  it('omits Vite resources when no strict configured port exists', async () => {
+    const fs = await Testing.dir('driver-vite.service.resources.none');
+    const config = fs.join('-config/@sys.driver-vite/view.yaml');
+    await Fs.write(config, '{}\n');
+
+    const resources = await ViteService.resources({ cwd: fs.dir, paths: { config } });
+
+    expect(resources).to.eql([]);
   });
 
   it('starts Vite.dev from Cell lifecycle args and owner config', async () => {

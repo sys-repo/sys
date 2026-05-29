@@ -90,8 +90,28 @@ export namespace Service {
   /** Generic running service handle surface. */
   export type Handle = StatusHandle & LifecycleHandle;
 
+  /** Service-owned deterministic runtime resources. */
+  export namespace Resource {
+    /** Any service-owned runtime resource known to shared lifecycle contracts. */
+    export type Any = TcpListener;
+
+    /** TCP listener resource configured by a service owner. */
+    export type TcpListener = {
+      readonly kind: 'tcp-listener';
+      readonly host?: string;
+      readonly port: t.PortNumber;
+    };
+
+    /** Arguments passed when asking a service owner for configured resources. */
+    export type Args = {
+      readonly cwd: t.StringDir;
+      readonly paths: { readonly config: t.StringPath };
+    };
+  }
+
   /** Generic lifecycle endpoint for starting a service. */
   export type LifecycleEndpoint<Args = unknown, THandle = Handle> = {
     start(args: Args): THandle | Promise<THandle>;
+    resources?(args: Resource.Args): readonly Resource.Any[] | Promise<readonly Resource.Any[]>;
   };
 }

@@ -44,6 +44,7 @@ export async function startCell(args: StartCellArgs = {}): Promise<StartCellResu
         from: item.service.from,
       })),
     });
+    await session.resources(await sessionResources(cell, mode));
 
     started = await startServices(cell, { until: shutdown.signal, mode }, plan.services.length);
     await session.ready();
@@ -68,6 +69,17 @@ export async function startCell(args: StartCellArgs = {}): Promise<StartCellResu
     mode,
     serviceText,
   };
+}
+
+async function sessionResources(
+  cell: t.Cell.Instance,
+  mode: t.Cell.Services.ServiceMode,
+): Promise<readonly CellSession.Resource[]> {
+  const plan = await Cell.Services.resources(cell, { mode });
+  return plan.resources.map((item) => ({
+    service: item.service.name,
+    resource: item.resource,
+  }));
 }
 
 async function startServices(

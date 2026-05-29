@@ -49,6 +49,39 @@ export const ServiceEndpointFixture = {
     };
   `),
 
+  declaredResources: () => serviceModule(`
+    import { pushServiceEvent } from '${serviceFixtureUrl}';
+
+    export const Resourceful = {
+      resources(args) {
+        pushServiceEvent('resources:' + args.cwd + ':' + args.paths.config);
+        return [{ kind: 'tcp-listener', host: '127.0.0.1', port: 5050 }];
+      },
+      start() {
+        pushServiceEvent('start');
+        return { finished: Promise.resolve('done') };
+      },
+    };
+  `),
+
+  invalidResources: () => serviceModule(`
+    export const InvalidResource = {
+      resources() { return [{ kind: 'tcp-listener', port: 0 }]; },
+      start() { return { finished: Promise.resolve('done') }; },
+    };
+  `),
+
+  noResources: () => serviceModule(`
+    import { pushServiceEvent } from '${serviceFixtureUrl}';
+
+    export const Plain = {
+      start() {
+        pushServiceEvent('start:plain');
+        return { finished: Promise.resolve('done') };
+      },
+    };
+  `),
+
   failingStart: () => serviceModule(`
     export const Failing = {
       start() { throw new Error('boom'); },
