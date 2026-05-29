@@ -93,7 +93,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={() => 'files:websocket probe'}
+        label={() => 'files:websocket probe + watch'}
         onClick={() => void probeFilesWebSocket()}
       />
 
