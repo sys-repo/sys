@@ -1,4 +1,4 @@
-import { type t, Esm } from './common.ts';
+import { Esm, type t } from './common.ts';
 import { collectWithSession } from './u.collect.ts';
 import { createSession, Session, type UpgradeSession } from './u.session.ts';
 
@@ -16,7 +16,9 @@ export async function upgradeWithSession(
 ): Promise<t.WorkspaceUpgrade.Result> {
   const collected = await collectWithSession(input, options, session);
   collected.options.progress?.({ kind: 'plan' });
-  const policy = Esm.Policy.decideAll(collected.candidates.map(wrangle.policyInput(collected.options)));
+  const policy = Esm.Policy.decideAll(
+    collected.candidates.map(wrangle.policyInput(collected.options)),
+  );
   const graph = await wrangle.graph(policy, session);
   const topological = Esm.Topological.build({ nodes: graph.nodes, edges: graph.edges });
 
@@ -43,7 +45,10 @@ const wrangle = {
     });
   },
 
-  async graph(policy: t.EsmPolicy.Result, session: UpgradeSession): Promise<t.WorkspaceUpgrade.Graph> {
+  async graph(
+    policy: t.EsmPolicy.Result,
+    session: UpgradeSession,
+  ): Promise<t.WorkspaceUpgrade.Graph> {
     const nodes = policy.decisions
       .filter((decision): decision is t.EsmPolicy.Decision & { ok: true } => decision.ok)
       .map((decision) => ({
@@ -67,13 +72,18 @@ const wrangle = {
             entry,
             reason: {
               code: 'registry:info',
-              message: res.error?.message ?? `Failed to derive npm graph metadata for ${entry.module.name}`,
+              message: res.error?.message ??
+                `Failed to derive npm graph metadata for ${entry.module.name}`,
             },
           });
           continue;
         }
 
-        for (const depName of Object.keys(res.data.dependencies ?? {}).sort((a, b) => a.localeCompare(b))) {
+        for (
+          const depName of Object.keys(res.data.dependencies ?? {}).sort((a, b) =>
+            a.localeCompare(b)
+          )
+        ) {
           const from = `npm:${depName}`;
           if (!nodeKeys.has(from)) continue;
           const edge: t.EsmTopological.Decision.Input['edges'][number] = { from, to: node.key };
@@ -89,7 +99,8 @@ const wrangle = {
             entry,
             reason: {
               code: 'registry:info',
-              message: res.error?.message ?? `Failed to derive JSR graph metadata for ${entry.module.name}`,
+              message: res.error?.message ??
+                `Failed to derive JSR graph metadata for ${entry.module.name}`,
             },
           });
           continue;
@@ -129,11 +140,13 @@ const wrangle = {
       edges: [...edges.values()].sort((a, b) =>
         a.from === b.from ? a.to.localeCompare(b.to) : a.from.localeCompare(b.from)
       ),
-      unresolved: unresolved.sort((a, b) => wrangle.key(a.entry).localeCompare(wrangle.key(b.entry))),
+      unresolved: unresolved.sort((a, b) =>
+        wrangle.key(a.entry).localeCompare(wrangle.key(b.entry))
+      ),
     };
   },
 
-  jsrDependencies(graph: t.Registry.Jsr.Fetch.PkgGraph): readonly string[] {
+  jsrDependencies(graph: t.Registry.Jsr.Fetch.Pkg.Graph): readonly string[] {
     const specifiers = new Set<string>();
     for (const module of graph.modules) {
       for (const dep of module.dependencies) {

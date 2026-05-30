@@ -88,7 +88,7 @@ describe('cli.upgrade advisory', () => {
     expect(lines[1]?.length).to.eql(lines[0]?.length);
   });
 
-  it('styles the pre-menu advisory command and next version with restrained emphasis', () => {
+  it('styles the pre-menu advisory action with green command emphasis', () => {
     const text = toRootUpgradeAdvisoryPrelude({
       package: '@sys/tools',
       checkedAt: 1,
@@ -99,7 +99,7 @@ describe('cli.upgrade advisory', () => {
     const message = lines[1] ?? '';
 
     expect(
-      message.startsWith(`${c.gray('Run ')}${c.white('sys upgrade ')}${c.magenta('--latest')}`),
+      message.startsWith(`${c.gray('Run ')}${c.white('sys upgrade ')}${c.green('--latest')}`),
     ).to.eql(true);
     expect(
       message.endsWith(`${c.gray('next available ')}${c.white('9.9.9')}`),

@@ -1,4 +1,4 @@
-import { c, Cli, pkg, Pkg, Str, type t } from './common.ts';
+import { c, Cli, Pkg, pkg, Str, type t } from './common.ts';
 import { getVersionInfo } from './u.ts';
 
 type HelpInput =
@@ -114,10 +114,10 @@ export const Fmt = {
   },
 
   rootAdvisoryPrelude(remote?: t.StringSemver) {
-    const { gray: g, white: w, magenta: m } = c;
+    const { gray: g, green, white: w } = c;
     const hr = c.green(Cli.Fmt.hr());
     const width = Cli.stripAnsi(hr).length;
-    const message = `${g('Run ')}${w('sys upgrade ')}${m('--latest')}`;
+    const message = `${g('Run ')}${w('sys upgrade ')}${green('--latest')}`;
     const latest = remote ? `${g('next available ')}${w(remote)}` : undefined;
 
     return Str.builder()

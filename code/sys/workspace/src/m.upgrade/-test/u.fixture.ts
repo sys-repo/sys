@@ -1,11 +1,11 @@
 import { Err, Fs, Is, Jsr, Npm, Str, type t } from '../../-test.ts';
 
 export type VersionsResponse =
-  | t.Registry.Jsr.Fetch.PkgVersionsResponse
-  | t.Registry.Npm.Fetch.PkgVersionsResponse;
+  | t.Registry.Jsr.Fetch.Pkg.VersionsResponse
+  | t.Registry.Npm.Fetch.Pkg.VersionsResponse;
 export type InfoResponse =
-  | t.Registry.Jsr.Fetch.PkgInfoResponse
-  | t.Registry.Npm.Fetch.PkgInfoResponse;
+  | t.Registry.Jsr.Fetch.Pkg.InfoResponse
+  | t.Registry.Npm.Fetch.Pkg.InfoResponse;
 
 type TestDir = { join(path: string): string };
 
@@ -71,7 +71,7 @@ export function infoNpm(
   name: string,
   version: string,
   dependencies: Record<string, string> = {},
-): t.Registry.Npm.Fetch.PkgInfoResponse {
+): t.Registry.Npm.Fetch.Pkg.InfoResponse {
   return {
     ok: true,
     status: 200,
@@ -92,8 +92,8 @@ export function infoNpm(
 export function infoJsr(
   name: string,
   version: string,
-  graph?: t.Registry.Jsr.Fetch.PkgGraph,
-): t.Registry.Jsr.Fetch.PkgInfoResponse {
+  graph?: t.Registry.Jsr.Fetch.Pkg.Graph,
+): t.Registry.Jsr.Fetch.Pkg.InfoResponse {
   return {
     ok: true,
     status: 200,
@@ -116,7 +116,7 @@ export function graphJsr(
     path: string;
     dependencies?: readonly ({ specifier: string; kind?: string } | string)[];
   }[],
-): t.Registry.Jsr.Fetch.PkgGraph {
+): t.Registry.Jsr.Fetch.Pkg.Graph {
   return {
     format,
     modules: modules.map((module) => ({
@@ -137,8 +137,8 @@ export async function withVersions(
 ) {
   const originalJsr = Jsr.Fetch.Pkg.versions;
   const originalNpm = Npm.Fetch.Pkg.versions;
-  const mutableJsr = Jsr.Fetch.Pkg as t.Mutable<t.Registry.Jsr.Fetch.PkgLib>;
-  const mutableNpm = Npm.Fetch.Pkg as t.Mutable<t.Registry.Npm.Fetch.PkgLib>;
+  const mutableJsr = Jsr.Fetch.Pkg as t.Mutable<t.Registry.Jsr.Fetch.Pkg.Lib>;
+  const mutableNpm = Npm.Fetch.Pkg as t.Mutable<t.Registry.Npm.Fetch.Pkg.Lib>;
 
   mutableJsr.versions = async (name) => map.jsr[name] as never;
   mutableNpm.versions = async (name) => map.npm[name] as never;
@@ -159,8 +159,8 @@ export async function withInfo(
 ) {
   const originalJsr = Jsr.Fetch.Pkg.info;
   const originalNpm = Npm.Fetch.Pkg.info;
-  const mutableJsr = Jsr.Fetch.Pkg as t.Mutable<t.Registry.Jsr.Fetch.PkgLib>;
-  const mutableNpm = Npm.Fetch.Pkg as t.Mutable<t.Registry.Npm.Fetch.PkgLib>;
+  const mutableJsr = Jsr.Fetch.Pkg as t.Mutable<t.Registry.Jsr.Fetch.Pkg.Lib>;
+  const mutableNpm = Npm.Fetch.Pkg as t.Mutable<t.Registry.Npm.Fetch.Pkg.Lib>;
 
   mutableJsr.info = async (name, version) => map.jsr[`${name}@${version ?? ''}`] as never;
   mutableNpm.info = async (name, version) => map.npm[`${name}@${version ?? ''}`] as never;

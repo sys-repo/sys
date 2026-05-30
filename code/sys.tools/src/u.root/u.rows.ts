@@ -10,7 +10,7 @@ type RootRowOptions = {
 
 export function rootRows(group?: RootRowGroup, options: RootRowOptions = {}): RootRow[] {
   const fmt = (command: t.Root.Command, tool: string) => {
-    const label = options.highlightCommand === command ? c.magenta(tool) : tool;
+    const label = options.highlightCommand === command ? c.green(tool) : tool;
     return c.gray(c.dim(`${pkg.name} `)) + label;
   };
   const rows: RootRow[] = [];

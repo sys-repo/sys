@@ -32,7 +32,7 @@ describe('Root Rows', () => {
     expect(rootRows('utility').map((item) => item.command)).to.eql(['upgrade']);
   });
 
-  it('renders upgrade attention with a magenta command label while preserving visible text', () => {
+  it('renders upgrade attention with a green command label while preserving visible text', () => {
     const normal = rootRows('utility').find((item) => item.command === 'upgrade');
     const highlighted = rootRows('utility', { highlightCommand: 'upgrade' }).find((item) =>
       item.command === 'upgrade'
@@ -42,7 +42,7 @@ describe('Root Rows', () => {
       Cli.stripAnsi(normal?.columns[0] ?? ''),
     );
     expect(highlighted?.columns[0]).to.eql(
-      `${c.gray(c.dim('@sys/tools '))}${c.magenta('upgrade')}`,
+      `${c.gray(c.dim('@sys/tools '))}${c.green('upgrade')}`,
     );
   });
 });

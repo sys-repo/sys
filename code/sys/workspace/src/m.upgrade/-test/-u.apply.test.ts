@@ -1,4 +1,4 @@
-import { describe, expect, expectError, Fs, it, Testing, type t } from '../../-test.ts';
+import { describe, expect, expectError, Fs, it, type t, Testing } from '../../-test.ts';
 import { Jsr, Npm } from '../common.ts';
 import { WorkspaceUpgrade } from '../mod.ts';
 import { applyWithSession } from '../u.apply.ts';
@@ -259,7 +259,7 @@ describe('Workspace.Upgrade.apply', () => {
               WorkspaceUpgrade.apply(
                 { cwd: fs.dir, deps: fs.join('deps.yaml') },
                 { policy: { mode: 'latest' } },
-              ),
+              )
             );
 
             const afterDeps = await Fs.readText(fs.join('deps.yaml'));
@@ -309,8 +309,8 @@ describe('Workspace.Upgrade.apply', () => {
             let versionsCalls = 0;
             let infoCalls = 0;
 
-            const mutableJsr = Jsr.Fetch.Pkg as t.Mutable<t.Registry.Jsr.Fetch.PkgLib>;
-            const mutableNpm = Npm.Fetch.Pkg as t.Mutable<t.Registry.Npm.Fetch.PkgLib>;
+            const mutableJsr = Jsr.Fetch.Pkg as t.Mutable<t.Registry.Jsr.Fetch.Pkg.Lib>;
+            const mutableNpm = Npm.Fetch.Pkg as t.Mutable<t.Registry.Npm.Fetch.Pkg.Lib>;
             const jsrVersions = mutableJsr.versions;
             const npmVersions = mutableNpm.versions;
             const jsrInfo = mutableJsr.info;

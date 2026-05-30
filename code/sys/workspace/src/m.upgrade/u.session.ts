@@ -1,13 +1,13 @@
-import { type t, Jsr, Npm } from './common.ts';
+import { Jsr, Npm, type t } from './common.ts';
 
 export type UpgradeSession = {
   readonly versions: Map<
     string,
-    Promise<t.Registry.Jsr.Fetch.PkgVersionsResponse | t.Registry.Npm.Fetch.PkgVersionsResponse>
+    Promise<t.Registry.Jsr.Fetch.Pkg.VersionsResponse | t.Registry.Npm.Fetch.Pkg.VersionsResponse>
   >;
   readonly info: Map<
     string,
-    Promise<t.Registry.Jsr.Fetch.PkgInfoResponse | t.Registry.Npm.Fetch.PkgInfoResponse>
+    Promise<t.Registry.Jsr.Fetch.Pkg.InfoResponse | t.Registry.Npm.Fetch.Pkg.InfoResponse>
   >;
 };
 
@@ -39,7 +39,7 @@ export const Session = {
   ) {
     const key = `npm:${entry.module.name}@${version}`;
     const current = session.info.get(key);
-    if (current) return current as Promise<t.Registry.Npm.Fetch.PkgInfoResponse>;
+    if (current) return current as Promise<t.Registry.Npm.Fetch.Pkg.InfoResponse>;
 
     const next = Npm.Fetch.Pkg.info(entry.module.name, version);
     session.info.set(key, next);
@@ -53,7 +53,7 @@ export const Session = {
   ) {
     const key = `jsr:${entry.module.name}@${version}`;
     const current = session.info.get(key);
-    if (current) return current as Promise<t.Registry.Jsr.Fetch.PkgInfoResponse>;
+    if (current) return current as Promise<t.Registry.Jsr.Fetch.Pkg.InfoResponse>;
 
     const next = Jsr.Fetch.Pkg.info(entry.module.name, version);
     session.info.set(key, next);
