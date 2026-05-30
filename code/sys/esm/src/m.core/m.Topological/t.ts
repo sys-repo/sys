@@ -1,4 +1,3 @@
-import type { t } from '../common.ts';
 import type { EsmPolicy } from '../m.Policy/t.ts';
 
 /**
@@ -81,12 +80,17 @@ export namespace EsmTopological {
   /** Result of topological ordering over one payload type. */
   export type Result<T> = Ordered<T> | Cyclic | Invalid;
 
-  /** ESM-specialized node payload. */
-  export type DecisionNode = Node<EsmPolicy.Decision>;
-  /** ESM-specialized topological input. */
-  export type DecisionInput = Input<EsmPolicy.Decision>;
-  /** ESM-specialized ordered item. */
-  export type DecisionItem = Item<EsmPolicy.Decision>;
-  /** ESM-specialized topological result. */
-  export type DecisionResult = Result<EsmPolicy.Decision>;
+  /**
+   * ESM policy-decision specialization.
+   */
+  export namespace Decision {
+    /** ESM-specialized node payload. */
+    export type Node = EsmTopological.Node<EsmPolicy.Decision>;
+    /** ESM-specialized topological input. */
+    export type Input = EsmTopological.Input<EsmPolicy.Decision>;
+    /** ESM-specialized ordered item. */
+    export type Item = EsmTopological.Item<EsmPolicy.Decision>;
+    /** ESM-specialized topological result. */
+    export type Result = EsmTopological.Result<EsmPolicy.Decision>;
+  }
 }

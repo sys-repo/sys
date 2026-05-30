@@ -212,7 +212,7 @@ function upgrade(): t.WorkspaceUpgrade.Result {
   const reactDomDecision = decisionBlocked('react-dom', '18.2.0', ['18.2.0', '19.0.0']);
   const reactDecision = decisionBlocked('react', '18.2.0', ['18.2.0']);
 
-  const nodes: t.EsmTopological.DecisionInput['nodes'] = [
+  const nodes: t.EsmTopological.Decision.Input['nodes'] = [
     {
       key: Fmt.key(pathDecision.input.subject.entry),
       value: pathDecision,
@@ -294,7 +294,7 @@ function upgradeWithOverrides(): t.WorkspaceUpgrade.Result {
     '3.5.0',
   );
   const decisions = [monacoDecision, automergeDecision, dompurifyDecision];
-  const nodes: t.EsmTopological.DecisionInput['nodes'] = [monacoDecision, dompurifyDecision].map((
+  const nodes: t.EsmTopological.Decision.Input['nodes'] = [monacoDecision, dompurifyDecision].map((
     decision,
   ) => ({
     key: Fmt.key(decision.input.subject.entry),

@@ -54,8 +54,8 @@ Removed and migrated consumers to nested namespace types:
 - [x] `EsmPolicyInput = EsmPolicy.Input`
 - [x] `EsmPolicyDecision = EsmPolicy.Decision`
 - [x] `EsmPolicyResult = EsmPolicy.Result`
-- [x] `EsmTopologicalInput = EsmTopological.DecisionInput`
-- [x] `EsmTopologicalResult = EsmTopological.DecisionResult`
+- [x] `EsmTopologicalInput = EsmTopological.Decision.Input`
+- [x] `EsmTopologicalResult = EsmTopological.Decision.Result`
 
 Current shape:
 
@@ -63,8 +63,8 @@ Current shape:
 - `EsmPolicy.Input`
 - `EsmPolicy.Decision`
 - `EsmPolicy.Result`
-- `EsmTopological.DecisionInput`
-- `EsmTopological.DecisionResult`
+- `EsmTopological.Decision.Input`
+- `EsmTopological.Decision.Result`
 
 ### Registry flat aliases
 

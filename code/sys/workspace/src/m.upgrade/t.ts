@@ -193,9 +193,9 @@ export declare namespace WorkspaceUpgrade {
   /** Derived dependency graph used for ordered upgrade planning. */
   export type Graph = {
     /** Nodes entering ordered planning. */
-    readonly nodes: t.EsmTopological.DecisionInput['nodes'];
+    readonly nodes: t.EsmTopological.Decision.Input['nodes'];
     /** Derived dependency edges between the planned nodes. */
-    readonly edges: t.EsmTopological.DecisionInput['edges'];
+    readonly edges: t.EsmTopological.Decision.Input['edges'];
     /** Dependencies whose graph relationships were not fully derivable. */
     readonly unresolved: readonly GraphUnresolved[];
   };
@@ -213,7 +213,7 @@ export declare namespace WorkspaceUpgrade {
     /** Derived dependency graph used for topological ordering. */
     readonly graph: Graph;
     /** Topological ordering result across the derived dependency graph. */
-    readonly topological: t.EsmTopological.DecisionResult;
+    readonly topological: t.EsmTopological.Decision.Result;
     /** Aggregate outcome counts. */
     readonly totals: SummaryTotals;
   };

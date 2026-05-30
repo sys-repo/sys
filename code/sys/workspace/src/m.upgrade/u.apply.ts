@@ -75,7 +75,7 @@ const wrangle = {
     return `${entry.module.registry}:${entry.module.name}`;
   },
 
-  topologyError(result: Exclude<t.EsmTopological.DecisionResult, { ok: true }>): t.StdError {
+  topologyError(result: Exclude<t.EsmTopological.Decision.Result, { ok: true }>): t.StdError {
     if ('cycle' in result) {
       const err = `Workspace upgrade plan could not be applied because the dependency graph is cyclic: ${result.cycle.keys.join(', ')}`;
       return Err.std(err);

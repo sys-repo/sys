@@ -52,7 +52,7 @@ const wrangle = {
       }));
 
     const nodeKeys = new Set(nodes.map((node) => node.key));
-    const edges = new Map<string, t.EsmTopological.DecisionInput['edges'][number]>();
+    const edges = new Map<string, t.EsmTopological.Decision.Input['edges'][number]>();
     const unresolved: t.WorkspaceUpgrade.GraphUnresolved[] = [];
 
     for (const node of nodes) {
@@ -76,7 +76,7 @@ const wrangle = {
         for (const depName of Object.keys(res.data.dependencies ?? {}).sort((a, b) => a.localeCompare(b))) {
           const from = `npm:${depName}`;
           if (!nodeKeys.has(from)) continue;
-          const edge: t.EsmTopological.DecisionInput['edges'][number] = { from, to: node.key };
+          const edge: t.EsmTopological.Decision.Input['edges'][number] = { from, to: node.key };
           edges.set(`${edge.from}->${edge.to}`, edge);
         }
         continue;
@@ -109,7 +109,7 @@ const wrangle = {
         for (const specifier of wrangle.jsrDependencies(res.data.graph)) {
           const from = wrangle.specifierKey(specifier);
           if (!from || from === node.key || !nodeKeys.has(from)) continue;
-          const edge: t.EsmTopological.DecisionInput['edges'][number] = { from, to: node.key };
+          const edge: t.EsmTopological.Decision.Input['edges'][number] = { from, to: node.key };
           edges.set(`${edge.from}->${edge.to}`, edge);
         }
         continue;
@@ -172,7 +172,7 @@ const wrangle = {
   totals(
     collected: t.WorkspaceUpgrade.CollectResult,
     policy: t.EsmPolicy.Result,
-    topological: t.EsmTopological.DecisionResult,
+    topological: t.EsmTopological.Decision.Result,
   ): t.WorkspaceUpgrade.SummaryTotals {
     return {
       dependencies: collected.totals.dependencies,
