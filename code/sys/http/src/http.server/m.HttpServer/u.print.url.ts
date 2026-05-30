@@ -7,7 +7,7 @@ import { statusUrls } from './u.status.url.ts';
  */
 export function formatPrintUrls(input: {
   readonly addr: Deno.NetAddr;
-  readonly paths: readonly t.HttpServerStatusUrlPath[] | undefined;
+  readonly paths: readonly t.HttpServer.Status.UrlPath[] | undefined;
 }): readonly string[] {
   const origin = localOrigin(input.addr);
   return Cli.Fmt.Url.serviceList(statusUrls(origin, input.paths));

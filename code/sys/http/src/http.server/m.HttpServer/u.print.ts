@@ -1,12 +1,10 @@
-import type { HttpServerLib } from './t.ts';
-
 import { c, Cli, Fs, Str, type t } from './common.ts';
 import { formatPrintUrls } from './u.print.url.ts';
 
 /**
  * Outputs HTTP-owner startup information for direct server use.
  */
-export const print: HttpServerLib['print'] = (options) => {
+export const print: t.HttpServer.Lib['print'] = (options) => {
   const { addr, pkg, hash, name, requestedPort } = options;
   const root = options.status?.root ?? options.dir;
   const details = options.status?.details ?? infoDetails(options.info);
@@ -47,7 +45,7 @@ function pushUrls(table: ReturnType<typeof Cli.Table.create>, urls: readonly str
 
 function pushKeyboard(
   table: ReturnType<typeof Cli.Table.create>,
-  keyboard: t.HttpServerPrintKeyboardOptions | undefined,
+  keyboard: t.HttpServer.Print.Keyboard.Options | undefined,
 ) {
   if (keyboard?.open) table.push([keyboardLabel('open'), keyboardValue(keyboard.open)]);
   if (keyboard?.quit) table.push([keyboardLabel('quit'), keyboardValue(keyboard.quit)]);

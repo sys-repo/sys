@@ -5,13 +5,13 @@ export const DEFAULT_TIMEOUT = 10_000;
 type UsingServerArgsCallback = (e: UsingServerArgsCallbackArgs) => Promise<void>;
 type UsingServerArgsCallbackArgs = {
   readonly url: t.HttpUrl;
-  readonly fetch: t.HttpFetch;
+  readonly fetch: t.HttpFetch.Instance;
 };
 type UsingServerArgs = {
-  readonly app: t.HonoApp;
+  readonly app: t.HttpServer.App;
   readonly fn: UsingServerArgsCallback;
   readonly timeout?: number;
-  readonly mkFetch?: () => t.HttpFetch;
+  readonly mkFetch?: () => t.HttpFetch.Instance;
 };
 
 export async function usingServer(args: UsingServerArgs): Promise<void> {

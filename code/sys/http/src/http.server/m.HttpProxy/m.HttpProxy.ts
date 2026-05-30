@@ -172,8 +172,8 @@ const wrangle = {
     return headers;
   },
 
-  urlPaths(config: t.HttpProxy.Routing.Config): readonly t.HttpServerStatusUrlPath[] {
-    const paths: t.HttpServerStatusUrlPath[] = [];
+  urlPaths(config: t.HttpProxy.Routing.Config): readonly t.HttpServer.Status.UrlPath[] {
+    const paths: t.HttpServer.Status.UrlPath[] = [];
     if (config.root) paths.push({ label: 'root', path: '/' as t.StringUrlRoute });
     for (const mount of config.mounts ?? []) {
       paths.push({ label: wrangle.infoLabel(mount.mountPath), path: mount.mountPath });

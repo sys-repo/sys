@@ -44,7 +44,7 @@ describe('HttpPull.stream', () => {
       const outDir = await mkTmpDir();
 
       const stream = HttpPull.stream([slow, fast], outDir, { concurrency: 2 });
-      const events: t.HttpPullEvent[] = [];
+      const events: t.HttpPull.Event.Any[] = [];
       for await (const ev of stream) {
         events.push(ev);
       }
@@ -93,7 +93,7 @@ describe('HttpPull.stream', () => {
 
     const stream = HttpPull.stream([url], outDir);
 
-    const events: t.HttpPullEvent[] = [];
+    const events: t.HttpPull.Event.Any[] = [];
     for await (const ev of stream) events.push(ev);
 
     const starts = events.filter((e) => e.kind === 'start');
@@ -125,7 +125,7 @@ describe('HttpPull.stream', () => {
 
     const stream = HttpPull.stream([bad], outDir);
 
-    const events: t.HttpPullEvent[] = [];
+    const events: t.HttpPull.Event.Any[] = [];
     for await (const ev of stream) events.push(ev);
 
     const starts = events.filter((e) => e.kind === 'start');
@@ -161,7 +161,7 @@ describe('HttpPull.stream', () => {
     const outDir = await mkTmpDir();
 
     const until = Rx.disposable();
-    const events: t.HttpPullEvent[] = [];
+    const events: t.HttpPull.Event.Any[] = [];
 
     const stream = HttpPull.stream([a, b], outDir, { until, concurrency: 2 });
     queueMicrotask(() => until.dispose()); // ← cancel immediately on next microtask.
@@ -198,7 +198,7 @@ describe('HttpPull.stream', () => {
 
         const stream = HttpPull.stream([url], outDir);
 
-        const events: t.HttpPullEvent[] = [];
+        const events: t.HttpPull.Event.Any[] = [];
         for await (const ev of stream) events.push(ev);
 
         const starts = events.filter((e) => e.kind === 'start');
@@ -240,7 +240,7 @@ describe('HttpPull.stream', () => {
 
         const stream = HttpPull.stream([url], outDir);
 
-        const events: t.HttpPullEvent[] = [];
+        const events: t.HttpPull.Event.Any[] = [];
         for await (const ev of stream) events.push(ev);
 
         const starts = events.filter((e) => e.kind === 'start');
@@ -282,7 +282,7 @@ describe('HttpPull.stream', () => {
 
       const stream = HttpPull.stream([a, b], outDir, { concurrency: 2 });
 
-      const events: t.HttpPullEvent[] = [];
+      const events: t.HttpPull.Event.Any[] = [];
       const done = deferred();
 
       const sub = stream.events().$.subscribe({
@@ -319,7 +319,7 @@ describe('HttpPull.stream', () => {
 
       const stream = HttpPull.stream([a, b], outDir, { concurrency: 2 });
 
-      const events: t.HttpPullEvent[] = [];
+      const events: t.HttpPull.Event.Any[] = [];
       const done = deferred();
       const sub = stream.events().$.subscribe({
         next: (e) => events.push(e),
@@ -352,7 +352,7 @@ describe('HttpPull.stream', () => {
       const stream = HttpPull.stream([a, b], outDir, { concurrency: 2 });
 
       // Start a for-await consumer that should finish naturally.
-      const iterEvents: t.HttpPullEvent[] = [];
+      const iterEvents: t.HttpPull.Event.Any[] = [];
       const iterDone = deferred<void>();
       (async () => {
         for await (const ev of stream) iterEvents.push(ev);
@@ -361,7 +361,7 @@ describe('HttpPull.stream', () => {
 
       // Create an events() subscription with its own until; we dispose it immediately.
       const local = Rx.disposable();
-      const obsEvents: t.HttpPullEvent[] = []; // ← was HttpPullRecord[]
+      const obsEvents: t.HttpPull.Event.Any[] = [];
       const obsDone = deferred<void>();
       const sub = stream.events(local).$.subscribe({
         next: (e) => obsEvents.push(e),

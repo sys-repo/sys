@@ -14,8 +14,8 @@ import { isAbortError, makeEventQueue, resolveTarget } from './u.ts';
 export function stream(
   urls: readonly string[],
   dir: t.StringDir,
-  options: t.HttpPullOptions = {},
-): t.HttpPullStream {
+  options: t.HttpPull.Options = {},
+): t.HttpPull.Stream.Instance {
   const { map, retry } = options;
 
   const client = options.client ?? HttpClient.fetcher();
@@ -24,9 +24,9 @@ export function stream(
 
   /**
    * Aggregated records for the stream.
-   * Used to compute the final HttpPullToDirResult returned via `done`.
+   * Used to compute the final HttpPull.ToDir.Result returned via `done`.
    */
-  const records: t.HttpPullRecord[] = [];
+  const records: t.HttpPull.Record[] = [];
 
   /**
    * IMPORTANT:
@@ -37,11 +37,11 @@ export function stream(
   const controller = new AbortController();
   const signal = controller.signal;
 
-  const q = makeEventQueue<t.HttpPullEvent>();
+  const q = makeEventQueue<t.HttpPull.Event.Any>();
   const limit = Await.semaphore(concurrency);
 
   // Hot subject mirroring progress events to observable subscribers.
-  const subject$ = Rx.subject<t.HttpPullEvent>();
+  const subject$ = Rx.subject<t.HttpPull.Event.Any>();
   let cancelled = false;
 
   // Forward lifecycle cancellation: mark, abort in-flight work, then complete the subject.
@@ -62,7 +62,7 @@ export function stream(
 
       // Start:
       if (!signal.aborted) {
-        const ev: t.HttpPullEvent = { kind: 'start', index: i, total, url: source };
+        const ev: t.HttpPull.Event.Any = { kind: 'start', index: i, total, url: source };
         q.push(ev);
         subject$.next(ev);
       }
@@ -71,10 +71,10 @@ export function stream(
         const record = await pullOne(source, dir, client, { map, signal, retry });
         if (signal.aborted) return; // Silent bail on cancellation.
 
-        // Track every attempted URL so `done` can compute the HttpPullToDirResult.
+        // Track every attempted URL so `done` can compute the HttpPull.ToDir.Result.
         records.push(record);
 
-        const ev: t.HttpPullEvent = record.ok
+        const ev: t.HttpPull.Event.Any = record.ok
           ? { kind: 'done', index: i, total, record, url: source }
           : { kind: 'error', index: i, total, record, url: source };
 
@@ -86,10 +86,10 @@ export function stream(
           const error = err instanceof Error ? err.message : String(err);
           const target = resolveTarget(source, dir, options.map);
 
-          const record: t.HttpPullRecord = { ok: false, error, path: { source, target } };
+          const record: t.HttpPull.Record = { ok: false, error, path: { source, target } };
           records.push(record);
 
-          const errEvent: t.HttpPullEvent = { kind: 'error', index: i, total, url: source, record };
+          const errEvent: t.HttpPull.Event.Any = { kind: 'error', index: i, total, url: source, record };
           q.push(errEvent);
           subject$.next(errEvent);
         }
@@ -108,12 +108,12 @@ export function stream(
    *
    * Resolves when all tasks have settled (success, error, or cancellation).
    * - `ok` is true only if every attempted record succeeded.
-   * - `ops` contains one HttpPullRecord per attempted URL.
+   * - `ops` contains one HttpPull.Record per attempted URL.
    */
-  const done: Promise<t.HttpPullToDirResult> = (async () => {
+  const done: Promise<t.HttpPull.ToDir.Result> = (async () => {
     await settled;
 
-    const ops = records as readonly t.HttpPullRecord[];
+    const ops = records as readonly t.HttpPull.Record[];
     const ok = ops.every((r) => r.ok);
 
     return { ok, ops };
@@ -166,7 +166,7 @@ export function stream(
       // When the child lifecycle disposes, explicitly complete the stream.
       child.dispose$.subscribe(() => subject$.complete());
 
-      return Rx.toLifecycle<t.HttpPullStreamEvents>(child, {
+      return Rx.toLifecycle<t.HttpPull.Stream.Events>(child, {
         $: subject$.asObservable(),
       });
     },

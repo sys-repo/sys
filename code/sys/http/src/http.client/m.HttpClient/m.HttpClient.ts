@@ -9,7 +9,7 @@ import { Preload } from '../m.HttpPreload/mod.ts';
 /**
  * Http fetch helper.
  */
-export const HttpClient: t.HttpClientLib = {
+export const HttpClient: t.HttpClient.Lib = {
   Url,
   Fetch,
   Preload,

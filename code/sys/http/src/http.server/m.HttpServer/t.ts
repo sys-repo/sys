@@ -1,6 +1,6 @@
 import type {
   Context as THonoContext,
-  Hono,
+  Hono as THonoAppBase,
   MiddlewareHandler as THonoMiddlewareHandler,
   Schema as THonoSchema,
 } from 'hono';
@@ -9,181 +9,235 @@ import type { BlankSchema as THonoBlankSchema, Env as THonoEnv } from 'hono/type
 import type { t } from './common.ts';
 
 /**
- * HTTP Webserver.
+ * HTTP server contracts.
  */
-export type HttpServerLib = {
-  readonly Hono: typeof Hono;
-  readonly cors: typeof cors;
-  readonly static: t.HttpServeStatic;
-  forceDirSlash(root: string, strip?: string): t.HonoMiddlewareHandler;
-  create(options?: t.HttpServerCreateOptions): HonoApp;
-  start(app: t.HonoApp, options?: t.HttpServerStartOptions): t.HttpServerStarted;
-  options(args?: t.HttpServerOptionsOptions): Deno.ServeOptions<Deno.NetAddr>;
-  print(args: t.HttpServerPrintOptions): void;
-  keyboard(args: t.HttpServerKeyboardOptions): Promise<void>;
-};
+export declare namespace HttpServer {
+  /** HTTP server helper library. */
+  export type Lib = {
+    readonly Hono: typeof THonoAppBase;
+    readonly cors: typeof cors;
+    readonly static: ServeStatic.Method;
+    forceDirSlash(root: string, strip?: string): Hono.MiddlewareHandler;
+    create(options?: Create.Options): App;
+    start(app: App, options?: Start.Options): Started;
+    options(args?: Options.Args): Deno.ServeOptions<Deno.NetAddr>;
+    print(args: Print.Options): void;
+    keyboard(args: Keyboard.Args): Promise<void>;
+  };
 
-/** Arguments passed to [HttpServer.options] */
-export type HttpServerOptionsOptions = {
-  port?: number;
-  pkg?: t.Pkg;
-  hash?: t.StringHash;
-  name?: string;
-  info?: Record<string, string>;
-  silent?: boolean;
-  dir?: string;
-  status?: HttpServerStatusOptions;
-};
+  /** Server application instance. */
+  export type App = Hono.App;
 
-/** Arguments passed to [HttpServer.keyboard]. */
-export type HttpServerKeyboardOptions = {
-  port: number;
-  url?: string;
-  print?: boolean;
-  exit?: boolean;
-  dispose?: () => Promise<void>;
-};
+  /** Running server returned by `HttpServer.start`. */
+  export type Started = t.LifecycleAsync & {
+    readonly app: App;
+    readonly server: Deno.HttpServer<Deno.NetAddr>;
+    readonly addr: Deno.NetAddr;
+    readonly hostname: t.StringHostname;
+    readonly port: t.PortNumber;
 
-/** Arguments passed to [HttpServer.start]. */
-export type HttpServerStartOptions = {
-  port?: t.PortNumber;
-  hostname?: t.StringHostname;
-  pkg?: t.Pkg;
-  hash?: t.StringHash;
-  name?: string;
-  info?: Record<string, string>;
-  silent?: boolean;
-  dir?: t.StringDir;
+    /** Local browser-safe HTTP origin, e.g. `http://localhost:8080`. */
+    readonly origin: t.StringUrl;
 
-  /** Structured, renderer-neutral status metadata for the running server handle. */
-  status?: HttpServerStatusOptions;
+    /** Server lifecycle signal; aborted when this context is disposed or closed. */
+    readonly signal: AbortSignal;
 
-  /** Canonical @sys lifecycle bridge. */
-  until?: t.UntilInput;
+    /** Resolves when the underlying Deno server has finished. */
+    readonly finished: Promise<void>;
 
-  keyboard?: boolean | HttpServerStartKeyboardOptions;
-};
+    /** Renderer-neutral service status snapshot. */
+    status(): t.Service.Status;
 
-/** Keyboard behavior for [HttpServer.start]. */
-export type HttpServerStartKeyboardOptions = {
-  print?: boolean;
+    /** HTTP/domain alias for `dispose()`. */
+    close(reason?: unknown): Promise<void>;
+  };
 
   /**
-   * Exit the process when keyboard quit is received.
-   *
-   * Defaults to false. Server shutdown is the primitive behavior;
-   * process exit must be explicit.
+   * HTTP server creation contracts.
    */
-  exit?: boolean;
-};
+  export namespace Create {
+    /** Options passed to the creation of a server. */
+    export type Options = {
+      pkg?: t.Pkg;
+      hash?: t.StringHash;
+      cors?: boolean;
+      static?: boolean | t.StringDir | [t.StringUrlRoute, t.StringDir];
+    };
+  }
 
-/** Running server returned by [HttpServer.start]. */
-export type HttpServerStarted = t.LifecycleAsync & {
-  readonly app: t.HonoApp;
-  readonly server: Deno.HttpServer<Deno.NetAddr>;
-  readonly addr: Deno.NetAddr;
-  readonly hostname: t.StringHostname;
-  readonly port: t.PortNumber;
+  /**
+   * Deno serve-options contracts.
+   */
+  export namespace Options {
+    /** Arguments passed to `HttpServer.options`. */
+    export type Args = {
+      port?: number;
+      pkg?: t.Pkg;
+      hash?: t.StringHash;
+      name?: string;
+      info?: Record<string, string>;
+      silent?: boolean;
+      dir?: string;
+      status?: Status.Options;
+    };
+  }
 
-  /** Local browser-safe HTTP origin, e.g. `http://localhost:8080`. */
-  readonly origin: t.StringUrl;
+  /**
+   * Keyboard helper contracts.
+   */
+  export namespace Keyboard {
+    /** Arguments passed to `HttpServer.keyboard`. */
+    export type Args = {
+      port: number;
+      url?: string;
+      print?: boolean;
+      exit?: boolean;
+      dispose?: () => Promise<void>;
+    };
+  }
 
-  /** Server lifecycle signal; aborted when this context is disposed or closed. */
-  readonly signal: AbortSignal;
+  /**
+   * HTTP server start contracts.
+   */
+  export namespace Start {
+    /** Arguments passed to `HttpServer.start`. */
+    export type Options = {
+      port?: t.PortNumber;
+      hostname?: t.StringHostname;
+      pkg?: t.Pkg;
+      hash?: t.StringHash;
+      name?: string;
+      info?: Record<string, string>;
+      silent?: boolean;
+      dir?: t.StringDir;
 
-  /** Resolves when the underlying Deno server has finished. */
-  readonly finished: Promise<void>;
+      /** Structured, renderer-neutral status metadata for the running server handle. */
+      status?: Status.Options;
 
-  /** Renderer-neutral service status snapshot. */
-  status(): t.Service.Status;
+      /** Canonical @sys lifecycle bridge. */
+      until?: t.UntilInput;
 
-  /** HTTP/domain alias for `dispose()`. */
-  close(reason?: unknown): Promise<void>;
-};
+      keyboard?: boolean | Keyboard.Options;
+    };
 
-/** Structured status metadata passed to [HttpServer.start]. */
-export type HttpServerStatusOptions = {
-  /** Owner-local kind, e.g. `http`, `static`, or `proxy`. */
-  readonly kind?: string;
+    /**
+     * HTTP server start keyboard contracts.
+     */
+    export namespace Keyboard {
+      /** Keyboard behavior for `HttpServer.start`. */
+      export type Options = {
+        print?: boolean;
 
-  /** Owner config path, if the server was started from one. */
-  readonly config?: t.StringPath;
+        /**
+         * Exit the process when keyboard quit is received.
+         *
+         * Defaults to false. Server shutdown is the primitive behavior;
+         * process exit must be explicit.
+         */
+        exit?: boolean;
+      };
+    }
+  }
 
-  /** Primary served filesystem root, if the server has one. Defaults to `dir`. */
-  readonly root?: t.StringDir;
+  /**
+   * HTTP server status contracts.
+   */
+  export namespace Status {
+    /** Structured status metadata passed to `HttpServer.start`. */
+    export type Options = {
+      /** Owner-local kind, e.g. `http`, `static`, or `proxy`. */
+      readonly kind?: string;
 
-  /** URL paths to resolve against the server origin. Defaults to `/`. */
-  readonly urlPaths?: readonly HttpServerStatusUrlPath[];
+      /** Owner config path, if the server was started from one. */
+      readonly config?: t.StringPath;
 
-  /** Extra owner facts that are not URLs and not lifecycle control. */
-  readonly details?: readonly t.Service.Detail[];
-};
+      /** Primary served filesystem root, if the server has one. Defaults to `dir`. */
+      readonly root?: t.StringDir;
 
-export type HttpServerStatusUrlPath =
-  | t.StringUrlRoute
-  | { readonly path: t.StringUrlRoute; readonly label?: string };
+      /** URL paths to resolve against the server origin. Defaults to `/`. */
+      readonly urlPaths?: readonly UrlPath[];
 
-/** Arguments passed to [HttpServer.print]. */
-export type HttpServerPrintOptions = {
-  addr: Deno.NetAddr;
-  pkg?: t.Pkg;
-  hash?: t.StringHash;
-  name?: string;
-  info?: Record<string, string>;
-  requestedPort?: t.PortNumber;
-  dir?: t.StringDir;
-  status?: HttpServerStatusOptions;
-  keyboard?: HttpServerPrintKeyboardOptions;
-};
+      /** Extra owner facts that are not URLs and not lifecycle control. */
+      readonly details?: readonly t.Service.Detail[];
+    };
 
-/** Keyboard affordances rendered in HTTP startup output. */
-export type HttpServerPrintKeyboardOptions = {
-  /** Key used to open the primary URL in a browser. */
-  readonly open?: string;
+    /** Server status URL path descriptor. */
+    export type UrlPath =
+      | t.StringUrlRoute
+      | { readonly path: t.StringUrlRoute; readonly label?: string };
+  }
 
-  /** Keys used to stop the server. */
-  readonly quit?: string;
-};
+  /**
+   * HTTP server print contracts.
+   */
+  export namespace Print {
+    /** Arguments passed to `HttpServer.print`. */
+    export type Options = {
+      addr: Deno.NetAddr;
+      pkg?: t.Pkg;
+      hash?: t.StringHash;
+      name?: string;
+      info?: Record<string, string>;
+      requestedPort?: t.PortNumber;
+      dir?: t.StringDir;
+      status?: Status.Options;
+      keyboard?: Keyboard.Options;
+    };
 
-/** Options passed to the creation of a server. */
-export type HttpServerCreateOptions = {
-  pkg?: t.Pkg;
-  hash?: t.StringHash;
-  cors?: boolean;
-  static?: boolean | t.StringDir | [t.StringUrlRoute, t.StringDir];
-};
+    /**
+     * HTTP server print keyboard contracts.
+     */
+    export namespace Keyboard {
+      /** Keyboard affordances rendered in HTTP startup output. */
+      export type Options = {
+        /** Key used to open the primary URL in a browser. */
+        readonly open?: string;
 
-/**
- * Create static file-server middleware.
- */
-export type HttpServeStatic = (
-  input: HttpServeStaticOptions | t.StringDir,
-) => t.HonoMiddlewareHandler;
+        /** Keys used to stop the server. */
+        readonly quit?: string;
+      };
+    }
+  }
 
-/** Options passed to the static server middleware. */
-export type HttpServeStaticOptions<E extends THonoEnv = THonoEnv> = {
-  root?: string;
-  path?: string;
-  precompressed?: boolean;
-  mimes?: Record<string, string>;
-  rewriteRequestPath?: (path: string) => string;
-  onFound?: (path: string, c: THonoContext<E>) => void | Promise<void>;
-  onNotFound?: (path: string, c: THonoContext<E>) => void | Promise<void>;
-};
+  /**
+   * Static file-server middleware contracts.
+   */
+  export namespace ServeStatic {
+    /** Create static file-server middleware. */
+    export type Method = (input: Options | t.StringDir) => Hono.MiddlewareHandler;
 
-/**
- * Hono Server (application instnace).
- */
-export type HonoApp = Hono<THonoEnv, THonoBlankSchema, '/'>;
-export type HonoBlankSchema = THonoBlankSchema;
-export type HonoContext = THonoContext;
-export type HonoEnv = THonoEnv;
-export type HonoMiddlewareHandler = THonoMiddlewareHandler;
-export type HonoSchema = THonoSchema;
+    /** Options passed to the static server middleware. */
+    export type Options<E extends THonoEnv = THonoEnv> = {
+      root?: string;
+      path?: string;
+      precompressed?: boolean;
+      mimes?: Record<string, string>;
+      rewriteRequestPath?: (path: string) => string;
+      onFound?: (path: string, c: THonoContext<E>) => void | Promise<void>;
+      onNotFound?: (path: string, c: THonoContext<E>) => void | Promise<void>;
+    };
+  }
 
-/**
- * Context passed into route handlers.
- */
-export type RouteContext = {
-  readonly app: t.HonoApp;
-};
+  /**
+   * Hono interop contracts.
+   */
+  export namespace Hono {
+    /** Hono Server application instance. */
+    export type App = THonoAppBase<THonoEnv, THonoBlankSchema, '/'>;
+    export type BlankSchema = THonoBlankSchema;
+    export type Context = THonoContext;
+    export type Env = THonoEnv;
+    export type MiddlewareHandler = THonoMiddlewareHandler;
+    export type Schema = THonoSchema;
+  }
+
+  /**
+   * HTTP route contracts.
+   */
+  export namespace Route {
+    /** Context passed into route handlers. */
+    export type Context = {
+      readonly app: App;
+    };
+  }
+}

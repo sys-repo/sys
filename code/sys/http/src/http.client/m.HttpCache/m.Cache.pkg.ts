@@ -12,23 +12,23 @@ export type RangeWindowCandidateInput = {
   readonly status: number;
   readonly request: { start: number; end?: number };
   readonly contentRange?: string | null;
-  readonly policy: t.HttpCacheMediaPolicy;
+  readonly policy: t.HttpCache.Media.Policy;
 };
 
 export function resolveMediaPolicy(
-  input: t.HttpCacheMediaPolicyInput | undefined,
-): t.HttpCacheMediaPolicy {
+  input: t.HttpCache.Media.PolicyInput | undefined,
+): t.HttpCache.Media.Policy {
   const mode = input?.mode ?? 'safe-full';
   return {
     mode,
     maxChunkBytes: wrangle.positive(input?.maxChunkBytes, 5 * 1024 * 1024),
     maxObjectBytes: wrangle.positive(input?.maxObjectBytes, 512 * 1024 * 1024),
     maxTotalBytes: wrangle.positive(input?.maxTotalBytes, 1024 * 1024 * 1024),
-    ttlMs: wrangle.positive(input?.ttlMs, 1000 * 60 * 60 * 24),
+    ttl: wrangle.positive(input?.ttlMs, 1000 * 60 * 60 * 24) as t.Msecs,
   };
 }
 
-export function shouldBypassMediaCache(mode: t.HttpCacheMediaMode): boolean {
+export function shouldBypassMediaCache(mode: t.HttpCache.Media.Mode): boolean {
   return mode === 'off';
 }
 
@@ -75,7 +75,7 @@ export function isCacheableHashedAssetResponse(response: Response) {
   return { ok: true } as const;
 }
 
-export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
+export const pkg: t.HttpCache.Lib['pkg'] = async (args) => {
   const { pkg, silent = false } = args;
   const media = resolveMediaPolicy(args.media);
 
@@ -224,7 +224,7 @@ export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
     }
 
     const now = Date.now();
-    const expiresAt = now + media.ttlMs;
+    const expiresAt = now + media.ttl;
     const stored = wrangle.withEntryMeta(network.clone(), {
       createdAt: now,
       lastAccessAt: now,
@@ -514,7 +514,7 @@ const rangeMeta = {
 
   async evict(
     cache: Cache,
-    policy: t.HttpCacheMediaPolicy,
+    policy: t.HttpCache.Media.Policy,
     now: number,
     incomingBytes: number,
   ): Promise<void> {
@@ -525,7 +525,7 @@ const rangeMeta = {
 
   async writeWithBudget(
     cache: Cache,
-    policy: t.HttpCacheMediaPolicy,
+    policy: t.HttpCache.Media.Policy,
     incomingBytes: number,
     writer: () => Promise<void>,
   ): Promise<boolean> {
@@ -539,7 +539,7 @@ const rangeMeta = {
 
   async evictWithin(
     cache: Cache,
-    policy: t.HttpCacheMediaPolicy,
+    policy: t.HttpCache.Media.Policy,
     now: number,
     incomingBytes: number,
   ): Promise<boolean> {

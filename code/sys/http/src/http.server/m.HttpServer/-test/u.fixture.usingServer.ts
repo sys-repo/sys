@@ -3,14 +3,14 @@ import { Http, type t, Time } from '../common.ts';
 export const DEFAULT_TIMEOUT = 10_000;
 
 type UsingServerArgsCallback = (e: UsingServerArgsCallbackArgs) => Promise<void>;
-type UsingServerArgsCallbackArgs = { readonly url: t.HttpUrl; readonly fetch: t.HttpFetch };
+type UsingServerArgsCallbackArgs = { readonly url: t.HttpUrl; readonly fetch: t.HttpFetch.Instance };
 type UsingServerArgs = {
-  app: t.HonoApp;
+  app: t.HttpServer.App;
   fn: UsingServerArgsCallback;
   timeout?: t.Msecs;
 
   /** Optional custom fetcher (e.g. Range requests). Must be disposed by fixture. */
-  mkFetch?: () => t.HttpFetch;
+  mkFetch?: () => t.HttpFetch.Instance;
 };
 
 export async function usingServer(args: UsingServerArgs): Promise<void> {

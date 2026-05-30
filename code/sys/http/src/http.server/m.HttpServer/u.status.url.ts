@@ -3,7 +3,7 @@ import { Is, Str, type t } from './common.ts';
 /** Convert HTTP-server owner URL paths into renderer-neutral service URLs. */
 export function statusUrls(
   origin: t.StringUrl,
-  paths: readonly t.HttpServerStatusUrlPath[] | undefined,
+  paths: readonly t.HttpServer.Status.UrlPath[] | undefined,
 ): readonly t.Service.Url[] {
   const items = paths && paths.length > 0 ? paths : ['/'] as const;
   return items.map((item) => {

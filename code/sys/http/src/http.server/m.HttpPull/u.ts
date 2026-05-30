@@ -17,7 +17,7 @@ export const isAbortError = (err: unknown) => {
 export const resolveTarget = (
   source: string,
   dir: t.StringDir,
-  map?: t.HttpPullMapOptions,
+  map?: t.HttpPull.Map.Options,
 ): t.StringPath => {
   try {
     const u = new URL(source);

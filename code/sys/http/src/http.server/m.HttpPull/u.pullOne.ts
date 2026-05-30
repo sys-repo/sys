@@ -12,13 +12,13 @@ type NormalizedRetry =
 export async function pullOne(
   url: t.StringUrl,
   dir: t.StringDir,
-  client: t.HttpFetch,
+  client: t.HttpFetch.Instance,
   opts: {
-    map?: t.HttpPullMapOptions;
+    map?: t.HttpPull.Map.Options;
     signal?: AbortSignal;
-    retry?: t.HttpPullOptions['retry'];
+    retry?: t.HttpPull.Options['retry'];
   },
-): Promise<t.HttpPullRecord> {
+): Promise<t.HttpPull.Record> {
   const { map, signal } = opts;
   const retryOpts = normalizeRetry(opts.retry);
 
@@ -155,7 +155,7 @@ export async function pullOne(
  *   - enabled: false  → no retries
  *   - enabled: true   → all fields fully defined (no undefined)
  */
-function normalizeRetry(retry: t.HttpPullOptions['retry']): NormalizedRetry {
+function normalizeRetry(retry: t.HttpPull.Options['retry']): NormalizedRetry {
   // - retry === false      → disabled
   // - retry === undefined  → enabled with defaults
   // - retry === true       → enabled with defaults

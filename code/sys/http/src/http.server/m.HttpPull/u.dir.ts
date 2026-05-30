@@ -1,7 +1,7 @@
 import { type t, Await, HttpClient } from './common.ts';
 import { pullOne } from './u.pullOne.ts';
 
-export const toDir: t.HttpPullLib['toDir'] = async (urls, dir, opts = {}) => {
+export const toDir: t.HttpPull.Lib['toDir'] = async (urls, dir, opts = {}) => {
   const { map, retry } = opts;
   const client = opts.client ?? HttpClient.fetcher();
   const concurrency = Math.max(1, opts?.concurrency ?? 8);

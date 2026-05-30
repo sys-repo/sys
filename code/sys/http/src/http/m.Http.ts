@@ -3,7 +3,7 @@ import { type t, HttpClient as Client, HttpPull as Pull, HttpServer as Server } 
 /**
  * Universal (client + server) HTTP namespace.
  */
-export const Http: t.HttpLib = {
+export const Http: t.Http.Lib = {
   Client,
   client: Client.fetcher,
   Server,

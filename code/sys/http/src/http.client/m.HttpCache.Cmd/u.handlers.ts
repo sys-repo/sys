@@ -3,7 +3,7 @@ import { type t, Is } from './common.ts';
 /**
  * Built-in command handlers.
  */
-export const Handlers: t.HttpCacheCmdHandlersLib = {
+export const Handlers: t.HttpCacheCmd.Handlers.Lib = {
   clear(args) {
     const CACHE_ASSETS = `${args.pkg.name}:asset-files`;
     const CACHE_MEDIA = `${args.pkg.name}:media-files`;
@@ -60,7 +60,7 @@ export const Handlers: t.HttpCacheCmdHandlersLib = {
           const meta = kind === 'media-range' ? await wrangle.mediaRangeMeta(cache) : undefined;
           const entries =
             kind === 'media-range' ? wrangle.dataEntryCount(keys.length, meta) : keys.length;
-          const info: t.HttpCacheCmdInfoCache = {
+          const info: t.HttpCacheCmd.Info.Cache = {
             name,
             kind,
             entries,
@@ -74,7 +74,7 @@ export const Handlers: t.HttpCacheCmdHandlersLib = {
       const totalEntries = cachesInfo.reduce((acc, next) => acc + next.entries, 0);
       const totalBytes = cachesInfo.reduce((acc, next) => acc + (next.bytes ?? 0), 0);
       const mediaRangeRows = cachesInfo.filter((info) => info.kind === 'media-range');
-      const diagnostics: t.HttpCacheCmdInfoResult['diagnostics'] | undefined =
+      const diagnostics: t.HttpCacheCmd.Info.Result['diagnostics'] | undefined =
         mediaRangeRows.length > 0
           ? {
               mediaRange: {

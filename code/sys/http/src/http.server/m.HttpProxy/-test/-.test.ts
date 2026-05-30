@@ -37,7 +37,7 @@ describe('HttpProxy', () => {
     const original = console.info;
     console.info = (...args: unknown[]) => lines.push(args.map(String).join(' '));
 
-    let server: t.HttpServerStarted | undefined;
+    let server: t.HttpServer.Started | undefined;
     try {
       server = await HttpProxy.start({
         port: 0,

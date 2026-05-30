@@ -5,7 +5,7 @@ import { byteSize } from './u.byteSize.ts';
 /**
  * Tools for working with the `fetch` function in system/standard ways.
  */
-export const Fetch: t.HttpFetchLib = {
+export const Fetch: t.HttpFetch.Lib = {
   make,
   byteSize,
 };

@@ -62,7 +62,7 @@ describe('HttpStatic CLI', () => {
 
     HttpStatic.start = (async (args) => {
       calls.push(args ?? {});
-      return { finished: Promise.resolve() } as unknown as t.HttpServerStarted;
+      return { finished: Promise.resolve() } as unknown as t.HttpServer.Started;
     }) as typeof HttpStatic.start;
 
     try {

@@ -1,6 +1,4 @@
-import type { HttpServerLib } from './t.ts';
-
-import { cors, Hono } from './common.ts';
+import { cors, Hono, type t } from './common.ts';
 import { create } from './m.Server.create.ts';
 import { forceDirSlash } from './u.middleware.ts';
 import { options } from './u.options.ts';
@@ -11,7 +9,7 @@ import { start } from './u.start.ts';
 /**
  * HTTP Server.
  */
-export const HttpServer: HttpServerLib = {
+export const HttpServer: t.HttpServer.Lib = {
   Hono,
   cors,
   static: serveStatic,

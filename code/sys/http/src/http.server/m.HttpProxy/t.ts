@@ -20,7 +20,7 @@ export declare namespace HttpProxy {
     create(options?: CreateOptions): App;
 
     /** Start a reverse proxy and return the standard HTTP server lifecycle handle. */
-    start(args?: StartArgs): Promise<t.HttpServerStarted>;
+    start(args?: StartArgs): Promise<t.HttpServer.Started>;
 
     /** Durable reverse-proxy config owner affordances. */
     readonly Config: Config.Lib;
@@ -62,7 +62,7 @@ export declare namespace HttpProxy {
     readonly silent?: boolean;
 
     /** Enable existing HTTP server keyboard handling. */
-    readonly keyboard?: boolean | t.HttpServerStartKeyboardOptions;
+    readonly keyboard?: boolean | t.HttpServer.Start.Keyboard.Options;
 
     /** Display name forwarded to the HTTP server startup output. */
     readonly name?: string;
@@ -78,7 +78,7 @@ export declare namespace HttpProxy {
   export type StartOptions = StartArgs;
 
   /** Server application instance. */
-  export type App = t.HonoApp;
+  export type App = t.HttpServer.App;
 
   /** Durable reverse-proxy config owner affordances. */
   export namespace Config {

@@ -1,8 +1,8 @@
 import { type t, Is } from './common.ts';
 
-export function isFetch(input?: unknown): input is t.HttpFetch {
+export function isFetch(input?: unknown): input is t.HttpFetch.Instance {
   if (!Is.record(input)) return false;
-  const obj = input as t.HttpFetch;
+  const obj = input as t.HttpFetch.Instance;
   return (
     Is.record(obj.headers) &&
     Is.func(obj.header) &&

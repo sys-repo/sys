@@ -1,6 +1,6 @@
 import { type t, Path } from './common.ts';
 
-export const PullMap: t.HttpPullMapLib = {
+export const PullMap: t.HttpPull.Map.Lib = {
   urlToPath(u, options) {
     // 1. mapPath wins (still normalized to relative POSIX):
     const mapped = options?.mapPath?.(u);

@@ -1,7 +1,7 @@
 import { describe, expect, Fs, it, Str, type t, Testing } from '../../../-test.ts';
 import { HttpStatic } from '../mod.ts';
 
-async function close(server: t.HttpServerStarted) {
+async function close(server: t.HttpServer.Started) {
   await server.close('test.close');
   await server.finished;
 }

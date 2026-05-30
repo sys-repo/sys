@@ -3,13 +3,13 @@ import { serveStatic as honoStatic } from 'hono/deno';
 import { type t, Fs, Path } from './common.ts';
 import { serveFileWithEtag } from './u.serveFileWithEtag.ts';
 
-type Input = Parameters<t.HttpServeStatic>[0];
+type Input = Parameters<t.HttpServer.ServeStatic.Method>[0];
 
 /**
  * The Hono version of static-file server
  * (NOTE does not support `206 Partial Content` responses).
  */
-export const serveStaticHono: t.HttpServeStatic = (input: Input) => {
+export const serveStaticHono: t.HttpServer.ServeStatic.Method = (input: Input) => {
   const options = wrangle.options(input);
   return honoStatic(options);
 };
@@ -21,7 +21,7 @@ export const serveStaticHono: t.HttpServeStatic = (input: Input) => {
  *    (e.g. `Range: bytes=0-`) are honoured with `206 Partial Content`
  *    which the Hono serveStatic helper does not support (as of version `hono@0.7.10`).
  */
-export const serveStatic: t.HttpServeStatic = (input: Input) => {
+export const serveStatic: t.HttpServer.ServeStatic.Method = (input: Input) => {
   const options = wrangle.options(input);
 
   return async (c) => {
@@ -82,7 +82,7 @@ const wrangle = {
    *   - string  →  { root: string }
    *   - object  →  unchanged
    */
-  options(input: Input): t.HttpServeStaticOptions<t.HonoEnv> {
+  options(input: Input): t.HttpServer.ServeStatic.Options<t.HttpServer.Hono.Env> {
     if (typeof input === 'string') return { root: input };
     return { root: '.', ...input };
   },

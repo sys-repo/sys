@@ -57,7 +57,7 @@ const wrangle = {
     return args.paths?.config ? wrangle.configPath(args) : undefined;
   },
 
-  urlPaths(info: Record<string, string> | undefined): readonly t.HttpServerStatusUrlPath[] {
+  urlPaths(info: Record<string, string> | undefined): readonly t.HttpServer.Status.UrlPath[] {
     const paths = Object.entries(info ?? {})
       .filter(([, value]) => wrangle.isPathInfo(value))
       .map(([label, path]) => ({ label, path: path.trim() as t.StringUrlRoute }));

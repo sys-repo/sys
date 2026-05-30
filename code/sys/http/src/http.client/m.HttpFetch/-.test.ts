@@ -287,7 +287,7 @@ describe('Http.Fetch', () => {
   });
 
   describe('Fetch.byteSize', () => {
-    type R = t.ByteSizeResult;
+    type R = t.HttpFetch.ByteSize.Result;
 
     it('HEAD: returns size via Content-Length', async () => {
       const server = Testing.Http.server((req) => {

@@ -6,7 +6,7 @@ import { isFetch } from './u.is.ts';
  * Probe `Content-Length`/`Content-Range` headers
  * to discover total byte size.
  */
-export const byteSize: t.HttpFetchLib['byteSize'] = async (...args: any[]) => {
+export const byteSize: t.HttpFetch.ByteSize.Method = async (...args: any[]) => {
   const { url, httpFetch } = wrangle.args(args);
   if (!url) return { url, from: 'unknown' };
 

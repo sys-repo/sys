@@ -1,7 +1,7 @@
 import { DEFAULTS, Err, Is, Rx, type t, toHeaders } from './common.ts';
 
 type RequestInput = RequestInfo | URL;
-type F = t.HttpFetchLib['make'];
+type F = t.HttpFetch.Lib['make'];
 
 /**
  * Factory method:
@@ -14,7 +14,7 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
     contentType: t.StringContentType,
     input: RequestInput,
     init: RequestInit,
-    options: t.HttpFetchOptions,
+    options: t.HttpFetch.Options,
     toData: (res: Response) => Promise<T>,
   ): Promise<t.FetchResponse<T>> => {
     const url = wrangle.href(input);
@@ -112,7 +112,7 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
     } as t.FetchResponse<T>;
   };
 
-  const api: t.HttpFetch = Rx.toLifecycle<t.HttpFetch>(life, {
+  const api: t.HttpFetch.Instance = Rx.toLifecycle<t.HttpFetch.Instance>(life, {
     header: (name) => (api.headers as any)[name],
     get headers() {
       return wrangle.headers(createOptions);
@@ -144,10 +144,10 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
  * Helpers:
  */
 const wrangle = {
-  options(input: Parameters<F>[0]): t.HttpFetchCreateOptions {
+  options(input: Parameters<F>[0]): t.HttpFetch.CreateOptions {
     if (!input) return {};
     if (Is.untilInput(input)) return { until: input };
-    if (typeof input === 'object') return input as t.HttpFetchCreateOptions;
+    if (typeof input === 'object') return input as t.HttpFetch.CreateOptions;
     return {};
   },
 
@@ -162,7 +162,7 @@ const wrangle = {
     throw new Error('Unsupported input type');
   },
 
-  accessToken(options: t.HttpFetchCreateOptions): string {
+  accessToken(options: t.HttpFetch.CreateOptions): string {
     const accessToken = options.accessToken;
     if (typeof accessToken === 'function') return accessToken();
     if (typeof accessToken === 'string') {
@@ -175,7 +175,7 @@ const wrangle = {
     return '';
   },
 
-  headers(options: t.HttpFetchCreateOptions): t.HttpHeaders {
+  headers(options: t.HttpFetch.CreateOptions): t.HttpHeaders {
     const accessToken = wrangle.accessToken(options);
     const headers: any = {};
     if (accessToken) headers['Authorization'] = accessToken;

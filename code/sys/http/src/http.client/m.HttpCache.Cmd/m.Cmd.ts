@@ -10,7 +10,7 @@ import { make } from './u.make.ts';
  * `http.cache.clear` / `http.cache.info` command set. This module is intentionally side-effect
  * free and does not perform cache operations directly.
  */
-export const CacheCmd: t.HttpCacheCmdLib = {
+export const CacheCmd: t.HttpCacheCmd.Lib = {
   NS: D.NS,
   CONNECT: D.CONNECT,
   CLEAR: D.CLEAR,

@@ -1,56 +1,69 @@
 import type { t } from './common.ts';
 
 /**
- * Tools for working with the browser's HTTP cache within a "service-worker" process.
+ * HTTP cache contracts.
  */
-export type HttpCacheLib = {
-  readonly Cmd: t.HttpCacheCmdLib;
+export declare namespace HttpCache {
+  /** Service-worker cache helper library. */
+  export type Lib = {
+    readonly Cmd: t.HttpCacheCmd.Lib;
+
+    /**
+     * Starts the permanent cache for all immutable,
+     * hash-named bundle files.
+     *
+     * Files emitted by Vite look like:
+     *   /pkg/m.XOnTrOh4.js
+     *   /pkg/a.BnEcDK_c.wasm
+     *   /pkg/-entry.DJ2ZDeEQ.js
+     *   /pkg/m.2CvxsZQK.css
+     *
+     * Rule:
+     *   • must live under "/pkg/"
+     *   • have *any* base name
+     *   • a dot-separated "hash" >= 8 chars (letters, digits, "_" or "-")
+     *   • a final extension (js, css, wasm, etc.)
+     */
+    pkg(args: Pkg.Args): Promise<void>;
+  };
 
   /**
-   * Starts the permanent cache for all immutable,
-   * hash-named bundle files.
-   *
-   * Files emitted by Vite look like:
-   *   /pkg/m.XOnTrOh4.js
-   *   /pkg/a.BnEcDK_c.wasm
-   *   /pkg/-entry.DJ2ZDeEQ.js
-   *   /pkg/m.2CvxsZQK.css
-   *
-   * Rule:
-   *   • must live under "/pkg/"
-   *   • have *any* base name
-   *   • a dot-separated "hash" >= 8 chars (letters, digits, "_" or "-")
-   *   • a final extension (js, css, wasm, etc.)
+   * Package cache contracts.
    */
-  pkg(args: HttpCachePkgArgs): Promise<void>;
-};
+  export namespace Pkg {
+    /** Inputs for `Http.Cache.pkg(...)`. */
+    export type Args = {
+      pkg: t.Pkg;
+      cacheName?: string;
+      silent?: boolean;
+      /** Optional media cache policy (defaults to `safe-full`). */
+      media?: Media.PolicyInput;
+    };
+  }
 
-/** Inputs for `Http.Cache.pkg(...)`. */
-export type HttpCachePkgArgs = {
-  pkg: t.Pkg;
-  cacheName?: string;
-  silent?: boolean;
-  /** Optional media cache policy (defaults to `safe-full`). */
-  media?: HttpCacheMediaPolicyInput;
-};
+  /**
+   * Media cache policy contracts.
+   */
+  export namespace Media {
+    /** Media caching strategy used for ranged video requests. */
+    export type Mode = 'off' | 'safe-full' | 'range-window';
 
-/** Media caching strategy used for ranged video requests. */
-export type HttpCacheMediaMode = 'off' | 'safe-full' | 'range-window';
+    /** Normalized media cache policy used internally by the SW cache runtime. */
+    export type Policy = {
+      readonly mode: Mode;
+      readonly maxChunkBytes: number;
+      readonly maxObjectBytes: number;
+      readonly maxTotalBytes: number;
+      readonly ttl: t.Msecs;
+    };
 
-/** Normalized media cache policy used internally by the SW cache runtime. */
-export type HttpCacheMediaPolicy = {
-  readonly mode: HttpCacheMediaMode;
-  readonly maxChunkBytes: number;
-  readonly maxObjectBytes: number;
-  readonly maxTotalBytes: number;
-  readonly ttlMs: number;
-};
-
-/** User-supplied media cache policy (partial/optional shape). */
-export type HttpCacheMediaPolicyInput = {
-  mode?: HttpCacheMediaMode;
-  maxChunkBytes?: number;
-  maxObjectBytes?: number;
-  maxTotalBytes?: number;
-  ttlMs?: number;
-};
+    /** User-supplied media cache policy input. */
+    export type PolicyInput = {
+      mode?: Mode;
+      maxChunkBytes?: number;
+      maxObjectBytes?: number;
+      maxTotalBytes?: number;
+      ttlMs?: number;
+    };
+  }
+}

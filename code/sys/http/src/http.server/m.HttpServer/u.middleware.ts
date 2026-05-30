@@ -9,7 +9,7 @@ import { type t, Err, Fs, Path } from './common.ts';
  * @param root   absolute or relative filesystem root you pass to serveStatic()
  * @param strip  optional mount-prefix (e.g. '/static/') to drop before stat-ing
  */
-export function forceDirSlash(root: string, strip = '/'): t.HonoMiddlewareHandler {
+export function forceDirSlash(root: string, strip = '/'): t.HttpServer.Hono.MiddlewareHandler {
   return async (c, next) => {
     const url = new URL(c.req.url);
 

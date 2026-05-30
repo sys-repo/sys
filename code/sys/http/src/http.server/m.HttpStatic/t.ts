@@ -5,12 +5,12 @@ import type { t } from './common.ts';
  */
 export declare namespace HttpStatic {
   /** Public static-server lifecycle API. */
-  export type Lib = t.Service.LifecycleEndpoint<StartArgs | undefined, t.HttpServerStarted> & {
+  export type Lib = t.Service.LifecycleEndpoint<StartArgs | undefined, t.HttpServer.Started> & {
     /** Declare configured static-server resources without starting the service. */
     resources(args: t.Service.Resource.Args): Promise<readonly t.Service.Resource.Any[]>;
 
     /** Start a static file server and return the standard HTTP server lifecycle handle. */
-    start(args?: StartArgs): Promise<t.HttpServerStarted>;
+    start(args?: StartArgs): Promise<t.HttpServer.Started>;
 
     /** Durable static-server config owner affordances. */
     readonly Config: ConfigLib;
@@ -100,7 +100,7 @@ export declare namespace HttpStatic {
     silent?: boolean;
 
     /** Enable existing HTTP server keyboard handling. */
-    keyboard?: boolean | t.HttpServerStartKeyboardOptions;
+    keyboard?: boolean | t.HttpServer.Start.Keyboard.Options;
 
     /** Display name forwarded to the HTTP server startup output. */
     name?: string;

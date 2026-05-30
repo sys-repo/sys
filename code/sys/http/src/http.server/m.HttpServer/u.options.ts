@@ -1,7 +1,7 @@
 import { Net, type t } from './common.ts';
 import { print } from './u.print.ts';
 
-type F = t.HttpServerLib['options'];
+type F = t.HttpServer.Lib['options'];
 
 /**
  * Generates a Deno.server(...) configuration options object.

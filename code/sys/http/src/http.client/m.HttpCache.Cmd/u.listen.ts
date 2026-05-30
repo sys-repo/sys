@@ -4,7 +4,7 @@ import { make } from './u.make.ts';
 /**
  * Host command connections from handshake messages on a message target.
  */
-export const listen: t.HttpCacheCmdLib['listen'] = (args) => {
+export const listen: t.HttpCacheCmd.Lib['listen'] = (args) => {
   const { target, clear } = args;
   const kind = args.kind ?? D.CONNECT;
   const silent = args.silent ?? true;
@@ -22,7 +22,7 @@ export const listen: t.HttpCacheCmdLib['listen'] = (args) => {
     const ns = Is.string(data?.ns) ? data.ns : args.ns;
     if (!silent) log('connect', { kind, ns: ns ?? D.NS });
     const cmd = make({ ns });
-    const info: t.HttpCacheCmdInfoHandler = args.info ??
+    const info: t.HttpCacheCmd.Info.Handler = args.info ??
       (async () => {
         throw new Error(`No handler registered for command "${D.INFO}".`);
       });

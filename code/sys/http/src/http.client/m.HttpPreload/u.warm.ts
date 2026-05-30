@@ -1,9 +1,9 @@
 import { type t, Fetch, Is, Await, HTTP_HEADER_MEDIA_FULL_CACHE_READY } from './common.ts';
 
 export async function warm(
-  input: t.HttpPreloadInput,
-  options: t.HttpPreloadOptions = {},
-): Promise<t.HttpPreloadResult> {
+  input: t.HttpPreload.Input,
+  options: t.HttpPreload.Options = {},
+): Promise<t.HttpPreload.Result> {
   const targets = wrangle.targets(input);
   const concurrency = Math.max(1, options.concurrency ?? 8);
   const limit = Await.semaphore(concurrency);
@@ -21,9 +21,9 @@ export async function warm(
 }
 
 async function warmOne(
-  target: t.HttpPreloadTarget,
-  client: t.HttpFetch,
-): Promise<t.HttpPreloadRecord> {
+  target: t.HttpPreload.Target,
+  client: t.HttpFetch.Instance,
+): Promise<t.HttpPreload.Record> {
   const { url, range } = target;
   const init = wrangle.init(range);
 
@@ -47,13 +47,13 @@ async function warmOne(
  * Helpers:
  */
 const wrangle = {
-  targets(input: t.HttpPreloadInput): t.HttpPreloadTarget[] {
+  targets(input: t.HttpPreload.Input): t.HttpPreload.Target[] {
     return input.map((item) =>
       Is.str(item) ? { url: item } : { url: item.url, range: item.range },
     );
   },
 
-  init(range?: t.HttpPreloadByteRange): RequestInit {
+  init(range?: t.HttpPreload.ByteRange): RequestInit {
     if (!range) return {};
     const end = typeof range.end === 'number' ? range.end : '';
     return { headers: { Range: `bytes=${range.start}-${end}` } };
@@ -61,10 +61,10 @@ const wrangle = {
 
   record(
     url: t.StringUrl,
-    range: t.HttpPreloadByteRange | undefined,
+    range: t.HttpPreload.ByteRange | undefined,
     res: t.FetchResponse<Blob | undefined>,
     bytes?: number,
-  ): t.HttpPreloadRecord {
+  ): t.HttpPreload.Record {
     const status = res.status;
     const ok = res.ok;
     const error = ok ? undefined : (res.error?.message ?? res.statusText);

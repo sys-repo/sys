@@ -5,7 +5,7 @@ import { options as createOptions } from './u.options.ts';
 import { print as printStarted } from './u.print.ts';
 import { statusUrls } from './u.status.url.ts';
 
-type F = t.HttpServerLib['start'];
+type F = t.HttpServer.Lib['start'];
 type KeyboardOptions = { readonly print: boolean; readonly exit: boolean } | undefined;
 
 /**
@@ -48,7 +48,7 @@ export const start: F = (app, input = {}) => {
     }
   });
 
-  const context: t.HttpServerStarted = {
+  const context: t.HttpServer.Started = {
     app,
     server,
     addr,
@@ -101,7 +101,7 @@ async function closeServer(args: {
 
 const wrangle = {
   status(
-    input: t.HttpServerStartOptions,
+    input: t.HttpServer.Start.Options,
     context: {
       readonly origin: t.StringUrl;
       readonly state: t.Service.State;
@@ -146,8 +146,8 @@ const wrangle = {
 
   keyboard(
     options: KeyboardOptions,
-    context: t.HttpServerStarted,
-    input: t.HttpServerStartOptions,
+    context: t.HttpServer.Started,
+    input: t.HttpServer.Start.Options,
   ): boolean {
     if (!options) return false;
     return bindKeyboard({
@@ -160,7 +160,7 @@ const wrangle = {
     });
   },
 
-  keyboardOptions(input: t.HttpServerStartOptions['keyboard']) {
+  keyboardOptions(input: t.HttpServer.Start.Options['keyboard']) {
     if (!input) return undefined;
     if (input === true) return { print: true, exit: false };
     return {
@@ -169,13 +169,13 @@ const wrangle = {
     };
   },
 
-  openUrl(input: t.HttpServerStartOptions, origin: t.StringUrl): t.StringUrl {
+  openUrl(input: t.HttpServer.Start.Options, origin: t.StringUrl): t.StringUrl {
     return statusUrls(origin, input.status?.urlPaths)[0]?.href ?? origin;
   },
 
   print(
-    input: t.HttpServerStartOptions,
-    context: t.HttpServerStarted,
+    input: t.HttpServer.Start.Options,
+    context: t.HttpServer.Started,
     keyboardOptions: KeyboardOptions,
     keyboardBound: boolean,
   ) {
@@ -196,7 +196,7 @@ const wrangle = {
   printKeyboard(
     options: KeyboardOptions,
     keyboardBound: boolean,
-  ): t.HttpServerPrintKeyboardOptions | undefined {
+  ): t.HttpServer.Print.Keyboard.Options | undefined {
     if (!options?.print || !keyboardBound) return undefined;
     return { open: 'O', quit: 'Ctrl+C or Q' };
   },
