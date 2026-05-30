@@ -33,7 +33,20 @@
     "jsr:@std/streams@^1.1.1": "1.1.1",
     "jsr:@std/testing@1.0.19": "1.0.19",
     "jsr:@std/text@^1.0.17": "1.0.19",
+    "jsr:@sys/cli@^0.0.285": "0.0.285",
+    "jsr:@sys/color@^0.0.250": "0.0.250",
+    "jsr:@sys/crypto@^0.0.285": "0.0.285",
+    "jsr:@sys/event@^0.0.153": "0.0.153",
+    "jsr:@sys/fs@^0.0.309": "0.0.309",
+    "jsr:@sys/http@^0.0.287": "0.0.287",
+    "jsr:@sys/immutable@^0.0.141": "0.0.141",
+    "jsr:@sys/net@^0.0.127": "0.0.127",
+    "jsr:@sys/process@^0.0.288": "0.0.288",
+    "jsr:@sys/registry@^0.0.282": "0.0.282",
+    "jsr:@sys/std@^0.0.355": "0.0.355",
     "jsr:@sys/tools@*": "0.0.426",
+    "jsr:@sys/types@^0.0.291": "0.0.291",
+    "jsr:@sys/yaml@^0.0.160": "0.0.160",
     "npm:@automerge/automerge-repo-network-websocket@2.5.6": "2.5.6",
     "npm:@automerge/automerge-repo-storage-indexeddb@2.5.6": "2.5.6",
     "npm:@automerge/automerge-repo-storage-nodefs@2.5.6": "2.5.6",
@@ -225,8 +238,164 @@
     "@std/text@1.0.19": {
       "integrity": "003a0e032d360e8c3a4e0410fb792c77a66bd6553fee9d60c6ec1bce30d29223"
     },
+    "@sys/cli@0.0.285": {
+      "integrity": "577f98934100ed7b1d9b96ccdb22bc8b8e22b53c69be12dff9c0aa6af6faf062",
+      "dependencies": [
+        "jsr:@cliffy/keypress",
+        "jsr:@cliffy/prompt",
+        "jsr:@cliffy/table",
+        "jsr:@std/encoding@1.0.10",
+        "jsr:@sys/color",
+        "jsr:@sys/std",
+        "jsr:@sys/types",
+        "npm:ora"
+      ]
+    },
+    "@sys/color@0.0.250": {
+      "integrity": "acada1d1cf89c09d9a026dd31b87faceb7c4730dabad75719d7010fc607dc4bf",
+      "dependencies": [
+        "jsr:@sys/std",
+        "jsr:@sys/types",
+        "npm:tinycolor2"
+      ]
+    },
+    "@sys/crypto@0.0.285": {
+      "integrity": "bb4938978ad987f0c0f77a65950e981ebd482bbc1280225ffec4d27e6dac3d86",
+      "dependencies": [
+        "jsr:@sys/cli",
+        "jsr:@sys/std",
+        "jsr:@sys/types",
+        "npm:@noble/hashes"
+      ]
+    },
+    "@sys/event@0.0.153": {
+      "integrity": "2e01f215d8a856637f8e12c942d4e334de38d3eec8a6226007f47aeddd215e19",
+      "dependencies": [
+        "jsr:@sys/std",
+        "jsr:@sys/types"
+      ]
+    },
+    "@sys/fs@0.0.309": {
+      "integrity": "3616a6c8c16e38c7c3d7d5248847866c28d2b6c3bd7e1c6c1feffc96afebdbff",
+      "dependencies": [
+        "jsr:@std/dotenv",
+        "jsr:@std/encoding@1.0.10",
+        "jsr:@std/fs@1.0.24",
+        "jsr:@std/path@1.1.5",
+        "jsr:@sys/cli",
+        "jsr:@sys/crypto",
+        "jsr:@sys/fs",
+        "jsr:@sys/immutable",
+        "jsr:@sys/std",
+        "jsr:@sys/types",
+        "npm:yaml"
+      ]
+    },
+    "@sys/http@0.0.287": {
+      "integrity": "213bf05c71d6ab63c0a32abfbf3a851751305ab1b83547842b0768e26af4b7c5",
+      "dependencies": [
+        "jsr:@std/http",
+        "jsr:@sys/cli",
+        "jsr:@sys/crypto",
+        "jsr:@sys/event",
+        "jsr:@sys/fs",
+        "jsr:@sys/net",
+        "jsr:@sys/process",
+        "jsr:@sys/std",
+        "jsr:@sys/types",
+        "jsr:@sys/yaml",
+        "npm:hono"
+      ]
+    },
+    "@sys/immutable@0.0.141": {
+      "integrity": "2995067cee3ec5f5991686cd013f8371d39fd552d242c2edfd63acf25051e3d3",
+      "dependencies": [
+        "jsr:@sys/std",
+        "jsr:@sys/types",
+        "npm:fast-json-patch"
+      ]
+    },
+    "@sys/net@0.0.127": {
+      "integrity": "be96d5825a4bb9b470042b02df7fb61d64e78cbaebb25435a4ae9e74d1dcce41",
+      "dependencies": [
+        "jsr:@sys/std",
+        "jsr:@sys/types"
+      ]
+    },
+    "@sys/process@0.0.288": {
+      "integrity": "dc172796838d1ec57afb9672722bbbd3e61f5c60472ccd2757689f104c995668",
+      "dependencies": [
+        "jsr:@sys/cli",
+        "jsr:@sys/std",
+        "jsr:@sys/types"
+      ]
+    },
+    "@sys/registry@0.0.282": {
+      "integrity": "dead8adaebddcc0291a2250ea8f5f8aeba6ae53c0995722d0dfc3e65c4ba0cfd",
+      "dependencies": [
+        "jsr:@sys/crypto",
+        "jsr:@sys/fs",
+        "jsr:@sys/http",
+        "jsr:@sys/std",
+        "jsr:@sys/types"
+      ]
+    },
+    "@sys/std@0.0.355": {
+      "integrity": "caf4ae4db21d4e470e40d549f810ab024544a03ad3dca4af15c8c959bd1751ff",
+      "dependencies": [
+        "jsr:@std/datetime",
+        "jsr:@std/jsonc",
+        "jsr:@std/path@1.1.5",
+        "jsr:@std/semver",
+        "jsr:@std/testing",
+        "jsr:@sys/types",
+        "npm:@preact/signals-core",
+        "npm:@types/ramda",
+        "npm:chai",
+        "npm:date-fns",
+        "npm:hash-it",
+        "npm:ignore",
+        "npm:pretty-bytes",
+        "npm:ramda",
+        "npm:rxjs",
+        "npm:strip-ansi"
+      ]
+    },
     "@sys/tools@0.0.426": {
-      "integrity": "46d90d9bdd14c1a384f2c49b1f51c568469a6f80e5218881c7584a6a02bbb865"
+      "integrity": "46d90d9bdd14c1a384f2c49b1f51c568469a6f80e5218881c7584a6a02bbb865",
+      "dependencies": [
+        "jsr:@sys/cli",
+        "jsr:@sys/fs",
+        "jsr:@sys/process",
+        "jsr:@sys/registry",
+        "jsr:@sys/std",
+        "jsr:@sys/types",
+        "jsr:@sys/yaml"
+      ]
+    },
+    "@sys/types@0.0.291": {
+      "integrity": "a2fe2c7f0b5e868997dcfd4feaaa82944b112520dcedd3a85f5bcc1b588c8374",
+      "dependencies": [
+        "jsr:@std/semver",
+        "jsr:@std/testing",
+        "jsr:@sys/types",
+        "npm:@preact/signals-core",
+        "npm:fast-json-patch",
+        "npm:rxjs",
+        "npm:ts-essentials"
+      ]
+    },
+    "@sys/yaml@0.0.160": {
+      "integrity": "1e0dad68705138717bb89e997364cf0ee67ab99ee96c9a8382d892b239aa9625",
+      "dependencies": [
+        "jsr:@sys/cli",
+        "jsr:@sys/fs",
+        "jsr:@sys/immutable",
+        "jsr:@sys/process",
+        "jsr:@sys/std",
+        "jsr:@sys/types",
+        "npm:yaml"
+      ]
     }
   },
   "npm": {
