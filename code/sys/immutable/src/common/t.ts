@@ -8,3 +8,4 @@ export type * from '@sys/types';
  * @local
  */
 export type * from '../types.ts';
+export type { Immutable } from '../types.ts';

@@ -29,7 +29,7 @@ describe('Url', () => {
 
   describe('Url.bindToWindow', () => {
     it('has the expected signature', () => {
-      type T = (ref: t.ImmutableUrl.Ref, options?: t.DomUrlBindOptions) => t.DomUrlBinding;
+      type T = (ref: t.Immutable.Url.Ref, options?: t.DomUrlBindOptions) => t.DomUrlBinding;
       expectTypeOf(Url.bindToWindow).toEqualTypeOf<T>();
     });
 

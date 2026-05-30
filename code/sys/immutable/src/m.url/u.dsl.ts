@@ -8,13 +8,13 @@ import { ref } from './u.ref.ts';
  * - `write` reapplies the config to the immutable URL ref.
  */
 export function dsl<C>(
-  init: t.ImmutableUrl.Input,
+  init: t.Immutable.Url.Input,
   read: (url: URL) => C,
-  write: (urlRef: t.ImmutableUrl.Ref, config: C) => void,
-): t.ImmutableUrl.Dsl.Ref<C> {
+  write: (urlRef: t.Immutable.Url.Ref, config: C) => void,
+): t.Immutable.Url.Dsl.Ref<C> {
   const urlRef = ref(init);
 
-  const url: t.ImmutableUrl.RefReadonly = {
+  const url: t.Immutable.Url.RefReadonly = {
     get current() {
       return urlRef.current;
     },
@@ -32,7 +32,7 @@ export function dsl<C>(
     write(urlRef, draft);
   };
 
-  const api: t.ImmutableUrl.Dsl.Ref<C> = {
+  const api: t.Immutable.Url.Dsl.Ref<C> = {
     url,
     change,
     get current() {

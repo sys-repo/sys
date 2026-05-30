@@ -10,7 +10,7 @@ import { Rx, type t } from './common.ts';
  * immutable URL ref from DOM events; that belongs in a higher-level integrator.
  */
 export function bindToWindow(
-  ref: t.ImmutableUrl.Ref,
+  ref: t.Immutable.Url.Ref,
   opts: t.DomUrlBindOptions = {},
 ): t.DomUrlBinding {
   const { mode = 'replace', until } = opts;

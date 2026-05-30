@@ -33,7 +33,7 @@ describe('Url.dsl', () => {
     return { path: url.pathname, debug: false };
   };
 
-  const write = (urlRef: t.ImmutableUrl.Ref, config: SampleConfig) => {
+  const write = (urlRef: t.Immutable.Url.Ref, config: SampleConfig) => {
     urlRef.change((url) => {
       url.pathname = config.path;
       const { searchParams } = url;
@@ -140,7 +140,7 @@ describe('Url.dsl', () => {
       const dsl = makeDsl();
       const ev = dsl.url.events();
 
-      const seen: t.ImmutableChangeReadonly<URL, t.ImmutableUrl.Patch>[] = [];
+      const seen: t.ImmutableChangeReadonly<URL, t.Immutable.Url.Patch>[] = [];
       ev.$.subscribe((e) => seen.push(e));
 
       dsl.change((draft) => {

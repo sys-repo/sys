@@ -4,7 +4,7 @@ import { toUrl } from './u.ts';
 /**
  * Construct an ImmutableRef<URL> from a UrlLike input.
  */
-export const ref: t.ImmutableUrl.Lib['ref'] = (init) => {
+export const ref: t.Immutable.Url.Lib['ref'] = (init) => {
   if (Is.str(init)) init = UrlBase.parse(init).toURL();
   if (!Is.urlLike(init)) throw new Error('Url.ref: init must be UrlLike');
 
@@ -13,5 +13,5 @@ export const ref: t.ImmutableUrl.Lib['ref'] = (init) => {
     return value;
   }
 
-  return Immutable.clonerRef<URL>(toUrl(init), { clone }) satisfies t.ImmutableUrl.Ref;
+  return Immutable.clonerRef<URL>(toUrl(init), { clone }) satisfies t.Immutable.Url.Ref;
 };
