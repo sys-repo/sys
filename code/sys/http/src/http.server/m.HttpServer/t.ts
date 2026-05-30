@@ -241,3 +241,13 @@ export declare namespace HttpServer {
     };
   }
 }
+
+/**
+ * Compatibility aliases.
+ */
+/** @deprecated Use `HttpServer.Started`. */
+export type HttpServerStarted = HttpServer.Started;
+/** @deprecated Use `HttpServer.Hono.Context`. */
+export type HonoContext = HttpServer.Hono.Context;
+/** @deprecated Use `HttpServer.Hono.MiddlewareHandler`. */
+export type HonoMiddlewareHandler = HttpServer.Hono.MiddlewareHandler;
