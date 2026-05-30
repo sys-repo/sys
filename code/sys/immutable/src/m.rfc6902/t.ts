@@ -10,14 +10,14 @@ export type * from './t.patch.ts';
  * Library: Immutable (RFC6902 Patch Standard)
  */
 export type ImmutableRfc6902Lib = {
-  readonly Is: t.ImmutableIsLib;
+  readonly Is: t.ImmutableCore.Is.Lib;
   readonly Events: ImmutableRfc6902EventsLib;
   readonly Patch: t.ImmutableRfc6902PatchLib;
-  readonly Lens: t.ImmutableLensLib;
+  readonly Lens: t.ImmutableLens.Lib;
   cloner: Cloner;
   clonerRef: ClonerRef;
-  asReadonly<T>(input: T): t.AsReadonly<T>;
-  toObject<T extends O = O>(input?: T): t.UnwrapImmutable<T>;
+  asReadonly<T>(input: T): t.ImmutableCore.Readonly.As<T>;
+  toObject<T extends O = O>(input?: T): t.ImmutableCore.ToObject.Unwrap<T>;
 };
 
 /**

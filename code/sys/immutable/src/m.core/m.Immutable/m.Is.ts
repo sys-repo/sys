@@ -1,4 +1,4 @@
-import { type t, Is as StdIs, isObject } from './common.ts';
+import { Is as StdIs, isObject, type t } from './common.ts';
 import { markProxy } from './u.markProxy.ts';
 
 type O = Record<string, unknown>;
@@ -6,7 +6,7 @@ type O = Record<string, unknown>;
 /**
  * Flag helpers for Immutable objects.
  */
-export const Is: t.ImmutableIsLib = {
+export const Is: t.ImmutableCore.Is.Lib = {
   objectPath: StdIs.objectPath,
 
   proxy<T extends O>(input: any): input is T {

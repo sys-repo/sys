@@ -4,6 +4,6 @@ import { bind } from './u.bind.ts';
 /**
  * PathRef.
  */
-export const PathRef: t.PathRefLib = {
+export const PathRef: t.PathRef.Lib = {
   bind,
 };
