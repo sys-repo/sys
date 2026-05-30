@@ -212,7 +212,7 @@ function upgrade(): t.WorkspaceUpgrade.Result {
   const reactDomDecision = decisionBlocked('react-dom', '18.2.0', ['18.2.0', '19.0.0']);
   const reactDecision = decisionBlocked('react', '18.2.0', ['18.2.0']);
 
-  const nodes: t.EsmTopologicalInput['nodes'] = [
+  const nodes: t.EsmTopological.DecisionInput['nodes'] = [
     {
       key: Fmt.key(pathDecision.input.subject.entry),
       value: pathDecision,
@@ -294,7 +294,7 @@ function upgradeWithOverrides(): t.WorkspaceUpgrade.Result {
     '3.5.0',
   );
   const decisions = [monacoDecision, automergeDecision, dompurifyDecision];
-  const nodes: t.EsmTopologicalInput['nodes'] = [monacoDecision, dompurifyDecision].map((
+  const nodes: t.EsmTopological.DecisionInput['nodes'] = [monacoDecision, dompurifyDecision].map((
     decision,
   ) => ({
     key: Fmt.key(decision.input.subject.entry),
@@ -362,7 +362,7 @@ function decisionOk(
   current: t.StringSemver,
   available: readonly t.StringSemver[],
   selected: t.StringSemver,
-): t.EsmPolicyDecision {
+): t.EsmPolicy.Decision {
   const input = policyInput(name, current, available);
   return {
     ok: true,
@@ -383,7 +383,7 @@ function decisionBlocked(
   name: string,
   current: t.StringSemver,
   available: readonly t.StringSemver[],
-): t.EsmPolicyDecision {
+): t.EsmPolicy.Decision {
   const input = policyInput(name, current, available);
   return {
     ok: false,
@@ -546,7 +546,7 @@ function policyInput(
   name: string,
   current: t.StringSemver,
   available: readonly t.StringSemver[],
-): t.EsmPolicyInput {
+): t.EsmPolicy.Input {
   return {
     policy: { mode: 'minor' },
     subject: {

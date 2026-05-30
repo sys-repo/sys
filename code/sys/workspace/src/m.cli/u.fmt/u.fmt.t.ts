@@ -21,7 +21,7 @@ export type PackagePolicyCollect = { readonly packageJson?: t.EsmDeps.PackageJso
 export type PackagePolicyCarrier = { readonly collect: PackagePolicyCollect };
 
 export type SelectionLayoutInput = {
-  readonly policy: { readonly decisions: readonly t.EsmPolicyDecision[] };
+  readonly policy: { readonly decisions: readonly t.EsmPolicy.Decision[] };
   readonly collect: PackagePolicyCollect & {
     readonly candidates: readonly t.WorkspaceUpgrade.Candidate[];
   };

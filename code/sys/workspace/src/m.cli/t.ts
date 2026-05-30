@@ -34,7 +34,7 @@ export declare namespace WorkspaceCli {
     /** Render the upgrade result without mutating files. */
     readonly 'dry-run'?: boolean;
     /** Upgrade policy override. */
-    readonly policy?: t.EsmPolicyMode;
+    readonly policy?: t.EsmPolicy.Mode;
     /** Canonical dependency manifest path override. */
     readonly deps?: string;
     /** Dependency names or aliases to include. */
@@ -68,7 +68,7 @@ export declare namespace WorkspaceCli {
     /** Whether prompts and selection menus are allowed. */
     readonly mode: Mode;
     /** Upgrade policy mode passed through to workspace orchestration. */
-    readonly policy: t.EsmPolicyMode;
+    readonly policy: t.EsmPolicy.Mode;
     /** Whether prerelease versions are considered during collection and planning. */
     readonly prerelease: boolean;
     /** Dependency names or aliases to include. */

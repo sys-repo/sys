@@ -58,7 +58,7 @@ export function parseDslArgs(argv: readonly string[]): t.WorkspaceCli.ParsedDslA
 }
 
 const wrangle = {
-  policy(input: unknown): t.EsmPolicyMode {
+  policy(input: unknown): t.EsmPolicy.Mode {
     const mode = wrangle.one(input);
     if (mode === undefined || mode === '') return 'minor';
     if (mode === 'none' || mode === 'patch' || mode === 'minor' || mode === 'latest') return mode;

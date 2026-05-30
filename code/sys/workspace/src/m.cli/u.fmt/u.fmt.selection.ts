@@ -46,13 +46,13 @@ export const FmtSelection = {
     return `Selected ${c.green(selection.include.join(', '))}`;
   },
 
-  overrideNotice(mode: t.EsmPolicyMode): string {
+  overrideNotice(mode: t.EsmPolicy.Mode): string {
     return c.yellow(`Selection overrides ${c.white(mode)} policy for the picked dependencies.`);
   },
 
   selectionLabel(
     candidate: t.WorkspaceUpgrade.Candidate,
-    decision?: t.EsmPolicyDecision,
+    decision?: t.EsmPolicy.Decision,
     layout?: SelectionLayout,
   ): string {
     const widths = layout ??
@@ -76,7 +76,7 @@ export const FmtSelection = {
 
   selectionState(
     candidate: t.WorkspaceUpgrade.Candidate,
-    decision?: t.EsmPolicyDecision,
+    decision?: t.EsmPolicy.Decision,
   ): SelectionState {
     if (decision?.ok && decision.selection.selected?.version) return 'selected';
     if (candidate.latest && candidate.latest !== candidate.current) return 'blocked';
@@ -85,7 +85,7 @@ export const FmtSelection = {
 
   selectionVersion(
     candidate: t.WorkspaceUpgrade.Candidate,
-    decision?: t.EsmPolicyDecision,
+    decision?: t.EsmPolicy.Decision,
   ): t.StringSemver {
     if (decision?.ok && decision.selection.selected?.version) {
       return decision.selection.selected.version;
@@ -95,7 +95,7 @@ export const FmtSelection = {
 
   selectionNote(
     candidate: t.WorkspaceUpgrade.Candidate,
-    decision: t.EsmPolicyDecision | undefined,
+    decision: t.EsmPolicy.Decision | undefined,
     state: SelectionState,
     overrideParents: ReadonlySet<string> = EMPTY_OVERRIDE_PARENTS,
   ): string {

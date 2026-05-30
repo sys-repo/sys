@@ -51,11 +51,11 @@ const wrangle = {
 
   entries(
     entries: readonly t.EsmDeps.Entry[],
-    policy: t.EsmPolicyResult,
+    policy: t.EsmPolicy.Result,
   ): readonly t.EsmDeps.Entry[] {
     const selectedByKey = new Map(
       policy.decisions
-        .filter((decision): decision is t.EsmPolicyDecision & { ok: true } => decision.ok)
+        .filter((decision): decision is t.EsmPolicy.Decision & { ok: true } => decision.ok)
         .flatMap((decision) => {
           const version = decision.selection.selected?.version;
           return version ? [[wrangle.key(decision.input.subject.entry), version] as const] : [];
@@ -75,7 +75,7 @@ const wrangle = {
     return `${entry.module.registry}:${entry.module.name}`;
   },
 
-  topologyError(result: Exclude<t.EsmTopologicalResult, { ok: true }>): t.StdError {
+  topologyError(result: Exclude<t.EsmTopological.DecisionResult, { ok: true }>): t.StdError {
     if ('cycle' in result) {
       const err = `Workspace upgrade plan could not be applied because the dependency graph is cyclic: ${result.cycle.keys.join(', ')}`;
       return Err.std(err);

@@ -17,7 +17,7 @@ export declare namespace WorkspaceUpgrade {
   /** Workspace-facing dependency policy selection. */
   export type Policy = {
     /** Version-selection mode applied during upgrade planning. */
-    readonly mode: t.EsmPolicyMode;
+    readonly mode: t.EsmPolicy.Mode;
     /** Dependency names or aliases excluded from upgrade selection. */
     readonly exclude?: readonly string[];
   };
@@ -193,9 +193,9 @@ export declare namespace WorkspaceUpgrade {
   /** Derived dependency graph used for ordered upgrade planning. */
   export type Graph = {
     /** Nodes entering ordered planning. */
-    readonly nodes: t.EsmTopologicalInput['nodes'];
+    readonly nodes: t.EsmTopological.DecisionInput['nodes'];
     /** Derived dependency edges between the planned nodes. */
-    readonly edges: t.EsmTopologicalInput['edges'];
+    readonly edges: t.EsmTopological.DecisionInput['edges'];
     /** Dependencies whose graph relationships were not fully derivable. */
     readonly unresolved: readonly GraphUnresolved[];
   };
@@ -209,11 +209,11 @@ export declare namespace WorkspaceUpgrade {
     /** Canonical candidate collection result. */
     readonly collect: CollectResult;
     /** Policy decisions across collected candidates. */
-    readonly policy: t.EsmPolicyResult;
+    readonly policy: t.EsmPolicy.Result;
     /** Derived dependency graph used for topological ordering. */
     readonly graph: Graph;
     /** Topological ordering result across the derived dependency graph. */
-    readonly topological: t.EsmTopologicalResult;
+    readonly topological: t.EsmTopological.DecisionResult;
     /** Aggregate outcome counts. */
     readonly totals: SummaryTotals;
   };

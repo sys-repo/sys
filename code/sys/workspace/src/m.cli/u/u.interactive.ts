@@ -94,7 +94,7 @@ export async function runInteractive(
 
 const wrangle = {
   upgradeOptions(
-    mode: t.EsmPolicyMode,
+    mode: t.EsmPolicy.Mode,
     exclude: readonly string[],
     prerelease: boolean,
     progress?: t.WorkspaceUpgrade.ProgressHandler,
@@ -112,8 +112,8 @@ const wrangle = {
   policy(
     upgrade: t.WorkspaceUpgrade.Result,
     selection: t.WorkspaceCli.Selection,
-    mode: t.EsmPolicyMode,
-  ): t.EsmPolicyMode {
+    mode: t.EsmPolicy.Mode,
+  ): t.EsmPolicy.Mode {
     const picked = new Set(selection.include);
     const blockedSelected = upgrade.policy.decisions.some((decision) => {
       if (decision.ok) return false;

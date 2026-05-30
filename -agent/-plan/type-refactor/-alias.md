@@ -42,20 +42,22 @@ Notes:
 - Already marked `@deprecated` in source.
 - Next step: migrate consumers, then remove the alias block.
 
-### P1 — ESM flat aliases
+## Done
+
+### ESM flat aliases
 
 #### `code/sys/esm/src/m.core/m.Esm/t.ts`
 
-Still present:
+Removed and migrated consumers to nested namespace types:
 
-- [ ] `EsmPolicyMode = EsmPolicy.Mode`
-- [ ] `EsmPolicyInput = EsmPolicy.Input`
-- [ ] `EsmPolicyDecision = EsmPolicy.Decision`
-- [ ] `EsmPolicyResult = EsmPolicy.Result`
-- [ ] `EsmTopologicalInput = EsmTopological.DecisionInput`
-- [ ] `EsmTopologicalResult = EsmTopological.DecisionResult`
+- [x] `EsmPolicyMode = EsmPolicy.Mode`
+- [x] `EsmPolicyInput = EsmPolicy.Input`
+- [x] `EsmPolicyDecision = EsmPolicy.Decision`
+- [x] `EsmPolicyResult = EsmPolicy.Result`
+- [x] `EsmTopologicalInput = EsmTopological.DecisionInput`
+- [x] `EsmTopologicalResult = EsmTopological.DecisionResult`
 
-Target replacement:
+Current shape:
 
 - `EsmPolicy.Mode`
 - `EsmPolicy.Input`
@@ -63,13 +65,6 @@ Target replacement:
 - `EsmPolicy.Result`
 - `EsmTopological.DecisionInput`
 - `EsmTopological.DecisionResult`
-
-Notes:
-
-- Looks like flat public compatibility names over already-clear namespaces.
-- Next step: migrate consumers, then remove the flat aliases.
-
-## Done
 
 ### Registry flat aliases
 
