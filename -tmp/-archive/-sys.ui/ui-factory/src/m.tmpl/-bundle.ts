@@ -20,7 +20,7 @@ export async function makeBundle() {
   console.info(TmplEngine.Log.bundled(bundle));
 }
 
-export function makeProcessor(bundleRoot: t.StringDir): t.FileMapProcessor {
+export function makeProcessor(bundleRoot: t.StringDir): t.FileMap.Write.Processor.Method {
   const root = (bundleRoot ?? '').trim();
   const prefix = root ? `${root}/` : '';
 

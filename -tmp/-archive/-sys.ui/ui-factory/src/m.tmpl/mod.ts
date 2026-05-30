@@ -27,7 +27,7 @@ export async function run(
   const prefix = `${bundleRoot}/`;
   const inScope = (p: string) => p === bundleRoot || p.startsWith(prefix);
 
-  const tmpl = TmplEngine.makeTmpl(json, { processFile }).filter((e: t.FileMapFilterArgs) =>
+  const tmpl = TmplEngine.makeTmpl(json, { processFile }).filter((e: t.FileMap.Filter.Args) =>
     inScope(e.path)
   );
   return tmpl.write(targetDir, { dryRun, force });

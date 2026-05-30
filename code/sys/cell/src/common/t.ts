@@ -2,13 +2,7 @@
  * @system
  */
 export type * from '@sys/cli/t';
-export type {
-  FileMap,
-  FileMapBundleResult,
-  FileMapOp,
-  FileMapProcessor,
-  FileMapWriteResult,
-} from '@sys/fs/t';
+export type { FileMap } from '@sys/fs/t';
 export type { TSchema } from '@sys/schema/t';
 export type { Process } from '@sys/process/t';
 export type { Time } from '@sys/std/t';

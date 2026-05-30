@@ -85,8 +85,8 @@ export declare namespace PiSandboxFsExtension {
     /** Policy injected into the generated extension. */
     readonly policy: Policy;
     /** FileMap write operations emitted by the template engine. */
-    readonly ops: readonly t.FileMapOp[];
+    readonly ops: readonly t.FileMap.Write.Op.Any[];
     /** FileMap write totals emitted by the template engine. */
-    readonly total: t.FileMapWriteResult['total'];
+    readonly total: t.FileMap.Write.Result['total'];
   };
 }

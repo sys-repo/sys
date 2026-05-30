@@ -13,7 +13,7 @@ export type TmplLogLib = {
   table(ops: readonly t.TmplWriteOp[], options?: t.TmplLogTableOptions | StringBaseDir): string;
 
   /** Prepare a bundled log message. */
-  bundled(bundle: t.FileMapBundleResult): string;
+  bundled(bundle: t.FileMap.Bundle.Result): string;
 };
 
 /** Options passed to the `Tmpl.Log.table` method. */

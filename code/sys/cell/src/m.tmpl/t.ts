@@ -15,14 +15,14 @@ export declare namespace CellTmpl {
     export type Options = { readonly dryRun?: boolean };
 
     /** File write operation emitted while materializing a Cell template. */
-    export type Op = t.FileMapOp;
+    export type Op = t.FileMap.Write.Op.Any;
 
     /** Result from writing an embedded Cell template. */
     export type Result = {
       readonly target: string;
       readonly dryRun: boolean;
       readonly ops: readonly Op[];
-      readonly total: t.FileMapWriteResult['total'];
+      readonly total: t.FileMap.Write.Result['total'];
     };
   }
 
@@ -35,6 +35,6 @@ export declare namespace CellTmpl {
     /** Read a text file from the embedded template bundle. */
     text(name: Name, path: t.StringPath): Promise<string>;
     /** Rebuild the embedded template bundle from source files. */
-    bundle(): Promise<t.FileMapBundleResult>;
+    bundle(): Promise<t.FileMap.Bundle.Result>;
   };
 }
