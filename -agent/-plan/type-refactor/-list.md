@@ -25,9 +25,9 @@ Quick scan notes for modules whose root `t.ts` still exposes a flat `XxxLib` spi
 - `code/sys/crypto/src/m.Hash.Composite/t.ts` — refactored in `0cb2eeee5`.
 - `code/sys/crypto/src/m.Fmt/t.ts` — refactored in `0cb2eeee5`.
 
-- `code/sys/immutable/src/m.rfc6902/t.ts`
-- `code/sys/immutable/src/m.graph/t.ts`
-- `code/sys/immutable/src/m.url/t.ts`
+- `code/sys/immutable/src/m.rfc6902/t.ts` — refactored in `f1f0d2b59`.
+- `code/sys/immutable/src/m.graph/t.ts` — refactored in `f1f0d2b59`.
+- `code/sys/immutable/src/m.url/t.ts` — refactored in `f1f0d2b59`.
 - `code/sys/immutable/src/m.core/m.Immutable/t.ts` — refactored in `fddaf1d36`.
 - `code/sys/immutable/src/m.core/m.PathRef/t.ts` — refactored in `fddaf1d36`.
 - `code/sys/immutable/src/m.core/m.Immutable.Lens/t.ts` — refactored in `fddaf1d36`.
