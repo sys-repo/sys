@@ -14,14 +14,15 @@ import { terminal as isTerminal } from '../m.Is/u.terminal.ts';
 import { size as screenSize } from '../m.Screen/u.size.ts';
 
 export const Path: t.CliFormat.Lib['Path'] = {
-  str(path) {
-    return formatDisplayPath(displayPath(path));
+  str(path, options = {}) {
+    return formatDisplayPath(displayPath(path, options), options);
   },
   tty(path, options = {}) {
-    const display = displayPath(path);
+    const display = displayPath(path, options);
     const stream = options.stream ?? 'stdout';
     const terminal = options.terminal ?? isTerminal(stream);
-    if (!terminal) return formatDisplayPath(display, options);
+    const fit = options.fit ?? 'terminal';
+    if (fit === 'terminal' && !terminal) return formatDisplayPath(display, options);
 
     const width = numberOr(options.width, screenSize().width);
     const reserve = numberOr(options.reserve, 0);
@@ -31,7 +32,8 @@ export const Path: t.CliFormat.Lib['Path'] = {
     const [head, tail] = shortened.split(ELLIPSIS_SENTINEL);
     if (tail === undefined) return formatDisplayPath(display, options);
 
-    return `${formatPathFragment(head, options)}${c.cyan('…')}${formatPathFragment(tail, options)}`;
+    const ellipsis = formatEllipsis(options);
+    return `${formatPathFragment(head, options)}${ellipsis}${formatPathFragment(tail, options)}`;
   },
   fmt(opts = {}) {
     return (e) => {
@@ -42,21 +44,33 @@ export const Path: t.CliFormat.Lib['Path'] = {
 
 const ELLIPSIS_SENTINEL = '\uE000';
 
-function displayPath(path: string): string {
+function displayPath(path: string, options: t.CliFormat.Path.FormatOptions = {}): string {
   const value = path.trim();
-  if (value === '' || value === '.') return './';
+  const relative = options.relative ?? 'prefixed';
+
+  if (value === '') return './';
+  if (value === '.') return relative === 'bare' ? '.' : './';
   if (StdPath.Is.absolute(value)) return value;
   if (value.startsWith('./') || value.startsWith('../')) return value;
-  return `./${value}`;
+  return relative === 'bare' ? value : `./${value}`;
 }
 
 function formatDisplayPath(display: string, options: t.CliFormat.Path.FormatOptions = {}): string {
-  if (display === './') return c.gray('./');
+  if (display === './') return colorPath('./', options);
   return formatPathFragment(display, options);
 }
 
 function formatPathFragment(display: string, options: t.CliFormat.Path.FormatOptions): string {
-  return c.gray(Fmt.path(display, Fmt.Path.fmt(options)));
+  return colorPath(Fmt.path(display, Fmt.Path.fmt(options)), options);
+}
+
+function formatEllipsis(options: t.CliFormat.Path.FormatOptions): string {
+  return options.tone === 'muted' ? colorPath('…', options) : c.cyan('…');
+}
+
+function colorPath(text: string, options: t.CliFormat.Path.FormatOptions): string {
+  const color = c.gray(text);
+  return options.tone === 'muted' ? c.dim(color) : color;
 }
 
 function numberOr(value: number | undefined, fallback: number): number {

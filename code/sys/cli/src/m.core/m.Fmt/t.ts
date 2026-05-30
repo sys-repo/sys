@@ -38,7 +38,7 @@ export declare namespace CliFormat {
 
     /** Pretty path formatting helpers. */
     readonly Path: {
-      str: (path: string) => string;
+      str: (path: string, options?: Path.FormatOptions) => string;
       tty: (path: string, options?: Path.TtyOptions) => string;
       fmt: (opts?: Path.FormatOptions) => t.Path.Format.Formatter;
     };
@@ -67,6 +67,10 @@ export declare namespace CliFormat {
     export type FormatOptions = {
       /** Highlight the basename in white. Defaults to true. */
       readonly highlightBasename?: boolean;
+      /** Display style for formatter-added relative prefixes. Defaults to `prefixed`. */
+      readonly relative?: 'prefixed' | 'bare';
+      /** Color treatment for path fragments and inserted ellipses. Defaults to `default`. */
+      readonly tone?: 'default' | 'muted';
     };
 
     /** Terminal-adaptive path shortening options. */
@@ -75,9 +79,11 @@ export declare namespace CliFormat {
       readonly stream?: t.StdioName;
       /** Terminal detection override for deterministic tests. */
       readonly terminal?: boolean;
-      /** Terminal width override for deterministic tests/layouts. */
+      /** Shortening policy. Defaults to `terminal`; use `width` for explicit cell budgets. */
+      readonly fit?: 'terminal' | 'width';
+      /** Available display width. Defaults to the current terminal width. */
       readonly width?: number;
-      /** Width subtracted from terminal width for surrounding table/label content. Defaults to 0. */
+      /** Width subtracted from the display width for surrounding table/label content. Defaults to 0. */
       readonly reserve?: number;
       /** Minimum path width before shortening. Defaults to 32. */
       readonly min?: number;

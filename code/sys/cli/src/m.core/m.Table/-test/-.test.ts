@@ -9,6 +9,7 @@ describe('CLI: core / m.Table', () => {
     a.push(['foo', 'bar']);
     b.push(['foo', 'bar']);
 
+    expect(Cli.Table.cellGap).to.eql(3);
     expect(tableLines(a)).to.eql(['foo   bar']);
     expect(tableLines(b)).to.eql(['foo   bar']);
   });

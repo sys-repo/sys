@@ -49,6 +49,34 @@ describe('Cli.Fmt.Path', () => {
     expect(res).not.to.contain(c.white('le.txt'));
   });
 
+  it('tty: can fit muted package-relative table paths outside terminal detection', () => {
+    const short = Fmt.Path.tty('src/file.ts', {
+      terminal: false,
+      fit: 'width',
+      width: 80,
+      highlightBasename: false,
+      relative: 'bare',
+      tone: 'muted',
+    });
+
+    expect(stripAnsi(short)).to.eql('src/file.ts');
+    expect(short).to.eql(c.dim(c.gray('src/file.ts')));
+
+    const clipped = Fmt.Path.tty('src/deep/long/file.ts', {
+      terminal: false,
+      fit: 'width',
+      width: 12,
+      min: 1,
+      highlightBasename: false,
+      relative: 'bare',
+      tone: 'muted',
+    });
+
+    expect(stripAnsi(clipped)).to.eql('src/de…le.ts');
+    expect(clipped).to.contain(c.dim(c.gray('…')));
+    expect(clipped).not.to.contain(c.cyan('…'));
+  });
+
   it('tty: does not color literal ellipses that already exist in paths', () => {
     const path = '/abcdefghij/kl…mnopqr/extra/file.txt';
     const res = Fmt.Path.tty(path, { terminal: true, width: 30, min: 1 });
