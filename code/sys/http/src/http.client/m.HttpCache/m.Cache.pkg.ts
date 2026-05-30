@@ -24,7 +24,7 @@ export function resolveMediaPolicy(
     maxChunkBytes: wrangle.positive(input?.maxChunkBytes, 5 * 1024 * 1024),
     maxObjectBytes: wrangle.positive(input?.maxObjectBytes, 512 * 1024 * 1024),
     maxTotalBytes: wrangle.positive(input?.maxTotalBytes, 1024 * 1024 * 1024),
-    ttl: wrangle.positive(input?.ttlMs, 1000 * 60 * 60 * 24) as t.Msecs,
+    ttlMs: wrangle.positive(input?.ttlMs, 1000 * 60 * 60 * 24) as t.Msecs,
   };
 }
 
@@ -224,7 +224,7 @@ export const pkg: t.HttpCache.Lib['pkg'] = async (args) => {
     }
 
     const now = Date.now();
-    const expiresAt = now + media.ttl;
+    const expiresAt = now + media.ttlMs;
     const stored = wrangle.withEntryMeta(network.clone(), {
       createdAt: now,
       lastAccessAt: now,

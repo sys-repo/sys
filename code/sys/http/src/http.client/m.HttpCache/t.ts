@@ -54,7 +54,7 @@ export declare namespace HttpCache {
       readonly maxChunkBytes: number;
       readonly maxObjectBytes: number;
       readonly maxTotalBytes: number;
-      readonly ttl: t.Msecs;
+      readonly ttlMs: t.Msecs;
     };
 
     /** User-supplied media cache policy input. */

@@ -98,7 +98,7 @@ describe('Http.Cache.pkg policy routing', () => {
     expect(res.maxChunkBytes > 0).to.eql(true);
     expect(res.maxObjectBytes > 0).to.eql(true);
     expect(res.maxTotalBytes > 0).to.eql(true);
-    expect(res.ttl > 0).to.eql(true);
+    expect(res.ttlMs > 0).to.eql(true);
   });
 
   it('off mode bypasses media cache pipeline', () => {
@@ -267,6 +267,6 @@ describe('Http.Cache.pkg policy normalization', () => {
     expect(res.maxChunkBytes > 0).to.eql(true);
     expect(res.maxObjectBytes > 0).to.eql(true);
     expect(res.maxTotalBytes > 0).to.eql(true);
-    expect(res.ttl > 0).to.eql(true);
+    expect(res.ttlMs > 0).to.eql(true);
   });
 });
