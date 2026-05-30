@@ -1,17 +1,16 @@
-import { type t, isObject } from './common.ts';
-import type { HashIsLib } from './t.ts';
+import { isObject, type t } from './common.ts';
 
-export const Is: HashIsLib = {
-  composite(input?: any): input is t.CompositeHash {
+export const Is: t.Hash.Is.Lib = {
+  composite(input): input is t.CompositeHash {
     if (!isObject(input)) return false;
     const obj = input as t.CompositeHash;
     return typeof obj.digest === 'string' && isObject(obj.parts);
   },
 
-  compositeBuilder(input?: any): input is t.CompositeHashBuilder {
+  compositeBuilder(input): input is t.CompositeHash.Builder {
     if (!isObject(input)) return false;
     if (!Is.composite(input)) return false;
-    const builder = input as t.CompositeHashBuilder;
+    const builder = input as t.CompositeHash.Builder;
     return (
       typeof builder.length === 'number' &&
       typeof builder.add === 'function' &&

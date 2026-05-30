@@ -1,4 +1,4 @@
-import { type t, CompositeHash, Err, Fs, Hash, Path } from './common.ts';
+import { CompositeHash, Err, Fs, Hash, Path, type t } from './common.ts';
 
 /**
  * Verify a directory against a composite hash or hash file.
@@ -33,7 +33,7 @@ export const verify: t.Dir.Hash.Verify.Method = async (dir, hashInput) => {
   /**
    * Verify.
    */
-  let is: t.HashVerifyResponse['is'] = { valid: undefined };
+  let is: t.CompositeHash.Verify.Response['is'] = { valid: undefined };
   if (Hash.Is.composite(hash)) {
     const verify = await CompositeHash.verify(hash, async (e) => {
       const path = Fs.join(dir, e.part);

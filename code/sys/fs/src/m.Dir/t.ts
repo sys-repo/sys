@@ -17,7 +17,7 @@ export declare namespace Dir {
     /** Directory hash helper library. */
     export type Lib = {
       /** Hash-related console formatting helpers. */
-      readonly Fmt: t.HashFmtLib;
+      readonly Fmt: t.HashFmt.Lib;
 
       /** Calculate the hash of a directory. */
       readonly compute: Compute.Method;
@@ -78,7 +78,7 @@ export declare namespace Dir {
 
       /** Response from `Dir.Hash.verify`. */
       export type Response = Result & {
-        readonly is: t.HashVerifyResponse['is'];
+        readonly is: t.CompositeHash.Verify.Response['is'];
       };
     }
   }

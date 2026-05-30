@@ -126,7 +126,7 @@ export declare namespace Pkg {
 
       /** Response from `Pkg.Dist.verify`. */
       export type Response = {
-        is: t.HashVerifyResponse['is'];
+        is: t.CompositeHash.Verify.Response['is'];
         exists: boolean;
         dist?: t.DistPkg;
         error?: t.StdError;

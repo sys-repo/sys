@@ -1,14 +1,14 @@
-import { type t, Err, R } from './common.ts';
+import { Err, R, type t } from './common.ts';
 import { builder } from './u.builder.ts';
 import { toComposite } from './u.toComposite.ts';
 
-export const verify: t.CompositeHashLib['verify'] = async (hash, argsInput) => {
+export const verify: t.CompositeHash.Lib['verify'] = async (hash, argsInput) => {
   const args = wrangle.verifyArgs(argsInput);
   const { loader, algo } = args;
   const errors = Err.errors();
   const current = builder({ algo });
 
-  const res: t.HashVerifyResponse = {
+  const res: t.CompositeHash.Verify.Response = {
     is: { valid: undefined },
     hash: {
       a: toComposite(hash),
@@ -38,7 +38,7 @@ export const verify: t.CompositeHashLib['verify'] = async (hash, argsInput) => {
  * Helpers
  */
 const wrangle = {
-  verifyArgs(input: t.CompositeHashVerifyArgsInput): t.CompositeHashVerifyOptions {
+  verifyArgs(input: t.CompositeHash.Verify.ArgsInput): t.CompositeHash.Verify.Options {
     if (typeof input === 'function') return { loader: input };
     return input;
   },

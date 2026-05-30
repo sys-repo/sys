@@ -1,4 +1,4 @@
-import type { HashLib } from './t.ts';
+import { type t } from './common.ts';
 
 import { Is } from './m.Is.ts';
 import { sha1, sha256, toBytes, toHex } from './u.hash.ts';
@@ -9,7 +9,7 @@ export { sha1, sha256 };
 /**
  * Tools for generating and manipulating Hash's.
  */
-export const Hash: HashLib = {
+export const Hash: t.Hash.Lib = {
   Is,
 
   sha1,

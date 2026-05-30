@@ -5,7 +5,7 @@ import { sha1, sha256 } from '../m.Hash/u.hash.ts';
  * Helpers:
  */
 export const Wrangle = {
-  hash(value: unknown, algo?: t.HashAlgoInput) {
+  hash(value: unknown, algo?: t.CompositeHash.AlgoInput) {
     if (algo === 'sha1') return sha1(value);
     if (algo === 'sha256') return sha256(value);
     if (typeof algo === 'function') return algo(value);
