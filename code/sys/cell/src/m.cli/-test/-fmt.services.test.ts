@@ -1,5 +1,5 @@
 import { describe, expect, Fs, it, Time } from '../../-test.ts';
-import { stripAnsi, type t } from '../common.ts';
+import { c, Cli, stripAnsi, type t } from '../common.ts';
 import { Fmt } from '../u.fmt/u.mod.ts';
 
 describe(`@sys/cell/cli service status formatter`, () => {
@@ -8,7 +8,7 @@ describe(`@sys/cell/cli service status formatter`, () => {
     const cwd = Fs.cwd();
     const config = Fs.join(cwd, '-config/view.dev.yaml') as t.StringPath;
     const root = Fs.join(cwd, 'view') as t.StringDir;
-    const text = stripAnsi(Fmt.Services.started({
+    const rendered = Fmt.Services.started({
       services: [{
         service: {
           name: 'view' as t.Cell.Id,
@@ -36,14 +36,65 @@ describe(`@sys/cell/cli service status formatter`, () => {
         metrics: { start: { startedAt: now, resolvedAt: now } },
         owner: { state: 'ready', root },
       }],
-    }));
+    });
+    const text = stripAnsi(rendered);
 
+    expect(rendered).to.contain(c.green('service'));
+    expect(rendered).to.contain(c.white('view'));
     expect(text).to.contain('service');
     expect(text).to.contain('view --mode=dev');
     expect(text).to.contain('jsr:@sys/driver-vite/service');
     expect(text).to.contain('\n  module');
     expect(text).to.contain('\n  root');
     expect(text).to.contain('./view');
+  });
+
+  it('ellipsizes root paths against terminal width', () => {
+    const restore = stubCliTerminal(48);
+    try {
+      const now = Time.now.timestamp;
+      const config = '/tmp/view.yaml' as t.StringPath;
+      const text = stripAnsi(Fmt.Services.started({
+        services: [{
+          service: {
+            name: 'view' as t.Cell.Id,
+            use: 'Serve',
+            from: 'jsr:@sys/tools/serve',
+            config: './-config/view.yaml' as t.Cell.Path,
+          },
+          selection: {
+            name: 'view' as t.Cell.Id,
+            mode: 'default',
+            descriptor: {
+              name: 'view' as t.Cell.Id,
+              use: 'Serve',
+              from: 'jsr:@sys/tools/serve',
+              config: './-config/view.yaml' as t.Cell.Path,
+            },
+            binding: {
+              use: 'Serve',
+              from: 'jsr:@sys/tools/serve',
+              config: './-config/view.yaml' as t.Cell.Path,
+            },
+          },
+          paths: { config },
+          metrics: { start: { startedAt: now, resolvedAt: now } },
+          owner: {
+            state: 'ready',
+            root: '/Users/phil/code/org.sys/sys/code/sys.ui/ui-react-components/dist' as t.StringDir,
+          },
+        }],
+      }));
+
+      const rootLine = text.split('\n').find((line) => line.trimStart().startsWith('root')) ?? '';
+
+      expect(rootLine.includes('…')).to.eql(true);
+      expect(rootLine.length <= 48).to.eql(true);
+      expect(rootLine).to.contain('/Users');
+      expect(rootLine).to.contain('/dist');
+    } finally {
+      restore();
+    }
   });
 
   it('hides current-directory root and URL-redundant details', () => {
@@ -92,7 +143,7 @@ describe(`@sys/cell/cli service status formatter`, () => {
             { label: 'namespace', value: 'sys.files' },
             { label: 'files.kind', value: 'files/fs:live' },
             { label: 'files.capabilities', value: 'list,stat,read,watch,manifest' },
-            { label: 'dist', value: 'dist/' },
+            { label: 'dist', value: '#1bb18, 2.1 MB, 2026 May 13 · 17d ago' },
           ],
         },
       }],
@@ -115,8 +166,9 @@ describe(`@sys/cell/cli service status formatter`, () => {
     );
     expect(labels).to.contain('capabilities');
     expect(text).to.contain('list, stat, read, watch, manifest');
-    expect(labels).to.contain('dist');
-    expect(text).to.contain('dist/');
+    expect(labels).to.contain('build');
+    expect(labels).to.not.contain('dist');
+    expect(text).to.contain('dist:#1bb18, 2.1 MB, 2026 May 13 · 17d ago');
     expect(labels).to.not.contain('root');
     expect(labels).to.not.contain('path');
     expect(labels).to.not.contain('port');
@@ -129,6 +181,19 @@ describe(`@sys/cell/cli service status formatter`, () => {
 /**
  * Helpers:
  */
+function stubCliTerminal(width: number): () => void {
+  const screen = Cli.Screen as { size: () => { width: number; height: number } };
+  const is = Cli.Is as { terminal: (stream?: t.StdioName) => boolean };
+  const prevSize = screen.size;
+  const prevTerminal = is.terminal;
+  screen.size = () => ({ width, height: 24 });
+  is.terminal = () => true;
+  return () => {
+    screen.size = prevSize;
+    is.terminal = prevTerminal;
+  };
+}
+
 function rowLabels(text: string): readonly string[] {
   return text.split('\n').flatMap((line): string[] => {
     const trimmed = line.trimStart();

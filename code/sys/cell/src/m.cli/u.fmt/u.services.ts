@@ -5,7 +5,7 @@ type ServicesStartedResult = {
   services: readonly StartedServiceStatus[];
 };
 
-type ServiceStatusRow = readonly [label: string, value: string];
+type ServiceStatusRow = readonly [label: string, value: string, kind?: 'path'];
 
 export const FmtServices = {
   started(res: ServicesStartedResult): string {
@@ -26,7 +26,7 @@ function serviceStatusRows(service: StartedServiceStatus): ServiceStatusRow[] {
   const rows: ServiceStatusRow[] = [];
   const owner = service.owner;
 
-  rows.push([serviceRootLabel('service'), serviceTitle(service)]);
+  rows.push([serviceAnchorLabel('service'), serviceTitle(service)]);
   rows.push([serviceLabel('module'), serviceSubtle(service.service.from)]);
 
   if (owner) {
@@ -43,7 +43,14 @@ function serviceStatusRows(service: StartedServiceStatus): ServiceStatusRow[] {
 }
 
 function renderServiceStatus(rows: readonly ServiceStatusRow[], labelWidth: number): string {
-  const lines = rows.map(([label, value]) => `${padLabel(label, labelWidth)}   ${value}`);
+  const lines = rows.map(([label, value, kind]) => {
+    const paddedLabel = padLabel(label, labelWidth);
+    const gap = '   ';
+    const formattedValue = kind === 'path'
+      ? servicePath(value, stripAnsi(paddedLabel).length + gap.length)
+      : value;
+    return `${paddedLabel}${gap}${formattedValue}`;
+  });
   return Str.trimEdgeNewlines(lines.join('\n'));
 }
 
@@ -79,6 +86,9 @@ function serviceDetails(status: t.Service.Status): readonly t.Service.Detail[] {
     if (detail.label === 'files.capabilities') {
       return [{ label: 'capabilities', value: formatCapabilities(detail.value) }];
     }
+    if (detail.label === 'dist') {
+      return [{ label: 'build', value: formatBuildDetail(detail.value) }];
+    }
     return [detail];
   });
 }
@@ -87,19 +97,34 @@ function formatCapabilities(value: string): string {
   return value.split(',').map((part) => part.trim()).filter(Boolean).join(', ');
 }
 
+function formatBuildDetail(value: string): string {
+  if (value.startsWith('#')) return `dist:${value}`;
+  if (value.startsWith('dist:')) return value;
+  return value;
+}
+
 function pushServiceRoot(rows: ServiceStatusRow[], root: string) {
   const value = serviceRoot(root);
-  if (stripAnsi(value) === './') return;
-  rows.push([serviceLabel('root'), value]);
+  if (value === './') return;
+  rows.push([serviceLabel('root'), value, 'path']);
 }
 
 function serviceRoot(root: string): string {
   const path = Fs.trimCwd(root, { prefix: true });
-  return c.gray(path || './');
+  return path || './';
 }
 
-function serviceRootLabel(label: string): string {
-  return c.gray(label);
+function servicePath(path: string, reserve: number): string {
+  return Cli.Fmt.Path.tty(path, {
+    reserve,
+    terminal: Cli.Is.terminal('stdout'),
+    width: Cli.Screen.size().width,
+    highlightBasename: false,
+  });
+}
+
+function serviceAnchorLabel(label: string): string {
+  return c.green(label);
 }
 
 function serviceLabel(label: string): string {
