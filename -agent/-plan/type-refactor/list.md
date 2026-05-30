@@ -32,8 +32,8 @@ Quick scan notes for modules whose root `t.ts` still exposes a flat `XxxLib` spi
 - `code/sys/immutable/src/m.core/m.PathRef/t.ts`
 - `code/sys/immutable/src/m.core/m.Immutable.Lens/t.ts`
 
-- `code/sys/registry/src/m.npm/**/t.ts`
-- `code/sys/registry/src/m.jsr/**/t.ts`
+- `code/sys/registry/src/m.npm/**/t.ts` — refactored in `045386d6d`.
+- `code/sys/registry/src/m.jsr/**/t.ts` — refactored in `045386d6d`.
 
 - `code/sys.ui/ui-dom/src/m.Dom/t.ts`
 - `code/sys.ui/ui-dom/src/m.File/t.ts`
