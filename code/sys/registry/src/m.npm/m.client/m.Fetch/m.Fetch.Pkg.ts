@@ -23,14 +23,14 @@ type VersionResponse = {
 /**
  * Network fetching helpers against a specific npm package.
  */
-export const Pkg: t.NpmFetch.PkgLib = {
+export const Pkg: t.NpmFetch.Pkg.Lib = {
   async versions(name, options = {}) {
     const url = Url.Pkg.metadata(name);
     const fetch = Fetch.make(options.until);
     const res = await fetch.json<MetadataResponse>(url, { cache: 'no-store' });
     if (!res.data) return res;
 
-    const data: t.NpmFetch.PkgMetaVersions = {
+    const data: t.NpmFetch.Pkg.MetaVersions = {
       name: res.data.name,
       latest: String(res.data['dist-tags']?.latest ?? ''),
       get versions() {
@@ -55,7 +55,7 @@ export const Pkg: t.NpmFetch.PkgLib = {
     if (!res.data) return res;
 
     const pkg: t.Pkg = { name, version };
-    const data: t.NpmFetch.PkgVersionInfo = {
+    const data: t.NpmFetch.Pkg.VersionInfo = {
       pkg,
       dist: wrangle.dist(res.data.dist),
       dependencies: res.data.dependencies,
@@ -75,14 +75,14 @@ export const Pkg: t.NpmFetch.PkgLib = {
 
 const wrangle = {
   versions(input: MetadataResponse['versions'] = {}) {
-    const versions: t.NpmFetch.PkgMetaVersions['versions'] = {};
+    const versions: t.NpmFetch.Pkg.MetaVersions['versions'] = {};
     for (const [version, value] of Object.entries(input ?? {})) {
       versions[version] = value?.deprecated ? { deprecated: value.deprecated } : {};
     }
     return versions;
   },
 
-  dist(input: VersionResponse['dist']): t.NpmFetch.PkgDistInfo | undefined {
+  dist(input: VersionResponse['dist']): t.NpmFetch.Pkg.DistInfo | undefined {
     if (!input) return undefined;
     return {
       tarball: input.tarball,

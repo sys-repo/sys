@@ -7,7 +7,7 @@ import { Fmt } from './u.fmt.ts';
 describe('Jsr.Fetch.Pkg.file (external)', () => {
   const { name, version } = SAMPLE.pkg;
 
-  const print = (res: t.JsrFetch.PkgFileResponse, checksum: t.StringHash) => {
+  const print = (res: t.JsrFetch.Pkg.FileResponse, checksum: t.StringHash) => {
     const hx = Hash.sha256(res.data);
     Fmt.printExternalTable(
       'Jsr.Fetch.Pkg.file',

@@ -4,14 +4,14 @@ import { graph, type RawPkgVersionInfo } from './u.graph.ts';
 /**
  * Network fetching helpers against a specific JSR package.
  */
-export const Pkg: t.JsrFetch.PkgLib = {
+export const Pkg: t.JsrFetch.Pkg.Lib = {
   /**
    * https://jsr.io/docs/api#package-metadata
    */
   async versions(name, options = {}) {
     const url = JsrUrl.Pkg.metadata(name);
     const fetch = Fetch.make(options.until);
-    const res = await fetch.json<t.JsrFetch.PkgMetaVersions>(url, { cache: 'no-store' });
+    const res = await fetch.json<t.JsrFetch.Pkg.MetaVersions>(url, { cache: 'no-store' });
     const data = res.data
       ? {
         ...res.data,
@@ -27,7 +27,7 @@ export const Pkg: t.JsrFetch.PkgLib = {
         return res.headers;
       },
       data,
-    } as t.JsrFetch.PkgVersionsResponse;
+    } as t.JsrFetch.Pkg.VersionsResponse;
   },
 
   /**
@@ -41,7 +41,7 @@ export const Pkg: t.JsrFetch.PkgLib = {
     if (!res.data) return res;
 
     const pkg: t.Pkg = { name, version: version ?? '' };
-    const data: t.JsrFetch.PkgVersionInfo = {
+    const data: t.JsrFetch.Pkg.VersionInfo = {
       pkg,
       manifest: res.data.manifest,
       exports: res.data.exports,
@@ -61,7 +61,7 @@ export const Pkg: t.JsrFetch.PkgLib = {
    * https://jsr.io/docs/api#modules
    */
   file(name, version, opt = {}) {
-    const api: t.JsrFetch.PkgFileFetcher = {
+    const api: t.JsrFetch.Pkg.FileFetcher = {
       pkg: { name, version },
       async text(path, options = {}) {
         const { checksum } = options;

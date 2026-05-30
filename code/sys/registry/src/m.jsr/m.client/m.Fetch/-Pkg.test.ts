@@ -29,6 +29,5 @@ describe('Jsr.Fetch.Pkg', () => {
         Object.defineProperty(globalThis, 'fetch', { configurable: true, value: original });
       }
     });
-
   });
 });

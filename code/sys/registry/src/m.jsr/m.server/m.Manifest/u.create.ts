@@ -2,11 +2,11 @@ import { Fs } from '@sys/fs';
 import { Err, Fetch, Path, Pkg, Rx, type t } from './common.ts';
 
 /** Create a manifest helper from an existing definition. */
-export const create: t.JsrManifestLib['create'] = (pkg, def) => {
+export const create: t.JsrManifest.Lib['create'] = (pkg, def) => {
   pkg = { ...pkg };
   def = { ...def };
   let _paths: undefined | t.StringPath[];
-  const api: t.JsrManifest = {
+  const api: t.JsrManifest.Instance = {
     pkg,
     get paths() {
       return _paths || (_paths = Object.keys(def).sort());
@@ -40,7 +40,7 @@ export const create: t.JsrManifestLib['create'] = (pkg, def) => {
       /**
        * Write to file-system.
        */
-      let written: t.JsrManifestPullResponse['written'] | undefined;
+      let written: t.JsrManifest.Pull.Response['written'] | undefined;
       if (options.write) {
         const relative = Pkg.toString(pkg);
         const absolute = Path.resolve(options.write, relative);
@@ -84,7 +84,7 @@ export const create: t.JsrManifestLib['create'] = (pkg, def) => {
  * Helpers
  */
 const wrangle = {
-  pullOptions(input: Parameters<t.JsrManifest['pull']>[0]): t.JsrManifestPullOptions {
+  pullOptions(input: Parameters<t.JsrManifest.Instance['pull']>[0]): t.JsrManifest.Pull.Options {
     if (!input) return {};
     if (typeof input === 'string') return { write: input };
     return input;

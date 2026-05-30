@@ -1,4 +1,4 @@
-import { type t, expect } from '../../-test.ts';
+import { expect, type t } from '../../-test.ts';
 
 export const assertFetchDisposed = (res: t.FetchResponse<unknown>) => {
   expect(res.status).to.eql(499);

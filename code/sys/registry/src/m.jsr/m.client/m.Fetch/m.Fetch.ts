@@ -1,4 +1,4 @@
-import { type t, JsrUrl as Url } from './common.ts';
+import { JsrUrl as Url, type t } from './common.ts';
 import { Pkg } from './m.Fetch.Pkg.ts';
 
 /**

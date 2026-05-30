@@ -140,6 +140,7 @@ const mock = {
       configurable: true,
       value: fn,
     });
-    return () => Object.defineProperty(globalThis, 'fetch', { configurable: true, value: original });
+    return () =>
+      Object.defineProperty(globalThis, 'fetch', { configurable: true, value: original });
   },
 } as const;

@@ -1,8 +1,8 @@
-import { type t, Err, Fetch } from './common.ts';
+import { Err, Fetch, type t } from './common.ts';
 import { create } from './u.create.ts';
 
 /** Fetch a manifest from JSR and wrap it. */
-export const fetch: t.JsrManifestLib['fetch'] = async (name, version, options = {}) => {
+export const fetch: t.JsrManifest.Lib['fetch'] = async (name, version, options = {}) => {
   const origin = Fetch.Url.origin;
   const errors = Err.errors();
 

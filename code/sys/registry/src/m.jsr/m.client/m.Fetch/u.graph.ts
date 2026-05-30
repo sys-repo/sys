@@ -1,30 +1,30 @@
 import { Is, type t } from './common.ts';
 
 export type RawPkgVersionInfo = {
-  manifest?: t.JsrFetch.PkgManifest;
+  manifest?: t.JsrFetch.Pkg.Manifest;
   exports?: Record<string, string>;
   moduleGraph1?: unknown;
   moduleGraph2?: unknown;
 };
 
 export const graph = {
-  fromRaw(input: RawPkgVersionInfo): t.JsrFetch.PkgGraph | undefined {
+  fromRaw(input: RawPkgVersionInfo): t.JsrFetch.Pkg.Graph | undefined {
     return graph.fromGraph2(input.moduleGraph2) ?? graph.fromGraph1(input.moduleGraph1);
   },
 
-  fromGraph2(input: unknown): t.JsrFetch.PkgGraph | undefined {
+  fromGraph2(input: unknown): t.JsrFetch.Pkg.Graph | undefined {
     const modules = graph.graph2Modules(input);
     if (!modules) return undefined;
     return { format: 2, modules };
   },
 
-  fromGraph1(input: unknown): t.JsrFetch.PkgGraph | undefined {
+  fromGraph1(input: unknown): t.JsrFetch.Pkg.Graph | undefined {
     if (!Is.record(input)) return undefined;
     const modules = graph.modulesFromRecord(input);
     return { format: 1, modules };
   },
 
-  graph2Modules(input: unknown): readonly t.JsrFetch.PkgGraphModule[] | undefined {
+  graph2Modules(input: unknown): readonly t.JsrFetch.Pkg.GraphModule[] | undefined {
     if (Array.isArray(input)) return graph.modules(input);
     if (!Is.record(input)) return undefined;
     const keyed = graph.modulesFromRecord(input);
@@ -35,14 +35,14 @@ export const graph = {
     return undefined;
   },
 
-  modules(input: readonly unknown[]): readonly t.JsrFetch.PkgGraphModule[] {
+  modules(input: readonly unknown[]): readonly t.JsrFetch.Pkg.GraphModule[] {
     return input
       .map(graph.module)
-      .filter((value): value is t.JsrFetch.PkgGraphModule => Boolean(value))
+      .filter((value): value is t.JsrFetch.Pkg.GraphModule => Boolean(value))
       .sort((a, b) => a.path.localeCompare(b.path));
   },
 
-  module(input: unknown): t.JsrFetch.PkgGraphModule | undefined {
+  module(input: unknown): t.JsrFetch.Pkg.GraphModule | undefined {
     if (!Is.record(input)) return undefined;
     const path = graph.modulePath(input);
     if (!path) return undefined;
@@ -57,7 +57,7 @@ export const graph = {
     return Is.str(value) && value ? value : undefined;
   },
 
-  modulesFromRecord(input: Record<string, unknown>): readonly t.JsrFetch.PkgGraphModule[] {
+  modulesFromRecord(input: Record<string, unknown>): readonly t.JsrFetch.Pkg.GraphModule[] {
     return Object.entries(input)
       .map(([path, value]) => ({
         path,
@@ -66,12 +66,14 @@ export const graph = {
       .sort((a, b) => a.path.localeCompare(b.path));
   },
 
-  recordDependencies(input: unknown): readonly t.JsrFetch.PkgGraphDependency[] {
-    if (Is.record(input) && Array.isArray(input.dependencies)) return graph.depList(input.dependencies);
+  recordDependencies(input: unknown): readonly t.JsrFetch.Pkg.GraphDependency[] {
+    if (Is.record(input) && Array.isArray(input.dependencies)) {
+      return graph.depList(input.dependencies);
+    }
     return graph.dependencies(input);
   },
 
-  dependencies(input: unknown): readonly t.JsrFetch.PkgGraphDependency[] {
+  dependencies(input: unknown): readonly t.JsrFetch.Pkg.GraphDependency[] {
     if (Array.isArray(input)) return graph.depList(input);
     if (!Is.record(input)) return [];
     return Object.keys(input)
@@ -80,14 +82,14 @@ export const graph = {
       .map((specifier) => ({ specifier }));
   },
 
-  depList(input: readonly unknown[]): readonly t.JsrFetch.PkgGraphDependency[] {
+  depList(input: readonly unknown[]): readonly t.JsrFetch.Pkg.GraphDependency[] {
     return input
       .map(graph.dep)
-      .filter((value): value is t.JsrFetch.PkgGraphDependency => Boolean(value))
+      .filter((value): value is t.JsrFetch.Pkg.GraphDependency => Boolean(value))
       .sort((a, b) => a.specifier.localeCompare(b.specifier));
   },
 
-  dep(input: unknown): t.JsrFetch.PkgGraphDependency | undefined {
+  dep(input: unknown): t.JsrFetch.Pkg.GraphDependency | undefined {
     if (Is.str(input) && input) return { specifier: input };
     if (!Is.record(input)) return undefined;
     const specifier = input.specifier ?? input.path ?? input.url;

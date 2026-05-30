@@ -2,7 +2,7 @@ import type { t } from './common.ts';
 
 const REGISTRY = 'https://registry.npmjs.org';
 
-export const Url: t.NpmUrlLib = {
+export const Url: t.NpmFetch.Url.Lib = {
   Pkg: {
     metadata(name) {
       return `${REGISTRY}/${encodeName(name)}`;

@@ -5,10 +5,10 @@
  */
 import { Import } from '../m.Import/mod.ts';
 import { Is } from '../m.Is/mod.ts';
-import { type t, Fetch } from './common.ts';
+import { Fetch, type t } from './common.ts';
 
 /** Client-side registry helper. */
-export const Jsr: t.JsrClientLib = {
+export const Jsr: t.JsrClient.Lib = {
   Fetch,
   Is,
   Import,
