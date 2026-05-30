@@ -4,30 +4,39 @@ type O = Record<string, unknown>;
 type P = t.Rfc6902PatchOperation;
 type DefaultPatch = P;
 
-export type * from './t.patch.ts';
-
 /**
  * Library: Immutable (RFC6902 Patch Standard)
  */
-export type ImmutableRfc6902Lib = {
-  readonly Is: t.ImmutableCore.Is.Lib;
-  readonly Events: ImmutableRfc6902EventsLib;
-  readonly Patch: t.ImmutableRfc6902PatchLib;
-  readonly Lens: t.ImmutableLens.Lib;
-  cloner: Cloner;
-  clonerRef: ClonerRef;
-  asReadonly<T>(input: T): t.ImmutableCore.Readonly.As<T>;
-  toObject<T extends O = O>(input?: T): t.ImmutableCore.ToObject.Unwrap<T>;
-};
+export declare namespace ImmutableRfc6902 {
+  /** RFC-6902 immutable helper module surface. */
+  export type Lib = {
+    readonly Is: t.ImmutableCore.Is.Lib;
+    readonly Events: Events.Lib;
+    readonly Patch: Patch.Lib;
+    readonly Lens: t.ImmutableLens.Lib;
+    cloner: Cloner;
+    clonerRef: ClonerRef;
+    asReadonly<T>(input: T): t.ImmutableCore.Readonly.As<T>;
+    toObject<T extends O = O>(input?: T): t.ImmutableCore.ToObject.Unwrap<T>;
+  };
 
-/**
- * Helpers for RFC-6902 events.
- */
-export type ImmutableRfc6902EventsLib = {
-  readonly viaOverride: EventsViaOverride;
-  readonly viaObservable: EventsViaObservable;
-  readonly pathFilter: PathEventsFactory;
-};
+  /** Helpers for RFC-6902 events. */
+  export namespace Events {
+    export type Lib = {
+      readonly viaOverride: EventsViaOverride;
+      readonly viaObservable: EventsViaObservable;
+      readonly pathFilter: PathEventsFactory;
+    };
+  }
+
+  /** Helpers for working with RFC-6902 JSON patch pointers. */
+  export namespace Patch {
+    export type Lib = {
+      /** Convert an RFC-6901 JSON-Pointer into an object path. */
+      toObjectPath(path: string): t.ObjectPath;
+    };
+  }
+}
 
 /**
  * Helpers: Factory functions.

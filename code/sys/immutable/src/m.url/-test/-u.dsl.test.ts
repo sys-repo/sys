@@ -1,4 +1,4 @@
-import { type t, describe, expect, it } from '../../-test.ts';
+import { describe, expect, it, type t } from '../../-test.ts';
 import { Url } from '../mod.ts';
 import { UrlBase } from '../common.ts';
 
@@ -33,7 +33,7 @@ describe('Url.dsl', () => {
     return { path: url.pathname, debug: false };
   };
 
-  const write = (urlRef: t.UrlRef, config: SampleConfig) => {
+  const write = (urlRef: t.ImmutableUrl.Ref, config: SampleConfig) => {
     urlRef.change((url) => {
       url.pathname = config.path;
       const { searchParams } = url;
@@ -140,7 +140,7 @@ describe('Url.dsl', () => {
       const dsl = makeDsl();
       const ev = dsl.url.events();
 
-      const seen: t.ImmutableChangeReadonly<URL, t.UrlPatch>[] = [];
+      const seen: t.ImmutableChangeReadonly<URL, t.ImmutableUrl.Patch>[] = [];
       ev.$.subscribe((e) => seen.push(e));
 
       dsl.change((draft) => {

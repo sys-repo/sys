@@ -2,19 +2,19 @@ import { type t } from './common.ts';
 import { ref } from './u.ref.ts';
 
 /**
- * Create a tiny DSL wrapper around a UrlRef.
+ * Create a tiny DSL wrapper around an immutable URL ref.
  *
  * - `read` maps the underlying URL snapshot to a config shape.
- * - `write` reapplies the config to the UrlRef.
+ * - `write` reapplies the config to the immutable URL ref.
  */
 export function dsl<C>(
-  init: t.UrlLike | t.StringUrl,
+  init: t.ImmutableUrl.Input,
   read: (url: URL) => C,
-  write: (urlRef: t.UrlRef, config: C) => void,
-): t.UrlDslRef<C> {
+  write: (urlRef: t.ImmutableUrl.Ref, config: C) => void,
+): t.ImmutableUrl.Dsl.Ref<C> {
   const urlRef = ref(init);
 
-  const url: t.ImmutableRefReadonly<URL, t.Rfc6902PatchOperation> = {
+  const url: t.ImmutableUrl.RefReadonly = {
     get current() {
       return urlRef.current;
     },
@@ -32,7 +32,7 @@ export function dsl<C>(
     write(urlRef, draft);
   };
 
-  const api: t.UrlDslRef<C> = {
+  const api: t.ImmutableUrl.Dsl.Ref<C> = {
     url,
     change,
     get current() {

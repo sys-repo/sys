@@ -3,17 +3,17 @@ import type { t } from './common.ts';
 /**
  * Tools for working with the URL (browser location) in the DOM
  */
-export type DomUrl = t.ImmutableUrlLib & {
+export type DomUrl = t.ImmutableUrl.Lib & {
   /**
-   * Bind a UrlRef to window.location via the History API.
+   * Bind an immutable URL ref to window.location via the History API.
    *
-   * This is a one-way binding: UrlRef → window.location.
+   * This is a one-way binding: immutable URL ref → window.location.
    */
-  bindToWindow(ref: t.UrlRefReadonly, options?: t.DomUrlBindOptions): DomUrlBinding;
+  bindToWindow(ref: t.ImmutableUrl.RefReadonly, options?: t.DomUrlBindOptions): DomUrlBinding;
 };
 
 /**
- * Options for binding a UrlRef to window.location.
+ * Options for binding an immutable URL ref to window.location.
  */
 export type DomUrlBindOptions = {
   /**
@@ -31,8 +31,8 @@ export type DomUrlBindOptions = {
 };
 
 /**
- * Handle returned from binding a UrlRef to window.location.
+ * Handle returned from binding an immutable URL ref to window.location.
  */
 export type DomUrlBinding = t.Lifecycle & {
-  readonly ref: t.UrlRef;
+  readonly ref: t.ImmutableUrl.Ref;
 };

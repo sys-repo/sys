@@ -1,4 +1,4 @@
-import { type t, Rx } from './common.ts';
+import { Rx, type t } from './common.ts';
 import { pathFilter } from './m.Events.path.ts';
 import { Patch } from './m.Patch.ts';
 import { Wrangle } from './u.ts';
@@ -72,7 +72,7 @@ export function curryChangeFunction<T, P = DefaultPatch>(
 /**
  * Library:
  */
-export const Events: t.ImmutableRfc6902EventsLib = {
+export const Events: t.ImmutableRfc6902.Events.Lib = {
   viaOverride,
   viaObservable,
   pathFilter,
