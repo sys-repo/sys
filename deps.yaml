@@ -47,10 +47,10 @@ deno.json:
   - import: npm:prosemirror-example-setup@1.2.3
   - import: npm:prosemirror-schema-basic@1.2.4
   - import: npm:yaml@2.9.0
-  - import: jsr:@cliffy/keypress@1.1.0
-  - import: jsr:@cliffy/prompt@1.1.0
-  - import: jsr:@cliffy/table@1.1.0
-  - import: npm:date-fns@4.3.0
+  - import: jsr:@cliffy/keypress@1.1.1
+  - import: jsr:@cliffy/prompt@1.1.1
+  - import: jsr:@cliffy/table@1.1.1
+  - import: npm:date-fns@4.4.0
   - import: npm:diff@9.0.0
   - import: npm:fast-json-patch@3.1.1
   - import: npm:happy-dom@20.9.0
