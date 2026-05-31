@@ -1,7 +1,7 @@
 import { type t, Color, css, D, KeyValue } from './common.ts';
 import { toItems } from './u.items.ts';
 
-const layout = { kind: 'spaced', columnGap: 10 } satisfies t.KeyValueLayout;
+const layout = { kind: 'spaced', columnGap: 10 } satisfies t.KeyValue.Layout;
 
 export const InfoPanel: t.FC<t.FileInfoPanel.Props> = (props) => {
   const { debug = false } = props;

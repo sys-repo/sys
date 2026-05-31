@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, css, D } from './common.ts';
 
-type P = t.KeyValueItemProps;
+type P = t.KeyValue.ItemProps;
 
 /**
  * Component:

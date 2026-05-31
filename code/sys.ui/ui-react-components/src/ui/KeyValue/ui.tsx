@@ -7,7 +7,7 @@ import { Row } from './ui.Row.tsx';
 import { Spacer } from './ui.Spacer.tsx';
 import { Title } from './ui.Title.tsx';
 
-export const KeyValue: React.FC<t.KeyValueProps> = (props) => {
+export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
   const { debug = false, items = [], size = D.size, mono = D.mono, truncate = D.truncate } = props;
   const enabled = props.enabled ?? D.enabled;
   const disabledOpacity = props.defaults?.disabledOpacity ?? D.defaults.disabledOpacity;
@@ -47,7 +47,7 @@ export const KeyValue: React.FC<t.KeyValueProps> = (props) => {
 
   const elRows = items.map((item, i) => {
     const kind = item.kind ?? 'row';
-    const args: t.KeyValueItemProps = {
+    const args: t.KeyValue.ItemProps = {
       theme: theme.name,
       item,
       enabled,
@@ -60,8 +60,8 @@ export const KeyValue: React.FC<t.KeyValueProps> = (props) => {
     };
 
     if (kind === 'row') {
-      const row = item as t.KeyValueRow;
-      const rowArgs: t.KeyValueItemProps = { ...args, mono: row.mono ?? mono };
+      const row = item as t.KeyValue.Row;
+      const rowArgs: t.KeyValue.ItemProps = { ...args, mono: row.mono ?? mono };
       return <Row key={i} {...rowArgs} />;
     }
 

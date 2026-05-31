@@ -26,7 +26,7 @@ export const Info: React.FC<InfoProps> = (props) => {
    * KeyValue items:
    */
   const mono = true;
-  const items: t.KeyValueItem[] = [];
+  const items: t.KeyValue.Item[] = [];
   if (origin) {
     items.push({ kind: 'title', v: `HTTP Origin` });
     rows.forEach((row) => {

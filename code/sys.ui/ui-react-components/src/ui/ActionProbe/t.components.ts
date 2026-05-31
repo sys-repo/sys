@@ -21,7 +21,7 @@ export type ActionProbeProps<TEnv extends O = O, TParams extends O = O> = {
   onRunTitle?: (title: t.ReactNode) => void;
   onRunEnd?: () => void;
   onRunResult?: (value: unknown, obj?: t.ActionProbe.ProbeRunObjectConfig) => void;
-  onRunItem?: (item: t.KeyValueItem) => void;
+  onRunItem?: (item: t.KeyValue.Item) => void;
   onFocus?: () => void;
   onBlur?: () => void;
 
@@ -39,7 +39,7 @@ export type ActionResultProps = {
   spinning?: boolean;
   resultsVisible?: boolean;
   response?: unknown;
-  items?: readonly t.KeyValueItem[];
+  items?: readonly t.KeyValue.Item[];
   obj?: t.ActionProbe.ProbeRunObjectConfig;
   header?: { mono?: boolean };
   debug?: boolean;

@@ -2,13 +2,13 @@ import type React from 'react';
 import type { t } from '../common.ts';
 
 /**
- * Build `KeyValueItem[]` rows from a plain object.
+ * Build `KeyValue.Item[]` rows from a plain object.
  * - Respects insertion order of keys.
  * - Optional `filter(key, value)` to include/exclude rows.
  * - Optional `format(value)` to render values (defaults to a stringified representation).
  */
-export const fromObject: t.KeyValueFromObject = (obj, options = {}) => {
-  const items: t.KeyValueItem[] = [];
+export const fromObject: t.KeyValue.FromObject = (obj, options = {}) => {
+  const items: t.KeyValue.Item[] = [];
   const { filter, format } = options ?? {};
 
   if (!obj || typeof obj !== 'object') return items;

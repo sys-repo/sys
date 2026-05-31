@@ -59,9 +59,9 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
    * Build items:
    */
   const mono = true;
-  const rows: t.KeyValueRow[] = [];
-  const items: t.KeyValueItem[] = [];
-  const add = (item: t.KeyValueItem) => {
+  const rows: t.KeyValue.Row[] = [];
+  const items: t.KeyValue.Item[] = [];
+  const add = (item: t.KeyValue.Item) => {
     items.push(item);
     if (!item.kind || item.kind === 'row') rows.push(item);
   };

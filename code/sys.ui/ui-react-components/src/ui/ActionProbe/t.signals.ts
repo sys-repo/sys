@@ -26,7 +26,7 @@ export namespace ActionProbe {
     focus(probe: string, title?: t.ReactNode): Signals;
     blur(probe?: string): Signals;
     resultVisible(next: boolean | ((prev: boolean) => boolean)): Signals;
-    item(item: t.KeyValueItem): Signals;
+    item(item: t.KeyValue.Item): Signals;
     result(value: unknown, obj?: t.ActionProbe.ProbeRunObjectConfig): Signals;
     end(): Signals;
     reset(): Signals;
@@ -34,7 +34,7 @@ export namespace ActionProbe {
 
   export type ResultSnapshot = {
     title: t.ReactNode | undefined;
-    items: t.KeyValueItem[];
+    items: t.KeyValue.Item[];
     response: unknown;
     obj: t.ActionProbe.ProbeRunObjectConfig | undefined;
   };
@@ -50,7 +50,7 @@ export namespace ActionProbe {
     readonly onRunTitle: (title: t.ReactNode) => void;
     readonly onRunEnd: () => void;
     readonly onRunResult: (value: unknown, obj?: t.ActionProbe.ProbeRunObjectConfig) => void;
-    readonly onRunItem: (item: t.KeyValueItem) => void;
+    readonly onRunItem: (item: t.KeyValue.Item) => void;
   };
 
   /** Raw signal handles used by the execution-state API. */
@@ -63,7 +63,7 @@ export namespace ActionProbe {
     readonly result: {
       readonly title: t.Signal<t.ReactNode | undefined>;
       readonly visible: t.Signal<boolean>;
-      readonly items: t.Signal<t.KeyValueItem[]>;
+      readonly items: t.Signal<t.KeyValue.Item[]>;
       readonly response: t.Signal<unknown>;
       readonly obj: t.Signal<t.ActionProbe.ProbeRunObjectConfig | undefined>;
       readonly byProbe: t.Signal<Record<string, ResultSnapshot>>;
@@ -77,7 +77,7 @@ export namespace ActionProbe {
     result: {
       title: t.ReactNode | undefined;
       visible: boolean;
-      items: t.KeyValueItem[];
+      items: t.KeyValue.Item[];
       response: unknown;
       obj: t.ActionProbe.ProbeRunObjectConfig | undefined;
       byProbe: Record<string, ResultSnapshot>;

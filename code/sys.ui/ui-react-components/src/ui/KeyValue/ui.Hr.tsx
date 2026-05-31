@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Color, css, Is } from './common.ts';
 import { toSpacing } from './u.ts';
 
-type P = t.KeyValueItemProps;
+type P = t.KeyValue.ItemProps;
 
 /**
  * Component:

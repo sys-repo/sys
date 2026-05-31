@@ -9,7 +9,7 @@ const mono = true;
  * Sample data-sets:
  */
 export const SAMPLE = {
-  items(sample?: SampleKind): t.KeyValueItem[] | undefined {
+  items(sample?: SampleKind): t.KeyValue.Item[] | undefined {
     if (sample === 'comprehensive') return comprehensive();
     if (sample === 'simple') return simple();
     if (sample === 'opacity') return opacity();
@@ -18,7 +18,7 @@ export const SAMPLE = {
   },
 } as const;
 
-function simple(): t.KeyValueItem[] {
+function simple(): t.KeyValue.Item[] {
   return [
     { kind: 'title', v: 'Video Stream' },
     { kind: 'row', k: 'id', v: 'f3e1c4a9-278b-44e9-9b71-23e2e3a16c8b' },
@@ -28,7 +28,7 @@ function simple(): t.KeyValueItem[] {
   ];
 }
 
-function comprehensive(): t.KeyValueItem[] {
+function comprehensive(): t.KeyValue.Item[] {
   return [
     { kind: 'title', v: 'Video Stream' },
     { kind: 'row', k: 'id', v: 'crdt:2esGLgD5SoQkeucytmGeadm9cC7y', userSelect: 'text' },
@@ -66,7 +66,7 @@ function comprehensive(): t.KeyValueItem[] {
   ];
 }
 
-function opacity(): t.KeyValueItem[] {
+function opacity(): t.KeyValue.Item[] {
   const x = [15, 0] as const;
   return [
     { kind: 'title', v: 'Opacity Variants' },
@@ -77,7 +77,7 @@ function opacity(): t.KeyValueItem[] {
   ];
 }
 
-function links(): t.KeyValueItem[] {
+function links(): t.KeyValue.Item[] {
   return [
     { kind: 'title', v: 'Link Variants', y: [0, 10] },
     {

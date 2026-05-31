@@ -74,13 +74,13 @@ export namespace ActionProbe {
   /** Rendered block variants emitted by probe renderers. */
   export type ProbeRenderBlock =
     | { kind: 'element'; node: t.ReactNode }
-    | { kind: 'kv'; items: t.KeyValueItem[] };
+    | { kind: 'kv'; items: t.KeyValue.Item[] };
   /** Builder API provided to probe render callbacks for composing preview output. */
   export type ProbeRenderArgs<TEnv extends O = O, TParams extends O = O> = TEnv & {
     readonly theme?: t.CommonTheme;
     readonly params: (value: TParams) => ProbeRenderArgs<TEnv, TParams>;
     element(node: t.ReactNode): ProbeRenderArgs<TEnv, TParams>;
-    item(item: t.KeyValueItem): ProbeRenderArgs<TEnv, TParams>;
+    item(item: t.KeyValue.Item): ProbeRenderArgs<TEnv, TParams>;
     hr(): ProbeRenderArgs<TEnv, TParams>;
   };
 
@@ -96,7 +96,7 @@ export namespace ActionProbe {
   export type ProbeRunArgs<TEnv extends O = O, TParams extends O = O> = TEnv & {
     readonly params: <T = TParams>() => Readonly<T> | undefined;
     obj(input: ProbeRunObjectConfig): ProbeRunArgs<TEnv, TParams>;
-    item(item: t.KeyValueItem): ProbeRunArgs<TEnv, TParams>;
+    item(item: t.KeyValue.Item): ProbeRunArgs<TEnv, TParams>;
     hr(): ProbeRunArgs<TEnv, TParams>;
     title(next: t.ReactNode): ProbeRunArgs<TEnv, TParams>;
     readonly result: (value: unknown) => void;

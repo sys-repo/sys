@@ -35,7 +35,7 @@ export type {
   BulletList,
   HttpOrigin,
   TreeHost,
-  KeyValueItem,
+  KeyValue,
   SheetProps,
   TimecodePlaybackDriver,
   TreeViewNode,

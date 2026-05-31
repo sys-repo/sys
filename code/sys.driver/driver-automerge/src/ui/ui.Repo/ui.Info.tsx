@@ -85,12 +85,12 @@ function formatRepoLabel(repo: t.CrdtRepo, startupElapsedMsecs?: t.Msecs): strin
 }
 
 const wrangle = {
-  items(props: P, startupElapsed?: t.Msecs): t.KeyValueItem[] {
+  items(props: P, startupElapsed?: t.Msecs): t.KeyValue.Item[] {
     const { repo } = props;
     if (!repo) return [];
 
     const { sync, stores } = repo;
-    const rows: t.KeyValueItem[] = [];
+    const rows: t.KeyValue.Item[] = [];
     const indent = [15, 0] as const;
     const hr = () => rows.push({ kind: 'hr' });
 

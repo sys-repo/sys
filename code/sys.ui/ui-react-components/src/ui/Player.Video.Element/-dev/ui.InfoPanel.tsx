@@ -54,7 +54,7 @@ const wrangle = {
     const fmtPath =
       path.length < MAX ? path : `${path.slice(0, MAX / 2)} .. ${path.slice(-(MAX / 2))}`;
 
-    const res: t.KeyValueItem[] = [
+    const res: t.KeyValue.Item[] = [
       { kind: 'title', v: D.name },
       { k: 'namespace', v: D.displayName },
       { k: 'size / bytes', v: size },

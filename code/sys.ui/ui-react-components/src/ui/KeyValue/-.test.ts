@@ -3,9 +3,9 @@ import { KeyValue } from './mod.ts';
 
 describe('KeyValue', () => {
   describe('KeyValue.fromObject', () => {
-    it('type: returns KeyValueItem[]', () => {
+    it('type: returns KeyValue.Item[]', () => {
       const items = KeyValue.fromObject({ a: 1 });
-      expectTypeOf(items).toEqualTypeOf<t.KeyValueItem[]>();
+      expectTypeOf(items).toEqualTypeOf<t.KeyValue.Item[]>();
       expect(Array.isArray(items)).to.equal(true);
     });
 
@@ -17,15 +17,15 @@ describe('KeyValue', () => {
     it('basic mapping (k/v)', () => {
       const items = KeyValue.fromObject({ a: 1, b: 'two', c: true });
       expect(items.map((i) => i.kind ?? 'row')).to.eql(['row', 'row', 'row']);
-      expect(items.map((i) => (i as t.KeyValueRow).k)).to.eql(['a', 'b', 'c']);
+      expect(items.map((i) => (i as t.KeyValue.Row).k)).to.eql(['a', 'b', 'c']);
       // default formatter stringifies values
-      expect(items.map((i) => (i as t.KeyValueRow).v)).to.eql(['1', 'two', 'true']);
+      expect(items.map((i) => (i as t.KeyValue.Row).v)).to.eql(['1', 'two', 'true']);
     });
 
     it('preserves insertion order', () => {
       const obj = { z: 0, a: 1, m: 2, b: 3 };
       const items = KeyValue.fromObject(obj);
-      const keys = items.map((i) => (i as t.KeyValueRow).k);
+      const keys = items.map((i) => (i as t.KeyValue.Row).k);
       expect(keys).to.eql(['z', 'a', 'm', 'b']);
     });
 
@@ -34,7 +34,7 @@ describe('KeyValue', () => {
       const items = KeyValue.fromObject(obj, {
         filter: (k, v) => typeof v === 'number' && (v as number) % 2 === 1,
       });
-      const keys = items.map((i) => (i as t.KeyValueRow).k);
+      const keys = items.map((i) => (i as t.KeyValue.Row).k);
       expect(keys).to.eql(['b', 'd']);
     });
 
@@ -43,7 +43,7 @@ describe('KeyValue', () => {
       const items = KeyValue.fromObject(obj, {
         format: (v) => `v:${String(v)}`,
       });
-      expect(items.map((i) => (i as t.KeyValueRow).v)).to.eql(['v:1', 'v:x']);
+      expect(items.map((i) => (i as t.KeyValue.Row).v)).to.eql(['v:1', 'v:x']);
     });
 
     it('default formatting: primitives, bigint, arrays, objects, null/undefined', () => {
@@ -59,7 +59,7 @@ describe('KeyValue', () => {
       };
       const items = KeyValue.fromObject(obj);
       const map = Object.fromEntries(
-        items.map((i) => [(i as t.KeyValueRow).k as string, (i as t.KeyValueRow).v]),
+        items.map((i) => [(i as t.KeyValue.Row).k as string, (i as t.KeyValue.Row).v]),
       );
 
       expect(map.s).to.equal('str');

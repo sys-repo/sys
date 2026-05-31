@@ -38,7 +38,7 @@ export const Info: React.FC<InfoProps> = (props) => {
 
   const mono = true;
   const truncate = true;
-  const kvItems: t.KeyValueItem[] = rows.map(({ k, v }) => ({ k, v, mono, truncate }));
+  const kvItems: t.KeyValue.Item[] = rows.map(({ k, v }) => ({ k, v, mono, truncate }));
 
   return (
     <div className={css(styles.base, props.style).class}>

@@ -1,7 +1,7 @@
 import { type t, Is, Obj, PATH, Str, Time, CrdtIs } from './common.ts';
 
-export function toItems(doc?: t.Crdt.Ref, stats?: t.DocumentStats): t.KeyValueItem[] {
-  const items: t.KeyValueItem[] = [];
+export function toItems(doc?: t.Crdt.Ref, stats?: t.DocumentStats): t.KeyValue.Item[] {
+  const items: t.KeyValue.Item[] = [];
 
   if (!doc) return items;
 

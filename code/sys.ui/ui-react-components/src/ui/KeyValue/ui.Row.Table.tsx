@@ -3,9 +3,9 @@ import { type t, Color, css, D } from './common.ts';
 import { toFont, toRowOpacity, toSpacing } from './u.ts';
 import { Cell } from './ui.Cell.tsx';
 
-type P = Omit<t.KeyValueItemProps, 'layout' | 'item'> & {
-  layout: t.KeyValueLayoutTable;
-  item: t.KeyValueRow;
+type P = Omit<t.KeyValue.ItemProps, 'layout' | 'item'> & {
+  layout: t.KeyValue.LayoutTable;
+  item: t.KeyValue.Row;
 };
 
 export const RowTable: React.FC<P> = (props) => {

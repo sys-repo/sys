@@ -4,16 +4,16 @@ import { type t, Color } from '../common.ts';
  * Extract and present composite-resolution issues for UI display.
  *
  * This is intentionally a presentation-only adapter:
- * - Pure function: resolved → KeyValueItem[].
+ * - Pure function: resolved → KeyValue.Item[].
  * - Payload-agnostic: diagnostics are independent of beat payload `P`.
  */
-export function toIssueItems(resolved?: t.Timecode.Composite.Resolved): readonly t.KeyValueItem[] {
+export function toIssueItems(resolved?: t.Timecode.Composite.Resolved): readonly t.KeyValue.Item[] {
   if (!resolved) return [];
 
   const issues = resolved.issues ?? [];
   if (issues.length === 0) return [];
 
-  const items: t.KeyValueItem[] = [];
+  const items: t.KeyValue.Item[] = [];
   const counts = issues.reduce(
     (acc, i) => {
       if (i.severity === 'error') acc.errors++;

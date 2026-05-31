@@ -3,7 +3,7 @@ import { type t, pkg, Pkg } from '../common.ts';
 export * from '../common.ts';
 export { A } from '../Anchor/mod.ts';
 
-type P = t.KeyValueProps;
+type P = t.KeyValue.Props;
 
 /**
  * Constants:
@@ -13,7 +13,7 @@ const commonLayout = {
   columnGap: 20,
   rowGap: 4,
   align: 'baseline',
-} satisfies NonNullable<t.KeyValueLayoutCommon>;
+} satisfies NonNullable<t.KeyValue.LayoutCommon>;
 
 export const D = {
   name,
@@ -25,18 +25,18 @@ export const D = {
   truncate: true satisfies NonNullable<P['truncate']>,
   enabled: true satisfies NonNullable<P['enabled']>,
 
-  defaults: { disabledOpacity: 0.5 } satisfies NonNullable<t.KeyValueDefaults>,
-  spacer: { kind: 'spacer', size: 8 } satisfies NonNullable<t.KeyValueSpacer>,
+  defaults: { disabledOpacity: 0.5 } satisfies NonNullable<t.KeyValue.Defaults>,
+  spacer: { kind: 'spacer', size: 8 } satisfies NonNullable<t.KeyValue.Spacer>,
 
   layout: {
     default: 'spaced' as const,
-    spaced: { kind: 'spaced', ...commonLayout } satisfies NonNullable<t.KeyValueLayoutSpaced>,
+    spaced: { kind: 'spaced', ...commonLayout } satisfies NonNullable<t.KeyValue.LayoutSpaced>,
     table: {
       kind: 'table',
       keyMax: '24ch',
       keyAlign: 'left',
       ...commonLayout,
-    } satisfies NonNullable<t.KeyValueLayoutTable>,
+    } satisfies NonNullable<t.KeyValue.LayoutTable>,
   },
 } as const;
 export const DEFAULTS = D;

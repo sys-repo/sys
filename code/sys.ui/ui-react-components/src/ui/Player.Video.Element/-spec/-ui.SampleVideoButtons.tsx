@@ -44,7 +44,7 @@ export const SampleVideoButtons: React.FC<SampleVideoButtonsProps> = (props) => 
     faded: css({ opacity: 0.5 }),
   };
 
-  const items: t.KeyValueItem[] = [
+  const items: t.KeyValue.Item[] = [
     { kind: 'title', v: title },
     { k: 'base url', v: <span className={styles.faded.class}>{baseUrl}</span>, mono: true },
     ...SAMPLE_PATHS.map((path, i) => ({

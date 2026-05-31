@@ -11,7 +11,7 @@ type Args<TEnv extends EnvObject, TParams extends ParamsObject> = {
   onRunStart?: (args?: t.ActionProbe.RunStartArgs) => void;
   onRunTitle?: (title: t.ReactNode) => void;
   onRunEnd?: () => void;
-  onRunItem?: (item: t.KeyValueItem) => void;
+  onRunItem?: (item: t.KeyValue.Item) => void;
   onRunResult?: (value: unknown, obj?: t.ActionProbe.ProbeRunObjectConfig) => void;
 };
 

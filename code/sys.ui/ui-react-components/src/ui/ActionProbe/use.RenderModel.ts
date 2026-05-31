@@ -32,7 +32,7 @@ export function useProbeRenderModel<TEnv extends EnvObject, TParams extends Para
   React.useEffect(() => {
     paramsRef.current = undefined;
     const blocks: t.ActionProbe.ProbeRenderBlock[] = [];
-    let currentItems: t.KeyValueItem[] | undefined;
+    let currentItems: t.KeyValue.Item[] | undefined;
 
     const e: TRenderArgs = {
       ...env,

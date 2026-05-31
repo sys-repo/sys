@@ -2,7 +2,7 @@ import { type t, D, Is } from './common.ts';
 
 type Input = Pick<t.FileInfoPanel.Props, 'title' | 'transport' | 'endpoint' | 'path' | 'status'>;
 
-export function toItems(input: Input): t.KeyValueItem[] {
+export function toItems(input: Input): t.KeyValue.Item[] {
   return [
     { kind: 'title', v: input.title ?? D.title },
     { k: 'status', v: input.status ?? '-', mono: true },

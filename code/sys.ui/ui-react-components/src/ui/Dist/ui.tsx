@@ -11,9 +11,9 @@ export type DistProps = {
 export const Dist: React.FC<DistProps> = (props) => {
   const { debug = false, dist } = props;
 
-  const kv = (dist?: t.DistPkg): t.KeyValueItem[] => {
+  const kv = (dist?: t.DistPkg): t.KeyValue.Item[] => {
     if (!dist) return [];
-    const items: t.KeyValueItem[] = [];
+    const items: t.KeyValue.Item[] = [];
     const hr = () => items.push({ kind: 'hr', opacity: 0.15 });
     const ellipsize = Str.ellipsize;
 

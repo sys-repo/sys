@@ -1,6 +1,6 @@
 import { type t, D, Is } from './common.ts';
 
-type P = t.KeyValueProps;
+type P = t.KeyValue.Props;
 type PixelTuple = [t.Pixels | undefined, t.Pixels | undefined];
 
 export { fromObject } from './u.fromObject.ts';
@@ -46,7 +46,7 @@ export function toEllipsis(truncate: boolean = D.truncate): t.CssProps {
 /**
  * Normalise layout config.
  */
-export function toLayout(layout?: t.KeyValueLayout): NonNullable<t.KeyValueLayout> {
+export function toLayout(layout?: t.KeyValue.Layout): NonNullable<t.KeyValue.Layout> {
   if (layout?.kind === 'spaced' || layout?.kind === 'table') return layout;
   return D.layout[D.layout.default];
 }
@@ -54,13 +54,13 @@ export function toLayout(layout?: t.KeyValueLayout): NonNullable<t.KeyValueLayou
 /**
  * Derive spacing CSS values.
  */
-export function toSpacing(inputX?: t.KeyValueSpacing, inputY?: t.KeyValueSpacing) {
+export function toSpacing(inputX?: t.KeyValue.Spacing, inputY?: t.KeyValue.Spacing) {
   const x = toSpacingTuple(inputX);
   const y = toSpacingTuple(inputY);
   const edges: t.CssEdgesArray = [y[0], x[1], y[1], x[0]];
   return { x, y, edges };
 }
-export function toSpacingTuple(value?: t.KeyValueSpacing): PixelTuple {
+export function toSpacingTuple(value?: t.KeyValue.Spacing): PixelTuple {
   if (value == null) return [undefined, undefined];
   if (Is.array(value)) return [value[0], value[1]];
   if (Is.number(value)) return [value, value];

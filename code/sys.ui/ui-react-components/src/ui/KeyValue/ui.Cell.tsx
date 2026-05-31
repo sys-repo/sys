@@ -4,15 +4,15 @@ import { isAnchorElement, resolveHref, toAnchorStyle, toDisplayLabel } from './u
 import { toEllipsis, toFont } from './u.ts';
 
 type Base = Pick<
-  t.KeyValueProps,
+  t.KeyValue.Props,
   'theme' | 'debug' | 'style' | 'mono' | 'truncate' | 'size' | 'enabled'
 >;
 export type CellProps = Base & {
   disabledOpacity?: t.Percent;
-  layout: t.KeyValueLayout;
+  layout: t.KeyValue.Layout;
   children: React.ReactNode;
   role: 'key' | 'val';
-  href?: t.KeyValueRow['href'];
+  href?: t.KeyValue.Row['href'];
   opacity?: t.Percent; // Final computed opacity for this cell (including any row-level logic).
   userSelect?: t.CssProps['userSelect'];
 };

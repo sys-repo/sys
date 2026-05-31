@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Color, css } from './common.ts';
 import { toSpacing } from './u.ts';
 
-type P = t.KeyValueItemProps;
+type P = t.KeyValue.ItemProps;
 
 /**
  * Component:
@@ -46,7 +46,7 @@ export const Title: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  parts(item: t.KeyValueTitle) {
+  parts(item: t.KeyValue.Title) {
     const v = item.v;
     return Array.isArray(v) ? [v[0], v[1]] : [v, undefined];
   },

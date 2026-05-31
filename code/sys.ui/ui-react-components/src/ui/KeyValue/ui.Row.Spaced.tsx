@@ -3,9 +3,9 @@ import { type t, Color, css, D } from './common.ts';
 import { toFont, toRowOpacity, toSpacing } from './u.ts';
 import { Cell } from './ui.Cell.tsx';
 
-type P = Omit<t.KeyValueItemProps, 'layout' | 'item'> & {
-  layout: t.KeyValueLayoutSpaced;
-  item: t.KeyValueRow;
+type P = Omit<t.KeyValue.ItemProps, 'layout' | 'item'> & {
+  layout: t.KeyValue.LayoutSpaced;
+  item: t.KeyValue.Row;
 };
 
 export const RowSpaced: React.FC<P> = (props) => {

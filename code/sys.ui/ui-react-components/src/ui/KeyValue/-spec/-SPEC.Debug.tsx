@@ -5,11 +5,11 @@ import { SAMPLE, type SampleKind } from './-samples.tsx';
 import { LayoutButtons } from './-ui.Buttons.Layout.tsx';
 import { SampleButtons } from './-ui.Buttons.Samples.tsx';
 
-type P = t.KeyValueProps;
+type P = t.KeyValue.Props;
 type Storage = Pick<P, 'theme' | 'debug' | 'size' | 'mono' | 'truncate' | 'enabled'> & {
-  layout: t.KeyValueLayout['kind'];
-  layoutSpaced: t.KeyValueLayoutSpaced;
-  layoutTable: t.KeyValueLayoutTable;
+  layout: t.KeyValue.Layout['kind'];
+  layoutSpaced: t.KeyValue.LayoutSpaced;
+  layoutTable: t.KeyValue.LayoutTable;
   sample?: SampleKind;
 };
 const defaults: Storage = {
@@ -62,7 +62,7 @@ export function createDebugSignals() {
       align: s((snap.layoutTable ?? {}).align),
       keyAlign: s((snap.layoutTable ?? {}).keyAlign),
     },
-    items: s<t.KeyValueItem[]>(),
+    items: s<t.KeyValue.Item[]>(),
     sample: s(snap.sample),
   };
   const p = props;
@@ -70,10 +70,10 @@ export function createDebugSignals() {
     props,
     reset,
     listen,
-    get layout(): t.KeyValueLayout | undefined {
+    get layout(): t.KeyValue.Layout | undefined {
       const v = p.layout.value;
-      if (v === 'spaced') return Signal.toObject(p.layoutSpaced) as t.KeyValueLayoutSpaced;
-      if (v === 'table') return Signal.toObject(p.layoutTable) as t.KeyValueLayoutTable;
+      if (v === 'spaced') return Signal.toObject(p.layoutSpaced) as t.KeyValue.LayoutSpaced;
+      if (v === 'table') return Signal.toObject(p.layoutTable) as t.KeyValue.LayoutTable;
       return;
     },
   };
