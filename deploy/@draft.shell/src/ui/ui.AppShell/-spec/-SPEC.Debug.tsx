@@ -1,5 +1,16 @@
 import React from 'react';
-import { Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal, type t } from './common.ts';
+import {
+  Button,
+  Color,
+  css,
+  D,
+  Files,
+  LocalStorage,
+  Obj,
+  ObjectView,
+  Signal,
+  type t,
+} from './common.ts';
 import { probeFilesWebSocket } from './-u.Files.client/mod.ts';
 
 type P = t.AppShell.Props;
@@ -91,6 +102,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <Files.InfoPanel theme={theme.name} />
       <Button
         block
         label={() => 'files:websocket probe + watch'}
