@@ -1,19 +1,23 @@
-import { type t, Color, css, D } from './common.ts';
+import { type t, Color, css, D, KeyValue } from './common.ts';
+import { toItems } from './u.items.ts';
 
-export const InfoPanel: t.FC<t.FilesUI.InfoPanelProps> = (props) => {
+const layout = { kind: 'spaced', columnGap: 10 } satisfies t.KeyValueLayout;
+
+export const InfoPanel: t.FC<t.FileInfoPanel.Props> = (props) => {
   const { debug = false } = props;
+  const items = toItems(props);
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
-      padding: 10,
+      display: 'grid',
     }),
   };
 
   return (
     <div className={css(styles.base, props.style).class} data-component={D.displayName}>
-      <div>{D.displayName}</div>
+      <KeyValue.UI theme={theme.name} layout={layout} items={items} />
     </div>
   );
 };

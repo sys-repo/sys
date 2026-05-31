@@ -4,4 +4,4 @@
 import type { t } from './common.ts';
 import { InfoPanel } from './ui.tsx';
 
-export const Files: t.FilesUI.Lib = { InfoPanel };
+export const Files: t.FileInfoPanel.Lib = { InfoPanel };
