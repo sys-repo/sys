@@ -10,5 +10,5 @@ export const ns = 'draft.shell';
  */
 export const Specs = {
   [`${ns}: AppShell`]: () => import('../ui/ui.AppShell/-spec/-SPEC.tsx'),
-  ['@sys/ui: Files']: () => import('../@sys/ui/Files/-spec/-SPEC.tsx'),
+  ['@sys/ui: Files<T>.Client']: () => import('../@sys/ui/Files/-spec/-SPEC.tsx'),
 } as t.SpecImports;
