@@ -1,5 +1,4 @@
-import type * as dt from '@sys/driver-deno/t';
-import { describe, expect, Fs, it } from '../../src/-test.ts';
+import { describe, expect, Fs, it, type t } from '../../src/-test.ts';
 import { SAMPLE } from '../../src/-test/u.SAMPLE.ts';
 import { syncPublishedFixture, syncPublishedFixtureImport, syncPublishedFixtureImports } from '../task.prep.u.published.ts';
 import { PUBLISHED_FIXTURE_DIRS, syncTransportLoaderImport, syncTransportLoaderVersion, syncWasmPluginImport } from '../task.prep.ts';
@@ -102,7 +101,7 @@ describe('driver-vite prep', () => {
     const fs = await Fs.makeTempDir({ prefix: 'driver-vite.bridge-prep.' });
     const rootDenoJson = Fs.join(fs.absolute, 'deno.json');
     const targetPath = Fs.join(fs.absolute, 'vite.config.ts');
-    const denoFile: Pick<dt.DenoFileLib, 'workspaceVersion'> = {
+    const denoFile: Pick<t.DenoFile.Lib, 'workspaceVersion'> = {
       workspaceVersion(name, src) {
         expect(name).to.eql('@sys/driver-vite');
         expect(src).to.eql(rootDenoJson);
@@ -129,7 +128,7 @@ describe('driver-vite prep', () => {
     const fs = await Fs.makeTempDir({ prefix: 'driver-vite.published-imports-prep.' });
     const rootDenoJson = Fs.join(fs.absolute, 'deno.json');
     const targetPath = Fs.join(fs.absolute, 'imports.json');
-    const denoFile: Pick<dt.DenoFileLib, 'workspaceVersion'> = {
+    const denoFile: Pick<t.DenoFile.Lib, 'workspaceVersion'> = {
       workspaceVersion(name, src) {
         expect(src).to.eql(rootDenoJson);
         if (name === '@sys/http') return Promise.resolve('0.0.217');
@@ -155,7 +154,7 @@ describe('driver-vite prep', () => {
     const fs = await Fs.makeTempDir({ prefix: 'driver-vite.published-fixture-prep.' });
     const rootDenoJson = Fs.join(fs.absolute, 'deno.json');
     const fixtureDir = Fs.join(fs.absolute, 'fixture');
-    const denoFile: Pick<dt.DenoFileLib, 'workspaceVersion'> = {
+    const denoFile: Pick<t.DenoFile.Lib, 'workspaceVersion'> = {
       workspaceVersion(name, src) {
         expect(src).to.eql(rootDenoJson);
         if (name === '@sys/driver-vite') return Promise.resolve('0.0.297');

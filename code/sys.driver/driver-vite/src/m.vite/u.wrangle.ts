@@ -7,7 +7,7 @@ import { Bootstrap } from './u.bootstrap.ts';
  * Helpers
  */
 export const Wrangle = {
-  async command(paths: t.ViteConfigPaths, arg: string) {
+  async command(paths: t.ViteConfig.Paths, arg: string) {
     const end = Perf.section('wrangle.command', { cwd: paths.cwd, cmd: arg }, { level: 2 });
     const config = 'vite.config.ts';
     const env = await wrangle.env(paths.cwd);
@@ -69,7 +69,7 @@ export const Wrangle = {
 
 const wrangle = {
   async args(
-    paths: t.ViteConfigPaths,
+    paths: t.ViteConfig.Paths,
     arg: string,
     config: string,
     env: Record<string, string>,
@@ -92,7 +92,7 @@ const wrangle = {
     ].filter(Boolean);
   },
 
-  async permissions(paths: t.ViteConfigPaths, cmd: string, env: Record<string, string>) {
+  async permissions(paths: t.ViteConfig.Paths, cmd: string, env: Record<string, string>) {
     const allowRun = `--allow-run=${env.ESBUILD_BINARY_PATH},${Deno.execPath()}`;
     const allowWrite = `--allow-write=${(await wrangle.writeRoots(paths)).join(',')}`;
     const allowSysCommon = '--allow-sys=osRelease,homedir,uid,gid';
@@ -174,7 +174,7 @@ const wrangle = {
     return Path.join(Path.resolve(cwd), 'node_modules', '.vite');
   },
 
-  async writeRoots(paths: t.ViteConfigPaths) {
+  async writeRoots(paths: t.ViteConfig.Paths) {
     const roots = [paths.cwd, await wrangle.viteCacheDir(paths.cwd)];
     const canonical = await Promise.all(roots.map((path) => wrangle.tryRealPath(path)));
     return [...new Set([...roots, ...canonical.filter(Boolean)])];

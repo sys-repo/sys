@@ -18,15 +18,7 @@ export type {
  */
 export type * from '@sys/types';
 
-export type {
-  DenoFileJson,
-  DenoFileLib,
-  DenoFilePath,
-  DenoImportMapJson,
-  DenoWorkspace,
-  DenoWorkspaceChild,
-  Dep,
-} from '@sys/driver-deno/t';
+export type { DenoDeps, DenoFile } from '@sys/driver-deno/t';
 export type { Process } from '@sys/process/t';
 export type { Time } from '@sys/std/t';
 export type { CssValue } from '@sys/ui-css/t';

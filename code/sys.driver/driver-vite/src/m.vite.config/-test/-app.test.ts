@@ -20,7 +20,7 @@ describe('Config.Build', () => {
       return aliases.find((item) => item.find === find)?.replacement;
     };
 
-    const print = (config: t.ViteUserConfig, titleSuffix?: string, paths?: t.ViteConfigPaths) => {
+    const print = (config: t.ViteUserConfig, titleSuffix?: string, paths?: t.ViteConfig.Paths) => {
       if (paths) {
         console.info();
         console.info(cyan(c.bold('↓ INPUT paths')));

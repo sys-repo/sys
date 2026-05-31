@@ -15,7 +15,7 @@ type E = {
 /**
  * Configuration helpers for performing module-resolution over a `deno.json` workspace.
  */
-export const workspace: t.ViteConfigLib['workspace'] = async (options = {}) => {
+export const workspace: t.ViteConfig.Lib['workspace'] = async (options = {}) => {
   const { walkup = true, filter } = options;
   const end = Perf.section('config.workspace', { denofile: options.denofile ?? '', walkup });
   const base = await DenoFile.workspace(options.denofile, { walkup });
@@ -47,7 +47,7 @@ export const workspace: t.ViteConfigLib['workspace'] = async (options = {}) => {
  * Helpers
  */
 const wrangle = {
-  async aliases(base: t.StringDir, children: t.DenoWorkspaceChild[], filter?: t.WorkspaceFilter) {
+  async aliases(base: t.StringDir, children: t.DenoFile.Workspace.Child[], filter?: t.WorkspaceFilter) {
     const exports = await wrangle.modules(base, children, filter);
     return exports.reduce<t.ViteAlias[]>((acc, next) => {
       acc.push(...next.aliases);
@@ -55,7 +55,7 @@ const wrangle = {
     }, []);
   },
 
-  async modules(base: t.StringDir, children: t.DenoWorkspaceChild[], filter?: t.WorkspaceFilter) {
+  async modules(base: t.StringDir, children: t.DenoFile.Workspace.Child[], filter?: t.WorkspaceFilter) {
     const wait = children.map((child) => wrangle.exports(base, child.path.dir, filter));
     const res = await Array.fromAsync(wait);
     return res

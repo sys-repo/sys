@@ -1,6 +1,6 @@
 import { type t, Pkg } from './common.ts';
 
-export const Dist: t.ViteLogLib['Dist'] = {
+export const Dist: t.ViteLog.Dist.Lib = {
   log(dist, options = {}) {
     console.info(Dist.toString(dist, options));
   },

@@ -1,7 +1,7 @@
 import { ViteLog } from '../m.fmt/mod.ts';
 import { type t, Cli, Path, c } from './common.ts';
 
-type BuildArgs = t.ViteLogBundleArgs & {
+type BuildArgs = t.ViteLog.Bundle.Args & {
   stdio: string;
 };
 
@@ -67,7 +67,7 @@ ${c.cyan(`         ${href}`)}
       pkg: t.Pkg;
       dist?: t.DistPkg;
       ws?: t.ViteDenoWorkspace;
-      paths: t.ViteConfigPaths;
+      paths: t.ViteConfig.Paths;
       url: string;
       pad?: boolean;
     }) {

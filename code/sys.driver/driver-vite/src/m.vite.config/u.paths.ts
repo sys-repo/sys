@@ -1,7 +1,7 @@
 import { type t, PATHS, Path } from './common.ts';
 
-type F = t.ViteConfigLib['paths'];
-type Options = t.DeepPartial<t.ViteConfigPaths>;
+type F = t.ViteConfig.Lib['paths'];
+type Options = t.DeepPartial<t.ViteConfig.Paths>;
 
 /**
  * Produce a set of standard parts for export from a `vite.config.ts` file.
@@ -10,7 +10,7 @@ export const paths: F = (input) => {
   const options = wrangle.options(input);
   const cwd = wrangle.cwd(options);
 
-  const app: t.DeepMutable<t.ViteConfigPathsApp> = {
+  const app: t.DeepMutable<t.ViteConfig.Paths.App> = {
     entry: PATHS.html.index,
     base: PATHS.base,
     outDir: PATHS.dist,

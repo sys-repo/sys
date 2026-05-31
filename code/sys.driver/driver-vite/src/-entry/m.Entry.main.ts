@@ -7,9 +7,9 @@ import { serve } from './u.serve.ts';
 
 type O = Record<string, unknown>;
 
-export const main: t.ViteEntryLib['main'] = async (input) => {
+export const main: t.ViteEntry.Lib['main'] = async (input) => {
   const argsAsType = <T extends O>() => wrangle.args<T>((input ?? Deno.args) as string[]);
-  const args = argsAsType<t.ViteEntryArgs>();
+  const args = argsAsType<t.ViteEntry.Args>();
   const cmd = args.cmd;
 
   if (cmd === 'dev') {

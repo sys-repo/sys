@@ -1,6 +1,4 @@
-import type { DenoWorkspace } from '@sys/driver-deno/t';
-
-import { DenoFile, Fs, Is, Json, Process, ROOT } from '../../-test.ts';
+import { DenoFile, Fs, Is, Json, Process, ROOT, type t } from '../../-test.ts';
 
 const LOCAL_DRIVER_VITE_IMPORTS = ['@sys/driver-vite', '@sys/driver-vite/main'] as const;
 const DENO_BINARY = Deno.build.os === 'windows' ? 'deno.exe' : 'deno';
@@ -24,7 +22,7 @@ type BridgeAuthority = {
   readonly packageVersions: RootPackageVersions;
   readonly imports: RootImportMap;
 };
-type WorkspaceAuthority = DenoWorkspace;
+type WorkspaceAuthority = t.DenoFile.Workspace.Info;
 type SourceImportMatch = {
   readonly specifier: string;
 };

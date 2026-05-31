@@ -1,7 +1,7 @@
 import { type t, c, Path, Semver, Str } from './common.ts';
 import { digest, elapsed, pad } from './u.ts';
 
-export const Bundle: t.ViteLogLib['Bundle'] = {
+export const Bundle: t.ViteLog.Bundle.Lib = {
   log(args) {
     console.info(Bundle.toString(args));
   },

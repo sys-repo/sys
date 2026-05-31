@@ -10,7 +10,7 @@ describe('Vite external smoke (repo-generated)', () => {
     assertTaskOk(generate, 'Generated repo project creation failed');
     expect(await Fs.exists(Fs.join(fooDir, 'deno.json'))).to.eql(true);
 
-    const denoJson = (await Fs.readJson<t.DenoFileJson>(Fs.join(fooDir, 'deno.json'))).data;
+    const denoJson = (await Fs.readJson<t.DenoFile.Json>(Fs.join(fooDir, 'deno.json'))).data;
     expect(denoJson?.name).to.eql('@tmp/foo');
 
     assertTaskOk(build, 'Generated repo project build failed');

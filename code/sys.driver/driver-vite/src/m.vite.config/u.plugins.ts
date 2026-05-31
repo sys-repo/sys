@@ -2,7 +2,7 @@ import { Is, type t } from './common.ts';
 import react from '@vitejs/plugin-react';
 import { ViteTransport } from '../m.vite.transport/mod.ts';
 
-export async function commonPlugins(options: t.ViteConfigCommonPlugins = {}) {
+export async function commonPlugins(options: t.ViteConfig.CommonPlugins = {}) {
   const plugins: t.VitePluginOption[] = [];
 
   /**

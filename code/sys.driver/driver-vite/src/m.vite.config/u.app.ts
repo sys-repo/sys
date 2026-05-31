@@ -12,7 +12,7 @@ import { commonPlugins } from './u.plugins.ts';
 /**
  * Application bundle configuration.
  */
-export const app: t.ViteConfigLib['app'] = async (options = {}) => {
+export const app: t.ViteConfig.Lib['app'] = async (options = {}) => {
   const { minify = true } = options;
   const end = Perf.section('config.app', { entry: options.paths?.app.entry ?? '', minify }, {
     level: 2,
@@ -69,7 +69,7 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
    */
   const manualChunks: Record<string, string[]> = {};
   if (options.chunks) {
-    const chunker: t.ViteModuleChunksArgs = {
+    const chunker: t.ViteConfig.Chunks.Args = {
       chunk(alias, moduleName) {
         manualChunks[alias] = [...new Set(asArray(moduleName ?? alias))];
         return chunker;
@@ -185,7 +185,7 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
  * Helpers
  */
 const wrangle = {
-  async workspace(options: t.ViteConfigAppOptions) {
+  async workspace(options: t.ViteConfig.App.Options) {
     const { filter } = options;
     if (options.workspace === false) return undefined;
 

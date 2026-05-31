@@ -21,7 +21,7 @@ type KeyboardDeps = {
  * Create a keyboard listener to control the running dev server.
  */
 export function keyboardFactory(args: {
-  paths: t.ViteConfigPaths;
+  paths: t.ViteConfig.Paths;
   port: number;
   url: string;
   pkg?: t.Pkg;

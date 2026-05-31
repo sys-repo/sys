@@ -109,7 +109,7 @@ function event(input: KeypressInput) {
   };
 }
 
-function paths(): t.ViteConfigPaths {
+function paths(): t.ViteConfig.Paths {
   return {
     cwd: '/tmp/pkg',
     app: {

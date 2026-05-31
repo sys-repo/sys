@@ -70,7 +70,7 @@ describe('ViteConfig', () => {
       });
 
       const test = (
-        registry: t.CodeRegistry,
+        registry: t.ViteConfig.CodeRegistry,
         moduleName: string,
         input: string,
         expected: string,

@@ -2,14 +2,14 @@ import { type t, c, Cli } from './common.ts';
 
 type C = (str: string) => string;
 
-export const API: t.ViteLogApi = {
+export const API: t.ViteLog.API.Lib = {
   log(args = {}) {
     const { cmd, minimal = true, disabled = [] } = args;
     const table = Cli.table([]);
 
     let footnote = '';
 
-    const cmdColor = (cmd: t.ViteLogApiCmd): C => {
+    const cmdColor = (cmd: t.ViteLog.API.Cmd): C => {
       const isDisabled = disabled.includes(cmd);
       const done = (fmt: C): C => (!isDisabled ? fmt : (str) => c.strikethrough(c.dim(fmt(str))));
       return done(cmd === args.cmd || !args.cmd ? c.green : c.gray);
@@ -20,7 +20,7 @@ export const API: t.ViteLogApi = {
       return cmd === args.cmd ? c.white : c.gray;
     };
 
-    const push = (cmd: t.ViteLogApiCmd, description: string) => {
+    const push = (cmd: t.ViteLog.API.Cmd, description: string) => {
       const isDisabled = disabled.includes(cmd);
       let name = cmdColor(cmd)(`${cmd}`);
       if (args.cmd === cmd) name = c.bold(name);

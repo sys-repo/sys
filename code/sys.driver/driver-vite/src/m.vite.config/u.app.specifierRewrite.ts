@@ -134,7 +134,7 @@ const wrangle = {
       return denoImports;
     }
 
-    const importMap = await Fs.readJson<t.DenoImportMapJson>(importMapPath);
+    const importMap = await Fs.readJson<t.DenoFile.ImportMap.Json>(importMapPath);
     if (!importMap.ok || !importMap.data) {
       end({ importMap: importMapPath, imports: Object.keys(denoImports).length });
       return denoImports;

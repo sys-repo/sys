@@ -7,7 +7,7 @@ describe('Vite.build', () => {
   const { brightCyan: cyan, bold } = c;
   const VERBOSE = false;
 
-  const printDist = (dist: t.DistPkg, paths: t.ViteConfigPaths) => {
+  const printDist = (dist: t.DistPkg, paths: t.ViteConfig.Paths) => {
     const entry = Fs.trimCwd(Fs.join(paths.cwd, paths.app.entry));
     const outDir = Fs.trimCwd(Fs.join(paths.cwd, paths.app.outDir));
 

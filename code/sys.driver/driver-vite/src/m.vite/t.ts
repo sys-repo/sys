@@ -6,7 +6,7 @@ import type { t } from './common.ts';
 export declare namespace Vite {
   /** Public Vite command driver surface. */
   export type Lib = {
-    readonly Config: t.ViteConfigLib;
+    readonly Config: t.ViteConfig.Lib;
     readonly Startup: t.ViteStartup.Lib;
 
     /** Run the Vite `build` command to produce an output `/dist` bundle. */
@@ -38,7 +38,7 @@ export declare namespace Vite {
       /** Override the current-working-directory path */
       cwd?: t.StringAbsoluteDir;
       /** Explicit path authority, bypassing config file discovery when known. */
-      paths?: t.ViteConfigPaths;
+      paths?: t.ViteConfig.Paths;
       /** Consuming module being built. */
       pkg?: t.Pkg;
       /** Suppress all log output. */
@@ -52,7 +52,7 @@ export declare namespace Vite {
     /** Response from a Vite command such as `build`. */
     export type Response = {
       readonly ok: boolean;
-      readonly paths: t.ViteConfigPaths;
+      readonly paths: t.ViteConfig.Paths;
       readonly dist: t.DistPkg;
       readonly cmd: { readonly input: string; readonly output: t.Process.Output };
       readonly elapsed: t.Msecs;
@@ -71,7 +71,7 @@ export declare namespace Vite {
     export type Args = {
       cwd?: t.StringAbsoluteDir;
       /** Explicit path authority, bypassing config file discovery when known. */
-      paths?: t.ViteConfigPaths;
+      paths?: t.ViteConfig.Paths;
       port?: number;
       /** Fail startup if the requested port is unavailable. */
       strictPort?: boolean;

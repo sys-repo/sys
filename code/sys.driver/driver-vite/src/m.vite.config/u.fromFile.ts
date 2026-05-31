@@ -3,7 +3,7 @@ import { type t, Delete, Err, Fs, Path, PATHS } from './common.ts';
 /**
  * Attempts to dynamically load a `vite.config.ts` module.
  */
-export const fromFile: t.ViteConfigLib['fromFile'] = async (input) => {
+export const fromFile: t.ViteConfig.Lib['fromFile'] = async (input) => {
   const errors = Err.errors();
   const { configRoot, configFile } = wrangle.configDir(input);
 
@@ -13,7 +13,7 @@ export const fromFile: t.ViteConfigLib['fromFile'] = async (input) => {
   if (configFile && !(await Fs.exists(configFile))) {
     const root = Path.dirname(configFile);
     errors.push(`A config file could not be found in directory: ${root}`);
-    return Delete.undefined<t.ViteConfigFromFile>({
+    return Delete.undefined<t.ViteConfig.FromFile>({
       exists: false,
       paths: undefined,
       error: errors.toError(),
@@ -38,7 +38,7 @@ export const fromFile: t.ViteConfigLib['fromFile'] = async (input) => {
     errors.push(`A config file could not be found in directory: ${root}`);
   }
 
-  let paths: t.ViteConfigPaths | undefined;
+  let paths: t.ViteConfig.Paths | undefined;
   if (exists) {
     paths = {
       cwd: Path.dirname(fromFile.path),
@@ -50,7 +50,7 @@ export const fromFile: t.ViteConfigLib['fromFile'] = async (input) => {
     };
   }
 
-  return Delete.undefined<t.ViteConfigFromFile>({
+  return Delete.undefined<t.ViteConfig.FromFile>({
     exists,
     paths,
     error: errors.toError(),

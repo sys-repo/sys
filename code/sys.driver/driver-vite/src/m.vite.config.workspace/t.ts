@@ -5,7 +5,7 @@ type ToStringOptions = { pad?: boolean };
 /**
  * Vite/Deno workspace helpers.
  */
-export type ViteDenoWorkspace = t.DenoWorkspace & {
+export type ViteDenoWorkspace = t.DenoFile.Workspace.Info & {
   /** If defined, indicates the workspace could not be resolved. */
   readonly error?: string;
 

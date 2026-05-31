@@ -17,8 +17,8 @@ describe('Vite external smoke (repo-generated workspace)', () => {
     expect(await Fs.exists(Fs.join(fooDir, 'deno.json'))).to.eql(true);
     expect(await Fs.exists(Fs.join(barDir, 'deno.json'))).to.eql(true);
 
-    const fooDeno = (await Fs.readJson<t.DenoFileJson>(Fs.join(fooDir, 'deno.json'))).data;
-    const barDeno = (await Fs.readJson<t.DenoFileJson>(Fs.join(barDir, 'deno.json'))).data;
+    const fooDeno = (await Fs.readJson<t.DenoFile.Json>(Fs.join(fooDir, 'deno.json'))).data;
+    const barDeno = (await Fs.readJson<t.DenoFile.Json>(Fs.join(barDir, 'deno.json'))).data;
     expect(fooDeno?.name).to.eql('@tmp/foo');
     expect(barDeno?.name).to.eql('@tmp/bar');
 
