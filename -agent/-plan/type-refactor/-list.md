@@ -97,8 +97,8 @@ Quick scan notes for modules whose root `t.ts` still exposes a flat `XxxLib` spi
 - `code/sys.driver/driver-vite/src/m.fmt/t.ts`
 - `code/sys.driver/driver-vite/src/m.vite.config/t.ts`
 
-- `code/sys.driver/driver-deno/src/m.runtime/m.DenoFile/t.ts`
-- `code/sys.driver/driver-deno/src/m.runtime/m.DenoDeps/t.ts`
+- `code/sys.driver/driver-deno/src/m.runtime/m.DenoFile/t.ts` — refactored in `c31b58301`.
+- `code/sys.driver/driver-deno/src/m.runtime/m.DenoDeps/t.ts` — refactored in `c31b58301`.
 
 - `code/sys.driver/driver-automerge/src/-exports/-fs/t.ts`
 - `code/sys.driver/driver-automerge/src/-exports/-web/t.ts`

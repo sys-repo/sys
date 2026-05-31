@@ -1,6 +1,6 @@
 # @sys/driver-deno runtime DenoFile + DenoDeps namespace refactor
 
-- [ ] refactor(driver-deno): namespace Deno runtime type spines
+- [x] c31b58301 refactor(driver-deno): namespace Deno runtime type spines
 
 ## Scope
 
@@ -419,6 +419,32 @@ Final package verification:
 ```bash
 cd /Users/phil/code/org.sys/sys/code/sys.driver/driver-deno && deno task test
 ```
+
+## Final reality
+
+Landed implementation commit:
+
+- `c31b58301 refactor(driver-deno): namespace Deno runtime type spines`
+
+Actual changes:
+
+- Converted `DenoFile` to `DenoFile.Lib` and nested `DenoFile.Path`, `DenoFile.Is`, `DenoFile.Workspace`, and `DenoFile.ImportMap` type namespaces.
+- Converted `DenoDeps` to `DenoDeps.Lib` and nested `DenoDeps.Apply`, `DenoDeps.VerifyDeno`, `DenoDeps.Fmt`, and `DenoDeps.YamlFile` type namespaces.
+- Removed stale flat factor files: `m.DenoFile/t.Path.ts`, `m.DenoFile/t.Workspace.ts`, and `m.DenoDeps/t.yaml.ts`.
+- Migrated in-scope DenoFile, DenoDeps, and adjacent DenoDeploy type references to the namespace spine.
+- No compatibility aliases or deprecated alias blocks were retained or added.
+
+Final verification/proof:
+
+- `deno fmt --check` on all changed source files passed.
+- `cd /Users/phil/code/org.sys/sys/code/sys.driver/driver-deno && deno task check` passed.
+- `cd /Users/phil/code/org.sys/sys/code/sys.driver/driver-deno && deno task test --trace-leaks ./src/m.runtime/m.DenoFile` passed.
+- `cd /Users/phil/code/org.sys/sys/code/sys.driver/driver-deno && deno task test --trace-leaks ./src/m.runtime/m.DenoDeps` passed.
+- `cd /Users/phil/code/org.sys/sys/code/sys.driver/driver-deno && deno task test --trace-leaks ./src/m.cloud/m.DenoDeploy` passed.
+- `cd /Users/phil/code/org.sys/sys/code/sys.driver/driver-deno && deno task test` passed.
+- Final XHIGH TMIND + S-tier review result: SHIP.
+
+Remaining risk: none found.
 
 ## HOLD conditions
 
