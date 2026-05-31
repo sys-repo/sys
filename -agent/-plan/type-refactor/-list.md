@@ -93,9 +93,9 @@ Quick scan notes for modules whose root `t.ts` still exposes a flat `XxxLib` spi
 - `code/sys.driver/driver-monaco/src/ui/m.Markers.Folding/t.ts`
 - `code/sys.driver/driver-monaco/src/ui/m.Yaml/t.ts`
 
-- `code/sys.driver/driver-vite/src/-entry/t.ts`
-- `code/sys.driver/driver-vite/src/m.fmt/t.ts`
-- `code/sys.driver/driver-vite/src/m.vite.config/t.ts`
+- `code/sys.driver/driver-vite/src/-entry/t.ts` — refactored in `a40b04a90`.
+- `code/sys.driver/driver-vite/src/m.fmt/t.ts` — refactored in `a40b04a90`.
+- `code/sys.driver/driver-vite/src/m.vite.config/t.ts` — refactored in `a40b04a90`.
 
 - `code/sys.driver/driver-deno/src/m.runtime/m.DenoFile/t.ts` — refactored in `c31b58301`.
 - `code/sys.driver/driver-deno/src/m.runtime/m.DenoDeps/t.ts` — refactored in `c31b58301`.
