@@ -15,7 +15,7 @@ import { Sentinel } from './u.sentinel.ts';
 type IRange = t.Monaco.I.IRange;
 
 export function impl(args: {
-  bus$: t.EditorEventBus;
+  bus$: t.EditorBus.Subject;
   model: t.Monaco.TextModel;
   editor: t.Monaco.Editor;
   doc: t.CrdtRef;
@@ -24,7 +24,7 @@ export function impl(args: {
 }) {
   const { bus$, model, path, editor, doc, life } = args;
   const observer = observe({ editor, bus$ }, life);
-  const isValidFold = (o: t.FoldOffset) => o.end > o.start;
+  const isValidFold = (o: t.EditorFolding.Offset) => o.end > o.start;
 
   // Guards:
   let readyForEditorWrites = false; //  ← UI→CRDT allowed after initial seed.
@@ -40,7 +40,7 @@ export function impl(args: {
    * - Empty      → unfoldAll
    * - Non-empty  → single batched 'editor.fold' with parent lines.
    */
-  function applyViaCommands(nextOffsets: t.FoldOffset[]) {
+  function applyViaCommands(nextOffsets: t.EditorFolding.Offset[]) {
     const trigger = (handleId: string, selectionLines?: number[]) => {
       const areasBefore = getHiddenAreas(editor);
       const payload = selectionLines ? { selectionLines } : undefined;
@@ -81,7 +81,7 @@ export function impl(args: {
     if (initialFired) return;
     initialFired = true;
 
-    const kind: t.EditorEvent['kind'] = 'editor:crdt:folding:ready';
+    const kind: t.EditorEvent.Shape['kind'] = 'editor:crdt:folding:ready';
     const ready = (areas: IRange[]) => Bus.emit(bus$, 'micro', { kind, areas });
 
     const isEmpty = model.getValueLength() === 0;

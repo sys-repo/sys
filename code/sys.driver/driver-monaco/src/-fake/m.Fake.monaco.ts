@@ -96,8 +96,8 @@ export const fakeMonaco = ((options?: { cast?: boolean }) => {
   const MarkerSeverity = Severity;
   const fake = { languages, editor, Uri, MarkerSeverity } as const;
 
-  return options?.cast ? (fake as unknown as t.Monaco.Monaco) : (fake as t.FakeMonacoGlobal);
-}) as t.CreateFakeMonaco;
+  return options?.cast ? (fake as unknown as t.Monaco.Monaco) : (fake as t.MonacoFake.Global.Shape);
+}) as t.MonacoFake.Global.Create;
 
 /**
  * URI implementation.

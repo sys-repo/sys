@@ -13,7 +13,7 @@ import { Link } from './m.Link.ts';
 /**
  * Code editor library:
  */
-export const Monaco: t.MonacoLib = {
+export const Monaco: t.MonacoDriver.Lib = {
   get Bus() {
     return Bus;
   },

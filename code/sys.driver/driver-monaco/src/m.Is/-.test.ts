@@ -170,7 +170,7 @@ describe('Is', () => {
     });
     const path = (...segs: t.ObjectPath) => segs as t.ObjectPath;
 
-    const base = (over: Partial<t.EditorCursor> = {}): t.EditorCursor => ({
+    const base = (over: Partial<t.MonacoDriver.Cursor> = {}): t.MonacoDriver.Cursor => ({
       editorId: idA,
       path: path('root', 'a'),
       position: pos(3, 7),

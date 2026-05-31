@@ -35,7 +35,7 @@ describe('Monaco.Yaml', () => {
         const editor = MonacoFake.editor(model);
         const ob = EditorYaml.Path.observe({ editor });
 
-        const fired: t.EventYamlCursor[] = [];
+        const fired: t.EditorEvent.Yaml.Cursor[] = [];
         const sub = ob.$.subscribe((e) => fired.push(e));
         try {
           // Caret inside the "👋" scalar.
@@ -71,7 +71,7 @@ describe('Monaco.Yaml', () => {
         const editor = MonacoFake.editor(model);
         const ob = EditorYaml.Path.observe({ editor });
 
-        const fired: t.EventYamlCursor[] = [];
+        const fired: t.EditorEvent.Yaml.Cursor[] = [];
         const sub = ob.$.subscribe((e) => fired.push(e));
         try {
           editor.setPosition({ lineNumber: 1, column: 6 });
@@ -140,8 +140,8 @@ describe('Monaco.Yaml', () => {
 
         const ob1 = EditorYaml.Path.observe({ editor });
         const ob2 = EditorYaml.Path.observe({ editor });
-        const fired1: t.EventYamlCursor[] = [];
-        const fired2: t.EventYamlCursor[] = [];
+        const fired1: t.EditorEvent.Yaml.Cursor[] = [];
+        const fired2: t.EditorEvent.Yaml.Cursor[] = [];
         const sub1 = ob1.$.pipe(Rx.skip(1)).subscribe((e) => fired1.push(e));
         const sub2 = ob2.$.pipe(Rx.skip(1)).subscribe((e) => fired2.push(e));
         try {
@@ -168,7 +168,7 @@ describe('Monaco.Yaml', () => {
 
         const ob1 = EditorYaml.Path.observe({ editor });
         const ob2 = EditorYaml.Path.observe({ editor });
-        const fired: t.EventYamlCursor[] = [];
+        const fired: t.EditorEvent.Yaml.Cursor[] = [];
         let ob3: ReturnType<typeof EditorYaml.Path.observe> | undefined;
         let sub: ReturnType<typeof ob2.$.subscribe> | undefined;
         let sub3: ReturnType<typeof ob2.$.subscribe> | undefined;
@@ -193,7 +193,7 @@ describe('Monaco.Yaml', () => {
 
           // New observe creates a fresh producer again:
           ob3 = EditorYaml.Path.observe({ editor });
-          const again: t.EventYamlCursor[] = [];
+          const again: t.EditorEvent.Yaml.Cursor[] = [];
           sub3 = ob3.$.pipe(Rx.skip(1)).subscribe((e) => again.push(e));
 
           editor.setPosition({ lineNumber: 1, column: 7 });
@@ -214,7 +214,7 @@ describe('Monaco.Yaml', () => {
 
         const ob = EditorYaml.Path.observe({ editor });
 
-        const fired: t.EventYamlCursor[] = [];
+        const fired: t.EditorEvent.Yaml.Cursor[] = [];
         let completed = false;
 
         // Ignore initial snapshot; only count the next emission
@@ -248,7 +248,7 @@ describe('Monaco.Yaml', () => {
         // Start observing (this creates the cursor producer)
         EditorYaml.Path.observe({ editor, bus$ }, life);
 
-        const events: t.EditorEvent[] = [];
+        const events: t.EditorEvent.Shape[] = [];
         const sub = bus$.pipe(Rx.takeUntil(life.dispose$)).subscribe((e) => events.push(e));
         try {
           const nonce = 'nonce-123';
@@ -256,11 +256,11 @@ describe('Monaco.Yaml', () => {
             kind: 'editor:ping',
             request: ['cursor'],
             nonce,
-          } satisfies t.EventEditorPing);
+          } satisfies t.EditorEvent.Ping.Request);
 
           await Schedule.macro();
-          const cursor = events.find((e) => e.kind === 'editor:yaml:cursor') as t.EventYamlCursor;
-          const pong = events.find((e) => e.kind === 'editor:pong') as t.EventEditorPong;
+          const cursor = events.find((e) => e.kind === 'editor:yaml:cursor') as t.EditorEvent.Yaml.Cursor;
+          const pong = events.find((e) => e.kind === 'editor:pong') as t.EditorEvent.Ping.Response;
 
           expect(cursor).to.exist;
           expect(pong).to.exist;

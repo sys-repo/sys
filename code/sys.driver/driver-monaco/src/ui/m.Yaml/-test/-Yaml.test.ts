@@ -41,7 +41,7 @@ describe('Monaco.Yaml', () => {
       );
 
       const life = Rx.disposable();
-      const events: t.EditorEvent[] = [];
+      const events: t.EditorEvent.Shape[] = [];
       const sub = bus$.pipe(Rx.takeUntil(life.dispose$)).subscribe((e) => events.push(e));
       try {
         const nonce = 'nonce-123';
@@ -50,8 +50,8 @@ describe('Monaco.Yaml', () => {
           await settle();
         });
 
-        const yaml = events.find((e) => e.kind === 'editor:yaml') as t.EventYaml;
-        const pong = events.find((e) => e.kind === 'editor:pong') as t.EventEditorPong;
+        const yaml = events.find((e) => e.kind === 'editor:yaml') as t.EditorEvent.Yaml.Data;
+        const pong = events.find((e) => e.kind === 'editor:pong') as t.EditorEvent.Ping.Response;
 
         expect(yaml).to.exist;
         expect(pong).to.exist;
