@@ -74,7 +74,7 @@ export namespace Fs {
     cwd(kind?: 'process' | 'terminal'): t.StringDir;
 
     /** Removes the CWD (current-working-directory) from the given path if it exists. */
-    trimCwd: t.FsPathLib['trimCwd'];
+    trimCwd: t.FsPath.Lib['trimCwd'];
 
     /** Generator function that produces `FsFile` data-structures. */
     toFile: t.FsFileFactory;
@@ -338,7 +338,7 @@ type NamespaceMembers = {
   readonly Capability: t.Fs.Capability.Lib;
 
   /** Helpers for working with resource paths. */
-  readonly Path: t.FsPathLib;
+  readonly Path: t.FsPath.Lib;
 
   /** File-system/path type verification flags. */
   readonly Is: t.Fs.IsLib;

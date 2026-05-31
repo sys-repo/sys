@@ -1,6 +1,6 @@
 import { exists, isDir, StdPath, type t } from './common.ts';
 
-type L = t.FsPathLib;
+type L = t.FsPath.Lib;
 
 /**
  * Helpers for working with resource paths with the
@@ -39,7 +39,7 @@ const wrangle = {
     return prefix ? `./${path}` : path;
   },
 
-  trimCwdOptions(input: Parameters<L['trimCwd']>[1]): t.FsPathTrimCwdOptions {
+  trimCwdOptions(input: Parameters<L['trimCwd']>[1]): t.FsPath.TrimCwdOptions {
     if (!input) return {};
     if (typeof input === 'boolean') return { prefix: input };
     return input;
