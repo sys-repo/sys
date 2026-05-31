@@ -201,3 +201,41 @@ Before implementation, reject any edit that:
 - moves runtime values, imports runtime modules, or introduces side effects into `t.ts`;
 - changes runtime behavior of `Path`, `Fs.Path`, or `Fs.trimCwd`;
 - conflates `FsPath` with the existing standard `t.Path` namespace.
+
+## Final reality
+
+Landed implementation commit:
+
+- `e1b5b1980 refactor(fs): namespace filesystem path types`
+
+Actual source changes:
+
+- `code/sys/fs/src/m.Path/t.ts`
+  - replaced `FsPathLib` with `FsPath.Lib`;
+  - replaced `FsPathTrimCwdOptions` with `FsPath.TrimCwdOptions`;
+  - kept `Lib` first in the `FsPath` namespace;
+  - added no compatibility aliases.
+- `code/sys/fs/src/m.Path/m.Path.ts`
+  - migrated implementation type binding to `t.FsPath.Lib`;
+  - migrated trim-CWD helper return type to `t.FsPath.TrimCwdOptions`.
+- `code/sys/fs/src/m.Fs/t.ts`
+  - migrated aggregate filesystem references to `t.FsPath.Lib`.
+
+Final verification:
+
+```sh
+cd /Users/phil/code/org.sys/sys/code/sys/fs && deno task test --trace-leaks ./src/m.Path
+cd /Users/phil/code/org.sys/sys/code/sys/fs && deno task check
+rg -n "FsPathLib|FsPathTrimCwdOptions" /Users/phil/code/org.sys/sys/code/sys/fs
+```
+
+Result:
+
+- targeted `m.Path` tests passed;
+- package check passed;
+- no `FsPathLib` or `FsPathTrimCwdOptions` references remain in live `@sys/fs` source.
+
+Final review:
+
+- SHIP.
+- Remaining risk: none found.

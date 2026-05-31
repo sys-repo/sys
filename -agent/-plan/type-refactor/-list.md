@@ -27,7 +27,7 @@ Quick scan notes for modules whose root `t.ts` still exposes a flat `XxxLib` spi
 
 - `code/sys/immutable/src/m.rfc6902/t.ts` — refactored in `f1f0d2b59`.
 - `code/sys/immutable/src/m.graph/t.ts` — refactored in `f1f0d2b59`.
-- `code/sys/immutable/src/m.url/t.ts` — refactored in `f1f0d2b59`.
+- `code/sys/immutable/src/m.url/t.ts` — refactored in `f1f0d2b59`; URL type namespace refined to `Immutable.Url.*` in `08270b32b`.
 - `code/sys/immutable/src/m.core/m.Immutable/t.ts` — refactored in `fddaf1d36`.
 - `code/sys/immutable/src/m.core/m.PathRef/t.ts` — refactored in `fddaf1d36`.
 - `code/sys/immutable/src/m.core/m.Immutable.Lens/t.ts` — refactored in `fddaf1d36`.
@@ -120,7 +120,7 @@ Quick scan notes for modules whose root `t.ts` still exposes a flat `XxxLib` spi
 - `code/sys/fs/src/m.FileMap/t.ts` is already namespaced and only has legacy compatibility aliases at the bottom.
 - Many `@sys/std` files are already namespaced.
 - Many `@sys/fs` files are already namespaced.
-- `code/sys/fs/src/m.Path/t.ts` still has a flat `FsPathLib`; check as a possible missed leftover from the `@sys/fs` pass.
+- `code/sys/fs/src/m.Path/t.ts` — refactored in `e1b5b1980`; no compatibility aliases retained.
 
 ## Deploy/app package candidates
 
