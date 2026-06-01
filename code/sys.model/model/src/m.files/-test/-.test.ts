@@ -9,11 +9,21 @@ describe('Files', () => {
     expect(m.Files).to.equal(Files);
     expect(Object.keys(Files).sort()).to.eql([
       'Authority',
+      'Capability',
       'Client',
       'Cmd',
       'ContentRef',
       'Cursor',
       'Policy',
+    ]);
+    expect(Files.Capability.names).to.eql([
+      'list',
+      'stat',
+      'read',
+      'write',
+      'remove',
+      'watch',
+      'manifest',
     ]);
     expectTypeOf(m.Files).toEqualTypeOf<t.Files.Lib>();
     expectTypeOf(m.Files).toEqualTypeOf<TFiles.Lib>();

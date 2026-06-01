@@ -24,6 +24,8 @@ export declare namespace Files {
     readonly Authority: Authority.Lib;
     /** Files Cmd grammar names and namespace. */
     readonly Cmd: Cmd.Lib;
+    /** Canonical Files capability names. */
+    readonly Capability: Capability.Lib;
     /** Typed client adapters for Files command surfaces. */
     readonly Client: Client.Lib;
     /** Files-domain content-reference resolvers. */
@@ -153,8 +155,14 @@ export declare namespace Files {
    * Capability facts for bounded Files views.
    */
   export namespace Capability {
+    /** Runtime capability constants. */
+    export type Lib = { readonly names: Names };
+
+    /** Canonical ordered Files capability names. */
+    export type Names = readonly ['list', 'stat', 'read', 'write', 'remove', 'watch', 'manifest'];
+
     /** Files capability name. */
-    export type Name = 'list' | 'stat' | 'read' | 'write' | 'remove' | 'watch' | 'manifest';
+    export type Name = Names[number];
 
     /** Boolean capability map. */
     export type Map = { readonly [K in Name]: boolean };

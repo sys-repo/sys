@@ -4,6 +4,7 @@
  */
 import type { t } from './common.ts';
 import { Authority } from './m.Authority/mod.ts';
+import { Capability } from './m.Capability.ts';
 import { Cmd } from './m.Cmd.ts';
 import { Client } from './m.Client/mod.ts';
 import { ContentRef } from './m.ContentRef/mod.ts';
@@ -17,6 +18,7 @@ export type * from './t.ts';
  */
 export const Files: t.Files.Lib = {
   Authority,
+  Capability,
   Cmd,
   Client,
   ContentRef,
