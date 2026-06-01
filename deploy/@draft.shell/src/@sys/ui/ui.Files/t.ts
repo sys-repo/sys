@@ -1,14 +1,21 @@
 import type { t } from './common.ts';
 
+/**
+ * Files<T> client status optics.
+ */
 export declare namespace FileInfoPanel {
   export type Lib = { readonly InfoPanel: t.FC<Props> };
-  export type Transport = 'local' | 'transport' | 'websocket';
+
+  /** Immutable moment-in-time facts read from a Files client handle. */
+  export type Snapshot = {
+    readonly status: t.Service.State;
+    readonly capabilities?: t.Files.Capabilities;
+    readonly error?: t.StdError;
+  };
+
   export type Props = {
     title?: string;
-    transport?: Transport;
-    endpoint?: t.StringUrl | URL;
-    path?: t.Files.String.Path;
-    status?: t.Service.State;
+    snapshot?: Snapshot;
     debug?: boolean;
     theme?: t.CommonTheme;
     style?: t.CssInput;

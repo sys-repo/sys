@@ -103,6 +103,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <Files.InfoPanel theme={theme.name} />
+
+      <hr />
       <Button
         block
         label={() => 'files:websocket probe + watch'}

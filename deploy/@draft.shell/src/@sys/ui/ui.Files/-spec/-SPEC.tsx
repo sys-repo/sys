@@ -1,7 +1,7 @@
 import { Dev, Signal, Spec } from '../../../../ui/-test.ui.ts';
 import { D } from './common.ts';
 import { Files } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -9,7 +9,13 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    return <Files.InfoPanel debug={v.debug} theme={v.theme} />;
+    return (
+      <Files.InfoPanel
+        snapshot={v.snapshot}
+        debug={v.debug}
+        theme={v.theme}
+      />
+    );
   }
 
   e.it('init', (e) => {

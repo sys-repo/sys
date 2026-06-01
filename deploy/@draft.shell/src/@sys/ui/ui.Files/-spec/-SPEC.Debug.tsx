@@ -1,12 +1,15 @@
 import React from 'react';
-import { type t, Color, css, D, LocalStorage, Obj, Signal } from './common.ts';
+import { Color, css, D, LocalStorage, Signal, type t } from './common.ts';
 import { Button, ObjectView } from './common.ts';
+import { connect } from './-u.connect.ts';
 
 type P = t.FileInfoPanel.Props;
-type Storage = Pick<P, 'debug' | 'theme'>;
-const defaults: Storage = {
+type Defaults = Required<Pick<P, 'debug' | 'theme' | 'snapshot'>>;
+type Storage = Pick<Defaults, 'debug' | 'theme'>;
+const defaults: Defaults = {
   debug: false,
   theme: 'Dark',
+  snapshot: { status: 'stopped' },
 };
 
 /**
@@ -20,12 +23,16 @@ export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
  */
 export async function createDebugSignals() {
   const s = Signal.create;
-  const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
+  const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, {
+    debug: defaults.debug,
+    theme: defaults.theme,
+  });
   const snap = store.current;
 
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    snapshot: s(defaults.snapshot),
   };
   const p = props;
   const api = {
@@ -39,7 +46,9 @@ export async function createDebugSignals() {
   }
 
   function reset() {
-    Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
+    p.debug.value = defaults.debug;
+    p.theme.value = defaults.theme;
+    p.snapshot.value = defaults.snapshot;
   }
 
   Signal.effect(() => {
@@ -88,6 +97,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
+
+      <hr />
+      <Button block label={() => `connect`} onClick={() => void connect(debug)} />
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
