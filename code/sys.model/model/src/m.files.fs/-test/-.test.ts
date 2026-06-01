@@ -12,6 +12,7 @@ describe('FilesFs', () => {
 
     expect(Object.keys(Files).sort()).to.eql([
       'Authority',
+      'Capability',
       'Client',
       'Cmd',
       'ContentRef',

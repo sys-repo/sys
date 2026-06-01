@@ -1,11 +1,11 @@
 import { describe, expect, it } from '../../src/-test.ts';
 import {
+  type DenoFileVersionLib,
   pinDriverPiCliSpecifier,
   pinTmplSpecifier,
   prepTargets,
   resolveDriverPiVersion,
   resolveTmplVersion,
-  type DenoFileVersionLib,
 } from '../-prep.u.ts';
 
 describe('scripts/-prep', () => {
@@ -56,7 +56,7 @@ const TMPL_JSR_SPECIFIER = 'jsr:@sys/tmpl@0.0.256';
 
   it('resolveTmplVersion reads version from workspace authority', async () => {
     const stub: DenoFileVersionLib = {
-      workspaceVersion(name, src) {
+      workspaceVersion(name: string, src?: string) {
         expect(name).to.eql('@sys/tmpl');
         expect(src).to.eql('/tmp/deno.json');
         return Promise.resolve('0.0.256');
@@ -78,13 +78,15 @@ const TMPL_JSR_SPECIFIER = 'jsr:@sys/tmpl@0.0.256';
       await resolveTmplVersion('/tmp/deno.json', stub);
       throw new Error('Expected resolveTmplVersion to throw');
     } catch (error) {
-      expect((error as Error).message).to.eql('Missing workspace version for package "@sys/tmpl": /tmp/deno.json');
+      expect((error as Error).message).to.eql(
+        'Missing workspace version for package "@sys/tmpl": /tmp/deno.json',
+      );
     }
   });
 
   it('resolveDriverPiVersion reads version from workspace authority', async () => {
     const stub: DenoFileVersionLib = {
-      workspaceVersion(name, src) {
+      workspaceVersion(name: string, src?: string) {
         expect(name).to.eql('@sys/driver-pi');
         expect(src).to.eql('/tmp/deno.json');
         return Promise.resolve('0.0.256');
@@ -119,10 +121,9 @@ const TMPL_JSR_SPECIFIER = 'jsr:@sys/tmpl@0.0.256';
   });
 
   it('pinDriverPiCliSpecifier throws when marker constant is missing', () => {
-    expect(() =>
-      pinDriverPiCliSpecifier(`const X = 'jsr:@sys/driver-pi@0.0.1/cli';`, '0.0.256'),
-    ).to.throw(
-      'Could not locate DRIVER_PI_CLI_JSR_SPECIFIER constant in code/sys.tools/src/cli.pi/mod.ts',
-    );
+    expect(() => pinDriverPiCliSpecifier(`const X = 'jsr:@sys/driver-pi@0.0.1/cli';`, '0.0.256')).to
+      .throw(
+        'Could not locate DRIVER_PI_CLI_JSR_SPECIFIER constant in code/sys.tools/src/cli.pi/mod.ts',
+      );
   });
 });

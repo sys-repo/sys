@@ -2,8 +2,8 @@ import type * as dt from '@sys/driver-deno/t';
 import { Fs } from '@sys/fs';
 import {
   PASSTHROUGH_TARGETS,
-  pinPassthroughSpecifier,
   type PassthroughTarget,
+  pinPassthroughSpecifier,
 } from '../../../-scripts/u.passthrough.ts';
 
 export type PrepPaths = {
@@ -16,7 +16,7 @@ export type PrepTarget = {
   readonly target: PassthroughTarget;
 };
 
-export type DenoFileVersionLib = Pick<dt.DenoFileLib, 'workspaceVersion'>;
+export type DenoFileVersionLib = Pick<dt.DenoFile.Lib, 'workspaceVersion'>;
 
 export const PATH = {
   fromRoot(root: string): PrepPaths {

@@ -1,4 +1,4 @@
-import type { DenoImportMapJson } from '@sys/driver-deno/t';
+import type * as TDenoFile from '@sys/driver-deno/t';
 import { Process } from '@sys/process';
 import type * as w from '@sys/workspace/t';
 
@@ -29,7 +29,8 @@ describe('Template: repo integration', () => {
     });
 
     if (!res.success) {
-      const err = `Generated repo CI failed (code ${res.code}).\n\nstdout:\n${res.text.stdout}\n\nstderr:\n${res.text.stderr}`;
+      const err =
+        `Generated repo CI failed (code ${res.code}).\n\nstdout:\n${res.text.stdout}\n\nstderr:\n${res.text.stderr}`;
       throw new Error(err);
     }
   });
@@ -74,7 +75,8 @@ describe('Template: repo integration', () => {
     });
 
     if (!res.success) {
-      const err = `Generated repo upgrade failed (code ${res.code}).\n\nstdout:\n${res.text.stdout}\n\nstderr:\n${res.text.stderr}`;
+      const err =
+        `Generated repo upgrade failed (code ${res.code}).\n\nstdout:\n${res.text.stdout}\n\nstderr:\n${res.text.stderr}`;
       throw new Error(err);
     }
 
@@ -102,12 +104,15 @@ describe('Template: repo integration', () => {
     });
 
     if (!res.success) {
-      const err = `Generated repo prep failed (code ${res.code}).\n\nstdout:\n${res.text.stdout}\n\nstderr:\n${res.text.stderr}`;
+      const err =
+        `Generated repo prep failed (code ${res.code}).\n\nstdout:\n${res.text.stdout}\n\nstderr:\n${res.text.stderr}`;
       throw new Error(err);
     }
 
-    const imports = await readJson<DenoImportMapJson>(Fs.join(root, 'imports.json'));
-    const templateImports = await readJson<DenoImportMapJson>(
+    const imports = await readJson<TDenoFile.DenoFile.ImportMap.Json>(
+      Fs.join(root, 'imports.json'),
+    );
+    const templateImports = await readJson<TDenoFile.DenoFile.ImportMap.Json>(
       Fs.resolve(import.meta.dirname ?? '.', '../../-templates/tmpl.repo/imports.json'),
     );
 
@@ -179,7 +184,8 @@ describe('Template: repo integration', () => {
     });
 
     if (!res.success) {
-      const err = `Generated repo pkg check failed (code ${res.code}).\n\nstdout:\n${res.text.stdout}\n\nstderr:\n${res.text.stderr}`;
+      const err =
+        `Generated repo pkg check failed (code ${res.code}).\n\nstdout:\n${res.text.stdout}\n\nstderr:\n${res.text.stderr}`;
       throw new Error(err);
     }
   });
@@ -228,7 +234,8 @@ describe('Template: repo integration', () => {
     });
 
     if (!res.success) {
-      const err = `Generated repo CI failed after local-authority rewrite (code ${res.code}).\n\nstdout:\n${res.text.stdout}\n\nstderr:\n${res.text.stderr}`;
+      const err =
+        `Generated repo CI failed after local-authority rewrite (code ${res.code}).\n\nstdout:\n${res.text.stdout}\n\nstderr:\n${res.text.stderr}`;
       throw new Error(err);
     }
   });
@@ -237,7 +244,7 @@ describe('Template: repo integration', () => {
 async function readWorkspaceAuthorities(): Promise<tt.WorkspaceAuthorities> {
   const workspace = await DenoFile.workspace();
   const root = workspace.dir;
-  const imports = await readJson<DenoImportMapJson>(Fs.join(root, 'imports.json'));
+  const imports = await readJson<TDenoFile.DenoFile.ImportMap.Json>(Fs.join(root, 'imports.json'));
   const packageJson = await readJson<tt.PackageJson>(Fs.join(root, 'package.json'));
 
   return {
