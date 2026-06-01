@@ -22,6 +22,8 @@ jobs:
             path: code/sys/types
           - name: "@sys/dev"
             path: code/sys.dev
+          - name: "@sys/driver-cloudflare"
+            path: code/sys.driver/driver-cloudflare
           - name: "@sys/crdt"
             path: code/sys/crdt
           - name: "@sys/std"

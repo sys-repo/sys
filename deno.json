@@ -52,6 +52,7 @@
     "code/-tmpl",
     "code/sys.dev",
     "code/sys.driver/driver-automerge",
+    "code/sys.driver/driver-cloudflare",
     "code/sys.driver/driver-deno",
     "code/sys.driver/driver-monaco",
     "code/sys.driver/driver-pi",
