@@ -1,4 +1,4 @@
 /**
  * @module types
  */
-export type {};
+export type * from './m.r2/t.ts';

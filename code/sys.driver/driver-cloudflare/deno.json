@@ -13,7 +13,8 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts"
+    "./types": "./src/types.ts",
+    "./r2": "./src/m.r2/mod.ts"
   },
   "permissions": {
     "clean": {
@@ -43,4 +44,3 @@
     }
   }
 }
-
