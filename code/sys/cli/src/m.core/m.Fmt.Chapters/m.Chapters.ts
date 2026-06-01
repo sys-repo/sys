@@ -62,7 +62,7 @@ function page(input: t.CliFormatChapters.PageInput): string {
     ? [help]
     : input.separator === false
     ? [help, chapter]
-    : [help, hr('cyan'), chapter];
+    : [help, hr({ color: 'cyan', width: MAX_WIDTH }), chapter];
   return composeBlocks(blocks);
 }
 
