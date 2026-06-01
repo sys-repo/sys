@@ -108,7 +108,7 @@ export declare namespace TextInput {
     readonly input: HTMLInputElement;
     readonly key: string; //  ← HINT: typically use this one over `code`.
     readonly code: string;
-    readonly modifiers: t.KeyboardModifierFlags;
+    readonly modifiers: t.Keyboard.Modifier.Flags;
     readonly repeat: boolean;
   };
 

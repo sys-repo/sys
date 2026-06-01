@@ -2,7 +2,7 @@ import { type t, Rx } from './common.ts';
 
 type KeyHandler = (e: KeyboardEvent) => unknown;
 
-export const KeyListener: t.KeyboardListener = {
+export const KeyListener: t.Keyboard.Listener.Lib = {
   keydown: listener('keydown'),
   keyup: listener('keyup'),
   get isSupported() {
@@ -15,7 +15,7 @@ export const KeyListener: t.KeyboardListener = {
  * that is "disposable" (remove event binding).
  */
 function listener(event: 'keydown' | 'keyup') {
-  return (handler: KeyHandler): t.KeyListenerHandle => {
+  return (handler: KeyHandler): t.Keyboard.Listener.Handle => {
     const disposable = Rx.lifecycle();
     const document = globalThis.document;
     document.addEventListener(event, handler);

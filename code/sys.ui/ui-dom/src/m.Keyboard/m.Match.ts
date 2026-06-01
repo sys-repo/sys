@@ -1,13 +1,11 @@
-import type { KeyboardMatchLib } from './t.ts';
-
 import { slug, type t } from './common.ts';
 import { Util } from './u.ts';
 
-export const Match: KeyboardMatchLib = {
+export const Match: t.Keyboard.Match.Lib = {
   /**
    * Generate a keyboard pattern matcher.
    */
-  pattern(input: t.KeyPattern) {
+  pattern(input: t.Keyboard.Match.Pattern) {
     const pattern = parsePattern(input);
     return {
       /**
@@ -18,7 +16,10 @@ export const Match: KeyboardMatchLib = {
       /**
        * Determine if the given keys match the pattern.
        */
-      isMatch(pressed: t.KeyboardKey['code'][], modifiers: Partial<t.KeyboardModifierFlags>) {
+      isMatch(
+        pressed: t.Keyboard.Key.Snapshot['code'][],
+        modifiers: Partial<t.Keyboard.Modifier.Flags>,
+      ) {
         if (!containsAllModifiers(pattern, modifiers)) return false;
         if (!containsAllKeys(pattern, pressed)) return false;
         return true;
@@ -30,7 +31,7 @@ export const Match: KeyboardMatchLib = {
 /**
  * Helpers
  */
-function parsePattern(pattern: t.KeyPattern): string[] {
+function parsePattern(pattern: t.Keyboard.Match.Pattern): string[] {
   if (typeof pattern !== 'string') pattern = '';
   pattern = pattern.trim();
 
@@ -53,7 +54,7 @@ function parsePattern(pattern: t.KeyPattern): string[] {
     });
 }
 
-function containsAllModifiers(pattern: string[], modifiers: Partial<t.KeyboardModifierFlags>) {
+function containsAllModifiers(pattern: string[], modifiers: Partial<t.Keyboard.Modifier.Flags>) {
   pattern = pattern.filter(Util.isModifier);
 
   const flags = Object.entries(modifiers)

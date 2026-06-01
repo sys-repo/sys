@@ -11,7 +11,7 @@ import { Util } from './u.ts';
 /**
  * Tools for working with a keyboard-input device.
  */
-export const Keyboard: t.KeyboardLib = {
+export const Keyboard: t.Keyboard.Lib = {
   Is,
   Monitor,
   Match,

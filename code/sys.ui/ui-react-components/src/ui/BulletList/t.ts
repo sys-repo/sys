@@ -45,7 +45,7 @@ export namespace BulletList {
   /** Selection event payload including id and keyboard modifier state. */
   export type OnSelectArgs<Id extends string = string> = {
     readonly id: Id;
-    readonly modifiers: t.KeyboardModifierFlags;
+    readonly modifiers: t.Keyboard.Modifier.Flags;
     readonly is: { readonly command: boolean; readonly modified: boolean };
   };
 }

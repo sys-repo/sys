@@ -214,7 +214,7 @@ export function toTouchSnapshot(e: TouchEvent, touchPrev?: t.Point): t.PointerSn
   };
 }
 
-export function toModifiers(e: TouchEvent | MouseEvent | React.DragEvent): t.KeyboardModifierFlags {
+export function toModifiers(e: TouchEvent | MouseEvent | React.DragEvent): t.Keyboard.Modifier.Flags {
   return {
     shift: e.shiftKey,
     ctrl: e.ctrlKey,

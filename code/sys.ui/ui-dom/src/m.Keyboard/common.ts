@@ -6,9 +6,9 @@ export { UserAgent } from '../m.UserAgent/mod.ts';
 /**
  * Defaults
  */
-const modifiers: t.KeyboardModifierFlags = { shift: false, ctrl: false, alt: false, meta: false };
+const modifiers: t.Keyboard.Modifier.Flags = { shift: false, ctrl: false, alt: false, meta: false };
 
-const state: t.KeyboardState = {
+const state: t.Keyboard.State.Snapshot = {
   last: undefined,
   current: {
     modified: false,

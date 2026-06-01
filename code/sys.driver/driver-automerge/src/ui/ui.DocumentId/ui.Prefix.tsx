@@ -24,7 +24,7 @@ export type PrefixProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
   //
-  onCopyClick?: (e: { mode: 'id' | 'url'; modifiers: t.KeyboardModifierFlags }) => void;
+  onCopyClick?: (e: { mode: 'id' | 'url'; modifiers: t.Keyboard.Modifier.Flags }) => void;
   onPointer?: t.PointerEventsHandler;
 };
 

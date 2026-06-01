@@ -1,7 +1,7 @@
 import { type t, UserAgent } from './common.ts';
 import { Util } from './u.ts';
 
-export const Is: t.KeyboardIsLib = {
+export const Is: t.Keyboard.Is.Lib = {
   command(input, options = {}) {
     const modifiers = Util.toModifiers(input);
     if (!modifiers) return false;

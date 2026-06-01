@@ -70,7 +70,7 @@ export type ButtonMouseHandler = (e: ButtonMouseHandlerArgs) => void;
 export type ButtonMouseHandlerArgs = {
   readonly action: 'MouseEnter' | 'MouseLeave' | 'MouseDown' | 'MouseUp';
   readonly synthetic: React.MouseEvent;
-  readonly modifiers: t.KeyboardModifierFlags;
+  readonly modifiers: t.Keyboard.Modifier.Flags;
   readonly is: t.ButtonFlags;
   cancel(): void;
 };

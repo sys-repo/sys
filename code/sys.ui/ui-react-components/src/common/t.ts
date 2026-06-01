@@ -16,7 +16,7 @@ export type { ColorTheme } from '@sys/color/t';
 export type { MediaResolver, Timecode } from '@sys/std/t';
 export type { SpecImports } from '@sys/testing/t';
 export type { TextFilter } from '@sys/text/t';
-export type { KeyboardModifierFlags, LocalStorageImmutable } from '@sys/ui-dom/t';
+export type { Keyboard, LocalStorageImmutable } from '@sys/ui-dom/t';
 export type {
   PointerDragdropSnapshot,
   PointerDragSnapshot,

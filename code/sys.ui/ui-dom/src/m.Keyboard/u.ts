@@ -1,7 +1,7 @@
 import { type t, isRecord, UserAgent } from './common.ts';
 
 type O = Record<string, unknown>;
-const DEFAULT_MODIFIERS: t.KeyboardModifierFlags = {
+const DEFAULT_MODIFIERS: t.Keyboard.Modifier.Flags = {
   ctrl: false,
   meta: false,
   alt: false,
@@ -14,8 +14,8 @@ export const Util = {
     return value === 'META' || value === 'ALT' || value === 'SHIFT' || value === 'CTRL';
   },
 
-  toModifierFlags(input: t.KeyboardModifierKeys): t.KeyboardModifierFlags {
-    const flag = (value: t.KeyboardModifierEdges) => (value || []).length > 0;
+  toModifierFlags(input: t.Keyboard.Modifier.Keys): t.Keyboard.Modifier.Flags {
+    const flag = (value: t.Keyboard.Modifier.Edges) => (value || []).length > 0;
     return {
       shift: flag(input.shift),
       alt: flag(input.alt),
@@ -25,9 +25,9 @@ export const Util = {
   },
 
   toModifiers(
-    e: Partial<t.NativeKeyEventLike | t.KeyEventLike | t.KeyboardModifierFlags> = {},
-  ): t.KeyboardModifierFlags {
-    type F = t.KeyboardModifierFlags;
+    e: Partial<t.Keyboard.NativeEventLike | t.Keyboard.EventLike | t.Keyboard.Modifier.Flags> = {},
+  ): t.Keyboard.Modifier.Flags {
+    type F = t.Keyboard.Modifier.Flags;
     if (!isRecord(e)) return { ...DEFAULT_MODIFIERS };
 
     if ('ctrlKey' in e || 'shiftKey' in e || 'altKey' in e || 'metaKey' in e) {
@@ -58,7 +58,7 @@ export const Util = {
     return { ...DEFAULT_MODIFIERS };
   },
 
-  toFlags(e: KeyboardEvent): t.KeyboardKeyFlags {
+  toFlags(e: KeyboardEvent): t.Keyboard.Key.Flags {
     const ua = UserAgent.current;
     const mac = ua.is.apple;
     const windows = ua.os.name === 'Windows';
@@ -84,13 +84,13 @@ export const Util = {
     };
   },
 
-  toStateKey(e: t.KeyboardKeypress): t.KeyboardKey {
+  toStateKey(e: t.Keyboard.Keypress.Event): t.Keyboard.Key.Snapshot {
     const { is } = e;
     const { key, code, timeStamp: timestamp } = e.keypress;
     return { key, code, is, timestamp };
   },
 
-  toKeypress(e: KeyboardEvent): t.KeyboardKeypress {
+  toKeypress(e: KeyboardEvent): t.Keyboard.Keypress.Event {
     const { code } = e;
     return {
       stage: e.type === 'keydown' ? 'Down' : 'Up',
@@ -107,7 +107,7 @@ export const Util = {
     };
   },
 
-  toKeypressProps(e: KeyboardEvent): t.KeyboardKeypressProps {
+  toKeypressProps(e: KeyboardEvent): t.Keyboard.Keypress.Props {
     const { key, code, isComposing, location, repeat } = e;
     const { altKey, ctrlKey, metaKey, shiftKey } = e;
     const { bubbles, cancelable, eventPhase, timeStamp, isTrusted } = e;

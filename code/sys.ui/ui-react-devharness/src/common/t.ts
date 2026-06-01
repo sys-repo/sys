@@ -31,7 +31,7 @@ export type {
   CssValue,
 } from '@sys/ui-css/t';
 
-export type { KeyboardEventsUntil, KeyboardModifierFlags } from '@sys/ui-dom/t';
+export type { Keyboard } from '@sys/ui-dom/t';
 
 /**
  * @local

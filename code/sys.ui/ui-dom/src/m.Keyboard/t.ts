@@ -5,388 +5,316 @@ type KeyHandler = (e: KeyboardEvent) => unknown;
 /**
  * Tools for working with the keyboard.
  */
-export type KeyboardLib = {
-  /** Boolean flag evaluaters. */
-  readonly Is: t.KeyboardIsLib;
+export declare namespace Keyboard {
+  /** Keyboard module runtime surface. */
+  export type Lib = {
+    /** Boolean flag evaluators. */
+    readonly Is: Is.Lib;
 
-  /** Keyboard event monitor. */
-  readonly Monitor: t.KeyboardMonitor;
+    /** Keyboard event monitor. */
+    readonly Monitor: Monitor.Lib;
 
-  /** Helpers for matching key patterns. */
-  readonly Match: t.KeyboardMatchLib;
+    /** Helpers for matching key patterns. */
+    readonly Match: Match.Lib;
 
-  /**
-   * Registers a listener for keydown events.
-   * @param fn - A function to be executed when the keydown event occurs.
-   * @returns A handle to manage the keydown event listener.
-   */
-  onKeydown: t.KeyboardListener['keydown'];
+    /** Registers a listener for keydown events. */
+    onKeydown: Listener.Lib['keydown'];
 
-  /**
-   * Registers a listener for keyup events.
-   *
-   * @param fn - A function to be executed when a keyup event occurs.
-   * @returns A handle to manage the keyup event listener.
-   */
-  onKeyup: t.KeyboardListener['keyup'];
+    /** Registers a listener for keyup events. */
+    onKeyup: Listener.Lib['keyup'];
 
-  /**
-   * Registers listeners for key patterns through the monitor.
-   */
-  on: t.KeyboardMonitorOn['on'];
+    /** Registers listeners for key patterns through the monitor. */
+    on: Monitor.On['on'];
 
-  /**
-   * Filters key events using a condition before processing them through the monitor.
-   */
-  filter: t.KeyboardMonitor['filter'];
+    /** Filters key events using a condition before processing them through the monitor. */
+    filter: Monitor.Lib['filter'];
 
-  /**
-   * A utility function that listens for a keyboard event until a condition is met.
-   *
-   * @param fn - A function that defines the condition for stopping the listener.
-   * @returns A promise that resolves when the condition is met.
-   */
-  until(until?: t.UntilInput): t.KeyboardEventsUntil;
+    /** Listens for keyboard events until a condition is met. */
+    until(until?: t.UntilInput): EventsUntil;
 
-  /**
-   * Start a multi-key listener waiting for a "double-press" event.
-   */
-  dbl(threshold?: t.Msecs, options?: { until?: t.UntilInput }): t.KeyboardMonitorMulti;
+    /** Start a multi-key listener waiting for a "double-press" event. */
+    dbl(threshold?: t.Msecs, options?: { until?: t.UntilInput }): Monitor.Multi;
 
-  /**
-   * Convert a loose input into standard modifier-key flags if the given
-   * object is "like" an event that contains the modifier-key information.
-   */
-  modifiers(
-    e?: Partial<NativeKeyEventLike | KeyEventLike | KeyboardModifierFlags>,
-  ): t.KeyboardModifierFlags;
-};
-
-/** Abstract event for converting into system info types. */
-export type NativeKeyEventLike = {
-  ctrlKey: boolean;
-  altKey: boolean;
-  shiftKey: boolean;
-  metaKey: boolean;
-};
-
-/**
- * A pared back type that represents the minimal
- * keyboard event needed by many helpers.
- */
-export type KeyEventLike = {
-  key: string;
-  modifiers: Partial<t.KeyboardModifierFlags>;
-};
-
-/**
- * Boolean flag evaluaters.
- */
-export type KeyboardIsLib = {
-  /**
-   * Platform independent determination if the
-   * given flags conceptually align
-   * to what the Apple [ ⌘ ] key means,
-   *
-   *    When on macOS™    →     ⌘  == meta
-   *    When on Linux     →   ctrl == meta
-   *    When on Windows™  →   ctrl == meta
-   */
-  command(
-    modifiers?: Partial<t.NativeKeyEventLike | t.KeyEventLike | t.KeyboardModifierFlags>,
-    options?: { ua?: t.UserAgent.Info },
-  ): boolean;
-
-  /** Determine if any of the modifier flags are true. */
-  modified(modifiers?: Partial<t.KeyboardModifierFlags> | t.KeyEventLike): boolean;
-
-  /** Platform independent match on: Clipboard Copy. */
-  copy(e?: KeyEventLike, options?: { ua?: t.UserAgent.Info }): boolean;
-};
-
-/**
- * Represents the lifecycle and streams of keyboard events
- * until disposed.
- */
-export type KeyboardEventsUntil = t.Lifecycle & {
-  /**
-   * Observable stream of keyboard states.
-   */
-  $: t.Observable<t.KeyboardState>;
-
-  /**
-   * Observable stream of keyboard states for key up events.
-   */
-  up$: t.Observable<t.KeyboardState>;
-
-  /**
-   * Observable stream of keyboard states for key down events.
-   */
-  down$: t.Observable<t.KeyboardState>;
-
-  /**
-   * Filters keyboard events based on the monitor's filter.
-   */
-  filter: t.KeyboardMonitor['filter'];
-
-  /**
-   * Registers a listener for a specific keyboard pattern.
-   */
-  on: t.KeyboardMonitor['on'];
-
-  /**
-   * Tracks double key press events within a given time threshold.
-   */
-  dbl(threshold?: t.Msecs): t.KeyboardMonitorMulti;
-};
-
-/**
- * Tools for listening to keyboard events.
- */
-export type KeyboardListener = {
-  /**
-   * Indicates whether the current environment supports keyboard events.
-   * @type {boolean}
-   * @readonly
-   */
-  readonly isSupported: boolean;
-
-  /**
-   * Registers a listener for the 'keydown' event.
-   *
-   * @param {KeyHandler} handler - The callback function to handle the event.
-   * @returns {t.KeyListenerHandle} A disposable object that allows removing the event listener.
-   */
-  keydown: (handler: KeyHandler) => t.KeyListenerHandle;
-
-  /**
-   * Registers a listener for the 'keyup' event.
-   *
-   * @param {KeyHandler} handler - The callback function to handle the event.
-   * @returns {t.KeyListenerHandle} A disposable object that allows removing the event listener.
-   */
-  keyup: (handler: KeyHandler) => t.KeyListenerHandle;
-};
-
-/**
- * A disposable handler returned from a keyboard listener.
- */
-export type KeyListenerHandle = t.Lifecycle;
-
-/**
- * A string representing a keyboard patter to match.
- */
-export type KeyPattern = string; // eg. "CMD + K"
-
-/**
- * Lifecycle of a keypress.
- */
-export type KeyPressStage = 'Down' | 'Up';
-
-/**
- * Keyboard modifier keys that are on the edge of the keyboard.
- */
-export type KeyboardModifierEdges = [] | ['Left'] | ['Right'] | ['Left' | 'Right'];
-
-/**
- * Keyboard modifier key constants.
- */
-export type KeyboardModifierKey = 'SHIFT' | 'CTRL' | 'ALT' | 'META';
-
-/**
- * Flags related to keyboard events.
- */
-export type KeyboardKeyFlags = {
-  readonly os: { mac: boolean; windows: boolean };
-  readonly down: boolean;
-  readonly up: boolean;
-  readonly modifier: boolean;
-  readonly number: boolean;
-  readonly letter: boolean;
-  readonly enter: boolean;
-  readonly escape: boolean;
-  readonly arrow: boolean;
-  readonly handled: boolean;
-  readonly alt: boolean;
-  readonly ctrl: boolean;
-  readonly meta: boolean;
-  readonly shift: boolean;
-  readonly cut: boolean;
-  readonly copy: boolean;
-  readonly paste: boolean;
-};
-
-/**
- * The Match object is responsible for generating keyboard pattern matchers.
- */
-export type KeyboardMatchLib = {
-  /**
-   * Generate a keyboard pattern matcher from a given input pattern.
-   * @param input - The input keyboard pattern to be parsed.
-   * @returns A matcher object.
-   */
-  pattern: (input: t.KeyPattern) => {
-    /**
-     * Parsed key-map pattern, e.g., "CMD + KeyP" or "META + SHIFT + KeyL + KeyK".
-     */
-    pattern: string[];
-
-    /**
-     * Determine if the given keys and modifiers match the pattern.
-     * @param pressed - The array of pressed keyboard keys (codes).
-     * @param modifiers - The object containing modifier flags (e.g., Shift, Ctrl).
-     * @returns `true` if the keys and modifiers match the pattern, `false` otherwise.
-     */
-    isMatch: (
-      pressed: t.KeyboardKey['code'][],
-      modifiers: Partial<t.KeyboardModifierFlags>,
-    ) => boolean;
+    /** Convert a loose event-like input into standard modifier-key flags. */
+    modifiers(e?: Partial<NativeEventLike | EventLike | Modifier.Flags>): Modifier.Flags;
   };
-};
 
-/**
- * Keyboard Monitor.
- */
-export type KeyboardMonitor = KeyboardMonitorOn & {
-  /**
-   * An observable that tracks the current keyboard state.
-   */
-  readonly $: t.Observable<t.KeyboardState>;
+  /** Abstract native event shape for reading modifier flags. */
+  export type NativeEventLike = {
+    ctrlKey: boolean;
+    altKey: boolean;
+    shiftKey: boolean;
+    metaKey: boolean;
+  };
 
-  /**
-   * The current state of the keyboard.
-   */
-  readonly state: t.KeyboardState;
+  /** Minimal keyboard event shape needed by helpers. */
+  export type EventLike = {
+    key: string;
+    modifiers: Partial<Modifier.Flags>;
+  };
 
-  /**
-   * A set of boolean flags for the keyboard monitor.
-   */
-  readonly is: {
-    /**
-     * Indicates whether the current environment supports keyboard monitoring.
-     */
-    readonly supported: boolean;
-    /**
-     * Indicates whether the monitor is currently listening for keyboard events.
-     */
-    readonly listening: boolean;
+  /** Lifecycle and streams of keyboard events until disposed. */
+  export type EventsUntil = t.Lifecycle & {
+    /** Observable stream of keyboard states. */
+    $: t.Observable<State.Snapshot>;
+
+    /** Observable stream of keyboard states for key up events. */
+    up$: t.Observable<State.Snapshot>;
+
+    /** Observable stream of keyboard states for key down events. */
+    down$: t.Observable<State.Snapshot>;
+
+    /** Filters keyboard events based on the monitor's filter. */
+    filter: Monitor.Lib['filter'];
+
+    /** Registers a listener for a specific keyboard pattern. */
+    on: Monitor.Lib['on'];
+
+    /** Tracks double key press events within a given time threshold. */
+    dbl(threshold?: t.Msecs): Monitor.Multi;
   };
 
   /**
-   * Starts the keyboard monitor, enabling it to listen for events.
-   * @returns The current instance of `KeyboardMonitor` for chaining.
+   * Boolean flag evaluators.
    */
-  start(): KeyboardMonitor;
+  export namespace Is {
+    /** Boolean flag evaluator surface. */
+    export type Lib = {
+      /**
+       * Platform independent determination if the given flags conceptually align to command.
+       *
+       *    When on macOS™    →     ⌘  == meta
+       *    When on Linux     →   ctrl == meta
+       *    When on Windows™  →   ctrl == meta
+       */
+      command(
+        modifiers?: Partial<NativeEventLike | EventLike | Modifier.Flags>,
+        options?: { ua?: t.UserAgent.Info },
+      ): boolean;
 
-  /**
-   * Stops the keyboard monitor, preventing it from listening for further events.
-   */
-  stop(): void;
+      /** Determine if any of the modifier flags are true. */
+      modified(modifiers?: Partial<Modifier.Flags> | EventLike): boolean;
 
-  /**
-   * Subscribes to keyboard events.
-   * @param fn - A function to execute on each keyboard state change.
-   * @returns A handle to manage the subscription (e.g., for unsubscribing later).
-   */
-  subscribe(fn: (e: t.KeyboardState) => void): KeyListenerHandle;
-
-  /**
-   * Adds a filter to the monitor, allowing it to selectively listen for events.
-   * @param fn - A function that returns a boolean to determine whether to listen for the event.
-   * @returns The `KeyboardMonitorOn` interface to continue pattern listening.
-   */
-  filter(fn: () => boolean): KeyboardMonitorOn;
-};
-
-/**
- * Methods for subscribing to keyboard events.
- */
-export type KeyboardMonitorOn = {
-  /**
-   * Registers a listener for a specific keyboard pattern.
-   *
-   * @param pattern - The keyboard pattern to listen for, e.g., "CMD + KeyP".
-   * @param fn - A function to execute when the key pattern is matched.
-   * @returns A handle to manage the key listener (e.g., for removing it later).
-   */
-  on(pattern: t.KeyPattern, fn: t.KeyMatchSubscriberHandler): KeyListenerHandle;
-
-  /**
-   * Registers listeners for multiple key patterns.
-   *
-   * @param patterns - An object containing multiple key patterns to listen for.
-   * @returns A handle to manage the key listener (e.g., for removing it later).
-   */
-  on(patterns: KeyMatchPatterns): KeyListenerHandle;
-};
-
-export type KeyboardMonitorMulti = t.Lifecycle & {
-  on(pattern: t.KeyPattern, fn: t.KeyMatchSubscriberHandler): t.KeyListenerHandle;
-};
-
-/**
- * Key pattern matching.
- */
-export type KeyMatchSubscriberHandler = (e: KeyMatchSubscriberHandlerArgs) => void;
-export type KeyMatchSubscriberHandlerArgs = {
-  readonly pattern: t.KeyPattern;
-  readonly state: t.KeyboardStateCurrent;
-  readonly event: t.KeyboardKeypress;
-  handled(): void;
-};
-
-export type KeyMatchPatterns = {
-  readonly [pattern: t.KeyPattern]: t.KeyMatchSubscriberHandler;
-};
-
-/**
- * State.
- */
-export type KeyboardKey = { key: string; code: string; is: KeyboardKeyFlags; timestamp: number };
-export type KeyboardState = {
-  current: KeyboardStateCurrent;
-  last?: KeyboardKeypress;
-};
-
-export type KeyboardStateCurrent = {
-  modified: boolean;
-  modifierKeys: KeyboardModifierKeys;
-  modifiers: KeyboardModifierFlags;
-  pressed: KeyboardKey[];
-};
-
-export type KeyboardModifierKeys = {
-  shift: KeyboardModifierEdges;
-  ctrl: KeyboardModifierEdges;
-  alt: KeyboardModifierEdges;
-  meta: KeyboardModifierEdges;
-};
-export type KeyboardModifierFlags = {
-  shift: boolean;
-  ctrl: boolean;
-  alt: boolean;
-  meta: boolean;
-};
-
-/**
- * Keypress
- */
-export type KeyboardKeypress = {
-  readonly stage: KeyPressStage;
-  readonly code: string;
-  readonly keypress: KeyboardKeypressProps;
-  readonly is: KeyboardKeyFlags;
-  handled(): void;
-};
-
-export type KeyboardKeypressProps =
-  & {
-    readonly code: string;
-    readonly key: string;
-    readonly isComposing: boolean;
-    readonly location: number;
-    readonly repeat: boolean;
-    handled(): void;
+      /** Platform independent match on: Clipboard Copy. */
+      copy(e?: EventLike, options?: { ua?: t.UserAgent.Info }): boolean;
+    };
   }
-  & t.UIEvent.Base
-  & t.UIEvent.ModifierKeys;
+
+  /**
+   * Tools for listening to keyboard events.
+   */
+  export namespace Listener {
+    /** Raw keydown/keyup listener surface. */
+    export type Lib = {
+      /** Indicates whether the current environment supports keyboard events. */
+      readonly isSupported: boolean;
+
+      /** Registers a listener for the `keydown` event. */
+      keydown: (handler: KeyHandler) => Handle;
+
+      /** Registers a listener for the `keyup` event. */
+      keyup: (handler: KeyHandler) => Handle;
+    };
+
+    /** A disposable handler returned from a keyboard listener. */
+    export type Handle = t.Lifecycle;
+  }
+
+  /**
+   * Key pattern matching.
+   */
+  export namespace Match {
+    /** Keyboard pattern matcher surface. */
+    export type Lib = {
+      /** Generate a keyboard pattern matcher from a loose input pattern. */
+      pattern: (input: Pattern) => {
+        /** Parsed key-map pattern, e.g. "CMD + KeyP" or "META + SHIFT + KeyL + KeyK". */
+        pattern: string[];
+
+        /** Determine if the given keys and modifiers match the pattern. */
+        isMatch: (pressed: Key.Snapshot['code'][], modifiers: Partial<Modifier.Flags>) => boolean;
+      };
+    };
+
+    /** A string representing a keyboard pattern to match. */
+    export type Pattern = string;
+
+    /** Key-match subscriber callback. */
+    export type SubscriberHandler = (e: SubscriberHandlerArgs) => void;
+
+    /** Key-match subscriber payload. */
+    export type SubscriberHandlerArgs = {
+      readonly pattern: Pattern;
+      readonly state: State.Current;
+      readonly event: Keypress.Event;
+      handled(): void;
+    };
+
+    /** Map of keyboard patterns to subscribers. */
+    export type Patterns = {
+      readonly [pattern: Pattern]: SubscriberHandler;
+    };
+  }
+
+  /**
+   * Keyboard Monitor.
+   */
+  export namespace Monitor {
+    /** Keyboard monitor surface. */
+    export type Lib = On & {
+      /** Observable that tracks the current keyboard state. */
+      readonly $: t.Observable<State.Snapshot>;
+
+      /** Current keyboard state. */
+      readonly state: State.Snapshot;
+
+      /** Boolean flags for the keyboard monitor. */
+      readonly is: {
+        readonly supported: boolean;
+        readonly listening: boolean;
+      };
+
+      /** Starts the keyboard monitor. */
+      start(): Lib;
+
+      /** Stops the keyboard monitor. */
+      stop(): void;
+
+      /** Subscribes to keyboard state events. */
+      subscribe(fn: (e: State.Snapshot) => void): Listener.Handle;
+
+      /** Adds a filter before pattern listening. */
+      filter(fn: () => boolean): On;
+    };
+
+    /** Methods for subscribing to keyboard events. */
+    export type On = {
+      /** Registers a listener for a specific keyboard pattern. */
+      on(pattern: Match.Pattern, fn: Match.SubscriberHandler): Listener.Handle;
+
+      /** Registers listeners for multiple key patterns. */
+      on(patterns: Match.Patterns): Listener.Handle;
+    };
+
+    /** Multi-key monitor lifecycle. */
+    export type Multi = t.Lifecycle & {
+      on(pattern: Match.Pattern, fn: Match.SubscriberHandler): Listener.Handle;
+    };
+  }
+
+  /**
+   * Keyboard modifier-key contracts.
+   */
+  export namespace Modifier {
+    /** Keyboard modifier keys that are on the edge of the keyboard. */
+    export type Edges = [] | ['Left'] | ['Right'] | ['Left' | 'Right'];
+
+    /** Keyboard modifier key constants. */
+    export type Key = 'SHIFT' | 'CTRL' | 'ALT' | 'META';
+
+    /** Pressed modifier key edges by modifier. */
+    export type Keys = {
+      shift: Edges;
+      ctrl: Edges;
+      alt: Edges;
+      meta: Edges;
+    };
+
+    /** Modifier flags related to keyboard events. */
+    export type Flags = {
+      shift: boolean;
+      ctrl: boolean;
+      alt: boolean;
+      meta: boolean;
+    };
+  }
+
+  /**
+   * Keyboard state contracts.
+   */
+  export namespace State {
+    /** Keyboard state snapshot. */
+    export type Snapshot = {
+      current: Current;
+      last?: Keypress.Event;
+    };
+
+    /** Current keyboard state. */
+    export type Current = {
+      modified: boolean;
+      modifierKeys: Modifier.Keys;
+      modifiers: Modifier.Flags;
+      pressed: Key.Snapshot[];
+    };
+  }
+
+  /**
+   * Keyboard key contracts.
+   */
+  export namespace Key {
+    /** Snapshot of a pressed key. */
+    export type Snapshot = {
+      key: string;
+      code: string;
+      is: Flags;
+      timestamp: number;
+    };
+
+    /** Flags related to keyboard events. */
+    export type Flags = {
+      readonly os: { mac: boolean; windows: boolean };
+      readonly down: boolean;
+      readonly up: boolean;
+      readonly modifier: boolean;
+      readonly number: boolean;
+      readonly letter: boolean;
+      readonly enter: boolean;
+      readonly escape: boolean;
+      readonly arrow: boolean;
+      readonly handled: boolean;
+      readonly alt: boolean;
+      readonly ctrl: boolean;
+      readonly meta: boolean;
+      readonly shift: boolean;
+      readonly cut: boolean;
+      readonly copy: boolean;
+      readonly paste: boolean;
+    };
+  }
+
+  /**
+   * Keypress contracts.
+   */
+  export namespace Keypress {
+    /** Lifecycle of a keypress. */
+    export type Stage = 'Down' | 'Up';
+
+    /** Keyboard keypress event. */
+    export type Event = {
+      readonly stage: Stage;
+      readonly code: string;
+      readonly keypress: Props;
+      readonly is: Key.Flags;
+      handled(): void;
+    };
+
+    /** Native keypress properties. */
+    export type Props = {
+      readonly code: string;
+      readonly key: string;
+      readonly isComposing: boolean;
+      readonly location: number;
+      readonly repeat: boolean;
+      readonly altKey: boolean;
+      readonly ctrlKey: boolean;
+      readonly metaKey: boolean;
+      readonly shiftKey: boolean;
+      readonly bubbles: boolean;
+      readonly cancelable: boolean;
+      readonly eventPhase: number;
+      readonly timeStamp: number;
+      readonly isTrusted: boolean;
+      handled(): void;
+    };
+  }
+}

@@ -91,7 +91,7 @@ export type PointerSyntheticEvent = React.PointerEvent | React.TouchEvent;
 export type PointerEvent = PointerEventCancelMethods & {
   readonly type: PointerSyntheticEvent['type'];
   readonly synthetic: PointerSyntheticEvent;
-  readonly modifiers: t.KeyboardModifierFlags;
+  readonly modifiers: t.Keyboard.Modifier.Flags;
   readonly client: t.Point;
 };
 
@@ -108,7 +108,7 @@ export type PointerEventsArg = PointerEventCancelMethods & {
   /** Boolean flags about the event. */
   readonly is: PointerHookFlags;
   /** Keyboard modifiers. */
-  readonly modifiers: t.KeyboardModifierFlags;
+  readonly modifiers: t.Keyboard.Modifier.Flags;
 };
 
 /** Methods for cancelling an event. */
@@ -130,7 +130,7 @@ export type PointerSnapshot = {
   /** Mouse button currently down (0 = left, 1 = middle, 2 = right). */
   button: number;
   /** Keyboard-modifier snapshot. */
-  modifiers: t.KeyboardModifierFlags;
+  modifiers: t.Keyboard.Modifier.Flags;
   /** Δx / Δy since the previous drag frame. */
   movement: t.Point; // e.g. { x: 12, y: -4 }
   /** Absolute positions in various co-ordinate spaces. */

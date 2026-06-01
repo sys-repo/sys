@@ -8,7 +8,7 @@ export type ReactEventLib = {
   /** Convert react mouse events into keyboard modifier info object. */
   modifiers(
     e: React.MouseEvent | MouseEvent | KeyboardEvent | PointerEvent | Event,
-  ): t.KeyboardModifierFlags;
+  ): t.Keyboard.Modifier.Flags;
 };
 
 /**

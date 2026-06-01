@@ -32,7 +32,7 @@ describe('Keyboard', () => {
     it('dispose: removes event listener', async () => {
       /**
        * NOTE: The removing of the event handlers (in particular when multiple handlers
-       *       are in play) is done correctly in the borser, however [happy-dom] does not behave
+       *       are in play) is done correctly in the browser, however [happy-dom] does not behave
        *       accurately and removes all handlers.
        *
        *       This test only asserts the removal of the event, but does not attempt to
@@ -60,7 +60,7 @@ describe('Keyboard', () => {
     it('until.on: stops after disposal', () => {
       const life = Rx.disposable();
       const until = Keyboard.until(life.dispose$);
-      const fired: t.KeyboardKeypress[] = [];
+      const fired: t.Keyboard.Keypress.Event[] = [];
       until.on('KeyZ', (e) => fired.push(e.event));
 
       DomMock.Keyboard.fire();
@@ -78,7 +78,7 @@ describe('Keyboard', () => {
       const until = Keyboard.until(life.dispose$);
       const dbl = until.dbl();
 
-      const fired: t.KeyboardKeypress[] = [];
+      const fired: t.Keyboard.Keypress.Event[] = [];
       dbl.on('KeyB', (e) => fired.push(e.event));
 
       const ev = DomMock.Keyboard.keydownEvent('b');
@@ -96,7 +96,7 @@ describe('Keyboard', () => {
   describe('Keyboard.dbl', () => {
     it('no match', async () => {
       const dbl = Keyboard.dbl(10);
-      const fired: t.KeyboardKeypress[] = [];
+      const fired: t.Keyboard.Keypress.Event[] = [];
       dbl.on('KeyM', (e) => fired.push(e.event));
 
       const ev = DomMock.Keyboard.keydownEvent('z');
@@ -112,7 +112,7 @@ describe('Keyboard', () => {
 
     it('fires (x2)', async () => {
       const dbl = Keyboard.dbl();
-      const fired: t.KeyboardKeypress[] = [];
+      const fired: t.Keyboard.Keypress.Event[] = [];
       dbl.on('KeyM', (e) => fired.push(e.event));
 
       const ev = DomMock.Keyboard.keydownEvent('m');
@@ -135,7 +135,7 @@ describe('Keyboard', () => {
 
     it('does not fire (outside time threshold)', async () => {
       const dbl = Keyboard.dbl(10);
-      const fired: t.KeyboardKeypress[] = [];
+      const fired: t.Keyboard.Keypress.Event[] = [];
       dbl.on('KeyA', (e) => fired.push(e.event));
 
       const ev = DomMock.Keyboard.keydownEvent('a');
@@ -170,7 +170,7 @@ describe('Keyboard', () => {
 
     it('does not fire when disposed', () => {
       const dbl = Keyboard.dbl(30);
-      const fired: t.KeyboardKeypress[] = [];
+      const fired: t.Keyboard.Keypress.Event[] = [];
       dbl.on('KeyM', (e) => fired.push(e.event));
 
       const ev = DomMock.Keyboard.keydownEvent('m');
@@ -242,13 +242,13 @@ describe('Keyboard', () => {
       expect(f).to.be.false;
       expect(g).to.be.false;
 
-      // T:KeyEventLike
+      // T:Keyboard.EventLike
       const h = Keyboard.Is.command({ key: 'c', modifiers: { meta: true } }, { ua: mac });
       const i = Keyboard.Is.command({ key: 'c', modifiers: { meta: true } }, { ua: windows });
       expect(h).to.be.true;
       expect(i).to.be.false;
 
-      // T:NativeKeyEventLike
+      // T:Keyboard.NativeEventLike
       const j = Keyboard.Is.command({ metaKey: true }, { ua: mac });
       const k = Keyboard.Is.command({ metaKey: true }, { ua: windows });
       const l = Keyboard.Is.command({ ctrlKey: true }, { ua: windows });
@@ -347,7 +347,7 @@ describe('Keyboard', () => {
       expect(Kbd.modifiers(modifiers)).to.eql(modifiers);
     });
 
-    it('converts: NativeKeyEventLike', () => {
+    it('converts: Keyboard.NativeEventLike', () => {
       const a = Kbd.modifiers({ metaKey: true });
       const b = Kbd.modifiers({ metaKey: true, ctrlKey: true });
       const c = Kbd.modifiers({ shiftKey: true });
@@ -356,8 +356,8 @@ describe('Keyboard', () => {
       expect(c).to.eql({ ctrl: false, meta: false, alt: false, shift: true });
     });
 
-    it('converts: KeyEventLike', () => {
-      type K = t.KeyEventLike;
+    it('converts: Keyboard.EventLike', () => {
+      type K = t.Keyboard.EventLike;
       const ev: K = { key: 'c', modifiers: Kbd.modifiers({ metaKey: true }) };
       expect(Kbd.modifiers(ev)).to.eql(ev.modifiers);
     });

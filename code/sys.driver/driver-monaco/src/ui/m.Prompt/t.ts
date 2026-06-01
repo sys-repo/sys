@@ -79,7 +79,7 @@ export declare namespace EditorPrompt {
   /** Resolve Enter action from policy and modifier state. */
   export type ResolveEnterAction = (args?: {
     config?: Config;
-    modifiers?: Partial<t.KeyboardModifierFlags>;
+    modifiers?: Partial<t.Keyboard.Modifier.Flags>;
   }) => EnterAction;
 
   /** Bind prompt behavior to a Monaco editor lifecycle. */
@@ -98,7 +98,7 @@ export declare namespace EditorPrompt {
     readonly state: State;
     readonly trigger: SubmitTrigger;
     readonly text: string;
-    readonly modifiers: t.KeyboardModifierFlags;
+    readonly modifiers: t.Keyboard.Modifier.Flags;
   };
 
   /** Monaco handles exposed on submit. */

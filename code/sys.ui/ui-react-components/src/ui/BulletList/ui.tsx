@@ -86,7 +86,7 @@ function handleSelect(
   onSelect?.(toSelectEvent(id, e.modifiers));
 }
 
-function toSelectEvent(id: string, modifiers: t.KeyboardModifierFlags): t.BulletList.OnSelectArgs {
+function toSelectEvent(id: string, modifiers: t.Keyboard.Modifier.Flags): t.BulletList.OnSelectArgs {
   return {
     id,
     modifiers,

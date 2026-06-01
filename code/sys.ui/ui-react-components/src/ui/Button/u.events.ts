@@ -169,7 +169,7 @@ const wrangle = {
     } as unknown as React.MouseEvent;
   },
 
-  modifiers(e: React.MouseEvent): t.KeyboardModifierFlags {
+  modifiers(e: React.MouseEvent): t.Keyboard.Modifier.Flags {
     const { ctrlKey: ctrl, shiftKey: shift, metaKey: meta, altKey: alt } = e;
     return { ctrl, shift, meta, alt };
   },

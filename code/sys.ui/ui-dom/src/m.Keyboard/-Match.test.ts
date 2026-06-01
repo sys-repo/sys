@@ -3,7 +3,7 @@ import { Keyboard } from './mod.ts';
 
 describe('Keyboard.Match', () => {
   it('parse.pattern', () => {
-    const test = (input: t.KeyPattern, expected: string[]) => {
+    const test = (input: t.Keyboard.Match.Pattern, expected: string[]) => {
       const res = Keyboard.Match.pattern(input);
       expect(res.pattern).to.eql(expected);
     };
@@ -25,9 +25,9 @@ describe('Keyboard.Match', () => {
 
   it('parse.isMatch', () => {
     const test = (
-      input: t.KeyPattern,
+      input: t.Keyboard.Match.Pattern,
       pressed: string[],
-      modifiers: Partial<t.KeyboardModifierFlags>,
+      modifiers: Partial<t.Keyboard.Modifier.Flags>,
       expected: boolean,
     ) => {
       const pattern = Keyboard.Match.pattern(input);

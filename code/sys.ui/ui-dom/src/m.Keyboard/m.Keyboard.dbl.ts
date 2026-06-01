@@ -8,9 +8,9 @@ export function dbl(threshold = 500, options: { until?: t.UntilInput } = {}) {
   const life = Rx.lifecycle(options.until);
   const { dispose, dispose$ } = life;
 
-  const api: t.KeyboardMonitorMulti = {
+  const api: t.Keyboard.Monitor.Multi = {
     on(pattern, fn) {
-      type E = t.KeyMatchSubscriberHandlerArgs;
+      type E = t.Keyboard.Match.SubscriberHandlerArgs;
       const $ = Rx.subject<E>();
 
       let monitor: t.TimeThreshold<E> | undefined;

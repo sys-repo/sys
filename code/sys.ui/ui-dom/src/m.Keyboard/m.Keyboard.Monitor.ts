@@ -4,15 +4,15 @@ import { Util } from './u.ts';
 
 const singleton = {
   isListening: false,
-  state: R.clone<t.KeyboardState>(DEFAULTS.state),
+  state: R.clone<t.Keyboard.State.Snapshot>(DEFAULTS.state),
 };
 const { dispose, dispose$ } = Rx.disposable();
-const singleton$ = new Rx.BehaviorSubject<t.KeyboardState>(singleton.state);
+const singleton$ = new Rx.BehaviorSubject<t.Keyboard.State.Snapshot>(singleton.state);
 
 /**
  * Global keyboard monitor.
  */
-export const KeyboardMonitor: t.KeyboardMonitor = {
+export const KeyboardMonitor: t.Keyboard.Monitor.Lib = {
   is: {
     get supported() {
       return typeof document === 'object';
@@ -63,7 +63,7 @@ export const KeyboardMonitor: t.KeyboardMonitor = {
     }
   },
 
-  subscribe(fn: (e: t.KeyboardState) => void) {
+  subscribe(fn: (e: t.Keyboard.State.Snapshot) => void) {
     const life = Rx.lifecycle();
     if (KeyboardMonitor.is.supported) {
       const $ = KeyboardMonitor.$.pipe(Rx.takeUntil(dispose$), Rx.takeUntil(life.dispose$));
@@ -104,11 +104,11 @@ function keypressHandler(event: KeyboardEvent) {
   fireNext(e);
 }
 
-function fireNext(_e?: t.KeyboardKeypress) {
+function fireNext(_e?: t.Keyboard.Keypress.Event) {
   if (singleton.isListening) singleton$.next(singleton.state);
 }
 
-function change(fn: (state: t.KeyboardState) => void) {
+function change(fn: (state: t.Keyboard.State.Snapshot) => void) {
   const next = R.clone(singleton.state);
   fn(next);
   singleton.state = next;
@@ -128,12 +128,12 @@ function reset(options: { hard?: boolean } = {}) {
 /**
  * State update modifiers.
  */
-function updateModifierKeys(e: t.KeyboardKeypress) {
+function updateModifierKeys(e: t.Keyboard.Keypress.Event) {
   const code = e.keypress.code;
 
   const update = (
-    target: t.KeyboardModifierKeys,
-    targetField: keyof t.KeyboardModifierKeys,
+    target: t.Keyboard.Modifier.Keys,
+    targetField: keyof t.Keyboard.Modifier.Keys,
     match: string,
   ) => {
     if (!(code === `${match}Left` || code === `${match}Right`)) return;
@@ -151,7 +151,7 @@ function updateModifierKeys(e: t.KeyboardKeypress) {
     }
 
     values = R.uniq(values);
-    target[targetField] = (values.length === 0 ? [] : values) as t.KeyboardModifierEdges;
+    target[targetField] = (values.length === 0 ? [] : values) as t.Keyboard.Modifier.Edges;
   };
 
   change((state) => {
@@ -165,7 +165,7 @@ function updateModifierKeys(e: t.KeyboardKeypress) {
   });
 }
 
-function updatePressedKeys(e: t.KeyboardKeypress) {
+function updatePressedKeys(e: t.Keyboard.Keypress.Event) {
   const { keypress, is } = e;
   const { code } = keypress;
 
@@ -196,7 +196,7 @@ function updatePressedKeys(e: t.KeyboardKeypress) {
 export function handlerFiltered(
   filter: () => boolean,
   options: { until?: t.UntilInput } = {},
-): t.KeyboardMonitorOn {
+): t.Keyboard.Monitor.On {
   const { until } = options;
   return {
     on(...args: any[]) {
@@ -214,7 +214,7 @@ export function handlerOnOverloaded(
   const { dispose$ } = life;
 
   if (typeof args[0] === 'object') {
-    const patterns = args[0] as t.KeyMatchPatterns;
+    const patterns = args[0] as t.Keyboard.Match.Patterns;
     Object.entries(patterns).forEach(([pattern, fn]) => {
       handlerOn(pattern, fn, { until: dispose$, filter });
     });
@@ -225,12 +225,12 @@ export function handlerOnOverloaded(
     return handlerOn(args[0], args[1], { until: dispose$, filter });
   }
 
-  throw new Error('Input paramters for [Keyboard.on] not matched.');
+  throw new Error('Input parameters for [Keyboard.on] not matched.');
 }
 
 export function handlerOn(
-  pattern: t.KeyPattern,
-  fn: t.KeyMatchSubscriberHandler,
+  pattern: t.Keyboard.Match.Pattern,
+  fn: t.Keyboard.Match.SubscriberHandler,
   options: { until?: t.UntilInput; filter?: () => boolean } = {},
 ) {
   const { filter } = options;

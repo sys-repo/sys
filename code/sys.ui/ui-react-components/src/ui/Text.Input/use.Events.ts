@@ -88,7 +88,7 @@ export function useEvents(props: P) {
  * Helpers:
  */
 const wrangle = {
-  modifiers(e: React.KeyboardEvent<H>): t.KeyboardModifierFlags {
+  modifiers(e: React.KeyboardEvent<H>): t.Keyboard.Modifier.Flags {
     const { altKey: alt, ctrlKey: ctrl, metaKey: meta, shiftKey: shift } = e;
     return { alt, ctrl, meta, shift };
   },

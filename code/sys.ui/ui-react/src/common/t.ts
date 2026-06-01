@@ -12,7 +12,7 @@ export type {
   VirtualClockState,
 } from '@sys/std/t';
 export type { CssEdgesArray, CssEdgesInput, CssInput } from '@sys/ui-css/t';
-export type { KeyboardModifierFlags } from '@sys/ui-dom/t';
+export type { Keyboard } from '@sys/ui-dom/t';
 
 export type * from '@sys/types';
 export type * from '../types.ts';
