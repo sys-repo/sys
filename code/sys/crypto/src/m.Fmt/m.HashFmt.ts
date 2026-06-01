@@ -1,5 +1,6 @@
 import { c, Hash, type t } from './common.ts';
 
+/** Hash formatting helpers for terminal output. */
 export const HashFmt: t.HashFmt.Lib = {
   digest(input, options = {}) {
     if (!input) return '';
