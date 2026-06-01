@@ -11,7 +11,7 @@ export type * from '@sys/types';
 export type { ColorTheme } from '@sys/color/t';
 export type { SpecImports } from '@sys/testing/t';
 export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';
-export type { KeyboardModifierFlags } from '@sys/ui-dom/t';
+export type { Keyboard } from '@sys/ui-dom/t';
 export type { YamlSyncParser } from '@sys/yaml/t';
 
 export type {
