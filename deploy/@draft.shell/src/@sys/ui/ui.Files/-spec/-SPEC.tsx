@@ -1,5 +1,5 @@
 import { Dev, Signal, Spec } from '../../../../ui/-test.ui.ts';
-import { D } from './common.ts';
+import { D } from './-common.ts';
 import { Files } from '../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 

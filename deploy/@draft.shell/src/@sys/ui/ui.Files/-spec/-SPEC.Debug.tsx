@@ -1,7 +1,7 @@
 import React from 'react';
-import { Color, css, D, LocalStorage, Signal, type t } from './common.ts';
-import { Button, ObjectView } from './common.ts';
-import { connect } from './-u.connect.ts';
+import { Color, css, D, LocalStorage, Signal, type t } from './-common.ts';
+import { Button, ObjectView } from './-common.ts';
+import { connect, disconnect } from './-u.connect.ts';
 
 type P = t.FileInfoPanel.Props;
 type Defaults = Required<Pick<P, 'debug' | 'theme' | 'snapshot'>>;
@@ -46,6 +46,7 @@ export async function createDebugSignals() {
   }
 
   function reset() {
+    void disconnect(api);
     p.debug.value = defaults.debug;
     p.theme.value = defaults.theme;
     p.snapshot.value = defaults.snapshot;
@@ -100,6 +101,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <Button block label={() => `connect`} onClick={() => void connect(debug)} />
+      <Button block label={() => `disconnect`} onClick={() => void disconnect(debug)} />
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
