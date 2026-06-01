@@ -12,7 +12,7 @@ type Stored = {
   groupId?: string;
   ts?: number; // last persisted timestamp (diagnostic)
 };
-type Store = t.LocalStorageImmutable<Stored>;
+type Store = t.LocalStorage.Immutable<Stored>;
 const makeStore = (key?: string) => (key ? LocalStorage.immutable<Stored>(key, {}) : undefined);
 
 export const useDeviceSelectionLifecycle: t.UseDeviceSelectionLifecycle = (opts) => {

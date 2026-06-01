@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { type t, History, Kbd, LocalStorage, Signal } from './common.ts';
 
 type Storage = { docId?: string; history: string[] };
-type StorageImmutable = t.LocalStorageImmutable<Storage>;
+type StorageImmutable = t.LocalStorage.Immutable<Storage>;
 
 /**
  * Hook: manage storing current document-id's in local-storage.
