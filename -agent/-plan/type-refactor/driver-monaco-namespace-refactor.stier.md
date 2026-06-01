@@ -1,6 +1,6 @@
 # @sys/driver-monaco editor type namespace refactor
 
-- [ ] refactor(driver-monaco): namespace editor driver types
+- [x] 8ee2d4196 refactor(driver-monaco): namespace editor driver types
 
 ## Scope
 
@@ -599,6 +599,51 @@ Expected scan result:
 - no old flat `*Lib` names remain;
 - no old flat detail names remain in public type spines;
 - any remaining hits are either runtime value names, test titles/docs that explicitly describe the old state, or must be removed before SHIP.
+
+## Final reality
+
+Landed implementation:
+
+- `8ee2d4196 refactor(driver-monaco): namespace editor driver types`
+
+Actual changes:
+
+- Root public type spines moved from legacy flat names into namespaced contracts:
+  - `MonacoFake.Lib` plus `MonacoFake.Editor`, `MonacoFake.Model`, `MonacoFake.Global`, and `MonacoFake.Spy.SetModelMarkers`.
+  - `EditorIs.Lib`.
+  - `EditorError.Lib` plus `EditorError.Diagnostic`.
+  - `EditorBus.Lib`, `EditorBus.Subject`, `EditorBus.Observable`, `EditorBus.Filter`, and `EditorEvent.{Shape,Crdt,Yaml,Ping}`.
+  - `MonacoDriver.Lib`, `MonacoDriver.Ctx`, `MonacoDriver.Cursor`, and `MonacoDriver.Link`.
+  - `EditorCrdt.Lib`, `EditorCrdt.Binding`, and `EditorCrdt.Link`.
+  - `EditorFolding.Lib`, `EditorFolding.Offset`, `EditorFolding.Observer`, `EditorFolding.Binding`, with local `Use`/`Bind` names replacing public-style factor names.
+  - `EditorYaml.Lib`, `EditorYaml.State`, `EditorYaml.Error`, `EditorYaml.Path`, and `EditorYaml.Hook`.
+- Owned factor `t.*.ts` files were kept type-plane-only and curated through root `t.ts` namespace spines instead of leaking old public flat names.
+- Runtime values and exports stayed unchanged; runtime files, tests, specs, samples, and UI consumers were migrated from old `t.<legacy-flat-name>` references to the new namespaced type references.
+- No compatibility aliases were retained or added; caller evidence stayed within `@sys/driver-monaco` and was migrated in the same pass.
+
+Final verification/proof:
+
+```sh
+cd /Users/phil/code/org.sys/sys/code/sys.driver/driver-monaco && deno task test --trace-leaks ./src/-fake ./src/m.Is ./src/m.Error ./src/m.Event ./src/m.Monaco ./src/ui/m.Crdt ./src/ui/m.Markers.Folding ./src/ui/m.Yaml
+# ok | 18 passed (316 steps) | 0 failed
+
+cd /Users/phil/code/org.sys/sys/code/sys.driver/driver-monaco && deno task check
+# passed
+
+git diff --check -- code/sys.driver/driver-monaco -agent/-plan/type-refactor/driver-monaco-namespace-refactor.stier.md
+# passed
+
+rg -n "<legacy flat type name set>" /Users/phil/code/org.sys/sys/code/sys.driver/driver-monaco
+# no output
+
+rg -n --glob '!code/sys.driver/driver-monaco/**' --glob '!-agent/**' --glob '!-tmp/**' "<legacy flat type name set>" /Users/phil/code/org.sys/sys
+# no output
+```
+
+Final review:
+
+- Result: SHIP.
+- Remaining risk: none found for live source. Archive-only legacy references exist under `-tmp/-archive/-dev/sys.dev/catalog.edu.01`, outside live source and outside refactor scope.
 
 ## HOLD conditions
 

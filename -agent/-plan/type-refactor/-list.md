@@ -84,14 +84,14 @@ Quick scan notes for modules whose root `t.ts` still exposes a flat `XxxLib` spi
 
 ### Driver packages
 
-- `code/sys.driver/driver-monaco/src/-fake/t.ts`
-- `code/sys.driver/driver-monaco/src/m.Is/t.ts`
-- `code/sys.driver/driver-monaco/src/m.Error/t.ts`
-- `code/sys.driver/driver-monaco/src/m.Event/t.ts`
-- `code/sys.driver/driver-monaco/src/m.Monaco/t.ts`
-- `code/sys.driver/driver-monaco/src/ui/m.Crdt/t.ts`
-- `code/sys.driver/driver-monaco/src/ui/m.Markers.Folding/t.ts`
-- `code/sys.driver/driver-monaco/src/ui/m.Yaml/t.ts`
+- `code/sys.driver/driver-monaco/src/-fake/t.ts` — refactored in `8ee2d4196`; no compatibility aliases retained.
+- `code/sys.driver/driver-monaco/src/m.Is/t.ts` — refactored in `8ee2d4196`; no compatibility aliases retained.
+- `code/sys.driver/driver-monaco/src/m.Error/t.ts` — refactored in `8ee2d4196`; no compatibility aliases retained.
+- `code/sys.driver/driver-monaco/src/m.Event/t.ts` — refactored in `8ee2d4196`; no compatibility aliases retained.
+- `code/sys.driver/driver-monaco/src/m.Monaco/t.ts` — refactored in `8ee2d4196`; no compatibility aliases retained.
+- `code/sys.driver/driver-monaco/src/ui/m.Crdt/t.ts` — refactored in `8ee2d4196`; no compatibility aliases retained.
+- `code/sys.driver/driver-monaco/src/ui/m.Markers.Folding/t.ts` — refactored in `8ee2d4196`; no compatibility aliases retained.
+- `code/sys.driver/driver-monaco/src/ui/m.Yaml/t.ts` — refactored in `8ee2d4196`; no compatibility aliases retained.
 
 - `code/sys.driver/driver-vite/src/-entry/t.ts` — refactored in `a40b04a90`.
 - `code/sys.driver/driver-vite/src/m.fmt/t.ts` — refactored in `a40b04a90`.
