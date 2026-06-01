@@ -36,8 +36,8 @@ Quick scan notes for modules whose root `t.ts` still exposes a flat `XxxLib` spi
 - `code/sys/registry/src/m.jsr/**/t.ts` — refactored in `045386d6d`.
 
 - `code/sys.ui/ui-dom/src/m.Keyboard/t.ts` — refactored in `d4dda8e0a`; no compatibility aliases retained.
-- `code/sys.ui/ui-dom/src/m.File/t.ts`
-- `code/sys.ui/ui-dom/src/m.LocalStorage/t.ts`
+- `code/sys.ui/ui-dom/src/m.File/t.ts` — refactored in `371658cfc`; no compatibility aliases retained.
+- `code/sys.ui/ui-dom/src/m.LocalStorage/t.ts` — refactored in `371658cfc`; no compatibility aliases retained.
 - `code/sys.ui/ui-dom/src/m.Dom/t.ts` — refactored in `cdb509e7e`; no compatibility aliases retained.
 - `code/sys.ui/ui-dom/src/m.UserAgent/t.ts` — refactored in `cdb509e7e`; no compatibility aliases retained.
 - `code/sys.ui/ui-dom/src/m.Events/t.ts` — refactored in `cdb509e7e`; no compatibility aliases retained.
