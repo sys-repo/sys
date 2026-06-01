@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1780288976612,
+    "createdAt": 1780289567580,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-f060fc77510b360e003446bc88c8e8a888c839675d1644801b4c95164eaafd75",
+      "/graph": "sha256-09dcedd874e0ddcd047fff4c584cd2bf7b9382a068399776b523d9a405af5f29",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.107/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,15 +15,15 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.107/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1780288976617
+    "modifiedAt": 1780289567587
   },
   "graph": {
     "orderedPaths": [
       "code/sys/types",
       "code/sys.dev",
-      "code/sys.driver/driver-cloudflare",
       "code/sys/crdt",
       "code/sys/std",
+      "code/sys.driver/driver-cloudflare",
       "code/sys/color",
       "code/sys.ui/ui-css",
       "code/sys/event",
@@ -1010,6 +1010,10 @@
       {
         "from": "code/sys/std",
         "to": "code/sys.driver/driver-automerge"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys.driver/driver-cloudflare"
       },
       {
         "from": "code/sys/std",

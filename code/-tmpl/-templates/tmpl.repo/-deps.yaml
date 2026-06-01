@@ -71,7 +71,7 @@ package.json:
     dev: true
   - import: npm:rollup-plugin-visualizer@7.0.1
     dev: true
-  - import: npm:vite@8.0.14
+  - import: npm:vite@8.0.15
     dev: true
   - import: npm:vite-plugin-wasm@3.6.0
     dev: true
