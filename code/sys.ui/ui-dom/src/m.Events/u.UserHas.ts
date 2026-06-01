@@ -2,7 +2,7 @@ import { type t } from './common.ts';
 
 let _userHasInteracted = false as boolean;
 
-export const UserHas: t.UserHasLib = {
+export const UserHas: t.UserHas.Lib = {
   get interacted() {
     return _userHasInteracted;
   },
@@ -13,7 +13,7 @@ export const UserHas: t.UserHasLib = {
  */
 function listen() {
   /**
-   * NB: enables capture-mode to catch the events before they reaches any other listener.
+   * NB: enables capture-mode to catch the events before they reach any other listener.
    */
   const capture = true;
 

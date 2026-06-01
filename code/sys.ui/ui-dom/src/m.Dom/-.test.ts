@@ -12,7 +12,7 @@ describe('Dom', () => {
   });
 
   describe('Dom.Event', () => {
-    const toEvent = (target?: Element | null) => ({ target }) as unknown as Event;
+    const toEvent = (target?: Element | null) => ({ target }) as unknown as globalThis.Event;
 
     it('returns true when the target element has the matching data-component attribute', () => {
       const el = document.createElement('div');
@@ -44,7 +44,7 @@ describe('Dom', () => {
     it('uses a custom match function and returns true when it matches the target', () => {
       const el = document.createElement('div');
       const event = toEvent(el);
-      const matchFn: t.DomWalkFilter = (e) => e.element === el;
+      const matchFn: t.Dom.Walk.Filter = (e) => e.element === el;
       expect(Event.isWithin(event, matchFn)).to.be.true;
     });
 
@@ -54,7 +54,7 @@ describe('Dom', () => {
       parent.appendChild(child);
 
       const event = toEvent(child);
-      const matchFn: t.DomWalkFilter = (e) => e.element === parent;
+      const matchFn: t.Dom.Walk.Filter = (e) => e.element === parent;
       expect(Event.isWithin(event, matchFn)).to.be.true;
     });
 
@@ -63,7 +63,7 @@ describe('Dom', () => {
       el.setAttribute('data-component', 'foo');
 
       const event = toEvent(el);
-      const matchFn: t.DomWalkFilter = (e) => false;
+      const matchFn: t.Dom.Walk.Filter = (e) => false;
       expect(Event.isWithin(event, matchFn)).to.be.false;
     });
 

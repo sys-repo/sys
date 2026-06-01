@@ -1,7 +1,6 @@
 import { type t } from './common.ts';
-import type { DomEventLib } from './t.ts';
 
-export const Event: DomEventLib = {
+export const Event: t.Dom.Event.Lib = {
   isWithin(event, match) {
     let el = event.target as Element | null;
 

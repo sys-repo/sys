@@ -187,7 +187,7 @@ describe('Keyboard', () => {
 
   describe('Keyboard.Is', () => {
     const Is = Keyboard.Is;
-    const mac: t.UserAgent = {
+    const mac: t.UserAgent.Info = {
       os: { name: 'macOS' },
       is: {
         apple: true,
@@ -199,7 +199,7 @@ describe('Keyboard', () => {
         firefox: false,
       },
     };
-    const windows: t.UserAgent = {
+    const windows: t.UserAgent.Info = {
       os: { name: 'Windows' },
       is: {
         apple: false,
@@ -211,7 +211,7 @@ describe('Keyboard', () => {
         firefox: false,
       },
     };
-    const linux: t.UserAgent = {
+    const linux: t.UserAgent.Info = {
       os: { name: 'Linux' },
       is: {
         apple: false,
@@ -332,12 +332,14 @@ describe('Keyboard', () => {
 
   describe('Keyboard.modifiers', () => {
     it('empty', () => {
-      const test = (input?: any) => {
-        const res = Kbd.modifiers(input);
+      type Input = Parameters<typeof Kbd.modifiers>[0];
+      const test = (input?: unknown) => {
+        // Negative runtime inputs intentionally bypass the public type contract.
+        const res = Kbd.modifiers(input as Input);
         expect(res).to.eql({ ctrl: false, meta: false, alt: false, shift: false });
       };
-      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
-      NON.forEach((v: any) => test(v));
+      const NON: unknown[] = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((v) => test(v));
     });
 
     it('modifiers → no change', () => {

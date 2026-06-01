@@ -58,7 +58,7 @@ export type KeyboardLib = {
    * object is "like" an event that contains the modifier-key information.
    */
   modifiers(
-    e: Partial<NativeKeyEventLike | KeyEventLike | KeyboardModifierFlags>,
+    e?: Partial<NativeKeyEventLike | KeyEventLike | KeyboardModifierFlags>,
   ): t.KeyboardModifierFlags;
 };
 
@@ -94,14 +94,14 @@ export type KeyboardIsLib = {
    */
   command(
     modifiers?: Partial<t.NativeKeyEventLike | t.KeyEventLike | t.KeyboardModifierFlags>,
-    options?: { ua?: t.UserAgent },
+    options?: { ua?: t.UserAgent.Info },
   ): boolean;
 
   /** Determine if any of the modifier flags are true. */
   modified(modifiers?: Partial<t.KeyboardModifierFlags> | t.KeyEventLike): boolean;
 
   /** Platform independent match on: Clipboard Copy. */
-  copy(e?: KeyEventLike, options?: { ua?: t.UserAgent }): boolean;
+  copy(e?: KeyEventLike, options?: { ua?: t.UserAgent.Info }): boolean;
 };
 
 /**
@@ -388,5 +388,5 @@ export type KeyboardKeypressProps =
     readonly repeat: boolean;
     handled(): void;
   }
-  & t.UIEventBase
-  & t.UIModifierKeys;
+  & t.UIEvent.Base
+  & t.UIEvent.ModifierKeys;

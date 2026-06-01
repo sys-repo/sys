@@ -1,27 +1,41 @@
 import type { t } from './common.ts';
 
 /**
- * The value of a `data-component="<value>"` attribute.
+ * Helpers for working with the browser DOM (document object model).
  */
-export type ComponentDataAttribute = string;
+export declare namespace Dom {
+  /** DOM helper library surface. */
+  export type Lib = {
+    readonly Event: Event.Lib;
+    readonly UserHas: t.UserHas.Lib;
+  };
 
-/**
- * Helpers for working with the browser DOM ("document object model").
- */
-export type DomLib = {
-  readonly Event: DomEventLib;
-  readonly UserHas: t.UserHasLib;
-};
+  /**
+   * DOM event helper contracts.
+   */
+  export namespace Event {
+    /** Helpers for working with DOM events. */
+    export type Lib = {
+      isWithin(event: globalThis.Event, match: Component.DataAttribute | Walk.Filter): boolean;
+    };
+  }
 
-/**
- * Helpers for working with DOM events.
- */
-export type DomEventLib = {
-  isWithin(event: Event, match: ComponentDataAttribute | DomWalkFilter): boolean;
-};
+  /**
+   * DOM component attribute contracts.
+   */
+  export namespace Component {
+    /** The value of a `data-component="<value>"` attribute. */
+    export type DataAttribute = string;
+  }
 
-/**
- * Function used in walking the DOM tree.
- */
-export type DomWalkFilter = (e: DomWalkFilterArgs) => void;
-export type DomWalkFilterArgs = { element: Element };
+  /**
+   * DOM walking contracts.
+   */
+  export namespace Walk {
+    /** Function used while walking the DOM tree. */
+    export type Filter = (e: Args) => boolean;
+
+    /** Arguments passed to a DOM walk filter. */
+    export type Args = { readonly element: Element };
+  }
+}
