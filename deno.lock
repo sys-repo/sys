@@ -32,6 +32,7 @@
     "jsr:@std/streams@^1.1.1": "1.1.1",
     "jsr:@std/testing@1.0.19": "1.0.19",
     "jsr:@std/text@^1.0.17": "1.0.19",
+    "jsr:@sys/tools@*": "0.0.431",
     "npm:@automerge/automerge-repo-network-websocket@2.5.6": "2.5.6",
     "npm:@automerge/automerge-repo-storage-indexeddb@2.5.6": "2.5.6",
     "npm:@automerge/automerge-repo-storage-nodefs@2.5.6": "2.5.6",
@@ -222,6 +223,9 @@
     },
     "@std/text@1.0.19": {
       "integrity": "003a0e032d360e8c3a4e0410fb792c77a66bd6553fee9d60c6ec1bce30d29223"
+    },
+    "@sys/tools@0.0.431": {
+      "integrity": "df85ac55ca7531040660dadc2cd248f35fd6050c9bb73a7d015bbc57369c3a9c"
     }
   },
   "npm": {
