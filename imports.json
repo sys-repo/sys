@@ -6,6 +6,7 @@
     "@automerge/automerge-repo-storage-indexeddb": "npm:@automerge/automerge-repo-storage-indexeddb@2.5.6",
     "@automerge/automerge-repo-storage-nodefs": "npm:@automerge/automerge-repo-storage-nodefs@2.5.6",
     "@automerge/prosemirror": "npm:@automerge/prosemirror@0.2.0",
+    "@bradenmacdonald/s3-lite-client": "jsr:@bradenmacdonald/s3-lite-client@0.9.6",
     "@cliffy/keypress": "jsr:@cliffy/keypress@1.1.1",
     "@cliffy/prompt": "jsr:@cliffy/prompt@1.1.1",
     "@cliffy/table": "jsr:@cliffy/table@1.1.1",

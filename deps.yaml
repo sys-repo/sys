@@ -12,6 +12,7 @@ deno.json:
   - import: jsr:@std/uuid@1.1.1
   - import: jsr:@std/testing@1.0.19
     subpaths: [ bdd ]
+  - import: jsr:@bradenmacdonald/s3-lite-client@0.9.6
   - import: npm:chai@6.2.2
   - import: npm:fake-indexeddb@6.2.5
     subpaths: [ auto ]

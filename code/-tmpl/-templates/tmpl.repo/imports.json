@@ -67,7 +67,7 @@
     "@sys/ui-react-components/key-value": "jsr:@sys/ui-react-components@0.0.289/key-value",
     "@sys/ui-react-components/object-view": "jsr:@sys/ui-react-components@0.0.289/object-view",
     "react-icons/md": "npm:react-icons@5.6.0/md",
-    "vite": "npm:vite@8.0.15"
+    "vite": "npm:vite@8.0.16"
   }
 }
 
