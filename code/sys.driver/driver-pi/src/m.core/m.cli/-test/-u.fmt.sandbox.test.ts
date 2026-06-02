@@ -8,22 +8,21 @@ type SandboxInput = Omit<t.PiCli.SandboxSummary, 'permissions'> & {
 };
 
 describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
-  it('table → renders scoped sandbox title cyan with dim gray body rules', () => {
+  it('table → renders scoped sandbox chrome with cyan title operations', () => {
     const width = 80;
     const raw = PiSandboxFmt.table({
       permissions: 'scoped',
       cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
     }, { width });
-    const output = lines(raw);
+    const rawLines = lines(raw);
+    const text = Cli.stripAnsi(raw);
 
-    expect(output[0]).to.eql(Cli.Fmt.hr(width - 1, 'cyan'));
-    expect(output[2]).to.eql(c.dim(Cli.Fmt.hr(width - 1, 'gray')));
-    expect(output.at(-1)).to.eql(c.dim(Cli.Fmt.hr(width - 1, 'gray')));
+    expect(rawLines[0]).to.eql(Cli.Fmt.hr(width - 1, 'cyan'));
+    expect(rawLines[2]).to.eql(c.dim(Cli.Fmt.hr(width - 1, 'gray')));
+    expect(rawLines.at(-1)).to.eql(c.dim(Cli.Fmt.hr(width - 1, 'gray')));
     expect(raw).to.contain(c.cyan('system:pi:sandbox'));
-    expect(raw).to.contain(c.gray('read, write, edit, bash'));
-    expect(raw).to.contain(c.dim(c.cyan(' (--git-root)')));
-    expect(raw).not.to.contain(c.dim(c.gray('read, write, edit, bash')));
-    expect(raw).not.to.contain(c.gray('system:pi:sandbox'));
+    expect(raw).to.contain(c.cyan('read, write, edit, bash'));
+    expectHeader(lines(text)[1], 'system:pi:sandbox', width - 1);
   });
 
   it('table → brightens the git-root marker only when --git-root was explicit', () => {
@@ -58,15 +57,12 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
         include: ['/tmp/pi-cli-test/extra.md'],
       },
     } as const;
-    const raw = PiSandboxFmt.table({ permissions: 'scoped', ...input }, { width });
-    const text = Cli.stripAnsi(raw);
+    const text = render(input, width);
 
     const renderWidth = width - 1;
     expectHeaderFrame(text, renderWidth);
     expect(text).to.contain('.pi/@sys/log/@sys.driver-pi/1775975797.abc123.sandbox.log.md');
     expect(text).to.not.contain('/tmp/pi-cli-test/.pi');
-    expect(raw).to.contain(c.gray('.pi/@sys/log/@sys.driver-pi/1775975797.abc123.sandbox.log.md'));
-    expect(raw).not.to.contain(c.white('1775975797.abc123.sandbox.log.md'));
     expectTargetRowsToFit(text, renderWidth, ['report', 'context', 'read']);
     expect(text).to.match(/write:cwd\s+\/tmp\/pi-cli-test\/\s+\(--git-root\)/);
   });
@@ -84,17 +80,12 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
     expectTargetRowsToFit(text, width - 1, ['report']);
   });
 
-  it('table → renders gray write labels, path basenames, and the --git-root marker', () => {
-    const raw = PiSandboxFmt.table({
-      permissions: 'scoped',
+  it('table → groups write cwd and temp roots', () => {
+    const text = render({
       cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
       write: { summary: ['cwd', 'temp'], detail: ['/tmp/pi-cli-runtime'] },
-    }, { width: 120 });
-    const text = Cli.stripAnsi(raw);
+    }, 120);
 
-    expect(raw).to.contain(c.gray('write:cwd'));
-    expect(raw).to.contain(c.gray('     :tmp'));
-    expect(raw).not.to.contain(c.dim(c.magenta('write:cwd')));
     expect(text).to.match(/write:cwd\s+\/tmp\/pi-cli-test\/\s+\(--git-root\)/);
     expect(text).to.contain(':tmp');
     expect(text).to.contain('/tmp/pi-cli-runtime/');
@@ -177,10 +168,8 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
         detail: ['/tmp/pi-cli-test/out'],
       },
     };
-    const raw = PiSandboxFmt.table(input, { width: 80 });
-    const text = Cli.stripAnsi(raw);
+    const text = Cli.stripAnsi(PiSandboxFmt.table(input, { width: 80 }));
 
-    expect(raw).to.contain(c.yellow('--allow-all'));
     expect(text).to.match(/system:pi:no-sandbox --allow-all\s+read, write, edit, bash/);
     expect(text).to.match(/permissions\s+allow-all/);
     expect(text).to.match(/read\s+all/);

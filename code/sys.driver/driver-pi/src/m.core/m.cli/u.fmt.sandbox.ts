@@ -89,7 +89,7 @@ function formatTitle(permissions: t.PiCli.PermissionMode, width: number) {
   if (leftWidth + opsWidth + 1 > width) return left;
 
   const gap = ' '.repeat(width - leftWidth - opsWidth);
-  const ops = permissions === 'allow-all' ? c.dim(c.yellow(TOOL_OPS)) : c.gray(TOOL_OPS);
+  const ops = permissions === 'allow-all' ? c.dim(c.yellow(TOOL_OPS)) : c.cyan(TOOL_OPS);
   return `${left}${gap}${ops}`;
 }
 
