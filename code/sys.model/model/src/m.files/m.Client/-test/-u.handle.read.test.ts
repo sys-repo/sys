@@ -36,7 +36,7 @@ describe('Files.Client.Handle: readText method', () => {
     );
 
     try {
-      const sloppyOptions = { path: 'ignored.txt' } as unknown as t.Files.Client.ReadTextOptions;
+      const sloppyOptions = { path: 'ignored.txt' } as unknown as t.Files.Client.Read.TextOptions;
       expect(await setup.files.readText('actual.txt', sloppyOptions)).to.eql('ok');
       expect(seen.map((payload) => payload.path)).to.eql(['actual.txt']);
     } finally {

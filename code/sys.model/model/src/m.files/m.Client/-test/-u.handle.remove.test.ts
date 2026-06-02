@@ -17,7 +17,7 @@ describe('Files.Client.Handle: remove method', () => {
       const sloppyOptions = {
         path: 'ignored.js',
         recursive: true,
-      } as unknown as t.Files.Client.RemoveOptions;
+      } as unknown as t.Files.Client.Remove.Options;
       const result = await setup.files.remove('old/app.js', sloppyOptions);
 
       expect(result).to.eql({ kind: 'deleted', path: 'old/app.js' });

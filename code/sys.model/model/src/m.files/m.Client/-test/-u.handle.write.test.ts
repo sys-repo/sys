@@ -20,7 +20,7 @@ describe('Files.Client.Handle: write methods', () => {
         content: new Uint8Array([1]),
         encoding: 'utf8',
         mediaType: 'text/html',
-      } as unknown as t.Files.Client.WriteTextOptions;
+      } as unknown as t.Files.Client.Write.TextOptions;
       const result = await setup.files.writeText('index.html', '<h1>Hello</h1>', sloppyOptions);
 
       expect(result).to.eql({ kind: 'created', path: 'index.html' });
@@ -56,7 +56,7 @@ describe('Files.Client.Handle: write methods', () => {
         path: 'ignored.bin',
         content: 'ignored',
         mediaType: 'application/wasm',
-      } as unknown as t.Files.Client.WriteBytesOptions;
+      } as unknown as t.Files.Client.Write.BytesOptions;
       const result = await setup.files.writeBytes('assets/app.wasm', bytes, sloppyOptions);
 
       expect(result).to.eql({ kind: 'modified', path: 'assets/app.wasm' });
