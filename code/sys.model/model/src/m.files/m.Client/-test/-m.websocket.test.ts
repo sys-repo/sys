@@ -21,9 +21,12 @@ describe('Files.Client.websocket', () => {
         'list',
         'manifest',
         'readText',
+        'remove',
         'stat',
         'url',
         'watch',
+        'writeBytes',
+        'writeText',
       ]);
       expect(files.url).to.eql('ws://example.test/files');
       expect('send' in files).to.eql(false);
