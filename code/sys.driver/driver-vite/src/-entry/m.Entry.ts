@@ -9,6 +9,7 @@ import { build } from './u.build.ts';
 import { dev } from './u.dev.ts';
 import { serve } from './u.serve.ts';
 
+/** CLI entry helpers for dev, build, serve, and command dispatch. */
 export const ViteEntry: t.ViteEntry.Lib = {
   main,
   dev,

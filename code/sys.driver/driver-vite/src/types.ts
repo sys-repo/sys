@@ -1,5 +1,6 @@
 /**
- * @module types
+ * @module
+ * Type surface for the Vite driver.
  */
 export type * from './-entry/t.ts';
 

@@ -24,7 +24,9 @@ export declare namespace ViteEntry {
   /** ARGV (Command Line Arguments). */
   export type Args = Args.Dev | Args.Build | Args.Serve | Args.Info;
 
-  /** Command argument variants. */
+  /**
+   * Command argument variants.
+   */
   export namespace Args {
     /** The HMR `dev` server. */
     export type Dev = { cmd: 'dev'; dir?: P; entry?: P; open?: boolean };

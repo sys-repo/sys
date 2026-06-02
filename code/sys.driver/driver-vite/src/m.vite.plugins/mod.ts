@@ -8,6 +8,7 @@
 import type { t } from './common.ts';
 import { OptimizeImportsPlugin as OptimizeImports } from './m.OptimizeImports/mod.ts';
 
+/** Driver-owned Vite plugin helpers. */
 export const VitePlugins: t.VitePlugins.Lib = {
   OptimizeImports,
 };

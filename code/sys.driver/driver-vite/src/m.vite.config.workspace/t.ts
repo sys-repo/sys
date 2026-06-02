@@ -31,6 +31,7 @@ export type ViteDenoWorkspace = t.DenoFile.Workspace.Info & {
  * Filter a workspace of modules.
  */
 export type WorkspaceFilter = (e: t.WorkspaceFilterArgs) => boolean;
+/** Workspace export details passed to a module filter. */
 export type WorkspaceFilterArgs = {
   pkg: string;
   export: string;

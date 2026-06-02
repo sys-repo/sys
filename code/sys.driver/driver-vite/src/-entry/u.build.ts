@@ -1,7 +1,7 @@
 import { type t, DenoFile, Path, Pkg, Vite } from './common.ts';
 
 /**
- * Run a local HTTP server from entry command-args.
+ * Build a production bundle from entry command args.
  */
 export async function build(args: t.ViteEntry.Args.Build) {
   const { silent } = args;

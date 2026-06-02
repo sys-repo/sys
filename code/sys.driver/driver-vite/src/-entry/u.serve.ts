@@ -1,7 +1,7 @@
 import { type t, c, Fs, Http, pkg, Pkg } from './common.ts';
 
 /**
- * Run a local HTTP server from entry command-args.
+ * Serve a production bundle from entry command args.
  */
 export async function serve(args: t.ViteEntry.Args.Serve) {
   if (args.cmd !== 'serve') return;
