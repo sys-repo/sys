@@ -31,9 +31,6 @@ export function handlersWithRead(
     watch: false,
     manifest: false,
   };
-  const unsupported = () => {
-    throw new Error('Unsupported test command');
-  };
 
   return {
     'files:capabilities': () => capabilities,
@@ -42,6 +39,34 @@ export function handlersWithRead(
     'files:read': read,
     'files:write': unsupported,
     'files:remove': unsupported,
+    'files:watch': unsupported,
+    'files:manifest': unsupported,
+  };
+}
+
+export type MutationHandlers = {
+  readonly write?: t.Files.Cmd.HandlerMap['files:write'];
+  readonly remove?: t.Files.Cmd.HandlerMap['files:remove'];
+};
+
+export function handlersWithMutations(handlers: MutationHandlers): t.Files.Cmd.HandlerMap {
+  const capabilities: t.Files.Capabilities = {
+    list: false,
+    stat: false,
+    read: false,
+    write: true,
+    remove: true,
+    watch: false,
+    manifest: false,
+  };
+
+  return {
+    'files:capabilities': () => capabilities,
+    'files:list': unsupported,
+    'files:stat': unsupported,
+    'files:read': unsupported,
+    'files:write': handlers.write ?? unsupported,
+    'files:remove': handlers.remove ?? unsupported,
     'files:watch': unsupported,
     'files:manifest': unsupported,
   };
@@ -60,4 +85,8 @@ export async function expectFilesClientError(
   expect((error as Error).name).to.eql('FilesClientError');
   expect((error as Error).message).to.eql(message);
   return error as Error;
+}
+
+function unsupported(): never {
+  throw new Error('Unsupported test command');
 }

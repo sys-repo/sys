@@ -920,7 +920,7 @@ export declare namespace Files {
       websocket(url: t.StringUrl | URL, options?: WebSocketOptions): Promise<WebSocket>;
     };
 
-    /** Humane Files client handle backed by the raw Cmd escape hatch. */
+    /** Client-facing Files handle backed by the raw Cmd escape hatch. */
     export type Handle = t.Lifecycle & {
       /** Raw typed Cmd client for structured/advanced Files command access. */
       readonly cmd: Cmd.Client;
@@ -938,6 +938,26 @@ export declare namespace Files {
       manifest(options?: ManifestOptions): Promise<Files.Manifest>;
       /** Read a text file as a string through the typed `files:read` command. */
       readText(path: String.Path, options?: ReadTextOptions): Promise<string>;
+      /**
+       * Write a complete text-file value through the typed `files:write` command.
+       */
+      writeText(
+        path: String.Path,
+        content: string,
+        options?: WriteTextOptions,
+      ): Promise<Cmd.Write.Result>;
+      /**
+       * Write a complete byte-file value through the typed `files:write` command.
+       */
+      writeBytes(
+        path: String.Path,
+        content: Uint8Array,
+        options?: WriteBytesOptions,
+      ): Promise<Cmd.Write.Result>;
+      /**
+       * Remove a file or directory through the typed `files:remove` command.
+       */
+      remove(path: String.Path, options?: RemoveOptions): Promise<Cmd.Remove.Result>;
       /** Watch for change hints and return the typed Cmd stream handle. */
       watch(input?: WatchOptions): Watch;
     };
@@ -978,6 +998,21 @@ export declare namespace Files {
 
     /** Options for `Files.Client.readText(...)`. */
     export type ReadTextOptions = Omit<Cmd.Read.Payload, 'path'>;
+
+    /**
+     * Options for `Files.Client.writeText(...)`.
+     */
+    export type WriteTextOptions = Omit<Cmd.Write.TextPayload, 'kind' | 'path' | 'content'>;
+
+    /**
+     * Options for `Files.Client.writeBytes(...)`.
+     */
+    export type WriteBytesOptions = Omit<Cmd.Write.BytesPayload, 'kind' | 'path' | 'content'>;
+
+    /**
+     * Options for `Files.Client.remove(...)`.
+     */
+    export type RemoveOptions = Omit<Cmd.Remove.Payload, 'path'>;
 
     /** Options for `Files.Client.watch(...)`. */
     export type WatchOptions = Cmd.Watch.Payload;

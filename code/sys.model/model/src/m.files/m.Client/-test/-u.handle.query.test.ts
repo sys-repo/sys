@@ -20,8 +20,8 @@ const entry: t.Files.Entry = {
   mediaType: 'text/markdown',
 };
 
-describe('Files.Client.Handle query surface', () => {
-  it('delegates humane query methods to the typed Files Cmd grammar', async () => {
+describe('Files.Client.Handle: query methods', () => {
+  it('delegates query methods to the typed Files Cmd grammar', async () => {
     const seen = {
       list: [] as t.Files.Cmd.List.Payload[],
       stat: [] as t.Files.Cmd.Stat.Payload[],
@@ -110,7 +110,7 @@ describe('Files.Client.Handle query surface', () => {
       const watch = handle.watch();
       expectTypeOf(watch).toEqualTypeOf<t.Files.Client.Watch>();
 
-      // @ts-expect-error Humane manifest options ask for content refs, not content.
+      // @ts-expect-error Client manifest options ask for content refs, not content.
       handle.manifest({ content: true });
     }
   });

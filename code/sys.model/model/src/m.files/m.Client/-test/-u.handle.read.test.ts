@@ -1,7 +1,7 @@
 import { describe, expect, it, type t } from '../../../-test.ts';
 import { createTransport, expectFilesClientError, handlersWithRead } from './u.fixture.ts';
 
-describe('Files.Client.Handle.readText', () => {
+describe('Files.Client.Handle: readText method', () => {
   it('rejects content refs with a Files client domain error', async () => {
     const setup = createTransport(
       handlersWithRead((payload) => ({
