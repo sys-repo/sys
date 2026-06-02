@@ -92,7 +92,7 @@
     "typebox": "npm:typebox@1.1.39",
     "typebox/error": "npm:typebox@1.1.39/error",
     "typebox/value": "npm:typebox@1.1.39/value",
-    "vite": "npm:vite@8.0.15",
+    "vite": "npm:vite@8.0.16",
     "vite-plugin-wasm": "npm:vite-plugin-wasm@3.6.0",
     "ws": "npm:ws@8.21.0",
     "yaml": "npm:yaml@2.9.0"

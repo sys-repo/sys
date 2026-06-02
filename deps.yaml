@@ -23,7 +23,7 @@ deno.json:
     dev: true
   - import: npm:rollup@4.61.0
     dev: true
-  - import: npm:vite@8.0.15
+  - import: npm:vite@8.0.16
     dev: true
   - import: npm:vite-plugin-wasm@3.6.0
     dev: true
@@ -94,7 +94,7 @@ package.json:
     dev: true
   - import: npm:rollup@4.61.0
     dev: true
-  - import: npm:vite@8.0.15
+  - import: npm:vite@8.0.16
     dev: true
   - import: npm:vite-plugin-wasm@3.6.0
     dev: true
@@ -106,9 +106,9 @@ package.json:
     subpaths: [ bs, fa, fa6, fi, hi, lia, lu, md, pi, ri, tb, vsc ]
   - import: npm:prettier@3.8.3
     dev: true
-  - import: npm:react@19.2.6
-  - import: npm:react-dom@19.2.6
-  - import: npm:@types/react@19.2.15
+  - import: npm:react@19.2.7
+  - import: npm:react-dom@19.2.7
+  - import: npm:@types/react@19.2.16
   - import: npm:@types/react-dom@19.2.3
   - import: npm:@testing-library/react@16.3.2
   - import: npm:motion@12.40.0

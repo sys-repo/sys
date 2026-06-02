@@ -3823,7 +3823,7 @@
       "npm:ts-essentials@10.2.0",
       "npm:typebox@1.1.39",
       "npm:vite-plugin-wasm@3.6.0",
-      "npm:vite@8.0.15",
+      "npm:vite@8.0.16",
       "npm:ws@8.21.0",
       "npm:yaml@2.9.0"
     ],
