@@ -145,6 +145,11 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       continue;
     }
 
+    if (picked === 'reload') {
+      demarkNextRender = true;
+      continue;
+    }
+
     if (picked === 'push') {
       const res = await runEndpointAction({ cwd, key, yamlPath: yamlAbs, action: 'push' });
       if (res.push?.ok) {
