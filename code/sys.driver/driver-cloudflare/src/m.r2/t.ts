@@ -1,3 +1,5 @@
+import type { Files as TFiles } from '@sys/model/files/t';
+
 /**
  * Cloudflare R2 integration.
  */
@@ -5,6 +7,7 @@ export declare namespace R2 {
   /** Runtime API surface. */
   export type Lib = {
     readonly Service: Service.Lib;
+    readonly Files: Files.Lib;
   };
 
   /** R2 account credentials for signed HTTP access. */
@@ -104,6 +107,35 @@ export declare namespace R2 {
       remove(key: string): Promise<void>;
       list(options?: ListOptions): AsyncIterable<ObjectInfo>;
     };
+  }
+
+  /**
+   * Files<T> backing adapter over an R2 bucket.
+   */
+  export namespace Files {
+    /** Runtime API surface. */
+    export type Lib = {
+      create(options: CreateOptions): Writable;
+    };
+
+    /** Bounded writable Files backing over an R2 bucket. */
+    export type Writable = TFiles.Backing.Shape<'files/r2:writable'>;
+
+    /** Options for creating a bounded writable Files backing over an R2 bucket. */
+    export type CreateOptions =
+      & TFiles.Backing.Options
+      & TFiles.Backing.InlineReadOptions
+      & TFiles.Backing.InlineWriteOptions
+      & {
+        readonly bucket: Bucket;
+        readonly prefix?: string;
+      };
+
+    /** Files/R2 backing error surface. */
+    export namespace Error {
+      /** Files/R2 backing error name. */
+      export type Kind = `FilesR2Error.${TFiles.Backing.ErrorKindSuffix}`;
+    }
   }
 
   /** Object metadata using R2/public-driver vocabulary. */

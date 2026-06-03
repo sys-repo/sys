@@ -132,7 +132,9 @@ describe('R2.Service', () => {
 
     expect(() => bucket.list({ prefix: '/assets' })).to.throw(/rootless/);
     expect(() => bucket.list({ limit: -1 })).to.throw(/finite non-negative integer/);
-    expect(() => bucket.list({ pageSize: 1.5 })).to.throw(/finite non-negative integer/);
+    expect(() => bucket.list({ pageSize: 0 })).to.throw(/between 1 and 1000/);
+    expect(() => bucket.list({ pageSize: 1001 })).to.throw(/between 1 and 1000/);
+    expect(() => bucket.list({ pageSize: 1.5 })).to.throw(/between 1 and 1000/);
     expect(calls).to.eql([]);
   });
 

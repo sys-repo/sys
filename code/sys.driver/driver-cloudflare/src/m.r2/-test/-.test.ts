@@ -6,5 +6,6 @@ describe('@sys/driver-cloudflare/r2', () => {
     const m = await import('@sys/driver-cloudflare/r2');
     expect(m.R2).to.equal(R2);
     expect(m.R2.Service).to.equal(R2.Service);
+    expect(m.R2.Files).to.equal(R2.Files);
   });
 });

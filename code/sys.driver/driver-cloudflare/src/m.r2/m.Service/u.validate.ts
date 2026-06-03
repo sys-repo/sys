@@ -68,7 +68,7 @@ export function toListOptions(
   if (!Is.nil(input.prefix)) options.prefix = toPrefix(input.prefix);
   if (!Is.nil(input.limit)) options.limit = toNonNegativeInteger(input.limit, 'list.limit');
   if (!Is.nil(input.pageSize)) {
-    options.pageSize = toNonNegativeInteger(input.pageSize, 'list.pageSize');
+    options.pageSize = toListPageSize(input.pageSize);
   }
   return Obj.keys(options).length > 0
     ? Object.freeze(options) as t.R2.Bucket.ListOptions
@@ -120,6 +120,13 @@ function toPrefix(input: string): string {
 function toNonNegativeInteger(input: number, label: string): number {
   if (!Num.Is.int(input) || input < 0) {
     throw Err.std(`R2 ${label} must be a finite non-negative integer.`);
+  }
+  return input;
+}
+
+function toListPageSize(input: number): number {
+  if (!Num.Is.int(input) || input < 1 || input > 1000) {
+    throw Err.std(`R2 list.pageSize must be a finite integer between 1 and 1000.`);
   }
   return input;
 }

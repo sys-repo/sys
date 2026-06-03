@@ -44,6 +44,7 @@ export function createS3Transport(context: t.R2.Bucket.TransportContext): t.R2.B
       return client.deleteObject(key, { bucketName });
     },
     async *list(options) {
+      if (options?.limit === 0) return;
       const objects = client.listObjects({
         bucketName,
         prefix: options?.prefix,
