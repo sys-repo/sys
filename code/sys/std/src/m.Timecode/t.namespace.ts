@@ -154,7 +154,7 @@ export namespace Timecode {
     /** Composite timecode helper library surface. */
     export type Lib = {
       /** Build a resolved timeline from authoring spec + known durations. */
-      readonly resolve: t.TimecodeResolveComposition;
+      readonly resolve: Composite.Resolve.Fn;
 
       /** Mapping helpers between virtual-time and source-time domains. */
       readonly Map: Composite.Map.Lib;
@@ -231,6 +231,12 @@ export namespace Timecode {
         /** Map a virtual time to its backing source segment/time (or null). */
         readonly toSource: t.TimecodeMapToSource;
       };
+    }
+
+    /** Composition resolver operation contracts. */
+    export namespace Resolve {
+      export type Fn = t.TimecodeResolveComposition;
+      export type Result = t.TimecodeCompositionResolved;
     }
 
     export type Piece = t.TimecodeCompositePiece;

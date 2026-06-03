@@ -15,7 +15,7 @@ import {
 import { useVirtualTimeline } from '../mod.ts';
 import { makeResolved } from './-u.ts';
 
-let ORIG_TO_VT: (spec?: t.TimecodeCompositionSpec) => t.TimecodeResolved;
+let ORIG_TO_VT: (spec?: t.Timecode.Composite.Spec) => t.Timecode.Resolved;
 
 describe('useVirtualTimeline', () => {
   DomMock.init({ beforeEach, afterEach });
@@ -24,7 +24,7 @@ describe('useVirtualTimeline', () => {
     // Save original
     ORIG_TO_VT = (Timecode as any).Composite.toVirtualTimeline;
     // Patch via "any" to bypass readonly typing in tests.
-    (Timecode as any).Composite.toVirtualTimeline = (spec: unknown): t.TimecodeResolved => {
+    (Timecode as any).Composite.toVirtualTimeline = (spec: unknown): t.Timecode.Resolved => {
       if (spec === 'A') return makeResolved(1_000, 1);
       if (spec === 'B') return makeResolved(2_000, 2);
       return makeResolved(0, 0);
@@ -52,10 +52,10 @@ describe('useVirtualTimeline', () => {
 
   it('rev does not change when resolution is identical', async () => {
     const { result, rerender, unmount } = renderHook(
-      (spec?: t.TimecodeCompositionSpec) =>
+      (spec?: t.Timecode.Composite.Spec) =>
         // Cast sentinels to the expected type for the hook (test-only).
         useVirtualTimeline(spec),
-      { initialProps: 'A' as unknown as t.TimecodeCompositionSpec },
+      { initialProps: 'A' as unknown as t.Timecode.Composite.Spec },
     );
     try {
       await Promise.resolve();
@@ -63,7 +63,7 @@ describe('useVirtualTimeline', () => {
       const total1 = result.current.total;
       const len1 = result.current.segments.length;
 
-      act(() => rerender('A' as unknown as t.TimecodeCompositionSpec));
+      act(() => rerender('A' as unknown as t.Timecode.Composite.Spec));
       await Promise.resolve();
 
       expect(result.current.rev).to.eql(rev1);
@@ -76,14 +76,14 @@ describe('useVirtualTimeline', () => {
 
   it('rev increments when the resolved timeline changes', async () => {
     const { result, rerender, unmount } = renderHook(
-      (spec?: t.TimecodeCompositionSpec) => useVirtualTimeline(spec),
-      { initialProps: 'A' as unknown as t.TimecodeCompositionSpec },
+      (spec?: t.Timecode.Composite.Spec) => useVirtualTimeline(spec),
+      { initialProps: 'A' as unknown as t.Timecode.Composite.Spec },
     );
     try {
       await Promise.resolve();
       const revA = result.current.rev;
 
-      act(() => rerender('B' as unknown as t.TimecodeCompositionSpec));
+      act(() => rerender('B' as unknown as t.Timecode.Composite.Spec));
       await Promise.resolve();
 
       expect(result.current.rev).to.eql(revA + 1);

@@ -2,17 +2,7 @@ import type * as TCss from '@sys/ui-css/t';
 
 export type { MouseEventHandler as ReactMouseEventHandler, ReactNode } from 'react';
 
-export type {
-  AsyncSchedule,
-  LeaseMap,
-  TimecodeCompositionResolved,
-  TimecodeCompositionSpec,
-  TimecodeResolved,
-  TimecodeResolvedSegment,
-  TimecodeVTime,
-  VirtualClock,
-  VirtualClockState,
-} from '@sys/std/t';
+export type { AsyncSchedule, LeaseMap, Timecode } from '@sys/std/t';
 export type { WebFont } from '@sys/ui-css/t';
 export type CssEdgesArray = TCss.CssEdges.Array;
 export type CssEdgesInput = TCss.CssEdges.Input;
