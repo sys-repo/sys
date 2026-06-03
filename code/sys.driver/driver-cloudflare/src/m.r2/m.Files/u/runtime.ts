@@ -96,11 +96,12 @@ export function urlRef(
   if (!origin) return undefined;
   const key = objectKey(runtime.prefix, path);
   const url = new URL(encodeKeyPath(key), `${origin}/`).toString();
+  const size = Num.Is.safeInt(entry.size) && entry.size >= 0 ? entry.size : undefined;
   return {
     kind: 'url',
     path,
     url,
-    ...(entry.size === undefined ? {} : { size: entry.size }),
+    ...(size === undefined ? {} : { size }),
     ...(entry.mediaType === undefined ? {} : { mediaType: entry.mediaType }),
   };
 }

@@ -117,6 +117,39 @@ describe('R2.Files', () => {
     });
   });
 
+  it('omits invalid provider sizes from Files entries and URL refs', async () => {
+    const object = bytesObject(new Uint8Array([1, 2]), 'application/json');
+    const { bucket } = fakeBucket({
+      'deploy/main/dist.json': { ...object, size: Number.NaN },
+    }, 'https://cdn.example.com/root');
+    const files = Files.Client.local(R2.Files.create({ bucket, policy, prefix: 'deploy/main' }));
+
+    expect(await files.stat('dist.json')).to.eql({
+      path: 'dist.json',
+      kind: 'file',
+      modifiedAt: 1780272000000,
+      mediaType: 'application/json',
+    });
+
+    const read = await files.cmd.send('files:read', { path: 'dist.json' });
+
+    expect(read).to.eql({
+      kind: 'ref',
+      file: {
+        path: 'dist.json',
+        kind: 'file',
+        modifiedAt: 1780272000000,
+        mediaType: 'application/json',
+      },
+      contentRef: {
+        kind: 'url',
+        path: 'dist.json',
+        mediaType: 'application/json',
+        url: 'https://cdn.example.com/root/deploy/main/dist.json',
+      },
+    });
+  });
+
   it('encodes URL content-ref path segments without changing object-key semantics', async () => {
     const { bucket } = fakeBucket({
       'deploy/main/docs/a b+c?.txt': bytesObject(new Uint8Array([1]), 'text/plain'),

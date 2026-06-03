@@ -37,7 +37,7 @@ export function fileEntry(path: t.Files.String.Path, object: t.R2.ObjectInfo): t
   return {
     path,
     kind: 'file',
-    size: object.size,
+    ...sizeOf(object.size),
     ...modifiedAt(object.modifiedAt),
   };
 }
@@ -50,7 +50,7 @@ export function fileEntryFromMeta(
   return {
     path,
     kind: 'file',
-    size: object.size,
+    ...sizeOf(object.size),
     ...modifiedAt(object.modifiedAt),
     ...(object.metadata?.mediaType === undefined ? {} : { mediaType: object.metadata.mediaType }),
   };
@@ -59,6 +59,10 @@ export function fileEntryFromMeta(
 /** Synthetic Files directory entry. */
 export function dirEntry(path: t.Files.String.Path): t.Files.Dir {
   return { path, kind: 'dir' };
+}
+
+function sizeOf(input: number): Pick<t.Files.File, 'size'> {
+  return Num.Is.safeInt(input) && input >= 0 ? { size: input as t.NumberBytes } : {};
 }
 
 function modifiedAt(input: Date | undefined): Pick<t.Files.Entry.Base, 'modifiedAt'> {
