@@ -7,8 +7,10 @@ export { ConfigRef } from '../common/u.configRef.ts';
 /** @system: exports */
 import { Args, c, Cli } from '@sys/cli';
 import { Color } from '@sys/color';
-import { Fs, Path, Pkg } from '@sys/fs';
+import { R2 } from '@sys/driver-cloudflare/r2';
+import { FileMap, Fs, Path, Pkg } from '@sys/fs';
 import { Http } from '@sys/http/client';
+import { Files } from '@sys/model/files';
 import { Open, Process } from '@sys/process';
 import { Schema } from '@sys/schema';
 import { Arr } from '@sys/std/arr';
@@ -31,6 +33,8 @@ export {
   Cli,
   Color,
   Err,
+  FileMap,
+  Files,
   Fs,
   Http,
   Is,
@@ -42,6 +46,7 @@ export {
   pkg,
   Pkg,
   Process,
+  R2,
   Schema,
   slug,
   Str,

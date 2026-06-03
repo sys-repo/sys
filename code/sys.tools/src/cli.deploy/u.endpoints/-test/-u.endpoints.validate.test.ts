@@ -1,5 +1,5 @@
 import { describe, expect, it, Str } from '../../../-test.ts';
-import { providerlessPrebuiltStageYaml } from '../../-test/-fixtures.ts';
+import { providerlessPrebuiltStageYaml } from '../../-test/u.fixture.ts';
 import { validateEndpointYamlText } from '../mod.ts';
 
 describe('Endpoints: validateEndpointYamlText', () => {

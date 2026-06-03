@@ -1,6 +1,6 @@
 import { Cli, describe, expect, Fs, it, Pkg, Str } from '../../-test.ts';
 import { runEndpointAction } from '../u.endpointAction.ts';
-import { captureInfo, providerlessPrebuiltStageYaml, withTmpDir } from './-fixtures.ts';
+import { captureInfo, providerlessPrebuiltStageYaml, withTmpDir } from './u.fixture.ts';
 
 describe('@sys/tools/deploy endpoint actions', () => {
   it('stage → stages providerless prebuilt artifact with source root and clear', async () => {

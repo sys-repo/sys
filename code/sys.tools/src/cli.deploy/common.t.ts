@@ -14,6 +14,8 @@ export type {
   CliTable,
 } from '@sys/cli/t';
 export type { JsonFile } from '@sys/fs/t';
+export type { R2 } from '@sys/driver-cloudflare/t';
+export type { Files } from '@sys/model/files/t';
 export type { Process } from '@sys/process/t';
 export type { Schema } from '@sys/schema/t';
 export type { Yaml, YamlConfig } from '@sys/yaml/t';

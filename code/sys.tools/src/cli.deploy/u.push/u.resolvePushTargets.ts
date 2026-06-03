@@ -1,5 +1,6 @@
 import { type t } from '../common.ts';
 import { resolveOrbiterPushTargets } from './u.resolveOrbiterPushTargets.ts';
+import { resolveR2PushTargets } from './u.resolveR2PushTargets.ts';
 
 type ResolvePushTargetsArgs = {
   cwd: t.StringDir;
@@ -12,6 +13,7 @@ export async function resolvePushTargets(args: ResolvePushTargetsArgs): Promise<
   if (!provider) {
     return { targets: [], missing: [], stats: { total: 0, missing: 0 } };
   }
+  if (provider.kind === 'r2') return await resolveR2PushTargets(args);
   if (provider.kind !== 'orbiter') {
     return { targets: [], missing: [], stats: { total: 0, missing: 0 } };
   }

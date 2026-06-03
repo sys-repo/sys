@@ -212,6 +212,8 @@ function formatTargetContext(context?: t.PushTargetContext): string {
   parts.push(`provider=${context.provider}`);
   if (Is.num(context.shard)) parts.push(`shard=${context.shard}`);
   if (context.siteId) parts.push(`siteId=${context.siteId}`);
+  if (context.bucket) parts.push(`bucket=${context.bucket}`);
+  if (context.prefix) parts.push(`prefix=${context.prefix}`);
   if (context.domain) parts.push(`domain=${context.domain}`);
   if (context.stagingDir) parts.push(`staging=${Fs.trimCwd(context.stagingDir)}`);
   return parts.join(' ');
@@ -263,8 +265,14 @@ function missingOutput(
 function targetContext(target: t.PushTarget, index: number): t.PushTargetContext {
   const provider = target.provider;
   const providerKind = String(provider.kind ?? '').trim() || 'unknown';
-  const providerDomain = provider.kind === 'orbiter' ? trimText(provider.domain) : undefined;
+  const providerDomain = provider.kind === 'orbiter'
+    ? trimText(provider.domain)
+    : provider.kind === 'r2'
+    ? trimText(provider.readOrigin)
+    : undefined;
   const siteId = provider.kind === 'orbiter' ? trimText(provider.siteId) : undefined;
+  const bucket = provider.kind === 'r2' ? trimText(provider.bucket) : undefined;
+  const prefix = provider.kind === 'r2' ? trimText(provider.prefix) : undefined;
   const domain = trimText(target.domain) ?? providerDomain;
   const stagingDir = trimText(target.stagingDir) as t.StringDir | undefined;
 
@@ -276,6 +284,8 @@ function targetContext(target: t.PushTarget, index: number): t.PushTargetContext
     shard: Is.num(target.shard) ? target.shard : undefined,
     domain,
     siteId,
+    bucket,
+    prefix,
   };
 }
 

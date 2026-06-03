@@ -1,5 +1,5 @@
 import { type t } from '../common.ts';
-import { OrbiterProvider, Provider } from '../u.providers/mod.ts';
+import { OrbiterProvider, Provider, R2Provider } from '../u.providers/mod.ts';
 
 /**
  * Execute a push for the given provider.
@@ -31,6 +31,10 @@ export async function pushProvider(args: {
     }
     case 'noop': {
       return { ok: true };
+    }
+    case 'r2': {
+      if (!target) return { ok: false, reason: 'failed', hint: 'Missing provider push target.' };
+      return await R2Provider.push({ cwd, target: target as t.R2PushTarget });
     }
 
     default: {

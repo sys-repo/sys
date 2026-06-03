@@ -1,4 +1,4 @@
-import { c, Cli, Fs, Is, Open, Path, Pkg, Str, type t, Time } from '../common.ts';
+import { c, Cli, Fs, Is, Num, Open, Path, Pkg, Str, type t, Time } from '../common.ts';
 import { D as ServeDefaults } from '../../cli.serve/common.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
 import { runEndpointAction } from '../u.endpointAction.ts';
@@ -93,6 +93,8 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       ? String(provider.domain ?? '').trim()
         ? `https://${String(provider.domain ?? '').trim()}`
         : undefined
+      : provider?.kind === 'r2'
+      ? String(provider.readOrigin ?? '').trim() || undefined
       : undefined;
 
     const showPush = capability.show;
@@ -231,7 +233,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
 }
 
 function formatStageAge(msec: number): string {
-  if (!Number.isFinite(msec) || msec < 0) return '';
+  if (!Num.Is.finite(msec) || msec < 0) return '';
   if (msec < STAGE_JUST_NOW_MSEC) return 'just now';
   return Time.Duration.create(msec).toString();
 }

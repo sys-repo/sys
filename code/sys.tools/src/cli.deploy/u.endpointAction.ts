@@ -90,6 +90,8 @@ async function runPushAction(args: {
   for (const target of targets) {
     const providerDomain = target.provider.kind === 'orbiter'
       ? String(target.provider.domain ?? '').trim()
+      : target.provider.kind === 'r2'
+      ? String(target.provider.readOrigin ?? '').trim()
       : '';
     const domainRaw = String(target.domain ?? providerDomain ?? '').trim();
     const domain = toHttpsUrl(domainRaw);

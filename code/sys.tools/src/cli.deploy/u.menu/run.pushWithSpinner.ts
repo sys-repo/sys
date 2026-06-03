@@ -26,8 +26,11 @@ export async function runPushWithSpinner(args: {
   const bytes = dist?.build.size.total ?? 0;
 
   const shardLabel = Is.num(args.target.shard) ? 'shard' : undefined;
-  const providerDomain =
-    args.target.provider.kind === 'orbiter' ? String(args.target.provider.domain ?? '').trim() : '';
+  const providerDomain = args.target.provider.kind === 'orbiter'
+    ? String(args.target.provider.domain ?? '').trim()
+    : args.target.provider.kind === 'r2'
+    ? String(args.target.provider.readOrigin ?? '').trim()
+    : '';
   const providerLabel =
     String(args.target.domain ?? '').trim() || providerDomain || args.target.provider.kind;
   let pushing = shardLabel
@@ -44,7 +47,9 @@ export async function runPushWithSpinner(args: {
     if (res.ok) {
       const elapsed = Time.elapsed(started).toString();
       const summary = `elapsed ${elapsed}${bytes ? `, ${Str.bytes(bytes)}` : ''}`;
-      const url = providerLabel ? `https://${providerLabel}` : '';
+      const url = providerLabel
+        ? providerLabel.startsWith('http') ? providerLabel : `https://${providerLabel}`
+        : '';
       const status = [c.green('push complete'), c.gray(`(${summary})`), url ? c.white(url) : '']
         .filter(Boolean)
         .join(' ');

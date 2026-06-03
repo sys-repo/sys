@@ -25,6 +25,8 @@ export type PushTargetContext = {
   readonly shard?: number;
   readonly domain?: string;
   readonly siteId?: string;
+  readonly bucket?: string;
+  readonly prefix?: string;
 };
 
 export type PushMissingTarget = PushTargetContext & {
@@ -54,7 +56,15 @@ export type NoopPushTarget = {
   readonly domain?: string;
 };
 
-export type PushTarget = OrbiterPushTarget | NoopPushTarget;
+export type R2PushTarget = {
+  readonly provider: t.DeployTool.Config.Provider.R2;
+  readonly sourceDir: t.StringDir;
+  readonly stagingDir: t.StringDir;
+  readonly shard?: number;
+  readonly domain?: string;
+};
+
+export type PushTarget = OrbiterPushTarget | NoopPushTarget | R2PushTarget;
 
 export type PushPlanStats = {
   readonly total: number;

@@ -1,4 +1,4 @@
-import { c, Cli, Fmt, Fs, Is, Pkg, Str, type t } from '../common.ts';
+import { c, Cli, Fmt, Fs, Is, Num, Pkg, Str, type t } from '../common.ts';
 import { Provider } from '../u.providers/mod.ts';
 import { fmtProvider } from './u.fmt.provider.ts';
 
@@ -31,7 +31,7 @@ export async function endpointTable(
 
   const mappingsCount = yaml?.mappings?.length ?? 0;
   const shardTotal = yaml?.provider?.kind === 'orbiter' ? yaml?.provider?.shards?.total : undefined;
-  const mappingsLabel = Is.num(shardTotal) && Number.isFinite(shardTotal) && shardTotal > 0
+  const mappingsLabel = Num.Is.finite(shardTotal) && shardTotal > 0
     ? `${mappingsCount} ${Str.plural(mappingsCount, 'bundle')} over ${
       c.white(`${shardTotal}-shards`)
     }`
@@ -39,6 +39,8 @@ export async function endpointTable(
   const providerFmt = fmtProvider(yaml?.provider);
   const providerDomain = yaml?.provider?.kind === 'orbiter'
     ? String(yaml.provider.domain ?? '').trim()
+    : yaml?.provider?.kind === 'r2'
+    ? String(yaml.provider.readOrigin ?? '').trim()
     : '';
 
   let providerProbe: t.PushProbe | undefined;
@@ -72,7 +74,8 @@ export async function endpointTable(
   }
 
   if (providerDomain) {
-    rows.push({ label: 'domain', value: c.cyan(`https://${providerDomain}`) });
+    const domain = providerDomain.startsWith('http') ? providerDomain : `https://${providerDomain}`;
+    rows.push({ label: 'domain', value: c.cyan(domain) });
   }
 
   const body: Array<[string, string]> = [[c.gray('Endpoint'), c.cyan(name)]];

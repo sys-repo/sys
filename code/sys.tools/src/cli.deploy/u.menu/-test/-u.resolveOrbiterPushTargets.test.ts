@@ -1,6 +1,6 @@
 import { type t, describe, expect, Fs, it } from '../../../-test.ts';
 import { resolveOrbiterPushTargets } from '../u/u.resolveOrbiterPushTargets.ts';
-import { withTmpDir } from '../../-test/-fixtures.ts';
+import { withTmpDir } from '../../-test/u.fixture.ts';
 
 describe('Deploy: resolveOrbiterPushTargets', () => {
   it('returns no targets for shard mappings without siteIds', async () => {

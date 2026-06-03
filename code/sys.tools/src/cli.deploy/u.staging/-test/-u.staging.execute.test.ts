@@ -1,4 +1,4 @@
-import { withTmpDir } from '../../-test/-fixtures.ts';
+import { withTmpDir } from '../../-test/u.fixture.ts';
 import { type t, describe, expect, Fs, it } from '../../../-test.ts';
 import { Json, Pkg, Path } from '../../common.ts';
 import { executeStaging } from '../u.staging.execute.ts';

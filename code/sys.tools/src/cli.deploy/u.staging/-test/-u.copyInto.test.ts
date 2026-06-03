@@ -1,4 +1,4 @@
-import { withTmpDir } from '../../-test/-fixtures.ts';
+import { withTmpDir } from '../../-test/u.fixture.ts';
 import { describe, expect, Fs, it } from '../../../-test.ts';
 import { copyInto } from '../u.copyInto.ts';
 

@@ -23,6 +23,18 @@ describe('Provider: probe', () => {
     expect(res.ok).to.eql(true);
   });
 
+  it('treats r2 as available', async () => {
+    const cwd = (await Fs.makeTempDir()).absolute;
+    const res = await Provider.probe(cwd, {
+      kind: 'r2',
+      accountId: 'account-1',
+      bucket: 'deploy-bucket',
+      prefix: 'deploy/site',
+      credentials: { accessKeyId: 'key-1', secretAccessKey: 'secret-1' },
+    });
+    expect(res.ok).to.eql(true);
+  });
+
   it('returns no-provider when provider is omitted', async () => {
     const cwd = (await Fs.makeTempDir()).absolute;
     const res = await Provider.probe(cwd, undefined);

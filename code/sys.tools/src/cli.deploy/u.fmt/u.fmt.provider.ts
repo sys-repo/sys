@@ -13,12 +13,22 @@ export function fmtProvider(
     case 'noop':
       return { label: 'provider', value: c.white('noop') };
 
+    case 'r2':
+      return fmtProviderR2(provider);
+
     default: {
       // Future providers: keep a stable, non-throwing default.
       const kind = (provider as { readonly kind?: unknown }).kind;
       return { label, value: c.gray(String(kind ?? 'unknown')) };
     }
   }
+}
+
+function fmtProviderR2(p: t.DeployTool.Config.Provider.R2): t.ProviderFmt {
+  const bucket = String(p.bucket ?? '').trim() || '-';
+  const prefix = String(p.prefix ?? '').trim() || '-';
+  const value = `${c.cyan('r2')} bucket:${c.white(bucket)} prefix:${c.dim(c.gray(prefix))}`;
+  return { label: 'provider', value };
 }
 
 function fmtProviderOrbiter(p: t.DeployTool.Config.Provider.Orbiter): t.ProviderFmt {

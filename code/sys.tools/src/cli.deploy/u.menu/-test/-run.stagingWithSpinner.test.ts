@@ -1,5 +1,5 @@
 import { describe, expect, Fs, it, Pkg, Str } from '../../../-test.ts';
-import { withTmpDir } from '../../-test/-fixtures.ts';
+import { withTmpDir } from '../../-test/u.fixture.ts';
 import type { StagePlan } from '../../u.stage.ts';
 import { runStagingWithSpinner } from '../run.stagingWithSpinner.ts';
 

@@ -1,5 +1,5 @@
 import { describe, expect, Fs, it, Pkg, type t } from '../../../-test.ts';
-import { withTmpDir } from '../../-test/-fixtures.ts';
+import { withTmpDir } from '../../-test/u.fixture.ts';
 import { resolveMissingStagingOutputs } from '../u.resolveMissingStagingOutputs.ts';
 
 describe('Deploy: resolveMissingStagingOutputs', () => {

@@ -44,6 +44,11 @@ export async function probe(
       return done({ ok: true });
     }
 
+    case 'r2': {
+      // R2 publishing uses Deno APIs and the Files/R2 driver, no external binary.
+      return done({ ok: true });
+    }
+
     default: {
       const kind = (provider as { kind?: unknown }).kind;
       return done({

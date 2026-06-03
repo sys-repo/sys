@@ -1,6 +1,6 @@
 import { describe, expect, expectError, Fs, it, Path } from '../../-test.ts';
 import { Deploy } from '../mod.ts';
-import { captureInfo, providerlessPrebuiltStageYaml, withTmpDir } from './-fixtures.ts';
+import { captureInfo, providerlessPrebuiltStageYaml, withTmpDir } from './u.fixture.ts';
 
 describe('@sys/tools/deploy programmatic stage', () => {
   it('stages providerless endpoint files from owner YAML', async () => {

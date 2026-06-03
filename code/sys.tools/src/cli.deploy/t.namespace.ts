@@ -202,15 +202,17 @@ export namespace DeployTool {
      * Current providers:
      * - `orbiter`
      * - `noop`
+     * - `r2`
      */
     export namespace Provider {
       /**
        * Tagged union of all supported provider configs.
        * Add new providers here (and in u.providers schemas) as they land.
        */
-      export type All = Orbiter | t.NoopProvider; // ...S3, etc.
-      export type Orbiter = t.OrbiterProvider; // IPFS
+      export type All = Orbiter | Noop | R2;
+      export type Orbiter = t.OrbiterProvider;
       export type Noop = t.NoopProvider;
+      export type R2 = t.R2Provider;
     }
   }
 

@@ -1,5 +1,5 @@
 import { describe, expect, Fs, it, type t } from '../../../-test.ts';
-import { withTmpDir } from '../../-test/-fixtures.ts';
+import { withTmpDir } from '../../-test/u.fixture.ts';
 import { resolveMappingsForStaging } from '../u.resolveMappingsForStaging.ts';
 
 describe('Deploy: resolveMappingsForStaging', () => {
