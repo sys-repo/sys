@@ -8,6 +8,7 @@ export { ConfigRef } from '../common/u.configRef.ts';
 import { Args, c, Cli } from '@sys/cli';
 import { Color } from '@sys/color';
 import { R2 } from '@sys/driver-cloudflare/r2';
+import { Hash } from '@sys/crypto/hash';
 import { FileMap, Fs, Path, Pkg } from '@sys/fs';
 import { Http } from '@sys/http/client';
 import { Files } from '@sys/model/files';
@@ -36,6 +37,7 @@ export {
   FileMap,
   Files,
   Fs,
+  Hash,
   Http,
   Is,
   Json,

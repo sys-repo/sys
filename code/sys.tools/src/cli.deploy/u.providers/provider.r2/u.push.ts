@@ -1,4 +1,4 @@
-import { Err, FileMap, Files, Fs, Obj, Path, Pkg, R2, Str, type t } from '../common.ts';
+import { Err, FileMap, Files, Fs, Json, Obj, Path, Pkg, R2, Str, type t } from '../common.ts';
 import { Mime } from '../../../cli.serve/m.server/u.mime.ts';
 
 type FilesFactory = (provider: t.DeployTool.Config.Provider.R2) => t.Files.Client.Handle;
@@ -9,7 +9,9 @@ type PushArgs = {
   readonly createFiles?: FilesFactory;
 };
 
-/** Publish a staged deploy target into an R2-backed writable Files view. */
+/**
+ * Publish a staged deploy target into an R2-backed writable Files view.
+ */
 export async function push(args: PushArgs): Promise<t.PushResult> {
   try {
     await publish(args.target, args.createFiles ?? createFilesClient);
@@ -24,13 +26,17 @@ export async function push(args: PushArgs): Promise<t.PushResult> {
   }
 }
 
+/**
+ * Helpers:
+ */
 async function publish(target: t.R2PushTarget, createFiles: FilesFactory) {
   const { provider, stagingDir } = target;
   const dist = await loadDist(stagingDir);
-  const paths = publishPaths(dist);
   const files = createFiles(provider);
 
   try {
+    const remote = await readRemoteDist(files);
+    const paths = publishPaths(dist, remote);
     for (const path of paths) {
       const absolute = absoluteStagedFile(stagingDir, path);
       const read = await Fs.read(absolute);
@@ -53,11 +59,34 @@ async function loadDist(stagingDir: t.StringDir): Promise<t.DistPkg> {
   return res.dist;
 }
 
-function publishPaths(dist: t.DistPkg): readonly t.Files.String.Path[] {
+async function readRemoteDist(files: t.Files.Client.Handle): Promise<t.DistPkg | undefined> {
+  try {
+    const result = await files.cmd.send(Files.Cmd.Name.read, {
+      path: 'dist.json' as t.Files.String.Path,
+    });
+    const text = result.kind === 'inline'
+      ? result.content
+      : await Files.ContentRef.text(result.contentRef);
+    const parsed = Json.safeParse<unknown>(text);
+    if (!parsed.ok || !Pkg.Is.dist(parsed.data)) return undefined;
+    return parsed.data;
+  } catch {
+    return undefined;
+  }
+}
+
+function publishPaths(
+  dist: t.DistPkg,
+  remote?: t.DistPkg,
+): readonly t.Files.String.Path[] {
+  if (remote?.hash.digest === dist.hash.digest) return [];
+
   const parts = dist.hash?.parts ?? {};
+  const remoteParts = remote?.hash.parts ?? {};
   const files = Obj.keys(parts)
     .map((path) => toFilesPath(String(path)))
     .filter((path) => path !== 'dist.json')
+    .filter((path) => remoteParts[path] !== parts[path])
     .sort();
   return [...files, 'dist.json' as t.Files.String.Path];
 }

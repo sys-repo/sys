@@ -1,0 +1,82 @@
+import { Err, Fs, Hash, Pkg, type t } from '../../common.ts';
+
+export type Write = { path: string; bytes: readonly number[]; mediaType?: string };
+
+export async function stageDist(cwd: t.StringDir): Promise<t.StringDir> {
+  const stagingDir = Fs.join(cwd, 'stage') as t.StringDir;
+  await Fs.ensureDir(stagingDir);
+  await Fs.write(Fs.join(stagingDir, 'index.html'), '<!doctype html><html>r2</html>\n');
+  await Fs.write(Fs.join(stagingDir, 'asset.bin'), new Uint8Array([0, 1, 2, 3]));
+  await Pkg.Dist.compute({ dir: stagingDir, save: true });
+  return stagingDir;
+}
+
+export async function loadStagedDist(stagingDir: t.StringDir): Promise<t.DistPkg> {
+  const dist = (await Pkg.Dist.load(stagingDir)).dist;
+  if (!dist) throw Err.std('missing staged dist');
+  return dist;
+}
+
+export function r2Provider(): t.DeployTool.Config.Provider.R2 {
+  return {
+    kind: 'r2',
+    accountId: 'account-1',
+    bucket: 'deploy-bucket',
+    prefix: 'deploy/site',
+    readOrigin: 'https://cdn.example.com',
+    credentials: { accessKeyId: 'key-1', secretAccessKey: 'secret-1' },
+  };
+}
+
+export function r2Target(cwd: t.StringDir, stagingDir: t.StringDir): t.R2PushTarget {
+  return {
+    provider: r2Provider(),
+    sourceDir: cwd,
+    stagingDir,
+    domain: 'https://cdn.example.com',
+  };
+}
+
+export function filesHandle(args: {
+  writes: Write[];
+  remoteText?: string;
+  remoteRefText?: string;
+}): t.Files.Client.Handle {
+  return {
+    dispose() {},
+    cmd: {
+      async send() {
+        if (args.remoteText !== undefined) {
+          return { kind: 'inline', content: args.remoteText };
+        }
+        if (args.remoteRefText !== undefined) {
+          return {
+            kind: 'ref',
+            contentRef: {
+              kind: 'url',
+              path: 'dist.json',
+              url: dataUrl(args.remoteRefText),
+            },
+          };
+        }
+        throw new Error('remote dist unavailable');
+      },
+    },
+    async writeBytes(
+      path: t.Files.String.Path,
+      content: Uint8Array,
+      options?: t.Files.Client.Write.BytesOptions,
+    ) {
+      args.writes.push({ path, bytes: [...content], mediaType: options?.mediaType });
+      return { kind: 'created', path };
+    },
+  } as unknown as t.Files.Client.Handle;
+}
+
+export function sha(seed: string): t.StringHash {
+  return Hash.sha256(seed) as t.StringHash;
+}
+
+function dataUrl(text: string): t.StringUrl {
+  return `data:application/json;charset=utf-8,${encodeURIComponent(text)}` as t.StringUrl;
+}
