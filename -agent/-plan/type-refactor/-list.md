@@ -42,11 +42,11 @@ Quick scan notes for modules whose root `t.ts` still exposes a flat `XxxLib` spi
 - `code/sys.ui/ui-dom/src/m.UserAgent/t.ts` — refactored in `cdb509e7e`; no compatibility aliases retained.
 - `code/sys.ui/ui-dom/src/m.Events/t.ts` — refactored in `cdb509e7e`; no compatibility aliases retained.
 
-- `code/sys.ui/ui-css/src/m.Css.Edges/t.ts`
-- `code/sys.ui/ui-css/src/m.Style/t.ts`
-- `code/sys.ui/ui-css/src/m.Css.Tmpl/t.ts`
-- `code/sys.ui/ui-css/src/m.Css.Dom/t.ts`
-- `code/sys.ui/ui-css/src/m.WebFont/t.ts`
+- `code/sys.ui/ui-css/src/m.Css.Edges/t.ts` — refactored in `953b93f2f`; no `@sys/ui-css` compatibility aliases retained.
+- `code/sys.ui/ui-css/src/m.Style/t.ts` — refactored in `953b93f2f`; no `@sys/ui-css` compatibility aliases retained.
+- `code/sys.ui/ui-css/src/m.Css.Tmpl/t.ts` — refactored in `953b93f2f`; no `@sys/ui-css` compatibility aliases retained.
+- `code/sys.ui/ui-css/src/m.Css.Dom/t.ts` — refactored in `953b93f2f`; no `@sys/ui-css` compatibility aliases retained.
+- `code/sys.ui/ui-css/src/m.WebFont/t.ts` — refactored in `953b93f2f`; no `@sys/ui-css` compatibility aliases retained.
 
 - `code/sys.ui/ui-react/src/m.fc/t.ts`
 - `code/sys.ui/ui-react/src/m.effect/t.ts`
