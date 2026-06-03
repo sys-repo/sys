@@ -48,10 +48,10 @@ Quick scan notes for modules whose root `t.ts` still exposes a flat `XxxLib` spi
 - `code/sys.ui/ui-css/src/m.Css.Dom/t.ts` — refactored in `953b93f2f`; no `@sys/ui-css` compatibility aliases retained.
 - `code/sys.ui/ui-css/src/m.WebFont/t.ts` — refactored in `953b93f2f`; no `@sys/ui-css` compatibility aliases retained.
 
-- `code/sys.ui/ui-react/src/m.fc/t.ts`
-- `code/sys.ui/ui-react/src/m.effect/t.ts`
-- `code/sys.ui/ui-react/src/m.signal/t.ts`
-- `code/sys.ui/ui-react/src/u/t.ts`
+- `code/sys.ui/ui-react/src/m.fc/t.ts` — refactored in `137c32303`; no compatibility aliases retained.
+- `code/sys.ui/ui-react/src/m.effect/t.ts` — refactored in `137c32303`; no compatibility aliases retained.
+- `code/sys.ui/ui-react/src/m.signal/t.ts` — refactored in `137c32303`; no compatibility aliases retained.
+- `code/sys.ui/ui-react/src/u/t.ts` — refactored in `137c32303`; no compatibility aliases retained.
 
 ### UI components with many flat spines
 

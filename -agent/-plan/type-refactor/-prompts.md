@@ -120,6 +120,7 @@ Check:
 - stale residue: no duplicate flat names, TODOs, transitional comments, or dead aliases;
 - naming strength: namespaces and sub-namespaces are nouns, not mechanics;
 - verification: the narrowest relevant task/check was run and passed, or the exact blocker is reported.
+- do not include .md plan files in your considerations for the commit - just the active code files.
 
 Return:
 
@@ -195,7 +196,8 @@ This prompt explicitly requests only the two plan-lifecycle commits below. Do no
    ```
 
 5. Delete the plan file using the `remove` tool, not shell deletion.
-6. Commit only the deletion with a retirement message that states the finalized plan is preserved in git history and includes recovery anchors:
+6. Prepare the commit msg(s) for human commtiing.
+   Inclide a retirement message that states the finalized plan is preserved in git history and includes recovery anchors:
 
    ```text
    docs(type-refactor): retire spent <scope> plan after namespace refactor
@@ -210,4 +212,10 @@ This prompt explicitly requests only the two plan-lifecycle commits below. Do no
    - legacy alias disposition
    ```
 
+   Then include a second commit msg for the retirement of the plan once it is commited.
+
+   
+
 7. If no landed implementation commit exists, HOLD and ask; do not fabricate hashes.
+
+8. Ensure also there are no dangling compatability aliases left lying around - clean STIER refactor.
