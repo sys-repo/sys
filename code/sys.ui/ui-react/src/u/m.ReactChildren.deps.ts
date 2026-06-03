@@ -1,7 +1,7 @@
 import { Children, Fragment, isValidElement } from 'react';
 import type { t } from './common.ts';
 
-export const deps: t.ReactChildrenLib['deps'] = (children) => {
+export const deps: t.ReactChildren.Lib['deps'] = (children) => {
   const processChild = (child: t.ReactNode) => {
     // React elements → explicit key or component name.
     if (isValidElement(child)) {

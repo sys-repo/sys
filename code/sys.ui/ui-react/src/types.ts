@@ -2,7 +2,6 @@
  * @module types
  */
 import type { JSX } from 'react';
-export type { FC } from 'react';
 
 /** The output of a render function. */
 export type RenderOutput = JSX.Element | null | undefined | false;

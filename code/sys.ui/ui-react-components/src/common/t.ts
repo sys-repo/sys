@@ -36,7 +36,7 @@ export type {
   PointerEventsArg,
   PointerEventsHandler,
   PointerHookFlags,
-  ReactChildrenDepsKey,
+  ReactChildren,
 } from '@sys/ui-react/t';
 export type { TimecodeState } from '@sys/ui-state/t';
 

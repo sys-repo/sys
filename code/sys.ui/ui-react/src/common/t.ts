@@ -10,4 +10,5 @@ export type CssInput = TCss.Style.Input;
 export type { Keyboard } from '@sys/ui-dom/t';
 
 export type * from '@sys/types';
+export type { EffectController, Signal } from '../types.ts';
 export type * from '../types.ts';
