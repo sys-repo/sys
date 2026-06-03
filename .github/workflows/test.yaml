@@ -26,8 +26,6 @@ jobs:
             path: code/sys/crdt
           - name: "@sys/std"
             path: code/sys/std
-          - name: "@sys/driver-cloudflare"
-            path: code/sys.driver/driver-cloudflare
           - name: "@sys/color"
             path: code/sys/color
           - name: "@sys/ui-css"
@@ -77,6 +75,8 @@ jobs:
             path: code/sys/schema
           - name: "@sys/model"
             path: code/sys.model/model
+          - name: "@sys/driver-cloudflare"
+            path: code/sys.driver/driver-cloudflare
           - name: "@sys/model-slug"
             path: code/sys.model/model-slug
           - name: "@sys/ui-react-components"

@@ -1,21 +1,21 @@
 {
   ".meta": {
-    "createdAt": 1780289567580,
+    "createdAt": 1780464500486,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-09dcedd874e0ddcd047fff4c584cd2bf7b9382a068399776b523d9a405af5f29",
-      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.107/src/m.graph/m.snapshot/m.Hash.ts"
+      "/graph": "sha256-14774eafb5c1fca1668a378e9cb8e548e36de075319008baa01e31b9cac99026",
+      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.108/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
       "pkg": {
         "name": "@sys/workspace",
-        "version": "0.0.107"
+        "version": "0.0.108"
       },
       "types": {
-        "/graph": "https://jsr.io/@sys/workspace/0.0.107/src/m.graph/t.ts"
+        "/graph": "https://jsr.io/@sys/workspace/0.0.108/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1780289567587
+    "modifiedAt": 1780464500491
   },
   "graph": {
     "orderedPaths": [
@@ -23,7 +23,6 @@
       "code/sys.dev",
       "code/sys/crdt",
       "code/sys/std",
-      "code/sys.driver/driver-cloudflare",
       "code/sys/color",
       "code/sys.ui/ui-css",
       "code/sys/event",
@@ -48,6 +47,7 @@
       "code/sys/registry",
       "code/sys/schema",
       "code/sys.model/model",
+      "code/sys.driver/driver-cloudflare",
       "code/sys.model/model-slug",
       "code/sys.ui/ui-react-components",
       "code/sys.driver/driver-automerge",
@@ -92,6 +92,10 @@
         "to": "deploy/@tdb.slc"
       },
       {
+        "from": "code/sys.driver/driver-cloudflare",
+        "to": "code/sys.tools"
+      },
+      {
         "from": "code/sys.driver/driver-deno",
         "to": "code/-tmpl"
       },
@@ -133,7 +137,15 @@
       },
       {
         "from": "code/sys.model/model",
+        "to": "code/sys.driver/driver-cloudflare"
+      },
+      {
+        "from": "code/sys.model/model",
         "to": "code/sys.model/model-slug"
+      },
+      {
+        "from": "code/sys.model/model",
+        "to": "code/sys.tools"
       },
       {
         "from": "code/sys.model/model",
