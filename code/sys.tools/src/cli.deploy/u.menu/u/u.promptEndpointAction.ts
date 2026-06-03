@@ -6,6 +6,29 @@ export function formatServeActionName(port: number): string {
   return `  serve   ${c.gray(`port:${port}`)}`;
 }
 
+export function formatPushActionName(args: {
+  readonly pushedOk: boolean;
+  readonly hashPrefix: string;
+  readonly pushElapsed?: string;
+  readonly pushShards?: number;
+  readonly pushBytes?: number;
+  readonly pushUrl?: string;
+}): string {
+  const { pushedOk, hashPrefix, pushElapsed, pushShards, pushBytes, pushUrl } = args;
+  const pushUrlMeta = pushedOk && pushUrl ? ` ${c.gray(c.dim('-'))} ${c.cyan(pushUrl)}` : '';
+  const shardPart = pushedOk && pushShards
+    ? `, ${pushShards} ${Str.plural(pushShards, 'shard')}`
+    : '';
+  const bytesPart = pushedOk && Is.num(pushBytes) ? `, ${Str.bytes(pushBytes)}` : '';
+  const elapsedPart = pushedOk && pushElapsed
+    ? `${pushElapsed}${shardPart}${bytesPart}`
+    : undefined;
+  const pushElapsedMeta = pushedOk && elapsedPart ? ` ${c.gray(c.dim(`(in ${elapsedPart})`))}` : '';
+  const pushMeta = `${pushUrlMeta}${pushElapsedMeta}`;
+  const pushPrefix = `  ${hashPrefix}  pushed ✔`;
+  return pushedOk ? `${pushPrefix}${pushMeta}` : `  ${hashPrefix}  push`;
+}
+
 /**
  * Prompt for the next action in the endpoint menu.
  * Keeps the option-list rules centralized.
@@ -50,20 +73,14 @@ export async function promptEndpointAction(args: {
   const stageMeta = `${stageAgeText}${stageSizeText}`;
   const stageLabel = pushedOk ? 'staged ✔' : hasStageMeta ? 'staged (rebuild)' : 'stage (build)';
   const stageName = `  ${hashPrefix}  ${stageLabel}${stageMeta}`;
-  const pushElapsed = args.pushElapsed;
-  const pushUrlMeta = pushedOk && pushUrl ? ` ${c.gray(c.dim('-'))} ${c.cyan(pushUrl)}` : '';
-  const shardPart = pushedOk && pushShards
-    ? `, ${pushShards} ${Str.plural(pushShards, 'shard')}`
-    : '';
-  const bytesPart = pushedOk && Is.num(pushBytes) ? `, staged ${Str.bytes(pushBytes)}` : '';
-  const elapsedPart = pushedOk && pushElapsed
-    ? `${pushElapsed}${shardPart}${bytesPart}`
-    : undefined;
-  const pushElapsedMeta = pushedOk && elapsedPart ? ` ${c.gray(c.dim(`(in ${elapsedPart})`))}` : '';
-  const pushMeta = `${pushUrlMeta}${pushElapsedMeta}`;
-  const pushPrefix = `  ${hashPrefix}  pushed ✔`;
-  const pushName = pushedOk ? `${pushPrefix}${pushMeta}` : `  ${hashPrefix}  push`;
-  const hashIndent = ' '.repeat(`  ${hashPrefix}  `.length);
+  const pushName = formatPushActionName({
+    pushedOk,
+    hashPrefix,
+    pushElapsed: args.pushElapsed,
+    pushShards,
+    pushBytes,
+    pushUrl,
+  });
   const stagePushName = `  ${c.dim(c.gray('-'.repeat(6)))}  stage + push`;
   const answer = await Cli.Input.Select.prompt<A>({
     message: `Actions:`,
