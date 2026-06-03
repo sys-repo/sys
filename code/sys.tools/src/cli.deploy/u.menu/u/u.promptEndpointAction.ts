@@ -55,7 +55,7 @@ export async function promptEndpointAction(args: {
   const shardPart = pushedOk && pushShards
     ? `, ${pushShards} ${Str.plural(pushShards, 'shard')}`
     : '';
-  const bytesPart = pushedOk && Is.num(pushBytes) ? `, ${Str.bytes(pushBytes)}` : '';
+  const bytesPart = pushedOk && Is.num(pushBytes) ? `, staged ${Str.bytes(pushBytes)}` : '';
   const elapsedPart = pushedOk && pushElapsed
     ? `${pushElapsed}${shardPart}${bytesPart}`
     : undefined;

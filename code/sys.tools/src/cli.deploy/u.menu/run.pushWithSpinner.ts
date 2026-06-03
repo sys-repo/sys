@@ -26,17 +26,11 @@ export async function runPushWithSpinner(args: {
   const bytes = dist?.build.size.total ?? 0;
 
   const shardLabel = Is.num(args.target.shard) ? 'shard' : undefined;
-  const providerDomain = args.target.provider.kind === 'orbiter'
-    ? String(args.target.provider.domain ?? '').trim()
-    : args.target.provider.kind === 'r2'
-    ? String(args.target.provider.readOrigin ?? '').trim()
-    : '';
-  const providerLabel =
-    String(args.target.domain ?? '').trim() || providerDomain || args.target.provider.kind;
+  const provider = displayProvider(args.target);
   let pushing = shardLabel
-    ? `pushing ${shardLabel} to ${c.white(providerLabel)}`
-    : `pushing to ${c.white(providerLabel)}`;
-  if (bytes) pushing += ` (${Str.bytes(bytes)})`;
+    ? `pushing ${shardLabel} to ${c.white(provider.label)}`
+    : `pushing to ${c.white(provider.label)}`;
+  if (bytes) pushing += ` (staged ${Str.bytes(bytes)})`;
 
   const started = Time.now.timestamp;
   spin.start(Fmt.spinnerText(pushing));
@@ -46,11 +40,12 @@ export async function runPushWithSpinner(args: {
 
     if (res.ok) {
       const elapsed = Time.elapsed(started).toString();
-      const summary = `elapsed ${elapsed}${bytes ? `, ${Str.bytes(bytes)}` : ''}`;
-      const url = providerLabel
-        ? providerLabel.startsWith('http') ? providerLabel : `https://${providerLabel}`
-        : '';
-      const status = [c.green('push complete'), c.gray(`(${summary})`), url ? c.white(url) : '']
+      const summary = `elapsed ${elapsed}${bytes ? `, staged ${Str.bytes(bytes)}` : ''}`;
+      const status = [
+        c.green('push complete'),
+        c.gray(`(${summary})`),
+        provider.url ? c.white(provider.url) : '',
+      ]
         .filter(Boolean)
         .join(' ');
       spin.succeed(Fmt.spinnerText(status));
@@ -63,4 +58,32 @@ export async function runPushWithSpinner(args: {
     spin.fail(Fmt.spinnerText('push failed'));
     return { ok: false, error };
   }
+}
+
+function displayProvider(target: t.PushTarget): { readonly label: string; readonly url?: string } {
+  const targetDomain = String(target.domain ?? '').trim();
+  const provider = target.provider;
+
+  if (provider.kind === 'r2') {
+    const readOrigin = targetDomain || String(provider.readOrigin ?? '').trim();
+    if (readOrigin) return { label: readOrigin, url: asUrl(readOrigin) };
+
+    const bucket = String(provider.bucket ?? '').trim();
+    const prefix = String(provider.prefix ?? '').trim();
+    const label = [`r2`, bucket ? `bucket:${bucket}` : '', prefix ? `prefix:${prefix}` : '']
+      .filter(Boolean)
+      .join(' ');
+    return { label };
+  }
+
+  if (provider.kind === 'orbiter') {
+    const domain = targetDomain || String(provider.domain ?? '').trim();
+    if (domain) return { label: domain, url: asUrl(domain) };
+  }
+
+  return { label: String(provider.kind) };
+}
+
+function asUrl(input: string): string {
+  return input.startsWith('http') ? input : `https://${input}`;
 }

@@ -35,6 +35,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
   let pushElapsed: string | undefined;
   let pushShards: number | undefined;
   let pushBytes: number | undefined;
+  let demarkNextRender = false;
 
   while (true) {
     const yamlRel = `${EndpointsFs.dir}/${key}${EndpointsFs.ext}`;
@@ -101,6 +102,8 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
     const showStagePush = check.ok && !!provider && provider.kind !== 'noop';
 
     const table = await Fmt.endpointTable(cwd, { name: key, file: yamlRel }, { yaml });
+    if (demarkNextRender) console.info(c.gray(Cli.Fmt.hr()));
+    demarkNextRender = false;
     console.info(renderEndpointScreen({ table: table.text, check }));
 
     const mappings = table.yaml?.mappings ?? [];
@@ -138,6 +141,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
     if (picked === 'edit') {
       const openTarget = `./${Str.trimLeadingDotSlash(yamlRel)}`;
       Open.invokeDetached(cwd, openTarget, { silent: true });
+      demarkNextRender = true;
       continue;
     }
 
@@ -149,12 +153,14 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
         pushShards = res.push.shards;
         pushBytes = res.push.bytes;
       }
+      demarkNextRender = true;
       continue;
     }
 
     if (picked === 'stage') {
       const res = await runEndpointAction({ cwd, key, yamlPath: yamlAbs, action: 'stage' });
       ranOk = res.stageOk === true;
+      demarkNextRender = true;
       continue;
     }
 
@@ -167,11 +173,13 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
         pushShards = res.push.shards;
         pushBytes = res.push.bytes;
       }
+      demarkNextRender = true;
       continue;
     }
 
     if (picked === 'serve') {
       await runEndpointAction({ cwd, key, yamlPath: yamlAbs, action: 'serve' });
+      demarkNextRender = true;
       continue;
     }
 
@@ -184,6 +192,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
 
       console.info(String(b));
       await Cli.Input.Text.prompt({ message: dim('Press enter to continue'), default: '' });
+      demarkNextRender = true;
       continue;
     }
 
@@ -215,6 +224,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       pushElapsed = undefined;
       pushShards = undefined;
       pushBytes = undefined;
+      demarkNextRender = true;
       continue;
     }
 
@@ -224,7 +234,10 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
         default: false,
       });
 
-      if (!yes) continue;
+      if (!yes) {
+        demarkNextRender = true;
+        continue;
+      }
 
       await Fs.remove(yamlAbs);
       return { kind: 'deleted', key };
