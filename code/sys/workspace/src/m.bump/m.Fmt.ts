@@ -110,8 +110,18 @@ export const Fmt: t.WorkspaceBump.Fmt.Lib = {
     return lines;
   },
 
-  dryRun() {
-    return `${Cli.Fmt.hr('gray')}\n${c.gray(c.italic('Dry run only. No files updated.'))}`;
+  dryRun(args = {}) {
+    const lines: string[] = [];
+    const plan = args.plan;
+    if (plan && plan.selected.length > 0) {
+      lines.push(c.gray(wrangle.nextCommand({
+        roots: plan.roots.map((root) => root.name),
+        release: args.release,
+      })));
+    }
+    lines.push(Cli.Fmt.hr('gray'));
+    lines.push(c.gray(c.italic('Dry run only. No files updated.')));
+    return lines.join('\n');
   },
 };
 
@@ -131,6 +141,17 @@ const wrangle = {
 
   planStatus(plan: t.WorkspaceBump.PlanResult) {
     return plan.selected.length > 0 ? c.yellow('bump required') : c.green('no bump required');
+  },
+
+  nextCommand(input: { readonly roots: readonly string[]; readonly release?: t.SemverReleaseType }) {
+    const roots = input.roots.map(wrangle.shellArg).join(' ');
+    const release = input.release && input.release !== 'patch' ? ` --release ${input.release}` : '';
+    return `deno task bump ${roots}${release} --non-interactive`;
+  },
+
+  shellArg(value: string) {
+    if (/^[./@_a-zA-Z0-9-]+$/.test(value)) return value;
+    return `'${value.replaceAll("'", "'\\''")}'`;
   },
 
   pad(value: string, width: number) {

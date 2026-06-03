@@ -18,7 +18,7 @@ export const Args: t.WorkspaceBump.Args.Lib = {
 
     return {
       help: args.help,
-      from: wrangle.from(args.from),
+      from: wrangle.roots(args.from, args._),
       since: wrangle.since(args.since),
       release: wrangle.release(args.release),
       dryRun: args['dry-run'] ?? false,
@@ -69,9 +69,14 @@ const wrangle = {
   },
 
   from(input?: string | string[] | boolean) {
-    if (input === undefined || input === false) return undefined;
+    if (input === undefined || input === false) return [];
     if (input === true) return [''];
     return Is.str(input) ? [input] : [...input];
+  },
+
+  roots(input: string | string[] | boolean | undefined, positionals: readonly string[]) {
+    const roots = [...wrangle.from(input), ...positionals];
+    return roots.length === 0 ? undefined : roots;
   },
 
   since(input?: string | string[] | boolean) {

@@ -1,4 +1,4 @@
-import { Cli, describe, expect, it, Semver, type t } from '../../-test.ts';
+import { c, Cli, describe, expect, it, Semver, type t } from '../../-test.ts';
 import { WorkspaceBump } from '../mod.ts';
 
 describe(`@sys/workspace/bump Fmt`, () => {
@@ -44,6 +44,30 @@ describe(`@sys/workspace/bump Fmt`, () => {
 
     expect(lines[0]).to.eql(Cli.Fmt.hr('gray'));
     expect(Cli.stripAnsi(lines[1] ?? '')).to.eql('Dry run only. No files updated.');
+  });
+
+  it('formats dry-run apply commands as separate gray action lines', () => {
+    const root = candidate('@sys/yaml', 'code/sys/yaml');
+    const lines = WorkspaceBump.Fmt.dryRun({
+      plan: { roots: [root], selected: [root], selectedPaths: [root.pkgPath] },
+    }).split('\n');
+
+    expect(lines[0]).to.eql(c.gray('deno task bump @sys/yaml --non-interactive'));
+    expect(lines[1]).to.eql(Cli.Fmt.hr('gray'));
+    expect(Cli.stripAnsi(lines[2] ?? '')).to.eql('Dry run only. No files updated.');
+  });
+
+  it('formats dry-run apply commands with multiple roots and non-default releases', () => {
+    const a = candidate('@scope/a', 'code/pkg-a');
+    const b = candidate('@scope/b', 'code/pkg-b');
+    const lines = WorkspaceBump.Fmt.dryRun({
+      plan: { roots: [a, b], selected: [a, b], selectedPaths: [a.pkgPath, b.pkgPath] },
+      release: 'minor',
+    }).split('\n');
+
+    expect(lines[0]).to.eql(
+      c.gray('deno task bump @scope/a @scope/b --release minor --non-interactive'),
+    );
   });
 
   it('keeps bump help within 80 visible columns', () => {

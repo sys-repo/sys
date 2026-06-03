@@ -31,6 +31,16 @@ describe('@sys/workspace/bump args', () => {
       });
     });
 
+    it('accepts positional bump roots as --from sugar', () => {
+      const res = Args.parse(['@scope/a', 'code/pkg-b']);
+      expect(res.from).to.eql(['@scope/a', 'code/pkg-b']);
+    });
+
+    it('combines explicit and positional bump roots in argv order', () => {
+      const res = Args.parse(['--from', '@scope/a', 'code/pkg-b']);
+      expect(res.from).to.eql(['@scope/a', 'code/pkg-b']);
+    });
+
     it('ignores deno task argv separators around bump args', () => {
       const res = Args.parse(['--', '--from', '@scope/a', '--release', 'minor', '--dry-run']);
 
@@ -106,6 +116,7 @@ describe('@sys/workspace/bump args', () => {
 
     it('reports since/from conflicts after help handling', () => {
       const conflict = Args.run({ argv: ['--since', 'baseline', '--from', '@scope/a'] });
+      const positionalConflict = Args.run({ argv: ['--since', 'baseline', '@scope/a'] });
       const missingConflict = Args.run({ argv: ['--since', '--from', '@scope/a'] });
       const help = Args.run({ argv: ['--help', '--since', 'baseline', '--from', '@scope/a'] });
 
@@ -113,6 +124,7 @@ describe('@sys/workspace/bump args', () => {
         code: 'since-and-from',
         message: '--since cannot be used with --from.',
       });
+      expect(positionalConflict.conflict?.code).to.eql('since-and-from');
       expect(missingConflict.conflict?.code).to.eql('since-and-from');
       expect(help.conflict).to.eql(undefined);
     });

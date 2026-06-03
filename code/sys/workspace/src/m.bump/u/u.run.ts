@@ -35,7 +35,7 @@ export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
 
   if (args.dryRun) {
     if (log) {
-      console.info(Fmt.dryRun());
+      console.info(Fmt.dryRun({ plan: planned, release: collected.release }));
       console.info();
     }
     return { collect: collected, plan: planned, dryRun: true };

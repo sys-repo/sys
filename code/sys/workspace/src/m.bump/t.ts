@@ -284,7 +284,7 @@ export declare namespace WorkspaceBump {
       /** Format the planned bump summary lines. */
       planSummary(args: PlanSummaryArgs): readonly string[];
       /** Format the canonical dry-run notice. */
-      dryRun(): string;
+      dryRun(args?: DryRunArgs): string;
     };
 
     /** Selection-label layout widths derived from bump candidates. */
@@ -321,6 +321,14 @@ export declare namespace WorkspaceBump {
     export type PlanSummaryArgs = {
       /** Planned bump to summarize. */
       readonly plan: PlanResult;
+    };
+
+    /** Arguments for formatting a dry-run footer. */
+    export type DryRunArgs = {
+      /** Planned bump used to render an optional copyable apply command. */
+      readonly plan?: PlanResult;
+      /** Release kind used to render the copyable apply command. Omitted for default patch bumps. */
+      readonly release?: t.SemverReleaseType;
     };
 
     /** Arguments for formatting one bump phase label. */
