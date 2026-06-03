@@ -28,7 +28,12 @@ export type { Yaml, YamlConfig } from '@sys/yaml/t';
 
 /** User interface */
 export type { ColorTheme } from '@sys/color/t';
-export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';
+import type * as TCss from '@sys/ui-css/t';
+export type CssEdgesInput = TCss.CssEdges.Input;
+export type CssInput = TCss.Style.Input;
+export type CssMarginArray = TCss.CssEdges.Margin.Array;
+export type CssProps = TCss.Style.Props;
+export type CssValue = TCss.Style.Value;
 export type { Keyboard } from '@sys/ui-dom/t';
 export type {
   ActionProbe,
