@@ -95,7 +95,6 @@
     "npm:rollup-plugin-visualizer@7.0.1": "7.0.1_rollup@4.61.0",
     "npm:rollup@4.61.0": "4.61.0",
     "npm:rxjs@7.8.2": "7.8.2",
-    "npm:shiki@4.1.0": "4.1.0",
     "npm:strip-ansi@7.2.0": "7.2.0",
     "npm:tinycolor2@1.6.0": "1.6.0",
     "npm:ts-essentials@10.2.0": "10.2.0",
@@ -1141,7 +1140,7 @@
         "lru_map",
         "react",
         "react-dom",
-        "shiki@3.23.0"
+        "shiki"
       ]
     },
     "@pierre/theme@1.0.3": {
@@ -1404,17 +1403,7 @@
     "@shikijs/core@3.23.0": {
       "integrity": "sha512-NSWQz0riNb67xthdm5br6lAkvpDJRTgB36fxlo37ZzM2yq0PQFFzbd8psqC2XMPgCzo1fW6cVi18+ArJ44wqgA==",
       "dependencies": [
-        "@shikijs/types@3.23.0",
-        "@shikijs/vscode-textmate",
-        "@types/hast",
-        "hast-util-to-html"
-      ]
-    },
-    "@shikijs/core@4.1.0": {
-      "integrity": "sha512-jLJtSJeuFffqX6/inRE1zqU5aFv2hrszvYgq3OjbAgFRZiWv7abKMDdQzYxuSDfmUPQozZvI/kuy6VMTvnvqTQ==",
-      "dependencies": [
-        "@shikijs/primitive",
-        "@shikijs/types@4.1.0",
+        "@shikijs/types",
         "@shikijs/vscode-textmate",
         "@types/hast",
         "hast-util-to-html"
@@ -1423,15 +1412,7 @@
     "@shikijs/engine-javascript@3.23.0": {
       "integrity": "sha512-aHt9eiGFobmWR5uqJUViySI1bHMqrAgamWE1TYSUoftkAeCCAiGawPMwM+VCadylQtF4V3VNOZ5LmfItH5f3yA==",
       "dependencies": [
-        "@shikijs/types@3.23.0",
-        "@shikijs/vscode-textmate",
-        "oniguruma-to-es"
-      ]
-    },
-    "@shikijs/engine-javascript@4.1.0": {
-      "integrity": "sha512-YquhawCUgaBfhsS72e2Y/dI59gCBNPHu3fEO/tvLaXrTssxZrY5ddjtNLTwndrMgPo8b3IscE+xoICDzpTmlFQ==",
-      "dependencies": [
-        "@shikijs/types@4.1.0",
+        "@shikijs/types",
         "@shikijs/vscode-textmate",
         "oniguruma-to-es"
       ]
@@ -1439,65 +1420,31 @@
     "@shikijs/engine-oniguruma@3.23.0": {
       "integrity": "sha512-1nWINwKXxKKLqPibT5f4pAFLej9oZzQTsby8942OTlsJzOBZ0MWKiwzMsd+jhzu8YPCHAswGnnN1YtQfirL35g==",
       "dependencies": [
-        "@shikijs/types@3.23.0",
-        "@shikijs/vscode-textmate"
-      ]
-    },
-    "@shikijs/engine-oniguruma@4.1.0": {
-      "integrity": "sha512-axLpjVs45YBvvINa+dJF+NPW+KtFkNXsFr4SDw2BMj9GdeMnGxVB9PQb2xXlJYovslt/nz6giedAyOANkfc7hg==",
-      "dependencies": [
-        "@shikijs/types@4.1.0",
+        "@shikijs/types",
         "@shikijs/vscode-textmate"
       ]
     },
     "@shikijs/langs@3.23.0": {
       "integrity": "sha512-2Ep4W3Re5aB1/62RSYQInK9mM3HsLeB91cHqznAJMuylqjzNVAVCMnNWRHFtcNHXsoNRayP9z1qj4Sq3nMqYXg==",
       "dependencies": [
-        "@shikijs/types@3.23.0"
-      ]
-    },
-    "@shikijs/langs@4.1.0": {
-      "integrity": "sha512-nwOMruEkbgdZfQ/b8CgpNBVOpvG1k0N5tbmgiFeqsan401+x3ILqlzZJowSla4Agmq4hG2Uf2wh5jLTEhR8VSg==",
-      "dependencies": [
-        "@shikijs/types@4.1.0"
-      ]
-    },
-    "@shikijs/primitive@4.1.0": {
-      "integrity": "sha512-zx2/2Uwj2q9X3KSyYREEhXO23xBw5WUhP4orK2lE4r+t9JGITmEe0JH+wPmJhqHpOT2bRRs6lAL945+LDvOAGw==",
-      "dependencies": [
-        "@shikijs/types@4.1.0",
-        "@shikijs/vscode-textmate",
-        "@types/hast"
+        "@shikijs/types"
       ]
     },
     "@shikijs/themes@3.23.0": {
       "integrity": "sha512-5qySYa1ZgAT18HR/ypENL9cUSGOeI2x+4IvYJu4JgVJdizn6kG4ia5Q1jDEOi7gTbN4RbuYtmHh0W3eccOrjMA==",
       "dependencies": [
-        "@shikijs/types@3.23.0"
-      ]
-    },
-    "@shikijs/themes@4.1.0": {
-      "integrity": "sha512-emCcTnUM7yO2wltYbaxm+yLvcCI4+h8XBKc4KmJ7EZUXoSGjcCHifkI//R4OFit9ewpg7H2/9tjOuXrT2v/Knw==",
-      "dependencies": [
-        "@shikijs/types@4.1.0"
+        "@shikijs/types"
       ]
     },
     "@shikijs/transformers@3.23.0": {
       "integrity": "sha512-F9msZVxdF+krQNSdQ4V+Ja5QemeAoTQ2jxt7nJCwhDsdF1JWS3KxIQXA3lQbyKwS3J61oHRUSv4jYWv3CkaKTQ==",
       "dependencies": [
-        "@shikijs/core@3.23.0",
-        "@shikijs/types@3.23.0"
+        "@shikijs/core",
+        "@shikijs/types"
       ]
     },
     "@shikijs/types@3.23.0": {
       "integrity": "sha512-3JZ5HXOZfYjsYSk0yPwBrkupyYSLpAE26Qc0HLghhZNGTZg/SKxXIIgoxOpmmeQP0RRSDJTk1/vPfw9tbw+jSQ==",
-      "dependencies": [
-        "@shikijs/vscode-textmate",
-        "@types/hast"
-      ]
-    },
-    "@shikijs/types@4.1.0": {
-      "integrity": "sha512-3EQWX54fMpniOrDblzAhiwiJwpiTMW6+B9DWyUd9ska483tbayFYuw47UxwuPknI31bKnySfVQ/QW+jFL4rFdA==",
       "dependencies": [
         "@shikijs/vscode-textmate",
         "@types/hast"
@@ -3187,25 +3134,12 @@
     "shiki@3.23.0": {
       "integrity": "sha512-55Dj73uq9ZXL5zyeRPzHQsK7Nbyt6Y10k5s7OjuFZGMhpp4r/rsLBH0o/0fstIzX1Lep9VxefWljK/SKCzygIA==",
       "dependencies": [
-        "@shikijs/core@3.23.0",
-        "@shikijs/engine-javascript@3.23.0",
-        "@shikijs/engine-oniguruma@3.23.0",
-        "@shikijs/langs@3.23.0",
-        "@shikijs/themes@3.23.0",
-        "@shikijs/types@3.23.0",
-        "@shikijs/vscode-textmate",
-        "@types/hast"
-      ]
-    },
-    "shiki@4.1.0": {
-      "integrity": "sha512-l/ABZPUR5v70jI10EzqfMS/I96vjSGv2y0ihUV+WYFzv0EfvW4s54m0Lg8wCrrL+2IkwBzFTuxkZjPf8b2NX9Q==",
-      "dependencies": [
-        "@shikijs/core@4.1.0",
-        "@shikijs/engine-javascript@4.1.0",
-        "@shikijs/engine-oniguruma@4.1.0",
-        "@shikijs/langs@4.1.0",
-        "@shikijs/themes@4.1.0",
-        "@shikijs/types@4.1.0",
+        "@shikijs/core",
+        "@shikijs/engine-javascript",
+        "@shikijs/engine-oniguruma",
+        "@shikijs/langs",
+        "@shikijs/themes",
+        "@shikijs/types",
         "@shikijs/vscode-textmate",
         "@types/hast"
       ]
@@ -3659,7 +3593,7 @@
       "npm:rollup-plugin-visualizer@7.0.1",
       "npm:rollup@4.61.0",
       "npm:rxjs@7.8.2",
-      "npm:shiki@4.1.0",
+      "npm:shiki@4.2.0",
       "npm:strip-ansi@7.2.0",
       "npm:tinycolor2@1.6.0",
       "npm:ts-essentials@10.2.0",
