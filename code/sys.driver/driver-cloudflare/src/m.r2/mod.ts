@@ -2,5 +2,11 @@
  * @module Cloudflare R2 integration.
  */
 import type { t } from './common.ts';
+import { Service } from './m.Service/mod.ts';
 
-export const R2: t.R2.Lib = {};
+/**
+ * Cloudflare R2 runtime API.
+ */
+export const R2: t.R2.Lib = {
+  Service,
+};
