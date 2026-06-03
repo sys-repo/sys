@@ -27,23 +27,32 @@ export async function menu<T, A extends string = string>(
     const itemLabel = args.itemLabel ?? 'config';
     const baseIndent = args.indent ?? ' ';
     const addValue = normalizeAddLabel(args.addLabel);
-    const labelWidth = Math.max(itemLabel.length, 'add'.length);
-    const addLabelWidth = files.length > 0 ? labelWidth : 'add'.length;
-    const addLabel = `${baseIndent}${padLabel('add', addLabelWidth)}: ${addValue}`;
 
-    const tree: Array<{ name: string; value: t.StringFile }> = [];
+    const treeRows: Array<{
+      readonly label: string;
+      readonly tree: string;
+      readonly value: string;
+      readonly path: t.StringFile;
+    }> = [];
+    const needsDoc = typeof args.itemLabel === 'function' || typeof args.itemValue === 'function';
     for (const item of withTree(files, ext)) {
-      const doc = args.itemValue ? await readYaml<T>(item.path) : undefined;
-      const label = resolveItemValue(args.itemValue, {
-        name: item.label,
+      const doc = needsDoc ? await readYaml<T>(item.path) : undefined;
+      const itemArgs = { name: item.label, path: item.path, doc };
+      treeRows.push({
+        label: resolveItemName(itemLabel, itemArgs),
+        tree: item.tree,
+        value: resolveItemName(args.itemValue, itemArgs),
         path: item.path,
-        doc,
-      });
-      tree.push({
-        name: `${baseIndent}${padLabel(itemLabel, labelWidth)}: ${item.tree} ${c.cyan(label)}`,
-        value: item.path,
       });
     }
+
+    const labelWidth = Math.max('add'.length, ...treeRows.map((row) => row.label.length));
+    const addLabelWidth = files.length > 0 ? labelWidth : 'add'.length;
+    const addLabel = `${baseIndent}${padLabel('add', addLabelWidth)}: ${addValue}`;
+    const tree = treeRows.map((row) => ({
+      name: `${baseIndent}${padLabel(row.label, labelWidth)}: ${row.tree} ${c.cyan(row.value)}`,
+      value: row.path,
+    }));
 
     const options = [
       { name: addLabel, value: ADD_VALUE },
@@ -109,6 +118,9 @@ export async function menu<T, A extends string = string>(
   }
 }
 
+/**
+ * Helpers:
+ */
 function normalizeAddLabel(label?: string): string {
   const raw = String(label ?? '<config>').trim();
   if (raw.includes(':')) {
@@ -143,11 +155,11 @@ function padLabel(label: string, width: number): string {
   return `${' '.repeat(pad)}${label}`;
 }
 
-function resolveItemValue<T>(
-  itemValue: t.YamlConfig.Menu.Args<T>['itemValue'],
+function resolveItemName<T>(
+  itemName: t.YamlConfig.Menu.ItemName<T> | undefined,
   args: { name: string; path: t.StringFile; doc?: T },
 ): string {
-  if (!itemValue) return args.name;
-  if (typeof itemValue === 'function') return itemValue(args);
-  return String(itemValue);
+  if (!itemName) return args.name;
+  if (typeof itemName === 'function') return itemName(args);
+  return String(itemName);
 }

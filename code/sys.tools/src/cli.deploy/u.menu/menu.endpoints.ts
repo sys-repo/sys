@@ -1,4 +1,4 @@
-import { type t, Fs } from '../common.ts';
+import { type t, Fs, Is } from '../common.ts';
 import { YamlConfig } from '@sys/yaml/cli';
 import { EndpointsFs, EndpointYamlSchema } from '../u.endpoints/mod.ts';
 import { ValidName } from './is.ts';
@@ -28,8 +28,8 @@ export async function endpointsMenu(cwd: t.StringDir): Promise<Result> {
   const res = await YamlConfig.menu<t.DeployTool.Config.EndpointYaml.Doc, Action>({
     cwd,
     dir: EndpointsFs.dir,
-    label: 'Endpoints',
-    itemLabel: 'deploy',
+    label: 'endpoints',
+    itemLabel: endpointProviderLabel,
     addLabel: '    add: <endpoint>',
     ensureDefault: false,
     schema,
@@ -55,4 +55,13 @@ export async function endpointsMenu(cwd: t.StringDir): Promise<Result> {
 function labelFromPath(path: t.StringPath): string {
   const base = Fs.basename(path);
   return base.endsWith(EndpointsFs.ext) ? base.slice(0, -EndpointsFs.ext.length) : base;
+}
+
+function endpointProviderLabel(args: {
+  readonly doc?: t.DeployTool.Config.EndpointYaml.Doc;
+}): string {
+  const provider = args.doc?.provider;
+  const kind = provider?.kind;
+  if (Is.str(kind) && kind.trim()) return kind.trim();
+  return provider ? 'unknown' : 'none';
 }

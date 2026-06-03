@@ -71,9 +71,9 @@ export type YamlConfigMenuArgs<T, A extends string = string> = {
   addLabel?: string;
   /** Label for the exit row (default: "(exit)"). */
   exitLabel?: string;
-  /** Left-hand label prefix before the tree glyphs (e.g. "with"). */
-  itemLabel?: string;
-  /** Right-hand item text (defaults to filename if omitted). */
+  /** Left-hand label before the tree glyphs. May derive from the item YAML doc. */
+  itemLabel?: YamlConfigMenuItemName<T>;
+  /** Right-hand item text. Defaults to filename and may derive from the item YAML doc. */
   itemValue?: YamlConfigMenuItemName<T>;
   /** Schema helpers for init/validate/stringify. */
   schema: YamlConfigSchema<T>;

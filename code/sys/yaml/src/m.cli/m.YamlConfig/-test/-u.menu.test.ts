@@ -33,4 +33,42 @@ describe('YamlConfig.menu', () => {
       await Fs.remove(cwd.absolute);
     }
   });
+
+  it('menu → supports doc-derived itemLabel row labels', async () => {
+    const cwd = await Fs.makeTempDir();
+    const original = Cli.Input.Select.prompt;
+    const dir = Fs.join(cwd.absolute, '-config');
+    let seen: string[] = [];
+
+    Object.defineProperty(Cli.Input.Select, 'prompt', {
+      value: (args: { readonly options: readonly { readonly name: string }[] }) => {
+        seen = args.options.map((option) => Cli.stripAnsi(option.name));
+        return Promise.resolve('exit');
+      },
+    });
+
+    try {
+      await Fs.ensureDir(dir);
+      await Fs.write(Fs.join(dir, 'cdn.yaml'), 'provider:\n  kind: orbiter\n');
+      await Fs.write(Fs.join(dir, 'assets.yaml'), 'provider:\n  kind: r2\n');
+
+      const res = await menu<{ readonly provider?: { readonly kind?: string } }>({
+        cwd: cwd.absolute,
+        dir: '-config',
+        label: 'endpoints',
+        ensureDefault: false,
+        itemLabel: ({ doc }) => doc?.provider?.kind ?? 'none',
+        schema: {
+          validate: () => ({ ok: true, errors: [] }),
+        },
+      });
+
+      expect(res).to.eql({ kind: 'exit' });
+      expect(seen.some((name) => name.startsWith(' orbiter: '))).to.eql(true);
+      expect(seen.some((name) => name.startsWith('      r2: '))).to.eql(true);
+    } finally {
+      Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
+      await Fs.remove(cwd.absolute);
+    }
+  });
 });
