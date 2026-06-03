@@ -102,6 +102,7 @@ export const Fmt: t.WorkspaceBump.Fmt.Lib = {
   planSummary(args) {
     const roots = args.plan.roots.map((root) => root.name);
     const table = Cli.Table.create([]);
+    table.push([c.gray('status'), wrangle.planStatus(args.plan)]);
     table.push([c.gray('affected'), c.white(wrangle.packageCount(args.plan.selected.length))]);
     table.push([c.gray(roots.length === 1 ? 'root' : 'roots'), wrangle.rootValue(roots)]);
     const lines = Str.trimEdgeNewlines(String(table)).split('\n');
@@ -110,7 +111,7 @@ export const Fmt: t.WorkspaceBump.Fmt.Lib = {
   },
 
   dryRun() {
-    return c.gray(c.italic('Dry run only. No files updated.'));
+    return `${Cli.Fmt.hr('gray')}\n${c.gray(c.italic('Dry run only. No files updated.'))}`;
   },
 };
 
@@ -126,6 +127,10 @@ const wrangle = {
 
   packageCount(count: number) {
     return `${count} ${Str.plural(count, 'package')}`;
+  },
+
+  planStatus(plan: t.WorkspaceBump.PlanResult) {
+    return plan.selected.length > 0 ? c.yellow('bump required') : c.green('no bump required');
   },
 
   pad(value: string, width: number) {
