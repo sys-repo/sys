@@ -2,20 +2,20 @@ import { type t, CssDom, CssTmpl, Is, Obj, toString } from './common.ts';
 import { isTransformed } from './u.is.ts';
 import { createTransformContainer } from './u.transform.container.ts';
 
-type M = Map<number, t.CssTransformed>;
+type M = Map<number, t.Style.Transform.Result>;
 type O = Record<string, unknown>;
-type F = t.StyleLib['transformer'];
+type F = t.Style.Lib['transformer'];
 
 /**
  * Generator (factory).
  */
 export const transformer: F = (options = {}) => {
-  const cache = new Map<number, t.CssTransformed>();
+  const cache = new Map<number, t.Style.Transform.Result>();
 
-  let _sheet: t.CssDomStylesheet | undefined;
+  let _sheet: t.CssDom.Stylesheet | undefined;
   const lazySheet = () => options.sheet ?? _sheet ?? CssDom.stylesheet(/* default config */);
 
-  const fn: t.CssTransform = (...input) => {
+  const fn: t.Style.Transform.Fn = (...input) => {
     const sheet = lazySheet();
     return transform({ sheet, cache, input });
   };
@@ -26,17 +26,17 @@ export const transformer: F = (options = {}) => {
  * Perform a cacheable transformation on a loose set of CSS inputs.
  */
 function transform(args: {
-  sheet: t.CssDomStylesheet;
+  sheet: t.CssDom.Stylesheet;
   cache: M;
-  input: t.CssInput[];
-}): t.CssTransformed {
+  input: t.Style.Input[];
+}): t.Style.Transform.Result {
   const { sheet, cache } = args;
 
-  const style: t.CssProps = CssTmpl.transform(wrangle.input(args.input));
+  const style: t.Style.Props = CssTmpl.transform(wrangle.input(args.input));
   const hx = Obj.hash(style);
   if (cache.has(hx)) return cache.get(hx)!;
 
-  const api: t.CssTransformed = {
+  const api: t.Style.Transform.Result = {
     hx,
     get style() {
       return style;
@@ -71,7 +71,7 @@ function transform(args: {
  * Helpers:
  */
 const wrangle = {
-  input(input: any): t.CssProps {
+  input(input: any): t.Style.Props {
     if (Array.isArray(input)) {
       return input.reduce((acc, next) => ({ ...acc, ...wrangle.input(next) }), {} as O);
     } else {
@@ -82,7 +82,7 @@ const wrangle = {
   },
 
   containerArgs(args: any[]) {
-    const done = (condition: string, name?: string, style?: t.CssProps) => {
+    const done = (condition: string, name?: string, style?: t.Style.Props) => {
       name = name ? name.trim() : name;
       condition = condition ? condition.trim() : '';
       return { name, condition, style };

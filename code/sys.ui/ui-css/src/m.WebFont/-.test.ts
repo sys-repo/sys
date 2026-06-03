@@ -216,7 +216,7 @@ describe(`useWebFont`, () => {
   });
 
   describe('Webfont.def', () => {
-    const ET_BOOK: t.WebFontConfig = {
+    const ET_BOOK: t.WebFont.Config = {
       family: 'ET Book',
       variable: false,
       weights: [400, 600, 700],

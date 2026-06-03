@@ -43,7 +43,6 @@ export type { SpecImports, TestingDir } from '@sys/testing/t';
 export type { Yaml, YamlConfig } from '@sys/yaml/t';
 
 /** @system: UI */
-export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';
 export type { Keyboard } from '@sys/ui-dom/t';
 export type { DevCtx } from '@sys/ui-react-devharness/t';
 

@@ -15,7 +15,9 @@ export type * from '@sys/types';
 
 export type { ColorTheme } from '@sys/color/t';
 export type { SpecImports, TestingDir } from '@sys/testing/t';
-export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';
+import type * as TCss from '@sys/ui-css/t';
+export type CssInput = TCss.Style.Input;
+export type CssProps = TCss.Style.Props;
 export type { Keyboard } from '@sys/ui-dom/t';
 export type { DevCtx } from '@sys/ui-react-devharness/t';
 

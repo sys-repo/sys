@@ -27,7 +27,7 @@ describe('toString', () => {
   });
 
   it('excludes pseudo-class children', () => {
-    const style: t.CssValue = { color: ' red ', ':hover': { color: 'blue' } };
+    const style: t.Style.Value = { color: ' red ', ':hover': { color: 'blue' } };
     const a = toString(style);
     const b = toString(style[':hover']);
     expect(a).to.eql('color: red;');

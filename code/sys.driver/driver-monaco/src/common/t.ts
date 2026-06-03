@@ -13,7 +13,10 @@ export type { ColorTheme } from '@sys/color/t';
 export type { EmitEvent, EmitEventSchedule, EventFilterLib } from '@sys/event/t';
 export type { Infer, Schema, TSchema } from '@sys/schema/t';
 export type { SpecImports } from '@sys/testing/t';
-export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';
+import type * as TCss from '@sys/ui-css/t';
+export type CssEdgesInput = TCss.CssEdges.Input;
+export type CssInput = TCss.Style.Input;
+export type CssProps = TCss.Style.Props;
 export type { Keyboard } from '@sys/ui-dom/t';
 export type {
   ButtonFlags,

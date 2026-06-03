@@ -10,7 +10,20 @@ export type {
  * @system:
  */
 export type * from '@sys/types';
-export type * from '@sys/ui-css/t';
+import type * as TCss from '@sys/ui-css/t';
+export type { CssDom, CssEdges, CssTmpl, Style, WebFont } from '@sys/ui-css/t';
+export type CssNumberOrStringInput = TCss.Style.NumberOrStringInput;
+export type CssEdgesInput = TCss.CssEdges.Input;
+export type CssEdgesArray = TCss.CssEdges.Array;
+export type CssEdgesQuad = TCss.CssEdges.Quad;
+export type CssMarginInput = TCss.CssEdges.Margin.Input;
+export type CssMarginArray = TCss.CssEdges.Margin.Array;
+export type CssPaddingInput = TCss.CssEdges.Padding.Input;
+export type CssProps = TCss.Style.Props;
+export type CssValue = TCss.Style.Value;
+export type CssInput = TCss.Style.Input;
+export type CssShadow = TCss.Style.Shadow.Input;
+export type WebFontConfig = TCss.WebFont.Config;
 
 export type { ColorTheme } from '@sys/color/t';
 export type { MediaResolver, Timecode } from '@sys/std/t';

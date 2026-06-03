@@ -4,12 +4,12 @@ import { createContainer } from './u.ctx.container.ts';
 import { createRules } from './u.rules.ts';
 import { getStylesheetId } from './u.ts';
 
-const singletons = new Map<t.StringId, t.CssDomStylesheet>();
+const singletons = new Map<t.StringId, t.CssDom.Stylesheet>();
 
 /**
  * Generator factory
  */
-export const create: t.CssDomLib['stylesheet'] = (input) => {
+export const create: t.CssDom.Lib['stylesheet'] = (input) => {
   const options = wrangle.options(input);
   const id = getStylesheetId(options.instance, options.classPrefix);
   if (singletons.has(id)) return singletons.get(id)!;
@@ -17,14 +17,14 @@ export const create: t.CssDomLib['stylesheet'] = (input) => {
   const sheet = getOrCreateDomStyleSheet(id);
   const rules = createRules({ sheet });
   const cache = {
-    classes: new Map<string, t.CssDomClasses>(),
+    classes: new Map<string, t.CssDom.Classes>(),
     getOrCreate<T>(key: string, map: Map<string, T>, factory: () => T): T {
       if (!map.has(key)) map.set(key, factory());
       return map.get(key)!;
     },
   };
 
-  const api: t.CssDomStylesheet = {
+  const api: t.CssDom.Stylesheet = {
     id,
     rules,
     rule(selector, style, options) {
@@ -49,7 +49,7 @@ export const create: t.CssDomLib['stylesheet'] = (input) => {
  * Helpers:
  */
 const wrangle = {
-  options(input: Parameters<t.CssDomLib['stylesheet']>[0]): t.CssDomStylesheetOptions {
+  options(input: Parameters<t.CssDom.Lib['stylesheet']>[0]): t.CssDom.StylesheetOptions {
     if (!input) return {};
     if (Is.str(input)) return { instance: input };
     return input;

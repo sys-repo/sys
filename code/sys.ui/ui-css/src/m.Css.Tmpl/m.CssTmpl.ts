@@ -1,5 +1,3 @@
-import type { CssTmplLib } from './t.ts';
-
 import { type t, Is, isObject } from './common.ts';
 import { formatScroll } from './u.formatScroll.ts';
 import { formatSize } from './u.formatSize.ts';
@@ -9,7 +7,7 @@ import { toEdges, WrangleEdge } from './u.toEdges.ts';
 /**
  * Helpers for working with the template patterns (a DSL for css of sorts).
  */
-export const CssTmpl: CssTmplLib = {
+export const CssTmpl: t.CssTmpl.Lib = {
   toEdges,
 
   /**
@@ -18,7 +16,7 @@ export const CssTmpl: CssTmplLib = {
    *
    * For example: { Absolute: 0 }
    */
-  transform(input?: t.CssValue): t.CssProps {
+  transform(input?: t.Style.Value): t.Style.Props {
     if (Is.falsy(input) || !isObject(input)) return {};
     let o = input;
 
@@ -47,6 +45,6 @@ export const CssTmpl: CssTmplLib = {
     if (o.rowGap !== undefined) o = formatGap(o);
 
     /** Finish up: no change */
-    return o as t.CssProps;
+    return o as t.Style.Props;
   },
 };
