@@ -15,6 +15,7 @@ import { Files } from '@sys/model/files';
 import { Open, Process } from '@sys/process';
 import { Schema } from '@sys/schema';
 import { Arr } from '@sys/std/arr';
+import { Await } from '@sys/std/async';
 import { Err } from '@sys/std/error';
 import { Is } from '@sys/std/is';
 import { Json } from '@sys/std/json';
@@ -30,6 +31,7 @@ export type * as t from './common.t.ts';
 export {
   Args,
   Arr,
+  Await,
   c,
   Cli,
   Color,
@@ -45,8 +47,8 @@ export {
   Obj,
   Open,
   Path,
-  pkg,
   Pkg,
+  pkg,
   Process,
   R2,
   Schema,

@@ -3,6 +3,9 @@ import { Err, Files, Fs, Hash, Pkg, R2, type t } from '../../common.ts';
 export type Write = { path: string; bytes: readonly number[]; mediaType?: string };
 export type Remove = { path: string };
 export type Event = `write:${string}` | 'list' | `remove:${string}`;
+export type WritePathHook = (path: t.Files.String.Path) => void;
+export type WriteDelayHook = (path: t.Files.String.Path) => Promise<void>;
+export type WriteErrorHook = (path: t.Files.String.Path) => unknown;
 
 export type StoredObject = {
   readonly body: Uint8Array;
@@ -69,6 +72,10 @@ export function filesHandle(args: {
   listPages?: readonly t.Files.Cmd.List.Result[];
   listError?: unknown;
   removeError?: unknown;
+  writeDelay?: WriteDelayHook;
+  writeError?: unknown | WriteErrorHook;
+  onWriteStart?: WritePathHook;
+  onWriteFinish?: WritePathHook;
 }): t.Files.Client.Handle {
   let listPageIndex = 0;
   return {
@@ -103,8 +110,18 @@ export function filesHandle(args: {
       options?: t.Files.Client.Write.BytesOptions,
     ) {
       args.events?.push(`write:${path}`);
-      args.writes.push({ path, bytes: [...content], mediaType: options?.mediaType });
-      return { kind: 'created', path };
+      args.onWriteStart?.(path);
+      try {
+        const writeError = typeof args.writeError === 'function'
+          ? args.writeError(path)
+          : args.writeError;
+        if (writeError !== undefined) throw writeError;
+        if (args.writeDelay) await args.writeDelay(path);
+        args.writes.push({ path, bytes: [...content], mediaType: options?.mediaType });
+        return { kind: 'created', path };
+      } finally {
+        args.onWriteFinish?.(path);
+      }
     },
     async remove(path: t.Files.String.Path) {
       args.events?.push(`remove:${path}`);

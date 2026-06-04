@@ -1,4 +1,18 @@
-import { Err, FileMap, Files, Fs, Json, Obj, Path, Pkg, R2, Str, type t } from '../common.ts';
+import {
+  Await,
+  Err,
+  FileMap,
+  Files,
+  Fs,
+  Json,
+  Num,
+  Obj,
+  Path,
+  Pkg,
+  R2,
+  Str,
+  type t,
+} from '../common.ts';
 import { Mime } from '../../../cli.serve/m.server/u.mime.ts';
 
 type FilesFactory = (provider: t.DeployTool.Config.Provider.R2) => t.Files.Client.Handle;
@@ -14,6 +28,14 @@ type PublishResult = {
   readonly publish: t.PushPublishStats;
   readonly prune?: t.PushPruneStats;
 };
+
+type IndexedPublishFile = {
+  readonly index: number;
+  readonly entry: t.PushPublishFile;
+};
+
+const DIST_PATH = 'dist.json' as t.Files.String.Path;
+const PUBLISH_CONCURRENCY = 8;
 
 /**
  * Publish a staged deploy target into an R2-backed writable Files view.
@@ -49,24 +71,7 @@ async function publish(
   try {
     const remote = options.force ? undefined : await readRemoteDist(files);
     const plan = publishFiles(dist, remote);
-    const resultFiles: t.PushPublishFile[] = [];
-
-    for (const entry of plan) {
-      if (entry.status === 'skipped') {
-        resultFiles.push(entry);
-        continue;
-      }
-
-      const path = entry.path;
-      const absolute = absoluteStagedFile(stagingDir, path);
-      const read = await Fs.read(absolute);
-      if (!read.ok || !read.data) {
-        throw Err.std(`Could not read staged deploy file: ${path}`, { cause: read.error });
-      }
-      const mediaType = entry.mediaType ?? mediaTypeOf(path);
-      await files.writeBytes(path, read.data, { mediaType });
-      resultFiles.push({ ...entry, bytes: read.data.byteLength, mediaType });
-    }
+    const resultFiles = await writePublishPlan(files, stagingDir, plan);
 
     const expected = new Set(plan.map((entry) => entry.path));
     const prune = await pruneStaleFiles(files, expected);
@@ -74,6 +79,83 @@ async function publish(
   } finally {
     files.dispose();
   }
+}
+
+async function writePublishPlan(
+  files: t.Files.Client.Handle,
+  stagingDir: t.StringDir,
+  plan: readonly t.PushPublishFile[],
+): Promise<readonly t.PushPublishFile[]> {
+  const resultFiles = new Array<t.PushPublishFile>(plan.length);
+  const assetWrites: IndexedPublishFile[] = [];
+  let dist: IndexedPublishFile | undefined;
+
+  for (const [index, entry] of plan.entries()) {
+    if (entry.status === 'skipped') {
+      resultFiles[index] = entry;
+      continue;
+    }
+
+    const item = { index, entry };
+    if (entry.path === DIST_PATH) dist = item;
+    else assetWrites.push(item);
+  }
+
+  await runBounded(assetWrites, PUBLISH_CONCURRENCY, async ({ index, entry }) => {
+    resultFiles[index] = await writePublishFile(files, stagingDir, entry);
+  });
+
+  if (dist) {
+    resultFiles[dist.index] = await writePublishFile(files, stagingDir, dist.entry);
+  }
+
+  return resultFiles;
+}
+
+async function writePublishFile(
+  files: t.Files.Client.Handle,
+  stagingDir: t.StringDir,
+  entry: t.PushPublishFile,
+): Promise<t.PushPublishFile> {
+  const path = entry.path;
+  const absolute = absoluteStagedFile(stagingDir, path);
+  const read = await Fs.read(absolute);
+  if (!read.ok || !read.data) {
+    throw Err.std(`Could not read staged deploy file: ${path}`, { cause: read.error });
+  }
+  const mediaType = entry.mediaType ?? mediaTypeOf(path);
+  await files.writeBytes(path, read.data, { mediaType });
+  return { ...entry, bytes: read.data.byteLength, mediaType };
+}
+
+async function runBounded<T>(
+  items: readonly T[],
+  concurrency: number,
+  run: (item: T) => Promise<void>,
+): Promise<void> {
+  if (items.length === 0) return;
+  if (!Num.Is.safeInt(concurrency) || concurrency < 1) {
+    throw Err.std(`Invalid bounded concurrency: ${concurrency}`);
+  }
+
+  const limit = Await.semaphore(concurrency);
+  let failure: { readonly error: unknown } | undefined;
+  const tasks = items.map((item) =>
+    limit(async () => {
+      if (failure) return;
+      try {
+        await run(item);
+      } catch (error) {
+        failure ??= { error };
+      }
+    })
+  );
+
+  const settled = await Promise.allSettled(tasks);
+  for (const result of settled) {
+    if (result.status === 'rejected') failure ??= { error: result.reason };
+  }
+  if (failure) throw failure.error;
 }
 
 async function loadDist(stagingDir: t.StringDir): Promise<t.DistPkg> {
@@ -86,9 +168,7 @@ async function loadDist(stagingDir: t.StringDir): Promise<t.DistPkg> {
 
 async function readRemoteDist(files: t.Files.Client.Handle): Promise<t.DistPkg | undefined> {
   try {
-    const result = await files.cmd.send(Files.Cmd.Name.read, {
-      path: 'dist.json' as t.Files.String.Path,
-    });
+    const result = await files.cmd.send(Files.Cmd.Name.read, { path: DIST_PATH });
     const text = result.kind === 'inline'
       ? result.content
       : await Files.ContentRef.text(result.contentRef);
@@ -112,7 +192,7 @@ function publishFiles(
       const path = toFilesPath(String(rawPath));
       return { path, digest: parts[String(rawPath)], mediaType: mediaTypeOf(path) };
     })
-    .filter((file) => file.path !== 'dist.json')
+    .filter((file) => file.path !== DIST_PATH)
     .sort((a, b) => a.path.localeCompare(b.path))
     .map((file): t.PushPublishFile => ({
       ...file,
@@ -122,10 +202,10 @@ function publishFiles(
   return [
     ...files,
     {
-      path: 'dist.json' as t.Files.String.Path,
+      path: DIST_PATH,
       status: remoteMatchesDist ? 'skipped' : 'written',
       digest: dist.hash.digest,
-      mediaType: mediaTypeOf('dist.json' as t.Files.String.Path),
+      mediaType: mediaTypeOf(DIST_PATH),
     },
   ];
 }

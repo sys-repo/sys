@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../../-test.ts';
-import { Fs, Json, type t } from '../../common.ts';
+import { Fs, Json, Pkg, type t, Time } from '../../common.ts';
 import { R2Provider } from '../mod.ts';
 import { withTmpDir } from '../../../-test/u.fixture.ts';
 import { PushPublishStats } from '../../../u.push/u.publishStats.ts';
@@ -50,10 +50,104 @@ describe('R2 Provider: push', () => {
       expect(providerConfig?.accountId).to.eql('account-1');
       expect(providerConfig?.bucket).to.eql('deploy-bucket');
       expect(providerConfig?.prefix).to.eql('deploy/site');
-      expect(writes.map((write) => write.path)).to.eql(['asset.bin', 'index.html', 'dist.json']);
+      expectWritesWithDistLast(writes, ['asset.bin', 'index.html']);
       expect(writes.find((write) => write.path === 'asset.bin')?.bytes).to.eql([0, 1, 2, 3]);
       expect(writes.find((write) => write.path === 'index.html')?.mediaType).to.eql('text/html');
       expect(writes.find((write) => write.path === 'asset.bin')?.mediaType).to.eql('text/plain');
+    });
+  });
+
+  describe('bounded publish concurrency', () => {
+    it('writes changed assets in parallel but publishes dist.json after assets finish', async () => {
+      await withTmpDir(async (cwd) => {
+        const stagingDir = await stageDist(cwd);
+        await addStagedFiles(stagingDir, [
+          'extra-01.txt',
+          'extra-02.txt',
+          'extra-03.txt',
+          'extra-04.txt',
+          'extra-05.txt',
+          'extra-06.txt',
+          'extra-07.txt',
+          'extra-08.txt',
+          'extra-09.txt',
+          'extra-10.txt',
+          'extra-11.txt',
+          'extra-12.txt',
+        ]);
+        const writes: Write[] = [];
+        const lifecycle: string[] = [];
+        let active = 0;
+        let maxActive = 0;
+
+        const res = await R2Provider.push({
+          cwd: cwd as t.StringDir,
+          target: r2Target(cwd, stagingDir),
+          createFiles: () =>
+            filesHandle({
+              writes,
+              writeDelay: async (path) => {
+                if (path !== 'dist.json') await Time.delay(5);
+              },
+              onWriteStart(path) {
+                active += 1;
+                maxActive = Math.max(maxActive, active);
+                lifecycle.push(`start:${path}`);
+              },
+              onWriteFinish(path) {
+                lifecycle.push(`finish:${path}`);
+                active -= 1;
+              },
+            }),
+        });
+
+        expect(res.ok).to.eql(true);
+        expect(maxActive > 1).to.eql(true);
+        expect(maxActive <= 8).to.eql(true);
+        expect(writes[writes.length - 1]?.path).to.eql('dist.json');
+        expect(publishFileStatuses(res)[publishFileStatuses(res).length - 1]).to.eql({
+          path: 'dist.json',
+          status: 'written',
+        });
+
+        const distStart = lifecycle.indexOf('start:dist.json');
+        expect(distStart >= 0).to.eql(true);
+        const assetFinishes = lifecycle.filter((event) =>
+          event.startsWith('finish:') && event !== 'finish:dist.json'
+        );
+        expect(assetFinishes.length > 0).to.eql(true);
+        for (const event of assetFinishes) {
+          expect(lifecycle.indexOf(event) < distStart).to.eql(true);
+        }
+      });
+    });
+
+    it('does not publish dist.json or prune when an asset write fails', async () => {
+      await withTmpDir(async (cwd) => {
+        const stagingDir = await stageDist(cwd);
+        const writes: Write[] = [];
+        const removes: Remove[] = [];
+        const events: Event[] = [];
+
+        const res = await R2Provider.push({
+          cwd: cwd as t.StringDir,
+          target: r2Target(cwd, stagingDir),
+          createFiles: () =>
+            filesHandle({
+              writes,
+              removes,
+              events,
+              entries: [fileEntry('stale.txt')],
+              writeError: (path: t.Files.String.Path) =>
+                path === 'index.html' ? new Error('write failed') : undefined,
+            }),
+        });
+
+        expect(res.ok).to.eql(false);
+        expect(writes.map((write) => write.path).includes('dist.json')).to.eql(false);
+        expect(events.includes('list')).to.eql(false);
+        expect(removes).to.eql([]);
+      });
     });
   });
 
@@ -176,7 +270,7 @@ describe('R2 Provider: push', () => {
         });
 
         expect(res.ok).to.eql(false);
-        expect(writes.map((write) => write.path)).to.eql(['asset.bin', 'index.html', 'dist.json']);
+        expectWritesWithDistLast(writes, ['asset.bin', 'index.html']);
         expect(removes).to.eql([]);
       });
     });
@@ -232,13 +326,10 @@ describe('R2 Provider: push', () => {
         });
 
         expect(res.ok).to.eql(true);
-        expect(events).to.eql([
-          'write:asset.bin',
-          'write:index.html',
-          'write:dist.json',
-          'list',
-          'remove:stale.txt',
-        ]);
+        expectWriteEventBefore(events, 'write:asset.bin', 'write:dist.json');
+        expectWriteEventBefore(events, 'write:index.html', 'write:dist.json');
+        expectWriteEventBefore(events, 'write:dist.json', 'list');
+        expectWriteEventBefore(events, 'list', 'remove:stale.txt');
         expect(pruneFileStatuses(res)).to.eql([{ path: 'stale.txt', status: 'removed' }]);
       });
     });
@@ -358,7 +449,7 @@ describe('R2 Provider: push', () => {
           { path: 'index.html', status: 'written' },
           { path: 'dist.json', status: 'written' },
         ]);
-        expect(writes.map((write) => write.path)).to.eql(['asset.bin', 'index.html', 'dist.json']);
+        expectWritesWithDistLast(writes, ['asset.bin', 'index.html']);
       });
     });
 
@@ -392,7 +483,7 @@ describe('R2 Provider: push', () => {
           { path: 'index.html', status: 'written' },
           { path: 'dist.json', status: 'written' },
         ]);
-        expect(writes.map((write) => write.path)).to.eql(['index.html', 'dist.json']);
+        expectWritesWithDistLast(writes, ['index.html']);
       });
     });
 
@@ -418,7 +509,7 @@ describe('R2 Provider: push', () => {
           { path: 'index.html', status: 'written' },
           { path: 'dist.json', status: 'written' },
         ]);
-        expect(writes.map((write) => write.path)).to.eql(['asset.bin', 'index.html', 'dist.json']);
+        expectWritesWithDistLast(writes, ['asset.bin', 'index.html']);
       });
     });
   });
@@ -436,6 +527,25 @@ function pruneFileStatuses(
 ): readonly { readonly path: string; readonly status: t.PushPruneFileStatus }[] {
   if (!res.ok) return [];
   return (res.prune?.files ?? []).map((file) => ({ path: file.path, status: file.status }));
+}
+
+function expectWritesWithDistLast(writes: readonly Write[], expectedAssets: readonly string[]) {
+  const paths = writes.map((write) => write.path);
+  expect(paths[paths.length - 1]).to.eql('dist.json');
+  expect(paths.slice(0, -1).sort()).to.eql([...expectedAssets].sort());
+}
+
+function expectWriteEventBefore(events: readonly Event[], before: Event, after: Event) {
+  const beforeIndex = events.indexOf(before);
+  const afterIndex = events.indexOf(after);
+  expect(beforeIndex >= 0).to.eql(true);
+  expect(afterIndex >= 0).to.eql(true);
+  expect(beforeIndex < afterIndex).to.eql(true);
+}
+
+async function addStagedFiles(stagingDir: t.StringDir, paths: readonly string[]) {
+  for (const path of paths) await Fs.write(`${stagingDir}/${path}`, path);
+  await Pkg.Dist.compute({ dir: stagingDir, save: true });
 }
 
 function fileEntry(path: string): t.Files.File {
