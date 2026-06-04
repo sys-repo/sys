@@ -46,6 +46,6 @@ sections:
 
   - label: 'Current chapters'
     items: |
-      Published chapter: `serve`.
+      Published chapters: `serve`, `deploy`.
       Use public `@sys/tools <tool> --help` and the matching source/type surface
       when a tool-specific contract is still ambiguous.

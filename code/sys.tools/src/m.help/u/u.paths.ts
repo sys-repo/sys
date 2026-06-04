@@ -12,6 +12,11 @@ export const HelpResource = {
           file: 'yaml/dsl.serve.yaml',
           children: [],
         },
+        {
+          id: 'deploy',
+          file: 'yaml/dsl.deploy.yaml',
+          children: [],
+        },
       ],
     },
   },
