@@ -22,7 +22,7 @@ deno.json:
     dev: true
   - import: npm:@deno/vite-plugin@2.0.2
     dev: true
-  - import: npm:rollup@4.61.0
+  - import: npm:rollup@4.61.1
     dev: true
   - import: npm:vite@8.0.16
     dev: true
@@ -54,7 +54,7 @@ deno.json:
   - import: npm:date-fns@4.4.0
   - import: npm:diff@9.0.0
   - import: npm:fast-json-patch@3.1.1
-  - import: npm:happy-dom@20.9.0
+  - import: npm:happy-dom@20.10.1
   - import: npm:hash-it@7.0.2
   - import: npm:hono@4.12.23
     subpaths: [ cors, deno, types ]
@@ -72,7 +72,7 @@ deno.json:
   - import: npm:shiki@4.2.0
   - import: npm:strip-ansi@7.2.0
   - import: npm:tinycolor2@1.6.0
-  - import: npm:ts-essentials@10.2.0
+  - import: npm:ts-essentials@10.2.1
   - import: npm:@octokit/rest@22.0.1
   - import: npm:@stripe/stripe-js@9.7.0
   - import: npm:ws@8.21.0
@@ -93,7 +93,7 @@ package.json:
     dev: true
   - import: npm:@deno/vite-plugin@2.0.2
     dev: true
-  - import: npm:rollup@4.61.0
+  - import: npm:rollup@4.61.1
     dev: true
   - import: npm:vite@8.0.16
     dev: true
