@@ -10,6 +10,7 @@ import { pushCapabilityOf } from './u.menu/u/u.pushCapability.ts';
 import { resolveOrbiterPushTargets } from './u.menu/u/u.resolveOrbiterPushTargets.ts';
 import { resolvePushTargets } from './u.menu/u/u.resolvePushTargets.ts';
 import { PushPublishStats } from './u.push/u.publishStats.ts';
+import { PushPruneStats } from './u.push/u.pruneStats.ts';
 import { resolveMissingStagingOutputs, resolveStagingRoot } from './u.staging/mod.ts';
 
 export async function runEndpointAction(args: {
@@ -91,6 +92,7 @@ async function runPushAction(args: {
   let bytesTotal = 0;
   let skippedTargets = 0;
   const publishStats: t.PushPublishStats[] = [];
+  const pruneStats: t.PushPruneStats[] = [];
 
   for (const target of targets) {
     const providerDomain = target.provider.kind === 'orbiter'
@@ -134,6 +136,7 @@ async function runPushAction(args: {
     okCount += 1;
     if (Is.num(res.bytes)) bytesTotal += res.bytes;
     if (res.publish) publishStats.push(res.publish);
+    if (res.prune) pruneStats.push(res.prune);
   }
 
   if (okCount !== targets.length || targets.length === 0) {
@@ -148,6 +151,8 @@ async function runPushAction(args: {
     : undefined;
   const publish = PushPublishStats.merge(publishStats);
   const publishSummary = PushPublishStats.summary(publish);
+  const prune = PushPruneStats.merge(pruneStats);
+  const pruneSummary = PushPruneStats.summary(prune);
   const totalCount = orbiterPlan?.stats.total ?? plan.stats.total;
   const totalTargets = totalCount > 0 ? String(totalCount) : totalCount;
   const table = Cli.table();
@@ -174,6 +179,13 @@ async function runPushAction(args: {
       ]);
     }
   }
+  if (pruneSummary.removed > 0) {
+    table.push([
+      c.yellow('  removed'),
+      c.yellow(String(pruneSummary.removed)),
+      c.italic(c.gray('stale files')),
+    ]);
+  }
   if (orbiterPlan) {
     const stats = orbiterPlan.stats;
     table.push([c.gray('  root index'), stats.root, c.italic(c.gray('root index target'))]);
@@ -198,7 +210,7 @@ async function runPushAction(args: {
 
   return {
     ok: true,
-    push: { ok: true, elapsed, shards, bytes, publish },
+    push: { ok: true, elapsed, shards, bytes, publish, prune },
   };
 }
 

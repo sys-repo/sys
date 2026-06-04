@@ -55,6 +55,41 @@ describe('@sys/tools/deploy endpoint actions: r2', () => {
       });
     });
 
+    it('reports provider prune stats as stale-file cleanup', async () => {
+      await withTmpDir(async (cwd) => {
+        const yamlPath = `${cwd}/-config/@sys.tools.deploy/r2.yaml`;
+        await writeSimpleSite(cwd, 'source');
+        await writeStagedSite(cwd, 'staged');
+        await Fs.write(yamlPath, r2CopyYaml());
+
+        await withMockedR2Push(
+          async () => ({
+            ok: true,
+            prune: { files: [{ path: 'old.js', status: 'removed' }] },
+          }),
+          async () => {
+            const { value: res, output } = await captureInfo(() =>
+              runEndpointAction({
+                cwd,
+                key: 'r2',
+                yamlPath,
+                action: 'push',
+              })
+            );
+
+            expect(res.ok).to.eql(true);
+            expect(pruneFileStatuses(res.push?.prune)).to.eql([
+              { path: 'old.js', status: 'removed' },
+            ]);
+
+            const text = Cli.stripAnsi(output);
+            expect(text).to.include('removed');
+            expect(text).to.include('1   stale files');
+          },
+        );
+      });
+    });
+
     it('passes force into provider push and labels uploaded files as forced', async () => {
       await withTmpDir(async (cwd) => {
         const yamlPath = `${cwd}/-config/@sys.tools.deploy/r2.yaml`;
@@ -164,6 +199,12 @@ function publishFileStatuses(
   publish?: { readonly files?: readonly { readonly path: string; readonly status: string }[] },
 ): readonly { readonly path: string; readonly status: string }[] {
   return (publish?.files ?? []).map((file) => ({ path: file.path, status: file.status }));
+}
+
+function pruneFileStatuses(
+  prune?: { readonly files?: readonly { readonly path: string; readonly status: string }[] },
+): readonly { readonly path: string; readonly status: string }[] {
+  return (prune?.files ?? []).map((file) => ({ path: file.path, status: file.status }));
 }
 
 function r2CopyYaml(): string {

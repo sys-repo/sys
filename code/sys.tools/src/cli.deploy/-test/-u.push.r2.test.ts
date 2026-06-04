@@ -61,6 +61,7 @@ describe('@sys/tools/deploy programmatic push: r2', () => {
                   { path: 'dist.json', status: 'written' },
                 ],
               },
+              prune: { files: [{ path: 'old.js', status: 'removed' }] },
             };
           },
           async () => {
@@ -80,6 +81,7 @@ describe('@sys/tools/deploy programmatic push: r2', () => {
               { path: 'index.html', status: 'skipped' },
               { path: 'dist.json', status: 'written' },
             ]);
+            expect(pruneFileStatuses(result.prune)).to.eql([{ path: 'old.js', status: 'removed' }]);
             expect(pushed?.stagingDir).to.eql(staging);
             expect(pushed?.provider.kind).to.eql('r2');
             expect(pushed?.provider.prefix).to.eql('deploy/site');
@@ -144,6 +146,12 @@ function publishFileStatuses(
   publish?: { readonly files?: readonly { readonly path: string; readonly status: string }[] },
 ): readonly { readonly path: string; readonly status: string }[] {
   return (publish?.files ?? []).map((file) => ({ path: file.path, status: file.status }));
+}
+
+function pruneFileStatuses(
+  prune?: { readonly files?: readonly { readonly path: string; readonly status: string }[] },
+): readonly { readonly path: string; readonly status: string }[] {
+  return (prune?.files ?? []).map((file) => ({ path: file.path, status: file.status }));
 }
 
 function r2Yaml(opts: {

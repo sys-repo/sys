@@ -116,11 +116,29 @@ export type PushPublishSummary = {
   readonly skipped: number;
 };
 
+export type PushPruneFileStatus = 'removed';
+
+/** Provider-reported stale-file removal outcome for one remote file path. */
+export type PushPruneFile = {
+  readonly path: t.Files.String.Path;
+  readonly status: PushPruneFileStatus;
+};
+
+/** Rich provider prune details. Summary counts are derived, not stored. */
+export type PushPruneStats = {
+  readonly files: readonly PushPruneFile[];
+};
+
+export type PushPruneSummary = {
+  readonly total: number;
+  readonly removed: number;
+};
+
 /**
  * Push execution result.
  */
 export type PushResult =
-  | { readonly ok: true; readonly publish?: PushPublishStats }
+  | { readonly ok: true; readonly publish?: PushPublishStats; readonly prune?: PushPruneStats }
   | {
     readonly ok: false;
     readonly reason: 'probe-failed' | 'unsupported-provider' | 'not-implemented' | 'failed';

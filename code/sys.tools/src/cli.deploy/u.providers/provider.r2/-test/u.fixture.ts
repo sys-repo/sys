@@ -1,6 +1,8 @@
 import { Err, Files, Fs, Hash, Pkg, R2, type t } from '../../common.ts';
 
 export type Write = { path: string; bytes: readonly number[]; mediaType?: string };
+export type Remove = { path: string };
+export type Event = `write:${string}` | 'list' | `remove:${string}`;
 
 export type StoredObject = {
   readonly body: Uint8Array;
@@ -59,9 +61,16 @@ export function localR2FilesHandle(args: {
 
 export function filesHandle(args: {
   writes: Write[];
+  removes?: Remove[];
+  events?: Event[];
   remoteText?: string;
   remoteRefText?: string;
+  entries?: readonly t.Files.Entry[];
+  listPages?: readonly t.Files.Cmd.List.Result[];
+  listError?: unknown;
+  removeError?: unknown;
 }): t.Files.Client.Handle {
+  let listPageIndex = 0;
   return {
     dispose() {},
     cmd: {
@@ -82,13 +91,26 @@ export function filesHandle(args: {
         throw new Error('remote dist unavailable');
       },
     },
+    async list() {
+      args.events?.push('list');
+      if (args.listError) throw args.listError;
+      if (args.listPages) return args.listPages[listPageIndex++] ?? { entries: [] };
+      return { entries: args.entries ?? [] };
+    },
     async writeBytes(
       path: t.Files.String.Path,
       content: Uint8Array,
       options?: t.Files.Client.Write.BytesOptions,
     ) {
+      args.events?.push(`write:${path}`);
       args.writes.push({ path, bytes: [...content], mediaType: options?.mediaType });
       return { kind: 'created', path };
+    },
+    async remove(path: t.Files.String.Path) {
+      args.events?.push(`remove:${path}`);
+      if (args.removeError) throw args.removeError;
+      args.removes?.push({ path });
+      return { kind: 'deleted', path };
     },
   } as unknown as t.Files.Client.Handle;
 }

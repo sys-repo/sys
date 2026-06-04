@@ -10,15 +10,20 @@ type PushArgs = {
   readonly force?: boolean;
 };
 
+type PublishResult = {
+  readonly publish: t.PushPublishStats;
+  readonly prune?: t.PushPruneStats;
+};
+
 /**
  * Publish a staged deploy target into an R2-backed writable Files view.
  */
 export async function push(args: PushArgs): Promise<t.PushResult> {
   try {
-    const publishStats = await publish(args.target, args.createFiles ?? createFilesClient, {
+    const result = await publish(args.target, args.createFiles ?? createFilesClient, {
       force: args.force === true,
     });
-    return { ok: true, publish: publishStats };
+    return { ok: true, publish: result.publish, prune: result.prune };
   } catch (error) {
     return {
       ok: false,
@@ -36,7 +41,7 @@ async function publish(
   target: t.R2PushTarget,
   createFiles: FilesFactory,
   options: { readonly force: boolean },
-): Promise<t.PushPublishStats> {
+): Promise<PublishResult> {
   const { provider, stagingDir } = target;
   const dist = await loadDist(stagingDir);
   const files = createFiles(provider);
@@ -63,7 +68,9 @@ async function publish(
       resultFiles.push({ ...entry, bytes: read.data.byteLength, mediaType });
     }
 
-    return { files: resultFiles };
+    const expected = new Set(plan.map((entry) => entry.path));
+    const prune = await pruneStaleFiles(files, expected);
+    return { publish: { files: resultFiles }, prune };
   } finally {
     files.dispose();
   }
@@ -123,6 +130,37 @@ function publishFiles(
   ];
 }
 
+async function pruneStaleFiles(
+  files: t.Files.Client.Handle,
+  expected: ReadonlySet<t.Files.String.Path>,
+): Promise<t.PushPruneStats | undefined> {
+  const remote = await listRemoteFiles(files);
+  const stale = remote.filter((file) => !expected.has(file.path));
+  const removed: t.PushPruneFile[] = [];
+
+  for (const file of stale) {
+    await files.remove(file.path);
+    removed.push({ path: file.path, status: 'removed' });
+  }
+
+  return removed.length ? { files: removed } : undefined;
+}
+
+async function listRemoteFiles(files: t.Files.Client.Handle): Promise<readonly t.Files.File[]> {
+  const result: t.Files.File[] = [];
+  let cursor: t.Files.Cursor.List | undefined;
+
+  do {
+    const page = await files.list(cursor ? { cursor } : undefined);
+    for (const entry of page.entries) {
+      if (entry.kind === 'file') result.push(entry);
+    }
+    cursor = page.cursor;
+  } while (cursor);
+
+  return result;
+}
+
 function toFilesPath(input: string): t.Files.String.Path {
   const raw = String(input ?? '').trim();
   if (!raw || raw.includes('\u0000')) throw Err.std(`Invalid deploy publish path: ${input}`);
@@ -167,6 +205,7 @@ function publishPolicy(): t.Files.Policy.Shape {
     stat: '**',
     read: '**',
     write: '**',
+    remove: '**',
     manifest: true,
   };
 }

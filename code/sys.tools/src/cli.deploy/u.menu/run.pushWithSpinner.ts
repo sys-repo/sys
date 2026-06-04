@@ -9,6 +9,7 @@ type RunPushResult =
     readonly shards?: number;
     readonly bytes?: number;
     readonly publish?: t.PushPublishStats;
+    readonly prune?: t.PushPruneStats;
   }
   | { readonly ok: false; readonly error?: unknown; readonly hint?: string };
 
@@ -52,7 +53,7 @@ export async function runPushWithSpinner(args: {
         .filter(Boolean)
         .join(' ');
       spin.succeed(Fmt.spinnerText(status));
-      return { ok: true, elapsed, bytes, publish: res.publish };
+      return { ok: true, elapsed, bytes, publish: res.publish, prune: res.prune };
     }
 
     spin.fail(Fmt.spinnerText('push failed'));

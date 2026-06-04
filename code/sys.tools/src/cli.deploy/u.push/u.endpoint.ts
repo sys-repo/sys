@@ -1,6 +1,7 @@
 import { ConfigRef, Err, Fs, Is, Pkg, Str, type t, Time } from '../common.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
 import { PushPublishStats } from './u.publishStats.ts';
+import { PushPruneStats } from './u.pruneStats.ts';
 import { pushProvider } from './u.push.ts';
 import { resolvePushTargets } from './u.resolvePushTargets.ts';
 
@@ -103,6 +104,7 @@ export async function pushEndpoint(args: {
   const started = Time.now.timestamp;
   const bytesTotal = stagingOutput.bytes;
   const publishStats: t.PushPublishStats[] = [];
+  const pruneStats: t.PushPruneStats[] = [];
 
   for (const [index, target] of targets.entries()) {
     const context = targetContext(target, index);
@@ -119,6 +121,7 @@ export async function pushEndpoint(args: {
         });
       }
       if (result.publish) publishStats.push(result.publish);
+      if (result.prune) pruneStats.push(result.prune);
     } catch (error) {
       return failure({
         cwd,
@@ -134,6 +137,7 @@ export async function pushEndpoint(args: {
   const shards = targets.filter((target) => Is.num(target.shard)).length || undefined;
   const bytes = bytesTotal || undefined;
   const publish = PushPublishStats.merge(publishStats);
+  const prune = PushPruneStats.merge(pruneStats);
   return {
     ok: true,
     cwd,
@@ -143,6 +147,7 @@ export async function pushEndpoint(args: {
     shards,
     bytes,
     publish,
+    prune,
   };
 }
 

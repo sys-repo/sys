@@ -61,6 +61,8 @@ export namespace DeployTool {
     readonly bytes?: number;
     /** Provider-reported per-file publish details when available. */
     readonly publish?: t.PushPublishStats;
+    /** Provider-reported stale-file removals when available. */
+    readonly prune?: t.PushPruneStats;
   };
 
   export namespace StageOperation {
@@ -262,6 +264,8 @@ export namespace DeployTool {
         readonly bytes?: number;
         /** Provider-reported per-file publish details when available. */
         readonly publish?: t.PushPublishStats;
+        /** Provider-reported stale-file removals when available. */
+        readonly prune?: t.PushPruneStats;
       };
       readonly error?: unknown;
     };

@@ -4,10 +4,12 @@ import { R2Provider } from '../mod.ts';
 import { withTmpDir } from '../../../-test/u.fixture.ts';
 import { PushPublishStats } from '../../../u.push/u.publishStats.ts';
 import {
+  type Event,
   filesHandle,
   loadStagedDist,
   localR2FilesHandle,
   r2Target,
+  type Remove,
   sha,
   stageDist,
   type StoredObject,
@@ -52,6 +54,193 @@ describe('R2 Provider: push', () => {
       expect(writes.find((write) => write.path === 'asset.bin')?.bytes).to.eql([0, 1, 2, 3]);
       expect(writes.find((write) => write.path === 'index.html')?.mediaType).to.eql('text/html');
       expect(writes.find((write) => write.path === 'asset.bin')?.mediaType).to.eql('text/plain');
+    });
+  });
+
+  describe('snapshot replacement prune', () => {
+    it('removes stale remote-only files under the configured publish prefix', async () => {
+      await withTmpDir(async (cwd) => {
+        const stagingDir = await stageDist(cwd);
+        const store = new Map<string, StoredObject>([
+          ['deploy/site/stale.txt', storedObject('stale')],
+          ['other/site/stale.txt', storedObject('outside')],
+        ]);
+
+        const res = await R2Provider.push({
+          cwd: cwd as t.StringDir,
+          target: r2Target(cwd, stagingDir),
+          createFiles: () => localR2FilesHandle({ store }),
+        });
+
+        expect(res.ok).to.eql(true);
+        expect(pruneFileStatuses(res)).to.eql([{ path: 'stale.txt', status: 'removed' }]);
+        expect([...store.keys()].sort()).to.eql([
+          'deploy/site/asset.bin',
+          'deploy/site/dist.json',
+          'deploy/site/index.html',
+          'other/site/stale.txt',
+        ]);
+      });
+    });
+
+    it('removes stale files across paged remote listings', async () => {
+      await withTmpDir(async (cwd) => {
+        const stagingDir = await stageDist(cwd);
+        const writes: Write[] = [];
+        const removes: Remove[] = [];
+
+        const res = await R2Provider.push({
+          cwd: cwd as t.StringDir,
+          target: r2Target(cwd, stagingDir),
+          createFiles: () =>
+            filesHandle({
+              writes,
+              removes,
+              listPages: [
+                {
+                  entries: [fileEntry('asset.bin'), fileEntry('stale-1.txt')],
+                  cursor: 'next' as t.Files.Cursor.List,
+                },
+                {
+                  entries: [
+                    fileEntry('dist.json'),
+                    fileEntry('index.html'),
+                    fileEntry('stale-2.txt'),
+                  ],
+                },
+              ],
+            }),
+        });
+
+        expect(res.ok).to.eql(true);
+        expect(pruneFileStatuses(res)).to.eql([
+          { path: 'stale-1.txt', status: 'removed' },
+          { path: 'stale-2.txt', status: 'removed' },
+        ]);
+        expect(removes).to.eql([{ path: 'stale-1.txt' }, { path: 'stale-2.txt' }]);
+      });
+    });
+
+    it('still prunes stale files when the remote dist matches and staged assets are skipped', async () => {
+      await withTmpDir(async (cwd) => {
+        const stagingDir = await stageDist(cwd);
+        const store = new Map<string, StoredObject>();
+        const createFiles = () => localR2FilesHandle({ store });
+
+        const first = await R2Provider.push({
+          cwd: cwd as t.StringDir,
+          target: r2Target(cwd, stagingDir),
+          createFiles,
+        });
+        store.set('deploy/site/stale.txt', storedObject('stale'));
+        await Fs.remove(`${stagingDir}/asset.bin`);
+        await Fs.remove(`${stagingDir}/index.html`);
+
+        const second = await R2Provider.push({
+          cwd: cwd as t.StringDir,
+          target: r2Target(cwd, stagingDir),
+          createFiles,
+        });
+
+        expect(first.ok).to.eql(true);
+        expect(second.ok ? PushPublishStats.summary(second.publish) : undefined).to.eql({
+          total: 3,
+          written: 0,
+          skipped: 3,
+        });
+        expect(pruneFileStatuses(second)).to.eql([{ path: 'stale.txt', status: 'removed' }]);
+        expect([...store.keys()].sort()).to.eql([
+          'deploy/site/asset.bin',
+          'deploy/site/dist.json',
+          'deploy/site/index.html',
+        ]);
+      });
+    });
+
+    it('fails without deleting when remote listing fails', async () => {
+      await withTmpDir(async (cwd) => {
+        const stagingDir = await stageDist(cwd);
+        const writes: Write[] = [];
+        const removes: Remove[] = [];
+
+        const res = await R2Provider.push({
+          cwd: cwd as t.StringDir,
+          target: r2Target(cwd, stagingDir),
+          createFiles: () =>
+            filesHandle({
+              writes,
+              removes,
+              listError: new Error('list failed'),
+              entries: [fileEntry('stale.txt')],
+            }),
+        });
+
+        expect(res.ok).to.eql(false);
+        expect(writes.map((write) => write.path)).to.eql(['asset.bin', 'index.html', 'dist.json']);
+        expect(removes).to.eql([]);
+      });
+    });
+
+    it('reports remove failures truthfully', async () => {
+      await withTmpDir(async (cwd) => {
+        const stagingDir = await stageDist(cwd);
+        const writes: Write[] = [];
+        const removes: Remove[] = [];
+
+        const res = await R2Provider.push({
+          cwd: cwd as t.StringDir,
+          target: r2Target(cwd, stagingDir),
+          createFiles: () =>
+            filesHandle({
+              writes,
+              removes,
+              removeError: new Error('remove failed'),
+              entries: [fileEntry('stale.txt')],
+            }),
+        });
+
+        expect(res.ok).to.eql(false);
+        expect(removes).to.eql([]);
+      });
+    });
+
+    it('force rewrites staged files, writes dist, then prunes stale files', async () => {
+      await withTmpDir(async (cwd) => {
+        const stagingDir = await stageDist(cwd);
+        const dist = await loadStagedDist(stagingDir);
+        const writes: Write[] = [];
+        const removes: Remove[] = [];
+        const events: Event[] = [];
+
+        const res = await R2Provider.push({
+          cwd: cwd as t.StringDir,
+          target: r2Target(cwd, stagingDir),
+          force: true,
+          createFiles: () =>
+            filesHandle({
+              writes,
+              removes,
+              events,
+              remoteText: Json.stringify(dist),
+              entries: [
+                fileEntry('asset.bin'),
+                fileEntry('index.html'),
+                fileEntry('dist.json'),
+                fileEntry('stale.txt'),
+              ],
+            }),
+        });
+
+        expect(res.ok).to.eql(true);
+        expect(events).to.eql([
+          'write:asset.bin',
+          'write:index.html',
+          'write:dist.json',
+          'list',
+          'remove:stale.txt',
+        ]);
+        expect(pruneFileStatuses(res)).to.eql([{ path: 'stale.txt', status: 'removed' }]);
+      });
     });
   });
 
@@ -240,4 +429,23 @@ function publishFileStatuses(
 ): readonly { readonly path: string; readonly status: t.PushPublishFileStatus }[] {
   if (!res.ok) return [];
   return (res.publish?.files ?? []).map((file) => ({ path: file.path, status: file.status }));
+}
+
+function pruneFileStatuses(
+  res: t.PushResult,
+): readonly { readonly path: string; readonly status: t.PushPruneFileStatus }[] {
+  if (!res.ok) return [];
+  return (res.prune?.files ?? []).map((file) => ({ path: file.path, status: file.status }));
+}
+
+function fileEntry(path: string): t.Files.File {
+  return { path: path as t.Files.String.Path, kind: 'file' };
+}
+
+function storedObject(text: string): StoredObject {
+  return {
+    body: new TextEncoder().encode(text),
+    mediaType: 'text/plain',
+    modifiedAt: new Date('2026-06-01T00:00:00.000Z'),
+  };
 }
