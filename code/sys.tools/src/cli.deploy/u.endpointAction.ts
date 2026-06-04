@@ -204,7 +204,7 @@ async function runPushAction(args: {
 
   const reportHash = `#${hashSuffix ?? '00000'}`;
   const reportSuffix = c.gray(c.dim(`for ${reportHash}`));
-  console.info(c.white(`\nPush Report ${reportSuffix}`));
+  console.info(c.white(`\nPush report ${reportSuffix}`));
   console.info(Str.trimEdgeNewlines(String(table)));
   console.info();
 

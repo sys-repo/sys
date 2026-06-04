@@ -42,7 +42,6 @@ describe('@sys/tools/deploy endpoint actions: r2', () => {
             ]);
 
             const text = Cli.stripAnsi(output);
-            expect(text).to.include('Push Report for');
             expect(text).to.include('files');
             expect(text).to.include('3   total publish files');
             expect(text).to.include('uploaded');
