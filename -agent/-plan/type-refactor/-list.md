@@ -100,20 +100,20 @@ Quick scan notes for modules whose root `t.ts` still exposes a flat `XxxLib` spi
 - `code/sys.driver/driver-deno/src/m.runtime/m.DenoFile/t.ts` — refactored in `c31b58301`.
 - `code/sys.driver/driver-deno/src/m.runtime/m.DenoDeps/t.ts` — refactored in `c31b58301`.
 
-- `code/sys.driver/driver-automerge/src/-exports/-fs/t.ts`
-- `code/sys.driver/driver-automerge/src/-exports/-web/t.ts`
-- `code/sys.driver/driver-automerge/src/-exports/-web.ui/t.ts`
-- `code/sys.driver/driver-automerge/src/m.Crdt/t.ts`
-- `code/sys.driver/driver-automerge/src/m.Debug/t.ts`
-- `code/sys.driver/driver-automerge/src/m.Graph/t.ts`
-- `code/sys.driver/driver-automerge/src/m.server/t.ts`
-- `code/sys.driver/driver-automerge/src/m.server.client/t.ts`
-- `code/sys.driver/driver-automerge/src/ui/-dev/t.ts`
-- `code/sys.driver/driver-automerge/src/ui/ui.Binary/t.ts`
-- `code/sys.driver/driver-automerge/src/ui/ui.Document/t.ts`
-- `code/sys.driver/driver-automerge/src/ui/ui.DocumentId/t.ts`
-- `code/sys.driver/driver-automerge/src/ui/ui.Layout/t.ts`
-- `code/sys.driver/driver-automerge/src/ui/ui.Repo/t.ts`
+- `code/sys.driver/driver-automerge/src/-exports/-fs/t.ts` — refactored in `510aaaaef`; no compatibility aliases retained.
+- `code/sys.driver/driver-automerge/src/-exports/-web/t.ts` — refactored in `510aaaaef`; no compatibility aliases retained.
+- `code/sys.driver/driver-automerge/src/-exports/-web.ui/t.ts` — refactored in `510aaaaef`; no flat compatibility aliases retained.
+- `code/sys.driver/driver-automerge/src/m.Crdt/t.ts` — refactored in `510aaaaef`; includes `Crdt.DocumentId.*` convenience lane; no target flat compatibility aliases retained.
+- `code/sys.driver/driver-automerge/src/m.Debug/t.ts` — refactored in `510aaaaef`; no compatibility aliases retained.
+- `code/sys.driver/driver-automerge/src/m.Graph/t.ts` — refactored in `510aaaaef`; no compatibility aliases retained.
+- `code/sys.driver/driver-automerge/src/m.server/t.ts` — refactored in `510aaaaef`; no compatibility aliases retained.
+- `code/sys.driver/driver-automerge/src/m.server.client/t.ts` — refactored in `510aaaaef`; no compatibility aliases retained.
+- `code/sys.driver/driver-automerge/src/ui/-dev/t.ts` — refactored in `510aaaaef`; no compatibility aliases retained.
+- `code/sys.driver/driver-automerge/src/ui/ui.Binary/t.ts` — refactored in `510aaaaef`; no compatibility aliases retained.
+- `code/sys.driver/driver-automerge/src/ui/ui.Document/t.ts` — refactored in `510aaaaef`; no compatibility aliases retained.
+- `code/sys.driver/driver-automerge/src/ui/ui.DocumentId/t.ts` — refactored in `510aaaaef`; no compatibility aliases retained.
+- `code/sys.driver/driver-automerge/src/ui/ui.Layout/t.ts` — refactored in `510aaaaef`; no compatibility aliases retained.
+- `code/sys.driver/driver-automerge/src/ui/ui.Repo/t.ts` — refactored in `510aaaaef`; no compatibility aliases retained.
 
 ## Already-modern / likely not primary candidates
 
