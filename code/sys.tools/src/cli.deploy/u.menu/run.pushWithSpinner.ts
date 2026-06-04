@@ -1,14 +1,15 @@
-import { type t, c, Cli, Is, Path, Pkg, Str, Time } from '../common.ts';
+import { c, Cli, Is, Path, Pkg, Str, type t, Time } from '../common.ts';
 import { Fmt } from '../u.fmt.ts';
 import { pushProvider } from '../u.push/u.push.ts';
 
 type RunPushResult =
   | {
-      readonly ok: true;
-      readonly elapsed?: string;
-      readonly shards?: number;
-      readonly bytes?: number;
-    }
+    readonly ok: true;
+    readonly elapsed?: string;
+    readonly shards?: number;
+    readonly bytes?: number;
+    readonly publish?: t.PushPublishStats;
+  }
   | { readonly ok: false; readonly error?: unknown; readonly hint?: string };
 
 /**
@@ -49,7 +50,7 @@ export async function runPushWithSpinner(args: {
         .filter(Boolean)
         .join(' ');
       spin.succeed(Fmt.spinnerText(status));
-      return { ok: true, elapsed, bytes };
+      return { ok: true, elapsed, bytes, publish: res.publish };
     }
 
     spin.fail(Fmt.spinnerText('push failed'));

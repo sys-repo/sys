@@ -92,11 +92,35 @@ export type OrbiterPushTargetPlan = {
   readonly stats: OrbiterPushTargetStats;
 };
 
+export type PushPublishFileStatus = 'written' | 'skipped';
+
+/** Provider-reported publish outcome for one staged file path. */
+export type PushPublishFile = {
+  readonly path: t.Files.String.Path;
+  readonly status: PushPublishFileStatus;
+  /** Content digest/hash reference when known from staging metadata. */
+  readonly digest?: t.StringHash | t.StringUri;
+  /** Bytes written during this push. Omitted for unchanged/skipped files. */
+  readonly bytes?: number;
+  readonly mediaType?: t.StringMimeType;
+};
+
+/** Rich provider publish details. Summary counts are derived, not stored. */
+export type PushPublishStats = {
+  readonly files: readonly PushPublishFile[];
+};
+
+export type PushPublishSummary = {
+  readonly total: number;
+  readonly written: number;
+  readonly skipped: number;
+};
+
 /**
  * Push execution result.
  */
 export type PushResult =
-  | { readonly ok: true }
+  | { readonly ok: true; readonly publish?: PushPublishStats }
   | {
     readonly ok: false;
     readonly reason: 'probe-failed' | 'unsupported-provider' | 'not-implemented' | 'failed';

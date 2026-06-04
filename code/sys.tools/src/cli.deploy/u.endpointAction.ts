@@ -9,6 +9,7 @@ import { checkUpToDate } from './u.menu/u/u.checkUpToDate.ts';
 import { pushCapabilityOf } from './u.menu/u/u.pushCapability.ts';
 import { resolveOrbiterPushTargets } from './u.menu/u/u.resolveOrbiterPushTargets.ts';
 import { resolvePushTargets } from './u.menu/u/u.resolvePushTargets.ts';
+import { PushPublishStats } from './u.push/u.publishStats.ts';
 import { resolveMissingStagingOutputs, resolveStagingRoot } from './u.staging/mod.ts';
 
 export async function runEndpointAction(args: {
@@ -85,7 +86,8 @@ async function runPushAction(args: {
   const pushStarted = Time.now.timestamp;
   let okCount = 0;
   let bytesTotal = 0;
-  let skipped = 0;
+  let skippedTargets = 0;
+  const publishStats: t.PushPublishStats[] = [];
 
   for (const target of targets) {
     const providerDomain = target.provider.kind === 'orbiter'
@@ -96,12 +98,12 @@ async function runPushAction(args: {
     const domainRaw = String(target.domain ?? providerDomain ?? '').trim();
     const domain = toHttpsUrl(domainRaw);
 
-    if (domain && target.stagingDir) {
+    if (target.provider.kind === 'orbiter' && domain && target.stagingDir) {
       const res = await checkUpToDate({ stagingDir: target.stagingDir, domain });
       if (res.ok) {
         console.info(`${c.gray('push skipped (up-to-date)')} ${c.white(domain)} ${c.gray('✔')}`);
         okCount += 1;
-        skipped += 1;
+        skippedTargets += 1;
         continue;
       }
     }
@@ -128,6 +130,7 @@ async function runPushAction(args: {
 
     okCount += 1;
     if (Is.num(res.bytes)) bytesTotal += res.bytes;
+    if (res.publish) publishStats.push(res.publish);
   }
 
   if (okCount !== targets.length || targets.length === 0) {
@@ -140,15 +143,33 @@ async function runPushAction(args: {
   const orbiterPlan = freshProvider.kind === 'orbiter'
     ? await resolveOrbiterPushTargets({ cwd, yaml: freshYaml })
     : undefined;
+  const publish = PushPublishStats.merge(publishStats);
+  const publishSummary = PushPublishStats.summary(publish);
   const totalCount = orbiterPlan?.stats.total ?? plan.stats.total;
-  const skippedTotal = skipped + (orbiterPlan?.stats.skippedShards ?? 0);
-  const totalTargets = totalCount > 0
-    ? skippedTotal === 0 ? c.green(String(totalCount)) : c.yellow(String(totalCount))
-    : totalCount;
+  const totalTargets = totalCount > 0 ? String(totalCount) : totalCount;
   const table = Cli.table();
   table.push([c.gray('  targets'), totalTargets, c.italic(c.gray('total push targets'))]);
-  if (skipped) {
-    table.push([c.yellow('  skipped'), c.yellow(String(skipped)), c.italic(c.gray('up-to-date'))]);
+  if (skippedTargets) {
+    table.push([
+      c.yellow('  skipped'),
+      c.yellow(String(skippedTargets)),
+      c.italic(c.gray('up-to-date')),
+    ]);
+  }
+  if (publishSummary.total > 0) {
+    table.push([c.gray('  files'), publishSummary.total, c.italic(c.gray('total publish files'))]);
+    table.push([
+      c.gray('  uploaded'),
+      publishSummary.written > 0 ? c.green(String(publishSummary.written)) : c.gray('0'),
+      c.italic(c.gray('changed files')),
+    ]);
+    if (publishSummary.skipped > 0) {
+      table.push([
+        c.yellow('  skipped'),
+        c.yellow(String(publishSummary.skipped)),
+        c.italic(c.gray('unchanged files')),
+      ]);
+    }
   }
   if (orbiterPlan) {
     const stats = orbiterPlan.stats;
@@ -174,7 +195,7 @@ async function runPushAction(args: {
 
   return {
     ok: true,
-    push: { ok: true, elapsed, shards, bytes },
+    push: { ok: true, elapsed, shards, bytes, publish },
   };
 }
 

@@ -14,8 +14,8 @@ type PushArgs = {
  */
 export async function push(args: PushArgs): Promise<t.PushResult> {
   try {
-    await publish(args.target, args.createFiles ?? createFilesClient);
-    return { ok: true };
+    const publishStats = await publish(args.target, args.createFiles ?? createFilesClient);
+    return { ok: true, publish: publishStats };
   } catch (error) {
     return {
       ok: false,
@@ -29,23 +29,37 @@ export async function push(args: PushArgs): Promise<t.PushResult> {
 /**
  * Helpers:
  */
-async function publish(target: t.R2PushTarget, createFiles: FilesFactory) {
+async function publish(
+  target: t.R2PushTarget,
+  createFiles: FilesFactory,
+): Promise<t.PushPublishStats> {
   const { provider, stagingDir } = target;
   const dist = await loadDist(stagingDir);
   const files = createFiles(provider);
 
   try {
     const remote = await readRemoteDist(files);
-    const paths = publishPaths(dist, remote);
-    for (const path of paths) {
+    const plan = publishFiles(dist, remote);
+    const resultFiles: t.PushPublishFile[] = [];
+
+    for (const entry of plan) {
+      if (entry.status === 'skipped') {
+        resultFiles.push(entry);
+        continue;
+      }
+
+      const path = entry.path;
       const absolute = absoluteStagedFile(stagingDir, path);
       const read = await Fs.read(absolute);
       if (!read.ok || !read.data) {
         throw Err.std(`Could not read staged deploy file: ${path}`, { cause: read.error });
       }
-      const mediaType = mediaTypeOf(path);
+      const mediaType = entry.mediaType ?? mediaTypeOf(path);
       await files.writeBytes(path, read.data, { mediaType });
+      resultFiles.push({ ...entry, bytes: read.data.byteLength, mediaType });
     }
+
+    return { files: resultFiles };
   } finally {
     files.dispose();
   }
@@ -75,20 +89,34 @@ async function readRemoteDist(files: t.Files.Client.Handle): Promise<t.DistPkg |
   }
 }
 
-function publishPaths(
+function publishFiles(
   dist: t.DistPkg,
   remote?: t.DistPkg,
-): readonly t.Files.String.Path[] {
-  if (remote?.hash.digest === dist.hash.digest) return [];
-
+): readonly t.PushPublishFile[] {
+  const remoteMatchesDist = remote?.hash.digest === dist.hash.digest;
   const parts = dist.hash?.parts ?? {};
   const remoteParts = remote?.hash.parts ?? {};
   const files = Obj.keys(parts)
-    .map((path) => toFilesPath(String(path)))
-    .filter((path) => path !== 'dist.json')
-    .filter((path) => remoteParts[path] !== parts[path])
-    .sort();
-  return [...files, 'dist.json' as t.Files.String.Path];
+    .map((rawPath) => {
+      const path = toFilesPath(String(rawPath));
+      return { path, digest: parts[String(rawPath)], mediaType: mediaTypeOf(path) };
+    })
+    .filter((file) => file.path !== 'dist.json')
+    .sort((a, b) => a.path.localeCompare(b.path))
+    .map((file): t.PushPublishFile => ({
+      ...file,
+      status: remoteMatchesDist || remoteParts[file.path] === file.digest ? 'skipped' : 'written',
+    }));
+
+  return [
+    ...files,
+    {
+      path: 'dist.json' as t.Files.String.Path,
+      status: remoteMatchesDist ? 'skipped' : 'written',
+      digest: dist.hash.digest,
+      mediaType: mediaTypeOf('dist.json' as t.Files.String.Path),
+    },
+  ];
 }
 
 function toFilesPath(input: string): t.Files.String.Path {

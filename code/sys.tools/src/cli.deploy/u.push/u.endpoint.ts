@@ -1,5 +1,6 @@
 import { ConfigRef, Err, Fs, Is, Pkg, Str, type t, Time } from '../common.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
+import { PushPublishStats } from './u.publishStats.ts';
 import { pushProvider } from './u.push.ts';
 import { resolvePushTargets } from './u.resolvePushTargets.ts';
 
@@ -100,6 +101,7 @@ export async function pushEndpoint(args: {
 
   const started = Time.now.timestamp;
   const bytesTotal = stagingOutput.bytes;
+  const publishStats: t.PushPublishStats[] = [];
 
   for (const [index, target] of targets.entries()) {
     const context = targetContext(target, index);
@@ -115,6 +117,7 @@ export async function pushEndpoint(args: {
           error: result.error,
         });
       }
+      if (result.publish) publishStats.push(result.publish);
     } catch (error) {
       return failure({
         cwd,
@@ -129,6 +132,7 @@ export async function pushEndpoint(args: {
 
   const shards = targets.filter((target) => Is.num(target.shard)).length || undefined;
   const bytes = bytesTotal || undefined;
+  const publish = PushPublishStats.merge(publishStats);
   return {
     ok: true,
     cwd,
@@ -137,6 +141,7 @@ export async function pushEndpoint(args: {
     elapsed: Time.elapsed(started).toString(),
     shards,
     bytes,
+    publish,
   };
 }
 

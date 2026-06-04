@@ -55,6 +55,8 @@ export namespace DeployTool {
     readonly elapsed?: string;
     readonly shards?: number;
     readonly bytes?: number;
+    /** Provider-reported per-file publish details when available. */
+    readonly publish?: t.PushPublishStats;
   };
 
   export namespace StageOperation {
@@ -254,6 +256,8 @@ export namespace DeployTool {
         readonly elapsed?: string;
         readonly shards?: number;
         readonly bytes?: number;
+        /** Provider-reported per-file publish details when available. */
+        readonly publish?: t.PushPublishStats;
       };
       readonly error?: unknown;
     };
