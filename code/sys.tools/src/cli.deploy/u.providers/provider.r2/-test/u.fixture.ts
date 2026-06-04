@@ -1,6 +1,13 @@
-import { Err, Fs, Hash, Pkg, type t } from '../../common.ts';
+import { Err, Files, Fs, Hash, Pkg, R2, type t } from '../../common.ts';
 
 export type Write = { path: string; bytes: readonly number[]; mediaType?: string };
+
+export type StoredObject = {
+  readonly body: Uint8Array;
+  readonly mediaType?: string;
+  readonly custom?: t.R2.MetadataCustom;
+  readonly modifiedAt: Date;
+};
 
 export async function stageDist(cwd: t.StringDir): Promise<t.StringDir> {
   const stagingDir = Fs.join(cwd, 'stage') as t.StringDir;
@@ -35,6 +42,19 @@ export function r2Target(cwd: t.StringDir, stagingDir: t.StringDir): t.R2PushTar
     stagingDir,
     domain: 'https://cdn.example.com',
   };
+}
+
+export function localR2FilesHandle(args: {
+  readonly store: Map<string, StoredObject>;
+  readonly prefix?: string;
+}): t.Files.Client.Handle {
+  const bucket = localBucket(args.store);
+  const backing = R2.Files.create({
+    bucket,
+    prefix: args.prefix ?? 'deploy/site',
+    policy: { list: '**', stat: '**', read: '**', write: '**', remove: '**', manifest: true },
+  });
+  return Files.Client.local(backing);
 }
 
 export function filesHandle(args: {
@@ -79,4 +99,61 @@ export function sha(seed: string): t.StringHash {
 
 function dataUrl(text: string): t.StringUrl {
   return `data:application/json;charset=utf-8,${encodeURIComponent(text)}` as t.StringUrl;
+}
+
+function localBucket(store: Map<string, StoredObject>): t.R2.Bucket {
+  return {
+    name: 'deploy-bucket',
+    stat(key) {
+      const object = store.get(key);
+      return Promise.resolve(object === undefined ? undefined : toObjectMeta(key, object));
+    },
+    read(key) {
+      const object = store.get(key);
+      if (!object) return Promise.reject(new Error(`missing object: ${key}`));
+      const body = new ArrayBuffer(object.body.byteLength);
+      new Uint8Array(body).set(object.body);
+      return Promise.resolve(new Response(body));
+    },
+    write(key, data, options) {
+      const body = data instanceof Uint8Array
+        ? new Uint8Array(data)
+        : new TextEncoder().encode(String(data));
+      store.set(key, {
+        body,
+        mediaType: options?.mediaType,
+        custom: options?.custom,
+        modifiedAt: new Date('2026-06-01T00:00:00.000Z'),
+      });
+      return Promise.resolve({ etag: 'etag' });
+    },
+    remove(key) {
+      store.delete(key);
+      return Promise.resolve();
+    },
+    async *list(options) {
+      const keys = [...store.keys()].sort();
+      let count = 0;
+      for (const key of keys) {
+        if (options?.prefix !== undefined && !key.startsWith(options.prefix)) continue;
+        if (options?.limit !== undefined && count >= options.limit) break;
+        count += 1;
+        const object = store.get(key);
+        if (!object) continue;
+        yield { key, size: object.body.byteLength, modifiedAt: object.modifiedAt };
+      }
+    },
+  };
+}
+
+function toObjectMeta(key: string, object: StoredObject): t.R2.ObjectMeta {
+  return {
+    key,
+    size: object.body.byteLength,
+    modifiedAt: object.modifiedAt,
+    metadata: {
+      ...(object.mediaType === undefined ? {} : { mediaType: object.mediaType }),
+      ...(object.custom === undefined ? {} : { custom: object.custom }),
+    },
+  };
 }

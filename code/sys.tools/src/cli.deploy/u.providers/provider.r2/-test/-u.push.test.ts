@@ -3,7 +3,16 @@ import { Fs, Json, type t } from '../../common.ts';
 import { R2Provider } from '../mod.ts';
 import { withTmpDir } from '../../../-test/u.fixture.ts';
 import { PushPublishStats } from '../../../u.push/u.publishStats.ts';
-import { filesHandle, loadStagedDist, r2Target, sha, stageDist, type Write } from './u.fixture.ts';
+import {
+  filesHandle,
+  loadStagedDist,
+  localR2FilesHandle,
+  r2Target,
+  sha,
+  stageDist,
+  type StoredObject,
+  type Write,
+} from './u.fixture.ts';
 
 describe('R2 Provider: push', () => {
   it('writes staged files through the Files client and publishes dist.json last', async () => {
@@ -100,6 +109,39 @@ describe('R2 Provider: push', () => {
           { path: 'dist.json', status: 'skipped' },
         ]);
         expect(writes).to.eql([]);
+      });
+    });
+
+    it('skips writes after API-reading a remote manifest without readOrigin', async () => {
+      await withTmpDir(async (cwd) => {
+        const stagingDir = await stageDist(cwd);
+        const store = new Map<string, StoredObject>();
+        const baseTarget = r2Target(cwd, stagingDir);
+        const target: t.R2PushTarget = {
+          ...baseTarget,
+          domain: undefined,
+          provider: { ...baseTarget.provider, readOrigin: undefined },
+        };
+
+        const createFiles = () => localR2FilesHandle({ store });
+        const first = await R2Provider.push({ cwd: cwd as t.StringDir, target, createFiles });
+        const second = await R2Provider.push({ cwd: cwd as t.StringDir, target, createFiles });
+
+        expect(first.ok ? PushPublishStats.summary(first.publish) : undefined).to.eql({
+          total: 3,
+          written: 3,
+          skipped: 0,
+        });
+        expect(second.ok ? PushPublishStats.summary(second.publish) : undefined).to.eql({
+          total: 3,
+          written: 0,
+          skipped: 3,
+        });
+        expect(publishFileStatuses(second)).to.eql([
+          { path: 'asset.bin', status: 'skipped' },
+          { path: 'index.html', status: 'skipped' },
+          { path: 'dist.json', status: 'skipped' },
+        ]);
       });
     });
 
