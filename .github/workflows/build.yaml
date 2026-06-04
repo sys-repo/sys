@@ -21,7 +21,7 @@ jobs:
           - name: "@sys/dev"
             path: code/sys.dev
           - name: "@sys/ui-react-devharness"
-            path: code/sys.ui/ui-react-devharness
+            path: code/sys.ui/ui-devharness
           - name: "@sys/ui-react-components"
             path: code/sys.ui/ui-react-components
           - name: "@sys/driver-automerge"

@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1780518650034,
+    "createdAt": 1780614881719,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-b408cd09e72103beecf006454d600da6d20ce1e35005f3a68187d8b3d94a0291",
+      "/graph": "sha256-e72aaadd2039b29f3ed26ed7bde8274da12c500ca15f735aeff15dbe0c545756",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.110/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,7 +15,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.110/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1780518650040
+    "modifiedAt": 1780614881724
   },
   "graph": {
     "orderedPaths": [
@@ -43,7 +43,7 @@
       "code/sys/esm",
       "code/sys/http",
       "code/sys.ui/ui-react",
-      "code/sys.ui/ui-react-devharness",
+      "code/sys.ui/ui-devharness",
       "code/sys/registry",
       "code/sys/schema",
       "code/sys.model/model",
@@ -197,15 +197,15 @@
       },
       {
         "from": "code/sys.ui/ui-css",
+        "to": "code/sys.ui/ui-devharness"
+      },
+      {
+        "from": "code/sys.ui/ui-css",
         "to": "code/sys.ui/ui-react"
       },
       {
         "from": "code/sys.ui/ui-css",
         "to": "code/sys.ui/ui-react-components"
-      },
-      {
-        "from": "code/sys.ui/ui-css",
-        "to": "code/sys.ui/ui-react-devharness"
       },
       {
         "from": "code/sys.ui/ui-css",
@@ -225,6 +225,58 @@
       },
       {
         "from": "code/sys.ui/ui-css",
+        "to": "deploy/@tdb.slc.std"
+      },
+      {
+        "from": "code/sys.ui/ui-devharness",
+        "to": "code/-tmpl"
+      },
+      {
+        "from": "code/sys.ui/ui-devharness",
+        "to": "code/sys.driver/driver-automerge"
+      },
+      {
+        "from": "code/sys.ui/ui-devharness",
+        "to": "code/sys.driver/driver-monaco"
+      },
+      {
+        "from": "code/sys.ui/ui-devharness",
+        "to": "code/sys.driver/driver-pi"
+      },
+      {
+        "from": "code/sys.ui/ui-devharness",
+        "to": "code/sys.driver/driver-prosemirror"
+      },
+      {
+        "from": "code/sys.ui/ui-devharness",
+        "to": "code/sys.driver/driver-stripe"
+      },
+      {
+        "from": "code/sys.ui/ui-devharness",
+        "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys.ui/ui-devharness",
+        "to": "code/sys.ui/ui-react-components"
+      },
+      {
+        "from": "code/sys.ui/ui-devharness",
+        "to": "deploy/@draft.shell"
+      },
+      {
+        "from": "code/sys.ui/ui-devharness",
+        "to": "deploy/@tdb.data"
+      },
+      {
+        "from": "code/sys.ui/ui-devharness",
+        "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys.ui/ui-devharness",
+        "to": "deploy/@tdb.slc"
+      },
+      {
+        "from": "code/sys.ui/ui-devharness",
         "to": "deploy/@tdb.slc.std"
       },
       {
@@ -257,6 +309,10 @@
       },
       {
         "from": "code/sys.ui/ui-dom",
+        "to": "code/sys.ui/ui-devharness"
+      },
+      {
+        "from": "code/sys.ui/ui-dom",
         "to": "code/sys.ui/ui-react"
       },
       {
@@ -265,10 +321,6 @@
       },
       {
         "from": "code/sys.ui/ui-dom",
-        "to": "code/sys.ui/ui-react-devharness"
-      },
-      {
-        "from": "code/sys.ui/ui-dom",
         "to": "deploy/@draft.shell"
       },
       {
@@ -306,6 +358,10 @@
       {
         "from": "code/sys.ui/ui-react",
         "to": "code/sys.driver/driver-stripe"
+      },
+      {
+        "from": "code/sys.ui/ui-react",
+        "to": "code/sys.ui/ui-devharness"
       },
       {
         "from": "code/sys.ui/ui-react",
@@ -313,10 +369,6 @@
       },
       {
         "from": "code/sys.ui/ui-react",
-        "to": "code/sys.ui/ui-react-devharness"
-      },
-      {
-        "from": "code/sys.ui/ui-react",
         "to": "deploy/@draft.shell"
       },
       {
@@ -373,58 +425,6 @@
       },
       {
         "from": "code/sys.ui/ui-react-components",
-        "to": "deploy/@tdb.slc.std"
-      },
-      {
-        "from": "code/sys.ui/ui-react-devharness",
-        "to": "code/-tmpl"
-      },
-      {
-        "from": "code/sys.ui/ui-react-devharness",
-        "to": "code/sys.driver/driver-automerge"
-      },
-      {
-        "from": "code/sys.ui/ui-react-devharness",
-        "to": "code/sys.driver/driver-monaco"
-      },
-      {
-        "from": "code/sys.ui/ui-react-devharness",
-        "to": "code/sys.driver/driver-pi"
-      },
-      {
-        "from": "code/sys.ui/ui-react-devharness",
-        "to": "code/sys.driver/driver-prosemirror"
-      },
-      {
-        "from": "code/sys.ui/ui-react-devharness",
-        "to": "code/sys.driver/driver-stripe"
-      },
-      {
-        "from": "code/sys.ui/ui-react-devharness",
-        "to": "code/sys.tools"
-      },
-      {
-        "from": "code/sys.ui/ui-react-devharness",
-        "to": "code/sys.ui/ui-react-components"
-      },
-      {
-        "from": "code/sys.ui/ui-react-devharness",
-        "to": "deploy/@draft.shell"
-      },
-      {
-        "from": "code/sys.ui/ui-react-devharness",
-        "to": "deploy/@tdb.data"
-      },
-      {
-        "from": "code/sys.ui/ui-react-devharness",
-        "to": "deploy/@tdb.edu.slug"
-      },
-      {
-        "from": "code/sys.ui/ui-react-devharness",
-        "to": "deploy/@tdb.slc"
-      },
-      {
-        "from": "code/sys.ui/ui-react-devharness",
         "to": "deploy/@tdb.slc.std"
       },
       {
@@ -545,15 +545,15 @@
       },
       {
         "from": "code/sys/color",
+        "to": "code/sys.ui/ui-devharness"
+      },
+      {
+        "from": "code/sys/color",
         "to": "code/sys.ui/ui-dom"
       },
       {
         "from": "code/sys/color",
         "to": "code/sys.ui/ui-react-components"
-      },
-      {
-        "from": "code/sys/color",
-        "to": "code/sys.ui/ui-react-devharness"
       },
       {
         "from": "code/sys/color",
@@ -793,15 +793,15 @@
       },
       {
         "from": "code/sys/http",
+        "to": "code/sys.ui/ui-devharness"
+      },
+      {
+        "from": "code/sys/http",
         "to": "code/sys.ui/ui-react"
       },
       {
         "from": "code/sys/http",
         "to": "code/sys.ui/ui-react-components"
-      },
-      {
-        "from": "code/sys/http",
-        "to": "code/sys.ui/ui-react-devharness"
       },
       {
         "from": "code/sys/http",
@@ -1065,6 +1065,10 @@
       },
       {
         "from": "code/sys/std",
+        "to": "code/sys.ui/ui-devharness"
+      },
+      {
+        "from": "code/sys/std",
         "to": "code/sys.ui/ui-dom"
       },
       {
@@ -1074,10 +1078,6 @@
       {
         "from": "code/sys/std",
         "to": "code/sys.ui/ui-react-components"
-      },
-      {
-        "from": "code/sys/std",
-        "to": "code/sys.ui/ui-react-devharness"
       },
       {
         "from": "code/sys/std",
@@ -1209,15 +1209,15 @@
       },
       {
         "from": "code/sys/testing",
+        "to": "code/sys.ui/ui-devharness"
+      },
+      {
+        "from": "code/sys/testing",
         "to": "code/sys.ui/ui-react"
       },
       {
         "from": "code/sys/testing",
         "to": "code/sys.ui/ui-react-components"
-      },
-      {
-        "from": "code/sys/testing",
-        "to": "code/sys.ui/ui-react-devharness"
       },
       {
         "from": "code/sys/testing",
@@ -1349,6 +1349,10 @@
       },
       {
         "from": "code/sys/types",
+        "to": "code/sys.ui/ui-devharness"
+      },
+      {
+        "from": "code/sys/types",
         "to": "code/sys.ui/ui-dom"
       },
       {
@@ -1358,10 +1362,6 @@
       {
         "from": "code/sys/types",
         "to": "code/sys.ui/ui-react-components"
-      },
-      {
-        "from": "code/sys/types",
-        "to": "code/sys.ui/ui-react-devharness"
       },
       {
         "from": "code/sys/types",

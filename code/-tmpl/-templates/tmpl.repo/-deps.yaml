@@ -67,7 +67,7 @@ package.json:
     dev: true
   - import: npm:@vitejs/plugin-react@6.0.2
     dev: true
-  - import: npm:rollup@4.61.0
+  - import: npm:rollup@4.61.1
     dev: true
   - import: npm:rollup-plugin-visualizer@7.0.1
     dev: true
