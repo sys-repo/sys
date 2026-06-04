@@ -1,5 +1,5 @@
 import { Color, css, D, KeyValue, type t } from './common.ts';
-import { toItems } from './u.items.ts';
+import { toItems } from './u.items.tsx';
 
 export const InfoPanel: t.FC<t.FileInfoPanel.Props> = (props) => {
   const { debug = false } = props;

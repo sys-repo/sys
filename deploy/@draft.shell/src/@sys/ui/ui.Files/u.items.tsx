@@ -1,6 +1,6 @@
-import React from 'react';
-import { D, Err, FilesBase, Is, type t } from './common.ts';
+import { D, Err, Is, type t } from './common.ts';
 import { StatusTitle } from './ui.StatusTitle.tsx';
+import { formatCapabilities } from './u.items.Capabilities.tsx';
 
 type Input = Pick<t.FileInfoPanel.Props, 'fields' | 'theme' | 'title' | 'snapshot'>;
 
@@ -38,7 +38,7 @@ function title(input: Input, fields: readonly t.FileInfoPanel.Field[]): t.KeyVal
   if (!fields.includes('status:title')) return label;
   return [
     label,
-    React.createElement(StatusTitle, { status: input.snapshot?.status, theme: input.theme }),
+    <StatusTitle status={input.snapshot?.status} theme={input.theme} />,
   ];
 }
 
@@ -56,9 +56,4 @@ function resolveFields(
   });
 
   return result;
-}
-
-function formatCapabilities(value: t.Files.Capabilities): t.ReactNode {
-  const enabled = FilesBase.Capability.names.filter((name) => value[name]);
-  return enabled.length > 0 ? enabled.join(' ') : 'none';
 }
