@@ -53,7 +53,7 @@ export async function endpointTable(
 
   // Align mapping "second column" under the endpoint value column.
   const baseLabels = [
-    'Endpoint',
+    'endpoint',
     childText('config'),
     childText('mappings'),
     ...(providerFmt ? [childText(providerFmt.label)] : []),
@@ -78,7 +78,7 @@ export async function endpointTable(
     rows.push({ label: 'domain', value: c.cyan(domain) });
   }
 
-  const body: Array<[string, string]> = [[c.gray('Endpoint'), c.cyan(name)]];
+  const body: Array<[string, string]> = [[c.gray('endpoint'), c.cyan(name)]];
 
   rows.forEach((row, index) => {
     const isLast = index === rows.length - 1 &&

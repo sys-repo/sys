@@ -83,7 +83,7 @@ export async function promptEndpointAction(args: {
   });
   const stagePushName = `  ${c.dim(c.gray('-'.repeat(6)))}  stage + push`;
   const answer = await Cli.Input.Select.prompt<A>({
-    message: `Actions:`,
+    message: '',
     options: [
       ...(checkOk ? [{ name: stageName, value: 'stage' as const }] : []),
       ...(showPush ? [{ name: pushName, value: 'push' as const }] : []),
