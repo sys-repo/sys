@@ -47,9 +47,11 @@ describe('@sys/tools/deploy programmatic push: r2', () => {
         await Fs.write(config, r2Yaml({ staging: './stage' }));
 
         let pushed: t.R2PushTarget | undefined;
+        let seenForce: boolean | undefined;
         await withMockedR2Push(
           async (args) => {
             pushed = args.target;
+            seenForce = args.force;
             return {
               ok: true,
               publish: {
@@ -81,6 +83,31 @@ describe('@sys/tools/deploy programmatic push: r2', () => {
             expect(pushed?.stagingDir).to.eql(staging);
             expect(pushed?.provider.kind).to.eql('r2');
             expect(pushed?.provider.prefix).to.eql('deploy/site');
+            expect(seenForce).to.eql(undefined);
+          },
+        );
+      });
+    });
+
+    it('passes force into the r2 provider push', async () => {
+      await withTmpDir(async (cwd) => {
+        const config = `${cwd}/deploy.r2.yaml`;
+        const staging = Path.resolve(cwd, './stage');
+        await writeSourceSite(cwd, 'source');
+        await writeStagedSite(staging, 'staged');
+        await Fs.write(config, r2Yaml({ staging: './stage' }));
+        let seenForce: boolean | undefined;
+
+        await withMockedR2Push(
+          async (args) => {
+            seenForce = args.force;
+            return { ok: true };
+          },
+          async () => {
+            const result = await Deploy.push({ cwd, config: './deploy.r2.yaml', force: true });
+
+            expect(result.ok).to.eql(true);
+            expect(seenForce).to.eql(true);
           },
         );
       });

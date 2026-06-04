@@ -27,12 +27,20 @@ describe('@sys/tools/deploy non-interactive resolution', () => {
 
     const res = await resolveNonInteractive(
       cwd,
-      parseArgs(['--non-interactive', '--config', `./${yamlRel}`, '--action', 'stage+push']),
+      parseArgs([
+        '--non-interactive',
+        '--config',
+        `./${yamlRel}`,
+        '--action',
+        'stage+push',
+        '--force',
+      ]),
     );
 
     expect(res.yamlPath).to.eql(`${cwd}/${yamlRel}`);
     expect(res.key).to.eql('slc');
     expect(res.action).to.eql('stage-push');
+    expect(res.force).to.eql(true);
   });
 
   it('requires --config with --non-interactive', async () => {

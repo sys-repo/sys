@@ -1,4 +1,4 @@
-import { type t, D, done, Fs, Is } from './common.ts';
+import { D, done, Fs, Is, type t } from './common.ts';
 import { runEndpointAction } from './u.endpointAction.ts';
 import { parseArgs } from './u.args.ts';
 import { Fmt } from './u.fmt.ts';
@@ -53,6 +53,7 @@ async function runNonInteractive(
     key: resolved.key,
     yamlPath: resolved.yamlPath,
     action: resolved.action,
+    force: resolved.force,
   });
 
   return done(result.ok ? 0 : 1);

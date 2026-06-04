@@ -16,5 +16,9 @@ describe('@sys/tools/deploy help', () => {
       'deno run -A jsr:@sys/tools deploy --non-interactive --config ./my-config.yaml --action stage+push',
     );
     expect(text).to.include('--action <stage|push|stage+push>');
+    expect(text).to.include('--force');
+    expect(text).to.include(
+      'deno run -A jsr:@sys/tools deploy --non-interactive --config ./my-config.yaml --action push --force',
+    );
   });
 });

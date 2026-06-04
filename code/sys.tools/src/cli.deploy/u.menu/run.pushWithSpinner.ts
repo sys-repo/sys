@@ -19,6 +19,7 @@ type RunPushResult =
 export async function runPushWithSpinner(args: {
   cwd: t.StringDir;
   target: t.PushTarget;
+  force?: boolean;
 }): Promise<RunPushResult> {
   const spin = Cli.spinner();
   const dist = args.target.stagingDir
@@ -31,6 +32,7 @@ export async function runPushWithSpinner(args: {
   let pushing = shardLabel
     ? `pushing ${shardLabel} to ${c.white(provider.label)}`
     : `pushing to ${c.white(provider.label)}`;
+  if (args.force) pushing += ` ${c.yellow('(force)')}`;
   if (bytes) pushing += ` (staged ${Str.bytes(bytes)})`;
 
   const started = Time.now.timestamp;

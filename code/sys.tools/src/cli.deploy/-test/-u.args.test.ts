@@ -14,11 +14,13 @@ describe('@sys/tools/deploy u.args', () => {
       './-config/@sys.tools.deploy/slc.yaml',
       '--action',
       'stage+push',
+      '--force',
     ]);
 
     expect(res['non-interactive']).to.eql(true);
     expect(res.interactive).to.eql(false);
     expect(res.config).to.eql('./-config/@sys.tools.deploy/slc.yaml');
     expect(res.action).to.eql('stage+push');
+    expect(res.force).to.eql(true);
   });
 });

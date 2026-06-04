@@ -145,6 +145,34 @@ describe('R2 Provider: push', () => {
       });
     });
 
+    it('force writes all staged files even when remote dist digest matches', async () => {
+      await withTmpDir(async (cwd) => {
+        const stagingDir = await stageDist(cwd);
+        const dist = await loadStagedDist(stagingDir);
+        const writes: Write[] = [];
+
+        const res = await R2Provider.push({
+          cwd: cwd as t.StringDir,
+          target: r2Target(cwd, stagingDir),
+          force: true,
+          createFiles: () => filesHandle({ writes, remoteText: Json.stringify(dist) }),
+        });
+
+        expect(res.ok).to.eql(true);
+        expect(res.ok ? PushPublishStats.summary(res.publish) : undefined).to.eql({
+          total: 3,
+          written: 3,
+          skipped: 0,
+        });
+        expect(publishFileStatuses(res)).to.eql([
+          { path: 'asset.bin', status: 'written' },
+          { path: 'index.html', status: 'written' },
+          { path: 'dist.json', status: 'written' },
+        ]);
+        expect(writes.map((write) => write.path)).to.eql(['asset.bin', 'index.html', 'dist.json']);
+      });
+    });
+
     it('writes only changed assets and then dist.json when remote dist parts differ', async () => {
       await withTmpDir(async (cwd) => {
         const stagingDir = await stageDist(cwd);

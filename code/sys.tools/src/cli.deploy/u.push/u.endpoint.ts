@@ -16,7 +16,7 @@ type StagingOutputCheck =
 export async function push(args: t.DeployTool.PushArgs): Promise<t.DeployTool.PushResult> {
   const cwd = args.cwd ?? Fs.cwd('terminal');
   const config = ConfigRef.resolve(cwd, args, 'Deploy.push');
-  const result = await pushEndpoint({ cwd, config });
+  const result = await pushEndpoint({ cwd, config, force: args.force });
 
   if (!result.ok) throw pushError(config, result);
   return result;
@@ -26,6 +26,7 @@ export async function push(args: t.DeployTool.PushArgs): Promise<t.DeployTool.Pu
 export async function pushEndpoint(args: {
   cwd: t.StringDir;
   config: t.StringPath;
+  force?: boolean;
 }): Promise<t.DeployTool.PushOperation.Result> {
   const { cwd } = args;
   const config = Fs.resolve(cwd, args.config) as t.StringPath;
@@ -106,7 +107,7 @@ export async function pushEndpoint(args: {
   for (const [index, target] of targets.entries()) {
     const context = targetContext(target, index);
     try {
-      const result = await pushProvider({ cwd, target });
+      const result = await pushProvider({ cwd, target, force: args.force });
       if (!result.ok) {
         return failure({
           cwd,

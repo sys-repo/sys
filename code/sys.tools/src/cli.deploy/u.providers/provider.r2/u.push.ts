@@ -7,6 +7,7 @@ type PushArgs = {
   readonly cwd: t.StringDir;
   readonly target: t.R2PushTarget;
   readonly createFiles?: FilesFactory;
+  readonly force?: boolean;
 };
 
 /**
@@ -14,7 +15,9 @@ type PushArgs = {
  */
 export async function push(args: PushArgs): Promise<t.PushResult> {
   try {
-    const publishStats = await publish(args.target, args.createFiles ?? createFilesClient);
+    const publishStats = await publish(args.target, args.createFiles ?? createFilesClient, {
+      force: args.force === true,
+    });
     return { ok: true, publish: publishStats };
   } catch (error) {
     return {
@@ -32,13 +35,14 @@ export async function push(args: PushArgs): Promise<t.PushResult> {
 async function publish(
   target: t.R2PushTarget,
   createFiles: FilesFactory,
+  options: { readonly force: boolean },
 ): Promise<t.PushPublishStats> {
   const { provider, stagingDir } = target;
   const dist = await loadDist(stagingDir);
   const files = createFiles(provider);
 
   try {
-    const remote = await readRemoteDist(files);
+    const remote = options.force ? undefined : await readRemoteDist(files);
     const plan = publishFiles(dist, remote);
     const resultFiles: t.PushPublishFile[] = [];
 

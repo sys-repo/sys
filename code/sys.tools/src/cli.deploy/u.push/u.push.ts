@@ -11,6 +11,7 @@ import { OrbiterProvider, Provider, R2Provider } from '../u.providers/mod.ts';
 export async function pushProvider(args: {
   cwd: t.StringDir;
   target?: t.PushTarget;
+  force?: boolean;
 }): Promise<t.PushResult> {
   const { cwd, target } = args;
   const provider = target?.provider;
@@ -34,7 +35,7 @@ export async function pushProvider(args: {
     }
     case 'r2': {
       if (!target) return { ok: false, reason: 'failed', hint: 'Missing provider push target.' };
-      return await R2Provider.push({ cwd, target: target as t.R2PushTarget });
+      return await R2Provider.push({ cwd, target: target as t.R2PushTarget, force: args.force });
     }
 
     default: {

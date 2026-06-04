@@ -17,6 +17,7 @@ export async function runEndpointAction(args: {
   key: string;
   yamlPath: t.StringPath;
   action: t.DeployTool.Endpoint.RunAction;
+  force?: boolean;
 }): Promise<t.DeployTool.Endpoint.RunResult> {
   switch (args.action) {
     case 'stage':
@@ -43,8 +44,10 @@ export async function runEndpointAction(args: {
 async function runPushAction(args: {
   cwd: t.StringDir;
   yamlPath: t.StringPath;
+  force?: boolean;
 }): Promise<t.DeployTool.Endpoint.RunResult> {
   const { cwd, yamlPath } = args;
+  const force = args.force === true;
   const yamlDisplay = displayYamlPath(cwd, yamlPath);
   const freshCheck = await EndpointsFs.validateYaml(yamlPath, { cwd });
   const freshYaml = freshCheck.ok ? freshCheck.doc : undefined;
@@ -98,7 +101,7 @@ async function runPushAction(args: {
     const domainRaw = String(target.domain ?? providerDomain ?? '').trim();
     const domain = toHttpsUrl(domainRaw);
 
-    if (target.provider.kind === 'orbiter' && domain && target.stagingDir) {
+    if (!force && target.provider.kind === 'orbiter' && domain && target.stagingDir) {
       const res = await checkUpToDate({ stagingDir: target.stagingDir, domain });
       if (res.ok) {
         console.info(`${c.gray('push skipped (up-to-date)')} ${c.white(domain)} ${c.gray('✔')}`);
@@ -108,7 +111,7 @@ async function runPushAction(args: {
       }
     }
 
-    const res = await runPushWithSpinner({ cwd, target });
+    const res = await runPushWithSpinner({ cwd, target, force });
     if (!res.ok) {
       const hint = String(res.hint ?? '').trim();
       const mappingStagingRel = String(
@@ -161,7 +164,7 @@ async function runPushAction(args: {
     table.push([
       c.gray('  uploaded'),
       publishSummary.written > 0 ? c.green(String(publishSummary.written)) : c.gray('0'),
-      c.italic(c.gray('changed files')),
+      c.italic(c.gray(force ? 'forced files' : 'changed files')),
     ]);
     if (publishSummary.skipped > 0) {
       table.push([

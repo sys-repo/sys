@@ -19,6 +19,8 @@ export namespace DeployTool {
     config?: string;
     action?: CliAction;
     'non-interactive'?: boolean;
+    /** Force push repair mode: rewrite staged publish files even when remote manifests match. */
+    force?: boolean;
   };
   export type CliParsedArgs = t.ParsedArgs<CliArgs> & {
     interactive: boolean;
@@ -38,6 +40,8 @@ export namespace DeployTool {
 
   export type PushArgs = {
     readonly cwd?: t.StringDir;
+    /** Rewrite staged publish files even when the remote manifest says they are unchanged. */
+    readonly force?: boolean;
   } & t.Tools.ConfigRefArgs;
 
   export type StageResult = {

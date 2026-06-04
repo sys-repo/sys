@@ -9,6 +9,7 @@ export async function resolveNonInteractive(
   readonly yamlPath: t.StringPath;
   readonly key: string;
   readonly action: t.DeployTool.Endpoint.RunAction;
+  readonly force: boolean;
 }> {
   const config = String(args.config ?? '').trim();
   if (!config) {
@@ -34,6 +35,7 @@ export async function resolveNonInteractive(
     yamlPath,
     key: labelFromPath(yamlPath),
     action,
+    force: args.force === true,
   };
 }
 
