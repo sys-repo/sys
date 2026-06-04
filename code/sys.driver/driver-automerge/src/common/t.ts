@@ -34,3 +34,4 @@ export type { PointerEventsHandler } from '@sys/ui-react/t';
  * @local
  */
 export type * from '../types.ts';
+export type { BinaryFile, DocumentId, Repo } from '../types.ts';

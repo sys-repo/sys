@@ -18,7 +18,7 @@ import { Prefix } from './ui.Prefix.tsx';
 import { Suffix } from './ui.Suffix.tsx';
 import { useController } from './use.Controller.ts';
 
-type P = t.DocumentIdProps;
+type P = t.DocumentId.Props;
 
 export const View: React.FC<P> = (props) => {
   const { label, autoFocus = D.autoFocus, enabled = D.enabled } = props;
@@ -60,7 +60,7 @@ export const View: React.FC<P> = (props) => {
     const signals = controller.signals;
 
     const fireChanged = () => props.onChange?.(payload());
-    const payload = (): t.DocumentIdChanged => {
+    const payload = (): t.DocumentId.Event.Changed => {
       const is = { head: (doc && doc.id === docId) ?? false };
       const values = signals.toValues();
       return { is, signals, values, repo };
@@ -142,7 +142,7 @@ export const View: React.FC<P> = (props) => {
       onCopyClick={(e) => {
         const href = getCurrentHref();
         if (href) {
-          const action: t.DocumentIdAction = e.mode === 'url' ? 'Copy:Url' : 'Copy';
+          const action: t.DocumentId.Action.Name = e.mode === 'url' ? 'Copy:Url' : 'Copy';
           const cmd = Kbd.Is.command(e.modifiers);
           const { shift } = e.modifiers;
           const addressbarAction = cmd && shift ? 'remove' : 'add';
@@ -242,7 +242,7 @@ export const View: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  placeholder(props: P, controller: t.DocumentIdHook, focused: boolean) {
+  placeholder(props: P, controller: t.DocumentId.Hook.Instance, focused: boolean) {
     if (Is.string(props.placeholder)) return props.placeholder;
     if (focused && controller.history.length > 0) return `${D.placeholder}  •  ↑↓ for history`;
     return D.placeholder;

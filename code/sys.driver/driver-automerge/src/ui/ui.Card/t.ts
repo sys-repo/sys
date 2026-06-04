@@ -19,7 +19,7 @@ export type CardProps = {
 };
 
 /** Signal wrapped props for the <Card>. */
-export type CardSignals = Omit<t.DocumentIdHookSignals, 'toValues'>;
+export type CardSignals = Omit<t.Crdt.DocumentId.Hook.Signals, 'toValues'>;
 
 /**
  * Events:

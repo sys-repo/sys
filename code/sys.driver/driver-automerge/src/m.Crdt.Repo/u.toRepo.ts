@@ -7,7 +7,7 @@ import { monitorNetwork } from './u.monitorNetwork.ts';
 import { silentShutdown } from './u.shutdown.ts';
 import { REF } from './u.toAutomergeRepo.ts';
 
-type Seeded<T extends O> = T & { readonly ['.meta']?: t.SysMeta };
+type Seeded<T extends O> = T & { readonly ['.meta']?: t.Crdt.SysMeta };
 type O = Record<string, unknown>;
 
 const D = { timeout: 5_000 } as const;
@@ -193,7 +193,7 @@ export function toRepo(
       if (doc) {
         if (doc.deleted || doc.disposed) return;
         await whenReady(doc);
-        if (!doc.deleted && !doc.disposed) repo.delete(doc.id as t.DocumentId);
+        if (!doc.deleted && !doc.disposed) repo.delete(doc.id as DocumentId);
       }
     },
 

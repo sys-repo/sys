@@ -3,7 +3,7 @@ import { type t, defaults } from './common.ts';
 import { edgeBorder } from './u.ts';
 import { Layout as View } from './ui.tsx';
 
-export const Layout: t.LayoutLib = {
+export const Layout: t.Layout.Lib = {
   View,
   defaults,
   edgeBorder,

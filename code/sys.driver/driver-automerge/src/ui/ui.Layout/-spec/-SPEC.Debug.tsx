@@ -13,11 +13,11 @@ import {
   STORAGE_KEY,
 } from '../common.ts';
 
-type P = t.LayoutProps;
+type P = t.Layout.Props;
 type Storage = Pick<P, 'theme' | 'debug' | 'spinning'> & {
-  header: Pick<t.LayoutHeader, 'visible' | 'readOnly'>;
-  sidebar: t.LayoutSidebar;
-  cropmarks: t.LayoutCropmarks;
+  header: Pick<t.Layout.Header, 'visible' | 'readOnly'>;
+  sidebar: t.Layout.Sidebar;
+  cropmarks: t.Layout.Cropmarks;
   debugSlots?: boolean;
   urlKey?: string;
 };
@@ -45,9 +45,9 @@ export function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
-  const signals: t.LayoutSignals = { doc: s<t.Crdt.Ref>() };
+  const signals: t.Layout.Signals = { doc: s<t.Crdt.Ref>() };
   const repo = createUiRepo();
-  const crdt: t.LayoutBindings = {
+  const crdt: t.Layout.Bindings = {
     repo,
     storageKey: STORAGE_KEY.DEV,
     get urlKey() {

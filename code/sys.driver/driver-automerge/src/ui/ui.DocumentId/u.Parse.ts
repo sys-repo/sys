@@ -1,11 +1,11 @@
 import { type t, CrdtIs } from './common.ts';
 
-type P = t.DocumentIdParsed;
+type P = t.DocumentId.Parse.Result;
 
 /**
  * Parsing helpers for textbox
  */
-export const Parse: t.DocumentIdParseLib = {
+export const Parse: t.DocumentId.Parse.Lib = {
   textbox(text: string = ''): P {
     const parsed: t.DeepMutable<P> = { text, id: '' };
 

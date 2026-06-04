@@ -9,7 +9,7 @@ export default Spec.describe(D.displayName, (e) => {
   const repo = debug.repo;
   const p = debug.props;
 
-  function HostDocumentId(props: t.DocumentIdProps) {
+  function HostDocumentId(props: t.Crdt.DocumentId.Props) {
     const doc = p.doc;
     const theme = Color.theme(p.theme.value);
     return (

@@ -3,7 +3,7 @@ import { type t, Color, css, D, ErrorBoundary, Is } from './common.ts';
 import { renderCtx, toSidebarConfig } from './u.ts';
 import { Spinner } from './ui.Spinner.tsx';
 
-type P = t.LayoutProps;
+type P = t.Layout.Props;
 
 /**
  * Component:

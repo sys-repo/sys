@@ -39,7 +39,7 @@ export type {
 /**
  * @drivers
  */
-export type { A, Crdt, DocumentIdProps } from '@sys/driver-automerge/t';
+export type { A, Crdt } from '@sys/driver-automerge/t';
 
 /**
  * CRDT

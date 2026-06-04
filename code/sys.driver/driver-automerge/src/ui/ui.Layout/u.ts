@@ -11,7 +11,7 @@ export function edgeBorder(theme: t.ColorTheme, opacity = D.edgeBorderOpacity) {
 /**
  * Normalizes `header` configuration with defaults.
  */
-export function toHeaderConfig(input?: t.LayoutHeader): t.LayoutHeader {
+export function toHeaderConfig(input?: t.Layout.Header): t.Layout.Header {
   const d = D.header;
   return {
     visible: input?.visible ?? d.visible,
@@ -22,7 +22,7 @@ export function toHeaderConfig(input?: t.LayoutHeader): t.LayoutHeader {
 /**
  * Normalizes `sidebar` configuration with defaults.
  */
-export function toSidebarConfig(input?: t.LayoutSidebar): t.LayoutSidebar {
+export function toSidebarConfig(input?: t.Layout.Sidebar): t.Layout.Sidebar {
   const d = D.sidebar;
   const visible = input?.visible ?? d.visible;
   return {
@@ -37,7 +37,7 @@ export function toSidebarConfig(input?: t.LayoutSidebar): t.LayoutSidebar {
 /**
  * Normalizes `sidebar` configuration with defaults.
  */
-export function toCropmarksConfig(input?: t.LayoutCropmarks): t.LayoutCropmarks {
+export function toCropmarksConfig(input?: t.Layout.Cropmarks): t.Layout.Cropmarks {
   const d = D.cropmarks;
   return {
     size: input?.size ?? d.size,
@@ -51,17 +51,17 @@ export function toCropmarksConfig(input?: t.LayoutCropmarks): t.LayoutCropmarks 
 /**
  * Discriminated union for render-time readiness.
  */
-type RenderCtx = { readonly ready: false } | { readonly ready: true; readonly ctx: t.LayoutCtx };
+type RenderCtx = { readonly ready: false } | { readonly ready: true; readonly ctx: t.Layout.Ctx };
 /**
  * Build slot context if the CRDT layout is ready.
  */
-export function renderCtx(props: t.LayoutProps): RenderCtx {
+export function renderCtx(props: t.Layout.Props): RenderCtx {
   const { crdt, signals, theme = D.theme, debug = false } = props;
   const doc = signals?.doc.value;
   const repo = crdt?.repo;
 
   if (repo) {
-    const ctx = { repo, doc, theme, debug } satisfies t.LayoutCtx;
+    const ctx = { repo, doc, theme, debug } satisfies t.Layout.Ctx;
     return { ready: true, ctx };
   }
 

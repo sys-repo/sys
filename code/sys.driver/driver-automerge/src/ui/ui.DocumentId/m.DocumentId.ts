@@ -4,7 +4,7 @@ import { Parse } from './u.Parse.ts';
 import { View } from './ui.tsx';
 import { useController } from './use.Controller.ts';
 
-export const DocumentId: t.DocumentIdLib = {
+export const DocumentId: t.DocumentId.Lib = {
   View,
   Parse,
   useController,

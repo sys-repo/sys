@@ -3,7 +3,7 @@ import { type t, Color, CrdtIs, css, Icons, KeyValue, Rx, Str, Time, useRev } fr
 import { getStatus } from './u.status.ts';
 import { StatusBullet } from './ui.StatusBullet.tsx';
 
-type P = t.RepoInfoProps;
+type P = t.Repo.Info.Props;
 
 export const Info: React.FC<P> = (props) => {
   const { repo, debug = false } = props;

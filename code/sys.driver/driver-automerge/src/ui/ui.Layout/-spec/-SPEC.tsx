@@ -26,7 +26,7 @@ export default Spec.describe(D.displayName, (e) => {
         const v = Signal.toObject(p);
 
         const suffix = (doc?: t.Crdt.Ref) => (doc ? `- (crdt:${doc.id.slice(-5)})` : '');
-        const slots: t.LayoutSlots = {
+        const slots: t.Layout.Slots = {
           main: (ctx) => <Foo ctx={ctx} label={`🌳 Main ${suffix(ctx.doc)}`} />,
           sidebar: (ctx) => <Foo ctx={ctx} label={`🌳 Sidebar ${suffix(ctx.doc)}`} />,
           footer: (ctx) => <Foo ctx={ctx} label={`🌳 Footer ${suffix(ctx.doc)}`} padding={0} />,

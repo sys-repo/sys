@@ -46,7 +46,7 @@ export function createTestHelpers() {
      * Create a real CrdtRepo with optional WebSocket network adapter.
      */
     realRepo(opts: { network?: boolean } = {}) {
-      const network: t.CrdtFsNetworkArgInput[] = [];
+      const network: t.CrdtFs.Network.Input[] = [];
       const url = 'wss://sync.automerge.org';
       if (opts.network) network.push(new BrowserWebSocketClientAdapter(url));
       return Crdt.repo({ network });

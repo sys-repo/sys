@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { DocumentId } from '@sys/driver-automerge/web/ui';
 import { Monaco } from '../../../m.Monaco/mod.ts';
 
 import { Dev, PathView, Signal, Spec } from '../../-test.ui.ts';
@@ -15,11 +14,11 @@ export default Spec.describe(D.displayName, async (e) => {
   const repo = debug.repo;
   const p = debug.props;
 
-  function HostDocumentId(props: t.DocumentIdProps) {
+  function HostDocumentId(props: t.Crdt.DocumentId.Props) {
     const doc = p.doc;
     const theme = Color.theme(p.theme.value);
     return (
-      <DocumentId.View
+      <Crdt.UI.DocumentId.View
         background={theme.is.dark ? -0.06 : -0.04}
         theme={theme.name}
         buttonStyle={{ margin: 4 }}

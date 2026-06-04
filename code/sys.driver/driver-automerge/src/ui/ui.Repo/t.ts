@@ -1,33 +1,50 @@
 import type { t } from './common.ts';
-
-export type * from './t.info.ts';
-export type * from './t.switch.ts';
-
-/**
- * UI tools for representing the CRDT repository.
- */
-export type RepoInfoLib = {
-  readonly Info: t.FC<t.RepoInfoProps>;
-  readonly SyncSwitch: t.FC<t.RepoSyncSwitchProps>;
-  readonly StatusBullet: t.FC<t.RepoStatusBulletProps>;
-};
+import type * as TInfo from './t.info.ts';
+import type * as TSwitch from './t.switch.ts';
 
 /**
- * Consolidated, derived connection state for the Repo <Info> panel.
+ * CRDT repository UI contracts.
  */
-export type RepoInfoStatus = {
-  /** High-level connection state derived from syncEnabled + peers:
-   *  - 'offline'    → sync disabled
-   *  - 'connecting' → sync enabled but no peers yet
-   *  - 'online'     → sync enabled and at least one peer online
+export declare namespace Repo {
+  /** UI tools for representing a CRDT repository. */
+  export type Lib = {
+    readonly Info: t.FC<Info.Props>;
+    readonly SyncSwitch: t.FC<SyncSwitch.Props>;
+    readonly StatusBullet: t.FC<StatusBullet.Props>;
+  };
+
+  /** Consolidated derived connection state for the repo info panel. */
+  export type Status = {
+    /** High-level connection state derived from syncEnabled and peers. */
+    readonly status: 'offline' | 'connecting' | 'online';
+    /** True once the repo has emitted its initial props/snapshot. */
+    readonly ready: boolean;
+    /** Whether sync is currently enabled for this repo. */
+    readonly syncEnabled: boolean;
+    /** True when at least one sync peer is connected. */
+    readonly hasPeers: boolean;
+    /** True when the repo is configured with at least one sync server URL. */
+    readonly hasServers: boolean;
+  };
+
+  /**
+   * Repository info component contracts.
    */
-  readonly status: 'offline' | 'connecting' | 'online';
-  /** True once the repo has emitted its initial props/snapshot. */
-  readonly ready: boolean;
-  /** Whether sync is currently enabled for this repo. */
-  readonly syncEnabled: boolean;
-  /** True when at least one sync peer is connected. */
-  readonly hasPeers: boolean;
-  /** True when the repo is configured with at least one sync server URL. */
-  readonly hasServers: boolean;
-};
+  export namespace Info {
+    export type Props = TInfo.Props;
+  }
+
+  /**
+   * Repository status-bullet component contracts.
+   */
+  export namespace StatusBullet {
+    export type Props = TInfo.StatusBulletProps;
+  }
+
+  /**
+   * Repository sync-switch component contracts.
+   */
+  export namespace SyncSwitch {
+    export type Props = TSwitch.Props;
+  }
+}

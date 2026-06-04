@@ -11,7 +11,7 @@ export default Spec.describe(D.displayName, (e) => {
   const repo = debug.repo;
   const p = debug.props;
 
-  function DocumentId(props: t.DocumentIdProps) {
+  function DocumentId(props: t.Crdt.DocumentId.Props) {
     const theme = Color.theme(p.theme.value);
     return (
       <Crdt.UI.DocumentId.View

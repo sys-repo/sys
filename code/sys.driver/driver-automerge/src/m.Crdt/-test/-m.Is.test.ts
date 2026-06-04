@@ -58,7 +58,7 @@ describe('Crdt.Is', { sanitizeResources: false, sanitizeOps: false }, () => {
 
   it('Is.uri', () => {
     // Use a known-good document id (must satisfy CrdtIs.id(validId) === true).
-    const validId = 'pz1U8r3FH2ubPjnBzTMtFB8Yaaw' as t.DocumentId;
+    const validId = 'pz1U8r3FH2ubPjnBzTMtFB8Yaaw' as t.Crdt.Id;
     const uri = `crdt:${validId}`;
 
     // happy path

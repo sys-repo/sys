@@ -28,7 +28,7 @@ export { useDoc, useDocStats, useRev };
 /**
  * CRDT UI Library:
  */
-export const Crdt: t.CrdtViewLib = {
+export const Crdt: t.CrdtView.Lib = {
   ...Base,
   UI: {
     Dev,

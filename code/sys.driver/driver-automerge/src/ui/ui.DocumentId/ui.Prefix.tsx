@@ -9,9 +9,9 @@ type P = PrefixProps;
 export type PrefixProps = {
   docId?: string;
   doc?: t.CrdtRef;
-  icon?: t.DocumentIdHook['transient']['kind'];
-  url?: t.DocumentIdHookProps['url'];
-  urlKey?: t.DocumentIdHookProps['urlKey'];
+  icon?: t.DocumentId.Hook.Instance['transient']['kind'];
+  url?: t.DocumentId.Hook.Props['url'];
+  urlKey?: t.DocumentId.Hook.Props['urlKey'];
 
   // Flags:
   over?: boolean;

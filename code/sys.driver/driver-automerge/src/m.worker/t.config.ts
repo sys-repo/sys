@@ -6,14 +6,14 @@ import type { t } from './common.ts';
 export type CrdtWorkerConfig = CrdtWorkerConfigWeb | CrdtWorkerConfigFs;
 export type CrdtWorkerConfigWeb = {
   kind: 'web';
-  storage?: t.CrdtWebStorageArg;
-  network?: (t.CrdtWebsocketNetworkArg | t.Falsy)[];
+  storage?: t.CrdtWeb.Storage.Arg;
+  network?: (t.Crdt.Network.WebsocketArg | t.Falsy)[];
   silent?: boolean;
 };
 export type CrdtWorkerConfigFs = {
   kind: 'fs';
   storage?: t.StringDir;
-  network?: (t.CrdtWebsocketNetworkArg | t.Falsy)[];
+  network?: (t.Crdt.Network.WebsocketArg | t.Falsy)[];
   publish?: CrdtWorkerFsPublishConfig;
   silent?: boolean;
 };

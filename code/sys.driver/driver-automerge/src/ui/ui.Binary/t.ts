@@ -1,39 +1,41 @@
+import type * as TSys from '@sys/types';
 import type { t } from './common.ts';
 
 /**
- * User interface for working with `binary` data within CRDT's.
+ * Binary CRDT UI contracts.
  */
-export type BinaryLib = {
-  readonly View: React.FC<BinaryFileProps>;
+export declare namespace Binary {
+  /** User interface for working with binary data within CRDTs. */
+  export type Lib = {
+    readonly View: t.FC<t.BinaryFile.Props>;
 
-  /**
-   * Converts a `File` object to a `BinaryFile` representation
-   * with raw bytes and metadata.
-   */
-  fromBrowserFile(file: File): Promise<t.BinaryFile>;
+    /** Convert a browser `File` to a CRDT binary file. */
+    fromBrowserFile(file: File): Promise<t.BinaryFile.File>;
 
-  /** Converts a `BinaryFile` back into a browser `File` object. */
-  toBrowserFile(file: t.BinaryFile): File;
+    /** Convert a CRDT binary file back into a browser `File`. */
+    toBrowserFile(file: t.BinaryFile.File): File;
 
-  /** Converts a clipboard paste operation into an array of [BinaryFiles]. */
-  fromClipboard(clipboardData: DataTransfer): Promise<t.BinaryFile[]>;
-};
+    /** Convert clipboard paste data into CRDT binary files. */
+    fromClipboard(clipboardData: DataTransfer): Promise<t.BinaryFile.File[]>;
+  };
+}
 
 /**
- * <Component>
+ * Binary file component contracts.
  */
-export type BinaryFileProps = {
-  doc?: t.Crdt.Ref;
-  path?: t.ObjectPath;
+export declare namespace BinaryFile {
+  /** Binary file data payload. */
+  export type File = TSys.BinaryFile;
 
-  // Appearance:
-  debug?: boolean;
-  theme?: t.CommonTheme;
-  style?: t.CssInput;
-};
+  /** Component props. */
+  export type Props = {
+    doc?: t.Crdt.Ref;
+    path?: t.ObjectPath;
+    debug?: boolean;
+    theme?: t.CommonTheme;
+    style?: t.CssInput;
+  };
 
-/**
- * A map (keyed on the hash value of the file:Uint8Array)
- * of each file-stype
- */
-export type BinaryFileMap<T = t.BinaryFile> = { [hash: string]: T };
+  /** Map keyed by the hash value of the file bytes. */
+  export type Map<T = File> = { [hash: string]: T };
+}

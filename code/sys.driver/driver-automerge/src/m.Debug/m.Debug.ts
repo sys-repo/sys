@@ -17,7 +17,7 @@ const warnTrip = (where: string) => {
   });
 };
 
-export const Debug: t.DebugLib = {
+export const Debug: t.Debug.Lib = {
   Reentry,
 
   installTripwireGetHeads(enable) {
@@ -43,7 +43,7 @@ export const Debug: t.DebugLib = {
     queueMicrotask(fn);
   },
 
-  coalesce(): t.Scheduler {
+  coalesce(): t.Debug.Scheduler {
     let queued = false;
     return (fn: () => void) => {
       if (queued) return;
@@ -55,7 +55,7 @@ export const Debug: t.DebugLib = {
     };
   },
 
-  getHeadsSafe(doc): t.Heads {
+  getHeadsSafe(doc): t.Debug.Heads {
     if (Reentry.inCallback()) {
       if (tripwireMode === 'fallback') warnTrip('Debug.getHeadsSafe');
       throw new Error('getHeadsSafe: called during Automerge callback');

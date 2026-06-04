@@ -19,7 +19,7 @@ export default Spec.describe(D.displayName, async (e) => {
      * NOTE: either pass down the hook (instance)
      *       OR the setup arguments for the hook.
      */
-    const args: t.UseDocumentIdHookArgs<SampleDoc> = {
+    const args: t.DocumentId.Hook.Args<SampleDoc> = {
       repo: v.passRepo ? repo : undefined,
       signals: { doc: p.doc, textbox: p.textbox, path: p.path },
       initial: () => ({ count: 0 }), // NB: dynamic generator.

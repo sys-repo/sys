@@ -68,7 +68,7 @@ export namespace CrdtCommands {
   export type DocCreateResult = { readonly doc: t.Crdt.Id };
   export type DocReadResult = { readonly value?: t.Json };
   export type DocWriteResult = { readonly ok: true };
-  export type DocStatsResult = t.DocumentStats;
+  export type DocStatsResult = t.Document.Stats;
   export type DocSaveResult = {
     readonly ok: true;
     readonly bytes: t.NumberBytes;

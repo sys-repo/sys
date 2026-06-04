@@ -22,7 +22,7 @@ import {
   CrdtStr,
 } from './common.ts';
 
-type Args = t.CrdtFsRepoArgs;
+type Args = t.CrdtFs.RepoArgs;
 
 /**
  * Exports:
@@ -32,7 +32,7 @@ export { A, toAutomergeHandle, toAutomergeRepo } from './common.ts';
 /**
  * Library:
  */
-export const Crdt: t.CrdtFilesystemLib = {
+export const Crdt: t.CrdtFs.Lib = {
   kind: 'crdt:fs',
   repo(input) {
     const args = wrangle.dir(input);
@@ -82,7 +82,7 @@ const wrangle = {
       .filter(Boolean) as t.NetworkAdapterInterface[];
   },
 
-  adapter(arg?: t.CrdtFsNetworkArgInput) {
+  adapter(arg?: t.CrdtFs.Network.Input) {
     if (Is.string(arg)) return wrangle.ws(arg);
     if (Is.record(arg) && Is.string(arg.ws)) return wrangle.ws(arg.ws);
     return arg as t.NetworkAdapterInterface | undefined;

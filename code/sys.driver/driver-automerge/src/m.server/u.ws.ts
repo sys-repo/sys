@@ -15,7 +15,7 @@ import { createHttpServer, disposeHttpServer } from './u.http.ts';
 import { monitorPeers } from './u.monitor.ts';
 import { shutdown } from './u.shutdown.ts';
 
-export const ws: t.SyncServerLib['ws'] = async (options = {}) => {
+export const ws: t.SyncServer.Lib['ws'] = async (options = {}) => {
   const {
     dir,
     sharePolicy,
