@@ -34,6 +34,11 @@ type IndexedPublishFile = {
   readonly entry: t.PushPublishFile;
 };
 
+type PublishFilesOptions = {
+  readonly remote?: t.DistPkg;
+  readonly remoteFiles?: readonly t.Files.File[];
+};
+
 const DIST_PATH = 'dist.json' as t.Files.String.Path;
 const PUBLISH_CONCURRENCY = 8;
 
@@ -70,11 +75,12 @@ async function publish(
 
   try {
     const remote = options.force ? undefined : await readRemoteDist(files);
-    const plan = publishFiles(dist, remote);
+    const remoteFiles = !options.force && remote ? await listRemoteFiles(files) : undefined;
+    const plan = publishFiles(dist, { remote, remoteFiles });
     const resultFiles = await writePublishPlan(files, stagingDir, plan);
 
     const expected = new Set(plan.map((entry) => entry.path));
-    const prune = await pruneStaleFiles(files, expected);
+    const prune = await pruneStaleFiles(files, expected, remoteFiles);
     return { publish: { files: resultFiles }, prune };
   } finally {
     files.dispose();
@@ -182,8 +188,10 @@ async function readRemoteDist(files: t.Files.Client.Handle): Promise<t.DistPkg |
 
 function publishFiles(
   dist: t.DistPkg,
-  remote?: t.DistPkg,
+  options: PublishFilesOptions = {},
 ): readonly t.PushPublishFile[] {
+  const { remote, remoteFiles } = options;
+  const actual = remoteFiles ? new Set(remoteFiles.map((file) => file.path)) : undefined;
   const remoteMatchesDist = remote?.hash.digest === dist.hash.digest;
   const parts = dist.hash?.parts ?? {};
   const remoteParts = remote?.hash.parts ?? {};
@@ -194,16 +202,22 @@ function publishFiles(
     })
     .filter((file) => file.path !== DIST_PATH)
     .sort((a, b) => a.path.localeCompare(b.path))
-    .map((file): t.PushPublishFile => ({
-      ...file,
-      status: remoteMatchesDist || remoteParts[file.path] === file.digest ? 'skipped' : 'written',
-    }));
+    .map((file): t.PushPublishFile => {
+      const digestMatches = remoteMatchesDist || remoteParts[file.path] === file.digest;
+      const exists = actual === undefined || actual.has(file.path);
+      return {
+        ...file,
+        status: remote && digestMatches && exists ? 'skipped' : 'written',
+      };
+    });
+  const wroteAsset = files.some((file) => file.status === 'written');
+  const distExists = actual === undefined || actual.has(DIST_PATH);
 
   return [
     ...files,
     {
       path: DIST_PATH,
-      status: remoteMatchesDist ? 'skipped' : 'written',
+      status: remote && remoteMatchesDist && distExists && !wroteAsset ? 'skipped' : 'written',
       digest: dist.hash.digest,
       mediaType: mediaTypeOf(DIST_PATH),
     },
@@ -213,8 +227,9 @@ function publishFiles(
 async function pruneStaleFiles(
   files: t.Files.Client.Handle,
   expected: ReadonlySet<t.Files.String.Path>,
+  remoteFiles?: readonly t.Files.File[],
 ): Promise<t.PushPruneStats | undefined> {
-  const remote = await listRemoteFiles(files);
+  const remote = remoteFiles ?? await listRemoteFiles(files);
   const stale = remote.filter((file) => !expected.has(file.path));
   const removed: t.PushPruneFile[] = [];
 

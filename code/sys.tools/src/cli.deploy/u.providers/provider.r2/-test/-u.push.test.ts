@@ -151,6 +151,175 @@ describe('R2 Provider: push', () => {
     });
   });
 
+  describe('missing expected file repair', () => {
+    it('repairs a missing expected asset and republishes dist.json last', async () => {
+      await withTmpDir(async (cwd) => {
+        const stagingDir = await stageDist(cwd);
+        const dist = await loadStagedDist(stagingDir);
+        const writes: Write[] = [];
+        const events: Event[] = [];
+
+        const res = await R2Provider.push({
+          cwd: cwd as t.StringDir,
+          target: r2Target(cwd, stagingDir),
+          createFiles: () =>
+            filesHandle({
+              writes,
+              events,
+              remoteText: Json.stringify(dist),
+              entries: [fileEntry('index.html'), fileEntry('dist.json')],
+            }),
+        });
+
+        expect(res.ok).to.eql(true);
+        expect(res.ok ? PushPublishStats.summary(res.publish) : undefined).to.eql({
+          total: 3,
+          written: 2,
+          skipped: 1,
+        });
+        expect(publishFileStatuses(res)).to.eql([
+          { path: 'asset.bin', status: 'written' },
+          { path: 'index.html', status: 'skipped' },
+          { path: 'dist.json', status: 'written' },
+        ]);
+        expectWritesWithDistLast(writes, ['asset.bin']);
+        expect(events.filter((event) => event === 'list').length).to.eql(1);
+        expectWriteEventBefore(events, 'list', 'write:asset.bin');
+        expectWriteEventBefore(events, 'write:asset.bin', 'write:dist.json');
+      });
+    });
+
+    it('rewrites dist.json when the current Files projection omits the marker', async () => {
+      await withTmpDir(async (cwd) => {
+        const stagingDir = await stageDist(cwd);
+        const dist = await loadStagedDist(stagingDir);
+        const writes: Write[] = [];
+
+        const res = await R2Provider.push({
+          cwd: cwd as t.StringDir,
+          target: r2Target(cwd, stagingDir),
+          createFiles: () =>
+            filesHandle({
+              writes,
+              remoteText: Json.stringify(dist),
+              entries: [fileEntry('asset.bin'), fileEntry('index.html')],
+            }),
+        });
+
+        expect(res.ok).to.eql(true);
+        expect(res.ok ? PushPublishStats.summary(res.publish) : undefined).to.eql({
+          total: 3,
+          written: 1,
+          skipped: 2,
+        });
+        expect(publishFileStatuses(res)).to.eql([
+          { path: 'asset.bin', status: 'skipped' },
+          { path: 'index.html', status: 'skipped' },
+          { path: 'dist.json', status: 'written' },
+        ]);
+        expectWritesWithDistLast(writes, []);
+      });
+    });
+
+    it('fails before writes or deletes when the trusted remote-state listing fails', async () => {
+      await withTmpDir(async (cwd) => {
+        const stagingDir = await stageDist(cwd);
+        const dist = await loadStagedDist(stagingDir);
+        const writes: Write[] = [];
+        const removes: Remove[] = [];
+        const events: Event[] = [];
+
+        const res = await R2Provider.push({
+          cwd: cwd as t.StringDir,
+          target: r2Target(cwd, stagingDir),
+          createFiles: () =>
+            filesHandle({
+              writes,
+              removes,
+              events,
+              remoteText: Json.stringify(dist),
+              listError: new Error('list failed'),
+            }),
+        });
+
+        expect(res.ok).to.eql(false);
+        expect(events).to.eql(['list']);
+        expect(writes).to.eql([]);
+        expect(removes).to.eql([]);
+      });
+    });
+
+    it('uses one remote listing to repair missing files and prune stale files', async () => {
+      await withTmpDir(async (cwd) => {
+        const stagingDir = await stageDist(cwd);
+        const dist = await loadStagedDist(stagingDir);
+        const writes: Write[] = [];
+        const removes: Remove[] = [];
+        const events: Event[] = [];
+
+        const res = await R2Provider.push({
+          cwd: cwd as t.StringDir,
+          target: r2Target(cwd, stagingDir),
+          createFiles: () =>
+            filesHandle({
+              writes,
+              removes,
+              events,
+              remoteText: Json.stringify(dist),
+              entries: [fileEntry('asset.bin'), fileEntry('dist.json'), fileEntry('stale.txt')],
+            }),
+        });
+
+        expect(res.ok).to.eql(true);
+        expect(publishFileStatuses(res)).to.eql([
+          { path: 'asset.bin', status: 'skipped' },
+          { path: 'index.html', status: 'written' },
+          { path: 'dist.json', status: 'written' },
+        ]);
+        expect(pruneFileStatuses(res)).to.eql([{ path: 'stale.txt', status: 'removed' }]);
+        expect(removes).to.eql([{ path: 'stale.txt' }]);
+        expect(events.filter((event) => event === 'list').length).to.eql(1);
+        expectWriteEventBefore(events, 'list', 'write:index.html');
+        expectWriteEventBefore(events, 'write:index.html', 'write:dist.json');
+        expectWriteEventBefore(events, 'write:dist.json', 'remove:stale.txt');
+      });
+    });
+
+    it('writes both changed and missing assets while preserving publish order', async () => {
+      await withTmpDir(async (cwd) => {
+        const stagingDir = await stageDist(cwd);
+        const staged = await loadStagedDist(stagingDir);
+        const remote = {
+          ...staged,
+          hash: {
+            digest: sha('0'),
+            parts: { ...staged.hash.parts, 'index.html': sha('1') },
+          },
+        } satisfies t.DistPkg;
+        const writes: Write[] = [];
+
+        const res = await R2Provider.push({
+          cwd: cwd as t.StringDir,
+          target: r2Target(cwd, stagingDir),
+          createFiles: () =>
+            filesHandle({
+              writes,
+              remoteText: Json.stringify(remote),
+              entries: [fileEntry('index.html'), fileEntry('dist.json')],
+            }),
+        });
+
+        expect(res.ok).to.eql(true);
+        expect(publishFileStatuses(res)).to.eql([
+          { path: 'asset.bin', status: 'written' },
+          { path: 'index.html', status: 'written' },
+          { path: 'dist.json', status: 'written' },
+        ]);
+        expectWritesWithDistLast(writes, ['asset.bin', 'index.html']);
+      });
+    });
+  });
+
   describe('snapshot replacement prune', () => {
     it('removes stale remote-only files under the configured publish prefix', async () => {
       await withTmpDir(async (cwd) => {
@@ -347,7 +516,12 @@ describe('R2 Provider: push', () => {
         const res = await R2Provider.push({
           cwd: cwd as t.StringDir,
           target: r2Target(cwd, stagingDir),
-          createFiles: () => filesHandle({ writes, remoteText: Json.stringify(dist) }),
+          createFiles: () =>
+            filesHandle({
+              writes,
+              remoteText: Json.stringify(dist),
+              entries: expectedEntries(),
+            }),
         });
 
         expect(res.ok).to.eql(true);
@@ -374,7 +548,12 @@ describe('R2 Provider: push', () => {
         const res = await R2Provider.push({
           cwd: cwd as t.StringDir,
           target: r2Target(cwd, stagingDir),
-          createFiles: () => filesHandle({ writes, remoteRefText: Json.stringify(dist) }),
+          createFiles: () =>
+            filesHandle({
+              writes,
+              remoteRefText: Json.stringify(dist),
+              entries: expectedEntries(),
+            }),
         });
 
         expect(res.ok).to.eql(true);
@@ -469,7 +648,12 @@ describe('R2 Provider: push', () => {
         const res = await R2Provider.push({
           cwd: cwd as t.StringDir,
           target: r2Target(cwd, stagingDir),
-          createFiles: () => filesHandle({ writes, remoteText: Json.stringify(remote) }),
+          createFiles: () =>
+            filesHandle({
+              writes,
+              remoteText: Json.stringify(remote),
+              entries: expectedEntries(),
+            }),
         });
 
         expect(res.ok).to.eql(true);
@@ -550,6 +734,10 @@ async function addStagedFiles(stagingDir: t.StringDir, paths: readonly string[])
 
 function fileEntry(path: string): t.Files.File {
   return { path: path as t.Files.String.Path, kind: 'file' };
+}
+
+function expectedEntries(): readonly t.Files.File[] {
+  return [fileEntry('asset.bin'), fileEntry('dist.json'), fileEntry('index.html')];
 }
 
 function storedObject(text: string): StoredObject {
