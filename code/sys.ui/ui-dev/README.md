@@ -1,18 +1,18 @@
 # DevHarness (Primitives)
 Development harness for visual specs: render layout, spec execution, and runtime context.
 
-## `/react/spec`
+## `/react/devharness/spec`
 Typed entry point for spec loading and materialization:
 
 ```ts
-import { Loader, type t } from '@sys/ui-react-devharness/react/spec';
+import { Loader, type t } from '@sys/ui-dev/react/devharness/spec';
 ```
 
 Source spec:
 
 ```tsx
-import { Loader, type t } from '@sys/ui-react-devharness/react/spec';
-import { Spec } from '@sys/ui-react-devharness/react';
+import { Loader, type t } from '@sys/ui-dev/react/devharness/spec';
+import { Spec } from '@sys/ui-dev/react/devharness';
 
 type Foo = { count: number };
 
@@ -31,7 +31,7 @@ export default createSpec({ count: 0 });
 Declaring parameterized specs:
 
 ```ts
-import { Loader, type t } from '@sys/ui-react-devharness/react/spec';
+import { Loader, type t } from '@sys/ui-dev/react/devharness/spec';
 
 export const Specs = {
   'sample.foo': Loader.load(() => import('./-SPEC.tsx'), { count: 123 }),
