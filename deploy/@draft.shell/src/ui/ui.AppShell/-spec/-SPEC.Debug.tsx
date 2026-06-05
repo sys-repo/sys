@@ -11,7 +11,6 @@ import {
   Signal,
   type t,
 } from './common.ts';
-import { probeFilesWebSocket } from './-u.Files.client/mod.ts';
 
 type P = t.AppShell.Props;
 type Storage = Pick<P, 'debug' | 'theme'>;
@@ -88,7 +87,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const theme = Color.theme();
   const styles = {
     base: css({ color: theme.fg }),
-    vcenter: css({ display: 'flex', alignItems: 'center', gap: 6 }),
   };
 
   return (
@@ -103,13 +101,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <Files.InfoPanel theme={theme.name} />
-
-      <hr />
-      <Button
-        block
-        label={() => 'files:websocket probe + watch'}
-        onClick={() => void probeFilesWebSocket()}
-      />
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
