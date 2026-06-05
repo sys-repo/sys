@@ -1,4 +1,4 @@
-import { Dev } from '../../m.react/mod.ts';
+import { Dev } from '../../mod.ts';
 import { describe, expect, it } from '../../-test.ts';
 
 describe('headless (test runner)', () => {

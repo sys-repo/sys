@@ -1,5 +1,5 @@
 import { DomMock, afterAll, beforeAll, describe, expect, it } from '../-test.ts';
-import { Dev } from '../m.react/mod.ts';
+import { Dev } from '../mod.ts';
 import { Specs } from './-specs.ts';
 
 /**

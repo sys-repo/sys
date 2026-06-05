@@ -1,7 +1,7 @@
 import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
-import { pkg } from '../pkg.ts';
+import { pkg } from '../../../pkg.ts';
 
 console.info('Pkg', pkg);
 globalThis.document.title = `${pkg.name}@${pkg.version}`;
@@ -25,7 +25,7 @@ export async function main() {
      *    module entry to be code-split in such a way that the [Dev Harness]
      *    never gets sent in the normal usage payload.
      */
-    const { render, useKeyboard } = await import('../m.react/mod.ts');
+    const { render, useKeyboard } = await import('../mod.ts');
     const { ModuleSpecs, SampleSpecs } = await import('./-specs.ts');
 
     // Dynamic "runnable specifications" Library:

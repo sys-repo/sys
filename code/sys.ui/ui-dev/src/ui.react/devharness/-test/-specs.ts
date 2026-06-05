@@ -5,7 +5,7 @@
  * at this level.
  */
 import type { t } from './common.ts';
-export { Dev } from '../m.react/mod.ts';
+export { Dev } from '../mod.ts';
 
 /**
  * Actual specs for the DevHarness modules themselves.
@@ -19,13 +19,13 @@ export const ModuleSpecs = {
  * Sample specs that demonstrate various normal and edge conditions.
  */
 export const SampleSpecs = {
-  'dev.sample.MySample': () => import('../-test/sample.specs/-SPEC.MySample.tsx'),
-  'dev.sample.DevTools': () => import('../-test/sample.DevTools/-SPEC.tsx'),
-  'dev.sample.Size': () => import('../-test/sample.specs/-SPEC.Size.tsx'),
-  'dev.sample.Empty': () => import('../-test/sample.specs/-SPEC.Empty.tsx'),
+  'dev.sample.MySample': () => import('./sample.specs/-SPEC.MySample.tsx'),
+  'dev.sample.DevTools': () => import('./sample.DevTools/-SPEC.tsx'),
+  'dev.sample.Size': () => import('./sample.specs/-SPEC.Size.tsx'),
+  'dev.sample.Empty': () => import('./sample.specs/-SPEC.Empty.tsx'),
   //
-  // 'dev.sample.Error': () => import('../-test/sample.specs/-SPEC.Error.tsx'),
-  // 'dev.sample.Fail': () => import('../-test/sample.specs/-SPEC.Fail.tsx'),
+  // 'dev.sample.Error': () => import('./sample.specs/-SPEC.Error.tsx'),
+  // 'dev.sample.Fail': () => import('./sample.specs/-SPEC.Fail.tsx'),
 } as t.SpecImports;
 
 /**
