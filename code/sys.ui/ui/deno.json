@@ -4,9 +4,12 @@
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
-    "dev": "deno run -A ./-scripts/task.vite.ts --cmd=dev --in=./src/index.html",
+    "dev": "deno run -P=dev @sys/cell start . --mode dev",
     "build": "deno run -A ./-scripts/task.vite.ts --cmd=build --in=./src/index.html",
-    "serve": "deno run -P=dev ./-scripts/task.vite.ts --cmd=serve",
+    "serve": "deno run -P=dev @sys/cell start .",
+    "kill": "deno task kill:dev && deno task kill:serve",
+    "kill:dev": "deno run -P=dev @sys/cell kill . --mode dev",
+    "kill:serve": "deno run -P=dev @sys/cell kill . --mode default",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check -- ./src/ ./-scripts/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
@@ -16,7 +19,9 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts"
+    "./types": "./src/types.ts",
+    "./react/t": "./src/m.react/t.ts",
+    "./react/files": "./src/m.react/ui.files/mod.ts"
   },
   "permissions": {
     "clean": { "read": true, "write": true, "env": true },
@@ -28,7 +33,17 @@
       "env": true,
       "net": true,
       "ffi": true,
-      "sys": { "allow": ["cpus", "networkInterfaces", "hostname"] }
+      "sys": {
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname",
+          "osRelease",
+          "homedir",
+          "uid",
+          "gid"
+        ]
+      }
     }
   }
 }
