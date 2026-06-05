@@ -64,6 +64,7 @@
     "code/sys.model/model",
     "code/sys.model/model-slug",
     "code/sys.tools",
+    "code/sys.ui/ui",
     "code/sys.ui/ui-css",
     "code/sys.ui/ui-devharness",
     "code/sys.ui/ui-dom",
