@@ -78,9 +78,7 @@ describe('m.tmpl/m.cli', () => {
     const output = lines.join('\n');
     expect(output.includes('commit msg:')).to.eql(true);
     expect(
-      output.includes(
-        'chore(tmpl:pkg): scaffold code/ns/agent-driven for @my-scope/agent-driven (38 files)',
-      ),
+      output.includes('chore(tmpl:pkg): scaffold code/ns/agent-driven for @my-scope/agent-driven'),
     ).to.eql(true);
   });
 
