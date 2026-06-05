@@ -18,7 +18,7 @@ export async function main() {
   }
 
   await rewriteImport({
-    targetPath: './src/ui/Spinners.Bar/u.loader.ts',
+    targetPath: './src/ui.react/Spinners.Bar/u.loader.ts',
     pattern: PATTERN_REACT_SPINNERS,
     replacement: `import('${resolved}/BarLoader.js')`,
   });

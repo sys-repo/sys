@@ -1,5 +1,5 @@
 import React from 'react';
-import { Signal } from '../../ui/-test.ui.ts';
+import { Signal } from '../../ui.react/-test.ui.ts';
 import { type t, Color, css, Fonts, useFontBundle } from './common.ts';
 import { resolveStyle } from './-ui.FontStyle.tsx';
 

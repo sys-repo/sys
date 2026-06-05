@@ -38,7 +38,7 @@ This is not a `Http.Origin` problem. It is a reusable text-display problem.
 
 Create:
 
-- `src/ui/Label`
+- `src/ui.react/Label`
 
 Initial shape:
 

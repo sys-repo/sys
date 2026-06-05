@@ -1,3 +1,3 @@
-export * from '../ui/-test.ui.ts';
-export { Button } from '../ui/Button/mod.ts';
-export { ObjectView } from '../ui/ObjectView/mod.ts';
+export * from '../ui.react/-test.ui.ts';
+export { Button } from '../ui.react/Button/mod.ts';
+export { ObjectView } from '../ui.react/ObjectView/mod.ts';

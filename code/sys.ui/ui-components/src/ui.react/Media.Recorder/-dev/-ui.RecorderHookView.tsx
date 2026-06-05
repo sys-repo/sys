@@ -21,7 +21,7 @@ export const RecorderHookView: React.FC<RecorderHookViewProps> = (props) => {
   if (!recorder) return <div>{'`recorder` prop not specified'}</div>;
   const { state, is } = recorder;
   const canStart = !is.recording && state !== 'Paused';
-  const hrefHookSource = JsrUrl.Pkg.file(pkg, 'src/ui/Media.Recorder/use.Recorder.ts');
+  const hrefHookSource = JsrUrl.Pkg.file(pkg, 'src/ui.react/Media.Recorder/use.Recorder.ts');
 
   /**
    * Render:
