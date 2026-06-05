@@ -1,4 +1,3 @@
-import { createRequire } from 'node:module';
 import { Perf } from '../common/u.perf.ts';
 import { type t, Fs, Path, ViteConfig } from './common.ts';
 import { Bootstrap } from './u.bootstrap.ts';
@@ -12,7 +11,7 @@ export const Wrangle = {
     const config = 'vite.config.ts';
     const env = await wrangle.env(paths.cwd);
     const bootstrap = await Bootstrap.create(paths.cwd, await wrangle.viteSpecifier(paths.cwd));
-    const args = await wrangle.args(paths, arg, config, env, bootstrap?.path);
+    const args = await wrangle.args(paths, arg, config, bootstrap?.path);
     const cmd = ['deno', ...args].join(' ');
     end({ importMap: bootstrap?.path ?? '', argCount: args.length });
     return {
@@ -72,11 +71,10 @@ const wrangle = {
     paths: t.ViteConfig.Paths,
     arg: string,
     config: string,
-    env: Record<string, string>,
     importMap?: string,
   ) {
     const [cmd, ...rest] = arg.trim().split(/\s+/).filter(Boolean);
-    const permissions = await wrangle.permissions(paths, cmd ?? '', env);
+    const permissions = await wrangle.permissions(paths, cmd ?? '');
     const vite = await wrangle.viteSpecifier(paths.cwd);
     const configLoader = await wrangle.configLoaderArg(paths.cwd);
     return [
@@ -92,8 +90,8 @@ const wrangle = {
     ].filter(Boolean);
   },
 
-  async permissions(paths: t.ViteConfig.Paths, cmd: string, env: Record<string, string>) {
-    const allowRun = `--allow-run=${env.ESBUILD_BINARY_PATH},${Deno.execPath()}`;
+  async permissions(paths: t.ViteConfig.Paths, cmd: string) {
+    const allowRun = `--allow-run=${Deno.execPath()}`;
     const allowWrite = `--allow-write=${(await wrangle.writeRoots(paths)).join(',')}`;
     const allowSysCommon = '--allow-sys=osRelease,homedir,uid,gid';
     const allowNetLocal = '--allow-net=localhost,127.0.0.1,0.0.0.0,[::1],[::]';
@@ -108,10 +106,7 @@ const wrangle = {
 
   async env(cwd: string) {
     const end = Perf.section('wrangle.env', { cwd }, { level: 2 });
-    const env = {
-      ESBUILD_BINARY_PATH: await wrangle.esbuildBinaryPath(cwd),
-      ...Perf.childEnv(),
-    } as const;
+    const env = { ...Perf.childEnv() } as const;
     end({ perf: Perf.enabled() });
     return env;
   },
@@ -188,57 +183,6 @@ const wrangle = {
     }
   },
 
-  async esbuildBinaryPath(cwd: string) {
-    const end = Perf.section('wrangle.esbuildBinaryPath', { cwd }, { level: 2 });
-    const require = await wrangle.esbuildRequire(cwd);
-    const { pkg, subpath } = wrangle.esbuildPackage();
-    try {
-      const resolved = require.resolve(`${pkg}/${subpath}`);
-      end({ pkg, source: 'platform-package', resolved });
-      return resolved;
-    } catch {
-      // Deno's npm layout may not expose the platform package as a direct resolution target.
-    }
-
-    const esbuildMain = require.resolve('esbuild');
-    const esbuildPkgDir = Path.dirname(Path.dirname(esbuildMain));
-    const siblingBinary = Path.join(Path.dirname(esbuildPkgDir), pkg, subpath);
-    if (await Fs.exists(siblingBinary)) {
-      end({ pkg, source: 'sibling-package', resolved: siblingBinary });
-      return siblingBinary;
-    }
-
-    const binScript = require.resolve('esbuild/bin/esbuild');
-    if (await Fs.exists(binScript)) {
-      end({ pkg, source: 'bin-script', resolved: binScript });
-      return binScript;
-    }
-
-    end({ ok: false, pkg, source: 'missing' });
-    throw new Error(`Failed to resolve esbuild binary from runtime package boundary: ${cwd}`);
-  },
-
-  async requireFrom(start: string) {
-    return createRequire(await wrangle.packageAnchor(start));
-  },
-
-  moduleRequire() {
-    if (!import.meta.url.startsWith('file:')) return null;
-    return createRequire(import.meta.url);
-  },
-
-  async esbuildRequire(cwd: string) {
-    const consumer = await wrangle.requireFrom(cwd);
-    try {
-      consumer.resolve('esbuild');
-      return consumer;
-    } catch {
-      const local = wrangle.moduleRequire();
-      if (local) return local;
-      throw new Error(`Failed to resolve "esbuild" from consumer package boundary: ${cwd}`);
-    }
-  },
-
   async packageAnchor(start: string) {
     let current = Path.resolve(start);
 
@@ -253,55 +197,8 @@ const wrangle = {
     }
   },
 
-  esbuildPackage() {
-    const arch = wrangle.normalizeEsbuildArch(Deno.build.arch);
-    const key = `${Deno.build.os}/${arch}`;
-    const pkg = ESBUILD_PACKAGES[key as keyof typeof ESBUILD_PACKAGES];
-    if (!pkg) throw new Error(`Unsupported esbuild platform: ${key}`);
-    const subpath = Deno.build.os === 'windows' ? 'esbuild.exe' : 'bin/esbuild';
-    return { pkg, subpath } as const;
-  },
-
   viteMajor(version: string) {
     const match = version.trim().match(/^[@~^<>=\s]*(\d+)/);
     return match ? Number(match[1]) : 0;
   },
-
-  normalizeEsbuildArch(arch: string) {
-    if (arch === 'aarch64') return 'arm64';
-    if (arch === 'x86_64') return 'x64';
-    return arch;
-  },
 } as const;
-
-// Derived from the installed esbuild resolver tables in:
-//   node_modules/.deno/esbuild@*/node_modules/esbuild/lib/main.js
-// Keep this map aligned with esbuild's platform package resolution logic.
-const ESBUILD_PACKAGES = {
-  'aix/ppc64': '@esbuild/aix-ppc64',
-  'android/arm': '@esbuild/android-arm',
-  'android/arm64': '@esbuild/android-arm64',
-  'android/x64': '@esbuild/android-x64',
-  'darwin/arm64': '@esbuild/darwin-arm64',
-  'darwin/x64': '@esbuild/darwin-x64',
-  'freebsd/arm64': '@esbuild/freebsd-arm64',
-  'freebsd/x64': '@esbuild/freebsd-x64',
-  'linux/arm': '@esbuild/linux-arm',
-  'linux/arm64': '@esbuild/linux-arm64',
-  'linux/ia32': '@esbuild/linux-ia32',
-  'linux/loong64': '@esbuild/linux-loong64',
-  'linux/mips64el': '@esbuild/linux-mips64el',
-  'linux/ppc64': '@esbuild/linux-ppc64',
-  'linux/riscv64': '@esbuild/linux-riscv64',
-  'linux/s390x': '@esbuild/linux-s390x',
-  'linux/x64': '@esbuild/linux-x64',
-  'netbsd/arm64': '@esbuild/netbsd-arm64',
-  'netbsd/x64': '@esbuild/netbsd-x64',
-  'openbsd/arm64': '@esbuild/openbsd-arm64',
-  'openbsd/x64': '@esbuild/openbsd-x64',
-  'openharmony/arm64': '@esbuild/openharmony-arm64',
-  'sunos/x64': '@esbuild/sunos-x64',
-  'windows/arm64': '@esbuild/win32-arm64',
-  'windows/ia32': '@esbuild/win32-ia32',
-  'windows/x64': '@esbuild/win32-x64',
-} as const satisfies Record<string, string>;

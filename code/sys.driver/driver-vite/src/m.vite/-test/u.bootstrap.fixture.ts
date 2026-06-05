@@ -11,7 +11,6 @@ export async function authorityConflictFixture(prefix: string) {
   await Fs.writeJson(`${root}/package.json`, {
     dependencies: {
       vite: '8.0.9',
-      esbuild: '0.27.4',
     },
   });
   await Fs.writeJson(`${root}/imports.json`, {

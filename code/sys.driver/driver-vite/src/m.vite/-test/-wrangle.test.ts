@@ -3,15 +3,13 @@ import { resolveFromImportMap } from '../../-test/u.importMap.ts';
 import { Wrangle } from '../u.wrangle.ts';
 
 describe('Vite.Wrangle', () => {
-  it('build: scopes child permissions to esbuild, deno, and localhost dns only', async () => {
+  it('build: scopes child permissions to deno and localhost dns only', async () => {
     const tmp = await Fs.makeTempDir({ prefix: 'vite.wrangle.build-' });
     const root = tmp.absolute;
-    const consumerEsbuild = '0.27.4';
     const consumerVite = '8.0.2';
     await Fs.writeJson(`${root}/package.json`, {
       dependencies: {
         vite: consumerVite,
-        esbuild: consumerEsbuild,
         '@vitejs/plugin-react': '6.0.1',
       },
     });
@@ -32,12 +30,6 @@ describe('Vite.Wrangle', () => {
       ? await Fs.readJson<{ imports?: Record<string, string> }>(importMapPath)
       : undefined;
 
-    expect(res.env.ESBUILD_BINARY_PATH).to.include('node_modules/.deno/');
-    expect(res.env.ESBUILD_BINARY_PATH).to.include(`@esbuild/`);
-    expect(
-      res.env.ESBUILD_BINARY_PATH.endsWith('/bin/esbuild') ||
-        res.env.ESBUILD_BINARY_PATH.endsWith('\\esbuild.exe'),
-    ).to.eql(true);
     expect(importMapArg).to.be.a('string');
     expect(importMap?.data?.imports?.['vite/internal']).to.eql(`npm:vite@${consumerVite}/internal`);
     expect(importMap?.data?.imports?.['vite/module-runner']).to.eql(
@@ -62,25 +54,23 @@ describe('Vite.Wrangle', () => {
     expect(res.args).to.include('--allow-net=localhost,127.0.0.1,0.0.0.0,[::1],[::]');
     expect(res.args).to.include('--allow-sys=osRelease,homedir,uid,gid');
     expect(res.args.filter((item) => item.startsWith('--allow-sys=')).length).to.eql(1);
-    expect(res.args).to.include(`--allow-run=${res.env.ESBUILD_BINARY_PATH},${Deno.execPath()}`);
+    expect(res.args).to.include(`--allow-run=${Deno.execPath()}`);
     expect(res.args).to.not.include('--allow-run');
     expect(res.args).to.not.include('-A');
     expect(res.args.filter((item) => item.startsWith('--allow-run=')).length).to.eql(1);
     expect(res.args).to.include(`npm:vite@${consumerVite}`);
     expect(res.args).to.include('--configLoader=native');
-    expect(await Fs.exists(res.env.ESBUILD_BINARY_PATH)).to.eql(true);
 
     await res.dispose();
     expect(importMapPath ? await Fs.exists(importMapPath) : false).to.eql(false);
   });
 
-  it('dev: adds only deno, esbuild, osRelease, homedir, uid, gid, and networkInterfaces exceptions', async () => {
+  it('dev: adds only deno, osRelease, homedir, uid, gid, and networkInterfaces exceptions', async () => {
     const tmp = await Fs.makeTempDir({ prefix: 'vite.wrangle.dev-' });
     const root = tmp.absolute;
-    const consumerEsbuild = '0.27.4';
     const consumerVite = '8.0.2';
     await Fs.writeJson(`${root}/package.json`, {
-      dependencies: { vite: consumerVite, esbuild: consumerEsbuild },
+      dependencies: { vite: consumerVite },
     });
     const paths = {
       cwd: root,
@@ -100,11 +90,10 @@ describe('Vite.Wrangle', () => {
     expect(res.args).to.include('--allow-net=localhost,127.0.0.1,0.0.0.0,[::1],[::]');
     expect(res.args).to.include('--allow-sys=osRelease,homedir,uid,gid,networkInterfaces');
     expect(res.args.filter((item) => item.startsWith('--allow-sys=')).length).to.eql(1);
-    expect(res.args).to.include(`--allow-run=${res.env.ESBUILD_BINARY_PATH},${Deno.execPath()}`);
+    expect(res.args).to.include(`--allow-run=${Deno.execPath()}`);
     expect(res.args.filter((item) => item.startsWith('--allow-run=')).length).to.eql(1);
     expect(res.args).to.include(`npm:vite@${consumerVite}`);
     expect(res.args).to.include('--configLoader=native');
-    expect(await Fs.exists(res.env.ESBUILD_BINARY_PATH)).to.eql(true);
     expect(res.args.find((item) => item.startsWith('--import-map='))).to.be.a('string');
     await res.dispose();
   });
@@ -115,7 +104,7 @@ describe('Vite.Wrangle', () => {
     const project = `${root}/code/projects/foo`;
     await Fs.ensureDir(project);
     await Fs.writeJson(`${root}/package.json`, {
-      dependencies: { vite: '8.0.2', esbuild: '0.27.4' },
+      dependencies: { vite: '8.0.2' },
     });
 
     const paths = {
@@ -166,7 +155,7 @@ describe('Vite.Wrangle', () => {
     const tmp = await Fs.makeTempDir({ prefix: 'vite.wrangle.v7-' });
     const root = tmp.absolute;
     await Fs.writeJson(`${root}/package.json`, {
-      dependencies: { vite: '7.3.1', esbuild: '0.27.3' },
+      dependencies: { vite: '7.3.1' },
     });
     const paths = {
       cwd: root,
@@ -189,7 +178,7 @@ describe('Vite.Wrangle', () => {
     const project = `${root}/code/projects/foo`;
     await Fs.ensureDir(project);
     await Fs.writeJson(`${root}/package.json`, {
-      dependencies: { vite: '7.3.1', esbuild: '0.27.3' },
+      dependencies: { vite: '7.3.1' },
     });
 
     const consumerVite = await Wrangle.viteSpecifier(

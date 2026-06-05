@@ -39,7 +39,6 @@ async function fixture(prefix: string) {
   await Fs.writeJson(`${root}/package.json`, {
     dependencies: {
       vite: '8.0.9',
-      esbuild: '0.27.4',
     },
   });
   await Fs.writeJson(`${root}/deno.json`, {

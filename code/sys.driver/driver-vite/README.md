@@ -50,10 +50,10 @@ defaulting to broad toolchain permissions.
 
 Current posture:
 - no child `-A`
-- `run` is scoped to the resolved native `esbuild` binary and the active `deno` executable only
+- `run` is scoped to the active `deno` executable only
 - `write` is scoped to the executing project root and the shared Vite cache roots, including canonical filesystem paths where required
-- `build` runs without child network permission
-- `dev` network is limited to `localhost`, `127.0.0.1`, and `0.0.0.0`
+- `build` network is limited to local Vite/Deno startup addresses
+- `dev` network is limited to local Vite/Deno startup addresses
 - `dev` system access is limited to `networkInterfaces`
 
 Current limit:
