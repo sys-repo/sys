@@ -19,7 +19,7 @@ import type * as TCss from '@sys/ui-css/t';
 export type CssInput = TCss.Style.Input;
 export type CssProps = TCss.Style.Props;
 export type { Keyboard } from '@sys/ui-dom/t';
-export type { DevCtx } from '@sys/ui-react-devharness/t';
+export type { DevCtx } from '@sys/ui-react-devharness/react/t';
 
 /**
  * @local

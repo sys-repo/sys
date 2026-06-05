@@ -1,11 +1,11 @@
 import { expectTypeOf } from '@sys/std/testing';
 import { describe, expect, it } from '../../-test.ts';
-import type { t as TRoot } from '../../mod.ts';
+import type { t as TRoot } from '../../m.react/mod.ts';
 import { Loader, type t } from '../mod.ts';
 
-describe(`@sys/ui-react-devharness/spec`, () => {
+describe(`@sys/ui-react-devharness/react/spec`, () => {
   it('API', async () => {
-    const m = await import('@sys/ui-react-devharness/spec');
+    const m = await import('@sys/ui-react-devharness/react/spec');
     expect(m.Loader).to.equal(Loader);
   });
 

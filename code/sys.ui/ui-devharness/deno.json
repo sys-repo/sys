@@ -17,9 +17,11 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./hooks": "./src/-export/-hooks.ts",
-    "./spec": "./src/m.spec/mod.ts",
-    "./-test/entry-specs": "./src/-test/-specs.ts"
+    "./react": "./src/m.react/mod.ts",
+    "./react/t": "./src/m.react/types.ts",
+    "./react/hooks": "./src/m.react/hooks.ts",
+    "./react/spec": "./src/m.react/spec.ts",
+    "./react/-test/entry-specs": "./src/m.react/-test/entry-specs.ts"
   },
   "permissions": {
     "clean": { "read": true, "write": true, "env": true },

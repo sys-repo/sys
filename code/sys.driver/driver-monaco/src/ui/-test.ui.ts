@@ -4,7 +4,7 @@
  */
 
 export { expect } from '@sys/std/testing';
-export { Dev, Lorem, Spec } from '@sys/ui-react-devharness';
+export { Dev, Lorem, Spec } from '@sys/ui-react-devharness/react';
 
 export * from './common.ts';
 export { Monaco } from '../m.Monaco/mod.ts';

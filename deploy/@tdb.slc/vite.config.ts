@@ -12,7 +12,7 @@ export default Vite.Config.define(() => {
       e.chunk('react.dom', 'react-dom');
       e.chunk('sys', ['@sys/std']);
       e.chunk('css', ['@sys/ui-css']);
-      e.chunk('devharness', ['@sys/ui-react-devharness']);
+      e.chunk('devharness', ['@sys/ui-react-devharness/react']);
       e.chunk('yaml', ['yaml']);
       e.chunk('motion', ['motion']);
       e.chunk('icons', ['react-icons']);

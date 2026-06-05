@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-import { Is } from '../mod.ts';
+import { Is } from '../m.react/mod.ts';
 
 type T = { args: t.TestHandlerArgs; ctx: t.DevCtxObject };
 

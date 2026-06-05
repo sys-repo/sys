@@ -4,8 +4,8 @@ describe('OptimizeImportsPlugin graph proof', () => {
   it('reduces ui-react-devharness local module graph breadth for the derived narrow import', async () => {
     const counts = await graphCounts({
       packageDir: ROOT.resolve('code/sys.ui/ui-devharness').replaceAll('\\', '/'),
-      rootImport: "import { useKeyboard } from '@sys/ui-react-devharness';",
-      narrowImport: "import { useKeyboard } from '@sys/ui-react-devharness/hooks';",
+      rootImport: "import { useKeyboard } from '@sys/ui-react-devharness/react';",
+      narrowImport: "import { useKeyboard } from '@sys/ui-react-devharness/react/hooks';",
       symbol: 'useKeyboard',
     });
 

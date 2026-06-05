@@ -23,7 +23,7 @@ export type {
   ObjectViewProps,
   TreeHostViewNodeList,
 } from '@sys/ui-react-components/t';
-export type { DevCtx } from '@sys/ui-react-devharness/t';
+export type { DevCtx } from '@sys/ui-react-devharness/react/t';
 export type { FC } from '@sys/ui-react/t';
 export type {
   Yaml,

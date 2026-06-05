@@ -23,7 +23,7 @@ describe('ViteConfig.app', () => {
     expect(pluginEnforce(optimize)).to.eql('pre');
   });
 
-  it('applies derived optimize-imports to the published ui-components sample entry', async () => {
+  it('keeps the published ui-components sample entry already narrow', async () => {
     const config = await ViteConfig.app({
       plugins: { deno: false, react: false, wasm: false },
     });
@@ -32,12 +32,11 @@ describe('ViteConfig.app', () => {
     const transform = asTransform(pluginTransform(optimize));
     const result = await transform(source, '/tmp/main.tsx');
 
-    expect(Is.object(result)).to.eql(true);
-    if (!result || typeof result === 'string') throw new Error('Expected transform result object');
-    expect(result.code.includes('ui-react-devharness/hooks')).to.eql(true);
-    expect(result.code.includes('ui-react-components/button')).to.eql(true);
-    expect(result.code.includes(`from '@sys/ui-react-devharness'`)).to.eql(false);
-    expect(result.code.includes(`from "@sys/ui-react-devharness"`)).to.eql(false);
+    expect(result).to.eql(null);
+    expect(source.includes('ui-react-devharness/react/hooks')).to.eql(true);
+    expect(source.includes('ui-react-components/button')).to.eql(true);
+    expect(source.includes(`from '@sys/ui-react-devharness';`)).to.eql(false);
+    expect(source.includes(`from "@sys/ui-react-devharness";`)).to.eql(false);
   });
 
   it('can disable optimize-imports for on/off proofing', async () => {
@@ -55,7 +54,7 @@ describe('ViteConfig.app', () => {
     expect(names.includes('sys:optimize-imports')).to.eql(false);
     expect(optimize).to.eql(undefined);
     expect(source.includes(`from '@sys/ui-react-components/button'`)).to.eql(true);
-    expect(source.includes(`from '@sys/ui-react-devharness'`)).to.eql(true);
+    expect(source.includes(`from '@sys/ui-react-devharness/react/hooks'`)).to.eql(true);
   });
 });
 

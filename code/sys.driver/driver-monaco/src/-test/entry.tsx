@@ -44,7 +44,7 @@ export async function main() {
   /**
    * DevHarness:
    */
-  const { render, useKeyboard } = await import('@sys/ui-react-devharness');
+  const { render, useKeyboard } = await import('@sys/ui-react-devharness/react');
   const { Specs } = await import('./-specs.ts');
   const el = await render(pkg, Specs, {
     style: { Absolute: 0 },

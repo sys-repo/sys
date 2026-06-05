@@ -30,7 +30,7 @@ export type {
   VideoPlayerSignals,
   VimeoIFrame,
 } from '@sys/ui-react-components/t';
-export type { DevCtx } from '@sys/ui-react-devharness/t';
+export type { DevCtx } from '@sys/ui-react-devharness/react/t';
 
 export type { Crdt } from '@sys/driver-automerge/t';
 export type { Monaco } from '@sys/driver-monaco/t';

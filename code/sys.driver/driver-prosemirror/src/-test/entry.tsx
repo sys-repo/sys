@@ -42,7 +42,7 @@ export async function main() {
     /**
      * DevHarness:
      */
-    const { render, useKeyboard } = await import('@sys/ui-react-devharness');
+    const { render, useKeyboard } = await import('@sys/ui-react-devharness/react');
     const { Specs } = await import('./-specs.ts');
     const el = await render(pkg, Specs, { hr: (e) => {}, style: { Absolute: 0 } });
 
@@ -57,7 +57,7 @@ export async function main() {
     /**
      * Entry/Splash:
      */
-    const { useKeyboard } = await import('@sys/ui-react-devharness');
+    const { useKeyboard } = await import('@sys/ui-react-devharness/react');
     const { Splash } = await import('./ui.Splash.tsx');
 
     function App() {

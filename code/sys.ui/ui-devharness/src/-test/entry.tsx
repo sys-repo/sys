@@ -25,7 +25,7 @@ export async function main() {
      *    module entry to be code-split in such a way that the [Dev Harness]
      *    never gets sent in the normal usage payload.
      */
-    const { render, useKeyboard } = await import('../mod.ts');
+    const { render, useKeyboard } = await import('../m.react/mod.ts');
     const { ModuleSpecs, SampleSpecs } = await import('./-specs.ts');
 
     // Dynamic "runnable specifications" Library:

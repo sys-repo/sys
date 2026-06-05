@@ -51,7 +51,7 @@ export type { TimecodeState } from '@sys/ui-state/t';
 
 /** User interface: Testing */
 export type { SpecImports, TestingDir } from '@sys/testing/t';
-export type { DevCtx } from '@sys/ui-react-devharness/t';
+export type { DevCtx } from '@sys/ui-react-devharness/react/t';
 
 /**
  * @local
