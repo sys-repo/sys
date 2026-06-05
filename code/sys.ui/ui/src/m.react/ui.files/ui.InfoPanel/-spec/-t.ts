@@ -1,6 +1,6 @@
 /** Type re-exports. */
-export type * from '../../../common.t.ts';
-export type * from '../t.ts';
+export type * from '../../../../common.t.ts';
+export type * from '../../t.ts';
 
 /**
  * Test, Spec types (internal).

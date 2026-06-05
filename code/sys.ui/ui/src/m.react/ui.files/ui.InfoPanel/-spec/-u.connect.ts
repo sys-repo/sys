@@ -1,7 +1,7 @@
 import type { DebugSignals } from './-SPEC.Debug.tsx';
 import { Err, FilesBase, SPEC, type t } from './common.ts';
 
-let active: t.Files.Client.WebSocket | undefined;
+let active: t.ModelFiles.Client.WebSocket | undefined;
 
 /** Connect to the sample Files websocket and update the debug snapshot. */
 export async function connect(debug: DebugSignals) {
@@ -40,6 +40,6 @@ export async function disconnect(debug: DebugSignals) {
 /**
  * Helpers:
  */
-function snapshot(debug: DebugSignals, value: t.FileInfoPanel.Snapshot) {
+function snapshot(debug: DebugSignals, value: t.Files.InfoPanel.Snapshot) {
   debug.props.snapshot.value = value;
 }

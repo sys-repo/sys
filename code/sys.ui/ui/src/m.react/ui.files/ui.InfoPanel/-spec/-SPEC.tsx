@@ -1,5 +1,5 @@
 import { D, Dev, Signal, Spec } from './common.ts';
-import { Files } from '../mod.ts';
+import { Files } from '../../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {

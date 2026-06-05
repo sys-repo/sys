@@ -2,7 +2,7 @@ import { D, Err, Is, type t } from './common.ts';
 import { StatusTitle } from './ui.StatusTitle.tsx';
 import { formatCapabilities } from './u.items.Capabilities.tsx';
 
-type Input = Pick<t.FileInfoPanel.Props, 'fields' | 'theme' | 'title' | 'snapshot'>;
+type Input = Pick<t.Files.InfoPanel.Props, 'fields' | 'theme' | 'title' | 'snapshot'>;
 
 /**
  * Convert a Files client snapshot into KeyValue rows.
@@ -33,7 +33,7 @@ export function toItems(input: Input): t.KeyValue.Item[] {
 /**
  * Helpers:
  */
-function title(input: Input, fields: readonly t.FileInfoPanel.Field[]): t.KeyValue.Title['v'] {
+function title(input: Input, fields: readonly t.Files.InfoPanel.Field[]): t.KeyValue.Title['v'] {
   const label = input.title ?? D.title;
   if (!fields.includes('status:title')) return label;
   return [
@@ -43,11 +43,11 @@ function title(input: Input, fields: readonly t.FileInfoPanel.Field[]): t.KeyVal
 }
 
 function resolveFields(
-  input: readonly t.FileInfoPanel.Field[] | undefined,
-): t.FileInfoPanel.Field[] {
+  input: readonly t.Files.InfoPanel.Field[] | undefined,
+): t.Files.InfoPanel.Field[] {
   const fields = input ?? D.fields;
-  const seen = new Set<t.FileInfoPanel.Field>();
-  const result: t.FileInfoPanel.Field[] = [];
+  const seen = new Set<t.Files.InfoPanel.Field>();
+  const result: t.Files.InfoPanel.Field[] = [];
 
   fields.forEach((field) => {
     if (seen.has(field)) return;

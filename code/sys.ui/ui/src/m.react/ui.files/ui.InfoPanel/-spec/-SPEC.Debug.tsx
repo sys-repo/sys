@@ -2,11 +2,11 @@ import React from 'react';
 import { Button, Color, css, D, Err, LocalStorage, ObjectView, Signal, type t } from './common.ts';
 import { connect, disconnect } from './-u.connect.ts';
 
-type P = t.FileInfoPanel.Props;
+type P = t.Files.InfoPanel.Props;
 type Defaults = Required<Pick<P, 'debug' | 'theme' | 'snapshot'>>;
 type Storage = Pick<Defaults, 'debug' | 'theme'>;
 
-const readyCapabilities: t.Files.Capabilities = {
+const readyCapabilities: t.ModelFiles.Capabilities = {
   list: true,
   stat: true,
   read: true,
@@ -20,7 +20,7 @@ const snapshots = {
   stopped: { status: 'stopped' },
   ready: { status: 'ready', capabilities: readyCapabilities },
   error: { status: 'error', error: Err.std(new Error('Sample Files error')) },
-} as const satisfies Record<string, t.FileInfoPanel.Snapshot>;
+} as const satisfies Record<string, t.Files.InfoPanel.Snapshot>;
 
 const defaults: Defaults = {
   debug: false,

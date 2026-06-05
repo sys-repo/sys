@@ -9,5 +9,5 @@ export const ns = 'sys.ui';
  * Specs:
  */
 export const Specs = {
-  [`${ns}: files`]: () => import('../m.react/ui.files/-spec/-SPEC.tsx'),
+  [`${ns}: files`]: () => import('../m.react/ui.files/ui.InfoPanel/-spec/-SPEC.tsx'),
 } as t.SpecImports;

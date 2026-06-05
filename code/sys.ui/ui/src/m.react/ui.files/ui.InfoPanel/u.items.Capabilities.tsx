@@ -7,7 +7,7 @@ const Styles = {
 };
 
 /** Render enabled Files capabilities as an inline KeyValue row value. */
-export function formatCapabilities(value: t.Files.Capabilities): t.ReactNode {
+export function formatCapabilities(value: t.ModelFiles.Capabilities): t.ReactNode {
   const enabled = FilesBase.Capability.names.filter((name) => value[name]);
   return enabled.length > 0 ? renderCapabilityNames(enabled) : 'none';
 }
@@ -15,11 +15,11 @@ export function formatCapabilities(value: t.Files.Capabilities): t.ReactNode {
 /**
  * Helpers:
  */
-function renderCapabilityNames(names: readonly t.Files.Capability[]): t.ReactNode {
+function renderCapabilityNames(names: readonly t.ModelFiles.Capability[]): t.ReactNode {
   return <span className={Styles.names.class}>{names.map(renderCapabilityName)}</span>;
 }
 
-function renderCapabilityName(name: t.Files.Capability, index: number): t.ReactNode {
+function renderCapabilityName(name: t.ModelFiles.Capability, index: number): t.ReactNode {
   return (
     <React.Fragment key={name}>
       {index > 0 && renderCapabilitySeparator()}
