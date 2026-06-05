@@ -1,6 +1,6 @@
 name: sys.ui:files
 root: ./-sample/files
 path: /files
-port: 5051
+port: 5050
 watch: true
 policy: '**'

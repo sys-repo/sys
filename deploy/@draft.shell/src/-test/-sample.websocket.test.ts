@@ -25,7 +25,7 @@ describe('draft shell sample through Files client', () => {
 
   it('reads the checked-in shell sample through local and websocket Files client', async () => {
     const config = await readCheckedInServiceConfig();
-    expect(config).to.contain('port: 5050');
+    expect(config).to.contain('port: 5051');
 
     const localYaml = await readSampleYamlThroughLocalFilesClient();
     const websocketYaml = await readSampleYamlOverWebSocket(config);

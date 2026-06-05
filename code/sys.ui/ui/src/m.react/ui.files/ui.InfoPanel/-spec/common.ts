@@ -4,7 +4,7 @@ export * from '../common.ts';
 export * from '../../../-test.ui.ts';
 export type * as t from './-t.ts';
 
-const endpoint: t.StringUrl = 'ws://localhost:5051/files';
+const endpoint: t.StringUrl = 'ws://localhost:5050/files';
 const timeout: t.Msecs = 3_000;
 
 export const SPEC = {
