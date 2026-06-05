@@ -1,26 +1,27 @@
 {
   ".meta": {
-    "createdAt": 1780614881719,
+    "createdAt": 1780620968053,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-e72aaadd2039b29f3ed26ed7bde8274da12c500ca15f735aeff15dbe0c545756",
-      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.110/src/m.graph/m.snapshot/m.Hash.ts"
+      "/graph": "sha256-5d32069b0af03349d55b688abf7cd9cb45d6a0d9939c7625495061c74224b148",
+      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.111/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
       "pkg": {
         "name": "@sys/workspace",
-        "version": "0.0.110"
+        "version": "0.0.111"
       },
       "types": {
-        "/graph": "https://jsr.io/@sys/workspace/0.0.110/src/m.graph/t.ts"
+        "/graph": "https://jsr.io/@sys/workspace/0.0.111/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1780614881724
+    "modifiedAt": 1780620968057
   },
   "graph": {
     "orderedPaths": [
       "code/sys/types",
       "code/sys.dev",
+      "code/sys.ui/ui",
       "code/sys/crdt",
       "code/sys/std",
       "code/sys/color",
@@ -1342,6 +1343,10 @@
       {
         "from": "code/sys/types",
         "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys.ui/ui"
       },
       {
         "from": "code/sys/types",
