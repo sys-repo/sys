@@ -1,6 +1,6 @@
 import { Perf } from '../common/u.perf.ts';
 import { Fs, Path, type t } from './common.ts';
-import { transformSync } from 'npm:esbuild@0.28.0';
+import { transformSync } from 'npm:esbuild@0.27.1';
 import { TransformCache } from './u.cache.ts';
 import { toViteNpmSpecifier } from './u.npm.ts';
 import { canonicalRemoteSpecifier, parseDenoSpecifier, toDenoSpecifier } from './u.specifier.ts';

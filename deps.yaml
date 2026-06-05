@@ -16,7 +16,7 @@ deno.json:
   - import: npm:chai@6.2.2
   - import: npm:fake-indexeddb@6.2.5
     subpaths: [ auto ]
-  - import: npm:esbuild@0.28.0
+  - import: npm:esbuild@0.27.1
     dev: true
   - import: npm:@vitejs/plugin-react@6.0.2
     dev: true
@@ -87,7 +87,7 @@ deno.json:
     subpaths: [ bs, fa, fa6, fi, hi, lia, lu, md, pi, ri, tb, vsc ]
   - import: npm:@preact/signals-react@3.10.1
 package.json:
-  - import: npm:esbuild@0.28.0
+  - import: npm:esbuild@0.27.1
     dev: true
   - import: npm:@vitejs/plugin-react@6.0.2
     dev: true

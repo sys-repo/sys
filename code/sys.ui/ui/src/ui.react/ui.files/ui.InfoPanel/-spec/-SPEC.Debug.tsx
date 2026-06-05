@@ -116,10 +116,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <div className={Styles.title.class}>{'Server'}</div>
       <Button block label={() => `connect`} onClick={() => void connect(debug)} />
       <Button block label={() => `disconnect`} onClick={() => void disconnect(debug)} />
 
       <hr />
+      <div className={Styles.title.class}>{'override: props.snapshot'}</div>
+
       <Button
         block
         label={() => `snapshot: stopped`}

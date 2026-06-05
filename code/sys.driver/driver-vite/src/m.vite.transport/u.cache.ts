@@ -4,7 +4,7 @@ import type { t } from './common.ts';
 import { canonicalRemoteSpecifier } from './u.specifier.ts';
 
 const CACHE_VERSION = 'vite.transport.transform.v1';
-const ESBUILD_VERSION = '0.28.0';
+const ESBUILD_VERSION = '0.27.1';
 const SUPPORTED_LOADERS = new Set<t.DenoLoader>(['JSX', 'TSX', 'TypeScript']);
 
 type CachePlanArgs = {
