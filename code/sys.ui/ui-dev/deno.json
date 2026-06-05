@@ -21,12 +21,7 @@
     "./react/devharness/t": "./src/ui.react/devharness/types.ts",
     "./react/devharness/hooks": "./src/ui.react/devharness/hooks.ts",
     "./react/devharness/spec": "./src/ui.react/devharness/spec.ts",
-    "./react/devharness/-test/entry-specs": "./src/ui.react/devharness/-test/entry-specs.ts",
-    "./react": "./src/ui.react/devharness/mod.ts",
-    "./react/t": "./src/ui.react/devharness/types.ts",
-    "./react/hooks": "./src/ui.react/devharness/hooks.ts",
-    "./react/spec": "./src/ui.react/devharness/spec.ts",
-    "./react/-test/entry-specs": "./src/ui.react/devharness/-test/entry-specs.ts"
+    "./react/devharness/-test/entry-specs": "./src/ui.react/devharness/-test/entry-specs.ts"
   },
   "permissions": {
     "clean": { "read": true, "write": true, "env": true },

@@ -67,8 +67,8 @@ jobs:
             path: code/sys/http
           - name: "@sys/ui-react"
             path: code/sys.ui/ui-react
-          - name: "@sys/ui-react-devharness"
-            path: code/sys.ui/ui-devharness
+          - name: "@sys/ui-dev"
+            path: code/sys.ui/ui-dev
           - name: "@sys/registry"
             path: code/sys/registry
           - name: "@sys/schema"

@@ -95,6 +95,7 @@
     "npm:ts-essentials@10.2.1": "10.2.1",
     "npm:typebox@1.2.1": "1.2.1",
     "npm:vite-plugin-wasm@3.6.0": "3.6.0_vite@8.0.16__esbuild@0.28.0__yaml@2.9.0_esbuild@0.28.0_yaml@2.9.0",
+    "npm:vite@*": "8.0.16_esbuild@0.28.0_yaml@2.9.0",
     "npm:vite@8.0.16": "8.0.16_esbuild@0.28.0_yaml@2.9.0",
     "npm:ws@8.21.0": "8.21.0",
     "npm:yaml@2.9.0": "2.9.0"

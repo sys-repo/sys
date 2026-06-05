@@ -130,7 +130,7 @@ describe('prep.u', () => {
         '@sys/ui-dom': 'jsr:@sys/ui-dom@0.0.0',
         '@sys/ui-react': 'jsr:@sys/ui-react@0.0.0',
         '@sys/ui-components': 'jsr:@sys/ui-components@0.0.0',
-        '@sys/ui-react-devharness': 'jsr:@sys/ui-react-devharness@0.0.0',
+        '@sys/ui-dev': 'jsr:@sys/ui-dev@0.0.0',
         '@sys/std': 'jsr:@sys/std@0.0.0',
         '@sys/std/t': 'jsr:@sys/std@0.0.0/t',
         '@sys/tmpl': 'jsr:@sys/tmpl@0.0.0',
@@ -160,7 +160,7 @@ describe('prep.u', () => {
       '@sys/ui-dom': '0.0.237',
       '@sys/ui-react': '0.0.245',
       '@sys/ui-components': '0.0.197',
-      '@sys/ui-react-devharness': '0.0.242',
+      '@sys/ui-dev': '0.0.242',
     };
 
     const res = syncTemplateImports(input, authority, versions);
@@ -191,7 +191,7 @@ describe('prep.u', () => {
     expect(res.imports['@sys/ui-react/t']).to.eql('jsr:@sys/ui-react@0.0.245/t');
     expect(res.imports['@sys/ui-components']).to.eql('jsr:@sys/ui-components@0.0.197');
     expect(res.imports['@sys/ui-components/t']).to.eql('jsr:@sys/ui-components@0.0.197/t');
-    expect(res.imports['@sys/ui-react-devharness']).to.eql('jsr:@sys/ui-react-devharness@0.0.242');
+    expect(res.imports['@sys/ui-dev']).to.eql('jsr:@sys/ui-dev@0.0.242');
   });
 
   it('syncTemplateImports → throws when a required import key is missing in root imports.json', () => {

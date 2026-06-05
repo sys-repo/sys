@@ -20,8 +20,8 @@ jobs:
         include:
           - name: "@sys/dev"
             path: code/sys.dev
-          - name: "@sys/ui-react-devharness"
-            path: code/sys.ui/ui-devharness
+          - name: "@sys/ui-dev"
+            path: code/sys.ui/ui-dev
           - name: "@sys/ui-components"
             path: code/sys.ui/ui-components
           - name: "@sys/driver-automerge"

@@ -1,5 +1,5 @@
 import { Button } from '@sys/ui-components/react/button';
-import { useKeyboard } from '@sys/ui-react-devharness/react/hooks';
+import { useKeyboard } from '@sys/ui-dev/react/devharness/hooks';
 import { dirname, format, toNamespacedPath } from '@std/path';
 
 const samplePath = dirname('/tmp/sample/file.ts');

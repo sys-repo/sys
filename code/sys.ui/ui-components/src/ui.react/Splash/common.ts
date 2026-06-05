@@ -1,6 +1,6 @@
 import { type t, pkg, Pkg } from '../common.ts';
 
-export { useKeyboard } from '@sys/ui-react-devharness/react/hooks';
+export { useKeyboard } from '@sys/ui-dev/react/devharness/hooks';
 export * from '../common.ts';
 export { KeyValue } from '../KeyValue/mod.ts';
 

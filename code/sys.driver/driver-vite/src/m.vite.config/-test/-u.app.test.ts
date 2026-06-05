@@ -33,10 +33,10 @@ describe('ViteConfig.app', () => {
     const result = await transform(source, '/tmp/main.tsx');
 
     expect(result).to.eql(null);
-    expect(source.includes('ui-react-devharness/react/hooks')).to.eql(true);
+    expect(source.includes('ui-dev/react/devharness/hooks')).to.eql(true);
     expect(source.includes('ui-components/react/button')).to.eql(true);
-    expect(source.includes(`from '@sys/ui-react-devharness';`)).to.eql(false);
-    expect(source.includes(`from "@sys/ui-react-devharness";`)).to.eql(false);
+    expect(source.includes(`from '@sys/ui-dev';`)).to.eql(false);
+    expect(source.includes(`from "@sys/ui-dev";`)).to.eql(false);
   });
 
   it('can disable optimize-imports for on/off proofing', async () => {
@@ -54,7 +54,7 @@ describe('ViteConfig.app', () => {
     expect(names.includes('sys:optimize-imports')).to.eql(false);
     expect(optimize).to.eql(undefined);
     expect(source.includes(`from '@sys/ui-components/react/button'`)).to.eql(true);
-    expect(source.includes(`from '@sys/ui-react-devharness/react/hooks'`)).to.eql(true);
+    expect(source.includes(`from '@sys/ui-dev/react/devharness/hooks'`)).to.eql(true);
   });
 });
 

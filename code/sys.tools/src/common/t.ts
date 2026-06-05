@@ -44,7 +44,7 @@ export type { Yaml, YamlConfig } from '@sys/yaml/t';
 
 /** @system: UI */
 export type { Keyboard } from '@sys/ui-dom/t';
-export type { DevCtx } from '@sys/ui-react-devharness/react/t';
+export type { DevCtx } from '@sys/ui-dev/react/devharness/t';
 
 /** @system: Drivers */
 export type { Crdt, CrdtRepoWireEvent } from '@sys/driver-automerge/t';

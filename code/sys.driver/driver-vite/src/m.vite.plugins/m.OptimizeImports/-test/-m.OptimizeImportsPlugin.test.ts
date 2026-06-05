@@ -2,7 +2,7 @@ import { describe, expect, Is, it } from '../../../-test.ts';
 import { OptimizeImportsPlugin } from '../mod.ts';
 
 const TEST_RULES = [{
-  packageId: '@sys/ui-react-devharness/react',
+  packageId: '@sys/ui-dev/react/devharness',
   imports: [{ importName: 'useKeyboard', subpath: './hooks', kind: 'value' as const }],
 }] as const;
 
@@ -17,13 +17,13 @@ describe('OptimizeImportsPlugin', () => {
     const plugin = OptimizeImportsPlugin.plugin({ packages: TEST_RULES });
     const transform = asTransform(plugin.transform);
     const result = await transform(
-      "import { useKeyboard } from '@sys/ui-react-devharness/react';",
+      "import { useKeyboard } from '@sys/ui-dev/react/devharness';",
       '/tmp/mod.ts',
     );
 
     expect(Is.object(result)).to.eql(true);
     if (!result || typeof result === 'string') throw new Error('Expected transform result object');
-    expect(result.code).to.eql("import { useKeyboard } from '@sys/ui-react-devharness/react/hooks';");
+    expect(result.code).to.eql("import { useKeyboard } from '@sys/ui-dev/react/devharness/hooks';");
     expect(result.map).to.eql(null);
   });
 
@@ -31,9 +31,9 @@ describe('OptimizeImportsPlugin', () => {
     const plugin = OptimizeImportsPlugin.plugin({ packages: TEST_RULES });
     const transform = asTransform(plugin.transform);
 
-    const a = await transform("import { useKeyboard } from '@sys/ui-react-devharness/react';", '/tmp/mod.css');
-    const b = await transform("import { Dev } from '@sys/ui-react-devharness/react';", '/tmp/mod.ts');
-    const c = await transform("import { useKeyboard } from '@sys/ui-react-devharness/react';", '/tmp/node_modules/pkg/mod.ts');
+    const a = await transform("import { useKeyboard } from '@sys/ui-dev/react/devharness';", '/tmp/mod.css');
+    const b = await transform("import { Dev } from '@sys/ui-dev/react/devharness';", '/tmp/mod.ts');
+    const c = await transform("import { useKeyboard } from '@sys/ui-dev/react/devharness';", '/tmp/node_modules/pkg/mod.ts');
 
     expect(a).to.eql(null);
     expect(b).to.eql(null);

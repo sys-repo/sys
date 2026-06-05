@@ -10,7 +10,7 @@ describe(
   'Vite published external smoke (ui-components build)',
   { sanitizeOps: false, sanitizeResources: false },
   () => {
-    it('published driver-vite resolves @sys/ui-components and @sys/ui-react-devharness', async () => {
+    it('published driver-vite resolves @sys/ui-components and @sys/ui-dev', async () => {
       await Testing.retry(2, async () => {
         const { build, files } = await buildSample({
           sampleName: 'Vite.ui-components.published.build',
@@ -23,7 +23,7 @@ describe(
         expect(js.length > 0).to.eql(true);
         expect(js.includes('Button')).to.eql(true);
         expect(js.includes('ui-components')).to.eql(true);
-        expect(js.includes('ui-react-devharness')).to.eql(true);
+        expect(js.includes('ui-dev')).to.eql(true);
       });
     });
   },
@@ -41,14 +41,14 @@ describe('Vite published external smoke (ui-components dev)', () => {
       try {
         expect(html.status).to.eql(200);
         expect(entry.status).to.eql(200);
-        expect(entry.text.includes(`from '@sys/ui-react-devharness';`)).to.eql(false);
-        expect(entry.text.includes(`from "@sys/ui-react-devharness";`)).to.eql(false);
+        expect(entry.text.includes(`from '@sys/ui-dev';`)).to.eql(false);
+        expect(entry.text.includes(`from "@sys/ui-dev";`)).to.eql(false);
 
         const buttonUrl = directImport(entry.imports, '@sys/ui-components/react/button', 'ui-components/react/button');
         const devHarnessUrl = directImport(
           entry.imports,
-          '@sys/ui-react-devharness/react/hooks',
-          'ui-react-devharness/react/hooks',
+          '@sys/ui-dev/react/devharness/hooks',
+          'ui-dev/react/devharness/hooks',
         );
         const stdPathUrl = directImport(entry.imports, STD_PATH_PARENT, '@std/path');
 

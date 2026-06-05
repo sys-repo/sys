@@ -66,8 +66,8 @@ deno.json:
         splash,
         t
       ]
-  - import: jsr:@sys/ui-react-devharness@0.0.327
-    subpaths: [ react, react/t ]
+  - import: jsr:@sys/ui-dev@0.0.327
+    subpaths: [ react/devharness, react/devharness/t ]
   - import: jsr:@sys/workspace@0.0.111
     subpaths: [ cli, t, testing ]
   - import: jsr:@sys/yaml@0.0.169

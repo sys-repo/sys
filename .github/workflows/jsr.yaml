@@ -536,9 +536,9 @@ jobs:
           echo "publish failed after $max_attempts attempts"
           exit 1
 
-      - name: publish module → "@sys/ui-react-devharness"
+      - name: publish module → "@sys/ui-dev"
         run: |
-          cd code/sys.ui/ui-devharness
+          cd code/sys.ui/ui-dev
           deno task test --frozen
           git status --short
           test -z "$(git status --porcelain)"

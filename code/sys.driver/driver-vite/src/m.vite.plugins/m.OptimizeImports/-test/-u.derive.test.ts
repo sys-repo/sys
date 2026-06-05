@@ -7,7 +7,7 @@ describe('OptimizeImportsPlugin.deriveWorkspacePackageRules', () => {
     const ws = await workspace({ denofile: ROOT.denofile.path, walkup: false });
     const rules = await deriveWorkspacePackageRules(ws);
 
-    const devharness = rules.find((rule) => rule.packageId === '@sys/ui-react-devharness');
+    const devharness = rules.find((rule) => rule.packageId === '@sys/ui-dev');
     expect(devharness).to.eql(undefined);
 
     const components = rules.find((rule) => rule.packageId === '@sys/ui-components');

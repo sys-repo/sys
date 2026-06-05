@@ -27,7 +27,7 @@ export type CssEdgesInput = TCss.CssEdges.Input;
 export type CssInput = TCss.Style.Input;
 export type { Keyboard, LocalStorage } from '@sys/ui-dom/t';
 export type { CropmarksProps, KeyValue, ObjectViewProps, TextInput } from '@sys/ui-components/t';
-export type { DevCtx } from '@sys/ui-react-devharness/react/t';
+export type { DevCtx } from '@sys/ui-dev/react/devharness/t';
 export type { PointerEventsHandler } from '@sys/ui-react/t';
 
 /**

@@ -14,7 +14,7 @@ export type { SpecImports, TestingDir } from '@sys/testing/t';
 import type * as TCss from '@sys/ui-css/t';
 export type CssInput = TCss.Style.Input;
 export type { Keyboard } from '@sys/ui-dom/t';
-export type { DevCtx } from '@sys/ui-react-devharness/react/t';
+export type { DevCtx } from '@sys/ui-dev/react/devharness/t';
 
 /**
  * @local
