@@ -25,7 +25,7 @@ export type {
   BulletList,
   HttpOrigin as HttpOriginBase,
   UrlTree,
-} from '@sys/ui-react-components/t';
+} from '@sys/ui-components/t';
 export type { DevCtx, DevSpec } from '@sys/ui-react-devharness/react/t';
 export type * from '@sys/model-slug/client';
 export type * from '@sys/model-slug/types';

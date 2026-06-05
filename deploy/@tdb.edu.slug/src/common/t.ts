@@ -46,7 +46,7 @@ export type {
   TreeViewNode,
   TreeViewNodeList,
   VideoDecks,
-} from '@sys/ui-react-components/t';
+} from '@sys/ui-components/t';
 export type { TimecodeState } from '@sys/ui-state/t';
 
 /** User interface: Testing */

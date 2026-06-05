@@ -5,7 +5,7 @@ import { SourceSans3 } from '../u.family.source-sans-3.ts';
 
 describe(`WebFonts`, () => {
   it('API', async () => {
-    const m = await import('@sys/ui-react-components/fonts');
+    const m = await import('@sys/ui-components/fonts');
     expect(m.useFontBundle).to.equal(useFontBundle);
     expect(m.Fonts).to.equal(Fonts);
 

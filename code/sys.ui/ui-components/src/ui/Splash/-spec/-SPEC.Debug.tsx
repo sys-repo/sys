@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 import { type t, Color, css, D, LocalStorage, Obj, pkg, Signal } from './common.ts';
 
-const PkgFlags = ['not-specified', '@sys/ui-react-components', 'custom'] as const;
+const PkgFlags = ['not-specified', '@sys/ui-components', 'custom'] as const;
 
 type P = t.Splash.Props;
 type Storage = Pick<P, 'debug' | 'theme' | 'keyboardEnabled' | 'qs'> & {
@@ -12,7 +12,7 @@ const defaults: Storage = {
   debug: false,
   theme: 'Light',
   keyboardEnabled: D.keyboardEnabled,
-  pkg: '@sys/ui-react-components',
+  pkg: '@sys/ui-components',
   qs: undefined,
 };
 
@@ -45,7 +45,7 @@ export async function createDebugSignals() {
     get pkg(): P['pkg'] {
       const v = p.pkg.value;
       if (v === 'not-specified') return;
-      if (v === '@sys/ui-react-components') return pkg;
+      if (v === '@sys/ui-components') return pkg;
       if (v === 'custom') return { name: '@scope/my-package', version: '0.1.2' };
     },
   };

@@ -34,7 +34,7 @@ describe('ViteConfig.app', () => {
 
     expect(result).to.eql(null);
     expect(source.includes('ui-react-devharness/react/hooks')).to.eql(true);
-    expect(source.includes('ui-react-components/button')).to.eql(true);
+    expect(source.includes('ui-components/button')).to.eql(true);
     expect(source.includes(`from '@sys/ui-react-devharness';`)).to.eql(false);
     expect(source.includes(`from "@sys/ui-react-devharness";`)).to.eql(false);
   });
@@ -53,7 +53,7 @@ describe('ViteConfig.app', () => {
 
     expect(names.includes('sys:optimize-imports')).to.eql(false);
     expect(optimize).to.eql(undefined);
-    expect(source.includes(`from '@sys/ui-react-components/button'`)).to.eql(true);
+    expect(source.includes(`from '@sys/ui-components/button'`)).to.eql(true);
     expect(source.includes(`from '@sys/ui-react-devharness/react/hooks'`)).to.eql(true);
   });
 });

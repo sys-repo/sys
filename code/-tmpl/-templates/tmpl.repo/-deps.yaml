@@ -49,11 +49,11 @@ deno.json:
     subpaths: [ t ]
   - import: jsr:@sys/ui-react@0.0.328
     subpaths: [ t ]
-  - import: jsr:@sys/ui-react-components@0.0.293
+  - import: jsr:@sys/ui-components@0.0.293
     subpaths: [ button, cropmarks, icon, key-value, object-view, splash, t ]
   - import: jsr:@sys/ui-react-devharness@0.0.327
     subpaths: [ react, react/t ]
-  - import: jsr:@sys/workspace@0.0.110
+  - import: jsr:@sys/workspace@0.0.111
     subpaths: [ cli, t, testing ]
   - import: jsr:@sys/yaml@0.0.169
     subpaths: [ t ]

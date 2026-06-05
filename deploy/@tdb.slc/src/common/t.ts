@@ -29,7 +29,7 @@ export type {
   VideoElementProps,
   VideoPlayerSignals,
   VimeoIFrame,
-} from '@sys/ui-react-components/t';
+} from '@sys/ui-components/t';
 export type { DevCtx } from '@sys/ui-react-devharness/react/t';
 
 export type { Crdt } from '@sys/driver-automerge/t';

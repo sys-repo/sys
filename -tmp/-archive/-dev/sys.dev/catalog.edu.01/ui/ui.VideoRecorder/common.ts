@@ -4,8 +4,8 @@ export * from '../common.ts';
 /**
  * Libs:
  */
-export { Media } from '@sys/ui-react-components/media';
-export { Spinners } from '@sys/ui-react-components/spinners';
+export { Media } from '@sys/ui-components/media';
+export { Spinners } from '@sys/ui-components/spinners';
 export { Icons } from '../ui.Icons.ts';
 
 /**

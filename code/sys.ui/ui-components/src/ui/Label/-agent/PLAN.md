@@ -235,5 +235,5 @@ This is done when:
 
 Likely sequence:
 
-1. `feat(ui-react-components): add Label primitive for measured text truncation`
-2. `refactor(ui-react-components): use Label for Http.Origin value truncation`
+1. `feat(ui-components): add Label primitive for measured text truncation`
+2. `refactor(ui-components): use Label for Http.Origin value truncation`

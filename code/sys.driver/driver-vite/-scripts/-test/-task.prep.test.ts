@@ -203,9 +203,9 @@ describe('driver-vite prep', () => {
       (await Fs.readJson<{ imports?: Record<string, string> }>(`${SAMPLE.Dirs.samplePublishedUiComponents}/imports.json`))
         .data?.imports ?? {};
 
-    expect(imports['@sys/ui-react-components']).to.match(/^jsr:@sys\/ui-react-components@\d+\.\d+\.\d+$/);
-    expect(imports['@sys/ui-react-components/button']).to.match(
-      /^jsr:@sys\/ui-react-components@\d+\.\d+\.\d+\/button$/,
+    expect(imports['@sys/ui-components']).to.match(/^jsr:@sys\/ui-components@\d+\.\d+\.\d+$/);
+    expect(imports['@sys/ui-components/button']).to.match(
+      /^jsr:@sys\/ui-components@\d+\.\d+\.\d+\/button$/,
     );
   });
 

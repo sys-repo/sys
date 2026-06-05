@@ -4,7 +4,7 @@ Primitive components for system UI composition.
 # Example
 
 ```tsx
-import { Button } from '@sys/ui-react-components/button';
+import { Button } from '@sys/ui-components/button';
 
 function MyComponent(props: { text: string }) {
   return <Button>{props.text}</Button>;

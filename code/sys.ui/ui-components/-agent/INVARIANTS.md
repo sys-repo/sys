@@ -1,7 +1,7 @@
-# EVERGREEN NOTES — @sys/ui-react-components public leaf policy
+# EVERGREEN NOTES — @sys/ui-components public leaf policy
 
 ## Scope
-- Package: `code/sys.ui/ui-react-components`
+- Package: `code/sys.ui/ui-components`
 - Purpose of this note: retain the durable public-surface policy after the leaf export upgrade was landed.
 
 ## Landed truth
@@ -11,7 +11,7 @@ The package now follows a compatibility-preserving leaf-export posture:
 - docs and package proofs now acknowledge the leaf surface explicitly
 
 Representative landed work:
-- `refactor(ui-react-components): add leaf exports for public component modules`
+- `refactor(ui-components): add leaf exports for public component modules`
 - focused export-surface proof added under `src/-test/-exports.leaf.test.ts`
 - README examples updated to prefer leaf imports
 
@@ -47,7 +47,7 @@ When adding a new public component/module:
 Run from:
 
 ```bash
-cd /Users/phil/code/org.sys/sys/code/sys.ui/ui-react-components
+cd /Users/phil/code/org.sys/sys/code/sys.ui/ui-components
 ```
 
 Baseline package proof:

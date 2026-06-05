@@ -81,7 +81,7 @@ describe(`@sys/cell/cli service status formatter`, () => {
           metrics: { start: { startedAt: now, resolvedAt: now } },
           owner: {
             state: 'ready',
-            root: '/Users/phil/code/org.sys/sys/code/sys.ui/ui-react-components/dist' as t.StringDir,
+            root: '/Users/phil/code/org.sys/sys/code/sys.ui/ui-components/dist' as t.StringDir,
           },
         }],
       }));

@@ -22,7 +22,7 @@ export type {
   ButtonFlags,
   ObjectViewProps,
   TreeHostViewNodeList,
-} from '@sys/ui-react-components/t';
+} from '@sys/ui-components/t';
 export type { DevCtx } from '@sys/ui-react-devharness/react/t';
 export type { FC } from '@sys/ui-react/t';
 export type {

@@ -445,7 +445,7 @@ describe('EndpointsFs', () => {
       const yamlPath = `${tmp}/${EndpointsFs.fileOf('refactor')}`;
       await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
 
-      await Fs.ensureDir(`${tmp}/repo-root/sys.ui/ui-react-components`);
+      await Fs.ensureDir(`${tmp}/repo-root/sys.ui/ui-components`);
 
       const yaml = Str.dedent(`
         source:
@@ -455,8 +455,8 @@ describe('EndpointsFs', () => {
         mappings:
           - mode: build+copy
             dir:
-              source: ./sys.ui/ui-react-components
-              staging: dist/ui-react-components
+              source: ./sys.ui/ui-components
+              staging: dist/ui-components
       `);
 
       await Fs.write(yamlPath, yaml);
@@ -645,7 +645,7 @@ describe('EndpointsFs', () => {
           - mode: copy
             dir:
               source: ./code/my-modules/ui.foo.bar
-              staging: ui-react-components
+              staging: ui-components
       `);
 
       await Fs.write(yamlPath, yaml);

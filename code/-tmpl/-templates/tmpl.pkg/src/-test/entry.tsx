@@ -62,7 +62,7 @@ export async function main() {
    * Entry/Splash:
    */
   async function renderSplash() {
-    const { Splash } = await import('@sys/ui-react-components/splash');
+    const { Splash } = await import('@sys/ui-components/splash');
     root.render(
       <React.StrictMode>
         <Splash.UI pkg={pkg} style={{ Absolute: 0 }} />

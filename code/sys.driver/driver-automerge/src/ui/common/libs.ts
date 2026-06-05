@@ -15,16 +15,16 @@ export {
   useSizeObserver,
 } from '@sys/ui-react';
 
-export { Bullet } from '@sys/ui-react-components/bullet';
-export { Button } from '@sys/ui-react-components/button';
-export { Cropmarks } from '@sys/ui-react-components/cropmarks';
-export { ErrorBoundary } from '@sys/ui-react-components/error-boundary';
-export { KeyValue } from '@sys/ui-react-components/key-value';
-export { ObjectView } from '@sys/ui-react-components/object-view';
-export { Spinners } from '@sys/ui-react-components/spinners';
-export { SplitPane } from '@sys/ui-react-components/layout/split-pane';
-export { Switch, SwitchTheme } from '@sys/ui-react-components/buttons/switch';
-export { TextInput } from '@sys/ui-react-components/text';
+export { Bullet } from '@sys/ui-components/bullet';
+export { Button } from '@sys/ui-components/button';
+export { Cropmarks } from '@sys/ui-components/cropmarks';
+export { ErrorBoundary } from '@sys/ui-components/error-boundary';
+export { KeyValue } from '@sys/ui-components/key-value';
+export { ObjectView } from '@sys/ui-components/object-view';
+export { Spinners } from '@sys/ui-components/spinners';
+export { SplitPane } from '@sys/ui-components/layout/split-pane';
+export { Switch, SwitchTheme } from '@sys/ui-components/buttons/switch';
+export { TextInput } from '@sys/ui-components/text';
 
 /**
  * local:

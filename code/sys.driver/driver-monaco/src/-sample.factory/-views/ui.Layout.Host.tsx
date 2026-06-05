@@ -1,6 +1,6 @@
-import { Cropmarks } from '@sys/ui-react-components/cropmarks';
-import { CenterColumn } from '@sys/ui-react-components/layout/center-column';
-import {} from '@sys/ui-react-components/t';
+import { Cropmarks } from '@sys/ui-components/cropmarks';
+import { CenterColumn } from '@sys/ui-components/layout/center-column';
+import {} from '@sys/ui-components/t';
 
 import React from 'react';
 import { Color, css, type t } from '../common.ts';

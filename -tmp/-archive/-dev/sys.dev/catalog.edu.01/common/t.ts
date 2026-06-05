@@ -40,7 +40,7 @@ export type {
   ObjectViewProps,
   TreeViewNode,
   TreeViewNodeList,
-} from '@sys/ui-react-components/t';
+} from '@sys/ui-components/t';
 
 /** Type Schema: */
 export type { Schema, SpecWith } from '@sys/schema/t';

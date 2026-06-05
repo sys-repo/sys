@@ -10,7 +10,7 @@ describe('OptimizeImportsPlugin.deriveWorkspacePackageRules', () => {
     const devharness = rules.find((rule) => rule.packageId === '@sys/ui-react-devharness');
     expect(devharness).to.eql(undefined);
 
-    const components = rules.find((rule) => rule.packageId === '@sys/ui-react-components');
+    const components = rules.find((rule) => rule.packageId === '@sys/ui-components');
     expect(components).to.eql(undefined);
   });
 });

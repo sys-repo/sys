@@ -38,9 +38,9 @@ import { IndexTreeView } from '../ui/TreeView.Index/mod.ts';
 import { TreeView } from '../ui/TreeView/mod.ts';
 import { VimeoBackground } from '../ui/VimeoBackground/mod.ts';
 
-describe('@sys/ui-react-components leaf exports', () => {
+describe('@sys/ui-components leaf exports', () => {
   it('keeps the root export minimal and package-only', async () => {
-    const root = await import('@sys/ui-react-components');
+    const root = await import('@sys/ui-components');
     expect(root.pkg).to.equal(pkg);
     expect('Button' in root).to.eql(false);
     expect('Media' in root).to.eql(false);
@@ -78,33 +78,33 @@ describe('@sys/ui-react-components leaf exports', () => {
       treeViewIndex,
       vimeoBackground,
     ] = await Promise.all([
-      import('@sys/ui-react-components/action-probe'),
-      import('@sys/ui-react-components/anchor'),
-      import('@sys/ui-react-components/bullet'),
-      import('@sys/ui-react-components/bullet-list'),
-      import('@sys/ui-react-components/button'),
-      import('@sys/ui-react-components/buttons'),
-      import('@sys/ui-react-components/buttons/icons'),
-      import('@sys/ui-react-components/buttons/switch'),
-      import('@sys/ui-react-components/cropmarks'),
-      import('@sys/ui-react-components/error-boundary'),
-      import('@sys/ui-react-components/fade-element'),
-      import('@sys/ui-react-components/http-origin'),
-      import('@sys/ui-react-components/icon'),
-      import('@sys/ui-react-components/icon-swatches'),
-      import('@sys/ui-react-components/iframe'),
-      import('@sys/ui-react-components/image/svg'),
-      import('@sys/ui-react-components/key-value'),
-      import('@sys/ui-react-components/object-view'),
-      import('@sys/ui-react-components/path-view'),
-      import('@sys/ui-react-components/preload'),
-      import('@sys/ui-react-components/prose'),
-      import('@sys/ui-react-components/sheet'),
-      import('@sys/ui-react-components/slider'),
-      import('@sys/ui-react-components/spinners'),
-      import('@sys/ui-react-components/tree-view'),
-      import('@sys/ui-react-components/tree-view/index'),
-      import('@sys/ui-react-components/vimeo-background'),
+      import('@sys/ui-components/action-probe'),
+      import('@sys/ui-components/anchor'),
+      import('@sys/ui-components/bullet'),
+      import('@sys/ui-components/bullet-list'),
+      import('@sys/ui-components/button'),
+      import('@sys/ui-components/buttons'),
+      import('@sys/ui-components/buttons/icons'),
+      import('@sys/ui-components/buttons/switch'),
+      import('@sys/ui-components/cropmarks'),
+      import('@sys/ui-components/error-boundary'),
+      import('@sys/ui-components/fade-element'),
+      import('@sys/ui-components/http-origin'),
+      import('@sys/ui-components/icon'),
+      import('@sys/ui-components/icon-swatches'),
+      import('@sys/ui-components/iframe'),
+      import('@sys/ui-components/image/svg'),
+      import('@sys/ui-components/key-value'),
+      import('@sys/ui-components/object-view'),
+      import('@sys/ui-components/path-view'),
+      import('@sys/ui-components/preload'),
+      import('@sys/ui-components/prose'),
+      import('@sys/ui-components/sheet'),
+      import('@sys/ui-components/slider'),
+      import('@sys/ui-components/spinners'),
+      import('@sys/ui-components/tree-view'),
+      import('@sys/ui-components/tree-view/index'),
+      import('@sys/ui-components/vimeo-background'),
     ]);
 
     expect(actionProbe.ActionProbe).to.equal(ActionProbe);
@@ -140,14 +140,14 @@ describe('@sys/ui-react-components leaf exports', () => {
 
   it('exports the layout and player leaves', async () => {
     const [centerColumn, rectGrid, splitPane, tabs, treeHost, media, player, youTube] = await Promise.all([
-      import('@sys/ui-react-components/layout/center-column'),
-      import('@sys/ui-react-components/layout/rect-grid'),
-      import('@sys/ui-react-components/layout/split-pane'),
-      import('@sys/ui-react-components/layout/tabs'),
-      import('@sys/ui-react-components/layout/tree-host'),
-      import('@sys/ui-react-components/media'),
-      import('@sys/ui-react-components/player'),
-      import('@sys/ui-react-components/player/youtube'),
+      import('@sys/ui-components/layout/center-column'),
+      import('@sys/ui-components/layout/rect-grid'),
+      import('@sys/ui-components/layout/split-pane'),
+      import('@sys/ui-components/layout/tabs'),
+      import('@sys/ui-components/layout/tree-host'),
+      import('@sys/ui-components/media'),
+      import('@sys/ui-components/player'),
+      import('@sys/ui-components/player/youtube'),
     ]);
 
     expect(centerColumn.CenterColumn).to.equal(CenterColumn);
