@@ -20,8 +20,8 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./react/t": "./src/m.react/t.ts",
-    "./react/files": "./src/m.react/ui.files/mod.ts"
+    "./react/t": "./src/ui.react/t.ts",
+    "./react/files": "./src/ui.react/ui.files/mod.ts"
   },
   "permissions": {
     "clean": { "read": true, "write": true, "env": true },
