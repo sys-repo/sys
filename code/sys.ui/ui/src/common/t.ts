@@ -13,7 +13,6 @@ export type { Files } from '@sys/model/files/t';
 export type { ColorTheme } from '@sys/color/t';
 export type { SpecImports } from '@sys/testing/t';
 export type { Style } from '@sys/ui-css/t';
-export type { KeyValue } from '@sys/ui-react-components/t';
 
 /**
  * @local

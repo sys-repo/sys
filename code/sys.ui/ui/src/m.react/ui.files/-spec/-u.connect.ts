@@ -1,5 +1,5 @@
 import type { DebugSignals } from './-SPEC.Debug.tsx';
-import { Err, FilesBase, SPEC, type t } from './-common.ts';
+import { Err, FilesBase, SPEC, type t } from './common.ts';
 
 let active: t.Files.Client.WebSocket | undefined;
 

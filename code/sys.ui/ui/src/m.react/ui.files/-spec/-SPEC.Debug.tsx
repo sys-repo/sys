@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Color, css, D, Err, LocalStorage, ObjectView, Signal, type t } from './-common.ts';
+import { Button, Color, css, D, Err, LocalStorage, ObjectView, Signal, type t } from './common.ts';
 import { connect, disconnect } from './-u.connect.ts';
 
 type P = t.FileInfoPanel.Props;
@@ -116,30 +116,24 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button block label={() => `connect cell files`} onClick={() => void connect(debug)} />
-      <Button block label={() => `disconnect cell files`} onClick={() => void disconnect(debug)} />
+      <Button block label={() => `connect`} onClick={() => void connect(debug)} />
+      <Button block label={() => `disconnect`} onClick={() => void disconnect(debug)} />
 
       <hr />
       <Button
         block
         label={() => `snapshot: stopped`}
-        onClick={() => {
-          p.snapshot.value = snapshots.stopped;
-        }}
+        onClick={() => p.snapshot.value = snapshots.stopped}
       />
       <Button
         block
         label={() => `snapshot: ready`}
-        onClick={() => {
-          p.snapshot.value = snapshots.ready;
-        }}
+        onClick={() => p.snapshot.value = snapshots.ready}
       />
       <Button
         block
         label={() => `snapshot: error`}
-        onClick={() => {
-          p.snapshot.value = snapshots.error;
-        }}
+        onClick={() => p.snapshot.value = snapshots.error}
       />
 
       <hr />

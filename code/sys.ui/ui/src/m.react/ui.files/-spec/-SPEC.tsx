@@ -1,5 +1,4 @@
-import { Dev, Signal, Spec } from './-common.ts';
-import { D } from '../common.ts';
+import { D, Dev, Signal, Spec } from './common.ts';
 import { Files } from '../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
