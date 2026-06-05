@@ -4,7 +4,7 @@ import { Markdown } from '../ui.tsx';
 
 describe('Prose.Markdown', () => {
   it('API', async () => {
-    const m = await import('@sys/ui-components/prose');
+    const m = await import('@sys/ui-components/react/prose');
     expect(m.Prose.Markdown).to.equal(ProseMarkdown);
     expect(ProseMarkdown.UI).to.equal(Markdown);
   });

@@ -5,7 +5,7 @@ export * from '../common.ts';
  * Libs:
  */
 export { Crdt } from '@sys/driver-automerge/web/ui';
-export { Media } from '@sys/ui-components';
+export { Media } from '@sys/ui-components/react/media';
 
 /**
  * Constants:

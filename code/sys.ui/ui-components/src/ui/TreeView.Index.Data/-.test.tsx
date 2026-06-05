@@ -7,7 +7,7 @@ import { toSeq } from './u.ts';
 
 describe('TreeView.Index', () => {
   it('API', async () => {
-    const m = await import('@sys/ui-components/tree-view/index');
+    const m = await import('@sys/ui-components/react/tree-view/index');
     expect(m.IndexTreeView.Data.Yaml).to.equal(Yaml);
     expect(m.IndexTreeView.Data).to.equal(Data);
     expect(Data.Is).to.equal(Is);

@@ -4,9 +4,9 @@ import { TextEllipsize } from '../../Text.Ellipsize/mod.ts';
 import { TextInput } from '../../Text.Input/mod.ts';
 import { Text } from '../mod.ts';
 
-describe(`@sys/ui-components/text`, () => {
+describe(`@sys/ui-components/react/text`, () => {
   it('API', async () => {
-    const m = await import('@sys/ui-components/text');
+    const m = await import('@sys/ui-components/react/text');
     expect(m.Text).to.equal(Text);
     expect(m.TextInput).to.equal(TextInput);
     expect(m.TextEllipsize).to.equal(TextEllipsize);

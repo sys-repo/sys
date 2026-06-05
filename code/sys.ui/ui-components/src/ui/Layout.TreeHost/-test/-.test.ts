@@ -8,7 +8,7 @@ import { shouldRenderEmpty } from '../u.slot.ts';
 
 describe('Layout.TreeHost', () => {
   it('API', async () => {
-    const m = await import('@sys/ui-components/layout/tree-host');
+    const m = await import('@sys/ui-components/react/layout/tree-host');
     expect(m.TreeHost).to.equal(TreeHost);
     expect(TreeHost.Data).to.equal(Data);
   });

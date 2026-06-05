@@ -50,7 +50,22 @@ deno.json:
   - import: jsr:@sys/ui-react@0.0.328
     subpaths: [ t ]
   - import: jsr:@sys/ui-components@0.0.293
-    subpaths: [ button, cropmarks, icon, key-value, object-view, splash, t ]
+    subpaths:
+      [
+        button,
+        cropmarks,
+        icon,
+        key-value,
+        object-view,
+        react/button,
+        react/cropmarks,
+        react/icon,
+        react/key-value,
+        react/object-view,
+        react/splash,
+        splash,
+        t
+      ]
   - import: jsr:@sys/ui-react-devharness@0.0.327
     subpaths: [ react, react/t ]
   - import: jsr:@sys/workspace@0.0.111

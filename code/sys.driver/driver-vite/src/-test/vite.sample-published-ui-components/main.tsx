@@ -1,4 +1,4 @@
-import { Button } from '@sys/ui-components/button';
+import { Button } from '@sys/ui-components/react/button';
 import { useKeyboard } from '@sys/ui-react-devharness/react/hooks';
 import { dirname, format, toNamespacedPath } from '@std/path';
 

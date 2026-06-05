@@ -25,6 +25,7 @@ async function derivePackageRule(
 
   const pkgDir = Path.join(workspaceDir, child.path.dir);
   const rootSymbols = await readValueExports(Path.join(pkgDir, rootTarget));
+  rootSymbols.delete('pkg');
   if (rootSymbols.size === 0) return undefined;
 
   const candidates = new Map<string, string>();

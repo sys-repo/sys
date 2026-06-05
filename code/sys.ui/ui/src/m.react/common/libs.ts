@@ -6,5 +6,5 @@ export { Signal } from '@sys/ui-react';
 /**
  * React component primitives:
  */
-export { Bullet } from '@sys/ui-components/bullet';
-export { KeyValue } from '@sys/ui-components/key-value';
+export { Bullet } from '@sys/ui-components/react/bullet';
+export { KeyValue } from '@sys/ui-components/react/key-value';

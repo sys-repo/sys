@@ -1,5 +1,5 @@
-import { Cropmarks } from '@sys/ui-components/cropmarks';
-import { CenterColumn } from '@sys/ui-components/layout/center-column';
+import { Cropmarks } from '@sys/ui-components/react/cropmarks';
+import { CenterColumn } from '@sys/ui-components/react/layout/center-column';
 import {} from '@sys/ui-components/t';
 
 import React from 'react';

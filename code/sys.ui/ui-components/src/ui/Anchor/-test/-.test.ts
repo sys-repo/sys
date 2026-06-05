@@ -16,7 +16,7 @@ describe('Anchor', () => {
   DomMock.init({ beforeEach, afterEach });
 
   it('API', async () => {
-    const m = await import('@sys/ui-components/anchor');
+    const m = await import('@sys/ui-components/react/anchor');
     expect(m.A).to.equal(A);
     expect(m.Anchor).to.equal(Anchor);
     expect(m.Anchor.UI).to.equal(A);

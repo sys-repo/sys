@@ -1,4 +1,4 @@
-import { Icon } from '@sys/ui-components';
+import { Icon } from '@sys/ui-components/react/icon';
 import { BiCube, BiSolidCube } from 'react-icons/bi';
 import { FiExternalLink, FiLink } from 'react-icons/fi';
 import { HiMiniCommandLine } from 'react-icons/hi2';

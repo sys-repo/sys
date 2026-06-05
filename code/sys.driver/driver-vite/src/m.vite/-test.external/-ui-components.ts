@@ -44,7 +44,7 @@ describe('Vite published external smoke (ui-components dev)', () => {
         expect(entry.text.includes(`from '@sys/ui-react-devharness';`)).to.eql(false);
         expect(entry.text.includes(`from "@sys/ui-react-devharness";`)).to.eql(false);
 
-        const buttonUrl = directImport(entry.imports, '@sys/ui-components/button', 'ui-components/button');
+        const buttonUrl = directImport(entry.imports, '@sys/ui-components/react/button', 'ui-components/react/button');
         const devHarnessUrl = directImport(
           entry.imports,
           '@sys/ui-react-devharness/react/hooks',

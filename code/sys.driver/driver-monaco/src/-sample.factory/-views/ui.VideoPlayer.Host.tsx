@@ -1,4 +1,4 @@
-import { Player } from '@sys/ui-components/player';
+import { Player } from '@sys/ui-components/react/player';
 import React from 'react';
 
 import type { VideoSchema } from '../-schemas/mod.ts';

@@ -1,4 +1,4 @@
-import { Icon } from '@sys/ui-components/icon';
+import { Icon } from '@sys/ui-components/react/icon';
 import {
   MdAdd,
   MdArrowBack,

@@ -6,7 +6,7 @@ import { AspectRatio, Is, Media } from '../mod.ts';
 
 describe('Media', () => {
   it('API', async () => {
-    const { Media: LeafImport } = await import('@sys/ui-components/media');
+    const { Media: LeafImport } = await import('@sys/ui-components/react/media');
     expect(Media).to.equal(LeafImport);
     expect(Media.Video).to.equal(Video);
     expect(Media.Recorder).to.equal(Recorder);

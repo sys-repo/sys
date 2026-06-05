@@ -204,8 +204,8 @@ describe('driver-vite prep', () => {
         .data?.imports ?? {};
 
     expect(imports['@sys/ui-components']).to.match(/^jsr:@sys\/ui-components@\d+\.\d+\.\d+$/);
-    expect(imports['@sys/ui-components/button']).to.match(
-      /^jsr:@sys\/ui-components@\d+\.\d+\.\d+\/button$/,
+    expect(imports['@sys/ui-components/react/button']).to.match(
+      /^jsr:@sys\/ui-components@\d+\.\d+\.\d+\/react\/button$/,
     );
   });
 
