@@ -42,11 +42,11 @@ export async function main() {
    * DevHarness:
    */
   async function renderDev() {
-    const { render, useKeyboard } = await import('@sys/ui-react-devharness');
+    const { render, useKeyboard } = await import('@sys/ui-react-devharness/react');
     const { Specs } = await import('./-specs.ts');
     const el = await render(pkg, Specs, {
       style: { Absolute: 0 },
-      hr: (e) => {},
+      hr(e) {},
     });
 
     function App() {
@@ -62,8 +62,12 @@ export async function main() {
    * Entry/Splash:
    */
   async function renderSplash() {
-    const { Splash } = await import('./entry.splash.tsx');
-    root.render(<React.StrictMode>{<Splash />}</React.StrictMode>);
+    const { Splash } = await import('@sys/ui-react-components/splash');
+    root.render(
+      <React.StrictMode>
+        <Splash.UI pkg={pkg} style={{ Absolute: 0 }} />
+      </React.StrictMode>,
+    );
   }
 
   if (isDev) {

@@ -39,12 +39,12 @@
     "@sys/testing/server": "jsr:@sys/testing@0.0.308/server",
     "@sys/testing/t": "jsr:@sys/testing@0.0.308/t",
     "@sys/types": "jsr:@sys/types@0.0.292",
-    "@sys/tmpl": "jsr:@sys/tmpl@0.0.419",
-    "@sys/tmpl/t": "jsr:@sys/tmpl@0.0.419/t",
+    "@sys/tmpl": "jsr:@sys/tmpl@0.0.420",
+    "@sys/tmpl/t": "jsr:@sys/tmpl@0.0.420/t",
     "@sys/tmpl-engine": "jsr:@sys/tmpl-engine@0.0.320",
     "@sys/tmpl-engine/t": "jsr:@sys/tmpl-engine@0.0.320/t",
-    "@sys/tools": "jsr:@sys/tools@0.0.435",
-    "@sys/tools/t": "jsr:@sys/tools@0.0.435/t",
+    "@sys/tools": "jsr:@sys/tools@0.0.436",
+    "@sys/tools/t": "jsr:@sys/tools@0.0.436/t",
     "@sys/ui-css": "jsr:@sys/ui-css@0.0.288",
     "@sys/ui-css/t": "jsr:@sys/ui-css@0.0.288/t",
     "@sys/ui-dom": "jsr:@sys/ui-dom@0.0.297",
@@ -67,7 +67,10 @@
     "@sys/ui-react-components/key-value": "jsr:@sys/ui-react-components@0.0.292/key-value",
     "@sys/ui-react-components/object-view": "jsr:@sys/ui-react-components@0.0.292/object-view",
     "react-icons/md": "npm:react-icons@5.6.0/md",
-    "vite": "npm:vite@8.0.16"
+    "vite": "npm:vite@8.0.16",
+    "@sys/ui-react-components/splash": "jsr:@sys/ui-react-components@0.0.292/splash",
+    "@sys/ui-react-devharness/react": "jsr:@sys/ui-react-devharness@0.0.326/react",
+    "@sys/ui-react-devharness/react/t": "jsr:@sys/ui-react-devharness@0.0.326/react/t"
   }
 }
 

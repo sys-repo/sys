@@ -36,11 +36,11 @@ deno.json:
       ]
   - import: jsr:@sys/testing@0.0.308
     subpaths: [ server, t ]
-  - import: jsr:@sys/tmpl@0.0.419
+  - import: jsr:@sys/tmpl@0.0.420
     subpaths: [ t ]
   - import: jsr:@sys/tmpl-engine@0.0.320
     subpaths: [ t ]
-  - import: jsr:@sys/tools@0.0.435
+  - import: jsr:@sys/tools@0.0.436
     subpaths: [ t ]
   - import: jsr:@sys/types@0.0.292
   - import: jsr:@sys/ui-css@0.0.288
@@ -50,9 +50,9 @@ deno.json:
   - import: jsr:@sys/ui-react@0.0.328
     subpaths: [ t ]
   - import: jsr:@sys/ui-react-components@0.0.292
-    subpaths: [ button, cropmarks, icon, key-value, object-view, t ]
+    subpaths: [ button, cropmarks, icon, key-value, object-view, splash, t ]
   - import: jsr:@sys/ui-react-devharness@0.0.326
-    subpaths: [ t ]
+    subpaths: [ react, react/t ]
   - import: jsr:@sys/workspace@0.0.110
     subpaths: [ cli, t, testing ]
   - import: jsr:@sys/yaml@0.0.169

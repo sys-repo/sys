@@ -26,7 +26,7 @@ if ('serviceWorker' in navigator && !import.meta.env.DEV) {
 /**
  * Render UI:
  */
-console.info(`DevHarness entry → ${pkg.name}`);
+console.info('🐷 ./entry.tsx → Pkg:💦', pkg);
 const document = globalThis.document;
 if (document) {
   document.title = pkg.name;
@@ -46,7 +46,7 @@ export async function main() {
     const { Specs } = await import('./-specs.ts');
     const el = await render(pkg, Specs, {
       style: { Absolute: 0 },
-      hr: () => {},
+      hr(e) {},
     });
 
     function App() {
@@ -54,16 +54,23 @@ export async function main() {
       return el;
     }
 
-    const app = <App />;
-    root.render(<React.StrictMode>{app}</React.StrictMode>);
+    root.render(
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>,
+    );
   }
 
   /**
    * Entry/Splash:
    */
   async function renderSplash() {
-    const { Splash } = await import('./entry.splash.tsx');
-    root.render(<React.StrictMode>{<Splash />}</React.StrictMode>);
+    const { Splash } = await import('@sys/ui-react-components/splash');
+    root.render(
+      <React.StrictMode>
+        <Splash.UI pkg={pkg} style={{ Absolute: 0 }} />
+      </React.StrictMode>,
+    );
   }
 
   if (isDev) {
