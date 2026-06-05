@@ -3,8 +3,9 @@ import { pkg } from '../pkg.ts';
 import type { t } from './common.ts';
 import { canonicalRemoteSpecifier } from './u.specifier.ts';
 
-const CACHE_VERSION = 'vite.transport.transform.v1';
-const ESBUILD_VERSION = '0.27.1';
+const CACHE_VERSION = 'vite.transport.transform.v2';
+// Synced from root deps.yaml by `deno task prep` via `-scripts/task.prep.ts`.
+const DENO_LOADER_VERSION = '0.5.0';
 const SUPPORTED_LOADERS = new Set<t.DenoLoader>(['JSX', 'TSX', 'TypeScript']);
 
 type CachePlanArgs = {
@@ -47,7 +48,7 @@ export const TransformCache = {
     const key = wrangle.digest(Json.stringify({
       version: CACHE_VERSION,
       driver: pkg.version,
-      esbuild: ESBUILD_VERSION,
+      denoLoader: DENO_LOADER_VERSION,
       loader: args.loader,
       sourceId,
       sourceHash,

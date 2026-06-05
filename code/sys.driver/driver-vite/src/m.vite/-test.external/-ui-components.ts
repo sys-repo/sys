@@ -23,7 +23,7 @@ describe(
         expect(js.length > 0).to.eql(true);
         expect(js.includes('Button')).to.eql(true);
         expect(js.includes('ui-components')).to.eql(true);
-        expect(js.includes('ui-dev')).to.eql(true);
+        expect(js.includes('@sys/ui-dev/react/devharness/hooks')).to.eql(true);
       });
     });
   },

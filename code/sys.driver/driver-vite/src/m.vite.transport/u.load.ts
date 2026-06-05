@@ -1,6 +1,6 @@
 import { Perf } from '../common/u.perf.ts';
 import { Fs, Path, type t } from './common.ts';
-import { transformSync } from 'npm:esbuild@0.27.1';
+import { RequestedModuleType, Workspace } from '@deno/loader';
 import { TransformCache } from './u.cache.ts';
 import { toViteNpmSpecifier } from './u.npm.ts';
 import { canonicalRemoteSpecifier, parseDenoSpecifier, toDenoSpecifier } from './u.specifier.ts';
@@ -93,68 +93,36 @@ export async function loadDenoModule(
   return result;
 }
 
-async function transformModule(content: string, loader: t.DenoLoader, sourcefile: string) {
-  const cli = Deno.env.get('ESBUILD_BINARY_PATH')?.trim();
-  if (cli) return await transformModuleWithCli({ cli, content, loader, sourcefile });
-
-  const end = Perf.section('transport.transform.esbuildSync', { loader, sourcefile }, {
+async function transformModule(_content: string, loader: t.DenoLoader, sourcefile: string) {
+  const end = Perf.section('transport.transform.denoLoader', { loader, sourcefile }, {
     level: 3,
     thresholdMs: 10 as t.Msecs,
   });
-  const result = transformSync(content, {
-    format: 'esm',
-    loader: mediaTypeToLoader(loader),
-    logLevel: 'debug',
-  });
-  end({ bytes: result.code.length });
+  const denoLoader = await wrangle.loader();
+  const specifier = Path.toFileUrl(sourcefile).href;
+  const result = await denoLoader.load(specifier, RequestedModuleType.Default);
 
-  return {
-    code: result.code,
-    map: result.map === '' ? null : result.map,
-  } as const;
-}
-
-async function transformModuleWithCli(args: {
-  cli: string;
-  content: string;
-  loader: t.DenoLoader;
-  sourcefile: string;
-}) {
-  const end = Perf.section('transport.transform.esbuildCli', {
-    loader: args.loader,
-    sourcefile: args.sourcefile,
-  }, { level: 3, thresholdMs: 10 as t.Msecs });
-  const child = new Deno.Command(args.cli, {
-    args: [
-      '--format=esm',
-      `--loader=${mediaTypeToLoader(args.loader)}`,
-      '--log-level=debug',
-      `--sourcefile=${args.sourcefile}`,
-    ],
-    stdin: 'piped',
-    stdout: 'piped',
-    stderr: 'piped',
-  }).spawn();
-
-  const writer = child.stdin.getWriter();
-  await writer.write(new TextEncoder().encode(args.content));
-  await writer.close();
-
-  const output = await child.output();
-  if (!output.success) {
-    const stderr = new TextDecoder().decode(output.stderr);
-    const stdout = new TextDecoder().decode(output.stdout);
-    end({ ok: false });
-    throw new Error(stderr || stdout || `esbuild transform failed: ${args.sourcefile}`);
+  if (result.kind === 'external') {
+    end({ ok: false, external: true });
+    throw new Error(`Deno loader returned external module for transform: ${sourcefile}`);
   }
 
-  const code = new TextDecoder().decode(output.stdout);
-  end({ ok: true, bytes: code.length });
-  return {
-    code,
-    map: null,
-  } as const;
+  const code = wrangle.decode(result.code);
+  const map = result.sourceMap ? wrangle.decode(result.sourceMap) : null;
+  end({ bytes: code.length, map: map?.length ?? 0 });
+  return { code, map } as const;
 }
+
+const wrangle = {
+  loader: (() => {
+    let current: ReturnType<Workspace['createLoader']> | undefined;
+    return () => current ??= new Workspace().createLoader();
+  })(),
+
+  decode(input: Uint8Array) {
+    return new TextDecoder().decode(input);
+  },
+} as const;
 
 export function mediaTypeToLoader(media: string) {
   switch (media) {
