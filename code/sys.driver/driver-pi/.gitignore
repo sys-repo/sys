@@ -1,3 +1,6 @@
+# Local Pi launcher profiles
+-config/
+
 # Agent runtime/state
 .tmp/
 .pi/
