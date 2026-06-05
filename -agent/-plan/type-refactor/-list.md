@@ -55,32 +55,32 @@ Quick scan notes for modules whose root `t.ts` still exposes a flat `XxxLib` spi
 
 ### UI components with many flat spines
 
-- `code/sys.ui/ui-react-components/src/ui/Buttons/t.ts`
-- `code/sys.ui/ui-react-components/src/ui/Buttons.Icons/t.ts`
-- `code/sys.ui/ui-react-components/src/ui/Buttons.Switch/t.ts`
-- `code/sys.ui/ui-react-components/src/ui/Icon/t.ts`
-- `code/sys.ui/ui-react-components/src/ui/Icon.Swatches/t.ts`
-- `code/sys.ui/ui-react-components/src/ui/Image.Svg/t.ts`
-- `code/sys.ui/ui-react-components/src/ui/KeyValue/t.ts`
-- `code/sys.ui/ui-react-components/src/ui/Media/t.ts`
-- `code/sys.ui/ui-react-components/src/ui/Media.AudioWaveform/t.ts`
-- `code/sys.ui/ui-react-components/src/ui/Media.Config/t.ts`
-- `code/sys.ui/ui-react-components/src/ui/Media.Devices/t.ts`
-- `code/sys.ui/ui-react-components/src/ui/Media.Recorder/t.ts`
-- `code/sys.ui/ui-react-components/src/ui/Media.Timecode.PlaybackDriver/-dev/t.ts`
-- `code/sys.ui/ui-react-components/src/ui/Media.Video/t.ts`
-- `code/sys.ui/ui-react-components/src/ui/Ownership/t.ts`
-- `code/sys.ui/ui-react-components/src/ui/Player/t.ts`
-- `code/sys.ui/ui-react-components/src/ui/Player.Video.Controls/t.ts`
-- `code/sys.ui/ui-react-components/src/ui/Player.Video.Decks/t.ts`
-- `code/sys.ui/ui-react-components/src/ui/Player.Video.Signals/t.ts`
-- `code/sys.ui/ui-react-components/src/ui/Preload/t.ts`
-- `code/sys.ui/ui-react-components/src/ui/Sheet/t.ts`
-- `code/sys.ui/ui-react-components/src/ui/Spinners/t.ts`
-- `code/sys.ui/ui-react-components/src/ui/TreeView/t.ts`
-- `code/sys.ui/ui-react-components/src/ui/TreeView.Index/t.ts`
-- `code/sys.ui/ui-react-components/src/ui/TreeView.Index.Data/t.ts`
-- `code/sys.ui/ui-react-components/src/ui/TreeView.Index.Item/t.ts`
+- `code/sys.ui/ui-components/src/ui/Buttons/t.ts`
+- `code/sys.ui/ui-components/src/ui/Buttons.Icons/t.ts`
+- `code/sys.ui/ui-components/src/ui/Buttons.Switch/t.ts`
+- `code/sys.ui/ui-components/src/ui/Icon/t.ts`
+- `code/sys.ui/ui-components/src/ui/Icon.Swatches/t.ts`
+- `code/sys.ui/ui-components/src/ui/Image.Svg/t.ts`
+- `code/sys.ui/ui-components/src/ui/KeyValue/t.ts`
+- `code/sys.ui/ui-components/src/ui/Media/t.ts`
+- `code/sys.ui/ui-components/src/ui/Media.AudioWaveform/t.ts`
+- `code/sys.ui/ui-components/src/ui/Media.Config/t.ts`
+- `code/sys.ui/ui-components/src/ui/Media.Devices/t.ts`
+- `code/sys.ui/ui-components/src/ui/Media.Recorder/t.ts`
+- `code/sys.ui/ui-components/src/ui/Media.Timecode.PlaybackDriver/-dev/t.ts`
+- `code/sys.ui/ui-components/src/ui/Media.Video/t.ts`
+- `code/sys.ui/ui-components/src/ui/Ownership/t.ts`
+- `code/sys.ui/ui-components/src/ui/Player/t.ts`
+- `code/sys.ui/ui-components/src/ui/Player.Video.Controls/t.ts`
+- `code/sys.ui/ui-components/src/ui/Player.Video.Decks/t.ts`
+- `code/sys.ui/ui-components/src/ui/Player.Video.Signals/t.ts`
+- `code/sys.ui/ui-components/src/ui/Preload/t.ts`
+- `code/sys.ui/ui-components/src/ui/Sheet/t.ts`
+- `code/sys.ui/ui-components/src/ui/Spinners/t.ts`
+- `code/sys.ui/ui-components/src/ui/TreeView/t.ts`
+- `code/sys.ui/ui-components/src/ui/TreeView.Index/t.ts`
+- `code/sys.ui/ui-components/src/ui/TreeView.Index.Data/t.ts`
+- `code/sys.ui/ui-components/src/ui/TreeView.Index.Item/t.ts`
 
 ### Driver packages
 
