@@ -1,4 +1,4 @@
 /**
  * @module types
  */
-export type * from './ui.react/t.ts';
+export type * from './ui.react.devharness/types.ts';

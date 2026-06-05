@@ -1,7 +1,7 @@
 import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
-import { pkg } from '../../../pkg.ts';
+import { pkg } from '../../pkg.ts';
 
 console.info('Pkg', pkg);
 globalThis.document.title = `${pkg.name}@${pkg.version}`;
