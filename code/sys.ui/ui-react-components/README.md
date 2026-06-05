@@ -1,6 +1,5 @@
-# UI Components
-
-Library of common `<React>` system components.
+# @sys/ui-components
+Primitive components for system UI composition.
 
 # Example
 
