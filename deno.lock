@@ -49,10 +49,10 @@
     "npm:@sinclair/typebox-codegen@0.11.1": "0.11.1",
     "npm:@stripe/stripe-js@9.7.0": "9.7.0",
     "npm:@svgdotjs/svg.js@3.2.5": "3.2.5",
-    "npm:@testing-library/react@16.3.2": "16.3.2_@testing-library+dom@10.4.1_@types+react@19.2.16_@types+react-dom@19.2.3__@types+react@19.2.16_react@19.2.7_react-dom@19.2.7__react@19.2.7",
+    "npm:@testing-library/react@16.3.2": "16.3.2_@types+react@19.2.17_@types+react-dom@19.2.3__@types+react@19.2.17_react@19.2.7_react-dom@19.2.7__react@19.2.7",
     "npm:@types/ramda@0.31.1": "0.31.1",
-    "npm:@types/react-dom@19.2.3": "19.2.3_@types+react@19.2.16",
-    "npm:@types/react@19.2.16": "19.2.16",
+    "npm:@types/react-dom@19.2.3": "19.2.3_@types+react@19.2.17",
+    "npm:@types/react@19.2.17": "19.2.17",
     "npm:@types/ws@8.18.1": "8.18.1",
     "npm:@vitejs/plugin-react@6.0.2": "6.0.2_vite@8.0.16__yaml@2.9.0_yaml@2.9.0",
     "npm:bowser@2.14.1": "2.14.1",
@@ -1363,7 +1363,7 @@
         "pretty-format"
       ]
     },
-    "@testing-library/react@16.3.2_@testing-library+dom@10.4.1_@types+react@19.2.16_@types+react-dom@19.2.3__@types+react@19.2.16_react@19.2.7_react-dom@19.2.7__react@19.2.7": {
+    "@testing-library/react@16.3.2_@types+react@19.2.17_@types+react-dom@19.2.3__@types+react@19.2.17_react@19.2.7_react-dom@19.2.7__react@19.2.7": {
       "integrity": "sha512-XU5/SytQM+ykqMnAnvB2umaJNIOsLF3PVv//1Ew4CTcpz0/BRyy/af40qqrt7SjKpDdT1saBMc42CUok5gaw+g==",
       "dependencies": [
         "@babel/runtime",
@@ -1430,14 +1430,14 @@
         "types-ramda"
       ]
     },
-    "@types/react-dom@19.2.3_@types+react@19.2.16": {
+    "@types/react-dom@19.2.3_@types+react@19.2.17": {
       "integrity": "sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==",
       "dependencies": [
         "@types/react"
       ]
     },
-    "@types/react@19.2.16": {
-      "integrity": "sha512-esJiCAnl0kfpNdE69f3So4WJUXy95dLZydX0KwK46riIHDzHM7O9Vtf9xCHW0PXIqvgqNrswl522kA/5yx+F4w==",
+    "@types/react@19.2.17": {
+      "integrity": "sha512-MXfmqaVPEVgkBT/aY0aGCkRWWtByiYQXo3xdQ8r5RzuFrPiRn8Gar2tQdXSUQ2GKV3bkXckek89V8wQBY2Q/Aw==",
       "dependencies": [
         "csstype"
       ]
@@ -3387,7 +3387,7 @@
         "npm:@deno/vite-plugin@2.0.2",
         "npm:@testing-library/react@16.3.2",
         "npm:@types/react-dom@19.2.3",
-        "npm:@types/react@19.2.16",
+        "npm:@types/react@19.2.17",
         "npm:@vitejs/plugin-react@6.0.2",
         "npm:monaco-editor@0.55.1",
         "npm:motion@12.40.0",
