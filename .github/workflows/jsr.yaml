@@ -756,6 +756,26 @@ jobs:
           echo "publish failed after $max_attempts attempts"
           exit 1
 
+      - name: publish module → "@sys/ui"
+        run: |
+          cd code/sys.ui/ui
+          deno task test --frozen
+          git status --short
+          test -z "$(git status --porcelain)"
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
       - name: publish module → "@sys/cell"
         run: |
           cd code/sys/cell
