@@ -67,7 +67,7 @@
     "code/sys.ui/ui",
     "code/sys.ui/ui-components",
     "code/sys.ui/ui-css",
-    "code/sys.ui/ui-devharness",
+    "code/sys.ui/ui-dev",
     "code/sys.ui/ui-dom",
     "code/sys.ui/ui-react",
     "code/sys.ui/ui-state",
