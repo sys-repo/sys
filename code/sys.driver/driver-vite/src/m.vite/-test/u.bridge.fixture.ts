@@ -316,15 +316,11 @@ function localPackageDependencies(
 }
 
 function localToolchainDependencies(authority: BridgeAuthority) {
-  const names = ['esbuild', 'vite'] as const;
-  const entries = names.map((name) => {
-    const version = authority.packageVersions[name];
-    if (!Is.str(version)) {
-      throw new Error(`Missing root package version authority for package "${name}"`);
-    }
-    return [name, version] as const;
-  });
-  return Object.fromEntries(entries);
+  const vite = authority.packageVersions.vite;
+  if (!Is.str(vite)) {
+    throw new Error('Missing root package version authority for package "vite"');
+  }
+  return { vite };
 }
 
 async function localToolchainImports(authority: BridgeAuthority) {
