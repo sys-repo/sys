@@ -28,24 +28,12 @@
   },
   "compilerOptions": {
     "strict": true,
-    "lib": [
-      "esnext",
-      "dom",
-      "dom.iterable",
-      "dom.asynciterable",
-      "webworker",
-      "deno.ns"
-    ],
-    "types": [
-      "@types/react"
-    ],
+    "lib": ["esnext", "dom", "dom.iterable", "dom.asynciterable", "webworker", "deno.ns"],
+    "types": ["@types/react"],
     "jsx": "react-jsx",
     "jsxImportSource": "react"
   },
-  "fmt": {
-    "singleQuote": true,
-    "lineWidth": 100
-  },
+  "fmt": { "singleQuote": true, "lineWidth": 100 },
   "nodeModulesDir": "auto",
   "importMap": "imports.json",
   "workspace": [
@@ -101,54 +89,14 @@
     "deploy/@tdb.slc.std",
     "deploy/sample.proxy"
   ],
-  "lint": {
-    "rules": {
-      "exclude": [
-        "no-explicit-any",
-        "no-slow-types"
-      ]
-    }
-  },
-  "exclude": [
-    ".pi"
-  ],
-  "test": {
-    "permissions": "test"
-  },
+  "lint": { "rules": { "exclude": ["no-explicit-any", "no-slow-types"] } },
+  "exclude": [".pi"],
+  "test": { "permissions": "test" },
   "permissions": {
-    "test": {
-      "read": true,
-      "write": true,
-      "run": true,
-      "env": true
-    },
-    "dev": {
-      "read": true,
-      "write": true,
-      "run": true,
-      "env": true,
-      "net": true
-    },
-    "tmpl": {
-      "read": true,
-      "write": true,
-      "run": true,
-      "env": true
-    },
-    "upgrade": {
-      "read": true,
-      "write": true,
-      "run": true,
-      "env": true,
-      "net": true,
-      "ffi": true
-    },
-    "clean": {
-      "read": true,
-      "write": true,
-      "run": true,
-      "env": true
-    }
+    "test": { "read": true, "write": true, "run": true, "env": true },
+    "dev": { "read": true, "write": true, "run": true, "env": true, "net": true },
+    "tmpl": { "read": true, "write": true, "run": true, "env": true },
+    "upgrade": { "read": true, "write": true, "run": true, "env": true, "net": true, "ffi": true },
+    "clean": { "read": true, "write": true, "run": true, "env": true }
   }
 }
-
