@@ -63,6 +63,7 @@ export const app: t.ViteConfig.Lib['app'] = async (options = {}) => {
   const publicDir = Path.join(paths.cwd, 'public');
   const root = Path.dirname(main);
   const cacheDir = wrangle.cacheDir(paths.cwd);
+  const fsAllow = wrangle.serverFsAllow(paths.cwd, ws);
 
   /**
    * Chunking:
@@ -141,7 +142,7 @@ export const app: t.ViteConfig.Lib['app'] = async (options = {}) => {
     base: paths.app.base,
     oxc: options.oxc,
     optimizeDeps: options.optimizeDeps,
-    server: { fs: { allow: ['..'] } }, // NB: allows stepping up out of the {cwd} and access other folders in the monorepo.
+    server: { fs: { allow: fsAllow } },
     worker: {
       format,
       plugins: () => plugins,
@@ -214,6 +215,12 @@ const wrangle = {
 
   cacheDir(cwd: string) {
     return Path.join(Path.resolve(cwd), 'node_modules', '.vite');
+  },
+
+  serverFsAllow(cwd: string, ws?: { file: t.StringPath }) {
+    const roots = [Path.resolve(cwd)];
+    if (ws?.file) roots.push(Path.dirname(ws.file));
+    return [...new Set(roots.map((path) => Path.resolve(path)))];
   },
 
   async resolveAliases(

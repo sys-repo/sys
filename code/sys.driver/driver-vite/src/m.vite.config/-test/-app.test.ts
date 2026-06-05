@@ -1,4 +1,4 @@
-import { c, describe, expect, Fs, it, Json, Path, type t } from '../../-test.ts';
+import { c, DenoFile, describe, expect, Fs, it, Json, Path, type t } from '../../-test.ts';
 import { ViteConfig } from '../mod.ts';
 
 describe('Config.Build', () => {
@@ -51,7 +51,9 @@ describe('Config.Build', () => {
 
       expect(config.root).to.eql(p.cwd);
       expect(config.envDir).to.eql(p.cwd);
+      const workspaceRoot = Path.dirname((await DenoFile.workspace()).file);
       expect(config.cacheDir).to.eql(Fs.join(p.cwd, 'node_modules', '.vite'));
+      expect(config.server?.fs?.allow).to.eql([Path.resolve(p.cwd), workspaceRoot]);
       expect(config.build?.outDir).to.eql(Fs.join(p.cwd, p.app.outDir));
       expect(input.main).to.eql(Fs.join(p.cwd, p.app.entry));
       expect(config.optimizeDeps).to.eql(undefined);
@@ -129,6 +131,7 @@ describe('Config.Build', () => {
         const config = await ViteConfig.app({ workspace: false, paths });
 
         expect(config.resolve?.alias).to.eql([]);
+        expect(config.server?.fs?.allow).to.eql([Path.resolve(fs.absolute)]);
         expect(includesPlugin(config, 'sys:specifier-rewrite')).to.eql(true);
         expect(includesPlugin(config, 'sys:npm-prewarm')).to.eql(false);
       } finally {
@@ -182,6 +185,7 @@ describe('Config.Build', () => {
       expect(config.root).to.eql('/pkg/src');
       expect(config.envDir).to.eql('/pkg');
       expect(config.cacheDir).to.eql('/pkg/node_modules/.vite');
+      expect(config.server?.fs?.allow).to.include('/pkg');
     });
 
     it('passes optimizeDeps and explicit OXC options through', async () => {
