@@ -3,9 +3,9 @@ deno.json:
     subpaths: [ t ]
   - import: jsr:@sys/color@0.0.254
     subpaths: [ t ]
-  - import: jsr:@sys/driver-deno@0.0.361
+  - import: jsr:@sys/driver-deno@0.0.362
     subpaths: [ cloud, runtime, t ]
-  - import: jsr:@sys/driver-vite@0.0.422
+  - import: jsr:@sys/driver-vite@0.0.423
     subpaths: [ main, t ]
   - import: jsr:@sys/fs@0.0.318
     subpaths: [ t ]
@@ -36,11 +36,11 @@ deno.json:
       ]
   - import: jsr:@sys/testing@0.0.309
     subpaths: [ server, t ]
-  - import: jsr:@sys/tmpl@0.0.422
+  - import: jsr:@sys/tmpl@0.0.423
     subpaths: [ t ]
   - import: jsr:@sys/tmpl-engine@0.0.321
     subpaths: [ t ]
-  - import: jsr:@sys/tools@0.0.438
+  - import: jsr:@sys/tools@0.0.439
     subpaths: [ t ]
   - import: jsr:@sys/types@0.0.293
   - import: jsr:@sys/ui-css@0.0.289
@@ -68,11 +68,11 @@ deno.json:
       ]
   - import: jsr:@sys/ui-dev@0.0.328
     subpaths: [ react/devharness, react/devharness/t ]
-  - import: jsr:@sys/workspace@0.0.112
+  - import: jsr:@sys/workspace@0.0.113
     subpaths: [ cli, t, testing ]
   - import: jsr:@sys/yaml@0.0.170
     subpaths: [ t ]
-  - import: jsr:@sys/esm@0.0.63
+  - import: jsr:@sys/esm@0.0.64
     subpaths: [ testing ]
 package.json:
   - import: npm:react@19.2.7
