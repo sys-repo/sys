@@ -13,6 +13,7 @@ describe('ViteTransport.prefix', () => {
 
   describe('specifier delegation', () => {
     it('strips npm versions and delegates to vite resolution', async () => {
+      let fallbackCalls = 0;
       const plugin = prefixPlugin(new Map(), {
         async resolveDeno() {
           return {
@@ -22,7 +23,9 @@ describe('ViteTransport.prefix', () => {
             dependencies: [],
           };
         },
-        async resolveNpmPath() {
+        async resolveNpmPath(id) {
+          fallbackCalls++;
+          expect(id).to.eql('react');
           return null;
         },
         async resolveViteSpecifier() {
@@ -41,6 +44,7 @@ describe('ViteTransport.prefix', () => {
       );
 
       expect(res).to.eql('react');
+      expect(fallbackCalls).to.eql(1);
     });
 
     it('prefers vite resolution for dual-package npm imports', async () => {
@@ -144,6 +148,31 @@ describe('ViteTransport.prefix', () => {
       );
 
       expect(res).to.eql('@noble/hashes/legacy.js');
+    });
+
+    it('does not delegate npm ids when deno resolution fails', async () => {
+      const plugin = prefixPlugin(new Map(), {
+        async resolveDeno() {
+          return null;
+        },
+        async resolveNpmPath() {
+          throw new Error('resolveNpmPath should not run after unresolved deno npm lookup');
+        },
+        async resolveViteSpecifier() {
+          return undefined;
+        },
+      });
+
+      const res = await plugin.resolveId.call(
+        wrangle.context(async () => {
+          throw new Error('vite resolution should not run after unresolved deno npm lookup');
+        }),
+        'npm:react@19.2.0',
+        undefined,
+        wrangle.options(),
+      );
+
+      expect(res).to.eql(undefined);
     });
 
     it('delegates http imports to resolveViteSpecifier', async () => {

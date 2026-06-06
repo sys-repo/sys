@@ -9,6 +9,7 @@ import {
 import {
   createResolvePlugin,
   resolveDenoWith,
+  resolveNpmPathWith,
   resolveViteSpecifier,
 } from '../u.resolve/u.resolve.ts';
 import { procOutput } from './u.fixture.ts';
@@ -625,6 +626,51 @@ describe('ViteTransport.resolve', () => {
 
       expect(infoCalls).to.eql(2);
       expect(memo.settled.size).to.eql(2);
+    });
+  });
+
+  describe('npm path fallback', () => {
+    it('returns file paths from deno import-meta resolution', async () => {
+      let invoked: t.Process.InvokeArgs | undefined;
+      const res = await resolveNpmPathWith('react', '/tmp/project', {
+        async invoke(input) {
+          invoked = input;
+          return procOutput({
+            success: true,
+            stdout: 'file:///tmp/project/node_modules/react/index.js\n',
+          });
+        },
+      });
+
+      expect(res).to.eql('/tmp/project/node_modules/react/index.js');
+      expect(invoked?.cmd).to.eql(Deno.build.os === 'windows' ? 'deno.exe' : 'deno');
+      expect(invoked?.args).to.eql([
+        'eval',
+        'console.log(import.meta.resolve(Deno.args[0]))',
+        'react',
+      ]);
+      expect(invoked?.cwd).to.eql('/tmp/project');
+      expect(invoked?.silent).to.eql(true);
+    });
+
+    it('returns null for non-file npm resolution output', async () => {
+      const res = await resolveNpmPathWith('node:path', '/tmp/project', {
+        async invoke() {
+          return procOutput({ success: true, stdout: 'node:path\n' });
+        },
+      });
+
+      expect(res).to.eql(null);
+    });
+
+    it('returns null when deno import-meta resolution fails', async () => {
+      const res = await resolveNpmPathWith('react', '/tmp/project', {
+        async invoke() {
+          return procOutput({ success: false, stderr: 'not found' });
+        },
+      });
+
+      expect(res).to.eql(null);
     });
   });
 
