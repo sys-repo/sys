@@ -50,6 +50,11 @@ export type ResolveMemo = {
 
 export type ResolveDeps = {
   readonly invoke: t.Process.Lib['invoke'];
+  readonly resolveLoader?: (
+    id: string,
+    referrer: string | undefined,
+    cwd: string,
+  ) => Promise<string | null | undefined>;
   readonly resolveNpmPath?: (id: string, cwd: string) => Promise<string | null>;
   readonly memo?: ResolveMemo;
 };

@@ -4,6 +4,7 @@ import { Is, Json, Path, Process, type t } from './common.ts';
 import type { PluginContext } from 'rollup';
 import { loadDenoModule } from './u.load.ts';
 import { isBarePackageId, toViteNpmSpecifier } from './u.npm.ts';
+import { DenoLoaderResolver, type DenoLoaderResolverInstance } from './u.resolve.loader.ts';
 import {
   isDenoSpecifier,
   parseDenoSpecifier,
@@ -23,11 +24,39 @@ export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = de
   let root = Path.cwd();
   let browserIds = false;
   let transportCacheDir = '';
+  let loaderConfigPath = Path.join(root, 'deno.json');
+  let loaderResolver: Promise<DenoLoaderResolverInstance> | undefined;
+
+  const pluginDeps = {
+    ...deps,
+    async resolveLoader(id: string, referrer: string | undefined, cwd: string) {
+      if (deps.resolveLoader) return await deps.resolveLoader(id, referrer, cwd);
+      const active = await (loaderResolver ??= DenoLoaderResolver.create({
+        configPath: loaderConfigPath,
+        noLock: true,
+      }).catch((error) => {
+        loaderResolver = undefined;
+        throw error;
+      }));
+      return await active.resolve(id, referrer);
+    },
+  } satisfies t.ResolveDeps;
+
+  const disposeLoaderResolver = async () => {
+    if (loaderResolver === undefined) return;
+    const active = await loaderResolver.catch(() => undefined);
+    active?.[Symbol.dispose]();
+    loaderResolver = undefined;
+  };
 
   const plugin = {
     name: 'deno',
-    configResolved(config: { root: string; command?: string; cacheDir?: string }) {
+    configResolved(
+      config: { root: string; envDir?: string | false; command?: string; cacheDir?: string },
+    ) {
       root = Path.normalize(config.root);
+      const envDir = Is.str(config.envDir) ? config.envDir : config.root;
+      loaderConfigPath = Path.join(Path.normalize(envDir), 'deno.json');
       browserIds = config.command === 'serve';
       if (browserIds && !Is.str(config.cacheDir)) {
         throw new Error('Expected resolved Vite cacheDir for dev transport cache.');
@@ -44,7 +73,13 @@ export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = de
       const resolvedId = unwrapViteId(id);
       const resolvedImporter = importer ? unwrapViteId(importer) : importer;
       if (isDenoSpecifier(resolvedId)) return resolvedId;
-      const resolved = await resolveViteSpecifier(resolvedId, cache, root, resolvedImporter, deps);
+      const resolved = await resolveViteSpecifier(
+        resolvedId,
+        cache,
+        root,
+        resolvedImporter,
+        pluginDeps,
+      );
       if (Is.str(resolved) && isBarePackageId(resolved)) {
         const skipSelf = true;
         const importerForResolve = Path.join(root, 'deno.json');
@@ -69,7 +104,7 @@ export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = de
           (cached === undefined || (cached.kind === 'esm' && cached.dependencies.length === 0)) &&
           isRemoteLike(parsed.id)
         ) {
-          const hydrated = await resolveDenoWith(parsed.id, root, deps);
+          const hydrated = await resolveDenoWith(parsed.id, root, pluginDeps);
           if (hydrated?.kind === 'esm') {
             cache.set(hydrated.id, hydrated);
             cache.set(parsed.resolved, hydrated);
@@ -84,6 +119,12 @@ export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = de
       }
 
       return;
+    },
+    async buildEnd() {
+      await disposeLoaderResolver();
+    },
+    async closeBundle() {
+      await disposeLoaderResolver();
     },
   } satisfies t.VitePlugin;
 
@@ -384,8 +425,8 @@ export async function resolveViteSpecifier(
     trace.resolve('importer.request', { sourceId, importer, parentId, parent });
     let cached = cache.get(parent);
     if (
-      cached === undefined ||
-      (cached.kind === 'esm' && cached.dependencies.length === 0 && isRemoteLike(parentId))
+      isRemoteLike(parentId) &&
+      (cached === undefined || (cached.kind === 'esm' && cached.dependencies.length === 0))
     ) {
       cached = (await resolveDenoWith(parentId, root, deps)) ?? cached;
       if (cached) {
@@ -393,74 +434,189 @@ export async function resolveViteSpecifier(
         cache.set(parent, cached);
       }
     }
-    if (cached === undefined) return;
+    let matchedDependency = false;
+    if (cached) {
+      const found = cached.dependencies.find((dep) => {
+        if (
+          dep.specifier === sourceId || dep.resolvedSpecifier === sourceId ||
+          dep.sourceSpecifier === sourceId
+        ) return true;
+        if (dep.specifier.startsWith('npm:')) return toViteNpmSpecifier(dep.specifier) === sourceId;
+        return false;
+      });
+      if (found) {
+        matchedDependency = true;
+        trace.resolve('importer.hit', {
+          sourceId,
+          importer,
+          parentId,
+          parent,
+          specifier: found.specifier,
+          resolvedSpecifier: found.resolvedSpecifier,
+          sourceSpecifier: found.sourceSpecifier ?? '',
+          localPath: found.localPath,
+          loader: found.loader ?? '',
+        });
 
-    const found = cached.dependencies.find((dep) => {
-      if (
-        dep.specifier === sourceId || dep.resolvedSpecifier === sourceId ||
-        dep.sourceSpecifier === sourceId
-      ) return true;
-      if (dep.specifier.startsWith('npm:')) return toViteNpmSpecifier(dep.specifier) === sourceId;
-      return false;
-    });
-    if (found === undefined) {
+        id = found.resolvedSpecifier;
+        if (id.startsWith('file://')) return Path.fromFileUrl(id);
+        if (id.startsWith('npm:')) {
+          await resolveDenoWith(id, root, deps);
+          return toViteNpmSpecifier(id);
+        }
+        if (found.localPath && found.loader && isRemoteLike(id)) {
+          const existing = cache.get(found.localPath);
+          const hydrated = existing ??
+            (await resolveDenoWith(found.sourceSpecifier ?? id, root, deps));
+          if (hydrated?.kind === 'esm') {
+            cache.set(hydrated.id, hydrated);
+            cache.set(id, hydrated);
+            return toDenoSpecifier(hydrated.loader ?? found.loader, id, hydrated.id);
+          }
+
+          cache.set(found.localPath, {
+            id: found.localPath,
+            ...(found.sourceSpecifier ? { specifier: found.sourceSpecifier } : {}),
+            kind: 'esm',
+            loader: found.loader,
+            dependencies: [],
+          });
+          return toDenoSpecifier(found.loader, id, found.localPath);
+        }
+      }
+    }
+
+    if (!matchedDependency) {
+      const loaderResolved = await resolveWithLoader(sourceId, root, deps, {
+        referrer: loaderReferrerFromDenoImporter(parentId, parent),
+      });
+      const loaderAdapted = adaptLoaderResolution(sourceId, loaderResolved, cache, root);
+      if (loaderAdapted !== undefined) return loaderAdapted;
+
       trace.resolve('importer.miss', { sourceId, importer, parentId, parent });
       return;
     }
-
-    trace.resolve('importer.hit', {
-      sourceId,
-      importer,
-      parentId,
-      parent,
-      specifier: found.specifier,
-      resolvedSpecifier: found.resolvedSpecifier,
-      sourceSpecifier: found.sourceSpecifier ?? '',
-      localPath: found.localPath,
-      loader: found.loader ?? '',
-    });
-
-    id = found.resolvedSpecifier;
-    if (id.startsWith('file://')) return Path.fromFileUrl(id);
-    if (id.startsWith('npm:')) {
-      await resolveDenoWith(id, root, deps);
-      return toViteNpmSpecifier(id);
-    }
-    if (found.localPath && found.loader && isRemoteLike(id)) {
-      const existing = cache.get(found.localPath);
-      const hydrated = existing ?? (await resolveDenoWith(found.sourceSpecifier ?? id, root, deps));
-      if (hydrated?.kind === 'esm') {
-        cache.set(hydrated.id, hydrated);
-        cache.set(id, hydrated);
-        return toDenoSpecifier(hydrated.loader ?? found.loader, id, hydrated.id);
-      }
-
-      cache.set(found.localPath, {
-        id: found.localPath,
-        ...(found.sourceSpecifier ? { specifier: found.sourceSpecifier } : {}),
-        kind: 'esm',
-        loader: found.loader,
-        dependencies: [],
-      });
-      return toDenoSpecifier(found.loader, id, found.localPath);
-    }
   }
 
-  const resolved = cache.get(id) ?? (await resolveDenoWith(id, root, deps));
+  const cached = cache.get(id);
+  if (cached) return adaptCachedResolution(id, cached, cache, root);
+
+  const loaderResolved = await resolveWithLoader(id, root, deps, {
+    referrer: loaderReferrerFromViteImporter(importer, root),
+  });
+  const loaderAdapted = adaptLoaderResolution(id, loaderResolved, cache, root);
+  if (loaderAdapted !== undefined) return loaderAdapted;
+
+  const resolved = await resolveDenoWith(id, root, deps);
   if (resolved === null) return;
+  return adaptCachedResolution(id, resolved, cache, root);
+}
+
+async function resolveWithLoader(
+  id: string,
+  root: string,
+  deps: t.ResolveDeps,
+  options: { readonly referrer?: string },
+) {
+  if (id.startsWith('\0') || id.startsWith('npm:')) return;
+  if (!deps.resolveLoader) return;
+
+  try {
+    return await deps.resolveLoader(id, options.referrer, root) ?? undefined;
+  } catch (error) {
+    trace.resolve('loader.fallback', {
+      id,
+      root,
+      referrer: options.referrer ?? '',
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return;
+  }
+}
+
+function adaptLoaderResolution(
+  id: string,
+  resolvedUrl: string | null | undefined,
+  cache: t.DenoCache,
+  root: string,
+) {
+  if (!resolvedUrl) return;
+  if (resolvedUrl.startsWith('node:')) return null;
+  if (!resolvedUrl.startsWith('file://')) return;
+
+  const resolvedPath = Path.fromFileUrl(resolvedUrl);
+  if (isNodeModulesPath(resolvedPath)) return;
+
+  const loader = mediaTypeFromPath(resolvedPath);
+  const resolved = {
+    id: resolvedPath,
+    kind: 'esm',
+    loader,
+    dependencies: [],
+  } satisfies t.DenoResolved;
+  cache.set(id, resolved);
+  cache.set(resolvedPath, resolved);
+  return adaptCachedResolution(id, resolved, cache, root);
+}
+
+function adaptCachedResolution(
+  id: string,
+  resolved: t.DenoResolved,
+  cache: t.DenoCache,
+  root: string,
+) {
   if (resolved.kind === 'npm') return null;
 
   cache.set(resolved.id, resolved);
 
-  if (
-    resolved.loader === null ||
-    (resolved.id.startsWith(Path.resolve(root)) &&
-      !Path.relative(root, resolved.id).startsWith('.'))
-  ) {
+  if (resolved.loader === null || isInRoot(resolved.id, root)) {
     return resolved.id;
   }
 
   return toDenoSpecifier(resolved.loader, id, resolved.id);
+}
+
+function loaderReferrerFromDenoImporter(parentId: string, parent: string) {
+  return isRemoteLike(parentId)
+    ? repairConcreteRemoteAuthorityDelimiter(parentId)
+    : pathToFileUrl(parent);
+}
+
+function loaderReferrerFromViteImporter(importer: string | undefined, root: string) {
+  if (!importer) return;
+  if (importer.startsWith('file://')) return importer;
+  if (isRemoteLike(importer)) return repairConcreteRemoteAuthorityDelimiter(importer);
+  if (Path.Is.absolute(importer)) return pathToFileUrl(importer);
+  return pathToFileUrl(Path.join(root, importer));
+}
+
+function pathToFileUrl(path: string) {
+  return Path.toFileUrl(path).href;
+}
+
+function isInRoot(path: string, root: string) {
+  return path.startsWith(Path.resolve(root)) && !Path.relative(root, path).startsWith('.');
+}
+
+function isNodeModulesPath(path: string) {
+  return path.split(/[\\/]/).includes('node_modules');
+}
+
+function mediaTypeFromPath(path: string): t.DenoLoader {
+  switch (Path.extname(path).toLowerCase()) {
+    case '.jsx':
+      return 'JSX';
+    case '.json':
+      return 'Json';
+    case '.tsx':
+      return 'TSX';
+    case '.ts':
+    case '.mts':
+    case '.cts':
+      return 'TypeScript';
+    default:
+      return 'JavaScript';
+  }
 }
 
 export async function resolveNpmPathWith(
