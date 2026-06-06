@@ -13,12 +13,14 @@ export type ResolveInfoDependency = {
 export type DenoDependency = {
   readonly specifier: string;
   readonly resolvedSpecifier: string;
+  readonly sourceSpecifier?: string;
   readonly localPath?: string;
   readonly loader?: DenoLoader | null;
 };
 
 export type DenoResolvedEsm = {
   readonly id: string;
+  readonly specifier?: string;
   readonly kind: 'esm';
   readonly loader: DenoLoader | null;
   readonly dependencies: readonly DenoDependency[];

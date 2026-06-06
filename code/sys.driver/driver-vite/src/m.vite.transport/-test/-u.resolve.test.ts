@@ -6,11 +6,7 @@ import {
   repairConcreteRemoteAuthorityDelimiter,
   toDenoSpecifier,
 } from '../u.specifier.ts';
-import {
-  createResolvePlugin,
-  resolveDenoWith,
-  resolveViteSpecifier,
-} from '../u.resolve.ts';
+import { createResolvePlugin, resolveDenoWith, resolveViteSpecifier } from '../u.resolve.ts';
 import { procOutput } from './u.fixture.ts';
 
 describe('ViteTransport.resolve', () => {
@@ -48,7 +44,11 @@ describe('ViteTransport.resolve', () => {
     });
 
     it('repairs malformed remote ids when encoding and parsing deno specifiers', () => {
-      const spec = toDenoSpecifier('TypeScript', 'https:/jsr.io/@std/path/mod.ts', '/tmp/cache/mod.ts');
+      const spec = toDenoSpecifier(
+        'TypeScript',
+        'https:/jsr.io/@std/path/mod.ts',
+        '/tmp/cache/mod.ts',
+      );
       const parsed = parseDenoSpecifier(spec);
 
       expect(parsed.id).to.eql('https://jsr.io/@std/path/mod.ts');
@@ -272,9 +272,19 @@ describe('ViteTransport.resolve', () => {
         else Deno.env.set(ENV_TRACE, prev);
       }
 
-      expect(lines.some((line) => line.includes('driver-vite:trace') && line.includes('resolve.request'))).to.eql(true);
-      expect(lines.some((line) => line.includes('driver-vite:trace') && line.includes('resolve.miss'))).to.eql(true);
-      expect(lines.some((line) => line.includes('driver-vite:trace') && line.includes('resolve.result.resolved'))).to.eql(true);
+      expect(
+        lines.some((line) =>
+          line.includes('driver-vite:trace') && line.includes('resolve.request')
+        ),
+      ).to.eql(true);
+      expect(
+        lines.some((line) => line.includes('driver-vite:trace') && line.includes('resolve.miss')),
+      ).to.eql(true);
+      expect(
+        lines.some((line) =>
+          line.includes('driver-vite:trace') && line.includes('resolve.result.resolved')
+        ),
+      ).to.eql(true);
     });
 
     it('traces importer-derived dependency hits when enabled', async () => {
@@ -332,8 +342,16 @@ describe('ViteTransport.resolve', () => {
         else Deno.env.set(ENV_TRACE, prev);
       }
 
-      expect(lines.some((line) => line.includes('driver-vite:trace') && line.includes('resolve.importer.request'))).to.eql(true);
-      expect(lines.some((line) => line.includes('driver-vite:trace') && line.includes('resolve.importer.hit'))).to.eql(true);
+      expect(
+        lines.some((line) =>
+          line.includes('driver-vite:trace') && line.includes('resolve.importer.request')
+        ),
+      ).to.eql(true);
+      expect(
+        lines.some((line) =>
+          line.includes('driver-vite:trace') && line.includes('resolve.importer.hit')
+        ),
+      ).to.eql(true);
     });
 
     it('coalesces malformed and canonical remote spellings into one first miss', async () => {
@@ -346,13 +364,16 @@ describe('ViteTransport.resolve', () => {
             return procOutput({ success: true, stdout: 'deno 2.x' });
           }
           infoCalls++;
-          expect(input.args[input.args.length - 1]).to.eql('https:/jsr.io/@std/path/1.1.4/posix/resolve.ts');
+          expect(input.args[input.args.length - 1]).to.eql(
+            'https:/jsr.io/@std/path/1.1.4/posix/resolve.ts',
+          );
           return procOutput({
             success: true,
             stdout: Json.stringify({
               roots: ['https:/jsr.io/@std/path/1.1.4/posix/resolve.ts'],
               redirects: {
-                'https:/jsr.io/@std/path/1.1.4/posix/resolve.ts': 'https://jsr.io/@std/path/1.1.4/posix/resolve.ts',
+                'https:/jsr.io/@std/path/1.1.4/posix/resolve.ts':
+                  'https://jsr.io/@std/path/1.1.4/posix/resolve.ts',
               },
               modules: [
                 {
@@ -368,8 +389,16 @@ describe('ViteTransport.resolve', () => {
         },
       } satisfies t.ResolveDeps;
 
-      const first = await resolveDenoWith('https:/jsr.io/@std/path/1.1.4/posix/resolve.ts', '/tmp', deps);
-      const second = await resolveDenoWith('https://jsr.io/@std/path/1.1.4/posix/resolve.ts', '/tmp', deps);
+      const first = await resolveDenoWith(
+        'https:/jsr.io/@std/path/1.1.4/posix/resolve.ts',
+        '/tmp',
+        deps,
+      );
+      const second = await resolveDenoWith(
+        'https://jsr.io/@std/path/1.1.4/posix/resolve.ts',
+        '/tmp',
+        deps,
+      );
 
       expect(first).to.eql(second);
       expect(infoCalls).to.eql(1);
@@ -396,7 +425,8 @@ describe('ViteTransport.resolve', () => {
             stdout: Json.stringify({
               roots: ['https:/jsr.io/@std/path/1.1.4/posix/resolve.ts'],
               redirects: {
-                'https:/jsr.io/@std/path/1.1.4/posix/resolve.ts': 'https://jsr.io/@std/path/1.1.4/posix/resolve.ts',
+                'https:/jsr.io/@std/path/1.1.4/posix/resolve.ts':
+                  'https://jsr.io/@std/path/1.1.4/posix/resolve.ts',
               },
               modules: [
                 {
@@ -413,7 +443,11 @@ describe('ViteTransport.resolve', () => {
       } satisfies t.ResolveDeps;
 
       const first = resolveDenoWith('https:/jsr.io/@std/path/1.1.4/posix/resolve.ts', '/tmp', deps);
-      const second = resolveDenoWith('https://jsr.io/@std/path/1.1.4/posix/resolve.ts', '/tmp', deps);
+      const second = resolveDenoWith(
+        'https://jsr.io/@std/path/1.1.4/posix/resolve.ts',
+        '/tmp',
+        deps,
+      );
       await Promise.resolve();
 
       expect(infoCalls).to.eql(1);
@@ -534,8 +568,16 @@ describe('ViteTransport.resolve', () => {
         },
       } satisfies t.ResolveDeps;
 
-      const a = await resolveDenoWith('https://jsr.io/@std/path/1.1.4/posix/resolve.ts', '/tmp', deps);
-      const b = await resolveDenoWith('https://jsr.io/@std/path/1.1.4/windows/resolve.ts', '/tmp', deps);
+      const a = await resolveDenoWith(
+        'https://jsr.io/@std/path/1.1.4/posix/resolve.ts',
+        '/tmp',
+        deps,
+      );
+      const b = await resolveDenoWith(
+        'https://jsr.io/@std/path/1.1.4/windows/resolve.ts',
+        '/tmp',
+        deps,
+      );
 
       expect(infoCalls).to.eql(2);
       expect(a?.id).to.not.eql(b?.id);
@@ -557,7 +599,8 @@ describe('ViteTransport.resolve', () => {
             stdout: Json.stringify({
               roots: ['https:/jsr.io/@std/path/1.1.4/posix/resolve.ts'],
               redirects: {
-                'https:/jsr.io/@std/path/1.1.4/posix/resolve.ts': 'https://jsr.io/@std/path/1.1.4/posix/resolve.ts',
+                'https:/jsr.io/@std/path/1.1.4/posix/resolve.ts':
+                  'https://jsr.io/@std/path/1.1.4/posix/resolve.ts',
               },
               modules: [
                 {
@@ -584,7 +627,9 @@ describe('ViteTransport.resolve', () => {
   describe('vite resolution', () => {
     it('requires resolved cacheDir when dev transport config is resolved', () => {
       const plugin = createResolvePlugin(new Map());
-      expect(() => plugin.configResolved?.call(pluginContext, { root: '/tmp/project', command: 'serve' })).to.throw(
+      expect(() =>
+        plugin.configResolved?.call(pluginContext, { root: '/tmp/project', command: 'serve' })
+      ).to.throw(
         'Expected resolved Vite cacheDir for dev transport cache.',
       );
     });
@@ -910,8 +955,9 @@ describe('ViteTransport.resolve', () => {
 
         expect(res).to.eql('react');
         expect(cache.get(parentResolved)?.kind).to.eql('esm');
-        if (cache.get(parentResolved)?.kind !== 'esm')
+        if (cache.get(parentResolved)?.kind !== 'esm') {
           throw new Error('Expected hydrated parent graph');
+        }
         expect(cache.get(parentResolved)?.dependencies.length).to.eql(1);
         expect(npmInfoCalls).to.eql(1);
       });
@@ -983,8 +1029,9 @@ describe('ViteTransport.resolve', () => {
 
         expect(res).to.eql(toDenoSpecifier('TypeScript', childId, childResolved));
         expect(cache.get(childResolved)?.kind).to.eql('esm');
-        if (cache.get(childResolved)?.kind !== 'esm')
+        if (cache.get(childResolved)?.kind !== 'esm') {
           throw new Error('Expected hydrated child graph');
+        }
         expect(cache.get(childResolved)?.dependencies.length).to.eql(1);
       });
 
@@ -1272,7 +1319,9 @@ describe('ViteTransport.resolve', () => {
 
         const res = await plugin.resolveId.call(context, 'react', importer);
 
-        expect(res).to.eql('/tmp/project/node_modules/.deno/react@19.2.4/node_modules/react/index.js');
+        expect(res).to.eql(
+          '/tmp/project/node_modules/.deno/react@19.2.4/node_modules/react/index.js',
+        );
       });
     });
 
@@ -1281,10 +1330,14 @@ describe('ViteTransport.resolve', () => {
         const fs = await Fs.makeTempDir({ prefix: 'ViteTransport.resolve.load.' });
         try {
           const root = fs.absolute;
-          const remoteId = 'https://jsr.io/@sys/ui-react-devharness/0.0.252/src/ui.use/use.SizeObserver.js';
+          const remoteId =
+            'https://jsr.io/@sys/ui-react-devharness/0.0.252/src/ui.use/use.SizeObserver.js';
           const remoteResolved = Fs.join(fs.absolute, 'cache/use.SizeObserver.js');
           await Fs.ensureDir(Fs.join(fs.absolute, 'cache'));
-          await Fs.write(remoteResolved, `import { useEffect } from 'react';\nexport const ok = useEffect;\n`);
+          await Fs.write(
+            remoteResolved,
+            `import { useEffect } from 'react';\nexport const ok = useEffect;\n`,
+          );
           const denoId = toDenoSpecifier('JavaScript', remoteId, remoteResolved);
           const cache = new Map<string, t.DenoResolved>();
           const plugin = createResolvePlugin(cache, {
@@ -1365,6 +1418,7 @@ describe('ViteTransport.resolve', () => {
 
         expect(res).to.eql({
           id: '/tmp/cache/std-path-join.ts',
+          specifier: 'https://jsr.io/@std/path/1.1.4/join.ts',
           kind: 'esm',
           loader: 'TypeScript',
           dependencies: [

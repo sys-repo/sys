@@ -48,10 +48,14 @@ export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = de
       if (Is.str(resolved) && isBarePackageId(resolved)) {
         const skipSelf = true;
         const importerForResolve = Path.join(root, 'deno.json');
-        const delegated = await this.resolve(resolved, importerForResolve, { ...options, skipSelf });
+        const delegated = await this.resolve(resolved, importerForResolve, {
+          ...options,
+          skipSelf,
+        });
         if (delegated) return delegated;
 
-        const fallback = await (deps.resolveNpmPath?.(resolved, root) ?? resolveNpmPath(resolved, root));
+        const fallback =
+          await (deps.resolveNpmPath?.(resolved, root) ?? resolveNpmPath(resolved, root));
         return fallback ?? null;
       }
       return resolved;
@@ -61,7 +65,10 @@ export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = de
       if (isDenoSpecifier(resolvedId)) {
         const parsed = parseDenoSpecifier(resolvedId);
         let cached = cache.get(parsed.resolved);
-        if ((cached === undefined || (cached.kind === 'esm' && cached.dependencies.length === 0)) && isRemoteLike(parsed.id)) {
+        if (
+          (cached === undefined || (cached.kind === 'esm' && cached.dependencies.length === 0)) &&
+          isRemoteLike(parsed.id)
+        ) {
           const hydrated = await resolveDenoWith(parsed.id, root, deps);
           if (hydrated?.kind === 'esm') {
             cache.set(hydrated.id, hydrated);
@@ -71,6 +78,7 @@ export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = de
         }
         return await loadDenoModule(resolvedId, cached?.dependencies ?? [], {
           browserIds,
+          sourceSpecifier: cached?.kind === 'esm' ? cached.specifier : undefined,
           transformCacheDir: transportCacheDir,
         });
       }
@@ -120,9 +128,13 @@ function normalizeDependencies(
     );
 
     if (mod && isResolveInfoModuleEsm(mod)) {
+      const sourceSpecifier = mod.specifier !== resolvedSpecifier && isRemoteLike(mod.specifier)
+        ? mod.specifier
+        : undefined;
       return {
         specifier: dependency.specifier,
         resolvedSpecifier,
+        ...(sourceSpecifier ? { sourceSpecifier } : {}),
         localPath: mod.local,
         loader: mod.mediaType ?? null,
       };
@@ -149,7 +161,12 @@ export async function resolveDenoWith(
   deps: t.ResolveDeps,
 ): Promise<t.DenoResolved | null> {
   if (id.startsWith('\0')) {
-    Perf.sample('transport.resolveDeno', 0 as t.Msecs, { id, cwd, skipped: true, reason: 'null-byte' }, {
+    Perf.sample('transport.resolveDeno', 0 as t.Msecs, {
+      id,
+      cwd,
+      skipped: true,
+      reason: 'null-byte',
+    }, {
       level: 3,
     });
     trace.resolve('request.skip', { id, cwd, reason: 'null-byte' });
@@ -168,7 +185,10 @@ export async function resolveDenoWith(
 
   const settled = deps.memo?.settled.get(canonical);
   if (settled) {
-    Perf.log(canonical === key ? 'transport.resolveDeno.settled' : 'transport.resolveDeno.alias', { id, cwd }, {
+    Perf.log(canonical === key ? 'transport.resolveDeno.settled' : 'transport.resolveDeno.alias', {
+      id,
+      cwd,
+    }, {
       level: 3,
       dedupeKey: canonical === key
         ? `transport.resolveDeno.settled:${canonical}:${cwd}`
@@ -199,7 +219,10 @@ export async function resolveDenoWith(
 
   trace.resolve('miss', { id, cwd, key, canonical });
   const run = (async () => {
-    const end = Perf.section('transport.resolveDeno', { id, cwd }, { level: 2, thresholdMs: 20 as t.Msecs });
+    const end = Perf.section('transport.resolveDeno', { id, cwd }, {
+      level: 2,
+      thresholdMs: 20 as t.Msecs,
+    });
     if (!checkedDenoInstall) {
       await ensureDenoInstalled(cwd, deps);
       checkedDenoInstall = true;
@@ -231,14 +254,26 @@ export async function resolveDenoWith(
     const mod = json.modules.find((info) => !isResolveError(info) && info.specifier === redirected);
 
     if (mod === undefined || isResolveError(mod)) {
-      trace.resolve('result.error', { id, cwd, key, canonical, actualId, redirected, reason: 'module-not-found' });
+      trace.resolve('result.error', {
+        id,
+        cwd,
+        key,
+        canonical,
+        actualId,
+        redirected,
+        reason: 'module-not-found',
+      });
       end({ ok: false, redirected });
       return null;
     }
 
     if (isResolveInfoModuleEsm(mod)) {
+      const sourceSpecifier = mod.specifier !== id && isRemoteLike(mod.specifier)
+        ? mod.specifier
+        : undefined;
       const resolved = {
         id: mod.local,
+        ...(sourceSpecifier ? { specifier: sourceSpecifier } : {}),
         kind: mod.kind,
         loader: mod.mediaType ?? null,
         dependencies: normalizeDependencies(mod.dependencies, json.modules),
@@ -266,7 +301,12 @@ export async function resolveDenoWith(
         dependencies: resolved.dependencies.length,
         aliasKeys,
       });
-      end({ ok: true, kind: resolved.kind, loader: resolved.loader ?? '', dependencies: resolved.dependencies.length });
+      end({
+        ok: true,
+        kind: resolved.kind,
+        loader: resolved.loader ?? '',
+        dependencies: resolved.dependencies.length,
+      });
       return resolved;
     }
 
@@ -304,7 +344,15 @@ export async function resolveDenoWith(
     }
 
     if (isResolveInfoModuleExternal(mod)) {
-      trace.resolve('result.external', { id, cwd, key, canonical, actualId, redirected, moduleSpecifier: mod.specifier });
+      trace.resolve('result.external', {
+        id,
+        cwd,
+        key,
+        canonical,
+        actualId,
+        redirected,
+        moduleSpecifier: mod.specifier,
+      });
       end({ ok: true, kind: mod.kind, external: true });
       return null;
     }
@@ -335,7 +383,10 @@ export async function resolveViteSpecifier(
     const { id: parentId, resolved: parent } = parseDenoSpecifier(importer);
     trace.resolve('importer.request', { sourceId, importer, parentId, parent });
     let cached = cache.get(parent);
-    if (cached === undefined || (cached.kind === 'esm' && cached.dependencies.length === 0 && isRemoteLike(parentId))) {
+    if (
+      cached === undefined ||
+      (cached.kind === 'esm' && cached.dependencies.length === 0 && isRemoteLike(parentId))
+    ) {
       cached = (await resolveDenoWith(parentId, root, deps)) ?? cached;
       if (cached) {
         cache.set(cached.id, cached);
@@ -345,7 +396,10 @@ export async function resolveViteSpecifier(
     if (cached === undefined) return;
 
     const found = cached.dependencies.find((dep) => {
-      if (dep.specifier === sourceId || dep.resolvedSpecifier === sourceId) return true;
+      if (
+        dep.specifier === sourceId || dep.resolvedSpecifier === sourceId ||
+        dep.sourceSpecifier === sourceId
+      ) return true;
       if (dep.specifier.startsWith('npm:')) return toViteNpmSpecifier(dep.specifier) === sourceId;
       return false;
     });
@@ -361,6 +415,7 @@ export async function resolveViteSpecifier(
       parent,
       specifier: found.specifier,
       resolvedSpecifier: found.resolvedSpecifier,
+      sourceSpecifier: found.sourceSpecifier ?? '',
       localPath: found.localPath,
       loader: found.loader ?? '',
     });
@@ -373,7 +428,7 @@ export async function resolveViteSpecifier(
     }
     if (found.localPath && found.loader && isRemoteLike(id)) {
       const existing = cache.get(found.localPath);
-      const hydrated = existing ?? (await resolveDenoWith(id, root, deps));
+      const hydrated = existing ?? (await resolveDenoWith(found.sourceSpecifier ?? id, root, deps));
       if (hydrated?.kind === 'esm') {
         cache.set(hydrated.id, hydrated);
         cache.set(id, hydrated);
@@ -382,6 +437,7 @@ export async function resolveViteSpecifier(
 
       cache.set(found.localPath, {
         id: found.localPath,
+        ...(found.sourceSpecifier ? { specifier: found.sourceSpecifier } : {}),
         kind: 'esm',
         loader: found.loader,
         dependencies: [],
@@ -412,7 +468,10 @@ export async function resolveNpmPathWith(
   cwd: string,
   deps: t.ResolveDeps,
 ): Promise<string | null> {
-  const end = Perf.section('transport.resolveNpmPath', { id, cwd }, { level: 2, thresholdMs: 20 as t.Msecs });
+  const end = Perf.section('transport.resolveNpmPath', { id, cwd }, {
+    level: 2,
+    thresholdMs: 20 as t.Msecs,
+  });
   const output = await deps.invoke({
     cmd: DENO_BINARY,
     args: ['eval', 'console.log(import.meta.resolve(Deno.args[0]))', id],
@@ -470,18 +529,21 @@ const wrangle = {
   },
 
   aliasKeys(args: { input: string; actualId: string; redirected: string; cwd: string }) {
-    return [...new Set([
-      args.input,
-      wrangle.requestKey(args.actualId, args.cwd),
-      wrangle.requestKey(args.redirected, args.cwd),
-    ])];
+    return [
+      ...new Set([
+        args.input,
+        wrangle.requestKey(args.actualId, args.cwd),
+        wrangle.requestKey(args.redirected, args.cwd),
+      ]),
+    ];
   },
 } as const;
 
 const trace = {
   enabled() {
     const value = Deno.env.get(TRACE_RESOLVE_ENV)?.trim().toLowerCase();
-    return value !== undefined && value !== '' && value !== '0' && value !== 'false' && value !== 'off' && value !== 'no';
+    return value !== undefined && value !== '' && value !== '0' && value !== 'false' &&
+      value !== 'off' && value !== 'no';
   },
 
   resolve(label: string, meta: Record<string, unknown>) {
@@ -491,7 +553,9 @@ const trace = {
       .map(([key, value]) => Fmt.Diag.meta(key, value))
       .filter(Boolean)
       .join(' ');
-    console.info(`${Fmt.Diag.prefix('trace', { detail: `resolve.${label}` })}${suffix ? ` ${suffix}` : ''}`);
+    console.info(
+      `${Fmt.Diag.prefix('trace', { detail: `resolve.${label}` })}${suffix ? ` ${suffix}` : ''}`,
+    );
   },
 } as const;
 

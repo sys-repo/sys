@@ -12,6 +12,7 @@ export async function loadDenoModule(
   dependencies: readonly t.DenoDependency[] = [],
   options: {
     readonly browserIds?: boolean;
+    readonly sourceSpecifier?: string;
     readonly transformCacheDir?: string;
   } = {},
 ): Promise<DenoLoadResult> {
@@ -62,7 +63,10 @@ export async function loadDenoModule(
         loader,
         key: cache.plan.key,
         reason: cached.reason,
-      }, { level: 1, dedupeKey: `transport.transform.cache.validationFailed:${cache.plan.key}:${cached.reason}` });
+      }, {
+        level: 1,
+        dedupeKey: `transport.transform.cache.validationFailed:${cache.plan.key}:${cached.reason}`,
+      });
     } else {
       Perf.log('transport.transform.cache.miss', { id: parsed.id, loader, key: cache.plan.key }, {
         level: 2,
@@ -76,7 +80,12 @@ export async function loadDenoModule(
     });
   }
 
-  const transformed = await transformModule(content, loader, resolved);
+  const transformed = await transformModule(
+    content,
+    loader,
+    resolved,
+    options.sourceSpecifier ?? parsed.id,
+  );
   const code = rewriteResolvedImports(transformed.code, dependencies, options);
   const result = {
     code,
@@ -93,13 +102,18 @@ export async function loadDenoModule(
   return result;
 }
 
-async function transformModule(_content: string, loader: t.DenoLoader, sourcefile: string) {
-  const end = Perf.section('transport.transform.denoLoader', { loader, sourcefile }, {
+async function transformModule(
+  _content: string,
+  loader: t.DenoLoader,
+  sourcefile: string,
+  id: string,
+) {
+  const specifier = denoLoaderLoadSpecifier(id, sourcefile);
+  const end = Perf.section('transport.transform.denoLoader', { loader, sourcefile, specifier }, {
     level: 3,
     thresholdMs: 10 as t.Msecs,
   });
   const denoLoader = await wrangle.loader();
-  const specifier = Path.toFileUrl(sourcefile).href;
   const result = await denoLoader.load(specifier, RequestedModuleType.Default);
 
   if (result.kind === 'external') {
@@ -123,6 +137,12 @@ const wrangle = {
     return new TextDecoder().decode(input);
   },
 } as const;
+
+export function denoLoaderLoadSpecifier(id: string, sourcefile: string) {
+  const remote = canonicalRemoteSpecifier(id);
+  if (isConcreteRemoteSpecifier(remote) && !hasExplicitModuleExtension(sourcefile)) return remote;
+  return Path.toFileUrl(sourcefile).href;
+}
 
 export function mediaTypeToLoader(media: string) {
   switch (media) {
@@ -190,6 +210,14 @@ function isRemoteLike(specifier: string) {
     specifier.startsWith('https:/') ||
     specifier.startsWith('jsr:')
   );
+}
+
+function isConcreteRemoteSpecifier(specifier: string) {
+  return specifier.startsWith('http://') || specifier.startsWith('https://');
+}
+
+function hasExplicitModuleExtension(sourcefile: string) {
+  return Path.extname(sourcefile).length > 0;
 }
 
 function toBrowserDenoSpecifier(loader: t.DenoLoader, id: string, resolved: string) {
