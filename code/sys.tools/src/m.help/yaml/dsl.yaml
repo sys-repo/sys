@@ -5,7 +5,7 @@ summary: |
   configs, command surfaces, and tool-specific DSL guidance.
 
 sections:
-  - label: 'Agent protocol'
+  - label: Reading protocol
     items: |
       Agents MUST read this root DSL layer before changing `@sys/tools` behavior
       or owner-facing tool guidance.

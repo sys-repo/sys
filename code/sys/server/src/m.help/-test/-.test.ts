@@ -32,7 +32,7 @@ describe('m.help', () => {
       'files.websocket',
     ]);
     expect(root.sections.map((section) => section.label)).to.eql([
-      'Agent reading protocol',
+      'Reading protocol',
       'Rule',
       'Decision protocol',
       'Speech acts',

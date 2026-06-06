@@ -7,7 +7,7 @@ summary: |
   the matching chapter from the chapter index.
 
 sections:
-  - label: Agent reading protocol
+  - label: Reading protocol
     items: |
       Agents MUST read root DSL before workspace edits.
       Command: `deno run -ER jsr:@sys/workspace dsl`.

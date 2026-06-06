@@ -21,7 +21,7 @@ describe('m.tmpl/-entry dsl', () => {
     expect(root.path).to.eql([]);
     expect(root.chapters.map((chapter) => chapter.id)).to.eql(templateChapters);
     expect(root.sections.map((section) => section.label)).to.eql([
-      'Agent reading protocol',
+      'Reading protocol',
       'Rule',
       'Decision protocol',
       'Speech acts',
@@ -49,7 +49,7 @@ describe('m.tmpl/-entry dsl', () => {
     expect(res.text).to.contain(`${dslCommand} [chapter...]`);
     expectChapterRendered(res.text, root);
     expect(res.text).to.contain('Chapter');
-    expect(res.text.indexOf('Agent reading protocol')).to.be.lessThan(res.text.indexOf('Rule'));
+    expect(res.text.indexOf('Reading protocol')).to.be.lessThan(res.text.indexOf('Rule'));
     expect(res.text).to.not.contain(section(repo, 'Side effects').items[0]);
   });
 
@@ -62,7 +62,7 @@ describe('m.tmpl/-entry dsl', () => {
     expect(res.text).to.contain('@sys/tmpl dsl repo');
     expectChapterRendered(res.text, repo);
     expect(res.text).to.not.contain(`${dslCommand} pkg`);
-    expect(res.text).to.not.contain(section(root, 'Agent reading protocol').items[0]);
+    expect(res.text).to.not.contain(section(root, 'Reading protocol').items[0]);
   });
 
   it('dsl --format skill → renders the root skill with drill-down chapter commands', async () => {

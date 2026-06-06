@@ -34,12 +34,12 @@ describe('Workspace.Cli.Fmt', () => {
     expect(skill).to.contain('name: "sys-workspace-dsl-delta"');
   });
 
-  it('keeps root, upgrade, and DSL help within 80 visible columns', async () => {
+  it('keeps terminal and Markdown help within their visible-width contracts', async () => {
     expectMaxVisibleWidth(FmtHelp.output(), 80);
     expectMaxVisibleWidth(FmtHelp.upgradeOutput(), 80);
-    expectMaxVisibleWidth(await FmtHelp.dslOutput(), 80);
+    expectMaxVisibleWidth(await FmtHelp.dslOutput(), 128);
     expectMaxVisibleWidth(await FmtHelp.dslOutput({ format: 'skill' }), 80);
-    expectMaxVisibleWidth(await FmtHelp.dslOutput({ path: ['delta'] }), 80);
+    expectMaxVisibleWidth(await FmtHelp.dslOutput({ path: ['delta'] }), 128);
     expectMaxVisibleWidth(await FmtHelp.dslOutput({ path: ['delta'], format: 'skill' }), 80);
   });
 

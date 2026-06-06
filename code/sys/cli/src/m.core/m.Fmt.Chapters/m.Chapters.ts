@@ -6,8 +6,8 @@ import { files, resolve } from './u.resources.ts';
 import { hr } from '../m.Fmt/m.Fmt.Hr.ts';
 import { Table } from '../m.Table/mod.ts';
 
-const MAX_WIDTH = 80;
-const TABLE_GAP_WIDTH = 3;
+const TERMINAL_TEXT_WIDTH = 100;
+const MARKDOWN_WIDTH = 80;
 
 /** Navigable help chapter formatting and tree helpers. */
 export const Chapters: t.CliFormatChapters.Lib = {
@@ -23,22 +23,20 @@ export const Chapters: t.CliFormatChapters.Lib = {
 function format(input: t.CliFormatChapters.FormatInput): string {
   const { chapter } = input;
   const table = Table.create([]);
+  const label = input.label ?? 'Chapter';
+  const rowWidth = Math.max(0, TERMINAL_TEXT_WIDTH);
 
   chapter.sections.forEach((section, sectionIndex) => {
     if (sectionIndex > 0) table.push(['', '']);
     section.items.forEach((item, itemIndex) => {
-      table.push([itemIndex === 0 ? c.gray(section.label) : '', c.white(item)]);
+      table.push([
+        itemIndex === 0 ? c.gray(section.label) : '',
+        c.white(wrapText(item, rowWidth)),
+      ]);
     });
   });
 
   if (chapter.chapters.length > 0) {
-    const label = input.label ?? 'Chapter';
-    const labelWidth = maxVisibleWidth([
-      ...chapter.sections.map((section) => section.label),
-      label,
-    ]);
-    const rowWidth = Math.max(0, MAX_WIDTH - labelWidth - TABLE_GAP_WIDTH);
-
     if (chapter.sections.length > 0) table.push(['', '']);
     const commandWidth = maxVisibleWidth(
       chapter.chapters.map((item) => chapterCommand(input, item)),
@@ -62,7 +60,7 @@ function page(input: t.CliFormatChapters.PageInput): string {
     ? [help]
     : input.separator === false
     ? [help, chapter]
-    : [help, hr({ color: 'cyan', width: MAX_WIDTH }), chapter];
+    : [help, hr({ color: 'cyan' }), chapter];
   return composeBlocks(blocks);
 }
 
@@ -98,7 +96,7 @@ function chapterLine(
   rowWidth: number,
 ): string {
   const command = chapterCommand(input, chapter);
-  const summary = c.gray(chapter.summary);
+  const summary = c.gray(wrapText(chapter.summary, rowWidth));
   const inline = `${padVisibleEnd(command, commandWidth)}  ${summary}`;
   return visibleWidth(inline) <= rowWidth ? inline : `${command}\n${summary}`;
 }
@@ -119,7 +117,7 @@ function markdownChapterLine(
   const command = markdownChapterCommand(input, chapter);
   const summary = singleLine(chapter.summary);
   const inline = `- \`${command}\` — ${summary}`;
-  return inline.length <= MAX_WIDTH ? inline : `- \`${command}\`\n  — ${summary}`;
+  return inline.length <= MARKDOWN_WIDTH ? inline : `- \`${command}\`\n  — ${summary}`;
 }
 
 function markdownChapterCommand(
@@ -149,6 +147,45 @@ function yamlDoubleQuoted(input: string): string {
 
 function singleLine(input: string): string {
   return Str.trimEdgeNewlines(input).split(/\s+/).join(' ');
+}
+
+function wrapText(input: string, width: number): string {
+  if (width <= 0) return input;
+
+  let fenced = false;
+  return Str.trimEdgeNewlines(input)
+    .split('\n')
+    .flatMap((line) => {
+      if (line.trimStart().startsWith('```')) {
+        fenced = !fenced;
+        return [line];
+      }
+      return fenced ? [line] : wrapLine(line, width);
+    })
+    .join('\n');
+}
+
+function wrapLine(input: string, width: number): readonly string[] {
+  if (visibleWidth(input) <= width) return [input];
+
+  const leading = input.match(/^\s*/)?.[0] ?? '';
+  const available = Math.max(1, width - visibleWidth(leading));
+  const words = input.trim().split(/\s+/);
+  const lines: string[] = [];
+  let line = '';
+
+  words.forEach((word) => {
+    const next = line ? `${line} ${word}` : word;
+    if (visibleWidth(next) <= available || !line) {
+      line = next;
+    } else {
+      lines.push(`${leading}${line}`);
+      line = word;
+    }
+  });
+
+  if (line) lines.push(`${leading}${line}`);
+  return lines;
 }
 
 function composeBlocks(blocks: readonly string[]): string {

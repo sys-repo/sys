@@ -190,10 +190,34 @@ describe('Cli.Fmt.Chapters', () => {
     expect(plain).to.not.contain('Chapter');
   });
 
-  it('wraps long child chapter index rows within 80 visible columns', () => {
+  it('wraps long terminal section items within the chapter text width', () => {
     const long = {
       ...chapter,
-      sections: [{ label: 'Agent reading protocol', items: ['Read root.'] }],
+      sections: [
+        {
+          label: 'Runtime authority',
+          items: [
+            'The `@sys/cell` package version that provides the DSL must match the runtime version that loads, verifies, runs tasks for, or starts the Cell.',
+          ],
+        },
+      ],
+      chapters: [],
+    } as const;
+    const text = Fmt.Chapters.format({ command, chapter: long });
+    const plain = Cli.stripAnsi(text);
+
+    expect(plain).to.contain('Runtime authority');
+    expect(plain).to.contain('must');
+    expect(plain).to.contain('match');
+    expect(plain).to.contain('runtime version');
+    expect(plain).to.contain('or starts the Cell.');
+    expectMaxVisibleWidth(plain, 128);
+  });
+
+  it('wraps long child chapter index rows within the chapter text width', () => {
+    const long = {
+      ...chapter,
+      sections: [{ label: 'Reading protocol', items: ['Read root.'] }],
       chapters: [
         {
           id: 'delta',
@@ -211,7 +235,7 @@ describe('Cli.Fmt.Chapters', () => {
 
     expect(plain).to.contain('deno run -ER jsr:@sys/workspace dsl delta');
     expect(plain).to.contain('Map git changes to bump roots.');
-    expectMaxVisibleWidth(plain, 80);
+    expectMaxVisibleWidth(plain, 128);
   });
 
   it('renders a full terminal chapter help page', () => {

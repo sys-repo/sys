@@ -12,12 +12,13 @@ sections:
       Confirm missing values before editing owner configs or `-cell/cell.yaml`.
       Do not inspect implementation source just to infer these examples.
 
-  - label: 'Common prompt shapes'
+  - label: Prompt shapes
     items: |
       A prompt mentioning `fs.db.team` likely points to an HTTP dist bundle URL slot.
       Ask for or confirm a complete `https://.../dist.json` URL before configuring a pull.
       Depending on wording, likely operations are `add: pulled view` or `refresh: pulled views`.
-      Do not put dist URL, local target, pull mechanics, or view registry entries in `-cell/cell.yaml`.
+      Do not put dist URL, local target, pull mechanics, or view registry entries in
+      `-cell/cell.yaml`.
 
   - label: 'Sample slot values'
     items:
@@ -48,14 +49,14 @@ sections:
       Service and task names are Cell descriptor IDs.
       Owner config internals stay outside `-cell/cell.yaml`.
 
-  - label: 'Owner flow reminders'
+  - label: Owner reminders
     items: |
       Pulled view config is owned by `@sys/tools/pull`.
       Default static serving is owned by `@sys/tools/serve`.
       Proxy routing is owned by `@sys/http/server/proxy`.
       Cell records only services, tasks, endpoint refs, and owner config refs.
 
-  - label: 'Source-reading guardrail'
+  - label: Source guardrail
     items: |
       Prefer root DSL, the matching operation chapter, this examples chapter, and owner
       `--help` before package source.

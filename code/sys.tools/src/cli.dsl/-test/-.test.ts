@@ -24,7 +24,7 @@ describe('@sys/tools dsl', () => {
 
     expect(deploy).to.contain('@sys/tools dsl deploy');
     expect(deploy).to.contain('Deploy snapshot replacement, provider push');
-    expect(deploy).to.contain('Snapshot replacement');
+    expect(deploy).to.contain('Snapshot');
     expect(deploy).to.contain('Force repair mode');
   });
 

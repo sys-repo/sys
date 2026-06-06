@@ -11,7 +11,7 @@ describe('m.cli dsl', () => {
     expect(res.kind).to.eql('help');
     expect(text).to.contain('@sys/server dsl');
     expect(text).to.contain('Chapter');
-    expect(text).to.contain('Agent reading protocol');
+    expect(text).to.contain('Reading protocol');
     expect(text).to.contain('Prompt asks for generic WebSocket command transport');
     expect(text).to.contain('websocket.cmd');
     expect(text).to.contain('files.websocket');
@@ -114,7 +114,7 @@ describe('m.cli dsl', () => {
     expect(res.kind).to.eql('error');
     expect(text).to.contain('Unsupported dsl format: xml (expected: human, skill)');
     expect(text).to.contain('@sys/server dsl');
-    expect(text).to.contain('Agent reading protocol');
+    expect(text).to.contain('Reading protocol');
   });
 
   it('dsl --format without value fails clearly with root DSL help', async () => {

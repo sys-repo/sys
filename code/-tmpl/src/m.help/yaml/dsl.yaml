@@ -2,10 +2,11 @@ id: dsl
 title: Templater DSL
 summary: |
   Templater DSL: the operating contract for agents using `@sys/tmpl`.
-  Read this root layer before applying a template; then read the matching chapter from the chapter index.
+  Read this root layer before applying a template; then read the matching chapter from
+  the chapter index.
 
 sections:
-  - label: Agent reading protocol
+  - label: Reading protocol
     items: |
       Agents MUST read this root DSL layer before applying a template.
       Command: `deno run -ERW jsr:@sys/tmpl dsl`.

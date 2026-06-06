@@ -14,7 +14,7 @@ sections:
       Keep provider-specific mechanics behind provider modules and provider-scoped
       tests.
 
-  - label: 'Stage and push boundary'
+  - label: Stage/push
     items: |
       Stage prepares local staging output and `dist.json` snapshot metadata.
       Push replicates already-staged output to the configured provider endpoint.
@@ -22,7 +22,7 @@ sections:
       Force mode applies only to push behavior, including the push half of
       `stage+push`; it must not change staging semantics.
 
-  - label: 'Snapshot replacement'
+  - label: Snapshot
     items: |
       Remote files under the configured deploy namespace that are absent from the
       staged `dist.json` are stale deploy drift.
@@ -67,7 +67,7 @@ sections:
       Force must not verify arbitrary remote bytes.
       Push reports should label forced positive writes as forced files.
 
-  - label: 'Publish stats and reports'
+  - label: Publish reports
     items: |
       Provider publish stats are per-file facts with statuses such as `written`
       and `skipped`.

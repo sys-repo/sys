@@ -6,7 +6,7 @@ summary: |
   the chapter index.
 
 sections:
-  - label: 'Agent reading protocol'
+  - label: Reading protocol
     items:
       - |-
         Agents MUST read this root DSL layer before changing a Cell folder:
@@ -57,7 +57,8 @@ sections:
 
   - label: 'Descriptor IDs'
     items: |
-      Service and task names in `-cell/cell.yaml` use the pattern `^[a-z][a-z0-9]*(?:[.:-][a-z0-9]+)*$`.
+      Service and task names in `-cell/cell.yaml` use the pattern
+      `^[a-z][a-z0-9]*(?:[.:-][a-z0-9]+)*$`.
       Allowed separators are `.`, `:`, and `-` between lowercase alphanumeric segments.
       Do not use `_`, `/`, spaces, uppercase letters, leading/trailing separators, or
       repeated separators.

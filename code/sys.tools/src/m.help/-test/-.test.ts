@@ -10,7 +10,7 @@ describe('Tools Help', () => {
     expect(chapter.path).to.eql([]);
     expect(chapter.title).to.eql('Tools DSL');
     expect(labelsOf(chapter)).to.eql([
-      'Agent protocol',
+      'Reading protocol',
       'Rule',
       'Chapter policy',
       'Help and authority',
@@ -43,12 +43,12 @@ describe('Tools Help', () => {
     );
     expect(labelsOf(chapter)).to.eql([
       'Rule',
-      'Stage and push boundary',
-      'Snapshot replacement',
+      'Stage/push',
+      'Snapshot',
       'Provider boundaries',
       'R2 Files publishing',
       'Force repair mode',
-      'Publish stats and reports',
+      'Publish reports',
       'Verification',
     ]);
     expect(chapter.chapters).to.eql([]);
@@ -56,7 +56,7 @@ describe('Tools Help', () => {
     expect(textOf(chapter, 'Rule')).to.contain('Deploy is snapshot replacement');
     expect(textOf(chapter, 'Rule')).to.contain('not incremental remote filesystem copy');
 
-    const snapshot = textOf(chapter, 'Snapshot replacement');
+    const snapshot = textOf(chapter, 'Snapshot');
     expect(snapshot).to.contain('stale deploy drift');
     expect(snapshot).to.contain('prune stale remote files by default');
     expect(snapshot).to.contain('Do not add a `publish.stale` deploy schema option');
@@ -69,7 +69,7 @@ describe('Tools Help', () => {
     expect(force).to.contain('Force is not the prune switch');
     expect(force).to.contain('Force must not verify arbitrary remote bytes');
 
-    const stats = textOf(chapter, 'Publish stats and reports');
+    const stats = textOf(chapter, 'Publish reports');
     expect(stats).to.contain('Prune stats are separate facts');
     expect(stats).to.contain('not green uploads');
 

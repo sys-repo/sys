@@ -1,6 +1,7 @@
 summary: |
   Run a named trusted Cell task from a finite `tasks[]` graph.
-  Loads canonical `-cell/cell.yaml`, verifies the requested task closure, and executes the named root task.
+  Loads canonical `-cell/cell.yaml`, verifies the requested task closure, and executes the
+  named root task.
 
 usage:
   - deno run -ERWN jsr:@sys/cell task <name> [dir]

@@ -6,7 +6,7 @@ summary: |
   Then read the matching chapter from the chapter index.
 
 sections:
-  - label: Agent reading protocol
+  - label: Reading protocol
     items: |
       Agents MUST read this root DSL layer before using `@sys/server` primitives.
       Agents MUST read this root DSL layer before changing or composing primitives.
