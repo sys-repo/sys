@@ -154,6 +154,30 @@ describe('ViteTransport.load', () => {
       await Fs.remove(fs.absolute);
     });
 
+    it('rewrites remote deno children by concrete source specifier when cache ids are jsr', async () => {
+      const fs = await Fs.makeTempDir({ prefix: 'ViteTransport.load.remote-source-build.' });
+      const path = Fs.join(fs.absolute, 'mod.js');
+      const child = '/tmp/deno-cache/child.tsx';
+      await Fs.write(path, "export { value } from 'jsr:@sys/ui-react/src/value.tsx';");
+
+      const sourceSpecifier = 'https://jsr.io/@sys/ui-react/0.0.329/src/value.tsx';
+      const res = await loadDenoModule(toDenoSpecifier('JavaScript', './mod.js', path), [
+        {
+          specifier: 'jsr:@sys/ui-react/src/value.tsx',
+          resolvedSpecifier: 'jsr:@sys/ui-react/src/value.tsx',
+          sourceSpecifier,
+          localPath: child,
+          loader: 'TSX',
+        },
+      ]);
+
+      expect(res).to.eql(
+        `export { value } from '${toDenoSpecifier('TSX', sourceSpecifier, child)}';`,
+      );
+
+      await Fs.remove(fs.absolute);
+    });
+
     it('wraps json as a default export', async () => {
       const fs = await Fs.makeTempDir({ prefix: 'ViteTransport.load.json.' });
       const path = Fs.join(fs.absolute, 'mod.json');

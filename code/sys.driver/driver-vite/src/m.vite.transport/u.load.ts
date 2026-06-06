@@ -192,7 +192,7 @@ function resolvedImportSpecifier(
 ) {
   const { resolvedSpecifier: specifier, localPath } = dependency;
   if (localPath && dependency.loader && isRemoteLike(specifier)) {
-    const sourceId = canonicalRemoteSpecifier(specifier);
+    const sourceId = canonicalRemoteSpecifier(dependency.sourceSpecifier ?? specifier);
     return options.browserIds
       ? toBrowserDenoSpecifier(dependency.loader, sourceId, localPath)
       : toDenoSpecifier(dependency.loader, sourceId, localPath);
