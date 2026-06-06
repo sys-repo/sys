@@ -7,6 +7,7 @@ import { hr } from '../m.Fmt/m.Fmt.Hr.ts';
 import { Table } from '../m.Table/mod.ts';
 
 const TERMINAL_TEXT_WIDTH = 100;
+const CHAPTER_SUMMARY_INDENT = 2;
 const MARKDOWN_WIDTH = 80;
 
 /** Navigable help chapter formatting and tree helpers. */
@@ -98,7 +99,15 @@ function chapterLine(
   const command = chapterCommand(input, chapter);
   const summary = c.gray(wrapText(chapter.summary, rowWidth));
   const inline = `${padVisibleEnd(command, commandWidth)}  ${summary}`;
-  return visibleWidth(inline) <= rowWidth ? inline : `${command}\n${summary}`;
+  if (visibleWidth(inline) <= rowWidth) return inline;
+
+  const splitSummary = c.gray(
+    indentText(
+      wrapText(chapter.summary, rowWidth - CHAPTER_SUMMARY_INDENT),
+      CHAPTER_SUMMARY_INDENT,
+    ),
+  );
+  return `${command}\n${splitSummary}`;
 }
 
 function chapterCommand(
@@ -186,6 +195,11 @@ function wrapLine(input: string, width: number): readonly string[] {
 
   if (line) lines.push(`${leading}${line}`);
   return lines;
+}
+
+function indentText(input: string, width: number): string {
+  const indent = ' '.repeat(Math.max(0, width));
+  return input.split('\n').map((line) => `${indent}${line}`).join('\n');
 }
 
 function composeBlocks(blocks: readonly string[]): string {

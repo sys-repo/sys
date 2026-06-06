@@ -223,7 +223,7 @@ describe('Cli.Fmt.Chapters', () => {
           id: 'delta',
           path: ['delta'],
           title: 'Delta',
-          summary: 'Map git changes to bump roots.',
+          summary: 'Map git changes to bump roots and explain why each affected package participates in the release closure.',
         },
       ],
     } as const;
@@ -234,7 +234,10 @@ describe('Cli.Fmt.Chapters', () => {
     const plain = Cli.stripAnsi(text);
 
     expect(plain).to.contain('deno run -ER jsr:@sys/workspace dsl delta');
-    expect(plain).to.contain('Map git changes to bump roots.');
+    expect(plain).to.contain('Map git changes to bump roots');
+    expect(lineColumn(plain, 'Map git changes to bump roots')).to.eql(
+      lineColumn(plain, 'deno run -ER jsr:@sys/workspace dsl delta') + 2,
+    );
     expectMaxVisibleWidth(plain, 128);
   });
 
@@ -370,6 +373,12 @@ function chapterSummaryColumn(text: string, chapter: string, summary: string): n
   const line = text.split('\n').find((line) => line.includes(`dsl ${chapter}`));
   expect(line).to.not.eql(undefined);
   return line?.indexOf(summary) ?? -1;
+}
+
+function lineColumn(text: string, needle: string): number {
+  const line = text.split('\n').find((line) => line.includes(needle));
+  expect(line).to.not.eql(undefined);
+  return line?.indexOf(needle) ?? -1;
 }
 
 function expectMaxVisibleWidth(text: string, width: number) {
