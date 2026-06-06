@@ -1,6 +1,6 @@
-import { Fmt } from '../common/u.fmt.ts';
+import { Fmt } from '../../common/u.fmt.ts';
 
-const TRACE_RESOLVE_ENV = 'SYS_DRIVER_VITE_TRACE_RESOLVE';
+const TRACE_RESOLVE_ENV = 'SYS_VITE_TRACE_RESOLVE';
 
 export const trace = {
   enabled() {
@@ -16,8 +16,7 @@ export const trace = {
       .map(([key, value]) => Fmt.Diag.meta(key, value))
       .filter(Boolean)
       .join(' ');
-    console.info(
-      `${Fmt.Diag.prefix('trace', { detail: `resolve.${label}` })}${suffix ? ` ${suffix}` : ''}`,
-    );
+    const prefix = Fmt.Diag.prefix('trace', { detail: `resolve.${label}` });
+    console.info(`${prefix}${suffix ? ` ${suffix}` : ''}`);
   },
 } as const;

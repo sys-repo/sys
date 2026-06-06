@@ -1,4 +1,4 @@
-import { Path } from './common.ts';
+import { Path } from '../common.ts';
 
 export function isDenoSpecifier(str: string) {
   return str.startsWith('\0deno');

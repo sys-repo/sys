@@ -1,13 +1,13 @@
-import { Is, Path, type t } from './common.ts';
+import { Is, Path, type t } from '../common.ts';
 import type { PluginContext } from 'rollup';
-import { loadDenoModule } from './u.load.ts';
-import { isBarePackageId } from './u.npm.ts';
-import { resolveDenoWith } from './u.resolve.denoInfo.ts';
-import { DenoLoaderResolver, type DenoLoaderResolverInstance } from './u.resolve.loader.ts';
-import { isRemoteLike } from './u.resolve.loaderAdapter.ts';
-import { resolveNpmPath } from './u.resolve.npmPath.ts';
-import { resolveViteSpecifier } from './u.resolve.vite.ts';
-import { isDenoSpecifier, parseDenoSpecifier, unwrapViteId } from './u.specifier.ts';
+import { loadDenoModule } from '../u/u.load.ts';
+import { isBarePackageId } from '../u/u.npm.ts';
+import { isDenoSpecifier, parseDenoSpecifier, unwrapViteId } from '../u/u.specifier.ts';
+import { resolveDenoWith } from './u.denoInfo.ts';
+import { DenoLoaderResolver, type DenoLoaderResolverInstance } from './u.loader.ts';
+import { isRemoteLike } from './u.loaderAdapter.ts';
+import { resolveNpmPath } from './u.npmPath.ts';
+import { resolveViteSpecifier } from './u.vite.ts';
 
 type ResolveOptions = NonNullable<Parameters<PluginContext['resolve']>[2]>;
 

@@ -1,5 +1,5 @@
-import { Perf } from '../common/u.perf.ts';
-import { Fs, Path, type t } from './common.ts';
+import { Perf } from '../../common/u.perf.ts';
+import { Fs, Path, type t } from '../common.ts';
 import { RequestedModuleType, Workspace } from '@deno/loader';
 import { TransformCache } from './u.cache.ts';
 import { toViteNpmSpecifier } from './u.npm.ts';
@@ -102,6 +102,32 @@ export async function loadDenoModule(
   return result;
 }
 
+export function denoLoaderLoadSpecifier(id: string, sourcefile: string) {
+  const remote = canonicalRemoteSpecifier(id);
+  if (isConcreteRemoteSpecifier(remote) && !hasExplicitModuleExtension(sourcefile)) return remote;
+  return Path.toFileUrl(sourcefile).href;
+}
+
+export function mediaTypeToLoader(media: string) {
+  switch (media) {
+    case 'JSX':
+      return 'jsx';
+    case 'JavaScript':
+      return 'js';
+    case 'Json':
+      return 'json';
+    case 'TSX':
+      return 'tsx';
+    case 'TypeScript':
+      return 'ts';
+    default:
+      return 'js';
+  }
+}
+
+/**
+ * Helpers:
+ */
 async function transformModule(
   _content: string,
   loader: t.DenoLoader,
@@ -137,29 +163,6 @@ const wrangle = {
     return new TextDecoder().decode(input);
   },
 } as const;
-
-export function denoLoaderLoadSpecifier(id: string, sourcefile: string) {
-  const remote = canonicalRemoteSpecifier(id);
-  if (isConcreteRemoteSpecifier(remote) && !hasExplicitModuleExtension(sourcefile)) return remote;
-  return Path.toFileUrl(sourcefile).href;
-}
-
-export function mediaTypeToLoader(media: string) {
-  switch (media) {
-    case 'JSX':
-      return 'jsx';
-    case 'JavaScript':
-      return 'js';
-    case 'Json':
-      return 'json';
-    case 'TSX':
-      return 'tsx';
-    case 'TypeScript':
-      return 'ts';
-    default:
-      return 'js';
-  }
-}
 
 function rewriteResolvedImports(
   content: string,

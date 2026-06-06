@@ -1,6 +1,6 @@
-import { Path, type t } from './common.ts';
-import { repairConcreteRemoteAuthorityDelimiter, toDenoSpecifier } from './u.specifier.ts';
-import { trace } from './u.resolve.trace.ts';
+import { Path, type t } from '../common.ts';
+import { repairConcreteRemoteAuthorityDelimiter, toDenoSpecifier } from '../u/u.specifier.ts';
+import { trace } from './u.trace.ts';
 
 export async function resolveWithLoader(
   id: string,
@@ -88,6 +88,9 @@ export function isRemoteLike(specifier: string) {
   );
 }
 
+/**
+ * Helpers:
+ */
 function pathToFileUrl(path: string) {
   return Path.toFileUrl(path).href;
 }

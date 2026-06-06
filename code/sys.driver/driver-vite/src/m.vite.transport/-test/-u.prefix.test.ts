@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../-test.ts';
 import type { t } from '../common.ts';
-import prefixPlugin from '../u.prefix.ts';
+import prefixPlugin from '../u/u.prefix.ts';
 
 describe('ViteTransport.prefix', () => {
   describe('plugin shape', () => {
@@ -222,7 +222,9 @@ describe('ViteTransport.prefix', () => {
         wrangle.options(),
       );
 
-      expect(res).to.eql('/tmp/project/node_modules/.deno/react@19.2.4/node_modules/react/index.js');
+      expect(res).to.eql(
+        '/tmp/project/node_modules/.deno/react@19.2.4/node_modules/react/index.js',
+      );
     });
   });
 });

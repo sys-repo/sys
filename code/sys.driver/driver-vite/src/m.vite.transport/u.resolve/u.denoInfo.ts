@@ -1,8 +1,15 @@
-import { Perf } from '../common/u.perf.ts';
-import { Is, Json, Path, Process, type t } from './common.ts';
-import { repairConcreteRemoteAuthorityDelimiter } from './u.specifier.ts';
-import { isRemoteLike } from './u.resolve.loaderAdapter.ts';
-import { trace } from './u.resolve.trace.ts';
+import { Perf } from '../../common/u.perf.ts';
+import { Json, Process, type t } from '../common.ts';
+import { normalizeDependencies } from './u.denoInfo.deps.ts';
+import {
+  isResolveError,
+  isResolveInfoModuleEsm,
+  isResolveInfoModuleExternal,
+  isResolveInfoModuleNpm,
+} from './u.denoInfo.is.ts';
+import { DenoInfoMemo } from './u.denoInfo.memo.ts';
+import { isRemoteLike } from './u.loaderAdapter.ts';
+import { trace } from './u.trace.ts';
 
 let checkedDenoInstall = false;
 const DENO_BINARY = Deno.build.os === 'windows' ? 'deno.exe' : 'deno';
@@ -29,8 +36,8 @@ export async function resolveDenoWith(
     return null;
   }
 
-  const key = wrangle.requestKey(id, cwd);
-  const canonical = wrangle.canonicalKey(key, deps.memo);
+  const key = DenoInfoMemo.requestKey(id, cwd);
+  const canonical = DenoInfoMemo.canonicalKey(key, deps.memo);
   trace.resolve('request', {
     id,
     cwd,
@@ -134,8 +141,8 @@ export async function resolveDenoWith(
         loader: mod.mediaType ?? null,
         dependencies: normalizeDependencies(mod.dependencies, json.modules),
       };
-      const aliasKeys = wrangle.aliasKeys({ input: key, actualId, redirected, cwd });
-      wrangle.memoizeResolved(deps.memo, {
+      const aliasKeys = DenoInfoMemo.aliasKeys({ input: key, actualId, redirected, cwd });
+      DenoInfoMemo.memoizeResolved(deps.memo, {
         canonical,
         input: key,
         actualId,
@@ -173,8 +180,8 @@ export async function resolveDenoWith(
         loader: null,
         dependencies: [] as const,
       };
-      const aliasKeys = wrangle.aliasKeys({ input: key, actualId, redirected, cwd });
-      wrangle.memoizeResolved(deps.memo, {
+      const aliasKeys = DenoInfoMemo.aliasKeys({ input: key, actualId, redirected, cwd });
+      DenoInfoMemo.memoizeResolved(deps.memo, {
         canonical,
         input: key,
         actualId,
@@ -225,98 +232,9 @@ export async function resolveDenoWith(
   }
 }
 
-function isResolveError(
-  info: t.ResolveInfoError | t.ResolveInfoModule,
-): info is t.ResolveInfoError {
-  return 'error' in info && Is.str(info.error);
-}
-
-function isResolveInfoModuleEsm(
-  info: t.ResolveInfoError | t.ResolveInfoModule,
-): info is t.ResolveInfoModuleEsm {
-  return !isResolveError(info) && info.kind === 'esm';
-}
-
-function isResolveInfoModuleNpm(
-  info: t.ResolveInfoError | t.ResolveInfoModule,
-): info is t.ResolveInfoModuleNpm {
-  return !isResolveError(info) && info.kind === 'npm';
-}
-
-function isResolveInfoModuleExternal(
-  info: t.ResolveInfoError | t.ResolveInfoModule,
-): info is t.ResolveInfoModuleExternal {
-  return !isResolveError(info) && info.kind === 'external';
-}
-
-function normalizeDependencies(
-  dependencies: readonly t.ResolveInfoDependency[] | undefined,
-  modules: readonly (t.ResolveInfoModule | t.ResolveInfoError)[],
-): readonly t.DenoDependency[] {
-  return (dependencies ?? []).map((dependency) => {
-    const resolvedSpecifier = dependency.code?.specifier ?? dependency.specifier;
-    const mod = modules.find(
-      (info) => !isResolveError(info) && info.specifier === resolvedSpecifier,
-    );
-
-    if (mod && isResolveInfoModuleEsm(mod)) {
-      const sourceSpecifier = mod.specifier !== resolvedSpecifier && isRemoteLike(mod.specifier)
-        ? mod.specifier
-        : undefined;
-      return {
-        specifier: dependency.specifier,
-        resolvedSpecifier,
-        ...(sourceSpecifier ? { sourceSpecifier } : {}),
-        localPath: mod.local,
-        loader: mod.mediaType ?? null,
-      };
-    }
-
-    return {
-      specifier: dependency.specifier,
-      resolvedSpecifier,
-    };
-  });
-}
-
-const wrangle = {
-  requestKey(id: string, cwd: string) {
-    return Json.stringify([Path.normalize(cwd), repairConcreteRemoteAuthorityDelimiter(id)]);
-  },
-
-  canonicalKey(key: string, memo?: t.ResolveMemo) {
-    return memo?.alias.get(key) ?? key;
-  },
-
-  memoizeResolved(
-    memo: t.ResolveMemo | undefined,
-    args: {
-      canonical: string;
-      input: string;
-      actualId: string;
-      redirected: string;
-      cwd: string;
-      resolved: t.DenoResolved;
-    },
-  ) {
-    if (!memo) return;
-    memo.settled.set(args.canonical, args.resolved);
-    for (const key of wrangle.aliasKeys(args)) {
-      memo.alias.set(key, args.canonical);
-    }
-  },
-
-  aliasKeys(args: { input: string; actualId: string; redirected: string; cwd: string }) {
-    return [
-      ...new Set([
-        args.input,
-        wrangle.requestKey(args.actualId, args.cwd),
-        wrangle.requestKey(args.redirected, args.cwd),
-      ]),
-    ];
-  },
-} as const;
-
+/**
+ * Helpers:
+ */
 async function ensureDenoInstalled(cwd: string, deps: t.ResolveDeps) {
   const res = await deps.invoke({
     cmd: DENO_BINARY,

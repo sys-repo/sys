@@ -1,6 +1,7 @@
-import { Path, Process, type t } from './common.ts';
-import { toViteNpmSpecifier } from './u.npm.ts';
-import { resolveDenoWith } from './u.resolve.denoInfo.ts';
+import { Path, Process, type t } from '../common.ts';
+import { toViteNpmSpecifier } from '../u/u.npm.ts';
+import { isDenoSpecifier, parseDenoSpecifier, toDenoSpecifier } from '../u/u.specifier.ts';
+import { resolveDenoWith } from './u.denoInfo.ts';
 import {
   adaptCachedResolution,
   adaptLoaderResolution,
@@ -8,9 +9,8 @@ import {
   loaderReferrerFromDenoImporter,
   loaderReferrerFromViteImporter,
   resolveWithLoader,
-} from './u.resolve.loaderAdapter.ts';
-import { trace } from './u.resolve.trace.ts';
-import { isDenoSpecifier, parseDenoSpecifier, toDenoSpecifier } from './u.specifier.ts';
+} from './u.loaderAdapter.ts';
+import { trace } from './u.trace.ts';
 
 export async function resolveViteSpecifier(
   id: string,

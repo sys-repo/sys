@@ -5,14 +5,18 @@ import {
   parseDenoSpecifier,
   repairConcreteRemoteAuthorityDelimiter,
   toDenoSpecifier,
-} from '../u.specifier.ts';
-import { createResolvePlugin, resolveDenoWith, resolveViteSpecifier } from '../u.resolve.ts';
+} from '../u/u.specifier.ts';
+import {
+  createResolvePlugin,
+  resolveDenoWith,
+  resolveViteSpecifier,
+} from '../u.resolve/u.resolve.ts';
 import { procOutput } from './u.fixture.ts';
 
 describe('ViteTransport.resolve', () => {
   type PluginResolve = NonNullable<t.Rollup.PluginContext['resolve']>;
   const pluginContext = {} as unknown as t.Rollup.PluginContext;
-  const ENV_TRACE = 'SYS_DRIVER_VITE_TRACE_RESOLVE';
+  const ENV_TRACE = 'SYS_VITE_TRACE_RESOLVE';
 
   describe('specifier encoding', () => {
     it('identifies deno-prefixed module ids', () => {

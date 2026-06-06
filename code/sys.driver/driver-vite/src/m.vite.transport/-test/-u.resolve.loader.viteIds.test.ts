@@ -1,8 +1,8 @@
 import { describe, expect, Fs, Is, it, Json, Path } from '../../-test.ts';
 import { type t } from '../common.ts';
-import { DenoLoaderResolver } from '../u.resolve.loader.ts';
-import { createResolvePlugin, resolveViteSpecifier } from '../u.resolve.ts';
-import { parseDenoSpecifier, toDenoSpecifier, unwrapViteId } from '../u.specifier.ts';
+import { createResolvePlugin, resolveViteSpecifier } from '../u.resolve/u.resolve.ts';
+import { DenoLoaderResolver } from '../u.resolve/u.loader.ts';
+import { parseDenoSpecifier, toDenoSpecifier, unwrapViteId } from '../u/u.specifier.ts';
 import { DenoLoaderResolverFixture } from './u.fixture.loaderResolver.ts';
 import { procOutput } from './u.fixture.ts';
 

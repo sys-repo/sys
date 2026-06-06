@@ -19,7 +19,8 @@ export async function syncTransportLoaderVersion(args: { depsPath: string; targe
     targetPath: args.targetPath,
     specifier: SPECIFIER_DENO_LOADER,
     pattern: PATTERN_DENO_LOADER_VERSION,
-    replacement: (resolved) => `const DENO_LOADER_VERSION = '${wrangle.denoLoaderVersion(resolved)}'`,
+    replacement: (resolved) =>
+      `const DENO_LOADER_VERSION = '${wrangle.denoLoaderVersion(resolved)}'`,
   });
 }
 
@@ -38,7 +39,7 @@ export async function main() {
   const depsPath = Path.join(ws.dir, 'deps.yaml');
   await syncTransportLoaderVersion({
     depsPath,
-    targetPath: './src/m.vite.transport/u.cache.ts',
+    targetPath: './src/m.vite.transport/u/u.cache.ts',
   });
   await syncWasmPluginImport({
     depsPath,

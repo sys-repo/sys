@@ -1,12 +1,7 @@
-import { CompositeHash, Fs, Json, Path } from '../common/libs.ts';
-import { pkg } from '../pkg.ts';
-import type { t } from './common.ts';
+import { CompositeHash, Fs, Json, Path } from '../../common/libs.ts';
+import { pkg } from '../../pkg.ts';
+import type { t } from '../common.ts';
 import { canonicalRemoteSpecifier } from './u.specifier.ts';
-
-const CACHE_VERSION = 'vite.transport.transform.v2';
-// Synced from root deps.yaml by `deno task prep` via `-scripts/task.prep.ts`.
-const DENO_LOADER_VERSION = '0.5.0';
-const SUPPORTED_LOADERS = new Set<t.DenoLoader>(['JSX', 'TSX', 'TypeScript']);
 
 type CachePlanArgs = {
   readonly cacheDir?: string;
@@ -36,12 +31,16 @@ export const TransformCache = {
   plan(args: CachePlanArgs): TransformCacheResult {
     if (!args.browserIds) return { kind: 'bypass', reason: 'non-browser' };
     if (!args.cacheDir) return { kind: 'bypass', reason: 'no-cache-dir' };
-    if (!SUPPORTED_LOADERS.has(args.loader)) return { kind: 'bypass', reason: 'unsupported-loader' };
+    if (!SUPPORTED_LOADERS.has(args.loader)) {
+      return { kind: 'bypass', reason: 'unsupported-loader' };
+    }
 
     const sourceId = wrangle.canonicalSourceId(args.id);
     if (!sourceId) return { kind: 'bypass', reason: 'non-remote-source' };
     const materialized = Path.normalize(args.resolved);
-    if (Path.resolve(materialized) !== materialized) return { kind: 'bypass', reason: 'non-materialized-source' };
+    if (Path.resolve(materialized) !== materialized) {
+      return { kind: 'bypass', reason: 'non-materialized-source' };
+    }
 
     const sourceHash = wrangle.digest(args.source);
     const depsHash = wrangle.rewriteDigest(args.dependencies, args.browserIds);
@@ -66,7 +65,10 @@ export const TransformCache = {
 
     try {
       const data = (await Fs.readJson<t.DenoTransformedModule>(plan.path)).data;
-      if (!data || typeof data.code !== 'string' || !(typeof data.map === 'string' || data.map === null)) {
+      if (
+        !data || typeof data.code !== 'string' ||
+        !(typeof data.map === 'string' || data.map === null)
+      ) {
         await Fs.remove(plan.path, { log: false });
         return { kind: 'invalid', reason: 'malformed-entry' };
       }
@@ -83,6 +85,19 @@ export const TransformCache = {
   },
 } as const;
 
+/**
+ * Helpers:
+ */
+
+/**
+ * Synced from root `deps.yaml` by @sys/driver-vite package prep
+ * (`deno task prep` → `./-scripts/task.prep.ts`). Root `/sys` prep also
+ * invokes package prep during its submodule phase.
+ */
+const DENO_LOADER_VERSION = '0.5.0';
+const SUPPORTED_LOADERS = new Set<t.DenoLoader>(['JSX', 'TSX', 'TypeScript']);
+const CACHE_VERSION = 'vite.transport.transform.v2';
+
 const wrangle = {
   dir(cacheDir: string) {
     return Path.join(Path.resolve(cacheDir), '.sys-driver-vite', 'transport');
@@ -95,8 +110,12 @@ const wrangle = {
 
   rewriteDigest(dependencies: readonly t.DenoDependency[], browserIds: boolean) {
     const pairs = dependencies
-      .map((dependency) => [dependency.specifier, wrangle.rewriteTarget(dependency, browserIds)] as const)
-      .sort(([aSpec, aTarget], [bSpec, bTarget]) => aSpec.localeCompare(bSpec) || aTarget.localeCompare(bTarget));
+      .map((dependency) =>
+        [dependency.specifier, wrangle.rewriteTarget(dependency, browserIds)] as const
+      )
+      .sort(([aSpec, aTarget], [bSpec, bTarget]) =>
+        aSpec.localeCompare(bSpec) || aTarget.localeCompare(bTarget)
+      );
     return wrangle.digest(Json.stringify(pairs));
   },
 
@@ -105,7 +124,12 @@ const wrangle = {
     if (localPath && dependency.loader && wrangle.isRemoteLike(specifier)) {
       const sourceId = canonicalRemoteSpecifier(specifier);
       return browserIds
-        ? `/@id/${`\0deno::${dependency.loader}::${sourceId}::${Path.normalize(localPath)}`.replace('\0', '__x00__')}`
+        ? `/@id/${
+          `\0deno::${dependency.loader}::${sourceId}::${Path.normalize(localPath)}`.replace(
+            '\0',
+            '__x00__',
+          )
+        }`
         : `\0deno::${dependency.loader}::${sourceId}::${Path.normalize(localPath)}`;
     }
     if (specifier.startsWith('file://')) return Path.fromFileUrl(specifier);

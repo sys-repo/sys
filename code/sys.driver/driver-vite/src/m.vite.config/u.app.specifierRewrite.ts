@@ -1,6 +1,6 @@
 import { Perf } from '../common/u.perf.ts';
-import { type t, DenoFile, Fs, Is, Json, Path } from './common.ts';
-import { isBarePackageId } from '../m.vite.transport/u.npm.ts';
+import { DenoFile, Fs, Is, Json, Path, type t } from './common.ts';
+import { isBarePackageId } from '../m.vite.transport/u/u.npm.ts';
 
 type LoadImports = (configPath: t.StringPath) => Promise<Record<string, string>>;
 type WarmNpm = (specifier: string, cwd: string) => Promise<void>;
@@ -23,7 +23,10 @@ export function createSpecifierRewrite(
       const rewritten = await rewriteSpecifier(source);
       if (!rewritten) return null;
       const importerForResolve = wrangle.isDenoImporter(importer) ? resolutionImporter : importer;
-      const resolved = await this.resolve(rewritten, importerForResolve, { ...options, skipSelf: true });
+      const resolved = await this.resolve(rewritten, importerForResolve, {
+        ...options,
+        skipSelf: true,
+      });
       if (resolved?.id) return resolved.id;
       if (isBarePackageId(rewritten)) return null;
       return rewritten;
@@ -54,7 +57,9 @@ export function createNpmPrewarm(
       const uniqueSpecifiers = [...new Set(specifiers)];
 
       for (const specifier of uniqueSpecifiers) {
-        const startedAt = Perf.section('config.npmPrewarm.specifier', { specifier, cwd }, { level: 3 });
+        const startedAt = Perf.section('config.npmPrewarm.specifier', { specifier, cwd }, {
+          level: 3,
+        });
         await warmNpm(specifier, cwd);
         startedAt();
       }
@@ -126,9 +131,10 @@ const wrangle = {
       return {};
     }
 
-
     const denoImports = wrangle.toStringRecord(file.data.imports);
-    const importMapPath = file.data.importMap ? wrangle.resolveImportMapPath(file.path, file.data.importMap) : undefined;
+    const importMapPath = file.data.importMap
+      ? wrangle.resolveImportMapPath(file.path, file.data.importMap)
+      : undefined;
     if (!importMapPath) {
       end({ importMap: false, imports: Object.keys(denoImports).length });
       return denoImports;
@@ -142,7 +148,11 @@ const wrangle = {
 
     const mapImports = wrangle.toStringRecord(importMap.data.imports);
     const merged = { ...mapImports, ...denoImports };
-    end({ importMap: importMapPath, imports: Object.keys(merged).length, mapImports: Object.keys(mapImports).length });
+    end({
+      importMap: importMapPath,
+      imports: Object.keys(merged).length,
+      mapImports: Object.keys(mapImports).length,
+    });
     return merged;
   },
 

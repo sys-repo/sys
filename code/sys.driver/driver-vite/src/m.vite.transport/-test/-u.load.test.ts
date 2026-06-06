@@ -1,6 +1,6 @@
 import { describe, expect, Fs, it, Path } from '../../-test.ts';
-import { denoLoaderLoadSpecifier, loadDenoModule, mediaTypeToLoader } from '../u.load.ts';
-import { canonicalRemoteSpecifier, parseDenoSpecifier, toDenoSpecifier } from '../u.specifier.ts';
+import { denoLoaderLoadSpecifier, loadDenoModule, mediaTypeToLoader } from '../u/u.load.ts';
+import { canonicalRemoteSpecifier, parseDenoSpecifier, toDenoSpecifier } from '../u/u.specifier.ts';
 
 describe('ViteTransport.load', () => {
   describe('specifier parsing', () => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../-test.ts';
 import { RequestedModuleType } from '@deno/loader';
-import { DenoLoaderResolver } from '../u.resolve.loader.ts';
+import { DenoLoaderResolver } from '../u.resolve/u.loader.ts';
 import { DenoLoaderResolverFixture } from './u.fixture.loaderResolver.ts';
 
 /**

@@ -1,6 +1,6 @@
-import { Path, type t } from './common.ts';
+import { Path, type t } from '../common.ts';
+import { resolveDeno, resolveNpmPath, resolveViteSpecifier } from '../u.resolve/u.resolve.ts';
 import { toViteNpmSpecifier } from './u.npm.ts';
-import { resolveDeno, resolveNpmPath, resolveViteSpecifier } from './u.resolve.ts';
 
 const depsDefault: t.PrefixDeps = {
   resolveDeno,

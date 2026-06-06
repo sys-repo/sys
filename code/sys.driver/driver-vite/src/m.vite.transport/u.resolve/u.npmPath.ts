@@ -1,5 +1,5 @@
-import { Perf } from '../common/u.perf.ts';
-import { Path, Process, type t } from './common.ts';
+import { Perf } from '../../common/u.perf.ts';
+import { Path, Process, type t } from '../common.ts';
 
 const DENO_BINARY = Deno.build.os === 'windows' ? 'deno.exe' : 'deno';
 
