@@ -8,10 +8,10 @@ import { DenoLoaderResolverFixture } from './u.fixture.loaderResolver.ts';
  * transport resolver so the next commits can add a loader-backed seam without
  * deleting the old path by optimism.
  */
-describe('ViteTransport loader resolver parity gates', () => {
+describe('ViteTransport loader resolver contract', () => {
   it('resolves workspace exports, import-map aliases, local children, and JSON modules', async () => {
     const fixture = await DenoLoaderResolverFixture.create(
-      'ViteTransport.loader.parity.workspace.',
+      'ViteTransport.loader.contract.workspace.',
     );
     try {
       using workspace = new Workspace({ configPath: fixture.configPath, noLock: true });
@@ -48,7 +48,7 @@ describe('ViteTransport loader resolver parity gates', () => {
   });
 
   it('resolves npm imports and node builtins through Deno loader authority', async () => {
-    const fixture = await DenoLoaderResolverFixture.create('ViteTransport.loader.parity.npm.');
+    const fixture = await DenoLoaderResolverFixture.create('ViteTransport.loader.contract.npm.');
     try {
       using workspace = new Workspace({ configPath: fixture.configPath, noLock: true });
       using loader = await workspace.createLoader();
@@ -69,7 +69,7 @@ describe('ViteTransport loader resolver parity gates', () => {
   });
 
   it('resolves remote children from concrete HTTPS referrers', async () => {
-    const fixture = await DenoLoaderResolverFixture.create('ViteTransport.loader.parity.remote.');
+    const fixture = await DenoLoaderResolverFixture.create('ViteTransport.loader.contract.remote.');
     try {
       using workspace = new Workspace({ configPath: fixture.configPath, noLock: true });
       using loader = await workspace.createLoader();
