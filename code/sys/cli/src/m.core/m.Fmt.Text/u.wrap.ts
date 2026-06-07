@@ -3,7 +3,7 @@ import { nonNegativeInt, optionalPositiveInt } from './u.number.ts';
 import { visibleWidth } from './u.width.ts';
 
 const PRESERVE_PATTERNS = [
-  /^`.+`[.:;]?$/,
+  /^`[^`]+`[.:;]?$/,
   /^\$\s+\S+/,
   /^deno\s+(bundle|check|doc|fmt|install|lint|publish|run|task|test)\b/,
   /^https?:\/\/\S+$/,

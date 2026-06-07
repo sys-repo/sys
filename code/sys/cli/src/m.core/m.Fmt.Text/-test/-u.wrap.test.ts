@@ -85,6 +85,19 @@ describe('Cli.Fmt.Text.wrap', () => {
       })).to.eql(['Run:', `  ${command}`]);
     });
 
+    it('wraps prose lines that contain multiple backticked references', () => {
+      expect(
+        wrapLines('`<config>` is an owner config reference; propose `./-config/example.yaml`.', {
+          width: 34,
+          continuationIndent: 2,
+        }),
+      ).to.eql([
+        '`<config>` is an owner config',
+        '  reference; propose',
+        '  `./-config/example.yaml`.',
+      ]);
+    });
+
     it('preserves whole-line Deno commands by default', () => {
       const command = 'deno task test --trace-leaks ./src/m.core/m.Fmt.Text';
 

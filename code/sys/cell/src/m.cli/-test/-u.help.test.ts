@@ -42,6 +42,37 @@ describe('FmtHelp', () => {
     expectChapterIndex(text, guidance.chapters, 'human');
   });
 
+  it('dsl → fits root help and chapter index under narrow layout width', async () => {
+    const width = 80;
+    const text = stripAnsi(await FmtHelp.dslOutput({ layout: { width } }));
+    const guidance = await CellHelp.Dsl.load();
+
+    expect(text).to.contain('Chapters');
+    expectMaxVisibleWidth(text, width);
+
+    guidance.chapters.forEach((chapter) => {
+      const command = chapterCommand(chapter, 'human');
+      const commandLine = lineContaining(text, command);
+      const summaryStart = firstWords(chapter.summary, 5);
+
+      expect(commandLine).to.not.contain(summaryStart);
+      expect(lineColumn(text, summaryStart)).to.eql(lineColumn(text, command) + 2);
+    });
+  });
+
+  it('dsl <chapter> → fits child chapter pages under narrow layout width', async () => {
+    const width = 80;
+    const root = await CellHelp.Dsl.load();
+
+    for (const link of root.chapters) {
+      const chapter = await CellHelp.Dsl.load(link.path);
+      const text = stripAnsi(await FmtHelp.dslOutput({ path: link.path, layout: { width } }));
+
+      expectDslChapterPage(text, chapter);
+      expectMaxVisibleWidth(text, width);
+    }
+  });
+
   it('dsl --format skill → renders root chapter as a skill projection', async () => {
     const text = await FmtHelp.dslOutput({ format: 'skill' });
     const guidance = await CellHelp.Dsl.load();
@@ -135,6 +166,29 @@ function expectChapterIndex(
   format: ChapterIndexFormat,
 ) {
   chapters.forEach((chapter) => expect(text).to.contain(chapterCommand(chapter, format)));
+}
+
+function expectMaxVisibleWidth(text: string, width: number) {
+  const wide = text
+    .split('\n')
+    .map((line) => line.trimEnd())
+    .filter((line) => line.length > width);
+  expect(wide, wide.join('\n')).to.eql([]);
+}
+
+function lineColumn(text: string, needle: string): number {
+  const line = lineContaining(text, needle);
+  return line.indexOf(needle);
+}
+
+function lineContaining(text: string, needle: string): string {
+  const line = text.split('\n').find((line) => line.includes(needle));
+  expect(line).to.not.eql(undefined);
+  return line ?? '';
+}
+
+function firstWords(input: string, count: number): string {
+  return input.split(/\s+/).slice(0, count).join(' ');
 }
 
 function chapterCommand(chapter: ChapterLink | Chapter, format: ChapterIndexFormat): string {

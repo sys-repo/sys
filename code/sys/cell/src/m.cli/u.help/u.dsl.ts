@@ -7,6 +7,7 @@ export type DslHelpInput = {
   readonly path?: readonly string[];
   readonly toolname?: string;
   readonly format?: t.CellCli.Dsl.Format;
+  readonly layout?: t.CliFormatChapters.LayoutOptions;
 };
 
 export const FmtDslHelp = {
@@ -21,7 +22,7 @@ export const FmtDslHelp = {
     return Fmt.Chapters.page({
       command,
       chapter: await highlightedYaml(chapter),
-      label: 'Chapter',
+      layout: input.layout,
       help: {
         tool: toolname,
         summary: chapter.summary,
