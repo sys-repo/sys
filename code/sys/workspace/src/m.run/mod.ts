@@ -2,4 +2,4 @@
  * @module
  * Canonical workspace task runners.
  */
-export { WorkspaceRun } from './mod.Run.ts';
+export { WorkspaceRun } from './m.Run.ts';

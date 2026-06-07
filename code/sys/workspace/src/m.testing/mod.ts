@@ -3,7 +3,7 @@
  * Test helpers for workspace structure.
  */
 import { Fs, Process } from './common.ts';
-import { Workspace as Base } from '../mod.Workspace.ts';
+import { Workspace as Base } from '../m.Workspace.ts';
 import type { t } from './common.ts';
 
 export const WorkspaceTesting: t.WorkspaceTesting.Test.Lib = {

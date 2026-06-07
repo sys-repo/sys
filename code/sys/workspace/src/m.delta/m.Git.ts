@@ -1,1 +1,1 @@
-export { Git } from './m.Git/mod.Git.ts';
+export { Git } from './m.Git/m.Git.ts';

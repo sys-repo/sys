@@ -5,4 +5,4 @@
  * NOTE: This is useful for converting file-system layouts into a simple
  *       {object} that can be embedded within a module's source code.
  */
-export { FileMap } from './mod.FileMap.ts';
+export { FileMap } from './m.FileMap.ts';

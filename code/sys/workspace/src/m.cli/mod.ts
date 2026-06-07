@@ -2,7 +2,7 @@
  * @module
  * CLI entrypoints for workspace tooling.
  */
-import { WorkspaceCli } from './mod.Cli.ts';
+import { WorkspaceCli } from './m.Cli.ts';
 
 export { WorkspaceCli };
 

@@ -1,5 +1,5 @@
 import type { t } from '../common.ts';
-import { Is } from './mod.Is.ts';
+import { Is } from './m.Is.ts';
 import { sync } from './u.sync.ts';
 import { text } from './u.text.ts';
 import { write } from './u.write.ts';
