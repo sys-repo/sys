@@ -3,11 +3,13 @@ import type { AnsiColor } from '@sys/color/t';
 import type { CliFormatChapters } from '../m.Fmt.Chapters/t.ts';
 import type { CliFormatCommitLib } from './t.commit.ts';
 import type { CliFormatHelpLib } from './t.help.ts';
+import type { CliFormatTextLib } from '../m.Fmt.Text/t.ts';
 
 /** Type re-exports. */
 export type * from '../m.Fmt.Chapters/t.ts';
 export type * from './t.commit.ts';
 export type * from './t.help.ts';
+export type * from '../m.Fmt.Text/t.ts';
 
 /**
  * CLI formatting helper types.
@@ -26,6 +28,9 @@ export declare namespace CliFormat {
 
     /** Help page formatting. */
     readonly Help: CliFormatHelpLib;
+
+    /** Text fitting and wrapping helpers. */
+    readonly Text: CliFormatTextLib;
 
     /** Navigable help chapter formatting and tree helpers. */
     readonly Chapters: CliFormatChapters.Lib;

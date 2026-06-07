@@ -2,12 +2,13 @@
  * @module
  * Command-line formatting tools (e.g. color, tree, path).
  */
-import { c, Num, Path as StdPath, PathFormat, Str, type t } from '../common.ts';
+import { c, Num, Path as StdPath, Str, type t } from '../common.ts';
 import { Chapters } from '../m.Fmt.Chapters/mod.ts';
 import { Commit } from './m.Fmt.Commit.ts';
 import { Help } from './m.Fmt.Help.ts';
 import { hr } from './m.Fmt.Hr.ts';
 import { spinnerRaw, spinnerText } from './m.Fmt.spinnerText.ts';
+import { Text } from '../m.Fmt.Text/mod.ts';
 import { Tree } from './m.Fmt.Tree.ts';
 import { UrlFmt } from './m.Fmt.Url.ts';
 import { terminal as isTerminal } from '../m.Is/u.terminal.ts';
@@ -82,11 +83,12 @@ export const Fmt: t.CliFormat.Lib = {
   hr,
   Commit,
   Help,
+  Text,
   Chapters,
   Tree,
   Path,
   Url: UrlFmt,
-  path: PathFormat.string,
+  path: StdPath.Format.string,
   spinnerRaw,
   spinnerText,
 };
