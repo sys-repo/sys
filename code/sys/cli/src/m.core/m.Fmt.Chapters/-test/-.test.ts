@@ -175,6 +175,9 @@ describe('Cli.Fmt.Chapters', () => {
     expect(plain).to.contain('Short chapter.');
     expect(plain).to.contain('Longer chapter.');
     expect(plain).to.not.contain('@sys/cell');
+    expect(lineColumn(plain, 'Start from public help.')).to.eql(
+      lineColumn(plain, 'Use owner flows.'),
+    );
 
     expect(chapterSummaryColumn(plain, 'short', 'Short chapter.')).to.eql(
       chapterSummaryColumn(plain, 'longer-chapter', 'Longer chapter.'),
@@ -211,7 +214,94 @@ describe('Cli.Fmt.Chapters', () => {
     expect(plain).to.contain('match');
     expect(plain).to.contain('runtime version');
     expect(plain).to.contain('or starts the Cell.');
+    expect(lineColumn(plain, 'verifies, runs tasks')).to.eql(
+      lineColumn(plain, 'The `@sys/cell` package') + 2,
+    );
     expectMaxVisibleWidth(plain, 128);
+  });
+
+  it('indents explicit section item continuations', () => {
+    const wrapped = {
+      ...chapter,
+      sections: [
+        {
+          label: 'Reading protocol',
+          items: ['Read the matching chapter before editing.\nThen make the narrow change.'],
+        },
+      ],
+      chapters: [],
+    } as const;
+    const text = Fmt.Chapters.format({ command, chapter: wrapped });
+    const plain = Cli.stripAnsi(text);
+
+    expect(lineColumn(plain, 'Then make the narrow change.')).to.eql(
+      lineColumn(plain, 'Read the matching chapter before editing.') + 2,
+    );
+  });
+
+  it('preserves fenced section item lines while indenting the block as a continuation', () => {
+    const fenced = {
+      ...chapter,
+      sections: [
+        {
+          label: 'Diagnostics',
+          items: [
+            'If `Cell.load` reports this failure family:\n```text\n/dsl: Expected required property\n/services: Unexpected property\n```\ntreat it as runtime/schema drift.',
+          ],
+        },
+      ],
+      chapters: [],
+    } as const;
+    const text = Fmt.Chapters.format({ command, chapter: fenced });
+    const plain = Cli.stripAnsi(text);
+    const start = lineColumn(plain, 'If `Cell.load` reports this failure family:');
+
+    expect(lineColumn(plain, '```text')).to.eql(start + 2);
+    expect(lineColumn(plain, '/dsl: Expected required property')).to.eql(start + 2);
+    expect(lineColumn(plain, '/services: Unexpected property')).to.eql(start + 2);
+    expect(lineColumn(plain, 'treat it as runtime/schema drift.')).to.eql(start + 2);
+  });
+
+  it('keeps whole-line command continuations atomic', () => {
+    const commandLine =
+      '`deno run -ERW jsr:@sys/tmpl --non-interactive --dir <target-dir> <template> [template-flags]`.';
+    const atomic = {
+      ...chapter,
+      sections: [
+        {
+          label: 'Usage',
+          items: [`Run this exact command:\n${commandLine}`],
+        },
+      ],
+      chapters: [],
+    } as const;
+    const text = Fmt.Chapters.format({ command, chapter: atomic });
+    const plain = Cli.stripAnsi(text);
+
+    expect(lineContaining(plain, commandLine)).to.contain(commandLine);
+    expect(lineColumn(plain, commandLine)).to.eql(
+      lineColumn(plain, 'Run this exact command:') + 2,
+    );
+  });
+
+  it('wraps long Markdown section items within the Markdown width', () => {
+    const long = {
+      ...chapter,
+      sections: [
+        {
+          label: 'Concept',
+          items: [
+            'Delta is the package-change view between a baseline and the current workspace, and bump planning consumes those roots without applying package edits.',
+          ],
+        },
+      ],
+      chapters: [],
+    } as const;
+    const text = Fmt.Chapters.markdown({ command, chapter: long });
+
+    expect(text).to.contain('Delta is the package-change view');
+    expect(text).to.contain('without applying package edits.');
+    expectMaxVisibleWidth(text, 80);
   });
 
   it('wraps long child chapter index rows within the chapter text width', () => {
@@ -376,9 +466,14 @@ function chapterSummaryColumn(text: string, chapter: string, summary: string): n
 }
 
 function lineColumn(text: string, needle: string): number {
+  const line = lineContaining(text, needle);
+  return line.indexOf(needle);
+}
+
+function lineContaining(text: string, needle: string): string {
   const line = text.split('\n').find((line) => line.includes(needle));
   expect(line).to.not.eql(undefined);
-  return line?.indexOf(needle) ?? -1;
+  return line ?? '';
 }
 
 function expectMaxVisibleWidth(text: string, width: number) {

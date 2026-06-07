@@ -5,51 +5,65 @@ summary: |
 
 sections:
   - label: Concept
-    items: |
-      Delta is the package-change view between a baseline
-      and the current workspace.
-      Git changes become file paths; workspace ownership maps
-      those paths to packages.
-      Bump planning consumes delta roots; delta never mutates
-      versions or applies package edits.
+    items:
+      - |-
+        Delta is the package-change view between a baseline
+        and the current workspace.
+      - |-
+        Git changes become file paths; workspace ownership maps
+        those paths to packages.
+      - |-
+        Bump planning consumes delta roots; delta never mutates
+        versions or applies package edits.
 
   - label: Bump since
-    items: |
-      `deno task bump -- --since=<git-ref> --dry-run` asks
-      git for `ref..HEAD`, classifies changed packages, then
-      plans from packages that still need a bump.
-      The CLI owns `--since` and passes the git ref into
-      `Workspace.Delta.Git.fromRef(...)`.
-      `Workspace.Bump.run(...)` receives precomputed bump roots.
-      It stays independent of git or baseline semantics.
+    items:
+      - |-
+        `deno task bump -- --since=<git-ref> --dry-run` asks
+        git for `ref..HEAD`, classifies changed packages, then
+        plans from packages that still need a bump.
+      - |-
+        The CLI owns `--since` and passes the git ref into
+        `Workspace.Delta.Git.fromRef(...)`.
+      - '`Workspace.Bump.run(...)` receives precomputed bump roots.'
+      - It stays independent of git or baseline semantics.
 
   - label: Explain delta
-    items: |
-      Add `--explain-delta` with `--since` when the root
-      selection needs a changed-file sanity check.
-      The explanation is evidence only: it lists the git
-      baseline range, changed-file counts, classified changed
-      packages, selected bump roots, and bounded per-package
-      file samples.
-      It does not alter bump planning, release type, dry-run
-      behavior, or version writes.
+    items:
+      - |-
+        Add `--explain-delta` with `--since` when the root
+        selection needs a changed-file sanity check.
+      - |-
+        The explanation is evidence only: it lists the git
+        baseline range, changed-file counts, classified changed
+        packages, selected bump roots, and bounded per-package
+        file samples.
+      - |-
+        It does not alter bump planning, release type, dry-run
+        behavior, or version writes.
 
   - label: Classification
-    items: |
-      `needsBumpPkgPaths` are changed candidate package paths
-      whose current version matches the baseline version.
-      `alreadyBumpedPkgPaths` changed since the baseline but
-      already have a different current version.
-      `newPkgPaths` exist now but not at the baseline.
-      Report new packages before mutation decisions.
-      Skipped files stay visible when they do not belong to a
-      current bump-candidate package.
+    items:
+      - |-
+        `needsBumpPkgPaths` are changed candidate package paths
+        whose current version matches the baseline version.
+      - |-
+        `alreadyBumpedPkgPaths` changed since the baseline but
+        already have a different current version.
+      - '`newPkgPaths` exist now but not at the baseline.'
+      - Report new packages before mutation decisions.
+      - |-
+        Skipped files stay visible when they do not belong to a
+        current bump-candidate package.
 
   - label: Closure
-    items: |
-      The bump root set starts with packages that still
-      need a version bump.
-      The bump closure adds dependents that must move
-      because they depend on those roots.
-      Empty roots are a clean no-op plan,
-      not a fallback to manual path reasoning.
+    items:
+      - |-
+        The bump root set starts with packages that still
+        need a version bump.
+      - |-
+        The bump closure adds dependents that must move
+        because they depend on those roots.
+      - |-
+        Empty roots are a clean no-op plan,
+        not a fallback to manual path reasoning.

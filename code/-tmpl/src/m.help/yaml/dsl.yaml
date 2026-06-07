@@ -19,24 +19,25 @@ sections:
       If no chapter index entry matches, stop and ask.
 
   - label: Rule
-    items: |
-      Treat template requests as `@sys/tmpl` operations, not manual copy/edit tasks.
-      Use `@sys/tmpl` with a positional template name.
-      Never use `jsr:@sys/tmpl/<template>` subpaths.
-      Do not invoke `@sys/tmpl-engine` directly to apply templates; use `@sys/tmpl`.
-      Pick one target boundary per operation.
-      Do not silently cascade repo → pkg → module → component.
-      In agent runs, prefer `--non-interactive`.
-      Provide every required slot explicitly.
-      Choose command cwd deliberately.
-      Run repo scaffolds from the intended parent.
-      Run pkg scaffolds from the workspace root.
-      Run `pkg.help` from the workspace root when using a relative package directory.
-      Run module/UI scaffolds from the containing package root.
-      Relative `--dir` values resolve from the command cwd.
-      If any slot, target, overwrite policy, or side-effect boundary is unclear,
-      stop and ask before proceeding.
-      Use `--dry-run` first when target, write set, or side effects are unconfirmed.
+    items:
+      - Treat template requests as `@sys/tmpl` operations, not manual copy/edit tasks.
+      - Use `@sys/tmpl` with a positional template name.
+      - Never use `jsr:@sys/tmpl/<template>` subpaths.
+      - Do not invoke `@sys/tmpl-engine` directly to apply templates; use `@sys/tmpl`.
+      - Pick one target boundary per operation.
+      - Do not silently cascade repo → pkg → module → component.
+      - In agent runs, prefer `--non-interactive`.
+      - Provide every required slot explicitly.
+      - Choose command cwd deliberately.
+      - Run repo scaffolds from the intended parent.
+      - Run pkg scaffolds from the workspace root.
+      - Run `pkg.help` from the workspace root when using a relative package directory.
+      - Run module/UI scaffolds from the containing package root.
+      - Relative `--dir` values resolve from the command cwd.
+      - >-
+        If any slot, target, overwrite policy, or side-effect boundary is unclear,
+        stop and ask before proceeding.
+      - Use `--dry-run` first when target, write set, or side effects are unconfirmed.
 
   - label: Decision protocol
     items: |
@@ -77,14 +78,15 @@ sections:
       Do not change it silently.
 
   - label: Command grammar
-    items: |
-      Normal form:
-      `deno run -ERW jsr:@sys/tmpl --non-interactive --dir <target-dir> <template> [template-flags]`.
-      Template selection is positional.
-      Valid templates: `repo`, `pkg`, `pkg.help`, `m.mod`, `m.mod.ui`, `m.mod.ui.controller`.
-      Preview form: add `--dry-run`.
-      Existing target with approval: add `--force`.
-      Do not run `deno run -ERW jsr:@sys/tmpl/repo` or any other template subpath.
+    items:
+      - |-
+        Normal form:
+        `deno run -ERW jsr:@sys/tmpl --non-interactive --dir <target-dir> <template> [template-flags]`.
+      - Template selection is positional.
+      - 'Valid templates: `repo`, `pkg`, `pkg.help`, `m.mod`, `m.mod.ui`, `m.mod.ui.controller`.'
+      - 'Preview form: add `--dry-run`.'
+      - 'Existing target with approval: add `--force`.'
+      - Do not run `deno run -ERW jsr:@sys/tmpl/repo` or any other template subpath.
 
   - label: Verification
     items: |

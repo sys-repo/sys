@@ -4,17 +4,21 @@ summary: Serve roots and public paths.
 
 sections:
   - label: Rule
-    items: |
-      `@sys/tools/serve` owns serve config semantics for `dir`, `info.path`,
-      ports, URL display, and path resolution.
-      `dir` is the filesystem root; public URL paths are not filesystem roots.
-      Do not collapse a pulled artifact target and the serve root without
-      checking the artifact's authored URL paths.
+    items:
+      - >-
+        `@sys/tools/serve` owns serve config semantics for `dir`, `info.path`,
+        ports, URL display, and path resolution.
+      - '`dir` is the filesystem root; public URL paths are not filesystem roots.'
+      - >-
+        Do not collapse a pulled artifact target and the serve root without
+        checking the artifact's authored URL paths.
 
   - label: 'Base path check'
-    items: |
-      Before serving a pulled or built HTML artifact, inspect its `index.html`
-      for `<base href>` and absolute asset paths.
-      If the artifact expects `/view/.pulled/...`, choose a serve root that
-      preserves that public path, or explicitly call out the missing rewrite.
-      Verify the concrete final URL, including the expected public path.
+    items:
+      - >-
+        Before serving a pulled or built HTML artifact, inspect its `index.html`
+        for `<base href>` and absolute asset paths.
+      - >-
+        If the artifact expects `/view/.pulled/...`, choose a serve root that
+        preserves that public path, or explicitly call out the missing rewrite.
+      - Verify the concrete final URL, including the expected public path.

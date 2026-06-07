@@ -52,11 +52,12 @@ sections:
       `--dry-run` previews copied files but does not update the parent `types.ts`.
 
   - label: Verify
-    items: |
-      Confirm `<module-dir>/mod.ts` and `<module-dir>/t.ts` exist.
-      Confirm the nearest parent `types.ts` includes:
-      `export type * from './<relative-module>/t.ts';`.
-      Confirm the updated `types.ts` is inside the intended package boundary.
-      Run the package `deno task check` or the narrow module tests.
-      If no parent `types.ts` exists, stop.
-      Decide whether to create one or choose a different package boundary.
+    items:
+      - Confirm `<module-dir>/mod.ts` and `<module-dir>/t.ts` exist.
+      - |-
+        Confirm the nearest parent `types.ts` includes:
+        `export type * from './<relative-module>/t.ts';`.
+      - Confirm the updated `types.ts` is inside the intended package boundary.
+      - Run the package `deno task check` or the narrow module tests.
+      - If no parent `types.ts` exists, stop.
+      - Decide whether to create one or choose a different package boundary.

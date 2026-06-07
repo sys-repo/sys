@@ -29,17 +29,18 @@ sections:
       Derive `<dist-name>` from the URL segment before `dist.json`.
 
   - label: 'Dialogue'
-    items: |
-      Do not restate the DSL contract to the user.
-      Ask for the missing semantic slot and confirm proposed paths.
-      Do not present the proposed local target as a required user operand.
-      Example response when the prompt supplies `<dist-url>` but not `<name>`:
-      OK — I can get that pulled view ready.
-      I’ll use:
-      dist URL: `<dist-url>`
-      pull config: `<pull-config-path>`
-      local target: `<local-target>`
-      Please confirm those paths and tell me the view name to use.
+    items:
+      - Do not restate the DSL contract to the user.
+      - Ask for the missing semantic slot and confirm proposed paths.
+      - Do not present the proposed local target as a required user operand.
+      - |-
+        Example response when the prompt supplies `<dist-url>` but not `<name>`:
+        OK — I can get that pulled view ready.
+        I’ll use:
+        dist URL: `<dist-url>`
+        pull config: `<pull-config-path>`
+        local target: `<local-target>`
+        Please confirm those paths and tell me the view name to use.
 
   - label: 'Owner flow'
     items: |
@@ -55,14 +56,16 @@ sections:
       Do not put `<dist-url>`, `<local-target>`, or view registry entries in `-cell/cell.yaml`.
 
   - label: 'Materialize'
-    items: |
-      Pull add configures only; it does not pull files.
-      Materialize only when needed or approved.
-      For `refresh: pulled views`, use confirmed pull config path(s).
-      If the prompt does not identify pull config(s) and no project convention is established, ask.
-      Run one materialization per distinct pull config.
-      Use owner CLI: `@sys/tools pull`.
-      Pass `--non-interactive`.
-      Pass `--config <pull-config-path>`.
-      Do not read `views.*` from `-cell/cell.yaml`.
-      Do not edit `-cell/cell.yaml` for refresh-only pulls.
+    items:
+      - Pull add configures only; it does not pull files.
+      - Materialize only when needed or approved.
+      - 'For `refresh: pulled views`, use confirmed pull config path(s).'
+      - >-
+        If the prompt does not identify pull config(s) and no project convention is established,
+        ask.
+      - Run one materialization per distinct pull config.
+      - 'Use owner CLI: `@sys/tools pull`.'
+      - Pass `--non-interactive`.
+      - Pass `--config <pull-config-path>`.
+      - Do not read `views.*` from `-cell/cell.yaml`.
+      - Do not edit `-cell/cell.yaml` for refresh-only pulls.

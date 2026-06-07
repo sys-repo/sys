@@ -8,24 +8,25 @@ summary: |
 
 sections:
   - label: Reading protocol
-    items: |
-      Agents MUST read root DSL before workspace edits.
-      Command: `deno run -ER jsr:@sys/workspace dsl`.
-      Agents MUST NOT read every chapter by default.
-      Agents MUST identify the target workspace boundary.
-      Agents MUST identify the target command surface.
-      Agents MUST read each matching chapter before editing.
-      Form: `deno run -ER jsr:@sys/workspace dsl <chapter>`.
-      If no chapter index entry matches, stop and ask.
+    items:
+      - Agents MUST read root DSL before workspace edits.
+      - 'Command: `deno run -ER jsr:@sys/workspace dsl`.'
+      - Agents MUST NOT read every chapter by default.
+      - Agents MUST identify the target workspace boundary.
+      - Agents MUST identify the target command surface.
+      - Agents MUST read each matching chapter before editing.
+      - 'Form: `deno run -ER jsr:@sys/workspace dsl <chapter>`.'
+      - If no chapter index entry matches, stop and ask.
 
   - label: Rule
-    items: |
-      Use `@sys/workspace` as the public authority for:
-      dependency upgrades, graph facts, delta derivation,
-      package-version bump planning, and task helpers.
-      Let CLI/API derive paths; do not infer manually.
-      Read command help before changing command behavior.
-      Prefer deterministic inputs over ambient reasoning.
+    items:
+      - |-
+        Use `@sys/workspace` as the public authority for:
+        dependency upgrades, graph facts, delta derivation,
+        package-version bump planning, and task helpers.
+      - Let CLI/API derive paths; do not infer manually.
+      - Read command help before changing command behavior.
+      - Prefer deterministic inputs over ambient reasoning.
 
   - label: Command surfaces
     items: |

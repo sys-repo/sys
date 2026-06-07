@@ -7,8 +7,17 @@ import { hr } from '../m.Fmt/m.Fmt.Hr.ts';
 import { Table } from '../m.Table/mod.ts';
 
 const TERMINAL_TEXT_WIDTH = 100;
-const CHAPTER_SUMMARY_INDENT = 2;
+const HANGING_INDENT = 2;
 const MARKDOWN_WIDTH = 80;
+
+type WrapTextOptions = {
+  readonly continuationIndent?: number;
+};
+
+type WrapLineOptions = {
+  readonly indent?: number;
+  readonly continuationIndent?: number;
+};
 
 /** Navigable help chapter formatting and tree helpers. */
 export const Chapters: t.CliFormatChapters.Lib = {
@@ -32,7 +41,7 @@ function format(input: t.CliFormatChapters.FormatInput): string {
     section.items.forEach((item, itemIndex) => {
       table.push([
         itemIndex === 0 ? c.gray(section.label) : '',
-        c.white(wrapText(item, rowWidth)),
+        c.white(wrapText(item, rowWidth, { continuationIndent: HANGING_INDENT })),
       ]);
     });
   });
@@ -77,7 +86,7 @@ function markdown(input: t.CliFormatChapters.MarkdownInput): string {
   lines.push(`# ${chapter.title}`, '', chapter.summary);
 
   chapter.sections.forEach((section) => {
-    lines.push('', `## ${section.label}`, '', ...section.items);
+    lines.push('', `## ${section.label}`, '', ...markdownSectionItems(section.items));
   });
 
   if (chapter.chapters.length > 0) {
@@ -103,8 +112,8 @@ function chapterLine(
 
   const splitSummary = c.gray(
     indentText(
-      wrapText(chapter.summary, rowWidth - CHAPTER_SUMMARY_INDENT),
-      CHAPTER_SUMMARY_INDENT,
+      wrapText(chapter.summary, rowWidth - HANGING_INDENT),
+      HANGING_INDENT,
     ),
   );
   return `${command}\n${splitSummary}`;
@@ -117,6 +126,10 @@ function chapterCommand(
   const prefix = c.dim(c.cyan(input.command));
   const path = chapter.path.join(' ');
   return path ? `${prefix} ${c.cyan(path)}` : prefix;
+}
+
+function markdownSectionItems(items: readonly string[]): readonly string[] {
+  return items.flatMap((item) => wrapText(item, MARKDOWN_WIDTH).split('\n'));
 }
 
 function markdownChapterLine(
@@ -158,43 +171,87 @@ function singleLine(input: string): string {
   return Str.trimEdgeNewlines(input).split(/\s+/).join(' ');
 }
 
-function wrapText(input: string, width: number): string {
+function wrapText(input: string, width: number, options: WrapTextOptions = {}): string {
   if (width <= 0) return input;
 
+  const continuationIndent = Math.max(0, options.continuationIndent ?? 0);
+  const lines: string[] = [];
   let fenced = false;
-  return Str.trimEdgeNewlines(input)
-    .split('\n')
-    .flatMap((line) => {
-      if (line.trimStart().startsWith('```')) {
-        fenced = !fenced;
-        return [line];
-      }
-      return fenced ? [line] : wrapLine(line, width);
-    })
-    .join('\n');
+  let fenceIndent = 0;
+
+  Str.trimEdgeNewlines(input).split('\n').forEach((line) => {
+    const fenceLine = line.trimStart().startsWith('```');
+
+    if (fenced) {
+      lines.push(prefixText(line, fenceIndent));
+      if (fenceLine) fenced = false;
+      return;
+    }
+
+    const indent = lines.length === 0 ? 0 : continuationIndent;
+    if (fenceLine) {
+      fenceIndent = indent;
+      fenced = true;
+      lines.push(prefixText(line, indent));
+      return;
+    }
+
+    if (shouldPreserveLine(line)) {
+      lines.push(prefixText(line, indent));
+      return;
+    }
+
+    lines.push(...wrapLine(line, width, { indent, continuationIndent }));
+  });
+
+  return lines.join('\n');
 }
 
-function wrapLine(input: string, width: number): readonly string[] {
-  if (visibleWidth(input) <= width) return [input];
+function wrapLine(input: string, width: number, options: WrapLineOptions = {}): readonly string[] {
+  const indent = Math.max(0, options.indent ?? 0);
+  const continuationIndent = Math.max(0, options.continuationIndent ?? indent);
+  const prefix = ' '.repeat(indent);
+
+  if (visibleWidth(`${prefix}${input}`) <= width) return [`${prefix}${input}`];
 
   const leading = input.match(/^\s*/)?.[0] ?? '';
-  const available = Math.max(1, width - visibleWidth(leading));
+  const firstPrefix = `${prefix}${leading}`;
+  const wrappedPrefix = `${' '.repeat(continuationIndent)}${leading}`;
   const words = input.trim().split(/\s+/);
   const lines: string[] = [];
   let line = '';
+  let currentPrefix = firstPrefix;
+  let available = Math.max(1, width - visibleWidth(currentPrefix));
 
   words.forEach((word) => {
     const next = line ? `${line} ${word}` : word;
     if (visibleWidth(next) <= available || !line) {
       line = next;
     } else {
-      lines.push(`${leading}${line}`);
+      lines.push(`${currentPrefix}${line}`);
+      currentPrefix = wrappedPrefix;
+      available = Math.max(1, width - visibleWidth(currentPrefix));
       line = word;
     }
   });
 
-  if (line) lines.push(`${leading}${line}`);
+  if (line) lines.push(`${currentPrefix}${line}`);
   return lines;
+}
+
+function prefixText(input: string, width: number): string {
+  return `${' '.repeat(Math.max(0, width))}${input}`;
+}
+
+function shouldPreserveLine(input: string): boolean {
+  const text = input.trim();
+  if (text.length === 0) return false;
+  return (
+    /^`.+`[.:;]?$/.test(text) ||
+    /^\$\s+\S+/.test(text) ||
+    /^deno\s+run\b/.test(text) ||
+    /^https?:\/\/\S+$/.test(text)
+  );
 }
 
 function indentText(input: string, width: number): string {

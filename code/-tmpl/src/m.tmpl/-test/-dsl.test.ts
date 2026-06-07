@@ -140,7 +140,7 @@ function expectChapterRendered(text: string, chapter: Chapter) {
 
   chapter.sections.forEach((section) => {
     expect(text).to.contain(section.label);
-    section.items.forEach((item) => expect(text).to.contain(item));
+    section.items.forEach((item) => expectRenderedItem(text, item));
   });
 
   chapter.chapters.forEach((chapter) => {
@@ -149,13 +149,22 @@ function expectChapterRendered(text: string, chapter: Chapter) {
   });
 }
 
+function expectRenderedItem(text: string, item: string) {
+  const lines = summaryLines(item);
+  if (lines.length <= 1) {
+    expect(normalizeWhitespace(text)).to.contain(normalizeWhitespace(lines[0] ?? ''));
+    return;
+  }
+  lines.forEach((line) => expect(text).to.contain(line));
+}
+
 function expectMarkdownChapterRendered(text: string, chapter: Chapter) {
   expect(text).to.contain(`# ${chapter.title}`);
   summaryLines(chapter.summary).forEach((line) => expect(text).to.contain(line));
 
   chapter.sections.forEach((section) => {
     expect(text).to.contain(`## ${section.label}`);
-    section.items.forEach((item) => expect(text).to.contain(item));
+    section.items.forEach((item) => expectRenderedItem(text, item));
   });
 }
 
@@ -167,6 +176,10 @@ function section(chapter: Chapter, label: string) {
 
 function summaryLines(summary: string): readonly string[] {
   return summary.split('\n').map((line) => line.trim()).filter((line) => line.length > 0);
+}
+
+function normalizeWhitespace(input: string): string {
+  return input.split(/\s+/).join(' ').trim();
 }
 
 async function run(argv: readonly string[]): Promise<RunResult> {

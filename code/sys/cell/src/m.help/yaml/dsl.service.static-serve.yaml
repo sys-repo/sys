@@ -4,65 +4,80 @@ summary: Add a static-file service backed by an `@sys/tools/serve` owner config.
 
 sections:
   - label: Rule
-    items: |
-      Classify "add a static serve service for <dir>" as `add: static serve service`.
-      Also classify "serve <dir> as a Cell service" as this act.
-      Treat the speech act as intent plus partial slots.
-      Cell records only the service binding and owner config reference.
-      Default unqualified static-file service requests to `@sys/tools/serve`.
-      If the user explicitly selects another static-file owner, use the generic service chapter
-      and that owner's public help/config affordances.
-      Do not use a direct `@sys/tools serve` CLI shortcut to bypass Cell services.
-      Do not put static-serving mechanics directly in `-cell/cell.yaml`.
+    items:
+      - 'Classify "add a static serve service for <dir>" as `add: static serve service`.'
+      - Also classify "serve <dir> as a Cell service" as this act.
+      - Treat the speech act as intent plus partial slots.
+      - Cell records only the service binding and owner config reference.
+      - Default unqualified static-file service requests to `@sys/tools/serve`.
+      - >-
+        If the user explicitly selects another static-file owner, use the generic service chapter
+        and that owner's public help/config affordances.
+      - Do not use a direct `@sys/tools serve` CLI shortcut to bypass Cell services.
+      - Do not put static-serving mechanics directly in `-cell/cell.yaml`.
 
   - label: 'Slot policy'
-    items: |
-      `<dir>` is the filesystem serve root for the default `@sys/tools/serve` owner; ask
-      unless the user named it or the intended view path is obvious.
-      `<service-name>` is a Cell descriptor service ID and must match
-      `^[a-z][a-z0-9]*(?:[.:-][a-z0-9]+)*$`.
-      Reject invalid service names such as `serve/static`, `StaticServe`, `serve_static`,
-      or `bad..id`.
-      `<service-name>` is semantic; propose `<area>:view` or `<area>:static` and confirm
-      if not obvious.
-      `<config>` is an owner config reference; propose `./-config/@sys.tools.serve/<profile>.yaml`.
-      `<cell-runtime>` is the Cell CLI/runtime authority used to verify the descriptor.
-      For persistent folders, confirm effective Deno dependency authority for `jsr:@sys/cell`
-      before reporting an unversioned startup command.
-      Do not derive config paths by embedding raw service IDs without confirmation.
-      Use owner defaults for hostname and port unless the user specifies them.
-      Confirm service name, serve config path, filesystem serve root, and Cell runtime authority
-      before writing.
+    items:
+      - >-
+        `<dir>` is the filesystem serve root for the default `@sys/tools/serve` owner; ask
+        unless the user named it or the intended view path is obvious.
+      - |-
+        `<service-name>` is a Cell descriptor service ID and must match
+        `^[a-z][a-z0-9]*(?:[.:-][a-z0-9]+)*$`.
+      - >-
+        Reject invalid service names such as `serve/static`, `StaticServe`, `serve_static`,
+        or `bad..id`.
+      - >-
+        `<service-name>` is semantic; propose `<area>:view` or `<area>:static` and confirm
+        if not obvious.
+      - >-
+        `<config>` is an owner config reference; propose
+        `./-config/@sys.tools.serve/<profile>.yaml`.
+      - '`<cell-runtime>` is the Cell CLI/runtime authority used to verify the descriptor.'
+      - >-
+        For persistent folders, confirm effective Deno dependency authority for `jsr:@sys/cell`
+        before reporting an unversioned startup command.
+      - Do not derive config paths by embedding raw service IDs without confirmation.
+      - Use owner defaults for hostname and port unless the user specifies them.
+      - >-
+        Confirm service name, serve config path, filesystem serve root, and Cell runtime authority
+        before writing.
 
   - label: Dialogue
-    items: |
-      Do not restate the DSL contract to the user.
-      Ask for missing semantic slots and confirm proposed owner paths.
-      Example response for serving a filesystem root as a Cell service:
-      OK — I can add that static serve service.
-      I’ll use:
-      service name: `<service-name>`
-      serve config: `<serve-config>`
-      filesystem serve root: `<dir>`
-      Please confirm those values before I update the owner config and Cell descriptor.
+    items:
+      - Do not restate the DSL contract to the user.
+      - Ask for missing semantic slots and confirm proposed owner paths.
+      - |-
+        Example response for serving a filesystem root as a Cell service:
+        OK — I can add that static serve service.
+        I’ll use:
+        service name: `<service-name>`
+        serve config: `<serve-config>`
+        filesystem serve root: `<dir>`
+        Please confirm those values before I update the owner config and Cell descriptor.
 
   - label: 'Owner flow'
-    items: |
-      For the default owner selection, use `@sys/tools/serve`.
-      `Serve.start` reads the selected serve-tool owner config from `paths.config`.
-      Start from public `@sys/tools serve --help` if the owner config shape or options are unclear.
-      Read `@sys/tools dsl serve` for serve-root versus public-path guardrails.
-      Serve config semantics for `dir`, `info.path`, ports, URL display, and path resolution
-      belong to `@sys/tools/serve`.
-      Cell does not reinterpret serve-tool fields as Cell descriptor mechanics.
-      Create or update only the confirmed serve-tool owner config.
-      Do not shell to `@sys/tools serve` from a project task to preview a Cell service.
-      If the descriptor uses the clean public ref `from: 'jsr:@sys/tools/serve'`, pin that
-      package through effective Deno dependency authority when deterministic resolution is needed.
-      Do not put version literals in `-cell/cell.yaml` solely to pin package resolution when
-      effective dependency authority can own it.
-      Cell records only service name, `use`, `from`, and config reference.
-      Cell starts the service through the normal service lifecycle.
+    items:
+      - For the default owner selection, use `@sys/tools/serve`.
+      - '`Serve.start` reads the selected serve-tool owner config from `paths.config`.'
+      - >-
+        Start from public `@sys/tools serve --help` if the owner config shape or options are
+        unclear.
+      - Read `@sys/tools dsl serve` for serve-root versus public-path guardrails.
+      - >-
+        Serve config semantics for `dir`, `info.path`, ports, URL display, and path resolution
+        belong to `@sys/tools/serve`.
+      - Cell does not reinterpret serve-tool fields as Cell descriptor mechanics.
+      - Create or update only the confirmed serve-tool owner config.
+      - Do not shell to `@sys/tools serve` from a project task to preview a Cell service.
+      - >-
+        If the descriptor uses the clean public ref `from: 'jsr:@sys/tools/serve'`, pin that
+        package through effective Deno dependency authority when deterministic resolution is needed.
+      - >-
+        Do not put version literals in `-cell/cell.yaml` solely to pin package resolution when
+        effective dependency authority can own it.
+      - Cell records only service name, `use`, `from`, and config reference.
+      - Cell starts the service through the normal service lifecycle.
 
   - label: 'Owner config'
     items: |

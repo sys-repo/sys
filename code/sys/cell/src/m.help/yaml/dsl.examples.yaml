@@ -5,20 +5,22 @@ summary: |
 
 sections:
   - label: Rule
-    items: |
-      Use this chapter only after the prompt resembles a Cell DSL speech act but slots are
-      incomplete or informal.
-      These are sample slot values, not DSL grammar, defaults, or required values.
-      Confirm missing values before editing owner configs or `-cell/cell.yaml`.
-      Do not inspect implementation source just to infer these examples.
+    items:
+      - >-
+        Use this chapter only after the prompt resembles a Cell DSL speech act but slots are
+        incomplete or informal.
+      - These are sample slot values, not DSL grammar, defaults, or required values.
+      - Confirm missing values before editing owner configs or `-cell/cell.yaml`.
+      - Do not inspect implementation source just to infer these examples.
 
   - label: Prompt shapes
-    items: |
-      A prompt mentioning `fs.db.team` likely points to an HTTP dist bundle URL slot.
-      Ask for or confirm a complete `https://.../dist.json` URL before configuring a pull.
-      Depending on wording, likely operations are `add: pulled view` or `refresh: pulled views`.
-      Do not put dist URL, local target, pull mechanics, or view registry entries in
-      `-cell/cell.yaml`.
+    items:
+      - A prompt mentioning `fs.db.team` likely points to an HTTP dist bundle URL slot.
+      - Ask for or confirm a complete `https://.../dist.json` URL before configuring a pull.
+      - 'Depending on wording, likely operations are `add: pulled view` or `refresh: pulled views`.'
+      - >-
+        Do not put dist URL, local target, pull mechanics, or view registry entries in
+        `-cell/cell.yaml`.
 
   - label: 'Sample slot values'
     items:
@@ -32,22 +34,23 @@ sections:
       - '<view>: `stripe.dev`, `hello`'
 
   - label: 'Descriptor shapes'
-    items: |
-      Current Cell descriptor entries use this generic shape:
-      ```yaml
-      services:
-        - name:
-          use:
-          from:
-          config:
-      tasks:
-        - name:
-          use:
-          from:
-          config:
-      ```
-      Service and task names are Cell descriptor IDs.
-      Owner config internals stay outside `-cell/cell.yaml`.
+    items:
+      - |-
+        Current Cell descriptor entries use this generic shape:
+        ```yaml
+        services:
+          - name:
+            use:
+            from:
+            config:
+        tasks:
+          - name:
+            use:
+            from:
+            config:
+        ```
+      - Service and task names are Cell descriptor IDs.
+      - Owner config internals stay outside `-cell/cell.yaml`.
 
   - label: Owner reminders
     items: |
@@ -57,8 +60,10 @@ sections:
       Cell records only services, tasks, endpoint refs, and owner config refs.
 
   - label: Source guardrail
-    items: |
-      Prefer root DSL, the matching operation chapter, this examples chapter, and owner
-      `--help` before package source.
-      Source inspection is a last resort for public exports, types, or lifecycle/task
-      contracts only.
+    items:
+      - >-
+        Prefer root DSL, the matching operation chapter, this examples chapter, and owner
+        `--help` before package source.
+      - >-
+        Source inspection is a last resort for public exports, types, or lifecycle/task
+        contracts only.

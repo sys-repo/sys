@@ -50,17 +50,20 @@ sections:
       `create(...)` is silent and has no process-signal or keyboard side effects.
 
   - label: Cell service endpoint
-    items: |
-      Import endpoint: `from: 'jsr:@sys/server/files/service'`.
-      Binding name: `use: FilesWebSocketService`.
-      Service YAML maps `root`, `hostname`, `port`, `path`, `policy`, and `watch` to a
-      bounded Files WebSocket service.
-      `root` resolves relative to Cell/service `cwd` and may not escape it.
-      Config defaults: `path: /files`, `policy: '**'`, and `watch: false`.
-      Config validation is service-owned, strict, and schema-backed; unknown fields fail.
-      `watch: true` chooses a live readonly backing and adds watch authority to the readonly policy.
-      Cell `silent` is accepted for lifecycle endpoint compatibility but is not forwarded.
-      The endpoint calls `FilesServer.WebSocket.create(...)`, not hosted `start(...)`.
+    items:
+      - "Import endpoint: `from: 'jsr:@sys/server/files/service'`."
+      - 'Binding name: `use: FilesWebSocketService`.'
+      - >-
+        Service YAML maps `root`, `hostname`, `port`, `path`, `policy`, and `watch` to a
+        bounded Files WebSocket service.
+      - '`root` resolves relative to Cell/service `cwd` and may not escape it.'
+      - "Config defaults: `path: /files`, `policy: '**'`, and `watch: false`."
+      - Config validation is service-owned, strict, and schema-backed; unknown fields fail.
+      - >-
+        `watch: true` chooses a live readonly backing and adds watch authority to the readonly
+        policy.
+      - Cell `silent` is accepted for lifecycle endpoint compatibility but is not forwarded.
+      - The endpoint calls `FilesServer.WebSocket.create(...)`, not hosted `start(...)`.
 
   - label: Cell service YAML
     items: |
@@ -95,13 +98,14 @@ sections:
       Do not document those as solved until tests prove them.
 
   - label: Verify
-    items: |
-      Assert `await import('@sys/server/files')` exposes `FilesServer`.
-      Assert `await import('@sys/server/files/service')` exposes `FilesWebSocketService`.
-      Stand up a real `FilesServer.WebSocket.create(...)` or `start(...)` service.
-      Start `FilesWebSocketService.start({ cwd, paths: { config }, until })` for
-      Cell-shaped coverage.
-      Connect with `Files.Client.websocket(server.url)`.
-      Prove list/read/stat and write/remove when the backing is writable.
-      Prove `create(...)` stays silent and caller-owned.
-      Prove hosted behavior through `start(...)`, not sample-local lifecycle glue.
+    items:
+      - Assert `await import('@sys/server/files')` exposes `FilesServer`.
+      - Assert `await import('@sys/server/files/service')` exposes `FilesWebSocketService`.
+      - Stand up a real `FilesServer.WebSocket.create(...)` or `start(...)` service.
+      - >-
+        Start `FilesWebSocketService.start({ cwd, paths: { config }, until })` for
+        Cell-shaped coverage.
+      - Connect with `Files.Client.websocket(server.url)`.
+      - Prove list/read/stat and write/remove when the backing is writable.
+      - Prove `create(...)` stays silent and caller-owned.
+      - Prove hosted behavior through `start(...)`, not sample-local lifecycle glue.

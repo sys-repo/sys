@@ -23,17 +23,18 @@ sections:
       standardize maintained help resources for <@scope/name>
 
   - label: Slots
-    items: |
-      Required: `--dir <package-dir>`.
-      `<package-dir>` must already exist.
-      `<package-dir>` must contain `deno.json`, `src/common.ts`, and `src/types.ts`.
-      Run from the workspace root when using a relative `<package-dir>`.
-      Relative `<package-dir>` values resolve from the current working directory.
-      Absolute `<package-dir>` values are preserved.
-      No `--pkgName` or `--name` flag is accepted.
-      The workspace/import authority must resolve `@sys/cli/t`, `@sys/fs`,
-      `@sys/fs/t`, `@sys/yaml`, and `@sys/tmpl-engine`.
-      Ask when the package boundary, help ownership, or public help role is unclear.
+    items:
+      - 'Required: `--dir <package-dir>`.'
+      - '`<package-dir>` must already exist.'
+      - '`<package-dir>` must contain `deno.json`, `src/common.ts`, and `src/types.ts`.'
+      - Run from the workspace root when using a relative `<package-dir>`.
+      - Relative `<package-dir>` values resolve from the current working directory.
+      - Absolute `<package-dir>` values are preserved.
+      - No `--pkgName` or `--name` flag is accepted.
+      - >-
+        The workspace/import authority must resolve `@sys/cli/t`, `@sys/fs`,
+        `@sys/fs/t`, `@sys/yaml`, and `@sys/tmpl-engine`.
+      - Ask when the package boundary, help ownership, or public help role is unclear.
 
   - label: Command
     items: |
