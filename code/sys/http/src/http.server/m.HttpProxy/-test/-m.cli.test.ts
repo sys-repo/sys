@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it } from '../../../-test.ts';
+import { Cli, describe, expect, Fs, it } from '../../../-test.ts';
 import { cli } from '../m.cli/mod.ts';
 
 const CONFIG = 'app';
@@ -250,8 +250,12 @@ async function captureInfo<T>(fn: () => Promise<T>) {
   console.info = (...args: unknown[]) => void lines.push(args.map(String).join(' '));
   try {
     const value = await fn();
-    return { value, output: lines.join('\n') };
+    return { value, output: normalizeOutput(lines.join('\n')) };
   } finally {
     console.info = prev;
   }
+}
+
+function normalizeOutput(output: string): string {
+  return Cli.stripAnsi(output).replace(/\s+/g, ' ').trim();
 }
