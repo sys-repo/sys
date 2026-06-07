@@ -1,10 +1,9 @@
-import { describe, expect, Fs, Is, it, Json, Path } from '../../-test.ts';
+import { describe, expect, Fs, Is, it, Path } from '../../-test.ts';
 import { type t } from '../common.ts';
 import { createResolvePlugin, resolveViteSpecifier } from '../u.resolve/u.resolve.ts';
 import { DenoLoaderResolver } from '../u.resolve/u.loader.ts';
 import { parseDenoSpecifier, toDenoSpecifier, unwrapViteId } from '../u/u.specifier.ts';
 import { DenoLoaderResolverFixture } from './u.fixture.loaderResolver.ts';
-import { procOutput } from './u.fixture.ts';
 
 /**
  * Loader lookup returns URL authority. These tests prove the narrow adapter
@@ -190,43 +189,29 @@ describe('DenoLoaderResolver Vite virtual ids', () => {
     }
   });
 
-  it('falls back to legacy deno info when loader returns remote URL authority', async () => {
+  it('adapts remote loader URL authority without invoking legacy deno info', async () => {
     const remote = 'https://jsr.io/@std/path/1.1.4/mod.ts';
-    const local = '/tmp/deno-cache/std-path-mod.ts';
-    let legacyCalls = 0;
     const cache: t.DenoCache = new Map();
+    let invokeCalls = 0;
 
     const resolved = await resolveViteSpecifier(remote, cache, '/tmp/project', undefined, {
       async resolveLoader() {
         return remote;
       },
-      async invoke(input: t.Process.InvokeArgs) {
-        if (input.args[0] === '--version') {
-          return procOutput({ success: true, stdout: 'deno 2.x' });
-        }
-
-        legacyCalls++;
-        return procOutput({
-          success: true,
-          stdout: Json.stringify({
-            roots: [remote],
-            modules: [
-              {
-                kind: 'esm',
-                local,
-                mediaType: 'TypeScript',
-                specifier: remote,
-                dependencies: [],
-              },
-            ],
-          }),
-        });
+      async invoke() {
+        invokeCalls++;
+        throw new Error('deno info should not be invoked after bridge retirement');
       },
-      memo: { inflight: new Map(), settled: new Map(), alias: new Map() },
     });
 
-    expect(resolved).to.eql(toDenoSpecifier('TypeScript', remote, local));
-    expect(legacyCalls).to.eql(1);
+    expect(resolved).to.eql(toDenoSpecifier('TypeScript', remote, remote));
+    expect(cache.get(remote)).to.eql({
+      id: remote,
+      kind: 'esm',
+      loader: 'TypeScript',
+      dependencies: [],
+    });
+    expect(invokeCalls).to.eql(0);
   });
 
   it('characterizes remote loader children as URL authority, not virtual file ids', async () => {
@@ -252,7 +237,6 @@ const noDenoInfo: t.ResolveDeps = {
   async invoke() {
     throw new Error('deno info should not be invoked by loader virtual-id adapter tests');
   },
-  memo: { inflight: new Map(), settled: new Map(), alias: new Map() },
 };
 
 function noDenoInfoWithLoader(

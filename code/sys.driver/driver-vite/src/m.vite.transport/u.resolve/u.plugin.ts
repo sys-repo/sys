@@ -3,9 +3,7 @@ import type { PluginContext } from 'rollup';
 import { loadDenoModule } from '../u/u.load.ts';
 import { isBarePackageId } from '../u/u.npm.ts';
 import { isDenoSpecifier, parseDenoSpecifier, unwrapViteId } from '../u/u.specifier.ts';
-import { resolveDenoWith } from './u.denoInfo.ts';
 import { DenoLoaderResolver, type DenoLoaderResolverInstance } from './u.loader.ts';
-import { isRemoteLike } from './u.loaderAdapter.ts';
 import { resolveNpmPath } from './u.npmPath.ts';
 import { resolveViteSpecifier } from './u.vite.ts';
 
@@ -90,22 +88,21 @@ export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps) {
       const resolvedId = unwrapViteId(id);
       if (isDenoSpecifier(resolvedId)) {
         const parsed = parseDenoSpecifier(resolvedId);
-        let cached = cache.get(parsed.resolved);
-        if (
-          (cached === undefined || (cached.kind === 'esm' && cached.dependencies.length === 0)) &&
-          isRemoteLike(parsed.id)
-        ) {
-          const hydrated = await resolveDenoWith(parsed.id, root, pluginDeps);
-          if (hydrated?.kind === 'esm') {
-            cache.set(hydrated.id, hydrated);
-            cache.set(parsed.resolved, hydrated);
-            cached = hydrated;
-          }
-        }
+        const cached = cache.get(parsed.resolved);
         return await loadDenoModule(resolvedId, cached?.dependencies ?? [], {
           browserIds,
           sourceSpecifier: cached?.kind === 'esm' ? cached.specifier : undefined,
           transformCacheDir: transportCacheDir,
+          async load(specifier) {
+            const active = await (loaderResolver ??= DenoLoaderResolver.create({
+              configPath: loaderConfigPath,
+              noLock: true,
+            }).catch((error) => {
+              loaderResolver = undefined;
+              throw error;
+            }));
+            return await active.load(specifier);
+          },
         });
       }
 

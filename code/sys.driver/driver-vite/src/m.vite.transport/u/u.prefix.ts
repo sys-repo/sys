@@ -1,9 +1,8 @@
 import { Path, type t } from '../common.ts';
-import { resolveDeno, resolveNpmPath, resolveViteSpecifier } from '../u.resolve/u.resolve.ts';
+import { resolveNpmPath, resolveViteSpecifier } from '../u.resolve/u.resolve.ts';
 import { toViteNpmSpecifier } from './u.npm.ts';
 
 const depsDefault: t.PrefixDeps = {
-  resolveDeno,
   resolveNpmPath,
   resolveViteSpecifier,
 };
@@ -23,9 +22,6 @@ export default function prefixPlugin(cache: t.DenoCache, deps: t.PrefixDeps = de
       options: { custom?: t.Rollup.CustomPluginOptions; ssr?: boolean; isEntry: boolean },
     ) {
       if (id.startsWith('npm:')) {
-        const resolved = await deps.resolveDeno(id, root);
-        if (resolved === null) return;
-
         const actual = toViteNpmSpecifier(id);
         const result = await this.resolve(actual, importer, { ...options, skipSelf: true });
         if (result) return result;

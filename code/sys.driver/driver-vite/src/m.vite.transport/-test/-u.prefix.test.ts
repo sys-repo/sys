@@ -15,14 +15,6 @@ describe('ViteTransport.prefix', () => {
     it('strips npm versions and delegates to vite resolution', async () => {
       let fallbackCalls = 0;
       const plugin = prefixPlugin(new Map(), {
-        async resolveDeno() {
-          return {
-            id: 'react@19.2.0',
-            kind: 'npm',
-            loader: null,
-            dependencies: [],
-          };
-        },
         async resolveNpmPath(id) {
           fallbackCalls++;
           expect(id).to.eql('react');
@@ -49,14 +41,6 @@ describe('ViteTransport.prefix', () => {
 
     it('prefers vite resolution for dual-package npm imports', async () => {
       const plugin = prefixPlugin(new Map(), {
-        async resolveDeno() {
-          return {
-            id: 'tinycolor2@1.6.0',
-            kind: 'npm',
-            loader: null,
-            dependencies: [],
-          };
-        },
         async resolveNpmPath() {
           throw new Error('resolveNpmPath should not be used when vite resolves first');
         },
@@ -90,14 +74,6 @@ describe('ViteTransport.prefix', () => {
 
     it('preserves scoped npm subpaths when stripping versions', async () => {
       const plugin = prefixPlugin(new Map(), {
-        async resolveDeno() {
-          return {
-            id: '@noble/hashes@2.0.1/legacy.js',
-            kind: 'npm',
-            loader: null,
-            dependencies: [],
-          };
-        },
         async resolveNpmPath() {
           return null;
         },
@@ -119,16 +95,8 @@ describe('ViteTransport.prefix', () => {
       expect(res).to.eql('@noble/hashes/legacy.js');
     });
 
-    it('preserves npm subpaths even when deno info reports only the package root', async () => {
+    it('returns normalized npm subpaths when Vite and file-path fallback both miss', async () => {
       const plugin = prefixPlugin(new Map(), {
-        async resolveDeno() {
-          return {
-            id: '@noble/hashes@2.0.1',
-            kind: 'npm',
-            loader: null,
-            dependencies: [],
-          };
-        },
         async resolveNpmPath() {
           return null;
         },
@@ -148,38 +116,10 @@ describe('ViteTransport.prefix', () => {
       );
 
       expect(res).to.eql('@noble/hashes/legacy.js');
-    });
-
-    it('does not delegate npm ids when deno resolution fails', async () => {
-      const plugin = prefixPlugin(new Map(), {
-        async resolveDeno() {
-          return null;
-        },
-        async resolveNpmPath() {
-          throw new Error('resolveNpmPath should not run after unresolved deno npm lookup');
-        },
-        async resolveViteSpecifier() {
-          return undefined;
-        },
-      });
-
-      const res = await plugin.resolveId.call(
-        wrangle.context(async () => {
-          throw new Error('vite resolution should not run after unresolved deno npm lookup');
-        }),
-        'npm:react@19.2.0',
-        undefined,
-        wrangle.options(),
-      );
-
-      expect(res).to.eql(undefined);
     });
 
     it('delegates http imports to resolveViteSpecifier', async () => {
       const plugin = prefixPlugin(new Map(), {
-        async resolveDeno() {
-          return null;
-        },
         async resolveNpmPath() {
           return null;
         },
@@ -200,9 +140,6 @@ describe('ViteTransport.prefix', () => {
 
     it('ignores unrelated specifiers', async () => {
       const plugin = prefixPlugin(new Map(), {
-        async resolveDeno() {
-          return null;
-        },
         async resolveNpmPath() {
           return null;
         },
@@ -222,14 +159,6 @@ describe('ViteTransport.prefix', () => {
 
     it('falls back to a deno-resolved npm file path when vite resolution fails', async () => {
       const plugin = prefixPlugin(new Map(), {
-        async resolveDeno() {
-          return {
-            id: 'react@19.2.4',
-            kind: 'npm',
-            loader: null,
-            dependencies: [],
-          };
-        },
         async resolveNpmPath(id, cwd) {
           expect(id).to.eql('react');
           expect(cwd).to.eql('/tmp/project');

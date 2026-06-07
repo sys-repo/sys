@@ -1,6 +1,6 @@
 import { Perf } from '../../common/u.perf.ts';
 import { Fs, Path, type t } from '../common.ts';
-import { RequestedModuleType, Workspace } from '@deno/loader';
+import { type LoadResponse, RequestedModuleType, Workspace } from '@deno/loader';
 import { TransformCache } from './u.cache.ts';
 import { toViteNpmSpecifier } from './u.npm.ts';
 import { canonicalRemoteSpecifier, parseDenoSpecifier, toDenoSpecifier } from './u.specifier.ts';
@@ -14,6 +14,7 @@ export async function loadDenoModule(
     readonly browserIds?: boolean;
     readonly sourceSpecifier?: string;
     readonly transformCacheDir?: string;
+    readonly load?: (specifier: string) => Promise<LoadResponse>;
   } = {},
 ): Promise<DenoLoadResult> {
   const parsed = parseDenoSpecifier(id);
@@ -25,6 +26,14 @@ export async function loadDenoModule(
     dependencies: dependencies.length,
     browserIds: options.browserIds ?? false,
   }, { level: 3 });
+  if (isConcreteRemoteSpecifier(resolved)) {
+    const loaded = await loadWithDenoLoader(resolved, loader, resolved, options.load);
+    const code = rewriteResolvedImports(loaded.code, dependencies, options);
+    const result = { code, map: loaded.map } as const;
+    end({ transform: true, remote: true, bytes: code.length, map: loaded.map?.length ?? 0 });
+    return result;
+  }
+
   const original = (await Fs.readText(resolved)).data ?? '';
   const content = rewriteResolvedImports(original, dependencies, options);
 
@@ -85,6 +94,7 @@ export async function loadDenoModule(
     loader,
     resolved,
     options.sourceSpecifier ?? parsed.id,
+    options.load,
   );
   const code = rewriteResolvedImports(transformed.code, dependencies, options);
   const result = {
@@ -133,14 +143,23 @@ async function transformModule(
   loader: t.DenoLoader,
   sourcefile: string,
   id: string,
+  load?: (specifier: string) => Promise<LoadResponse>,
 ) {
   const specifier = denoLoaderLoadSpecifier(id, sourcefile);
+  return await loadWithDenoLoader(specifier, loader, sourcefile, load);
+}
+
+async function loadWithDenoLoader(
+  specifier: string,
+  loader: t.DenoLoader,
+  sourcefile: string,
+  load = wrangle.load,
+) {
   const end = Perf.section('transport.transform.denoLoader', { loader, sourcefile, specifier }, {
     level: 3,
     thresholdMs: 10 as t.Msecs,
   });
-  const denoLoader = await wrangle.loader();
-  const result = await denoLoader.load(specifier, RequestedModuleType.Default);
+  const result = await load(specifier);
 
   if (result.kind === 'external') {
     end({ ok: false, external: true });
@@ -158,6 +177,11 @@ const wrangle = {
     let current: ReturnType<Workspace['createLoader']> | undefined;
     return () => current ??= new Workspace().createLoader();
   })(),
+
+  async load(specifier: string) {
+    const denoLoader = await wrangle.loader();
+    return await denoLoader.load(specifier, RequestedModuleType.Default);
+  },
 
   decode(input: Uint8Array) {
     return new TextDecoder().decode(input);

@@ -9,11 +9,14 @@ export function toDenoSpecifier(loader: string, id: string, resolved: string) {
 }
 
 export function parseDenoSpecifier(spec: string) {
-  const [_, loader, id, posixPath] = spec.split('::');
+  const [_, loader, id, resolvedPath] = spec.split('::');
+  const resolved = isConcreteRemoteSpecifier(resolvedPath)
+    ? canonicalRemoteSpecifier(resolvedPath)
+    : Path.normalize(resolvedPath);
   return {
     loader,
     id: repairConcreteRemoteAuthorityDelimiter(id),
-    resolved: Path.normalize(posixPath),
+    resolved,
   };
 }
 
@@ -37,4 +40,8 @@ export function canonicalRemoteSpecifier(value: string) {
     url.pathname = url.pathname.slice(0, -1);
   }
   return url.toString();
+}
+
+function isConcreteRemoteSpecifier(value: string) {
+  return /^(https?:\/\/|https?:\/)/i.test(value);
 }

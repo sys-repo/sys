@@ -1,7 +1,6 @@
 import { Path, Process, type t } from '../common.ts';
 import { toViteNpmSpecifier } from '../u/u.npm.ts';
 import { isDenoSpecifier, parseDenoSpecifier, toDenoSpecifier } from '../u/u.specifier.ts';
-import { resolveDenoWith } from './u.denoInfo.ts';
 import {
   adaptCachedResolution,
   adaptLoaderResolution,
@@ -19,7 +18,6 @@ export async function resolveViteSpecifier(
   importer?: string,
   deps: t.ResolveDeps = {
     invoke: Process.invoke,
-    memo: { inflight: new Map(), settled: new Map(), alias: new Map() },
   },
 ) {
   const root = Path.normalize(posixRoot);
@@ -28,17 +26,7 @@ export async function resolveViteSpecifier(
   if (importer && isDenoSpecifier(importer)) {
     const { id: parentId, resolved: parent } = parseDenoSpecifier(importer);
     trace.resolve('importer.request', { sourceId, importer, parentId, parent });
-    let cached = cache.get(parent);
-    if (
-      isRemoteLike(parentId) &&
-      (cached === undefined || (cached.kind === 'esm' && cached.dependencies.length === 0))
-    ) {
-      cached = (await resolveDenoWith(parentId, root, deps)) ?? cached;
-      if (cached) {
-        cache.set(cached.id, cached);
-        cache.set(parent, cached);
-      }
-    }
+    const cached = cache.get(parent);
     let matchedDependency = false;
     if (cached) {
       const found = cached.dependencies.find((dep) => {
@@ -65,18 +53,13 @@ export async function resolveViteSpecifier(
 
         id = found.resolvedSpecifier;
         if (id.startsWith('file://')) return Path.fromFileUrl(id);
-        if (id.startsWith('npm:')) {
-          await resolveDenoWith(id, root, deps);
-          return toViteNpmSpecifier(id);
-        }
+        if (id.startsWith('npm:')) return toViteNpmSpecifier(id);
         if (found.localPath && found.loader && isRemoteLike(id)) {
           const existing = cache.get(found.localPath);
-          const hydrated = existing ??
-            (await resolveDenoWith(found.sourceSpecifier ?? id, root, deps));
-          if (hydrated?.kind === 'esm') {
-            cache.set(hydrated.id, hydrated);
-            cache.set(id, hydrated);
-            return toDenoSpecifier(hydrated.loader ?? found.loader, id, hydrated.id);
+          if (existing?.kind === 'esm') {
+            cache.set(existing.id, existing);
+            cache.set(id, existing);
+            return toDenoSpecifier(existing.loader ?? found.loader, id, existing.id);
           }
 
           cache.set(found.localPath, {
@@ -112,7 +95,5 @@ export async function resolveViteSpecifier(
   const loaderAdapted = adaptLoaderResolution(id, loaderResolved, cache, root);
   if (loaderAdapted !== undefined) return loaderAdapted;
 
-  const resolved = await resolveDenoWith(id, root, deps);
-  if (resolved === null) return;
-  return adaptCachedResolution(id, resolved, cache, root);
+  return;
 }

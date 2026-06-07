@@ -3,13 +3,6 @@ export type * from '../common.t.ts';
 
 export type DenoLoader = 'JSX' | 'JavaScript' | 'Json' | 'TSX' | 'TypeScript';
 
-export type ResolveInfoDependency = {
-  readonly specifier: string;
-  readonly code?: {
-    readonly specifier?: string;
-  };
-};
-
 export type DenoDependency = {
   readonly specifier: string;
   readonly resolvedSpecifier: string;
@@ -42,12 +35,6 @@ export type DenoTransformedModule = {
 
 export type DenoCache = Map<string, DenoResolved>;
 
-export type ResolveMemo = {
-  readonly inflight: Map<string, Promise<DenoResolved | null>>;
-  readonly settled: Map<string, DenoResolved>;
-  readonly alias: Map<string, string>;
-};
-
 export type ResolveDeps = {
   readonly invoke: t.Process.Lib['invoke'];
   readonly resolveLoader?: (
@@ -56,11 +43,9 @@ export type ResolveDeps = {
     cwd: string,
   ) => Promise<string | null | undefined>;
   readonly resolveNpmPath?: (id: string, cwd: string) => Promise<string | null>;
-  readonly memo?: ResolveMemo;
 };
 
 export type PrefixDeps = {
-  readonly resolveDeno: (id: string, cwd: string) => Promise<DenoResolved | null>;
   readonly resolveNpmPath: (id: string, cwd: string) => Promise<string | null>;
   readonly resolveViteSpecifier: (
     id: string,
@@ -69,38 +54,4 @@ export type PrefixDeps = {
     importer?: string,
     deps?: ResolveDeps,
   ) => Promise<string | null | undefined>;
-};
-
-export type ResolveInfoError = {
-  readonly error: string;
-};
-
-export type ResolveInfoModuleEsm = {
-  readonly kind: 'esm';
-  readonly local: string;
-  readonly mediaType?: DenoLoader;
-  readonly dependencies?: readonly ResolveInfoDependency[];
-  readonly specifier: string;
-};
-
-export type ResolveInfoModuleNpm = {
-  readonly kind: 'npm';
-  readonly npmPackage: string;
-  readonly specifier: string;
-};
-
-export type ResolveInfoModuleExternal = {
-  readonly kind: 'external';
-  readonly specifier?: string;
-};
-
-export type ResolveInfoModule =
-  | ResolveInfoModuleEsm
-  | ResolveInfoModuleNpm
-  | ResolveInfoModuleExternal;
-
-export type ResolveInfo = {
-  readonly roots: readonly string[];
-  readonly redirects?: Readonly<Record<string, string>>;
-  readonly modules: readonly (ResolveInfoModule | ResolveInfoError)[];
 };
