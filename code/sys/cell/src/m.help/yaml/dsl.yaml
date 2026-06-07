@@ -1,7 +1,7 @@
 id: dsl
 title: Cell DSL
 summary: |
-  Cell DSL (domain-specific-language): the formal command/vocabulary surface for valid Cell edits.
+  The Cell domain-specific-language: the formal command/vocabulary surface for valid Cell edits.
   Read this root layer before changing a Cell folder; then read the matching chapter from
   the chapter index.
 
