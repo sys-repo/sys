@@ -1,7 +1,7 @@
 id: dsl
 title: Cell DSL
 summary: |
-  The Cell domain-specific-language: the formal command/vocabulary surface for valid Cell edits.
+  Cell domain-specific-language: the formal command/vocabulary surface for valid Cell edits.
   Read this root layer before changing a Cell folder; then read the matching chapter from
   the chapter index.
 
@@ -9,57 +9,57 @@ sections:
   - label: Reading protocol
     items:
       - |-
-        Agents MUST read this root DSL layer before changing a Cell folder:
-        `deno run -ER jsr:@sys/cell dsl`.
+          Agents MUST read this root DSL layer before changing a Cell folder:
+          `deno run -ER jsr:@sys/cell dsl`.
       - Agents MUST NOT read every chapter by default.
       - Agents MUST identify the intended speech act from Speech acts and Mappings.
       - |-
-        Agents MUST read each matching chapter from the chapter index before editing:
-        `deno run -ER jsr:@sys/cell dsl <chapter>`.
+          Agents MUST read each matching chapter from the chapter index before editing:
+          `deno run -ER jsr:@sys/cell dsl <chapter>`.
       - |-
-        If slot interpretation remains unclear after the matching chapter, read the examples
-        chapter before guessing or inspecting source.
+          If slot interpretation remains unclear after the matching chapter, read the examples
+          chapter before guessing or inspecting source.
       - If no chapter index entry matches, stop and ask.
 
   - label: 'Runtime authority'
     items:
       - >-
-        The `@sys/cell` package version that provides the DSL must match the runtime version
-        that loads, verifies, runs tasks for, or starts the Cell.
+          The `@sys/cell` package version that provides the DSL must match the runtime version
+          that loads, verifies, runs tasks for, or starts the Cell.
       - Agents must carry the same `@sys/cell` runtime authority through edits and verification.
       - >-
-        For persistent folders, unversioned commands such as `deno run -ERWN jsr:@sys/cell start .`
-        are reproducible only when effective Deno dependency authority resolves `jsr:@sys/cell`
-        to the verified runtime.
+          For persistent folders, unversioned commands such as `deno run -ERWN jsr:@sys/cell start .`
+          are reproducible only when effective Deno dependency authority resolves `jsr:@sys/cell`
+          to the verified runtime.
       - >-
-        Effective authority means the config, import map, lock, or workspace authority Deno will
-        actually use for the command.
+          Effective authority means the config, import map, lock, or workspace authority Deno will
+          actually use for the command.
       - >-
-        Do not create a competing nested `deno.json` inside an existing workspace and assume it
-        is authoritative.
+          Do not create a competing nested `deno.json` inside an existing workspace and assume it
+          is authoritative.
       - >-
-        If the operator intends unversioned latest, run one targeted `--reload=jsr:@sys/cell`
-        refresh, then prove the final non-`--reload` operator command.
+          If the operator intends unversioned latest, run one targeted `--reload=jsr:@sys/cell`
+          refresh, then prove the final non-`--reload` operator command.
       - >-
-        `--reload` is cache sync only; durable authority is effective dependency authority or
-        an exact versioned command.
+          `--reload` is cache sync only; durable authority is effective dependency authority or
+          an exact versioned command.
       - If effective authority cannot be established, report the exact versioned command proven.
 
   - label: Rule
     items:
       - >-
-        Cell owns the folder boundary: boot, composition, service orchestration, and CLI
-        lifecycle.
+          Cell owns the folder boundary: boot, composition, service orchestration, and CLI
+          lifecycle.
       - Owner configs own mechanics and state interpretation.
       - '`-cell/cell.yaml` is the canonical Cell descriptor path.'
       - It names trusted services, tasks that run to completion, and owner config references.
       - Public package endpoint refs should use explicit JSR authority such as `jsr:@sys/...`.
       - >-
-        Cell-local adapters should use relative refs such as `./-services/local.ts` or
-        `./-tasks/local.ts`.
+          Cell-local adapters should use relative refs such as `./-services/local.ts` or
+          `./-tasks/local.ts`.
       - >-
-        Cell verifies trusted public refs by package identity, not by duplicating registry
-        spellings.
+          Cell verifies trusted public refs by package identity, not by duplicating registry
+          spellings.
       - Views are owner-defined projections that make Cell state perceivable.
       - Tasks name workflows that run to completion; endpoint modules own execution mechanics.
       - Do not register views or service-to-view relationships in `-cell/cell.yaml`.
@@ -69,16 +69,16 @@ sections:
   - label: 'Descriptor IDs'
     items:
       - |-
-        Service and task names in `-cell/cell.yaml` use the pattern
-        `^[a-z][a-z0-9]*(?:[.:-][a-z0-9]+)*$`.
+          Service and task names in `-cell/cell.yaml` use the pattern
+          `^[a-z][a-z0-9]*(?:[.:-][a-z0-9]+)*$`.
       - Allowed separators are `.`, `:`, and `-` between lowercase alphanumeric segments.
       - >-
-        Do not use `_`, `/`, spaces, uppercase letters, leading/trailing separators, or
-        repeated separators.
+          Do not use `_`, `/`, spaces, uppercase letters, leading/trailing separators, or
+          repeated separators.
       - Treat service and task names as opaque identifiers for display, logs, and review.
       - >-
-        Do not treat names as raw paths, URLs, import specifiers, Deno task names, or config
-        filenames.
+          Do not treat names as raw paths, URLs, import specifiers, Deno task names, or config
+          filenames.
       - Validate user-provided name slots before editing `-cell/cell.yaml`.
       - If a requested name is invalid, stop and ask for a valid name; do not silently rewrite it.
 
@@ -107,42 +107,42 @@ sections:
       - It does not own their internals.
       - Start from public `--help` surfaces.
       - |-
-        If public `jsr:@sys/... --help` output is missing, stale, or silent, retry once with
-        `--reload` as a troubleshooting move.
+          If public `jsr:@sys/... --help` output is missing, stale, or silent, retry once with
+          `--reload` as a troubleshooting move.
       - If `--reload` fixes help, continue with normal non-`--reload` owner commands.
       - Do not hand-author owner YAML just because cached public help was stale.
       - Use owning CLI/API to create, validate, or execute config.
       - If no owner affordance exists, stop and ask.
       - |-
-        If examples may resolve unclear prompt slots, read the examples chapter before
-        inspecting package source.
+          If examples may resolve unclear prompt slots, read the examples chapter before
+          inspecting package source.
       - |-
-        If a selected endpoint contract is still ambiguous, inspect the published JSR
-        package docs/source.
+          If a selected endpoint contract is still ambiguous, inspect the published JSR
+          package docs/source.
       - Use source inspection only to confirm public exports, types, and lifecycle contracts.
       - Do not use source inspection to bypass owner CLI/API config affordances.
 
   - label: Diagnostics
     items:
       - |-
-        If `Cell.load` reports this failure family:
-        ```text
-        /dsl: Expected required property
-        /services: Unexpected property
-        /dsl: Expected object
-        ```
-        treat it as runtime/schema drift until proven otherwise.
+          If `Cell.load` reports this failure family:
+          ```text
+          /dsl: Expected required property
+          /services: Unexpected property
+          /dsl: Expected object
+          ```
+          treat it as runtime/schema drift until proven otherwise.
       - >-
-        Do not move `services`, `tasks`, or other descriptor entries under `dsl` as the
-        first response.
+          Do not move `services`, `tasks`, or other descriptor entries under `dsl` as the
+          first response.
       - |-
-        First align runtime authority:
-        1. Re-run with the exact versioned Cell runtime that matches the DSL version the agent read.
-        2. Or repair effective Deno dependency authority so the operator's unversioned command
-           resolves to that runtime.
-        3. If unversioned latest is intended, refresh once with targeted `--reload=jsr:@sys/cell`,
-           then re-run the final non-`--reload` command.
-        4. Re-run the operator's exact command.
+          First align runtime authority:
+          1. Re-run with the exact versioned Cell runtime that matches the DSL version the agent read.
+          2. Or repair effective Deno dependency authority so the operator's unversioned command
+             resolves to that runtime.
+          3. If unversioned latest is intended, refresh once with targeted `--reload=jsr:@sys/cell`,
+             then re-run the final non-`--reload` command.
+          4. Re-run the operator's exact command.
       - Only change descriptor shape after the same runtime version still rejects it.
 
   - label: Mappings
@@ -155,14 +155,14 @@ sections:
       - if no pull config is specified or known, ask for it
       - do not edit `-cell/cell.yaml` for refresh-only pulls
       - |-
-        add static serve service → default unqualified requests to the `@sys/tools/serve`
-        service endpoint
+          add static serve service → default unqualified requests to the `@sys/tools/serve`
+          service endpoint
       - |-
-        default static serve service → record service name, `Serve` endpoint,
-        `jsr:@sys/tools/serve` owner ref, and config ref in `services[]`
+          default static serve service → record service name, `Serve` endpoint,
+          `jsr:@sys/tools/serve` owner ref, and config ref in `services[]`
       - |-
-        explicitly selected static-file owner → use generic service flow plus that owner's
-        help/config affordances
+          explicitly selected static-file owner → use generic service flow plus that owner's
+          help/config affordances
       - do not bypass Cell services with `@sys/tools serve --non-interactive` task shortcuts
       - add generic service → confirm `Cell.Services.LifecycleEndpoint`
       - local service adapter → keep adapter code under the Cell root, typically `./-services/*.ts`
@@ -170,30 +170,30 @@ sections:
       - then record `services[]` with `name`, `use`, `from`, and `config`
       - add service mode → update the named service's `variants.<mode>` with a complete binding
       - |-
-        service variants → record `use`, `from`, and `config`; do not write partial
-        overlays or owner settings
+          service variants → record `use`, `from`, and `config`; do not write partial
+          overlays or owner settings
       - mode selection key → not forwarded to owner endpoints
       - add proxy → use proxy owner flow
       - then record service name and config ref
       - root route → run `@sys/http/server/proxy root set`
       - mount route → run `@sys/http/server/proxy mount add`
       - |-
-        add leaf task → confirm the endpoint exposes `run(args)` and owner config affordance
-        when config is needed
+          add leaf task → confirm the endpoint exposes `run(args)` and owner config affordance
+          when config is needed
       - public service/task endpoint refs → prefer explicit `jsr:@sys/...` refs
       - local task adapter → keep adapter code under the Cell root, typically `./-tasks/*.ts`
       - |-
-        task config → owner-owned ref resolved relative to the Cell root and passed as
-        `paths.config`
+          task config → owner-owned ref resolved relative to the Cell root and passed as
+          `paths.config`
       - leaf task descriptor → record `tasks[]` with `name`, `use`, `from`, and optional `config`
       - composite task descriptor → record `tasks[]` with `name` and `steps[]` task refs only
       - do not put shell commands, `deno task`, or inline executable fields in `tasks[].steps[]`
       - |-
-        `-cell/cell.yaml` only names services, tasks that run to completion, endpoint refs,
-        and owner config refs
+          `-cell/cell.yaml` only names services, tasks that run to completion, endpoint refs,
+          and owner config refs
       - verify/load → run `Cell.load` against the folder
       - run finite task → run `@sys/cell task <task-name>`
       - start services → run `@sys/cell start`
       - |-
-        start services in mode → run `@sys/cell start --mode <mode>` only for complete
-        declared service variants
+          start services in mode → run `@sys/cell start --mode <mode>` only for complete
+          declared service variants
