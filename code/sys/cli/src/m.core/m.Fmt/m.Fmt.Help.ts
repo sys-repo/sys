@@ -1,19 +1,28 @@
-import { c, Str, stripAnsi, type t } from '../common.ts';
+import { c, Str, type t } from '../common.ts';
+import { Text } from '../m.Fmt.Text/mod.ts';
+
+const DEFAULT_PAGE_WIDTH = 120;
+const DEFAULT_MIN_BODY_WIDTH = 20;
+
+const GAP = '   ';
+const HANGING_INDENT = 2;
 
 type Layout = {
   readonly gap: string;
   readonly labelWidth: number;
+  readonly pageWidth: number;
+  readonly minBodyWidth: number;
 };
 
 export const Help: t.CliFormat.Lib['Help'] = {
   build(input: t.CliFormatHelpInput) {
+    const sections = wrangle.sections(input);
+    const layout = wrangle.layout(input, sections);
     const lines = [`  ${c.bold(c.brightCyan(input.tool))}`];
 
-    if (input.summary) lines.push('', c.white(input.summary));
-    if (input.note) lines.push(c.gray(input.note));
+    if (input.summary) lines.push('', ...wrapTopMatter(input.summary, layout, 'default'));
+    if (input.note) lines.push(...wrapTopMatter(input.note, layout, 'muted'));
 
-    const sections = wrangle.sections(input);
-    const layout = wrangle.layout(sections);
     for (const section of sections) {
       const text = renderSection(section, layout);
       if (text) lines.push('', text);
@@ -38,12 +47,25 @@ function renderLinesSection(
   layout: Layout,
 ): string {
   const labelWidth = layout.labelWidth;
-  const label = c.gray(padVisibleEnd(section.label, labelWidth));
+  const label = c.gray(Text.padEnd(section.label, labelWidth));
   const blank = ' '.repeat(labelWidth);
-  const lines = section.items.map((item, index) => {
-    const left = index === 0 ? label : blank;
-    const right = tone(section.tone ?? 'default', item);
-    return `${left}${layout.gap}${right}`;
+  const bodyWidth = Text.fitWidth({
+    width: layout.pageWidth,
+    reserve: labelWidth + Text.visibleWidth(layout.gap),
+    minWidth: layout.minBodyWidth,
+  });
+  if (bodyWidth === 0) return renderStackedLinesSection(section, layout);
+
+  const lines = section.items.flatMap((item, itemIndex) => {
+    const wrapped = Text.wrapLines(item, {
+      width: bodyWidth,
+      continuationIndent: HANGING_INDENT,
+    });
+
+    return wrapped.map((line, lineIndex) => {
+      const left = itemIndex === 0 && lineIndex === 0 ? label : blank;
+      return `${left}${layout.gap}${tone(section.tone ?? 'default', line)}`;
+    });
   });
 
   return Str.trimEdgeNewlines(lines.join('\n'));
@@ -57,28 +79,84 @@ function renderPairsSection(
   const rightTone = section.rightTone ?? 'default';
   const labelWidth = layout.labelWidth;
   const leftValues = section.items.map(([left]) => left);
-  const leftWidth = maxVisibleWidth(leftValues);
-  const label = c.gray(padVisibleEnd(section.label, labelWidth));
-  const blank = ' '.repeat(labelWidth);
-  const lines = section.items.map(([leftValue, right], index) => {
-    const sectionLabel = index === 0 ? label : blank;
-    const left = tone(leftTone, padVisibleEnd(leftValue, leftWidth));
-    return `${sectionLabel}${layout.gap}${left}${layout.gap}${tone(rightTone, right)}`;
+  const leftWidth = Text.maxVisibleWidth(leftValues);
+  const label = c.gray(Text.padEnd(section.label, labelWidth));
+  const sectionBlank = ' '.repeat(labelWidth);
+  const leftBlank = ' '.repeat(leftWidth);
+  const rightWidth = Text.fitWidth({
+    width: layout.pageWidth,
+    reserve: labelWidth + Text.visibleWidth(layout.gap) + leftWidth + Text.visibleWidth(layout.gap),
+    minWidth: layout.minBodyWidth,
+  });
+  if (rightWidth === 0) return renderStackedPairsSection(section, layout);
+
+  const lines = section.items.flatMap(([leftValue, right], itemIndex) => {
+    const wrapped = Text.wrapLines(right, {
+      width: rightWidth,
+      continuationIndent: HANGING_INDENT,
+    });
+
+    return wrapped.map((line, lineIndex) => {
+      const sectionLabel = itemIndex === 0 && lineIndex === 0 ? label : sectionBlank;
+      const left = lineIndex === 0 ? tone(leftTone, Text.padEnd(leftValue, leftWidth)) : leftBlank;
+      return `${sectionLabel}${layout.gap}${left}${layout.gap}${tone(rightTone, line)}`;
+    });
   });
 
   return Str.trimEdgeNewlines(lines.join('\n'));
 }
 
-function visibleWidth(input: string): number {
-  return stripAnsi(input).length;
+function renderStackedLinesSection(
+  section: Extract<t.CliFormatHelpSection, { kind: 'lines' }>,
+  layout: Layout,
+): string {
+  const lines = [
+    c.gray(section.label),
+    ...section.items.flatMap((item) => {
+      return Text.wrapLines(item, {
+        width: Math.max(0, layout.pageWidth - HANGING_INDENT),
+        indent: HANGING_INDENT,
+        continuationIndent: HANGING_INDENT,
+      }).map((line) => tone(section.tone ?? 'default', line));
+    }),
+  ];
+
+  return Str.trimEdgeNewlines(lines.join('\n'));
 }
 
-function maxVisibleWidth(inputs: readonly string[]): number {
-  return inputs.reduce((max, input) => Math.max(max, visibleWidth(input)), 0);
+function renderStackedPairsSection(
+  section: Extract<t.CliFormatHelpSection, { kind: 'pairs' }>,
+  layout: Layout,
+): string {
+  const leftTone = section.leftTone ?? 'muted';
+  const rightTone = section.rightTone ?? 'default';
+  const lines = [
+    c.gray(section.label),
+    ...section.items.flatMap(([left, right]) => {
+      return [
+        ...Text.wrapLines(left, {
+          width: Math.max(0, layout.pageWidth - HANGING_INDENT),
+          indent: HANGING_INDENT,
+          continuationIndent: HANGING_INDENT,
+        }).map((line) => tone(leftTone, line)),
+        ...Text.wrapLines(right, {
+          width: Math.max(0, layout.pageWidth - HANGING_INDENT * 2),
+          indent: HANGING_INDENT * 2,
+          continuationIndent: HANGING_INDENT * 2,
+        }).map((line) => tone(rightTone, line)),
+      ];
+    }),
+  ];
+
+  return Str.trimEdgeNewlines(lines.join('\n'));
 }
 
-function padVisibleEnd(input: string, width: number): string {
-  return `${input}${' '.repeat(Math.max(0, width - visibleWidth(input)))}`;
+function wrapTopMatter(
+  input: string,
+  layout: Layout,
+  toneKind: t.CliFormatHelpTone,
+): readonly string[] {
+  return Text.wrapLines(input, { width: layout.pageWidth }).map((line) => tone(toneKind, line));
 }
 
 function tone(kind: t.CliFormatHelpTone, input: string): string {
@@ -86,14 +164,21 @@ function tone(kind: t.CliFormatHelpTone, input: string): string {
 }
 
 const wrangle = {
-  layout(sections: readonly t.CliFormatHelpSection[]): Layout {
+  layout(input: t.CliFormatHelpInput, sections: readonly t.CliFormatHelpSection[]): Layout {
     const labels = sections
       .filter((section) => section.items.length > 0)
       .map((section) => section.label);
+    const options = input.layout ?? {};
 
     return {
-      gap: '   ',
-      labelWidth: maxVisibleWidth(labels),
+      gap: GAP,
+      labelWidth: Text.maxVisibleWidth(labels),
+      pageWidth: Text.fitWidth({
+        ...options,
+        maxWidth: options.maxWidth ?? DEFAULT_PAGE_WIDTH,
+        fallbackWidth: options.fallbackWidth ?? DEFAULT_PAGE_WIDTH,
+      }),
+      minBodyWidth: Math.max(0, Math.floor(options.minBodyWidth ?? DEFAULT_MIN_BODY_WIDTH)),
     };
   },
 

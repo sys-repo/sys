@@ -14,6 +14,10 @@ export function padEnd(input: string, width: number): string {
   return `${input}${' '.repeat(Math.max(0, target - visibleWidth(input)))}`;
 }
 
+export function maxVisibleWidth(inputs: readonly string[]): number {
+  return inputs.reduce((max, input) => Math.max(max, visibleWidth(input)), 0);
+}
+
 export function fitWidth(options: t.CliFormatTextFitOptions = {}): number {
   const width = sourceWidth(options);
   const maxWidth = optionalPositiveInt(options.maxWidth);

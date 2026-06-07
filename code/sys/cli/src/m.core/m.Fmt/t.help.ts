@@ -1,3 +1,5 @@
+import type { t } from '../common.ts';
+
 /**
  * Color treatment for help section content.
  *
@@ -30,27 +32,27 @@ export type CliFormatHelpOption = CliFormatHelpPair;
  */
 export type CliFormatHelpSection =
   | {
-      /** Render a single-column labeled section. */
-      readonly kind: 'lines';
-      /** Gray section label shown at the left margin. */
-      readonly label: string;
-      /** Ordered section content. */
-      readonly items: readonly string[];
-      /** Optional color treatment for the section content. */
-      readonly tone?: CliFormatHelpTone;
-    }
+    /** Render a single-column labeled section. */
+    readonly kind: 'lines';
+    /** Gray section label shown at the left margin. */
+    readonly label: string;
+    /** Ordered section content. */
+    readonly items: readonly string[];
+    /** Optional color treatment for the section content. */
+    readonly tone?: CliFormatHelpTone;
+  }
   | {
-      /** Render a two-column labeled section. */
-      readonly kind: 'pairs';
-      /** Gray section label shown at the left margin. */
-      readonly label: string;
-      /** Ordered left/right row content. */
-      readonly items: readonly CliFormatHelpPair[];
-      /** Optional color treatment for left-column content. */
-      readonly leftTone?: CliFormatHelpTone;
-      /** Optional color treatment for right-column content. */
-      readonly rightTone?: CliFormatHelpTone;
-    };
+    /** Render a two-column labeled section. */
+    readonly kind: 'pairs';
+    /** Gray section label shown at the left margin. */
+    readonly label: string;
+    /** Ordered left/right row content. */
+    readonly items: readonly CliFormatHelpPair[];
+    /** Optional color treatment for left-column content. */
+    readonly leftTone?: CliFormatHelpTone;
+    /** Optional color treatment for right-column content. */
+    readonly rightTone?: CliFormatHelpTone;
+  };
 
 /**
  * Shared top matter for help page inputs.
@@ -62,6 +64,24 @@ export type CliFormatHelpInputBase = {
   readonly summary?: string;
   /** Optional subdued note rendered below the summary. */
   readonly note?: string;
+  /** Optional terminal layout constraints. */
+  readonly layout?: CliFormatHelpLayoutOptions;
+};
+
+/** Terminal help layout options. */
+export type CliFormatHelpLayoutOptions = {
+  /** Explicit physical page width. */
+  readonly width?: number;
+  /** Maximum readable page width. */
+  readonly maxWidth?: number;
+  /** Minimum body width before falling back to stacked rows. */
+  readonly minBodyWidth?: number;
+  /** Deterministic width used when terminal width is unavailable. */
+  readonly fallbackWidth?: number;
+  /** Standard stream used to detect terminal output. Defaults to `stdout`. */
+  readonly stream?: t.StdioName;
+  /** Terminal detection override for deterministic tests. */
+  readonly terminal?: boolean;
 };
 
 /**

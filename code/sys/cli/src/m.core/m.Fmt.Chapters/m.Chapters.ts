@@ -1,22 +1,23 @@
-import { c, Str, stripAnsi, type t } from '../common.ts';
+import { c, Str, type t } from '../common.ts';
 import { Help } from '../m.Fmt/m.Fmt.Help.ts';
+import { hr } from '../m.Fmt/m.Fmt.Hr.ts';
+import { Text } from '../m.Fmt.Text/mod.ts';
 import { Book } from './m.Book.ts';
 import { Resources } from './m.Resources.ts';
 import { files, resolve } from './u.resources.ts';
-import { hr } from '../m.Fmt/m.Fmt.Hr.ts';
-import { Table } from '../m.Table/mod.ts';
 
-const TERMINAL_TEXT_WIDTH = 100;
+const DEFAULT_PAGE_WIDTH = 128;
+const DEFAULT_MIN_BODY_WIDTH = 24;
+const GAP = '   ';
 const HANGING_INDENT = 2;
 const MARKDOWN_WIDTH = 80;
 
-type WrapTextOptions = {
-  readonly continuationIndent?: number;
-};
-
-type WrapLineOptions = {
-  readonly indent?: number;
-  readonly continuationIndent?: number;
+type Layout = {
+  readonly gap: string;
+  readonly labelWidth: number;
+  readonly pageWidth: number;
+  readonly bodyWidth: number;
+  readonly stacked: boolean;
 };
 
 /** Navigable help chapter formatting and tree helpers. */
@@ -32,38 +33,49 @@ export const Chapters: t.CliFormatChapters.Lib = {
 
 function format(input: t.CliFormatChapters.FormatInput): string {
   const { chapter } = input;
-  const table = Table.create([]);
-  const label = input.label ?? 'Chapter';
-  const rowWidth = Math.max(0, TERMINAL_TEXT_WIDTH);
+  const childLabel = input.label ?? Str.plural(chapter.chapters.length, 'Chapter');
+  const layout = resolveLayout(input);
+  const lines: string[] = [];
 
   chapter.sections.forEach((section, sectionIndex) => {
-    if (sectionIndex > 0) table.push(['', '']);
+    if (sectionIndex > 0) lines.push('');
     section.items.forEach((item, itemIndex) => {
-      table.push([
-        itemIndex === 0 ? c.gray(section.label) : '',
-        c.white(wrapText(item, rowWidth, { continuationIndent: HANGING_INDENT })),
-      ]);
+      lines.push(...sectionItemLines(itemIndex === 0 ? section.label : '', item, layout));
     });
   });
 
   if (chapter.chapters.length > 0) {
-    if (chapter.sections.length > 0) table.push(['', '']);
-    const commandWidth = maxVisibleWidth(
+    if (chapter.sections.length > 0) lines.push('');
+    const commandWidth = Text.maxVisibleWidth(
       chapter.chapters.map((item) => chapterCommand(input, item)),
     );
+    const inlineLinks = !layout.stacked && chapter.chapters.every((item) => {
+      const command = chapterCommand(input, item);
+      const inline = `${Text.padEnd(command, commandWidth)}  ${c.gray(item.summary)}`;
+      return Text.visibleWidth(inline) <= layout.bodyWidth;
+    });
     chapter.chapters.forEach((item, itemIndex) => {
-      table.push([
-        itemIndex === 0 ? c.gray(label) : '',
-        chapterLine(input, item, commandWidth, rowWidth),
-      ]);
+      lines.push(
+        ...chapterLinkLines(
+          itemIndex === 0 ? childLabel : '',
+          input,
+          item,
+          commandWidth,
+          inlineLinks,
+          layout,
+        ),
+      );
     });
   }
 
-  return Str.trimEdgeNewlines(String(table));
+  return Str.trimEdgeNewlines(lines.join('\n'));
 }
 
 function page(input: t.CliFormatChapters.PageInput): string {
-  const help = Help.build(input.help);
+  const helpInput = input.layout && !input.help.layout
+    ? { ...input.help, layout: input.layout }
+    : input.help;
+  const help = Help.build(helpInput);
   const chapter = format(input);
   const hasChapter = Str.trimEdgeNewlines(chapter).length > 0;
   const blocks = !hasChapter
@@ -99,24 +111,54 @@ function markdown(input: t.CliFormatChapters.MarkdownInput): string {
   return Str.trimEdgeNewlines(lines.join('\n'));
 }
 
-function chapterLine(
+function sectionItemLines(label: string, item: string, layout: Layout): readonly string[] {
+  if (layout.stacked) return stackedLines(label, item, layout);
+
+  const labelText = label
+    ? c.gray(Text.padEnd(label, layout.labelWidth))
+    : ' '.repeat(layout.labelWidth);
+  const wrapped = Text.wrapLines(item, {
+    width: layout.bodyWidth,
+    continuationIndent: HANGING_INDENT,
+  });
+
+  return wrapped.map((line, index) => {
+    if (line.length === 0) return '';
+    const left = index === 0 ? labelText : ' '.repeat(layout.labelWidth);
+    return `${left}${layout.gap}${c.white(line)}`;
+  });
+}
+
+function chapterLinkLines(
+  label: string,
   input: t.CliFormatChapters.FormatInput,
   chapter: t.CliFormatChapters.Chapter.Link,
   commandWidth: number,
-  rowWidth: number,
-): string {
-  const command = chapterCommand(input, chapter);
-  const summary = c.gray(wrapText(chapter.summary, rowWidth));
-  const inline = `${padVisibleEnd(command, commandWidth)}  ${summary}`;
-  if (visibleWidth(inline) <= rowWidth) return inline;
+  inline: boolean,
+  layout: Layout,
+): readonly string[] {
+  if (layout.stacked) {
+    return stackedLines(label, chapter.summary, layout, chapterCommand(input, chapter));
+  }
 
-  const splitSummary = c.gray(
-    indentText(
-      wrapText(chapter.summary, rowWidth - HANGING_INDENT),
-      HANGING_INDENT,
-    ),
-  );
-  return `${command}\n${splitSummary}`;
+  const labelText = label
+    ? c.gray(Text.padEnd(label, layout.labelWidth))
+    : ' '.repeat(layout.labelWidth);
+  const blank = ' '.repeat(layout.labelWidth);
+  const command = chapterCommand(input, chapter);
+  if (inline) {
+    return [
+      `${labelText}${layout.gap}${Text.padEnd(command, commandWidth)}  ${c.gray(chapter.summary)}`,
+    ];
+  }
+
+  const summary = Text.wrapLines(chapter.summary, {
+    width: Math.max(0, layout.bodyWidth - HANGING_INDENT),
+    indent: HANGING_INDENT,
+    continuationIndent: HANGING_INDENT,
+  }).map((line) => `${blank}${layout.gap}${c.gray(line)}`);
+
+  return [`${labelText}${layout.gap}${command}`, ...summary];
 }
 
 function chapterCommand(
@@ -129,7 +171,7 @@ function chapterCommand(
 }
 
 function markdownSectionItems(items: readonly string[]): readonly string[] {
-  return items.flatMap((item) => wrapText(item, MARKDOWN_WIDTH).split('\n'));
+  return items.flatMap((item) => Text.wrapLines(item, { width: MARKDOWN_WIDTH }));
 }
 
 function markdownChapterLine(
@@ -171,92 +213,56 @@ function singleLine(input: string): string {
   return Str.trimEdgeNewlines(input).split(/\s+/).join(' ');
 }
 
-function wrapText(input: string, width: number, options: WrapTextOptions = {}): string {
-  if (width <= 0) return input;
-
-  const continuationIndent = Math.max(0, options.continuationIndent ?? 0);
+function stackedLines(
+  label: string,
+  item: string,
+  layout: Layout,
+  prefix?: string,
+): readonly string[] {
+  const bodyWidth = layout.pageWidth;
   const lines: string[] = [];
-  let fenced = false;
-  let fenceIndent = 0;
-
-  Str.trimEdgeNewlines(input).split('\n').forEach((line) => {
-    const fenceLine = line.trimStart().startsWith('```');
-
-    if (fenced) {
-      lines.push(prefixText(line, fenceIndent));
-      if (fenceLine) fenced = false;
-      return;
-    }
-
-    const indent = lines.length === 0 ? 0 : continuationIndent;
-    if (fenceLine) {
-      fenceIndent = indent;
-      fenced = true;
-      lines.push(prefixText(line, indent));
-      return;
-    }
-
-    if (shouldPreserveLine(line)) {
-      lines.push(prefixText(line, indent));
-      return;
-    }
-
-    lines.push(...wrapLine(line, width, { indent, continuationIndent }));
-  });
-
-  return lines.join('\n');
-}
-
-function wrapLine(input: string, width: number, options: WrapLineOptions = {}): readonly string[] {
-  const indent = Math.max(0, options.indent ?? 0);
-  const continuationIndent = Math.max(0, options.continuationIndent ?? indent);
-  const prefix = ' '.repeat(indent);
-
-  if (visibleWidth(`${prefix}${input}`) <= width) return [`${prefix}${input}`];
-
-  const leading = input.match(/^\s*/)?.[0] ?? '';
-  const firstPrefix = `${prefix}${leading}`;
-  const wrappedPrefix = `${' '.repeat(continuationIndent)}${leading}`;
-  const words = input.trim().split(/\s+/);
-  const lines: string[] = [];
-  let line = '';
-  let currentPrefix = firstPrefix;
-  let available = Math.max(1, width - visibleWidth(currentPrefix));
-
-  words.forEach((word) => {
-    const next = line ? `${line} ${word}` : word;
-    if (visibleWidth(next) <= available || !line) {
-      line = next;
-    } else {
-      lines.push(`${currentPrefix}${line}`);
-      currentPrefix = wrappedPrefix;
-      available = Math.max(1, width - visibleWidth(currentPrefix));
-      line = word;
-    }
-  });
-
-  if (line) lines.push(`${currentPrefix}${line}`);
+  if (label) lines.push(c.gray(label));
+  if (prefix) lines.push(...Text.wrapLines(prefix, { width: bodyWidth, indent: HANGING_INDENT }));
+  lines.push(
+    ...Text.wrapLines(item, {
+      width: bodyWidth,
+      indent: HANGING_INDENT,
+      continuationIndent: HANGING_INDENT,
+    }).map((line) => c.white(line)),
+  );
   return lines;
 }
 
-function prefixText(input: string, width: number): string {
-  return `${' '.repeat(Math.max(0, width))}${input}`;
-}
+function resolveLayout(input: t.CliFormatChapters.FormatInput): Layout {
+  const labels = [
+    ...input.chapter.sections
+      .filter((section) => section.items.length > 0)
+      .map((section) => section.label),
+    ...(input.chapter.chapters.length > 0
+      ? [input.label ?? Str.plural(input.chapter.chapters.length, 'Chapter')]
+      : []),
+  ];
+  const options = input.layout ?? {};
+  const pageWidth = Text.fitWidth({
+    ...options,
+    maxWidth: options.maxWidth ?? DEFAULT_PAGE_WIDTH,
+    fallbackWidth: options.fallbackWidth ?? DEFAULT_PAGE_WIDTH,
+  });
+  const labelWidth = Text.maxVisibleWidth(labels);
+  const minBodyWidth = Math.max(0, Math.floor(options.minBodyWidth ?? DEFAULT_MIN_BODY_WIDTH));
+  const bodyWidth = Text.fitWidth({
+    width: pageWidth,
+    reserve: labelWidth + Text.visibleWidth(GAP),
+    minWidth: minBodyWidth,
+  });
 
-function shouldPreserveLine(input: string): boolean {
-  const text = input.trim();
-  if (text.length === 0) return false;
-  return (
-    /^`.+`[.:;]?$/.test(text) ||
-    /^\$\s+\S+/.test(text) ||
-    /^deno\s+run\b/.test(text) ||
-    /^https?:\/\/\S+$/.test(text)
-  );
-}
-
-function indentText(input: string, width: number): string {
-  const indent = ' '.repeat(Math.max(0, width));
-  return input.split('\n').map((line) => `${indent}${line}`).join('\n');
+  return {
+    gap: GAP,
+    labelWidth,
+    pageWidth,
+    bodyWidth,
+    stacked: bodyWidth === 0,
+  };
 }
 
 function composeBlocks(blocks: readonly string[]): string {
@@ -265,16 +271,4 @@ function composeBlocks(blocks: readonly string[]): string {
     .filter((block) => block.length > 0)
     .join('\n\n');
   return `\n${body}\n`;
-}
-
-function visibleWidth(input: string): number {
-  return stripAnsi(input).length;
-}
-
-function maxVisibleWidth(input: readonly string[]): number {
-  return input.reduce((max, item) => Math.max(max, visibleWidth(item)), 0);
-}
-
-function padVisibleEnd(input: string, width: number): string {
-  return `${input}${' '.repeat(Math.max(0, width - visibleWidth(input)))}`;
 }

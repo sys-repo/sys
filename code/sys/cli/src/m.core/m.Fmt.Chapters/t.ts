@@ -1,3 +1,4 @@
+import type { t } from '../common.ts';
 import type { CliFormatHelpInput } from '../m.Fmt/t.help.ts';
 
 /**
@@ -39,6 +40,24 @@ export declare namespace CliFormatChapters {
     readonly chapter: Chapter;
     /** Label for the child chapter index. Defaults to `Chapter`. */
     readonly label?: string;
+    /** Optional terminal layout constraints. */
+    readonly layout?: LayoutOptions;
+  };
+
+  /** Terminal chapter layout options. */
+  export type LayoutOptions = {
+    /** Explicit physical page width. */
+    readonly width?: number;
+    /** Maximum readable page width. */
+    readonly maxWidth?: number;
+    /** Minimum body width before falling back to stacked labels. */
+    readonly minBodyWidth?: number;
+    /** Deterministic width used when terminal width is unavailable. */
+    readonly fallbackWidth?: number;
+    /** Standard stream used to detect terminal output. Defaults to `stdout`. */
+    readonly stream?: t.StdioName;
+    /** Terminal detection override for deterministic tests. */
+    readonly terminal?: boolean;
   };
 
   /** Complete terminal chapter help page rendering input. */

@@ -166,6 +166,72 @@ describe('Cli.Fmt.Help', () => {
     );
   });
 
+  it('fits summary and note prose within an explicit physical width', () => {
+    const help = Fmt.Help.build({
+      tool: '@sys/tool',
+      summary:
+        'Upgrade workspace dependencies from canonical deps.yaml while preserving local package ownership boundaries.',
+      note:
+        'Interactive by default; non-interactive applies deterministically, and --dry-run previews without writing.',
+      layout: { width: 64 },
+    });
+    const plain = Cli.stripAnsi(help);
+
+    expect(plain).to.contain('Upgrade workspace dependencies');
+    expect(plain).to.contain('ownership boundaries.');
+    expect(plain).to.contain('Interactive by default');
+    expectMaxVisibleWidth(plain, 64);
+  });
+
+  it('fits line and pair section prose within an explicit physical width', () => {
+    const help = Fmt.Help.build({
+      tool: '@sys/tool',
+      sections: [
+        {
+          kind: 'lines',
+          label: 'Usage',
+          items: [
+            '@sys/tool run a very long command description that should wrap under the section body column',
+          ],
+        },
+        {
+          kind: 'pairs',
+          label: 'Options',
+          items: [
+            [
+              '--policy <none|patch|minor|latest>',
+              'choose the dependency upgrade policy for every selected workspace package',
+            ],
+          ],
+        },
+      ],
+      layout: { width: 72 },
+    });
+    const plain = Cli.stripAnsi(help);
+
+    expect(plain).to.contain('@sys/tool run');
+    expect(plain).to.contain('choose the dependency');
+    expectMaxVisibleWidth(plain, 72);
+  });
+
+  it('uses stacked help rows when the physical width leaves too little body space', () => {
+    const help = Fmt.Help.build({
+      tool: '@sys/tool',
+      sections: [
+        {
+          kind: 'pairs',
+          label: 'Options',
+          items: [['--dry-run', 'preview without writing files to disk']],
+        },
+      ],
+      layout: { width: 32, minBodyWidth: 24 },
+    });
+    const plain = Cli.stripAnsi(help);
+
+    expect(plain).to.contain('Options\n  --dry-run\n    preview without');
+    expectMaxVisibleWidth(plain, 32);
+  });
+
   it('render prints the built help page', () => {
     const calls: string[] = [];
     const info = console.info;
@@ -183,3 +249,11 @@ describe('Cli.Fmt.Help', () => {
     expect(calls).to.eql([Fmt.Help.build({ tool: 'sys tool', usage: ['sys tool [options]'] })]);
   });
 });
+
+function expectMaxVisibleWidth(text: string, width: number) {
+  const wide = Cli.stripAnsi(text)
+    .split('\n')
+    .map((line) => line.trimEnd())
+    .filter((line) => line.length > width);
+  expect(wide, wide.join('\n')).to.eql([]);
+}

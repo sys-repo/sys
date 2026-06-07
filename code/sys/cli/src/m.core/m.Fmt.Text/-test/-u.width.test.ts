@@ -1,6 +1,6 @@
 import { c, describe, expect, it } from '../../../-test.ts';
 import { Cli } from '../../mod.ts';
-import { fitWidth, padEnd, visibleWidth } from '../u.width.ts';
+import { fitWidth, maxVisibleWidth, padEnd, visibleWidth } from '../u.width.ts';
 
 describe('Cli.Fmt.Text.width', () => {
   describe('visible width', () => {
@@ -15,6 +15,12 @@ describe('Cli.Fmt.Text.width', () => {
       const padded = padEnd(input, 6);
 
       expect(Cli.stripAnsi(padded)).to.eql('cell  ');
+    });
+  });
+
+  describe('aggregate width', () => {
+    it('returns the largest ANSI-stripped visible width', () => {
+      expect(maxVisibleWidth([c.cyan('cell'), c.gray('runtime')])).to.eql(7);
     });
   });
 

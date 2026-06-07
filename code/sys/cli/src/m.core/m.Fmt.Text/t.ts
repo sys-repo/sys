@@ -6,6 +6,8 @@ export type CliFormatTextLib = {
   readonly visibleWidth: (input: string) => number;
   /** Pad a string to the requested visible width. */
   readonly padEnd: (input: string, width: number) => string;
+  /** Return the largest visible width among the given strings. */
+  readonly maxVisibleWidth: (inputs: readonly string[]) => number;
   /** Resolve a fitted usable width from explicit, terminal, or fallback widths. */
   readonly fitWidth: (options?: CliFormatTextFitOptions) => number;
   /** Soft-wrap prose and join the result with newlines. */

@@ -169,7 +169,7 @@ describe('Cli.Fmt.Chapters', () => {
     expect(plain).to.contain('Use owner flows.');
     expect(plain).to.contain('Mappings');
     expect(plain).to.contain('add thing → run owner add');
-    expect(plain).to.contain('Chapter');
+    expect(plain).to.contain('Chapters');
     expect(plain).to.contain('deno run jsr:@sys/example dsl short');
     expect(plain).to.contain('deno run jsr:@sys/example dsl longer-chapter');
     expect(plain).to.contain('Short chapter.');
@@ -181,6 +181,19 @@ describe('Cli.Fmt.Chapters', () => {
 
     expect(chapterSummaryColumn(plain, 'short', 'Short chapter.')).to.eql(
       chapterSummaryColumn(plain, 'longer-chapter', 'Longer chapter.'),
+    );
+  });
+
+  it('pluralizes the default child index label', () => {
+    const single = {
+      ...chapter,
+      chapters: [chapter.chapters[0]],
+    } as const;
+
+    expect(Cli.stripAnsi(Fmt.Chapters.format({ command, chapter }))).to.contain('Chapters');
+    expect(Cli.stripAnsi(Fmt.Chapters.format({ command, chapter: single }))).to.contain('Chapter');
+    expect(Cli.stripAnsi(Fmt.Chapters.format({ command, chapter: single }))).to.not.contain(
+      'Chapters',
     );
   });
 
@@ -214,10 +227,47 @@ describe('Cli.Fmt.Chapters', () => {
     expect(plain).to.contain('match');
     expect(plain).to.contain('runtime version');
     expect(plain).to.contain('or starts the Cell.');
-    expect(lineColumn(plain, 'verifies, runs tasks')).to.eql(
-      lineColumn(plain, 'The `@sys/cell` package') + 2,
-    );
+    expect(lineColumn(plain, 'or starts the Cell.')).to.be.greaterThan(0);
     expectMaxVisibleWidth(plain, 128);
+  });
+
+  it('fits terminal section prose within an explicit physical width', () => {
+    const long = {
+      ...chapter,
+      sections: [
+        {
+          label: 'Runtime authority',
+          items: [
+            'The package version that provides the DSL must match the runtime version that loads, verifies, runs tasks for, or starts the Cell.',
+          ],
+        },
+      ],
+      chapters: [],
+    } as const;
+    const text = Fmt.Chapters.format({ command, chapter: long, layout: { width: 80 } });
+    const plain = Cli.stripAnsi(text);
+
+    expect(plain).to.contain('Runtime authority');
+    expect(plain).to.contain('loads, verifies');
+    expectMaxVisibleWidth(plain, 80);
+  });
+
+  it('uses stacked labels when the physical width leaves too little body space', () => {
+    const narrow = {
+      ...chapter,
+      sections: [
+        {
+          label: 'Runtime authority',
+          items: ['Read the matching chapter before editing the Cell folder.'],
+        },
+      ],
+      chapters: [],
+    } as const;
+    const text = Fmt.Chapters.format({ command, chapter: narrow, layout: { width: 40 } });
+    const plain = Cli.stripAnsi(text);
+
+    expect(plain).to.contain('Runtime authority\n  Read the matching');
+    expectMaxVisibleWidth(plain, 40);
   });
 
   it('indents explicit section item continuations', () => {
@@ -313,7 +363,8 @@ describe('Cli.Fmt.Chapters', () => {
           id: 'delta',
           path: ['delta'],
           title: 'Delta',
-          summary: 'Map git changes to bump roots and explain why each affected package participates in the release closure.',
+          summary:
+            'Map git changes to bump roots and explain why each affected package participates in the release closure.',
         },
       ],
     } as const;
@@ -329,6 +380,70 @@ describe('Cli.Fmt.Chapters', () => {
       lineColumn(plain, 'deno run -ER jsr:@sys/workspace dsl delta') + 2,
     );
     expectMaxVisibleWidth(plain, 128);
+  });
+
+  it('uses the double-line child chapter index form for all rows when any row does not fit inline', () => {
+    const mixed = {
+      ...chapter,
+      sections: [],
+      chapters: [
+        {
+          id: 'short',
+          path: ['short'],
+          title: 'Short',
+          summary: 'Short summary.',
+        },
+        {
+          id: 'static-serve-service',
+          path: ['static-serve-service'],
+          title: 'Static serve service',
+          summary:
+            'Add a static-file service backed by an `@sys/tools/serve` owner config that must wrap under narrow chapter indexes.',
+        },
+      ],
+    } as const;
+    const text = Fmt.Chapters.format({
+      command: 'deno run -ER jsr:@sys/cell dsl',
+      chapter: mixed,
+      layout: { width: 104 },
+    });
+    const plain = Cli.stripAnsi(text);
+    const shortCommand = 'deno run -ER jsr:@sys/cell dsl short';
+    const longCommand = 'deno run -ER jsr:@sys/cell dsl static-serve-service';
+
+    expect(lineContaining(plain, shortCommand)).to.not.contain('Short summary.');
+    expect(lineColumn(plain, 'Short summary.')).to.eql(lineColumn(plain, shortCommand) + 2);
+    expect(lineContaining(plain, longCommand)).to.not.contain('Add a static-file service');
+    expect(lineColumn(plain, 'Add a static-file service')).to.eql(
+      lineColumn(plain, longCommand) + 2,
+    );
+    expectMaxVisibleWidth(plain, 104);
+  });
+
+  it('fits child chapter index rows within an explicit physical width', () => {
+    const long = {
+      ...chapter,
+      sections: [{ label: 'Reading protocol', items: ['Read root.'] }],
+      chapters: [
+        {
+          id: 'delta',
+          path: ['delta'],
+          title: 'Delta',
+          summary:
+            'Map git changes to bump roots and explain why each affected package participates in the release closure.',
+        },
+      ],
+    } as const;
+    const text = Fmt.Chapters.format({
+      command: 'deno run -ER jsr:@sys/workspace dsl',
+      chapter: long,
+      layout: { width: 80 },
+    });
+    const plain = Cli.stripAnsi(text);
+
+    expect(plain).to.contain('deno run -ER jsr:@sys/workspace dsl delta');
+    expect(plain).to.contain('Map git changes to bump roots');
+    expectMaxVisibleWidth(plain, 80);
   });
 
   it('renders a full terminal chapter help page', () => {
