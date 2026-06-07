@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../../-test.ts';
 import { Process } from '../../m.cli/common.ts';
 import { Fs, Path, Str, type t } from '../common.ts';
 import { Profiles } from '../mod.ts';
-import { DEFAULT_SYSTEM_PROMPT } from '../u.prompt.ts';
+import { DEFAULT_SYSTEM_PROMPT, PROVENANCE_SAFETY_PROMPT } from '../u.prompt.ts';
 
 type RegisteredTool = {
   readonly name: string;
@@ -54,7 +54,10 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
         expect(input.cwd).to.eql(cwd);
         expect(input.args).to.include('--no-prompt');
         expect(input.args).to.include('--no-context-files');
-        expect(input.args).to.include.members(['--system-prompt', 'You are the profile prompt.']);
+        const prompt = systemPrompt(input.args);
+        expect(prompt).to.contain('You are the profile prompt.');
+        expect(prompt).not.to.contain(PROVENANCE_SAFETY_PROMPT);
+        expectFinalProvenanceSafety(input.args);
         expect(input.args).to.include.members(['--model', 'gpt-5.4', '--help']);
         const contextText = await readContextBundle(input.args);
         expect(contextText).to.contain('# Project Context');
@@ -138,6 +141,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
         );
         expect(prompt).to.contain('Do not fall back to `bash`.');
         expect(prompt).to.contain('Recursive removal is disabled');
+        expectFinalProvenanceSafety(input.args);
 
         const read = await Fs.readText(extensionPath);
         if (!read.ok) throw read.error;
@@ -266,6 +270,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
       Process.inherit = async (input) => {
         expect(input.cwd).to.eql(cwd);
         expectRuntimeMetadata(input.args, { cwd, profile: absoluteConfig });
+        expectFinalProvenanceSafety(input.args);
         return { code: 0, success: true, signal: null };
       };
 
@@ -289,13 +294,13 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
       await Fs.ensureDir(`${cwd}/.git`);
 
       Process.inherit = async (input) => {
-        const promptIndex = input.args.indexOf('--system-prompt');
-        expect(promptIndex).to.be.greaterThan(-1);
-        const prompt = input.args[promptIndex + 1] ?? '';
-        expect(prompt).to.contain(DEFAULT_SYSTEM_PROMPT);
+        const prompt = systemPrompt(input.args);
+        expect(prompt).to.contain('You are an expert coding assistant.');
         expect(prompt).to.contain('# Local System Instructions');
         expect(prompt).to.contain(`${cwd}/SYSTEM.md`);
         expect(prompt).to.contain('System guidance.');
+        expect(prompt).not.to.contain(PROVENANCE_SAFETY_PROMPT);
+        expectFinalProvenanceSafety(input.args);
 
         const contextText = await readContextBundle(input.args);
         expect(contextText).to.contain(`${cwd}/AGENTS.md`);
@@ -372,9 +377,10 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
       await Fs.ensureDir(`${cwd}/.git`);
 
       Process.inherit = async (input) => {
-        const index = input.args.indexOf('--system-prompt');
-        expect(index).to.be.greaterThan(-1);
-        expect(input.args[index + 1]).to.eql(prompt);
+        const value = systemPrompt(input.args);
+        expect(value).to.contain(prompt);
+        expect(value).not.to.contain(PROVENANCE_SAFETY_PROMPT);
+        expectFinalProvenanceSafety(input.args);
         return { code: 0, success: true, signal: null };
       };
 
@@ -400,8 +406,11 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
       await Fs.ensureDir(`${cwd}/.git`);
 
       Process.inherit = async (input) => {
-        expect(input.args).to.include.members(['--system-prompt', 'Custom prompt.']);
-        expect(input.args).not.to.include('System guidance.');
+        const prompt = systemPrompt(input.args);
+        expect(prompt).to.contain('Custom prompt.');
+        expect(prompt).not.to.contain(PROVENANCE_SAFETY_PROMPT);
+        expect(prompt).not.to.contain('System guidance.');
+        expectFinalProvenanceSafety(input.args);
         expectRuntimeMetadata(input.args, { cwd, profile: config });
         return { code: 0, success: true, signal: null };
       };
@@ -436,7 +445,8 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
 
       Process.inherit = async (input) => {
         expect(input.args).to.include('--no-prompt');
-        expect(input.args).to.include.members(['--system-prompt', DEFAULT_SYSTEM_PROMPT]);
+        expect(systemPrompt(input.args)).to.eql(defaultSystemPromptBody());
+        expectFinalProvenanceSafety(input.args);
         expect(input.args).to.include.members(['--model', 'gpt-5.4']);
         expect(input.env?.PI_PROFILE).to.eql('main');
         return { code: 0, success: true, signal: null };
@@ -454,7 +464,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
     }
   });
 
-  it('run → starts with DEFAULT_SYSTEM_PROMPT when profile prompt is absent', async () => {
+  it('run → uses default prompt body and final safety when profile prompt is absent', async () => {
     const prev = Process.inherit;
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.run.test.' }))
       .absolute as t.StringDir;
@@ -475,12 +485,8 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
       await Fs.ensureDir(`${cwd}/.git`);
 
       Process.inherit = async (input) => {
-        const first = input.args.indexOf('--system-prompt');
-        const second = input.args.indexOf('--system-prompt', first + 1);
-        expect(first).to.be.greaterThan(-1);
-        expect(second).to.be.greaterThan(first);
-        expect(input.args[first + 1]).to.eql(DEFAULT_SYSTEM_PROMPT);
-        expect(input.args[second + 1]).to.eql('runtime prompt');
+        expect(systemPrompt(input.args)).to.eql(defaultSystemPromptBody());
+        expectFinalProvenanceSafety(input.args);
         expect(input.env?.PI_PROFILE).to.eql('main');
         return { code: 0, success: true, signal: null };
       };
@@ -488,7 +494,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
       const res = await Profiles.run({
         cwd: { invoked: cwd, git: cwd },
         config,
-        args: ['--system-prompt', 'runtime prompt'],
+        args: ['--help'],
       });
       expect(res.success).to.eql(true);
     } finally {
@@ -497,7 +503,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
     }
   });
 
-  it('run → uses DEFAULT_SYSTEM_PROMPT when profile prompt is null', async () => {
+  it('run → uses default prompt body and final safety when profile prompt is null', async () => {
     const prev = Process.inherit;
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.run.test.' }))
       .absolute as t.StringDir;
@@ -516,7 +522,8 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
       await Fs.ensureDir(`${cwd}/.git`);
 
       Process.inherit = async (input) => {
-        expect(input.args).to.include.members(['--system-prompt', DEFAULT_SYSTEM_PROMPT]);
+        expect(systemPrompt(input.args)).to.eql(defaultSystemPromptBody());
+        expectFinalProvenanceSafety(input.args);
         return { code: 0, success: true, signal: null };
       };
 
@@ -531,7 +538,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
     }
   });
 
-  it('run → leaves the final system prompt override with invocation-time passthrough', async () => {
+  it('run → rejects invocation-time prompt-surface passthrough', async () => {
     const prev = Process.inherit;
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.run.test.' }))
       .absolute as t.StringDir;
@@ -546,26 +553,29 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
           `,
         ).trimStart(),
       );
-
       await Fs.ensureDir(`${cwd}/.git`);
 
-      Process.inherit = async (input) => {
-        const first = input.args.indexOf('--system-prompt');
-        const second = input.args.indexOf('--system-prompt', first + 1);
-        expect(first).to.be.greaterThan(-1);
-        expect(second).to.be.greaterThan(first);
-        expect(input.args[first + 1]).to.eql('profile prompt');
-        expect(input.args[second + 1]).to.eql('runtime prompt');
-        expectRuntimeMetadata(input.args, { cwd, profile: config });
-        return { code: 0, success: true, signal: null };
+      Process.inherit = async () => {
+        throw new Error('Process.inherit should not run after prompt passthrough rejection.');
       };
 
-      const res = await Profiles.run({
-        cwd: { invoked: cwd, git: cwd },
-        config,
-        args: ['--system-prompt', 'runtime prompt'],
-      });
-      expect(res.success).to.eql(true);
+      let error: unknown;
+      try {
+        await Profiles.run({
+          cwd: { invoked: cwd, git: cwd },
+          config,
+          args: ['--system-prompt', 'runtime prompt'],
+        });
+      } catch (err) {
+        error = err;
+      }
+
+      expect(error).to.be.instanceOf(Error);
+      if (error instanceof Error) {
+        expect(error.message).to.contain(
+          'Profile mode owns Pi prompt, context, skill, and extension startup surfaces; passthrough is not allowed: --system-prompt',
+        );
+      }
     } finally {
       Process.inherit = prev;
       await Fs.remove(cwd);
@@ -604,6 +614,21 @@ function appendSystemPrompts(args: readonly string[]) {
   return args.flatMap((arg, index) =>
     arg === '--append-system-prompt' ? [args[index + 1] ?? ''] : []
   );
+}
+
+function systemPrompt(args: readonly string[]) {
+  const index = args.indexOf('--system-prompt');
+  expect(index).to.be.greaterThan(-1);
+  return args[index + 1] ?? '';
+}
+
+function expectFinalProvenanceSafety(args: readonly string[]) {
+  const appended = appendSystemPrompts(args);
+  expect(appended[appended.length - 1]).to.eql(PROVENANCE_SAFETY_PROMPT);
+}
+
+function defaultSystemPromptBody() {
+  return DEFAULT_SYSTEM_PROMPT.replace(`\n\n${PROVENANCE_SAFETY_PROMPT}`, '');
 }
 
 function countOccurrences(text: string, value: string) {

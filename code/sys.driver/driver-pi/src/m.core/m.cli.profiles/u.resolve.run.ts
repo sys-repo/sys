@@ -5,7 +5,11 @@ import { ProfilesFs } from './u.fs.ts';
 import { ProfileContext } from './u.context.ts';
 import { ProfilePath } from './u.path.ts';
 import { ProfileMigrate } from './u.migrate/mod.ts';
-import { toPromptArgs } from './u.prompt.ts';
+import {
+  assertNoPromptSurfacePassthrough,
+  toFinalProvenanceSafetyArgs,
+  toPromptArgs,
+} from './u.prompt.ts';
 import { RuntimeMetadata } from './u.runtime.metadata.ts';
 import { SandboxFs } from '../m.extension/m.sandbox.fs/mod.ts';
 
@@ -21,6 +25,7 @@ export type ResolvedProfileRun = {
 };
 
 export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<ResolvedProfileRun> {
+  assertNoPromptSurfacePassthrough(input.args);
   const cwd = input.cwd;
   const root = ProfilePath.root(cwd);
   // Path-like --profile selectors are CLI paths.
@@ -77,11 +82,15 @@ export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<Resolv
   return {
     cwd,
     args: [
-      ...toPromptArgs(prompt, { append: contextResolution.systemPromptAppend }),
+      ...toPromptArgs(prompt, {
+        append: contextResolution.systemPromptAppend,
+        finalSafety: false,
+      }),
       ...contextResolution.args,
       ...SandboxFs.toPromptArgs(sandboxFsPolicy),
       ...RuntimeMetadata.toPromptArgs({ cwd, profile: activeProfile }),
       ...(extension?.args ?? []),
+      ...toFinalProvenanceSafetyArgs(),
       ...(input.args ?? []),
     ],
     read,
