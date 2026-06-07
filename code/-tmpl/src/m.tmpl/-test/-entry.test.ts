@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../-test.ts';
+import { Cli, describe, expect, it } from '../../-test.ts';
 import { entry } from '../-entry.ts';
 import { Prompt } from '../u.prompt.ts';
 
@@ -45,7 +45,7 @@ describe('m.tmpl/-entry', () => {
 
       await entry(['--help']);
 
-      const text = lines.join('\n');
+      const text = normalizeOutput(lines.join('\n'));
       expect(text.includes('deno run -ERW jsr:@sys/tmpl <template> [flags]')).to.eql(true);
       expect(text.includes('deno run -ERW jsr:@sys/tmpl dsl [chapter...]')).to.eql(true);
       expect(text.includes('deno run -ERW jsr:@sys/tmpl --non-interactive --dir my-thing repo')).to
@@ -115,3 +115,7 @@ describe('m.tmpl/-entry', () => {
     }
   });
 });
+
+function normalizeOutput(output: string): string {
+  return Cli.stripAnsi(output).replace(/\s+/g, ' ').trim();
+}
