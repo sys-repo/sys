@@ -1,12 +1,40 @@
 # KeyValue type namespace API plan
 
+## Status
+Completed.
+
+Landed implementation:
+
+- `d3bd4363e refactor(ui-react-components): namespace keyvalue types`
+
+Subsequent package/source-tree renames carried the completed shape to the current paths:
+
+- `615f43f4a refactor(ui-components): rename package identity`
+- `f19716a96 refactor(ui-components): move react source tree`
+
+Current proof, re-run on 2026-06-08:
+
+```sh
+cd /Users/phil/code/org.sys/sys/code/sys.ui/ui-components && deno task check
+cd /Users/phil/code/org.sys/sys/deploy/@draft.shell && deno task check
+```
+
+Both checks passed.
+
+Current source shape:
+
+- `code/sys.ui/ui-components/src/ui.react/KeyValue/t.ts` exports `declare namespace KeyValue`.
+- `code/sys.ui/ui-components/src/ui.react/KeyValue/-.test.ts` asserts `t.KeyValue.Item[]`.
+- `deploy/@draft.shell/src/common/t.ts` exports `KeyValue` from `@sys/ui-components/t`.
+- Current scan found no legacy flat `KeyValueItem` / `KeyValueLayout` / `KeyValueProps` usage in `ui-components`, `deploy/@draft.shell`, or `code/-tmpl`.
+
 ## Goal
-Make `@sys/ui-react-components/t` expose a clean KeyValue type namespace so consumers can import one type namespace instead of proliferating flat `KeyValue*` imports.
+Make `@sys/ui-components/t` expose a clean KeyValue type namespace so consumers can import one type namespace instead of proliferating flat `KeyValue*` imports.
 
 Target consumer shape:
 
 ```ts
-export type { KeyValue } from '@sys/ui-react-components/t';
+export type { KeyValue } from '@sys/ui-components/t';
 
 t.KeyValue.Item[];
 t.KeyValue.Layout;
@@ -23,7 +51,7 @@ The unit should be tight, but not compatibility-preserving.
 Primary package:
 
 ```txt
-code/sys.ui/ui-react-components
+code/sys.ui/ui-components
 ```
 
 Proof consumer:
@@ -39,7 +67,7 @@ code/-tmpl
 ```
 
 ## Design
-In `code/sys.ui/ui-react-components/src/ui/KeyValue/t.ts`:
+In `code/sys.ui/ui-components/src/ui/KeyValue/t.ts`:
 
 1. Add `export declare namespace KeyValue` as the canonical public type namespace.
 2. Move/express canonical names inside the namespace:
@@ -75,7 +103,7 @@ In `code/sys.ui/ui-react-components/src/ui/KeyValue/t.ts`:
 Do not change runtime imports/exports. Runtime remains:
 
 ```ts
-import { KeyValue } from '@sys/ui-react-components/key-value';
+import { KeyValue } from '@sys/ui-components/key-value';
 ```
 
 ## Non-goals
@@ -97,7 +125,7 @@ import { KeyValue } from '@sys/ui-react-components/key-value';
    - no legacy `t.KeyValueItem[]` expectation
 3. Run:
    ```sh
-   cd /Users/phil/code/org.sys/sys/code/sys.ui/ui-react-components && deno task check
+   cd /Users/phil/code/org.sys/sys/code/sys.ui/ui-components && deno task check
    ```
 4. Update proof consumer `deploy/@draft.shell/src/common/t.ts` to re-export `KeyValue` namespace instead of individual flat imports.
 5. Update draft shell usage:
@@ -117,7 +145,7 @@ import { KeyValue } from '@sys/ui-react-components/key-value';
 ## Verification commands
 
 ```sh
-cd /Users/phil/code/org.sys/sys/code/sys.ui/ui-react-components && deno task check
+cd /Users/phil/code/org.sys/sys/code/sys.ui/ui-components && deno task check
 cd /Users/phil/code/org.sys/sys/deploy/@draft.shell && deno task check
 ```
 
