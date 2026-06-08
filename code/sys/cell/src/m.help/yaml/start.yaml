@@ -1,6 +1,6 @@
 summary: |
   Start Cell services from a Cell folder.
-  Loads canonical `-cell/cell.yaml`, starts declared services,
+  Loads canonical `-config/@sys.cell/cell.yaml`, starts declared services,
   and waits for service completion.
 
 usage:

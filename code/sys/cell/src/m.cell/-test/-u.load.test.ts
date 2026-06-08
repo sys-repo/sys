@@ -1,7 +1,7 @@
-import { describe, expect, Fs, it, Str } from '../../-test.ts';
+import { describe, expect, Fs, it, Str, Testing } from '../../-test.ts';
 import { Cell } from '../mod.ts';
 import { CellPaths } from '../u/paths.ts';
-import { catchLoad, sampleRoot, tempCell } from './u.fixture.ts';
+import { catchLoad, sampleRoot, tempCell, tempLegacyCell } from './u.fixture.ts';
 
 describe('Cell.load', () => {
   it('loads and validates the Stripe sample descriptor', async () => {
@@ -9,7 +9,7 @@ describe('Cell.load', () => {
     const cell = await Cell.load(root);
 
     expect(cell.root).to.eql(Fs.resolve(root));
-    expect(cell.paths.descriptor).to.eql(Fs.join(cell.root, CellPaths.legacy.descriptor));
+    expect(cell.paths.descriptor).to.eql(Fs.join(cell.root, CellPaths.descriptor));
     expect(cell.descriptor.kind).to.eql('cell');
     expect(cell.descriptor.version).to.eql(1);
     expect(cell.descriptor.services?.map((service) => service.name)).to.eql([
@@ -34,14 +34,15 @@ describe('Cell.load', () => {
     const cell = await Cell.load(root);
 
     expect(cell.root).to.eql(Fs.resolve(root));
-    expect(cell.paths.descriptor).to.eql(Fs.join(cell.root, CellPaths.legacy.descriptor));
+    expect(cell.paths.descriptor).to.eql(Fs.join(cell.root, CellPaths.descriptor));
     expect(cell.descriptor.kind).to.eql('cell');
     expect(cell.descriptor.version).to.eql(1);
     expect(cell.descriptor.services?.map((service) => service.name)).to.eql(['deploy:view']);
   });
 
   it('loads canonical descriptors before legacy fallback is needed', async () => {
-    const root = Fs.resolve('./.tmp/cell.load/canonical');
+    const fs = await Testing.dir('cell.load.canonical');
+    const root = fs.dir;
     const descriptor = Fs.join(root, CellPaths.descriptor);
     await Fs.write(descriptor, `kind: cell\nversion: 1\n`, { force: true });
 
@@ -53,7 +54,7 @@ describe('Cell.load', () => {
   });
 
   it('loads legacy descriptors with a clear compatibility note', async () => {
-    const root = await tempCell('legacy-fallback', `kind: cell\nversion: 1\n`);
+    const root = await tempLegacyCell('legacy-fallback', `kind: cell\nversion: 1\n`);
     const legacyDescriptor = Fs.join(root, CellPaths.legacy.descriptor);
     const canonicalDescriptor = Fs.join(root, CellPaths.descriptor);
 
@@ -72,7 +73,7 @@ describe('Cell.load', () => {
 
   it('fails clearly when canonical and legacy descriptors both exist', async () => {
     const root = await tempCell('ambiguous-descriptor', `kind: cell\nversion: 1\n`);
-    await Fs.write(Fs.join(root, CellPaths.descriptor), `kind: cell\nversion: 1\n`, { force: true });
+    await Fs.write(Fs.join(root, CellPaths.legacy.descriptor), `kind: cell\nversion: 1\n`, { force: true });
 
     const error = await catchLoad(root);
 
@@ -130,7 +131,8 @@ describe('Cell.load', () => {
   });
 
   it('fails clearly when the descriptor is missing', async () => {
-    const root = Fs.resolve('./.tmp/cell.missing');
+    const fs = await Testing.dir('cell.load.missing');
+    const root = fs.dir;
     const error = await catchLoad(root);
 
     expect(error?.message).to.contain('Cell.load: failed to find descriptor.');
@@ -143,7 +145,7 @@ describe('Cell.load', () => {
     const error = await catchLoad(root);
 
     expect(error?.message).to.contain('Cell.load: failed to parse descriptor YAML:');
-    expect(error?.message).to.contain(CellPaths.legacy.descriptor);
+    expect(error?.message).to.contain(CellPaths.descriptor);
   });
 
   it('fails clearly when descriptor schema is invalid', async () => {

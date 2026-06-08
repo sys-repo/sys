@@ -20,7 +20,7 @@ sections:
       - Cell composes the service; the owner owns config schema and mechanics.
       - Service imports must be trusted by `Cell.Services.verify/start`.
       - The default trusted prefix is `@sys/`.
-      - Do not put service config internals directly in `-cell/cell.yaml`.
+      - Do not put service config internals directly in `-config/@sys.cell/cell.yaml`.
       - Do not hand-author owner YAML when the owner CLI/API can write it.
 
   - label: 'Slot policy'
@@ -88,7 +88,7 @@ sections:
         use: `<endpoint>`
         from: `<module>`
         config: `<config>`
-        Please confirm those values before I update `-cell/cell.yaml`
+        Please confirm those values before I update `-config/@sys.cell/cell.yaml`
         or create service-owned config.
 
   - label: 'Owner flow'

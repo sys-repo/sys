@@ -10,7 +10,7 @@ sections:
         Use this chapter only after the prompt resembles a Cell DSL speech act but slots are
         incomplete or informal.
       - These are sample slot values, not DSL grammar, defaults, or required values.
-      - Confirm missing values before editing owner configs or `-cell/cell.yaml`.
+      - Confirm missing values before editing owner configs or `-config/@sys.cell/cell.yaml`.
       - Do not inspect implementation source just to infer these examples.
 
   - label: Prompt shapes
@@ -20,7 +20,7 @@ sections:
       - 'Depending on wording, likely operations are `add: pulled view` or `refresh: pulled views`.'
       - >-
         Do not put dist URL, local target, pull mechanics, or view registry entries in
-        `-cell/cell.yaml`.
+        `-config/@sys.cell/cell.yaml`.
 
   - label: 'Sample slot values'
     items:
@@ -50,7 +50,7 @@ sections:
             config:
         ```
       - Service and task names are Cell descriptor IDs.
-      - Owner config internals stay outside `-cell/cell.yaml`.
+      - Owner config internals stay outside `-config/@sys.cell/cell.yaml`.
 
   - label: Owner reminders
     items: |

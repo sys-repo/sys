@@ -14,7 +14,7 @@ sections:
         If the user explicitly selects another static-file owner, use the generic service chapter
         and that owner's public help/config affordances.
       - Do not use a direct `@sys/tools serve` CLI shortcut to bypass Cell services.
-      - Do not put static-serving mechanics directly in `-cell/cell.yaml`.
+      - Do not put static-serving mechanics directly in `-config/@sys.cell/cell.yaml`.
 
   - label: 'Slot policy'
     items:
@@ -74,7 +74,7 @@ sections:
         If the descriptor uses the clean public ref `from: 'jsr:@sys/tools/serve'`, pin that
         package through effective Deno dependency authority when deterministic resolution is needed.
       - >-
-        Do not put version literals in `-cell/cell.yaml` solely to pin package resolution when
+        Do not put version literals in `-config/@sys.cell/cell.yaml` solely to pin package resolution when
         effective dependency authority can own it.
       - Cell records only service name, `use`, `from`, and config reference.
       - Cell starts the service through the normal service lifecycle.

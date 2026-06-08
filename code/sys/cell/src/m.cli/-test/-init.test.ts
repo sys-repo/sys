@@ -18,7 +18,7 @@ describe(`@sys/cell/cli init`, () => {
     expect(res.dryRun).to.eql(true);
     expect(res.ops.filter((op) => op.kind === 'create').length).to.eql(4);
     expect(text).to.contain(`target   ${fs.dir}`);
-    expect(text).to.contain('create   ./-cell/cell.yaml');
+    expect(text).to.contain('create   ./-config/@sys.cell/cell.yaml');
     expect(text).to.contain('./.gitignore');
     expect(await Fs.exists(Fs.join(fs.dir, CellPaths.descriptor))).to.eql(false);
     expect(await Fs.exists(Fs.join(fs.dir, CellPaths.legacy.descriptor))).to.eql(false);

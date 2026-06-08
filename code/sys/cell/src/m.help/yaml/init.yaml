@@ -1,6 +1,6 @@
 summary: |
   Create the minimal Cell folder contract in the target directory.
-  Init creates the canonical `-cell/cell.yaml` descriptor, stored-meaning lane,
+  Init creates the canonical `-config/@sys.cell/cell.yaml` descriptor, stored-meaning lane,
   view lane, and local ignore for .env.
 
 usage:
@@ -23,5 +23,5 @@ safety:
   - leaves .pi/ and other tool-owned -config/* namespaces untouched
 
 agent:
-  - Run init when the folder is missing the canonical `-cell/cell.yaml` descriptor.
+  - Run init when the folder is missing the canonical `-config/@sys.cell/cell.yaml` descriptor.
   - Init is additive and writes the embedded default resources.

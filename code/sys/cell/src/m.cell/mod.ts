@@ -2,9 +2,10 @@
  * @module
  * Cell descriptor loading, service composition, and finite task execution.
  *
- * A Cell is the folder bounded by its root and described by its `cell.yaml`
- * descriptor. The descriptor records boot/composition facts: trusted service
- * references, finite task references, and their owner config paths. Services and
+ * A Cell is the folder bounded by its root and described by its
+ * `-config/@sys.cell/cell.yaml` descriptor. The descriptor records
+ * boot/composition facts: trusted service references, finite task references,
+ * and their owner config paths. Services and
  * tasks are declared as ESM endpoints so composition remains typed, importable,
  * and owner-correct instead of hidden in shell choreography.
  */

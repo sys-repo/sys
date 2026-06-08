@@ -1,4 +1,5 @@
 import { Fs, Str, type t, Testing, Time } from '../../-test.ts';
+import { CellPaths } from '../../m.cell/u/paths.ts';
 import { CellSession } from '../u/u.session.ts';
 
 export const DEAD_PID = 999_999_999;
@@ -40,7 +41,7 @@ const RESOURCE_SERVICE_SOURCE = Str.dedent(`
 export async function cellFixture(name: string) {
   const fs = await Testing.dir(name);
   await Fs.write(
-    Fs.join(fs.dir, '-cell/cell.yaml'),
+    Fs.join(fs.dir, CellPaths.descriptor),
     Str.dedent(`
       kind: cell
       version: 1
@@ -51,7 +52,7 @@ export async function cellFixture(name: string) {
 
 export async function addHoldService(root: string) {
   await Fs.write(
-    Fs.join(root, '-cell/cell.yaml'),
+    Fs.join(root, CellPaths.descriptor),
     Str.dedent(`
       kind: cell
       version: 1
@@ -77,7 +78,7 @@ export async function addResourceService(
   const variants = input.variants ?? {};
 
   await Fs.write(
-    Fs.join(root, '-cell/cell.yaml'),
+    Fs.join(root, CellPaths.descriptor),
     resourceServiceDescriptor(variants),
   );
   await Fs.write(Fs.join(root, '-services/resource.ts'), RESOURCE_SERVICE_SOURCE);

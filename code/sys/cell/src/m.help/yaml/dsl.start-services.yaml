@@ -9,7 +9,7 @@ sections:
       Start is an operator operation, not a config mutation.
       Cell orchestrates services; owner packages own serving behavior and display.
       Do not write a custom launcher script unless explicitly asked.
-      Do not edit `-cell/cell.yaml` just to start already configured services.
+      Do not edit `-config/@sys.cell/cell.yaml` just to start already configured services.
 
   - label: 'Operator flow'
     items:
@@ -25,7 +25,7 @@ sections:
         For live dev, a common shape is `--mode dev` selecting an owner endpoint such as
         `jsr:@sys/driver-vite/service` / `ViteService`.
       - >-
-        Start loads the canonical `-cell/cell.yaml` descriptor, starts declared `services[]`,
+        Start loads the canonical `-config/@sys.cell/cell.yaml` descriptor, starts declared `services[]`,
         waits, and closes services.
       - |-
         If an old Cell session is blocking restart, use
@@ -75,7 +75,7 @@ sections:
   - label: Services
     items:
       - >-
-        `@sys/cell start` loads the `-cell/cell.yaml` descriptor,
+        `@sys/cell start` loads the `-config/@sys.cell/cell.yaml` descriptor,
         starts selected services, then waits.
       - >-
         At start time, `--mode <mode>` selects matching `variants.<mode>` before endpoints

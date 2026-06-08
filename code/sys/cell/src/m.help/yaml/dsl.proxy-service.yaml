@@ -11,7 +11,7 @@ sections:
       Proxy owns public route orchestration; static and fixture services own endpoint serving.
       Cell records only the proxy service binding and owner config reference.
       Do not hand-author `@sys/http` proxy YAML when the owner CLI can write it.
-      Do not put proxy mounts, upstreams, or route mechanics directly in `-cell/cell.yaml`.
+      Do not put proxy mounts, upstreams, or route mechanics directly in `-config/@sys.cell/cell.yaml`.
       Proxy maps path-prefixes; it only redirects for slash normalization.
 
   - label: 'Slot policy'
@@ -37,7 +37,7 @@ sections:
         configs when possible, otherwise ask.
       - >-
         If the route target is a view, keep that relationship in owner proxy/static config,
-        not `-cell/cell.yaml`.
+        not `-config/@sys.cell/cell.yaml`.
       - If the Cell already declares local HTTP services, check owner configs for port collisions.
       - Use owner defaults for hostname and port unless the user specifies or confirms alternatives.
       - Confirm service name, config path, listener, route, and upstream before writing.

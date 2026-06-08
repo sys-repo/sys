@@ -14,7 +14,7 @@ export type CellMigrateResult = {
 };
 
 /**
- * Cell metadata/control migration spine.
+ * Cell descriptor/config migration spine.
  */
 export const CellMigrate = {
   async dir(root: t.StringDir, options: CellMigrateOptions = {}): Promise<CellMigrateResult> {

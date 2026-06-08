@@ -1,13 +1,13 @@
 import type { t } from '../common.ts';
 
 /**
- * Cell metadata/control paths relative to the Cell root.
+ * Cell descriptor and config paths relative to the Cell root.
  */
 export const CellPaths: t.Cell.MetadataPaths = {
-  metaDir: '-cell',
-  descriptor: '-cell/cell.yaml',
-  configDir: '-cell/-config',
+  metaDir: '-config/@sys.cell',
+  descriptor: '-config/@sys.cell/cell.yaml',
+  configDir: '-config',
   legacy: {
-    descriptor: '-config/@sys.cell/cell.yaml',
+    descriptor: '-cell/cell.yaml',
   },
 };

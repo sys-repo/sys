@@ -20,16 +20,16 @@ export declare namespace Cell {
   /** Cell-local identifier used for services and tasks. */
   export type Id = t.StringId;
 
-  /** Path declared in `cell.yaml`, resolved relative to the Cell root. */
+  /** Path declared in the Cell descriptor, resolved relative to the Cell root. */
   export type Path = t.StringPath;
 
-  /** Cell metadata/control paths relative to the Cell root. */
+  /** Cell descriptor and config paths relative to the Cell root. */
   export type MetadataPaths = {
-    /** Cell metadata/control directory: `<root>/-cell`. */
+    /** Cell-owned config namespace directory: `<root>/-config/@sys.cell`. */
     readonly metaDir: t.StringPath;
-    /** Canonical Cell descriptor path: `<root>/-cell/cell.yaml`. */
+    /** Canonical Cell descriptor path: `<root>/-config/@sys.cell/cell.yaml`. */
     readonly descriptor: t.StringPath;
-    /** Cell-owned owner/package config directory: `<root>/-cell/-config`. */
+    /** Root owner/package config directory: `<root>/-config`. */
     readonly configDir: t.StringPath;
     /** Previous metadata paths accepted during the compatibility window. */
     readonly legacy: LegacyMetadataPaths;
@@ -37,7 +37,7 @@ export declare namespace Cell {
 
   /** Previous Cell metadata paths accepted during migration compatibility. */
   export type LegacyMetadataPaths = {
-    /** Previous descriptor path: `<root>/-config/@sys.cell/cell.yaml`. */
+    /** Previous descriptor path: `<root>/-cell/cell.yaml`. */
     readonly descriptor: t.StringPath;
   };
 

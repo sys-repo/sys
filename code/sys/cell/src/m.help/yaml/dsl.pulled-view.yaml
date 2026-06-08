@@ -53,7 +53,7 @@ sections:
       Use owner CLI when it can create config.
       Owner pull config records `<dist-url>` and `<local-target>`.
       Pulled-view setup does not change the Cell descriptor.
-      Do not put `<dist-url>`, `<local-target>`, or view registry entries in `-cell/cell.yaml`.
+      Do not put `<dist-url>`, `<local-target>`, or view registry entries in `-config/@sys.cell/cell.yaml`.
 
   - label: 'Materialize'
     items:
@@ -67,5 +67,5 @@ sections:
       - 'Use owner CLI: `@sys/tools pull`.'
       - Pass `--non-interactive`.
       - Pass `--config <pull-config-path>`.
-      - Do not read `views.*` from `-cell/cell.yaml`.
-      - Do not edit `-cell/cell.yaml` for refresh-only pulls.
+      - Do not read `views.*` from `-config/@sys.cell/cell.yaml`.
+      - Do not edit `-config/@sys.cell/cell.yaml` for refresh-only pulls.
