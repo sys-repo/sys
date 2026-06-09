@@ -57,298 +57,6 @@ jobs:
           git fetch origin main:refs/remotes/origin/main
           git merge-base --is-ancestor HEAD refs/remotes/origin/main
 
-      - name: publish module → "@sys/types"
-        run: |
-          cd code/sys/types
-          expected_pkg_name="@sys/types"
-          expected_pkg_version="0.0.293"
-          pkg_name="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.name)")"
-          pkg_version="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.version)")"
-          if [ "$pkg_name" != "$expected_pkg_name" ]; then
-            echo "::error::Generated JSR workflow package name is stale: expected ${expected_pkg_name}, found ${pkg_name}"
-            exit 1
-          fi
-          if [ "$pkg_version" != "$expected_pkg_version" ]; then
-            echo "::error::Generated JSR workflow package version is stale: expected ${expected_pkg_version}, found ${pkg_version}"
-            exit 1
-          fi
-          pkg_meta_url="https://jsr.io/${pkg_name}/${pkg_version}_meta.json"
-          publish_timeout="90s"
-          publish_confirm_timeout=180
-          publish_confirm_interval=10
-          jsr_version_exists() {
-            curl --fail --silent --location --max-time 30 --head "$pkg_meta_url" >/dev/null
-          }
-          wait_for_jsr_version() {
-            elapsed=0
-            while [ "$elapsed" -le "$publish_confirm_timeout" ]; do
-              if jsr_version_exists; then
-                return 0
-              fi
-              if [ "$elapsed" -ge "$publish_confirm_timeout" ]; then
-                break
-              fi
-              sleep "$publish_confirm_interval"
-              elapsed=$((elapsed + publish_confirm_interval))
-            done
-            return 1
-          }
-          deno task test --frozen
-          git status --short
-          test -z "$(git status --porcelain)"
-          if jsr_version_exists; then
-            echo "published version already exists on JSR: ${pkg_name}@${pkg_version}"
-            exit 0
-          fi
-          max_attempts=3
-          for attempt in $(seq 1 $max_attempts); do
-              if jsr_version_exists; then
-                echo "published version already exists on JSR: ${pkg_name}@${pkg_version}"
-                exit 0
-              fi
-              if timeout --foreground --kill-after=30s "$publish_timeout" deno publish; then
-                if wait_for_jsr_version; then
-                  echo "publish confirmed on JSR: ${pkg_name}@${pkg_version}"
-                  exit 0
-                fi
-                echo "::error::publish succeeded but JSR version metadata did not become visible: ${pkg_name}@${pkg_version}"
-                exit 1
-              else
-                status=$?
-              fi
-              echo "publish command failed or timed out with exit code ${status}"
-              if wait_for_jsr_version; then
-                echo "publish completed on JSR despite local exit code: ${pkg_name}@${pkg_version}"
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed or timed out (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
-      - name: publish module → "@sys/dev"
-        run: |
-          cd code/sys.dev
-          expected_pkg_name="@sys/dev"
-          expected_pkg_version="0.0.224"
-          pkg_name="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.name)")"
-          pkg_version="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.version)")"
-          if [ "$pkg_name" != "$expected_pkg_name" ]; then
-            echo "::error::Generated JSR workflow package name is stale: expected ${expected_pkg_name}, found ${pkg_name}"
-            exit 1
-          fi
-          if [ "$pkg_version" != "$expected_pkg_version" ]; then
-            echo "::error::Generated JSR workflow package version is stale: expected ${expected_pkg_version}, found ${pkg_version}"
-            exit 1
-          fi
-          pkg_meta_url="https://jsr.io/${pkg_name}/${pkg_version}_meta.json"
-          publish_timeout="90s"
-          publish_confirm_timeout=180
-          publish_confirm_interval=10
-          jsr_version_exists() {
-            curl --fail --silent --location --max-time 30 --head "$pkg_meta_url" >/dev/null
-          }
-          wait_for_jsr_version() {
-            elapsed=0
-            while [ "$elapsed" -le "$publish_confirm_timeout" ]; do
-              if jsr_version_exists; then
-                return 0
-              fi
-              if [ "$elapsed" -ge "$publish_confirm_timeout" ]; then
-                break
-              fi
-              sleep "$publish_confirm_interval"
-              elapsed=$((elapsed + publish_confirm_interval))
-            done
-            return 1
-          }
-          deno task test --frozen
-          git status --short
-          test -z "$(git status --porcelain)"
-          if jsr_version_exists; then
-            echo "published version already exists on JSR: ${pkg_name}@${pkg_version}"
-            exit 0
-          fi
-          max_attempts=3
-          for attempt in $(seq 1 $max_attempts); do
-              if jsr_version_exists; then
-                echo "published version already exists on JSR: ${pkg_name}@${pkg_version}"
-                exit 0
-              fi
-              if timeout --foreground --kill-after=30s "$publish_timeout" deno publish; then
-                if wait_for_jsr_version; then
-                  echo "publish confirmed on JSR: ${pkg_name}@${pkg_version}"
-                  exit 0
-                fi
-                echo "::error::publish succeeded but JSR version metadata did not become visible: ${pkg_name}@${pkg_version}"
-                exit 1
-              else
-                status=$?
-              fi
-              echo "publish command failed or timed out with exit code ${status}"
-              if wait_for_jsr_version; then
-                echo "publish completed on JSR despite local exit code: ${pkg_name}@${pkg_version}"
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed or timed out (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
-      - name: publish module → "@sys/crdt"
-        run: |
-          cd code/sys/crdt
-          expected_pkg_name="@sys/crdt"
-          expected_pkg_version="0.0.197"
-          pkg_name="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.name)")"
-          pkg_version="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.version)")"
-          if [ "$pkg_name" != "$expected_pkg_name" ]; then
-            echo "::error::Generated JSR workflow package name is stale: expected ${expected_pkg_name}, found ${pkg_name}"
-            exit 1
-          fi
-          if [ "$pkg_version" != "$expected_pkg_version" ]; then
-            echo "::error::Generated JSR workflow package version is stale: expected ${expected_pkg_version}, found ${pkg_version}"
-            exit 1
-          fi
-          pkg_meta_url="https://jsr.io/${pkg_name}/${pkg_version}_meta.json"
-          publish_timeout="90s"
-          publish_confirm_timeout=180
-          publish_confirm_interval=10
-          jsr_version_exists() {
-            curl --fail --silent --location --max-time 30 --head "$pkg_meta_url" >/dev/null
-          }
-          wait_for_jsr_version() {
-            elapsed=0
-            while [ "$elapsed" -le "$publish_confirm_timeout" ]; do
-              if jsr_version_exists; then
-                return 0
-              fi
-              if [ "$elapsed" -ge "$publish_confirm_timeout" ]; then
-                break
-              fi
-              sleep "$publish_confirm_interval"
-              elapsed=$((elapsed + publish_confirm_interval))
-            done
-            return 1
-          }
-          deno task test --frozen
-          git status --short
-          test -z "$(git status --porcelain)"
-          if jsr_version_exists; then
-            echo "published version already exists on JSR: ${pkg_name}@${pkg_version}"
-            exit 0
-          fi
-          max_attempts=3
-          for attempt in $(seq 1 $max_attempts); do
-              if jsr_version_exists; then
-                echo "published version already exists on JSR: ${pkg_name}@${pkg_version}"
-                exit 0
-              fi
-              if timeout --foreground --kill-after=30s "$publish_timeout" deno publish; then
-                if wait_for_jsr_version; then
-                  echo "publish confirmed on JSR: ${pkg_name}@${pkg_version}"
-                  exit 0
-                fi
-                echo "::error::publish succeeded but JSR version metadata did not become visible: ${pkg_name}@${pkg_version}"
-                exit 1
-              else
-                status=$?
-              fi
-              echo "publish command failed or timed out with exit code ${status}"
-              if wait_for_jsr_version; then
-                echo "publish completed on JSR despite local exit code: ${pkg_name}@${pkg_version}"
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed or timed out (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
-      - name: publish module → "@sys/std"
-        run: |
-          cd code/sys/std
-          expected_pkg_name="@sys/std"
-          expected_pkg_version="0.0.361"
-          pkg_name="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.name)")"
-          pkg_version="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.version)")"
-          if [ "$pkg_name" != "$expected_pkg_name" ]; then
-            echo "::error::Generated JSR workflow package name is stale: expected ${expected_pkg_name}, found ${pkg_name}"
-            exit 1
-          fi
-          if [ "$pkg_version" != "$expected_pkg_version" ]; then
-            echo "::error::Generated JSR workflow package version is stale: expected ${expected_pkg_version}, found ${pkg_version}"
-            exit 1
-          fi
-          pkg_meta_url="https://jsr.io/${pkg_name}/${pkg_version}_meta.json"
-          publish_timeout="90s"
-          publish_confirm_timeout=180
-          publish_confirm_interval=10
-          jsr_version_exists() {
-            curl --fail --silent --location --max-time 30 --head "$pkg_meta_url" >/dev/null
-          }
-          wait_for_jsr_version() {
-            elapsed=0
-            while [ "$elapsed" -le "$publish_confirm_timeout" ]; do
-              if jsr_version_exists; then
-                return 0
-              fi
-              if [ "$elapsed" -ge "$publish_confirm_timeout" ]; then
-                break
-              fi
-              sleep "$publish_confirm_interval"
-              elapsed=$((elapsed + publish_confirm_interval))
-            done
-            return 1
-          }
-          deno task test --frozen
-          git status --short
-          test -z "$(git status --porcelain)"
-          if jsr_version_exists; then
-            echo "published version already exists on JSR: ${pkg_name}@${pkg_version}"
-            exit 0
-          fi
-          max_attempts=3
-          for attempt in $(seq 1 $max_attempts); do
-              if jsr_version_exists; then
-                echo "published version already exists on JSR: ${pkg_name}@${pkg_version}"
-                exit 0
-              fi
-              if timeout --foreground --kill-after=30s "$publish_timeout" deno publish; then
-                if wait_for_jsr_version; then
-                  echo "publish confirmed on JSR: ${pkg_name}@${pkg_version}"
-                  exit 0
-                fi
-                echo "::error::publish succeeded but JSR version metadata did not become visible: ${pkg_name}@${pkg_version}"
-                exit 1
-              else
-                status=$?
-              fi
-              echo "publish command failed or timed out with exit code ${status}"
-              if wait_for_jsr_version; then
-                echo "publish completed on JSR despite local exit code: ${pkg_name}@${pkg_version}"
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed or timed out (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
       - name: publish module → "@sys/color"
         run: |
           cd code/sys/color
@@ -495,79 +203,6 @@ jobs:
           echo "publish failed after $max_attempts attempts"
           exit 1
 
-      - name: publish module → "@sys/event"
-        run: |
-          cd code/sys/event
-          expected_pkg_name="@sys/event"
-          expected_pkg_version="0.0.159"
-          pkg_name="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.name)")"
-          pkg_version="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.version)")"
-          if [ "$pkg_name" != "$expected_pkg_name" ]; then
-            echo "::error::Generated JSR workflow package name is stale: expected ${expected_pkg_name}, found ${pkg_name}"
-            exit 1
-          fi
-          if [ "$pkg_version" != "$expected_pkg_version" ]; then
-            echo "::error::Generated JSR workflow package version is stale: expected ${expected_pkg_version}, found ${pkg_version}"
-            exit 1
-          fi
-          pkg_meta_url="https://jsr.io/${pkg_name}/${pkg_version}_meta.json"
-          publish_timeout="90s"
-          publish_confirm_timeout=180
-          publish_confirm_interval=10
-          jsr_version_exists() {
-            curl --fail --silent --location --max-time 30 --head "$pkg_meta_url" >/dev/null
-          }
-          wait_for_jsr_version() {
-            elapsed=0
-            while [ "$elapsed" -le "$publish_confirm_timeout" ]; do
-              if jsr_version_exists; then
-                return 0
-              fi
-              if [ "$elapsed" -ge "$publish_confirm_timeout" ]; then
-                break
-              fi
-              sleep "$publish_confirm_interval"
-              elapsed=$((elapsed + publish_confirm_interval))
-            done
-            return 1
-          }
-          deno task test --frozen
-          git status --short
-          test -z "$(git status --porcelain)"
-          if jsr_version_exists; then
-            echo "published version already exists on JSR: ${pkg_name}@${pkg_version}"
-            exit 0
-          fi
-          max_attempts=3
-          for attempt in $(seq 1 $max_attempts); do
-              if jsr_version_exists; then
-                echo "published version already exists on JSR: ${pkg_name}@${pkg_version}"
-                exit 0
-              fi
-              if timeout --foreground --kill-after=30s "$publish_timeout" deno publish; then
-                if wait_for_jsr_version; then
-                  echo "publish confirmed on JSR: ${pkg_name}@${pkg_version}"
-                  exit 0
-                fi
-                echo "::error::publish succeeded but JSR version metadata did not become visible: ${pkg_name}@${pkg_version}"
-                exit 1
-              else
-                status=$?
-              fi
-              echo "publish command failed or timed out with exit code ${status}"
-              if wait_for_jsr_version; then
-                echo "publish completed on JSR despite local exit code: ${pkg_name}@${pkg_version}"
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed or timed out (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
       - name: publish module → "@sys/ui-state"
         run: |
           cd code/sys.ui/ui-state
@@ -641,157 +276,11 @@ jobs:
           echo "publish failed after $max_attempts attempts"
           exit 1
 
-      - name: publish module → "@sys/immutable"
-        run: |
-          cd code/sys/immutable
-          expected_pkg_name="@sys/immutable"
-          expected_pkg_version="0.0.148"
-          pkg_name="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.name)")"
-          pkg_version="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.version)")"
-          if [ "$pkg_name" != "$expected_pkg_name" ]; then
-            echo "::error::Generated JSR workflow package name is stale: expected ${expected_pkg_name}, found ${pkg_name}"
-            exit 1
-          fi
-          if [ "$pkg_version" != "$expected_pkg_version" ]; then
-            echo "::error::Generated JSR workflow package version is stale: expected ${expected_pkg_version}, found ${pkg_version}"
-            exit 1
-          fi
-          pkg_meta_url="https://jsr.io/${pkg_name}/${pkg_version}_meta.json"
-          publish_timeout="90s"
-          publish_confirm_timeout=180
-          publish_confirm_interval=10
-          jsr_version_exists() {
-            curl --fail --silent --location --max-time 30 --head "$pkg_meta_url" >/dev/null
-          }
-          wait_for_jsr_version() {
-            elapsed=0
-            while [ "$elapsed" -le "$publish_confirm_timeout" ]; do
-              if jsr_version_exists; then
-                return 0
-              fi
-              if [ "$elapsed" -ge "$publish_confirm_timeout" ]; then
-                break
-              fi
-              sleep "$publish_confirm_interval"
-              elapsed=$((elapsed + publish_confirm_interval))
-            done
-            return 1
-          }
-          deno task test --frozen
-          git status --short
-          test -z "$(git status --porcelain)"
-          if jsr_version_exists; then
-            echo "published version already exists on JSR: ${pkg_name}@${pkg_version}"
-            exit 0
-          fi
-          max_attempts=3
-          for attempt in $(seq 1 $max_attempts); do
-              if jsr_version_exists; then
-                echo "published version already exists on JSR: ${pkg_name}@${pkg_version}"
-                exit 0
-              fi
-              if timeout --foreground --kill-after=30s "$publish_timeout" deno publish; then
-                if wait_for_jsr_version; then
-                  echo "publish confirmed on JSR: ${pkg_name}@${pkg_version}"
-                  exit 0
-                fi
-                echo "::error::publish succeeded but JSR version metadata did not become visible: ${pkg_name}@${pkg_version}"
-                exit 1
-              else
-                status=$?
-              fi
-              echo "publish command failed or timed out with exit code ${status}"
-              if wait_for_jsr_version; then
-                echo "publish completed on JSR despite local exit code: ${pkg_name}@${pkg_version}"
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed or timed out (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
       - name: publish module → "@sys/ui-dom"
         run: |
           cd code/sys.ui/ui-dom
           expected_pkg_name="@sys/ui-dom"
           expected_pkg_version="0.0.300"
-          pkg_name="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.name)")"
-          pkg_version="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.version)")"
-          if [ "$pkg_name" != "$expected_pkg_name" ]; then
-            echo "::error::Generated JSR workflow package name is stale: expected ${expected_pkg_name}, found ${pkg_name}"
-            exit 1
-          fi
-          if [ "$pkg_version" != "$expected_pkg_version" ]; then
-            echo "::error::Generated JSR workflow package version is stale: expected ${expected_pkg_version}, found ${pkg_version}"
-            exit 1
-          fi
-          pkg_meta_url="https://jsr.io/${pkg_name}/${pkg_version}_meta.json"
-          publish_timeout="90s"
-          publish_confirm_timeout=180
-          publish_confirm_interval=10
-          jsr_version_exists() {
-            curl --fail --silent --location --max-time 30 --head "$pkg_meta_url" >/dev/null
-          }
-          wait_for_jsr_version() {
-            elapsed=0
-            while [ "$elapsed" -le "$publish_confirm_timeout" ]; do
-              if jsr_version_exists; then
-                return 0
-              fi
-              if [ "$elapsed" -ge "$publish_confirm_timeout" ]; then
-                break
-              fi
-              sleep "$publish_confirm_interval"
-              elapsed=$((elapsed + publish_confirm_interval))
-            done
-            return 1
-          }
-          deno task test --frozen
-          git status --short
-          test -z "$(git status --porcelain)"
-          if jsr_version_exists; then
-            echo "published version already exists on JSR: ${pkg_name}@${pkg_version}"
-            exit 0
-          fi
-          max_attempts=3
-          for attempt in $(seq 1 $max_attempts); do
-              if jsr_version_exists; then
-                echo "published version already exists on JSR: ${pkg_name}@${pkg_version}"
-                exit 0
-              fi
-              if timeout --foreground --kill-after=30s "$publish_timeout" deno publish; then
-                if wait_for_jsr_version; then
-                  echo "publish confirmed on JSR: ${pkg_name}@${pkg_version}"
-                  exit 0
-                fi
-                echo "::error::publish succeeded but JSR version metadata did not become visible: ${pkg_name}@${pkg_version}"
-                exit 1
-              else
-                status=$?
-              fi
-              echo "publish command failed or timed out with exit code ${status}"
-              if wait_for_jsr_version; then
-                echo "publish completed on JSR despite local exit code: ${pkg_name}@${pkg_version}"
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed or timed out (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
-      - name: publish module → "@sys/net"
-        run: |
-          cd code/sys/net
-          expected_pkg_name="@sys/net"
-          expected_pkg_version="0.0.133"
           pkg_name="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.name)")"
           pkg_version="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.version)")"
           if [ "$pkg_name" != "$expected_pkg_name" ]; then
@@ -2835,7 +2324,7 @@ jobs:
         run: |
           cd code/sys/workspace
           expected_pkg_name="@sys/workspace"
-          expected_pkg_version="0.0.117"
+          expected_pkg_version="0.0.118"
           pkg_name="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.name)")"
           pkg_version="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.version)")"
           if [ "$pkg_name" != "$expected_pkg_name" ]; then
@@ -2908,7 +2397,7 @@ jobs:
         run: |
           cd code/sys.driver/driver-deno
           expected_pkg_name="@sys/driver-deno"
-          expected_pkg_version="0.0.366"
+          expected_pkg_version="0.0.367"
           pkg_name="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.name)")"
           pkg_version="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.version)")"
           if [ "$pkg_name" != "$expected_pkg_name" ]; then
@@ -2981,7 +2470,7 @@ jobs:
         run: |
           cd code/-tmpl
           expected_pkg_name="@sys/tmpl"
-          expected_pkg_version="0.0.429"
+          expected_pkg_version="0.0.430"
           pkg_name="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.name)")"
           pkg_version="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.version)")"
           if [ "$pkg_name" != "$expected_pkg_name" ]; then
@@ -3054,7 +2543,7 @@ jobs:
         run: |
           cd code/sys.driver/driver-pi
           expected_pkg_name="@sys/driver-pi"
-          expected_pkg_version="0.0.97"
+          expected_pkg_version="0.0.98"
           pkg_name="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.name)")"
           pkg_version="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.version)")"
           if [ "$pkg_name" != "$expected_pkg_name" ]; then
@@ -3127,7 +2616,7 @@ jobs:
         run: |
           cd code/sys.driver/driver-vite
           expected_pkg_name="@sys/driver-vite"
-          expected_pkg_version="0.0.429"
+          expected_pkg_version="0.0.430"
           pkg_name="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.name)")"
           pkg_version="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.version)")"
           if [ "$pkg_name" != "$expected_pkg_name" ]; then
@@ -3200,7 +2689,7 @@ jobs:
         run: |
           cd code/sys.tools
           expected_pkg_name="@sys/tools"
-          expected_pkg_version="0.0.445"
+          expected_pkg_version="0.0.446"
           pkg_name="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.name)")"
           pkg_version="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.version)")"
           if [ "$pkg_name" != "$expected_pkg_name" ]; then
