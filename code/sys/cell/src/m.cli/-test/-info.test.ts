@@ -28,6 +28,7 @@ describe(`@sys/cell/cli info`, () => {
     expect(text).to.contain('none');
     expect(text).to.contain('Tasks');
     expect(text).to.contain('none');
+    expect(res.text).to.contain(c.gray('1'));
     expect(await Fs.exists(Fs.join(fs.dir, 'view'))).to.eql(before);
   });
 

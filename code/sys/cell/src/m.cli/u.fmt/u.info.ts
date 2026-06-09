@@ -41,7 +41,7 @@ function cellRows(report: t.CellCli.Info.Report): readonly InfoRow[] {
   return [
     ['root', displayRoot(report.root), 'path'],
     ['descriptor', report.descriptor, 'path-bare'],
-    ['version', String(report.version)],
+    ['version', String(report.version), 'subtle'],
   ];
 }
 
