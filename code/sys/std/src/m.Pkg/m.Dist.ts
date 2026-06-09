@@ -1,5 +1,5 @@
 import { type t } from './common.ts';
-import { fetchDist as fetch } from './u.dist.fetch.ts';
+import { fetchDist as fetch } from './u/u.dist.fetch.ts';
 import { Part } from './m.Dist.Part.ts';
 import { PkgIs } from './m.Is.ts';
 

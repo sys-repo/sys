@@ -6,7 +6,6 @@ type O = Record<string, unknown>;
 
 export type Pkg = PkgValue;
 export type * from './t.dist.ts';
-export type * from './t.is.ts';
 
 /**
  * Package metadata helper contracts.

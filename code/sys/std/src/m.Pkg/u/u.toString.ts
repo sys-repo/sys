@@ -1,4 +1,4 @@
-import { D, isRecord, type t } from './common.ts';
+import { D, isRecord, type t } from '../common.ts';
 
 export const toString: t.Pkg.Lib['toString'] = (pkg, suffix, input) => {
   const options = wrangle.options(input);

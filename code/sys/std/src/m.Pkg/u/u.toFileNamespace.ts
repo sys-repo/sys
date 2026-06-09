@@ -1,4 +1,4 @@
-import { Is, type t } from './common.ts';
+import { Is, type t } from '../common.ts';
 
 export const toFileNamespace: t.Pkg.Lib['toFileNamespace'] = (pkg) => {
   const name = normalizePkgName(Is.str(pkg?.name) ? pkg.name : '');

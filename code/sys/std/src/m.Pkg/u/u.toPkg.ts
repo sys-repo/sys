@@ -1,4 +1,4 @@
-import { D, isRecord, type t } from './common.ts';
+import { D, isRecord, type t } from '../common.ts';
 
 export const toPkg: t.Pkg.Lib['toPkg'] = (input) => {
   /**
