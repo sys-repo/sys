@@ -1,7 +1,7 @@
 summary: |
   Create the minimal Cell folder contract in the target directory.
-  Init creates the canonical `-config/@sys.cell/cell.yaml` descriptor, stored-meaning lane,
-  view lane, and local ignore for .env.
+  Init creates the canonical `-config/@sys.cell/cell.yaml` descriptor, `data/` source-material lane,
+  and local ignore for .env.
 
 usage:
   - deno run -ERW jsr:@sys/cell init [dir]

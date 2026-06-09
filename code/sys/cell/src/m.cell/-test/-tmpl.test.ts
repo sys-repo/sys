@@ -12,10 +12,10 @@ describe('CellTmpl', () => {
       const tmpl = CellTmpl.make('default');
       const res = await tmpl.write(root);
 
-      expect(res.ops.filter((op) => op.kind === 'create').length).to.eql(4);
+      expect(res.ops.filter((op) => op.kind === 'create').length).to.eql(3);
       expect(await read(root, '.gitignore')).to.eql('.env\n.pi/\n');
-      expect(await Fs.exists(Fs.join(root, 'data', 'README.md'))).to.eql(true);
-      expect(await Fs.exists(Fs.join(root, 'view', 'README.md'))).to.eql(true);
+      expect(await read(root, 'data/README.md')).to.contain('Source documents and material');
+      expect(await Fs.exists(Fs.join(root, 'view', 'README.md'))).to.eql(false);
       expect(await Fs.exists(Fs.join(root, CellPaths.descriptor))).to.eql(true);
       expect(await Fs.exists(Fs.join(root, CellPaths.legacy.descriptor))).to.eql(false);
 

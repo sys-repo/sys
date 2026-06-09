@@ -16,7 +16,7 @@ describe(`@sys/cell/cli init`, () => {
     const text = stripAnsi(res.text);
 
     expect(res.dryRun).to.eql(true);
-    expect(res.ops.filter((op) => op.kind === 'create').length).to.eql(4);
+    expect(res.ops.filter((op) => op.kind === 'create').length).to.eql(3);
     expect(text).to.contain(`target   ${fs.dir}`);
     expect(text).to.contain('create   ./-config/@sys.cell/cell.yaml');
     expect(text).to.contain('./.gitignore');
@@ -37,8 +37,8 @@ describe(`@sys/cell/cli init`, () => {
     expect(res.kind).to.eql('init');
     expect(await read(piState)).to.eql('{"ok":true}\n');
     expect(await read(piConfig)).to.eql('profile: test\n');
-    expect(await Fs.exists(Fs.join(fs.dir, 'data/README.md'))).to.eql(true);
-    expect(await Fs.exists(Fs.join(fs.dir, 'view/README.md'))).to.eql(true);
+    expect(await read(Fs.join(fs.dir, 'data/README.md'))).to.contain('Source documents and material');
+    expect(await Fs.exists(Fs.join(fs.dir, 'view/README.md'))).to.eql(false);
     expect(await Fs.exists(Fs.join(fs.dir, CellPaths.descriptor))).to.eql(true);
     expect(await Fs.exists(Fs.join(fs.dir, CellPaths.legacy.descriptor))).to.eql(false);
 

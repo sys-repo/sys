@@ -55,7 +55,7 @@ schemas, or TypeScript type surfaces.
 @sys/cell             boot/composition kernel
  ↓ dsl         🧬     stored meaning in ordinary files (state)
  ↓ services    🧫     active interpretation by declared services
- ↓ view        👁️     owner-defined projections that make a Cell's state perceivable
+ ↓ projection  👁️     owner-defined surfaces that make a Cell's state perceivable
 ```
 
 <p>&nbsp;</p>
@@ -68,8 +68,8 @@ schemas, or TypeScript type surfaces.
 @sys/cell
 
 A Cell is a folder with an explicit runtime contract.
-Its ordinary files describe services, tasks, owner configs, and views
-inside that folder boundary.
+Its ordinary files carry source material, owner configs, service/task descriptors,
+and optional projections inside that folder boundary.
 Agents must read `dsl` before changing `-config/@sys.cell/cell.yaml`, owner configs,
 tasks, services, or routes, then read the matching DSL chapter.
 
