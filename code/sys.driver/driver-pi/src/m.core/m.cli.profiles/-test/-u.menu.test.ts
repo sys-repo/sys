@@ -1,6 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { c, Cli, Fs, type t } from '../common.ts';
 import { menu } from '../u.menu.ts';
+import { ProfilesFs } from '../u.fs.ts';
 
 describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
   it('menu → creates default profile config when none exist', async () => {
@@ -20,15 +21,10 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     try {
       const res = await menu({ cwd: testCwd(cwd) });
       const path = Fs.join(cwd, '-config/@sys.driver-pi/default.yaml');
-      const read = await Fs.readText(path);
-      expect(read.ok).to.eql(true);
-      const text = read.data ?? '';
+      const check = await ProfilesFs.validateYaml(path);
 
       expect(res).to.eql({ kind: 'exit' });
-      expect(text).to.contain('# pi profile: default');
-      expect(text).to.contain('# Typed Pi launcher policy.');
-      expect(text).to.contain('prompt:');
-      expect(text).to.contain('sandbox:');
+      expect(check.ok).to.eql(true);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       await Fs.remove(cwd);

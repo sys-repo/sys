@@ -128,7 +128,7 @@ function resolveProfileSelector(root: t.StringDir, value: string) {
 
 async function prepareProfileConfig(path: t.StringPath, name: string) {
   if (name === 'default') {
-    await ProfilesFs.ensureInitialYaml(path, name);
+    await ProfilesFs.ensureInitialYaml(path);
     return;
   }
 

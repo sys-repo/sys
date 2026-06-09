@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { Fs, type t } from '../common.ts';
+import { Fs, Str, type t } from '../common.ts';
 import { ProfilesFs } from '../u.fs.ts';
 
 describe(`@sys/driver-pi/cli/Profiles/u.fs`, () => {
@@ -10,7 +10,17 @@ describe(`@sys/driver-pi/cli/Profiles/u.fs`, () => {
   });
 
   it('initialYaml → emits the minimal profile YAML shape', async () => {
-    const text = ProfilesFs.initialYaml('default');
+    const text = ProfilesFs.initialYaml();
+    expect(text).to.contain(Str.dedent(
+      `
+      #
+      # Launcher profile. Docs: https://jsr.io/@sys/driver-pi
+      #
+      `,
+    ));
+    expect(text).not.to.contain('# pi profile: default');
+    expect(text).not.to.contain('# Typed Pi launcher policy.');
+
     for (
       const expected of [
         'prompt:',

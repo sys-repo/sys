@@ -2,6 +2,7 @@ import { describe, expect, it } from '../../../-test.ts';
 import { Process } from '../../m.cli/common.ts';
 import { c, Cli, Fs, Str, type t } from '../common.ts';
 import { Profiles } from '../mod.ts';
+import { ProfilesFs } from '../u.fs.ts';
 
 describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
   it('runs selected profile path and passes argv after -- through to Pi', async () => {
@@ -301,9 +302,8 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
         expect(input.cwd).to.eql(cwd);
         expect(input.args).to.include.members(['--help']);
         const created = `${cwd}/-config/@sys.driver-pi/default.yaml`;
-        const read = await Fs.readText(created);
-        expect(read.ok).to.eql(true);
-        expect(read.data ?? '').to.contain('# pi profile: default');
+        const check = await ProfilesFs.validateYaml(created);
+        expect(check.ok).to.eql(true);
         return { code: 0, success: true, signal: null };
       };
 

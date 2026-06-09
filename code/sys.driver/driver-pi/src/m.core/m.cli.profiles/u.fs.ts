@@ -14,13 +14,12 @@ export const ProfilesFs = {
     return `${PROFILES_DIR}/${name}${PROFILES_EXT}`;
   },
 
-  initialYaml(name = 'default'): string {
+  initialYaml(): string {
     return Str.dedent(
       `
-      # pi profile: ${name}
       #
-      # Typed Pi launcher policy.
-      # Profile sandbox/context paths resolve relative to the runtime root.
+      # Launcher profile. Docs: https://jsr.io/@sys/driver-pi
+      #
 
       prompt:
         system: null  # default: use DEFAULT_SYSTEM_PROMPT
@@ -46,10 +45,10 @@ export const ProfilesFs = {
     ).trimStart();
   },
 
-  async ensureInitialYaml(path: t.StringPath, name = 'default') {
+  async ensureInitialYaml(path: t.StringPath) {
     await Fs.ensureDir(Fs.dirname(path));
     if (await Fs.exists(path)) return;
-    await Fs.write(path, ProfilesFs.initialYaml(name), { force: false });
+    await Fs.write(path, ProfilesFs.initialYaml(), { force: false });
   },
 
   async validateYaml(path: t.StringPath): Promise<t.PiCliProfiles.Yaml.YamlCheck> {

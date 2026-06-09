@@ -116,7 +116,7 @@ function menuArgs(args: { cwd: t.StringDir; allowAll?: boolean }) {
         if (!ValidName.test(value)) return ValidName.hint;
         return true;
       },
-      initYaml: ({ name }: { name: string }) => ProfilesFs.initialYaml(name),
+      initYaml: () => ProfilesFs.initialYaml(),
     },
   };
 }
