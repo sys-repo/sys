@@ -12,18 +12,27 @@ describe('WorkspaceCi.Jsr', () => {
 
     const yaml = await WorkspaceCi.Jsr.text({ paths: [a, b] });
     expect(yaml.includes('name: jsr')).to.eql(true);
-    expect(yaml.includes('publish module → "@scope/alpha"')).to.eql(true);
-    expect(yaml.includes('publish module → "@scope/beta"')).to.eql(true);
+    expect(yaml.includes('publish_0:')).to.eql(true);
+    expect(yaml.includes('publish module → "${{ matrix.name }}"')).to.eql(true);
+    expect(yaml.includes('- name: "@scope/alpha"')).to.eql(true);
+    expect(yaml.includes('- name: "@scope/beta"')).to.eql(true);
     expect(yaml.indexOf('@scope/alpha') < yaml.indexOf('@scope/beta')).to.eql(true);
-    expect(yaml.includes(`cd ${a}`)).to.eql(true);
-    expect(yaml.includes(`cd ${b}`)).to.eql(true);
+    expect(yaml.includes(`path: "${a}"`)).to.eql(true);
+    expect(yaml.includes(`path: "${b}"`)).to.eql(true);
+    expect(yaml.includes('cd "${{ matrix.path }}"')).to.eql(true);
     expect(yaml.includes('deno task test --frozen\n')).to.eql(true);
     expect(yaml.includes('deno task test --trace-leaks')).to.eql(false);
-    expect(yaml).to.include('uses: actions/checkout@v5\n      - name: Verify clean checkout');
+    expect(yaml).to.include('uses: actions/checkout@v5');
+    expect(yaml).to.include('- name: Verify clean checkout');
     expect(yaml).to.include('- name: Verify clean dependency install');
     expect(yaml).to.include('timeout-minutes: 240');
-    expect(yaml).to.include('expected_pkg_name="@scope/alpha"');
-    expect(yaml).to.include('expected_pkg_version="1.0.0"');
+    expect(yaml).to.include('fail-fast: false');
+    expect(yaml).to.include('max-parallel: 4');
+    expect(yaml).to.include('concurrency:');
+    expect(yaml).to.include('cancel-in-progress: false');
+    expect(yaml).to.include('version: "1.0.0"');
+    expect(yaml).to.include('expected_pkg_name="${{ matrix.name }}"');
+    expect(yaml).to.include('expected_pkg_version="${{ matrix.version }}"');
     expect(yaml).to.include('pkg_name="$(deno eval');
     expect(yaml).to.include('Generated JSR workflow package version is stale');
     expect(yaml).to.include('pkg_meta_url="https://jsr.io/${pkg_name}/${pkg_version}_meta.json"');
@@ -47,6 +56,105 @@ describe('WorkspaceCi.Jsr', () => {
     expect(yaml.includes('push:')).to.eql(true);
     expect(yaml.includes('- main')).to.eql(true);
     expect(yaml.includes('pull_request:')).to.eql(false);
+  });
+
+  it('renders graph-stratified publish matrix jobs', async () => {
+    const fs = await Testing.dir('WorkspaceCi.Jsr.strata');
+    const alpha = 'code/sys/alpha';
+    const beta = 'code/sys/beta';
+    const gamma = 'code/sys/gamma';
+
+    await Fs.writeJson(Fs.join(fs.dir, alpha, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
+    await Fs.writeJson(Fs.join(fs.dir, beta, 'deno.json'), { name: '@scope/beta', version: '1.0.0' });
+    await Fs.writeJson(Fs.join(fs.dir, gamma, 'deno.json'), { name: '@scope/gamma', version: '1.0.0' });
+    await Fs.writeJson(Fs.join(fs.dir, 'deno.graph.json'), {
+      graph: {
+        orderedPaths: [alpha, beta, gamma],
+        edges: [
+          { from: alpha, to: gamma },
+          { from: beta, to: gamma },
+        ],
+      },
+    });
+
+    const yaml = await WorkspaceCi.Jsr.text({ cwd: fs.dir, paths: [alpha, beta, gamma] });
+
+    expect(yaml.includes('publish_0:')).to.eql(true);
+    expect(yaml.includes('publish_1:')).to.eql(true);
+    expect(yaml.includes('needs: publish_0')).to.eql(true);
+    expect(yaml.indexOf('publish_0:')).to.be.lessThan(yaml.indexOf('publish_1:'));
+    expect(yaml.indexOf('@scope/alpha')).to.be.lessThan(yaml.indexOf('publish_1:'));
+    expect(yaml.indexOf('@scope/beta')).to.be.lessThan(yaml.indexOf('publish_1:'));
+    expect(yaml.indexOf('@scope/gamma')).to.be.greaterThan(yaml.indexOf('publish_1:'));
+  });
+
+  it('ignores non-selected graph edges while deriving publish strata', async () => {
+    const fs = await Testing.dir('WorkspaceCi.Jsr.strata.non-selected');
+    const alpha = 'code/sys/alpha';
+    const beta = 'code/sys/beta';
+
+    await Fs.writeJson(Fs.join(fs.dir, alpha, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
+    await Fs.writeJson(Fs.join(fs.dir, beta, 'deno.json'), { name: '@scope/beta', version: '1.0.0' });
+    await Fs.writeJson(Fs.join(fs.dir, 'deno.graph.json'), {
+      graph: {
+        orderedPaths: [alpha, beta],
+        edges: [{ from: 'code/sys/base', to: beta }],
+      },
+    });
+
+    const yaml = await WorkspaceCi.Jsr.text({ cwd: fs.dir, paths: [alpha, beta] });
+
+    expect(yaml.includes('publish_0:')).to.eql(true);
+    expect(yaml.includes('publish_1:')).to.eql(false);
+    expect(yaml.indexOf('@scope/alpha')).to.be.lessThan(yaml.indexOf('@scope/beta'));
+  });
+
+  it('fails closed when an existing graph snapshot is invalid', async () => {
+    const fs = await Testing.dir('WorkspaceCi.Jsr.strata.invalid-graph');
+    const alpha = 'code/sys/alpha';
+
+    await Fs.writeJson(Fs.join(fs.dir, alpha, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
+    await Fs.writeJson(Fs.join(fs.dir, 'deno.graph.json'), { graph: { orderedPaths: [], edges: [{}] } });
+
+    await expectError(
+      async () => await WorkspaceCi.Jsr.text({ cwd: fs.dir, paths: [alpha] }),
+      'Invalid workspace graph snapshot',
+    );
+  });
+
+  it('fails closed on duplicate selected package paths', async () => {
+    const fs = await Testing.dir('WorkspaceCi.Jsr.strata.duplicate');
+    const alpha = 'code/sys/alpha';
+
+    await Fs.writeJson(Fs.join(fs.dir, alpha, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
+
+    await expectError(
+      async () => await WorkspaceCi.Jsr.text({ cwd: fs.dir, paths: [alpha, alpha] }),
+      'Duplicate JSR publish module path',
+    );
+  });
+
+  it('fails closed on selected package cycles', async () => {
+    const fs = await Testing.dir('WorkspaceCi.Jsr.strata.cycle');
+    const alpha = 'code/sys/alpha';
+    const beta = 'code/sys/beta';
+
+    await Fs.writeJson(Fs.join(fs.dir, alpha, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
+    await Fs.writeJson(Fs.join(fs.dir, beta, 'deno.json'), { name: '@scope/beta', version: '1.0.0' });
+    await Fs.writeJson(Fs.join(fs.dir, 'deno.graph.json'), {
+      graph: {
+        orderedPaths: [alpha, beta],
+        edges: [
+          { from: alpha, to: beta },
+          { from: beta, to: alpha },
+        ],
+      },
+    });
+
+    await expectError(
+      async () => await WorkspaceCi.Jsr.text({ cwd: fs.dir, paths: [alpha, beta] }),
+      'Cycle in selected JSR publish graph',
+    );
   });
 
   it('writes YAML to disk', async () => {

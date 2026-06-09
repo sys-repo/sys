@@ -2,6 +2,8 @@ export const JSR_MODULES_PLACEHOLDER = '__MODULES__';
 
 export const JSR_JOB_CONFIG_TEMPLATE = `    timeout-minutes: 240`;
 
+export const JSR_MAX_PARALLEL = 4;
+
 export const JSR_BODY_TEMPLATE = `- name: publish module → "__NAME__"
   run: |
     cd __PATH__
@@ -79,3 +81,9 @@ export const JSR_BODY_TEMPLATE = `- name: publish module → "__NAME__"
     done
     echo "publish failed after $max_attempts attempts"
     exit 1`;
+
+export const JSR_MATRIX_BODY_TEMPLATE = JSR_BODY_TEMPLATE
+  .replace('publish module → "__NAME__"', 'publish module → "${{ matrix.name }}"')
+  .replace('cd __PATH__', 'cd "${{ matrix.path }}"')
+  .replace('expected_pkg_name="__NAME__"', 'expected_pkg_name="${{ matrix.name }}"')
+  .replace('expected_pkg_version="__VERSION__"', 'expected_pkg_version="${{ matrix.version }}"');
