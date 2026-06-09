@@ -49,7 +49,7 @@ To run the canonical workspace upgrade flow through the same task surface:
 
 Generators:
 - `deno task tmpl` → launches `@sys/tmpl` (all templates, interactive or `--params`)
-- `deno task tmpl:project` → launches `@sys/tmpl` narrowed to `pkg`
+- `deno task tmpl:pkg` → launches `@sys/tmpl` narrowed to `pkg`
 
 
 <p>&nbsp;</p>
@@ -66,9 +66,9 @@ git push --force origin baseline-0
 
 <p>&nbsp;</p>
 
-## /packages
+## Packages (`code/packages/`)
 New packages:
-- via interactive CLI: `deno task tmpl:project`
+- via interactive CLI: `deno task tmpl:pkg`
 - via non-interactive/agent flow: `deno run -ERW jsr:@sys/tmpl --non-interactive --dir code/packages/foo pkg --pkgName @acme/foo`
 - after adding/removing workspace packages with `deno.json` tasks, refresh workflows with `deno task prep`
 

@@ -1,4 +1,4 @@
-import { type t, describe, expect, it, makeTmpl, Templates } from '../-test.ts';
+import { describe, expect, Fs, it, makeTmpl, type t, Templates } from '../-test.ts';
 import { logTemplate, makeWorkspace } from './u.ts';
 
 describe('Template: repo', () => {
@@ -21,6 +21,9 @@ describe('Template: repo', () => {
     const ls = await test.ls();
     const includes = (endsWith: t.StringPath) => !!ls.find((p) => p.endsWith(endsWith));
 
+    type TDenoJson = { tasks?: Record<string, string> };
+    const denoJson = await Fs.readJson<TDenoJson>(Fs.join(targetDir, 'deno.json'));
+
     /**
      * Assertions:
      */
@@ -31,6 +34,9 @@ describe('Template: repo', () => {
     expect(includes('/code/packages/mod.ts')).to.be.true;
     expect(includes('/-scripts/task.prep.ts')).to.be.true;
     expect(includes('/-scripts/task.tmpl.ts')).to.be.true;
+    expect(denoJson.data?.tasks?.['tmpl:pkg']).to.eql(
+      'deno run -P=tmpl ./-scripts/task.tmpl.ts pkg',
+    );
     expect(includes('/-deps.yaml')).to.be.false;
     expect(includes('/.github/workflows/ci.yaml')).to.be.false;
     expect(includes('/.tmpl.ts')).to.be.false;
