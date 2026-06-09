@@ -26,6 +26,9 @@ export namespace Pkg {
     /** Convert a {pkg} into a display string. */
     toString(input?: t.Pkg, suffix?: string, options?: t.PkgToStringOptions | boolean): string;
 
+    /** Convert a package name to a filesystem namespace segment. */
+    toFileNamespace(input: t.Pkg): t.StringName;
+
     /**
      * Extracts the name/version from the gtiven object if found,
      * otherwise returns standard <Unknown> package.
