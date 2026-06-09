@@ -90,6 +90,26 @@ describe(`@sys/cell/cli info`, () => {
     expect(taskEvents()).to.eql([]);
   });
 
+  it('formatter → uses stronger labels for Cell facts than nested details', () => {
+    const rendered = Fmt.Info.cell({
+      root: '.',
+      descriptor: '-config/@sys.cell/cell.yaml',
+      descriptorPath: '-config/@sys.cell/cell.yaml',
+      version: 1,
+      services: [{
+        name: 'view' as t.Cell.Id,
+        use: 'Serve',
+        from: 'jsr:@sys/tools/serve',
+        config: './-config/@sys.tools.serve/view.yaml' as t.Cell.Path,
+      }],
+      tasks: [],
+    });
+
+    expect(rendered).to.contain(c.gray('root      '));
+    expect(rendered).to.not.contain(c.dim(c.gray('root      ')));
+    expect(rendered).to.contain(c.dim(c.gray('use       ')));
+  });
+
   it('formatter → uses one shared label column across sections', () => {
     const text = stripAnsi(Fmt.Info.cell({
       root: '.',

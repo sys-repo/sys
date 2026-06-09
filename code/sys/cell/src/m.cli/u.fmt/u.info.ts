@@ -110,7 +110,8 @@ function renderRows(rows: readonly InfoRow[], labelWidth: number, level: 1 | 2):
     if (!label) return `${rowIndent}${formatValue(value, kind, rowIndent.length)}`;
 
     const gap = '   ';
-    const paddedLabel = FmtFields.label(label, labelWidth);
+    const tone = level === 1 ? 'gray' : 'dim';
+    const paddedLabel = FmtFields.label(label, labelWidth, { tone });
     const reserve = rowIndent.length + labelWidth + gap.length;
     return `${rowIndent}${paddedLabel}${gap}${formatValue(value, kind, reserve)}`;
   }).join('\n');

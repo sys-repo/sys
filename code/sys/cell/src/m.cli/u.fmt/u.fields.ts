@@ -1,5 +1,11 @@
 import { c, stripAnsi } from '../common.ts';
 
+export type FieldLabelTone = 'dim' | 'gray';
+
+export type FieldLabelOptions = {
+  readonly tone?: FieldLabelTone;
+};
+
 export const FmtFields = {
   title,
   label,
@@ -15,8 +21,9 @@ function title(value: string): string {
   return c.green(value);
 }
 
-function label(value: string, width = value.length): string {
-  return c.dim(c.gray(padLabel(value, width)));
+function label(value: string, width = value.length, options: FieldLabelOptions = {}): string {
+  const text = c.gray(padLabel(value, width));
+  return options.tone === 'gray' ? text : c.dim(text);
 }
 
 function labelWidth(labels: readonly string[]): number {
