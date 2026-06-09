@@ -95,6 +95,7 @@ describe('Template: repo integration', () => {
 
     await tmpl.write(root, { force: true });
     await def.default(root);
+    await TmplTesting.LocalRepoAuthorities.rewrite({ root });
 
     const res = await Process.invoke({
       cmd: 'deno',

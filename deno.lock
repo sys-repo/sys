@@ -33,7 +33,23 @@
     "jsr:@std/streams@^1.1.1": "1.1.1",
     "jsr:@std/testing@1.0.19": "1.0.19",
     "jsr:@std/text@^1.0.19": "1.0.19",
+    "jsr:@sys/cli@^0.0.292": "0.0.292",
+    "jsr:@sys/color@^0.0.255": "0.0.255",
+    "jsr:@sys/crypto@^0.0.294": "0.0.294",
+    "jsr:@sys/esm@^0.0.66": "0.0.66",
+    "jsr:@sys/event@^0.0.158": "0.0.158",
+    "jsr:@sys/fs@^0.0.320": "0.0.320",
+    "jsr:@sys/http@^0.0.299": "0.0.299",
+    "jsr:@sys/immutable@^0.0.147": "0.0.147",
+    "jsr:@sys/net@^0.0.132": "0.0.132",
+    "jsr:@sys/process@^0.0.295": "0.0.295",
+    "jsr:@sys/registry@^0.0.294": "0.0.294",
+    "jsr:@sys/schema@^0.0.214": "0.0.214",
+    "jsr:@sys/std@0.0.360": "0.0.360",
+    "jsr:@sys/std@^0.0.360": "0.0.360",
     "jsr:@sys/tools@*": "0.0.443",
+    "jsr:@sys/workspace@0.0.115": "0.0.115",
+    "jsr:@sys/yaml@^0.0.172": "0.0.172",
     "npm:@automerge/automerge-repo-network-websocket@2.5.6": "2.5.6",
     "npm:@automerge/automerge-repo-storage-indexeddb@2.5.6": "2.5.6",
     "npm:@automerge/automerge-repo-storage-nodefs@2.5.6": "2.5.6",
@@ -66,6 +82,7 @@
     "npm:gpt-tokenizer@3.4.0": "3.4.0",
     "npm:happy-dom@20.10.2": "20.10.2",
     "npm:hash-it@7.0.2": "7.0.2",
+    "npm:hono@4.12.23": "4.12.23",
     "npm:hono@4.12.24": "4.12.24",
     "npm:ignore@7.0.5": "7.0.5",
     "npm:monaco-editor@0.55.1": "0.55.1",
@@ -92,6 +109,7 @@
     "npm:strip-ansi@7.2.0": "7.2.0",
     "npm:tinycolor2@1.6.0": "1.6.0",
     "npm:ts-essentials@10.2.1": "10.2.1",
+    "npm:typebox@1.2.2": "1.2.2",
     "npm:typebox@1.2.3": "1.2.3",
     "npm:vite-plugin-wasm@3.6.0": "3.6.0_vite@8.0.16__yaml@2.9.0_yaml@2.9.0",
     "npm:vite@8.0.16": "8.0.16_yaml@2.9.0",
@@ -230,8 +248,162 @@
     "@std/text@1.0.19": {
       "integrity": "003a0e032d360e8c3a4e0410fb792c77a66bd6553fee9d60c6ec1bce30d29223"
     },
+    "@sys/cli@0.0.292": {
+      "integrity": "66ee19bce1e747ba907aa7a65f57816b00b6c0650f91952d3a15276df978a9cc",
+      "dependencies": [
+        "jsr:@cliffy/keypress",
+        "jsr:@cliffy/prompt",
+        "jsr:@cliffy/table",
+        "jsr:@std/encoding@1.0.10",
+        "jsr:@sys/color",
+        "jsr:@sys/std@^0.0.360",
+        "npm:ora"
+      ]
+    },
+    "@sys/color@0.0.255": {
+      "integrity": "8410f5771c4937c038935292ca8a2a979fe143acecf1d071f2d2a602c95b1628",
+      "dependencies": [
+        "jsr:@sys/std@^0.0.360",
+        "npm:tinycolor2"
+      ]
+    },
+    "@sys/crypto@0.0.294": {
+      "integrity": "01930af8f16ce3b6decb19a3fcd44c696ef0756e9a2352f9108a60f3b114ba98",
+      "dependencies": [
+        "jsr:@sys/cli",
+        "jsr:@sys/std@^0.0.360",
+        "npm:@noble/hashes"
+      ]
+    },
+    "@sys/esm@0.0.66": {
+      "integrity": "9fc1af80952a272f9b32e421165a154f249b811cb4e70f69db3259276a45f534",
+      "dependencies": [
+        "jsr:@sys/fs",
+        "jsr:@sys/std@^0.0.360",
+        "jsr:@sys/yaml"
+      ]
+    },
+    "@sys/event@0.0.158": {
+      "integrity": "7c5219d1facd165a8d04b2922a82969c11b035205d298364a7965bc7d3f6e506",
+      "dependencies": [
+        "jsr:@sys/std@^0.0.360"
+      ]
+    },
+    "@sys/fs@0.0.320": {
+      "integrity": "6ce2ebd714f83097b9e8edd06cc586556b8d4f3f0d03e6147500a89b32313419",
+      "dependencies": [
+        "jsr:@std/dotenv",
+        "jsr:@std/encoding@1.0.10",
+        "jsr:@std/fs@1.0.24",
+        "jsr:@std/path@1.1.5",
+        "jsr:@sys/cli",
+        "jsr:@sys/crypto",
+        "jsr:@sys/immutable",
+        "jsr:@sys/std@^0.0.360",
+        "npm:yaml"
+      ]
+    },
+    "@sys/http@0.0.299": {
+      "integrity": "44b44abe2454ae8de7d212f2bf40e67b8389a1cf2211f4ddc4e203deeed470c6",
+      "dependencies": [
+        "jsr:@std/http",
+        "jsr:@sys/cli",
+        "jsr:@sys/crypto",
+        "jsr:@sys/event",
+        "jsr:@sys/fs",
+        "jsr:@sys/net",
+        "jsr:@sys/process",
+        "jsr:@sys/std@^0.0.360",
+        "jsr:@sys/yaml",
+        "npm:hono@4.12.23"
+      ]
+    },
+    "@sys/immutable@0.0.147": {
+      "integrity": "696b44cd27dde2998ee70e4842fa72cc68759d0addb6443f6fa56feecdee3a23",
+      "dependencies": [
+        "jsr:@sys/std@^0.0.360",
+        "npm:fast-json-patch"
+      ]
+    },
+    "@sys/net@0.0.132": {
+      "integrity": "167f7e69bacdadd75df67457f4b01f0fd0b01187801ffc8cd3b9c4acc42dbc36",
+      "dependencies": [
+        "jsr:@sys/std@^0.0.360"
+      ]
+    },
+    "@sys/process@0.0.295": {
+      "integrity": "2bd080730ef492ddb71ed607460e6227fad336b2335e628ee70150d3167311aa",
+      "dependencies": [
+        "jsr:@sys/cli",
+        "jsr:@sys/std@^0.0.360"
+      ]
+    },
+    "@sys/registry@0.0.294": {
+      "integrity": "506ff3b089ad33d70eec7919dcce427153fb936f1eb198fa81e7fde33155ab0b",
+      "dependencies": [
+        "jsr:@sys/crypto",
+        "jsr:@sys/fs",
+        "jsr:@sys/http",
+        "jsr:@sys/std@^0.0.360"
+      ]
+    },
+    "@sys/schema@0.0.214": {
+      "integrity": "8113eb681d8fe72f6ad44a637dba353c253780eb2b92a0afcb278bfebc15150e",
+      "dependencies": [
+        "jsr:@sys/immutable",
+        "jsr:@sys/std@^0.0.360",
+        "jsr:@sys/yaml",
+        "npm:typebox@1.2.2"
+      ]
+    },
+    "@sys/std@0.0.360": {
+      "integrity": "a3443affb259497b89009a1e492167a56a1e6b24cad6836447c7afea07e2fdc2",
+      "dependencies": [
+        "jsr:@std/datetime",
+        "jsr:@std/jsonc",
+        "jsr:@std/path@1.1.5",
+        "jsr:@std/semver",
+        "jsr:@std/testing",
+        "npm:@preact/signals-core",
+        "npm:@types/ramda",
+        "npm:chai",
+        "npm:date-fns",
+        "npm:hash-it",
+        "npm:ignore",
+        "npm:pretty-bytes",
+        "npm:ramda",
+        "npm:rxjs",
+        "npm:strip-ansi"
+      ]
+    },
     "@sys/tools@0.0.443": {
       "integrity": "758bb5849f599ef79722fc483918a623df84c953474f959ed22ed9343215ab88"
+    },
+    "@sys/workspace@0.0.115": {
+      "integrity": "1c81c9bb73e7a08785d2a40332c15049b9166d93f41374acc9d47a0c1549686c",
+      "dependencies": [
+        "jsr:@sys/cli",
+        "jsr:@sys/color",
+        "jsr:@sys/crypto",
+        "jsr:@sys/esm",
+        "jsr:@sys/fs",
+        "jsr:@sys/process",
+        "jsr:@sys/registry",
+        "jsr:@sys/schema",
+        "jsr:@sys/std@^0.0.360",
+        "jsr:@sys/yaml"
+      ]
+    },
+    "@sys/yaml@0.0.172": {
+      "integrity": "5c5a488a65e1c3e6c27938c0627b26b95707ed531ebd9a6388606d4413d4ab45",
+      "dependencies": [
+        "jsr:@sys/cli",
+        "jsr:@sys/fs",
+        "jsr:@sys/immutable",
+        "jsr:@sys/process",
+        "jsr:@sys/std@^0.0.360",
+        "npm:yaml"
+      ]
     }
   },
   "npm": {
@@ -764,7 +936,7 @@
       "integrity": "sha512-Y/KVOhuKSgRQgYBlwmRtO2gPkUcoavOSqGF9bpQIINvNZvc19k6Z1H3bFDTce3Vp5ApMmTsfLH3+tNvOg75fAQ==",
       "dependencies": [
         "@mariozechner/pi-ai",
-        "typebox"
+        "typebox@1.2.3"
       ],
       "deprecated": true
     },
@@ -779,7 +951,7 @@
         "openai",
         "partial-json",
         "proxy-agent",
-        "typebox",
+        "typebox@1.2.3",
         "undici",
         "zod-to-json-schema"
       ],
@@ -806,7 +978,7 @@
         "minimatch@10.2.5",
         "proper-lockfile",
         "strip-ansi@7.2.0",
-        "typebox",
+        "typebox@1.2.3",
         "undici",
         "uuid@14.0.0",
         "yaml"
@@ -2035,6 +2207,9 @@
     "highlight.js@10.7.3": {
       "integrity": "sha512-tzcUFauisWKNHaRkN4Wjl/ZA07gENAjFl3J/c480dprkGTg5EQstgaNFqBfUqCq54kZRIEcreTsAgF/m2quD7A=="
     },
+    "hono@4.12.23": {
+      "integrity": "sha512-eIaZ9qDgu7XV0pxOCrg7/WhnQ6Ivm22UcxhXx/A3dcbqbbYgBEkc6e/J/s7j2tS96zoB0S9VBdLwQNCWwUo4LA=="
+    },
     "hono@4.12.24": {
       "integrity": "sha512-I36D1s+HgQc55KbhEr4iybfxv/9o1zdpw+XEM6dJa91LqQD0HCoSGdxpRJCZE+aavs87j4V3Ls2OJzq8C/U4iw=="
     },
@@ -3081,6 +3256,9 @@
     },
     "tslib@2.8.1": {
       "integrity": "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w=="
+    },
+    "typebox@1.2.2": {
+      "integrity": "sha512-0nqIJFL+baWoAEtwa0l/vfbfXg0+3gEhiWGnHuoIiivXjlk/TpxDddG0WER34CojKNpHi4ZXku8XGEz9H55b5Q=="
     },
     "typebox@1.2.3": {
       "integrity": "sha512-EdFz/9FGvhQK2NmjZjSLri+nd5oMH+t/46/6lueEPbeHmS9WbWOz5IayPyLw0HHIyOWfo+wPrQGcAEQ+GsXc/w=="
