@@ -7,8 +7,8 @@ export default Spec.describe(D.displayName, async (e) => {
   const p = debug.props;
 
   function Root() {
-    const v = Signal.toObject(p);
-    return <Files.InfoPanel snapshot={v.snapshot} debug={v.debug} theme={v.theme} />;
+    const v = debug.controller.view();
+    return <Files.InfoPanel {...v} />;
   }
 
   e.it('init', (e) => {

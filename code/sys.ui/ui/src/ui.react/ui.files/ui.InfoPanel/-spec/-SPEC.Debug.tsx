@@ -1,10 +1,26 @@
 import React from 'react';
-import { Button, Color, css, D, Err, LocalStorage, ObjectView, Signal, type t } from './common.ts';
+import {
+  Button,
+  Color,
+  css,
+  D,
+  Err,
+  LocalStorage,
+  ObjectView,
+  Signal,
+  type t,
+} from './common.ts';
+import { Files } from '../../mod.ts';
 import { connect, disconnect } from './-u.connect.ts';
 
-type P = t.Files.InfoPanel.Props;
-type Defaults = Required<Pick<P, 'debug' | 'theme' | 'snapshot'>>;
-type Storage = Pick<Defaults, 'debug' | 'theme'>;
+type Defaults = Required<Pick<t.Files.InfoPanel.State, 'debug' | 'theme' | 'snapshot'>> & {
+  events: Required<t.Files.InfoPanel.State['events']>;
+};
+type Storage = {
+  debug?: t.Files.InfoPanel.State['debug'];
+  theme?: t.Files.InfoPanel.State['theme'];
+  events: t.Files.InfoPanel.State['events'];
+};
 
 const readyCapabilities: t.ModelFiles.Capabilities = {
   list: true,
@@ -26,6 +42,7 @@ const defaults: Defaults = {
   debug: false,
   theme: 'Dark',
   snapshot: snapshots.stopped,
+  events: D.events,
 };
 
 /**
@@ -42,6 +59,7 @@ export async function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, {
     debug: defaults.debug,
     theme: defaults.theme,
+    events: defaults.events,
   });
   const snap = store.current;
 
@@ -49,16 +67,24 @@ export async function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     snapshot: s(defaults.snapshot),
+    events: { enabled: s(snap.events?.enabled ?? defaults.events.enabled) },
   };
+  const controller = Files.InfoPanel.controller({
+    debug: props.debug,
+    theme: props.theme,
+    snapshot: props.snapshot,
+    events: props.events,
+  });
   const p = props;
   const api = {
     props,
+    controller,
     listen,
     reset,
   };
 
   function listen() {
-    Signal.listen(props, true);
+    controller.listen();
   }
 
   function reset() {
@@ -66,12 +92,14 @@ export async function createDebugSignals() {
     p.debug.value = defaults.debug;
     p.theme.value = defaults.theme;
     p.snapshot.value = defaults.snapshot;
+    p.events.enabled.value = defaults.events.enabled;
   }
 
   Signal.effect(() => {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.events = { enabled: p.events.enabled.value };
     });
   });
 
@@ -94,7 +122,7 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
-  const v = Signal.toObject(p);
+  const v = debug.controller.view();
   Signal.useRedrawEffect(debug.listen);
 
   /**

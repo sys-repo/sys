@@ -1,9 +1,10 @@
 import { D, Is, type t } from './common.ts';
 import { ErrorMessage } from './ui.ErrorMessage.tsx';
+import { EventSwitch } from './ui.EventSwitch.tsx';
 import { StatusTitle } from './ui.StatusTitle.tsx';
 import { formatCapabilities } from './u.items.Capabilities.tsx';
 
-type Input = Pick<t.Files.InfoPanel.Props, 'fields' | 'theme' | 'title' | 'snapshot'>;
+type Input = Pick<t.Files.InfoPanel.Props, 'events' | 'fields' | 'theme' | 'title' | 'snapshot'>;
 
 /**
  * Convert a Files client snapshot into KeyValue rows.
@@ -23,8 +24,24 @@ export function toItems(input: Input): t.KeyValue.Item[] {
     if (field === 'capabilities' && !Is.nil(snapshot?.capabilities)) {
       items.push({ k: 'capabilities', v: formatCapabilities(snapshot.capabilities), mono: true });
     }
-    if (field === 'error' && !Is.nil(snapshot?.error)) {
-      items.push({ k: 'error', v: <ErrorMessage value={snapshot.error} theme={input.theme} />, mono: true });
+    if (field === 'error' && snapshot?.status === 'error' && !Is.nil(snapshot.error)) {
+      items.push({
+        k: 'error',
+        v: <ErrorMessage value={snapshot.error} theme={input.theme} />,
+        mono: true,
+      });
+    }
+    if (field === 'events' && canShowEvents(snapshot)) {
+      items.push({
+        k: 'events',
+        v: (
+          <EventSwitch
+            value={input.events?.enabled}
+            theme={input.theme}
+            onToggle={input.events?.onToggle}
+          />
+        ),
+      });
     }
   });
 
@@ -41,6 +58,10 @@ function title(input: Input, fields: readonly t.Files.InfoPanel.Field[]): t.KeyV
     label,
     <StatusTitle status={input.snapshot?.status} theme={input.theme} />,
   ];
+}
+
+function canShowEvents(snapshot?: t.Files.InfoPanel.Snapshot): boolean {
+  return snapshot?.status === 'ready' && snapshot.capabilities?.watch === true;
 }
 
 function resolveFields(

@@ -8,3 +8,4 @@ export { Signal } from '@sys/ui-react';
  */
 export { Bullet } from '@sys/ui-components/react/bullet';
 export { KeyValue } from '@sys/ui-components/react/key-value';
+export { Switch } from '@sys/ui-components/react/buttons/switch';
