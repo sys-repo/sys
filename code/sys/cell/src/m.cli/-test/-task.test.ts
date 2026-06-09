@@ -1,6 +1,7 @@
 import { describe, expect, Fs, it, Str, Testing } from '../../-test.ts';
 import { CellCli } from '../mod.ts';
-import { stripAnsi } from '../common.ts';
+import { c, Cli, stripAnsi, type t } from '../common.ts';
+import { Fmt } from '../u.fmt/u.mod.ts';
 import {
   resetTaskEvents,
   silent,
@@ -84,4 +85,125 @@ describe(`@sys/cell/cli task`, () => {
     expect(text).to.contain('./-tasks/clean.ts');
     expect(taskEvents()).to.eql([]);
   });
+
+  it('task --plan formatter → renders a titled indented task tree', () => {
+    const rendered = Fmt.Task.plan(taskPlanFixture());
+    const text = stripAnsi(rendered);
+
+    expect(rendered).to.contain(c.green('Tasks'));
+    expect(text).to.contain('Tasks');
+    expect(text).to.contain('  root');
+    expect(text).to.contain('  task');
+    expect(text).to.contain('  steps');
+    expect(text).to.contain('  sample:deploy');
+    expect(text).to.contain('  ├─ sample:deploy:prep');
+    expect(text).to.contain('  │  ├─ pull:view');
+    expect(text).to.contain('  │  │  use     PullViewTask');
+    expect(text).to.contain('  │  │  from    ./-scripts/deploy.ts');
+    expect(text).to.contain('  │  │  config  ./-config/@sys.tools.pull/view.yaml');
+    expect(text).to.contain('  └─ deploy:push');
+  });
+
+  it('task --plan formatter → fits summary and tree values to narrow terminals', () => {
+    const restore = stubCliTerminal(46);
+    try {
+      const rendered = Fmt.Task.plan(taskPlanFixture({
+        root: '/Users/phil/code/org.sys/sys/code/sys/cell/-sample/cell.deploy/with/a/very/long/root',
+        use: 'VeryLongDeployPushTaskNameThatShouldCollapse',
+        from: './-scripts/deploy/with/a/very/long/module/path.ts',
+        config: './-config/@sys.tools.deploy/orbiter/with/a/very/long/config.yaml',
+      }));
+      const text = stripAnsi(rendered);
+
+      expect(rendered).to.contain(c.cyan('…'));
+      for (const line of text.split('\n').filter(Boolean)) expect(line.length <= 46).to.eql(true);
+    } finally {
+      restore();
+    }
+  });
 });
+
+function taskPlanFixture(options: {
+  readonly root?: string;
+  readonly use?: string;
+  readonly from?: string;
+  readonly config?: string;
+} = {}): { root: string; plan: t.Cell.Task.Plan } {
+  const root = options.root ?? '/Users/phil/code/org.sys/sys/code/sys/cell/-sample/cell.deploy';
+  const pull = leaf(
+    'pull:view',
+    'PullViewTask',
+    './-scripts/deploy.ts',
+    './-config/@sys.tools.pull/view.yaml',
+  );
+  const prep = leaf(
+    'deploy:prep',
+    'DeployPrepTask',
+    './-scripts/deploy.ts',
+    './-config/@sys.tools.deploy/orbiter.yaml',
+  );
+  const push = leaf(
+    'deploy:push',
+    options.use ?? 'DeployPushTask',
+    options.from ?? './-scripts/deploy.ts',
+    options.config ?? './-config/@sys.tools.deploy/orbiter.yaml',
+  );
+  const composite: t.Cell.Task.PlanComposite = {
+    kind: 'composite',
+    task: {
+      name: 'sample:deploy:prep' as t.Cell.Id,
+      steps: [{ task: 'pull:view' as t.Cell.Id }, { task: 'deploy:prep' as t.Cell.Id }],
+    },
+    steps: [pull, prep],
+  };
+  const tree: t.Cell.Task.PlanComposite = {
+    kind: 'composite',
+    task: {
+      name: 'sample:deploy' as t.Cell.Id,
+      steps: [{ task: 'sample:deploy:prep' as t.Cell.Id }, { task: 'deploy:push' as t.Cell.Id }],
+    },
+    steps: [composite, push],
+  };
+
+  return {
+    root,
+    plan: {
+      root: root as t.StringDir,
+      task: tree.task,
+      tree,
+      leaves: [pull, prep, push],
+    },
+  };
+}
+
+function leaf(
+  name: string,
+  use: string,
+  from: string,
+  config?: string,
+): t.Cell.Task.PlanLeaf {
+  return {
+    kind: 'leaf',
+    task: {
+      name: name as t.Cell.Id,
+      use,
+      from,
+      ...(config ? { config: config as t.Cell.Path } : {}),
+    },
+    paths: config ? { config: config as t.StringPath } : {},
+    endpoint: { use, from, specifier: from, source: 'local' },
+  };
+}
+
+function stubCliTerminal(width: number): () => void {
+  const screen = Cli.Screen as { size: () => { width: number; height: number } };
+  const is = Cli.Is as { terminal: (stream?: t.StdioName) => boolean };
+  const prevSize = screen.size;
+  const prevTerminal = is.terminal;
+  screen.size = () => ({ width, height: 24 });
+  is.terminal = () => true;
+  return () => {
+    screen.size = prevSize;
+    is.terminal = prevTerminal;
+  };
+}

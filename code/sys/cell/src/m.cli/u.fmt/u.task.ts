@@ -1,6 +1,7 @@
-import { c, Cli, CliTable, Str, type t, Time } from '../common.ts';
+import { c, Cli, Fs, Str, type t, Time } from '../common.ts';
 import { elapsedSuffix } from './u.elapsed.ts';
-import { FmtPath } from './u.path.ts';
+import { FmtFields } from './u.fields.ts';
+import { FmtFit } from './u.fit.ts';
 
 type TaskResult = {
   root: string;
@@ -23,24 +24,20 @@ type TaskProgressTimer = ReturnType<typeof globalThis.setInterval>;
 
 export const FmtTask = {
   result(res: TaskResult): string {
-    const table = CliTable.create([]);
-    table.push([c.gray('root'), FmtPath.display(res.root)]);
-    table.push([c.gray('task'), c.white(res.task.name)]);
-    table.push([c.gray('steps'), c.white(String(res.steps.length))]);
-    return `\n${Str.trimEdgeNewlines(String(table))}\n`;
+    return `\n${Str.trimEdgeNewlines(renderSummary({
+      root: res.root,
+      task: res.task.name,
+      steps: res.steps.length,
+    }))}\n`;
   },
 
   plan(res: TaskPlanResult): string {
     const { plan } = res;
-    const table = CliTable.create([]);
-    table.push([c.gray('root'), FmtPath.display(res.root)]);
-    table.push([c.gray('task'), c.white(plan.task.name)]);
-    table.push([c.gray('steps'), c.white(String(plan.leaves.length))]);
-
-    return Str.trimEdgeNewlines([
-      String(table),
+    return `\n${Str.trimEdgeNewlines([
+      FmtFields.title('Tasks'),
+      renderSummary({ root: res.root, task: plan.task.name, steps: plan.leaves.length }),
       renderPlanTree(plan.tree),
-    ].join('\n\n'));
+    ].join('\n\n'))}\n`;
   },
 
   progressRenderer(deps: TaskProgressRendererDeps = {}): t.Cell.Task.Run.EventHandler {
@@ -176,17 +173,65 @@ function elapsedText(metric: t.Cell.Task.RunMetrics['run']): string {
   return Time.elapsed(metric.startedAt, metric.resolvedAt).toString();
 }
 
+type SummaryInput = {
+  readonly root: string;
+  readonly task: string;
+  readonly steps: number;
+};
+
+type PlanNodeRenderOptions = {
+  readonly prefix: string;
+  readonly last: boolean;
+  readonly root: boolean;
+};
+
+type DetailRow = {
+  readonly label: 'use' | 'from' | 'config';
+  readonly value: string;
+  readonly kind?: 'path';
+};
+
+const SUMMARY_LABEL_WIDTH = FmtFields.labelWidth(['root', 'task', 'steps']);
+const DETAIL_LABEL_WIDTH = FmtFields.labelWidth(['use', 'from', 'config']);
+const SUMMARY_GAP = '   ';
+const DETAIL_GAP = '  ';
+
+function renderSummary(input: SummaryInput): string {
+  return [
+    summaryRow('root', displayRoot(input.root), 'path'),
+    summaryRow('task', input.task),
+    summaryRow('steps', String(input.steps)),
+  ].join('\n');
+}
+
+function summaryRow(label: string, value: string, kind?: 'path'): string {
+  const linePrefix = FmtFields.indent(1);
+  const displayLabel = FmtFields.label(label, SUMMARY_LABEL_WIDTH);
+  const reserve = linePrefix.length + SUMMARY_LABEL_WIDTH + SUMMARY_GAP.length;
+  const displayValue = kind === 'path'
+    ? FmtFit.path(value, reserve)
+    : FmtFit.value(value, reserve, { color: c.white });
+  return `${linePrefix}${displayLabel}${SUMMARY_GAP}${displayValue}`;
+}
+
 function renderPlanTree(node: t.Cell.Task.PlanNode): string {
-  return renderPlanNode(node, { prefix: '', last: true, root: true }).join('\n');
+  return renderPlanNode(node, { prefix: FmtFields.indent(1), last: true, root: true }).join('\n');
 }
 
 function renderPlanNode(
   node: t.Cell.Task.PlanNode,
-  options: { prefix: string; last: boolean; root: boolean },
+  options: PlanNodeRenderOptions,
 ): string[] {
-  const branch = options.root ? '' : options.last ? '└─ ' : '├─ ';
-  const lines = [`${options.prefix}${branch}${node.task.name}`];
-  const childPrefix = options.root ? '' : `${options.prefix}${options.last ? '   ' : '│  '}`;
+  const branch = options.root
+    ? ''
+    : options.last
+    ? `${Cli.Fmt.Tree.last}${Cli.Fmt.Tree.bar} `
+    : `${Cli.Fmt.Tree.mid}${Cli.Fmt.Tree.bar} `;
+  const prefix = `${options.prefix}${branch}`;
+  const lines = [treeNameLine(prefix, node.task.name)];
+  const childPrefix = options.root
+    ? options.prefix
+    : `${options.prefix}${options.last ? '   ' : `${Cli.Fmt.Tree.vert}  `}`;
 
   if (node.kind === 'leaf') {
     lines.push(...renderLeafDetails(node, childPrefix));
@@ -205,15 +250,46 @@ function renderPlanNode(
   return lines;
 }
 
+function treeNameLine(prefix: string, name: string): string {
+  return `${treeText(prefix)}${FmtFit.value(name, prefix.length, { color: c.white })}`;
+}
+
 function renderLeafDetails(
   leaf: t.Cell.Task.PlanLeaf,
   prefix: string,
 ): string[] {
-  const lines = [
-    `${prefix}use  ${leaf.endpoint.use}`,
-    `${prefix}from ${leaf.endpoint.from}`,
+  const rows: DetailRow[] = [
+    { label: 'use', value: leaf.endpoint.use },
+    {
+      label: 'from',
+      value: leaf.endpoint.from,
+      kind: pathish(leaf.endpoint.from) ? 'path' : undefined,
+    },
   ];
 
-  if (leaf.task.config) lines.push(`${prefix}config ${leaf.task.config}`);
-  return lines;
+  if (leaf.task.config) rows.push({ label: 'config', value: leaf.task.config, kind: 'path' });
+  return rows.map((row) => detailLine(prefix, row));
+}
+
+function detailLine(prefix: string, row: DetailRow): string {
+  const label = FmtFields.label(row.label, DETAIL_LABEL_WIDTH);
+  const reserve = prefix.length + DETAIL_LABEL_WIDTH + DETAIL_GAP.length;
+  const value = row.kind === 'path'
+    ? FmtFit.path(row.value, reserve)
+    : FmtFit.value(row.value, reserve, { color: c.gray });
+  return `${treeText(prefix)}${label}${DETAIL_GAP}${value}`;
+}
+
+function treeText(value: string): string {
+  return c.dim(c.gray(value));
+}
+
+function displayRoot(root: string): string {
+  const trimmed = Fs.trimCwd(root, { prefix: true });
+  if (!trimmed || trimmed === './') return '.';
+  return trimmed;
+}
+
+function pathish(value: string): boolean {
+  return value.startsWith('.') || value.startsWith('/');
 }

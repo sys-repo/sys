@@ -1,11 +1,12 @@
-import { c, Cli, Fs, Is, Str, stripAnsi, type t } from '../common.ts';
+import { c, Cli, Fs, Is, Str, type t } from '../common.ts';
+import { FmtFields } from './u.fields.ts';
 import { FmtFit } from './u.fit.ts';
 
 export const FmtInfo = {
   cell(report: t.CellCli.Info.Report): string {
     const sections = infoSections(report);
-    const labelWidth = maxLabelWidth(sections.flatMap((section) => section.blocks).flatMap(
-      (block) => block.rows,
+    const labelWidth = FmtFields.labelWidth(sections.flatMap((section) => section.blocks).flatMap(
+      (block) => block.rows.map(([label]) => label),
     ));
     const text = sections.map((section) => renderSection(section, labelWidth)).join('\n\n');
     return `\n${Str.trimEdgeNewlines(text)}\n`;
@@ -92,11 +93,11 @@ function noneBlock(): InfoBlock {
 
 function renderSection(section: InfoSection, labelWidth: number): string {
   const blocks = section.blocks.map((block) => renderBlock(block, labelWidth)).join('\n\n');
-  return [sectionTitle(section.title), blocks].filter(Boolean).join('\n');
+  return [FmtFields.title(section.title), blocks].filter(Boolean).join('\n');
 }
 
 function renderBlock(block: InfoBlock, labelWidth: number): string {
-  const title = block.title ? `${indent(1)}${c.white(block.title)}` : '';
+  const title = block.title ? `${FmtFields.indent(1)}${c.white(block.title)}` : '';
   const rows = renderRows(block.rows, labelWidth, block.title ? 2 : 1);
   return [title, rows].filter(Boolean).join('\n');
 }
@@ -105,12 +106,12 @@ function renderRows(rows: readonly InfoRow[], labelWidth: number, level: 1 | 2):
   if (rows.length === 0) return '';
 
   return rows.map(([label, value, kind]) => {
-    const rowIndent = indent(level);
+    const rowIndent = FmtFields.indent(level);
     if (!label) return `${rowIndent}${formatValue(value, kind, rowIndent.length)}`;
 
     const gap = '   ';
-    const paddedLabel = labelText(padLabel(label, labelWidth));
-    const reserve = rowIndent.length + stripAnsi(paddedLabel).length + gap.length;
+    const paddedLabel = FmtFields.label(label, labelWidth);
+    const reserve = rowIndent.length + labelWidth + gap.length;
     return `${rowIndent}${paddedLabel}${gap}${formatValue(value, kind, reserve)}`;
   }).join('\n');
 }
@@ -157,27 +158,6 @@ function displayRoot(root: string): string {
   const trimmed = Fs.trimCwd(root, { prefix: true });
   if (!trimmed || trimmed === './') return '.';
   return trimmed;
-}
-
-function sectionTitle(title: string): string {
-  return c.green(title);
-}
-
-function labelText(label: string): string {
-  return c.dim(c.gray(label));
-}
-
-function indent(level: 1 | 2): string {
-  return '  '.repeat(level);
-}
-
-function maxLabelWidth(rows: readonly InfoRow[]): number {
-  return rows.reduce((max, [label]) => Math.max(max, stripAnsi(label).length), 0);
-}
-
-function padLabel(label: string, width: number): string {
-  const pad = Math.max(0, width - stripAnsi(label).length);
-  return `${label}${' '.repeat(pad)}`;
 }
 
 function isCompositeTask(task: t.Cell.Task.Descriptor): task is t.Cell.Task.Composite {
