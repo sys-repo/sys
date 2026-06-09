@@ -1,8 +1,10 @@
-import { Is, type t } from '../common.ts';
+import { Is, Str, type t } from '../common.ts';
 
-export const toFileNamespace: t.Pkg.Lib['toFileNamespace'] = (pkg) => {
+export const toFileNamespace: t.Pkg.Lib['toFileNamespace'] = (pkg, options = {}) => {
   const name = normalizePkgName(Is.str(pkg?.name) ? pkg.name : '');
-  return name.replaceAll('/', '.') as t.StringName;
+  const subpath = normalizeSubpath(options.subpath);
+  const path = subpath ? `${name}/${subpath}` : name;
+  return path.replaceAll('/', '.') as t.StringName;
 };
 
 /**
@@ -10,24 +12,29 @@ export const toFileNamespace: t.Pkg.Lib['toFileNamespace'] = (pkg) => {
  */
 function normalizePkgName(name: string): string {
   const trimmed = name.trim();
-  if (!trimmed) throw new Error('Pkg name is required.');
-  if (trimmed.includes('<') || trimmed.includes('>')) {
-    throw new Error(`Invalid pkg name: "${trimmed}".`);
-  }
-  if (/\s/.test(trimmed)) {
-    throw new Error(`Invalid pkg name (whitespace): "${trimmed}".`);
-  }
-  const collapsed = collapseSlashes(trimmed);
-  if (!/^[A-Za-z0-9@./-]+$/.test(collapsed)) {
-    throw new Error(`Invalid pkg name (characters): "${trimmed}".`);
-  }
-  return collapsed;
+  validateNamespacePath(trimmed, 'Pkg name');
+  return normalizeSlashPath(trimmed);
 }
 
-function collapseSlashes(name: string): string {
-  let current = name;
-  while (current.includes('//')) {
-    current = current.replaceAll('//', '/');
+function normalizeSubpath(path?: t.StringPath): string {
+  if (!Is.str(path)) return '';
+
+  const trimmed = Str.trimSlashes(path.trim());
+  if (!trimmed) return '';
+
+  validateNamespacePath(trimmed, 'Pkg subpath');
+  return normalizeSlashPath(trimmed);
+}
+
+function validateNamespacePath(path: string, label: string) {
+  if (!path) throw new Error(`${label} is required.`);
+  if (path.includes('<') || path.includes('>')) throw new Error(`Invalid ${label}: "${path}".`);
+  if (/\s/.test(path)) throw new Error(`Invalid ${label} (whitespace): "${path}".`);
+  if (!/^[A-Za-z0-9@./-]+$/.test(path)) {
+    throw new Error(`Invalid ${label} (characters): "${path}".`);
   }
-  return current;
+}
+
+function normalizeSlashPath(path: string) {
+  return Str.splitPathSegments(path).join('/');
 }

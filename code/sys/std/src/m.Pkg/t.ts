@@ -25,8 +25,8 @@ export namespace Pkg {
     /** Convert a {pkg} into a display string. */
     toString(input?: t.Pkg, suffix?: string, options?: t.PkgToStringOptions | boolean): string;
 
-    /** Convert a package name to a filesystem namespace segment. */
-    toFileNamespace(input: t.Pkg): t.StringName;
+    /** Convert a package name, optionally with subpath, to a filesystem namespace segment. */
+    toFileNamespace(input: t.Pkg, options?: t.PkgToFileNamespaceOptions): t.StringName;
 
     /**
      * Extracts the name/version from the gtiven object if found,
@@ -161,4 +161,10 @@ export namespace Pkg {
 export type PkgToStringOptions = {
   /** Include the version in the display string - @default true */
   version?: boolean;
+};
+
+/** Options passed to the `Pkg.toFileNamespace` method. */
+export type PkgToFileNamespaceOptions = {
+  /** Optional package subpath appended after the package name. */
+  subpath?: t.StringPath;
 };

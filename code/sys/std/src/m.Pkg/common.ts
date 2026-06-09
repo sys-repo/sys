@@ -5,6 +5,7 @@ export { Err } from '../m.Err/mod.ts';
 export { Is } from '../m.Is/mod.ts';
 export { Path } from '../m.Path/mod.ts';
 export { Rx } from '../m.Rx/mod.ts';
+export { Str } from '../m.Str/mod.ts';
 export { isHttpUrl, Url } from '../m.Url/mod.ts';
 
 /**

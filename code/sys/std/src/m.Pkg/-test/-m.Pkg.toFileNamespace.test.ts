@@ -12,6 +12,14 @@ describe('Pkg.toFileNamespace', () => {
     expect(Pkg.toFileNamespace(collapsed)).to.eql('@sys.model.files');
   });
 
+  it('appends an optional subpath', () => {
+    const pkg = Pkg.fromJson({ name: '@sys/foo', version: '1.2.3' });
+
+    expect(Pkg.toFileNamespace(pkg, { subpath: 'my/path' })).to.eql('@sys.foo.my.path');
+    expect(Pkg.toFileNamespace(pkg, { subpath: '/my//path/' })).to.eql('@sys.foo.my.path');
+    expect(Pkg.toFileNamespace(pkg, { subpath: '' })).to.eql('@sys.foo');
+  });
+
   it('rejects unknown or invalid package names', () => {
     const unknown = Pkg.fromJson({ name: '<unknown>', version: '0.0.0' });
     const spaces = Pkg.fromJson({ name: '@sys/foo bar', version: '0.0.0' });
@@ -20,5 +28,12 @@ describe('Pkg.toFileNamespace', () => {
     expect(() => Pkg.toFileNamespace(unknown)).to.throw(Error);
     expect(() => Pkg.toFileNamespace(spaces)).to.throw(Error);
     expect(() => Pkg.toFileNamespace(chars)).to.throw(Error);
+  });
+
+  it('rejects invalid subpaths', () => {
+    const pkg = Pkg.fromJson({ name: '@sys/foo', version: '0.0.0' });
+
+    expect(() => Pkg.toFileNamespace(pkg, { subpath: 'my path' })).to.throw(Error);
+    expect(() => Pkg.toFileNamespace(pkg, { subpath: 'my/path🐷' })).to.throw(Error);
   });
 });
