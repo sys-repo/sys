@@ -8,6 +8,7 @@ summary: |
 usage:
   - deno run -ER   jsr:@sys/cell --help
   - deno run -ER   jsr:@sys/cell dsl [chapter...] [--format human|skill]
+  - deno run -ER   jsr:@sys/cell info [dir]
   - deno run -ERW  jsr:@sys/cell init [dir]
   - deno run -ERW  jsr:@sys/cell migrate [dir]
   - deno run -ERWN jsr:@sys/cell task <name> [dir]
@@ -21,6 +22,8 @@ commands:
     text: >-
       read the Cell editing contract, owner boundaries, mappings,
       and chapter index
+  - name: info
+    text: report descriptor facts without imports, probes, scans, or mutation
   - name: init
     text: initialize a folder as a Cell
   - name: migrate
@@ -30,7 +33,7 @@ commands:
   - name: start
     text: start a Cell's services
   - name: kill
-    text: break-glass cleanup for live Cell start sessions
+    text: break-glass stop for running services
 
 options:
   - name: -h, --help

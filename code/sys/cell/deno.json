@@ -6,7 +6,7 @@
     "test": "deno test -P=test ./src",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check -- ./src/ ./-scripts/*",
-    "cli": "deno run -P=cli ./src/m.cli/mod.ts",
+    "cli": "deno run -P=cli ./-scripts/task.cli.ts",
     "pi": "cd ./-sample && deno run -A @sys/driver-pi Profiles --git-root none --config ./-config/sample.yaml --",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "prep": "deno task tmpl:bundle && deno task help:bundle",
@@ -34,7 +34,23 @@
   ],
   "permissions": {
     "cli": {
-      "env": true
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true,
+      "run": true,
+      "ffi": true,
+      "sys": {
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname",
+          "osRelease",
+          "homedir",
+          "uid",
+          "gid"
+        ]
+      }
     },
     "clean": {
       "read": true,

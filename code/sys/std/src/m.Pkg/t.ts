@@ -2,8 +2,6 @@ import type { Pkg as PkgValue } from '@sys/types';
 import type { t } from './common.ts';
 import type { PkgDistFetchResponse, PkgDistPartInfo } from './t.dist.ts';
 
-type O = Record<string, unknown>;
-
 export type Pkg = PkgValue;
 export type * from './t.dist.ts';
 
@@ -29,10 +27,10 @@ export namespace Pkg {
     toFileNamespace(input: t.Pkg, options?: t.PkgToFileNamespaceOptions): t.StringName;
 
     /**
-     * Extracts the name/version from the gtiven object if found,
+     * Extracts the name/version from the given object if found,
      * otherwise returns standard <Unknown> package.
      */
-    toPkg(input?: O | string): t.Pkg;
+    toPkg(input?: Record<string, unknown> | string): t.Pkg;
 
     /**
      * Convert a JSON import to a simple <Pkg> structure.
@@ -45,7 +43,11 @@ export namespace Pkg {
      * export const pkg: t.Pkg = Pkg.fromJson(deno);
      * ```
      */
-    fromJson(input: O, defaultName?: string, defaultVersion?: t.StringSemver): t.Pkg;
+    fromJson(
+      input: Record<string, unknown>,
+      defaultName?: string,
+      defaultVersion?: t.StringSemver,
+    ): t.Pkg;
 
     /**
      * Generate a new { \<unknown\>@0.0.0 } package object.
@@ -109,7 +111,7 @@ export namespace Pkg {
        * Type guards.
        */
       export type Lib = {
-        /** Determine if the given path represents a commoly known /pkg/ path pattern. */
+        /** Determine if the given path represents a commonly known /pkg/ path pattern. */
         codePath(path: t.StringPath): boolean;
       };
     }

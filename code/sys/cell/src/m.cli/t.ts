@@ -49,6 +49,7 @@ export declare namespace CellCli {
   /** Result from a Cell CLI run. */
   export type Result =
     | Help
+    | Info.Result
     | Init.Result
     | Migrate.Result
     | Task.Result
@@ -65,6 +66,49 @@ export declare namespace CellCli {
     /** Rendered help output. */
     readonly text: string;
   };
+
+  /**
+   * Types for the `info` command.
+   */
+  export namespace Info {
+    /** Read-only Cell declaration report result. */
+    export type Result = {
+      /** Result discriminant. */
+      readonly kind: 'info';
+      /** Raw input passed to the CLI entrypoint. */
+      readonly input: Input;
+      /** Rendered info output. */
+      readonly text: string;
+      /** Loaded Cell root. */
+      readonly root: string;
+      /** Descriptor path displayed relative to the Cell root. */
+      readonly descriptor: string;
+      /** Descriptor schema version. */
+      readonly version: t.Cell.Descriptor['version'];
+      /** Count of declared services. */
+      readonly services: number;
+      /** Count of declared tasks. */
+      readonly tasks: number;
+      /** Cell descriptor facts rendered by the info command. */
+      readonly report: Report;
+    };
+
+    /** Cell descriptor facts rendered by the info command. */
+    export type Report = {
+      /** Loaded Cell root. */
+      readonly root: string;
+      /** Descriptor path displayed relative to the Cell root. */
+      readonly descriptor: string;
+      /** Descriptor path loaded by Cell. */
+      readonly descriptorPath: string;
+      /** Descriptor schema version. */
+      readonly version: t.Cell.Descriptor['version'];
+      /** Services declared by the Cell descriptor. */
+      readonly services: readonly t.Cell.Services.Service[];
+      /** Tasks declared by the Cell descriptor. */
+      readonly tasks: readonly t.Cell.Task.Descriptor[];
+    };
+  }
 
   /**
    * Types for the `init` command.

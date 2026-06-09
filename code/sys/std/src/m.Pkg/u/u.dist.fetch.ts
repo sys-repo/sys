@@ -17,6 +17,9 @@ export const fetchDist: t.Pkg.Dist.Lib['fetch'] = async (opts = {}) => {
   return toResponse(fetched, url, dist, errors);
 };
 
+/**
+ * Helpers:
+ */
 type ErrorBag = ReturnType<typeof Err.errors>;
 
 async function readDist(
@@ -78,9 +81,6 @@ function toDistValue(dist?: t.DistPkg): t.DistPkg | undefined {
   };
 }
 
-/**
- * Helpers:
- */
 const wrangle = {
   options(input: Parameters<t.Pkg.Dist.Lib['fetch']>[0]): t.PkgDistFetchOptions {
     if (!input) return {};

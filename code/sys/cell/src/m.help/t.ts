@@ -8,6 +8,7 @@ export declare namespace CellHelp {
   /** Library surface for bundled Cell help resources. */
   export type Lib = {
     readonly Root: Root.Lib;
+    readonly Info: Info.Lib;
     readonly Init: Init.Lib;
     readonly Migrate: Migrate.Lib;
     readonly Task: Task.Lib;
@@ -38,6 +39,25 @@ export declare namespace CellHelp {
       readonly usage: readonly string[];
       readonly commands: readonly Pair[];
       readonly options: readonly Pair[];
+    };
+  }
+
+  /**
+   * Info command help resources.
+   */
+  export namespace Info {
+    /** Loader for authored info help. */
+    export type Lib = {
+      /** Load authored info help from the embedded bundle. */
+      load(): Promise<Guidance>;
+    };
+
+    /** Authored info help used by CLI composition. */
+    export type Guidance = {
+      readonly summary: string;
+      readonly usage: readonly string[];
+      readonly options: readonly Pair[];
+      readonly reads: readonly string[];
     };
   }
 

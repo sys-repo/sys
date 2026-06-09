@@ -1,0 +1,159 @@
+import { describe, expect, Fs, it, Str, Testing } from '../../-test.ts';
+import { Cli, stripAnsi, type t } from '../common.ts';
+import { CellCli } from '../mod.ts';
+import { Fmt } from '../u.fmt/u.mod.ts';
+import { silent, taskEvents } from './u.fixture.ts';
+
+describe(`@sys/cell/cli info`, () => {
+  it('info → reports a minimal Cell without probing or mutation', async () => {
+    const fs = await Testing.dir('CellCli.info.minimal');
+    await Fs.write(Fs.join(fs.dir, '-config/@sys.cell/cell.yaml'), 'kind: cell\nversion: 1\n');
+    await Fs.write(Fs.join(fs.dir, 'data/source.txt'), 'source material\n');
+
+    const before = await Fs.exists(Fs.join(fs.dir, 'view'));
+    const res = await silent(() => CellCli.run({ argv: ['info', fs.dir] }));
+    const text = stripAnsi(res.text);
+
+    expect(res.kind).to.eql('info');
+    if (res.kind !== 'info') throw new Error('expected info result');
+    expect(res.root).to.eql(fs.dir);
+    expect(res.descriptor).to.eql('-config/@sys.cell/cell.yaml');
+    expect(res.version).to.eql(1);
+    expect(text).to.contain('Cell');
+    expect(text).to.contain('descriptor');
+    expect(text).to.contain('-config/@sys.cell/cell.yaml');
+    expect(text).to.contain('version');
+    expect(text).to.contain('1');
+    expect(text).to.contain('Services');
+    expect(text).to.contain('none');
+    expect(text).to.contain('Tasks');
+    expect(text).to.contain('none');
+    expect(await Fs.exists(Fs.join(fs.dir, 'view'))).to.eql(before);
+  });
+
+  it('info → renders declared services and tasks without importing endpoints', async () => {
+    const fs = await Testing.dir('CellCli.info.declared');
+    await Fs.write(
+      Fs.join(fs.dir, '-config/@sys.cell/cell.yaml'),
+      Str.dedent(`
+        kind: cell
+        version: 1
+
+        services:
+          - name: view
+            use: Serve
+            from: '@sys/tools/serve'
+            config: ./-config/@sys.tools.serve/view.yaml
+            variants:
+              dev:
+                use: Vite
+                from: ./missing-service.ts
+                config: ./-config/@sys.tools.serve/view.dev.yaml
+
+        tasks:
+          - name: sample:deploy:prep
+            use: PrepTask
+            from: ./missing-prep.ts
+          - name: sample:publish
+            use: PublishTask
+            from: ./missing-publish.ts
+          - name: sample:deploy
+            steps:
+              - task: sample:deploy:prep
+              - task: sample:publish
+      `).trimStart(),
+    );
+
+    const res = await silent(() => CellCli.run({ argv: ['info', fs.dir] }));
+    const text = stripAnsi(res.text);
+
+    expect(res.kind).to.eql('info');
+    if (res.kind !== 'info') throw new Error('expected info result');
+    expect(res.services).to.eql(1);
+    expect(res.tasks).to.eql(3);
+    expect(text).to.contain('view');
+    expect(text).to.contain('use');
+    expect(text).to.contain('Serve');
+    expect(text).to.contain('from');
+    expect(text).to.contain('@sys/tools/serve');
+    expect(text).to.contain('config');
+    expect(text).to.contain('-config/@sys.tools.serve/view.yaml');
+    expect(text).to.contain('modes');
+    expect(text).to.contain('dev');
+    expect(text).to.contain('sample:deploy:prep');
+    expect(text).to.contain('PrepTask');
+    expect(text).to.contain('./missing-prep.ts');
+    expect(text).to.contain('sample:deploy');
+    expect(text).to.contain('steps');
+    expect(text).to.contain('sample:deploy:prep → sample:publish');
+    expect(taskEvents()).to.eql([]);
+  });
+
+  it('formatter → uses one shared label column across sections', () => {
+    const text = stripAnsi(Fmt.Info.cell({
+      root: '.',
+      descriptor: '-config/@sys.cell/cell.yaml',
+      descriptorPath: '-config/@sys.cell/cell.yaml',
+      version: 1,
+      services: [{
+        name: 'view' as t.Cell.Id,
+        use: 'Serve',
+        from: 'jsr:@sys/tools/serve',
+        config: './-config/@sys.tools.serve/view.yaml' as t.Cell.Path,
+      }],
+      tasks: [{ name: 'sample:deploy', steps: [{ task: 'sample:publish' as t.Cell.Id }] }],
+    }));
+
+    const descriptorColumn = valueColumn(text, 'descriptor');
+    expect(valueColumn(text, 'root')).to.eql(descriptorColumn);
+    expect(valueColumn(text, 'version')).to.eql(descriptorColumn);
+    expect(valueColumn(text, '  use')).to.eql(descriptorColumn);
+    expect(valueColumn(text, '  from')).to.eql(descriptorColumn);
+    expect(valueColumn(text, '  config')).to.eql(descriptorColumn);
+    expect(valueColumn(text, '  steps')).to.eql(descriptorColumn);
+  });
+
+  it('formatter → fits path values with the canonical TTY path formatter', () => {
+    const restore = stubCliTerminal(42);
+    try {
+      const rendered = Fmt.Info.cell({
+        root: '/Users/phil/code/org.sys/sys/code/sys.ui/ui-components/dist',
+        descriptor: '-config/@sys.cell/cell.yaml',
+        descriptorPath: '-config/@sys.cell/cell.yaml',
+        version: 1,
+        services: [],
+        tasks: [],
+      });
+      const text = stripAnsi(rendered);
+      const rootLine = text.split('\n').find((line) => line.trimStart().startsWith('root')) ?? '';
+
+      expect(rootLine.includes('…')).to.eql(true);
+      expect(rootLine.length <= 42).to.eql(true);
+      expect(rendered).to.contain('…');
+    } finally {
+      restore();
+    }
+  });
+});
+
+function valueColumn(text: string, label: string): number {
+  const line = text.split('\n').find((line) => line.startsWith(label));
+  expect(line, label).to.not.eql(undefined);
+  const after = line?.slice(label.length) ?? '';
+  const offset = after.search(/\S/);
+  expect(offset, label).to.be.greaterThan(-1);
+  return label.length + offset;
+}
+
+function stubCliTerminal(width: number): () => void {
+  const screen = Cli.Screen as { size: () => { width: number; height: number } };
+  const is = Cli.Is as { terminal: (stream?: t.StdioName) => boolean };
+  const prevSize = screen.size;
+  const prevTerminal = is.terminal;
+  screen.size = () => ({ width, height: 24 });
+  is.terminal = () => true;
+  return () => {
+    screen.size = prevSize;
+    is.terminal = prevTerminal;
+  };
+}

@@ -3,6 +3,7 @@ import { parseArgs } from '../u/u.args.ts';
 import { FmtHelp } from '../u.help/u.mod.ts';
 import type { RunContext } from './u.context.ts';
 import { runDsl } from './u.dsl.ts';
+import { runInfo } from './u.info.ts';
 import { runInit } from './u.init.ts';
 import { runMigrate } from './u.migrate.ts';
 import { fail, print } from './u.output.ts';
@@ -51,6 +52,7 @@ export const run: t.CellCli.Lib['run'] = async (input = {}) => {
 
   if (!command) return fail({ argv }, 'Missing command.', help);
 
+  if (command === 'info') return runInfo(ctx);
   if (command === 'init') return runInit(ctx);
   if (command === 'migrate') return runMigrate(ctx);
   if (command === 'dsl') return runDsl(ctx);

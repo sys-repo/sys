@@ -75,6 +75,7 @@ tasks, services, or routes, then read the matching DSL chapter.
 
 Usage      deno run -ER   jsr:@sys/cell --help
            deno run -ER   jsr:@sys/cell dsl [chapter...] [--format human|skill]
+           deno run -ER   jsr:@sys/cell info [dir]
            deno run -ERW  jsr:@sys/cell init [dir]
            deno run -ERW  jsr:@sys/cell migrate [dir]
            deno run -ERWN jsr:@sys/cell task <name> [dir]
@@ -84,11 +85,12 @@ Usage      deno run -ER   jsr:@sys/cell --help
            deno run -ERW --allow-run jsr:@sys/cell kill [dir] --mode <mode>
 
 Commands   dsl       read the Cell editing contract, owner boundaries, mappings, and chapter index
+           info      report descriptor facts without imports, probes, scans, or mutation
            init      initialize a folder as a Cell
            migrate   move a legacy descriptor to the canonical `-config/@sys.cell/cell.yaml` path
            task      run a named trusted task from tasks[]
            start     start a Cell's services
-           kill      break-glass cleanup for live Cell start sessions
+           kill      break-glass stop for running services
 
 Options    -h, --help   show help
 ```
@@ -181,6 +183,7 @@ Use `dsl` as the agent-facing [speech-act](https://en.wikipedia.org/wiki/Speech_
 deno run -ER   jsr:@sys/cell --help
 deno run -ERW  jsr:@sys/cell init --help
 deno run -ER   jsr:@sys/cell dsl
+deno run -ER   jsr:@sys/cell info .
 
 deno run -ERWN jsr:@sys/cell task <task-name> .
 deno run -ERWN jsr:@sys/cell start

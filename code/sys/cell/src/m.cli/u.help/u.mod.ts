@@ -1,4 +1,5 @@
 import { FmtDslHelp } from './u.dsl.ts';
+import { FmtInfoHelp } from './u.info.ts';
 import { FmtInitHelp } from './u.init.ts';
 import { FmtKillHelp } from './u.kill.ts';
 import { FmtMigrateHelp } from './u.migrate.ts';
@@ -9,6 +10,7 @@ import { FmtTaskHelp } from './u.task.ts';
 export const FmtHelp = {
   input: FmtRootHelp.input,
   output: FmtRootHelp.output,
+  infoOutput: FmtInfoHelp.output,
   initOutput: FmtInitHelp.output,
   migrateOutput: FmtMigrateHelp.output,
   taskOutput: FmtTaskHelp.output,

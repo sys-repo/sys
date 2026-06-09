@@ -7,6 +7,7 @@ import { Tmpl } from '../u/u.tmpl.ts';
 describe('FmtHelp', () => {
   it('uses conceptual @sys/cell command titles', async () => {
     expect(stripAnsi(await FmtHelp.output())).to.contain('@sys/cell');
+    expect(stripAnsi(await FmtHelp.infoOutput())).to.contain('@sys/cell info');
     expect(stripAnsi(await FmtHelp.initOutput())).to.contain('@sys/cell init');
     expect(stripAnsi(await FmtHelp.migrateOutput())).to.contain('@sys/cell migrate');
     expect(stripAnsi(await FmtHelp.taskOutput())).to.contain('@sys/cell task');

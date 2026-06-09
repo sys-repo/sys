@@ -4,6 +4,7 @@ import { expectCliError } from './u.fixture.ts';
 describe(`@sys/cell/cli args`, () => {
   it('--format is scoped to dsl only', async () => {
     await expectCliError(['--format', 'skill'], 'Unexpected option without command: --format');
+    await expectCliError(['info', '--format', 'skill'], 'Unexpected option for info: --format');
     await expectCliError(['init', '--format', 'skill'], 'Unexpected option for init: --format');
     await expectCliError(
       ['migrate', '--format', 'skill'],
@@ -22,6 +23,7 @@ describe(`@sys/cell/cli args`, () => {
 
   it('--plan is scoped to task only', async () => {
     await expectCliError(['--plan'], 'Unexpected option without command: --plan');
+    await expectCliError(['info', '--plan'], 'Unexpected option for info: --plan');
     await expectCliError(['init', '--plan'], 'Unexpected option for init: --plan');
     await expectCliError(['migrate', '--plan'], 'Unexpected option for migrate: --plan');
     await expectCliError(['dsl', '--plan'], 'Unexpected option for dsl: --plan');
@@ -31,6 +33,7 @@ describe(`@sys/cell/cli args`, () => {
 
   it('--mode is scoped to start and kill only', async () => {
     await expectCliError(['--mode', 'dev'], 'Unexpected option without command: --mode');
+    await expectCliError(['info', '--mode', 'dev'], 'Unexpected option for info: --mode');
     await expectCliError(['init', '--mode', 'dev'], 'Unexpected option for init: --mode');
     await expectCliError(['migrate', '--mode', 'dev'], 'Unexpected option for migrate: --mode');
     await expectCliError(['dsl', '--mode', 'dev'], 'Unexpected option for dsl: --mode');
@@ -40,6 +43,12 @@ describe(`@sys/cell/cli args`, () => {
     );
   });
 
+  it('info → rejects invalid invocation shapes', async () => {
+    await expectCliError(['info', '--agent'], 'Unexpected option for info: --agent');
+    await expectCliError(['info', '--dry-run'], 'Unexpected option for info: --dry-run');
+    await expectCliError(['info', '.', 'extra'], 'Unexpected argument: extra');
+  });
+
   it('migrate → rejects invalid invocation shapes', async () => {
     await expectCliError(['migrate', '--agent'], 'Unexpected option for migrate: --agent');
     await expectCliError(['migrate', '.', 'extra'], 'Unexpected argument: extra');
@@ -47,6 +56,7 @@ describe(`@sys/cell/cli args`, () => {
 
   it('--force is scoped to kill only', async () => {
     await expectCliError(['--force'], 'Unexpected option without command: --force');
+    await expectCliError(['info', '--force'], 'Unexpected option for info: --force');
     await expectCliError(['init', '--force'], 'Unexpected option for init: --force');
     await expectCliError(['migrate', '--force'], 'Unexpected option for migrate: --force');
     await expectCliError(['dsl', '--force'], 'Unexpected option for dsl: --force');

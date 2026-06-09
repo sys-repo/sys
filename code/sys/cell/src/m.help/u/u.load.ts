@@ -27,6 +27,18 @@ export const RootHelp: t.CellHelp.Root.Lib = {
   },
 };
 
+export const InfoHelp: t.CellHelp.Info.Lib = {
+  load() {
+    const data = Resource.readRecord(HelpResource.Info, ['summary', 'usage', 'options', 'reads']);
+    return Promise.resolve({
+      summary: HelpYaml.string(data, 'summary'),
+      usage: HelpYaml.list(data, 'usage'),
+      options: HelpYaml.pairs(data, 'options'),
+      reads: HelpYaml.list(data, 'reads'),
+    });
+  },
+};
+
 export const InitHelp: t.CellHelp.Init.Lib = {
   load() {
     const data = Resource.readRecord(HelpResource.Init, [

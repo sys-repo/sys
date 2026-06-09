@@ -16,6 +16,7 @@ export function resolveChapterResource(
 
 export const HelpResource = {
   Root: 'yaml/root.yaml',
+  Info: 'yaml/info.yaml',
   Init: 'yaml/init.yaml',
   Migrate: 'yaml/migrate.yaml',
   Task: 'yaml/task.yaml',
@@ -35,6 +36,7 @@ export const HelpResource = {
     get Files(): readonly t.StringPath[] {
       return [
         HelpResource.Root,
+        HelpResource.Info,
         HelpResource.Init,
         HelpResource.Migrate,
         HelpResource.Task,
