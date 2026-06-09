@@ -21,25 +21,18 @@ export const ProfilesFs = {
       # Launcher profile. Docs: https://jsr.io/@sys/driver-pi
       #
 
-      prompt:
-        system: null  # default: use DEFAULT_SYSTEM_PROMPT
-
       sandbox:
         capability:
-          read: []   # extra readable paths
-          write: []  # extra writable paths
-          env: {}    # extra environment variables
+          read: []
+          write: []
+          env: {}
         context:
-          append: []  # extra files loaded after ./AGENTS.md and ./SYSTEM.md
+          append: [] # extra files loaded after ./AGENTS.md and ./SYSTEM.md
 
       tools:
-        remove:
-          enabled: true   # filesystem cleanup tool is available by default
-          recursive: true # normal directory-tree cleanup through the protected remove tool
-        move:
-          enabled: true   # filesystem move/rename tool is available by default
-        copy:
-          enabled: true   # filesystem copy/import tool is available by default
+        remove: { enabled: true, recursive: true }
+        move: { enabled: true }
+        copy: { enabled: true }
 
       `,
     ).trimStart();

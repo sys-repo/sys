@@ -8,7 +8,6 @@ const Type = Schema.Type;
 export const ProfileSchema = {
   initial(): t.PiCliProfiles.Yaml.Profile {
     return {
-      prompt: { system: null },
       sandbox: {
         capability: { read: [], write: [], env: {} },
         context: { append: [] },

@@ -21,27 +21,28 @@ describe(`@sys/driver-pi/cli/Profiles/u.fs`, () => {
     expect(text).not.to.contain('# pi profile: default');
     expect(text).not.to.contain('# Typed Pi launcher policy.');
 
-    for (
-      const expected of [
-        'prompt:',
-        'system: null  # default: use DEFAULT_SYSTEM_PROMPT',
-        'sandbox:',
-        'read: []',
-        'write: []',
-        'env: {}',
-        'context:',
-        'append: []',
-        'extra files loaded after ./AGENTS.md and ./SYSTEM.md',
-        'tools:',
-        'remove:',
-        'move:',
-        'copy:',
-        'enabled: true',
-        'recursive: true',
-      ]
-    ) {
-      expect(text).to.contain(expected);
-    }
+    expect(text).not.to.contain('prompt:');
+    expect(text).not.to.contain('# null → managed default; string → replacement prompt.');
+    expect(text).not.to.contain('DEFAULT_SYSTEM_PROMPT');
+    expect(text).to.contain(Str.dedent(
+      `
+      sandbox:
+        capability:
+          read: []
+          write: []
+          env: {}
+        context:
+          append: [] # extra files loaded after ./AGENTS.md and ./SYSTEM.md
+      `,
+    ));
+    expect(text).to.contain(Str.dedent(
+      `
+      tools:
+        remove: { enabled: true, recursive: true }
+        move: { enabled: true }
+        copy: { enabled: true }
+      `,
+    ));
 
     const { dir, path } = await writeTempYaml(text);
     try {

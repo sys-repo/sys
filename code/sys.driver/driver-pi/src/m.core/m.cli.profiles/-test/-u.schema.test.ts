@@ -6,7 +6,6 @@ import { validateProfileYamlText } from '../u.validate.ts';
 describe(`@sys/driver-pi/cli/Profiles/u.schema`, () => {
   it('initial → returns the minimal profile config', () => {
     expect(ProfileSchema.initial()).to.eql({
-      prompt: { system: null },
       sandbox: {
         capability: { read: [], write: [], env: {} },
         context: { append: [] },
