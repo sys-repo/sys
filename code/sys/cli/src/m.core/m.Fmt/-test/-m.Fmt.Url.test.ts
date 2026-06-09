@@ -2,6 +2,32 @@ import { c, describe, expect, it, stripAnsi, type t } from '../../../-test.ts';
 import { Fmt } from '../mod.ts';
 
 describe('Cli.Fmt.Url', () => {
+  it('exposes pure display parts for service URLs', () => {
+    const part = Fmt.Url.parts(serviceUrl('http://127.0.0.1:8081/payments/?a=b#top'));
+
+    expect(part).to.eql({
+      ok: true,
+      href: 'http://127.0.0.1:8081/payments/?a=b#top',
+      origin: 'http://localhost:8081',
+      suffix: '/payments/?a=b#top',
+      display: 'http://localhost:8081/payments/?a=b#top',
+      port: '8081',
+    });
+  });
+
+  it('exposes service URL parts with first-origin highlighting state', () => {
+    const res = Fmt.Url.serviceParts([
+      serviceUrl('http://127.0.0.1:5050/files'),
+      serviceUrl('http://localhost:5050/files/manifest'),
+    ]);
+
+    expect(res.map((part) => ({ display: part.display, highlightOrigin: part.highlightOrigin })))
+      .to.eql([
+        { display: 'http://localhost:5050/files', highlightOrigin: true },
+        { display: 'http://localhost:5050/files/manifest', highlightOrigin: false },
+      ]);
+  });
+
   it('formats service URLs', () => {
     expect(
       stripAnsi(Fmt.Url.service(serviceUrl('http://localhost:8081/'), { highlightOrigin: true })),

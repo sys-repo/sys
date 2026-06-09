@@ -81,7 +81,7 @@ describe(`@sys/cell/cli service status formatter`, () => {
           metrics: { start: { startedAt: now, resolvedAt: now } },
           owner: {
             state: 'ready',
-            root: '/Users/phil/code/org.sys/sys/code/sys.ui/ui-components/dist' as t.StringDir,
+            root: '/Users/phil/code/org.sys/sys/code/sys.ui/ui-components/dist',
           },
         }],
       }));
@@ -92,6 +92,101 @@ describe(`@sys/cell/cli service status formatter`, () => {
       expect(rootLine.length <= 48).to.eql(true);
       expect(rootLine).to.contain('/Users');
       expect(rootLine).to.contain('/dist');
+    } finally {
+      restore();
+    }
+  });
+
+  it('collapses long service-board values instead of terminal-wrapping', () => {
+    const restore = stubCliTerminal(42);
+    try {
+      const now = Time.now.timestamp;
+      const rendered = Fmt.Services.started({
+        services: [{
+          service: {
+            name: 'very-long-static-view-service-name' as t.Cell.Id,
+            use: 'StaticService',
+            from: 'jsr:@sys/http/server/static/surfaces/that/should/not/wrap',
+            config: './-config/view.yaml' as t.Cell.Path,
+          },
+          selection: {
+            name: 'very-long-static-view-service-name' as t.Cell.Id,
+            mode: 'default',
+            descriptor: {
+              name: 'very-long-static-view-service-name' as t.Cell.Id,
+              use: 'StaticService',
+              from: 'jsr:@sys/http/server/static/surfaces/that/should/not/wrap',
+              config: './-config/view.yaml' as t.Cell.Path,
+            },
+            binding: {
+              use: 'StaticService',
+              from: 'jsr:@sys/http/server/static/surfaces/that/should/not/wrap',
+              config: './-config/view.yaml' as t.Cell.Path,
+            },
+          },
+          paths: { config: '/tmp/view.yaml' as t.StringPath },
+          metrics: { start: { startedAt: now, resolvedAt: now } },
+          owner: {
+            state: 'ready',
+            root: '/Users/phil/code/org.sys/sys/code/sys/cell/-sample/cell.stripe/view',
+            urls: [{
+              href: 'http://127.0.0.1:8080/payments/customer/session/that/should/not/wrap',
+            }],
+          },
+        }],
+      });
+      const text = stripAnsi(rendered);
+      const lines = text.split('\n').filter(Boolean);
+
+      expect(rendered).to.contain(c.cyan('…'));
+      expect(text).to.contain('service');
+      expect(text).to.contain('module');
+      expect(text).to.contain('url');
+      expect(text).to.not.contain('very-long-static-view-service-name');
+      for (const line of lines) expect(line.length <= 42).to.eql(true);
+    } finally {
+      restore();
+    }
+  });
+
+  it('keeps the board safe on tiny terminals', () => {
+    const restore = stubCliTerminal(8);
+    try {
+      const now = Time.now.timestamp;
+      const text = stripAnsi(Fmt.Services.started({
+        services: [{
+          service: {
+            name: 'tiny-service-name' as t.Cell.Id,
+            use: 'Serve',
+            from: 'jsr:@sys/tools/serve',
+            config: './-config/view.yaml' as t.Cell.Path,
+          },
+          selection: {
+            name: 'tiny-service-name' as t.Cell.Id,
+            mode: 'default',
+            descriptor: {
+              name: 'tiny-service-name' as t.Cell.Id,
+              use: 'Serve',
+              from: 'jsr:@sys/tools/serve',
+              config: './-config/view.yaml' as t.Cell.Path,
+            },
+            binding: {
+              use: 'Serve',
+              from: 'jsr:@sys/tools/serve',
+              config: './-config/view.yaml' as t.Cell.Path,
+            },
+          },
+          paths: { config: '/tmp/view.yaml' as t.StringPath },
+          metrics: { start: { startedAt: now, resolvedAt: now } },
+          owner: {
+            state: 'ready',
+            root: '/Users/phil/code/org.sys/sys/code/sys/cell/-sample/cell.stripe/view',
+            urls: [{ href: 'http://127.0.0.1:8080/payments/' }],
+          },
+        }],
+      }));
+
+      for (const line of text.split('\n').filter(Boolean)) expect(line.length <= 8).to.eql(true);
     } finally {
       restore();
     }
@@ -131,9 +226,9 @@ describe(`@sys/cell/cli service status formatter`, () => {
           state: 'ready',
           root: cwd,
           urls: [
-            { href: 'ws://127.0.0.1:5175/files' as t.StringUrl, label: 'files:websocket' },
+            { href: 'ws://127.0.0.1:5175/files', label: 'files:websocket' },
             {
-              href: 'http://127.0.0.1:5175/files/manifest' as t.StringUrl,
+              href: 'http://127.0.0.1:5175/files/manifest',
               label: 'files:manifest',
             },
           ],

@@ -2,41 +2,74 @@ import { c, type t, Url } from '../common.ts';
 
 /** CLI formatting helpers for service URLs. */
 export const UrlFmt: t.CliFormat.Lib['Url'] = {
+  parts(url) {
+    return parts(url);
+  },
+
+  serviceParts(urls) {
+    const origins = new Set<string>();
+    return urls.map((url, index) => {
+      const part = parts(url);
+      const origin = part.ok ? part.origin : undefined;
+      const highlightOrigin = origin ? !origins.has(origin) : index === 0;
+      if (origin) origins.add(origin);
+      return { ...part, highlightOrigin };
+    });
+  },
+
   service(url, options = {}) {
-    return format(url, options.highlightOrigin === true);
+    return formatParts(toParts(url), options.highlightOrigin === true);
   },
 
   serviceList(urls) {
-    const origins = new Set<string>();
-    return urls.map((url, index) => {
-      const origin = originKey(url);
-      const highlightOrigin = origin ? !origins.has(origin) : index === 0;
-      if (origin) origins.add(origin);
-      return UrlFmt.service(url, { highlightOrigin });
-    });
+    return UrlFmt.serviceParts(urls).map((part) => UrlFmt.service(part, {
+      highlightOrigin: part.highlightOrigin,
+    }));
   },
 };
 
 /**
  * Helpers:
  */
-function format(url: t.Service.Url, highlightOrigin: boolean): string {
+function parts(url: t.Service.Url): t.CliFormat.Url.Parts {
   const parsed = Url.parse(url.href);
-  if (!parsed.ok) return (highlightOrigin ? c.cyan : c.gray)(url.href);
+  if (!parsed.ok) {
+    return {
+      ok: false,
+      href: url.href,
+      origin: url.href,
+      suffix: '',
+      display: url.href,
+    };
+  }
 
   const value = parsed.toURL();
-  const origin = highlightOrigin ? highlightOriginText(value) : c.gray(displayOrigin(value));
-  return `${origin}${c.gray(formatSuffix(value))}`;
+  const origin = displayOrigin(value);
+  const suffix = formatSuffix(value);
+  return {
+    ok: true,
+    href: url.href,
+    origin,
+    suffix,
+    display: `${origin}${suffix}`,
+    ...(value.port ? { port: value.port } : {}),
+  };
 }
 
-function originKey(url: t.Service.Url): string | undefined {
-  const parsed = Url.parse(url.href);
-  return parsed.ok ? displayOrigin(parsed.toURL()) : undefined;
+function toParts(url: t.Service.Url | t.CliFormat.Url.Parts): t.CliFormat.Url.Parts {
+  return 'display' in url ? url : parts(url);
 }
 
-function highlightOriginText(url: URL): string {
-  if (!url.port) return c.cyan(displayOrigin(url));
-  return `${c.cyan(`${url.protocol}//${displayHostname(url)}:`)}${c.bold(c.cyan(url.port))}`;
+function formatParts(part: t.CliFormat.Url.Parts, highlightOrigin: boolean): string {
+  const origin = highlightOrigin ? highlightOriginText(part) : c.gray(part.origin);
+  return `${origin}${c.gray(part.suffix)}`;
+}
+
+function highlightOriginText(part: t.CliFormat.Url.Parts): string {
+  if (!part.port) return c.cyan(part.origin);
+
+  const prefix = part.origin.slice(0, -part.port.length);
+  return `${c.cyan(prefix)}${c.bold(c.cyan(part.port))}`;
 }
 
 function formatSuffix(url: URL): string {

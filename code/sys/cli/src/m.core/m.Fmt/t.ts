@@ -50,8 +50,10 @@ export declare namespace CliFormat {
 
     /** Service URL formatting and presentation ordering helpers. */
     readonly Url: {
+      parts(url: t.Service.Url): Url.Parts;
+      serviceParts(urls: readonly t.Service.Url[]): readonly Url.ServicePart[];
       service(
-        url: t.Service.Url,
+        url: t.Service.Url | Url.Parts,
         options?: { readonly highlightOrigin?: boolean },
       ): string;
       serviceList(urls: readonly t.Service.Url[]): readonly string[];
@@ -92,6 +94,21 @@ export declare namespace CliFormat {
       readonly reserve?: number;
       /** Minimum path width before shortening. Defaults to 32. */
       readonly min?: number;
+    };
+  }
+
+  export namespace Url {
+    export type Parts = {
+      readonly ok: boolean;
+      readonly href: string;
+      readonly origin: string;
+      readonly suffix: string;
+      readonly display: string;
+      readonly port?: string;
+    };
+
+    export type ServicePart = Parts & {
+      readonly highlightOrigin: boolean;
     };
   }
 

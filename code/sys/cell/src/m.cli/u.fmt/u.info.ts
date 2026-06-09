@@ -1,4 +1,5 @@
 import { c, Cli, Fs, Is, Str, stripAnsi, type t } from '../common.ts';
+import { FmtFit } from './u.fit.ts';
 
 export const FmtInfo = {
   cell(report: t.CellCli.Info.Report): string {
@@ -117,37 +118,17 @@ function renderRows(rows: readonly InfoRow[], labelWidth: number, level: 1 | 2):
 function formatValue(value: string, kind: InfoRow[2], reserve: number): string {
   if (kind === 'path') return pathValue(value, reserve);
   if (kind === 'path-bare') return pathValue(value, reserve, 'bare');
-  if (kind === 'subtle') return c.gray(fitValue(value, reserve));
-  if (kind === 'highlight') return c.cyan(fitValue(value, reserve));
+  if (kind === 'subtle') return FmtFit.value(value, reserve, { color: c.gray });
+  if (kind === 'highlight') return FmtFit.value(value, reserve, { color: c.cyan });
   if (kind === 'steps') return stepValue(value, reserve);
   if (kind === 'none') return c.gray(c.italic(value));
-  return c.white(fitValue(value, reserve));
-}
-
-function fitValue(value: string, reserve: number): string {
-  const terminal = Cli.Is.terminal('stdout');
-  if (!terminal) return value;
-
-  return fitText(value, valueWidth(reserve, terminal));
-}
-
-function fitText(value: string, width: number): string {
-  return width > 0 ? Str.ellipsize(value, width) : '';
-}
-
-function valueWidth(reserve: number, terminal: boolean): number {
-  return Cli.Fmt.Text.fitWidth({
-    reserve,
-    terminal,
-    width: Cli.Screen.size().width,
-    minWidth: 1,
-  });
+  return FmtFit.value(value, reserve, { color: c.white });
 }
 
 function stepValue(value: string, reserve: number): string {
   const steps = value.split(' → ');
   const terminal = Cli.Is.terminal('stdout');
-  const width = valueWidth(reserve, terminal);
+  const width = FmtFit.valueWidth(reserve, { terminal });
   const fitsOneLine = !terminal || width === 0 || value.length <= width;
 
   if (fitsOneLine) return inlineSteps(value);
@@ -161,7 +142,7 @@ function stepValue(value: string, reserve: number): string {
 }
 
 function stepName(value: string, width: number): string {
-  return fitText(value, width).split('…').map((part) => c.white(part)).join(c.cyan('…'));
+  return FmtFit.text(value, width, { color: c.white });
 }
 
 function inlineSteps(value: string): string {
@@ -169,14 +150,7 @@ function inlineSteps(value: string): string {
 }
 
 function pathValue(path: string, reserve: number, relative: 'bare' | 'prefixed' = 'prefixed') {
-  return Cli.Fmt.Path.tty(path, {
-    reserve,
-    relative,
-    terminal: Cli.Is.terminal('stdout'),
-    width: Cli.Screen.size().width,
-    min: 1,
-    highlightBasename: false,
-  });
+  return FmtFit.path(path, reserve, { relative });
 }
 
 function displayRoot(root: string): string {
