@@ -18,7 +18,7 @@ export const JSR_BODY_TEMPLATE = `- name: publish module → "__NAME__"
       exit 1
     fi
     pkg_meta_url="https://jsr.io/\${pkg_name}/\${pkg_version}_meta.json"
-    publish_timeout="8m"
+    publish_timeout="90s"
     publish_confirm_timeout=180
     publish_confirm_interval=10
 

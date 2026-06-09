@@ -27,7 +27,7 @@ describe('WorkspaceCi.Jsr', () => {
     expect(yaml).to.include('pkg_name="$(deno eval');
     expect(yaml).to.include('Generated JSR workflow package version is stale');
     expect(yaml).to.include('pkg_meta_url="https://jsr.io/${pkg_name}/${pkg_version}_meta.json"');
-    expect(yaml).to.include('publish_timeout="8m"');
+    expect(yaml).to.include('publish_timeout="90s"');
     expect(yaml).to.include('publish_confirm_timeout=180');
     expect(yaml).to.include('wait_for_jsr_version()');
     expect(yaml).to.include('if jsr_version_exists; then');
