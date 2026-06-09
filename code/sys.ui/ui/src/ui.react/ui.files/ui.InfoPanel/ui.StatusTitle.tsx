@@ -14,6 +14,7 @@ export const StatusTitle: React.FC<P> = (props) => {
   const status = props.status;
   if (!status) return null;
 
+  const showLabel = status !== 'error';
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({ display: 'flex', alignItems: 'center', gap: 6 }),
@@ -22,7 +23,7 @@ export const StatusTitle: React.FC<P> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <span className={styles.label.class}>{status}</span>
+      {showLabel && <span className={styles.label.class}>{status}</span>}
       <Bullet
         theme={theme.name}
         size={7}

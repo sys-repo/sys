@@ -1,4 +1,5 @@
-import { D, Err, Is, type t } from './common.ts';
+import { D, Is, type t } from './common.ts';
+import { ErrorMessage } from './ui.ErrorMessage.tsx';
 import { StatusTitle } from './ui.StatusTitle.tsx';
 import { formatCapabilities } from './u.items.Capabilities.tsx';
 
@@ -23,7 +24,7 @@ export function toItems(input: Input): t.KeyValue.Item[] {
       items.push({ k: 'capabilities', v: formatCapabilities(snapshot.capabilities), mono: true });
     }
     if (field === 'error' && !Is.nil(snapshot?.error)) {
-      items.push({ k: 'error', v: Err.summary(snapshot.error), mono: true });
+      items.push({ k: 'error', v: <ErrorMessage value={snapshot.error} theme={input.theme} />, mono: true });
     }
   });
 
