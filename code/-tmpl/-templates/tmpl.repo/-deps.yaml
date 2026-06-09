@@ -13,7 +13,7 @@ deno.json:
     subpaths: [ client, t ]
   - import: jsr:@sys/process@0.0.295
     subpaths: [ t ]
-  - import: jsr:@sys/std@0.0.360
+  - import: jsr:@sys/std@0.0.361
     subpaths:
       [
         args,
