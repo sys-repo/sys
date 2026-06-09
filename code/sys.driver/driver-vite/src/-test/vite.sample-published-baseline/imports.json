@@ -1,5 +1,5 @@
 {
   "imports": {
-    "@sys/http/client": "jsr:@sys/http@0.0.299/client"
+    "@sys/http/client": "jsr:@sys/http@0.0.300/client"
   }
 }
