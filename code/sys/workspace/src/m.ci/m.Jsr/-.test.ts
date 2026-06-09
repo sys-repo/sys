@@ -21,10 +21,23 @@ describe('WorkspaceCi.Jsr', () => {
     expect(yaml.includes('deno task test --trace-leaks')).to.eql(false);
     expect(yaml).to.include('uses: actions/checkout@v5\n      - name: Verify clean checkout');
     expect(yaml).to.include('- name: Verify clean dependency install');
+    expect(yaml).to.include('timeout-minutes: 240');
+    expect(yaml).to.include('expected_pkg_name="@scope/alpha"');
+    expect(yaml).to.include('expected_pkg_version="1.0.0"');
+    expect(yaml).to.include('pkg_name="$(deno eval');
+    expect(yaml).to.include('Generated JSR workflow package version is stale');
+    expect(yaml).to.include('pkg_meta_url="https://jsr.io/${pkg_name}/${pkg_version}_meta.json"');
+    expect(yaml).to.include('publish_timeout="8m"');
+    expect(yaml).to.include('publish_confirm_timeout=180');
+    expect(yaml).to.include('wait_for_jsr_version()');
+    expect(yaml).to.include('if jsr_version_exists; then');
+    expect(yaml).to.include('timeout --foreground --kill-after=30s "$publish_timeout" deno publish');
+    expect(yaml).to.include('if wait_for_jsr_version; then');
+    expect(yaml).to.include('publish completed on JSR despite local exit code');
     expect(yaml).to.include('test -z "$(git status --porcelain)"');
     expect(yaml.includes('lfs: true')).to.eql(false);
     expect(yaml.includes('git lfs pull')).to.eql(false);
-    expect(yaml.includes('if deno publish; then')).to.eql(true);
+    expect(yaml.includes('if deno publish; then')).to.eql(false);
     expect(yaml.includes('deno publish --allow-dirty')).to.eql(false);
     expect(yaml.includes('max_attempts=3')).to.eql(true);
     expect(yaml.includes('if deno task install; then')).to.eql(true);
@@ -73,6 +86,21 @@ describe('WorkspaceCi.Jsr', () => {
     await expectError(
       async () => await WorkspaceCi.Jsr.text({ paths: [moduleDir] }),
       'Unsafe workflow package path',
+    );
+  });
+
+  it('fails closed before rendering unsafe package versions into publish workflow YAML', async () => {
+    const fs = await Testing.dir('WorkspaceCi.Jsr.safe.version');
+    const moduleDir = fs.join('code/sys/alpha');
+
+    await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), {
+      name: '@scope/alpha',
+      version: '1.0.0;echo',
+    });
+
+    await expectError(
+      async () => await WorkspaceCi.Jsr.text({ paths: [moduleDir] }),
+      'Unsafe workflow package version',
     );
   });
 

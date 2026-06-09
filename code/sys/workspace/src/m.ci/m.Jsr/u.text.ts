@@ -2,7 +2,7 @@ import type { t } from '../common.ts';
 import { workflowTemplate, wrangle } from '../u/u.workflow.ts';
 import { filterModules } from './u.filter.ts';
 import { toModuleYaml } from './u.ts';
-import { JSR_MODULES_PLACEHOLDER } from './u.tmpl.ts';
+import { JSR_JOB_CONFIG_TEMPLATE, JSR_MODULES_PLACEHOLDER } from './u.tmpl.ts';
 
 const JSR_MAIN_GUARD_STEP = `
 - name: Validate main-only publish commit
@@ -30,6 +30,7 @@ export async function text(args: t.WorkspaceCi.Jsr.TextArgs) {
     },
     on: args.on,
     env: args.env,
+    jobConfig: JSR_JOB_CONFIG_TEMPLATE,
     verifyCleanCheckout: true,
     body: JSR_MODULES_PLACEHOLDER,
   }).replace(JSR_MODULES_PLACEHOLDER, body);

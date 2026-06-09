@@ -38,8 +38,12 @@ export async function loadModule(cwd: t.StringDir, path: t.StringPath): Promise<
   } as const;
 }
 
-export function toModuleYaml(module: Pick<Module, 'path' | 'name'>) {
+export function toModuleYaml(module: Pick<Module, 'path' | 'name' | 'version'>) {
   const name = WorkflowSafe.scalar(module.name, 'package name');
   const path = WorkflowSafe.scalar(module.path, 'package path');
-  return JSR_BODY_TEMPLATE.replace(/NAME/g, name).replace(/PATH/g, path);
+  const version = WorkflowSafe.scalar(module.version, 'package version');
+  return JSR_BODY_TEMPLATE
+    .replaceAll('__NAME__', name)
+    .replaceAll('__PATH__', path)
+    .replaceAll('__VERSION__', version);
 }
