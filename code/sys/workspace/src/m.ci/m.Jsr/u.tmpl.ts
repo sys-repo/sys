@@ -57,7 +57,12 @@ export const JSR_BODY_TEMPLATE = `- name: publish module → "__NAME__"
           exit 0
         fi
         if timeout --foreground --kill-after=30s "$publish_timeout" deno publish; then
-          exit 0
+          if wait_for_jsr_version; then
+            echo "publish confirmed on JSR: \${pkg_name}@\${pkg_version}"
+            exit 0
+          fi
+          echo "::error::publish succeeded but JSR version metadata did not become visible: \${pkg_name}@\${pkg_version}"
+          exit 1
         else
           status=$?
         fi

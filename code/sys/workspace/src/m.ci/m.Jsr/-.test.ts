@@ -33,6 +33,8 @@ describe('WorkspaceCi.Jsr', () => {
     expect(yaml).to.include('if jsr_version_exists; then');
     expect(yaml).to.include('timeout --foreground --kill-after=30s "$publish_timeout" deno publish');
     expect(yaml).to.include('if wait_for_jsr_version; then');
+    expect(yaml).to.include('publish confirmed on JSR');
+    expect(yaml).to.include('publish succeeded but JSR version metadata did not become visible');
     expect(yaml).to.include('publish completed on JSR despite local exit code');
     expect(yaml).to.include('test -z "$(git status --porcelain)"');
     expect(yaml.includes('lfs: true')).to.eql(false);
