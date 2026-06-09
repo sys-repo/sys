@@ -1,5 +1,5 @@
 import { describe, expect, Fs, it, Str, Testing } from '../../-test.ts';
-import { Cli, stripAnsi, type t } from '../common.ts';
+import { c, Cli, stripAnsi, type t } from '../common.ts';
 import { CellCli } from '../mod.ts';
 import { Fmt } from '../u.fmt/u.mod.ts';
 import { silent, taskEvents } from './u.fixture.ts';
@@ -107,10 +107,12 @@ describe(`@sys/cell/cli info`, () => {
     const descriptorColumn = valueColumn(text, 'descriptor');
     expect(valueColumn(text, 'root')).to.eql(descriptorColumn);
     expect(valueColumn(text, 'version')).to.eql(descriptorColumn);
-    expect(valueColumn(text, '  use')).to.eql(descriptorColumn);
-    expect(valueColumn(text, '  from')).to.eql(descriptorColumn);
-    expect(valueColumn(text, '  config')).to.eql(descriptorColumn);
-    expect(valueColumn(text, '  steps')).to.eql(descriptorColumn);
+
+    const itemColumn = descriptorColumn + 2;
+    expect(valueColumn(text, 'use')).to.eql(itemColumn);
+    expect(valueColumn(text, 'from')).to.eql(itemColumn);
+    expect(valueColumn(text, 'config')).to.eql(itemColumn);
+    expect(valueColumn(text, 'steps')).to.eql(itemColumn);
   });
 
   it('formatter → fits path values with the canonical TTY path formatter', () => {
@@ -134,15 +136,74 @@ describe(`@sys/cell/cli info`, () => {
       restore();
     }
   });
+
+  it('formatter → highlights inline task arrows in TTY output', () => {
+    const restore = stubCliTerminal(80);
+    try {
+      const rendered = Fmt.Info.cell({
+        root: '.',
+        descriptor: '-config/@sys.cell/cell.yaml',
+        descriptorPath: '-config/@sys.cell/cell.yaml',
+        version: 1,
+        services: [],
+        tasks: [{
+          name: 'sample:deploy',
+          steps: [
+            { task: 'pull:view' as t.Cell.Id },
+            { task: 'deploy:prep' as t.Cell.Id },
+          ],
+        }],
+      });
+
+      expect(rendered).to.contain(c.cyan('→'));
+      expect(stripAnsi(rendered)).to.contain('pull:view → deploy:prep');
+    } finally {
+      restore();
+    }
+  });
+
+  it('formatter → breaks overflowing task steps into a value-aligned chain', () => {
+    const restore = stubCliTerminal(34);
+    try {
+      const rendered = Fmt.Info.cell({
+        root: '.',
+        descriptor: '-config/@sys.cell/cell.yaml',
+        descriptorPath: '-config/@sys.cell/cell.yaml',
+        version: 1,
+        services: [],
+        tasks: [{
+          name: 'sample:deploy',
+          steps: [
+            { task: 'sample:deploy:prep' as t.Cell.Id },
+            { task: 'sample:publish:assets' as t.Cell.Id },
+            { task: 'sample:publish:cdn' as t.Cell.Id },
+          ],
+        }],
+      });
+      const text = stripAnsi(rendered);
+      const stepsLine = text.split('\n').find((line) => line.trimStart().startsWith('steps')) ?? '';
+      const continuation = text.split('\n').find((line) => line.trimStart().startsWith('→')) ?? '';
+
+      expect(rendered).to.contain(c.cyan('→'));
+      expect(rendered).to.contain(c.cyan('…'));
+      expect(stepsLine).to.contain('…');
+      expect(continuation).to.contain('→');
+      expect(stepsLine.length <= 34).to.eql(true);
+      expect(continuation.length <= 34).to.eql(true);
+    } finally {
+      restore();
+    }
+  });
 });
 
 function valueColumn(text: string, label: string): number {
-  const line = text.split('\n').find((line) => line.startsWith(label));
+  const line = text.split('\n').find((line) => line.trimStart().startsWith(label));
   expect(line, label).to.not.eql(undefined);
-  const after = line?.slice(label.length) ?? '';
+  const start = line?.indexOf(label) ?? 0;
+  const after = line?.slice(start + label.length) ?? '';
   const offset = after.search(/\S/);
   expect(offset, label).to.be.greaterThan(-1);
-  return label.length + offset;
+  return start + label.length + offset;
 }
 
 function stubCliTerminal(width: number): () => void {

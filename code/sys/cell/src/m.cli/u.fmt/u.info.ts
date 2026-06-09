@@ -1,9 +1,11 @@
-import { Cli, CliTable, Fs, Is, Str, stripAnsi, type t } from '../common.ts';
+import { c, Cli, Fs, Is, Str, stripAnsi, type t } from '../common.ts';
 
 export const FmtInfo = {
   cell(report: t.CellCli.Info.Report): string {
     const sections = infoSections(report);
-    const labelWidth = maxLabelWidth(sections.flatMap((section) => section.rows));
+    const labelWidth = maxLabelWidth(sections.flatMap((section) => section.blocks).flatMap(
+      (block) => block.rows,
+    ));
     const text = sections.map((section) => renderSection(section, labelWidth)).join('\n\n');
     return `\n${Str.trimEdgeNewlines(text)}\n`;
   },
@@ -12,18 +14,24 @@ export const FmtInfo = {
 /**
  * Helpers:
  */
-type InfoRow = readonly [label: string, value: string, kind?: 'path' | 'path-bare'];
+type InfoRowKind = 'path' | 'path-bare' | 'subtle' | 'highlight' | 'steps' | 'none';
+type InfoRow = readonly [label: string, value: string, kind?: InfoRowKind];
 
-type InfoSection = {
+type InfoBlock = {
   readonly title?: string;
   readonly rows: readonly InfoRow[];
 };
 
+type InfoSection = {
+  readonly title: string;
+  readonly blocks: readonly InfoBlock[];
+};
+
 function infoSections(report: t.CellCli.Info.Report): readonly InfoSection[] {
   return [
-    { title: 'Cell', rows: cellRows(report) },
-    ...serviceSections(report.services),
-    ...taskSections(report.tasks),
+    { title: 'Cell', blocks: [{ rows: cellRows(report) }] },
+    serviceSection(report.services),
+    taskSection(report.tasks),
   ];
 }
 
@@ -35,32 +43,30 @@ function cellRows(report: t.CellCli.Info.Report): readonly InfoRow[] {
   ];
 }
 
-function serviceSections(services: readonly t.Cell.Services.Service[]): readonly InfoSection[] {
-  if (services.length === 0) return [{ rows: [['Services', 'none']] }];
-
-  return [{ title: 'Services', rows: [] }, ...services.map(serviceSection)];
+function serviceSection(services: readonly t.Cell.Services.Service[]): InfoSection {
+  if (services.length === 0) return { title: 'Services', blocks: [noneBlock()] };
+  return { title: 'Services', blocks: services.map(serviceBlock) };
 }
 
-function serviceSection(service: t.Cell.Services.Service): InfoSection {
+function serviceBlock(service: t.Cell.Services.Service): InfoBlock {
   const modes = Object.keys(service.variants ?? {});
   return {
     title: service.name,
     rows: [
-      ['  use', service.use],
-      ['  from', service.from],
-      ['  config', service.config, 'path-bare'],
-      ...(modes.length > 0 ? [['  modes', modes.join(', ')] as const] : []),
+      ['use', service.use],
+      ['from', service.from, 'subtle'],
+      ['config', service.config, 'path-bare'],
+      ...(modes.length > 0 ? [['modes', modes.join(', '), 'highlight'] as const] : []),
     ],
   };
 }
 
-function taskSections(tasks: readonly t.Cell.Task.Descriptor[]): readonly InfoSection[] {
-  if (tasks.length === 0) return [{ rows: [['Tasks', 'none']] }];
-
-  return [{ title: 'Tasks', rows: [] }, ...tasks.map(taskSection)];
+function taskSection(tasks: readonly t.Cell.Task.Descriptor[]): InfoSection {
+  if (tasks.length === 0) return { title: 'Tasks', blocks: [noneBlock()] };
+  return { title: 'Tasks', blocks: tasks.map(taskBlock) };
 }
 
-function taskSection(task: t.Cell.Task.Descriptor): InfoSection {
+function taskBlock(task: t.Cell.Task.Descriptor): InfoBlock {
   return {
     title: task.name,
     rows: isCompositeTask(task) ? compositeTaskRows(task) : leafTaskRows(task),
@@ -69,36 +75,97 @@ function taskSection(task: t.Cell.Task.Descriptor): InfoSection {
 
 function leafTaskRows(task: t.Cell.Task.Leaf): readonly InfoRow[] {
   return [
-    ['  use', task.use],
-    ['  from', task.from],
-    ...(task.config ? [['  config', task.config, 'path-bare'] as const] : []),
+    ['use', task.use],
+    ['from', task.from, 'subtle'],
+    ...(task.config ? [['config', task.config, 'path-bare'] as const] : []),
   ];
 }
 
 function compositeTaskRows(task: t.Cell.Task.Composite): readonly InfoRow[] {
-  return [['  steps', task.steps.map((step) => step.task).join(' → ')]];
+  return [['steps', task.steps.map((step) => step.task).join(' → '), 'steps']];
+}
+
+function noneBlock(): InfoBlock {
+  return { rows: [['', 'none', 'none']] };
 }
 
 function renderSection(section: InfoSection, labelWidth: number): string {
-  const parts = [section.title, renderRows(section.rows, labelWidth)].filter(Boolean);
-  return parts.join('\n\n');
+  const blocks = section.blocks.map((block) => renderBlock(block, labelWidth)).join('\n\n');
+  return [sectionTitle(section.title), blocks].filter(Boolean).join('\n');
 }
 
-function renderRows(rows: readonly InfoRow[], labelWidth: number): string {
+function renderBlock(block: InfoBlock, labelWidth: number): string {
+  const title = block.title ? `${indent(1)}${c.white(block.title)}` : '';
+  const rows = renderRows(block.rows, labelWidth, block.title ? 2 : 1);
+  return [title, rows].filter(Boolean).join('\n');
+}
+
+function renderRows(rows: readonly InfoRow[], labelWidth: number, level: 1 | 2): string {
   if (rows.length === 0) return '';
 
-  const reserve = labelWidth + CliTable.cellGap;
-  const table = CliTable.create([]);
-  rows.forEach(([label, value, kind]) => {
-    table.push([padLabel(label, labelWidth), formatValue(value, kind, reserve)]);
-  });
-  return Str.trimEdgeNewlines(String(table));
+  return rows.map(([label, value, kind]) => {
+    const rowIndent = indent(level);
+    if (!label) return `${rowIndent}${formatValue(value, kind, rowIndent.length)}`;
+
+    const gap = '   ';
+    const paddedLabel = labelText(padLabel(label, labelWidth));
+    const reserve = rowIndent.length + stripAnsi(paddedLabel).length + gap.length;
+    return `${rowIndent}${paddedLabel}${gap}${formatValue(value, kind, reserve)}`;
+  }).join('\n');
 }
 
 function formatValue(value: string, kind: InfoRow[2], reserve: number): string {
   if (kind === 'path') return pathValue(value, reserve);
   if (kind === 'path-bare') return pathValue(value, reserve, 'bare');
-  return value;
+  if (kind === 'subtle') return c.gray(fitValue(value, reserve));
+  if (kind === 'highlight') return c.cyan(fitValue(value, reserve));
+  if (kind === 'steps') return stepValue(value, reserve);
+  if (kind === 'none') return c.gray(c.italic(value));
+  return c.white(fitValue(value, reserve));
+}
+
+function fitValue(value: string, reserve: number): string {
+  const terminal = Cli.Is.terminal('stdout');
+  if (!terminal) return value;
+
+  return fitText(value, valueWidth(reserve, terminal));
+}
+
+function fitText(value: string, width: number): string {
+  return width > 0 ? Str.ellipsize(value, width) : '';
+}
+
+function valueWidth(reserve: number, terminal: boolean): number {
+  return Cli.Fmt.Text.fitWidth({
+    reserve,
+    terminal,
+    width: Cli.Screen.size().width,
+    minWidth: 1,
+  });
+}
+
+function stepValue(value: string, reserve: number): string {
+  const steps = value.split(' → ');
+  const terminal = Cli.Is.terminal('stdout');
+  const width = valueWidth(reserve, terminal);
+  const fitsOneLine = !terminal || width === 0 || value.length <= width;
+
+  if (fitsOneLine) return inlineSteps(value);
+
+  const [first = '', ...rest] = steps;
+  const continuation = ' '.repeat(reserve);
+  return [
+    stepName(first, width),
+    ...rest.map((step) => `${continuation}${c.cyan('→')} ${stepName(step, width - 2)}`),
+  ].join('\n');
+}
+
+function stepName(value: string, width: number): string {
+  return fitText(value, width).split('…').map((part) => c.white(part)).join(c.cyan('…'));
+}
+
+function inlineSteps(value: string): string {
+  return value.split('→').map((part) => c.white(part)).join(c.cyan('→'));
 }
 
 function pathValue(path: string, reserve: number, relative: 'bare' | 'prefixed' = 'prefixed') {
@@ -116,6 +183,18 @@ function displayRoot(root: string): string {
   const trimmed = Fs.trimCwd(root, { prefix: true });
   if (!trimmed || trimmed === './') return '.';
   return trimmed;
+}
+
+function sectionTitle(title: string): string {
+  return c.green(title);
+}
+
+function labelText(label: string): string {
+  return c.dim(c.gray(label));
+}
+
+function indent(level: 1 | 2): string {
+  return '  '.repeat(level);
 }
 
 function maxLabelWidth(rows: readonly InfoRow[]): number {
