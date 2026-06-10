@@ -6,6 +6,7 @@ export const DenoLoaderResolverFixture = {
     const dir = fs.absolute;
     const rootConfig = Fs.join(dir, 'deno.json');
     const app = Fs.join(dir, 'app.ts');
+    const importMap = Fs.join(dir, 'imports.json');
     const pkgRoot = Fs.join(dir, 'pkg');
     const pkgConfig = Fs.join(pkgRoot, 'deno.json');
     const src = Fs.join(pkgRoot, 'src');
@@ -16,6 +17,9 @@ export const DenoLoaderResolverFixture = {
 
     await Fs.writeJson(rootConfig, {
       workspace: ['./pkg'],
+      importMap: 'imports.json',
+    });
+    await Fs.writeJson(importMap, {
       imports: {
         'alias/': './alias/',
         react: 'npm:react@19.2.7',
@@ -52,6 +56,9 @@ export const DenoLoaderResolverFixture = {
     return {
       dir,
       configPath: rootConfig,
+      importMapPath: importMap,
+      pkgDir: pkgRoot,
+      pkgConfigPath: pkgConfig,
       appUrl: Path.toFileUrl(app).href,
       featureUrl: Path.toFileUrl(feature).href,
       childUrl: Path.toFileUrl(child).href,

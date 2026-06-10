@@ -201,6 +201,23 @@ describe('Config.Build', () => {
       expect(config.oxc).to.eql(oxc);
     });
 
+    it('resolves default workspace authority from app cwd', async () => {
+      const fs = await fixture.aliasWorld('ViteConfig.app.workspace.cwd.', {});
+      try {
+        const paths = ViteConfig.paths({ cwd: fs.appDir });
+        const config = await ViteConfig.app({
+          paths,
+          plugins: { optimizeImports: false },
+        });
+        const aliases = (config.resolve?.alias ?? []) as t.ViteAlias[];
+        const lib = aliases.find((item) => item.find === '@tmp/lib/mod');
+
+        expect(lib?.replacement).to.eql(Path.join(fs.root, 'code', 'lib', 'src', 'mod.ts'));
+      } finally {
+        await Fs.remove(fs.root);
+      }
+    });
+
     it('adds a package-level alias for react-inspector to the dominant workspace authority', async () => {
       const fs = await fixture.aliasWorld('ViteConfig.app.alias.direct.', { direct: true });
       try {

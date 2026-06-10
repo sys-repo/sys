@@ -18,7 +18,7 @@ export const app: t.ViteConfig.Lib['app'] = async (options = {}) => {
     level: 2,
   });
   const paths = formatPaths(options.paths);
-  const ws = await wrangle.workspace(options);
+  const ws = await wrangle.workspace(paths.cwd, options);
   const denoConfig = await Perf.measure(
     'config.app.denoConfig',
     async () => await wrangle.denoConfig(paths.cwd, ws),
@@ -96,7 +96,11 @@ export const app: t.ViteConfig.Lib['app'] = async (options = {}) => {
    */
   const plugins = await Perf.measure(
     'config.app.commonPlugins',
-    async () => await commonPlugins(options.plugins),
+    async () =>
+      await commonPlugins(options.plugins, {
+        denoConfig,
+        configDiscovery: 'local',
+      }),
     {
       react: options.plugins?.react ?? true,
     },
@@ -186,25 +190,39 @@ export const app: t.ViteConfig.Lib['app'] = async (options = {}) => {
  * Helpers
  */
 const wrangle = {
-  async workspace(options: t.ViteConfig.App.Options) {
+  async workspace(cwd: string, options: t.ViteConfig.App.Options) {
     const { filter } = options;
     if (options.workspace === false) return undefined;
 
-    const denofile = options.workspace === true ? undefined : options.workspace;
-    const ws = await workspace({ denofile, filter });
-    if (!ws.exists) {
-      const errPath = denofile ?? Path.resolve('.');
-      throw new Error(`A workspace could not be found: ${errPath}`);
+    if (Is.str(options.workspace)) {
+      const ws = await workspace({ denofile: options.workspace, filter, walkup: false });
+      if (!ws.exists) throw new Error(`A workspace could not be found: ${options.workspace}`);
+      return ws;
     }
 
-    return ws;
+    const nearest = await DenoFile.nearest(cwd, (e) => Array.isArray(e.file.workspace));
+    if (!nearest) {
+      if (options.workspace === true) {
+        throw new Error(`A workspace could not be found: ${Path.resolve(cwd)}`);
+      }
+      return undefined;
+    }
+
+    const ws = await workspace({ denofile: nearest.path, filter, walkup: false });
+    return ws.exists ? ws : undefined;
   },
 
   async denoConfig(cwd: string, ws?: { file: t.StringPath }) {
     if (ws?.file) return ws.file;
+    return await wrangle.localDenoConfig(cwd);
+  },
 
-    const local = Path.join(cwd, 'deno.json');
-    return (await Fs.exists(local)) ? local : undefined;
+  async localDenoConfig(cwd: string) {
+    const json = Path.join(cwd, 'deno.json');
+    if (await Fs.exists(json)) return json;
+
+    const jsonc = Path.join(cwd, 'deno.jsonc');
+    return (await Fs.exists(jsonc)) ? jsonc : undefined;
   },
 
   async canPrewarmNpm(configPath: string) {

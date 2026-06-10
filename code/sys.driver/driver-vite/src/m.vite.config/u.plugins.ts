@@ -2,14 +2,22 @@ import { Is, type t } from './common.ts';
 import react from '@vitejs/plugin-react';
 import { ViteTransport } from '../m.vite.transport/mod.ts';
 
-export async function commonPlugins(options: t.ViteConfig.CommonPlugins = {}) {
+type CommonPluginsContext = {
+  readonly denoConfig?: t.StringPath;
+  readonly configDiscovery?: t.ViteTransport.DenoPluginConfigDiscovery;
+};
+
+export async function commonPlugins(
+  options: t.ViteConfig.CommonPlugins = {},
+  context: CommonPluginsContext = {},
+) {
   const plugins: t.VitePluginOption[] = [];
 
   /**
    * The official Deno vite-plugin:
    */
   if (options.deno ?? true) {
-    plugins.push(ViteTransport.denoPlugin());
+    plugins.push(ViteTransport.denoPlugin(wrangle.denoPluginOptions(context)));
   }
 
   /**
@@ -36,6 +44,12 @@ export async function commonPlugins(options: t.ViteConfig.CommonPlugins = {}) {
  * Helpers
  */
 const wrangle = {
+  denoPluginOptions(context: CommonPluginsContext): t.ViteTransport.DenoPluginOptions {
+    return context.denoConfig
+      ? { configPath: context.denoConfig }
+      : { configDiscovery: context.configDiscovery ?? 'workspace' };
+  },
+
   async wasmPlugin() {
     const loaded = await import('npm:vite-plugin-wasm@3.6.0');
     const plugin = wrangle.pluginFromModule(loaded);

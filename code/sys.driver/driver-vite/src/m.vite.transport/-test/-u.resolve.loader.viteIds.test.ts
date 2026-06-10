@@ -138,6 +138,65 @@ describe('DenoLoaderResolver Vite virtual ids', () => {
     }
   });
 
+  it('routes direct plugin fallback through nearest workspace when envDir is a workspace child', async () => {
+    const fixture = await DenoLoaderResolverFixture.create(
+      'ViteTransport.loader.viteIds.ws-envDir.',
+    );
+    const cache: t.DenoCache = new Map();
+    const plugin = createResolvePlugin(cache, noDenoInfo);
+    try {
+      const source = 'alias/mod.ts';
+      const viteRoot = Fs.join(fixture.pkgDir, 'src');
+      plugin.configResolved?.call(pluginContext, {
+        root: viteRoot,
+        envDir: fixture.pkgDir,
+        command: 'build',
+      });
+
+      const resolved = await plugin.resolveId?.call(pluginContext, source, fixture.appUrl, {
+        isEntry: false,
+      });
+      const aliasPath = Path.fromFileUrl(fixture.aliasUrl);
+
+      expect(resolved).to.eql(toDenoSpecifier('TypeScript', source, aliasPath));
+    } finally {
+      const closeBundle = plugin.closeBundle;
+      if (Is.func(closeBundle)) await closeBundle.call(pluginContext);
+      await fixture.dispose();
+    }
+  });
+
+  it('uses explicit loader config even when local discovery would miss the workspace', async () => {
+    const fixture = await DenoLoaderResolverFixture.create(
+      'ViteTransport.loader.viteIds.explicit.',
+    );
+    const cache: t.DenoCache = new Map();
+    const plugin = createResolvePlugin(cache, noDenoInfo, {
+      configPath: fixture.configPath,
+      configDiscovery: 'local',
+    });
+    try {
+      const source = 'alias/mod.ts';
+      const viteRoot = Fs.join(fixture.pkgDir, 'src');
+      plugin.configResolved?.call(pluginContext, {
+        root: viteRoot,
+        envDir: fixture.pkgDir,
+        command: 'build',
+      });
+
+      const resolved = await plugin.resolveId?.call(pluginContext, source, fixture.appUrl, {
+        isEntry: false,
+      });
+      const aliasPath = Path.fromFileUrl(fixture.aliasUrl);
+
+      expect(resolved).to.eql(toDenoSpecifier('TypeScript', source, aliasPath));
+    } finally {
+      const closeBundle = plugin.closeBundle;
+      if (Is.func(closeBundle)) await closeBundle.call(pluginContext);
+      await fixture.dispose();
+    }
+  });
+
   it('routes loader-clean relative children from virtual importers without deno info', async () => {
     const fixture = await DenoLoaderResolverFixture.create('ViteTransport.loader.viteIds.child.');
     try {
