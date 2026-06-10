@@ -1,4 +1,4 @@
-import { Fs, Jsr, Pkg, type t } from '../common.ts';
+import { Fs, Jsr, Pkg, type t } from '../../common.ts';
 
 export function jsrPkgName(name: string) {
   return Jsr.Is.pkgName(name);

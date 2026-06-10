@@ -1,5 +1,5 @@
-import { Err, Fs, Is, type t } from '../common.ts';
-import { WorkflowSafe } from '../u/u.safe.ts';
+import { Err, Fs, Is, type t } from '../../common.ts';
+import { WorkflowSafe } from '../../u/u.safe.ts';
 import { JSR_BODY_TEMPLATE } from './u.tmpl.ts';
 
 type O = Record<string, unknown>;

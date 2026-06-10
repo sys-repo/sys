@@ -1,4 +1,4 @@
-import { type t, Fs } from '../common.ts';
+import { type t, Fs } from '../../common.ts';
 import { text } from './u.text.ts';
 
 export async function write(args: t.WorkspaceCi.Jsr.WriteArgs) {

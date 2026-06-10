@@ -1,7 +1,7 @@
 import type { t } from '../common.ts';
 import { Is } from './m.Is.ts';
-import { sync } from './u.sync.ts';
-import { text } from './u.text.ts';
-import { write } from './u.write.ts';
+import { sync } from './u/u.sync.ts';
+import { text } from './u/u.text.ts';
+import { write } from './u/u.write.ts';
 
 export const Jsr: t.WorkspaceCi.Jsr.Lib = { Is, text, write, sync };

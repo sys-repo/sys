@@ -1,6 +1,6 @@
-import { Err, Fs, Str, type t } from '../common.ts';
-import { CI_DENO_VERSION } from '../u/u.deno.ts';
-import { wrangle } from '../u/u.workflow.ts';
+import { Err, Fs, Str, type t } from '../../common.ts';
+import { CI_DENO_VERSION } from '../../u/u.deno.ts';
+import { wrangle } from '../../u/u.workflow.ts';
 import { filterModules } from './u.filter.ts';
 import {
   deriveStrata,

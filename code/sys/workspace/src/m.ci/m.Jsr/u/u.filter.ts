@@ -1,4 +1,4 @@
-import { Err, Is, Jsr, Semver, type t } from '../common.ts';
+import { Err, Is, Jsr, Semver, type t } from '../../common.ts';
 import { loadModule, type Module } from './u.ts';
 
 type VersionFilter = t.WorkspaceCi.Jsr.TextArgs['versionFilter'];
