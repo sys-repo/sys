@@ -29,7 +29,9 @@ export async function text(args: t.WorkspaceCi.Jsr.TextArgs) {
   const graph = await loadGraph(cwd);
   const strata = deriveStrata(modules, graph);
   const jobs = strata
-    .map((stratum, index) => renderPublishJob(stratum, { env: args.env, needs: index > 0 }))
+    .map((stratum, index) =>
+      renderPublishJob(stratum, { env: args.env, needs: index > 0, total: strata.length })
+    )
     .join('\n\n');
   const workflow = [
     'name: jsr',
@@ -71,7 +73,11 @@ async function loadGraph(cwd: t.StringDir) {
 
 function renderPublishJob(
   stratum: ModuleStratum,
-  args: { readonly env?: t.WorkspaceCi.WorkflowEntries; readonly needs: boolean },
+  args: {
+    readonly env?: t.WorkspaceCi.WorkflowEntries;
+    readonly needs: boolean;
+    readonly total: number;
+  },
 ) {
   const envEntries = args.env ? Object.entries(args.env) : [];
   const env = envEntries.length ? ['  env:', wrangle.map(Object.fromEntries(envEntries), 4)] : [];
@@ -81,7 +87,7 @@ function renderPublishJob(
 
   return [
     `publish_${stratum.index}:`,
-    `  name: "publish-${stratum.index}: \${{ matrix.name }}"`,
+    `  name: "pub-${stratum.index + 1}/${args.total}: \${{ matrix.name }}"`,
     '  runs-on: ubuntu-latest',
     ...(args.needs ? [`  needs: publish_${stratum.index - 1}`] : []),
     '  permissions:',

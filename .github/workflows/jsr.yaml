@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   publish_0:
-    name: "publish-0: ${{ matrix.name }}"
+    name: "pub-1/11: ${{ matrix.name }}"
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -154,7 +154,7 @@ jobs:
           echo "::error::Publish failed: deno publish did not complete successfully and JSR registry did not confirm published version after $max_attempts attempts: ${pkg_name}@${pkg_version}"
           exit 1
   publish_1:
-    name: "publish-1: ${{ matrix.name }}"
+    name: "pub-2/11: ${{ matrix.name }}"
     runs-on: ubuntu-latest
     needs: publish_0
     permissions:
@@ -292,7 +292,7 @@ jobs:
           echo "::error::Publish failed: deno publish did not complete successfully and JSR registry did not confirm published version after $max_attempts attempts: ${pkg_name}@${pkg_version}"
           exit 1
   publish_2:
-    name: "publish-2: ${{ matrix.name }}"
+    name: "pub-3/11: ${{ matrix.name }}"
     runs-on: ubuntu-latest
     needs: publish_1
     permissions:
@@ -427,7 +427,7 @@ jobs:
           echo "::error::Publish failed: deno publish did not complete successfully and JSR registry did not confirm published version after $max_attempts attempts: ${pkg_name}@${pkg_version}"
           exit 1
   publish_3:
-    name: "publish-3: ${{ matrix.name }}"
+    name: "pub-4/11: ${{ matrix.name }}"
     runs-on: ubuntu-latest
     needs: publish_2
     permissions:
@@ -559,7 +559,7 @@ jobs:
           echo "::error::Publish failed: deno publish did not complete successfully and JSR registry did not confirm published version after $max_attempts attempts: ${pkg_name}@${pkg_version}"
           exit 1
   publish_4:
-    name: "publish-4: ${{ matrix.name }}"
+    name: "pub-5/11: ${{ matrix.name }}"
     runs-on: ubuntu-latest
     needs: publish_3
     permissions:
@@ -703,7 +703,7 @@ jobs:
           echo "::error::Publish failed: deno publish did not complete successfully and JSR registry did not confirm published version after $max_attempts attempts: ${pkg_name}@${pkg_version}"
           exit 1
   publish_5:
-    name: "publish-5: ${{ matrix.name }}"
+    name: "pub-6/11: ${{ matrix.name }}"
     runs-on: ubuntu-latest
     needs: publish_4
     permissions:
@@ -841,7 +841,7 @@ jobs:
           echo "::error::Publish failed: deno publish did not complete successfully and JSR registry did not confirm published version after $max_attempts attempts: ${pkg_name}@${pkg_version}"
           exit 1
   publish_6:
-    name: "publish-6: ${{ matrix.name }}"
+    name: "pub-7/11: ${{ matrix.name }}"
     runs-on: ubuntu-latest
     needs: publish_5
     permissions:
@@ -982,7 +982,7 @@ jobs:
           echo "::error::Publish failed: deno publish did not complete successfully and JSR registry did not confirm published version after $max_attempts attempts: ${pkg_name}@${pkg_version}"
           exit 1
   publish_7:
-    name: "publish-7: ${{ matrix.name }}"
+    name: "pub-8/11: ${{ matrix.name }}"
     runs-on: ubuntu-latest
     needs: publish_6
     permissions:
@@ -1126,7 +1126,7 @@ jobs:
           echo "::error::Publish failed: deno publish did not complete successfully and JSR registry did not confirm published version after $max_attempts attempts: ${pkg_name}@${pkg_version}"
           exit 1
   publish_8:
-    name: "publish-8: ${{ matrix.name }}"
+    name: "pub-9/11: ${{ matrix.name }}"
     runs-on: ubuntu-latest
     needs: publish_7
     permissions:
@@ -1261,7 +1261,7 @@ jobs:
           echo "::error::Publish failed: deno publish did not complete successfully and JSR registry did not confirm published version after $max_attempts attempts: ${pkg_name}@${pkg_version}"
           exit 1
   publish_9:
-    name: "publish-9: ${{ matrix.name }}"
+    name: "pub-10/11: ${{ matrix.name }}"
     runs-on: ubuntu-latest
     needs: publish_8
     permissions:
@@ -1414,7 +1414,7 @@ jobs:
           echo "::error::Publish failed: deno publish did not complete successfully and JSR registry did not confirm published version after $max_attempts attempts: ${pkg_name}@${pkg_version}"
           exit 1
   publish_10:
-    name: "publish-10: ${{ matrix.name }}"
+    name: "pub-11/11: ${{ matrix.name }}"
     runs-on: ubuntu-latest
     needs: publish_9
     permissions:
