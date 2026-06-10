@@ -83,11 +83,12 @@
     "npm:happy-dom@20.10.2": "20.10.2",
     "npm:hash-it@7.0.2": "7.0.2",
     "npm:hono@4.12.23": "4.12.23",
+    "npm:hono@4.12.25": "4.12.25",
     "npm:ignore@7.0.5": "7.0.5",
     "npm:monaco-editor@0.55.1": "0.55.1",
     "npm:motion@12.40.0": "12.40.0_react@19.2.7_react-dom@19.2.7__react@19.2.7",
     "npm:ora@9.4.0": "9.4.0",
-    "npm:prettier@3.8.3": "3.8.3",
+    "npm:prettier@3.8.4": "3.8.4",
     "npm:pretty-bytes@7.1.0": "7.1.0",
     "npm:prosemirror-example-setup@1.2.3": "1.2.3",
     "npm:prosemirror-model@1.25.7": "1.25.7",
@@ -314,7 +315,7 @@
         "jsr:@sys/process",
         "jsr:@sys/std@^0.0.360",
         "jsr:@sys/yaml",
-        "npm:hono"
+        "npm:hono@4.12.23"
       ]
     },
     "@sys/immutable@0.0.147": {
@@ -2209,6 +2210,9 @@
     "hono@4.12.23": {
       "integrity": "sha512-eIaZ9qDgu7XV0pxOCrg7/WhnQ6Ivm22UcxhXx/A3dcbqbbYgBEkc6e/J/s7j2tS96zoB0S9VBdLwQNCWwUo4LA=="
     },
+    "hono@4.12.25": {
+      "integrity": "sha512-2NFaIyNVgJmBs/ecmtGzlmluTFs5cHEWGTdu0t1HBwYzoGXOL5nUQBRMXsXWla5i4KkG//QMzVP88m1+I3fdAQ=="
+    },
     "hosted-git-info@9.0.3": {
       "integrity": "sha512-Hc+ghLoSt6QaYZUv0WBiIvmMDZuZZ7oaDvdH8MbfOO4lOsxdXLEvuC6ePoGs9H1X9oCLyq6+NVN0MKqD+ydxyg==",
       "dependencies": [
@@ -2719,8 +2723,8 @@
       "integrity": "sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==",
       "bin": true
     },
-    "prettier@3.8.3": {
-      "integrity": "sha512-7igPTM53cGHMW8xWuVTydi2KO233VFiTNyF5hLJqpilHfmn8C8gPf+PS7dUT64YcXFbiMGZxS9pCSxL/Dxm/Jw==",
+    "prettier@3.8.4": {
+      "integrity": "sha512-N2MylSdi48+5N/6S5j+maeHbUSIzzZ5uOcX5Hm4QpV8Dkb1HFjfAKTKX6yNPJQD9AhcT3ifHNB66tWTTJDi11Q==",
       "bin": true
     },
     "pretty-bytes@7.1.0": {
@@ -3569,7 +3573,7 @@
         "npm:@vitejs/plugin-react@6.0.2",
         "npm:monaco-editor@0.55.1",
         "npm:motion@12.40.0",
-        "npm:prettier@3.8.3",
+        "npm:prettier@3.8.4",
         "npm:react-dom@19.2.7",
         "npm:react-icons@5.6.0",
         "npm:react@19.2.7",
