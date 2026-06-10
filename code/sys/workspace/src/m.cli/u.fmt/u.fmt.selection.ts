@@ -1,4 +1,4 @@
-import { c, Cli, type t } from '../common.ts';
+import { c, Cli, Semver, type t } from '../common.ts';
 import { FmtBase } from './u.fmt.base.ts';
 import type {
   BlockedCode,
@@ -30,7 +30,7 @@ export const FmtSelection = {
       .map((candidate) => {
         const decision = decisionByKey.get(FmtBase.key(candidate.entry));
         const state = FmtSelection.selectionState(candidate, decision);
-        if (state === 'current') return undefined;
+        if (state === 'current' || state === 'registry-behind-current') return undefined;
         const name = candidate.entry.module.name;
         const alias = candidate.entry.module.alias;
         const label = FmtSelection.selectionLabel(candidate, decision, layout);
@@ -79,7 +79,12 @@ export const FmtSelection = {
     decision?: t.EsmPolicy.Decision,
   ): SelectionState {
     if (decision?.ok && decision.selection.selected?.version) return 'selected';
-    if (candidate.latest && candidate.latest !== candidate.current) return 'blocked';
+    if (candidate.latest && Semver.Is.greaterThan(candidate.latest, candidate.current)) {
+      return 'blocked';
+    }
+    if (candidate.latest && Semver.Is.greaterThan(candidate.current, candidate.latest)) {
+      return 'registry-behind-current';
+    }
     return 'current';
   },
 
@@ -106,7 +111,12 @@ export const FmtSelection = {
       }${override}`;
     }
     const selected = decision?.ok ? decision.selection.selected?.version : undefined;
-    if (state === 'selected' && selected && candidate.latest && candidate.latest !== selected) {
+    if (
+      state === 'selected' &&
+      selected &&
+      candidate.latest &&
+      Semver.Is.greaterThan(candidate.latest, selected)
+    ) {
       return `${c.gray(c.italic('  newer blocked by policy - '))}${
         c.yellow(candidate.latest)
       }${override}`;
@@ -154,9 +164,11 @@ export const FmtSelection = {
           dependencies: acc.dependencies + 1,
           blocked: acc.blocked + (state === 'blocked' ? 1 : 0),
           current: acc.current + (state === 'current' ? 1 : 0),
+          registryBehindCurrent: acc.registryBehindCurrent +
+            (state === 'registry-behind-current' ? 1 : 0),
         };
       },
-      { dependencies: 0, blocked: 0, current: 0 },
+      { dependencies: 0, blocked: 0, current: 0, registryBehindCurrent: 0 },
     );
   },
 
@@ -183,7 +195,7 @@ export const FmtSelection = {
     for (const candidate of upgrade.collect.candidates) {
       const decision = decisionByKey.get(FmtBase.key(candidate.entry));
       const state = FmtSelection.selectionState(candidate, decision);
-      if (state === 'current') continue;
+      if (state === 'current' || state === 'registry-behind-current') continue;
 
       widths.name = Math.max(widths.name, FmtBase.width(FmtBase.name(candidate.entry)));
       widths.current = Math.max(widths.current, candidate.current.length);

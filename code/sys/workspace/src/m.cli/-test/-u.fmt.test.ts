@@ -155,6 +155,26 @@ describe('Workspace.Cli.Fmt', () => {
     expect(options.map((option) => option.checked)).to.eql([true, false]);
   });
 
+  it('reports registry metadata behind current without rendering a downgrade option', () => {
+    const result = upgradeWithRegistryBehindCurrent();
+    const options = Fmt.selectionOptions(result, {
+      include: [],
+      exclude: [],
+      dryRun: false,
+      deps: 'deps.yaml',
+      mode: 'interactive',
+      policy: 'minor',
+      prerelease: false,
+    });
+    const plan = Cli.stripAnsi(Fmt.plan(result));
+
+    expect(options).to.eql([]);
+    expect(plan).to.include('Registry behind current');
+    expect(plan).to.include('@sys/driver-vite');
+    expect(plan).to.include('0.0.432 > 0.0.427');
+    expect(plan).to.not.include('0.0.432 → 0.0.427');
+  });
+
   it('formats cumulative registry spinner progress with clipped counts and percent', () => {
     const text = Fmt.spinnerProgress({
       kind: 'registry',
@@ -482,6 +502,41 @@ function upgradeWithLongScopedName(): t.WorkspaceUpgrade.Result {
   };
 }
 
+function upgradeWithRegistryBehindCurrent(): t.WorkspaceUpgrade.Result {
+  const result = upgrade();
+  const candidate = {
+    ...result.collect.candidates[0]!,
+    entry: entry('@sys/driver-vite', '0.0.432'),
+    current: '0.0.432' as t.StringSemver,
+    latest: '0.0.427' as t.StringSemver,
+    available: ['0.0.427' as t.StringSemver],
+  };
+  const decision = decisionBlocked('@sys/driver-vite', '0.0.432', ['0.0.427']);
+
+  return {
+    ...result,
+    totals: {
+      dependencies: 1,
+      allowed: 0,
+      blocked: 1,
+      planned: 0,
+    },
+    collect: {
+      ...result.collect,
+      candidates: [candidate],
+      totals: {
+        dependencies: 1,
+        collected: 1,
+        skipped: 0,
+        failed: 0,
+      },
+    },
+    policy: {
+      decisions: [decision],
+    },
+  };
+}
+
 function appliedWithShorthandVersion(): t.WorkspaceUpgrade.ApplyResult {
   const result = upgradeWithShorthandCurrent();
   return {
@@ -558,7 +613,7 @@ function policyInput(
 }
 
 function registry(name: string): t.EsmRegistry {
-  return name.startsWith('@std/') ? 'jsr' : 'npm';
+  return name.startsWith('@std/') || name.startsWith('@sys/') ? 'jsr' : 'npm';
 }
 
 function upgradeWithShorthandCurrent(): t.WorkspaceUpgrade.Result {

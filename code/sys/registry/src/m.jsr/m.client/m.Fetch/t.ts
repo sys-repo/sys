@@ -21,7 +21,7 @@ export declare namespace JsrFetch {
       /**
        * Retrieve the package's latest version and version history.
        */
-      versions(name: string, options?: Options): Promise<VersionsResponse>;
+      versions(name: string, options?: MetadataOptions): Promise<VersionsResponse>;
 
       /**
        * Retrieve meta-data about a specific package version.
@@ -29,7 +29,7 @@ export declare namespace JsrFetch {
       info(
         name: t.StringPkgName,
         version?: t.StringSemver,
-        options?: Options,
+        options?: MetadataOptions,
       ): Promise<InfoResponse>;
 
       /**
@@ -46,6 +46,15 @@ export declare namespace JsrFetch {
     export type Options = {
       /** Cancels the underlying request when the lifecycle ends. */
       until?: t.UntilInput;
+    };
+
+    /** Options for registry metadata fetches. */
+    export type MetadataOptions = Options & {
+      /**
+       * Request fresh registry metadata instead of accepting a cached registry view.
+       * Defaults to fresh for mutable registry/latest lookups and cached for exact version lookups.
+       */
+      fresh?: boolean;
     };
 
     /** Options for the `Jsr.Fetch.<fetch-method>` methods that perform hash checksums on the fetched content. */

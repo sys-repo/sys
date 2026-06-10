@@ -1,4 +1,4 @@
-import { c, Cli, Str, type t } from '../common.ts';
+import { c, Cli, Semver, Str, type t } from '../common.ts';
 import { FmtBase } from './u.fmt.base.ts';
 
 export const FmtDiagnostics = {
@@ -23,6 +23,23 @@ export const FmtDiagnostics = {
       table.push([
         FmtBase.name(item.entry),
         c.yellow(c.italic(FmtDiagnostics.graphReason(item.reason.code))),
+      ]);
+    }
+    return Str.trimEdgeNewlines(String(table));
+  },
+
+  registryBehindCurrent(upgrade: t.WorkspaceUpgrade.Result): string {
+    const rows = upgrade.collect.candidates.filter((candidate) => {
+      return candidate.latest && Semver.Is.greaterThan(candidate.current, candidate.latest);
+    });
+    if (rows.length === 0) return '';
+
+    const table = Cli.table([]);
+    table.push([c.gray('Registry behind current'), c.gray('Registry latest')]);
+    for (const item of rows) {
+      table.push([
+        FmtBase.name(item.entry),
+        `${c.white(item.current)} ${c.gray('>')} ${c.yellow(item.latest ?? '')}`,
       ]);
     }
     return Str.trimEdgeNewlines(String(table));

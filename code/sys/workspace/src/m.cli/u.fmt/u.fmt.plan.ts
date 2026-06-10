@@ -8,6 +8,9 @@ export const FmtPlan = {
     const str = Str.builder();
     str.line(FmtPlan.summary(upgrade));
 
+    const registryBehindCurrent = FmtDiagnostics.registryBehindCurrent(upgrade);
+    if (registryBehindCurrent) str.blank().line(registryBehindCurrent);
+
     const topology = FmtPlan.topologyNote(upgrade);
     if (topology) str.blank().line(topology);
 
@@ -30,6 +33,12 @@ export const FmtPlan = {
       c.gray('Already latest'),
       counts.current > 0 ? c.gray(String(counts.current)) : '0',
     ]);
+    if (counts.registryBehindCurrent > 0) {
+      table.push([
+        c.gray('Registry behind current'),
+        c.yellow(String(counts.registryBehindCurrent)),
+      ]);
+    }
     table.push([
       c.gray('Blocked'),
       counts.blocked > 0 ? c.yellow(String(counts.blocked)) : '0',

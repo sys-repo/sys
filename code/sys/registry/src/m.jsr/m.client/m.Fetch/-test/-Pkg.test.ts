@@ -6,7 +6,8 @@ describe('Jsr.Fetch.Pkg', () => {
     it('prefers moduleGraph2 when both graph payloads are present', async () => {
       const restore = mock.fetch(async (input, init) => {
         expect(String(input)).to.eql('https://jsr.io/@sys/fs/0.0.3_meta.json');
-        expect(init?.cache).to.eql('no-store');
+        expect(init?.cache).to.eql(undefined);
+        expect(init?.headers).to.eql({});
         return json({
           manifest: { '/mod.ts': { size: 10, checksum: 'sha256-demo' } },
           exports: { '.': './mod.ts' },
@@ -46,6 +47,50 @@ describe('Jsr.Fetch.Pkg', () => {
             ],
           },
         });
+      } finally {
+        restore();
+      }
+    });
+
+    it('requests fresh exact-version metadata when freshness is required', async () => {
+      const restore = mock.fetch(async (input, init) => {
+        expect(String(input)).to.include('https://jsr.io/@sys/fs/0.0.3_meta.json?sys-cache-bust=');
+        expect(init?.cache).to.eql('reload');
+        expect(init?.headers).to.eql({ 'cache-control': 'no-cache', pragma: 'no-cache' });
+        return json({ moduleGraph2: { '/mod.ts': { dependencies: [] } } });
+      });
+
+      try {
+        const res = await Jsr.Fetch.Pkg.info('@sys/fs', '0.0.3', { fresh: true });
+        expect(res.ok).to.eql(true);
+        expect(res.data?.pkg).to.eql({ name: '@sys/fs', version: '0.0.3' });
+      } finally {
+        restore();
+      }
+    });
+
+    it('requests fresh latest-version metadata when no version is specified', async () => {
+      const seen: { input: RequestInfo | URL; init?: RequestInit }[] = [];
+      const restore = mock.fetch(async (input, init) => {
+        seen.push({ input, init });
+        const url = String(input);
+        if (url.includes('/meta.json')) {
+          return json({ scope: 'sys', name: 'fs', latest: '0.0.3', versions: { '0.0.3': {} } });
+        }
+        return json({ moduleGraph2: { '/mod.ts': { dependencies: [] } } });
+      });
+
+      try {
+        const res = await Jsr.Fetch.Pkg.info('@sys/fs');
+        expect(res.ok).to.eql(true);
+        expect(res.data?.pkg).to.eql({ name: '@sys/fs', version: '0.0.3' });
+        expect(String(seen[0]?.input)).to.include(
+          'https://jsr.io/@sys/fs/meta.json?sys-cache-bust=',
+        );
+        expect(String(seen[1]?.input)).to.include(
+          'https://jsr.io/@sys/fs/0.0.3_meta.json?sys-cache-bust=',
+        );
+        expect(seen.map((item) => item.init?.cache)).to.eql(['reload', 'reload']);
       } finally {
         restore();
       }

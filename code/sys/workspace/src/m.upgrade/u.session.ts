@@ -55,7 +55,7 @@ export const Session = {
     const current = session.info.get(key);
     if (current) return current as Promise<t.Registry.Jsr.Fetch.Pkg.InfoResponse>;
 
-    const next = Jsr.Fetch.Pkg.info(entry.module.name, version);
+    const next = Jsr.Fetch.Pkg.info(entry.module.name, version, { fresh: true });
     session.info.set(key, next);
     return next;
   },

@@ -1,6 +1,6 @@
 import type { t } from '../common.ts';
 
-export type SelectionState = 'selected' | 'blocked' | 'current';
+export type SelectionState = 'selected' | 'blocked' | 'current' | 'registry-behind-current';
 
 export type SelectionOption = {
   readonly name: string;
@@ -37,6 +37,7 @@ export type SummaryCounts = {
   readonly dependencies: number;
   readonly blocked: number;
   readonly current: number;
+  readonly registryBehindCurrent: number;
 };
 
 export type RegistryProgress = t.WorkspaceUpgrade.RegistryProgress;

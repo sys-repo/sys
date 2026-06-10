@@ -1,6 +1,14 @@
 import { Err, Fetch, JsrUrl, type t } from './common.ts';
 import { graph, type RawPkgVersionInfo } from './u.graph.ts';
 
+const D = {
+  fresh: {
+    versions: true,
+    latestInfo: true,
+    exactInfo: false,
+  },
+} as const;
+
 /**
  * Network fetching helpers against a specific JSR package.
  */
@@ -9,9 +17,10 @@ export const Pkg: t.JsrFetch.Pkg.Lib = {
    * https://jsr.io/docs/api#package-metadata
    */
   async versions(name, options = {}) {
-    const url = JsrUrl.Pkg.metadata(name);
+    const fresh = wrangle.fresh(options, D.fresh.versions);
+    const url = wrangle.freshUrl(JsrUrl.Pkg.metadata(name), fresh);
     const fetch = Fetch.make(options.until);
-    const res = await fetch.json<t.JsrFetch.Pkg.MetaVersions>(url, { cache: 'no-store' });
+    const res = await fetch.json<t.JsrFetch.Pkg.MetaVersions>(url, wrangle.freshInit(fresh));
     const data = res.data
       ? {
         ...res.data,
@@ -34,10 +43,12 @@ export const Pkg: t.JsrFetch.Pkg.Lib = {
    * https://jsr.io/docs/api#package-version-metadata
    */
   async info(name, vInput, options = {}) {
-    const version = vInput ? vInput : ((await Pkg.versions(name)).data?.latest ?? '');
-    const url = JsrUrl.Pkg.version(name, version);
+    const latest = !vInput;
+    const version = vInput ? vInput : ((await Pkg.versions(name, options)).data?.latest ?? '');
+    const fresh = wrangle.fresh(options, latest ? D.fresh.latestInfo : D.fresh.exactInfo);
+    const url = wrangle.freshUrl(JsrUrl.Pkg.version(name, version), fresh);
     const fetch = Fetch.make(options.until);
-    const res = await fetch.json<RawPkgVersionInfo>(url, { cache: 'no-store' });
+    const res = await fetch.json<RawPkgVersionInfo>(url, wrangle.freshInit(fresh));
     if (!res.data) return res;
 
     const pkg: t.Pkg = { name, version: version ?? '' };
@@ -90,3 +101,30 @@ export const Pkg: t.JsrFetch.Pkg.Lib = {
     return api;
   },
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  fresh(options: t.JsrFetch.Pkg.MetadataOptions, defaultValue: boolean): boolean {
+    return options.fresh ?? defaultValue;
+  },
+
+  freshInit(fresh: boolean): RequestInit {
+    if (!fresh) return {};
+    return {
+      cache: 'reload',
+      headers: {
+        'cache-control': 'no-cache',
+        pragma: 'no-cache',
+      },
+    };
+  },
+
+  freshUrl(url: t.StringUrl, fresh: boolean): t.StringUrl {
+    if (!fresh) return url;
+    const next = new URL(url);
+    next.searchParams.set('sys-cache-bust', Date.now().toString(36));
+    return next.href as t.StringUrl;
+  },
+} as const;
