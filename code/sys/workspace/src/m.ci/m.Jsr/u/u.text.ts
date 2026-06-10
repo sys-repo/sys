@@ -2,12 +2,8 @@ import { Err, Fs, Str, type t } from '../../common.ts';
 import { CI_DENO_VERSION } from '../../u/u.deno.ts';
 import { wrangle } from '../../u/u.workflow.ts';
 import { filterModules } from './u.filter.ts';
-import {
-  deriveStrata,
-  parsePersistedGraph,
-  toMatrixEntryYaml,
-  type ModuleStratum,
-} from './u.ts';
+import { deriveStrata, parsePersistedGraph, type ModuleStratum } from './u.graph.ts';
+import { toMatrixEntryYaml } from './u.yaml.ts';
 import {
   JSR_JOB_CONFIG_TEMPLATE,
   JSR_MATRIX_BODY_TEMPLATE,
