@@ -13,7 +13,7 @@ describe('WorkspaceCi.Jsr', () => {
     const yaml = await WorkspaceCi.Jsr.text({ paths: [a, b] });
     expect(yaml.includes('name: jsr')).to.eql(true);
     expect(yaml.includes('publish_0:')).to.eql(true);
-    expect(yaml.includes('name: publish-0: ${{ matrix.name }}')).to.eql(true);
+    expect(yaml.includes('name: "publish-0: ${{ matrix.name }}"')).to.eql(true);
     expect(yaml.includes('publish module → "${{ matrix.name }}"')).to.eql(true);
     expect(yaml.includes('- name: "@scope/alpha"')).to.eql(true);
     expect(yaml.includes('- name: "@scope/beta"')).to.eql(true);

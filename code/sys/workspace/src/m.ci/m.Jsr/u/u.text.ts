@@ -81,7 +81,7 @@ function renderPublishJob(
 
   return [
     `publish_${stratum.index}:`,
-    `  name: publish-${stratum.index}: \${{ matrix.name }}`,
+    `  name: "publish-${stratum.index}: \${{ matrix.name }}"`,
     '  runs-on: ubuntu-latest',
     ...(args.needs ? [`  needs: publish_${stratum.index - 1}`] : []),
     '  permissions:',
