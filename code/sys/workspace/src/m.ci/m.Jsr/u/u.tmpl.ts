@@ -59,27 +59,32 @@ export const JSR_BODY_TEMPLATE = `- name: publish module → "__NAME__"
           exit 0
         fi
         if timeout --foreground --kill-after=30s "$publish_timeout" deno publish; then
+          echo "deno publish exited successfully; confirming JSR registry visibility..."
           if wait_for_jsr_version; then
-            echo "publish confirmed on JSR: \${pkg_name}@\${pkg_version}"
+            echo "JSR registry confirms published version: \${pkg_name}@\${pkg_version}"
             exit 0
           fi
-          echo "::error::publish succeeded but JSR version metadata did not become visible: \${pkg_name}@\${pkg_version}"
+          echo "::error::deno publish exited successfully, but JSR registry confirmation was not observed: \${pkg_name}@\${pkg_version}"
           exit 1
         else
           status=$?
         fi
-        echo "publish command failed or timed out with exit code \${status}"
+        if [ "$status" -eq 124 ]; then
+          echo "deno publish reached bounded wait (\${publish_timeout}, exit code 124); checking JSR registry confirmation..."
+        else
+          echo "deno publish exited with code \${status}; checking JSR registry confirmation before retry/fail..."
+        fi
         if wait_for_jsr_version; then
-          echo "publish completed on JSR despite local exit code: \${pkg_name}@\${pkg_version}"
+          echo "JSR registry confirms published version: \${pkg_name}@\${pkg_version}; treating publish as successful."
           exit 0
         fi
         if [ "$attempt" -lt "$max_attempts" ]; then
           delay=$((5 * 2 ** (attempt - 1)))
-          echo "publish failed or timed out (attempt $attempt/$max_attempts), retrying in \${delay}s..."
+          echo "JSR registry did not confirm published version after attempt $attempt/$max_attempts; retrying in \${delay}s..."
           sleep "$delay"
         fi
     done
-    echo "publish failed after $max_attempts attempts"
+    echo "::error::Publish failed: deno publish did not complete successfully and JSR registry did not confirm published version after $max_attempts attempts: \${pkg_name}@\${pkg_version}"
     exit 1`;
 
 export const JSR_MATRIX_BODY_TEMPLATE = JSR_BODY_TEMPLATE

@@ -43,9 +43,15 @@ describe('WorkspaceCi.Jsr', () => {
     expect(yaml).to.include('if jsr_version_exists; then');
     expect(yaml).to.include('timeout --foreground --kill-after=30s "$publish_timeout" deno publish');
     expect(yaml).to.include('if wait_for_jsr_version; then');
-    expect(yaml).to.include('publish confirmed on JSR');
-    expect(yaml).to.include('publish succeeded but JSR version metadata did not become visible');
-    expect(yaml).to.include('publish completed on JSR despite local exit code');
+    expect(yaml).to.include('deno publish exited successfully; confirming JSR registry visibility');
+    expect(yaml).to.include('deno publish reached bounded wait');
+    expect(yaml).to.include('checking JSR registry confirmation');
+    expect(yaml).to.include('JSR registry confirms published version');
+    expect(yaml).to.include('treating publish as successful');
+    expect(yaml).to.include('JSR registry did not confirm published version after attempt');
+    expect(yaml).to.include('Publish failed: deno publish did not complete successfully');
+    expect(yaml).not.to.include('publish command failed or timed out with exit code');
+    expect(yaml).not.to.include('publish completed on JSR despite local exit code');
     expect(yaml).to.include('test -z "$(git status --porcelain)"');
     expect(yaml.includes('lfs: true')).to.eql(false);
     expect(yaml.includes('git lfs pull')).to.eql(false);
