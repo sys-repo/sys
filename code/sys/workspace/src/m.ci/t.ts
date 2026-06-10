@@ -145,7 +145,7 @@ export namespace WorkspaceCi {
     export namespace Is {
       export type Lib = {
         /** Determine whether a package name has valid JSR package-name syntax. */
-        jsrPkgName(name: string): boolean;
+        pkgName(name: string): boolean;
         /** Determine whether a local package should be included in JSR workflow generation. */
         publishable(
           path: t.StringPath,

@@ -1,6 +1,6 @@
 import { Fs, Jsr, Pkg, type t } from '../../common.ts';
 
-export function jsrPkgName(name: string) {
+export function pkgName(name: string) {
   return Jsr.Is.pkgName(name);
 }
 
@@ -13,7 +13,7 @@ export async function publishable(
   const denojson = (await Fs.readJson<t.PkgDenoJson>(file)).data;
   if (denojson?.private === true) return false;
   if (!Pkg.Is.pkg(denojson)) return false;
-  if (!jsrPkgName(denojson.name)) return false;
+  if (!pkgName(denojson.name)) return false;
   if (options.scopes && !options.scopes.some((scope) => denojson.name.startsWith(`${scope}/`))) {
     return false;
   }

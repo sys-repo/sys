@@ -401,10 +401,10 @@ describe('WorkspaceCi.Jsr', () => {
   });
 
   it('identifies valid JSR package names', () => {
-    expect(WorkspaceCi.Jsr.Is.jsrPkgName('@sys/workspace')).to.eql(true);
-    expect(WorkspaceCi.Jsr.Is.jsrPkgName('@tdb/slc-data')).to.eql(true);
-    expect(WorkspaceCi.Jsr.Is.jsrPkgName('@sample/proxy')).to.eql(true);
-    expect(WorkspaceCi.Jsr.Is.jsrPkgName('sample-proxy')).to.eql(false);
+    expect(WorkspaceCi.Jsr.Is.pkgName('@sys/workspace')).to.eql(true);
+    expect(WorkspaceCi.Jsr.Is.pkgName('@tdb/slc-data')).to.eql(true);
+    expect(WorkspaceCi.Jsr.Is.pkgName('@sample/proxy')).to.eql(true);
+    expect(WorkspaceCi.Jsr.Is.pkgName('sample-proxy')).to.eql(false);
   });
 
   it('determines whether a local module is publishable to JSR', async () => {
