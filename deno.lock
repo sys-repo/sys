@@ -48,6 +48,7 @@
     "jsr:@sys/std@0.0.360": "0.0.360",
     "jsr:@sys/std@^0.0.360": "0.0.360",
     "jsr:@sys/tools@*": "0.0.443",
+    "jsr:@sys/tools@0.0.448": "0.0.448",
     "jsr:@sys/workspace@0.0.115": "0.0.115",
     "jsr:@sys/yaml@^0.0.172": "0.0.172",
     "npm:@automerge/automerge-repo-network-websocket@2.5.6": "2.5.6",
@@ -378,6 +379,9 @@
     },
     "@sys/tools@0.0.443": {
       "integrity": "758bb5849f599ef79722fc483918a623df84c953474f959ed22ed9343215ab88"
+    },
+    "@sys/tools@0.0.448": {
+      "integrity": "e527337124828272a048461937f6bcb4d8e9826769bd17624978b6d2d45b0069"
     },
     "@sys/workspace@0.0.115": {
       "integrity": "1c81c9bb73e7a08785d2a40332c15049b9166d93f41374acc9d47a0c1549686c",
