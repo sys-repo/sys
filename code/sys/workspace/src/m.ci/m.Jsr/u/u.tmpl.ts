@@ -23,8 +23,8 @@ export const JSR_BODY_TEMPLATE = `- name: publish module → "__NAME__"
     pkg_index_url="https://jsr.io/\${pkg_name}/meta.json"
     pkg_specifier="jsr:\${pkg_name}@\${pkg_version}"
     publish_timeout="90s"
-    publish_confirm_timeout=180
-    publish_confirm_interval=10
+    publish_confirm_timeout=900
+    publish_confirm_interval=15
 
     jsr_exact_metadata_visible() {
       curl --fail --silent --location --max-time 30 --head "$pkg_meta_url" >/dev/null

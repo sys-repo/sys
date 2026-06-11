@@ -40,14 +40,17 @@ describe('WorkspaceCi.Jsr', () => {
     expect(yaml).to.include('pkg_index_url="https://jsr.io/${pkg_name}/meta.json"');
     expect(yaml).to.include('pkg_specifier="jsr:${pkg_name}@${pkg_version}"');
     expect(yaml).to.include('publish_timeout="90s"');
-    expect(yaml).to.include('publish_confirm_timeout=180');
+    expect(yaml).to.include('publish_confirm_timeout=900');
+    expect(yaml).to.include('publish_confirm_interval=15');
     expect(yaml).to.include('jsr_exact_metadata_visible()');
     expect(yaml).to.include('jsr_package_index_visible()');
     expect(yaml).to.include('deno_resolver_visible()');
     expect(yaml).to.include('deno info --reload "$pkg_specifier"');
     expect(yaml).to.include('wait_for_jsr_version()');
     expect(yaml).to.include('if jsr_exact_metadata_visible; then');
-    expect(yaml).to.include('timeout --foreground --kill-after=30s "$publish_timeout" deno publish');
+    expect(yaml).to.include(
+      'timeout --foreground --kill-after=30s "$publish_timeout" deno publish',
+    );
     expect(yaml).to.include('if wait_for_jsr_version; then');
     expect(yaml).to.include('deno publish exited successfully; confirming JSR resolver visibility');
     expect(yaml).to.include('deno publish reached bounded wait');
@@ -58,7 +61,9 @@ describe('WorkspaceCi.Jsr', () => {
     expect(yaml).to.include('JSR resolver confirms published version');
     expect(yaml).to.include('treating publish as successful');
     expect(yaml).to.include('JSR resolver did not confirm published version after attempt');
-    expect(yaml).to.include('Published version metadata exists, but JSR resolver visibility was not confirmed');
+    expect(yaml).to.include(
+      'Published version metadata exists, but JSR resolver visibility was not confirmed',
+    );
     expect(yaml).to.include('Publish failed: deno publish did not complete successfully');
     expect(yaml).not.to.include('publish command failed or timed out with exit code');
     expect(yaml).not.to.include('publish completed on JSR despite local exit code');
@@ -82,9 +87,18 @@ describe('WorkspaceCi.Jsr', () => {
     const beta = 'code/sys/beta';
     const gamma = 'code/sys/gamma';
 
-    await Fs.writeJson(Fs.join(fs.dir, alpha, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
-    await Fs.writeJson(Fs.join(fs.dir, beta, 'deno.json'), { name: '@scope/beta', version: '1.0.0' });
-    await Fs.writeJson(Fs.join(fs.dir, gamma, 'deno.json'), { name: '@scope/gamma', version: '1.0.0' });
+    await Fs.writeJson(Fs.join(fs.dir, alpha, 'deno.json'), {
+      name: '@scope/alpha',
+      version: '1.0.0',
+    });
+    await Fs.writeJson(Fs.join(fs.dir, beta, 'deno.json'), {
+      name: '@scope/beta',
+      version: '1.0.0',
+    });
+    await Fs.writeJson(Fs.join(fs.dir, gamma, 'deno.json'), {
+      name: '@scope/gamma',
+      version: '1.0.0',
+    });
     await Fs.writeJson(Fs.join(fs.dir, 'deno.graph.json'), {
       graph: {
         orderedPaths: [alpha, beta, gamma],
@@ -111,8 +125,14 @@ describe('WorkspaceCi.Jsr', () => {
     const alpha = 'code/sys/alpha';
     const beta = 'code/sys/beta';
 
-    await Fs.writeJson(Fs.join(fs.dir, alpha, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
-    await Fs.writeJson(Fs.join(fs.dir, beta, 'deno.json'), { name: '@scope/beta', version: '1.0.0' });
+    await Fs.writeJson(Fs.join(fs.dir, alpha, 'deno.json'), {
+      name: '@scope/alpha',
+      version: '1.0.0',
+    });
+    await Fs.writeJson(Fs.join(fs.dir, beta, 'deno.json'), {
+      name: '@scope/beta',
+      version: '1.0.0',
+    });
     await Fs.writeJson(Fs.join(fs.dir, 'deno.graph.json'), {
       graph: {
         orderedPaths: [alpha, beta],
@@ -131,8 +151,13 @@ describe('WorkspaceCi.Jsr', () => {
     const fs = await Testing.dir('WorkspaceCi.Jsr.strata.invalid-graph');
     const alpha = 'code/sys/alpha';
 
-    await Fs.writeJson(Fs.join(fs.dir, alpha, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
-    await Fs.writeJson(Fs.join(fs.dir, 'deno.graph.json'), { graph: { orderedPaths: [], edges: [{}] } });
+    await Fs.writeJson(Fs.join(fs.dir, alpha, 'deno.json'), {
+      name: '@scope/alpha',
+      version: '1.0.0',
+    });
+    await Fs.writeJson(Fs.join(fs.dir, 'deno.graph.json'), {
+      graph: { orderedPaths: [], edges: [{}] },
+    });
 
     await expectError(
       async () => await WorkspaceCi.Jsr.text({ cwd: fs.dir, paths: [alpha] }),
@@ -144,7 +169,10 @@ describe('WorkspaceCi.Jsr', () => {
     const fs = await Testing.dir('WorkspaceCi.Jsr.strata.duplicate');
     const alpha = 'code/sys/alpha';
 
-    await Fs.writeJson(Fs.join(fs.dir, alpha, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
+    await Fs.writeJson(Fs.join(fs.dir, alpha, 'deno.json'), {
+      name: '@scope/alpha',
+      version: '1.0.0',
+    });
 
     await expectError(
       async () => await WorkspaceCi.Jsr.text({ cwd: fs.dir, paths: [alpha, alpha] }),
@@ -157,8 +185,14 @@ describe('WorkspaceCi.Jsr', () => {
     const alpha = 'code/sys/alpha';
     const beta = 'code/sys/beta';
 
-    await Fs.writeJson(Fs.join(fs.dir, alpha, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
-    await Fs.writeJson(Fs.join(fs.dir, beta, 'deno.json'), { name: '@scope/beta', version: '1.0.0' });
+    await Fs.writeJson(Fs.join(fs.dir, alpha, 'deno.json'), {
+      name: '@scope/alpha',
+      version: '1.0.0',
+    });
+    await Fs.writeJson(Fs.join(fs.dir, beta, 'deno.json'), {
+      name: '@scope/beta',
+      version: '1.0.0',
+    });
     await Fs.writeJson(Fs.join(fs.dir, 'deno.graph.json'), {
       graph: {
         orderedPaths: [alpha, beta],
