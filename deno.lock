@@ -49,6 +49,7 @@
     "jsr:@sys/std@^0.0.360": "0.0.360",
     "jsr:@sys/tools@*": "0.0.443",
     "jsr:@sys/tools@0.0.448": "0.0.448",
+    "jsr:@sys/tools@0.0.450": "0.0.450",
     "jsr:@sys/workspace@0.0.115": "0.0.115",
     "jsr:@sys/yaml@^0.0.172": "0.0.172",
     "npm:@automerge/automerge-repo-network-websocket@2.5.6": "2.5.6",
@@ -92,10 +93,9 @@
     "npm:prettier@3.8.4": "3.8.4",
     "npm:pretty-bytes@7.1.0": "7.1.0",
     "npm:prosemirror-example-setup@1.2.3": "1.2.3",
-    "npm:prosemirror-model@1.25.7": "1.25.7",
     "npm:prosemirror-schema-basic@1.2.4": "1.2.4",
     "npm:prosemirror-state@1.4.4": "1.4.4",
-    "npm:prosemirror-view@1.41.8": "1.41.8",
+    "npm:prosemirror-view@1.41.9": "1.41.9",
     "npm:ramda@0.32.0": "0.32.0",
     "npm:react-dom@19.2.7": "19.2.7_react@19.2.7",
     "npm:react-error-boundary@6.1.2": "6.1.2_react@19.2.7",
@@ -111,7 +111,7 @@
     "npm:tinycolor2@1.6.0": "1.6.0",
     "npm:ts-essentials@10.2.1": "10.2.1",
     "npm:typebox@1.2.2": "1.2.2",
-    "npm:typebox@1.2.6": "1.2.6",
+    "npm:typebox@1.2.8": "1.2.8",
     "npm:vite-plugin-wasm@3.6.0": "3.6.0_vite@8.0.16__yaml@2.9.0_yaml@2.9.0",
     "npm:vite@8.0.16": "8.0.16_yaml@2.9.0",
     "npm:ws@8.21.0": "8.21.0",
@@ -382,6 +382,9 @@
     },
     "@sys/tools@0.0.448": {
       "integrity": "e527337124828272a048461937f6bcb4d8e9826769bd17624978b6d2d45b0069"
+    },
+    "@sys/tools@0.0.450": {
+      "integrity": "8bc6971dc2ccd17162662651776280b1e3b756967849c55766f7aa4eec185dde"
     },
     "@sys/workspace@0.0.115": {
       "integrity": "1c81c9bb73e7a08785d2a40332c15049b9166d93f41374acc9d47a0c1549686c",
@@ -940,7 +943,7 @@
       "integrity": "sha512-Y/KVOhuKSgRQgYBlwmRtO2gPkUcoavOSqGF9bpQIINvNZvc19k6Z1H3bFDTce3Vp5ApMmTsfLH3+tNvOg75fAQ==",
       "dependencies": [
         "@mariozechner/pi-ai",
-        "typebox@1.2.6"
+        "typebox@1.2.8"
       ],
       "deprecated": true
     },
@@ -955,7 +958,7 @@
         "openai",
         "partial-json",
         "proxy-agent",
-        "typebox@1.2.6",
+        "typebox@1.2.8",
         "undici",
         "zod-to-json-schema"
       ],
@@ -982,7 +985,7 @@
         "minimatch@10.2.5",
         "proper-lockfile",
         "strip-ansi@7.2.0",
-        "typebox@1.2.6",
+        "typebox@1.2.8",
         "undici",
         "uuid@14.0.0",
         "yaml"
@@ -2830,8 +2833,8 @@
         "prosemirror-state"
       ]
     },
-    "prosemirror-model@1.25.7": {
-      "integrity": "sha512-A79aN8QEFUwI6cax8Yq4Rpcx1TJZ3Kagn+ii7qLo4/V8H3mMiHrhFyhTyHHvpSnOgMPpWiDGSwM3etwrxE50ug==",
+    "prosemirror-model@1.25.8": {
+      "integrity": "sha512-BswA4BLSFEiORV6Vjj/yZBXDbos1zTEnhyeSSgT8psGFhstQS7UJ8/WOLiDos9Byaee27+tml0/DuMNxYR84zg==",
       "dependencies": [
         "orderedmap"
       ]
@@ -2864,8 +2867,8 @@
         "prosemirror-model"
       ]
     },
-    "prosemirror-view@1.41.8": {
-      "integrity": "sha512-TnKDdohEatgyZNGCDWIdccOHXhYloJwbwU+phw/a23KBvJIR9lWQWW7WHHK3vBdOLDNuF7TaX98GObUZOWkOnA==",
+    "prosemirror-view@1.41.9": {
+      "integrity": "sha512-clTunTX+eaLbr87L1V1QPheRlEQJyTlL3gXe9x3jQIk3rL0RVWxviDGz8tFaydwIVm+hKhYCyr+R/zBtWr9s6A==",
       "dependencies": [
         "prosemirror-model",
         "prosemirror-state",
@@ -3264,8 +3267,8 @@
     "typebox@1.2.2": {
       "integrity": "sha512-0nqIJFL+baWoAEtwa0l/vfbfXg0+3gEhiWGnHuoIiivXjlk/TpxDddG0WER34CojKNpHi4ZXku8XGEz9H55b5Q=="
     },
-    "typebox@1.2.6": {
-      "integrity": "sha512-9LXWA7hsfQTDecP1vDjlT9JFVobJ5x9lgaZ5vrcZuhTJ6wNGxJ5FnqYCgV0pdxSTxGSHEQ+DjA+fCOcWP5+b9g=="
+    "typebox@1.2.8": {
+      "integrity": "sha512-rlsKhsd7L3082m9nxhFIB4Gl8jizLd/6YlFAWaz96hdV8+VJRjwYaYmDlT0jlTRwkb48SxCSSirqUtrg/HilNw=="
     },
     "types-ramda@0.31.0": {
       "integrity": "sha512-vaoC35CRC3xvL8Z6HkshDbi6KWM1ezK0LHN0YyxXWUn9HKzBNg/T3xSGlJZjCYspnOD3jE7bcizsp0bUXZDxnQ==",
@@ -3545,10 +3548,10 @@
       "npm:ora@9.4.0",
       "npm:pretty-bytes@7.1.0",
       "npm:prosemirror-example-setup@1.2.3",
-      "npm:prosemirror-model@1.25.7",
+      "npm:prosemirror-model@1.25.8",
       "npm:prosemirror-schema-basic@1.2.4",
       "npm:prosemirror-state@1.4.4",
-      "npm:prosemirror-view@1.41.8",
+      "npm:prosemirror-view@1.41.9",
       "npm:ramda@0.32.0",
       "npm:react-error-boundary@6.1.2",
       "npm:react-icons@5.6.0",
@@ -3561,7 +3564,7 @@
       "npm:strip-ansi@7.2.0",
       "npm:tinycolor2@1.6.0",
       "npm:ts-essentials@10.2.1",
-      "npm:typebox@1.2.6",
+      "npm:typebox@1.2.8",
       "npm:vite-plugin-wasm@3.6.0",
       "npm:vite@8.0.16",
       "npm:ws@8.21.0",
