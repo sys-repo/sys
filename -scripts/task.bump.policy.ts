@@ -35,6 +35,10 @@ export function postBumpPackageSyncArgs() {
   return ['run', '-P=dev', './-scripts/main.ts', '--prep-pkg'] as const;
 }
 
+export function postBumpLockSyncArgs() {
+  return ['install', '--frozen=false', '--reload'] as const;
+}
+
 export function bumpPolicy(): t.WorkspaceBump.Policy {
   return {
     couplings: wrangle.couplings(),
@@ -48,6 +52,12 @@ export function bumpPolicy(): t.WorkspaceBump.Policy {
           args: [...postBumpPackageSyncArgs()],
         },
         { label: 'post-bump prep', cmd: 'deno', args: [...postBumpPrepArgs()], cwd },
+        {
+          cwd,
+          cmd: 'deno',
+          label: 'post-bump lockfile sync',
+          args: [...postBumpLockSyncArgs()],
+        },
       ];
     },
   };

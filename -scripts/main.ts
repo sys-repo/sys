@@ -89,6 +89,7 @@ export async function run(argv: MainArgs, api: Lib = lib) {
   if (argv['prep-pkg']) await api.prepPkg();
   if (argv['prep-bump']) {
     const prepared = await api.prep(argv['prep-context']);
+    await api.prepCiDeno();
     await api.prepCi({
       versionFilter: 'ahead',
       prepared,

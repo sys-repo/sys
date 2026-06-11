@@ -1,12 +1,17 @@
 import { describe, expect, Fs, it, Testing } from '@sys/testing/server';
 import { Cli } from '@sys/cli';
 import { Process } from '@sys/process';
-import { WorkspaceGraph } from '@sys/workspace';
+import { type t, WorkspaceGraph } from '@sys/workspace';
 import { main } from '../task.bump.ts';
-import { bumpPolicy, postBumpPackageSyncArgs, postBumpPrepArgs } from '../task.bump.policy.ts';
+import {
+  bumpPolicy,
+  postBumpLockSyncArgs,
+  postBumpPackageSyncArgs,
+  postBumpPrepArgs,
+} from '../task.bump.policy.ts';
 
 describe('scripts/task.bump', () => {
-  it('syncs package metadata before delegating to the dedicated bump followup prep lane', () => {
+  it('syncs metadata, runs bump prep, then reconciles the lockfile', () => {
     expect(postBumpPackageSyncArgs()).to.eql([
       'run',
       '-P=dev',
@@ -19,6 +24,23 @@ describe('scripts/task.bump', () => {
       './-scripts/main.ts',
       '--prep-bump',
       '--prep-context=bump',
+    ]);
+    expect(postBumpLockSyncArgs()).to.eql([
+      'install',
+      '--frozen=false',
+      '--reload',
+    ]);
+
+    const followups = bumpPolicy().followups?.({ cwd: '/workspace', plan: emptyPlan() }) ?? [];
+    expect(followups.map((item) => item.label)).to.eql([
+      'post-bump package metadata sync',
+      'post-bump prep',
+      'post-bump lockfile sync',
+    ]);
+    expect(followups.map((item) => [item.cmd, item.args])).to.eql([
+      ['deno', [...postBumpPackageSyncArgs()]],
+      ['deno', [...postBumpPrepArgs()]],
+      ['deno', [...postBumpLockSyncArgs()]],
     ]);
   });
 
@@ -53,10 +75,10 @@ describe('scripts/task.bump', () => {
       console.info = info;
     }
 
-    const output = calls.join('\n');
+    const output = Cli.stripAnsi(calls.join('\n'));
     const deno = await Fs.readJson<{ version?: string }>(Fs.join(cwd, 'code/pkg-a/deno.json'));
     expect(output).to.not.include('Delta since baseline..HEAD');
-    expect(output).to.include('Root package:');
+    expect(output).to.include('deno task bump @scope/a --non-interactive');
     expect(output).to.include('@scope/a');
     expect(deno.data?.version).to.eql('1.0.0');
   });
@@ -105,6 +127,10 @@ describe('scripts/task.bump', () => {
 /**
  * Helpers:
  */
+function emptyPlan(): t.WorkspaceBump.PlanResult {
+  return { roots: [], selected: [], selectedPaths: [] };
+}
+
 function expectMaxVisibleWidth(text: string, width: number) {
   const wide = Cli.stripAnsi(text)
     .split('\n')
