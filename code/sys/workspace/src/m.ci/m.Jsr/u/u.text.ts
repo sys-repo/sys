@@ -87,7 +87,7 @@ function renderPublishJob(
 
   return [
     `publish_${stratum.index}:`,
-    `  name: "pub-${stratum.index + 1}/${args.total}: \${{ matrix.name }}"`,
+    `  name: "jsr-${stratum.index + 1}/${args.total}: \${{ matrix.name }}"`,
     '  runs-on: ubuntu-latest',
     ...(args.needs ? [`  needs: publish_${stratum.index - 1}`] : []),
     '  permissions:',
