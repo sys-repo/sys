@@ -18,6 +18,9 @@ export declare namespace JsrUrl {
   export namespace Pkg {
     /** Package-scoped JSR URL helper library surface. */
     export type Lib = {
+      /** Package-scoped type predicates. */
+      readonly Is: IsLib;
+
       /**
        * URL for meta-data information about a package as a whole.
        * https://jsr.io/docs/api#package-metadata
@@ -40,6 +43,12 @@ export declare namespace JsrUrl {
        * Canonical contract/module refs for a given source path.
        */
       ref(pkg: t.Pkg, contractPath: string, modulePath: string): Ref;
+    };
+
+    /** Package-scoped predicate library surface. */
+    export type IsLib = {
+      /** True when the input is a valid JSR package name, eg `@scope/name`. */
+      name(input: unknown): input is t.StringPkgName;
     };
   }
 

@@ -1,30 +1,19 @@
-import { c, describe, expect, it } from '../-test.ts';
-import { JsrUrl } from './mod.ts';
+import { describe, expect, formatUrl, it, JsrUrl, print } from './common.ts';
 
-describe('Jsr.Fetch.Url', () => {
-  it('API', async () => {
-    const m = await import('@sys/std/url');
-    expect(m.JsrUrl).to.equal(JsrUrl);
-  });
-
-  it('origin (url)', () => {
-    expect(JsrUrl.origin).to.eql('https://jsr.io');
-    print('JsrUrl.origin', JsrUrl.origin);
-  });
-
-  it('JsrUrl.Pkg.metadata', () => {
+describe('JsrUrl.Pkg', () => {
+  it('metadata', () => {
     const url = JsrUrl.Pkg.metadata('@sys/std');
     expect(url).to.eql('https://jsr.io/@sys/std/meta.json');
     print('JsrUrl.Pkg.metadata', formatUrl(url, 'meta.json'));
   });
 
-  it('JsrUrl.Pkg.version', () => {
+  it('version', () => {
     const url = JsrUrl.Pkg.version('@sys/std', '0.0.42');
     expect(url).to.eql('https://jsr.io/@sys/std/0.0.42_meta.json');
     print('JsrUrl.Pkg.version', formatUrl(url, 'meta.json'));
   });
 
-  describe('JsrUrl.Pkg.file', () => {
+  describe('file', () => {
     it('file(name, version)', () => {
       const test = (path: string, options: { silent?: boolean } = {}) => {
         const url = JsrUrl.Pkg.file('@sys/std', '0.0.42', path);
@@ -44,7 +33,7 @@ describe('Jsr.Fetch.Url', () => {
     });
   });
 
-  describe('JsrUrl.Pkg.ref', () => {
+  describe('ref', () => {
     it('ref(pkg, contractPath, modulePath)', () => {
       const pkg = { name: '@sys/std', version: '0.0.42' };
       const r = JsrUrl.Pkg.ref(pkg, '/src/m.gpt/t.ts', 'src/m.gpt/m.Token.ts');
@@ -80,21 +69,3 @@ describe('Jsr.Fetch.Url', () => {
     });
   });
 });
-
-/**
- * Helpers:
- */
-const formatUrl = (url: string, matchEnd: string) => {
-  if (!url.endsWith(matchEnd)) return url;
-  const left = url.slice(0, 0 - matchEnd.length);
-  const right = c.bold(c.cyan(matchEnd));
-  return `${left}${right}`;
-};
-
-const print = (title: string, url: string) => {
-  url = url.replace(/https:\/\/jsr.io\//, c.gray('https://jsr.io/'));
-  console.info();
-  console.info(c.cyan(`${title}:`));
-  console.info(`  ${url}`);
-  console.info();
-};
