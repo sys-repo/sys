@@ -10,6 +10,7 @@ import { ModuleList } from '../ui/ModuleList/mod.ts';
 /**
  * Root entry to the DevHarness.
  */
+/** Aggregate runtime surface for DevHarness specs, rendering, context, and headless tools. */
 export const Dev = {
   Context,
   Bus,

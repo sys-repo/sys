@@ -20,10 +20,16 @@ export type DevContext = t.Disposable & {
   toObject(): t.DevCtxObject;
 };
 
+
+/** DevHarness regions that can be asked to redraw. */
 export type DevRedrawTarget = 'all' | 'subject' | 'harness' | 'debug';
+/** Fill mode for sizing the spec subject within the host. */
 export type DevFillMode = 'fill' | 'fill-x' | 'fill-y';
+/** Optional width/height tuple for the spec subject. */
 export type DevSubjectSize = [NumberOrNil, NumberOrNil];
+/** CSS display modes supported by the subject shell. */
 export type DevPropDisplay = 'flex' | 'grid' | undefined;
+/** Values that can be coerced to a DevHarness context. */
 export type DevCtxInput = t.DevCtx | t.TestHandlerArgs;
 
 /**

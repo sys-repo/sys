@@ -2,6 +2,7 @@ import { type t } from './common.ts';
 
 let _userHasInteracted = false as boolean;
 
+/** Tracks whether the user has interacted with the current browser window. */
 export const UserHas: t.UserHas.Lib = {
   get interacted() {
     return _userHasInteracted;

@@ -13,6 +13,7 @@ export declare namespace InfoPanel {
     };
   };
 
+  /** Signal-backed state consumed by the InfoPanel controller. */
   export type State = {
     readonly debug?: boolean;
     readonly theme?: t.CommonTheme;
@@ -20,6 +21,7 @@ export declare namespace InfoPanel {
     readonly events: Events.State;
   };
 
+  /** Props accepted by the uncontrolled InfoPanel. */
   export type Props = {
     title?: string;
     snapshot?: State['snapshot'];
@@ -40,6 +42,7 @@ export declare namespace InfoPanel {
     readonly error?: t.StdError;
   };
 
+  /** Props accepted by the signal-controlled InfoPanel. */
   export type ControlledProps = Omit<Props, 'debug' | 'theme' | 'snapshot' | 'events'> & {
     debug?: t.Signal<boolean | undefined>;
     theme?: t.Signal<t.CommonTheme | undefined>;
@@ -47,6 +50,7 @@ export declare namespace InfoPanel {
     events?: Events.Controlled;
   };
 
+  /** Inputs for constructing an InfoPanel controller. */
   export type ControllerArgs = {
     props?: Pick<Props, 'debug' | 'theme' | 'snapshot' | 'events'>;
     debug?: t.Signal<boolean | undefined>;

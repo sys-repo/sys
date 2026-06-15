@@ -1,6 +1,7 @@
 import { type t, UserAgent } from './common.ts';
 import { Util } from './u.ts';
 
+/** Keyboard predicate helpers for modifiers and shortcuts. */
 export const Is: t.Keyboard.Is.Lib = {
   command(input, options = {}) {
     const modifiers = Util.toModifiers(input);

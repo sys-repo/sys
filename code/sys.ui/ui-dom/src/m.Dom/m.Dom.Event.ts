@@ -1,5 +1,6 @@
 import { type t } from './common.ts';
 
+/** DOM event helper methods. */
 export const Event: t.Dom.Event.Lib = {
   isWithin(event, match) {
     let el = event.target as Element | null;

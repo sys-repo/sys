@@ -1,6 +1,7 @@
 import { slug, type t } from './common.ts';
 import { Util } from './u.ts';
 
+/** Keyboard pattern parsing and matching helpers. */
 export const Match: t.Keyboard.Match.Lib = {
   /**
    * Generate a keyboard pattern matcher.

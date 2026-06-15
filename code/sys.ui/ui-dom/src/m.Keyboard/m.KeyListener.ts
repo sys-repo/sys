@@ -2,6 +2,7 @@ import { type t, Rx } from './common.ts';
 
 type KeyHandler = (e: KeyboardEvent) => unknown;
 
+/** Raw keydown and keyup listener helpers. */
 export const KeyListener: t.Keyboard.Listener.Lib = {
   keydown: listener('keydown'),
   keyup: listener('keyup'),

@@ -1,4 +1,4 @@
-import type Preact from '@preact/signals-react';
+import type * as Preact from '@preact/signals-react';
 import type { Signal as StdSignal } from '@sys/std/t';
 import type { Signal as SignalType } from '@sys/types';
 import type { t } from './common.ts';
