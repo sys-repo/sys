@@ -61,7 +61,7 @@
     "ora": "npm:ora@9.4.0",
     "pretty-bytes": "npm:pretty-bytes@7.1.0",
     "prosemirror-example-setup": "npm:prosemirror-example-setup@1.2.3",
-    "prosemirror-model": "npm:prosemirror-model@1.25.8",
+    "prosemirror-model": "npm:prosemirror-model@1.25.9",
     "prosemirror-schema-basic": "npm:prosemirror-schema-basic@1.2.4",
     "prosemirror-state": "npm:prosemirror-state@1.4.4",
     "prosemirror-view": "npm:prosemirror-view@1.41.9",

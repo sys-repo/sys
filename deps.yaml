@@ -41,7 +41,7 @@ deno.json:
   - import: npm:@automerge/prosemirror@0.2.0
   - import: npm:@monaco-editor/react@4.7.0
   - import: npm:monaco-editor@0.55.1
-  - import: npm:prosemirror-model@1.25.8
+  - import: npm:prosemirror-model@1.25.9
   - import: npm:prosemirror-state@1.4.4
   - import: npm:prosemirror-view@1.41.9
   - import: npm:prosemirror-example-setup@1.2.3
