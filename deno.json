@@ -20,6 +20,8 @@
     "publish:jsr": "deno task publish:jsr:main",
     "publish:jsr:main": "deno run -P=dev ./-scripts/task.jsr.publish.main.ts",
     "publish:jsr:branch": "deno run -P=dev ./-scripts/task.jsr.publish.ts",
+    "probe:jsr": "deno run -P=dev ./-scripts/task.probe.jsr.ts",
+    "probe:jsr:publish": "deno run -P=dev ./-scripts/task.probe.jsr.ts --publish",
     "bump": "deno run -P=test ./-scripts/task.bump.ts",
     "bump:delta": "deno run -P=test ./-scripts/task.bump.ts --since=jsr-publish --dry-run --explain-delta",
     "delta": "deno task bump:delta",
@@ -151,4 +153,3 @@
     }
   }
 }
-
