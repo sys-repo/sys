@@ -1,4 +1,4 @@
-import type Preact from '@preact/signals-core';
+import type { batch, computed, signal } from '@preact/signals-core';
 import type { Signal as SignalType } from '@sys/types';
 import type { t } from './common.ts';
 
@@ -21,16 +21,16 @@ export namespace Signal {
     readonly Is: Is.Lib;
 
     /** Create a new plain signal. */
-    create: typeof Preact.signal;
+    create: typeof signal;
 
     /** Create an effect to run arbitrary code in response to signal changes. */
     effect: t.SignalEffectListener;
 
     /** Combine multiple value updates into one "commit" at the end of the provided callback. */
-    batch: typeof Preact.batch;
+    batch: typeof batch;
 
     /** Create a new signal that is computed based on the values of other signals. */
-    computed: typeof Preact.computed;
+    computed: typeof computed;
 
     /** Create a new listeners collection. */
     listeners(until?: t.UntilInput): t.SignalListeners;
