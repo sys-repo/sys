@@ -1,6 +1,6 @@
 {
   "name": "@sys/testing",
-  "version": "0.0.314",
+  "version": "0.0.315",
   "license": "MIT",
   "x-sys": {
     "ci": {

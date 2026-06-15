@@ -40,7 +40,7 @@ deno.json:
     subpaths: [ t ]
   - import: jsr:@sys/tmpl-engine@0.0.326
     subpaths: [ t ]
-  - import: jsr:@sys/tools@0.0.450
+  - import: jsr:@sys/tools@0.0.452
     subpaths: [ t ]
   - import: jsr:@sys/types@0.0.293
   - import: jsr:@sys/ui-css@0.0.291
@@ -82,7 +82,7 @@ package.json:
     dev: true
   - import: npm:@vitejs/plugin-react@6.0.2
     dev: true
-  - import: npm:rollup@4.61.1
+  - import: npm:rollup@4.62.0
     dev: true
   - import: npm:rollup-plugin-visualizer@7.0.1
     dev: true
