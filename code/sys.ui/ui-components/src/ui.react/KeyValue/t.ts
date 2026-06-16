@@ -47,6 +47,7 @@ export declare namespace KeyValue {
   /** Public module surface. */
   export type Lib = {
     readonly UI: React.FC<Props>;
+    readonly Switches: t.KeyValueSwitches.Lib;
     fromObject: FromObject;
   };
 

@@ -17,6 +17,7 @@ export const SpecsComponents = {
 
   [`${ns}: Anchor`]: () => import('../ui.react/Anchor/-spec/-SPEC.tsx'),
   [`${ns}: KeyValue`]: () => import('../ui.react/KeyValue/-spec/-SPEC.tsx'),
+  [`${ns}: KeyValue.Switches`]: () => import('../ui.react/KeyValue.Switches/-spec/-SPEC.tsx'),
   [`${ns}: ObjectView`]: () => import('../ui.react/ObjectView/-SPEC.tsx'),
 
   [`${ns}: Bullet`]: () => import('../ui.react/Bullet/-SPEC.tsx'),
@@ -53,8 +54,10 @@ export const SpecsComponents = {
   [`${ns}: TreeView.Index`]: () => import('../ui.react/TreeView.Index/-spec/-SPEC.tsx'),
   [`${ns}: TreeView.Index.Item`]: () => import('../ui.react/TreeView.Index.Item/-spec/-SPEC.tsx'),
 
-  [`${ns}: Player.Video: Element`]: () => import('../ui.react/Player.Video.Element/-spec/-SPEC.tsx'),
-  [`${ns}: Player.Video: Controls`]: () => import('../ui.react/Player.Video.Controls/-spec/-SPEC.tsx'),
+  [`${ns}: Player.Video: Element`]: () =>
+    import('../ui.react/Player.Video.Element/-spec/-SPEC.tsx'),
+  [`${ns}: Player.Video: Controls`]: () =>
+    import('../ui.react/Player.Video.Controls/-spec/-SPEC.tsx'),
   [`${ns}: Player.Video: Decks`]: () => import('../ui.react/Player.Video.Decks/-spec/-SPEC.tsx'),
   [`${ns}: Player.Video: VimeoBackground`]: () => import('../ui.react/VimeoBackground/-SPEC.tsx'),
   [`${ns}: Player.YouTube`]: () => import('../ui.react/Player.YouTube/-spec/-SPEC.tsx'),
