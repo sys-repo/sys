@@ -34,22 +34,30 @@
     "jsr:@std/testing@1.0.19": "1.0.19",
     "jsr:@std/text@^1.0.19": "1.0.19",
     "jsr:@sys/cli@^0.0.292": "0.0.292",
+    "jsr:@sys/cli@^0.0.293": "0.0.293",
     "jsr:@sys/color@^0.0.255": "0.0.255",
+    "jsr:@sys/color@^0.0.256": "0.0.256",
     "jsr:@sys/crypto@^0.0.294": "0.0.294",
+    "jsr:@sys/crypto@^0.0.295": "0.0.295",
     "jsr:@sys/esm@^0.0.66": "0.0.66",
     "jsr:@sys/event@^0.0.158": "0.0.158",
+    "jsr:@sys/event@^0.0.159": "0.0.159",
     "jsr:@sys/fs@^0.0.320": "0.0.320",
     "jsr:@sys/fs@^0.0.322": "0.0.322",
     "jsr:@sys/http@^0.0.299": "0.0.299",
     "jsr:@sys/http@^0.0.301": "0.0.301",
     "jsr:@sys/immutable@^0.0.147": "0.0.147",
+    "jsr:@sys/immutable@^0.0.148": "0.0.148",
     "jsr:@sys/net@^0.0.132": "0.0.132",
+    "jsr:@sys/net@^0.0.133": "0.0.133",
     "jsr:@sys/process@^0.0.295": "0.0.295",
+    "jsr:@sys/process@^0.0.296": "0.0.296",
     "jsr:@sys/registry@^0.0.294": "0.0.294",
     "jsr:@sys/registry@^0.0.296": "0.0.296",
     "jsr:@sys/schema@^0.0.214": "0.0.214",
     "jsr:@sys/std@0.0.360": "0.0.360",
     "jsr:@sys/std@^0.0.360": "0.0.360",
+    "jsr:@sys/std@^0.0.361": "0.0.361",
     "jsr:@sys/tools@*": "0.0.450",
     "jsr:@sys/tools@0.0.448": "0.0.448",
     "jsr:@sys/tools@0.0.450": "0.0.450",
@@ -260,8 +268,20 @@
         "jsr:@cliffy/prompt",
         "jsr:@cliffy/table",
         "jsr:@std/encoding@1.0.10",
-        "jsr:@sys/color",
+        "jsr:@sys/color@^0.0.255",
         "jsr:@sys/std@^0.0.360",
+        "npm:ora"
+      ]
+    },
+    "@sys/cli@0.0.293": {
+      "integrity": "edd4a7a785709094ab4a0d56badad792295efb419a91151049aba386d3e597cd",
+      "dependencies": [
+        "jsr:@cliffy/keypress",
+        "jsr:@cliffy/prompt",
+        "jsr:@cliffy/table",
+        "jsr:@std/encoding@1.0.10",
+        "jsr:@sys/color@^0.0.256",
+        "jsr:@sys/std@^0.0.361",
         "npm:ora"
       ]
     },
@@ -272,11 +292,26 @@
         "npm:tinycolor2"
       ]
     },
+    "@sys/color@0.0.256": {
+      "integrity": "f7876fa3a8ca00d024f350c603d87bc776fc6e9a9968b486c3618d60e4387444",
+      "dependencies": [
+        "jsr:@sys/std@^0.0.361",
+        "npm:tinycolor2"
+      ]
+    },
     "@sys/crypto@0.0.294": {
       "integrity": "01930af8f16ce3b6decb19a3fcd44c696ef0756e9a2352f9108a60f3b114ba98",
       "dependencies": [
-        "jsr:@sys/cli",
+        "jsr:@sys/cli@^0.0.292",
         "jsr:@sys/std@^0.0.360",
+        "npm:@noble/hashes"
+      ]
+    },
+    "@sys/crypto@0.0.295": {
+      "integrity": "ee1d1b8459c0bd5d42c55bacbc2f0dffdaa21adc2a30ed5bd7b8d732e0c57aaf",
+      "dependencies": [
+        "jsr:@sys/cli@^0.0.293",
+        "jsr:@sys/std@^0.0.361",
         "npm:@noble/hashes"
       ]
     },
@@ -294,6 +329,12 @@
         "jsr:@sys/std@^0.0.360"
       ]
     },
+    "@sys/event@0.0.159": {
+      "integrity": "4e9ec3c771a5f9eb36ef3bdc3a4b4935fe744b7500d5ba39e04701b104fc836a",
+      "dependencies": [
+        "jsr:@sys/std@^0.0.361"
+      ]
+    },
     "@sys/fs@0.0.320": {
       "integrity": "6ce2ebd714f83097b9e8edd06cc586556b8d4f3f0d03e6147500a89b32313419",
       "dependencies": [
@@ -301,9 +342,9 @@
         "jsr:@std/encoding@1.0.10",
         "jsr:@std/fs@1.0.24",
         "jsr:@std/path@1.1.5",
-        "jsr:@sys/cli",
-        "jsr:@sys/crypto",
-        "jsr:@sys/immutable",
+        "jsr:@sys/cli@^0.0.292",
+        "jsr:@sys/crypto@^0.0.294",
+        "jsr:@sys/immutable@^0.0.147",
         "jsr:@sys/std@^0.0.360",
         "npm:yaml"
       ]
@@ -315,6 +356,10 @@
         "jsr:@std/encoding@1.0.10",
         "jsr:@std/fs@1.0.24",
         "jsr:@std/path@1.1.5",
+        "jsr:@sys/cli@^0.0.293",
+        "jsr:@sys/crypto@^0.0.295",
+        "jsr:@sys/immutable@^0.0.148",
+        "jsr:@sys/std@^0.0.361",
         "npm:yaml"
       ]
     },
@@ -322,12 +367,12 @@
       "integrity": "44b44abe2454ae8de7d212f2bf40e67b8389a1cf2211f4ddc4e203deeed470c6",
       "dependencies": [
         "jsr:@std/http",
-        "jsr:@sys/cli",
-        "jsr:@sys/crypto",
-        "jsr:@sys/event",
+        "jsr:@sys/cli@^0.0.292",
+        "jsr:@sys/crypto@^0.0.294",
+        "jsr:@sys/event@^0.0.158",
         "jsr:@sys/fs@^0.0.320",
-        "jsr:@sys/net",
-        "jsr:@sys/process",
+        "jsr:@sys/net@^0.0.132",
+        "jsr:@sys/process@^0.0.295",
         "jsr:@sys/std@^0.0.360",
         "jsr:@sys/yaml@^0.0.172",
         "npm:hono@4.12.23"
@@ -337,7 +382,13 @@
       "integrity": "3149f0e45f4f4c9cefd822a101bc0f1bc9c35c44e3838f99495651df8d78a5e4",
       "dependencies": [
         "jsr:@std/http",
+        "jsr:@sys/cli@^0.0.293",
+        "jsr:@sys/crypto@^0.0.295",
+        "jsr:@sys/event@^0.0.159",
         "jsr:@sys/fs@^0.0.322",
+        "jsr:@sys/net@^0.0.133",
+        "jsr:@sys/process@^0.0.296",
+        "jsr:@sys/std@^0.0.361",
         "jsr:@sys/yaml@^0.0.174",
         "npm:hono@4.12.25"
       ]
@@ -349,23 +400,43 @@
         "npm:fast-json-patch"
       ]
     },
+    "@sys/immutable@0.0.148": {
+      "integrity": "ff8ca0cd6f41694df991fce6e528c24d6518d5899d197531cae23aef32eef2c9",
+      "dependencies": [
+        "jsr:@sys/std@^0.0.361",
+        "npm:fast-json-patch"
+      ]
+    },
     "@sys/net@0.0.132": {
       "integrity": "167f7e69bacdadd75df67457f4b01f0fd0b01187801ffc8cd3b9c4acc42dbc36",
       "dependencies": [
         "jsr:@sys/std@^0.0.360"
       ]
     },
+    "@sys/net@0.0.133": {
+      "integrity": "25d74f12a02233d2729d6951e4302dd3dc8a9285760c7b51fc8f2fce46ea38da",
+      "dependencies": [
+        "jsr:@sys/std@^0.0.361"
+      ]
+    },
     "@sys/process@0.0.295": {
       "integrity": "2bd080730ef492ddb71ed607460e6227fad336b2335e628ee70150d3167311aa",
       "dependencies": [
-        "jsr:@sys/cli",
+        "jsr:@sys/cli@^0.0.292",
         "jsr:@sys/std@^0.0.360"
+      ]
+    },
+    "@sys/process@0.0.296": {
+      "integrity": "e9759156229700bc58390e7709a783aa31d512733e5dc647c7c3f09af96be64f",
+      "dependencies": [
+        "jsr:@sys/cli@^0.0.293",
+        "jsr:@sys/std@^0.0.361"
       ]
     },
     "@sys/registry@0.0.294": {
       "integrity": "506ff3b089ad33d70eec7919dcce427153fb936f1eb198fa81e7fde33155ab0b",
       "dependencies": [
-        "jsr:@sys/crypto",
+        "jsr:@sys/crypto@^0.0.294",
         "jsr:@sys/fs@^0.0.320",
         "jsr:@sys/http@^0.0.299",
         "jsr:@sys/std@^0.0.360"
@@ -374,14 +445,16 @@
     "@sys/registry@0.0.296": {
       "integrity": "bf661e861bf8cffb10b8fa951f39c0802e784aaf0adb274ae91f66387222f777",
       "dependencies": [
+        "jsr:@sys/crypto@^0.0.295",
         "jsr:@sys/fs@^0.0.322",
-        "jsr:@sys/http@^0.0.301"
+        "jsr:@sys/http@^0.0.301",
+        "jsr:@sys/std@^0.0.361"
       ]
     },
     "@sys/schema@0.0.214": {
       "integrity": "8113eb681d8fe72f6ad44a637dba353c253780eb2b92a0afcb278bfebc15150e",
       "dependencies": [
-        "jsr:@sys/immutable",
+        "jsr:@sys/immutable@^0.0.147",
         "jsr:@sys/std@^0.0.360",
         "jsr:@sys/yaml@^0.0.172",
         "npm:typebox@1.2.2"
@@ -389,6 +462,26 @@
     },
     "@sys/std@0.0.360": {
       "integrity": "a3443affb259497b89009a1e492167a56a1e6b24cad6836447c7afea07e2fdc2",
+      "dependencies": [
+        "jsr:@std/datetime",
+        "jsr:@std/jsonc",
+        "jsr:@std/path@1.1.5",
+        "jsr:@std/semver",
+        "jsr:@std/testing",
+        "npm:@preact/signals-core",
+        "npm:@types/ramda",
+        "npm:chai",
+        "npm:date-fns",
+        "npm:hash-it",
+        "npm:ignore",
+        "npm:pretty-bytes",
+        "npm:ramda",
+        "npm:rxjs",
+        "npm:strip-ansi"
+      ]
+    },
+    "@sys/std@0.0.361": {
+      "integrity": "0295733ebd1926fbb49fa7050bc07dda41f23a11188870296db3eec672b2e464",
       "dependencies": [
         "jsr:@std/datetime",
         "jsr:@std/jsonc",
@@ -416,20 +509,23 @@
     "@sys/tools@0.0.450": {
       "integrity": "8bc6971dc2ccd17162662651776280b1e3b756967849c55766f7aa4eec185dde",
       "dependencies": [
+        "jsr:@sys/cli@^0.0.293",
         "jsr:@sys/fs@^0.0.322",
+        "jsr:@sys/process@^0.0.296",
         "jsr:@sys/registry@^0.0.296",
+        "jsr:@sys/std@^0.0.361",
         "jsr:@sys/yaml@^0.0.174"
       ]
     },
     "@sys/workspace@0.0.115": {
       "integrity": "1c81c9bb73e7a08785d2a40332c15049b9166d93f41374acc9d47a0c1549686c",
       "dependencies": [
-        "jsr:@sys/cli",
-        "jsr:@sys/color",
-        "jsr:@sys/crypto",
+        "jsr:@sys/cli@^0.0.292",
+        "jsr:@sys/color@^0.0.255",
+        "jsr:@sys/crypto@^0.0.294",
         "jsr:@sys/esm",
         "jsr:@sys/fs@^0.0.320",
-        "jsr:@sys/process",
+        "jsr:@sys/process@^0.0.295",
         "jsr:@sys/registry@^0.0.294",
         "jsr:@sys/schema",
         "jsr:@sys/std@^0.0.360",
@@ -439,10 +535,10 @@
     "@sys/yaml@0.0.172": {
       "integrity": "5c5a488a65e1c3e6c27938c0627b26b95707ed531ebd9a6388606d4413d4ab45",
       "dependencies": [
-        "jsr:@sys/cli",
+        "jsr:@sys/cli@^0.0.292",
         "jsr:@sys/fs@^0.0.320",
-        "jsr:@sys/immutable",
-        "jsr:@sys/process",
+        "jsr:@sys/immutable@^0.0.147",
+        "jsr:@sys/process@^0.0.295",
         "jsr:@sys/std@^0.0.360",
         "npm:yaml"
       ]
@@ -450,7 +546,11 @@
     "@sys/yaml@0.0.174": {
       "integrity": "19726133920e4776b2ebde63a4b796d8a16ebf4a0b7354fb366ad9516b593eab",
       "dependencies": [
+        "jsr:@sys/cli@^0.0.293",
         "jsr:@sys/fs@^0.0.322",
+        "jsr:@sys/immutable@^0.0.148",
+        "jsr:@sys/process@^0.0.296",
+        "jsr:@sys/std@^0.0.361",
         "npm:yaml"
       ]
     }
