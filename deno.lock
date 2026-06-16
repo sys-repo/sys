@@ -105,6 +105,7 @@
     "npm:prettier@3.8.4": "3.8.4",
     "npm:pretty-bytes@7.1.0": "7.1.0",
     "npm:prosemirror-example-setup@1.2.3": "1.2.3",
+    "npm:prosemirror-model@1.25.9": "1.25.9",
     "npm:prosemirror-schema-basic@1.2.4": "1.2.4",
     "npm:prosemirror-state@1.4.4": "1.4.4",
     "npm:prosemirror-view@1.41.9": "1.41.9",
@@ -2975,8 +2976,8 @@
         "prosemirror-state"
       ]
     },
-    "prosemirror-model@1.25.8": {
-      "integrity": "sha512-BswA4BLSFEiORV6Vjj/yZBXDbos1zTEnhyeSSgT8psGFhstQS7UJ8/WOLiDos9Byaee27+tml0/DuMNxYR84zg==",
+    "prosemirror-model@1.25.9": {
+      "integrity": "sha512-pRTklkDDMMRopyoAcrr9wV/8g/RYgrLHBuJAb5hlEuYZRdm5yqmPjWId83fpBwPpSFqEdja0H7Dfd7z1X/npcA==",
       "dependencies": [
         "orderedmap"
       ]
