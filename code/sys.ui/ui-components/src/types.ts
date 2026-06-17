@@ -52,6 +52,7 @@ export type * from './ui.react/Slider/t.ts';
 export type * from './ui.react/Spinners.Bar/t.ts';
 export type * from './ui.react/Spinners/t.ts';
 export type * from './ui.react/Splash/t.ts';
+export type * from './ui.react/Text.Ellipsize/t.ts';
 export type * from './ui.react/Text.Input/t.ts';
 export type * from './ui.react/Text/t.ts';
 export type * from './ui.react/TreeView.Index.Data/t.ts';
