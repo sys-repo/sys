@@ -11,7 +11,7 @@ import {
   STORAGE_KEY,
   type t,
 } from './common.ts';
-import { SAMPLE, type SampleKind, type SampleValues } from './-samples.ts';
+import { SAMPLE, type SampleKind, type SampleValues } from './-samples.tsx';
 
 type P = t.KeyValueSwitches.Props;
 type Storage = Pick<P, 'debug' | 'theme' | 'enabled'> & {

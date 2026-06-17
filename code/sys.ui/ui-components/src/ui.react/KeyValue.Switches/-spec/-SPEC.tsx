@@ -2,7 +2,7 @@ import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { D } from './common.ts';
 import { Switches } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
-import { SAMPLE } from './-samples.ts';
+import { SAMPLE } from './-samples.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();

@@ -19,8 +19,11 @@ export declare namespace KeyValueSwitches {
     switch?: Item.SwitchOptions;
   };
 
+  /** Ordered switch item input mapped into `KeyValue` items. */
+  export type Item = Row | t.KeyValue.Hr;
+
   /** Ordered switch row input mapped into a `KeyValue` row. */
-  export type Item = {
+  export type Row = {
     /** Stable identity and fallback label. */
     id: string;
     /** Display label; defaults to `id`. */
@@ -33,12 +36,14 @@ export declare namespace KeyValueSwitches {
     tooltip?: string;
     /** Per-row switch options overriding component defaults. */
     switch?: Item.SwitchOptions;
+    /** Row-level opacity forwarded to the underlying `KeyValue` row. */
+    opacity?: t.KeyValue.Row['opacity'];
     /** Receive the next switch value. */
     onToggle?: Item.ToggleHandler;
   };
 
-  /** Convert one switch input into a `KeyValue` row. */
-  export type ToItem = (item: Item, options?: ToItem.Options) => t.KeyValue.Row;
+  /** Convert one switch row input into a `KeyValue` row. */
+  export type ToItem = (item: Row, options?: ToItem.Options) => t.KeyValue.Row;
 
   /** Convert switch inputs into `KeyValue` items. */
   export type ToItems = (items?: Item[], options?: ToItems.Options) => t.KeyValue.Item[];
@@ -58,7 +63,7 @@ export declare namespace KeyValueSwitches {
 
     /** Context passed to a switch toggle handler. */
     export type ToggleArgs = {
-      readonly item: KeyValueSwitches.Item;
+      readonly item: KeyValueSwitches.Row;
       readonly index: number;
     };
   }

@@ -1,7 +1,7 @@
 import { D, Switch, type t } from './common.ts';
 
 type P = {
-  item: t.KeyValueSwitches.Item;
+  item: t.KeyValueSwitches.Row;
   index: number;
   enabled?: boolean;
   theme?: t.CommonTheme;
