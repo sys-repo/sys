@@ -41,11 +41,14 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
     spanAll: css(isTable ? { gridColumn: '1 / 3' } : {}),
   };
 
+  const keyOf = (item: t.KeyValue.Item, index: number) => item.id ?? index;
+
   const spanAll = (key: string | number, child?: t.ReactNode) => {
     return <div key={key} className={styles.spanAll.class} children={child} />;
   };
 
   const elRows = items.map((item, i) => {
+    const key = keyOf(item, i);
     const kind = item.kind ?? 'row';
     const args: t.KeyValue.ItemProps = {
       theme: theme.name,
@@ -62,13 +65,13 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
     if (kind === 'row') {
       const row = item as t.KeyValue.Row;
       const rowArgs: t.KeyValue.ItemProps = { ...args, mono: row.mono ?? mono };
-      return <Row key={i} {...rowArgs} />;
+      return <Row key={key} {...rowArgs} />;
     }
 
     // For non-row items, optionally span both columns in table mode:
-    if (kind === 'title') return spanAll(i, <Title {...args} />);
-    if (kind === 'hr') return spanAll(i, <Hr {...args} />);
-    if (kind === 'spacer') return spanAll(i, <Spacer {...args} />);
+    if (kind === 'title') return spanAll(key, <Title {...args} />);
+    if (kind === 'hr') return spanAll(key, <Hr {...args} />);
+    if (kind === 'spacer') return spanAll(key, <Spacer {...args} />);
   });
 
   return (

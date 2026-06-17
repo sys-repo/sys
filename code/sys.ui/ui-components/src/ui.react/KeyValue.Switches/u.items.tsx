@@ -9,6 +9,7 @@ const isHr = (item: t.KeyValueSwitches.Item): item is t.KeyValue.Hr => {
 export const toItem: t.KeyValueSwitches.ToItem = (item, options = {}) => {
   const index = options.index ?? 0;
   return {
+    id: item.id,
     kind: 'row',
     k: item.label ?? item.id,
     v: (

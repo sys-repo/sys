@@ -16,11 +16,12 @@ describe('KeyValue.Switches', () => {
   describe('toItem', () => {
     it('maps one switch item to a KeyValue row', () => {
       const opacity: t.KeyValue.Row['opacity'] = { k: 0.3 };
-      const row = Switches.toItem({ id: 'events', value: true, opacity });
+      const row = Switches.toItem({ id: 'sample', value: true, opacity });
 
       expectTypeOf(row).toEqualTypeOf<t.KeyValue.Row>();
+      expect(row.id).to.equal('sample');
       expect(row.kind).to.equal('row');
-      expect(row.k).to.equal('events');
+      expect(row.k).to.equal('sample');
       expect(row.opacity).to.equal(opacity);
       expect(row.v).to.not.equal(undefined);
     });
@@ -29,12 +30,12 @@ describe('KeyValue.Switches', () => {
   describe('toItems', () => {
     it('maps items in caller order', () => {
       const items = Switches.toItems([
-        { id: 'capabilities', value: true },
-        { id: 'events', value: false },
+        { id: 'alpha', value: true },
+        { id: 'bravo', value: false },
       ]);
 
       expectTypeOf(items).toEqualTypeOf<t.KeyValue.Item[]>();
-      expect(items.map((item) => (item as t.KeyValue.Row).k)).to.eql(['capabilities', 'events']);
+      expect(items.map((item) => (item as t.KeyValue.Row).k)).to.eql(['alpha', 'bravo']);
     });
 
     it('preserves hr items in caller order', () => {

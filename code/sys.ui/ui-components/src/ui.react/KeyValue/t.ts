@@ -98,6 +98,7 @@ export declare namespace KeyValue {
 
   /** A single key/value row. */
   export type Row = {
+    readonly id?: string;
     readonly kind?: 'row';
     readonly k: React.ReactNode;
     readonly v?: React.ReactNode;
@@ -124,6 +125,7 @@ export declare namespace KeyValue {
 
   /** A section title. */
   export type Title = {
+    readonly id?: string;
     readonly kind: 'title';
     readonly v: React.ReactNode | [React.ReactNode, React.ReactNode];
     readonly x?: Spacing; // spacing: [left, right]
@@ -132,6 +134,7 @@ export declare namespace KeyValue {
 
   /** A horizontal divider (<hr>). */
   export type Hr = {
+    readonly id?: string;
     readonly kind: 'hr';
     readonly thickness?: t.Pixels;
     readonly opacity?: t.Percent;
@@ -141,6 +144,7 @@ export declare namespace KeyValue {
 
   /** A vertical spacer (extra gap between groups). */
   export type Spacer = {
+    readonly id?: string;
     readonly kind: 'spacer';
     readonly size?: number | string;
   };

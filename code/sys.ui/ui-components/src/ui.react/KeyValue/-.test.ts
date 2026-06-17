@@ -2,6 +2,20 @@ import { type t, describe, expect, expectTypeOf, it } from '../../-test.ts';
 import { KeyValue } from './mod.ts';
 
 describe('KeyValue', () => {
+  describe('item identity', () => {
+    it('type: accepts optional ids on every item kind', () => {
+      const items: t.KeyValue.Item[] = [
+        { id: 'row', k: 'row', v: 'value' },
+        { id: 'title', kind: 'title', v: 'Title' },
+        { id: 'hr', kind: 'hr' },
+        { id: 'spacer', kind: 'spacer', size: 8 },
+      ];
+
+      expectTypeOf(items).toEqualTypeOf<t.KeyValue.Item[]>();
+      expect(items.map((item) => item.id)).to.eql(['row', 'title', 'hr', 'spacer']);
+    });
+  });
+
   describe('KeyValue.fromObject', () => {
     it('type: returns KeyValue.Item[]', () => {
       const items = KeyValue.fromObject({ a: 1 });
