@@ -3,7 +3,6 @@ import { describe, Err, expect, it } from '../../../-test.ts';
 import { Signal, type t } from '../common.ts';
 import { Files } from '../mod.ts';
 import { ErrorMessage } from '../ui.InfoPanel/ui.ErrorMessage.tsx';
-import { EventSwitch } from '../ui.InfoPanel/ui.EventSwitch.tsx';
 import { InfoPanel } from '../ui.InfoPanel/mod.ts';
 import { StatusTitle } from '../ui.InfoPanel/ui.StatusTitle.tsx';
 import { createController } from '../ui.InfoPanel/u.controller.ts';
@@ -96,12 +95,10 @@ describe('@sys/ui/react/files', () => {
     expect(stopped.length).to.eql(1);
     expect(noWatch.length).to.eql(1);
 
-    expect(row?.kind ?? 'row').to.eql('row');
-    if (!row || row.kind != null) return;
+    expect(row?.kind).to.eql('row');
+    if (!row || row.kind !== 'row') return;
     expect(row.k).to.eql('events');
     expect(React.isValidElement(row.v)).to.eql(true);
-    if (!React.isValidElement(row.v)) return;
-    expect(row.v.type).to.equal(EventSwitch);
   });
 
   it('error field is visible only for an error snapshot', () => {

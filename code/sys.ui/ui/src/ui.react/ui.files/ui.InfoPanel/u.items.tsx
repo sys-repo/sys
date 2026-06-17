@@ -1,6 +1,5 @@
-import { D, Is, type t } from './common.ts';
+import { D, Is, KeyValue, type t } from './common.ts';
 import { ErrorMessage } from './ui.ErrorMessage.tsx';
-import { EventSwitch } from './ui.EventSwitch.tsx';
 import { StatusTitle } from './ui.StatusTitle.tsx';
 import { formatCapabilities } from './u.items.Capabilities.tsx';
 
@@ -10,11 +9,10 @@ type Input = Pick<t.Files.InfoPanel.Props, 'events' | 'fields' | 'theme' | 'titl
  * Convert a Files client snapshot into KeyValue rows.
  */
 export function toItems(input: Input): t.KeyValue.Item[] {
+  const theme = input.theme;
   const fields = resolveFields(input.fields);
   const snapshot = input.snapshot;
-  const items: t.KeyValue.Item[] = [
-    { kind: 'title', v: title(input, fields) },
-  ];
+  const items: t.KeyValue.Item[] = [{ kind: 'title', v: title(input, fields) }];
 
   fields.forEach((field) => {
     if (field === 'status') items.push({ k: 'status', v: snapshot?.status ?? '-', mono: true });
@@ -27,21 +25,23 @@ export function toItems(input: Input): t.KeyValue.Item[] {
     if (field === 'error' && snapshot?.status === 'error' && !Is.nil(snapshot.error)) {
       items.push({
         k: 'error',
-        v: <ErrorMessage value={snapshot.error} theme={input.theme} />,
+        v: <ErrorMessage value={snapshot.error} theme={theme} />,
         mono: true,
       });
     }
     if (field === 'events' && canShowEvents(snapshot)) {
-      items.push({
-        k: 'events',
-        v: (
-          <EventSwitch
-            value={input.events?.enabled}
-            theme={input.theme}
-            onToggle={input.events?.onToggle}
-          />
+      const enabled = input.events?.enabled;
+      items.push(
+        KeyValue.Switches.toItem(
+          {
+            id: 'events',
+            value: enabled,
+            tooltip: enabled ? 'events on' : 'events off',
+            onToggle: input.events?.onToggle,
+          },
+          { theme },
         ),
-      });
+      );
     }
   });
 
