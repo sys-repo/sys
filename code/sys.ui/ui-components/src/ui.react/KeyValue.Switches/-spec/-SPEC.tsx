@@ -2,6 +2,7 @@ import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { D } from './common.ts';
 import { Switches } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { SAMPLE } from './-samples.ts';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -9,7 +10,12 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    return <Switches.UI debug={v.debug} theme={v.theme} />;
+    const items = SAMPLE.items(v.sample, {
+      values: v.values,
+      onToggle: (id, next) => (p.values.value = { ...p.values.value, [id]: next }),
+    });
+
+    return <Switches.UI debug={v.debug} theme={v.theme} enabled={v.enabled} items={items} />;
   }
 
   e.it('init', (e) => {

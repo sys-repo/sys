@@ -1,23 +1,19 @@
-import { Color, css, D, type t } from './common.ts';
+import { Color, KeyValueUI, type t } from './common.ts';
+import { toItems } from './u.items.tsx';
 
 export const Switches: t.FC<t.KeyValueSwitches.Props> = (props) => {
-  const { debug = false } = props;
-
-  /**
-   * Render:
-   */
+  const { items, switch: switchOptions, ...keyValueProps } = props;
   const theme = Color.theme(props.theme);
-  const styles = {
-    base: css({
-      backgroundColor: Color.ruby(debug),
-      color: theme.fg,
-      padding: 10,
-    }),
-  };
 
   return (
-    <div className={css(styles.base, props.style).class} data-component={D.displayName}>
-      <div>{D.displayName}</div>
-    </div>
+    <KeyValueUI
+      {...keyValueProps}
+      theme={theme.name}
+      items={toItems(items, {
+        enabled: props.enabled,
+        theme: theme.name,
+        switch: switchOptions,
+      })}
+    />
   );
 };
