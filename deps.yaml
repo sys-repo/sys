@@ -53,14 +53,14 @@ deno.json:
   - import: npm:date-fns@4.4.0
   - import: npm:diff@9.0.0
   - import: npm:fast-json-patch@3.1.1
-  - import: npm:happy-dom@20.10.5
+  - import: npm:happy-dom@20.10.6
   - import: npm:hash-it@7.0.2
-  - import: npm:hono@4.12.25
+  - import: npm:hono@4.12.26
     subpaths: [ cors, deno, types ]
   - import: npm:ignore@7.0.5
   - import: npm:ora@9.4.0
   - import: npm:@mariozechner/pi-coding-agent@0.73.0
-  - import: npm:typebox@1.2.14
+  - import: npm:typebox@1.2.16
     subpaths: [ error, value ]
   - import: npm:@preact/signals-core@1.14.3
   - import: npm:pretty-bytes@7.1.0
