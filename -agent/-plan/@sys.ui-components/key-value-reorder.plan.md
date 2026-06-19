@@ -1,203 +1,172 @@
 # @sys/ui-components KeyValue Reorder Plan
 
-- [x] refactor(ui-components): add KeyValue item identity seam
-- [x] refactor(ui-components): introduce KeyValue item shell
-- [ ] feat(ui-components): add KeyValue reorder affordance
-- [ ] test(ui-components): prove KeyValue reorder identity contract
+## Status: closed / landed
 
-## Status
-Design captured before implementing `Files.InfoPanel.Config` so the config component does not paint the system into an API corner.
+The root `KeyValue` reorder arc has landed. This plan is now historical trace, not an active implementation plan.
 
-Do not implement drag/reorder as part of the first `Files.InfoPanel.Config` pass. The immediate purpose of this plan is to preserve the future path and identify the smallest clean preparatory seam.
+Landed commits:
+- [x] `636cb031c` `refactor(ui-components): add KeyValue item identity seam`
+- [x] `a89cbd74e` `refactor(ui-components): introduce KeyValue item shell (DOM)`
+- [x] `d6a35f1d` `feat(ui-components): add KeyValue reorder affordance`
+- [x] `313fc18e` `chore(ui-components): align Switches debug reorder controls`
+- [x] `f59c75f` `feat(ui-components): add KeyValue reorder lifecycle events`
 
-The item-shell pre-pass is complete and tracked in:
-```text
--agent/-plan/@sys.ui-components/key-value-item-shell.plan.md
-a89cbd74e refactor(ui-components): introduce KeyValue item shell (DOM)
-```
+## Landed shape
 
-## TMIND review
-- The immediate implementation should stop at identity. Identity is a stable, low-risk semantic improvement even without reorder.
-- Do not introduce the `reorder` prop, reorder events, drag handles, library imports, or layout-motion behavior in the identity-seam commit.
-- Keep `id` optional so static `KeyValue.UI` remains lightweight and backwards compatible.
-- Treat `item.id ?? index` as a static-render React key fallback only; it is not sufficient identity for reorder mode.
-- Future reorder mode must require stable identity through explicit item IDs or a caller-provided `getItemId`.
-- Future callbacks must emit immutable next arrays and never mutate caller-provided `items`.
-- Public types must remain `@sys` types; third-party library choices stay internal.
+`KeyValue.UI` now supports an optional controlled `reorder` affordance at the root item layer.
 
-## Intent
-- Put reorder capability at the root `KeyValue` item layer so composed variants inherit it.
-- Keep reorder semantics in `@sys` types; never expose Motion, dnd-kit, or another sub-library in public API.
-- Preserve `KeyValue` as a structural row/list grammar, with reorder as an optional affordance.
-- Ensure `KeyValue.Switches.UI`, `Files.InfoPanel.Config`, and future compound views can opt into reorder without bespoke local implementations.
-
-## Non-goals for now
-- No drag/reorder UI in the first `Files.InfoPanel.Config` implementation.
-- No reorder persistence policy in `KeyValue`.
-- No generated random IDs during render.
-- No Motion/dnd-kit/public library event leakage.
-- No global config framework.
-- No tricky sortable implementation until a concrete call-site earns it.
-
-## Design principle
-Static rendering remains simple:
-```tsx
-<KeyValue.UI items={items} />
-```
-
-Reorder is an optional mode:
 ```tsx
 <KeyValue.UI
   items={items}
   reorder={{
     enabled: true,
-    onChange: (next, e) => setItems(next),
+    onChange: (e) => setItems(e.next),
   }}
 />
 ```
 
-If reorder is enabled, item identity must be stable. Ordinary static rendering should not require IDs.
+Reorder mode is active only when:
+- `reorder` exists,
+- `reorder.enabled !== false`,
+- `reorder.onChange` exists,
+- every item has stable unique identity from `reorder.getItemId(item, index)` or `item.id`.
 
-## Identity seam
-Future-safe item identity should be optional on every item variant:
-```ts
-type KeyValue.Item = Row | Title | Hr | Spacer;
+If identity is missing or duplicated, `KeyValue.UI` falls back to the static render path. It does not throw in ordinary render and does not fabricate random/render-time IDs.
 
-type Row = {
-  readonly id?: string;
-  readonly kind?: 'row';
-  readonly k: React.ReactNode;
-  readonly v?: React.ReactNode;
-};
+## Public API
 
-type Title = {
-  readonly id?: string;
-  readonly kind: 'title';
-  readonly v: React.ReactNode | [React.ReactNode, React.ReactNode];
-};
+Current public reorder type family:
 
-type Hr = {
-  readonly id?: string;
-  readonly kind: 'hr';
-};
-
-type Spacer = {
-  readonly id?: string;
-  readonly kind: 'spacer';
-};
-```
-
-Static mode may use `item.id ?? index` for React keys.
-
-Reorder mode must require one of:
-- explicit `item.id`, or
-- `reorder.getItemId(item, index)`.
-
-Do not call `slug()` or any random ID generator during render. Random/render-time IDs break React identity, animation identity, focus, and reorder semantics.
-
-## Candidate reorder API sketch
 ```ts
 export type Reorder = {
-  enabled?: boolean;
-  getItemId?: GetItemId;
-  onChange?: ReorderHandler;
+  readonly enabled?: boolean;
+  readonly getItemId?: Reorder.GetItemId;
+  readonly onStart?: Reorder.StartHandler;
+  readonly onChange?: Reorder.ChangeHandler;
+  readonly onEnd?: Reorder.EndHandler;
 };
 
-export type GetItemId = (item: Item, index: number) => string | undefined;
+export namespace Reorder {
+  export type GetItemId = (item: Item, index: number) => string | undefined;
 
-export type ReorderHandler = (next: Item[], e: ReorderEvent) => void;
+  export type ItemRef = {
+    readonly id: string;
+    readonly item: Item;
+    readonly index: number;
+  };
 
-export type ReorderEvent = {
-  readonly from: number;
-  readonly to: number;
-  readonly item: Item;
-};
+  export type Start = {
+    readonly active: ItemRef;
+    readonly items: readonly Item[];
+  };
+
+  export type Change = {
+    readonly next: Item[];
+  };
+
+  export type End = {
+    readonly active: ItemRef;
+    readonly items: readonly Item[];
+    readonly changed: boolean;
+  };
+
+  export type StartHandler = (e: Start) => void;
+  export type ChangeHandler = (e: Change) => void;
+  export type Handler = ChangeHandler;
+  export type EndHandler = (e: End) => void;
+}
 ```
 
-Rules:
-- `onChange` receives a new immutable array.
-- `KeyValue` does not mutate `items`.
-- Caller owns state and passes the next `items` prop back down.
-- Reorder event types are ours; internal libraries remain implementation details.
-
-## Implementation library boundary
-`motion/react` is already available in `@sys/ui-components`, so it is a plausible internal implementation for layout/reorder affordances.
-
-However, the public API must remain independent:
-- no `Motion` types,
-- no dnd-kit types,
-- no third-party sensor/event objects,
-- no library-specific prop names.
-
-If Motion later proves insufficient, the implementation can change behind the same `KeyValue.Reorder` contract.
-
-## Relationship to KeyValue.Switches
-`KeyValue.Switches.Row` already has a stable `id`.
-
-A minimal identity seam should preserve that ID when mapping:
-```ts
-KeyValue.Switches.toItem({ id: 'events', ... })
-// => { id: 'events', kind: 'row', k: 'events', v: <SwitchValue /> }
-```
-
-This is useful even before drag/reorder because it gives `KeyValue.UI` stable React keys when available.
-
-## Relationship to Files.InfoPanel.Config
-`Files.InfoPanel.Config` should use ordered immutable arrays now:
-```ts
-fields: Files.InfoPanel.Field[];
-onFieldsChange(next: Files.InfoPanel.Field[]): void;
-```
-
-The field values are already stable IDs:
-```ts
-'status:title'
-'status'
-'fidelity'
-'capabilities'
-'error'
-'events'
-```
-
-The first config pass should only toggle fields on/off while preserving canonical order. Future drag/reorder can emit a new field array through the same callback shape.
-
-## Minimal clean pass recommendation
-Before implementing full reorder, a small preparatory pass is likely warranted:
+Lifecycle is:
 
 ```text
-refactor(ui-components): add KeyValue item identity seam
+start → change* → end
 ```
 
-Scope:
-- Add optional `id?: string` to `KeyValue.Row`, `Title`, `Hr`, and `Spacer`.
-- Use `item.id ?? index` for React keys in `KeyValue.UI`.
-- Forward `KeyValue.Switches.Row.id` into the mapped `KeyValue.Row` from `toItem(...)`.
-- Add narrow tests proving `KeyValue.Switches.toItem` preserves row identity.
+Semantics:
+- `active` is the item being reordered.
+- `items` is the lifecycle snapshot at `onStart` or `onEnd`.
+- `next` is the controlled replacement payload for `onChange`.
+- `changed` summarizes whether the final item order differs from the start order.
+- `Handler` remains as a backwards-compatible alias for `ChangeHandler`.
 
-Do not add reorder props in this pass.
-Do not add drag UI in this pass.
+No `changing` event landed. No `prev`, `from`, `to`, `item`, `reason`, or Motion/dnd-kit event payloads landed.
 
-Acceptance criteria:
-- `t.KeyValue.Row`, `Title`, `Hr`, and `Spacer` each accept optional `id?: string`.
-- Existing callers without IDs still render and type-check.
-- `KeyValue.UI` uses stable explicit IDs for React keys when provided.
-- `KeyValue.Switches.toItem(...)` preserves `Row.id` into the returned `KeyValue.Row`.
-- Tests prove the identity mapping without asserting any drag/reorder behavior.
+## Implementation notes
 
-## Future reorder affordance criteria
-When the later reorder affordance is implemented:
-- Reorder mode must be opt-in.
-- Reorder mode must reject or disable reorder for items without stable identity unless `getItemId` supplies one.
-- `onChange` must receive a fresh immutable item array.
-- Library implementation must remain replaceable behind `KeyValue.Reorder` types.
-- The first concrete reorder consumer should prove both `KeyValue.UI` and a composed variant such as `KeyValue.Switches.UI`.
+- Motion is internal only, imported as `ReorderBase` from the local common lane.
+- Public API exposes only `@sys` types.
+- Reorder values are stable string IDs, not item object references.
+- `toReorderModel(...)` owns identity resolution:
+  ```ts
+  reorder.getItemId?.(item, index) ?? item.id
+  ```
+- `toReorderedItems(...)` accepts only valid permutations:
+  - same length,
+  - no duplicate IDs,
+  - every ID maps back to a known item.
+- `sameIds(...)` suppresses no-op controlled churn.
+- `Reorder.Item` is the direct parent-grid child in reorder mode, preserving the table/subgrid item-shell invariant.
+- Static mode still uses `item.id ?? index` only as a React key fallback.
 
-## Proof path
-From `code/sys.ui/ui-components`:
-- `deno task test --trace-leaks ./src/ui.react/KeyValue.Switches/-test/-.test.ts`
-- `deno task test --trace-leaks ./src/ui.react/KeyValue/-.test.ts`
-- `deno task check`
+## KeyValue.Switches status
 
-From `code/sys.ui/ui` after Files config work:
-- `deno task test --trace-leaks ./src/ui.react/ui.files`
-- `deno task check`
+`KeyValue.Switches.UI` inherits root `KeyValue` reorder support because its props extend `KeyValue.Props` and `toItem(...)` preserves row `id`.
+
+The Switches debug harness now includes a `reorder: boolean` control and proves reorder through the wrapper without bespoke production logic.
+
+Production call-sites should opt into reorder only when earned.
+
+## Files.InfoPanel.Config relationship
+
+Do not fold reorder policy into `Files.InfoPanel.Config`.
+
+The clean downstream path remains:
+- represent fields as ordered immutable arrays,
+- toggle visible fields while preserving canonical order,
+- later pass `reorder` through root `KeyValue` only if the production config UI earns drag/reorder.
+
+No Files production reorder call-site has landed from this plan.
+
+## Proofs run during the arc
+
+Focused tests:
+
+```text
+deno task test --trace-leaks ./src/ui.react/KeyValue/-test/-.test.tsx ./src/ui.react/KeyValue/-test/-u.reorder.test.ts ./src/ui.react/KeyValue/-test/-u.fromObject.test.ts ./src/ui.react/KeyValue/-test/-u.href.test.ts ./src/ui.react/KeyValue.Switches/-test/-.test.ts
+```
+
+Package check:
+
+```text
+deno task check
+```
+
+Runtime/spec proofs:
+- static table and spaced samples did not regress,
+- reorder sample dragged successfully,
+- `reorder: true/false` applies uniformly across visible KeyValue samples,
+- Switches debug harness can prove inherited reorder through the wrapper,
+- lifecycle console events mirror the final shape:
+  - `KeyValue.reorder.onStart`,
+  - `KeyValue.reorder.onChange`,
+  - `KeyValue.reorder.onEnd`.
+
+## Remaining true follow-up
+
+- Tune reorder motion feel only if needed: bounce, landing softness, dense-list feel, and overall “buttery” movement. This is animation tuning only; do not change the public API unless a real product need earns it.
+
+## Closed decisions
+
+- Reorder belongs at root `KeyValue.UI` item layer.
+- Reorder is controlled only.
+- Reorder mode requires stable identity.
+- `reorder.getItemId(...)` explicitly overrides `item.id`.
+- First drag surface is the whole item/row.
+- No drag handles until interaction conflicts earn them.
+- No random/render-time IDs.
+- No persistence in `KeyValue`.
+- No Files semantics in `KeyValue`.
+- No third-party public types.
+- `start → change* → end` is the lifecycle model.
+- `current + next` transition payloads are not needed for the landed model.
