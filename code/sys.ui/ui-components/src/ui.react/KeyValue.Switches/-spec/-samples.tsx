@@ -14,7 +14,11 @@ const isHr = (item: SampleItem): item is t.KeyValue.Hr => {
 };
 
 const Styles = {
-  customLabel: css({ backgroundColor: Color.ruby(0.2) }),
+  customLabel: css({
+    backgroundColor: Color.ruby(0.2),
+    marginTop: 3,
+    paddingBottom: 22,
+  }),
 };
 
 const defaultValues = {
@@ -30,13 +34,16 @@ const defaultValues = {
 const descriptors: Record<SampleKind, readonly SampleItem[]> = {
   basic: [{ id: 'capabilities' }, { id: 'events' }],
   mixed: [
-    { id: 'custom', label: <div className={Styles.customLabel.class}>{'custom label element'}</div> },
+    {
+      id: 'custom',
+      label: <div className={Styles.customLabel.class}>{'custom label element'}</div>,
+    },
     {
       id: 'large',
       label: <div>{'here - look, a large switch'}</div>,
       switch: { height: 18, width: 34 },
     },
-    { kind: 'hr', y: [8, 8] },
+    { id: 'mixed-divider', kind: 'hr', y: [8, 8] },
     {
       id: 'overflow',
       label: 'overflowing label on a normally sized switch that should truncate by default',
@@ -55,21 +62,38 @@ const descriptors: Record<SampleKind, readonly SampleItem[]> = {
   ],
 };
 
-/** Spec/debug sample rows. */
+/**
+ * Spec/debug sample rows.
+ */
 export const SAMPLE = {
   defaultValues,
 
+  source(sample?: SampleKind): t.KeyValueSwitches.Item[] {
+    return [...descriptors[sample ?? 'basic']];
+  },
+
   items(sample?: SampleKind, options: SampleOptions = {}): t.KeyValueSwitches.Item[] {
-    const kind = sample ?? 'basic';
+    return SAMPLE.withValues(SAMPLE.source(sample), options);
+  },
+
+  withValues(items: readonly t.KeyValueSwitches.Item[], options: SampleOptions = {}) {
     const values: SampleValues = { ...defaultValues, ...options.values };
     const onToggle = options.onToggle;
 
-    return descriptors[kind].map((item) => {
+    return items.map((item) => {
       if (isHr(item)) return item;
 
       const row: t.KeyValueSwitches.Row = { ...item, value: values[item.id] ?? false };
       if (onToggle) row.onToggle = (next) => onToggle(item.id, next);
       return row;
     });
+  },
+
+  reorder(
+    current: readonly t.KeyValueSwitches.Item[],
+    next: readonly t.KeyValue.Item[],
+  ): t.KeyValueSwitches.Item[] {
+    const byId = new Map(current.map((item) => [item.id, item]));
+    return next.flatMap((item) => byId.get(item.id ?? '') ?? []);
   },
 } as const;

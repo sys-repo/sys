@@ -1,5 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { D } from './common.ts';
+import { D, type t } from './common.ts';
 import { Switches } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { SAMPLE } from './-samples.tsx';
@@ -10,12 +10,29 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    const items = SAMPLE.items(v.sample, {
+    const currentItems = p.items.value ?? SAMPLE.source(v.sample);
+    const items = SAMPLE.withValues(currentItems, {
       values: v.values,
       onToggle: (id, next) => (p.values.value = { ...p.values.value, [id]: next }),
     });
 
-    return <Switches.UI debug={v.debug} theme={v.theme} enabled={v.enabled} items={items} />;
+    const onReorderChange: t.KeyValue.Reorder.Handler = (e) => {
+      p.items.value = SAMPLE.reorder(currentItems, e.next);
+    };
+
+    const reorder: t.KeyValue.Reorder | undefined = v.reorder
+      ? { onChange: onReorderChange }
+      : undefined;
+
+    return (
+      <Switches.UI
+        debug={v.debug}
+        theme={v.theme}
+        enabled={v.enabled}
+        reorder={reorder}
+        items={items}
+      />
+    );
   }
 
   e.it('init', (e) => {
