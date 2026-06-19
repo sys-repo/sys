@@ -81,7 +81,6 @@
     "npm:@stripe/stripe-js@9.8.0": "9.8.0",
     "npm:@svgdotjs/svg.js@3.2.5": "3.2.5",
     "npm:@testing-library/react@16.3.2": "16.3.2_@types+react@19.2.17_@types+react-dom@19.2.3__@types+react@19.2.17_react@19.2.7_react-dom@19.2.7__react@19.2.7",
-    "npm:@types/ramda@0.31.1": "0.31.1",
     "npm:@types/react-dom@19.2.3": "19.2.3_@types+react@19.2.17",
     "npm:@types/react@19.2.17": "19.2.17",
     "npm:@types/ws@8.18.1": "8.18.1",
@@ -123,7 +122,7 @@
     "npm:strip-ansi@7.2.0": "7.2.0",
     "npm:tinycolor2@1.6.0": "1.6.0",
     "npm:ts-essentials@10.2.1": "10.2.1",
-    "npm:typebox@1.2.16": "1.2.16",
+    "npm:typebox@1.2.17": "1.2.17",
     "npm:typebox@1.2.2": "1.2.2",
     "npm:vite-plugin-wasm@3.6.0": "3.6.0_vite@8.0.16__yaml@2.9.0_yaml@2.9.0",
     "npm:vite@8.0.16": "8.0.16_yaml@2.9.0",
@@ -468,7 +467,6 @@
         "jsr:@std/path@1.1.5",
         "jsr:@std/semver",
         "jsr:@std/testing",
-        "npm:@types/ramda",
         "npm:chai",
         "npm:date-fns",
         "npm:hash-it",
@@ -487,7 +485,6 @@
         "jsr:@std/path@1.1.5",
         "jsr:@std/semver",
         "jsr:@std/testing",
-        "npm:@types/ramda",
         "npm:chai",
         "npm:date-fns",
         "npm:hash-it",
@@ -1083,7 +1080,7 @@
       "integrity": "sha512-Y/KVOhuKSgRQgYBlwmRtO2gPkUcoavOSqGF9bpQIINvNZvc19k6Z1H3bFDTce3Vp5ApMmTsfLH3+tNvOg75fAQ==",
       "dependencies": [
         "@mariozechner/pi-ai",
-        "typebox@1.2.16"
+        "typebox@1.2.17"
       ],
       "deprecated": true
     },
@@ -1098,7 +1095,7 @@
         "openai",
         "partial-json",
         "proxy-agent",
-        "typebox@1.2.16",
+        "typebox@1.2.17",
         "undici",
         "zod-to-json-schema"
       ],
@@ -1125,7 +1122,7 @@
         "minimatch@10.2.5",
         "proper-lockfile",
         "strip-ansi@7.2.0",
-        "typebox@1.2.16",
+        "typebox@1.2.17",
         "undici",
         "uuid@14.0.0",
         "yaml"
@@ -1745,12 +1742,6 @@
       "integrity": "sha512-xfrlY7UD5rMJk3ZVJP8BNzS28J36YJg+xp+LPXV1TdWxr8uMH5A860QNxYDGQe/ylDSgjxE52Q9VnO7p75tJxg==",
       "dependencies": [
         "undici-types"
-      ]
-    },
-    "@types/ramda@0.31.1": {
-      "integrity": "sha512-Vt6sFXnuRpzaEj+yeutA0q3bcAsK7wdPuASIzR9LXqL4gJPyFw8im9qchlbp4ltuf3kDEIRmPJTD/Fkg60dn7g==",
-      "dependencies": [
-        "types-ramda"
       ]
     },
     "@types/react-dom@19.2.3_@types+react@19.2.17": {
@@ -3398,23 +3389,14 @@
     "ts-essentials@10.2.1": {
       "integrity": "sha512-+Id1fRkuir+CsgK2x04/icS2b4V1hQmq7ObzIrDjhN0ozfRYivnP7aaKMVJfLApQm0trjR39A6NIMVchiB9Erw=="
     },
-    "ts-toolbelt@9.6.0": {
-      "integrity": "sha512-nsZd8ZeNUzukXPlJmTBwUAuABDe/9qtVDelJeT/qW0ow3ZS3BsQJtNkan1802aM9Uf68/Y8ljw86Hu0h5IUW3w=="
-    },
     "tslib@2.8.1": {
       "integrity": "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w=="
     },
-    "typebox@1.2.16": {
-      "integrity": "sha512-p85YWtR1RznP2kt/sftmj1leGiObfHVJwkK2hkDdEKhbtQONeUeBtbYdK0x9tLPh+5AaEPD62APv189Cy+/C2g=="
+    "typebox@1.2.17": {
+      "integrity": "sha512-FHB10V5OI+MBKQ9N4CS4FTpdTiPwjAwkS9cjXt4uBULFE2zNOYu4A6iAR4GZVPcujSD6uCQjY1fqnOsjn/SLPQ=="
     },
     "typebox@1.2.2": {
       "integrity": "sha512-0nqIJFL+baWoAEtwa0l/vfbfXg0+3gEhiWGnHuoIiivXjlk/TpxDddG0WER34CojKNpHi4ZXku8XGEz9H55b5Q=="
-    },
-    "types-ramda@0.31.0": {
-      "integrity": "sha512-vaoC35CRC3xvL8Z6HkshDbi6KWM1ezK0LHN0YyxXWUn9HKzBNg/T3xSGlJZjCYspnOD3jE7bcizsp0bUXZDxnQ==",
-      "dependencies": [
-        "ts-toolbelt"
-      ]
     },
     "typescript@5.9.3": {
       "integrity": "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==",
@@ -3669,7 +3651,7 @@
       "npm:@sinclair/typebox-codegen@0.11.1",
       "npm:@stripe/stripe-js@9.8.0",
       "npm:@svgdotjs/svg.js@3.2.5",
-      "npm:@types/ramda@0.31.1",
+      "npm:@types/ramda@0.32.0",
       "npm:@types/ws@8.18.1",
       "npm:@vitejs/plugin-react@6.0.2",
       "npm:bowser@2.14.1",
@@ -3698,13 +3680,13 @@
       "npm:react-inspector@9.0.0",
       "npm:react-spinners@0.17.0",
       "npm:rollup-plugin-visualizer@7.0.1",
-      "npm:rollup@4.62.0",
+      "npm:rollup@4.62.2",
       "npm:rxjs@7.8.2",
       "npm:shiki@4.2.0",
       "npm:strip-ansi@7.2.0",
       "npm:tinycolor2@1.6.0",
       "npm:ts-essentials@10.2.1",
-      "npm:typebox@1.2.16",
+      "npm:typebox@1.2.17",
       "npm:vite-plugin-wasm@3.6.0",
       "npm:vite@8.0.16",
       "npm:ws@8.21.0",
