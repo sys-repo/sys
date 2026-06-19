@@ -83,7 +83,9 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
         dataComponent={D.displayName}
         layout={layout}
         model={reorderModel}
+        onStart={reorder.onStart}
         onChange={onReorderChange}
+        onEnd={reorder.onEnd}
         renderItem={renderItem}
       />
     );

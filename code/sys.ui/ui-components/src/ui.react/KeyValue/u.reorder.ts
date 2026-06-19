@@ -5,6 +5,7 @@ import { type t, Is } from './common.ts';
  */
 export type ReorderModel = {
   readonly ids: string[];
+  readonly items: readonly t.KeyValue.Item[];
   readonly byId: ReadonlyMap<string, t.KeyValue.Item>;
 };
 
@@ -25,7 +26,7 @@ export function toReorderModel(
   const byId = new Map<string, t.KeyValue.Item>();
   ids.forEach((id, index) => byId.set(id, items[index]));
 
-  return { ids, byId };
+  return { ids, items, byId };
 }
 
 /**

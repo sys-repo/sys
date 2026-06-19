@@ -16,7 +16,7 @@ export default Spec.describe(D.displayName, async (e) => {
       onToggle: (id, next) => (p.values.value = { ...p.values.value, [id]: next }),
     });
 
-    const onReorderChange: t.KeyValue.Reorder.Handler = (e) => {
+    const onReorderChange: t.KeyValue.Reorder.ChangeHandler = (e) => {
       p.items.value = SAMPLE.reorder(currentItems, e.next);
     };
 

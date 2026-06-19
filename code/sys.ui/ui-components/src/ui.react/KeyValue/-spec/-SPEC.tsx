@@ -10,9 +10,17 @@ export default Spec.describe(D.displayName, (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    const onReorderChange: t.KeyValue.Reorder.Handler = (e) => {
+    const onReorderStart: t.KeyValue.Reorder.StartHandler = (e) => {
+      console.info('⚡️ KeyValue.reorder.onStart:', e);
+    };
+
+    const onReorderChange: t.KeyValue.Reorder.ChangeHandler = (e) => {
       console.info('⚡️ KeyValue.reorder.onChange:', e);
       p.items.value = e.next;
+    };
+
+    const onReorderEnd: t.KeyValue.Reorder.EndHandler = (e) => {
+      console.info('⚡️ KeyValue.reorder.onEnd:', e);
     };
 
     function update() {
@@ -32,7 +40,7 @@ export default Spec.describe(D.displayName, (e) => {
       .render(() => {
         const v = Signal.toObject(p);
         const reorder: t.KeyValue.Reorder | undefined = v.reorder
-          ? { onChange: onReorderChange }
+          ? { onStart: onReorderStart, onChange: onReorderChange, onEnd: onReorderEnd }
           : undefined;
 
         return (

@@ -89,7 +89,9 @@ export declare namespace KeyValue {
   export type Reorder = {
     readonly enabled?: boolean;
     readonly getItemId?: Reorder.GetItemId;
-    readonly onChange?: Reorder.Handler;
+    readonly onStart?: Reorder.StartHandler;
+    readonly onChange?: Reorder.ChangeHandler;
+    readonly onEnd?: Reorder.EndHandler;
   };
 
   /**
@@ -98,10 +100,22 @@ export declare namespace KeyValue {
   export namespace Reorder {
     /** Resolve stable item identity for reorder mode. */
     export type GetItemId = (item: Item, index: number) => string | undefined;
-    /** Reorder change callback. */
-    export type Handler = (e: Change) => void;
+    /** Reorder item reference. */
+    export type ItemRef = { readonly id: string; readonly item: Item; readonly index: number };
+    /** Reorder start event. */
+    export type Start = { readonly active: ItemRef; readonly items: readonly Item[] };
     /** Reorder change event. */
     export type Change = { readonly next: Item[] };
+    /** Reorder end event. */
+    export type End = { readonly active: ItemRef; readonly items: readonly Item[]; readonly changed: boolean };
+    /** Reorder start callback. */
+    export type StartHandler = (e: Start) => void;
+    /** Reorder change callback. */
+    export type ChangeHandler = (e: Change) => void;
+    /** Backwards-compatible reorder change callback alias. */
+    export type Handler = ChangeHandler;
+    /** Reorder end callback. */
+    export type EndHandler = (e: End) => void;
   }
 
   /** Layout config for key/value rows. */

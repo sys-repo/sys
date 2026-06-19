@@ -10,6 +10,7 @@ describe('KeyValue.u.reorder', () => {
 
     const model = toReorderModel(items);
     expect(model?.ids).to.eql(['a', 'b']);
+    expect(model?.items).to.equal(items);
     expect(model?.byId.get('a')).to.equal(items[0]);
     expect(model?.byId.get('b')).to.equal(items[1]);
   });
