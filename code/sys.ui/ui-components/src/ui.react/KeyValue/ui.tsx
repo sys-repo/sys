@@ -1,9 +1,11 @@
 import React from 'react';
 
-import { type t, Color, css, D } from './common.ts';
+import { Color, css, D, type t } from './common.ts';
 import { toCssSize, toFont, toLayout } from './u.ts';
+import { toReorderModel } from './u.reorder.ts';
 import { Hr } from './ui.Hr.tsx';
 import { ItemShell } from './ui.ItemShell.tsx';
+import { ReorderList } from './ui.Reorder.tsx';
 import { Row } from './ui.Row.tsx';
 import { Spacer } from './ui.Spacer.tsx';
 import { Title } from './ui.Title.tsx';
@@ -17,8 +19,9 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
   const { fontSize, fontFamily } = toFont(props);
 
   const isTable = layout.kind === 'table';
-  const keyTrack =
-    isTable && layout.keyMax ? `fit-content(${toCssSize(layout.keyMax)})` : 'max-content';
+  const keyTrack = isTable && layout.keyMax
+    ? `fit-content(${toCssSize(layout.keyMax)})`
+    : 'max-content';
 
   const styles = {
     base: css({
@@ -40,9 +43,15 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
   };
 
   const keyOf = (item: t.KeyValue.Item, index: number) => item.id ?? index;
+  const style = css(styles.base, props.style);
+  const className = style.class;
+  const reorder = props.reorder;
+  const onReorderChange = reorder?.onChange;
+  const reorderModel = reorder && reorder.enabled !== false && onReorderChange
+    ? toReorderModel(items, reorder)
+    : undefined;
 
-  const elRows = items.map((item, i) => {
-    const key = keyOf(item, i);
+  const renderItem = (item: t.KeyValue.Item) => {
     const kind = item.kind ?? 'row';
     const args: t.KeyValue.ItemProps = {
       theme: theme.name,
@@ -56,24 +65,41 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
       debug,
     };
 
-    let child: t.ReactNode;
     if (kind === 'row') {
       const row = item as t.KeyValue.Row;
       const rowArgs: t.KeyValue.ItemProps = { ...args, mono: row.mono ?? mono };
-      child = <Row {...rowArgs} />;
-    } else if (kind === 'title') child = <Title {...args} />;
-    else if (kind === 'hr') child = <Hr {...args} />;
-    else if (kind === 'spacer') child = <Spacer {...args} />;
+      return <Row {...rowArgs} />;
+    }
+    if (kind === 'title') return <Title {...args} />;
+    if (kind === 'hr') return <Hr {...args} />;
+    if (kind === 'spacer') return <Spacer {...args} />;
+    return null;
+  };
 
+  if (reorderModel && onReorderChange) {
+    return (
+      <ReorderList
+        style={style}
+        dataComponent={D.displayName}
+        layout={layout}
+        model={reorderModel}
+        onChange={onReorderChange}
+        renderItem={renderItem}
+      />
+    );
+  }
+
+  const elRows = items.map((item, i) => {
+    const key = keyOf(item, i);
     return (
       <ItemShell key={key} item={item} layout={layout}>
-        {child}
+        {renderItem(item)}
       </ItemShell>
     );
   });
 
   return (
-    <div className={css(styles.base, props.style).class} data-component={D.displayName}>
+    <div className={className} data-component={D.displayName}>
       {elRows}
     </div>
   );

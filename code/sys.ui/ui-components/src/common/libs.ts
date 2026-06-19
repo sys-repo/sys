@@ -1,10 +1,8 @@
 import { motion as Motion } from 'motion/react';
-export { AnimatePresence } from 'motion/react';
+export { AnimatePresence, Reorder } from 'motion/react';
 export { Motion, Motion as M };
 
-/**
- * System
- */
+// System.
 export { Obj } from '@sys/std/obj';
 export { Try } from '@sys/std/try';
 export { Delete } from '@sys/std/delete';

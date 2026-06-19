@@ -7,6 +7,7 @@ import { SampleButtons } from './-ui.Buttons.Samples.tsx';
 
 type P = t.KeyValue.Props;
 type Storage = Pick<P, 'theme' | 'debug' | 'size' | 'mono' | 'truncate' | 'enabled'> & {
+  reorder: boolean;
   layout: t.KeyValue.Layout['kind'];
   layoutSpaced: t.KeyValue.LayoutSpaced;
   layoutTable: t.KeyValue.LayoutTable;
@@ -19,6 +20,7 @@ const defaults: Storage = {
   mono: D.mono,
   truncate: D.truncate,
   enabled: true,
+  reorder: false,
   layout: D.layout.default,
   layoutSpaced: D.layout.spaced,
   layoutTable: D.layout.table,
@@ -26,13 +28,17 @@ const defaults: Storage = {
 };
 
 /**
- * Types:
+ * Debug component props.
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
+
+/**
+ * Debug signal bundle.
+ */
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
 
 /**
- * Signals:
+ * Create the debug harness signals.
  */
 export function createDebugSignals() {
   const s = Signal.create;
@@ -47,6 +53,7 @@ export function createDebugSignals() {
     mono: s(snap.mono),
     truncate: s(snap.truncate),
     enabled: s(snap.enabled ?? true),
+    reorder: s(snap.reorder ?? false),
     layout: s(snap.layout),
     layoutSpaced: {
       kind: 'spaced',
@@ -93,6 +100,7 @@ export function createDebugSignals() {
       d.mono = p.mono.value;
       d.truncate = p.truncate.value;
       d.enabled = p.enabled.value;
+      d.reorder = p.reorder.value;
       d.sample = p.sample.value;
 
       d.layout = p.layout.value;
@@ -126,16 +134,14 @@ const Styles = {
 };
 
 /**
- * Component:
+ * Debug controls for the KeyValue spec.
  */
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
   Signal.useRedrawEffect(debug.listen);
 
-  /**
-   * Render:
-   */
+  // Render.
   const theme = Color.theme();
   const styles = {
     base: css({ color: theme.fg }),
@@ -164,6 +170,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `truncate: ${p.truncate.value}`}
         onClick={() => Signal.toggle(p.truncate)}
+      />
+      <Button
+        block
+        label={() => `reorder: ${p.reorder.value}`}
+        onClick={() => Signal.toggle(p.reorder)}
       />
       <hr />
       <LayoutButtons debug={debug} theme={theme.name} />

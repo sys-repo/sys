@@ -1,22 +1,28 @@
 import { type t, Bullet, Color, Str } from './common.ts';
 import { Foo } from './-ui.Foo.tsx';
 
-export type SampleKind = 'comprehensive' | 'simple' | 'opacity' | 'links';
+export type SampleKind = 'comprehensive' | 'simple' | 'opacity' | 'links' | 'reorder';
 
 const mono = true;
 
 /**
- * Sample data-sets:
+ * Sample data-sets.
  */
 export const SAMPLE = {
   items(sample?: SampleKind): t.KeyValue.Item[] | undefined {
-    if (sample === 'comprehensive') return comprehensive();
-    if (sample === 'simple') return simple();
-    if (sample === 'opacity') return opacity();
-    if (sample === 'links') return links();
+    if (sample === 'comprehensive') return withSampleIds(sample, comprehensive());
+    if (sample === 'simple') return withSampleIds(sample, simple());
+    if (sample === 'opacity') return withSampleIds(sample, opacity());
+    if (sample === 'links') return withSampleIds(sample, links());
+    if (sample === 'reorder') return withSampleIds(sample, reorder());
     return undefined;
   },
 } as const;
+
+/** Apply deterministic sample IDs so the reorder prop behaves uniformly in specs. */
+function withSampleIds(sample: SampleKind, items: t.KeyValue.Item[]) {
+  return items.map((item, index) => ({ ...item, id: item.id ?? `${sample}:${index}` }));
+}
 
 function simple(): t.KeyValue.Item[] {
   return [
@@ -74,6 +80,18 @@ function opacity(): t.KeyValue.Item[] {
     { kind: 'row', k: 'uniform opacity', v: '0.3', opacity: 0.3, x },
     { kind: 'row', k: 'key opacity 1', v: 'hello', opacity: { k: 1 }, x },
     { kind: 'row', k: 'value opacity 0.5', v: '👋', opacity: { v: 0.5 }, x },
+  ];
+}
+
+function reorder(): t.KeyValue.Item[] {
+  return [
+    { id: 'stream:title', kind: 'title', v: 'Reorder Sample' },
+    { id: 'stream:id', kind: 'row', k: 'id', v: 'crdt:2esGLgD5SoQkeucytmGeadm9cC7y' },
+    { id: 'stream:resolution', kind: 'row', k: 'resolution', v: '1920×1080' },
+    { id: 'stream:fps', kind: 'row', k: 'fps', v: '60' },
+    { id: 'stream:device', kind: 'row', k: 'device', v: 'Logitech BRIO 4K' },
+    { id: 'stream:hr', kind: 'hr' },
+    { id: 'stream:status', kind: 'row', k: 'status', v: 'active' },
   ];
 }
 

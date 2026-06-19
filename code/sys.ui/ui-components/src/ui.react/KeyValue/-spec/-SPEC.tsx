@@ -1,5 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { D } from './common.ts';
+import { D, type t } from './common.ts';
 import { KeyValue } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
@@ -9,6 +9,11 @@ export default Spec.describe(D.displayName, (e) => {
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
+
+    const onReorderChange: t.KeyValue.Reorder.Handler = (e) => {
+      console.info('⚡️ KeyValue.reorder.onChange:', e);
+      p.items.value = e.next;
+    };
 
     function update() {
       ctx.subject.size([320, null]);
@@ -26,6 +31,10 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
+        const reorder: t.KeyValue.Reorder | undefined = v.reorder
+          ? { onChange: onReorderChange }
+          : undefined;
+
         return (
           <KeyValue.UI
             debug={v.debug}
@@ -36,6 +45,7 @@ export default Spec.describe(D.displayName, (e) => {
             enabled={v.enabled}
             layout={debug.layout}
             items={v.items}
+            reorder={reorder}
           />
         );
       });

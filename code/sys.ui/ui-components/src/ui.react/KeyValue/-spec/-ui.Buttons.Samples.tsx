@@ -13,7 +13,7 @@ export type SampleButtonsProps = {
 type P = SampleButtonsProps;
 
 /**
- * Component:
+ * Sample selector buttons for the KeyValue spec.
  */
 export const SampleButtons: React.FC<P> = (props) => {
   const { debug } = props;
@@ -24,20 +24,16 @@ export const SampleButtons: React.FC<P> = (props) => {
     base: css({ color: theme.fg }),
   };
 
+  const selectSample = (kind?: SampleKind) => {
+    p.items.value = SAMPLE.items(kind);
+    p.sample.value = kind;
+  };
+
   const button = (kind?: SampleKind, label?: string) => {
     const isSelected = p.sample.value === kind;
     const text = label ?? `sample: ${kind}`;
     const prefix = isSelected ? '🌳 ' : '';
-    return (
-      <Button
-        block
-        label={`${prefix}${text}`}
-        onClick={() => {
-          p.items.value = SAMPLE.items(kind);
-          p.sample.value = kind;
-        }}
-      />
-    );
+    return <Button block label={`${prefix}${text}`} onClick={() => selectSample(kind)} />;
   };
 
   return (
@@ -47,6 +43,7 @@ export const SampleButtons: React.FC<P> = (props) => {
       {button('comprehensive')}
       {button('opacity')}
       {button('links')}
+      {button('reorder')}
     </div>
   );
 };

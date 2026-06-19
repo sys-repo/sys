@@ -44,7 +44,9 @@ export declare namespace KeyValue {
   export type LinkDef = boolean | t.StringUri | LinkProps;
   export type Href = LinkDef | { readonly k?: LinkDef; readonly v?: LinkDef };
 
-  /** Public module surface. */
+  /**
+   * Public module surface.
+   */
   export type Lib = {
     readonly UI: React.FC<Props>;
     readonly Switches: t.KeyValueSwitches.Lib;
@@ -54,6 +56,7 @@ export declare namespace KeyValue {
   /** Component props for the <KeyValue> component. */
   export type Props = {
     items?: Item[];
+    reorder?: Reorder;
 
     layout?: Layout;
     size?: Size;
@@ -81,6 +84,25 @@ export declare namespace KeyValue {
     theme?: t.CommonTheme;
     style?: t.CssInput;
   };
+
+  /** Controlled reorder affordance. */
+  export type Reorder = {
+    readonly enabled?: boolean;
+    readonly getItemId?: Reorder.GetItemId;
+    readonly onChange?: Reorder.Handler;
+  };
+
+  /**
+   * Reorder callback and identity contracts.
+   */
+  export namespace Reorder {
+    /** Resolve stable item identity for reorder mode. */
+    export type GetItemId = (item: Item, index: number) => string | undefined;
+    /** Reorder change callback. */
+    export type Handler = (e: Change) => void;
+    /** Reorder change event. */
+    export type Change = { readonly next: Item[] };
+  }
 
   /** Layout config for key/value rows. */
   export type Layout = LayoutSpaced | LayoutTable;
