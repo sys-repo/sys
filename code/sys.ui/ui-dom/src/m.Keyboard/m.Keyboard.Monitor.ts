@@ -8,6 +8,7 @@ const singleton = {
 };
 const { dispose, dispose$ } = Rx.disposable();
 const singleton$ = new Rx.BehaviorSubject<t.Keyboard.State.Snapshot>(singleton.state);
+const listenerOptions = { capture: true } as const;
 
 /**
  * Global keyboard monitor.
@@ -40,8 +41,8 @@ export const KeyboardMonitor: t.Keyboard.Monitor.Lib = {
   start() {
     if (!KeyboardMonitor.is.supported) return KeyboardMonitor;
     if (!singleton.isListening) {
-      document.addEventListener('keydown', keypressHandler);
-      document.addEventListener('keyup', keypressHandler);
+      document.addEventListener('keydown', keypressHandler, listenerOptions);
+      document.addEventListener('keyup', keypressHandler, listenerOptions);
       globalThis.addEventListener('blur', blurHandler);
       singleton.isListening = true;
     }
@@ -54,8 +55,8 @@ export const KeyboardMonitor: t.Keyboard.Monitor.Lib = {
   stop() {
     if (!KeyboardMonitor.is.supported) return;
     if (singleton.isListening) {
-      document.removeEventListener('keydown', keypressHandler);
-      document.removeEventListener('keyup', keypressHandler);
+      document.removeEventListener('keydown', keypressHandler, listenerOptions);
+      document.removeEventListener('keyup', keypressHandler, listenerOptions);
       globalThis.removeEventListener('blur', blurHandler);
       reset({ hard: true });
       dispose();
@@ -228,6 +229,18 @@ export function handlerOnOverloaded(
   throw new Error('Input parameters for [Keyboard.on] not matched.');
 }
 
+function mergeModifiers(
+  tracked: t.Keyboard.Modifier.Flags,
+  current: t.Keyboard.Modifier.Flags,
+): t.Keyboard.Modifier.Flags {
+  return {
+    shift: tracked.shift || current.shift,
+    ctrl: tracked.ctrl || current.ctrl,
+    alt: tracked.alt || current.alt,
+    meta: tracked.meta || current.meta,
+  };
+}
+
 export function handlerOn(
   pattern: t.Keyboard.Match.Pattern,
   fn: t.Keyboard.Match.SubscriberHandler,
@@ -250,11 +263,11 @@ export function handlerOn(
       Rx.filter((e) => e.current.pressed.length > 0),
     )
     .subscribe((e) => {
+      const event = e.last!;
       const pressed = e.current.pressed.map((e) => e.code);
-      const modifiers = e.current.modifiers;
+      const modifiers = mergeModifiers(e.current.modifiers, Util.toModifiers(event.keypress));
 
       if (matcher.isMatch(pressed, modifiers)) {
-        const event = e.last!;
         fn({
           pattern,
           state: e.current,
