@@ -82,38 +82,27 @@ export namespace DomMock {
      * Helpers for testing keyboard events in unit-tests.
      */
     export type Lib = {
-      /**
-       * Creates a KeyboardEvent with the specified parameters.
-       * @param type - The type of the event (e.g., 'keydown', 'keyup').
-       * @param key - The key value of the key represented by the event.
-       * @param keyCode - The numeric key code of the key represented by the event.
-       * @param code - The physical key code (e.g., 'KeyZ'). Defaults to `Key${key.toUpperCase()}` if not provided.
-       * @returns A new KeyboardEvent instance.
-       */
-      event(type: string, key?: string, keyCode?: number, code?: string): KeyboardEvent;
+      /** Create a KeyboardEvent with inferred defaults and optional native init fields. */
+      event(
+        type: string,
+        key?: string,
+        keyCode?: number | EventInit,
+        code?: string | EventInit,
+        init?: EventInit,
+      ): KeyboardEvent;
 
-      /**
-       * Creates a 'keydown' KeyboardEvent.
-       * @param key - The key value. Defaults to 'z'.
-       * @param keyCode - The key code. Defaults to 90.
-       * @returns A new 'keydown' KeyboardEvent instance.
-       */
-      keydownEvent(key?: string, keyCode?: number): KeyboardEvent;
+      /** Create a keydown KeyboardEvent. */
+      keydownEvent(key?: string, keyCode?: number | EventInit, init?: EventInit): KeyboardEvent;
 
-      /**
-       * Creates a 'keyup' KeyboardEvent.
-       * @param key - The key value. Defaults to 'z'.
-       * @param keyCode - The key code. Defaults to 90.
-       * @returns A new 'keyup' KeyboardEvent instance.
-       */
-      keyupEvent(key?: string, keyCode?: number): KeyboardEvent;
+      /** Create a keyup KeyboardEvent. */
+      keyupEvent(key?: string, keyCode?: number | EventInit, init?: EventInit): KeyboardEvent;
 
-      /**
-       * Dispatches a KeyboardEvent to the document. If no event is provided, it dispatches a default 'keydown' event.
-       * @param event - The KeyboardEvent to dispatch. Defaults to a 'keydown' event if not provided.
-       */
+      /** Dispatch a KeyboardEvent to the document. */
       fire(event?: KeyboardEvent): void;
     };
+
+    /** Native KeyboardEvent init plus legacy key-code fields used by tests. */
+    export type EventInit = KeyboardEventInit & { keyCode?: number; which?: number };
   }
 }
 
