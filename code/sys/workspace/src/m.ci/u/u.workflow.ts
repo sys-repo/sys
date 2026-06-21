@@ -1,5 +1,5 @@
 import { Str, type t } from '../common.ts';
-import { CI_DENO_VERSION } from './u.deno.ts';
+import { CI_DENO_VERSION } from '../u.deno.ts';
 
 type WorkflowArgs = {
   readonly name: string;
