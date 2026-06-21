@@ -6,6 +6,7 @@ import { deriveWorkspacePackageRules } from '../m.vite.plugins/m.OptimizeImports
 import { oxcPreflightPlugin } from './u.oxcPreflight.ts';
 import { asArray, Delete, DenoFile, Fs, Is, Path, type t } from './common.ts';
 import { createNpmPrewarm, createSpecifierRewrite } from './u.app.specifierRewrite.ts';
+import { visualizerPlugin } from './u.app.visualizerPlugin.ts';
 import { paths as formatPaths } from './u.paths.ts';
 import { commonPlugins } from './u.plugins.ts';
 
@@ -120,8 +121,7 @@ export const app: t.ViteConfig.Lib['app'] = async (options = {}) => {
   if (Boolean(options.visualizer)) {
     // NB: the visualizer must be added last.
     const filename = Is.string(options.visualizer) ? options.visualizer : 'dist/stats.html';
-    const { visualizer } = await import('rollup-plugin-visualizer');
-    plugins.push(visualizer({ filename }));
+    plugins.push(visualizerPlugin(filename));
   }
 
   /**
