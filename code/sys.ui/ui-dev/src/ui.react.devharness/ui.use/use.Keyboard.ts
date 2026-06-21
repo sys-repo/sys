@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Keyboard, type t } from './common.ts';
+import { KeyboardNav } from './use.Keyboard.nav.ts';
 
 const D = { enabled: true } as const;
 
@@ -14,44 +15,29 @@ export const useKeyboard: t.UseDevKeyboard = (options) => {
 };
 
 /**
- * Pure keyboard listener function.
+ * Keyboard listener command wiring.
  */
 export function listen(options: t.UseDevKeyboardOptions = {}) {
   const keyboard = Keyboard.until(options.until);
   if (!(options.enabled ?? D.enabled)) return keyboard;
 
   const dbl = keyboard.dbl();
-
-  const is = {
-    get dev() {
-      return getUrl().query.has('dev');
-    },
-  } as const;
+  const nav = KeyboardNav.create();
 
   /**
    * Nav: DevHarness.
    */
-  keyboard.on('CMD + Enter', () => {
-    if (!is.dev) {
-      const { url, query } = getUrl();
-      query.set('dev', 'true');
-      window.location.href = url.href;
-    }
+  keyboard.on('CMD + Enter', (e) => {
+    e.handled();
+    nav.openIndex();
   });
 
   /**
-   * Nav: Root
+   * Nav: move one level up through DevHarness routes.
    */
-  keyboard.on('CMD + Escape', () => {
-    const { url, query } = getUrl();
-
-    if (is.dev) {
-      const current = query.get('dev');
-      if (current === 'true') {
-        query.delete('dev'); // ← goto Root screen.
-      } else query.set('dev', 'true'); //               ← goto DevHarness index.
-      window.location.href = url.href;
-    }
+  keyboard.on('CMD + SHIFT + Enter', (e) => {
+    e.handled();
+    nav.up();
   });
 
   /**
@@ -79,12 +65,3 @@ export function listen(options: t.UseDevKeyboardOptions = {}) {
   // Finish up.
   return keyboard;
 }
-
-/**
- * Helpers:
- */
-const getUrl = () => {
-  const url = new URL(window.location.href);
-  const query = url.searchParams;
-  return { url, query };
-};
