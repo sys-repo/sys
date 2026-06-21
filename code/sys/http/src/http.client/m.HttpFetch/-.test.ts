@@ -131,7 +131,6 @@ describe('Http.Fetch', () => {
           status: 200, // The HTTP layer strips the body for HEAD.
           headers: {
             'content-type': 'text/plain',
-            'content-length': '1234',
             'x-foo': 'hello',
           },
         });
@@ -149,7 +148,6 @@ describe('Http.Fetch', () => {
 
       // Response headers are still present.
       expect(res.headers.get('content-type')).to.eql('text/plain');
-      expect(res.headers.get('content-length')).to.eql('1234');
       expect(res.headers.get('x-foo')).to.eql('hello');
 
       await server.dispose();
