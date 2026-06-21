@@ -127,8 +127,8 @@ describe('Http.Fetch', () => {
         expect(req.method).to.eql('HEAD');
         expect(req.headers.get('content-type')).to.eql(null);
 
-        return new Response(null, {
-          status: 200, // No body for HEAD.
+        return new Response(new Uint8Array(1234), {
+          status: 200, // The HTTP layer strips the body for HEAD.
           headers: {
             'content-type': 'text/plain',
             'content-length': '1234',
@@ -292,7 +292,7 @@ describe('Http.Fetch', () => {
     it('HEAD: returns size via Content-Length', async () => {
       const server = Testing.Http.server((req) => {
         expect(req.method).to.eql('HEAD');
-        return new Response(null, {
+        return new Response(new Uint8Array(1234), {
           status: 200,
           headers: { 'content-length': '1234' },
         });
@@ -327,7 +327,7 @@ describe('Http.Fetch', () => {
     it('range: 200 with Content-Length header', async () => {
       const server = Testing.Http.server((req) => {
         if (req.method === 'HEAD') return new Response(null, { status: 405 });
-        return new Response(new Uint8Array([0]), {
+        return new Response(new Uint8Array(9999), {
           status: 200,
           headers: { 'content-length': '9999' },
         });
@@ -354,7 +354,7 @@ describe('Http.Fetch', () => {
       const server = Testing.Http.server((req) => {
         expect(req.method).to.eql('HEAD');
         expect(req.headers.get('x-custom')).to.eql('demo');
-        return new Response(null, {
+        return new Response(new Uint8Array(321), {
           status: 200,
           headers: { 'content-length': '321' },
         });

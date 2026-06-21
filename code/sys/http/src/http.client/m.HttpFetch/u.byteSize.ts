@@ -16,7 +16,7 @@ export const byteSize: t.HttpFetch.ByteSize.Method = async (...args: any[]) => {
   try {
     const res = await httpFetch.head(url);
     const bytes = toInt(res.headers.get('Content-Length'));
-    if (bytes !== undefined) return { url, bytes, from: 'head' };
+    if (res.ok && bytes !== undefined) return { url, bytes, from: 'head' };
   } catch {
     /* Ignore. */
   }
@@ -34,7 +34,7 @@ export const byteSize: t.HttpFetch.ByteSize.Method = async (...args: any[]) => {
       // We only need headers, so use a raw fetch to avoid reading the body.
       const res = await fetch(url, {
         method: 'GET',
-        headers: { Range: 'bytes=0-0' },
+        headers: { ...httpFetch.headers, Range: 'bytes=0-0' },
         // Abort when the caller’s HttpFetch is disposed (if available):
         signal: (httpFetch as any)?.signal ?? undefined,
       });

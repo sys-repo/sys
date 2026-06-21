@@ -7,7 +7,7 @@ describe('Http.Preload.warm', () => {
     let method = '';
     const server = Testing.Http.server((req) => {
       method = req.method;
-      return new Response(null, { status: 200, headers: { 'content-length': '1234' } });
+      return new Response(new Uint8Array(1234), { status: 200, headers: { 'content-length': '1234' } });
     });
 
     const url = server.url.toString();
