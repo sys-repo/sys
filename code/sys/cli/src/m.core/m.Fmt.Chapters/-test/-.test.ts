@@ -474,6 +474,22 @@ describe('Cli.Fmt.Chapters', () => {
     expect(plain).to.not.contain('@sys/cell');
   });
 
+  it('fits page separators within an explicit physical width', () => {
+    const text = Fmt.Chapters.page({
+      command,
+      chapter: { ...chapter, chapters: [] },
+      layout: { width: 40 },
+      help: {
+        tool: '@sys/example dsl',
+        summary: 'Example chapter help.',
+      },
+    });
+    const plain = Cli.stripAnsi(text);
+
+    expect(plain).to.contain('━'.repeat(40));
+    expectMaxVisibleWidth(plain, 40);
+  });
+
   it('renders a full terminal chapter help page without a separator', () => {
     const text = Fmt.Chapters.page({
       command,
