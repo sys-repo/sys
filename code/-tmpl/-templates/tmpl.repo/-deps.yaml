@@ -5,7 +5,7 @@ deno.json:
     subpaths: [ t ]
   - import: jsr:@sys/driver-deno@0.0.375
     subpaths: [ cloud, runtime, t ]
-  - import: jsr:@sys/driver-vite@0.0.438
+  - import: jsr:@sys/driver-vite@0.0.439
     subpaths: [ main, t ]
   - import: jsr:@sys/fs@0.0.325
     subpaths: [ t ]
@@ -36,11 +36,11 @@ deno.json:
       ]
   - import: jsr:@sys/testing@0.0.316
     subpaths: [ server, t ]
-  - import: jsr:@sys/tmpl@0.0.438
+  - import: jsr:@sys/tmpl@0.0.439
     subpaths: [ t ]
   - import: jsr:@sys/tmpl-engine@0.0.328
     subpaths: [ t ]
-  - import: jsr:@sys/tools@0.0.454
+  - import: jsr:@sys/tools@0.0.455
     subpaths: [ t ]
   - import: jsr:@sys/types@0.0.293
   - import: jsr:@sys/ui-css@0.0.292
@@ -49,7 +49,7 @@ deno.json:
     subpaths: [ t ]
   - import: jsr:@sys/ui-react@0.0.336
     subpaths: [ t ]
-  - import: jsr:@sys/ui-components@0.0.301
+  - import: jsr:@sys/ui-components@0.0.302
     subpaths:
       [
         button,
@@ -82,7 +82,7 @@ package.json:
     dev: true
   - import: npm:@vitejs/plugin-react@6.0.2
     dev: true
-  - import: npm:rollup@4.62.0
+  - import: npm:rollup@4.62.2
     dev: true
   - import: npm:rollup-plugin-visualizer@7.0.1
     dev: true
