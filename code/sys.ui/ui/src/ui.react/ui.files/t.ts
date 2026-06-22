@@ -1,4 +1,5 @@
 import type * as TInfoPanel from './ui.InfoPanel/t.ts';
+import type * as TInfoPanelConfig from './ui.InfoPanel.Config/t.ts';
 
 /**
  * React UI affordances for Files<T> clients.
@@ -29,6 +30,16 @@ export declare namespace Files {
     export type ControllerFactory = TInfoPanel.InfoPanel.ControllerFactory;
     /** Lifecycle and view-state surface of an InfoPanel controller. */
     export type Controller = TInfoPanel.InfoPanel.Controller;
+
+    /**
+     * InfoPanel configuration view.
+     */
+    export namespace Config {
+      /** Public InfoPanel configuration component surface. */
+      export type Lib = TInfoPanelConfig.InfoPanelConfig.Lib;
+      /** Props accepted by the InfoPanel configuration component. */
+      export type Props = TInfoPanelConfig.InfoPanelConfig.Props;
+    }
 
     /**
      * Event-stream state projected by the panel.
