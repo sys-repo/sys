@@ -17,6 +17,14 @@ sections:
       The component name must be a valid TypeScript/React identifier.
       Ask before normalizing it.
 
+  - label: UI type lane
+    items: |
+      The generated component type vocabulary is part of the UI scaffold contract.
+      Component files use the local `t` lane for React/component contracts such as `t.FC`.
+      Style props use `t.Style.Input`.
+      If generated vocabulary is missing, repair the nearest owning `common/t.ts` or template source.
+      Do not bypass the local type lane with one-off imports in generated component files.
+
   - label: Speech acts
     items: |
       add a controlled UI component named <ComponentName>

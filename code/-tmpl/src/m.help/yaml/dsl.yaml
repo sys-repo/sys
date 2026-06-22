@@ -39,6 +39,17 @@ sections:
         stop and ask before proceeding.
       - Use `--dry-run` first when target, write set, or side effects are unconfirmed.
 
+  - label: Template grammar
+    items: |
+      Generated artifacts carry template grammar: file roles, import lanes, type lanes, naming, and section markers.
+      Post-scaffold cleanup may remove placeholders and unused optional affordances only.
+      When removing an optional affordance, remove its generated references as one coherent cleanup.
+      Do not reshape generated artifacts to satisfy local taste or a narrow compiler error.
+      If generated code fails typecheck, inspect the template and owning boundary first.
+      Fix the source template or owning boundary when the issue is structural.
+      Only diverge from template grammar after an explicit design decision.
+      Passing typecheck is not sufficient; the scaffold must still preserve template grammar.
+
   - label: Decision protocol
     items: |
       New system workspace or monorepo root → `repo`.
