@@ -23,7 +23,6 @@ export type {
   TObject,
   TOptional,
   TParameters,
-  TPromise,
   TReadonly,
   TRecord,
   TRef,
