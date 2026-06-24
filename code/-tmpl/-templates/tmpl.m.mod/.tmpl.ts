@@ -38,12 +38,39 @@ export async function updateTypesFile(dir: t.StringAbsoluteDir) {
   // Compute the relative path from that types.ts to this module's t.ts
   const targetT = Fs.join(dir, 't.ts');
   const rel = relativeFromFileDir(typesFile, targetT);
+  const exportLine = `export type * from './${rel}';`;
 
-  await TmplEngine.File.update(typesFile, (line) => {
-    if (line.is.last) {
-      line.modify(`export type * from './${rel}';`);
+  const before = await Fs.readText(typesFile);
+  if (before.error) return done(before.error.message);
+
+  if ((before.data ?? '').trim() === '') {
+    const write = await Fs.write(typesFile, `${exportLine}\n`, { force: true });
+    if (write.error) return done(write.error.message);
+    return done();
+  }
+
+  const update = await TmplEngine.File.update(typesFile, (line) => {
+    if (line.file.lines.includes(exportLine)) return;
+
+    const lastExportIndex = line.file.lines.findLastIndex(isTypeStarExportLine);
+    if (lastExportIndex >= 0) {
+      if (line.index === lastExportIndex) line.insert(exportLine, 'after');
+      return;
+    }
+
+    if (!line.is.last) return;
+
+    if (line.text.trim() === 'export type {};') {
+      line.modify(exportLine);
+    } else {
+      line.insert(exportLine, 'after');
     }
   });
+  if (update.error) return done(update.error.message);
 
   return done();
+}
+
+function isTypeStarExportLine(text: string) {
+  return /^export\s+type\s+\*\s+from\s+['"].+['"];?\s*$/.test(text);
 }
