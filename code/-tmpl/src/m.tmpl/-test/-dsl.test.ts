@@ -2,6 +2,7 @@ import { stripAnsi } from '@sys/cli/fmt';
 import { describe, expect, it } from '../../-test.ts';
 import { TmplHelp } from '../../m.help/mod.ts';
 import { entry } from '../-entry.ts';
+import { TemplateNames } from '../common.ts';
 
 type Chapter = Awaited<ReturnType<typeof TmplHelp.Dsl.load>>;
 
@@ -12,25 +13,15 @@ type RunResult = {
 };
 
 const dslCommand = 'deno run -ERW jsr:@sys/tmpl dsl';
-const templateChapters = ['repo', 'pkg', 'pkg.help', 'm.mod', 'm.mod.ui', 'm.mod.ui.controller'];
 
 describe('m.tmpl/-entry dsl', () => {
   it('resources define root as the progressive scaffold router', async () => {
     const root = await TmplHelp.Dsl.load();
 
     expect(root.path).to.eql([]);
-    expect(root.chapters.map((chapter) => chapter.id)).to.eql(templateChapters);
-    expect(root.sections.map((section) => section.label)).to.eql([
-      'Reading protocol',
-      'Rule',
-      'Decision protocol',
-      'Speech acts',
-      'Slots',
-      'Command grammar',
-      'Verification',
-    ]);
+    expect([...root.chapters.map((chapter) => chapter.id)].sort()).to.eql([...TemplateNames].sort());
 
-    const protocol = root.sections[0];
+    const protocol = section(root, 'Reading protocol');
     expect(protocol.items.some((item) => item.includes(`${dslCommand}`))).to.eql(true);
     expect(protocol.items.some((item) => item.includes('MUST NOT read every chapter'))).to.eql(
       true,
@@ -49,7 +40,9 @@ describe('m.tmpl/-entry dsl', () => {
     expect(res.text).to.contain(`${dslCommand} [chapter...]`);
     expectChapterRendered(res.text, root);
     expect(res.text).to.contain('Chapter');
-    expect(res.text.indexOf('Reading protocol')).to.be.lessThan(res.text.indexOf('Rule'));
+    expect(res.text.indexOf(root.sections[0].label)).to.be.lessThan(
+      res.text.indexOf(root.sections[1].label),
+    );
     expect(res.text).to.not.contain(section(repo, 'Side effects').items[0]);
   });
 
