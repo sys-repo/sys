@@ -92,7 +92,22 @@ async function applyResponseTransform(
   config?: t.HttpProxy.Response.Config,
 ): Promise<Response> {
   if (!config?.transform) return response;
-  return await config.transform(response, context);
+  const transformed = await config.transform(response, context);
+  // A transformed body invalidates inherited content-length; strip it so runtime framing remains truthful.
+  return removeContentLengthHeader(transformed);
+}
+
+function removeContentLengthHeader(response: Response): Response {
+  if (!response.headers.has('content-length')) return response;
+
+  const headers = new Headers(response.headers);
+  headers.delete('content-length');
+
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
 }
 
 const BODYLESS_METHODS = new Set(['GET', 'HEAD']);
