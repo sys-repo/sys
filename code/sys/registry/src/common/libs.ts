@@ -2,6 +2,8 @@ export { Hash } from '@sys/crypto/hash';
 export { Fetch, Http } from '@sys/http/client';
 export { Err } from '@sys/std/error';
 export { Is } from '@sys/std/is';
+export { Num } from '@sys/std/num';
+export { Obj } from '@sys/std/obj';
 export { Path } from '@sys/std/path';
 export { Pkg } from '@sys/std/pkg';
 export { slug } from '@sys/std/random';

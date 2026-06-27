@@ -1,10 +1,11 @@
-import { Err, Fetch, type t } from './common.ts';
+import { Fetch, Obj, type t } from './common.ts';
 import { Url } from './m.Url.ts';
 
 type MetadataResponse = {
   name: string;
   'dist-tags'?: { latest?: string };
   versions?: Record<string, { deprecated?: string }>;
+  time?: Record<string, string>;
 };
 
 type VersionResponse = {
@@ -34,7 +35,7 @@ export const Pkg: t.NpmFetch.Pkg.Lib = {
       name: res.data.name,
       latest: String(res.data['dist-tags']?.latest ?? ''),
       get versions() {
-        return wrangle.versions(res.data?.versions);
+        return wrangle.versions(res.data?.versions, res.data?.time);
       },
     };
 
@@ -74,10 +75,14 @@ export const Pkg: t.NpmFetch.Pkg.Lib = {
 };
 
 const wrangle = {
-  versions(input: MetadataResponse['versions'] = {}) {
+  versions(input: MetadataResponse['versions'] = {}, time: MetadataResponse['time'] = {}) {
     const versions: t.NpmFetch.Pkg.MetaVersions['versions'] = {};
-    for (const [version, value] of Object.entries(input ?? {})) {
-      versions[version] = value?.deprecated ? { deprecated: value.deprecated } : {};
+    for (const [version, value] of Obj.entries(input ?? {})) {
+      const publishedAt = time?.[version];
+      versions[version] = {
+        ...(value?.deprecated ? { deprecated: value.deprecated } : {}),
+        ...(publishedAt ? { publishedAt } : {}),
+      };
     }
     return versions;
   },

@@ -57,6 +57,8 @@ export declare namespace NpmFetch {
     export type MetaVersion = {
       /** True when the version is deprecated in registry metadata. */
       deprecated?: string;
+      /** ISO timestamp at which npm reports this version was published. */
+      publishedAt?: t.StringTimestamp;
     };
 
     /**

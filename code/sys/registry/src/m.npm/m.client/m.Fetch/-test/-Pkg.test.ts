@@ -10,6 +10,7 @@ describe('Npm.Fetch.Pkg', () => {
           name: 'react',
           'dist-tags': { latest: '19.0.0' },
           versions: { '19.0.0': {} },
+          time: { '19.0.0': '2026-06-01T18:00:48.323Z' },
         });
       });
 
@@ -19,7 +20,9 @@ describe('Npm.Fetch.Pkg', () => {
         expect(res.url).to.eql('https://registry.npmjs.org/react');
         expect(res.data?.name).to.eql('react');
         expect(res.data?.latest).to.eql('19.0.0');
-        expect(res.data?.versions).to.eql({ '19.0.0': {} });
+        expect(res.data?.versions).to.eql({
+          '19.0.0': { publishedAt: '2026-06-01T18:00:48.323Z' },
+        });
       } finally {
         restore();
       }
@@ -34,6 +37,12 @@ describe('Npm.Fetch.Pkg', () => {
             '1.2.2': {},
             '1.2.3': { deprecated: 'use 2.0.0' },
           },
+          time: {
+            created: '2026-05-01T00:00:00.000Z',
+            modified: '2026-06-01T00:00:00.000Z',
+            '1.2.2': '2026-05-15T12:00:00.000Z',
+            '1.2.3': '2026-06-01T12:00:00.000Z',
+          },
         })
       );
 
@@ -44,8 +53,11 @@ describe('Npm.Fetch.Pkg', () => {
           name: '@scope/foo',
           latest: '1.2.3',
           versions: {
-            '1.2.2': {},
-            '1.2.3': { deprecated: 'use 2.0.0' },
+            '1.2.2': { publishedAt: '2026-05-15T12:00:00.000Z' },
+            '1.2.3': {
+              deprecated: 'use 2.0.0',
+              publishedAt: '2026-06-01T12:00:00.000Z',
+            },
           },
         });
       } finally {
