@@ -8,6 +8,6 @@ export { Path } from '@sys/std/path';
 export { Pkg } from '@sys/std/pkg';
 export { slug } from '@sys/std/random';
 export { Time } from '@sys/std/time';
-export { JsrUrl } from '@sys/std/url';
+export { JsrUrl, Url } from '@sys/std/url';
 export { Rx } from '@sys/std/rx';
 export { Semver } from '@sys/std/semver';

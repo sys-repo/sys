@@ -1,4 +1,5 @@
 import { c, describe, expect, it, Rx, Semver, slug, Testing } from '../../../-test.ts';
+import { Url } from '../../../common.ts';
 import { assertFetchDisposed } from '../-u.ts';
 import { Fetch } from '../mod.ts';
 import { Jsr } from '../../m.Jsr/mod.ts';
@@ -10,7 +11,7 @@ describe('Jsr.Fetch.Pkg (external)', () => {
       await Testing.retry(3, async () => {
         const name = '@sys/std';
         const res = await Jsr.Fetch.Pkg.versions(name);
-        expect(res.url).to.eql(`https://jsr.io/${name}/meta.json`);
+        expect(Url.toCanonical(res.url).href).to.eql(`https://jsr.io/${name}/meta.json`);
         expect(res.status).to.eql(200);
         expect(res.error).to.eql(undefined);
 
