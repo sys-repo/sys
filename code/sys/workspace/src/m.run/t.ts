@@ -6,6 +6,8 @@ import type { t } from './common.ts';
 export declare namespace WorkspaceRun {
   /** Runtime surface for canonical workspace task execution. */
   export type Lib = {
+    /** Typed argument helpers for workspace task runners. */
+    readonly Args: Args.Lib;
     /** Result formatter helpers for workspace task runs. */
     readonly Fmt: Fmt.Lib;
     /** Run `deno task check` across ordered workspace packages. */
@@ -27,6 +29,14 @@ export declare namespace WorkspaceRun {
     /** Optional package filter applied in graph order before task execution. */
     readonly filter?: Filter.Predicate;
   };
+
+  /** Typed argument helper contracts for workspace task runners. */
+  export namespace Args {
+    export type Lib = {
+      /** Parse CLI argv into canonical test-runner arguments. */
+      test(argv?: readonly string[]): Test.Args;
+    };
+  }
 
   /** Test-runner-specific contracts. */
   export namespace Test {
