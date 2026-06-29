@@ -1,5 +1,6 @@
 import { WorkspacePrep } from '../m.prep/mod.ts';
-import { Arr, Err, Fs, Is, Num, Obj, Process, Str, type t, Time } from './common.ts';
+import { Err, Fs, Is, Obj, type t, Time } from './common.ts';
+import { runSequential, type SequentialCandidate } from './u.run.sequential.ts';
 
 export async function runTask(
   task: t.WorkspaceRun.Task,
@@ -11,59 +12,7 @@ export async function runTask(
   const candidates = await wrangle.candidates(cwd, task, graph.orderedPaths, args.filter);
   const orderedPaths = candidates.map((item) => item.dir);
   console.info(`workspace ${task} → ${orderedPaths.length} packages ordered`);
-  const packages: t.WorkspaceRun.Package.Result[] = [];
-
-  for (const candidate of candidates) {
-    const command = wrangle.command(candidate.deno, task);
-    if (!command) {
-      packages.push({ kind: 'skipped', path: candidate.dir, reason: 'task:missing' });
-      continue;
-    }
-
-    console.info(Str.dedent(`
-      workspace ${task} → ${candidate.dir}
-    `));
-
-    const packageStartedAt = Time.now.timestamp;
-    const output = await Process.inherit({
-      cwd: Fs.join(cwd, candidate.dir),
-      cmd: command.cmd,
-      args: [...command.args],
-    });
-    const ran: t.WorkspaceRun.Package.Ran = {
-      kind: 'ran',
-      path: candidate.dir,
-      code: output.code,
-      success: output.success,
-      signal: output.signal,
-      elapsed: Time.now.timestamp - packageStartedAt,
-    };
-
-    packages.push(Obj.clone(ran));
-    if (!output.success) {
-      const elapsed = Time.now.timestamp - startedAt;
-      return {
-        ok: false,
-        task,
-        cwd,
-        elapsed,
-        orderedPaths,
-        packages,
-        failure: ran,
-      };
-    }
-  }
-
-  const elapsed = Time.now.timestamp - startedAt;
-
-  return {
-    ok: true,
-    task,
-    cwd,
-    elapsed,
-    orderedPaths: Arr.uniq([...orderedPaths]),
-    packages,
-  };
+  return await runSequential({ cwd, task, candidates, orderedPaths, startedAt });
 }
 
 /**
@@ -99,38 +48,14 @@ async function readManifest(path: t.StringPath): Promise<Record<string, unknown>
   return Obj.clone(res.data ?? {}) as Record<string, unknown>;
 }
 
-function hasTask(deno: Record<string, unknown>, task: t.WorkspaceRun.Task) {
-  const tasks = deno.tasks;
-  if (!Obj.isRecord(tasks)) return false;
-  const value = tasks[task];
-  return Is.str(value) && Num.clamp(0, 1, value.trim().length) === 1;
-}
-
-type Candidate = {
-  readonly dir: t.StringDir;
-  readonly pkg: t.Pkg;
-  readonly deno: Record<string, unknown>;
-};
-
-type Command = {
-  readonly cmd: string;
-  readonly args: readonly string[];
-};
-
 const wrangle = {
-  command(deno: Record<string, unknown>, task: t.WorkspaceRun.Task): Command | null {
-    if (hasTask(deno, task)) return { cmd: 'deno', args: ['task', task] };
-    if (task === 'dry') return { cmd: 'deno', args: ['publish', '--allow-dirty', '--dry-run'] };
-    return null;
-  },
-
   async candidates(
     cwd: t.StringDir,
     task: t.WorkspaceRun.Task,
     paths: readonly t.StringPath[],
     filter?: t.WorkspaceRun.Filter,
   ) {
-    const candidates: Candidate[] = [];
+    const candidates: SequentialCandidate[] = [];
 
     for (const path of paths) {
       const dir = path as t.StringDir;
