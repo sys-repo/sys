@@ -85,7 +85,7 @@ const wrangle = {
       c.gray('NPM Standdown'),
       c.gray('Current'),
       c.gray('Selected'),
-      c.gray('Visible Latest'),
+      c.gray('Latest'),
       c.gray('Release Age'),
       c.gray('Eligible After'),
     ]);
@@ -111,7 +111,7 @@ const wrangle = {
       c.gray('NPM Standdown'),
       c.gray('Current'),
       c.gray('Selected'),
-      c.gray('Visible Latest'),
+      c.gray('Latest'),
       c.gray('Reason'),
     ]);
     for (const row of unknown) {
