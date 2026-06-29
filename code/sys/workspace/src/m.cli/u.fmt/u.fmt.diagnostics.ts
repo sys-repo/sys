@@ -82,12 +82,12 @@ const wrangle = {
 
     const table = Cli.table([]);
     table.push([
-      c.gray('NPM standdown'),
+      c.gray('NPM Standdown'),
       c.gray('Current'),
       c.gray('Selected'),
-      c.gray('Visible latest'),
-      c.gray('Age old'),
-      c.gray('Eligible after'),
+      c.gray('Visible Latest'),
+      c.gray('Release Age'),
+      c.gray('Eligible After'),
     ]);
     for (const row of standdown) {
       table.push([
@@ -108,10 +108,10 @@ const wrangle = {
 
     const table = Cli.table([]);
     table.push([
-      c.gray('NPM standdown'),
+      c.gray('NPM Standdown'),
       c.gray('Current'),
       c.gray('Selected'),
-      c.gray('Visible latest'),
+      c.gray('Visible Latest'),
       c.gray('Reason'),
     ]);
     for (const row of unknown) {

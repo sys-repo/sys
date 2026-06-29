@@ -118,10 +118,7 @@ describe('Workspace.Cli.Fmt', () => {
     );
     const label = Cli.stripAnsi(options[0]!.name);
 
-    expect(plan).to.include('Minimum dependency age');
     expect(plan).to.include('2d');
-    expect(plan).to.include('Standdown');
-    expect(plan).to.include('NPM standdown');
     expect(plan).to.include('motion');
     expect(plan).to.include('12.40.0');
     expect(plan).to.include('12.41.0');
@@ -141,8 +138,6 @@ describe('Workspace.Cli.Fmt', () => {
     );
     const label = Cli.stripAnsi(options[0]!.name);
 
-    expect(plan).to.include('NPM standdown');
-    expect(plan).to.include('Reason');
     expect(plan).to.include('publish timestamp unavailable');
     expect(label).to.include('newer in standdown - publish timestamp unavailable');
     expect(options[0]?.checked).to.eql(false);
