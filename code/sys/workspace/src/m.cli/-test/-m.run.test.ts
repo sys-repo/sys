@@ -75,6 +75,30 @@ describe('Workspace.Cli.run', () => {
     expect(Cli.stripAnsi(text)).to.include('Dry run only. No files updated.');
   });
 
+  it('shows a compact delta prelude before default interactive bump selection', async () => {
+    const { cwd } = await DeltaFixture.gitBaselineWorkspace();
+    await DeltaFixture.git(cwd, ['tag', 'jsr-publish', 'baseline']);
+    const original = Cli.Input.Checkbox.prompt;
+    Object.defineProperty(Cli.Input.Checkbox, 'prompt', {
+      value: async () => ['code/pkg-a'],
+    });
+
+    try {
+      const { result, text } = await captureInfo(() =>
+        WorkspaceCli.run({ cwd, argv: ['bump', '--dry-run'] })
+      );
+      const plain = Cli.stripAnsi(text);
+
+      expect(result.kind).to.eql('bump');
+      expect(plain).to.include('status     bump required');
+      expect(plain).to.include('affected   2 packages');
+      expect(plain).to.include('root       @scope/a');
+      expect(plain).to.not.include('delta      jsr-publish → HEAD');
+    } finally {
+      Object.defineProperty(Cli.Input.Checkbox, 'prompt', { value: original });
+    }
+  });
+
   it('routes dsl help without entering upgrade planning', async () => {
     const result = await silent(() => WorkspaceCli.run({ argv: ['dsl', 'delta'] }));
 

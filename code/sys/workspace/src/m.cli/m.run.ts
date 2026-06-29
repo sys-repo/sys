@@ -1,4 +1,4 @@
-import { Cli, Err, Fs, Is, type t } from './common.ts';
+import { c, Cli, Err, Fs, Is, type t } from './common.ts';
 import { WorkspaceBump } from '../m.bump/mod.ts';
 import { WorkspaceDelta } from '../m.delta/mod.ts';
 import { WorkspaceUpgrade } from '../m.upgrade/mod.ts';
@@ -127,7 +127,7 @@ async function runBump(input: {
   if (args.invalidRelease) console.warn(WorkspaceBump.Fmt.invalidRelease(args.invalidRelease));
 
   const bump = args.since === undefined
-    ? await WorkspaceBump.run(args.run)
+    ? await wrangle.runDefaultBump(args)
     : await wrangle.runSinceBump(args, cwd);
 
   return { kind: 'bump', input: { argv, cwd }, bump } as const;
@@ -155,10 +155,50 @@ async function runDsl(input: {
   return { kind: 'help', input: { argv, cwd }, text } as const;
 }
 
+const DEFAULT_BUMP_DELTA_REF = 'jsr-publish';
+
 const wrangle = {
   commandArgs(input: readonly string[], command: string): string[] {
     const argv = input[0] === '--' ? input.slice(1) : input;
     return argv[0] === command ? argv.slice(1) : [...argv];
+  },
+
+  async runDefaultBump(args: t.WorkspaceBump.Args.RunResolved): Promise<t.WorkspaceBump.RunResult> {
+    if (!wrangle.shouldShowDeltaPrelude(args)) return await WorkspaceBump.run(args.run);
+
+    try {
+      const delta = await WorkspaceDelta.Git.fromRef({
+        cwd: args.run.cwd,
+        ref: DEFAULT_BUMP_DELTA_REF,
+        release: args.run.release,
+        policy: args.run.policy,
+      });
+      console.info();
+      for (const line of wrangle.deltaPrelude(delta)) console.info(line);
+      console.info();
+      return await WorkspaceBump.run({ ...args.run, collect: delta.collect });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.warn(c.yellow(`Delta prelude unavailable: ${message}`));
+      return await WorkspaceBump.run(args.run);
+    }
+  },
+
+  shouldShowDeltaPrelude(args: t.WorkspaceBump.Args.RunResolved): boolean {
+    if (args.run.nonInteractive) return false;
+    if (args.run.from !== undefined && args.run.from.length > 0) return false;
+    return args.since === undefined;
+  },
+
+  deltaPrelude(delta: t.WorkspaceDelta.Git.FromRefResult): readonly string[] {
+    const roots = new Set(delta.bumpRootPkgPaths);
+    const selected = new Set(delta.bumpClosurePkgPaths);
+    const plan: t.WorkspaceBump.PlanResult = {
+      roots: delta.collect.candidates.filter((candidate) => roots.has(candidate.pkgPath)),
+      selected: delta.collect.candidates.filter((candidate) => selected.has(candidate.pkgPath)),
+      selectedPaths: delta.bumpClosurePkgPaths,
+    };
+    return WorkspaceBump.Fmt.planSummary({ plan });
   },
 
   async runSinceBump(
