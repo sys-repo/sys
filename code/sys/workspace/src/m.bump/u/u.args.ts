@@ -52,6 +52,7 @@ export const Args: t.WorkspaceBump.Args.Lib = {
         cwd: input.options?.cwd ?? Fs.cwd(),
         release: input.options?.release ?? release ?? 'patch',
         from,
+        ...(input.options?.suggested === undefined ? {} : { suggested: input.options.suggested }),
         dryRun: input.options?.dryRun ?? args.dryRun,
         nonInteractive: input.options?.nonInteractive ?? args.nonInteractive,
         policy: input.policy,

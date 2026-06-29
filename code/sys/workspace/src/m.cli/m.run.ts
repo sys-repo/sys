@@ -176,7 +176,11 @@ const wrangle = {
       console.info();
       for (const line of wrangle.deltaPrelude(delta)) console.info(line);
       console.info();
-      return await WorkspaceBump.run({ ...args.run, collect: delta.collect });
+      return await WorkspaceBump.run({
+        ...args.run,
+        collect: delta.collect,
+        suggested: delta.bumpRootPkgPaths,
+      });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       console.warn(c.yellow(`Delta prelude unavailable: ${message}`));

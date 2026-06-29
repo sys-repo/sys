@@ -43,6 +43,24 @@ describe('WorkspaceRun', () => {
     expect(WorkspaceRun.Fmt.result(result).includes('task')).to.eql(true);
   });
 
+  it('runs declared package tests through the explicit parallel scheduler', async () => {
+    const fs = await Testing.dir('WorkspaceRun.test.parallel');
+    await writeWorkspace(fs.dir, { failCheck: false });
+
+    const result = await WorkspaceRun.test({
+      cwd: fs.dir,
+      rebuildGraph: true,
+      strategy: { kind: 'parallel', jobs: 2 },
+    });
+    const log = await readLog(fs.dir);
+
+    expect(result.ok).to.eql(true);
+    expect(result.task).to.eql('test');
+    expect(result.orderedPaths).to.eql(['code/pkg-a', 'code/pkg-b', 'code/pkg-c']);
+    expect(result.packages.map((item) => item.kind)).to.eql(['ran', 'skipped', 'ran']);
+    expect(log).to.eql('test:pkg-a\\ntest:pkg-c\\n');
+  });
+
   it('filters ordered paths when a package filter is provided', async () => {
     const fs = await Testing.dir('WorkspaceRun.filter');
     await writeWorkspace(fs.dir, { failCheck: false });

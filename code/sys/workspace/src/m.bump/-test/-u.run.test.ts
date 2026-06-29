@@ -1,4 +1,4 @@
-import { Cli, describe, expect, Fs, it, Json, Testing, type t } from '../../-test.ts';
+import { Cli, describe, expect, Fs, it, Json, type t, Testing } from '../../-test.ts';
 import { run } from '../u/u.run.ts';
 
 const FS_MOD = new URL('../../../../fs/src/mod.ts', import.meta.url).href;
@@ -77,6 +77,46 @@ describe('@sys/workspace/bump run', () => {
     expect(res.dryRun).to.eql(true);
     expect(res.plan).to.eql({ roots: [], selected: [], selectedPaths: [] });
     expect(res.apply).to.eql(undefined);
+  });
+
+  it('prechecks suggested interactive roots without skipping selection', async () => {
+    const fs = await Testing.dir('WorkspaceBump.run.suggested');
+    await writeWorkspace(fs.dir, true);
+    const prevCheckbox = Cli.Input.Checkbox.prompt;
+    let promptOptions: readonly { readonly value: string; readonly checked?: boolean }[] = [];
+
+    try {
+      Object.defineProperty(Cli.Input.Checkbox, 'prompt', {
+        configurable: true,
+        value: async <TValue>(input: {
+          readonly options: readonly { readonly value: string; readonly checked?: boolean }[];
+        }) => {
+          promptOptions = input.options;
+          return input.options
+            .filter((option) => option.checked)
+            .map((option) => option.value) as TValue[];
+        },
+      });
+
+      const res = await run({
+        cwd: fs.dir,
+        suggested: ['@scope/b'],
+        dryRun: true,
+        log: false,
+      });
+
+      expect(promptOptions.map((option) => [option.value, option.checked ?? false])).to.eql([
+        ['code/pkg-a', false],
+        ['code/pkg-b', true],
+      ]);
+      expect(res.plan.roots.map((root) => root.name)).to.eql(['@scope/b']);
+      expect(res.dryRun).to.eql(true);
+    } finally {
+      Object.defineProperty(Cli.Input.Checkbox, 'prompt', {
+        configurable: true,
+        value: prevCheckbox,
+      });
+    }
   });
 
   it('applies one cumulative multi-root plan once', async () => {

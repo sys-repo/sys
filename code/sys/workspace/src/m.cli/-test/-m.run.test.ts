@@ -79,8 +79,17 @@ describe('Workspace.Cli.run', () => {
     const { cwd } = await DeltaFixture.gitBaselineWorkspace();
     await DeltaFixture.git(cwd, ['tag', 'jsr-publish', 'baseline']);
     const original = Cli.Input.Checkbox.prompt;
+    let promptOptions: readonly { readonly value: string; readonly checked?: boolean }[] = [];
     Object.defineProperty(Cli.Input.Checkbox, 'prompt', {
-      value: async () => ['code/pkg-a'],
+      configurable: true,
+      value: async <TValue>(input: {
+        readonly options: readonly { readonly value: string; readonly checked?: boolean }[];
+      }) => {
+        promptOptions = input.options;
+        return input.options
+          .filter((option) => option.checked)
+          .map((option) => option.value) as TValue[];
+      },
     });
 
     try {
@@ -90,12 +99,17 @@ describe('Workspace.Cli.run', () => {
       const plain = Cli.stripAnsi(text);
 
       expect(result.kind).to.eql('bump');
+      expect(promptOptions.filter((option) => option.checked).map((option) => option.value)).to.eql(
+        [
+          'code/pkg-a',
+        ],
+      );
       expect(plain).to.include('status     bump required');
       expect(plain).to.include('affected   2 packages');
       expect(plain).to.include('root       @scope/a');
       expect(plain).to.not.include('delta      jsr-publish → HEAD');
     } finally {
-      Object.defineProperty(Cli.Input.Checkbox, 'prompt', { value: original });
+      Object.defineProperty(Cli.Input.Checkbox, 'prompt', { configurable: true, value: original });
     }
   });
 

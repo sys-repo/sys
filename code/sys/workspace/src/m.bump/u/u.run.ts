@@ -21,6 +21,7 @@ export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
     candidates: [...collected.candidates],
     release: collected.release,
     from: args.from !== undefined ? [...args.from] : undefined,
+    suggested: args.suggested,
   });
   let planned = selected.pkgPaths.length === 0
     ? wrangle.emptyPlan({ collect: collected, log })
@@ -52,6 +53,7 @@ export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
       const next = await wrangle.select({
         candidates: [...collected.candidates],
         release: collected.release,
+        suggested: args.suggested,
       });
       planned = await wrangle.planSelection({
         clear: next.prompted,
@@ -130,7 +132,11 @@ const wrangle = {
   },
 
   emptyPlan(args: { readonly collect: t.WorkspaceBump.CollectResult; readonly log: boolean }) {
-    const plan = { roots: [], selected: [], selectedPaths: [] } satisfies t.WorkspaceBump.PlanResult;
+    const plan = {
+      roots: [],
+      selected: [],
+      selectedPaths: [],
+    } satisfies t.WorkspaceBump.PlanResult;
     if (args.log) {
       console.info();
       for (const line of Fmt.planSummary({ plan })) console.info(line);
@@ -182,6 +188,7 @@ const wrangle = {
     candidates: readonly t.WorkspaceBump.Candidate[];
     release: t.SemverReleaseType;
     from?: readonly string[];
+    suggested?: readonly string[];
   }): Promise<{ readonly pkgPaths: readonly t.StringPath[]; readonly prompted: boolean }> {
     if (args.from !== undefined) {
       const pkgPaths = wrangle.resolveFrom(args.candidates, args.from);
@@ -189,9 +196,11 @@ const wrangle = {
     }
 
     const layout = Fmt.selectionLayout(args.candidates);
+    const suggested = wrangle.suggested(args.candidates, args.suggested);
     const options = args.candidates.map((candidate) => ({
       name: Fmt.selectionLabel({ candidate, layout, release: args.release }),
       value: candidate.pkgPath,
+      checked: suggested.has(candidate.pkgPath),
     }));
 
     let message = `Which packages should start the ${c.cyan(args.release)} bump`;
@@ -204,6 +213,18 @@ const wrangle = {
       options,
     });
     return { pkgPaths: wrangle.unique(picked ?? []), prompted: true };
+  },
+
+  suggested(candidates: readonly t.WorkspaceBump.Candidate[], input?: readonly string[]) {
+    if (!input || input.length === 0) return new Set<t.StringPath>();
+    const byPath = new Map(candidates.map((candidate) => [candidate.pkgPath, candidate.pkgPath]));
+    const byName = new Map(candidates.map((candidate) => [candidate.name, candidate.pkgPath]));
+    const resolved = input.flatMap((value) => {
+      const trimmed = value.trim();
+      const pkgPath = byPath.get(trimmed) ?? byName.get(trimmed);
+      return pkgPath ? [pkgPath] : [];
+    });
+    return new Set(resolved);
   },
 
   resolveFrom(candidates: readonly t.WorkspaceBump.Candidate[], input: readonly string[]) {

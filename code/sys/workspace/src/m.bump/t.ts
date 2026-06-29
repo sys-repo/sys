@@ -185,6 +185,8 @@ export declare namespace WorkspaceBump {
     readonly release?: t.SemverReleaseType;
     /** Optional preselected bump roots by package name or package path. */
     readonly from?: readonly string[];
+    /** Optional bump roots checked by default in the interactive prompt. */
+    readonly suggested?: readonly string[];
     /** Render the plan without writing any files. */
     readonly dryRun?: boolean;
     /** Emit orchestration logging to the console. */
@@ -221,14 +223,16 @@ export declare namespace WorkspaceBump {
     };
 
     /** Optional run-argument overrides from a script edge. */
-    export type RunOptions = Partial<
-      Pick<RunArgs, 'cwd' | 'release' | 'from' | 'dryRun' | 'nonInteractive'>
-    > & {
-      /** Optional git baseline ref supplied by a script edge. */
-      readonly since?: string;
-      /** Render changed-file evidence when deriving roots from `since`. */
-      readonly explainDelta?: boolean;
-    };
+    export type RunOptions =
+      & Partial<
+        Pick<RunArgs, 'cwd' | 'release' | 'from' | 'suggested' | 'dryRun' | 'nonInteractive'>
+      >
+      & {
+        /** Optional git baseline ref supplied by a script edge. */
+        readonly since?: string;
+        /** Render changed-file evidence when deriving roots from `since`. */
+        readonly explainDelta?: boolean;
+      };
 
     /** Inputs for resolving one canonical bump run invocation. */
     export type RunInput = {
