@@ -1,6 +1,6 @@
 {
   "name": "@sys/ui-dev",
-  "version": "0.0.336",
+  "version": "0.0.337",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev   ./-scripts/task.main.ts --cmd=dev    --in=./src/ui.react.devharness/index.html",
