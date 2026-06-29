@@ -17,11 +17,11 @@ export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
     spinner,
     progress: args.progress,
   });
-  const selected = await wrangle.select({
+  let selected = await wrangle.select({
     candidates: [...collected.candidates],
     release: collected.release,
     from: args.from !== undefined ? [...args.from] : undefined,
-    suggested: args.suggested,
+    suggestedRoots: args.suggestedRoots,
   });
   let planned = selected.pkgPaths.length === 0
     ? wrangle.emptyPlan({ collect: collected, log })
@@ -50,16 +50,16 @@ export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
     const allowBack = selected.prompted;
     let confirmed = await wrangle.confirm({ allowBack });
     while (allowBack && confirmed === 'back') {
-      const next = await wrangle.select({
+      selected = await wrangle.select({
         candidates: [...collected.candidates],
         release: collected.release,
-        suggested: args.suggested,
+        suggestedRoots: selected.pkgPaths,
       });
       planned = await wrangle.planSelection({
-        clear: next.prompted,
+        clear: selected.prompted,
         collect: collected,
         log,
-        rootPkgPaths: next.pkgPaths,
+        rootPkgPaths: selected.pkgPaths,
         spinner,
         progress: args.progress,
       });
@@ -188,7 +188,7 @@ const wrangle = {
     candidates: readonly t.WorkspaceBump.Candidate[];
     release: t.SemverReleaseType;
     from?: readonly string[];
-    suggested?: readonly string[];
+    suggestedRoots?: readonly string[];
   }): Promise<{ readonly pkgPaths: readonly t.StringPath[]; readonly prompted: boolean }> {
     if (args.from !== undefined) {
       const pkgPaths = wrangle.resolveFrom(args.candidates, args.from);
@@ -196,11 +196,11 @@ const wrangle = {
     }
 
     const layout = Fmt.selectionLayout(args.candidates);
-    const suggested = wrangle.suggested(args.candidates, args.suggested);
+    const suggestedRoots = wrangle.resolveSuggestedRoots(args.candidates, args.suggestedRoots);
     const options = args.candidates.map((candidate) => ({
       name: Fmt.selectionLabel({ candidate, layout, release: args.release }),
       value: candidate.pkgPath,
-      checked: suggested.has(candidate.pkgPath),
+      checked: suggestedRoots.has(candidate.pkgPath),
     }));
 
     let message = `Which packages should start the ${c.cyan(args.release)} bump`;
@@ -215,7 +215,10 @@ const wrangle = {
     return { pkgPaths: wrangle.unique(picked ?? []), prompted: true };
   },
 
-  suggested(candidates: readonly t.WorkspaceBump.Candidate[], input?: readonly string[]) {
+  resolveSuggestedRoots(
+    candidates: readonly t.WorkspaceBump.Candidate[],
+    input?: readonly string[],
+  ) {
     if (!input || input.length === 0) return new Set<t.StringPath>();
     const byPath = new Map(candidates.map((candidate) => [candidate.pkgPath, candidate.pkgPath]));
     const byName = new Map(candidates.map((candidate) => [candidate.name, candidate.pkgPath]));

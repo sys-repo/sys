@@ -179,7 +179,7 @@ const wrangle = {
       return await WorkspaceBump.run({
         ...args.run,
         collect: delta.collect,
-        suggested: delta.bumpRootPkgPaths,
+        suggestedRoots: delta.bumpRootPkgPaths,
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);

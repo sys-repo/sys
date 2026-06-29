@@ -100,7 +100,7 @@ describe('@sys/workspace/bump run', () => {
 
       const res = await run({
         cwd: fs.dir,
-        suggested: ['@scope/b'],
+        suggestedRoots: ['@scope/b'],
         dryRun: true,
         log: false,
       });
@@ -148,12 +148,18 @@ describe('@sys/workspace/bump run', () => {
     const confirmMessages: string[] = [];
     const confirmOptions: string[][] = [];
     const confirmNames: string[][] = [];
+    const promptChecked: string[][] = [];
 
     try {
       Object.defineProperty(Cli.Input.Checkbox, 'prompt', {
         configurable: true,
-        value: async <TValue>() => {
-          return (confirmOptions.length === 0 ? ['code/pkg-a'] : ['code/pkg-b']) as TValue[];
+        value: async <TValue>(input: {
+          readonly options: readonly { readonly value: string; readonly checked?: boolean }[];
+        }) => {
+          promptChecked.push(
+            input.options.filter((option) => option.checked).map((option) => option.value),
+          );
+          return (promptChecked.length === 1 ? ['code/pkg-a'] : ['code/pkg-b']) as TValue[];
         },
       });
       Object.defineProperty(Cli.Input.Select, 'prompt', {
@@ -182,6 +188,7 @@ describe('@sys/workspace/bump run', () => {
         ['  save', '← reselect', '  cancel'],
         ['  save', '← reselect', '  cancel'],
       ]);
+      expect(promptChecked).to.eql([[], ['code/pkg-a']]);
       expect(res.plan.roots.map((root) => root.name)).to.eql(['@scope/b']);
       expect(a.data?.version).to.eql('1.0.0');
       expect(b.data?.version).to.eql('1.0.1');
