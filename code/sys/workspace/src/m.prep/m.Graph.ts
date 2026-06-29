@@ -6,7 +6,7 @@ import { runPhase } from '../u.phase.ts';
 export const Graph: t.WorkspacePrep.Graph.Lib = {
   async build(cwd = Fs.cwd()) {
     const deno = (await Fs.readJson<Record<string, unknown>>(State.workspaceFile(cwd))).data ?? {};
-    const workspace = Array.isArray(deno.workspace) ? deno.workspace.filter(Is.str) : [];
+    const workspace = Is.array(deno.workspace) ? deno.workspace.filter(Is.str) : [];
     const include = workspace.map((path) => `${path}/deno.json`);
 
     const graph = await WorkspaceGraph.collect({ cwd, source: { include } });
