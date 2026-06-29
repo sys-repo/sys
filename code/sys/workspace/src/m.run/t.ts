@@ -13,7 +13,7 @@ export declare namespace WorkspaceRun {
     /** Run package dry runs across ordered workspace packages. */
     dry(args?: Args): Promise<Result>;
     /** Run `deno task test` across ordered workspace packages. */
-    test(args?: Args): Promise<Result>;
+    test(args?: Test.Args): Promise<Result>;
   };
 
   /** Shared arguments for one workspace task run. */
@@ -25,21 +25,54 @@ export declare namespace WorkspaceRun {
     /** Force rebuilding the workspace graph instead of reading the cached snapshot first. */
     readonly rebuildGraph?: boolean;
     /** Optional package filter applied in graph order before task execution. */
-    readonly filter?: Filter;
+    readonly filter?: Filter.Predicate;
   };
 
-  /** One package candidate exposed to workspace task filters. */
-  export type FilterEntry = {
-    /** Workspace-relative package directory. */
-    readonly dir: t.StringDir;
-    /** Canonical package identity loaded from the package manifest. */
-    readonly pkg: t.Pkg;
-    /** Canonical task being executed for this run. */
-    readonly task: Task;
-  };
+  /** Test-runner-specific contracts. */
+  export namespace Test {
+    /** Arguments for the canonical workspace test runner. */
+    export type Args = WorkspaceRun.Args & {
+      /** Optional execution strategy. Defaults to the baseline sequential runner. */
+      readonly strategy?: Strategy;
+    };
 
-  /** Predicate used to include package candidates in one workspace task run. */
-  export type Filter = (entry: FilterEntry) => boolean;
+    /** Workspace package execution strategy for test runs. */
+    export type Strategy = Strategy.Sequential | Strategy.Parallel;
+
+    /** Test execution strategy contracts. */
+    export namespace Strategy {
+      /** Baseline graph-order runner with inherited child stdio and immediate fail-fast. */
+      export type Sequential = {
+        readonly kind: 'sequential';
+      };
+
+      /** Topology-safe parallel test runner. */
+      export type Parallel = {
+        readonly kind: 'parallel';
+        /** Maximum number of package tasks to run at once. */
+        readonly jobs?: Jobs;
+      };
+
+      /** Concrete parallel worker bound or the default hardware-aware heuristic. */
+      export type Jobs = number | 'auto';
+    }
+  }
+
+  /** Workspace package filtering contracts. */
+  export namespace Filter {
+    /** One package candidate exposed to workspace task filters. */
+    export type Entry = {
+      /** Workspace-relative package directory. */
+      readonly dir: t.StringDir;
+      /** Canonical package identity loaded from the package manifest. */
+      readonly pkg: t.Pkg;
+      /** Canonical task being executed for this run. */
+      readonly task: Task;
+    };
+
+    /** Predicate used to include package candidates in one workspace task run. */
+    export type Predicate = (entry: Entry) => boolean;
+  }
 
   /** Canonical workspace task names supported by this surface. */
   export type Task = 'check' | 'dry' | 'test';
@@ -54,6 +87,10 @@ export declare namespace WorkspaceRun {
       readonly success: boolean;
       readonly signal: Deno.Signal | null;
       readonly elapsed: t.Msecs;
+      /** Captured stdout for buffered runners. Undefined when stdio is inherited. */
+      readonly stdout?: string;
+      /** Captured stderr for buffered runners. Undefined when stdio is inherited. */
+      readonly stderr?: string;
     };
 
     /** Package skipped because the canonical task is not declared. */
@@ -63,8 +100,15 @@ export declare namespace WorkspaceRun {
       readonly reason: 'task:missing';
     };
 
+    /** Package blocked before launch because fail-fast stopped the frontier. */
+    export type Blocked = {
+      readonly kind: 'blocked';
+      readonly path: t.StringPath;
+      readonly reason: 'dependency:failed' | 'fail-fast';
+    };
+
     /** One package outcome during a workspace task run. */
-    export type Result = Ran | Skipped;
+    export type Result = Ran | Skipped | Blocked;
   }
 
   /** Successful workspace task run result. */

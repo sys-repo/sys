@@ -25,6 +25,7 @@ export const Fmt: t.WorkspaceRun.Fmt.Lib = {
       c.gray('skipped'),
       counts.skipped > 0 ? c.yellow(String(counts.skipped)) : c.gray('0'),
     ]);
+    if (counts.blocked > 0) rows.push([c.gray('blocked'), c.yellow(String(counts.blocked))]);
     rows.push([c.gray('failed'), counts.failed > 0 ? c.red(String(counts.failed)) : c.gray('0')]);
 
     const summary = wrangle.indentedTable(rows);
@@ -58,6 +59,10 @@ export const Fmt: t.WorkspaceRun.Fmt.Lib = {
         rows.push([c.gray(item.path), c.yellow('skipped'), c.gray('—')]);
         continue;
       }
+      if (item.kind === 'blocked') {
+        rows.push([c.gray(item.path), c.yellow('blocked'), c.gray('—')]);
+        continue;
+      }
 
       rows.push([
         c.white(item.path),
@@ -75,11 +80,12 @@ const wrangle = {
     return packages.reduce(
       (acc, item) => {
         if (item.kind === 'skipped') return { ...acc, skipped: acc.skipped + 1 };
+        if (item.kind === 'blocked') return { ...acc, blocked: acc.blocked + 1 };
         return item.success
           ? { ...acc, ran: acc.ran + 1 }
           : { ...acc, ran: acc.ran + 1, failed: acc.failed + 1 };
       },
-      { ran: 0, skipped: 0, failed: 0 },
+      { ran: 0, skipped: 0, blocked: 0, failed: 0 },
     );
   },
 

@@ -1,22 +1,12 @@
-import { Arr, Fs, Is, Num, Obj, Process, Str, type t, Time } from './common.ts';
-
-export type SequentialCandidate = {
-  readonly dir: t.StringDir;
-  readonly pkg: t.Pkg;
-  readonly deno: Record<string, unknown>;
-};
+import { Arr, Obj, Str, type t, Time } from './common.ts';
+import type { RunPlan } from './u.plan.ts';
+import { resolveCommand, runPackage } from './u.worker.ts';
 
 export type SequentialRunArgs = {
   readonly cwd: t.StringDir;
   readonly task: t.WorkspaceRun.Task;
-  readonly candidates: readonly SequentialCandidate[];
-  readonly orderedPaths: readonly t.StringPath[];
+  readonly plan: RunPlan;
   readonly startedAt: t.Msecs;
-};
-
-type Command = {
-  readonly cmd: string;
-  readonly args: readonly string[];
 };
 
 /**
@@ -26,11 +16,11 @@ type Command = {
  * and fail-fast on the first non-zero package result.
  */
 export async function runSequential(args: SequentialRunArgs): Promise<t.WorkspaceRun.Result> {
-  const { cwd, task, candidates, orderedPaths, startedAt } = args;
+  const { cwd, task, plan, startedAt } = args;
   const packages: t.WorkspaceRun.Package.Result[] = [];
 
-  for (const candidate of candidates) {
-    const command = wrangle.command(candidate.deno, task);
+  for (const candidate of plan.candidates) {
+    const command = resolveCommand(candidate.deno, task);
     if (!command) {
       packages.push({ kind: 'skipped', path: candidate.dir, reason: 'task:missing' });
       continue;
@@ -40,30 +30,17 @@ export async function runSequential(args: SequentialRunArgs): Promise<t.Workspac
       workspace ${task} → ${candidate.dir}
     `));
 
-    const packageStartedAt = Time.now.timestamp;
-    const output = await Process.inherit({
-      cwd: Fs.join(cwd, candidate.dir),
-      cmd: command.cmd,
-      args: [...command.args],
-    });
-    const ran: t.WorkspaceRun.Package.Ran = {
-      kind: 'ran',
-      path: candidate.dir,
-      code: output.code,
-      success: output.success,
-      signal: output.signal,
-      elapsed: Time.now.timestamp - packageStartedAt,
-    };
+    const ran = await runPackage({ cwd, task, candidate, command, stdio: 'inherit' });
 
     packages.push(Obj.clone(ran));
-    if (!output.success) {
+    if (!ran.success) {
       const elapsed = Time.now.timestamp - startedAt;
       return {
         ok: false,
         task,
         cwd,
         elapsed,
-        orderedPaths,
+        orderedPaths: plan.orderedPaths,
         packages,
         failure: ran,
       };
@@ -77,25 +54,7 @@ export async function runSequential(args: SequentialRunArgs): Promise<t.Workspac
     task,
     cwd,
     elapsed,
-    orderedPaths: Arr.uniq([...orderedPaths]),
+    orderedPaths: Arr.uniq([...plan.orderedPaths]),
     packages,
   };
 }
-
-/**
- * Helpers:
- */
-function hasTask(deno: Record<string, unknown>, task: t.WorkspaceRun.Task) {
-  const tasks = deno.tasks;
-  if (!Obj.isRecord(tasks)) return false;
-  const value = tasks[task];
-  return Is.str(value) && Num.clamp(0, 1, value.trim().length) === 1;
-}
-
-const wrangle = {
-  command(deno: Record<string, unknown>, task: t.WorkspaceRun.Task): Command | null {
-    if (hasTask(deno, task)) return { cmd: 'deno', args: ['task', task] };
-    if (task === 'dry') return { cmd: 'deno', args: ['publish', '--allow-dirty', '--dry-run'] };
-    return null;
-  },
-} as const;
