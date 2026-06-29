@@ -1,5 +1,6 @@
-import { c, Cli, Semver, type t } from '../common.ts';
+import { c, Cli, Obj, Semver, type t } from '../common.ts';
 import { FmtBase } from './u.fmt.base.ts';
+import { FmtStanddown } from './u.fmt.standdown.ts';
 import type {
   BlockedCode,
   PackagePolicyCarrier,
@@ -26,19 +27,23 @@ export const FmtSelection = {
     );
     const layout = FmtSelection.selectionLayout(upgrade, decisionByKey);
 
-    return upgrade.collect.candidates
-      .map((candidate) => {
-        const decision = decisionByKey.get(FmtBase.key(candidate.entry));
-        const state = FmtSelection.selectionState(candidate, decision);
-        if (state === 'current' || state === 'registry-behind-current') return undefined;
-        const name = candidate.entry.module.name;
-        const alias = candidate.entry.module.alias;
-        const label = FmtSelection.selectionLabel(candidate, decision, layout);
-        const selectedByFlag = includeSet.has(name) || (!!alias && includeSet.has(alias));
-        const checked = includeSet.size > 0 ? selectedByFlag : state === 'selected';
-        return { name: label, value: name, checked };
-      })
-      .filter((option): option is SelectionOption => !!option);
+    return upgrade.collect.candidates.flatMap((candidate): readonly SelectionOption[] => {
+      const decision = decisionByKey.get(FmtBase.key(candidate.entry));
+      const state = FmtSelection.selectionState(candidate, decision);
+      if (state === 'current' || state === 'registry-behind-current') return [];
+      const name = candidate.entry.module.name;
+      const alias = candidate.entry.module.alias;
+      const label = FmtSelection.selectionLabel(
+        candidate,
+        decision,
+        layout,
+        upgrade.options.evaluatedAt,
+      );
+      const selectedByFlag = includeSet.has(name) || (!!alias && includeSet.has(alias));
+      const checked = includeSet.size > 0 ? selectedByFlag : state === 'selected';
+      const disabled = FmtStanddown.disabled(candidate, decision);
+      return [{ name: label, value: name, checked: disabled ? false : checked, disabled }];
+    });
   },
 
   selected(selection: t.WorkspaceCli.Selection): string {
@@ -54,6 +59,7 @@ export const FmtSelection = {
     candidate: t.WorkspaceUpgrade.Candidate,
     decision?: t.EsmPolicy.Decision,
     layout?: SelectionLayout,
+    evaluatedAt?: t.UnixTimestamp,
   ): string {
     const widths = layout ??
       FmtSelection.selectionLayout(
@@ -70,7 +76,13 @@ export const FmtSelection = {
       ? c.green(nextText)
       : c.gray(nextText);
     const latest = FmtBase.pad(nextColor, widths.latest);
-    const note = FmtSelection.selectionNote(candidate, decision, state, widths.overrideParents);
+    const note = FmtSelection.selectionNote(
+      candidate,
+      decision,
+      state,
+      widths.overrideParents,
+      evaluatedAt,
+    );
     return `${name}  ${current} ${c.gray('→')} ${latest}${note}`;
   },
 
@@ -103,8 +115,21 @@ export const FmtSelection = {
     decision: t.EsmPolicy.Decision | undefined,
     state: SelectionState,
     overrideParents: ReadonlySet<string> = EMPTY_OVERRIDE_PARENTS,
+    evaluatedAt?: t.UnixTimestamp,
   ): string {
     const override = FmtSelection.selectionOverrideHint(candidate, overrideParents);
+    const standdown = FmtStanddown.selectionNote(candidate, evaluatedAt);
+    if (
+      standdown && state === 'blocked' && decision && !decision.ok &&
+      FmtSelection.countsAsBlocked(decision)
+    ) {
+      return `${
+        FmtStanddown.note(`${FmtSelection.blockedReason(decision.reason.code)}; ${standdown}`)
+      }${override}`;
+    }
+    if (standdown && (state === 'blocked' || state === 'selected')) {
+      return `${FmtStanddown.note(standdown)}${override}`;
+    }
     if (state === 'blocked' && decision && !decision.ok) {
       return `${
         c.gray(c.italic(`  ${FmtSelection.blockedReason(decision.reason.code)}`))
@@ -127,7 +152,7 @@ export const FmtSelection = {
   overrideParents(upgrade: PackagePolicyCarrier): readonly string[] {
     const overrides = upgrade.collect.packageJson?.overrides;
     if (!overrides) return [];
-    return Object.keys(overrides).toSorted((a, b) => a.localeCompare(b));
+    return Obj.keys(overrides).map(String).toSorted((a, b) => a.localeCompare(b));
   },
 
   overrideParentSet(upgrade: PackagePolicyCarrier): ReadonlySet<string> {
@@ -162,14 +187,26 @@ export const FmtSelection = {
         );
         return {
           dependencies: acc.dependencies + 1,
-          blocked: acc.blocked + (state === 'blocked' ? 1 : 0),
+          blocked: acc.blocked +
+            (state === 'blocked' && FmtSelection.countsAsBlocked(
+                decisionByKey.get(FmtBase.key(candidate.entry)),
+              )
+              ? 1
+              : 0),
+          standdown: acc.standdown + (FmtStanddown.latestFact(candidate) ? 1 : 0),
           current: acc.current + (state === 'current' ? 1 : 0),
           registryBehindCurrent: acc.registryBehindCurrent +
             (state === 'registry-behind-current' ? 1 : 0),
         };
       },
-      { dependencies: 0, blocked: 0, current: 0, registryBehindCurrent: 0 },
+      { dependencies: 0, blocked: 0, standdown: 0, current: 0, registryBehindCurrent: 0 },
     );
+  },
+
+  countsAsBlocked(decision?: t.EsmPolicy.Decision): boolean {
+    if (!decision || decision.ok) return false;
+    const code = decision.reason.code;
+    return code === 'policy:excluded' || code === 'policy:none' || code === 'version:not-allowed';
   },
 
   blockedReason(code: BlockedCode): string {
@@ -190,6 +227,7 @@ export const FmtSelection = {
     ),
   ): SelectionLayout {
     const overrideParents = FmtSelection.overrideParentSet(upgrade);
+    const evaluatedAt = upgrade.options?.evaluatedAt;
     const widths = { name: 0, current: 0, latest: 0, note: 0 };
 
     for (const candidate of upgrade.collect.candidates) {
@@ -205,7 +243,9 @@ export const FmtSelection = {
       );
       widths.note = Math.max(
         widths.note,
-        FmtBase.width(FmtSelection.selectionNote(candidate, decision, state, overrideParents)),
+        FmtBase.width(
+          FmtSelection.selectionNote(candidate, decision, state, overrideParents, evaluatedAt),
+        ),
       );
     }
 

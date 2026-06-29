@@ -1,6 +1,7 @@
 import { c, Cli, Str, type t } from '../common.ts';
 import { FmtBase } from './u.fmt.base.ts';
 import { FmtDiagnostics } from './u.fmt.diagnostics.ts';
+import { FmtStanddown } from './u.fmt.standdown.ts';
 import type { UpdatedRow } from './u.fmt.t.ts';
 
 export const FmtApplied = {
@@ -10,6 +11,9 @@ export const FmtApplied = {
 
     const updated = FmtApplied.updated(result);
     if (updated) str.blank().line(updated);
+
+    const standdown = FmtDiagnostics.standdown(result.upgrade);
+    if (standdown) str.blank().line(standdown);
 
     const uncollected = FmtDiagnostics.uncollected(result.upgrade);
     if (uncollected) str.blank().line(uncollected);
@@ -31,6 +35,12 @@ export const FmtApplied = {
     const updated = FmtApplied.updatedRows(result).length;
 
     table.push([c.gray('Release Policy'), c.white(result.options.policy.mode)]);
+    if (result.options.minimumDependencyAge > 0) {
+      table.push([
+        c.gray('Minimum dependency age'),
+        c.white(FmtStanddown.duration(result.options.minimumDependencyAge)),
+      ]);
+    }
     table.push([c.gray('Updated'), c.green(String(updated))]);
 
     return FmtBase.indentTable(String(table));

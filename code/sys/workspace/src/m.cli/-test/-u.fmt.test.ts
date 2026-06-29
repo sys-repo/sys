@@ -3,6 +3,11 @@ import { WorkspaceHelp } from '../../m.help/mod.ts';
 import { Fmt } from '../u.fmt/u.fmt.ts';
 import { FmtHelp } from '../u.fmt/u.fmt.help.ts';
 
+const HOUR = 60 * 60 * 1000;
+const DAY = 24 * HOUR;
+const STANDDOWN_EVALUATED_AT = Time.utc('2026-06-28T00:00:00.000Z').timestamp;
+const STANDDOWN_ELIGIBLE_AT = Time.utc('2026-06-28T14:00:00.000Z').timestamp;
+
 describe('Workspace.Cli.Fmt', () => {
   it('renders DSL root help and skill projections', async () => {
     const text = Cli.stripAnsi(await FmtHelp.dslOutput());
@@ -69,15 +74,7 @@ describe('Workspace.Cli.Fmt', () => {
   });
 
   it('marks direct override-parent candidates in interactive selection rows', () => {
-    const options = Fmt.selectionOptions(upgradeWithOverrides(), {
-      include: [],
-      exclude: [],
-      dryRun: false,
-      deps: 'deps.yaml',
-      mode: 'interactive',
-      policy: 'minor',
-      prerelease: false,
-    });
+    const options = Fmt.selectionOptions(upgradeWithOverrides(), cliOptions());
     const labels = new Map(options.map((option) => [option.value, Cli.stripAnsi(option.name)]));
 
     expect(labels.get('monaco-editor')).to.include('override parent');
@@ -97,15 +94,7 @@ describe('Workspace.Cli.Fmt', () => {
 
   it('shows selected versions for allowed rows and latest versions for blocked rows', () => {
     const result = upgrade();
-    const options = Fmt.selectionOptions(result, {
-      include: [],
-      exclude: [],
-      dryRun: false,
-      deps: 'deps.yaml',
-      mode: 'interactive',
-      policy: 'minor',
-      prerelease: false,
-    });
+    const options = Fmt.selectionOptions(result, cliOptions());
     const labels = options.map((option) => option.name);
     const plain = labels.map((label) => Cli.stripAnsi(label));
     const arrows = plain.map((label) => label.indexOf('→'));
@@ -120,18 +109,50 @@ describe('Workspace.Cli.Fmt', () => {
     expect(plain[1]).to.include('blocked by policy');
   });
 
+  it('renders standdown diagnostics and relative interactive notes', () => {
+    const result = upgradeWithStanddown();
+    const plan = Cli.stripAnsi(Fmt.plan(result));
+    const options = Fmt.selectionOptions(
+      result,
+      cliOptions({ policy: 'latest', minimumDependencyAge: 2 * DAY }),
+    );
+    const label = Cli.stripAnsi(options[0]!.name);
+
+    expect(plan).to.include('Minimum dependency age');
+    expect(plan).to.include('2d');
+    expect(plan).to.include('Standdown');
+    expect(plan).to.include('NPM standdown');
+    expect(plan).to.include('motion');
+    expect(plan).to.include('12.40.0');
+    expect(plan).to.include('12.41.0');
+    expect(plan).to.include('12.42.0');
+    expect(plan).to.include('34h');
+    expect(plan).to.include('14h from now');
+    expect(label).to.include('newer in standdown - upgrade in 14h');
+    expect(options[0]?.disabled).to.eql(false);
+  });
+
+  it('renders unknown publish timestamps as disabled standdown diagnostics', () => {
+    const result = upgradeWithUnknownStanddown();
+    const plan = Cli.stripAnsi(Fmt.plan(result));
+    const options = Fmt.selectionOptions(
+      result,
+      cliOptions({ policy: 'latest', minimumDependencyAge: 2 * DAY }),
+    );
+    const label = Cli.stripAnsi(options[0]!.name);
+
+    expect(plan).to.include('NPM standdown');
+    expect(plan).to.include('Reason');
+    expect(plan).to.include('publish timestamp unavailable');
+    expect(label).to.include('newer in standdown - publish timestamp unavailable');
+    expect(options[0]?.checked).to.eql(false);
+    expect(options[0]?.disabled).to.eql(true);
+  });
+
   it('keeps common scoped npm package names visible before truncating interactive rows', () => {
     const restore = stubScreenWidth(80);
     try {
-      const options = Fmt.selectionOptions(upgradeWithLongScopedName(), {
-        include: [],
-        exclude: [],
-        dryRun: false,
-        deps: 'deps.yaml',
-        mode: 'interactive',
-        policy: 'minor',
-        prerelease: false,
-      });
+      const options = Fmt.selectionOptions(upgradeWithLongScopedName(), cliOptions());
       const plain = Cli.stripAnsi(options[0]!.name);
 
       expect(plain).to.include('@sample/foo');
@@ -142,30 +163,14 @@ describe('Workspace.Cli.Fmt', () => {
   });
 
   it('pre-checks policy-selected rows and leaves blocked rows unchecked by default', () => {
-    const options = Fmt.selectionOptions(upgrade(), {
-      include: [],
-      exclude: [],
-      dryRun: false,
-      deps: 'deps.yaml',
-      mode: 'interactive',
-      policy: 'minor',
-      prerelease: false,
-    });
+    const options = Fmt.selectionOptions(upgrade(), cliOptions());
 
     expect(options.map((option) => option.checked)).to.eql([true, false]);
   });
 
   it('reports registry metadata behind current without rendering a downgrade option', () => {
     const result = upgradeWithRegistryBehindCurrent();
-    const options = Fmt.selectionOptions(result, {
-      include: [],
-      exclude: [],
-      dryRun: false,
-      deps: 'deps.yaml',
-      mode: 'interactive',
-      policy: 'minor',
-      prerelease: false,
-    });
+    const options = Fmt.selectionOptions(result, cliOptions());
     const plan = Cli.stripAnsi(Fmt.plan(result));
 
     expect(options).to.eql([]);
@@ -221,6 +226,23 @@ describe('Workspace.Cli.Fmt', () => {
     expect(Fmt.commitMessage(result)).to.eql('chore(deps): upgraded @std/path - jsr:1');
   });
 });
+
+function cliOptions(
+  options: Partial<t.WorkspaceCli.ResolvedOptions> = {},
+): t.WorkspaceCli.ResolvedOptions {
+  return {
+    include: [],
+    exclude: [],
+    dryRun: false,
+    deps: 'deps.yaml',
+    mode: 'interactive',
+    policy: 'minor',
+    prerelease: false,
+    minimumDependencyAge: 0,
+    evaluatedAt: STANDDOWN_EVALUATED_AT,
+    ...options,
+  };
+}
 
 function upgrade(): t.WorkspaceUpgrade.Result {
   const pathDecision = decisionOk(
@@ -387,6 +409,53 @@ function candidate(
   };
 }
 
+function standdownCandidate(): t.WorkspaceUpgrade.Candidate {
+  return {
+    entry: entry('motion', '12.40.0'),
+    registry: 'npm',
+    current: '12.40.0',
+    latest: '12.42.0',
+    available: ['12.42.0', '12.41.0', '12.40.0'],
+    eligible: ['12.41.0', '12.40.0'],
+    versions: [
+      {
+        version: '12.42.0',
+        publishedAt: '2026-06-26T14:00:00.000Z' as t.StringTimestamp,
+        eligibility: {
+          kind: 'standdown',
+          eligibleAt: STANDDOWN_ELIGIBLE_AT,
+          age: 34 * HOUR,
+        },
+      },
+      {
+        version: '12.41.0',
+        publishedAt: '2026-06-25T00:00:00.000Z' as t.StringTimestamp,
+        eligibility: { kind: 'eligible' },
+      },
+      {
+        version: '12.40.0',
+        publishedAt: '2026-06-24T00:00:00.000Z' as t.StringTimestamp,
+        eligibility: { kind: 'eligible' },
+      },
+    ],
+  };
+}
+
+function unknownStanddownCandidate(): t.WorkspaceUpgrade.Candidate {
+  return {
+    entry: entry('some-pkg', '1.2.0'),
+    registry: 'npm',
+    current: '1.2.0',
+    latest: '1.3.0',
+    available: ['1.3.0', '1.2.0'],
+    eligible: ['1.2.0'],
+    versions: [
+      { version: '1.3.0', eligibility: { kind: 'unknown-published-at' } },
+      { version: '1.2.0', eligibility: { kind: 'eligible' } },
+    ],
+  };
+}
+
 function decisionOk(
   name: string,
   current: t.StringSemver,
@@ -476,6 +545,104 @@ function topologyBlockedUpgrade(): t.WorkspaceUpgrade.Result {
         keys: ['jsr:@std/path', 'npm:react-dom'],
         path: ['jsr:@std/path', 'npm:react-dom', 'jsr:@std/path'],
       },
+    },
+  };
+}
+
+function upgradeWithStanddown(): t.WorkspaceUpgrade.Result {
+  const result = upgrade();
+  const candidate = standdownCandidate();
+  const decision = decisionOk(
+    'motion',
+    '12.40.0',
+    candidate.eligible,
+    '12.41.0',
+  );
+  const node = { key: Fmt.key(candidate.entry), value: decision };
+  const options = {
+    ...result.options,
+    policy: { mode: 'latest' as const },
+    minimumDependencyAge: 2 * DAY,
+    evaluatedAt: STANDDOWN_EVALUATED_AT,
+  };
+
+  return {
+    ...result,
+    options,
+    totals: {
+      dependencies: 1,
+      allowed: 1,
+      blocked: 0,
+      planned: 1,
+    },
+    collect: {
+      ...result.collect,
+      options,
+      candidates: [candidate],
+      totals: {
+        dependencies: 1,
+        collected: 1,
+        skipped: 0,
+        failed: 0,
+      },
+    },
+    graph: {
+      nodes: [node],
+      edges: [],
+      unresolved: [],
+    },
+    topological: {
+      ok: true,
+      items: [{ node, index: 0, after: [] }],
+    },
+    policy: {
+      decisions: [decision],
+    },
+  };
+}
+
+function upgradeWithUnknownStanddown(): t.WorkspaceUpgrade.Result {
+  const result = upgrade();
+  const candidate = unknownStanddownCandidate();
+  const decision = decisionBlocked('some-pkg', '1.2.0', candidate.eligible);
+  const options = {
+    ...result.options,
+    policy: { mode: 'latest' as const },
+    minimumDependencyAge: 2 * DAY,
+    evaluatedAt: STANDDOWN_EVALUATED_AT,
+  };
+
+  return {
+    ...result,
+    options,
+    totals: {
+      dependencies: 1,
+      allowed: 0,
+      blocked: 1,
+      planned: 0,
+    },
+    collect: {
+      ...result.collect,
+      options,
+      candidates: [candidate],
+      totals: {
+        dependencies: 1,
+        collected: 1,
+        skipped: 0,
+        failed: 0,
+      },
+    },
+    graph: {
+      nodes: [],
+      edges: [],
+      unresolved: [],
+    },
+    topological: {
+      ok: true,
+      items: [],
+    },
+    policy: {
+      decisions: [decision],
     },
   };
 }

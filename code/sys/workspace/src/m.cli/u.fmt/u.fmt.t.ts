@@ -21,6 +21,7 @@ export type PackagePolicyCollect = { readonly packageJson?: t.EsmDeps.PackageJso
 export type PackagePolicyCarrier = { readonly collect: PackagePolicyCollect };
 
 export type SelectionLayoutInput = {
+  readonly options?: { readonly evaluatedAt: t.UnixTimestamp };
   readonly policy: { readonly decisions: readonly t.EsmPolicy.Decision[] };
   readonly collect: PackagePolicyCollect & {
     readonly candidates: readonly t.WorkspaceUpgrade.Candidate[];
@@ -36,6 +37,7 @@ export type UpdatedRow = {
 export type SummaryCounts = {
   readonly dependencies: number;
   readonly blocked: number;
+  readonly standdown: number;
   readonly current: number;
   readonly registryBehindCurrent: number;
 };

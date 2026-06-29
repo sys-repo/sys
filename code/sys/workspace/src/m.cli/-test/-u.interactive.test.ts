@@ -22,11 +22,11 @@ describe('Workspace.Cli.runInteractive', () => {
         npm: {
           'happy-dom': fixture.versionsNpm('happy-dom', '20.8.8', {
             '20.8.4': {},
-            '20.8.8': {},
+            '20.8.8': { publishedAt: fixture.standdownTime.older },
           }),
           'react-spinners': fixture.versionsNpm('react-spinners', '1.0.0', {
             '0.17.0': {},
-            '1.0.0': {},
+            '1.0.0': { publishedAt: fixture.standdownTime.older },
           }),
         },
       },
@@ -54,6 +54,8 @@ describe('Workspace.Cli.runInteractive', () => {
                   mode: 'interactive',
                   policy: 'minor',
                   prerelease: false,
+                  minimumDependencyAge: 2 * fixture.standdownTime.day,
+                  evaluatedAt: fixture.standdownTime.now,
                   include: [],
                   exclude: [],
                   dryRun: false,

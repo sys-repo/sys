@@ -2,11 +2,15 @@ import { c, Cli, Str, type t } from '../common.ts';
 import { FmtBase } from './u.fmt.base.ts';
 import { FmtDiagnostics } from './u.fmt.diagnostics.ts';
 import { FmtSelection } from './u.fmt.selection.ts';
+import { FmtStanddown } from './u.fmt.standdown.ts';
 
 export const FmtPlan = {
   plan(upgrade: t.WorkspaceUpgrade.Result): string {
     const str = Str.builder();
     str.line(FmtPlan.summary(upgrade));
+
+    const standdown = FmtDiagnostics.standdown(upgrade);
+    if (standdown) str.blank().line(standdown);
 
     const registryBehindCurrent = FmtDiagnostics.registryBehindCurrent(upgrade);
     if (registryBehindCurrent) str.blank().line(registryBehindCurrent);
@@ -28,6 +32,12 @@ export const FmtPlan = {
     const counts = FmtSelection.summaryCounts(upgrade);
 
     table.push([c.gray('Release Policy'), c.white(upgrade.options.policy.mode)]);
+    if (upgrade.options.minimumDependencyAge > 0) {
+      table.push([
+        c.gray('Minimum dependency age'),
+        c.white(FmtStanddown.duration(upgrade.options.minimumDependencyAge)),
+      ]);
+    }
     table.push([c.gray('Dependencies'), String(counts.dependencies)]);
     table.push([
       c.gray('Already latest'),
@@ -38,6 +48,9 @@ export const FmtPlan = {
         c.gray('Registry behind current'),
         c.yellow(String(counts.registryBehindCurrent)),
       ]);
+    }
+    if (counts.standdown > 0) {
+      table.push([c.gray('Standdown'), c.yellow(String(counts.standdown))]);
     }
     table.push([
       c.gray('Blocked'),
@@ -62,6 +75,8 @@ export const FmtPlan = {
         mode: 'interactive',
         policy: upgrade.options.policy.mode,
         prerelease: upgrade.options.prerelease,
+        minimumDependencyAge: upgrade.options.minimumDependencyAge,
+        evaluatedAt: upgrade.options.evaluatedAt,
       },
     );
     if (options.length === 0) return '';

@@ -1,4 +1,5 @@
-import { Args, Err, Is, Path, type t } from '../common.ts';
+import { Args, Err, Is, Path, type t, Time } from '../common.ts';
+import { MinimumDependencyAge } from './u.minimumDependencyAge.ts';
 
 export function commandOf(argv: readonly string[]): string | undefined {
   const first = wrangle.argv(argv)[0];
@@ -19,15 +20,19 @@ export function parseArgs(
 ): t.WorkspaceCli.ResolvedOptions {
   const args = Args.parse<t.WorkspaceCli.ParsedArgs>(wrangle.argv(argv), {
     boolean: ['dry-run', 'help', 'prerelease', 'non-interactive'],
-    string: ['policy', 'deps', 'include', 'exclude'],
+    string: ['policy', 'minimum-dependency-age', 'deps', 'include', 'exclude'],
     alias: { h: 'help' },
   });
+
+  const evaluatedAt = Time.now.timestamp;
 
   return {
     deps: Path.resolve(cwd, wrangle.one(args.deps) ?? 'deps.yaml'),
     mode: args['non-interactive'] === true ? 'non-interactive' : 'interactive',
     policy: wrangle.policy(args.policy),
     prerelease: args.prerelease === true,
+    minimumDependencyAge: MinimumDependencyAge.parse(args['minimum-dependency-age'], evaluatedAt),
+    evaluatedAt,
     include: wrangle.list(args.include),
     exclude: wrangle.list(args.exclude),
     dryRun: args['dry-run'] === true,
@@ -67,12 +72,12 @@ const wrangle = {
 
   one(input: unknown): string | undefined {
     if (Is.str(input)) return input;
-    if (Array.isArray(input) && Is.str(input[0])) return input[0];
+    if (Is.array<string>(input) && Is.str(input[0])) return input[0];
     return undefined;
   },
 
   list(input: unknown): readonly string[] {
-    const raw = Is.str(input) ? [input] : Array.isArray(input) ? input.filter(Is.str) : [];
+    const raw = Is.str(input) ? [input] : Is.array<string>(input) ? input.filter(Is.str) : [];
     const flat = raw.flatMap((item) =>
       item
         .split(',')

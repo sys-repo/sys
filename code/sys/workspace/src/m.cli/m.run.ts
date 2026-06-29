@@ -193,6 +193,8 @@ const wrangle = {
         exclude: exclude.length > 0 ? exclude : undefined,
       },
       prerelease: options.prerelease,
+      minimumDependencyAge: options.minimumDependencyAge,
+      evaluatedAt: options.evaluatedAt,
       progress,
     };
   },
@@ -222,6 +224,8 @@ const wrangle = {
     const collected = await WorkspaceUpgrade.collect(input, {
       policy: { mode: options.policy, exclude: options.exclude },
       prerelease: options.prerelease,
+      minimumDependencyAge: options.minimumDependencyAge,
+      evaluatedAt: options.evaluatedAt,
     });
 
     const include = options.include;

@@ -24,6 +24,8 @@ export async function runInteractive(
           options.policy,
           options.exclude,
           options.prerelease,
+          options.minimumDependencyAge,
+          options.evaluatedAt,
           (progress) => spinner.start(Fmt.spinnerProgress(progress)),
         ),
         session,
@@ -51,6 +53,8 @@ export async function runInteractive(
               policy,
               selection.exclude,
               options.prerelease,
+              options.minimumDependencyAge,
+              options.evaluatedAt,
               (progress) => spinner.start(Fmt.spinnerProgress(progress)),
             ),
             session,
@@ -76,6 +80,8 @@ export async function runInteractive(
           policy,
           selection.exclude,
           options.prerelease,
+          options.minimumDependencyAge,
+          options.evaluatedAt,
           (progress) => spinner.start(Fmt.spinnerProgress(progress)),
         ),
         session,
@@ -97,6 +103,8 @@ const wrangle = {
     mode: t.EsmPolicy.Mode,
     exclude: readonly string[],
     prerelease: boolean,
+    minimumDependencyAge: t.Msecs,
+    evaluatedAt: t.UnixTimestamp,
     progress?: t.WorkspaceUpgrade.ProgressHandler,
   ): t.WorkspaceUpgrade.Options {
     return {
@@ -105,6 +113,8 @@ const wrangle = {
         exclude: exclude.length > 0 ? exclude : undefined,
       },
       prerelease,
+      minimumDependencyAge,
+      evaluatedAt,
       progress,
     };
   },
@@ -129,11 +139,15 @@ const wrangle = {
     const promptOptions = Fmt.selectionOptions(upgrade, options);
     if (promptOptions.length === 0) return { include: [], exclude: options.exclude };
 
-    const picked = (await Cli.Input.Checkbox.prompt<string>({
+    const rawPicked = (await Cli.Input.Checkbox.prompt<string>({
       message: `Dependencies to upgrade (${promptOptions.length.toLocaleString()})`,
       options: [...promptOptions],
       maxRows: Math.min(50, promptOptions.length),
     })) ?? [];
+    const disabled = new Set(
+      promptOptions.filter((option) => option.disabled).map((option) => option.value),
+    );
+    const picked = rawPicked.filter((value) => !disabled.has(value));
 
     const pickedSet = new Set(picked);
     const exclude = new Set(options.exclude);

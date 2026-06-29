@@ -1,4 +1,4 @@
-import { Cli, describe, expect, Fs, it, Testing } from '../../-test.ts';
+import { Cli, describe, expect, Fs, it, Num, Testing } from '../../-test.ts';
 import { WorkspaceCli } from '../mod.ts';
 import { Fixture as DeltaFixture } from '../../m.delta/-test/u.fixture.ts';
 import * as fixture from '../../m.upgrade/-test/u.fixture.ts';
@@ -42,6 +42,7 @@ describe('Workspace.Cli.run', () => {
       expect(result.text).to.include('--non-interactive');
       expect(result.text).to.include('--policy');
       expect(result.text).to.include('--dry-run');
+      expect(result.text).to.include('--minimum-dependency-age');
     }
   });
 
@@ -115,12 +116,18 @@ describe('Workspace.Cli.run', () => {
 
   it('applies in non-interactive mode by default', async () => {
     const fs = await Testing.dir('WorkspaceCli.run.apply-default');
-    await fixture.writeDepsYaml(fs, `
+    await fixture.writeDepsYaml(
+      fs,
+      `
       deno.json:
         - import: jsr:@std/path@1.0.7
         - import: npm:react@18.2.0
-    `);
-    await Fs.writeJson(fs.join('deno.json'), { name: 'cli-plan-app', tasks: { dev: 'deno task dev' } });
+    `,
+    );
+    await Fs.writeJson(fs.join('deno.json'), {
+      name: 'cli-plan-app',
+      tasks: { dev: 'deno task dev' },
+    });
 
     await fixture.withVersions(
       {
@@ -128,7 +135,10 @@ describe('Workspace.Cli.run', () => {
           '@std/path': fixture.versionsJsr('@std/path', '1.0.8', { '1.0.7': {}, '1.0.8': {} }),
         },
         npm: {
-          react: fixture.versionsNpm('react', '19.0.0', { '18.2.0': {}, '19.0.0': {} }),
+          react: fixture.versionsNpm('react', '19.0.0', {
+            '18.2.0': {},
+            '19.0.0': { publishedAt: fixture.standdownTime.older },
+          }),
         },
       },
       async () => {
@@ -154,10 +164,13 @@ describe('Workspace.Cli.run', () => {
                 mode: 'non-interactive',
                 policy: 'latest',
                 prerelease: false,
+                minimumDependencyAge: 2 * fixture.standdownTime.day,
+                evaluatedAt: result.options.evaluatedAt,
                 include: [],
                 exclude: [],
                 dryRun: false,
               });
+              expect(Num.Is.finite(result.options.evaluatedAt)).to.eql(true);
               expect(result.selection).to.eql({ include: [], exclude: [] });
               expect(result.upgrade.totals).to.eql({
                 dependencies: 2,
@@ -177,12 +190,18 @@ describe('Workspace.Cli.run', () => {
 
   it('renders a non-interactive dry-run without mutating files', async () => {
     const fs = await Testing.dir('WorkspaceCli.run.plan');
-    await fixture.writeDepsYaml(fs, `
+    await fixture.writeDepsYaml(
+      fs,
+      `
       deno.json:
         - import: jsr:@std/path@1.0.7
         - import: npm:react@18.2.0
-    `);
-    await Fs.writeJson(fs.join('deno.json'), { name: 'cli-apply-app', tasks: { dev: 'deno task dev' } });
+    `,
+    );
+    await Fs.writeJson(fs.join('deno.json'), {
+      name: 'cli-apply-app',
+      tasks: { dev: 'deno task dev' },
+    });
 
     await fixture.withVersions(
       {
@@ -190,7 +209,10 @@ describe('Workspace.Cli.run', () => {
           '@std/path': fixture.versionsJsr('@std/path', '1.0.8', { '1.0.7': {}, '1.0.8': {} }),
         },
         npm: {
-          react: fixture.versionsNpm('react', '19.0.0', { '18.2.0': {}, '19.0.0': {} }),
+          react: fixture.versionsNpm('react', '19.0.0', {
+            '18.2.0': {},
+            '19.0.0': { publishedAt: fixture.standdownTime.older },
+          }),
         },
       },
       async () => {
@@ -217,10 +239,13 @@ describe('Workspace.Cli.run', () => {
                 mode: 'non-interactive',
                 policy: 'latest',
                 prerelease: false,
+                minimumDependencyAge: 2 * fixture.standdownTime.day,
+                evaluatedAt: result.options.evaluatedAt,
                 include: [],
                 exclude: [],
                 dryRun: true,
               });
+              expect(Num.Is.finite(result.options.evaluatedAt)).to.eql(true);
               expect(result.selection).to.eql({ include: [], exclude: [] });
             }
             expect(afterDeps.data).to.eql(beforeDeps.data);
@@ -231,21 +256,90 @@ describe('Workspace.Cli.run', () => {
     );
   });
 
-  it('uses include filters to constrain the applied upgrade set', async () => {
-    const fs = await Testing.dir('WorkspaceCli.run.include');
-    await fixture.writeDepsYaml(fs, `
+  it('disables npm standdown when minimum dependency age is 0', async () => {
+    const fs = await Testing.dir('WorkspaceCli.run.minimum-age-zero');
+    await fixture.writeDepsYaml(
+      fs,
+      `
       deno.json:
-        - import: npm:react-dom@18.2.0
-        - import: npm:react@18.2.0
-    `);
-    await Fs.writeJson(fs.join('deno.json'), { name: 'cli-include-app', tasks: { dev: 'deno task dev' } });
+        - import: npm:motion@12.40.0
+    `,
+    );
+    await Fs.writeJson(fs.join('deno.json'), { name: 'cli-minimum-age-zero-app' });
 
     await fixture.withVersions(
       {
         jsr: {},
         npm: {
-          'react-dom': fixture.versionsNpm('react-dom', '19.0.0', { '18.2.0': {}, '19.0.0': {} }),
-          react: fixture.versionsNpm('react', '19.0.0', { '18.2.0': {}, '19.0.0': {} }),
+          motion: fixture.versionsNpm('motion', '12.42.0', {
+            '12.40.0': {},
+            '12.42.0': {},
+          }),
+        },
+      },
+      async () => {
+        await fixture.withInfo(
+          {
+            jsr: {},
+            npm: { 'motion@12.42.0': fixture.infoNpm('motion', '12.42.0') },
+          },
+          async () => {
+            const { result } = await captureInfo(() =>
+              WorkspaceCli.run({
+                cwd: fs.dir,
+                argv: [
+                  'upgrade',
+                  '--non-interactive',
+                  '--policy',
+                  'latest',
+                  '--dry-run',
+                  '--minimum-dependency-age',
+                  '0',
+                ],
+              })
+            );
+
+            expect(result.kind).to.eql('plan');
+            if (result.kind === 'plan') {
+              const decision = result.upgrade.policy.decisions[0]!;
+              expect(result.options.minimumDependencyAge).to.eql(0);
+              expect(result.upgrade.options.minimumDependencyAge).to.eql(0);
+              expect(decision.ok).to.eql(true);
+              if (decision.ok) expect(decision.selection.selected?.version).to.eql('12.42.0');
+            }
+          },
+        );
+      },
+    );
+  });
+
+  it('uses include filters to constrain the applied upgrade set', async () => {
+    const fs = await Testing.dir('WorkspaceCli.run.include');
+    await fixture.writeDepsYaml(
+      fs,
+      `
+      deno.json:
+        - import: npm:react-dom@18.2.0
+        - import: npm:react@18.2.0
+    `,
+    );
+    await Fs.writeJson(fs.join('deno.json'), {
+      name: 'cli-include-app',
+      tasks: { dev: 'deno task dev' },
+    });
+
+    await fixture.withVersions(
+      {
+        jsr: {},
+        npm: {
+          'react-dom': fixture.versionsNpm('react-dom', '19.0.0', {
+            '18.2.0': {},
+            '19.0.0': { publishedAt: fixture.standdownTime.older },
+          }),
+          react: fixture.versionsNpm('react', '19.0.0', {
+            '18.2.0': {},
+            '19.0.0': { publishedAt: fixture.standdownTime.older },
+          }),
         },
       },
       async () => {
@@ -281,11 +375,17 @@ describe('Workspace.Cli.run', () => {
 
   it('passes prerelease opt-in through the non-interactive cli flow', async () => {
     const fs = await Testing.dir('WorkspaceCli.run.prerelease');
-    await fixture.writeDepsYaml(fs, `
+    await fixture.writeDepsYaml(
+      fs,
+      `
       deno.json:
         - import: npm:monaco-editor@0.55.1
-    `);
-    await Fs.writeJson(fs.join('deno.json'), { name: 'cli-prerelease-app', tasks: { dev: 'deno task dev' } });
+    `,
+    );
+    await Fs.writeJson(fs.join('deno.json'), {
+      name: 'cli-prerelease-app',
+      tasks: { dev: 'deno task dev' },
+    });
 
     await fixture.withVersions(
       {
@@ -293,7 +393,7 @@ describe('Workspace.Cli.run', () => {
         npm: {
           'monaco-editor': fixture.versionsNpm('monaco-editor', '0.56.0-dev-20260211', {
             '0.55.1': {},
-            '0.56.0-dev-20260211': {},
+            '0.56.0-dev-20260211': { publishedAt: fixture.standdownTime.older },
           }),
         },
       },
@@ -302,7 +402,10 @@ describe('Workspace.Cli.run', () => {
           {
             jsr: {},
             npm: {
-              'monaco-editor@0.56.0-dev-20260211': fixture.infoNpm('monaco-editor', '0.56.0-dev-20260211'),
+              'monaco-editor@0.56.0-dev-20260211': fixture.infoNpm(
+                'monaco-editor',
+                '0.56.0-dev-20260211',
+              ),
             },
           },
           async () => {
