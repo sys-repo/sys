@@ -2,14 +2,20 @@ import { describe, expect, it, Testing } from '../../-test.ts';
 import { WorkspaceUpgrade } from '../mod.ts';
 import * as fixture from './u.fixture.ts';
 
+const T = fixture.standdownTime;
+const DAY = T.day;
+
 describe('Workspace.Upgrade.upgrade', () => {
   it('composes collection, policy, and deterministic topological ordering', async () => {
     const fs = await Testing.dir('WorkspaceUpgrade.upgrade');
-    await fixture.writeDepsYaml(fs, `
+    await fixture.writeDepsYaml(
+      fs,
+      `
       deno.json:
         - import: npm:react-dom@18.2.0
         - import: npm:react@18.2.0
-    `);
+    `,
+    );
 
     await fixture.withVersions(
       {
@@ -62,13 +68,109 @@ describe('Workspace.Upgrade.upgrade', () => {
     );
   });
 
+  it('selects an eligible npm fallback while preserving the visible standdown latest', async () => {
+    const fs = await Testing.dir('WorkspaceUpgrade.upgrade.standdown');
+    await fixture.writeDepsYaml(
+      fs,
+      `
+      deno.json:
+        - import: npm:motion@12.40.0
+    `,
+    );
+
+    await fixture.withVersions(
+      {
+        jsr: {},
+        npm: {
+          motion: fixture.versionsNpm('motion', '12.42.0', {
+            '12.40.0': { publishedAt: T.current },
+            '12.41.0': { publishedAt: T.older },
+            '12.42.0': { publishedAt: T.tooNew },
+          }),
+        },
+      },
+      async () => {
+        await fixture.withInfo(
+          {
+            jsr: {},
+            npm: { 'motion@12.41.0': fixture.infoNpm('motion', '12.41.0') },
+          },
+          async () => {
+            const result = await WorkspaceUpgrade.upgrade(
+              { cwd: fs.dir, deps: fs.join('deps.yaml') },
+              { policy: { mode: 'latest' }, minimumDependencyAge: 2 * DAY, evaluatedAt: T.now },
+            );
+            const candidate = result.collect.candidates[0]!;
+            const decision = result.policy.decisions[0]!;
+
+            expect(candidate.latest).to.eql('12.42.0');
+            expect(candidate.available).to.eql(['12.42.0', '12.41.0', '12.40.0']);
+            expect(candidate.eligible).to.eql(['12.41.0', '12.40.0']);
+            expect(decision.ok).to.eql(true);
+            if (decision.ok) expect(decision.selection.selected?.version).to.eql('12.41.0');
+            expect(decision.input.subject.available).to.eql(['12.41.0', '12.40.0']);
+            expect(result.graph.unresolved).to.eql([]);
+            expect(result.totals).to.eql({ dependencies: 1, allowed: 1, blocked: 0, planned: 1 });
+          },
+        );
+      },
+    );
+  });
+
+  it('selects visible npm latest when standdown is explicitly disabled', async () => {
+    const fs = await Testing.dir('WorkspaceUpgrade.upgrade.standdown.disabled');
+    await fixture.writeDepsYaml(
+      fs,
+      `
+      deno.json:
+        - import: npm:motion@12.40.0
+    `,
+    );
+
+    await fixture.withVersions(
+      {
+        jsr: {},
+        npm: {
+          motion: fixture.versionsNpm('motion', '12.42.0', {
+            '12.40.0': { publishedAt: T.current },
+            '12.42.0': { publishedAt: T.tooNew },
+          }),
+        },
+      },
+      async () => {
+        await fixture.withInfo(
+          {
+            jsr: {},
+            npm: { 'motion@12.42.0': fixture.infoNpm('motion', '12.42.0') },
+          },
+          async () => {
+            const result = await WorkspaceUpgrade.upgrade(
+              { cwd: fs.dir, deps: fs.join('deps.yaml') },
+              { policy: { mode: 'latest' }, minimumDependencyAge: 0, evaluatedAt: T.now },
+            );
+            const candidate = result.collect.candidates[0]!;
+            const decision = result.policy.decisions[0]!;
+
+            expect(candidate.available).to.eql(['12.42.0', '12.40.0']);
+            expect(candidate.eligible).to.eql(['12.42.0', '12.40.0']);
+            expect(decision.ok).to.eql(true);
+            if (decision.ok) expect(decision.selection.selected?.version).to.eql('12.42.0');
+          },
+        );
+      },
+    );
+  });
+
   it('derives jsr graph edges from normalized module graph metadata', async () => {
     const fs = await Testing.dir('WorkspaceUpgrade.upgrade.jsr');
-    await fixture.writeDepsYaml(fs, `
+    await fixture.writeDepsYaml(
+      fs,
+      `
       deno.json:
         - import: jsr:@sys/fs@0.0.1
         - import: jsr:@sys/std@0.0.1
-    `);
+    `,
+    );
 
     await fixture.withVersions(
       {
@@ -82,7 +184,11 @@ describe('Workspace.Upgrade.upgrade', () => {
         await fixture.withInfo(
           {
             jsr: {
-              '@sys/std@0.0.3': fixture.infoJsr('@sys/std', '0.0.3', fixture.graphJsr(2, [{ path: '/mod.ts' }])),
+              '@sys/std@0.0.3': fixture.infoJsr(
+                '@sys/std',
+                '0.0.3',
+                fixture.graphJsr(2, [{ path: '/mod.ts' }]),
+              ),
               '@sys/fs@0.0.3': fixture.infoJsr(
                 '@sys/fs',
                 '0.0.3',
@@ -114,17 +220,26 @@ describe('Workspace.Upgrade.upgrade', () => {
 
   it('ignores self-package jsr subpath edges when ordering external published dependencies', async () => {
     const fs = await Testing.dir('WorkspaceUpgrade.upgrade.jsr.self-edge');
-    await fixture.writeDepsYaml(fs, `
+    await fixture.writeDepsYaml(
+      fs,
+      `
       deno.json:
         - import: jsr:@sys/types@0.0.270
         - import: jsr:@sys/color@0.0.224
-    `);
+    `,
+    );
 
     await fixture.withVersions(
       {
         jsr: {
-          '@sys/types': fixture.versionsJsr('@sys/types', '0.0.271', { '0.0.270': {}, '0.0.271': {} }),
-          '@sys/color': fixture.versionsJsr('@sys/color', '0.0.225', { '0.0.224': {}, '0.0.225': {} }),
+          '@sys/types': fixture.versionsJsr('@sys/types', '0.0.271', {
+            '0.0.270': {},
+            '0.0.271': {},
+          }),
+          '@sys/color': fixture.versionsJsr('@sys/color', '0.0.225', {
+            '0.0.224': {},
+            '0.0.225': {},
+          }),
         },
         npm: {},
       },
@@ -170,11 +285,14 @@ describe('Workspace.Upgrade.upgrade', () => {
 
   it('keeps blocked dependencies out of the ordered plan', async () => {
     const fs = await Testing.dir('WorkspaceUpgrade.upgrade.none');
-    await fixture.writeDepsYaml(fs, `
+    await fixture.writeDepsYaml(
+      fs,
+      `
       deno.json:
         - import: jsr:@sys/std@0.0.1
         - import: npm:react@18.2.0
-    `);
+    `,
+    );
 
     await fixture.withVersions(
       {
@@ -210,12 +328,15 @@ describe('Workspace.Upgrade.upgrade', () => {
 
   it('preserves collection failures while still composing the remaining plan', async () => {
     const fs = await Testing.dir('WorkspaceUpgrade.upgrade.partial');
-    await fixture.writeDepsYaml(fs, `
+    await fixture.writeDepsYaml(
+      fs,
+      `
       deno.json:
         - import: jsr:@sys/std@0.0.1
         - import: npm:react@18.2.0
         - import: npm:zod@3.20.0
-    `);
+    `,
+    );
 
     await fixture.withVersions(
       {
@@ -247,7 +368,9 @@ describe('Workspace.Upgrade.upgrade', () => {
             expect(result.collect.uncollected[0]?.reason.code).to.eql('registry:fetch');
             expect(result.graph.unresolved).to.eql([
               {
-                entry: result.collect.candidates.find((item) => item.entry.module.name === '@sys/std')!.entry,
+                entry: result.collect.candidates.find((item) =>
+                  item.entry.module.name === '@sys/std'
+                )!.entry,
                 reason: {
                   code: 'registry:graph',
                   message: 'JSR graph metadata was not available for @sys/std@0.0.3',

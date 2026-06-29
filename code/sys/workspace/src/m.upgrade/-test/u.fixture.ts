@@ -1,4 +1,4 @@
-import { Err, Fs, Is, Jsr, Npm, Str, type t } from '../../-test.ts';
+import { Err, Fs, Is, Jsr, Npm, Str, type t, Time } from '../../-test.ts';
 
 export type VersionsResponse =
   | t.Registry.Jsr.Fetch.Pkg.VersionsResponse
@@ -8,6 +8,15 @@ export type InfoResponse =
   | t.Registry.Npm.Fetch.Pkg.InfoResponse;
 
 type TestDir = { join(path: string): string };
+
+export const standdownTime = {
+  day: 24 * 60 * 60 * 1000,
+  now: Time.utc('2026-06-28T00:00:00.000Z').timestamp,
+  older: '2026-06-25T00:00:00.000Z' as t.StringTimestamp,
+  tooNew: '2026-06-27T12:00:00.000Z' as t.StringTimestamp,
+  current: '2026-06-27T23:00:00.000Z' as t.StringTimestamp,
+  eligibleAt: Time.utc('2026-06-29T12:00:00.000Z').timestamp,
+} as const;
 
 export function depsYaml(text: string) {
   return `${Str.dedent(text).trim()}\n`;
@@ -37,7 +46,7 @@ export function versionsJsr(
 export function versionsNpm(
   name: string,
   latest: string,
-  published: Record<string, { deprecated?: string }> = {},
+  published: Record<string, { deprecated?: string; publishedAt?: t.StringTimestamp }> = {},
 ): VersionsResponse {
   return {
     ok: true,

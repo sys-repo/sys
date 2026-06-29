@@ -1,15 +1,28 @@
-import { describe, expect, it, Testing, type t } from '../../-test.ts';
+import { describe, expect, it, type t, Testing } from '../../-test.ts';
 import { WorkspaceUpgrade } from '../mod.ts';
-import { fetchFail, versionsJsr, versionsNpm, withVersions, writeDepsYaml } from './u.fixture.ts';
+import {
+  fetchFail,
+  standdownTime,
+  versionsJsr,
+  versionsNpm,
+  withVersions,
+  writeDepsYaml,
+} from './u.fixture.ts';
+
+const T = standdownTime;
+const DAY = T.day;
 
 describe('Workspace.Upgrade.collect', () => {
   it('collects jsr and npm candidates from deps.yaml', async () => {
     const fs = await Testing.dir('WorkspaceUpgrade.collect');
-    await writeDepsYaml(fs, `
+    await writeDepsYaml(
+      fs,
+      `
       deno.json:
         - import: jsr:@sys/std@0.0.1
         - import: npm:react@18.2.0
-    `);
+    `,
+    );
 
     await withVersions(
       {
@@ -36,9 +49,127 @@ describe('Workspace.Upgrade.collect', () => {
     );
   });
 
+  it('keeps npm standdown versions visible while marking only eligible versions selectable', async () => {
+    const fs = await Testing.dir('WorkspaceUpgrade.collect.standdown');
+    await writeDepsYaml(
+      fs,
+      `
+      deno.json:
+        - import: npm:motion@12.40.0
+    `,
+    );
+
+    await withVersions(
+      {
+        jsr: {},
+        npm: {
+          motion: versionsNpm('motion', '12.42.0', {
+            '12.40.0': { publishedAt: T.current },
+            '12.41.0': { publishedAt: T.older },
+            '12.42.0': { publishedAt: T.tooNew },
+          }),
+        },
+      },
+      async () => {
+        const result = await WorkspaceUpgrade.collect(
+          { cwd: fs.dir, deps: fs.join('deps.yaml') },
+          { policy: { mode: 'latest' }, minimumDependencyAge: 2 * DAY, evaluatedAt: T.now },
+        );
+        const candidate = result.candidates[0]!;
+
+        expect(candidate.latest).to.eql('12.42.0');
+        expect(candidate.available).to.eql(['12.42.0', '12.41.0', '12.40.0']);
+        expect(candidate.eligible).to.eql(['12.41.0', '12.40.0']);
+        expect(candidate.versions.map((item) => [item.version, item.eligibility])).to.eql([
+          [
+            '12.42.0',
+            {
+              kind: 'standdown',
+              eligibleAt: T.eligibleAt,
+              age: 12 * 60 * 60 * 1000,
+            },
+          ],
+          ['12.41.0', { kind: 'eligible' }],
+          ['12.40.0', { kind: 'eligible' }],
+        ]);
+      },
+    );
+  });
+
+  it('fails closed for unknown npm publish timestamps while keeping versions visible', async () => {
+    const fs = await Testing.dir('WorkspaceUpgrade.collect.standdown.unknown');
+    await writeDepsYaml(
+      fs,
+      `
+      deno.json:
+        - import: npm:motion@12.40.0
+    `,
+    );
+
+    await withVersions(
+      {
+        jsr: {},
+        npm: {
+          motion: versionsNpm('motion', '12.42.0', {
+            '12.40.0': {},
+            '12.42.0': {},
+          }),
+        },
+      },
+      async () => {
+        const result = await WorkspaceUpgrade.collect(
+          { cwd: fs.dir, deps: fs.join('deps.yaml') },
+          { policy: { mode: 'latest' }, minimumDependencyAge: 2 * DAY, evaluatedAt: T.now },
+        );
+        const candidate = result.candidates[0]!;
+
+        expect(candidate.available).to.eql(['12.42.0', '12.40.0']);
+        expect(candidate.eligible).to.eql(['12.40.0']);
+        expect(candidate.versions.map((item) => [item.version, item.eligibility])).to.eql([
+          ['12.42.0', { kind: 'unknown-published-at' }],
+          ['12.40.0', { kind: 'eligible' }],
+        ]);
+      },
+    );
+  });
+
+  it('leaves jsr versions eligible when npm standdown is enabled', async () => {
+    const fs = await Testing.dir('WorkspaceUpgrade.collect.standdown.jsr');
+    await writeDepsYaml(
+      fs,
+      `
+      deno.json:
+        - import: jsr:@sys/std@0.0.1
+    `,
+    );
+
+    await withVersions(
+      {
+        jsr: { '@sys/std': versionsJsr('@sys/std', '0.0.3', { '0.0.1': {}, '0.0.3': {} }) },
+        npm: {},
+      },
+      async () => {
+        const result = await WorkspaceUpgrade.collect(
+          { cwd: fs.dir, deps: fs.join('deps.yaml') },
+          { policy: { mode: 'latest' }, minimumDependencyAge: 2 * DAY, evaluatedAt: T.now },
+        );
+        const candidate = result.candidates[0]!;
+
+        expect(candidate.available).to.eql(['0.0.3', '0.0.1']);
+        expect(candidate.eligible).to.eql(['0.0.3', '0.0.1']);
+        expect(candidate.versions.map((item) => item.eligibility)).to.eql([
+          { kind: 'eligible' },
+          { kind: 'eligible' },
+        ]);
+      },
+    );
+  });
+
   it('carries package override policy from deps.yaml', async () => {
     const fs = await Testing.dir('WorkspaceUpgrade.collect.package-policy');
-    await writeDepsYaml(fs, `
+    await writeDepsYaml(
+      fs,
+      `
       deno.json:
         - import: npm:monaco-editor@0.55.1
       package.json:
@@ -47,7 +178,8 @@ describe('Workspace.Upgrade.collect', () => {
               uuid: '11.1.1'
             monaco-editor:
               dompurify: '3.4.0'
-    `);
+    `,
+    );
 
     await withVersions(
       {
@@ -71,10 +203,13 @@ describe('Workspace.Upgrade.collect', () => {
 
   it('skips unpinned dependencies before registry fetch', async () => {
     const fs = await Testing.dir('WorkspaceUpgrade.collect.unpinned');
-    await writeDepsYaml(fs, `
+    await writeDepsYaml(
+      fs,
+      `
       deno.json:
         - import: jsr:@sys/std
-    `);
+    `,
+    );
 
     await withVersions({ jsr: {}, npm: {} }, async () => {
       const result = await WorkspaceUpgrade.collect({ cwd: fs.dir, deps: fs.join('deps.yaml') });
@@ -90,11 +225,14 @@ describe('Workspace.Upgrade.collect', () => {
 
   it('respects registry selection and marks unsupported registries as skipped', async () => {
     const fs = await Testing.dir('WorkspaceUpgrade.collect.registry-filter');
-    await writeDepsYaml(fs, `
+    await writeDepsYaml(
+      fs,
+      `
       deno.json:
         - import: jsr:@sys/std@0.0.1
         - import: npm:react@18.2.0
-    `);
+    `,
+    );
 
     await withVersions(
       {
@@ -120,11 +258,14 @@ describe('Workspace.Upgrade.collect', () => {
 
   it('records registry fetch failures without aborting the whole pass', async () => {
     const fs = await Testing.dir('WorkspaceUpgrade.collect.fetch-fail');
-    await writeDepsYaml(fs, `
+    await writeDepsYaml(
+      fs,
+      `
       deno.json:
         - import: jsr:@sys/std@0.0.1
         - import: npm:react@18.2.0
-    `);
+    `,
+    );
 
     await withVersions(
       {
@@ -146,12 +287,15 @@ describe('Workspace.Upgrade.collect', () => {
 
   it('emits cumulative registry progress with clipped per-registry counts', async () => {
     const fs = await Testing.dir('WorkspaceUpgrade.collect.progress');
-    await writeDepsYaml(fs, `
+    await writeDepsYaml(
+      fs,
+      `
       deno.json:
         - import: jsr:@sys/std@0.0.1
         - import: npm:react@18.2.0
         - import: npm:react-dom@18.2.0
-    `);
+    `,
+    );
 
     await withVersions(
       {
@@ -204,11 +348,14 @@ describe('Workspace.Upgrade.collect', () => {
 
   it('filters prerelease versions out of collected upgrade candidates', async () => {
     const fs = await Testing.dir('WorkspaceUpgrade.collect.released-only');
-    await writeDepsYaml(fs, `
+    await writeDepsYaml(
+      fs,
+      `
       deno.json:
         - import: npm:@vitejs/plugin-react@5.1.4
         - import: npm:monaco-editor@0.55.1
-    `);
+    `,
+    );
 
     await withVersions(
       {
@@ -229,7 +376,9 @@ describe('Workspace.Upgrade.collect', () => {
         const result = await WorkspaceUpgrade.collect({ cwd: fs.dir, deps: fs.join('deps.yaml') });
 
         expect(
-          result.candidates.map((item) => [item.entry.module.name, item.current, item.latest, item.available]),
+          result.candidates.map((
+            item,
+          ) => [item.entry.module.name, item.current, item.latest, item.available]),
         ).to.eql([
           ['@vitejs/plugin-react', '5.1.4', '6.0.1', ['6.0.1', '5.2.0', '5.1.4']],
           ['monaco-editor', '0.55.1', '0.55.1', ['0.55.1']],
@@ -240,10 +389,13 @@ describe('Workspace.Upgrade.collect', () => {
 
   it('excludes deprecated npm versions from collected upgrade candidates', async () => {
     const fs = await Testing.dir('WorkspaceUpgrade.collect.npm-deprecated');
-    await writeDepsYaml(fs, `
+    await writeDepsYaml(
+      fs,
+      `
       deno.json:
         - import: npm:react-spinners@0.17.0
-    `);
+    `,
+    );
 
     await withVersions(
       {
@@ -251,7 +403,10 @@ describe('Workspace.Upgrade.collect', () => {
         npm: {
           'react-spinners': versionsNpm('react-spinners', '0.17.0', {
             '0.17.0': {},
-            '1.0.0': { deprecated: "this version is incorrectly published. This package's major version is 0" },
+            '1.0.0': {
+              deprecated:
+                "this version is incorrectly published. This package's major version is 0",
+            },
           }),
         },
       },
@@ -262,7 +417,9 @@ describe('Workspace.Upgrade.collect', () => {
         );
 
         expect(
-          result.candidates.map((item) => [item.entry.module.name, item.current, item.latest, item.available]),
+          result.candidates.map((
+            item,
+          ) => [item.entry.module.name, item.current, item.latest, item.available]),
         ).to.eql([
           ['react-spinners', '0.17.0', '0.17.0', ['0.17.0']],
         ]);
@@ -272,10 +429,13 @@ describe('Workspace.Upgrade.collect', () => {
 
   it('caps npm upgrade candidates at the registry latest dist-tag lane', async () => {
     const fs = await Testing.dir('WorkspaceUpgrade.collect.npm-latest-cap');
-    await writeDepsYaml(fs, `
+    await writeDepsYaml(
+      fs,
+      `
       deno.json:
         - import: npm:react-spinners@0.17.0
-    `);
+    `,
+    );
 
     await withVersions(
       {
@@ -294,7 +454,9 @@ describe('Workspace.Upgrade.collect', () => {
         );
 
         expect(
-          result.candidates.map((item) => [item.entry.module.name, item.current, item.latest, item.available]),
+          result.candidates.map((
+            item,
+          ) => [item.entry.module.name, item.current, item.latest, item.available]),
         ).to.eql([
           ['react-spinners', '0.17.0', '0.17.0', ['0.17.0']],
         ]);
@@ -304,10 +466,13 @@ describe('Workspace.Upgrade.collect', () => {
 
   it('includes prerelease versions when explicitly enabled', async () => {
     const fs = await Testing.dir('WorkspaceUpgrade.collect.prerelease');
-    await writeDepsYaml(fs, `
+    await writeDepsYaml(
+      fs,
+      `
       deno.json:
         - import: npm:monaco-editor@0.55.1
-    `);
+    `,
+    );
 
     await withVersions(
       {
@@ -326,7 +491,9 @@ describe('Workspace.Upgrade.collect', () => {
         );
 
         expect(
-          result.candidates.map((item) => [item.entry.module.name, item.current, item.latest, item.available]),
+          result.candidates.map((
+            item,
+          ) => [item.entry.module.name, item.current, item.latest, item.available]),
         ).to.eql([
           ['monaco-editor', '0.55.1', '0.56.0-dev-20260211', ['0.56.0-dev-20260211', '0.55.1']],
         ]);

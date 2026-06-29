@@ -1,4 +1,4 @@
-import { Esm, type t } from './common.ts';
+import { Esm, Obj, type t } from './common.ts';
 import { collectWithSession } from './u.collect.ts';
 import { createSession, Session, type UpgradeSession } from './u.session.ts';
 
@@ -35,14 +35,18 @@ export async function upgradeWithSession(
 
 const wrangle = {
   policyInput(options: t.WorkspaceUpgrade.ResolvedOptions) {
-    return (candidate: t.WorkspaceUpgrade.Candidate): t.EsmPolicy.Input => ({
-      policy: options.policy,
-      subject: {
-        entry: candidate.entry,
-        current: candidate.current,
-        available: candidate.available,
-      },
-    });
+    return (candidate: t.WorkspaceUpgrade.Candidate): t.EsmPolicy.Input => {
+      const selectable = candidate.eligible;
+      return {
+        policy: options.policy,
+        subject: {
+          entry: candidate.entry,
+          current: candidate.current,
+          // Esm.Policy names these `available`; workspace has already reduced visible versions to selectable versions.
+          available: selectable,
+        },
+      };
+    };
   },
 
   async graph(
@@ -80,8 +84,8 @@ const wrangle = {
         }
 
         for (
-          const depName of Object.keys(res.data.dependencies ?? {}).sort((a, b) =>
-            a.localeCompare(b)
+          const depName of Obj.keys(res.data.dependencies ?? {}).sort((a, b) =>
+            String(a).localeCompare(String(b))
           )
         ) {
           const from = `npm:${depName}`;

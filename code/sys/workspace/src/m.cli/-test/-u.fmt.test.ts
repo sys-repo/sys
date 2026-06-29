@@ -1,4 +1,4 @@
-import { c, Cli, describe, Esm, expect, it, type t } from '../../-test.ts';
+import { c, Cli, describe, Esm, expect, it, type t, Time } from '../../-test.ts';
 import { WorkspaceHelp } from '../../m.help/mod.ts';
 import { Fmt } from '../u.fmt/u.fmt.ts';
 import { FmtHelp } from '../u.fmt/u.fmt.help.ts';
@@ -134,7 +134,7 @@ describe('Workspace.Cli.Fmt', () => {
       });
       const plain = Cli.stripAnsi(options[0]!.name);
 
-      expect(plain).to.include('@elevenlabs/elevenlabs-js');
+      expect(plain).to.include('@sample/foo');
       expect(plain).to.include('blocked by policy');
     } finally {
       restore();
@@ -248,6 +248,8 @@ function upgrade(): t.WorkspaceUpgrade.Result {
       policy: { mode: 'minor' },
       prerelease: false,
       registries: ['jsr', 'npm'],
+      minimumDependencyAge: 0,
+      evaluatedAt: Time.utc('2026-06-28T00:00:00.000Z').timestamp,
       log: false,
     },
     totals: {
@@ -269,6 +271,8 @@ function upgrade(): t.WorkspaceUpgrade.Result {
         policy: { mode: 'minor' },
         prerelease: false,
         registries: ['jsr', 'npm'],
+        minimumDependencyAge: 0,
+        evaluatedAt: Time.utc('2026-06-28T00:00:00.000Z').timestamp,
         log: false,
       },
       candidates: [
@@ -368,12 +372,18 @@ function candidate(
   current: t.StringSemver,
   latest: t.StringSemver,
 ): t.WorkspaceUpgrade.Candidate {
+  const available = [latest, current];
   return {
     entry: entry(name, current),
     registry: registry(name),
     current,
     latest,
-    available: [latest, current],
+    available,
+    eligible: available,
+    versions: available.map((version) => ({
+      version,
+      eligibility: { kind: 'eligible' as const },
+    })),
   };
 }
 
@@ -473,9 +483,9 @@ function topologyBlockedUpgrade(): t.WorkspaceUpgrade.Result {
 function upgradeWithLongScopedName(): t.WorkspaceUpgrade.Result {
   const result = upgrade();
   const decision = decisionBlocked(
-    '@elevenlabs/elevenlabs-js',
-    '2.41.1',
-    ['2.42.0', '2.41.1'],
+    '@sample/foo',
+    '1.2.3',
+    ['2.0.0', '1.2.3'],
   );
 
   return {
@@ -488,7 +498,7 @@ function upgradeWithLongScopedName(): t.WorkspaceUpgrade.Result {
     },
     collect: {
       ...result.collect,
-      candidates: [candidate('@elevenlabs/elevenlabs-js', '2.41.1', '2.42.0')],
+      candidates: [candidate('@sample/foo', '1.2.3', '2.0.0')],
       totals: {
         dependencies: 1,
         collected: 1,
@@ -504,12 +514,18 @@ function upgradeWithLongScopedName(): t.WorkspaceUpgrade.Result {
 
 function upgradeWithRegistryBehindCurrent(): t.WorkspaceUpgrade.Result {
   const result = upgrade();
+  const available = ['0.0.427' as t.StringSemver];
   const candidate = {
     ...result.collect.candidates[0]!,
     entry: entry('@sys/driver-vite', '0.0.432'),
     current: '0.0.432' as t.StringSemver,
     latest: '0.0.427' as t.StringSemver,
-    available: ['0.0.427' as t.StringSemver],
+    available,
+    eligible: available,
+    versions: available.map((version) => ({
+      version,
+      eligibility: { kind: 'eligible' as const },
+    })),
   };
   const decision = decisionBlocked('@sys/driver-vite', '0.0.432', ['0.0.427']);
 

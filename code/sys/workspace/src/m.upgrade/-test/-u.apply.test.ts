@@ -6,6 +6,9 @@ import { createSession } from '../u.session.ts';
 import { upgradeWithSession } from '../u.upgrade.ts';
 import * as fixture from './u.fixture.ts';
 
+const T = fixture.standdownTime;
+const DAY = T.day;
+
 describe('Workspace.Upgrade.apply', () => {
   it('plans and applies selected versions to deps.yaml and deno.json', async () => {
     const fs = await Testing.dir('WorkspaceUpgrade.apply');
@@ -74,6 +77,61 @@ describe('Workspace.Upgrade.apply', () => {
             });
             expect(denoJson.data?.tasks).to.eql({ dev: 'deno task dev' });
             expect(await Fs.exists(fs.join('package.json'))).to.eql(false);
+          },
+        );
+      },
+    );
+  });
+
+  it('applies the planned eligible npm fallback without recomputing visible latest', async () => {
+    const fs = await Testing.dir('WorkspaceUpgrade.apply.standdown');
+    await fixture.writeDepsYaml(
+      fs,
+      `
+      deno.json:
+        - import: npm:motion@12.40.0
+    `,
+    );
+    await Fs.writeJson(fs.join('deno.json'), { name: 'standdown-app' });
+
+    await fixture.withVersions(
+      {
+        jsr: {},
+        npm: {
+          motion: fixture.versionsNpm('motion', '12.42.0', {
+            '12.40.0': { publishedAt: T.current },
+            '12.41.0': { publishedAt: T.older },
+            '12.42.0': { publishedAt: T.tooNew },
+          }),
+        },
+      },
+      async () => {
+        await fixture.withInfo(
+          {
+            jsr: {},
+            npm: { 'motion@12.41.0': fixture.infoNpm('motion', '12.41.0') },
+          },
+          async () => {
+            const result = await WorkspaceUpgrade.apply(
+              { cwd: fs.dir, deps: fs.join('deps.yaml') },
+              { policy: { mode: 'latest' }, minimumDependencyAge: 2 * DAY, evaluatedAt: T.now },
+            );
+            const depsText = await Fs.readText(fs.join('deps.yaml'));
+            const denoJson = await Fs.readJson<{ imports?: Record<string, string> }>(
+              fs.join('deno.json'),
+            );
+            const candidate = result.upgrade.collect.candidates[0]!;
+            const decision = result.upgrade.policy.decisions[0]!;
+
+            expect(candidate.latest).to.eql('12.42.0');
+            expect(candidate.eligible).to.eql(['12.41.0', '12.40.0']);
+            expect(decision.ok).to.eql(true);
+            if (decision.ok) expect(decision.selection.selected?.version).to.eql('12.41.0');
+            expect(result.entries.map((entry) => entry.module.toString())).to.eql([
+              'npm:motion@12.41.0',
+            ]);
+            expect(depsText.data).to.include('npm:motion@12.41.0');
+            expect(denoJson.data?.imports).to.eql({ motion: 'npm:motion@12.41.0' });
           },
         );
       },
