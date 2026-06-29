@@ -185,7 +185,7 @@ export declare namespace WorkspaceBump {
     readonly release?: t.SemverReleaseType;
     /** Optional preselected bump roots by package name or package path. */
     readonly from?: readonly string[];
-    /** Optional bump roots checked by default in the interactive prompt. */
+    /** Optional bump roots, by package name or package path, checked by default in the prompt. */
     readonly suggestedRoots?: readonly string[];
     /** Render the plan without writing any files. */
     readonly dryRun?: boolean;
