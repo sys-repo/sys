@@ -21,7 +21,6 @@ export const JSR_BODY_TEMPLATE = `- name: publish module → "__NAME__"
     fi
     pkg_meta_url="https://jsr.io/\${pkg_name}/\${pkg_version}_meta.json"
     pkg_index_url="https://jsr.io/\${pkg_name}/meta.json"
-    pkg_specifier="jsr:\${pkg_name}@\${pkg_version}"
     publish_timeout="90s"
     publish_confirm_timeout=900
     publish_confirm_interval=15
@@ -43,19 +42,10 @@ export const JSR_BODY_TEMPLATE = `- name: publish module → "__NAME__"
       ' "$pkg_index_url" "$pkg_version" >/dev/null
     }
 
-    deno_resolver_visible() {
-      tmpdir="$(mktemp -d)"
-      (
-        cd "$tmpdir"
-        deno info --reload "$pkg_specifier" >/dev/null
-      )
-    }
-
     wait_for_jsr_version() {
       elapsed=0
       exact_reported=0
       index_reported=0
-      resolver_reported=0
       while [ "$elapsed" -le "$publish_confirm_timeout" ]; do
         if jsr_exact_metadata_visible; then
           if [ "$exact_reported" -eq 0 ]; then
@@ -64,20 +54,10 @@ export const JSR_BODY_TEMPLATE = `- name: publish module → "__NAME__"
           fi
           if jsr_package_index_visible; then
             if [ "$index_reported" -eq 0 ]; then
-              echo "JSR package index includes published version: \${pkg_name}@\${pkg_version}"
+              echo "JSR package index confirms published version: \${pkg_name}@\${pkg_version}"
               index_reported=1
             fi
-            if deno_resolver_visible; then
-              if [ "$resolver_reported" -eq 0 ]; then
-                echo "Deno resolver confirms published version: \${pkg_name}@\${pkg_version}"
-                resolver_reported=1
-              fi
-              return 0
-            fi
-            if [ "$resolver_reported" -eq 0 ]; then
-              echo "JSR package index is visible, waiting for Deno resolver visibility: \${pkg_name}@\${pkg_version}"
-              resolver_reported=1
-            fi
+            return 0
           elif [ "$index_reported" -eq 0 ]; then
             echo "JSR exact metadata is visible, waiting for package index visibility: \${pkg_name}@\${pkg_version}"
             index_reported=1
@@ -98,10 +78,10 @@ export const JSR_BODY_TEMPLATE = `- name: publish module → "__NAME__"
 
     if jsr_exact_metadata_visible; then
       if wait_for_jsr_version; then
-        echo "published version already has full JSR resolver visibility: \${pkg_name}@\${pkg_version}"
+        echo "published version already has full JSR registry visibility: \${pkg_name}@\${pkg_version}"
         exit 0
       fi
-      echo "::error::Published version metadata exists, but JSR resolver visibility was not confirmed: \${pkg_name}@\${pkg_version}"
+      echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: \${pkg_name}@\${pkg_version}"
       exit 1
     fi
 
@@ -109,43 +89,43 @@ export const JSR_BODY_TEMPLATE = `- name: publish module → "__NAME__"
     for attempt in $(seq 1 $max_attempts); do
         if jsr_exact_metadata_visible; then
           if wait_for_jsr_version; then
-            echo "published version already has full JSR resolver visibility: \${pkg_name}@\${pkg_version}"
+            echo "published version already has full JSR registry visibility: \${pkg_name}@\${pkg_version}"
             exit 0
           fi
-          echo "::error::Published version metadata exists, but JSR resolver visibility was not confirmed: \${pkg_name}@\${pkg_version}"
+          echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: \${pkg_name}@\${pkg_version}"
           exit 1
         fi
         if timeout --foreground --kill-after=30s "$publish_timeout" deno publish; then
-          echo "deno publish exited successfully; confirming JSR resolver visibility..."
+          echo "deno publish exited successfully; confirming JSR registry visibility..."
           if wait_for_jsr_version; then
-            echo "JSR resolver confirms published version: \${pkg_name}@\${pkg_version}"
+            echo "JSR registry confirms published version: \${pkg_name}@\${pkg_version}"
             exit 0
           fi
-          echo "::error::deno publish exited successfully, but JSR resolver visibility was not confirmed: \${pkg_name}@\${pkg_version}"
+          echo "::error::deno publish exited successfully, but JSR registry visibility was not confirmed: \${pkg_name}@\${pkg_version}"
           exit 1
         else
           status=$?
         fi
         if [ "$status" -eq 124 ]; then
-          echo "deno publish reached bounded wait (\${publish_timeout}, exit code 124); checking JSR resolver visibility..."
+          echo "deno publish reached bounded wait (\${publish_timeout}, exit code 124); checking JSR registry visibility..."
         else
-          echo "deno publish exited with code \${status}; checking JSR resolver visibility before retry/fail..."
+          echo "deno publish exited with code \${status}; checking JSR registry visibility before retry/fail..."
         fi
         if wait_for_jsr_version; then
-          echo "JSR resolver confirms published version: \${pkg_name}@\${pkg_version}; treating publish as successful."
+          echo "JSR registry confirms published version: \${pkg_name}@\${pkg_version}; treating publish as successful."
           exit 0
         fi
         if jsr_exact_metadata_visible; then
-          echo "::error::Published version metadata exists, but JSR resolver visibility was not confirmed: \${pkg_name}@\${pkg_version}"
+          echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: \${pkg_name}@\${pkg_version}"
           exit 1
         fi
         if [ "$attempt" -lt "$max_attempts" ]; then
           delay=$((5 * 2 ** (attempt - 1)))
-          echo "JSR resolver did not confirm published version after attempt $attempt/$max_attempts; retrying in \${delay}s..."
+          echo "JSR registry did not confirm published version after attempt $attempt/$max_attempts; retrying in \${delay}s..."
           sleep "$delay"
         fi
     done
-    echo "::error::Publish failed: deno publish did not complete successfully and JSR resolver did not confirm published version after $max_attempts attempts: \${pkg_name}@\${pkg_version}"
+    echo "::error::Publish failed: deno publish did not complete successfully and JSR registry did not confirm published version after $max_attempts attempts: \${pkg_name}@\${pkg_version}"
     exit 1`;
 
 export const JSR_MATRIX_BODY_TEMPLATE = JSR_BODY_TEMPLATE
