@@ -1,6 +1,6 @@
 /**
- * @module types
- * Primitives and entrypoint surfaces for system server packages.
+ * @module
+ * Public type surface for server package entrypoints.
  */
 export type * from './m.server.websocket/t.ts';
 export type * from './m.server.files/t.ts';

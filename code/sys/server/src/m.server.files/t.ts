@@ -1,3 +1,7 @@
+/**
+ * @module
+ * Files server facade type surface.
+ */
 import type { t } from './common.ts';
 
 /**
