@@ -2,7 +2,7 @@ id: dsl
 title: Workspace DSL
 summary: |
   Workspace DSL: operating contract for agents changing workspace
-  dependency, graph, delta, and package-version workflows.
+  dependency, graph, delta, test-runner, and package-version workflows.
   Read root layer before changing workspace tooling; then read
   the matching chapter from the chapter index.
 
@@ -21,18 +21,19 @@ sections:
   - label: Rule
     items:
       - |-
-        Use `@sys/workspace` as the public authority for:
-        dependency upgrades, graph facts, delta derivation,
-        package-version bump planning, and task helpers.
+          Use `@sys/workspace` as the public authority for:
+          dependency upgrades, graph facts, delta derivation,
+          package-version bump planning, and task helpers.
       - Let CLI/API derive paths; do not infer manually.
       - Read command help before changing command behavior.
       - Prefer deterministic inputs over ambient reasoning.
 
   - label: Command surfaces
     items: |
-      DSL      `deno run -ER   jsr:@sys/workspace dsl`
-      Bump     `deno run -ERW  jsr:@sys/workspace bump -h`
-      Upgrade  `deno run -ERWN jsr:@sys/workspace upgrade -h`
+      DSL       `deno run -ER   jsr:@sys/workspace dsl`
+      Test      `deno task test`
+      Bump      `deno run -ERW  jsr:@sys/workspace bump -h`
+      Upgrade   `deno run -ERWN jsr:@sys/workspace upgrade -h`
+      For test-runner strategy or flag behavior, read `test` first.
       For `--since` or `--explain-delta`, read `delta`
       before changing behavior.
-

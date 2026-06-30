@@ -4,10 +4,14 @@ import { WorkspaceRun } from '../mod.ts';
 describe('WorkspaceRun.Args', () => {
   it('preserves the serial default when no flags are provided', () => {
     expect(WorkspaceRun.Args.test([])).to.eql({});
+    expect(WorkspaceRun.Args.test(['--'])).to.eql({});
   });
 
   it('parses explicit parallel test flags', () => {
     expect(WorkspaceRun.Args.test(['--parallel'])).to.eql({
+      strategy: { kind: 'parallel' },
+    });
+    expect(WorkspaceRun.Args.test(['--', '--parallel'])).to.eql({
       strategy: { kind: 'parallel' },
     });
     expect(WorkspaceRun.Args.test(['--parallel', '--jobs=auto'])).to.eql({

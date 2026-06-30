@@ -16,7 +16,10 @@ export function resolveChapterResource(
 export const HelpResource = {
   Root: 'yaml/root.yaml',
   Dsl: {
-    Root: chapter('dsl', 'yaml/dsl.yaml', [chapter('delta', 'yaml/dsl.delta.yaml')]),
+    Root: chapter('dsl', 'yaml/dsl.yaml', [
+      chapter('delta', 'yaml/dsl.delta.yaml'),
+      chapter('test', 'yaml/dsl.test.yaml'),
+    ]),
   },
   Source: {
     get Files(): readonly t.StringPath[] {

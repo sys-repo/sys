@@ -12,10 +12,11 @@ export const Args: t.WorkspaceRun.Args.Lib = {
 
 /** Parse CLI argv into canonical test-runner arguments. */
 export function parseTestArgs(argv: readonly string[] = []): t.WorkspaceRun.Test.Args {
-  wrangle.valuedBoolean(argv, 'parallel');
+  const normalized = wrangle.argv(argv);
+  wrangle.valuedBoolean(normalized, 'parallel');
 
   const unknown: string[] = [];
-  const args = StdArgs.parse<ParsedTestArgs>([...argv], {
+  const args = StdArgs.parse<ParsedTestArgs>(normalized, {
     boolean: ['parallel'],
     string: ['jobs'],
     unknown(flag) {
@@ -45,6 +46,10 @@ export function parseTestArgs(argv: readonly string[] = []): t.WorkspaceRun.Test
 }
 
 const wrangle = {
+  argv(input: readonly string[]): string[] {
+    return input.filter((value, index) => !(value === '--' && index === 0));
+  },
+
   valuedBoolean(argv: readonly string[], name: string) {
     const prefix = `--${name}=`;
     for (const token of argv) {

@@ -23,6 +23,7 @@ describe('WorkspaceHelp', () => {
     ]);
     expect(chapter.chapters.map(({ id, path }) => ({ id, path }))).to.eql([
       { id: 'delta', path: ['delta'] },
+      { id: 'test', path: ['test'] },
     ]);
   });
 
@@ -37,6 +38,21 @@ describe('WorkspaceHelp', () => {
       'Explain delta',
       'Classification',
       'Closure',
+    ]);
+    expect(chapter.chapters).to.eql([]);
+  });
+
+  it('loads the test runner DSL chapter', async () => {
+    const chapter = await WorkspaceHelp.Dsl.load(['test']);
+
+    expect(chapter.id).to.eql('test');
+    expect(chapter.path).to.eql(['test']);
+    expect(chapter.sections.map(({ label }) => label)).to.eql([
+      'Baseline',
+      'Parallel opt-in',
+      'Flag boundary',
+      'Scheduler truth',
+      'Output and speed',
     ]);
     expect(chapter.chapters).to.eql([]);
   });

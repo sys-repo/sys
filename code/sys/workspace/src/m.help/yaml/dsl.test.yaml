@@ -1,0 +1,71 @@
+id: test
+title: Workspace Test Runner
+summary: |
+  Use workspace test runner strategy rules.
+
+sections:
+  - label: Baseline
+    items:
+      - |-
+          `deno task test` is the canonical /sys test route and remains
+          serial by default.
+      - |-
+          The serial runner executes packages in workspace graph order with
+          inherited stdio.
+      - |-
+          Preserve this baseline when changing runner behavior; do not make
+          parallel the default.
+
+  - label: Parallel opt-in
+    items:
+      - '`deno task test -- --parallel` selects the topo-frontier parallel scheduler.'
+      - '`deno task test -- --parallel --jobs=auto` uses the bounded auto worker heuristic.'
+      - '`deno task test -- --parallel --jobs=<n>` accepts positive integers.'
+      - '`--jobs` without `--parallel` is invalid and must fail before packages run.'
+      - |-
+          `--jobs=auto` is equivalent to omitting `--jobs` after `--parallel`;
+          the resolved job count is printed in the run header.
+      - |-
+          Auto jobs are bounded: unknown hardware resolves to 4; known
+          hardware resolves to `clamp(2, 8, floor(cpu / 2))`.
+
+  - label: Flag boundary
+    items:
+      - |-
+          @sys/workspace runner flags live after the task separator:
+          `deno task test -- --parallel`.
+      - |-
+          `deno task --jobs=8 test` is native Deno task-runner behavior,
+          not the @sys/workspace package scheduler.
+      - |-
+          Do not mix native Deno task parallelism with @sys/workspace
+          graph-truth semantics.
+
+  - label: Scheduler truth
+    items:
+      - |-
+          Parallel execution respects persisted workspace graph order and
+          edges; it is topo-frontier scheduling, not unordered package fan-out.
+      - |-
+          Missing package test tasks are terminal `skipped` outcomes that can
+          unlock dependents.
+      - |-
+          On first package failure, stop launching new packages but await
+          already in-flight packages.
+      - |-
+          Unstarted packages blocked by dependency failure or fail-fast are
+          reported as `blocked`.
+      - |-
+          Final package rows and canonical failure selection follow graph order,
+          not finish race order.
+
+  - label: Output and speed
+    items:
+      - Serial runs inherit child stdio for package-level debugging.
+      - |-
+          Parallel runs buffer child stdout/stderr and print failed package
+          output grouped after progress.
+      - Progress is reporter UX only; scheduler events remain the source of truth.
+      - |-
+          Speedup removes artificial idle time but is bounded by the slowest
+          critical path.

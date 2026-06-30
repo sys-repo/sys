@@ -32,11 +32,22 @@ describe('Workspace.Cli.Fmt', () => {
     const chapter = await WorkspaceHelp.Dsl.load(path);
     const skill = await FmtHelp.dslOutput({ path, format: 'skill' });
 
-    expect(text).to.contain('@sys/workspace dsl delta');
+    expect(text).to.contain(dslToolname(chapter));
     expectSectionLabels(text, chapter.sections.map(({ label }) => label));
     expect(text).to.not.contain(chapterCommand(chapter));
-    expect(skill).to.eql(Cli.stripAnsi(skill));
-    expect(skill).to.contain('name: "sys-workspace-dsl-delta"');
+    expectMarkdownChapter(skill, chapter);
+  });
+
+  it('renders the test runner DSL chapter without snapshotting prose', async () => {
+    const path = ['test'] as const;
+    const text = Cli.stripAnsi(await FmtHelp.dslOutput({ path }));
+    const chapter = await WorkspaceHelp.Dsl.load(path);
+    const skill = await FmtHelp.dslOutput({ path, format: 'skill' });
+
+    expect(text).to.contain(dslToolname(chapter));
+    expectSectionLabels(text, chapter.sections.map(({ label }) => label));
+    expect(text).to.not.contain(chapterCommand(chapter));
+    expectMarkdownChapter(skill, chapter);
   });
 
   it('keeps terminal and Markdown help within their visible-width contracts', async () => {
@@ -46,6 +57,8 @@ describe('Workspace.Cli.Fmt', () => {
     expectMaxVisibleWidth(await FmtHelp.dslOutput({ format: 'skill' }), 80);
     expectMaxVisibleWidth(await FmtHelp.dslOutput({ path: ['delta'] }), 128);
     expectMaxVisibleWidth(await FmtHelp.dslOutput({ path: ['delta'], format: 'skill' }), 80);
+    expectMaxVisibleWidth(await FmtHelp.dslOutput({ path: ['test'] }), 128);
+    expectMaxVisibleWidth(await FmtHelp.dslOutput({ path: ['test'], format: 'skill' }), 80);
   });
 
   it('omits the duplicate candidates table from the interactive plan output', () => {
@@ -846,6 +859,16 @@ function expectSectionLabels(text: string, labels: readonly string[]) {
 
 function chapterCommand(chapter: { readonly path: readonly string[] }): string {
   return ['deno run -ER jsr:@sys/workspace dsl', ...chapter.path].join(' ');
+}
+
+function dslToolname(chapter: { readonly path: readonly string[] }): string {
+  return ['@sys/workspace dsl', ...chapter.path].join(' ');
+}
+
+function expectMarkdownChapter(text: string, chapter: t.WorkspaceHelp.Dsl.Chapter) {
+  expect(text).to.eql(Cli.stripAnsi(text));
+  expect(text).to.contain(`# ${chapter.title}`);
+  chapter.sections.forEach((section) => expect(text).to.contain(`## ${section.label}`));
 }
 
 function expectMaxVisibleWidth(text: string, width: number) {
