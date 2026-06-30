@@ -1,10 +1,12 @@
 import { WorkspacePrep } from '../m.prep/mod.ts';
 import { Fs, type t, Time } from './common.ts';
+import { formatIntroLine } from './u.fmt.ts';
 import { resolveJobs } from './u.jobs.ts';
 import { createRunPlan } from './u.plan.ts';
 import { createParallelReporter } from './u.reporter.ts';
 import { runParallel } from './u.run.parallel.ts';
 import { runSequential } from './u.run.sequential.ts';
+import { resolveCommand } from './u.worker.ts';
 
 export function runTask(
   task: 'test',
@@ -22,11 +24,16 @@ export async function runTask(
   const startedAt = Time.now.timestamp;
   const graph = await resolveGraph(cwd, args);
   const plan = await createRunPlan({ cwd, graph, task, filter: args.filter });
-  console.info(`workspace ${task} → ${plan.orderedPaths.length} packages ordered`);
+  console.info(
+    formatIntroLine(`workspace ${task}`, `${plan.orderedPaths.length} packages ordered`),
+  );
 
   if (task === 'test' && isParallel(args)) {
     const jobs = resolveJobs({ jobs: args.strategy.jobs });
-    const reporter = createParallelReporter({ task, jobs, total: plan.orderedPaths.length });
+    const runnablePaths = plan.candidates
+      .filter((candidate) => resolveCommand(candidate.deno, task))
+      .map((candidate) => candidate.dir);
+    const reporter = createParallelReporter({ task, jobs, runnablePaths });
     reporter.start();
     try {
       return await runParallel({ cwd, task, plan, jobs, startedAt, onEvent: reporter.event });
@@ -46,23 +53,23 @@ async function resolveGraph(
   args: t.WorkspaceRun.Args,
 ): Promise<t.WorkspaceGraph.PersistedGraph> {
   if (args.graph) {
-    console.info('workspace graph → using provided graph');
+    console.info(formatIntroLine('workspace graph', 'using provided graph'));
     return args.graph;
   }
 
   if (args.rebuildGraph === true) {
-    console.info('workspace graph → rebuilding');
+    console.info(formatIntroLine('workspace graph', 'rebuilding'));
     return await WorkspacePrep.Graph.build(cwd);
   }
 
-  console.info('workspace graph → loading snapshot');
+  console.info(formatIntroLine('workspace graph', 'loading snapshot'));
   const snapshot = await WorkspacePrep.Graph.read(cwd);
   if (snapshot) {
-    console.info('workspace graph → using snapshot');
+    console.info(formatIntroLine('workspace graph', 'using snapshot'));
     return snapshot.graph;
   }
 
-  console.info('workspace graph → snapshot missing, rebuilding');
+  console.info(formatIntroLine('workspace graph', 'snapshot missing, rebuilding'));
   return await WorkspacePrep.Graph.build(cwd);
 }
 

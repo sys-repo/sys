@@ -49,7 +49,7 @@ describe('WorkspaceHelp', () => {
     expect(chapter.path).to.eql(['test']);
     expect(chapter.sections.map(({ label }) => label)).to.eql([
       'Baseline',
-      'Parallel opt-in',
+      'Parallel control',
       'Flag boundary',
       'Scheduler truth',
       'Output and speed',

@@ -1,6 +1,7 @@
 import { c, Cli, Str, type t, Time } from './common.ts';
 
 const SUMMARY_REPEAT_MIN_PACKAGES = 11;
+const INTRO_LABEL_WIDTH = 15;
 
 export const Fmt: t.WorkspaceRun.Fmt.Lib = {
   result(result) {
@@ -74,6 +75,12 @@ export const Fmt: t.WorkspaceRun.Fmt.Lib = {
     return Str.trimEdgeNewlines(String(rows));
   },
 };
+
+/** Format one aligned, low-noise runner intro line. */
+export function formatIntroLine(label: string, message: string): string {
+  const left = Cli.Fmt.Text.padEnd(label, INTRO_LABEL_WIDTH);
+  return c.gray(`${left}  →  ${message}`);
+}
 
 /** Format grouped buffered output for failed package tasks. */
 export function formatFailedOutput(result: t.WorkspaceRun.Result): string {

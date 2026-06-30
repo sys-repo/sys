@@ -7,24 +7,34 @@ sections:
   - label: Baseline
     items:
       - |-
-          `deno task test` is the canonical /sys test route and remains
-          serial by default.
+          `deno task test` is the canonical /sys test route and defaults to
+          the topo-safe parallel scheduler.
       - |-
-          The serial runner executes packages in workspace graph order with
-          inherited stdio.
+          `deno task test:seq` preserves the serial runner: graph-order
+          package execution with inherited stdio.
       - |-
-          Preserve this baseline when changing runner behavior; do not make
-          parallel the default.
+          `Workspace.Run.test()` without an explicit strategy remains the
+          semantic serial API baseline; the root task wrapper owns the
+          operator default.
 
-  - label: Parallel opt-in
+  - label: Parallel control
     items:
-      - '`deno task test -- --parallel` selects the topo-frontier parallel scheduler.'
-      - '`deno task test -- --parallel --jobs=auto` uses the bounded auto worker heuristic.'
-      - '`deno task test -- --parallel --jobs=<n>` accepts positive integers.'
-      - '`--jobs` without `--parallel` is invalid and must fail before packages run.'
+      - '`deno task test:parallel` is the explicit parallel alias.'
+      - '`deno task test -- --jobs=auto` uses the bounded auto worker heuristic.'
+      - '`deno task test -- --jobs=<n>` accepts positive integers.'
       - |-
-          `--jobs=auto` is equivalent to omitting `--jobs` after `--parallel`;
-          the resolved job count is printed in the run header.
+          `deno task test -- --parallel=false` selects the serial strategy;
+          prefer `deno task test:seq`.
+      - |-
+          Root `deno task test` injects `--parallel` before parsing when no
+          explicit `--parallel` flag is present, so `--jobs` works on the
+          default root route.
+      - |-
+          Parser/API calls still require a parallel strategy for `--jobs`;
+          invalid flags must fail before packages run.
+      - |-
+          `--jobs=auto` is equivalent to omitting `--jobs` after selecting
+          parallel; the resolved job count is printed in the run header.
       - |-
           Auto jobs are bounded: unknown hardware resolves to 4; known
           hardware resolves to `clamp(2, 8, floor(cpu / 2))`.
@@ -33,7 +43,7 @@ sections:
     items:
       - |-
           @sys/workspace runner flags live after the task separator:
-          `deno task test -- --parallel`.
+          `deno task test -- --jobs=8`.
       - |-
           `deno task --jobs=8 test` is native Deno task-runner behavior,
           not the @sys/workspace package scheduler.

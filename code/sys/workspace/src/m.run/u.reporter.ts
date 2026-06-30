@@ -1,5 +1,5 @@
 import { c, Cli, Num, Str, type t, Time } from './common.ts';
-import { formatFailedOutput } from './u.fmt.ts';
+import { formatFailedOutput, formatIntroLine } from './u.fmt.ts';
 import type { ParallelRunEvent, ParallelRunEventHandler } from './u.run.parallel.ts';
 
 export type ParallelReporter = {
@@ -11,20 +11,22 @@ export type ParallelReporter = {
 export type ParallelReporterArgs = {
   readonly task: t.WorkspaceRun.Task;
   readonly jobs: number;
-  readonly total: number;
+  readonly runnablePaths: readonly t.StringPath[];
   readonly terminal?: boolean;
   readonly width?: number;
   readonly write?: (line: string) => void;
 };
 
 export type ParallelProgressFormatArgs = {
-  readonly total: number;
+  readonly runnableTotal: number;
   readonly passed: number;
   readonly skipped: number;
   readonly blocked: number;
+  readonly blockedRunnable: number;
   readonly failed: number;
   readonly pending: number;
   readonly running: readonly ParallelProgressRunning[];
+  readonly completed?: readonly ParallelProgressCompleted[];
   readonly terminal?: boolean;
   readonly width?: number;
 };
@@ -32,6 +34,12 @@ export type ParallelProgressFormatArgs = {
 export type ParallelProgressRunning = {
   readonly path: t.StringPath;
   readonly elapsed: t.Msecs;
+};
+
+export type ParallelProgressCompleted = {
+  readonly path: t.StringPath;
+  readonly kind: 'passed' | 'failed' | 'skipped' | 'blocked';
+  readonly elapsed?: t.Msecs;
 };
 
 type Running = {
@@ -42,43 +50,55 @@ type Running = {
 type ReporterState = {
   readonly task: t.WorkspaceRun.Task;
   readonly jobs: number;
-  readonly total: number;
+  readonly runnableTotal: number;
+  readonly runnablePaths: Set<t.StringPath>;
   readonly terminal: boolean;
   readonly width?: number;
   readonly write: (line: string) => void;
   readonly running: Map<t.StringPath, Running>;
+  completed: ParallelProgressCompleted[];
   pending: number;
   passed: number;
   skipped: number;
   blocked: number;
+  blockedRunnable: number;
   failed: number;
   spinner?: t.CliSpinner.Instance;
+  tick?: ReturnType<typeof setInterval>;
   stopped: boolean;
 };
 
 /** Create a reporter that renders parallel test progress from scheduler events. */
 export function createParallelReporter(args: ParallelReporterArgs): ParallelReporter {
+  const runnablePaths = new Set(args.runnablePaths);
   const state: ReporterState = {
     task: args.task,
     jobs: args.jobs,
-    total: args.total,
+    runnableTotal: runnablePaths.size,
+    runnablePaths,
     terminal: args.terminal ?? Cli.Is.terminal('stdout'),
     width: args.width,
     write: args.write ?? console.info,
     running: new Map(),
-    pending: args.total,
+    completed: [],
+    pending: runnablePaths.size,
     passed: 0,
     skipped: 0,
     blocked: 0,
+    blockedRunnable: 0,
     failed: 0,
     stopped: false,
   };
 
   return {
     start() {
-      state.write(`workspace ${state.task} → strategy parallel, jobs ${state.jobs}`);
+      state.write(
+        formatIntroLine(`workspace ${state.task}`, `strategy parallel, jobs ${state.jobs}`),
+      );
       if (!state.terminal) return;
+      state.write('');
       state.spinner = Cli.Spinner.start(wrangle.frame(state));
+      state.tick = setInterval(() => wrangle.render(state), 1000);
     },
 
     event(event) {
@@ -93,22 +113,22 @@ export function createParallelReporter(args: ParallelReporterArgs): ParallelRepo
 
 /** Format one deterministic progress frame for terminal reporter output. */
 export function formatParallelProgress(args: ParallelProgressFormatArgs): string {
-  const done = args.passed + args.skipped + args.blocked + args.failed;
-  const percent = wrangle.percent(done, args.total);
+  const done = args.passed + args.blockedRunnable + args.failed;
+  const percent = wrangle.percent(done, args.runnableTotal);
+  const progress = c.gray(`tests ${percent}%`);
+  const passed = `${c.green(`✓ passed ${args.passed}`)}${c.gray(`/${args.runnableTotal}`)}`;
   const failed = args.failed > 0 ? c.red(`✕ failed ${args.failed}`) : c.gray('✕ failed 0');
   const blocked = args.blocked > 0 ? c.yellow(`⊘ blocked ${args.blocked}`) : c.gray('⊘ blocked 0');
   const skipped = args.skipped > 0 ? c.yellow(`· skipped ${args.skipped}`) : c.gray('· skipped 0');
   const line = [
-    c.green(`✓ passed ${args.passed}`),
+    passed,
     c.cyan(`⦿ running ${args.running.length}`),
     c.gray(`◦ pending ${args.pending}`),
     skipped,
     blocked,
     failed,
-    c.gray(`done ${percent}%`),
   ].join('   ');
-
-  if (args.running.length === 0) return line;
+  const status = `  ${line}`;
 
   const width = Cli.Fmt.Text.fitWidth({
     width: args.width,
@@ -116,12 +136,22 @@ export function formatParallelProgress(args: ParallelProgressFormatArgs): string
     fallbackWidth: 100,
     minWidth: 40,
   });
-  if (width <= 0) return line;
+  const sections: string[] = [];
 
-  const active = wrangle.activeGrid(args.running, width, args.terminal);
-  if (!active) return line;
+  if (width > 0 && args.running.length > 0) {
+    const active = wrangle.activeGrid(args.running, width, args.terminal);
+    if (active) {
+      sections.push(`${c.gray('active')} ${c.dim(c.gray('(--schedule=topological)'))}\n${active}`);
+    }
+  }
 
-  return Str.trimEdgeNewlines(`${line}\n\n${c.gray('active')}\n${active}`);
+  if (width > 0 && args.completed && args.completed.length > 0) {
+    const completed = wrangle.completedGrid(args.completed, width, args.terminal);
+    if (completed) sections.push(`${c.gray('completed')}\n${completed}`);
+  }
+
+  const body = sections.length > 0 ? `\n\n${sections.join('\n\n')}` : '';
+  return Str.trimEdgeNewlines(`${progress}\n${status}${body}`);
 }
 
 const wrangle = {
@@ -129,15 +159,15 @@ const wrangle = {
     if (state.stopped && event.kind !== 'done') return;
 
     if (event.kind === 'start') {
-      state.pending = wrangle.decrement(state.pending);
+      if (wrangle.isRunnable(state, event.path)) state.pending = wrangle.decrement(state.pending);
       state.running.set(event.path, { path: event.path, startedAt: Time.now.timestamp });
       wrangle.render(state);
       return;
     }
 
     if (event.kind === 'skip') {
-      state.pending = wrangle.decrement(state.pending);
       state.skipped += 1;
+      wrangle.addCompleted(state, { kind: 'skipped', path: event.path });
       wrangle.render(state);
       return;
     }
@@ -146,13 +176,22 @@ const wrangle = {
       state.running.delete(event.path);
       if (event.result.success) state.passed += 1;
       else state.failed += 1;
+      wrangle.addCompleted(state, {
+        kind: event.result.success ? 'passed' : 'failed',
+        path: event.path,
+        elapsed: event.result.elapsed,
+      });
       wrangle.render(state);
       return;
     }
 
     if (event.kind === 'block') {
-      state.pending = wrangle.decrement(state.pending);
       state.blocked += 1;
+      if (wrangle.isRunnable(state, event.path)) {
+        state.pending = wrangle.decrement(state.pending);
+        state.blockedRunnable += 1;
+      }
+      wrangle.addCompleted(state, { kind: 'blocked', path: event.path });
       wrangle.render(state);
       return;
     }
@@ -164,19 +203,21 @@ const wrangle = {
   },
 
   render(state: ReporterState) {
-    if (!state.terminal || !state.spinner) return;
+    if (state.stopped || !state.terminal || !state.spinner) return;
     state.spinner.text = wrangle.frame(state);
   },
 
   frame(state: ReporterState) {
     return formatParallelProgress({
-      total: state.total,
+      runnableTotal: state.runnableTotal,
       passed: state.passed,
       skipped: state.skipped,
       blocked: state.blocked,
+      blockedRunnable: state.blockedRunnable,
       failed: state.failed,
       pending: state.pending,
       running: wrangle.running(state),
+      completed: state.completed,
       terminal: state.terminal,
       width: state.width,
     });
@@ -194,7 +235,17 @@ const wrangle = {
   stop(state: ReporterState) {
     if (state.stopped) return;
     state.stopped = true;
+    if (state.tick) clearInterval(state.tick);
+    state.tick = undefined;
     state.spinner?.stop();
+  },
+
+  isRunnable(state: ReporterState, path: t.StringPath) {
+    return state.runnablePaths.has(path);
+  },
+
+  addCompleted(state: ReporterState, item: ParallelProgressCompleted) {
+    state.completed = [item, ...state.completed].slice(0, 64);
   },
 
   decrement(value: number) {
@@ -212,32 +263,88 @@ const wrangle = {
     width: number,
     terminal?: boolean,
   ) {
-    const columns = width >= 120 ? 3 : width >= 80 ? 2 : 1;
-    const indent = '  ';
-    const gutter = '   ';
-    const usable = width - Cli.Fmt.Text.visibleWidth(indent);
-    const gutterWidth = Cli.Fmt.Text.visibleWidth(gutter) * (columns - 1);
-    const rawCellWidth = (usable - gutterWidth) / columns;
-    const cellWidth = rawCellWidth - (rawCellWidth % 1);
-    if (cellWidth < 24) return '';
+    const layout = wrangle.gridLayout(width);
+    if (!layout) return '';
+    const cells = running.map((item) => wrangle.activeCell(item, layout.cellWidth, terminal));
+    return wrangle.grid(cells, layout.columns);
+  },
 
+  completedGrid(
+    completed: readonly ParallelProgressCompleted[],
+    width: number,
+    terminal?: boolean,
+  ) {
+    const layout = wrangle.gridLayout(width);
+    if (!layout) return '';
+    const visibleCount = layout.columns * 5;
+    const visible = completed.slice(0, visibleCount);
+    const more = completed.length - visible.length;
+    const cells = visible.map((item) => wrangle.completedCell(item, layout.cellWidth, terminal));
+    const grid = wrangle.grid(cells, layout.columns);
+    if (more <= 0) return grid;
+    const suffix = `${c.gray(c.italic(`..and ${more} more`))}`;
+    return grid ? `${grid}\n  ${suffix}` : `  ${suffix}`;
+  },
+
+  gridLayout(width: number) {
+    const maxColumns = width >= 120 ? 3 : width >= 80 ? 2 : 1;
+    const indent = '  ';
+    const gutter = '    ';
+    const usable = width - Cli.Fmt.Text.visibleWidth(indent);
+    const columns = wrangle.activeColumnCount(maxColumns, usable, gutter);
+    if (columns < 1) return undefined;
+    return {
+      columns,
+      cellWidth: wrangle.activeCellWidth(usable, columns, gutter),
+    };
+  },
+
+  grid(cells: readonly string[], columns: number) {
+    const indent = '  ';
+    const gutter = '    ';
+    const widths = wrangle.activeColumnWidths(cells, columns);
     const lines: string[] = [];
-    for (let index = 0; index < running.length; index += columns) {
-      const cells: string[] = [];
+    for (let index = 0; index < cells.length; index += columns) {
+      const row: string[] = [];
       for (let offset = 0; offset < columns; offset += 1) {
-        const item = running[index + offset];
-        if (!item) continue;
-        cells.push(wrangle.activeCell(item, cellWidth, terminal));
+        const cell = cells[index + offset];
+        if (!cell) continue;
+        const isLast = index + offset + 1 >= cells.length || offset === columns - 1;
+        row.push(isLast ? cell : Cli.Fmt.Text.padEnd(cell, widths[offset] ?? 0));
       }
-      lines.push(`${indent}${cells.join(gutter)}`);
+      lines.push(`${indent}${row.join(gutter)}`);
     }
     return lines.join('\n');
   },
 
-  activeCell(item: ParallelProgressRunning, cellWidth: number, terminal?: boolean) {
+  activeColumnCount(maxColumns: number, usable: number, gutter: string) {
+    for (let columns = maxColumns; columns > 0; columns -= 1) {
+      if (wrangle.activeCellWidth(usable, columns, gutter) >= 24) return columns;
+    }
+    return 0;
+  },
+
+  activeCellWidth(usable: number, columns: number, gutter: string) {
+    const gutterWidth = Cli.Fmt.Text.visibleWidth(gutter) * (columns - 1);
+    const raw = (usable - gutterWidth) / columns;
+    return raw - (raw % 1);
+  },
+
+  activeColumnWidths(cells: readonly string[], columns: number) {
+    const widths: number[] = [];
+    for (let index = 0; index < cells.length; index += 1) {
+      const column = index % columns;
+      const width = Cli.Fmt.Text.visibleWidth(cells[index] ?? '');
+      const current = widths[column] ?? 0;
+      widths[column] = width > current ? width : current;
+    }
+    return widths;
+  },
+
+  activeCell(item: ParallelProgressRunning, width: number, terminal?: boolean) {
     const elapsed = Time.duration(item.elapsed).toString();
     const elapsedWidth = Cli.Fmt.Text.visibleWidth(elapsed);
-    const pathWidth = Num.clamp(8, cellWidth - 6, cellWidth - elapsedWidth - 5);
+    const pathWidth = Num.clamp(8, width - 4, width - elapsedWidth - 4);
     const path = Cli.Fmt.Path.tty(item.path, {
       fit: 'width',
       width: pathWidth,
@@ -245,7 +352,30 @@ const wrangle = {
       relative: 'bare',
       terminal,
     });
-    const cell = `${c.cyan('⦿')} ${path} ${c.gray(elapsed)}`;
-    return Cli.Fmt.Text.padEnd(cell, cellWidth);
+    return `${c.cyan('⦿')}  ${path} ${c.gray(elapsed)}`;
+  },
+
+  completedCell(item: ParallelProgressCompleted, width: number, terminal?: boolean) {
+    const mark = wrangle.completedMark(item.kind);
+    const elapsed = item.elapsed === undefined
+      ? ''
+      : ` ${c.gray(Time.duration(item.elapsed).toString())}`;
+    const elapsedWidth = Cli.Fmt.Text.visibleWidth(elapsed);
+    const pathWidth = Num.clamp(8, width - 4, width - elapsedWidth - 4);
+    const path = Cli.Fmt.Path.tty(item.path, {
+      fit: 'width',
+      width: pathWidth,
+      min: 8,
+      relative: 'bare',
+      terminal,
+    });
+    return `${mark}  ${path}${elapsed}`;
+  },
+
+  completedMark(kind: ParallelProgressCompleted['kind']) {
+    if (kind === 'passed') return c.green('✓');
+    if (kind === 'failed') return c.red('✕');
+    if (kind === 'blocked') return c.yellow('⊘');
+    return c.gray('·');
   },
 } as const;
