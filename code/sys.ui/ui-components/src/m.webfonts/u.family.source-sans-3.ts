@@ -11,6 +11,7 @@ const config = WebFont.def({
   },
 });
 
+/** Source Sans 3 font bundle metadata. */
 export const SourceSans3: t.Fonts.Bundle = {
   dir,
   config,

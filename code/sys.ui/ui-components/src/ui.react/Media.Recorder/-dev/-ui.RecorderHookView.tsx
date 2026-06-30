@@ -5,6 +5,7 @@ import { type t, Color, css, JsrUrl } from '../common.ts';
 import { Icons } from '../ui.Icons.ts';
 import { ExternalLink } from './-ui.ExternalLink.tsx';
 
+/** Props for rendering a MediaRecorder hook debug panel. */
 export type RecorderHookViewProps = {
   readonly recorder?: t.MediaRecorderHook;
   readonly debug?: boolean;

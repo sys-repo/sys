@@ -42,6 +42,7 @@ export type MediaRecorderOptions = {
 
 /** Callbacks for status changes */
 export type MediaRecorderStatusHandler = (e: MediaRecorderStatus) => void;
+/** Media recorder state snapshot emitted to status handlers. */
 export type MediaRecorderStatus = {
   readonly state: t.MediaRecorderState;
   readonly elapsed: t.Msecs;

@@ -39,6 +39,7 @@ export type SvgImportPromise = Promise<{ default: string }>;
 
 /** Callback to initialize the SVG upon creation. */
 export type UseSvgInit<T extends HTMLElement> = (e: UseSvgInitArgs<T>) => void;
+/** SVG initialization payload with query helpers and drawing API. */
 export type UseSvgInitArgs<T extends HTMLElement> = Pick<SvgInstance<T>, 'query' | 'queryAll'> & {
   /** Drawing API. */
   readonly draw: SvgElement;

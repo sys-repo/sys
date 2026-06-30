@@ -3,6 +3,7 @@
  * DevHarness visual specs.
  */
 import type { t } from './common.ts';
+/** DevHarness namespace prefix for component specs. */
 export const ns = 'sys.ui.component';
 
 /**

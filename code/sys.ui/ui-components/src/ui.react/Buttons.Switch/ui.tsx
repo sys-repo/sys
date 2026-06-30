@@ -5,6 +5,7 @@ import { SwitchTheme } from './u.theme.ts';
 import { SwitchThumb } from './ui.Thumb.tsx';
 import { SwitchTrack } from './ui.Track.tsx';
 
+/** Animated on/off switch renderer. */
 export const Switch: React.FC<t.SwitchProps> = (props) => {
   const { track = {}, thumb = {} } = props;
   const theme = toTheme(props.theme);

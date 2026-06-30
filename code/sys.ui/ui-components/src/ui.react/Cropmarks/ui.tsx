@@ -4,6 +4,7 @@ import { toFillMargin } from './u.ts';
 
 type P = t.CropmarksProps;
 
+/** Cropmark frame for visualizing a subject's bounds. */
 export const Cropmarks: React.FC<P> = (props) => {
   const { size, subjectOnly = false } = props;
   if (subjectOnly) return props.children;

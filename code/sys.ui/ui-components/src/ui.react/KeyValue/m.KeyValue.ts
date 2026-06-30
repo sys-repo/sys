@@ -3,6 +3,7 @@ import { Switches } from '../KeyValue.Switches/mod.ts';
 import { fromObject } from './u.fromObject.ts';
 import { KeyValue as UI } from './ui.tsx';
 
+/** Key-value renderer with switches and object conversion helpers. */
 export const KeyValue: t.KeyValue.Lib = {
   UI,
   Switches,

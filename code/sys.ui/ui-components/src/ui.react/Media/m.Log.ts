@@ -1,5 +1,6 @@
 import { type t } from './common.ts';
 
+/** Developer logging helpers for media streams and tracks. */
 export const Log: t.MediaLogLib = {
   tracks(label: string, stream?: MediaStream) {
     if (!stream) {

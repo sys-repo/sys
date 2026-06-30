@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { type t, WebFont } from './common.ts';
 
+/** Inject a web-font bundle during the component lifecycle. */
 export const useWebFont: t.UseWebFont = (dir, opts) => {
   const family = opts.family;
   const variable = opts.variable ?? true;

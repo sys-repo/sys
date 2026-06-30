@@ -1,5 +1,6 @@
 import { type t, Is, Num } from './common.ts';
 
+/** Media-stream aspect-ratio helpers. */
 export const AspectRatio: t.MediaAspectRatioLib = {
   toNumber(stream) {
     const [track] = stream.getVideoTracks();

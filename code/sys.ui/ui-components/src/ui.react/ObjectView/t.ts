@@ -26,6 +26,7 @@ export type ObjectViewShow = {
   rootSummary: boolean;
 };
 
+/** Object inspector expansion depth and path options. */
 export type ObjectViewExpand = {
   level?: number;
   paths?: string[] | boolean;

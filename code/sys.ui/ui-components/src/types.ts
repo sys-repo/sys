@@ -1,5 +1,6 @@
 /**
- * @module types
+ * @module
+ * Public type surface for system UI components.
  */
 export type * from './m.webfonts/t.ts';
 export type * from './ui.react/ActionProbe/t.ts';

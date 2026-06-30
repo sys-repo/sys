@@ -1,6 +1,7 @@
 import React from 'react';
 import { type t, IFrame, Color, css, D } from './common.ts';
 
+/** YouTube iframe player renderer. */
 export const YouTube: React.FC<t.YouTubeProps> = (props) => {
   const {
     //

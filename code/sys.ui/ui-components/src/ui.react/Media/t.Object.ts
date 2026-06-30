@@ -78,6 +78,7 @@ export type StreamObject = {
  */
 export type AnyMedia = MediaDeviceInfo | MediaStream | MediaStreamTrack | undefined | null;
 
+/** Any object projection returned by Media.ToObject helpers. */
 export type AnyMediaObject = DeviceObject | TrackObject | StreamObject | undefined;
 
 /**

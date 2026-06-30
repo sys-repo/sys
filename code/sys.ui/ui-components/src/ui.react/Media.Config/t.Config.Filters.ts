@@ -37,6 +37,7 @@ export type MediaFilterValues = MediaFilterMap<number>;
 
 /** A map of filter configuration settings. */
 export type MediaFilterConfigMap = MediaFilterMap<MediaFilterConfig>;
+/** Range, unit, and initial value for a media filter. */
 export type MediaFilterConfig = {
   range: t.MinMaxNumberRange;
   unit: string;
@@ -65,6 +66,7 @@ export type MediaFiltersProps = {
  * Event: fires when a single media-filter settings change.
  */
 export type MediaFiltersChangeHandler = (e: MediaFiltersChangeArgs) => void;
+/** Media filter change payload with aggregate values. */
 export type MediaFiltersChangeArgs = {
   readonly change: t.MediaSliderChangeArgs;
   readonly values: Partial<t.MediaFilterValues>;

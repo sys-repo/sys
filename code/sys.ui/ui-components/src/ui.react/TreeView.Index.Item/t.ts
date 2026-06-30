@@ -9,6 +9,7 @@ export type IndexTreeViewItemLib = {
   readonly Presets: IndexTreeViewPreset;
 };
 
+/** Preset padding values for index tree-view items. */
 export type IndexTreeViewPreset = {
   readonly Padding: {
     readonly spacious: t.CssEdgesQuad;

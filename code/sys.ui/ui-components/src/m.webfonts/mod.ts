@@ -9,6 +9,7 @@ export { useFontBundle } from './u.hook.ts';
 
 export { ETBook };
 export { SourceSans3 };
+/** Common web-font bundle registry. */
 export const Fonts: t.Fonts.Lib = {
   ETBook,
   SourceSans3,

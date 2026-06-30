@@ -7,6 +7,7 @@ type UValue = t.HttpOriginValue;
 /** Type re-exports. */
 export type * from './t.data.ts';
 
+/** HTTP origin UI and data contracts. */
 export declare namespace HttpOrigin {
   /**
    * HttpOrigin UI Display.
@@ -24,7 +25,9 @@ export declare namespace HttpOrigin {
   export type Env = 'localhost' | 'production';
   /** Per-environment origin tree map (input to HttpOrigin component). */
   export type SpecMap<E extends string = string, T extends UTree = UTree> = Partial<Record<E, T>>;
+  /** Origin URL tree shape. */
   export type UrlTree = UTree;
+  /** Flat URL row emitted from an origin tree. */
   export type UrlRow = URow;
   export type Value = UValue;
   export type VerifyStatus = 'idle' | 'running' | 'ok' | 'error';

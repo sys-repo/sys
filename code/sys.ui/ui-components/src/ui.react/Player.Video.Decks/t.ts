@@ -15,7 +15,9 @@ export type VideoDecksLib = {
   };
 };
 
+/** Active A/B video deck. */
 export type VideoDecksActive = 'A' | 'B';
+/** Video deck visibility mode. */
 export type VideoDecksShow = 'both' | 'single';
 
 /**

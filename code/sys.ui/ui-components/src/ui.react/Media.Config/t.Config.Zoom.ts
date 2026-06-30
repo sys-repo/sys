@@ -57,12 +57,14 @@ export type MediaZoomValues = {
 
 /** A map of zoom configuration settings. */
 export type MediaZoomConfigMap = { [K in keyof MediaZoomValues]: MediaZoomConfig };
+/** Range, unit, and initial value for a zoom control. */
 export type MediaZoomConfig = { range: t.MinMaxNumberRange; unit: string; initial: number };
 
 /**
  * Event: fires when a single media-zoom settings change.
  */
 export type MediaZoomChangeHandler = (e: MediaZoomChangeArgs) => void;
+/** Media zoom change payload with aggregate zoom values. */
 export type MediaZoomChangeArgs = {
   readonly change: t.MediaSliderChangeArgs;
   readonly values: Partial<t.MediaZoomValues>;

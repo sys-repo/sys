@@ -7,6 +7,7 @@ import { Result } from './ui.Result.tsx';
 import { Signals } from './m.Signals.ts';
 import { Renderer } from './m.Renderer.tsx';
 
+/** Action probe UI, signal, and renderer composition helpers. */
 export const ActionProbe: t.ActionProbe.Lib = {
   Probe,
   Result,

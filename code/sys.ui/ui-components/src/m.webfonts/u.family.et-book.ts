@@ -16,6 +16,7 @@ const config = WebFont.def({
   },
 });
 
+/** ET Book font bundle metadata. */
 export const ETBook: t.Fonts.Bundle = {
   dir,
   config,

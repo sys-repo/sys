@@ -6,6 +6,7 @@ import { type t, Color, css, DEFAULTS, Rx, Time } from './common.ts';
 const D = DEFAULTS;
 type P = t.VimeoBackgroundProps;
 
+/** Background Vimeo iframe renderer with play, opacity, and jump controls. */
 export const VimeoBackground: React.FC<P> = (props) => {
   const {
     opacity,

@@ -8,6 +8,7 @@ import { Pane } from './ui.Pane.tsx';
 import { useSplitDrag } from './use.SplitDrag.tsx';
 import { useSplitRatios } from './use.SplitRatios.tsx';
 
+/** Resizable split-pane layout with controlled or uncontrolled ratios. */
 export const SplitPane: React.FC<t.SplitPaneProps> = (props) => {
   const {
     debug = false,

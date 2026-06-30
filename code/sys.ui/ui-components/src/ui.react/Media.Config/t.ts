@@ -29,6 +29,7 @@ export type MediaConfigSliderProps = {
  * Event: fires when a single media-filter changes.
  */
 export type MediaSliderChangeHandler = (e: MediaSliderChangeArgs) => void;
+/** Media slider change payload with label, percent, and resolved value. */
 export type MediaSliderChangeArgs = {
   readonly label: string;
   readonly percent: t.Percent;

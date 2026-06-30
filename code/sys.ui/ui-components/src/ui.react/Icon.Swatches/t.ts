@@ -84,6 +84,7 @@ export type IconSizeHelper = {
 
 /** Callback when percent changes (0..1). */
 export type IconSwatchesSizeHandler = (e: IconSwatchesSize) => void;
+/** Icon swatch size represented as pixels and percent. */
 export type IconSwatchesSize = {
   readonly pixels: t.Pixels;
   readonly percent: t.Percent;
@@ -91,4 +92,5 @@ export type IconSwatchesSize = {
 
 /** Selection change callbcak. */
 export type IconSwatchesSelectHandler = (e: IconSwatchesSelect) => void;
+/** Selected icon swatch path. */
 export type IconSwatchesSelect = { readonly path: t.ObjectPath };

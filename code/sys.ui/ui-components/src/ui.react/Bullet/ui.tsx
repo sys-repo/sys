@@ -3,6 +3,7 @@ import { type t, Color, css, D } from './common.ts';
 
 type P = t.BulletProps;
 
+/** Small status bullet with selected and filled states. */
 export const Bullet: React.FC<P> = (props) => {
   const { colorTransition = 0 } = props;
   const Size = props.size ?? D.size;

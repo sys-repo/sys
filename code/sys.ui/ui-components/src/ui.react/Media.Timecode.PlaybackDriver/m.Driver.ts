@@ -8,6 +8,7 @@ import { usePlaybackTimeline } from './use.PlaybackTimeline.ts';
 import { usePlayControlsProps } from './use.PlayControlsProps.ts';
 import { Dev } from './-dev/m.Dev.ts';
 
+/** Timecode playback driver factory, hooks, and dev helpers. */
 export const PlaybackDriver: t.TimecodePlaybackDriverLib = {
   create,
   useDriver,

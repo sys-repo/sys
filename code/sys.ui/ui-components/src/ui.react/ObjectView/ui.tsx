@@ -6,6 +6,7 @@ import { renderer } from './ui.Renderer.tsx';
 type P = t.ObjectViewProps;
 const D = DEFAULTS;
 
+/** React object inspector wrapper with controlled expansion options. */
 export const ObjectView: React.FC<P> = (props) => {
   const { block = D.block, sortKeys = D.sortKeys } = props;
   const { expandLevel, expandPaths } = wrangle.expand(props);

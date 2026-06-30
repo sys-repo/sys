@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { type t, css, DEFAULTS } from './common.ts';
 
+/** Sandboxed iframe renderer with ready and load callbacks. */
 export const IFrame: React.FC<t.IFrameProps> = (props) => {
   const { width, height, loading = 'eager', silent = false } = props;
   const content = wrangle.content(props);

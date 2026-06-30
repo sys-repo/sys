@@ -1,5 +1,6 @@
 import { type t, Color, R, Style } from './common.ts';
 
+/** Switch theme presets and conversion helpers. */
 export const SwitchTheme: t.SwitchThemeLib = {
   merge(base: t.SwitchTheme, theme: Partial<t.SwitchTheme>) {
     const res = R.mergeDeepRight(base, theme) as t.SwitchTheme;

@@ -39,6 +39,7 @@ export type SwitchThemeLib = {
   readonly dark: SwitchThemedColors;
 };
 
+/** Named switch theme palettes. */
 export type SwitchThemedColors = {
   default: t.SwitchTheme;
   blue: t.SwitchTheme;

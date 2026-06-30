@@ -19,7 +19,9 @@ export type SheetLib = {
  * The orientation and slide direction of the sheet.
  */
 export type SheetOrientation = SheetOrientationX | SheetOrientationY;
+/** Horizontal sheet slide direction. */
 export type SheetOrientationX = 'Left:Right' | 'Right:Left';
+/** Vertical sheet slide direction. */
 export type SheetOrientationY = 'Bottom:Up' | 'Top:Down';
 
 /**
@@ -54,6 +56,7 @@ export type SheetProps = {
  * A pixel value or a CSS-grid template value (eg. 'auto' or '1fr' etc).
  */
 export type SheetMargin = t.Pixels | string;
+/** Sheet edge-margin shorthand. */
 export type SheetMarginInput =
   | [SheetMargin, SheetMargin, SheetMargin] //  ← near |     middle     | far
   | [SheetMargin, SheetMargin] //               ← near | (default: 1fr) | far

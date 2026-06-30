@@ -49,6 +49,7 @@ export type DeviceDefaultPrefs = {
  * - Clear stored id if the device no longer exists.
  */
 export type UseDeviceSelectionLifecycle = (options: DeviceSelectionLifecycleOptions) => void;
+/** Device-selection lifecycle options for restore, persistence, and callbacks. */
 export type DeviceSelectionLifecycleOptions = {
   readonly items: MediaDeviceInfo[];
   readonly selected?: MediaDeviceInfo;

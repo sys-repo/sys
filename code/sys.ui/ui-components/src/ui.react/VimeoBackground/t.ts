@@ -29,4 +29,5 @@ export type VimeoBackgroundProps = {
  * Events
  */
 export type VimeoReadyHandler = (e: VimeoReadyHandlerArgs) => void;
+/** Ready payload for the Vimeo iframe bridge. */
 export type VimeoReadyHandlerArgs = t.VimeoIFrame;

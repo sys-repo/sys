@@ -70,6 +70,7 @@ export type MediaVideoStreamProps = {
  * Events:
  */
 export type MediaVideoStreamReadyHandler = (e: MediaVideoStreamReady) => void;
+/** Ready payload for a filtered or raw media video stream. */
 export type MediaVideoStreamReady = {
   readonly stream: VideoStreamHook['stream'];
   readonly aspectRatio: string;
@@ -85,6 +86,7 @@ export type UseVideoStream = (
   options?: { filter?: string; zoom?: Partial<t.MediaZoomValues> },
 ) => VideoStreamHook;
 
+/** Current media stream acquisition state. */
 export type VideoStreamHook = {
   readonly ready: boolean;
   readonly stream: { readonly filtered?: MediaStream; readonly raw?: MediaStream };

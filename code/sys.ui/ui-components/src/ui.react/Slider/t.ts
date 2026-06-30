@@ -53,7 +53,9 @@ export type SliderTickProps = {
   items: SliderTickInput[];
 };
 
+/** Tick shorthand accepted by the slider. */
 export type SliderTickInput = t.Percent | SliderTick | undefined | false;
+/** Slider tick marker configuration. */
 export type SliderTick = {
   value: t.Percent;
   label?: string;
@@ -64,6 +66,7 @@ export type SliderTick = {
  * Events:
  */
 export type SliderChangeHandler = (e: SliderChangeHandlerArgs) => void;
+/** Slider change payload. */
 export type SliderChangeHandlerArgs = {
   readonly percent: t.Percent;
   readonly complete: boolean;

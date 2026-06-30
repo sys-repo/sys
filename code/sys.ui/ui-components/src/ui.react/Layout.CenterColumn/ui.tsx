@@ -3,6 +3,7 @@ import { type t, css, D, M } from './common.ts';
 
 type P = t.CenterColumnLayoutProps;
 
+/** Three-column layout with a fixed center rail and flexible edges. */
 export const CenterColumn: React.FC<P> = (props) => {
   const { debug = false, gap = D.gap, centerWidth = D.center.width } = props;
 

@@ -15,6 +15,7 @@ import { ProseManuscript as Manuscript } from '../Prose.Manuscript/mod.ts';
 import { ProseMeasure as Measure } from '../Prose.Measure/mod.ts';
 import { ProseMarkdown as Markdown } from '../Prose.Markdown/mod.ts';
 
+/** Prose measure, manuscript, and Markdown adapter surface. */
 export const Prose: t.Prose.Lib = {
   Measure,
   Manuscript,

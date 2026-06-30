@@ -11,6 +11,7 @@ import { Log } from './m.Log.ts';
 import { download } from './u.download.ts';
 import { ToObject, toObject } from './u.toObject.ts';
 
+/** Media UI, device, recorder, and object-conversion helpers. */
 export const Media: t.Media.Lib = {
   AudioWaveform,
   Is,

@@ -71,7 +71,9 @@ export type IndexTreeViewYamlLib = Readonly<{
  * IndexTreeView YAML source dialect.
  */
 export type YamlTreeSourceList = _SourceList;
+/** YAML wrapper node with optional metadata and children. */
 export type YamlTreeSourceWrapper = _SourceWrapper;
+/** YAML source node accepted by the tree parser. */
 export type YamlTreeSourceNode = _SourceNode;
 
 type _SourceNode = unknown | _SourceWrapper | _SourceList;

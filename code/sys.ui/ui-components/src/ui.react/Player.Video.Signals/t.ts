@@ -117,6 +117,7 @@ export type VideoPlayerIs = {
  * video-player based on it's current size and aspect ratio.
  */
 export type VideoPlayerScale = (e: VideoPlayerScaleArgs) => t.Percent;
+/** Player size payload for scale calculation. */
 export type VideoPlayerScaleArgs = {
   readonly width: t.Pixels;
   readonly height: t.Pixels;
@@ -127,6 +128,7 @@ export type VideoPlayerScaleArgs = {
  * Visual mask that fades in from an edge.
  */
 export type VideoPlayerFadeMaskDirection = 'Top:Down' | 'Bottom:Up' | 'Left:Right' | 'Right:Left';
+/** Edge fade mask configuration for video player overlays. */
 export type VideoPlayerFadeMask = {
   direction: VideoPlayerFadeMaskDirection;
   size?: t.Pixels;

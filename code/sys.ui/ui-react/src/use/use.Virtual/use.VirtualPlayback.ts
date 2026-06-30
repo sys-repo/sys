@@ -2,6 +2,7 @@ import React from 'react';
 import { type t, Timecode } from './common.ts';
 import { startRafClockLoop } from './u.raf.ts';
 
+/** Run a virtual timecode playback clock through React state. */
 export const useVirtualPlayback: t.UseVirtualPlayback = (resolved, opts = {}) => {
   const {
     startAt = 0,

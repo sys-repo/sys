@@ -4,6 +4,7 @@ import { Item } from './ui.Item.tsx';
 
 type S = { key: string; children: t.ReactNode };
 
+/** Cross-fades when rendered children change. */
 export const FadeElement: React.FC<t.FadeElementProps> = (props) => {
   const { children, duration = D.duration, style } = props;
 

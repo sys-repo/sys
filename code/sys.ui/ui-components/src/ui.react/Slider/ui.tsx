@@ -7,6 +7,7 @@ import { Ticks } from './ui.Ticks.tsx';
 import { Track } from './ui.Track.tsx';
 import { useEventMonitor } from './use.EventMonitor.ts';
 
+/** Single-value slider with track, ticks, and thumb rendering. */
 export const Slider: React.FC<t.SliderProps> = (props) => {
   const { enabled = DEFAULTS.enabled, onChange } = props;
   const { tracks, ticks, thumb } = Wrangle.props(props);

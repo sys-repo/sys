@@ -8,6 +8,7 @@ export type UseVideoDecksControls = (props: {
   active?: t.VideoDecksActive;
 }) => UseVideoDecksControlsResult;
 
+/** Player-control handlers derived from active video decks. */
 export type UseVideoDecksControlsResult = {
   readonly currentTime: t.Secs;
   readonly handleClick: t.PlayerControlsButtonHandler;

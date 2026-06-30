@@ -200,6 +200,7 @@ export function toMouseSnapshot(e: MouseEvent): t.PointerSnapshot {
   };
 }
 
+/** Convert the active touch point into a drag-compatible pointer snapshot. */
 export function toTouchSnapshot(e: TouchEvent, touchPrev?: t.Point): t.PointerSnapshot {
   const touch = e.touches[0] ?? e.changedTouches[0];
   const x = touch?.clientX ?? 0;
@@ -214,6 +215,7 @@ export function toTouchSnapshot(e: TouchEvent, touchPrev?: t.Point): t.PointerSn
   };
 }
 
+/** Extract keyboard modifier flags from pointer-like DOM events. */
 export function toModifiers(e: TouchEvent | MouseEvent | React.DragEvent): t.Keyboard.Modifier.Flags {
   return {
     shift: e.shiftKey,

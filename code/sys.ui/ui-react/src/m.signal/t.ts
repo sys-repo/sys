@@ -4,6 +4,7 @@ import type { Signal as SignalType } from '@sys/types';
 import type { t } from './common.ts';
 
 export type { ReadonlySignal, SignalValue, UnwrapSignals } from '@sys/types';
+/** Mutable reactive value compatible with the system Signal contract. */
 export type Signal<T = unknown> = SignalType<T>;
 
 /**

@@ -45,9 +45,12 @@ export type PlayerControlsBackgroundProps = {
  * Events:
  */
 export type PlayerControlsButtonHandler = (e: PlayerControlsButtonHandlerArgs) => void;
+/** Player control button click payload. */
 export type PlayerControlsButtonHandlerArgs = { readonly button: PlayerControlButton };
 
+/** Player seek change handler. */
 export type PlayerControlSeekChangeHandler = (e: PlayerControlSeekChange) => void;
+/** Player seek change payload. */
 export type PlayerControlSeekChange = Readonly<{
   currentTime: t.Secs;
   duration: t.Secs;

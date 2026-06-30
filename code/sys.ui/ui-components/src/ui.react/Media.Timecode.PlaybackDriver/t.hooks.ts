@@ -19,6 +19,7 @@ export type UsePlaybackDriverArgs = CreateDriverArgs & {
 
 /** Called for every reducer/driver update with the latest snapshot. */
 export type UsePlaybackOnSnapshotHandler = (e: UsePlaybackOnSnapshot) => void;
+/** Playback driver snapshot update payload. */
 export type UsePlaybackOnSnapshot = { readonly snapshot?: Snapshot; rev: t.NumberMonotonic };
 
 /**
@@ -70,6 +71,7 @@ export type UsePlayControlsPropsArgs = {
   snapshot?: Snapshot;
   decks?: t.TimecodePlaybackDriver.VideoDecks;
 };
+/** Player-control props derived from playback driver state. */
 export type UsePlayControlsPropsResult = Omit<
   t.PlayerControlsProps,
   'theme' | 'style' | 'background' | 'padding' | 'margin' | 'maskHeight' | 'maskOpacity'

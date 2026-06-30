@@ -1,5 +1,6 @@
 import { type t } from './common.ts';
 
+/** Structural media type guards. */
 export const Is: t.MediaIsLib = {
   mediaStream(input?: unknown): input is MediaStream {
     if (!input || typeof input !== 'object') return false;

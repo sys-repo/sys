@@ -1,6 +1,7 @@
 import React from 'react';
 import { type t, Color, css } from '../common.ts';
 
+/** External link props for media recorder dev views. */
 export type ExternalLinkProps = {
   children?: t.ReactNode;
   href?: string;

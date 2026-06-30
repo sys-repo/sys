@@ -1,6 +1,7 @@
 import { Fragment } from 'react';
 import { type t } from './common.ts';
 
+/** React text helpers for preserving line breaks as elements. */
 export const ReactString: t.ReactString.Lib = {
   break(input: string | t.ReactNode) {
     if (typeof input !== 'string') return input;

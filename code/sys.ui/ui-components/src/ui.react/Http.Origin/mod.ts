@@ -8,6 +8,7 @@ import { Controlled } from './ui.Controlled.tsx';
 import { createController as controller } from './u.controller.ts';
 import { Data } from './m.Data.ts';
 
+/** HTTP origin value-map UI, controller, and data helpers. */
 export const HttpOrigin: t.HttpOrigin.Lib = {
   Data,
   controller,

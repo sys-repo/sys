@@ -6,6 +6,7 @@ type LastEvent = {
   readonly state: any;
 };
 
+/** Subscribe a React component to an EffectController state snapshot. */
 export const useEffectController: t.EffectController.Hook.Fn = (controller, options) => {
   const id = controller?.id;
   const opts = wrangle.options(options);

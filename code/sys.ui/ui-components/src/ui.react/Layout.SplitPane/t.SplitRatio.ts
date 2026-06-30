@@ -24,9 +24,11 @@ export type SplitPaneRatiosControlled = SplitPaneRatiosCore & {
   readonly isControlled: true;
 };
 
+/** Uncontrolled split ratios with an internal setter. */
 export type SplitPaneRatiosUncontrolled = SplitPaneRatiosCore & {
   readonly isControlled: false;
   set: UpdateRatios; // explicit setter only when uncontrolled
 };
 
+/** Controlled or uncontrolled split ratio state. */
 export type SplitPaneRatios = SplitPaneRatiosControlled | SplitPaneRatiosUncontrolled;

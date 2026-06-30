@@ -38,6 +38,7 @@ export type MediaDevicesFilter = (info: MediaDeviceInfo) => boolean;
  * Hook: Load the enumerated list of available devices.
  */
 export type UseMediaDevicesList = () => MediaDevicesListHook;
+/** Current enumerated media device list. */
 export type MediaDevicesListHook = { readonly items: MediaDeviceInfo[] };
 
 /**
