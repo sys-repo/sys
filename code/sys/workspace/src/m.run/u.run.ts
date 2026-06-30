@@ -2,6 +2,7 @@ import { WorkspacePrep } from '../m.prep/mod.ts';
 import { Fs, type t, Time } from './common.ts';
 import { resolveJobs } from './u.jobs.ts';
 import { createRunPlan } from './u.plan.ts';
+import { createParallelReporter } from './u.reporter.ts';
 import { runParallel } from './u.run.parallel.ts';
 import { runSequential } from './u.run.sequential.ts';
 
@@ -25,7 +26,13 @@ export async function runTask(
 
   if (task === 'test' && isParallel(args)) {
     const jobs = resolveJobs({ jobs: args.strategy.jobs });
-    return await runParallel({ cwd, task, plan, jobs, startedAt });
+    const reporter = createParallelReporter({ task, jobs, total: plan.orderedPaths.length });
+    reporter.start();
+    try {
+      return await runParallel({ cwd, task, plan, jobs, startedAt, onEvent: reporter.event });
+    } finally {
+      reporter.stop();
+    }
   }
 
   return await runSequential({ cwd, task, plan, startedAt });

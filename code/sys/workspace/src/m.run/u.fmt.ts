@@ -75,6 +75,27 @@ export const Fmt: t.WorkspaceRun.Fmt.Lib = {
   },
 };
 
+/** Format grouped buffered output for failed package tasks. */
+export function formatFailedOutput(result: t.WorkspaceRun.Result): string {
+  const failed = result.packages.filter((item): item is t.WorkspaceRun.Package.Ran => {
+    return item.kind === 'ran' && !item.success && wrangle.hasOutput(item);
+  });
+  if (failed.length === 0) return '';
+
+  const str = Str.builder();
+  str.line(c.red('Failed package output'));
+
+  for (const item of failed) {
+    const status = item.signal ? `signal ${item.signal}` : `exit ${item.code}`;
+    str.line('');
+    str.line(`${c.red('✕')} ${c.white(item.path)} ${c.gray(status)}`);
+    wrangle.appendOutput(str, 'stdout', item.stdout);
+    wrangle.appendOutput(str, 'stderr', item.stderr);
+  }
+
+  return Str.trimEdgeNewlines(String(str));
+}
+
 const wrangle = {
   counts(packages: readonly t.WorkspaceRun.Package.Result[]) {
     return packages.reduce(
@@ -103,5 +124,19 @@ const wrangle = {
     return lines
       .map((line) => (line.trim() ? ` ${line}` : line))
       .join('\n');
+  },
+
+  hasOutput(item: t.WorkspaceRun.Package.Ran) {
+    return Boolean(item.stdout?.trim() || item.stderr?.trim());
+  },
+
+  appendOutput(str: ReturnType<typeof Str.builder>, label: 'stdout' | 'stderr', value?: string) {
+    const text = Str.trimEdgeNewlines(value ?? '');
+    if (!text.trim()) return;
+
+    str.line(`  ${c.gray(label)}`);
+    for (const line of text.split('\n')) {
+      str.line(`    ${line}`);
+    }
   },
 } as const;
