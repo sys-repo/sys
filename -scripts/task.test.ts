@@ -11,6 +11,7 @@ export async function main() {
   console.info();
   console.info(Workspace.Run.Fmt.result(result));
   console.info();
+  Deno.exitCode = result.ok ? 0 : 1;
 }
 
 function wantsHelp(argv: readonly string[]) {
