@@ -1,3 +1,7 @@
+/**
+ * @module
+ * Static dist-backed Files model type surface.
+ */
 import type { t } from './common.ts';
 import type { Files as TFiles } from '../m.files/t.ts';
 

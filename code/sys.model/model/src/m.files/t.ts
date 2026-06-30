@@ -1,3 +1,7 @@
+/**
+ * @module
+ * Files model type surface.
+ */
 import type { t } from './common.ts';
 
 /**

@@ -1,5 +1,6 @@
 /**
- * @module types
+ * @module
+ * Public type surface for shared model packages.
  */
 export type * from './m.files/t.ts';
 export type * from './m.files.fs/t.ts';
