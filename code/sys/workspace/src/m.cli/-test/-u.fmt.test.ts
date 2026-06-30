@@ -65,7 +65,7 @@ describe('Workspace.Cli.Fmt', () => {
     const plan = Fmt.plan(upgrade());
     const text = Cli.stripAnsi(plan);
 
-    expect(text).to.include('Policy');
+    expect(text).to.include('Release policy');
     expect(text).to.include('Blocked');
     expect(text).to.include('Already latest');
     expect(text).to.not.include('Dependency   Current');
@@ -131,6 +131,9 @@ describe('Workspace.Cli.Fmt', () => {
     );
     const label = Cli.stripAnsi(options[0]!.name);
 
+    expect(plan).to.include('npm standdown');
+    expect(plan).to.include('Release age');
+    expect(plan).to.include('Eligible after');
     expect(plan).to.include('2d');
     expect(plan).to.include('motion');
     expect(plan).to.include('12.40.0');
@@ -151,6 +154,7 @@ describe('Workspace.Cli.Fmt', () => {
     );
     const label = Cli.stripAnsi(options[0]!.name);
 
+    expect(plan).to.include('npm standdown');
     expect(plan).to.include('publish timestamp unavailable');
     expect(label).to.include('newer in standdown - publish timestamp unavailable');
     expect(options[0]?.checked).to.eql(false);

@@ -31,7 +31,7 @@ export const FmtPlan = {
     const table = Cli.table([]);
     const counts = FmtSelection.summaryCounts(upgrade);
 
-    table.push([c.gray('Release Policy'), c.white(upgrade.options.policy.mode)]);
+    table.push([c.gray('Release policy'), c.white(upgrade.options.policy.mode)]);
     if (upgrade.options.minimumDependencyAge > 0) {
       table.push([
         c.gray('Minimum dependency age'),

@@ -34,7 +34,7 @@ export const FmtApplied = {
     const table = Cli.table([]);
     const updated = FmtApplied.updatedRows(result).length;
 
-    table.push([c.gray('Release Policy'), c.white(result.options.policy.mode)]);
+    table.push([c.gray('Release policy'), c.white(result.options.policy.mode)]);
     if (result.options.minimumDependencyAge > 0) {
       table.push([
         c.gray('Minimum dependency age'),
