@@ -1,5 +1,35 @@
 # Path type namespace refactor plan
 
+- [x] 6b2464e4c refactor(std): namespace path type contracts
+- [x] e1b5b1980 refactor(fs): namespace filesystem path types
+
+## Finished reality
+
+Status: complete; ready to retire after this final historical cleanup is committed.
+
+Landed implementation commits:
+
+- `6b2464e4c` `refactor(std): namespace path type contracts`
+- `e1b5b1980` `refactor(fs): namespace filesystem path types`
+
+Evidence:
+
+- `code/sys/std/src/m.Path/t.ts` now exposes `Path.Lib`, `Path.Dir.*`, `Path.Is.*`, `Path.Join.*`, `Path.Format.*`, and `Path.FileExtension`.
+- `code/sys/std/src/m.Path/t.bounded.ts` now exposes `PathBounded.Lib`, `PathBounded.Ops`, `PathBounded.PosixOps`, and `PathBounded.Invalid`.
+- `code/sys/fs` downstream path types were repaired under the filesystem path namespace pass.
+- Old flat path type names are absent outside this historical plan.
+- Downstream package type-checks pass for `@sys/fs`, `@sys/cli`, and `@sys/model`.
+
+Verification run:
+
+```sh
+cd /Users/phil/code/org.sys/sys/code/sys/std && deno task test --trace-leaks ./src/m.Path
+cd /Users/phil/code/org.sys/sys/code/sys/std && deno task check
+cd /Users/phil/code/org.sys/sys/code/sys/fs && deno task check
+cd /Users/phil/code/org.sys/sys/code/sys/cli && deno task check
+cd /Users/phil/code/org.sys/sys/code/sys.model/model && deno task check
+```
+
 ## Scope
 
 Package: `code/sys/std`
