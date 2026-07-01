@@ -27,8 +27,8 @@ same pure changed-file path, and `Workspace.Delta.Git.fromRef(...)` now answers:
 
 > What changed since the publish baseline, and what still needs a version bump?
 
-The deterministic bump-since behavior is feature-locked. The remaining arc is help/DSL projection: lay
-the standard package help resource surface, then author the delta/bump-since guidance on top of it.
+The deterministic bump-since behavior is feature-locked. The package help surface and
+`delta`/`bump --since` DSL guidance have landed; this plan is complete and ready to retire.
 
 ## Placement decision: promote Delta to root workspace surface
 
@@ -386,4 +386,17 @@ No LLM path inspection. No manual dependency reasoning. No ambient mutation.
 - [x] `deno task bump -- --since=<ref> --dry-run` renders a deterministic bump plan.
 - [x] `--since` and `--from` conflict clearly.
 - [x] zero needed bumps is a clean no-op.
-- [ ] workspace DSL/help covers the delta workflow.
+- [x] workspace DSL/help covers the delta workflow.
+
+## Final recorded reality
+
+This plan landed in the commit arc above. The durable result is:
+
+- `Workspace.Delta` owns changed-file and git-baseline delta truth;
+- `Workspace.Bump` remains source-agnostic and consumes precomputed delta roots through `from`;
+- `deno task bump -- --since=<ref>` derives deterministic bump roots from the git baseline;
+- already-bumped, needs-bump, new-package, and skipped file/package cases are visible;
+- `--since` and `--from` conflict clearly;
+- package help resources and the delta DSL chapter document the operator/agent workflow.
+
+Retirement note: this file is now historical plan material, not live repo doctrine.

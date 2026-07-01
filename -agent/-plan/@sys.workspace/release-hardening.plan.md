@@ -128,13 +128,19 @@ changes land only after the repo can prove generated state cleanly.
 
 ### Landed
 
-- `fix(workspace): fail closed on unsafe workflow generation values`
+- [x] `f3b6e6191` fix(workspace): fail closed on unsafe workflow generation values
   - Started Chunk 3 with the low-disruption fail-closed guard.
   - Generated workflow module names and paths now reject shell/YAML-sensitive values before render.
   - Covered JSR publish, build, and test workflow generation paths.
   - Added regression tests for unsafe package names and paths.
   - Current generated workflow output remains unchanged for existing workspace package names and
     paths.
+- [x] `e17f352a0` fix(ci): checkout LFS assets before JSR publish
+  - Began proving JSR checkout cleanliness before publish by ensuring LFS assets are present.
+- [x] `3b3402435` fix(ci): hydrate LFS assets before JSR publish
+  - Continued the LFS checkout/hydration path for JSR publish cleanliness.
+- [x] `a5fa75c4c` fix(ci): align LFS attributes before strict JSR publish
+  - Aligned LFS attributes with committed pointer files for strict JSR publish checks.
 
 ### In progress
 
@@ -142,15 +148,6 @@ changes land only after the repo can prove generated state cleanly.
   - This targets GitHub OIDC publish only.
   - Local dry-run helper surfaces may still use `--allow-dirty` for operator diagnostics.
   - If GitHub publish now fails dirty, treat that as a real generated-state/provenance signal.
-- Align LFS attributes with committed pointer files and prove JSR checkout cleanliness early.
-  - GitHub publish failed clean-worktree checks on deploy assets selected by broad LFS globs.
-  - Diagnosis: many `deploy/**/*.png|pdf|svg` files are normal Git blobs, not LFS pointers; enabling
-    LFS filters made the checkout appear dirty.
-  - The fix is attribute/index alignment, not restoring `--allow-dirty` or resetting dirty files
-    away.
-  - Narrow `.gitattributes` to actual LFS pointer families and keep normal deploy binary assets
-    non-LFS.
-  - Keep a generic clean-checkout preflight in JSR publish before Deno setup/tests/publish.
 
 ### Remaining first-pass candidates
 
