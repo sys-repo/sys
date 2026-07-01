@@ -1,6 +1,5 @@
 import { Is, Json, Obj, Process, Semver, type t } from './common.ts';
 import { GraphCli } from '../m.graph/u.cli/mod.ts';
-import { validateInfoJson } from '../m.graph/u.schema/mod.ts';
 
 type Invoke = typeof Process.invoke;
 type ResolvePackageDeps = { readonly invoke?: Invoke };
@@ -38,7 +37,7 @@ export async function resolvePackage(
   }
 
   try {
-    const info = validateInfoJson(Json.parse(output.text.stdout));
+    const info = packageInfoFromDenoInfo(Json.parse(output.text.stdout));
     return packageResolutionFromInfo(args.specifier, info);
   } catch (error) {
     return failed(args.specifier, parsed, {
@@ -101,6 +100,27 @@ export function classifyPackageResolutionFailure(
   }
 
   return { code: 'unknown', message: message || 'Deno package resolution failed' };
+}
+
+function packageInfoFromDenoInfo(value: unknown): {
+  readonly redirects?: Record<string, string>;
+  readonly packages?: Record<string, string>;
+} {
+  if (!Is.record(value)) return {};
+  return {
+    redirects: stringRecord(value.redirects),
+    packages: stringRecord(value.packages),
+  };
+}
+
+function stringRecord(value: unknown): Record<string, string> | undefined {
+  if (!Is.record(value)) return undefined;
+
+  const res: Record<string, string> = {};
+  for (const [key, item] of Obj.entries(value)) {
+    if (Is.str(item)) res[key] = item;
+  }
+  return Obj.keys(res).length ? res : undefined;
 }
 
 function failed(
