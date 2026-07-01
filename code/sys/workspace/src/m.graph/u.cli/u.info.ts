@@ -10,6 +10,6 @@ export function info(args: t.WorkspaceGraphCli.InfoArgs): t.WorkspaceGraphCli.In
   return {
     cmd: 'deno',
     cwd: args.cwd,
-    args: ['info', '--json', args.root],
+    args: ['info', '--json', ...(args.reload ? ['--reload'] : []), args.root],
   };
 }

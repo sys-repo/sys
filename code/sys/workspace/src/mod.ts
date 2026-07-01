@@ -5,6 +5,7 @@
 export { pkg } from './pkg.ts';
 export { WorkspaceDelta } from './m.delta/mod.ts';
 export { WorkspaceGraph } from './m.graph/mod.ts';
+export { WorkspaceResolve } from './m.resolve/mod.ts';
 export { WorkspaceRun } from './m.run/mod.ts';
 
 /** Type library (barrel file). */

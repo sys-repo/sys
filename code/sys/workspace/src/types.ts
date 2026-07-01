@@ -11,6 +11,7 @@ export type * from './m.help/t.ts';
 export type * from './m.info/t.ts';
 export type * from './m.pkg/t.ts';
 export type * from './m.prep/t.ts';
+export type * from './m.resolve/t.ts';
 export type * from './m.run/t.ts';
 export type * from './m.testing/t.ts';
 export type * from './m.upgrade/t.ts';

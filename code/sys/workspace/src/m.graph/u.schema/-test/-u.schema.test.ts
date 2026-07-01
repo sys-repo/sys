@@ -38,6 +38,18 @@ describe('Workspace.Graph: validateInfoJson', () => {
     });
   });
 
+  it('accepts package resolver facts used by workspace resolve normalization', () => {
+    const json = validateInfoJson({
+      packages: { '@sys/tools@*': '@sys/tools@0.0.457' },
+      redirects: { 'jsr:@sys/tools': 'https://jsr.io/@sys/tools/0.0.457/src/mod.ts' },
+    });
+
+    expect(json).to.eql({
+      packages: { '@sys/tools@*': '@sys/tools@0.0.457' },
+      redirects: { 'jsr:@sys/tools': 'https://jsr.io/@sys/tools/0.0.457/src/mod.ts' },
+    });
+  });
+
   it('fails loudly when the expected module list shape drifts', () => {
     const fn = () =>
       validateInfoJson({
