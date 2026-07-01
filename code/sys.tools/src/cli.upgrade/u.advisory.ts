@@ -146,10 +146,12 @@ const wrangle = {
   },
 
   status(version: t.UpgradeTool.VersionInfo): t.UpgradeTool.AdvisoryStatus {
-    const resolverUnavailable = version.is.resolverUnavailable ?? version.resolution?.ok === false;
-    const upgradeAvailable = !resolverUnavailable &&
+    const hasNewerRelease = Semver.Is.greaterThan(version.remote, version.local);
+    const resolverUnavailable = hasNewerRelease &&
+      (version.is.resolverUnavailable ?? version.resolution?.ok === false);
+    const upgradeAvailable = hasNewerRelease && !resolverUnavailable &&
       (version.is.upgradeAvailable ?? !version.is.latest);
-    const pending = !resolverUnavailable && (version.is.pending ?? false);
+    const pending = !upgradeAvailable && hasNewerRelease && (version.is.pending ?? false);
 
     if (resolverUnavailable) return 'resolver-unavailable';
     if (upgradeAvailable) return 'upgrade-available';

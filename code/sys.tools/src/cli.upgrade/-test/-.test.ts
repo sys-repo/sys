@@ -1,5 +1,5 @@
 import { Cli, describe, expect, Is, it, type t } from '../../-test.ts';
-import { D } from '../common.ts';
+import { D, pkg } from '../common.ts';
 import { UpgradeTools } from '../mod.ts';
 import { getVersionInfo } from '../u.ts';
 import { runUpgrade } from '../u.cmd.runUpgrade.ts';
@@ -12,6 +12,24 @@ describe(D.tool.name, () => {
 });
 
 describe('cli.upgrade.getVersionInfo', () => {
+  it('does not mark standdown when the running version is already latest', async () => {
+    const local = pkg.version as t.StringSemver;
+
+    const res = await getVersionInfo('/tmp' as t.StringDir, {
+      versions: async () => ({ data: { latest: local } } as never),
+      resolvePackage: async (args) => ({
+        ok: true,
+        specifier: args.specifier,
+        registry: 'jsr',
+        package: '@sys/tools' as t.StringPkgName,
+        resolved: '0.0.0' as t.StringSemver,
+      }),
+    });
+
+    expect(res.is.pending).to.eql(false);
+    expect(res.is.upgradeAvailable).to.eql(false);
+  });
+
   it('does not force Deno resolver reload during the default foreground check', async () => {
     const reloads: Array<boolean | undefined> = [];
 
@@ -94,11 +112,8 @@ describe('cli.upgrade.runUpgrade', () => {
       const plain = events.map((line) => Cli.stripAnsi(line));
       expect(plain[0]).to.include('start:checking latest @sys/tools version...');
       expect(plain[1]).to.eql('stop');
-      expect(
-        plain.some((line) =>
-          line.includes('Local version 0.0.318 of @sys/tools is the most recent release')
-        ),
-      ).to.eql(true);
+      expect(plain.some((line) => line.includes('@sys/tools is up to date'))).to.eql(true);
+      expect(plain.some((line) => line.includes('No upgrade needed.'))).to.eql(true);
       expect(prompted).to.eql(false);
       expect(refreshed).to.eql(false);
       expect(advisoryRemote).to.eql('0.0.318');
@@ -180,7 +195,7 @@ describe('cli.upgrade.runUpgrade', () => {
     });
   });
 
-  describe('actionable upgrade', () => {
+  describe('upgrade available', () => {
     it('checks latest first, then prompts, then runs the refresh spinner', async () => {
       const events: string[] = [];
       let advisoryRemote = '';
@@ -333,8 +348,8 @@ describe('cli.upgrade.runUpgrade', () => {
     });
   });
 
-  describe('pending resolver policy', () => {
-    it('reports pending when published latest is not currently actionable', async () => {
+  describe('upgrade standing down', () => {
+    it('reports standdown when latest cannot be used yet', async () => {
       const events: string[] = [];
       let refreshed = false;
       let prompted = false;
@@ -365,13 +380,14 @@ describe('cli.upgrade.runUpgrade', () => {
       const plain = events.map((line) => Cli.stripAnsi(line));
       expect(refreshed).to.eql(false);
       expect(prompted).to.eql(false);
-      expect(plain.some((line) => line.includes('Published version 0.0.319'))).to.eql(true);
-      expect(plain.some((line) => line.includes('Deno currently resolves @sys/tools to 0.0.318')))
+      expect(plain.some((line) => line.includes('@sys/tools upgrade standing down'))).to.eql(true);
+      expect(plain.some((line) => line.includes('held at  0.0.318'))).to.eql(true);
+      expect(plain.some((line) => line.includes('Deno is not allowing this upgrade yet.')))
         .to.eql(true);
       expect(plain.join('\n')).to.not.contain('upgrade now to 0.0.319');
     });
 
-    it('reports resolver-unavailable state without claiming Deno resolved the local version', async () => {
+    it('reports unavailable upgrade checks without claiming a held version', async () => {
       const events: string[] = [];
       let refreshed = false;
       let prompted = false;
@@ -409,8 +425,8 @@ describe('cli.upgrade.runUpgrade', () => {
       const output = plain.join('\n');
       expect(refreshed).to.eql(false);
       expect(prompted).to.eql(false);
-      expect(output).to.contain('Could not verify Deno-actionable @sys/tools version');
-      expect(output).to.contain('cache refresh was not run');
+      expect(output).to.contain('@sys/tools upgrade check unavailable');
+      expect(output).to.contain('Could not complete the upgrade check.');
       expect(output).to.not.contain('Deno currently resolves @sys/tools to 0.0.318');
     });
   });

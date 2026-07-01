@@ -1,4 +1,4 @@
-import { c, Cli, pkg, type t } from './common.ts';
+import { c, Cli, pkg, Semver, type t } from './common.ts';
 import { Fmt } from './u.fmt.ts';
 import { refreshCache } from './u.refreshCache.ts';
 import { writeUpgradeAdvisorySuccess } from './u.advisory.ts';
@@ -175,7 +175,7 @@ export async function runUpgrade(
       throw new Error(
         [
           `Failed to verify ${pkg.name} upgrade.`,
-          `Expected Deno to resolve ${target}; ${formatVerifiedState(verified)}.`,
+          `Expected upgrade version ${target}; ${formatVerifiedState(verified)}.`,
         ].join(' '),
       );
     }
@@ -215,21 +215,23 @@ function formatUpgradeSuccess(target: t.StringSemver) {
 }
 
 function versionState(version: t.UpgradeTool.VersionInfo): VersionState {
-  const resolverUnavailable = version.is.resolverUnavailable ?? version.resolution?.ok === false;
+  const hasNewerRelease = Semver.Is.greaterThan(version.remote, version.local);
+  const resolverUnavailable = hasNewerRelease &&
+    (version.is.resolverUnavailable ?? version.resolution?.ok === false);
   const actionable = resolverUnavailable ? undefined : version.actionable ?? version.latest;
-  const upgradeAvailable = !resolverUnavailable &&
+  const upgradeAvailable = hasNewerRelease && !resolverUnavailable &&
     (version.is.upgradeAvailable ?? !version.is.latest);
-  const pending = version.is.pending ?? false;
+  const pending = !upgradeAvailable && hasNewerRelease && (version.is.pending ?? false);
   return { actionable, upgradeAvailable, pending, resolverUnavailable };
 }
 
 function verifiedActionableTarget(state: VersionState): t.StringSemver {
   if (state.actionable) return state.actionable;
-  throw new Error(`Cannot run ${pkg.name} upgrade without a verified Deno-actionable target.`);
+  throw new Error(`Cannot run ${pkg.name} upgrade without a verified upgrade version.`);
 }
 
 function formatVerifiedState(state: VersionState) {
-  if (state.resolverUnavailable) return 'Deno resolver state is unavailable';
-  if (!state.actionable) return 'no Deno-actionable target was reported';
-  return `resolved ${state.actionable}`;
+  if (state.resolverUnavailable) return 'upgrade check is unavailable';
+  if (!state.actionable) return 'no upgrade version was reported';
+  return `upgrade check reported ${state.actionable}`;
 }

@@ -5,7 +5,7 @@ type ResolvePackage = t.WorkspaceResolve.Lib['resolvePackage'];
 type GetVersionInfoDeps = {
   readonly versions?: FetchPackageVersions;
   readonly resolvePackage?: ResolvePackage;
-  /** Force Deno to reload resolver/cache state before reporting the actionable package. */
+  /** Force Deno to reload resolver/cache state before reporting the held/upgrade version. */
   readonly resolverReload?: boolean;
 };
 
@@ -27,7 +27,9 @@ export async function getVersionInfo(
   const latest = actionable ?? local;
 
   const upgradeAvailable = actionable ? Semver.Is.greaterThan(actionable, local) : false;
-  const pending = actionable ? Semver.Is.greaterThan(remote, actionable) : false;
+  const pending = actionable
+    ? Semver.Is.greaterThan(remote, local) && Semver.Is.greaterThan(remote, actionable)
+    : false;
   const resolverUnavailable = !resolution.ok;
 
   return {
