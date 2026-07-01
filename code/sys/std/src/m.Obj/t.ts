@@ -7,12 +7,27 @@ import type * as TPathCurried from '../m.Obj.Path/t.curried.ts';
 import type * as TPathIs from '../m.Obj.Path/t.is.ts';
 import type * as TPathRel from '../m.Obj.Path/t.rel.ts';
 
-export type { ObjLens, ObjLensRef, ReadonlyObjLens, ReadonlyObjLensRef } from '../m.Obj.Lens/t.lens.ts';
+export type {
+  ObjLens,
+  ObjLensRef,
+  ReadonlyObjLens,
+  ReadonlyObjLensRef,
+} from '../m.Obj.Lens/t.lens.ts';
 export type { LensToObjectOptions, UnwrapLenses } from '../m.Obj.Lens/t.toObject.ts';
-export type { ObjPathCodec, ObjPathCodecKind, ObjPathDecodeOptions, ObjPathEncodeOptions } from '../m.Obj.Path/t.codec.ts';
+export type {
+  ObjPathCodec,
+  ObjPathCodecKind,
+  ObjPathDecodeOptions,
+  ObjPathEncodeOptions,
+} from '../m.Obj.Path/t.codec.ts';
 export type { CurriedPath } from '../m.Obj.Path/t.curried.ts';
 export type { ObjDiffOp, ObjDiffOptions, ObjDiffReport } from '../m.Obj.Path/t.diff.ts';
-export type { ObjPathFix, ObjPathSanitizeOptions, PathTryDecodeOptions, PathTryDecodeResult } from '../m.Obj.Path/t.ts';
+export type {
+  ObjPathFix,
+  ObjPathSanitizeOptions,
+  PathTryDecodeOptions,
+  PathTryDecodeResult,
+} from '../m.Obj.Path/t.ts';
 export type { PathRelation } from '../m.Obj.Path/t.rel.ts';
 
 type O = Record<string, unknown>;
@@ -71,7 +86,7 @@ export declare namespace Obj {
     readonly Lens: t.Obj.Lens.Lib;
 
     /** Instance equality check. */
-    eql: t.RLib['equals'];
+    eql: (a: unknown, b: unknown) => boolean;
 
     /**
      * Walks an object tree (recursive descent) implementing

@@ -1,6 +1,7 @@
-import { R, Testing, describe, expect, it } from '../../-test.ts';
+import { describe, expect, it, Testing } from '../../-test.ts';
+import { Arr } from '../../m.Arr/mod.ts';
 import { Num } from '../../m.Num/mod.ts';
-import { Random, cuid, slug } from '../mod.ts';
+import { cuid, Random, slug } from '../mod.ts';
 
 describe('Random', () => {
   it('API', () => {
@@ -17,7 +18,7 @@ describe('Random', () => {
   describe('Random.base36: string ← [0-9] and [A-Z]', () => {
     const test = (length: number, total = 100) => {
       const list = Array.from({ length: total }).map(() => Random.base36(length));
-      expect(R.uniq(list)).to.eql(list); // NB: no repeating random numbers.
+      expect(Arr.uniq(list)).to.eql(list); // NB: no repeating random numbers.
       list.forEach((value) => expect(value.length).to.eql(length));
     };
 
@@ -34,14 +35,7 @@ describe('Random', () => {
     it('ids are unique (1000)', async () => {
       await Testing.retry(3, () => {
         const ids = Array.from({ length: 1000 }).map(() => Random.slug());
-        expect(ids).to.eql(R.uniq(ids));
-      });
-    });
-
-    it('ids are unique (1000)', async () => {
-      await Testing.retry(3, () => {
-        const ids = Array.from({ length: 1000 }).map(() => Random.slug());
-        expect(ids).to.eql(R.uniq(ids));
+        expect(ids).to.eql(Arr.uniq(ids));
       });
     });
 
@@ -59,7 +53,7 @@ describe('Random', () => {
 
     it('ids are unique', () => {
       const ids = Array.from({ length: 1000 }).map(() => Random.cuid());
-      expect(ids).to.eql(R.uniq(ids));
+      expect(ids).to.eql(Arr.uniq(ids));
     });
   });
 });

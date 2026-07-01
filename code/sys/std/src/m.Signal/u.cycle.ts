@@ -1,4 +1,4 @@
-import { type t, Arr, R } from './common.ts';
+import { equals, type t } from './common.ts';
 
 /**
  * Cycle a union string signal through a list of possible values.
@@ -18,8 +18,16 @@ export const cycle: t.Signal.Lib['cycle'] = <T>(
  */
 const wrangle = {
   next<T>(signal: t.Signal<T | undefined>, values: T[]): T {
-    const u = Arr.uniq(values);
-    const index = u.findIndex((item) => R.equals(item, signal.value));
+    const u = unique(values);
+    const index = u.findIndex((item) => equals(item, signal.value));
     return u[(index + 1) % u.length];
   },
 } as const;
+
+function unique<T>(values: readonly T[]): T[] {
+  const res: T[] = [];
+  for (const value of values) {
+    if (!res.some((existing) => equals(existing, value))) res.push(value);
+  }
+  return res;
+}

@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 import { Lens } from '../m.Obj.Lens/mod.ts';
 import { Path } from '../m.Obj.Path/mod.ts';
 
-import { isEmptyRecord, isObject, isRecord, R } from './common.ts';
+import { equals, isEmptyRecord, isObject, isRecord } from './common.ts';
 import { asGetter } from './u.asGetter.ts';
 import { clone } from './u.clone.ts';
 import { extend } from './u.extend.ts';
@@ -29,7 +29,7 @@ export const Obj: t.Obj.Lib = {
   clone,
   extend,
   hash,
-  eql: R.equals,
+  eql: equals,
   asGetter,
 
   isObject,

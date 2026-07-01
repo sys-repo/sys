@@ -1,5 +1,6 @@
 import type { t } from './common.ts';
-import { R, isRecord } from './common.ts';
+import { isRecord } from './common.ts';
+import { clone } from './u.clone.ts';
 import { walk } from './u.walk.ts';
 
 /**
@@ -12,8 +13,9 @@ export const truncateStrings: t.Obj.Lib['truncateStrings'] = (
   if (obj == null) return undefined;
 
   // Options:
-  const opt: t.ObjTruncateStringsOptions =
-    typeof options === 'number' ? { maxLength: options } : (options ?? {});
+  const opt: t.ObjTruncateStringsOptions = typeof options === 'number'
+    ? { maxLength: options }
+    : (options ?? {});
   const { ellipsis = true, mutate = false, maxDepth } = opt;
   const max = opt.maxLength ?? 35;
 
@@ -24,7 +26,7 @@ export const truncateStrings: t.Obj.Lib['truncateStrings'] = (
   const depthLimit = typeof maxDepth === 'number' && maxDepth >= 0 ? maxDepth : undefined;
 
   // Choose subject (clone unless mutate):
-  const subject: unknown = mutate ? obj : R.clone(obj as object);
+  const subject: unknown = mutate ? obj : clone(obj as object);
 
   // Adjust root (shallow):
   if (Array.isArray(subject)) adjustArray(subject, max, ellipsis);

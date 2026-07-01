@@ -1,4 +1,5 @@
 import type { RLib } from './t.ts';
+import { equals } from './u.equals.ts';
 
 /**
  * Small functional utility subset kept behind the legacy `R` facade.
@@ -74,110 +75,6 @@ function cloneArrayBufferView(value: ArrayBufferView): ArrayBufferView {
 
 function clamp(min: number, max: number, value: number) {
   return Math.min(max, Math.max(min, value));
-}
-
-function equals(a: unknown, b: unknown): boolean {
-  return deepEquals(a, b, new WeakMap<object, WeakSet<object>>());
-}
-
-function deepEquals(
-  a: unknown,
-  b: unknown,
-  seen: WeakMap<object, WeakSet<object>>,
-): boolean {
-  if (Object.is(a, b)) return true;
-  if (a === null || b === null) return false;
-  if (typeof a !== 'object' || typeof b !== 'object') return false;
-
-  const prior = seen.get(a);
-  if (prior?.has(b)) return true;
-  if (prior) prior.add(b);
-  else seen.set(a, new WeakSet([b]));
-
-  if (a instanceof Date || b instanceof Date) {
-    return a instanceof Date && b instanceof Date && a.getTime() === b.getTime();
-  }
-
-  if (a instanceof RegExp || b instanceof RegExp) {
-    return a instanceof RegExp &&
-      b instanceof RegExp &&
-      a.source === b.source &&
-      a.flags === b.flags;
-  }
-
-  if (ArrayBuffer.isView(a) || ArrayBuffer.isView(b)) return equalArrayBufferViews(a, b);
-  if (a instanceof ArrayBuffer || b instanceof ArrayBuffer) return equalArrayBuffers(a, b);
-
-  if (Array.isArray(a) || Array.isArray(b)) {
-    if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) return false;
-    return a.every((item, index) => deepEquals(item, b[index], seen));
-  }
-
-  if (a instanceof Map || b instanceof Map) return equalMaps(a, b, seen);
-  if (a instanceof Set || b instanceof Set) return equalSets(a, b, seen);
-
-  const aKeys = Reflect.ownKeys(a);
-  const bKeys = Reflect.ownKeys(b);
-  if (aKeys.length !== bKeys.length) return false;
-  return aKeys.every((key) =>
-    bKeys.includes(key) &&
-    deepEquals(
-      (a as Record<PropertyKey, unknown>)[key],
-      (b as Record<PropertyKey, unknown>)[key],
-      seen,
-    )
-  );
-}
-
-function equalArrayBufferViews(a: unknown, b: unknown) {
-  if (!ArrayBuffer.isView(a) || !ArrayBuffer.isView(b)) return false;
-  if (a.constructor !== b.constructor || a.byteLength !== b.byteLength) return false;
-  return equalBytes(
-    new Uint8Array(a.buffer, a.byteOffset, a.byteLength),
-    new Uint8Array(b.buffer, b.byteOffset, b.byteLength),
-  );
-}
-
-function equalArrayBuffers(a: unknown, b: unknown) {
-  if (!(a instanceof ArrayBuffer) || !(b instanceof ArrayBuffer)) return false;
-  return equalBytes(new Uint8Array(a), new Uint8Array(b));
-}
-
-function equalBytes(a: Uint8Array, b: Uint8Array) {
-  if (a.byteLength !== b.byteLength) return false;
-  return a.every((byte, index) => byte === b[index]);
-}
-
-function equalMaps(
-  a: unknown,
-  b: unknown,
-  seen: WeakMap<object, WeakSet<object>>,
-) {
-  if (!(a instanceof Map) || !(b instanceof Map) || a.size !== b.size) return false;
-  const remaining = [...b.entries()];
-  for (const [aKey, aValue] of a.entries()) {
-    const index = remaining.findIndex(([bKey, bValue]) =>
-      deepEquals(aKey, bKey, seen) && deepEquals(aValue, bValue, seen)
-    );
-    if (index < 0) return false;
-    remaining.splice(index, 1);
-  }
-  return true;
-}
-
-function equalSets(
-  a: unknown,
-  b: unknown,
-  seen: WeakMap<object, WeakSet<object>>,
-) {
-  if (!(a instanceof Set) || !(b instanceof Set) || a.size !== b.size) return false;
-  const remaining = [...b.values()];
-  for (const aValue of a.values()) {
-    const index = remaining.findIndex((bValue) => deepEquals(aValue, bValue, seen));
-    if (index < 0) return false;
-    remaining.splice(index, 1);
-  }
-  return true;
 }
 
 function mergeDeepRight<L extends object, RR extends object>(left: L, right: RR): L & RR {
