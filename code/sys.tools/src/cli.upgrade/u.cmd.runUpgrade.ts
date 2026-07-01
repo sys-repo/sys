@@ -18,7 +18,7 @@ type Prompt = (args: {
   hideDefault?: boolean;
 }) => Promise<string>;
 type GetVersionInfo = (cwd: t.StringDir) => Promise<t.UpgradeTool.VersionInfo>;
-type WriteAdvisorySuccess = (remote: t.StringSemver) => Promise<void>;
+type WriteAdvisorySuccess = (version: t.UpgradeTool.VersionInfo) => Promise<void>;
 
 type RunUpgradeSource = NonNullable<t.UpgradeTool.CliContext['origin']>;
 type RunUpgradeResult = t.UpgradeTool.CliResult;
@@ -76,7 +76,7 @@ export async function runUpgrade(
     })();
 
     try {
-      await deps.writeAdvisorySuccess(version.remote);
+      await deps.writeAdvisorySuccess(version);
     } catch {
       // Advisory persistence must remain fail-quiet.
     }

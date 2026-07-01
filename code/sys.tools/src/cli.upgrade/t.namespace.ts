@@ -15,15 +15,29 @@ export namespace UpgradeTool {
   export type CliContext = { readonly origin?: 'argv' | 'root-menu' };
   export type CliResult = void | { readonly kind: 'back' };
 
+  /** Cached advisory status persisted between root CLI startups. */
+  export type AdvisoryStatus = 'none' | 'upgrade-available' | 'pending' | 'resolver-unavailable';
+
   /** Cached advisory record persisted between root CLI startups. */
   export type AdvisoryRecord =
     | {
+      readonly schemaVersion: 2;
       readonly ok: true;
       readonly checkedAt: t.UnixTimestamp;
       readonly package: t.StringPkgName;
-      readonly remote: t.StringSemver;
+      /** Version of the @sys/tools package that produced this advisory fact. */
+      readonly local: t.StringSemver;
+      /** Latest version published by JSR registry metadata. */
+      readonly published: t.StringSemver;
+      /** Version Deno resolved under active config, lock, cache, and policy. */
+      readonly actionable?: t.StringSemver;
+      /** Root advisory display state derived from Deno-actionable resolver truth. */
+      readonly status: AdvisoryStatus;
+      /** Resolver failure reason when status is resolver-unavailable. */
+      readonly reason?: t.WorkspaceResolve.PackageResolutionReason;
     }
     | {
+      readonly schemaVersion: 2;
       readonly ok: false;
       readonly checkedAt: t.UnixTimestamp;
       readonly package: t.StringPkgName;

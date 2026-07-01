@@ -7,7 +7,7 @@ import { getVersionInfo } from './u.ts';
 import { writeUpgradeAdvisoryFailure, writeUpgradeAdvisorySuccess } from './u.advisory.ts';
 
 type GetVersionInfo = () => Promise<t.UpgradeTool.VersionInfo>;
-type WriteSuccess = (remote: t.StringSemver) => Promise<void>;
+type WriteSuccess = (version: t.UpgradeTool.VersionInfo) => Promise<void>;
 type WriteFailure = (error: unknown) => Promise<void>;
 
 export async function runUpgradeAdvisoryProbe(
@@ -24,7 +24,7 @@ export async function runUpgradeAdvisoryProbe(
   try {
     const version = await getInfo();
     try {
-      await writeSuccess(version.remote);
+      await writeSuccess(version);
     } catch {
       // Advisory persistence must not suppress a successful live probe.
     }

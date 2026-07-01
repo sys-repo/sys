@@ -42,8 +42,8 @@ describe('cli.upgrade.runUpgrade', () => {
         info: (...data) => {
           events.push(`info:${data.map(String).join(' ')}`);
         },
-        writeAdvisorySuccess: async (remote) => {
-          advisoryRemote = remote;
+        writeAdvisorySuccess: async (version) => {
+          advisoryRemote = version.remote;
         },
       });
 
@@ -162,8 +162,8 @@ describe('cli.upgrade.runUpgrade', () => {
         info(...data) {
           events.push(`info:${data.map(String).join(' ')}`);
         },
-        async writeAdvisorySuccess(remote) {
-          advisoryRemote = remote;
+        async writeAdvisorySuccess(version) {
+          advisoryRemote = version.remote;
         },
       });
 

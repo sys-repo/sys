@@ -25,12 +25,16 @@ describe('cli.upgrade advisory', () => {
     expect(path).to.eql(undefined);
   });
 
-  it('suppresses the pre-menu advisory when cached remote is not newer', () => {
+  it('suppresses the pre-menu advisory when cached actionable version is not newer', () => {
     const text = toRootUpgradeAdvisoryPrelude({
+      schemaVersion: 2,
       package: '@sys/tools',
       checkedAt: 1,
       ok: true,
-      remote: '0.0.1',
+      local: '0.0.1',
+      published: '0.0.1',
+      actionable: '0.0.1',
+      status: 'none',
     });
 
     expect(text).to.eql(undefined);
@@ -51,6 +55,21 @@ describe('cli.upgrade advisory', () => {
     }
   });
 
+  it('ignores old remote-only advisory records fail-quiet', async () => {
+    const tmp = await Fs.makeTempDir({ prefix: 'sys.tools.upgrade.advisory.v1.' });
+    const path = `${tmp.absolute}/advisory.json`;
+
+    try {
+      await Fs.write(path, '{"package":"@sys/tools","checkedAt":1,"ok":true,"remote":"9.9.9"}');
+      const res = await readUpgradeAdvisoryState({ path });
+      expect(res.record).to.eql(undefined);
+      expect(res.hasUpgrade).to.eql(false);
+      expect(res.prelude).to.eql(undefined);
+    } finally {
+      await Fs.remove(tmp.absolute);
+    }
+  });
+
   it('debug remote env forces a pre-menu advisory block without persistence', async () => {
     const key = 'SYS_TOOLS_DEBUG_UPGRADE_ADVISORY_REMOTE';
     const before = Deno.env.get(key);
@@ -61,7 +80,11 @@ describe('cli.upgrade advisory', () => {
       expect(res.path).to.eql(undefined);
       expect(res.hasUpgrade).to.eql(true);
       expect(res.record?.ok).to.eql(true);
-      if (res.record?.ok) expect(res.record.remote).to.eql('9.9.9');
+      if (res.record?.ok) {
+        expect(res.record.published).to.eql('9.9.9');
+        expect(res.record.actionable).to.eql('9.9.9');
+        expect(res.record.status).to.eql('upgrade-available');
+      }
       expect(Cli.stripAnsi(res.prelude ?? '')).to.contain('sys upgrade --latest');
       expect(Cli.stripAnsi(res.prelude ?? '')).to.not.contain('Package');
     } finally {
@@ -69,13 +92,17 @@ describe('cli.upgrade advisory', () => {
     }
   });
 
-  it('derives a narrow pre-menu advisory block only when cached remote is newer', () => {
+  it('derives a narrow pre-menu advisory block only when cached actionable version is newer', () => {
     const text = Cli.stripAnsi(
       toRootUpgradeAdvisoryPrelude({
+        schemaVersion: 2,
         package: '@sys/tools',
         checkedAt: 1,
         ok: true,
-        remote: '9.9.9',
+        local: '0.0.1',
+        published: '9.9.9',
+        actionable: '9.9.9',
+        status: 'upgrade-available',
       }) ?? '',
     );
     const lines = text.split('\n').filter(Boolean);
@@ -90,10 +117,14 @@ describe('cli.upgrade advisory', () => {
 
   it('styles the pre-menu advisory action with green command emphasis', () => {
     const text = toRootUpgradeAdvisoryPrelude({
+      schemaVersion: 2,
       package: '@sys/tools',
       checkedAt: 1,
       ok: true,
-      remote: '9.9.9',
+      local: '0.0.1',
+      published: '9.9.9',
+      actionable: '9.9.9',
+      status: 'upgrade-available',
     }) ?? '';
     const lines = text.split('\n').filter(Boolean);
     const message = lines[1] ?? '';
@@ -106,22 +137,69 @@ describe('cli.upgrade advisory', () => {
     ).to.eql(true);
   });
 
-  it('writes and reads success advisory records', async () => {
+  it('writes and reads actionable success advisory records', async () => {
     const tmp = await Fs.makeTempDir({ prefix: 'sys.tools.upgrade.advisory.success.' });
     const path = `${tmp.absolute}/advisory.json`;
 
     try {
-      await writeUpgradeAdvisorySuccess('9.9.9', { path, now: fixture.now(12_345) });
+      await writeUpgradeAdvisorySuccess(
+        {
+          local: '0.0.1',
+          remote: '9.9.9',
+          latest: '9.9.9',
+          actionable: '9.9.9',
+          is: { latest: false, upgradeAvailable: true, pending: false },
+        },
+        { path, now: fixture.now(12_345) },
+      );
       const res = await readUpgradeAdvisoryState({ path });
 
       expect(res.record).to.eql({
+        schemaVersion: 2,
         package: '@sys/tools',
         checkedAt: 12_345,
         ok: true,
-        remote: '9.9.9',
+        local: '0.0.1',
+        published: '9.9.9',
+        actionable: '9.9.9',
+        status: 'upgrade-available',
       });
       expect(res.hasUpgrade).to.eql(true);
       expect(Cli.stripAnsi(res.prelude ?? '')).to.contain('sys upgrade --latest');
+    } finally {
+      await Fs.remove(tmp.absolute);
+    }
+  });
+
+  it('writes pending advisory records without a root CTA', async () => {
+    const tmp = await Fs.makeTempDir({ prefix: 'sys.tools.upgrade.advisory.pending.' });
+    const path = `${tmp.absolute}/advisory.json`;
+
+    try {
+      await writeUpgradeAdvisorySuccess(
+        {
+          local: '0.0.318',
+          remote: '9.9.9',
+          latest: '0.0.318',
+          actionable: '0.0.318',
+          is: { latest: true, upgradeAvailable: false, pending: true },
+        },
+        { path, now: fixture.now(12_346) },
+      );
+      const res = await readUpgradeAdvisoryState({ path });
+
+      expect(res.record).to.eql({
+        schemaVersion: 2,
+        package: '@sys/tools',
+        checkedAt: 12_346,
+        ok: true,
+        local: '0.0.318',
+        published: '9.9.9',
+        actionable: '0.0.318',
+        status: 'pending',
+      });
+      expect(res.hasUpgrade).to.eql(false);
+      expect(res.prelude).to.eql(undefined);
     } finally {
       await Fs.remove(tmp.absolute);
     }
@@ -136,6 +214,7 @@ describe('cli.upgrade advisory', () => {
       const res = await readUpgradeAdvisoryState({ path });
 
       expect(res.record).to.eql({
+        schemaVersion: 2,
         package: '@sys/tools',
         checkedAt: 55,
         ok: false,
@@ -149,16 +228,17 @@ describe('cli.upgrade advisory', () => {
   });
 
   it('probe writes success advisory state from fetched version info', async () => {
-    let written: string | undefined;
+    let written: t.UpgradeTool.VersionInfo | undefined;
     const res = await runUpgradeAdvisoryProbe({
       getVersionInfo: async () => ({
         local: '0.0.1',
         remote: '0.0.2',
         latest: '0.0.2',
-        is: { latest: false },
+        actionable: '0.0.2',
+        is: { latest: false, upgradeAvailable: true, pending: false },
       }),
-      writeSuccess: async (remote) => {
-        written = remote;
+      writeSuccess: async (version) => {
+        written = version;
       },
       writeFailure: async () => {
         throw new Error('should not write failure');
@@ -166,7 +246,39 @@ describe('cli.upgrade advisory', () => {
     });
 
     expect(res).to.eql({ ok: true, remote: '0.0.2' });
-    expect(written).to.eql('0.0.2');
+    expect(written?.remote).to.eql('0.0.2');
+    expect(written?.actionable).to.eql('0.0.2');
+  });
+
+  it('probe writes pending advisory state without a root CTA', async () => {
+    const tmp = await Fs.makeTempDir({ prefix: 'sys.tools.upgrade.advisory.probe.pending.' });
+    const path = `${tmp.absolute}/advisory.json`;
+
+    try {
+      const res = await runUpgradeAdvisoryProbe({
+        getVersionInfo: async () => ({
+          local: '0.0.318',
+          remote: '0.0.319',
+          latest: '0.0.318',
+          actionable: '0.0.318',
+          is: { latest: true, upgradeAvailable: false, pending: true },
+        }),
+        writeSuccess: async (version) => {
+          await writeUpgradeAdvisorySuccess(version, { path, now: fixture.now(22) });
+        },
+        writeFailure: async () => {
+          throw new Error('should not write failure');
+        },
+      });
+      const state = await readUpgradeAdvisoryState({ path });
+
+      expect(res).to.eql({ ok: true, remote: '0.0.319' });
+      expect(state.record?.ok && state.record.status).to.eql('pending');
+      expect(state.hasUpgrade).to.eql(false);
+      expect(state.prelude).to.eql(undefined);
+    } finally {
+      await Fs.remove(tmp.absolute);
+    }
   });
 
   it('probe keeps live success when advisory persistence fails', async () => {
@@ -175,7 +287,8 @@ describe('cli.upgrade advisory', () => {
         local: '0.0.1',
         remote: '0.0.2',
         latest: '0.0.2',
-        is: { latest: false },
+        actionable: '0.0.2',
+        is: { latest: false, upgradeAvailable: true, pending: false },
       }),
       writeSuccess: async () => {
         throw new Error('cache unavailable');
