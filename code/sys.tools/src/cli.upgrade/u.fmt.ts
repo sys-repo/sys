@@ -58,9 +58,19 @@ export const Fmt = {
     const base = await Cli.Fmt.Help.build(Fmt.helpInput(Fmt.invoke('upgrade'), {
       note: `@sys/tools/${c.white('upgrade')}`,
     }));
+    const upgradeAvailable = version.is.upgradeAvailable ?? !version.is.latest;
+    const resolverUnavailable = version.is.resolverUnavailable ?? version.resolution?.ok === false;
     str.line(base).line(Fmt.versionInfoTable(version)).line();
-    if (!version.is.latest) str.line(Fmt.shellcommand()).line();
-    if (version.is.latest) str.line(Fmt.localVersionIsMostRecent(version)).line();
+    if (upgradeAvailable) str.line(Fmt.shellcommand()).line();
+    if (!upgradeAvailable && resolverUnavailable) {
+      str.line(Fmt.upgradeResolverUnavailable(version)).line();
+    }
+    if (!upgradeAvailable && !resolverUnavailable && version.is.pending) {
+      str.line(Fmt.upgradePending(version)).line();
+    }
+    if (!upgradeAvailable && !resolverUnavailable && !version.is.pending) {
+      str.line(Fmt.localVersionIsMostRecent(version)).line();
+    }
     return String(str);
   },
 
@@ -87,21 +97,29 @@ export const Fmt = {
   },
 
   versionInfoTable(version: t.UpgradeTool.VersionInfo) {
+    const actionable = version.actionable;
+    const upgradeAvailable = version.is.upgradeAvailable ?? !version.is.latest;
+    const resolverUnavailable = version.is.resolverUnavailable ?? version.resolution?.ok === false;
+    const upToDate = !upgradeAvailable && !version.is.pending && !resolverUnavailable;
     const formatVersion = (v: t.StringSemver | undefined, kind: 'local' | 'latest') => {
       if (!v) return c.gray('-');
-      if (version.is.latest) return c.green(`${v} ✔`);
+      if (upToDate) return c.green(`${v} ✔`);
       return kind === 'local' ? c.gray(v) : c.white(v);
     };
     const table = Cli.table([]);
 
-    const upToDate = version.is.latest;
     const remote = formatVersion(version.remote, 'latest');
     const local = formatVersion(version.local, 'local');
-    const upgradeReq = upToDate ? '' : c.gray('← (upgrade available)');
+    const upgradeReq = upgradeAvailable ? c.gray('← (upgrade available)') : '';
 
     table.push([c.gray('Package'), pkg.name]);
     table.push([c.gray('  local'), `${local}     ${upgradeReq}`.trim()]);
     table.push([c.gray(`  latest`), remote]);
+    if (resolverUnavailable) {
+      table.push([c.gray(`  actionable`), c.gray('unverified')]);
+    } else if (actionable && actionable !== version.remote) {
+      table.push([c.gray(`  actionable`), c.white(actionable)]);
+    }
     return Str.trimEdgeNewlines(String(table));
   },
 
@@ -110,6 +128,26 @@ export const Fmt = {
     str
       .line(`Local version ${g(version.local)} of ${w(pkg.name)} is the most recent release`)
       .line(c.italic(c.dim(`No upgrade required`)));
+    return c.gray(String(str));
+  },
+
+  upgradePending(version: t.UpgradeTool.VersionInfo) {
+    const actionable = version.actionable ?? version.latest;
+    const str = Str.builder();
+    str
+      .line(`Published version ${w(version.remote)} of ${w(pkg.name)} is not currently actionable`)
+      .line(`Deno currently resolves ${w(pkg.name)} to ${g(actionable)}`)
+      .line(c.italic(c.dim(`Upgrade pending under Deno resolver policy`)));
+    return c.gray(String(str));
+  },
+
+  upgradeResolverUnavailable(version: t.UpgradeTool.VersionInfo) {
+    const reason = version.resolution?.ok === false ? version.resolution.reason.code : 'unknown';
+    const str = Str.builder();
+    str
+      .line(`Could not verify Deno-actionable ${w(pkg.name)} version`)
+      .line(`Published latest is ${w(version.remote)}; cache refresh was not run`)
+      .line(c.italic(c.dim(`Resolver state unavailable: ${reason}`)));
     return c.gray(String(str));
   },
 

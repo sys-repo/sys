@@ -6,11 +6,15 @@ import { type t } from './common.ts';
 import { getVersionInfo } from './u.ts';
 import { writeUpgradeAdvisoryFailure, writeUpgradeAdvisorySuccess } from './u.advisory.ts';
 
+type GetVersionInfo = () => Promise<t.UpgradeTool.VersionInfo>;
+type WriteSuccess = (remote: t.StringSemver) => Promise<void>;
+type WriteFailure = (error: unknown) => Promise<void>;
+
 export async function runUpgradeAdvisoryProbe(
   deps: {
-    readonly getVersionInfo?: typeof getVersionInfo;
-    readonly writeSuccess?: typeof writeUpgradeAdvisorySuccess;
-    readonly writeFailure?: typeof writeUpgradeAdvisoryFailure;
+    readonly getVersionInfo?: GetVersionInfo;
+    readonly writeSuccess?: WriteSuccess;
+    readonly writeFailure?: WriteFailure;
   } = {},
 ): Promise<{ readonly ok: true; readonly remote: t.StringSemver } | { readonly ok: false }> {
   const getInfo = deps.getVersionInfo ?? getVersionInfo;

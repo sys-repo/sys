@@ -4,29 +4,41 @@ import { refreshCache } from './u.refreshCache.ts';
 import { getVersionInfo } from './u.ts';
 import { writeUpgradeAdvisorySuccess } from './u.advisory.ts';
 
-type Spinner = {
-  text: string;
-  start(text?: string): Spinner;
-  stop(): Spinner;
-  succeed(text?: string): Spinner;
-  fail(text?: string): Spinner;
-};
+type Spinner = t.CliSpinner.Instance;
 
 type RefreshResult = {
   readonly success: boolean;
   toString(): string;
 };
 
+type PromptOption = { name: string; value: string };
+type Prompt = (args: {
+  message: string;
+  options: PromptOption[];
+  hideDefault?: boolean;
+}) => Promise<string>;
+type GetVersionInfo = (cwd: t.StringDir) => Promise<t.UpgradeTool.VersionInfo>;
+type WriteAdvisorySuccess = (remote: t.StringSemver) => Promise<void>;
+
 type RunUpgradeSource = NonNullable<t.UpgradeTool.CliContext['origin']>;
 type RunUpgradeResult = t.UpgradeTool.CliResult;
+type VersionState = {
+  readonly actionable?: t.StringSemver;
+  readonly upgradeAvailable: boolean;
+  readonly pending: boolean;
+  readonly resolverUnavailable: boolean;
+};
 
 type RunUpgradeDeps = {
-  readonly getVersionInfo: typeof getVersionInfo;
-  readonly refreshCache: (cwd: t.StringDir, opts?: { silent?: boolean }) => Promise<RefreshResult>;
-  readonly prompt: typeof Cli.Input.Select.prompt<string>;
+  readonly getVersionInfo: GetVersionInfo;
+  readonly refreshCache: (
+    cwd: t.StringDir,
+    opts?: { readonly silent?: boolean },
+  ) => Promise<RefreshResult>;
+  readonly prompt: Prompt;
   readonly spinner: (text?: string) => Spinner;
   readonly info: (...data: unknown[]) => void;
-  readonly writeAdvisorySuccess: typeof writeUpgradeAdvisorySuccess;
+  readonly writeAdvisorySuccess: WriteAdvisorySuccess;
 };
 
 /**
@@ -57,7 +69,7 @@ export async function runUpgrade(
     );
     const version = await (async () => {
       try {
-        return await deps.getVersionInfo();
+        return await deps.getVersionInfo(cwd);
       } finally {
         versionSpinner.stop();
       }
@@ -69,12 +81,20 @@ export async function runUpgrade(
       // Advisory persistence must remain fail-quiet.
     }
 
+    const state = versionState(version);
+
     deps.info();
     deps.info(Fmt.versionInfoTable(version));
     deps.info();
 
-    if (version.is.latest) {
-      deps.info(Fmt.localVersionIsMostRecent(version));
+    if (!state.upgradeAvailable) {
+      deps.info(
+        state.resolverUnavailable
+          ? Fmt.upgradeResolverUnavailable(version)
+          : state.pending
+          ? Fmt.upgradePending(version)
+          : Fmt.localVersionIsMostRecent(version),
+      );
       deps.info();
 
       if (interactive && source === 'root-menu') {
@@ -99,9 +119,10 @@ export async function runUpgrade(
     if (interactive) {
       const fromRootMenu = source === 'root-menu';
       const cancelValue = fromRootMenu ? BACK : EXIT;
+      const target = verifiedActionableTarget(state);
       const upgradeName = formatUpgradeOption({
         prefix: fromRootMenu ? '  ' : ' - ',
-        latest: version.latest,
+        target,
       });
       const cancelName = fromRootMenu ? Fmt.back() : c.dim(c.gray(`(exit)`));
 
@@ -124,7 +145,8 @@ export async function runUpgrade(
       }
     }
 
-    const msg = formatUpgradeSpinnerText(version);
+    const target = verifiedActionableTarget(state);
+    const msg = formatUpgradeSpinnerText(version, target);
 
     /** Run process: */
     const spinner = deps.spinner();
@@ -143,7 +165,17 @@ export async function runUpgrade(
       throw new Error(msg);
     }
 
-    deps.info(formatUpgradeSuccess(version.latest));
+    const verified = versionState(await deps.getVersionInfo(cwd));
+    if (verified.actionable !== target) {
+      throw new Error(
+        [
+          `Failed to verify ${pkg.name} upgrade.`,
+          `Expected Deno to resolve ${target}; ${formatVerifiedState(verified)}.`,
+        ].join(' '),
+      );
+    }
+
+    deps.info(formatUpgradeSuccess(target));
     deps.info();
     return;
   }
@@ -153,26 +185,46 @@ export async function runUpgrade(
  * Helpers:
  */
 
-function formatUpgradeOption(args: { prefix: string; latest: t.StringSemver }) {
-  const { prefix, latest } = args;
-  return `${prefix}${c.green('upgrade now to')} ${c.white(latest)}`;
+function formatUpgradeOption(args: { prefix: string; target: t.StringSemver }) {
+  const { prefix, target } = args;
+  return `${prefix}${c.green('upgrade now to')} ${c.white(target)}`;
 }
 
-function formatUpgradeSpinnerText(version: t.UpgradeTool.VersionInfo) {
+function formatUpgradeSpinnerText(version: t.UpgradeTool.VersionInfo, target: t.StringSemver) {
   return [
     c.gray(c.italic('upgrading ')),
     c.white(pkg.name),
     c.gray(c.italic(` from ${version.local} to `)),
-    c.white(version.latest),
+    c.white(target),
     c.gray(c.italic('...')),
   ].join('');
 }
 
-function formatUpgradeSuccess(latest: t.StringSemver) {
+function formatUpgradeSuccess(target: t.StringSemver) {
   return [
     c.gray('Upgraded '),
     c.white(pkg.name),
-    c.gray(' to latest '),
-    c.green(`${latest} ✔`),
+    c.gray(' to '),
+    c.green(`${target} ✔`),
   ].join('');
+}
+
+function versionState(version: t.UpgradeTool.VersionInfo): VersionState {
+  const resolverUnavailable = version.is.resolverUnavailable ?? version.resolution?.ok === false;
+  const actionable = resolverUnavailable ? undefined : version.actionable ?? version.latest;
+  const upgradeAvailable = !resolverUnavailable &&
+    (version.is.upgradeAvailable ?? !version.is.latest);
+  const pending = version.is.pending ?? false;
+  return { actionable, upgradeAvailable, pending, resolverUnavailable };
+}
+
+function verifiedActionableTarget(state: VersionState): t.StringSemver {
+  if (state.actionable) return state.actionable;
+  throw new Error(`Cannot run ${pkg.name} upgrade without a verified Deno-actionable target.`);
+}
+
+function formatVerifiedState(state: VersionState) {
+  if (state.resolverUnavailable) return 'Deno resolver state is unavailable';
+  if (!state.actionable) return 'no Deno-actionable target was reported';
+  return `resolved ${state.actionable}`;
 }

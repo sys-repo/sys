@@ -1,7 +1,7 @@
 import { Path, pkg, type t } from './common.ts';
 import { YamlConfig } from '@sys/yaml/cli';
 
-type EnvLike = Pick<typeof Deno.env, 'get'>;
+type EnvLike = { readonly get: (key: string) => string | undefined };
 
 const UPGRADE_ADVISORY_FILE = 'advisory.json' as const;
 

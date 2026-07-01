@@ -15,6 +15,7 @@ import { Obj } from '@sys/std/obj';
 import { Semver } from '@sys/std/semver';
 import { Str } from '@sys/std/str';
 import { Time } from '@sys/std/time';
+import { WorkspaceResolve } from '@sys/workspace/resolve';
 
 export type * as t from './common.t.ts';
 export {
@@ -30,12 +31,13 @@ export {
   Num,
   Obj,
   Path,
-  pkg,
   Pkg,
+  pkg,
   Process,
   Semver,
   Str,
   Time,
+  WorkspaceResolve,
 };
 
 /**

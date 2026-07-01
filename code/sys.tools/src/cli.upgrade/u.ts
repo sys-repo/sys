@@ -1,16 +1,35 @@
-import { Jsr, pkg, Semver, type t } from './common.ts';
+import { Fs, Jsr, pkg, Semver, type t, WorkspaceResolve } from './common.ts';
 
-export async function getVersionInfo(): Promise<t.UpgradeTool.VersionInfo> {
-  const local = pkg.version;
-  const remote = (await Jsr.Fetch.Pkg.versions(pkg.name)).data?.latest ?? local;
-  const latest = Semver.latest(local, remote) ?? remote;
-  const isLatest = latest === local;
+type FetchPackageVersions = t.Registry.Jsr.Fetch.Pkg.Lib['versions'];
+type ResolvePackage = t.WorkspaceResolve.Lib['resolvePackage'];
+type GetVersionInfoDeps = {
+  readonly versions?: FetchPackageVersions;
+  readonly resolvePackage?: ResolvePackage;
+};
 
-  const version: t.UpgradeTool.VersionInfo = {
+export async function getVersionInfo(
+  cwd: t.StringDir = Fs.cwd('terminal'),
+  deps: GetVersionInfoDeps = {},
+): Promise<t.UpgradeTool.VersionInfo> {
+  const local = pkg.version as t.StringSemver;
+  const versions = deps.versions ?? Jsr.Fetch.Pkg.versions;
+  const resolvePackage = deps.resolvePackage ?? WorkspaceResolve.resolvePackage;
+
+  const remote = (await versions(pkg.name)).data?.latest ?? local;
+  const resolution = await resolvePackage({ cwd, specifier: `jsr:${pkg.name}`, reload: true });
+  const actionable = resolution.ok ? resolution.resolved : undefined;
+  const latest = actionable ?? local;
+
+  const upgradeAvailable = actionable ? Semver.Is.greaterThan(actionable, local) : false;
+  const pending = actionable ? Semver.Is.greaterThan(remote, actionable) : false;
+  const resolverUnavailable = !resolution.ok;
+
+  return {
     local,
     remote,
     latest,
-    is: { latest: isLatest },
+    actionable,
+    resolution,
+    is: { latest: !upgradeAvailable, upgradeAvailable, pending, resolverUnavailable },
   };
-  return version;
 }
