@@ -1,12 +1,56 @@
 import { Cli, describe, expect, Is, it, type t } from '../../-test.ts';
 import { D } from '../common.ts';
 import { UpgradeTools } from '../mod.ts';
+import { getVersionInfo } from '../u.ts';
 import { runUpgrade } from '../u.cmd.runUpgrade.ts';
 
 describe(D.tool.name, () => {
   it('API', async () => {
     const m = await import('@sys/tools/upgrade');
     expect(m.UpgradeTools).to.equal(UpgradeTools);
+  });
+});
+
+describe('cli.upgrade.getVersionInfo', () => {
+  it('does not force Deno resolver reload during the default foreground check', async () => {
+    const reloads: Array<boolean | undefined> = [];
+
+    await getVersionInfo('/tmp' as t.StringDir, {
+      versions: async () => ({ data: { latest: '0.0.319' as t.StringSemver } } as never),
+      resolvePackage: async (args) => {
+        reloads.push(args.reload);
+        return {
+          ok: true,
+          specifier: args.specifier,
+          registry: 'jsr',
+          package: '@sys/tools' as t.StringPkgName,
+          resolved: '0.0.319' as t.StringSemver,
+        };
+      },
+    });
+
+    expect(reloads).to.eql([false]);
+  });
+
+  it('can explicitly request a fresh Deno resolver reload for verification', async () => {
+    const reloads: Array<boolean | undefined> = [];
+
+    await getVersionInfo('/tmp' as t.StringDir, {
+      resolverReload: true,
+      versions: async () => ({ data: { latest: '0.0.319' as t.StringSemver } } as never),
+      resolvePackage: async (args) => {
+        reloads.push(args.reload);
+        return {
+          ok: true,
+          specifier: args.specifier,
+          registry: 'jsr',
+          package: '@sys/tools' as t.StringPkgName,
+          resolved: '0.0.319' as t.StringSemver,
+        };
+      },
+    });
+
+    expect(reloads).to.eql([true]);
   });
 });
 
@@ -185,6 +229,35 @@ describe('cli.upgrade.runUpgrade', () => {
         plain.indexOf('prompt'),
       );
       expect(advisoryRemote).to.eql('0.0.319');
+    });
+
+    it('uses non-reload resolver check before refresh and reload resolver verification after refresh', async () => {
+      const resolverReloads: Array<boolean | undefined> = [];
+      let refreshed = false;
+
+      await runUpgrade('/tmp' as t.StringDir, { interactive: false }, {
+        getVersionInfo: async (_cwd, options) => {
+          resolverReloads.push(options?.resolverReload);
+          return {
+            local: '0.0.318',
+            remote: '0.0.319',
+            latest: '0.0.319',
+            actionable: '0.0.319',
+            is: { latest: false, upgradeAvailable: true, pending: false },
+          };
+        },
+        refreshCache: async () => {
+          refreshed = true;
+          return { success: true, toString: () => '' };
+        },
+        prompt: async () => 'upgrade',
+        spinner: () => spinner([]),
+        info() {},
+        async writeAdvisorySuccess() {},
+      });
+
+      expect(refreshed).to.eql(true);
+      expect(resolverReloads).to.eql([false, true]);
     });
 
     it('keeps direct interactive prompts on the existing upgrade/exit menu', async () => {

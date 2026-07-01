@@ -1,5 +1,4 @@
 import { Path, pkg, type t } from './common.ts';
-import { YamlConfig } from '@sys/yaml/cli';
 
 type EnvLike = { readonly get: (key: string) => string | undefined };
 
@@ -16,6 +15,9 @@ export function resolveUpgradeAdvisoryPath(env: EnvLike = Deno.env): t.StringPat
 }
 
 function toUpgradeAdvisoryPath(dir: t.StringDir): t.StringPath {
-  const root = YamlConfig.File.fromPkg(dir, pkg).dir.path;
-  return Path.join(root, UPGRADE_ADVISORY_FILE);
+  return Path.join(dir, packageCacheDirName(), UPGRADE_ADVISORY_FILE);
+}
+
+function packageCacheDirName() {
+  return pkg.name.split('/').filter(Boolean).join('.');
 }

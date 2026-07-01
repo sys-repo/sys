@@ -1,5 +1,5 @@
 import { c, Cli, Pkg, pkg, Str, type t } from './common.ts';
-import { getVersionInfo } from './u.ts';
+import { rootAdvisoryPrelude } from './u.advisory.fmt.ts';
 
 type HelpInput =
   | Omit<t.CliFormatHelpInputSections, 'tool'>
@@ -54,23 +54,18 @@ export const Fmt = {
 
   async help() {
     const str = Str.builder();
-    const version = await getVersionInfo();
     const base = await Cli.Fmt.Help.build(Fmt.helpInput(Fmt.invoke('upgrade'), {
       note: `@sys/tools/${c.white('upgrade')}`,
+      usage: [
+        Fmt.invoke('upgrade'),
+        Fmt.invoke('upgrade --latest'),
+      ],
+      options: [
+        ['-l, --latest', 'Refresh the local Deno cache for the current Deno-actionable version.'],
+        ['-h, --help', 'Show this help.'],
+      ],
     }));
-    const upgradeAvailable = version.is.upgradeAvailable ?? !version.is.latest;
-    const resolverUnavailable = version.is.resolverUnavailable ?? version.resolution?.ok === false;
-    str.line(base).line(Fmt.versionInfoTable(version)).line();
-    if (upgradeAvailable) str.line(Fmt.shellcommand()).line();
-    if (!upgradeAvailable && resolverUnavailable) {
-      str.line(Fmt.upgradeResolverUnavailable(version)).line();
-    }
-    if (!upgradeAvailable && !resolverUnavailable && version.is.pending) {
-      str.line(Fmt.upgradePending(version)).line();
-    }
-    if (!upgradeAvailable && !resolverUnavailable && !version.is.pending) {
-      str.line(Fmt.localVersionIsMostRecent(version)).line();
-    }
+    str.line(base).line(Fmt.shellcommand()).line();
     return String(str);
   },
 
@@ -151,30 +146,5 @@ export const Fmt = {
     return c.gray(String(str));
   },
 
-  rootAdvisoryPrelude(remote?: t.StringSemver) {
-    const { gray: g, green, white: w } = c;
-    const hr = c.green(Cli.Fmt.hr());
-    const width = Cli.stripAnsi(hr).length;
-    const message = `${g('Run ')}${w('sys upgrade ')}${green('--latest')}`;
-    const latest = remote ? `${g('next available ')}${w(remote)}` : undefined;
-
-    return Str.builder()
-      .line(hr)
-      .line(wrangle.rootAdvisoryLine({ width, message, latest }))
-      .line(hr)
-      .toString();
-  },
-} as const;
-
-const wrangle = {
-  rootAdvisoryLine(args: { width: number; message: string; latest?: string }) {
-    const { width, message, latest } = args;
-    if (!latest) return message;
-
-    const left = Cli.stripAnsi(message).length;
-    const right = Cli.stripAnsi(latest).length;
-    const spaces = width - left - right;
-    if (spaces < 2) return message;
-    return `${message}${' '.repeat(spaces)}${latest}`;
-  },
+  rootAdvisoryPrelude,
 } as const;

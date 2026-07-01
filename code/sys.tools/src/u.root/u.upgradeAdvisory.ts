@@ -1,21 +1,23 @@
 import type { UpgradeAdvisoryState } from '../cli.upgrade/u.advisory.ts';
-import { readUpgradeAdvisoryState } from '../cli.upgrade/u.advisory.ts';
-import { runUpgradeAdvisoryProbe } from '../cli.upgrade/u.advisory.probe.ts';
 import { Path, pkg, Process } from './common.ts';
 import {
   type RootUpgradeAdvisoryOptions,
   RootUpgradeAdvisoryPolicy,
 } from './u.upgradeAdvisory.policy.ts';
 
+type ReadUpgradeAdvisoryState = () => Promise<UpgradeAdvisoryState>;
+type RootUpgradeAdvisoryProbe = () => Promise<unknown>;
+
 export async function prepareRootUpgradeAdvisory(
   deps: RootUpgradeAdvisoryOptions & {
-    readonly readState?: typeof readUpgradeAdvisoryState;
-    readonly probe?: typeof runUpgradeAdvisoryProbe;
+    readonly readState?: ReadUpgradeAdvisoryState;
+    readonly probe?: RootUpgradeAdvisoryProbe;
   } = {},
 ): Promise<UpgradeAdvisoryState> {
   if (RootUpgradeAdvisoryPolicy.isDisabled(deps)) return emptyUpgradeAdvisoryState;
 
-  const readState = deps.readState ?? readUpgradeAdvisoryState;
+  const readState = deps.readState ??
+    (await import('../cli.upgrade/u.advisory.ts')).readUpgradeAdvisoryState;
 
   let state = emptyUpgradeAdvisoryState;
   try {
@@ -34,8 +36,8 @@ export async function prepareRootUpgradeAdvisory(
 export async function runWithRootUpgradeAdvisory<T>(
   fn: () => Promise<T>,
   deps: RootUpgradeAdvisoryOptions & {
-    readonly readState?: typeof readUpgradeAdvisoryState;
-    readonly probe?: typeof runUpgradeAdvisoryProbe;
+    readonly readState?: ReadUpgradeAdvisoryState;
+    readonly probe?: RootUpgradeAdvisoryProbe;
     readonly info?: (...data: unknown[]) => void;
   } = {},
 ): Promise<T> {
@@ -50,13 +52,13 @@ export async function runWithRootUpgradeAdvisory<T>(
 }
 
 function startRootUpgradeAdvisoryProbe(
-  deps: { readonly probe?: typeof runUpgradeAdvisoryProbe } = {},
+  deps: { readonly probe?: RootUpgradeAdvisoryProbe } = {},
 ) {
   if (deps.probe) return startInjectedRootUpgradeAdvisoryProbe(deps.probe);
   void startDetachedRootUpgradeAdvisoryProbe();
 }
 
-function startInjectedRootUpgradeAdvisoryProbe(probe: typeof runUpgradeAdvisoryProbe) {
+function startInjectedRootUpgradeAdvisoryProbe(probe: RootUpgradeAdvisoryProbe) {
   void (async () => {
     try {
       await probe();

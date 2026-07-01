@@ -1,5 +1,5 @@
 import { Fs, Is, Json, Num, Path, pkg, Semver, type t, Time } from './common.ts';
-import { Fmt } from './u.fmt.ts';
+import { rootAdvisoryPrelude } from './u.advisory.fmt.ts';
 import { resolveUpgradeAdvisoryPath } from './u.advisory.path.ts';
 
 const DEBUG_REMOTE_ENV = 'SYS_TOOLS_DEBUG_UPGRADE_ADVISORY_REMOTE';
@@ -74,7 +74,7 @@ export async function writeUpgradeAdvisoryFailure(error: unknown, deps: WriteDep
 export function toRootUpgradeAdvisoryPrelude(record?: UpgradeAdvisoryRecord): string | undefined {
   if (!record?.ok) return undefined;
   if (!wrangle.hasUpgrade(record)) return undefined;
-  return Fmt.rootAdvisoryPrelude(record.actionable);
+  return rootAdvisoryPrelude(record.actionable);
 }
 
 export function toUpgradeAdvisoryStateFromVersionInfo(

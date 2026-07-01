@@ -1,8 +1,8 @@
 import { c, Cli, pkg, type t } from './common.ts';
 import { Fmt } from './u.fmt.ts';
 import { refreshCache } from './u.refreshCache.ts';
-import { getVersionInfo } from './u.ts';
 import { writeUpgradeAdvisorySuccess } from './u.advisory.ts';
+import { getVersionInfo } from './u.versionInfo.ts';
 
 type Spinner = t.CliSpinner.Instance;
 
@@ -17,7 +17,12 @@ type Prompt = (args: {
   options: PromptOption[];
   hideDefault?: boolean;
 }) => Promise<string>;
-type GetVersionInfo = (cwd: t.StringDir) => Promise<t.UpgradeTool.VersionInfo>;
+type GetVersionInfoOptions = { readonly resolverReload?: boolean };
+
+type GetVersionInfo = (
+  cwd: t.StringDir,
+  options?: GetVersionInfoOptions,
+) => Promise<t.UpgradeTool.VersionInfo>;
 type WriteAdvisorySuccess = (version: t.UpgradeTool.VersionInfo) => Promise<void>;
 
 type RunUpgradeSource = NonNullable<t.UpgradeTool.CliContext['origin']>;
@@ -69,7 +74,7 @@ export async function runUpgrade(
     );
     const version = await (async () => {
       try {
-        return await deps.getVersionInfo(cwd);
+        return await deps.getVersionInfo(cwd, { resolverReload: false });
       } finally {
         versionSpinner.stop();
       }
@@ -165,7 +170,7 @@ export async function runUpgrade(
       throw new Error(msg);
     }
 
-    const verified = versionState(await deps.getVersionInfo(cwd));
+    const verified = versionState(await deps.getVersionInfo(cwd, { resolverReload: true }));
     if (verified.actionable !== target) {
       throw new Error(
         [

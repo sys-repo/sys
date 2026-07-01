@@ -1,5 +1,4 @@
 import { Args, Fs, type t } from './common.ts';
-import { runUpgrade } from './u.cmd.runUpgrade.ts';
 import { Fmt } from './u.fmt.ts';
 
 export const cli: t.UpgradeToolsLib['cli'] = async (cwd, argv, context) => {
@@ -10,6 +9,7 @@ export const cli: t.UpgradeToolsLib['cli'] = async (cwd, argv, context) => {
   const runHelp = async () => console.info(await Fmt.help());
   if (args.help) return void (await runHelp());
 
+  const { runUpgrade } = await import('./u.cmd.runUpgrade.ts');
   if (args.latest) return await runUpgrade(cwd, { interactive: false, source });
   return await runUpgrade(cwd, { interactive: true, source });
 };
