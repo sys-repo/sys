@@ -292,6 +292,3 @@ export declare namespace Cli {
     }
   }
 }
-
-/** Tools for command-line interfaces. */
-export type CliLib = Cli.Lib;
