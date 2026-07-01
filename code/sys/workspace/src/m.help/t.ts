@@ -1,4 +1,3 @@
-import type { CliFormatChapters } from '@sys/cli/t';
 import type { t } from './common.ts';
 
 /**
@@ -12,7 +11,7 @@ export declare namespace WorkspaceHelp {
   };
 
   /** Authored help section with display label and ordered items. */
-  export type Section = CliFormatChapters.Section;
+  export type Section = t.Cli.Fmt.Chapters.Section;
 
   /** Root help resources. */
   export namespace Root {
@@ -38,12 +37,12 @@ export declare namespace WorkspaceHelp {
     };
 
     /** Navigable DSL chapter used by CLI composition. */
-    export type Chapter = CliFormatChapters.Chapter;
+    export type Chapter = t.Cli.Fmt.Chapters.Chapter;
 
     /** Child chapter shown as a drill-down link. */
-    export type ChapterLink = CliFormatChapters.Chapter.Link;
+    export type ChapterLink = t.Cli.Fmt.Chapters.Chapter.Link;
 
     /** Authored DSL chapter resource registered for recursive lookup. */
-    export type ChapterResource = CliFormatChapters.Chapter.Resource<t.StringPath>;
+    export type ChapterResource = t.Cli.Fmt.Chapters.Chapter.Resource<t.StringPath>;
   }
 }

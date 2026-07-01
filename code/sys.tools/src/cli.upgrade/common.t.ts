@@ -6,12 +6,7 @@ export type * from '@sys/types';
 export type { Registry } from '@sys/registry/t';
 export type { WorkspaceResolve } from '@sys/workspace/t';
 export type { ParsedArgs } from '@sys/std/t';
-export type {
-  CliFormatHelpInput,
-  CliFormatHelpInputSections,
-  CliFormatHelpInputShorthand,
-  CliSpinner,
-} from '@sys/cli/t';
+export type { Cli } from '@sys/cli/t';
 
 /** Minimal root-tool vocabulary used by upgrade. */
 export namespace Tools {

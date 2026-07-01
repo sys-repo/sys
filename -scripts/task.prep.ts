@@ -1,4 +1,4 @@
-import type { CliSpinner } from '@sys/cli/t';
+import type { Cli as TCli } from '@sys/cli/t';
 import { Workspace } from '@sys/workspace';
 import { c, Cli, DenoFile, Fs, Process } from './common.ts';
 const TMPL_MODULE_PATH = './code/-tmpl' as const;
@@ -118,7 +118,7 @@ export async function main(context: CommitContext = 'prep') {
 }
 
 async function runProcessPhase<T>(
-  spinner: CliSpinner.Instance,
+  spinner: TCli.Spinner.Instance,
   label: string,
   fn: () => Promise<T>,
   done: (res: T) => string,
@@ -135,7 +135,7 @@ async function runProcessPhase<T>(
   }
 }
 
-async function runPackageSyncPhase(spinner: CliSpinner.Instance, cwd: string) {
+async function runPackageSyncPhase(spinner: TCli.Spinner.Instance, cwd: string) {
   spinner.start(Cli.Fmt.spinnerText('syncing package metadata...'));
   try {
     const res = await syncPackageMetadata(cwd);

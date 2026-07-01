@@ -3,7 +3,7 @@
  */
 export type * from '@sys/types';
 
-export type { CliFormat, CliSpinner } from '@sys/cli/t';
+export type { Cli } from '@sys/cli/t';
 export type { EsmDeps, EsmPolicy, EsmRegistry, EsmTopological } from '@sys/esm/t';
 export type { JsonFile } from '@sys/fs/t';
 export type { Process } from '@sys/process/t';

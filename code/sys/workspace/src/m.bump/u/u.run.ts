@@ -119,7 +119,7 @@ const wrangle = {
     readonly release?: t.SemverReleaseType;
     readonly policy?: t.WorkspaceBump.Policy;
     readonly log: boolean;
-    readonly spinner: t.CliSpinner.Instance;
+    readonly spinner: t.Cli.Spinner.Instance;
     readonly progress?: t.WorkspaceBump.ProgressHandler;
   }) {
     args.progress?.({ kind: 'collect' });
@@ -151,7 +151,7 @@ const wrangle = {
     log: boolean;
     progress?: t.WorkspaceBump.ProgressHandler;
     rootPkgPaths: readonly t.StringPath[];
-    spinner: t.CliSpinner.Instance;
+    spinner: t.Cli.Spinner.Instance;
   }) {
     if (args.clear) console.clear();
     args.progress?.({ kind: 'plan' });

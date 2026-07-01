@@ -1,4 +1,4 @@
-import { c, Cli, type CliTable, Fs, Is, Str, type t } from '../common.ts';
+import { c, Cli, Fs, Is, Str, type t } from '../common.ts';
 import { serviceOpenUrl } from './u.status.ts';
 
 /** Print the renderer-owned startup summary for a directly-started WebSocket service. */
@@ -39,7 +39,7 @@ type StartFormatOptions = {
 /**
  * Helpers:
  */
-function pushUrls(table: CliTable, urls: readonly t.Service.Url[]) {
+function pushUrls(table: t.Cli.Table.Instance, urls: readonly t.Service.Url[]) {
   Cli.Fmt.Url.serviceList(urls).forEach((url, index) => {
     table.push([index === 0 ? childLabel('url') : '', url]);
   });

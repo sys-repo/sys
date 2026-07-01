@@ -14,7 +14,7 @@ type ServiceStatusRow = {
   readonly labelKind: ServiceLabelKind;
   readonly value: string;
   readonly kind: ServiceStatusKind;
-  readonly url?: t.CliFormat.Url.ServicePart;
+  readonly url?: t.Cli.Fmt.Url.ServicePart;
 };
 
 export const FmtServices = {

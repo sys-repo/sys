@@ -1,4 +1,4 @@
-export type { CliTable } from '@sys/cli/t';
+export type { Cli } from '@sys/cli/t';
 export type { FileMap, FsDir, FsFile } from '@sys/fs/t';
 
 export type * from '@sys/types/t';

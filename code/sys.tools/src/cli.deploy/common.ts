@@ -63,8 +63,8 @@ export {
  * Common helpers:
  */
 type HelpInput =
-  | Omit<T.CliFormatHelpInputSections, 'tool'>
-  | Omit<T.CliFormatHelpInputShorthand, 'tool'>;
+  | Omit<T.Cli.Fmt.Help.InputSections, 'tool'>
+  | Omit<T.Cli.Fmt.Help.InputShorthand, 'tool'>;
 
 export const done = (exit: number | boolean = false): T.RunReturn => ({ exit });
 
@@ -92,7 +92,7 @@ export const Fmt = {
   helpInput(
     toolname: string,
     input: HelpInput = {},
-  ): T.CliFormatHelpInput {
+  ): T.Cli.Fmt.Help.Input {
     if ('sections' in input && input.sections) {
       return {
         tool: toolname,

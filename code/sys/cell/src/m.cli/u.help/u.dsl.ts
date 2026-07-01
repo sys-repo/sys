@@ -7,7 +7,7 @@ export type DslHelpInput = {
   readonly path?: readonly string[];
   readonly toolname?: string;
   readonly format?: t.CellCli.Dsl.Format;
-  readonly layout?: t.CliFormatChapters.LayoutOptions;
+  readonly layout?: t.Cli.Fmt.Chapters.LayoutOptions;
 };
 
 export const FmtDslHelp = {

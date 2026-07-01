@@ -15,29 +15,33 @@ type TaskPlanResult = {
 };
 
 type TaskProgressRendererDeps = {
-  spinner?: t.CliSpinner.Lib['start'];
+  spinner?: t.Cli.Spinner.Lib['start'];
   silent?: boolean;
 };
 
-type TaskProgressSpinner = t.CliSpinner.Instance;
+type TaskProgressSpinner = t.Cli.Spinner.Instance;
 type TaskProgressTimer = ReturnType<typeof globalThis.setInterval>;
 
 export const FmtTask = {
   result(res: TaskResult): string {
-    return `\n${Str.trimEdgeNewlines(renderSummary({
-      root: res.root,
-      task: res.task.name,
-      steps: res.steps.length,
-    }))}\n`;
+    return `\n${
+      Str.trimEdgeNewlines(renderSummary({
+        root: res.root,
+        task: res.task.name,
+        steps: res.steps.length,
+      }))
+    }\n`;
   },
 
   plan(res: TaskPlanResult): string {
     const { plan } = res;
-    return `\n${Str.trimEdgeNewlines([
-      FmtFields.title('Tasks'),
-      renderSummary({ root: res.root, task: plan.task.name, steps: plan.leaves.length }),
-      renderPlanTree(plan.tree),
-    ].join('\n\n'))}\n`;
+    return `\n${
+      Str.trimEdgeNewlines([
+        FmtFields.title('Tasks'),
+        renderSummary({ root: res.root, task: plan.task.name, steps: plan.leaves.length }),
+        renderPlanTree(plan.tree),
+      ].join('\n\n'))
+    }\n`;
   },
 
   progressRenderer(deps: TaskProgressRendererDeps = {}): t.Cell.Task.Run.EventHandler {

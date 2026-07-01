@@ -1,7 +1,7 @@
 /**
  * @system
  */
-export type * from '@sys/cli/t';
+export type { Cli } from '@sys/cli/t';
 export type { FileMap } from '@sys/fs/t';
 export type { TSchema } from '@sys/schema/t';
 export type { Process } from '@sys/process/t';

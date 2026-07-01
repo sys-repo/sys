@@ -2,11 +2,11 @@ import { c, Cli, type t } from '../common.ts';
 import type { RegistryProgress } from './u.fmt.t.ts';
 
 export const FmtProgress = {
-  spinnerText(text: string, spacing: t.CliFormat.Spinner.Spacing = true): string {
+  spinnerText(text: string, spacing: t.Cli.Fmt.Spinner.Spacing = true): string {
     return Cli.Fmt.spinnerText(text, spacing);
   },
 
-  spinnerRaw(text: string, spacing: t.CliFormat.Spinner.Spacing = true): string {
+  spinnerRaw(text: string, spacing: t.Cli.Fmt.Spinner.Spacing = true): string {
     return Cli.Fmt.spinnerRaw(text, spacing);
   },
 

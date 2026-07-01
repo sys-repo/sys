@@ -4,7 +4,7 @@ import { refreshCache } from './u.refreshCache.ts';
 import { writeUpgradeAdvisorySuccess } from './u.advisory.ts';
 import { getVersionInfo } from './u.versionInfo.ts';
 
-type Spinner = t.CliSpinner.Instance;
+type Spinner = t.Cli.Spinner.Instance;
 
 type RefreshResult = {
   readonly success: boolean;

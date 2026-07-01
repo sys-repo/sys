@@ -8,6 +8,7 @@ export type { ReactElement, ReactNode } from 'react';
  */
 export type * from '@sys/types';
 
+export type { Cli } from '@sys/cli/t';
 export type { ColorTheme } from '@sys/color/t';
 export type { FileMap } from '@sys/fs/t';
 export type { SpecImports, TestingDir } from '@sys/testing/t';

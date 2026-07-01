@@ -3,16 +3,7 @@ import type { StringDir, StringPath, UnixTimestamp } from '@sys/types';
 /** @system: common deploy-visible types */
 export type * from '@sys/types';
 export type { ParsedArgs } from '@sys/std/t';
-export type {
-  CliFormatHelpInput,
-  CliFormatHelpInputSections,
-  CliFormatHelpInputShorthand,
-  CliFormatHelpOption,
-  CliFormatHelpPair,
-  CliFormatHelpSection,
-  CliFormatHelpTone,
-  CliTable,
-} from '@sys/cli/t';
+export type { Cli } from '@sys/cli/t';
 export type { JsonFile } from '@sys/fs/t';
 export type { R2 } from '@sys/driver-cloudflare/t';
 export type { Files } from '@sys/model/files/t';

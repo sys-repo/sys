@@ -1,6 +1,5 @@
 export * from '../common.ts';
 export { c, Cli } from '@sys/cli';
-export type { CliTable } from '@sys/cli/t';
 export { Fs } from '@sys/fs';
 export { Process } from '@sys/process';
 

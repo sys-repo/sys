@@ -63,7 +63,7 @@ type ReporterState = {
   blocked: number;
   blockedRunnable: number;
   failed: number;
-  spinner?: t.CliSpinner.Instance;
+  spinner?: t.Cli.Spinner.Instance;
   tick?: ReturnType<typeof setInterval>;
   stopped: boolean;
 };

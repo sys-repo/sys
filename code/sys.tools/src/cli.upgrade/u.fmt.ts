@@ -2,8 +2,8 @@ import { c, Cli, Pkg, pkg, Semver, Str, type t } from './common.ts';
 import { rootAdvisoryPrelude } from './u.advisory.fmt.ts';
 
 type HelpInput =
-  | Omit<t.CliFormatHelpInputSections, 'tool'>
-  | Omit<t.CliFormatHelpInputShorthand, 'tool'>;
+  | Omit<t.Cli.Fmt.Help.InputSections, 'tool'>
+  | Omit<t.Cli.Fmt.Help.InputShorthand, 'tool'>;
 
 const g = c.green;
 const w = c.white;
@@ -81,7 +81,7 @@ export const Fmt = {
   helpInput(
     toolname: string,
     input: HelpInput = {},
-  ): t.CliFormatHelpInput {
+  ): t.Cli.Fmt.Help.Input {
     if ('sections' in input && input.sections) {
       return {
         tool: toolname,

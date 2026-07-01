@@ -1,4 +1,4 @@
-import { type t, Args, Path, Time, stripAnsi } from '../common.ts';
+import { Args, Path, stripAnsi, type t, Time } from '../common.ts';
 
 import { Fmt } from '../m.Fmt/mod.ts';
 import { Input } from '../m.Input/mod.ts';
@@ -13,7 +13,7 @@ import { copyToClipboard, keepAlive } from '../u/mod.ts';
 /**
  * Tools for the CLI (command-line interfaces):
  */
-export const Cli: t.CliLib = {
+export const Cli: t.Cli.Lib = {
   Args,
   Table,
   Spinner,

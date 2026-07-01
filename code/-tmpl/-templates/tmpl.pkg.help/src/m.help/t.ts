@@ -1,4 +1,4 @@
-import type { CliFormatChapters } from '@sys/cli/t';
+import type { Cli } from '@sys/cli/t';
 
 /**
  * Package help resource types.
@@ -10,7 +10,7 @@ export declare namespace Help {
   };
 
   /** Authored help section with display label and ordered items. */
-  export type Section = CliFormatChapters.Section;
+  export type Section = Cli.Fmt.Chapters.Section;
 
   /** Root help resources. */
   export namespace Root {

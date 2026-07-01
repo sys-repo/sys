@@ -31,7 +31,7 @@ const wrangle = {
   async workspace(args: {
     readonly cwd: t.StringDir;
     readonly silent: boolean;
-    readonly spinner: t.CliSpinner.Instance;
+    readonly spinner: t.Cli.Spinner.Instance;
   }) {
     const msg = 'normalizing workspace...';
     return await runPhase({
@@ -46,7 +46,7 @@ const wrangle = {
     readonly cwd: t.StringDir;
     readonly graph?: t.WorkspaceGraph.PersistedGraph;
     readonly silent: boolean;
-    readonly spinner: t.CliSpinner.Instance;
+    readonly spinner: t.Cli.Spinner.Instance;
   }) {
     if (args.graph) return args.graph;
     const msg = 'building workspace dependency graph...';
@@ -62,7 +62,7 @@ const wrangle = {
     readonly cwd: t.StringDir;
     readonly snapshot: t.WorkspaceGraph.Snapshot.Doc;
     readonly silent: boolean;
-    readonly spinner: t.CliSpinner.Instance;
+    readonly spinner: t.Cli.Spinner.Instance;
   }) {
     const msg = 'writing workspace graph snapshot...';
     return await runPhase({
