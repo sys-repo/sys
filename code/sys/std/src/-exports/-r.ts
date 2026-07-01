@@ -1,5 +1,5 @@
 /**
  * @module
- * Ramda-backed functional helpers.
+ * Legacy functional helper facade.
  */
 export { R } from '../common/libs.R.ts';
