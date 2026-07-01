@@ -1,9 +1,9 @@
 # @sys/cli chapter help hanging-indent plan
 
-## Commit messages
+## Commit arc
 
-- [x] `style(cli): add hanging indents to chapter section wraps`
-- [x] `docs(help): normalize DSL YAML logical help items`
+- [x] `c25298c57` style(cli): indent split chapter summaries
+- [x] `8c9fd0a55` docs(help): normalize DSL YAML logical help items
 
 ## Goal
 
@@ -116,3 +116,21 @@ Verification after YAML pass:
 - Do not fix YAML before the renderer behavior is pinned; otherwise visual diffs become ambiguous.
 - Do not add output indentation into YAML as presentation spaces.
 - Do not over-indent; +2 is the canonical minimum intentional hierarchy signal.
+
+## Final BMIND reality
+
+Status: complete and ready to retire.
+
+- Beautiful: terminal chapter prose now shows logical hierarchy through a quiet +2 hanging indent,
+  without bullets, arrows, or YAML-authored presentation spaces.
+- Minimal: the shared `@sys/cli` chapter renderer owns the behavior; downstream packages only carry
+  authored logical help items.
+- Integrated: the same chapter surface feeds terminal pages and Markdown/skill projections, and DSL
+  YAML was normalized after the renderer rule was pinned.
+- Necessary: wrapped prose, explicit same-item line breaks, fenced/code blocks, command lines, and
+  child chapter summaries have tests at the formatter seam.
+- Disciplined: the plan landed in two reviewable commits: formatter behavior first, authored YAML
+  cleanup second.
+
+Retirement note: this is historical plan material. The live contract is now the formatter tests plus
+normalized DSL YAML resources.
