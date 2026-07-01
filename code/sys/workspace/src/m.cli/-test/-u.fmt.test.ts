@@ -132,15 +132,16 @@ describe('Workspace.Cli.Fmt', () => {
     const label = Cli.stripAnsi(options[0]!.name);
 
     expect(plan).to.include('npm standdown');
-    expect(plan).to.include('Release age');
-    expect(plan).to.include('Eligible after');
+    expect(plan).to.include('released');
+    expect(plan).to.include('eligible in');
     expect(plan).to.include('2d');
     expect(plan).to.include('motion');
     expect(plan).to.include('12.40.0');
     expect(plan).to.include('12.41.0');
     expect(plan).to.include('12.42.0');
-    expect(plan).to.include('34h');
-    expect(plan).to.include('14h from now');
+    expect(plan).to.include('34h ago');
+    expect(plan).to.include('14h');
+    expect(plan).to.not.include('from now');
     expect(label).to.include('newer in standdown - upgrade in 14h');
     expect(options[0]?.disabled).to.eql(false);
   });

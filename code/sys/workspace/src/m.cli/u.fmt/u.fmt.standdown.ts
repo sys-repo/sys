@@ -65,7 +65,7 @@ export const FmtStanddown = {
 
   age(fact: t.WorkspaceUpgrade.VersionFact): string {
     if (fact.eligibility.kind !== 'standdown') return c.gray('-');
-    return FmtStanddown.duration(fact.eligibility.age);
+    return `${FmtStanddown.duration(fact.eligibility.age)} ${c.gray('ago')}`;
   },
 
   eligibleAfter(fact: t.WorkspaceUpgrade.VersionFact, evaluatedAt: t.UnixTimestamp): string {
@@ -75,7 +75,7 @@ export const FmtStanddown = {
     if (fact.eligibility.kind !== 'standdown') return c.gray('-');
     const remaining = fact.eligibility.eligibleAt - evaluatedAt;
     if (remaining <= 0) return c.green('now');
-    return `${FmtStanddown.duration(remaining)} ${c.gray('from now')}`;
+    return FmtStanddown.duration(remaining);
   },
 
   duration(input: t.Msecs): string {
