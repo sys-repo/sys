@@ -1,10 +1,10 @@
-import { DEFAULTS, R, Rx, type t } from './common.ts';
+import { Arr, DEFAULTS, Obj, Rx, type t } from './common.ts';
 import { Match } from './m.Match.ts';
 import { Util } from './u.ts';
 
 const singleton = {
   isListening: false,
-  state: R.clone<t.Keyboard.State.Snapshot>(DEFAULTS.state),
+  state: Obj.clone<t.Keyboard.State.Snapshot>(DEFAULTS.state),
 };
 const { dispose, dispose$ } = Rx.disposable();
 const singleton$ = new Rx.BehaviorSubject<t.Keyboard.State.Snapshot>(singleton.state);
@@ -110,13 +110,13 @@ function fireNext(_e?: t.Keyboard.Keypress.Event) {
 }
 
 function change(fn: (state: t.Keyboard.State.Snapshot) => void) {
-  const next = R.clone(singleton.state);
+  const next = Obj.clone(singleton.state);
   fn(next);
   singleton.state = next;
 }
 
 function reset(options: { hard?: boolean } = {}) {
-  const clone = R.clone(DEFAULTS.state);
+  const clone = Obj.clone(DEFAULTS.state);
   if (options.hard) {
     singleton.state = clone; // NB: A hard reset 💥. Drop all existing state.
   } else {
@@ -151,7 +151,7 @@ function updateModifierKeys(e: t.Keyboard.Keypress.Event) {
       if (isRight) values = values.filter((m) => !m.endsWith('Right'));
     }
 
-    values = R.uniq(values);
+    values = Arr.uniq(values);
     target[targetField] = (values.length === 0 ? [] : values) as t.Keyboard.Modifier.Edges;
   };
 
