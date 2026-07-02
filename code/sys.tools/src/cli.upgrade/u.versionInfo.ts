@@ -30,6 +30,13 @@ export async function getVersionInfo(
   const pending = actionable
     ? Semver.Is.greaterThan(remote, local) && Semver.Is.greaterThan(remote, actionable)
     : false;
+  const latestResolution = pending
+    ? await resolvePackage({
+      cwd,
+      specifier: `jsr:${pkg.name}@${remote}`,
+      reload: deps.resolverReload ?? false,
+    })
+    : undefined;
   const resolverUnavailable = !resolution.ok;
 
   return {
@@ -38,6 +45,7 @@ export async function getVersionInfo(
     latest,
     actionable,
     resolution,
+    latestResolution,
     is: { latest: !upgradeAvailable, upgradeAvailable, pending, resolverUnavailable },
   };
 }

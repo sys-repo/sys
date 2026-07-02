@@ -138,7 +138,7 @@ const wrangle = {
   ): Extract<UpgradeAdvisoryRecord, { readonly ok: true }> {
     const resolverUnavailable = version.is.resolverUnavailable ?? version.resolution?.ok === false;
     const actionable = resolverUnavailable ? undefined : version.actionable ?? version.latest;
-    const reason = version.resolution?.ok === false ? version.resolution.reason : undefined;
+    const reason = wrangle.reasonFromVersion(version);
     const status = wrangle.status(version);
 
     return {
@@ -152,6 +152,12 @@ const wrangle = {
       status,
       ...(reason ? { reason } : {}),
     };
+  },
+
+  reasonFromVersion(version: t.UpgradeTool.VersionInfo) {
+    if (version.latestResolution?.ok === false) return version.latestResolution.reason;
+    if (version.resolution?.ok === false) return version.resolution.reason;
+    return undefined;
   },
 
   status(version: t.UpgradeTool.VersionInfo): t.UpgradeTool.AdvisoryStatus {

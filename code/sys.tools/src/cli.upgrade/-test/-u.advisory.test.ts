@@ -230,6 +230,48 @@ describe('cli.upgrade advisory', () => {
     }
   });
 
+  it('preserves pending resolver policy reasons without a root CTA', async () => {
+    const tmp = await Fs.makeTempDir({ prefix: 'sys.tools.upgrade.advisory.pending.reason.' });
+    const path = `${tmp.absolute}/advisory.json`;
+
+    try {
+      await writeUpgradeAdvisorySuccess(
+        {
+          local: '0.0.318',
+          remote: '9.9.9',
+          latest: '0.0.318',
+          actionable: '0.0.318',
+          latestResolution: {
+            ok: false,
+            specifier: 'jsr:@sys/tools@9.9.9' as t.StringModuleSpecifier,
+            registry: 'jsr',
+            package: '@sys/tools' as t.StringPkgName,
+            reason: { code: 'policy:minimum-dependency-age', message: 'minimum dependency date' },
+          },
+          is: { latest: true, upgradeAvailable: false, pending: true },
+        },
+        { path, now: fixture.now(12_347) },
+      );
+      const res = await readUpgradeAdvisoryState({ path });
+
+      expect(res.record).to.eql({
+        schemaVersion: 2,
+        package: '@sys/tools',
+        checkedAt: 12_347,
+        ok: true,
+        local: '0.0.318',
+        published: '9.9.9',
+        actionable: '0.0.318',
+        status: 'pending',
+        reason: { code: 'policy:minimum-dependency-age', message: 'minimum dependency date' },
+      });
+      expect(res.hasUpgrade).to.eql(false);
+      expect(res.prelude).to.eql(undefined);
+    } finally {
+      await Fs.remove(tmp.absolute);
+    }
+  });
+
   it('writes failure advisory records quietly', async () => {
     const tmp = await Fs.makeTempDir({ prefix: 'sys.tools.upgrade.advisory.failure.' });
     const path = `${tmp.absolute}/advisory.json`;

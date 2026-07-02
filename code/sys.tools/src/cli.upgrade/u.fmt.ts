@@ -156,13 +156,13 @@ export const Fmt = {
     return c.gray('No upgrade needed.');
   },
 
-  upgradePending(_version: t.UpgradeTool.VersionInfo) {
-    return c.gray(
-      Str.builder()
-        .line('No upgrade was run.')
-        .line('Deno is not allowing this upgrade yet.')
-        .toString(),
-    );
+  upgradePending(version: t.UpgradeTool.VersionInfo) {
+    const reason = standdownReason(version);
+    const str = Str.builder()
+      .line('No upgrade was run.')
+      .line('Deno is not allowing this upgrade yet.');
+    if (reason) str.line(`Reason: ${reason}`);
+    return c.gray(str.toString());
   },
 
   upgradeResolverUnavailable(_version: t.UpgradeTool.VersionInfo) {
@@ -176,3 +176,18 @@ export const Fmt = {
 
   rootAdvisoryPrelude,
 } as const;
+
+function standdownReason(version: t.UpgradeTool.VersionInfo): string | undefined {
+  const reason = latestResolverReason(version);
+  if (!reason) return undefined;
+
+  if (reason.code === 'policy:minimum-dependency-age') return 'Deno minimum dependency age policy.';
+  if (reason.message?.trim()) return reason.message.trim();
+  return reason.code;
+}
+
+function latestResolverReason(version: t.UpgradeTool.VersionInfo) {
+  if (version.latestResolution?.ok === false) return version.latestResolution.reason;
+  if (version.resolution?.ok === false) return version.resolution.reason;
+  return undefined;
+}

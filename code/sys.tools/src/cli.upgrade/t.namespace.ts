@@ -33,7 +33,7 @@ export namespace UpgradeTool {
       readonly actionable?: t.StringSemver;
       /** Root advisory display state derived from Deno-actionable resolver truth. */
       readonly status: AdvisoryStatus;
-      /** Resolver failure reason when status is resolver-unavailable. */
+      /** Resolver failure reason when status is pending or resolver-unavailable. */
       readonly reason?: t.WorkspaceResolve.PackageResolutionReason;
     }
     | {
@@ -54,8 +54,10 @@ export namespace UpgradeTool {
     readonly latest: t.StringSemver;
     /** Version Deno currently resolves under active config, lock, cache, and policy. */
     readonly actionable?: t.StringSemver;
-    /** Raw Deno resolver fact when available. */
+    /** Raw Deno resolver fact for the unpinned package specifier when available. */
     readonly resolution?: t.WorkspaceResolve.PackageResolutionFact;
+    /** Raw Deno resolver fact for the published latest version when probing a standdown. */
+    readonly latestResolution?: t.WorkspaceResolve.PackageResolutionFact;
     readonly is: {
       /** True when there is no immediate actionable upgrade. */
       readonly latest: boolean;
