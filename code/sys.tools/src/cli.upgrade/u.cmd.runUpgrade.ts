@@ -231,7 +231,7 @@ function verifiedActionableTarget(state: VersionState): t.StringSemver {
 }
 
 function formatVerifiedState(state: VersionState) {
-  if (state.resolverUnavailable) return 'upgrade check is unavailable';
+  if (state.resolverUnavailable) return 'Deno resolver state is unavailable';
   if (!state.actionable) return 'no upgrade version was reported';
   return `upgrade check reported ${state.actionable}`;
 }
