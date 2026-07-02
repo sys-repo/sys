@@ -17,7 +17,7 @@ export type { Graph } from '@sys/immutable/t';
 export type { TSchema, ValueError } from '@sys/schema/t';
 export type {
   Alias,
-  ObjLens,
+  Obj,
   ShardCount,
   ShardIndex,
   ShardStrategy,
@@ -39,10 +39,10 @@ export type {
   ActionProbe,
   BulletList,
   HttpOrigin,
-  TreeHost,
   KeyValue,
   SheetProps,
   TimecodePlaybackDriver,
+  TreeHost,
   TreeViewNode,
   TreeViewNodeList,
   VideoDecks,
