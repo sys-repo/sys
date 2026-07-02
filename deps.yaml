@@ -1,12 +1,12 @@
 deno.json:
   - import: jsr:@std/datetime@0.225.7
   - import: jsr:@std/dotenv@0.225.7
-  - import: jsr:@std/encoding@1.0.10
+  - import: jsr:@std/encoding@1.0.11
   - import: jsr:@std/jsonc@1.0.2
   - import: jsr:@std/fs@1.0.24
-  - import: jsr:@std/http@1.1.1
+  - import: jsr:@std/http@1.1.2
     subpaths: [ file-server ]
-  - import: jsr:@std/path@1.1.5
+  - import: jsr:@std/path@1.1.6
     subpaths: [ join, posix/join, windows/join ]
   - import: jsr:@std/semver@1.0.8
   - import: jsr:@std/uuid@1.1.1
@@ -60,7 +60,7 @@ deno.json:
   - import: npm:ignore@7.0.5
   - import: npm:ora@9.4.1
   - import: npm:@mariozechner/pi-coding-agent@0.73.0
-  - import: npm:typebox@1.3.1
+  - import: npm:typebox@1.3.2
     subpaths: [ error, value ]
   - import: npm:@preact/signals-core@1.14.3
   - import: npm:pretty-bytes@7.1.0
@@ -102,7 +102,7 @@ package.json:
   - import: npm:monaco-editor@0.55.1
   - import: npm:react-icons@5.6.0
     subpaths: [ bs, fa, fa6, fi, hi, lia, lu, md, pi, ri, tb, vsc ]
-  - import: npm:prettier@3.9.1
+  - import: npm:prettier@3.9.4
     dev: true
   - import: npm:react@19.2.7
   - import: npm:react-dom@19.2.7
