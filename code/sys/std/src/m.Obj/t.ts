@@ -7,29 +7,6 @@ import type * as TPathCurried from '../m.Obj.Path/t.curried.ts';
 import type * as TPathIs from '../m.Obj.Path/t.is.ts';
 import type * as TPathRel from '../m.Obj.Path/t.rel.ts';
 
-export type {
-  ObjLens,
-  ObjLensRef,
-  ReadonlyObjLens,
-  ReadonlyObjLensRef,
-} from '../m.Obj.Lens/t.lens.ts';
-export type { LensToObjectOptions, UnwrapLenses } from '../m.Obj.Lens/t.toObject.ts';
-export type {
-  ObjPathCodec,
-  ObjPathCodecKind,
-  ObjPathDecodeOptions,
-  ObjPathEncodeOptions,
-} from '../m.Obj.Path/t.codec.ts';
-export type { CurriedPath } from '../m.Obj.Path/t.curried.ts';
-export type { ObjDiffOp, ObjDiffOptions, ObjDiffReport } from '../m.Obj.Path/t.diff.ts';
-export type {
-  ObjPathFix,
-  ObjPathSanitizeOptions,
-  PathTryDecodeOptions,
-  PathTryDecodeResult,
-} from '../m.Obj.Path/t.ts';
-export type { PathRelation } from '../m.Obj.Path/t.rel.ts';
-
 type O = Record<string, unknown>;
 
 /** An object extended with additional properties. */
@@ -170,16 +147,16 @@ export declare namespace Obj {
     export type Lib = TPath.Lib;
 
     /** Options controlling how a path string is sanitized before decoding. */
-    export type SanitizeOptions = TPath.ObjPathSanitizeOptions;
+    export type SanitizeOptions = TPath.SanitizeOptions;
 
     /** String-level repair kind applied by path sanitizers. */
-    export type Fix = TPath.ObjPathFix;
+    export type Fix = TPath.Fix;
 
     /** Options for tolerant path decoding. */
-    export type TryDecodeOptions = TPath.PathTryDecodeOptions;
+    export type TryDecodeOptions = TPath.TryDecodeOptions;
 
     /** Structured result returned from tolerant path decoding. */
-    export type TryDecodeResult = TPath.PathTryDecodeResult;
+    export type TryDecodeResult = TPath.TryDecodeResult;
 
     /**
      * Predicates over object-paths.
@@ -197,7 +174,7 @@ export declare namespace Obj {
       export type Lib = TPathRel.Lib;
 
       /** Relationship between two object paths. */
-      export type Relation = TPathRel.PathRelation;
+      export type Relation = TPathRel.Relation;
     }
 
     /**
@@ -208,16 +185,16 @@ export declare namespace Obj {
       export type Lib = TPathCodec.Lib;
 
       /** Object path encoder/decoder definition. */
-      export type Definition = TPathCodec.ObjPathCodec;
+      export type Definition = TPathCodec.Definition;
 
       /** Built-in object path codec kind. */
-      export type Kind = TPathCodec.ObjPathCodecKind;
+      export type Kind = TPathCodec.Kind;
 
       /** Options for namespace-level path encoding. */
-      export type EncodeOptions = TPathCodec.ObjPathEncodeOptions;
+      export type EncodeOptions = TPathCodec.EncodeOptions;
 
       /** Options for namespace-level path decoding. */
-      export type DecodeOptions = TPathCodec.ObjPathDecodeOptions;
+      export type DecodeOptions = TPathCodec.DecodeOptions;
     }
 
     /**
@@ -228,7 +205,7 @@ export declare namespace Obj {
       export type Lib = TPathCurried.Lib;
 
       /** Instance API for a single curried object path. */
-      export type Instance<T = unknown> = TPathCurried.CurriedPath<T>;
+      export type Instance<T = unknown> = TPathCurried.Instance<T>;
     }
 
     /**
@@ -239,13 +216,13 @@ export declare namespace Obj {
       export type Lib = TPath.Mutate.Lib;
 
       /** A JSON-serialisable description of one structural mutation. */
-      export type Op = TPath.ObjDiffOp;
+      export type Op = TPath.Mutate.Op;
 
       /** Options passed to object-path diff/mutation helpers. */
-      export type Options = TPath.ObjDiffOptions;
+      export type Options = TPath.Mutate.Options;
 
       /** Aggregate result returned from object-path diff helpers. */
-      export type Report = TPath.ObjDiffReport;
+      export type Report = TPath.Mutate.Report;
     }
   }
 
@@ -257,22 +234,22 @@ export declare namespace Obj {
     export type Lib = TLens.Lib;
 
     /** Unbound lens at a path. */
-    export type Unbound<T = unknown> = TLens.ObjLens<T>;
+    export type Unbound<T = unknown> = TLens.Unbound<T>;
 
     /** Bound writable lens. */
-    export type Ref<S extends O = O, T = unknown> = TLens.ObjLensRef<S, T>;
+    export type Ref<S extends O = O, T = unknown> = TLens.Ref<S, T>;
 
     /** Readonly unbound lens at a path. */
-    export type ReadonlyUnbound<T = unknown> = TLens.ReadonlyObjLens<T>;
+    export type ReadonlyUnbound<T = unknown> = TLens.ReadonlyUnbound<T>;
 
     /** Bound readonly lens. */
-    export type ReadonlyRef<S extends O = O, T = unknown> = TLens.ReadonlyObjLensRef<S, T>;
+    export type ReadonlyRef<S extends O = O, T = unknown> = TLens.ReadonlyRef<S, T>;
 
     /** Options controlling lens-to-object dehydration. */
-    export type ToObjectOptions = TLens.LensToObjectOptions;
+    export type ToObjectOptions = TLens.ToObjectOptions;
 
     /** Recursive lens-ref dehydration type. */
-    export type Unwrap<T> = TLens.UnwrapLenses<T>;
+    export type Unwrap<T> = TLens.Unwrap<T>;
 
     /**
      * Guard checks for object lens values.

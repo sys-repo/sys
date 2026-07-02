@@ -11,13 +11,13 @@ type PathInput = t.PathLike | undefined | null;
 /**
  * Unbound lens (path only).
  */
-export type ObjLens<T = unknown> = t.Obj.Path.Curried.Instance<T> & {
+export type Unbound<T = unknown> = t.Obj.Path.Curried.Instance<T> & {
   /** Bind a subject to get a convenient handle that no longer needs the subject argument. */
-  bind<S extends O>(subject: S): ObjLensRef<S, T>;
+  bind<S extends O>(subject: S): Ref<S, T>;
 };
 
 /** Bound lens (path + subject). */
-export type ObjLensRef<S extends O = O, T = unknown> = {
+export type Ref<S extends O = O, T = unknown> = {
   readonly subject: S;
   readonly path: t.ObjectPath;
 
@@ -38,25 +38,25 @@ export type ObjLensRef<S extends O = O, T = unknown> = {
   delete(): t.Obj.Path.Mutate.Op | undefined;
 
   /** Compose a sub-lens (shares the same subject). */
-  at<U = unknown>(...subpath: PathInput[]): ObjLensRef<S, U>;
+  at<U = unknown>(...subpath: PathInput[]): Ref<S, U>;
 };
 
 /**
  * Readonly unbound lens (no mutation surface).
  */
-export type ReadonlyObjLens<T = unknown> =
+export type ReadonlyUnbound<T = unknown> =
   & Pick<
     t.Obj.Path.Curried.Instance<T>,
     'at' | 'path' | 'get' | 'exists'
   >
   & {
-    bind<S extends O>(subject: S): ReadonlyObjLensRef<S, T>;
+    bind<S extends O>(subject: S): ReadonlyRef<S, T>;
   };
 
 /**
  * Readonly bound lens (no mutation surface).
  */
-export type ReadonlyObjLensRef<S extends O, T = unknown> = {
+export type ReadonlyRef<S extends O, T = unknown> = {
   readonly subject: S;
   readonly path: t.ObjectPath;
 
@@ -65,5 +65,5 @@ export type ReadonlyObjLensRef<S extends O, T = unknown> = {
   exists(): boolean;
 
   /** Compose a sub-lens (shares the same subject). */
-  at<U = unknown>(...subpath: PathInput[]): ReadonlyObjLensRef<S, U>;
+  at<U = unknown>(...subpath: PathInput[]): ReadonlyRef<S, U>;
 };

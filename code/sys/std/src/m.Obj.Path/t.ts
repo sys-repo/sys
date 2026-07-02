@@ -1,14 +1,5 @@
 import type { t } from './common.ts';
-
-export type {
-  ObjPathCodec,
-  ObjPathCodecKind,
-  ObjPathDecodeOptions,
-  ObjPathEncodeOptions,
-} from './t.codec.ts';
-export type { CurriedPath } from './t.curried.ts';
-export type * from './t.diff.ts';
-export type { PathRelation } from './t.rel.ts';
+import type * as TDiff from './t.diff.ts';
 
 type O = Record<string, unknown>;
 
@@ -163,13 +154,22 @@ export namespace Mutate {
    * Tools that mutate an object in-place using
    * an abstract path arrays.
    */
+  /** A JSON-serialisable description of one structural mutation. */
+  export type Op = TDiff.Op;
+
+  /** Options passed to object-path diff/mutation helpers. */
+  export type Options = TDiff.Options;
+
+  /** Aggregate result returned from object-path diff helpers. */
+  export type Report = TDiff.Report;
+
   export type Lib = {
     /**
      * Deep-set helper that mutates `subject` setting a nested value at the `path`.
      *  - Creates intermediate objects/arrays as needed.
      *  - If `value` is `undefined`, the property is removed via [delete] rather than assigned `undefined`.
      */
-    set<T = unknown>(subject: O, path: t.ObjectPath, value: T): t.Obj.Path.Mutate.Op | undefined;
+    set<T = unknown>(subject: O, path: t.ObjectPath, value: T): Op | undefined;
 
     /**
      * Ensure a value at the given path exists (not undefined),
@@ -180,7 +180,7 @@ export namespace Mutate {
     /**
      * Deletes the value at the given path if it exists.
      */
-    delete(subject: O, path: t.ObjectPath): t.Obj.Path.Mutate.Op | undefined;
+    delete(subject: O, path: t.ObjectPath): Op | undefined;
 
     /**
      * Mutate `target` in-place so that, once the function returns,
@@ -193,8 +193,8 @@ export namespace Mutate {
     diff<T extends O = O>(
       source: T,
       target: T,
-      options?: t.Obj.Path.Mutate.Options,
-    ): t.Obj.Path.Mutate.Report;
+      options?: Options,
+    ): Report;
   };
 }
 
@@ -203,12 +203,12 @@ export namespace Mutate {
  */
 
 /** Options controlling how a path string is sanitized before decoding. */
-export type ObjPathSanitizeOptions = {
+export type SanitizeOptions = {
   codec?: t.Obj.Path.Codec.Kind | t.Obj.Path.Codec.Definition;
 };
 
 /** String-level repair kinds applied by {@link Path.sanitize}. */
-export type ObjPathFix =
+export type Fix =
   /** Removed leading/trailing whitespace. */
   | 'trimmed'
   /** Added a leading slash for non-empty pointer paths. */
@@ -219,12 +219,12 @@ export type ObjPathFix =
   | 'removed-trailing-slash';
 
 /** Options for tolerant decoding; extends PathDecodeOptions with a fallback path. */
-export type PathTryDecodeOptions = t.Obj.Path.Codec.DecodeOptions & {
+export type TryDecodeOptions = t.Obj.Path.Codec.DecodeOptions & {
   fallback?: t.ObjectPath;
 };
 
 /** Structured result returned from tryDecode, including success flag, path, and any applied fixes. */
-export type PathTryDecodeResult =
+export type TryDecodeResult =
   | { readonly ok: true; readonly path: t.ObjectPath; readonly fixes: t.Obj.Path.Fix[] }
   | {
     readonly ok: false;
