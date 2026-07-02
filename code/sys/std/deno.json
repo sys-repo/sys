@@ -39,7 +39,6 @@
     "./path": "./src/-exports/-path.ts",
     "./pkg": "./src/-exports/-pkg.ts",
     "./random": "./src/-exports/-random.ts",
-    "./r": "./src/-exports/-r.ts",
     "./regex": "./src/m.Regex/mod.ts",
     "./rx": "./src/-exports/-rx.ts",
     "./semver": "./src/m.Semver/mod.ts",

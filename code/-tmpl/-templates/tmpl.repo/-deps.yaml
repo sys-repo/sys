@@ -5,7 +5,7 @@ deno.json:
     subpaths: [ t ]
   - import: jsr:@sys/driver-deno@0.0.378
     subpaths: [ cloud, runtime, t ]
-  - import: jsr:@sys/driver-vite@0.0.442
+  - import: jsr:@sys/driver-vite@0.0.444
     subpaths: [ main, t ]
   - import: jsr:@sys/fs@0.0.326
     subpaths: [ t ]
@@ -36,20 +36,20 @@ deno.json:
       ]
   - import: jsr:@sys/testing@0.0.317
     subpaths: [ server, t ]
-  - import: jsr:@sys/tmpl@0.0.442
+  - import: jsr:@sys/tmpl@0.0.444
     subpaths: [ t ]
   - import: jsr:@sys/tmpl-engine@0.0.329
     subpaths: [ t ]
-  - import: jsr:@sys/tools@0.0.458
+  - import: jsr:@sys/tools@0.0.460
     subpaths: [ t ]
   - import: jsr:@sys/types@0.0.293
   - import: jsr:@sys/ui-css@0.0.293
     subpaths: [ t ]
   - import: jsr:@sys/ui-dom@0.0.303
     subpaths: [ t ]
-  - import: jsr:@sys/ui-react@0.0.338
+  - import: jsr:@sys/ui-react@0.0.339
     subpaths: [ t ]
-  - import: jsr:@sys/ui-components@0.0.304
+  - import: jsr:@sys/ui-components@0.0.306
     subpaths:
       [
         button,
@@ -66,7 +66,7 @@ deno.json:
         splash,
         t
       ]
-  - import: jsr:@sys/ui-dev@0.0.337
+  - import: jsr:@sys/ui-dev@0.0.338
     subpaths: [ react/devharness, react/devharness/t ]
   - import: jsr:@sys/workspace@0.0.129
     subpaths: [ cli, t, testing ]

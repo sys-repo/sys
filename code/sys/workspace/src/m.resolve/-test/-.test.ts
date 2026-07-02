@@ -64,18 +64,18 @@ describe('Workspace.Resolve', () => {
     });
 
     it('normalizes a scoped npm package version from deno info packages', () => {
-      const fact = packageResolutionFromInfo('npm:@types/ramda', {
+      const fact = packageResolutionFromInfo('npm:@types/ws', {
         packages: {
-          '@types/ramda@*': '@types/ramda@0.32.0',
+          '@types/ws@*': '@types/ws@8.18.1',
         },
       });
 
       expect(fact).to.eql({
         ok: true,
-        specifier: 'npm:@types/ramda',
+        specifier: 'npm:@types/ws',
         registry: 'npm',
-        package: '@types/ramda',
-        resolved: '0.32.0',
+        package: '@types/ws',
+        resolved: '8.18.1',
       });
     });
 

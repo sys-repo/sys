@@ -2,7 +2,7 @@
  * Canonical structural equality kernel for `@sys/std`.
  *
  * This is the single structural relation behind the `m.Eql.ts` method surface,
- * `@sys/std/eql`, `Obj.eql`, and the legacy `R.equals` compatibility facade.
+ * `@sys/std/eql`, and `Obj.eql`.
  * It is intentionally not a universal JavaScript object inspector: it
  * supports a bounded pure-data domain and treats unsupported behavioral or
  * opaque objects as identity-only values.
