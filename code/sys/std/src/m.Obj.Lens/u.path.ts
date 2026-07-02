@@ -1,4 +1,4 @@
-import { type t, Path } from './common.ts';
+import { Path, type t } from './common.ts';
 
 export * from './u.bindRO.ts';
 export * from './u.bindRW.ts';
@@ -22,7 +22,7 @@ export function toPath(input: t.PathLike): t.ObjectPath {
 /**
  * Make an unbound curried path from many inputs.
  */
-export function makeCurriedAll<T>(...inputs: PathInput[]): t.CurriedPath<T> {
+export function makeCurriedAll<T>(...inputs: PathInput[]): t.Obj.Path.Curried.Instance<T> {
   return Path.curry<T>(toPathAll(...inputs));
 }
 

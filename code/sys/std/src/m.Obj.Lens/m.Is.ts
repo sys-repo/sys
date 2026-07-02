@@ -1,4 +1,4 @@
-import { type t, isRecord, Path } from './common.ts';
+import { isRecord, Path, type t } from './common.ts';
 
 export const Is: t.Obj.Lens.Is.Lib = {
   lens: isLensUnbound,
@@ -10,7 +10,9 @@ export const Is: t.Obj.Lens.Is.Lib = {
 
 function isLensRefAny(
   v: unknown,
-): v is t.ReadonlyObjLensRef<any, unknown> | t.ObjLensRef<any, unknown> {
+): v is
+  | t.Obj.Lens.ReadonlyRef<Record<string, unknown>, unknown>
+  | t.Obj.Lens.Ref<Record<string, unknown>, unknown> {
   if (!isRecord(v)) return false;
   if (!('subject' in v)) return false;
   if (!('path' in v)) return false;
@@ -20,18 +22,20 @@ function isLensRefAny(
   return true;
 }
 
-function isLensRefWritable(v: unknown): v is t.ObjLensRef<any, unknown> {
+function isLensRefWritable(v: unknown): v is t.Obj.Lens.Ref<Record<string, unknown>, unknown> {
   if (!isLensRefAny(v)) return false;
   const o = v as Record<string, unknown>;
   // Writable lens typically exposes mutators; RO does not.
   return hasFn(o, 'set') || hasFn(o, 'delete') || hasFn(o, 'ensure');
 }
 
-function isLensRefReadonly(v: unknown): v is t.ReadonlyObjLensRef<any, unknown> {
+function isLensRefReadonly(
+  v: unknown,
+): v is t.Obj.Lens.ReadonlyRef<Record<string, unknown>, unknown> {
   return isLensRefAny(v) && !isLensRefWritable(v);
 }
 
-function isLensUnbound(v: unknown): v is t.ObjLens<unknown> {
+function isLensUnbound(v: unknown): v is t.Obj.Lens.Unbound<unknown> {
   // Unbound lenses are builders: have .bind but no .subject.
   if (!isRecord(v)) return false;
   const o = v as Record<string, unknown>;

@@ -34,7 +34,7 @@ export type CurriedPath<T = unknown> = {
    *  - Creates intermediate objects/arrays as needed.
    *  - If `value` is `undefined`, the property is removed via [delete] rather than assigned `undefined`.
    */
-  set(subject: O, value: T): t.ObjDiffOp | undefined;
+  set(subject: O, value: T): t.Obj.Path.Mutate.Op | undefined;
 
   /**
    * Ensure a value at the path exists (not undefined),
@@ -45,7 +45,7 @@ export type CurriedPath<T = unknown> = {
   /**
    * Deletes the value at the given path if it exists.
    */
-  delete(subject: O): t.ObjDiffOp | undefined;
+  delete(subject: O): t.Obj.Path.Mutate.Op | undefined;
 
   /**
    * Creates a new curried path combining this path as the root

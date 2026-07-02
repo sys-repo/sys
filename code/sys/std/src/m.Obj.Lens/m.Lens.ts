@@ -16,11 +16,11 @@ export const Lens: t.Obj.Lens.Lib = {
   toObject,
 
   /** Create an unbound lens at a path. Accepts pointer string or ObjectPath. */
-  at<T = unknown>(...path: PathInput[]): t.ObjLens<T> {
+  at<T = unknown>(...path: PathInput[]): t.Obj.Lens.Unbound<T> {
     const cur = makeCurriedAll<T>(...path);
     const bind = <S extends Record<string, unknown>>(subject: S) => bindRW<S, T>(cur, subject);
     // Spread preserves Curried surface (path/get/exists/set/ensure/delete/join)
-    return { ...cur, bind } as t.ObjLens<T>;
+    return { ...cur, bind } as t.Obj.Lens.Unbound<T>;
   },
 
   /**
@@ -30,18 +30,18 @@ export const Lens: t.Obj.Lens.Lib = {
   bind<S extends Record<string, unknown>, T = unknown>(
     subject: S,
     ...path: PathInput[]
-  ): t.ObjLensRef<S, T> {
+  ): t.Obj.Lens.Ref<S, T> {
     return this.at<T>(...path).bind(subject);
   },
 
   /** Read-only variants. */
   Readonly: {
-    at<T = unknown>(...path: PathInput[]): t.ReadonlyObjLens<T> {
+    at<T = unknown>(...path: PathInput[]): t.Obj.Lens.ReadonlyUnbound<T> {
       const cur = makeCurriedAll<T>(...path);
       const { path: p, get, exists, at: join } = cur;
       const bind = <S extends Record<string, unknown>>(subject: S) => bindRO<S, T>(cur, subject);
       // Return only the readonly surface + bind
-      return { path: p, get, exists, at: join, bind } as t.ReadonlyObjLens<T>;
+      return { path: p, get, exists, at: join, bind } as t.Obj.Lens.ReadonlyUnbound<T>;
     },
 
     /**
@@ -51,7 +51,7 @@ export const Lens: t.Obj.Lens.Lib = {
     bind<S extends Record<string, unknown>, T = unknown>(
       subject: S,
       ...path: PathInput[]
-    ): t.ReadonlyObjLensRef<S, T> {
+    ): t.Obj.Lens.ReadonlyRef<S, T> {
       return this.at<T>(...path).bind(subject);
     },
   },

@@ -14,7 +14,7 @@ export type PathRelation = 'equal' | 'ancestor' | 'descendant' | 'disjoint';
  */
 export type Lib = {
   /** Classify the relation between two paths. */
-  relate(a?: t.ObjectPath, b?: t.ObjectPath): t.PathRelation;
+  relate(a?: t.ObjectPath, b?: t.ObjectPath): PathRelation;
 
   /** True if paths share a prefix (equal | ancestor | descendant). */
   overlaps(a?: t.ObjectPath, b?: t.ObjectPath): boolean;

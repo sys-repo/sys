@@ -1,4 +1,4 @@
-import { type t, describe, expect, it } from '../../-test.ts';
+import { describe, expect, it, type t } from '../../-test.ts';
 import { Obj } from '../../m.Obj/mod.ts';
 
 type O = Record<string, unknown>;
@@ -108,7 +108,7 @@ describe('Obj.Mutate.diff', () => {
         arrays: 0, //  ← no wholesale replace.
         total: 1,
       });
-      expect(report.ops[0]).to.eql<t.ObjDiffOp>({
+      expect(report.ops[0]).to.eql<t.Obj.Path.Mutate.Op>({
         type: 'update',
         path: ['list', 1],
         prev: 2,
@@ -171,7 +171,7 @@ describe('Obj.Mutate.diff', () => {
       const source: O = { v: -0 };
       const r = Mutate.diff(source, target);
       expect(r.stats).to.eql({ adds: 0, removes: 0, updates: 1, arrays: 0, total: 1 });
-      expect((r.ops[0] as t.ObjDiffOp & { next: number }).next).to.equal(-0);
+      expect((r.ops[0] as t.Obj.Path.Mutate.Op & { next: number }).next).to.equal(-0);
       expect(Object.is(target.v, -0)).to.eql(true);
     }
     // NaN vs NaN → Object.is true → no-op

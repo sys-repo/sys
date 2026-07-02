@@ -8,7 +8,7 @@ import type { t } from './common.ts';
  *  - `default`   — the canonical codec (`pointer`).
  */
 export type Lib = {
-  readonly default: t.ObjPathCodec;
+  readonly default: ObjPathCodec;
 
   /**
    * JSON Pointer (RFC 6901) — lossless & unambiguous.
@@ -17,7 +17,7 @@ export type Lib = {
    * - '~1' encodes '/', '~0' encodes '~'.
    * - Numbers are just strings here; still decode to number indices when they look numeric.
    */
-  readonly pointer: t.ObjPathCodec;
+  readonly pointer: ObjPathCodec;
 
   /**
    * Dot/bracket — ergonomic, still round-trips typical keys.
@@ -25,7 +25,7 @@ export type Lib = {
    * - Numbers inside brackets become number indices.
    * - Empty path → ''.
    */
-  readonly dot: t.ObjPathCodec;
+  readonly dot: ObjPathCodec;
 };
 
 /** Kind of delimiter. */

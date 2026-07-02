@@ -8,15 +8,15 @@ type PathInput = t.PathLike | undefined | null;
  * Bind a curried path to a subject to produce a bound readonly lens.
  */
 export function bindRO<S extends O, T>(
-  cur: t.CurriedPath<T>,
+  cur: t.Obj.Path.Curried.Instance<T>,
   subject: S,
-): t.ReadonlyObjLensRef<S, T> {
+): t.Obj.Lens.ReadonlyRef<S, T> {
   const { path } = cur;
 
   const get = (def?: t.NonUndefined<T>) => {
     return arguments.length === 0
-      ? //
-        cur.get(subject as O)
+      //
+      ? cur.get(subject as O)
       : cur.get(subject as O, def as any);
   };
 
