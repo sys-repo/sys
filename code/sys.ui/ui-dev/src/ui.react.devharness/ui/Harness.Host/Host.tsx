@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import { Color, css, DEFAULTS, Is, R, Time, useCurrentState, type t } from '../common.ts';
+import { Color, css, DEFAULTS, Is, Obj, type t, Time, useCurrentState } from '../common.ts';
 import { PanelFooter, PanelHeader } from '../Harness.Panel.Edge/mod.ts';
 import { BarSpinner } from '../Spinners/mod.ts';
 import { HostBackground } from './Host.Background.tsx';
@@ -43,15 +43,13 @@ export const HarnessHost: React.FC<HarnessHostProps> = (props) => {
    * Render:
    */
   const cropmark = wrangle.cropmark(renderProps);
-  const backgroundColor =
-    host?.backgroundColor === undefined
-      ? wrangle.color(DEFAULT.backgroundColor)
-      : wrangle.color(host.backgroundColor);
-  const color =
-    host?.color === undefined
-      ? //
-        wrangle.color(DEFAULT.color)
-      : wrangle.color(host.color);
+  const backgroundColor = host?.backgroundColor === undefined
+    ? wrangle.color(DEFAULT.backgroundColor)
+    : wrangle.color(host.backgroundColor);
+  const color = host?.color === undefined
+    //
+    ? wrangle.color(DEFAULT.color)
+    : wrangle.color(host.color);
 
   const styles = {
     base: css({
@@ -116,7 +114,7 @@ const distinctUntil = (p: t.DevInfoChanged, n: t.DevInfoChanged) => {
   const prev = p.info;
   const next = n.info;
   if (prev.run.results?.tx !== next.run.results?.tx) return false;
-  if (!R.equals(prev.render.revision, next.render.revision)) return false;
+  if (!Obj.eql(prev.render.revision, next.render.revision)) return false;
   return true;
 };
 
@@ -126,7 +124,7 @@ const wrangle = {
     const items = Object.keys(obj)
       .map((key) => obj[key])
       .filter((item) => filter(item.index));
-    return R.sortBy(R.prop('index'), items);
+    return [...items].sort((a, b) => a.index - b.index);
   },
 
   cropmark(renderProps?: t.DevRenderProps) {
@@ -136,7 +134,7 @@ const wrangle = {
     const subject = renderProps?.subject;
     const size = subject?.size;
     if (size?.mode === 'fill') {
-      if (R.equals(Wrangle.fillMargin(size), [0, 0, 0, 0])) return undefined;
+      if (Obj.eql(Wrangle.fillMargin(size), [0, 0, 0, 0])) return undefined;
     }
 
     return `solid 1px ${wrangle.color(host?.tracelineColor ?? DEFAULT.tracelineColor)}`;

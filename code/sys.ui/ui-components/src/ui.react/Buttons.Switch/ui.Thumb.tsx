@@ -1,4 +1,4 @@
-import { Color, css, Is, R, type t } from './common.ts';
+import { Color, css, Is, Obj, type t } from './common.ts';
 import { SwitchTheme } from './u.theme.ts';
 
 export type SwitchThumbProps = {
@@ -72,8 +72,13 @@ function toThumb(
     borderRadius: height / 2,
     shadow: { x: 0, y: 2, blur: 4, color: theme.shadowColor },
   };
-  const res = R.mergeDeepRight(defaultThumb, thumb) as t.SwitchThumb;
-  return R.clone(res);
+  const res: t.SwitchThumb = {
+    ...defaultThumb,
+    ...thumb,
+    color: { ...defaultThumb.color, ...(thumb.color ?? {}) },
+    shadow: { ...defaultThumb.shadow, ...(thumb.shadow ?? {}) },
+  };
+  return Obj.clone(res);
 }
 
 const wrangle = {

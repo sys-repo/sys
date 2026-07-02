@@ -1,4 +1,4 @@
-import { DEFAULTS, R, type t } from '../common.ts';
+import { DEFAULTS, Obj, type t } from '../common.ts';
 
 type O = Record<string, unknown>;
 
@@ -31,7 +31,7 @@ export const ValueHandler: t.ValueHandler = <V, State extends O>(
 
   const onChanged = async (info?: t.DevInfo, force?: boolean) => {
     const value = await getCurrent(info);
-    if (value !== undefined && (force || !R.equals(value, _latest))) {
+    if (value !== undefined && (force || !Obj.eql(value, _latest))) {
       subscribers.forEach((fn) => fn({ value }));
     }
     _latest = value;

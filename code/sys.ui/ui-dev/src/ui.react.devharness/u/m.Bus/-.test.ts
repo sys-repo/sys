@@ -5,7 +5,7 @@ import { DevEventsIs } from './Bus.Events.ts';
 
 const exepctSessionId = (value: string) => expect(value).to.match(/^dev:ctx\./);
 
-describe.skip('DevBus', () => {
+describe('DevBus', () => {
   describe('is', () => {
     const is = DevEventsIs;
 

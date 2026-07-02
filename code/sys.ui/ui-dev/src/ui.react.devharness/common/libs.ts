@@ -8,7 +8,6 @@ export { Obj } from '@sys/std/obj';
 export { Path } from '@sys/std/path';
 export { Pkg } from '@sys/std/pkg';
 export { slug } from '@sys/std/random';
-export { R } from '@sys/std/r';
 export { Time } from '@sys/std/time';
 export { maybeWait } from '@sys/std/async';
 export { asArray } from '@sys/std/arr';

@@ -12,7 +12,6 @@ export { Log } from '@sys/std/log';
 export { Path } from '@sys/std/path';
 export { Pkg } from '@sys/std/pkg';
 export { slug } from '@sys/std/random';
-export { R } from '@sys/std/r';
 export { JsrUrl, Url } from '@sys/std/url';
 export { Schedule } from '@sys/std/async';
 export { Arr } from '@sys/std/arr';

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { type t, Color, css, pkg, R, Style, useCurrentState } from '../common.ts';
+import { Color, css, Obj, pkg, Style, type t, useCurrentState } from '../common.ts';
 import { PanelFooter, PanelHeader } from '../Harness.Panel.Edge/mod.ts';
 import { DebugPanelBody as Body } from './Panel.Body.tsx';
 
@@ -79,7 +79,7 @@ const distinctUntil = (p: t.DevInfoChanged, n: t.DevInfoChanged) => {
   const prev = p.info;
   const next = n.info;
   if (prev.run.results?.tx !== next.run.results?.tx) return false;
-  if (!R.equals(prev.render.revision, next.render.revision)) return false;
+  if (!Obj.eql(prev.render.revision, next.render.revision)) return false;
   return true;
 };
 

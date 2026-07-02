@@ -1,4 +1,4 @@
-import { type t, DEFAULTS, Id, Is, Obj, R, RxBus } from './common.ts';
+import { DEFAULTS, Id, Is, Obj, RxBus, type t } from './common.ts';
 
 type Revision = { number: number; message: string };
 
@@ -49,7 +49,7 @@ export function BusMemoryState(args: {
 
       // NB: Merging here is a "poor man's CRDT" strategy (use Automerge or JsonPatch plugin).
       const changedByAnotherProcess = before.number !== _revision.number;
-      _current = changedByAnotherProcess ? (R.mergeDeepRight(_current, clone) as t.DevInfo) : clone;
+      _current = changedByAnotherProcess ? mergeDeepRight(_current, clone) : clone;
       _revision = { number: before.number + 1, message };
 
       args.onChanged?.({ message, info: _current });
@@ -57,4 +57,51 @@ export function BusMemoryState(args: {
   };
 
   return api;
+}
+
+function mergeDeepRight<L extends object, R extends object>(left: L, right: R): L & R {
+  return mergeDeep(left, right, new WeakMap()) as L & R;
+}
+
+function mergeDeep(left: unknown, right: unknown, seen: WeakMap<object, unknown>): unknown {
+  if (!isPlainMergeRecord(left) || !isPlainMergeRecord(right)) return cloneMergeValue(right, seen);
+
+  const res = clonePlainMergeRecord(left, seen);
+  for (const key of Reflect.ownKeys(right)) {
+    const leftValue = res[key];
+    const rightValue = (right as Record<PropertyKey, unknown>)[key];
+    res[key] = isPlainMergeRecord(leftValue) && isPlainMergeRecord(rightValue)
+      ? mergeDeep(leftValue, rightValue, seen)
+      : cloneMergeValue(rightValue, seen);
+  }
+  return res;
+}
+
+function cloneMergeValue(value: unknown, seen: WeakMap<object, unknown>): unknown {
+  if (!isPlainMergeRecord(value)) return Obj.clone(value);
+  return clonePlainMergeRecord(value, seen);
+}
+
+function clonePlainMergeRecord(
+  value: Record<PropertyKey, unknown>,
+  seen: WeakMap<object, unknown>,
+): Record<PropertyKey, unknown> {
+  if (seen.has(value)) return seen.get(value) as Record<PropertyKey, unknown>;
+
+  const res: Record<PropertyKey, unknown> = Object.create(Object.getPrototypeOf(value));
+  seen.set(value, res);
+  for (const key of Reflect.ownKeys(value)) {
+    res[key] = cloneMergeValue(value[key], seen);
+  }
+  return res;
+}
+
+function isPlainMergeRecord(value: unknown): value is Record<PropertyKey, unknown> {
+  if (value === null || typeof value !== 'object') return false;
+  if (Array.isArray(value)) return false;
+  if (value instanceof Date || value instanceof RegExp) return false;
+  if (value instanceof Map || value instanceof Set) return false;
+  if (ArrayBuffer.isView(value) || value instanceof ArrayBuffer) return false;
+  const proto = Object.getPrototypeOf(value);
+  return proto === Object.prototype || proto === null;
 }

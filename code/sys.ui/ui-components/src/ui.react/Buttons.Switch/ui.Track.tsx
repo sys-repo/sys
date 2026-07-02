@@ -1,4 +1,4 @@
-import { Color, css, Is, R, type t } from './common.ts';
+import { Color, css, Is, Obj, type t } from './common.ts';
 
 export type SwitchTrackProps = {
   track: Partial<t.SwitchTrack>;
@@ -67,8 +67,13 @@ function toTrack(
     borderWidth: { on: undefined, off: undefined }, // NB: undefined === fill background
   };
 
-  const res = R.mergeDeepRight(defaultTrack, track) as t.SwitchTrack;
-  return R.clone(res);
+  const res: t.SwitchTrack = {
+    ...defaultTrack,
+    ...track,
+    color: { ...defaultTrack.color, ...(track.color ?? {}) },
+    borderWidth: { ...defaultTrack.borderWidth, ...(track.borderWidth ?? {}) },
+  };
+  return Obj.clone(res);
 }
 
 const wrangle = {
