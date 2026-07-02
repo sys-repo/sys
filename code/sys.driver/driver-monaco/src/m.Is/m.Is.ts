@@ -1,4 +1,4 @@
-import { type t, asRange, D, Is, Obj, R } from './common.ts';
+import { asRange, D, Is, Obj, type t } from './common.ts';
 
 type IRange = t.Monaco.I.IRange;
 type IPosition = t.Monaco.I.IPosition;
@@ -22,7 +22,7 @@ export const EditorIs: t.EditorIs.Lib = {
   },
 
   nullRange(input: IRange): boolean {
-    return R.equals(input, D.NULL_RANGE);
+    return Obj.eql(input, D.NULL_RANGE);
   },
 
   singleCharRange(input: t.EditorRangeInput) {

@@ -4,7 +4,6 @@ import { DirHash } from '../m.Dir.Hash/mod.ts';
 import { pkg as fsPkg } from '../pkg.ts';
 
 import {
-  type t,
   Arr,
   CompositeHash,
   D,
@@ -14,9 +13,10 @@ import {
   Ignore,
   Json,
   JsrUrl,
+  Obj,
   Path,
-  R,
   Str,
+  type t,
   Time,
 } from './common.ts';
 import { Log } from './m.Log.ts';
@@ -72,7 +72,8 @@ export const Dist: t.Pkg.Dist.Lib = {
       time: Time.now.timestamp,
       size,
       builder: Pkg.toString(args.builder ?? Pkg.unknown()) as t.StringScopedPkgNameVer,
-      runtime: `deno=${Deno.version.deno}:v8=${Deno.version.v8}:typescript=${Deno.version.typescript}`,
+      runtime:
+        `deno=${Deno.version.deno}:v8=${Deno.version.v8}:typescript=${Deno.version.typescript}`,
       hash: {
         // Version-pinned provenance for the hash policy used here.
         policy: JsrUrl.Pkg.file(fsPkg, D.hashPolicy.path),
@@ -188,7 +189,7 @@ export const Dist: t.Pkg.Dist.Lib = {
         } else {
           const ignore = await wrangle.ignore(ignoreMeta.rules);
           const replay = await wrangle.hashesBase(dir, undefined, undefined, ignore);
-          if (!R.equals(replay, dist.hash)) {
+          if (!Obj.eql(replay, dist.hash)) {
             errors.push(`Dist ignore-policy does not reproduce hash.parts: ${distfile}`);
           }
         }
@@ -220,7 +221,9 @@ const wrangle = {
     if (!trustChildDist) return await wrangle.hashesBase(path, filter, onHashProgress, ignore);
 
     const children = await wrangle.childDists(path);
-    if (children.length === 0) return await wrangle.hashesBase(path, filter, onHashProgress, ignore);
+    if (children.length === 0) {
+      return await wrangle.hashesBase(path, filter, onHashProgress, ignore);
+    }
 
     const childAbs = children.map((child) => Path.join(path, child.rootRel));
     const mergedFilter = (value: string) => {
@@ -319,7 +322,10 @@ const wrangle = {
   },
 
   async ignore(input?: string | readonly string[]) {
-    const rules = Ignore.normalize([...D.hashPolicy.ignore.rules, ...(input ? [input].flat() : [])]);
+    const rules = Ignore.normalize([
+      ...D.hashPolicy.ignore.rules,
+      ...(input ? [input].flat() : []),
+    ]);
     const digest = await Ignore.digest(rules);
     return { rules, digest, matcher: Ignore.create(rules) };
   },

@@ -1,4 +1,4 @@
-import { DEFAULT, Delete, R, Time, maybeWait, slug, type t } from './common.ts';
+import { Arr, DEFAULT, Delete, maybeWait, slug, type t, Time } from './common.ts';
 
 /**
  * A single test.
@@ -126,7 +126,7 @@ const toExcluded = (options: {
     let list: t.TestModifier[] = [];
     if (options.modifier === 'skip') list.push('skip');
     if (Array.isArray(options.excluded)) list.push(...options.excluded);
-    list = R.uniq(list);
+    list = Arr.uniq(list);
     return list.length === 0 ? undefined : list;
   } else {
     return undefined;

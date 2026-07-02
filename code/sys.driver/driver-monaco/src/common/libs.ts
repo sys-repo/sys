@@ -16,7 +16,6 @@ export { Is } from '@sys/std/is';
 export { Log } from '@sys/std/log';
 export { Pkg } from '@sys/std/pkg';
 export { slug } from '@sys/std/random';
-export { R } from '@sys/std/r';
 export { Url } from '@sys/std/url';
 export { Schedule, singleton } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';

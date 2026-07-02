@@ -1,4 +1,4 @@
-import { Err, R, type t } from './common.ts';
+import { Eql, Err, type t } from './common.ts';
 import { builder } from './u.builder.ts';
 import { toComposite } from './u.toComposite.ts';
 
@@ -30,7 +30,7 @@ export const verify: t.CompositeHash.Lib['verify'] = async (hash, argsInput) => 
   }
   res.hash.b = current.toObject();
   res.error = errors.toError();
-  res.is.valid = res.error ? false : R.equals(res.hash.a, res.hash.b);
+  res.is.valid = res.error ? false : Eql.deep(res.hash.a, res.hash.b);
   return res;
 };
 

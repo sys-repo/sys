@@ -1,4 +1,4 @@
-import { describe, expect, it, R, Testing } from '../../-test.ts';
+import { Arr, describe, expect, it, Testing } from '../../-test.ts';
 import { Port } from '../mod.ts';
 
 describe('Net.Port', () => {
@@ -28,7 +28,7 @@ describe('Net.Port', () => {
     it('Port.random()', async () => {
       await Testing.retry(10, () => {
         const ports = [...Array(50)].map(() => Port.random());
-        expect(R.equals(R.uniq(ports), ports)).to.eql(true);
+        expect(Arr.uniq(ports)).to.eql(ports);
         expect(ports.every((v) => typeof v === 'number')).to.eql(true);
       });
     });

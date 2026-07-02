@@ -5,7 +5,6 @@ export { Is, isRecord } from '@sys/std/is';
 export { Json } from '@sys/std/json';
 export { JsrUrl } from '@sys/std/url';
 export { Num } from '@sys/std/num';
-export { R } from '@sys/std/r';
 export { Str } from '@sys/std/str';
 export { slug } from '@sys/std/random';
 export { Obj } from '@sys/std/obj';

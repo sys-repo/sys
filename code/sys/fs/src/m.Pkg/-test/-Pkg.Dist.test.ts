@@ -1,8 +1,8 @@
-import { type t, describe, expect, it, pkg } from '../../-test.ts';
+import { describe, expect, it, pkg, type t } from '../../-test.ts';
 import { pkg as fsPkg } from '../../pkg.ts';
 import { Dir } from '../../mod.ts';
 import { Sample } from './-u.fixture.ts';
-import { D, Fs, Ignore, Is, JsrUrl, Path, R, Str, Time, c } from '../common.ts';
+import { c, D, Fs, Ignore, Is, JsrUrl, Obj, Path, Str, Time } from '../common.ts';
 import { Dist } from '../m.Pkg.Dist.ts';
 import { Pkg } from '../mod.ts';
 
@@ -598,7 +598,7 @@ describe('Pkg.Dist', () => {
         mutate?: (hash: t.DeepMutable<t.CompositeHash>) => void,
       ) => {
         const dist = (await Pkg.Dist.compute({ dir })).dist;
-        const hash = R.clone(dist.hash);
+        const hash = Obj.clone(dist.hash);
         mutate?.(hash); // ← (test manipulation) setup test conditions.
 
         const verification = await Pkg.Dist.verify(dir, hash);
@@ -635,7 +635,8 @@ describe('Pkg.Dist', () => {
             ...json.build.hash,
             ignore: {
               ...json.build.hash.ignore!,
-              'rules:digest': 'sha256-0000000000000000000000000000000000000000000000000000000000000000',
+              'rules:digest':
+                'sha256-0000000000000000000000000000000000000000000000000000000000000000',
             },
           },
         },
