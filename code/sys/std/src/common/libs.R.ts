@@ -1,5 +1,5 @@
 import type { RLib } from './t.ts';
-import { equals } from './u.equals.ts';
+import { deep as equals } from '../m.Eql/m.Eql.ts';
 
 /**
  * Small functional utility subset kept behind the legacy `R` facade.

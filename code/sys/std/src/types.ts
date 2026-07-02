@@ -13,6 +13,7 @@ export type * from './m.Delete/t.ts';
 export type * from './m.Dispose/t.ts';
 export type * from './m.Effect/t.ts';
 export type * from './m.EffectController/t.ts';
+export type * from './m.Eql/t.ts';
 export type * from './m.Err/t.ts';
 export type * from './m.Fn/t.ts';
 export type * from './m.Glob/t.ts';

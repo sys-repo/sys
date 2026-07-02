@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../-test.ts';
-import { equals, unique, uniqueBy } from '../u.equals.ts';
+import { deep as equals, unique, uniqueBy } from '../m.Eql.ts';
 
-describe('u.equals', () => {
+describe('Eql kernel and structural helpers', () => {
   it('compares primitives with Object.is semantics', () => {
     expect(equals(123, 123)).to.eql(true);
     expect(equals('foo', 'foo')).to.eql(true);

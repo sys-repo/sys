@@ -1,4 +1,5 @@
-import { equals, type t } from './common.ts';
+import type { t } from './common.ts';
+import { deep as equals } from '../m.Eql/m.Eql.ts';
 
 /**
  * Cycle a union string signal through a list of possible values.
