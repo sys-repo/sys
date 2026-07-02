@@ -6,7 +6,6 @@ export { Json } from '@sys/std/json';
 export { Num } from '@sys/std/num';
 export { Obj } from '@sys/std/obj';
 export { Path } from '@sys/std/path';
-export { R } from '@sys/std/r';
 export { Semver } from '@sys/std/semver/server';
 export { Str } from '@sys/std/str';
 export { Time } from '@sys/std/time';
