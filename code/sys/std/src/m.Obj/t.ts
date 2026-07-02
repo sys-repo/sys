@@ -35,47 +35,10 @@ type O = Record<string, unknown>;
 /** An object extended with additional properties. */
 export type ObjExtend<T extends object, U extends object> = T & U;
 
+/**
+ * Object utilities and subordinate object-domain type surfaces.
+ */
 export declare namespace Obj {
-  export namespace Path {
-    /** Tools for working with objects via abstract path arrays. */
-    export type Lib = TPath.Lib;
-
-    export namespace Is {
-      /** Predicates over object-paths. */
-      export type Lib = TPathIs.Lib;
-    }
-
-    export namespace Rel {
-      /** Utilities for determining relationships between object-paths. */
-      export type Lib = TPathRel.Lib;
-    }
-
-    export namespace Codec {
-      /** Collection of codecs (pointer, dot, etc). */
-      export type Lib = TPathCodec.Lib;
-    }
-
-    export namespace Curried {
-      /** Curried object-path wrapper API. */
-      export type Lib = TPathCurried.Lib;
-    }
-
-    export namespace Mutate {
-      /** Tools that mutate an object in-place using abstract path arrays. */
-      export type Lib = TPath.Mutate.Lib;
-    }
-  }
-
-  export namespace Lens {
-    /** Library surface for Obj.Path.Lens. */
-    export type Lib = TLens.Lib;
-
-    export namespace Is {
-      /** Guard checks on value types. */
-      export type Lib = TLensIs.Lib;
-    }
-  }
-
   /**
    * Tools for working with objects.
    */
@@ -92,12 +55,12 @@ export declare namespace Obj {
      * Walks an object tree (recursive descent) implementing
      * a visitor callback for each item.
      */
-    walk<T extends object | any[]>(parent: T, fn: t.ObjWalkFn): void;
+    walk<T extends object | unknown[]>(parent: T, fn: t.ObjWalkFn): void;
 
     /**
      * Converts an object into an array of {key,value} pairs.
      */
-    toArray<T = O, K = keyof T>(obj: Record<string, any>): { key: K; value: T[keyof T] }[];
+    toArray<T = O, K = keyof T>(obj: Record<string, unknown>): { key: K; value: T[keyof T] }[];
 
     /**
      * Walk the tree and ensure all strings are less than the given max-length.
@@ -176,7 +139,7 @@ export declare namespace Obj {
 
     /**
      * Deeply clone the given object (circular-reference safe)
-     * with support for Date, RegExp, and dynamic getter/setter presevation.
+     * with support for Date, RegExp, and dynamic getter/setter preservation.
      */
     clone<T>(obj: T): T;
 
@@ -187,7 +150,7 @@ export declare namespace Obj {
 
     /**
      * Convert the value to a simple number-hash.
-     * "fast, consistent, unique hashCode" on any JS value object.
+     * "fast, consistent, unique hashCode" on arbitrary JS value objects.
      */
     hash<T>(value: T): number;
 
@@ -198,6 +161,127 @@ export declare namespace Obj {
     /** Determine if the given object is empty of all fields. */
     isEmptyRecord<T extends O>(input?: unknown): input is T;
   };
+
+  /**
+   * Object-path helpers and related path-domain types.
+   */
+  export namespace Path {
+    /** Tools for working with objects via abstract path arrays. */
+    export type Lib = TPath.Lib;
+
+    /** Options controlling how a path string is sanitized before decoding. */
+    export type SanitizeOptions = TPath.ObjPathSanitizeOptions;
+
+    /** String-level repair kind applied by path sanitizers. */
+    export type Fix = TPath.ObjPathFix;
+
+    /** Options for tolerant path decoding. */
+    export type TryDecodeOptions = TPath.PathTryDecodeOptions;
+
+    /** Structured result returned from tolerant path decoding. */
+    export type TryDecodeResult = TPath.PathTryDecodeResult;
+
+    /**
+     * Predicates over object-paths.
+     */
+    export namespace Is {
+      /** Predicates over object-paths. */
+      export type Lib = TPathIs.Lib;
+    }
+
+    /**
+     * Relationship helpers for comparing object paths.
+     */
+    export namespace Rel {
+      /** Utilities for determining relationships between object-paths. */
+      export type Lib = TPathRel.Lib;
+
+      /** Relationship between two object paths. */
+      export type Relation = TPathRel.PathRelation;
+    }
+
+    /**
+     * Object-path codec definitions and options.
+     */
+    export namespace Codec {
+      /** Collection of codecs (pointer, dot, etc). */
+      export type Lib = TPathCodec.Lib;
+
+      /** Object path encoder/decoder definition. */
+      export type Definition = TPathCodec.ObjPathCodec;
+
+      /** Built-in object path codec kind. */
+      export type Kind = TPathCodec.ObjPathCodecKind;
+
+      /** Options for namespace-level path encoding. */
+      export type EncodeOptions = TPathCodec.ObjPathEncodeOptions;
+
+      /** Options for namespace-level path decoding. */
+      export type DecodeOptions = TPathCodec.ObjPathDecodeOptions;
+    }
+
+    /**
+     * Curried object-path type surface.
+     */
+    export namespace Curried {
+      /** Curried object-path wrapper API. */
+      export type Lib = TPathCurried.Lib;
+
+      /** Instance API for a single curried object path. */
+      export type Instance<T = unknown> = TPathCurried.CurriedPath<T>;
+    }
+
+    /**
+     * Object-path mutation and diff type surface.
+     */
+    export namespace Mutate {
+      /** Tools that mutate an object in-place using abstract path arrays. */
+      export type Lib = TPath.Mutate.Lib;
+
+      /** A JSON-serialisable description of one structural mutation. */
+      export type Op = TPath.ObjDiffOp;
+
+      /** Options passed to object-path diff/mutation helpers. */
+      export type Options = TPath.ObjDiffOptions;
+
+      /** Aggregate result returned from object-path diff helpers. */
+      export type Report = TPath.ObjDiffReport;
+    }
+  }
+
+  /**
+   * Object lens helpers and related lens-domain types.
+   */
+  export namespace Lens {
+    /** Tools for working with object lenses. */
+    export type Lib = TLens.Lib;
+
+    /** Unbound lens at a path. */
+    export type Unbound<T = unknown> = TLens.ObjLens<T>;
+
+    /** Bound writable lens. */
+    export type Ref<S extends O = O, T = unknown> = TLens.ObjLensRef<S, T>;
+
+    /** Readonly unbound lens at a path. */
+    export type ReadonlyUnbound<T = unknown> = TLens.ReadonlyObjLens<T>;
+
+    /** Bound readonly lens. */
+    export type ReadonlyRef<S extends O = O, T = unknown> = TLens.ReadonlyObjLensRef<S, T>;
+
+    /** Options controlling lens-to-object dehydration. */
+    export type ToObjectOptions = TLens.LensToObjectOptions;
+
+    /** Recursive lens-ref dehydration type. */
+    export type Unwrap<T> = TLens.UnwrapLenses<T>;
+
+    /**
+     * Guard checks for object lens values.
+     */
+    export namespace Is {
+      /** Guard checks on value types. */
+      export type Lib = TLensIs.Lib;
+    }
+  }
 }
 
 /** A callback passed to the `Obj.walk` callback function. */
@@ -212,7 +296,7 @@ export type ObjWalkFnArgs = {
   mutate<T>(value: T): void;
 };
 
-/** Options passed to the `Obj.trimStringsDeep` method. */
+/** Options passed to the `Obj.truncateStrings` method. */
 export type ObjTruncateStringsOptions = {
   maxLength?: number;
   ellipsis?: boolean;
