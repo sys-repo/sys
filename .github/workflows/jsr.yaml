@@ -31,7 +31,7 @@ jobs:
         include:
           - name: "@sys/std"
             path: "code/sys/std"
-            version: "0.0.364"
+            version: "0.0.365"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
@@ -41,7 +41,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.0
+          deno-version: v2.9.1
       - name: Install Dependencies
         run: |
           max_attempts=3
@@ -203,19 +203,19 @@ jobs:
         include:
           - name: "@sys/color"
             path: "code/sys/color"
-            version: "0.0.259"
+            version: "0.0.260"
           - name: "@sys/event"
             path: "code/sys/event"
-            version: "0.0.162"
+            version: "0.0.163"
           - name: "@sys/immutable"
             path: "code/sys/immutable"
-            version: "0.0.151"
+            version: "0.0.152"
           - name: "@sys/net"
             path: "code/sys/net"
-            version: "0.0.136"
+            version: "0.0.137"
           - name: "@sys/text"
             path: "code/sys/text"
-            version: "0.0.314"
+            version: "0.0.315"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
@@ -225,7 +225,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.0
+          deno-version: v2.9.1
       - name: Install Dependencies
         run: |
           max_attempts=3
@@ -387,16 +387,16 @@ jobs:
         include:
           - name: "@sys/ui-css"
             path: "code/sys.ui/ui-css"
-            version: "0.0.294"
+            version: "0.0.295"
           - name: "@sys/ui-state"
             path: "code/sys.ui/ui-state"
-            version: "0.0.112"
+            version: "0.0.113"
           - name: "@sys/ui-dom"
             path: "code/sys.ui/ui-dom"
-            version: "0.0.304"
+            version: "0.0.305"
           - name: "@sys/cli"
             path: "code/sys/cli"
-            version: "0.0.296"
+            version: "0.0.297"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
@@ -406,7 +406,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.0
+          deno-version: v2.9.1
       - name: Install Dependencies
         run: |
           max_attempts=3
@@ -568,10 +568,10 @@ jobs:
         include:
           - name: "@sys/crypto"
             path: "code/sys/crypto"
-            version: "0.0.299"
+            version: "0.0.300"
           - name: "@sys/process"
             path: "code/sys/process"
-            version: "0.0.299"
+            version: "0.0.300"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
@@ -581,7 +581,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.0
+          deno-version: v2.9.1
       - name: Install Dependencies
         run: |
           max_attempts=3
@@ -743,7 +743,7 @@ jobs:
         include:
           - name: "@sys/fs"
             path: "code/sys/fs"
-            version: "0.0.327"
+            version: "0.0.328"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
@@ -753,7 +753,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.0
+          deno-version: v2.9.1
       - name: Install Dependencies
         run: |
           max_attempts=3
@@ -915,19 +915,19 @@ jobs:
         include:
           - name: "@sys/driver-process"
             path: "code/sys.driver/driver-process"
-            version: "0.0.120"
+            version: "0.0.121"
           - name: "@sys/driver-signer"
             path: "code/sys.driver/driver-signer"
-            version: "0.0.97"
+            version: "0.0.98"
           - name: "@sys/testing"
             path: "code/sys/testing"
-            version: "0.0.318"
+            version: "0.0.319"
           - name: "@sys/tmpl-engine"
             path: "code/sys/tmpl-engine"
-            version: "0.0.330"
+            version: "0.0.331"
           - name: "@sys/yaml"
             path: "code/sys/yaml"
-            version: "0.0.179"
+            version: "0.0.180"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
@@ -937,7 +937,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.0
+          deno-version: v2.9.1
       - name: Install Dependencies
         run: |
           max_attempts=3
@@ -1099,13 +1099,13 @@ jobs:
         include:
           - name: "@sys/esm"
             path: "code/sys/esm"
-            version: "0.0.73"
+            version: "0.0.74"
           - name: "@sys/http"
             path: "code/sys/http"
-            version: "0.0.307"
+            version: "0.0.308"
           - name: "@sys/schema"
             path: "code/sys/schema"
-            version: "0.0.222"
+            version: "0.0.223"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
@@ -1115,7 +1115,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.0
+          deno-version: v2.9.1
       - name: Install Dependencies
         run: |
           max_attempts=3
@@ -1277,16 +1277,16 @@ jobs:
         include:
           - name: "@sys/ui-react"
             path: "code/sys.ui/ui-react"
-            version: "0.0.340"
+            version: "0.0.341"
           - name: "@sys/registry"
             path: "code/sys/registry"
-            version: "0.0.302"
+            version: "0.0.303"
           - name: "@sys/model"
             path: "code/sys.model/model"
-            version: "0.0.121"
+            version: "0.0.122"
           - name: "@sys/cell"
             path: "code/sys/cell"
-            version: "0.0.58"
+            version: "0.0.59"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
@@ -1296,7 +1296,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.0
+          deno-version: v2.9.1
       - name: Install Dependencies
         run: |
           max_attempts=3
@@ -1458,19 +1458,19 @@ jobs:
         include:
           - name: "@sys/ui-dev"
             path: "code/sys.ui/ui-dev"
-            version: "0.0.339"
+            version: "0.0.340"
           - name: "@sys/driver-cloudflare"
             path: "code/sys.driver/driver-cloudflare"
-            version: "0.0.17"
+            version: "0.0.18"
           - name: "@sys/model-slug"
             path: "code/sys.model/model-slug"
-            version: "0.0.131"
+            version: "0.0.132"
           - name: "@sys/server"
             path: "code/sys/server"
-            version: "0.0.31"
+            version: "0.0.32"
           - name: "@sys/workspace"
             path: "code/sys/workspace"
-            version: "0.0.130"
+            version: "0.0.131"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
@@ -1480,7 +1480,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.0
+          deno-version: v2.9.1
       - name: Install Dependencies
         run: |
           max_attempts=3
@@ -1642,10 +1642,10 @@ jobs:
         include:
           - name: "@sys/ui-components"
             path: "code/sys.ui/ui-components"
-            version: "0.0.307"
+            version: "0.0.308"
           - name: "@sys/driver-deno"
             path: "code/sys.driver/driver-deno"
-            version: "0.0.379"
+            version: "0.0.380"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
@@ -1655,7 +1655,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.0
+          deno-version: v2.9.1
       - name: Install Dependencies
         run: |
           max_attempts=3
@@ -1817,28 +1817,28 @@ jobs:
         include:
           - name: "@sys/driver-automerge"
             path: "code/sys.driver/driver-automerge"
-            version: "0.0.304"
+            version: "0.0.305"
           - name: "@sys/driver-stripe"
             path: "code/sys.driver/driver-stripe"
-            version: "0.0.123"
+            version: "0.0.124"
           - name: "@sys/ui"
             path: "code/sys.ui/ui"
-            version: "0.0.15"
+            version: "0.0.16"
           - name: "@sys/tmpl"
             path: "code/-tmpl"
-            version: "0.0.445"
+            version: "0.0.446"
           - name: "@sys/driver-pi"
             path: "code/sys.driver/driver-pi"
-            version: "0.0.111"
+            version: "0.0.112"
           - name: "@sys/driver-vite"
             path: "code/sys.driver/driver-vite"
-            version: "0.0.445"
+            version: "0.0.446"
           - name: "@tdb/data"
             path: "deploy/@tdb.data"
-            version: "0.0.86"
+            version: "0.0.87"
           - name: "@tdb/slc-std"
             path: "deploy/@tdb.slc.std"
-            version: "0.0.129"
+            version: "0.0.130"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
@@ -1848,7 +1848,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.0
+          deno-version: v2.9.1
       - name: Install Dependencies
         run: |
           max_attempts=3
@@ -2010,16 +2010,16 @@ jobs:
         include:
           - name: "@sys/driver-monaco"
             path: "code/sys.driver/driver-monaco"
-            version: "0.0.266"
+            version: "0.0.267"
           - name: "@sys/driver-prosemirror"
             path: "code/sys.driver/driver-prosemirror"
-            version: "0.0.248"
+            version: "0.0.249"
           - name: "@sys/tools"
             path: "code/sys.tools"
-            version: "0.0.461"
+            version: "0.0.462"
           - name: "@tdb/edu-slug"
             path: "deploy/@tdb.edu.slug"
-            version: "0.0.154"
+            version: "0.0.155"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
@@ -2029,7 +2029,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.0
+          deno-version: v2.9.1
       - name: Install Dependencies
         run: |
           max_attempts=3
