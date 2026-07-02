@@ -6,6 +6,9 @@ import { Fs, Process } from './common.ts';
 import { Workspace as Base } from '../m.Workspace.ts';
 import type { t } from './common.ts';
 
+/**
+ * Test helpers that verify a workspace can run prep and produce a graph snapshot.
+ */
 export const WorkspaceTesting: t.WorkspaceTesting.Test.Lib = {
   async scripts(cwd = Fs.cwd()) {
     const output = await Process.invoke({
@@ -24,6 +27,9 @@ export const WorkspaceTesting: t.WorkspaceTesting.Test.Lib = {
   },
 };
 
+/**
+ * Workspace runtime surface extended with structural test helpers.
+ */
 export const Workspace = { ...Base, Test: WorkspaceTesting };
 
 /**
