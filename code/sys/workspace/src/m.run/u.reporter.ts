@@ -27,6 +27,7 @@ export type ParallelProgressFormatArgs = {
   readonly pending: number;
   readonly running: readonly ParallelProgressRunning[];
   readonly completed?: readonly ParallelProgressCompleted[];
+  readonly elapsed?: t.Msecs;
   readonly terminal?: boolean;
   readonly width?: number;
 };
@@ -55,6 +56,7 @@ type ReporterState = {
   readonly terminal: boolean;
   readonly width?: number;
   readonly write: (line: string) => void;
+  readonly startedAt: t.Msecs;
   readonly running: Map<t.StringPath, Running>;
   completed: ParallelProgressCompleted[];
   pending: number;
@@ -79,6 +81,7 @@ export function createParallelReporter(args: ParallelReporterArgs): ParallelRepo
     terminal: args.terminal ?? Cli.Is.terminal('stdout'),
     width: args.width,
     write: args.write ?? console.info,
+    startedAt: Time.now.timestamp,
     running: new Map(),
     completed: [],
     pending: runnablePaths.size,
@@ -115,7 +118,8 @@ export function createParallelReporter(args: ParallelReporterArgs): ParallelRepo
 export function formatParallelProgress(args: ParallelProgressFormatArgs): string {
   const done = args.passed + args.blockedRunnable + args.failed;
   const percent = wrangle.percent(done, args.runnableTotal);
-  const progress = c.gray(`tests ${percent}%`);
+  const elapsed = wrangle.progressElapsed(args.elapsed);
+  const progress = c.gray(`tests ${percent}%${elapsed ? ` - ${elapsed}` : ''}`);
   const passed = `${c.green(`✓ passed ${args.passed}`)}${c.gray(`/${args.runnableTotal}`)}`;
   const failed = args.failed > 0 ? c.red(`✕ failed ${args.failed}`) : c.gray('✕ failed 0');
   const blocked = args.blocked > 0 ? c.yellow(`⊘ blocked ${args.blocked}`) : c.gray('⊘ blocked 0');
@@ -218,6 +222,7 @@ const wrangle = {
       pending: state.pending,
       running: wrangle.running(state),
       completed: state.completed,
+      elapsed: wrangle.elapsed(state),
       terminal: state.terminal,
       width: state.width,
     });
@@ -230,6 +235,10 @@ const wrangle = {
       items.push({ path: item.path, elapsed: now - item.startedAt });
     }
     return items;
+  },
+
+  elapsed(state: ReporterState): t.Msecs {
+    return (Time.now.timestamp - state.startedAt) as t.Msecs;
   },
 
   stop(state: ReporterState) {
@@ -256,6 +265,12 @@ const wrangle = {
     if (total < 1) return 100;
     const value = done * 100;
     return (value - (value % total)) / total;
+  },
+
+  progressElapsed(elapsed?: t.Msecs) {
+    if (elapsed === undefined || elapsed < 1000) return '';
+    if (elapsed < 60_000) return Time.duration(elapsed).format('s');
+    return Time.duration(elapsed).format({ unit: 'm', round: 1 });
   },
 
   activeGrid(

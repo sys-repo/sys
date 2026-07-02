@@ -46,6 +46,12 @@ describe('WorkspaceRun.parallel reporter', () => {
     expect(frame.includes('·  code/without-test')).to.eql(true);
   });
 
+  it('formats elapsed progress only after one second', () => {
+    expect(progressLine(999)).to.eql('tests 20%');
+    expect(progressLine(2_100)).to.eql('tests 20% - 2s');
+    expect(progressLine(126_000)).to.eql('tests 20% - 2.1m');
+  });
+
   it('caps completed packages at five rows and summarizes overflow', () => {
     const frame = Cli.stripAnsi(formatParallelProgress({
       runnableTotal: 20,
@@ -173,6 +179,23 @@ describe('WorkspaceRun.parallel reporter', () => {
     expect(formatFailedOutput(result([fail], fail))).to.eql('');
   });
 });
+
+function progressLine(elapsed: t.Msecs) {
+  const frame = formatParallelProgress({
+    runnableTotal: 10,
+    passed: 2,
+    skipped: 0,
+    blocked: 0,
+    blockedRunnable: 0,
+    failed: 0,
+    pending: 8,
+    running: [],
+    elapsed,
+    terminal: false,
+    width: 100,
+  });
+  return Cli.stripAnsi(frame).split('\n')[0];
+}
 
 function ran(
   path: string,
