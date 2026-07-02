@@ -1,163 +1,105 @@
 # Obj type namespace tidy plan
 
-## Commit list
-
-- [ ] `refactor(std): tidy Obj type namespace`
-
 ## Status
 
-Draft plan. This is intentionally separate from `fix(std): remove internal R facade usage`.
+Complete.
 
-## Position
+The Obj type namespace cleanup arc is done. The final public type surface is the nested `t.Obj.*`
+namespace, and the loose root aliases for subordinate Obj concepts have been retired.
 
-`code/sys/std/src/m.Obj/t.ts` has older loose top-level type re-exports for subordinate Obj concepts such as lens,
-path codec, curried path, path diff, and path relation types.
+This file is now an archival record, not an active plan.
 
-This is workable, but it does not match the modern type-plane shape as well as it should. The public Obj contract
-should be scanable through the `Obj` namespace first, with subordinate concepts grouped under `Obj.Path`, `Obj.Lens`,
-and related nested namespaces.
+## Commit record
 
-Do not fold this into the Ramda/R cleanup. That commit should stay focused on removing internal `R` facade usage.
+- [x] `191f65e3b` `refactor(std): tidy Obj type namespace`
+- [x] `62aaf792f` `refactor(std): migrate Obj internal type consumers`
+- [x] `ccf3ef1f8` `refactor(yaml): use Obj namespace diff types`
+- [x] `7de9bc11c` `refactor(std): retire loose Obj type aliases`
 
-## Current smell
+## Final truth
 
-Examples of the current loose public type surface:
+- `t.Obj.*` is the canonical public type surface.
+- `Obj.Lib` is first in the public `Obj` namespace.
+- Subordinate object concepts are discoverable under nested namespaces:
+  - `t.Obj.Path.*`
+  - `t.Obj.Path.Codec.*`
+  - `t.Obj.Path.Curried.*`
+  - `t.Obj.Path.Mutate.*`
+  - `t.Obj.Path.Rel.*`
+  - `t.Obj.Lens.*`
+  - `t.Obj.Lens.Is.*`
+- Loose public root aliases for subordinate Obj concepts are retired, including the former lens,
+  path codec, curried path, path diff, and path relation names.
+- Private/source type names were tightened to neutral local names where practical:
+  - `Definition`
+  - `Kind`
+  - `Op`
+  - `Options`
+  - `Report`
+  - `Instance`
+  - `Relation`
+  - `Unbound`
+  - `Ref`
+  - `ReadonlyUnbound`
+  - `ReadonlyRef`
+  - `ToObjectOptions`
+  - `Unwrap`
+- `CurriedPath` remains only as the runtime value/module name, not as a loose public root type
+  alias.
+- Runtime/API smoke for `Obj` lives in:
+  - `code/sys/std/src/m.Obj/-test/-.test.ts`
+- The `Obj` type-plane contract lives in:
+  - `code/sys/std/src/m.Obj/-test/-t.test.ts`
+- The maintained external YAML consumer was migrated from the loose diff alias to:
+  - `t.Obj.Path.Mutate.Op`
+- The compatibility decision was explicit: retire loose public root aliases after maintained
+  consumers were migrated and scans were clean.
 
-```ts
-export type {
-  ObjLens,
-  ObjLensRef,
-  ReadonlyObjLens,
-  ReadonlyObjLensRef,
-} from '../m.Obj.Lens/t.lens.ts';
+## Validation record
 
-export type { ObjPathCodec, ObjPathCodecKind } from '../m.Obj.Path/t.codec.ts';
-export type { ObjDiffOp, ObjDiffOptions, ObjDiffReport } from '../m.Obj.Path/t.diff.ts';
-export type { PathRelation } from '../m.Obj.Path/t.rel.ts';
-```
-
-Concerns:
-
-- subordinate/detail Obj types are flattened into the root type pool;
-- `Obj.Path.*`, `Obj.Lens.*`, and root `Obj.*` concepts are mixed at the same level;
-- `Obj.Lib` is not the first member of the public `Obj` namespace;
-- the type spine is harder to audit against the modern type-plane canon.
-
-## Desired shape
-
-Prefer a curated namespace spine such as:
-
-```ts
-export declare namespace Obj {
-  export type Lib = { /* runtime contract */ };
-
-  export namespace Lens {
-    export type Lib = TLens.Lib;
-    export type ObjLens = TLens.ObjLens;
-    export type ObjLensRef = TLens.ObjLensRef;
-  }
-
-  export namespace Path {
-    export type Lib = TPath.Lib;
-
-    export namespace Codec {
-      export type Lib = TPathCodec.Lib;
-      export type ObjPathCodec = TPathCodec.ObjPathCodec;
-    }
-
-    export namespace Rel {
-      export type Lib = TPathRel.Lib;
-      export type PathRelation = TPathRel.PathRelation;
-    }
-  }
-}
-```
-
-Exact names should be chosen after reading current consumers.
-
-## Migration rules
-
-- Read all current consumers before editing exported type names.
-- Preserve public compatibility unless deliberately choosing a breaking change.
-- Prefer introducing nested names first, then migrating internal consumers, then retiring loose aliases if safe.
-- Avoid broad churn in packages unrelated to Obj type consumption.
-- Keep runtime imports untouched unless a type-only import can be safely removed.
-- Keep `t.ts` type-plane pure.
-
-## Candidate execution phases
-
-### Phase 1: audit consumers
-
-Find usage of loose Obj type names, especially:
-
-```txt
-ObjLens
-ObjLensRef
-ReadonlyObjLens
-ReadonlyObjLensRef
-LensToObjectOptions
-UnwrapLenses
-ObjPathCodec
-ObjPathCodecKind
-ObjPathDecodeOptions
-ObjPathEncodeOptions
-CurriedPath
-ObjDiffOp
-ObjDiffOptions
-ObjDiffReport
-ObjPathFix
-ObjPathSanitizeOptions
-PathTryDecodeOptions
-PathTryDecodeResult
-PathRelation
-```
-
-Classify as:
-
-- internal `@sys/std` usage;
-- active external package usage;
-- tests only;
-- archived/out-of-scope usage.
-
-### Phase 2: add nested namespace aliases
-
-Add nested aliases under the public `Obj` namespace while keeping loose top-level aliases temporarily.
-
-Acceptance:
+Validated during the arc with:
 
 ```sh
 cd /Users/phil/code/org.sys/sys/code/sys/std
+deno fmt --check src/m.Obj/t.ts src/m.Obj/-test/-.test.ts src/m.Obj/-test/-t.test.ts src/m.Obj.Path/t.codec.ts src/m.Obj.Path/t.curried.ts src/m.Obj.Path/t.diff.ts src/m.Obj.Path/t.rel.ts src/m.Obj.Path/t.ts src/m.Obj.Lens/t.lens.ts src/m.Obj.Lens/t.toObject.ts
 deno task check
+deno task test --trace-leaks ./src/m.Obj/-test/-.test.ts ./src/m.Obj/-test/-t.test.ts ./src/m.Obj.Path ./src/m.Obj.Lens
+deno task dry
 ```
 
-### Phase 3: migrate maintained consumers
-
-Move maintained callsites to nested `t.Obj.*` names where that improves clarity.
-
-Acceptance:
+Dependent YAML validation:
 
 ```sh
-cd /Users/phil/code/org.sys/sys/code/sys/std
+cd /Users/phil/code/org.sys/sys/code/sys/yaml
 deno task check
+deno task test
 ```
 
-Run targeted checks for any packages touched outside `@sys/std`.
+Plan formatting validation:
 
-### Phase 4: decide whether loose aliases stay or retire
+```sh
+cd /Users/phil/code/org.sys/sys
+deno fmt --check -- -agent/-plan/@sys.std/obj-type-namespace-tidy.plan.md
+```
 
-If loose aliases are public compatibility surface, keep them with clear comments until a breaking-release window.
-If they are not used or are internal-only, retire them in the same refactor.
+## Residue record
 
-## Acceptance
+Final scans were clean for maintained code usage of retired loose Obj type names under `code/**`,
+excluding `node_modules`, `-tmp`, and `-archive`.
 
-- `Obj.Lib` is first in the `Obj` namespace.
-- Subordinate Obj concepts are discoverable under `Obj.Path`, `Obj.Lens`, etc.
-- No runtime graph changes are introduced by type-only cleanup.
-- Public compatibility decision is explicit.
-- Tests/checks pass for `@sys/std` and any touched consumer packages.
+The only intentional remaining old-looking name is `CurriedPath` as the runtime object/module name
+inside `m.Obj.Path`; it is not a loose exported public root type alias.
 
-Commit shape:
+## Commit messages
+
+Plan-record commit message:
 
 ```txt
-refactor(std): tidy Obj type namespace
+docs(plan): record Obj type namespace tidy completion
+```
+
+Retire commit message:
+
+```txt
+refactor(std): retire loose Obj type aliases
 ```
