@@ -1,6 +1,6 @@
 {
   "name": "@sys/workspace",
-  "version": "0.0.129",
+  "version": "0.0.130",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -57,3 +57,4 @@
     }
   }
 }
+
