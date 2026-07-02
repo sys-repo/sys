@@ -1,5 +1,5 @@
 import type { RLib } from './t.ts';
-import { deep as equals } from '../m.Eql/m.Eql.ts';
+import { deep, unique, uniqueBy } from '../m.Eql/m.Eql.ts';
 
 /**
  * Small functional utility subset kept behind the legacy `R` facade.
@@ -11,7 +11,7 @@ import { deep as equals } from '../m.Eql/m.Eql.ts';
 export const R: RLib = {
   clone,
   clamp,
-  equals,
+  equals: deep,
   mergeDeepRight,
   flatten,
   is,
@@ -19,8 +19,8 @@ export const R: RLib = {
   sort,
   sortBy,
   toString,
-  uniq,
-  uniqBy,
+  uniq: unique,
+  uniqBy: uniqueBy,
 };
 
 function clone<T>(value: T): T {
@@ -150,22 +150,3 @@ function toString(value: unknown) {
   return String(value);
 }
 
-function uniq<T>(items: readonly T[]) {
-  const res: T[] = [];
-  for (const item of items) {
-    if (!res.some((existing) => equals(existing, item))) res.push(item);
-  }
-  return res;
-}
-
-function uniqBy<T>(fn: (item: T) => unknown, items: readonly T[]) {
-  const res: T[] = [];
-  const seen: unknown[] = [];
-  for (const item of items) {
-    const key = fn(item);
-    if (seen.some((existing) => equals(existing, key))) continue;
-    seen.push(key);
-    res.push(item);
-  }
-  return res;
-}

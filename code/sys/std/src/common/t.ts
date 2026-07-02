@@ -27,6 +27,6 @@ export type RLib = {
   readonly sort: <T>(compare: (a: T, b: T) => number, items: readonly T[]) => T[];
   readonly sortBy: RSortBy;
   readonly toString: (value: unknown) => string;
-  readonly uniq: <T>(items: readonly T[]) => T[];
-  readonly uniqBy: <T>(fn: (item: T) => unknown, items: readonly T[]) => T[];
+  readonly uniq: <T>(items: T[]) => T[];
+  readonly uniqBy: <T>(fn: (item: T) => unknown, items: T[]) => T[];
 };

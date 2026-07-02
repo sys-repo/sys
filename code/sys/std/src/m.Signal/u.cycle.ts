@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-import { deep as equals } from '../m.Eql/m.Eql.ts';
+import { deep as equals, unique } from '../m.Eql/m.Eql.ts';
 
 /**
  * Cycle a union string signal through a list of possible values.
@@ -25,10 +25,3 @@ const wrangle = {
   },
 } as const;
 
-function unique<T>(values: readonly T[]): T[] {
-  const res: T[] = [];
-  for (const value of values) {
-    if (!res.some((existing) => equals(existing, value))) res.push(value);
-  }
-  return res;
-}

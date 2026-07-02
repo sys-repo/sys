@@ -1,7 +1,14 @@
 import { describe, expect, it } from '../../-test.ts';
+import { deep, unique, uniqueBy } from '../../m.Eql/m.Eql.ts';
 import { R } from '../libs.R.ts';
 
 describe('legacy R facade', () => {
+  it('routes equality helpers through Eql', () => {
+    expect(R.equals).to.equal(deep);
+    expect(R.uniq).to.equal(unique);
+    expect(R.uniqBy).to.equal(uniqueBy);
+  });
+
   it('R.equals uses structural equality', () => {
     expect(R.equals({ a: 1, b: [2] }, { a: 1, b: [2] })).to.eql(true);
     expect(R.equals({ a: 1, b: [2] }, { a: 1, b: [3] })).to.eql(false);
