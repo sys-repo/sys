@@ -46,7 +46,7 @@ export type YamlPath<T = unknown> = {
    *  - Creates intermediate objects/arrays as needed.
    *  - If `value` is `undefined`, the property is removed via [delete] rather than assigned `undefined`.
    */
-  set(subject: t.YamlAst, value: T): t.ObjDiffOp | undefined;
+  set(subject: t.YamlAst, value: T): t.Obj.Path.Mutate.Op | undefined;
 
   /**
    * Ensure a value at the path exists (not undefined),
@@ -57,7 +57,7 @@ export type YamlPath<T = unknown> = {
   /**
    * Deletes the value at the given path if it exists.
    */
-  delete(subject: t.YamlAst): t.ObjDiffOp | undefined;
+  delete(subject: t.YamlAst): t.Obj.Path.Mutate.Op | undefined;
 
   /**
    * Creates a new curried path combining this path as the root

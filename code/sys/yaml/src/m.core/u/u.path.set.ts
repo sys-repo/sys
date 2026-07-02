@@ -6,13 +6,13 @@ import { deepGet } from './u.path.get.ts';
 
 /**
  * Mutates `doc.contents` at `path`, setting `value` (or deleting if `value === undefined`).
- * Emits an `ObjDiffOp` (or `undefined` if no structural change).
+ * Emits an object-path mutation op (or `undefined` if no structural change).
  */
 export function deepSet(
   doc: t.YamlAst,
   path: t.ObjectPath,
   value: unknown,
-): t.ObjDiffOp | undefined {
+): t.Obj.Path.Mutate.Op | undefined {
   let parent: Node | null | undefined = doc.contents;
 
   // Capture old value/root for diff:
@@ -30,7 +30,7 @@ export function deepSet(
     if (isSeq(prev) && Array.isArray(value)) {
       // unwrap YAMLSeq to JS array
       const prevArr = (prev as YAMLSeq<unknown>).items.map((item) =>
-        isScalar(item) ? (item as Scalar).value : item,
+        isScalar(item) ? (item as Scalar).value : item
       );
       return { type: 'array', path, prev: prevArr, next: value as unknown[] };
     }

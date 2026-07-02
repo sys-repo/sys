@@ -98,7 +98,7 @@ export type YamlSyncParsed<T = unknown> = {
   readonly rev: number;
 
   /** The diff operations. */
-  readonly ops: t.ObjDiffOp[];
+  readonly ops: t.Obj.Path.Mutate.Op[];
 
   /** The source/target paths used by the parser. */
   readonly path: t.YamlSyncParserPaths;
