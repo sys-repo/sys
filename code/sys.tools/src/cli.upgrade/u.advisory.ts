@@ -39,6 +39,15 @@ export async function readUpgradeAdvisoryState(deps: ReadDeps = {}): Promise<Upg
   }
 
   const record = await readUpgradeAdvisoryRecord(path);
+  if (wrangle.hasAdoptedActionable(record)) {
+    return {
+      path,
+      record: undefined,
+      hasUpgrade: false,
+      prelude: undefined,
+    };
+  }
+
   const hasUpgrade = wrangle.hasUpgrade(record);
   return {
     path,
@@ -184,6 +193,14 @@ const wrangle = {
     if (record.status !== 'upgrade-available') return false;
     if (!record.actionable) return false;
     return Semver.Is.greaterThan(record.actionable, pkg.version as t.StringSemver);
+  },
+
+  hasAdoptedActionable(record?: UpgradeAdvisoryRecord) {
+    if (!record?.ok) return false;
+    if (record.package !== pkg.name) return false;
+    if (record.status !== 'upgrade-available') return false;
+    if (!record.actionable) return false;
+    return !Semver.Is.greaterThan(record.actionable, pkg.version as t.StringSemver);
   },
 
   record(value: unknown): UpgradeAdvisoryRecord | undefined {

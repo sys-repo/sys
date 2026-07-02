@@ -1,4 +1,4 @@
-import { c, Cli, describe, expect, Fs, it, type t } from '../../-test.ts';
+import { c, Cli, describe, expect, Fs, it, pkg, type t } from '../../-test.ts';
 import {
   readUpgradeAdvisoryState,
   toRootUpgradeAdvisoryPrelude,
@@ -62,6 +62,31 @@ describe('cli.upgrade advisory', () => {
     try {
       await Fs.write(path, '{"package":"@sys/tools","checkedAt":1,"ok":true,"remote":"9.9.9"}');
       const res = await readUpgradeAdvisoryState({ path });
+      expect(res.record).to.eql(undefined);
+      expect(res.hasUpgrade).to.eql(false);
+      expect(res.prelude).to.eql(undefined);
+    } finally {
+      await Fs.remove(tmp.absolute);
+    }
+  });
+
+  it('expires cached upgrade advisories once the actionable version is adopted', async () => {
+    const tmp = await Fs.makeTempDir({ prefix: 'sys.tools.upgrade.advisory.adopted.' });
+    const path = `${tmp.absolute}/advisory.json`;
+
+    try {
+      await Fs.writeJson(path, {
+        schemaVersion: 2,
+        package: '@sys/tools',
+        checkedAt: 1,
+        ok: true,
+        local: '0.0.0',
+        published: pkg.version,
+        actionable: pkg.version,
+        status: 'upgrade-available',
+      });
+      const res = await readUpgradeAdvisoryState({ path });
+
       expect(res.record).to.eql(undefined);
       expect(res.hasUpgrade).to.eql(false);
       expect(res.prelude).to.eql(undefined);
