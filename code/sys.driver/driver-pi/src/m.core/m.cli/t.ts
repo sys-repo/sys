@@ -17,7 +17,9 @@ import type { t } from './common.ts';
 export declare namespace PiCli {
   /** Runtime surface for the raw Pi process boundary. */
   export type Lib = {
+    /** Parse wrapper args, optionally show help, then launch upstream Pi directly. */
     main(input?: Input): Promise<Result>;
+    /** Run upstream Pi from a resolved cwd, sandbox, and argument set. */
     run(args: RunArgs): Promise<t.Process.InheritOutput>;
   };
 
@@ -35,8 +37,16 @@ export declare namespace PiCli {
 
   /** Startup cwd resolution result. */
   export type CwdResolution =
-    | { readonly kind: 'resolved'; readonly cwd: Cwd }
-    | { readonly kind: 'exit' };
+    | {
+      /** Discriminator for a resolved startup cwd. */
+      readonly kind: 'resolved';
+      /** Resolved cwd contract used for launch. */
+      readonly cwd: Cwd;
+    }
+    | {
+      /** Discriminator for a user-cancelled cwd recovery flow. */
+      readonly kind: 'exit';
+    };
 
   /** Boundary entry input for launching Pi. */
   export type Input = {
@@ -102,9 +112,13 @@ export declare namespace PiCli {
 
   /** Typed boundary argv shape produced from `Args.parse(...)`. */
   export type ParsedArgs = {
+    /** Whether wrapper help was requested. */
     readonly help?: boolean;
+    /** Whether the wrapper should launch Pi with full Deno permissions. */
     readonly allowAll?: boolean;
+    /** Runtime-root discovery mode parsed from `--git-root`. */
     readonly gitRoot?: GitRootMode;
+    /** Pi args captured after wrapper-owned flags are removed. */
     readonly _: readonly string[];
   };
 
@@ -116,8 +130,11 @@ export declare namespace PiCli {
 
   /** Help output result. */
   export type Help = {
+    /** Discriminator for help output. */
     readonly kind: 'help';
+    /** Original launcher input. */
     readonly input: Input;
+    /** Rendered help text written to stdout. */
     readonly text: string;
   };
 
@@ -153,15 +170,21 @@ export declare namespace PiCli {
 
   /** User exited startup without launching Pi. */
   export type Exit = {
+    /** Discriminator for a user-cancelled launch. */
     readonly kind: 'exit';
+    /** Original launcher input. */
     readonly input: Input;
   };
 
   /** Successful launch result. */
   export type Ran = {
+    /** Discriminator for a launched Pi process. */
     readonly kind: 'run';
+    /** Original launcher input. */
     readonly input: Input;
+    /** Parsed wrapper args used for the launch. */
     readonly parsed: ParsedArgs;
+    /** Inherited child-process output from the Pi invocation. */
     readonly output: t.Process.InheritOutput;
   };
 }

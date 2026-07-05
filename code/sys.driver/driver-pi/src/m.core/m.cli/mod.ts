@@ -10,7 +10,11 @@ export const Cli: t.PiCliProfiles.Lib = Profiles;
 
 /** Explicit profile-driven aliases. */
 export { Profiles };
-export const main = Profiles.main;
+
+/**
+ * Profile-driven CLI entrypoint that resolves startup state, selects a profile, and launches Pi.
+ */
+export const main: t.PiCliProfiles.Lib['main'] = Profiles.main;
 
 /**
  * CLI entry-point:

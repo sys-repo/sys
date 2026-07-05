@@ -7,14 +7,21 @@
  * recovery paths; use `@sys/driver-pi/cli` for normal profile-driven runs.
  */
 import { type t } from '../m.cli/common.ts';
-import { main } from '../m.cli/m.main.ts';
-import { run } from '../m.cli/m.run.ts';
+import { main as rawMain } from '../m.cli/m.main.ts';
+import { run as rawRun } from '../m.cli/m.run.ts';
+
+/**
+ * Raw CLI entrypoint that parses wrapper flags and launches upstream Pi directly.
+ */
+export const main: t.PiCli.Lib['main'] = rawMain;
+
+/**
+ * Raw process runner for an already-resolved Pi cwd, sandbox, and argument set.
+ */
+export const run: t.PiCli.Lib['run'] = rawRun;
 
 /** Raw launcher for running upstream Pi behind the typed Deno boundary. */
 export const Raw: t.PiCli.Lib = { main, run };
-
-/** Explicit raw entrypoint aliases. */
-export { main, run };
 
 /**
  * CLI entry-point:

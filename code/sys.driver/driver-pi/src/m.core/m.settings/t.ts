@@ -46,6 +46,16 @@ export declare namespace PiSettings {
 
   /** Validation result for a boundary-owned Pi settings fragment. */
   export type JsonCheck =
-    | { readonly ok: true; readonly doc: Doc }
-    | { readonly ok: false; readonly errors: readonly unknown[] };
+    | {
+      /** Whether validation succeeded. */
+      readonly ok: true;
+      /** Validated settings fragment. */
+      readonly doc: Doc;
+    }
+    | {
+      /** Whether validation failed. */
+      readonly ok: false;
+      /** Schema errors reported by validation. */
+      readonly errors: readonly unknown[];
+    };
 }

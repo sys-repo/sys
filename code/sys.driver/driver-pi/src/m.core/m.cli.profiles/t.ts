@@ -74,10 +74,15 @@ export declare namespace PiCliProfiles {
 
   /** Parsed boundary args. */
   export type ParsedArgs = {
+    /** Whether profile launcher help was requested. */
     readonly help?: boolean;
+    /** Whether the wrapper should launch Pi with full Deno permissions. */
     readonly allowAll?: boolean;
+    /** Whether prompts must be disabled and a profile must be supplied. */
     readonly nonInteractive?: boolean;
+    /** Profile name or config path selected at the CLI boundary. */
     readonly profile?: string;
+    /** Runtime-root discovery mode parsed from `--git-root`. */
     readonly gitRoot?: t.PiCli.GitRootMode;
     /** Pi args captured after `--`. */
     readonly _: readonly string[];
@@ -88,29 +93,48 @@ export declare namespace PiCliProfiles {
 
   /** Help output result. */
   export type Help = {
+    /** Discriminator for help output. */
     readonly kind: 'help';
+    /** Original profile launcher input. */
     readonly input: Input;
+    /** Rendered help text written to stdout. */
     readonly text: string;
   };
 
   /** Successful launch result. */
   export type Ran = {
+    /** Discriminator for a launched profile run. */
     readonly kind: 'run';
+    /** Original profile launcher input. */
     readonly input: Input;
+    /** Parsed profile launcher args used for the run. */
     readonly parsed: ParsedArgs;
+    /** Inherited child-process output from the Pi invocation. */
     readonly output: t.Process.InheritOutput;
   };
 
   /** User exited the profile menu without launching. */
   export type Exit = {
+    /** Discriminator for a user-cancelled profile run. */
     readonly kind: 'exit';
+    /** Original profile launcher input. */
     readonly input: Input;
   };
 
   /** Profile menu result. */
   export type MenuResult =
-    | { readonly kind: 'exit' }
-    | { readonly kind: 'selected'; readonly config: t.StringPath; readonly previewed?: boolean };
+    | {
+      /** Discriminator for a menu exit without launch. */
+      readonly kind: 'exit';
+    }
+    | {
+      /** Discriminator for a selected profile config. */
+      readonly kind: 'selected';
+      /** Selected profile config path. */
+      readonly config: t.StringPath;
+      /** Whether the sandbox preview was already rendered by the menu flow. */
+      readonly previewed?: boolean;
+    };
 
   /** Sandbox policy for a Pi profile. */
   export type Sandbox = {
@@ -202,7 +226,17 @@ export declare namespace PiCliProfiles {
 
     /** YAML validation result. */
     export type YamlCheck =
-      | { readonly ok: true; readonly doc: Profile }
-      | { readonly ok: false; readonly errors: readonly unknown[] };
+      | {
+        /** Whether validation succeeded. */
+        readonly ok: true;
+        /** Parsed profile document. */
+        readonly doc: Profile;
+      }
+      | {
+        /** Whether validation failed. */
+        readonly ok: false;
+        /** Schema or parse errors reported by validation. */
+        readonly errors: readonly unknown[];
+      };
   }
 }
