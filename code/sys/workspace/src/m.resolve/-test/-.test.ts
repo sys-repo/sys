@@ -110,6 +110,9 @@ describe('Workspace.Resolve', () => {
       if (!fact.ok) {
         expect(fact.reason.code).to.eql('policy:minimum-dependency-age');
         expect(fact.reason.message).to.include('minimum dependency date');
+        if (fact.reason.code === 'policy:minimum-dependency-age') {
+          expect(fact.reason.minimumDependencyDate).to.eql('2016-07-06T21:36:09Z');
+        }
       }
     });
 
@@ -126,7 +129,12 @@ describe('Workspace.Resolve', () => {
       });
 
       expect(fact.ok).to.eql(false);
-      if (!fact.ok) expect(fact.reason.code).to.eql('policy:minimum-dependency-age');
+      if (!fact.ok) {
+        expect(fact.reason.code).to.eql('policy:minimum-dependency-age');
+        if (fact.reason.code === 'policy:minimum-dependency-age') {
+          expect(fact.reason.minimumDependencyDate).to.eql('2016-07-06T21:36:09Z');
+        }
+      }
     });
   });
 
@@ -140,6 +148,22 @@ describe('Workspace.Resolve', () => {
 
       expect(reason.code).to.eql('policy:minimum-dependency-age');
       expect(reason.message).to.include('minimum dependency date');
+      if (reason.code === 'policy:minimum-dependency-age') {
+        expect(reason.minimumDependencyDate).to.eql('2026-06-29T20:24:09Z');
+      }
+    });
+
+    it('preserves minimum dependency age classification when the cutoff is not parseable', () => {
+      const reason = classifyPackageResolutionFailure({
+        stderr:
+          'A newer matching version was found, but it was blocked by the minimum dependency age policy.',
+        stdout: '',
+      });
+
+      expect(reason.code).to.eql('policy:minimum-dependency-age');
+      if (reason.code === 'policy:minimum-dependency-age') {
+        expect(reason.minimumDependencyDate).to.eql(undefined);
+      }
     });
   });
 
@@ -252,6 +276,9 @@ describe('Workspace.Resolve', () => {
       if (!fact.ok) {
         expect(fact.reason.code).to.eql('policy:minimum-dependency-age');
         expect(fact.reason.message).to.include('minimum dependency date');
+        if (fact.reason.code === 'policy:minimum-dependency-age') {
+          expect(fact.reason.minimumDependencyDate).to.eql('2016-07-06T21:36:09Z');
+        }
       }
     });
   });

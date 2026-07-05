@@ -26,7 +26,12 @@ export declare namespace WorkspaceResolve {
 
   /** Canonical package resolution reason. */
   export type PackageResolutionReason =
-    | { readonly code: 'policy:minimum-dependency-age'; readonly message?: string }
+    | {
+      readonly code: 'policy:minimum-dependency-age';
+      readonly message?: string;
+      /** Deno resolver cutoff date for the active minimum dependency age policy. */
+      readonly minimumDependencyDate?: t.StringTimestamp;
+    }
     | { readonly code: 'config-or-lock'; readonly message?: string }
     | { readonly code: 'registry'; readonly message?: string }
     | { readonly code: 'unknown'; readonly message?: string };

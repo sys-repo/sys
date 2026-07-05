@@ -1,4 +1,4 @@
-import { Is, Json, Obj, Process, Semver, type t } from './common.ts';
+import { Is, Json, Num, Obj, Process, Semver, Time, type t } from './common.ts';
 import { GraphCli } from '../m.graph/u.cli/mod.ts';
 
 type Invoke = typeof Process.invoke;
@@ -102,7 +102,12 @@ export function classifyPackageResolutionFailure(
     normalized.includes('minimum dependency date') ||
     normalized.includes('minimum-dependency-age')
   ) {
-    return { code: 'policy:minimum-dependency-age', message };
+    const minimumDependencyDate = parseMinimumDependencyDate(message);
+    return {
+      code: 'policy:minimum-dependency-age',
+      message,
+      ...(minimumDependencyDate ? { minimumDependencyDate } : {}),
+    };
   }
 
   if (normalized.includes('lockfile') || normalized.includes('lock file')) {
@@ -164,6 +169,17 @@ function stringRecord(value: unknown): Record<string, string> | undefined {
     if (Is.str(item)) res[key] = item;
   }
   return Obj.keys(res).length ? res : undefined;
+}
+
+function parseMinimumDependencyDate(message: string): t.StringTimestamp | undefined {
+  const match = message.match(
+    /\bminimum dependency date of (\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2}:\d{2})(\.\d+)?\s+UTC\b/i,
+  );
+  if (!match) return undefined;
+
+  const iso = `${match[1]}T${match[2]}${match[3] ?? ''}Z`;
+  const timestamp = Time.utc(iso).timestamp;
+  return Num.Is.finite(timestamp) ? (iso as t.StringTimestamp) : undefined;
 }
 
 function failed(
