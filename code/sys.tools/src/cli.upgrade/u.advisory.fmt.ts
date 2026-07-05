@@ -19,7 +19,7 @@ export function rootPendingAdvisoryPrelude(remote: t.StringSemver) {
   return Str.builder()
     .line(hr)
     .line(c.white(`${pkg.name} ${remote} published; upgrade pending — standing down`))
-    .line(c.gray(c.italic('supply-chain buffer holding this release back')))
+    .line(c.gray(c.italic('Waiting for the minimum dependency age window to pass')))
     .line(hr)
     .toString();
 }

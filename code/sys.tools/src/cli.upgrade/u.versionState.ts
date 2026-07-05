@@ -1,4 +1,4 @@
-import { Semver, type t } from './common.ts';
+import { Num, Semver, Time, type t } from './common.ts';
 
 type VersionStateInput = Omit<t.UpgradeTool.VersionInfo, 'is'> & {
   readonly is?: Partial<t.UpgradeTool.VersionInfo['is']>;
@@ -23,6 +23,7 @@ export function toVersionState(input: VersionStateInput): t.UpgradeTool.VersionS
   const pending = !upgradeAvailable && hasNewerRelease && (input.is?.pending ?? computedPending);
   const status = toAdvisoryStatus({ upgradeAvailable, pending, resolverUnavailable });
   const reason = resolverReason(input);
+  const minimumDependencyAgeStanddown = standdownTiming(input, pending, reason);
 
   return {
     hasNewerRelease,
@@ -32,6 +33,7 @@ export function toVersionState(input: VersionStateInput): t.UpgradeTool.VersionS
     resolverUnavailable,
     status,
     ...(reason ? { reason } : {}),
+    ...(minimumDependencyAgeStanddown ? { minimumDependencyAgeStanddown } : {}),
   };
 }
 
@@ -43,6 +45,29 @@ function toAdvisoryStatus(
   if (state.upgradeAvailable) return 'upgrade-available';
   if (state.pending) return 'pending';
   return 'none';
+}
+
+/** Derive proven minimum dependency age timing from registry and resolver facts. */
+function standdownTiming(
+  input: Pick<t.UpgradeTool.VersionInfo, 'remote' | 'remoteCreatedAt'>,
+  pending: boolean,
+  reason?: t.WorkspaceResolve.PackageResolutionReason,
+): t.UpgradeTool.MinimumDependencyAgeStanddown | undefined {
+  if (!pending) return undefined;
+  if (reason?.code !== 'policy:minimum-dependency-age') return undefined;
+  if (!input.remoteCreatedAt || !reason.minimumDependencyDate) return undefined;
+
+  const createdAt = Time.utc(input.remoteCreatedAt).timestamp;
+  const minimumDependencyDate = Time.utc(reason.minimumDependencyDate).timestamp;
+  const remaining = createdAt - minimumDependencyDate;
+  if (!Num.Is.finite(remaining) || remaining <= 0) return undefined;
+
+  return {
+    version: input.remote,
+    createdAt: input.remoteCreatedAt,
+    minimumDependencyDate: reason.minimumDependencyDate,
+    remaining,
+  };
 }
 
 /** Prefer the pinned-latest resolver reason, then the unpinned resolver reason. */

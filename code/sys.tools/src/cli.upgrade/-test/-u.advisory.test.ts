@@ -272,7 +272,11 @@ describe('cli.upgrade advisory', () => {
             specifier: 'jsr:@sys/tools@9.9.9' as t.StringModuleSpecifier,
             registry: 'jsr',
             package: '@sys/tools' as t.StringPkgName,
-            reason: { code: 'policy:minimum-dependency-age', message: 'minimum dependency date' },
+            reason: {
+              code: 'policy:minimum-dependency-age',
+              message: 'minimum dependency date',
+              minimumDependencyDate: '2026-07-04T04:32:25.677189Z' as t.StringTimestamp,
+            },
           },
           is: { latest: true, upgradeAvailable: false, pending: true },
         },
@@ -290,11 +294,15 @@ describe('cli.upgrade advisory', () => {
         published: '9.9.9',
         actionable: '0.0.318',
         status: 'pending',
-        reason: { code: 'policy:minimum-dependency-age', message: 'minimum dependency date' },
+        reason: {
+          code: 'policy:minimum-dependency-age',
+          message: 'minimum dependency date',
+          minimumDependencyDate: '2026-07-04T04:32:25.677189Z',
+        },
       });
       expect(res.hasUpgrade).to.eql(false);
       expect(prelude).to.contain('@sys/tools 9.9.9 published; upgrade pending — standing down');
-      expect(prelude).to.contain('supply-chain buffer holding this release back');
+      expect(prelude).to.contain('Waiting for the minimum dependency age window to pass');
       expect(prelude).to.not.contain('sys upgrade --latest');
     } finally {
       await Fs.remove(tmp.absolute);

@@ -1,4 +1,4 @@
-import { c, Cli, Pkg, pkg, Str, type t } from './common.ts';
+import { c, Cli, Num, Pkg, pkg, StdDate, Str, type t } from './common.ts';
 import { rootAdvisoryPrelude } from './u.advisory.fmt.ts';
 import { toVersionState } from './u.versionState.ts';
 
@@ -8,6 +8,7 @@ type HelpInput =
 
 const g = c.green;
 const w = c.white;
+const { DAY, HOUR, MINUTE } = StdDate;
 
 type DisplayRow = { readonly label: string; readonly value: string };
 type DisplayState = { readonly title: string; readonly rows: readonly DisplayRow[] };
@@ -17,7 +18,7 @@ function displayState(version: t.UpgradeTool.VersionInfo): DisplayState {
   const upgrade = state.actionable ?? version.latest;
 
   if (state.upgradeAvailable) {
-    const rows: DisplayRow[] = [{ label: 'running', value: c.gray(version.local) }];
+    const rows: DisplayRow[] = [{ label: 'current', value: c.gray(version.local) }];
     if (version.remote !== upgrade) rows.push({ label: 'latest', value: w(version.remote) });
     rows.push({ label: 'upgrade', value: g(upgrade) });
     return { title: w(`${pkg.name} upgrade available`), rows };
@@ -27,9 +28,8 @@ function displayState(version: t.UpgradeTool.VersionInfo): DisplayState {
     return {
       title: w(`${pkg.name} upgrade standing down`),
       rows: [
-        { label: 'running', value: c.gray(version.local) },
+        { label: 'current', value: c.gray(version.local) },
         { label: 'latest', value: w(version.remote) },
-        { label: 'held at', value: c.gray(upgrade) },
       ],
     };
   }
@@ -38,7 +38,7 @@ function displayState(version: t.UpgradeTool.VersionInfo): DisplayState {
     return {
       title: w(`${pkg.name} upgrade check unavailable`),
       rows: [
-        { label: 'running', value: c.gray(version.local) },
+        { label: 'current', value: c.gray(version.local) },
         { label: 'latest', value: w(version.remote) },
       ],
     };
@@ -47,7 +47,7 @@ function displayState(version: t.UpgradeTool.VersionInfo): DisplayState {
   return {
     title: w(`${pkg.name} is up to date`),
     rows: [
-      { label: 'running', value: g(version.local) },
+      { label: 'current', value: g(version.local) },
       { label: 'latest', value: g(`${version.remote} ✔`) },
     ],
   };
@@ -153,11 +153,18 @@ export const Fmt = {
   },
 
   upgradePending(version: t.UpgradeTool.VersionInfo) {
-    const reason = standdownReason(version);
-    const str = Str.builder()
-      .line('No upgrade was run.')
-      .line('Deno is not allowing this upgrade yet.');
-    if (reason) str.line(`Reason: ${reason}`);
+    const state = toVersionState(version);
+    const str = Str.builder().line('No upgrade was run.');
+
+    if (state.reason?.code === 'policy:minimum-dependency-age') {
+      const duration = state.minimumDependencyAgeStanddown
+        ? ` — ${formatDuration(state.minimumDependencyAgeStanddown.remaining)}`
+        : '';
+      str.line(`Waiting for the minimum dependency age window to pass${duration}.`);
+    } else {
+      str.line('Latest published version is not currently actionable.');
+    }
+
     return c.gray(str.toString());
   },
 
@@ -173,11 +180,22 @@ export const Fmt = {
   rootAdvisoryPrelude,
 } as const;
 
-function standdownReason(version: t.UpgradeTool.VersionInfo): string | undefined {
-  const reason = toVersionState(version).reason;
-  if (!reason) return undefined;
+function formatDuration(input: t.Msecs): string {
+  const msecs = Num.clamp(0, Num.INFINITY, input);
+  if (msecs < MINUTE) return `${Math.floor(msecs / 1000)}s`;
+  if (msecs < HOUR) return `${Math.floor(msecs / MINUTE)}m`;
+  if (msecs < DAY) return formatDurationParts(msecs, HOUR, 'h', MINUTE, 'm');
+  return formatDurationParts(msecs, DAY, 'd', HOUR, 'h');
+}
 
-  if (reason.code === 'policy:minimum-dependency-age') return 'Deno minimum dependency age policy.';
-  if (reason.message?.trim()) return reason.message.trim();
-  return reason.code;
+function formatDurationParts(
+  msecs: t.Msecs,
+  majorUnit: t.Msecs,
+  majorSuffix: string,
+  minorUnit: t.Msecs,
+  minorSuffix: string,
+): string {
+  const major = Math.floor(msecs / majorUnit);
+  const minor = Math.floor((msecs % majorUnit) / minorUnit);
+  return minor > 0 ? `${major}${majorSuffix} ${minor}${minorSuffix}` : `${major}${majorSuffix}`;
 }

@@ -50,6 +50,8 @@ export namespace UpgradeTool {
     readonly local: t.StringSemver;
     /** Latest version published by JSR registry metadata. */
     readonly remote: t.StringSemver;
+    /** JSR creation timestamp for the latest published version when reported by registry metadata. */
+    readonly remoteCreatedAt?: t.StringTimestamp;
     /** Back-compat upgrade target; prefer `actionable` for new code. */
     readonly latest: t.StringSemver;
     /** Version Deno currently resolves under active config, lock, cache, and policy. */
@@ -72,7 +74,7 @@ export namespace UpgradeTool {
 
   /** Derived upgrade truth state used by display, execution, and advisory persistence. */
   export type VersionState = {
-    /** True when JSR has published a version newer than the running CLI. */
+    /** True when JSR has published a version newer than the current CLI. */
     readonly hasNewerRelease: boolean;
     /** Version Deno can currently execute after cache refresh. */
     readonly actionable?: t.StringSemver;
@@ -86,5 +88,19 @@ export namespace UpgradeTool {
     readonly status: AdvisoryStatus;
     /** Resolver failure reason when Deno reported one. */
     readonly reason?: t.WorkspaceResolve.PackageResolutionReason;
+    /** Proven minimum dependency age standdown timing for the latest published version. */
+    readonly minimumDependencyAgeStanddown?: MinimumDependencyAgeStanddown;
+  };
+
+  /** Derived timing fact for a latest-version minimum dependency age standdown. */
+  export type MinimumDependencyAgeStanddown = {
+    /** Latest published version still inside the minimum dependency age window. */
+    readonly version: t.StringSemver;
+    /** JSR creation timestamp for the latest published version. */
+    readonly createdAt: t.StringTimestamp;
+    /** Deno resolver cutoff date for the active minimum dependency age policy. */
+    readonly minimumDependencyDate: t.StringTimestamp;
+    /** Duration until the latest published version clears the active cutoff. */
+    readonly remaining: t.Msecs;
   };
 }

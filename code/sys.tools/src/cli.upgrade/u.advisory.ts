@@ -270,6 +270,7 @@ const wrangle = {
     if (!Is.record(value)) return undefined;
     const code = value['code'];
     const message = value['message'];
+    const minimumDependencyDate = value['minimumDependencyDate'];
     if (
       code !== 'policy:minimum-dependency-age' &&
       code !== 'config-or-lock' &&
@@ -277,7 +278,14 @@ const wrangle = {
       code !== 'unknown'
     ) return undefined;
     if (message !== undefined && !Is.str(message)) return undefined;
-    return message === undefined ? { code } : { code, message };
+    if (minimumDependencyDate !== undefined && !Is.str(minimumDependencyDate)) return undefined;
+    return {
+      code,
+      ...(message !== undefined ? { message } : {}),
+      ...(code === 'policy:minimum-dependency-age' && minimumDependencyDate !== undefined
+        ? { minimumDependencyDate }
+        : {}),
+    };
   },
 } as const;
 

@@ -6,7 +6,7 @@ type ResolvePackage = t.WorkspaceResolve.Lib['resolvePackage'];
 type GetVersionInfoDeps = {
   readonly versions?: FetchPackageVersions;
   readonly resolvePackage?: ResolvePackage;
-  /** Force Deno to reload resolver/cache state before reporting the held/upgrade version. */
+  /** Force Deno to reload resolver/cache state before reporting the actionable upgrade version. */
   readonly resolverReload?: boolean;
 };
 
@@ -18,7 +18,9 @@ export async function getVersionInfo(
   const versions = deps.versions ?? Jsr.Fetch.Pkg.versions;
   const resolvePackage = deps.resolvePackage ?? WorkspaceResolve.resolvePackage;
 
-  const remote = (await versions(pkg.name)).data?.latest ?? local;
+  const metadata = (await versions(pkg.name)).data;
+  const remote = metadata?.latest ?? local;
+  const remoteCreatedAt = metadata?.versions?.[remote]?.createdAt;
   const resolverOptions = {
     cwd,
     reload: deps.resolverReload ?? false,
@@ -31,7 +33,14 @@ export async function getVersionInfo(
   });
   const actionable = resolution.ok ? resolution.resolved : undefined;
   const latest = actionable ?? local;
-  const base = { local, remote, latest, actionable, resolution } as const;
+  const base = {
+    local,
+    remote,
+    ...(remoteCreatedAt ? { remoteCreatedAt } : {}),
+    latest,
+    actionable,
+    resolution,
+  } as const;
   const initial = toVersionState(base);
   const latestResolution = initial.pending
     ? await resolvePackage({

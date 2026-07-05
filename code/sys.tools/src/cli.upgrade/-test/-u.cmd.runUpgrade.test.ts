@@ -242,6 +242,53 @@ describe('cli.upgrade.runUpgrade', () => {
       ]);
     });
 
+    it('offers an actionable intermediate upgrade while latest is standing down', async () => {
+      const events: string[] = [];
+      let refreshed = false;
+      let options: string[] = [];
+
+      await runUpgrade('/tmp' as t.StringDir, { interactive: true, source: 'argv' }, {
+        getVersionInfo: async () => ({
+          local: '0.0.462',
+          remote: '0.0.464',
+          latest: '0.0.463',
+          actionable: '0.0.463',
+          latestResolution: {
+            ok: false,
+            specifier: 'jsr:@sys/tools@0.0.464' as t.StringModuleSpecifier,
+            registry: 'jsr',
+            package: '@sys/tools' as t.StringPkgName,
+            reason: { code: 'policy:minimum-dependency-age' },
+          },
+          is: { latest: false, upgradeAvailable: true, pending: false },
+        }),
+        refreshCache: async () => {
+          refreshed = true;
+          return { success: true, toString: () => '' };
+        },
+        prompt: async (args) => {
+          options = promptOptionNames(args.options);
+          return '__exit__';
+        },
+        spinner: () => spinner(events),
+        info(...data) {
+          events.push(`info:${data.map(String).join(' ')}`);
+        },
+        async writeAdvisorySuccess() {},
+      });
+
+      const output = events.map((line) => Cli.stripAnsi(line)).join('\n');
+      expect(refreshed).to.eql(false);
+      expect(options).to.eql([
+        ' - upgrade now to 0.0.463',
+        '(exit)',
+      ]);
+      expect(output).to.contain('@sys/tools upgrade available');
+      expect(output).to.contain('latest   0.0.464');
+      expect(output).to.contain('upgrade  0.0.463');
+      expect(output).to.not.contain('upgrade standing down');
+    });
+
     it('uses a back affordance from the root menu and returns without refreshing', async () => {
       let refreshed = false;
       let options: string[] = [];
@@ -289,6 +336,7 @@ describe('cli.upgrade.runUpgrade', () => {
         getVersionInfo: async () => ({
           local: '0.0.318',
           remote: '0.0.319',
+          remoteCreatedAt: '2026-07-05T01:17:43.938610Z',
           latest: '0.0.318',
           actionable: '0.0.318',
           latestResolution: {
@@ -296,7 +344,10 @@ describe('cli.upgrade.runUpgrade', () => {
             specifier: 'jsr:@sys/tools@0.0.319' as t.StringModuleSpecifier,
             registry: 'jsr',
             package: '@sys/tools' as t.StringPkgName,
-            reason: { code: 'policy:minimum-dependency-age' },
+            reason: {
+              code: 'policy:minimum-dependency-age',
+              minimumDependencyDate: '2026-07-04T04:32:25.677189Z' as t.StringTimestamp,
+            },
           },
           is: { latest: true, upgradeAvailable: false, pending: true },
         }),
@@ -319,12 +370,56 @@ describe('cli.upgrade.runUpgrade', () => {
       expect(refreshed).to.eql(false);
       expect(prompted).to.eql(false);
       expect(plain.some((line) => line.includes('@sys/tools upgrade standing down'))).to.eql(true);
-      expect(plain.some((line) => line.includes('held at  0.0.318'))).to.eql(true);
-      expect(plain.some((line) => line.includes('Deno is not allowing this upgrade yet.')))
-        .to.eql(true);
-      expect(plain.some((line) => line.includes('Reason: Deno minimum dependency age policy.')))
-        .to.eql(true);
+      expect(plain.some((line) => line.includes('current  0.0.318'))).to.eql(true);
+      expect(plain.some((line) => line.includes('latest   0.0.319'))).to.eql(true);
+      expect(plain.join('\n')).to.not.contain('held at');
+      expect(plain.join('\n')).to.not.contain('Deno is not allowing this upgrade yet.');
+      expect(plain.some((line) =>
+        line.includes('Waiting for the minimum dependency age window to pass — 20h 45m.')
+      )).to.eql(true);
       expect(plain.join('\n')).to.not.contain('upgrade now to 0.0.319');
+    });
+
+    it('uses neutral pending copy when standdown is not minimum dependency age', async () => {
+      const events: string[] = [];
+      let refreshed = false;
+      let prompted = false;
+
+      await runUpgrade('/tmp' as t.StringDir, { interactive: false }, {
+        getVersionInfo: async () => ({
+          local: '0.0.318',
+          remote: '0.0.319',
+          latest: '0.0.318',
+          actionable: '0.0.318',
+          latestResolution: {
+            ok: false,
+            specifier: 'jsr:@sys/tools@0.0.319' as t.StringModuleSpecifier,
+            registry: 'jsr',
+            package: '@sys/tools' as t.StringPkgName,
+            reason: { code: 'unknown', message: 'not actionable yet' },
+          },
+          is: { latest: true, upgradeAvailable: false, pending: true },
+        }),
+        refreshCache: async () => {
+          refreshed = true;
+          return { success: true, toString: () => '' };
+        },
+        prompt: async () => {
+          prompted = true;
+          return 'upgrade';
+        },
+        spinner: () => spinner(events),
+        info(...data) {
+          events.push(`info:${data.map(String).join(' ')}`);
+        },
+        async writeAdvisorySuccess() {},
+      });
+
+      const output = events.map((line) => Cli.stripAnsi(line)).join('\n');
+      expect(refreshed).to.eql(false);
+      expect(prompted).to.eql(false);
+      expect(output).to.contain('Latest published version is not currently actionable.');
+      expect(output).to.not.contain('minimum dependency age window');
     });
 
     it('reports unavailable upgrade checks without claiming a held version', async () => {

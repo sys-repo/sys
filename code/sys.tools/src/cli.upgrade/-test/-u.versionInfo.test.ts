@@ -49,6 +49,53 @@ describe('cli.upgrade.versionState', () => {
     expect(state.actionable).to.eql(undefined);
   });
 
+  it('derives minimum dependency age standdown timing from registry and resolver facts', () => {
+    const state = toVersionState({
+      local: '0.0.462' as t.StringSemver,
+      remote: '0.0.464' as t.StringSemver,
+      remoteCreatedAt: '2026-07-05T01:17:43.938610Z' as t.StringTimestamp,
+      latest: '0.0.462' as t.StringSemver,
+      actionable: '0.0.462' as t.StringSemver,
+      latestResolution: {
+        ok: false,
+        specifier: 'jsr:@sys/tools@0.0.464' as t.StringModuleSpecifier,
+        registry: 'jsr',
+        package: '@sys/tools' as t.StringPkgName,
+        reason: {
+          code: 'policy:minimum-dependency-age',
+          minimumDependencyDate: '2026-07-04T04:32:25.677189Z' as t.StringTimestamp,
+        },
+      },
+    });
+
+    expect(state.status).to.eql('pending');
+    expect(state.minimumDependencyAgeStanddown).to.eql({
+      version: '0.0.464',
+      createdAt: '2026-07-05T01:17:43.938610Z',
+      minimumDependencyDate: '2026-07-04T04:32:25.677189Z',
+      remaining: 74_718_261,
+    });
+  });
+
+  it('omits standdown timing unless both registry and resolver facts are present', () => {
+    const state = toVersionState({
+      local: '0.0.462' as t.StringSemver,
+      remote: '0.0.464' as t.StringSemver,
+      latest: '0.0.462' as t.StringSemver,
+      actionable: '0.0.462' as t.StringSemver,
+      latestResolution: {
+        ok: false,
+        specifier: 'jsr:@sys/tools@0.0.464' as t.StringModuleSpecifier,
+        registry: 'jsr',
+        package: '@sys/tools' as t.StringPkgName,
+        reason: { code: 'policy:minimum-dependency-age' },
+      },
+    });
+
+    expect(state.status).to.eql('pending');
+    expect(state.minimumDependencyAgeStanddown).to.eql(undefined);
+  });
+
   it('treats a successful pinned-latest probe as the actionable upgrade target', () => {
     const state = toVersionState({
       local: '0.0.318' as t.StringSemver,
@@ -72,7 +119,7 @@ describe('cli.upgrade.versionState', () => {
 });
 
 describe('cli.upgrade.getVersionInfo', () => {
-  it('does not mark standdown when the running version is already latest', async () => {
+  it('does not mark standdown when the current version is already latest', async () => {
     const local = pkg.version as t.StringSemver;
 
     const res = await getVersionInfo('/tmp' as t.StringDir, {
@@ -166,7 +213,12 @@ describe('cli.upgrade.getVersionInfo', () => {
     const calls: Array<{ readonly specifier: string; readonly reload?: boolean }> = [];
 
     const res = await getVersionInfo('/tmp' as t.StringDir, {
-      versions: async () => ({ data: { latest: '9.9.9' as t.StringSemver } } as never),
+      versions: async () => ({
+        data: {
+          latest: '9.9.9' as t.StringSemver,
+          versions: { '9.9.9': { createdAt: '2026-07-05T01:17:43.938610Z' } },
+        },
+      } as never),
       resolvePackage: async (args) => {
         calls.push({ specifier: args.specifier, reload: args.reload });
         if (args.specifier === 'jsr:@sys/tools@9.9.9') {
@@ -192,6 +244,7 @@ describe('cli.upgrade.getVersionInfo', () => {
       { specifier: 'jsr:@sys/tools', reload: false },
       { specifier: 'jsr:@sys/tools@9.9.9', reload: false },
     ]);
+    expect(res.remoteCreatedAt).to.eql('2026-07-05T01:17:43.938610Z');
     expect(res.is.pending).to.eql(true);
     expect(res.latestResolution?.ok).to.eql(false);
     if (res.latestResolution?.ok === false) {
