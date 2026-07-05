@@ -1,4 +1,4 @@
-import { c, CliTable, Date, Fs, HashFmt, Num, Path, Pkg, Str, type t, Time } from '../common.ts';
+import { c, CliTable, Fs, HashFmt, Num, Path, Pkg, Str, Time, type t } from '../common.ts';
 import { toModuleString } from './u.log.ts';
 
 /**
@@ -18,7 +18,7 @@ export const dist: t.Pkg.Dist.Log.Lib['dist'] = (dist, options = {}) => {
   const totalSize = c.white(Str.bytes(dist.build.size.total));
   const pkgSize = c.gray(Str.bytes(dist.build.size.pkg));
   const timeAgo = Time.elapsed(dist.build.time);
-  const buildTime = Date.format(dist.build.time, 'y MMM d, h:mmaaa');
+  const buildTime = Time.Date.format(dist.build.time, 'y MMM d, h:mmaaa');
 
   const a = dist.build.size.total;
   const b = dist.build.size.pkg;

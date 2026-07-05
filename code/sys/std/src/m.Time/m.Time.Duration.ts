@@ -1,5 +1,7 @@
-import { Num, StdDate, type t } from './common.ts';
-const { MINUTE, SECOND, DAY, HOUR } = StdDate;
+import { Date as TimeDate } from '../m.Time.Date/mod.ts';
+import { Num, type t } from './common.ts';
+
+const { MINUTE, SECOND, DAY, HOUR } = TimeDate;
 
 const To: t.Time.Duration.To = {
   sec: (msec: number, round?: number) => Num.round(msec / 1000, round),
@@ -87,19 +89,19 @@ export const Duration: t.Time.Duration.Lib = {
 
       case 's':
       case 'sec':
-        return done(digits * StdDate.SECOND);
+        return done(digits * SECOND);
 
       case 'm':
       case 'min':
-        return done(digits * StdDate.MINUTE);
+        return done(digits * MINUTE);
 
       case 'h':
       case 'hour':
-        return done(digits * StdDate.HOUR);
+        return done(digits * HOUR);
 
       case 'd':
       case 'day':
-        return done(digits * StdDate.DAY);
+        return done(digits * DAY);
 
       default:
         return done(-1); // NB: Unit is invalid.

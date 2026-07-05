@@ -48,7 +48,7 @@ import { Schedule } from 'jsr:@sys/std/async';
 import { Dispose } from 'jsr:@sys/std/dispose';
 import { Path } from 'jsr:@sys/std/path';
 import { Signal } from 'jsr:@sys/std/signal';
-import { Date, Time } from 'jsr:@sys/std/time';
+import { Time } from 'jsr:@sys/std/time';
 import { Rx } from 'jsr:@sys/std/rx';
 
 // Unit-testing:

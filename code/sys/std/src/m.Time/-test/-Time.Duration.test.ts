@@ -1,9 +1,8 @@
 import { describe, expect, it } from '../../-test.ts';
-import { StdDate } from '../common.ts';
 import { Duration } from '../m.Time.Duration.ts';
 import { Time } from '../mod.ts';
 
-const { SECOND, MINUTE, HOUR, DAY } = StdDate;
+const { SECOND, MINUTE, HOUR, DAY } = Time.Date;
 
 describe('Duration', () => {
   describe('Time.duration', () => {

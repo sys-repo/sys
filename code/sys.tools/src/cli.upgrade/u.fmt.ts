@@ -1,4 +1,4 @@
-import { c, Cli, Num, Pkg, pkg, StdDate, Str, type t } from './common.ts';
+import { c, Cli, Num, Pkg, pkg, Str, Time, type t } from './common.ts';
 import { rootAdvisoryPrelude } from './u.advisory.fmt.ts';
 import { toVersionState } from './u.versionState.ts';
 
@@ -8,7 +8,7 @@ type HelpInput =
 
 const g = c.green;
 const w = c.white;
-const { DAY, HOUR, MINUTE } = StdDate;
+const { DAY, HOUR, MINUTE } = Time.Date;
 
 type DisplayRow = { readonly label: string; readonly value: string };
 type DisplayState = { readonly title: string; readonly rows: readonly DisplayRow[] };

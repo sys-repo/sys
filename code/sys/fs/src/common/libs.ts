@@ -1,5 +1,5 @@
 export { Arr } from '@sys/std/arr';
-export { Date, Time } from '@sys/std/time';
+export { Time } from '@sys/std/time';
 export { Delete } from '@sys/std/delete';
 export { Is, isRecord } from '@sys/std/is';
 export { Json } from '@sys/std/json';

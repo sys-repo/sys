@@ -14,7 +14,7 @@ import { Num } from '@sys/std/num';
 import { Obj } from '@sys/std/obj';
 import { Semver } from '@sys/std/semver';
 import { Str } from '@sys/std/str';
-import { Date as StdDate, Time } from '@sys/std/time';
+import { Time } from '@sys/std/time';
 import { WorkspaceResolve } from '@sys/workspace/resolve';
 
 export type * as t from './common.t.ts';
@@ -36,7 +36,6 @@ export {
   Process,
   Semver,
   Str,
-  StdDate,
   Time,
   WorkspaceResolve,
 };

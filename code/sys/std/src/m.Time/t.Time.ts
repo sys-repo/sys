@@ -8,6 +8,9 @@ export declare namespace Time {
    * Helpers for working with time.
    */
   export type Lib = {
+    /** Tools for working with calendar dates. */
+    readonly Date: t.Date.Lib;
+
     /** Tools for working with an elapsed duration of time. */
     readonly Duration: Duration.Lib;
 
