@@ -1,5 +1,6 @@
 import type { t } from '../common.ts';
 
+/** Provider preflight result before a deploy push is attempted. */
 export type PushProbe =
   | { readonly ok: true }
   | {
@@ -17,6 +18,7 @@ export type PushProbe =
     readonly error?: unknown;
   };
 
+/** Common identity and filesystem context for a resolved push target. */
 export type PushTargetContext = {
   readonly index?: number;
   readonly provider: string;
@@ -29,6 +31,7 @@ export type PushTargetContext = {
   readonly prefix?: string;
 };
 
+/** Push target that could not be resolved to publishable staging output. */
 export type PushMissingTarget = PushTargetContext & {
   readonly reason: 'missing-staging-output' | 'missing-dist-metadata';
 };
@@ -48,6 +51,7 @@ export type OrbiterPushTarget = {
   readonly domain?: string;
 };
 
+/** No-op provider target used to validate deploy flows without publishing. */
 export type NoopPushTarget = {
   readonly provider: t.DeployTool.Config.Provider.Noop;
   readonly sourceDir: t.StringDir;
@@ -56,6 +60,7 @@ export type NoopPushTarget = {
   readonly domain?: string;
 };
 
+/** Cloudflare R2 push target resolved from endpoint staging configuration. */
 export type R2PushTarget = {
   readonly provider: t.DeployTool.Config.Provider.R2;
   readonly sourceDir: t.StringDir;
@@ -64,13 +69,16 @@ export type R2PushTarget = {
   readonly domain?: string;
 };
 
+/** Any provider-specific publish target the deploy push command can execute. */
 export type PushTarget = OrbiterPushTarget | NoopPushTarget | R2PushTarget;
 
+/** Aggregate target-resolution counts for a provider push plan. */
 export type PushPlanStats = {
   readonly total: number;
   readonly missing: number;
 };
 
+/** Orbiter target-resolution counts split by base, root, and shard output. */
 export type OrbiterPushTargetStats = {
   readonly total: number;
   readonly shard: number;
@@ -80,18 +88,21 @@ export type OrbiterPushTargetStats = {
   readonly missing: number;
 };
 
+/** Provider-neutral plan of publishable and missing push targets. */
 export type PushTargetPlan = {
   readonly targets: readonly PushTarget[];
   readonly missing: readonly PushMissingTarget[];
   readonly stats: PushPlanStats;
 };
 
+/** Orbiter-specific plan preserving shard-aware target statistics. */
 export type OrbiterPushTargetPlan = {
   readonly targets: readonly OrbiterPushTarget[];
   readonly missing: readonly PushMissingTarget[];
   readonly stats: OrbiterPushTargetStats;
 };
 
+/** Stable status for one provider publish file result. */
 export type PushPublishFileStatus = 'written' | 'skipped';
 
 /** Provider-reported publish outcome for one staged file path. */
@@ -110,12 +121,14 @@ export type PushPublishStats = {
   readonly files: readonly PushPublishFile[];
 };
 
+/** Derived publish counts for CLI reporting. */
 export type PushPublishSummary = {
   readonly total: number;
   readonly written: number;
   readonly skipped: number;
 };
 
+/** Stable status for one provider prune file result. */
 export type PushPruneFileStatus = 'removed';
 
 /** Provider-reported stale-file removal outcome for one remote file path. */
@@ -129,6 +142,7 @@ export type PushPruneStats = {
   readonly files: readonly PushPruneFile[];
 };
 
+/** Derived stale-file removal counts for CLI reporting. */
 export type PushPruneSummary = {
   readonly total: number;
   readonly removed: number;

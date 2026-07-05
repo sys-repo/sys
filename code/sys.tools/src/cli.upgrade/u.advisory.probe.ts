@@ -6,10 +6,16 @@ import { type t } from './common.ts';
 import { getVersionInfo } from './u.ts';
 import { writeUpgradeAdvisoryFailure, writeUpgradeAdvisorySuccess } from './u.advisory.ts';
 
+/** Reads the current local/remote version state. */
 type GetVersionInfo = () => Promise<t.UpgradeTool.VersionInfo>;
+/** Persists a successful upgrade advisory probe result. */
 type WriteSuccess = (version: t.UpgradeTool.VersionInfo) => Promise<void>;
+/** Persists a failed upgrade advisory probe result. */
 type WriteFailure = (error: unknown) => Promise<void>;
 
+/**
+ * Probe the published `@sys/tools` version and persist the advisory result.
+ */
 export async function runUpgradeAdvisoryProbe(
   deps: {
     readonly getVersionInfo?: GetVersionInfo;

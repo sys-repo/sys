@@ -5,6 +5,9 @@
  */
 import { Fs } from './common.ts';
 import { cli } from './m.cli.ts';
+/**
+ * Run the self-upgrade CLI.
+ */
 export { cli };
 
 /**

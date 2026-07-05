@@ -7,6 +7,9 @@ import { cli } from './m.cli.ts';
 import { push } from './u.push/mod.ts';
 import { stage } from './u.stage.ts';
 import { runWithRootUpgradeAdvisory } from '../u.root/u.upgradeAdvisory.ts';
+/**
+ * Run the deploy CLI.
+ */
 export { cli };
 export type * from './t.ts';
 
