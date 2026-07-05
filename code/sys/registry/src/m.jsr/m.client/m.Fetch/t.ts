@@ -86,6 +86,8 @@ export declare namespace JsrFetch {
 
     /** Version details about a specific package version. */
     export type MetaVersion = {
+      /** Timestamp when JSR created/published the package version. */
+      createdAt?: t.StringTimestamp;
       /** True when the version has been yanked from normal resolution. */
       yanked?: boolean;
     };

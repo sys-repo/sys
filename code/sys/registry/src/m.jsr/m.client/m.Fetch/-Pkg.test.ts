@@ -12,7 +12,12 @@ describe('Jsr.Fetch.Pkg', () => {
         value: async (input: RequestInfo | URL, init?: RequestInit) => {
           expect(String(input)).to.include('https://jsr.io/@sys/std/meta.json?sys-cache-bust=');
           captured = init;
-          const res = JSON.stringify({ scope: 'sys', name: 'std', latest: '1.0.0', versions: {} });
+          const res = JSON.stringify({
+            scope: 'sys',
+            name: 'std',
+            latest: '1.0.0',
+            versions: { '1.0.0': { createdAt: '2026-07-05T01:17:43.938610Z' } },
+          });
           return new Response(res, {
             status: 200,
             headers: { 'content-type': 'application/json' },
@@ -23,6 +28,7 @@ describe('Jsr.Fetch.Pkg', () => {
       try {
         const res = await Jsr.Fetch.Pkg.versions('@sys/std');
         expect(res.ok).to.eql(true);
+        expect(res.data?.versions['1.0.0']?.createdAt).to.eql('2026-07-05T01:17:43.938610Z');
         expect(captured?.cache).to.eql('reload');
         expect(captured?.headers).to.eql({ 'cache-control': 'no-cache', pragma: 'no-cache' });
       } finally {
@@ -38,7 +44,12 @@ describe('Jsr.Fetch.Pkg', () => {
         configurable: true,
         value: async (input: RequestInfo | URL, init?: RequestInit) => {
           captured = { input, init };
-          const res = JSON.stringify({ scope: 'sys', name: 'std', latest: '1.0.0', versions: {} });
+          const res = JSON.stringify({
+            scope: 'sys',
+            name: 'std',
+            latest: '1.0.0',
+            versions: { '1.0.0': { createdAt: '2026-07-05T01:17:43.938610Z' } },
+          });
           return new Response(res, {
             status: 200,
             headers: { 'content-type': 'application/json' },
