@@ -58,7 +58,7 @@
     "npm:@automerge/automerge-repo@2.5.6": "2.5.6",
     "npm:@automerge/automerge@3.2.6": "3.2.6",
     "npm:@automerge/prosemirror@0.2.0": "0.2.0",
-    "npm:@deno/vite-plugin@2.0.2": "2.0.2_vite@8.1.0__yaml@2.9.0",
+    "npm:@deno/vite-plugin@2.0.2": "2.0.2_vite@8.1.3__yaml@2.9.0_yaml@2.9.0",
     "npm:@mariozechner/pi-coding-agent@0.73.0": "0.73.0_ws@8.21.0_zod@4.4.3",
     "npm:@monaco-editor/react@4.7.0": "4.7.0_monaco-editor@0.55.1_react@19.2.7_react-dom@19.2.7__react@19.2.7",
     "npm:@noble/hashes@2.2.0": "2.2.0",
@@ -67,13 +67,14 @@
     "npm:@preact/signals-core@1.14.3": "1.14.3",
     "npm:@preact/signals-react@3.10.2": "3.10.2_react@19.2.7",
     "npm:@sinclair/typebox-codegen@0.11.1": "0.11.1",
+    "npm:@stripe/stripe-js@9.9.0": "9.9.0",
     "npm:@svgdotjs/svg.js@3.2.5": "3.2.5",
     "npm:@testing-library/react@16.3.2": "16.3.2_@types+react@19.2.17_@types+react-dom@19.2.3__@types+react@19.2.17_react@19.2.7_react-dom@19.2.7__react@19.2.7",
     "npm:@types/ramda@0.31.1": "0.31.1",
     "npm:@types/react-dom@19.2.3": "19.2.3_@types+react@19.2.17",
     "npm:@types/react@19.2.17": "19.2.17",
     "npm:@types/ws@8.18.1": "8.18.1",
-    "npm:@vitejs/plugin-react@6.0.3": "6.0.3_vite@8.1.0__yaml@2.9.0",
+    "npm:@vitejs/plugin-react@6.0.3": "6.0.3_vite@8.1.3__yaml@2.9.0_yaml@2.9.0",
     "npm:bowser@2.14.1": "2.14.1",
     "npm:chai@6.2.2": "6.2.2",
     "npm:csstype@3.2.3": "3.2.3",
@@ -88,7 +89,7 @@
     "npm:hono@4.12.27": "4.12.27",
     "npm:ignore@7.0.5": "7.0.5",
     "npm:monaco-editor@0.55.1": "0.55.1",
-    "npm:motion@12.42.0": "12.42.0_react@19.2.7_react-dom@19.2.7__react@19.2.7",
+    "npm:motion@12.42.2": "12.42.2_react@19.2.7_react-dom@19.2.7__react@19.2.7",
     "npm:ora@9.4.0": "9.4.0",
     "npm:ora@9.4.1": "9.4.1",
     "npm:prettier@3.9.4": "3.9.4",
@@ -97,10 +98,11 @@
     "npm:prosemirror-model@1.25.9": "1.25.9",
     "npm:prosemirror-schema-basic@1.2.4": "1.2.4",
     "npm:prosemirror-state@1.4.4": "1.4.4",
+    "npm:prosemirror-view@1.42.0": "1.42.0",
     "npm:ramda@0.32.0": "0.32.0",
     "npm:react-dom@19.2.7": "19.2.7_react@19.2.7",
     "npm:react-error-boundary@6.1.2": "6.1.2_react@19.2.7",
-    "npm:react-icons@5.6.0": "5.6.0_react@19.2.7",
+    "npm:react-icons@5.7.0": "5.7.0_react@19.2.7",
     "npm:react-inspector@9.0.0": "9.0.0_react@19.2.7",
     "npm:react-spinners@0.17.0": "0.17.0_react@19.2.7_react-dom@19.2.7__react@19.2.7",
     "npm:react@19.2.7": "19.2.7",
@@ -112,8 +114,8 @@
     "npm:tinycolor2@1.6.0": "1.6.0",
     "npm:ts-essentials@10.2.1": "10.2.1",
     "npm:typebox@1.3.3": "1.3.3",
-    "npm:vite-plugin-wasm@3.6.0": "3.6.0_vite@8.1.0__yaml@2.9.0",
-    "npm:vite@8.1.0": "8.1.0_yaml@2.9.0",
+    "npm:vite-plugin-wasm@3.6.0": "3.6.0_vite@8.1.3__yaml@2.9.0_yaml@2.9.0",
+    "npm:vite@8.1.3": "8.1.3_yaml@2.9.0",
     "npm:ws@8.21.0": "8.21.0",
     "npm:yaml@2.9.0": "2.9.0"
   },
@@ -786,7 +788,7 @@
       "os": ["win32"],
       "cpu": ["x64"]
     },
-    "@deno/vite-plugin@2.0.2_vite@8.1.0__yaml@2.9.0": {
+    "@deno/vite-plugin@2.0.2_vite@8.1.3__yaml@2.9.0_yaml@2.9.0": {
       "integrity": "sha512-bzuKApn9Jr2x1jSrbuJEJzy++8LUwjFVOAopAbepcE3RgYzdcPEWd36PSp7P5dNMQlNnQlgtm3MeNbcKZ/Eh/Q==",
       "dependencies": [
         "@deno/loader@npm:@jsr/deno__loader@0.5.0",
@@ -1526,6 +1528,9 @@
         "tslib"
       ]
     },
+    "@stripe/stripe-js@9.9.0": {
+      "integrity": "sha512-Vwqe6Q5cU4i82tPyAv2BpaW/fQSNdOSO4/J8EeDLPp5/oIZiMmdB+Hgh863zFH+rtoxpuWGvD1L7QPh8k1Rdvw=="
+    },
     "@svgdotjs/svg.js@3.2.5": {
       "integrity": "sha512-/VNHWYhNu+BS7ktbYoVGrCmsXDh+chFMaONMwGNdIBcFHrWqk2jY8fNyr3DLdtQUIalvkPfM554ZSFa3dm3nxQ=="
     },
@@ -1648,7 +1653,7 @@
     "@ungap/structured-clone@1.3.2": {
       "integrity": "sha512-5jsZFwgR5rTdKwidH9Qmat75RKwqfpKlWWB1frDkljN127mwqBu8K0PYo7/hFpF03IEJpfVPpCQDY/eDx3iHvA=="
     },
-    "@vitejs/plugin-react@6.0.3_vite@8.1.0__yaml@2.9.0": {
+    "@vitejs/plugin-react@6.0.3_vite@8.1.3__yaml@2.9.0_yaml@2.9.0": {
       "integrity": "sha512-vmFvco5/QuC2f9Oj+wTk0+9XeDFkHxSamwZKYc7MxYwKICfvUvlMhqKI0VuICPltGqh1neqBKDvO4kes1ya8vg==",
       "dependencies": [
         "@rolldown/pluginutils",
@@ -2071,8 +2076,8 @@
         "fetch-blob"
       ]
     },
-    "framer-motion@12.42.0_react@19.2.7_react-dom@19.2.7__react@19.2.7": {
-      "integrity": "sha512-wp7EJnfWaaEScVygKv3e20udoRz+LbtxScsuTkakAxfXmt+ReC6WyPW2nINRAGvd+hG9odwcjBLyOTPjH5pBRA==",
+    "framer-motion@12.42.2_react@19.2.7_react-dom@19.2.7__react@19.2.7": {
+      "integrity": "sha512-5XY9luDiu0oHfHBjpDthFMh0ES+122w6p/papSJBweMkO8Sn+PW2QaEgRblQBpWFnuvZS5qvarpt/hO2pjGmnw==",
       "dependencies": [
         "motion-dom",
         "motion-utils",
@@ -2510,8 +2515,8 @@
         "marked@14.0.0"
       ]
     },
-    "motion-dom@12.42.0": {
-      "integrity": "sha512-M63h4n8R+quJdNhBwuLlgxM+OLYa9+I/T2pzDRboB9fLXRdbou+Gw7Zury+SkpaCyACP1JHSjHgZ1EgTkBr30w==",
+    "motion-dom@12.42.2": {
+      "integrity": "sha512-5gIMWLp/PycBtJRJWRgjxke5n8dlvkSn2DrYW+tr3XcqAZY1xZh6BJyooJXCM8wdfM7wfMjkBJNLge1CKPUIRA==",
       "dependencies": [
         "motion-utils"
       ]
@@ -2519,8 +2524,8 @@
     "motion-utils@12.39.0": {
       "integrity": "sha512-8nadJAJjTtqRkmRF36FoJTrywK9nnFmnPwnSMyxaOCU7GDjN9RTMJIxx9De8ErM+vpPhMccr/6fo5WciyQLnMQ=="
     },
-    "motion@12.42.0_react@19.2.7_react-dom@19.2.7__react@19.2.7": {
-      "integrity": "sha512-Qhwvu9sVl5/URSq5CNzwMCpSKK8Uhnrwb6VO977kZyj/wOCS7mWebJUnBoHx5cZU1Zv8a9BD5CSICWKAlrLJgA==",
+    "motion@12.42.2_react@19.2.7_react-dom@19.2.7__react@19.2.7": {
+      "integrity": "sha512-Atvv11yUKIid41cVrRBDVX5m8tF8kNpExRSlbpt6APClhDjtwQssgFHhQzejxw7/7YYbjHSPKBVbHo05BuJT5Q==",
       "dependencies": [
         "framer-motion",
         "react",
@@ -2724,8 +2729,8 @@
     "picomatch@4.0.4": {
       "integrity": "sha512-QP88BAKvMam/3NxH6vj2o21R6MjxZUAd6nlwAS/pnGvN9IVLocLHxGYIzFhg6fUQ+5th6P4dv4eW9jX3DSIj7A=="
     },
-    "postcss@8.5.15": {
-      "integrity": "sha512-FfR8sjd4em2T6fb3I2MwAJU7HWVMr9zba+enmQeeWFfCbm+UOC/0X4DS8XtpUTMwWMGbjKYP7xjfNekzyGmB3A==",
+    "postcss@8.5.16": {
+      "integrity": "sha512-vuwillviilfKZsg0VGj5R/YwwcHx4SLsIOI/7K6mQkWx+l5cUHTjj5g0AasTBcyXsbfTgrwsUNmVUb5xVwyPwg==",
       "dependencies": [
         "nanoid",
         "picocolors",
@@ -2876,8 +2881,8 @@
         "prosemirror-model"
       ]
     },
-    "prosemirror-view@1.41.9": {
-      "integrity": "sha512-clTunTX+eaLbr87L1V1QPheRlEQJyTlL3gXe9x3jQIk3rL0RVWxviDGz8tFaydwIVm+hKhYCyr+R/zBtWr9s6A==",
+    "prosemirror-view@1.42.0": {
+      "integrity": "sha512-N54DF3OXNWDuP81G1kbfCys8ZzIjuL1VnvJ2mk5STSu/fNxWIcX/EutQLA3s9KR/2wVhgDi4hzBB/1fINVxk0A==",
       "dependencies": [
         "prosemirror-model",
         "prosemirror-state",
@@ -2941,8 +2946,8 @@
         "react"
       ]
     },
-    "react-icons@5.6.0_react@19.2.7": {
-      "integrity": "sha512-RH93p5ki6LfOiIt0UtDyNg/cee+HLVR6cHHtW3wALfo+eOHTp8RnU2kRkI6E+H19zMIs03DyxUG/GfZMOGvmiA==",
+    "react-icons@5.7.0_react@19.2.7": {
+      "integrity": "sha512-LBLy340Rzqy6+/yVhZKT3B/QpP1BZaesGqasf09HPOBzRarcDIFH0WwXlXQfE7q7ipxK4MSiC5DIBWURCny6fw==",
       "dependencies": [
         "react"
       ]
@@ -3360,14 +3365,14 @@
         "vfile-message"
       ]
     },
-    "vite-plugin-wasm@3.6.0_vite@8.1.0__yaml@2.9.0": {
+    "vite-plugin-wasm@3.6.0_vite@8.1.3__yaml@2.9.0_yaml@2.9.0": {
       "integrity": "sha512-mL/QPziiIA4RAA6DkaZZzOstdwbW5jO4Vz7Zenj0wieKWBlNvIvX5L5ljum9lcUX0ShNfBgCNLKTjNkRVVqcsw==",
       "dependencies": [
         "vite"
       ]
     },
-    "vite@8.1.0_yaml@2.9.0": {
-      "integrity": "sha512-BuJcQK/56NQTWDGn4ABea3q4SSBdNPWwNZKTkkUpcMPnLoquSYH8llRtSUIgoL1KSCpHt5eghLShn50mH36y7Q==",
+    "vite@8.1.3_yaml@2.9.0": {
+      "integrity": "sha512-Ds+gBRbj0lwRO2Y5hwnUBdxSwlAve9LeRyU4sNnAr0ewW0gWF0n5bgXgUzbgZ49MV9BVUAQUFYVcDUcilUExMA==",
       "dependencies": [
         "lightningcss",
         "picomatch",
@@ -3583,15 +3588,15 @@
         "npm:@types/react@19.2.17",
         "npm:@vitejs/plugin-react@6.0.3",
         "npm:monaco-editor@0.55.1",
-        "npm:motion@12.42.0",
+        "npm:motion@12.42.2",
         "npm:prettier@3.9.4",
         "npm:react-dom@19.2.7",
-        "npm:react-icons@5.6.0",
+        "npm:react-icons@5.7.0",
         "npm:react@19.2.7",
         "npm:rollup-plugin-visualizer@7.0.1",
         "npm:rollup@4.62.2",
         "npm:vite-plugin-wasm@3.6.0",
-        "npm:vite@8.1.0"
+        "npm:vite@8.1.3"
       ]
     }
   }
