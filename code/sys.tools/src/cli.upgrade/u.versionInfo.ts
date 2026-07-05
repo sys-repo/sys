@@ -1,4 +1,5 @@
-import { Fs, Jsr, pkg, Semver, type t, WorkspaceResolve } from './common.ts';
+import { Fs, Jsr, pkg, type t, WorkspaceResolve } from './common.ts';
+import { toVersionState } from './u.versionState.ts';
 
 type FetchPackageVersions = t.Registry.Jsr.Fetch.Pkg.Lib['versions'];
 type ResolvePackage = t.WorkspaceResolve.Lib['resolvePackage'];
@@ -18,34 +19,36 @@ export async function getVersionInfo(
   const resolvePackage = deps.resolvePackage ?? WorkspaceResolve.resolvePackage;
 
   const remote = (await versions(pkg.name)).data?.latest ?? local;
-  const resolution = await resolvePackage({
+  const resolverOptions = {
     cwd,
-    specifier: `jsr:${pkg.name}`,
     reload: deps.resolverReload ?? false,
+    noConfig: true,
+    noLock: true,
+  } as const;
+  const resolution = await resolvePackage({
+    ...resolverOptions,
+    specifier: `jsr:${pkg.name}`,
   });
   const actionable = resolution.ok ? resolution.resolved : undefined;
   const latest = actionable ?? local;
-
-  const upgradeAvailable = actionable ? Semver.Is.greaterThan(actionable, local) : false;
-  const pending = actionable
-    ? Semver.Is.greaterThan(remote, local) && Semver.Is.greaterThan(remote, actionable)
-    : false;
-  const latestResolution = pending
+  const base = { local, remote, latest, actionable, resolution } as const;
+  const initial = toVersionState(base);
+  const latestResolution = initial.pending
     ? await resolvePackage({
-      cwd,
+      ...resolverOptions,
       specifier: `jsr:${pkg.name}@${remote}`,
-      reload: deps.resolverReload ?? false,
     })
     : undefined;
-  const resolverUnavailable = !resolution.ok;
+  const state = toVersionState({ ...base, latestResolution });
 
   return {
-    local,
-    remote,
-    latest,
-    actionable,
-    resolution,
+    ...base,
     latestResolution,
-    is: { latest: !upgradeAvailable, upgradeAvailable, pending, resolverUnavailable },
+    is: {
+      latest: !state.upgradeAvailable,
+      upgradeAvailable: state.upgradeAvailable,
+      pending: state.pending,
+      resolverUnavailable: state.resolverUnavailable,
+    },
   };
 }

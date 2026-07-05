@@ -1,5 +1,6 @@
-import { c, Cli, Pkg, pkg, Semver, Str, type t } from './common.ts';
+import { c, Cli, Pkg, pkg, Str, type t } from './common.ts';
 import { rootAdvisoryPrelude } from './u.advisory.fmt.ts';
+import { toVersionState } from './u.versionState.ts';
 
 type HelpInput =
   | Omit<t.Cli.Fmt.Help.InputSections, 'tool'>
@@ -12,22 +13,17 @@ type DisplayRow = { readonly label: string; readonly value: string };
 type DisplayState = { readonly title: string; readonly rows: readonly DisplayRow[] };
 
 function displayState(version: t.UpgradeTool.VersionInfo): DisplayState {
-  const hasNewerRelease = Semver.Is.greaterThan(version.remote, version.local);
-  const resolverUnavailable = hasNewerRelease &&
-    (version.is.resolverUnavailable ?? version.resolution?.ok === false);
-  const upgradeAvailable = hasNewerRelease && !resolverUnavailable &&
-    (version.is.upgradeAvailable ?? !version.is.latest);
-  const standingDown = !upgradeAvailable && hasNewerRelease && (version.is.pending ?? false);
-  const upgrade = version.actionable ?? version.latest;
+  const state = toVersionState(version);
+  const upgrade = state.actionable ?? version.latest;
 
-  if (upgradeAvailable) {
+  if (state.upgradeAvailable) {
     const rows: DisplayRow[] = [{ label: 'running', value: c.gray(version.local) }];
     if (version.remote !== upgrade) rows.push({ label: 'latest', value: w(version.remote) });
     rows.push({ label: 'upgrade', value: g(upgrade) });
     return { title: w(`${pkg.name} upgrade available`), rows };
   }
 
-  if (standingDown) {
+  if (state.pending) {
     return {
       title: w(`${pkg.name} upgrade standing down`),
       rows: [
@@ -38,7 +34,7 @@ function displayState(version: t.UpgradeTool.VersionInfo): DisplayState {
     };
   }
 
-  if (resolverUnavailable) {
+  if (state.resolverUnavailable) {
     return {
       title: w(`${pkg.name} upgrade check unavailable`),
       rows: [
@@ -130,7 +126,7 @@ export const Fmt = {
   shellcommand() {
     const str = Str.builder();
     const a = c.yellow(`sys upgrade --latest ${c.gray('[-l]')}`);
-    const b = c.gray(`# ↑ equiv: deno cache --reload jsr:@sys/tools`);
+    const b = c.gray(`# ↑ equiv: deno cache --reload --no-config --no-lock jsr:@sys/tools`);
     str
       .line(c.gray('To upgrade to latest run:'))
       .line()
@@ -178,16 +174,10 @@ export const Fmt = {
 } as const;
 
 function standdownReason(version: t.UpgradeTool.VersionInfo): string | undefined {
-  const reason = latestResolverReason(version);
+  const reason = toVersionState(version).reason;
   if (!reason) return undefined;
 
   if (reason.code === 'policy:minimum-dependency-age') return 'Deno minimum dependency age policy.';
   if (reason.message?.trim()) return reason.message.trim();
   return reason.code;
-}
-
-function latestResolverReason(version: t.UpgradeTool.VersionInfo) {
-  if (version.latestResolution?.ok === false) return version.latestResolution.reason;
-  if (version.resolution?.ok === false) return version.resolution.reason;
-  return undefined;
 }

@@ -14,6 +14,10 @@ export declare namespace WorkspaceGraphCli {
     readonly root: t.StringPath | t.StringModuleSpecifier;
     /** Reload source cache while collecting resolver facts. */
     readonly reload?: boolean;
+    /** Disable automatic config discovery for this resolver probe. */
+    readonly noConfig?: boolean;
+    /** Disable automatic lockfile discovery for this resolver probe. */
+    readonly noLock?: boolean;
   };
 
   /** Prepared `deno info --json` invocation. */
@@ -34,6 +38,7 @@ export declare namespace WorkspaceGraphCli {
   /** Raw module shape from `deno info --json`. */
   export type InfoModule = {
     readonly specifier?: string;
+    readonly error?: string;
     readonly dependencies?: readonly InfoDependency[];
   };
 

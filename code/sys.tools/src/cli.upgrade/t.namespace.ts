@@ -69,4 +69,22 @@ export namespace UpgradeTool {
       readonly resolverUnavailable?: boolean;
     };
   };
+
+  /** Derived upgrade truth state used by display, execution, and advisory persistence. */
+  export type VersionState = {
+    /** True when JSR has published a version newer than the running CLI. */
+    readonly hasNewerRelease: boolean;
+    /** Version Deno can currently execute after cache refresh. */
+    readonly actionable?: t.StringSemver;
+    /** True when there is an immediate Deno-actionable upgrade. */
+    readonly upgradeAvailable: boolean;
+    /** True when a newer published release exists but no newer version is currently actionable. */
+    readonly pending: boolean;
+    /** True when Deno could not verify an actionable version. */
+    readonly resolverUnavailable: boolean;
+    /** Advisory-compatible status derived from the same truth flags. */
+    readonly status: AdvisoryStatus;
+    /** Resolver failure reason when Deno reported one. */
+    readonly reason?: t.WorkspaceResolve.PackageResolutionReason;
+  };
 }

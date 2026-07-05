@@ -1,4 +1,4 @@
-import { c, Cli, Str, type t } from './common.ts';
+import { c, Cli, pkg, Str, type t } from './common.ts';
 
 export function rootAdvisoryPrelude(remote?: t.StringSemver) {
   const { gray: g, green, white: w } = c;
@@ -10,6 +10,16 @@ export function rootAdvisoryPrelude(remote?: t.StringSemver) {
   return Str.builder()
     .line(hr)
     .line(rootAdvisoryLine({ width, message, latest }))
+    .line(hr)
+    .toString();
+}
+
+export function rootPendingAdvisoryPrelude(remote: t.StringSemver) {
+  const hr = c.green(Cli.Fmt.hr());
+  return Str.builder()
+    .line(hr)
+    .line(c.white(`${pkg.name} ${remote} published; upgrade pending — standing down`))
+    .line(c.gray(c.italic('supply-chain buffer holding this release back')))
     .line(hr)
     .toString();
 }

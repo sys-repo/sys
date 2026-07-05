@@ -1,6 +1,7 @@
 import { Fs, Is, Json, Num, Path, pkg, Semver, type t, Time } from './common.ts';
-import { rootAdvisoryPrelude } from './u.advisory.fmt.ts';
+import { rootAdvisoryPrelude, rootPendingAdvisoryPrelude } from './u.advisory.fmt.ts';
 import { resolveUpgradeAdvisoryPath } from './u.advisory.path.ts';
+import { toVersionState } from './u.versionState.ts';
 
 const DEBUG_REMOTE_ENV = 'SYS_TOOLS_DEBUG_UPGRADE_ADVISORY_REMOTE';
 
@@ -39,7 +40,7 @@ export async function readUpgradeAdvisoryState(deps: ReadDeps = {}): Promise<Upg
   }
 
   const record = await readUpgradeAdvisoryRecord(path);
-  if (wrangle.hasAdoptedActionable(record)) {
+  if (wrangle.hasAdoptedActionable(record) || wrangle.hasAdoptedPending(record)) {
     return {
       path,
       record: undefined,
@@ -53,7 +54,7 @@ export async function readUpgradeAdvisoryState(deps: ReadDeps = {}): Promise<Upg
     path,
     record,
     hasUpgrade,
-    prelude: hasUpgrade ? toRootUpgradeAdvisoryPrelude(record) : undefined,
+    prelude: toRootUpgradeAdvisoryPrelude(record),
   };
 }
 
@@ -82,8 +83,9 @@ export async function writeUpgradeAdvisoryFailure(error: unknown, deps: WriteDep
 
 export function toRootUpgradeAdvisoryPrelude(record?: UpgradeAdvisoryRecord): string | undefined {
   if (!record?.ok) return undefined;
-  if (!wrangle.hasUpgrade(record)) return undefined;
-  return rootAdvisoryPrelude(record.actionable);
+  if (wrangle.hasUpgrade(record)) return rootAdvisoryPrelude(record.actionable);
+  if (wrangle.isMinimumAgePending(record)) return rootPendingAdvisoryPrelude(record.published);
+  return undefined;
 }
 
 export function toUpgradeAdvisoryStateFromVersionInfo(
@@ -96,7 +98,7 @@ export function toUpgradeAdvisoryStateFromVersionInfo(
     path: deps.path,
     record,
     hasUpgrade,
-    prelude: hasUpgrade ? toRootUpgradeAdvisoryPrelude(record) : undefined,
+    prelude: toRootUpgradeAdvisoryPrelude(record),
   };
 }
 
@@ -136,10 +138,7 @@ const wrangle = {
     version: t.UpgradeTool.VersionInfo,
     now?: Now,
   ): Extract<UpgradeAdvisoryRecord, { readonly ok: true }> {
-    const resolverUnavailable = version.is.resolverUnavailable ?? version.resolution?.ok === false;
-    const actionable = resolverUnavailable ? undefined : version.actionable ?? version.latest;
-    const reason = wrangle.reasonFromVersion(version);
-    const status = wrangle.status(version);
+    const state = toVersionState(version);
 
     return {
       schemaVersion: 2,
@@ -148,30 +147,10 @@ const wrangle = {
       ok: true,
       local: version.local,
       published: version.remote,
-      ...(actionable ? { actionable } : {}),
-      status,
-      ...(reason ? { reason } : {}),
+      ...(state.actionable ? { actionable: state.actionable } : {}),
+      status: state.status,
+      ...(state.reason ? { reason: state.reason } : {}),
     };
-  },
-
-  reasonFromVersion(version: t.UpgradeTool.VersionInfo) {
-    if (version.latestResolution?.ok === false) return version.latestResolution.reason;
-    if (version.resolution?.ok === false) return version.resolution.reason;
-    return undefined;
-  },
-
-  status(version: t.UpgradeTool.VersionInfo): t.UpgradeTool.AdvisoryStatus {
-    const hasNewerRelease = Semver.Is.greaterThan(version.remote, version.local);
-    const resolverUnavailable = hasNewerRelease &&
-      (version.is.resolverUnavailable ?? version.resolution?.ok === false);
-    const upgradeAvailable = hasNewerRelease && !resolverUnavailable &&
-      (version.is.upgradeAvailable ?? !version.is.latest);
-    const pending = !upgradeAvailable && hasNewerRelease && (version.is.pending ?? false);
-
-    if (resolverUnavailable) return 'resolver-unavailable';
-    if (upgradeAvailable) return 'upgrade-available';
-    if (pending) return 'pending';
-    return 'none';
   },
 
   debugRecord(): UpgradeAdvisoryRecord | undefined {
@@ -207,6 +186,20 @@ const wrangle = {
     if (record.status !== 'upgrade-available') return false;
     if (!record.actionable) return false;
     return !Semver.Is.greaterThan(record.actionable, pkg.version as t.StringSemver);
+  },
+
+  hasAdoptedPending(record?: UpgradeAdvisoryRecord) {
+    if (!record?.ok) return false;
+    if (record.package !== pkg.name) return false;
+    if (record.status !== 'pending') return false;
+    return !Semver.Is.greaterThan(record.published, pkg.version as t.StringSemver);
+  },
+
+  isMinimumAgePending(record?: UpgradeAdvisoryRecord) {
+    if (!record?.ok) return false;
+    if (record.package !== pkg.name) return false;
+    if (record.status !== 'pending') return false;
+    return record.reason?.code === 'policy:minimum-dependency-age';
   },
 
   record(value: unknown): UpgradeAdvisoryRecord | undefined {

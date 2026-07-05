@@ -1,4 +1,4 @@
-import { describe, expect, it, type t } from '../../-test.ts';
+import { describe, expect, it, Json, type t } from '../../-test.ts';
 import { WorkspaceResolve } from '../mod.ts';
 import {
   classifyPackageResolutionFailure,
@@ -94,6 +94,40 @@ describe('Workspace.Resolve', () => {
         resolved: '0.0.457',
       });
     });
+
+    it('classifies resolver errors embedded in successful deno info json', () => {
+      const fact = packageResolutionFromInfo('jsr:@sys/tools', {
+        modules: [
+          {
+            specifier: 'jsr:@sys/tools',
+            error:
+              'Could not find version. A newer matching version was found, but it was not used because it was newer than the specified minimum dependency date of 2016-07-06 21:36:09 UTC',
+          },
+        ],
+      });
+
+      expect(fact.ok).to.eql(false);
+      if (!fact.ok) {
+        expect(fact.reason.code).to.eql('policy:minimum-dependency-age');
+        expect(fact.reason.message).to.include('minimum dependency date');
+      }
+    });
+
+    it('fails closed when module errors coexist with package facts', () => {
+      const fact = packageResolutionFromInfo('jsr:@sys/tools', {
+        packages: { '@sys/tools@*': '@sys/tools@0.0.457' },
+        modules: [
+          {
+            specifier: 'jsr:@sys/tools',
+            error:
+              'Could not find version. A newer matching version was found, but it was not used because it was newer than the specified minimum dependency date of 2016-07-06 21:36:09 UTC',
+          },
+        ],
+      });
+
+      expect(fact.ok).to.eql(false);
+      if (!fact.ok) expect(fact.reason.code).to.eql('policy:minimum-dependency-age');
+    });
   });
 
   describe('classifyPackageResolutionFailure', () => {
@@ -124,7 +158,7 @@ describe('Workspace.Resolve', () => {
             calls.push(args);
             return output({
               success: true,
-              stdout: JSON.stringify({
+              stdout: Json.stringify({
                 packages: { '@sys/tools@*': '@sys/tools@0.0.457' },
               }),
             });
@@ -142,6 +176,83 @@ describe('Workspace.Resolve', () => {
       ]);
       expect(fact.ok).to.eql(true);
       if (fact.ok) expect(fact.resolved).to.eql('0.0.457');
+    });
+
+    it('can isolate a package probe from auto-discovered config and lockfiles', async () => {
+      const calls: t.Process.InvokeArgs[] = [];
+
+      const fact = await resolvePackage(
+        {
+          cwd: '/workspace/root' as t.StringDir,
+          specifier: 'jsr:@sys/tools@0.0.462',
+          reload: true,
+          noConfig: true,
+          noLock: true,
+        },
+        {
+          invoke: async (args) => {
+            calls.push(args);
+            return output({
+              success: true,
+              stdout: Json.stringify({
+                packages: { '@sys/tools@0.0.462': '@sys/tools@0.0.462' },
+              }),
+            });
+          },
+        },
+      );
+
+      expect(calls).to.eql([
+        {
+          cmd: 'deno',
+          cwd: '/workspace/root',
+          args: [
+            'info',
+            '--json',
+            '--no-config',
+            '--no-lock',
+            '--reload',
+            'jsr:@sys/tools@0.0.462',
+          ],
+          silent: true,
+        },
+      ]);
+      expect(fact.ok).to.eql(true);
+      if (fact.ok) expect(fact.resolved).to.eql('0.0.462');
+    });
+
+    it('classifies successful deno info json module errors', async () => {
+      const fact = await resolvePackage(
+        {
+          cwd: '/workspace/root' as t.StringDir,
+          specifier: 'jsr:@sys/tools',
+        },
+        {
+          invoke: async () => {
+            return output({
+              success: true,
+              stdout: Json.stringify({
+                roots: ['jsr:@sys/tools'],
+                modules: [
+                  {
+                    specifier: 'jsr:@sys/tools',
+                    error:
+                      'Could not find version. A newer matching version was found, but it was not used because it was newer than the specified minimum dependency date of 2016-07-06 21:36:09 UTC',
+                  },
+                ],
+                redirects: {},
+                packages: {},
+              }),
+            });
+          },
+        },
+      );
+
+      expect(fact.ok).to.eql(false);
+      if (!fact.ok) {
+        expect(fact.reason.code).to.eql('policy:minimum-dependency-age');
+        expect(fact.reason.message).to.include('minimum dependency date');
+      }
     });
   });
 });

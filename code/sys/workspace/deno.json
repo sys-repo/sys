@@ -4,6 +4,7 @@
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
+    "test:resolve": "deno test -P=test --trace-leaks ./src/m.resolve",
     "test:cli": "deno run -P=test:cli ./-scripts/task.cli.ts",
     "cli": "deno run -P=cli ./src/m.cli/mod.ts",
     "dry": "deno publish --allow-dirty --dry-run",
@@ -57,4 +58,3 @@
     }
   }
 }
-

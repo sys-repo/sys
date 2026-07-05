@@ -134,6 +134,7 @@ describe('cli.upgrade.runUpgrade', () => {
           local: '0.0.318',
           remote: '0.0.319',
           latest: '0.0.319',
+          resolution: resolved('jsr:@sys/tools', '0.0.319'),
           is: { latest: false },
         }),
         refreshCache: async () => ({
@@ -187,6 +188,7 @@ describe('cli.upgrade.runUpgrade', () => {
             remote: '0.0.319',
             latest: '0.0.319',
             actionable: '0.0.319',
+            resolution: resolved('jsr:@sys/tools', '0.0.319'),
             is: { latest: false, upgradeAvailable: true, pending: false },
           };
         },
@@ -470,6 +472,45 @@ describe('cli.upgrade.runUpgrade', () => {
       expect((error as Error).message).to.not.include('resolved 0.0.318');
     });
 
+    it('requires post-refresh verification through the unpinned public specifier', async () => {
+      let versionChecks = 0;
+      let refreshed = false;
+
+      let error: unknown;
+      try {
+        await runUpgrade('/tmp' as t.StringDir, { interactive: false }, {
+          getVersionInfo: async () => {
+            versionChecks += 1;
+            return {
+              local: '0.0.318',
+              remote: '0.0.319',
+              latest: '0.0.318',
+              actionable: '0.0.318',
+              resolution: resolved('jsr:@sys/tools', '0.0.318'),
+              latestResolution: resolved('jsr:@sys/tools@0.0.319', '0.0.319'),
+              is: { latest: false, upgradeAvailable: true, pending: false },
+            };
+          },
+          refreshCache: async () => {
+            refreshed = true;
+            return { success: true, toString: () => '' };
+          },
+          prompt: async () => 'upgrade',
+          spinner: () => spinner([]),
+          info() {},
+          async writeAdvisorySuccess() {},
+        });
+      } catch (err) {
+        error = err;
+      }
+
+      expect(refreshed).to.eql(true);
+      expect(versionChecks).to.eql(2);
+      expect(error).to.be.instanceOf(Error);
+      expect((error as Error).message).to.include('public specifier resolved 0.0.318');
+      expect((error as Error).message).to.include('Expected upgrade version 0.0.319');
+    });
+
     it('keeps upgrade flow working when advisory persistence fails', async () => {
       const events: string[] = [];
       let refreshed = false;
@@ -479,6 +520,7 @@ describe('cli.upgrade.runUpgrade', () => {
           local: '0.0.318',
           remote: '0.0.319',
           latest: '0.0.319',
+          resolution: resolved('jsr:@sys/tools', '0.0.319'),
           is: { latest: false },
         }),
         refreshCache: async () => {
@@ -508,6 +550,19 @@ describe('cli.upgrade.runUpgrade', () => {
     });
   });
 });
+
+function resolved(
+  specifier: string,
+  version: string,
+): Extract<NonNullable<t.UpgradeTool.VersionInfo['resolution']>, { readonly ok: true }> {
+  return {
+    ok: true,
+    specifier: specifier as t.StringModuleSpecifier,
+    registry: 'jsr',
+    package: '@sys/tools' as t.StringPkgName,
+    resolved: version as t.StringSemver,
+  };
+}
 
 function promptOptionNames(
   options: readonly unknown[],

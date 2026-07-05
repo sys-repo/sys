@@ -4,6 +4,7 @@
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test ./-scripts ./src",
+    "test:upgrade": "deno test -P=test --trace-leaks ./src/cli.upgrade",
     "test:deploy": "deno test -P=test --trace-leaks ./src/cli.deploy",
     "test:pull": "deno test -P=test --trace-leaks ./src/cli.pull",
     "test:serve": "deno test -P=test --trace-leaks ./src/cli.serve",
@@ -57,4 +58,3 @@
     }
   }
 }
-

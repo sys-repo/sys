@@ -8,6 +8,15 @@ type ParsedSpecifier = {
   readonly package: t.StringPkgName;
   readonly constraint: string;
 };
+type PackageResolutionInfo = {
+  readonly redirects?: Record<string, string>;
+  readonly packages?: Record<string, string>;
+  readonly modules?: readonly PackageResolutionModule[];
+};
+type PackageResolutionModule = {
+  readonly specifier?: string;
+  readonly error?: string;
+};
 type ResolvedLookup =
   | { readonly ok: true; readonly version: t.StringSemver }
   | { readonly ok: false; readonly reason?: string };
@@ -25,7 +34,13 @@ export async function resolvePackage(
     });
   }
 
-  const command = GraphCli.info({ cwd: args.cwd, root: args.specifier, reload: args.reload });
+  const command = GraphCli.info({
+    cwd: args.cwd,
+    root: args.specifier,
+    reload: args.reload,
+    noConfig: args.noConfig,
+    noLock: args.noLock,
+  });
   const output = await (deps.invoke ?? Process.invoke)({
     ...command,
     args: [...command.args],
@@ -50,7 +65,7 @@ export async function resolvePackage(
 /** Normalize the package resolution fact from `deno info --json` output. */
 export function packageResolutionFromInfo(
   specifier: t.StringModuleSpecifier,
-  info: { readonly redirects?: Record<string, string>; readonly packages?: Record<string, string> },
+  info: PackageResolutionInfo,
 ): t.WorkspaceResolve.PackageResolutionFact {
   const parsed = parsePackageSpecifier(specifier);
   if (!parsed) {
@@ -59,6 +74,9 @@ export function packageResolutionFromInfo(
       message: `Unsupported package specifier: ${specifier}`,
     });
   }
+
+  const moduleError = firstModuleResolutionError(info, specifier);
+  if (moduleError) return failed(specifier, parsed, classifyPackageResolutionFailure(moduleError));
 
   const resolved = findResolvedVersion(specifier, info, parsed);
   if (resolved.ok) {
@@ -102,15 +120,40 @@ export function classifyPackageResolutionFailure(
   return { code: 'unknown', message: message || 'Deno package resolution failed' };
 }
 
-function packageInfoFromDenoInfo(value: unknown): {
-  readonly redirects?: Record<string, string>;
-  readonly packages?: Record<string, string>;
-} {
+function packageInfoFromDenoInfo(value: unknown): PackageResolutionInfo {
   if (!Is.record(value)) return {};
   return {
     redirects: stringRecord(value.redirects),
     packages: stringRecord(value.packages),
+    modules: infoModules(value.modules),
   };
+}
+
+function infoModules(value: unknown): PackageResolutionModule[] | undefined {
+  if (!Is.array<unknown>(value)) return undefined;
+
+  const modules: PackageResolutionModule[] = [];
+  for (const item of value) {
+    if (!Is.record(item)) continue;
+    const specifier = item.specifier;
+    const error = item.error;
+    if (!Is.str(specifier) && !Is.str(error)) continue;
+    modules.push({
+      ...(Is.str(specifier) ? { specifier } : {}),
+      ...(Is.str(error) ? { error } : {}),
+    });
+  }
+  return modules.length ? modules : undefined;
+}
+
+function firstModuleResolutionError(
+  info: PackageResolutionInfo,
+  root: t.StringModuleSpecifier,
+): string | undefined {
+  const modules = info.modules ?? [];
+  const rootError = modules.find((module) => module.specifier === root && Is.str(module.error))
+    ?.error;
+  return rootError ?? modules.map((module) => module.error).find(Is.str);
 }
 
 function stringRecord(value: unknown): Record<string, string> | undefined {

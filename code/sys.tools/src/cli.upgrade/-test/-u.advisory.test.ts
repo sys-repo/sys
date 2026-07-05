@@ -95,6 +95,32 @@ describe('cli.upgrade advisory', () => {
     }
   });
 
+  it('expires cached pending advisories once the published version is adopted', async () => {
+    const tmp = await Fs.makeTempDir({ prefix: 'sys.tools.upgrade.advisory.pending.adopted.' });
+    const path = `${tmp.absolute}/advisory.json`;
+
+    try {
+      await Fs.writeJson(path, {
+        schemaVersion: 2,
+        package: '@sys/tools',
+        checkedAt: 1,
+        ok: true,
+        local: '0.0.0',
+        published: pkg.version,
+        actionable: '0.0.0',
+        status: 'pending',
+        reason: { code: 'policy:minimum-dependency-age' },
+      });
+      const res = await readUpgradeAdvisoryState({ path });
+
+      expect(res.record).to.eql(undefined);
+      expect(res.hasUpgrade).to.eql(false);
+      expect(res.prelude).to.eql(undefined);
+    } finally {
+      await Fs.remove(tmp.absolute);
+    }
+  });
+
   it('debug remote env forces a pre-menu advisory block without persistence', async () => {
     const key = 'SYS_TOOLS_DEBUG_UPGRADE_ADVISORY_REMOTE';
     const before = Deno.env.get(key);
@@ -230,7 +256,7 @@ describe('cli.upgrade advisory', () => {
     }
   });
 
-  it('preserves pending resolver policy reasons without a root CTA', async () => {
+  it('surfaces pending minimum-age resolver policy without a root CTA', async () => {
     const tmp = await Fs.makeTempDir({ prefix: 'sys.tools.upgrade.advisory.pending.reason.' });
     const path = `${tmp.absolute}/advisory.json`;
 
@@ -253,6 +279,7 @@ describe('cli.upgrade advisory', () => {
         { path, now: fixture.now(12_347) },
       );
       const res = await readUpgradeAdvisoryState({ path });
+      const prelude = Cli.stripAnsi(res.prelude ?? '');
 
       expect(res.record).to.eql({
         schemaVersion: 2,
@@ -266,7 +293,9 @@ describe('cli.upgrade advisory', () => {
         reason: { code: 'policy:minimum-dependency-age', message: 'minimum dependency date' },
       });
       expect(res.hasUpgrade).to.eql(false);
-      expect(res.prelude).to.eql(undefined);
+      expect(prelude).to.contain('@sys/tools 9.9.9 published; upgrade pending — standing down');
+      expect(prelude).to.contain('supply-chain buffer holding this release back');
+      expect(prelude).to.not.contain('sys upgrade --latest');
     } finally {
       await Fs.remove(tmp.absolute);
     }
@@ -325,7 +354,7 @@ describe('cli.upgrade advisory', () => {
       const res = await runUpgradeAdvisoryProbe({
         getVersionInfo: async () => ({
           local: '0.0.318',
-          remote: '0.0.319',
+          remote: '9.9.9',
           latest: '0.0.318',
           actionable: '0.0.318',
           is: { latest: true, upgradeAvailable: false, pending: true },
@@ -339,7 +368,7 @@ describe('cli.upgrade advisory', () => {
       });
       const state = await readUpgradeAdvisoryState({ path });
 
-      expect(res).to.eql({ ok: true, remote: '0.0.319' });
+      expect(res).to.eql({ ok: true, remote: '9.9.9' });
       expect(state.record?.ok && state.record.status).to.eql('pending');
       expect(state.hasUpgrade).to.eql(false);
       expect(state.prelude).to.eql(undefined);

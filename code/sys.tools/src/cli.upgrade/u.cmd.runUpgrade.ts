@@ -1,8 +1,9 @@
-import { c, Cli, pkg, Semver, type t } from './common.ts';
+import { c, Cli, pkg, type t } from './common.ts';
 import { Fmt } from './u.fmt.ts';
 import { refreshCache } from './u.refreshCache.ts';
 import { writeUpgradeAdvisorySuccess } from './u.advisory.ts';
 import { getVersionInfo } from './u.versionInfo.ts';
+import { toVersionState } from './u.versionState.ts';
 
 type Spinner = t.Cli.Spinner.Instance;
 
@@ -27,12 +28,6 @@ type WriteAdvisorySuccess = (version: t.UpgradeTool.VersionInfo) => Promise<void
 
 type RunUpgradeSource = NonNullable<t.UpgradeTool.CliContext['origin']>;
 type RunUpgradeResult = t.UpgradeTool.CliResult;
-type VersionState = {
-  readonly actionable?: t.StringSemver;
-  readonly upgradeAvailable: boolean;
-  readonly pending: boolean;
-  readonly resolverUnavailable: boolean;
-};
 
 type RunUpgradeDeps = {
   readonly getVersionInfo: GetVersionInfo;
@@ -86,7 +81,7 @@ export async function runUpgrade(
       // Advisory persistence must remain fail-quiet.
     }
 
-    const state = versionState(version);
+    const state = toVersionState(version);
 
     deps.info();
     deps.info(Fmt.versionInfoTable(version));
@@ -166,12 +161,12 @@ export async function runUpgrade(
 
     if (!out.success) {
       const msg =
-        `Failed to refresh JSR cache for ${pkg.name}. Command: deno cache --reload jsr:@sys/tools\n${out.toString()}`;
+        `Failed to refresh JSR cache for ${pkg.name}. Command: deno cache --reload --no-config --no-lock jsr:@sys/tools\n${out.toString()}`;
       throw new Error(msg);
     }
 
-    const verified = versionState(await deps.getVersionInfo(cwd, { resolverReload: true }));
-    if (verified.actionable !== target) {
+    const verified = await deps.getVersionInfo(cwd, { resolverReload: true });
+    if (!resolvesPublicSpecifierTo(verified, target)) {
       throw new Error(
         [
           `Failed to verify ${pkg.name} upgrade.`,
@@ -214,23 +209,23 @@ function formatUpgradeSuccess(target: t.StringSemver) {
   ].join('');
 }
 
-function versionState(version: t.UpgradeTool.VersionInfo): VersionState {
-  const hasNewerRelease = Semver.Is.greaterThan(version.remote, version.local);
-  const resolverUnavailable = hasNewerRelease &&
-    (version.is.resolverUnavailable ?? version.resolution?.ok === false);
-  const actionable = resolverUnavailable ? undefined : version.actionable ?? version.latest;
-  const upgradeAvailable = hasNewerRelease && !resolverUnavailable &&
-    (version.is.upgradeAvailable ?? !version.is.latest);
-  const pending = !upgradeAvailable && hasNewerRelease && (version.is.pending ?? false);
-  return { actionable, upgradeAvailable, pending, resolverUnavailable };
-}
-
-function verifiedActionableTarget(state: VersionState): t.StringSemver {
+function verifiedActionableTarget(state: t.UpgradeTool.VersionState): t.StringSemver {
   if (state.actionable) return state.actionable;
   throw new Error(`Cannot run ${pkg.name} upgrade without a verified upgrade version.`);
 }
 
-function formatVerifiedState(state: VersionState) {
+function resolvesPublicSpecifierTo(
+  version: t.UpgradeTool.VersionInfo,
+  target: t.StringSemver,
+) {
+  return version.resolution?.ok === true && version.resolution.resolved === target;
+}
+
+function formatVerifiedState(version: t.UpgradeTool.VersionInfo) {
+  const state = toVersionState(version);
+  if (version.resolution?.ok === true) {
+    return `public specifier resolved ${version.resolution.resolved}`;
+  }
   if (state.resolverUnavailable) return 'Deno resolver state is unavailable';
   if (!state.actionable) return 'no upgrade version was reported';
   return `upgrade check reported ${state.actionable}`;

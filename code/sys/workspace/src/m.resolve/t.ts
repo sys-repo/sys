@@ -18,6 +18,10 @@ export declare namespace WorkspaceResolve {
     readonly specifier: t.StringModuleSpecifier;
     /** Ask Deno to reload resolver/source cache before reporting facts. */
     readonly reload?: boolean;
+    /** Disable automatic config discovery for this resolver probe. */
+    readonly noConfig?: boolean;
+    /** Disable automatic lockfile discovery for this resolver probe. */
+    readonly noLock?: boolean;
   };
 
   /** Canonical package resolution reason. */
