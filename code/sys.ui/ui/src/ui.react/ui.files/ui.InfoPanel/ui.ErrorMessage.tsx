@@ -7,7 +7,9 @@ type P = {
   style?: t.Style.Input;
 };
 
-/** Minimal error message value renderer with native full-error tooltip. */
+/**
+ * Render a minimal error message value with a native full-error tooltip.
+ */
 export const ErrorMessage: React.FC<P> = (props) => {
   const summary = Err.summary(props.value);
   const full = Err.summary(props.value, { cause: true, stack: true });
@@ -18,7 +20,7 @@ export const ErrorMessage: React.FC<P> = (props) => {
     base: css({ color: theme.fg, display: 'inline' }),
     name: css({ color: Color.RED, fontWeight: 'bold' }),
     message: css({ color: Color.alpha(theme.fg, 0.7) }),
-  };
+  } as const;
 
   return (
     <div className={css(Styles.base, props.style).class} title={full}>

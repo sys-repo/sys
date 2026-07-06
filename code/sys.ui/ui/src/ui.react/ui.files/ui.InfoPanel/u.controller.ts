@@ -1,6 +1,9 @@
 import React from 'react';
 import { Rx, Signal, type t } from './common.ts';
 
+/**
+ * Create a signal-backed Files.InfoPanel controller.
+ */
 export const createController: t.Files.InfoPanel.ControllerFactory = (args = {}) => {
   const s = Signal.create;
   let rev = 0;
@@ -56,6 +59,9 @@ export const createController: t.Files.InfoPanel.ControllerFactory = (args = {})
   return api;
 };
 
+/**
+ * Read controller-backed InfoPanel view props inside a React lifecycle.
+ */
 export function useControlledView(args: t.Files.InfoPanel.ControllerArgs) {
   const controller = React.useMemo(
     () => createController(args),

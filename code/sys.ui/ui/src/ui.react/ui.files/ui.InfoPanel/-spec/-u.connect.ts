@@ -1,9 +1,9 @@
 import type { DebugSignals } from './-SPEC.Debug.tsx';
 import { Err, FilesBase, SPEC, type t } from './common.ts';
 
-let active: t.ModelFiles.Client.WebSocket | undefined;
-
-/** Connect to the sample Files websocket and update the debug snapshot. */
+/**
+ * Connect to the sample Files websocket and update the debug snapshot.
+ */
 export async function connect(debug: DebugSignals) {
   snapshot(debug, { status: 'starting' });
 
@@ -17,7 +17,9 @@ export async function connect(debug: DebugSignals) {
   }
 }
 
-/** Disconnect the active sample Files websocket. */
+/**
+ * Disconnect the active sample Files websocket.
+ */
 export async function disconnect(debug: DebugSignals) {
   const client = active;
   active = undefined;
@@ -40,6 +42,8 @@ export async function disconnect(debug: DebugSignals) {
 /**
  * Helpers:
  */
+let active: t.ModelFiles.Client.WebSocket | undefined;
+
 function snapshot(debug: DebugSignals, value: t.Files.InfoPanel.Snapshot) {
   debug.props.snapshot.value = value;
 }

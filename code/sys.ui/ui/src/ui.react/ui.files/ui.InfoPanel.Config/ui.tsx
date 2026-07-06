@@ -20,7 +20,7 @@ export const UI: t.FC<P> = (props) => {
       color: theme.fg,
       display: 'grid',
     }),
-  };
+  } as const;
 
   return (
     <div className={css(styles.base, props.style).class} data-component={D.displayName}>

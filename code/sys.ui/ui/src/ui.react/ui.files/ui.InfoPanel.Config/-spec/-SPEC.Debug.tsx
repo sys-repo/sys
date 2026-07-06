@@ -83,7 +83,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const theme = Color.theme();
   const styles = {
     base: css({ color: theme.fg }),
-  };
+  } as const;
 
   return (
     <div className={css(styles.base, props.style).class}>
@@ -115,4 +115,4 @@ const Styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
   }),
-};
+} as const;

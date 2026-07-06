@@ -3,7 +3,9 @@ import { type t } from './common.ts';
 import { useControlledView } from './u.controller.ts';
 import { InfoPanel } from './ui.tsx';
 
-/** Controlled InfoPanel adapter backed by signal state. */
+/**
+ * Render the controlled InfoPanel adapter backed by signal state.
+ */
 export const Controlled: React.FC<t.Files.InfoPanel.ControlledProps> = (props) => {
   const { debug, theme, snapshot, events } = props;
   const view = useControlledView({ debug, theme, snapshot, events });

@@ -19,7 +19,7 @@ export const StatusTitle: React.FC<P> = (props) => {
   const styles = {
     base: css({ display: 'flex', alignItems: 'center', gap: 6 }),
     label: css({ opacity: 0.7, fontWeight: 400 }),
-  };
+  } as const;
 
   return (
     <div className={css(styles.base, props.style).class}>

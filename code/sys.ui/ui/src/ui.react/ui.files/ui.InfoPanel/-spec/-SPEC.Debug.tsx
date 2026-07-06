@@ -22,29 +22,6 @@ type Storage = {
   events: t.Files.InfoPanel.State['events'];
 };
 
-const readyCapabilities: t.ModelFiles.Capabilities = {
-  list: true,
-  stat: true,
-  read: true,
-  write: false,
-  remove: false,
-  watch: true,
-  manifest: true,
-};
-
-const snapshots = {
-  stopped: { status: 'stopped' },
-  ready: { status: 'ready', capabilities: readyCapabilities },
-  error: { status: 'error', error: Err.std(new Error('Sample Files error')) },
-} as const satisfies Record<string, t.Files.InfoPanel.Snapshot>;
-
-const defaults: Defaults = {
-  debug: false,
-  theme: 'Dark',
-  snapshot: snapshots.stopped,
-  events: D.events,
-};
-
 /**
  * Types:
  */
@@ -52,7 +29,7 @@ export type DebugProps = { debug: DebugSignals; style?: t.Style.Input };
 export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
 
 /**
- * Signals:
+ * Create persisted debug signals for the InfoPanel spec.
  */
 export async function createDebugSignals() {
   const s = Signal.create;
@@ -106,18 +83,8 @@ export async function createDebugSignals() {
   return api;
 }
 
-const Styles = {
-  title: css({
-    fontWeight: 'bold',
-    marginBottom: 4,
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  }),
-};
-
 /**
- * Component:
+ * Render debug controls for the InfoPanel spec.
  */
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
@@ -131,7 +98,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const theme = Color.theme();
   const styles = {
     base: css({ color: theme.fg }),
-  };
+  } as const;
 
   return (
     <div className={css(styles.base, props.style).class}>
@@ -174,3 +141,39 @@ export const Debug: React.FC<DebugProps> = (props) => {
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+const readyCapabilities: t.ModelFiles.Capabilities = {
+  list: true,
+  stat: true,
+  read: true,
+  write: false,
+  remove: false,
+  watch: true,
+  manifest: true,
+};
+
+const snapshots = {
+  stopped: { status: 'stopped' },
+  ready: { status: 'ready', capabilities: readyCapabilities },
+  error: { status: 'error', error: Err.std(new Error('Sample Files error')) },
+} as const satisfies Record<string, t.Files.InfoPanel.Snapshot>;
+
+const defaults: Defaults = {
+  debug: false,
+  theme: 'Dark',
+  snapshot: snapshots.stopped,
+  events: D.events,
+};
+
+const Styles = {
+  title: css({
+    fontWeight: 'bold',
+    marginBottom: 4,
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  }),
+} as const;
