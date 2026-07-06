@@ -16,14 +16,9 @@ const fields: readonly Field[] = [
   'error',
   'events',
 ];
-const fieldLabels = {
-  status: 'status',
-  'status:title': 'status:title',
-  fidelity: 'fidelity',
-  capabilities: 'capabilities',
-  error: 'error',
-  events: 'events',
-} satisfies Record<Field, string>;
+const fieldLabels: Partial<Record<Field, string>> = {
+  'status:title': 'status title',
+};
 
 export const D = {
   name,
