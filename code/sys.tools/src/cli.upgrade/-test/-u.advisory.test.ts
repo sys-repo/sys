@@ -1,4 +1,4 @@
-import { c, Cli, describe, expect, Fs, it, pkg, type t } from '../../-test.ts';
+import { c, Cli, describe, expect, Fs, it, pkg, Time, type t } from '../../-test.ts';
 import {
   readUpgradeAdvisoryState,
   toRootUpgradeAdvisoryPrelude,
@@ -222,6 +222,64 @@ describe('cli.upgrade advisory', () => {
     }
   });
 
+  it('keeps actionable advisories readable when latest is standing down', async () => {
+    const tmp = await Fs.makeTempDir({ prefix: 'sys.tools.upgrade.advisory.intermediate.' });
+    const path = `${tmp.absolute}/advisory.json`;
+
+    try {
+      await writeUpgradeAdvisorySuccess(
+        {
+          local: '0.0.466',
+          remote: '9.9.10',
+          remoteCreatedAt: '2026-07-05T01:17:43.938610Z' as t.StringTimestamp,
+          latest: '9.9.9',
+          actionable: '9.9.9',
+          latestResolution: {
+            ok: false,
+            specifier: 'jsr:@sys/tools@9.9.10' as t.StringModuleSpecifier,
+            registry: 'jsr',
+            package: '@sys/tools' as t.StringPkgName,
+            reason: {
+              code: 'policy:minimum-dependency-age',
+              minimumDependencyDate: '2026-07-04T04:32:25.677189Z' as t.StringTimestamp,
+            },
+          },
+          is: { latest: false, upgradeAvailable: true, pending: true },
+        },
+        { path, now: fixture.now(12_348) },
+      );
+      const res = await readUpgradeAdvisoryState({ path });
+      const prelude = Cli.stripAnsi(res.prelude ?? '');
+
+      expect(res.record).to.eql({
+        schemaVersion: 2,
+        package: '@sys/tools',
+        checkedAt: 12_348,
+        ok: true,
+        local: '0.0.466',
+        published: '9.9.10',
+        actionable: '9.9.9',
+        status: 'upgrade-available',
+        reason: {
+          code: 'policy:minimum-dependency-age',
+          minimumDependencyDate: '2026-07-04T04:32:25.677189Z',
+        },
+        minimumDependencyAgeStanddown: {
+          version: '9.9.10',
+          createdAt: '2026-07-05T01:17:43.938610Z',
+          minimumDependencyDate: '2026-07-04T04:32:25.677189Z',
+          remaining: 74_718_261,
+        },
+      });
+      expect(res.hasUpgrade).to.eql(true);
+      expect(prelude).to.contain('sys upgrade --latest');
+      expect(prelude).to.contain('next available 9.9.9');
+      expect(prelude).to.not.contain('standing down');
+    } finally {
+      await Fs.remove(tmp.absolute);
+    }
+  });
+
   it('writes pending advisory records without a root CTA', async () => {
     const tmp = await Fs.makeTempDir({ prefix: 'sys.tools.upgrade.advisory.pending.' });
     const path = `${tmp.absolute}/advisory.json`;
@@ -265,6 +323,7 @@ describe('cli.upgrade advisory', () => {
         {
           local: '0.0.318',
           remote: '9.9.9',
+          remoteCreatedAt: '2026-07-05T01:17:43.938610Z' as t.StringTimestamp,
           latest: '0.0.318',
           actionable: '0.0.318',
           latestResolution: {
@@ -282,7 +341,7 @@ describe('cli.upgrade advisory', () => {
         },
         { path, now: fixture.now(12_347) },
       );
-      const res = await readUpgradeAdvisoryState({ path });
+      const res = await readUpgradeAdvisoryState({ path, now: fixture.now(12_347) });
       const prelude = Cli.stripAnsi(res.prelude ?? '');
 
       expect(res.record).to.eql({
@@ -299,14 +358,60 @@ describe('cli.upgrade advisory', () => {
           message: 'minimum dependency date',
           minimumDependencyDate: '2026-07-04T04:32:25.677189Z',
         },
+        minimumDependencyAgeStanddown: {
+          version: '9.9.9',
+          createdAt: '2026-07-05T01:17:43.938610Z',
+          minimumDependencyDate: '2026-07-04T04:32:25.677189Z',
+          remaining: 74_718_261,
+        },
       });
       expect(res.hasUpgrade).to.eql(false);
-      expect(prelude).to.contain('@sys/tools 9.9.9 published; upgrade pending — standing down');
-      expect(prelude).to.contain('Waiting for the minimum dependency age window to pass');
+      const lines = prelude.split('\n').filter(Boolean);
+      expect(lines[1]?.startsWith('upgrade pending — standing down')).to.eql(true);
+      expect(lines[1]?.endsWith('@sys/tools 9.9.9')).to.eql(true);
+      expect(prelude).to.contain(
+        'waiting 20h 45m for the minimum dependency age window to pass',
+      );
       expect(prelude).to.not.contain('sys upgrade --latest');
     } finally {
       await Fs.remove(tmp.absolute);
     }
+  });
+
+  it('ages cached minimum-age timing before rendering the pending root advisory', () => {
+    const checkedAt = 10_000 as t.UnixTimestamp;
+    const twoHours = (2 * Time.Date.HOUR) as t.Msecs;
+    const record: t.UpgradeTool.AdvisoryRecord = {
+      schemaVersion: 2,
+      package: '@sys/tools',
+      checkedAt,
+      ok: true,
+      local: '0.0.318',
+      published: '9.9.9',
+      actionable: '0.0.318',
+      status: 'pending',
+      reason: { code: 'policy:minimum-dependency-age' },
+      minimumDependencyAgeStanddown: {
+        version: '9.9.9',
+        createdAt: '2026-07-05T01:17:43.938610Z',
+        minimumDependencyDate: '2026-07-04T23:17:43.938610Z',
+        remaining: twoHours,
+      },
+    };
+
+    const aged = Cli.stripAnsi(
+      toRootUpgradeAdvisoryPrelude(
+        record,
+        fixture.now((checkedAt + 30 * Time.Date.MINUTE) as t.UnixTimestamp),
+      ) ?? '',
+    );
+    const elapsed = toRootUpgradeAdvisoryPrelude(
+      record,
+      fixture.now((checkedAt + twoHours + Time.Date.MINUTE) as t.UnixTimestamp),
+    );
+
+    expect(aged).to.contain('waiting 1h 30m for the minimum dependency age window to pass');
+    expect(elapsed).to.eql(undefined);
   });
 
   it('writes failure advisory records quietly', async () => {

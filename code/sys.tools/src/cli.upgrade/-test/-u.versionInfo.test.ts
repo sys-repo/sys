@@ -77,6 +77,35 @@ describe('cli.upgrade.versionState', () => {
     });
   });
 
+  it('preserves latest standdown timing while an intermediate upgrade is actionable', () => {
+    const state = toVersionState({
+      local: '0.0.462' as t.StringSemver,
+      remote: '0.0.464' as t.StringSemver,
+      remoteCreatedAt: '2026-07-05T01:17:43.938610Z' as t.StringTimestamp,
+      latest: '0.0.463' as t.StringSemver,
+      actionable: '0.0.463' as t.StringSemver,
+      latestResolution: {
+        ok: false,
+        specifier: 'jsr:@sys/tools@0.0.464' as t.StringModuleSpecifier,
+        registry: 'jsr',
+        package: '@sys/tools' as t.StringPkgName,
+        reason: {
+          code: 'policy:minimum-dependency-age',
+          minimumDependencyDate: '2026-07-04T04:32:25.677189Z' as t.StringTimestamp,
+        },
+      },
+    });
+
+    expect(state.status).to.eql('upgrade-available');
+    expect(state.actionable).to.eql('0.0.463');
+    expect(state.minimumDependencyAgeStanddown).to.eql({
+      version: '0.0.464',
+      createdAt: '2026-07-05T01:17:43.938610Z',
+      minimumDependencyDate: '2026-07-04T04:32:25.677189Z',
+      remaining: 74_718_261,
+    });
+  });
+
   it('omits standdown timing unless both registry and resolver facts are present', () => {
     const state = toVersionState({
       local: '0.0.462' as t.StringSemver,

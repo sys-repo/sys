@@ -1,36 +1,53 @@
 import { c, Cli, pkg, Str, type t } from './common.ts';
+import { StanddownTiming } from './u.standdown.ts';
 
 export function rootAdvisoryPrelude(remote?: t.StringSemver) {
   const { gray: g, green, white: w } = c;
   const hr = c.green(Cli.Fmt.hr());
   const width = Cli.stripAnsi(hr).length;
-  const message = `${g('Run ')}${w('sys upgrade ')}${green('--latest')}`;
-  const latest = remote ? `${g('next available ')}${w(remote)}` : undefined;
+  const left = `${g('Run ')}${w('sys upgrade ')}${green('--latest')}`;
+  const right = remote ? `${g('next available ')}${w(remote)}` : undefined;
 
   return Str.builder()
     .line(hr)
-    .line(rootAdvisoryLine({ width, message, latest }))
+    .line(rootAdvisoryLine({ width, left, right }))
     .line(hr)
     .toString();
 }
 
-export function rootPendingAdvisoryPrelude(remote: t.StringSemver) {
+export function rootPendingAdvisoryPrelude(
+  remote: t.StringSemver,
+  options: { readonly remaining?: t.Msecs } = {},
+) {
   const hr = c.green(Cli.Fmt.hr());
+  const width = Cli.stripAnsi(hr).length;
+  const title = rootAdvisoryLine({
+    width,
+    left: c.white('upgrade pending — standing down'),
+    right: `${c.gray(pkg.name)} ${c.white(remote)}`,
+  });
+  const waiting = options.remaining
+    ? [
+      'waiting',
+      StanddownTiming.formatDuration(options.remaining),
+      'for the minimum dependency age window to pass',
+    ].join(' ')
+    : 'waiting for the minimum dependency age window to pass';
   return Str.builder()
     .line(hr)
-    .line(c.white(`${pkg.name} ${remote} published; upgrade pending — standing down`))
-    .line(c.gray(c.italic('Waiting for the minimum dependency age window to pass')))
+    .line(title)
+    .line(c.gray(c.italic(waiting)))
     .line(hr)
     .toString();
 }
 
-function rootAdvisoryLine(args: { width: number; message: string; latest?: string }) {
-  const { width, message, latest } = args;
-  if (!latest) return message;
+function rootAdvisoryLine(args: { width: number; left: string; right?: string }) {
+  const { width, left, right } = args;
+  if (!right) return left;
 
-  const left = Cli.stripAnsi(message).length;
-  const right = Cli.stripAnsi(latest).length;
-  const spaces = width - left - right;
-  if (spaces < 2) return message;
-  return `${message}${' '.repeat(spaces)}${latest}`;
+  const leftWidth = Cli.stripAnsi(left).length;
+  const rightWidth = Cli.stripAnsi(right).length;
+  const spaces = width - leftWidth - rightWidth;
+  if (spaces < 2) return left;
+  return `${left}${' '.repeat(spaces)}${right}`;
 }

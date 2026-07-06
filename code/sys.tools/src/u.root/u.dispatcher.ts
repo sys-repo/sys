@@ -1,5 +1,4 @@
-import { Is } from '@sys/std/is';
-import { type t } from './common.ts';
+import { Is, type t } from './common.ts';
 import { Imports } from './u.imports.ts';
 
 type CliFn = (

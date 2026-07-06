@@ -33,8 +33,10 @@ export namespace UpgradeTool {
       readonly actionable?: t.StringSemver;
       /** Root advisory display state derived from Deno-actionable resolver truth. */
       readonly status: AdvisoryStatus;
-      /** Resolver failure reason when status is pending or resolver-unavailable. */
+      /** Resolver reason when a published version is pending, standing down, or unavailable. */
       readonly reason?: t.WorkspaceResolve.PackageResolutionReason;
+      /** Proven minimum dependency age standdown timing when the advisory was checked. */
+      readonly minimumDependencyAgeStanddown?: MinimumDependencyAgeStanddown;
     }
     | {
       readonly schemaVersion: 2;
@@ -86,7 +88,7 @@ export namespace UpgradeTool {
     readonly resolverUnavailable: boolean;
     /** Advisory-compatible status derived from the same truth flags. */
     readonly status: AdvisoryStatus;
-    /** Resolver failure reason when Deno reported one. */
+    /** Resolver reason when Deno reported one for the actionable or latest-version probe. */
     readonly reason?: t.WorkspaceResolve.PackageResolutionReason;
     /** Proven minimum dependency age standdown timing for the latest published version. */
     readonly minimumDependencyAgeStanddown?: MinimumDependencyAgeStanddown;

@@ -1,5 +1,6 @@
-import { c, Cli, Num, Pkg, pkg, Str, Time, type t } from './common.ts';
+import { c, Cli, Pkg, pkg, Str, type t } from './common.ts';
 import { rootAdvisoryPrelude } from './u.advisory.fmt.ts';
+import { StanddownTiming } from './u.standdown.ts';
 import { toVersionState } from './u.versionState.ts';
 
 type HelpInput =
@@ -8,7 +9,6 @@ type HelpInput =
 
 const g = c.green;
 const w = c.white;
-const { DAY, HOUR, MINUTE } = Time.Date;
 
 type DisplayRow = { readonly label: string; readonly value: string };
 type DisplayState = { readonly title: string; readonly rows: readonly DisplayRow[] };
@@ -19,7 +19,7 @@ function displayState(version: t.UpgradeTool.VersionInfo): DisplayState {
 
   if (state.upgradeAvailable) {
     const rows: DisplayRow[] = [{ label: 'current', value: c.gray(version.local) }];
-    if (version.remote !== upgrade) rows.push({ label: 'latest', value: w(version.remote) });
+    if (version.remote !== upgrade) rows.push({ label: 'latest', value: latestValue(version, state) });
     rows.push({ label: 'upgrade', value: g(upgrade) });
     return { title: w(`${pkg.name} upgrade available`), rows };
   }
@@ -51,6 +51,18 @@ function displayState(version: t.UpgradeTool.VersionInfo): DisplayState {
       { label: 'latest', value: g(`${version.remote} ✔`) },
     ],
   };
+}
+
+function latestValue(
+  version: t.UpgradeTool.VersionInfo,
+  state: t.UpgradeTool.VersionState,
+): string {
+  const base = w(version.remote);
+  const standdown = state.minimumDependencyAgeStanddown;
+  if (!standdown) return base;
+
+  const duration = StanddownTiming.formatDuration(standdown.remaining);
+  return `${base}  ${c.gray(c.italic(`— age window clears in ${duration}`))}`;
 }
 
 export const Fmt = {
@@ -158,9 +170,9 @@ export const Fmt = {
 
     if (state.reason?.code === 'policy:minimum-dependency-age') {
       const duration = state.minimumDependencyAgeStanddown
-        ? ` — ${formatDuration(state.minimumDependencyAgeStanddown.remaining)}`
+        ? ` — ${StanddownTiming.formatDuration(state.minimumDependencyAgeStanddown.remaining)}`
         : '';
-      str.line(`Waiting for the minimum dependency age window to pass${duration}.`);
+      str.line(`waiting for the minimum dependency age window to pass${duration}.`);
     } else {
       str.line('Latest published version is not currently actionable.');
     }
@@ -179,23 +191,3 @@ export const Fmt = {
 
   rootAdvisoryPrelude,
 } as const;
-
-function formatDuration(input: t.Msecs): string {
-  const msecs = Num.clamp(0, Num.INFINITY, input);
-  if (msecs < MINUTE) return `${Math.floor(msecs / 1000)}s`;
-  if (msecs < HOUR) return `${Math.floor(msecs / MINUTE)}m`;
-  if (msecs < DAY) return formatDurationParts(msecs, HOUR, 'h', MINUTE, 'm');
-  return formatDurationParts(msecs, DAY, 'd', HOUR, 'h');
-}
-
-function formatDurationParts(
-  msecs: t.Msecs,
-  majorUnit: t.Msecs,
-  majorSuffix: string,
-  minorUnit: t.Msecs,
-  minorSuffix: string,
-): string {
-  const major = Math.floor(msecs / majorUnit);
-  const minor = Math.floor((msecs % majorUnit) / minorUnit);
-  return minor > 0 ? `${major}${majorSuffix} ${minor}${minorSuffix}` : `${major}${majorSuffix}`;
-}

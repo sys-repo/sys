@@ -251,6 +251,7 @@ describe('cli.upgrade.runUpgrade', () => {
         getVersionInfo: async () => ({
           local: '0.0.462',
           remote: '0.0.464',
+          remoteCreatedAt: '2026-07-05T01:17:43.938610Z',
           latest: '0.0.463',
           actionable: '0.0.463',
           latestResolution: {
@@ -258,7 +259,10 @@ describe('cli.upgrade.runUpgrade', () => {
             specifier: 'jsr:@sys/tools@0.0.464' as t.StringModuleSpecifier,
             registry: 'jsr',
             package: '@sys/tools' as t.StringPkgName,
-            reason: { code: 'policy:minimum-dependency-age' },
+            reason: {
+              code: 'policy:minimum-dependency-age',
+              minimumDependencyDate: '2026-07-04T04:32:25.677189Z' as t.StringTimestamp,
+            },
           },
           is: { latest: false, upgradeAvailable: true, pending: false },
         }),
@@ -284,7 +288,7 @@ describe('cli.upgrade.runUpgrade', () => {
         '(exit)',
       ]);
       expect(output).to.contain('@sys/tools upgrade available');
-      expect(output).to.contain('latest   0.0.464');
+      expect(output).to.contain('latest   0.0.464  — age window clears in 20h 45m');
       expect(output).to.contain('upgrade  0.0.463');
       expect(output).to.not.contain('upgrade standing down');
     });
@@ -375,7 +379,7 @@ describe('cli.upgrade.runUpgrade', () => {
       expect(plain.join('\n')).to.not.contain('held at');
       expect(plain.join('\n')).to.not.contain('Deno is not allowing this upgrade yet.');
       expect(plain.some((line) =>
-        line.includes('Waiting for the minimum dependency age window to pass — 20h 45m.')
+        line.includes('waiting for the minimum dependency age window to pass — 20h 45m.')
       )).to.eql(true);
       expect(plain.join('\n')).to.not.contain('upgrade now to 0.0.319');
     });

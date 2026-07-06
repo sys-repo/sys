@@ -1,12 +1,13 @@
 import { Fs, Is, Json, Num, Path, pkg, Semver, type t, Time } from './common.ts';
 import { rootAdvisoryPrelude, rootPendingAdvisoryPrelude } from './u.advisory.fmt.ts';
 import { resolveUpgradeAdvisoryPath } from './u.advisory.path.ts';
+import { StanddownTiming } from './u.standdown.ts';
 import { toVersionState } from './u.versionState.ts';
 
 const DEBUG_REMOTE_ENV = 'SYS_TOOLS_DEBUG_UPGRADE_ADVISORY_REMOTE';
 
 type Now = () => t.UnixTimestamp;
-type ReadDeps = { readonly path?: t.StringPath };
+type ReadDeps = { readonly now?: Now; readonly path?: t.StringPath };
 type WriteDeps = { readonly now?: Now; readonly path?: t.StringPath };
 type UpgradeAdvisoryRecord = t.UpgradeTool.AdvisoryRecord;
 
@@ -25,7 +26,7 @@ export async function readUpgradeAdvisoryState(deps: ReadDeps = {}): Promise<Upg
       path: undefined,
       record: debugRecord,
       hasUpgrade,
-      prelude: hasUpgrade ? toRootUpgradeAdvisoryPrelude(debugRecord) : undefined,
+      prelude: hasUpgrade ? toRootUpgradeAdvisoryPrelude(debugRecord, deps.now) : undefined,
     };
   }
 
@@ -54,7 +55,7 @@ export async function readUpgradeAdvisoryState(deps: ReadDeps = {}): Promise<Upg
     path,
     record,
     hasUpgrade,
-    prelude: toRootUpgradeAdvisoryPrelude(record),
+    prelude: toRootUpgradeAdvisoryPrelude(record, deps.now),
   };
 }
 
@@ -81,10 +82,23 @@ export async function writeUpgradeAdvisoryFailure(error: unknown, deps: WriteDep
   });
 }
 
-export function toRootUpgradeAdvisoryPrelude(record?: UpgradeAdvisoryRecord): string | undefined {
+export function toRootUpgradeAdvisoryPrelude(
+  record?: UpgradeAdvisoryRecord,
+  now?: Now,
+): string | undefined {
   if (!record?.ok) return undefined;
   if (wrangle.hasUpgrade(record)) return rootAdvisoryPrelude(record.actionable);
-  if (wrangle.isMinimumAgePending(record)) return rootPendingAdvisoryPrelude(record.published);
+  if (wrangle.isMinimumAgePending(record)) {
+    const timeLeft = StanddownTiming.remaining(record.minimumDependencyAgeStanddown, {
+      checkedAt: record.checkedAt,
+      now: wrangle.checkedAt(now),
+    });
+    if (timeLeft === 'elapsed') return undefined;
+    return rootPendingAdvisoryPrelude(
+      record.published,
+      timeLeft === undefined ? {} : { remaining: timeLeft },
+    );
+  }
   return undefined;
 }
 
@@ -98,7 +112,7 @@ export function toUpgradeAdvisoryStateFromVersionInfo(
     path: deps.path,
     record,
     hasUpgrade,
-    prelude: toRootUpgradeAdvisoryPrelude(record),
+    prelude: toRootUpgradeAdvisoryPrelude(record, deps.now),
   };
 }
 
@@ -150,6 +164,9 @@ const wrangle = {
       ...(state.actionable ? { actionable: state.actionable } : {}),
       status: state.status,
       ...(state.reason ? { reason: state.reason } : {}),
+      ...(state.minimumDependencyAgeStanddown
+        ? { minimumDependencyAgeStanddown: state.minimumDependencyAgeStanddown }
+        : {}),
     };
   },
 
@@ -229,6 +246,7 @@ const wrangle = {
       const actionable = record['actionable'];
       const status = record['status'];
       const reason = record['reason'];
+      const minimumDependencyAgeStanddown = record['minimumDependencyAgeStanddown'];
 
       if (!Is.str(local) || !Semver.Is.valid(local)) return undefined;
       if (!Is.str(published) || !Semver.Is.valid(published)) return undefined;
@@ -244,6 +262,16 @@ const wrangle = {
       const parsedReason = reason === undefined ? undefined : wrangle.reason(reason);
       if (reason !== undefined && !parsedReason) return undefined;
 
+      const parsedStanddown = minimumDependencyAgeStanddown === undefined
+        ? undefined
+        : StanddownTiming.parse(minimumDependencyAgeStanddown);
+      if (minimumDependencyAgeStanddown !== undefined && !parsedStanddown) return undefined;
+      if (parsedStanddown) {
+        if (status !== 'pending' && status !== 'upgrade-available') return undefined;
+        if (parsedReason?.code !== 'policy:minimum-dependency-age') return undefined;
+        if (parsedStanddown.version !== published) return undefined;
+      }
+
       return {
         ...base,
         ok: true,
@@ -252,6 +280,7 @@ const wrangle = {
         ...(actionable ? { actionable: actionable as t.StringSemver } : {}),
         status,
         ...(parsedReason ? { reason: parsedReason } : {}),
+        ...(parsedStanddown ? { minimumDependencyAgeStanddown: parsedStanddown } : {}),
       };
     }
 
