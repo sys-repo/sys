@@ -49,9 +49,62 @@ export declare namespace KeyValue {
    */
   export type Lib = {
     readonly UI: React.FC<Props>;
-    readonly Switches: t.KeyValueSwitches.Lib;
+    readonly Switches: Switches.Lib;
     fromObject: FromObject;
   };
+
+  /**
+   * KeyValue-shaped switches for labeled boolean controls.
+   */
+  export namespace Switches {
+    /** Public runtime surface for `KeyValue.Switches`. */
+    export type Lib = t.KeyValueSwitches.Lib;
+
+    /** Props for rendering switch rows through `KeyValue.UI`. */
+    export type Props = t.KeyValueSwitches.Props;
+
+    /** Ordered switch item input mapped into `KeyValue` items. */
+    export type Item = t.KeyValueSwitches.Item;
+
+    /** Ordered switch row input mapped into a `KeyValue` row. */
+    export type Row = t.KeyValueSwitches.Row;
+
+    /** Convert one switch row input into a `KeyValue` row. */
+    export type ToItem = t.KeyValueSwitches.ToItem;
+
+    /** Convert switch inputs into `KeyValue` items. */
+    export type ToItems = t.KeyValueSwitches.ToItems;
+
+    /**
+     * Item-local details.
+     */
+    export namespace Item {
+      /** Appearance options forwarded to the rendered switch control. */
+      export type SwitchOptions = t.KeyValueSwitches.Item.SwitchOptions;
+
+      /** Receive the next switch value and row context. */
+      export type ToggleHandler = t.KeyValueSwitches.Item.ToggleHandler;
+
+      /** Context passed to a switch toggle handler. */
+      export type ToggleArgs = t.KeyValueSwitches.Item.ToggleArgs;
+    }
+
+    /**
+     * Single-item conversion details.
+     */
+    export namespace ToItem {
+      /** Options for converting one switch item. */
+      export type Options = t.KeyValueSwitches.ToItem.Options;
+    }
+
+    /**
+     * Multi-item conversion details.
+     */
+    export namespace ToItems {
+      /** Options shared while converting switch items. */
+      export type Options = t.KeyValueSwitches.ToItems.Options;
+    }
+  }
 
   /** Component props for the <KeyValue> component. */
   export type Props = {

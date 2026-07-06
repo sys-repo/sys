@@ -13,6 +13,22 @@ describe('KeyValue.Switches', () => {
     });
   });
 
+  describe('types', () => {
+    it('exposes switch contracts under the KeyValue namespace', () => {
+      const lib: t.KeyValue.Switches.Lib = Switches;
+      const props: t.KeyValue.Switches.Props = {};
+      const items: t.KeyValue.Switches.Item[] = [{ id: 'sample' }, { kind: 'hr' }];
+      const row: t.KeyValue.Switches.Row = { id: 'sample' };
+      const switchOptions: t.KeyValue.Switches.Item.SwitchOptions = { width: 26, height: 14 };
+
+      expectTypeOf(lib).toEqualTypeOf<t.KeyValueSwitches.Lib>();
+      expectTypeOf(props).toEqualTypeOf<t.KeyValueSwitches.Props>();
+      expectTypeOf(items).toEqualTypeOf<t.KeyValueSwitches.Item[]>();
+      expectTypeOf(row).toEqualTypeOf<t.KeyValueSwitches.Row>();
+      expectTypeOf(switchOptions).toEqualTypeOf<t.KeyValueSwitches.Item.SwitchOptions>();
+    });
+  });
+
   describe('toItem', () => {
     it('maps one switch item to a KeyValue row', () => {
       const opacity: t.KeyValue.Row['opacity'] = { k: 0.3 };
