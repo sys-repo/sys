@@ -13,10 +13,12 @@ import {
 } from './common.ts';
 
 type P = t.Files.InfoPanel.Config.Props;
-type Storage = Pick<P, 'debug' | 'theme'>;
+type Storage = Pick<P, 'debug' | 'theme' | 'reorder' | 'fields'>;
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
+  reorder: true,
+  fields: [...D.fields],
 };
 
 /**
@@ -26,7 +28,7 @@ export type DebugProps = { debug: DebugSignals; style?: t.Style.Input };
 export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
 
 /**
- * Signals:
+ * Create persisted debug signals for the InfoPanel.Config spec.
  */
 export async function createDebugSignals() {
   const s = Signal.create;
@@ -36,6 +38,8 @@ export async function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    reorder: s(snap.reorder),
+    fields: s(snap.fields),
   };
   const p = props;
   const api = {
@@ -56,24 +60,16 @@ export async function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.reorder = p.reorder.value;
+      d.fields = p.fields.value;
     });
   });
 
   return api;
 }
 
-const Styles = {
-  title: css({
-    fontWeight: 'bold',
-    marginBottom: 4,
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  }),
-};
-
 /**
- * Component:
+ * Render debug controls for the InfoPanel.Config spec.
  */
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
@@ -98,6 +94,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
+      <Button block label={() => `reorder: ${v.reorder}`} onClick={() => Signal.toggle(p.reorder)} />
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
@@ -105,4 +102,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
     </div>
   );
+};
+
+/**
+ * Helpers:
+ */
+const Styles = {
+  title: css({
+    fontWeight: 'bold',
+    marginBottom: 4,
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  }),
 };

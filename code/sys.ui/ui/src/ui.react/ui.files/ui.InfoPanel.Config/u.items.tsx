@@ -1,0 +1,37 @@
+import { D, type t } from './common.ts';
+import { toggleField } from './u.fields.ts';
+
+type P = t.Files.InfoPanel.Config.Props;
+type Field = t.Files.InfoPanel.Field;
+
+/**
+ * Project InfoPanel config props into KeyValue switch rows.
+ */
+export function toSwitchItems(
+  props: P,
+  fields: readonly Field[],
+  itemFields: readonly Field[],
+): t.KeyValueSwitches.Item[] {
+  const items: t.KeyValueSwitches.Item[] = itemFields.map((field) => {
+    return {
+      id: field,
+      label: D.fieldLabels[field],
+      value: fields.includes(field),
+      onToggle(next: boolean) {
+        return props.onFieldsChange?.({ next: toggleField(fields, field, next) });
+      },
+    };
+  });
+
+  if (props.events) {
+    items.push({ id: 'events:divider', kind: 'hr' });
+    items.push({
+      id: 'events:enabled',
+      label: 'events enabled',
+      value: props.events.enabled,
+      onToggle: props.events.onToggle,
+    });
+  }
+
+  return items;
+}

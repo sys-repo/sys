@@ -1,6 +1,6 @@
-import { Dev, D, Signal, Spec } from './common.ts';
+import { D, Dev, Signal, Spec } from './common.ts';
 import { InfoPanelConfig } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -8,7 +8,18 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    return <InfoPanelConfig.UI debug={v.debug} theme={v.theme} />;
+    return (
+      <InfoPanelConfig.UI
+        debug={v.debug}
+        theme={v.theme}
+        reorder={v.reorder}
+        fields={v.fields}
+        onFieldsChange={(e) => {
+          console.info(`⚡️ ${D.name}.onFieldsChange:`, e);
+          p.fields.value = e.next;
+        }}
+      />
+    );
   }
 
   e.it('init', (e) => {
