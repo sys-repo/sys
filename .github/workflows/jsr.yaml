@@ -31,10 +31,10 @@ jobs:
         include:
           - name: "@sys/tmpl"
             path: "code/-tmpl"
-            version: "0.0.450"
+            version: "0.0.451"
           - name: "@sys/tools"
             path: "code/sys.tools"
-            version: "0.0.466"
+            version: "0.0.467"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
