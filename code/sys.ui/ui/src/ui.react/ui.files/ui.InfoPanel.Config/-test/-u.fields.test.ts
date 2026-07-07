@@ -58,6 +58,31 @@ describe('Files.InfoPanel.Config', () => {
 
       expect(emitted).to.eql(['status', 'capabilities', 'error']);
     });
+
+    it('groups status fields as one recursive switch item', () => {
+      const fields: Field[] = ['status', 'status:title', 'error'];
+      const items = toSwitchItems({ fields }, fields, toItemFields(fields));
+
+      expect(itemIds(items)).to.eql(['group:status', 'error', 'fidelity', 'capabilities', 'events']);
+
+      const group = items[0] as t.KeyValue.Switches.Group;
+      expect(group.kind).to.equal('group');
+      expect(group.id).to.equal('group:status');
+      expect(itemIds(group.items)).to.eql(['status', 'status:title']);
+      expect(switchRowById(group.items, 'status').value).to.equal(true);
+      expect(switchRowById(group.items, 'status:title').value).to.equal(true);
+    });
+
+    it('places the status group at the first status-member position', () => {
+      const fields: Field[] = ['error', 'status'];
+      const items = toSwitchItems({ fields }, fields, toItemFields(fields));
+      const group = items[1] as t.KeyValue.Switches.Group;
+
+      expect(itemIds(items)).to.eql(['error', 'group:status', 'fidelity', 'capabilities', 'events']);
+      expect(itemIds(group.items)).to.eql(['status', 'status:title']);
+      expect(switchRowById(group.items, 'status').value).to.equal(true);
+      expect(switchRowById(group.items, 'status:title').value).to.equal(false);
+    });
   });
 
   describe('reorder', () => {
@@ -76,6 +101,73 @@ describe('Files.InfoPanel.Config', () => {
 
       expect(emitted).to.eql(['error', 'status']);
     });
+
+    it('flattens recursive groups back to visible field order', () => {
+      let emitted: Field[] | undefined;
+      const fields: Field[] = ['status', 'status:title', 'error'];
+      const reorder = toReorder({ onFieldsChange: (e) => emitted = e.next }, fields);
+
+      reorder?.onChange?.({
+        next: [
+          { id: 'error', k: 'error' },
+          {
+            id: 'group:status',
+            kind: 'group',
+            items: [
+              { id: 'status', k: 'status' },
+              { id: 'status:title', k: 'title status' },
+            ],
+          },
+          { id: 'capabilities', k: 'capabilities' },
+        ],
+      });
+
+      expect(emitted).to.eql(['error', 'status', 'status:title']);
+    });
+
+    it('ignores hidden grouped fields while preserving visible group movement', () => {
+      let emitted: Field[] | undefined;
+      const fields: Field[] = ['error', 'status'];
+      const reorder = toReorder({ onFieldsChange: (e) => emitted = e.next }, fields);
+
+      reorder?.onChange?.({
+        next: [
+          {
+            id: 'group:status',
+            kind: 'group',
+            items: [
+              { id: 'status', k: 'status' },
+              { id: 'status:title', k: 'title status' },
+            ],
+          },
+          { id: 'error', k: 'error' },
+        ],
+      });
+
+      expect(emitted).to.eql(['status', 'error']);
+    });
+
+    it('ignores recursive reorder payloads with duplicate visible fields', () => {
+      let emitted: Field[] | undefined;
+      const fields: Field[] = ['status', 'error'];
+      const reorder = toReorder({ onFieldsChange: (e) => emitted = e.next }, fields);
+
+      reorder?.onChange?.({
+        next: [
+          {
+            id: 'group:status',
+            kind: 'group',
+            items: [
+              { id: 'status', k: 'status' },
+              { id: 'status', k: 'status duplicate' },
+            ],
+          },
+          { id: 'error', k: 'error' },
+        ],
+      });
+
+      expect(emitted).to.equal(undefined);
+    });
   });
 });
 
@@ -83,7 +175,22 @@ describe('Files.InfoPanel.Config', () => {
  * Helpers:
  */
 function switchRowById(items: t.KeyValue.Switches.Item[], id: Field): Row {
-  const row = items.find((item): item is Row => 'id' in item && item.id === id);
+  const row = findSwitchRowById(items, id);
   if (!row) throw new Error(`Missing switch row: ${id}`);
   return row;
+}
+
+function findSwitchRowById(items: t.KeyValue.Switches.Item[], id: Field): Row | undefined {
+  for (const item of items) {
+    if ('kind' in item && item.kind === 'group') {
+      const row = findSwitchRowById(item.items, id);
+      if (row) return row;
+      continue;
+    }
+    if ('id' in item && item.id === id) return item as Row;
+  }
+}
+
+function itemIds(items: t.KeyValue.Switches.Item[]): string[] {
+  return items.flatMap((item) => item.id ?? []);
 }
