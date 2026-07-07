@@ -1,8 +1,8 @@
 import React from 'react';
 
 import { Color, css, D, type t } from './common.ts';
-import { isGroup, isRow } from './u.is.ts';
-import { toReorderModel } from './u.reorder.ts';
+import { isGroup, isRow } from './u/u.is.ts';
+import { toReorderModel } from './u/u.reorder.ts';
 import { toCssSize, toFont, toLayout } from './u.ts';
 import { Hr } from './ui.Hr.tsx';
 import { ItemShell } from './ui.ItemShell.tsx';

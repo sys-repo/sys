@@ -14,7 +14,7 @@ import {
 } from '../../../-test.ts';
 import { SAMPLE, type SampleKind } from '../-spec/-samples.tsx';
 import { KeyValue } from '../mod.ts';
-import { toReorderModel } from '../u.reorder.ts';
+import { toReorderModel } from '../u/u.reorder.ts';
 
 describe('KeyValue', () => {
   describe('spec samples', () => {

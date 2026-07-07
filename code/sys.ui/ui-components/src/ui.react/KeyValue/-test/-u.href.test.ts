@@ -1,6 +1,6 @@
 import React from 'react';
 import { type t, describe, expect, it } from '../../../-test.ts';
-import { isAnchorElement, isSafeHref, resolveHref, toDisplayLabel } from '../u.href.ts';
+import { isAnchorElement, isSafeHref, resolveHref, toDisplayLabel } from '../u/u.href.ts';
 
 describe('KeyValue/u.href', () => {
   it('string shorthand applies to value side by default', () => {

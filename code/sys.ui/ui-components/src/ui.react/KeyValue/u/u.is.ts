@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t } from '../common.ts';
 
 /** Check whether a KeyValue item is a row. */
 export function isRow(item: t.KeyValue.Item): item is t.KeyValue.Row {

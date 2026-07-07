@@ -1,5 +1,5 @@
 import { describe, expect, it, type t } from '../../../-test.ts';
-import { sameIds, toReorderModel, toReorderedItems } from '../u.reorder.ts';
+import { sameIds, toReorderModel, toReorderedItems } from '../u/u.reorder.ts';
 
 describe('KeyValue.u.reorder', () => {
   it('resolves stable item ids from item.id', () => {

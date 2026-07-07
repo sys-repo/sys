@@ -1,6 +1,6 @@
 import { isValidElement } from 'react';
-import { type t, Is, Str, Url } from './common.ts';
-import { toEllipsis } from './u.ts';
+import { type t, Is, Str, Url } from '../common.ts';
+import { toEllipsis } from '../u.ts';
 
 type Side = 'k' | 'v';
 type Def = t.KeyValue.LinkDef;

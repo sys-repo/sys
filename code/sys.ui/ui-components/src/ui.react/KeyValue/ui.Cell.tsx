@@ -1,6 +1,6 @@
 import React from 'react';
 import { type t, A, Color, css, D } from './common.ts';
-import { isAnchorElement, resolveHref, toAnchorStyle, toDisplayLabel } from './u.href.ts';
+import { isAnchorElement, resolveHref, toAnchorStyle, toDisplayLabel } from './u/u.href.ts';
 import { toEllipsis, toFont } from './u.ts';
 
 type Base = Pick<

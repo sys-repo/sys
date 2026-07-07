@@ -1,4 +1,4 @@
-import type { t } from './common.ts';
+import type { t } from '../common.ts';
 
 export function toRowOpacity(
   raw: t.KeyValue.Opacity | undefined,

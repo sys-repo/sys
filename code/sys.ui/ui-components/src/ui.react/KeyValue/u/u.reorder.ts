@@ -1,4 +1,4 @@
-import { type t, Is } from './common.ts';
+import { type t, Is } from '../common.ts';
 
 /**
  * Resolved reorder identity model.

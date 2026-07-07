@@ -1,6 +1,6 @@
 import React from 'react';
 import { css, Reorder as ReorderBase, type t } from './common.ts';
-import { type ReorderModel, sameIds, toReorderedItems } from './u.reorder.ts';
+import { type ReorderModel, sameIds, toReorderedItems } from './u/u.reorder.ts';
 import { itemShellClass } from './ui.ItemShell.tsx';
 
 type P = {
