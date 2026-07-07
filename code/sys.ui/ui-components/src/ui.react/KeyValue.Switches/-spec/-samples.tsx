@@ -1,16 +1,21 @@
 import React from 'react';
 import { Color, css, Is, type t } from './common.ts';
 
-export type SampleKind = 'basic' | 'mixed';
+export type SampleKind = 'basic' | 'mixed' | 'grouped';
 export type SampleValues = Record<string, boolean>;
 
 type SampleRow = Omit<t.KeyValueSwitches.Row, 'value' | 'onToggle'>;
-type SampleItem = SampleRow | t.KeyValue.Hr;
+type SampleGroup = Omit<t.KeyValueSwitches.Group, 'items'> & { items: SampleItem[] };
+type SampleItem = SampleRow | t.KeyValue.Hr | SampleGroup;
 type ToggleHandler = (id: string, next: boolean) => void;
 type SampleOptions = { values?: SampleValues; onToggle?: ToggleHandler };
 
-const isHr = (item: SampleItem): item is t.KeyValue.Hr => {
+const isHr = (item: t.KeyValueSwitches.Item): item is t.KeyValue.Hr => {
   return Is.object(item) && 'kind' in item && item.kind === 'hr';
+};
+
+const isGroup = (item: t.KeyValueSwitches.Item): item is t.KeyValueSwitches.Group => {
+  return Is.object(item) && 'kind' in item && item.kind === 'group';
 };
 
 const Styles = {
@@ -29,6 +34,12 @@ const defaultValues = {
   overflow: false,
   disabled: true,
   multiline: false,
+  overview: true,
+  database: true,
+  snapshots: false,
+  audit: true,
+  cache: false,
+  afterGroup: true,
 } satisfies SampleValues;
 
 const descriptors: Record<SampleKind, readonly SampleItem[]> = {
@@ -60,6 +71,27 @@ const descriptors: Record<SampleKind, readonly SampleItem[]> = {
       ),
     },
   ],
+  grouped: [
+    { id: 'overview', label: 'overview row' },
+    {
+      id: 'runtime-group',
+      kind: 'group',
+      items: [
+        { id: 'database', label: 'database enabled' },
+        { id: 'snapshots', label: 'periodic snapshots' },
+        { id: 'runtime-divider', kind: 'hr', y: [8, 8] },
+        {
+          id: 'nested-flags',
+          kind: 'group',
+          items: [
+            { id: 'audit', label: 'audit trail' },
+            { id: 'cache', label: 'cache layer' },
+          ],
+        },
+      ],
+    },
+    { id: 'afterGroup', label: 'row after group' },
+  ],
 };
 
 /**
@@ -76,12 +108,16 @@ export const SAMPLE = {
     return SAMPLE.withValues(SAMPLE.source(sample), options);
   },
 
-  withValues(items: readonly t.KeyValueSwitches.Item[], options: SampleOptions = {}) {
+  withValues(
+    items: readonly t.KeyValueSwitches.Item[],
+    options: SampleOptions = {},
+  ): t.KeyValueSwitches.Item[] {
     const values: SampleValues = { ...defaultValues, ...options.values };
     const onToggle = options.onToggle;
 
     return items.map((item) => {
       if (isHr(item)) return item;
+      if (isGroup(item)) return { ...item, items: SAMPLE.withValues(item.items, options) };
 
       const row: t.KeyValueSwitches.Row = { ...item, value: values[item.id] ?? false };
       if (onToggle) row.onToggle = (next) => onToggle(item.id, next);

@@ -141,6 +141,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <div className={Styles.title.class}>{'Samples'}</div>
       <Button block label={() => `sample: basic`} onClick={() => selectSample('basic')} />
       <Button block label={() => `sample: mixed`} onClick={() => selectSample('mixed')} />
+      <Button block label={() => `sample: grouped`} onClick={() => selectSample('grouped')} />
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />

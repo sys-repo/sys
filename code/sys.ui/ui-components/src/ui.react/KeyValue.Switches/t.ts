@@ -20,7 +20,17 @@ export declare namespace KeyValueSwitches {
   };
 
   /** Ordered switch item input mapped into `KeyValue` items. */
-  export type Item = Row | t.KeyValue.Hr;
+  export type Item = Row | t.KeyValue.Hr | Group;
+
+  /** Recursive switch item group mapped into a `KeyValue` group. */
+  export type Group = {
+    /** Stable identity for the group as an atomic direct child. */
+    id: string;
+    /** Recursive group marker. */
+    kind: 'group';
+    /** Ordered child switch items owned by this group. */
+    items: Item[];
+  };
 
   /** Ordered switch row input mapped into a `KeyValue` row. */
   export type Row = {
@@ -64,6 +74,7 @@ export declare namespace KeyValueSwitches {
     /** Context passed to a switch toggle handler. */
     export type ToggleArgs = {
       readonly item: KeyValueSwitches.Row;
+      /** Index within the row's containing switch item list. */
       readonly index: number;
     };
   }

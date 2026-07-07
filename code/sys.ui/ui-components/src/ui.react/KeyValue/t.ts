@@ -69,6 +69,9 @@ export declare namespace KeyValue {
     /** Ordered switch row input mapped into a `KeyValue` row. */
     export type Row = t.KeyValueSwitches.Row;
 
+    /** Recursive switch item group mapped into a `KeyValue` group. */
+    export type Group = t.KeyValueSwitches.Group;
+
     /** Convert one switch row input into a `KeyValue` row. */
     export type ToItem = t.KeyValueSwitches.ToItem;
 
