@@ -1,14 +1,17 @@
 import React from 'react';
 
 import { Color, css, D, type t } from './common.ts';
-import { toCssSize, toFont, toLayout } from './u.ts';
+import { isGroup, isRow } from './u.is.ts';
 import { toReorderModel } from './u.reorder.ts';
+import { toCssSize, toFont, toLayout } from './u.ts';
 import { Hr } from './ui.Hr.tsx';
 import { ItemShell } from './ui.ItemShell.tsx';
 import { ReorderList } from './ui.Reorder.tsx';
 import { Row } from './ui.Row.tsx';
 import { Spacer } from './ui.Spacer.tsx';
 import { Title } from './ui.Title.tsx';
+
+type RenderContext = Omit<t.KeyValue.ItemProps, 'item'> & { readonly layout: t.KeyValue.Layout };
 
 export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
   const { debug = false, items = [], size = D.size, mono = D.mono, truncate = D.truncate } = props;
@@ -42,7 +45,6 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
     }),
   };
 
-  const keyOf = (item: t.KeyValue.Item, index: number) => item.id ?? index;
   const style = css(styles.base, props.style);
   const className = style.class;
   const reorder = props.reorder;
@@ -50,30 +52,15 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
   const reorderModel = reorder && reorder.enabled !== false && onReorderChange
     ? toReorderModel(items, reorder)
     : undefined;
-
-  const renderItem = (item: t.KeyValue.Item) => {
-    const kind = item.kind ?? 'row';
-    const args: t.KeyValue.ItemProps = {
-      theme: theme.name,
-      item,
-      enabled,
-      disabledOpacity,
-      mono,
-      truncate,
-      layout,
-      size,
-      debug,
-    };
-
-    if (kind === 'row') {
-      const row = item as t.KeyValue.Row;
-      const rowArgs: t.KeyValue.ItemProps = { ...args, mono: row.mono ?? mono };
-      return <Row {...rowArgs} />;
-    }
-    if (kind === 'title') return <Title {...args} />;
-    if (kind === 'hr') return <Hr {...args} />;
-    if (kind === 'spacer') return <Spacer {...args} />;
-    return null;
+  const renderContext: RenderContext = {
+    theme: theme.name,
+    enabled,
+    disabledOpacity,
+    mono,
+    truncate,
+    layout,
+    size,
+    debug,
   };
 
   if (reorderModel && onReorderChange) {
@@ -86,19 +73,12 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
         onStart={reorder.onStart}
         onChange={onReorderChange}
         onEnd={reorder.onEnd}
-        renderItem={renderItem}
+        renderItem={(item) => renderItem(item, renderContext)}
       />
     );
   }
 
-  const elRows = items.map((item, i) => {
-    const key = keyOf(item, i);
-    return (
-      <ItemShell key={key} item={item} layout={layout}>
-        {renderItem(item)}
-      </ItemShell>
-    );
-  });
+  const elRows = renderItems(items, renderContext);
 
   return (
     <div className={className} data-component={D.displayName}>
@@ -106,3 +86,35 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+function renderItems(items: t.KeyValue.Item[], context: RenderContext) {
+  return items.map((item, index) => {
+    const key = keyOf(item, index);
+    return (
+      <ItemShell key={key} item={item} layout={context.layout}>
+        {renderItem(item, context)}
+      </ItemShell>
+    );
+  });
+}
+
+function renderItem(item: t.KeyValue.Item, context: RenderContext) {
+  const args: t.KeyValue.ItemProps = { ...context, item };
+
+  if (isRow(item)) {
+    const rowArgs: t.KeyValue.ItemProps = { ...args, mono: item.mono ?? context.mono };
+    return <Row {...rowArgs} />;
+  }
+  if (isGroup(item)) return renderItems(item.items, context);
+  if (item.kind === 'title') return <Title {...args} />;
+  if (item.kind === 'hr') return <Hr {...args} />;
+  if (item.kind === 'spacer') return <Spacer {...args} />;
+  return null;
+}
+
+function keyOf(item: t.KeyValue.Item, index: number) {
+  return item.id ?? index;
+}

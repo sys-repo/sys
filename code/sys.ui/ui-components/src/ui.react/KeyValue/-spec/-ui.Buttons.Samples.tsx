@@ -43,6 +43,7 @@ export const SampleButtons: React.FC<P> = (props) => {
       {button('comprehensive')}
       {button('opacity')}
       {button('links')}
+      {button('recursive', 'sample: recursive groups')}
       {button('reorder')}
     </div>
   );

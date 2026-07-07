@@ -19,7 +19,7 @@ import { toReorderModel } from '../u.reorder.ts';
 describe('KeyValue', () => {
   describe('spec samples', () => {
     it('all visible samples provide stable reorder identity', () => {
-      const samples: SampleKind[] = ['simple', 'comprehensive', 'opacity', 'links', 'reorder'];
+      const samples: SampleKind[] = ['simple', 'comprehensive', 'opacity', 'links', 'recursive', 'reorder'];
 
       samples.forEach((sample) => {
         const items = SAMPLE.items(sample) ?? [];
@@ -31,15 +31,16 @@ describe('KeyValue', () => {
 
   describe('types', () => {
     describe('item identity', () => {
-      it('accepts optional ids on every item kind', () => {
+      it('accepts stable ids on every item kind', () => {
         const items: t.KeyValue.Item[] = [
           { id: 'row', k: 'row', v: 'value' },
           { id: 'title', kind: 'title', v: 'Title' },
           { id: 'hr', kind: 'hr' },
           { id: 'spacer', kind: 'spacer', size: 8 },
+          { id: 'group', kind: 'group', items: [{ id: 'group:row', k: 'nested' }] },
         ];
         expectTypeOf(items).toEqualTypeOf<t.KeyValue.Item[]>();
-        expect(items.map((item) => item.id)).to.eql(['row', 'title', 'hr', 'spacer']);
+        expect(items.map((item) => item.id)).to.eql(['row', 'title', 'hr', 'spacer', 'group']);
       });
     });
 
@@ -71,7 +72,7 @@ describe('KeyValue', () => {
     });
   });
 
-  describe('KeyValue.UI: item shell', () => {
+  describe('KeyValue.UI: item boundaries', () => {
     DomMock.init({ beforeEach, afterEach });
 
     const items: t.KeyValue.Item[] = [
@@ -109,6 +110,28 @@ describe('KeyValue', () => {
       const res = await TestReact.render(el, { strict: false });
       const root = res.container.firstElementChild as HTMLElement;
       expect(root.children.length).to.equal(invalid.length);
+
+      act(() => res.dispose());
+      await Schedule.micro();
+    });
+
+    it('renders recursive groups as one direct child', async () => {
+      const group: t.KeyValue.Group = {
+        id: 'group:status',
+        kind: 'group',
+        items: [
+          { id: 'status', k: 'status', v: 'on' },
+          { id: 'status:title', k: 'title status', v: 'on' },
+        ],
+      };
+      const grouped: t.KeyValue.Item[] = [group, { id: 'events', k: 'events', v: 'on' }];
+      const el = <KeyValue.UI items={grouped} layout={layout} />;
+      const res = await TestReact.render(el, { strict: false });
+      const root = res.container.firstElementChild as HTMLElement;
+      const groupEl = root.children.item(0) as HTMLElement;
+
+      expect(root.children.length).to.equal(grouped.length);
+      expect(groupEl.children.length).to.equal(group.items.length);
 
       act(() => res.dispose());
       await Schedule.micro();

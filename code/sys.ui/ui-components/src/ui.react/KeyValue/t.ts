@@ -10,7 +10,7 @@ export declare namespace KeyValue {
   export type Size = 'xs' | 'sm' | 'md';
 
   /** Item kinds. */
-  export type Item = Row | Title | Hr | Spacer;
+  export type Item = Row | Title | Hr | Spacer | Group;
 
   /** Spacing offset around an item. */
   export type Spacing = t.Pixels | [t.Pixels, t.Pixels] | readonly [t.Pixels, t.Pixels];
@@ -231,11 +231,18 @@ export declare namespace KeyValue {
     readonly y?: Spacing; // spacing: [top, bottom]
   };
 
-  /** A vertical spacer (extra gap between groups). */
+  /** A vertical spacer (extra gap between items). */
   export type Spacer = {
     readonly id?: string;
     readonly kind: 'spacer';
     readonly size?: number | string;
+  };
+
+  /** A recursive item group that moves as one direct child. */
+  export type Group = {
+    readonly id: string;
+    readonly kind: 'group';
+    readonly items: Item[];
   };
 
   /** Build `Item[]` rows from a plain object. */

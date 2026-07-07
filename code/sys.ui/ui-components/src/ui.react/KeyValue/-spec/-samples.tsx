@@ -1,9 +1,13 @@
-import { type t, Bullet, Color, Str } from './common.ts';
+import { type t, Bullet, Color, css, Str } from './common.ts';
 import { Foo } from './-ui.Foo.tsx';
 
-export type SampleKind = 'comprehensive' | 'simple' | 'opacity' | 'links' | 'reorder';
+export type SampleKind = 'comprehensive' | 'simple' | 'opacity' | 'links' | 'recursive' | 'reorder';
 
 const mono = true;
+
+const Styles = {
+  nestedKey: css({ marginLeft: 20 }),
+} as const;
 
 /**
  * Sample data-sets.
@@ -14,6 +18,7 @@ export const SAMPLE = {
     if (sample === 'simple') return withSampleIds(sample, simple());
     if (sample === 'opacity') return withSampleIds(sample, opacity());
     if (sample === 'links') return withSampleIds(sample, links());
+    if (sample === 'recursive') return withSampleIds(sample, recursive());
     if (sample === 'reorder') return withSampleIds(sample, reorder());
     return undefined;
   },
@@ -80,6 +85,35 @@ function opacity(): t.KeyValue.Item[] {
     { kind: 'row', k: 'uniform opacity', v: '0.3', opacity: 0.3, x },
     { kind: 'row', k: 'key opacity 1', v: 'hello', opacity: { k: 1 }, x },
     { kind: 'row', k: 'value opacity 0.5', v: '👋', opacity: { v: 0.5 }, x },
+  ];
+}
+
+function recursive(): t.KeyValue.Item[] {
+  return [
+    { kind: 'title', v: 'Recursive Item Group' },
+    { id: 'row:standalone-a', kind: 'row', k: 'standalone row A', v: 'independent' },
+    {
+      id: 'compound',
+      kind: 'group',
+      items: [
+        { id: 'compound.primary', kind: 'row', k: 'group row', v: 'moves as one' },
+        {
+          id: 'compound.nested-1',
+          kind: 'row',
+          k: <span className={Styles.nestedKey.class}>{'nested row 1'}</span>,
+          v: 'right flush',
+        },
+        {
+          id: 'compound.nested-2',
+          kind: 'row',
+          k: <span className={Styles.nestedKey.class}>{'nested row 2'}</span>,
+          v: 'right flush',
+        },
+      ],
+    },
+    { id: 'hr:outside-group', kind: 'hr', y: [8, 8] },
+    { id: 'row:standalone-b', kind: 'row', k: 'standalone row B', v: 'independent' },
+    { id: 'row:standalone-c', kind: 'row', k: 'standalone row C', v: 'independent' },
   ];
 }
 

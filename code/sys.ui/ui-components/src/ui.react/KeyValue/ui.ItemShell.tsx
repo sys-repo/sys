@@ -1,5 +1,5 @@
 import React from 'react';
-import { css, type t } from './common.ts';
+import { css, D, type t } from './common.ts';
 import { toLayout } from './u.ts';
 
 type P = {
@@ -15,19 +15,23 @@ export function itemShellClass(item: t.KeyValue.Item, layout?: t.KeyValue.Layout
   const resolved = toLayout(layout);
   const kind = item.kind ?? 'row';
   const isRow = kind === 'row';
+  const isGroup = kind === 'group';
   const isTable = resolved.kind === 'table';
+  const usesSubgrid = isTable && (isRow || isGroup);
+  const isRecursiveShell = isGroup;
 
   /**
-   * Table rows use a column subgrid so cells keep participating in the
-   * parent KeyValue table tracks while the item itself has a real DOM box.
+   * Table rows and groups use a column subgrid so cells keep participating in
+   * the parent KeyValue table tracks while the item itself has a real DOM box.
    */
   return css({
     position: 'relative',
     boxSizing: 'border-box',
     minWidth: 0,
-    display: isTable && isRow ? 'grid' : 'flow-root',
+    display: usesSubgrid || isRecursiveShell ? 'grid' : 'flow-root',
     gridColumn: isTable ? '1 / -1' : undefined,
-    gridTemplateColumns: isTable && isRow ? 'subgrid' : undefined,
+    gridTemplateColumns: usesSubgrid ? 'subgrid' : undefined,
+    rowGap: isRecursiveShell ? (resolved.rowGap ?? D.layout.spaced.rowGap) : undefined,
   }).class;
 }
 
