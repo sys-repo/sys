@@ -1,6 +1,6 @@
 import React from 'react';
-import { type t, A, Color, css, D } from './common.ts';
-import { isAnchorElement, resolveHref, toAnchorStyle, toDisplayLabel, toEllipsis, toFont } from './u/mod.ts';
+import { type t, A, Color, css, D } from '../common.ts';
+import { isAnchorElement, resolveHref, toAnchorStyle, toDisplayLabel, toEllipsis, toFont } from '../u/mod.ts';
 
 type Base = Pick<
   t.KeyValue.Props,

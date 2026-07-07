@@ -1,14 +1,14 @@
 import React from 'react';
-import { type t, Color, css, D } from './common.ts';
-import { toFont, toRowOpacity, toSpacing } from './u/mod.ts';
+import { type t, Color, css, D } from '../common.ts';
+import { toFont, toRowOpacity, toSpacing } from '../u/mod.ts';
 import { Cell } from './ui.Cell.tsx';
 
 type P = Omit<t.KeyValue.ItemProps, 'layout' | 'item'> & {
-  layout: t.KeyValue.LayoutSpaced;
+  layout: t.KeyValue.LayoutTable;
   item: t.KeyValue.Row;
 };
 
-export const RowSpaced: React.FC<P> = (props) => {
+export const RowTable: React.FC<P> = (props) => {
   const { debug = false, item, mono, truncate, layout } = props;
   const opacity = toRowOpacity(item.opacity, { k: D.keyOpacity, v: 1 });
 
@@ -16,35 +16,48 @@ export const RowSpaced: React.FC<P> = (props) => {
    * Render:
    */
   const theme = Color.theme(props.theme);
-  const keyTrack = truncate ? 'fit-content(24ch)' : 'auto';
-  const valueTrack = truncate ? '1fr' : 'minmax(16ch, 1fr)';
   const spacing = toSpacing(item.x, item.y);
+  const [mxL, mxR] = spacing.x;
+  const [myT, myB] = spacing.y;
   const { fontFamily } = toFont({ mono });
+
   const styles = {
     base: css({
       Margin: spacing.edges,
-      display: 'grid',
-      gridTemplateColumns: `${keyTrack} ${valueTrack}`,
-      columnGap: layout.columnGap ?? 12,
-      alignItems: layout.align ?? D.layout.spaced.align,
-      backgroundColor: Color.ruby(debug),
+      display: 'contents',
       color: theme.fg,
       fontFamily,
+    }),
+    key: css({
+      gridColumn: '1',
+      textAlign: layout.keyAlign ?? D.layout.table.keyAlign,
+      minWidth: 0,
+      maxWidth: layout.keyMax,
+      alignSelf: layout.align ?? 'baseline',
+      Margin: [myT, 0, myB, mxL],
+    }),
+    val: css({
+      gridColumn: '2',
+      textAlign: 'left',
+      minWidth: 0,
+      alignSelf: layout.align ?? D.layout.table.align,
+      Margin: [myT, mxR, myB, 0],
     }),
   };
 
   return (
-    <div className={css(styles.base, props.style).class}>
+    <div className={styles.base.class}>
       <Cell
         role={'key'}
         layout={layout}
-        theme={theme.name}
+        theme={props.theme}
         debug={debug}
         mono={mono}
         enabled={props.enabled}
         disabledOpacity={props.disabledOpacity}
         truncate={truncate}
         size={props.size}
+        style={styles.key}
         href={item.href}
         opacity={opacity.k}
         children={item.k}
@@ -52,15 +65,15 @@ export const RowSpaced: React.FC<P> = (props) => {
       <Cell
         role={'val'}
         layout={layout}
-        theme={theme.name}
+        theme={props.theme}
         debug={debug}
-        style={{ textAlign: truncate ? 'right' : 'left' }}
         mono={mono}
         enabled={props.enabled}
         disabledOpacity={props.disabledOpacity}
         truncate={truncate}
-        userSelect={item.userSelect}
         size={props.size}
+        userSelect={item.userSelect}
+        style={styles.val}
         href={item.href}
         opacity={opacity.v}
         children={item.v}

@@ -2,12 +2,7 @@ import React from 'react';
 
 import { Color, css, D, type t } from './common.ts';
 import { isGroup, isRow, toCssSize, toFont, toLayout, toReorderModel } from './u/mod.ts';
-import { Hr } from './ui.Hr.tsx';
-import { ItemShell } from './ui.ItemShell.tsx';
-import { ReorderList } from './ui.Reorder.tsx';
-import { Row } from './ui.Row.tsx';
-import { Spacer } from './ui.Spacer.tsx';
-import { Title } from './ui.Title.tsx';
+import { Hr, ItemShell, ReorderList, Row, Spacer, Title } from './ui/mod.ts';
 
 type RenderContext = Omit<t.KeyValue.ItemProps, 'item'> & { readonly layout: t.KeyValue.Layout };
 

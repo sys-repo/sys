@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { type t } from './common.ts';
-import { toLayout } from './u/mod.ts';
+import { type t } from '../common.ts';
+import { toLayout } from '../u/mod.ts';
 import { RowSpaced } from './ui.Row.Spaced.tsx';
 import { RowTable } from './ui.Row.Table.tsx';
 

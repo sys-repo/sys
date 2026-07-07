@@ -1,6 +1,6 @@
 import React from 'react';
-import { css, D, type t } from './common.ts';
-import { toLayout } from './u/mod.ts';
+import { css, D, type t } from '../common.ts';
+import { toLayout } from '../u/mod.ts';
 
 type P = {
   item: t.KeyValue.Item;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, css, D } from './common.ts';
+import { type t, css, D } from '../common.ts';
 
 type P = t.KeyValue.ItemProps;
 
