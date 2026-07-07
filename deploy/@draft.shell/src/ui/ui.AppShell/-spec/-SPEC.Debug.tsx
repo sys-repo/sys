@@ -100,7 +100,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Files.InfoPanel theme={theme.name} />
+      <Files.InfoPanel.UI.Uncontrolled theme={theme.name} />
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />

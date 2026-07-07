@@ -5,7 +5,7 @@
   "tasks": {
     "test": "deno test -P=test",
     "prep": "deno run -P=dev ./-scripts/task.prep.ts",
-    "dev": "deno run -P=dev ./-scripts/task.main.ts --cmd=dev --in=./src/index.html",
+    "dev": "deno run -P=dev ./-scripts/task.main.ts --cmd=dev --in=./src/index.html --port=1235",
     "build": "deno run -P=dev ./-scripts/task.main.ts --cmd=build --in=./src/index.html",
     "serve": "deno run -P=dev ./-scripts/task.main.ts --cmd=serve",
     "check": "deno check src/",

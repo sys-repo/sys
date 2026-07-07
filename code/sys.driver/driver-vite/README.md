@@ -95,7 +95,7 @@ In your project (with a `deno.json`) declare entry point via `deno tasks` which 
 to the common set of API "commands" (aka. "tasks") via the `/main` entry-point, eg:
 
 ```bash
-jsr:@sys/driver-vite@<version>/main --cmd=dev
+jsr:@sys/driver-vite@<version>/main --cmd=dev [--port=1234]
 jsr:@sys/driver-vite@<version>/main --cmd=build
 jsr:@sys/driver-vite@<version>/main --cmd=serve
 

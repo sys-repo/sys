@@ -3,7 +3,7 @@
   "version": "0.0.341",
   "license": "MIT",
   "tasks": {
-    "dev": "deno run -P=dev   ./-scripts/task.main.ts --cmd=dev    --in=./src/ui.react.devharness/index.html",
+    "dev": "deno run -P=dev   ./-scripts/task.main.ts --cmd=dev    --in=./src/ui.react.devharness/index.html --port=1236",
     "build": "deno run -P=dev ./-scripts/task.main.ts --cmd=build  --in=./src/ui.react.devharness/index.html",
     "serve": "deno run -P=dev ./-scripts/task.main.ts --cmd=serve",
     "test": "deno test -P=test",
