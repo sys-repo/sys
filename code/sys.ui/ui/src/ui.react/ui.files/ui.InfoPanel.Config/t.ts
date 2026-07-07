@@ -10,7 +10,6 @@ export declare namespace InfoPanelConfig {
   /** Props accepted by InfoPanelConfig. */
   export type Props = {
     fields?: t.Files.InfoPanel.Field[];
-    events?: t.Files.InfoPanel.Events.Control;
     reorder?: boolean;
     debug?: boolean;
     theme?: t.CommonTheme;
@@ -27,13 +26,5 @@ export declare namespace InfoPanelConfig {
 
     /** Field-change event payload. */
     export type Change = { readonly next: t.Files.InfoPanel.Field[] };
-  }
-
-  /**
-   * Event configuration details.
-   */
-  export namespace Events {
-    /** Event-stream control state reused from Files.InfoPanel. */
-    export type Control = t.Files.InfoPanel.Events.Control;
   }
 }

@@ -145,7 +145,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Files.InfoPanel.Config.UI
         theme={debugTheme.name}
         fields={p.fields.value}
-        events={v.events}
         onFieldsChange={({ next }) => {
           p.fields.value = next;
         }}

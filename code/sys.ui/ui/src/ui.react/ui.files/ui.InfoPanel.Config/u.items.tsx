@@ -23,15 +23,5 @@ export function toSwitchItems(
     };
   });
 
-  if (props.events) {
-    items.push({ id: 'events:divider', kind: 'hr' });
-    items.push({
-      id: 'events:enabled',
-      label: 'events enabled',
-      value: props.events.enabled,
-      onToggle: props.events.onToggle,
-    });
-  }
-
   return items;
 }
