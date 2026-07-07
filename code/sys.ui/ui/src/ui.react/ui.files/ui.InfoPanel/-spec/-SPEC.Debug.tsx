@@ -118,12 +118,24 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <Files.InfoPanel.Config.UI
+        theme={debugTheme.name}
+        fields={p.fields.value}
+        onFieldsChange={({ next }) => {
+          p.fields.value = next;
+        }}
+      />
+
+      <hr />
       <div className={Styles.title.class}>{'Server'}</div>
       <Button block label={() => `connect`} onClick={() => void connect(debug)} />
       <Button block label={() => `disconnect`} onClick={() => void disconnect(debug)} />
 
       <hr />
-      <div className={Styles.title.class}>{'override: props.snapshot'}</div>
+      <div className={Styles.title.class}>
+        <span>{'Snapshot'}</span>
+        <span className={Styles.titleDetail.class}>{'props.snapshot'}</span>
+      </div>
 
       <Button
         block
@@ -139,15 +151,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `snapshot: error`}
         onClick={() => p.snapshot.value = snapshots.error}
-      />
-
-      <hr />
-      <Files.InfoPanel.Config.UI
-        theme={debugTheme.name}
-        fields={p.fields.value}
-        onFieldsChange={({ next }) => {
-          p.fields.value = next;
-        }}
       />
 
       <hr />
@@ -185,4 +188,5 @@ const Styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
   }),
+  titleDetail: css({ opacity: 0.5, fontFamily: 'monospace', fontSize: 12, fontWeight: 400 }),
 } as const;
