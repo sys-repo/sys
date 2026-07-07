@@ -13,12 +13,13 @@ import {
 import { Files } from '../../mod.ts';
 import { connect, disconnect } from './-u.connect.ts';
 
-type Storage = Pick<t.Files.InfoPanel.Props, 'debug' | 'theme' | 'fields'> & {
+type Storage = Pick<t.Files.InfoPanel.Props, 'debug' | 'theme' | 'title' | 'fields'> & {
   events?: t.Files.InfoPanel.State['events'];
 };
 const defaults = {
   debug: false,
   theme: 'Dark',
+  title: undefined,
   snapshot: { status: 'stopped' },
   events: D.events,
   fields: [...D.fields],
@@ -38,6 +39,7 @@ export async function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, {
     debug: defaults.debug,
     theme: defaults.theme,
+    title: defaults.title,
     events: defaults.events,
     fields: [...defaults.fields],
   });
@@ -46,6 +48,7 @@ export async function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    title: s(snap.title),
     snapshot: s<t.Files.InfoPanel.Snapshot>(defaults.snapshot),
     events: { enabled: s(snap.events?.enabled ?? defaults.events.enabled) },
     fields: s([...(snap.fields ?? defaults.fields)]),
@@ -66,6 +69,7 @@ export async function createDebugSignals() {
 
   function listen() {
     controller.listen();
+    p.title.value;
     p.fields.value;
   }
 
@@ -73,6 +77,7 @@ export async function createDebugSignals() {
     void disconnect(api);
     p.debug.value = defaults.debug;
     p.theme.value = defaults.theme;
+    p.title.value = defaults.title;
     p.snapshot.value = defaults.snapshot;
     p.events.enabled.value = defaults.events.enabled;
     p.fields.value = [...defaults.fields];
@@ -81,6 +86,7 @@ export async function createDebugSignals() {
   Signal.effect(() => {
     store.change((d) => {
       d.theme = p.theme.value;
+      d.title = p.title.value;
       d.debug = p.debug.value;
       d.events = { enabled: p.events.enabled.value };
       d.fields = p.fields.value;
@@ -111,6 +117,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
+      <Button
+        block
+        label={() => {
+          const title = p.title.value;
+          return `title: ${title ?? `${D.title} (default)`}`;
+        }}
+        onClick={() => {
+          return Signal.cycle<string | undefined>(p.title, [undefined, 'Files<T>', 'Foobar 🐷']);
+        }}
+      />
       <Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
