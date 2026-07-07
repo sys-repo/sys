@@ -1,6 +1,6 @@
 import React from 'react';
 import { type t, Color, css } from './common.ts';
-import { toSpacing } from './u.ts';
+import { toSpacing } from './u/mod.ts';
 
 type P = t.KeyValue.ItemProps;
 

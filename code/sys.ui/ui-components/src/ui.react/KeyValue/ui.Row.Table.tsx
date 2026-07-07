@@ -1,6 +1,6 @@
 import React from 'react';
 import { type t, Color, css, D } from './common.ts';
-import { toFont, toRowOpacity, toSpacing } from './u.ts';
+import { toFont, toRowOpacity, toSpacing } from './u/mod.ts';
 import { Cell } from './ui.Cell.tsx';
 
 type P = Omit<t.KeyValue.ItemProps, 'layout' | 'item'> & {

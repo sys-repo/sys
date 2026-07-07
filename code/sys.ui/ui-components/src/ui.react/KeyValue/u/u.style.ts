@@ -1,10 +1,7 @@
-import { type t, D, Is } from './common.ts';
+import { type t, D, Is } from '../common.ts';
 
 type P = t.KeyValue.Props;
 type PixelTuple = [t.Pixels | undefined, t.Pixels | undefined];
-
-export { fromObject } from './u/u.fromObject.ts';
-export { toRowOpacity } from './u/u.opacity.ts';
 
 /**
  * Produce plain CSS size value.
@@ -60,6 +57,7 @@ export function toSpacing(inputX?: t.KeyValue.Spacing, inputY?: t.KeyValue.Spaci
   const edges: t.CssEdgesArray = [y[0], x[1], y[1], x[0]];
   return { x, y, edges };
 }
+
 export function toSpacingTuple(value?: t.KeyValue.Spacing): PixelTuple {
   if (value == null) return [undefined, undefined];
   if (Is.array(value)) return [value[0], value[1]];
