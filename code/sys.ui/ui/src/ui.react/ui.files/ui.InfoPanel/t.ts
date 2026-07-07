@@ -1,16 +1,18 @@
 import type { t } from '../common.ts';
+import type { InfoPanelConfig } from '../ui.InfoPanel.Config/t.ts';
 
 /**
  * Files InfoPanel component contracts.
  */
 export declare namespace InfoPanel {
   /** Public InfoPanel component surface. */
-  export type Lib = t.FC<Props> & {
-    readonly controller: ControllerFactory;
+  export type Lib = {
     readonly UI: {
-      readonly Controlled: t.FC<ControlledProps>;
       readonly Uncontrolled: t.FC<Props>;
+      readonly Controlled: t.FC<ControlledProps>;
     };
+    readonly Config: InfoPanelConfig.Lib;
+    readonly controller: ControllerFactory;
   };
 
   /** Signal-backed state consumed by the InfoPanel controller. */
@@ -71,9 +73,7 @@ export declare namespace InfoPanel {
       readonly debug: t.ReadonlySignal<boolean | undefined>;
       readonly theme: t.ReadonlySignal<t.CommonTheme | undefined>;
       readonly snapshot: t.ReadonlySignal<Snapshot | undefined>;
-      readonly events: {
-        readonly enabled: t.ReadonlySignal<boolean | undefined>;
-      };
+      readonly events: { readonly enabled: t.ReadonlySignal<boolean | undefined> };
     };
   };
 

@@ -8,7 +8,7 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = debug.controller.view();
-    return <Files.InfoPanel {...v} />;
+    return <Files.InfoPanel.UI.Uncontrolled {...v} fields={p.fields.value} />;
   }
 
   e.it('init', (e) => {

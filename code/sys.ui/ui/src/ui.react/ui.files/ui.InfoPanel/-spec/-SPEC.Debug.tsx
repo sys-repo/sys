@@ -13,14 +13,16 @@ import {
 import { Files } from '../../mod.ts';
 import { connect, disconnect } from './-u.connect.ts';
 
-type Defaults = Required<Pick<t.Files.InfoPanel.State, 'debug' | 'theme' | 'snapshot'>> & {
-  events: Required<t.Files.InfoPanel.State['events']>;
+type Storage = Pick<t.Files.InfoPanel.Props, 'debug' | 'theme' | 'fields'> & {
+  events?: t.Files.InfoPanel.State['events'];
 };
-type Storage = {
-  debug?: t.Files.InfoPanel.State['debug'];
-  theme?: t.Files.InfoPanel.State['theme'];
-  events: t.Files.InfoPanel.State['events'];
-};
+const defaults = {
+  debug: false,
+  theme: 'Dark',
+  snapshot: { status: 'stopped' },
+  events: D.events,
+  fields: [...D.fields],
+} satisfies Storage & { snapshot: t.Files.InfoPanel.Snapshot };
 
 /**
  * Types:
@@ -37,14 +39,16 @@ export async function createDebugSignals() {
     debug: defaults.debug,
     theme: defaults.theme,
     events: defaults.events,
+    fields: [...defaults.fields],
   });
   const snap = store.current;
 
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
-    snapshot: s(defaults.snapshot),
+    snapshot: s<t.Files.InfoPanel.Snapshot>(defaults.snapshot),
     events: { enabled: s(snap.events?.enabled ?? defaults.events.enabled) },
+    fields: s([...(snap.fields ?? defaults.fields)]),
   };
   const controller = Files.InfoPanel.controller({
     debug: props.debug,
@@ -62,6 +66,7 @@ export async function createDebugSignals() {
 
   function listen() {
     controller.listen();
+    p.fields.value;
   }
 
   function reset() {
@@ -70,6 +75,7 @@ export async function createDebugSignals() {
     p.theme.value = defaults.theme;
     p.snapshot.value = defaults.snapshot;
     p.events.enabled.value = defaults.events.enabled;
+    p.fields.value = [...defaults.fields];
   }
 
   Signal.effect(() => {
@@ -77,6 +83,7 @@ export async function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.events = { enabled: p.events.enabled.value };
+      d.fields = p.fields.value;
     });
   });
 
@@ -95,9 +102,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
   /**
    * Render:
    */
-  const theme = Color.theme();
+  const debugTheme = Color.theme();
   const styles = {
-    base: css({ color: theme.fg }),
+    base: css({ color: debugTheme.fg }),
   } as const;
 
   return (
@@ -135,6 +142,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <Files.InfoPanel.Config.UI
+        theme={debugTheme.name}
+        fields={p.fields.value}
+        events={v.events}
+        onFieldsChange={({ next }) => {
+          p.fields.value = next;
+        }}
+      />
+
+      <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
@@ -156,17 +173,10 @@ const readyCapabilities: t.ModelFiles.Capabilities = {
 };
 
 const snapshots = {
-  stopped: { status: 'stopped' },
+  stopped: defaults.snapshot,
   ready: { status: 'ready', capabilities: readyCapabilities },
   error: { status: 'error', error: Err.std(new Error('Sample Files error')) },
 } as const satisfies Record<string, t.Files.InfoPanel.Snapshot>;
-
-const defaults: Defaults = {
-  debug: false,
-  theme: 'Dark',
-  snapshot: snapshots.stopped,
-  events: D.events,
-};
 
 const Styles = {
   title: css({

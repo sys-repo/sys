@@ -17,7 +17,7 @@ const fields: readonly Field[] = [
   'events',
 ];
 const fieldLabels: Partial<Record<Field, string>> = {
-  'status:title': 'status title',
+  'status:title': 'title status',
 };
 
 export const D = {
