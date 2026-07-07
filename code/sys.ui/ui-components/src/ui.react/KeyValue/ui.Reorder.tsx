@@ -1,6 +1,6 @@
 import React from 'react';
 import { css, Reorder as ReorderBase, type t } from './common.ts';
-import { type ReorderModel, sameIds, toReorderedItems } from './u/u.reorder.ts';
+import { type ReorderModel, sameIds, toReorderChange, toReorderedItems } from './u/u.reorder.ts';
 import { itemShellClass } from './ui.ItemShell.tsx';
 
 type P = {
@@ -54,15 +54,14 @@ export const ReorderList: React.FC<P> = (props) => {
   };
 
   const onReorder: MotionReorderHandler = (nextIds) => {
-    const currentIds = [...nextIds];
-    const next = toReorderedItems(currentIds, model.byId);
-    if (!next) return;
-
     const previousIds = currentIdsRef.current ?? model.ids;
-    currentIdsRef.current = currentIds;
-    if (sameIds(currentIds, previousIds)) return;
+    const change = toReorderChange({ nextIds, previousIds, byId: model.byId });
+    if (!change) return;
 
-    onChange({ next });
+    currentIdsRef.current = change.ids;
+    if (!change.changed) return;
+
+    onChange({ next: change.next });
   };
 
   const elItems = model.ids.map((id) => {

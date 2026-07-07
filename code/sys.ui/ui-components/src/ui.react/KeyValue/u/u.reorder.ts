@@ -12,6 +12,20 @@ export type ReorderModel = {
   readonly byId: ReadonlyMap<string, t.KeyValue.Item>;
 };
 
+/** Resolved result of one attempted direct-child reorder update. */
+export type ReorderChangeDecision = {
+  readonly ids: string[];
+  readonly next: t.KeyValue.Item[];
+  readonly changed: boolean;
+};
+
+/** Inputs for resolving one direct-child reorder update. */
+export type ReorderChangeDecisionArgs = {
+  readonly nextIds: readonly string[];
+  readonly previousIds: readonly string[];
+  readonly byId: ReadonlyMap<string, t.KeyValue.Item>;
+};
+
 /**
  * Resolve a safe controlled-reorder model for one direct `items` list, or
  * undefined when direct-child identity is invalid.
@@ -51,6 +65,20 @@ export function toReorderedItems(
     next.push(item);
   }
   return next;
+}
+
+/**
+ * Resolve one attempted direct-child reorder update into a copied ID snapshot,
+ * caller-owned items, and a local change/no-op decision.
+ */
+export function toReorderChange(
+  args: ReorderChangeDecisionArgs,
+): ReorderChangeDecision | undefined {
+  const ids = [...args.nextIds];
+  const next = toReorderedItems(ids, args.byId);
+  if (!next) return undefined;
+
+  return { ids, next, changed: !sameIds(ids, args.previousIds) };
 }
 
 /**
