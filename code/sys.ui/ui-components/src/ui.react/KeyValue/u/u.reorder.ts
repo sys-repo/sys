@@ -1,7 +1,10 @@
 import { type t, Is } from '../common.ts';
 
 /**
- * Resolved reorder identity model.
+ * Resolved direct-child reorder identity model.
+ *
+ * Reorder operates only on the item list supplied to this model. Recursive
+ * `group.items` remain owned by the group and are not parent-level drag items.
  */
 export type ReorderModel = {
   readonly ids: string[];
@@ -10,7 +13,8 @@ export type ReorderModel = {
 };
 
 /**
- * Resolve a safe controlled-reorder model, or undefined when identity is invalid.
+ * Resolve a safe controlled-reorder model for one direct `items` list, or
+ * undefined when direct-child identity is invalid.
  */
 export function toReorderModel(
   items: t.KeyValue.Item[],
@@ -30,7 +34,8 @@ export function toReorderModel(
 }
 
 /**
- * Convert reordered IDs back to caller-owned items, preserving immutable array semantics.
+ * Convert reordered direct-child IDs back to caller-owned items, preserving
+ * immutable array semantics and group item identity.
  */
 export function toReorderedItems(
   ids: readonly string[],
@@ -57,5 +62,5 @@ export function sameIds(a: readonly string[], b: readonly string[]) {
 }
 
 function isId(id: string | undefined): id is string {
-  return Is.string(id) && id.length > 0;
+  return Is.string(id) && !Is.blank(id);
 }

@@ -35,8 +35,8 @@ export const ReorderList: React.FC<P> = (props) => {
   };
 
   const onDragStart: DragHandler = (id) => {
-    startIdsRef.current = model.ids;
-    currentIdsRef.current = model.ids;
+    startIdsRef.current = [...model.ids];
+    currentIdsRef.current = [...model.ids];
     const active = itemRef(id, model.ids);
     if (active) onStart?.({ active, items: [...model.items] });
   };
@@ -54,10 +54,14 @@ export const ReorderList: React.FC<P> = (props) => {
   };
 
   const onReorder: MotionReorderHandler = (nextIds) => {
-    if (sameIds(nextIds, model.ids)) return;
-    const next = toReorderedItems(nextIds, model.byId);
+    const currentIds = [...nextIds];
+    const next = toReorderedItems(currentIds, model.byId);
     if (!next) return;
-    currentIdsRef.current = nextIds;
+
+    const previousIds = currentIdsRef.current ?? model.ids;
+    currentIdsRef.current = currentIds;
+    if (sameIds(currentIds, previousIds)) return;
+
     onChange({ next });
   };
 
@@ -70,8 +74,8 @@ export const ReorderList: React.FC<P> = (props) => {
         key={id}
         value={id}
         className={itemShellClass(item, layout)}
-        onDragStart={onStart || onEnd ? () => onDragStart(id) : undefined}
-        onDragEnd={onStart || onEnd ? () => onDragEnd(id) : undefined}
+        onDragStart={() => onDragStart(id)}
+        onDragEnd={() => onDragEnd(id)}
       >
         {renderItem(item)}
       </ReorderBase.Item>

@@ -38,14 +38,16 @@ describe('KeyValue.u.reorder', () => {
     expect(model?.ids).to.eql(['caller:0', 'caller:1']);
   });
 
-  it('returns undefined for missing or duplicate ids', () => {
+  it('returns undefined for missing, blank, or duplicate ids', () => {
     const missing: t.KeyValue.Item[] = [{ id: 'a', k: 'alpha' }, { k: 'bravo' }];
+    const blank: t.KeyValue.Item[] = [{ id: 'a', k: 'alpha' }, { id: ' ', k: 'blank' }];
     const duplicate: t.KeyValue.Item[] = [
       { id: 'a', k: 'alpha' },
       { id: 'a', k: 'bravo' },
     ];
 
     expect(toReorderModel(missing)).to.equal(undefined);
+    expect(toReorderModel(blank)).to.equal(undefined);
     expect(toReorderModel(duplicate)).to.equal(undefined);
   });
 
@@ -60,6 +62,68 @@ describe('KeyValue.u.reorder', () => {
     const next = toReorderedItems(['c', 'a', 'b'], model.byId);
     expect(next).to.eql([items[2], items[0], items[1]]);
     expect(next).not.to.equal(items);
+  });
+
+  it('treats recursive groups as atomic direct children', () => {
+    const group: t.KeyValue.Group = {
+      id: 'group:status',
+      kind: 'group',
+      items: [
+        { id: 'status', k: 'status' },
+        { id: 'status:title', k: 'title status' },
+      ],
+    };
+    const items: t.KeyValue.Item[] = [group, { id: 'events', k: 'events' }];
+
+    const model = toReorderModel(items)!;
+    const next = toReorderedItems(['events', 'group:status'], model.byId);
+
+    expect(model.ids).to.eql(['group:status', 'events']);
+    expect(model.byId.has('status')).to.equal(false);
+    expect(model.byId.has('status:title')).to.equal(false);
+    expect(toReorderedItems(['status', 'events'], model.byId)).to.equal(undefined);
+    expect(next).to.eql([items[1], group]);
+    expect(next?.[1]).to.equal(group);
+  });
+
+  it('ignores nested identity collisions while rejecting direct-child collisions', () => {
+    const nestedCollision: t.KeyValue.Item[] = [
+      {
+        id: 'group:status',
+        kind: 'group',
+        items: [{ id: 'events', k: 'nested duplicate of parent sibling' }],
+      },
+      { id: 'events', k: 'events' },
+    ];
+    const directCollision: t.KeyValue.Item[] = [
+      { id: 'events', k: 'events' },
+      { id: 'events', k: 'duplicate direct sibling' },
+    ];
+
+    expect(toReorderModel(nestedCollision)?.ids).to.eql(['group:status', 'events']);
+    expect(toReorderModel(directCollision)).to.equal(undefined);
+  });
+
+  it('passes only direct children to getItemId', () => {
+    const seen: string[] = [];
+    const items: t.KeyValue.Item[] = [
+      {
+        id: 'group:status',
+        kind: 'group',
+        items: [{ id: 'status', k: 'status' }],
+      },
+      { id: 'events', k: 'events' },
+    ];
+
+    const model = toReorderModel(items, {
+      getItemId: (item) => {
+        seen.push(item.id ?? '(missing)');
+        return item.id;
+      },
+    });
+
+    expect(model?.ids).to.eql(['group:status', 'events']);
+    expect(seen).to.eql(['group:status', 'events']);
   });
 
   it('returns undefined when reordered ids are not a valid permutation', () => {
