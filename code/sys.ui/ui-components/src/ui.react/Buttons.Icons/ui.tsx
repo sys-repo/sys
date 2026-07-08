@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Button, Color, css, Icons } from './common.ts';
 
-type P = t.IconButtonProps;
+type P = t.ButtonsIcons.Props;
 type IconProps = P & { Renderer: t.IconRenderer };
 
 /**

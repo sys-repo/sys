@@ -3,7 +3,7 @@ import { Buttons } from '../../Buttons/mod.ts';
 import { Button, ObjectView } from '../../u.ts';
 import { type t, css, D, LocalStorage, Signal } from '../common.ts';
 
-type Storage = { theme?: t.CommonTheme; debug?: boolean; show: keyof t.ButtonsIconsLib };
+type Storage = { theme?: t.CommonTheme; debug?: boolean; show: keyof t.ButtonsIcons.Lib };
 
 /**
  * Types:
@@ -86,7 +86,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       {Object.keys(Buttons.Icons)
-        .map((key) => key as keyof t.ButtonsIconsLib)
+        .map((key) => key as keyof t.ButtonsIcons.Lib)
         .map((key) => {
           const isCurrent = key === p.show.value;
           return (

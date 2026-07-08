@@ -1,23 +1,24 @@
 import type { t } from './common.ts';
 
-type C = React.FC<IconButtonProps>;
-
 /**
  * Library of common icon buttons.
  */
-export type ButtonsIconsLib = {
-  readonly Close: C;
-  readonly Face: C;
-  readonly MicOn: C;
-  readonly MicOff: C;
-  readonly Settings: C;
-  readonly Tools: C;
-};
+export declare namespace ButtonsIcons {
+  type C = React.FC<Props>;
 
-/**
- * Component:
- */
-export type IconButtonProps = Omit<t.ButtonProps, 'label' | 'children'> & {
-  debug?: boolean;
-  size?: t.Pixels;
-};
+  /** Public runtime surface. */
+  export type Lib = {
+    readonly Close: C;
+    readonly Face: C;
+    readonly MicOn: C;
+    readonly MicOff: C;
+    readonly Settings: C;
+    readonly Tools: C;
+  };
+
+  /** Icon button props. */
+  export type Props = Omit<t.ButtonProps, 'label' | 'children'> & {
+    debug?: boolean;
+    size?: t.Pixels;
+  };
+}
