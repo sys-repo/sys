@@ -41,7 +41,7 @@ deno.json:
   - import: npm:@automerge/prosemirror@0.2.0
   - import: npm:@monaco-editor/react@4.7.0
   - import: npm:monaco-editor@0.55.1
-  - import: npm:prosemirror-model@1.25.9
+  - import: npm:prosemirror-model@1.25.10
   - import: npm:prosemirror-state@1.4.4
   - import: npm:prosemirror-view@1.42.0
   - import: npm:prosemirror-example-setup@1.2.3
@@ -55,7 +55,7 @@ deno.json:
   - import: npm:fast-json-patch@3.1.1
   - import: npm:happy-dom@20.10.6
   - import: npm:hash-it@7.0.2
-  - import: npm:hono@4.12.27
+  - import: npm:hono@4.12.28
     subpaths: [ cors, deno, types ]
   - import: npm:ignore@7.0.5
   - import: npm:ora@9.4.1
