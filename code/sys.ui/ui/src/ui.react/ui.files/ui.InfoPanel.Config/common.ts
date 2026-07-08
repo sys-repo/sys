@@ -22,6 +22,11 @@ const fieldLabels: Partial<Record<Field, string>> = {
   transport: 'transport control',
 };
 const animation = true;
+const layout = {
+  kind: 'spaced',
+  columnGap: 10,
+  rowGap: 4,
+} satisfies t.KeyValue.LayoutSpaced;
 
 export const D = {
   name,
@@ -30,6 +35,7 @@ export const D = {
   fieldLabels,
   reorder: true,
   animation,
+  layout,
 } as const;
 export const DEFAULTS = D;
 export const STORAGE_KEY = { DEV: `dev:${D.displayName}` };
