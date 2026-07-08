@@ -14,6 +14,7 @@ export const Controlled: React.FC<t.Files.InfoPanel.ControlledProps> = (props) =
     <InfoPanel
       title={props.title}
       fields={props.fields}
+      animation={props.animation}
       style={props.style}
       {...view}
     />

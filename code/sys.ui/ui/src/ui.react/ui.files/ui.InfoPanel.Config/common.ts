@@ -19,6 +19,7 @@ const fields: readonly Field[] = [
 const fieldLabels: Partial<Record<Field, string>> = {
   'status:title': 'title status',
 };
+const animation = true;
 
 export const D = {
   name,
@@ -26,6 +27,7 @@ export const D = {
   fields,
   fieldLabels,
   reorder: true,
+  animation,
 } as const;
 export const DEFAULTS = D;
 export const STORAGE_KEY = { DEV: `dev:${D.displayName}` };

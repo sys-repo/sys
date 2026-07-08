@@ -12,18 +12,26 @@ export function toItems(input: Input): t.KeyValue.Item[] {
   const theme = input.theme;
   const fields = resolveFields(input.fields);
   const snapshot = input.snapshot;
-  const items: t.KeyValue.Item[] = [{ kind: 'title', v: title(input, fields) }];
+  const items: t.KeyValue.Item[] = [{ id: 'title', kind: 'title', v: title(input, fields) }];
 
   fields.forEach((field) => {
-    if (field === 'status') items.push({ k: 'status', v: snapshot?.status ?? '-', mono: true });
+    if (field === 'status') {
+      items.push({ id: 'status', k: 'status', v: snapshot?.status ?? '-', mono: true });
+    }
     if (field === 'fidelity' && !Is.nil(snapshot?.capabilities?.fidelity)) {
-      items.push({ k: 'fidelity', v: snapshot.capabilities.fidelity, mono: true });
+      items.push({ id: 'fidelity', k: 'fidelity', v: snapshot.capabilities.fidelity, mono: true });
     }
     if (field === 'capabilities' && !Is.nil(snapshot?.capabilities)) {
-      items.push({ k: 'capabilities', v: formatCapabilities(snapshot.capabilities), mono: true });
+      items.push({
+        id: 'capabilities',
+        k: 'capabilities',
+        v: formatCapabilities(snapshot.capabilities),
+        mono: true,
+      });
     }
     if (field === 'error' && snapshot?.status === 'error' && !Is.nil(snapshot.error)) {
       items.push({
+        id: 'error',
         k: 'error',
         v: <ErrorMessage value={snapshot.error} theme={theme} />,
         mono: true,

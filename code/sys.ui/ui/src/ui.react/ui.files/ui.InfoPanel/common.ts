@@ -17,6 +17,7 @@ export const D = {
   title: 'Files',
   fields,
   events,
+  animation: true,
 } as const;
 export const DEFAULTS = D;
 export const STORAGE_KEY = { DEV: `dev:${D.displayName}` };

@@ -29,6 +29,7 @@ export declare namespace InfoPanel {
     snapshot?: State['snapshot'];
     fields?: Field[];
     events?: Events.Control;
+    animation?: t.KeyValue.Animation;
     debug?: State['debug'];
     theme?: State['theme'];
     style?: t.Style.Input;

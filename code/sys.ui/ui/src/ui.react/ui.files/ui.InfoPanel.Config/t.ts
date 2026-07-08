@@ -11,6 +11,7 @@ export declare namespace InfoPanelConfig {
   export type Props = {
     fields?: t.Files.InfoPanel.Field[];
     reorder?: boolean;
+    animation?: t.KeyValue.Animation;
     debug?: boolean;
     theme?: t.CommonTheme;
     style?: t.Style.Input;

@@ -5,8 +5,8 @@ import {
   css,
   D,
   LocalStorage,
-  ObjectView,
   Obj,
+  ObjectView,
   Signal,
   STORAGE_KEY,
   type t,
@@ -91,10 +91,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
+        label={() => `reorder: ${v.reorder}`}
+        onClick={() => Signal.toggle(p.reorder)}
+      />
+      <Button
+        block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button block label={() => `reorder: ${v.reorder}`} onClick={() => Signal.toggle(p.reorder)} />
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />

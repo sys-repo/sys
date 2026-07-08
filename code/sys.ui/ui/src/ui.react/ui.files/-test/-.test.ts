@@ -101,6 +101,16 @@ describe('@sys/ui/react/files', () => {
     expect(React.isValidElement(row.v)).to.eql(true);
   });
 
+  it('projects stable item ids for row projection animation', () => {
+    const items = toItems({
+      fields: ['events', 'status', 'capabilities'],
+      events: { enabled: true },
+      snapshot: { status: 'ready', capabilities },
+    });
+
+    expect(items.map((item) => item.id)).to.eql(['title', 'events', 'status', 'capabilities']);
+  });
+
   it('error field is visible only for an error snapshot', () => {
     const error = Err.std('stale');
     const stopped = toItems({
@@ -114,6 +124,7 @@ describe('@sys/ui/react/files', () => {
 
     expect(stopped.length).to.eql(1);
     expect(failed.length).to.eql(2);
+    expect(failed[1]?.id).to.eql('error');
   });
 
   it('controller toggles event stream state without component-local useState', () => {

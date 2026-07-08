@@ -1,25 +1,17 @@
 import React from 'react';
-import {
-  Button,
-  Color,
-  css,
-  D,
-  Err,
-  LocalStorage,
-  ObjectView,
-  Signal,
-  type t,
-} from './common.ts';
+import { Button, Color, css, D, Err, LocalStorage, ObjectView, Signal, type t } from './common.ts';
 import { Files } from '../../mod.ts';
 import { connect, disconnect } from './-u.connect.ts';
 
 type Storage = Pick<t.Files.InfoPanel.Props, 'debug' | 'theme' | 'title' | 'fields'> & {
+  animation: boolean;
   events?: t.Files.InfoPanel.State['events'];
 };
 const defaults = {
   debug: false,
   theme: 'Dark',
   title: undefined,
+  animation: D.animation,
   snapshot: { status: 'stopped' },
   events: D.events,
   fields: [...D.fields],
@@ -40,6 +32,7 @@ export async function createDebugSignals() {
     debug: defaults.debug,
     theme: defaults.theme,
     title: defaults.title,
+    animation: defaults.animation,
     events: defaults.events,
     fields: [...defaults.fields],
   });
@@ -49,6 +42,7 @@ export async function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     title: s(snap.title),
+    animation: s(snap.animation ?? defaults.animation),
     snapshot: s<t.Files.InfoPanel.Snapshot>(defaults.snapshot),
     events: { enabled: s(snap.events?.enabled ?? defaults.events.enabled) },
     fields: s([...(snap.fields ?? defaults.fields)]),
@@ -70,6 +64,7 @@ export async function createDebugSignals() {
   function listen() {
     controller.listen();
     p.title.value;
+    p.animation.value;
     p.fields.value;
   }
 
@@ -78,6 +73,7 @@ export async function createDebugSignals() {
     p.debug.value = defaults.debug;
     p.theme.value = defaults.theme;
     p.title.value = defaults.title;
+    p.animation.value = defaults.animation;
     p.snapshot.value = defaults.snapshot;
     p.events.enabled.value = defaults.events.enabled;
     p.fields.value = [...defaults.fields];
@@ -87,6 +83,7 @@ export async function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.title = p.title.value;
+      d.animation = p.animation.value;
       d.debug = p.debug.value;
       d.events = { enabled: p.events.enabled.value };
       d.fields = p.fields.value;
@@ -126,6 +123,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => {
           return Signal.cycle<string | undefined>(p.title, [undefined, 'Files<T>', 'Foobar 🐷']);
         }}
+      />
+      <Button
+        block
+        label={() => `subject animation: ${p.animation.value}`}
+        onClick={() => Signal.toggle(p.animation)}
       />
       <Button
         block

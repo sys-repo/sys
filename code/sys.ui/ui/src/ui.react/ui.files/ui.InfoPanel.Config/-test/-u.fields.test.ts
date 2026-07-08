@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../../../-test.ts';
 import { D, type t } from '../common.ts';
 import { resolveFields, toggleField, toItemFields } from '../u.fields.ts';
-import { toSwitchItems } from '../u.items.tsx';
+import { toSwitchItems, toSwitchItemSections } from '../u.items.tsx';
 import { toReorder } from '../u.reorder.ts';
 
 type Field = t.Files.InfoPanel.Field;
@@ -83,6 +83,27 @@ describe('Files.InfoPanel.Config', () => {
       expect(switchRowById(group.items, 'status').value).to.equal(true);
       expect(switchRowById(group.items, 'status:title').value).to.equal(false);
     });
+
+    it('partitions hidden rows outside the reorderable visible section', () => {
+      const fields: Field[] = ['events', 'status', 'capabilities'];
+      const items = toSwitchItems({ fields }, fields, toItemFields(fields));
+      const sections = toSwitchItemSections(items, fields);
+
+      expect(itemIds(sections.visible)).to.eql(['events', 'group:status', 'capabilities']);
+      expect(itemIds(sections.hidden)).to.eql(['fidelity', 'error']);
+    });
+
+    it('keeps a hidden status sibling inside a visible status group', () => {
+      const fields: Field[] = ['status'];
+      const items = toSwitchItems({ fields }, fields, toItemFields(fields));
+      const sections = toSwitchItemSections(items, fields);
+      const group = sections.visible[0] as t.KeyValue.Switches.Group;
+
+      expect(itemIds(sections.visible)).to.eql(['group:status']);
+      expect(itemIds(group.items)).to.eql(['status', 'status:title']);
+      expect(switchRowById(group.items, 'status').value).to.equal(true);
+      expect(switchRowById(group.items, 'status:title').value).to.equal(false);
+    });
   });
 
   describe('reorder', () => {
@@ -95,6 +116,24 @@ describe('Files.InfoPanel.Config', () => {
         next: [
           { id: 'error', k: 'error' },
           { id: 'capabilities', k: 'capabilities' },
+          { id: 'status', k: 'status' },
+        ],
+      });
+
+      expect(emitted).to.eql(['error', 'status']);
+    });
+
+    it('does not gate reorder on projection animation', () => {
+      let emitted: Field[] | undefined;
+      const fields: Field[] = ['status', 'error'];
+      const reorder = toReorder(
+        { animation: false, onFieldsChange: (e) => emitted = e.next },
+        fields,
+      );
+
+      reorder?.onChange?.({
+        next: [
+          { id: 'error', k: 'error' },
           { id: 'status', k: 'status' },
         ],
       });

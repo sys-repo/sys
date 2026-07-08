@@ -21,6 +21,7 @@ export const InfoPanel: t.FC<t.Files.InfoPanel.Props> = (props) => {
       <KeyValue.UI
         theme={theme.name}
         layout={{ kind: 'spaced', columnGap: 10 }}
+        animation={props.animation ?? D.animation}
         items={items}
       />
     </div>

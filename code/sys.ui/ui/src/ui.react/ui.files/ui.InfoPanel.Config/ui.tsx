@@ -1,6 +1,6 @@
 import { Color, css, D, KeyValue, type t } from './common.ts';
 import { resolveFields, toItemFields } from './u.fields.ts';
-import { toSwitchItems } from './u.items.tsx';
+import { toSwitchItems, toSwitchItemSections } from './u.items.tsx';
 import { toReorder } from './u.reorder.ts';
 
 type P = t.Files.InfoPanel.Config.Props;
@@ -14,6 +14,7 @@ export const UI: t.FC<P> = (props) => {
   const fields = resolveFields(props.fields);
   const itemFields = toItemFields(fields);
   const items = toSwitchItems(props, fields, itemFields);
+  const sections = toSwitchItemSections(items, fields);
   const styles = {
     base: css({
       backgroundColor: Color.ruby(debug),
@@ -28,7 +29,14 @@ export const UI: t.FC<P> = (props) => {
         theme={theme.name}
         layout={{ kind: 'spaced', columnGap: 10 }}
         reorder={toReorder(props, fields)}
-        items={items}
+        animation={props.animation ?? D.animation}
+        items={sections.visible}
+      />
+      <KeyValue.Switches.UI
+        theme={theme.name}
+        layout={{ kind: 'spaced', columnGap: 10 }}
+        animation={props.animation ?? D.animation}
+        items={sections.hidden}
       />
     </div>
   );
