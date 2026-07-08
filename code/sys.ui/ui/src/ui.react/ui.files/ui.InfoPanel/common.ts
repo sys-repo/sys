@@ -8,18 +8,18 @@ const fieldOrder: readonly t.Files.InfoPanel.Field[] = [
   'title.status',
   'title.status.label',
   'status',
-  'transport',
   'fidelity',
   'capabilities',
   'error',
+  'transport',
   'events',
 ];
 const fields: readonly t.Files.InfoPanel.Field[] = [
   'title',
   'title.status',
-  'transport',
   'capabilities',
   'error',
+  'transport',
   'events',
 ];
 const events: Required<t.Files.InfoPanel.Events.State> = { enabled: false };

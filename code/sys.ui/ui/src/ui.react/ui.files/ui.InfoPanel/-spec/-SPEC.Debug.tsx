@@ -7,6 +7,7 @@ type Storage = Pick<t.Files.InfoPanel.Props, 'debug' | 'theme' | 'title' | 'fiel
   animation: boolean;
   events?: t.Files.InfoPanel.State['events'];
 };
+const defaultFields = D.fields.filter((field) => field !== 'events');
 const defaults = {
   debug: false,
   theme: 'Dark',
@@ -14,7 +15,7 @@ const defaults = {
   animation: D.animation,
   snapshot: { status: 'stopped' },
   events: D.events,
-  fields: [...D.fields],
+  fields: [...defaultFields],
 } satisfies Storage & { snapshot: t.Files.InfoPanel.Snapshot };
 
 /**

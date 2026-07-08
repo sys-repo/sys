@@ -74,9 +74,9 @@ describe('Files.InfoPanel.Config', () => {
         'title',
         'title.status',
         'title.status.label',
-        'transport',
         'fidelity',
         'capabilities',
+        'transport',
         'events',
       ]);
     });
@@ -121,9 +121,9 @@ describe('Files.InfoPanel.Config', () => {
         'group:title',
         'error',
         'status',
-        'transport',
         'fidelity',
         'capabilities',
+        'transport',
         'events',
       ]);
 
@@ -157,9 +157,9 @@ describe('Files.InfoPanel.Config', () => {
         'error',
         'status',
         'group:title',
-        'transport',
         'fidelity',
         'capabilities',
+        'transport',
         'events',
       ]);
     });
@@ -173,7 +173,7 @@ describe('Files.InfoPanel.Config', () => {
       expect(itemIds(sections.visible)).to.eql(['events', 'group:title', 'capabilities']);
       expect(itemIds(titleGroup.items)).to.eql(['title', 'group:title.status']);
       expect(switchRowById(titleGroup.items, 'title.status').value).to.eql(false);
-      expect(itemIds(sections.hidden)).to.eql(['status', 'transport', 'fidelity', 'error']);
+      expect(itemIds(sections.hidden)).to.eql(['status', 'fidelity', 'error', 'transport']);
     });
   });
 
