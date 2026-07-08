@@ -1,6 +1,7 @@
 import { Button, D, Is, KeyValue, type t } from './common.ts';
 import { ErrorMessage } from './ui.ErrorMessage.tsx';
 import { StatusTitle } from './ui.StatusTitle.tsx';
+import { resolveFields } from './u.fields.ts';
 import { formatCapabilities } from './u.items.Capabilities.tsx';
 
 type Input = Pick<
@@ -15,7 +16,9 @@ export function toItems(input: Input): t.KeyValue.Item[] {
   const theme = input.theme;
   const fields = resolveFields(input.fields);
   const snapshot = input.snapshot;
-  const items: t.KeyValue.Item[] = [{ id: 'title', kind: 'title', v: title(input, fields) }];
+  const items: t.KeyValue.Item[] = [];
+
+  if (fields.includes('title')) items.push({ id: 'title', kind: 'title', v: title(input, fields) });
 
   fields.forEach((field) => {
     if (field === 'status') {
@@ -72,10 +75,14 @@ export function toItems(input: Input): t.KeyValue.Item[] {
  */
 function title(input: Input, fields: readonly t.Files.InfoPanel.Field[]): t.KeyValue.Title['v'] {
   const label = input.title ?? D.title;
-  if (!fields.includes('status:title')) return label;
+  if (!fields.includes('title.status')) return label;
   return [
     label,
-    <StatusTitle status={input.snapshot?.status} theme={input.theme} />,
+    <StatusTitle
+      status={input.snapshot?.status}
+      showLabel={fields.includes('title.status.label')}
+      theme={input.theme}
+    />,
   ];
 }
 
@@ -96,18 +103,3 @@ function canShowEvents(snapshot?: t.Files.InfoPanel.Snapshot): boolean {
   return snapshot?.status === 'ready' && snapshot.capabilities?.watch === true;
 }
 
-function resolveFields(
-  input: readonly t.Files.InfoPanel.Field[] | undefined,
-): t.Files.InfoPanel.Field[] {
-  const fields = input ?? D.fields;
-  const seen = new Set<t.Files.InfoPanel.Field>();
-  const result: t.Files.InfoPanel.Field[] = [];
-
-  fields.forEach((field) => {
-    if (seen.has(field)) return;
-    seen.add(field);
-    result.push(field);
-  });
-
-  return result;
-}

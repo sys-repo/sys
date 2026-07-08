@@ -38,7 +38,9 @@ export declare namespace InfoPanel {
 
   /** Display fields rendered by the info panel. */
   export type Field =
-    | 'status:title'
+    | 'title'
+    | 'title.status'
+    | 'title.status.label'
     | 'status'
     | 'transport'
     | 'fidelity'

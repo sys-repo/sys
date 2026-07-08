@@ -3,8 +3,20 @@ import { Pkg, pkg, type t } from '../common.ts';
 export * from '../common.ts';
 
 const name = 'Files.InfoPanel';
+const fieldOrder: readonly t.Files.InfoPanel.Field[] = [
+  'title',
+  'title.status',
+  'title.status.label',
+  'status',
+  'transport',
+  'fidelity',
+  'capabilities',
+  'error',
+  'events',
+];
 const fields: readonly t.Files.InfoPanel.Field[] = [
-  'status:title',
+  'title',
+  'title.status',
   'transport',
   'capabilities',
   'error',
@@ -17,6 +29,7 @@ export const D = {
   displayName: Pkg.toString(pkg, name, false),
   title: 'Files',
   fields,
+  fieldOrder,
   events,
   animation: true,
 } as const;

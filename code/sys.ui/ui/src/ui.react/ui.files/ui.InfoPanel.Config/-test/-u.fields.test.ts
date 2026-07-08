@@ -6,6 +6,9 @@ import { toReorder } from '../u.reorder.ts';
 
 type Field = t.Files.InfoPanel.Field;
 type Row = t.KeyValue.Switches.Row;
+type Group = t.KeyValue.Switches.Group;
+
+const legacyStatusTitle = 'status:title' as unknown as Field;
 
 describe('Files.InfoPanel.Config', () => {
   describe('field projection', () => {
@@ -14,8 +17,26 @@ describe('Files.InfoPanel.Config', () => {
     });
 
     it('deduplicates configured fields while preserving caller order', () => {
-      const input: Field[] = ['events', 'status', 'events', 'fidelity', 'status'];
-      expect(resolveFields(input)).to.eql(['events', 'status', 'fidelity']);
+      const input: Field[] = ['events', 'title', 'events', 'fidelity', 'title'];
+      expect(resolveFields(input)).to.eql(['events', 'title', 'fidelity']);
+    });
+
+    it('maps legacy title status fields to the nested title field tree', () => {
+      expect(resolveFields([legacyStatusTitle, 'events'])).to.eql([
+        'title',
+        'title.status',
+        'title.status.label',
+        'events',
+      ]);
+    });
+
+    it('normalizes title descendant dependencies before emitting fields', () => {
+      expect(resolveFields(['events', 'title.status.label'])).to.eql([
+        'events',
+        'title',
+        'title.status',
+        'title.status.label',
+      ]);
     });
 
     it('toggles fields with canonical insertion fallback', () => {
@@ -26,11 +47,33 @@ describe('Files.InfoPanel.Config', () => {
       expect(toggleField(fields, 'error', true)).to.eql(['error', 'events']);
     });
 
+    it('toggles title descendants with parent dependencies', () => {
+      expect(toggleField(['events'], 'title.status.label', true)).to.eql([
+        'title',
+        'title.status',
+        'title.status.label',
+        'events',
+      ]);
+      expect(toggleField(['events', 'title'], 'title.status.label', true)).to.eql([
+        'events',
+        'title',
+        'title.status',
+        'title.status.label',
+      ]);
+      expect(toggleField(['title', 'title.status', 'title.status.label', 'events'], 'title', false))
+        .to.eql(['events']);
+      expect(
+        toggleField(['title', 'title.status', 'title.status.label', 'events'], 'title.status', false),
+      ).to.eql(['title', 'events']);
+    });
+
     it('projects visible fields first and hidden fields after them', () => {
       expect(toItemFields(['error', 'status'])).to.eql([
         'error',
         'status',
-        'status:title',
+        'title',
+        'title.status',
+        'title.status.label',
         'transport',
         'fidelity',
         'capabilities',
@@ -42,7 +85,7 @@ describe('Files.InfoPanel.Config', () => {
   describe('switch rows', () => {
     it('emit field changes as event payloads', () => {
       let emitted: Field[] | undefined;
-      const fields: Field[] = ['status', 'error'];
+      const fields: Field[] = ['title', 'error'];
       const items = toSwitchItems(
         {
           fields,
@@ -57,99 +100,103 @@ describe('Files.InfoPanel.Config', () => {
 
       row.onToggle?.(true, { item: row, index: 0 });
 
-      expect(emitted).to.eql(['status', 'capabilities', 'error']);
+      expect(emitted).to.eql(['title', 'capabilities', 'error']);
     });
 
-    it('labels the transport control switch', () => {
-      const fields: Field[] = ['transport'];
+    it('labels nested title controls and transport controls', () => {
+      const fields: Field[] = ['title', 'title.status', 'title.status.label', 'transport'];
       const items = toSwitchItems({ fields }, fields, toItemFields(fields));
-      const row = switchRowById(items, 'transport');
 
-      expect(row.label).to.equal('transport control');
-      expect(row.value).to.equal(true);
+      expect(switchRowById(items, 'title').label).to.eql('title');
+      expect(switchRowById(items, 'title.status').label).to.eql('status');
+      expect(switchRowById(items, 'title.status.label').label).to.eql('status:label');
+      expect(switchRowById(items, 'transport').label).to.eql('transport control');
     });
 
-    it('groups status fields as one recursive switch item', () => {
-      const fields: Field[] = ['status', 'status:title', 'error'];
+    it('groups title fields as one recursive switch item', () => {
+      const fields: Field[] = ['title', 'title.status', 'title.status.label', 'error'];
       const items = toSwitchItems({ fields }, fields, toItemFields(fields));
 
       expect(itemIds(items)).to.eql([
-        'group:status',
+        'group:title',
         'error',
+        'status',
         'transport',
         'fidelity',
         'capabilities',
         'events',
       ]);
 
-      const group = items[0] as t.KeyValue.Switches.Group;
-      expect(group.kind).to.equal('group');
-      expect(group.id).to.equal('group:status');
-      expect(itemIds(group.items)).to.eql(['status', 'status:title']);
-      expect(switchRowById(group.items, 'status').value).to.equal(true);
-      expect(switchRowById(group.items, 'status:title').value).to.equal(true);
+      const group = items[0] as Group;
+      const statusGroup = group.items[1] as Group;
+      expect(group.kind).to.eql('group');
+      expect(group.id).to.eql('group:title');
+      expect(itemIds(group.items)).to.eql(['title', 'group:title.status']);
+      expect(statusGroup.kind).to.eql('group');
+      expect(statusGroup.id).to.eql('group:title.status');
+      expect(itemIds(statusGroup.items)).to.eql(['title.status', 'title.status.label']);
+      expect(switchRowById(group.items, 'title').value).to.eql(true);
+      expect(switchRowById(statusGroup.items, 'title.status').value).to.eql(true);
+      expect(switchRowById(statusGroup.items, 'title.status.label').value).to.eql(true);
     });
 
-    it('places the status group at the first status-member position', () => {
-      const fields: Field[] = ['error', 'status'];
+    it('indents nested title switch rows with row spacing', () => {
+      const fields: Field[] = ['title'];
       const items = toSwitchItems({ fields }, fields, toItemFields(fields));
-      const group = items[1] as t.KeyValue.Switches.Group;
+
+      expect(switchRowById(items, 'title').x).to.eql(undefined);
+      expect(switchRowById(items, 'title.status').x).to.eql([12, 0]);
+      expect(switchRowById(items, 'title.status.label').x).to.eql([12, 0]);
+    });
+
+    it('keeps the body status row independent from the title group', () => {
+      const fields: Field[] = ['error', 'status', 'title'];
+      const items = toSwitchItems({ fields }, fields, toItemFields(fields));
 
       expect(itemIds(items)).to.eql([
         'error',
-        'group:status',
+        'status',
+        'group:title',
         'transport',
         'fidelity',
         'capabilities',
         'events',
       ]);
-      expect(itemIds(group.items)).to.eql(['status', 'status:title']);
-      expect(switchRowById(group.items, 'status').value).to.equal(true);
-      expect(switchRowById(group.items, 'status:title').value).to.equal(false);
     });
 
     it('partitions hidden rows outside the reorderable visible section', () => {
-      const fields: Field[] = ['events', 'status', 'capabilities'];
+      const fields: Field[] = ['events', 'title', 'capabilities'];
       const items = toSwitchItems({ fields }, fields, toItemFields(fields));
       const sections = toSwitchItemSections(items, fields);
+      const titleGroup = sections.visible[1] as Group;
 
-      expect(itemIds(sections.visible)).to.eql(['events', 'group:status', 'capabilities']);
-      expect(itemIds(sections.hidden)).to.eql(['transport', 'fidelity', 'error']);
-    });
-
-    it('keeps a hidden status sibling inside a visible status group', () => {
-      const fields: Field[] = ['status'];
-      const items = toSwitchItems({ fields }, fields, toItemFields(fields));
-      const sections = toSwitchItemSections(items, fields);
-      const group = sections.visible[0] as t.KeyValue.Switches.Group;
-
-      expect(itemIds(sections.visible)).to.eql(['group:status']);
-      expect(itemIds(group.items)).to.eql(['status', 'status:title']);
-      expect(switchRowById(group.items, 'status').value).to.equal(true);
-      expect(switchRowById(group.items, 'status:title').value).to.equal(false);
+      expect(itemIds(sections.visible)).to.eql(['events', 'group:title', 'capabilities']);
+      expect(itemIds(titleGroup.items)).to.eql(['title', 'group:title.status']);
+      expect(switchRowById(titleGroup.items, 'title.status').value).to.eql(false);
+      expect(itemIds(sections.hidden)).to.eql(['status', 'transport', 'fidelity', 'error']);
     });
   });
 
   describe('reorder', () => {
     it('emits visible fields only', () => {
       let emitted: Field[] | undefined;
-      const fields: Field[] = ['status', 'error'];
+      const fields: Field[] = ['title', 'error'];
       const reorder = toReorder({ onFieldsChange: (e) => emitted = e.next }, fields);
 
       reorder?.onChange?.({
         next: [
           { id: 'error', k: 'error' },
           { id: 'capabilities', k: 'capabilities' },
-          { id: 'status', k: 'status' },
+          { id: 'title', k: 'title' },
         ],
       });
 
-      expect(emitted).to.eql(['error', 'status']);
+      expect(emitted).to.eql(['error', 'title']);
     });
 
     it('does not gate reorder on projection animation', () => {
       let emitted: Field[] | undefined;
-      const fields: Field[] = ['status', 'error'];
+      const fields: Field[] = ['title', 'error'];
       const reorder = toReorder(
         { animation: false, onFieldsChange: (e) => emitted = e.next },
         fields,
@@ -158,78 +205,82 @@ describe('Files.InfoPanel.Config', () => {
       reorder?.onChange?.({
         next: [
           { id: 'error', k: 'error' },
-          { id: 'status', k: 'status' },
+          { id: 'title', k: 'title' },
         ],
       });
 
-      expect(emitted).to.eql(['error', 'status']);
+      expect(emitted).to.eql(['error', 'title']);
     });
 
-    it('flattens recursive groups back to visible field order', () => {
+    it('flattens recursive title groups back to visible field order', () => {
       let emitted: Field[] | undefined;
-      const fields: Field[] = ['status', 'status:title', 'error'];
+      const fields: Field[] = ['title', 'title.status', 'error'];
       const reorder = toReorder({ onFieldsChange: (e) => emitted = e.next }, fields);
 
       reorder?.onChange?.({
         next: [
           { id: 'error', k: 'error' },
           {
-            id: 'group:status',
+            id: 'group:title',
             kind: 'group',
             items: [
-              { id: 'status', k: 'status' },
-              { id: 'status:title', k: 'title status' },
+              { id: 'title', k: 'title' },
+              {
+                id: 'group:title.status',
+                kind: 'group',
+                items: [
+                  { id: 'title.status', k: 'status' },
+                  { id: 'title.status.label', k: 'label' },
+                ],
+              },
             ],
           },
           { id: 'capabilities', k: 'capabilities' },
         ],
       });
 
-      expect(emitted).to.eql(['error', 'status', 'status:title']);
+      expect(emitted).to.eql(['error', 'title', 'title.status']);
     });
 
-    it('ignores hidden grouped fields while preserving visible group movement', () => {
+    it('moves the body status row independently from the title group', () => {
       let emitted: Field[] | undefined;
-      const fields: Field[] = ['error', 'status'];
+      const fields: Field[] = ['title', 'status'];
       const reorder = toReorder({ onFieldsChange: (e) => emitted = e.next }, fields);
 
       reorder?.onChange?.({
         next: [
+          { id: 'status', k: 'status' },
           {
-            id: 'group:status',
+            id: 'group:title',
             kind: 'group',
-            items: [
-              { id: 'status', k: 'status' },
-              { id: 'status:title', k: 'title status' },
-            ],
+            items: [{ id: 'title', k: 'title' }],
           },
-          { id: 'error', k: 'error' },
         ],
       });
 
-      expect(emitted).to.eql(['status', 'error']);
+      expect(emitted).to.eql(['status', 'title']);
     });
 
     it('ignores recursive reorder payloads with duplicate visible fields', () => {
       let emitted: Field[] | undefined;
-      const fields: Field[] = ['status', 'error'];
+      const fields: Field[] = ['title', 'error'];
       const reorder = toReorder({ onFieldsChange: (e) => emitted = e.next }, fields);
 
       reorder?.onChange?.({
         next: [
           {
-            id: 'group:status',
+            id: 'group:title',
             kind: 'group',
             items: [
-              { id: 'status', k: 'status' },
-              { id: 'status', k: 'status duplicate' },
+              { id: 'title', k: 'title' },
+              { id: 'title', k: 'title duplicate' },
             ],
           },
           { id: 'error', k: 'error' },
         ],
       });
 
-      expect(emitted).to.equal(undefined);
+      expect(emitted).to.eql(undefined);
     });
   });
 });

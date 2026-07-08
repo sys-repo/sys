@@ -11,17 +11,15 @@ type SwitchItemSections = {
   readonly hidden: SwitchItem[];
 };
 
-type FieldGroup = {
-  readonly id: string;
-  readonly fields: readonly Field[];
-};
-
-const statusGroup: FieldGroup = {
-  id: 'group:status',
-  fields: ['status', 'status:title'],
-};
-
-const fieldGroups = [statusGroup] as const;
+const titleFields = [
+  'title',
+  'title.status',
+  'title.status.label',
+] as const satisfies readonly Field[];
+const titleStatusFields = [
+  'title.status',
+  'title.status.label',
+] as const satisfies readonly Field[];
 
 /**
  * Project InfoPanel config props into KeyValue switch rows.
@@ -37,15 +35,9 @@ export function toSwitchItems(
   itemFields.forEach((field) => {
     if (consumed.has(field)) return;
 
-    const group = groupForField(field);
-    if (group) {
-      const groupFields = itemFields.filter((candidate) => group.fields.includes(candidate));
-      groupFields.forEach((candidate) => consumed.add(candidate));
-      items.push({
-        id: group.id,
-        kind: 'group',
-        items: groupFields.map((candidate) => toSwitchRow(props, fields, candidate)),
-      });
+    if (isTitleField(field)) {
+      titleFields.forEach((candidate) => consumed.add(candidate));
+      items.push(toTitleGroup(props, fields, itemFields));
       return;
     }
 
@@ -72,19 +64,43 @@ export function toSwitchItemSections(
   return { visible, hidden };
 }
 
+function toTitleGroup(
+  props: P,
+  fields: readonly Field[],
+  itemFields: readonly Field[],
+): t.KeyValue.Switches.Group {
+  const items: SwitchItem[] = [];
+  const statusRows = titleStatusFields
+    .filter((field) => itemFields.includes(field))
+    .map((field) => toSwitchRow(props, fields, field));
+
+  if (itemFields.includes('title')) items.push(toSwitchRow(props, fields, 'title'));
+  if (statusRows.length > 0) {
+    items.push({ id: 'group:title.status', kind: 'group', items: statusRows });
+  }
+
+  return { id: 'group:title', kind: 'group', items };
+}
+
 function toSwitchRow(props: P, fields: readonly Field[], field: Field): t.KeyValue.Switches.Row {
   return {
     id: field,
     label: D.fieldLabels[field] ?? field,
     value: fields.includes(field),
+    x: fieldIndent(field),
     onToggle(next: boolean) {
       return props.onFieldsChange?.({ next: toggleField(fields, field, next) });
     },
   };
 }
 
-function groupForField(field: Field): FieldGroup | undefined {
-  return fieldGroups.find((group) => group.fields.includes(field));
+function isTitleField(field: Field): boolean {
+  return titleFields.some((candidate) => candidate === field);
+}
+
+function fieldIndent(field: Field): t.KeyValue.Row['x'] | undefined {
+  if (field === 'title.status') return [12, 0];
+  if (field === 'title.status.label') return [12, 0];
 }
 
 function isVisibleItem(item: SwitchItem, visibleFields: ReadonlySet<Field>): boolean {

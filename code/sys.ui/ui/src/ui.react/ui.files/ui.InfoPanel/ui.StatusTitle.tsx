@@ -3,6 +3,7 @@ import { Bullet, Color, css, type t } from './common.ts';
 
 type P = {
   status?: t.Service.State;
+  showLabel?: boolean;
   theme?: t.CommonTheme;
   style?: t.Style.Input;
 };
@@ -14,10 +15,15 @@ export const StatusTitle: React.FC<P> = (props) => {
   const status = props.status;
   if (!status) return null;
 
-  const showLabel = status !== 'error';
+  const showLabel = props.showLabel ?? status !== 'error';
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({ display: 'flex', alignItems: 'center', gap: 6 }),
+    base: css({
+      display: 'flex',
+      alignItems: 'center',
+      gap: showLabel ? 6 : undefined,
+      minHeight: '1lh',
+    }),
     label: css({ opacity: 0.7, fontWeight: 400 }),
   } as const;
 

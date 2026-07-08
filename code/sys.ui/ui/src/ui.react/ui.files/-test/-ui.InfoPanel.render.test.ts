@@ -21,7 +21,7 @@ describe('Files.InfoPanel render helpers', () => {
       const name = children[0];
       const message = children[1];
 
-      expect(element.type).to.equal('div');
+      expect(element.type).to.eql('div');
       expect(React.isValidElement<{ children?: string }>(name)).to.eql(true);
       expect(React.isValidElement<{ children?: string }>(message)).to.eql(true);
       if (!React.isValidElement<{ children?: string }>(name)) return;
@@ -35,7 +35,7 @@ describe('Files.InfoPanel render helpers', () => {
   });
 
   describe('StatusTitle', () => {
-    it('hides only the error label', () => {
+    it('defaults to hiding only the error label', () => {
       const error = StatusTitle({ status: 'error' });
       const ready = StatusTitle({ status: 'ready' });
 
@@ -53,6 +53,26 @@ describe('Files.InfoPanel render helpers', () => {
       expect(React.isValidElement<{ children?: string }>(readyLabel)).to.eql(true);
       if (!React.isValidElement<{ children?: string }>(readyLabel)) return;
       expect(readyLabel.props.children).to.eql('ready');
+    });
+
+    it('honors explicit label visibility', () => {
+      const hidden = StatusTitle({ status: 'ready', showLabel: false });
+      const shown = StatusTitle({ status: 'error', showLabel: true });
+
+      expect(React.isValidElement<{ children?: React.ReactNode }>(hidden)).to.eql(true);
+      expect(React.isValidElement<{ children?: React.ReactNode }>(shown)).to.eql(true);
+      if (!React.isValidElement<{ children?: React.ReactNode }>(hidden)) return;
+      if (!React.isValidElement<{ children?: React.ReactNode }>(shown)) return;
+
+      const hiddenChildren = React.Children.toArray(hidden.props.children);
+      const shownChildren = React.Children.toArray(shown.props.children);
+      const shownLabel = shownChildren[0];
+
+      expect(hiddenChildren.length).to.eql(1);
+      expect(shownChildren.length).to.eql(2);
+      expect(React.isValidElement<{ children?: string }>(shownLabel)).to.eql(true);
+      if (!React.isValidElement<{ children?: string }>(shownLabel)) return;
+      expect(shownLabel.props.children).to.eql('error');
     });
   });
 });
