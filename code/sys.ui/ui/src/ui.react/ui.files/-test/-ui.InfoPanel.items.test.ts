@@ -121,8 +121,8 @@ describe('Files.InfoPanel item projection', () => {
       if (!stoppedRow || stoppedRow.kind !== 'row') return;
       if (!readyRow || readyRow.kind !== 'row') return;
 
-      expect(stoppedRow.k).to.eql('transport');
-      expect(readyRow.k).to.eql('transport');
+      expect(stoppedRow.k).to.eql('network');
+      expect(readyRow.k).to.eql('network');
       expect(React.isValidElement<{ label?: string }>(stoppedRow.v)).to.eql(true);
       expect(React.isValidElement<{ label?: string }>(readyRow.v)).to.eql(true);
       if (!React.isValidElement<{ label?: string }>(stoppedRow.v)) return;

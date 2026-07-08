@@ -13,7 +13,7 @@ const fields: readonly Field[] = InfoPanelD.fieldOrder;
 const fieldLabels: Partial<Record<Field, string>> = {
   'title.status': 'status',
   'title.status.label': 'status:label',
-  transport: 'transport control',
+  transport: 'network (transport)',
 };
 const reorder = true;
 const animation = true;

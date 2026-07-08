@@ -28,7 +28,7 @@ export function toItems(input: Input): t.KeyValue.Item[] {
       items.push({
         id: 'transport',
         kind: 'row',
-        k: 'transport',
+        k: 'network',
         v: transportButton(input, theme),
       });
     }
