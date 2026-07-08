@@ -1,9 +1,12 @@
-import { D, Is, KeyValue, type t } from './common.ts';
+import { Button, D, Is, KeyValue, type t } from './common.ts';
 import { ErrorMessage } from './ui.ErrorMessage.tsx';
 import { StatusTitle } from './ui.StatusTitle.tsx';
 import { formatCapabilities } from './u.items.Capabilities.tsx';
 
-type Input = Pick<t.Files.InfoPanel.Props, 'events' | 'fields' | 'theme' | 'title' | 'snapshot'>;
+type Input = Pick<
+  t.Files.InfoPanel.Props,
+  'events' | 'fields' | 'theme' | 'title' | 'snapshot' | 'transport'
+>;
 
 /**
  * Convert a Files client snapshot into KeyValue rows.
@@ -17,6 +20,14 @@ export function toItems(input: Input): t.KeyValue.Item[] {
   fields.forEach((field) => {
     if (field === 'status') {
       items.push({ id: 'status', k: 'status', v: snapshot?.status ?? '-', mono: true });
+    }
+    if (field === 'transport' && canShowTransport(input)) {
+      items.push({
+        id: 'transport',
+        kind: 'row',
+        k: 'transport',
+        v: transportButton(input, theme),
+      });
     }
     if (field === 'fidelity' && !Is.nil(snapshot?.capabilities?.fidelity)) {
       items.push({ id: 'fidelity', k: 'fidelity', v: snapshot.capabilities.fidelity, mono: true });
@@ -66,6 +77,19 @@ function title(input: Input, fields: readonly t.Files.InfoPanel.Field[]): t.KeyV
     label,
     <StatusTitle status={input.snapshot?.status} theme={input.theme} />,
   ];
+}
+
+function transportButton(input: Input, theme?: t.CommonTheme) {
+  const ready = input.snapshot?.status === 'ready';
+  const label = ready ? 'disconnect' : 'connect';
+  const action = ready ? input.transport?.onDisconnect : input.transport?.onConnect;
+
+  return <Button theme={theme} label={label} enabled={!!action} onClick={() => action?.()} />;
+}
+
+function canShowTransport(input: Input): boolean {
+  const transport = input.transport;
+  return !!(transport?.onConnect || transport?.onDisconnect);
 }
 
 function canShowEvents(snapshot?: t.Files.InfoPanel.Snapshot): boolean {

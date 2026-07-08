@@ -31,6 +31,7 @@ describe('Files.InfoPanel.Config', () => {
         'error',
         'status',
         'status:title',
+        'transport',
         'fidelity',
         'capabilities',
         'events',
@@ -59,11 +60,27 @@ describe('Files.InfoPanel.Config', () => {
       expect(emitted).to.eql(['status', 'capabilities', 'error']);
     });
 
+    it('labels the transport control switch', () => {
+      const fields: Field[] = ['transport'];
+      const items = toSwitchItems({ fields }, fields, toItemFields(fields));
+      const row = switchRowById(items, 'transport');
+
+      expect(row.label).to.equal('transport control');
+      expect(row.value).to.equal(true);
+    });
+
     it('groups status fields as one recursive switch item', () => {
       const fields: Field[] = ['status', 'status:title', 'error'];
       const items = toSwitchItems({ fields }, fields, toItemFields(fields));
 
-      expect(itemIds(items)).to.eql(['group:status', 'error', 'fidelity', 'capabilities', 'events']);
+      expect(itemIds(items)).to.eql([
+        'group:status',
+        'error',
+        'transport',
+        'fidelity',
+        'capabilities',
+        'events',
+      ]);
 
       const group = items[0] as t.KeyValue.Switches.Group;
       expect(group.kind).to.equal('group');
@@ -78,7 +95,14 @@ describe('Files.InfoPanel.Config', () => {
       const items = toSwitchItems({ fields }, fields, toItemFields(fields));
       const group = items[1] as t.KeyValue.Switches.Group;
 
-      expect(itemIds(items)).to.eql(['error', 'group:status', 'fidelity', 'capabilities', 'events']);
+      expect(itemIds(items)).to.eql([
+        'error',
+        'group:status',
+        'transport',
+        'fidelity',
+        'capabilities',
+        'events',
+      ]);
       expect(itemIds(group.items)).to.eql(['status', 'status:title']);
       expect(switchRowById(group.items, 'status').value).to.equal(true);
       expect(switchRowById(group.items, 'status:title').value).to.equal(false);
@@ -90,7 +114,7 @@ describe('Files.InfoPanel.Config', () => {
       const sections = toSwitchItemSections(items, fields);
 
       expect(itemIds(sections.visible)).to.eql(['events', 'group:status', 'capabilities']);
-      expect(itemIds(sections.hidden)).to.eql(['fidelity', 'error']);
+      expect(itemIds(sections.hidden)).to.eql(['transport', 'fidelity', 'error']);
     });
 
     it('keeps a hidden status sibling inside a visible status group', () => {

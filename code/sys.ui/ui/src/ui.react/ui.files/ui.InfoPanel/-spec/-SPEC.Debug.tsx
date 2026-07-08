@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Color, css, D, Err, LocalStorage, ObjectView, Signal, type t } from './common.ts';
 import { Files } from '../../mod.ts';
-import { connect, disconnect } from './-u.connect.ts';
+import { disconnect } from './-u.connect.ts';
 
 type Storage = Pick<t.Files.InfoPanel.Props, 'debug' | 'theme' | 'title' | 'fields'> & {
   animation: boolean;
@@ -143,11 +143,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
           p.fields.value = next;
         }}
       />
-
-      <hr />
-      <div className={Styles.title.class}>{'Server'}</div>
-      <Button block label={() => `connect`} onClick={() => void connect(debug)} />
-      <Button block label={() => `disconnect`} onClick={() => void disconnect(debug)} />
 
       <hr />
       <div className={Styles.title.class}>

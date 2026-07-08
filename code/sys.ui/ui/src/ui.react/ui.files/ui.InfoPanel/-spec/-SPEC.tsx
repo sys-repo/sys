@@ -1,6 +1,7 @@
 import { D, Dev, Signal, Spec } from './common.ts';
 import { Files } from '../../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
+import { connect, disconnect } from './-u.connect.ts';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -14,6 +15,10 @@ export default Spec.describe(D.displayName, async (e) => {
         title={p.title.value}
         animation={p.animation.value}
         fields={p.fields.value}
+        transport={{
+          onConnect: () => void connect(debug),
+          onDisconnect: () => void disconnect(debug),
+        }}
       />
     );
   }

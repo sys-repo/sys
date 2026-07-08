@@ -11,6 +11,7 @@ const name = 'Files.InfoPanel.Config';
 const fields: readonly Field[] = [
   'status',
   'status:title',
+  'transport',
   'fidelity',
   'capabilities',
   'error',
@@ -18,6 +19,7 @@ const fields: readonly Field[] = [
 ];
 const fieldLabels: Partial<Record<Field, string>> = {
   'status:title': 'title status',
+  transport: 'transport control',
 };
 const animation = true;
 

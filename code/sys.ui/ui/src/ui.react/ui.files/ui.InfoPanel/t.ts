@@ -29,6 +29,7 @@ export declare namespace InfoPanel {
     snapshot?: State['snapshot'];
     fields?: Field[];
     events?: Events.Control;
+    transport?: Transport.Control;
     animation?: t.KeyValue.Animation;
     debug?: State['debug'];
     theme?: State['theme'];
@@ -36,7 +37,14 @@ export declare namespace InfoPanel {
   };
 
   /** Display fields rendered by the info panel. */
-  export type Field = 'status:title' | 'status' | 'fidelity' | 'capabilities' | 'error' | 'events';
+  export type Field =
+    | 'status:title'
+    | 'status'
+    | 'transport'
+    | 'fidelity'
+    | 'capabilities'
+    | 'error'
+    | 'events';
 
   /** Immutable moment-in-time facts read from a Files<T> client handle. */
   export type Snapshot = {
@@ -44,6 +52,15 @@ export declare namespace InfoPanel {
     readonly capabilities?: t.ModelFiles.Capabilities;
     readonly error?: t.StdError;
   };
+
+  /** Transport action control projected by the panel. */
+  export namespace Transport {
+    export type Action = () => void;
+    export type Control = {
+      onConnect?: Action;
+      onDisconnect?: Action;
+    };
+  }
 
   /** Props accepted by the signal-controlled InfoPanel. */
   export type ControlledProps = Omit<Props, 'debug' | 'theme' | 'snapshot' | 'events'> & {

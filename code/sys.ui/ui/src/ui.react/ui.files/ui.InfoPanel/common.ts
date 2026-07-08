@@ -5,6 +5,7 @@ export * from '../common.ts';
 const name = 'Files.InfoPanel';
 const fields: readonly t.Files.InfoPanel.Field[] = [
   'status:title',
+  'transport',
   'capabilities',
   'error',
   'events',
