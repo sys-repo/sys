@@ -4,7 +4,7 @@ import { Button, ObjectView } from '../../u.ts';
 import { type t, css, D, Signal } from '../common.ts';
 import { SwitchTheme } from '../mod.ts';
 
-type P = t.SwitchProps;
+type P = t.Switch.Props;
 
 /**
  * Types:

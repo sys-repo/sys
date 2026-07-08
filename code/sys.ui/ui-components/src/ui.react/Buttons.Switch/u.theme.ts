@@ -1,9 +1,9 @@
 import { Color, Obj, Style, type t } from './common.ts';
 
 /** Switch theme presets and conversion helpers. */
-export const SwitchTheme: t.SwitchThemeLib = {
-  merge(base: t.SwitchTheme, theme: Partial<t.SwitchTheme>) {
-    const res: t.SwitchTheme = {
+export const SwitchTheme: t.Switch.Theme.Lib = {
+  merge(base: t.Switch.Theme.Root, theme: Partial<t.Switch.Theme.Root>) {
+    const res: t.Switch.Theme.Root = {
       ...base,
       ...theme,
       trackColor: { ...base.trackColor, ...(theme.trackColor ?? {}) },
@@ -24,13 +24,13 @@ export const SwitchTheme: t.SwitchThemeLib = {
 
   get light() {
     const { GREEN, WHITE, BLUE, YELLOW } = Color;
-    const BASE: t.SwitchTheme = {
+    const BASE: t.Switch.Theme.Root = {
       trackColor: { on: BLUE, off: -0.1, disabled: -0.1 },
       thumbColor: { on: WHITE, off: WHITE, disabled: WHITE },
       shadowColor: -0.35,
       disabledOpacity: 0.45,
     };
-    const api: t.SwitchThemedColors = {
+    const api: t.Switch.Theme.Colors = {
       default: BASE,
       blue: BASE,
       green: SwitchTheme.merge(BASE, { trackColor: { on: GREEN, off: -0.1, disabled: -0.1 } }),
@@ -41,13 +41,13 @@ export const SwitchTheme: t.SwitchThemeLib = {
 
   get dark() {
     const { GREEN, WHITE, BLUE, YELLOW } = Color;
-    const BASE: t.SwitchTheme = {
+    const BASE: t.Switch.Theme.Root = {
       trackColor: { on: BLUE, off: 0.2, disabled: 0.2 },
       thumbColor: { on: WHITE, off: WHITE, disabled: WHITE },
       shadowColor: -0.6,
       disabledOpacity: 0.3,
     };
-    const api: t.SwitchThemedColors = {
+    const api: t.Switch.Theme.Colors = {
       default: BASE,
       blue: BASE,
       green: SwitchTheme.merge(BASE, { trackColor: { on: GREEN, off: 0.2, disabled: 0.2 } }),

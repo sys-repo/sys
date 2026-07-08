@@ -1,12 +1,12 @@
 import { Color, css, Is, Obj, type t } from './common.ts';
 
 export type SwitchTrackProps = {
-  track: Partial<t.SwitchTrack>;
+  track: Partial<t.Switch.Theme.Track>;
   switch: {
     isLoaded: boolean;
     isEnabled: boolean;
     value: boolean;
-    theme: t.SwitchTheme;
+    theme: t.Switch.Theme.Root;
     width: number;
     height: number;
     transitionSpeed: number;
@@ -50,16 +50,16 @@ export const SwitchTrack: React.FC<SwitchTrackProps> = (props) => {
  * Helpers:
  */
 function toTrack(
-  theme: t.SwitchTheme,
-  track: Partial<t.SwitchTrack>,
+  theme: t.Switch.Theme.Root,
+  track: Partial<t.Switch.Theme.Track>,
   parent: { width: number; height: number },
-): t.SwitchTrack {
+): t.Switch.Theme.Track {
   const offset = {
     width: track.widthOffset ?? 0,
     height: track.heightOffset ?? 0,
   };
 
-  const defaultTrack: t.SwitchTrack = {
+  const defaultTrack: t.Switch.Theme.Track = {
     widthOffset: offset.width,
     heightOffset: offset.height,
     color: theme.trackColor,
@@ -67,7 +67,7 @@ function toTrack(
     borderWidth: { on: undefined, off: undefined }, // NB: undefined === fill background
   };
 
-  const res: t.SwitchTrack = {
+  const res: t.Switch.Theme.Track = {
     ...defaultTrack,
     ...track,
     color: { ...defaultTrack.color, ...(track.color ?? {}) },

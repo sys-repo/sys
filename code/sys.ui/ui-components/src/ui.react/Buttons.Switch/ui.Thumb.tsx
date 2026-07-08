@@ -2,12 +2,12 @@ import { Color, css, Is, Obj, type t } from './common.ts';
 import { SwitchTheme } from './u.theme.ts';
 
 export type SwitchThumbProps = {
-  thumb: Partial<t.SwitchThumb>;
+  thumb: Partial<t.Switch.Theme.Thumb>;
   switch: {
     isLoaded: boolean;
     isEnabled: boolean;
     value: boolean;
-    theme: t.SwitchTheme;
+    theme: t.Switch.Theme.Root;
     width: number;
     height: number;
     transitionSpeed: number;
@@ -51,10 +51,10 @@ export const SwitchThumb: React.FC<SwitchThumbProps> = (props) => {
  * Helpers:
  */
 function toThumb(
-  theme: t.SwitchTheme,
-  thumb: Partial<t.SwitchThumb>,
+  theme: t.Switch.Theme.Root,
+  thumb: Partial<t.Switch.Theme.Thumb>,
   parent: { width: number; height: number },
-): t.SwitchThumb {
+): t.Switch.Theme.Thumb {
   const offset = {
     x: thumb.xOffset ?? 2,
     y: thumb.yOffset ?? 2,
@@ -63,7 +63,7 @@ function toThumb(
   const height = parent.height - offset.y * 2;
   const width = height;
 
-  const defaultThumb: t.SwitchThumb = {
+  const defaultThumb: t.Switch.Theme.Thumb = {
     width,
     height,
     xOffset: offset.x,
@@ -72,7 +72,7 @@ function toThumb(
     borderRadius: height / 2,
     shadow: { x: 0, y: 2, blur: 4, color: theme.shadowColor },
   };
-  const res: t.SwitchThumb = {
+  const res: t.Switch.Theme.Thumb = {
     ...defaultThumb,
     ...thumb,
     color: { ...defaultThumb.color, ...(thumb.color ?? {}) },

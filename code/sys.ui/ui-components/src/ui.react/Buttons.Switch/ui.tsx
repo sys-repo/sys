@@ -6,7 +6,7 @@ import { SwitchThumb } from './ui.Thumb.tsx';
 import { SwitchTrack } from './ui.Track.tsx';
 
 /** Animated on/off switch renderer. */
-export const Switch: React.FC<t.SwitchProps> = (props) => {
+export const Switch: React.FC<t.Switch.Props> = (props) => {
   const { track = {}, thumb = {} } = props;
   const theme = toTheme(props.theme);
   const height = props.height ?? 32;
@@ -95,8 +95,8 @@ export const Switch: React.FC<t.SwitchProps> = (props) => {
 /**
  * Helpers:
  */
-function toTheme(input?: t.CommonTheme | Partial<t.SwitchTheme>): t.SwitchTheme {
+function toTheme(input?: t.CommonTheme | Partial<t.Switch.Theme.Root>): t.Switch.Theme.Root {
   let theme = input || 'Light';
   if (typeof theme === 'string') theme = SwitchTheme.fromName(theme as t.CommonTheme).blue;
-  return theme as t.SwitchTheme;
+  return theme as t.Switch.Theme.Root;
 }

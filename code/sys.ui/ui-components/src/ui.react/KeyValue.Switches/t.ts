@@ -68,7 +68,7 @@ export declare namespace KeyValueSwitches {
   export namespace Item {
     /** Appearance options forwarded to the rendered switch control. */
     export type SwitchOptions = Pick<
-      t.SwitchProps,
+      t.Switch.Props,
       'width' | 'height' | 'transitionSpeed' | 'track' | 'thumb'
     >;
 
