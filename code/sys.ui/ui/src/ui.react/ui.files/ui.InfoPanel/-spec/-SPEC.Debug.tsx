@@ -126,7 +126,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
             undefined,
             'Files<T>',
             'Foobar 🐷',
-            'Filesystem',
+            'File System',
           ]);
         }}
       />
