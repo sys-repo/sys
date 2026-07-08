@@ -18,9 +18,10 @@ export function toItems(input: Input): t.KeyValue.Item[] {
   const snapshot = input.snapshot;
   const items: t.KeyValue.Item[] = [];
 
-  if (fields.includes('title')) items.push({ id: 'title', kind: 'title', v: title(input, fields) });
-
   fields.forEach((field) => {
+    if (field === 'title') {
+      items.push({ id: 'title', kind: 'title', v: title(input, fields) });
+    }
     if (field === 'status') {
       items.push({ id: 'status', k: 'status', v: snapshot?.status ?? '-', mono: true });
     }

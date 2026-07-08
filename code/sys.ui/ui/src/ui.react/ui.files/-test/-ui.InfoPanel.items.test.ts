@@ -139,14 +139,14 @@ describe('Files.InfoPanel item projection', () => {
   });
 
   describe('projection identity', () => {
-    it('projects stable item ids for row projection animation', () => {
+    it('projects stable item ids in field order, including title', () => {
       const items = toItems({
-        fields: ['title', 'events', 'status', 'capabilities'],
+        fields: ['events', 'title', 'status', 'capabilities'],
         events: { enabled: true },
         snapshot: { status: 'ready', capabilities },
       });
 
-      expect(items.map((item) => item.id)).to.eql(['title', 'events', 'status', 'capabilities']);
+      expect(items.map((item) => item.id)).to.eql(['events', 'title', 'status', 'capabilities']);
     });
   });
 
