@@ -110,7 +110,7 @@ describe('Files.InfoPanel.Config', () => {
       expect(switchRowById(items, 'title').label).to.eql('title');
       expect(switchRowById(items, 'title.status').label).to.eql('status');
       expect(switchRowById(items, 'title.status.label').label).to.eql('status:label');
-      expect(switchRowById(items, 'transport').label).to.eql('network (transport)');
+      expect(switchRowById(items, 'transport').label).to.eql('network (connection)');
     });
 
     it('groups title fields as one recursive switch item', () => {
