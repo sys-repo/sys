@@ -1,4 +1,12 @@
-import { describe, expect, expectTypeOf, it, type t } from '../../../-test.ts';
+import React from 'react';
+import { Color, describe, expect, expectTypeOf, it, type t } from '../../../-test.ts';
+import { KeyValue } from '../mod.ts';
+
+type RenderedActionButtonProps = {
+  readonly label?: React.ReactNode;
+  readonly padding?: readonly [number, number];
+  readonly style?: { readonly backgroundColor?: string; readonly borderRadius?: number };
+};
 
 describe('KeyValue/t', () => {
   describe('item identity', () => {
@@ -13,6 +21,19 @@ describe('KeyValue/t', () => {
 
       expectTypeOf(items).toEqualTypeOf<t.KeyValue.Item[]>();
       expect(items.map((item) => item.id)).to.eql(['row', 'title', 'hr', 'spacer', 'group']);
+    });
+  });
+
+  describe('ActionButton', () => {
+    it('exposes a compact action button on the public KeyValue surface', () => {
+      const props = { label: 'connect', enabled: true } satisfies t.KeyValue.ActionButtonProps;
+      const element = KeyValue.ActionButton(props);
+      const button = React.isValidElement<RenderedActionButtonProps>(element) ? element : undefined;
+
+      expectTypeOf(KeyValue.ActionButton).toEqualTypeOf<React.FC<t.KeyValue.ActionButtonProps>>();
+      expect(button?.props.padding).to.eql([0, 8]);
+      expect(button?.props.style?.backgroundColor).to.eql(Color.BLUE);
+      expect(button?.props.style?.borderRadius).to.eql(3);
     });
   });
 

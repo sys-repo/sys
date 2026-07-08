@@ -123,12 +123,12 @@ describe('Files.InfoPanel item projection', () => {
 
       expect(stoppedRow.k).to.eql('network');
       expect(readyRow.k).to.eql('network');
-      expect(React.isValidElement<{ label?: React.ReactNode }>(stoppedRow.v)).to.eql(true);
-      expect(React.isValidElement<{ label?: React.ReactNode }>(readyRow.v)).to.eql(true);
-      if (!React.isValidElement<{ label?: React.ReactNode }>(stoppedRow.v)) return;
-      if (!React.isValidElement<{ label?: React.ReactNode }>(readyRow.v)) return;
-      expect(labelText(stoppedRow.v.props.label)).to.eql('connect');
-      expect(labelText(readyRow.v.props.label)).to.eql('disconnect');
+      expect(React.isValidElement<{ label?: string }>(stoppedRow.v)).to.eql(true);
+      expect(React.isValidElement<{ label?: string }>(readyRow.v)).to.eql(true);
+      if (!React.isValidElement<{ label?: string }>(stoppedRow.v)) return;
+      if (!React.isValidElement<{ label?: string }>(readyRow.v)) return;
+      expect(stoppedRow.v.props.label).to.eql('connect');
+      expect(readyRow.v.props.label).to.eql('disconnect');
     });
 
     it('hides the transport field without callbacks', () => {
@@ -169,7 +169,3 @@ describe('Files.InfoPanel item projection', () => {
   });
 });
 
-function labelText(input: React.ReactNode): string | undefined {
-  if (!React.isValidElement<{ children?: string }>(input)) return undefined;
-  return input.props.children;
-}

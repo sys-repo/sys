@@ -33,6 +33,14 @@ export declare namespace KeyValue {
     readonly disabledOpacity?: t.Percent;
   };
 
+  /** Compact action button props for use in a KeyValue row value cell. */
+  export type ActionButtonProps = {
+    label: React.ReactNode;
+    enabled?: boolean;
+    tooltip?: string;
+    onClick?: React.MouseEventHandler;
+  };
+
   /**
    * Opt-in animation settings for static direct-child item projection.
    *
@@ -82,6 +90,7 @@ export declare namespace KeyValue {
    */
   export type Lib = {
     readonly UI: React.FC<Props>;
+    readonly ActionButton: React.FC<ActionButtonProps>;
     readonly Switches: Switches.Lib;
     fromObject: FromObject;
   };
