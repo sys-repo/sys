@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Color, css, D, Err, LocalStorage, ObjectView, Signal, type t } from './common.ts';
 import { Files } from '../../mod.ts';
-import { disconnect } from './-u.connect.ts';
+import { connect, disconnect } from './-u.connect.ts';
 
 type Storage = Pick<t.Files.InfoPanel.Props, 'debug' | 'theme' | 'title' | 'fields'> & {
   animation: boolean;
@@ -148,6 +148,19 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onFieldsChange={({ next }) => {
           p.fields.value = next;
         }}
+      />
+
+      <hr />
+      <div className={Styles.title.class}>{'Transport'}</div>
+      <Button
+        block
+        label={() => `transport.onConnect → connect(debug)`}
+        onClick={() => void connect(debug)}
+      />
+      <Button
+        block
+        label={() => `transport.onDisconnect → disconnect(debug)`}
+        onClick={() => void disconnect(debug)}
       />
 
       <hr />
