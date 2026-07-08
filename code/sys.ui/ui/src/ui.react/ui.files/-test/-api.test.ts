@@ -10,5 +10,7 @@ describe('@sys/ui/react/files: API', () => {
     expect(m.Files).to.equal(Files);
     expect(m.Files.InfoPanel).to.equal(InfoPanel);
     expect(m.Files.InfoPanel.controller).to.equal(createController);
+    expect(m.Files.InfoPanel.Config.DEFAULTS).to.equal(InfoPanel.Config.DEFAULTS);
+    expect(m.Files.InfoPanel.Config.DEFAULTS.reorder).to.eql(true);
   });
 });

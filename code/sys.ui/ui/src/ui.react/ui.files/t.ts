@@ -37,6 +37,8 @@ export declare namespace Files {
     export namespace Config {
       /** Public InfoPanel configuration component surface. */
       export type Lib = TInfoPanelConfig.InfoPanelConfig.Lib;
+      /** Public default prop values for InfoPanel configuration composition. */
+      export type Defaults = TInfoPanelConfig.InfoPanelConfig.Defaults;
       /** Props accepted by the InfoPanel configuration component. */
       export type Props = TInfoPanelConfig.InfoPanelConfig.Props;
     }

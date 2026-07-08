@@ -5,7 +5,17 @@ import type { t } from './common.ts';
  */
 export declare namespace InfoPanelConfig {
   /** Public runtime surface for the InfoPanelConfig component. */
-  export type Lib = { readonly UI: t.FC<Props> };
+  export type Lib = {
+    readonly UI: t.FC<Props>;
+    readonly DEFAULTS: Defaults;
+  };
+
+  /** Public default prop values for InfoPanelConfig composition. */
+  export type Defaults = {
+    readonly fields: readonly t.Files.InfoPanel.Field[];
+    readonly reorder: boolean;
+    readonly animation: t.KeyValue.Animation;
+  };
 
   /** Props accepted by InfoPanelConfig. */
   export type Props = {
