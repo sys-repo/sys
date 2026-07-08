@@ -122,7 +122,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
           return `title: ${title ?? `${D.title} (default)`}`;
         }}
         onClick={() => {
-          return Signal.cycle<string | undefined>(p.title, [undefined, 'Files<T>', 'Foobar 🐷']);
+          return Signal.cycle<string | undefined>(p.title, [
+            undefined,
+            'Files<T>',
+            'Foobar 🐷',
+            'Filesystem',
+          ]);
         }}
       />
       <Button
