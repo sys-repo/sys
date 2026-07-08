@@ -33,6 +33,39 @@ export declare namespace KeyValue {
     readonly disabledOpacity?: t.Percent;
   };
 
+  /**
+   * Opt-in animation settings for static direct-child item projection.
+   *
+   * Projection animation requires stable, unique IDs on the root direct-child
+   * item list. When controlled reorder mode is active, Motion Reorder owns item
+   * motion and this projection path is not used.
+   */
+  export type Animation = boolean | Animation.Options;
+
+  /** Animation option contracts. */
+  export namespace Animation {
+    /** Supported projection easing presets. */
+    export type Ease = 'linear' | 'easeIn' | 'easeOut' | 'easeInOut';
+
+    /** Component-level animation options. */
+    export type Options = {
+      /** Master enable flag; `false` disables all KeyValue animation options. */
+      readonly enabled?: boolean;
+      /** Animate static root direct-child insert/remove/order layout projection. */
+      readonly projection?: boolean | Projection;
+    };
+
+    /** Direct-child projection animation tuning. */
+    export type Projection = {
+      /** Projection-local enable flag. */
+      readonly enabled?: boolean;
+      /** Transition duration in milliseconds. */
+      readonly duration?: t.Msecs;
+      /** Motion easing preset. */
+      readonly ease?: Ease;
+    };
+  }
+
   export type LinkProps = {
     readonly href?: t.StringUri;
     readonly infer?: boolean;
@@ -113,6 +146,7 @@ export declare namespace KeyValue {
   export type Props = {
     items?: Item[];
     reorder?: Reorder;
+    animation?: Animation;
 
     layout?: Layout;
     size?: Size;
@@ -163,7 +197,11 @@ export declare namespace KeyValue {
     /** Reorder change event. */
     export type Change = { readonly next: Item[] };
     /** Reorder end event. */
-    export type End = { readonly active: ItemRef; readonly items: readonly Item[]; readonly changed: boolean };
+    export type End = {
+      readonly active: ItemRef;
+      readonly items: readonly Item[];
+      readonly changed: boolean;
+    };
     /** Reorder start callback. */
     export type StartHandler = (e: Start) => void;
     /** Reorder change callback. */

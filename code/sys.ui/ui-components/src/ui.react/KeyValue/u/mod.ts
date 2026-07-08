@@ -1,3 +1,4 @@
+export * from './u.animation.ts';
 export * from './u.fromObject.ts';
 export * from './u.href.ts';
 export * from './u.is.ts';

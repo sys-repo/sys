@@ -1,11 +1,15 @@
 import React from 'react';
-import { css, D, type t } from '../common.ts';
-import { toLayout } from '../u/mod.ts';
+import { css, D, Motion, type t } from '../common.ts';
+import { type ProjectionAnimationModel, toLayout } from '../u/mod.ts';
 
 type P = {
   item: t.KeyValue.Item;
   layout?: t.KeyValue.Layout;
   children?: t.ReactNode;
+};
+
+type ProjectionP = P & {
+  projection: ProjectionAnimationModel;
 };
 
 /**
@@ -40,4 +44,20 @@ export function itemShellClass(item: t.KeyValue.Item, layout?: t.KeyValue.Layout
  */
 export const ItemShell: React.FC<P> = (props) => {
   return <div className={itemShellClass(props.item, props.layout)}>{props.children}</div>;
+};
+
+/**
+ * Motion-backed direct-child shell for opt-in layout projection animation.
+ */
+export const ProjectionItemShell: React.FC<ProjectionP> = (props) => {
+  return (
+    <Motion.div
+      layout='position'
+      transition={props.projection.transition}
+      className={itemShellClass(props.item, props.layout)}
+      data-keyvalue-projection='direct-child'
+    >
+      {props.children}
+    </Motion.div>
+  );
 };

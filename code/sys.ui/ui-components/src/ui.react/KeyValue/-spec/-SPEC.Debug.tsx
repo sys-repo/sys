@@ -6,14 +6,17 @@ import { LayoutButtons } from './-ui.Buttons.Layout.tsx';
 import { SampleButtons } from './-ui.Buttons.Samples.tsx';
 
 type P = t.KeyValue.Props;
-type Storage = Pick<P, 'theme' | 'debug' | 'size' | 'mono' | 'truncate' | 'enabled'> & {
+type DebugStorage = Pick<P, 'theme' | 'debug' | 'size' | 'mono' | 'truncate' | 'enabled'> & {
   reorder: boolean;
+  animation: boolean;
   layout: t.KeyValue.Layout['kind'];
   layoutSpaced: t.KeyValue.LayoutSpaced;
   layoutTable: t.KeyValue.LayoutTable;
   sample?: SampleKind;
 };
-const defaults: Storage = {
+
+const STORAGE_KEY = `dev:${D.displayName}`;
+const DEFAULTS: DebugStorage = {
   theme: 'Dark',
   debug: false,
   size: D.size,
@@ -21,6 +24,7 @@ const defaults: Storage = {
   truncate: D.truncate,
   enabled: true,
   reorder: false,
+  animation: true,
   layout: D.layout.default,
   layoutSpaced: D.layout.spaced,
   layoutTable: D.layout.table,
@@ -43,7 +47,7 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 export function createDebugSignals() {
   const s = Signal.create;
 
-  const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
+  const store = LocalStorage.immutable<DebugStorage>(STORAGE_KEY, DEFAULTS);
   const snap = store.current;
 
   const props = {
@@ -54,6 +58,7 @@ export function createDebugSignals() {
     truncate: s(snap.truncate),
     enabled: s(snap.enabled ?? true),
     reorder: s(snap.reorder ?? false),
+    animation: s(snap.animation ?? false),
     layout: s(snap.layout),
     layoutSpaced: {
       kind: 'spaced',
@@ -88,8 +93,8 @@ export function createDebugSignals() {
     Signal.listen(props, true);
   }
   function reset() {
-    Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
-    p.items.value = SAMPLE.items('comprehensive');
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get(DEFAULTS, e.path)));
+    p.items.value = SAMPLE.items(DEFAULTS.sample);
   }
 
   Signal.effect(() => {
@@ -101,6 +106,7 @@ export function createDebugSignals() {
       d.truncate = p.truncate.value;
       d.enabled = p.enabled.value;
       d.reorder = p.reorder.value;
+      d.animation = p.animation.value;
       d.sample = p.sample.value;
 
       d.layout = p.layout.value;
@@ -126,16 +132,42 @@ export function createDebugSignals() {
 const Styles = {
   title: css({
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 4,
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+  }),
+  note: css({
+    fontSize: 12,
+    opacity: 0.6,
+    marginBottom: 5,
   }),
 };
 
 /**
  * Debug controls for the KeyValue spec.
  */
+function shuffleItems(items?: t.KeyValue.Item[]) {
+  const next = [...(items ?? [])];
+  for (let index = next.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [next[index], next[swapIndex]] = [next[swapIndex], next[index]];
+  }
+  return next;
+}
+
+function moveRandomItem(items?: t.KeyValue.Item[]) {
+  const next = [...(items ?? [])];
+  if (next.length < 2) return next;
+
+  const from = Math.floor(Math.random() * next.length);
+  const offset = Math.floor(Math.random() * (next.length - 1)) + 1;
+  const to = (from + offset) % next.length;
+  const [item] = next.splice(from, 1);
+  next.splice(to, 0, item);
+  return next;
+}
+
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
@@ -176,11 +208,40 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `reorder: ${p.reorder.value}`}
         onClick={() => Signal.toggle(p.reorder)}
       />
+      <Button
+        block
+        label={() => `projection animation: ${p.animation.value}`}
+        onClick={() => Signal.toggle(p.animation)}
+      />
       <hr />
       <LayoutButtons debug={debug} theme={theme.name} />
       <hr style={{ marginTop: 15 }} />
       <div className={Styles.title.class}>{'Items:'}</div>
       <SampleButtons debug={debug} theme={theme.name} />
+      <div className={Styles.title.class} style={{ marginTop: 12 }}>{'Projection motion:'}</div>
+      {p.reorder.value && (
+        <div className={Styles.note.class}>
+          {'Turn reorder off to test this prop; Reorder has its own Motion animation.'}
+        </div>
+      )}
+      <Button
+        block
+        enabled={!p.reorder.value}
+        label={() => `shuffle direct children`}
+        onClick={() => (p.items.value = shuffleItems(p.items.value))}
+      />
+      <Button
+        block
+        enabled={!p.reorder.value}
+        label={() => `move one direct child`}
+        onClick={() => (p.items.value = moveRandomItem(p.items.value))}
+      />
+      <Button
+        block
+        enabled={!p.reorder.value}
+        label={() => `restore sample order`}
+        onClick={() => (p.items.value = SAMPLE.items(p.sample.value))}
+      />
       <hr style={{ marginTop: 25 }} />
       <Button
         block

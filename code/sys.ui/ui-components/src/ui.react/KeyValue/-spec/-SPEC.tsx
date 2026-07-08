@@ -54,6 +54,7 @@ export default Spec.describe(D.displayName, (e) => {
             layout={debug.layout}
             items={v.items}
             reorder={reorder}
+            animation={v.animation ? true : undefined}
           />
         );
       });

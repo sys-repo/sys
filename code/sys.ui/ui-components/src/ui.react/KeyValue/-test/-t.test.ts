@@ -16,6 +16,20 @@ describe('KeyValue/t', () => {
     });
   });
 
+  describe('animation', () => {
+    it('exposes the public projection animation type family', () => {
+      const projection: t.KeyValue.Animation.Projection = {
+        duration: 150 as t.Msecs,
+        ease: 'easeInOut',
+      };
+      const animation: t.KeyValue.Animation = { projection };
+      const props: t.KeyValue.Props = { animation };
+
+      expectTypeOf(projection).toEqualTypeOf<t.KeyValue.Animation.Projection>();
+      expect(props.animation).to.equal(animation);
+    });
+  });
+
   describe('reorder', () => {
     it('exposes the public Reorder type family', () => {
       const items: t.KeyValue.Item[] = [{ id: 'row', k: 'row', v: 'value' }];
