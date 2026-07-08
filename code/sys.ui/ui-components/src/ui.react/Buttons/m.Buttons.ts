@@ -4,7 +4,7 @@ import { Switch } from '../Buttons.Switch/mod.ts';
 import { type t } from './common.ts';
 
 /** Button family composition surface. */
-export const Buttons: t.ButtonsLib = {
+export const Buttons: t.Buttons.Lib = {
   Button: { Default },
   Icons,
   Switch,
