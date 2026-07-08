@@ -1,5 +1,5 @@
 import type React from 'react';
-import type { t } from '../common.ts';
+import { Is, type t } from '../common.ts';
 
 /**
  * Build `KeyValue.Item[]` rows from a plain object.
@@ -11,7 +11,7 @@ export const fromObject: t.KeyValue.FromObject = (obj, options = {}) => {
   const items: t.KeyValue.Item[] = [];
   const { filter, format } = options ?? {};
 
-  if (!obj || typeof obj !== 'object') return items;
+  if (!Is.object(obj)) return items;
 
   for (const [key, value] of Object.entries(obj)) {
     if (filter && !filter(key, value)) continue;
@@ -30,13 +30,12 @@ export const fromObject: t.KeyValue.FromObject = (obj, options = {}) => {
  * - functions/symbols/unknown → String(value)
  */
 function defaultFormat(value: unknown): string {
-  if (value == null) return String(value); // null | undefined
+  if (Is.nil(value)) return String(value); // null | undefined
 
-  if (typeof value === 'string') return value;
-  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
-  if (typeof value === 'bigint') return value.toString();
+  if (Is.string(value)) return value;
+  if (Is.number(value) || Is.bool(value)) return String(value);
 
-  if (Array.isArray(value) || typeof value === 'object') {
+  if (Is.object(value)) {
     try {
       return JSON.stringify(value);
     } catch {

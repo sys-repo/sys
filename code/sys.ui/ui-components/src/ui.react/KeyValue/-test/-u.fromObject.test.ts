@@ -1,11 +1,11 @@
-import { type t, describe, expect, expectTypeOf, it } from '../../../-test.ts';
+import { describe, expect, expectTypeOf, Is, it, type t } from '../../../-test.ts';
 import { KeyValue } from '../mod.ts';
 
 describe('KeyValue.fromObject', () => {
   it('type: returns KeyValue.Item[]', () => {
     const items = KeyValue.fromObject({ a: 1 });
     expectTypeOf(items).toEqualTypeOf<t.KeyValue.Item[]>();
-    expect(Array.isArray(items)).to.equal(true);
+    expect(Is.array(items)).to.equal(true);
   });
 
   it('undefined or empty object → []', () => {
@@ -31,7 +31,7 @@ describe('KeyValue.fromObject', () => {
   it('filter(key, value): include/exclude rows', () => {
     const obj = { a: 0, b: 1, c: 2, d: 3 };
     const items = KeyValue.fromObject(obj, {
-      filter: (k, v) => typeof v === 'number' && (v as number) % 2 === 1,
+      filter: (_key, v) => Is.number(v) && v % 2 === 1,
     });
     const keys = items.map((i) => (i as t.KeyValue.Row).k);
     expect(keys).to.eql(['b', 'd']);
@@ -39,9 +39,7 @@ describe('KeyValue.fromObject', () => {
 
   it('format(value): custom render for values', () => {
     const obj = { a: 1, b: 'x' };
-    const items = KeyValue.fromObject(obj, {
-      format: (v) => `v:${String(v)}`,
-    });
+    const items = KeyValue.fromObject(obj, { format: (v) => `v:${String(v)}` });
     expect(items.map((i) => (i as t.KeyValue.Row).v)).to.eql(['v:1', 'v:x']);
   });
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, A, Color, css, D } from '../common.ts';
+import { type t, A, Color, css, D, Is } from '../common.ts';
 import { isAnchorElement, resolveHref, toAnchorStyle, toDisplayLabel, toEllipsis, toFont } from '../u/mod.ts';
 
 type Base = Pick<
@@ -32,7 +32,7 @@ export const Cell: React.FC<CellProps> = (props) => {
    * Determine if children are plain text.
    * - Ellipsis is only meaningful for simple text/number nodes.
    */
-  const isTextChild = typeof props.children === 'string' || typeof props.children === 'number';
+  const isTextChild = Is.string(props.children) || Is.number(props.children);
   const isAnchorChild = isAnchorElement(props.children);
   const resolvedHref = !isAnchorChild
     ? resolveHref({ href: props.href, side, children: props.children })

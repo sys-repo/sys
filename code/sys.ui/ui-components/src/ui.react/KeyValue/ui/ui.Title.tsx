@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css } from '../common.ts';
+import { type t, Color, css, Is } from '../common.ts';
 import { toSpacing } from '../u/mod.ts';
 
 type P = t.KeyValue.ItemProps;
@@ -48,6 +48,6 @@ export const Title: React.FC<P> = (props) => {
 const wrangle = {
   parts(item: t.KeyValue.Title) {
     const v = item.v;
-    return Array.isArray(v) ? [v[0], v[1]] : [v, undefined];
+    return Is.array(v) ? [v[0], v[1]] : [v, undefined];
   },
 } as const;

@@ -7,8 +7,8 @@ type PixelTuple = [t.Pixels | undefined, t.Pixels | undefined];
  * Produce plain CSS size value.
  */
 export function toCssSize(v?: string | number): string {
-  if (v == null) return 'auto';
-  return typeof v === 'number' ? `${v}px` : v;
+  if (Is.nil(v)) return 'auto';
+  return Is.number(v) ? `${v}px` : v;
 }
 
 /**
