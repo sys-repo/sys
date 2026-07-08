@@ -16,6 +16,9 @@ export namespace DomMock {
     /** Keyboard event utilities. */
     readonly Keyboard: Keyboard.Lib;
 
+    /** Mouse event utilities. */
+    readonly Mouse: Mouse.Lib;
+
     /** Flag indicating if the environment is currently poly-filled with the dom-mocks. */
     readonly isPolyfilled: boolean;
 
@@ -72,6 +75,38 @@ export namespace DomMock {
         ): MediaStreamTrack;
       };
     }
+  }
+
+  /**
+   * Mouse event utility contracts.
+   */
+  export namespace Mouse {
+    /** Dispatch result for mouse-event helpers. */
+    export type Dispatch = { readonly event: MouseEvent; readonly dispatched: boolean };
+
+    /** Result from the simple primary activation gesture. */
+    export type Activation = { readonly down: Dispatch; readonly up: Dispatch };
+
+    /** Helpers for testing mouse events in unit-tests. */
+    export type Lib = {
+      /** Create a MouseEvent with inferred defaults and optional native init fields. */
+      event(type: string, init?: MouseEventInit): MouseEvent;
+
+      /** Create and dispatch a MouseEvent to the given target. */
+      fire(el: EventTarget, type: string, init?: MouseEventInit): Dispatch;
+
+      /** Dispatch a mousedown event. */
+      down(el: EventTarget, init?: MouseEventInit): Dispatch;
+
+      /** Dispatch a mouseup event. */
+      up(el: EventTarget, init?: MouseEventInit): Dispatch;
+
+      /** Dispatch a click event. */
+      click(el: EventTarget, init?: MouseEventInit): Dispatch;
+
+      /** Dispatch the simple primary mouse activation gesture: mousedown → mouseup. */
+      activate(el: EventTarget, init?: MouseEventInit): Activation;
+    };
   }
 
   /**
