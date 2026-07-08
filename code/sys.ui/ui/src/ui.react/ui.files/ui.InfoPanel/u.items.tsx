@@ -1,4 +1,4 @@
-import { Button, D, Is, KeyValue, type t } from './common.ts';
+import { Button, Color, D, Is, KeyValue, type t } from './common.ts';
 import { ErrorMessage } from './ui.ErrorMessage.tsx';
 import { StatusTitle } from './ui.StatusTitle.tsx';
 import { resolveFields } from './u.fields.ts';
@@ -29,7 +29,7 @@ export function toItems(input: Input): t.KeyValue.Item[] {
         id: 'transport',
         kind: 'row',
         k: 'network',
-        v: transportButton(input, theme),
+        v: transportButton(input),
       });
     }
     if (field === 'fidelity' && !Is.nil(snapshot?.capabilities?.fidelity)) {
@@ -86,12 +86,21 @@ function title(input: Input, fields: readonly t.Files.InfoPanel.Field[]): t.KeyV
   ];
 }
 
-function transportButton(input: Input, theme?: t.CommonTheme) {
+function transportButton(input: Input) {
   const ready = input.snapshot?.status === 'ready';
   const label = ready ? 'disconnect' : 'connect';
   const action = ready ? input.transport?.onDisconnect : input.transport?.onConnect;
 
-  return <Button theme={theme} label={label} enabled={!!action} onClick={() => action?.()} />;
+  return (
+    <Button
+      theme={'Dark'}
+      label={<span style={{ color: Color.WHITE }}>{label}</span>}
+      enabled={!!action}
+      padding={[0, 8]}
+      style={{ backgroundColor: Color.BLUE, borderRadius: 3 }}
+      onClick={() => action?.()}
+    />
+  );
 }
 
 function canShowTransport(input: Input): boolean {
