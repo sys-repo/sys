@@ -1,6 +1,7 @@
 {
   "tasks": {
-    "install": "deno install --frozen --reload",
+    "install": "deno install --frozen",
+    "lock:sync": "deno install --frozen=false",
     "info": "deno run -P=dev ./-scripts/task.info.ts",
     "ci": "deno task check && deno task dry && deno task test && deno task info",
     "test": "deno task test:parallel",

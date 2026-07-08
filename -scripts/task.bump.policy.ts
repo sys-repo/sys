@@ -36,7 +36,7 @@ export function postBumpPackageSyncArgs() {
 }
 
 export function postBumpLockSyncArgs() {
-  return ['install', '--frozen=false', '--reload'] as const;
+  return ['task', 'lock:sync'] as const;
 }
 
 export function bumpPolicy(): t.WorkspaceBump.Policy {

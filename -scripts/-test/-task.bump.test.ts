@@ -25,11 +25,7 @@ describe('scripts/task.bump', () => {
       '--prep-bump',
       '--prep-context=bump',
     ]);
-    expect(postBumpLockSyncArgs()).to.eql([
-      'install',
-      '--frozen=false',
-      '--reload',
-    ]);
+    expect(postBumpLockSyncArgs()).to.eql(['task', 'lock:sync']);
 
     const followups = bumpPolicy().followups?.({ cwd: '/workspace', plan: emptyPlan() }) ?? [];
     expect(followups.map((item) => item.label)).to.eql([
