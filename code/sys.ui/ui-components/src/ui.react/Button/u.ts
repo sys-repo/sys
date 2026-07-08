@@ -1,6 +1,6 @@
 import { type t, D, Is } from './common.ts';
 
-type P = t.ButtonProps;
+type P = t.Button.Props;
 
 /**
  * Helpers:

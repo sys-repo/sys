@@ -79,7 +79,7 @@ function isSelected(selected: t.BulletList.Selected | undefined, id: string): bo
 function handleSelect(
   onSelect: t.BulletList.Props['onSelect'],
   id: string,
-  e: t.ButtonMouseHandlerArgs,
+  e: t.Button.Mouse.Args,
 ): void {
   if (e.action !== 'MouseDown') return;
   if (!e.is.enabled) return;

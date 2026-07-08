@@ -4,7 +4,7 @@ import { ObjectView } from '../../ObjectView/mod.ts';
 import { type t, css, D, Is, LocalStorage, Signal } from '../common.ts';
 import { Button } from '../mod.ts';
 
-type P = t.ButtonProps;
+type P = t.Button.Props;
 type Storage = Pick<P, 'theme' | 'debug'> & { enabled?: boolean; opacity?: t.Percent };
 
 /**
@@ -108,7 +108,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           return `opacity: ${Is.func(v) ? 'ƒ' : v}`;
         }}
         onClick={() => {
-          type F = t.ButtonPropCallback<t.Percent>;
+          type F = t.Button.Prop.Callback<t.Percent>;
           const fn: F = (e) => (e.is.enabled ? (e.is.over ? 0.8 : 0.3) : 0.1);
           Signal.cycle(p.opacity, [1, 0.1, fn]);
         }}

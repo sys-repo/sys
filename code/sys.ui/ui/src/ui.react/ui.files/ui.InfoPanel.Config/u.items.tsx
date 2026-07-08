@@ -88,8 +88,8 @@ function toSwitchRow(props: P, fields: readonly Field[], field: Field): t.KeyVal
     label: D.fieldLabels[field] ?? field,
     value: fields.includes(field),
     x: fieldIndent(field),
-    onToggle(next: boolean) {
-      return props.onFieldsChange?.({ next: toggleField(fields, field, next) });
+    onToggle(e) {
+      return props.onFieldsChange?.({ next: toggleField(fields, field, e.next) });
     },
   };
 }

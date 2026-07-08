@@ -1,76 +1,80 @@
 import type React from 'react';
 import type { t } from './common.ts';
 
-type Content = React.JSX.Element | string | number | false;
-
 /**
- * <Component>: Headless clickable "button" component.
+ * Headless clickable button primitive.
  */
-export type ButtonProps = {
-  debug?: boolean;
+export declare namespace Button {
+  export type Content = React.JSX.Element | string | number | false;
 
-  children?: Content;
-  label?: React.ReactNode | (() => React.ReactNode);
-  tooltip?: string;
+  /** Component props. */
+  export type Props = {
+    debug?: boolean;
 
-  // Boolean:
-  enabled?: boolean | (() => boolean);
-  opacity?: t.Percent | t.ButtonPropCallback<t.Percent>;
-  active?: boolean;
-  block?: boolean;
-  isOver?: boolean; // force the button into an "is-over" state.
-  isDown?: boolean; // force the button into an "is-down" state.
+    children?: Content;
+    label?: React.ReactNode | (() => React.ReactNode);
+    tooltip?: string;
 
-  // Appearance:
-  theme?: t.CommonTheme;
-  style?: t.CssInput;
-  margin?: t.CssEdgesInput;
-  padding?: t.CssEdgesInput;
-  minWidth?: number;
-  maxWidth?: number;
-  userSelect?: boolean;
-  pressedOffset?: [number, number];
-  disabledOpacity?: t.Percent;
+    /** Boolean state: */
+    enabled?: boolean | (() => boolean);
+    opacity?: t.Percent | Prop.Callback<t.Percent>;
+    active?: boolean;
+    block?: boolean;
+    isOver?: boolean; // force the button into an "is-over" state.
+    isDown?: boolean; // force the button into an "is-down" state.
 
-  /** Subscribe to signals that cause the button to redraw. */
-  subscribe?: () => void;
+    /** Appearance: */
+    theme?: t.CommonTheme;
+    style?: t.CssInput;
+    margin?: t.CssEdgesInput;
+    padding?: t.CssEdgesInput;
+    minWidth?: number;
+    maxWidth?: number;
+    userSelect?: boolean;
+    pressedOffset?: [number, number];
+    disabledOpacity?: t.Percent;
 
-  // Events:
-  onClick?: React.MouseEventHandler;
-  onMouseDown?: React.MouseEventHandler;
-  onMouseUp?: React.MouseEventHandler;
-  onMouseEnter?: React.MouseEventHandler;
-  onMouseLeave?: React.MouseEventHandler;
-  onDoubleClick?: React.MouseEventHandler;
-  onMouse?: t.ButtonMouseHandler;
-};
+    /** Subscribe to signals that cause the button to redraw. */
+    subscribe?: () => void;
 
-/** Callbacks used by a button to dynaically evaluate a value on redraw. */
-export type ButtonPropCallback<T> = (e: ButtonPropCallbackArgs) => T;
-/** Callback arguments. */
-export type ButtonPropCallbackArgs = { readonly is: t.ButtonFlags };
+    /** Events: */
+    onClick?: React.MouseEventHandler;
+    onMouseDown?: React.MouseEventHandler;
+    onMouseUp?: React.MouseEventHandler;
+    onMouseEnter?: React.MouseEventHandler;
+    onMouseLeave?: React.MouseEventHandler;
+    onDoubleClick?: React.MouseEventHandler;
+    onMouse?: Mouse.Handler;
+  };
 
-/**
- * Flags representing the state of the button.
- */
-export type ButtonFlags = {
-  readonly enabled: boolean;
-  readonly disabled: boolean;
-  readonly over: boolean;
-  readonly down: boolean;
-};
+  /** Dynamic prop callback details. */
+  export namespace Prop {
+    /** Callback used by a button to dynamically evaluate a prop value on redraw. */
+    export type Callback<T> = (e: CallbackArgs) => T;
+    /** Callback arguments. */
+    export type CallbackArgs = { readonly is: Flags };
+  }
 
-/**
- * Events:
- */
+  /** State flags representing the button interaction state. */
+  export type Flags = {
+    readonly enabled: boolean;
+    readonly disabled: boolean;
+    readonly over: boolean;
+    readonly down: boolean;
+  };
 
-/** Handler for general mouse button event rollup. */
-export type ButtonMouseHandler = (e: ButtonMouseHandlerArgs) => void;
-/** Mouse button event rollup. */
-export type ButtonMouseHandlerArgs = {
-  readonly action: 'MouseEnter' | 'MouseLeave' | 'MouseDown' | 'MouseUp';
-  readonly synthetic: React.MouseEvent;
-  readonly modifiers: t.Keyboard.Modifier.Flags;
-  readonly is: t.ButtonFlags;
-  cancel(): void;
-};
+  /** Mouse event rollup details. */
+  export namespace Mouse {
+    /** Handler for general mouse button event rollup. */
+    export type Handler = (e: Args) => void;
+
+    /** Mouse button event rollup. */
+    export type Args = {
+      readonly action: 'MouseEnter' | 'MouseLeave' | 'MouseDown' | 'MouseUp';
+      readonly synthetic: React.MouseEvent;
+      readonly modifiers: t.Keyboard.Modifier.Flags;
+      readonly is: Flags;
+      cancel(): void;
+    };
+  }
+}

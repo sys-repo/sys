@@ -2,7 +2,7 @@ import type React from 'react';
 import { type t, D } from './common.ts';
 import { Wrangle } from './u.ts';
 
-type P = t.ButtonProps;
+type P = t.Button.Props;
 type S = [boolean, (next: boolean) => void];
 
 /**
@@ -181,7 +181,7 @@ const wrangle = {
     };
   },
 
-  flags(props: P, over: boolean, down: boolean): t.ButtonFlags {
+  flags(props: P, over: boolean, down: boolean): t.Button.Flags {
     const enabled = Wrangle.enabled(props);
     return { over, down, enabled, disabled: !enabled };
   },

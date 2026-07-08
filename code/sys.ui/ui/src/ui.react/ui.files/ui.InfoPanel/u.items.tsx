@@ -60,7 +60,7 @@ export function toItems(input: Input): t.KeyValue.Item[] {
             id: 'events',
             value: enabled,
             tooltip: enabled ? 'events on' : 'events off',
-            onToggle: input.events?.onToggle,
+            onToggle: (e) => input.events?.onToggle?.(e.next),
           },
           { theme },
         ),

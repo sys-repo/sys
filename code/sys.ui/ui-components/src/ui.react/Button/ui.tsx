@@ -4,7 +4,7 @@ import { type t, Color, css, D, Is, Signal, Style, useIsTouchSupported } from '.
 import { Event, toEventState } from './u.events.ts';
 import { Wrangle } from './u.ts';
 
-type P = t.ButtonProps;
+type P = t.Button.Props;
 
 /**
  * Component
@@ -30,7 +30,7 @@ export const Button: React.FC<P> = (props) => {
   const [down, setDown] = downState;
 
   const eventState = toEventState(props, overState, downState);
-  const is: t.ButtonFlags = { over, down, enabled, disabled: !enabled };
+  const is: t.Button.Flags = { over, down, enabled, disabled: !enabled };
   const opacity = wrangle.opacity(props, is);
 
   /**
@@ -124,7 +124,7 @@ const wrangle = {
     return typeof label === 'function' ? label() : label;
   },
 
-  opacity(props: P, is: t.ButtonFlags): t.Percent {
+  opacity(props: P, is: t.Button.Flags): t.Percent {
     const { opacity } = props;
     if (Is.number(opacity)) return opacity;
     if (Is.func(opacity)) return opacity({ is });

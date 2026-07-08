@@ -98,7 +98,8 @@ describe('Files.InfoPanel.Config', () => {
       );
       const row = switchRowById(items, 'capabilities');
 
-      row.onToggle?.(true, { item: row, index: 0 });
+      type ToggleArgs = t.KeyValue.Switches.Item.Toggle.Args;
+      row.onToggle?.({ current: false, next: true, item: row, index: 0, synthetic: {} as ToggleArgs['synthetic'] });
 
       expect(emitted).to.eql(['title', 'capabilities', 'error']);
     });

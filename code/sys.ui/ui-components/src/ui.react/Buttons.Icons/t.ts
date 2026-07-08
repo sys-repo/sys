@@ -17,7 +17,7 @@ export declare namespace ButtonsIcons {
   };
 
   /** Icon button props. */
-  export type Props = Omit<t.ButtonProps, 'label' | 'children'> & {
+  export type Props = Omit<t.Button.Props, 'label' | 'children'> & {
     debug?: boolean;
     size?: t.Pixels;
   };

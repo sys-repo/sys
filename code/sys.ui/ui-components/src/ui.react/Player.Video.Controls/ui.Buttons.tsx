@@ -11,8 +11,8 @@ export type ControlButtonProps = {
   enabled?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
-  onClick?: t.ButtonProps['onClick'];
-  onMouseDown?: t.ButtonProps['onMouseDown'];
+  onClick?: t.Button.Props['onClick'];
+  onMouseDown?: t.Button.Props['onMouseDown'];
 };
 
 export const ControlButton: React.FC<ControlButtonProps> = (props) => {
