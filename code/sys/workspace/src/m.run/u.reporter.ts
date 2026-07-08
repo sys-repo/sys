@@ -70,6 +70,8 @@ type ReporterState = {
   stopped: boolean;
 };
 
+const GRID_GUTTER = '      ';
+
 /** Create a reporter that renders parallel test progress from scheduler events. */
 export function createParallelReporter(args: ParallelReporterArgs): ParallelReporter {
   const runnablePaths = new Set(args.runnablePaths);
@@ -293,18 +295,36 @@ const wrangle = {
     if (!layout) return '';
     const visibleCount = layout.columns * 5;
     const visible = completed.slice(0, visibleCount);
-    const more = completed.length - visible.length;
+    const hidden = completed.slice(visibleCount);
     const cells = visible.map((item) => wrangle.completedCell(item, layout.cellWidth, terminal));
     const grid = wrangle.grid(cells, layout.columns);
-    if (more <= 0) return grid;
-    const suffix = `${c.gray(c.italic(`..and ${more} more`))}`;
+    if (hidden.length <= 0) return grid;
+    const suffix = wrangle.completedOverflowSuffix(hidden);
     return grid ? `${grid}\n  ${suffix}` : `  ${suffix}`;
+  },
+
+  completedOverflowSuffix(hidden: readonly ParallelProgressCompleted[]) {
+    return [
+      c.gray(c.italic('...and ')),
+      wrangle.completedOverflowCount(hidden),
+      c.gray(c.italic(' more')),
+    ].join('');
+  },
+
+  completedOverflowCount(hidden: readonly ParallelProgressCompleted[]) {
+    const value = c.italic(String(hidden.length));
+    let hasWarning = false;
+    for (const item of hidden) {
+      if (item.kind === 'failed') return c.red(value);
+      if (item.kind === 'blocked' || item.kind === 'skipped') hasWarning = true;
+    }
+    return hasWarning ? c.yellow(value) : c.green(value);
   },
 
   gridLayout(width: number) {
     const maxColumns = width >= 120 ? 3 : width >= 80 ? 2 : 1;
     const indent = '  ';
-    const gutter = '    ';
+    const gutter = GRID_GUTTER;
     const usable = width - Cli.Fmt.Text.visibleWidth(indent);
     const columns = wrangle.activeColumnCount(maxColumns, usable, gutter);
     if (columns < 1) return undefined;
@@ -316,7 +336,7 @@ const wrangle = {
 
   grid(cells: readonly string[], columns: number) {
     const indent = '  ';
-    const gutter = '    ';
+    const gutter = GRID_GUTTER;
     const widths = wrangle.activeColumnWidths(cells, columns);
     const lines: string[] = [];
     for (let index = 0; index < cells.length; index += columns) {

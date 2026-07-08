@@ -1,6 +1,10 @@
-import { Cli, describe, expect, it, type t } from '../../-test.ts';
+import { c, Cli, describe, expect, it, type t } from '../../-test.ts';
 import { formatFailedOutput, formatIntroLine } from '../u.fmt.ts';
 import { createParallelReporter, formatParallelProgress } from '../u.reporter.ts';
+
+type CompletedKind = 'passed' | 'failed' | 'skipped' | 'blocked';
+
+const VISIBLE_COMPLETED_FOR_WIDTH_100 = 10;
 
 describe('WorkspaceRun.parallel reporter', () => {
   it('formats a deterministic progress frame with counts and active packages', () => {
@@ -82,7 +86,22 @@ describe('WorkspaceRun.parallel reporter', () => {
 
     expect(frame.includes('✓  code/pkg-10')).to.eql(true);
     expect(frame.includes('✓  code/pkg-11')).to.eql(false);
-    expect(frame.includes('..and 2 more')).to.eql(true);
+    expect(frame.includes('...and 2 more')).to.eql(true);
+  });
+
+  it('colors completed overflow count by hidden item severity', () => {
+    const green = overflowLine(completedOverflowFrame(['passed', 'passed']));
+    const yellow = overflowLine(completedOverflowFrame(['passed', 'blocked']));
+    const red = overflowLine(completedOverflowFrame(['passed', 'failed']));
+
+    expect(Cli.stripAnsi(green).trim()).to.eql('...and 2 more');
+    expect(green).to.eql(overflowLabel(c.green(c.italic('2'))));
+
+    expect(Cli.stripAnsi(yellow).trim()).to.eql('...and 2 more');
+    expect(yellow).to.eql(overflowLabel(c.yellow(c.italic('2'))));
+
+    expect(Cli.stripAnsi(red).trim()).to.eql('...and 2 more');
+    expect(red).to.eql(overflowLabel(c.red(c.italic('2'))));
   });
 
   it('uses runnable packages for passed denominator and progress', () => {
@@ -195,6 +214,46 @@ function progressLine(elapsed: t.Msecs) {
     width: 100,
   });
   return Cli.stripAnsi(frame).split('\n')[0];
+}
+
+function completedOverflowFrame(hiddenKinds: readonly CompletedKind[]) {
+  const visibleKinds = Array.from(
+    { length: VISIBLE_COMPLETED_FOR_WIDTH_100 },
+    () => 'passed' as const,
+  );
+  const kinds = [...visibleKinds, ...hiddenKinds];
+  const passed = countKind(kinds, 'passed');
+  const failed = countKind(kinds, 'failed');
+  const blocked = countKind(kinds, 'blocked');
+
+  return formatParallelProgress({
+    runnableTotal: passed + failed + blocked,
+    passed,
+    skipped: countKind(kinds, 'skipped'),
+    blocked,
+    blockedRunnable: blocked,
+    failed,
+    pending: 0,
+    running: [],
+    completed: kinds.map((kind, index) => {
+      const path = `code/pkg-${String(index + 1).padStart(2, '0')}`;
+      return { kind, path, elapsed: 1 };
+    }),
+    terminal: false,
+    width: 100,
+  });
+}
+
+function countKind(kinds: readonly CompletedKind[], kind: CompletedKind) {
+  return kinds.filter((value) => value === kind).length;
+}
+
+function overflowLine(frame: string) {
+  return frame.split('\n').find((line) => Cli.stripAnsi(line).includes('...and')) ?? '';
+}
+
+function overflowLabel(count: string) {
+  return `  ${c.gray(c.italic('...and '))}${count}${c.gray(c.italic(' more'))}`;
 }
 
 function ran(
