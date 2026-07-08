@@ -1,5 +1,5 @@
-import { describe, expect, it, type t } from '../../-test.ts';
-import { SwitchTheme } from './u.theme.ts';
+import { describe, expect, it, type t } from '../../../-test.ts';
+import { SwitchTheme } from '../u.theme.ts';
 
 describe('Buttons.Switch: SwitchTheme', () => {
   it('merge preserves nested theme defaults and returns a clone', () => {
@@ -10,9 +10,8 @@ describe('Buttons.Switch: SwitchTheme', () => {
       disabledOpacity: 0.45,
     };
 
-    const res = SwitchTheme.merge(base, {
-      trackColor: { on: 'green' } as t.SwitchTheme['trackColor'],
-    });
+    type T = t.SwitchTheme['trackColor'];
+    const res = SwitchTheme.merge(base, { trackColor: { on: 'green' } as T });
 
     expect(res).to.eql({
       trackColor: { on: 'green', off: -0.1, disabled: -0.2 },

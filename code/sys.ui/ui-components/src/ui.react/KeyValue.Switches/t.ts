@@ -53,7 +53,7 @@ export declare namespace KeyValueSwitches {
     /** Vertical spacing forwarded to the underlying `KeyValue` row. */
     y?: t.KeyValue.Row['y'];
     /** Receive the next switch value. */
-    onToggle?: Item.ToggleHandler;
+    onToggle?: Item.Toggle.Handler;
   };
 
   /** Convert one switch row input into a `KeyValue` row. */
@@ -72,15 +72,21 @@ export declare namespace KeyValueSwitches {
       'width' | 'height' | 'transitionSpeed' | 'track' | 'thumb'
     >;
 
-    /** Receive the next switch value and row context. */
-    export type ToggleHandler = (next: boolean, e: ToggleArgs) => void;
+    /** Switch row toggle intent. */
+    export namespace Toggle {
+      /** Receive switch row toggle intent. */
+      export type Handler = (e: Args) => void;
 
-    /** Context passed to a switch toggle handler. */
-    export type ToggleArgs = {
-      readonly item: KeyValueSwitches.Row;
-      /** Index within the row's containing switch item list. */
-      readonly index: number;
-    };
+      /** Toggle payload carrying the row context and next switch value. */
+      export type Args = {
+        readonly current: boolean;
+        readonly next: boolean;
+        readonly item: KeyValueSwitches.Row;
+        /** Index within the row's containing switch item list. */
+        readonly index: number;
+        readonly synthetic: t.ReactMouseEvent;
+      };
+    }
   }
 
   /**

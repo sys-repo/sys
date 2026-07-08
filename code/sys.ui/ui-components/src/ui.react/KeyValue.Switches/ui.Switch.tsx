@@ -22,7 +22,7 @@ export const SwitchValue: t.FC<P> = (props) => {
       enabled={enabled}
       theme={props.theme}
       tooltip={item.tooltip}
-      onClick={() => item.onToggle?.(!value, { item, index })}
+      onToggle={(e) => item.onToggle?.({ ...e, item, index })}
     />
   );
 };

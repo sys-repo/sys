@@ -50,9 +50,9 @@ export const Switch: React.FC<t.SwitchProps> = (props) => {
   };
 
   const handleOnClick = (e: React.MouseEvent) => {
-    if (e.button === 0 && props.onClick) {
-      props.onClick(e);
-    }
+    if (e.button !== 0) return;
+    props.onClick?.(e);
+    props.onToggle?.({ current: value, next: !value, synthetic: e });
   };
 
   const overHandler = (isOver: boolean): React.MouseEventHandler => {
@@ -72,7 +72,7 @@ export const Switch: React.FC<t.SwitchProps> = (props) => {
       if (isEnabled) {
         if (isDown && props.onMouseDown) props.onMouseDown(e);
         if (!isDown && props.onMouseUp) props.onMouseUp(e);
-        if (!isDown && props.onClick) handleOnClick(e);
+        if (!isDown) handleOnClick(e);
       }
     };
   };

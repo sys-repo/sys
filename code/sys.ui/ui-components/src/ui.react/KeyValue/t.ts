@@ -127,11 +127,14 @@ export declare namespace KeyValue {
       /** Appearance options forwarded to the rendered switch control. */
       export type SwitchOptions = t.KeyValueSwitches.Item.SwitchOptions;
 
-      /** Receive the next switch value and row context. */
-      export type ToggleHandler = t.KeyValueSwitches.Item.ToggleHandler;
+      /** Switch row toggle intent. */
+      export namespace Toggle {
+        /** Receive the next switch value and row context. */
+        export type Handler = t.KeyValueSwitches.Item.Toggle.Handler;
 
-      /** Context passed to a switch toggle handler. */
-      export type ToggleArgs = t.KeyValueSwitches.Item.ToggleArgs;
+        /** Context passed to a switch toggle handler. */
+        export type Args = t.KeyValueSwitches.Item.Toggle.Args;
+      }
     }
 
     /**

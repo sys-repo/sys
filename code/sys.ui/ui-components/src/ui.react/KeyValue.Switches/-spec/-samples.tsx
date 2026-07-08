@@ -7,7 +7,7 @@ export type SampleValues = Record<string, boolean>;
 type SampleRow = Omit<t.KeyValueSwitches.Row, 'value' | 'onToggle'>;
 type SampleGroup = Omit<t.KeyValueSwitches.Group, 'items'> & { items: SampleItem[] };
 type SampleItem = SampleRow | t.KeyValue.Hr | SampleGroup;
-type ToggleHandler = (id: string, next: boolean) => void;
+type ToggleHandler = t.KeyValueSwitches.Item.Toggle.Handler;
 type SampleOptions = { values?: SampleValues; onToggle?: ToggleHandler };
 
 const isHr = (item: t.KeyValueSwitches.Item): item is t.KeyValue.Hr => {
@@ -117,7 +117,7 @@ export const SAMPLE = {
       if (isGroup(item)) return { ...item, items: SAMPLE.withValues(item.items, options) };
 
       const row: t.KeyValueSwitches.Row = { ...item, value: values[item.id] ?? false };
-      if (onToggle) row.onToggle = (next) => onToggle(item.id, next);
+      if (onToggle) row.onToggle = onToggle;
       return row;
     });
   },

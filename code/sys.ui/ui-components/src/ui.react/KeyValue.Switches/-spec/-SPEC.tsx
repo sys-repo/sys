@@ -13,7 +13,7 @@ export default Spec.describe(D.displayName, async (e) => {
     const currentItems = p.items.value ?? SAMPLE.source(v.sample);
     const items = SAMPLE.withValues(currentItems, {
       values: v.values,
-      onToggle: (id, next) => (p.values.value = { ...p.values.value, [id]: next }),
+      onToggle: (e) => (p.values.value = { ...p.values.value, [e.item.id]: e.next }),
     });
 
     const onReorderChange: t.KeyValue.Reorder.ChangeHandler = (e) => {

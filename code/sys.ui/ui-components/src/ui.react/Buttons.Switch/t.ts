@@ -21,11 +21,26 @@ export type SwitchProps = {
   style?: t.CssValue;
 
   // Handlers:
+  onToggle?: t.SwitchToggleHandler;
   onClick?: React.MouseEventHandler;
   onMouseDown?: React.MouseEventHandler;
   onMouseUp?: React.MouseEventHandler;
   onMouseEnter?: React.MouseEventHandler;
   onMouseLeave?: React.MouseEventHandler;
+};
+
+/**
+ * Events:
+ */
+
+/** Handler for semantic switch toggle intent. */
+export type SwitchToggleHandler = (e: SwitchToggleHandlerArgs) => void;
+
+/** Toggle payload carrying the current and next switch values. */
+export type SwitchToggleHandlerArgs = {
+  readonly current: boolean;
+  readonly next: boolean;
+  readonly synthetic: t.ReactMouseEvent;
 };
 
 /**
