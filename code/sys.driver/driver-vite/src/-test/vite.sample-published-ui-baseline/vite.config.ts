@@ -1,4 +1,4 @@
-import { Vite } from 'jsr:@sys/driver-vite@0.0.449';
+import { Vite } from 'jsr:@sys/driver-vite@0.0.450';
 
 export default Vite.Config.define(async () =>
   await Vite.Config.app({
