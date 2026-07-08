@@ -93,6 +93,7 @@
     "npm:happy-dom@20.10.6": "20.10.6",
     "npm:hash-it@7.0.2": "7.0.2",
     "npm:hono@4.12.24": "4.12.24",
+    "npm:hono@4.12.28": "4.12.28",
     "npm:ignore@7.0.5": "7.0.5",
     "npm:monaco-editor@0.55.1": "0.55.1",
     "npm:motion@12.42.2": "12.42.2_react@19.2.7_react-dom@19.2.7__react@19.2.7",
@@ -363,7 +364,7 @@
         "jsr:@sys/process",
         "jsr:@sys/std",
         "jsr:@sys/yaml",
-        "npm:hono"
+        "npm:hono@4.12.24"
       ]
     },
     "@sys/immutable@0.0.148": {
@@ -2247,6 +2248,9 @@
     },
     "hono@4.12.24": {
       "integrity": "sha512-I36D1s+HgQc55KbhEr4iybfxv/9o1zdpw+XEM6dJa91LqQD0HCoSGdxpRJCZE+aavs87j4V3Ls2OJzq8C/U4iw=="
+    },
+    "hono@4.12.28": {
+      "integrity": "sha512-YwUvVpSF7m1yOblFPrU3Hbo8XhPheBoiyfGuII6z19LnOr6JpDnyyp7LFNrfV56wS8tpvtBFGRISHN02pDdLOA=="
     },
     "hosted-git-info@9.0.3": {
       "integrity": "sha512-Hc+ghLoSt6QaYZUv0WBiIvmMDZuZZ7oaDvdH8MbfOO4lOsxdXLEvuC6ePoGs9H1X9oCLyq6+NVN0MKqD+ydxyg==",
