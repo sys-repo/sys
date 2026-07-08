@@ -24,7 +24,7 @@ const defaults: Storage = {
   debug: false,
   theme: 'Dark',
   enabled: true,
-  reorder: false,
+  reorder: true,
   sample: 'basic',
   values: { ...SAMPLE.defaultValues },
 };
@@ -51,7 +51,7 @@ export async function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     enabled: s(snap.enabled ?? true),
-    reorder: s(snap.reorder ?? false),
+    reorder: s(snap.reorder ?? defaults.reorder),
     sample: s(snap.sample),
     items: s<t.KeyValueSwitches.Item[]>(SAMPLE.source(snap.sample)),
     values: s<SampleValues>({ ...SAMPLE.defaultValues, ...(snap.values ?? {}) }),

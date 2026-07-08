@@ -27,23 +27,25 @@ const Styles = {
 };
 
 const defaultValues = {
-  capabilities: true,
-  events: false,
+  alpha: true,
+  bravo: false,
+  charlie: true,
   custom: true,
   large: true,
   overflow: false,
   disabled: true,
   multiline: false,
-  overview: true,
-  database: true,
-  snapshots: false,
-  audit: true,
-  cache: false,
-  afterGroup: true,
+  foo: true,
+  primary: true,
+  'nested-alpha': true,
+  'nested-bravo': false,
+  secondary: true,
+  bar: false,
+  baz: true,
 } satisfies SampleValues;
 
 const descriptors: Record<SampleKind, readonly SampleItem[]> = {
-  basic: [{ id: 'capabilities' }, { id: 'events' }],
+  basic: [{ id: 'alpha' }, { id: 'bravo' }, { id: 'charlie' }],
   mixed: [
     {
       id: 'custom',
@@ -72,25 +74,20 @@ const descriptors: Record<SampleKind, readonly SampleItem[]> = {
     },
   ],
   grouped: [
-    { id: 'overview', label: 'overview row' },
+    { id: 'foo' },
     {
-      id: 'runtime-group',
+      id: 'sample-group',
       kind: 'group',
       items: [
-        { id: 'database', label: 'database enabled' },
-        { id: 'snapshots', label: 'periodic snapshots' },
-        { id: 'runtime-divider', kind: 'hr', y: [8, 8] },
-        {
-          id: 'nested-flags',
-          kind: 'group',
-          items: [
-            { id: 'audit', label: 'audit trail' },
-            { id: 'cache', label: 'cache layer' },
-          ],
-        },
+        { id: 'primary', label: 'primary row' },
+        { id: 'nested-alpha', label: 'nested alpha', x: [18, 0] },
+        { id: 'nested-bravo', label: 'nested bravo', x: [18, 0] },
+        { id: 'sample-divider', kind: 'hr', y: [8, 8] },
+        { id: 'secondary', label: 'secondary row' },
       ],
     },
-    { id: 'afterGroup', label: 'row after group' },
+    { id: 'bar' },
+    { id: 'baz' },
   ],
 };
 
