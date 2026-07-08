@@ -30,7 +30,7 @@ describe('KeyValue.UI: item boundaries', () => {
     const el = <KeyValue.UI items={items} layout={layout} />;
     const res = await TestReact.render(el, { strict: false });
     const root = res.container.firstElementChild as HTMLElement;
-    expect(root.children.length).to.equal(items.length);
+    expect(root.children.length).to.eql(items.length);
 
     act(() => res.dispose());
     await Schedule.micro();
@@ -44,7 +44,7 @@ describe('KeyValue.UI: item boundaries', () => {
     />;
     const res = await TestReact.render(el, { strict: false });
     const root = res.container.firstElementChild as HTMLElement;
-    expect(root.children.length).to.equal(items.length);
+    expect(root.children.length).to.eql(items.length);
 
     act(() => res.dispose());
     await Schedule.micro();
@@ -61,7 +61,7 @@ describe('KeyValue.UI: item boundaries', () => {
     );
     const res = await TestReact.render(el, { strict: false });
     const root = res.container.firstElementChild as HTMLElement;
-    expect(root.children.length).to.equal(invalid.length);
+    expect(root.children.length).to.eql(invalid.length);
 
     act(() => res.dispose());
     await Schedule.micro();
@@ -75,8 +75,8 @@ describe('KeyValue.UI: item boundaries', () => {
     const root = res.container.firstElementChild as HTMLElement;
     const groupEl = root.children.item(0) as HTMLElement;
 
-    expect(root.children.length).to.equal(grouped.length);
-    expect(groupEl.children.length).to.equal(group.items.length);
+    expect(root.children.length).to.eql(grouped.length);
+    expect(groupEl.children.length).to.eql(group.items.length);
 
     act(() => res.dispose());
     await Schedule.micro();
@@ -96,8 +96,8 @@ describe('KeyValue.UI: item boundaries', () => {
     const root = res.container.firstElementChild as HTMLElement;
     const groupEl = root.children.item(0) as HTMLElement;
 
-    expect(root.children.length).to.equal(grouped.length);
-    expect(groupEl.children.length).to.equal(group.items.length);
+    expect(root.children.length).to.eql(grouped.length);
+    expect(groupEl.children.length).to.eql(group.items.length);
 
     act(() => res.dispose());
     await Schedule.micro();
@@ -111,11 +111,11 @@ describe('KeyValue.UI: item boundaries', () => {
     const root = res.container.firstElementChild as HTMLElement;
     const groupEl = root.children.item(0) as HTMLElement;
 
-    expect(root.children.length).to.equal(grouped.length);
-    expect(root.querySelectorAll('[data-keyvalue-projection="direct-child"]').length).to.equal(
+    expect(root.children.length).to.eql(grouped.length);
+    expect(root.querySelectorAll('[data-keyvalue-projection="direct-child"]').length).to.eql(
       grouped.length,
     );
-    expect(groupEl.querySelectorAll('[data-keyvalue-projection="direct-child"]').length).to.equal(
+    expect(groupEl.querySelectorAll('[data-keyvalue-projection="direct-child"]').length).to.eql(
       0,
     );
 
@@ -129,8 +129,8 @@ describe('KeyValue.UI: item boundaries', () => {
     const res = await TestReact.render(el, { strict: false });
     const root = res.container.firstElementChild as HTMLElement;
 
-    expect(root.children.length).to.equal(invalid.length);
-    expect(root.querySelectorAll('[data-keyvalue-projection="direct-child"]').length).to.equal(0);
+    expect(root.children.length).to.eql(invalid.length);
+    expect(root.querySelectorAll('[data-keyvalue-projection="direct-child"]').length).to.eql(0);
 
     act(() => res.dispose());
     await Schedule.micro();
@@ -148,8 +148,8 @@ describe('KeyValue.UI: item boundaries', () => {
     const res = await TestReact.render(el, { strict: false });
     const root = res.container.firstElementChild as HTMLElement;
 
-    expect(root.children.length).to.equal(items.length);
-    expect(root.querySelectorAll('[data-keyvalue-projection="direct-child"]').length).to.equal(0);
+    expect(root.children.length).to.eql(items.length);
+    expect(root.querySelectorAll('[data-keyvalue-projection="direct-child"]').length).to.eql(0);
 
     act(() => res.dispose());
     await Schedule.micro();
@@ -173,12 +173,12 @@ describe('KeyValue.UI: item boundaries', () => {
       root.querySelectorAll('[data-keyvalue-projection="direct-child"]').length;
     const childText = () => Array.from(root.children).map((el) => el.textContent ?? '');
 
-    expect(projectionCount()).to.equal(2);
+    expect(projectionCount()).to.eql(2);
     expect(childText().map((text) => text.includes('alpha'))).to.eql([true, false]);
 
     act(() => setItems?.([c, a, b]));
     await Schedule.micro();
-    expect(projectionCount()).to.equal(3);
+    expect(projectionCount()).to.eql(3);
     expect(childText().map((text) => text.includes('charlie'))).to.eql([true, false, false]);
 
     act(() => setItems?.([b, c, a]));
@@ -187,8 +187,8 @@ describe('KeyValue.UI: item boundaries', () => {
 
     act(() => setItems?.([b, a]));
     await Schedule.micro();
-    expect(projectionCount()).to.equal(2);
-    expect(childText().some((text) => text.includes('charlie'))).to.equal(false);
+    expect(projectionCount()).to.eql(2);
+    expect(childText().some((text) => text.includes('charlie'))).to.eql(false);
 
     act(() => res.dispose());
     await Schedule.micro();

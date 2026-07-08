@@ -46,9 +46,9 @@ describe('KeyValue.u.reorder', () => {
       { id: 'a', k: 'bravo' },
     ];
 
-    expect(toReorderModel(missing)).to.equal(undefined);
-    expect(toReorderModel(blank)).to.equal(undefined);
-    expect(toReorderModel(duplicate)).to.equal(undefined);
+    expect(toReorderModel(missing)).to.eql(undefined);
+    expect(toReorderModel(blank)).to.eql(undefined);
+    expect(toReorderModel(duplicate)).to.eql(undefined);
   });
 
   it('maps reordered ids back to a fresh item array', () => {
@@ -79,9 +79,9 @@ describe('KeyValue.u.reorder', () => {
     const next = toReorderedItems(['events', 'group:status'], model.byId);
 
     expect(model.ids).to.eql(['group:status', 'events']);
-    expect(model.byId.has('status')).to.equal(false);
-    expect(model.byId.has('status:title')).to.equal(false);
-    expect(toReorderedItems(['status', 'events'], model.byId)).to.equal(undefined);
+    expect(model.byId.has('status')).to.eql(false);
+    expect(model.byId.has('status:title')).to.eql(false);
+    expect(toReorderedItems(['status', 'events'], model.byId)).to.eql(undefined);
     expect(next).to.eql([items[1], group]);
     expect(next?.[1]).to.equal(group);
   });
@@ -101,7 +101,7 @@ describe('KeyValue.u.reorder', () => {
     ];
 
     expect(toReorderModel(nestedCollision)?.ids).to.eql(['group:status', 'events']);
-    expect(toReorderModel(directCollision)).to.equal(undefined);
+    expect(toReorderModel(directCollision)).to.eql(undefined);
   });
 
   it('passes only direct children to getItemId', () => {
@@ -133,9 +133,9 @@ describe('KeyValue.u.reorder', () => {
     ];
     const model = toReorderModel(items)!;
 
-    expect(toReorderedItems(['missing'], model.byId)).to.equal(undefined);
-    expect(toReorderedItems(['a'], model.byId)).to.equal(undefined);
-    expect(toReorderedItems(['a', 'a'], model.byId)).to.equal(undefined);
+    expect(toReorderedItems(['missing'], model.byId)).to.eql(undefined);
+    expect(toReorderedItems(['a'], model.byId)).to.eql(undefined);
+    expect(toReorderedItems(['a', 'a'], model.byId)).to.eql(undefined);
   });
 
   it('classifies repeated reorder ids as unchanged and copies input ids', () => {
@@ -148,7 +148,7 @@ describe('KeyValue.u.reorder', () => {
 
     const res = toReorderChange({ nextIds: input, previousIds: model.ids, byId: model.byId });
 
-    expect(res?.changed).to.equal(false);
+    expect(res?.changed).to.eql(false);
     expect(res?.next).to.eql(items);
     expect(res?.ids).to.eql(['a', 'b']);
     expect(res?.ids).not.to.equal(input);
@@ -170,7 +170,7 @@ describe('KeyValue.u.reorder', () => {
       byId: model.byId,
     });
 
-    expect(res?.changed).to.equal(true);
+    expect(res?.changed).to.eql(true);
     expect(res?.ids).to.eql(['a', 'b']);
     expect(res?.next).to.eql(items);
   });
@@ -183,14 +183,14 @@ describe('KeyValue.u.reorder', () => {
     const model = toReorderModel(items)!;
     const previousIds = model.ids;
 
-    expect(toReorderChange({ nextIds: ['missing'], previousIds, byId: model.byId })).to.equal(undefined);
-    expect(toReorderChange({ nextIds: ['a'], previousIds, byId: model.byId })).to.equal(undefined);
-    expect(toReorderChange({ nextIds: ['a', 'a'], previousIds, byId: model.byId })).to.equal(undefined);
+    expect(toReorderChange({ nextIds: ['missing'], previousIds, byId: model.byId })).to.eql(undefined);
+    expect(toReorderChange({ nextIds: ['a'], previousIds, byId: model.byId })).to.eql(undefined);
+    expect(toReorderChange({ nextIds: ['a', 'a'], previousIds, byId: model.byId })).to.eql(undefined);
   });
 
   it('detects identical reorder id lists', () => {
-    expect(sameIds(['a', 'b'], ['a', 'b'])).to.equal(true);
-    expect(sameIds(['a', 'b'], ['b', 'a'])).to.equal(false);
-    expect(sameIds(['a'], ['a', 'b'])).to.equal(false);
+    expect(sameIds(['a', 'b'], ['a', 'b'])).to.eql(true);
+    expect(sameIds(['a', 'b'], ['b', 'a'])).to.eql(false);
+    expect(sameIds(['a'], ['a', 'b'])).to.eql(false);
   });
 });

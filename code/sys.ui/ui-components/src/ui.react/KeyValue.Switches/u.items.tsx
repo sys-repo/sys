@@ -26,6 +26,8 @@ export const toItem: t.KeyValueSwitches.ToItem = (item, options = {}) => {
       />
     ),
     opacity: item.opacity,
+    x: item.x,
+    y: item.y,
   };
 };
 

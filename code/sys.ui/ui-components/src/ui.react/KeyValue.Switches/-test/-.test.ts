@@ -23,7 +23,7 @@ describe('KeyValue.Switches', () => {
         items: [{ id: 'nested' }, { kind: 'hr' }],
       };
       const items: t.KeyValue.Switches.Item[] = [{ id: 'sample' }, { kind: 'hr' }, group];
-      const row: t.KeyValue.Switches.Row = { id: 'sample' };
+      const row: t.KeyValue.Switches.Row = { id: 'sample', x: 8, y: [2, 4] };
       const switchOptions: t.KeyValue.Switches.Item.SwitchOptions = { width: 26, height: 14 };
 
       expectTypeOf(lib).toEqualTypeOf<t.KeyValueSwitches.Lib>();
@@ -41,11 +41,20 @@ describe('KeyValue.Switches', () => {
       const row = Switches.toItem({ id: 'sample', value: true, opacity });
 
       expectTypeOf(row).toEqualTypeOf<t.KeyValue.Row>();
-      expect(row.id).to.equal('sample');
-      expect(row.kind).to.equal('row');
-      expect(row.k).to.equal('sample');
-      expect(row.opacity).to.equal(opacity);
-      expect(row.v).to.not.equal(undefined);
+      expect(row.id).to.eql('sample');
+      expect(row.kind).to.eql('row');
+      expect(row.k).to.eql('sample');
+      expect(row.opacity).to.eql(opacity);
+      expect(row.v).to.not.eql(undefined);
+    });
+
+    it('forwards row spacing to the generated KeyValue row', () => {
+      const x: t.KeyValue.Row['x'] = [12, 0];
+      const y: t.KeyValue.Row['y'] = [2, 4];
+      const row = Switches.toItem({ id: 'sample', x, y });
+
+      expect(row.x).to.eql(x);
+      expect(row.y).to.eql(y);
     });
   });
 
@@ -66,8 +75,8 @@ describe('KeyValue.Switches', () => {
 
       expectTypeOf(items).toEqualTypeOf<t.KeyValue.Item[]>();
       expect(items[1]).to.equal(hr);
-      expect((items[0] as t.KeyValue.Row).k).to.equal('before');
-      expect((items[2] as t.KeyValue.Row).k).to.equal('after');
+      expect((items[0] as t.KeyValue.Row).k).to.eql('before');
+      expect((items[2] as t.KeyValue.Row).k).to.eql('after');
     });
 
     it('maps recursive switch groups to recursive KeyValue groups', () => {
@@ -87,19 +96,19 @@ describe('KeyValue.Switches', () => {
       ]);
 
       expectTypeOf(items).toEqualTypeOf<t.KeyValue.Item[]>();
-      expect((items[0] as t.KeyValue.Row).k).to.equal('before');
-      expect((items[2] as t.KeyValue.Row).k).to.equal('after');
+      expect((items[0] as t.KeyValue.Row).k).to.eql('before');
+      expect((items[2] as t.KeyValue.Row).k).to.eql('after');
 
       const group = items[1] as t.KeyValue.Group;
-      expect(group.id).to.equal('group');
-      expect(group.kind).to.equal('group');
-      expect((group.items[0] as t.KeyValue.Row).k).to.equal('Nested');
+      expect(group.id).to.eql('group');
+      expect(group.kind).to.eql('group');
+      expect((group.items[0] as t.KeyValue.Row).k).to.eql('Nested');
       expect(group.items[1]).to.equal(hr);
 
       const deep = group.items[2] as t.KeyValue.Group;
-      expect(deep.id).to.equal('deep');
-      expect(deep.kind).to.equal('group');
-      expect((deep.items[0] as t.KeyValue.Row).k).to.equal('Deep row');
+      expect(deep.id).to.eql('deep');
+      expect(deep.kind).to.eql('group');
+      expect((deep.items[0] as t.KeyValue.Row).k).to.eql('Deep row');
     });
 
     it('maps undefined input to an empty item list', () => {

@@ -48,6 +48,10 @@ export declare namespace KeyValueSwitches {
     switch?: Item.SwitchOptions;
     /** Row-level opacity forwarded to the underlying `KeyValue` row. */
     opacity?: t.KeyValue.Row['opacity'];
+    /** Horizontal spacing forwarded to the underlying `KeyValue` row. */
+    x?: t.KeyValue.Row['x'];
+    /** Vertical spacing forwarded to the underlying `KeyValue` row. */
+    y?: t.KeyValue.Row['y'];
     /** Receive the next switch value. */
     onToggle?: Item.ToggleHandler;
   };

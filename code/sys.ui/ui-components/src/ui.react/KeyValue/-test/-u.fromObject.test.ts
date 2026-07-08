@@ -5,7 +5,7 @@ describe('KeyValue.fromObject', () => {
   it('type: returns KeyValue.Item[]', () => {
     const items = KeyValue.fromObject({ a: 1 });
     expectTypeOf(items).toEqualTypeOf<t.KeyValue.Item[]>();
-    expect(Is.array(items)).to.equal(true);
+    expect(Is.array(items)).to.eql(true);
   });
 
   it('undefined or empty object → []', () => {
@@ -59,13 +59,13 @@ describe('KeyValue.fromObject', () => {
       items.map((i) => [(i as t.KeyValue.Row).k as string, (i as t.KeyValue.Row).v]),
     );
 
-    expect(map.s).to.equal('str');
-    expect(map.n).to.equal('42');
-    expect(map.b).to.equal('false');
-    expect(map.g).to.equal('123'); // bigint → toString()
-    expect(map.a).to.equal(JSON.stringify([1, 2]));
-    expect(map.o).to.equal(JSON.stringify({ x: 1 }));
-    expect(map.u).to.equal('undefined');
-    expect(map.nil).to.equal('null');
+    expect(map.s).to.eql('str');
+    expect(map.n).to.eql('42');
+    expect(map.b).to.eql('false');
+    expect(map.g).to.eql('123'); // bigint → toString()
+    expect(map.a).to.eql(JSON.stringify([1, 2]));
+    expect(map.o).to.eql(JSON.stringify({ x: 1 }));
+    expect(map.u).to.eql('undefined');
+    expect(map.nil).to.eql('null');
   });
 });

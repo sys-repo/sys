@@ -8,10 +8,10 @@ const items: t.KeyValue.Item[] = [
 
 describe('KeyValue.u.animation', () => {
   it('keeps projection animation opt-in', () => {
-    expect(toProjectionAnimation(undefined, items)).to.equal(undefined);
-    expect(toProjectionAnimation(false, items)).to.equal(undefined);
-    expect(toProjectionAnimation({ enabled: false, projection: true }, items)).to.equal(undefined);
-    expect(toProjectionAnimation({ projection: false }, items)).to.equal(undefined);
+    expect(toProjectionAnimation(undefined, items)).to.eql(undefined);
+    expect(toProjectionAnimation(false, items)).to.eql(undefined);
+    expect(toProjectionAnimation({ enabled: false, projection: true }, items)).to.eql(undefined);
+    expect(toProjectionAnimation({ projection: false }, items)).to.eql(undefined);
   });
 
   it('resolves default direct-child projection animation', () => {
@@ -29,8 +29,8 @@ describe('KeyValue.u.animation', () => {
 
   it('clamps negative projection durations to zero seconds', () => {
     const res = toProjectionAnimation({ projection: { duration: -10 as t.Msecs } }, items);
-    expect(res?.transition.duration).to.equal(0);
-    expect(res?.transition.ease).to.equal('easeOut');
+    expect(res?.transition.duration).to.eql(0);
+    expect(res?.transition.ease).to.eql('easeOut');
   });
 
   it('requires stable root direct-child identity', () => {
@@ -40,13 +40,13 @@ describe('KeyValue.u.animation', () => {
       { id: 'a', k: 'alpha' },
       { id: 'a', k: 'duplicate id' },
     ];
-    expect(hasStableProjectionIdentity(items)).to.equal(true);
-    expect(hasStableProjectionIdentity(missing)).to.equal(false);
-    expect(hasStableProjectionIdentity(blank)).to.equal(false);
-    expect(hasStableProjectionIdentity(duplicate)).to.equal(false);
-    expect(toProjectionAnimation(true, missing)).to.equal(undefined);
-    expect(toProjectionAnimation(true, blank)).to.equal(undefined);
-    expect(toProjectionAnimation(true, duplicate)).to.equal(undefined);
+    expect(hasStableProjectionIdentity(items)).to.eql(true);
+    expect(hasStableProjectionIdentity(missing)).to.eql(false);
+    expect(hasStableProjectionIdentity(blank)).to.eql(false);
+    expect(hasStableProjectionIdentity(duplicate)).to.eql(false);
+    expect(toProjectionAnimation(true, missing)).to.eql(undefined);
+    expect(toProjectionAnimation(true, blank)).to.eql(undefined);
+    expect(toProjectionAnimation(true, duplicate)).to.eql(undefined);
   });
 
   it('does not require nested group member identity for parent-level projection', () => {
@@ -54,7 +54,7 @@ describe('KeyValue.u.animation', () => {
       { id: 'group:status', kind: 'group', items: [{ k: 'nested row without id' }] },
       { id: 'events', k: 'events' },
     ];
-    expect(hasStableProjectionIdentity(grouped)).to.equal(true);
+    expect(hasStableProjectionIdentity(grouped)).to.eql(true);
     expect(toProjectionAnimation(true, grouped)).to.eql({
       transition: { duration: 0.18, ease: 'easeOut' },
     });

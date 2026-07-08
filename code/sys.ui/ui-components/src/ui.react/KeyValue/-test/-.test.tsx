@@ -9,8 +9,8 @@ describe('KeyValue', () => {
 
       samples.forEach((sample) => {
         const items = SAMPLE.items(sample) ?? [];
-        expect(items.every((item) => Is.string(item.id))).to.equal(true);
-        expect(toReorderModel(items)?.ids.length).to.equal(items.length);
+        expect(items.every((item) => Is.string(item.id))).to.eql(true);
+        expect(toReorderModel(items)?.ids.length).to.eql(items.length);
       });
     });
   });
