@@ -15,9 +15,32 @@ export type EntryEvent = Pick<
   | 'target'
 >;
 
+export type NavigationEvent = Pick<
+  React.KeyboardEvent<HTMLElement>,
+  | 'altKey'
+  | 'ctrlKey'
+  | 'metaKey'
+  | 'shiftKey'
+  | 'currentTarget'
+  | 'defaultPrevented'
+  | 'key'
+  | 'target'
+>;
+
+export type NavigationIntent = {
+  readonly navigation: t.KeyValue.Focus.NavigationMode;
+  readonly key: t.KeyValue.Focus.NavigationKey;
+  readonly command: t.KeyValue.Focus.Command<'focus:next' | 'focus:previous' | 'focus:enter' | 'focus:exit'>;
+};
+
 export function entryMode(input?: t.KeyValue.Focus.Entry): t.KeyValue.Focus.EntryMode | undefined {
   if (input === false) return undefined;
   return input ?? 'option-click';
+}
+
+export function navigationMode(input?: t.KeyValue.Focus.Navigation): t.KeyValue.Focus.NavigationMode | undefined {
+  if (input === false) return undefined;
+  return input ?? 'keyboard';
 }
 
 export function shouldEnter(event: EntryEvent, input?: t.KeyValue.Focus.Entry): boolean {
@@ -36,7 +59,7 @@ export function toEntryChange(args: {
   readonly model: t.KeyValue.Focus.Model;
   readonly items: readonly t.KeyValue.Item[];
   readonly ref: t.KeyValue.Focus.Ref;
-}): t.KeyValue.Focus.Change | undefined {
+}): t.KeyValue.Focus.EntryChange | undefined {
   const target = Focus.ref(args.ref.path);
   const command: t.KeyValue.Focus.Command<'focus:set'> = {
     name: 'focus:set',
@@ -46,6 +69,41 @@ export function toEntryChange(args: {
   const next = Focus.apply(previous, args.items, command);
   if (!Focus.eql(next.active, target)) return undefined;
   return { reason: 'focus:entry', entry: args.entry, previous, next, ref: Focus.ref(target.path), command };
+}
+
+export function toNavigationIntent(
+  event: NavigationEvent,
+  input?: t.KeyValue.Focus.Navigation,
+): NavigationIntent | undefined {
+  const mode = navigationMode(input);
+  if (!mode) return undefined;
+  if (event.defaultPrevented) return undefined;
+  if (isModified(event)) return undefined;
+  if (isFromInteractiveDescendant(event)) return undefined;
+
+  const match = commandFromKey(event.key);
+  if (!match) return undefined;
+  return { navigation: mode, key: match.key, command: match.command };
+}
+
+export function toNavigationChange(args: {
+  readonly model: t.KeyValue.Focus.Model;
+  readonly items: readonly t.KeyValue.Item[];
+  readonly intent: NavigationIntent;
+}): t.KeyValue.Focus.NavigationChange | undefined {
+  const previous = args.model;
+  if (!previous.active) return undefined;
+
+  const next = Focus.apply(previous, args.items, args.intent.command);
+  if (Focus.eql(previous.active, next.active)) return undefined;
+  return {
+    reason: 'focus:navigation',
+    navigation: args.intent.navigation,
+    key: args.intent.key,
+    previous,
+    next,
+    command: args.intent.command,
+  };
 }
 
 function isOptionClick(event: EntryEvent) {
@@ -61,7 +119,22 @@ function isFromNestedBoundary(event: EntryEvent) {
   return !!boundary && boundary !== current;
 }
 
-function isFromInteractiveDescendant(event: EntryEvent) {
+function isModified(event: NavigationEvent) {
+  const modifiers = Keyboard.modifiers(event);
+  return modifiers.alt || modifiers.ctrl || modifiers.meta || modifiers.shift;
+}
+
+function commandFromKey(
+  key: string,
+): Pick<NavigationIntent, 'key' | 'command'> | undefined {
+  if (key === 'ArrowDown') return { key, command: { name: 'focus:next', payload: {} } };
+  if (key === 'ArrowUp') return { key, command: { name: 'focus:previous', payload: {} } };
+  if (key === 'Enter') return { key, command: { name: 'focus:enter', payload: {} } };
+  if (key === 'Escape') return { key, command: { name: 'focus:exit', payload: {} } };
+  return undefined;
+}
+
+function isFromInteractiveDescendant(event: EntryEvent | NavigationEvent) {
   const target = toElement(event.target);
   const current = event.currentTarget;
   if (!target || target === current) return false;

@@ -39,11 +39,12 @@ describe('KeyValue.UI: focus entry', () => {
     DomMock.Mouse.click(shell, { altKey: true });
 
     expect(changes.length).to.eql(1);
-    expect(changes[0].entry).to.eql('option-click');
-    expect(changes[0].reason).to.eql('focus:entry');
-    expect(changes[0].ref.path).to.eql(['alpha']);
-    expect(changes[0].next.active?.path).to.eql(['alpha']);
-    expect(changes[0].command).to.eql({ name: 'focus:set', payload: { ref: { path: ['alpha'] } } });
+    const change = entryChange(changes[0]);
+    expect(change.entry).to.eql('option-click');
+    expect(change.reason).to.eql('focus:entry');
+    expect(change.ref.path).to.eql(['alpha']);
+    expect(change.next.active?.path).to.eql(['alpha']);
+    expect(change.command).to.eql({ name: 'focus:set', payload: { ref: { path: ['alpha'] } } });
 
     act(() => res.dispose());
     await Schedule.micro();
@@ -62,8 +63,9 @@ describe('KeyValue.UI: focus entry', () => {
     DomMock.Mouse.click(firstBoundary(res.container));
 
     expect(changes.length).to.eql(1);
-    expect(changes[0].entry).to.eql('click');
-    expect(changes[0].ref.path).to.eql(['alpha']);
+    const change = entryChange(changes[0]);
+    expect(change.entry).to.eql('click');
+    expect(change.ref.path).to.eql(['alpha']);
 
     act(() => res.dispose());
     await Schedule.micro();
@@ -140,7 +142,7 @@ describe('KeyValue.UI: focus entry', () => {
     DomMock.Mouse.click(childShell);
     DomMock.Mouse.click(groupShell);
 
-    expect(changes.map((e) => e.ref.path)).to.eql([['group', 'child'], ['group']]);
+    expect(changes.map((e) => entryChange(e).ref.path)).to.eql([['group', 'child'], ['group']]);
 
     act(() => res.dispose());
     await Schedule.micro();
@@ -179,7 +181,7 @@ describe('KeyValue.UI: focus entry', () => {
     DomMock.Mouse.click(firstBoundary(res.container));
 
     expect(changes.length).to.eql(1);
-    expect(changes[0].ref.path).to.eql(['alpha']);
+    expect(entryChange(changes[0]).ref.path).to.eql(['alpha']);
 
     act(() => res.dispose());
     await Schedule.micro();
@@ -196,4 +198,9 @@ function row(id: string): t.KeyValue.Row {
 
 function firstBoundary(container: HTMLElement) {
   return container.querySelector(boundarySelector) as HTMLElement;
+}
+
+function entryChange(change?: t.KeyValue.Focus.Change): t.KeyValue.Focus.EntryChange {
+  expect(change?.reason).to.eql('focus:entry');
+  return change as t.KeyValue.Focus.EntryChange;
 }

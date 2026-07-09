@@ -12,6 +12,7 @@ import {
   type ProjectionAnimationModel,
 } from './u/mod.ts';
 import { entryMode, shouldEnter, toEntryChange } from './m.Focus/u.event.ts';
+import { focusNavigationRoot, toNavigationHandler, toNavigationRootProps } from './m.Focus/u.navigation.ts';
 import { childScope, toBoundary, type Boundary as FocusBoundary } from './m.Focus/u.render.ts';
 import { Hr, ItemShell, ProjectionItemShell, ReorderList, Row, Spacer, Title } from './ui/mod.ts';
 
@@ -64,6 +65,7 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
 
   /** Motion Reorder owns item motion while active; projection is the static path only. */
   const projection = reorderModel ? undefined : toProjectionAnimation(props.animation, items);
+  const focusNavigation = toNavigationHandler({ items, focus: props.focus });
   const renderContext: RenderContext = {
     theme: theme.name,
     enabled,
@@ -88,6 +90,7 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
         onStart={reorder.onStart}
         onChange={onReorderChange}
         onEnd={reorder.onEnd}
+        focusNavigation={focusNavigation}
         focusBoundary={(item) => toFocusBoundary(item, renderContext, [])}
         renderItem={(item) => {
           const focus = toFocusBoundary(item, renderContext, []);
@@ -100,7 +103,11 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
   const elRows = renderItems(items, renderContext);
 
   return (
-    <div className={className} data-component={D.displayName}>
+    <div
+      className={className}
+      data-component={D.displayName}
+      {...toNavigationRootProps(focusNavigation)}
+    >
       {elRows}
     </div>
   );
@@ -181,7 +188,10 @@ function toFocusBoundary(
       items: context.rootItems,
       ref: focusItem.ref,
     });
-    if (change) onChange(change);
+    if (change) {
+      focusNavigationRoot({ current: event.currentTarget, focus });
+      onChange(change);
+    }
   };
 
   return { ...boundary, onClick };

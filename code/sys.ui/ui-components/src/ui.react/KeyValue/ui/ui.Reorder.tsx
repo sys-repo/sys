@@ -1,5 +1,6 @@
 import React from 'react';
 import { css, Reorder as ReorderBase, type t } from '../common.ts';
+import { toNavigationRootProps } from '../m.Focus/u.navigation.ts';
 import { type Boundary as FocusBoundary } from '../m.Focus/u.render.ts';
 import { type ReorderModel, sameIds, toReorderChange, toReorderedItems } from '../u/mod.ts';
 import { itemShellClass } from './ui.ItemShell.tsx';
@@ -12,6 +13,7 @@ type P = {
   onStart?: t.KeyValue.Reorder.StartHandler;
   onChange: t.KeyValue.Reorder.ChangeHandler;
   onEnd?: t.KeyValue.Reorder.EndHandler;
+  focusNavigation?: React.KeyboardEventHandler<HTMLElement>;
   focusBoundary?: (item: t.KeyValue.Item) => FocusBoundary | undefined;
   renderItem: (item: t.KeyValue.Item) => t.ReactNode;
 };
@@ -95,6 +97,7 @@ export const ReorderList: React.FC<P> = (props) => {
       onReorder={onReorder}
       className={css(props.style).class}
       data-component={dataComponent}
+      {...toNavigationRootProps(props.focusNavigation)}
     >
       {elItems}
     </ReorderBase.Group>

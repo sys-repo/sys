@@ -3,6 +3,7 @@ import { Obj, type t } from '../common.ts';
 import { Focus } from './mod.ts';
 
 export const Data = {
+  root: 'data-keyvalue-focus-root',
   boundary: 'data-keyvalue-item-boundary',
   focusPath: 'data-keyvalue-focus-path',
 } as const;
