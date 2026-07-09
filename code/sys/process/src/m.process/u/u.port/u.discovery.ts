@@ -1,4 +1,4 @@
-import type { t } from '../common.ts';
+import type { t } from '../../common.ts';
 import { parseLsof, parseSs } from './u.parse.ts';
 
 /**

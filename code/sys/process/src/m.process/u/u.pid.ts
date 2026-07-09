@@ -1,4 +1,4 @@
-import { Is, Num, type t, Time } from './common.ts';
+import { Is, Num, type t, Time } from '../common.ts';
 
 const DEFAULT_TIMEOUT = 1_000 as t.Msecs;
 const POLL_INTERVAL = 25 as t.Msecs;

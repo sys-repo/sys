@@ -1,4 +1,4 @@
-import { type t, Time } from './common.ts';
+import { type t, Time } from '../common.ts';
 
 /**
  * Kills a child process.

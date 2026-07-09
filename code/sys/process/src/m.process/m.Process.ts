@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 import { Port } from './m.Port.ts';
 import { Script } from './m.Script.ts';
 import { Terminate } from './m.Terminate.ts';
-import { isRunning } from './u.pid.ts';
+import { isRunning } from './u/u.pid.ts';
 import { capture } from './u.proc/u.capture.ts';
 import { inherit } from './u.proc/u.inherit.ts';
 import { invoke, invokeDetached } from './u.proc/u.invoke.ts';

@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-import { listeners } from './u.port.ts';
+import { listeners } from './u/u.port.ts';
 
 /**
  * Local port inspection helpers.

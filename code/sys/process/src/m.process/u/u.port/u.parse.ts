@@ -1,4 +1,4 @@
-import { Is, Num, type t } from '../common.ts';
+import { Is, Num, type t } from '../../common.ts';
 
 /**
  * Parse `lsof -Fpcn` output into TCP listener facts.

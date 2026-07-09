@@ -1,5 +1,5 @@
 import type { t } from '../common.ts';
-import { asCommand, printOutput, toProcOutput } from '../u.ts';
+import { asCommand, printOutput, toProcOutput } from '../u/u.ts';
 
 /**
  * Run a <unix> command (argv) and wait for response.

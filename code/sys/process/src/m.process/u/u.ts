@@ -1,4 +1,4 @@
-import type { t } from './common.ts';
+import type { t } from '../common.ts';
 export { kill } from './u.kill.ts';
 
 /**

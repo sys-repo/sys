@@ -1,4 +1,4 @@
-import { Is, Num, type t } from '../common.ts';
+import { Is, Num, type t } from '../../common.ts';
 
 /**
  * Normalize and validate a TCP listener target.

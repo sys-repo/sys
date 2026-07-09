@@ -1,5 +1,5 @@
 import { Is, Num, type t } from '../common.ts';
-import { asCommand } from '../u.ts';
+import { asCommand } from '../u/u.ts';
 
 const DEFAULT_KILL_GRACE_MS = 1_000 as t.Msecs;
 

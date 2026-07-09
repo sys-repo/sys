@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t } from '../common.ts';
 import { pid as terminatePid } from './u.pid.ts';
 import { tcpListeners } from './u.port/u.discovery.ts';
 import { portStatus, uniquePids } from './u.port/u.result.ts';
