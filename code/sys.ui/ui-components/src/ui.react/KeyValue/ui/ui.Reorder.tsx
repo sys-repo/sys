@@ -77,9 +77,10 @@ export const ReorderList: React.FC<P> = (props) => {
         as='div'
         key={id}
         value={id}
-        className={itemShellClass(item, layout)}
+        className={itemShellClass(item, layout, focus?.active)}
         data-keyvalue-item-boundary={focus ? 'true' : undefined}
         data-keyvalue-focus-path={focus?.encodedPath}
+        data-keyvalue-focus-active={focus?.active ? 'true' : undefined}
         onClick={focus?.onClick}
         onDragStart={() => onDragStart(id)}
         onDragEnd={() => onDragEnd(id)}

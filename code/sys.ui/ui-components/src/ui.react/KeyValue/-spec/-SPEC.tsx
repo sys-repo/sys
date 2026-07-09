@@ -42,6 +42,14 @@ export default Spec.describe(D.displayName, (e) => {
         const reorder: t.KeyValue.Reorder | undefined = v.reorder
           ? { onStart: onReorderStart, onChange: onReorderChange, onEnd: onReorderEnd }
           : undefined;
+        const focus: t.KeyValue.Focus.Props | undefined = v.focus
+          ? {
+              model: v.focusModel,
+              onChange: (e) => {
+                p.focusModel.value = e.next;
+              },
+            }
+          : undefined;
 
         return (
           <KeyValue.UI
@@ -55,6 +63,7 @@ export default Spec.describe(D.displayName, (e) => {
             items={v.items}
             reorder={reorder}
             animation={v.animation ? true : undefined}
+            focus={focus}
           />
         );
       });

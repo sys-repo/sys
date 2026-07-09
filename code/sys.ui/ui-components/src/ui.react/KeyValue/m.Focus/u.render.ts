@@ -6,11 +6,13 @@ export const Data = {
   root: 'data-keyvalue-focus-root',
   boundary: 'data-keyvalue-item-boundary',
   focusPath: 'data-keyvalue-focus-path',
+  active: 'data-keyvalue-focus-active',
 } as const;
 
 export type Boundary = {
   readonly item?: t.KeyValue.Focus.Item;
   readonly encodedPath?: string;
+  readonly active?: boolean;
   readonly onClick?: React.MouseEventHandler<HTMLElement>;
 };
 
@@ -18,11 +20,13 @@ export function toBoundary(
   items: readonly t.KeyValue.Item[],
   scopePath: t.ObjectPath,
   item: t.KeyValue.Item,
+  model?: t.KeyValue.Focus.Model,
 ): Boundary {
   const focusItem = Focus.scope(items, scopePath).items.find((candidate) => candidate.item === item);
   return {
     item: focusItem,
     encodedPath: focusItem ? Obj.Path.encode(focusItem.ref.path) : undefined,
+    active: focusItem ? Focus.eql(model?.active, focusItem.ref) : undefined,
   };
 }
 

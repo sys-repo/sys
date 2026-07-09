@@ -174,7 +174,7 @@ function toFocusBoundary(
   if (!focus || focus.enabled === false) return undefined;
   if (!scopePath) return {};
 
-  const boundary = toBoundary(context.rootItems, scopePath, item);
+  const boundary = toBoundary(context.rootItems, scopePath, item, focus.model);
   const mode = entryMode(focus.entry);
   const onChange = focus.onChange;
   const focusItem = boundary.item;

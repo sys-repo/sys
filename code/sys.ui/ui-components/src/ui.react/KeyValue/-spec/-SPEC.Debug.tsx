@@ -9,6 +9,7 @@ type P = t.KeyValue.Props;
 type DebugStorage = Pick<P, 'theme' | 'debug' | 'size' | 'mono' | 'truncate' | 'enabled'> & {
   reorder: boolean;
   animation: boolean;
+  focus: boolean;
   layout: t.KeyValue.Layout['kind'];
   layoutSpaced: t.KeyValue.Layout.Spaced;
   layoutTable: t.KeyValue.Layout.Table;
@@ -25,6 +26,7 @@ const DEFAULTS: DebugStorage = {
   enabled: true,
   reorder: false,
   animation: true,
+  focus: false,
   layout: D.layout.default,
   layoutSpaced: D.layout.spaced,
   layoutTable: D.layout.table,
@@ -59,6 +61,8 @@ export function createDebugSignals() {
     enabled: s(snap.enabled ?? true),
     reorder: s(snap.reorder ?? false),
     animation: s(snap.animation ?? false),
+    focus: s(snap.focus ?? false),
+    focusModel: s<t.KeyValue.Focus.Model>({}),
     layout: s(snap.layout),
     layoutSpaced: {
       kind: 'spaced',
@@ -94,6 +98,7 @@ export function createDebugSignals() {
   }
   function reset() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(DEFAULTS, e.path)));
+    p.focusModel.value = {};
     p.items.value = SAMPLE.items(DEFAULTS.sample);
   }
 
@@ -107,6 +112,7 @@ export function createDebugSignals() {
       d.enabled = p.enabled.value;
       d.reorder = p.reorder.value;
       d.animation = p.animation.value;
+      d.focus = p.focus.value;
       d.sample = p.sample.value;
 
       d.layout = p.layout.value;
@@ -210,15 +216,24 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `projection animation: ${p.animation.value}`}
-        onClick={() => Signal.toggle(p.animation)}
+        label={() => `focus.enabled: ${p.focus.value}`}
+        onClick={() => {
+          const next = !p.focus.value;
+          p.focus.value = next;
+          if (!next) p.focusModel.value = {};
+        }}
       />
       <hr />
       <LayoutButtons debug={debug} theme={theme.name} />
       <hr style={{ marginTop: 15 }} />
-      <div className={Styles.title.class}>{'Items:'}</div>
+      <div className={Styles.title.class}>{'items:'}</div>
       <SampleButtons debug={debug} theme={theme.name} />
-      <div className={Styles.title.class} style={{ marginTop: 12 }}>{'Projection motion:'}</div>
+      <div className={Styles.title.class} style={{ marginTop: 12 }}>{'projection motion:'}</div>
+      <Button
+        block
+        label={() => `animation: ${p.animation.value}`}
+        onClick={() => Signal.toggle(p.animation)}
+      />
       {p.reorder.value && (
         <div className={Styles.note.class}>
           {'Turn reorder off to test this prop; Reorder has its own Motion animation.'}

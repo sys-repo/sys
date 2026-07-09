@@ -17,7 +17,7 @@ type ProjectionP = P & {
 /**
  * CSS class for the internal per-item KeyValue boundary.
  */
-export function itemShellClass(item: t.KeyValue.Item, layout?: t.KeyValue.Layout) {
+export function itemShellClass(item: t.KeyValue.Item, layout?: t.KeyValue.Layout, active?: boolean) {
   const resolved = toLayout(layout);
   const kind = item.kind ?? 'row';
   const isRow = kind === 'row';
@@ -38,6 +38,7 @@ export function itemShellClass(item: t.KeyValue.Item, layout?: t.KeyValue.Layout
     gridColumn: isTable ? '1 / -1' : undefined,
     gridTemplateColumns: usesSubgrid ? 'subgrid' : undefined,
     rowGap: isRecursiveShell ? (resolved.rowGap ?? D.layout.spaced.rowGap) : undefined,
+    backgroundColor: active ? 'rgba(255, 0, 0, 0.1)' /* RED */ : undefined,
   }).class;
 }
 
@@ -47,9 +48,10 @@ export function itemShellClass(item: t.KeyValue.Item, layout?: t.KeyValue.Layout
 export const ItemShell: React.FC<P> = (props) => {
   return (
     <div
-      className={itemShellClass(props.item, props.layout)}
+      className={itemShellClass(props.item, props.layout, props.focus?.active)}
       data-keyvalue-item-boundary={props.focus ? 'true' : undefined}
       data-keyvalue-focus-path={props.focus?.encodedPath}
+      data-keyvalue-focus-active={props.focus?.active ? 'true' : undefined}
       onClick={props.focus?.onClick}
     >
       {props.children}
@@ -65,10 +67,11 @@ export const ProjectionItemShell: React.FC<ProjectionP> = (props) => {
     <Motion.div
       layout='position'
       transition={props.projection.transition}
-      className={itemShellClass(props.item, props.layout)}
+      className={itemShellClass(props.item, props.layout, props.focus?.active)}
       data-keyvalue-projection='direct-child'
       data-keyvalue-item-boundary={props.focus ? 'true' : undefined}
       data-keyvalue-focus-path={props.focus?.encodedPath}
+      data-keyvalue-focus-active={props.focus?.active ? 'true' : undefined}
       onClick={props.focus?.onClick}
     >
       {props.children}
