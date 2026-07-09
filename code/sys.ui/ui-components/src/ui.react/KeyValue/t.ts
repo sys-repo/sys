@@ -21,17 +21,101 @@ export declare namespace KeyValue {
   export type Size = 'xs' | 'sm' | 'md';
 
   /** Item kinds. */
-  export type Item = Row | Title | Hr | Spacer | Group;
+  export type Item = Item.Row | Item.Title | Item.Hr | Item.Spacer | Item.Group;
 
-  /** Spacing offset around an item. */
-  export type Spacing = t.Pixels | [t.Pixels, t.Pixels] | readonly [t.Pixels, t.Pixels];
+  /** KeyValue item-shape type family. */
+  export namespace Item {
+    /** Spacing offset around an item. */
+    export type Spacing = t.Pixels | [t.Pixels, t.Pixels] | readonly [t.Pixels, t.Pixels];
 
-  /**
-   * Optional opacity overrides for key/value pairs.
-   * - Single number: applied uniformly to both key and value.
-   * - Object: per-side overrides (k = key, v = value).
-   */
-  export type Opacity = t.Percent | { readonly k?: t.Percent; readonly v?: t.Percent };
+    /**
+     * Optional opacity overrides for key/value pairs.
+     * - Single number: applied uniformly to both key and value.
+     * - Object: per-side overrides (k = key, v = value).
+     */
+    export type Opacity = t.Percent | { readonly k?: t.Percent; readonly v?: t.Percent };
+
+    /** A single key/value row. */
+    export type Row = {
+      readonly id?: string;
+      readonly kind?: 'row';
+      readonly k: React.ReactNode;
+      readonly v?: React.ReactNode;
+      readonly mono?: boolean;
+      readonly truncate?: boolean;
+      readonly x?: Spacing; // spacing: [left, right]
+      readonly y?: Spacing; // spacing: [top, bottom]
+      /**
+       * Row-level opacity overrides.
+       * - Number: dims both key and value by this factor.
+       * - Object: per-side overrides (k = key, v = value).
+       */
+      readonly opacity?: Opacity;
+      /**
+       * Optional link wrapper for row cells.
+       * - `string`/`boolean`/props object → applies to `v` (value) side by default.
+       * - `{ k, v }` → per-side configuration.
+       */
+      readonly href?: Link.Href;
+
+      /** Row-level `user-select` overrides. */
+      userSelect?: t.CssProps['userSelect'];
+    };
+
+    /** A section title. */
+    export type Title = {
+      readonly id?: string;
+      readonly kind: 'title';
+      readonly v: React.ReactNode | [React.ReactNode, React.ReactNode];
+      readonly x?: Spacing; // spacing: [left, right]
+      readonly y?: Spacing; // spacing: [top, bottom]
+    };
+
+    /** A horizontal divider (<hr>). */
+    export type Hr = {
+      readonly id?: string;
+      readonly kind: 'hr';
+      readonly thickness?: t.Pixels;
+      readonly opacity?: t.Percent;
+      readonly x?: Spacing; // spacing: [left, right]
+      readonly y?: Spacing; // spacing: [top, bottom]
+    };
+
+    /** A vertical spacer (extra gap between items). */
+    export type Spacer = {
+      readonly id?: string;
+      readonly kind: 'spacer';
+      readonly size?: number | string;
+    };
+
+    /** A recursive item group that moves as one direct child. */
+    export type Group = {
+      readonly id: string;
+      readonly kind: 'group';
+      readonly items: KeyValue.Item[];
+    };
+  }
+
+  /** Backwards-compatible alias for `KeyValue.Item.Spacing`. */
+  export type Spacing = Item.Spacing;
+
+  /** Backwards-compatible alias for `KeyValue.Item.Opacity`. */
+  export type Opacity = Item.Opacity;
+
+  /** Backwards-compatible alias for `KeyValue.Item.Row`. */
+  export type Row = Item.Row;
+
+  /** Backwards-compatible alias for `KeyValue.Item.Title`. */
+  export type Title = Item.Title;
+
+  /** Backwards-compatible alias for `KeyValue.Item.Hr`. */
+  export type Hr = Item.Hr;
+
+  /** Backwards-compatible alias for `KeyValue.Item.Spacer`. */
+  export type Spacer = Item.Spacer;
+
+  /** Backwards-compatible alias for `KeyValue.Item.Group`. */
+  export type Group = Item.Group;
 
   /** Link type details. */
   export namespace Link {
@@ -390,65 +474,6 @@ export declare namespace KeyValue {
     align?: 'baseline' | 'start' | 'center' | 'end';
   };
 
-  /** A single key/value row. */
-  export type Row = {
-    readonly id?: string;
-    readonly kind?: 'row';
-    readonly k: React.ReactNode;
-    readonly v?: React.ReactNode;
-    readonly mono?: boolean;
-    readonly truncate?: boolean;
-    readonly x?: Spacing; // spacing: [left, right]
-    readonly y?: Spacing; // spacing: [top, bottom]
-    /**
-     * Row-level opacity overrides.
-     * - Number: dims both key and value by this factor.
-     * - Object: per-side overrides (k = key, v = value).
-     */
-    readonly opacity?: Opacity;
-    /**
-     * Optional link wrapper for row cells.
-     * - `string`/`boolean`/props object → applies to `v` (value) side by default.
-     * - `{ k, v }` → per-side configuration.
-     */
-    readonly href?: Link.Href;
-
-    /** Row-level `user-select` overrides. */
-    userSelect?: t.CssProps['userSelect'];
-  };
-
-  /** A section title. */
-  export type Title = {
-    readonly id?: string;
-    readonly kind: 'title';
-    readonly v: React.ReactNode | [React.ReactNode, React.ReactNode];
-    readonly x?: Spacing; // spacing: [left, right]
-    readonly y?: Spacing; // spacing: [top, bottom]
-  };
-
-  /** A horizontal divider (<hr>). */
-  export type Hr = {
-    readonly id?: string;
-    readonly kind: 'hr';
-    readonly thickness?: t.Pixels;
-    readonly opacity?: t.Percent;
-    readonly x?: Spacing; // spacing: [left, right]
-    readonly y?: Spacing; // spacing: [top, bottom]
-  };
-
-  /** A vertical spacer (extra gap between items). */
-  export type Spacer = {
-    readonly id?: string;
-    readonly kind: 'spacer';
-    readonly size?: number | string;
-  };
-
-  /** A recursive item group that moves as one direct child. */
-  export type Group = {
-    readonly id: string;
-    readonly kind: 'group';
-    readonly items: Item[];
-  };
 
   /** Build `Item[]` rows from a plain object. */
   export type FromObject = (obj?: Record<string, unknown>, options?: FromObjectOptions) => Item[];

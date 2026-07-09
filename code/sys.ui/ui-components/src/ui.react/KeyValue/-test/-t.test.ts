@@ -11,15 +11,27 @@ type RenderedActionButtonProps = {
 describe('KeyValue/t', () => {
   describe('item identity', () => {
     it('accepts stable ids on every item kind', () => {
-      const items: t.KeyValue.Item[] = [
-        { id: 'row', k: 'row', v: 'value' },
-        { id: 'title', kind: 'title', v: 'Title' },
-        { id: 'hr', kind: 'hr' },
-        { id: 'spacer', kind: 'spacer', size: 8 },
-        { id: 'group', kind: 'group', items: [{ id: 'group:row', k: 'nested' }] },
-      ];
+      const row: t.KeyValue.Item.Row = { id: 'row', k: 'row', v: 'value' };
+      const title: t.KeyValue.Item.Title = { id: 'title', kind: 'title', v: 'Title' };
+      const hr: t.KeyValue.Item.Hr = { id: 'hr', kind: 'hr' };
+      const spacer: t.KeyValue.Item.Spacer = { id: 'spacer', kind: 'spacer', size: 8 };
+      const group: t.KeyValue.Item.Group = {
+        id: 'group',
+        kind: 'group',
+        items: [{ id: 'group:row', k: 'nested' }],
+      };
+      const items: t.KeyValue.Item[] = [row, title, hr, spacer, group];
+
+      const legacyRow: t.KeyValue.Row = row;
+      const spacing: t.KeyValue.Item.Spacing = [1, 2];
+      const legacySpacing: t.KeyValue.Spacing = spacing;
+      const opacity: t.KeyValue.Item.Opacity = { k: 0.5, v: 0.75 };
+      const legacyOpacity: t.KeyValue.Opacity = opacity;
 
       expectTypeOf(items).toEqualTypeOf<t.KeyValue.Item[]>();
+      expectTypeOf(legacyRow).toEqualTypeOf<t.KeyValue.Item.Row>();
+      expect(legacySpacing).to.equal(spacing);
+      expect(legacyOpacity).to.equal(opacity);
       expect(items.map((item) => item.id)).to.eql(['row', 'title', 'hr', 'spacer', 'group']);
     });
   });
