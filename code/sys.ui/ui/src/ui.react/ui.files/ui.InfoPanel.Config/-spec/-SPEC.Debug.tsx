@@ -5,20 +5,25 @@ import {
   css,
   D,
   LocalStorage,
-  Obj,
   ObjectView,
   Signal,
   STORAGE_KEY,
   type t,
 } from './common.ts';
 
-type P = t.Files.InfoPanel.Config.Props;
-type Storage = Pick<P, 'debug' | 'theme' | 'reorder' | 'fields'>;
+type Storage = {
+  debug: boolean;
+  theme: t.CommonTheme;
+  reorder: boolean;
+  fields: t.Files.InfoPanel.Field[];
+  focusEnabled: boolean;
+};
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
   reorder: true,
   fields: [...D.fields],
+  focusEnabled: false,
 };
 
 /**
@@ -40,6 +45,10 @@ export async function createDebugSignals() {
     theme: s(snap.theme),
     reorder: s(snap.reorder),
     fields: s(snap.fields),
+    focus: {
+      enabled: s(snap.focusEnabled ?? defaults.focusEnabled),
+      model: s<t.KeyValue.Focus.Model>({}),
+    },
   };
   const p = props;
   const api = {
@@ -53,7 +62,12 @@ export async function createDebugSignals() {
   }
 
   function reset() {
-    Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
+    p.debug.value = defaults.debug;
+    p.theme.value = defaults.theme;
+    p.reorder.value = defaults.reorder;
+    p.fields.value = [...defaults.fields];
+    p.focus.enabled.value = defaults.focusEnabled;
+    p.focus.model.value = {};
   }
 
   Signal.effect(() => {
@@ -62,6 +76,7 @@ export async function createDebugSignals() {
       d.debug = p.debug.value;
       d.reorder = p.reorder.value;
       d.fields = p.fields.value;
+      d.focusEnabled = p.focus.enabled.value;
     });
   });
 
@@ -98,6 +113,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => `focus.enabled: ${v.focus.enabled}`}
+        onClick={() => Signal.toggle(p.focus.enabled)}
       />
 
       <hr />
