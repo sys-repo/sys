@@ -11,6 +11,7 @@ import {
   toFinalProvenanceSafetyArgs,
   toPromptArgs,
 } from './u.prompt.ts';
+import { preflightOcrStartup } from './u.ocr.preflight.ts';
 import { RuntimeMetadata } from './u.runtime.metadata.ts';
 
 export type ResolvedProfileRun = {
@@ -39,6 +40,8 @@ export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<Resolv
   const prompt = profile.prompt;
   const capability = profile.sandbox?.capability;
   const context = profile.sandbox?.context;
+  const env = { ...(capability?.env ?? {}), ...(input.env ?? {}) };
+  await preflightOcrStartup({ pdf: profile.tools?.ocr?.pdf, env });
   const contextResolution = await ProfileContext.resolve({
     cwd,
     append: context?.append,
@@ -95,7 +98,7 @@ export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<Resolv
     ],
     read,
     write,
-    env: { ...(capability?.env ?? {}), ...(input.env ?? {}) },
+    env,
     allowAll: input.allowAll,
     pkg: input.pkg,
     sandbox,

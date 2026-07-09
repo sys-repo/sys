@@ -5,7 +5,7 @@
 - [x] refactor(driver-pi): split profile schema into focused modules
 - [x] refactor(driver-pi): group profile utility modules
 - [x] feat(driver-pi): add OCR dependency resolution primitives
-- [ ] feat(driver-pi): add OCR startup preflight gates
+- [x] feat(driver-pi): add OCR startup preflight gates
 - [ ] feat(driver-pi): add explicit Homebrew OCR install consent flow
 - [ ] test(driver-pi): cover OCR dependency preflight and setup flow
 - [ ] feat(driver-pi): materialize OCR PDF extension and launch wiring
@@ -39,6 +39,13 @@ Do this as launcher-owned preflight/setup only. Do not register or materialize `
 4. `test(driver-pi): cover OCR dependency preflight and setup flow`
    - fake dependency probes; no CI dependence on real Homebrew, Poppler, or Tesseract
    - cover missing executables, missing language data, non-interactive behavior, install consent, and failed install status
+
+## Follow-on tool note
+
+Potential sibling tool idea: local Whisper-based audio-to-text transcription.
+Do not fold this into OCR/PDF scope; treat it as a separate bounded observation tool if pursued.
+
+If both OCR and Whisper need Homebrew-backed dependency discovery/install consent, evaluate spinning out a narrow shared Homebrew/process helper, possibly under `@sys/driver-process/<homebrew|brew>` or similar. Do this only after the second consumer proves the boundary; avoid creating a generic process abstraction from the OCR work alone.
 
 ## DMIND decision
 
