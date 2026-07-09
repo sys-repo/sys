@@ -7,17 +7,21 @@ type P = {
   item: t.KeyValue.Item;
   layout?: t.KeyValue.Layout;
   focus?: FocusBoundary;
+  activeFill?: t.RgbaColor;
   children?: t.ReactNode;
 };
 
-type ProjectionP = P & {
-  projection: ProjectionAnimationModel;
-};
+type ProjectionP = P & { projection: ProjectionAnimationModel };
 
 /**
  * CSS class for the internal per-item KeyValue boundary.
  */
-export function itemShellClass(item: t.KeyValue.Item, layout?: t.KeyValue.Layout, active?: boolean) {
+export function itemShellClass(
+  item: t.KeyValue.Item,
+  layout?: t.KeyValue.Layout,
+  active?: boolean,
+  activeFill?: t.RgbaColor,
+) {
   const resolved = toLayout(layout);
   const kind = item.kind ?? 'row';
   const isRow = kind === 'row';
@@ -38,7 +42,7 @@ export function itemShellClass(item: t.KeyValue.Item, layout?: t.KeyValue.Layout
     gridColumn: isTable ? '1 / -1' : undefined,
     gridTemplateColumns: usesSubgrid ? 'subgrid' : undefined,
     rowGap: isRecursiveShell ? (resolved.rowGap ?? D.layout.spaced.rowGap) : undefined,
-    backgroundColor: active ? 'rgba(255, 0, 0, 0.1)' /* RED */ : undefined,
+    backgroundColor: active ? activeFill : undefined,
   }).class;
 }
 
@@ -48,7 +52,7 @@ export function itemShellClass(item: t.KeyValue.Item, layout?: t.KeyValue.Layout
 export const ItemShell: React.FC<P> = (props) => {
   return (
     <div
-      className={itemShellClass(props.item, props.layout, props.focus?.active)}
+      className={itemShellClass(props.item, props.layout, props.focus?.active, props.activeFill)}
       data-keyvalue-item-boundary={props.focus ? 'true' : undefined}
       data-keyvalue-focus-path={props.focus?.encodedPath}
       data-keyvalue-focus-active={props.focus?.active ? 'true' : undefined}
@@ -67,7 +71,7 @@ export const ProjectionItemShell: React.FC<ProjectionP> = (props) => {
     <Motion.div
       layout='position'
       transition={props.projection.transition}
-      className={itemShellClass(props.item, props.layout, props.focus?.active)}
+      className={itemShellClass(props.item, props.layout, props.focus?.active, props.activeFill)}
       data-keyvalue-projection='direct-child'
       data-keyvalue-item-boundary={props.focus ? 'true' : undefined}
       data-keyvalue-focus-path={props.focus?.encodedPath}

@@ -61,6 +61,7 @@ describe('KeyValue.UI: focus navigation', () => {
     await Schedule.micro();
 
     expect(document.activeElement).to.equal(root);
+    expect(window.getComputedStyle(root).outlineStyle).to.eql('none');
 
     const event = keydown(root, 'ArrowDown');
     await Schedule.micro();

@@ -14,6 +14,7 @@ type P = {
   onChange: t.KeyValue.Reorder.ChangeHandler;
   onEnd?: t.KeyValue.Reorder.EndHandler;
   focusNavigation?: React.KeyboardEventHandler<HTMLElement>;
+  focusActiveFill: t.RgbaColor;
   focusBoundary?: (item: t.KeyValue.Item) => FocusBoundary | undefined;
   renderItem: (item: t.KeyValue.Item) => t.ReactNode;
 };
@@ -77,7 +78,7 @@ export const ReorderList: React.FC<P> = (props) => {
         as='div'
         key={id}
         value={id}
-        className={itemShellClass(item, layout, focus?.active)}
+        className={itemShellClass(item, layout, focus?.active, props.focusActiveFill)}
         data-keyvalue-item-boundary={focus ? 'true' : undefined}
         data-keyvalue-focus-path={focus?.encodedPath}
         data-keyvalue-focus-active={focus?.active ? 'true' : undefined}

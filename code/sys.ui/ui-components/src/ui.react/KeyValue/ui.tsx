@@ -20,6 +20,7 @@ type RenderContext = Omit<t.KeyValue.ItemProps, 'item'> & {
   readonly layout: t.KeyValue.Layout;
   readonly rootItems: readonly t.KeyValue.Item[];
   readonly focus?: t.KeyValue.Focus.Props;
+  readonly focusActiveFill: t.RgbaColor;
   readonly projection?: ProjectionAnimationModel;
 };
 
@@ -29,6 +30,7 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
   const disabledOpacity = props.defaults?.disabledOpacity ?? D.defaults.disabledOpacity;
   const layout = toLayout(props.layout);
   const theme = Color.theme(props.theme);
+  const focusActiveFill = Color.alpha(theme.fg, 0.06);
   const { fontSize, fontFamily } = toFont(props);
 
   const isTable = layout.kind === 'table';
@@ -46,6 +48,9 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
       fontSize,
       fontFamily,
       lineHeight: 1.35,
+      outline: 'none',
+      ':focus': { outline: 'none' },
+      ':focus-visible': { outline: 'none' },
 
       // Switch container model:
       display: 'grid',
@@ -75,6 +80,7 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
     layout,
     rootItems: items,
     focus: props.focus,
+    focusActiveFill,
     size,
     debug,
     projection,
@@ -91,6 +97,7 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
         onChange={onReorderChange}
         onEnd={reorder.onEnd}
         focusNavigation={focusNavigation}
+        focusActiveFill={focusActiveFill}
         focusBoundary={(item) => toFocusBoundary(item, renderContext, [])}
         renderItem={(item) => {
           const focus = toFocusBoundary(item, renderContext, []);
@@ -131,14 +138,27 @@ function renderItems(
 
     if (projection) {
       return (
-        <ProjectionItemShell key={key} item={item} layout={context.layout} projection={projection} focus={focus}>
+        <ProjectionItemShell
+          key={key}
+          item={item}
+          layout={context.layout}
+          projection={projection}
+          focus={focus}
+          activeFill={context.focusActiveFill}
+        >
           {children}
         </ProjectionItemShell>
       );
     }
 
     return (
-      <ItemShell key={key} item={item} layout={context.layout} focus={focus}>
+      <ItemShell
+        key={key}
+        item={item}
+        layout={context.layout}
+        focus={focus}
+        activeFill={context.focusActiveFill}
+      >
         {children}
       </ItemShell>
     );
@@ -151,7 +171,13 @@ function renderItem(
   depth = 0,
   groupScope?: t.ObjectPath,
 ) {
-  const { focus: _focus, projection: _projection, rootItems: _rootItems, ...itemContext } = context;
+  const {
+    focus: _focus,
+    focusActiveFill: _focusActiveFill,
+    projection: _projection,
+    rootItems: _rootItems,
+    ...itemContext
+  } = context;
   const args: t.KeyValue.ItemProps = { ...itemContext, item };
 
   if (isRow(item)) {

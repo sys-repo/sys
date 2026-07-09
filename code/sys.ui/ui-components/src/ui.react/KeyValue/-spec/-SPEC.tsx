@@ -1,7 +1,7 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { D, type t } from './common.ts';
-import { KeyValue } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { D } from './common.ts';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
+import { Root } from './-ui.Root.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
@@ -9,19 +9,6 @@ export default Spec.describe(D.displayName, (e) => {
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
-
-    const onReorderStart: t.KeyValue.Reorder.StartHandler = (e) => {
-      console.info('⚡️ KeyValue.reorder.onStart:', e);
-    };
-
-    const onReorderChange: t.KeyValue.Reorder.ChangeHandler = (e) => {
-      console.info('⚡️ KeyValue.reorder.onChange:', e);
-      p.items.value = e.next;
-    };
-
-    const onReorderEnd: t.KeyValue.Reorder.EndHandler = (e) => {
-      console.info('⚡️ KeyValue.reorder.onEnd:', e);
-    };
 
     function update() {
       ctx.subject.size([320, null]);
@@ -34,39 +21,11 @@ export default Spec.describe(D.displayName, (e) => {
       update();
     });
 
+    ctx.host.tracelineColor(0.03);
     ctx.subject
       .size()
       .display('grid')
-      .render(() => {
-        const v = Signal.toObject(p);
-        const reorder: t.KeyValue.Reorder | undefined = v.reorder
-          ? { onStart: onReorderStart, onChange: onReorderChange, onEnd: onReorderEnd }
-          : undefined;
-        const focus: t.KeyValue.Focus.Props | undefined = v.focus
-          ? {
-              model: v.focusModel,
-              onChange: (e) => {
-                p.focusModel.value = e.next;
-              },
-            }
-          : undefined;
-
-        return (
-          <KeyValue.UI
-            debug={v.debug}
-            theme={v.theme}
-            size={v.size}
-            mono={v.mono}
-            truncate={v.truncate}
-            enabled={v.enabled}
-            layout={debug.layout}
-            items={v.items}
-            reorder={reorder}
-            animation={v.animation ? true : undefined}
-            focus={focus}
-          />
-        );
-      });
+      .render(() => <Root debug={debug} />);
 
     update();
   });
