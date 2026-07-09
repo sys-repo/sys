@@ -3,13 +3,13 @@ import { type t, Is, Str, Url } from '../common.ts';
 import { toEllipsis } from './u.style.ts';
 
 type Side = 'k' | 'v';
-type Def = t.KeyValue.LinkDef;
-type DefInput = t.KeyValue.Href | undefined;
+type Def = t.KeyValue.Link.Def;
+type DefInput = t.KeyValue.Link.Href | undefined;
 
 export type ResolvedHref = {
   href: t.StringUri;
   target?: '_blank';
-  display: t.KeyValue.LinkDisplay;
+  display: t.KeyValue.Link.Display;
   rel?: string;
 };
 
@@ -68,12 +68,12 @@ function toSideDef(input: DefInput, side: Side): Def | undefined {
   return side === 'v' ? input : undefined;
 }
 
-function isSplitInput(input: t.KeyValue.Href): input is { readonly k?: Def; readonly v?: Def } {
+function isSplitInput(input: t.KeyValue.Link.Href): input is { readonly k?: Def; readonly v?: Def } {
   if (!Is.object(input) || Is.array(input)) return false;
   return 'k' in input || 'v' in input;
 }
 
-function normalizeDef(def: Def, children?: t.ReactNode): t.KeyValue.LinkProps | undefined {
+function normalizeDef(def: Def, children?: t.ReactNode): t.KeyValue.Link.Props | undefined {
   if (def === false) return;
   if (def === true) return inferDef(children, { infer: true });
   if (Is.string(def)) return { href: def };
@@ -82,8 +82,8 @@ function normalizeDef(def: Def, children?: t.ReactNode): t.KeyValue.LinkProps | 
 
 function inferDef(
   children: t.ReactNode,
-  def: t.KeyValue.LinkProps,
-): t.KeyValue.LinkProps | undefined {
+  def: t.KeyValue.Link.Props,
+): t.KeyValue.Link.Props | undefined {
   if (def.href) return def;
   if (!def.infer) return;
 

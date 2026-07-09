@@ -15,7 +15,7 @@ describe('KeyValue/u.href', () => {
   });
 
   it('props-only object applies to value side by default', () => {
-    const href = { infer: true, open: 'inline' } satisfies t.KeyValue.LinkProps;
+    const href = { infer: true, open: 'inline' } satisfies t.KeyValue.Link.Props;
     expect(resolveHref({ href, side: 'v', children: 'https://example.com' })).to.eql({
       href: 'https://example.com',
       display: 'raw',
@@ -25,7 +25,7 @@ describe('KeyValue/u.href', () => {
   });
 
   it('supports per-side split links', () => {
-    const href: t.KeyValue.Href = { k: true, v: 'https://example.com/value' };
+    const href: t.KeyValue.Link.Href = { k: true, v: 'https://example.com/value' };
     const k = resolveHref({ href, side: 'k', children: 'https://example.com/key' });
     const v = resolveHref({ href, side: 'v', children: 'ignored' });
     expect(k?.href).to.eql('https://example.com/key');

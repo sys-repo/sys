@@ -5,7 +5,7 @@ import { Color, type t } from '../common.ts';
 /**
  * Compact action button for use in a KeyValue row value cell.
  */
-export const ActionButton: React.FC<t.KeyValue.ActionButtonProps> = (props) => {
+export const ActionButton: React.FC<t.KeyValue.ActionButton.Props> = (props) => {
   return (
     <Button
       theme={'Dark'}

@@ -6,6 +6,17 @@ import type { t } from '../common.ts';
  * A minimal table for rendering key/value data with optional titles and dividers.
  */
 export declare namespace KeyValue {
+  /**
+   * Public module surface.
+   */
+  export type Lib = {
+    readonly UI: React.FC<Props>;
+    readonly ActionButton: React.FC<ActionButton.Props>;
+    readonly Focus: Focus.Lib;
+    readonly Switches: Switches.Lib;
+    fromObject: FromObject;
+  };
+
   /** Size flags. */
   export type Size = 'xs' | 'sm' | 'md';
 
@@ -22,9 +33,37 @@ export declare namespace KeyValue {
    */
   export type Opacity = t.Percent | { readonly k?: t.Percent; readonly v?: t.Percent };
 
-  export type LinkOpen = 'new-tab' | 'inline';
-  export type LinkDisplay = 'raw' | 'trim-http';
+  /** Link type details. */
+  export namespace Link {
+    /** Link opening target. */
+    export type Open = 'new-tab' | 'inline';
 
+    /** Link text display mode. */
+    export type Display = 'raw' | 'trim-http';
+
+    /** Link options for one rendered row cell. */
+    export type Props = {
+      readonly href?: t.StringUri;
+      readonly infer?: boolean;
+      readonly open?: Open;
+      readonly display?: Display;
+      readonly rel?: string;
+    };
+
+    /** Link shorthand accepted by a rendered row cell. */
+    export type Def = boolean | t.StringUri | Props;
+
+    /** Link configuration for value or per-side key/value cells. */
+    export type Href = Def | { readonly k?: Def; readonly v?: Def };
+  }
+
+  /** Backwards-compatible alias for `KeyValue.Link.Open`. */
+  export type LinkOpen = Link.Open;
+
+  /** Backwards-compatible alias for `KeyValue.Link.Display`. */
+  export type LinkDisplay = Link.Display;
+
+  /** Component default options. */
   export type Defaults = {
     /**
      * Opacity applied to value-side cells (`v`) when `enabled` is false.
@@ -33,13 +72,19 @@ export declare namespace KeyValue {
     readonly disabledOpacity?: t.Percent;
   };
 
-  /** Compact action button props for use in a KeyValue row value cell. */
-  export type ActionButtonProps = {
-    label: React.ReactNode;
-    enabled?: boolean;
-    tooltip?: string;
-    onClick?: React.MouseEventHandler;
-  };
+  /** Compact action button details. */
+  export namespace ActionButton {
+    /** Props for the compact action button in a KeyValue row value cell. */
+    export type Props = {
+      label: React.ReactNode;
+      enabled?: boolean;
+      tooltip?: string;
+      onClick?: React.MouseEventHandler;
+    };
+  }
+
+  /** Backwards-compatible alias for `KeyValue.ActionButton.Props`. */
+  export type ActionButtonProps = ActionButton.Props;
 
   /**
    * Opt-in animation settings for static direct-child item projection.
@@ -74,27 +119,14 @@ export declare namespace KeyValue {
     };
   }
 
-  export type LinkProps = {
-    readonly href?: t.StringUri;
-    readonly infer?: boolean;
-    readonly open?: LinkOpen;
-    readonly display?: LinkDisplay;
-    readonly rel?: string;
-  };
+  /** Backwards-compatible alias for `KeyValue.Link.Props`. */
+  export type LinkProps = Link.Props;
 
-  export type LinkDef = boolean | t.StringUri | LinkProps;
-  export type Href = LinkDef | { readonly k?: LinkDef; readonly v?: LinkDef };
+  /** Backwards-compatible alias for `KeyValue.Link.Def`. */
+  export type LinkDef = Link.Def;
 
-  /**
-   * Public module surface.
-   */
-  export type Lib = {
-    readonly UI: React.FC<Props>;
-    readonly ActionButton: React.FC<ActionButtonProps>;
-    readonly Focus: Focus.Lib;
-    readonly Switches: Switches.Lib;
-    fromObject: FromObject;
-  };
+  /** Backwards-compatible alias for `KeyValue.Link.Href`. */
+  export type Href = Link.Href;
 
   /**
    * Focus model for command-addressable KeyValue item projections.
@@ -113,22 +145,35 @@ export declare namespace KeyValue {
       apply(model: Model, items: readonly KeyValue.Item[], command: Command): Model;
     };
 
-    /** Opt-in focus entry props for the rendered KeyValue projection. */
+    /** Opt-in focus props for the rendered KeyValue projection. */
     export type Props = {
       readonly enabled?: boolean;
       readonly model?: Model;
       readonly entry?: Entry;
+      readonly navigation?: Navigation;
       readonly onChange?: ChangeHandler;
     };
 
-    /** Supported row/item focus entry gestures. */
+    /** Configured focus-entry behavior. */
     export type Entry = false | EntryMode;
 
-    /** Enabled row/item focus entry gestures. */
+    /** Enabled focus-entry gesture. */
     export type EntryMode = 'option-click' | 'click';
 
-    /** Focus model change emitted by UI entry gestures. */
-    export type Change = {
+    /** Configured focus-navigation behavior. */
+    export type Navigation = false | NavigationMode;
+
+    /** Enabled focus-navigation input mode. */
+    export type NavigationMode = 'keyboard';
+
+    /** Keyboard input that maps to a focus-navigation command. */
+    export type NavigationKey = 'ArrowUp' | 'ArrowDown' | 'Enter' | 'Escape';
+
+    /** Focus change emitted by rendered KeyValue focus inputs. */
+    export type Change = EntryChange | NavigationChange;
+
+    /** Focus change emitted by a focus-entry input. */
+    export type EntryChange = {
       readonly reason: 'focus:entry';
       readonly entry: EntryMode;
       readonly previous: Model;
@@ -137,7 +182,17 @@ export declare namespace KeyValue {
       readonly command: Command<'focus:set'>;
     };
 
-    /** Receive focus model changes from the rendered KeyValue projection. */
+    /** Focus change emitted by a focus-navigation input. */
+    export type NavigationChange = {
+      readonly reason: 'focus:navigation';
+      readonly navigation: NavigationMode;
+      readonly key: NavigationKey;
+      readonly previous: Model;
+      readonly next: Model;
+      readonly command: Command<'focus:next' | 'focus:previous' | 'focus:enter' | 'focus:exit'>;
+    };
+
+    /** Receives controlled KeyValue focus changes. */
     export type ChangeHandler = (e: Change) => void;
 
     /** Stable focus identity for one projected item in a KeyValue item tree. */
@@ -318,12 +373,17 @@ export declare namespace KeyValue {
 
   /** Layout config for key/value rows. */
   export type Layout = LayoutSpaced | LayoutTable;
+
+  /** Spaced layout config for stacked key/value rows. */
   export type LayoutSpaced = LayoutCommon & { kind: 'spaced' };
+
+  /** Table layout config for aligned key/value rows. */
   export type LayoutTable = LayoutCommon & {
     kind: 'table';
     keyMax?: string | t.Pixels;
     keyAlign?: 'left' | 'right';
   };
+  /** Common layout options shared by KeyValue row layouts. */
   export type LayoutCommon = {
     columnGap?: t.Pixels;
     rowGap?: t.Pixels;
@@ -351,7 +411,7 @@ export declare namespace KeyValue {
      * - `string`/`boolean`/props object → applies to `v` (value) side by default.
      * - `{ k, v }` → per-side configuration.
      */
-    readonly href?: Href;
+    readonly href?: Link.Href;
 
     /** Row-level `user-select` overrides. */
     userSelect?: t.CssProps['userSelect'];
