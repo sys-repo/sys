@@ -10,6 +10,7 @@ describe('Value.Num', () => {
     expect(typeof Num.Is.int).to.equal('function');
     expect(typeof Num.Is.safeInt).to.equal('function');
     expect(Num.Percent).to.equal(Percent);
+    expect(Num.Percent.Is).to.equal(Percent.Is);
     expect(Num.Percent.Range).to.eql(PercentRange);
     expect(Num.Ratio).to.equal(Ratio);
   });

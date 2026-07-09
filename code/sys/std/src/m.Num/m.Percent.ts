@@ -5,6 +5,18 @@ import { PercentRange as Range } from './m.Percent.Range.ts';
  * Tools for working with numbers that represent percentages.
  */
 export const Percent: t.Num.Percent.Lib = {
+  Is: {
+    /** Determine if the input represents a percentage (0..1). */
+    percent(value?: unknown): value is t.Percent {
+      return Is.number(value) && value >= 0 && value <= 1;
+    },
+
+    /** Determine if the input represents pixels (> 1). */
+    pixels(value?: unknown): value is t.Pixels {
+      return Is.number(value) && value > 1;
+    },
+  },
+
   Range,
 
   /**
@@ -17,20 +29,6 @@ export const Percent: t.Num.Percent.Lib = {
     if (Is.number(min)) percent = Math.max(wrangle.percent(min), percent);
     if (Is.number(max)) percent = Math.min(wrangle.percent(max), percent);
     return wrangle.unit(percent);
-  },
-
-  /**
-   * Determine if the number represents a percentage (0..1).
-   */
-  isPercent(value?: t.PixelOrPercent): value is number {
-    return Is.number(value) && value >= 0 && value <= 1;
-  },
-
-  /**
-   * Determine if the number represents pixels (> 1).
-   */
-  isPixels(value?: t.PixelOrPercent): value is number {
-    return Is.number(value) && value > 1;
   },
 
   /**

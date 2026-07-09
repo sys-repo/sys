@@ -81,21 +81,31 @@ export declare namespace Num {
      * Tools for working with numbers that represent percentages.
      */
     export type Lib = {
+      /** Predicates over percentage-like values. */
+      readonly Is: Is.Lib;
       /** Tools for working with percentage ranges. */
       readonly Range: Range.Lib;
 
       /** Convert a value to a percentage. */
       clamp(value?: string | number, min?: string | number, max?: string | number): t.Percent;
 
-      /** Determine if the number represents a percentage (0..1). */
-      isPercent(value?: t.PixelOrPercent): value is number;
-
-      /** Determine if the number represents pixels (> 1). */
-      isPixels(value?: t.PixelOrPercent): value is number;
-
       /** Convert a percentage to a "100%" string. */
       toString(value?: t.Percent): string;
     };
+
+    /**
+     * Percentage predicate contracts.
+     */
+    export namespace Is {
+      /** Predicates over percentage-like values. */
+      export type Lib = {
+        /** Determine if the input represents a percentage (0..1). */
+        percent(value?: unknown): value is t.Percent;
+
+        /** Determine if the input represents pixels (> 1). */
+        pixels(value?: unknown): value is t.Pixels;
+      };
+    }
 
     /**
      * Percentage range contracts.
