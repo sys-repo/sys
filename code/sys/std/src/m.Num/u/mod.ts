@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t } from '../common.ts';
 
 /**
  * Rounds a number to the specified number of decimal places.

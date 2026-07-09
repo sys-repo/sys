@@ -2,9 +2,9 @@ import type { t } from './common.ts';
 import { Is } from './m.Is.ts';
 import { Percent } from './m.Percent/mod.ts';
 import { Ratio } from './m.Ratio.ts';
-import { random } from './u.random.ts';
-import { toLetter, toString } from './u.string.ts';
-import { clamp, round, sum } from './u.ts';
+import { clamp, round, sum } from './u/mod.ts';
+import { random } from './u/u.random.ts';
+import { toLetter, toString } from './u/u.string.ts';
 
 /**
  * Tools for working with numbers.

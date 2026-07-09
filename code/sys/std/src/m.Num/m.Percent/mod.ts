@@ -1,5 +1,5 @@
 import { type t } from '../common.ts';
-import { round } from '../u.ts';
+import { round } from '../u/mod.ts';
 import { Is } from './m.Is.ts';
 import { Range } from './m.Range.ts';
 import { clamp, normalize } from './u.ts';

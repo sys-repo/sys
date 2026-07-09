@@ -1,4 +1,4 @@
-import { Is, type t } from './common.ts';
+import { Is, type t } from '../common.ts';
 
 const POW_2_53 = 9_007_199_254_740_992;
 const POW_2_26 = 67_108_864;
