@@ -156,9 +156,9 @@ describe('KeyValue.UI: item boundaries', () => {
   });
 
   it('keeps projection boundaries across direct-child insert, remove, and order changes', async () => {
-    const a: t.KeyValue.Row = { id: 'a', k: 'alpha', v: 'one' };
-    const b: t.KeyValue.Row = { id: 'b', k: 'bravo', v: 'two' };
-    const c: t.KeyValue.Row = { id: 'c', k: 'charlie', v: 'three' };
+    const a: t.KeyValue.Item.Row = { id: 'a', k: 'alpha', v: 'one' };
+    const b: t.KeyValue.Item.Row = { id: 'b', k: 'bravo', v: 'two' };
+    const c: t.KeyValue.Item.Row = { id: 'c', k: 'charlie', v: 'three' };
     let setItems: React.Dispatch<React.SetStateAction<t.KeyValue.Item[]>> | undefined;
 
     const Probe: React.FC = () => {
@@ -195,7 +195,7 @@ describe('KeyValue.UI: item boundaries', () => {
   });
 });
 
-function statusGroup(): t.KeyValue.Group {
+function statusGroup(): t.KeyValue.Item.Group {
   return {
     id: 'group:status',
     kind: 'group',

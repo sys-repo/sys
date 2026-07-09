@@ -74,7 +74,7 @@ export function toItems(input: Input): t.KeyValue.Item[] {
 /**
  * Helpers:
  */
-function title(input: Input, fields: readonly t.Files.InfoPanel.Field[]): t.KeyValue.Title['v'] {
+function title(input: Input, fields: readonly t.Files.InfoPanel.Field[]): t.KeyValue.Item.Title['v'] {
   const label = input.title ?? D.title;
   if (!fields.includes('title.status')) return label;
   return [

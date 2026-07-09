@@ -65,7 +65,7 @@ describe('KeyValue.u.reorder', () => {
   });
 
   it('treats recursive groups as atomic direct children', () => {
-    const group: t.KeyValue.Group = {
+    const group: t.KeyValue.Item.Group = {
       id: 'group:status',
       kind: 'group',
       items: [

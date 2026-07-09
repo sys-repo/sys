@@ -1,7 +1,7 @@
 import { Is, type t } from '../common.ts';
 
 export function toRowOpacity(
-  raw: t.KeyValue.Opacity | undefined,
+  raw: t.KeyValue.Item.Opacity | undefined,
   base: { k: t.Percent; v: t.Percent },
 ): { k: t.Percent; v: t.Percent } {
   if (Is.nil(raw)) {

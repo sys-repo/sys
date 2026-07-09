@@ -214,7 +214,7 @@ describe('KeyValue.UI: focus navigation', () => {
  * Helpers:
  */
 
-function row(id: string): t.KeyValue.Row {
+function row(id: string): t.KeyValue.Item.Row {
   return { id, k: id, v: id };
 }
 

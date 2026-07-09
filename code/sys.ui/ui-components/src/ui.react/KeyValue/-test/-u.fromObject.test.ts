@@ -16,15 +16,15 @@ describe('KeyValue.fromObject', () => {
   it('basic mapping (k/v)', () => {
     const items = KeyValue.fromObject({ a: 1, b: 'two', c: true });
     expect(items.map((i) => i.kind ?? 'row')).to.eql(['row', 'row', 'row']);
-    expect(items.map((i) => (i as t.KeyValue.Row).k)).to.eql(['a', 'b', 'c']);
+    expect(items.map((i) => (i as t.KeyValue.Item.Row).k)).to.eql(['a', 'b', 'c']);
     // default formatter stringifies values
-    expect(items.map((i) => (i as t.KeyValue.Row).v)).to.eql(['1', 'two', 'true']);
+    expect(items.map((i) => (i as t.KeyValue.Item.Row).v)).to.eql(['1', 'two', 'true']);
   });
 
   it('preserves insertion order', () => {
     const obj = { z: 0, a: 1, m: 2, b: 3 };
     const items = KeyValue.fromObject(obj);
-    const keys = items.map((i) => (i as t.KeyValue.Row).k);
+    const keys = items.map((i) => (i as t.KeyValue.Item.Row).k);
     expect(keys).to.eql(['z', 'a', 'm', 'b']);
   });
 
@@ -33,14 +33,14 @@ describe('KeyValue.fromObject', () => {
     const items = KeyValue.fromObject(obj, {
       filter: (_key, v) => Is.number(v) && v % 2 === 1,
     });
-    const keys = items.map((i) => (i as t.KeyValue.Row).k);
+    const keys = items.map((i) => (i as t.KeyValue.Item.Row).k);
     expect(keys).to.eql(['b', 'd']);
   });
 
   it('format(value): custom render for values', () => {
     const obj = { a: 1, b: 'x' };
     const items = KeyValue.fromObject(obj, { format: (v) => `v:${String(v)}` });
-    expect(items.map((i) => (i as t.KeyValue.Row).v)).to.eql(['v:1', 'v:x']);
+    expect(items.map((i) => (i as t.KeyValue.Item.Row).v)).to.eql(['v:1', 'v:x']);
   });
 
   it('default formatting: primitives, bigint, arrays, objects, null/undefined', () => {
@@ -56,7 +56,7 @@ describe('KeyValue.fromObject', () => {
     };
     const items = KeyValue.fromObject(obj);
     const map = Object.fromEntries(
-      items.map((i) => [(i as t.KeyValue.Row).k as string, (i as t.KeyValue.Row).v]),
+      items.map((i) => [(i as t.KeyValue.Item.Row).k as string, (i as t.KeyValue.Item.Row).v]),
     );
 
     expect(map.s).to.eql('str');

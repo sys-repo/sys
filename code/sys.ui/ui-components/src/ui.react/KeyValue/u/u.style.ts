@@ -51,14 +51,14 @@ export function toLayout(layout?: t.KeyValue.Layout): NonNullable<t.KeyValue.Lay
 /**
  * Derive spacing CSS values.
  */
-export function toSpacing(inputX?: t.KeyValue.Spacing, inputY?: t.KeyValue.Spacing) {
+export function toSpacing(inputX?: t.KeyValue.Item.Spacing, inputY?: t.KeyValue.Item.Spacing) {
   const x = toSpacingTuple(inputX);
   const y = toSpacingTuple(inputY);
   const edges: t.CssEdgesArray = [y[0], x[1], y[1], x[0]];
   return { x, y, edges };
 }
 
-export function toSpacingTuple(value?: t.KeyValue.Spacing): PixelTuple {
+export function toSpacingTuple(value?: t.KeyValue.Item.Spacing): PixelTuple {
   if (value == null) return [undefined, undefined];
   if (Is.array(value)) return [value[0], value[1]];
   if (Is.number(value)) return [value, value];

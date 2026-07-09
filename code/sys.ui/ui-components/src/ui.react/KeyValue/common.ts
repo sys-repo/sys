@@ -13,7 +13,7 @@ const layout = {
   columnGap: 20,
   rowGap: 4,
   align: 'baseline',
-} satisfies NonNullable<t.KeyValue.LayoutCommon>;
+} satisfies NonNullable<t.KeyValue.Layout.Common>;
 
 export const D = {
   name,
@@ -24,17 +24,17 @@ export const D = {
   truncate: true satisfies NonNullable<P['truncate']>,
   enabled: true satisfies NonNullable<P['enabled']>,
   defaults: { disabledOpacity: 0.5 } satisfies NonNullable<t.KeyValue.Defaults>,
-  spacer: { kind: 'spacer', size: 8 } satisfies NonNullable<t.KeyValue.Spacer>,
+  spacer: { kind: 'spacer', size: 8 } satisfies NonNullable<t.KeyValue.Item.Spacer>,
   animation: { projection: { duration: 180 as t.Msecs, ease: 'easeOut' } },
   layout: {
     default: 'spaced' as const,
-    spaced: { kind: 'spaced', ...layout } satisfies NonNullable<t.KeyValue.LayoutSpaced>,
+    spaced: { kind: 'spaced', ...layout } satisfies NonNullable<t.KeyValue.Layout.Spaced>,
     table: {
       kind: 'table',
       keyMax: '24ch',
       keyAlign: 'left',
       ...layout,
-    } satisfies NonNullable<t.KeyValue.LayoutTable>,
+    } satisfies NonNullable<t.KeyValue.Layout.Table>,
   },
 } as const;
 export const DEFAULTS = D;

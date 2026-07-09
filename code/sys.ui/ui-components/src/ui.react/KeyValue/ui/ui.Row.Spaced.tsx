@@ -4,8 +4,8 @@ import { toFont, toRowOpacity, toSpacing } from '../u/mod.ts';
 import { Cell } from './ui.Cell.tsx';
 
 type P = Omit<t.KeyValue.ItemProps, 'layout' | 'item'> & {
-  layout: t.KeyValue.LayoutSpaced;
-  item: t.KeyValue.Row;
+  layout: t.KeyValue.Layout.Spaced;
+  item: t.KeyValue.Item.Row;
 };
 
 export const RowSpaced: React.FC<P> = (props) => {

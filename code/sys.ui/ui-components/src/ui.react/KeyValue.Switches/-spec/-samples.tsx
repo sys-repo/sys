@@ -6,11 +6,11 @@ export type SampleValues = Record<string, boolean>;
 
 type SampleRow = Omit<t.KeyValueSwitches.Row, 'value' | 'onToggle'>;
 type SampleGroup = Omit<t.KeyValueSwitches.Group, 'items'> & { items: SampleItem[] };
-type SampleItem = SampleRow | t.KeyValue.Hr | SampleGroup;
+type SampleItem = SampleRow | t.KeyValue.Item.Hr | SampleGroup;
 type ToggleHandler = t.KeyValueSwitches.Item.Toggle.Handler;
 type SampleOptions = { values?: SampleValues; onToggle?: ToggleHandler };
 
-const isHr = (item: t.KeyValueSwitches.Item): item is t.KeyValue.Hr => {
+const isHr = (item: t.KeyValueSwitches.Item): item is t.KeyValue.Item.Hr => {
   return Is.object(item) && 'kind' in item && item.kind === 'hr';
 };
 

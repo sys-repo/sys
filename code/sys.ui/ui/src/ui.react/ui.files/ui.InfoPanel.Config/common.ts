@@ -21,7 +21,7 @@ const layout = {
   kind: 'spaced',
   columnGap: 10,
   rowGap: 4,
-} satisfies t.KeyValue.LayoutSpaced;
+} satisfies t.KeyValue.Layout.Spaced;
 const defaults: t.Files.InfoPanel.Config.Defaults = {
   fields,
   reorder,

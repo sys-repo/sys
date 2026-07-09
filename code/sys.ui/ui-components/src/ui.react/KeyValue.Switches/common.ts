@@ -21,7 +21,7 @@ export const D = {
   layout: {
     ...KeyValueD.layout.spaced,
     align: 'start',
-  } satisfies t.KeyValue.LayoutSpaced,
+  } satisfies t.KeyValue.Layout.Spaced,
 } as const;
 export const DEFAULTS = D;
 export const STORAGE_KEY = { DEV: `dev:${D.displayName}` };

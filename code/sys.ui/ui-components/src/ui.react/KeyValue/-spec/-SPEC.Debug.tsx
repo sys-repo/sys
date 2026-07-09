@@ -10,8 +10,8 @@ type DebugStorage = Pick<P, 'theme' | 'debug' | 'size' | 'mono' | 'truncate' | '
   reorder: boolean;
   animation: boolean;
   layout: t.KeyValue.Layout['kind'];
-  layoutSpaced: t.KeyValue.LayoutSpaced;
-  layoutTable: t.KeyValue.LayoutTable;
+  layoutSpaced: t.KeyValue.Layout.Spaced;
+  layoutTable: t.KeyValue.Layout.Table;
   sample?: SampleKind;
 };
 
@@ -84,8 +84,8 @@ export function createDebugSignals() {
     listen,
     get layout(): t.KeyValue.Layout | undefined {
       const v = p.layout.value;
-      if (v === 'spaced') return Signal.toObject(p.layoutSpaced) as t.KeyValue.LayoutSpaced;
-      if (v === 'table') return Signal.toObject(p.layoutTable) as t.KeyValue.LayoutTable;
+      if (v === 'spaced') return Signal.toObject(p.layoutSpaced) as t.KeyValue.Layout.Spaced;
+      if (v === 'table') return Signal.toObject(p.layoutTable) as t.KeyValue.Layout.Table;
       return;
     },
   };

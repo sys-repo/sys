@@ -26,7 +26,7 @@ describe('Files.InfoPanel item projection', () => {
 
     it('defaults the title status marker on and its label off', () => {
       const items = toItems({ fields: [...D.fields], snapshot: { status: 'ready' } });
-      const title = items[0] as t.KeyValue.Title;
+      const title = items[0] as t.KeyValue.Item.Title;
       const value = Array.isArray(title.v) ? title.v[1] : undefined;
 
       expect(items[0]?.id).to.eql('title');
@@ -44,8 +44,8 @@ describe('Files.InfoPanel item projection', () => {
         fields: ['title', 'title.status', 'title.status.label'],
         snapshot: { status: 'ready' },
       });
-      const markerTitle = marker[0] as t.KeyValue.Title;
-      const labelTitle = label[0] as t.KeyValue.Title;
+      const markerTitle = marker[0] as t.KeyValue.Item.Title;
+      const labelTitle = label[0] as t.KeyValue.Item.Title;
       const markerValue = Array.isArray(markerTitle.v) ? markerTitle.v[1] : undefined;
       const labelValue = Array.isArray(labelTitle.v) ? labelTitle.v[1] : undefined;
 
@@ -60,7 +60,7 @@ describe('Files.InfoPanel item projection', () => {
     it('maps legacy status:title fields to the nested title controls', () => {
       const legacy = 'status:title' as unknown as t.Files.InfoPanel.Field;
       const items = toItems({ fields: [legacy], snapshot: { status: 'ready' } });
-      const title = items[0] as t.KeyValue.Title;
+      const title = items[0] as t.KeyValue.Item.Title;
       const value = Array.isArray(title.v) ? title.v[1] : undefined;
 
       expect(items.map((item) => item.id)).to.eql(['title']);
@@ -92,9 +92,9 @@ describe('Files.InfoPanel item projection', () => {
       expect(stopped.length).to.eql(0);
       expect(noWatch.length).to.eql(0);
 
+      expect(row?.id).to.eql('events');
       expect(row?.kind).to.eql('row');
       if (!row || row.kind !== 'row') return;
-      expect(row.k).to.eql('events');
       expect(React.isValidElement(row.v)).to.eql(true);
     });
   });

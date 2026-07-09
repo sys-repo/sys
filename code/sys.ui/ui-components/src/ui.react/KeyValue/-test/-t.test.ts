@@ -21,17 +21,12 @@ describe('KeyValue/t', () => {
         items: [{ id: 'group:row', k: 'nested' }],
       };
       const items: t.KeyValue.Item[] = [row, title, hr, spacer, group];
-
-      const legacyRow: t.KeyValue.Row = row;
       const spacing: t.KeyValue.Item.Spacing = [1, 2];
-      const legacySpacing: t.KeyValue.Spacing = spacing;
       const opacity: t.KeyValue.Item.Opacity = { k: 0.5, v: 0.75 };
-      const legacyOpacity: t.KeyValue.Opacity = opacity;
 
       expectTypeOf(items).toEqualTypeOf<t.KeyValue.Item[]>();
-      expectTypeOf(legacyRow).toEqualTypeOf<t.KeyValue.Item.Row>();
-      expect(legacySpacing).to.equal(spacing);
-      expect(legacyOpacity).to.equal(opacity);
+      expect(spacing).to.eql([1, 2]);
+      expect(opacity).to.eql({ k: 0.5, v: 0.75 });
       expect(items.map((item) => item.id)).to.eql(['row', 'title', 'hr', 'spacer', 'group']);
     });
   });
@@ -42,10 +37,7 @@ describe('KeyValue/t', () => {
       const element = KeyValue.ActionButton(props);
       const button = React.isValidElement<RenderedActionButtonProps>(element) ? element : undefined;
 
-      const aliasProps: t.KeyValue.ActionButtonProps = props;
-
       expectTypeOf(KeyValue.ActionButton).toEqualTypeOf<React.FC<t.KeyValue.ActionButton.Props>>();
-      expectTypeOf(aliasProps).toEqualTypeOf<t.KeyValue.ActionButton.Props>();
       expect(button?.props.padding).to.eql([0, 8]);
       expect(button?.props.style?.backgroundColor).to.eql(Color.BLUE);
       expect(button?.props.style?.borderRadius).to.eql(3);
@@ -61,18 +53,38 @@ describe('KeyValue/t', () => {
       };
       const def: t.KeyValue.Link.Def = props;
       const href: t.KeyValue.Link.Href = { k: true, v: def };
-      const row: t.KeyValue.Row = { k: 'site', v: 'https://example.com', href };
-
-      const legacyProps: t.KeyValue.LinkProps = props;
-      const legacyDef: t.KeyValue.LinkDef = def;
-      const legacyHref: t.KeyValue.Href = href;
+      const row: t.KeyValue.Item.Row = { k: 'site', v: 'https://example.com', href };
 
       expectTypeOf(props.open).toMatchTypeOf<t.KeyValue.Link.Open | undefined>();
       expectTypeOf(props.display).toMatchTypeOf<t.KeyValue.Link.Display | undefined>();
-      expectTypeOf(legacyProps).toEqualTypeOf<t.KeyValue.Link.Props>();
-      expect(legacyDef).to.equal(def);
-      expect(legacyHref).to.equal(href);
       expect(row.href).to.equal(href);
+    });
+  });
+
+  describe('Layout', () => {
+    it('exposes the public Layout type family', () => {
+      const common: t.KeyValue.Layout.Common = { columnGap: 8 };
+      const spaced: t.KeyValue.Layout.Spaced = { ...common, kind: 'spaced' };
+      const table: t.KeyValue.Layout.Table = { ...common, kind: 'table', keyAlign: 'right' };
+      const layout: t.KeyValue.Layout = table;
+
+      expectTypeOf(spaced).toEqualTypeOf<t.KeyValue.Layout.Spaced>();
+      expectTypeOf(table).toEqualTypeOf<t.KeyValue.Layout.Table>();
+      expectTypeOf(common).toEqualTypeOf<t.KeyValue.Layout.Common>();
+      expect(layout.kind).to.eql('table');
+    });
+  });
+
+  describe('FromObject', () => {
+    it('exposes the public FromObject type family', () => {
+      const options: t.KeyValue.FromObject.Options = {
+        filter: (key) => key !== 'skip',
+        format: (value) => String(value),
+      };
+      const fromObject: t.KeyValue.FromObject = (_obj, _options) => [];
+
+      expectTypeOf(options).toEqualTypeOf<t.KeyValue.FromObject.Options>();
+      expect(fromObject({}, options)).to.eql([]);
     });
   });
 
@@ -156,7 +168,6 @@ describe('KeyValue/t', () => {
       expectTypeOf(end).toEqualTypeOf<t.KeyValue.Reorder.End>();
       expectTypeOf(onStart).toEqualTypeOf<t.KeyValue.Reorder.StartHandler>();
       expectTypeOf(onChange).toEqualTypeOf<t.KeyValue.Reorder.ChangeHandler>();
-      expectTypeOf(onChange).toEqualTypeOf<t.KeyValue.Reorder.Handler>();
       expectTypeOf(onEnd).toEqualTypeOf<t.KeyValue.Reorder.EndHandler>();
       expectTypeOf(reorder).toEqualTypeOf<t.KeyValue.Reorder>();
       expect(start.items).to.equal(items);

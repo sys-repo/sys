@@ -12,7 +12,7 @@ export const Row: React.FC<P> = (props) => {
   if (item.kind != null && item.kind !== 'row') return null;
 
   const layout = toLayout(props.layout);
-  const row = item as t.KeyValue.Row;
+  const row = item as t.KeyValue.Item.Row;
 
   if (layout.kind === 'table') return <RowTable {...props} layout={layout} item={row} />;
   if (layout.kind === 'spaced') return <RowSpaced {...props} layout={layout} item={row} />;

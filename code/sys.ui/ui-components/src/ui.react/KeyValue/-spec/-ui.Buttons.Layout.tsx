@@ -5,7 +5,7 @@ import { type t, Color, css, D, Signal } from './common.ts';
 import type { DebugSignals } from './-SPEC.Debug.tsx';
 
 type L = t.KeyValue.Layout;
-type LT = t.KeyValue.LayoutTable;
+type LT = t.KeyValue.Layout.Table;
 type SelectedLayout = DebugSignals['props']['layoutSpaced' | 'layoutTable'];
 
 export type LayoutButtonsProps = {

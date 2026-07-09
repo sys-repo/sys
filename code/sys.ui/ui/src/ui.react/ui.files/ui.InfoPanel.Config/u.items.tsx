@@ -98,7 +98,7 @@ function isTitleField(field: Field): boolean {
   return titleFields.some((candidate) => candidate === field);
 }
 
-function fieldIndent(field: Field): t.KeyValue.Row['x'] | undefined {
+function fieldIndent(field: Field): t.KeyValue.Item.Row['x'] | undefined {
   if (field === 'title.status') return [12, 0];
   if (field === 'title.status.label') return [12, 0];
 }

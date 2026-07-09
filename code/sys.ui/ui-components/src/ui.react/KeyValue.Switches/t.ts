@@ -20,7 +20,7 @@ export declare namespace KeyValueSwitches {
   };
 
   /** Ordered switch item input mapped into `KeyValue` items. */
-  export type Item = Row | t.KeyValue.Hr | Group;
+  export type Item = Row | t.KeyValue.Item.Hr | Group;
 
   /** Recursive switch item group mapped into a `KeyValue` group. */
   export type Group = {
@@ -47,17 +47,17 @@ export declare namespace KeyValueSwitches {
     /** Per-row switch options overriding component defaults. */
     switch?: Item.SwitchOptions;
     /** Row-level opacity forwarded to the underlying `KeyValue` row. */
-    opacity?: t.KeyValue.Row['opacity'];
+    opacity?: t.KeyValue.Item.Row['opacity'];
     /** Horizontal spacing forwarded to the underlying `KeyValue` row. */
-    x?: t.KeyValue.Row['x'];
+    x?: t.KeyValue.Item.Row['x'];
     /** Vertical spacing forwarded to the underlying `KeyValue` row. */
-    y?: t.KeyValue.Row['y'];
+    y?: t.KeyValue.Item.Row['y'];
     /** Receive the next switch value. */
     onToggle?: Item.Toggle.Handler;
   };
 
   /** Convert one switch row input into a `KeyValue` row. */
-  export type ToItem = (item: Row, options?: ToItem.Options) => t.KeyValue.Row;
+  export type ToItem = (item: Row, options?: ToItem.Options) => t.KeyValue.Item.Row;
 
   /** Convert switch inputs into `KeyValue` items. */
   export type ToItems = (items?: Item[], options?: ToItems.Options) => t.KeyValue.Item[];

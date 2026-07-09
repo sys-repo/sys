@@ -46,7 +46,7 @@ export const Title: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  parts(item: t.KeyValue.Title) {
+  parts(item: t.KeyValue.Item.Title) {
     const v = item.v;
     return Is.array(v) ? [v[0], v[1]] : [v, undefined];
   },

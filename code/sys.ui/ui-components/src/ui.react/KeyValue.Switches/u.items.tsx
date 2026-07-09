@@ -2,7 +2,7 @@ import { css, Is, type t } from './common.ts';
 import { SwitchValue } from './ui.Switch.tsx';
 import { toInteraction, type SwitchRowInteraction } from './u.interaction.ts';
 
-const isHr = (item: t.KeyValueSwitches.Item): item is t.KeyValue.Hr => {
+const isHr = (item: t.KeyValueSwitches.Item): item is t.KeyValue.Item.Hr => {
   return Is.object(item) && 'kind' in item && item.kind === 'hr';
 };
 
@@ -22,7 +22,7 @@ export const toItem: t.KeyValueSwitches.ToItem = (item, options = {}) => {
   return toItemInternal(item, options);
 };
 
-function toItemInternal(item: t.KeyValueSwitches.Row, options: ToItemInternalOptions = {}): t.KeyValue.Row {
+function toItemInternal(item: t.KeyValueSwitches.Row, options: ToItemInternalOptions = {}): t.KeyValue.Item.Row {
   const index = options.index ?? 0;
   const interaction = toInteraction(item, index, options.enabled);
   const labelId = options.labelId;

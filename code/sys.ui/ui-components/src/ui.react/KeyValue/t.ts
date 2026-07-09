@@ -96,27 +96,6 @@ export declare namespace KeyValue {
     };
   }
 
-  /** Backwards-compatible alias for `KeyValue.Item.Spacing`. */
-  export type Spacing = Item.Spacing;
-
-  /** Backwards-compatible alias for `KeyValue.Item.Opacity`. */
-  export type Opacity = Item.Opacity;
-
-  /** Backwards-compatible alias for `KeyValue.Item.Row`. */
-  export type Row = Item.Row;
-
-  /** Backwards-compatible alias for `KeyValue.Item.Title`. */
-  export type Title = Item.Title;
-
-  /** Backwards-compatible alias for `KeyValue.Item.Hr`. */
-  export type Hr = Item.Hr;
-
-  /** Backwards-compatible alias for `KeyValue.Item.Spacer`. */
-  export type Spacer = Item.Spacer;
-
-  /** Backwards-compatible alias for `KeyValue.Item.Group`. */
-  export type Group = Item.Group;
-
   /** Link type details. */
   export namespace Link {
     /** Link opening target. */
@@ -141,12 +120,6 @@ export declare namespace KeyValue {
     export type Href = Def | { readonly k?: Def; readonly v?: Def };
   }
 
-  /** Backwards-compatible alias for `KeyValue.Link.Open`. */
-  export type LinkOpen = Link.Open;
-
-  /** Backwards-compatible alias for `KeyValue.Link.Display`. */
-  export type LinkDisplay = Link.Display;
-
   /** Component default options. */
   export type Defaults = {
     /**
@@ -166,9 +139,6 @@ export declare namespace KeyValue {
       onClick?: React.MouseEventHandler;
     };
   }
-
-  /** Backwards-compatible alias for `KeyValue.ActionButton.Props`. */
-  export type ActionButtonProps = ActionButton.Props;
 
   /**
    * Opt-in animation settings for static direct-child item projection.
@@ -202,15 +172,6 @@ export declare namespace KeyValue {
       readonly ease?: Ease;
     };
   }
-
-  /** Backwards-compatible alias for `KeyValue.Link.Props`. */
-  export type LinkProps = Link.Props;
-
-  /** Backwards-compatible alias for `KeyValue.Link.Def`. */
-  export type LinkDef = Link.Def;
-
-  /** Backwards-compatible alias for `KeyValue.Link.Href`. */
-  export type Href = Link.Href;
 
   /**
    * Focus model for command-addressable KeyValue item projections.
@@ -449,38 +410,42 @@ export declare namespace KeyValue {
     export type StartHandler = (e: Start) => void;
     /** Reorder change callback. */
     export type ChangeHandler = (e: Change) => void;
-    /** Backwards-compatible reorder change callback alias. */
-    export type Handler = ChangeHandler;
     /** Reorder end callback. */
     export type EndHandler = (e: End) => void;
   }
 
   /** Layout config for key/value rows. */
-  export type Layout = LayoutSpaced | LayoutTable;
+  export type Layout = Layout.Spaced | Layout.Table;
 
-  /** Spaced layout config for stacked key/value rows. */
-  export type LayoutSpaced = LayoutCommon & { kind: 'spaced' };
+  /** KeyValue row layout type family. */
+  export namespace Layout {
+    /** Spaced layout config for stacked key/value rows. */
+    export type Spaced = Common & { kind: 'spaced' };
 
-  /** Table layout config for aligned key/value rows. */
-  export type LayoutTable = LayoutCommon & {
-    kind: 'table';
-    keyMax?: string | t.Pixels;
-    keyAlign?: 'left' | 'right';
-  };
-  /** Common layout options shared by KeyValue row layouts. */
-  export type LayoutCommon = {
-    columnGap?: t.Pixels;
-    rowGap?: t.Pixels;
-    align?: 'baseline' | 'start' | 'center' | 'end';
-  };
+    /** Table layout config for aligned key/value rows. */
+    export type Table = Common & {
+      kind: 'table';
+      keyMax?: string | t.Pixels;
+      keyAlign?: 'left' | 'right';
+    };
 
+    /** Common layout options shared by KeyValue row layouts. */
+    export type Common = {
+      columnGap?: t.Pixels;
+      rowGap?: t.Pixels;
+      align?: 'baseline' | 'start' | 'center' | 'end';
+    };
+  }
 
   /** Build `Item[]` rows from a plain object. */
-  export type FromObject = (obj?: Record<string, unknown>, options?: FromObjectOptions) => Item[];
+  export type FromObject = (obj?: Record<string, unknown>, options?: FromObject.Options) => Item[];
 
-  /** Options for the `KeyValue.fromObject` method. */
-  export type FromObjectOptions = {
-    filter?: (key: string, value: unknown) => boolean;
-    format?: (value: unknown) => React.ReactNode;
-  };
+  /** Plain-object conversion type family. */
+  export namespace FromObject {
+    /** Options for the `KeyValue.fromObject` method. */
+    export type Options = {
+      filter?: (key: string, value: unknown) => boolean;
+      format?: (value: unknown) => React.ReactNode;
+    };
+  }
 }
