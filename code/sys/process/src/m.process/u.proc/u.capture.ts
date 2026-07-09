@@ -1,5 +1,5 @@
-import { Is, Num, type t } from './common.ts';
-import { asCommand } from './u.ts';
+import { Is, Num, type t } from '../common.ts';
+import { asCommand } from '../u.ts';
 
 const DEFAULT_KILL_GRACE_MS = 1_000 as t.Msecs;
 
@@ -55,9 +55,7 @@ export const capture: t.Process.Lib['capture'] = async (config) => {
     (status): StatusResult => ({ ok: true, status }),
     (error): StatusResult => ({ ok: false, error }),
   );
-  const statusTrigger = status.then(
-    (result): TerminalTrigger => ({ kind: 'status', result }),
-  );
+  const statusTrigger = status.then((result): TerminalTrigger => ({ kind: 'status', result }));
   const timeoutTrigger = validated.timeoutMs === undefined
     ? undefined
     : timeout(validated.timeoutMs, { kind: 'timeout' });

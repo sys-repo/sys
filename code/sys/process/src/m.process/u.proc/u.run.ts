@@ -1,6 +1,6 @@
-import type { t } from './common.ts';
-import { Script } from './m.Script.ts';
-import { sh } from './u.proc.sh.ts';
+import type { t } from '../common.ts';
+import { Script } from '../m.Script.ts';
+import { sh } from './u.sh.ts';
 
 /**
  * Runs a multiline shell script with sane defaults

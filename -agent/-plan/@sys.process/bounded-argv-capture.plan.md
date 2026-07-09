@@ -160,11 +160,11 @@ type CaptureFailedToStartOutput = CaptureBaseOutput & {
 2. Spawn with `Deno.Command(...).spawn()` using piped stdout/stderr and null stdin. Catch
    construction/spawn errors and return `failed-to-start`.
 3. Start stdout and stderr read loops immediately and concurrently.
-4. Each read loop copies bytes into a bounded buffer until its cap is reached. If a chunk crosses the
-   cap, copy only the prefix that fits and mark that stream truncated.
-5. After a stream cap is reached, keep draining that stream to EOF and discard bytes. Do not cancel a
-   readable stream merely because its capture cap was reached; cancellation can create pipe pressure
-   or child-visible write errors.
+4. Each read loop copies bytes into a bounded buffer until its cap is reached. If a chunk crosses
+   the cap, copy only the prefix that fits and mark that stream truncated.
+5. After a stream cap is reached, keep draining that stream to EOF and discard bytes. Do not cancel
+   a readable stream merely because its capture cap was reached; cancellation can create pipe
+   pressure or child-visible write errors.
 6. Race child status, timeout, and abort. The first observed terminal trigger wins. Pre-abort wins
    before spawn.
 7. On timeout or abort, send SIGTERM, wait up to `killGraceMs`, then send SIGKILL if child status is
@@ -176,7 +176,8 @@ type CaptureFailedToStartOutput = CaptureBaseOutput & {
 ## Implementation constraints
 
 - Do not use `Deno.Command.output()` for `capture`.
-- Do not route through `Process.sh`, `Process.run`, shell template helpers, or shell command strings.
+- Do not route through `Process.sh`, `Process.run`, shell template helpers, or shell command
+  strings.
 - Do not route through current `Process.spawn`; its readiness/event API is a different abstraction.
 - Prefer direct child-handle control over `Process.Terminate.pid` because `capture` owns the
   `Deno.ChildProcess` handle and status promise.

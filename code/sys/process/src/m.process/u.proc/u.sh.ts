@@ -1,5 +1,5 @@
-import type { t } from './common.ts';
-import { invoke } from './u.proc.invoke.ts';
+import type { t } from '../common.ts';
+import { invoke } from './u.invoke.ts';
 
 type ShellOptions = t.Process.ShellOptions;
 

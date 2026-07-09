@@ -1,5 +1,5 @@
-import { c, Rx, type t } from './common.ts';
-import { asCommand, kill } from './u.ts';
+import { c, Rx, type t } from '../common.ts';
+import { asCommand, kill } from '../u.ts';
 
 type H = t.Process.Handle;
 type E = { source: t.Process.StdStream; fn: t.Process.EventHandler };

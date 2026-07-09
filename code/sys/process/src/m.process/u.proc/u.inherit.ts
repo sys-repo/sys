@@ -1,5 +1,5 @@
-import type { t } from './common.ts';
-import { asCommand } from './u.ts';
+import type { t } from '../common.ts';
+import { asCommand } from '../u.ts';
 
 /**
  * Run a command with stdio inherited from the current terminal.
