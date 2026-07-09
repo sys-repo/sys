@@ -182,6 +182,8 @@ export declare namespace PiCliProfiles {
     readonly move?: Tools.Move;
     /** Filesystem copy/import tool policy. */
     readonly copy?: Tools.Copy;
+    /** Optical character recognition (OCR) tool policy. */
+    readonly ocr?: Tools.Ocr;
   };
 
   /** Tool policy helper types. */
@@ -204,6 +206,30 @@ export declare namespace PiCliProfiles {
     export type Copy = {
       /** Enable the wrapper-owned `copy` tool. */
       readonly enabled?: boolean;
+    };
+
+    /** Optical character recognition (OCR) tool policy. */
+    export type Ocr = {
+      /** PDF OCR tool policy. */
+      readonly pdf?: OcrPdf;
+    };
+
+    /** PDF optical character recognition (OCR) tool policy. */
+    export type OcrPdf = {
+      /** Enable the wrapper-owned `ocr_pdf` tool. */
+      readonly enabled?: boolean;
+      /** Allowed OCR language codes. */
+      readonly languages?: readonly string[];
+      /** Language used when a tool call omits `language`. */
+      readonly defaultLanguage?: string;
+      /** Fixed render DPI for this profile, bounded to 72..600. */
+      readonly dpi?: number;
+      /** Maximum pages processed by one tool call, bounded to 1..100. */
+      readonly maxPages?: number;
+      /** Maximum emitted OCR characters, bounded to 1..1,000,000. */
+      readonly maxChars?: number;
+      /** Total command budget for one tool call, bounded to 1,000..600,000ms. */
+      readonly timeoutMs?: number;
     };
   }
 

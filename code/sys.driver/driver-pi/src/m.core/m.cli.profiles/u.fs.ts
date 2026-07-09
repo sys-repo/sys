@@ -33,6 +33,15 @@ export const ProfilesFs = {
         remove: { enabled: true, recursive: true }
         move: { enabled: true }
         copy: { enabled: true }
+        ocr:
+          pdf:
+            enabled: false
+            languages: [eng]
+            defaultLanguage: eng
+            dpi: 200
+            maxPages: 10
+            maxChars: 60000
+            timeoutMs: 120000
 
       `,
     ).trimStart();

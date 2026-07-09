@@ -41,6 +41,15 @@ describe(`@sys/driver-pi/cli/Profiles/u.fs`, () => {
         remove: { enabled: true, recursive: true }
         move: { enabled: true }
         copy: { enabled: true }
+        ocr:
+          pdf:
+            enabled: false
+            languages: [eng]
+            defaultLanguage: eng
+            dpi: 200
+            maxPages: 10
+            maxChars: 60000
+            timeoutMs: 120000
       `,
     ));
 

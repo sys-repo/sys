@@ -1,4 +1,5 @@
 import { Schema, type t, Yaml } from './common.ts';
+import { OcrPdfPolicyBounds } from '../m.extension/m.ocr/u.bounds.ts';
 
 const Type = Schema.Type;
 
@@ -16,6 +17,17 @@ export const ProfileSchema = {
         remove: { enabled: true, recursive: true },
         move: { enabled: true },
         copy: { enabled: true },
+        ocr: {
+          pdf: {
+            enabled: false,
+            languages: ['eng'],
+            defaultLanguage: 'eng',
+            dpi: 200,
+            maxPages: 10,
+            maxChars: 60_000,
+            timeoutMs: 120_000,
+          },
+        },
       },
     };
   },
@@ -87,6 +99,35 @@ export const ProfileSchema = {
                 { additionalProperties: false },
               ),
             ),
+            ocr: Type.Optional(
+              Type.Object(
+                {
+                  pdf: Type.Optional(
+                    Type.Object(
+                      {
+                        enabled: Type.Optional(Type.Boolean()),
+                        languages: Type.Optional(
+                          Type.Array(Type.String({ minLength: 1 }), { minItems: 1 }),
+                        ),
+                        defaultLanguage: Type.Optional(Type.String({ minLength: 1 })),
+                        dpi: Type.Optional(Type.Integer(toJsonSchemaRange(OcrPdfPolicyBounds.dpi))),
+                        maxPages: Type.Optional(
+                          Type.Integer(toJsonSchemaRange(OcrPdfPolicyBounds.maxPages)),
+                        ),
+                        maxChars: Type.Optional(
+                          Type.Integer(toJsonSchemaRange(OcrPdfPolicyBounds.maxChars)),
+                        ),
+                        timeoutMs: Type.Optional(
+                          Type.Integer(toJsonSchemaRange(OcrPdfPolicyBounds.timeoutMs)),
+                        ),
+                      },
+                      { additionalProperties: false },
+                    ),
+                  ),
+                },
+                { additionalProperties: false },
+              ),
+            ),
           },
           { additionalProperties: false },
         ),
@@ -95,3 +136,10 @@ export const ProfileSchema = {
     { additionalProperties: false },
   ),
 } as const;
+
+/**
+ * Helpers:
+ */
+function toJsonSchemaRange(bound: { readonly min: number; readonly max: number }) {
+  return { minimum: bound.min, maximum: bound.max };
+}
