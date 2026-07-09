@@ -1,6 +1,6 @@
-import { describe, expect, it, Rx, slug, type t, Testing, Time } from '../../-test.ts';
-import { Process } from '../mod.ts';
-import { ProcessTest } from './u.fixture.ts';
+import { describe, expect, it, Rx, slug, type t, Testing, Time } from '../../../-test.ts';
+import { Process } from '../../mod.ts';
+import { ProcessTest } from '../../-test/u.fixture.ts';
 
 describe('Process.spawn (async long-lived)', () => {
   describe('lifecycle', () => {

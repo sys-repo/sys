@@ -1,6 +1,6 @@
-import { describe, expect, it, type t } from '../../-test.ts';
-import { Process } from '../mod.ts';
-import { ProcessTest } from './u.fixture.ts';
+import { describe, expect, it, type t } from '../../../-test.ts';
+import { Process } from '../../mod.ts';
+import { ProcessTest } from '../../-test/u.fixture.ts';
 
 const DEFAULT_CAPS = {
   maxStdoutBytes: 1_024,

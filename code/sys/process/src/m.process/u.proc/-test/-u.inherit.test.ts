@@ -1,6 +1,6 @@
-import { describe, expect, it } from '../../-test.ts';
-import { Process } from '../mod.ts';
-import { ProcessTest } from './u.fixture.ts';
+import { describe, expect, it } from '../../../-test.ts';
+import { Process } from '../../mod.ts';
+import { ProcessTest } from '../../-test/u.fixture.ts';
 
 describe('Process.inherit', () => {
   it('returns success for a command that exits 0', async () => {

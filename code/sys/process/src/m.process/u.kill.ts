@@ -8,7 +8,6 @@ export async function kill(
   options: { log?: boolean; timeout?: t.Msecs } = {},
 ) {
   const { log = false, timeout = 5_000 } = options;
-
   let timer: t.Time.Delay.Promise | undefined;
   let killed = false;
 
