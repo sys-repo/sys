@@ -1,28 +1,26 @@
 import { D, Switch, type t } from './common.ts';
+import type { SwitchRowInteraction } from './u.interaction.ts';
 
 type P = {
   item: t.KeyValueSwitches.Row;
-  index: number;
-  enabled?: boolean;
+  interaction: SwitchRowInteraction;
   theme?: t.CommonTheme;
   switch?: t.KeyValueSwitches.Item.SwitchOptions;
 };
 
 /** Value-side switch renderer for one KeyValue.Switches row. */
 export const SwitchValue: t.FC<P> = (props) => {
-  const { item, index } = props;
-  const value = Boolean(item.value);
-  const enabled = (props.enabled ?? true) && (item.enabled ?? true) && Boolean(item.onToggle);
+  const { item, interaction } = props;
   const options = { ...D.switch, ...props.switch, ...item.switch };
 
   return (
     <Switch
       {...options}
-      value={value}
-      enabled={enabled}
+      value={interaction.value}
+      enabled={interaction.enabled}
       theme={props.theme}
       tooltip={item.tooltip}
-      onToggle={(e) => item.onToggle?.({ ...e, item, index })}
+      onToggle={(e) => interaction.toggle(e.synthetic, e.next)}
     />
   );
 };

@@ -32,7 +32,8 @@ export const SwitchTrack: React.FC<SwitchTrackProps> = (props) => {
   const styles = {
     base: css({
       Absolute: [y, x, y, x],
-      cursor: isEnabled ? 'pointer' : 'undefined',
+      cursor: isEnabled ? 'pointer' : undefined,
+      display: 'block',
       boxSizing: 'border-box',
       borderRadius: track.borderRadius,
       borderWidth,
@@ -43,7 +44,7 @@ export const SwitchTrack: React.FC<SwitchTrackProps> = (props) => {
       overflow: 'hidden',
     }),
   };
-  return <div className={styles.base.class} />;
+  return <span className={styles.base.class} aria-hidden="true" />;
 };
 
 /**

@@ -33,7 +33,8 @@ export const SwitchThumb: React.FC<SwitchThumbProps> = (props) => {
   const styles = {
     base: css({
       Absolute: [y, null, null, x],
-      cursor: isEnabled ? 'pointer' : 'undefined',
+      cursor: isEnabled ? 'pointer' : undefined,
+      display: 'block',
       width,
       height,
       boxSizing: 'border-box',
@@ -44,7 +45,7 @@ export const SwitchThumb: React.FC<SwitchThumbProps> = (props) => {
     }),
   };
 
-  return <div className={styles.base.class} />;
+  return <span className={styles.base.class} aria-hidden="true" />;
 };
 
 /**

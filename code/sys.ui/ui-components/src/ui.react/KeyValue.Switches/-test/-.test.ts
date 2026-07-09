@@ -1,3 +1,4 @@
+import React from 'react';
 import { describe, expect, expectTypeOf, it, type t } from '../../../-test.ts';
 import { KeyValue } from '../../KeyValue/mod.ts';
 import { Switches } from '../mod.ts';
@@ -43,7 +44,7 @@ describe('KeyValue.Switches', () => {
       expectTypeOf(row).toEqualTypeOf<t.KeyValue.Row>();
       expect(row.id).to.eql('sample');
       expect(row.kind).to.eql('row');
-      expect(row.k).to.eql('sample');
+      expect(labelText(row.k)).to.eql('sample');
       expect(row.opacity).to.eql(opacity);
       expect(row.v).to.not.eql(undefined);
     });
@@ -66,7 +67,7 @@ describe('KeyValue.Switches', () => {
       ]);
 
       expectTypeOf(items).toEqualTypeOf<t.KeyValue.Item[]>();
-      expect(items.map((item) => (item as t.KeyValue.Row).k)).to.eql(['alpha', 'bravo']);
+      expect(items.map((item) => labelText((item as t.KeyValue.Row).k))).to.eql(['alpha', 'bravo']);
     });
 
     it('preserves hr items in caller order', () => {
@@ -75,8 +76,8 @@ describe('KeyValue.Switches', () => {
 
       expectTypeOf(items).toEqualTypeOf<t.KeyValue.Item[]>();
       expect(items[1]).to.equal(hr);
-      expect((items[0] as t.KeyValue.Row).k).to.eql('before');
-      expect((items[2] as t.KeyValue.Row).k).to.eql('after');
+      expect(labelText((items[0] as t.KeyValue.Row).k)).to.eql('before');
+      expect(labelText((items[2] as t.KeyValue.Row).k)).to.eql('after');
     });
 
     it('maps recursive switch groups to recursive KeyValue groups', () => {
@@ -96,19 +97,19 @@ describe('KeyValue.Switches', () => {
       ]);
 
       expectTypeOf(items).toEqualTypeOf<t.KeyValue.Item[]>();
-      expect((items[0] as t.KeyValue.Row).k).to.eql('before');
-      expect((items[2] as t.KeyValue.Row).k).to.eql('after');
+      expect(labelText((items[0] as t.KeyValue.Row).k)).to.eql('before');
+      expect(labelText((items[2] as t.KeyValue.Row).k)).to.eql('after');
 
       const group = items[1] as t.KeyValue.Group;
       expect(group.id).to.eql('group');
       expect(group.kind).to.eql('group');
-      expect((group.items[0] as t.KeyValue.Row).k).to.eql('Nested');
+      expect(labelText((group.items[0] as t.KeyValue.Row).k)).to.eql('Nested');
       expect(group.items[1]).to.equal(hr);
 
       const deep = group.items[2] as t.KeyValue.Group;
       expect(deep.id).to.eql('deep');
       expect(deep.kind).to.eql('group');
-      expect((deep.items[0] as t.KeyValue.Row).k).to.eql('Deep row');
+      expect(labelText((deep.items[0] as t.KeyValue.Row).k)).to.eql('Deep row');
     });
 
     it('maps undefined input to an empty item list', () => {
@@ -116,3 +117,9 @@ describe('KeyValue.Switches', () => {
     });
   });
 });
+
+function labelText(input: t.ReactNode): t.ReactNode {
+  expect(React.isValidElement(input)).to.eql(true);
+  const props = (input as React.ReactElement<{ item: t.KeyValueSwitches.Row }>).props;
+  return props.item.label ?? props.item.id;
+}
