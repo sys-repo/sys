@@ -15,8 +15,6 @@ export const Switch: React.FC<t.Switch.Props> = (props) => {
   const isEnabled = props.enabled ?? true;
   const value = Boolean(props.value);
 
-  const [isDown, setIsDown] = useState<boolean>(false);
-  const [isOver, setIsOver] = useState<boolean>(false);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
   const args = {
@@ -74,31 +72,29 @@ export const Switch: React.FC<t.Switch.Props> = (props) => {
 
   const overHandler = (isOver: boolean): React.MouseEventHandler => {
     return (e) => {
-      setIsOver(isOver);
-      if (!isOver && isDown) setIsDown(false);
-      if (isEnabled) {
-        if (isOver && props.onMouseEnter) props.onMouseEnter(e);
-        if (!isOver && props.onMouseLeave) props.onMouseLeave(e);
-      }
+      if (!isEnabled) return;
+      if (isOver) props.onMouseEnter?.(e);
+      if (!isOver) props.onMouseLeave?.(e);
     };
   };
 
   const downHandler = (isDown: boolean): React.MouseEventHandler => {
     return (e) => {
-      setIsDown(isDown);
-      if (isEnabled) {
-        if (isDown && props.onMouseDown) props.onMouseDown(e);
-        if (!isDown && props.onMouseUp) props.onMouseUp(e);
-      }
+      if (!isEnabled) return;
+      if (isDown) props.onMouseDown?.(e);
+      if (!isDown) props.onMouseUp?.(e);
     };
   };
 
   return (
     <button
+      id={props.id}
       className={css(styles.base, props.style).class}
       type="button"
       role="switch"
       aria-checked={value}
+      aria-label={props['aria-label']}
+      aria-labelledby={props['aria-labelledby']}
       disabled={!isEnabled}
       title={props.tooltip}
       onClick={handleOnClick}

@@ -14,15 +14,20 @@ describe('Buttons.Switch: toggle event', () => {
   DomMock.init({ beforeEach, afterEach });
 
   it('renders native switch button semantics', async () => {
-    const res = await TestReact.render(<Switch value tooltip="Toggle value" />, { strict: false });
+    const res = await TestReact.render(
+      <Switch id="sample-switch" value tooltip="Toggle value" aria-labelledby="sample-label" />,
+      { strict: false },
+    );
 
     const root = res.container.firstElementChild as HTMLButtonElement;
     expect(root.tagName).to.eql('BUTTON');
+    expect(root.id).to.eql('sample-switch');
     expect(root.type).to.eql('button');
     expect(root.getAttribute('role')).to.eql('switch');
     expect(root.getAttribute('aria-checked')).to.eql('true');
     expect(root.disabled).to.eql(false);
     expect(root.getAttribute('title')).to.eql('Toggle value');
+    expect(root.getAttribute('aria-labelledby')).to.eql('sample-label');
 
     act(() => res.dispose());
     await Promise.resolve();

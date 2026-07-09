@@ -11,11 +11,14 @@ export declare namespace Switch {
   /** Component props. */
   export type Props = {
     debug?: boolean;
+    id?: string;
     value?: boolean;
     width?: t.Pixels;
     height?: t.Pixels;
     enabled?: boolean;
     tooltip?: string;
+    'aria-label'?: string;
+    'aria-labelledby'?: string;
 
     /** Appearance: */
     track?: Partial<Theme.Track>;

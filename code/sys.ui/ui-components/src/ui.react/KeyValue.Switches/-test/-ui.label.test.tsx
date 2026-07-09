@@ -30,12 +30,73 @@ describe('KeyValue.Switches: label interaction', () => {
     );
 
     const label = res.container.querySelector('[data-component="KeyValue.Switches.Label"]') as HTMLElement;
+    const button = res.container.querySelector('button[role="switch"]') as HTMLButtonElement;
+    expect(label.id.includes('KeyValue.Switches.Label:0:alpha')).to.eql(true);
     expect(label.textContent).to.eql('Alpha label');
     expect(label.getAttribute('aria-disabled')).to.eql(null);
+    expect(button.getAttribute('aria-label')).to.eql(null);
+    expect(button.getAttribute('aria-labelledby')).to.eql(label.id);
 
     act(() => DomMock.Mouse.click(label));
 
     expect(events).to.eql(['alpha:0:false:true:click']);
+
+    act(() => res.dispose());
+    await Promise.resolve();
+  });
+
+  it('scopes label ids to rendered switch rows', async () => {
+    const res = await TestReact.render(
+      <>
+        <Switches.UI
+          items={[
+            { id: 'same', value: false, onToggle: () => undefined },
+            { id: 'group', kind: 'group', items: [{ id: 'same', value: true, onToggle: () => undefined }] },
+          ]}
+        />
+        <Switches.UI items={[{ id: 'same', value: false, onToggle: () => undefined }]} />
+      </>,
+      { strict: false },
+    );
+
+    const labels = [...res.container.querySelectorAll('[data-component="KeyValue.Switches.Label"]')] as HTMLElement[];
+    const buttons = [...res.container.querySelectorAll('button[role="switch"]')] as HTMLButtonElement[];
+    const ids = labels.map((label) => label.id);
+
+    expect(ids.length).to.eql(3);
+    expect(new Set(ids).size).to.eql(ids.length);
+    buttons.forEach((button, index) => expect(button.getAttribute('aria-labelledby')).to.eql(ids[index]));
+
+    act(() => res.dispose());
+    await Promise.resolve();
+  });
+
+  it('names public conversion switches without unsafe DOM ids', async () => {
+    const stringLabel = Switches.toItem({
+      id: 'fallback-id',
+      label: 'Fallback label',
+      onToggle: () => undefined,
+    });
+    const nodeLabel = Switches.toItem({
+      id: 'node-label-id',
+      label: <span>Node label</span>,
+      onToggle: () => undefined,
+    });
+
+    const res = await TestReact.render(
+      <>
+        {stringLabel.v}
+        {nodeLabel.v}
+      </>,
+      { strict: false },
+    );
+
+    const buttons = [...res.container.querySelectorAll('button[role="switch"]')] as HTMLButtonElement[];
+    expect(buttons.length).to.eql(2);
+    expect(buttons[0].getAttribute('aria-labelledby')).to.eql(null);
+    expect(buttons[0].getAttribute('aria-label')).to.eql('Fallback label');
+    expect(buttons[1].getAttribute('aria-labelledby')).to.eql(null);
+    expect(buttons[1].getAttribute('aria-label')).to.eql('node-label-id');
 
     act(() => res.dispose());
     await Promise.resolve();
