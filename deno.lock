@@ -71,6 +71,7 @@
     "npm:@octokit/rest@22.0.1": "22.0.1",
     "npm:@preact/signals-core@1.14.2": "1.14.2",
     "npm:@preact/signals-core@1.14.4": "1.14.4",
+    "npm:@preact/signals-react@3.10.3": "3.10.3_react@19.2.7",
     "npm:@sinclair/typebox-codegen@0.11.1": "0.11.1",
     "npm:@stripe/stripe-js@9.9.0": "9.9.0",
     "npm:@svgdotjs/svg.js@3.2.5": "3.2.5",
@@ -1175,6 +1176,14 @@
     },
     "@preact/signals-core@1.14.4": {
       "integrity": "sha512-HNB6HYeYKhQbJ1aKl+YRjrS4+QWHLKX6qKoUsfS/m0vqzsVaEBiZiaKbG/e+NKk2ch5ALQr/ihWaMHxiCuuWHA=="
+    },
+    "@preact/signals-react@3.10.3_react@19.2.7": {
+      "integrity": "sha512-/Hr3kdVKHMUFmwsb4hmnx6JQP1rxWCuLrOPT6LW4IE+CDFc4UNGks6HzxriNpn/S06iNjx/O+az1AhOB3aqizQ==",
+      "dependencies": [
+        "@preact/signals-core@1.14.4",
+        "react",
+        "use-sync-external-store"
+      ]
     },
     "@protobufjs/aspromise@1.1.2": {
       "integrity": "sha512-j+gKExEuLmKwvz3OgROXtrJ2UG2x8Ch2YZUxahh+s1F2HZ+wAceUNLkvy6zKCPVRkU++ZWQrdxsUeQXmcg4uoQ=="
@@ -3358,6 +3367,12 @@
     },
     "universal-user-agent@7.0.3": {
       "integrity": "sha512-TmnEAEAsBJVZM/AADELsK76llnwcf9vMKuPz8JflO1frO8Lchitr0fNaN9d+Ap0BjKtqWqd/J17qeDnXh8CL2A=="
+    },
+    "use-sync-external-store@1.6.0_react@19.2.7": {
+      "integrity": "sha512-Pp6GSwGP/NrPIrxVFAIkOQeyw8lFenOHijQWkUTrDvrF4ALqylP2C/KCkeS9dpUM3KvYRQhna5vt7IL95+ZQ9w==",
+      "dependencies": [
+        "react"
+      ]
     },
     "uuid@14.0.0": {
       "integrity": "sha512-Qo+uWgilfSmAhXCMav1uYFynlQO7fMFiMVZsQqZRMIXp0O7rR7qjkj+cPvBHLgBqi960QCoo/PH2/6ZtVqKvrg==",
