@@ -14,7 +14,7 @@ type P = {
   onChange: t.KeyValue.Reorder.ChangeHandler;
   onEnd?: t.KeyValue.Reorder.EndHandler;
   focusNavigation?: React.KeyboardEventHandler<HTMLElement>;
-  focusActiveFill: t.RgbaColor;
+  focusActiveFill: t.Color.Rgba;
   focusBoundary?: (item: t.KeyValue.Item) => FocusBoundary | undefined;
   renderItem: (item: t.KeyValue.Item) => t.ReactNode;
 };

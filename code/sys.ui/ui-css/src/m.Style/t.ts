@@ -6,7 +6,7 @@ type CssVars = { [K in `--${string}`]?: string | number };
 
 type NamespaceLibs = {
   /** Tools for working with colors. */
-  readonly Color: t.ColorLib;
+  readonly Color: t.Color.Lib;
 
   /** Tools for working with edges. */
   readonly Edges: t.CssEdges.Lib;

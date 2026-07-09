@@ -13,7 +13,7 @@ export declare namespace AnsiColor {
     /** Raw ANSI escape sequences. */
     readonly escape: Escape;
     /** RGB color helpers re-exported for convenience. */
-    readonly rgb: t.ColorLib;
+    readonly rgb: t.Color.Lib;
   };
 
   /** ANSI color names supported by the terminal formatter. */

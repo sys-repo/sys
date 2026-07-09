@@ -21,7 +21,7 @@ export type {
 
 /** @system: Common */
 export type { Cli, MenuResult, MenuResultKind, Shell } from '@sys/cli/t';
-export type { ColorTheme } from '@sys/color/t';
+export type { Color } from '@sys/color/t';
 export type { FileMap, JsonFile, WalkEntry } from '@sys/fs/t';
 export type { HonoMiddlewareHandler, HttpPullEvent, HttpPullToDirResult } from '@sys/http/t';
 export type { Graph } from '@sys/immutable/t';

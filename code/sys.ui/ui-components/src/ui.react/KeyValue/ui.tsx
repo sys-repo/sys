@@ -20,7 +20,7 @@ type RenderContext = Omit<t.KeyValue.ItemProps, 'item'> & {
   readonly layout: t.KeyValue.Layout;
   readonly rootItems: readonly t.KeyValue.Item[];
   readonly focus?: t.KeyValue.Focus.Props;
-  readonly focusActiveFill: t.RgbaColor;
+  readonly focusActiveFill: t.Color.Rgba;
   readonly projection?: ProjectionAnimationModel;
 };
 

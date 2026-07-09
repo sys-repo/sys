@@ -7,7 +7,7 @@ import { alpha, darken, lighten, ruby, toGrayAlpha, toHex } from '../u.ts';
 /**
  * Library: Helpers for working with colors.
  */
-export const Color: t.ColorLib = {
+export const Color: t.Color.Lib = {
   ...COLORS,
   Theme,
   theme: Theme.create,

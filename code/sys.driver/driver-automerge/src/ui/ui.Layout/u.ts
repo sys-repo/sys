@@ -3,7 +3,7 @@ import { type t, Color, D } from './common.ts';
 /**
  * Returns a themed 1px solid border string with the given opacity.
  */
-export function edgeBorder(theme: t.ColorTheme, opacity = D.edgeBorderOpacity) {
+export function edgeBorder(theme: t.Color.Theme, opacity = D.edgeBorderOpacity) {
   if (!opacity || opacity <= 0) return 'transparent';
   return `solid 1px ${Color.alpha(theme.fg, opacity)}`;
 }

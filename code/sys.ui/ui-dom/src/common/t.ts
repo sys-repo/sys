@@ -1,6 +1,6 @@
 export type * from '@sys/types';
 
-export type { ColorLib } from '@sys/color/t';
+export type { Color } from '@sys/color/t';
 export type { Immutable } from '@sys/immutable/t';
 export type { FormatBytes, TimeThreshold } from '@sys/std/t';
 

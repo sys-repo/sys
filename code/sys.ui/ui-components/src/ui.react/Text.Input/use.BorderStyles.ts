@@ -6,7 +6,7 @@ type C = string | t.Percent;
 /**
  * Calculate border styles.
  */
-export function useBorderStyles(props: P, options: { theme?: t.ColorTheme } = {}) {
+export function useBorderStyles(props: P, options: { theme?: t.Color.Theme } = {}) {
   const theme = options.theme ?? Color.theme(props.theme);
   const border = wrangle.border(props, theme);
   const borderRadius = wrangle.borderRadius(props, border.mode);
@@ -28,7 +28,7 @@ const wrangle = {
     return px;
   },
 
-  border(props: P, theme: t.ColorTheme) {
+  border(props: P, theme: t.Color.Theme) {
     const D = DEFAULTS.border;
     let defaultColor = D.defaultColor;
     let focusColor = D.focusColor;

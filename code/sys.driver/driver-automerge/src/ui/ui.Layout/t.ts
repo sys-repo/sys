@@ -10,7 +10,7 @@ export declare namespace Layout {
   export type Lib = {
     readonly View: t.FC<Props>;
     readonly defaults: Defaults;
-    edgeBorder(theme: t.ColorTheme, opacity?: t.Percent): string;
+    edgeBorder(theme: t.Color.Theme, opacity?: t.Percent): string;
   };
 
   /** Public defaults for the layout. */

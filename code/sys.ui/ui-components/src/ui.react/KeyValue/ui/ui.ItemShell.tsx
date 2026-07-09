@@ -7,7 +7,7 @@ type P = {
   item: t.KeyValue.Item;
   layout?: t.KeyValue.Layout;
   focus?: FocusBoundary;
-  activeFill?: t.RgbaColor;
+  activeFill?: t.Color.Rgba;
   children?: t.ReactNode;
 };
 
@@ -20,7 +20,7 @@ export function itemShellClass(
   item: t.KeyValue.Item,
   layout?: t.KeyValue.Layout,
   active?: boolean,
-  activeFill?: t.RgbaColor,
+  activeFill?: t.Color.Rgba,
 ) {
   const resolved = toLayout(layout);
   const kind = item.kind ?? 'row';

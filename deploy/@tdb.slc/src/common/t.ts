@@ -8,7 +8,7 @@ export type { ReactElement, MouseEventHandler as ReactMouseEventHandler, ReactNo
  */
 export type * from '@sys/types';
 
-export type { ColorTheme } from '@sys/color/t';
+export type { Color } from '@sys/color/t';
 export type { SpecImports } from '@sys/testing/t';
 import type * as TCss from '@sys/ui-css/t';
 export type CssEdgesInput = TCss.CssEdges.Input;

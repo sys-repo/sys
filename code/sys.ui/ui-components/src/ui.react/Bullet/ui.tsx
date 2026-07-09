@@ -40,7 +40,7 @@ export const Bullet: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  backgroundColor(props: P, theme: t.ColorTheme) {
+  backgroundColor(props: P, theme: t.Color.Theme) {
     const { selected = D.selected, filled = D.filled } = props;
     if (selected) return props.selectedColor ?? Color.BLUE;
     if (filled) return props.filledColor ?? Color.alpha(theme.fg, 0.16);

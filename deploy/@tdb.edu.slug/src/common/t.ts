@@ -27,7 +27,7 @@ export type {
 export type { Yaml, YamlConfig } from '@sys/yaml/t';
 
 /** User interface */
-export type { ColorTheme } from '@sys/color/t';
+export type { Color } from '@sys/color/t';
 import type * as TCss from '@sys/ui-css/t';
 export type CssEdgesInput = TCss.CssEdges.Input;
 export type CssInput = TCss.Style.Input;

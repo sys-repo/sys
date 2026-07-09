@@ -25,7 +25,7 @@ export type CssInput = TCss.Style.Input;
 export type CssShadow = TCss.Style.Shadow.Input;
 export type WebFontConfig = TCss.WebFont.Config;
 
-export type { ColorTheme, RgbaColor } from '@sys/color/t';
+export type { Color } from '@sys/color/t';
 export type { MediaResolver, Timecode } from '@sys/std/t';
 export type { SpecImports } from '@sys/testing/t';
 export type { TextFilter } from '@sys/text/t';

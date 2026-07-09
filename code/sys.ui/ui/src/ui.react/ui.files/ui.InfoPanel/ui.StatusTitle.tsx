@@ -44,7 +44,7 @@ export const StatusTitle: React.FC<P> = (props) => {
 /**
  * Helpers:
  */
-function statusColor(status: t.Service.State, theme: t.ColorTheme): t.StringHex {
+function statusColor(status: t.Service.State, theme: t.Color.Theme): t.Color.AlphaInput {
   if (status === 'ready') return Color.GREEN;
   if (status === 'error') return Color.RED;
   if (status === 'starting' || status === 'stopping') return Color.YELLOW;

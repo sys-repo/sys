@@ -1,6 +1,6 @@
 import { type t, Color, ETBook } from './common.ts';
 
-export function headings(args: { rule: t.Prose.ScopedCssRule; theme: t.ColorTheme }) {
+export function headings(args: { rule: t.Prose.ScopedCssRule; theme: t.Color.Theme }) {
   const { rule, theme } = args;
   rule('h1', {
     fontFamily: `"${ETBook.config.family}", Georgia, serif`,

@@ -13,7 +13,7 @@ export type { Tmpl, TmplProcessFile } from '@sys/tmpl-engine/t';
 export type { Yaml } from '@sys/yaml/t';
 
 /** User-interface: */
-export type { ColorTheme } from '@sys/color/t';
+export type { Color } from '@sys/color/t';
 export type { SpecImports, TestingDir } from '@sys/testing/t';
 export type { Keyboard } from '@sys/ui-dom/t';
 export type { DevCtx } from '@sys/ui-dev/react/devharness/t';

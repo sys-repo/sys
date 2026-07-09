@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 type Color = string | number;
-type ThemeInput = t.ColorTheme | t.CommonTheme | null;
+type ThemeInput = t.Color.Theme | t.CommonTheme | null;
 
 /**
  * Helpers for working with common themes within the harness.

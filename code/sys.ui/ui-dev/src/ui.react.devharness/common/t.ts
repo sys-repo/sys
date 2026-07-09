@@ -8,7 +8,7 @@ export type { IconType } from 'react-icons';
  * @system
  */
 export type * from '@sys/types';
-export type { ColorConstants, ColorTheme } from '@sys/color/t';
+export type { Color } from '@sys/color/t';
 
 export type {
   SpecImport,

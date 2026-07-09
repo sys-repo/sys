@@ -26,12 +26,12 @@ export const Wrangle = {
   /**
    * Track
    */
-  tracks(theme: t.ColorTheme, input?: t.SliderProps['track']): t.SliderTrackProps[] {
+  tracks(theme: t.Color.Theme, input?: t.SliderProps['track']): t.SliderTrackProps[] {
     const tracks = Array.isArray(input) ? input : [input];
     return tracks.map((track) => Wrangle.track(theme, track));
   },
 
-  track(theme: t.ColorTheme, track?: Partial<t.SliderTrackProps>): t.SliderTrackProps {
+  track(theme: t.Color.Theme, track?: Partial<t.SliderTrackProps>): t.SliderTrackProps {
     const D = DEFAULTS.track(theme);
     return {
       height: track?.height ?? D.height,
@@ -45,7 +45,7 @@ export const Wrangle = {
   /**
    * Thumb
    */
-  thumb(theme: t.ColorTheme, thumb?: t.SliderProps['thumb']): t.SliderThumbProps {
+  thumb(theme: t.Color.Theme, thumb?: t.SliderProps['thumb']): t.SliderThumbProps {
     const DEFAULT = D.thumb(theme);
     return {
       size: thumb?.size ?? DEFAULT.size,
@@ -63,7 +63,7 @@ export const Wrangle = {
   /**
    * Ticks
    */
-  ticks(theme: t.ColorTheme, ticks?: t.SliderProps['ticks']): t.SliderTickProps {
+  ticks(theme: t.Color.Theme, ticks?: t.SliderProps['ticks']): t.SliderTickProps {
     const DEFAULT = D.ticks(theme);
     return {
       offset: ticks?.offset ?? DEFAULT.offset,

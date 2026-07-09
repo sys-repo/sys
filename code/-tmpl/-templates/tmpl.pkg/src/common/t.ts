@@ -9,7 +9,7 @@ export type { FC, ReactElement, ReactNode } from 'react';
 export type * from '@sys/types';
 
 /** User-interface: */
-export type { ColorTheme } from '@sys/color/t';
+export type { Color } from '@sys/color/t';
 export type { SpecImports, TestingDir } from '@sys/testing/t';
 export type { Style } from '@sys/ui-css/t';
 export type { Keyboard } from '@sys/ui-dom/t';

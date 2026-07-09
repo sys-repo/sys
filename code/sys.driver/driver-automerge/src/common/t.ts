@@ -16,7 +16,7 @@ export type {
  */
 export type * from '@sys/types';
 
-export type { ColorTheme } from '@sys/color/t';
+export type { Color } from '@sys/color/t';
 export type { Cmd } from '@sys/event/t';
 export type { Fs } from '@sys/fs/t';
 export type { Graph } from '@sys/immutable/t';

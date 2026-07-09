@@ -13,7 +13,7 @@ export const DEFAULTS = {
   enabled: true,
   percent: 0,
 
-  track(theme: t.ColorTheme, edit?: Mutate<t.SliderTrackProps>) {
+  track(theme: t.Color.Theme, edit?: Mutate<t.SliderTrackProps>) {
     const obj: t.SliderTrackProps = {
       percent: undefined,
       height: 20,
@@ -25,7 +25,7 @@ export const DEFAULTS = {
     return obj;
   },
 
-  thumb(theme: t.ColorTheme, edit?: Mutate<t.SliderThumbProps>) {
+  thumb(theme: t.Color.Theme, edit?: Mutate<t.SliderThumbProps>) {
     const obj: t.SliderThumbProps = {
       size: 20,
       pressedScale: 1.1,
@@ -37,7 +37,7 @@ export const DEFAULTS = {
     return obj;
   },
 
-  ticks(theme: t.ColorTheme, edit?: Mutate<t.SliderTickProps>) {
+  ticks(theme: t.Color.Theme, edit?: Mutate<t.SliderTickProps>) {
     const obj: t.SliderTickProps = {
       offset: { top: 5, bottom: 5 },
       items: [],
