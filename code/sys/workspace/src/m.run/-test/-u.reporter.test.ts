@@ -45,7 +45,8 @@ describe('WorkspaceRun.parallel reporter', () => {
     expect(activeLine.includes('⦿  code/sys.driver/driver-vite')).to.eql(true);
     expect(activeLine.endsWith(' ')).to.eql(false);
     expect(Cli.Fmt.Text.visibleWidth(activeLine) < 100).to.eql(true);
-    expect(frame.includes('completed')).to.eql(true);
+    expect(frame.includes('completed')).to.eql(false);
+    expect(lines.find((line) => line === '━'.repeat(100))).to.eql('━'.repeat(100));
     expect(frame.includes('✓  code/sys/types')).to.eql(true);
     expect(frame.includes('·  code/without-test')).to.eql(true);
   });
@@ -102,6 +103,13 @@ describe('WorkspaceRun.parallel reporter', () => {
 
     expect(Cli.stripAnsi(red).trim()).to.eql('...and 2 more');
     expect(red).to.eql(overflowLabel(c.red(c.italic('2'))));
+  });
+
+  it('colors the completed progress rule by completed item severity', () => {
+    const track = c.gray('━'.repeat(20));
+    expect(completedRuleLine('passed')).to.eql(c.green('━'.repeat(20)) + track);
+    expect(completedRuleLine('blocked')).to.eql(c.yellow('━'.repeat(20)) + track);
+    expect(completedRuleLine('failed')).to.eql(c.red('━'.repeat(20)) + track);
   });
 
   it('uses runnable packages for passed denominator and progress', () => {
@@ -254,6 +262,26 @@ function overflowLine(frame: string) {
 
 function overflowLabel(count: string) {
   return `  ${c.gray(c.italic('...and '))}${count}${c.gray(c.italic(' more'))}`;
+}
+
+function completedRuleLine(kind: CompletedKind) {
+  const passed = kind === 'passed' ? 1 : 0;
+  const failed = kind === 'failed' ? 1 : 0;
+  const blocked = kind === 'blocked' ? 1 : 0;
+  const frame = formatParallelProgress({
+    runnableTotal: 2,
+    passed,
+    skipped: kind === 'skipped' ? 1 : 0,
+    blocked,
+    blockedRunnable: blocked,
+    failed,
+    pending: 1,
+    running: [],
+    completed: [{ kind, path: `code/${kind}`, elapsed: 1 }],
+    terminal: false,
+    width: 40,
+  });
+  return frame.split('\n').find((line) => Cli.stripAnsi(line) === '━'.repeat(40)) ?? '';
 }
 
 function ran(

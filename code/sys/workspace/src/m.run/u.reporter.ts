@@ -153,7 +153,14 @@ export function formatParallelProgress(args: ParallelProgressFormatArgs): string
 
   if (width > 0 && args.completed && args.completed.length > 0) {
     const completed = wrangle.completedGrid(args.completed, width, args.terminal);
-    if (completed) sections.push(`${c.gray('completed')}\n${completed}`);
+    if (completed) {
+      const rule = Cli.Fmt.hr({
+        width,
+        color: wrangle.completedSeverityColor(args.completed),
+        progress: wrangle.progressRatio(done, args.runnableTotal),
+      });
+      sections.push(`${rule}\n${completed}`);
+    }
   }
 
   const body = sections.length > 0 ? `\n\n${sections.join('\n\n')}` : '';
@@ -269,6 +276,11 @@ const wrangle = {
     return (value - (value % total)) / total;
   },
 
+  progressRatio(done: number, total: number): t.Percent {
+    if (total < 1) return 1;
+    return Num.Percent.clamp(done / total);
+  },
+
   progressElapsed(elapsed?: t.Msecs) {
     if (elapsed === undefined || elapsed < 1000) return '';
     if (elapsed < 60_000) return Time.duration(elapsed).format('s');
@@ -313,12 +325,19 @@ const wrangle = {
 
   completedOverflowCount(hidden: readonly ParallelProgressCompleted[]) {
     const value = c.italic(String(hidden.length));
+    const color = wrangle.completedSeverityColor(hidden);
+    if (color === 'red') return c.red(value);
+    if (color === 'yellow') return c.yellow(value);
+    return c.green(value);
+  },
+
+  completedSeverityColor(items: readonly ParallelProgressCompleted[]) {
     let hasWarning = false;
-    for (const item of hidden) {
-      if (item.kind === 'failed') return c.red(value);
+    for (const item of items) {
+      if (item.kind === 'failed') return 'red';
       if (item.kind === 'blocked' || item.kind === 'skipped') hasWarning = true;
     }
-    return hasWarning ? c.yellow(value) : c.green(value);
+    return hasWarning ? 'yellow' : 'green';
   },
 
   gridLayout(width: number) {
