@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { Is, type t } from './common.ts';
 import { PercentRange as Range } from './m.Percent.Range.ts';
 
 /**
@@ -8,46 +8,29 @@ export const Percent: t.Num.Percent.Lib = {
   Range,
 
   /**
-   * Convert a value to a percentage.
+   * Normalize a number or string to a bounded 0..1 percentage.
+   * Numbers are fractional (`0.35` → 35%); strings may be fractional or percent-form (`"35%"`).
+   * Invalid input normalizes to `0`; out-of-range values clamp to the nearest bound.
    */
   clamp(value?: string | number, min?: string | number, max?: string | number): t.Percent {
-    const clamp = (value: number) => Math.max(0, Math.min(1, value));
-    const done = (value: number) => {
-      value = clamp(value);
-      if (typeof min === 'number') value = Math.max(min, value);
-      if (typeof max === 'number') value = Math.min(max, value);
-      return value;
-    };
-
-    if (typeof value === 'number') return done(value);
-    if (typeof value === 'string') {
-      const text = value.trim();
-      if (!text) return 0;
-      if (text.endsWith('%')) {
-        const num = Number(text.replace(/%$/, ''));
-        return done(isNaN(num) ? 0 : num / 100);
-      } else {
-        const num = Number(text);
-        return done(isNaN(num) ? 0 : num);
-      }
-    }
-    return done(0);
+    let percent = wrangle.percent(value);
+    if (Is.number(min)) percent = Math.max(wrangle.percent(min), percent);
+    if (Is.number(max)) percent = Math.min(wrangle.percent(max), percent);
+    return wrangle.unit(percent);
   },
 
   /**
    * Determine if the number represents a percentage (0..1).
    */
   isPercent(value?: t.PixelOrPercent): value is number {
-    if (typeof value !== 'number') return false;
-    return value >= 0 && value <= 1;
+    return Is.number(value) && value >= 0 && value <= 1;
   },
 
   /**
    * Determine if the number represents pixels (> 1).
    */
   isPixels(value?: t.PixelOrPercent): value is number {
-    if (typeof value !== 'number') return false;
-    return value > 1;
+    return Is.number(value) && value > 1;
   },
 
   /**
@@ -56,5 +39,26 @@ export const Percent: t.Num.Percent.Lib = {
   toString(value?: t.Percent) {
     const percent = Percent.clamp(value);
     return `${Math.round(percent * 100)}%`;
+  },
+} as const;
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  percent(input?: string | number): t.Percent {
+    if (Is.number(input)) return wrangle.unit(input);
+    if (Is.string(input)) {
+      const text = input.trim();
+      if (!text) return 0;
+      const scalar = text.endsWith('%') ? Number(text.replace(/%$/, '')) / 100 : Number(text);
+      return wrangle.unit(scalar);
+    }
+    return 0;
+  },
+
+  unit(value: number): t.Percent {
+    if (!Is.number(value)) return 0;
+    return Math.max(0, Math.min(1, value));
   },
 } as const;

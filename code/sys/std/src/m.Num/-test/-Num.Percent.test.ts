@@ -7,7 +7,7 @@ describe('Num.Percent', () => {
       const test = (input: any) => {
         expect(Percent.clamp(input)).to.eql(0);
       };
-      ['', '  ', 'foo', '5%%', [], {}, true].forEach(test);
+      [undefined, '', '  ', 'foo', '5%%', Number.NaN, [], {}, true].forEach(test);
     });
 
     it('numbers', () => {
