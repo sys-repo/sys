@@ -1,5 +1,5 @@
-import { Fs, slug, Str, type t } from './common.ts';
-import { PiArgs } from '../m.cli/u.args.ts';
+import { Fs, slug, Str, type t } from '../common.ts';
+import { PiArgs } from '../../m.cli/u.args.ts';
 import { ProfilePath } from './u.path.ts';
 
 type ContextRole = 'context' | 'system';

@@ -1,4 +1,4 @@
-import { Cli, Str } from './common.ts';
+import { Cli, Str } from '../common.ts';
 
 const HELP_TOOL_ENV = 'PI_CLI_PROFILES_HELP_TOOL';
 const ROOT_TOOL = 'deno run -A jsr:@sys/driver-pi';

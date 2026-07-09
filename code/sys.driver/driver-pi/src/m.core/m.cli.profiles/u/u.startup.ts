@@ -1,7 +1,7 @@
-import { resolveCwd } from '../m.cli/u.resolve.cwd.ts';
-import { runtimeRoot } from '../m.cli/u.runtime.ts';
-import { Cli, type t } from './common.ts';
-import { ProfileMigrate } from './u.migrate/mod.ts';
+import { Cli, type t } from '../common.ts';
+import { resolveCwd } from '../../m.cli/u.resolve.cwd.ts';
+import { runtimeRoot } from '../../m.cli/u.runtime.ts';
+import { ProfileMigrate } from '../u.migrate/mod.ts';
 
 type StartupFeedback = { readonly stop: () => void };
 type ResolveArgs = {

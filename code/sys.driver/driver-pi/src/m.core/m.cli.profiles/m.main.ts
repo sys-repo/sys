@@ -3,13 +3,13 @@ import { PiSandboxFmt } from '../m.cli/u.fmt.sandbox.ts';
 import { PiSandboxReport } from '../m.cli/u.report.sandbox.ts';
 
 import { type t } from './common.ts';
-import { ProfileArgs } from './u.args.ts';
-import { ProfilesFmt } from './u.fmt.help.ts';
-import { menu } from './u.menu.ts';
-import { ProfileConfig } from './u.profile.ts';
-import { resolveRun } from './u.resolve.run.ts';
-import { ProfileStartup } from './u.startup.ts';
-import { clearInteractiveScreen } from './u.terminal.ts';
+import { ProfileArgs } from './u/u.args.ts';
+import { ProfilesFmt } from './u/u.fmt.help.ts';
+import { menu } from './u/u.menu.ts';
+import { ProfileConfig } from './u/u.profile.ts';
+import { resolveRun } from './u/u.resolve.run.ts';
+import { ProfileStartup } from './u/u.startup.ts';
+import { clearInteractiveScreen } from './u/u.terminal.ts';
 
 export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
   const parsed = ProfileArgs.parse(input.argv);

@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Fs, Str, type t } from '../common.ts';
-import { ProfilesFs } from '../u.fs.ts';
+import { ProfilesFs } from '../u/u.fs.ts';
 
 describe(`@sys/driver-pi/cli/Profiles/u.fs`, () => {
   it('paths → derives canonical profile config location', () => {

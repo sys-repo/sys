@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { c, Cli, Fs, type t } from '../common.ts';
-import { menu } from '../u.menu.ts';
-import { ProfilesFs } from '../u.fs.ts';
+import { menu } from '../u/u.menu.ts';
+import { ProfilesFs } from '../u/u.fs.ts';
 
 describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
   it('menu → creates default profile config when none exist', async () => {

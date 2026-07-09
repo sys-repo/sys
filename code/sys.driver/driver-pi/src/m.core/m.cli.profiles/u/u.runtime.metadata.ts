@@ -1,5 +1,5 @@
-import { type t, Yaml } from './common.ts';
-import { runtimeRoot } from '../m.cli/u.runtime.ts';
+import { type t, Yaml } from '../common.ts';
+import { runtimeRoot } from '../../m.cli/u.runtime.ts';
 
 type RuntimeMetadataInput = {
   readonly cwd: t.PiCli.Cwd;

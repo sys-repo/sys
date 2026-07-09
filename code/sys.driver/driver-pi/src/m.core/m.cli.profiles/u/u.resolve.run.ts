@@ -1,17 +1,17 @@
-import { Fs, type t } from './common.ts';
-import { resolveSandboxSummary } from '../m.cli/u.resolve.sandbox.ts';
-import { resolveTempArtifactRoots } from '../m.cli/u.runtime.ts';
-import { ProfilesFs } from './u.fs.ts';
+import { Fs, type t } from '../common.ts';
+import { resolveSandboxSummary } from '../../m.cli/u.resolve.sandbox.ts';
+import { resolveTempArtifactRoots } from '../../m.cli/u.runtime.ts';
+import { SandboxFs } from '../../m.extension/m.sandbox.fs/mod.ts';
+import { ProfileMigrate } from '../u.migrate/mod.ts';
 import { ProfileContext } from './u.context.ts';
+import { ProfilesFs } from './u.fs.ts';
 import { ProfilePath } from './u.path.ts';
-import { ProfileMigrate } from './u.migrate/mod.ts';
 import {
   assertNoPromptSurfacePassthrough,
   toFinalProvenanceSafetyArgs,
   toPromptArgs,
 } from './u.prompt.ts';
 import { RuntimeMetadata } from './u.runtime.metadata.ts';
-import { SandboxFs } from '../m.extension/m.sandbox.fs/mod.ts';
 
 export type ResolvedProfileRun = {
   readonly cwd: t.PiCli.Cwd;

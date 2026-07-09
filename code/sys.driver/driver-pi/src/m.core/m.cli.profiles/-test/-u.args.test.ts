@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { ProfileArgs } from '../u.args.ts';
+import { ProfileArgs } from '../u/u.args.ts';
 
 describe(`@sys/driver-pi/cli/Profiles/u.args`, () => {
   it('parse → recognizes wrapper flags and keeps only -- separated Pi args', () => {

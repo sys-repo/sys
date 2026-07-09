@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../../-test.ts';
 import { Process } from '../../m.cli/common.ts';
 import { c, Cli, Fs, Str, type t } from '../common.ts';
 import { Profiles } from '../mod.ts';
-import { ProfilesFs } from '../u.fs.ts';
+import { ProfilesFs } from '../u/u.fs.ts';
 
 describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
   it('runs selected profile path and passes argv after -- through to Pi', async () => {

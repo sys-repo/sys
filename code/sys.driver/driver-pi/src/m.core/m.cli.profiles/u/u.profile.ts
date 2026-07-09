@@ -1,4 +1,4 @@
-import { Fs, type t, YamlConfig } from './common.ts';
+import { Fs, type t, YamlConfig } from '../common.ts';
 import { ProfilesFs } from './u.fs.ts';
 
 type ProfileSelection = ProfilePathSelection | ProfileNameSelection;

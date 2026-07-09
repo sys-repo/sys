@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Str } from '../common.ts';
 import { ProfileSchema } from '../u.schema/mod.ts';
-import { validateProfileYamlText } from '../u.validate.ts';
+import { validateProfileYamlText } from '../u/u.validate.ts';
 
 describe(`@sys/driver-pi/cli/Profiles/u.schema`, () => {
   it('initial → returns the minimal profile config', () => {

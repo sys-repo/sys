@@ -5,7 +5,7 @@ import {
   PROVENANCE_SAFETY_PROMPT,
   toFinalProvenanceSafetyArgs,
   toPromptArgs,
-} from '../u.prompt.ts';
+} from '../u/u.prompt.ts';
 
 describe(`@sys/driver-pi/cli/Profiles/u.prompt`, () => {
   it('DEFAULT_SYSTEM_PROMPT → is the known short Pi-style baseline', () => {

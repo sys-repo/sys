@@ -1,11 +1,11 @@
-import { c, Cli, Fs, type t, YamlConfig } from './common.ts';
-import { PiSandboxFmt } from '../m.cli/u.fmt.sandbox.ts';
-import { PiSandboxReport } from '../m.cli/u.report.sandbox.ts';
-import { runtimeRoot } from '../m.cli/u.runtime.ts';
+import { c, Cli, Fs, type t, YamlConfig } from '../common.ts';
+import { PiSandboxFmt } from '../../m.cli/u.fmt.sandbox.ts';
+import { PiSandboxReport } from '../../m.cli/u.report.sandbox.ts';
+import { runtimeRoot } from '../../m.cli/u.runtime.ts';
 import { ProfilesFs } from './u.fs.ts';
-import { ProfileMigrate } from './u.migrate/mod.ts';
+import { ProfileMigrate } from '../u.migrate/mod.ts';
 import { resolveRun } from './u.resolve.run.ts';
-import { ProfileSchema } from './u.schema/mod.ts';
+import { ProfileSchema } from '../u.schema/mod.ts';
 import { clearInteractiveScreen } from './u.terminal.ts';
 
 type Action = 'run' | 'select';

@@ -1,5 +1,5 @@
-import { Args, type t } from './common.ts';
-import { parseGitRootMode } from '../m.cli/u.git-root.ts';
+import { Args, type t } from '../common.ts';
+import { parseGitRootMode } from '../../m.cli/u.git-root.ts';
 
 export const ProfileArgs = {
   parse(argv: readonly string[] = []): t.PiCliProfiles.ParsedArgs {

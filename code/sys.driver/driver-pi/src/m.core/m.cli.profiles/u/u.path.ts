@@ -1,5 +1,5 @@
-import { Fs, type t } from './common.ts';
-import { runtimeRoot } from '../m.cli/u.runtime.ts';
+import { Fs, type t } from '../common.ts';
+import { runtimeRoot } from '../../m.cli/u.runtime.ts';
 
 /**
  * Profile YAML path contract.

@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Fs, type t } from '../common.ts';
-import { ProfilePath } from '../u.path.ts';
+import { ProfilePath } from '../u/u.path.ts';
 
 describe(`@sys/driver-pi/cli/Profiles/u.path`, () => {
   it('uses the runtime root instead of the invoked nested cwd', () => {

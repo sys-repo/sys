@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../../-test.ts';
 import { Process } from '../../m.cli/common.ts';
 import { Fs, Path, Str, type t } from '../common.ts';
 import { Profiles } from '../mod.ts';
-import { DEFAULT_SYSTEM_PROMPT, PROVENANCE_SAFETY_PROMPT } from '../u.prompt.ts';
+import { DEFAULT_SYSTEM_PROMPT, PROVENANCE_SAFETY_PROMPT } from '../u/u.prompt.ts';
 
 type RegisteredTool = {
   readonly name: string;

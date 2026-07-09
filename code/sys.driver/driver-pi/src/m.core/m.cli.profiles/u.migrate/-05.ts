@@ -1,5 +1,5 @@
 import { Fs, Is, type t, Yaml } from '../common.ts';
-import { ProfilesFs } from '../u.fs.ts';
+import { ProfilesFs } from '../u/u.fs.ts';
 
 type MigrateItem = { from: t.StringPath; to: t.StringPath };
 type MigrateResult = { migrated: MigrateItem[]; skipped: MigrateItem[] };

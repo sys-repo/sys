@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Fs, Str, type t } from '../common.ts';
 import { ProfileMigrate } from '../u.migrate/mod.ts';
-import { ProfilesFs } from '../u.fs.ts';
+import { ProfilesFs } from '../u/u.fs.ts';
 
 describe(`@sys/driver-pi/cli/Profiles/u.migrate`, () => {
   describe('01: context.include → context.append', () => {

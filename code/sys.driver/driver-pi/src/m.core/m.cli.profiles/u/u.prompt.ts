@@ -1,4 +1,4 @@
-import { Is, Str, type t } from './common.ts';
+import { Is, Str, type t } from '../common.ts';
 
 export const PROVENANCE_SAFETY_PROMPT = Str.dedent(
   `
