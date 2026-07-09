@@ -134,11 +134,37 @@ export declare namespace CliFormat {
     export type Options = {
       /** Explicit rule width. Omit to use the current screen width. */
       readonly width?: number;
-      /** Optional rule foreground color. */
+      /** Primary rule color: whole rule in line mode, indicator segment in progress mode. */
       readonly color?: Color;
       /** Optional rule stroke weight. Defaults to `heavy`. */
       readonly weight?: Weight;
+      /** Optional progress mode. */
+      readonly progress?: Progress.Input;
     };
+
+    /**
+     * Progress-mode options for horizontal rules.
+     */
+    export namespace Progress {
+      /** Progress shorthand or expanded options. */
+      export type Input = t.Percent | Options;
+
+      /** Progress-mode display options. */
+      export type Options = {
+        /** Fractional completion from 0..1. */
+        readonly percent: t.Percent;
+        /** Progress-bar part colors. */
+        readonly color?: Colors;
+      };
+
+      /** Progress-bar part colors. */
+      export type Colors = {
+        /** Filled/completed value segment. Defaults to root `color`, then green. */
+        readonly indicator?: Color;
+        /** Background groove/remainder segment. Defaults to gray. */
+        readonly track?: Color;
+      };
+    }
 
     /**
      * Horizontal rule formatter.
@@ -149,6 +175,7 @@ export declare namespace CliFormat {
      * - `hr(color)`
      * - `hr(width, color)`
      * - `hr(options)`
+     * - `hr({ progress })`
      */
     export type Fn = {
       (): string;
