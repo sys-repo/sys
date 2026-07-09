@@ -2,32 +2,41 @@ import { type t, describe, expect, it } from '../../-test.ts';
 import { Percent } from '../mod.ts';
 
 describe('Num.Percent', () => {
-  describe('clamp', () => {
+  describe('normalize', () => {
     it('bad input → 0', () => {
       const test = (input: any) => {
-        expect(Percent.clamp(input)).to.eql(0);
+        expect(Percent.normalize(input)).to.eql(0);
       };
       [undefined, '', '  ', 'foo', '5%%', Number.NaN, [], {}, true].forEach(test);
     });
 
     it('numbers', () => {
-      expect(Percent.clamp(-1)).to.eql(0);
-      expect(Percent.clamp(0)).to.eql(0);
-      expect(Percent.clamp(0.123)).to.eql(0.123);
-      expect(Percent.clamp(1)).to.eql(1);
-      expect(Percent.clamp(1.000001)).to.eql(1);
-      expect(Percent.clamp(2)).to.eql(1);
+      expect(Percent.normalize(-1)).to.eql(0);
+      expect(Percent.normalize(0)).to.eql(0);
+      expect(Percent.normalize(0.123)).to.eql(0.123);
+      expect(Percent.normalize(1)).to.eql(1);
+      expect(Percent.normalize(1.000001)).to.eql(1);
+      expect(Percent.normalize(2)).to.eql(1);
+      expect(Percent.normalize(Number.POSITIVE_INFINITY)).to.eql(1);
+      expect(Percent.normalize(Number.NEGATIVE_INFINITY)).to.eql(0);
     });
 
     it('strings', () => {
       const test = (input: string, expected: t.Percent) => {
-        expect(Percent.clamp(input)).to.eql(expected);
+        expect(Percent.normalize(input)).to.eql(expected);
       };
       test('', 0);
       test('  0.3  ', 0.3);
       test(' 30% ', 0.3);
       test(' 45.1% ', 0.451);
       test('0.1% ', 0.001);
+    });
+  });
+
+  describe('clamp', () => {
+    it('normalizes without bounds', () => {
+      expect(Percent.clamp('30%')).to.eql(0.3);
+      expect(Percent.clamp(Number.NaN)).to.eql(0);
     });
 
     it('min/max', () => {
@@ -37,15 +46,13 @@ describe('Num.Percent', () => {
       };
 
       test(0.5, 0.1, 0.9, 0.5);
-
       test(0, 0.1, 0.9, 0.1);
       test(1, 0.1, 0.9, 0.9);
-
       test(-1, 0.1, 0.9, 0.1);
       test(2, 0.1, 0.9, 0.9);
 
-      test('10%', 0.25, 0.9, 0.25);
-      test('60%', 0.1, 0.5, 0.5);
+      test(' 10% ', ' 25% ', 0.9, 0.25);
+      test(' 60% ', 0.1, ' 50% ', 0.5);
     });
   });
 
@@ -115,9 +122,10 @@ describe('Num.Percent.Range', () => {
       expect(toPercent(100, R1)).to.eql(0.5);
     });
 
-    it('clamps out-of-range inputs', () => {
+    it('normalizes out-of-range and NaN inputs', () => {
       expect(toPercent(-10, R1)).to.eql(0);
       expect(toPercent(250, R1)).to.eql(1);
+      expect(toPercent(Number.NaN, R1)).to.eql(0);
     });
 
     it('returns 0 when min === max (degenerate range)', () => {
@@ -139,9 +147,10 @@ describe('Num.Percent.Range', () => {
       expect(fromPercent(0.5, R2)).to.eql(75);
     });
 
-    it('clamps percent values outside 0..1', () => {
+    it('normalizes percent values outside 0..1', () => {
       expect(fromPercent(-1, R2)).to.eql(50);
       expect(fromPercent(2, R2)).to.eql(100);
+      expect(fromPercent(Number.NaN, R2)).to.eql(50);
     });
 
     it('handles min === max (degenerate range)', () => {

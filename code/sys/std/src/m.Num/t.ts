@@ -86,7 +86,13 @@ export declare namespace Num {
       /** Tools for working with percentage ranges. */
       readonly Range: Range.Lib;
 
-      /** Convert a value to a percentage. */
+      /**
+       * Normalize a number or string to a bounded 0..1 percentage.
+       * Numbers are fractional (`0.35` → 35%); strings may be fractional or percent-form (`"35%"`).
+       */
+      normalize(value?: string | number): t.Percent;
+
+      /** Normalize a value, then constrain it by optional min/max percent bounds. */
       clamp(value?: string | number, min?: string | number, max?: string | number): t.Percent;
 
       /** Convert a percentage to a "100%" string. */

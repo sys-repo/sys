@@ -1,16 +1,17 @@
 import { type t, Is } from './common.ts';
+import { normalize as normalizePercent } from './u.percent.ts';
 
 export const PercentRange: t.Num.Percent.Range.Lib = {
   toPercent(value, range) {
     if (!PercentRange.isRange(range)) return 0;
     const [min, max] = range;
-    return min === max ? 0 : clamp((value - min) / (max - min));
+    return min === max ? 0 : normalizePercent((value - min) / (max - min));
   },
 
   fromPercent(percent, range) {
     if (!PercentRange.isRange(range)) return 0;
     const [min, max] = range;
-    const p = clamp(percent);
+    const p = normalizePercent(percent);
     return min + (max - min) * p;
   },
 
@@ -19,10 +20,3 @@ export const PercentRange: t.Num.Percent.Range.Lib = {
     return Is.number(input[0]) && Is.number(input[1]);
   },
 } as const;
-
-/**
- * Helpers:
- */
-function clamp(n: number, low = 0, high = 1) {
-  return Math.min(Math.max(n, low), high);
-}

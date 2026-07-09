@@ -1,5 +1,6 @@
 import { Is, type t } from './common.ts';
 import { PercentRange as Range } from './m.Percent.Range.ts';
+import { clamp as clampPercent, normalize as normalizePercent } from './u.percent.ts';
 
 /**
  * Tools for working with numbers that represent percentages.
@@ -24,39 +25,20 @@ export const Percent: t.Num.Percent.Lib = {
    * Numbers are fractional (`0.35` → 35%); strings may be fractional or percent-form (`"35%"`).
    * Invalid input normalizes to `0`; out-of-range values clamp to the nearest bound.
    */
+  normalize(value?: string | number): t.Percent {
+    return normalizePercent(value);
+  },
+
+  /** Normalize a value, then constrain it by optional min/max percent bounds. */
   clamp(value?: string | number, min?: string | number, max?: string | number): t.Percent {
-    let percent = wrangle.percent(value);
-    if (Is.number(min)) percent = Math.max(wrangle.percent(min), percent);
-    if (Is.number(max)) percent = Math.min(wrangle.percent(max), percent);
-    return wrangle.unit(percent);
+    return clampPercent(value, min, max);
   },
 
   /**
    * Convert a percentage to a "100%" string
    */
   toString(value?: t.Percent) {
-    const percent = Percent.clamp(value);
+    const percent = Percent.normalize(value);
     return `${Math.round(percent * 100)}%`;
-  },
-} as const;
-
-/**
- * Helpers:
- */
-const wrangle = {
-  percent(input?: string | number): t.Percent {
-    if (Is.number(input)) return wrangle.unit(input);
-    if (Is.string(input)) {
-      const text = input.trim();
-      if (!text) return 0;
-      const scalar = text.endsWith('%') ? Number(text.replace(/%$/, '')) / 100 : Number(text);
-      return wrangle.unit(scalar);
-    }
-    return 0;
-  },
-
-  unit(value: number): t.Percent {
-    if (!Is.number(value)) return 0;
-    return Math.max(0, Math.min(1, value));
   },
 } as const;
