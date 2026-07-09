@@ -4,7 +4,7 @@ import { Focus } from './mod.ts';
 import { Data } from './u.render.ts';
 
 export type EntryEvent = Pick<
-  React.MouseEvent<HTMLElement>,
+  React.MouseEvent<Element>,
   | 'altKey'
   | 'ctrlKey'
   | 'metaKey'
@@ -43,12 +43,17 @@ export function navigationMode(input?: t.KeyValue.Focus.Navigation): t.KeyValue.
   return input ?? 'keyboard';
 }
 
-export function shouldEnter(event: EntryEvent, input?: t.KeyValue.Focus.Entry): boolean {
+export function isFocusEntryClick(event: EntryEvent, input?: t.KeyValue.Focus.Entry): boolean {
   const mode = entryMode(input);
   if (!mode) return false;
   if (event.defaultPrevented) return false;
   if (event.button !== 0) return false;
   if (mode === 'option-click' && !isOptionClick(event)) return false;
+  return true;
+}
+
+export function shouldEnter(event: EntryEvent, input?: t.KeyValue.Focus.Entry): boolean {
+  if (!isFocusEntryClick(event, input)) return false;
   if (isFromNestedBoundary(event)) return false;
   if (isFromInteractiveDescendant(event)) return false;
   return true;

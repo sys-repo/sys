@@ -1,7 +1,7 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { D, type t } from './common.ts';
 import { Switches } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { SAMPLE } from './-samples.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
@@ -16,20 +16,21 @@ export default Spec.describe(D.displayName, async (e) => {
       onToggle: (e) => (p.values.value = { ...p.values.value, [e.item.id]: e.next }),
     });
 
-    const onReorderChange: t.KeyValue.Reorder.ChangeHandler = (e) => {
+    const onReorder: t.KeyValue.Reorder.ChangeHandler = (e) => {
       p.items.value = SAMPLE.reorder(currentItems, e.next);
     };
-
-    const reorder: t.KeyValue.Reorder | undefined = v.reorder
-      ? { onChange: onReorderChange }
-      : undefined;
 
     return (
       <Switches.UI
         debug={v.debug}
         theme={v.theme}
         enabled={v.enabled}
-        reorder={reorder}
+        reorder={v.reorder ? { onChange: onReorder } : undefined}
+        focus={{
+          enabled: v.focus.enabled,
+          model: v.focus.model,
+          onChange: (e) => p.focus.model.value = e.next,
+        }}
         items={items}
       />
     );
