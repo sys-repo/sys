@@ -4,6 +4,7 @@ import { Port } from './m.Port.ts';
 import { Script } from './m.Script.ts';
 import { Terminate } from './m.Terminate.ts';
 import { isRunning } from './u.pid.ts';
+import { capture } from './u.proc.capture.ts';
 import { inherit } from './u.proc.inherit.ts';
 import { invoke, invokeDetached } from './u.proc.invoke.ts';
 import { run } from './u.proc.run.ts';
@@ -21,6 +22,7 @@ export const Process: t.Process.Lib = {
   Port,
   Terminate,
   invoke,
+  capture,
   inherit,
   invokeDetached,
   spawn,

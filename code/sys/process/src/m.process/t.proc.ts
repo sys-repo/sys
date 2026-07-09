@@ -33,6 +33,9 @@ export declare namespace Process {
      */
     invoke(config: t.Process.InvokeArgs): Promise<t.Process.Output>;
 
+    /** Execute a no-shell argv command with bounded stdout/stderr capture. */
+    capture(config: t.Process.CaptureArgs): Promise<t.Process.CaptureOutput>;
+
     /**
      * Execute a command with child stdio inherited from the parent terminal.
      * Useful for interactive tools/prompts.
@@ -190,6 +193,89 @@ export declare namespace Process {
     cwd?: string;
     env?: t.Process.Env;
     silent?: boolean;
+  };
+
+  /** Arguments passed to `Process.capture`. */
+  export type CaptureArgs = {
+    args: string[];
+    cmd?: string;
+    cwd?: string;
+    env?: t.Process.Env;
+    signal?: AbortSignal;
+    timeoutMs?: t.Msecs;
+    maxStdoutBytes: number;
+    maxStderrBytes: number;
+    killGraceMs?: t.Msecs;
+  };
+
+  /** Terminal output variants returned by `Process.capture`. */
+  export type CaptureOutput =
+    | CaptureExitedOutput
+    | CaptureTimedOutOutput
+    | CaptureCancelledOutput
+    | CaptureFailedToStartOutput;
+
+  /** Shared bounded capture output fields. */
+  export type CaptureBaseOutput = {
+    readonly stdout: Uint8Array;
+    readonly stderr: Uint8Array;
+    readonly text: { readonly stdout: string; readonly stderr: string };
+    readonly stdoutTruncated: boolean;
+    readonly stderrTruncated: boolean;
+    toString(): string;
+  };
+
+  /** Termination metadata for naturally exited capture results. */
+  export type CaptureNoTermination = {
+    readonly reason: null;
+    readonly actions: readonly t.Process.Terminate.Action[];
+  };
+
+  /** Termination metadata for timeout/cancellation capture results. */
+  export type CaptureTermination<R extends 'timeout' | 'cancelled'> = {
+    readonly reason: R;
+    readonly actions: readonly t.Process.Terminate.Action[];
+  };
+
+  /** Capture result for a child process that exited before timeout/cancellation. */
+  export type CaptureExitedOutput = CaptureBaseOutput & {
+    readonly outcome: 'exited';
+    readonly status: Deno.CommandStatus;
+    readonly code: number;
+    readonly success: boolean;
+    readonly signal: Deno.Signal | null;
+    readonly termination: CaptureNoTermination;
+  };
+
+  /** Capture result for a child process stopped by timeout. */
+  export type CaptureTimedOutOutput = CaptureBaseOutput & {
+    readonly outcome: 'timed-out';
+    readonly status: Deno.CommandStatus | null;
+    readonly code: number | null;
+    readonly success: false;
+    readonly signal: Deno.Signal | null;
+    readonly termination: CaptureTermination<'timeout'>;
+  };
+
+  /** Capture result for a child process stopped by cancellation. */
+  export type CaptureCancelledOutput = CaptureBaseOutput & {
+    readonly outcome: 'cancelled';
+    readonly status: Deno.CommandStatus | null;
+    readonly code: number | null;
+    readonly success: false;
+    readonly signal: Deno.Signal | null;
+    readonly termination: CaptureTermination<'cancelled'>;
+  };
+
+  /** Capture result for command construction/spawn substrate failures. */
+  export type CaptureFailedToStartOutput = CaptureBaseOutput & {
+    readonly outcome: 'failed-to-start';
+    readonly status: null;
+    readonly code: null;
+    readonly success: false;
+    readonly signal: null;
+    readonly termination: CaptureNoTermination;
+    readonly error: unknown;
   };
 
   /** Arguments passed to the `Process.spawn` method. */
