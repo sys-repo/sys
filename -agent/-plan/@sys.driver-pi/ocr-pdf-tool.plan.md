@@ -1,10 +1,44 @@
 # Driver-pi OCR PDF tool plan
 
 - [x] feat(driver-pi): scaffold OCR extension boundary
-- [x] feat(driver-pi): add dormant OCR PDF profile policy and prompt contract
-- [ ] feat(driver-pi): add OCR dependency preflight and Homebrew setup flow
+- [x] feat(driver-pi): add OCR PDF profile policy and prompt contract
+- [x] refactor(driver-pi): split profile schema into focused modules
+- [x] refactor(driver-pi): group profile utility modules
+- [x] feat(driver-pi): add OCR dependency resolution primitives
+- [ ] feat(driver-pi): add OCR startup preflight gates
+- [ ] feat(driver-pi): add explicit Homebrew OCR install consent flow
+- [ ] test(driver-pi): cover OCR dependency preflight and setup flow
 - [ ] feat(driver-pi): materialize OCR PDF extension and launch wiring
-- [ ] test(driver-pi): cover OCR policy guards and launch wiring
+- [x] test(driver-pi): cover OCR policy guards
+- [ ] test(driver-pi): cover OCR launch wiring
+
+## Next commit split: OCR dependency preflight and setup
+
+Do this as launcher-owned preflight/setup only. Do not register or materialize `ocr_pdf` in this sequence.
+
+1. `feat(driver-pi): add OCR dependency resolution primitives`
+   - add deterministic executable resolution helpers for `pdfinfo`, `pdftoppm`, `tesseract`
+   - prefer Homebrew-derived absolute paths, then standard Homebrew bin roots, then optional launcher-time `PATH` probe
+   - expose structured missing-dependency results with the fixed install command
+   - no install side effects
+
+2. `feat(driver-pi): add OCR startup preflight gates`
+   - run only when `tools.ocr.pdf.enabled: true`
+   - verify resolved executables are absolute paths
+   - probe `tesseract --list-langs` through `Deno.Command` argument arrays
+   - reject missing configured/default languages before launch
+   - keep non-interactive missing-dependency behavior deterministic
+
+3. `feat(driver-pi): add explicit Homebrew OCR install consent flow`
+   - add `--install-ocr-deps` profile-mode flag
+   - interactive startup may offer the fixed command after explicit consent
+   - non-interactive startup may install only when `--install-ocr-deps` is present
+   - command is exactly `brew install poppler tesseract`
+   - if Homebrew is missing or install fails, stop with the exact failed command/status
+
+4. `test(driver-pi): cover OCR dependency preflight and setup flow`
+   - fake dependency probes; no CI dependence on real Homebrew, Poppler, or Tesseract
+   - cover missing executables, missing language data, non-interactive behavior, install consent, and failed install status
 
 ## DMIND decision
 
@@ -25,7 +59,7 @@ S-tier v1 cuts:
 - Local engine only; no cloud OCR.
 - Page count, output size, command timeout, and language availability are hard bounds.
 - The generated Pi tool never installs dependencies and never resolves executables from ambient `PATH`.
-- Until extension materialization lands, default profile policy stays dormant (`enabled: false`) so the live profile does not claim a callable `ocr_pdf` tool.
+- Until extension materialization lands, default profile policy stays disabled (`enabled: false`) so the live profile does not claim a callable `ocr_pdf` tool.
 
 ## Hard invariants
 

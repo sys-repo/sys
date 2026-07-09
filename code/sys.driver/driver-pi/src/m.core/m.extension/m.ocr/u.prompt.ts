@@ -1,7 +1,7 @@
 import { Str, type t } from './common.ts';
 
 /** Convert enabled optical character recognition (OCR) policy into Pi prompt args. */
-export function toPromptArgs(policy: t.PiOcrExtension.Policy) {
+export function toPromptArgs(policy: t.PiOcrExtension.Policy.Resolved) {
   if (!policy.pdf.enabled) return [] as const;
   return ['--append-system-prompt', formatPrompt(policy)] as const;
 }
@@ -9,7 +9,7 @@ export function toPromptArgs(policy: t.PiOcrExtension.Policy) {
 /**
  * Helpers:
  */
-function formatPrompt(policy: t.PiOcrExtension.Policy) {
+function formatPrompt(policy: t.PiOcrExtension.Policy.Resolved) {
   return Str.dedent(
     `
     # Runtime Tool Contract: ocr_pdf

@@ -3,7 +3,7 @@ import { OcrPdfPolicyBounds } from './u.bounds.ts';
 
 type NumericBound = { readonly min: number; readonly max: number };
 
-const DEFAULT_PDF_POLICY: t.PiOcrExtension.PdfPolicy = {
+const DEFAULT_PDF_POLICY: t.PiOcrExtension.Policy.Pdf = {
   enabled: false,
   languages: ['eng'],
   defaultLanguage: 'eng',
@@ -14,9 +14,9 @@ const DEFAULT_PDF_POLICY: t.PiOcrExtension.PdfPolicy = {
 };
 
 /** Resolve wrapper-owned optical character recognition (OCR) policy. */
-export function resolvePolicy(
-  input: t.PiOcrExtension.ResolvePolicyInput = {},
-): t.PiOcrExtension.Policy {
+export function policy(
+  input: t.PiOcrExtension.Resolve.Policy.Input = {},
+): t.PiOcrExtension.Policy.Resolved {
   const pdf = input.pdf;
   const languages = resolveLanguages(pdf?.languages);
   const defaultLanguage = normalizeLanguage(
