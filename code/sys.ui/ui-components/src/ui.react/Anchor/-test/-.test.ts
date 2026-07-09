@@ -59,8 +59,7 @@ describe('Anchor', () => {
       expect(list[3].getAttribute('aria-disabled')).to.eql('true');
       expect(list[3].getAttribute('tabindex')).to.eql('-1');
 
-      const event = new window.MouseEvent('click', { bubbles: true, cancelable: true });
-      const dispatched = list[3].dispatchEvent(event);
+      const { event, dispatched } = DomMock.Mouse.click(list[3]);
       expect(dispatched).to.eql(false);
       expect(event.defaultPrevented).to.eql(true);
       expect(disabledClicks).to.eql(0);

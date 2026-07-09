@@ -21,8 +21,8 @@ describe('BulletList.UI disabled interaction', () => {
     const enabled = root.children.item(0) as HTMLElement;
     const disabled = root.children.item(1) as HTMLElement;
     act(() => {
-      enabled.dispatchEvent(new window.MouseEvent('mousedown', { bubbles: true }));
-      disabled.dispatchEvent(new window.MouseEvent('mousedown', { bubbles: true }));
+      DomMock.Mouse.down(enabled);
+      DomMock.Mouse.down(disabled);
     });
 
     expect(events).to.eql(['enabled']);
