@@ -24,7 +24,7 @@ describe('Buttons.Switch: toggle event', () => {
     );
 
     const root = res.container.firstElementChild as HTMLElement;
-    act(() => activate(root));
+    act(() => DomMock.Mouse.activate(root));
 
     expect(events).to.eql(['toggle:false:true:mouseup']);
 
@@ -44,7 +44,7 @@ describe('Buttons.Switch: toggle event', () => {
     );
 
     const root = res.container.firstElementChild as HTMLElement;
-    act(() => activate(root));
+    act(() => DomMock.Mouse.activate(root));
 
     expect(events).to.eql(['click', 'toggle:true:false:mouseup']);
 
@@ -60,7 +60,7 @@ describe('Buttons.Switch: toggle event', () => {
     );
 
     const root = res.container.firstElementChild as HTMLElement;
-    act(() => activate(root));
+    act(() => DomMock.Mouse.activate(root));
 
     expect(events).to.eql([]);
 
@@ -69,10 +69,3 @@ describe('Buttons.Switch: toggle event', () => {
   });
 });
 
-/**
- * Helpers:
- */
-function activate(el: HTMLElement) {
-  el.dispatchEvent(new window.MouseEvent('mousedown', { bubbles: true, button: 0 }));
-  el.dispatchEvent(new window.MouseEvent('mouseup', { bubbles: true, button: 0 }));
-}
