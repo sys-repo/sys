@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 import { Is } from './m.Is.ts';
-import { Percent } from './m.Percent.ts';
+import { Percent } from './m.Percent/mod.ts';
 import { Ratio } from './m.Ratio.ts';
 import { random } from './u.random.ts';
 import { toLetter, toString } from './u.string.ts';

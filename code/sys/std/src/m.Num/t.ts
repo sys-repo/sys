@@ -89,6 +89,7 @@ export declare namespace Num {
       /**
        * Normalize a number or string to a bounded 0..1 percentage.
        * Numbers are fractional (`0.35` → 35%); strings may be fractional or percent-form (`"35%"`).
+       * Invalid input normalizes to `0`; out-of-range values clamp to the nearest bound.
        */
       normalize(value?: string | number): t.Percent;
 

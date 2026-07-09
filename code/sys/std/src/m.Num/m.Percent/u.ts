@@ -1,4 +1,4 @@
-import { Is, type t } from './common.ts';
+import { Is, type t } from '../common.ts';
 
 /**
  * Normalize a number or string to a bounded 0..1 percentage.
@@ -17,12 +17,20 @@ export function normalize(input?: string | number): t.Percent {
 /**
  * Normalize a value, then constrain it by optional min/max percent bounds.
  */
-export function clamp(value?: string | number, min?: string | number, max?: string | number): t.Percent {
+export function clamp(
+  value?: string | number,
+  min?: string | number,
+  max?: string | number,
+): t.Percent {
   let percent = normalize(value);
   if (min !== undefined) percent = Math.max(normalize(min), percent);
   if (max !== undefined) percent = Math.min(normalize(max), percent);
   return normalize(percent);
 }
+
+/**
+ * Helpers:
+ */
 
 function unit(value: number): t.Percent {
   if (!Is.number(value)) return 0;

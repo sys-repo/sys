@@ -1,6 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
-import { PercentRange } from '../m.Percent.Range.ts';
-import { Percent } from '../m.Percent.ts';
+import { Percent } from '../m.Percent/mod.ts';
 import { Ratio } from '../m.Ratio.ts';
 import { Num } from '../mod.ts';
 
@@ -11,7 +10,7 @@ describe('Value.Num', () => {
     expect(typeof Num.Is.safeInt).to.equal('function');
     expect(Num.Percent).to.equal(Percent);
     expect(Num.Percent.Is).to.equal(Percent.Is);
-    expect(Num.Percent.Range).to.eql(PercentRange);
+    expect(Num.Percent.Range).to.equal(Percent.Range);
     expect(Num.Ratio).to.equal(Ratio);
   });
 
