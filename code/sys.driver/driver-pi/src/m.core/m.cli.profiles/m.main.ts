@@ -28,7 +28,7 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
   const startup = await ProfileStartup.resolve({ input, parsed });
   if (startup.kind === 'exit') return { kind: 'exit', input };
 
-  const { cwd, root, migrationMessage } = startup;
+  const { cwd, root, migrationMessage, interactive } = startup;
   const allowAll = input.allowAll === true || parsed.allowAll === true;
   const gitRootExplicit = parsed.gitRoot !== undefined;
 
@@ -52,6 +52,10 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
     read: input.read,
     write: input.write,
     pkg: input.pkg,
+    ocr: {
+      installDeps: parsed.installOcrDeps === true,
+      interactive,
+    },
   });
   if (picked.previewed !== true) {
     if (!selection) clearInteractiveScreen();
@@ -67,4 +71,3 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
     output,
   };
 };
-

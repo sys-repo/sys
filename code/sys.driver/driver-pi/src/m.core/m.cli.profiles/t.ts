@@ -60,7 +60,21 @@ export declare namespace PiCliProfiles {
     readonly write?: readonly t.StringPath[];
     /** Pi package specifier override, primarily for tests and pinned launchers. */
     readonly pkg?: t.StringModuleSpecifier;
+    /** Launcher-owned optical character recognition (OCR) startup setup options. */
+    readonly ocr?: RunArgs.Ocr;
   };
+
+  export namespace RunArgs {
+    /** Launcher-owned optical character recognition (OCR) startup setup options. */
+    export type Ocr = {
+      /** Whether to run OCR preflight; disabled only for OCR-preflight-free previews. */
+      readonly preflight?: boolean;
+      /** Explicit consent to install missing OCR dependencies. */
+      readonly installDeps?: boolean;
+      /** Whether startup may ask for interactive OCR install consent. */
+      readonly interactive?: boolean;
+    };
+  }
 
   /** Menu input. */
   export type MenuArgs = {
@@ -80,6 +94,8 @@ export declare namespace PiCliProfiles {
     readonly allowAll?: boolean;
     /** Whether prompts must be disabled and a profile must be supplied. */
     readonly nonInteractive?: boolean;
+    /** Explicit consent to install missing OCR dependencies during startup. */
+    readonly installOcrDeps?: boolean;
     /** Profile name or config path selected at the CLI boundary. */
     readonly profile?: string;
     /** Runtime-root discovery mode parsed from `--git-root`. */

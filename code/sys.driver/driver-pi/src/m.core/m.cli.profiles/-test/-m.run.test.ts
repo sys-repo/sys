@@ -3,6 +3,7 @@ import { Process } from '../../m.cli/common.ts';
 import { Fs, Path, Str, type t } from '../common.ts';
 import { Profiles } from '../mod.ts';
 import { DEFAULT_SYSTEM_PROMPT, PROVENANCE_SAFETY_PROMPT } from '../u/u.prompt.ts';
+import { resolveRun } from '../u/u.resolve.run.ts';
 
 type RegisteredTool = {
   readonly name: string;
@@ -188,6 +189,42 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
       else Deno.env.set('TMPDIR', prevTmpDir);
       await Fs.remove(cwd);
       await Fs.remove(tmpDir);
+    }
+  });
+
+  it('resolveRun → can skip OCR preflight for OCR-setup-free sandbox previews', async () => {
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.run.test.' }))
+      .absolute as t.StringDir;
+    const config = `${cwd}/profiles.yaml` as t.StringPath;
+    try {
+      await Fs.write(
+        config,
+        Str.dedent(
+          `
+          tools:
+            remove:
+              enabled: false
+            move:
+              enabled: false
+            copy:
+              enabled: false
+            ocr:
+              pdf:
+                enabled: true
+          `,
+        ).trimStart(),
+      );
+      await Fs.ensureDir(`${cwd}/.git`);
+
+      const resolved = await resolveRun({
+        cwd: { invoked: cwd, git: cwd },
+        config,
+        ocr: { preflight: false },
+      });
+
+      expect(resolved.args).not.to.include('--extension');
+    } finally {
+      await Fs.remove(cwd);
     }
   });
 

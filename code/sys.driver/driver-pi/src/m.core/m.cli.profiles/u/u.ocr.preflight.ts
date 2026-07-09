@@ -1,4 +1,4 @@
-import { Arr, Fs, Is, Path, type t } from '../common.ts';
+import { Arr, c, Cli, Err, Fs, Is, Path, Str, type t } from '../common.ts';
 import { Process } from '../../m.cli/common.ts';
 import { Ocr } from '../../m.extension/m.ocr/mod.ts';
 
@@ -20,6 +20,8 @@ export type OcrStartupPreflightInput = {
   readonly command?: t.PiOcrExtension.Command.Runner;
   /** Test seam for `tesseract --list-langs`. */
   readonly languageProbe?: OcrLanguageProbe;
+  /** Explicit setup/consent policy for missing OCR dependencies. */
+  readonly setup?: OcrStartupSetup;
 };
 
 /** Startup preflight result for enabled or disabled PDF OCR policy. */
@@ -41,6 +43,34 @@ type OcrLanguageProbe = (
   input: OcrLanguageProbeInput,
 ) => Promise<t.PiOcrExtension.Command.Output>;
 
+/** Explicit setup/consent policy for missing OCR dependencies. */
+export type OcrStartupSetup = {
+  /** Explicit consent to run the fixed Homebrew OCR dependency install command. */
+  readonly installDeps?: boolean;
+  /** Whether startup may ask for interactive install consent. */
+  readonly interactive?: boolean;
+  /** Test seam for interactive install consent. */
+  readonly prompt?: OcrInstallPrompt;
+  /** Test seam for running the fixed Homebrew install command. */
+  readonly install?: OcrInstallRunner;
+};
+
+export type OcrInstallPromptInput = {
+  readonly missing: readonly t.PiOcrExtension.Dependency.Name[];
+  readonly installCommand: t.PiOcrExtension.Install.Command;
+};
+
+export type OcrInstallPrompt = (input: OcrInstallPromptInput) => Promise<'install' | 'skip'>;
+
+export type OcrInstallInput = {
+  readonly cmd: t.StringPath;
+  readonly args: t.PiOcrExtension.Install.Command['args'];
+  readonly text: t.PiOcrExtension.Install.Command['text'];
+  readonly env?: Record<string, string>;
+};
+
+export type OcrInstallRunner = (input: OcrInstallInput) => Promise<t.PiOcrExtension.Command.Output>;
+
 /** Run OCR startup preflight gates before launching Pi. */
 export async function preflightOcrStartup(
   input: OcrStartupPreflightInput,
@@ -52,13 +82,16 @@ export async function preflightOcrStartup(
   const dependencyCommand = input.command ?? ((commandInput) => {
     return runProcessCommand({ ...commandInput, env });
   });
-  const dependencies = await Ocr.Resolve.dependencies({
-    brewPath: input.brewPath,
-    envPath: resolveEnvPath(input, env),
-    standardBinDirs: input.standardBinDirs,
-    exists: input.exists ?? Fs.exists,
-    command: dependencyCommand,
-  });
+  let dependencies = await resolveDependencies(input, env, dependencyCommand);
+
+  if (!dependencies.ok) {
+    dependencies = await installMissingDependencies({
+      input,
+      env,
+      dependencies,
+      dependencyCommand,
+    });
+  }
 
   if (!dependencies.ok) {
     throw new Error(`OCR startup preflight failed: ${dependencies.message}`);
@@ -89,6 +122,113 @@ export async function preflightOcrStartup(
 /**
  * Helpers:
  */
+async function resolveDependencies(
+  input: OcrStartupPreflightInput,
+  env: Record<string, string>,
+  command: t.PiOcrExtension.Command.Runner,
+) {
+  return await Ocr.Resolve.dependencies({
+    brewPath: input.brewPath,
+    envPath: resolveEnvPath(input, env),
+    standardBinDirs: input.standardBinDirs,
+    exists: input.exists ?? Fs.exists,
+    command,
+  });
+}
+
+async function installMissingDependencies(input: {
+  readonly input: OcrStartupPreflightInput;
+  readonly env: Record<string, string>;
+  readonly dependencies: t.PiOcrExtension.Resolve.Dependencies.Missing;
+  readonly dependencyCommand: t.PiOcrExtension.Command.Runner;
+}): Promise<t.PiOcrExtension.Resolve.Dependencies.Output> {
+  const { dependencies, env } = input;
+  const setup = input.input.setup ?? {};
+  const action = await resolveInstallAction(dependencies, setup);
+  if (action === 'skip') return dependencies;
+  if (action === 'declined') {
+    throw new Error(
+      `OCR startup preflight failed: OCR dependency install declined. ${dependencies.message}`,
+    );
+  }
+
+  await runInstall({ env, dependencies, install: setup.install });
+  const resolved = await resolveDependencies(input.input, env, input.dependencyCommand);
+  if (!resolved.ok) {
+    throw new Error(`OCR startup preflight failed after install: ${resolved.message}`);
+  }
+  return resolved;
+}
+
+async function resolveInstallAction(
+  dependencies: t.PiOcrExtension.Resolve.Dependencies.Missing,
+  setup: OcrStartupSetup,
+) {
+  if (setup.installDeps === true) return 'install' as const;
+  if (setup.interactive !== true) return 'skip' as const;
+  const prompt = setup.prompt ?? promptInstall;
+  const picked = await prompt({
+    missing: dependencies.missing,
+    installCommand: dependencies.installCommand,
+  });
+  return picked === 'install' ? 'install' as const : 'declined' as const;
+}
+
+async function promptInstall(input: OcrInstallPromptInput): Promise<'install' | 'skip'> {
+  console.info(formatInstallPrompt(input));
+  const picked = await Cli.Input.Select.prompt<'install' | 'skip'>({
+    message: 'OCR dependencies',
+    options: [
+      { name: 'skip', value: 'skip' },
+      { name: c.cyan('install'), value: 'install' },
+    ],
+    default: 'skip',
+    hideDefault: true,
+  });
+  if (picked === 'install' || picked === 'skip') return picked;
+  throw new Error(`Unexpected OCR dependency setup action: ${picked}`);
+}
+
+function formatInstallPrompt(input: OcrInstallPromptInput) {
+  return Str.dedent(`
+    Missing OCR dependencies: ${input.missing.join(', ')}
+    Install command: ${input.installCommand.text}
+  `).trim();
+}
+
+async function runInstall(input: {
+  readonly env: Record<string, string>;
+  readonly dependencies: t.PiOcrExtension.Resolve.Dependencies.Missing;
+  readonly install?: OcrInstallRunner;
+}) {
+  const command = Ocr.installCommand();
+  const brew = input.dependencies.homebrew;
+  if (!brew) {
+    throw new Error(
+      `OCR startup preflight failed: Homebrew is required for OCR dependency install. Command: ${command.text}.`,
+    );
+  }
+
+  const install = input.install ?? runInstallCommand;
+  let output: t.PiOcrExtension.Command.Output;
+  try {
+    output = await install({ ...command, cmd: brew, env: input.env });
+  } catch (error) {
+    throw new Error(
+      `OCR startup preflight failed: OCR dependency install command could not start. Command: ${command.text}. ${
+        Err.summary(error)
+      }`,
+    );
+  }
+
+  if (output.code === 0) return;
+  const stderr = output.stderr.trim();
+  const details = stderr ? ` Stderr: ${stderr}` : '';
+  throw new Error(
+    `OCR startup preflight failed: OCR dependency install command failed. Command: ${command.text}. Exit code: ${output.code}.${details}`,
+  );
+}
+
 async function runProcessCommand(
   input: OcrLanguageProbeInput,
 ): Promise<t.PiOcrExtension.Command.Output> {
@@ -97,6 +237,19 @@ async function runProcessCommand(
     args: [...input.args],
     env: input.env,
     silent: true,
+  });
+  return {
+    code: output.code,
+    stdout: output.text.stdout,
+    stderr: output.text.stderr,
+  };
+}
+
+async function runInstallCommand(input: OcrInstallInput) {
+  const output = await Process.invoke({
+    cmd: input.cmd,
+    args: [...input.args],
+    env: input.env,
   });
   return {
     code: output.code,

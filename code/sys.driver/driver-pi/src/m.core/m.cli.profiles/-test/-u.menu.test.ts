@@ -2,6 +2,7 @@ import { describe, expect, it } from '../../../-test.ts';
 import { c, Cli, Fs, type t } from '../common.ts';
 import { menu } from '../u/u.menu.ts';
 import { ProfilesFs } from '../u/u.fs.ts';
+import { Ocr } from '../../m.extension/m.ocr/mod.ts';
 
 describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
   it('menu → creates default profile config when none exist', async () => {
@@ -285,6 +286,60 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(printed).to.match(/context\s+\.\/AGENTS\.md, \.\/SYSTEM\.md/);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
+      console.info = prevInfo;
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('menu → sandbox preview does not run OCR preflight or setup', async () => {
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.menu.test.' }))
+      .absolute as t.StringDir;
+    const originalPrompt = Cli.Input.Select.prompt;
+    const originalDependencies = Ocr.Resolve.dependencies;
+    const prevInfo = console.info;
+    const config = Fs.join(cwd, '-config/@sys.driver-pi/default.yaml');
+    let preflightRan = false;
+    let topLevelCount = 0;
+
+    await Fs.ensureDir(Fs.join(cwd, '.git'));
+    await Fs.ensureDir(Fs.dirname(config));
+    await Fs.write(
+      config,
+      `tools:\n  remove:\n    enabled: false\n  move:\n    enabled: false\n  copy:\n    enabled: false\n  ocr:\n    pdf:\n      enabled: true\n`,
+    );
+
+    Object.defineProperty(Cli.Input.Select, 'prompt', {
+      value: (input: SelectInput) => {
+        if (isRootMenu(input)) {
+          topLevelCount += 1;
+          if (topLevelCount === 1) return Promise.resolve(config);
+          return Promise.resolve('exit');
+        }
+        if (isActionMenu(input)) return Promise.resolve('back');
+        throw new Error(`Unexpected prompt: ${input.message}`);
+      },
+    });
+    Object.defineProperty(Ocr.Resolve, 'dependencies', {
+      value: async () => {
+        preflightRan = true;
+        throw new Error('OCR preflight must not run during menu preview.');
+      },
+      configurable: true,
+      writable: true,
+    });
+    console.info = () => undefined;
+
+    try {
+      const res = await menu({ cwd: testCwd(cwd) });
+      expect(res).to.eql({ kind: 'exit' });
+      expect(preflightRan).to.eql(false);
+    } finally {
+      Object.defineProperty(Cli.Input.Select, 'prompt', { value: originalPrompt });
+      Object.defineProperty(Ocr.Resolve, 'dependencies', {
+        value: originalDependencies,
+        configurable: true,
+        writable: true,
+      });
       console.info = prevInfo;
       await Fs.remove(cwd);
     }

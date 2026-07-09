@@ -28,6 +28,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/help`, () => {
         expect(text).to.contain('-h, --help');
         expect(text).to.contain('-A, --allow-all');
         expect(text).to.contain('--non-interactive');
+        expect(text).to.contain('--install-ocr-deps');
         expect(text).to.contain('--profile <name|path>');
         expect(text).not.to.contain('--config');
         expect(text).to.contain('--git-root <walk-up|cwd|none>');
@@ -60,6 +61,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/help`, () => {
       expect(text).not.to.contain('alias of /cli');
       expect(text).not.to.contain('jsr:@sys/driver-pi');
       expect(text).to.contain('--profile <name|path>');
+      expect(text).to.contain('--install-ocr-deps');
       expect(text).not.to.contain('--config');
       expect(text).to.contain('--git-root <walk-up|cwd|none>');
       expect(calls).to.eql([res.text]);

@@ -7,6 +7,7 @@ export const ProfileArgs = {
       t.PiCliProfiles.ParsedArgs & {
         readonly 'allow-all'?: boolean;
         readonly 'non-interactive'?: boolean;
+        readonly 'install-ocr-deps'?: boolean;
         readonly 'git-root'?: string;
         readonly config?: string;
       }
@@ -14,7 +15,7 @@ export const ProfileArgs = {
       ...argv,
     ], {
       alias: { h: 'help', A: 'allow-all' },
-      boolean: ['help', 'allow-all', 'non-interactive'],
+      boolean: ['help', 'allow-all', 'non-interactive', 'install-ocr-deps'],
       string: ['config', 'profile', 'git-root'],
     });
     if (args.config !== undefined && args.help !== true) {
@@ -26,6 +27,7 @@ export const ProfileArgs = {
       help: args.help === true,
       ...(args['allow-all'] === true ? { allowAll: true } : {}),
       ...(args['non-interactive'] === true ? { nonInteractive: true } : {}),
+      ...(args['install-ocr-deps'] === true ? { installOcrDeps: true } : {}),
       ...(args.profile ? { profile: args.profile } : {}),
       ...(gitRoot ? { gitRoot } : {}),
       _: args._ ?? [],

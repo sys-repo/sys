@@ -13,14 +13,16 @@ const StandardHomebrewBinDirs = [
   '/usr/local/bin' as t.StringDir,
   '/home/linuxbrew/.linuxbrew/bin' as t.StringDir,
 ] as const;
-const StandardBrewPaths = StandardHomebrewBinDirs.map((dir) => Fs.join(dir, 'brew') as t.StringPath);
+const StandardBrewPaths = StandardHomebrewBinDirs.map((dir) =>
+  Fs.join(dir, 'brew') as t.StringPath
+);
 
 /** Resolve local optical character recognition (OCR) executable dependencies. */
 export async function dependencies(
   input: t.PiOcrExtension.Resolve.Dependencies.Input,
 ): Promise<t.PiOcrExtension.Resolve.Dependencies.Output> {
-  const candidates = await candidatePaths(input);
-  const found = await findExecutables({ candidates, exists: input.exists });
+  const resolved = await candidatePaths(input);
+  const found = await findExecutables({ candidates: resolved.candidates, exists: input.exists });
   const missing = DependencyNames.filter((name) => found[name] === undefined);
 
   if (missing.length === 0) {
@@ -36,6 +38,7 @@ export async function dependencies(
     missing,
     found,
     installCommand: InstallCommand,
+    ...(resolved.homebrew ? { homebrew: resolved.homebrew } : {}),
     message: formatMissing(missing),
   };
 }
@@ -57,14 +60,12 @@ type FindInput = {
 
 async function candidatePaths(input: CandidateInput) {
   const paths = emptyCandidates();
-  if (input.command) {
-    const brew = await resolveBrewPath(input);
-    if (brew) {
-      await addHomebrewPrefixCandidates(paths, {
-        brew,
-        command: input.command,
-      });
-    }
+  const brew = input.command ? await resolveBrewPath(input) : undefined;
+  if (input.command && brew) {
+    await addHomebrewPrefixCandidates(paths, {
+      brew,
+      command: input.command,
+    });
   }
 
   for (const dir of input.standardBinDirs ?? StandardHomebrewBinDirs) {
@@ -75,7 +76,7 @@ async function candidatePaths(input: CandidateInput) {
     for (const dir of pathDirs(input.envPath)) addBinDirCandidates(paths, dir);
   }
 
-  return dedupeCandidates(paths);
+  return { candidates: dedupeCandidates(paths), ...(brew ? { homebrew: brew } : {}) };
 }
 
 function emptyCandidates() {

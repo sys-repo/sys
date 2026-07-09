@@ -41,7 +41,16 @@ export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<Resolv
   const capability = profile.sandbox?.capability;
   const context = profile.sandbox?.context;
   const env = { ...(capability?.env ?? {}), ...(input.env ?? {}) };
-  await preflightOcrStartup({ pdf: profile.tools?.ocr?.pdf, env });
+  if (input.ocr?.preflight !== false) {
+    await preflightOcrStartup({
+      pdf: profile.tools?.ocr?.pdf,
+      env,
+      setup: {
+        installDeps: input.ocr?.installDeps === true,
+        interactive: input.ocr?.interactive === true,
+      },
+    });
+  }
   const contextResolution = await ProfileContext.resolve({
     cwd,
     append: context?.append,

@@ -1,16 +1,30 @@
 # Driver-pi OCR PDF tool plan
 
-- [x] feat(driver-pi): scaffold OCR extension boundary
-- [x] feat(driver-pi): add OCR PDF profile policy and prompt contract
-- [x] refactor(driver-pi): split profile schema into focused modules
-- [x] refactor(driver-pi): group profile utility modules
-- [x] feat(driver-pi): add OCR dependency resolution primitives
-- [x] feat(driver-pi): add OCR startup preflight gates
-- [ ] feat(driver-pi): add explicit Homebrew OCR install consent flow
-- [ ] test(driver-pi): cover OCR dependency preflight and setup flow
+- [x] feat(driver-pi): scaffold OCR extension boundary — `4ada488bbc5e237bfe968ee20ad6590dd4a35dca`
+- [x] feat(driver-pi): add OCR PDF profile policy and prompt contract — `092c2f64d5ddf61f6675dea1f5490c8657ac3a37`
+- [x] refactor(driver-pi): split profile schema into focused modules — `caa8e0a4c87c96c3115b1de40cfe0785d9f9de26`
+- [x] refactor(driver-pi): group profile utility modules — `3a4901971e02609bbf4889f55076de8cd5bce13b`
+- [x] feat(driver-pi): add OCR dependency resolution primitives — `5a21523c7c97cd8da6c3d815c448d22a92bf5199`
+- [x] feat(driver-pi): add OCR startup preflight gates — `87925423ece8bf89b6f03e498ab702d85890cda3`
+- [x] feat(driver-pi): add explicit Homebrew OCR install consent flow _(working tree)_
+- [x] test(driver-pi): cover OCR dependency preflight and setup flow _(preflight gate tests landed in `87925423ece8bf89b6f03e498ab702d85890cda3`; install/setup-flow tests in working tree)_
 - [ ] feat(driver-pi): materialize OCR PDF extension and launch wiring
-- [x] test(driver-pi): cover OCR policy guards
+- [x] test(driver-pi): cover OCR policy guards — covered by `092c2f64d5ddf61f6675dea1f5490c8657ac3a37`
 - [ ] test(driver-pi): cover OCR launch wiring
+
+## Current reality
+
+- OCR policy, prompt, dependency resolution, and startup preflight gates are committed through `87925423ece8bf89b6f03e498ab702d85890cda3`.
+- `ocr_pdf` is still not materialized, registered, passed via `--extension`, or truthfully available as a callable Pi tool.
+- Homebrew install consent/setup is implemented in the working tree and remains launcher-owned.
+- Startup preflight currently resolves executables, verifies Tesseract language data, and can install only through explicit `--install-ocr-deps` or interactive consent when `tools.ocr.pdf.enabled: true`.
+- Menu sandbox previews resolve with OCR preflight disabled, so previews remain free of OCR probes, OCR prompts, and OCR install side effects.
+
+## Current validation
+
+- `deno fmt --check src/m.core/m.cli.profiles/u/u.ocr.preflight.ts src/m.core/m.cli.profiles/-test/-u.ocr.preflight.test.ts src/m.core/m.cli.profiles/u/u.resolve.run.ts src/m.core/m.cli.profiles/u/u.args.ts src/m.core/m.cli.profiles/u/u.fmt.help.ts src/m.core/m.cli.profiles/m.main.ts src/m.core/m.cli.profiles/u/u.menu.ts src/m.core/m.cli.profiles/u/u.startup.ts src/m.core/m.cli.profiles/t.ts src/m.core/m.cli.profiles/-test/-u.args.test.ts src/m.core/m.cli.profiles/-test/-m.main.help.test.ts src/m.core/m.cli.profiles/-test/-m.run.test.ts src/m.core/m.cli.profiles/-test/-u.menu.test.ts src/m.core/m.extension/m.ocr/t.ts src/m.core/m.extension/m.ocr/u.deps.ts`
+- `deno task test --trace-leaks ./src/m.core/m.cli.profiles`
+- `deno task check`
 
 ## Next commit split: OCR dependency preflight and setup
 
@@ -25,7 +39,7 @@ Do this as launcher-owned preflight/setup only. Do not register or materialize `
 2. `feat(driver-pi): add OCR startup preflight gates`
    - run only when `tools.ocr.pdf.enabled: true`
    - verify resolved executables are absolute paths
-   - probe `tesseract --list-langs` through `Deno.Command` argument arrays
+   - probe `tesseract --list-langs` through launcher-owned `Process.invoke`/`Deno.Command` argument arrays
    - reject missing configured/default languages before launch
    - keep non-interactive missing-dependency behavior deterministic
 

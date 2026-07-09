@@ -41,6 +41,12 @@ describe(`@sys/driver-pi/cli/Profiles/u.args`, () => {
       profile: 'canon',
       _: [],
     });
+    expect(ProfileArgs.parse(['--install-ocr-deps', '--profile', 'canon'])).to.eql({
+      help: false,
+      installOcrDeps: true,
+      profile: 'canon',
+      _: [],
+    });
     expect(ProfileArgs.parse(['-A', '--profile', 'canon'])).to.eql({
       help: false,
       allowAll: true,
@@ -58,6 +64,12 @@ describe(`@sys/driver-pi/cli/Profiles/u.args`, () => {
         help: false,
         profile: './profiles.yaml',
         _: ['--model'],
+      });
+    expect(ProfileArgs.parse(['--profile', './profiles.yaml', '--', '--install-ocr-deps']))
+      .to.eql({
+        help: false,
+        profile: './profiles.yaml',
+        _: ['--install-ocr-deps'],
       });
   });
 

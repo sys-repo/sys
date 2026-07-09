@@ -65,6 +65,8 @@ export declare namespace PiOcrExtension {
         readonly missing: readonly Dependency.Name[];
         readonly found: Partial<Dependency.Executables>;
         readonly installCommand: Install.Command;
+        /** Absolute Homebrew executable path when found during dependency resolution. */
+        readonly homebrew?: t.StringPath;
         readonly message: string;
       };
     }

@@ -15,13 +15,14 @@ function helpInput() {
     `).trim(),
     usage: [
       `${tool} [--help] [--allow-all] [--git-root <walk-up|cwd|none>]`,
-      `${tool} --profile <name|path> [--allow-all] [--git-root <walk-up|cwd|none>] [-- <pi-args...>]`,
-      `${tool} --non-interactive --profile <name|path> [-- <pi-args...>]`,
+      `${tool} --profile <name|path> [--allow-all] [--install-ocr-deps] [--git-root <walk-up|cwd|none>] [-- <pi-args...>]`,
+      `${tool} --non-interactive --profile <name|path> [--install-ocr-deps] [-- <pi-args...>]`,
     ],
     options: [
       ['-h, --help', 'show help'],
       ['-A, --allow-all', 'unsafe debug: grant the launched Pi child full Deno permissions'],
       ['--non-interactive', 'disable prompts and require --profile'],
+      ['--install-ocr-deps', 'explicitly install missing local OCR dependencies during startup'],
       ['--profile <name|path>', 'skip the menu and load a named profile or YAML file'],
       [
         '--git-root <walk-up|cwd|none>',
@@ -34,6 +35,7 @@ function helpInput() {
       `${tool} --profile my-canon`,
       `${tool} --profile ./profiles/my-canon.yaml`,
       `${tool} --non-interactive --profile default`,
+      `${tool} --profile default --install-ocr-deps`,
       `${tool} --git-root cwd`,
       `${tool} --git-root none --profile ./profiles/default.yaml`,
       `${tool} --allow-all`,

@@ -127,6 +127,7 @@ async function printSandbox(args: MenuContext): Promise<PreviewToken | undefined
     cwd: args.cwd,
     config: args.path,
     allowAll: args.allowAll,
+    ocr: { preflight: false },
   });
   const report = await PiSandboxReport.write({ cwd: root, sandbox: resolved.sandbox });
   console.info(

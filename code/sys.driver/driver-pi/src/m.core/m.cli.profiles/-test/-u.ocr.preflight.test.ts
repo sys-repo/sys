@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { depsFixture } from '../../m.extension/m.ocr/-test/u.fixture.ts';
 import { Ocr } from '../../m.extension/m.ocr/mod.ts';
-import { type t } from '../common.ts';
+import { Cli, type t } from '../common.ts';
 import { preflightOcrStartup } from '../u/u.ocr.preflight.ts';
 
 describe(`@sys/driver-pi/cli/Profiles/u.ocr.preflight`, () => {
@@ -123,6 +123,283 @@ describe(`@sys/driver-pi/cli/Profiles/u.ocr.preflight`, () => {
         'OCR startup preflight failed: Missing OCR dependencies: pdfinfo, pdftoppm, tesseract.',
       );
       expect(error.message).to.contain('Install with: brew install poppler tesseract');
+    }
+  });
+
+  it('preflight → installs missing OCR dependencies only with explicit non-interactive consent', async () => {
+    const fixture = depsFixture({
+      existing: ['/brew/bin/brew', '/ocr/bin/pdfinfo', '/ocr/bin/pdftoppm', '/ocr/bin/tesseract'],
+      command: () => ({ code: 1, stdout: '', stderr: '' }),
+    });
+    const installs: Array<{
+      readonly cmd: string;
+      readonly args: readonly string[];
+      readonly env?: Record<string, string>;
+    }> = [];
+    let installed = false;
+
+    const res = await preflightOcrStartup({
+      pdf: { enabled: true, languages: ['eng'], defaultLanguage: 'eng' },
+      env: { PATH: '/usr/bin' },
+      brewPath: '/brew/bin/brew',
+      envPath: '',
+      standardBinDirs: ['/ocr/bin'],
+      exists: (path) => path === '/brew/bin/brew' || (installed && fixture.exists(path)),
+      command: fixture.command,
+      setup: {
+        installDeps: true,
+        interactive: false,
+        install: async (input) => {
+          installs.push({ cmd: input.cmd, args: input.args, env: input.env });
+          installed = true;
+          return { code: 0, stdout: 'installed', stderr: '' };
+        },
+      },
+      languageProbe: async () => ({ code: 0, stdout: 'eng\n', stderr: '' }),
+    });
+
+    expect(installs).to.eql([
+      {
+        cmd: '/brew/bin/brew',
+        args: ['install', 'poppler', 'tesseract'],
+        env: { PATH: '/usr/bin' },
+      },
+    ]);
+    expect(res.enabled).to.eql(true);
+    if (res.enabled) {
+      expect(res.executables).to.eql({
+        pdfinfo: '/ocr/bin/pdfinfo',
+        pdftoppm: '/ocr/bin/pdftoppm',
+        tesseract: '/ocr/bin/tesseract',
+      });
+      expect(res.installCommand).to.eql(Ocr.installCommand());
+    }
+  });
+
+  it('preflight → built-in interactive OCR install prompt defaults to skip', async () => {
+    const fixture = depsFixture();
+    const originalPrompt = Cli.Input.Select.prompt;
+    const prevInfo = console.info;
+    let installRan = false;
+    let error: unknown;
+
+    Object.defineProperty(Cli.Input.Select, 'prompt', {
+      value: (input: {
+        readonly message: string;
+        readonly default?: string;
+        readonly options?: readonly { readonly value: string }[];
+      }) => {
+        expect(input.message).to.eql('OCR dependencies');
+        expect(input.default).to.eql('skip');
+        expect((input.options ?? []).map((item) => item.value)).to.eql(['skip', 'install']);
+        return Promise.resolve(input.default);
+      },
+    });
+    console.info = () => undefined;
+
+    try {
+      await preflightOcrStartup({
+        pdf: { enabled: true, languages: ['eng'], defaultLanguage: 'eng' },
+        envPath: '',
+        standardBinDirs: [],
+        exists: fixture.exists,
+        setup: {
+          interactive: true,
+          install: async () => {
+            installRan = true;
+            return { code: 0, stdout: '', stderr: '' };
+          },
+        },
+      });
+    } catch (err) {
+      error = err;
+    } finally {
+      Object.defineProperty(Cli.Input.Select, 'prompt', { value: originalPrompt });
+      console.info = prevInfo;
+    }
+
+    expect(installRan).to.eql(false);
+    expect(error).to.be.instanceOf(Error);
+    if (error instanceof Error) {
+      expect(error.message).to.contain('OCR dependency install declined');
+      expect(error.message).to.contain('Install with: brew install poppler tesseract');
+    }
+  });
+
+  it('preflight → prompts for interactive OCR install consent and stops on decline', async () => {
+    const fixture = depsFixture();
+    const prompts: Array<{
+      readonly missing: readonly t.PiOcrExtension.Dependency.Name[];
+      readonly installCommand: t.PiOcrExtension.Install.Command;
+    }> = [];
+    let installRan = false;
+    let error: unknown;
+
+    try {
+      await preflightOcrStartup({
+        pdf: { enabled: true, languages: ['eng'], defaultLanguage: 'eng' },
+        envPath: '',
+        standardBinDirs: [],
+        exists: fixture.exists,
+        setup: {
+          interactive: true,
+          prompt: async (input) => {
+            prompts.push(input);
+            return 'skip';
+          },
+          install: async () => {
+            installRan = true;
+            return { code: 0, stdout: '', stderr: '' };
+          },
+        },
+      });
+    } catch (err) {
+      error = err;
+    }
+
+    expect(installRan).to.eql(false);
+    expect(prompts).to.eql([
+      {
+        missing: ['pdfinfo', 'pdftoppm', 'tesseract'],
+        installCommand: Ocr.installCommand(),
+      },
+    ]);
+    expect(error).to.be.instanceOf(Error);
+    if (error instanceof Error) {
+      expect(error.message).to.contain('OCR dependency install declined');
+      expect(error.message).to.contain('Install with: brew install poppler tesseract');
+    }
+  });
+
+  it('preflight → installs after interactive OCR setup consent', async () => {
+    const fixture = depsFixture({
+      existing: ['/brew/bin/brew', '/ocr/bin/pdfinfo', '/ocr/bin/pdftoppm', '/ocr/bin/tesseract'],
+      command: () => ({ code: 1, stdout: '', stderr: '' }),
+    });
+    let installed = false;
+    let prompted = false;
+
+    const res = await preflightOcrStartup({
+      pdf: { enabled: true, languages: ['eng'], defaultLanguage: 'eng' },
+      brewPath: '/brew/bin/brew',
+      envPath: '',
+      standardBinDirs: ['/ocr/bin'],
+      exists: (path) => path === '/brew/bin/brew' || (installed && fixture.exists(path)),
+      command: fixture.command,
+      setup: {
+        interactive: true,
+        prompt: async () => {
+          prompted = true;
+          return 'install';
+        },
+        install: async () => {
+          installed = true;
+          return { code: 0, stdout: '', stderr: '' };
+        },
+      },
+      languageProbe: async () => ({ code: 0, stdout: 'eng\n', stderr: '' }),
+    });
+
+    expect(prompted).to.eql(true);
+    expect(installed).to.eql(true);
+    expect(res.enabled).to.eql(true);
+  });
+
+  it('preflight → reports failed OCR dependency install status and stderr', async () => {
+    const fixture = depsFixture({
+      existing: ['/brew/bin/brew'],
+      command: () => ({ code: 1, stdout: '', stderr: '' }),
+    });
+    let error: unknown;
+
+    try {
+      await preflightOcrStartup({
+        pdf: { enabled: true, languages: ['eng'], defaultLanguage: 'eng' },
+        brewPath: '/brew/bin/brew',
+        envPath: '',
+        standardBinDirs: [],
+        exists: fixture.exists,
+        command: fixture.command,
+        setup: {
+          installDeps: true,
+          install: async () => ({ code: 9, stdout: '', stderr: 'brew failed' }),
+        },
+      });
+    } catch (err) {
+      error = err;
+    }
+
+    expect(error).to.be.instanceOf(Error);
+    if (error instanceof Error) {
+      expect(error.message).to.contain('OCR dependency install command failed');
+      expect(error.message).to.contain('Command: brew install poppler tesseract');
+      expect(error.message).to.contain('Exit code: 9');
+      expect(error.message).to.contain('brew failed');
+    }
+  });
+
+  it('preflight → reports OCR dependency install command start failures', async () => {
+    const fixture = depsFixture({
+      existing: ['/brew/bin/brew'],
+      command: () => ({ code: 1, stdout: '', stderr: '' }),
+    });
+    let error: unknown;
+
+    try {
+      await preflightOcrStartup({
+        pdf: { enabled: true, languages: ['eng'], defaultLanguage: 'eng' },
+        brewPath: '/brew/bin/brew',
+        envPath: '',
+        standardBinDirs: [],
+        exists: fixture.exists,
+        command: fixture.command,
+        setup: {
+          installDeps: true,
+          install: async () => {
+            throw new Error('permission denied');
+          },
+        },
+      });
+    } catch (err) {
+      error = err;
+    }
+
+    expect(error).to.be.instanceOf(Error);
+    if (error instanceof Error) {
+      expect(error.message).to.contain('OCR dependency install command could not start');
+      expect(error.message).to.contain('Command: brew install poppler tesseract');
+      expect(error.message).to.contain('permission denied');
+    }
+  });
+
+  it('preflight → reports missing Homebrew before attempting OCR dependency install', async () => {
+    const fixture = depsFixture();
+    let installRan = false;
+    let error: unknown;
+
+    try {
+      await preflightOcrStartup({
+        pdf: { enabled: true, languages: ['eng'], defaultLanguage: 'eng' },
+        envPath: '',
+        standardBinDirs: [],
+        exists: fixture.exists,
+        setup: {
+          installDeps: true,
+          install: async () => {
+            installRan = true;
+            return { code: 0, stdout: '', stderr: '' };
+          },
+        },
+      });
+    } catch (err) {
+      error = err;
+    }
+
+    expect(installRan).to.eql(false);
+    expect(error).to.be.instanceOf(Error);
+    if (error instanceof Error) {
+      expect(error.message).to.contain('Homebrew is required for OCR dependency install');
+      expect(error.message).to.contain('Command: brew install poppler tesseract');
     }
   });
 

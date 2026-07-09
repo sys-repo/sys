@@ -16,6 +16,7 @@ type ResolveReady = {
   readonly cwd: t.PiCli.Cwd;
   readonly root: t.StringDir;
   readonly migrationMessage?: string;
+  readonly interactive: boolean;
 };
 
 export const ProfileStartup = {
@@ -26,9 +27,10 @@ export const ProfileStartup = {
 
     let feedback: StartupFeedback | undefined;
     try {
+      const interactive = args.parsed.nonInteractive !== true && canOpenProfileMenu;
       const resolvedCwd = await resolveCwd(args.input.cwd, {
         gitRoot: args.parsed.gitRoot,
-        interactive: args.parsed.nonInteractive !== true && canOpenProfileMenu,
+        interactive,
       });
       if (resolvedCwd.kind === 'exit') return { kind: 'exit' };
 
@@ -45,6 +47,7 @@ export const ProfileStartup = {
         cwd,
         root,
         migrationMessage: ProfileMigrate.message(migration),
+        interactive,
       };
     } finally {
       feedback?.stop();
