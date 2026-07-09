@@ -1,5 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Process } from '../../m.cli/common.ts';
+import { Ocr } from '../../m.extension/m.ocr/mod.ts';
 import { Fs, Path, Str, type t } from '../common.ts';
 import { Profiles } from '../mod.ts';
 import { DEFAULT_SYSTEM_PROMPT, PROVENANCE_SAFETY_PROMPT } from '../u/u.prompt.ts';
@@ -224,6 +225,103 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
 
       expect(resolved.args).not.to.include('--extension');
     } finally {
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('run → materializes enabled OCR PDF extension after startup preflight', async () => {
+    const prevInherit = Process.inherit;
+    const prevInvoke = Process.invoke;
+    const prevDependencies = Ocr.Resolve.dependencies;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.run.test.' }))
+      .absolute as t.StringDir;
+    const config = `${cwd}/profiles.yaml` as t.StringPath;
+    const executables: t.PiOcrExtension.Dependency.Executables = {
+      pdfinfo: '/ocr/bin/pdfinfo' as t.StringPath,
+      pdftoppm: '/ocr/bin/pdftoppm' as t.StringPath,
+      tesseract: '/ocr/bin/tesseract' as t.StringPath,
+    };
+    try {
+      await Fs.write(
+        config,
+        Str.dedent(
+          `
+          sandbox:
+            capability:
+              read: [./pdfs]
+          tools:
+            remove:
+              enabled: false
+            move:
+              enabled: false
+            copy:
+              enabled: false
+            ocr:
+              pdf:
+                enabled: true
+                languages: [eng, deu]
+                defaultLanguage: deu
+          `,
+        ).trimStart(),
+      );
+      await Fs.ensureDir(`${cwd}/.git`);
+
+      let dependencyProbeCount = 0;
+      (Ocr.Resolve as { dependencies: typeof prevDependencies }).dependencies = async () => {
+        dependencyProbeCount += 1;
+        return { ok: true, executables, installCommand: Ocr.installCommand() };
+      };
+      (Process as typeof Process & { invoke: typeof prevInvoke }).invoke = async (input) => {
+        expect(input.cmd).to.eql('/ocr/bin/tesseract');
+        expect(input.args).to.eql(['--list-langs']);
+        const stdout = 'List of available languages in "/ocr/tessdata" (2):\neng\ndeu\n';
+        return {
+          code: 0,
+          success: true,
+          signal: null,
+          stdout: new TextEncoder().encode(stdout),
+          stderr: new Uint8Array(),
+          text: { stdout, stderr: '' },
+          toString: () => stdout,
+        };
+      };
+      Process.inherit = async (input) => {
+        const extensionIndex = input.args.indexOf('--extension');
+        expect(extensionIndex).to.be.greaterThan(-1);
+        const extensionPath = input.args[extensionIndex + 1] as t.StringPath;
+        expect(extensionPath).to.eql(Fs.join(cwd, '.pi', '@sys', 'extensions', 'ocr.ts'));
+        expect(input.args.filter((arg) => arg === '--extension').length).to.eql(1);
+        expect(input.args).to.include('--no-extensions');
+
+        const prompt = appendSystemPrompts(input.args).join('\n');
+        expect(prompt).to.contain('Runtime Tool Contract: ocr_pdf');
+        expect(prompt).to.contain('Bash is not an OCR fallback.');
+        expect(prompt).to.contain('default language deu');
+        expect(prompt).not.to.contain('Runtime Tool Contract: remove');
+        expect(prompt).not.to.contain('Runtime Tool Contract: copy');
+        expectFinalProvenanceSafety(input.args);
+
+        const read = await Fs.readText(extensionPath);
+        if (!read.ok) throw read.error;
+        const text = read.data ?? '';
+        expect(text).to.contain("name: 'ocr_pdf'");
+        expect(text).to.contain('"pdfinfo": "/ocr/bin/pdfinfo"');
+        expect(text).to.contain('"pdftoppm": "/ocr/bin/pdftoppm"');
+        expect(text).to.contain('"tesseract": "/ocr/bin/tesseract"');
+        expect(text).to.contain(`"tmpRoot": "${cwd}/.pi/@sys/tmp/ocr"`);
+        expect(text).to.contain(`${cwd}/pdfs`);
+        expect(text).to.contain('"defaultLanguage": "deu"');
+        expect(text).not.to.contain('__OCR_POLICY__');
+        return { code: 0, success: true, signal: null };
+      };
+
+      const res = await Profiles.run({ cwd: { invoked: cwd, git: cwd }, config });
+      expect(res.success).to.eql(true);
+      expect(dependencyProbeCount).to.eql(1);
+    } finally {
+      Process.inherit = prevInherit;
+      (Process as typeof Process & { invoke: typeof prevInvoke }).invoke = prevInvoke;
+      (Ocr.Resolve as { dependencies: typeof prevDependencies }).dependencies = prevDependencies;
       await Fs.remove(cwd);
     }
   });

@@ -33,7 +33,9 @@ function formatPrompt(policy: t.PiOcrExtension.Policy.Resolved) {
     - The PDF source must exist inside a readable sandbox root.
     - The source must be a regular \`.pdf\` file, not a directory or symlink.
     - Page range, language, DPI, timeout, and output size are bounded by active profile policy.
-    - Active OCR policy: languages ${policy.pdf.languages.join(', ')}, default language ${policy.pdf.defaultLanguage}, ${policy.pdf.dpi} DPI, max ${policy.pdf.maxPages} pages, max ${policy.pdf.maxChars} emitted characters, timeout ${policy.pdf.timeoutMs}ms.
+    - Active OCR policy: languages ${
+      policy.pdf.languages.join(', ')
+    }, default language ${policy.pdf.defaultLanguage}, ${policy.pdf.dpi} DPI, max ${policy.pdf.maxPages} pages, max ${policy.pdf.maxChars} emitted characters, timeout ${policy.pdf.timeoutMs}ms.
     - OCR output may be truncated when it exceeds policy limits; report truncation explicitly.
     - OCR is lossy; report uncertainty when text quality appears poor.
     - The tool refuses protected control/runtime paths.

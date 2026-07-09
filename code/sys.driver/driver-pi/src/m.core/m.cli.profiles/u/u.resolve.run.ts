@@ -1,6 +1,7 @@
 import { Fs, type t } from '../common.ts';
 import { resolveSandboxSummary } from '../../m.cli/u.resolve.sandbox.ts';
 import { resolveTempArtifactRoots } from '../../m.cli/u.runtime.ts';
+import { Ocr } from '../../m.extension/m.ocr/mod.ts';
 import { SandboxFs } from '../../m.extension/m.sandbox.fs/mod.ts';
 import { ProfileMigrate } from '../u.migrate/mod.ts';
 import { ProfileContext } from './u.context.ts';
@@ -41,8 +42,9 @@ export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<Resolv
   const capability = profile.sandbox?.capability;
   const context = profile.sandbox?.context;
   const env = { ...(capability?.env ?? {}), ...(input.env ?? {}) };
-  if (input.ocr?.preflight !== false) {
-    await preflightOcrStartup({
+  const ocrPreflight = input.ocr?.preflight === false
+    ? { enabled: false as const }
+    : await preflightOcrStartup({
       pdf: profile.tools?.ocr?.pdf,
       env,
       setup: {
@@ -50,7 +52,6 @@ export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<Resolv
         interactive: input.ocr?.interactive === true,
       },
     });
-  }
   const contextResolution = await ProfileContext.resolve({
     cwd,
     append: context?.append,
@@ -81,6 +82,18 @@ export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<Resolv
   const extension = hasEnabledSandboxFsTool(sandboxFsPolicy)
     ? await SandboxFs.write({ cwd: root, policy: sandboxFsPolicy })
     : undefined;
+  const ocrExtension = ocrPreflight.enabled
+    ? await Ocr.write({
+      cwd: root,
+      policy: Ocr.resolveExtensionPolicy({
+        cwd,
+        read,
+        policy: ocrPreflight.policy,
+        executables: ocrPreflight.executables,
+        installCommand: ocrPreflight.installCommand,
+      }),
+    })
+    : undefined;
   const sandbox = await resolveSandboxSummary({
     cwd,
     read,
@@ -100,8 +113,10 @@ export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<Resolv
       }),
       ...contextResolution.args,
       ...SandboxFs.toPromptArgs(sandboxFsPolicy),
+      ...(ocrPreflight.enabled ? Ocr.toPromptArgs(ocrPreflight.policy) : []),
       ...RuntimeMetadata.toPromptArgs({ cwd, profile: activeProfile }),
       ...(extension?.args ?? []),
+      ...(ocrExtension?.args ?? []),
       ...toFinalProvenanceSafetyArgs(),
       ...(input.args ?? []),
     ],

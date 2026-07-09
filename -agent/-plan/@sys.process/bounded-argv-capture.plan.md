@@ -2,21 +2,36 @@
 
 ## Commit arc
 
-- [ ] feat(process): add bounded argv capture
+- [x] 5c6eaa37d feat(process): add bounded argv capture
+- [x] 9e10169af refactor(process): group process command utilities
+- [x] a3145b7b0 refactor(process): align process test layout with implementation files
+- [x] a6608a141 refactor(process): group process utilities by role
 - [ ] refactor(ocr): use bounded process capture for generated OCR commands
+
+## Landed reality
+
+`Process.capture` has landed in `@sys/process` as the reusable no-shell bounded argv capture
+primitive. The implementation lives under `src/m.process/u.proc/u.capture.ts`, its focused tests live
+under `src/m.process/u.proc/-test/-u.capture.test.ts`, and the surrounding process utilities/tests
+were grouped by implementation role.
+
+OCR migration remains intentionally unlanded. The next OCR commit should decide the generated
+extension import/bundling posture before replacing its local `runDenoCommand` runner with
+`Process.capture`.
 
 ## Position
 
 `maxChars` in the OCR PDF tool bounds emitted OCR response text, but it does not bound child-process
 stdout/stderr buffering when a command is run through `Deno.Command(...).output()`.
 
-This is a real upstream `@sys/process` concern. Current `Process.invoke` delegates to
-`Deno.Command.output()`, so switching OCR to `@sys/process.invoke` would not solve bounded output,
-timeout, abort, or child-cleanup semantics.
+This was a real upstream `@sys/process` concern. `Process.capture` now exists as the reusable
+bounded argv capture primitive. Current `Process.invoke` still delegates to `Deno.Command.output()`,
+so switching OCR to `@sys/process.invoke` would not solve bounded output, timeout, abort, or
+child-cleanup semantics.
 
 Do not solve this permanently inside OCR with a bespoke runner. OCR may keep a small local runner as
-a temporary generated-extension implementation detail, but the reusable primitive belongs in
-`@sys/process`.
+a temporary generated-extension implementation detail for the materialization/launch commit, but the
+next OCR follow-on should migrate generated OCR commands to `Process.capture`.
 
 ## Fit inside `Process`
 
@@ -217,7 +232,7 @@ Add `@sys/process` tests that use only Deno itself as the child executable:
   output
 - keeps lazy text and `toString()` behavior aligned with `Process.Output`
 - avoids leaking child processes, readers, abort listeners, or timers under
-  `deno task test --trace-leaks ./src/m.process/-test/-m.Process.capture.test.ts`
+  `deno task test --trace-leaks ./src/m.process/u.proc/-test/-u.capture.test.ts`
 
 ## Acceptance
 
