@@ -62,7 +62,7 @@ function latestValue(
   if (!standdown) return base;
 
   const duration = StanddownTiming.formatDuration(standdown.remaining);
-  return `${base}  ${c.gray(c.italic(`— age window clears in ${duration}`))}`;
+  return `${base}  ${c.gray(c.italic(`— security window clears in ${duration}`))}`;
 }
 
 export const Fmt = {
@@ -172,7 +172,7 @@ export const Fmt = {
       const duration = state.minimumDependencyAgeStanddown
         ? ` — ${StanddownTiming.formatDuration(state.minimumDependencyAgeStanddown.remaining)}`
         : '';
-      str.line(`waiting for the minimum dependency age window to pass${duration}.`);
+      str.line(`waiting for the security time window to pass${duration}.`);
     } else {
       str.line('Latest published version is not currently actionable.');
     }

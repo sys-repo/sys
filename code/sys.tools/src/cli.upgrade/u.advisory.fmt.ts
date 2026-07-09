@@ -30,9 +30,9 @@ export function rootPendingAdvisoryPrelude(
     ? [
       'waiting',
       StanddownTiming.formatDuration(options.remaining),
-      'for the minimum dependency age window to pass',
+      'for the security time window to pass',
     ].join(' ')
-    : 'waiting for the minimum dependency age window to pass';
+    : 'waiting for the security time window to pass';
   return Str.builder()
     .line(hr)
     .line(title)

@@ -370,7 +370,7 @@ describe('cli.upgrade advisory', () => {
       expect(lines[1]?.startsWith('upgrade pending — standing down')).to.eql(true);
       expect(lines[1]?.endsWith('@sys/tools 9.9.9')).to.eql(true);
       expect(prelude).to.contain(
-        'waiting 20h 45m for the minimum dependency age window to pass',
+        'waiting 20h 45m for the security time window to pass',
       );
       expect(prelude).to.not.contain('sys upgrade --latest');
     } finally {
@@ -410,7 +410,7 @@ describe('cli.upgrade advisory', () => {
       fixture.now((checkedAt + twoHours + Time.Date.MINUTE) as t.UnixTimestamp),
     );
 
-    expect(aged).to.contain('waiting 1h 30m for the minimum dependency age window to pass');
+    expect(aged).to.contain('waiting 1h 30m for the security time window to pass');
     expect(elapsed).to.eql(undefined);
   });
 
