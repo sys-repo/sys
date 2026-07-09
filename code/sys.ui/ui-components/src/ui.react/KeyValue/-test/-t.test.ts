@@ -51,6 +51,25 @@ describe('KeyValue/t', () => {
     });
   });
 
+  describe('focus', () => {
+    it('exposes the public Focus type family', () => {
+      const ref: t.KeyValue.Focus.Ref = { path: ['group', 'row'] };
+      const model: t.KeyValue.Focus.Model = { active: ref };
+      const scope: t.KeyValue.Focus.Scope = { path: ['group'], items: [] };
+      const command: t.KeyValue.Focus.Command<'focus:set'> = {
+        name: 'focus:set',
+        payload: { ref },
+      };
+
+      expectTypeOf(KeyValue.Focus).toEqualTypeOf<t.KeyValue.Focus.Lib>();
+      expectTypeOf(ref).toEqualTypeOf<t.KeyValue.Focus.Ref>();
+      expectTypeOf(model).toEqualTypeOf<t.KeyValue.Focus.Model>();
+      expectTypeOf(command).toEqualTypeOf<t.KeyValue.Focus.Command<'focus:set'>>();
+      expectTypeOf(scope).toEqualTypeOf<t.KeyValue.Focus.Scope>();
+      expect(KeyValue.Focus.eql(ref, model.active)).to.eql(true);
+    });
+  });
+
   describe('reorder', () => {
     it('exposes the public Reorder type family', () => {
       const items: t.KeyValue.Item[] = [{ id: 'row', k: 'row', v: 'value' }];

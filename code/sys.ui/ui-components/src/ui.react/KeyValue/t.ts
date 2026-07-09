@@ -91,9 +91,73 @@ export declare namespace KeyValue {
   export type Lib = {
     readonly UI: React.FC<Props>;
     readonly ActionButton: React.FC<ActionButtonProps>;
+    readonly Focus: Focus.Lib;
     readonly Switches: Switches.Lib;
     fromObject: FromObject;
   };
+
+  /**
+   * Focus model for command-addressable KeyValue item projections.
+   */
+  export namespace Focus {
+    /** Public runtime surface for the KeyValue focus model. */
+    export type Lib = {
+      ref(path: t.ObjectPath): Ref;
+      eql(a?: Ref, b?: Ref): boolean;
+      scope(items: readonly KeyValue.Item[], path?: t.ObjectPath): Scope;
+      set(model: Model, items: readonly KeyValue.Item[], ref?: Ref): Model;
+      next(model: Model, items: readonly KeyValue.Item[]): Model;
+      previous(model: Model, items: readonly KeyValue.Item[]): Model;
+      enter(model: Model, items: readonly KeyValue.Item[]): Model;
+      exit(model: Model): Model;
+      apply(model: Model, items: readonly KeyValue.Item[], command: Command): Model;
+    };
+
+    /** Stable focus identity for one projected item in a KeyValue item tree. */
+    export type Ref = { readonly path: t.ObjectPath };
+
+    /** Single-focus model; future multi-target behavior belongs to selection. */
+    export type Model = { readonly active?: Ref };
+
+    /** One focusable item in a resolved focus scope. */
+    export type Item = {
+      readonly ref: Ref;
+      readonly id: string;
+      readonly item: KeyValue.Item;
+      readonly enterable: boolean;
+    };
+
+    /** Peer focusable items at one scope path. */
+    export type Scope = {
+      readonly path: t.ObjectPath;
+      readonly items: readonly Item[];
+    };
+
+    /** Data-only focus command names. */
+    export type CommandName =
+      | 'focus:set'
+      | 'focus:next'
+      | 'focus:previous'
+      | 'focus:enter'
+      | 'focus:exit';
+
+    /** Data-only focus command payloads. */
+    export type CommandPayload = {
+      readonly 'focus:set': { readonly ref?: Ref };
+      readonly 'focus:next': Record<string, never>;
+      readonly 'focus:previous': Record<string, never>;
+      readonly 'focus:enter': Record<string, never>;
+      readonly 'focus:exit': Record<string, never>;
+    };
+
+    /** Data-only focus command. */
+    export type Command<K extends CommandName = CommandName> = {
+      readonly [P in K]: {
+        readonly name: P;
+        readonly payload: CommandPayload[P];
+      };
+    }[K];
+  }
 
   /**
    * KeyValue-shaped switches for labeled boolean controls.
