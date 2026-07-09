@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Str } from '../common.ts';
-import { ProfileSchema } from '../u.schema.ts';
+import { ProfileSchema } from '../u.schema/mod.ts';
 import { validateProfileYamlText } from '../u.validate.ts';
 
 describe(`@sys/driver-pi/cli/Profiles/u.schema`, () => {

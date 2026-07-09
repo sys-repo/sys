@@ -1,5 +1,5 @@
 import { type t, Schema, Yaml } from './common.ts';
-import { ProfileSchema } from './u.schema.ts';
+import { ProfileSchema } from './u.schema/mod.ts';
 
 /**
  * Fixed `yaml` ErrorCode required to construct a `YAMLError`.

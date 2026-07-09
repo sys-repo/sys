@@ -1,6 +1,6 @@
 import { Fs, Schema, Str, type t, Yaml } from './common.ts';
 import { PiFs } from '../u.fs.ts';
-import { ProfileSchema } from './u.schema.ts';
+import { ProfileSchema } from './u.schema/mod.ts';
 import { ProfileYamlErrorCode, validateProfileYamlText } from './u.validate.ts';
 
 const PROFILES_DIR = PiFs.configDir satisfies t.PiCliProfiles.Yaml.DirName;

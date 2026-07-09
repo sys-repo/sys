@@ -5,7 +5,7 @@ import { runtimeRoot } from '../m.cli/u.runtime.ts';
 import { ProfilesFs } from './u.fs.ts';
 import { ProfileMigrate } from './u.migrate/mod.ts';
 import { resolveRun } from './u.resolve.run.ts';
-import { ProfileSchema } from './u.schema.ts';
+import { ProfileSchema } from './u.schema/mod.ts';
 import { clearInteractiveScreen } from './u.terminal.ts';
 
 type Action = 'run' | 'select';
