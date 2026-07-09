@@ -13,6 +13,21 @@ import { Switch } from '../mod.ts';
 describe('Buttons.Switch: toggle event', () => {
   DomMock.init({ beforeEach, afterEach });
 
+  it('renders native switch button semantics', async () => {
+    const res = await TestReact.render(<Switch value tooltip="Toggle value" />, { strict: false });
+
+    const root = res.container.firstElementChild as HTMLButtonElement;
+    expect(root.tagName).to.eql('BUTTON');
+    expect(root.type).to.eql('button');
+    expect(root.getAttribute('role')).to.eql('switch');
+    expect(root.getAttribute('aria-checked')).to.eql('true');
+    expect(root.disabled).to.eql(false);
+    expect(root.getAttribute('title')).to.eql('Toggle value');
+
+    act(() => res.dispose());
+    await Promise.resolve();
+  });
+
   it('emits the current and next values on primary activation', async () => {
     const events: string[] = [];
     const res = await TestReact.render(
@@ -23,10 +38,10 @@ describe('Buttons.Switch: toggle event', () => {
       { strict: false },
     );
 
-    const root = res.container.firstElementChild as HTMLElement;
-    act(() => DomMock.Mouse.activate(root));
+    const root = res.container.firstElementChild as HTMLButtonElement;
+    act(() => DomMock.Mouse.click(root));
 
-    expect(events).to.eql(['toggle:false:true:mouseup']);
+    expect(events).to.eql(['toggle:false:true:click']);
 
     act(() => res.dispose());
     await Promise.resolve();
@@ -43,10 +58,10 @@ describe('Buttons.Switch: toggle event', () => {
       { strict: false },
     );
 
-    const root = res.container.firstElementChild as HTMLElement;
-    act(() => DomMock.Mouse.activate(root));
+    const root = res.container.firstElementChild as HTMLButtonElement;
+    act(() => DomMock.Mouse.click(root));
 
-    expect(events).to.eql(['click', 'toggle:true:false:mouseup']);
+    expect(events).to.eql(['click', 'toggle:true:false:click']);
 
     act(() => res.dispose());
     await Promise.resolve();
@@ -59,8 +74,10 @@ describe('Buttons.Switch: toggle event', () => {
       { strict: false },
     );
 
-    const root = res.container.firstElementChild as HTMLElement;
-    act(() => DomMock.Mouse.activate(root));
+    const root = res.container.firstElementChild as HTMLButtonElement;
+    expect(root.disabled).to.eql(true);
+
+    act(() => DomMock.Mouse.click(root));
 
     expect(events).to.eql([]);
 
