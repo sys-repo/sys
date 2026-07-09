@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Color, css, D, type t } from './common.ts';
+import { Color, css, D, Is, type t } from './common.ts';
 import {
   isGroup,
   isRow,
@@ -11,10 +11,14 @@ import {
   toReorderModel,
   type ProjectionAnimationModel,
 } from './u/mod.ts';
+import { entryMode, shouldEnter, toEntryChange } from './m.Focus/u.event.ts';
+import { childScope, toBoundary, type Boundary as FocusBoundary } from './m.Focus/u.render.ts';
 import { Hr, ItemShell, ProjectionItemShell, ReorderList, Row, Spacer, Title } from './ui/mod.ts';
 
 type RenderContext = Omit<t.KeyValue.ItemProps, 'item'> & {
   readonly layout: t.KeyValue.Layout;
+  readonly rootItems: readonly t.KeyValue.Item[];
+  readonly focus?: t.KeyValue.Focus.Props;
   readonly projection?: ProjectionAnimationModel;
 };
 
@@ -67,6 +71,8 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
     mono,
     truncate,
     layout,
+    rootItems: items,
+    focus: props.focus,
     size,
     debug,
     projection,
@@ -82,7 +88,11 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
         onStart={reorder.onStart}
         onChange={onReorderChange}
         onEnd={reorder.onEnd}
-        renderItem={(item) => renderItem(item, renderContext)}
+        focusBoundary={(item) => toFocusBoundary(item, renderContext, [])}
+        renderItem={(item) => {
+          const focus = toFocusBoundary(item, renderContext, []);
+          return renderItem(item, renderContext, 0, childScope(focus));
+        }}
       />
     );
   }
@@ -99,43 +109,103 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
 /**
  * Helpers:
  */
-function renderItems(items: t.KeyValue.Item[], context: RenderContext, depth = 0) {
+function renderItems(
+  items: t.KeyValue.Item[],
+  context: RenderContext,
+  scopePath: t.ObjectPath | undefined = [],
+  depth = 0,
+) {
+  const duplicateIds = toDuplicateIds(items);
   return items.map((item, index) => {
-    const key = keyOf(item, index);
-    const children = renderItem(item, context, depth);
+    const key = keyOf(item, index, duplicateIds);
+    const focus = toFocusBoundary(item, context, scopePath);
+    const children = renderItem(item, context, depth, childScope(focus));
     const projection = depth === 0 ? context.projection : undefined;
 
     if (projection) {
       return (
-        <ProjectionItemShell key={key} item={item} layout={context.layout} projection={projection}>
+        <ProjectionItemShell key={key} item={item} layout={context.layout} projection={projection} focus={focus}>
           {children}
         </ProjectionItemShell>
       );
     }
 
     return (
-      <ItemShell key={key} item={item} layout={context.layout}>
+      <ItemShell key={key} item={item} layout={context.layout} focus={focus}>
         {children}
       </ItemShell>
     );
   });
 }
 
-function renderItem(item: t.KeyValue.Item, context: RenderContext, depth = 0) {
-  const { projection: _projection, ...itemContext } = context;
+function renderItem(
+  item: t.KeyValue.Item,
+  context: RenderContext,
+  depth = 0,
+  groupScope?: t.ObjectPath,
+) {
+  const { focus: _focus, projection: _projection, rootItems: _rootItems, ...itemContext } = context;
   const args: t.KeyValue.ItemProps = { ...itemContext, item };
 
   if (isRow(item)) {
     const rowArgs: t.KeyValue.ItemProps = { ...args, mono: item.mono ?? context.mono };
     return <Row {...rowArgs} />;
   }
-  if (isGroup(item)) return renderItems(item.items, context, depth + 1);
+  if (isGroup(item)) return renderItems(item.items, context, groupScope, depth + 1);
   if (item.kind === 'title') return <Title {...args} />;
   if (item.kind === 'hr') return <Hr {...args} />;
   if (item.kind === 'spacer') return <Spacer {...args} />;
   return null;
 }
 
-function keyOf(item: t.KeyValue.Item, index: number) {
-  return item.id ?? index;
+function toFocusBoundary(
+  item: t.KeyValue.Item,
+  context: RenderContext,
+  scopePath: t.ObjectPath | undefined,
+): FocusBoundary | undefined {
+  const focus = context.focus;
+  if (!focus || focus.enabled === false) return undefined;
+  if (!scopePath) return {};
+
+  const boundary = toBoundary(context.rootItems, scopePath, item);
+  const mode = entryMode(focus.entry);
+  const onChange = focus.onChange;
+  const focusItem = boundary.item;
+  if (!focusItem || !mode || !onChange) return boundary;
+
+  const onClick: React.MouseEventHandler<HTMLElement> = (event) => {
+    if (!shouldEnter(event, focus.entry)) return;
+    const change = toEntryChange({
+      entry: mode,
+      model: focus.model ?? {},
+      items: context.rootItems,
+      ref: focusItem.ref,
+    });
+    if (change) onChange(change);
+  };
+
+  return { ...boundary, onClick };
+}
+
+function keyOf(item: t.KeyValue.Item, index: number, duplicateIds: ReadonlySet<string>) {
+  const id = item.id;
+  return isStableId(id) && !duplicateIds.has(id) ? id : index;
+}
+
+function toDuplicateIds(items: readonly t.KeyValue.Item[]): ReadonlySet<string> {
+  const seen = new Set<string>();
+  const duplicates = new Set<string>();
+
+  items.forEach((item) => {
+    const id = item.id;
+    if (!isStableId(id)) return;
+    if (seen.has(id)) duplicates.add(id);
+    else seen.add(id);
+  });
+
+  return duplicates;
+}
+
+function isStableId(id: unknown): id is string {
+  return Is.string(id) && !Is.blank(id);
 }

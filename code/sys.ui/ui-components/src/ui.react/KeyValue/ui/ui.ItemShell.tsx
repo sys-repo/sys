@@ -1,10 +1,12 @@
 import React from 'react';
 import { css, D, Motion, type t } from '../common.ts';
+import { type Boundary as FocusBoundary } from '../m.Focus/u.render.ts';
 import { type ProjectionAnimationModel, toLayout } from '../u/mod.ts';
 
 type P = {
   item: t.KeyValue.Item;
   layout?: t.KeyValue.Layout;
+  focus?: FocusBoundary;
   children?: t.ReactNode;
 };
 
@@ -43,7 +45,16 @@ export function itemShellClass(item: t.KeyValue.Item, layout?: t.KeyValue.Layout
  * Internal per-item boundary for KeyValue render items.
  */
 export const ItemShell: React.FC<P> = (props) => {
-  return <div className={itemShellClass(props.item, props.layout)}>{props.children}</div>;
+  return (
+    <div
+      className={itemShellClass(props.item, props.layout)}
+      data-keyvalue-item-boundary={props.focus ? 'true' : undefined}
+      data-keyvalue-focus-path={props.focus?.encodedPath}
+      onClick={props.focus?.onClick}
+    >
+      {props.children}
+    </div>
+  );
 };
 
 /**
@@ -56,6 +67,9 @@ export const ProjectionItemShell: React.FC<ProjectionP> = (props) => {
       transition={props.projection.transition}
       className={itemShellClass(props.item, props.layout)}
       data-keyvalue-projection='direct-child'
+      data-keyvalue-item-boundary={props.focus ? 'true' : undefined}
+      data-keyvalue-focus-path={props.focus?.encodedPath}
+      onClick={props.focus?.onClick}
     >
       {props.children}
     </Motion.div>

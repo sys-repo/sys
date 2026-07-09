@@ -1,5 +1,6 @@
 import React from 'react';
 import { css, Reorder as ReorderBase, type t } from '../common.ts';
+import { type Boundary as FocusBoundary } from '../m.Focus/u.render.ts';
 import { type ReorderModel, sameIds, toReorderChange, toReorderedItems } from '../u/mod.ts';
 import { itemShellClass } from './ui.ItemShell.tsx';
 
@@ -11,6 +12,7 @@ type P = {
   onStart?: t.KeyValue.Reorder.StartHandler;
   onChange: t.KeyValue.Reorder.ChangeHandler;
   onEnd?: t.KeyValue.Reorder.EndHandler;
+  focusBoundary?: (item: t.KeyValue.Item) => FocusBoundary | undefined;
   renderItem: (item: t.KeyValue.Item) => t.ReactNode;
 };
 
@@ -67,12 +69,16 @@ export const ReorderList: React.FC<P> = (props) => {
   const elItems = model.ids.map((id) => {
     const item = model.byId.get(id);
     if (!item) return null;
+    const focus = props.focusBoundary?.(item);
     return (
       <ReorderBase.Item
         as='div'
         key={id}
         value={id}
         className={itemShellClass(item, layout)}
+        data-keyvalue-item-boundary={focus ? 'true' : undefined}
+        data-keyvalue-focus-path={focus?.encodedPath}
+        onClick={focus?.onClick}
         onDragStart={() => onDragStart(id)}
         onDragEnd={() => onDragEnd(id)}
       >

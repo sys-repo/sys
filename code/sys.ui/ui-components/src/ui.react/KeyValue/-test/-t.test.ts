@@ -60,12 +60,25 @@ describe('KeyValue/t', () => {
         name: 'focus:set',
         payload: { ref },
       };
+      const change: t.KeyValue.Focus.Change = {
+        reason: 'focus:entry',
+        entry: 'option-click',
+        previous: {},
+        next: model,
+        ref,
+        command,
+      };
+      const focus: t.KeyValue.Focus.Props = { model, entry: 'click', onChange: (e) => e.next };
+      const props: t.KeyValue.Props = { focus };
 
       expectTypeOf(KeyValue.Focus).toEqualTypeOf<t.KeyValue.Focus.Lib>();
       expectTypeOf(ref).toEqualTypeOf<t.KeyValue.Focus.Ref>();
       expectTypeOf(model).toEqualTypeOf<t.KeyValue.Focus.Model>();
       expectTypeOf(command).toEqualTypeOf<t.KeyValue.Focus.Command<'focus:set'>>();
+      expectTypeOf(change).toEqualTypeOf<t.KeyValue.Focus.Change>();
+      expectTypeOf(focus).toEqualTypeOf<t.KeyValue.Focus.Props>();
       expectTypeOf(scope).toEqualTypeOf<t.KeyValue.Focus.Scope>();
+      expect(props.focus).to.equal(focus);
       expect(KeyValue.Focus.eql(ref, model.active)).to.eql(true);
     });
   });

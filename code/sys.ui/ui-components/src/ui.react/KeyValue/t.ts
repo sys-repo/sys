@@ -113,6 +113,33 @@ export declare namespace KeyValue {
       apply(model: Model, items: readonly KeyValue.Item[], command: Command): Model;
     };
 
+    /** Opt-in focus entry props for the rendered KeyValue projection. */
+    export type Props = {
+      readonly enabled?: boolean;
+      readonly model?: Model;
+      readonly entry?: Entry;
+      readonly onChange?: ChangeHandler;
+    };
+
+    /** Supported row/item focus entry gestures. */
+    export type Entry = false | EntryMode;
+
+    /** Enabled row/item focus entry gestures. */
+    export type EntryMode = 'option-click' | 'click';
+
+    /** Focus model change emitted by UI entry gestures. */
+    export type Change = {
+      readonly reason: 'focus:entry';
+      readonly entry: EntryMode;
+      readonly previous: Model;
+      readonly next: Model;
+      readonly ref: Ref;
+      readonly command: Command<'focus:set'>;
+    };
+
+    /** Receive focus model changes from the rendered KeyValue projection. */
+    export type ChangeHandler = (e: Change) => void;
+
     /** Stable focus identity for one projected item in a KeyValue item tree. */
     export type Ref = { readonly path: t.ObjectPath };
 
@@ -223,6 +250,7 @@ export declare namespace KeyValue {
     items?: Item[];
     reorder?: Reorder;
     animation?: Animation;
+    focus?: Focus.Props;
 
     layout?: Layout;
     size?: Size;
