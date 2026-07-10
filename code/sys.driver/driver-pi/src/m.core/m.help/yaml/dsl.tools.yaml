@@ -1,0 +1,33 @@
+id: tools
+title: Driver-Pi tools
+summary: |
+  Use profile-authored `tools:` policy to enable, disable, or configure wrapper-owned tools for a
+  future Driver-Pi launch. Do not confuse future-launch policy with live-session callability.
+
+sections:
+  - label: Use when
+    items: |
+      The prompt asks to enable, disable, or configure a Driver-Pi tool through profile YAML.
+      The prompt asks why a configured tool is not callable in this live session.
+      The prompt asks where a concrete Driver-Pi tool DSL chapter belongs.
+
+  - label: Rule
+    items: |
+      `tools:` in profile YAML is durable policy for the next Driver-Pi launch.
+      DSL tool guidance is not a Runtime Tool Contract.
+      A tool is callable only when this live Pi session exposes that tool.
+      Profile `tools:` edits require restart or relaunch before they can affect availability.
+      Concrete tool chapters belong under `dsl tools` only after the generic policy boundary is stable.
+
+  - label: Sequence
+    items: |
+      If the question is about calling a tool now, inspect the live session tools first.
+      If the question is about future launch behavior, read `dsl profile` before editing YAML.
+      Edit only the relevant `tools:` policy.
+      Ask the human to restart or relaunch Pi after policy changes.
+      After relaunch, answer callability from the live Runtime Tool Contract, not from profile text alone.
+
+  - label: Current chapters
+    items: |
+      No concrete tool chapters are part of the empty DSL spine.
+      Add a concrete tool chapter only with a tested path under `dsl tools <tool>`.

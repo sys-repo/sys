@@ -1,0 +1,37 @@
+id: extensions
+title: Driver-Pi extensions
+summary: |
+  Preserve launcher ownership of generated Pi extensions: profile policy and startup facts flow
+  into materialized extension files, then live registration determines callability.
+
+sections:
+  - label: Use when
+    items: |
+      The prompt asks about generated Driver-Pi extension files.
+      The prompt suggests hand-editing a materialized extension.
+      The prompt asks whether extension materialization makes a tool callable.
+      The prompt asks where to fix behavior produced by generated extension code.
+
+  - label: Rule
+    items: |
+      Generated extension files are launch artifacts.
+      Agents must not hand-author or patch generated extension files as a shortcut.
+      Generated files are evidence of materialization, not durable policy authority.
+      Live session registration, not file existence, determines whether a tool is callable.
+      Fix the owner of the behavior, not the generated artifact.
+
+  - label: Ownership chain
+    items: |
+      Profile YAML → durable policy input.
+      Policy resolution → normalized launcher policy.
+      Startup preflight → verified local substrate facts.
+      Template materialization → generated extension files.
+      Runtime Tool Contract → callable behavior after live registration.
+
+  - label: Fix locus
+    items: |
+      Wrong durable policy → edit profile YAML.
+      Wrong policy interpretation → fix launcher policy resolution.
+      Wrong local dependency facts → fix startup preflight.
+      Wrong generated code shape → fix the owning template or generator.
+      Wrong live callability claim → inspect the live session tools.

@@ -3,6 +3,7 @@ import { DenoDeps } from '@sys/driver-deno/runtime';
 import { Fs } from '@sys/fs';
 import { bundleOcr } from '../src/m.core/m.extension/m.ocr/-bundle/mod.ts';
 import { bundleSandboxFs } from '../src/m.core/m.extension/m.sandbox.fs/-bundle/mod.ts';
+import { bundlePiHelp } from '../src/m.core/m.help/-bundle/mod.ts';
 import { PATH, pinPiCodingAgentImport, resolvePiCodingAgentImport } from './-prep.u.ts';
 
 const root = Fs.resolve(import.meta.dirname ?? '.', '../../../..');
@@ -13,6 +14,7 @@ await main();
 async function main() {
   await bundleSandboxFs();
   await bundleOcr();
+  await bundlePiHelp();
 
   const source = await readText(path.resolvePkgFile);
   const specifier = await resolvePiCodingAgentImport(path.rootDepsYaml, DenoDeps);
