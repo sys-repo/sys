@@ -1,4 +1,4 @@
-import { Str, type t } from './common.ts';
+import { Str, type t } from '../common.ts';
 
 /** Convert enabled optical character recognition (OCR) policy into Pi prompt args. */
 export function toPromptArgs(policy: t.PiOcrExtension.Policy.Resolved) {

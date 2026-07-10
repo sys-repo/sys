@@ -1,4 +1,4 @@
-import { Fs, type t } from './common.ts';
+import { Fs, type t } from '../common.ts';
 import { makeTmpl } from './u.make.ts';
 import { extensionFile } from './u.paths.ts';
 

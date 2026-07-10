@@ -1,4 +1,4 @@
-import { Arr, Num, type t } from './common.ts';
+import { Arr, Num, type t } from '../common.ts';
 import { OcrPdfPolicyBounds } from './u.bounds.ts';
 
 type NumericBound = { readonly min: number; readonly max: number };

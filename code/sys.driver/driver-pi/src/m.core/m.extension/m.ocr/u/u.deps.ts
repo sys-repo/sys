@@ -1,4 +1,4 @@
-import { Arr, Fs, Is, Path, type t } from './common.ts';
+import { Arr, Fs, Is, Path, type t } from '../common.ts';
 
 const InstallCommandText = 'brew install poppler tesseract' as const;
 const InstallCommand = {

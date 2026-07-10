@@ -1,6 +1,6 @@
 import { pkg as ProcessPkg } from '@sys/process';
-import { json } from './-bundle/-bundle.ts';
-import { Json, Path, Str, type t, TmplEngine } from './common.ts';
+import { json } from '../-bundle/-bundle.ts';
+import { Json, Path, Str, type t, TmplEngine } from '../common.ts';
 
 const SOURCE_ROOT = 'tmpl.ocr';
 const TARGET_FILE = 'ocr.ts';

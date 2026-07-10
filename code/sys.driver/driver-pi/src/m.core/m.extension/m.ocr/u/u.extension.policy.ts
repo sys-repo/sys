@@ -1,5 +1,5 @@
-import { Arr, Fs, type t } from './common.ts';
-import { runtimeRoot } from '../../m.cli/u.runtime.ts';
+import { Arr, Fs, type t } from '../common.ts';
+import { runtimeRoot } from '../../../m.cli/u.runtime.ts';
 import { installCommand } from './u.deps.ts';
 import { tmpRoot } from './u.paths.ts';
 

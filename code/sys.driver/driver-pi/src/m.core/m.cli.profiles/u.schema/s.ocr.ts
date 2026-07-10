@@ -1,4 +1,4 @@
-import { OcrPdfPolicyBounds } from '../../m.extension/m.ocr/u.bounds.ts';
+import { OcrPdfPolicyBounds } from '../../m.extension/m.ocr/u/u.bounds.ts';
 import { Type } from './common.ts';
 
 /** Profile OCR schema fragment. */
