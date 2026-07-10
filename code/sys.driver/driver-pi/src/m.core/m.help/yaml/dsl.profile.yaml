@@ -21,6 +21,16 @@ sections:
       Profile edits do not hot-enable tools or permissions inside an existing Pi session.
       Make the smallest safe YAML edit and ask the human to restart or relaunch Pi.
 
+  - label: Selection basics
+    items: |
+      The default `/cli` entrypoint is profile-driven; raw upstream Pi access is explicit at `/cli/raw`.
+      Named profiles resolve to `-config/@sys.driver-pi/<name>.yaml`.
+      `--profile <name|path>` loads a named profile or an explicit profile YAML file.
+      Path-like profile selectors start with `/`, `./`, `../`, or `~/`.
+      Ordinary arguments after `--` pass through to Pi unchanged.
+      Profile mode still owns prompt, context, skill, and extension startup surfaces; passthrough for those surfaces is rejected.
+      Legacy `-config/@sys.driver-pi.pi/` profiles migrate without overwriting canonical files.
+
   - label: Edit sequence
     items: |
       Identify the active profile path before changing YAML.

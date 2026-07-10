@@ -25,6 +25,22 @@ sections:
       Change only `tools.ocr.pdf` unless the user requested a broader profile edit.
       Ask the human to restart or relaunch Pi after editing the active profile.
 
+  - label: Policy shape
+    items: |
+      Default OCR PDF policy is disabled.
+      Available explicit fields for an enabled OCR PDF policy, shown with default values:
+      `tools:`
+      `  ocr:`
+      `    pdf:`
+      `      enabled: true`
+      `      languages: [eng]`
+      `      defaultLanguage: eng`
+      `      dpi: 200`
+      `      maxPages: 10`
+      `      maxChars: 60000`
+      `      timeoutMs: 120000`
+      Do not copy every field by default; prefer the minimal enablement shape unless the user requests explicit OCR bounds or language policy.
+
   - label: Defaults and bounds
     items: |
       Omitted `languages` resolves to `[eng]`; omitted `defaultLanguage` resolves to `eng`.
@@ -40,7 +56,18 @@ sections:
       Startup resolves absolute executable paths for `pdfinfo`, `pdftoppm`, and `tesseract`.
       Startup verifies configured Tesseract language data before registering `ocr_pdf`.
       Missing OCR dependencies are reported with the fixed install command: `brew install poppler tesseract`.
+      Tesseract language data for configured `languages` and `defaultLanguage` must appear in `tesseract --list-langs`.
+      If preflight fails, Pi is not told that `ocr_pdf` exists.
+      Sandbox previews do not run OCR probes, ask install questions, materialize OCR extensions, or advertise `ocr_pdf`.
       Dependency install requires explicit startup consent; the DSL command never installs or probes dependencies.
+
+  - label: Setup paths
+    items: |
+      Install OCR dependencies manually with `brew install poppler tesseract`, then relaunch the profile.
+      Or pass `--install-ocr-deps` at profile startup to explicitly consent to the fixed Homebrew install command.
+      Interactive startup may prompt for install consent when dependencies are missing; the prompt defaults to skip.
+      The generated `ocr_pdf` runtime never installs software, never resolves executables from ambient `PATH`, and never calls a shell.
+      Runtime setup guidance is reserved for substrate or startup failures; configured language-data errors are caught before `ocr_pdf` is advertised.
 
   - label: Disabled-session answer
     items: |

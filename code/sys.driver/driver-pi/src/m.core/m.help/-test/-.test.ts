@@ -26,6 +26,17 @@ describe('@sys/driver-pi/m.help', () => {
       } else {
         expect(chapter.chapters).to.eql([]);
       }
+      if (id === 'profile') {
+        const text = chapterText(chapter);
+        expect(text).to.contain('Named profiles resolve to `-config/@sys.driver-pi/<name>.yaml`');
+        expect(text).to.contain(
+          '`--profile <name|path>` loads a named profile or an explicit profile YAML file',
+        );
+        expect(text).to.contain('Ordinary arguments after `--` pass through to Pi unchanged');
+        expect(text).to.contain(
+          'passthrough for those surfaces is rejected',
+        );
+      }
     }
   });
 
@@ -36,6 +47,19 @@ describe('@sys/driver-pi/m.help', () => {
       expect(chapter.id).to.eql(id);
       expect(chapter.path).to.eql(['tools', id]);
       expect(chapter.chapters).to.eql([]);
+      if (id === 'ocr-pdf') {
+        const text = chapterText(chapter);
+        expect(text).to.contain('Default OCR PDF policy is disabled');
+        expect(text).to.contain('Available explicit fields for an enabled OCR PDF policy');
+        expect(text).to.contain('Do not copy every field by default');
+        expect(text).to.contain('`      timeoutMs: 120000`');
+        expect(text).to.contain(
+          'Tesseract language data for configured `languages` and `defaultLanguage`',
+        );
+        expect(text).to.contain('Sandbox previews do not run OCR probes');
+        expect(text).to.contain('`--install-ocr-deps`');
+        expect(text).to.contain('never resolves executables from ambient `PATH`');
+      }
     }
   });
 
@@ -51,3 +75,10 @@ describe('@sys/driver-pi/m.help', () => {
     expect(error?.message).to.eql('PiHelp: DSL chapter not found: tools missing');
   });
 });
+
+function chapterText(chapter: Awaited<ReturnType<typeof PiHelp.Dsl.load>>) {
+  return [
+    chapter.summary,
+    ...chapter.sections.flatMap((section) => [section.label, ...section.items]),
+  ].join('\n');
+}

@@ -55,74 +55,22 @@ deno run -A jsr:@sys/tools pi --allow-all  # unsafe debug
 ## Profiles
 
 - `/cli` is profile-driven by default; raw upstream Pi access is explicit at `/cli/raw`.
-- Named profiles resolve to `-config/@sys.driver-pi/<name>.yaml`.
-- Legacy `-config/@sys.driver-pi.pi/` profiles migrate without overwriting canonical files.
 - `--profile <name|path>` loads a named profile or an explicit profile YAML file.
-- Path-like profile selectors start with `/`, `./`, `../`, or `~/`.
-- Arguments after `--` pass through to Pi unchanged.
+- Ordinary arguments after `--` pass through to Pi unchanged; profile mode still owns prompt,
+  context, skill, and extension startup surfaces.
+- Agent-facing profile edit rules live in the Driver-Pi DSL:
+  `deno run -ER jsr:@sys/driver-pi dsl profile`.
 
 ## OCR PDF tool
 
-PDF OCR is disabled by default. Enable the wrapper-owned `ocr_pdf` tool explicitly in a profile:
+PDF OCR is disabled by default. The wrapper-owned `ocr_pdf` tool is advertised only after profile
+policy enables it and startup preflight succeeds.
 
-```yaml
-tools:
-  ocr:
-    pdf:
-      enabled: true
-```
+Agent-facing OCR profile guidance lives in the Driver-Pi DSL:
+`deno run -ER jsr:@sys/driver-pi dsl tools ocr-pdf`.
 
-The long-form profile shape is:
-
-```yaml
-tools:
-  ocr:
-    pdf:
-      enabled: false
-      languages: [eng]
-      defaultLanguage: eng
-      dpi: 200
-      maxPages: 10
-      maxChars: 60000
-      timeoutMs: 120000
-```
-
-Bounds:
-
-- `dpi`: `72..600`
-- `maxPages`: `1..100`
-- `maxChars`: `1..1_000_000`
-- `timeoutMs`: `1_000..600_000ms`
-
-Use `ocr_pdf` only for lossy optical character recognition of scanned/image-based PDF pages. It is
-not authoritative file reading, a general PDF parser, embedded-text extraction, markdown conversion,
-or summarization.
-
-When `tools.ocr.pdf.enabled: true`, startup checks OCR dependencies before Pi launches. If preflight
-fails, Pi is not told that `ocr_pdf` exists. Sandbox previews do not run OCR probes, ask install
-questions, materialize OCR extensions, or advertise `ocr_pdf`.
-
-Required local dependencies:
-
-```sh
-brew install poppler tesseract
-```
-
-This installs Poppler tools (`pdfinfo`, `pdftoppm`) and Tesseract. Tesseract language data for the
-configured `languages`/`defaultLanguage` must be available from `tesseract --list-langs` during
-startup preflight.
-
-Setup paths:
-
-- Install manually with `brew install poppler tesseract`, then re-run the profile launch.
-- Or pass `--install-ocr-deps` to explicitly consent to the fixed Homebrew install command.
-- Interactive startup may prompt for install consent when dependencies are missing; the prompt
-  defaults to skip.
-
-The generated `ocr_pdf` runtime never installs software, never resolves executables from ambient
-`PATH`, and never calls a shell. It receives frozen absolute executable paths from launcher
-preflight. Runtime setup guidance is reserved for substrate/start failures; configured language-data
-errors are caught at startup before `ocr_pdf` is advertised.
+Use the DSL chapter for enablement YAML, defaults, bounds, dependency preflight, install-consent
+paths, and the live-callability boundary.
 
 ## Runtime policy
 
