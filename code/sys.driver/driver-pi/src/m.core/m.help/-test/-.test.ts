@@ -13,6 +13,7 @@ describe('@sys/driver-pi/m.help', () => {
     expect(root.title).to.eql('Pi-Driver DSL');
     expect(root.chapters.map((chapter) => chapter.id).sort()).to.eql([...structuralChapters]);
     expect(root.chapters.some((chapter) => chapter.id === 'ocr-pdf')).to.eql(false);
+    expectChapterRoutesTo(root, 'PDF cover', ['`dsl profile`', '`dsl tools ocr-pdf`']);
   });
 
   it('loads structural DSL chapters by path', async () => {
@@ -36,6 +37,7 @@ describe('@sys/driver-pi/m.help', () => {
         expect(text).to.contain(
           'passthrough for those surfaces is rejected',
         );
+        expectChapterRoutesTo(chapter, 'PDF cover', ['`dsl tools ocr-pdf`']);
       }
     }
   });
@@ -57,6 +59,7 @@ describe('@sys/driver-pi/m.help', () => {
           'Tesseract language data for configured `languages` and `defaultLanguage`',
         );
         expect(text).to.contain('Sandbox previews do not run OCR probes');
+        expectCoverReadSetupContract(chapter);
         expect(text).to.contain('`--install-ocr-deps`');
         expect(text).to.contain(
           'deno run -A jsr:@sys/tools pi --profile <active-profile> --install-ocr-deps',
@@ -84,4 +87,41 @@ function chapterText(chapter: Awaited<ReturnType<typeof PiHelp.Dsl.load>>) {
     chapter.summary,
     ...chapter.sections.flatMap((section) => [section.label, ...section.items]),
   ].join('\n');
+}
+
+function expectChapterRoutesTo(
+  chapter: Awaited<ReturnType<typeof PiHelp.Dsl.load>>,
+  trigger: string,
+  paths: readonly string[],
+) {
+  const text = chapterText(chapter);
+  expect(text).to.contain(trigger);
+  paths.forEach((path) => expect(text).to.contain(path));
+}
+
+function expectCoverReadSetupContract(chapter: Awaited<ReturnType<typeof PiHelp.Dsl.load>>) {
+  const section = sectionByLabel(chapter, 'PDF cover read setup answer');
+  const text = section.items.join('\n');
+  const bullets = section.items.filter((item) => item.startsWith('`- '));
+
+  expect(text).to.contain('Pi-Driver DSL root');
+  expect(text).to.contain('`dsl profile`');
+  expect(bullets.length).to.be.at.most(6);
+  expect(bullets.every((item) => item.startsWith('`- '))).to.eql(true);
+  expect(text).to.contain('tools: { ocr: { pdf: { enabled: true } } }');
+  expect(text).to.contain('brew install poppler tesseract');
+  expect(text).to.contain('Relaunch same profile');
+  expect(text).to.contain('Retry PDF cover read');
+  expect(text).not.to.contain('ocr_pdf');
+  expect(text).not.to.contain('pdfinfo');
+  expect(text).not.to.contain('pdftoppm');
+}
+
+function sectionByLabel(
+  chapter: Awaited<ReturnType<typeof PiHelp.Dsl.load>>,
+  label: string,
+) {
+  const section = chapter.sections.find((item) => item.label === label);
+  expect(section).to.not.eql(undefined);
+  return section!;
 }

@@ -60,6 +60,7 @@ const BASE_SYSTEM_PROMPT = Str.dedent(
   - For Pi-Driver profile, tool, or extension changes, consult \`deno run -ER jsr:@sys/driver-pi dsl\` and the smallest matching chapter before editing profile YAML.
   - If a requested Pi-Driver/wrapper-owned tool is unavailable and a matching future-launch enablement path is known, briefly offer to consult Pi-Driver DSL for next-launch enablement; do not give YAML or setup steps before consulting DSL.
   - If the human asks whether or how Pi-Driver can enable an unavailable tool for a future launch, answer live callability first, then consult the Pi-Driver DSL root and smallest matching chapter before giving enablement YAML or setup steps.
+  - For a PDF cover read request when OCR is unavailable, answer live availability first, then consult Pi-Driver DSL root, \`dsl profile\`, and \`dsl tools ocr-pdf\`; final setup guidance must be bullets only, max 6 lines, avoid internal tool names, say “OCR” only, and include minimal profile YAML, \`brew install poppler tesseract\`, relaunch same profile, and retry PDF cover read.
   - DSL guidance does not prove a tool is callable; callable tools are only those registered in this live session.
   - Be concise in your responses
   `,

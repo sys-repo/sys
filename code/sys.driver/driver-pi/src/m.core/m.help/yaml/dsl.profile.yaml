@@ -11,6 +11,7 @@ sections:
       The prompt asks to edit profile YAML.
       The prompt asks why a profile change is not visible in the current session.
       The prompt asks whether restart or relaunch is required.
+      The prompt needs OCR enabled for a future PDF cover read.
 
   - label: Rule
     items: |
@@ -37,6 +38,7 @@ sections:
       Read the exact file before editing it.
       Change only the requested profile policy surface.
       For tool policy changes, read `dsl tools` and any matching concrete tool chapter first.
+      For a PDF cover read that needs OCR, continue to `dsl tools ocr-pdf` before giving setup steps.
       Preserve unrelated profile fields and comments when possible.
       After the edit, state that the current live session is unchanged until restart or relaunch.
 

@@ -36,6 +36,9 @@ describe(`@sys/driver-pi/cli/Profiles/u.prompt`, () => {
     expect(DEFAULT_SYSTEM_PROMPT).to.contain('tool is unavailable');
     expect(DEFAULT_SYSTEM_PROMPT).to.contain('answer live callability first');
     expect(DEFAULT_SYSTEM_PROMPT).to.contain('enablement YAML or setup steps');
+    expect(DEFAULT_SYSTEM_PROMPT).to.contain('PDF cover read request when OCR is unavailable');
+    expect(DEFAULT_SYSTEM_PROMPT).to.contain('`dsl profile`, and `dsl tools ocr-pdf`');
+    expect(DEFAULT_SYSTEM_PROMPT).to.contain('bullets only, max 6 lines');
     expect(DEFAULT_SYSTEM_PROMPT).to.contain('DSL guidance does not prove a tool is callable');
     expect(DEFAULT_SYSTEM_PROMPT).to.contain('registered in this live session');
     expect(DEFAULT_SYSTEM_PROMPT).not.to.contain('ocr_pdf');

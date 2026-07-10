@@ -27,6 +27,19 @@ sections:
       Include a concrete relaunch-with-install-consent command using the active profile selector or path when known: `deno run -A jsr:@sys/tools pi --profile <active-profile> --install-ocr-deps`.
       Also include the manual dependency install command: `brew install poppler tesseract`, and say to relaunch the same profile afterward if the human chooses manual install.
 
+  - label: PDF cover read setup answer
+    items: |
+      Use this path when the user asks to read PDF cover text and OCR is unavailable in the live session.
+      Reasoning order: answer live OCR availability first, then consult Pi-Driver DSL root, `dsl profile`, and this OCR chapter.
+      Final answer must be bullets only, max 6 lines, copyable, and avoid internal tool names.
+      Say `OCR`, not internal tool names, except inside the required minimal profile YAML.
+      Copyable shape:
+      `- OCR is not available in this live session; I checked Pi-Driver DSL root → profile → OCR.`
+      `- Add to active profile YAML: tools: { ocr: { pdf: { enabled: true } } }`
+      `- Run: brew install poppler tesseract`
+      `- Relaunch same profile.`
+      `- Retry PDF cover read.`
+
   - label: Policy shape
     items: |
       Default OCR PDF policy is disabled.

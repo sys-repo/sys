@@ -65,6 +65,7 @@ describe('@sys/driver-pi/cli/Profiles dsl', () => {
     expect(normalized).to.contain(
       'deno run -A jsr:@sys/tools pi --profile <active-profile> --install-ocr-deps',
     );
+    expect(normalized).to.contain('PDF cover read setup answer');
     expect(normalized).to.contain('no callable `ocr_pdf` tool is enabled in this live session');
     expect(normalized).to.contain('OCR output is lossy evidence');
   });

@@ -31,6 +31,7 @@ sections:
       Enabling, disabling, or configuring a profile-authored tool for a future launch → read `dsl tools`.
       Filesystem tool policy for removal, moves, or copies → read `dsl tools remove`, `dsl tools move`, or `dsl tools copy`.
       OCR PDF enablement for a future launch → read `dsl tools ocr-pdf`.
+      PDF cover read when OCR is unavailable → answer live availability first, then read `dsl profile` and `dsl tools ocr-pdf`.
       Generated Pi extensions, materialized files, templates, or hand-edit questions → read `dsl extensions`.
       Whether a tool can be called in this session → answer from live session tools, not DSL text.
       Missing concrete tool chapter → stop and create or update a plan before inventing guidance.
