@@ -3,7 +3,7 @@ import { json } from '../-bundle/-bundle.ts';
 import { Json, Path, Str, type t, TmplEngine } from '../common.ts';
 
 const SOURCE_ROOT = 'tmpl.ocr';
-const TARGET_FILE = 'ocr.ts';
+const ENTRY_FILE = 'mod.ts';
 const POLICY_MARKER = Str.dedent(
   `
   declare const __OCR_POLICY__: OcrPolicy;
@@ -19,20 +19,26 @@ export function makeTmpl(policy: t.PiOcrExtension.Extension.Policy) {
     const relative = e.path.slice(SOURCE_ROOT.length + 1);
     if (!relative) return e.skip('empty template path');
     assertSafeRelativePath(relative);
-    if (relative !== TARGET_FILE) return e.skip(`unsupported OCR template file: ${relative}`);
+    if (!relative.endsWith('.ts')) return e.skip(`unsupported OCR template file: ${relative}`);
 
     e.target.rename(relative, true);
     if (typeof e.text !== 'string') return e.skip('OCR template must be text');
 
-    const withPolicy = e.text.replace(
-      POLICY_MARKER,
-      `const POLICY: OcrPolicy = ${formatPolicy(policy)};`,
-    );
-    const next = withPolicy.replace(PROCESS_IMPORT_MARKER, `from '${processImport()}'`);
-    if (withPolicy === e.text || next.includes('__OCR_POLICY__')) {
-      throw new Error('Unresolved OCR template marker.');
+    let next = e.text;
+    if (relative === ENTRY_FILE) {
+      next = next.replace(POLICY_MARKER, `const POLICY: OcrPolicy = ${formatPolicy(policy)};`);
+      if (next === e.text || next.includes('__OCR_POLICY__')) {
+        throw new Error('Unresolved OCR template marker.');
+      }
     }
-    if (next === withPolicy) throw new Error('Unresolved OCR process import marker.');
+
+    if (next.includes(PROCESS_IMPORT_MARKER)) {
+      next = next.replace(PROCESS_IMPORT_MARKER, `from '${processImport()}'`);
+      if (next.includes(PROCESS_IMPORT_MARKER)) {
+        throw new Error('Unresolved OCR process import marker.');
+      }
+    }
+
     e.modify(next);
   };
 

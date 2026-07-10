@@ -289,7 +289,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
         const extensionIndex = input.args.indexOf('--extension');
         expect(extensionIndex).to.be.greaterThan(-1);
         const extensionPath = input.args[extensionIndex + 1] as t.StringPath;
-        expect(extensionPath).to.eql(Fs.join(cwd, '.pi', '@sys', 'extensions', 'ocr.ts'));
+        expect(extensionPath).to.eql(Fs.join(cwd, '.pi', '@sys', 'extensions', 'ocr', 'mod.ts'));
         expect(input.args.filter((arg) => arg === '--extension').length).to.eql(1);
         expect(input.args).to.include('--no-extensions');
 
