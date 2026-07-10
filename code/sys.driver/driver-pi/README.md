@@ -1,6 +1,7 @@
 # @sys/driver-pi
 
-A Deno launcher for running [Pi](https://pi.dev/) as a profile-driven system agent with an explicit launch sandbox.
+A Deno launcher for running [Pi](https://pi.dev/) as a profile-driven system agent with an explicit
+launch sandbox.
 
 <p>&nbsp;</p>
 
@@ -60,6 +61,69 @@ deno run -A jsr:@sys/tools pi --allow-all  # unsafe debug
 - Path-like profile selectors start with `/`, `./`, `../`, or `~/`.
 - Arguments after `--` pass through to Pi unchanged.
 
+## OCR PDF tool
+
+PDF OCR is disabled by default. Enable the wrapper-owned `ocr_pdf` tool explicitly in a profile:
+
+```yaml
+tools:
+  ocr:
+    pdf:
+      enabled: true
+```
+
+The long-form profile shape is:
+
+```yaml
+tools:
+  ocr:
+    pdf:
+      enabled: false
+      languages: [eng]
+      defaultLanguage: eng
+      dpi: 200
+      maxPages: 10
+      maxChars: 60000
+      timeoutMs: 120000
+```
+
+Bounds:
+
+- `dpi`: `72..600`
+- `maxPages`: `1..100`
+- `maxChars`: `1..1_000_000`
+- `timeoutMs`: `1_000..600_000ms`
+
+Use `ocr_pdf` only for lossy optical character recognition of scanned/image-based PDF pages. It is
+not authoritative file reading, a general PDF parser, embedded-text extraction, markdown conversion,
+or summarization.
+
+When `tools.ocr.pdf.enabled: true`, startup checks OCR dependencies before Pi launches. If preflight
+fails, Pi is not told that `ocr_pdf` exists. Sandbox previews do not run OCR probes, ask install
+questions, materialize OCR extensions, or advertise `ocr_pdf`.
+
+Required local dependencies:
+
+```sh
+brew install poppler tesseract
+```
+
+This installs Poppler tools (`pdfinfo`, `pdftoppm`) and Tesseract. Tesseract language data for the
+configured `languages`/`defaultLanguage` must be available from `tesseract --list-langs` during
+startup preflight.
+
+Setup paths:
+
+- Install manually with `brew install poppler tesseract`, then re-run the profile launch.
+- Or pass `--install-ocr-deps` to explicitly consent to the fixed Homebrew install command.
+- Interactive startup may prompt for install consent when dependencies are missing; the prompt
+  defaults to skip.
+
+The generated `ocr_pdf` runtime never installs software, never resolves executables from ambient
+`PATH`, and never calls a shell. It receives frozen absolute executable paths from launcher
+preflight. Runtime setup guidance is reserved for substrate/start failures; configured language-data
+errors are caught at startup before `ocr_pdf` is advertised.
+
 ## Runtime policy
 
 - Launches require a git repository by default and walk upward to the nearest `.git` root.
@@ -91,4 +155,6 @@ behavior, not complete containment.
 - John McCarthy, creator of Lisp —
   [A programming language based on speech acts](https://www-formal.stanford.edu/jmc/elephant.pdf)
   (1990)
-- Birgitta Böckeler, [Harness Engineering](https://martinfowler.com/articles/harness-engineering.html) — MartinFowler.com, 2026
+- Birgitta Böckeler,
+  [Harness Engineering](https://martinfowler.com/articles/harness-engineering.html) —
+  MartinFowler.com, 2026
