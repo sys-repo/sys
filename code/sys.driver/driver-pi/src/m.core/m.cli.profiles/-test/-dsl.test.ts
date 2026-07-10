@@ -51,7 +51,7 @@ describe('@sys/driver-pi/cli/Profiles dsl', () => {
 
       expect(res.text).to.contain(`@sys/driver-pi dsl tools ${id}`);
       expectChapterRendered(res.text, chapter);
-      expect(res.text).to.contain('restart or relaunch Pi');
+      expect(normalizeWhitespace(res.text)).to.contain('restart or relaunch Pi');
     }
   });
 
@@ -62,6 +62,9 @@ describe('@sys/driver-pi/cli/Profiles dsl', () => {
     expect(res.text).to.contain('enabled: true');
     const normalized = normalizeWhitespace(res.text);
     expect(normalized).to.contain('brew install poppler tesseract');
+    expect(normalized).to.contain(
+      'deno run -A jsr:@sys/tools pi --profile <active-profile> --install-ocr-deps',
+    );
     expect(normalized).to.contain('no callable `ocr_pdf` tool is enabled in this live session');
     expect(normalized).to.contain('OCR output is lossy evidence');
   });

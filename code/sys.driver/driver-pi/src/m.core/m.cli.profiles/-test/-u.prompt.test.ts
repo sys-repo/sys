@@ -31,7 +31,9 @@ describe(`@sys/driver-pi/cli/Profiles/u.prompt`, () => {
     expect(DEFAULT_SYSTEM_PROMPT).to.contain('deno run -ER jsr:@sys/driver-pi dsl');
     expect(DEFAULT_SYSTEM_PROMPT).to.contain('For Pi-Driver profile');
     expect(DEFAULT_SYSTEM_PROMPT).to.contain('smallest matching chapter');
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain('requested tool is unavailable');
+    expect(DEFAULT_SYSTEM_PROMPT).to.contain('requested Pi-Driver/wrapper-owned tool');
+    expect(DEFAULT_SYSTEM_PROMPT).to.contain('briefly offer to consult Pi-Driver DSL');
+    expect(DEFAULT_SYSTEM_PROMPT).to.contain('tool is unavailable');
     expect(DEFAULT_SYSTEM_PROMPT).to.contain('answer live callability first');
     expect(DEFAULT_SYSTEM_PROMPT).to.contain('enablement YAML or setup steps');
     expect(DEFAULT_SYSTEM_PROMPT).to.contain('DSL guidance does not prove a tool is callable');

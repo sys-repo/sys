@@ -58,6 +58,9 @@ describe('@sys/driver-pi/m.help', () => {
         );
         expect(text).to.contain('Sandbox previews do not run OCR probes');
         expect(text).to.contain('`--install-ocr-deps`');
+        expect(text).to.contain(
+          'deno run -A jsr:@sys/tools pi --profile <active-profile> --install-ocr-deps',
+        );
         expect(text).to.contain('never resolves executables from ambient `PATH`');
       }
     }

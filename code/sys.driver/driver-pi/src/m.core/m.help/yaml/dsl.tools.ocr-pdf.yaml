@@ -23,7 +23,9 @@ sections:
       This edit requests OCR PDF registration for the next launch; it does not affect the current live session.
       Read `dsl profile` before editing active profile YAML.
       Change only `tools.ocr.pdf` unless the user requested a broader profile edit.
-      Ask the human to restart or relaunch Pi after editing the active profile.
+      After editing the active profile, say that the current session is unchanged and the human must restart or relaunch Pi.
+      Include a concrete relaunch-with-install-consent command using the active profile selector or path when known: `deno run -A jsr:@sys/tools pi --profile <active-profile> --install-ocr-deps`.
+      Also include the manual dependency install command: `brew install poppler tesseract`, and say to relaunch the same profile afterward if the human chooses manual install.
 
   - label: Policy shape
     items: |
