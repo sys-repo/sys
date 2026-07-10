@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { Fs, type t } from './common.ts';
 import { makeTmpl } from './u.make.ts';
 import { SandboxFsPaths } from './u.paths.ts';
 
@@ -6,9 +6,8 @@ import { SandboxFsPaths } from './u.paths.ts';
 export async function writeExtension(
   input: t.PiSandboxFsExtension.WriteInput,
 ): Promise<t.PiSandboxFsExtension.WriteResult> {
-  const targetDir = SandboxFsPaths.dirOf(input.cwd);
   const path = SandboxFsPaths.pathOf(input.cwd);
-  const res = await makeTmpl(input.policy).write(targetDir, {
+  const res = await makeTmpl(input.policy).write(Fs.dirname(path), {
     dryRun: input.dryRun === true,
     force: true,
   });

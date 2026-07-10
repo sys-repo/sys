@@ -136,23 +136,37 @@ describe(`Pi: sandbox filesystem extension`, () => {
         copy: { enabled: true },
       });
       const res = await SandboxFs.write({ cwd, policy });
-      const read = await Fs.readText(res.path);
-      if (!read.ok) throw read.error;
-      const text = read.data ?? '';
+      const mod = await Fs.readText(res.path);
+      if (!mod.ok) throw mod.error;
+      const modText = mod.data ?? '';
+      const dir = Fs.dirname(res.path);
+      const tool = await Fs.readText(Fs.join(dir, 'u.tool.ts'));
+      if (!tool.ok) throw tool.error;
+      const toolText = tool.data ?? '';
+      const path = await Fs.readText(Fs.join(dir, 'u.path.ts'));
+      if (!path.ok) throw path.error;
+      const pathText = path.data ?? '';
+      const schema = await Fs.readText(Fs.join(dir, 'u.schema.ts'));
+      if (!schema.ok) throw schema.error;
+      const schemaText = schema.data ?? '';
+      const generatedText = [modText, toolText, pathText, schemaText].join('\n');
 
+      expect(res.path).to.eql(Fs.join(cwd, '.pi', '@sys', 'extensions', 'sandbox.fs', 'mod.ts'));
       expect(res.args).to.eql(['--extension', res.path]);
       expect(res.ops.some((op) => op.kind === 'create')).to.eql(true);
-      expect(text).to.contain("name: 'remove'");
-      expect(text).to.contain("name: 'move'");
-      expect(text).to.contain("name: 'copy'");
-      expect(text).to.contain('"recursive": true');
-      expect(text).to.contain('"readRoots"');
-      expect(text).to.contain('"writeRoots"');
-      expect(text).to.contain(`${cwd}/src`);
-      expect(text).to.contain('Deno.lstat');
-      expect(text).not.to.contain("from '@sys/fs'");
-      expect(text).not.to.contain('__SANDBOX_FS_POLICY__');
-      expect(text).not.to.contain(`${cwd}/.pi/@sys/tmp`);
+      expect(toolText).to.contain("name: 'remove'");
+      expect(toolText).to.contain("name: 'move'");
+      expect(toolText).to.contain("name: 'copy'");
+      expect(modText).to.contain('"recursive": true');
+      expect(modText).to.contain('"readRoots"');
+      expect(modText).to.contain('"writeRoots"');
+      expect(modText).to.contain(`${cwd}/src`);
+      expect(pathText).to.contain('Deno.lstat');
+      expect(generatedText).not.to.contain("from '@sys/fs'");
+      expect(generatedText).not.to.contain('@mariozechner/pi-coding-agent');
+      expect(schemaText).not.to.contain("from 'typebox'");
+      expect(generatedText).not.to.contain('__SANDBOX_FS_POLICY__');
+      expect(generatedText).not.to.contain(`${cwd}/.pi/@sys/tmp`);
     } finally {
       await Fs.remove(cwd);
     }

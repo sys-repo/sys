@@ -126,7 +126,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
         expect(extensionIndex).to.be.greaterThan(-1);
         const extensionPath = input.args[extensionIndex + 1] as t.StringPath;
         expect(extensionPath).to.eql(
-          Fs.join(cwd, '.pi', '@sys', 'extensions', 'sandbox.fs.ts'),
+          Fs.join(cwd, '.pi', '@sys', 'extensions', 'sandbox.fs', 'mod.ts'),
         );
         expect(input.args).to.include('--no-extensions');
 
@@ -148,19 +148,32 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
         const read = await Fs.readText(extensionPath);
         if (!read.ok) throw read.error;
         const text = read.data ?? '';
-        expect(text).to.contain("name: 'remove'");
-        expect(text).to.contain("name: 'move'");
-        expect(text).to.contain("name: 'copy'");
+        const dir = Fs.dirname(extensionPath);
+        const tool = await Fs.readText(Fs.join(dir, 'u.tool.ts'));
+        if (!tool.ok) throw tool.error;
+        const toolText = tool.data ?? '';
+        const path = await Fs.readText(Fs.join(dir, 'u.path.ts'));
+        if (!path.ok) throw path.error;
+        const pathText = path.data ?? '';
+        const schema = await Fs.readText(Fs.join(dir, 'u.schema.ts'));
+        if (!schema.ok) throw schema.error;
+        const schemaText = schema.data ?? '';
+        const generatedText = [text, toolText, pathText, schemaText].join('\n');
+        expect(toolText).to.contain("name: 'remove'");
+        expect(toolText).to.contain("name: 'move'");
+        expect(toolText).to.contain("name: 'copy'");
         expect(text).to.contain(tmpDir);
         expect(text).not.to.contain(`${tmpDir}/`);
         expect(countOccurrences(text, tmpDir)).to.eql(1);
         expect(text).to.contain(`${cwd}/allowed`);
         expect(text).to.contain(`${cwd}/.git`);
         expect(text).to.contain(`${cwd}/.pi`);
-        expect(text).to.contain('Deno.lstat');
-        expect(text).not.to.contain("from '@sys/fs'");
-        expect(text).not.to.contain('__SANDBOX_FS_POLICY__');
-        expect(text).not.to.contain(`${cwd}/.pi/@sys/tmp`);
+        expect(pathText).to.contain('Deno.lstat');
+        expect(generatedText).not.to.contain("from '@sys/fs'");
+        expect(generatedText).not.to.contain('@mariozechner/pi-coding-agent');
+        expect(schemaText).not.to.contain("from 'typebox'");
+        expect(generatedText).not.to.contain('__SANDBOX_FS_POLICY__');
+        expect(generatedText).not.to.contain(`${cwd}/.pi/@sys/tmp`);
 
         const clipboard = Fs.join(tmpDir, 'pi-clipboard-test.png') as t.StringPath;
         const imported = Fs.join(cwd, 'clipboard.png') as t.StringPath;
@@ -355,7 +368,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
         expect(prompt).not.to.contain('Runtime Tool Contract: remove');
         expect(prompt).not.to.contain('Runtime Tool Contract: move');
         expect(prompt).not.to.contain('Runtime Tool Contract: copy');
-        const exists = await Fs.exists(Fs.join(cwd, '.pi', '@sys', 'extensions', 'sandbox.fs.ts'));
+        const exists = await Fs.exists(Fs.join(cwd, '.pi', '@sys', 'extensions', 'sandbox.fs'));
         expect(exists).to.eql(false);
         return { code: 0, success: true, signal: null };
       };

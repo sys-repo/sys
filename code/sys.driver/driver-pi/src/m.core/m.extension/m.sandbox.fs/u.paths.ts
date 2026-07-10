@@ -1,7 +1,8 @@
 import { Fs, type t } from './common.ts';
 
 const EXTENSION_DIR = ['.pi', '@sys', 'extensions'] as const;
-const EXTENSION_FILE = 'sandbox.fs.ts' as const;
+const EXTENSION_NAME = 'sandbox.fs' as const;
+const EXTENSION_ENTRY = 'mod.ts' as const;
 
 /** Paths owned by the sandbox filesystem extension. */
 export const SandboxFsPaths = {
@@ -10,6 +11,6 @@ export const SandboxFsPaths = {
   },
 
   pathOf(cwd: t.StringDir) {
-    return Fs.join(SandboxFsPaths.dirOf(cwd), EXTENSION_FILE) as t.StringPath;
+    return Fs.join(SandboxFsPaths.dirOf(cwd), EXTENSION_NAME, EXTENSION_ENTRY) as t.StringPath;
   },
 } as const;

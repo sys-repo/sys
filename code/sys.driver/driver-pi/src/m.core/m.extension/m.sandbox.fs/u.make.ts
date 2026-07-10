@@ -2,7 +2,7 @@ import { json } from './-bundle/-bundle.ts';
 import { Json, Path, Str, TmplEngine, type t } from './common.ts';
 
 const SOURCE_ROOT = 'tmpl.sandbox.fs';
-const TARGET_FILE = 'sandbox.fs.ts';
+const TARGET_ENTRY = 'mod.ts';
 const POLICY_MARKER = Str.dedent(
   `
   declare const __SANDBOX_FS_POLICY__: SandboxFsPolicy;
@@ -18,12 +18,9 @@ export function makeTmpl(policy: t.PiSandboxFsExtension.Policy) {
     const relative = e.path.slice(SOURCE_ROOT.length + 1);
     if (!relative) return e.skip('empty template path');
     assertSafeRelativePath(relative);
-    if (relative !== TARGET_FILE) {
-      return e.skip(`unsupported sandbox.fs template file: ${relative}`);
-    }
-
     e.target.rename(relative, true);
     if (typeof e.text !== 'string') return e.skip('sandbox.fs template must be text');
+    if (relative !== TARGET_ENTRY) return;
 
     const next = e.text.replace(
       POLICY_MARKER,
