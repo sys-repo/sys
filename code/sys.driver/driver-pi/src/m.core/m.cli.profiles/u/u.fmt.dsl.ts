@@ -115,7 +115,7 @@ function skillName(chapter: t.PiHelp.Dsl.Chapter): string {
 
 function skillDescription(chapter: t.PiHelp.Dsl.Chapter): string {
   if (chapter.path.length === 0) {
-    return 'Guides Driver-Pi profile, tools, extension policy, restart semantics, and live tool callability; use before editing Driver-Pi policy.';
+    return 'Guides Pi-Driver profile, tools, extension policy, restart semantics, and live tool callability; use before editing Pi-Driver policy.';
   }
 
   const summary = Str.trimEdgeNewlines(chapter.summary)
@@ -123,7 +123,7 @@ function skillDescription(chapter: t.PiHelp.Dsl.Chapter): string {
     .replace(/\.$/, '')
     .split(/\s+/)
     .join(' ');
-  return `Guides Driver-Pi policy work; use when you need to ${lowerFirst(summary)}.`;
+  return `Guides Pi-Driver policy work; use when you need to ${lowerFirst(summary)}.`;
 }
 
 function lowerFirst(input: string): string {

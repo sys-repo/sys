@@ -44,7 +44,7 @@ deno run -A jsr:@sys/driver-pi/cli --profile ./profiles/canon.yaml
 deno run -A jsr:@sys/driver-pi/cli --allow-all    # unsafe debug
 deno run -A jsr:@sys/driver-pi/cli/raw -- --help  # explicit raw Pi boundary
 
-# help-only Pi Driver DSL
+# help-only Pi-Driver DSL
 deno run -ER jsr:@sys/driver-pi dsl
 deno run -ER jsr:@sys/driver-pi dsl tools ocr-pdf --format skill
 
@@ -57,9 +57,9 @@ deno run -A jsr:@sys/tools pi --allow-all  # unsafe debug
 
 <p>&nbsp;</p>
 
-## Pi Driver DSL
+## Pi-Driver DSL
 
-Pi Driver includes a help-only DSL chapter book for profile, tool, and extension policy. Use live
+Pi-Driver includes a help-only DSL chapter book for profile, tool, and extension policy. Use live
 session tools as the source of callability truth; use the DSL for durable profile edits and
 next-launch explanations.
 
@@ -69,7 +69,7 @@ The direct command uses narrow permissions because it only reads packaged guidan
 deno run -ER jsr:@sys/driver-pi dsl [chapter...] [--format human|skill]
 ```
 
-The `@sys/tools` wrapper delegates to the same Pi Driver DSL route:
+The `@sys/tools` wrapper delegates to the same Pi-Driver DSL route:
 
 ```sh
 deno run -A jsr:@sys/tools pi dsl [chapter...] [--format human|skill]
@@ -86,7 +86,7 @@ agent-facing Markdown.
 - `--profile <name|path>` loads a named profile or an explicit profile YAML file.
 - Ordinary arguments after `--` pass through to Pi unchanged; profile mode still owns prompt,
   context, skill, and extension startup surfaces.
-- Agent-facing profile edit rules live in the Pi Driver DSL:
+- Agent-facing profile edit rules live in the Pi-Driver DSL:
   `deno run -ER jsr:@sys/driver-pi dsl profile`.
 
 ## OCR PDF tool
@@ -94,7 +94,7 @@ agent-facing Markdown.
 PDF OCR is disabled by default. The wrapper-owned `ocr_pdf` tool is advertised only after profile
 policy enables it and startup preflight succeeds.
 
-Agent-facing OCR profile guidance lives in the Pi Driver DSL:
+Agent-facing OCR profile guidance lives in the Pi-Driver DSL:
 `deno run -ER jsr:@sys/driver-pi dsl tools ocr-pdf`.
 
 Use the DSL chapter for enablement YAML, defaults, bounds, dependency preflight, install-consent

@@ -1,5 +1,5 @@
 id: profile
-title: Driver-Pi profile
+title: Pi-Driver profile
 summary: |
   Resolve active profile authority, edit only the durable YAML policy surface, and require restart
   or relaunch before claiming any effect on a live Pi session.
@@ -7,14 +7,14 @@ summary: |
 sections:
   - label: Use when
     items: |
-      The prompt asks which Driver-Pi profile is active.
+      The prompt asks which Pi-Driver profile is active.
       The prompt asks to edit profile YAML.
       The prompt asks why a profile change is not visible in the current session.
       The prompt asks whether restart or relaunch is required.
 
   - label: Rule
     items: |
-      Profile YAML is the durable policy input for Driver-Pi launch behavior.
+      Profile YAML is the durable policy input for Pi-Driver launch behavior.
       Top-level profile policy keys include `prompt`, `sandbox`, and `tools`.
       Prefer launcher-provided runtime metadata such as `runtime.pi.active-profile` when available.
       If active profile authority is absent or ambiguous, stop and ask; do not invent a profile path.

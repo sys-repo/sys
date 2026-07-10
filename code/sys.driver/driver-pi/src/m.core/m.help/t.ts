@@ -1,17 +1,17 @@
 import type { t } from './common.ts';
 
 /**
- * Driver-Pi help resource types.
+ * Pi-Driver help resource types.
  */
 export declare namespace PiHelp {
-  /** Runtime surface for bundled Driver-Pi help resources. */
+  /** Runtime surface for bundled Pi-Driver help resources. */
   export type Lib = {
-    /** Driver-Pi DSL guidance resources. */
+    /** Pi-Driver DSL guidance resources. */
     readonly Dsl: Dsl.Lib;
   };
 
   /**
-   * Driver-Pi DSL guidance resources.
+   * Pi-Driver DSL guidance resources.
    */
   export namespace Dsl {
     /** Loader for authored DSL guidance. */

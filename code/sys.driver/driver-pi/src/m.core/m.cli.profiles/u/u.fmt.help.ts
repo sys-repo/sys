@@ -14,7 +14,7 @@ function helpInput() {
     note: Str.dedent(`
       Select a saved profile by name, or pass a YAML path with --profile.
       Defaults live in profile YAML; args after -- pass through to Pi.
-      Use dsl before changing Driver-Pi profile, tools, or extension policy.
+      Use dsl before changing Pi-Driver profile, tools, or extension policy.
     `).trim(),
     usage: [
       `${tool} [--help] [--allow-all] [--git-root <walk-up|cwd|none>]`,

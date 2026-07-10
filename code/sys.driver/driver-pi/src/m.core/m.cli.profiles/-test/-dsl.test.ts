@@ -72,7 +72,7 @@ describe('@sys/driver-pi/cli/Profiles dsl', () => {
 
     expect(res.raw).to.eql(res.text);
     expect(res.text).to.contain('---\nname: "sys-driver-pi-dsl"');
-    expect(res.text).to.contain('description: "Guides Driver-Pi profile');
+    expect(res.text).to.contain('description: "Guides Pi-Driver profile');
     expectMarkdownChapterRendered(res.text, root);
     root.chapters.forEach((chapter) => {
       expect(res.text).to.contain(`\`${dslCommand} ${chapter.path.join(' ')} --format skill\``);

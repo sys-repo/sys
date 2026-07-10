@@ -1,5 +1,5 @@
 id: remove
-title: Driver-Pi remove tool policy
+title: Pi-Driver remove tool policy
 summary: |
   Author `tools.remove` profile policy for the wrapper-owned filesystem removal tool. This chapter
   governs future-launch policy only; live use still requires a registered `remove` tool.
@@ -7,7 +7,7 @@ summary: |
 sections:
   - label: Use when
     items: |
-      The prompt asks to enable or disable the `remove` tool for a future Driver-Pi launch.
+      The prompt asks to enable or disable the `remove` tool for a future Pi-Driver launch.
       The prompt asks whether recursive directory cleanup should be allowed by profile policy.
       The prompt asks why a current session cannot remove files even though profile YAML was edited.
 

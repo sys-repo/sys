@@ -1,17 +1,17 @@
 id: dsl
-title: Driver-Pi DSL
+title: Pi-Driver DSL
 summary: |
-  Driver-Pi DSL is the operating contract for moving durable profile policy through a Driver-Pi
+  Pi-Driver DSL is the operating contract for moving durable profile policy through a Pi-Driver
   launch into a live Pi session. Use it to choose the right profile, tools, or extensions chapter
   before editing policy or explaining tool availability.
 
 sections:
   - label: Reading protocol
     items: |
-      Agents MUST read this root DSL layer before changing Driver-Pi profile, tools, or extension policy.
+      Agents MUST read this root DSL layer before changing Pi-Driver profile, tools, or extension policy.
       Command: `deno run -ER jsr:@sys/driver-pi dsl`.
       Agents MUST NOT read every chapter by default.
-      Classify the requested Driver-Pi speech act first.
+      Classify the requested Pi-Driver speech act first.
       Read the smallest matching chapter before editing durable policy.
       Command: `deno run -ER jsr:@sys/driver-pi dsl <chapter>`.
       If no chapter matches, stop and ask or make a separate plan.
@@ -19,8 +19,8 @@ sections:
   - label: Authority model
     items: |
       Durable policy lives in profile YAML.
-      Driver-Pi resolves profile policy and startup facts at launch time.
-      Driver-Pi may materialize generated extension files from that resolved policy.
+      Pi-Driver resolves profile policy and startup facts at launch time.
+      Pi-Driver may materialize generated extension files from that resolved policy.
       A tool is callable only when this live Pi session exposes its Runtime Tool Contract.
       Profile YAML edits require restart or relaunch before they can affect tool availability.
       Generated extension files are launcher artifacts, not hand-authored policy.
@@ -44,7 +44,7 @@ sections:
       explain why a tool is not callable in this live session
       separate durable policy from live tool callability
       preserve generated extension ownership
-      add a concrete Driver-Pi tool DSL chapter
+      add a concrete Pi-Driver tool DSL chapter
 
   - label: Command grammar
     items: |

@@ -1,5 +1,5 @@
 id: move
-title: Driver-Pi move tool policy
+title: Pi-Driver move tool policy
 summary: |
   Author `tools.move` profile policy for the wrapper-owned filesystem move and rename tool. This
   chapter governs future-launch policy only; live use still requires a registered `move` tool.
@@ -7,7 +7,7 @@ summary: |
 sections:
   - label: Use when
     items: |
-      The prompt asks to enable or disable the `move` tool for a future Driver-Pi launch.
+      The prompt asks to enable or disable the `move` tool for a future Pi-Driver launch.
       The prompt asks whether file or directory renames should be available in future sessions.
       The prompt asks why a current session cannot move files even though profile YAML was edited.
 

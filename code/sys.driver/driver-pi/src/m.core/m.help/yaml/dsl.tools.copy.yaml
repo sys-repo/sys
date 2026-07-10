@@ -1,5 +1,5 @@
 id: copy
-title: Driver-Pi copy tool policy
+title: Pi-Driver copy tool policy
 summary: |
   Author `tools.copy` profile policy for the wrapper-owned filesystem copy and artifact-import
   tool. This chapter governs future-launch policy only; live use still requires a registered `copy`
@@ -8,7 +8,7 @@ summary: |
 sections:
   - label: Use when
     items: |
-      The prompt asks to enable or disable the `copy` tool for a future Driver-Pi launch.
+      The prompt asks to enable or disable the `copy` tool for a future Pi-Driver launch.
       The prompt asks whether exact artifact import should be available in future sessions.
       The prompt asks why a current session cannot copy files even though profile YAML was edited.
 

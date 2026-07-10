@@ -1,20 +1,20 @@
 id: tools
-title: Driver-Pi tools
+title: Pi-Driver tools
 summary: |
   Use profile-authored `tools:` policy to enable, disable, or configure wrapper-owned tools for a
-  future Driver-Pi launch. Do not confuse future-launch policy with live-session callability.
+  future Pi-Driver launch. Do not confuse future-launch policy with live-session callability.
 
 sections:
   - label: Use when
     items: |
-      The prompt asks to enable, disable, or configure a Driver-Pi tool through profile YAML.
+      The prompt asks to enable, disable, or configure a Pi-Driver tool through profile YAML.
       The prompt asks why a configured tool is not callable in this live session.
-      The prompt asks where a concrete Driver-Pi tool DSL chapter belongs.
+      The prompt asks where a concrete Pi-Driver tool DSL chapter belongs.
       The prompt asks how `tools.remove`, `tools.move`, `tools.copy`, or `tools.ocr.pdf` should be authored.
 
   - label: Rule
     items: |
-      `tools:` in profile YAML is durable policy for the next Driver-Pi launch.
+      `tools:` in profile YAML is durable policy for the next Pi-Driver launch.
       DSL tool guidance is not a Runtime Tool Contract.
       A tool is callable only when this live Pi session exposes that tool.
       Profile `tools:` edits require restart or relaunch before they can affect availability.

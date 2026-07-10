@@ -1,5 +1,5 @@
 id: extensions
-title: Driver-Pi extensions
+title: Pi-Driver extensions
 summary: |
   Preserve launcher ownership of generated Pi extensions: profile policy and startup facts flow
   into materialized extension files, then live registration determines callability.
@@ -7,7 +7,7 @@ summary: |
 sections:
   - label: Use when
     items: |
-      The prompt asks about generated Driver-Pi extension files.
+      The prompt asks about generated Pi-Driver extension files.
       The prompt suggests hand-editing a materialized extension.
       The prompt asks whether extension materialization makes a tool callable.
       The prompt asks where to fix behavior produced by generated extension code.

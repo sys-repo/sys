@@ -56,7 +56,7 @@ describe(PiTool.NAME, () => {
     }
   });
 
-  it('inside @sys → delegates Driver-Pi DSL help with narrow read/env permissions', async () => {
+  it('inside @sys → delegates Pi-Driver DSL help with narrow read/env permissions', async () => {
     const prev = Process.inherit;
     const cwd = Fs.cwd('process');
 
@@ -83,7 +83,7 @@ describe(PiTool.NAME, () => {
     }
   });
 
-  it('outside @sys → delegates Driver-Pi DSL help to the pinned JSR launcher with narrow permissions', async () => {
+  it('outside @sys → delegates Pi-Driver DSL help to the pinned JSR launcher with narrow permissions', async () => {
     const prev = Process.inherit;
     const cwd = Fs.join('/tmp', 'sys.tools.code.external') as t.StringDir;
 

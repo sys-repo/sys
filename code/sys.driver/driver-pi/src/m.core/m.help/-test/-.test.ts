@@ -10,7 +10,7 @@ describe('@sys/driver-pi/m.help', () => {
 
     expect(root.id).to.eql('dsl');
     expect(root.path).to.eql([]);
-    expect(root.title).to.eql('Driver-Pi DSL');
+    expect(root.title).to.eql('Pi-Driver DSL');
     expect(root.chapters.map((chapter) => chapter.id).sort()).to.eql([...structuralChapters]);
     expect(root.chapters.some((chapter) => chapter.id === 'ocr-pdf')).to.eql(false);
   });
