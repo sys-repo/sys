@@ -37,18 +37,46 @@ import { Raw } from 'jsr:@sys/driver-pi/cli/raw';
 ## CLI
 
 ```sh
-deno run -A jsr:@sys/driver-pi                # alias to /cli
+deno run -A jsr:@sys/driver-pi                     # alias to /cli
 deno run -A jsr:@sys/driver-pi/cli
 deno run -A jsr:@sys/driver-pi/cli --profile canon
 deno run -A jsr:@sys/driver-pi/cli --profile ./profiles/canon.yaml
-deno run -A jsr:@sys/driver-pi/cli --allow-all  # unsafe debug
+deno run -A jsr:@sys/driver-pi/cli --allow-all    # unsafe debug
 deno run -A jsr:@sys/driver-pi/cli/raw -- --help  # explicit raw Pi boundary
+
+# help-only Pi Driver DSL
+deno run -ER jsr:@sys/driver-pi dsl
+deno run -ER jsr:@sys/driver-pi dsl tools ocr-pdf --format skill
 
 # equivalent wrapper from @sys/tools
 deno run -A jsr:@sys/tools pi
 deno run -A jsr:@sys/tools pi --profile canon
+deno run -A jsr:@sys/tools pi dsl
 deno run -A jsr:@sys/tools pi --allow-all  # unsafe debug
 ```
+
+<p>&nbsp;</p>
+
+## Pi Driver DSL
+
+Pi Driver includes a help-only DSL chapter book for profile, tool, and extension policy. Use live
+session tools as the source of callability truth; use the DSL for durable profile edits and
+next-launch explanations.
+
+The direct command uses narrow permissions because it only reads packaged guidance:
+
+```sh
+deno run -ER jsr:@sys/driver-pi dsl [chapter...] [--format human|skill]
+```
+
+The `@sys/tools` wrapper delegates to the same Pi Driver DSL route:
+
+```sh
+deno run -A jsr:@sys/tools pi dsl [chapter...] [--format human|skill]
+```
+
+Run the root command for the current chapter index. Add `--format skill` to project a chapter as
+agent-facing Markdown.
 
 <p>&nbsp;</p>
 
@@ -58,7 +86,7 @@ deno run -A jsr:@sys/tools pi --allow-all  # unsafe debug
 - `--profile <name|path>` loads a named profile or an explicit profile YAML file.
 - Ordinary arguments after `--` pass through to Pi unchanged; profile mode still owns prompt,
   context, skill, and extension startup surfaces.
-- Agent-facing profile edit rules live in the Driver-Pi DSL:
+- Agent-facing profile edit rules live in the Pi Driver DSL:
   `deno run -ER jsr:@sys/driver-pi dsl profile`.
 
 ## OCR PDF tool
@@ -66,7 +94,7 @@ deno run -A jsr:@sys/tools pi --allow-all  # unsafe debug
 PDF OCR is disabled by default. The wrapper-owned `ocr_pdf` tool is advertised only after profile
 policy enables it and startup preflight succeeds.
 
-Agent-facing OCR profile guidance lives in the Driver-Pi DSL:
+Agent-facing OCR profile guidance lives in the Pi Driver DSL:
 `deno run -ER jsr:@sys/driver-pi dsl tools ocr-pdf`.
 
 Use the DSL chapter for enablement YAML, defaults, bounds, dependency preflight, install-consent
