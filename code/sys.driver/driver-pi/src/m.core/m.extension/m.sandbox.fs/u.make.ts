@@ -1,7 +1,7 @@
 import { json } from './-bundle/-bundle.ts';
 import { Json, Path, Str, TmplEngine, type t } from './common.ts';
 
-const SOURCE_ROOT = 'tmpl.sandbox.fs';
+const SOURCE_ROOT = 'tmpl';
 const TARGET_ENTRY = 'mod.ts';
 const POLICY_MARKER = Str.dedent(
   `

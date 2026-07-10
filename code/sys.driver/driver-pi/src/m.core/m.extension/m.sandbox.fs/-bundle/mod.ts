@@ -1,6 +1,6 @@
 import { Fs, TmplEngine } from '../common.ts';
 
-const SOURCE_PREFIX = 'tmpl.';
+const SOURCE_PREFIX = 'tmpl/';
 
 export async function bundleSandboxFs() {
   const root = Fs.resolve(import.meta.dirname ?? '.', '..');
