@@ -1,18 +1,20 @@
 import { useId } from 'react';
 
-import { Color, D, KeyValueUI, type t } from './common.ts';
+import { Color, KeyValueUI, type t } from './common.ts';
 import { toItemsForRender } from './u.items.tsx';
+import { toSwitchLayout } from './u.layout.ts';
 
 export const Switches: t.FC<t.KeyValueSwitches.Props> = (props) => {
   const { items, switch: switchOptions, layout, focus, ...keyValueProps } = props;
   const theme = Color.theme(props.theme);
   const labelIdScope = useId();
+  const resolvedLayout = toSwitchLayout(layout);
 
   return (
     <KeyValueUI
       {...keyValueProps}
       theme={theme.name}
-      layout={layout ?? D.layout}
+      layout={resolvedLayout}
       focus={focus}
       items={toItemsForRender(items, {
         enabled: props.enabled,
@@ -24,3 +26,4 @@ export const Switches: t.FC<t.KeyValueSwitches.Props> = (props) => {
     />
   );
 };
+
