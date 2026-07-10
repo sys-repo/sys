@@ -7,7 +7,7 @@ type CompletedKind = 'passed' | 'failed' | 'skipped' | 'blocked';
 const VISIBLE_COMPLETED_FOR_WIDTH_100 = 10;
 
 describe('WorkspaceRun.parallel reporter', () => {
-  it('formats a deterministic progress frame with counts and active packages', () => {
+  it('formats a deterministic progress frame with counts and running packages', () => {
     const frame = Cli.stripAnsi(formatParallelProgress({
       runnableTotal: 10,
       passed: 2,
@@ -38,13 +38,14 @@ describe('WorkspaceRun.parallel reporter', () => {
     expect(lines[1]?.includes('skipped 1')).to.eql(true);
     expect(lines[1]?.includes('blocked 0')).to.eql(true);
     expect(lines[1]?.includes('failed 0')).to.eql(true);
-    expect(frame.includes('active (--schedule=topological)')).to.eql(true);
+    const scheduleLine = lines[3] ?? '';
+    expect(scheduleLine.includes('--schedule=topological')).to.eql(true);
     expect(frame.includes('code/sys.driver/driver-vite')).to.eql(true);
 
-    const activeLine = lines[4] ?? '';
-    expect(activeLine.includes('⦿  code/sys.driver/driver-vite')).to.eql(true);
-    expect(activeLine.endsWith(' ')).to.eql(false);
-    expect(Cli.Fmt.Text.visibleWidth(activeLine) < 100).to.eql(true);
+    const runningLine = lines[4] ?? '';
+    expect(runningLine.includes('⦿  code/sys.driver/driver-vite')).to.eql(true);
+    expect(runningLine.endsWith(' ')).to.eql(false);
+    expect(Cli.Fmt.Text.visibleWidth(runningLine) < 100).to.eql(true);
     expect(frame.includes('completed')).to.eql(false);
     expect(lines.find((line) => line === '━'.repeat(100))).to.eql('━'.repeat(100));
     expect(frame.includes('✓  code/sys/types')).to.eql(true);
@@ -53,8 +54,8 @@ describe('WorkspaceRun.parallel reporter', () => {
 
   it('formats elapsed progress only after one second', () => {
     expect(progressLine(999)).to.eql('tests 20%');
-    expect(progressLine(2_100)).to.eql('tests 20% - 2s');
-    expect(progressLine(126_000)).to.eql('tests 20% - 2.1m');
+    expect(progressLine(2_100)).to.eql('tests 20% · 2s');
+    expect(progressLine(126_000)).to.eql('tests 20% · 2.1m');
   });
 
   it('caps completed packages at five rows and summarizes overflow', () => {

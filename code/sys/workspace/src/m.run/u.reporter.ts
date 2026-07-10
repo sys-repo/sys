@@ -121,7 +121,7 @@ export function formatParallelProgress(args: ParallelProgressFormatArgs): string
   const done = args.passed + args.blockedRunnable + args.failed;
   const percent = wrangle.percent(done, args.runnableTotal);
   const elapsed = wrangle.progressElapsed(args.elapsed);
-  const progress = c.gray(`tests ${percent}%${elapsed ? ` - ${elapsed}` : ''}`);
+  const progress = c.gray(`tests ${percent}%${elapsed ? ` · ${elapsed}` : ''}`);
   const passed = `${c.green(`✓ passed ${args.passed}`)}${c.gray(`/${args.runnableTotal}`)}`;
   const failed = args.failed > 0 ? c.red(`✕ failed ${args.failed}`) : c.gray('✕ failed 0');
   const blocked = args.blocked > 0 ? c.yellow(`⊘ blocked ${args.blocked}`) : c.gray('⊘ blocked 0');
@@ -145,9 +145,9 @@ export function formatParallelProgress(args: ParallelProgressFormatArgs): string
   const sections: string[] = [];
 
   if (width > 0 && args.running.length > 0) {
-    const active = wrangle.activeGrid(args.running, width, args.terminal);
-    if (active) {
-      sections.push(`${c.gray('active')} ${c.dim(c.gray('(--schedule=topological)'))}\n${active}`);
+    const running = wrangle.runningGrid(args.running, width, args.terminal);
+    if (running) {
+      sections.push(`  ${c.gray('running')} ${c.dim(c.gray('(--schedule=topological)'))}\n${running}`);
     }
   }
 
@@ -287,14 +287,14 @@ const wrangle = {
     return Time.duration(elapsed).format({ unit: 'm', round: 1 });
   },
 
-  activeGrid(
+  runningGrid(
     running: readonly ParallelProgressRunning[],
     width: number,
     terminal?: boolean,
   ) {
     const layout = wrangle.gridLayout(width);
     if (!layout) return '';
-    const cells = running.map((item) => wrangle.activeCell(item, layout.cellWidth, terminal));
+    const cells = running.map((item) => wrangle.runningCell(item, layout.cellWidth, terminal));
     return wrangle.grid(cells, layout.columns);
   },
 
@@ -345,18 +345,18 @@ const wrangle = {
     const indent = '  ';
     const gutter = GRID_GUTTER;
     const usable = width - Cli.Fmt.Text.visibleWidth(indent);
-    const columns = wrangle.activeColumnCount(maxColumns, usable, gutter);
+    const columns = wrangle.runningColumnCount(maxColumns, usable, gutter);
     if (columns < 1) return undefined;
     return {
       columns,
-      cellWidth: wrangle.activeCellWidth(usable, columns, gutter),
+      cellWidth: wrangle.runningCellWidth(usable, columns, gutter),
     };
   },
 
   grid(cells: readonly string[], columns: number) {
     const indent = '  ';
     const gutter = GRID_GUTTER;
-    const widths = wrangle.activeColumnWidths(cells, columns);
+    const widths = wrangle.runningColumnWidths(cells, columns);
     const lines: string[] = [];
     for (let index = 0; index < cells.length; index += columns) {
       const row: string[] = [];
@@ -371,20 +371,20 @@ const wrangle = {
     return lines.join('\n');
   },
 
-  activeColumnCount(maxColumns: number, usable: number, gutter: string) {
+  runningColumnCount(maxColumns: number, usable: number, gutter: string) {
     for (let columns = maxColumns; columns > 0; columns -= 1) {
-      if (wrangle.activeCellWidth(usable, columns, gutter) >= 24) return columns;
+      if (wrangle.runningCellWidth(usable, columns, gutter) >= 24) return columns;
     }
     return 0;
   },
 
-  activeCellWidth(usable: number, columns: number, gutter: string) {
+  runningCellWidth(usable: number, columns: number, gutter: string) {
     const gutterWidth = Cli.Fmt.Text.visibleWidth(gutter) * (columns - 1);
     const raw = (usable - gutterWidth) / columns;
     return raw - (raw % 1);
   },
 
-  activeColumnWidths(cells: readonly string[], columns: number) {
+  runningColumnWidths(cells: readonly string[], columns: number) {
     const widths: number[] = [];
     for (let index = 0; index < cells.length; index += 1) {
       const column = index % columns;
@@ -395,7 +395,7 @@ const wrangle = {
     return widths;
   },
 
-  activeCell(item: ParallelProgressRunning, width: number, terminal?: boolean) {
+  runningCell(item: ParallelProgressRunning, width: number, terminal?: boolean) {
     const elapsed = Time.duration(item.elapsed).toString();
     const elapsedWidth = Cli.Fmt.Text.visibleWidth(elapsed);
     const pathWidth = Num.clamp(8, width - 4, width - elapsedWidth - 4);
