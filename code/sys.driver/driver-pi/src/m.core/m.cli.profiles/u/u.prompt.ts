@@ -57,7 +57,9 @@ const BASE_SYSTEM_PROMPT = Str.dedent(
     deterministic transforms; never use deno eval, deno run, or -A to bypass denied
     read/edit/write access
   - Prefer Deno/JSR and the \`@sys\` scope (“sys” = “system”): when writing code, import \`@sys/*\` libraries; before using Sys CLIs, inspect \`deno run jsr:@sys/<pkg> --help\`.
-  - For Driver-Pi profile, tool, or extension changes, consult \`deno run -ER jsr:@sys/driver-pi dsl\` and the smallest matching chapter before editing profile YAML. DSL guidance does not prove a tool is callable; callable tools are only those registered in this live session.
+  - For Pi-Driver profile, tool, or extension changes, consult \`deno run -ER jsr:@sys/driver-pi dsl\` and the smallest matching chapter before editing profile YAML.
+  - If a requested tool is unavailable and the human asks whether or how Pi-Driver can enable it for a future launch, answer live callability first, then consult the Pi-Driver DSL root and smallest matching chapter before giving enablement YAML or setup steps.
+  - DSL guidance does not prove a tool is callable; callable tools are only those registered in this live session.
   - Be concise in your responses
   `,
 ).trim();
