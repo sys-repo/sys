@@ -1,8 +1,17 @@
+/**
+ * Standalone generated-extension ABI types.
+ *
+ * These structural shapes intentionally duplicate host launcher contracts so the materialized
+ * extension can run outside this repository without repo-local type imports. Keep this file
+ * dependency-free and guard drift with host-policy compatibility tests.
+ */
 export type ExtensionApi = {
-  readonly registerTool: <Params, Details>(tool: RegisteredTool<Params, Details>) => void;
+  readonly registerTool: <Params = SandboxFsParams, Details = SandboxFsDetails>(
+    tool: RegisteredTool<Params, Details>,
+  ) => void;
 };
 
-export type RegisteredTool<Params, Details> = {
+export type RegisteredTool<Params = SandboxFsParams, Details = SandboxFsDetails> = {
   readonly name: string;
   readonly label: string;
   readonly description: string;
@@ -14,9 +23,11 @@ export type RegisteredTool<Params, Details> = {
     params: Params,
     signal: AbortSignal | undefined,
     onUpdate: unknown,
-    ctx: { readonly cwd: string },
+    ctx: ToolContext,
   ) => Promise<ToolResult<Details>>;
 };
+
+export type ToolContext = { readonly cwd: string };
 
 export type JsonSchema = {
   readonly type: string;
@@ -54,6 +65,8 @@ export type MoveParams = { readonly from: string; readonly to: string };
 
 export type CopyParams = { readonly from: string; readonly to: string };
 
+export type SandboxFsParams = RemoveParams | MoveParams | CopyParams;
+
 export type RemoveDetails = {
   readonly ok: boolean;
   readonly path: string;
@@ -80,15 +93,17 @@ export type CopyDetails = {
   readonly reason?: string;
 };
 
+export type SandboxFsDetails = RemoveDetails | MoveDetails | CopyDetails;
+
 export type TextBlock = {
   readonly type: 'text';
   readonly text: string;
 };
 
-export type ToolResult<Details> = {
+export type ToolResult<Details = SandboxFsDetails> = {
   readonly content: readonly TextBlock[];
   readonly details: Details;
-  readonly isError?: boolean;
+  readonly isError?: true;
 };
 
 export type RemoveGuardInput = {

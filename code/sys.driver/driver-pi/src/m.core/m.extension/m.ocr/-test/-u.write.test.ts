@@ -1,9 +1,21 @@
 import { describe, expect, it } from '../../../../-test.ts';
 import { Fs, type t } from '../common.ts';
 import { Ocr } from '../mod.ts';
+import type { OcrPolicy as GeneratedOcrPolicy } from '../tmpl/t.ts';
 import { importGenerated, ocrExecutables, type RegisteredTool } from './u.fixture.generated.ts';
 
+type AssertAssignable<From, To> = From extends To ? true : never;
+
 describe(`Pi: OCR extension / write`, () => {
+  it('keeps host policy assignable to the generated standalone policy ABI', () => {
+    const compatible: AssertAssignable<
+      t.PiOcrExtension.Extension.Policy,
+      GeneratedOcrPolicy
+    > = true;
+
+    expect(compatible).to.eql(true);
+  });
+
   it('materializes the generated OCR extension with frozen absolute executable paths', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.ocr.test.' })).absolute as t.StringDir;
     try {

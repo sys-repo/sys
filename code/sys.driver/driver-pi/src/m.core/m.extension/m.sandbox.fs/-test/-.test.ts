@@ -1,6 +1,9 @@
 import { describe, expect, it } from '../../../../-test.ts';
 import { Fs, Path, type t } from '../common.ts';
 import { SandboxFs } from '../mod.ts';
+import type { SandboxFsPolicy as GeneratedSandboxFsPolicy } from '../tmpl/t.ts';
+
+type AssertAssignable<From, To> = From extends To ? true : never;
 
 type RemoveGuardInput = {
   readonly requested: string;
@@ -56,6 +59,15 @@ describe(`Pi: sandbox filesystem extension`, () => {
     expect(SandboxFs.resolvePolicy).to.equal(m.SandboxFs.resolvePolicy);
     expect(SandboxFs.toPromptArgs).to.equal(m.SandboxFs.toPromptArgs);
     expect(SandboxFs.write).to.equal(m.SandboxFs.write);
+  });
+
+  it('keeps host policy assignable to the generated standalone policy ABI', () => {
+    const compatible: AssertAssignable<
+      t.PiSandboxFsExtension.Policy,
+      GeneratedSandboxFsPolicy
+    > = true;
+
+    expect(compatible).to.eql(true);
   });
 
   it('resolvePolicy → separates read roots, write roots, and protected runtime roots', async () => {

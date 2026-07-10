@@ -13,7 +13,7 @@ export function toRemoveError(path: string, resolved: string, recursive: boolean
   return {
     content: [textBlock(`Remove failed: ${reason}`)],
     details,
-    isError: true,
+    isError: true as const,
   };
 }
 
@@ -36,7 +36,7 @@ export function toMoveError(
   return {
     content: [textBlock(`Move failed: ${reason}`)],
     details,
-    isError: true,
+    isError: true as const,
   };
 }
 
@@ -59,7 +59,7 @@ export function toCopyError(
   return {
     content: [textBlock(`Copy failed: ${reason}`)],
     details,
-    isError: true,
+    isError: true as const,
   };
 }
 

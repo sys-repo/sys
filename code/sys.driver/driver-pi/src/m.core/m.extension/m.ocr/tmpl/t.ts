@@ -1,8 +1,17 @@
+/**
+ * Standalone generated-extension ABI types.
+ *
+ * These structural shapes intentionally duplicate host launcher contracts so the materialized
+ * extension can run outside this repository without repo-local type imports. Keep this file
+ * dependency-free and guard drift with host-policy compatibility tests.
+ */
 export type ExtensionApi = {
-  readonly registerTool: (tool: RegisteredTool) => void;
+  readonly registerTool: <Params = OcrPdfParams, Details = OcrPdfDetails>(
+    tool: RegisteredTool<Params, Details>,
+  ) => void;
 };
 
-export type RegisteredTool = {
+export type RegisteredTool<Params = OcrPdfParams, Details = OcrPdfDetails> = {
   readonly name: string;
   readonly label: string;
   readonly description: string;
@@ -11,12 +20,14 @@ export type RegisteredTool = {
   readonly parameters: JsonSchema;
   readonly execute: (
     toolCallId: string,
-    params: OcrPdfParams,
+    params: Params,
     signal: AbortSignal | undefined,
     onUpdate: unknown,
-    ctx: { readonly cwd: string },
-  ) => Promise<ToolResult>;
+    ctx: ToolContext,
+  ) => Promise<ToolResult<Details>>;
 };
+
+export type ToolContext = { readonly cwd: string };
 
 export type JsonSchema = {
   readonly type: string;
@@ -87,14 +98,16 @@ export type OcrPdfFailureDetails = {
   readonly installCommand?: string;
 };
 
+export type OcrPdfDetails = OcrPdfSuccessDetails | OcrPdfFailureDetails;
+
 export type TextBlock = {
   readonly type: 'text';
   readonly text: string;
 };
 
-export type ToolResult = {
-  readonly content: TextBlock[];
-  readonly details: OcrPdfSuccessDetails | OcrPdfFailureDetails;
+export type ToolResult<Details = OcrPdfDetails> = {
+  readonly content: readonly TextBlock[];
+  readonly details: Details;
   readonly isError?: true;
 };
 

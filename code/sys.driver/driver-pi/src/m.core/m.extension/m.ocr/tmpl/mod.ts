@@ -1,4 +1,11 @@
-import type { ExtensionApi, OcrPolicy, OcrRunInput, OcrRunTestInput } from './t.ts';
+import type {
+  ExtensionApi,
+  OcrPdfDetails,
+  OcrPdfParams,
+  OcrPolicy,
+  OcrRunInput,
+  OcrRunTestInput,
+} from './t.ts';
 import { runDenoCommand } from './u.command.ts';
 import { guardInput, parsePdfInfoPages, resolvePageRange } from './u.guard.ts';
 import { runOcrPdfWithCommand } from './u.run.ts';
@@ -10,7 +17,7 @@ const POLICY: OcrPolicy = __OCR_POLICY__;
 export default function ocr(pi: ExtensionApi) {
   if (!POLICY.pdf.enabled) return;
 
-  pi.registerTool({
+  pi.registerTool<OcrPdfParams, OcrPdfDetails>({
     name: 'ocr_pdf',
     label: 'OCR PDF',
     description:
