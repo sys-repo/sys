@@ -375,7 +375,7 @@ jobs:
         include:
           - name: "@sys/tmpl"
             path: "code/-tmpl"
-            version: "0.0.455"
+            version: "0.0.456"
           - name: "@sys/driver-pi"
             path: "code/sys.driver/driver-pi"
             version: "0.0.117"
@@ -384,7 +384,7 @@ jobs:
             version: "0.0.452"
           - name: "@sys/tools"
             path: "code/sys.tools"
-            version: "0.0.471"
+            version: "0.0.472"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
