@@ -2,21 +2,25 @@ import { Cli, Str } from '../common.ts';
 
 const HELP_TOOL_ENV = 'PI_CLI_PROFILES_HELP_TOOL';
 const ROOT_TOOL = 'deno run -A jsr:@sys/driver-pi';
+const ROOT_DSL_TOOL = 'deno run -ER jsr:@sys/driver-pi';
 const DEFAULT_TOOL = `${ROOT_TOOL}/cli`;
 
 function helpInput() {
   const tool = Deno.env.get(HELP_TOOL_ENV) || DEFAULT_TOOL;
+  const dsl = tool === DEFAULT_TOOL ? ROOT_DSL_TOOL : tool;
   return {
     tool,
     summary: 'Run Pi as a profile-driven system agent with an explicit launch sandbox.',
     note: Str.dedent(`
       Select a saved profile by name, or pass a YAML path with --profile.
       Defaults live in profile YAML; args after -- pass through to Pi.
+      Use dsl before changing Driver-Pi profile, tools, or extension policy.
     `).trim(),
     usage: [
       `${tool} [--help] [--allow-all] [--git-root <walk-up|cwd|none>]`,
       `${tool} --profile <name|path> [--allow-all] [--install-ocr-deps] [--git-root <walk-up|cwd|none>] [-- <pi-args...>]`,
       `${tool} --non-interactive --profile <name|path> [--install-ocr-deps] [-- <pi-args...>]`,
+      `${dsl} dsl [chapter...] [--format human|skill]`,
     ],
     options: [
       ['-h, --help', 'show help'],
@@ -39,6 +43,8 @@ function helpInput() {
       `${tool} --git-root cwd`,
       `${tool} --git-root none --profile ./profiles/default.yaml`,
       `${tool} --allow-all`,
+      `${dsl} dsl`,
+      `${dsl} dsl profile --format skill`,
       `${tool} -- --model gpt-5.4`,
     ],
   } as const;
