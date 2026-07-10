@@ -6,7 +6,7 @@
 - [x] 9e10169af refactor(process): group process command utilities
 - [x] a3145b7b0 refactor(process): align process test layout with implementation files
 - [x] a6608a141 refactor(process): group process utilities by role
-- [ ] refactor(ocr): use bounded process capture for generated OCR commands
+- [x] af388fde8 refactor(ocr): use bounded process capture for generated OCR commands
 
 ## Landed reality
 
@@ -15,9 +15,20 @@ primitive. The implementation lives under `src/m.process/u.proc/u.capture.ts`, i
 under `src/m.process/u.proc/-test/-u.capture.test.ts`, and the surrounding process utilities/tests
 were grouped by implementation role.
 
-OCR migration remains intentionally unlanded. The next OCR commit should decide the generated
-extension import/bundling posture before replacing its local `runDenoCommand` runner with
-`Process.capture`.
+OCR migration landed in `af388fde8`. The generated OCR extension uses the reusable capture
+primitive and resolves the runtime package boundary by materializing a version-pinned
+`jsr:@sys/process/...` import while the source template keeps the workspace-local `@sys/process`
+import for package checks.
+
+Follow-on cleanup/refactor commits preserved the migration while reshaping generated extension code:
+
+- `f72c3e6fe` split generated OCR extension coverage by concern.
+- `793501265` grouped OCR extension utilities under a local `u` directory.
+- `9e3e1355e` split the generated OCR extension template by concern.
+- `b303fce01` split the sandbox-fs generated template into standalone modules.
+- `c29fb9cb4` moved generated extension templates to local `tmpl` folders.
+- `3f36f3d8f` hardened generated template ABI types.
+- `b4f001953` grouped sandbox-fs extension utilities under a local `u` directory.
 
 ## Position
 
@@ -29,9 +40,9 @@ bounded argv capture primitive. Current `Process.invoke` still delegates to `Den
 so switching OCR to `@sys/process.invoke` would not solve bounded output, timeout, abort, or
 child-cleanup semantics.
 
-Do not solve this permanently inside OCR with a bespoke runner. OCR may keep a small local runner as
-a temporary generated-extension implementation detail for the materialization/launch commit, but the
-next OCR follow-on should migrate generated OCR commands to `Process.capture`.
+Do not solve this permanently inside OCR with a bespoke runner. OCR's temporary local generated
+runner was retired by the migration in `af388fde8`; generated OCR commands now route through
+`Process.capture`.
 
 ## Fit inside `Process`
 
@@ -201,8 +212,8 @@ type CaptureFailedToStartOutput = CaptureBaseOutput & {
 
 ## OCR migration intent
 
-After the upstream primitive exists, migrate the generated OCR PDF runtime to call it instead of its
-local `runDenoCommand` implementation.
+The generated OCR PDF runtime now calls `Process.capture` instead of its former local
+`runDenoCommand` implementation.
 
 OCR-specific mapping remains local to OCR:
 
@@ -241,7 +252,7 @@ Add `@sys/process` tests that use only Deno itself as the child executable:
 - Stream caps cannot deadlock the child because capped streams keep draining to EOF.
 - Timeout and abort behavior is deterministic, race-bounded, and leak-free.
 - The result model has no impossible terminal states.
-- OCR can delete or shrink its local command runner after migrating to the upstream primitive.
+- OCR deleted its temporary local command runner by migrating to the upstream primitive.
 - Future local tools such as Whisper/audio can reuse the same primitive without inventing another
   child-process runner.
 
