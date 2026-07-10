@@ -38,6 +38,7 @@ export const cli: t.PiToolsLib['cli'] = async (cwd, argv) => {
 
 async function run(cwd: t.StringDir, argv: string[]) {
   const ctx = await resolvePassThroughContext({ cwd, target: TARGET });
+  const permissions = argv[0] === 'dsl' ? '-ER' : '-A';
   return await Process.inherit({
     cmd: 'deno',
     cwd,
@@ -45,7 +46,7 @@ async function run(cwd: t.StringDir, argv: string[]) {
       INIT_CWD: cwd,
       PI_CLI_PROFILES_HELP_TOOL: 'deno run -A jsr:@sys/tools pi',
     },
-    args: ['run', '-A', ctx.specifier, ...argv],
+    args: ['run', permissions, ctx.specifier, ...argv],
   });
 }
 

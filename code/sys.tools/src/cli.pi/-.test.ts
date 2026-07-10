@@ -56,6 +56,54 @@ describe(PiTool.NAME, () => {
     }
   });
 
+  it('inside @sys → delegates Driver-Pi DSL help with narrow read/env permissions', async () => {
+    const prev = Process.inherit;
+    const cwd = Fs.cwd('process');
+
+    try {
+      Process.inherit = async (input) => {
+        expect(input.cmd).to.eql('deno');
+        expect(input.cwd).to.eql(cwd);
+        expect(input.env).to.eql(expectedEnv(cwd));
+        expect(input.args).to.eql([
+          'run',
+          '-ER',
+          '@sys/driver-pi/cli',
+          'dsl',
+          'profile',
+          '--format',
+          'skill',
+        ]);
+        return { code: 0, success: true, signal: null };
+      };
+
+      await PiTools.cli(cwd, ['dsl', 'profile', '--format', 'skill']);
+    } finally {
+      Process.inherit = prev;
+    }
+  });
+
+  it('outside @sys → delegates Driver-Pi DSL help to the pinned JSR launcher with narrow permissions', async () => {
+    const prev = Process.inherit;
+    const cwd = Fs.join('/tmp', 'sys.tools.code.external') as t.StringDir;
+
+    try {
+      Process.inherit = async (input) => {
+        expect(input.cmd).to.eql('deno');
+        expect(input.cwd).to.eql(cwd);
+        expect(input.env).to.eql(expectedEnv(cwd));
+        expect(input.args.slice(0, 2)).to.eql(['run', '-ER']);
+        expect(input.args[2]).to.match(/^jsr:@sys\/driver-pi@.+\/cli$/);
+        expect(input.args.slice(3)).to.eql(['dsl', 'tools']);
+        return { code: 0, success: true, signal: null };
+      };
+
+      await PiTools.cli(cwd, ['dsl', 'tools']);
+    } finally {
+      Process.inherit = prev;
+    }
+  });
+
   it('forwards --git-root=cwd through the @sys/tools pi entrypoint', async () => {
     const prev = Process.inherit;
     const cwd = Fs.cwd('process');
