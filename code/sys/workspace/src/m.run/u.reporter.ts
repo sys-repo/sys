@@ -119,10 +119,8 @@ export function createParallelReporter(args: ParallelReporterArgs): ParallelRepo
 /** Format one deterministic progress frame for terminal reporter output. */
 export function formatParallelProgress(args: ParallelProgressFormatArgs): string {
   const done = args.passed + args.blockedRunnable + args.failed;
-  const percent = wrangle.percent(done, args.runnableTotal);
   const elapsed = wrangle.progressElapsed(args.elapsed);
-  const progress = c.gray(`tests ${percent}%${elapsed ? ` · ${elapsed}` : ''}`);
-  const passed = `${c.green(`✓ passed ${args.passed}`)}${c.gray(`/${args.runnableTotal}`)}`;
+  const passed = `${c.green(`✓ ${args.passed}`)}${c.gray(`/${args.runnableTotal} passed`)}`;
   const failed = args.failed > 0 ? c.red(`✕ failed ${args.failed}`) : c.gray('✕ failed 0');
   const blocked = args.blocked > 0 ? c.yellow(`⊘ blocked ${args.blocked}`) : c.gray('⊘ blocked 0');
   const skipped = args.skipped > 0 ? c.yellow(`· skipped ${args.skipped}`) : c.gray('· skipped 0');
@@ -134,8 +132,6 @@ export function formatParallelProgress(args: ParallelProgressFormatArgs): string
     blocked,
     failed,
   ].join('   ');
-  const status = `  ${line}`;
-
   const width = Cli.Fmt.Text.fitWidth({
     width: args.width,
     terminal: args.terminal,
@@ -147,7 +143,11 @@ export function formatParallelProgress(args: ParallelProgressFormatArgs): string
   if (width > 0 && args.running.length > 0) {
     const running = wrangle.runningGrid(args.running, width, args.terminal);
     if (running) {
-      sections.push(`  ${c.gray('running')} ${c.dim(c.gray('(--schedule=topological)'))}\n${running}`);
+      const context = [c.gray('testing'), c.dim(c.gray('(--schedule=topological)'))].join(' ');
+      const elapsedSuffix = elapsed
+        ? ` ${c.gray('·')} ${c.gray(c.italic(`${elapsed} elapsed`))}`
+        : '';
+      sections.push(`  ${context}${elapsedSuffix}\n${running}`);
     }
   }
 
@@ -164,7 +164,7 @@ export function formatParallelProgress(args: ParallelProgressFormatArgs): string
   }
 
   const body = sections.length > 0 ? `\n\n${sections.join('\n\n')}` : '';
-  return Str.trimEdgeNewlines(`${progress}\n${status}${body}`);
+  return Str.trimEdgeNewlines(`${line}${body}`);
 }
 
 const wrangle = {
@@ -268,12 +268,6 @@ const wrangle = {
 
   decrement(value: number) {
     return value > 0 ? value - 1 : 0;
-  },
-
-  percent(done: number, total: number) {
-    if (total < 1) return 100;
-    const value = done * 100;
-    return (value - (value % total)) / total;
   },
 
   progressRatio(done: number, total: number): t.Percent {

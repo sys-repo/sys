@@ -30,19 +30,13 @@ describe('WorkspaceRun.parallel reporter', () => {
 
     const lines = frame.split('\n');
 
-    expect(lines[0]).to.eql('tests 20%');
-    expect(lines[1]?.startsWith('  ✓')).to.eql(true);
-    expect(lines[1]?.includes('passed 2/10')).to.eql(true);
-    expect(lines[1]?.includes('running 2')).to.eql(true);
-    expect(lines[1]?.includes('pending 6')).to.eql(true);
-    expect(lines[1]?.includes('skipped 1')).to.eql(true);
-    expect(lines[1]?.includes('blocked 0')).to.eql(true);
-    expect(lines[1]?.includes('failed 0')).to.eql(true);
-    const scheduleLine = lines[3] ?? '';
-    expect(scheduleLine.includes('--schedule=topological')).to.eql(true);
+    expect(lines[0]).to.eql(
+      '✓ 2/10 passed   ⦿ running 2   ◦ pending 6   · skipped 1   ⊘ blocked 0   ✕ failed 0',
+    );
+    expect(lines[2]).to.eql('  testing (--schedule=topological)');
     expect(frame.includes('code/sys.driver/driver-vite')).to.eql(true);
 
-    const runningLine = lines[4] ?? '';
+    const runningLine = lines[3] ?? '';
     expect(runningLine.includes('⦿  code/sys.driver/driver-vite')).to.eql(true);
     expect(runningLine.endsWith(' ')).to.eql(false);
     expect(Cli.Fmt.Text.visibleWidth(runningLine) < 100).to.eql(true);
@@ -52,10 +46,10 @@ describe('WorkspaceRun.parallel reporter', () => {
     expect(frame.includes('·  code/without-test')).to.eql(true);
   });
 
-  it('formats elapsed progress only after one second', () => {
-    expect(progressLine(999)).to.eql('tests 20%');
-    expect(progressLine(2_100)).to.eql('tests 20% · 2s');
-    expect(progressLine(126_000)).to.eql('tests 20% · 2.1m');
+  it('formats elapsed context only after one second', () => {
+    expect(contextLine(999)).to.eql('  testing (--schedule=topological)');
+    expect(contextLine(2_100)).to.eql('  testing (--schedule=topological) · 2s elapsed');
+    expect(contextLine(126_000)).to.eql('  testing (--schedule=topological) · 2.1m elapsed');
   });
 
   it('caps completed packages at five rows and summarizes overflow', () => {
@@ -139,11 +133,15 @@ describe('WorkspaceRun.parallel reporter', () => {
       width: 100,
     }));
 
-    expect(skipped.split('\n')[0]).to.eql('tests 25%');
-    expect(skipped.includes('passed 2/8')).to.eql(true);
+    expect(skipped.split('\n')[0]).to.eql(
+      '✓ 2/8 passed   ⦿ running 0   ◦ pending 6   · skipped 2   ⊘ blocked 0   ✕ failed 0',
+    );
+    expect(skipped.includes('2/8 passed')).to.eql(true);
     expect(skipped.includes('skipped 2')).to.eql(true);
-    expect(blocked.split('\n')[0]).to.eql('tests 100%');
-    expect(blocked.includes('passed 2/5')).to.eql(true);
+    expect(blocked.split('\n')[0]).to.eql(
+      '✓ 2/5 passed   ⦿ running 0   ◦ pending 0   · skipped 1   ⊘ blocked 3   ✕ failed 1',
+    );
+    expect(blocked.includes('2/5 passed')).to.eql(true);
     expect(blocked.includes('blocked 3')).to.eql(true);
   });
 
@@ -208,7 +206,7 @@ describe('WorkspaceRun.parallel reporter', () => {
   });
 });
 
-function progressLine(elapsed: t.Msecs) {
+function contextLine(elapsed: t.Msecs) {
   const frame = formatParallelProgress({
     runnableTotal: 10,
     passed: 2,
@@ -217,12 +215,12 @@ function progressLine(elapsed: t.Msecs) {
     blockedRunnable: 0,
     failed: 0,
     pending: 8,
-    running: [],
+    running: [{ path: 'code/sys/std', elapsed: 1_000 }],
     elapsed,
     terminal: false,
     width: 100,
   });
-  return Cli.stripAnsi(frame).split('\n')[0];
+  return Cli.stripAnsi(frame).split('\n')[2] ?? '';
 }
 
 function completedOverflowFrame(hiddenKinds: readonly CompletedKind[]) {
