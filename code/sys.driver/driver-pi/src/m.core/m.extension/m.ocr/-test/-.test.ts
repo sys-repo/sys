@@ -7,6 +7,8 @@ type OcrCommandInput = {
   readonly cmd: string;
   readonly args: readonly string[];
   readonly timeoutMs: number;
+  readonly maxStdoutBytes: number;
+  readonly maxStderrBytes: number;
   readonly signal?: AbortSignal;
 };
 
@@ -17,14 +19,9 @@ type OcrCommandOutput = {
   readonly timedOut?: boolean;
   readonly cancelled?: boolean;
   readonly failedToStart?: boolean;
+  readonly stdoutTruncated?: boolean;
+  readonly stderrTruncated?: boolean;
 };
-
-type OcrSpawnedCommand = {
-  readonly child: { readonly kill: (signal: Deno.Signal) => void };
-  readonly output: Promise<OcrCommandOutput>;
-};
-
-type OcrCommandSpawner = (input: OcrCommandInput) => OcrSpawnedCommand;
 
 type OcrToolResult = {
   readonly content: readonly { readonly type: string; readonly text: string }[];
@@ -83,10 +80,6 @@ type GeneratedOcrModule = {
       readonly signal?: AbortSignal;
     }) => Promise<OcrToolResult>;
     readonly runDenoCommand: (input: OcrCommandInput) => Promise<OcrCommandOutput>;
-    readonly runCommandWithSpawner: (
-      input: OcrCommandInput,
-      spawn: OcrCommandSpawner,
-    ) => Promise<OcrCommandOutput>;
   };
 };
 
@@ -367,7 +360,10 @@ describe(`Pi: OCR extension`, () => {
         expect(text).to.contain('"pdftoppm": "/ocr/bin/pdftoppm"');
         expect(text).to.contain('"tesseract": "/ocr/bin/tesseract"');
         expect(text).to.contain('"maxChars": 1234');
-        expect(text).to.contain('Deno.Command');
+        expect(text).to.contain("from 'jsr:@sys/process@");
+        expect(text).to.contain("/process'");
+        expect(text).not.to.contain("from '@sys/process/process'");
+        expect(text).not.to.contain('Deno.Command');
         expect(text).not.to.contain('__OCR_POLICY__');
         expect(text).not.to.contain("from '@sys/fs'");
       } finally {
@@ -460,8 +456,47 @@ describe(`Pi: OCR extension`, () => {
           '/ocr/bin/tesseract',
         ]);
         expect(commands.every((input) => input.cmd.startsWith('/ocr/bin/'))).to.eql(true);
+        expect(commands[0].maxStdoutBytes).to.eql(64_000);
+        expect(commands[0].maxStderrBytes).to.eql(64_000);
+        expect(commands[2].maxStdoutBytes).to.eql(12);
+        expect(commands[2].maxStderrBytes).to.eql(64_000);
         expect(commands[1].args).to.include('-singlefile');
         expect(commands[2].args).to.include('--dpi');
+      } finally {
+        await Fs.remove(cwd);
+      }
+    });
+
+    it('treats tesseract stdout capture truncation as OCR truncation', async () => {
+      const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.ocr.test.' })).absolute as t.StringDir;
+      try {
+        await Fs.write(Fs.join(cwd, 'scan.pdf'), '%PDF fixture');
+        const policy = Ocr.resolveExtensionPolicy({
+          cwd: { invoked: cwd, git: cwd },
+          policy: Ocr.Resolve.policy({ pdf: { enabled: true, maxChars: 100 } }),
+          executables: ocrExecutables(),
+        });
+        const result = await (await importGenerated((await Ocr.write({ cwd, policy })).path))
+          .__ocrPdfTest.runOcrPdfWithCommand({
+            params: { path: 'scan.pdf' },
+            cwd,
+            policy,
+            command: async (input) => {
+              if (input.cmd === '/ocr/bin/pdfinfo') {
+                return { code: 0, stdout: 'Pages: 1\n', stderr: '' };
+              }
+              if (input.cmd === '/ocr/bin/pdftoppm') return { code: 0, stdout: '', stderr: '' };
+              if (input.cmd === '/ocr/bin/tesseract') {
+                return { code: 0, stdout: 'partial text', stderr: '', stdoutTruncated: true };
+              }
+              return { code: 127, stdout: '', stderr: `unexpected command: ${input.cmd}` };
+            },
+          });
+
+        expect(result.isError).to.eql(undefined);
+        expect(result.details.ok).to.eql(true);
+        expect(result.details.truncated).to.eql(true);
+        expect(result.content[0].text).to.contain('truncated');
       } finally {
         await Fs.remove(cwd);
       }
@@ -551,84 +586,13 @@ describe(`Pi: OCR extension`, () => {
           cmd: '/not-started',
           args: [],
           timeoutMs: 5_000,
+          ...commandCaps(),
           signal: controller.signal,
         });
 
         expect(result.cancelled).to.eql(true);
         expect(result.timedOut).to.eql(undefined);
         expect(result.failedToStart).to.eql(undefined);
-      } finally {
-        await Fs.remove(cwd);
-      }
-    });
-
-    it('generated command runner cancels a spawned child and settles cleanly', async () => {
-      const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.ocr.test.' })).absolute as t.StringDir;
-      try {
-        const policy = Ocr.resolveExtensionPolicy({
-          cwd: { invoked: cwd, git: cwd },
-          policy: Ocr.Resolve.policy({ pdf: { enabled: true } }),
-          executables: ocrExecutables(),
-        });
-        const controller = new AbortController();
-        const signals: Deno.Signal[] = [];
-        const mod = await importGenerated((await Ocr.write({ cwd, policy })).path);
-        const running = mod.__ocrPdfTest.runCommandWithSpawner(
-          {
-            cmd: '/fake/deno',
-            args: [],
-            timeoutMs: 5_000,
-            signal: controller.signal,
-          },
-          commandSpawnerThatSettlesOnKill(signals, {
-            code: 143,
-            stdout: 'partial stdout',
-            stderr: 'terminated',
-          }),
-        );
-        controller.abort();
-        const result = await running;
-
-        expect(signals).to.eql(['SIGTERM']);
-        expect(result.cancelled).to.eql(true);
-        expect(result.timedOut).to.eql(undefined);
-        expect(result.failedToStart).to.eql(undefined);
-        expect(result.stdout).to.eql('partial stdout');
-        expect(result.stderr).to.eql('terminated');
-      } finally {
-        await Fs.remove(cwd);
-      }
-    });
-
-    it('generated command runner times out a spawned child and settles cleanly', async () => {
-      const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.ocr.test.' })).absolute as t.StringDir;
-      try {
-        const policy = Ocr.resolveExtensionPolicy({
-          cwd: { invoked: cwd, git: cwd },
-          policy: Ocr.Resolve.policy({ pdf: { enabled: true } }),
-          executables: ocrExecutables(),
-        });
-        const signals: Deno.Signal[] = [];
-        const mod = await importGenerated((await Ocr.write({ cwd, policy })).path);
-        const result = await mod.__ocrPdfTest.runCommandWithSpawner(
-          {
-            cmd: '/fake/deno',
-            args: [],
-            timeoutMs: 1,
-          },
-          commandSpawnerThatSettlesOnKill(signals, {
-            code: 143,
-            stdout: 'partial stdout',
-            stderr: 'terminated',
-          }),
-        );
-
-        expect(signals).to.eql(['SIGTERM']);
-        expect(result.timedOut).to.eql(true);
-        expect(result.cancelled).to.eql(undefined);
-        expect(result.failedToStart).to.eql(undefined);
-        expect(result.stdout).to.eql('partial stdout');
-        expect(result.stderr).to.eql('terminated');
       } finally {
         await Fs.remove(cwd);
       }
@@ -857,25 +821,8 @@ describe(`Pi: OCR extension`, () => {
   });
 });
 
-function commandSpawnerThatSettlesOnKill(
-  signals: Deno.Signal[],
-  output: OcrCommandOutput,
-): OcrCommandSpawner {
-  return () => {
-    let settle!: (output: OcrCommandOutput) => void;
-    const promise = new Promise<OcrCommandOutput>((resolve) => {
-      settle = resolve;
-    });
-    return {
-      child: {
-        kill: (signal: Deno.Signal) => {
-          signals.push(signal);
-          settle(output);
-        },
-      },
-      output: promise,
-    };
-  };
+function commandCaps() {
+  return { maxStdoutBytes: 64_000, maxStderrBytes: 64_000 };
 }
 
 function ocrExecutables(): t.PiOcrExtension.Dependency.Executables {

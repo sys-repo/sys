@@ -1,4 +1,5 @@
 import type { ExtensionAPI } from '@mariozechner/pi-coding-agent';
+import { Process } from '@sys/process/process';
 import { Type } from 'typebox';
 
 type OcrPolicy = {
@@ -76,6 +77,8 @@ type CommandInput = {
   readonly cmd: string;
   readonly args: readonly string[];
   readonly timeoutMs: number;
+  readonly maxStdoutBytes: number;
+  readonly maxStderrBytes: number;
   readonly signal?: AbortSignal;
 };
 
@@ -86,14 +89,12 @@ type CommandOutput = {
   readonly timedOut?: boolean;
   readonly cancelled?: boolean;
   readonly failedToStart?: boolean;
+  readonly stdoutTruncated?: boolean;
+  readonly stderrTruncated?: boolean;
 };
 
 type CommandRunner = (input: CommandInput) => Promise<CommandOutput>;
-type KillableChild = { readonly kill: (signal: Deno.Signal) => void };
-type SpawnedCommand = { readonly child: KillableChild; readonly output: Promise<CommandOutput> };
-type CommandSpawner = (input: CommandInput) => SpawnedCommand;
 type CleanupRunner = (path: string) => Promise<OcrPdfSuccessDetails['cleanup']>;
-type CommandStopReason = 'timeout' | 'cancelled';
 
 type GuardResult =
   | {
@@ -126,6 +127,8 @@ type OcrRunInput = {
 
 declare const __OCR_POLICY__: OcrPolicy;
 const POLICY: OcrPolicy = __OCR_POLICY__;
+const COMMAND_STDOUT_BYTES = 64_000;
+const COMMAND_STDERR_BYTES = 64_000;
 
 const ocrPdfParameters = Type.Object(
   {
@@ -185,7 +188,6 @@ export const __ocrPdfTest = {
   resolvePageRange,
   runOcrPdfWithCommand,
   runDenoCommand,
-  runCommandWithSpawner,
 } as const;
 
 async function runOcrPdfWithCommand(input: OcrRunInput): Promise<ToolResult> {
@@ -316,6 +318,10 @@ async function runOcrPdfWithCommand(input: OcrRunInput): Promise<ToolResult> {
       }
 
       text += pageText;
+      if (ocr.output.stdoutTruncated) {
+        truncated = true;
+        break;
+      }
       if (text.length >= policy.pdf.maxChars && page < range.value.pageEnd) {
         truncated = true;
         break;
@@ -529,12 +535,14 @@ async function runBudgetedCommand(input: {
     };
   }
 
+  const caps = commandCaps(input.label, input.policy);
   let output: CommandOutput;
   try {
     output = await input.command({
       cmd: input.cmd,
       args: input.args,
       timeoutMs,
+      ...caps,
       signal: input.signal,
     });
   } catch (error) {
@@ -588,129 +596,60 @@ async function runBudgetedCommand(input: {
   return { ok: true as const, output };
 }
 
+function commandCaps(label: string, policy: OcrPolicy) {
+  return {
+    maxStdoutBytes: label === 'tesseract'
+      ? policy.pdf.maxChars
+      : COMMAND_STDOUT_BYTES,
+    maxStderrBytes: COMMAND_STDERR_BYTES,
+  };
+}
+
 async function runDenoCommand(input: CommandInput): Promise<CommandOutput> {
-  return await runCommandWithSpawner(input, spawnDenoCommand);
-}
-
-function spawnDenoCommand(input: CommandInput): SpawnedCommand {
-  const child = new Deno.Command(input.cmd, {
+  const output = await Process.capture({
+    cmd: input.cmd,
     args: [...input.args],
-    stdin: 'null',
-    stdout: 'piped',
-    stderr: 'piped',
-  }).spawn();
+    signal: input.signal,
+    timeoutMs: input.timeoutMs,
+    maxStdoutBytes: input.maxStdoutBytes,
+    maxStderrBytes: input.maxStderrBytes,
+  });
 
-  return {
-    child,
-    output: child.output().then((output): CommandOutput => ({
-      code: output.code,
-      stdout: decode(output.stdout),
-      stderr: decode(output.stderr),
-    })),
-  };
-}
-
-async function runCommandWithSpawner(
-  input: CommandInput,
-  spawn: CommandSpawner,
-): Promise<CommandOutput> {
-  let child: KillableChild | undefined;
-  let stopReason: CommandStopReason | undefined;
-  let timeoutTimer: ReturnType<typeof setTimeout> | undefined;
-  let forceKillTimer: ReturnType<typeof setTimeout> | undefined;
-  let abortHandler: (() => void) | undefined;
-
-  const stop = (reason: CommandStopReason) => {
-    if (stopReason) return;
-    stopReason = reason;
-    killChildThenForce(child, (timer) => {
-      if (forceKillTimer) clearTimeout(forceKillTimer);
-      forceKillTimer = timer;
-    });
-  };
-
-  try {
-    if (input.signal?.aborted) return cancelledOutput();
-
-    const spawned = spawn(input);
-    child = spawned.child;
-    const output = spawned.output.catch((error): CommandOutput => {
-      if (stopReason === 'cancelled') return cancelledOutput();
-      if (stopReason === 'timeout') return timeoutOutput();
-      return { code: -1, stdout: '', stderr: toErrorMessage(error), failedToStart: true };
-    });
-
-    const timeout = new Promise<undefined>((resolve) => {
-      timeoutTimer = setTimeout(() => {
-        stop('timeout');
-        resolve(undefined);
-      }, Math.max(input.timeoutMs, 1));
-    });
-    const abort = input.signal
-      ? new Promise<undefined>((resolve) => {
-        abortHandler = () => {
-          stop('cancelled');
-          resolve(undefined);
-        };
-        if (input.signal?.aborted) abortHandler();
-        else input.signal?.addEventListener('abort', abortHandler, { once: true });
-      })
-      : undefined;
-
-    const first = await Promise.race(abort ? [output, timeout, abort] : [output, timeout]);
-    if (first) {
-      if (stopReason === 'cancelled') return cancelledOutput(first);
-      if (stopReason === 'timeout') return timeoutOutput(first);
-      return first;
-    }
-
-    const captured = await output;
-    if (stopReason === 'cancelled') return cancelledOutput(captured);
-    if (stopReason === 'timeout') return timeoutOutput(captured);
-    return captured;
-  } catch (error) {
-    if (stopReason === 'cancelled') return cancelledOutput();
-    if (stopReason === 'timeout') return timeoutOutput();
-    return { code: -1, stdout: '', stderr: toErrorMessage(error), failedToStart: true };
-  } finally {
-    if (abortHandler) input.signal?.removeEventListener('abort', abortHandler);
-    if (timeoutTimer) clearTimeout(timeoutTimer);
-    if (forceKillTimer) clearTimeout(forceKillTimer);
+  if (output.outcome === 'timed-out') return stoppedOutput(output, 'timedOut');
+  if (output.outcome === 'cancelled') return stoppedOutput(output, 'cancelled');
+  if (output.outcome === 'failed-to-start') {
+    return {
+      code: -1,
+      stdout: output.text.stdout,
+      stderr: toErrorMessage(output.error),
+      failedToStart: true,
+      stdoutTruncated: output.stdoutTruncated,
+      stderrTruncated: output.stderrTruncated,
+    };
   }
-}
 
-function timeoutOutput(output?: Pick<CommandOutput, 'stdout' | 'stderr'>): CommandOutput {
   return {
-    code: -1,
-    stdout: output?.stdout ?? '',
-    stderr: output?.stderr || 'command timed out',
-    timedOut: true,
+    code: output.code,
+    stdout: output.text.stdout,
+    stderr: output.text.stderr,
+    stdoutTruncated: output.stdoutTruncated,
+    stderrTruncated: output.stderrTruncated,
   };
 }
 
-function cancelledOutput(output?: Pick<CommandOutput, 'stdout' | 'stderr'>): CommandOutput {
+function stoppedOutput(
+  output: Awaited<ReturnType<typeof Process.capture>>,
+  flag: 'cancelled' | 'timedOut',
+): CommandOutput {
   return {
-    code: -1,
-    stdout: output?.stdout ?? '',
-    stderr: output?.stderr || 'command cancelled',
-    cancelled: true,
+    code: output.code ?? -1,
+    stdout: output.text.stdout,
+    stderr: output.text.stderr ||
+      (flag === 'cancelled' ? 'command cancelled' : 'command timed out'),
+    [flag]: true,
+    stdoutTruncated: output.stdoutTruncated,
+    stderrTruncated: output.stderrTruncated,
   };
-}
-
-function killChildThenForce(
-  child: KillableChild | undefined,
-  setForceTimer: (timer: ReturnType<typeof setTimeout>) => void,
-) {
-  tryKill(child, 'SIGTERM');
-  setForceTimer(setTimeout(() => tryKill(child, 'SIGKILL'), 1_000));
-}
-
-function tryKill(child: KillableChild | undefined, signal: Deno.Signal) {
-  try {
-    child?.kill(signal);
-  } catch {
-    // Ignore kill races; the caller receives the timeout result.
-  }
 }
 
 function appendPageSeparator(existing: string, pageText: string) {
@@ -892,10 +831,6 @@ function hasGlobChars(path: string) {
 function isNotFound(error: unknown) {
   return error instanceof Deno.errors.NotFound ||
     (error instanceof Error && error.name === 'NotFound');
-}
-
-function decode(data: Uint8Array) {
-  return new TextDecoder().decode(data);
 }
 
 function formatStderr(stderr: string) {
