@@ -45,7 +45,7 @@ function helpInput() {
       `${tool} --allow-all`,
       `${dsl} dsl`,
       `${dsl} dsl profile --format skill`,
-      `${tool} -- --model gpt-5.4`,
+      `${tool} --profile default -- --model gpt-5.4`,
     ],
   } as const;
 }

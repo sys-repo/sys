@@ -25,6 +25,9 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/help`, () => {
         expect(text).to.contain('deno run -A jsr:@sys/driver-pi/cli');
         expect(text).to.contain('deno run -ER jsr:@sys/driver-pi dsl [chapter...]');
         expect(text).to.contain('deno run -ER jsr:@sys/driver-pi dsl profile --format skill');
+        expect(text).to.contain(
+          'deno run -A jsr:@sys/driver-pi/cli --profile default -- --model gpt-5.4',
+        );
         expect(text).to.contain('alias of /cli');
         expect(text).not.to.contain(' Profiles');
         expect(text).to.contain('-h, --help');
@@ -64,6 +67,9 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/help`, () => {
       expect(text).not.to.contain('jsr:@sys/driver-pi');
       expect(text).to.contain('deno run -A jsr:@sys/tools pi dsl [chapter...]');
       expect(text).to.contain('deno run -A jsr:@sys/tools pi dsl profile --format skill');
+      expect(text).to.contain(
+        'deno run -A jsr:@sys/tools pi --profile default -- --model gpt-5.4',
+      );
       expect(text).to.contain('--profile <name|path>');
       expect(text).to.contain('--install-ocr-deps');
       expect(text).not.to.contain('--config');
