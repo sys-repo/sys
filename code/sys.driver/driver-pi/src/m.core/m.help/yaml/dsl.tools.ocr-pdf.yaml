@@ -8,9 +8,12 @@ sections:
   - label: Use when
     items: |
       The prompt asks to enable OCR, enable PDF OCR, or make OCR available for a future Pi-Driver launch.
+      The prompt asks to run OCR on a PDF, scanned PDF, or PDF cover when live OCR is unavailable.
+      The prompt says install OCR, set up OCR, or make OCR work.
       The prompt asks why `ocr_pdf` is not callable in this live session.
       The prompt asks how OCR PDF profile policy should be authored.
       The prompt asks which startup preflight checks run before OCR PDF is advertised.
+      This chapter is PDF-only; Pi-Driver has no image OCR capability or chapter.
 
   - label: Minimal enablement
     items: |

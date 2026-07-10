@@ -30,8 +30,9 @@ sections:
       Active profile, profile path, profile YAML, or restart semantics → read `dsl profile`.
       Enabling, disabling, or configuring a profile-authored tool for a future launch → read `dsl tools`.
       Filesystem tool policy for removal, moves, or copies → read `dsl tools remove`, `dsl tools move`, or `dsl tools copy`.
-      OCR PDF enablement for a future launch → read `dsl tools ocr-pdf`.
-      PDF cover read when OCR is unavailable → answer live availability first, then read `dsl profile` and `dsl tools ocr-pdf`.
+      Run OCR on a PDF now ("OCR this PDF", "read this scanned PDF", PDF cover read) → answer live callability first; if callable, use live OCR; if unavailable, read `dsl profile` and `dsl tools ocr-pdf`.
+      OCR setup for a future launch ("install OCR", "set up OCR", "enable OCR", "why can't you OCR this?") → answer live callability first, then read `dsl profile` and `dsl tools ocr-pdf`; setup affects the next launch only.
+      OCR for images or other non-PDF sources → no Pi-Driver chapter exists; stop and ask or make a plan; do not reuse `dsl tools ocr-pdf`.
       Generated Pi extensions, materialized files, templates, or hand-edit questions → read `dsl extensions`.
       Whether a tool can be called in this session → answer from live session tools, not DSL text.
       Missing concrete tool chapter → stop and create or update a plan before inventing guidance.
@@ -41,6 +42,7 @@ sections:
       locate active profile authority
       edit active profile YAML
       enable, disable, or configure a profile-authored tool for the next launch
+      run OCR on a PDF in this live session
       explain restart or relaunch requirements
       explain why a tool is not callable in this live session
       separate durable policy from live tool callability

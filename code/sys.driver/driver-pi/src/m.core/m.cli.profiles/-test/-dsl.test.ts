@@ -26,6 +26,10 @@ describe('@sys/driver-pi/cli/Profiles dsl', () => {
     expect(res.text).to.contain(`${dslCommand} profile`);
     expect(res.text).to.contain(`${dslCommand} tools`);
     expect(res.text).to.contain(`${dslCommand} extensions`);
+    expect(res.text).not.to.contain('ocr_pdf');
+    expect(res.text).not.to.contain('pdfinfo');
+    expect(res.text).not.to.contain('pdftoppm');
+    expect(res.text).not.to.contain('brew install poppler tesseract');
   });
 
   it('dsl <chapter> → renders structural chapters and concrete tool policy links', async () => {
