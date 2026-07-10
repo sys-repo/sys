@@ -2,6 +2,7 @@ import { describe, expect, it } from '../../../-test.ts';
 import { PiHelp } from '../mod.ts';
 
 const structuralChapters = ['extensions', 'profile', 'tools'] as const;
+const filesystemToolChapters = ['copy', 'move', 'remove'] as const;
 
 describe('@sys/driver-pi/m.help', () => {
   it('loads the root DSL chapter with the structural chapter index', async () => {
@@ -20,6 +21,20 @@ describe('@sys/driver-pi/m.help', () => {
 
       expect(chapter.id).to.eql(id);
       expect(chapter.path).to.eql([id]);
+      if (id === 'tools') {
+        expect(chapter.chapters.map((item) => item.id).sort()).to.eql([...filesystemToolChapters]);
+      } else {
+        expect(chapter.chapters).to.eql([]);
+      }
+    }
+  });
+
+  it('loads concrete filesystem tool DSL chapters by path', async () => {
+    for (const id of filesystemToolChapters) {
+      const chapter = await PiHelp.Dsl.load(['tools', id]);
+
+      expect(chapter.id).to.eql(id);
+      expect(chapter.path).to.eql(['tools', id]);
       expect(chapter.chapters).to.eql([]);
     }
   });

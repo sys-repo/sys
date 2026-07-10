@@ -15,6 +15,7 @@ sections:
   - label: Rule
     items: |
       Profile YAML is the durable policy input for Driver-Pi launch behavior.
+      Top-level profile policy keys include `prompt`, `sandbox`, and `tools`.
       Prefer launcher-provided runtime metadata such as `runtime.pi.active-profile` when available.
       If active profile authority is absent or ambiguous, stop and ask; do not invent a profile path.
       Profile edits do not hot-enable tools or permissions inside an existing Pi session.
@@ -25,12 +26,13 @@ sections:
       Identify the active profile path before changing YAML.
       Read the exact file before editing it.
       Change only the requested profile policy surface.
+      For tool policy changes, read `dsl tools` and any matching concrete tool chapter first.
       Preserve unrelated profile fields and comments when possible.
       After the edit, state that the current live session is unchanged until restart or relaunch.
 
   - label: Do not
     items: |
       Do not use Pi prompt passthrough flags to bypass profile ownership.
-      Do not duplicate profile grants in local docs or prompt prose.
+      Do not duplicate profile grants outside active profile YAML.
       Do not hand-author generated extension files as a profile-edit shortcut.
       Do not claim a profile YAML edit made a tool callable in the current session.

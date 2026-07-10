@@ -4,7 +4,11 @@ export const HelpResource = {
   Dsl: {
     Root: chapter('dsl', 'yaml/dsl.yaml', [
       chapter('profile', 'yaml/dsl.profile.yaml'),
-      chapter('tools', 'yaml/dsl.tools.yaml'),
+      chapter('tools', 'yaml/dsl.tools.yaml', [
+        chapter('remove', 'yaml/dsl.tools.remove.yaml'),
+        chapter('move', 'yaml/dsl.tools.move.yaml'),
+        chapter('copy', 'yaml/dsl.tools.copy.yaml'),
+      ]),
       chapter('extensions', 'yaml/dsl.extensions.yaml'),
     ]),
   },

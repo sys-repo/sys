@@ -28,13 +28,30 @@ describe('@sys/driver-pi/cli/Profiles dsl', () => {
     expect(res.text).to.contain(`${dslCommand} extensions`);
   });
 
-  it('dsl <chapter> → renders structural chapters only', async () => {
+  it('dsl <chapter> → renders structural chapters and filesystem tool links only', async () => {
     for (const id of ['profile', 'tools', 'extensions'] as const) {
       const chapter = await PiHelp.Dsl.load([id]);
       const res = await run(['dsl', id]);
 
       expect(res.text).to.contain(`@sys/driver-pi dsl ${id}`);
       expectChapterRendered(res.text, chapter);
+      if (id === 'tools') {
+        expect(res.text).to.contain(`${dslCommand} tools remove`);
+        expect(res.text).to.contain(`${dslCommand} tools move`);
+        expect(res.text).to.contain(`${dslCommand} tools copy`);
+      }
+      expect(res.text).not.to.contain(`${dslCommand} tools ocr-pdf`);
+    }
+  });
+
+  it('dsl tools <chapter> → renders concrete filesystem tool policy chapters', async () => {
+    for (const id of ['remove', 'move', 'copy'] as const) {
+      const chapter = await PiHelp.Dsl.load(['tools', id]);
+      const res = await run(['dsl', 'tools', id]);
+
+      expect(res.text).to.contain(`@sys/driver-pi dsl tools ${id}`);
+      expectChapterRendered(res.text, chapter);
+      expect(res.text).to.contain('restart or relaunch Pi');
       expect(res.text).not.to.contain(`${dslCommand} tools ocr-pdf`);
     }
   });
@@ -60,6 +77,19 @@ describe('@sys/driver-pi/cli/Profiles dsl', () => {
     expect(res.text).to.contain('---\nname: "sys-driver-pi-dsl-profile"');
     expectMarkdownChapterRendered(res.text, chapter);
     expect(res.text).not.to.contain('@sys/driver-pi dsl profile');
+  });
+
+  it('dsl tools --format skill → renders filesystem tool child links', async () => {
+    const chapter = await PiHelp.Dsl.load(['tools']);
+    const res = await run(['dsl', 'tools', '--format', 'skill']);
+
+    expect(res.raw).to.eql(res.text);
+    expect(res.text).to.contain('---\nname: "sys-driver-pi-dsl-tools"');
+    expectMarkdownChapterRendered(res.text, chapter);
+    for (const id of ['remove', 'move', 'copy'] as const) {
+      expect(res.text).to.contain(`\`${dslCommand} tools ${id} --format skill\``);
+    }
+    expect(res.text).not.to.contain(`${dslCommand} tools ocr-pdf`);
   });
 
   it('dsl → rejects launcher/profile flags before startup', async () => {

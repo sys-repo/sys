@@ -1,0 +1,36 @@
+id: remove
+title: Driver-Pi remove tool policy
+summary: |
+  Author `tools.remove` profile policy for the wrapper-owned filesystem removal tool. This chapter
+  governs future-launch policy only; live use still requires a registered `remove` tool.
+
+sections:
+  - label: Use when
+    items: |
+      The prompt asks to enable or disable the `remove` tool for a future Driver-Pi launch.
+      The prompt asks whether recursive directory cleanup should be allowed by profile policy.
+      The prompt asks why a current session cannot remove files even though profile YAML was edited.
+
+  - label: YAML shape
+    items: |
+      `tools.remove.enabled` controls whether the launcher may register `remove` on the next launch.
+      `tools.remove.recursive` controls whether recursive directory tree removal is permitted.
+      Minimal explicit enablement with wrapper defaults: `tools: { remove: { enabled: true } }`.
+      Minimal explicit disablement: `tools: { remove: { enabled: false } }`.
+      `tools.remove.recursive: false` disables directory tree removal for the next launch.
+      Omitted recursive policy currently resolves through wrapper defaults; set it explicitly when changing recursive behavior.
+
+  - label: Edit sequence
+    items: |
+      Read `dsl profile` before editing profile YAML.
+      Locate the active profile path from launcher metadata when available.
+      Read the exact profile YAML file.
+      Change only `tools.remove.enabled` or `tools.remove.recursive` unless the user requested a broader edit.
+      Ask the human to restart or relaunch Pi before expecting any availability change.
+
+  - label: Callability boundary
+    items: |
+      DSL policy text does not make `remove` callable.
+      A live session can call `remove` only when the launcher registered it and appended its Runtime Tool Contract.
+      If `remove` is absent from the live tool surface, do not use shell deletion as a fallback.
+      If the human asks to delete files now and no callable `remove` tool exists, stop and report that this session cannot perform that deletion.
