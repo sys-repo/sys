@@ -11,16 +11,16 @@ const isGroup = (item: t.KeyValueSwitches.Item): item is t.KeyValueSwitches.Grou
 };
 
 type ToItemsRenderOptions = t.KeyValueSwitches.ToItems.Options & {
-  focus?: t.KeyValue.Focus.Props;
+  cursor?: t.KeyValue.Cursor.Props;
   labelIdScope: string;
 };
 type ToItemsInternalOptions = t.KeyValueSwitches.ToItems.Options & {
-  focus?: t.KeyValue.Focus.Props;
+  cursor?: t.KeyValue.Cursor.Props;
   labelIdScope?: string;
   path?: readonly number[];
 };
 type ToItemInternalOptions = t.KeyValueSwitches.ToItem.Options & {
-  focus?: t.KeyValue.Focus.Props;
+  cursor?: t.KeyValue.Cursor.Props;
   labelId?: string;
 };
 
@@ -31,7 +31,7 @@ export const toItem: t.KeyValueSwitches.ToItem = (item, options = {}) => {
 
 function toItemInternal(item: t.KeyValueSwitches.Row, options: ToItemInternalOptions = {}): t.KeyValue.Item.Row {
   const index = options.index ?? 0;
-  const interaction = toInteraction(item, index, options.enabled, options.focus);
+  const interaction = toInteraction(item, index, options.enabled, options.cursor);
   const labelId = options.labelId;
 
   return {
@@ -122,7 +122,7 @@ function toItemsInternal(
       enabled: options.enabled,
       theme: options.theme,
       switch: options.switch,
-      focus: options.focus,
+      cursor: options.cursor,
       index,
       labelId,
     });

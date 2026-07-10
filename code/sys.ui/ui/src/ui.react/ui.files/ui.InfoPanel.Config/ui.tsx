@@ -43,7 +43,7 @@ export const UI: t.FC<P> = (props) => {
           layout={D.layout}
           reorder={toReorder(props, fields)}
           animation={animation}
-          focus={props.focus}
+          cursor={props.cursor}
           items={visible}
         />
       )}
@@ -52,7 +52,7 @@ export const UI: t.FC<P> = (props) => {
           theme={theme.name}
           layout={D.layout}
           animation={animation}
-          focus={props.focus}
+          cursor={props.cursor}
           items={hidden}
         />
       )}

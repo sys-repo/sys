@@ -33,18 +33,18 @@ const items: t.KeyValue.Item[] = [
   row('charlie'),
 ];
 
-describe('KeyValue.UI: focus navigation', () => {
+describe('KeyValue.UI: cursor navigation', () => {
   DomMock.init({ beforeEach, afterEach });
 
   it('focuses the navigation root on row entry and navigates from keyboard input', async () => {
-    const changes: t.KeyValue.Focus.Change[] = [];
+    const changes: t.KeyValue.Cursor.Change[] = [];
 
     const Probe: React.FC = () => {
-      const [model, setModel] = React.useState<t.KeyValue.Focus.Model>({});
+      const [model, setModel] = React.useState<t.KeyValue.Cursor.Model>({});
       return (
         <KeyValue.UI
           items={[row('alpha'), row('bravo')]}
-          focus={{
+          cursor={{
             model,
             onChange: (e) => {
               changes.push(e);
@@ -67,25 +67,25 @@ describe('KeyValue.UI: focus navigation', () => {
     await Schedule.micro();
 
     expect(event.defaultPrevented).to.eql(true);
-    expect(changes.map((e) => e.reason)).to.eql(['focus:entry', 'focus:navigation']);
-    expect(entryChange(changes[0]).next.active?.path).to.eql(['alpha']);
-    expect(navigationChange(changes[1]).next.active?.path).to.eql(['bravo']);
+    expect(changes.map((e) => e.reason)).to.eql(['cursor:entry', 'cursor:navigation']);
+    expect(entryChange(changes[0]).next.current?.path).to.eql(['alpha']);
+    expect(navigationChange(changes[1]).next.current?.path).to.eql(['bravo']);
 
     act(() => res.dispose());
     await Schedule.micro();
   });
 
-  it('moves a controlled focus model through sibling and nested scopes', async () => {
-    const changes: t.KeyValue.Focus.Change[] = [];
-    let active: t.ObjectPath | undefined;
+  it('moves a controlled cursor model through sibling and nested scopes', async () => {
+    const changes: t.KeyValue.Cursor.Change[] = [];
+    let current: t.ObjectPath | undefined;
 
     const Probe: React.FC = () => {
-      const [model, setModel] = React.useState<t.KeyValue.Focus.Model>({ active: ref('group') });
-      active = model.active?.path;
+      const [model, setModel] = React.useState<t.KeyValue.Cursor.Model>({ current: target('group') });
+      current = model.current?.path;
       return (
         <KeyValue.UI
           items={items}
-          focus={{
+          cursor={{
             model,
             onChange: (e) => {
               changes.push(e);
@@ -101,52 +101,52 @@ describe('KeyValue.UI: focus navigation', () => {
 
     keydown(root, 'Enter');
     await Schedule.micro();
-    expect(active).to.eql(['group', 'bravo.one']);
+    expect(current).to.eql(['group', 'bravo.one']);
 
     keydown(root, 'ArrowDown');
     await Schedule.micro();
-    expect(active).to.eql(['group', 'group.two']);
+    expect(current).to.eql(['group', 'group.two']);
 
     keydown(root, 'Enter');
     await Schedule.micro();
-    expect(active).to.eql(['group', 'group.two', 'two.a']);
+    expect(current).to.eql(['group', 'group.two', 'two.a']);
 
     keydown(root, 'Escape');
     await Schedule.micro();
-    expect(active).to.eql(['group', 'group.two']);
+    expect(current).to.eql(['group', 'group.two']);
 
     keydown(root, 'Escape');
     await Schedule.micro();
-    expect(active).to.eql(['group']);
+    expect(current).to.eql(['group']);
 
     keydown(root, 'ArrowDown');
     await Schedule.micro();
-    expect(active).to.eql(['charlie']);
+    expect(current).to.eql(['charlie']);
 
     keydown(root, 'Escape');
     await Schedule.micro();
-    expect(active).to.eql(undefined);
+    expect(current).to.eql(undefined);
 
     expect(changes.map((e) => navigationChange(e).command.name)).to.eql([
-      'focus:enter',
-      'focus:next',
-      'focus:enter',
-      'focus:exit',
-      'focus:exit',
-      'focus:next',
-      'focus:exit',
+      'cursor:enter',
+      'cursor:next',
+      'cursor:enter',
+      'cursor:exit',
+      'cursor:exit',
+      'cursor:next',
+      'cursor:exit',
     ]);
 
     act(() => res.dispose());
     await Schedule.micro();
   });
 
-  it('ignores keyboard navigation without active focus or from protected descendants', async () => {
-    const changes: t.KeyValue.Focus.Change[] = [];
+  it('ignores keyboard navigation without current cursor or from protected descendants', async () => {
+    const changes: t.KeyValue.Cursor.Change[] = [];
     const res = await TestReact.render(
       <KeyValue.UI
         items={[{ id: 'alpha', k: 'alpha', v: <button>toggle</button> }, row('bravo')]}
-        focus={{ model: {}, onChange: (e) => changes.push(e) }}
+        cursor={{ model: {}, onChange: (e) => changes.push(e) }}
       />,
       { strict: false },
     );
@@ -166,13 +166,13 @@ describe('KeyValue.UI: focus navigation', () => {
     await Schedule.micro();
   });
 
-  it('can disable keyboard navigation while keeping focus entry separate', async () => {
-    const changes: t.KeyValue.Focus.Change[] = [];
+  it('can disable keyboard navigation while keeping cursor entry separate', async () => {
+    const changes: t.KeyValue.Cursor.Change[] = [];
     const res = await TestReact.render(
       <KeyValue.UI
         items={[row('alpha'), row('bravo')]}
-        focus={{
-          model: { active: ref('alpha') },
+        cursor={{
+          model: { current: target('alpha') },
           navigation: false,
           onChange: (e) => changes.push(e),
         }}
@@ -182,7 +182,7 @@ describe('KeyValue.UI: focus navigation', () => {
     const root = firstChild(res.container);
     const event = keydown(root, 'ArrowDown');
 
-    expect(root.getAttribute('data-keyvalue-focus-root')).to.eql(null);
+    expect(root.getAttribute('data-keyvalue-cursor-root')).to.eql(null);
     expect(event.defaultPrevented).to.eql(false);
     expect(changes.length).to.eql(0);
 
@@ -191,12 +191,12 @@ describe('KeyValue.UI: focus navigation', () => {
   });
 
   it('supports keyboard navigation in the reorder root path', async () => {
-    const changes: t.KeyValue.Focus.Change[] = [];
+    const changes: t.KeyValue.Cursor.Change[] = [];
     const res = await TestReact.render(
       <KeyValue.UI
         items={[row('alpha'), row('bravo')]}
         reorder={{ onChange: () => undefined }}
-        focus={{ model: { active: ref('alpha') }, onChange: (e) => changes.push(e) }}
+        cursor={{ model: { current: target('alpha') }, onChange: (e) => changes.push(e) }}
       />,
       { strict: false },
     );
@@ -204,7 +204,7 @@ describe('KeyValue.UI: focus navigation', () => {
     keydown(firstChild(res.container), 'ArrowDown');
 
     expect(changes.length).to.eql(1);
-    expect(navigationChange(changes[0]).next.active?.path).to.eql(['bravo']);
+    expect(navigationChange(changes[0]).next.current?.path).to.eql(['bravo']);
 
     act(() => res.dispose());
     await Schedule.micro();
@@ -219,8 +219,8 @@ function row(id: string): t.KeyValue.Item.Row {
   return { id, k: id, v: id };
 }
 
-function ref(...path: t.ObjectPath): t.KeyValue.Focus.Ref {
-  return KeyValue.Focus.ref(path);
+function target(...path: t.ObjectPath): t.KeyValue.Cursor.Target {
+  return KeyValue.Cursor.target(path);
 }
 
 function firstChild(container: HTMLElement) {
@@ -237,12 +237,12 @@ function keydown(el: EventTarget, key: string, init: KeyboardEventInit = {}) {
   return event;
 }
 
-function entryChange(change: t.KeyValue.Focus.Change | undefined): t.KeyValue.Focus.EntryChange {
-  expect(change?.reason).to.eql('focus:entry');
-  return change as t.KeyValue.Focus.EntryChange;
+function entryChange(change: t.KeyValue.Cursor.Change | undefined): t.KeyValue.Cursor.EntryChange {
+  expect(change?.reason).to.eql('cursor:entry');
+  return change as t.KeyValue.Cursor.EntryChange;
 }
 
-function navigationChange(change: t.KeyValue.Focus.Change | undefined): t.KeyValue.Focus.NavigationChange {
-  expect(change?.reason).to.eql('focus:navigation');
-  return change as t.KeyValue.Focus.NavigationChange;
+function navigationChange(change: t.KeyValue.Cursor.Change | undefined): t.KeyValue.Cursor.NavigationChange {
+  expect(change?.reason).to.eql('cursor:navigation');
+  return change as t.KeyValue.Cursor.NavigationChange;
 }

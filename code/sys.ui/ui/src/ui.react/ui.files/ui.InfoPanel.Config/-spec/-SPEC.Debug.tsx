@@ -16,14 +16,14 @@ type Storage = {
   theme: t.CommonTheme;
   reorder: boolean;
   fields: t.Files.InfoPanel.Field[];
-  focusEnabled: boolean;
+  cursorEnabled: boolean;
 };
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
   reorder: true,
   fields: [...D.fields],
-  focusEnabled: false,
+  cursorEnabled: false,
 };
 
 /**
@@ -45,9 +45,9 @@ export async function createDebugSignals() {
     theme: s(snap.theme),
     reorder: s(snap.reorder),
     fields: s(snap.fields),
-    focus: {
-      enabled: s(snap.focusEnabled ?? defaults.focusEnabled),
-      model: s<t.KeyValue.Focus.Model>({}),
+    cursor: {
+      enabled: s(snap.cursorEnabled ?? defaults.cursorEnabled),
+      model: s<t.KeyValue.Cursor.Model>({}),
     },
   };
   const p = props;
@@ -66,8 +66,8 @@ export async function createDebugSignals() {
     p.theme.value = defaults.theme;
     p.reorder.value = defaults.reorder;
     p.fields.value = [...defaults.fields];
-    p.focus.enabled.value = defaults.focusEnabled;
-    p.focus.model.value = {};
+    p.cursor.enabled.value = defaults.cursorEnabled;
+    p.cursor.model.value = {};
   }
 
   Signal.effect(() => {
@@ -76,7 +76,7 @@ export async function createDebugSignals() {
       d.debug = p.debug.value;
       d.reorder = p.reorder.value;
       d.fields = p.fields.value;
-      d.focusEnabled = p.focus.enabled.value;
+      d.cursorEnabled = p.cursor.enabled.value;
     });
   });
 
@@ -116,8 +116,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `focus.enabled: ${v.focus.enabled}`}
-        onClick={() => Signal.toggle(p.focus.enabled)}
+        label={() => `cursor.enabled: ${v.cursor.enabled}`}
+        onClick={() => Signal.toggle(p.cursor.enabled)}
       />
 
       <hr />

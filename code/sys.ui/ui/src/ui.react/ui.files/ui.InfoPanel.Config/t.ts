@@ -22,7 +22,7 @@ export declare namespace InfoPanelConfig {
     fields?: t.Files.InfoPanel.Field[];
     reorder?: boolean;
     animation?: t.KeyValue.Animation;
-    focus?: t.KeyValue.Focus.Props;
+    cursor?: t.KeyValue.Cursor.Props;
     debug?: boolean;
     theme?: t.CommonTheme;
     style?: t.Style.Input;

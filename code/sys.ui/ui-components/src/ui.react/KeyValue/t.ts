@@ -12,7 +12,7 @@ export declare namespace KeyValue {
   export type Lib = {
     readonly UI: React.FC<Props>;
     readonly ActionButton: React.FC<ActionButton.Props>;
-    readonly Focus: Focus.Lib;
+    readonly Cursor: Cursor.Lib;
     readonly Switches: Switches.Lib;
     fromObject: FromObject;
   };
@@ -174,15 +174,15 @@ export declare namespace KeyValue {
   }
 
   /**
-   * Focus model for command-addressable KeyValue item projections.
+   * Cursor model for command-addressable KeyValue item projections.
    */
-  export namespace Focus {
-    /** Public runtime surface for the KeyValue focus model. */
+  export namespace Cursor {
+    /** Public runtime surface for the KeyValue cursor model. */
     export type Lib = {
-      ref(path: t.ObjectPath): Ref;
-      eql(a?: Ref, b?: Ref): boolean;
+      target(path: t.ObjectPath): Target;
+      eql(a?: Target, b?: Target): boolean;
       scope(items: readonly KeyValue.Item[], path?: t.ObjectPath): Scope;
-      set(model: Model, items: readonly KeyValue.Item[], ref?: Ref): Model;
+      set(model: Model, items: readonly KeyValue.Item[], target?: Target): Model;
       next(model: Model, items: readonly KeyValue.Item[]): Model;
       previous(model: Model, items: readonly KeyValue.Item[]): Model;
       enter(model: Model, items: readonly KeyValue.Item[]): Model;
@@ -190,7 +190,7 @@ export declare namespace KeyValue {
       apply(model: Model, items: readonly KeyValue.Item[], command: Command): Model;
     };
 
-    /** Opt-in focus props for the rendered KeyValue projection. */
+    /** Opt-in cursor props for the rendered KeyValue projection. */
     export type Props = {
       readonly enabled?: boolean;
       readonly model?: Model;
@@ -199,85 +199,85 @@ export declare namespace KeyValue {
       readonly onChange?: ChangeHandler;
     };
 
-    /** Configured focus-entry behavior. */
+    /** Configured cursor-entry behavior. */
     export type Entry = false | EntryMode;
 
-    /** Enabled focus-entry gesture. */
+    /** Enabled cursor-entry gesture. */
     export type EntryMode = 'option-click' | 'click';
 
-    /** Configured focus-navigation behavior. */
+    /** Configured cursor-navigation behavior. */
     export type Navigation = false | NavigationMode;
 
-    /** Enabled focus-navigation input mode. */
+    /** Enabled cursor-navigation input mode. */
     export type NavigationMode = 'keyboard';
 
-    /** Keyboard input that maps to a focus-navigation command. */
+    /** Keyboard input that maps to a cursor-navigation command. */
     export type NavigationKey = 'ArrowUp' | 'ArrowDown' | 'Enter' | 'Escape';
 
-    /** Focus change emitted by rendered KeyValue focus inputs. */
+    /** Cursor change emitted by rendered KeyValue cursor inputs. */
     export type Change = EntryChange | NavigationChange;
 
-    /** Focus change emitted by a focus-entry input. */
+    /** Cursor change emitted by a cursor-entry input. */
     export type EntryChange = {
-      readonly reason: 'focus:entry';
+      readonly reason: 'cursor:entry';
       readonly entry: EntryMode;
       readonly previous: Model;
       readonly next: Model;
-      readonly ref: Ref;
-      readonly command: Command<'focus:set'>;
+      readonly target: Target;
+      readonly command: Command<'cursor:set'>;
     };
 
-    /** Focus change emitted by a focus-navigation input. */
+    /** Cursor change emitted by a cursor-navigation input. */
     export type NavigationChange = {
-      readonly reason: 'focus:navigation';
+      readonly reason: 'cursor:navigation';
       readonly navigation: NavigationMode;
       readonly key: NavigationKey;
       readonly previous: Model;
       readonly next: Model;
-      readonly command: Command<'focus:next' | 'focus:previous' | 'focus:enter' | 'focus:exit'>;
+      readonly command: Command<'cursor:next' | 'cursor:previous' | 'cursor:enter' | 'cursor:exit'>;
     };
 
-    /** Receives controlled KeyValue focus changes. */
+    /** Receives controlled KeyValue cursor changes. */
     export type ChangeHandler = (e: Change) => void;
 
-    /** Stable focus identity for one projected item in a KeyValue item tree. */
-    export type Ref = { readonly path: t.ObjectPath };
+    /** Stable cursor target for one projected item in a KeyValue item tree. */
+    export type Target = { readonly path: t.ObjectPath };
 
-    /** Single-focus model; future multi-target behavior belongs to selection. */
-    export type Model = { readonly active?: Ref };
+    /** Single-cursor model; future multi-target semantics are intentionally outside this model. */
+    export type Model = { readonly current?: Target };
 
-    /** One focusable item in a resolved focus scope. */
+    /** One cursor-addressable item in a resolved cursor scope. */
     export type Item = {
-      readonly ref: Ref;
+      readonly target: Target;
       readonly id: string;
       readonly item: KeyValue.Item;
       readonly enterable: boolean;
     };
 
-    /** Peer focusable items at one scope path. */
+    /** Peer cursor-addressable items at one scope path. */
     export type Scope = {
       readonly path: t.ObjectPath;
       readonly items: readonly Item[];
     };
 
-    /** Data-only focus command names. */
+    /** Data-only cursor command names. */
     export type CommandName =
-      | 'focus:set'
-      | 'focus:next'
-      | 'focus:previous'
-      | 'focus:enter'
-      | 'focus:exit';
+      | 'cursor:set'
+      | 'cursor:next'
+      | 'cursor:previous'
+      | 'cursor:enter'
+      | 'cursor:exit';
 
-    /** Data-only focus command payloads. */
+    /** Data-only cursor command payloads. */
     export type CommandPayload = {
-      readonly 'focus:set': { readonly ref?: Ref };
-      readonly 'focus:next': Record<string, never>;
-      readonly 'focus:previous': Record<string, never>;
-      readonly 'focus:enter': Record<string, never>;
-      readonly 'focus:exit': Record<string, never>;
+      readonly 'cursor:set': { readonly target?: Target };
+      readonly 'cursor:next': Record<string, never>;
+      readonly 'cursor:previous': Record<string, never>;
+      readonly 'cursor:enter': Record<string, never>;
+      readonly 'cursor:exit': Record<string, never>;
     };
 
-    /** Data-only focus command. */
+    /** Data-only cursor command. */
     export type Command<K extends CommandName = CommandName> = {
       readonly [P in K]: {
         readonly name: P;
@@ -350,7 +350,7 @@ export declare namespace KeyValue {
     items?: Item[];
     reorder?: Reorder;
     animation?: Animation;
-    focus?: Focus.Props;
+    cursor?: Cursor.Props;
 
     layout?: Layout;
     size?: Size;

@@ -26,10 +26,10 @@ export default Spec.describe(D.displayName, async (e) => {
         theme={v.theme}
         enabled={v.enabled}
         reorder={v.reorder ? { onChange: onReorder } : undefined}
-        focus={{
-          enabled: v.focus.enabled,
-          model: v.focus.model,
-          onChange: (e) => p.focus.model.value = e.next,
+        cursor={{
+          enabled: v.cursor.enabled,
+          model: v.cursor.model,
+          onChange: (e) => p.cursor.model.value = e.next,
         }}
         items={items}
       />

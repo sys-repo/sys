@@ -2,47 +2,47 @@ import { Is, Obj, type t } from '../common.ts';
 import { isGroup } from '../u/u.is.ts';
 
 type Item = t.KeyValue.Item;
-type FocusItem = t.KeyValue.Focus.Item;
+type CursorItem = t.KeyValue.Cursor.Item;
 
-export function ref(path: t.ObjectPath): t.KeyValue.Focus.Ref {
+export function target(path: t.ObjectPath): t.KeyValue.Cursor.Target {
   return { path: Obj.Path.slice(path, 0) };
 }
 
-export function eql(a: t.KeyValue.Focus.Ref | undefined, b: t.KeyValue.Focus.Ref | undefined) {
+export function eql(a: t.KeyValue.Cursor.Target | undefined, b: t.KeyValue.Cursor.Target | undefined) {
   return Obj.Path.eql(a?.path, b?.path);
 }
 
-export function toScope(items: readonly Item[], path: t.ObjectPath): t.KeyValue.Focus.Scope {
+export function toScope(items: readonly Item[], path: t.ObjectPath): t.KeyValue.Cursor.Scope {
   const scopeItems = itemsAtScope(items, path);
   return {
     path: Obj.Path.slice(path, 0),
-    items: toFocusItems(scopeItems, path),
+    items: toCursorItems(scopeItems, path),
   };
 }
 
-export function findItem(items: readonly Item[], target: t.KeyValue.Focus.Ref): FocusItem | undefined {
-  const scope = toScope(items, Obj.Path.slice(target.path, 0, -1));
-  return scope.items.find((item) => eql(item.ref, target));
+export function findItem(items: readonly Item[], nextTarget: t.KeyValue.Cursor.Target): CursorItem | undefined {
+  const scope = toScope(items, Obj.Path.slice(nextTarget.path, 0, -1));
+  return scope.items.find((item) => eql(item.target, nextTarget));
 }
 
-function toFocusItems(items: readonly Item[], scopePath: t.ObjectPath): FocusItem[] {
+function toCursorItems(items: readonly Item[], scopePath: t.ObjectPath): CursorItem[] {
   const duplicates = duplicateIds(items);
   return items
-    .map((item) => toFocusItem(item, scopePath, duplicates))
-    .filter((item): item is FocusItem => !Is.nil(item));
+    .map((item) => toCursorItem(item, scopePath, duplicates))
+    .filter((item): item is CursorItem => !Is.nil(item));
 }
 
-function toFocusItem(
+function toCursorItem(
   item: Item,
   scopePath: t.ObjectPath,
   duplicateIds: ReadonlySet<string>,
-): FocusItem | undefined {
+): CursorItem | undefined {
   const id = item.id;
   if (!isStableId(id) || duplicateIds.has(id)) return undefined;
 
-  const itemRef = ref(Obj.Path.joinAll(scopePath, [id]));
-  const enterable = isGroup(item) && toFocusItems(item.items, itemRef.path).length > 0;
-  return { ref: itemRef, id, item, enterable };
+  const itemTarget = target(Obj.Path.joinAll(scopePath, [id]));
+  const enterable = isGroup(item) && toCursorItems(item.items, itemTarget.path).length > 0;
+  return { target: itemTarget, id, item, enterable };
 }
 
 function itemsAtScope(items: readonly Item[], path: t.ObjectPath): readonly Item[] {

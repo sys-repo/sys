@@ -102,51 +102,51 @@ describe('KeyValue/t', () => {
     });
   });
 
-  describe('focus', () => {
-    it('exposes the public Focus type family', () => {
-      const ref: t.KeyValue.Focus.Ref = { path: ['group', 'row'] };
-      const model: t.KeyValue.Focus.Model = { active: ref };
-      const scope: t.KeyValue.Focus.Scope = { path: ['group'], items: [] };
-      const command: t.KeyValue.Focus.Command<'focus:set'> = {
-        name: 'focus:set',
-        payload: { ref },
+  describe('cursor', () => {
+    it('exposes the public Cursor type family', () => {
+      const target: t.KeyValue.Cursor.Target = { path: ['group', 'row'] };
+      const model: t.KeyValue.Cursor.Model = { current: target };
+      const scope: t.KeyValue.Cursor.Scope = { path: ['group'], items: [] };
+      const command: t.KeyValue.Cursor.Command<'cursor:set'> = {
+        name: 'cursor:set',
+        payload: { target },
       };
-      const change: t.KeyValue.Focus.EntryChange = {
-        reason: 'focus:entry',
+      const change: t.KeyValue.Cursor.EntryChange = {
+        reason: 'cursor:entry',
         entry: 'option-click',
         previous: {},
         next: model,
-        ref,
+        target,
         command,
       };
-      const navigation: t.KeyValue.Focus.NavigationChange = {
-        reason: 'focus:navigation',
+      const navigation: t.KeyValue.Cursor.NavigationChange = {
+        reason: 'cursor:navigation',
         navigation: 'keyboard',
         key: 'ArrowDown',
         previous: model,
         next: model,
-        command: { name: 'focus:next', payload: {} },
+        command: { name: 'cursor:next', payload: {} },
       };
-      const focus: t.KeyValue.Focus.Props = {
+      const cursor: t.KeyValue.Cursor.Props = {
         model,
         entry: 'click',
         navigation: 'keyboard',
         onChange: (e) => e.next,
       };
-      const props: t.KeyValue.Props = { focus };
+      const props: t.KeyValue.Props = { cursor };
 
-      expectTypeOf(KeyValue.Focus).toEqualTypeOf<t.KeyValue.Focus.Lib>();
-      expectTypeOf(ref).toEqualTypeOf<t.KeyValue.Focus.Ref>();
-      expectTypeOf(model).toEqualTypeOf<t.KeyValue.Focus.Model>();
-      expectTypeOf(command).toEqualTypeOf<t.KeyValue.Focus.Command<'focus:set'>>();
-      expectTypeOf(change).toEqualTypeOf<t.KeyValue.Focus.EntryChange>();
-      expectTypeOf(navigation).toEqualTypeOf<t.KeyValue.Focus.NavigationChange>();
-      expectTypeOf(change).toMatchTypeOf<t.KeyValue.Focus.Change>();
-      expectTypeOf(navigation).toMatchTypeOf<t.KeyValue.Focus.Change>();
-      expectTypeOf(focus).toEqualTypeOf<t.KeyValue.Focus.Props>();
-      expectTypeOf(scope).toEqualTypeOf<t.KeyValue.Focus.Scope>();
-      expect(props.focus).to.equal(focus);
-      expect(KeyValue.Focus.eql(ref, model.active)).to.eql(true);
+      expectTypeOf(KeyValue.Cursor).toEqualTypeOf<t.KeyValue.Cursor.Lib>();
+      expectTypeOf(target).toEqualTypeOf<t.KeyValue.Cursor.Target>();
+      expectTypeOf(model).toEqualTypeOf<t.KeyValue.Cursor.Model>();
+      expectTypeOf(command).toEqualTypeOf<t.KeyValue.Cursor.Command<'cursor:set'>>();
+      expectTypeOf(change).toEqualTypeOf<t.KeyValue.Cursor.EntryChange>();
+      expectTypeOf(navigation).toEqualTypeOf<t.KeyValue.Cursor.NavigationChange>();
+      expectTypeOf(change).toMatchTypeOf<t.KeyValue.Cursor.Change>();
+      expectTypeOf(navigation).toMatchTypeOf<t.KeyValue.Cursor.Change>();
+      expectTypeOf(cursor).toEqualTypeOf<t.KeyValue.Cursor.Props>();
+      expectTypeOf(scope).toEqualTypeOf<t.KeyValue.Cursor.Scope>();
+      expect(props.cursor).to.equal(cursor);
+      expect(KeyValue.Cursor.eql(target, model.current)).to.eql(true);
     });
   });
 

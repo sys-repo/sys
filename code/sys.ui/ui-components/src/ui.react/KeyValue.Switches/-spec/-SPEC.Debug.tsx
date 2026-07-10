@@ -17,7 +17,7 @@ type Storage = {
   theme: t.CommonTheme;
   enabled: boolean;
   reorder: boolean;
-  focusEnabled: boolean;
+  cursorEnabled: boolean;
   sample?: SampleKind;
   values?: SampleValues;
 };
@@ -27,7 +27,7 @@ const defaults: Storage = {
   theme: 'Dark',
   enabled: true,
   reorder: true,
-  focusEnabled: true,
+  cursorEnabled: true,
   sample: 'basic',
   values: { ...SAMPLE.defaultValues },
 };
@@ -55,9 +55,9 @@ export async function createDebugSignals() {
     theme: s(snap.theme),
     enabled: s(snap.enabled ?? true),
     reorder: s(snap.reorder ?? defaults.reorder),
-    focus: {
-      enabled: s(snap.focusEnabled ?? defaults.focusEnabled),
-      model: s<t.KeyValue.Focus.Model>({}),
+    cursor: {
+      enabled: s(snap.cursorEnabled ?? defaults.cursorEnabled),
+      model: s<t.KeyValue.Cursor.Model>({}),
     },
     sample: s(snap.sample),
     items: s<t.KeyValueSwitches.Item[]>(SAMPLE.source(snap.sample)),
@@ -79,8 +79,8 @@ export async function createDebugSignals() {
     p.theme.value = defaults.theme;
     p.enabled.value = defaults.enabled;
     p.reorder.value = defaults.reorder;
-    p.focus.enabled.value = defaults.focusEnabled;
-    p.focus.model.value = {};
+    p.cursor.enabled.value = defaults.cursorEnabled;
+    p.cursor.model.value = {};
     p.sample.value = defaults.sample;
     p.items.value = SAMPLE.source(defaults.sample);
     p.values.value = { ...SAMPLE.defaultValues };
@@ -92,7 +92,7 @@ export async function createDebugSignals() {
       d.debug = p.debug.value;
       d.enabled = p.enabled.value;
       d.reorder = p.reorder.value;
-      d.focusEnabled = p.focus.enabled.value;
+      d.cursorEnabled = p.cursor.enabled.value;
       d.sample = p.sample.value;
       d.values = p.values.value;
     });
@@ -152,8 +152,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `focus.enabled: ${v.focus.enabled}`}
-        onClick={() => Signal.toggle(p.focus.enabled)}
+        label={() => `cursor.enabled: ${v.cursor.enabled}`}
+        onClick={() => Signal.toggle(p.cursor.enabled)}
       />
 
       <hr />

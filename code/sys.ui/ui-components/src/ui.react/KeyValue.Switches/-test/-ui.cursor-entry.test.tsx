@@ -10,15 +10,15 @@ import {
 } from '../../../-test.ts';
 import { Switches } from '../mod.ts';
 
-describe('KeyValue.Switches: focus-entry interaction', () => {
+describe('KeyValue.Switches: cursor-entry interaction', () => {
   DomMock.init({ beforeEach, afterEach });
 
-  it('does not toggle labels on focus-entry clicks', async () => {
+  it('does not toggle labels on cursor-entry clicks', async () => {
     const toggles: string[] = [];
-    const focus: string[] = [];
+    const cursor: string[] = [];
     const res = await TestReact.render(
       <Switches.UI
-        focus={{ onChange: (e) => focus.push(e.next.active?.path.join('/') ?? '') }}
+        cursor={{ onChange: (e) => cursor.push(e.next.current?.path.join('/') ?? '') }}
         items={[{ id: 'alpha', value: false, onToggle: (e) => toggles.push(e.item.id) }]}
       />,
       { strict: false },
@@ -28,17 +28,17 @@ describe('KeyValue.Switches: focus-entry interaction', () => {
     act(() => DomMock.Mouse.click(label, { altKey: true }));
 
     expect(toggles).to.eql([]);
-    expect(focus).to.eql(['alpha']);
+    expect(cursor).to.eql(['alpha']);
 
     act(() => res.dispose());
     await Promise.resolve();
   });
 
-  it('does not toggle value-side switches on focus-entry clicks', async () => {
+  it('does not toggle value-side switches on cursor-entry clicks', async () => {
     const toggles: string[] = [];
     const res = await TestReact.render(
       <Switches.UI
-        focus={{ onChange: () => undefined }}
+        cursor={{ onChange: () => undefined }}
         items={[{ id: 'alpha', value: false, onToggle: (e) => toggles.push(e.item.id) }]}
       />,
       { strict: false },
@@ -53,11 +53,11 @@ describe('KeyValue.Switches: focus-entry interaction', () => {
     await Promise.resolve();
   });
 
-  it('does not treat unrelated modified clicks as focus-entry suppression', async () => {
+  it('does not treat unrelated modified clicks as cursor-entry suppression', async () => {
     const toggles: string[] = [];
     const res = await TestReact.render(
       <Switches.UI
-        focus={{ onChange: () => undefined }}
+        cursor={{ onChange: () => undefined }}
         items={[{ id: 'alpha', value: false, onToggle: (e) => toggles.push(e.item.id) }]}
       />,
       { strict: false },

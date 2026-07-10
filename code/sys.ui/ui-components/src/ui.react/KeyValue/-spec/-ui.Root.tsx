@@ -26,7 +26,7 @@ export function Root(props: Props) {
       items={v.items}
       reorder={toReorderProps(debug, v.reorder)}
       animation={v.animation ? true : undefined}
-      focus={toFocusProps(debug, v.focus, v.focusModel)}
+      cursor={toCursorProps(debug, v.cursor, v.cursorModel)}
     />
   );
 }
@@ -44,14 +44,14 @@ function toReorderProps(debug: DebugSignals, enabled: boolean): t.KeyValue.Reord
   };
 }
 
-function toFocusProps(
+function toCursorProps(
   debug: DebugSignals,
   enabled: boolean,
-  model: t.KeyValue.Focus.Model,
-): t.KeyValue.Focus.Props | undefined {
+  model: t.KeyValue.Cursor.Model,
+): t.KeyValue.Cursor.Props | undefined {
   if (!enabled) return;
   return {
     model,
-    onChange: (e) => debug.props.focusModel.value = e.next,
+    onChange: (e) => debug.props.cursorModel.value = e.next,
   };
 }

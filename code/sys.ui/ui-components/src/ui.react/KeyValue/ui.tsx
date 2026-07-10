@@ -11,16 +11,16 @@ import {
   toReorderModel,
   type ProjectionAnimationModel,
 } from './u/mod.ts';
-import { entryMode, shouldEnter, toEntryChange } from './m.Focus/u.event.ts';
-import { focusNavigationRoot, toNavigationHandler, toNavigationRootProps } from './m.Focus/u.navigation.ts';
-import { childScope, toBoundary, type Boundary as FocusBoundary } from './m.Focus/u.render.ts';
+import { entryMode, shouldEnter, toEntryChange } from './m.Cursor/u.event.ts';
+import { focusCursorRoot, toNavigationHandler, toNavigationRootProps } from './m.Cursor/u.navigation.ts';
+import { childScope, toBoundary, type Boundary as CursorBoundary } from './m.Cursor/u.render.ts';
 import { Hr, ItemShell, ProjectionItemShell, ReorderList, Row, Spacer, Title } from './ui/mod.ts';
 
 type RenderContext = Omit<t.KeyValue.ItemProps, 'item'> & {
   readonly layout: t.KeyValue.Layout;
   readonly rootItems: readonly t.KeyValue.Item[];
-  readonly focus?: t.KeyValue.Focus.Props;
-  readonly focusActiveFill: t.Color.Rgba;
+  readonly cursor?: t.KeyValue.Cursor.Props;
+  readonly cursorCurrentFill: t.Color.Rgba;
   readonly projection?: ProjectionAnimationModel;
 };
 
@@ -30,7 +30,7 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
   const disabledOpacity = props.defaults?.disabledOpacity ?? D.defaults.disabledOpacity;
   const layout = toLayout(props.layout);
   const theme = Color.theme(props.theme);
-  const focusActiveFill = Color.alpha(theme.fg, 0.06);
+  const cursorCurrentFill = Color.alpha(theme.fg, 0.06);
   const { fontSize, fontFamily } = toFont(props);
 
   const isTable = layout.kind === 'table';
@@ -70,7 +70,7 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
 
   /** Motion Reorder owns item motion while active; projection is the static path only. */
   const projection = reorderModel ? undefined : toProjectionAnimation(props.animation, items);
-  const focusNavigation = toNavigationHandler({ items, focus: props.focus });
+  const cursorNavigation = toNavigationHandler({ items, cursor: props.cursor });
   const renderContext: RenderContext = {
     theme: theme.name,
     enabled,
@@ -79,8 +79,8 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
     truncate,
     layout,
     rootItems: items,
-    focus: props.focus,
-    focusActiveFill,
+    cursor: props.cursor,
+    cursorCurrentFill,
     size,
     debug,
     projection,
@@ -96,12 +96,12 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
         onStart={reorder.onStart}
         onChange={onReorderChange}
         onEnd={reorder.onEnd}
-        focusNavigation={focusNavigation}
-        focusActiveFill={focusActiveFill}
-        focusBoundary={(item) => toFocusBoundary(item, renderContext, [])}
+        cursorNavigation={cursorNavigation}
+        cursorCurrentFill={cursorCurrentFill}
+        cursorBoundary={(item) => toCursorBoundary(item, renderContext, [])}
         renderItem={(item) => {
-          const focus = toFocusBoundary(item, renderContext, []);
-          return renderItem(item, renderContext, 0, childScope(focus));
+          const cursor = toCursorBoundary(item, renderContext, []);
+          return renderItem(item, renderContext, 0, childScope(cursor));
         }}
       />
     );
@@ -113,7 +113,7 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
     <div
       className={className}
       data-component={D.displayName}
-      {...toNavigationRootProps(focusNavigation)}
+      {...toNavigationRootProps(cursorNavigation)}
     >
       {elRows}
     </div>
@@ -132,8 +132,8 @@ function renderItems(
   const duplicateIds = toDuplicateIds(items);
   return items.map((item, index) => {
     const key = keyOf(item, index, duplicateIds);
-    const focus = toFocusBoundary(item, context, scopePath);
-    const children = renderItem(item, context, depth, childScope(focus));
+    const cursor = toCursorBoundary(item, context, scopePath);
+    const children = renderItem(item, context, depth, childScope(cursor));
     const projection = depth === 0 ? context.projection : undefined;
 
     if (projection) {
@@ -143,8 +143,8 @@ function renderItems(
           item={item}
           layout={context.layout}
           projection={projection}
-          focus={focus}
-          activeFill={context.focusActiveFill}
+          cursor={cursor}
+          currentFill={context.cursorCurrentFill}
         >
           {children}
         </ProjectionItemShell>
@@ -156,8 +156,8 @@ function renderItems(
         key={key}
         item={item}
         layout={context.layout}
-        focus={focus}
-        activeFill={context.focusActiveFill}
+        cursor={cursor}
+        currentFill={context.cursorCurrentFill}
       >
         {children}
       </ItemShell>
@@ -172,8 +172,8 @@ function renderItem(
   groupScope?: t.ObjectPath,
 ) {
   const {
-    focus: _focus,
-    focusActiveFill: _focusActiveFill,
+    cursor: _cursor,
+    cursorCurrentFill: _cursorCurrentFill,
     projection: _projection,
     rootItems: _rootItems,
     ...itemContext
@@ -191,31 +191,31 @@ function renderItem(
   return null;
 }
 
-function toFocusBoundary(
+function toCursorBoundary(
   item: t.KeyValue.Item,
   context: RenderContext,
   scopePath: t.ObjectPath | undefined,
-): FocusBoundary | undefined {
-  const focus = context.focus;
-  if (!focus || focus.enabled === false) return undefined;
+): CursorBoundary | undefined {
+  const cursor = context.cursor;
+  if (!cursor || cursor.enabled === false) return undefined;
   if (!scopePath) return {};
 
-  const boundary = toBoundary(context.rootItems, scopePath, item, focus.model);
-  const mode = entryMode(focus.entry);
-  const onChange = focus.onChange;
-  const focusItem = boundary.item;
-  if (!focusItem || !mode || !onChange) return boundary;
+  const boundary = toBoundary(context.rootItems, scopePath, item, cursor.model);
+  const mode = entryMode(cursor.entry);
+  const onChange = cursor.onChange;
+  const cursorItem = boundary.item;
+  if (!cursorItem || !mode || !onChange) return boundary;
 
   const onClick: React.MouseEventHandler<HTMLElement> = (event) => {
-    if (!shouldEnter(event, focus.entry)) return;
+    if (!shouldEnter(event, cursor.entry)) return;
     const change = toEntryChange({
       entry: mode,
-      model: focus.model ?? {},
+      model: cursor.model ?? {},
       items: context.rootItems,
-      ref: focusItem.ref,
+      target: cursorItem.target,
     });
     if (change) {
-      focusNavigationRoot({ current: event.currentTarget, focus });
+      focusCursorRoot({ current: event.currentTarget, cursor });
       onChange(change);
     }
   };

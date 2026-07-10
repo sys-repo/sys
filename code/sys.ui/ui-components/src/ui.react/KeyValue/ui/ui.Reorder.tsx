@@ -1,7 +1,7 @@
 import React from 'react';
 import { css, Reorder as ReorderBase, type t } from '../common.ts';
-import { toNavigationRootProps } from '../m.Focus/u.navigation.ts';
-import { type Boundary as FocusBoundary } from '../m.Focus/u.render.ts';
+import { toNavigationRootProps } from '../m.Cursor/u.navigation.ts';
+import { type Boundary as CursorBoundary } from '../m.Cursor/u.render.ts';
 import { type ReorderModel, sameIds, toReorderChange, toReorderedItems } from '../u/mod.ts';
 import { itemShellClass } from './ui.ItemShell.tsx';
 
@@ -13,9 +13,9 @@ type P = {
   onStart?: t.KeyValue.Reorder.StartHandler;
   onChange: t.KeyValue.Reorder.ChangeHandler;
   onEnd?: t.KeyValue.Reorder.EndHandler;
-  focusNavigation?: React.KeyboardEventHandler<HTMLElement>;
-  focusActiveFill: t.Color.Rgba;
-  focusBoundary?: (item: t.KeyValue.Item) => FocusBoundary | undefined;
+  cursorNavigation?: React.KeyboardEventHandler<HTMLElement>;
+  cursorCurrentFill: t.Color.Rgba;
+  cursorBoundary?: (item: t.KeyValue.Item) => CursorBoundary | undefined;
   renderItem: (item: t.KeyValue.Item) => t.ReactNode;
 };
 
@@ -72,17 +72,17 @@ export const ReorderList: React.FC<P> = (props) => {
   const elItems = model.ids.map((id) => {
     const item = model.byId.get(id);
     if (!item) return null;
-    const focus = props.focusBoundary?.(item);
+    const cursor = props.cursorBoundary?.(item);
     return (
       <ReorderBase.Item
         as='div'
         key={id}
         value={id}
-        className={itemShellClass(item, layout, focus?.active, props.focusActiveFill)}
-        data-keyvalue-item-boundary={focus ? 'true' : undefined}
-        data-keyvalue-focus-path={focus?.encodedPath}
-        data-keyvalue-focus-active={focus?.active ? 'true' : undefined}
-        onClick={focus?.onClick}
+        className={itemShellClass(item, layout, cursor?.current, props.cursorCurrentFill)}
+        data-keyvalue-item-boundary={cursor ? 'true' : undefined}
+        data-keyvalue-cursor-path={cursor?.encodedPath}
+        data-keyvalue-cursor-current={cursor?.current ? 'true' : undefined}
+        onClick={cursor?.onClick}
         onDragStart={() => onDragStart(id)}
         onDragEnd={() => onDragEnd(id)}
       >
@@ -99,7 +99,7 @@ export const ReorderList: React.FC<P> = (props) => {
       onReorder={onReorder}
       className={css(props.style).class}
       data-component={dataComponent}
-      {...toNavigationRootProps(props.focusNavigation)}
+      {...toNavigationRootProps(props.cursorNavigation)}
     >
       {elItems}
     </ReorderBase.Group>

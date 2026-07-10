@@ -9,7 +9,7 @@ type P = t.KeyValue.Props;
 type DebugStorage = Pick<P, 'theme' | 'debug' | 'size' | 'mono' | 'truncate' | 'enabled'> & {
   reorder: boolean;
   animation: boolean;
-  focus: boolean;
+  cursor: boolean;
   layout: t.KeyValue.Layout['kind'];
   layoutSpaced: t.KeyValue.Layout.Spaced;
   layoutTable: t.KeyValue.Layout.Table;
@@ -26,7 +26,7 @@ const DEFAULTS: DebugStorage = {
   enabled: true,
   reorder: false,
   animation: true,
-  focus: false,
+  cursor: false,
   layout: D.layout.default,
   layoutSpaced: D.layout.spaced,
   layoutTable: D.layout.table,
@@ -61,8 +61,8 @@ export function createDebugSignals() {
     enabled: s(snap.enabled ?? true),
     reorder: s(snap.reorder ?? false),
     animation: s(snap.animation ?? false),
-    focus: s(snap.focus ?? false),
-    focusModel: s<t.KeyValue.Focus.Model>({}),
+    cursor: s(snap.cursor ?? false),
+    cursorModel: s<t.KeyValue.Cursor.Model>({}),
     layout: s(snap.layout),
     layoutSpaced: {
       kind: 'spaced',
@@ -98,7 +98,7 @@ export function createDebugSignals() {
   }
   function reset() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(DEFAULTS, e.path)));
-    p.focusModel.value = {};
+    p.cursorModel.value = {};
     p.items.value = SAMPLE.items(DEFAULTS.sample);
   }
 
@@ -112,7 +112,7 @@ export function createDebugSignals() {
       d.enabled = p.enabled.value;
       d.reorder = p.reorder.value;
       d.animation = p.animation.value;
-      d.focus = p.focus.value;
+      d.cursor = p.cursor.value;
       d.sample = p.sample.value;
 
       d.layout = p.layout.value;
@@ -216,11 +216,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `focus.enabled: ${p.focus.value}`}
+        label={() => `cursor.enabled: ${p.cursor.value}`}
         onClick={() => {
-          const next = !p.focus.value;
-          p.focus.value = next;
-          if (!next) p.focusModel.value = {};
+          const next = !p.cursor.value;
+          p.cursor.value = next;
+          if (!next) p.cursorModel.value = {};
         }}
       />
       <hr />

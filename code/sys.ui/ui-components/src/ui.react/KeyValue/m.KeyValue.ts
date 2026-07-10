@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 import { Switches } from '../KeyValue.Switches/mod.ts';
-import { Focus } from './m.Focus/mod.ts';
+import { Cursor } from './m.Cursor/mod.ts';
 import { fromObject } from './u/mod.ts';
 import { KeyValue as UI } from './ui.tsx';
 import { ActionButton } from './ui/ui.ActionButton.tsx';
@@ -9,7 +9,7 @@ import { ActionButton } from './ui/ui.ActionButton.tsx';
 export const KeyValue: t.KeyValue.Lib = {
   UI,
   ActionButton,
-  Focus,
+  Cursor,
   Switches,
   fromObject,
 };

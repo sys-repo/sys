@@ -13,12 +13,12 @@ import {
 import { KeyValue } from '../mod.ts';
 
 const boundarySelector = '[data-keyvalue-item-boundary]';
-const focusPathSelector = '[data-keyvalue-focus-path]';
+const cursorPathSelector = '[data-keyvalue-cursor-path]';
 
-describe('KeyValue.UI: focus entry', () => {
+describe('KeyValue.UI: cursor entry', () => {
   DomMock.init({ beforeEach, afterEach });
 
-  it('keeps the default KeyValue projection free of focus entry markers', async () => {
+  it('keeps the default KeyValue projection free of cursor entry markers', async () => {
     const res = await TestReact.render(<KeyValue.UI items={[row('alpha')]} />, { strict: false });
     expect(res.container.querySelectorAll(boundarySelector).length).to.eql(0);
 
@@ -26,10 +26,10 @@ describe('KeyValue.UI: focus entry', () => {
     await Schedule.micro();
   });
 
-  it('enters focus from rows with option-click by default', async () => {
-    const changes: t.KeyValue.Focus.Change[] = [];
+  it('enters cursor mode from rows with option-click by default', async () => {
+    const changes: t.KeyValue.Cursor.Change[] = [];
     const res = await TestReact.render(
-      <KeyValue.UI items={[row('alpha')]} focus={{ onChange: (e) => changes.push(e) }} />,
+      <KeyValue.UI items={[row('alpha')]} cursor={{ onChange: (e) => changes.push(e) }} />,
       { strict: false },
     );
     const shell = firstBoundary(res.container);
@@ -41,21 +41,21 @@ describe('KeyValue.UI: focus entry', () => {
     expect(changes.length).to.eql(1);
     const change = entryChange(changes[0]);
     expect(change.entry).to.eql('option-click');
-    expect(change.reason).to.eql('focus:entry');
-    expect(change.ref.path).to.eql(['alpha']);
-    expect(change.next.active?.path).to.eql(['alpha']);
-    expect(change.command).to.eql({ name: 'focus:set', payload: { ref: { path: ['alpha'] } } });
+    expect(change.reason).to.eql('cursor:entry');
+    expect(change.target.path).to.eql(['alpha']);
+    expect(change.next.current?.path).to.eql(['alpha']);
+    expect(change.command).to.eql({ name: 'cursor:set', payload: { target: { path: ['alpha'] } } });
 
     act(() => res.dispose());
     await Schedule.micro();
   });
 
-  it('can enter focus from a plain click when configured', async () => {
-    const changes: t.KeyValue.Focus.Change[] = [];
+  it('can enter cursor mode from a plain click when configured', async () => {
+    const changes: t.KeyValue.Cursor.Change[] = [];
     const res = await TestReact.render(
       <KeyValue.UI
         items={[row('alpha')]}
-        focus={{ entry: 'click', onChange: (e) => changes.push(e) }}
+        cursor={{ entry: 'click', onChange: (e) => changes.push(e) }}
       />,
       { strict: false },
     );
@@ -65,18 +65,18 @@ describe('KeyValue.UI: focus entry', () => {
     expect(changes.length).to.eql(1);
     const change = entryChange(changes[0]);
     expect(change.entry).to.eql('click');
-    expect(change.ref.path).to.eql(['alpha']);
+    expect(change.target.path).to.eql(['alpha']);
 
     act(() => res.dispose());
     await Schedule.micro();
   });
 
-  it('does not enter focus when row entry is disabled', async () => {
-    const changes: t.KeyValue.Focus.Change[] = [];
+  it('does not enter cursor mode when row entry is disabled', async () => {
+    const changes: t.KeyValue.Cursor.Change[] = [];
     const res = await TestReact.render(
       <KeyValue.UI
         items={[row('alpha')]}
-        focus={{ entry: false, onChange: (e) => changes.push(e) }}
+        cursor={{ entry: false, onChange: (e) => changes.push(e) }}
       />,
       { strict: false },
     );
@@ -89,50 +89,50 @@ describe('KeyValue.UI: focus entry', () => {
     await Schedule.micro();
   });
 
-  it('does not emit focus entry for missing or blank item identities', async () => {
-    const changes: t.KeyValue.Focus.Change[] = [];
+  it('does not emit cursor entry for missing or blank item identities', async () => {
+    const changes: t.KeyValue.Cursor.Change[] = [];
     const items: t.KeyValue.Item[] = [
       row(' '),
       { k: 'missing', v: 'missing' },
     ];
     const res = await TestReact.render(
-      <KeyValue.UI items={items} focus={{ entry: 'click', onChange: (e) => changes.push(e) }} />,
+      <KeyValue.UI items={items} cursor={{ entry: 'click', onChange: (e) => changes.push(e) }} />,
       { strict: false },
     );
 
     res.container.querySelectorAll(boundarySelector).forEach((el) => DomMock.Mouse.click(el));
 
     expect(changes.length).to.eql(0);
-    expect(res.container.querySelectorAll(focusPathSelector).length).to.eql(0);
+    expect(res.container.querySelectorAll(cursorPathSelector).length).to.eql(0);
 
     act(() => res.dispose());
     await Schedule.micro();
   });
 
-  it('does not emit focus entry for duplicate direct item identities', async () => {
-    const changes: t.KeyValue.Focus.Change[] = [];
+  it('does not emit cursor entry for duplicate direct item identities', async () => {
+    const changes: t.KeyValue.Cursor.Change[] = [];
     const items: t.KeyValue.Item[] = [row('alpha'), row('alpha')];
     const res = await TestReact.render(
-      <KeyValue.UI items={items} focus={{ entry: 'click', onChange: (e) => changes.push(e) }} />,
+      <KeyValue.UI items={items} cursor={{ entry: 'click', onChange: (e) => changes.push(e) }} />,
       { strict: false },
     );
 
     res.container.querySelectorAll(boundarySelector).forEach((el) => DomMock.Mouse.click(el));
 
     expect(changes.length).to.eql(0);
-    expect(res.container.querySelectorAll(focusPathSelector).length).to.eql(0);
+    expect(res.container.querySelectorAll(cursorPathSelector).length).to.eql(0);
 
     act(() => res.dispose());
     await Schedule.micro();
   });
 
-  it('focuses nested child boundaries without leaking the click to the parent group', async () => {
-    const changes: t.KeyValue.Focus.Change[] = [];
+  it('places the cursor on nested child boundaries without leaking the click to the parent group', async () => {
+    const changes: t.KeyValue.Cursor.Change[] = [];
     const items: t.KeyValue.Item[] = [
       { id: 'group', kind: 'group', items: [row('child')] },
     ];
     const res = await TestReact.render(
-      <KeyValue.UI items={items} focus={{ entry: 'click', onChange: (e) => changes.push(e) }} />,
+      <KeyValue.UI items={items} cursor={{ entry: 'click', onChange: (e) => changes.push(e) }} />,
       { strict: false },
     );
     const root = res.container.firstElementChild as HTMLElement;
@@ -142,19 +142,19 @@ describe('KeyValue.UI: focus entry', () => {
     DomMock.Mouse.click(childShell);
     DomMock.Mouse.click(groupShell);
 
-    expect(changes.map((e) => entryChange(e).ref.path)).to.eql([['group', 'child'], ['group']]);
+    expect(changes.map((e) => entryChange(e).target.path)).to.eql([['group', 'child'], ['group']]);
 
     act(() => res.dispose());
     await Schedule.micro();
   });
 
   it('does not steal clicks from interactive row descendants', async () => {
-    const changes: t.KeyValue.Focus.Change[] = [];
+    const changes: t.KeyValue.Cursor.Change[] = [];
     const items: t.KeyValue.Item[] = [
       { id: 'alpha', k: 'alpha', v: <button>toggle</button> },
     ];
     const res = await TestReact.render(
-      <KeyValue.UI items={items} focus={{ entry: 'click', onChange: (e) => changes.push(e) }} />,
+      <KeyValue.UI items={items} cursor={{ entry: 'click', onChange: (e) => changes.push(e) }} />,
       { strict: false },
     );
     const button = res.container.querySelector('button') as HTMLButtonElement;
@@ -167,13 +167,13 @@ describe('KeyValue.UI: focus entry', () => {
     await Schedule.micro();
   });
 
-  it('supports focus entry in the reorder item shell path', async () => {
-    const changes: t.KeyValue.Focus.Change[] = [];
+  it('supports cursor entry in the reorder item shell path', async () => {
+    const changes: t.KeyValue.Cursor.Change[] = [];
     const res = await TestReact.render(
       <KeyValue.UI
         items={[row('alpha'), row('bravo')]}
         reorder={{ onChange: () => undefined }}
-        focus={{ entry: 'click', onChange: (e) => changes.push(e) }}
+        cursor={{ entry: 'click', onChange: (e) => changes.push(e) }}
       />,
       { strict: false },
     );
@@ -181,7 +181,7 @@ describe('KeyValue.UI: focus entry', () => {
     DomMock.Mouse.click(firstBoundary(res.container));
 
     expect(changes.length).to.eql(1);
-    expect(entryChange(changes[0]).ref.path).to.eql(['alpha']);
+    expect(entryChange(changes[0]).target.path).to.eql(['alpha']);
 
     act(() => res.dispose());
     await Schedule.micro();
@@ -200,7 +200,7 @@ function firstBoundary(container: HTMLElement) {
   return container.querySelector(boundarySelector) as HTMLElement;
 }
 
-function entryChange(change?: t.KeyValue.Focus.Change): t.KeyValue.Focus.EntryChange {
-  expect(change?.reason).to.eql('focus:entry');
-  return change as t.KeyValue.Focus.EntryChange;
+function entryChange(change?: t.KeyValue.Cursor.Change): t.KeyValue.Cursor.EntryChange {
+  expect(change?.reason).to.eql('cursor:entry');
+  return change as t.KeyValue.Cursor.EntryChange;
 }

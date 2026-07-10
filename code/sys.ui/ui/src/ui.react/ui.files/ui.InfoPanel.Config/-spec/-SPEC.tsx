@@ -14,14 +14,14 @@ export default Spec.describe(D.displayName, async (e) => {
         theme={v.theme}
         reorder={v.reorder}
         fields={v.fields}
-        focus={{
-          enabled: v.focus.enabled,
-          model: v.focus.model,
+        cursor={{
+          enabled: v.cursor.enabled,
+          model: v.cursor.model,
           entry: 'option-click',
           navigation: 'keyboard',
           onChange(e) {
-            console.info(`⚡️ ${D.name}.focus.onChange:`, e);
-            p.focus.model.value = e.next;
+            console.info(`⚡️ ${D.name}.cursor.onChange:`, e);
+            p.cursor.model.value = e.next;
           },
         }}
         onFieldsChange={(e) => {

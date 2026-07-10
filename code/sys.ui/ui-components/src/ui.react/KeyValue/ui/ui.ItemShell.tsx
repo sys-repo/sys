@@ -1,13 +1,13 @@
 import React from 'react';
 import { css, D, Motion, type t } from '../common.ts';
-import { type Boundary as FocusBoundary } from '../m.Focus/u.render.ts';
+import { type Boundary as CursorBoundary } from '../m.Cursor/u.render.ts';
 import { type ProjectionAnimationModel, toLayout } from '../u/mod.ts';
 
 type P = {
   item: t.KeyValue.Item;
   layout?: t.KeyValue.Layout;
-  focus?: FocusBoundary;
-  activeFill?: t.Color.Rgba;
+  cursor?: CursorBoundary;
+  currentFill?: t.Color.Rgba;
   children?: t.ReactNode;
 };
 
@@ -19,8 +19,8 @@ type ProjectionP = P & { projection: ProjectionAnimationModel };
 export function itemShellClass(
   item: t.KeyValue.Item,
   layout?: t.KeyValue.Layout,
-  active?: boolean,
-  activeFill?: t.Color.Rgba,
+  current?: boolean,
+  currentFill?: t.Color.Rgba,
 ) {
   const resolved = toLayout(layout);
   const kind = item.kind ?? 'row';
@@ -42,7 +42,7 @@ export function itemShellClass(
     gridColumn: isTable ? '1 / -1' : undefined,
     gridTemplateColumns: usesSubgrid ? 'subgrid' : undefined,
     rowGap: isRecursiveShell ? (resolved.rowGap ?? D.layout.spaced.rowGap) : undefined,
-    backgroundColor: active ? activeFill : undefined,
+    backgroundColor: current ? currentFill : undefined,
   }).class;
 }
 
@@ -52,11 +52,11 @@ export function itemShellClass(
 export const ItemShell: React.FC<P> = (props) => {
   return (
     <div
-      className={itemShellClass(props.item, props.layout, props.focus?.active, props.activeFill)}
-      data-keyvalue-item-boundary={props.focus ? 'true' : undefined}
-      data-keyvalue-focus-path={props.focus?.encodedPath}
-      data-keyvalue-focus-active={props.focus?.active ? 'true' : undefined}
-      onClick={props.focus?.onClick}
+      className={itemShellClass(props.item, props.layout, props.cursor?.current, props.currentFill)}
+      data-keyvalue-item-boundary={props.cursor ? 'true' : undefined}
+      data-keyvalue-cursor-path={props.cursor?.encodedPath}
+      data-keyvalue-cursor-current={props.cursor?.current ? 'true' : undefined}
+      onClick={props.cursor?.onClick}
     >
       {props.children}
     </div>
@@ -71,12 +71,12 @@ export const ProjectionItemShell: React.FC<ProjectionP> = (props) => {
     <Motion.div
       layout='position'
       transition={props.projection.transition}
-      className={itemShellClass(props.item, props.layout, props.focus?.active, props.activeFill)}
+      className={itemShellClass(props.item, props.layout, props.cursor?.current, props.currentFill)}
       data-keyvalue-projection='direct-child'
-      data-keyvalue-item-boundary={props.focus ? 'true' : undefined}
-      data-keyvalue-focus-path={props.focus?.encodedPath}
-      data-keyvalue-focus-active={props.focus?.active ? 'true' : undefined}
-      onClick={props.focus?.onClick}
+      data-keyvalue-item-boundary={props.cursor ? 'true' : undefined}
+      data-keyvalue-cursor-path={props.cursor?.encodedPath}
+      data-keyvalue-cursor-current={props.cursor?.current ? 'true' : undefined}
+      onClick={props.cursor?.onClick}
     >
       {props.children}
     </Motion.div>

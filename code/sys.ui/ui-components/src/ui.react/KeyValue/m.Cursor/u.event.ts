@@ -1,7 +1,7 @@
 import type React from 'react';
 import { Keyboard, type t } from '../common.ts';
-import { Focus } from './mod.ts';
-import { Data } from './u.render.ts';
+import { Cursor } from './mod.ts';
+import { DataAttr } from './u.render.ts';
 
 export type EntryEvent = Pick<
   React.MouseEvent<Element>,
@@ -28,22 +28,22 @@ export type NavigationEvent = Pick<
 >;
 
 export type NavigationIntent = {
-  readonly navigation: t.KeyValue.Focus.NavigationMode;
-  readonly key: t.KeyValue.Focus.NavigationKey;
-  readonly command: t.KeyValue.Focus.Command<'focus:next' | 'focus:previous' | 'focus:enter' | 'focus:exit'>;
+  readonly navigation: t.KeyValue.Cursor.NavigationMode;
+  readonly key: t.KeyValue.Cursor.NavigationKey;
+  readonly command: t.KeyValue.Cursor.Command<'cursor:next' | 'cursor:previous' | 'cursor:enter' | 'cursor:exit'>;
 };
 
-export function entryMode(input?: t.KeyValue.Focus.Entry): t.KeyValue.Focus.EntryMode | undefined {
+export function entryMode(input?: t.KeyValue.Cursor.Entry): t.KeyValue.Cursor.EntryMode | undefined {
   if (input === false) return undefined;
   return input ?? 'option-click';
 }
 
-export function navigationMode(input?: t.KeyValue.Focus.Navigation): t.KeyValue.Focus.NavigationMode | undefined {
+export function navigationMode(input?: t.KeyValue.Cursor.Navigation): t.KeyValue.Cursor.NavigationMode | undefined {
   if (input === false) return undefined;
   return input ?? 'keyboard';
 }
 
-export function isFocusEntryClick(event: EntryEvent, input?: t.KeyValue.Focus.Entry): boolean {
+export function isCursorEntryClick(event: EntryEvent, input?: t.KeyValue.Cursor.Entry): boolean {
   const mode = entryMode(input);
   if (!mode) return false;
   if (event.defaultPrevented) return false;
@@ -52,33 +52,40 @@ export function isFocusEntryClick(event: EntryEvent, input?: t.KeyValue.Focus.En
   return true;
 }
 
-export function shouldEnter(event: EntryEvent, input?: t.KeyValue.Focus.Entry): boolean {
-  if (!isFocusEntryClick(event, input)) return false;
+export function shouldEnter(event: EntryEvent, input?: t.KeyValue.Cursor.Entry): boolean {
+  if (!isCursorEntryClick(event, input)) return false;
   if (isFromNestedBoundary(event)) return false;
   if (isFromInteractiveDescendant(event)) return false;
   return true;
 }
 
 export function toEntryChange(args: {
-  readonly entry: t.KeyValue.Focus.EntryMode;
-  readonly model: t.KeyValue.Focus.Model;
+  readonly entry: t.KeyValue.Cursor.EntryMode;
+  readonly model: t.KeyValue.Cursor.Model;
   readonly items: readonly t.KeyValue.Item[];
-  readonly ref: t.KeyValue.Focus.Ref;
-}): t.KeyValue.Focus.EntryChange | undefined {
-  const target = Focus.ref(args.ref.path);
-  const command: t.KeyValue.Focus.Command<'focus:set'> = {
-    name: 'focus:set',
-    payload: { ref: target },
+  readonly target: t.KeyValue.Cursor.Target;
+}): t.KeyValue.Cursor.EntryChange | undefined {
+  const nextTarget = Cursor.target(args.target.path);
+  const command: t.KeyValue.Cursor.Command<'cursor:set'> = {
+    name: 'cursor:set',
+    payload: { target: nextTarget },
   };
   const previous = args.model;
-  const next = Focus.apply(previous, args.items, command);
-  if (!Focus.eql(next.active, target)) return undefined;
-  return { reason: 'focus:entry', entry: args.entry, previous, next, ref: Focus.ref(target.path), command };
+  const next = Cursor.apply(previous, args.items, command);
+  if (!Cursor.eql(next.current, nextTarget)) return undefined;
+  return {
+    reason: 'cursor:entry',
+    entry: args.entry,
+    previous,
+    next,
+    target: Cursor.target(nextTarget.path),
+    command,
+  };
 }
 
 export function toNavigationIntent(
   event: NavigationEvent,
-  input?: t.KeyValue.Focus.Navigation,
+  input?: t.KeyValue.Cursor.Navigation,
 ): NavigationIntent | undefined {
   const mode = navigationMode(input);
   if (!mode) return undefined;
@@ -92,17 +99,17 @@ export function toNavigationIntent(
 }
 
 export function toNavigationChange(args: {
-  readonly model: t.KeyValue.Focus.Model;
+  readonly model: t.KeyValue.Cursor.Model;
   readonly items: readonly t.KeyValue.Item[];
   readonly intent: NavigationIntent;
-}): t.KeyValue.Focus.NavigationChange | undefined {
+}): t.KeyValue.Cursor.NavigationChange | undefined {
   const previous = args.model;
-  if (!previous.active) return undefined;
+  if (!previous.current) return undefined;
 
-  const next = Focus.apply(previous, args.items, args.intent.command);
-  if (Focus.eql(previous.active, next.active)) return undefined;
+  const next = Cursor.apply(previous, args.items, args.intent.command);
+  if (Cursor.eql(previous.current, next.current)) return undefined;
   return {
-    reason: 'focus:navigation',
+    reason: 'cursor:navigation',
     navigation: args.intent.navigation,
     key: args.intent.key,
     previous,
@@ -120,7 +127,7 @@ function isFromNestedBoundary(event: EntryEvent) {
   const target = toElement(event.target);
   const current = event.currentTarget;
   if (!target) return false;
-  const boundary = target.closest(`[${Data.boundary}]`);
+  const boundary = target.closest(`[${DataAttr.boundary}]`);
   return !!boundary && boundary !== current;
 }
 
@@ -132,10 +139,10 @@ function isModified(event: NavigationEvent) {
 function commandFromKey(
   key: string,
 ): Pick<NavigationIntent, 'key' | 'command'> | undefined {
-  if (key === 'ArrowDown') return { key, command: { name: 'focus:next', payload: {} } };
-  if (key === 'ArrowUp') return { key, command: { name: 'focus:previous', payload: {} } };
-  if (key === 'Enter') return { key, command: { name: 'focus:enter', payload: {} } };
-  if (key === 'Escape') return { key, command: { name: 'focus:exit', payload: {} } };
+  if (key === 'ArrowDown') return { key, command: { name: 'cursor:next', payload: {} } };
+  if (key === 'ArrowUp') return { key, command: { name: 'cursor:previous', payload: {} } };
+  if (key === 'Enter') return { key, command: { name: 'cursor:enter', payload: {} } };
+  if (key === 'Escape') return { key, command: { name: 'cursor:exit', payload: {} } };
   return undefined;
 }
 
