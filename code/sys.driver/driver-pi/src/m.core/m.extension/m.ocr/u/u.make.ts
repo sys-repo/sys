@@ -1,4 +1,3 @@
-import { pkg as ProcessPkg } from '@sys/process';
 import { json } from '../-bundle/-bundle.ts';
 import { Json, Path, Str, type t, TmplEngine } from '../common.ts';
 
@@ -10,7 +9,6 @@ const POLICY_MARKER = Str.dedent(
   const POLICY: OcrPolicy = __OCR_POLICY__;
   `,
 ).trim();
-const PROCESS_IMPORT_MARKER = "from '@sys/process/process'";
 
 export function makeTmpl(policy: t.PiOcrExtension.Extension.Policy) {
   const processFile: t.TmplProcessFile = (e) => {
@@ -32,13 +30,6 @@ export function makeTmpl(policy: t.PiOcrExtension.Extension.Policy) {
       }
     }
 
-    if (next.includes(PROCESS_IMPORT_MARKER)) {
-      next = next.replace(PROCESS_IMPORT_MARKER, `from '${processImport()}'`);
-      if (next.includes(PROCESS_IMPORT_MARKER)) {
-        throw new Error('Unresolved OCR process import marker.');
-      }
-    }
-
     e.modify(next);
   };
 
@@ -49,10 +40,6 @@ export function makeTmpl(policy: t.PiOcrExtension.Extension.Policy) {
 
 function formatPolicy(policy: t.PiOcrExtension.Extension.Policy) {
   return Json.stringify(policy, 2);
-}
-
-function processImport() {
-  return `jsr:@sys/process@${ProcessPkg.version}/process`;
 }
 
 function assertSafeRelativePath(path: string) {

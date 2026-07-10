@@ -47,10 +47,11 @@ describe(`Pi: OCR extension / write`, () => {
       expect(modText).to.contain('"pdftoppm": "/ocr/bin/pdftoppm"');
       expect(modText).to.contain('"tesseract": "/ocr/bin/tesseract"');
       expect(modText).to.contain('"maxChars": 1234');
-      expect(commandText).to.contain("from 'jsr:@sys/process@");
-      expect(commandText).to.contain("/process'");
-      expect(commandText).not.to.contain("from '@sys/process/process'");
-      expect(commandText).not.to.contain('Deno.Command');
+      expect(commandText).to.contain('new Deno.Command');
+      expect(commandText).not.to.contain('@sys/process');
+      expect(commandText).not.to.contain('jsr:@sys/process');
+      expect(commandText).not.to.contain("from '@sys/");
+      expect(commandText).not.to.contain("from 'jsr:");
       expect(modText).not.to.contain('__OCR_POLICY__');
       expect(modText).not.to.contain('@mariozechner/pi-coding-agent');
       expect(modText).not.to.contain("from '@sys/fs'");

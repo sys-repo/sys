@@ -203,6 +203,32 @@ describe(`Pi: OCR extension / generated ocr_pdf runtime`, () => {
     }
   });
 
+  it('generated command runner returns failed-start details without external process helpers', async () => {
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.ocr.test.' })).absolute as t.StringDir;
+    try {
+      const policy = Ocr.resolveExtensionPolicy({
+        cwd: { invoked: cwd, git: cwd },
+        policy: Ocr.Resolve.policy({ pdf: { enabled: true } }),
+        executables: ocrExecutables(),
+      });
+      const mod = await importGenerated((await Ocr.write({ cwd, policy })).path);
+      const result = await mod.__ocrPdfTest.runDenoCommand({
+        cmd: '/missing/process-capture-command',
+        args: [],
+        timeoutMs: 5_000,
+        ...commandCaps(),
+      });
+
+      expect(result.code).to.eql(-1);
+      expect(result.failedToStart).to.eql(true);
+      expect(result.cancelled).to.eql(undefined);
+      expect(result.timedOut).to.eql(undefined);
+      expect(result.stderr.length).to.be.greaterThan(0);
+    } finally {
+      await Fs.remove(cwd);
+    }
+  });
+
   it('returns early structured cancellation before file probes or commands', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.ocr.test.' })).absolute as t.StringDir;
     try {
