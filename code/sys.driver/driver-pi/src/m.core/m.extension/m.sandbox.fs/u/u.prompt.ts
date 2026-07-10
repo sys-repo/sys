@@ -1,4 +1,4 @@
-import { Is, Str, type t } from './common.ts';
+import { Is, Str, type t } from '../common.ts';
 
 /** Convert enabled sandbox filesystem tool policy into Pi prompt args. */
 export function toPromptArgs(policy: t.PiSandboxFsExtension.Policy) {

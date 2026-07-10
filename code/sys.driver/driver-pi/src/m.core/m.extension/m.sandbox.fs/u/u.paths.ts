@@ -1,4 +1,4 @@
-import { Fs, type t } from './common.ts';
+import { Fs, type t } from '../common.ts';
 
 const EXTENSION_DIR = ['.pi', '@sys', 'extensions'] as const;
 const EXTENSION_NAME = 'sandbox.fs' as const;

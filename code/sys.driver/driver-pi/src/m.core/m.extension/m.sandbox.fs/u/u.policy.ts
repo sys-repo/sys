@@ -1,5 +1,5 @@
-import { Arr, Fs, type t } from './common.ts';
-import { runtimeRoot } from '../../m.cli/u.runtime.ts';
+import { Arr, Fs, type t } from '../common.ts';
+import { runtimeRoot } from '../../../m.cli/u.runtime.ts';
 
 const PROTECTED_SEGMENTS = [
   ['.git'],
@@ -42,4 +42,3 @@ function resolvePaths(root: t.StringDir, paths: readonly t.StringPath[]) {
 function protectedRoots(root: t.StringDir) {
   return PROTECTED_SEGMENTS.map((segments) => Fs.join(root, ...segments) as t.StringPath);
 }
-

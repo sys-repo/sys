@@ -1,5 +1,5 @@
-import { json } from './-bundle/-bundle.ts';
-import { Json, Path, Str, TmplEngine, type t } from './common.ts';
+import { json } from '../-bundle/-bundle.ts';
+import { Json, Path, Str, type t, TmplEngine } from '../common.ts';
 
 const SOURCE_ROOT = 'tmpl';
 const TARGET_ENTRY = 'mod.ts';
