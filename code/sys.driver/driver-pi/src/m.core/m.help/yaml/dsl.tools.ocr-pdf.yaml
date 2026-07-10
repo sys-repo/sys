@@ -1,0 +1,57 @@
+id: ocr-pdf
+title: Driver-Pi OCR PDF tool policy
+summary: |
+  Author `tools.ocr.pdf` profile policy for the wrapper-owned `ocr_pdf` tool. This chapter governs
+  future-launch OCR PDF enablement only; live use still requires a registered `ocr_pdf` tool.
+
+sections:
+  - label: Use when
+    items: |
+      The prompt asks to enable OCR, enable PDF OCR, or make OCR available for a future Driver-Pi launch.
+      The prompt asks why `ocr_pdf` is not callable in this live session.
+      The prompt asks how OCR PDF profile policy should be authored.
+      The prompt asks which startup preflight checks run before OCR PDF is advertised.
+
+  - label: Minimal enablement
+    items: |
+      Enable OCR PDF with the smallest durable profile edit: `tools: { ocr: { pdf: { enabled: true } } }`.
+      Expanded YAML shape:
+      `tools:`
+      `  ocr:`
+      `    pdf:`
+      `      enabled: true`
+      This edit requests OCR PDF registration for the next launch; it does not affect the current live session.
+      Read `dsl profile` before editing active profile YAML.
+      Change only `tools.ocr.pdf` unless the user requested a broader profile edit.
+      Ask the human to restart or relaunch Pi after editing the active profile.
+
+  - label: Defaults and bounds
+    items: |
+      Omitted `languages` resolves to `[eng]`; omitted `defaultLanguage` resolves to `eng`.
+      Omitted `dpi` resolves to `200`; valid bounds are `72..600`.
+      Omitted `maxPages` resolves to `10`; valid bounds are `1..100`.
+      Omitted `maxChars` resolves to `60000`; valid bounds are `1..1000000`.
+      Omitted `timeoutMs` resolves to `120000`; valid bounds are `1000..600000`.
+      `defaultLanguage` must be one of the configured `languages`.
+
+  - label: Startup preflight
+    items: |
+      OCR PDF preflight runs only when `tools.ocr.pdf.enabled` is true.
+      Startup resolves absolute executable paths for `pdfinfo`, `pdftoppm`, and `tesseract`.
+      Startup verifies configured Tesseract language data before registering `ocr_pdf`.
+      Missing OCR dependencies are reported with the fixed install command: `brew install poppler tesseract`.
+      Dependency install requires explicit startup consent; the DSL command never installs or probes dependencies.
+
+  - label: Disabled-session answer
+    items: |
+      If `ocr_pdf` is absent from the live tool surface, say that no callable `ocr_pdf` tool is enabled in this live session.
+      If the human wants OCR enabled, offer to consult `dsl profile`, edit the active profile when approved, and ask for restart or relaunch.
+      Do not claim profile YAML, generated files, or DSL text make `ocr_pdf` callable now.
+      Do not use shell commands, `pdfinfo`, `pdftoppm`, `tesseract`, or ad hoc scripts as an OCR fallback.
+
+  - label: OCR truth
+    items: |
+      `ocr_pdf` is for scanned or image-based PDF pages when usable embedded text is unavailable.
+      OCR output is lossy evidence, not authoritative PDF text.
+      Page range, language, DPI, timeout, and output size are bounded by active profile policy.
+      Report uncertainty and truncation explicitly when relying on OCR output.

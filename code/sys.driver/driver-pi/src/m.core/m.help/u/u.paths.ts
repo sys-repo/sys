@@ -8,6 +8,7 @@ export const HelpResource = {
         chapter('remove', 'yaml/dsl.tools.remove.yaml'),
         chapter('move', 'yaml/dsl.tools.move.yaml'),
         chapter('copy', 'yaml/dsl.tools.copy.yaml'),
+        chapter('ocr-pdf', 'yaml/dsl.tools.ocr-pdf.yaml'),
       ]),
       chapter('extensions', 'yaml/dsl.extensions.yaml'),
     ]),

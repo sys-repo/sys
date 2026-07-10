@@ -30,6 +30,7 @@ sections:
       Active profile, profile path, profile YAML, or restart semantics → read `dsl profile`.
       Enabling, disabling, or configuring a profile-authored tool for a future launch → read `dsl tools`.
       Filesystem tool policy for removal, moves, or copies → read `dsl tools remove`, `dsl tools move`, or `dsl tools copy`.
+      OCR PDF enablement for a future launch → read `dsl tools ocr-pdf`.
       Generated Pi extensions, materialized files, templates, or hand-edit questions → read `dsl extensions`.
       Whether a tool can be called in this session → answer from live session tools, not DSL text.
       Missing concrete tool chapter → stop and create or update a plan before inventing guidance.
@@ -51,7 +52,7 @@ sections:
       DSL chapter: `deno run -ER jsr:@sys/driver-pi dsl <chapter>`.
       Skill projection: `deno run -ER jsr:@sys/driver-pi dsl <chapter> --format skill`.
       Structural chapters: `profile`, `tools`, and `extensions`.
-      Tool policy guidance paths: `tools remove`, `tools move`, and `tools copy`.
+      Tool policy guidance paths: `tools remove`, `tools move`, `tools copy`, and `tools ocr-pdf`.
       These paths are documentation chapters, not callable tool APIs.
       Do not use `jsr:@sys/driver-pi/dsl` or any other DSL subpath.
       The DSL command reads guidance only; it must not launch Pi, edit profile YAML, install dependencies, or probe local substrate.

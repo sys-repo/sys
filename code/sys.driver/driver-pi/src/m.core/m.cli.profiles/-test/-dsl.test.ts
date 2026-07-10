@@ -28,7 +28,7 @@ describe('@sys/driver-pi/cli/Profiles dsl', () => {
     expect(res.text).to.contain(`${dslCommand} extensions`);
   });
 
-  it('dsl <chapter> → renders structural chapters and filesystem tool links only', async () => {
+  it('dsl <chapter> → renders structural chapters and concrete tool policy links', async () => {
     for (const id of ['profile', 'tools', 'extensions'] as const) {
       const chapter = await PiHelp.Dsl.load([id]);
       const res = await run(['dsl', id]);
@@ -39,21 +39,31 @@ describe('@sys/driver-pi/cli/Profiles dsl', () => {
         expect(res.text).to.contain(`${dslCommand} tools remove`);
         expect(res.text).to.contain(`${dslCommand} tools move`);
         expect(res.text).to.contain(`${dslCommand} tools copy`);
+        expect(res.text).to.contain(`${dslCommand} tools ocr-pdf`);
       }
-      expect(res.text).not.to.contain(`${dslCommand} tools ocr-pdf`);
     }
   });
 
-  it('dsl tools <chapter> → renders concrete filesystem tool policy chapters', async () => {
-    for (const id of ['remove', 'move', 'copy'] as const) {
+  it('dsl tools <chapter> → renders concrete tool policy chapters', async () => {
+    for (const id of ['remove', 'move', 'copy', 'ocr-pdf'] as const) {
       const chapter = await PiHelp.Dsl.load(['tools', id]);
       const res = await run(['dsl', 'tools', id]);
 
       expect(res.text).to.contain(`@sys/driver-pi dsl tools ${id}`);
       expectChapterRendered(res.text, chapter);
       expect(res.text).to.contain('restart or relaunch Pi');
-      expect(res.text).not.to.contain(`${dslCommand} tools ocr-pdf`);
     }
+  });
+
+  it('dsl tools ocr-pdf → renders OCR PDF enablement boundaries', async () => {
+    const res = await run(['dsl', 'tools', 'ocr-pdf']);
+
+    expect(res.text).to.contain('tools.ocr.pdf');
+    expect(res.text).to.contain('enabled: true');
+    const normalized = normalizeWhitespace(res.text);
+    expect(normalized).to.contain('brew install poppler tesseract');
+    expect(normalized).to.contain('no callable `ocr_pdf` tool is enabled in this live session');
+    expect(normalized).to.contain('OCR output is lossy evidence');
   });
 
   it('dsl --format skill → renders root skill Markdown without ANSI', async () => {
@@ -79,17 +89,26 @@ describe('@sys/driver-pi/cli/Profiles dsl', () => {
     expect(res.text).not.to.contain('@sys/driver-pi dsl profile');
   });
 
-  it('dsl tools --format skill → renders filesystem tool child links', async () => {
+  it('dsl tools --format skill → renders tool policy child links', async () => {
     const chapter = await PiHelp.Dsl.load(['tools']);
     const res = await run(['dsl', 'tools', '--format', 'skill']);
 
     expect(res.raw).to.eql(res.text);
     expect(res.text).to.contain('---\nname: "sys-driver-pi-dsl-tools"');
     expectMarkdownChapterRendered(res.text, chapter);
-    for (const id of ['remove', 'move', 'copy'] as const) {
+    for (const id of ['remove', 'move', 'copy', 'ocr-pdf'] as const) {
       expect(res.text).to.contain(`\`${dslCommand} tools ${id} --format skill\``);
     }
-    expect(res.text).not.to.contain(`${dslCommand} tools ocr-pdf`);
+  });
+
+  it('dsl tools ocr-pdf --format skill → renders OCR PDF skill Markdown', async () => {
+    const chapter = await PiHelp.Dsl.load(['tools', 'ocr-pdf']);
+    const res = await run(['dsl', 'tools', 'ocr-pdf', '--format=skill']);
+
+    expect(res.raw).to.eql(res.text);
+    expect(res.text).to.contain('---\nname: "sys-driver-pi-dsl-tools-ocr-pdf"');
+    expectMarkdownChapterRendered(res.text, chapter);
+    expect(normalizeWhitespace(res.text)).to.contain('brew install poppler tesseract');
   });
 
   it('dsl → rejects launcher/profile flags before startup', async () => {
@@ -112,11 +131,11 @@ describe('@sys/driver-pi/cli/Profiles dsl', () => {
     );
   });
 
-  it('dsl → fails clearly for missing chapters including future OCR path', async () => {
+  it('dsl → fails clearly for missing chapters', async () => {
     await expectError(['dsl', 'missing'], 'PiHelp: DSL chapter not found: missing');
     await expectError(
-      ['dsl', 'tools', 'ocr-pdf'],
-      'PiHelp: DSL chapter not found: tools ocr-pdf',
+      ['dsl', 'tools', 'missing'],
+      'PiHelp: DSL chapter not found: tools missing',
     );
   });
 });
