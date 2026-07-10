@@ -28,6 +28,11 @@ describe(`@sys/driver-pi/cli/Profiles/u.prompt`, () => {
     expect(DEFAULT_SYSTEM_PROMPT).to.contain('`@sys` scope (“sys” = “system”)');
     expect(DEFAULT_SYSTEM_PROMPT).to.contain('import `@sys/*` libraries');
     expect(DEFAULT_SYSTEM_PROMPT).to.contain('deno run jsr:@sys/<pkg> --help');
+    expect(DEFAULT_SYSTEM_PROMPT).to.contain('deno run -ER jsr:@sys/driver-pi dsl');
+    expect(DEFAULT_SYSTEM_PROMPT).to.contain('smallest matching chapter');
+    expect(DEFAULT_SYSTEM_PROMPT).to.contain('DSL guidance does not prove a tool is callable');
+    expect(DEFAULT_SYSTEM_PROMPT).to.contain('registered in this live session');
+    expect(DEFAULT_SYSTEM_PROMPT).not.to.contain('ocr_pdf');
     expect(DEFAULT_SYSTEM_PROMPT).to.contain('- Be concise in your responses');
     expect(DEFAULT_SYSTEM_PROMPT).to.contain(PROVENANCE_SAFETY_PROMPT);
     expect(DEFAULT_SYSTEM_PROMPT.endsWith(PROVENANCE_SAFETY_PROMPT)).to.eql(true);

@@ -633,7 +633,11 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
       await Fs.ensureDir(`${cwd}/.git`);
 
       Process.inherit = async (input) => {
-        expect(systemPrompt(input.args)).to.eql(defaultSystemPromptBody());
+        const prompt = systemPrompt(input.args);
+        expect(prompt).to.eql(defaultSystemPromptBody());
+        expect(prompt).to.contain('deno run -ER jsr:@sys/driver-pi dsl');
+        expect(prompt).to.contain('DSL guidance does not prove a tool is callable');
+        expect(prompt).not.to.contain('Runtime Tool Contract: ocr_pdf');
         expectFinalProvenanceSafety(input.args);
         expect(input.env?.PI_PROFILE).to.eql('main');
         return { code: 0, success: true, signal: null };
