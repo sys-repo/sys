@@ -26,13 +26,7 @@ export function rootPendingAdvisoryPrelude(
     left: c.white('upgrade pending — standing down'),
     right: `${c.gray(pkg.name)} ${c.white(remote)}`,
   });
-  const waiting = options.remaining
-    ? [
-      'waiting',
-      StanddownTiming.formatDuration(options.remaining),
-      'for the security time window to pass',
-    ].join(' ')
-    : 'waiting for the security time window to pass';
+  const waiting = StanddownTiming.formatWait(options.remaining);
   return Str.builder()
     .line(hr)
     .line(title)

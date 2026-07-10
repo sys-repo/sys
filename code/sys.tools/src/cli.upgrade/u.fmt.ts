@@ -62,7 +62,7 @@ function latestValue(
   if (!standdown) return base;
 
   const duration = StanddownTiming.formatDuration(standdown.remaining);
-  return `${base}  ${c.gray(c.italic(`— security window clears in ${duration}`))}`;
+  return `${base}  ${c.gray(c.italic(`— minimum dependency age window clears in ${duration}`))}`;
 }
 
 export const Fmt = {
@@ -166,18 +166,16 @@ export const Fmt = {
 
   upgradePending(version: t.UpgradeTool.VersionInfo) {
     const state = toVersionState(version);
-    const str = Str.builder().line('No upgrade was run.');
+    const str = Str.builder().line(c.gray('No upgrade was run.'));
 
     if (state.reason?.code === 'policy:minimum-dependency-age') {
-      const duration = state.minimumDependencyAgeStanddown
-        ? ` — ${StanddownTiming.formatDuration(state.minimumDependencyAgeStanddown.remaining)}`
-        : '';
-      str.line(`waiting for the security time window to pass${duration}.`);
+      const waiting = `${StanddownTiming.formatWait(state.minimumDependencyAgeStanddown?.remaining)}.`;
+      str.line(c.gray(c.italic(waiting)));
     } else {
-      str.line('Latest published version is not currently actionable.');
+      str.line(c.gray('Latest published version is not currently actionable.'));
     }
 
-    return c.gray(str.toString());
+    return str.toString();
   },
 
   upgradeResolverUnavailable(_version: t.UpgradeTool.VersionInfo) {

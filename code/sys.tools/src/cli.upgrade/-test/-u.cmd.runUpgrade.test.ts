@@ -1,4 +1,4 @@
-import { Cli, describe, expect, Is, it, type t } from '../../-test.ts';
+import { c, Cli, describe, expect, Is, it, type t } from '../../-test.ts';
 import { runUpgrade } from '../u.cmd.runUpgrade.ts';
 
 describe('cli.upgrade.runUpgrade', () => {
@@ -288,7 +288,7 @@ describe('cli.upgrade.runUpgrade', () => {
         '(exit)',
       ]);
       expect(output).to.contain('@sys/tools upgrade available');
-      expect(output).to.contain('latest   0.0.464  — security window clears in 20h 45m');
+      expect(output).to.contain('latest   0.0.464  — minimum dependency age window clears in 21h');
       expect(output).to.contain('upgrade  0.0.463');
       expect(output).to.not.contain('upgrade standing down');
     });
@@ -379,8 +379,11 @@ describe('cli.upgrade.runUpgrade', () => {
       expect(plain.join('\n')).to.not.contain('held at');
       expect(plain.join('\n')).to.not.contain('Deno is not allowing this upgrade yet.');
       expect(plain.some((line) =>
-        line.includes('waiting for the security time window to pass — 20h 45m.')
+        line.includes('waiting 21h for the minimum dependency age window to pass.')
       )).to.eql(true);
+      expect(events.join('\n')).to.contain(
+        c.gray(c.italic('waiting 21h for the minimum dependency age window to pass.')),
+      );
       expect(plain.join('\n')).to.not.contain('upgrade now to 0.0.319');
     });
 
@@ -423,7 +426,7 @@ describe('cli.upgrade.runUpgrade', () => {
       expect(refreshed).to.eql(false);
       expect(prompted).to.eql(false);
       expect(output).to.contain('Latest published version is not currently actionable.');
-      expect(output).to.not.contain('security time window');
+      expect(output).to.not.contain('minimum dependency age window');
     });
 
     it('reports unavailable upgrade checks without claiming a held version', async () => {

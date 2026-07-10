@@ -1,7 +1,5 @@
 import { Is, Num, Semver, Time, type t } from './common.ts';
 
-const { DAY, HOUR, MINUTE } = Time.Date;
-
 type VersionFactInput = Pick<t.UpgradeTool.VersionInfo, 'remote' | 'remoteCreatedAt'>;
 type StanddownRemaining = t.Msecs | 'elapsed';
 
@@ -69,22 +67,15 @@ export const StanddownTiming = {
 
   /** Format a proven standdown duration for compact CLI display. */
   formatDuration(input: t.Msecs): string {
-    const msecs = Num.clamp(0, Num.INFINITY, input);
-    if (msecs < MINUTE) return `${Math.floor(msecs / 1000)}s`;
-    if (msecs < HOUR) return `${Math.floor(msecs / MINUTE)}m`;
-    if (msecs < DAY) return formatDurationParts(msecs, HOUR, 'h', MINUTE, 'm');
-    return formatDurationParts(msecs, DAY, 'd', HOUR, 'h');
+    const msecs = Num.clamp(0, Num.INFINITY, input) as t.Msecs;
+    return Time.duration(msecs).toString();
+  },
+
+  /** Format the canonical minimum-dependency-age wait copy. */
+  formatWait(input?: t.Msecs): string {
+    const reason = 'minimum dependency age window';
+    return input === undefined
+      ? `waiting for the ${reason} to pass`
+      : `waiting ${StanddownTiming.formatDuration(input)} for the ${reason} to pass`;
   },
 } as const;
-
-function formatDurationParts(
-  msecs: t.Msecs,
-  majorUnit: t.Msecs,
-  majorSuffix: string,
-  minorUnit: t.Msecs,
-  minorSuffix: string,
-): string {
-  const major = Math.floor(msecs / majorUnit);
-  const minor = Math.floor((msecs % majorUnit) / minorUnit);
-  return minor > 0 ? `${major}${majorSuffix} ${minor}${minorSuffix}` : `${major}${majorSuffix}`;
-}
