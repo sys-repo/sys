@@ -1,4 +1,4 @@
-import { Arr, Err, Fs, Is, Obj, type t } from './common.ts';
+import { Arr, Err, Fs, Is, Obj, type t } from '../common.ts';
 
 /** One selected workspace package prepared for task execution. */
 export type RunCandidate = {

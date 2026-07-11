@@ -1,4 +1,4 @@
-import { c, Cli, Num, Str, type t, Time } from './common.ts';
+import { c, Cli, Num, Str, type t, Time } from '../common.ts';
 import { formatFailedOutput, formatIntroLine } from './u.fmt.ts';
 import type { ParallelRunEvent, ParallelRunEventHandler } from './u.run.parallel.ts';
 

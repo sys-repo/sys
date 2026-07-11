@@ -1,5 +1,5 @@
-import { WorkspacePrep } from '../m.prep/mod.ts';
-import { Fs, type t, Time } from './common.ts';
+import { WorkspacePrep } from '../../m.prep/mod.ts';
+import { Fs, type t, Time } from '../common.ts';
 import { formatIntroLine } from './u.fmt.ts';
 import { resolveJobs } from './u.jobs.ts';
 import { createRunPlan } from './u.plan.ts';

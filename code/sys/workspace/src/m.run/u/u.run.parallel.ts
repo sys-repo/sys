@@ -1,4 +1,4 @@
-import { Arr, Err, Num, Obj, type t, Time } from './common.ts';
+import { Arr, Err, Num, Obj, type t, Time } from '../common.ts';
 import type { RunCandidate, RunPlan } from './u.plan.ts';
 import { type PackageCommand, type PackageWorker, resolveCommand, runPackage } from './u.worker.ts';
 

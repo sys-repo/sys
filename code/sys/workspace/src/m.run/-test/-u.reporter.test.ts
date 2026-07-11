@@ -1,6 +1,6 @@
 import { c, Cli, describe, expect, it, type t } from '../../-test.ts';
-import { formatFailedOutput, formatIntroLine } from '../u.fmt.ts';
-import { createParallelReporter, formatParallelProgress } from '../u.reporter.ts';
+import { formatFailedOutput, formatIntroLine } from '../u/u.fmt.ts';
+import { createParallelReporter, formatParallelProgress } from '../u/u.reporter.ts';
 
 type CompletedKind = 'passed' | 'failed' | 'skipped' | 'blocked';
 

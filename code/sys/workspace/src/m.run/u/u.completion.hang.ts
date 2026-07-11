@@ -1,4 +1,4 @@
-import { c, Str, Time, type t } from './common.ts';
+import { c, Str, Time, type t } from '../common.ts';
 
 const DEFAULT_DELAY = 2_000 as t.Msecs;
 const DEFAULT_CONTEXT_LIMIT = 3;

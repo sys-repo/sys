@@ -1,5 +1,5 @@
 import { describe, expect, expectError, it } from '../../-test.ts';
-import { autoJobs, resolveJobs } from '../u.jobs.ts';
+import { autoJobs, resolveJobs } from '../u/u.jobs.ts';
 
 describe('WorkspaceRun.jobs', () => {
   it('resolves explicit positive integer jobs', () => {

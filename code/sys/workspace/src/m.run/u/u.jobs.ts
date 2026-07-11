@@ -1,4 +1,4 @@
-import { Err, Num, type t } from './common.ts';
+import { Err, Num, type t } from '../common.ts';
 
 export type ResolveJobsArgs = {
   readonly jobs?: t.WorkspaceRun.Test.Strategy.Jobs;

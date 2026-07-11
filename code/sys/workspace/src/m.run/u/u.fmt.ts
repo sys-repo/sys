@@ -1,4 +1,4 @@
-import { c, Cli, Str, type t, Time } from './common.ts';
+import { c, Cli, Str, type t, Time } from '../common.ts';
 
 const SUMMARY_REPEAT_MIN_PACKAGES = 11;
 const INTRO_LABEL_WIDTH = 15;

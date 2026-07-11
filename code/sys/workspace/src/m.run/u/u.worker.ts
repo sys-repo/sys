@@ -1,4 +1,4 @@
-import { Fs, Is, Num, Obj, Process, type t, Time } from './common.ts';
+import { Fs, Is, Num, Obj, Process, type t, Time } from '../common.ts';
 import type { RunCandidate } from './u.plan.ts';
 
 export type PackageCommand = {

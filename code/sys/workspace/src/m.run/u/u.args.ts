@@ -1,4 +1,4 @@
-import { Args as StdArgs, Err, Is, Num, type t } from './common.ts';
+import { Args as StdArgs, Err, Is, Num, type t } from '../common.ts';
 
 type ParsedTestArgs = {
   readonly parallel?: boolean | readonly boolean[];
