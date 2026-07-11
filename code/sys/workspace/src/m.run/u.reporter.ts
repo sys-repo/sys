@@ -71,6 +71,8 @@ type ReporterState = {
 };
 
 const GRID_GUTTER = '      ';
+const STATUS_GUTTER = '   ';
+const SPINNER_PREFIX_WIDTH = Cli.Fmt.Text.visibleWidth('⠧ ');
 
 /** Create a reporter that renders parallel test progress from scheduler events. */
 export function createParallelReporter(args: ParallelReporterArgs): ParallelReporter {
@@ -120,24 +122,28 @@ export function createParallelReporter(args: ParallelReporterArgs): ParallelRepo
 export function formatParallelProgress(args: ParallelProgressFormatArgs): string {
   const done = args.passed + args.blockedRunnable + args.failed;
   const elapsed = wrangle.progressElapsed(args.elapsed);
-  const passed = `${c.green(`✓ ${args.passed}`)}${c.gray(`/${args.runnableTotal} passed`)}`;
+  const summary = `${c.green(`✓ ${args.passed}`)}${c.gray(`/${args.runnableTotal} passed`)}`;
   const failed = args.failed > 0 ? c.red(`✕ failed ${args.failed}`) : c.gray('✕ failed 0');
   const blocked = args.blocked > 0 ? c.yellow(`⊘ blocked ${args.blocked}`) : c.gray('⊘ blocked 0');
   const skipped = args.skipped > 0 ? c.yellow(`· skipped ${args.skipped}`) : c.gray('· skipped 0');
-  const line = [
-    passed,
-    c.cyan(`⦿ running ${args.running.length}`),
-    c.gray(`◦ pending ${args.pending}`),
-    skipped,
-    blocked,
-    failed,
-  ].join('   ');
   const width = Cli.Fmt.Text.fitWidth({
     width: args.width,
     terminal: args.terminal,
     fallbackWidth: 100,
     minWidth: 40,
   });
+  const line = wrangle.statusRows(
+    summary,
+    [
+      c.cyan(`⦿ running ${args.running.length}`),
+      c.gray(`◦ pending ${args.pending}`),
+      skipped,
+      blocked,
+      failed,
+    ],
+    width,
+    args.terminal,
+  );
   const sections: string[] = [];
 
   if (width > 0 && args.running.length > 0) {
@@ -279,6 +285,36 @@ const wrangle = {
     if (elapsed === undefined || elapsed < 1000) return '';
     if (elapsed < 60_000) return Time.duration(elapsed).format('s');
     return Time.duration(elapsed).format({ unit: 'm', round: 1 });
+  },
+
+  statusRows(summary: string, metrics: readonly string[], width: number, terminal?: boolean) {
+    const prefixWidth = terminal ? SPINNER_PREFIX_WIDTH : 0;
+    const firstLineWidth = width - prefixWidth;
+    const singleLine = [summary, ...metrics].join(STATUS_GUTTER);
+    if (Cli.Fmt.Text.visibleWidth(singleLine) <= firstLineWidth) return singleLine;
+
+    const summaryWidth = Cli.Fmt.Text.visibleWidth(summary);
+    const gutterWidth = Cli.Fmt.Text.visibleWidth(STATUS_GUTTER);
+    const continuationIndent = ' '.repeat(summaryWidth + gutterWidth + prefixWidth);
+    const lines: string[] = [];
+    let current = summary;
+    let isFirstLine = true;
+
+    for (const metric of metrics) {
+      const candidate = `${current}${STATUS_GUTTER}${metric}`;
+      const capacity = isFirstLine ? firstLineWidth : width;
+      if (Cli.Fmt.Text.visibleWidth(candidate) <= capacity) {
+        current = candidate;
+        continue;
+      }
+
+      lines.push(current);
+      current = `${continuationIndent}${metric}`;
+      isFirstLine = false;
+    }
+
+    lines.push(current);
+    return lines.join('\n');
   },
 
   runningGrid(

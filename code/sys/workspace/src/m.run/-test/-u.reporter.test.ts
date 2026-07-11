@@ -5,204 +5,304 @@ import { createParallelReporter, formatParallelProgress } from '../u.reporter.ts
 type CompletedKind = 'passed' | 'failed' | 'skipped' | 'blocked';
 
 const VISIBLE_COMPLETED_FOR_WIDTH_100 = 10;
+const SAMPLE_WORKSPACE = '/tmp/sample-workspace' as t.StringDir;
 
 describe('WorkspaceRun.parallel reporter', () => {
-  it('formats a deterministic progress frame with counts and running packages', () => {
-    const frame = Cli.stripAnsi(formatParallelProgress({
-      runnableTotal: 10,
-      passed: 2,
-      skipped: 1,
-      blocked: 0,
-      blockedRunnable: 0,
-      failed: 0,
-      pending: 6,
-      running: [
-        { path: 'code/sys.driver/driver-vite', elapsed: 65_000 },
-        { path: 'code/sys/workspace', elapsed: 2_000 },
-      ],
-      completed: [
-        { kind: 'passed', path: 'code/sys/types', elapsed: 112 },
-        { kind: 'skipped', path: 'code/without-test' },
-      ],
-      terminal: false,
-      width: 100,
-    }));
+  describe('formatParallelProgress', () => {
+    describe('status row', () => {
+      it('keeps semantic cells on a single row when width allows', () => {
+        const frame = Cli.stripAnsi(formatParallelProgress({
+          runnableTotal: 10,
+          passed: 2,
+          skipped: 1,
+          blocked: 0,
+          blockedRunnable: 0,
+          failed: 0,
+          pending: 6,
+          running: [],
+          terminal: false,
+          width: 100,
+        }));
 
-    const lines = frame.split('\n');
+        expect(frame).to.eql(
+          '✓ 2/10 passed   ⦿ running 0   ◦ pending 6   · skipped 1   ⊘ blocked 0   ✕ failed 0',
+        );
+      });
 
-    expect(lines[0]).to.eql(
-      '✓ 2/10 passed   ⦿ running 2   ◦ pending 6   · skipped 1   ⊘ blocked 0   ✕ failed 0',
-    );
-    expect(lines[2]).to.eql('  testing (--schedule=topological)');
-    expect(frame.includes('code/sys.driver/driver-vite')).to.eql(true);
+      it('wraps status row at cell boundaries with exact continuation indentation', () => {
+        const frame = Cli.stripAnsi(formatParallelProgress({
+          runnableTotal: 51,
+          passed: 40,
+          skipped: 0,
+          blocked: 0,
+          blockedRunnable: 0,
+          failed: 0,
+          pending: 9,
+          running: [
+            { path: 'sample/pkg-running-alpha', elapsed: 60_000 },
+            { path: 'sample/pkg-running-beta', elapsed: 2_000 },
+          ],
+          elapsed: 162_000,
+          terminal: false,
+          width: 64,
+        }));
+        const lines = frame.split('\n');
 
-    const runningLine = lines[3] ?? '';
-    expect(runningLine.includes('⦿  code/sys.driver/driver-vite')).to.eql(true);
-    expect(runningLine.endsWith(' ')).to.eql(false);
-    expect(Cli.Fmt.Text.visibleWidth(runningLine) < 100).to.eql(true);
-    expect(frame.includes('completed')).to.eql(false);
-    expect(lines.find((line) => line === '━'.repeat(100))).to.eql('━'.repeat(100));
-    expect(frame.includes('✓  code/sys/types')).to.eql(true);
-    expect(frame.includes('·  code/without-test')).to.eql(true);
-  });
+        expect(lines[0]).to.eql(
+          '✓ 40/51 passed   ⦿ running 2   ◦ pending 9   · skipped 0',
+        );
+        expect(lines[1]).to.eql('                 ⊘ blocked 0   ✕ failed 0');
+        expect(lines[3]).to.eql('  testing (--schedule=topological) · 2.7m elapsed');
+        expect(lines.every((line) => !line.endsWith(' '))).to.eql(true);
+      });
 
-  it('formats elapsed context only after one second', () => {
-    expect(contextLine(999)).to.eql('  testing (--schedule=topological)');
-    expect(contextLine(2_100)).to.eql('  testing (--schedule=topological) · 2s elapsed');
-    expect(contextLine(126_000)).to.eql('  testing (--schedule=topological) · 2.1m elapsed');
-  });
+      it('indents wrapped status rows under spinner-prefixed metric columns', () => {
+        const frame = Cli.stripAnsi(formatParallelProgress({
+          runnableTotal: 51,
+          passed: 40,
+          skipped: 0,
+          blocked: 0,
+          blockedRunnable: 0,
+          failed: 0,
+          pending: 9,
+          running: [],
+          terminal: true,
+          width: 66,
+        }));
+        const lines = frame.split('\n');
 
-  it('caps completed packages at five rows and summarizes overflow', () => {
-    const frame = Cli.stripAnsi(formatParallelProgress({
-      runnableTotal: 20,
-      passed: 12,
-      skipped: 0,
-      blocked: 0,
-      blockedRunnable: 0,
-      failed: 0,
-      pending: 8,
-      running: [],
-      completed: [
-        { kind: 'passed', path: 'code/pkg-01', elapsed: 1 },
-        { kind: 'passed', path: 'code/pkg-02', elapsed: 1 },
-        { kind: 'passed', path: 'code/pkg-03', elapsed: 1 },
-        { kind: 'passed', path: 'code/pkg-04', elapsed: 1 },
-        { kind: 'passed', path: 'code/pkg-05', elapsed: 1 },
-        { kind: 'passed', path: 'code/pkg-06', elapsed: 1 },
-        { kind: 'passed', path: 'code/pkg-07', elapsed: 1 },
-        { kind: 'passed', path: 'code/pkg-08', elapsed: 1 },
-        { kind: 'passed', path: 'code/pkg-09', elapsed: 1 },
-        { kind: 'passed', path: 'code/pkg-10', elapsed: 1 },
-        { kind: 'passed', path: 'code/pkg-11', elapsed: 1 },
-        { kind: 'passed', path: 'code/pkg-12', elapsed: 1 },
-      ],
-      terminal: false,
-      width: 100,
-    }));
+        expect(lines[0]).to.eql(
+          '✓ 40/51 passed   ⦿ running 0   ◦ pending 9   · skipped 0',
+        );
+        expect(lines[1]).to.eql('                   ⊘ blocked 0   ✕ failed 0');
+      });
 
-    expect(frame.includes('✓  code/pkg-10')).to.eql(true);
-    expect(frame.includes('✓  code/pkg-11')).to.eql(false);
-    expect(frame.includes('...and 2 more')).to.eql(true);
-  });
+      it('uses runnable packages for passed denominator and progress', () => {
+        const skipped = Cli.stripAnsi(formatParallelProgress({
+          runnableTotal: 8,
+          passed: 2,
+          skipped: 2,
+          blocked: 0,
+          blockedRunnable: 0,
+          failed: 0,
+          pending: 6,
+          running: [],
+          terminal: false,
+          width: 100,
+        }));
+        const blocked = Cli.stripAnsi(formatParallelProgress({
+          runnableTotal: 5,
+          passed: 2,
+          skipped: 1,
+          blocked: 3,
+          blockedRunnable: 2,
+          failed: 1,
+          pending: 0,
+          running: [],
+          terminal: false,
+          width: 100,
+        }));
 
-  it('colors completed overflow count by hidden item severity', () => {
-    const green = overflowLine(completedOverflowFrame(['passed', 'passed']));
-    const yellow = overflowLine(completedOverflowFrame(['passed', 'blocked']));
-    const red = overflowLine(completedOverflowFrame(['passed', 'failed']));
-
-    expect(Cli.stripAnsi(green).trim()).to.eql('...and 2 more');
-    expect(green).to.eql(overflowLabel(c.green(c.italic('2'))));
-
-    expect(Cli.stripAnsi(yellow).trim()).to.eql('...and 2 more');
-    expect(yellow).to.eql(overflowLabel(c.yellow(c.italic('2'))));
-
-    expect(Cli.stripAnsi(red).trim()).to.eql('...and 2 more');
-    expect(red).to.eql(overflowLabel(c.red(c.italic('2'))));
-  });
-
-  it('colors the completed progress rule by completed item severity', () => {
-    const track = c.gray('━'.repeat(20));
-    expect(completedRuleLine('passed')).to.eql(c.green('━'.repeat(20)) + track);
-    expect(completedRuleLine('blocked')).to.eql(c.yellow('━'.repeat(20)) + track);
-    expect(completedRuleLine('failed')).to.eql(c.red('━'.repeat(20)) + track);
-  });
-
-  it('uses runnable packages for passed denominator and progress', () => {
-    const skipped = Cli.stripAnsi(formatParallelProgress({
-      runnableTotal: 8,
-      passed: 2,
-      skipped: 2,
-      blocked: 0,
-      blockedRunnable: 0,
-      failed: 0,
-      pending: 6,
-      running: [],
-      terminal: false,
-      width: 100,
-    }));
-    const blocked = Cli.stripAnsi(formatParallelProgress({
-      runnableTotal: 5,
-      passed: 2,
-      skipped: 1,
-      blocked: 3,
-      blockedRunnable: 2,
-      failed: 1,
-      pending: 0,
-      running: [],
-      terminal: false,
-      width: 100,
-    }));
-
-    expect(skipped.split('\n')[0]).to.eql(
-      '✓ 2/8 passed   ⦿ running 0   ◦ pending 6   · skipped 2   ⊘ blocked 0   ✕ failed 0',
-    );
-    expect(skipped.includes('2/8 passed')).to.eql(true);
-    expect(skipped.includes('skipped 2')).to.eql(true);
-    expect(blocked.split('\n')[0]).to.eql(
-      '✓ 2/5 passed   ⦿ running 0   ◦ pending 0   · skipped 1   ⊘ blocked 3   ✕ failed 1',
-    );
-    expect(blocked.includes('2/5 passed')).to.eql(true);
-    expect(blocked.includes('blocked 3')).to.eql(true);
-  });
-
-  it('formats aligned intro lines', () => {
-    expect(Cli.stripAnsi(formatIntroLine('workspace graph', 'loading snapshot'))).to.eql(
-      'workspace graph  →  loading snapshot',
-    );
-    expect(Cli.stripAnsi(formatIntroLine('workspace test', '51 packages ordered'))).to.eql(
-      'workspace test   →  51 packages ordered',
-    );
-  });
-
-  it('prints a plain deterministic header outside TTY contexts', () => {
-    const lines: string[] = [];
-    const reporter = createParallelReporter({
-      task: 'test',
-      jobs: 4,
-      runnablePaths: ['code/a', 'code/b'],
-      terminal: false,
-      write: (line) => lines.push(line),
+        expect(skipped.split('\n')[0]).to.eql(
+          '✓ 2/8 passed   ⦿ running 0   ◦ pending 6   · skipped 2   ⊘ blocked 0   ✕ failed 0',
+        );
+        expect(skipped.includes('2/8 passed')).to.eql(true);
+        expect(skipped.includes('skipped 2')).to.eql(true);
+        expect(blocked.split('\n')[0]).to.eql(
+          '✓ 2/5 passed   ⦿ running 0   ◦ pending 0   · skipped 1   ⊘ blocked 3   ✕ failed 1',
+        );
+        expect(blocked.includes('2/5 passed')).to.eql(true);
+        expect(blocked.includes('blocked 3')).to.eql(true);
+      });
     });
 
-    reporter.start();
-    reporter.event({ kind: 'start', path: 'code/a' });
-    reporter.event({ kind: 'finish', path: 'code/a', result: ran('code/a') });
-    reporter.event({ kind: 'done', result: result([ran('code/a')]) });
+    describe('running context', () => {
+      it('renders sample running package rows without trailing spaces', () => {
+        const frame = Cli.stripAnsi(formatParallelProgress({
+          runnableTotal: 10,
+          passed: 2,
+          skipped: 1,
+          blocked: 0,
+          blockedRunnable: 0,
+          failed: 0,
+          pending: 6,
+          running: [
+            { path: 'sample/pkg-running-alpha', elapsed: 65_000 },
+            { path: 'sample/pkg-running-beta', elapsed: 2_000 },
+          ],
+          terminal: false,
+          width: 100,
+        }));
+        const lines = frame.split('\n');
+        const runningLine = lines[3] ?? '';
 
-    expect(lines.map((line) => Cli.stripAnsi(line))).to.eql([
-      'workspace test   →  strategy parallel, jobs 4',
-    ]);
-  });
+        expect(lines[0]).to.eql(
+          '✓ 2/10 passed   ⦿ running 2   ◦ pending 6   · skipped 1   ⊘ blocked 0   ✕ failed 0',
+        );
+        expect(lines[2]).to.eql('  testing (--schedule=topological)');
+        expect(frame.includes('sample/pkg-running-alpha')).to.eql(true);
+        expect(runningLine.includes('⦿  sample/pkg-running-alpha')).to.eql(true);
+        expect(runningLine.endsWith(' ')).to.eql(false);
+        expect(Cli.Fmt.Text.visibleWidth(runningLine) < 100).to.eql(true);
+      });
 
-  it('prints grouped buffered output for failed packages', () => {
-    const lines: string[] = [];
-    const reporter = createParallelReporter({
-      task: 'test',
-      jobs: 2,
-      runnablePaths: ['code/a'],
-      terminal: false,
-      write: (line) => lines.push(line),
+      it('formats elapsed context only after one second', () => {
+        expect(contextLine(999)).to.eql('  testing (--schedule=topological)');
+        expect(contextLine(2_100)).to.eql('  testing (--schedule=topological) · 2s elapsed');
+        expect(contextLine(126_000)).to.eql('  testing (--schedule=topological) · 2.1m elapsed');
+      });
     });
-    const fail = ran('code/a', false, { stdout: 'hello\n', stderr: 'boom\n' });
 
-    reporter.start();
-    reporter.event({ kind: 'start', path: 'code/a' });
-    reporter.event({ kind: 'finish', path: 'code/a', result: fail });
-    reporter.event({ kind: 'done', result: result([fail], fail) });
+    describe('completed rows', () => {
+      it('renders sample completed rows without a section heading', () => {
+        const frame = Cli.stripAnsi(formatParallelProgress({
+          runnableTotal: 10,
+          passed: 2,
+          skipped: 1,
+          blocked: 0,
+          blockedRunnable: 0,
+          failed: 0,
+          pending: 6,
+          running: [],
+          completed: [
+            { kind: 'passed', path: 'sample/pkg-passed', elapsed: 112 },
+            { kind: 'skipped', path: 'sample/pkg-skipped' },
+          ],
+          terminal: false,
+          width: 100,
+        }));
+        const lines = frame.split('\n');
 
-    const text = Cli.stripAnsi(lines.join('\n'));
-    expect(text.includes('workspace test   →  strategy parallel, jobs 2')).to.eql(true);
-    expect(text.includes('Failed package output')).to.eql(true);
-    expect(text.includes('✕ code/a exit 1')).to.eql(true);
-    expect(text.includes('stdout')).to.eql(true);
-    expect(text.includes('hello')).to.eql(true);
-    expect(text.includes('stderr')).to.eql(true);
-    expect(text.includes('boom')).to.eql(true);
+        expect(frame.includes('completed')).to.eql(false);
+        expect(lines.find((line) => line === '━'.repeat(100))).to.eql('━'.repeat(100));
+        expect(frame.includes('✓  sample/pkg-passed')).to.eql(true);
+        expect(frame.includes('·  sample/pkg-skipped')).to.eql(true);
+      });
+
+      it('caps completed packages at five rows and summarizes overflow', () => {
+        const frame = Cli.stripAnsi(formatParallelProgress({
+          runnableTotal: 20,
+          passed: 12,
+          skipped: 0,
+          blocked: 0,
+          blockedRunnable: 0,
+          failed: 0,
+          pending: 8,
+          running: [],
+          completed: [
+            { kind: 'passed', path: 'sample/pkg-01', elapsed: 1 },
+            { kind: 'passed', path: 'sample/pkg-02', elapsed: 1 },
+            { kind: 'passed', path: 'sample/pkg-03', elapsed: 1 },
+            { kind: 'passed', path: 'sample/pkg-04', elapsed: 1 },
+            { kind: 'passed', path: 'sample/pkg-05', elapsed: 1 },
+            { kind: 'passed', path: 'sample/pkg-06', elapsed: 1 },
+            { kind: 'passed', path: 'sample/pkg-07', elapsed: 1 },
+            { kind: 'passed', path: 'sample/pkg-08', elapsed: 1 },
+            { kind: 'passed', path: 'sample/pkg-09', elapsed: 1 },
+            { kind: 'passed', path: 'sample/pkg-10', elapsed: 1 },
+            { kind: 'passed', path: 'sample/pkg-11', elapsed: 1 },
+            { kind: 'passed', path: 'sample/pkg-12', elapsed: 1 },
+          ],
+          terminal: false,
+          width: 100,
+        }));
+
+        expect(frame.includes('✓  sample/pkg-10')).to.eql(true);
+        expect(frame.includes('✓  sample/pkg-11')).to.eql(false);
+        expect(frame.includes('...and 2 more')).to.eql(true);
+      });
+
+      it('colors completed overflow count by hidden item severity', () => {
+        const green = overflowLine(completedOverflowFrame(['passed', 'passed']));
+        const yellow = overflowLine(completedOverflowFrame(['passed', 'blocked']));
+        const red = overflowLine(completedOverflowFrame(['passed', 'failed']));
+
+        expect(Cli.stripAnsi(green).trim()).to.eql('...and 2 more');
+        expect(green).to.eql(overflowLabel(c.green(c.italic('2'))));
+
+        expect(Cli.stripAnsi(yellow).trim()).to.eql('...and 2 more');
+        expect(yellow).to.eql(overflowLabel(c.yellow(c.italic('2'))));
+
+        expect(Cli.stripAnsi(red).trim()).to.eql('...and 2 more');
+        expect(red).to.eql(overflowLabel(c.red(c.italic('2'))));
+      });
+
+      it('colors the completed progress rule by completed item severity', () => {
+        const track = c.gray('━'.repeat(20));
+        expect(completedRuleLine('passed')).to.eql(c.green('━'.repeat(20)) + track);
+        expect(completedRuleLine('blocked')).to.eql(c.yellow('━'.repeat(20)) + track);
+        expect(completedRuleLine('failed')).to.eql(c.red('━'.repeat(20)) + track);
+      });
+    });
   });
 
-  it('formats no failed output when buffered streams are empty', () => {
-    const fail = ran('code/a', false);
-    expect(formatFailedOutput(result([fail], fail))).to.eql('');
+  describe('formatIntroLine', () => {
+    it('formats aligned intro lines', () => {
+      expect(Cli.stripAnsi(formatIntroLine('workspace graph', 'loading snapshot'))).to.eql(
+        'workspace graph  →  loading snapshot',
+      );
+      expect(Cli.stripAnsi(formatIntroLine('workspace test', '51 packages ordered'))).to.eql(
+        'workspace test   →  51 packages ordered',
+      );
+    });
+  });
+
+  describe('createParallelReporter', () => {
+    it('prints a plain deterministic header outside TTY contexts', () => {
+      const lines: string[] = [];
+      const reporter = createParallelReporter({
+        task: 'test',
+        jobs: 4,
+        runnablePaths: ['sample/pkg-a', 'sample/pkg-b'],
+        terminal: false,
+        write: (line) => lines.push(line),
+      });
+
+      reporter.start();
+      reporter.event({ kind: 'start', path: 'sample/pkg-a' });
+      reporter.event({ kind: 'finish', path: 'sample/pkg-a', result: ran('sample/pkg-a') });
+      reporter.event({ kind: 'done', result: result([ran('sample/pkg-a')]) });
+
+      expect(lines.map((line) => Cli.stripAnsi(line))).to.eql([
+        'workspace test   →  strategy parallel, jobs 4',
+      ]);
+    });
+
+    it('prints grouped buffered output for failed packages', () => {
+      const lines: string[] = [];
+      const reporter = createParallelReporter({
+        task: 'test',
+        jobs: 2,
+        runnablePaths: ['sample/pkg-fails'],
+        terminal: false,
+        write: (line) => lines.push(line),
+      });
+      const fail = ran('sample/pkg-fails', false, {
+        stdout: 'sample stdout\n',
+        stderr: 'sample stderr\n',
+      });
+
+      reporter.start();
+      reporter.event({ kind: 'start', path: 'sample/pkg-fails' });
+      reporter.event({ kind: 'finish', path: 'sample/pkg-fails', result: fail });
+      reporter.event({ kind: 'done', result: result([fail], fail) });
+
+      const text = Cli.stripAnsi(lines.join('\n'));
+      expect(text.includes('workspace test   →  strategy parallel, jobs 2')).to.eql(true);
+      expect(text.includes('Failed package output')).to.eql(true);
+      expect(text.includes('✕ sample/pkg-fails exit 1')).to.eql(true);
+      expect(text.includes('stdout')).to.eql(true);
+      expect(text.includes('sample stdout')).to.eql(true);
+      expect(text.includes('stderr')).to.eql(true);
+      expect(text.includes('sample stderr')).to.eql(true);
+    });
+  });
+
+  describe('formatFailedOutput', () => {
+    it('formats no failed output when buffered streams are empty', () => {
+      const fail = ran('sample/pkg-fails', false);
+      expect(formatFailedOutput(result([fail], fail))).to.eql('');
+    });
   });
 });
 
@@ -215,7 +315,7 @@ function contextLine(elapsed: t.Msecs) {
     blockedRunnable: 0,
     failed: 0,
     pending: 8,
-    running: [{ path: 'code/sys/std', elapsed: 1_000 }],
+    running: [{ path: 'sample/pkg-running-alpha', elapsed: 1_000 }],
     elapsed,
     terminal: false,
     width: 100,
@@ -243,7 +343,7 @@ function completedOverflowFrame(hiddenKinds: readonly CompletedKind[]) {
     pending: 0,
     running: [],
     completed: kinds.map((kind, index) => {
-      const path = `code/pkg-${String(index + 1).padStart(2, '0')}`;
+      const path = `sample/pkg-${String(index + 1).padStart(2, '0')}`;
       return { kind, path, elapsed: 1 };
     }),
     terminal: false,
@@ -276,7 +376,7 @@ function completedRuleLine(kind: CompletedKind) {
     failed,
     pending: 1,
     running: [],
-    completed: [{ kind, path: `code/${kind}`, elapsed: 1 }],
+    completed: [{ kind, path: `sample/pkg-${kind}`, elapsed: 1 }],
     terminal: false,
     width: 40,
   });
@@ -305,7 +405,7 @@ function result(
 ): t.WorkspaceRun.Result {
   const base = {
     task: 'test' as const,
-    cwd: '/tmp/workspace' as t.StringDir,
+    cwd: SAMPLE_WORKSPACE,
     elapsed: 1,
     orderedPaths: packages.map((item) => item.path),
     packages,
