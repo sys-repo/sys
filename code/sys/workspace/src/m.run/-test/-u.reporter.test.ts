@@ -146,6 +146,29 @@ describe('WorkspaceRun.parallel reporter', () => {
         expect(Cli.Fmt.Text.visibleWidth(runningLine) < 100).to.eql(true);
       });
 
+      it('keeps active row seconds under one minute and decimal minutes from one minute', () => {
+        const frame = Cli.stripAnsi(formatParallelProgress({
+          runnableTotal: 10,
+          passed: 2,
+          skipped: 1,
+          blocked: 0,
+          blockedRunnable: 0,
+          failed: 0,
+          pending: 6,
+          running: [
+            { path: 'sample/pkg-under-minute', elapsed: 27_000 },
+            { path: 'sample/pkg-one-minute', elapsed: 60_000 },
+            { path: 'sample/pkg-over-minute', elapsed: 78_000 },
+          ],
+          terminal: false,
+          width: 160,
+        }));
+
+        expect(frame.includes('⦿  sample/pkg-under-minute 27s')).to.eql(true);
+        expect(frame.includes('⦿  sample/pkg-one-minute 1.0m')).to.eql(true);
+        expect(frame.includes('⦿  sample/pkg-over-minute 1.3m')).to.eql(true);
+      });
+
       it('formats elapsed context only after one second', () => {
         expect(contextLine(999)).to.eql('  testing (--schedule=topological)');
         expect(contextLine(2_100)).to.eql('  testing (--schedule=topological) · 2s elapsed');

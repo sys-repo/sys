@@ -73,6 +73,7 @@ type ReporterState = {
 const GRID_GUTTER = '      ';
 const STATUS_GUTTER = '   ';
 const SPINNER_PREFIX_WIDTH = Cli.Fmt.Text.visibleWidth('⠧ ');
+const MINUTE = Time.Date.MINUTE;
 
 /** Create a reporter that renders parallel test progress from scheduler events. */
 export function createParallelReporter(args: ParallelReporterArgs): ParallelReporter {
@@ -279,8 +280,14 @@ const wrangle = {
 
   progressElapsed(elapsed?: t.Msecs) {
     if (elapsed === undefined || elapsed < 1000) return '';
-    if (elapsed < 60_000) return Time.duration(elapsed).format('s');
+    if (elapsed < MINUTE) return Time.duration(elapsed).format('s');
     return Time.duration(elapsed).format({ unit: 'm', round: 1 });
+  },
+
+  runningElapsed(elapsed: t.Msecs) {
+    if (elapsed < MINUTE) return Time.duration(elapsed).toString();
+    const minutes = Num.round(elapsed / MINUTE, 1);
+    return `${minutes.toFixed(1)}m`;
   },
 
   contextLine(elapsed: string, width: number) {
@@ -435,7 +442,7 @@ const wrangle = {
   },
 
   runningCell(item: ParallelProgressRunning, width: number, terminal?: boolean) {
-    const elapsed = Time.duration(item.elapsed).toString();
+    const elapsed = wrangle.runningElapsed(item.elapsed);
     const elapsedWidth = Cli.Fmt.Text.visibleWidth(elapsed);
     const pathWidth = Num.clamp(8, width - 4, width - elapsedWidth - 4);
     const path = Cli.Fmt.Path.tty(item.path, {
