@@ -151,6 +151,14 @@ describe('WorkspaceRun.parallel reporter', () => {
         expect(contextLine(2_100)).to.eql('  testing (--schedule=topological) · 2s elapsed');
         expect(contextLine(126_000)).to.eql('  testing (--schedule=topological) · 2.1m elapsed');
       });
+
+      it('drops schedule from elapsed context before terminal wrapping', () => {
+        const line = contextLine(57_000, 40);
+
+        expect(line).to.eql('  testing · 57s elapsed');
+        expect(Cli.Fmt.Text.visibleWidth(line) <= 40).to.eql(true);
+        expect(line.endsWith(' ')).to.eql(false);
+      });
     });
 
     describe('completed rows', () => {
@@ -306,7 +314,7 @@ describe('WorkspaceRun.parallel reporter', () => {
   });
 });
 
-function contextLine(elapsed: t.Msecs) {
+function contextLine(elapsed: t.Msecs, width = 100) {
   const frame = formatParallelProgress({
     runnableTotal: 10,
     passed: 2,
@@ -318,9 +326,9 @@ function contextLine(elapsed: t.Msecs) {
     running: [{ path: 'sample/pkg-running-alpha', elapsed: 1_000 }],
     elapsed,
     terminal: false,
-    width: 100,
+    width,
   });
-  return Cli.stripAnsi(frame).split('\n')[2] ?? '';
+  return Cli.stripAnsi(frame).split('\n').find((line) => line.startsWith('  testing')) ?? '';
 }
 
 function completedOverflowFrame(hiddenKinds: readonly CompletedKind[]) {

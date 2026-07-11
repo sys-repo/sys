@@ -149,11 +149,7 @@ export function formatParallelProgress(args: ParallelProgressFormatArgs): string
   if (width > 0 && args.running.length > 0) {
     const running = wrangle.runningGrid(args.running, width, args.terminal);
     if (running) {
-      const context = [c.gray('testing'), c.dim(c.gray('(--schedule=topological)'))].join(' ');
-      const elapsedSuffix = elapsed
-        ? ` ${c.gray('·')} ${c.gray(c.italic(`${elapsed} elapsed`))}`
-        : '';
-      sections.push(`  ${context}${elapsedSuffix}\n${running}`);
+      sections.push(`${wrangle.contextLine(elapsed, width)}\n${running}`);
     }
   }
 
@@ -285,6 +281,19 @@ const wrangle = {
     if (elapsed === undefined || elapsed < 1000) return '';
     if (elapsed < 60_000) return Time.duration(elapsed).format('s');
     return Time.duration(elapsed).format({ unit: 'm', round: 1 });
+  },
+
+  contextLine(elapsed: string, width: number) {
+    const label = c.gray('testing');
+    const schedule = c.dim(c.gray('(--schedule=topological)'));
+    const elapsedSuffix = elapsed
+      ? ` ${c.gray('·')} ${c.gray(c.italic(`${elapsed} elapsed`))}`
+      : '';
+    const full = `  ${label} ${schedule}${elapsedSuffix}`;
+    const compact = elapsed ? `  ${label}${elapsedSuffix}` : `  ${label}`;
+    const bare = `  ${label}`;
+    const variants = [full, compact, bare];
+    return variants.find((line) => Cli.Fmt.Text.visibleWidth(line) <= width) ?? bare;
   },
 
   statusRows(summary: string, metrics: readonly string[], width: number, terminal?: boolean) {
