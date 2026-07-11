@@ -155,3 +155,66 @@ export declare namespace WorkspaceRun {
     };
   }
 }
+
+/**
+ * Completion-hang diagnostics for process-owning workspace run callers.
+ */
+export declare namespace CompletionHang {
+  /** Runtime surface for warning when a completed run leaves the process alive. */
+  export type Lib = {
+    /** Arm a one-shot post-completion hang warning. */
+    armWarning(input: ArmInput): Armed;
+    /** Format a post-completion hang warning. */
+    formatWarning(input: FormatInput): string;
+  };
+
+  /** Input for arming a post-completion hang warning. */
+  export type ArmInput = FormatInput & {
+    /** Output sink for the warning. Defaults to `console.info`. */
+    readonly write?: (text: string) => void;
+    /** Timer dependencies for tests and runtime adaptation. */
+    readonly deps?: Deps;
+  };
+
+  /** Input for formatting a post-completion hang warning. */
+  export type FormatInput = {
+    /** Completed workspace run result. */
+    readonly result: WorkspaceRun.Result;
+    /** Run strategy context when known by the process-owning caller. */
+    readonly strategy?: StrategyContext;
+    /** Delay before the warning is emitted. */
+    readonly delay?: t.Msecs;
+    /** Optional package identity context keyed by workspace path. */
+    readonly packages?: readonly PackageContext[];
+    /** Maximum number of package rows to include. */
+    readonly contextLimit?: number;
+  };
+
+  /** Strategy context rendered in the warning. */
+  export type StrategyContext = WorkspaceRun.Test.Strategy | {
+    readonly kind: 'parallel';
+    readonly jobs: number;
+  };
+
+  /** Optional package identity context for warning rows. */
+  export type PackageContext = {
+    readonly path: t.StringPath;
+    readonly name?: string;
+  };
+
+  /** Armed warning handle. */
+  export type Armed = {
+    /** Cancel the pending warning. */
+    readonly cancel: () => void;
+  };
+
+  /** Timer dependencies used by the warning arm. */
+  export type Deps = {
+    /** Schedule the one-shot warning callback. */
+    readonly setTimeout: (fn: () => void, delay: number) => number;
+    /** Clear a scheduled warning callback. */
+    readonly clearTimeout: (id: number) => void;
+    /** Release the timer from process-liveness retention. */
+    readonly unrefTimer: (id: number) => void;
+  };
+}
