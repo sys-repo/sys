@@ -66,7 +66,7 @@
     "@sys/ui-components/react/key-value": "jsr:@sys/ui-components@0.0.312/react/key-value",
     "@sys/ui-components/react/object-view": "jsr:@sys/ui-components@0.0.312/react/object-view",
     "react-icons/md": "npm:react-icons@5.7.0/md",
-    "vite": "npm:vite@8.1.3",
+    "vite": "npm:vite@8.1.4",
     "@sys/ui-components/react/splash": "jsr:@sys/ui-components@0.0.312/react/splash",
     "@sys/ui-dev/react/devharness": "jsr:@sys/ui-dev@0.0.343/react/devharness",
     "@sys/ui-dev/react/devharness/t": "jsr:@sys/ui-dev@0.0.343/react/devharness/t"

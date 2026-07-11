@@ -29,6 +29,9 @@ jobs:
       max-parallel: 4
       matrix:
         include:
+          - name: "@sys/ui-components"
+            path: "code/sys.ui/ui-components"
+            version: "0.0.313"
           - name: "@sys/workspace"
             path: "code/sys/workspace"
             version: "0.0.135"
@@ -201,9 +204,24 @@ jobs:
       max-parallel: 4
       matrix:
         include:
+          - name: "@sys/driver-automerge"
+            path: "code/sys.driver/driver-automerge"
+            version: "0.0.310"
+          - name: "@sys/driver-stripe"
+            path: "code/sys.driver/driver-stripe"
+            version: "0.0.129"
+          - name: "@sys/ui"
+            path: "code/sys.ui/ui"
+            version: "0.0.21"
           - name: "@sys/driver-deno"
             path: "code/sys.driver/driver-deno"
             version: "0.0.384"
+          - name: "@tdb/data"
+            path: "deploy/@tdb.data"
+            version: "0.0.92"
+          - name: "@tdb/slc-std"
+            path: "deploy/@tdb.slc.std"
+            version: "0.0.135"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
@@ -373,18 +391,27 @@ jobs:
       max-parallel: 4
       matrix:
         include:
+          - name: "@sys/driver-monaco"
+            path: "code/sys.driver/driver-monaco"
+            version: "0.0.272"
+          - name: "@sys/driver-prosemirror"
+            path: "code/sys.driver/driver-prosemirror"
+            version: "0.0.254"
           - name: "@sys/tmpl"
             path: "code/-tmpl"
-            version: "0.0.456"
+            version: "0.0.457"
           - name: "@sys/driver-pi"
             path: "code/sys.driver/driver-pi"
             version: "0.0.117"
           - name: "@sys/driver-vite"
             path: "code/sys.driver/driver-vite"
-            version: "0.0.452"
+            version: "0.0.453"
           - name: "@sys/tools"
             path: "code/sys.tools"
-            version: "0.0.472"
+            version: "0.0.473"
+          - name: "@tdb/edu-slug"
+            path: "deploy/@tdb.edu.slug"
+            version: "0.0.160"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
