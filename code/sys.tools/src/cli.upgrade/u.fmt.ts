@@ -1,4 +1,4 @@
-import { c, Cli, Pkg, pkg, Str, type t } from './common.ts';
+import { c, Cli, Jsr, Pkg, pkg, Str, type t } from './common.ts';
 import { rootAdvisoryPrelude } from './u.advisory.fmt.ts';
 import { StanddownTiming } from './u.standdown.ts';
 import { toVersionState } from './u.versionState.ts';
@@ -150,6 +150,7 @@ export const Fmt = {
 
   versionInfoTable(version: t.UpgradeTool.VersionInfo) {
     const state = displayState(version);
+    const registryUrl = c.gray(c.dim(Jsr.Url.Pkg.web(pkg.name)));
     const str = Str.builder().line(state.title).line();
     const labelWidth = state.rows.reduce((max, row) => Math.max(max, row.label.length), 0);
 
@@ -157,11 +158,12 @@ export const Fmt = {
       str.line(`  ${c.gray(row.label.padEnd(labelWidth))}  ${row.value}`);
     }
 
+    str.line(`  ${registryUrl}`);
     return Str.trimEdgeNewlines(String(str));
   },
 
   localVersionIsMostRecent(_version: t.UpgradeTool.VersionInfo) {
-    return c.gray('No upgrade needed.');
+    return c.gray(c.italic('No upgrade needed.'));
   },
 
   upgradePending(version: t.UpgradeTool.VersionInfo) {

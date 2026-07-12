@@ -41,8 +41,19 @@ describe('cli.upgrade.runUpgrade', () => {
       const plain = events.map((line) => Cli.stripAnsi(line));
       expect(plain[0]).to.include('start:checking latest @sys/tools version...');
       expect(plain[1]).to.eql('stop');
-      expect(plain.some((line) => line.includes('@sys/tools is up to date'))).to.eql(true);
+      const output = plain.join('\n');
+      const statusAt = output.indexOf('@sys/tools is up to date');
+      const currentAt = output.indexOf('  current  0.0.318');
+      const latestAt = output.indexOf('  latest   0.0.318 ✔');
+      const registryUrlAt = output.indexOf('  https://jsr.io/@sys/tools');
+
+      expect(statusAt).to.be.greaterThan(-1);
+      expect(currentAt).to.be.greaterThan(statusAt);
+      expect(latestAt).to.be.greaterThan(currentAt);
+      expect(registryUrlAt).to.be.greaterThan(latestAt);
       expect(plain.some((line) => line.includes('No upgrade needed.'))).to.eql(true);
+      expect(events.join('\n')).to.contain(c.gray(c.dim('https://jsr.io/@sys/tools')));
+      expect(events.join('\n')).to.contain(c.gray(c.italic('No upgrade needed.')));
       expect(prompted).to.eql(false);
       expect(refreshed).to.eql(false);
       expect(advisoryRemote).to.eql('0.0.318');
