@@ -295,7 +295,7 @@ describe('WorkspaceRun.parallel reporter', () => {
       reporter.event({ kind: 'done', result: result([ran('sample/pkg-a')]) });
 
       expect(lines.map((line) => Cli.stripAnsi(line))).to.eql([
-        'workspace test   →  strategy parallel, jobs 4',
+        'workspace test   →  strategy: parallel, 4 jobs (concurrent)',
       ]);
     });
 
@@ -319,7 +319,9 @@ describe('WorkspaceRun.parallel reporter', () => {
       reporter.event({ kind: 'done', result: result([fail], fail) });
 
       const text = Cli.stripAnsi(lines.join('\n'));
-      expect(text.includes('workspace test   →  strategy parallel, jobs 2')).to.eql(true);
+      expect(text.includes('workspace test   →  strategy: parallel, 2 jobs (concurrent)')).to.eql(
+        true,
+      );
       expect(text.includes('Failed package output')).to.eql(true);
       expect(text.includes('✕ sample/pkg-fails exit 1')).to.eql(true);
       expect(text.includes('stdout')).to.eql(true);

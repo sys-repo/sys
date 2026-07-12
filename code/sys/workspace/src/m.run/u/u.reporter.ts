@@ -70,7 +70,10 @@ export function createParallelReporter(args: ParallelReporterArgs): ParallelRepo
   return {
     start() {
       state.write(
-        formatIntroLine(`workspace ${state.task}`, `strategy parallel, jobs ${state.jobs}`),
+        formatIntroLine(
+          `workspace ${state.task}`,
+          `strategy: parallel, ${state.jobs} ${Str.plural(state.jobs, 'job')} (concurrent)`,
+        ),
       );
       if (!state.terminal) return;
       state.write('');
