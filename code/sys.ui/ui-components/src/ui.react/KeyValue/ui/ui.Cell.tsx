@@ -6,6 +6,12 @@ type Base = Pick<
   t.KeyValue.Props,
   'theme' | 'debug' | 'style' | 'mono' | 'truncate' | 'size' | 'enabled'
 >;
+
+export type CellCursor = {
+  readonly current?: boolean;
+  readonly fill?: t.Color.Rgba;
+};
+
 export type CellProps = Base & {
   disabledOpacity?: t.Percent;
   layout: t.KeyValue.Layout;
@@ -14,6 +20,7 @@ export type CellProps = Base & {
   href?: t.KeyValue.Item.Row['href'];
   opacity?: t.Percent; // Final computed opacity for this cell (including any row-level logic).
   userSelect?: t.CssProps['userSelect'];
+  cursor?: CellCursor;
 };
 
 /**
@@ -49,7 +56,7 @@ export const Cell: React.FC<CellProps> = (props) => {
 
   const styles = {
     base: css({
-      backgroundColor: Color.ruby(debug),
+      backgroundColor: props.cursor?.current ? props.cursor.fill : Color.ruby(debug),
       color: theme.fg,
       minWidth: 0,
       fontSize,

@@ -3,7 +3,7 @@ import { css, Reorder as ReorderBase, type t } from '../common.ts';
 import { toNavigationRootProps } from '../m.Cursor/u.navigation.ts';
 import { type Boundary as CursorBoundary } from '../m.Cursor/u.render.ts';
 import { type ReorderModel, sameIds, toReorderChange, toReorderedItems } from '../u/mod.ts';
-import { itemShellClass } from './ui.ItemShell.tsx';
+import { itemShellClass } from '../ui.item/ui.ItemShell.tsx';
 
 type P = {
   dataComponent: string;
@@ -16,7 +16,7 @@ type P = {
   cursorNavigation?: React.KeyboardEventHandler<HTMLElement>;
   cursorCurrentFill: t.Color.Rgba;
   cursorBoundary?: (item: t.KeyValue.Item) => CursorBoundary | undefined;
-  renderItem: (item: t.KeyValue.Item) => t.ReactNode;
+  renderItem: (item: t.KeyValue.Item, cursor?: CursorBoundary) => t.ReactNode;
 };
 
 type ItemId = string;
@@ -82,11 +82,12 @@ export const ReorderList: React.FC<P> = (props) => {
         data-keyvalue-item-boundary={cursor ? 'true' : undefined}
         data-keyvalue-cursor-path={cursor?.encodedPath}
         data-keyvalue-cursor-current={cursor?.current ? 'true' : undefined}
+        data-keyvalue-cursor-current-part={cursor?.currentPart}
         onClick={cursor?.onClick}
         onDragStart={() => onDragStart(id)}
         onDragEnd={() => onDragEnd(id)}
       >
-        {renderItem(item)}
+        {renderItem(item, cursor)}
       </ReorderBase.Item>
     );
   });

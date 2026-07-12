@@ -30,7 +30,7 @@ export type NavigationEvent = Pick<
 export type NavigationIntent = {
   readonly navigation: t.KeyValue.Cursor.NavigationMode;
   readonly key: t.KeyValue.Cursor.NavigationKey;
-  readonly command: t.KeyValue.Cursor.Command<'cursor:next' | 'cursor:previous' | 'cursor:enter' | 'cursor:exit'>;
+  readonly command: t.KeyValue.Cursor.Command<t.KeyValue.Cursor.NavigationCommandName>;
 };
 
 export function entryMode(input?: t.KeyValue.Cursor.Entry): t.KeyValue.Cursor.EntryMode | undefined {
@@ -141,6 +141,8 @@ function commandFromKey(
 ): Pick<NavigationIntent, 'key' | 'command'> | undefined {
   if (key === 'ArrowDown') return { key, command: { name: 'cursor:next', payload: {} } };
   if (key === 'ArrowUp') return { key, command: { name: 'cursor:previous', payload: {} } };
+  if (key === 'ArrowLeft') return { key, command: { name: 'cursor:left', payload: {} } };
+  if (key === 'ArrowRight') return { key, command: { name: 'cursor:right', payload: {} } };
   if (key === 'Enter') return { key, command: { name: 'cursor:enter', payload: {} } };
   if (key === 'Escape') return { key, command: { name: 'cursor:exit', payload: {} } };
   return undefined;

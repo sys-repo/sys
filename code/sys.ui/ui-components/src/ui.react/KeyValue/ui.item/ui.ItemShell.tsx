@@ -56,6 +56,7 @@ export const ItemShell: React.FC<P> = (props) => {
       data-keyvalue-item-boundary={props.cursor ? 'true' : undefined}
       data-keyvalue-cursor-path={props.cursor?.encodedPath}
       data-keyvalue-cursor-current={props.cursor?.current ? 'true' : undefined}
+      data-keyvalue-cursor-current-part={props.cursor?.currentPart}
       onClick={props.cursor?.onClick}
     >
       {props.children}
@@ -76,6 +77,7 @@ export const ProjectionItemShell: React.FC<ProjectionP> = (props) => {
       data-keyvalue-item-boundary={props.cursor ? 'true' : undefined}
       data-keyvalue-cursor-path={props.cursor?.encodedPath}
       data-keyvalue-cursor-current={props.cursor?.current ? 'true' : undefined}
+      data-keyvalue-cursor-current-part={props.cursor?.currentPart}
       onClick={props.cursor?.onClick}
     >
       {props.children}

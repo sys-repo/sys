@@ -7,12 +7,14 @@ export const DataAttr = {
   boundary: 'data-keyvalue-item-boundary',
   cursorPath: 'data-keyvalue-cursor-path',
   current: 'data-keyvalue-cursor-current',
+  currentPart: 'data-keyvalue-cursor-current-part',
 } as const;
 
 export type Boundary = {
   readonly item?: t.KeyValue.Cursor.Item;
   readonly encodedPath?: string;
   readonly current?: boolean;
+  readonly currentPart?: t.KeyValue.Cursor.Part;
   readonly onClick?: React.MouseEventHandler<HTMLElement>;
 };
 
@@ -23,10 +25,15 @@ export function toBoundary(
   model?: t.KeyValue.Cursor.Model,
 ): Boundary {
   const cursorItem = Cursor.scope(items, scopePath).items.find((candidate) => candidate.item === item);
+  const part = model?.current?.part;
+  const pathCurrent = cursorItem ? Obj.Path.eql(model?.current?.path, cursorItem.target.path) : false;
+  const currentPart = pathCurrent && part && cursorItem?.parts.includes(part) ? part : undefined;
+  const current = cursorItem ? Cursor.eql(model?.current, cursorItem.target) || !!currentPart : undefined;
   return {
     item: cursorItem,
     encodedPath: cursorItem ? Obj.Path.encode(cursorItem.target.path) : undefined,
-    current: cursorItem ? Cursor.eql(model?.current, cursorItem.target) : undefined,
+    current,
+    currentPart,
   };
 }
 

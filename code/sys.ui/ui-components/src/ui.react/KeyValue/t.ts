@@ -179,12 +179,14 @@ export declare namespace KeyValue {
   export namespace Cursor {
     /** Public runtime surface for the KeyValue cursor model. */
     export type Lib = {
-      target(path: t.ObjectPath): Target;
+      target(path: t.ObjectPath, part?: Part): Target;
       eql(a?: Target, b?: Target): boolean;
       scope(items: readonly KeyValue.Item[], path?: t.ObjectPath): Scope;
       set(model: Model, items: readonly KeyValue.Item[], target?: Target): Model;
       next(model: Model, items: readonly KeyValue.Item[]): Model;
       previous(model: Model, items: readonly KeyValue.Item[]): Model;
+      left(model: Model, items: readonly KeyValue.Item[]): Model;
+      right(model: Model, items: readonly KeyValue.Item[]): Model;
       enter(model: Model, items: readonly KeyValue.Item[]): Model;
       exit(model: Model): Model;
       apply(model: Model, items: readonly KeyValue.Item[], command: Command): Model;
@@ -212,7 +214,13 @@ export declare namespace KeyValue {
     export type NavigationMode = 'keyboard';
 
     /** Keyboard input that maps to a cursor-navigation command. */
-    export type NavigationKey = 'ArrowUp' | 'ArrowDown' | 'Enter' | 'Escape';
+    export type NavigationKey =
+      | 'ArrowUp'
+      | 'ArrowDown'
+      | 'ArrowLeft'
+      | 'ArrowRight'
+      | 'Enter'
+      | 'Escape';
 
     /** Cursor change emitted by rendered KeyValue cursor inputs. */
     export type Change = EntryChange | NavigationChange;
@@ -234,14 +242,20 @@ export declare namespace KeyValue {
       readonly key: NavigationKey;
       readonly previous: Model;
       readonly next: Model;
-      readonly command: Command<'cursor:next' | 'cursor:previous' | 'cursor:enter' | 'cursor:exit'>;
+      readonly command: Command<NavigationCommandName>;
     };
 
     /** Receives controlled KeyValue cursor changes. */
     export type ChangeHandler = (e: Change) => void;
 
-    /** Stable cursor target for one projected item in a KeyValue item tree. */
-    export type Target = { readonly path: t.ObjectPath };
+    /** Supported row projection lanes for a cursor target. */
+    export type Part = 'key' | 'value';
+
+    /** Stable cursor target for one projected item or item lane in a KeyValue item tree. */
+    export type Target = {
+      readonly path: t.ObjectPath;
+      readonly part?: Part;
+    };
 
     /** Single-cursor model; future multi-target semantics are intentionally outside this model. */
     export type Model = { readonly current?: Target };
@@ -251,6 +265,7 @@ export declare namespace KeyValue {
       readonly target: Target;
       readonly id: string;
       readonly item: KeyValue.Item;
+      readonly parts: readonly Part[];
       readonly enterable: boolean;
     };
 
@@ -261,10 +276,14 @@ export declare namespace KeyValue {
     };
 
     /** Data-only cursor command names. */
-    export type CommandName =
-      | 'cursor:set'
+    export type CommandName = 'cursor:set' | NavigationCommandName;
+
+    /** Data-only cursor-navigation command names. */
+    export type NavigationCommandName =
       | 'cursor:next'
       | 'cursor:previous'
+      | 'cursor:left'
+      | 'cursor:right'
       | 'cursor:enter'
       | 'cursor:exit';
 
@@ -273,6 +292,8 @@ export declare namespace KeyValue {
       readonly 'cursor:set': { readonly target?: Target };
       readonly 'cursor:next': Record<string, never>;
       readonly 'cursor:previous': Record<string, never>;
+      readonly 'cursor:left': Record<string, never>;
+      readonly 'cursor:right': Record<string, never>;
       readonly 'cursor:enter': Record<string, never>;
       readonly 'cursor:exit': Record<string, never>;
     };

@@ -4,8 +4,11 @@ import { type t } from '../common.ts';
 import { toLayout } from '../u/mod.ts';
 import { RowSpaced } from './ui.Row.Spaced.tsx';
 import { RowTable } from './ui.Row.Table.tsx';
+import { type CursorRender } from './u.cursor.ts';
 
-type P = t.KeyValue.ItemProps;
+type P = t.KeyValue.ItemProps & {
+  readonly cursor?: CursorRender;
+};
 
 export const Row: React.FC<P> = (props) => {
   const { item } = props;

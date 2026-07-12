@@ -15,6 +15,7 @@ import {
 import { KeyValue } from '../mod.ts';
 
 const boundarySelector = '[data-keyvalue-item-boundary]';
+const currentSelector = '[data-keyvalue-cursor-current="true"]';
 
 const items: t.KeyValue.Item[] = [
   row('alpha'),
@@ -75,13 +76,71 @@ describe('KeyValue.UI: cursor navigation', () => {
     await Schedule.micro();
   });
 
+  it('navigates key/value cursor lanes from keyboard input', async () => {
+    const changes: t.KeyValue.Cursor.Change[] = [];
+    let current: t.KeyValue.Cursor.Target | undefined;
+
+    const Probe: React.FC = () => {
+      const [model, setModel] = React.useState<t.KeyValue.Cursor.Model>({ current: target('alpha') });
+      current = model.current;
+      return (
+        <KeyValue.UI
+          items={[row('alpha'), row('bravo'), { id: 'title', kind: 'title', v: 'Title' }]}
+          cursor={{
+            model,
+            onChange: (e) => {
+              changes.push(e);
+              setModel(e.next);
+            },
+          }}
+        />
+      );
+    };
+
+    const res = await TestReact.render(<Probe />, { strict: false });
+    const root = firstChild(res.container);
+
+    keydown(root, 'ArrowLeft');
+    await Schedule.micro();
+    expect(current).to.eql({ path: ['alpha'], part: 'key' });
+    expect(currentBoundary(res.container).getAttribute('data-keyvalue-cursor-current-part')).to.eql('key');
+
+    keydown(root, 'ArrowRight');
+    await Schedule.micro();
+    expect(current).to.eql({ path: ['alpha'], part: 'value' });
+    expect(currentBoundary(res.container).getAttribute('data-keyvalue-cursor-current-part')).to.eql('value');
+
+    keydown(root, 'ArrowDown');
+    await Schedule.micro();
+    expect(current).to.eql({ path: ['bravo'], part: 'value' });
+
+    keydown(root, 'ArrowDown');
+    await Schedule.micro();
+    expect(current).to.eql({ path: ['title'] });
+
+    keydown(root, 'Escape');
+    await Schedule.micro();
+    expect(current).to.eql(undefined);
+
+    expect(changes.map((e) => navigationChange(e).command.name)).to.eql([
+      'cursor:left',
+      'cursor:right',
+      'cursor:next',
+      'cursor:next',
+      'cursor:exit',
+    ]);
+
+    act(() => res.dispose());
+    await Schedule.micro();
+  });
+
   it('moves a controlled cursor model through sibling and nested scopes', async () => {
     const changes: t.KeyValue.Cursor.Change[] = [];
-    let current: t.ObjectPath | undefined;
+    let current: t.KeyValue.Cursor.Target | undefined;
 
     const Probe: React.FC = () => {
       const [model, setModel] = React.useState<t.KeyValue.Cursor.Model>({ current: target('group') });
-      current = model.current?.path;
+      current = model.current;
       return (
         <KeyValue.UI
           items={items}
@@ -101,27 +160,35 @@ describe('KeyValue.UI: cursor navigation', () => {
 
     keydown(root, 'Enter');
     await Schedule.micro();
-    expect(current).to.eql(['group', 'bravo.one']);
+    expect(current).to.eql({ path: ['group', 'bravo.one'] });
+
+    keydown(root, 'ArrowRight');
+    await Schedule.micro();
+    expect(current).to.eql({ path: ['group', 'bravo.one'], part: 'value' });
+
+    keydown(root, 'Escape');
+    await Schedule.micro();
+    expect(current).to.eql({ path: ['group', 'bravo.one'] });
 
     keydown(root, 'ArrowDown');
     await Schedule.micro();
-    expect(current).to.eql(['group', 'group.two']);
+    expect(current).to.eql({ path: ['group', 'group.two'] });
 
     keydown(root, 'Enter');
     await Schedule.micro();
-    expect(current).to.eql(['group', 'group.two', 'two.a']);
+    expect(current).to.eql({ path: ['group', 'group.two', 'two.a'] });
 
     keydown(root, 'Escape');
     await Schedule.micro();
-    expect(current).to.eql(['group', 'group.two']);
+    expect(current).to.eql({ path: ['group', 'group.two'] });
 
     keydown(root, 'Escape');
     await Schedule.micro();
-    expect(current).to.eql(['group']);
+    expect(current).to.eql({ path: ['group'] });
 
     keydown(root, 'ArrowDown');
     await Schedule.micro();
-    expect(current).to.eql(['charlie']);
+    expect(current).to.eql({ path: ['charlie'] });
 
     keydown(root, 'Escape');
     await Schedule.micro();
@@ -129,6 +196,8 @@ describe('KeyValue.UI: cursor navigation', () => {
 
     expect(changes.map((e) => navigationChange(e).command.name)).to.eql([
       'cursor:enter',
+      'cursor:right',
+      'cursor:exit',
       'cursor:next',
       'cursor:enter',
       'cursor:exit',
@@ -229,6 +298,10 @@ function firstChild(container: HTMLElement) {
 
 function firstBoundary(container: HTMLElement) {
   return container.querySelector(boundarySelector) as HTMLElement;
+}
+
+function currentBoundary(container: HTMLElement) {
+  return container.querySelector(currentSelector) as HTMLElement;
 }
 
 function keydown(el: EventTarget, key: string, init: KeyboardEventInit = {}) {
