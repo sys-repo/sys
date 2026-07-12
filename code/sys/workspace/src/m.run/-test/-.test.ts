@@ -1,4 +1,4 @@
-import { c, Cli, describe, expect, it, Testing } from '../../-test.ts';
+import { c, Cli, describe, expect, it, type t, Testing } from '../../-test.ts';
 import { WorkspaceRun } from '../mod.ts';
 import { readLog, writeWorkspace } from './u.fixture.ts';
 
@@ -125,6 +125,59 @@ describe('WorkspaceRun', () => {
     expect(formatted.endsWith(Cli.Fmt.hr('green'))).to.eql(true);
   });
 
+  it('formats native test stats only from observed reports', () => {
+    const observed: t.WorkspaceRun.Test.Stats.Observed = {
+      kind: 'observed',
+      capability: 'deno:junit',
+      source: 'junit',
+      tests: 3,
+      failed: 1,
+      failures: 1,
+      errors: 0,
+      skipped: 0,
+      failedCases: [],
+      warnings: [],
+    };
+    const failure = ranPackage('code/pkg-a', false, observed);
+    const result: t.WorkspaceRun.Result = {
+      ok: false,
+      task: 'test',
+      cwd: '/tmp/workspace' as t.StringDir,
+      elapsed: 1,
+      orderedPaths: ['code/pkg-a', 'code/pkg-b', 'code/pkg-c', 'code/pkg-d'],
+      packages: [
+        failure,
+        ranPackage('code/pkg-b', true, {
+          kind: 'unavailable',
+          capability: 'deno:junit',
+          source: 'junit',
+          reason: 'report:missing',
+        }),
+        ranPackage('code/pkg-c', true, {
+          kind: 'unsupported',
+          capability: 'none',
+          reason: 'task:not-native-deno-test',
+        }),
+        { kind: 'skipped', path: 'code/pkg-d', reason: 'task:missing' },
+      ],
+      failure,
+    };
+    const formatted = WorkspaceRun.Fmt.result(result);
+    const text = normalizeSummary(formatted);
+    const rows = Cli.stripAnsi(formatted)
+      .split('\n')
+      .map((line) => line.trim().replace(/\s+/g, ' '));
+
+    expect(text.includes('tests 3')).to.eql(true);
+    expect(text.includes('test failed 1')).to.eql(true);
+    expect(text.includes('reports 1/3 observed, 1 unavailable, 1 unsupported')).to.eql(true);
+    expect(rows.includes('package status elapsed tests failed')).to.eql(true);
+    expect(rows.includes('code/pkg-a failed 1ms 3 1')).to.eql(true);
+    expect(rows.includes('code/pkg-b ok 1ms — —')).to.eql(true);
+    expect(rows.includes('code/pkg-c ok 1ms — —')).to.eql(true);
+    expect(rows.includes('code/pkg-d skipped — — —')).to.eql(true);
+  });
+
   it('formats dry run summary text and cyan task highlight', async () => {
     const fs = await Testing.dir('WorkspaceRun.fmt.dry');
     await writeWorkspace(fs.dir, { failCheck: false });
@@ -206,3 +259,19 @@ describe('WorkspaceRun', () => {
     expect(log).to.eql('check:pkg-a\\ncheck:pkg-b\\n');
   });
 });
+
+function ranPackage(
+  path: t.StringPath,
+  success: boolean,
+  testStats: t.WorkspaceRun.Test.Stats.Result,
+): t.WorkspaceRun.Package.Ran {
+  return {
+    kind: 'ran',
+    path,
+    code: success ? 0 : 1,
+    success,
+    signal: null,
+    elapsed: 1,
+    testStats,
+  };
+}

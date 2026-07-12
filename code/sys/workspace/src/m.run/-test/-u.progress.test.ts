@@ -89,12 +89,38 @@ describe('WorkspaceRun.parallel progress model', () => {
     expect(snapshot.failed).to.eql(1);
     expect(snapshot.completed).to.eql([{ kind: 'failed', path: 'code/a', elapsed: 17 }]);
   });
+
+  it('carries completed package native test stats without changing progress counts', () => {
+    const model = createParallelProgressModel({
+      runnablePaths: ['code/a'],
+      now: () => 0 as t.Msecs,
+    });
+    const stats = observedStats(3, 1);
+
+    model.event({ kind: 'start', path: 'code/a' });
+    model.event({ kind: 'finish', path: 'code/a', result: ran('code/a', false, 17, stats) });
+
+    const snapshot = model.snapshot();
+    expect(snapshot.passed).to.eql(0);
+    expect(snapshot.failed).to.eql(1);
+    expect(snapshot.completed).to.eql([{
+      kind: 'failed',
+      path: 'code/a',
+      elapsed: 17,
+      testStats: stats,
+    }]);
+  });
 });
 
 /**
  * Helpers:
  */
-function ran(path: string, success: boolean, elapsed: number): t.WorkspaceRun.Package.Ran {
+function ran(
+  path: string,
+  success: boolean,
+  elapsed: number,
+  testStats?: t.WorkspaceRun.Test.Stats.Result,
+): t.WorkspaceRun.Package.Ran {
   return {
     kind: 'ran',
     path,
@@ -102,6 +128,22 @@ function ran(path: string, success: boolean, elapsed: number): t.WorkspaceRun.Pa
     success,
     signal: null,
     elapsed,
+    ...(testStats ? { testStats } : {}),
+  };
+}
+
+function observedStats(tests: number, failed: number): t.WorkspaceRun.Test.Stats.Observed {
+  return {
+    kind: 'observed',
+    capability: 'deno:junit',
+    source: 'junit',
+    tests,
+    failed,
+    failures: failed,
+    errors: 0,
+    skipped: 0,
+    failedCases: [],
+    warnings: [],
   };
 }
 

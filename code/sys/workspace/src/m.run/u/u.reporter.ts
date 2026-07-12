@@ -361,11 +361,9 @@ const wrangle = {
 
   completedCell(item: ParallelProgressCompleted, width: number, terminal?: boolean) {
     const mark = wrangle.completedMark(item.kind);
-    const elapsed = item.elapsed === undefined
-      ? ''
-      : ` ${c.gray(Time.duration(item.elapsed).toString())}`;
-    const elapsedWidth = Cli.Fmt.Text.visibleWidth(elapsed);
-    const pathWidth = Num.clamp(8, width - 4, width - elapsedWidth - 4);
+    const suffix = wrangle.completedSuffix(item);
+    const suffixWidth = Cli.Fmt.Text.visibleWidth(suffix);
+    const pathWidth = Num.clamp(8, width - 4, width - suffixWidth - 4);
     const path = Cli.Fmt.Path.tty(item.path, {
       fit: 'width',
       width: pathWidth,
@@ -373,7 +371,23 @@ const wrangle = {
       relative: 'bare',
       terminal,
     });
-    return `${mark}  ${path}${elapsed}`;
+    return `${mark}  ${path}${suffix}`;
+  },
+
+  completedSuffix(item: ParallelProgressCompleted) {
+    const parts: string[] = [];
+    const stats = wrangle.completedStats(item.testStats);
+    if (stats) parts.push(stats);
+    if (item.elapsed !== undefined) parts.push(c.gray(Time.duration(item.elapsed).toString()));
+    return parts.length > 0 ? ` ${parts.join(c.gray(', '))}` : '';
+  },
+
+  completedStats(stats?: t.WorkspaceRun.Test.Stats.Result) {
+    if (!stats) return '';
+    if (stats.kind !== 'observed') return c.gray('—');
+    const tests = c.gray(`${stats.tests} ${Str.plural(stats.tests, 'test')}`);
+    const failed = stats.failed > 0 ? `${c.gray(', ')}${c.red(`${stats.failed} failed`)}` : '';
+    return `${tests}${failed}`;
   },
 
   completedMark(kind: ParallelProgressCompleted['kind']) {

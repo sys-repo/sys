@@ -35,6 +35,7 @@ export type ParallelProgressCompleted = {
   readonly path: t.StringPath;
   readonly kind: 'passed' | 'failed' | 'skipped' | 'blocked';
   readonly elapsed?: t.Msecs;
+  readonly testStats?: t.WorkspaceRun.Test.Stats.Result;
 };
 
 type Running = {
@@ -113,6 +114,7 @@ const wrangle = {
           kind: event.result.success ? 'passed' : 'failed',
           path: event.path,
           elapsed: event.result.elapsed,
+          ...(event.result.testStats ? { testStats: event.result.testStats } : {}),
         });
         return;
       }

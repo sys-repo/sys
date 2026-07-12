@@ -210,6 +210,71 @@ describe('WorkspaceRun.parallel reporter', () => {
         expect(frame.includes('↷  sample/pkg-skipped')).to.eql(true);
       });
 
+      it('renders observed native test stats on completed package rows', () => {
+        const frame = Cli.stripAnsi(formatParallelProgress({
+          runnableTotal: 2,
+          passed: 1,
+          skipped: 0,
+          blocked: 0,
+          blockedRunnable: 0,
+          failed: 1,
+          pending: 0,
+          running: [],
+          completed: [
+            {
+              kind: 'failed',
+              path: 'sample/pkg-failed-tests',
+              elapsed: 112,
+              testStats: {
+                kind: 'observed',
+                capability: 'deno:junit',
+                source: 'junit',
+                tests: 3,
+                failed: 1,
+                failures: 1,
+                errors: 0,
+                skipped: 0,
+                failedCases: [],
+                warnings: [],
+              },
+            },
+            {
+              kind: 'passed',
+              path: 'sample/pkg-passed-tests',
+              elapsed: 112,
+              testStats: {
+                kind: 'observed',
+                capability: 'deno:junit',
+                source: 'junit',
+                tests: 1,
+                failed: 0,
+                failures: 0,
+                errors: 0,
+                skipped: 0,
+                failedCases: [],
+                warnings: [],
+              },
+            },
+            {
+              kind: 'passed',
+              path: 'sample/pkg-unsupported-tests',
+              elapsed: 92,
+              testStats: {
+                kind: 'unsupported',
+                capability: 'none',
+                reason: 'task:not-native-deno-test',
+              },
+            },
+          ],
+          terminal: false,
+          width: 140,
+        }));
+
+        expect(frame.includes('3 tests, 1 failed, 112ms')).to.eql(true);
+        expect(frame.includes('sample/pkg-passed-tests 1 test, 112ms')).to.eql(true);
+        expect(frame.includes('—, 92ms')).to.eql(true);
+      });
+
       it('caps completed packages at five rows and summarizes overflow', () => {
         const frame = Cli.stripAnsi(formatParallelProgress({
           runnableTotal: 20,

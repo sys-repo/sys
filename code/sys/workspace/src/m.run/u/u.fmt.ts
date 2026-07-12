@@ -29,6 +29,16 @@ export const Fmt: t.WorkspaceRun.Fmt.Lib = {
     if (counts.blocked > 0) rows.push([c.gray('blocked'), c.yellow(String(counts.blocked))]);
     rows.push([c.gray('failed'), counts.failed > 0 ? c.red(String(counts.failed)) : c.gray('0')]);
 
+    const stats = wrangle.testStatsSummary(result);
+    if (stats) {
+      rows.push([c.gray('tests'), wrangle.observedCount(stats.tests, stats.observed)]);
+      rows.push([
+        c.gray('test failed'),
+        wrangle.observedCount(stats.failed, stats.observed, 'red'),
+      ]);
+      rows.push([c.gray('reports'), wrangle.reportsSummary(stats)]);
+    }
+
     const summary = wrangle.indentedTable(rows);
     const str = Str.builder();
     str.line(title);
@@ -53,15 +63,31 @@ export const Fmt: t.WorkspaceRun.Fmt.Lib = {
 
   packages(result) {
     const rows = Cli.table([]);
-    rows.push([c.gray('package'), c.gray('status'), c.gray('elapsed')]);
+    const showStats = wrangle.hasTestStats(result);
+    rows.push([
+      c.gray('package'),
+      c.gray('status'),
+      c.gray('elapsed'),
+      ...(showStats ? [c.gray('tests'), c.gray('failed')] : []),
+    ]);
 
     for (const item of result.packages) {
       if (item.kind === 'skipped') {
-        rows.push([c.gray(item.path), c.yellow('skipped'), c.gray('—')]);
+        rows.push([
+          c.gray(item.path),
+          c.yellow('skipped'),
+          c.gray('—'),
+          ...(showStats ? [c.gray('—'), c.gray('—')] : []),
+        ]);
         continue;
       }
       if (item.kind === 'blocked') {
-        rows.push([c.gray(item.path), c.yellow('blocked'), c.gray('—')]);
+        rows.push([
+          c.gray(item.path),
+          c.yellow('blocked'),
+          c.gray('—'),
+          ...(showStats ? [c.gray('—'), c.gray('—')] : []),
+        ]);
         continue;
       }
 
@@ -69,6 +95,7 @@ export const Fmt: t.WorkspaceRun.Fmt.Lib = {
         c.white(item.path),
         item.success ? c.green('ok') : c.red('failed'),
         c.white(Time.duration(item.elapsed).toString()),
+        ...(showStats ? wrangle.packageStatsCells(item) : []),
       ]);
     }
 
@@ -103,6 +130,15 @@ export function formatFailedOutput(result: t.WorkspaceRun.Result): string {
   return Str.trimEdgeNewlines(String(str));
 }
 
+type TestStatsSummary = {
+  observed: number;
+  unavailable: number;
+  unsupported: number;
+  total: number;
+  tests: number;
+  failed: number;
+};
+
 const wrangle = {
   counts(packages: readonly t.WorkspaceRun.Package.Result[]) {
     return packages.reduce(
@@ -121,6 +157,66 @@ const wrangle = {
     if (task === 'test') return 'tests';
     if (task === 'dry') return 'dry runs';
     return 'checks';
+  },
+
+  hasTestStats(result: t.WorkspaceRun.Result) {
+    return result.task === 'test' && result.packages.some((item) => {
+      return item.kind === 'ran' && item.testStats !== undefined;
+    });
+  },
+
+  testStatsSummary(result: t.WorkspaceRun.Result): TestStatsSummary | undefined {
+    if (!wrangle.hasTestStats(result)) return undefined;
+
+    const summary: TestStatsSummary = {
+      observed: 0,
+      unavailable: 0,
+      unsupported: 0,
+      total: 0,
+      tests: 0,
+      failed: 0,
+    };
+
+    for (const item of result.packages) {
+      if (item.kind !== 'ran' || !item.testStats) continue;
+      summary.total += 1;
+      if (item.testStats.kind === 'observed') {
+        summary.observed += 1;
+        summary.tests += item.testStats.tests;
+        summary.failed += item.testStats.failed;
+      } else if (item.testStats.kind === 'unavailable') {
+        summary.unavailable += 1;
+      } else {
+        summary.unsupported += 1;
+      }
+    }
+
+    return summary;
+  },
+
+  observedCount(value: number, observed: number, color?: 'red') {
+    if (observed < 1) return c.gray('—');
+    if (color === 'red' && value > 0) return c.red(String(value));
+    return value > 0 ? c.white(String(value)) : c.gray('0');
+  },
+
+  reportsSummary(stats: TestStatsSummary) {
+    const parts = [`${stats.observed}/${stats.total} observed`];
+    if (stats.unavailable > 0) parts.push(`${stats.unavailable} unavailable`);
+    if (stats.unsupported > 0) parts.push(`${stats.unsupported} unsupported`);
+    const text = parts.join(', ');
+    if (stats.unavailable > 0) return c.yellow(text);
+    if (stats.unsupported > 0) return c.gray(text);
+    return c.green(text);
+  },
+
+  packageStatsCells(item: t.WorkspaceRun.Package.Ran) {
+    const stats = item.testStats;
+    if (stats?.kind !== 'observed') return [c.gray('—'), c.gray('—')];
+    return [
+      stats.tests > 0 ? c.white(String(stats.tests)) : c.gray('0'),
+      stats.failed > 0 ? c.red(String(stats.failed)) : c.gray('0'),
+    ];
   },
 
   indentedTable(table: ReturnType<typeof Cli.table>) {
