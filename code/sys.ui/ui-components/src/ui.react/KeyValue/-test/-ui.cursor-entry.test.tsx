@@ -1,3 +1,5 @@
+import React from 'react';
+
 import {
   act,
   afterEach,
@@ -10,6 +12,7 @@ import {
   type t,
   TestReact,
 } from '../../../-test.ts';
+import { keydown } from './u.keyboard.ts';
 import { KeyValue } from '../mod.ts';
 
 const boundarySelector = '[data-keyvalue-item-boundary]';
@@ -45,6 +48,67 @@ describe('KeyValue.UI: cursor entry', () => {
     expect(change.target.path).to.eql(['alpha']);
     expect(change.next.current?.path).to.eql(['alpha']);
     expect(change.command).to.eql({ name: 'cursor:set', payload: { target: { path: ['alpha'] } } });
+
+    act(() => res.dispose());
+    await Schedule.micro();
+  });
+
+  it('enters cursor mode from the focused root with Option+Enter', async () => {
+    const changes: t.KeyValue.Cursor.Change[] = [];
+    let current: t.KeyValue.Cursor.Target | undefined;
+
+    const Probe: React.FC = () => {
+      const [model, setModel] = React.useState<t.KeyValue.Cursor.Model>({});
+      current = model.current;
+      return (
+        <KeyValue.UI
+          items={[row('alpha'), row('bravo')]}
+          cursor={{
+            model,
+            onChange: (e) => {
+              changes.push(e);
+              setModel(e.next);
+            },
+          }}
+        />
+      );
+    };
+
+    const res = await TestReact.render(<Probe />, { strict: false });
+    const root = res.container.firstElementChild as HTMLElement;
+    act(() => root.focus());
+
+    const event = keydown(root, 'Enter', { altKey: true });
+    await Schedule.micro();
+
+    expect(event.defaultPrevented).to.eql(true);
+    expect(document.activeElement).to.equal(root);
+    expect(current).to.eql({ path: ['alpha'] });
+    expect(changes.length).to.eql(1);
+    const change = entryChange(changes[0]);
+    expect(change.entry).to.eql('option-enter');
+    expect(change.target).to.eql({ path: ['alpha'] });
+
+    act(() => res.dispose());
+    await Schedule.micro();
+  });
+
+  it('does not enter cursor mode from keyboard when row entry is disabled', async () => {
+    const changes: t.KeyValue.Cursor.Change[] = [];
+    const res = await TestReact.render(
+      <KeyValue.UI
+        items={[row('alpha')]}
+        cursor={{ entry: false, onChange: (e) => changes.push(e) }}
+      />,
+      { strict: false },
+    );
+    const root = res.container.firstElementChild as HTMLElement;
+    act(() => root.focus());
+
+    const event = keydown(root, 'Enter', { altKey: true });
+
+    expect(event.defaultPrevented).to.eql(false);
+    expect(changes.length).to.eql(0);
 
     act(() => res.dispose());
     await Schedule.micro();

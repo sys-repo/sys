@@ -1,6 +1,13 @@
 import React from 'react';
-import { type t, A, Color, css, D, Is } from '../common.ts';
-import { isAnchorElement, resolveHref, toAnchorStyle, toDisplayLabel, toEllipsis, toFont } from '../u/mod.ts';
+import { A, Color, css, D, Is, type t } from '../common.ts';
+import {
+  isAnchorElement,
+  resolveHref,
+  toAnchorStyle,
+  toDisplayLabel,
+  toEllipsis,
+  toFont,
+} from '../u/mod.ts';
 
 type Base = Pick<
   t.KeyValue.Props,
@@ -53,10 +60,11 @@ export const Cell: React.FC<CellProps> = (props) => {
   const theme = Color.theme(props.theme);
   const { fontSize, fontFamily } = toFont({ size, mono });
   const effectiveOpacity = !enabled && isValue ? (opacity ?? 1) * disabledOpacity : (opacity ?? 1);
+  const cursorFill = props.cursor?.current ? (props.cursor.fill ?? Color.ruby(0.2)) : undefined;
 
   const styles = {
     base: css({
-      backgroundColor: props.cursor?.current ? props.cursor.fill : Color.ruby(debug),
+      backgroundColor: cursorFill ?? Color.ruby(debug),
       color: theme.fg,
       minWidth: 0,
       fontSize,
@@ -70,11 +78,11 @@ export const Cell: React.FC<CellProps> = (props) => {
       // JSX <element>'s right-align consistently.
       ...(isSpaced && !isTextChild
         ? {
-            display: 'grid',
-            width: '100%',
-            alignItems: 'center',
-            justifyItems: isKey ? 'start' : 'end',
-          }
+          display: 'grid',
+          width: '100%',
+          alignItems: 'center',
+          justifyItems: isKey ? 'start' : 'end',
+        }
         : {}),
     }),
     asKey: css({ fontFamily: 'sans-serif' }),
@@ -83,22 +91,31 @@ export const Cell: React.FC<CellProps> = (props) => {
 
   const className = css(styles.base, isKey && styles.asKey, props.style).class;
   const label = toDisplayLabel(resolvedHref, child);
-  const content = link ? (
-    <A
-      href={link.href}
-      enabled={enabled}
-      disabledOpacity={false}
-      target={link.target}
-      rel={link.rel}
-      style={styles.anchor}
-    >
-      {label}
-    </A>
-  ) : (
-    label
-  );
+  const content = link
+    ? (
+      <A
+        href={link.href}
+        enabled={enabled}
+        disabledOpacity={false}
+        target={link.target}
+        rel={link.rel}
+        style={styles.anchor}
+      >
+        {label}
+      </A>
+    )
+    : label;
 
-  return <div className={className}>{content}</div>;
+  const cursorStyle = cursorFill ? { backgroundColor: cursorFill } : undefined;
+  return (
+    <div
+      className={className}
+      data-keyvalue-cursor-cell-current={props.cursor?.current ? 'true' : undefined}
+      style={cursorStyle}
+    >
+      {content}
+    </div>
+  );
 };
 
 function toDisabledAnchor(node: React.ReactNode): React.ReactNode {

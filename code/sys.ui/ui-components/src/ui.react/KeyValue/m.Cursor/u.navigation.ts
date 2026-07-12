@@ -1,6 +1,11 @@
 import type React from 'react';
 import { type t } from '../common.ts';
-import { navigationMode, toNavigationChange, toNavigationIntent } from './u.event.ts';
+import {
+  navigationMode,
+  toKeyboardEntryChange,
+  toNavigationChange,
+  toNavigationIntent,
+} from './u.event.ts';
 import { DataAttr } from './u.render.ts';
 
 export type Handler = React.KeyboardEventHandler<HTMLElement>;
@@ -12,7 +17,7 @@ export type HandlerArgs = {
 
 export type RootProps = {
   readonly [DataAttr.root]?: 'true';
-  readonly tabIndex?: -1;
+  readonly tabIndex?: 0;
   readonly onKeyDown?: Handler;
 };
 
@@ -29,8 +34,15 @@ export function toNavigationHandler(args: HandlerArgs): Handler | undefined {
   if (!cursor.onChange) return undefined;
 
   return (event) => {
-    const intent = toNavigationIntent(event, cursor.navigation);
     const model = cursor.model ?? {};
+    const entry = toKeyboardEntryChange({ event, entry: cursor.entry, model, items });
+    if (entry) {
+      event.preventDefault();
+      cursor.onChange?.(entry);
+      return;
+    }
+
+    const intent = toNavigationIntent(event, cursor.navigation);
     if (!intent || !model.current) return;
 
     event.preventDefault();
@@ -43,7 +55,7 @@ export function toNavigationHandler(args: HandlerArgs): Handler | undefined {
 export function toNavigationRootProps(handler?: Handler): RootProps {
   return {
     [DataAttr.root]: handler ? 'true' : undefined,
-    tabIndex: handler ? -1 : undefined,
+    tabIndex: handler ? 0 : undefined,
     onKeyDown: handler,
   };
 }

@@ -18,7 +18,7 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
   const layout = toLayout(props.layout);
   const theme = Color.theme(props.theme);
   const cursorCurrentFill = Color.alpha(theme.fg, 0.06);
-  const cursorPartFill = Color.alpha(theme.fg, 0.1);
+  const cursorPartFill = Color.ruby(0.2);
   const { fontSize, fontFamily } = toFont(props);
 
   const isTable = layout.kind === 'table';

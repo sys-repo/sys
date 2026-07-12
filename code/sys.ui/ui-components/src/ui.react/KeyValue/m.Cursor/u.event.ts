@@ -33,12 +33,21 @@ export type NavigationIntent = {
   readonly command: t.KeyValue.Cursor.Command<t.KeyValue.Cursor.NavigationCommandName>;
 };
 
-export function entryMode(input?: t.KeyValue.Cursor.Entry): t.KeyValue.Cursor.EntryMode | undefined {
+export type KeyboardEntryInput = Extract<
+  t.KeyValue.Cursor.EntryInput,
+  'option-enter' | 'option-arrow-left' | 'option-arrow-right'
+>;
+
+export function entryMode(
+  input?: t.KeyValue.Cursor.Entry,
+): t.KeyValue.Cursor.EntryMode | undefined {
   if (input === false) return undefined;
   return input ?? 'option-click';
 }
 
-export function navigationMode(input?: t.KeyValue.Cursor.Navigation): t.KeyValue.Cursor.NavigationMode | undefined {
+export function navigationMode(
+  input?: t.KeyValue.Cursor.Navigation,
+): t.KeyValue.Cursor.NavigationMode | undefined {
   if (input === false) return undefined;
   return input ?? 'keyboard';
 }
@@ -60,12 +69,12 @@ export function shouldEnter(event: EntryEvent, input?: t.KeyValue.Cursor.Entry):
 }
 
 export function toEntryChange(args: {
-  readonly entry: t.KeyValue.Cursor.EntryMode;
+  readonly entry: t.KeyValue.Cursor.EntryInput;
   readonly model: t.KeyValue.Cursor.Model;
   readonly items: readonly t.KeyValue.Item[];
   readonly target: t.KeyValue.Cursor.Target;
 }): t.KeyValue.Cursor.EntryChange | undefined {
-  const nextTarget = Cursor.target(args.target.path);
+  const nextTarget = Cursor.target(args.target.path, args.target.part);
   const command: t.KeyValue.Cursor.Command<'cursor:set'> = {
     name: 'cursor:set',
     payload: { target: nextTarget },
@@ -78,9 +87,33 @@ export function toEntryChange(args: {
     entry: args.entry,
     previous,
     next,
-    target: Cursor.target(nextTarget.path),
+    target: nextTarget,
     command,
   };
+}
+
+export function toKeyboardEntryChange(args: {
+  readonly event: NavigationEvent;
+  readonly entry?: t.KeyValue.Cursor.Entry;
+  readonly model: t.KeyValue.Cursor.Model;
+  readonly items: readonly t.KeyValue.Item[];
+}): t.KeyValue.Cursor.EntryChange | undefined {
+  if (args.entry === false) return undefined;
+  if (args.event.defaultPrevented) return undefined;
+  if (args.model.current) return undefined;
+  if (isFromInteractiveDescendant(args.event)) return undefined;
+
+  const input = keyboardEntryInput(args.event);
+  if (!input) return undefined;
+
+  const part = input === 'option-arrow-left'
+    ? 'key'
+    : input === 'option-arrow-right'
+    ? 'value'
+    : undefined;
+  const target = firstEntryTarget(args.items, part);
+  if (!target) return undefined;
+  return toEntryChange({ entry: input, model: args.model, items: args.items, target });
 }
 
 export function toNavigationIntent(
@@ -90,7 +123,7 @@ export function toNavigationIntent(
   const mode = navigationMode(input);
   if (!mode) return undefined;
   if (event.defaultPrevented) return undefined;
-  if (isModified(event)) return undefined;
+  if (!isUnmodifiedNavigation(event) && !isOptionLaneNavigation(event)) return undefined;
   if (isFromInteractiveDescendant(event)) return undefined;
 
   const match = commandFromKey(event.key);
@@ -119,8 +152,7 @@ export function toNavigationChange(args: {
 }
 
 function isOptionClick(event: EntryEvent) {
-  const modifiers = Keyboard.modifiers(event);
-  return modifiers.alt && !modifiers.ctrl && !modifiers.meta && !modifiers.shift;
+  return isOptionOnly(Keyboard.modifiers(event));
 }
 
 function isFromNestedBoundary(event: EntryEvent) {
@@ -131,9 +163,36 @@ function isFromNestedBoundary(event: EntryEvent) {
   return !!boundary && boundary !== current;
 }
 
-function isModified(event: NavigationEvent) {
-  const modifiers = Keyboard.modifiers(event);
-  return modifiers.alt || modifiers.ctrl || modifiers.meta || modifiers.shift;
+function keyboardEntryInput(event: NavigationEvent): KeyboardEntryInput | undefined {
+  if (!isOptionOnly(Keyboard.modifiers(event))) return undefined;
+  if (event.key === 'Enter') return 'option-enter';
+  if (event.key === 'ArrowLeft') return 'option-arrow-left';
+  if (event.key === 'ArrowRight') return 'option-arrow-right';
+  return undefined;
+}
+
+function firstEntryTarget(
+  items: readonly t.KeyValue.Item[],
+  part?: t.KeyValue.Cursor.Part,
+): t.KeyValue.Cursor.Target | undefined {
+  const scope = Cursor.scope(items);
+  const item = part ? scope.items.find((item) => item.parts.includes(part)) : scope.items[0];
+  if (!item) return undefined;
+  const currentPart = part && item.parts.includes(part) ? part : undefined;
+  return Cursor.target(item.target.path, currentPart);
+}
+
+function isUnmodifiedNavigation(event: NavigationEvent) {
+  return !Keyboard.Is.modified(Keyboard.modifiers(event));
+}
+
+function isOptionLaneNavigation(event: NavigationEvent) {
+  if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return false;
+  return isOptionOnly(Keyboard.modifiers(event));
+}
+
+function isOptionOnly(modifiers: t.Keyboard.Modifier.Flags) {
+  return modifiers.alt && !modifiers.ctrl && !modifiers.meta && !modifiers.shift;
 }
 
 function commandFromKey(

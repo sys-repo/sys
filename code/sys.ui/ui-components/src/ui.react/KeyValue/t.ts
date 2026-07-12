@@ -175,6 +175,8 @@ export declare namespace KeyValue {
 
   /**
    * Cursor model for command-addressable KeyValue item projections.
+   * This is a controlled visual/navigation cursor, not a complete ARIA grid
+   * contract; consumers still own semantic accessibility around domain workflows.
    */
   export namespace Cursor {
     /** Public runtime surface for the KeyValue cursor model. */
@@ -201,11 +203,27 @@ export declare namespace KeyValue {
       readonly onChange?: ChangeHandler;
     };
 
-    /** Configured cursor-entry behavior. */
+    /**
+     * Configured cursor-entry behavior.
+     * Default entry is Option-click, with keyboard entry available from the
+     * focused cursor root while keyboard navigation is enabled.
+     */
     export type Entry = false | EntryMode;
 
-    /** Enabled cursor-entry gesture. */
+    /** Enabled pointer cursor-entry mode. */
     export type EntryMode = 'option-click' | 'click';
+
+    /**
+     * Cursor-entry input that emitted a controlled entry change.
+     * - `option-enter` enters the first cursor-addressable item.
+     * - `option-arrow-left` enters the first key lane.
+     * - `option-arrow-right` enters the first value lane.
+     */
+    export type EntryInput =
+      | EntryMode
+      | 'option-enter'
+      | 'option-arrow-left'
+      | 'option-arrow-right';
 
     /** Configured cursor-navigation behavior. */
     export type Navigation = false | NavigationMode;
@@ -228,7 +246,7 @@ export declare namespace KeyValue {
     /** Cursor change emitted by a cursor-entry input. */
     export type EntryChange = {
       readonly reason: 'cursor:entry';
-      readonly entry: EntryMode;
+      readonly entry: EntryInput;
       readonly previous: Model;
       readonly next: Model;
       readonly target: Target;

@@ -12,6 +12,7 @@ import {
   type t,
   TestReact,
 } from '../../../-test.ts';
+import { keydown } from './u.keyboard.ts';
 import { KeyValue } from '../mod.ts';
 
 const boundarySelector = '[data-keyvalue-item-boundary]';
@@ -81,7 +82,9 @@ describe('KeyValue.UI: cursor navigation', () => {
     let current: t.KeyValue.Cursor.Target | undefined;
 
     const Probe: React.FC = () => {
-      const [model, setModel] = React.useState<t.KeyValue.Cursor.Model>({ current: target('alpha') });
+      const [model, setModel] = React.useState<t.KeyValue.Cursor.Model>({
+        current: target('alpha'),
+      });
       current = model.current;
       return (
         <KeyValue.UI
@@ -103,12 +106,16 @@ describe('KeyValue.UI: cursor navigation', () => {
     keydown(root, 'ArrowLeft');
     await Schedule.micro();
     expect(current).to.eql({ path: ['alpha'], part: 'key' });
-    expect(currentBoundary(res.container).getAttribute('data-keyvalue-cursor-current-part')).to.eql('key');
+    expect(currentBoundary(res.container).getAttribute('data-keyvalue-cursor-current-part')).to.eql(
+      'key',
+    );
 
     keydown(root, 'ArrowRight');
     await Schedule.micro();
     expect(current).to.eql({ path: ['alpha'], part: 'value' });
-    expect(currentBoundary(res.container).getAttribute('data-keyvalue-cursor-current-part')).to.eql('value');
+    expect(currentBoundary(res.container).getAttribute('data-keyvalue-cursor-current-part')).to.eql(
+      'value',
+    );
 
     keydown(root, 'ArrowDown');
     await Schedule.micro();
@@ -134,12 +141,72 @@ describe('KeyValue.UI: cursor navigation', () => {
     await Schedule.micro();
   });
 
+  it('enters value lane from focused root with Option+ArrowRight, then moves lanes with Option+ArrowLeft', async () => {
+    const changes: t.KeyValue.Cursor.Change[] = [];
+    let current: t.KeyValue.Cursor.Target | undefined;
+
+    const Probe: React.FC = () => {
+      const [model, setModel] = React.useState<t.KeyValue.Cursor.Model>({});
+      current = model.current;
+      return (
+        <KeyValue.UI
+          items={[row('alpha'), row('bravo')]}
+          cursor={{
+            model,
+            onChange: (e) => {
+              changes.push(e);
+              setModel(e.next);
+            },
+          }}
+        />
+      );
+    };
+
+    const res = await TestReact.render(<Probe />, { strict: false });
+    const root = firstChild(res.container);
+    act(() => root.focus());
+
+    const entryEvent = keydown(root, 'ArrowRight', { altKey: true });
+    await Schedule.micro();
+    expect(entryEvent.defaultPrevented).to.eql(true);
+    expect(current).to.eql({ path: ['alpha'], part: 'value' });
+    expect(currentBoundary(res.container).getAttribute('data-keyvalue-cursor-current-part')).to.eql(
+      'value',
+    );
+    expect(currentCells(res.container).value.getAttribute('data-keyvalue-cursor-cell-current')).to
+      .eql('true');
+    expect(currentCells(res.container).key.getAttribute('data-keyvalue-cursor-cell-current')).to
+      .eql(null);
+    expect(visibleBackground(currentCells(res.container).value)).to.eql(true);
+
+    const laneEvent = keydown(root, 'ArrowLeft', { altKey: true });
+    await Schedule.micro();
+    expect(laneEvent.defaultPrevented).to.eql(true);
+    expect(current).to.eql({ path: ['alpha'], part: 'key' });
+    expect(currentBoundary(res.container).getAttribute('data-keyvalue-cursor-current-part')).to.eql(
+      'key',
+    );
+    expect(currentCells(res.container).key.getAttribute('data-keyvalue-cursor-cell-current')).to
+      .eql('true');
+    expect(currentCells(res.container).value.getAttribute('data-keyvalue-cursor-cell-current')).to
+      .eql(null);
+    expect(visibleBackground(currentCells(res.container).key)).to.eql(true);
+
+    expect(entryChange(changes[0]).entry).to.eql('option-arrow-right');
+    expect(navigationChange(changes[1]).command.name).to.eql('cursor:left');
+
+    act(() => res.dispose());
+    await Schedule.micro();
+  });
+
   it('moves a controlled cursor model through sibling and nested scopes', async () => {
     const changes: t.KeyValue.Cursor.Change[] = [];
     let current: t.KeyValue.Cursor.Target | undefined;
 
     const Probe: React.FC = () => {
-      const [model, setModel] = React.useState<t.KeyValue.Cursor.Model>({ current: target('group') });
+      const [model, setModel] = React.useState<t.KeyValue.Cursor.Model>({
+        current: target('group'),
+      });
       current = model.current;
       return (
         <KeyValue.UI
@@ -304,10 +371,21 @@ function currentBoundary(container: HTMLElement) {
   return container.querySelector(currentSelector) as HTMLElement;
 }
 
-function keydown(el: EventTarget, key: string, init: KeyboardEventInit = {}) {
-  const event = DomMock.Keyboard.keydownEvent(key, { bubbles: true, cancelable: true, ...init });
-  act(() => el.dispatchEvent(event));
-  return event;
+function currentCells(container: HTMLElement) {
+  const cells = Array.from(
+    currentBoundary(container).querySelectorAll('[data-keyvalue-cursor-cell-current], div'),
+  )
+    .filter((el) =>
+      el.parentElement?.parentElement === currentBoundary(container)
+    ) as HTMLElement[];
+  return { key: cells[0], value: cells[1] };
+}
+
+function visibleBackground(el: HTMLElement | undefined) {
+  if (!el) return false;
+  const backgroundColor = window.getComputedStyle(el).backgroundColor;
+  return backgroundColor !== '' && backgroundColor !== 'rgba(0, 0, 0, 0)' &&
+    backgroundColor !== 'transparent';
 }
 
 function entryChange(change: t.KeyValue.Cursor.Change | undefined): t.KeyValue.Cursor.EntryChange {
@@ -315,7 +393,9 @@ function entryChange(change: t.KeyValue.Cursor.Change | undefined): t.KeyValue.C
   return change as t.KeyValue.Cursor.EntryChange;
 }
 
-function navigationChange(change: t.KeyValue.Cursor.Change | undefined): t.KeyValue.Cursor.NavigationChange {
+function navigationChange(
+  change: t.KeyValue.Cursor.Change | undefined,
+): t.KeyValue.Cursor.NavigationChange {
   expect(change?.reason).to.eql('cursor:navigation');
   return change as t.KeyValue.Cursor.NavigationChange;
 }

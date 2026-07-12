@@ -111,9 +111,10 @@ describe('KeyValue/t', () => {
         name: 'cursor:set',
         payload: { target },
       };
+      const entry = 'option-enter' satisfies t.KeyValue.Cursor.EntryInput;
       const change: t.KeyValue.Cursor.EntryChange = {
         reason: 'cursor:entry',
-        entry: 'option-click',
+        entry,
         previous: {},
         next: model,
         target,

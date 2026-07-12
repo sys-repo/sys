@@ -223,6 +223,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
           if (!next) p.cursorModel.value = {};
         }}
       />
+      {p.cursor.value && (
+        <div className={Styles.note.class}>
+          {'Option-click a row, or focus the table and press Option+Enter. Use Option+←/→ for key/value lanes; ↑/↓ moves; Enter enters groups; Esc exits.'}
+        </div>
+      )}
       <hr />
       <LayoutButtons debug={debug} theme={theme.name} />
       <hr style={{ marginTop: 15 }} />

@@ -12,6 +12,7 @@ import {
   type t,
   TestReact,
 } from '../../../-test.ts';
+import { keydown } from './u.keyboard.ts';
 import { KeyValue } from '../mod.ts';
 
 const currentSelector = '[data-keyvalue-cursor-current="true"]';
@@ -108,12 +109,6 @@ function target(...path: t.ObjectPath): t.KeyValue.Cursor.Target {
 
 function currentPaths(container: HTMLElement) {
   return Array.from(container.querySelectorAll(currentSelector)).map((el) =>
-    el.getAttribute('data-keyvalue-cursor-path'),
+    el.getAttribute('data-keyvalue-cursor-path')
   );
-}
-
-function keydown(el: EventTarget, key: string, init: KeyboardEventInit = {}) {
-  const event = DomMock.Keyboard.keydownEvent(key, { bubbles: true, cancelable: true, ...init });
-  act(() => el.dispatchEvent(event));
-  return event;
 }
