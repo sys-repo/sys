@@ -79,3 +79,30 @@ sections:
       - |-
           Speedup removes artificial idle time but is bounded by the slowest
           critical path.
+
+  - label: Native test telemetry
+    items:
+      - |-
+          Package scheduler truth is primary: runnable, running, passed, failed,
+          skipped, blocked, and elapsed package state comes from @sys/workspace
+          scheduler events.
+      - |-
+          Native Deno test counts are optional final report facts collected for
+          simple `deno test ...` package tasks through additive JUnit reports.
+      - |-
+          Deno does not expose a stable structured live test-case event stream;
+          live rows must not invent current test-case progress from pretty output.
+      - |-
+          Report facts are capability-tagged as observed, unavailable, or
+          unsupported. Unsupported composite or no-op package tasks are still
+          successful package runs when their process succeeds.
+      - |-
+          `—` means no native test count was observed or applicable for that
+          package; it is not zero tests.
+      - |-
+          Package process status remains authoritative for success and failure;
+          parsed report facts must not override the child process result.
+      - |-
+          JUnit artifacts are written under a run-scoped temporary directory and
+          cleaned best-effort after parsing; cleanup failure must not fail an
+          otherwise valid package run.

@@ -53,6 +53,7 @@ describe('WorkspaceHelp', () => {
       'Flag boundary',
       'Scheduler truth',
       'Output and speed',
+      'Native test telemetry',
     ]);
     expect(chapter.chapters).to.eql([]);
   });
