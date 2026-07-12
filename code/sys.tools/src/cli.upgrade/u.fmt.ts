@@ -15,13 +15,17 @@ type DisplayState = { readonly title: string; readonly rows: readonly DisplayRow
 
 function displayState(version: t.UpgradeTool.VersionInfo): DisplayState {
   const state = toVersionState(version);
-  const upgrade = state.actionable ?? version.latest;
+  const installable = state.actionable ?? version.latest;
 
   if (state.upgradeAvailable) {
-    const rows: DisplayRow[] = [{ label: 'current', value: c.gray(version.local) }];
-    if (version.remote !== upgrade) rows.push({ label: 'latest', value: latestValue(version, state) });
-    rows.push({ label: 'upgrade', value: g(upgrade) });
-    return { title: w(`${pkg.name} upgrade available`), rows };
+    return {
+      title: w(`${pkg.name} upgrade available`),
+      rows: [
+        { label: 'current', value: c.gray(version.local) },
+        { label: 'published', value: publishedValue(version, state) },
+        { label: 'installable', value: g(installable) },
+      ],
+    };
   }
 
   if (state.pending) {
@@ -29,7 +33,8 @@ function displayState(version: t.UpgradeTool.VersionInfo): DisplayState {
       title: w(`${pkg.name} upgrade standing down`),
       rows: [
         { label: 'current', value: c.gray(version.local) },
-        { label: 'latest', value: w(version.remote) },
+        { label: 'published', value: w(version.remote) },
+        { label: 'installable', value: c.gray(c.italic('none yet')) },
       ],
     };
   }
@@ -39,7 +44,8 @@ function displayState(version: t.UpgradeTool.VersionInfo): DisplayState {
       title: w(`${pkg.name} upgrade check unavailable`),
       rows: [
         { label: 'current', value: c.gray(version.local) },
-        { label: 'latest', value: w(version.remote) },
+        { label: 'published', value: w(version.remote) },
+        { label: 'installable', value: c.gray(c.italic('unknown')) },
       ],
     };
   }
@@ -48,12 +54,12 @@ function displayState(version: t.UpgradeTool.VersionInfo): DisplayState {
     title: w(`${pkg.name} is up to date`),
     rows: [
       { label: 'current', value: g(version.local) },
-      { label: 'latest', value: g(`${version.remote} ✔`) },
+      { label: 'published', value: g(`${version.remote} ✔`) },
     ],
   };
 }
 
-function latestValue(
+function publishedValue(
   version: t.UpgradeTool.VersionInfo,
   state: t.UpgradeTool.VersionState,
 ): string {
@@ -174,7 +180,7 @@ export const Fmt = {
       const waiting = `${StanddownTiming.formatWait(state.minimumDependencyAgeStanddown?.remaining)}.`;
       str.line(c.gray(c.italic(waiting)));
     } else {
-      str.line(c.gray('Latest published version is not currently actionable.'));
+      str.line(c.gray('Published version is not currently installable.'));
     }
 
     return str.toString();

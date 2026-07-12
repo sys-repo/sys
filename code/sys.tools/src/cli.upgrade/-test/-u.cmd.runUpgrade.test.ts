@@ -43,14 +43,14 @@ describe('cli.upgrade.runUpgrade', () => {
       expect(plain[1]).to.eql('stop');
       const output = plain.join('\n');
       const statusAt = output.indexOf('@sys/tools is up to date');
-      const currentAt = output.indexOf('  current  0.0.318');
-      const latestAt = output.indexOf('  latest   0.0.318 ✔');
+      const currentAt = output.indexOf('  current    0.0.318');
+      const publishedAt = output.indexOf('  published  0.0.318 ✔');
       const registryUrlAt = output.indexOf('  https://jsr.io/@sys/tools');
 
       expect(statusAt).to.be.greaterThan(-1);
       expect(currentAt).to.be.greaterThan(statusAt);
-      expect(latestAt).to.be.greaterThan(currentAt);
-      expect(registryUrlAt).to.be.greaterThan(latestAt);
+      expect(publishedAt).to.be.greaterThan(currentAt);
+      expect(registryUrlAt).to.be.greaterThan(publishedAt);
       expect(plain.some((line) => line.includes('No upgrade needed.'))).to.eql(true);
       expect(events.join('\n')).to.contain(c.gray(c.dim('https://jsr.io/@sys/tools')));
       expect(events.join('\n')).to.contain(c.gray(c.italic('No upgrade needed.')));
@@ -299,8 +299,8 @@ describe('cli.upgrade.runUpgrade', () => {
         '(exit)',
       ]);
       expect(output).to.contain('@sys/tools upgrade available');
-      expect(output).to.contain('latest   0.0.464  — minimum dependency age window clears in 21h');
-      expect(output).to.contain('upgrade  0.0.463');
+      expect(output).to.contain('published    0.0.464  — minimum dependency age window clears in 21h');
+      expect(output).to.contain('installable  0.0.463');
       expect(output).to.not.contain('upgrade standing down');
     });
 
@@ -385,8 +385,9 @@ describe('cli.upgrade.runUpgrade', () => {
       expect(refreshed).to.eql(false);
       expect(prompted).to.eql(false);
       expect(plain.some((line) => line.includes('@sys/tools upgrade standing down'))).to.eql(true);
-      expect(plain.some((line) => line.includes('current  0.0.318'))).to.eql(true);
-      expect(plain.some((line) => line.includes('latest   0.0.319'))).to.eql(true);
+      expect(plain.some((line) => line.includes('current      0.0.318'))).to.eql(true);
+      expect(plain.some((line) => line.includes('published    0.0.319'))).to.eql(true);
+      expect(plain.some((line) => line.includes('installable  none yet'))).to.eql(true);
       expect(plain.join('\n')).to.not.contain('held at');
       expect(plain.join('\n')).to.not.contain('Deno is not allowing this upgrade yet.');
       expect(plain.some((line) =>
@@ -436,7 +437,7 @@ describe('cli.upgrade.runUpgrade', () => {
       const output = events.map((line) => Cli.stripAnsi(line)).join('\n');
       expect(refreshed).to.eql(false);
       expect(prompted).to.eql(false);
-      expect(output).to.contain('Latest published version is not currently actionable.');
+      expect(output).to.contain('Published version is not currently installable.');
       expect(output).to.not.contain('minimum dependency age window');
     });
 
