@@ -91,7 +91,9 @@ describe('WorkspaceRun.parallel progress model', () => {
   });
 });
 
-/** Helpers: */
+/**
+ * Helpers:
+ */
 function ran(path: string, success: boolean, elapsed: number): t.WorkspaceRun.Package.Ran {
   return {
     kind: 'ran',

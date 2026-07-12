@@ -87,7 +87,9 @@ export function createParallelProgressModel(
   };
 }
 
-/** Helpers: */
+/**
+ * Helpers:
+ */
 const wrangle = {
   event(state: ProgressState, event: ParallelRunEvent) {
     switch (event.kind) {

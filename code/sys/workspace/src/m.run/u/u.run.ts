@@ -6,6 +6,7 @@ import { createRunPlan } from './u.plan.ts';
 import { createParallelReporter } from './u.reporter.ts';
 import { runParallel } from './u.run.parallel.ts';
 import { runSequential } from './u.run.sequential.ts';
+import { createNativeTestStatsRun } from './u.testStats.ts';
 import { resolveCommand } from './u.worker.ts';
 
 export function runTask(
@@ -28,21 +29,34 @@ export async function runTask(
     formatIntroLine(`workspace ${task}`, `${plan.orderedPaths.length} packages ordered`),
   );
 
-  if (task === 'test' && isParallel(args)) {
-    const jobs = resolveJobs({ jobs: args.strategy.jobs });
-    const runnablePaths = plan.candidates
-      .filter((candidate) => resolveCommand(candidate.deno, task))
-      .map((candidate) => candidate.dir);
-    const reporter = createParallelReporter({ task, jobs, runnablePaths });
-    reporter.start();
-    try {
-      return await runParallel({ cwd, task, plan, jobs, startedAt, onEvent: reporter.event });
-    } finally {
-      reporter.stop();
+  const testStats = task === 'test' ? await createNativeTestStatsRun() : undefined;
+  try {
+    if (task === 'test' && isParallel(args)) {
+      const jobs = resolveJobs({ jobs: args.strategy.jobs });
+      const runnablePaths = plan.candidates
+        .filter((candidate) => resolveCommand(candidate.deno, task))
+        .map((candidate) => candidate.dir);
+      const reporter = createParallelReporter({ task, jobs, runnablePaths });
+      reporter.start();
+      try {
+        return await runParallel({
+          cwd,
+          task,
+          plan,
+          jobs,
+          startedAt,
+          onEvent: reporter.event,
+          testStats,
+        });
+      } finally {
+        reporter.stop();
+      }
     }
-  }
 
-  return await runSequential({ cwd, task, plan, startedAt });
+    return await runSequential({ cwd, task, plan, startedAt, testStats });
+  } finally {
+    await testStats?.cleanup();
+  }
 }
 
 /**

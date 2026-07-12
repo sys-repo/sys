@@ -49,6 +49,83 @@ export declare namespace WorkspaceRun {
     /** Workspace package execution strategy for test runs. */
     export type Strategy = Strategy.Sequential | Strategy.Parallel;
 
+    /** Native test-runner stats collected after a package test run. */
+    export namespace Stats {
+      /** Capability-tagged package-level native stats result. */
+      export type Result = Observed | Unavailable | Unsupported;
+
+      /** Native stats capability currently supported by the workspace runner. */
+      export type Capability = 'deno:junit';
+
+      /** Structured stats source for observed native test facts. */
+      export type Source = 'junit';
+
+      /** Final native facts observed from a structured report. */
+      export type Observed = {
+        readonly kind: 'observed';
+        readonly capability: Capability;
+        readonly source: Source;
+        /** Number of observed JUnit testcase elements. */
+        readonly tests: number;
+        /** Failed native test cases, including both failures and errors. */
+        readonly failed: number;
+        /** Native test cases with JUnit failure elements. */
+        readonly failures: number;
+        /** Native test cases with JUnit error elements. */
+        readonly errors: number;
+        /** Native test cases with JUnit skipped elements. */
+        readonly skipped: number;
+        /** Sum of testcase durations when reported by the source artifact. */
+        readonly duration?: t.Msecs;
+        /** Failed native test case identities when reported by the source artifact. */
+        readonly failedCases: readonly FailedCase[];
+        /** Non-fatal parser warnings for lossy or inconsistent report data. */
+        readonly warnings: readonly string[];
+      };
+
+      /** One failed native testcase identity from a structured report. */
+      export type FailedCase = {
+        readonly kind: 'failure' | 'error';
+        readonly name: string;
+        readonly className?: string;
+        readonly message?: string;
+      };
+
+      /** Stats collection was applicable but the report could not be observed. */
+      export type Unavailable = {
+        readonly kind: 'unavailable';
+        readonly capability: Capability;
+        readonly source: Source;
+        readonly reason: UnavailableReason;
+        readonly message?: string;
+      };
+
+      /** Stats collection was not safe or meaningful for this package task shape. */
+      export type Unsupported = {
+        readonly kind: 'unsupported';
+        readonly capability: 'none';
+        readonly reason: UnsupportedReason;
+        readonly command?: string;
+      };
+
+      /** Why an otherwise supported native stats source was unavailable. */
+      export type UnavailableReason =
+        | 'temp:create-failed'
+        | 'report:missing'
+        | 'report:read-failed'
+        | 'report:parse-failed';
+
+      /** Why a package task was not instrumented for native stats. */
+      export type UnsupportedReason =
+        | 'task:empty'
+        | 'task:parse-failed'
+        | 'task:composite'
+        | 'task:not-native-deno-test'
+        | 'task:existing-junit-path'
+        | 'task:unsupported-args'
+        | 'command:not-deno-task';
+    }
+
     /** Test execution strategy contracts. */
     export namespace Strategy {
       /** Baseline graph-order runner with inherited child stdio and immediate fail-fast. */
@@ -101,6 +178,8 @@ export declare namespace WorkspaceRun {
       readonly stdout?: string;
       /** Captured stderr for buffered runners. Undefined when stdio is inherited. */
       readonly stderr?: string;
+      /** Native Deno test stats for package test tasks when collection was attempted. */
+      readonly testStats?: WorkspaceRun.Test.Stats.Result;
     };
 
     /** Package skipped because the canonical task is not declared. */

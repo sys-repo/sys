@@ -1,5 +1,6 @@
 import { Arr, Err, Num, Obj, type t, Time } from '../common.ts';
 import type { RunCandidate, RunPlan } from './u.plan.ts';
+import type { NativeTestStatsRun } from './u.testStats.ts';
 import { type PackageCommand, type PackageWorker, resolveCommand, runPackage } from './u.worker.ts';
 
 export type ParallelRunArgs = {
@@ -10,6 +11,7 @@ export type ParallelRunArgs = {
   readonly startedAt: t.Msecs;
   readonly worker?: PackageWorker;
   readonly onEvent?: ParallelRunEventHandler;
+  readonly testStats?: NativeTestStatsRun;
 };
 
 export type ParallelRunEventHandler = (event: ParallelRunEvent) => void;
@@ -83,7 +85,9 @@ export async function runParallel(args: ParallelRunArgs): Promise<t.WorkspaceRun
   return result;
 }
 
-/** Helpers: */
+/**
+ * Helpers:
+ */
 const wrangle = {
   bufferedWorker(args: Parameters<PackageWorker>[0]) {
     return runPackage({ ...args, stdio: 'buffered' });
@@ -176,7 +180,13 @@ const wrangle = {
       args.onEvent?.({ kind: 'start', path });
       state.running.set(
         path,
-        worker({ cwd: args.cwd, task: args.task, candidate, command }).then((result) => ({
+        worker({
+          cwd: args.cwd,
+          task: args.task,
+          candidate,
+          command,
+          testStats: args.testStats,
+        }).then((result) => ({
           path,
           result: result.path === path ? result : { ...result, path },
         })),

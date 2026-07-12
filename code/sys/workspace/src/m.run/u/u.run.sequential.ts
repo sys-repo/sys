@@ -1,5 +1,6 @@
 import { Arr, Obj, Str, type t, Time } from '../common.ts';
 import type { RunPlan } from './u.plan.ts';
+import type { NativeTestStatsRun } from './u.testStats.ts';
 import { resolveCommand, runPackage } from './u.worker.ts';
 
 export type SequentialRunArgs = {
@@ -7,6 +8,7 @@ export type SequentialRunArgs = {
   readonly task: t.WorkspaceRun.Task;
   readonly plan: RunPlan;
   readonly startedAt: t.Msecs;
+  readonly testStats?: NativeTestStatsRun;
 };
 
 /**
@@ -30,7 +32,14 @@ export async function runSequential(args: SequentialRunArgs): Promise<t.Workspac
       workspace ${task} → ${candidate.dir}
     `));
 
-    const ran = await runPackage({ cwd, task, candidate, command, stdio: 'inherit' });
+    const ran = await runPackage({
+      cwd,
+      task,
+      candidate,
+      command,
+      stdio: 'inherit',
+      testStats: args.testStats,
+    });
 
     packages.push(Obj.clone(ran));
     if (!ran.success) {

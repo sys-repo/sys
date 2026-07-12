@@ -1,5 +1,6 @@
 import { Fs, Is, Num, Obj, Process, type t, Time } from '../common.ts';
 import type { RunCandidate } from './u.plan.ts';
+import type { NativeTestStatsRun, PreparedNativeTestStats } from './u.testStats.ts';
 
 export type PackageCommand = {
   readonly cmd: string;
@@ -11,6 +12,7 @@ export type PackageWorkerArgs = {
   readonly task: t.WorkspaceRun.Task;
   readonly candidate: RunCandidate;
   readonly command: PackageCommand;
+  readonly testStats?: NativeTestStatsRun;
 };
 
 export type PackageWorker = (
@@ -35,26 +37,35 @@ export function resolveCommand(
 export async function runPackage(args: PackageRunArgs): Promise<t.WorkspaceRun.Package.Ran> {
   const packageStartedAt = Time.now.timestamp;
   const cwd = Fs.join(args.cwd, args.candidate.dir);
+  const stats = args.task === 'test'
+    ? args.testStats?.prepare({
+      task: args.task,
+      packagePath: args.candidate.dir,
+      deno: args.candidate.deno,
+      command: args.command,
+    })
+    : undefined;
+  const packageCommand = stats?.command ?? args.command;
   const command = {
     cwd,
-    cmd: args.command.cmd,
-    args: [...args.command.args],
+    cmd: packageCommand.cmd,
+    args: [...packageCommand.args],
   };
 
   if (args.stdio === 'inherit') {
     const output = await Process.inherit(command);
-    return {
+    return await wrangle.withStats(stats, {
       kind: 'ran',
       path: args.candidate.dir,
       code: output.code,
       success: output.success,
       signal: output.signal,
       elapsed: Time.now.timestamp - packageStartedAt,
-    };
+    });
   }
 
   const output = await Process.invoke({ ...command, silent: true });
-  return {
+  return await wrangle.withStats(stats, {
     kind: 'ran',
     path: args.candidate.dir,
     code: output.code,
@@ -63,10 +74,22 @@ export async function runPackage(args: PackageRunArgs): Promise<t.WorkspaceRun.P
     elapsed: Time.now.timestamp - packageStartedAt,
     stdout: output.text.stdout,
     stderr: output.text.stderr,
-  };
+  });
 }
 
-/** Helpers: */
+/**
+ * Helpers:
+ */
+const wrangle = {
+  async withStats(
+    stats: PreparedNativeTestStats | undefined,
+    ran: t.WorkspaceRun.Package.Ran,
+  ): Promise<t.WorkspaceRun.Package.Ran> {
+    if (!stats) return ran;
+    return { ...ran, testStats: await stats.collect() };
+  },
+} as const;
+
 function hasTask(deno: Record<string, unknown>, task: t.WorkspaceRun.Task) {
   const tasks = deno.tasks;
   if (!Obj.isRecord(tasks)) return false;
