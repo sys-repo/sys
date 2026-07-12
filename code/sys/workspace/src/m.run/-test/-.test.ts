@@ -174,7 +174,9 @@ describe('WorkspaceRun', () => {
     expect(rows.includes('package status elapsed tests failed')).to.eql(true);
     expect(rows.includes('code/pkg-a failed 1ms 10,136 1,000')).to.eql(true);
     expect(rows.includes('code/pkg-b ok 1ms — —')).to.eql(true);
-    expect(rows.includes('code/pkg-c ok 1ms — —')).to.eql(true);
+    expect(rows.includes('code/pkg-c')).to.eql(true);
+    expect(rows.includes('code/pkg-c ok 1ms — —')).to.eql(false);
+    expect(formatted.includes(c.gray('code/pkg-c'))).to.eql(true);
     expect(rows.includes('code/pkg-d skipped — — —')).to.eql(true);
   });
 

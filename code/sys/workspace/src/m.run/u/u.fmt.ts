@@ -99,6 +99,11 @@ export const Fmt: t.WorkspaceRun.Fmt.Lib = {
         continue;
       }
 
+      if (wrangle.isQuietUnsupportedReport(item, showStats)) {
+        rows.push([c.gray(item.path)]);
+        continue;
+      }
+
       rows.push([
         c.white(item.path),
         item.success ? c.green('ok') : c.red('failed'),
@@ -231,6 +236,10 @@ const wrangle = {
       stats.tests > 0 ? c.white(wrangle.displayNumber(stats.tests)) : c.gray('0'),
       stats.failed > 0 ? c.red(wrangle.displayNumber(stats.failed)) : c.gray('0'),
     ];
+  },
+
+  isQuietUnsupportedReport(item: t.WorkspaceRun.Package.Ran, showStats: boolean) {
+    return showStats && item.success && item.testStats?.kind === 'unsupported';
   },
 
   displayNumber(value: number) {
