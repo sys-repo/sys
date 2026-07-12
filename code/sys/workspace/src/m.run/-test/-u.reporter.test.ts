@@ -25,7 +25,7 @@ describe('WorkspaceRun.parallel reporter', () => {
         }));
 
         expect(frame).to.eql(
-          '✓ 2/10 passed   ⦿ running 0   ◦ pending 6   · skipped 1   ⊘ blocked 0   ✕ failed 0',
+          '✓ 2/10 passed   ⦿ running 0   ○ pending 6   ↷ skipped 1   ⊘ blocked 0   ✕ failed 0',
         );
       });
 
@@ -49,7 +49,7 @@ describe('WorkspaceRun.parallel reporter', () => {
         const lines = frame.split('\n');
 
         expect(lines[0]).to.eql(
-          '✓ 40/51 passed   ⦿ running 2   ◦ pending 9   · skipped 0',
+          '✓ 40/51 passed   ⦿ running 2   ○ pending 9   ↷ skipped 0',
         );
         expect(lines[1]).to.eql('                 ⊘ blocked 0   ✕ failed 0');
         expect(lines[3]).to.eql('  testing (--schedule=topological) · 2.7m elapsed');
@@ -72,7 +72,7 @@ describe('WorkspaceRun.parallel reporter', () => {
         const lines = frame.split('\n');
 
         expect(lines[0]).to.eql(
-          '✓ 40/51 passed   ⦿ running 0   ◦ pending 9   · skipped 0',
+          '✓ 40/51 passed   ⦿ running 0   ○ pending 9   ↷ skipped 0',
         );
         expect(lines[1]).to.eql('                   ⊘ blocked 0   ✕ failed 0');
       });
@@ -104,12 +104,12 @@ describe('WorkspaceRun.parallel reporter', () => {
         }));
 
         expect(skipped.split('\n')[0]).to.eql(
-          '✓ 2/8 passed   ⦿ running 0   ◦ pending 6   · skipped 2   ⊘ blocked 0   ✕ failed 0',
+          '✓ 2/8 passed   ⦿ running 0   ○ pending 6   ↷ skipped 2   ⊘ blocked 0   ✕ failed 0',
         );
         expect(skipped.includes('2/8 passed')).to.eql(true);
         expect(skipped.includes('skipped 2')).to.eql(true);
         expect(blocked.split('\n')[0]).to.eql(
-          '✓ 2/5 passed   ⦿ running 0   ◦ pending 0   · skipped 1   ⊘ blocked 3   ✕ failed 1',
+          '✓ 2/5 passed   ⦿ running 0   ○ pending 0   ↷ skipped 1   ⊘ blocked 3   ✕ failed 1',
         );
         expect(blocked.includes('2/5 passed')).to.eql(true);
         expect(blocked.includes('blocked 3')).to.eql(true);
@@ -137,7 +137,7 @@ describe('WorkspaceRun.parallel reporter', () => {
         const runningLine = lines[3] ?? '';
 
         expect(lines[0]).to.eql(
-          '✓ 2/10 passed   ⦿ running 2   ◦ pending 6   · skipped 1   ⊘ blocked 0   ✕ failed 0',
+          '✓ 2/10 passed   ⦿ running 2   ○ pending 6   ↷ skipped 1   ⊘ blocked 0   ✕ failed 0',
         );
         expect(lines[2]).to.eql('  testing (--schedule=topological)');
         expect(frame.includes('sample/pkg-running-alpha')).to.eql(true);
@@ -207,7 +207,7 @@ describe('WorkspaceRun.parallel reporter', () => {
         expect(frame.includes('completed')).to.eql(false);
         expect(lines.find((line) => line === '━'.repeat(100))).to.eql('━'.repeat(100));
         expect(frame.includes('✓  sample/pkg-passed')).to.eql(true);
-        expect(frame.includes('·  sample/pkg-skipped')).to.eql(true);
+        expect(frame.includes('↷  sample/pkg-skipped')).to.eql(true);
       });
 
       it('caps completed packages at five rows and summarizes overflow', () => {

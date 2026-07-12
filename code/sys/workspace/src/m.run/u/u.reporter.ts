@@ -98,7 +98,7 @@ export function formatParallelProgress(args: ParallelProgressFormatArgs): string
   const summary = `${c.green(`✓ ${args.passed}`)}${c.gray(`/${args.runnableTotal} passed`)}`;
   const failed = args.failed > 0 ? c.red(`✕ failed ${args.failed}`) : c.gray('✕ failed 0');
   const blocked = args.blocked > 0 ? c.yellow(`⊘ blocked ${args.blocked}`) : c.gray('⊘ blocked 0');
-  const skipped = args.skipped > 0 ? c.yellow(`· skipped ${args.skipped}`) : c.gray('· skipped 0');
+  const skipped = args.skipped > 0 ? c.yellow(`↷ skipped ${args.skipped}`) : c.gray('↷ skipped 0');
   const width = Cli.Fmt.Text.fitWidth({
     width: args.width,
     terminal: args.terminal,
@@ -109,7 +109,7 @@ export function formatParallelProgress(args: ParallelProgressFormatArgs): string
     summary,
     [
       c.cyan(`⦿ running ${args.running.length}`),
-      c.gray(`◦ pending ${args.pending}`),
+      c.gray(`○ pending ${args.pending}`),
       skipped,
       blocked,
       failed,
@@ -380,6 +380,6 @@ const wrangle = {
     if (kind === 'passed') return c.green('✓');
     if (kind === 'failed') return c.red('✕');
     if (kind === 'blocked') return c.yellow('⊘');
-    return c.gray('·');
+    return c.gray('↷');
   },
 } as const;
