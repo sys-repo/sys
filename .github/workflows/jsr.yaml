@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   publish_0:
-    name: "jsr-1/3: ${{ matrix.name }}"
+    name: "jsr-1/12: ${{ matrix.name }}"
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -29,12 +29,9 @@ jobs:
       max-parallel: 4
       matrix:
         include:
-          - name: "@sys/ui-components"
-            path: "code/sys.ui/ui-components"
-            version: "0.0.313"
-          - name: "@sys/workspace"
-            path: "code/sys/workspace"
-            version: "0.0.135"
+          - name: "@sys/std"
+            path: "code/sys/std"
+            version: "0.0.368"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
@@ -191,7 +188,7 @@ jobs:
           echo "::error::Publish failed: deno publish did not complete successfully and JSR registry did not confirm published version after $max_attempts attempts: ${pkg_name}@${pkg_version}"
           exit 1
   publish_1:
-    name: "jsr-2/3: ${{ matrix.name }}"
+    name: "jsr-2/12: ${{ matrix.name }}"
     runs-on: ubuntu-latest
     needs: publish_0
     permissions:
@@ -204,24 +201,21 @@ jobs:
       max-parallel: 4
       matrix:
         include:
-          - name: "@sys/driver-automerge"
-            path: "code/sys.driver/driver-automerge"
-            version: "0.0.310"
-          - name: "@sys/driver-stripe"
-            path: "code/sys.driver/driver-stripe"
-            version: "0.0.129"
-          - name: "@sys/ui"
-            path: "code/sys.ui/ui"
-            version: "0.0.21"
-          - name: "@sys/driver-deno"
-            path: "code/sys.driver/driver-deno"
-            version: "0.0.384"
-          - name: "@tdb/data"
-            path: "deploy/@tdb.data"
-            version: "0.0.92"
-          - name: "@tdb/slc-std"
-            path: "deploy/@tdb.slc.std"
-            version: "0.0.135"
+          - name: "@sys/color"
+            path: "code/sys/color"
+            version: "0.0.263"
+          - name: "@sys/event"
+            path: "code/sys/event"
+            version: "0.0.166"
+          - name: "@sys/immutable"
+            path: "code/sys/immutable"
+            version: "0.0.155"
+          - name: "@sys/net"
+            path: "code/sys/net"
+            version: "0.0.140"
+          - name: "@sys/text"
+            path: "code/sys/text"
+            version: "0.0.318"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
@@ -378,7 +372,7 @@ jobs:
           echo "::error::Publish failed: deno publish did not complete successfully and JSR registry did not confirm published version after $max_attempts attempts: ${pkg_name}@${pkg_version}"
           exit 1
   publish_2:
-    name: "jsr-3/3: ${{ matrix.name }}"
+    name: "jsr-3/12: ${{ matrix.name }}"
     runs-on: ubuntu-latest
     needs: publish_1
     permissions:
@@ -391,27 +385,1641 @@ jobs:
       max-parallel: 4
       matrix:
         include:
-          - name: "@sys/driver-monaco"
-            path: "code/sys.driver/driver-monaco"
-            version: "0.0.272"
-          - name: "@sys/driver-prosemirror"
-            path: "code/sys.driver/driver-prosemirror"
-            version: "0.0.254"
+          - name: "@sys/ui-css"
+            path: "code/sys.ui/ui-css"
+            version: "0.0.298"
+          - name: "@sys/ui-state"
+            path: "code/sys.ui/ui-state"
+            version: "0.0.116"
+          - name: "@sys/ui-dom"
+            path: "code/sys.ui/ui-dom"
+            version: "0.0.308"
+          - name: "@sys/cli"
+            path: "code/sys/cli"
+            version: "0.0.300"
+    steps:
+      - uses: actions/checkout@v5
+      - name: Verify clean checkout
+        run: |
+          git status --short
+          test -z "$(git status --porcelain)"
+      - name: 'Install ESM Runtime: Deno 2.x'
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.9.1
+      - name: Install Dependencies
+        run: |
+          max_attempts=3
+          for attempt in $(seq 1 $max_attempts); do
+              if deno task install; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "dependency install failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "dependency install failed after $max_attempts attempts"
+          exit 1
+      - name: Verify clean dependency install
+        run: |
+          git status --short
+          test -z "$(git status --porcelain)"
+      - name: Workspace Info
+        run: deno task info
+      - name: Deno Info
+        run: deno info && deno --version
+      - name: Validate main-only publish commit
+        if: github.ref_name == 'jsr-publish-main'
+        run: |
+          git fetch origin main:refs/remotes/origin/main
+          git merge-base --is-ancestor HEAD refs/remotes/origin/main
+      - name: publish module → "${{ matrix.name }}"
+        run: |
+          cd "${{ matrix.path }}"
+          expected_pkg_name="${{ matrix.name }}"
+          expected_pkg_version="${{ matrix.version }}"
+          pkg_name="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.name)")"
+          pkg_version="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.version)")"
+          if [ "$pkg_name" != "$expected_pkg_name" ]; then
+            echo "::error::Generated JSR workflow package name is stale: expected ${expected_pkg_name}, found ${pkg_name}"
+            exit 1
+          fi
+          if [ "$pkg_version" != "$expected_pkg_version" ]; then
+            echo "::error::Generated JSR workflow package version is stale: expected ${expected_pkg_version}, found ${pkg_version}"
+            exit 1
+          fi
+          pkg_meta_url="https://jsr.io/${pkg_name}/${pkg_version}_meta.json"
+          pkg_index_url="https://jsr.io/${pkg_name}/meta.json"
+          publish_timeout="90s"
+          publish_confirm_timeout=900
+          publish_confirm_interval=15
+          jsr_exact_metadata_visible() {
+            curl --fail --silent --location --max-time 30 --head "$pkg_meta_url" >/dev/null
+          }
+          jsr_package_index_visible() {
+            deno eval '
+              const [url, version] = Deno.args;
+              const res = await fetch(url, {
+                cache: "reload",
+                headers: { "cache-control": "no-cache", pragma: "no-cache" },
+              });
+              if (!res.ok) Deno.exit(1);
+              const data = await res.json();
+              Deno.exit(data?.versions?.[version] ? 0 : 1);
+            ' "$pkg_index_url" "$pkg_version" >/dev/null
+          }
+          wait_for_jsr_version() {
+            elapsed=0
+            exact_reported=0
+            index_reported=0
+            while [ "$elapsed" -le "$publish_confirm_timeout" ]; do
+              if jsr_exact_metadata_visible; then
+                if [ "$exact_reported" -eq 0 ]; then
+                  echo "JSR exact metadata is visible: ${pkg_name}@${pkg_version}"
+                  exact_reported=1
+                fi
+                if jsr_package_index_visible; then
+                  if [ "$index_reported" -eq 0 ]; then
+                    echo "JSR package index confirms published version: ${pkg_name}@${pkg_version}"
+                    index_reported=1
+                  fi
+                  return 0
+                elif [ "$index_reported" -eq 0 ]; then
+                  echo "JSR exact metadata is visible, waiting for package index visibility: ${pkg_name}@${pkg_version}"
+                  index_reported=1
+                fi
+              fi
+              if [ "$elapsed" -ge "$publish_confirm_timeout" ]; then
+                break
+              fi
+              sleep "$publish_confirm_interval"
+              elapsed=$((elapsed + publish_confirm_interval))
+            done
+            return 1
+          }
+          deno task test --frozen
+          git status --short
+          test -z "$(git status --porcelain)"
+          if jsr_exact_metadata_visible; then
+            if wait_for_jsr_version; then
+              echo "published version already has full JSR registry visibility: ${pkg_name}@${pkg_version}"
+              exit 0
+            fi
+            echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+            exit 1
+          fi
+          max_attempts=3
+          for attempt in $(seq 1 $max_attempts); do
+              if jsr_exact_metadata_visible; then
+                if wait_for_jsr_version; then
+                  echo "published version already has full JSR registry visibility: ${pkg_name}@${pkg_version}"
+                  exit 0
+                fi
+                echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+                exit 1
+              fi
+              if timeout --foreground --kill-after=30s "$publish_timeout" deno publish; then
+                echo "deno publish exited successfully; confirming JSR registry visibility..."
+                if wait_for_jsr_version; then
+                  echo "JSR registry confirms published version: ${pkg_name}@${pkg_version}"
+                  exit 0
+                fi
+                echo "::error::deno publish exited successfully, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+                exit 1
+              else
+                status=$?
+              fi
+              if [ "$status" -eq 124 ]; then
+                echo "deno publish reached bounded wait (${publish_timeout}, exit code 124); checking JSR registry visibility..."
+              else
+                echo "deno publish exited with code ${status}; checking JSR registry visibility before retry/fail..."
+              fi
+              if wait_for_jsr_version; then
+                echo "JSR registry confirms published version: ${pkg_name}@${pkg_version}; treating publish as successful."
+                exit 0
+              fi
+              if jsr_exact_metadata_visible; then
+                echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+                exit 1
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "JSR registry did not confirm published version after attempt $attempt/$max_attempts; retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "::error::Publish failed: deno publish did not complete successfully and JSR registry did not confirm published version after $max_attempts attempts: ${pkg_name}@${pkg_version}"
+          exit 1
+  publish_3:
+    name: "jsr-4/12: ${{ matrix.name }}"
+    runs-on: ubuntu-latest
+    needs: publish_2
+    permissions:
+      contents: read
+      id-token: write # The OIDC/ID token is used for authentication with JSR.
+    environment: dev
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - name: "@sys/crypto"
+            path: "code/sys/crypto"
+            version: "0.0.303"
+          - name: "@sys/process"
+            path: "code/sys/process"
+            version: "0.0.303"
+    steps:
+      - uses: actions/checkout@v5
+      - name: Verify clean checkout
+        run: |
+          git status --short
+          test -z "$(git status --porcelain)"
+      - name: 'Install ESM Runtime: Deno 2.x'
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.9.1
+      - name: Install Dependencies
+        run: |
+          max_attempts=3
+          for attempt in $(seq 1 $max_attempts); do
+              if deno task install; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "dependency install failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "dependency install failed after $max_attempts attempts"
+          exit 1
+      - name: Verify clean dependency install
+        run: |
+          git status --short
+          test -z "$(git status --porcelain)"
+      - name: Workspace Info
+        run: deno task info
+      - name: Deno Info
+        run: deno info && deno --version
+      - name: Validate main-only publish commit
+        if: github.ref_name == 'jsr-publish-main'
+        run: |
+          git fetch origin main:refs/remotes/origin/main
+          git merge-base --is-ancestor HEAD refs/remotes/origin/main
+      - name: publish module → "${{ matrix.name }}"
+        run: |
+          cd "${{ matrix.path }}"
+          expected_pkg_name="${{ matrix.name }}"
+          expected_pkg_version="${{ matrix.version }}"
+          pkg_name="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.name)")"
+          pkg_version="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.version)")"
+          if [ "$pkg_name" != "$expected_pkg_name" ]; then
+            echo "::error::Generated JSR workflow package name is stale: expected ${expected_pkg_name}, found ${pkg_name}"
+            exit 1
+          fi
+          if [ "$pkg_version" != "$expected_pkg_version" ]; then
+            echo "::error::Generated JSR workflow package version is stale: expected ${expected_pkg_version}, found ${pkg_version}"
+            exit 1
+          fi
+          pkg_meta_url="https://jsr.io/${pkg_name}/${pkg_version}_meta.json"
+          pkg_index_url="https://jsr.io/${pkg_name}/meta.json"
+          publish_timeout="90s"
+          publish_confirm_timeout=900
+          publish_confirm_interval=15
+          jsr_exact_metadata_visible() {
+            curl --fail --silent --location --max-time 30 --head "$pkg_meta_url" >/dev/null
+          }
+          jsr_package_index_visible() {
+            deno eval '
+              const [url, version] = Deno.args;
+              const res = await fetch(url, {
+                cache: "reload",
+                headers: { "cache-control": "no-cache", pragma: "no-cache" },
+              });
+              if (!res.ok) Deno.exit(1);
+              const data = await res.json();
+              Deno.exit(data?.versions?.[version] ? 0 : 1);
+            ' "$pkg_index_url" "$pkg_version" >/dev/null
+          }
+          wait_for_jsr_version() {
+            elapsed=0
+            exact_reported=0
+            index_reported=0
+            while [ "$elapsed" -le "$publish_confirm_timeout" ]; do
+              if jsr_exact_metadata_visible; then
+                if [ "$exact_reported" -eq 0 ]; then
+                  echo "JSR exact metadata is visible: ${pkg_name}@${pkg_version}"
+                  exact_reported=1
+                fi
+                if jsr_package_index_visible; then
+                  if [ "$index_reported" -eq 0 ]; then
+                    echo "JSR package index confirms published version: ${pkg_name}@${pkg_version}"
+                    index_reported=1
+                  fi
+                  return 0
+                elif [ "$index_reported" -eq 0 ]; then
+                  echo "JSR exact metadata is visible, waiting for package index visibility: ${pkg_name}@${pkg_version}"
+                  index_reported=1
+                fi
+              fi
+              if [ "$elapsed" -ge "$publish_confirm_timeout" ]; then
+                break
+              fi
+              sleep "$publish_confirm_interval"
+              elapsed=$((elapsed + publish_confirm_interval))
+            done
+            return 1
+          }
+          deno task test --frozen
+          git status --short
+          test -z "$(git status --porcelain)"
+          if jsr_exact_metadata_visible; then
+            if wait_for_jsr_version; then
+              echo "published version already has full JSR registry visibility: ${pkg_name}@${pkg_version}"
+              exit 0
+            fi
+            echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+            exit 1
+          fi
+          max_attempts=3
+          for attempt in $(seq 1 $max_attempts); do
+              if jsr_exact_metadata_visible; then
+                if wait_for_jsr_version; then
+                  echo "published version already has full JSR registry visibility: ${pkg_name}@${pkg_version}"
+                  exit 0
+                fi
+                echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+                exit 1
+              fi
+              if timeout --foreground --kill-after=30s "$publish_timeout" deno publish; then
+                echo "deno publish exited successfully; confirming JSR registry visibility..."
+                if wait_for_jsr_version; then
+                  echo "JSR registry confirms published version: ${pkg_name}@${pkg_version}"
+                  exit 0
+                fi
+                echo "::error::deno publish exited successfully, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+                exit 1
+              else
+                status=$?
+              fi
+              if [ "$status" -eq 124 ]; then
+                echo "deno publish reached bounded wait (${publish_timeout}, exit code 124); checking JSR registry visibility..."
+              else
+                echo "deno publish exited with code ${status}; checking JSR registry visibility before retry/fail..."
+              fi
+              if wait_for_jsr_version; then
+                echo "JSR registry confirms published version: ${pkg_name}@${pkg_version}; treating publish as successful."
+                exit 0
+              fi
+              if jsr_exact_metadata_visible; then
+                echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+                exit 1
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "JSR registry did not confirm published version after attempt $attempt/$max_attempts; retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "::error::Publish failed: deno publish did not complete successfully and JSR registry did not confirm published version after $max_attempts attempts: ${pkg_name}@${pkg_version}"
+          exit 1
+  publish_4:
+    name: "jsr-5/12: ${{ matrix.name }}"
+    runs-on: ubuntu-latest
+    needs: publish_3
+    permissions:
+      contents: read
+      id-token: write # The OIDC/ID token is used for authentication with JSR.
+    environment: dev
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - name: "@sys/fs"
+            path: "code/sys/fs"
+            version: "0.0.331"
+    steps:
+      - uses: actions/checkout@v5
+      - name: Verify clean checkout
+        run: |
+          git status --short
+          test -z "$(git status --porcelain)"
+      - name: 'Install ESM Runtime: Deno 2.x'
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.9.1
+      - name: Install Dependencies
+        run: |
+          max_attempts=3
+          for attempt in $(seq 1 $max_attempts); do
+              if deno task install; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "dependency install failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "dependency install failed after $max_attempts attempts"
+          exit 1
+      - name: Verify clean dependency install
+        run: |
+          git status --short
+          test -z "$(git status --porcelain)"
+      - name: Workspace Info
+        run: deno task info
+      - name: Deno Info
+        run: deno info && deno --version
+      - name: Validate main-only publish commit
+        if: github.ref_name == 'jsr-publish-main'
+        run: |
+          git fetch origin main:refs/remotes/origin/main
+          git merge-base --is-ancestor HEAD refs/remotes/origin/main
+      - name: publish module → "${{ matrix.name }}"
+        run: |
+          cd "${{ matrix.path }}"
+          expected_pkg_name="${{ matrix.name }}"
+          expected_pkg_version="${{ matrix.version }}"
+          pkg_name="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.name)")"
+          pkg_version="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.version)")"
+          if [ "$pkg_name" != "$expected_pkg_name" ]; then
+            echo "::error::Generated JSR workflow package name is stale: expected ${expected_pkg_name}, found ${pkg_name}"
+            exit 1
+          fi
+          if [ "$pkg_version" != "$expected_pkg_version" ]; then
+            echo "::error::Generated JSR workflow package version is stale: expected ${expected_pkg_version}, found ${pkg_version}"
+            exit 1
+          fi
+          pkg_meta_url="https://jsr.io/${pkg_name}/${pkg_version}_meta.json"
+          pkg_index_url="https://jsr.io/${pkg_name}/meta.json"
+          publish_timeout="90s"
+          publish_confirm_timeout=900
+          publish_confirm_interval=15
+          jsr_exact_metadata_visible() {
+            curl --fail --silent --location --max-time 30 --head "$pkg_meta_url" >/dev/null
+          }
+          jsr_package_index_visible() {
+            deno eval '
+              const [url, version] = Deno.args;
+              const res = await fetch(url, {
+                cache: "reload",
+                headers: { "cache-control": "no-cache", pragma: "no-cache" },
+              });
+              if (!res.ok) Deno.exit(1);
+              const data = await res.json();
+              Deno.exit(data?.versions?.[version] ? 0 : 1);
+            ' "$pkg_index_url" "$pkg_version" >/dev/null
+          }
+          wait_for_jsr_version() {
+            elapsed=0
+            exact_reported=0
+            index_reported=0
+            while [ "$elapsed" -le "$publish_confirm_timeout" ]; do
+              if jsr_exact_metadata_visible; then
+                if [ "$exact_reported" -eq 0 ]; then
+                  echo "JSR exact metadata is visible: ${pkg_name}@${pkg_version}"
+                  exact_reported=1
+                fi
+                if jsr_package_index_visible; then
+                  if [ "$index_reported" -eq 0 ]; then
+                    echo "JSR package index confirms published version: ${pkg_name}@${pkg_version}"
+                    index_reported=1
+                  fi
+                  return 0
+                elif [ "$index_reported" -eq 0 ]; then
+                  echo "JSR exact metadata is visible, waiting for package index visibility: ${pkg_name}@${pkg_version}"
+                  index_reported=1
+                fi
+              fi
+              if [ "$elapsed" -ge "$publish_confirm_timeout" ]; then
+                break
+              fi
+              sleep "$publish_confirm_interval"
+              elapsed=$((elapsed + publish_confirm_interval))
+            done
+            return 1
+          }
+          deno task test --frozen
+          git status --short
+          test -z "$(git status --porcelain)"
+          if jsr_exact_metadata_visible; then
+            if wait_for_jsr_version; then
+              echo "published version already has full JSR registry visibility: ${pkg_name}@${pkg_version}"
+              exit 0
+            fi
+            echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+            exit 1
+          fi
+          max_attempts=3
+          for attempt in $(seq 1 $max_attempts); do
+              if jsr_exact_metadata_visible; then
+                if wait_for_jsr_version; then
+                  echo "published version already has full JSR registry visibility: ${pkg_name}@${pkg_version}"
+                  exit 0
+                fi
+                echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+                exit 1
+              fi
+              if timeout --foreground --kill-after=30s "$publish_timeout" deno publish; then
+                echo "deno publish exited successfully; confirming JSR registry visibility..."
+                if wait_for_jsr_version; then
+                  echo "JSR registry confirms published version: ${pkg_name}@${pkg_version}"
+                  exit 0
+                fi
+                echo "::error::deno publish exited successfully, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+                exit 1
+              else
+                status=$?
+              fi
+              if [ "$status" -eq 124 ]; then
+                echo "deno publish reached bounded wait (${publish_timeout}, exit code 124); checking JSR registry visibility..."
+              else
+                echo "deno publish exited with code ${status}; checking JSR registry visibility before retry/fail..."
+              fi
+              if wait_for_jsr_version; then
+                echo "JSR registry confirms published version: ${pkg_name}@${pkg_version}; treating publish as successful."
+                exit 0
+              fi
+              if jsr_exact_metadata_visible; then
+                echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+                exit 1
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "JSR registry did not confirm published version after attempt $attempt/$max_attempts; retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "::error::Publish failed: deno publish did not complete successfully and JSR registry did not confirm published version after $max_attempts attempts: ${pkg_name}@${pkg_version}"
+          exit 1
+  publish_5:
+    name: "jsr-6/12: ${{ matrix.name }}"
+    runs-on: ubuntu-latest
+    needs: publish_4
+    permissions:
+      contents: read
+      id-token: write # The OIDC/ID token is used for authentication with JSR.
+    environment: dev
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - name: "@sys/driver-process"
+            path: "code/sys.driver/driver-process"
+            version: "0.0.124"
+          - name: "@sys/driver-signer"
+            path: "code/sys.driver/driver-signer"
+            version: "0.0.101"
+          - name: "@sys/testing"
+            path: "code/sys/testing"
+            version: "0.0.322"
+          - name: "@sys/tmpl-engine"
+            path: "code/sys/tmpl-engine"
+            version: "0.0.334"
+          - name: "@sys/yaml"
+            path: "code/sys/yaml"
+            version: "0.0.183"
+    steps:
+      - uses: actions/checkout@v5
+      - name: Verify clean checkout
+        run: |
+          git status --short
+          test -z "$(git status --porcelain)"
+      - name: 'Install ESM Runtime: Deno 2.x'
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.9.1
+      - name: Install Dependencies
+        run: |
+          max_attempts=3
+          for attempt in $(seq 1 $max_attempts); do
+              if deno task install; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "dependency install failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "dependency install failed after $max_attempts attempts"
+          exit 1
+      - name: Verify clean dependency install
+        run: |
+          git status --short
+          test -z "$(git status --porcelain)"
+      - name: Workspace Info
+        run: deno task info
+      - name: Deno Info
+        run: deno info && deno --version
+      - name: Validate main-only publish commit
+        if: github.ref_name == 'jsr-publish-main'
+        run: |
+          git fetch origin main:refs/remotes/origin/main
+          git merge-base --is-ancestor HEAD refs/remotes/origin/main
+      - name: publish module → "${{ matrix.name }}"
+        run: |
+          cd "${{ matrix.path }}"
+          expected_pkg_name="${{ matrix.name }}"
+          expected_pkg_version="${{ matrix.version }}"
+          pkg_name="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.name)")"
+          pkg_version="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.version)")"
+          if [ "$pkg_name" != "$expected_pkg_name" ]; then
+            echo "::error::Generated JSR workflow package name is stale: expected ${expected_pkg_name}, found ${pkg_name}"
+            exit 1
+          fi
+          if [ "$pkg_version" != "$expected_pkg_version" ]; then
+            echo "::error::Generated JSR workflow package version is stale: expected ${expected_pkg_version}, found ${pkg_version}"
+            exit 1
+          fi
+          pkg_meta_url="https://jsr.io/${pkg_name}/${pkg_version}_meta.json"
+          pkg_index_url="https://jsr.io/${pkg_name}/meta.json"
+          publish_timeout="90s"
+          publish_confirm_timeout=900
+          publish_confirm_interval=15
+          jsr_exact_metadata_visible() {
+            curl --fail --silent --location --max-time 30 --head "$pkg_meta_url" >/dev/null
+          }
+          jsr_package_index_visible() {
+            deno eval '
+              const [url, version] = Deno.args;
+              const res = await fetch(url, {
+                cache: "reload",
+                headers: { "cache-control": "no-cache", pragma: "no-cache" },
+              });
+              if (!res.ok) Deno.exit(1);
+              const data = await res.json();
+              Deno.exit(data?.versions?.[version] ? 0 : 1);
+            ' "$pkg_index_url" "$pkg_version" >/dev/null
+          }
+          wait_for_jsr_version() {
+            elapsed=0
+            exact_reported=0
+            index_reported=0
+            while [ "$elapsed" -le "$publish_confirm_timeout" ]; do
+              if jsr_exact_metadata_visible; then
+                if [ "$exact_reported" -eq 0 ]; then
+                  echo "JSR exact metadata is visible: ${pkg_name}@${pkg_version}"
+                  exact_reported=1
+                fi
+                if jsr_package_index_visible; then
+                  if [ "$index_reported" -eq 0 ]; then
+                    echo "JSR package index confirms published version: ${pkg_name}@${pkg_version}"
+                    index_reported=1
+                  fi
+                  return 0
+                elif [ "$index_reported" -eq 0 ]; then
+                  echo "JSR exact metadata is visible, waiting for package index visibility: ${pkg_name}@${pkg_version}"
+                  index_reported=1
+                fi
+              fi
+              if [ "$elapsed" -ge "$publish_confirm_timeout" ]; then
+                break
+              fi
+              sleep "$publish_confirm_interval"
+              elapsed=$((elapsed + publish_confirm_interval))
+            done
+            return 1
+          }
+          deno task test --frozen
+          git status --short
+          test -z "$(git status --porcelain)"
+          if jsr_exact_metadata_visible; then
+            if wait_for_jsr_version; then
+              echo "published version already has full JSR registry visibility: ${pkg_name}@${pkg_version}"
+              exit 0
+            fi
+            echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+            exit 1
+          fi
+          max_attempts=3
+          for attempt in $(seq 1 $max_attempts); do
+              if jsr_exact_metadata_visible; then
+                if wait_for_jsr_version; then
+                  echo "published version already has full JSR registry visibility: ${pkg_name}@${pkg_version}"
+                  exit 0
+                fi
+                echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+                exit 1
+              fi
+              if timeout --foreground --kill-after=30s "$publish_timeout" deno publish; then
+                echo "deno publish exited successfully; confirming JSR registry visibility..."
+                if wait_for_jsr_version; then
+                  echo "JSR registry confirms published version: ${pkg_name}@${pkg_version}"
+                  exit 0
+                fi
+                echo "::error::deno publish exited successfully, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+                exit 1
+              else
+                status=$?
+              fi
+              if [ "$status" -eq 124 ]; then
+                echo "deno publish reached bounded wait (${publish_timeout}, exit code 124); checking JSR registry visibility..."
+              else
+                echo "deno publish exited with code ${status}; checking JSR registry visibility before retry/fail..."
+              fi
+              if wait_for_jsr_version; then
+                echo "JSR registry confirms published version: ${pkg_name}@${pkg_version}; treating publish as successful."
+                exit 0
+              fi
+              if jsr_exact_metadata_visible; then
+                echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+                exit 1
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "JSR registry did not confirm published version after attempt $attempt/$max_attempts; retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "::error::Publish failed: deno publish did not complete successfully and JSR registry did not confirm published version after $max_attempts attempts: ${pkg_name}@${pkg_version}"
+          exit 1
+  publish_6:
+    name: "jsr-7/12: ${{ matrix.name }}"
+    runs-on: ubuntu-latest
+    needs: publish_5
+    permissions:
+      contents: read
+      id-token: write # The OIDC/ID token is used for authentication with JSR.
+    environment: dev
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - name: "@sys/esm"
+            path: "code/sys/esm"
+            version: "0.0.77"
+          - name: "@sys/http"
+            path: "code/sys/http"
+            version: "0.0.311"
+          - name: "@sys/schema"
+            path: "code/sys/schema"
+            version: "0.0.226"
+    steps:
+      - uses: actions/checkout@v5
+      - name: Verify clean checkout
+        run: |
+          git status --short
+          test -z "$(git status --porcelain)"
+      - name: 'Install ESM Runtime: Deno 2.x'
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.9.1
+      - name: Install Dependencies
+        run: |
+          max_attempts=3
+          for attempt in $(seq 1 $max_attempts); do
+              if deno task install; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "dependency install failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "dependency install failed after $max_attempts attempts"
+          exit 1
+      - name: Verify clean dependency install
+        run: |
+          git status --short
+          test -z "$(git status --porcelain)"
+      - name: Workspace Info
+        run: deno task info
+      - name: Deno Info
+        run: deno info && deno --version
+      - name: Validate main-only publish commit
+        if: github.ref_name == 'jsr-publish-main'
+        run: |
+          git fetch origin main:refs/remotes/origin/main
+          git merge-base --is-ancestor HEAD refs/remotes/origin/main
+      - name: publish module → "${{ matrix.name }}"
+        run: |
+          cd "${{ matrix.path }}"
+          expected_pkg_name="${{ matrix.name }}"
+          expected_pkg_version="${{ matrix.version }}"
+          pkg_name="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.name)")"
+          pkg_version="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.version)")"
+          if [ "$pkg_name" != "$expected_pkg_name" ]; then
+            echo "::error::Generated JSR workflow package name is stale: expected ${expected_pkg_name}, found ${pkg_name}"
+            exit 1
+          fi
+          if [ "$pkg_version" != "$expected_pkg_version" ]; then
+            echo "::error::Generated JSR workflow package version is stale: expected ${expected_pkg_version}, found ${pkg_version}"
+            exit 1
+          fi
+          pkg_meta_url="https://jsr.io/${pkg_name}/${pkg_version}_meta.json"
+          pkg_index_url="https://jsr.io/${pkg_name}/meta.json"
+          publish_timeout="90s"
+          publish_confirm_timeout=900
+          publish_confirm_interval=15
+          jsr_exact_metadata_visible() {
+            curl --fail --silent --location --max-time 30 --head "$pkg_meta_url" >/dev/null
+          }
+          jsr_package_index_visible() {
+            deno eval '
+              const [url, version] = Deno.args;
+              const res = await fetch(url, {
+                cache: "reload",
+                headers: { "cache-control": "no-cache", pragma: "no-cache" },
+              });
+              if (!res.ok) Deno.exit(1);
+              const data = await res.json();
+              Deno.exit(data?.versions?.[version] ? 0 : 1);
+            ' "$pkg_index_url" "$pkg_version" >/dev/null
+          }
+          wait_for_jsr_version() {
+            elapsed=0
+            exact_reported=0
+            index_reported=0
+            while [ "$elapsed" -le "$publish_confirm_timeout" ]; do
+              if jsr_exact_metadata_visible; then
+                if [ "$exact_reported" -eq 0 ]; then
+                  echo "JSR exact metadata is visible: ${pkg_name}@${pkg_version}"
+                  exact_reported=1
+                fi
+                if jsr_package_index_visible; then
+                  if [ "$index_reported" -eq 0 ]; then
+                    echo "JSR package index confirms published version: ${pkg_name}@${pkg_version}"
+                    index_reported=1
+                  fi
+                  return 0
+                elif [ "$index_reported" -eq 0 ]; then
+                  echo "JSR exact metadata is visible, waiting for package index visibility: ${pkg_name}@${pkg_version}"
+                  index_reported=1
+                fi
+              fi
+              if [ "$elapsed" -ge "$publish_confirm_timeout" ]; then
+                break
+              fi
+              sleep "$publish_confirm_interval"
+              elapsed=$((elapsed + publish_confirm_interval))
+            done
+            return 1
+          }
+          deno task test --frozen
+          git status --short
+          test -z "$(git status --porcelain)"
+          if jsr_exact_metadata_visible; then
+            if wait_for_jsr_version; then
+              echo "published version already has full JSR registry visibility: ${pkg_name}@${pkg_version}"
+              exit 0
+            fi
+            echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+            exit 1
+          fi
+          max_attempts=3
+          for attempt in $(seq 1 $max_attempts); do
+              if jsr_exact_metadata_visible; then
+                if wait_for_jsr_version; then
+                  echo "published version already has full JSR registry visibility: ${pkg_name}@${pkg_version}"
+                  exit 0
+                fi
+                echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+                exit 1
+              fi
+              if timeout --foreground --kill-after=30s "$publish_timeout" deno publish; then
+                echo "deno publish exited successfully; confirming JSR registry visibility..."
+                if wait_for_jsr_version; then
+                  echo "JSR registry confirms published version: ${pkg_name}@${pkg_version}"
+                  exit 0
+                fi
+                echo "::error::deno publish exited successfully, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+                exit 1
+              else
+                status=$?
+              fi
+              if [ "$status" -eq 124 ]; then
+                echo "deno publish reached bounded wait (${publish_timeout}, exit code 124); checking JSR registry visibility..."
+              else
+                echo "deno publish exited with code ${status}; checking JSR registry visibility before retry/fail..."
+              fi
+              if wait_for_jsr_version; then
+                echo "JSR registry confirms published version: ${pkg_name}@${pkg_version}; treating publish as successful."
+                exit 0
+              fi
+              if jsr_exact_metadata_visible; then
+                echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+                exit 1
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "JSR registry did not confirm published version after attempt $attempt/$max_attempts; retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "::error::Publish failed: deno publish did not complete successfully and JSR registry did not confirm published version after $max_attempts attempts: ${pkg_name}@${pkg_version}"
+          exit 1
+  publish_7:
+    name: "jsr-8/12: ${{ matrix.name }}"
+    runs-on: ubuntu-latest
+    needs: publish_6
+    permissions:
+      contents: read
+      id-token: write # The OIDC/ID token is used for authentication with JSR.
+    environment: dev
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - name: "@sys/ui-react"
+            path: "code/sys.ui/ui-react"
+            version: "0.0.344"
+          - name: "@sys/registry"
+            path: "code/sys/registry"
+            version: "0.0.306"
+          - name: "@sys/model"
+            path: "code/sys.model/model"
+            version: "0.0.125"
+          - name: "@sys/cell"
+            path: "code/sys/cell"
+            version: "0.0.62"
+    steps:
+      - uses: actions/checkout@v5
+      - name: Verify clean checkout
+        run: |
+          git status --short
+          test -z "$(git status --porcelain)"
+      - name: 'Install ESM Runtime: Deno 2.x'
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.9.1
+      - name: Install Dependencies
+        run: |
+          max_attempts=3
+          for attempt in $(seq 1 $max_attempts); do
+              if deno task install; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "dependency install failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "dependency install failed after $max_attempts attempts"
+          exit 1
+      - name: Verify clean dependency install
+        run: |
+          git status --short
+          test -z "$(git status --porcelain)"
+      - name: Workspace Info
+        run: deno task info
+      - name: Deno Info
+        run: deno info && deno --version
+      - name: Validate main-only publish commit
+        if: github.ref_name == 'jsr-publish-main'
+        run: |
+          git fetch origin main:refs/remotes/origin/main
+          git merge-base --is-ancestor HEAD refs/remotes/origin/main
+      - name: publish module → "${{ matrix.name }}"
+        run: |
+          cd "${{ matrix.path }}"
+          expected_pkg_name="${{ matrix.name }}"
+          expected_pkg_version="${{ matrix.version }}"
+          pkg_name="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.name)")"
+          pkg_version="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.version)")"
+          if [ "$pkg_name" != "$expected_pkg_name" ]; then
+            echo "::error::Generated JSR workflow package name is stale: expected ${expected_pkg_name}, found ${pkg_name}"
+            exit 1
+          fi
+          if [ "$pkg_version" != "$expected_pkg_version" ]; then
+            echo "::error::Generated JSR workflow package version is stale: expected ${expected_pkg_version}, found ${pkg_version}"
+            exit 1
+          fi
+          pkg_meta_url="https://jsr.io/${pkg_name}/${pkg_version}_meta.json"
+          pkg_index_url="https://jsr.io/${pkg_name}/meta.json"
+          publish_timeout="90s"
+          publish_confirm_timeout=900
+          publish_confirm_interval=15
+          jsr_exact_metadata_visible() {
+            curl --fail --silent --location --max-time 30 --head "$pkg_meta_url" >/dev/null
+          }
+          jsr_package_index_visible() {
+            deno eval '
+              const [url, version] = Deno.args;
+              const res = await fetch(url, {
+                cache: "reload",
+                headers: { "cache-control": "no-cache", pragma: "no-cache" },
+              });
+              if (!res.ok) Deno.exit(1);
+              const data = await res.json();
+              Deno.exit(data?.versions?.[version] ? 0 : 1);
+            ' "$pkg_index_url" "$pkg_version" >/dev/null
+          }
+          wait_for_jsr_version() {
+            elapsed=0
+            exact_reported=0
+            index_reported=0
+            while [ "$elapsed" -le "$publish_confirm_timeout" ]; do
+              if jsr_exact_metadata_visible; then
+                if [ "$exact_reported" -eq 0 ]; then
+                  echo "JSR exact metadata is visible: ${pkg_name}@${pkg_version}"
+                  exact_reported=1
+                fi
+                if jsr_package_index_visible; then
+                  if [ "$index_reported" -eq 0 ]; then
+                    echo "JSR package index confirms published version: ${pkg_name}@${pkg_version}"
+                    index_reported=1
+                  fi
+                  return 0
+                elif [ "$index_reported" -eq 0 ]; then
+                  echo "JSR exact metadata is visible, waiting for package index visibility: ${pkg_name}@${pkg_version}"
+                  index_reported=1
+                fi
+              fi
+              if [ "$elapsed" -ge "$publish_confirm_timeout" ]; then
+                break
+              fi
+              sleep "$publish_confirm_interval"
+              elapsed=$((elapsed + publish_confirm_interval))
+            done
+            return 1
+          }
+          deno task test --frozen
+          git status --short
+          test -z "$(git status --porcelain)"
+          if jsr_exact_metadata_visible; then
+            if wait_for_jsr_version; then
+              echo "published version already has full JSR registry visibility: ${pkg_name}@${pkg_version}"
+              exit 0
+            fi
+            echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+            exit 1
+          fi
+          max_attempts=3
+          for attempt in $(seq 1 $max_attempts); do
+              if jsr_exact_metadata_visible; then
+                if wait_for_jsr_version; then
+                  echo "published version already has full JSR registry visibility: ${pkg_name}@${pkg_version}"
+                  exit 0
+                fi
+                echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+                exit 1
+              fi
+              if timeout --foreground --kill-after=30s "$publish_timeout" deno publish; then
+                echo "deno publish exited successfully; confirming JSR registry visibility..."
+                if wait_for_jsr_version; then
+                  echo "JSR registry confirms published version: ${pkg_name}@${pkg_version}"
+                  exit 0
+                fi
+                echo "::error::deno publish exited successfully, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+                exit 1
+              else
+                status=$?
+              fi
+              if [ "$status" -eq 124 ]; then
+                echo "deno publish reached bounded wait (${publish_timeout}, exit code 124); checking JSR registry visibility..."
+              else
+                echo "deno publish exited with code ${status}; checking JSR registry visibility before retry/fail..."
+              fi
+              if wait_for_jsr_version; then
+                echo "JSR registry confirms published version: ${pkg_name}@${pkg_version}; treating publish as successful."
+                exit 0
+              fi
+              if jsr_exact_metadata_visible; then
+                echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+                exit 1
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "JSR registry did not confirm published version after attempt $attempt/$max_attempts; retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "::error::Publish failed: deno publish did not complete successfully and JSR registry did not confirm published version after $max_attempts attempts: ${pkg_name}@${pkg_version}"
+          exit 1
+  publish_8:
+    name: "jsr-9/12: ${{ matrix.name }}"
+    runs-on: ubuntu-latest
+    needs: publish_7
+    permissions:
+      contents: read
+      id-token: write # The OIDC/ID token is used for authentication with JSR.
+    environment: dev
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - name: "@sys/ui-dev"
+            path: "code/sys.ui/ui-dev"
+            version: "0.0.344"
+          - name: "@sys/driver-cloudflare"
+            path: "code/sys.driver/driver-cloudflare"
+            version: "0.0.21"
+          - name: "@sys/model-slug"
+            path: "code/sys.model/model-slug"
+            version: "0.0.135"
+          - name: "@sys/server"
+            path: "code/sys/server"
+            version: "0.0.35"
+          - name: "@sys/workspace"
+            path: "code/sys/workspace"
+            version: "0.0.136"
+    steps:
+      - uses: actions/checkout@v5
+      - name: Verify clean checkout
+        run: |
+          git status --short
+          test -z "$(git status --porcelain)"
+      - name: 'Install ESM Runtime: Deno 2.x'
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.9.1
+      - name: Install Dependencies
+        run: |
+          max_attempts=3
+          for attempt in $(seq 1 $max_attempts); do
+              if deno task install; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "dependency install failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "dependency install failed after $max_attempts attempts"
+          exit 1
+      - name: Verify clean dependency install
+        run: |
+          git status --short
+          test -z "$(git status --porcelain)"
+      - name: Workspace Info
+        run: deno task info
+      - name: Deno Info
+        run: deno info && deno --version
+      - name: Validate main-only publish commit
+        if: github.ref_name == 'jsr-publish-main'
+        run: |
+          git fetch origin main:refs/remotes/origin/main
+          git merge-base --is-ancestor HEAD refs/remotes/origin/main
+      - name: publish module → "${{ matrix.name }}"
+        run: |
+          cd "${{ matrix.path }}"
+          expected_pkg_name="${{ matrix.name }}"
+          expected_pkg_version="${{ matrix.version }}"
+          pkg_name="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.name)")"
+          pkg_version="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.version)")"
+          if [ "$pkg_name" != "$expected_pkg_name" ]; then
+            echo "::error::Generated JSR workflow package name is stale: expected ${expected_pkg_name}, found ${pkg_name}"
+            exit 1
+          fi
+          if [ "$pkg_version" != "$expected_pkg_version" ]; then
+            echo "::error::Generated JSR workflow package version is stale: expected ${expected_pkg_version}, found ${pkg_version}"
+            exit 1
+          fi
+          pkg_meta_url="https://jsr.io/${pkg_name}/${pkg_version}_meta.json"
+          pkg_index_url="https://jsr.io/${pkg_name}/meta.json"
+          publish_timeout="90s"
+          publish_confirm_timeout=900
+          publish_confirm_interval=15
+          jsr_exact_metadata_visible() {
+            curl --fail --silent --location --max-time 30 --head "$pkg_meta_url" >/dev/null
+          }
+          jsr_package_index_visible() {
+            deno eval '
+              const [url, version] = Deno.args;
+              const res = await fetch(url, {
+                cache: "reload",
+                headers: { "cache-control": "no-cache", pragma: "no-cache" },
+              });
+              if (!res.ok) Deno.exit(1);
+              const data = await res.json();
+              Deno.exit(data?.versions?.[version] ? 0 : 1);
+            ' "$pkg_index_url" "$pkg_version" >/dev/null
+          }
+          wait_for_jsr_version() {
+            elapsed=0
+            exact_reported=0
+            index_reported=0
+            while [ "$elapsed" -le "$publish_confirm_timeout" ]; do
+              if jsr_exact_metadata_visible; then
+                if [ "$exact_reported" -eq 0 ]; then
+                  echo "JSR exact metadata is visible: ${pkg_name}@${pkg_version}"
+                  exact_reported=1
+                fi
+                if jsr_package_index_visible; then
+                  if [ "$index_reported" -eq 0 ]; then
+                    echo "JSR package index confirms published version: ${pkg_name}@${pkg_version}"
+                    index_reported=1
+                  fi
+                  return 0
+                elif [ "$index_reported" -eq 0 ]; then
+                  echo "JSR exact metadata is visible, waiting for package index visibility: ${pkg_name}@${pkg_version}"
+                  index_reported=1
+                fi
+              fi
+              if [ "$elapsed" -ge "$publish_confirm_timeout" ]; then
+                break
+              fi
+              sleep "$publish_confirm_interval"
+              elapsed=$((elapsed + publish_confirm_interval))
+            done
+            return 1
+          }
+          deno task test --frozen
+          git status --short
+          test -z "$(git status --porcelain)"
+          if jsr_exact_metadata_visible; then
+            if wait_for_jsr_version; then
+              echo "published version already has full JSR registry visibility: ${pkg_name}@${pkg_version}"
+              exit 0
+            fi
+            echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+            exit 1
+          fi
+          max_attempts=3
+          for attempt in $(seq 1 $max_attempts); do
+              if jsr_exact_metadata_visible; then
+                if wait_for_jsr_version; then
+                  echo "published version already has full JSR registry visibility: ${pkg_name}@${pkg_version}"
+                  exit 0
+                fi
+                echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+                exit 1
+              fi
+              if timeout --foreground --kill-after=30s "$publish_timeout" deno publish; then
+                echo "deno publish exited successfully; confirming JSR registry visibility..."
+                if wait_for_jsr_version; then
+                  echo "JSR registry confirms published version: ${pkg_name}@${pkg_version}"
+                  exit 0
+                fi
+                echo "::error::deno publish exited successfully, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+                exit 1
+              else
+                status=$?
+              fi
+              if [ "$status" -eq 124 ]; then
+                echo "deno publish reached bounded wait (${publish_timeout}, exit code 124); checking JSR registry visibility..."
+              else
+                echo "deno publish exited with code ${status}; checking JSR registry visibility before retry/fail..."
+              fi
+              if wait_for_jsr_version; then
+                echo "JSR registry confirms published version: ${pkg_name}@${pkg_version}; treating publish as successful."
+                exit 0
+              fi
+              if jsr_exact_metadata_visible; then
+                echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+                exit 1
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "JSR registry did not confirm published version after attempt $attempt/$max_attempts; retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "::error::Publish failed: deno publish did not complete successfully and JSR registry did not confirm published version after $max_attempts attempts: ${pkg_name}@${pkg_version}"
+          exit 1
+  publish_9:
+    name: "jsr-10/12: ${{ matrix.name }}"
+    runs-on: ubuntu-latest
+    needs: publish_8
+    permissions:
+      contents: read
+      id-token: write # The OIDC/ID token is used for authentication with JSR.
+    environment: dev
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - name: "@sys/ui-components"
+            path: "code/sys.ui/ui-components"
+            version: "0.0.314"
+          - name: "@sys/driver-deno"
+            path: "code/sys.driver/driver-deno"
+            version: "0.0.385"
+    steps:
+      - uses: actions/checkout@v5
+      - name: Verify clean checkout
+        run: |
+          git status --short
+          test -z "$(git status --porcelain)"
+      - name: 'Install ESM Runtime: Deno 2.x'
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.9.1
+      - name: Install Dependencies
+        run: |
+          max_attempts=3
+          for attempt in $(seq 1 $max_attempts); do
+              if deno task install; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "dependency install failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "dependency install failed after $max_attempts attempts"
+          exit 1
+      - name: Verify clean dependency install
+        run: |
+          git status --short
+          test -z "$(git status --porcelain)"
+      - name: Workspace Info
+        run: deno task info
+      - name: Deno Info
+        run: deno info && deno --version
+      - name: Validate main-only publish commit
+        if: github.ref_name == 'jsr-publish-main'
+        run: |
+          git fetch origin main:refs/remotes/origin/main
+          git merge-base --is-ancestor HEAD refs/remotes/origin/main
+      - name: publish module → "${{ matrix.name }}"
+        run: |
+          cd "${{ matrix.path }}"
+          expected_pkg_name="${{ matrix.name }}"
+          expected_pkg_version="${{ matrix.version }}"
+          pkg_name="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.name)")"
+          pkg_version="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.version)")"
+          if [ "$pkg_name" != "$expected_pkg_name" ]; then
+            echo "::error::Generated JSR workflow package name is stale: expected ${expected_pkg_name}, found ${pkg_name}"
+            exit 1
+          fi
+          if [ "$pkg_version" != "$expected_pkg_version" ]; then
+            echo "::error::Generated JSR workflow package version is stale: expected ${expected_pkg_version}, found ${pkg_version}"
+            exit 1
+          fi
+          pkg_meta_url="https://jsr.io/${pkg_name}/${pkg_version}_meta.json"
+          pkg_index_url="https://jsr.io/${pkg_name}/meta.json"
+          publish_timeout="90s"
+          publish_confirm_timeout=900
+          publish_confirm_interval=15
+          jsr_exact_metadata_visible() {
+            curl --fail --silent --location --max-time 30 --head "$pkg_meta_url" >/dev/null
+          }
+          jsr_package_index_visible() {
+            deno eval '
+              const [url, version] = Deno.args;
+              const res = await fetch(url, {
+                cache: "reload",
+                headers: { "cache-control": "no-cache", pragma: "no-cache" },
+              });
+              if (!res.ok) Deno.exit(1);
+              const data = await res.json();
+              Deno.exit(data?.versions?.[version] ? 0 : 1);
+            ' "$pkg_index_url" "$pkg_version" >/dev/null
+          }
+          wait_for_jsr_version() {
+            elapsed=0
+            exact_reported=0
+            index_reported=0
+            while [ "$elapsed" -le "$publish_confirm_timeout" ]; do
+              if jsr_exact_metadata_visible; then
+                if [ "$exact_reported" -eq 0 ]; then
+                  echo "JSR exact metadata is visible: ${pkg_name}@${pkg_version}"
+                  exact_reported=1
+                fi
+                if jsr_package_index_visible; then
+                  if [ "$index_reported" -eq 0 ]; then
+                    echo "JSR package index confirms published version: ${pkg_name}@${pkg_version}"
+                    index_reported=1
+                  fi
+                  return 0
+                elif [ "$index_reported" -eq 0 ]; then
+                  echo "JSR exact metadata is visible, waiting for package index visibility: ${pkg_name}@${pkg_version}"
+                  index_reported=1
+                fi
+              fi
+              if [ "$elapsed" -ge "$publish_confirm_timeout" ]; then
+                break
+              fi
+              sleep "$publish_confirm_interval"
+              elapsed=$((elapsed + publish_confirm_interval))
+            done
+            return 1
+          }
+          deno task test --frozen
+          git status --short
+          test -z "$(git status --porcelain)"
+          if jsr_exact_metadata_visible; then
+            if wait_for_jsr_version; then
+              echo "published version already has full JSR registry visibility: ${pkg_name}@${pkg_version}"
+              exit 0
+            fi
+            echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+            exit 1
+          fi
+          max_attempts=3
+          for attempt in $(seq 1 $max_attempts); do
+              if jsr_exact_metadata_visible; then
+                if wait_for_jsr_version; then
+                  echo "published version already has full JSR registry visibility: ${pkg_name}@${pkg_version}"
+                  exit 0
+                fi
+                echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+                exit 1
+              fi
+              if timeout --foreground --kill-after=30s "$publish_timeout" deno publish; then
+                echo "deno publish exited successfully; confirming JSR registry visibility..."
+                if wait_for_jsr_version; then
+                  echo "JSR registry confirms published version: ${pkg_name}@${pkg_version}"
+                  exit 0
+                fi
+                echo "::error::deno publish exited successfully, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+                exit 1
+              else
+                status=$?
+              fi
+              if [ "$status" -eq 124 ]; then
+                echo "deno publish reached bounded wait (${publish_timeout}, exit code 124); checking JSR registry visibility..."
+              else
+                echo "deno publish exited with code ${status}; checking JSR registry visibility before retry/fail..."
+              fi
+              if wait_for_jsr_version; then
+                echo "JSR registry confirms published version: ${pkg_name}@${pkg_version}; treating publish as successful."
+                exit 0
+              fi
+              if jsr_exact_metadata_visible; then
+                echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+                exit 1
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "JSR registry did not confirm published version after attempt $attempt/$max_attempts; retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "::error::Publish failed: deno publish did not complete successfully and JSR registry did not confirm published version after $max_attempts attempts: ${pkg_name}@${pkg_version}"
+          exit 1
+  publish_10:
+    name: "jsr-11/12: ${{ matrix.name }}"
+    runs-on: ubuntu-latest
+    needs: publish_9
+    permissions:
+      contents: read
+      id-token: write # The OIDC/ID token is used for authentication with JSR.
+    environment: dev
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - name: "@sys/driver-automerge"
+            path: "code/sys.driver/driver-automerge"
+            version: "0.0.311"
+          - name: "@sys/driver-stripe"
+            path: "code/sys.driver/driver-stripe"
+            version: "0.0.130"
+          - name: "@sys/ui"
+            path: "code/sys.ui/ui"
+            version: "0.0.22"
           - name: "@sys/tmpl"
             path: "code/-tmpl"
-            version: "0.0.457"
+            version: "0.0.458"
           - name: "@sys/driver-pi"
             path: "code/sys.driver/driver-pi"
-            version: "0.0.117"
+            version: "0.0.118"
           - name: "@sys/driver-vite"
             path: "code/sys.driver/driver-vite"
-            version: "0.0.453"
+            version: "0.0.454"
+          - name: "@tdb/data"
+            path: "deploy/@tdb.data"
+            version: "0.0.93"
+          - name: "@tdb/slc-std"
+            path: "deploy/@tdb.slc.std"
+            version: "0.0.136"
+    steps:
+      - uses: actions/checkout@v5
+      - name: Verify clean checkout
+        run: |
+          git status --short
+          test -z "$(git status --porcelain)"
+      - name: 'Install ESM Runtime: Deno 2.x'
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.9.1
+      - name: Install Dependencies
+        run: |
+          max_attempts=3
+          for attempt in $(seq 1 $max_attempts); do
+              if deno task install; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "dependency install failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "dependency install failed after $max_attempts attempts"
+          exit 1
+      - name: Verify clean dependency install
+        run: |
+          git status --short
+          test -z "$(git status --porcelain)"
+      - name: Workspace Info
+        run: deno task info
+      - name: Deno Info
+        run: deno info && deno --version
+      - name: Validate main-only publish commit
+        if: github.ref_name == 'jsr-publish-main'
+        run: |
+          git fetch origin main:refs/remotes/origin/main
+          git merge-base --is-ancestor HEAD refs/remotes/origin/main
+      - name: publish module → "${{ matrix.name }}"
+        run: |
+          cd "${{ matrix.path }}"
+          expected_pkg_name="${{ matrix.name }}"
+          expected_pkg_version="${{ matrix.version }}"
+          pkg_name="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.name)")"
+          pkg_version="$(deno eval "const c = JSON.parse(await Deno.readTextFile('deno.json')); console.log(c.version)")"
+          if [ "$pkg_name" != "$expected_pkg_name" ]; then
+            echo "::error::Generated JSR workflow package name is stale: expected ${expected_pkg_name}, found ${pkg_name}"
+            exit 1
+          fi
+          if [ "$pkg_version" != "$expected_pkg_version" ]; then
+            echo "::error::Generated JSR workflow package version is stale: expected ${expected_pkg_version}, found ${pkg_version}"
+            exit 1
+          fi
+          pkg_meta_url="https://jsr.io/${pkg_name}/${pkg_version}_meta.json"
+          pkg_index_url="https://jsr.io/${pkg_name}/meta.json"
+          publish_timeout="90s"
+          publish_confirm_timeout=900
+          publish_confirm_interval=15
+          jsr_exact_metadata_visible() {
+            curl --fail --silent --location --max-time 30 --head "$pkg_meta_url" >/dev/null
+          }
+          jsr_package_index_visible() {
+            deno eval '
+              const [url, version] = Deno.args;
+              const res = await fetch(url, {
+                cache: "reload",
+                headers: { "cache-control": "no-cache", pragma: "no-cache" },
+              });
+              if (!res.ok) Deno.exit(1);
+              const data = await res.json();
+              Deno.exit(data?.versions?.[version] ? 0 : 1);
+            ' "$pkg_index_url" "$pkg_version" >/dev/null
+          }
+          wait_for_jsr_version() {
+            elapsed=0
+            exact_reported=0
+            index_reported=0
+            while [ "$elapsed" -le "$publish_confirm_timeout" ]; do
+              if jsr_exact_metadata_visible; then
+                if [ "$exact_reported" -eq 0 ]; then
+                  echo "JSR exact metadata is visible: ${pkg_name}@${pkg_version}"
+                  exact_reported=1
+                fi
+                if jsr_package_index_visible; then
+                  if [ "$index_reported" -eq 0 ]; then
+                    echo "JSR package index confirms published version: ${pkg_name}@${pkg_version}"
+                    index_reported=1
+                  fi
+                  return 0
+                elif [ "$index_reported" -eq 0 ]; then
+                  echo "JSR exact metadata is visible, waiting for package index visibility: ${pkg_name}@${pkg_version}"
+                  index_reported=1
+                fi
+              fi
+              if [ "$elapsed" -ge "$publish_confirm_timeout" ]; then
+                break
+              fi
+              sleep "$publish_confirm_interval"
+              elapsed=$((elapsed + publish_confirm_interval))
+            done
+            return 1
+          }
+          deno task test --frozen
+          git status --short
+          test -z "$(git status --porcelain)"
+          if jsr_exact_metadata_visible; then
+            if wait_for_jsr_version; then
+              echo "published version already has full JSR registry visibility: ${pkg_name}@${pkg_version}"
+              exit 0
+            fi
+            echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+            exit 1
+          fi
+          max_attempts=3
+          for attempt in $(seq 1 $max_attempts); do
+              if jsr_exact_metadata_visible; then
+                if wait_for_jsr_version; then
+                  echo "published version already has full JSR registry visibility: ${pkg_name}@${pkg_version}"
+                  exit 0
+                fi
+                echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+                exit 1
+              fi
+              if timeout --foreground --kill-after=30s "$publish_timeout" deno publish; then
+                echo "deno publish exited successfully; confirming JSR registry visibility..."
+                if wait_for_jsr_version; then
+                  echo "JSR registry confirms published version: ${pkg_name}@${pkg_version}"
+                  exit 0
+                fi
+                echo "::error::deno publish exited successfully, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+                exit 1
+              else
+                status=$?
+              fi
+              if [ "$status" -eq 124 ]; then
+                echo "deno publish reached bounded wait (${publish_timeout}, exit code 124); checking JSR registry visibility..."
+              else
+                echo "deno publish exited with code ${status}; checking JSR registry visibility before retry/fail..."
+              fi
+              if wait_for_jsr_version; then
+                echo "JSR registry confirms published version: ${pkg_name}@${pkg_version}; treating publish as successful."
+                exit 0
+              fi
+              if jsr_exact_metadata_visible; then
+                echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: ${pkg_name}@${pkg_version}"
+                exit 1
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "JSR registry did not confirm published version after attempt $attempt/$max_attempts; retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "::error::Publish failed: deno publish did not complete successfully and JSR registry did not confirm published version after $max_attempts attempts: ${pkg_name}@${pkg_version}"
+          exit 1
+  publish_11:
+    name: "jsr-12/12: ${{ matrix.name }}"
+    runs-on: ubuntu-latest
+    needs: publish_10
+    permissions:
+      contents: read
+      id-token: write # The OIDC/ID token is used for authentication with JSR.
+    environment: dev
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - name: "@sys/driver-monaco"
+            path: "code/sys.driver/driver-monaco"
+            version: "0.0.273"
+          - name: "@sys/driver-prosemirror"
+            path: "code/sys.driver/driver-prosemirror"
+            version: "0.0.255"
           - name: "@sys/tools"
             path: "code/sys.tools"
-            version: "0.0.473"
+            version: "0.0.474"
           - name: "@tdb/edu-slug"
             path: "deploy/@tdb.edu.slug"
-            version: "0.0.160"
+            version: "0.0.161"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout

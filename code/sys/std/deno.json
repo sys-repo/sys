@@ -1,6 +1,6 @@
 {
   "name": "@sys/std",
-  "version": "0.0.367",
+  "version": "0.0.368",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -55,6 +55,12 @@
     "./xml": "./src/m.Xml/mod.ts"
   },
   "permissions": {
-    "test": { "read": true, "write": true, "env": true, "net": true }
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true
+    }
   }
 }
+

@@ -125,7 +125,7 @@
     "npm:motion@12.42.2": "12.42.2_react@19.2.7_react-dom@19.2.7__react@19.2.7",
     "npm:ora@9.4.0": "9.4.0",
     "npm:ora@9.4.1": "9.4.1",
-    "npm:prettier@3.9.4": "3.9.4",
+    "npm:prettier@3.9.5": "3.9.5",
     "npm:pretty-bytes@7.1.0": "7.1.0",
     "npm:prismjs@^1.29.0": "1.30.0",
     "npm:prismjs@^1.30.0": "1.30.0",
@@ -2981,8 +2981,8 @@
       "integrity": "sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==",
       "bin": true
     },
-    "prettier@3.9.4": {
-      "integrity": "sha512-yWG/o/4oJfo036EKAfK6ACAoDOfHeRHx4tuxkfBZiauURiaSmYwlpOr5LQqKtIkRD2z1PLteme2WoxEnj4tHTg==",
+    "prettier@3.9.5": {
+      "integrity": "sha512-/FVl766LpUfB5vXgCYOYa0MeV/441Ia99AeICQIQFTY/Nw0roZwULcXpku5i1/m5kt/baz+s4Zogspd839HSMg==",
       "bin": true
     },
     "pretty-bytes@7.1.0": {
@@ -3856,7 +3856,7 @@
         "npm:@vitejs/plugin-react@6.0.3",
         "npm:monaco-editor@0.55.1",
         "npm:motion@12.42.2",
-        "npm:prettier@3.9.4",
+        "npm:prettier@3.9.5",
         "npm:react-dom@19.2.7",
         "npm:react-icons@5.7.0",
         "npm:react@19.2.7",
