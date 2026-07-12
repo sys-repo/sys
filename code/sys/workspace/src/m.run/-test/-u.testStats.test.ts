@@ -3,7 +3,7 @@ import {
   classifyNativeTestTask,
   createNativeTestStatsRun,
   parseNativeTestStatsReport,
-} from '../u/u.testStats.ts';
+} from '../u.testStats/mod.ts';
 import { resolveCommand, runPackage } from '../u/u.worker.ts';
 import { WorkspaceRun } from '../mod.ts';
 

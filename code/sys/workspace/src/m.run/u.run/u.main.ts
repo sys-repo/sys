@@ -1,13 +1,13 @@
 import { WorkspacePrep } from '../../m.prep/mod.ts';
 import { Fs, type t, Time } from '../common.ts';
-import { formatIntroLine } from './u.fmt.ts';
-import { resolveJobs } from './u.jobs.ts';
-import { createRunPlan } from './u.plan.ts';
-import { createParallelReporter } from './u.reporter.ts';
-import { runParallel } from './u.run.parallel.ts';
-import { runSequential } from './u.run.sequential.ts';
-import { createNativeTestStatsRun } from './u.testStats.ts';
-import { resolveCommand } from './u.worker.ts';
+import { formatIntroLine } from '../u/u.fmt.ts';
+import { resolveJobs } from '../u/u.jobs.ts';
+import { createRunPlan } from '../u/u.plan.ts';
+import { createParallelReporter } from '../u/u.reporter.ts';
+import { resolveCommand } from '../u/u.worker.ts';
+import { createNativeTestStatsRun } from '../u.testStats/mod.ts';
+import { runParallel } from './u.parallel.ts';
+import { runSequential } from './u.sequential.ts';
 
 export function runTask(
   task: 'test',

@@ -1,6 +1,6 @@
 import { Fs, Is, Num, Obj, Process, type t, Time } from '../common.ts';
 import type { RunCandidate } from './u.plan.ts';
-import type { NativeTestStatsRun, PreparedNativeTestStats } from './u.testStats.ts';
+import type { NativeTestStatsRun, PreparedNativeTestStats } from '../u.testStats/mod.ts';
 
 export type PackageCommand = {
   readonly cmd: string;

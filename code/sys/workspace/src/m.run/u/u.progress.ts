@@ -1,5 +1,5 @@
 import { type t, Time } from '../common.ts';
-import type { ParallelRunEvent } from './u.run.parallel.ts';
+import type { ParallelRunEvent } from '../u.run/mod.ts';
 
 export type ParallelProgressModel = {
   /** Apply one scheduler event and return the current progress snapshot. */

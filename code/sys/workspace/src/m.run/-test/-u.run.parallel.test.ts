@@ -1,6 +1,6 @@
 import { describe, Err, expect, it, type t, Time } from '../../-test.ts';
 import { createRunPlanFromCandidates, type RunPlan } from '../u/u.plan.ts';
-import { type ParallelRunEvent, runParallel } from '../u/u.run.parallel.ts';
+import { type ParallelRunEvent, runParallel } from '../u.run/mod.ts';
 import type { PackageWorker } from '../u/u.worker.ts';
 
 type Deferred = {

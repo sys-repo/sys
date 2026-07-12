@@ -1,7 +1,12 @@
 import { Arr, Err, Num, Obj, type t, Time } from '../common.ts';
-import type { RunCandidate, RunPlan } from './u.plan.ts';
-import type { NativeTestStatsRun } from './u.testStats.ts';
-import { type PackageCommand, type PackageWorker, resolveCommand, runPackage } from './u.worker.ts';
+import type { RunCandidate, RunPlan } from '../u/u.plan.ts';
+import {
+  type PackageCommand,
+  type PackageWorker,
+  resolveCommand,
+  runPackage,
+} from '../u/u.worker.ts';
+import type { NativeTestStatsRun } from '../u.testStats/mod.ts';
 
 export type ParallelRunArgs = {
   readonly cwd: t.StringDir;

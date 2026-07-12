@@ -1,7 +1,7 @@
 import { Arr, Obj, Str, type t, Time } from '../common.ts';
-import type { RunPlan } from './u.plan.ts';
-import type { NativeTestStatsRun } from './u.testStats.ts';
-import { resolveCommand, runPackage } from './u.worker.ts';
+import type { RunPlan } from '../u/u.plan.ts';
+import { resolveCommand, runPackage } from '../u/u.worker.ts';
+import type { NativeTestStatsRun } from '../u.testStats/mod.ts';
 
 export type SequentialRunArgs = {
   readonly cwd: t.StringDir;

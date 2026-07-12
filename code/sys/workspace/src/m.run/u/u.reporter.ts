@@ -6,7 +6,7 @@ import {
   type ParallelProgressModel,
   type ParallelProgressRunning,
 } from './u.progress.ts';
-import type { ParallelRunEvent, ParallelRunEventHandler } from './u.run.parallel.ts';
+import type { ParallelRunEvent, ParallelRunEventHandler } from '../u.run/mod.ts';
 
 export type ParallelReporter = {
   readonly start: () => void;
