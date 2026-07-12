@@ -1,6 +1,12 @@
 import { describe, expect, formatUrl, it, JsrUrl, print } from './common.ts';
 
 describe('JsrUrl.Pkg', () => {
+  it('web', () => {
+    const url = JsrUrl.Pkg.web('@sys/std');
+    expect(url).to.eql('https://jsr.io/@sys/std');
+    print('JsrUrl.Pkg.web', formatUrl(url, '@sys/std'));
+  });
+
   it('metadata', () => {
     const url = JsrUrl.Pkg.metadata('@sys/std');
     expect(url).to.eql('https://jsr.io/@sys/std/meta.json');

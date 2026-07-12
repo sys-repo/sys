@@ -5,6 +5,10 @@ import type { JsrUrl } from './t.ts';
 export const Pkg: JsrUrl.Pkg.Lib = {
   Is,
 
+  web(name) {
+    return `${origin}/${name}`;
+  },
+
   metadata(name) {
     return `${origin}/${name}/meta.json`;
   },
