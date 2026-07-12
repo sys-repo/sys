@@ -1,5 +1,11 @@
 import { c, Cli, Num, Str, type t, Time } from '../common.ts';
 import { formatFailedOutput, formatIntroLine } from './u.fmt.ts';
+import {
+  createParallelProgressModel,
+  type ParallelProgressCompleted,
+  type ParallelProgressModel,
+  type ParallelProgressRunning,
+} from './u.progress.ts';
 import type { ParallelRunEvent, ParallelRunEventHandler } from './u.run.parallel.ts';
 
 export type ParallelReporter = {
@@ -32,39 +38,13 @@ export type ParallelProgressFormatArgs = {
   readonly width?: number;
 };
 
-export type ParallelProgressRunning = {
-  readonly path: t.StringPath;
-  readonly elapsed: t.Msecs;
-};
-
-export type ParallelProgressCompleted = {
-  readonly path: t.StringPath;
-  readonly kind: 'passed' | 'failed' | 'skipped' | 'blocked';
-  readonly elapsed?: t.Msecs;
-};
-
-type Running = {
-  readonly path: t.StringPath;
-  readonly startedAt: t.Msecs;
-};
-
 type ReporterState = {
   readonly task: t.WorkspaceRun.Task;
   readonly jobs: number;
-  readonly runnableTotal: number;
-  readonly runnablePaths: Set<t.StringPath>;
   readonly terminal: boolean;
   readonly width?: number;
   readonly write: (line: string) => void;
-  readonly startedAt: t.Msecs;
-  readonly running: Map<t.StringPath, Running>;
-  completed: ParallelProgressCompleted[];
-  pending: number;
-  passed: number;
-  skipped: number;
-  blocked: number;
-  blockedRunnable: number;
-  failed: number;
+  readonly progress: ParallelProgressModel;
   spinner?: t.Cli.Spinner.Instance;
   tick?: ReturnType<typeof setInterval>;
   stopped: boolean;
@@ -77,24 +57,13 @@ const MINUTE = Time.Date.MINUTE;
 
 /** Create a reporter that renders parallel test progress from scheduler events. */
 export function createParallelReporter(args: ParallelReporterArgs): ParallelReporter {
-  const runnablePaths = new Set(args.runnablePaths);
   const state: ReporterState = {
     task: args.task,
     jobs: args.jobs,
-    runnableTotal: runnablePaths.size,
-    runnablePaths,
     terminal: args.terminal ?? Cli.Is.terminal('stdout'),
     width: args.width,
     write: args.write ?? console.info,
-    startedAt: Time.now.timestamp,
-    running: new Map(),
-    completed: [],
-    pending: runnablePaths.size,
-    passed: 0,
-    skipped: 0,
-    blocked: 0,
-    blockedRunnable: 0,
-    failed: 0,
+    progress: createParallelProgressModel({ runnablePaths: args.runnablePaths }),
     stopped: false,
   };
 
@@ -174,48 +143,14 @@ const wrangle = {
   event(state: ReporterState, event: ParallelRunEvent) {
     if (state.stopped && event.kind !== 'done') return;
 
-    if (event.kind === 'start') {
-      if (wrangle.isRunnable(state, event.path)) state.pending = wrangle.decrement(state.pending);
-      state.running.set(event.path, { path: event.path, startedAt: Time.now.timestamp });
-      wrangle.render(state);
-      return;
-    }
-
-    if (event.kind === 'skip') {
-      state.skipped += 1;
-      wrangle.addCompleted(state, { kind: 'skipped', path: event.path });
-      wrangle.render(state);
-      return;
-    }
-
-    if (event.kind === 'finish') {
-      state.running.delete(event.path);
-      if (event.result.success) state.passed += 1;
-      else state.failed += 1;
-      wrangle.addCompleted(state, {
-        kind: event.result.success ? 'passed' : 'failed',
-        path: event.path,
-        elapsed: event.result.elapsed,
-      });
-      wrangle.render(state);
-      return;
-    }
-
-    if (event.kind === 'block') {
-      state.blocked += 1;
-      if (wrangle.isRunnable(state, event.path)) {
-        state.pending = wrangle.decrement(state.pending);
-        state.blockedRunnable += 1;
-      }
-      wrangle.addCompleted(state, { kind: 'blocked', path: event.path });
-      wrangle.render(state);
-      return;
-    }
-
+    state.progress.event(event);
     wrangle.render(state);
-    wrangle.stop(state);
-    const failedOutput = formatFailedOutput(event.result);
-    if (failedOutput) state.write(failedOutput);
+
+    if (event.kind === 'done') {
+      wrangle.stop(state);
+      const failedOutput = formatFailedOutput(event.result);
+      if (failedOutput) state.write(failedOutput);
+    }
   },
 
   render(state: ReporterState) {
@@ -225,32 +160,10 @@ const wrangle = {
 
   frame(state: ReporterState) {
     return formatParallelProgress({
-      runnableTotal: state.runnableTotal,
-      passed: state.passed,
-      skipped: state.skipped,
-      blocked: state.blocked,
-      blockedRunnable: state.blockedRunnable,
-      failed: state.failed,
-      pending: state.pending,
-      running: wrangle.running(state),
-      completed: state.completed,
-      elapsed: wrangle.elapsed(state),
+      ...state.progress.snapshot(),
       terminal: state.terminal,
       width: state.width,
     });
-  },
-
-  running(state: ReporterState): readonly ParallelProgressRunning[] {
-    const now = Time.now.timestamp;
-    const items: ParallelProgressRunning[] = [];
-    for (const item of state.running.values()) {
-      items.push({ path: item.path, elapsed: now - item.startedAt });
-    }
-    return items;
-  },
-
-  elapsed(state: ReporterState): t.Msecs {
-    return (Time.now.timestamp - state.startedAt) as t.Msecs;
   },
 
   stop(state: ReporterState) {
@@ -259,18 +172,6 @@ const wrangle = {
     if (state.tick) clearInterval(state.tick);
     state.tick = undefined;
     state.spinner?.stop();
-  },
-
-  isRunnable(state: ReporterState, path: t.StringPath) {
-    return state.runnablePaths.has(path);
-  },
-
-  addCompleted(state: ReporterState, item: ParallelProgressCompleted) {
-    state.completed = [item, ...state.completed].slice(0, 64);
-  },
-
-  decrement(value: number) {
-    return value > 0 ? value - 1 : 0;
   },
 
   progressRatio(done: number, total: number): t.Percent {
