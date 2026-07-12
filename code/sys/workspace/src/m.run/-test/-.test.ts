@@ -130,9 +130,9 @@ describe('WorkspaceRun', () => {
       kind: 'observed',
       capability: 'deno:junit',
       source: 'junit',
-      tests: 3,
-      failed: 1,
-      failures: 1,
+      tests: 10136,
+      failed: 1000,
+      failures: 1000,
       errors: 0,
       skipped: 0,
       failedCases: [],
@@ -168,11 +168,11 @@ describe('WorkspaceRun', () => {
       .split('\n')
       .map((line) => line.trim().replace(/\s+/g, ' '));
 
-    expect(text.includes('tests 3')).to.eql(true);
-    expect(text.includes('test failed 1')).to.eql(true);
+    expect(text.includes('tests 10,136')).to.eql(true);
+    expect(text.includes('test failed 1,000')).to.eql(true);
     expect(text.includes('reports 1/3 observed, 1 unavailable, 1 unsupported')).to.eql(true);
     expect(rows.includes('package status elapsed tests failed')).to.eql(true);
-    expect(rows.includes('code/pkg-a failed 1ms 3 1')).to.eql(true);
+    expect(rows.includes('code/pkg-a failed 1ms 10,136 1,000')).to.eql(true);
     expect(rows.includes('code/pkg-b ok 1ms — —')).to.eql(true);
     expect(rows.includes('code/pkg-c ok 1ms — —')).to.eql(true);
     expect(rows.includes('code/pkg-d skipped — — —')).to.eql(true);
