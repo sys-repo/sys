@@ -85,6 +85,7 @@
     "npm:@automerge/prosemirror@0.2.0": "0.2.0",
     "npm:@deno/vite-plugin@2.0.2": "2.0.2_vite@8.1.4__yaml@2.9.0_yaml@2.9.0",
     "npm:@mariozechner/pi-coding-agent@0.73.0": "0.73.0_ws@8.21.0_zod@4.4.3",
+    "npm:@mariozechner/pi-coding-agent@latest": "0.73.1",
     "npm:@monaco-editor/react@4.7.0": "4.7.0_monaco-editor@0.55.1_react@19.2.7_react-dom@19.2.7__react@19.2.7",
     "npm:@noble/hashes@2.2.0": "2.2.0",
     "npm:@octokit/rest@22.0.1": "22.0.1",
@@ -1112,6 +1113,37 @@
         "glob@13.0.6",
         "hosted-git-info",
         "ignore",
+        "marked@15.0.12",
+        "minimatch@10.2.5",
+        "proper-lockfile",
+        "strip-ansi@7.2.0",
+        "typebox",
+        "undici",
+        "uuid@14.0.0",
+        "yaml"
+      ],
+      "optionalDependencies": [
+        "@mariozechner/clipboard"
+      ],
+      "deprecated": true,
+      "bin": true
+    },
+    "@mariozechner/pi-coding-agent@0.73.1": {
+      "integrity": "sha512-gXQh3SaZmWTfVMc4Ao5+LGbVeKvzyO7tolok0nLsZgq9nGjZx/EEU3NM8C+qUnB4Nvs2rswG5qOVgLzQkq0fHQ==",
+      "dependencies": [
+        "@mariozechner/pi-agent-core",
+        "@mariozechner/pi-ai",
+        "@mariozechner/pi-tui",
+        "@silvia-odwyer/photon-node",
+        "chalk@5.6.2",
+        "cli-highlight",
+        "diff@8.0.4",
+        "extract-zip",
+        "file-type",
+        "glob@13.0.6",
+        "hosted-git-info",
+        "ignore",
+        "jiti",
         "marked@15.0.12",
         "minimatch@10.2.5",
         "proper-lockfile",
@@ -2494,6 +2526,10 @@
       "optionalDependencies": [
         "@pkgjs/parseargs"
       ]
+    },
+    "jiti@2.7.0": {
+      "integrity": "sha512-AC/7JofJvZGrrneWNaEnJeOLUx+JlGt7tNa0wZiRPT4MY1wmfKjt2+6O2p2uz2+skll8OZZmJMNqeke7kKbNgQ==",
+      "bin": true
     },
     "js-tokens@4.0.0": {
       "integrity": "sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ=="
