@@ -60,6 +60,8 @@
     "jsr:@std/testing@1.0.19": "1.0.19",
     "jsr:@std/text@^1.0.19": "1.0.19",
     "jsr:@std/uuid@1.1.1": "1.1.1",
+    "jsr:@std/xml@*": "0.1.3",
+    "jsr:@std/xml@0.1.3": "0.1.3",
     "jsr:@sys/cli@^0.0.293": "0.0.293",
     "jsr:@sys/color@^0.0.256": "0.0.256",
     "jsr:@sys/crypto@^0.0.295": "0.0.295",
@@ -399,6 +401,9 @@
         "jsr:@std/bytes",
         "jsr:@std/crypto"
       ]
+    },
+    "@std/xml@0.1.3": {
+      "integrity": "afb7750d09f9f521046b27119d0e63f7aaad6eeb3d74e5f41fc04a9958014811"
     },
     "@sys/cli@0.0.293": {
       "integrity": "edd4a7a785709094ab4a0d56badad792295efb419a91151049aba386d3e597cd",
@@ -3785,6 +3790,7 @@
       "jsr:@std/semver@1.0.8",
       "jsr:@std/testing@1.0.19",
       "jsr:@std/uuid@1.1.1",
+      "jsr:@std/xml@0.1.3",
       "npm:@automerge/automerge-repo-network-websocket@2.5.6",
       "npm:@automerge/automerge-repo-storage-indexeddb@2.5.6",
       "npm:@automerge/automerge-repo-storage-nodefs@2.5.6",
