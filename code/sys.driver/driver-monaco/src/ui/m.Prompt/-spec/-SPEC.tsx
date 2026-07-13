@@ -1,7 +1,7 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { Root } from './-ui.Root.tsx';
-import { type t, Color, D, Keyboard, Rx } from './common.ts';
+import { Color, D, Keyboard, Rx, type t } from './common.ts';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -25,8 +25,10 @@ export default Spec.describe(D.displayName, async (e) => {
     keyboardLife?.dispose();
     keyboardLife = Rx.lifecycle();
     Keyboard.until(keyboardLife.dispose$).on('Escape', (e) => {
-      p.editorFooter.value?.focus();
-      e.handled();
+      const footer = p.editorFooter.value;
+      if (!footer) return;
+      footer.focus();
+      e.consume();
     });
 
     ctx.subject
