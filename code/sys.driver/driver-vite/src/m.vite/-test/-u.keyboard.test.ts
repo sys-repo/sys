@@ -17,7 +17,7 @@ describe('Vite.dev keyboard', () => {
       keypress: () => keypress([{ key: 'i' }, { key: 'c', ctrlKey: true }]),
       workspace: async () => workspace(),
       clear: () => events.push('clear'),
-      print: (text) => events.push(text.includes('Options') ? 'help' : 'info'),
+      print: (text) => events.push(text.includes('options') ? 'help' : 'info'),
       exit: (code) => events.push(`exit:${code}`),
     });
 

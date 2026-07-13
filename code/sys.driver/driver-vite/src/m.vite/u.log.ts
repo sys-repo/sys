@@ -19,7 +19,7 @@ export const Log = {
     toString(Pkg: t.Pkg, input: t.StringPath, options: { pad?: boolean } = {}) {
       input = input.replace(/^\.\//, ''); // trim leading "./" relative prefix (reduce visual noise).
       const text = `
-${c.gray(`Module:   ${ViteLog.Module.toString(Pkg)}`)}
+${c.gray(`module:   ${ViteLog.Module.toString(Pkg)}`)}
 ${c.brightGreen(`entry:    ${wrangle.fmtPath(input)}`)}
     `;
       return ViteLog.pad(text, options.pad);
@@ -52,7 +52,7 @@ ${c.brightGreen(`entry:    ${wrangle.fmtPath(input)}`)}
       const port = c.bold(c.brightCyan(url.port));
       const href = `${url.protocol}//${url.hostname}:${port}/`;
       const text = `
-${c.gray(`Module   ${mod}`)}
+${c.gray(`module   ${mod}`)}
 ${c.cyan(`         ${href}`)}
           `;
       return ViteLog.pad(text, args.pad);
@@ -72,7 +72,7 @@ ${c.cyan(`         ${href}`)}
       pad?: boolean;
     }) {
       const { pkg, dist, paths, url, pad, ws } = args;
-      const hr = c.brightGreen(c.bold(Cli.Fmt.hr(60)));
+      const hr = c.brightGreen(c.bold(Cli.Fmt.hr()));
       const key = (text: string) => c.bold(c.white(text));
       const digest = ViteLog.digest(args.dist?.hash.digest);
       const input = paths.app.entry;
@@ -89,12 +89,12 @@ ${Log.Info.toString({ pkg, dist, url, pad })}
          ${c.white('output')}   ${Path.trimCwd(outDir)} ${digest}
 
 
-${c.green(c.bold('Options'))}:
+${c.green(c.bold('options'))}:
 ${hr}
- Quit   ${key('ctrl + c')}
- Clear  ${key('k')}
- Open   ${key('o')}  ${c.dim('← (in browser)')}
- Info   ${key('i')}
+ quit   ${key('ctrl + c')}
+ clear  ${key('k')}
+ open   ${key('o')}  ${c.dim('← (in browser)')}
+ info   ${key('i')}
 `;
       text = text.trim();
       return ViteLog.pad(c.gray(text), args.pad);
