@@ -115,8 +115,8 @@
     "npm:hash-it@7.0.3": "7.0.3",
     "npm:he@^1.2.0": "1.2.0",
     "npm:hono@4.12.24": "4.12.24",
-    "npm:hono@4.12.28": "4.12.28",
-    "npm:ignore@7.0.5": "7.0.5",
+    "npm:hono@4.12.29": "4.12.29",
+    "npm:ignore@7.0.6": "7.0.6",
     "npm:katex@0.16": "0.16.47",
     "npm:marked-alert@2": "2.1.2_marked@12.0.2",
     "npm:marked-footnote@^1.2.0": "1.4.0_marked@12.0.2",
@@ -509,7 +509,6 @@
         "npm:@types/ramda",
         "npm:chai",
         "npm:date-fns@4.4.0",
-        "npm:ignore",
         "npm:pretty-bytes",
         "npm:ramda",
         "npm:rxjs",
@@ -2433,8 +2432,8 @@
     "hono@4.12.24": {
       "integrity": "sha512-I36D1s+HgQc55KbhEr4iybfxv/9o1zdpw+XEM6dJa91LqQD0HCoSGdxpRJCZE+aavs87j4V3Ls2OJzq8C/U4iw=="
     },
-    "hono@4.12.28": {
-      "integrity": "sha512-YwUvVpSF7m1yOblFPrU3Hbo8XhPheBoiyfGuII6z19LnOr6JpDnyyp7LFNrfV56wS8tpvtBFGRISHN02pDdLOA=="
+    "hono@4.12.29": {
+      "integrity": "sha512-1hNiRjawYrLq/4m3DQQjPGFg0VZkk4RjQJDff/excI6Dm9BiL75qxGrd7/c6YOxPdq6AscP3LiXhQ6fKFC1Waw=="
     },
     "hosted-git-info@9.0.3": {
       "integrity": "sha512-Hc+ghLoSt6QaYZUv0WBiIvmMDZuZZ7oaDvdH8MbfOO4lOsxdXLEvuC6ePoGs9H1X9oCLyq6+NVN0MKqD+ydxyg==",
@@ -2471,8 +2470,8 @@
     "ieee754@1.2.1": {
       "integrity": "sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA=="
     },
-    "ignore@7.0.5": {
-      "integrity": "sha512-Hs59xBNfUIunMFgWAbGX5cq6893IbWg4KnrjbYwX3tx0ztorVgTDA6B2sxf8ejHJ4wz8BqGUMYlnzNBer5NvGg=="
+    "ignore@7.0.6": {
+      "integrity": "sha512-BAg6QkE8W+TuQLrrw0Ugr7HegXduRuuj8/ti2kSOc+jz1dmx8/WNcjr6XGnq5YpDWxFwwaavqD0+jIUOKelTsw=="
     },
     "ip-address@10.2.0": {
       "integrity": "sha512-/+S6j4E9AHvW9SWMSEY9Xfy66O5PWvVEJ08O0y5JGyEKQpojb0K0GKpz/v5HJ/G0vi3D2sjGK78119oXZeE0qA=="
@@ -3855,8 +3854,8 @@
       "npm:gpt-tokenizer@3.4.0",
       "npm:happy-dom@20.10.6",
       "npm:hash-it@7.0.3",
-      "npm:hono@4.12.28",
-      "npm:ignore@7.0.5",
+      "npm:hono@4.12.29",
+      "npm:ignore@7.0.6",
       "npm:monaco-editor@0.55.1",
       "npm:ora@9.4.1",
       "npm:pretty-bytes@7.1.0",
