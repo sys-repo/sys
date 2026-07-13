@@ -6,7 +6,6 @@ import { Root } from './-ui.Root.tsx';
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
-
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
@@ -22,10 +21,7 @@ export default Spec.describe(D.displayName, (e) => {
     });
 
     ctx.host.tracelineColor(0.03);
-    ctx.subject
-      .size()
-      .display('grid')
-      .render(() => <Root debug={debug} />);
+    ctx.subject.size().display('grid').render(() => <Root debug={debug} />);
 
     update();
   });

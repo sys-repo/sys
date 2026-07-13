@@ -250,6 +250,47 @@ describe('KeyValue.UI: cursor entry', () => {
     act(() => res.dispose());
     await Schedule.micro();
   });
+
+  it('enters cursor mode from the focused reorder root with Option+Enter', async () => {
+    const changes: t.KeyValue.Cursor.Change[] = [];
+    let current: t.KeyValue.Cursor.Target | undefined;
+
+    const Probe: React.FC = () => {
+      const [model, setModel] = React.useState<t.KeyValue.Cursor.Model>({});
+      current = model.current;
+      return (
+        <KeyValue.UI
+          items={[row('alpha'), row('bravo')]}
+          reorder={{ onChange: () => undefined }}
+          cursor={{
+            model,
+            onChange: (e) => {
+              changes.push(e);
+              setModel(e.next);
+            },
+          }}
+        />
+      );
+    };
+
+    const res = await TestReact.render(<Probe />, { strict: false });
+    const root = res.container.firstElementChild as HTMLElement;
+    expect(root.dataset.keyvalueCursorRoot).to.eql('true');
+    expect(root.tabIndex).to.eql(0);
+
+    act(() => root.focus());
+    const event = keydown(root, 'Enter', { altKey: true });
+    await Schedule.micro();
+
+    expect(event.defaultPrevented).to.eql(true);
+    expect(document.activeElement).to.equal(root);
+    expect(current).to.eql({ path: ['alpha'] });
+    expect(changes.length).to.eql(1);
+    expect(entryChange(changes[0]).entry).to.eql('option-enter');
+
+    act(() => res.dispose());
+    await Schedule.micro();
+  });
 });
 
 /**

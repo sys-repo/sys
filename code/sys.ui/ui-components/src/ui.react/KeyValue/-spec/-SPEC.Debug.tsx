@@ -225,7 +225,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       {p.cursor.value && (
         <div className={Styles.note.class}>
-          {'Option-click a row, or focus the table and press Option+Enter. Use Option+←/→ for key/value lanes; ↑/↓ moves; Enter enters groups; Esc exits.'}
+          {'Option-click a row, or Option+Enter to focus this harness table. Once focused: Option+Enter enters; Option+←/→ enters key/value lanes; ↑/↓ moves; Enter enters groups; Esc exits.'}
         </div>
       )}
       <hr />
