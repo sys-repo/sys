@@ -23,7 +23,7 @@ export function rootPendingAdvisoryPrelude(
   const width = Cli.stripAnsi(hr).length;
   const title = rootAdvisoryLine({
     width,
-    left: c.white('upgrade pending — standing down'),
+    left: c.white('auto-upgrade pending — standing down'),
     right: `${c.gray('next:')}${c.white(pkg.name)} ${c.white(remote)}`,
   });
   const waiting = StanddownTiming.formatWait(options.remaining);

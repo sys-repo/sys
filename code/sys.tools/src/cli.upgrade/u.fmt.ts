@@ -30,7 +30,7 @@ function displayState(version: t.UpgradeTool.VersionInfo): DisplayState {
 
   if (state.pending) {
     return {
-      title: w(`${pkg.name} upgrade standing down`),
+      title: w(`${pkg.name} auto-upgrade pending — standing down`),
       rows: [
         { label: 'current', value: c.gray(version.local) },
         { label: 'published', value: w(version.remote) },

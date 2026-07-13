@@ -301,7 +301,7 @@ describe('cli.upgrade.runUpgrade', () => {
       expect(output).to.contain('@sys/tools upgrade available');
       expect(output).to.contain('published    0.0.464  — minimum dependency age window clears in 21h');
       expect(output).to.contain('installable  0.0.463');
-      expect(output).to.not.contain('upgrade standing down');
+      expect(output).to.not.contain('auto-upgrade pending — standing down');
     });
 
     it('uses a back affordance from the root menu and returns without refreshing', async () => {
@@ -341,7 +341,7 @@ describe('cli.upgrade.runUpgrade', () => {
     });
   });
 
-  describe('upgrade standing down', () => {
+  describe('auto-upgrade pending standdown', () => {
     it('reports standdown when latest cannot be used yet', async () => {
       const events: string[] = [];
       let refreshed = false;
@@ -384,7 +384,9 @@ describe('cli.upgrade.runUpgrade', () => {
       const plain = events.map((line) => Cli.stripAnsi(line));
       expect(refreshed).to.eql(false);
       expect(prompted).to.eql(false);
-      expect(plain.some((line) => line.includes('@sys/tools upgrade standing down'))).to.eql(true);
+      expect(plain.some((line) =>
+        line.includes('@sys/tools auto-upgrade pending — standing down')
+      )).to.eql(true);
       expect(plain.some((line) => line.includes('current      0.0.318'))).to.eql(true);
       expect(plain.some((line) => line.includes('published    0.0.319'))).to.eql(true);
       expect(plain.some((line) => line.includes('installable  none yet'))).to.eql(true);

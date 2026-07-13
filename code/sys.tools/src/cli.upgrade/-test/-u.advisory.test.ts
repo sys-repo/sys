@@ -367,7 +367,7 @@ describe('cli.upgrade advisory', () => {
       });
       expect(res.hasUpgrade).to.eql(false);
       const lines = prelude.split('\n').filter(Boolean);
-      expect(lines[1]?.startsWith('upgrade pending — standing down')).to.eql(true);
+      expect(lines[1]?.startsWith('auto-upgrade pending — standing down')).to.eql(true);
       expect(lines[1]?.endsWith('next:@sys/tools 9.9.9')).to.eql(true);
       expect(prelude).to.contain(
         'waiting 21h for the minimum dependency age window to pass',
