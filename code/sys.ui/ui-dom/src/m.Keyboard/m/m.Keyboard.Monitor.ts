@@ -1,6 +1,6 @@
-import { Arr, DEFAULTS, Obj, Rx, type t } from './common.ts';
+import { Arr, DEFAULTS, Obj, Rx, type t } from '../common.ts';
+import { Util } from '../u/mod.ts';
 import { Match } from './m.Match.ts';
-import { Util } from './u.ts';
 
 const singleton = {
   isListening: false,

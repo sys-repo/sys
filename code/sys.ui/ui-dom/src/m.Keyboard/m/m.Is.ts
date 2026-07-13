@@ -1,5 +1,5 @@
-import { type t, UserAgent } from './common.ts';
-import { Util } from './u.ts';
+import { type t, UserAgent } from '../common.ts';
+import { Util } from '../u/mod.ts';
 
 /** Keyboard predicate helpers for modifiers and shortcuts. */
 export const Is: t.Keyboard.Is.Lib = {

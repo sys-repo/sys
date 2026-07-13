@@ -1,7 +1,17 @@
-import { afterAll, beforeAll, describe, DomMock, expect, it, Rx, type t, Time } from '../-test.ts';
-import { keydown, releaseKey } from './-test/u.fixture.ts';
-import { KeyListener } from './m.KeyListener.ts';
-import { Kbd, Keyboard } from './mod.ts';
+import {
+  afterAll,
+  beforeAll,
+  describe,
+  DomMock,
+  expect,
+  it,
+  Rx,
+  type t,
+  Time,
+} from '../../-test.ts';
+import { keydown, releaseKey } from './u.fixture.ts';
+import { KeyListener } from '../m/m.KeyListener.ts';
+import { Kbd, Keyboard } from '../mod.ts';
 
 describe('Keyboard', () => {
   DomMock.init({ beforeAll, afterAll });

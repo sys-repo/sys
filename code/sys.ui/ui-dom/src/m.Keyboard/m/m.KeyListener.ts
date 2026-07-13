@@ -1,4 +1,4 @@
-import { type t, Rx } from './common.ts';
+import { Rx, type t } from '../common.ts';
 
 type KeyHandler = (e: KeyboardEvent) => unknown;
 

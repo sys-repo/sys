@@ -1,4 +1,4 @@
-import { Rx, type t } from './common.ts';
+import { Rx, type t } from '../common.ts';
 import { handlerFiltered, handlerOnOverloaded, KeyboardMonitor } from './m.Keyboard.Monitor.ts';
 import { dbl } from './m.Keyboard.dbl.ts';
 

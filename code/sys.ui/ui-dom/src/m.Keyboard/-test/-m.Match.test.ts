@@ -1,5 +1,5 @@
-import { describe, it, expect, type t } from '../-test.ts';
-import { Keyboard } from './mod.ts';
+import { describe, expect, it, type t } from '../../-test.ts';
+import { Keyboard } from '../mod.ts';
 
 describe('Keyboard.Match', () => {
   it('parse.pattern', () => {
