@@ -15,9 +15,6 @@ export const KeyboardKeypress = {
       get is() {
         return KeyboardModifiers.toFlags(e);
       },
-      handled() {
-        KeyboardControl.consumeControl(control);
-      },
     };
     KeyboardControl.bind(event, control);
     return event;
@@ -42,9 +39,6 @@ export const KeyboardKeypress = {
       isComposing,
       location,
       repeat,
-      handled() {
-        control ? KeyboardControl.consumeControl(control) : KeyboardControl.handled(e);
-      },
     };
   },
 } as const;

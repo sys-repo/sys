@@ -165,62 +165,6 @@ describe('Keyboard.Monitor event ownership', () => {
     }
   });
 
-  it('handled() → remains destructive consume alias', () => {
-    const key = 'e';
-    const target = document.createElement('button');
-    document.body.appendChild(target);
-
-    const calls: string[] = [];
-    target.addEventListener('keydown', () => calls.push('target'));
-
-    const keyboard = Keyboard.until();
-    keyboard.on('KeyE', (e) => {
-      calls.push('first');
-      e.handled();
-    });
-    keyboard.on('KeyE', () => calls.push('second'));
-
-    try {
-      const ev = keydown(key);
-      target.dispatchEvent(ev);
-
-      expect(ev.defaultPrevented).to.eql(true);
-      expect(calls).to.eql(['first']);
-    } finally {
-      releaseKey(key);
-      keyboard.dispose();
-      target.remove();
-    }
-  });
-
-  it('event.handled() → remains destructive compatibility escape hatch', () => {
-    const key = 'j';
-    const target = document.createElement('button');
-    document.body.appendChild(target);
-
-    const calls: string[] = [];
-    target.addEventListener('keydown', () => calls.push('target'));
-
-    const keyboard = Keyboard.until();
-    keyboard.on('KeyJ', (e) => {
-      calls.push('first');
-      e.event.handled();
-    });
-    keyboard.on('KeyJ', () => calls.push('second'));
-
-    try {
-      const ev = keydown(key);
-      target.dispatchEvent(ev);
-
-      expect(ev.defaultPrevented).to.eql(true);
-      expect(calls).to.eql(['first']);
-    } finally {
-      releaseKey(key);
-      keyboard.dispose();
-      target.remove();
-    }
-  });
-
   it('stopKeyboardPropagation() → leaves event.is.handled as native default-prevented state', () => {
     const key = 'h';
     const target = document.createElement('button');

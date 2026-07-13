@@ -156,9 +156,6 @@ export declare namespace Keyboard {
 
       /** Take exclusive ownership: prevent default, stop keyboard routing, and stop native DOM propagation. */
       consume(): void;
-
-      /** @deprecated Use `consume()`. */
-      handled(): void;
     };
 
     /** Map of keyboard patterns to subscribers. */
@@ -306,8 +303,6 @@ export declare namespace Keyboard {
       readonly code: string;
       readonly keypress: Props;
       readonly is: Key.Flags;
-      /** @deprecated Destructive compatibility escape hatch; prefer subscriber `consume()`. */
-      handled(): void;
     };
 
     /** Native keypress properties. */
@@ -326,8 +321,6 @@ export declare namespace Keyboard {
       readonly eventPhase: number;
       readonly timeStamp: number;
       readonly isTrusted: boolean;
-      /** @deprecated Destructive compatibility escape hatch; prefer subscriber `consume()`. */
-      handled(): void;
     };
   }
 }

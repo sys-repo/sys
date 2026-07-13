@@ -16,5 +16,4 @@ export const Util = {
   stopKeyboardPropagation: KeyboardControl.stopKeyboardPropagation,
   consume: KeyboardControl.consume,
   isKeyboardPropagationStopped: KeyboardControl.isKeyboardPropagationStopped,
-  handled: KeyboardControl.handled,
 } as const;

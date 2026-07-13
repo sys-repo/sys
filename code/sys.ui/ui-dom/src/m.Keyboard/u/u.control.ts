@@ -55,18 +55,8 @@ export const KeyboardControl = {
     consumeWith(controlFor(e));
   },
 
-  consumeControl(control: KeypressControl) {
-    consumeWith(control);
-  },
-
   isKeyboardPropagationStopped(e: t.Keyboard.Keypress.Event) {
     const control = keypressControls.get(e);
     return Boolean(control?.keyboardPropagationStopped || control?.consumed);
-  },
-
-  handled(e: KeyboardEvent) {
-    e.preventDefault();
-    e.stopPropagation();
-    e.stopImmediatePropagation();
   },
 } as const;

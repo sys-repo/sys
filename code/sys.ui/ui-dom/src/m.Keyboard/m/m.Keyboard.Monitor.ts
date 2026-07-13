@@ -275,7 +275,6 @@ export function handlerOn(
           preventDefault: () => Util.preventDefault(event),
           stopKeyboardPropagation: () => Util.stopKeyboardPropagation(event),
           consume: () => Util.consume(event),
-          handled: () => Util.consume(event),
         });
       }
     });
