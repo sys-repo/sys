@@ -3,14 +3,6 @@ import { keydown, releaseKey } from './-test/u.fixture.ts';
 import { KeyListener } from './m.KeyListener.ts';
 import { Kbd, Keyboard } from './mod.ts';
 
-type KeyboardControlArgs = t.Keyboard.Match.SubscriberHandlerArgs & {
-  readonly preventDefault: () => void;
-  readonly stopKeyboardPropagation: () => void;
-  readonly consume: () => void;
-};
-
-type KeyboardControlMethod = 'preventDefault' | 'stopKeyboardPropagation' | 'consume';
-
 describe('Keyboard', () => {
   DomMock.init({ beforeAll, afterAll });
 
@@ -124,7 +116,7 @@ describe('Keyboard', () => {
       const keyboard = Keyboard.until();
       keyboard.on('KeyA', (e) => {
         calls.push('first');
-        callControl(e, 'preventDefault', calls);
+        e.preventDefault();
       });
       keyboard.on('KeyA', () => calls.push('second'));
 
@@ -152,7 +144,7 @@ describe('Keyboard', () => {
       const keyboard = Keyboard.until();
       keyboard.on('KeyB', (e) => {
         calls.push('first');
-        callControl(e, 'stopKeyboardPropagation', calls);
+        e.stopKeyboardPropagation();
       });
       keyboard.on('KeyB', () => calls.push('second'));
 
@@ -180,8 +172,8 @@ describe('Keyboard', () => {
       const keyboard = Keyboard.until();
       keyboard.on('KeyC', (e) => {
         calls.push('first');
-        callControl(e, 'preventDefault', calls);
-        callControl(e, 'stopKeyboardPropagation', calls);
+        e.preventDefault();
+        e.stopKeyboardPropagation();
       });
       keyboard.on('KeyC', () => calls.push('second'));
 
@@ -209,7 +201,7 @@ describe('Keyboard', () => {
       const keyboard = Keyboard.until();
       keyboard.on('KeyD', (e) => {
         calls.push('first');
-        callControl(e, 'consume', calls);
+        e.consume();
       });
       keyboard.on('KeyD', () => calls.push('second'));
 
@@ -254,6 +246,34 @@ describe('Keyboard', () => {
       }
     });
 
+    it('event.handled() → remains destructive compatibility escape hatch', () => {
+      const key = 'j';
+      const target = document.createElement('button');
+      document.body.appendChild(target);
+
+      const calls: string[] = [];
+      target.addEventListener('keydown', () => calls.push('target'));
+
+      const keyboard = Keyboard.until();
+      keyboard.on('KeyJ', (e) => {
+        calls.push('first');
+        e.event.handled();
+      });
+      keyboard.on('KeyJ', () => calls.push('second'));
+
+      try {
+        const ev = keydown(key);
+        target.dispatchEvent(ev);
+
+        expect(ev.defaultPrevented).to.eql(true);
+        expect(calls).to.eql(['first']);
+      } finally {
+        releaseKey(key);
+        keyboard.dispose();
+        target.remove();
+      }
+    });
+
     it('stopKeyboardPropagation() → leaves event.is.handled as native default-prevented state', () => {
       const key = 'h';
       const target = document.createElement('button');
@@ -265,7 +285,7 @@ describe('Keyboard', () => {
       const keyboard = Keyboard.until();
       keyboard.on('KeyH', (e) => {
         calls.push('first');
-        callControl(e, 'stopKeyboardPropagation', calls);
+        e.stopKeyboardPropagation();
         handled.push(e.event.is.handled);
       });
       keyboard.on('KeyH', () => calls.push('second'));
@@ -298,7 +318,7 @@ describe('Keyboard', () => {
       });
       keyboard.on('KeyG', (e) => {
         calls.push('first');
-        callControl(e, 'stopKeyboardPropagation', calls);
+        e.stopKeyboardPropagation();
       });
       keyboard.on('KeyG', () => calls.push('second'));
 
@@ -326,10 +346,10 @@ describe('Keyboard', () => {
       const keyboard = Keyboard.until();
       keyboard.on('KeyI', (e) => {
         calls.push('first');
-        callControl(e, 'preventDefault', calls);
-        callControl(e, 'preventDefault', calls);
-        callControl(e, 'stopKeyboardPropagation', calls);
-        callControl(e, 'stopKeyboardPropagation', calls);
+        e.preventDefault();
+        e.preventDefault();
+        e.stopKeyboardPropagation();
+        e.stopKeyboardPropagation();
       });
       keyboard.on('KeyI', () => calls.push('second'));
 
@@ -685,20 +705,3 @@ describe('Keyboard', () => {
     });
   });
 });
-
-/**
- * Helpers:
- */
-function callControl(
-  e: t.Keyboard.Match.SubscriberHandlerArgs,
-  method: KeyboardControlMethod,
-  calls: string[],
-) {
-  const fn = control(e)[method];
-  if (typeof fn === 'function') return fn();
-  calls.push(`missing:${method}`);
-}
-
-function control(e: t.Keyboard.Match.SubscriberHandlerArgs): Partial<KeyboardControlArgs> {
-  return e as Partial<KeyboardControlArgs>;
-}

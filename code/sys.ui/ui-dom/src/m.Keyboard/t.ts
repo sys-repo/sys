@@ -147,6 +147,17 @@ export declare namespace Keyboard {
       readonly pattern: Pattern;
       readonly state: State.Current;
       readonly event: Keypress.Event;
+
+      /** Prevent native browser-default behavior only. */
+      preventDefault(): void;
+
+      /** Stop later keyboard pattern subscribers for this monitor emission only. */
+      stopKeyboardPropagation(): void;
+
+      /** Take exclusive ownership: prevent default, stop keyboard routing, and stop native DOM propagation. */
+      consume(): void;
+
+      /** @deprecated Use `consume()`. */
       handled(): void;
     };
 
@@ -295,6 +306,7 @@ export declare namespace Keyboard {
       readonly code: string;
       readonly keypress: Props;
       readonly is: Key.Flags;
+      /** @deprecated Destructive compatibility escape hatch; prefer subscriber `consume()`. */
       handled(): void;
     };
 
@@ -314,6 +326,7 @@ export declare namespace Keyboard {
       readonly eventPhase: number;
       readonly timeStamp: number;
       readonly isTrusted: boolean;
+      /** @deprecated Destructive compatibility escape hatch; prefer subscriber `consume()`. */
       handled(): void;
     };
   }

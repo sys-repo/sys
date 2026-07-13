@@ -257,9 +257,9 @@ export function handlerOn(
     .pipe(
       Rx.takeUntil(dispose$),
       Rx.takeUntil(life.dispose$),
-      Rx.filter(() => (filter ? filter() : true)),
       Rx.filter((e) => !!e.last),
-      Rx.filter((e) => !e.last?.is.handled),
+      Rx.filter((e) => !Util.isKeyboardPropagationStopped(e.last!)),
+      Rx.filter(() => (filter ? filter() : true)),
       Rx.filter((e) => e.current.pressed.length > 0),
     )
     .subscribe((e) => {
@@ -272,7 +272,10 @@ export function handlerOn(
           pattern,
           state: e.current,
           event,
-          handled: () => event?.handled(),
+          preventDefault: () => Util.preventDefault(event),
+          stopKeyboardPropagation: () => Util.stopKeyboardPropagation(event),
+          consume: () => Util.consume(event),
+          handled: () => Util.consume(event),
         });
       }
     });
