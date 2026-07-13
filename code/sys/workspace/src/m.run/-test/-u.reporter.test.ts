@@ -341,6 +341,21 @@ describe('WorkspaceRun.parallel reporter', () => {
         'workspace test   →  51 packages ordered',
       );
     });
+
+    it('wraps intro messages under the aligned message column', () => {
+      const line = Cli.stripAnsi(formatIntroLine(
+        'workspace test',
+        'strategy: parallel, 4 jobs (concurrent)',
+        { width: 40, terminal: true },
+      ));
+      const lines = line.split('\n');
+
+      expect(lines).to.eql([
+        'workspace test   →  strategy: parallel,',
+        '                    4 jobs (concurrent)',
+      ]);
+      expect(lines.every((item) => Cli.Fmt.Text.visibleWidth(item) <= 40)).to.eql(true);
+    });
   });
 
   describe('createParallelReporter', () => {

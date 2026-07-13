@@ -2,8 +2,37 @@ import { c, Cli, Str, type t, Time } from '../common.ts';
 
 const SUMMARY_REPEAT_MIN_PACKAGES = 11;
 const INTRO_LABEL_WIDTH = 15;
+const INTRO_MIN_WIDTH = 40;
+const INTRO_FALLBACK_WIDTH = 100;
+const INTRO_SEPARATOR = '  →  ';
 
 export const Fmt: t.WorkspaceRun.Fmt.Lib = {
+  introLine(label, message, options) {
+    const width = Cli.Fmt.Text.fitWidth({
+      width: options?.width,
+      terminal: options?.terminal,
+      fallbackWidth: INTRO_FALLBACK_WIDTH,
+      minWidth: INTRO_MIN_WIDTH,
+    });
+    const left = Cli.Fmt.Text.padEnd(label, INTRO_LABEL_WIDTH);
+    const prefix = `${left}${INTRO_SEPARATOR}`;
+    const line = `${prefix}${message}`;
+    if (width <= 0 || Cli.Fmt.Text.visibleWidth(line) <= width) return c.gray(line);
+
+    const continuationIndent = Cli.Fmt.Text.visibleWidth(prefix);
+    const messageLines = Cli.Fmt.Text.wrapLines(message, {
+      width,
+      indent: continuationIndent,
+      continuationIndent,
+      preserve: 'none',
+    });
+    const first = messageLines[0] ?? '';
+    const rest = messageLines.slice(1);
+    const lines = [`${prefix}${first.trimStart()}`];
+    rest.forEach((item) => lines.push(item));
+    return c.gray(lines.join('\n'));
+  },
+
   result(result) {
     const rows = Cli.table([]);
     const counts = wrangle.counts(result.packages);
@@ -117,9 +146,12 @@ export const Fmt: t.WorkspaceRun.Fmt.Lib = {
 };
 
 /** Format one aligned, low-noise runner intro line. */
-export function formatIntroLine(label: string, message: string): string {
-  const left = Cli.Fmt.Text.padEnd(label, INTRO_LABEL_WIDTH);
-  return c.gray(`${left}  →  ${message}`);
+export function formatIntroLine(
+  label: string,
+  message: string,
+  options?: t.WorkspaceRun.Fmt.IntroLineOptions,
+): string {
+  return Fmt.introLine(label, message, options);
 }
 
 /** Format grouped buffered output for failed package tasks. */

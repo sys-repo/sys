@@ -227,10 +227,20 @@ export declare namespace WorkspaceRun {
   /** Formatter helpers for workspace task run results. */
   export namespace Fmt {
     export type Lib = {
+      /** Format one aligned, width-safe runner intro line. */
+      introLine(label: string, message: string, options?: IntroLineOptions): string;
       /** Format the overall run summary and package rows for console output. */
       result(result: Result): string;
       /** Format package-level rows only for console output. */
       packages(result: Result): string;
+    };
+
+    /** Width options for aligned runner intro lines. */
+    export type IntroLineOptions = {
+      /** Explicit output width. Defaults to the terminal width when available. */
+      readonly width?: number;
+      /** Whether terminal width should be measured from stdout. */
+      readonly terminal?: boolean;
     };
   }
 }
