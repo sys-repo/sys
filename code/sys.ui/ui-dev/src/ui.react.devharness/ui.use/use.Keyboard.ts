@@ -28,7 +28,7 @@ export function listen(options: t.UseDevKeyboardOptions = {}) {
    * Nav: DevHarness.
    */
   keyboard.on('CMD + Enter', (e) => {
-    e.handled();
+    e.consume();
     nav.openIndex();
   });
 
@@ -36,7 +36,7 @@ export function listen(options: t.UseDevKeyboardOptions = {}) {
    * Nav: move one level up through DevHarness routes.
    */
   keyboard.on('CMD + SHIFT + Enter', (e) => {
-    e.handled();
+    e.consume();
     nav.up();
   });
 
@@ -52,14 +52,14 @@ export function listen(options: t.UseDevKeyboardOptions = {}) {
    * ACTION: Cancel "save" HTML page (default browser action).
    */
   keyboard.on('CMD + KeyS', (e) => {
-    if (options.cancelSave ?? true) e.handled();
+    if (options.cancelSave ?? true) e.preventDefault();
   });
 
   /**
    * ACTION: Cancel "print" HTML page (default browser action).
    */
   keyboard.on('CMD + KeyP', (e) => {
-    if (options.cancelPrint ?? true) e.handled();
+    if (options.cancelPrint ?? true) e.preventDefault();
   });
 
   // Finish up.
