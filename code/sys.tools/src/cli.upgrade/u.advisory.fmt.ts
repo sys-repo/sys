@@ -24,7 +24,7 @@ export function rootPendingAdvisoryPrelude(
   const title = rootAdvisoryLine({
     width,
     left: c.white('upgrade pending — standing down'),
-    right: `${c.gray(pkg.name)} ${c.white(remote)}`,
+    right: `${c.gray('next:')}${c.white(pkg.name)} ${c.white(remote)}`,
   });
   const waiting = StanddownTiming.formatWait(options.remaining);
   return Str.builder()
