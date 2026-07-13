@@ -22,26 +22,26 @@ export const Fmt: t.WorkspaceRun.Fmt.Lib = {
     rows.push([c.gray('status'), status]);
     rows.push([c.gray('task'), c.cyan(result.task)]);
     rows.push([
-      c.gray('ran'),
+      c.gray('packages ran'),
       counts.ran > 0 ? c.white(wrangle.displayNumber(counts.ran)) : c.gray('0'),
     ]);
     rows.push([
-      c.gray('skipped'),
+      c.gray('packages skipped'),
       counts.skipped > 0 ? c.yellow(wrangle.displayNumber(counts.skipped)) : c.gray('0'),
     ]);
     if (counts.blocked > 0) {
-      rows.push([c.gray('blocked'), c.yellow(wrangle.displayNumber(counts.blocked))]);
+      rows.push([c.gray('packages blocked'), c.yellow(wrangle.displayNumber(counts.blocked))]);
     }
     rows.push([
-      c.gray('failed'),
+      c.gray('packages failed'),
       counts.failed > 0 ? c.red(wrangle.displayNumber(counts.failed)) : c.gray('0'),
     ]);
 
     const stats = wrangle.testStatsSummary(result);
     if (stats) {
-      rows.push([c.gray('tests'), wrangle.observedCount(stats.tests, stats.observed)]);
+      rows.push([c.gray('test cases'), wrangle.observedCount(stats.tests, stats.observed)]);
       rows.push([
-        c.gray('test failed'),
+        c.gray('test failures'),
         wrangle.observedCount(stats.failed, stats.observed, 'red'),
       ]);
       rows.push([c.gray('reports'), wrangle.reportsSummary(stats)]);

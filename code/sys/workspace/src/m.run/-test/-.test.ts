@@ -116,9 +116,9 @@ describe('WorkspaceRun', () => {
     expect(text.includes('task test')).to.eql(true);
     expect(formatted.includes(c.cyan('tests'))).to.eql(true);
     expect(formatted.includes(c.cyan('test'))).to.eql(true);
-    expect(text.includes('ran 2')).to.eql(true);
-    expect(text.includes('skipped 0')).to.eql(true);
-    expect(text.includes('failed 0')).to.eql(true);
+    expect(text.includes('packages ran 2')).to.eql(true);
+    expect(text.includes('packages skipped 0')).to.eql(true);
+    expect(text.includes('packages failed 0')).to.eql(true);
     expect(text.includes('package')).to.eql(true);
     expect(text.includes('code/pkg-a')).to.eql(true);
     expect(text.includes('code/pkg-c')).to.eql(true);
@@ -168,8 +168,8 @@ describe('WorkspaceRun', () => {
       .split('\n')
       .map((line) => line.trim().replace(/\s+/g, ' '));
 
-    expect(text.includes('tests 10,136')).to.eql(true);
-    expect(text.includes('test failed 1,000')).to.eql(true);
+    expect(text.includes('test cases 10,136')).to.eql(true);
+    expect(text.includes('test failures 1,000')).to.eql(true);
     expect(text.includes('reports 1/3 observed, 1 unavailable, 1 unsupported')).to.eql(true);
     expect(rows.includes('package status elapsed tests failed')).to.eql(true);
     expect(rows.includes('code/pkg-a failed 1ms 10,136 1,000')).to.eql(true);
@@ -219,7 +219,13 @@ describe('WorkspaceRun', () => {
     const rows = Cli.stripAnsi(formatted)
       .split('\n')
       .map((line) => line.trim().replace(/\s+/g, ' '));
-    const summary = ['status success', 'task test', 'ran 11', 'skipped 0', 'failed 0'];
+    const summary = [
+      'status success',
+      'task test',
+      'packages ran 11',
+      'packages skipped 0',
+      'packages failed 0',
+    ];
     const headerStatus = rows.indexOf(summary[0]!);
     const footerStatus = rows.lastIndexOf(summary[0]!);
     const packageHeader = rows.indexOf('package status elapsed');
