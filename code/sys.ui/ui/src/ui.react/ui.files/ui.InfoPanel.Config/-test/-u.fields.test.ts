@@ -98,8 +98,17 @@ describe('Files.InfoPanel.Config', () => {
       );
       const row = switchRowById(items, 'capabilities');
 
-      type ToggleArgs = t.KeyValue.Switches.Item.Toggle.Args;
-      row.onToggle?.({ current: false, next: true, item: row, index: 0, synthetic: {} as ToggleArgs['synthetic'] });
+      row.onToggle?.({
+        current: false,
+        next: true,
+        item: row,
+        index: 0,
+        command: {
+          name: 'keyvalue-switches:toggle',
+          payload: { target: { path: [] }, next: true },
+        },
+        source: { kind: 'cmd' },
+      });
 
       expect(emitted).to.eql(['title', 'capabilities', 'error']);
     });
