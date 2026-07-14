@@ -10,9 +10,9 @@ type HelpInput =
 const g = c.green;
 const w = c.white;
 const DISPLAY_LABEL = {
-  jsrLatest: 'jsr:latest',
-  cliLocal: 'cli:local',
-  cliNext: 'cli:next',
+  registryLatest: 'registry:latest',
+  localCurrent: 'local:current',
+  localNext: 'local:next',
 } as const;
 
 type DisplayRow = { readonly label: string; readonly value: string };
@@ -20,15 +20,15 @@ type DisplayState = { readonly title: string; readonly rows: readonly DisplayRow
 
 function displayState(version: t.UpgradeTool.VersionInfo): DisplayState {
   const state = toVersionState(version);
-  const cliNext = state.actionable ?? version.latest;
+  const localNext = state.actionable ?? version.latest;
 
   if (state.upgradeAvailable) {
     return {
       title: w(`${pkg.name} upgrade available`),
       rows: [
-        { label: DISPLAY_LABEL.jsrLatest, value: jsrLatestValue(version, state) },
-        { label: DISPLAY_LABEL.cliLocal, value: c.gray(version.local) },
-        { label: DISPLAY_LABEL.cliNext, value: g(cliNext) },
+        { label: DISPLAY_LABEL.registryLatest, value: registryLatestValue(version, state) },
+        { label: DISPLAY_LABEL.localCurrent, value: c.gray(version.local) },
+        { label: DISPLAY_LABEL.localNext, value: g(localNext) },
       ],
     };
   }
@@ -37,9 +37,9 @@ function displayState(version: t.UpgradeTool.VersionInfo): DisplayState {
     return {
       title: w(`${pkg.name} auto-upgrade pending — standing down`),
       rows: [
-        { label: DISPLAY_LABEL.jsrLatest, value: w(version.remote) },
-        { label: DISPLAY_LABEL.cliLocal, value: c.gray(version.local) },
-        { label: DISPLAY_LABEL.cliNext, value: c.gray(c.italic('none yet')) },
+        { label: DISPLAY_LABEL.registryLatest, value: w(version.remote) },
+        { label: DISPLAY_LABEL.localCurrent, value: c.gray(version.local) },
+        { label: DISPLAY_LABEL.localNext, value: c.gray(c.italic('none yet')) },
       ],
     };
   }
@@ -48,9 +48,9 @@ function displayState(version: t.UpgradeTool.VersionInfo): DisplayState {
     return {
       title: w(`${pkg.name} upgrade check unavailable`),
       rows: [
-        { label: DISPLAY_LABEL.jsrLatest, value: w(version.remote) },
-        { label: DISPLAY_LABEL.cliLocal, value: c.gray(version.local) },
-        { label: DISPLAY_LABEL.cliNext, value: c.gray(c.italic('unknown')) },
+        { label: DISPLAY_LABEL.registryLatest, value: w(version.remote) },
+        { label: DISPLAY_LABEL.localCurrent, value: c.gray(version.local) },
+        { label: DISPLAY_LABEL.localNext, value: c.gray(c.italic('unknown')) },
       ],
     };
   }
@@ -58,13 +58,13 @@ function displayState(version: t.UpgradeTool.VersionInfo): DisplayState {
   return {
     title: w(`${pkg.name} is up to date`),
     rows: [
-      { label: DISPLAY_LABEL.jsrLatest, value: g(`${version.remote} ✔`) },
-      { label: DISPLAY_LABEL.cliLocal, value: g(version.local) },
+      { label: DISPLAY_LABEL.registryLatest, value: g(`${version.remote} ✔`) },
+      { label: DISPLAY_LABEL.localCurrent, value: g(version.local) },
     ],
   };
 }
 
-function jsrLatestValue(
+function registryLatestValue(
   version: t.UpgradeTool.VersionInfo,
   state: t.UpgradeTool.VersionState,
 ): string {

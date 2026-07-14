@@ -43,14 +43,14 @@ describe('cli.upgrade.runUpgrade', () => {
       expect(plain[1]).to.eql('stop');
       const output = plain.join('\n');
       const statusAt = output.indexOf('@sys/tools is up to date');
-      const jsrLatestAt = output.indexOf('  jsr:latest  0.0.318 ✔');
-      const cliLocalAt = output.indexOf('  cli:local   0.0.318');
+      const registryLatestAt = output.indexOf('  registry:latest  0.0.318 ✔');
+      const localCurrentAt = output.indexOf('  local:current    0.0.318');
       const registryUrlAt = output.indexOf('  https://jsr.io/@sys/tools');
 
       expect(statusAt).to.be.greaterThan(-1);
-      expect(jsrLatestAt).to.be.greaterThan(statusAt);
-      expect(cliLocalAt).to.be.greaterThan(jsrLatestAt);
-      expect(registryUrlAt).to.be.greaterThan(cliLocalAt);
+      expect(registryLatestAt).to.be.greaterThan(statusAt);
+      expect(localCurrentAt).to.be.greaterThan(registryLatestAt);
+      expect(registryUrlAt).to.be.greaterThan(localCurrentAt);
       expect(plain.some((line) => line.includes('No upgrade needed.'))).to.eql(true);
       expect(events.join('\n')).to.contain(c.gray(c.dim('https://jsr.io/@sys/tools')));
       expect(events.join('\n')).to.contain(c.gray(c.italic('No upgrade needed.')));
@@ -300,10 +300,10 @@ describe('cli.upgrade.runUpgrade', () => {
       ]);
       expect(output).to.contain('@sys/tools upgrade available');
       expect(output).to.contain(
-        'jsr:latest  0.0.464  — minimum dependency age window clears in 21h',
+        'registry:latest  0.0.464  — minimum dependency age window clears in 21h',
       );
-      expect(output).to.contain('cli:local   0.0.462');
-      expect(output).to.contain('cli:next    0.0.463');
+      expect(output).to.contain('local:current    0.0.462');
+      expect(output).to.contain('local:next       0.0.463');
       expect(output).to.not.contain('auto-upgrade pending — standing down');
     });
 
@@ -390,9 +390,9 @@ describe('cli.upgrade.runUpgrade', () => {
       expect(plain.some((line) =>
         line.includes('@sys/tools auto-upgrade pending — standing down')
       )).to.eql(true);
-      expect(plain.some((line) => line.includes('jsr:latest  0.0.319'))).to.eql(true);
-      expect(plain.some((line) => line.includes('cli:local   0.0.318'))).to.eql(true);
-      expect(plain.some((line) => line.includes('cli:next    none yet'))).to.eql(true);
+      expect(plain.some((line) => line.includes('registry:latest  0.0.319'))).to.eql(true);
+      expect(plain.some((line) => line.includes('local:current    0.0.318'))).to.eql(true);
+      expect(plain.some((line) => line.includes('local:next       none yet'))).to.eql(true);
       expect(plain.join('\n')).to.not.contain('held at');
       expect(plain.join('\n')).to.not.contain('Deno is not allowing this upgrade yet.');
       expect(plain.some((line) =>
