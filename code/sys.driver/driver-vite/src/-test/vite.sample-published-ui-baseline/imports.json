@@ -4,9 +4,9 @@
     "react-dom": "npm:react-dom@19.2.4",
     "@sys/std": "jsr:@sys/std@0.0.369",
     "@sys/ui-css": "jsr:@sys/ui-css@0.0.299",
-    "@sys/ui-dom": "jsr:@sys/ui-dom@0.0.309",
-    "@sys/ui-dom/local-storage": "jsr:@sys/ui-dom@0.0.309/local-storage",
-    "@sys/ui-dom/user-agent": "jsr:@sys/ui-dom@0.0.309/user-agent",
-    "@sys/ui-react": "jsr:@sys/ui-react@0.0.345"
+    "@sys/ui-dom": "jsr:@sys/ui-dom@0.0.310",
+    "@sys/ui-dom/local-storage": "jsr:@sys/ui-dom@0.0.310/local-storage",
+    "@sys/ui-dom/user-agent": "jsr:@sys/ui-dom@0.0.310/user-agent",
+    "@sys/ui-react": "jsr:@sys/ui-react@0.0.346"
   }
 }

@@ -1,21 +1,21 @@
 {
   ".meta": {
-    "createdAt": 1783844380355,
+    "createdAt": 1783992465568,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-623a7894e7e2a09982307a674d72cf31580136c76b4c81fc308a701ddb38a6e9",
-      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.137/src/m.graph/m.snapshot/m.Hash.ts"
+      "/graph": "sha256-2821198ebdee68cbb5b771eed35b9322c0d104a2cffe74f948b3a6672cf3780b",
+      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.138/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
       "pkg": {
         "name": "@sys/workspace",
-        "version": "0.0.137"
+        "version": "0.0.138"
       },
       "types": {
-        "/graph": "https://jsr.io/@sys/workspace/0.0.137/src/m.graph/t.ts"
+        "/graph": "https://jsr.io/@sys/workspace/0.0.138/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1783844380362
+    "modifiedAt": 1783992465574
   },
   "graph": {
     "orderedPaths": [
@@ -39,6 +39,7 @@
       "code/sys.driver/driver-signer",
       "code/sys/testing",
       "code/sys/tmpl-engine",
+      "code/sys/web",
       "code/sys/yaml",
       "code/sys/esm",
       "code/sys/http",
@@ -1479,6 +1480,10 @@
       {
         "from": "code/sys/types",
         "to": "code/sys/tmpl-engine"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys/web"
       },
       {
         "from": "code/sys/types",

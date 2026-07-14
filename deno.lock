@@ -131,8 +131,10 @@
     "npm:prismjs@^1.29.0": "1.30.0",
     "npm:prismjs@^1.30.0": "1.30.0",
     "npm:prosemirror-example-setup@1.2.3": "1.2.3",
+    "npm:prosemirror-model@1.25.11": "1.25.11",
     "npm:prosemirror-schema-basic@1.2.4": "1.2.4",
     "npm:prosemirror-state@1.4.4": "1.4.4",
+    "npm:prosemirror-view@1.42.1": "1.42.1",
     "npm:ramda@0.32.0": "0.32.0",
     "npm:react-dom@19.2.7": "19.2.7_react@19.2.7",
     "npm:react-error-boundary@6.1.2": "6.1.2_react@19.2.7",
@@ -3120,8 +3122,8 @@
         "prosemirror-state"
       ]
     },
-    "prosemirror-model@1.25.10": {
-      "integrity": "sha512-9n6rH4DbJU1eH4SxLt6Y0HhJIo6cZsb7DJ/30uob1hOKPeO6TAaMWI2tc7kwR92BjfPOU2fFHWbZLovLi3XQfA==",
+    "prosemirror-model@1.25.11": {
+      "integrity": "sha512-QWg9RhnpLlogAmp3p96uEFrE5txQpFynd4vhBAELkwgOCWQs/X0yCzB3/hrHqiPwf91RG5KyWq6553zs9JqIOQ==",
       "dependencies": [
         "orderedmap"
       ]
@@ -3154,8 +3156,8 @@
         "prosemirror-model"
       ]
     },
-    "prosemirror-view@1.42.0": {
-      "integrity": "sha512-N54DF3OXNWDuP81G1kbfCys8ZzIjuL1VnvJ2mk5STSu/fNxWIcX/EutQLA3s9KR/2wVhgDi4hzBB/1fINVxk0A==",
+    "prosemirror-view@1.42.1": {
+      "integrity": "sha512-rRqzZnRgkyh69XoOMrfFJHwauHscLBmHbq772kwbic1ymQAM8gXjzEbJse5j1ep2UO2HRIAQL0bY3kZ/RoqjVw==",
       "dependencies": [
         "prosemirror-model",
         "prosemirror-state",

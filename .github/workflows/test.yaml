@@ -59,6 +59,8 @@ jobs:
             browser: true
           - name: "@sys/tmpl-engine"
             path: code/sys/tmpl-engine
+          - name: "@sys/web"
+            path: code/sys/web
           - name: "@sys/yaml"
             path: code/sys/yaml
           - name: "@sys/esm"
