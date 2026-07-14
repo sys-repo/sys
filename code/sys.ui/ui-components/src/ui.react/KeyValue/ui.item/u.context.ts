@@ -6,6 +6,7 @@ export type RenderContext = Omit<t.KeyValue.ItemProps, 'item'> & {
   readonly rootItems: readonly t.KeyValue.Item[];
   readonly cursor?: t.KeyValue.Cursor.Props;
   readonly cursorCurrentFill: t.Color.Rgba;
+  readonly cursorArrivalFill: t.Color.Rgba;
   readonly cursorPartFill: t.Color.Rgba;
   readonly projection?: ProjectionAnimationModel;
 };

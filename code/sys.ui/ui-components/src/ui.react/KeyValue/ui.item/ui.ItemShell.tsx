@@ -8,6 +8,7 @@ type P = {
   layout?: t.KeyValue.Layout;
   cursor?: CursorBoundary;
   currentFill?: t.Color.Rgba;
+  arrivalFill?: t.Color.Rgba;
   children?: t.ReactNode;
 };
 
@@ -46,6 +47,45 @@ export function itemShellClass(
   }).class;
 }
 
+const cursorArrivalKeyframes = `
+@keyframes keyvalue-cursor-arrival-cue {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+`;
+
+function cursorArrivalCueClass(arrivalFill?: t.Color.Rgba) {
+  return css({
+    position: 'absolute',
+    inset: 0,
+    pointerEvents: 'none',
+    backgroundColor: arrivalFill,
+    animation: 'keyvalue-cursor-arrival-cue 420ms ease-out forwards',
+  }).class;
+}
+
+function cursorArrivalKey(cursor?: CursorBoundary): string | undefined {
+  if (!cursor?.current) return undefined;
+  return `${cursor.encodedPath ?? ''}:${cursor.currentPart ?? 'atom'}`;
+}
+
+function renderCursorArrivalCue(cursor?: CursorBoundary, arrivalFill?: t.Color.Rgba) {
+  const key = cursorArrivalKey(cursor);
+  if (!key) return null;
+
+  return (
+    <React.Fragment key={key}>
+      <style>{cursorArrivalKeyframes}</style>
+      <div
+        aria-hidden='true'
+        className={cursorArrivalCueClass(arrivalFill)}
+        data-keyvalue-cursor-arrival-cue='true'
+        data-keyvalue-cursor-arrival-key={key}
+      />
+    </React.Fragment>
+  );
+}
+
 /**
  * Internal per-item boundary for KeyValue render items.
  */
@@ -59,6 +99,7 @@ export const ItemShell: React.FC<P> = (props) => {
       data-keyvalue-cursor-current-part={props.cursor?.currentPart}
       onClick={props.cursor?.onClick}
     >
+      {renderCursorArrivalCue(props.cursor, props.arrivalFill)}
       {props.children}
     </div>
   );
@@ -80,6 +121,7 @@ export const ProjectionItemShell: React.FC<ProjectionP> = (props) => {
       data-keyvalue-cursor-current-part={props.cursor?.currentPart}
       onClick={props.cursor?.onClick}
     >
+      {renderCursorArrivalCue(props.cursor, props.arrivalFill)}
       {props.children}
     </Motion.div>
   );

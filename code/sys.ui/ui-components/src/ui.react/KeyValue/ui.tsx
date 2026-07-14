@@ -18,6 +18,7 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
   const layout = toLayout(props.layout);
   const theme = Color.theme(props.theme);
   const cursorCurrentFill = Color.alpha(theme.fg, 0.06);
+  const cursorArrivalFill = Color.alpha(theme.fg, 0.14);
   const cursorPartFill = Color.ruby(0.2);
   const { fontSize, fontFamily } = toFont(props);
 
@@ -69,6 +70,7 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
     rootItems: items,
     cursor: props.cursor,
     cursorCurrentFill,
+    cursorArrivalFill,
     cursorPartFill,
     size,
     debug,
