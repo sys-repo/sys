@@ -13,10 +13,7 @@ export const Cursor: t.KeyValue.Cursor.Lib = {
   },
 
   set(model, items, nextTarget) {
-    return Cursor.cmd(model, items, {
-      name: 'cursor:set',
-      payload: { target: nextTarget },
-    });
+    return Cursor.cmd(model, items, { name: 'cursor:set', payload: { target: nextTarget } });
   },
 
   next(model, items) {
