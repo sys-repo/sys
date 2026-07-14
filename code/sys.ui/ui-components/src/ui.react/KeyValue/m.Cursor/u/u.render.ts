@@ -1,6 +1,6 @@
 import type React from 'react';
-import { Obj, type t } from '../common.ts';
-import { Cursor } from './mod.ts';
+import { Obj, type t } from '../../common.ts';
+import { Cursor } from '../mod.ts';
 
 export const DataAttr = {
   root: 'data-keyvalue-cursor-root',
@@ -24,11 +24,17 @@ export function toBoundary(
   item: t.KeyValue.Item,
   model?: t.KeyValue.Cursor.Model,
 ): Boundary {
-  const cursorItem = Cursor.scope(items, scopePath).items.find((candidate) => candidate.item === item);
+  const cursorItem = Cursor.scope(items, scopePath).items.find((candidate) =>
+    candidate.item === item
+  );
   const part = model?.current?.part;
-  const pathCurrent = cursorItem ? Obj.Path.eql(model?.current?.path, cursorItem.target.path) : false;
+  const pathCurrent = cursorItem
+    ? Obj.Path.eql(model?.current?.path, cursorItem.target.path)
+    : false;
   const currentPart = pathCurrent && part && cursorItem?.parts.includes(part) ? part : undefined;
-  const current = cursorItem ? Cursor.eql(model?.current, cursorItem.target) || !!currentPart : undefined;
+  const current = cursorItem
+    ? Cursor.eql(model?.current, cursorItem.target) || !!currentPart
+    : undefined;
   return {
     item: cursorItem,
     encodedPath: cursorItem ? Obj.Path.encode(cursorItem.target.path) : undefined,

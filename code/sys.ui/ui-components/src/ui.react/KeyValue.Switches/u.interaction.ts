@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-import { isCursorEntryClick } from '../KeyValue/m.Cursor/u.event.ts';
+import { isCursorEntryClick } from '../KeyValue/m.Cursor/u/u.event.ts';
 
 type CursorOptions = Pick<t.KeyValue.Cursor.Props, 'enabled' | 'entry'>;
 
@@ -35,4 +35,3 @@ function isCursorEntryIntent(event: t.ReactMouseEvent, cursor?: CursorOptions): 
   if (!cursor || cursor.enabled === false) return false;
   return isCursorEntryClick(event, cursor.entry);
 }
-

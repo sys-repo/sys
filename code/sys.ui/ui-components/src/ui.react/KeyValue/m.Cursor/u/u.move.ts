@@ -1,7 +1,11 @@
-import { Obj, type t } from '../common.ts';
+import { Obj, type t } from '../../common.ts';
 import { eqlPath, supportsPart, target, toScope } from './u.resolve.ts';
 
-export function move(model: t.KeyValue.Cursor.Model, items: readonly t.KeyValue.Item[], delta: 1 | -1) {
+export function move(
+  model: t.KeyValue.Cursor.Model,
+  items: readonly t.KeyValue.Item[],
+  delta: 1 | -1,
+) {
   const current = model.current;
   const scopePath = current ? Obj.Path.slice(current.path, 0, -1) : [];
   const scope = toScope(items, scopePath);

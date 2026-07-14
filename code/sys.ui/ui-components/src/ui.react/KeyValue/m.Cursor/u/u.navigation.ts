@@ -1,5 +1,5 @@
 import type React from 'react';
-import { type t } from '../common.ts';
+import { type t } from '../../common.ts';
 import {
   navigationMode,
   toKeyboardEntryChange,

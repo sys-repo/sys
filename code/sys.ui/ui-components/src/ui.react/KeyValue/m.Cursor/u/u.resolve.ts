@@ -1,5 +1,5 @@
-import { Is, Obj, type t } from '../common.ts';
-import { isGroup, isRow } from '../u/u.is.ts';
+import { Is, Obj, type t } from '../../common.ts';
+import { isGroup, isRow } from '../../u/u.is.ts';
 
 type Item = t.KeyValue.Item;
 type CursorItem = t.KeyValue.Cursor.Item;
@@ -7,19 +7,31 @@ type CursorItem = t.KeyValue.Cursor.Item;
 const ROW_PARTS: readonly t.KeyValue.Cursor.Part[] = ['key', 'value'];
 const NO_PARTS: readonly t.KeyValue.Cursor.Part[] = [];
 
-export function target(path: t.ObjectPath, part?: t.KeyValue.Cursor.Part): t.KeyValue.Cursor.Target {
+export function target(
+  path: t.ObjectPath,
+  part?: t.KeyValue.Cursor.Part,
+): t.KeyValue.Cursor.Target {
   return part ? { path: Obj.Path.slice(path, 0), part } : { path: Obj.Path.slice(path, 0) };
 }
 
-export function eql(a: t.KeyValue.Cursor.Target | undefined, b: t.KeyValue.Cursor.Target | undefined) {
+export function eql(
+  a: t.KeyValue.Cursor.Target | undefined,
+  b: t.KeyValue.Cursor.Target | undefined,
+) {
   return eqlPath(a, b) && a?.part === b?.part;
 }
 
-export function eqlPath(a: t.KeyValue.Cursor.Target | undefined, b: t.KeyValue.Cursor.Target | undefined) {
+export function eqlPath(
+  a: t.KeyValue.Cursor.Target | undefined,
+  b: t.KeyValue.Cursor.Target | undefined,
+) {
   return Obj.Path.eql(a?.path, b?.path);
 }
 
-export function supportsPart(item: CursorItem | undefined, part: t.KeyValue.Cursor.Part | undefined) {
+export function supportsPart(
+  item: CursorItem | undefined,
+  part: t.KeyValue.Cursor.Part | undefined,
+) {
   return !part || !!item?.parts.includes(part);
 }
 
@@ -31,7 +43,10 @@ export function toScope(items: readonly Item[], path: t.ObjectPath): t.KeyValue.
   };
 }
 
-export function findItem(items: readonly Item[], nextTarget: t.KeyValue.Cursor.Target): CursorItem | undefined {
+export function findItem(
+  items: readonly Item[],
+  nextTarget: t.KeyValue.Cursor.Target,
+): CursorItem | undefined {
   const scope = toScope(items, Obj.Path.slice(nextTarget.path, 0, -1));
   const item = scope.items.find((item) => eqlPath(item.target, nextTarget));
   return supportsPart(item, nextTarget.part) ? item : undefined;

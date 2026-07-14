@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Color, css, D, type t } from './common.ts';
 import { toCssSize, toFont, toLayout, toProjectionAnimation, toReorderModel } from './u/mod.ts';
-import { toNavigationHandler, toNavigationRootProps } from './m.Cursor/u.navigation.ts';
+import { toNavigationHandler, toNavigationRootProps } from './m.Cursor/u/u.navigation.ts';
 import {
   type RenderContext,
   renderItems,

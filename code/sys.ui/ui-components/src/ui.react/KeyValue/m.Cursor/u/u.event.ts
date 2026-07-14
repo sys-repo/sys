@@ -1,6 +1,6 @@
 import type React from 'react';
-import { Keyboard, type t } from '../common.ts';
-import { Cursor } from './mod.ts';
+import { Keyboard, type t } from '../../common.ts';
+import { Cursor } from '../mod.ts';
 import { DataAttr } from './u.render.ts';
 
 export type EntryEvent = Pick<

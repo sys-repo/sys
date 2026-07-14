@@ -1,10 +1,10 @@
 import React from 'react';
 import { type t } from '../common.ts';
-import { childScope } from '../m.Cursor/u.render.ts';
+import { childScope } from '../m.Cursor/u/u.render.ts';
 import { renderItem } from './ui.Item.tsx';
 import { ItemFrame } from './ui.ItemFrame.tsx';
 import { type RenderContext } from './u.context.ts';
-import { toCursorBoundary, type CursorBoundary } from './u.cursor.ts';
+import { type CursorBoundary, toCursorBoundary } from './u.cursor.ts';
 import { keyOf, toDuplicateIds } from './u.identity.ts';
 
 export function renderItems(
