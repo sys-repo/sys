@@ -3,6 +3,15 @@ import { isCursorEntryClick } from '../KeyValue/m.Cursor/u/u.event.ts';
 
 type CursorOptions = Pick<t.KeyValue.Cursor.Props, 'enabled' | 'entry'>;
 
+type ToggleArgsInput = {
+  readonly item: t.KeyValueSwitches.Row;
+  readonly index: number;
+  readonly enabled?: boolean;
+  readonly target: t.KeyValue.Cursor.Target;
+  readonly source: t.KeyValueSwitches.Item.Toggle.Source;
+  readonly next?: boolean;
+};
+
 /** Row-local switch interaction shared by label and value-side control. */
 export type SwitchRowInteraction = {
   readonly value: boolean;
@@ -16,6 +25,7 @@ export function toInteraction(
   index: number,
   enabled?: boolean,
   cursor?: CursorOptions,
+  target: t.KeyValue.Cursor.Target = { path: [item.id] },
 ): SwitchRowInteraction {
   const value = Boolean(item.value);
   const isEnabled = (enabled ?? true) && (item.enabled ?? true) && Boolean(item.onToggle);
@@ -26,8 +36,41 @@ export function toInteraction(
     toggle(synthetic, next = !value) {
       if (!isEnabled) return;
       if (isCursorEntryIntent(synthetic, cursor)) return;
-      item.onToggle?.({ current: value, next, item, index, synthetic });
+      const args = toToggleArgs({
+        item,
+        index,
+        enabled,
+        target,
+        next,
+        source: { kind: 'pointer', event: synthetic },
+      });
+      if (args) item.onToggle?.(args);
     },
+  };
+}
+
+export function toToggleArgs(
+  input: ToggleArgsInput,
+): t.KeyValueSwitches.Item.Toggle.Args | undefined {
+  const current = Boolean(input.item.value);
+  const next = input.next ?? !current;
+  const isEnabled = (input.enabled ?? true) && (input.item.enabled ?? true) &&
+    Boolean(input.item.onToggle);
+  if (!isEnabled) return undefined;
+
+  const command: t.KeyValueSwitches.Item.Toggle.Command = {
+    name: 'keyvalue-switches:toggle',
+    payload: { target: input.target, next },
+  };
+  const synthetic = input.source.kind === 'pointer' ? input.source.event : undefined;
+  return {
+    current,
+    next,
+    item: input.item,
+    index: input.index,
+    command,
+    source: input.source,
+    synthetic,
   };
 }
 

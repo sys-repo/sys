@@ -1,6 +1,6 @@
 import { css, Is, type t } from './common.ts';
 import { SwitchValue } from './ui.Switch.tsx';
-import { toInteraction, type SwitchRowInteraction } from './u.interaction.ts';
+import { type SwitchRowInteraction, toInteraction } from './u.interaction.ts';
 
 const isHr = (item: t.KeyValueSwitches.Item): item is t.KeyValue.Item.Hr => {
   return Is.object(item) && 'kind' in item && item.kind === 'hr';
@@ -18,10 +18,12 @@ type ToItemsInternalOptions = t.KeyValueSwitches.ToItems.Options & {
   cursor?: t.KeyValue.Cursor.Props;
   labelIdScope?: string;
   path?: readonly number[];
+  targetPath?: t.ObjectPath;
 };
 type ToItemInternalOptions = t.KeyValueSwitches.ToItem.Options & {
   cursor?: t.KeyValue.Cursor.Props;
   labelId?: string;
+  target?: t.KeyValue.Cursor.Target;
 };
 
 /** Convert one switch input into a KeyValue row. */
@@ -29,9 +31,12 @@ export const toItem: t.KeyValueSwitches.ToItem = (item, options = {}) => {
   return toItemInternal(item, options);
 };
 
-function toItemInternal(item: t.KeyValueSwitches.Row, options: ToItemInternalOptions = {}): t.KeyValue.Item.Row {
+function toItemInternal(
+  item: t.KeyValueSwitches.Row,
+  options: ToItemInternalOptions = {},
+): t.KeyValue.Item.Row {
   const index = options.index ?? 0;
-  const interaction = toInteraction(item, index, options.enabled, options.cursor);
+  const interaction = toInteraction(item, index, options.enabled, options.cursor, options.target);
   const labelId = options.labelId;
 
   return {
@@ -73,7 +78,7 @@ const SwitchLabel: t.FC<SwitchLabelProps> = (props) => {
     <span
       id={labelId}
       className={styles.base.class}
-      data-component="KeyValue.Switches.Label"
+      data-component='KeyValue.Switches.Label'
       aria-disabled={interaction.enabled ? undefined : true}
       onClick={interaction.enabled ? (e) => interaction.toggle(e) : undefined}
     >
@@ -103,15 +108,22 @@ function toItemsInternal(
   options: ToItemsInternalOptions = {},
 ): t.KeyValue.Item[] {
   const path = options.path ?? [];
+  const targetPath = options.targetPath ?? [];
 
   return items.map((item, index) => {
     const itemPath = [...path, index];
     if (isHr(item)) return item;
+
+    const itemTargetPath = [...targetPath, item.id];
     if (isGroup(item)) {
       return {
         id: item.id,
         kind: 'group',
-        items: toItemsInternal(item.items, { ...options, path: itemPath }),
+        items: toItemsInternal(item.items, {
+          ...options,
+          path: itemPath,
+          targetPath: itemTargetPath,
+        }),
       };
     }
 
@@ -125,6 +137,7 @@ function toItemsInternal(
       cursor: options.cursor,
       index,
       labelId,
+      target: { path: itemTargetPath },
     });
   });
 }

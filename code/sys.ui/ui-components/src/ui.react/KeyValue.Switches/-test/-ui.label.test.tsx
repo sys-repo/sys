@@ -22,14 +22,19 @@ describe('KeyValue.Switches: label interaction', () => {
             id: 'alpha',
             label: 'Alpha label',
             value: false,
-            onToggle: (e) => events.push(`${e.item.id}:${e.index}:${e.current}:${e.next}:${e.synthetic.type}`),
+            onToggle: (e) => {
+              const type = e.source.kind === 'pointer' ? e.source.event.type : '';
+              events.push(`${e.item.id}:${e.index}:${e.current}:${e.next}:${type}`);
+            },
           },
         ]}
       />,
       { strict: false },
     );
 
-    const label = res.container.querySelector('[data-component="KeyValue.Switches.Label"]') as HTMLElement;
+    const label = res.container.querySelector(
+      '[data-component="KeyValue.Switches.Label"]',
+    ) as HTMLElement;
     const button = res.container.querySelector('button[role="switch"]') as HTMLButtonElement;
     expect(label.id.includes('KeyValue.Switches.Label:0:alpha')).to.eql(true);
     expect(label.textContent).to.eql('Alpha label');
@@ -51,7 +56,11 @@ describe('KeyValue.Switches: label interaction', () => {
         <Switches.UI
           items={[
             { id: 'same', value: false, onToggle: () => undefined },
-            { id: 'group', kind: 'group', items: [{ id: 'same', value: true, onToggle: () => undefined }] },
+            {
+              id: 'group',
+              kind: 'group',
+              items: [{ id: 'same', value: true, onToggle: () => undefined }],
+            },
           ]}
         />
         <Switches.UI items={[{ id: 'same', value: false, onToggle: () => undefined }]} />
@@ -59,13 +68,19 @@ describe('KeyValue.Switches: label interaction', () => {
       { strict: false },
     );
 
-    const labels = [...res.container.querySelectorAll('[data-component="KeyValue.Switches.Label"]')] as HTMLElement[];
-    const buttons = [...res.container.querySelectorAll('button[role="switch"]')] as HTMLButtonElement[];
+    const labels = [
+      ...res.container.querySelectorAll('[data-component="KeyValue.Switches.Label"]'),
+    ] as HTMLElement[];
+    const buttons = [
+      ...res.container.querySelectorAll('button[role="switch"]'),
+    ] as HTMLButtonElement[];
     const ids = labels.map((label) => label.id);
 
     expect(ids.length).to.eql(3);
     expect(new Set(ids).size).to.eql(ids.length);
-    buttons.forEach((button, index) => expect(button.getAttribute('aria-labelledby')).to.eql(ids[index]));
+    buttons.forEach((button, index) =>
+      expect(button.getAttribute('aria-labelledby')).to.eql(ids[index])
+    );
 
     act(() => res.dispose());
     await Promise.resolve();
@@ -91,7 +106,9 @@ describe('KeyValue.Switches: label interaction', () => {
       { strict: false },
     );
 
-    const buttons = [...res.container.querySelectorAll('button[role="switch"]')] as HTMLButtonElement[];
+    const buttons = [
+      ...res.container.querySelectorAll('button[role="switch"]'),
+    ] as HTMLButtonElement[];
     expect(buttons.length).to.eql(2);
     expect(buttons[0].getAttribute('aria-labelledby')).to.eql(null);
     expect(buttons[0].getAttribute('aria-label')).to.eql('Fallback label');
@@ -119,7 +136,9 @@ describe('KeyValue.Switches: label interaction', () => {
       { strict: false },
     );
 
-    const labels = [...res.container.querySelectorAll('[data-component="KeyValue.Switches.Label"]')] as HTMLElement[];
+    const labels = [
+      ...res.container.querySelectorAll('[data-component="KeyValue.Switches.Label"]'),
+    ] as HTMLElement[];
     expect(labels.length).to.eql(2);
     expect(labels[0].getAttribute('aria-disabled')).to.eql('true');
     expect(labels[1].getAttribute('aria-disabled')).to.eql('true');
@@ -143,7 +162,10 @@ describe('KeyValue.Switches: label interaction', () => {
           {
             id: 'bravo',
             value: true,
-            onToggle: (e) => events.push(`${e.item.id}:${e.index}:${e.current}:${e.next}:${e.synthetic.type}`),
+            onToggle: (e) => {
+              const type = e.source.kind === 'pointer' ? e.source.event.type : '';
+              events.push(`${e.item.id}:${e.index}:${e.current}:${e.next}:${type}`);
+            },
           },
         ]}
       />,

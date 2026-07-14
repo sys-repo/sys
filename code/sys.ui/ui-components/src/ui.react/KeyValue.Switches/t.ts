@@ -77,6 +77,21 @@ export declare namespace KeyValueSwitches {
       /** Receive switch row toggle intent. */
       export type Handler = (e: Args) => void;
 
+      /** Data-only switch toggle command shape. */
+      export type Command = {
+        readonly name: 'keyvalue-switches:toggle';
+        readonly payload: {
+          readonly target: t.KeyValue.Cursor.Target;
+          readonly next?: boolean;
+        };
+      };
+
+      /** Input source that produced a switch toggle command. */
+      export type Source =
+        | { readonly kind: 'pointer'; readonly event: t.ReactMouseEvent }
+        | { readonly kind: 'cursor-keyboard'; readonly event: t.ReactKeyboardEvent }
+        | { readonly kind: 'cmd' };
+
       /** Toggle payload carrying the row context and next switch value. */
       export type Args = {
         readonly current: boolean;
@@ -84,7 +99,12 @@ export declare namespace KeyValueSwitches {
         readonly item: KeyValueSwitches.Row;
         /** Index within the row's containing switch item list. */
         readonly index: number;
-        readonly synthetic: t.ReactMouseEvent;
+        /** Command-shaped toggle intent, independent of the input source. */
+        readonly command: Command;
+        /** Input source that produced the toggle intent. */
+        readonly source: Source;
+        /** Pointer-only legacy bridge. Prefer `source` and `command` for new code. */
+        readonly synthetic?: t.ReactMouseEvent;
       };
     }
   }
