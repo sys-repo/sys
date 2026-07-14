@@ -1,6 +1,7 @@
 import { Is, Obj, type t } from './common.ts';
 import { DataAttr } from '../KeyValue/m.Cursor/u/u.render.ts';
 import { toToggleArgs } from './u.interaction.ts';
+import { SwitchesIs } from './u.is.ts';
 
 type ResolveResult = {
   readonly item: t.KeyValueSwitches.Row;
@@ -62,8 +63,8 @@ function resolveRow(
   if (index < 0) return undefined;
 
   const item = items[index];
-  if (!item || isHr(item)) return undefined;
-  if (isGroup(item)) return tail.length ? resolveRow(item.items, tail) : undefined;
+  if (!item || SwitchesIs.hr(item)) return undefined;
+  if (SwitchesIs.group(item)) return tail.length ? resolveRow(item.items, tail) : undefined;
   return tail.length ? undefined : { item, index };
 }
 
@@ -108,12 +109,4 @@ function duplicateIds(items: readonly t.KeyValueSwitches.Item[]): ReadonlySet<st
 
 function isStableId(id: unknown): id is string {
   return Is.string(id) && !Is.blank(id);
-}
-
-function isHr(item: t.KeyValueSwitches.Item): item is t.KeyValue.Item.Hr {
-  return Is.object(item) && 'kind' in item && item.kind === 'hr';
-}
-
-function isGroup(item: t.KeyValueSwitches.Item): item is t.KeyValueSwitches.Group {
-  return Is.object(item) && 'kind' in item && item.kind === 'group';
 }

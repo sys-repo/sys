@@ -1,14 +1,7 @@
-import { css, Is, type t } from './common.ts';
+import { css, type t } from './common.ts';
 import { SwitchValue } from './ui.Switch.tsx';
 import { type SwitchRowInteraction, toInteraction } from './u.interaction.ts';
-
-const isHr = (item: t.KeyValueSwitches.Item): item is t.KeyValue.Item.Hr => {
-  return Is.object(item) && 'kind' in item && item.kind === 'hr';
-};
-
-const isGroup = (item: t.KeyValueSwitches.Item): item is t.KeyValueSwitches.Group => {
-  return Is.object(item) && 'kind' in item && item.kind === 'group';
-};
+import { SwitchesIs } from './u.is.ts';
 
 type ToItemsRenderOptions = t.KeyValueSwitches.ToItems.Options & {
   cursor?: t.KeyValue.Cursor.Props;
@@ -112,10 +105,10 @@ function toItemsInternal(
 
   return items.map((item, index) => {
     const itemPath = [...path, index];
-    if (isHr(item)) return item;
+    if (SwitchesIs.hr(item)) return item;
 
     const itemTargetPath = [...targetPath, item.id];
-    if (isGroup(item)) {
+    if (SwitchesIs.group(item)) {
       return {
         id: item.id,
         kind: 'group',

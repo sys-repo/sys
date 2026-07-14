@@ -11,6 +11,7 @@ describe('KeyValue.Switches', () => {
       expect(m.KeyValue.Switches).to.equal(Switches);
       expect(m.KeyValue.Switches.toItem).to.equal(Switches.toItem);
       expect(m.KeyValue.Switches.toItems).to.equal(Switches.toItems);
+      expect(m.KeyValue.Switches.Is).to.equal(Switches.Is);
     });
   });
 
@@ -26,6 +27,7 @@ describe('KeyValue.Switches', () => {
       const items: t.KeyValue.Switches.Item[] = [{ id: 'sample' }, { kind: 'hr' }, group];
       const row: t.KeyValue.Switches.Row = { id: 'sample', x: 8, y: [2, 4] };
       const switchOptions: t.KeyValue.Switches.Item.SwitchOptions = { width: 26, height: 14 };
+      const guards: t.KeyValueSwitches.Is.Lib = Switches.Is;
 
       expectTypeOf(lib).toEqualTypeOf<t.KeyValueSwitches.Lib>();
       expectTypeOf(props).toEqualTypeOf<t.KeyValueSwitches.Props>();
@@ -33,6 +35,21 @@ describe('KeyValue.Switches', () => {
       expectTypeOf(items).toEqualTypeOf<t.KeyValueSwitches.Item[]>();
       expectTypeOf(row).toEqualTypeOf<t.KeyValueSwitches.Row>();
       expectTypeOf(switchOptions).toEqualTypeOf<t.KeyValueSwitches.Item.SwitchOptions>();
+      expectTypeOf(guards).toEqualTypeOf<t.KeyValue.Switches.Is.Lib>();
+    });
+  });
+
+  describe('Is', () => {
+    it('classifies switch projection items', () => {
+      const hr: t.KeyValue.Item.Hr = { kind: 'hr' };
+      const group: t.KeyValueSwitches.Group = { id: 'group', kind: 'group', items: [] };
+      const row: t.KeyValueSwitches.Row = { id: 'row' };
+
+      expect(Switches.Is.hr(hr)).to.eql(true);
+      expect(Switches.Is.group(group)).to.eql(true);
+      expect(Switches.Is.row(row)).to.eql(true);
+      expect(Switches.Is.row(hr)).to.eql(false);
+      expect(Switches.Is.row(group)).to.eql(false);
     });
   });
 
@@ -67,7 +84,10 @@ describe('KeyValue.Switches', () => {
       ]);
 
       expectTypeOf(items).toEqualTypeOf<t.KeyValue.Item[]>();
-      expect(items.map((item) => labelText((item as t.KeyValue.Item.Row).k))).to.eql(['alpha', 'bravo']);
+      expect(items.map((item) => labelText((item as t.KeyValue.Item.Row).k))).to.eql([
+        'alpha',
+        'bravo',
+      ]);
     });
 
     it('preserves hr items in caller order', () => {

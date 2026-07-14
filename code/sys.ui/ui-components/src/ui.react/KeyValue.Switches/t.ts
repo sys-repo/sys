@@ -9,6 +9,7 @@ export declare namespace KeyValueSwitches {
     readonly UI: t.FC<Props>;
     readonly toItem: ToItem;
     readonly toItems: ToItems;
+    readonly Is: Is.Lib;
   };
 
   /** Props for rendering switch rows through `KeyValue.UI`. */
@@ -61,6 +62,16 @@ export declare namespace KeyValueSwitches {
 
   /** Convert switch inputs into `KeyValue` items. */
   export type ToItems = (items?: Item[], options?: ToItems.Options) => t.KeyValue.Item[];
+
+  /** Switch item type guards. */
+  export namespace Is {
+    /** Public runtime surface for switch item guards. */
+    export type Lib = {
+      readonly hr: (item: Item) => item is t.KeyValue.Item.Hr;
+      readonly group: (item: Item) => item is Group;
+      readonly row: (item: Item) => item is Row;
+    };
+  }
 
   /**
    * Item-local details.

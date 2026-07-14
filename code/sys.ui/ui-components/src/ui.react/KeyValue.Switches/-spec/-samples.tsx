@@ -1,5 +1,6 @@
 import React from 'react';
-import { Color, css, Is, type t } from './common.ts';
+import { Color, css, type t } from './common.ts';
+import { Switches } from '../mod.ts';
 
 export type SampleKind = 'basic' | 'mixed' | 'grouped';
 export type SampleValues = Record<string, boolean>;
@@ -9,14 +10,6 @@ type SampleGroup = Omit<t.KeyValueSwitches.Group, 'items'> & { items: SampleItem
 type SampleItem = SampleRow | t.KeyValue.Item.Hr | SampleGroup;
 type ToggleHandler = t.KeyValueSwitches.Item.Toggle.Handler;
 type SampleOptions = { values?: SampleValues; onToggle?: ToggleHandler };
-
-const isHr = (item: t.KeyValueSwitches.Item): item is t.KeyValue.Item.Hr => {
-  return Is.object(item) && 'kind' in item && item.kind === 'hr';
-};
-
-const isGroup = (item: t.KeyValueSwitches.Item): item is t.KeyValueSwitches.Group => {
-  return Is.object(item) && 'kind' in item && item.kind === 'group';
-};
 
 const Styles = {
   customLabel: css({
@@ -113,8 +106,10 @@ export const SAMPLE = {
     const onToggle = options.onToggle;
 
     return items.map((item) => {
-      if (isHr(item)) return item;
-      if (isGroup(item)) return { ...item, items: SAMPLE.withValues(item.items, options) };
+      if (Switches.Is.hr(item)) return item;
+      if (Switches.Is.group(item)) {
+        return { ...item, items: SAMPLE.withValues(item.items, options) };
+      }
 
       const row: t.KeyValueSwitches.Row = { ...item, value: values[item.id] ?? false };
       if (onToggle) row.onToggle = onToggle;

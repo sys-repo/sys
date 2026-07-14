@@ -352,6 +352,12 @@ export declare namespace KeyValue {
     /** Convert switch inputs into `KeyValue` items. */
     export type ToItems = t.KeyValueSwitches.ToItems;
 
+    /** Switch item type guards. */
+    export namespace Is {
+      /** Public runtime surface for switch item guards. */
+      export type Lib = t.KeyValueSwitches.Is.Lib;
+    }
+
     /**
      * Item-local details.
      */
