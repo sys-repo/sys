@@ -1,5 +1,5 @@
 import { D, Is, Switch, type t } from './common.ts';
-import type { SwitchRowInteraction } from './u.interaction.ts';
+import type { SwitchRowInteraction } from './u/u.interaction.ts';
 
 type P = {
   item: t.KeyValueSwitches.Row;

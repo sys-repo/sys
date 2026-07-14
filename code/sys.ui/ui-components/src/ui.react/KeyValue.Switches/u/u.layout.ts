@@ -1,4 +1,4 @@
-import { D, type t } from './common.ts';
+import { D, type t } from '../common.ts';
 
 /** Resolve KeyValue.Switches layout while preserving switch-specific defaults. */
 export function toSwitchLayout(layout?: t.KeyValue.Layout): t.KeyValue.Layout {

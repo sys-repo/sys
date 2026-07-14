@@ -1,4 +1,4 @@
-import { Is as StdIs, type t } from './common.ts';
+import { Is as StdIs, type t } from '../common.ts';
 
 /** Local item guards for KeyValue.Switches projection inputs. */
 function hr(item: t.KeyValueSwitches.Item): item is t.KeyValue.Item.Hr {

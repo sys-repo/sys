@@ -1,5 +1,5 @@
-import { css, type t } from './common.ts';
-import { SwitchValue } from './ui.Switch.tsx';
+import { css, type t } from '../common.ts';
+import { SwitchValue } from '../ui.Switch.tsx';
 import { type SwitchRowInteraction, toInteraction } from './u.interaction.ts';
 import { SwitchesIs } from './u.is.ts';
 

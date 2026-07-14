@@ -1,9 +1,9 @@
 import { useId } from 'react';
 
 import { Color, KeyValueUI, type t } from './common.ts';
-import { toggleCursorSpace } from './u.cursor-action.ts';
-import { toItemsForRender } from './u.items.tsx';
-import { toSwitchLayout } from './u.layout.ts';
+import { toggleCursorSpace } from './u/u.cursor-action.ts';
+import { toItemsForRender } from './u/u.items.tsx';
+import { toSwitchLayout } from './u/u.layout.ts';
 
 export const Switches: t.FC<t.KeyValueSwitches.Props> = (props) => {
   const { items, switch: switchOptions, layout, cursor, ...keyValueProps } = props;

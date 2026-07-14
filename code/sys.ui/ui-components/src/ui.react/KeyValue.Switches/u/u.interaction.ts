@@ -1,5 +1,5 @@
-import type { t } from './common.ts';
-import { isCursorEntryClick } from '../KeyValue/m.Cursor/u/u.event.ts';
+import type { t } from '../common.ts';
+import { isCursorEntryClick } from '../../KeyValue/m.Cursor/u/u.event.ts';
 
 type CursorOptions = Pick<t.KeyValue.Cursor.Props, 'enabled' | 'entry'>;
 

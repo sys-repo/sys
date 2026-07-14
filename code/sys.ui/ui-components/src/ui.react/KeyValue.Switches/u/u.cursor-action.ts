@@ -1,5 +1,5 @@
-import { Is, Obj, type t } from './common.ts';
-import { DataAttr } from '../KeyValue/m.Cursor/u/u.render.ts';
+import { Is, Obj, type t } from '../common.ts';
+import { DataAttr } from '../../KeyValue/m.Cursor/u/u.render.ts';
 import { toToggleArgs } from './u.interaction.ts';
 import { SwitchesIs } from './u.is.ts';
 

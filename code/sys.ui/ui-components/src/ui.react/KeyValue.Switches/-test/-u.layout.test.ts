@@ -1,6 +1,6 @@
 import { describe, expect, it, type t } from '../../../-test.ts';
 import { D } from '../common.ts';
-import { toSwitchLayout } from '../u.layout.ts';
+import { toSwitchLayout } from '../u/u.layout.ts';
 
 describe('KeyValue.Switches: layout utility', () => {
   it('uses the switch-specific default layout when no caller layout is supplied', () => {
