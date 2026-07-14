@@ -226,7 +226,7 @@ describe('KeyValue.Cursor', () => {
     expect(Cursor.enter(model, input)).to.equal(model);
   });
 
-  it('applies data-only cursor commands', () => {
+  it('routes data-only cursor commands through cmd', () => {
     const set: t.KeyValue.Cursor.Command<'cursor:set'> = {
       name: 'cursor:set',
       payload: { target: target('alpha') },
@@ -235,11 +235,11 @@ describe('KeyValue.Cursor', () => {
     const right: t.KeyValue.Cursor.Command<'cursor:right'> = { name: 'cursor:right', payload: {} };
     const exit: t.KeyValue.Cursor.Command<'cursor:exit'> = { name: 'cursor:exit', payload: {} };
 
-    const current = Cursor.apply({}, items, set);
-    const parted = Cursor.apply(current, items, right);
-    const atom = Cursor.apply(parted, items, exit);
-    const moved = Cursor.apply(atom, items, next);
-    const cleared = Cursor.apply(moved, items, exit);
+    const current = Cursor.cmd({}, items, set);
+    const parted = Cursor.cmd(current, items, right);
+    const atom = Cursor.cmd(parted, items, exit);
+    const moved = Cursor.cmd(atom, items, next);
+    const cleared = Cursor.cmd(moved, items, exit);
 
     expect(current.current?.path).to.eql(['alpha']);
     expect(parted.current).to.eql({ path: ['alpha'], part: 'value' });

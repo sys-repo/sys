@@ -80,7 +80,7 @@ export function toEntryChange(args: {
     payload: { target: nextTarget },
   };
   const previous = args.model;
-  const next = Cursor.apply(previous, args.items, command);
+  const next = Cursor.cmd(previous, args.items, command);
   if (!Cursor.eql(next.current, nextTarget)) return undefined;
   return {
     reason: 'cursor:entry',
@@ -139,7 +139,7 @@ export function toNavigationChange(args: {
   const previous = args.model;
   if (!previous.current) return undefined;
 
-  const next = Cursor.apply(previous, args.items, args.intent.command);
+  const next = Cursor.cmd(previous, args.items, args.intent.command);
   if (Cursor.eql(previous.current, next.current)) return undefined;
   return {
     reason: 'cursor:navigation',

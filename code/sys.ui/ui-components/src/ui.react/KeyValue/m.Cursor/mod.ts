@@ -12,8 +12,10 @@ export const Cursor: t.KeyValue.Cursor.Lib = {
   },
 
   set(model, items, nextTarget) {
-    if (!nextTarget) return {};
-    return findItem(items, nextTarget) ? { ...model, current: Cursor.target(nextTarget.path, nextTarget.part) } : model;
+    return Cursor.cmd(model, items, {
+      name: 'cursor:set',
+      payload: { target: nextTarget },
+    });
   },
 
   next(model, items) {
@@ -33,29 +35,15 @@ export const Cursor: t.KeyValue.Cursor.Lib = {
   },
 
   enter(model, items) {
-    const current = model.current;
-    if (!current) return model;
-
-    const item = findItem(items, current);
-    if (!item?.enterable) return model;
-
-    const scope = Cursor.scope(items, current.path);
-    const next = scope.items[0];
-    return next ? { ...model, current: Cursor.target(next.target.path) } : model;
+    return enterTarget(model, items);
   },
 
   exit(model) {
-    const current = model.current;
-    if (!current) return model;
-    if (current.part) return { ...model, current: Cursor.target(current.path) };
-    if (current.path.length <= 1) return {};
-
-    const parent = Obj.Path.slice(current.path, 0, -1);
-    return { ...model, current: Cursor.target(parent) };
+    return exitTarget(model);
   },
 
-  apply(model, items, command) {
-    if (command.name === 'cursor:set') return Cursor.set(model, items, command.payload.target);
+  cmd(model, items, command) {
+    if (command.name === 'cursor:set') return setTarget(model, items, command.payload.target);
     if (command.name === 'cursor:next') return Cursor.next(model, items);
     if (command.name === 'cursor:previous') return Cursor.previous(model, items);
     if (command.name === 'cursor:left') return Cursor.left(model, items);
@@ -65,3 +53,36 @@ export const Cursor: t.KeyValue.Cursor.Lib = {
     return model;
   },
 };
+
+function setTarget(
+  model: t.KeyValue.Cursor.Model,
+  items: readonly t.KeyValue.Item[],
+  nextTarget?: t.KeyValue.Cursor.Target,
+) {
+  if (!nextTarget) return {};
+  return findItem(items, nextTarget)
+    ? { ...model, current: target(nextTarget.path, nextTarget.part) }
+    : model;
+}
+
+function enterTarget(model: t.KeyValue.Cursor.Model, items: readonly t.KeyValue.Item[]) {
+  const current = model.current;
+  if (!current) return model;
+
+  const item = findItem(items, current);
+  if (!item?.enterable) return model;
+
+  const scope = toScope(items, current.path);
+  const next = scope.items[0];
+  return next ? { ...model, current: target(next.target.path) } : model;
+}
+
+function exitTarget(model: t.KeyValue.Cursor.Model) {
+  const current = model.current;
+  if (!current) return model;
+  if (current.part) return { ...model, current: target(current.path) };
+  if (current.path.length <= 1) return {};
+
+  const parent = Obj.Path.slice(current.path, 0, -1);
+  return { ...model, current: target(parent) };
+}

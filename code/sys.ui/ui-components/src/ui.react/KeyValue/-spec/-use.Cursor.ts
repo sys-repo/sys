@@ -64,7 +64,7 @@ function enterFirstCursorItem(debug: DebugSignals, items: readonly t.KeyValue.It
     name: 'cursor:set',
     payload: { target },
   };
-  const next = KeyValue.Cursor.apply(model, items, command);
+  const next = KeyValue.Cursor.cmd(model, items, command);
   if (!KeyValue.Cursor.eql(next.current, target)) return false;
 
   debug.props.cursorModel.value = next;

@@ -148,6 +148,7 @@ describe('KeyValue/t', () => {
       expectTypeOf(scope).toEqualTypeOf<t.KeyValue.Cursor.Scope>();
       expect(props.cursor).to.equal(cursor);
       expect(KeyValue.Cursor.eql(target, model.current)).to.eql(true);
+      expect(KeyValue.Cursor.cmd({}, [], command)).to.eql({});
     });
   });
 

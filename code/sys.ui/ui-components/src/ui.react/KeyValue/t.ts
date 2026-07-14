@@ -184,6 +184,7 @@ export declare namespace KeyValue {
       target(path: t.ObjectPath, part?: Part): Target;
       eql(a?: Target, b?: Target): boolean;
       scope(items: readonly KeyValue.Item[], path?: t.ObjectPath): Scope;
+      /** Convenience helper for routing a `cursor:set` command. */
       set(model: Model, items: readonly KeyValue.Item[], target?: Target): Model;
       next(model: Model, items: readonly KeyValue.Item[]): Model;
       previous(model: Model, items: readonly KeyValue.Item[]): Model;
@@ -191,7 +192,8 @@ export declare namespace KeyValue {
       right(model: Model, items: readonly KeyValue.Item[]): Model;
       enter(model: Model, items: readonly KeyValue.Item[]): Model;
       exit(model: Model): Model;
-      apply(model: Model, items: readonly KeyValue.Item[], command: Command): Model;
+      /** Route a data-only cursor command through the cursor reducer. */
+      cmd(model: Model, items: readonly KeyValue.Item[], command: Command): Model;
     };
 
     /** Opt-in cursor props for the rendered KeyValue projection. */
