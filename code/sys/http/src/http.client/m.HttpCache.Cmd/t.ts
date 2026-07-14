@@ -51,13 +51,17 @@ export declare namespace HttpCacheCmd {
 
   /** Per-command request payload mapping. */
   export type PayloadMap = {
+    /** Payload for the cache clear command. */
     readonly 'http.cache.clear': Clear.Payload;
+    /** Payload for the cache info command. */
     readonly 'http.cache.info': Info.Payload;
   };
 
   /** Per-command result payload mapping. */
   export type ResultMap = {
+    /** Result for the cache clear command. */
     readonly 'http.cache.clear': Clear.Result;
+    /** Result for the cache info command. */
     readonly 'http.cache.info': Info.Result;
   };
 
@@ -67,7 +71,9 @@ export declare namespace HttpCacheCmd {
    * Cache clear is unary only and does not emit stream events.
    */
   export type EventMap = {
+    /** Clear is unary and does not stream events. */
     readonly 'http.cache.clear': never;
+    /** Info is unary and does not stream events. */
     readonly 'http.cache.info': never;
   };
 
@@ -91,14 +97,19 @@ export declare namespace HttpCacheCmd {
 
     /** Payload for the `http.cache.clear` command. */
     export type Payload = {
+      /** Cache scope to clear; defaults to this package only. */
       readonly scope?: Scope;
     };
 
     /** Result payload for the `http.cache.clear` command. */
     export type Result = {
+      /** True when the clear handler completed. */
       readonly ok: boolean;
+      /** CacheStorage keys deleted by the handler. */
       readonly deleted: readonly t.StringKey[];
+      /** Number of deleted cache keys. */
       readonly total: number;
+      /** Completion timestamp. */
       readonly at: t.Msecs;
     };
 
@@ -118,6 +129,7 @@ export declare namespace HttpCacheCmd {
 
     /** Payload for the `http.cache.info` command. */
     export type Payload = {
+      /** Cache scope to inspect; defaults to this package only. */
       readonly scope?: Clear.Scope;
     };
 
@@ -126,8 +138,11 @@ export declare namespace HttpCacheCmd {
 
     /** Per-cache info entry. */
     export type Cache = {
+      /** CacheStorage key. */
       readonly name: t.StringKey;
+      /** Cache classification derived from the key. */
       readonly kind: Kind;
+      /** Number of data entries in the cache. */
       readonly entries: number;
       /** Optional estimated bytes for the cache (when available). */
       readonly bytes?: number;
@@ -137,22 +152,33 @@ export declare namespace HttpCacheCmd {
 
     /** Result payload for the `http.cache.info` command. */
     export type Result = {
+      /** True when the info handler completed. */
       readonly ok: boolean;
+      /** Completion timestamp. */
       readonly at: t.Msecs;
+      /** Cache scope used for this result. */
       readonly scope: Clear.Scope;
       readonly totals: {
+        /** Number of caches reported. */
         readonly caches: number;
+        /** Total data entries across reported caches. */
         readonly entries: number;
         /** Optional estimated bytes across returned caches. */
         readonly bytes?: number;
       };
+      /** Per-cache summaries. */
       readonly caches: readonly Cache[];
       /** Optional diagnostics for media range caching. */
       readonly diagnostics?: {
+        /** Aggregate diagnostics for range-window media cache entries. */
         readonly mediaRange?: {
+          /** Number of media-range caches reported. */
           readonly caches: number;
+          /** Data entries tracked in media-range caches. */
           readonly entries: number;
+          /** Estimated bytes tracked in media-range caches. */
           readonly bytes: number;
+          /** Metadata rows tracked for media-range entries. */
           readonly metaEntries: number;
         };
       };
@@ -217,8 +243,11 @@ export declare namespace HttpCacheCmd {
   export namespace Listen {
     /** Minimal event target shape used for SW command connection handshakes. */
     export type Target = {
+      /** Register a service-worker message listener. */
       addEventListener(type: 'message', listener: (event: MessageEvent) => void): void;
+      /** Remove a service-worker message listener. */
       removeEventListener(type: 'message', listener: (event: MessageEvent) => void): void;
+      /** Optional start hook for MessagePort-like targets. */
       start?: () => void;
     };
 

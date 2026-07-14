@@ -12,9 +12,13 @@ export declare namespace ServerInfo {
 
   /** Result from probing metadata of a sync-server endpoint. */
   export type Response = {
+    /** URL that was probed. */
     readonly url: t.StringUrl;
+    /** Elapsed probe time in milliseconds. */
     readonly elapsed: t.Msecs;
+    /** Sync-server metadata returned by the endpoint. */
     readonly data: t.SyncServer.Info;
+    /** Non-fatal probe errors collected while deriving metadata. */
     readonly errors: t.StdError[];
   };
 }

@@ -6,6 +6,7 @@ import type { t } from './common.ts';
 export declare namespace HttpCache {
   /** Service-worker cache helper library. */
   export type Lib = {
+    /** Command helpers for controlling service-worker cache state. */
     readonly Cmd: t.HttpCacheCmd.Lib;
 
     /**
@@ -33,8 +34,11 @@ export declare namespace HttpCache {
   export namespace Pkg {
     /** Inputs for `Http.Cache.pkg(...)`. */
     export type Args = {
+      /** Package descriptor used to derive cache namespaces. */
       pkg: t.Pkg;
+      /** Reserved cache-name input; cache keys are currently derived from the package name. */
       cacheName?: string;
+      /** Suppress service-worker cache logging. */
       silent?: boolean;
       /** Optional media cache policy (defaults to `safe-full`). */
       media?: Media.PolicyInput;
@@ -50,19 +54,29 @@ export declare namespace HttpCache {
 
     /** Normalized media cache policy used internally by the SW cache runtime. */
     export type Policy = {
+      /** Active media caching strategy. */
       readonly mode: Mode;
+      /** Maximum byte size for a single cached range chunk. */
       readonly maxChunkBytes: number;
+      /** Maximum full-object byte size eligible for media caching. */
       readonly maxObjectBytes: number;
+      /** Maximum total bytes retained by range-window media cache. */
       readonly maxTotalBytes: number;
+      /** Time-to-live for cached media range entries. */
       readonly ttl: t.Msecs;
     };
 
     /** User-supplied media cache policy input. */
     export type PolicyInput = {
+      /** Media caching strategy override. */
       mode?: Mode;
+      /** Maximum byte size for a single cached range chunk. */
       maxChunkBytes?: number;
+      /** Maximum full-object byte size eligible for media caching. */
       maxObjectBytes?: number;
+      /** Maximum total bytes retained by range-window media cache. */
       maxTotalBytes?: number;
+      /** Time-to-live for cached media range entries, in milliseconds. */
       ttlMs?: number;
     };
   }

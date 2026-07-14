@@ -121,7 +121,10 @@ export declare namespace FileMap {
     export type Method = (dir: t.StringDir, options?: OptionsInput) => Promise<t.FileMap>;
 
     /** Options accepted by `FileMap.toMap`. */
-    export type Options = { filter?: Filter.Predicate };
+    export type Options = {
+      /** Keep only file entries accepted by this predicate. */
+      filter?: Filter.Predicate;
+    };
 
     /** Flexible input accepted by `FileMap.toMap`. */
     export type OptionsInput = Options | Filter.Predicate;
@@ -213,7 +216,12 @@ export declare namespace FileMap {
     export type Method = (json: unknown) => Result;
 
     /** Result of parsing a raw JSON value into a FileMap. */
-    export type Result = { readonly fileMap?: t.FileMap; readonly error?: t.StdError };
+    export type Result = {
+      /** Parsed file map when validation succeeds. */
+      readonly fileMap?: t.FileMap;
+      /** Validation error when the input is not a FileMap. */
+      readonly error?: t.StdError;
+    };
   }
 
   /**
@@ -229,16 +237,29 @@ export declare namespace FileMap {
 
     /** Options for applying a FileMap into a target directory. */
     export type Options = {
+      /** Report planned operations without writing files. */
       readonly dryRun?: boolean;
+      /** Overwrite existing unchanged targets when true. */
       readonly force?: boolean;
+      /** Caller context passed through to each processor callback. */
       readonly ctx?: unknown;
+      /** Optional per-file transform hook before write decisions are finalized. */
       readonly processFile?: Processor.Method;
     };
 
     /** Result of materializing a FileMap into the filesystem. */
     export type Result = {
+      /** Ordered operation log for every input file-map entry. */
       readonly ops: readonly Op.Any[];
-      readonly total: { readonly [K in Op.Any['kind']]: number };
+      /** Lazy totals grouped by operation kind. */
+      readonly total: {
+        /** Number of created files. */
+        readonly create: number;
+        /** Number of modified files. */
+        readonly modify: number;
+        /** Number of skipped files. */
+        readonly skip: number;
+      };
     };
 
     /**
@@ -250,20 +271,34 @@ export declare namespace FileMap {
 
       /** Per-file process callback exposed via `processFile` callback. */
       export type Args = {
+        /** Caller context passed from write options. */
         readonly ctx?: unknown;
+        /** Original file-map path key. */
         readonly path: t.StringPath;
+        /** Content type decoded from the file-map data URI. */
         readonly contentType: string;
+        /** Text payload for string-like content types. */
         readonly text?: string;
+        /** Binary payload for non-text content types. */
         readonly bytes?: Uint8Array;
+        /** Mutable target path facade for the output file. */
         readonly target: {
+          /** Root directory receiving materialized files. */
           readonly dir: t.StringDir;
+          /** Absolute output path after any rename. */
           readonly absolute: t.StringPath;
+          /** Relative output path after any rename. */
           readonly relative: t.StringPath;
+          /** Output filename after any rename. */
           readonly filename: t.StringName;
+          /** Test whether the current target path already exists. */
           exists(): Promise<boolean>;
+          /** Rename this output path before write classification. */
           rename(next: string, silent?: boolean): void;
         };
+        /** Mark this file-map entry as skipped. */
         skip(reason?: string): void;
+        /** Replace the decoded output payload before writing. */
         modify(next: string | Uint8Array): void;
       };
     }
@@ -279,10 +314,20 @@ export declare namespace FileMap {
         | ({ kind: 'skip'; path: t.StringPath; reason?: string } & Common);
 
       /** Common write operation metadata. */
-      export type Common = { dryRun?: boolean; forced?: boolean };
+      export type Common = {
+        /** True when the operation was planned but not written. */
+        dryRun?: boolean;
+        /** True when an existing file was overwritten because force was enabled. */
+        forced?: boolean;
+      };
 
       /** Metadata added to a write operation when the file was renamed. */
-      export type Renamed = { from: t.StringPath; silent?: boolean };
+      export type Renamed = {
+        /** Previous relative output path. */
+        from: t.StringPath;
+        /** Suppress rename presentation in callers that render the op log. */
+        silent?: boolean;
+      };
 
       /** Pick out operations whose `kind` matches K. */
       export type OfKind<K extends Any['kind']> = Extract<Any, { kind: K }>;

@@ -78,8 +78,11 @@ export declare namespace HttpClient {
 
     /** Result from the `Http.waitFor` method. */
     export type Result = {
+      /** URL that was probed. */
       readonly url: string;
+      /** Number of fetch attempts made before success. */
       readonly attempts: number;
+      /** Elapsed wait time in milliseconds. */
       readonly elapsed: t.Msecs;
       /** The last HTTP status seen (if any). */
       readonly lastStatus?: t.HttpStatusCode;

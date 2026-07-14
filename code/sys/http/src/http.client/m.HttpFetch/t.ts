@@ -55,8 +55,11 @@ export declare namespace HttpFetch {
 
   /** Options passed to `Fetch.make`. */
   export type CreateOptions = {
+    /** Mutate default headers used by created request helpers. */
     headers?: t.HttpMutateHeaders;
+    /** Access token or token factory normalized into an Authorization header. */
     accessToken?: t.StringJwt | (() => t.StringJwt);
+    /** Lifecycle boundary that aborts in-flight requests. */
     until?: t.UntilInput;
     /**
      * Controls when the default `content-type` header is set.
@@ -67,7 +70,10 @@ export declare namespace HttpFetch {
   };
 
   /** Options passed to fetch request helpers. */
-  export type Options = { checksum?: t.StringHash };
+  export type Options = {
+    /** Optional expected checksum for validating successful response data. */
+    checksum?: t.StringHash;
+  };
 
   /**
    * HTTP byte-size probing contracts.
@@ -81,8 +87,11 @@ export declare namespace HttpFetch {
 
     /** Response from `Fetch.byteSize`. */
     export type Result = Readonly<{
+      /** URL that was probed. */
       url: string;
+      /** Byte size when discoverable from headers. */
       bytes?: t.NumberBytes;
+      /** Header strategy that produced the byte size. */
       from: 'head' | 'range' | 'unknown';
     }>;
   }

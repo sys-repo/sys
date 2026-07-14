@@ -159,7 +159,10 @@ export namespace Fs {
   };
 
   /** Response from the `Fs.copy` method. */
-  export type CopyResult = { error?: t.StdError };
+  export type CopyResult = {
+    /** Copy failure details when the operation did not complete cleanly. */
+    error?: t.StdError;
+  };
 
   /**
    * Delete a file or directory (and its contents).
@@ -242,11 +245,17 @@ export namespace Fs {
 
   /** A response from a file read operation. */
   export type ReadResult<T> = {
+    /** True when the file was read and parsed successfully. */
     readonly ok: boolean;
+    /** Whether the target path existed when read was attempted. */
     readonly exists: boolean;
+    /** Absolute resolved path that was read. */
     readonly path: string;
+    /** Parsed file data when the read succeeds. */
     readonly data?: T;
+    /** Standard error when read, decode, or parse fails. */
     readonly error?: t.StdError;
+    /** Machine-readable failure category. */
     readonly errorReason?: 'NotFound' | 'ParseError' | 'DecodingError' | 'Unknown';
   };
 
@@ -257,8 +266,11 @@ export namespace Fs {
   export type WalkUpCallback = (e: WalkUpCallbackArgs) => WalkUpCallbackResult;
   export type WalkUpCallbackResult = Promise<t.IgnoredResult> | t.IgnoredResult;
   export type WalkUpCallbackArgs = {
+    /** Current ancestor directory being visited. */
     readonly dir: t.StringDir;
+    /** List files directly under the current directory. */
     files(): Promise<WalkFile[]>;
+    /** Stop walking after the current visitor returns. */
     stop(): void;
   };
 
@@ -277,9 +289,13 @@ export namespace Fs {
    * Details about a walked file.
    */
   export type WalkFile = {
+    /** Absolute path to the walked entry. */
     path: t.StringPath;
+    /** Parent directory of the walked entry. */
     dir: t.StringDir;
+    /** Basename of the walked entry. */
     name: string;
+    /** Whether the walked entry is a symlink. */
     isSymlink: boolean;
   };
 
@@ -297,9 +313,18 @@ export namespace Fs {
    * Represents the byte-size of all files within a directory.
    */
   export type DirSize = {
+    /** Whether the measured directory exists. */
     readonly exists: boolean;
+    /** Directory path that was measured. */
     readonly path: t.StringDir;
-    readonly total: { files: number; bytes: number };
+    /** Aggregated file count and byte size. */
+    readonly total: {
+      /** Number of files included in the total. */
+      files: number;
+      /** Total byte size across included files. */
+      bytes: number;
+    };
+    /** Format the byte total as a display string. */
     toString(options?: t.FormatBytesOptions): string;
   };
 
@@ -308,8 +333,11 @@ export namespace Fs {
    */
   export type MakeTempDir = (options?: t.Fs.MakeTempDirOptions) => Promise<t.FsDir>;
   export type MakeTempDirOptions = {
+    /** Parent directory for the temporary directory. */
     readonly dir?: t.StringDir;
+    /** Prefix for the generated directory name. */
     readonly prefix?: string;
+    /** Suffix for the generated directory name. */
     readonly suffix?: string;
   };
 
@@ -335,6 +363,7 @@ export namespace Fs {
  * Sub-namespace properties.
  */
 type NamespaceMembers = {
+  /** Re-exposed capability sub-surface. */
   readonly Capability: t.Fs.Capability.Lib;
 
   /** Helpers for working with resource paths. */

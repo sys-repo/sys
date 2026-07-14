@@ -7,6 +7,7 @@ import type { t } from './common.ts';
 export declare namespace Binary {
   /** User interface for working with binary data within CRDTs. */
   export type Lib = {
+    /** React view for binary file maps stored in a CRDT document. */
     readonly View: t.FC<t.BinaryFile.Props>;
 
     /** Convert a browser `File` to a CRDT binary file. */
@@ -29,10 +30,15 @@ export declare namespace BinaryFile {
 
   /** Component props. */
   export type Props = {
+    /** CRDT document containing the binary file map. */
     doc?: t.Crdt.Ref;
+    /** Object path where the file map is stored. */
     path?: t.ObjectPath;
+    /** Show debug rendering instead of the drop-target view. */
     debug?: boolean;
+    /** System theme used for rendering. */
     theme?: t.CommonTheme;
+    /** Style override applied to the root element. */
     style?: t.CssInput;
   };
 

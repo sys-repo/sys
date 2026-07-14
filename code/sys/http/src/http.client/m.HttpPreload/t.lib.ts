@@ -23,7 +23,9 @@ export declare namespace HttpPreload {
 
   /** Byte-range for partial warm requests. */
   export type ByteRange = {
+    /** Inclusive byte offset where the range starts. */
     readonly start: t.NumberBytes;
+    /** Inclusive byte offset where the range ends. */
     readonly end?: t.NumberBytes;
   };
 
@@ -39,17 +41,25 @@ export declare namespace HttpPreload {
 
   /** Result from `warm` method. */
   export type Result = {
+    /** True when every warm operation succeeded. */
     readonly ok: boolean;
+    /** Per-target warm results in input order. */
     readonly ops: readonly Record[];
   };
 
   /** Result per target. */
   export type Record = {
+    /** URL that was warmed. */
     readonly url: t.StringUrl;
+    /** True when the warm request succeeded. */
     readonly ok: boolean;
+    /** HTTP status returned by the warm request. */
     readonly status?: t.HttpStatusCode;
+    /** Bytes reported by the warm response, when known. */
     readonly bytes?: t.NumberBytes;
+    /** Error message when the warm request failed. */
     readonly error?: string;
+    /** Byte range used for the warm request. */
     readonly range?: ByteRange;
     /**
      * True when the warm response confirms the safe-full media cache

@@ -53,15 +53,21 @@ export declare namespace Dir {
 
       /** Options passed to `Dir.Hash.compute`. */
       export type Options = {
+        /** Keep only paths accepted by this absolute-path filter. */
         filter?: t.Fs.Path.Filter;
+        /** Optional callback invoked after each file hash is added. */
         onProgress?: (e: ProgressEvent) => t.Awaitable<void>;
       };
 
       /** Progress emitted for each hashed file. */
       export type ProgressEvent = {
+        /** Absolute directory being hashed. */
         readonly dir: t.StringDir;
+        /** Directory-relative file path just hashed. */
         readonly path: t.StringRelativePath;
+        /** One-based file index for the current progress event. */
         readonly current: number;
+        /** Total number of files selected for hashing. */
         readonly total: number;
       };
     }

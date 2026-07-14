@@ -60,7 +60,7 @@ export declare namespace JsrFetch {
     /** Options for the `Jsr.Fetch.<fetch-method>` methods that perform hash checksums on the fetched content. */
     export type ChecksumOptions = Options & { checksum?: t.StringHash };
 
-    /** Resposne to a `Jsr.Fetch.Pkg.versions` request. */
+    /** Response to a `Jsr.Fetch.Pkg.versions` request. */
     export type VersionsResponse = t.FetchResponse<MetaVersions>;
 
     /** Response to a `Jsr.Fetch.Pkg.info` request. */
@@ -70,7 +70,7 @@ export declare namespace JsrFetch {
     export type FileResponse = t.FetchResponse<string>;
 
     /**
-     * Top level meta-data about a published package including it's version history.
+     * Top level meta-data about a published package including its version history.
      * https://jsr.io/docs/api#package-metadata
      */
     export type MetaVersions = {

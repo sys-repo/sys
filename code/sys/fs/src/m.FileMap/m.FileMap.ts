@@ -8,6 +8,7 @@ import { toMap } from './u/u.toMap.ts';
 import { validate } from './u/u.validate.ts';
 import { write } from './u/u.write.ts';
 
+/** FileMap conversion, validation, filtering, and materialization helpers. */
 export const FileMap: t.FileMap.Lib = {
   Is,
   Data,

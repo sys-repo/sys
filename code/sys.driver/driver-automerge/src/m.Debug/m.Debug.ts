@@ -1,4 +1,4 @@
-import { type t, A } from './common.ts';
+import { A, type t } from './common.ts';
 import { Reentry } from './m.Reentry.ts';
 
 /** Track whether tripwire patch was applied. */
@@ -17,6 +17,7 @@ const warnTrip = (where: string) => {
   });
 };
 
+/** Development diagnostics for Automerge callback re-entry and safe doc access. */
 export const Debug: t.Debug.Lib = {
   Reentry,
 
