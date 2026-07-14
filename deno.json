@@ -96,6 +96,7 @@
     "code/sys/text",
     "code/sys/tmpl-engine",
     "code/sys/types",
+    "code/sys/web",
     "code/sys/workspace",
     "code/sys/yaml",
     "deploy/@draft.shell",
