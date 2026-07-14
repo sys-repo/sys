@@ -9,6 +9,7 @@ type P = {
   cursor?: CursorBoundary;
   currentFill?: t.Color.Rgba;
   arrivalFill?: t.Color.Rgba;
+  arrivalKey?: string;
   children?: t.ReactNode;
 };
 
@@ -69,9 +70,13 @@ function cursorArrivalKey(cursor?: CursorBoundary): string | undefined {
   return `${cursor.encodedPath ?? ''}:${cursor.currentPart ?? 'atom'}`;
 }
 
-function renderCursorArrivalCue(cursor?: CursorBoundary, arrivalFill?: t.Color.Rgba) {
+export function renderCursorArrivalCue(
+  cursor: CursorBoundary | undefined,
+  arrivalFill: t.Color.Rgba | undefined,
+  arrivalKey: string | undefined,
+) {
   const key = cursorArrivalKey(cursor);
-  if (!key) return null;
+  if (!key || key !== arrivalKey) return null;
 
   return (
     <React.Fragment key={key}>
@@ -99,7 +104,7 @@ export const ItemShell: React.FC<P> = (props) => {
       data-keyvalue-cursor-current-part={props.cursor?.currentPart}
       onClick={props.cursor?.onClick}
     >
-      {renderCursorArrivalCue(props.cursor, props.arrivalFill)}
+      {renderCursorArrivalCue(props.cursor, props.arrivalFill, props.arrivalKey)}
       {props.children}
     </div>
   );
@@ -121,7 +126,7 @@ export const ProjectionItemShell: React.FC<ProjectionP> = (props) => {
       data-keyvalue-cursor-current-part={props.cursor?.currentPart}
       onClick={props.cursor?.onClick}
     >
-      {renderCursorArrivalCue(props.cursor, props.arrivalFill)}
+      {renderCursorArrivalCue(props.cursor, props.arrivalFill, props.arrivalKey)}
       {props.children}
     </Motion.div>
   );

@@ -1,3 +1,5 @@
+import React from 'react';
+
 import {
   act,
   afterEach,
@@ -11,9 +13,11 @@ import {
   type t,
   TestReact,
 } from '../../../-test.ts';
+import { keydown } from './u.keyboard.ts';
 import { KeyValue } from '../mod.ts';
 
 const currentSelector = '[data-keyvalue-cursor-current="true"]';
+const boundarySelector = '[data-keyvalue-item-boundary]';
 const arrivalSelector = '[data-keyvalue-cursor-arrival-cue="true"]';
 
 describe('KeyValue.UI: cursor affordance', () => {
@@ -53,6 +57,111 @@ describe('KeyValue.UI: cursor affordance', () => {
     }
   });
 
+  it('does not spend first adoption on an unresolved controlled current target', async () => {
+    const Probe: React.FC = () => {
+      const [model, setModel] = React.useState<t.KeyValue.Cursor.Model>({
+        current: KeyValue.Cursor.target(['missing']),
+      });
+      return (
+        <>
+          <KeyValue.UI
+            items={[row('alpha')]}
+            cursor={{ model, onChange: (e) => setModel(e.next) }}
+          />
+          <button
+            type='button'
+            onClick={() => setModel({ current: KeyValue.Cursor.target(['alpha']) })}
+          >
+            resolve
+          </button>
+        </>
+      );
+    };
+
+    const res = await TestReact.render(<Probe />, { strict: false });
+    const resolve = res.container.querySelector('button') as HTMLButtonElement;
+
+    expect(currentPaths(res.container)).to.eql([]);
+    expect(arrivalKeys(res.container)).to.eql([]);
+
+    act(() => DomMock.Mouse.click(resolve));
+    await Schedule.micro();
+    expect(currentPaths(res.container)).to.eql(['/alpha']);
+    expect(arrivalKeys(res.container)).to.eql(['/alpha:atom']);
+
+    act(() => res.dispose());
+    await Schedule.micro();
+  });
+
+  it('renders the arrival cue only for first cursor adoption', async () => {
+    const Probe: React.FC = () => {
+      const [model, setModel] = React.useState<t.KeyValue.Cursor.Model>({});
+      const [, setTick] = React.useState(0);
+      return (
+        <>
+          <KeyValue.UI
+            items={[row('alpha'), row('bravo')]}
+            cursor={{ model, onChange: (e) => setModel(e.next) }}
+          />
+          <button type='button' onClick={() => setTick((n) => n + 1)}>rerender</button>
+        </>
+      );
+    };
+
+    const res = await TestReact.render(<Probe />, { strict: false });
+    const root = res.container.firstElementChild as HTMLElement;
+    const first = res.container.querySelector(boundarySelector) as HTMLElement;
+    const rerender = res.container.querySelector('button') as HTMLButtonElement;
+
+    expect(res.container.querySelector(arrivalSelector)).to.eql(null);
+
+    act(() => DomMock.Mouse.click(first, { altKey: true }));
+    await Schedule.micro();
+    expect(arrivalKeys(res.container)).to.eql(['/alpha:atom']);
+
+    act(() => DomMock.Mouse.click(rerender));
+    await Schedule.micro();
+    expect(currentPaths(res.container)).to.eql(['/alpha']);
+    expect(arrivalKeys(res.container)).to.eql([]);
+
+    keydown(root, 'ArrowDown');
+    await Schedule.micro();
+    expect(currentPaths(res.container)).to.eql(['/bravo']);
+    expect(arrivalKeys(res.container)).to.eql([]);
+
+    keydown(root, 'Escape');
+    await Schedule.micro();
+    expect(currentPaths(res.container)).to.eql([]);
+
+    act(() => DomMock.Mouse.click(first, { altKey: true }));
+    await Schedule.micro();
+    expect(currentPaths(res.container)).to.eql(['/alpha']);
+    expect(arrivalKeys(res.container)).to.eql([]);
+
+    act(() => res.dispose());
+    await Schedule.micro();
+  });
+
+  it('renders the first adoption cue in the direct reorder shell path', async () => {
+    const res = await TestReact.render(
+      <KeyValue.UI
+        items={[row('alpha'), row('bravo')]}
+        reorder={{ onChange: () => undefined }}
+        cursor={{
+          model: { current: KeyValue.Cursor.target(['bravo']) },
+          onChange: () => undefined,
+        }}
+      />,
+      { strict: false },
+    );
+
+    expect(currentPaths(res.container)).to.eql(['/bravo']);
+    expect(arrivalKeys(res.container)).to.eql(['/bravo:atom']);
+
+    act(() => res.dispose());
+    await Schedule.micro();
+  });
+
   it('keys the arrival cue by cursor lane without changing target identity', async () => {
     const res = await TestReact.render(
       <KeyValue.UI
@@ -78,4 +187,16 @@ describe('KeyValue.UI: cursor affordance', () => {
 
 function row(id: string): t.KeyValue.Item.Row {
   return { id, k: id, v: id };
+}
+
+function currentPaths(container: HTMLElement) {
+  return Array.from(container.querySelectorAll(currentSelector)).map((el) =>
+    el.getAttribute('data-keyvalue-cursor-path')
+  );
+}
+
+function arrivalKeys(container: HTMLElement) {
+  return Array.from(container.querySelectorAll(arrivalSelector)).map((el) =>
+    el.getAttribute('data-keyvalue-cursor-arrival-key')
+  );
 }
