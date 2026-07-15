@@ -28,7 +28,7 @@ const DEFAULTS: DebugStorage = {
   enabled: true,
   reorder: false,
   animation: true,
-  cursor: false,
+  cursor: true,
   cursorArrival: 'flash',
   layout: D.layout.default,
   layoutSpaced: D.layout.spaced,

@@ -1,4 +1,5 @@
 import { type t } from '../common.ts';
+import { type CursorArrivalCue } from '../m.Cursor/u/u.arrival.ts';
 import { type ProjectionAnimationModel } from '../u/mod.ts';
 
 export type RenderContext = Omit<t.KeyValue.ItemProps, 'item'> & {
@@ -6,8 +7,7 @@ export type RenderContext = Omit<t.KeyValue.ItemProps, 'item'> & {
   readonly rootItems: readonly t.KeyValue.Item[];
   readonly cursor?: t.KeyValue.Cursor.Props;
   readonly cursorCurrentFill: t.Color.Rgba;
-  readonly cursorArrivalFill: t.Color.Rgba;
-  readonly cursorArrivalKey?: string;
+  readonly cursorArrival?: CursorArrivalCue;
   readonly cursorPartFill: t.Color.Rgba;
   readonly projection?: ProjectionAnimationModel;
 };

@@ -112,6 +112,7 @@ describe('KeyValue/t', () => {
         payload: { target },
       };
       const entry = 'option-enter' satisfies t.KeyValue.Cursor.EntryInput;
+      const arrival: t.KeyValue.Cursor.Arrival = 'flash';
       const change: t.KeyValue.Cursor.EntryChange = {
         reason: 'cursor:entry',
         entry,
@@ -132,6 +133,7 @@ describe('KeyValue/t', () => {
         model,
         entry: 'click',
         navigation: 'keyboard',
+        arrival,
         onChange: (e) => e.next,
       };
       const props: t.KeyValue.Props = { cursor };
@@ -142,6 +144,7 @@ describe('KeyValue/t', () => {
       expectTypeOf(command).toEqualTypeOf<t.KeyValue.Cursor.Command<'cursor:set'>>();
       expectTypeOf(change).toEqualTypeOf<t.KeyValue.Cursor.EntryChange>();
       expectTypeOf(navigation).toEqualTypeOf<t.KeyValue.Cursor.NavigationChange>();
+      expectTypeOf(arrival).toMatchTypeOf<t.KeyValue.Cursor.Arrival>();
       expectTypeOf(change).toMatchTypeOf<t.KeyValue.Cursor.Change>();
       expectTypeOf(navigation).toMatchTypeOf<t.KeyValue.Cursor.Change>();
       expectTypeOf(cursor).toEqualTypeOf<t.KeyValue.Cursor.Props>();

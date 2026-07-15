@@ -24,8 +24,7 @@ export const ItemFrame: React.FC<P> = (props) => {
         projection={projection}
         cursor={cursor}
         currentFill={context.cursorCurrentFill}
-        arrivalFill={context.cursorArrivalFill}
-        arrivalKey={context.cursorArrivalKey}
+        arrival={context.cursorArrival}
       >
         {children}
       </ProjectionItemShell>
@@ -38,8 +37,7 @@ export const ItemFrame: React.FC<P> = (props) => {
       layout={context.layout}
       cursor={cursor}
       currentFill={context.cursorCurrentFill}
-      arrivalFill={context.cursorArrivalFill}
-      arrivalKey={context.cursorArrivalKey}
+      arrival={context.cursorArrival}
     >
       {children}
     </ItemShell>

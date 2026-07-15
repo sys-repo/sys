@@ -202,6 +202,8 @@ export declare namespace KeyValue {
       readonly model?: Model;
       readonly entry?: Entry;
       readonly navigation?: Navigation;
+      /** Visual arrival cue mode. Defaults to `flash`. */
+      readonly arrival?: Arrival;
       readonly onChange?: ChangeHandler;
     };
 
@@ -232,6 +234,12 @@ export declare namespace KeyValue {
 
     /** Enabled cursor-navigation input mode. */
     export type NavigationMode = 'keyboard';
+
+    /** Configured visual cue behavior when a cursor target receives focus. */
+    export type Arrival = false | ArrivalMode;
+
+    /** Enabled cursor-arrival visual cue mode. */
+    export type ArrivalMode = 'flash';
 
     /** Keyboard input that maps to a cursor-navigation command. */
     export type NavigationKey =

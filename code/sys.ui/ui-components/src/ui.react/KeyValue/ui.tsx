@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { Color, css, D, Obj, type t } from './common.ts';
+import { Color, css, D, type t } from './common.ts';
 import { toCssSize, toFont, toLayout, toProjectionAnimation, toReorderModel } from './u/mod.ts';
-import { Cursor } from './m.Cursor/mod.ts';
+import { useCursorArrivalCue } from './m.Cursor/u/u.arrival.ts';
 import { toNavigationHandler, toNavigationRootProps } from './m.Cursor/u/u.navigation.ts';
 import {
   type RenderContext,
@@ -19,16 +19,9 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
   const layout = toLayout(props.layout);
   const theme = Color.theme(props.theme);
   const cursorCurrentFill = Color.alpha(theme.fg, 0.06);
-  const cursorArrivalFill = Color.alpha(theme.fg, 0.14);
   const cursorPartFill = Color.ruby(0.2);
-  const cursorAdoptedRef = React.useRef(false);
-  const cursorCurrentKey = toCursorCurrentKey(items, props.cursor);
-  const cursorArrivalKey = cursorAdoptedRef.current ? undefined : cursorCurrentKey;
+  const cursorArrival = useCursorArrivalCue({ items, cursor: props.cursor, fg: theme.fg });
   const { fontSize, fontFamily } = toFont(props);
-
-  React.useEffect(() => {
-    if (cursorCurrentKey) cursorAdoptedRef.current = true;
-  }, [cursorCurrentKey]);
 
   const isTable = layout.kind === 'table';
   const keyTrack = isTable && layout.keyMax
@@ -78,8 +71,7 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
     rootItems: items,
     cursor: props.cursor,
     cursorCurrentFill,
-    cursorArrivalFill,
-    cursorArrivalKey,
+    cursorArrival,
     cursorPartFill,
     size,
     debug,
@@ -98,8 +90,7 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
         onEnd={reorder.onEnd}
         cursorNavigation={cursorNavigation}
         cursorCurrentFill={cursorCurrentFill}
-        cursorArrivalFill={cursorArrivalFill}
-        cursorArrivalKey={cursorArrivalKey}
+        cursorArrival={cursorArrival}
         cursorBoundary={(item) => toCursorBoundary(item, renderContext, [])}
         renderItem={(item, cursor) => renderRootItem(item, renderContext, cursor)}
       />
@@ -118,15 +109,3 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
     </div>
   );
 };
-
-function toCursorCurrentKey(
-  items: readonly t.KeyValue.Item[],
-  cursor?: t.KeyValue.Cursor.Props,
-): string | undefined {
-  if (!cursor || cursor.enabled === false) return undefined;
-  const current = cursor.model?.current;
-  if (!current) return undefined;
-  const resolved = Cursor.set({}, items, current).current;
-  if (!resolved) return undefined;
-  return `${Obj.Path.encode(resolved.path)}:${resolved.part ?? 'atom'}`;
-}

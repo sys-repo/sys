@@ -1,5 +1,6 @@
 import React from 'react';
 import { css, Reorder as ReorderBase, type t } from '../common.ts';
+import { type CursorArrivalCue } from '../m.Cursor/u/u.arrival.ts';
 import { toNavigationRootProps } from '../m.Cursor/u/u.navigation.ts';
 import { type Boundary as CursorBoundary } from '../m.Cursor/u/u.render.ts';
 import { type ReorderModel, sameIds, toReorderChange, toReorderedItems } from '../u/mod.ts';
@@ -15,8 +16,7 @@ type P = {
   onEnd?: t.KeyValue.Reorder.EndHandler;
   cursorNavigation?: React.KeyboardEventHandler<HTMLElement>;
   cursorCurrentFill: t.Color.Rgba;
-  cursorArrivalFill: t.Color.Rgba;
-  cursorArrivalKey?: string;
+  cursorArrival?: CursorArrivalCue;
   cursorBoundary?: (item: t.KeyValue.Item) => CursorBoundary | undefined;
   renderItem: (item: t.KeyValue.Item, cursor?: CursorBoundary) => t.ReactNode;
 };
@@ -89,7 +89,7 @@ export const ReorderList: React.FC<P> = (props) => {
         onDragStart={() => onDragStart(id)}
         onDragEnd={() => onDragEnd(id)}
       >
-        {renderCursorArrivalCue(cursor, props.cursorArrivalFill, props.cursorArrivalKey)}
+        {renderCursorArrivalCue(cursor, props.cursorArrival)}
         {renderItem(item, cursor)}
       </ReorderBase.Item>
     );

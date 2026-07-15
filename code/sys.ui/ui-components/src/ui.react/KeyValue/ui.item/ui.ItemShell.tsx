@@ -1,5 +1,6 @@
 import React from 'react';
 import { css, D, Motion, type t } from '../common.ts';
+import { type CursorArrivalCue, type CursorArrivalKind } from '../m.Cursor/u/u.arrival.ts';
 import { type Boundary as CursorBoundary } from '../m.Cursor/u/u.render.ts';
 import { type ProjectionAnimationModel, toLayout } from '../u/mod.ts';
 
@@ -8,8 +9,7 @@ type P = {
   layout?: t.KeyValue.Layout;
   cursor?: CursorBoundary;
   currentFill?: t.Color.Rgba;
-  arrivalFill?: t.Color.Rgba;
-  arrivalKey?: string;
+  arrival?: CursorArrivalCue;
   children?: t.ReactNode;
 };
 
@@ -55,13 +55,13 @@ const cursorArrivalKeyframes = `
 }
 `;
 
-function cursorArrivalCueClass(arrivalFill?: t.Color.Rgba) {
+function cursorArrivalCueClass(kind?: CursorArrivalKind) {
+  const duration = kind === 'target-change' ? 220 : 650;
   return css({
     position: 'absolute',
     inset: 0,
     pointerEvents: 'none',
-    backgroundColor: arrivalFill,
-    animation: 'keyvalue-cursor-arrival-cue 420ms ease-out forwards',
+    animation: `keyvalue-cursor-arrival-cue ${duration}ms ease-out forwards`,
   }).class;
 }
 
@@ -72,20 +72,21 @@ function cursorArrivalKey(cursor?: CursorBoundary): string | undefined {
 
 export function renderCursorArrivalCue(
   cursor: CursorBoundary | undefined,
-  arrivalFill: t.Color.Rgba | undefined,
-  arrivalKey: string | undefined,
+  arrival: CursorArrivalCue | undefined,
 ) {
   const key = cursorArrivalKey(cursor);
-  if (!key || key !== arrivalKey) return null;
+  if (!key || key !== arrival?.key) return null;
 
   return (
     <React.Fragment key={key}>
       <style>{cursorArrivalKeyframes}</style>
       <div
         aria-hidden='true'
-        className={cursorArrivalCueClass(arrivalFill)}
+        className={cursorArrivalCueClass(arrival.kind)}
+        style={{ backgroundColor: arrival.fill }}
         data-keyvalue-cursor-arrival-cue='true'
         data-keyvalue-cursor-arrival-key={key}
+        data-keyvalue-cursor-arrival-kind={arrival.kind}
       />
     </React.Fragment>
   );
@@ -104,7 +105,7 @@ export const ItemShell: React.FC<P> = (props) => {
       data-keyvalue-cursor-current-part={props.cursor?.currentPart}
       onClick={props.cursor?.onClick}
     >
-      {renderCursorArrivalCue(props.cursor, props.arrivalFill, props.arrivalKey)}
+      {renderCursorArrivalCue(props.cursor, props.arrival)}
       {props.children}
     </div>
   );
@@ -126,7 +127,7 @@ export const ProjectionItemShell: React.FC<ProjectionP> = (props) => {
       data-keyvalue-cursor-current-part={props.cursor?.currentPart}
       onClick={props.cursor?.onClick}
     >
-      {renderCursorArrivalCue(props.cursor, props.arrivalFill, props.arrivalKey)}
+      {renderCursorArrivalCue(props.cursor, props.arrival)}
       {props.children}
     </Motion.div>
   );
