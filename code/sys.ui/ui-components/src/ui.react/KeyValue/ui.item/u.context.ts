@@ -1,5 +1,5 @@
 import { type t } from '../common.ts';
-import { type CursorArrivalCue } from '../m.Cursor/u/u.arrival.ts';
+import { type CursorArrivalCue } from '../m.Cursor/u/use.arrival.ts';
 import { type ProjectionAnimationModel } from '../u/mod.ts';
 
 export type RenderContext = Omit<t.KeyValue.ItemProps, 'item'> & {

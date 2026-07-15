@@ -1,6 +1,6 @@
 import React from 'react';
 import { css, Reorder as ReorderBase, type t } from '../common.ts';
-import { type CursorArrivalCue } from '../m.Cursor/u/u.arrival.ts';
+import { type CursorArrivalCue } from '../m.Cursor/u/use.arrival.ts';
 import { toNavigationRootProps } from '../m.Cursor/u/u.navigation.ts';
 import { type Boundary as CursorBoundary } from '../m.Cursor/u/u.render.ts';
 import { type ReorderModel, sameIds, toReorderChange, toReorderedItems } from '../u/mod.ts';

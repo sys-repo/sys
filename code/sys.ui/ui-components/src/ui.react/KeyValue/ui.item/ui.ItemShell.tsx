@@ -1,6 +1,6 @@
 import React from 'react';
 import { css, D, Motion, type t } from '../common.ts';
-import { type CursorArrivalCue, type CursorArrivalKind } from '../m.Cursor/u/u.arrival.ts';
+import { type CursorArrivalCue, type CursorArrivalKind } from '../m.Cursor/u/use.arrival.ts';
 import { type Boundary as CursorBoundary } from '../m.Cursor/u/u.render.ts';
 import { type ProjectionAnimationModel, toLayout } from '../u/mod.ts';
 

@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Color, css, D, type t } from './common.ts';
 import { toCssSize, toFont, toLayout, toProjectionAnimation, toReorderModel } from './u/mod.ts';
-import { useCursorArrivalCue } from './m.Cursor/u/u.arrival.ts';
+import { useCursorArrivalCue } from './m.Cursor/u/use.arrival.ts';
 import { toNavigationHandler, toNavigationRootProps } from './m.Cursor/u/u.navigation.ts';
 import {
   type RenderContext,
