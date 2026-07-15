@@ -1,9 +1,7 @@
 import React from 'react';
-import { type t, Color, css } from './common.ts';
+import { Color, css, type t } from './common.ts';
 
-export type FooProps = {
-  style?: t.CssInput;
-};
+export type FooProps = { style?: t.CssInput };
 
 /**
  * Component:
@@ -13,10 +11,7 @@ export const Foo: React.FC<FooProps> = (props) => {
    * Render:
    */
   const styles = {
-    base: css({
-      backgroundColor: Color.ruby(0.1),
-      display: 'grid',
-    }),
+    base: css({ backgroundColor: Color.ruby(0.1), display: 'grid' }),
   };
 
   return (
