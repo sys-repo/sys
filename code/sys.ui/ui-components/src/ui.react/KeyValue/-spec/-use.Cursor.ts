@@ -1,7 +1,8 @@
 import { type RefObject, useEffect } from 'react';
 import { Keyboard, Rx, type t } from './common.ts';
 import { KeyValue } from '../mod.ts';
-import type { DebugSignals } from './-SPEC.Debug.tsx';
+
+export type CursorModelSignal = { value: t.KeyValue.Cursor.Model };
 
 /**
  * Harness hook: host-level keyboard handoff into the KeyValue cursor root.
@@ -10,12 +11,12 @@ import type { DebugSignals } from './-SPEC.Debug.tsx';
  * cursor grammar; the host owns global command/focus arbitration.
  */
 export function useCursorKeyboardHandoff(args: {
-  readonly debug: DebugSignals;
+  readonly cursorModel: CursorModelSignal;
   readonly enabled: boolean;
   readonly hostRef: RefObject<HTMLDivElement | null>;
   readonly items: readonly t.KeyValue.Item[];
 }) {
-  const { debug, enabled, hostRef, items } = args;
+  const { cursorModel, enabled, hostRef, items } = args;
 
   useEffect(() => {
     if (!enabled) return;
@@ -27,12 +28,12 @@ export function useCursorKeyboardHandoff(args: {
       if (shouldLetKeyValueHandle(root)) return;
 
       const focused = focusCursorRoot(root);
-      const entered = enterFirstCursorItem(debug, items);
+      const entered = enterFirstCursorItem(cursorModel, items);
       if (focused || entered) e.stopKeyboardPropagation();
     });
 
     return () => life.dispose();
-  }, [debug, enabled, hostRef, items]);
+  }, [cursorModel, enabled, hostRef, items]);
 }
 
 /**
@@ -55,8 +56,8 @@ function shouldLetKeyValueHandle(root: HTMLElement) {
   return !!active.closest(ACTIVE_ELEMENT_SKIP_SELECTOR);
 }
 
-function enterFirstCursorItem(debug: DebugSignals, items: readonly t.KeyValue.Item[]) {
-  const model = debug.props.cursorModel.value;
+function enterFirstCursorItem(cursorModel: CursorModelSignal, items: readonly t.KeyValue.Item[]) {
+  const model = cursorModel.value;
   if (model.current) return false;
 
   const target = KeyValue.Cursor.scope(items).items[0]?.target;
@@ -67,7 +68,7 @@ function enterFirstCursorItem(debug: DebugSignals, items: readonly t.KeyValue.It
   const next = KeyValue.Cursor.cmd(model, items, command);
   if (!KeyValue.Cursor.eql(next.current, target)) return false;
 
-  debug.props.cursorModel.value = next;
+  cursorModel.value = next;
   return true;
 }
 

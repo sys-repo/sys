@@ -10,6 +10,7 @@ import {
   STORAGE_KEY,
   type t,
 } from './common.ts';
+import { CursorDebug } from '../../KeyValue/-spec/mod.ts';
 import { SAMPLE, type SampleKind, type SampleValues } from './-samples.tsx';
 
 type Storage = {
@@ -18,6 +19,7 @@ type Storage = {
   enabled: boolean;
   reorder: boolean;
   cursorEnabled: boolean;
+  cursorArrival: t.KeyValue.Cursor.Arrival;
   sample?: SampleKind;
   values?: SampleValues;
 };
@@ -28,6 +30,7 @@ const defaults: Storage = {
   enabled: true,
   reorder: true,
   cursorEnabled: true,
+  cursorArrival: 'flash',
   sample: 'basic',
   values: { ...SAMPLE.defaultValues },
 };
@@ -57,6 +60,7 @@ export async function createDebugSignals() {
     reorder: s(snap.reorder ?? defaults.reorder),
     cursor: {
       enabled: s(snap.cursorEnabled ?? defaults.cursorEnabled),
+      arrival: s(CursorDebug.toArrival(snap.cursorArrival ?? defaults.cursorArrival)),
       model: s<t.KeyValue.Cursor.Model>({}),
     },
     sample: s(snap.sample),
@@ -80,6 +84,7 @@ export async function createDebugSignals() {
     p.enabled.value = defaults.enabled;
     p.reorder.value = defaults.reorder;
     p.cursor.enabled.value = defaults.cursorEnabled;
+    p.cursor.arrival.value = defaults.cursorArrival;
     p.cursor.model.value = {};
     p.sample.value = defaults.sample;
     p.items.value = SAMPLE.source(defaults.sample);
@@ -93,6 +98,7 @@ export async function createDebugSignals() {
       d.enabled = p.enabled.value;
       d.reorder = p.reorder.value;
       d.cursorEnabled = p.cursor.enabled.value;
+      d.cursorArrival = p.cursor.arrival.value;
       d.sample = p.sample.value;
       d.values = p.values.value;
     });
@@ -150,11 +156,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `reorder: ${v.reorder}`}
         onClick={() => Signal.toggle(p.reorder)}
       />
-      <Button
-        block
-        label={() => `cursor.enabled: ${v.cursor.enabled}`}
-        onClick={() => Signal.toggle(p.cursor.enabled)}
-      />
+      <CursorDebug.ToggleButton enabled={p.cursor.enabled} model={p.cursor.model} />
+      {p.cursor.enabled.value && (
+        <>
+          <CursorDebug.ArrivalButton arrival={p.cursor.arrival} />
+          {CursorDebug.hasArrival(p.cursor.arrival.value) && (
+            <CursorDebug.Help theme={theme.name} />
+          )}
+        </>
+      )}
 
       <hr />
       <div className={Styles.title.class}>{'Samples'}</div>

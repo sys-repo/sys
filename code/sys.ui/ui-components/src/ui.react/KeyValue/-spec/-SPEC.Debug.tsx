@@ -2,6 +2,7 @@ import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 import { Color, css, D, LocalStorage, Obj, Signal, type t } from './common.ts';
 import { SAMPLE, type SampleKind } from './-samples.tsx';
+import { CursorDebug } from './mod.ts';
 import { LayoutButtons } from './-ui.Buttons.Layout.tsx';
 import { SampleButtons } from './-ui.Buttons.Samples.tsx';
 
@@ -10,6 +11,7 @@ type DebugStorage = Pick<P, 'theme' | 'debug' | 'size' | 'mono' | 'truncate' | '
   reorder: boolean;
   animation: boolean;
   cursor: boolean;
+  cursorArrival: t.KeyValue.Cursor.Arrival;
   layout: t.KeyValue.Layout['kind'];
   layoutSpaced: t.KeyValue.Layout.Spaced;
   layoutTable: t.KeyValue.Layout.Table;
@@ -27,6 +29,7 @@ const DEFAULTS: DebugStorage = {
   reorder: false,
   animation: true,
   cursor: false,
+  cursorArrival: 'flash',
   layout: D.layout.default,
   layoutSpaced: D.layout.spaced,
   layoutTable: D.layout.table,
@@ -62,6 +65,7 @@ export function createDebugSignals() {
     reorder: s(snap.reorder ?? false),
     animation: s(snap.animation ?? false),
     cursor: s(snap.cursor ?? false),
+    cursorArrival: s(CursorDebug.toArrival(snap.cursorArrival ?? DEFAULTS.cursorArrival)),
     cursorModel: s<t.KeyValue.Cursor.Model>({}),
     layout: s(snap.layout),
     layoutSpaced: {
@@ -113,6 +117,7 @@ export function createDebugSignals() {
       d.reorder = p.reorder.value;
       d.animation = p.animation.value;
       d.cursor = p.cursor.value;
+      d.cursorArrival = p.cursorArrival.value;
       d.sample = p.sample.value;
 
       d.layout = p.layout.value;
@@ -214,19 +219,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `reorder: ${p.reorder.value}`}
         onClick={() => Signal.toggle(p.reorder)}
       />
-      <Button
-        block
-        label={() => `cursor.enabled: ${p.cursor.value}`}
-        onClick={() => {
-          const next = !p.cursor.value;
-          p.cursor.value = next;
-          if (!next) p.cursorModel.value = {};
-        }}
+      <CursorDebug.ToggleButton
+        enabled={p.cursor}
+        model={p.cursorModel}
+        clearModelOnDisable={true}
       />
       {p.cursor.value && (
-        <div className={Styles.note.class}>
-          {'Option-click a row, or Option+Enter to focus this harness table. Once focused: Option+Enter enters; Option+←/→ enters key/value lanes; ↑/↓ moves; Enter enters groups; Esc exits.'}
-        </div>
+        <>
+          <CursorDebug.ArrivalButton arrival={p.cursorArrival} />
+          {CursorDebug.hasArrival(p.cursorArrival.value) && <CursorDebug.Help theme={theme.name} />}
+        </>
       )}
       <hr />
       <LayoutButtons debug={debug} theme={theme.name} />

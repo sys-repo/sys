@@ -1,8 +1,10 @@
+import { useRef } from 'react';
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { D, type t } from './common.ts';
 import { Switches } from '../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { SAMPLE } from './-samples.tsx';
+import { useCursorKeyboardHandoff } from '../../KeyValue/-spec/mod.ts';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -10,6 +12,7 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
+    const rootRef = useRef<HTMLDivElement>(null);
     const currentItems = p.items.value ?? SAMPLE.source(v.sample);
     const items = SAMPLE.withValues(currentItems, {
       values: v.values,
@@ -20,19 +23,29 @@ export default Spec.describe(D.displayName, async (e) => {
       p.items.value = SAMPLE.reorder(currentItems, e.next);
     };
 
+    useCursorKeyboardHandoff({
+      cursorModel: p.cursor.model,
+      enabled: v.cursor.enabled,
+      hostRef: rootRef,
+      items: Switches.toItems(items),
+    });
+
     return (
-      <Switches.UI
-        debug={v.debug}
-        theme={v.theme}
-        enabled={v.enabled}
-        reorder={v.reorder ? { onChange: onReorder } : undefined}
-        cursor={{
-          enabled: v.cursor.enabled,
-          model: v.cursor.model,
-          onChange: (e) => p.cursor.model.value = e.next,
-        }}
-        items={items}
-      />
+      <div ref={rootRef} style={{ display: 'contents' }}>
+        <Switches.UI
+          debug={v.debug}
+          theme={v.theme}
+          enabled={v.enabled}
+          reorder={v.reorder ? { onChange: onReorder } : undefined}
+          cursor={{
+            enabled: v.cursor.enabled,
+            arrival: v.cursor.arrival,
+            model: v.cursor.model,
+            onChange: (e) => p.cursor.model.value = e.next,
+          }}
+          items={items}
+        />
+      </div>
     );
   }
 

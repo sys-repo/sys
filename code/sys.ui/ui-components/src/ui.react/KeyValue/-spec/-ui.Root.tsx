@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { Signal, type t } from './common.ts';
 import { KeyValue } from '../mod.ts';
 import type { DebugSignals } from './-SPEC.Debug.tsx';
-import { useCursorKeyboardHandoff } from './-use.Cursor.ts';
+import { useCursorKeyboardHandoff } from './mod.ts';
 
 type Props = {
   debug: DebugSignals;
@@ -17,7 +17,12 @@ export function Root(props: Props) {
   const v = Signal.toObject(p);
   const rootRef = useRef<HTMLDivElement>(null);
 
-  useCursorKeyboardHandoff({ debug, enabled: v.cursor, hostRef: rootRef, items: v.items ?? [] });
+  useCursorKeyboardHandoff({
+    cursorModel: p.cursorModel,
+    enabled: v.cursor,
+    hostRef: rootRef,
+    items: v.items ?? [],
+  });
 
   return (
     <div ref={rootRef} style={{ display: 'contents' }}>
@@ -32,7 +37,7 @@ export function Root(props: Props) {
         items={v.items}
         reorder={toReorderProps(debug, v.reorder)}
         animation={v.animation ? true : undefined}
-        cursor={toCursorProps(debug, v.cursor, v.cursorModel)}
+        cursor={toCursorProps(debug, v.cursor, v.cursorModel, v.cursorArrival)}
       />
     </div>
   );
@@ -57,9 +62,11 @@ function toCursorProps(
   debug: DebugSignals,
   enabled: boolean,
   model: t.KeyValue.Cursor.Model,
+  arrival: t.KeyValue.Cursor.Arrival,
 ): t.KeyValue.Cursor.Props | undefined {
   if (!enabled) return;
   return {
+    arrival,
     model,
     onChange: (e) => debug.props.cursorModel.value = e.next,
   };
