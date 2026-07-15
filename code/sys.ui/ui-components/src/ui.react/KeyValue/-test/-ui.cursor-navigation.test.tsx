@@ -103,14 +103,19 @@ describe('KeyValue.UI: cursor navigation', () => {
     const res = await TestReact.render(<Probe />, { strict: false });
     const root = firstChild(res.container);
 
-    keydown(root, 'ArrowLeft');
+    const plainLaneEvent = keydown(root, 'ArrowLeft');
+    await Schedule.micro();
+    expect(plainLaneEvent.defaultPrevented).to.eql(false);
+    expect(current).to.eql({ path: ['alpha'] });
+
+    keydown(root, 'ArrowLeft', { altKey: true });
     await Schedule.micro();
     expect(current).to.eql({ path: ['alpha'], part: 'key' });
     expect(currentBoundary(res.container).getAttribute('data-keyvalue-cursor-current-part')).to.eql(
       'key',
     );
 
-    keydown(root, 'ArrowRight');
+    keydown(root, 'ArrowRight', { altKey: true });
     await Schedule.micro();
     expect(current).to.eql({ path: ['alpha'], part: 'value' });
     expect(currentBoundary(res.container).getAttribute('data-keyvalue-cursor-current-part')).to.eql(
@@ -229,7 +234,7 @@ describe('KeyValue.UI: cursor navigation', () => {
     await Schedule.micro();
     expect(current).to.eql({ path: ['group', 'bravo.one'] });
 
-    keydown(root, 'ArrowRight');
+    keydown(root, 'ArrowRight', { altKey: true });
     await Schedule.micro();
     expect(current).to.eql({ path: ['group', 'bravo.one'], part: 'value' });
 

@@ -183,12 +183,17 @@ function firstEntryTarget(
 }
 
 function isUnmodifiedNavigation(event: NavigationEvent) {
+  if (isLaneNavigationKey(event.key)) return false;
   return !Keyboard.Is.modified(Keyboard.modifiers(event));
 }
 
 function isOptionLaneNavigation(event: NavigationEvent) {
-  if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return false;
+  if (!isLaneNavigationKey(event.key)) return false;
   return isOptionOnly(Keyboard.modifiers(event));
+}
+
+function isLaneNavigationKey(key: string) {
+  return key === 'ArrowLeft' || key === 'ArrowRight';
 }
 
 function isOptionOnly(modifiers: t.Keyboard.Modifier.Flags) {
