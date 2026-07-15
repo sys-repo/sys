@@ -21,8 +21,8 @@ export const CursorHelp: React.FC<CursorHelpProps> = (props) => {
       color: Color.alpha(theme.fg, 0.66),
       fontSize: 12,
       lineHeight: 1.45,
-      marginBottom: 5,
       marginTop: 5,
+      marginBottom: 8,
       marginLeft: 8,
     }),
     code: css({
@@ -54,7 +54,7 @@ export const CursorHelp: React.FC<CursorHelpProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      {code('Option-click')} {'a row, or '} {code('Option+Enter')} {'to focus.'}
+      {code('Option-click')} {'a row, or '} {code('Option + Enter')} {'to focus.'}
       <div className={styles.focused.class}>{'Once focused:'}</div>
       <ul className={styles.list.class}>
         {steps.map((step) => (
