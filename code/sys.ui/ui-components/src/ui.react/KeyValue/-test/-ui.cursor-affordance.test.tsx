@@ -4,7 +4,6 @@ import {
   act,
   afterEach,
   beforeEach,
-  Color,
   describe,
   DomMock,
   expect,
@@ -23,9 +22,8 @@ const arrivalSelector = '[data-keyvalue-cursor-arrival-cue="true"]';
 describe('KeyValue.UI: cursor affordance', () => {
   DomMock.init({ beforeEach, afterEach });
 
-  it('renders a theme-derived zero-layout-shift current boundary fill', async () => {
+  it('renders zero-layout-shift current and arrival cue boundaries', async () => {
     for (const name of ['Light', 'Dark'] as const) {
-      const theme = Color.theme(name);
       const res = await TestReact.render(
         <KeyValue.UI
           theme={name}
@@ -39,18 +37,20 @@ describe('KeyValue.UI: cursor affordance', () => {
       );
       const current = res.container.querySelector(currentSelector) as HTMLElement;
       const style = window.getComputedStyle(current);
+      const currentAlpha = backgroundAlpha(current);
 
-      expect(style.backgroundColor).to.eql(Color.alpha(theme.fg, 0.06));
+      expect(currentAlpha > 0).to.eql(true);
       expect(style.borderTopWidth === '' || style.borderTopWidth === '0px').to.eql(true);
 
       const cue = current.querySelector(arrivalSelector) as HTMLElement;
       const cueStyle = window.getComputedStyle(cue);
       expect(cueStyle.position).to.eql('absolute');
       expect(cueStyle.pointerEvents).to.eql('none');
-      expect(cueStyle.backgroundColor).to.eql(Color.alpha(theme.fg, 0.14));
+      expect(backgroundAlpha(cue) > currentAlpha).to.eql(true);
       expect(current.querySelector('style')?.textContent?.includes('keyvalue-cursor-arrival-cue'))
         .to.eql(true);
       expect(cue.getAttribute('data-keyvalue-cursor-arrival-key')).to.eql('/alpha:atom');
+      expect(cue.getAttribute('data-keyvalue-cursor-arrival-kind')).to.eql('first-adoption');
 
       act(() => res.dispose());
       await Schedule.micro();
@@ -93,13 +93,14 @@ describe('KeyValue.UI: cursor affordance', () => {
     await Schedule.micro();
   });
 
-  it('renders the arrival cue only for first cursor adoption', async () => {
+  it('flashes first adoption strongly and target changes subtly', async () => {
     const Probe: React.FC = () => {
       const [model, setModel] = React.useState<t.KeyValue.Cursor.Model>({});
       const [, setTick] = React.useState(0);
       return (
         <>
           <KeyValue.UI
+            theme='Dark'
             items={[row('alpha'), row('bravo')]}
             cursor={{ model, onChange: (e) => setModel(e.next) }}
           />
@@ -117,7 +118,10 @@ describe('KeyValue.UI: cursor affordance', () => {
 
     act(() => DomMock.Mouse.click(first, { altKey: true }));
     await Schedule.micro();
-    expect(arrivalKeys(res.container)).to.eql(['/alpha:atom']);
+    expect(currentPaths(res.container)).to.eql(['/alpha']);
+    const firstCue = expectArrivalCue(res.container, '/alpha:atom', 'first-adoption');
+    const firstAlpha = backgroundAlpha(firstCue);
+    expect(firstAlpha > 0).to.eql(true);
 
     act(() => DomMock.Mouse.click(rerender));
     await Schedule.micro();
@@ -127,7 +131,10 @@ describe('KeyValue.UI: cursor affordance', () => {
     keydown(root, 'ArrowDown');
     await Schedule.micro();
     expect(currentPaths(res.container)).to.eql(['/bravo']);
-    expect(arrivalKeys(res.container)).to.eql([]);
+    const targetCue = expectArrivalCue(res.container, '/bravo:atom', 'target-change');
+    const targetAlpha = backgroundAlpha(targetCue);
+    expect(targetAlpha > 0).to.eql(true);
+    expect(targetAlpha < firstAlpha).to.eql(true);
 
     keydown(root, 'Escape');
     await Schedule.micro();
@@ -136,6 +143,24 @@ describe('KeyValue.UI: cursor affordance', () => {
     act(() => DomMock.Mouse.click(first, { altKey: true }));
     await Schedule.micro();
     expect(currentPaths(res.container)).to.eql(['/alpha']);
+    const readoptCue = expectArrivalCue(res.container, '/alpha:atom', 'target-change');
+    expect(backgroundAlpha(readoptCue) > 0).to.eql(true);
+    expect(backgroundAlpha(readoptCue) < firstAlpha).to.eql(true);
+
+    act(() => res.dispose());
+    await Schedule.micro();
+  });
+
+  it('can disable the arrival cue', async () => {
+    const res = await TestReact.render(<CueModeProbe arrival={false} />, { strict: false });
+    const [, bravo] = buttons(res.container);
+
+    expect(currentPaths(res.container)).to.eql(['/alpha']);
+    expect(arrivalKeys(res.container)).to.eql([]);
+
+    act(() => DomMock.Mouse.click(bravo));
+    await Schedule.micro();
+    expect(currentPaths(res.container)).to.eql(['/bravo']);
     expect(arrivalKeys(res.container)).to.eql([]);
 
     act(() => res.dispose());
@@ -185,6 +210,40 @@ describe('KeyValue.UI: cursor affordance', () => {
   });
 });
 
+const CueModeProbe: React.FC<{ arrival?: t.KeyValue.Cursor.Arrival }> = (props) => {
+  const [model, setModel] = React.useState<t.KeyValue.Cursor.Model>({
+    current: KeyValue.Cursor.target(['alpha']),
+  });
+  const [, setTick] = React.useState(0);
+
+  return (
+    <>
+      <KeyValue.UI
+        theme='Dark'
+        items={[row('alpha'), row('bravo')]}
+        cursor={{
+          arrival: props.arrival,
+          model,
+          onChange: (e) => setModel(e.next),
+        }}
+      />
+      <button
+        type='button'
+        onClick={() => setModel({ current: KeyValue.Cursor.target(['alpha']) })}
+      >
+        alpha
+      </button>
+      <button
+        type='button'
+        onClick={() => setModel({ current: KeyValue.Cursor.target(['bravo']) })}
+      >
+        bravo
+      </button>
+      <button type='button' onClick={() => setTick((n) => n + 1)}>rerender</button>
+    </>
+  );
+};
+
 function row(id: string): t.KeyValue.Item.Row {
   return { id, k: id, v: id };
 }
@@ -199,4 +258,32 @@ function arrivalKeys(container: HTMLElement) {
   return Array.from(container.querySelectorAll(arrivalSelector)).map((el) =>
     el.getAttribute('data-keyvalue-cursor-arrival-key')
   );
+}
+
+function arrivalCue(container: HTMLElement) {
+  return container.querySelector(arrivalSelector) as HTMLElement | null;
+}
+
+function expectArrivalCue(
+  container: HTMLElement,
+  key: string,
+  kind: 'first-adoption' | 'target-change',
+) {
+  const cue = arrivalCue(container) as HTMLElement;
+  expect(cue?.getAttribute('data-keyvalue-cursor-arrival-key')).to.eql(key);
+  expect(cue?.getAttribute('data-keyvalue-cursor-arrival-kind')).to.eql(kind);
+  return cue;
+}
+
+function backgroundAlpha(el: HTMLElement) {
+  const value = window.getComputedStyle(el).backgroundColor;
+  if (!value || value === 'transparent') return 0;
+  if (!value.startsWith('rgba(')) return 1;
+
+  const alpha = Number(value.slice(5, -1).split(',')[3]?.trim());
+  return Number.isFinite(alpha) ? alpha : 0;
+}
+
+function buttons(container: HTMLElement) {
+  return Array.from(container.querySelectorAll('button')) as HTMLButtonElement[];
 }
