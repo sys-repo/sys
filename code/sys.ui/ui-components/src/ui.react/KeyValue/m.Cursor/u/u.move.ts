@@ -20,12 +20,11 @@ export function move(
   const index = scope.items.findIndex((item) => eqlPath(item.target, current));
   if (index < 0) return { ...model, current: target(scope.items[0].target.path) };
 
-  const item = scope.items[index];
   const nextIndex = Math.max(0, Math.min(scope.items.length - 1, index + delta));
+  if (nextIndex === index) return model;
+
   const next = scope.items[nextIndex];
-  const currentPart = supportsPart(item, current.part) ? current.part : undefined;
-  const part = supportsPart(next, currentPart) ? currentPart : undefined;
-  return { ...model, current: target(next.target.path, part) };
+  return { ...model, current: target(next.target.path) };
 }
 
 export function moveEdge(
@@ -39,14 +38,8 @@ export function moveEdge(
   if (scope.items.length === 0) return model;
 
   const next = scope.items[edge === 'first' ? 0 : scope.items.length - 1];
-  const currentItem = current
-    ? scope.items.find((item) => eqlPath(item.target, current))
-    : undefined;
-  const currentPart = currentItem && supportsPart(currentItem, current?.part)
-    ? current?.part
-    : undefined;
-  const part = supportsPart(next, currentPart) ? currentPart : undefined;
-  return { ...model, current: target(next.target.path, part) };
+  if (current && eqlPath(next.target, current)) return model;
+  return { ...model, current: target(next.target.path) };
 }
 
 export function moveBlock(
@@ -71,8 +64,8 @@ export function moveBlock(
   });
   if (!next) return model;
 
-  const part = supportsPart(next, current.part) ? current.part : undefined;
-  return { ...model, current: target(next.target.path, part) };
+  if (eqlPath(next.target, current)) return model;
+  return { ...model, current: target(next.target.path) };
 }
 
 export function movePart(

@@ -135,7 +135,7 @@ describe('KeyValue.UI: cursor navigation', () => {
 
       keydown(root, 'ArrowDown');
       await Schedule.micro();
-      expect(current).to.eql({ path: ['bravo'], part: 'value' });
+      expect(current).to.eql({ path: ['bravo'] });
 
       keydown(root, 'ArrowDown');
       await Schedule.micro();
@@ -151,6 +151,63 @@ describe('KeyValue.UI: cursor navigation', () => {
         'cursor:next',
         'cursor:next',
         'cursor:exit',
+      ]);
+
+      act(() => res.dispose());
+      await Schedule.micro();
+    });
+
+    it('moves vertically from key/value lanes to row atoms', async () => {
+      const changes: t.KeyValue.Cursor.Change[] = [];
+      let current: t.KeyValue.Cursor.Target | undefined;
+
+      const Probe: React.FC = () => {
+        const [model, setModel] = React.useState<t.KeyValue.Cursor.Model>({
+          current: KeyValue.Cursor.target(['bravo'], 'key'),
+        });
+        current = model.current;
+        return (
+          <KeyValue.UI
+            items={[row('alpha'), row('bravo'), { id: 'title', kind: 'title', v: 'Title' }]}
+            cursor={{
+              model,
+              onChange: (e) => {
+                changes.push(e);
+                setModel(e.next);
+              },
+            }}
+          />
+        );
+      };
+
+      const res = await TestReact.render(<Probe />, { strict: false });
+      const root = firstChild(res.container);
+
+      keydown(root, 'ArrowUp');
+      await Schedule.micro();
+      expect(current).to.eql({ path: ['alpha'] });
+      expect(currentBoundary(res.container).getAttribute('data-keyvalue-cursor-current-part')).to
+        .eql(null);
+
+      keydown(root, 'ArrowDown');
+      await Schedule.micro();
+      expect(current).to.eql({ path: ['bravo'] });
+
+      keydown(root, 'ArrowRight', { altKey: true });
+      await Schedule.micro();
+      expect(current).to.eql({ path: ['bravo'], part: 'value' });
+
+      keydown(root, 'ArrowDown');
+      await Schedule.micro();
+      expect(current).to.eql({ path: ['title'] });
+      expect(currentBoundary(res.container).getAttribute('data-keyvalue-cursor-current-part')).to
+        .eql(null);
+
+      expect(changes.map((e) => navigationChange(e).command.name)).to.eql([
+        'cursor:previous',
+        'cursor:next',
+        'cursor:right',
+        'cursor:next',
       ]);
 
       act(() => res.dispose());
@@ -252,12 +309,12 @@ describe('KeyValue.UI: cursor navigation', () => {
       const blockDown = keydown(root, 'ArrowDown', { altKey: true });
       await Schedule.micro();
       expect(blockDown.defaultPrevented).to.eql(true);
-      expect(current).to.eql({ path: ['bravo'], part: 'value' });
+      expect(current).to.eql({ path: ['bravo'] });
 
       const plainDown = keydown(root, 'ArrowDown');
       await Schedule.micro();
       expect(plainDown.defaultPrevented).to.eql(true);
-      expect(current).to.eql({ path: ['charlie'], part: 'value' });
+      expect(current).to.eql({ path: ['charlie'] });
 
       keydown(root, 'ArrowDown', { altKey: true });
       await Schedule.micro();
@@ -321,26 +378,26 @@ describe('KeyValue.UI: cursor navigation', () => {
       const bottom = keydown(root, 'ArrowDown', command);
       await Schedule.micro();
       expect(bottom.defaultPrevented).to.eql(true);
-      expect(current).to.eql({ path: ['charlie'], part: 'value' });
+      expect(current).to.eql({ path: ['charlie'] });
 
       const home = keydown(root, 'Home');
       await Schedule.micro();
       expect(home.defaultPrevented).to.eql(true);
-      expect(current).to.eql({ path: ['alpha'], part: 'value' });
+      expect(current).to.eql({ path: ['alpha'] });
 
       const end = keydown(root, 'End');
       await Schedule.micro();
       expect(end.defaultPrevented).to.eql(true);
-      expect(current).to.eql({ path: ['charlie'], part: 'value' });
+      expect(current).to.eql({ path: ['charlie'] });
 
       const top = keydown(root, 'ArrowUp', command);
       await Schedule.micro();
       expect(top.defaultPrevented).to.eql(true);
-      expect(current).to.eql({ path: ['alpha'], part: 'value' });
+      expect(current).to.eql({ path: ['alpha'] });
 
       keydown(root, 'ArrowDown');
       await Schedule.micro();
-      expect(current).to.eql({ path: ['bravo'], part: 'value' });
+      expect(current).to.eql({ path: ['bravo'] });
 
       keydown(root, 'ArrowDown', { altKey: true });
       await Schedule.micro();
