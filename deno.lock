@@ -81,6 +81,7 @@
     "npm:@automerge/automerge-repo-storage-indexeddb@2.5.6": "2.5.6",
     "npm:@automerge/automerge-repo-storage-nodefs@2.5.6": "2.5.6",
     "npm:@automerge/automerge-repo@2.5.6": "2.5.6",
+    "npm:@automerge/automerge@3.3.1": "3.3.1",
     "npm:@automerge/prosemirror@0.2.0": "0.2.0",
     "npm:@deno/vite-plugin@2.0.2": "2.0.2_vite@8.1.4__yaml@2.9.0_yaml@2.9.0",
     "npm:@mariozechner/pi-coding-agent@0.73.0": "0.73.0_ws@8.21.0_zod@4.4.3",
@@ -114,6 +115,7 @@
     "npm:hash-it@7.0.3": "7.0.3",
     "npm:he@^1.2.0": "1.2.0",
     "npm:hono@4.12.24": "4.12.24",
+    "npm:hono@4.12.30": "4.12.30",
     "npm:ignore@7.0.6": "7.0.6",
     "npm:katex@0.16": "0.16.47",
     "npm:marked-alert@2": "2.1.2_marked@12.0.2",
@@ -463,7 +465,7 @@
         "jsr:@sys/process",
         "jsr:@sys/std",
         "jsr:@sys/yaml",
-        "npm:hono"
+        "npm:hono@4.12.24"
       ]
     },
     "@sys/immutable@0.0.148": {
@@ -581,7 +583,7 @@
     "@automerge/automerge-repo@2.5.6": {
       "integrity": "sha512-ZXM6TOAwm192g3+zIxYvlB+Z3O00NP+psErOwvbSype8fFO+dhc8tB/jPwfZJqmn1ULUz5w7gssKEynwcYFRSA==",
       "dependencies": [
-        "@automerge/automerge",
+        "@automerge/automerge@3.2.6",
         "bs58check",
         "cbor-x",
         "debug",
@@ -594,10 +596,13 @@
     "@automerge/automerge@3.2.6": {
       "integrity": "sha512-9/GXXfYYWNVGpnbRrGQzTNU4fWZ3XaEMeEg0OrpK4pvlQSpkmUBoirEb/4TMK6BwMysZGV5Yeneq3wwc7RNGfg=="
     },
+    "@automerge/automerge@3.3.1": {
+      "integrity": "sha512-ZnVHlUCPB9w3CFlqWe/ex2q3JIpJ5g0jAlxpX4NxHpjad/WwnyeUM3hQC+IrPO1P5kPX18agxesnXBVUA/qlvg=="
+    },
     "@automerge/prosemirror@0.2.0": {
       "integrity": "sha512-Mixxftvfs12tKi7DsStobrQxFayoLJXhEjbrnmNnaQbMzwHrUzuwac+OUvw6ujbtXaulWX+JE8hAuHFAGRDsvQ==",
       "dependencies": [
-        "@automerge/automerge",
+        "@automerge/automerge@3.2.6",
         "ordered-map",
         "prosemirror-changeset",
         "prosemirror-history",
@@ -2429,6 +2434,9 @@
     },
     "hono@4.12.24": {
       "integrity": "sha512-I36D1s+HgQc55KbhEr4iybfxv/9o1zdpw+XEM6dJa91LqQD0HCoSGdxpRJCZE+aavs87j4V3Ls2OJzq8C/U4iw=="
+    },
+    "hono@4.12.30": {
+      "integrity": "sha512-emn+JoJjrN9YTpRDS5it/UI2SO9BAE37T6I3d963RxcZ81G9A4pr2SZTEiiaiKbzx+NKRg5BZ89fCL7gCJCUog=="
     },
     "hosted-git-info@9.0.3": {
       "integrity": "sha512-Hc+ghLoSt6QaYZUv0WBiIvmMDZuZZ7oaDvdH8MbfOO4lOsxdXLEvuC6ePoGs9H1X9oCLyq6+NVN0MKqD+ydxyg==",
