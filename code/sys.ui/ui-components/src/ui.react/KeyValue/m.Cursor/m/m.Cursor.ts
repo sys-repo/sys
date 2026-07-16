@@ -1,5 +1,5 @@
 import { type t } from '../../common.ts';
-import { move, movePart } from '../u/u.move.ts';
+import { move, moveBlock, movePart } from '../u/u.move.ts';
 import { eql, target, toScope } from '../u/u.resolve.ts';
 import { enterTarget, exitTarget, setTarget } from './m.Cursor.u.ts';
 import { useKeyboardEntry } from '../u/use.KeyboardEntry.ts';
@@ -27,6 +27,14 @@ export const Cursor: t.KeyValue.Cursor.Lib = {
     return move(model, items, -1);
   },
 
+  nextBlock(model, items) {
+    return moveBlock(model, items, 1);
+  },
+
+  previousBlock(model, items) {
+    return moveBlock(model, items, -1);
+  },
+
   left(model, items) {
     return movePart(model, items, -1);
   },
@@ -47,6 +55,8 @@ export const Cursor: t.KeyValue.Cursor.Lib = {
     if (command.name === 'cursor:set') return setTarget(model, items, command.payload.target);
     if (command.name === 'cursor:next') return Cursor.next(model, items);
     if (command.name === 'cursor:previous') return Cursor.previous(model, items);
+    if (command.name === 'cursor:next-block') return Cursor.nextBlock(model, items);
+    if (command.name === 'cursor:previous-block') return Cursor.previousBlock(model, items);
     if (command.name === 'cursor:left') return Cursor.left(model, items);
     if (command.name === 'cursor:right') return Cursor.right(model, items);
     if (command.name === 'cursor:enter') return Cursor.enter(model, items);

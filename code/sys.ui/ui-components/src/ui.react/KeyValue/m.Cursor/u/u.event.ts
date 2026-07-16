@@ -123,10 +123,13 @@ export function toNavigationIntent(
   const mode = navigationMode(input);
   if (!mode) return undefined;
   if (event.defaultPrevented) return undefined;
-  if (!isUnmodifiedNavigation(event) && !isOptionLaneNavigation(event)) return undefined;
+  if (
+    !isUnmodifiedNavigation(event) && !isOptionLaneNavigation(event) &&
+    !isOptionBlockNavigation(event)
+  ) return undefined;
   if (isFromInteractiveDescendant(event)) return undefined;
 
-  const match = commandFromKey(event.key);
+  const match = commandFromEvent(event);
   if (!match) return undefined;
   return { navigation: mode, key: match.key, command: match.command };
 }
@@ -192,19 +195,40 @@ function isOptionLaneNavigation(event: NavigationEvent) {
   return isOptionOnly(Keyboard.modifiers(event));
 }
 
+function isOptionBlockNavigation(event: NavigationEvent) {
+  if (!isBlockNavigationKey(event.key)) return false;
+  return isOptionOnly(Keyboard.modifiers(event));
+}
+
 function isLaneNavigationKey(key: string) {
   return key === 'ArrowLeft' || key === 'ArrowRight';
+}
+
+function isBlockNavigationKey(key: string) {
+  return key === 'ArrowUp' || key === 'ArrowDown';
 }
 
 function isOptionOnly(modifiers: t.Keyboard.Modifier.Flags) {
   return modifiers.alt && !modifiers.ctrl && !modifiers.meta && !modifiers.shift;
 }
 
-function commandFromKey(
-  key: string,
+function commandFromEvent(
+  event: NavigationEvent,
 ): Pick<NavigationIntent, 'key' | 'command'> | undefined {
-  if (key === 'ArrowDown') return { key, command: { name: 'cursor:next', payload: {} } };
-  if (key === 'ArrowUp') return { key, command: { name: 'cursor:previous', payload: {} } };
+  const key = event.key;
+  const option = isOptionOnly(Keyboard.modifiers(event));
+  if (key === 'ArrowDown') {
+    return {
+      key,
+      command: { name: option ? 'cursor:next-block' : 'cursor:next', payload: {} },
+    };
+  }
+  if (key === 'ArrowUp') {
+    return {
+      key,
+      command: { name: option ? 'cursor:previous-block' : 'cursor:previous', payload: {} },
+    };
+  }
   if (key === 'ArrowLeft') return { key, command: { name: 'cursor:left', payload: {} } };
   if (key === 'ArrowRight') return { key, command: { name: 'cursor:right', payload: {} } };
   if (key === 'Enter') return { key, command: { name: 'cursor:enter', payload: {} } };

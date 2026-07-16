@@ -76,7 +76,7 @@ function partsForItem(item: Item): readonly t.KeyValue.Cursor.Part[] {
   return isRow(item) ? ROW_PARTS : NO_PARTS;
 }
 
-function itemsAtScope(items: readonly Item[], path: t.ObjectPath): readonly Item[] {
+export function itemsAtScope(items: readonly Item[], path: t.ObjectPath): readonly Item[] {
   if (path.length === 0) return items;
 
   const [head, ...tail] = path;

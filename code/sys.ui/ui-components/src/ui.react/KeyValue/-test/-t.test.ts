@@ -111,6 +111,10 @@ describe('KeyValue/t', () => {
         name: 'cursor:set',
         payload: { target },
       };
+      const nextBlock: t.KeyValue.Cursor.Command<'cursor:next-block'> = {
+        name: 'cursor:next-block',
+        payload: {},
+      };
       const entry = 'option-enter' satisfies t.KeyValue.Cursor.EntryInput;
       const arrival: t.KeyValue.Cursor.Arrival = 'flash';
       const change: t.KeyValue.Cursor.EntryChange = {
@@ -147,6 +151,7 @@ describe('KeyValue/t', () => {
       expectTypeOf(target).toEqualTypeOf<t.KeyValue.Cursor.Target>();
       expectTypeOf(model).toEqualTypeOf<t.KeyValue.Cursor.Model>();
       expectTypeOf(command).toEqualTypeOf<t.KeyValue.Cursor.Command<'cursor:set'>>();
+      expectTypeOf(nextBlock).toEqualTypeOf<t.KeyValue.Cursor.Command<'cursor:next-block'>>();
       expectTypeOf(change).toEqualTypeOf<t.KeyValue.Cursor.EntryChange>();
       expectTypeOf(navigation).toEqualTypeOf<t.KeyValue.Cursor.NavigationChange>();
       expectTypeOf(arrival).toMatchTypeOf<t.KeyValue.Cursor.Arrival>();
@@ -160,6 +165,8 @@ describe('KeyValue/t', () => {
       expectTypeOf(scope).toEqualTypeOf<t.KeyValue.Cursor.Scope>();
       expect(props.cursor).to.equal(cursor);
       expect(KeyValue.Cursor.eql(target, model.current)).to.eql(true);
+      expect(KeyValue.Cursor.nextBlock(model, [])).to.equal(model);
+      expect(KeyValue.Cursor.previousBlock(model, [])).to.equal(model);
       expect(KeyValue.Cursor.cmd({}, [], command)).to.eql({});
     });
   });

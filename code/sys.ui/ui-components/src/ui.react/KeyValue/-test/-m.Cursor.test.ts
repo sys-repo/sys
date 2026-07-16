@@ -202,6 +202,123 @@ describe('KeyValue.Cursor', () => {
     });
   });
 
+  it('moves by hr-delimited block edges while preserving supported lanes', () => {
+    const blockItems: Item[] = [
+      { id: 'alpha', k: 'alpha' },
+      { kind: 'hr' },
+      { id: 'bravo', k: 'bravo' },
+      { id: 'charlie', k: 'charlie' },
+      { kind: 'hr' },
+      { id: 'title', kind: 'title', v: 'Title' },
+      { id: 'delta', k: 'delta' },
+    ];
+
+    expect(Cursor.nextBlock({ current: partTarget('key', 'alpha') }, blockItems).current).to.eql({
+      path: ['bravo'],
+      part: 'key',
+    });
+    expect(Cursor.nextBlock({ current: partTarget('value', 'bravo') }, blockItems).current).to.eql({
+      path: ['charlie'],
+      part: 'value',
+    });
+    expect(Cursor.nextBlock({ current: partTarget('value', 'charlie') }, blockItems).current).to
+      .eql({ path: ['title'] });
+    expect(Cursor.previousBlock({ current: partTarget('value', 'delta') }, blockItems).current).to
+      .eql({ path: ['title'] });
+    expect(Cursor.previousBlock({ current: target('title') }, blockItems).current).to.eql({
+      path: ['charlie'],
+    });
+    expect(Cursor.previousBlock({ current: partTarget('value', 'charlie') }, blockItems).current).to
+      .eql({ path: ['bravo'], part: 'value' });
+    expect(Cursor.previousBlock({ current: partTarget('key', 'bravo') }, blockItems).current).to
+      .eql(
+        { path: ['alpha'], part: 'key' },
+      );
+    expect(Cursor.previousBlock({ current: target('alpha') }, blockItems).current).to.eql({
+      path: ['alpha'],
+    });
+    expect(Cursor.nextBlock({ current: target('delta') }, blockItems).current).to.eql({
+      path: ['delta'],
+    });
+  });
+
+  it('skips empty and unaddressable blocks when moving by block edges', () => {
+    const blockItems: Item[] = [
+      { kind: 'hr' },
+      { id: 'alpha', k: 'alpha' },
+      { kind: 'hr' },
+      { kind: 'hr' },
+      { k: 'missing id' },
+      { id: 'duplicate', k: 'duplicate:a' },
+      { id: 'duplicate', k: 'duplicate:b' },
+      { kind: 'hr' },
+      { id: 'bravo', k: 'bravo' },
+      { kind: 'hr' },
+    ];
+
+    expect(Cursor.nextBlock({ current: target('alpha') }, blockItems).current).to.eql({
+      path: ['bravo'],
+    });
+    expect(Cursor.previousBlock({ current: target('bravo') }, blockItems).current).to.eql({
+      path: ['alpha'],
+    });
+  });
+
+  it('jumps from stable hr delimiter targets without treating hr as block members', () => {
+    const blockItems: Item[] = [
+      { id: 'alpha', k: 'alpha' },
+      { id: 'cut', kind: 'hr' },
+      { id: 'bravo', k: 'bravo' },
+    ];
+
+    expect(Cursor.nextBlock({ current: target('cut') }, blockItems).current).to.eql({
+      path: ['bravo'],
+    });
+    expect(Cursor.previousBlock({ current: target('cut') }, blockItems).current).to.eql({
+      path: ['alpha'],
+    });
+  });
+
+  it('keeps block-edge navigation isolated to the current sibling scope', () => {
+    const blockItems: Item[] = [
+      { id: 'alpha', k: 'alpha' },
+      { kind: 'hr' },
+      {
+        id: 'group',
+        kind: 'group',
+        items: [
+          { id: 'one', k: 'one' },
+          { kind: 'hr' },
+          { id: 'two', k: 'two' },
+        ],
+      },
+      { kind: 'hr' },
+      { id: 'charlie', k: 'charlie' },
+    ];
+
+    expect(Cursor.nextBlock({ current: target('alpha') }, blockItems).current).to.eql({
+      path: ['group'],
+    });
+    expect(Cursor.nextBlock({ current: target('group') }, blockItems).current).to.eql({
+      path: ['charlie'],
+    });
+    expect(Cursor.nextBlock({ current: target('group', 'one') }, blockItems).current).to.eql({
+      path: ['group', 'two'],
+    });
+    expect(Cursor.previousBlock({ current: target('group', 'two') }, blockItems).current).to.eql({
+      path: ['group', 'one'],
+    });
+  });
+
+  it('does not move by block edges from empty or unresolved cursor targets', () => {
+    const model: t.KeyValue.Cursor.Model = { current: target('missing') };
+    const invalidPart: t.KeyValue.Cursor.Model = { current: partTarget('key', 'group:bravo') };
+
+    expect(Cursor.nextBlock({}, items)).to.eql({});
+    expect(Cursor.nextBlock(model, items)).to.equal(model);
+    expect(Cursor.previousBlock(invalidPart, items)).to.equal(invalidPart);
+  });
+
   it('enters groups and exits to the parent group atom', () => {
     const entered = Cursor.enter({ current: target('group:bravo') }, items);
     const nested = Cursor.enter({ current: target('group:bravo', 'group:bravo.two') }, items);
@@ -233,18 +350,24 @@ describe('KeyValue.Cursor', () => {
     };
     const next: t.KeyValue.Cursor.Command<'cursor:next'> = { name: 'cursor:next', payload: {} };
     const right: t.KeyValue.Cursor.Command<'cursor:right'> = { name: 'cursor:right', payload: {} };
+    const nextBlock: t.KeyValue.Cursor.Command<'cursor:next-block'> = {
+      name: 'cursor:next-block',
+      payload: {},
+    };
     const exit: t.KeyValue.Cursor.Command<'cursor:exit'> = { name: 'cursor:exit', payload: {} };
 
     const current = Cursor.cmd({}, items, set);
     const parted = Cursor.cmd(current, items, right);
     const atom = Cursor.cmd(parted, items, exit);
     const moved = Cursor.cmd(atom, items, next);
+    const blockMoved = Cursor.cmd({ current: target('alpha') }, items, nextBlock);
     const cleared = Cursor.cmd(moved, items, exit);
 
     expect(current.current?.path).to.eql(['alpha']);
     expect(parted.current).to.eql({ path: ['alpha'], part: 'value' });
     expect(atom.current?.path).to.eql(['alpha']);
     expect(moved.current?.path).to.eql(['group:bravo']);
+    expect(blockMoved.current?.path).to.eql(['charlie']);
     expect(cleared.current).to.eql(undefined);
   });
 });

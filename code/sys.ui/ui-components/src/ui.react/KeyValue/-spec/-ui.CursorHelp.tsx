@@ -10,6 +10,7 @@ const steps: readonly { gesture: string; text: string }[] = [
   { gesture: 'Option + Enter', text: 'enters.' },
   { gesture: 'Option + ←/→', text: 'enters key/value lanes.' },
   { gesture: '↑/↓', text: 'moves cursor.' },
+  { gesture: 'Option + ↑/↓', text: 'moves by hr-delimited blocks.' },
   { gesture: 'Enter', text: 'enters groups.' },
   { gesture: 'Esc', text: 'exits.' },
 ];
@@ -30,11 +31,11 @@ export const CursorHelp: React.FC<CursorHelpProps> = (props) => {
     listItem: css({ marginTop: 2, paddingLeft: 2 }),
     itemContent: css({
       display: 'grid',
-      gridTemplateColumns: '92px 1fr',
+      gridTemplateColumns: 'max-content 1fr',
       columnGap: 8,
       alignItems: 'baseline',
     }),
-    gesture: css({ minWidth: 0, justifySelf: 'start' }),
+    gesture: css({ minWidth: 0, justifySelf: 'start', whiteSpace: 'nowrap' }),
   };
 
   const code = (text: string) => (

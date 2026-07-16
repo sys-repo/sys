@@ -190,8 +190,14 @@ export declare namespace KeyValue {
       scope(items: KeyValue.Item[], path?: t.ObjectPath): Scope;
       /** Convenience helper for routing a `cursor:set` command. */
       set(model: Model, items: KeyValue.Item[], target?: Target): Model;
+      /** Move to the next cursor-addressable sibling in the current scope. */
       next(model: Model, items: KeyValue.Item[]): Model;
+      /** Move to the previous cursor-addressable sibling in the current scope. */
       previous(model: Model, items: KeyValue.Item[]): Model;
+      /** Move to the next cursor target at `hr`-delimited block granularity. */
+      nextBlock(model: Model, items: KeyValue.Item[]): Model;
+      /** Move to the previous cursor target at `hr`-delimited block granularity. */
+      previousBlock(model: Model, items: KeyValue.Item[]): Model;
       left(model: Model, items: KeyValue.Item[]): Model;
       right(model: Model, items: KeyValue.Item[]): Model;
       enter(model: Model, items: KeyValue.Item[]): Model;
@@ -355,6 +361,8 @@ export declare namespace KeyValue {
     export type NavigationCommandName =
       | 'cursor:next'
       | 'cursor:previous'
+      | 'cursor:next-block'
+      | 'cursor:previous-block'
       | 'cursor:left'
       | 'cursor:right'
       | 'cursor:enter'
@@ -365,6 +373,8 @@ export declare namespace KeyValue {
       readonly 'cursor:set': { readonly target?: Target };
       readonly 'cursor:next': Record<string, never>;
       readonly 'cursor:previous': Record<string, never>;
+      readonly 'cursor:next-block': Record<string, never>;
+      readonly 'cursor:previous-block': Record<string, never>;
       readonly 'cursor:left': Record<string, never>;
       readonly 'cursor:right': Record<string, never>;
       readonly 'cursor:enter': Record<string, never>;
