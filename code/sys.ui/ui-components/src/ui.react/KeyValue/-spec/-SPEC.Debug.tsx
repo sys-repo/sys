@@ -227,7 +227,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {p.cursor.value && (
         <>
           <CursorDebug.ArrivalButton arrival={p.cursorArrival} />
-          {CursorDebug.hasArrival(p.cursorArrival.value) && <CursorDebug.Help theme={theme.name} />}
+          {CursorDebug.hasArrival(p.cursorArrival.value) && (
+            <CursorDebug.Help
+              theme={theme.name}
+              extraSteps={[{ gesture: 'Option + Enter', text: 'inserts an hr after current.' }]}
+            />
+          )}
         </>
       )}
       <hr />

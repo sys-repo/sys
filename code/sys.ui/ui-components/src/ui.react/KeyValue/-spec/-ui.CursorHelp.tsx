@@ -1,13 +1,15 @@
 import React from 'react';
 import { Chip, Color, css, type t } from './common.ts';
 
+type Step = { readonly gesture: string; readonly text: string };
+
 export type CursorHelpProps = {
   readonly theme?: t.CommonTheme;
+  readonly extraSteps?: readonly Step[];
   readonly style?: t.CssInput;
 };
 
-const steps: readonly { gesture: string; text: string }[] = [
-  { gesture: 'Option + Enter', text: 'enters.' },
+const steps: readonly Step[] = [
   { gesture: 'Option + ←/→', text: 'enters key/value lanes.' },
   { gesture: '↑/↓', text: 'moves cursor.' },
   { gesture: 'Option + ↑/↓', text: 'moves by hr-delimited blocks.' },
@@ -44,21 +46,24 @@ export const CursorHelp: React.FC<CursorHelpProps> = (props) => {
       {text}
     </Chip.UI>
   );
+  const list = (items: readonly Step[]) => (
+    <ul className={styles.list.class}>
+      {items.map((step) => (
+        <li key={step.gesture} className={styles.listItem.class}>
+          <span className={styles.itemContent.class}>
+            <span className={styles.gesture.class}>{code(step.gesture)}</span>
+            <span>{step.text}</span>
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
 
   return (
     <div className={css(styles.base, props.style).class}>
       {code('Option-click')} {'a row, or '} {code('Option + Enter')} {'to focus.'}
       <div className={styles.focused.class}>{'Once focused:'}</div>
-      <ul className={styles.list.class}>
-        {steps.map((step) => (
-          <li key={step.gesture} className={styles.listItem.class}>
-            <span className={styles.itemContent.class}>
-              <span className={styles.gesture.class}>{code(step.gesture)}</span>
-              <span>{step.text}</span>
-            </span>
-          </li>
-        ))}
-      </ul>
+      {list([...steps, ...(props.extraSteps ?? [])])}
     </div>
   );
 };
