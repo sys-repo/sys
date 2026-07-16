@@ -16,11 +16,173 @@ import { keydown } from './u.keyboard.ts';
 import { KeyValue } from '../mod.ts';
 
 const currentSelector = '[data-keyvalue-cursor-current="true"]';
+const currentCellSelector = '[data-keyvalue-cursor-cell-current="true"]';
 const boundarySelector = '[data-keyvalue-item-boundary]';
 const arrivalSelector = '[data-keyvalue-cursor-arrival-cue="true"]';
 
 describe('KeyValue.UI: cursor affordance', () => {
   DomMock.init({ beforeEach, afterEach });
+
+  it('distinguishes focused and blurred current boundary affordance', async () => {
+    const res = await TestReact.render(
+      <KeyValue.UI
+        items={[row('alpha')]}
+        cursor={{
+          model: { current: KeyValue.Cursor.target(['alpha']) },
+          onChange: () => undefined,
+        }}
+      />,
+      { strict: false },
+    );
+    const root = res.container.firstElementChild as HTMLElement;
+    const current = res.container.querySelector(currentSelector) as HTMLElement;
+
+    const blurredAlpha = backgroundAlpha(current);
+    expect(blurredAlpha > 0).to.eql(true);
+
+    act(() => root.focus());
+    await Schedule.micro();
+    const focusedAlpha = backgroundAlpha(current);
+    expect(focusedAlpha > blurredAlpha).to.eql(true);
+
+    act(() => root.blur());
+    await Schedule.micro();
+    const reblurredAlpha = backgroundAlpha(current);
+    expect(reblurredAlpha > 0).to.eql(true);
+    expect(reblurredAlpha < focusedAlpha).to.eql(true);
+
+    act(() => res.dispose());
+    await Schedule.micro();
+  });
+
+  it('does not treat focused interactive descendants as cursor-root focus', async () => {
+    const res = await TestReact.render(
+      <KeyValue.UI
+        items={[{ id: 'alpha', k: 'alpha', v: <button type='button'>toggle</button> }]}
+        cursor={{
+          model: { current: KeyValue.Cursor.target(['alpha']) },
+          onChange: () => undefined,
+        }}
+      />,
+      { strict: false },
+    );
+    const root = res.container.firstElementChild as HTMLElement;
+    const button = res.container.querySelector('button') as HTMLButtonElement;
+    const current = res.container.querySelector(currentSelector) as HTMLElement;
+
+    const blurredAlpha = backgroundAlpha(current);
+    expect(blurredAlpha > 0).to.eql(true);
+
+    act(() => root.focus());
+    await Schedule.micro();
+    const focusedAlpha = backgroundAlpha(current);
+    expect(focusedAlpha > blurredAlpha).to.eql(true);
+
+    act(() => button.focus());
+    await Schedule.micro();
+    expect(document.activeElement).to.equal(button);
+    expect(backgroundAlpha(current) < focusedAlpha).to.eql(true);
+
+    act(() => res.dispose());
+    await Schedule.micro();
+  });
+
+  it('tracks focused root by element identity, not shared generated class', async () => {
+    let rerender: () => void = () => undefined;
+    const Probe: React.FC = () => {
+      const [, setTick] = React.useState(0);
+      rerender = () => setTick((n) => n + 1);
+      const cursor = {
+        model: { current: KeyValue.Cursor.target(['alpha']) },
+        onChange: () => undefined,
+      };
+      return (
+        <>
+          <KeyValue.UI items={[row('alpha')]} cursor={cursor} />
+          <KeyValue.UI items={[row('alpha')]} cursor={cursor} />
+        </>
+      );
+    };
+
+    const res = await TestReact.render(<Probe />, { strict: false });
+    const roots = keyValueRoots(res.container);
+    const currents = currentBoundaries(res.container);
+    const secondBlurredAlpha = backgroundAlpha(currents[1]);
+
+    act(() => roots[0].focus());
+    await Schedule.micro();
+    expect(backgroundAlpha(currents[0]) > secondBlurredAlpha).to.eql(true);
+
+    act(() => rerender());
+    await Schedule.micro();
+    const afterRerender = currentBoundaries(res.container);
+    expect(backgroundAlpha(afterRerender[0]) > secondBlurredAlpha).to.eql(true);
+    expect(backgroundAlpha(afterRerender[1]) < backgroundAlpha(afterRerender[0])).to.eql(true);
+
+    act(() => res.dispose());
+    await Schedule.micro();
+  });
+
+  it('distinguishes focused and blurred key/value lane affordance', async () => {
+    const res = await TestReact.render(
+      <KeyValue.UI
+        items={[row('alpha')]}
+        cursor={{
+          model: { current: KeyValue.Cursor.target(['alpha'], 'value') },
+          onChange: () => undefined,
+        }}
+      />,
+      { strict: false },
+    );
+    const root = res.container.firstElementChild as HTMLElement;
+    const currentCell = res.container.querySelector(currentCellSelector) as HTMLElement;
+
+    const blurredAlpha = backgroundAlpha(currentCell);
+    expect(blurredAlpha > 0).to.eql(true);
+
+    act(() => root.focus());
+    await Schedule.micro();
+    const focusedAlpha = backgroundAlpha(currentCell);
+    expect(focusedAlpha > blurredAlpha).to.eql(true);
+
+    act(() => root.blur());
+    await Schedule.micro();
+    expect(backgroundAlpha(currentCell) < focusedAlpha).to.eql(true);
+
+    act(() => res.dispose());
+    await Schedule.micro();
+  });
+
+  it('distinguishes focused and blurred current affordance in the reorder shell path', async () => {
+    const res = await TestReact.render(
+      <KeyValue.UI
+        items={[row('alpha'), row('bravo')]}
+        reorder={{ onChange: () => undefined }}
+        cursor={{
+          model: { current: KeyValue.Cursor.target(['bravo']) },
+          onChange: () => undefined,
+        }}
+      />,
+      { strict: false },
+    );
+    const root = res.container.firstElementChild as HTMLElement;
+    const current = res.container.querySelector(currentSelector) as HTMLElement;
+
+    const blurredAlpha = backgroundAlpha(current);
+    expect(blurredAlpha > 0).to.eql(true);
+
+    act(() => root.focus());
+    await Schedule.micro();
+    const focusedAlpha = backgroundAlpha(current);
+    expect(focusedAlpha > blurredAlpha).to.eql(true);
+
+    act(() => root.blur());
+    await Schedule.micro();
+    expect(backgroundAlpha(current) < focusedAlpha).to.eql(true);
+
+    act(() => res.dispose());
+    await Schedule.micro();
+  });
 
   it('renders zero-layout-shift current and arrival cue boundaries', async () => {
     for (const name of ['Light', 'Dark'] as const) {
@@ -249,9 +411,15 @@ function row(id: string): t.KeyValue.Item.Row {
 }
 
 function currentPaths(container: HTMLElement) {
-  return Array.from(container.querySelectorAll(currentSelector)).map((el) =>
-    el.getAttribute('data-keyvalue-cursor-path')
-  );
+  return currentBoundaries(container).map((el) => el.getAttribute('data-keyvalue-cursor-path'));
+}
+
+function currentBoundaries(container: HTMLElement) {
+  return Array.from(container.querySelectorAll(currentSelector)) as HTMLElement[];
+}
+
+function keyValueRoots(container: HTMLElement) {
+  return Array.from(container.children) as HTMLElement[];
 }
 
 function arrivalKeys(container: HTMLElement) {

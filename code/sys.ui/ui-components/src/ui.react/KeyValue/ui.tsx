@@ -3,6 +3,7 @@ import React from 'react';
 import { Color, css, D, type t } from './common.ts';
 import { toCssSize, toFont, toLayout, toProjectionAnimation, toReorderModel } from './u/mod.ts';
 import { useCursorArrivalCue } from './m.Cursor/u/use.arrival.ts';
+import { applyCursorFill, isCursorRootFocused } from './m.Cursor/u/u.affordance.ts';
 import { toNavigationHandler, toNavigationRootProps } from './m.Cursor/u/u.navigation.ts';
 import {
   type RenderContext,
@@ -18,8 +19,10 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
   const disabledOpacity = props.defaults?.disabledOpacity ?? D.defaults.disabledOpacity;
   const layout = toLayout(props.layout);
   const theme = Color.theme(props.theme);
-  const cursorCurrentFill = Color.alpha(theme.fg, 0.06);
-  const cursorPartFill = Color.ruby(0.2);
+  const cursorCurrentFillBlurred = Color.alpha(theme.fg, 0.04);
+  const cursorCurrentFillFocused = Color.alpha(theme.fg, theme.is.light ? 0.06 : 0.075);
+  const cursorPartFillBlurred = Color.ruby(0.12);
+  const cursorPartFillFocused = Color.ruby(0.24);
   const cursorArrival = useCursorArrivalCue({ items, cursor: props.cursor, fg: theme.fg });
   const { fontSize, fontFamily } = toFont(props);
 
@@ -52,6 +55,26 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
 
   const style = css(styles.base, props.style);
   const className = style.class;
+  const cursorRootRef = React.useRef<HTMLDivElement | null>(null);
+  const rootFocused = isCursorRootFocused(cursorRootRef.current);
+  const cursorCurrentFill = rootFocused ? cursorCurrentFillFocused : cursorCurrentFillBlurred;
+  const cursorPartFill = rootFocused ? cursorPartFillFocused : cursorPartFillBlurred;
+  const cursorRootFocusHandlers = {
+    onFocus: (event: React.FocusEvent<HTMLElement>) => {
+      if (event.currentTarget !== event.target) return;
+      applyCursorFill(event.currentTarget, {
+        current: cursorCurrentFillFocused,
+        part: cursorPartFillFocused,
+      });
+    },
+    onBlur: (event: React.FocusEvent<HTMLElement>) => {
+      if (event.currentTarget !== event.target) return;
+      applyCursorFill(event.currentTarget, {
+        current: cursorCurrentFillBlurred,
+        part: cursorPartFillBlurred,
+      });
+    },
+  };
   const reorder = props.reorder;
   const onReorderChange = reorder?.onChange;
   const reorderModel = reorder && reorder.enabled !== false && onReorderChange
@@ -89,9 +112,11 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
         onChange={onReorderChange}
         onEnd={reorder.onEnd}
         cursorNavigation={cursorNavigation}
+        cursorRootRef={cursorRootRef}
         cursorCurrentFill={cursorCurrentFill}
         cursorArrival={cursorArrival}
         cursorBoundary={(item) => toCursorBoundary(item, renderContext, [])}
+        cursorRootFocusHandlers={cursorRootFocusHandlers}
         renderItem={(item, cursor) => renderRootItem(item, renderContext, cursor)}
       />
     );
@@ -101,9 +126,11 @@ export const KeyValue: React.FC<t.KeyValue.Props> = (props) => {
 
   return (
     <div
+      ref={cursorRootRef}
       className={className}
       data-component={D.displayName}
       {...toNavigationRootProps(cursorNavigation)}
+      {...cursorRootFocusHandlers}
     >
       {elRows}
     </div>

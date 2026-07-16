@@ -18,12 +18,7 @@ type ProjectionP = P & { projection: ProjectionAnimationModel };
 /**
  * CSS class for the internal per-item KeyValue boundary.
  */
-export function itemShellClass(
-  item: t.KeyValue.Item,
-  layout?: t.KeyValue.Layout,
-  current?: boolean,
-  currentFill?: t.Color.Rgba,
-) {
+export function itemShellClass(item: t.KeyValue.Item, layout?: t.KeyValue.Layout) {
   const resolved = toLayout(layout);
   const kind = item.kind ?? 'row';
   const isRow = kind === 'row';
@@ -44,7 +39,6 @@ export function itemShellClass(
     gridColumn: isTable ? '1 / -1' : undefined,
     gridTemplateColumns: usesSubgrid ? 'subgrid' : undefined,
     rowGap: isRecursiveShell ? (resolved.rowGap ?? D.layout.spaced.rowGap) : undefined,
-    backgroundColor: current ? currentFill : undefined,
   }).class;
 }
 
@@ -58,9 +52,6 @@ const cursorArrivalKeyframes = `
 function cursorArrivalCueClass(kind?: CursorArrivalKind) {
   const duration = kind === 'target-change' ? 220 : 650;
   return css({
-    position: 'absolute',
-    inset: 0,
-    pointerEvents: 'none',
     animation: `keyvalue-cursor-arrival-cue ${duration}ms ease-out forwards`,
   }).class;
 }
@@ -83,7 +74,12 @@ export function renderCursorArrivalCue(
       <div
         aria-hidden='true'
         className={cursorArrivalCueClass(arrival.kind)}
-        style={{ backgroundColor: arrival.fill }}
+        style={{
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'none',
+          backgroundColor: arrival.fill,
+        }}
         data-keyvalue-cursor-arrival-cue='true'
         data-keyvalue-cursor-arrival-key={key}
         data-keyvalue-cursor-arrival-kind={arrival.kind}
@@ -96,9 +92,11 @@ export function renderCursorArrivalCue(
  * Internal per-item boundary for KeyValue render items.
  */
 export const ItemShell: React.FC<P> = (props) => {
+  const cursorStyle = cursorCurrentStyle(props.cursor, props.currentFill);
   return (
     <div
-      className={itemShellClass(props.item, props.layout, props.cursor?.current, props.currentFill)}
+      className={itemShellClass(props.item, props.layout)}
+      style={cursorStyle}
       data-keyvalue-item-boundary={props.cursor ? 'true' : undefined}
       data-keyvalue-cursor-path={props.cursor?.encodedPath}
       data-keyvalue-cursor-current={props.cursor?.current ? 'true' : undefined}
@@ -115,11 +113,13 @@ export const ItemShell: React.FC<P> = (props) => {
  * Motion-backed direct-child shell for opt-in layout projection animation.
  */
 export const ProjectionItemShell: React.FC<ProjectionP> = (props) => {
+  const cursorStyle = cursorCurrentStyle(props.cursor, props.currentFill);
   return (
     <Motion.div
       layout='position'
       transition={props.projection.transition}
-      className={itemShellClass(props.item, props.layout, props.cursor?.current, props.currentFill)}
+      className={itemShellClass(props.item, props.layout)}
+      style={cursorStyle}
       data-keyvalue-projection='direct-child'
       data-keyvalue-item-boundary={props.cursor ? 'true' : undefined}
       data-keyvalue-cursor-path={props.cursor?.encodedPath}
@@ -132,3 +132,10 @@ export const ProjectionItemShell: React.FC<ProjectionP> = (props) => {
     </Motion.div>
   );
 };
+
+function cursorCurrentStyle(
+  cursor?: CursorBoundary,
+  fill?: t.Color.Rgba,
+): React.CSSProperties | undefined {
+  return cursor?.current && fill ? { backgroundColor: fill } : undefined;
+}

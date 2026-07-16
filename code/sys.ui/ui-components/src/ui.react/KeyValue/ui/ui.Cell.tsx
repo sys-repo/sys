@@ -1,5 +1,6 @@
 import React from 'react';
 import { A, Color, css, D, Is, type t } from '../common.ts';
+import { DataAttr } from '../m.Cursor/u/u.render.ts';
 import {
   isAnchorElement,
   resolveHref,
@@ -110,7 +111,7 @@ export const Cell: React.FC<CellProps> = (props) => {
   return (
     <div
       className={className}
-      data-keyvalue-cursor-cell-current={props.cursor?.current ? 'true' : undefined}
+      {...{ [DataAttr.cellCurrent]: props.cursor?.current ? 'true' : undefined }}
       style={cursorStyle}
     >
       {content}

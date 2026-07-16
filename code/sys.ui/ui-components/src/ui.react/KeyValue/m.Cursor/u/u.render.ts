@@ -8,6 +8,7 @@ export const DataAttr = {
   cursorPath: 'data-keyvalue-cursor-path',
   current: 'data-keyvalue-cursor-current',
   currentPart: 'data-keyvalue-cursor-current-part',
+  cellCurrent: 'data-keyvalue-cursor-cell-current',
 } as const;
 
 export type Boundary = {

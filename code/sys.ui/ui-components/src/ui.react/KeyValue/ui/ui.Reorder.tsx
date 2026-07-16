@@ -15,9 +15,14 @@ type P = {
   onChange: t.KeyValue.Reorder.ChangeHandler;
   onEnd?: t.KeyValue.Reorder.EndHandler;
   cursorNavigation?: React.KeyboardEventHandler<HTMLElement>;
+  cursorRootRef?: React.Ref<HTMLDivElement>;
   cursorCurrentFill: t.Color.Rgba;
   cursorArrival?: CursorArrivalCue;
   cursorBoundary?: (item: t.KeyValue.Item) => CursorBoundary | undefined;
+  cursorRootFocusHandlers?: Pick<
+    React.HTMLAttributes<HTMLElement>,
+    'onFocus' | 'onBlur'
+  >;
   renderItem: (item: t.KeyValue.Item, cursor?: CursorBoundary) => t.ReactNode;
 };
 
@@ -75,12 +80,14 @@ export const ReorderList: React.FC<P> = (props) => {
     const item = model.byId.get(id);
     if (!item) return null;
     const cursor = props.cursorBoundary?.(item);
+    const cursorStyle = cursor?.current ? { backgroundColor: props.cursorCurrentFill } : undefined;
     return (
       <ReorderBase.Item
         as='div'
         key={id}
         value={id}
-        className={itemShellClass(item, layout, cursor?.current, props.cursorCurrentFill)}
+        className={itemShellClass(item, layout)}
+        style={cursorStyle}
         data-keyvalue-item-boundary={cursor ? 'true' : undefined}
         data-keyvalue-cursor-path={cursor?.encodedPath}
         data-keyvalue-cursor-current={cursor?.current ? 'true' : undefined}
@@ -101,9 +108,11 @@ export const ReorderList: React.FC<P> = (props) => {
       axis='y'
       values={model.ids}
       onReorder={onReorder}
+      ref={props.cursorRootRef}
       className={css(props.style).class}
       data-component={dataComponent}
       {...toNavigationRootProps(props.cursorNavigation)}
+      {...props.cursorRootFocusHandlers}
     >
       {elItems}
     </ReorderBase.Group>
