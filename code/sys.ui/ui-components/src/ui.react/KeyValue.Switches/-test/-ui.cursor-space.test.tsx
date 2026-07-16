@@ -9,7 +9,7 @@ import {
   TestReact,
 } from '../../../-test.ts';
 import type { t } from '../../../-test.ts';
-import { keydown } from '../../KeyValue/-test/u.keyboard.ts';
+import { keydown } from '../../KeyValue/-test/u.fixture.keyboard.ts';
 import { KeyValue } from '../../KeyValue/mod.ts';
 import { Switches } from '../mod.ts';
 

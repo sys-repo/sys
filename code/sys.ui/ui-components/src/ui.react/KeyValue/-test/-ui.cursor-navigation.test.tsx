@@ -24,8 +24,8 @@ import {
   row,
   target,
   visibleBackground,
-} from './u.cursor.ts';
-import { keydown } from './u.keyboard.ts';
+} from './u.fixture.cursor.ts';
+import { keydown } from './u.fixture.keyboard.ts';
 import { KeyValue } from '../mod.ts';
 
 const items: t.KeyValue.Item[] = [

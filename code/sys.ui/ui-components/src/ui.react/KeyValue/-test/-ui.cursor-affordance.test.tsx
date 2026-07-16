@@ -12,7 +12,7 @@ import {
   type t,
   TestReact,
 } from '../../../-test.ts';
-import { keydown } from './u.keyboard.ts';
+import { keydown } from './u.fixture.keyboard.ts';
 import { KeyValue } from '../mod.ts';
 
 const currentSelector = '[data-keyvalue-cursor-current="true"]';
