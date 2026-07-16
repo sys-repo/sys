@@ -10,7 +10,7 @@ export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
   size: 'sm' as t.Chip.Size,
-  mono: false,
+  mono: true,
 } as const;
 export const DEFAULTS = D;
 export const STORAGE_KEY = { DEV: `dev:${D.displayName}` };

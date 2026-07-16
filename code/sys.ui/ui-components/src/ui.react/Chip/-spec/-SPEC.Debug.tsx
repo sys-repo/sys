@@ -10,7 +10,7 @@ type Storage = Pick<P, 'debug' | 'theme' | 'mono' | 'size'> & {
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
-  mono: true,
+  mono: undefined,
   size: 'sm',
   fontSize: 12,
   text: 'Option + Enter',
@@ -108,7 +108,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `size: ${v.size ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.Chip.Size>(p.size, ['xs', 'sm', 'md'])}
       />
-      <Button block label={() => `mono: ${v.mono}`} onClick={() => Signal.toggle(p.mono)} />
+      <Button
+        block
+        label={() => `mono: ${v.mono ?? `<undefined> (default: ${D.mono})`}`}
+        onClick={() => Signal.cycle(p.mono, [true, false, undefined])}
+      />
       <Button
         block
         label={() => `text: ${v.text}`}

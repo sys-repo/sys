@@ -1,5 +1,5 @@
 import React from 'react';
-import { Color, css, type t } from './common.ts';
+import { Chip, Color, css, type t } from './common.ts';
 
 export type CursorHelpProps = {
   readonly theme?: t.CommonTheme;
@@ -25,19 +25,6 @@ export const CursorHelp: React.FC<CursorHelpProps> = (props) => {
       marginBottom: 8,
       marginLeft: 8,
     }),
-    code: css({
-      color: 'inherit',
-      display: 'inline-block',
-      fontFamily: 'monospace',
-      fontSize: 10.5,
-      lineHeight: '12px',
-      verticalAlign: 'baseline',
-      backgroundColor: Color.alpha(theme.fg, 0.06),
-      border: `solid 1px ${Color.alpha(theme.fg, 0.1)}`,
-      borderRadius: 3,
-      padding: '1px 3px',
-      whiteSpace: 'nowrap',
-    }),
     focused: css({ marginTop: 6 }),
     list: css({ margin: '3px 0 0 0', paddingLeft: 18 }),
     listItem: css({ marginTop: 2, paddingLeft: 2 }),
@@ -50,7 +37,11 @@ export const CursorHelp: React.FC<CursorHelpProps> = (props) => {
     gesture: css({ minWidth: 0, justifySelf: 'start' }),
   };
 
-  const code = (text: string) => <code className={styles.code.class}>{text}</code>;
+  const code = (text: string) => (
+    <Chip.UI mono theme={theme.name} size='sm'>
+      {text}
+    </Chip.UI>
+  );
 
   return (
     <div className={css(styles.base, props.style).class}>

@@ -8,8 +8,9 @@ export const Chip: t.FC<P> = (props) => {
   /**
    * Render:
    */
-  const theme = Color.theme(props.theme);
   const fontScale = wrangle.fontScale(size);
+  const backgroundColor = wrangle.backgroundColor(props.theme);
+  const borderColor = wrangle.borderColor(props.theme);
   const styles = {
     base: css({
       color: 'inherit',
@@ -18,8 +19,8 @@ export const Chip: t.FC<P> = (props) => {
       fontSize: `${fontScale}em`,
       lineHeight: 1.14,
       verticalAlign: 'baseline',
-      backgroundColor: Color.alpha(theme.fg, 0.06),
-      border: `solid 1px ${Color.alpha(theme.fg, 0.1)}`,
+      backgroundColor,
+      border: `solid 1px ${borderColor}`,
       borderRadius: '0.285em',
       padding: '0.095em 0.285em',
       whiteSpace: 'nowrap',
@@ -44,4 +45,16 @@ const wrangle = {
     if (size === 'md') return 1;
     return 0.875;
   },
+
+  backgroundColor(theme?: t.CommonTheme) {
+    return theme ? Color.alpha(Color.theme(theme).fg, 0.06) : colorMixCurrentColor(6);
+  },
+
+  borderColor(theme?: t.CommonTheme) {
+    return theme ? Color.alpha(Color.theme(theme).fg, 0.1) : colorMixCurrentColor(10);
+  },
 } as const;
+
+function colorMixCurrentColor(percent: number) {
+  return `color-mix(in srgb, currentColor ${percent}%, transparent)`;
+}

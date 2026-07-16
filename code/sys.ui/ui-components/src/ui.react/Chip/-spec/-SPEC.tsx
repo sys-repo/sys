@@ -30,7 +30,7 @@ export default Spec.describe(D.displayName, async (e) => {
     Signal.effect(update);
     Dev.Theme.signalEffect(ctx, p.theme, 1);
 
-    ctx.host.tracelineColor(0.04);
+    ctx.host.tracelineColor(0.03);
     ctx.subject
       .display('grid')
       .render(() => <Root />);

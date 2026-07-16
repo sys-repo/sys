@@ -1,4 +1,4 @@
-import { type t, Bullet, Color, css, Str } from './common.ts';
+import { Bullet, Chip, Color, css, Str, type t } from './common.ts';
 import { Foo } from './-ui.Foo.tsx';
 
 export type SampleKind = 'comprehensive' | 'simple' | 'opacity' | 'links' | 'recursive' | 'reorder';
@@ -74,6 +74,7 @@ function comprehensive(): t.KeyValue.Item[] {
     { k: 'link', v: 'https://fs.db.team', mono, href: true },
     { k: 'theme', v: 'Dark' },
     { k: 'element', v: <Foo /> },
+    { k: 'chip', v: <Chip.UI>1,234 dB</Chip.UI> },
   ];
 }
 
