@@ -1,6 +1,6 @@
 {
   "imports": {
-    "@automerge/automerge": "npm:@automerge/automerge@3.2.6",
+    "@automerge/automerge": "npm:@automerge/automerge@3.3.1",
     "@automerge/automerge-repo": "npm:@automerge/automerge-repo@2.5.6",
     "@automerge/automerge-repo-network-websocket": "npm:@automerge/automerge-repo-network-websocket@2.5.6",
     "@automerge/automerge-repo-storage-indexeddb": "npm:@automerge/automerge-repo-storage-indexeddb@2.5.6",
@@ -52,10 +52,10 @@
     "gpt-tokenizer": "npm:gpt-tokenizer@3.4.0",
     "happy-dom": "npm:happy-dom@20.10.6",
     "hash-it": "npm:hash-it@7.0.3",
-    "hono": "npm:hono@4.12.29",
-    "hono/cors": "npm:hono@4.12.29/cors",
-    "hono/deno": "npm:hono@4.12.29/deno",
-    "hono/types": "npm:hono@4.12.29/types",
+    "hono": "npm:hono@4.12.30",
+    "hono/cors": "npm:hono@4.12.30/cors",
+    "hono/deno": "npm:hono@4.12.30/deno",
+    "hono/types": "npm:hono@4.12.30/types",
     "ignore": "npm:ignore@7.0.6",
     "monaco-editor": "npm:monaco-editor@0.55.1",
     "ora": "npm:ora@9.4.1",

@@ -81,7 +81,6 @@
     "npm:@automerge/automerge-repo-storage-indexeddb@2.5.6": "2.5.6",
     "npm:@automerge/automerge-repo-storage-nodefs@2.5.6": "2.5.6",
     "npm:@automerge/automerge-repo@2.5.6": "2.5.6",
-    "npm:@automerge/automerge@3.2.6": "3.2.6",
     "npm:@automerge/prosemirror@0.2.0": "0.2.0",
     "npm:@deno/vite-plugin@2.0.2": "2.0.2_vite@8.1.4__yaml@2.9.0_yaml@2.9.0",
     "npm:@mariozechner/pi-coding-agent@0.73.0": "0.73.0_ws@8.21.0_zod@4.4.3",
@@ -115,7 +114,6 @@
     "npm:hash-it@7.0.3": "7.0.3",
     "npm:he@^1.2.0": "1.2.0",
     "npm:hono@4.12.24": "4.12.24",
-    "npm:hono@4.12.29": "4.12.29",
     "npm:ignore@7.0.6": "7.0.6",
     "npm:katex@0.16": "0.16.47",
     "npm:marked-alert@2": "2.1.2_marked@12.0.2",
@@ -465,7 +463,7 @@
         "jsr:@sys/process",
         "jsr:@sys/std",
         "jsr:@sys/yaml",
-        "npm:hono@4.12.24"
+        "npm:hono"
       ]
     },
     "@sys/immutable@0.0.148": {
@@ -2432,9 +2430,6 @@
     "hono@4.12.24": {
       "integrity": "sha512-I36D1s+HgQc55KbhEr4iybfxv/9o1zdpw+XEM6dJa91LqQD0HCoSGdxpRJCZE+aavs87j4V3Ls2OJzq8C/U4iw=="
     },
-    "hono@4.12.29": {
-      "integrity": "sha512-1hNiRjawYrLq/4m3DQQjPGFg0VZkk4RjQJDff/excI6Dm9BiL75qxGrd7/c6YOxPdq6AscP3LiXhQ6fKFC1Waw=="
-    },
     "hosted-git-info@9.0.3": {
       "integrity": "sha512-Hc+ghLoSt6QaYZUv0WBiIvmMDZuZZ7oaDvdH8MbfOO4lOsxdXLEvuC6ePoGs9H1X9oCLyq6+NVN0MKqD+ydxyg==",
       "dependencies": [
@@ -3830,7 +3825,7 @@
       "npm:@automerge/automerge-repo-storage-indexeddb@2.5.6",
       "npm:@automerge/automerge-repo-storage-nodefs@2.5.6",
       "npm:@automerge/automerge-repo@2.5.6",
-      "npm:@automerge/automerge@3.2.6",
+      "npm:@automerge/automerge@3.3.1",
       "npm:@automerge/prosemirror@0.2.0",
       "npm:@deno/vite-plugin@2.0.2",
       "npm:@mariozechner/pi-coding-agent@0.73.0",
@@ -3854,7 +3849,7 @@
       "npm:gpt-tokenizer@3.4.0",
       "npm:happy-dom@20.10.6",
       "npm:hash-it@7.0.3",
-      "npm:hono@4.12.29",
+      "npm:hono@4.12.30",
       "npm:ignore@7.0.6",
       "npm:monaco-editor@0.55.1",
       "npm:ora@9.4.1",
