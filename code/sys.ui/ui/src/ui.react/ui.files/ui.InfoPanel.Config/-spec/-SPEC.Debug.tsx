@@ -11,18 +11,20 @@ import {
   type t,
 } from './common.ts';
 
+type ConfigItem = t.Files.InfoPanel.Config.Item;
+
 type Storage = {
   debug: boolean;
   theme: t.CommonTheme;
   reorder: boolean;
-  fields: t.Files.InfoPanel.Field[];
+  items: ConfigItem[];
   cursorEnabled: boolean;
 };
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
   reorder: true,
-  fields: [...D.fields],
+  items: [...D.fields],
   cursorEnabled: false,
 };
 
@@ -44,7 +46,7 @@ export async function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     reorder: s(snap.reorder),
-    fields: s(snap.fields),
+    items: s(snap.items ?? defaults.items),
     cursor: {
       enabled: s(snap.cursorEnabled ?? defaults.cursorEnabled),
       model: s<t.KeyValue.Cursor.Model>({}),
@@ -65,7 +67,7 @@ export async function createDebugSignals() {
     p.debug.value = defaults.debug;
     p.theme.value = defaults.theme;
     p.reorder.value = defaults.reorder;
-    p.fields.value = [...defaults.fields];
+    p.items.value = [...defaults.items];
     p.cursor.enabled.value = defaults.cursorEnabled;
     p.cursor.model.value = {};
   }
@@ -75,7 +77,7 @@ export async function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.reorder = p.reorder.value;
-      d.fields = p.fields.value;
+      d.items = p.items.value;
       d.cursorEnabled = p.cursor.enabled.value;
     });
   });
@@ -106,13 +108,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `reorder: ${v.reorder}`}
-        onClick={() => Signal.toggle(p.reorder)}
+        label={() => `theme: ${v.theme ?? '(undefined)'}`}
+        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
       <Button
         block
-        label={() => `theme: ${v.theme ?? '(undefined)'}`}
-        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+        label={() => `reorder: ${v.reorder}`}
+        onClick={() => Signal.toggle(p.reorder)}
       />
       <Button
         block

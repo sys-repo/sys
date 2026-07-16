@@ -13,7 +13,7 @@ export default Spec.describe(D.displayName, async (e) => {
         debug={v.debug}
         theme={v.theme}
         reorder={v.reorder}
-        fields={v.fields}
+        items={v.items}
         cursor={{
           enabled: v.cursor.enabled,
           model: v.cursor.model,
@@ -24,9 +24,9 @@ export default Spec.describe(D.displayName, async (e) => {
             p.cursor.model.value = e.next;
           },
         }}
-        onFieldsChange={(e) => {
-          console.info(`⚡️ ${D.name}.onFieldsChange:`, e);
-          p.fields.value = e.next;
+        onItemsChange={(e) => {
+          console.info(`⚡️ ${D.name}.onItemsChange:`, e);
+          p.items.value = e.next;
         }}
       />
     );
