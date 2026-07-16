@@ -17,6 +17,7 @@ export const SpecsComponents = {
   [`${ns}: Buttons.Icons`]: () => import('../ui.react/Buttons.Icons/-spec/-SPEC.tsx'),
 
   [`${ns}: Anchor`]: () => import('../ui.react/Anchor/-spec/-SPEC.tsx'),
+  [`${ns}: Chip`]: () => import('../ui.react/Chip/-spec/-SPEC.tsx'),
   [`${ns}: KeyValue`]: () => import('../ui.react/KeyValue/-spec/-SPEC.tsx'),
   [`${ns}: KeyValue.Switches`]: () => import('../ui.react/KeyValue.Switches/-spec/-SPEC.tsx'),
   [`${ns}: ObjectView`]: () => import('../ui.react/ObjectView/-SPEC.tsx'),

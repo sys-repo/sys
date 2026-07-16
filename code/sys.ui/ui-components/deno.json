@@ -27,6 +27,7 @@
     "./react/buttons": "./src/ui.react/Buttons/mod.ts",
     "./react/buttons/icons": "./src/ui.react/Buttons.Icons/mod.ts",
     "./react/buttons/switch": "./src/ui.react/Buttons.Switch/mod.ts",
+    "./react/chip": "./src/ui.react/Chip/mod.ts",
     "./react/cropmarks": "./src/ui.react/Cropmarks/mod.ts",
     "./react/error-boundary": "./src/ui.react/ErrorBoundary/mod.ts",
     "./react/fade-element": "./src/ui.react/FadeElement/mod.ts",
@@ -66,6 +67,7 @@
     "./buttons": "./src/ui.react/Buttons/mod.ts",
     "./buttons/icons": "./src/ui.react/Buttons.Icons/mod.ts",
     "./buttons/switch": "./src/ui.react/Buttons.Switch/mod.ts",
+    "./chip": "./src/ui.react/Chip/mod.ts",
     "./cropmarks": "./src/ui.react/Cropmarks/mod.ts",
     "./error-boundary": "./src/ui.react/ErrorBoundary/mod.ts",
     "./fade-element": "./src/ui.react/FadeElement/mod.ts",
@@ -133,4 +135,3 @@
     }
   }
 }
-
