@@ -1,6 +1,7 @@
 import type React from 'react';
 import { Keyboard, type t } from '../../common.ts';
 import { Cursor } from '../mod.ts';
+import { INTERACTIVE_SELECTOR, toElement } from './u.dom.ts';
 import { DataAttr } from './u.render.ts';
 
 export type EntryEvent = Pick<
@@ -282,30 +283,3 @@ function isFromInteractiveDescendant(event: EntryEvent | NavigationEvent) {
   const interactive = target.closest(INTERACTIVE_SELECTOR);
   return !!interactive && current.contains(interactive);
 }
-
-function toElement(target: EventTarget | null): Element | undefined {
-  if (!target) return undefined;
-  const node = target as Partial<Node> & Partial<Element>;
-  if (node.nodeType === 1 && node.closest) return node as Element;
-  return node.parentElement ?? undefined;
-}
-
-const INTERACTIVE_SELECTOR = [
-  'a[href]',
-  'button',
-  'input',
-  'select',
-  'textarea',
-  'summary',
-  '[contenteditable="true"]',
-  '[role="button"]',
-  '[role="checkbox"]',
-  '[role="combobox"]',
-  '[role="link"]',
-  '[role="menuitem"]',
-  '[role="radio"]',
-  '[role="slider"]',
-  '[role="spinbutton"]',
-  '[role="switch"]',
-  '[tabindex]:not([tabindex="-1"])',
-].join(',');
