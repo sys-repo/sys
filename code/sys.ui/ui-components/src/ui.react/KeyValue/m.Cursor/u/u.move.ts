@@ -28,6 +28,27 @@ export function move(
   return { ...model, current: target(next.target.path, part) };
 }
 
+export function moveEdge(
+  model: t.KeyValue.Cursor.Model,
+  items: readonly t.KeyValue.Item[],
+  edge: 'first' | 'last',
+) {
+  const current = model.current;
+  const scopePath = current ? Obj.Path.slice(current.path, 0, -1) : [];
+  const scope = toScope(items, scopePath);
+  if (scope.items.length === 0) return model;
+
+  const next = scope.items[edge === 'first' ? 0 : scope.items.length - 1];
+  const currentItem = current
+    ? scope.items.find((item) => eqlPath(item.target, current))
+    : undefined;
+  const currentPart = currentItem && supportsPart(currentItem, current?.part)
+    ? current?.part
+    : undefined;
+  const part = supportsPart(next, currentPart) ? currentPart : undefined;
+  return { ...model, current: target(next.target.path, part) };
+}
+
 export function moveBlock(
   model: t.KeyValue.Cursor.Model,
   items: readonly t.KeyValue.Item[],

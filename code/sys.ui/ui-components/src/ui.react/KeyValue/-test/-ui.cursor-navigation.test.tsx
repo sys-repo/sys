@@ -8,9 +8,11 @@ import {
   DomMock,
   expect,
   it,
+  Keyboard,
   Schedule,
   type t,
   TestReact,
+  UserAgent,
 } from '../../../-test.ts';
 import {
   currentBoundary,
@@ -282,6 +284,98 @@ describe('KeyValue.UI: cursor navigation', () => {
     });
   });
 
+  describe('whole-set edges', () => {
+    it('moves to current-scope top and bottom with Home/End and platform command arrows', async () => {
+      const changes: t.KeyValue.Cursor.Change[] = [];
+      let current: t.KeyValue.Cursor.Target | undefined;
+
+      const Probe: React.FC = () => {
+        const [model, setModel] = React.useState<t.KeyValue.Cursor.Model>({
+          current: KeyValue.Cursor.target(['bravo'], 'value'),
+        });
+        current = model.current;
+        return (
+          <KeyValue.UI
+            items={[
+              row('alpha'),
+              row('bravo'),
+              { kind: 'hr' },
+              { id: 'group', kind: 'group', items: [row('one'), row('two')] },
+              row('charlie'),
+            ]}
+            cursor={{
+              model,
+              onChange: (e) => {
+                changes.push(e);
+                setModel(e.next);
+              },
+            }}
+          />
+        );
+      };
+
+      const res = await TestReact.render(<Probe />, { strict: false });
+      const root = firstChild(res.container);
+      const command = commandKey();
+
+      const bottom = keydown(root, 'ArrowDown', command);
+      await Schedule.micro();
+      expect(bottom.defaultPrevented).to.eql(true);
+      expect(current).to.eql({ path: ['charlie'], part: 'value' });
+
+      const home = keydown(root, 'Home');
+      await Schedule.micro();
+      expect(home.defaultPrevented).to.eql(true);
+      expect(current).to.eql({ path: ['alpha'], part: 'value' });
+
+      const end = keydown(root, 'End');
+      await Schedule.micro();
+      expect(end.defaultPrevented).to.eql(true);
+      expect(current).to.eql({ path: ['charlie'], part: 'value' });
+
+      const top = keydown(root, 'ArrowUp', command);
+      await Schedule.micro();
+      expect(top.defaultPrevented).to.eql(true);
+      expect(current).to.eql({ path: ['alpha'], part: 'value' });
+
+      keydown(root, 'ArrowDown');
+      await Schedule.micro();
+      expect(current).to.eql({ path: ['bravo'], part: 'value' });
+
+      keydown(root, 'ArrowDown', { altKey: true });
+      await Schedule.micro();
+      expect(current).to.eql({ path: ['group'] });
+
+      keydown(root, 'Enter');
+      await Schedule.micro();
+      expect(current).to.eql({ path: ['group', 'one'] });
+
+      keydown(root, 'ArrowDown', command);
+      await Schedule.micro();
+      expect(current).to.eql({ path: ['group', 'two'] });
+
+      const beforeWrongPlatformModifier = changes.length;
+      const wrongPlatformModifier = keydown(root, 'ArrowDown', nonCommandKey());
+      await Schedule.micro();
+      expect(wrongPlatformModifier.defaultPrevented).to.eql(false);
+      expect(changes.length).to.eql(beforeWrongPlatformModifier);
+
+      expect(changes.map((e) => navigationChange(e).command.name)).to.eql([
+        'cursor:last',
+        'cursor:first',
+        'cursor:last',
+        'cursor:first',
+        'cursor:next',
+        'cursor:next-block',
+        'cursor:enter',
+        'cursor:last',
+      ]);
+
+      act(() => res.dispose());
+      await Schedule.micro();
+    });
+  });
+
   describe('groups and scopes', () => {
     it('moves a controlled cursor model through sibling and nested scopes', async () => {
       const changes: t.KeyValue.Cursor.Change[] = [];
@@ -425,14 +519,37 @@ describe('KeyValue.UI: cursor navigation', () => {
         { strict: false },
       );
 
-      keydown(firstChild(res.container), 'ArrowDown', { altKey: true });
+      const root = firstChild(res.container);
+      keydown(root, 'ArrowDown', { altKey: true });
+      keydown(root, 'ArrowDown', commandKey());
 
-      expect(changes.length).to.eql(1);
+      expect(changes.length).to.eql(2);
       expect(navigationChange(changes[0]).command.name).to.eql('cursor:next-block');
       expect(navigationChange(changes[0]).next.current?.path).to.eql(['bravo']);
+      expect(navigationChange(changes[1]).command.name).to.eql('cursor:last');
+      expect(navigationChange(changes[1]).next.current?.path).to.eql(['charlie']);
 
       act(() => res.dispose());
       await Schedule.micro();
     });
   });
 });
+
+/**
+ * Assert:
+ */
+function commandKey(): KeyboardEventInit {
+  const init: KeyboardEventInit = UserAgent.current.is.apple
+    ? { metaKey: true }
+    : { ctrlKey: true };
+  expect(Keyboard.Is.command(Keyboard.modifiers(init))).to.eql(true);
+  return init;
+}
+
+function nonCommandKey(): KeyboardEventInit {
+  const init: KeyboardEventInit = UserAgent.current.is.apple
+    ? { ctrlKey: true }
+    : { metaKey: true };
+  expect(Keyboard.Is.command(Keyboard.modifiers(init))).to.eql(false);
+  return init;
+}

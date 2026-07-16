@@ -125,7 +125,7 @@ export function toNavigationIntent(
   if (event.defaultPrevented) return undefined;
   if (
     !isUnmodifiedNavigation(event) && !isOptionLaneNavigation(event) &&
-    !isOptionBlockNavigation(event)
+    !isOptionBlockNavigation(event) && !isCommandEdgeNavigation(event)
   ) return undefined;
   if (isFromInteractiveDescendant(event)) return undefined;
 
@@ -196,15 +196,20 @@ function isOptionLaneNavigation(event: NavigationEvent) {
 }
 
 function isOptionBlockNavigation(event: NavigationEvent) {
-  if (!isBlockNavigationKey(event.key)) return false;
+  if (!isVerticalNavigationKey(event.key)) return false;
   return isOptionOnly(Keyboard.modifiers(event));
+}
+
+function isCommandEdgeNavigation(event: NavigationEvent) {
+  if (!isVerticalNavigationKey(event.key)) return false;
+  return isCommandOnly(Keyboard.modifiers(event));
 }
 
 function isLaneNavigationKey(key: string) {
   return key === 'ArrowLeft' || key === 'ArrowRight';
 }
 
-function isBlockNavigationKey(key: string) {
+function isVerticalNavigationKey(key: string) {
   return key === 'ArrowUp' || key === 'ArrowDown';
 }
 
@@ -212,21 +217,38 @@ function isOptionOnly(modifiers: t.Keyboard.Modifier.Flags) {
   return modifiers.alt && !modifiers.ctrl && !modifiers.meta && !modifiers.shift;
 }
 
+function isCommandOnly(modifiers: t.Keyboard.Modifier.Flags) {
+  if (!Keyboard.Is.command(modifiers)) return false;
+  if (modifiers.alt || modifiers.shift) return false;
+  if (modifiers.ctrl && modifiers.meta) return false;
+  return true;
+}
+
 function commandFromEvent(
   event: NavigationEvent,
 ): Pick<NavigationIntent, 'key' | 'command'> | undefined {
   const key = event.key;
-  const option = isOptionOnly(Keyboard.modifiers(event));
+  const modifiers = Keyboard.modifiers(event);
+  const option = isOptionOnly(modifiers);
+  const edge = isCommandOnly(modifiers);
+  if (key === 'End') return { key, command: { name: 'cursor:last', payload: {} } };
+  if (key === 'Home') return { key, command: { name: 'cursor:first', payload: {} } };
   if (key === 'ArrowDown') {
     return {
       key,
-      command: { name: option ? 'cursor:next-block' : 'cursor:next', payload: {} },
+      command: {
+        name: edge ? 'cursor:last' : option ? 'cursor:next-block' : 'cursor:next',
+        payload: {},
+      },
     };
   }
   if (key === 'ArrowUp') {
     return {
       key,
-      command: { name: option ? 'cursor:previous-block' : 'cursor:previous', payload: {} },
+      command: {
+        name: edge ? 'cursor:first' : option ? 'cursor:previous-block' : 'cursor:previous',
+        payload: {},
+      },
     };
   }
   if (key === 'ArrowLeft') return { key, command: { name: 'cursor:left', payload: {} } };

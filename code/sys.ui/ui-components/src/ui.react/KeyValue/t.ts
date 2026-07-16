@@ -198,6 +198,10 @@ export declare namespace KeyValue {
       nextBlock(model: Model, items: KeyValue.Item[]): Model;
       /** Move to the previous cursor target at `hr`-delimited block granularity. */
       previousBlock(model: Model, items: KeyValue.Item[]): Model;
+      /** Move to the first cursor-addressable sibling in the current scope. */
+      first(model: Model, items: KeyValue.Item[]): Model;
+      /** Move to the last cursor-addressable sibling in the current scope. */
+      last(model: Model, items: KeyValue.Item[]): Model;
       left(model: Model, items: KeyValue.Item[]): Model;
       right(model: Model, items: KeyValue.Item[]): Model;
       enter(model: Model, items: KeyValue.Item[]): Model;
@@ -298,6 +302,8 @@ export declare namespace KeyValue {
       | 'ArrowDown'
       | 'ArrowLeft'
       | 'ArrowRight'
+      | 'Home'
+      | 'End'
       | 'Enter'
       | 'Escape';
 
@@ -363,6 +369,8 @@ export declare namespace KeyValue {
       | 'cursor:previous'
       | 'cursor:next-block'
       | 'cursor:previous-block'
+      | 'cursor:first'
+      | 'cursor:last'
       | 'cursor:left'
       | 'cursor:right'
       | 'cursor:enter'
@@ -375,6 +383,8 @@ export declare namespace KeyValue {
       readonly 'cursor:previous': Record<string, never>;
       readonly 'cursor:next-block': Record<string, never>;
       readonly 'cursor:previous-block': Record<string, never>;
+      readonly 'cursor:first': Record<string, never>;
+      readonly 'cursor:last': Record<string, never>;
       readonly 'cursor:left': Record<string, never>;
       readonly 'cursor:right': Record<string, never>;
       readonly 'cursor:enter': Record<string, never>;

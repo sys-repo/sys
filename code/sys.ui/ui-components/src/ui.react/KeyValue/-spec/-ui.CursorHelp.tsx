@@ -11,6 +11,7 @@ const steps: readonly { gesture: string; text: string }[] = [
   { gesture: 'Option + ←/→', text: 'enters key/value lanes.' },
   { gesture: '↑/↓', text: 'moves cursor.' },
   { gesture: 'Option + ↑/↓', text: 'moves by hr-delimited blocks.' },
+  { gesture: 'Home/End · Command/Ctrl + ↑/↓', text: 'moves to top/bottom.' },
   { gesture: 'Enter', text: 'enters groups.' },
   { gesture: 'Esc', text: 'exits.' },
 ];

@@ -115,7 +115,14 @@ describe('KeyValue/t', () => {
         name: 'cursor:next-block',
         payload: {},
       };
+      const first: t.KeyValue.Cursor.Command<'cursor:first'> = {
+        name: 'cursor:first',
+        payload: {},
+      };
+      const last: t.KeyValue.Cursor.Command<'cursor:last'> = { name: 'cursor:last', payload: {} };
       const entry = 'option-enter' satisfies t.KeyValue.Cursor.EntryInput;
+      const home = 'Home' satisfies t.KeyValue.Cursor.NavigationKey;
+      const end = 'End' satisfies t.KeyValue.Cursor.NavigationKey;
       const arrival: t.KeyValue.Cursor.Arrival = 'flash';
       const change: t.KeyValue.Cursor.EntryChange = {
         reason: 'cursor:entry',
@@ -152,6 +159,8 @@ describe('KeyValue/t', () => {
       expectTypeOf(model).toEqualTypeOf<t.KeyValue.Cursor.Model>();
       expectTypeOf(command).toEqualTypeOf<t.KeyValue.Cursor.Command<'cursor:set'>>();
       expectTypeOf(nextBlock).toEqualTypeOf<t.KeyValue.Cursor.Command<'cursor:next-block'>>();
+      expectTypeOf(first).toEqualTypeOf<t.KeyValue.Cursor.Command<'cursor:first'>>();
+      expectTypeOf(last).toEqualTypeOf<t.KeyValue.Cursor.Command<'cursor:last'>>();
       expectTypeOf(change).toEqualTypeOf<t.KeyValue.Cursor.EntryChange>();
       expectTypeOf(navigation).toEqualTypeOf<t.KeyValue.Cursor.NavigationChange>();
       expectTypeOf(arrival).toMatchTypeOf<t.KeyValue.Cursor.Arrival>();
@@ -164,9 +173,13 @@ describe('KeyValue/t', () => {
       >();
       expectTypeOf(scope).toEqualTypeOf<t.KeyValue.Cursor.Scope>();
       expect(props.cursor).to.equal(cursor);
+      expect(home).to.eql('Home');
+      expect(end).to.eql('End');
       expect(KeyValue.Cursor.eql(target, model.current)).to.eql(true);
       expect(KeyValue.Cursor.nextBlock(model, [])).to.equal(model);
       expect(KeyValue.Cursor.previousBlock(model, [])).to.equal(model);
+      expect(KeyValue.Cursor.first(model, [])).to.equal(model);
+      expect(KeyValue.Cursor.last(model, [])).to.equal(model);
       expect(KeyValue.Cursor.cmd({}, [], command)).to.eql({});
     });
   });

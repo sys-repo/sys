@@ -319,6 +319,25 @@ describe('KeyValue.Cursor', () => {
     expect(Cursor.previousBlock(invalidPart, items)).to.equal(invalidPart);
   });
 
+  it('moves to current-scope top and bottom while preserving supported lanes', () => {
+    expect(Cursor.first({ current: partTarget('value', 'charlie') }, items).current).to.eql({
+      path: ['alpha'],
+      part: 'value',
+    });
+    expect(Cursor.last({ current: partTarget('key', 'alpha') }, items).current).to.eql({
+      path: ['charlie'],
+      part: 'key',
+    });
+    expect(Cursor.first({ current: partTarget('key', 'group:bravo') }, items).current).to.eql({
+      path: ['alpha'],
+    });
+    expect(Cursor.last({ current: target('group:bravo', 'bravo.one') }, items).current).to.eql({
+      path: ['group:bravo', 'group:bravo.two'],
+    });
+    expect(Cursor.first({}, items).current?.path).to.eql(['alpha']);
+    expect(Cursor.last({}, items).current?.path).to.eql(['charlie']);
+  });
+
   it('enters groups and exits to the parent group atom', () => {
     const entered = Cursor.enter({ current: target('group:bravo') }, items);
     const nested = Cursor.enter({ current: target('group:bravo', 'group:bravo.two') }, items);
@@ -354,6 +373,7 @@ describe('KeyValue.Cursor', () => {
       name: 'cursor:next-block',
       payload: {},
     };
+    const last: t.KeyValue.Cursor.Command<'cursor:last'> = { name: 'cursor:last', payload: {} };
     const exit: t.KeyValue.Cursor.Command<'cursor:exit'> = { name: 'cursor:exit', payload: {} };
 
     const current = Cursor.cmd({}, items, set);
@@ -361,6 +381,7 @@ describe('KeyValue.Cursor', () => {
     const atom = Cursor.cmd(parted, items, exit);
     const moved = Cursor.cmd(atom, items, next);
     const blockMoved = Cursor.cmd({ current: target('alpha') }, items, nextBlock);
+    const edgeMoved = Cursor.cmd({ current: target('alpha') }, items, last);
     const cleared = Cursor.cmd(moved, items, exit);
 
     expect(current.current?.path).to.eql(['alpha']);
@@ -368,6 +389,7 @@ describe('KeyValue.Cursor', () => {
     expect(atom.current?.path).to.eql(['alpha']);
     expect(moved.current?.path).to.eql(['group:bravo']);
     expect(blockMoved.current?.path).to.eql(['charlie']);
+    expect(edgeMoved.current?.path).to.eql(['charlie']);
     expect(cleared.current).to.eql(undefined);
   });
 });
