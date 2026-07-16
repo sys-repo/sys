@@ -23,7 +23,7 @@ export const UI: t.FC<P> = (props) => {
   const hasHidden = hidden.length > 0;
   const animation = props.animation ?? D.animation;
   const keyboardEntryItems = KeyValue.Switches.toItems(hasVisible ? visible : hidden);
-  const keyboardEntry = KeyValue.Cursor.useKeyboardEntry({
+  const keyboardEntry = KeyValue.Cursor.Keyboard.useEntry({
     enabled: props.cursor?.enabled !== false,
     items: keyboardEntryItems,
     cursor: props.cursor,

@@ -12,7 +12,7 @@ import {
   type t,
   TestReact,
 } from '../../../-test.ts';
-import { keydown } from './u.keyboard.ts';
+import { keydown } from './u.fixture.keyboard.ts';
 import { KeyValue } from '../mod.ts';
 
 const boundarySelector = '[data-keyvalue-item-boundary]';
@@ -259,7 +259,7 @@ describe('KeyValue.UI: cursor entry', () => {
       const [model, setModel] = React.useState<t.KeyValue.Cursor.Model>({});
       const items = [row('alpha'), row('bravo')];
       current = model.current;
-      const keyboardEntry = KeyValue.Cursor.useKeyboardEntry({
+      const keyboardEntry = KeyValue.Cursor.Keyboard.useEntry({
         items,
         cursor: {
           model,
@@ -304,7 +304,7 @@ describe('KeyValue.UI: cursor entry', () => {
     let returnedRef: React.RefObject<HTMLDivElement | null> | undefined;
 
     const Probe: React.FC = () => {
-      const keyboardEntry = KeyValue.Cursor.useKeyboardEntry({ ref: suppliedRef });
+      const keyboardEntry = KeyValue.Cursor.Keyboard.useEntry({ ref: suppliedRef });
       returnedRef = keyboardEntry.ref;
       return <div ref={keyboardEntry.ref} />;
     };
@@ -324,7 +324,7 @@ describe('KeyValue.UI: cursor entry', () => {
     const Probe: React.FC = () => {
       const [model, setModel] = React.useState<t.KeyValue.Cursor.Model>({});
       const items = [row('alpha')];
-      const keyboardEntry = KeyValue.Cursor.useKeyboardEntry({
+      const keyboardEntry = KeyValue.Cursor.Keyboard.useEntry({
         items,
         cursor: {
           model,

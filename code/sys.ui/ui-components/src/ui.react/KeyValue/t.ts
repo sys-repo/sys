@@ -183,11 +183,13 @@ export declare namespace KeyValue {
   export namespace Cursor {
     /** Public runtime surface for the KeyValue cursor model. */
     export type Lib = {
-      /** Host-owned keyboard entry into a rendered KeyValue cursor root. */
-      useKeyboardEntry: Keyboard.UseEntry;
+      /** Host-owned keyboard cursor adapters. */
+      readonly Keyboard: Keyboard.Lib;
       target(path: t.ObjectPath, part?: Part): Target;
       eql(a?: Target, b?: Target): boolean;
       scope(items: KeyValue.Item[], path?: t.ObjectPath): Scope;
+      /** Insert a KeyValue item after the current cursor target in its sibling scope. */
+      insertAfter: Insert.After;
       /** Convenience helper for routing a `cursor:set` command. */
       set(model: Model, items: KeyValue.Item[], target?: Target): Model;
       /** Move to the next cursor-addressable sibling in the current scope. */
@@ -212,6 +214,14 @@ export declare namespace KeyValue {
 
     /** Host-owned keyboard cursor adapters. */
     export namespace Keyboard {
+      /** Public host-owned keyboard cursor adapter surface. */
+      export type Lib = {
+        /** Host-owned keyboard entry into a rendered KeyValue cursor root. */
+        readonly useEntry: UseEntry;
+        /** Host-owned keyboard item insertion after the current rendered KeyValue cursor target. */
+        readonly useInsertAfter: UseInsertAfter;
+      };
+
       /**
        * Hook factory for host-owned keyboard entry into a rendered KeyValue cursor root.
        *
@@ -219,8 +229,8 @@ export declare namespace KeyValue {
        * by `KeyValue.UI`.
        *
        * ```tsx
-       * const keyboardEntry = KeyValue.Cursor.useKeyboardEntry({ enabled: hostOwnsEntry, items, cursor });
-       * return <div ref={keyboardEntry.ref}><KeyValue.UI items={items} cursor={cursor} /></div>;
+       * const keyboard = KeyValue.Cursor.Keyboard.useEntry({ enabled: hostOwnsEntry, items, cursor });
+       * return <div ref={keyboard.ref}><KeyValue.UI items={items} cursor={cursor} /></div>;
        * ```
        */
       export type UseEntry = <T extends HTMLElement = HTMLDivElement>(
@@ -246,6 +256,38 @@ export declare namespace KeyValue {
 
       /** Result of host-owned KeyValue cursor keyboard entry wiring. */
       export type EntryHook<T extends HTMLElement = HTMLDivElement> = {
+        /** Ref to place on the host element containing the rendered KeyValue cursor root. */
+        readonly ref: React.RefObject<T | null>;
+      };
+
+      /**
+       * Hook factory for host-owned item insertion after the current KeyValue cursor target.
+       *
+       * Handles host/global `Option+Enter` only while a rendered cursor root is focused and a
+       * current cursor target exists. Hosts provide the item factory and own item-state mutation.
+       */
+      export type UseInsertAfter = <T extends HTMLElement = HTMLDivElement>(
+        args?: InsertAfterArgs<T>,
+      ) => InsertAfterHook<T>;
+
+      /** Input for host-owned KeyValue cursor item insertion after the current target. */
+      export type InsertAfterArgs<T extends HTMLElement = HTMLDivElement> = {
+        /** Host element containing the rendered KeyValue cursor root. Generated when omitted. */
+        ref?: React.RefObject<T | null>;
+        /** Whether this host currently owns the global `Option+Enter` insertion shortcut. */
+        enabled?: boolean;
+        /** KeyValue item projection to mutate. */
+        items?: readonly KeyValue.Item[];
+        /** Controlled cursor model used to resolve the insertion point. */
+        cursor?: Pick<Props, 'enabled' | 'model'>;
+        /** Item or item factory inserted after the current cursor target. */
+        createItem?: Insert.CreateItem | KeyValue.Item;
+        /** Receives the insertion change; hosts own item-state persistence. */
+        onChange?: (e: Insert.Change) => void;
+      };
+
+      /** Result of host-owned KeyValue cursor item insertion wiring. */
+      export type InsertAfterHook<T extends HTMLElement = HTMLDivElement> = {
         /** Ref to place on the host element containing the rendered KeyValue cursor root. */
         readonly ref: React.RefObject<T | null>;
       };
@@ -359,6 +401,48 @@ export declare namespace KeyValue {
       readonly path: t.ObjectPath;
       readonly items: readonly Item[];
     };
+
+    /** Pure item-insertion helpers for cursor-addressed KeyValue item trees. */
+    export namespace Insert {
+      /** Item factory input for insertion at a cursor-addressed sibling scope. */
+      export type CreateItemArgs = {
+        /** Root item projection before insertion. */
+        readonly items: readonly KeyValue.Item[];
+        /** Sibling scope that receives the inserted item. */
+        readonly siblings: readonly KeyValue.Item[];
+        /** Current cursor target that owns the insertion point. */
+        readonly current: Target;
+        /** Parent scope path that receives the inserted item. */
+        readonly scope: t.ObjectPath;
+        /** Insertion index within the sibling scope. */
+        readonly index: number;
+        /** Existing item immediately before the insertion point. */
+        readonly after: KeyValue.Item;
+      };
+
+      /** Build an item to insert after the current cursor target. */
+      export type CreateItem = (e: CreateItemArgs) => KeyValue.Item | undefined;
+
+      /** Input for pure item insertion after a cursor target. */
+      export type Args = {
+        readonly items: readonly KeyValue.Item[];
+        readonly current?: Target;
+        readonly createItem: CreateItem | KeyValue.Item;
+      };
+
+      /** Item insertion change payload. */
+      export type Change = {
+        readonly previous: readonly KeyValue.Item[];
+        readonly next: KeyValue.Item[];
+        readonly current: Target;
+        readonly scope: t.ObjectPath;
+        readonly index: number;
+        readonly item: KeyValue.Item;
+      };
+
+      /** Insert an item after the current cursor target in its sibling scope. */
+      export type After = (args: Args) => Change | undefined;
+    }
 
     /** Data-only cursor command names. */
     export type CommandName = 'cursor:set' | NavigationCommandName;

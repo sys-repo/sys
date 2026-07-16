@@ -1,28 +1,8 @@
 import React from 'react';
 import { Keyboard, Rx, type t } from '../../common.ts';
 import { setTarget } from '../m/m.Cursor.u.ts';
+import { cursorRoot, focusCursorRoot, shouldLetKeyValueHandle } from './u.dom.ts';
 import { eql, target as toTarget, toScope } from './u.resolve.ts';
-import { DataAttr } from './u.render.ts';
-
-const ACTIVE_ELEMENT_SKIP_SELECTOR = [
-  'a[href]',
-  'button',
-  'input',
-  'select',
-  'textarea',
-  'summary',
-  '[contenteditable="true"]',
-  '[role="button"]',
-  '[role="checkbox"]',
-  '[role="combobox"]',
-  '[role="link"]',
-  '[role="menuitem"]',
-  '[role="radio"]',
-  '[role="slider"]',
-  '[role="spinbutton"]',
-  '[role="switch"]',
-  '[tabindex]:not([tabindex="-1"])',
-].join(',');
 
 /**
  * Hook: host-owned keyboard entry into a rendered KeyValue cursor root.
@@ -30,7 +10,7 @@ const ACTIVE_ELEMENT_SKIP_SELECTOR = [
  * Listens for host/global `Option+Enter` only while enabled. Focused-root
  * cursor grammar remains owned by `KeyValue.UI`.
  */
-export function useKeyboardEntry<T extends HTMLElement = HTMLDivElement>(
+export function useEntry<T extends HTMLElement = HTMLDivElement>(
   args: t.KeyValue.Cursor.Keyboard.EntryArgs<T> = {},
 ): t.KeyValue.Cursor.Keyboard.EntryHook<T> {
   const fallbackRef = React.useRef<T>(null);
@@ -66,24 +46,6 @@ export function useKeyboardEntry<T extends HTMLElement = HTMLDivElement>(
 /**
  * Helpers:
  */
-function cursorRoot(host?: HTMLElement) {
-  return host?.querySelector<HTMLElement>(`[${DataAttr.root}]`);
-}
-
-function focusCursorRoot(root: HTMLElement) {
-  root.focus({ preventScroll: true });
-  return globalThis.document?.activeElement === root;
-}
-
-function shouldLetKeyValueHandle(root: HTMLElement) {
-  const active = globalThis.document?.activeElement;
-  if (!active) return false;
-  if (!active.isConnected) return false;
-  if (active === root || root.contains(active)) return true;
-  if (active === globalThis.document?.body) return false;
-  return !!active.closest(ACTIVE_ELEMENT_SKIP_SELECTOR);
-}
-
 function enterFirstCursorItem(args: {
   readonly cursor: t.KeyValue.Cursor.Props;
   readonly items: readonly t.KeyValue.Item[];

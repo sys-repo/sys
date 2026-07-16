@@ -21,7 +21,7 @@ export default Spec.describe(D.displayName, async (e) => {
       p.items.value = SAMPLE.reorder(currentItems, e.next);
     };
 
-    const keyboardEntry = KeyValue.Cursor.useKeyboardEntry({
+    const keyboardEntry = KeyValue.Cursor.Keyboard.useEntry({
       enabled: v.cursor.enabled,
       items: Switches.toItems(items),
       cursor: {

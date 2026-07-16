@@ -1,12 +1,17 @@
 import { type t } from '../../common.ts';
 import { move, moveBlock, moveEdge, movePart } from '../u/u.move.ts';
+import { insertAfter } from '../u/u.insert.ts';
 import { eql, target, toScope } from '../u/u.resolve.ts';
 import { enterTarget, exitTarget, setTarget } from './m.Cursor.u.ts';
-import { useKeyboardEntry } from '../u/use.KeyboardEntry.ts';
+import { useEntry } from '../u/use.KeyboardEntry.ts';
+import { useInsertAfter } from '../u/use.KeyboardInsertAfter.ts';
 
 /** KeyValue cursor model helpers and host-owned adapters. */
 export const Cursor: t.KeyValue.Cursor.Lib = {
-  useKeyboardEntry,
+  Keyboard: {
+    useEntry,
+    useInsertAfter,
+  },
 
   target,
   eql,
@@ -14,6 +19,8 @@ export const Cursor: t.KeyValue.Cursor.Lib = {
   scope(items, path = []) {
     return toScope(items, path);
   },
+
+  insertAfter,
 
   set(model, items, nextTarget) {
     return Cursor.cmd(model, items, { name: 'cursor:set', payload: { target: nextTarget } });
