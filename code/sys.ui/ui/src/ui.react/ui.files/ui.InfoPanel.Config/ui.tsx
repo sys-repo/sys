@@ -1,4 +1,5 @@
 import { Color, css, D, KeyValue, type t } from './common.ts';
+import { toDividerInsertionHandler } from './u.divider.ts';
 import { fieldsFromItems, resolveItems, toItemInputs } from './u.fields.ts';
 import { toSwitchItems, toSwitchItemSections } from './u.items.tsx';
 import { toReorder } from './u.reorder.ts';
@@ -21,6 +22,12 @@ export const UI: t.FC<P> = (props) => {
   const hasVisible = visible.length > 0;
   const hasHidden = hidden.length > 0;
   const animation = props.animation ?? D.animation;
+  const dividerInsertion = toDividerInsertionHandler({
+    enabled: !!props.items && props.cursor?.enabled !== false,
+    items: visibleItems,
+    current: props.cursor?.model?.current,
+    onItemsChange: props.onItemsChange,
+  });
 
   /**
    * Visible rows are reorderable; hidden rows are toggle-only.
@@ -37,7 +44,11 @@ export const UI: t.FC<P> = (props) => {
   } as const;
 
   return (
-    <div className={css(styles.base, props.style).class} data-component={D.displayName}>
+    <div
+      className={css(styles.base, props.style).class}
+      data-component={D.displayName}
+      onKeyDown={dividerInsertion}
+    >
       {hasVisible && (
         <KeyValue.Switches.UI
           theme={theme.name}
