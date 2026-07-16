@@ -4,7 +4,7 @@ import { type ProjectionAnimationModel } from '../u/mod.ts';
 
 export type RenderContext = Omit<t.KeyValue.ItemProps, 'item'> & {
   readonly layout: t.KeyValue.Layout;
-  readonly rootItems: readonly t.KeyValue.Item[];
+  readonly rootItems: t.KeyValue.Item[];
   readonly cursor?: t.KeyValue.Cursor.Props;
   readonly cursorCurrentFill: t.Color.Rgba;
   readonly cursorArrival?: CursorArrivalCue;

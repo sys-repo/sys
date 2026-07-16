@@ -93,6 +93,119 @@ describe('KeyValue.UI: cursor entry', () => {
     await Schedule.micro();
   });
 
+  it('enters cursor mode from a host keyboard shortcut with the hook-returned ref', async () => {
+    const changes: t.KeyValue.Cursor.Change[] = [];
+    let current: t.KeyValue.Cursor.Target | undefined;
+
+    const Probe: React.FC = () => {
+      const [model, setModel] = React.useState<t.KeyValue.Cursor.Model>({});
+      const items = [row('alpha'), row('bravo')];
+      current = model.current;
+      const keyboardEntry = KeyValue.Cursor.useKeyboardEntry({
+        items,
+        cursor: {
+          model,
+          onChange: (e) => {
+            changes.push(e);
+            setModel(e.next);
+          },
+        },
+      });
+
+      return (
+        <div ref={keyboardEntry.ref}>
+          <KeyValue.UI items={items} cursor={{ model, onChange: keyboardEntryNoop }} />
+        </div>
+      );
+    };
+
+    const res = await TestReact.render(<Probe />, { strict: false });
+    const root = res.container.querySelector('[data-keyvalue-cursor-root]') as HTMLElement;
+    const event = DomMock.Keyboard.keydownEvent('Enter', { altKey: true, cancelable: true });
+
+    act(() => DomMock.Keyboard.fire(event));
+    await Schedule.micro();
+
+    expect(event.defaultPrevented).to.eql(true);
+    expect(document.activeElement).to.equal(root);
+    expect(current).to.eql({ path: ['alpha'] });
+    expect(changes.length).to.eql(1);
+    const change = entryChange(changes[0]);
+    expect(change.entry).to.eql('option-enter');
+    expect(change.reason).to.eql('cursor:entry');
+    expect(change.command).to.eql({ name: 'cursor:set', payload: { target: { path: ['alpha'] } } });
+    releaseGlobalEnter();
+    act(() => root.blur());
+
+    act(() => res.dispose());
+    await Schedule.micro();
+  });
+
+  it('returns and attaches a supplied host ref', async () => {
+    const suppliedRef = React.createRef<HTMLDivElement>();
+    let returnedRef: React.RefObject<HTMLDivElement | null> | undefined;
+
+    const Probe: React.FC = () => {
+      const keyboardEntry = KeyValue.Cursor.useKeyboardEntry({ ref: suppliedRef });
+      returnedRef = keyboardEntry.ref;
+      return <div ref={keyboardEntry.ref} />;
+    };
+
+    const res = await TestReact.render(<Probe />, { strict: false });
+
+    expect(returnedRef).to.equal(suppliedRef);
+    expect(suppliedRef.current).to.not.eql(null);
+
+    act(() => res.dispose());
+    await Schedule.micro();
+  });
+
+  it('does not steal host keyboard entry from an active interactive element', async () => {
+    const changes: t.KeyValue.Cursor.Change[] = [];
+
+    const Probe: React.FC = () => {
+      const [model, setModel] = React.useState<t.KeyValue.Cursor.Model>({});
+      const items = [row('alpha')];
+      const keyboardEntry = KeyValue.Cursor.useKeyboardEntry({
+        items,
+        cursor: {
+          model,
+          onChange: (e) => {
+            changes.push(e);
+            setModel(e.next);
+          },
+        },
+      });
+
+      return (
+        <div ref={keyboardEntry.ref}>
+          <input aria-label='external input' />
+          <KeyValue.UI items={items} cursor={{ model, onChange: keyboardEntryNoop }} />
+        </div>
+      );
+    };
+
+    const res = await TestReact.render(<Probe />, { strict: false });
+    const input = res.container.querySelector('input') as HTMLInputElement;
+    act(() => input.focus());
+
+    const event = DomMock.Keyboard.keydownEvent('Enter', {
+      altKey: true,
+      bubbles: true,
+      cancelable: true,
+    });
+    act(() => input.dispatchEvent(event));
+    await Schedule.micro();
+
+    expect(event.defaultPrevented).to.eql(false);
+    expect(document.activeElement).to.equal(input);
+    expect(changes.length).to.eql(0);
+    releaseGlobalEnter(input);
+
+    act(() => res.dispose());
+    await Schedule.micro();
+  });
+
   it('does not enter cursor mode from keyboard when row entry is disabled', async () => {
     const changes: t.KeyValue.Cursor.Change[] = [];
     const res = await TestReact.render(
@@ -299,6 +412,14 @@ describe('KeyValue.UI: cursor entry', () => {
 
 function row(id: string): t.KeyValue.Item.Row {
   return { id, k: id, v: id };
+}
+
+function keyboardEntryNoop(_e: t.KeyValue.Cursor.Change) {
+}
+
+function releaseGlobalEnter(target?: EventTarget) {
+  const event = DomMock.Keyboard.keyupEvent('Enter', { bubbles: true, cancelable: true });
+  act(() => (target ? target.dispatchEvent(event) : DomMock.Keyboard.fire(event)));
 }
 
 function firstBoundary(container: HTMLElement) {

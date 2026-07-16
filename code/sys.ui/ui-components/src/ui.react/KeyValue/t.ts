@@ -175,26 +175,71 @@ export declare namespace KeyValue {
 
   /**
    * Cursor model for command-addressable KeyValue item projections.
-   * This is a controlled visual/navigation cursor, not a complete ARIA grid
-   * contract; consumers still own semantic accessibility around domain workflows.
+   * This is controlled interaction/navigation state, intentionally separate from
+   * a complete ARIA/grid accessibility contract. Consumers and future
+   * accessibility adapters own semantic roles, announcements, and domain
+   * workflow accessibility.
    */
   export namespace Cursor {
     /** Public runtime surface for the KeyValue cursor model. */
     export type Lib = {
+      /** Host-owned keyboard entry into a rendered KeyValue cursor root. */
+      useKeyboardEntry: Keyboard.UseEntry;
       target(path: t.ObjectPath, part?: Part): Target;
       eql(a?: Target, b?: Target): boolean;
-      scope(items: readonly KeyValue.Item[], path?: t.ObjectPath): Scope;
+      scope(items: KeyValue.Item[], path?: t.ObjectPath): Scope;
       /** Convenience helper for routing a `cursor:set` command. */
-      set(model: Model, items: readonly KeyValue.Item[], target?: Target): Model;
-      next(model: Model, items: readonly KeyValue.Item[]): Model;
-      previous(model: Model, items: readonly KeyValue.Item[]): Model;
-      left(model: Model, items: readonly KeyValue.Item[]): Model;
-      right(model: Model, items: readonly KeyValue.Item[]): Model;
-      enter(model: Model, items: readonly KeyValue.Item[]): Model;
+      set(model: Model, items: KeyValue.Item[], target?: Target): Model;
+      next(model: Model, items: KeyValue.Item[]): Model;
+      previous(model: Model, items: KeyValue.Item[]): Model;
+      left(model: Model, items: KeyValue.Item[]): Model;
+      right(model: Model, items: KeyValue.Item[]): Model;
+      enter(model: Model, items: KeyValue.Item[]): Model;
       exit(model: Model): Model;
       /** Route a data-only cursor command through the cursor reducer. */
-      cmd(model: Model, items: readonly KeyValue.Item[], command: Command): Model;
+      cmd(model: Model, items: KeyValue.Item[], command: Command): Model;
     };
+
+    /** Host-owned keyboard cursor adapters. */
+    export namespace Keyboard {
+      /**
+       * Hook factory for host-owned keyboard entry into a rendered KeyValue cursor root.
+       *
+       * Handles host/global `Option+Enter` only. Focused-root keyboard cursor grammar remains owned
+       * by `KeyValue.UI`.
+       *
+       * ```tsx
+       * const keyboardEntry = KeyValue.Cursor.useKeyboardEntry({ enabled: hostOwnsEntry, items, cursor });
+       * return <div ref={keyboardEntry.ref}><KeyValue.UI items={items} cursor={cursor} /></div>;
+       * ```
+       */
+      export type UseEntry = <T extends HTMLElement = HTMLDivElement>(
+        args?: EntryArgs<T>,
+      ) => EntryHook<T>;
+
+      /** Input for host-owned KeyValue cursor keyboard entry. */
+      export type EntryArgs<T extends HTMLElement = HTMLDivElement> = {
+        /** Host element containing the rendered KeyValue cursor root. Generated when omitted. */
+        ref?: React.RefObject<T | null>;
+        /**
+         * Whether this host currently owns the global `Option+Enter` entry shortcut.
+         *
+         * Defaults to true. In multi-host compositions, gate this so only one command-scope owner is
+         * enabled at a time.
+         */
+        enabled?: boolean;
+        /** KeyValue item projection used to resolve the first cursor-addressable target. */
+        items?: KeyValue.Item[];
+        /** Controlled cursor props for emitting entry changes; keep coherent with `KeyValue.UI`. */
+        cursor?: Pick<Props, 'enabled' | 'entry' | 'model' | 'onChange'>;
+      };
+
+      /** Result of host-owned KeyValue cursor keyboard entry wiring. */
+      export type EntryHook<T extends HTMLElement = HTMLDivElement> = {
+        /** Ref to place on the host element containing the rendered KeyValue cursor root. */
+        readonly ref: React.RefObject<T | null>;
+      };
+    }
 
     /** Opt-in cursor props for the rendered KeyValue projection. */
     export type Props = {

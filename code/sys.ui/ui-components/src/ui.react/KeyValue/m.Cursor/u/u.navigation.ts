@@ -11,7 +11,7 @@ import { DataAttr } from './u.render.ts';
 export type Handler = React.KeyboardEventHandler<HTMLElement>;
 
 export type HandlerArgs = {
-  readonly items: readonly t.KeyValue.Item[];
+  readonly items: t.KeyValue.Item[];
   readonly cursor?: t.KeyValue.Cursor.Props;
 };
 

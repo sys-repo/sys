@@ -71,7 +71,7 @@ export function shouldEnter(event: EntryEvent, input?: t.KeyValue.Cursor.Entry):
 export function toEntryChange(args: {
   readonly entry: t.KeyValue.Cursor.EntryInput;
   readonly model: t.KeyValue.Cursor.Model;
-  readonly items: readonly t.KeyValue.Item[];
+  readonly items: t.KeyValue.Item[];
   readonly target: t.KeyValue.Cursor.Target;
 }): t.KeyValue.Cursor.EntryChange | undefined {
   const nextTarget = Cursor.target(args.target.path, args.target.part);
@@ -96,7 +96,7 @@ export function toKeyboardEntryChange(args: {
   readonly event: NavigationEvent;
   readonly entry?: t.KeyValue.Cursor.Entry;
   readonly model: t.KeyValue.Cursor.Model;
-  readonly items: readonly t.KeyValue.Item[];
+  readonly items: t.KeyValue.Item[];
 }): t.KeyValue.Cursor.EntryChange | undefined {
   if (args.entry === false) return undefined;
   if (args.event.defaultPrevented) return undefined;
@@ -133,7 +133,7 @@ export function toNavigationIntent(
 
 export function toNavigationChange(args: {
   readonly model: t.KeyValue.Cursor.Model;
-  readonly items: readonly t.KeyValue.Item[];
+  readonly items: t.KeyValue.Item[];
   readonly intent: NavigationIntent;
 }): t.KeyValue.Cursor.NavigationChange | undefined {
   const previous = args.model;
@@ -172,7 +172,7 @@ function keyboardEntryInput(event: NavigationEvent): KeyboardEntryInput | undefi
 }
 
 function firstEntryTarget(
-  items: readonly t.KeyValue.Item[],
+  items: t.KeyValue.Item[],
   part?: t.KeyValue.Cursor.Part,
 ): t.KeyValue.Cursor.Target | undefined {
   const scope = Cursor.scope(items);

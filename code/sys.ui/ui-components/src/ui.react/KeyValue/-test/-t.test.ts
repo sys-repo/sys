@@ -137,8 +137,13 @@ describe('KeyValue/t', () => {
         onChange: (e) => e.next,
       };
       const props: t.KeyValue.Props = { cursor };
+      const keyboardEntryArgs: t.KeyValue.Cursor.Keyboard.EntryArgs = { items: [], cursor };
+      const keyboardEntryHook = undefined as t.KeyValue.Cursor.Keyboard.EntryHook | undefined;
 
       expectTypeOf(KeyValue.Cursor).toEqualTypeOf<t.KeyValue.Cursor.Lib>();
+      expectTypeOf(KeyValue.Cursor.useKeyboardEntry).toEqualTypeOf<
+        t.KeyValue.Cursor.Keyboard.UseEntry
+      >();
       expectTypeOf(target).toEqualTypeOf<t.KeyValue.Cursor.Target>();
       expectTypeOf(model).toEqualTypeOf<t.KeyValue.Cursor.Model>();
       expectTypeOf(command).toEqualTypeOf<t.KeyValue.Cursor.Command<'cursor:set'>>();
@@ -148,6 +153,10 @@ describe('KeyValue/t', () => {
       expectTypeOf(change).toMatchTypeOf<t.KeyValue.Cursor.Change>();
       expectTypeOf(navigation).toMatchTypeOf<t.KeyValue.Cursor.Change>();
       expectTypeOf(cursor).toEqualTypeOf<t.KeyValue.Cursor.Props>();
+      expectTypeOf(keyboardEntryArgs).toEqualTypeOf<t.KeyValue.Cursor.Keyboard.EntryArgs>();
+      expectTypeOf(keyboardEntryHook).toEqualTypeOf<
+        t.KeyValue.Cursor.Keyboard.EntryHook | undefined
+      >();
       expectTypeOf(scope).toEqualTypeOf<t.KeyValue.Cursor.Scope>();
       expect(props.cursor).to.equal(cursor);
       expect(KeyValue.Cursor.eql(target, model.current)).to.eql(true);

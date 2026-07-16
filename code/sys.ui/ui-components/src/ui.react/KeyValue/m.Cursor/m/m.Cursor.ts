@@ -2,9 +2,12 @@ import { type t } from '../../common.ts';
 import { move, movePart } from '../u/u.move.ts';
 import { eql, target, toScope } from '../u/u.resolve.ts';
 import { enterTarget, exitTarget, setTarget } from './m.Cursor.u.ts';
+import { useKeyboardEntry } from '../u/use.KeyboardEntry.ts';
 
-/** Pure cursor helpers for command-addressable KeyValue item projections. */
+/** KeyValue cursor model helpers and host-owned adapters. */
 export const Cursor: t.KeyValue.Cursor.Lib = {
+  useKeyboardEntry,
+
   target,
   eql,
 

@@ -1,8 +1,6 @@
-import { useRef } from 'react';
 import { Signal, type t } from './common.ts';
 import { KeyValue } from '../mod.ts';
 import type { DebugSignals } from './-SPEC.Debug.tsx';
-import { useCursorKeyboardHandoff } from './mod.ts';
 
 type Props = {
   debug: DebugSignals;
@@ -15,17 +13,17 @@ export function Root(props: Props) {
   const { debug } = props;
   const p = debug.props;
   const v = Signal.toObject(p);
-  const rootRef = useRef<HTMLDivElement>(null);
-
-  useCursorKeyboardHandoff({
-    cursorModel: p.cursorModel,
+  const keyboardEntry = KeyValue.Cursor.useKeyboardEntry({
     enabled: v.cursor,
-    hostRef: rootRef,
     items: v.items ?? [],
+    cursor: {
+      model: v.cursorModel,
+      onChange: (e) => p.cursorModel.value = e.next,
+    },
   });
 
   return (
-    <div ref={rootRef} style={{ display: 'contents' }}>
+    <div ref={keyboardEntry.ref} style={{ display: 'contents' }}>
       <KeyValue.UI
         debug={v.debug}
         theme={v.theme}

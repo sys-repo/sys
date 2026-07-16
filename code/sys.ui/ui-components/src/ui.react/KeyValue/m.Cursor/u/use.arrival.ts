@@ -19,7 +19,7 @@ type CursorArrivalState = {
 };
 
 export function useCursorArrivalCue(args: {
-  readonly items: readonly t.KeyValue.Item[];
+  readonly items: t.KeyValue.Item[];
   readonly cursor?: t.KeyValue.Cursor.Props;
   readonly fg: string;
 }): CursorArrivalCue | undefined {
@@ -69,7 +69,7 @@ function toCursorArrivalFill(fg: string, kind: CursorArrivalKind) {
 }
 
 function toCursorCurrentKey(
-  items: readonly t.KeyValue.Item[],
+  items: t.KeyValue.Item[],
   cursor?: t.KeyValue.Cursor.Props,
 ): string | undefined {
   if (!cursor || cursor.enabled === false) return undefined;

@@ -19,7 +19,7 @@ export type Boundary = {
 };
 
 export function toBoundary(
-  items: readonly t.KeyValue.Item[],
+  items: t.KeyValue.Item[],
   scopePath: t.ObjectPath,
   item: t.KeyValue.Item,
   model?: t.KeyValue.Cursor.Model,
