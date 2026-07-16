@@ -61,3 +61,4 @@ export type * from './ui.react/TreeView.Index.Data/t.ts';
 export type * from './ui.react/TreeView.Index.Item/t.ts';
 export type * from './ui.react/TreeView.Index/t.ts';
 export type * from './ui.react/TreeView/t.ts';
+export type * from './ui.react/VimeoBackground/t.ts';
