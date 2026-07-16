@@ -68,6 +68,17 @@ export function shouldEnter(event: EntryEvent, input?: t.KeyValue.Cursor.Entry):
   return true;
 }
 
+export function shouldRetarget(
+  event: EntryEvent,
+  model: t.KeyValue.Cursor.Model,
+): boolean {
+  if (!model.current) return false;
+  if (!isPlainPrimaryClick(event)) return false;
+  if (isFromNestedBoundary(event)) return false;
+  if (isFromInteractiveDescendant(event)) return false;
+  return true;
+}
+
 export function toEntryChange(args: {
   readonly entry: t.KeyValue.Cursor.EntryInput;
   readonly model: t.KeyValue.Cursor.Model;
@@ -156,6 +167,12 @@ export function toNavigationChange(args: {
 
 function isOptionClick(event: EntryEvent) {
   return isOptionOnly(Keyboard.modifiers(event));
+}
+
+function isPlainPrimaryClick(event: EntryEvent) {
+  if (event.defaultPrevented) return false;
+  if (event.button !== 0) return false;
+  return !Keyboard.Is.modified(Keyboard.modifiers(event));
 }
 
 function isFromNestedBoundary(event: EntryEvent) {

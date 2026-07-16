@@ -53,6 +53,164 @@ describe('KeyValue.UI: cursor entry', () => {
     await Schedule.micro();
   });
 
+  it('retargets the cursor with plain click only after cursor mode exists', async () => {
+    const changes: t.KeyValue.Cursor.Change[] = [];
+    let current: t.KeyValue.Cursor.Target | undefined;
+
+    const Probe: React.FC = () => {
+      const [model, setModel] = React.useState<t.KeyValue.Cursor.Model>({});
+      current = model.current;
+      return (
+        <KeyValue.UI
+          items={[row('alpha'), row('bravo')]}
+          cursor={{
+            model,
+            onChange: (e) => {
+              changes.push(e);
+              setModel(e.next);
+            },
+          }}
+        />
+      );
+    };
+
+    const res = await TestReact.render(<Probe />, { strict: false });
+    const root = res.container.firstElementChild as HTMLElement;
+    const [alpha, bravo] = boundaries(res.container);
+
+    act(() => DomMock.Mouse.click(alpha));
+    await Schedule.micro();
+    expect(current).to.eql(undefined);
+    expect(changes.length).to.eql(0);
+
+    act(() => DomMock.Mouse.click(alpha, { altKey: true }));
+    await Schedule.micro();
+    expect(current).to.eql({ path: ['alpha'] });
+    expect(document.activeElement).to.equal(root);
+    expect(entryChange(changes[0]).entry).to.eql('option-click');
+
+    act(() => root.blur());
+    act(() => DomMock.Mouse.click(bravo));
+    await Schedule.micro();
+    expect(current).to.eql({ path: ['bravo'] });
+    expect(document.activeElement).to.equal(root);
+    expect(changes.length).to.eql(2);
+    const retarget = entryChange(changes[1]);
+    expect(retarget.entry).to.eql('click');
+    expect(retarget.previous.current).to.eql({ path: ['alpha'] });
+    expect(retarget.target).to.eql({ path: ['bravo'] });
+    expect(retarget.command).to.eql({
+      name: 'cursor:set',
+      payload: { target: { path: ['bravo'] } },
+    });
+
+    act(() => root.blur());
+    act(() => DomMock.Mouse.click(bravo));
+    await Schedule.micro();
+    expect(current).to.eql({ path: ['bravo'] });
+    expect(document.activeElement).to.equal(root);
+    expect(changes.length).to.eql(2);
+
+    act(() => res.dispose());
+    await Schedule.micro();
+  });
+
+  it('does not retarget from interactive descendants after cursor mode exists', async () => {
+    const changes: t.KeyValue.Cursor.Change[] = [];
+    const res = await TestReact.render(
+      <KeyValue.UI
+        items={[{ id: 'alpha', k: 'alpha', v: <button type='button'>toggle</button> }]}
+        cursor={{
+          model: { current: KeyValue.Cursor.target(['alpha']) },
+          onChange: (e) => changes.push(e),
+        }}
+      />,
+      { strict: false },
+    );
+    const button = res.container.querySelector('button') as HTMLButtonElement;
+
+    act(() => DomMock.Mouse.click(button));
+
+    expect(changes.length).to.eql(0);
+
+    act(() => res.dispose());
+    await Schedule.micro();
+  });
+
+  it('retargets nested child boundaries without leaking plain click to the parent group', async () => {
+    const changes: t.KeyValue.Cursor.Change[] = [];
+    const items: t.KeyValue.Item[] = [
+      { id: 'group', kind: 'group', items: [row('child')] },
+      row('sibling'),
+    ];
+    const res = await TestReact.render(
+      <KeyValue.UI
+        items={items}
+        cursor={{
+          model: { current: KeyValue.Cursor.target(['sibling']) },
+          onChange: (e) => changes.push(e),
+        }}
+      />,
+      { strict: false },
+    );
+    const root = res.container.firstElementChild as HTMLElement;
+    const groupShell = root.children.item(0) as HTMLElement;
+    const childShell = groupShell.querySelector(boundarySelector) as HTMLElement;
+
+    act(() => DomMock.Mouse.click(childShell));
+
+    expect(changes.length).to.eql(1);
+    expect(entryChange(changes[0]).entry).to.eql('click');
+    expect(entryChange(changes[0]).target.path).to.eql(['group', 'child']);
+
+    act(() => res.dispose());
+    await Schedule.micro();
+  });
+
+  it('retargets with plain click after cursor entry in the reorder item shell path', async () => {
+    const changes: t.KeyValue.Cursor.Change[] = [];
+    let current: t.KeyValue.Cursor.Target | undefined;
+
+    const Probe: React.FC = () => {
+      const [model, setModel] = React.useState<t.KeyValue.Cursor.Model>({});
+      current = model.current;
+      return (
+        <KeyValue.UI
+          items={[row('alpha'), row('bravo')]}
+          reorder={{ onChange: () => undefined }}
+          cursor={{
+            model,
+            onChange: (e) => {
+              changes.push(e);
+              setModel(e.next);
+            },
+          }}
+        />
+      );
+    };
+
+    const res = await TestReact.render(<Probe />, { strict: false });
+    const root = res.container.firstElementChild as HTMLElement;
+    const [alpha, bravo] = boundaries(res.container);
+
+    act(() => DomMock.Mouse.click(alpha, { altKey: true }));
+    await Schedule.micro();
+    expect(current).to.eql({ path: ['alpha'] });
+
+    act(() => root.blur());
+    act(() => DomMock.Mouse.click(bravo));
+    await Schedule.micro();
+
+    expect(current).to.eql({ path: ['bravo'] });
+    expect(document.activeElement).to.equal(root);
+    expect(changes.length).to.eql(2);
+    expect(entryChange(changes[1]).entry).to.eql('click');
+    expect(entryChange(changes[1]).target.path).to.eql(['bravo']);
+
+    act(() => res.dispose());
+    await Schedule.micro();
+  });
+
   it('enters cursor mode from the focused root with Option+Enter', async () => {
     const changes: t.KeyValue.Cursor.Change[] = [];
     let current: t.KeyValue.Cursor.Target | undefined;
@@ -424,6 +582,10 @@ function releaseGlobalEnter(target?: EventTarget) {
 
 function firstBoundary(container: HTMLElement) {
   return container.querySelector(boundarySelector) as HTMLElement;
+}
+
+function boundaries(container: HTMLElement) {
+  return Array.from(container.querySelectorAll(boundarySelector)) as HTMLElement[];
 }
 
 function entryChange(change?: t.KeyValue.Cursor.Change): t.KeyValue.Cursor.EntryChange {

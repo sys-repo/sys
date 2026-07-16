@@ -1,6 +1,7 @@
 import type React from 'react';
 import { type t } from '../common.ts';
-import { entryMode, shouldEnter, toEntryChange } from '../m.Cursor/u/u.event.ts';
+import { Cursor } from '../m.Cursor/mod.ts';
+import { entryMode, shouldEnter, shouldRetarget, toEntryChange } from '../m.Cursor/u/u.event.ts';
 import { focusCursorRoot } from '../m.Cursor/u/u.navigation.ts';
 import { type Boundary as CursorBoundary, toBoundary } from '../m.Cursor/u/u.render.ts';
 import { type RenderContext } from './u.context.ts';
@@ -23,10 +24,21 @@ export function toCursorBoundary(
   if (!cursorItem || !mode || !onChange) return boundary;
 
   const onClick: React.MouseEventHandler<HTMLElement> = (event) => {
-    if (!shouldEnter(event, cursor.entry)) return;
+    const model = cursor.model ?? {};
+    const entry: t.KeyValue.Cursor.EntryInput | undefined = shouldEnter(event, cursor.entry)
+      ? mode
+      : shouldRetarget(event, model)
+      ? 'click'
+      : undefined;
+    if (!entry) return;
+    if (Cursor.eql(model.current, cursorItem.target)) {
+      focusCursorRoot({ current: event.currentTarget, cursor });
+      return;
+    }
+
     const change = toEntryChange({
-      entry: mode,
-      model: cursor.model ?? {},
+      entry,
+      model,
       items: context.rootItems,
       target: cursorItem.target,
     });
