@@ -22,6 +22,12 @@ export const UI: t.FC<P> = (props) => {
   const hasVisible = visible.length > 0;
   const hasHidden = hidden.length > 0;
   const animation = props.animation ?? D.animation;
+  const keyboardEntryItems = KeyValue.Switches.toItems(hasVisible ? visible : hidden);
+  const keyboardEntry = KeyValue.Cursor.useKeyboardEntry({
+    enabled: props.cursor?.enabled !== false,
+    items: keyboardEntryItems,
+    cursor: props.cursor,
+  });
   const dividerInsertion = toDividerInsertionHandler({
     enabled: !!props.items && props.cursor?.enabled !== false,
     items: visibleItems,
@@ -45,6 +51,7 @@ export const UI: t.FC<P> = (props) => {
 
   return (
     <div
+      ref={keyboardEntry.ref}
       className={css(styles.base, props.style).class}
       data-component={D.displayName}
       onKeyDown={dividerInsertion}

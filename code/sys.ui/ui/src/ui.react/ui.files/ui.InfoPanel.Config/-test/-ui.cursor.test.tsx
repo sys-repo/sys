@@ -15,6 +15,7 @@ type ConfigItem = t.Files.InfoPanel.Config.Item;
 
 const componentSelector = '[data-component]';
 const currentSelector = '[data-keyvalue-cursor-current="true"]';
+const cursorRootSelector = '[data-keyvalue-cursor-root="true"]';
 
 describe('Files.InfoPanel.Config.UI: cursor', () => {
   DomMock.init({ beforeEach, afterEach });
@@ -46,6 +47,60 @@ describe('Files.InfoPanel.Config.UI: cursor', () => {
       const current = currentBoundary(res.container);
 
       expect(current.getAttribute('data-keyvalue-cursor-path')).to.eql('/divider:1');
+
+      act(() => res.dispose());
+      await Schedule.micro();
+    });
+  });
+
+  describe('host-owned keyboard entry', () => {
+    it('enters the focused visible switch cursor root with Option+Enter', async () => {
+      let emitted: t.KeyValue.Cursor.Change | undefined;
+      const res = await renderConfig({
+        items: ['title', 'error'],
+        cursor: {
+          model: {},
+          onChange: (e) => emitted = e,
+        },
+      });
+      const root = cursorRoot(res.container);
+      act(() => root.focus());
+
+      const event = dispatchOptionEnter(root);
+      await Schedule.micro();
+
+      const change = entryChange(emitted);
+      expect(event.defaultPrevented).to.eql(true);
+      expect(change.entry).to.eql('option-enter');
+      expect(change.target.path).to.eql(['group:title']);
+      expect(document.activeElement).to.equal(root);
+
+      act(() => res.dispose());
+      await Schedule.micro();
+    });
+
+    it('exits the focused cursor root with Escape', async () => {
+      let current: t.KeyValue.Cursor.Target | undefined = { path: ['error'] };
+
+      const Probe = () => (
+        <InfoPanelConfig.UI
+          items={['title', 'error']}
+          cursor={{
+            model: { current },
+            onChange: (e) => current = e.next.current,
+          }}
+        />
+      );
+
+      const res = await TestReact.render(<Probe />, { strict: false });
+      const root = cursorRoot(res.container);
+      act(() => root.focus());
+
+      const event = dispatchKey(root, 'Escape');
+      await Schedule.micro();
+
+      expect(event.defaultPrevented).to.eql(true);
+      expect(current).to.eql(undefined);
 
       act(() => res.dispose());
       await Schedule.micro();
@@ -133,7 +188,7 @@ describe('Files.InfoPanel.Config.UI: cursor', () => {
           onItemsChange: (e) => emitted = e.next,
           cursor: { model: { current: { path: ['error'] } }, onChange: () => undefined },
         });
-        const button = res.container.querySelector('button') as HTMLButtonElement;
+        const button = selectElement(res.container, 'button');
 
         dispatchOptionEnter(button);
         await Schedule.micro();
@@ -147,6 +202,10 @@ describe('Files.InfoPanel.Config.UI: cursor', () => {
   });
 });
 
+/**
+ * Helpers:
+ */
+
 function renderConfig(props: t.Files.InfoPanel.Config.Props) {
   return TestReact.render(<InfoPanelConfig.UI {...props} />, { strict: false });
 }
@@ -159,19 +218,42 @@ function renderWithCursor(path: t.ObjectPath) {
 }
 
 function currentBoundary(container: HTMLElement): HTMLElement {
-  return container.querySelector(currentSelector) as HTMLElement;
+  return selectElement(container, currentSelector);
+}
+
+function cursorRoot(container: HTMLElement): HTMLElement {
+  return selectElement(container, cursorRootSelector);
 }
 
 function componentRoot(container: HTMLElement): HTMLElement {
-  return container.querySelector(componentSelector) as HTMLElement;
+  return selectElement(container, componentSelector);
+}
+
+function selectElement(container: HTMLElement, selector: string): HTMLElement {
+  const el = container.querySelector(selector);
+  if (el === null) throw new Error(`Expected test element matching selector: ${selector}`);
+  return el as HTMLElement;
 }
 
 function dispatchOptionEnter(target: EventTarget): KeyboardEvent {
-  const event = DomMock.Keyboard.keydownEvent('Enter', {
-    altKey: true,
+  return dispatchKey(target, 'Enter', { altKey: true });
+}
+
+function dispatchKey(
+  target: EventTarget,
+  key: string,
+  init: KeyboardEventInit = {},
+): KeyboardEvent {
+  const event = DomMock.Keyboard.keydownEvent(key, {
     bubbles: true,
     cancelable: true,
+    ...init,
   });
   act(() => target.dispatchEvent(event));
   return event;
+}
+
+function entryChange(change?: t.KeyValue.Cursor.Change): t.KeyValue.Cursor.EntryChange {
+  expect(change?.reason).to.eql('cursor:entry');
+  return change as t.KeyValue.Cursor.EntryChange;
 }
