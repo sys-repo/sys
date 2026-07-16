@@ -1,6 +1,14 @@
 import { describe, expect, it } from '../../../../-test.ts';
 import { D, type t } from '../common.ts';
-import { resolveFields, toggleField, toItemFields } from '../u.fields.ts';
+import {
+  fieldsFromItems,
+  resolveFields,
+  resolveItems,
+  toggleField,
+  toggleItem,
+  toItemFields,
+  toItemInputs,
+} from '../u.fields.ts';
 import { toSwitchItems, toSwitchItemSections } from '../u.items.tsx';
 import { toReorder } from '../u.reorder.ts';
 
@@ -63,7 +71,11 @@ describe('Files.InfoPanel.Config', () => {
       expect(toggleField(['title', 'title.status', 'title.status.label', 'events'], 'title', false))
         .to.eql(['events']);
       expect(
-        toggleField(['title', 'title.status', 'title.status.label', 'events'], 'title.status', false),
+        toggleField(
+          ['title', 'title.status', 'title.status.label', 'events'],
+          'title.status',
+          false,
+        ),
       ).to.eql(['title', 'events']);
     });
 
@@ -86,16 +98,12 @@ describe('Files.InfoPanel.Config', () => {
     it('emit field changes as event payloads', () => {
       let emitted: Field[] | undefined;
       const fields: Field[] = ['title', 'error'];
-      const items = toSwitchItems(
-        {
-          fields,
-          onFieldsChange(e) {
-            emitted = e.next;
-          },
-        },
+      const items = switchItems(fields, {
         fields,
-        toItemFields(fields),
-      );
+        onFieldsChange(e) {
+          emitted = e.next;
+        },
+      });
       const row = switchRowById(items, 'capabilities');
 
       row.onToggle?.({
@@ -115,7 +123,7 @@ describe('Files.InfoPanel.Config', () => {
 
     it('labels nested title controls and transport controls', () => {
       const fields: Field[] = ['title', 'title.status', 'title.status.label', 'transport'];
-      const items = toSwitchItems({ fields }, fields, toItemFields(fields));
+      const items = switchItems(fields, { fields });
 
       expect(switchRowById(items, 'title').label).to.eql('title');
       expect(switchRowById(items, 'title.status').label).to.eql('status');
@@ -125,7 +133,7 @@ describe('Files.InfoPanel.Config', () => {
 
     it('groups title fields as one recursive switch item', () => {
       const fields: Field[] = ['title', 'title.status', 'title.status.label', 'error'];
-      const items = toSwitchItems({ fields }, fields, toItemFields(fields));
+      const items = switchItems(fields, { fields });
 
       expect(itemIds(items)).to.eql([
         'group:title',
@@ -152,7 +160,7 @@ describe('Files.InfoPanel.Config', () => {
 
     it('indents nested title switch rows with row spacing', () => {
       const fields: Field[] = ['title'];
-      const items = toSwitchItems({ fields }, fields, toItemFields(fields));
+      const items = switchItems(fields, { fields });
 
       expect(switchRowById(items, 'title').x).to.eql(undefined);
       expect(switchRowById(items, 'title.status').x).to.eql([12, 0]);
@@ -161,7 +169,7 @@ describe('Files.InfoPanel.Config', () => {
 
     it('keeps the body status row independent from the title group', () => {
       const fields: Field[] = ['error', 'status', 'title'];
-      const items = toSwitchItems({ fields }, fields, toItemFields(fields));
+      const items = switchItems(fields, { fields });
 
       expect(itemIds(items)).to.eql([
         'error',
@@ -176,7 +184,7 @@ describe('Files.InfoPanel.Config', () => {
 
     it('partitions hidden rows outside the reorderable visible section', () => {
       const fields: Field[] = ['events', 'title', 'capabilities'];
-      const items = toSwitchItems({ fields }, fields, toItemFields(fields));
+      const items = switchItems(fields, { fields });
       const sections = toSwitchItemSections(items, fields);
       const titleGroup = sections.visible[1] as Group;
 
@@ -187,11 +195,140 @@ describe('Files.InfoPanel.Config', () => {
     });
   });
 
+  describe('structural items', () => {
+    it('resolves field shorthands and identity-bearing dividers', () => {
+      const items: t.Files.InfoPanel.Config.Item[] = [
+        'events',
+        { kind: 'divider', id: 'divider:1' },
+        'title.status.label',
+        { kind: 'divider', id: 'divider:1' },
+      ];
+
+      expect(resolveItems(items, undefined)).to.eql([
+        'events',
+        { kind: 'divider', id: 'divider:1' },
+        'title',
+        'title.status',
+        'title.status.label',
+      ]);
+      expect(fieldsFromItems(items)).to.eql([
+        'events',
+        'title',
+        'title.status',
+        'title.status.label',
+      ]);
+    });
+
+    it('keeps the nested title field tree atomic around structural dividers', () => {
+      const items: t.Files.InfoPanel.Config.Item[] = [
+        'title',
+        { kind: 'divider', id: 'divider:1' },
+        'title.status',
+      ];
+
+      expect(resolveItems(items, undefined)).to.eql([
+        'title',
+        'title.status',
+        { kind: 'divider', id: 'divider:1' },
+      ]);
+    });
+
+    it('projects visible dividers before hidden fields', () => {
+      const visibleItems: t.Files.InfoPanel.Config.Item[] = [
+        'events',
+        { kind: 'divider', id: 'divider:1' },
+        'title',
+      ];
+      const items = toSwitchItems(
+        { items: visibleItems },
+        fieldsFromItems(visibleItems),
+        toItemInputs(visibleItems),
+        visibleItems,
+      );
+      const sections = toSwitchItemSections(items, fieldsFromItems(visibleItems));
+
+      expect(itemIds(sections.visible)).to.eql(['events', 'divider:1', 'group:title']);
+      expect((sections.visible[1] as t.KeyValue.Item.Hr).kind).to.eql('hr');
+      expect(itemIds(sections.hidden)).to.eql([
+        'status',
+        'fidelity',
+        'capabilities',
+        'error',
+        'transport',
+      ]);
+    });
+
+    it('emits structural item changes when toggling rows with onItemsChange', () => {
+      let emitted: t.Files.InfoPanel.Config.Item[] | undefined;
+      const visibleItems: t.Files.InfoPanel.Config.Item[] = [
+        'error',
+        { kind: 'divider', id: 'divider:1' },
+        'events',
+      ];
+      const items = toSwitchItems(
+        { items: visibleItems, onItemsChange: (e) => emitted = e.next },
+        fieldsFromItems(visibleItems),
+        toItemInputs(visibleItems),
+        visibleItems,
+      );
+      const row = switchRowById(items, 'capabilities');
+
+      row.onToggle?.({
+        current: false,
+        next: true,
+        item: row,
+        index: 0,
+        command: {
+          name: 'keyvalue-switches:toggle',
+          payload: { target: { path: [] }, next: true },
+        },
+        source: { kind: 'cmd' },
+      });
+
+      expect(emitted).to.eql([
+        'capabilities',
+        'error',
+        { kind: 'divider', id: 'divider:1' },
+        'events',
+      ]);
+      expect(toggleItem(visibleItems, 'events', false)).to.eql([
+        'error',
+        { kind: 'divider', id: 'divider:1' },
+      ]);
+    });
+
+    it('does not emit cross-channel toggles', () => {
+      let fieldsEmitted: Field[] | undefined;
+      let itemsEmitted: t.Files.InfoPanel.Config.Item[] | undefined;
+      const visibleItems: t.Files.InfoPanel.Config.Item[] = [
+        'error',
+        { kind: 'divider', id: 'divider:1' },
+      ];
+      const structuralSourceItems = toSwitchItems(
+        { items: visibleItems, onFieldsChange: (e) => fieldsEmitted = e.next },
+        fieldsFromItems(visibleItems),
+        toItemInputs(visibleItems),
+        visibleItems,
+      );
+      const fieldSourceItems = toSwitchItems(
+        { onItemsChange: (e) => itemsEmitted = e.next },
+        fieldsFromItems(visibleItems),
+        toItemInputs(visibleItems),
+        visibleItems,
+      );
+
+      expect(switchRowById(structuralSourceItems, 'capabilities').onToggle).to.eql(undefined);
+      expect(switchRowById(fieldSourceItems, 'capabilities').onToggle).to.eql(undefined);
+      expect(fieldsEmitted).to.eql(undefined);
+      expect(itemsEmitted).to.eql(undefined);
+    });
+  });
+
   describe('reorder', () => {
     it('emits visible fields only', () => {
       let emitted: Field[] | undefined;
       const fields: Field[] = ['title', 'error'];
-      const reorder = toReorder({ onFieldsChange: (e) => emitted = e.next }, fields);
+      const reorder = reorderForFields(fields, { onFieldsChange: (e) => emitted = e.next });
 
       reorder?.onChange?.({
         next: [
@@ -207,10 +344,10 @@ describe('Files.InfoPanel.Config', () => {
     it('does not gate reorder on projection animation', () => {
       let emitted: Field[] | undefined;
       const fields: Field[] = ['title', 'error'];
-      const reorder = toReorder(
-        { animation: false, onFieldsChange: (e) => emitted = e.next },
-        fields,
-      );
+      const reorder = reorderForFields(fields, {
+        animation: false,
+        onFieldsChange: (e) => emitted = e.next,
+      });
 
       reorder?.onChange?.({
         next: [
@@ -225,7 +362,7 @@ describe('Files.InfoPanel.Config', () => {
     it('flattens recursive title groups back to visible field order', () => {
       let emitted: Field[] | undefined;
       const fields: Field[] = ['title', 'title.status', 'error'];
-      const reorder = toReorder({ onFieldsChange: (e) => emitted = e.next }, fields);
+      const reorder = reorderForFields(fields, { onFieldsChange: (e) => emitted = e.next });
 
       reorder?.onChange?.({
         next: [
@@ -255,7 +392,7 @@ describe('Files.InfoPanel.Config', () => {
     it('moves the body status row independently from the title group', () => {
       let emitted: Field[] | undefined;
       const fields: Field[] = ['title', 'status'];
-      const reorder = toReorder({ onFieldsChange: (e) => emitted = e.next }, fields);
+      const reorder = reorderForFields(fields, { onFieldsChange: (e) => emitted = e.next });
 
       reorder?.onChange?.({
         next: [
@@ -274,7 +411,7 @@ describe('Files.InfoPanel.Config', () => {
     it('ignores recursive reorder payloads with duplicate visible fields', () => {
       let emitted: Field[] | undefined;
       const fields: Field[] = ['title', 'error'];
-      const reorder = toReorder({ onFieldsChange: (e) => emitted = e.next }, fields);
+      const reorder = reorderForFields(fields, { onFieldsChange: (e) => emitted = e.next });
 
       reorder?.onChange?.({
         next: [
@@ -292,12 +429,81 @@ describe('Files.InfoPanel.Config', () => {
 
       expect(emitted).to.eql(undefined);
     });
+
+    it('preserves structural dividers when emitting item reorder changes', () => {
+      let emitted: t.Files.InfoPanel.Config.Item[] | undefined;
+      const visibleItems: t.Files.InfoPanel.Config.Item[] = [
+        'title',
+        { kind: 'divider', id: 'divider:1' },
+        'error',
+      ];
+      const reorder = toReorder(
+        { items: visibleItems, onItemsChange: (e) => emitted = e.next },
+        visibleItems,
+        fieldsFromItems(visibleItems),
+      );
+
+      reorder?.onChange?.({
+        next: [
+          { id: 'error', k: 'error' },
+          { id: 'divider:1', kind: 'hr' },
+          {
+            id: 'group:title',
+            kind: 'group',
+            items: [{ id: 'title', k: 'title' }],
+          },
+        ],
+      });
+
+      expect(emitted).to.eql(['error', { kind: 'divider', id: 'divider:1' }, 'title']);
+    });
+
+    it('does not emit cross-channel reorder changes', () => {
+      let fieldsEmitted: Field[] | undefined;
+      let itemsEmitted: t.Files.InfoPanel.Config.Item[] | undefined;
+      const visibleItems: t.Files.InfoPanel.Config.Item[] = [
+        'title',
+        { kind: 'divider', id: 'divider:1' },
+        'error',
+      ];
+
+      const structuralSourceWithoutItemHandler = toReorder(
+        { items: visibleItems, onFieldsChange: (e) => fieldsEmitted = e.next },
+        visibleItems,
+        fieldsFromItems(visibleItems),
+      );
+      const fieldSourceWithoutFieldHandler = toReorder(
+        { onItemsChange: (e) => itemsEmitted = e.next },
+        visibleItems,
+        fieldsFromItems(visibleItems),
+      );
+
+      expect(structuralSourceWithoutItemHandler).to.eql(undefined);
+      expect(fieldSourceWithoutFieldHandler).to.eql(undefined);
+      expect(fieldsEmitted).to.eql(undefined);
+      expect(itemsEmitted).to.eql(undefined);
+    });
   });
 });
 
 /**
  * Helpers:
  */
+function switchItems(fields: readonly Field[], props: t.Files.InfoPanel.Config.Props) {
+  const visibleItems = resolveItems(undefined, fields);
+  return toSwitchItems(
+    props,
+    fieldsFromItems(visibleItems),
+    toItemInputs(visibleItems),
+    visibleItems,
+  );
+}
+
+function reorderForFields(fields: readonly Field[], props: t.Files.InfoPanel.Config.Props) {
+  const visibleItems = resolveItems(undefined, fields);
+  return toReorder(props, visibleItems, fieldsFromItems(visibleItems));
+}
+
 function switchRowById(items: t.KeyValue.Switches.Item[], id: Field): Row {
   const row = findSwitchRowById(items, id);
   if (!row) throw new Error(`Missing switch row: ${id}`);

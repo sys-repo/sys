@@ -1,5 +1,5 @@
 import { Color, css, D, KeyValue, type t } from './common.ts';
-import { resolveFields, toItemFields } from './u.fields.ts';
+import { fieldsFromItems, resolveItems, toItemInputs } from './u.fields.ts';
 import { toSwitchItems, toSwitchItemSections } from './u.items.tsx';
 import { toReorder } from './u.reorder.ts';
 
@@ -11,9 +11,10 @@ type P = t.Files.InfoPanel.Config.Props;
 export const UI: t.FC<P> = (props) => {
   const { debug = false } = props;
   const theme = Color.theme(props.theme);
-  const fields = resolveFields(props.fields);
-  const itemFields = toItemFields(fields);
-  const items = toSwitchItems(props, fields, itemFields);
+  const visibleItems = resolveItems(props.items, props.fields);
+  const fields = fieldsFromItems(visibleItems);
+  const itemInputs = toItemInputs(visibleItems);
+  const items = toSwitchItems(props, fields, itemInputs, visibleItems);
   const sections = toSwitchItemSections(items, fields);
   const visible = sections.visible;
   const hidden = sections.hidden;
@@ -41,7 +42,7 @@ export const UI: t.FC<P> = (props) => {
         <KeyValue.Switches.UI
           theme={theme.name}
           layout={D.layout}
-          reorder={toReorder(props, fields)}
+          reorder={toReorder(props, visibleItems, fields)}
           animation={animation}
           cursor={props.cursor}
           items={visible}

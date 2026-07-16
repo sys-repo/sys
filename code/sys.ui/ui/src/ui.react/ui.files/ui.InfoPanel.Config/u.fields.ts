@@ -1,7 +1,24 @@
-import { fieldOrder, isField as isInfoPanelField, normalizeFields } from '../ui.InfoPanel/u.fields.ts';
-import { D, type t } from './common.ts';
+import {
+  fieldOrder,
+  isField as isInfoPanelField,
+  normalizeFields,
+} from '../ui.InfoPanel/u.fields.ts';
+import { D, Is, type t } from './common.ts';
 
 type Field = t.Files.InfoPanel.Field;
+type ConfigItem = t.Files.InfoPanel.Config.Item;
+type DividerItem = { readonly kind: 'divider'; readonly id: string };
+type ItemObject = { readonly kind?: unknown; readonly id?: unknown };
+
+export const titleFields = [
+  'title',
+  'title.status',
+  'title.status.label',
+] as const satisfies readonly Field[];
+export const titleStatusFields = [
+  'title.status',
+  'title.status.label',
+] as const satisfies readonly Field[];
 
 export { isInfoPanelField as isField };
 
@@ -13,15 +30,22 @@ export function resolveFields(input: readonly Field[] | undefined): Field[] {
 }
 
 /**
- * Toggle a field while preserving caller order and canonical insertion fallback.
+ * Resolve visible structural config items from the item API or field-only fallback.
  */
-export function toggleField(fields: readonly Field[], field: Field, next: boolean): Field[] {
-  const current = resolveFields(fields);
-  if (!next) return removeField(current, field);
+export function resolveItems(
+  items: readonly ConfigItem[] | undefined,
+  fields: readonly Field[] | undefined,
+): ConfigItem[] {
+  return items ? normalizeItems(items) : fieldsToItems(resolveFields(fields));
+}
 
-  const result = [...current];
-  requiredFields(field).forEach((candidate) => insertField(result, candidate));
-  return resolveFields(result);
+/**
+ * Resolve all rendered switch inputs: visible structural items followed by hidden field rows.
+ */
+export function toItemInputs(items: readonly ConfigItem[]): ConfigItem[] {
+  const fields = fieldsFromItems(items);
+  const missing = D.fields.filter((field) => !fields.includes(field));
+  return [...normalizeItems(items), ...missing];
 }
 
 /**
@@ -33,12 +57,145 @@ export function toItemFields(fields: readonly Field[]): Field[] {
   return [...selected, ...missing];
 }
 
+/** Extract visible field order from structural config items. */
+export function fieldsFromItems(items: readonly ConfigItem[]): Field[] {
+  return resolveFields(normalizeItems(items).flatMap((item) => fieldFromItem(item) ?? []));
+}
+
+/** Toggle a field while preserving caller order and canonical insertion fallback. */
+export function toggleField(fields: readonly Field[], field: Field, next: boolean): Field[] {
+  const current = resolveFields(fields);
+  if (!next) return removeField(current, field);
+
+  const result = [...current];
+  requiredFields(field).forEach((candidate) => insertField(result, candidate));
+  return resolveFields(result);
+}
+
+/** Toggle a field in the structural item model while preserving divider identity/order. */
+export function toggleItem(
+  items: readonly ConfigItem[],
+  field: Field,
+  next: boolean,
+): ConfigItem[] {
+  const current = normalizeItems(items);
+  if (!next) return removeFieldItems(current, field);
+
+  const nextFields = toggleField(fieldsFromItems(current), field, true);
+  return mergeFieldsIntoItems(current, nextFields);
+}
+
+/** Convert visible fields to the structural item shorthand. */
+export function fieldsToItems(fields: readonly Field[]): Field[] {
+  return resolveFields(fields);
+}
+
+/** True when an item is an identity-bearing divider. */
+export function isDividerItem(item: ConfigItem): item is DividerItem {
+  return isItemObject(item) && item.kind === 'divider' && Is.string(item.id) && !Is.blank(item.id);
+}
+
+/** Resolve a config item to its field, if any. */
+export function fieldFromItem(item: ConfigItem): Field | undefined {
+  return Is.string(item) && isInfoPanelField(item) ? item : undefined;
+}
+
 /**
  * Helpers:
  */
+function normalizeItems(items: readonly ConfigItem[]): ConfigItem[] {
+  const result: ConfigItem[] = [];
+  const seenFields = new Set<Field>();
+  const seenDividers = new Set<string>();
+
+  items.forEach((item) => {
+    if (isDividerItem(item)) {
+      if (seenDividers.has(item.id)) return;
+      seenDividers.add(item.id);
+      result.push({ kind: 'divider', id: item.id });
+      return;
+    }
+
+    const field = fieldFromItem(item);
+    if (!field) return;
+    requiredFields(field).forEach((candidate) => {
+      if (seenFields.has(candidate)) return;
+      seenFields.add(candidate);
+      result.push(candidate);
+    });
+  });
+
+  return coalesceTitleFields(result);
+}
+
+function coalesceTitleFields(items: readonly ConfigItem[]): ConfigItem[] {
+  let firstTitleIndex = -1;
+  const seenTitleFields = new Set<Field>();
+
+  items.forEach((item, index) => {
+    const field = fieldFromItem(item);
+    if (!field || !isTitleField(field)) return;
+    if (firstTitleIndex < 0) firstTitleIndex = index;
+    seenTitleFields.add(field);
+  });
+
+  if (firstTitleIndex < 0) return [...items];
+
+  const next = items.filter((item) => {
+    const field = fieldFromItem(item);
+    return !field || !isTitleField(field);
+  });
+  const grouped = titleFields.filter((field) => seenTitleFields.has(field));
+  next.splice(firstTitleIndex, 0, ...grouped);
+  return next;
+}
+
+export function isTitleField(field: Field): boolean {
+  return titleFields.some((candidate) => candidate === field);
+}
+
+function isItemObject(item: unknown): item is ItemObject {
+  return Is.object(item);
+}
+
+function removeFieldItems(items: readonly ConfigItem[], field: Field): ConfigItem[] {
+  const remove = new Set<Field>(fieldAndDescendants(field));
+  return normalizeItems(items).filter((item) => {
+    const candidate = fieldFromItem(item);
+    return !candidate || !remove.has(candidate);
+  });
+}
+
+function mergeFieldsIntoItems(
+  items: readonly ConfigItem[],
+  fields: readonly Field[],
+): ConfigItem[] {
+  const wanted = new Set(resolveFields(fields));
+  const result = normalizeItems(items).filter((item) => {
+    const field = fieldFromItem(item);
+    return !field || wanted.has(field);
+  });
+
+  resolveFields(fields).forEach((field) => {
+    if (result.some((item) => fieldFromItem(item) === field)) return;
+    insertFieldItem(result, field);
+  });
+
+  return normalizeItems(result);
+}
+
+function insertFieldItem(items: ConfigItem[], field: Field) {
+  const index = items.findIndex((item) => {
+    const candidate = fieldFromItem(item);
+    return candidate ? fieldOrder(candidate) > fieldOrder(field) : false;
+  });
+  if (index < 0) items.push(field);
+  else items.splice(index, 0, field);
+}
+
 function requiredFields(field: Field): Field[] {
-  if (field === 'title.status') return ['title', 'title.status'];
-  if (field === 'title.status.label') return ['title', 'title.status', 'title.status.label'];
+  if (field === 'title.status') return ['title', field];
+  if (field === 'title.status.label') return [...titleFields];
   return [field];
 }
 
@@ -48,8 +205,8 @@ function removeField(fields: readonly Field[], field: Field): Field[] {
 }
 
 function fieldAndDescendants(field: Field): Field[] {
-  if (field === 'title') return ['title', 'title.status', 'title.status.label'];
-  if (field === 'title.status') return ['title.status', 'title.status.label'];
+  if (field === 'title') return [...titleFields];
+  if (field === 'title.status') return [...titleStatusFields];
   return [field];
 }
 

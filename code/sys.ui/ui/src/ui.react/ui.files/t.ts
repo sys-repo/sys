@@ -41,6 +41,14 @@ export declare namespace Files {
       export type Defaults = TInfoPanelConfig.InfoPanelConfig.Defaults;
       /** Props accepted by the InfoPanel configuration component. */
       export type Props = TInfoPanelConfig.InfoPanelConfig.Props;
+      /** Structural item accepted by the InfoPanel configuration component. */
+      export type Item = TInfoPanelConfig.InfoPanelConfig.Item;
+
+      /** Structural item details. */
+      export namespace Item {
+        /** Identity-bearing horizontal divider item. */
+        export type Divider = TInfoPanelConfig.InfoPanelConfig.Item.Divider;
+      }
     }
 
     /**

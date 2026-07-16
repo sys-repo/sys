@@ -33,6 +33,22 @@ describe('Files.InfoPanel.Config.UI: cursor', () => {
     act(() => res.dispose());
     await Schedule.micro();
   });
+
+  it('renders structural divider items as cursor-addressable visible config items', async () => {
+    const res = await TestReact.render(
+      <InfoPanelConfig.UI
+        items={['title', { kind: 'divider', id: 'divider:1' }, 'error']}
+        cursor={{ model: { current: { path: ['divider:1'] } }, onChange: () => undefined }}
+      />,
+      { strict: false },
+    );
+    const current = res.container.querySelector(currentSelector) as HTMLElement;
+
+    expect(current.getAttribute('data-keyvalue-cursor-path')).to.eql('/divider:1');
+
+    act(() => res.dispose());
+    await Schedule.micro();
+  });
 });
 
 function renderWithCursor(path: t.ObjectPath) {
