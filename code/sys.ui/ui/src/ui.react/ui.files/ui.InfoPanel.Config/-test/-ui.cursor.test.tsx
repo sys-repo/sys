@@ -1,3 +1,4 @@
+import React from 'react';
 import { act, TestReact } from '@sys/ui-react/testing/server';
 import {
   afterEach,
@@ -126,6 +127,60 @@ describe('Files.InfoPanel.Config.UI: cursor', () => {
     });
 
     describe('guards', () => {
+      it('does not repeatedly insert after the same current target', async () => {
+        const emitted: ConfigItem[][] = [];
+
+        const Probe: React.FC = () => {
+          const [items, setItems] = React.useState<ConfigItem[]>(['title', 'error']);
+          return (
+            <InfoPanelConfig.UI
+              items={items}
+              onItemsChange={(e) => {
+                emitted.push(e.next);
+                setItems(e.next);
+              }}
+              cursor={{ model: { current: { path: ['error'] } }, onChange: () => undefined }}
+            />
+          );
+        };
+
+        const res = await TestReact.render(<Probe />, { strict: false });
+        const first = dispatchOptionEnter(currentBoundary(res.container));
+        await Schedule.micro();
+        const second = dispatchOptionEnter(currentBoundary(res.container));
+        await Schedule.micro();
+        const repeated = dispatchKey(currentBoundary(res.container), 'Enter', {
+          altKey: true,
+          repeat: true,
+        });
+        await Schedule.micro();
+
+        expect(first.defaultPrevented).to.eql(true);
+        expect(second.defaultPrevented).to.eql(false);
+        expect(repeated.defaultPrevented).to.eql(false);
+        expect(emitted).to.eql([['title', 'error', { kind: 'divider', id: 'divider:1' }]]);
+
+        act(() => res.dispose());
+        await Schedule.micro();
+      });
+
+      it('does not insert when the current target is already before a divider', async () => {
+        let emitted: ConfigItem[] | undefined;
+        const res = await renderConfig({
+          items: ['error', { kind: 'divider', id: 'divider:1' }, 'events'],
+          onItemsChange: (e) => emitted = e.next,
+          cursor: { model: { current: { path: ['error'] } }, onChange: () => undefined },
+        });
+        const event = dispatchOptionEnter(currentBoundary(res.container));
+        await Schedule.micro();
+
+        expect(event.defaultPrevented).to.eql(false);
+        expect(emitted).to.eql(undefined);
+
+        act(() => res.dispose());
+        await Schedule.micro();
+      });
+
       it('does not insert from a hidden current cursor target', async () => {
         let emitted: ConfigItem[] | undefined;
         const res = await renderConfig({

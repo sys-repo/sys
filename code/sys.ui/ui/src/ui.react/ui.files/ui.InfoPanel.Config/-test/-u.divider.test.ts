@@ -18,35 +18,50 @@ describe('Files.InfoPanel.Config: divider insertion', () => {
     ]);
   });
 
-  it('inserts after a current divider and skips used divider IDs', () => {
+  it('skips used divider IDs for allowed insertions', () => {
+    const items: ConfigItem[] = [
+      'error',
+      'events',
+      { kind: 'divider', id: 'divider:1' },
+    ];
+
+    expect(insertDividerAfterCursor({ items, current: target('error') })).to.eql([
+      'error',
+      { kind: 'divider', id: 'divider:2' },
+      'events',
+      { kind: 'divider', id: 'divider:1' },
+    ]);
+  });
+
+  it('does not insert adjacent dividers', () => {
     const items: ConfigItem[] = [
       'error',
       { kind: 'divider', id: 'divider:1' },
       'events',
+      'title',
+      'title.status',
+      { kind: 'divider', id: 'divider:2' },
     ];
 
-    expect(insertDividerAfterCursor({ items, current: target('divider:1') })).to.eql([
-      'error',
-      { kind: 'divider', id: 'divider:1' },
-      { kind: 'divider', id: 'divider:2' },
-      'events',
-    ]);
+    expect(insertDividerAfterCursor({ items, current: target('divider:1') })).to.eql(undefined);
+    expect(insertDividerAfterCursor({ items, current: target('error') })).to.eql(undefined);
+    expect(insertDividerAfterCursor({ items, current: target('title') })).to.eql(undefined);
   });
 
   it('inserts after the nested title atom rather than inside title internals', () => {
     const items = resolveItems([
       'events',
-      'title',
       { kind: 'divider', id: 'divider:1' },
+      'title',
       'title.status',
       'error',
     ], undefined);
     const expected: ConfigItem[] = [
       'events',
+      { kind: 'divider', id: 'divider:1' },
       'title',
       'title.status',
       { kind: 'divider', id: 'divider:2' },
-      { kind: 'divider', id: 'divider:1' },
       'error',
     ];
 

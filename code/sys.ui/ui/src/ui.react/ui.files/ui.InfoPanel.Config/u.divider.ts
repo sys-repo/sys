@@ -84,6 +84,7 @@ export function isDividerInsertionKeyboardEvent(event: KeyboardEventLike): boole
 export function insertDividerAfterCursor(args: InsertArgs): ConfigItem[] | undefined {
   const index = insertionIndex(args.items, args.current);
   if (index < 0) return undefined;
+  if (wouldCreateAdjacentDivider(args.items, index)) return undefined;
 
   const divider: t.Files.InfoPanel.Config.Item.Divider = {
     kind: 'divider',
@@ -111,6 +112,14 @@ function insertionIndex(
 
 function isTitleTarget(target: string): boolean {
   return isField(target) && isTitleField(target);
+}
+
+function wouldCreateAdjacentDivider(items: readonly ConfigItem[], index: number): boolean {
+  const current = index >= 0 && index < items.length ? items[index] : undefined;
+  const nextIndex = index + 1;
+  const next = nextIndex >= 0 && nextIndex < items.length ? items[nextIndex] : undefined;
+  return (current !== undefined && isDividerItem(current)) ||
+    (next !== undefined && isDividerItem(next));
 }
 
 function titleInsertionIndex(items: readonly ConfigItem[]): number {
