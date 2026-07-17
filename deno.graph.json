@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1784254081478,
+    "createdAt": 1784259210557,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-fcc238438065d07e1809b3ef1b6e83c45c8953c9030b0aecbdbd709533797983",
+      "/graph": "sha256-5bd589974a5c0cfe25838f8cbf923d93605c3522eb209542267b61d211122b63",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.138/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,14 +15,13 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.138/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1784254081483
+    "modifiedAt": 1784259210562
   },
   "graph": {
     "orderedPaths": [
       "code/sys/types",
       "code/sys.dev",
       "code/sys/crdt",
-      "code/sys/markdown",
       "code/sys/std",
       "code/sys/color",
       "code/sys.ui/ui-css",
@@ -30,6 +29,7 @@
       "code/sys.ui/ui-state",
       "code/sys/immutable",
       "code/sys.ui/ui-dom",
+      "code/sys/markdown",
       "code/sys/net",
       "code/sys/text",
       "code/sys/cli",
@@ -1153,6 +1153,10 @@
       {
         "from": "code/sys/std",
         "to": "code/sys/immutable"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys/markdown"
       },
       {
         "from": "code/sys/std",

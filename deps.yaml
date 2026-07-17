@@ -51,6 +51,9 @@ deno.json:
   - import: npm:mdast-util-from-markdown@2.0.3
   - import: npm:mdast-util-to-markdown@2.1.2
   - import: npm:mdast-util-gfm@3.1.0
+  - import: npm:mdast-util-to-hast@13.2.1
+  - import: npm:hast-util-sanitize@5.0.2
+  - import: npm:hast-util-to-html@9.0.5
   - import: npm:micromark-extension-gfm@3.0.0
   - import: npm:@types/mdast@4.0.4
     name: mdast

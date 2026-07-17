@@ -115,6 +115,8 @@
     "npm:gpt-tokenizer@3.4.0": "3.4.0",
     "npm:happy-dom@20.10.6": "20.10.6",
     "npm:hash-it@7.0.3": "7.0.3",
+    "npm:hast-util-sanitize@5.0.2": "5.0.2",
+    "npm:hast-util-to-html@9.0.5": "9.0.5",
     "npm:he@^1.2.0": "1.2.0",
     "npm:hono@4.12.24": "4.12.24",
     "npm:hono@4.12.30": "4.12.30",
@@ -126,6 +128,7 @@
     "npm:marked@12": "12.0.2",
     "npm:mdast-util-from-markdown@2.0.3": "2.0.3",
     "npm:mdast-util-gfm@3.1.0": "3.1.0",
+    "npm:mdast-util-to-hast@13.2.1": "13.2.1",
     "npm:mdast-util-to-markdown@2.1.2": "2.1.2",
     "npm:micromark-extension-gfm@3.0.0": "3.0.0",
     "npm:monaco-editor@0.55.1": "0.55.1",
@@ -2427,6 +2430,14 @@
     "hash-it@7.0.3": {
       "integrity": "sha512-+TxgI3g3ZhwkEzK918gD3rvr0/89Ai9px7pS5xB7Hnur7gFooPSEuWfgdlUkleXC+C/lizGoBV2bx96S9dulQw=="
     },
+    "hast-util-sanitize@5.0.2": {
+      "integrity": "sha512-3yTWghByc50aGS7JlGhk61SPenfE/p1oaFeNwkOOyrscaOkMGrcW9+Cy/QAIOBpZxP1yqDIzFMR0+Np0i0+usg==",
+      "dependencies": [
+        "@types/hast",
+        "@ungap/structured-clone",
+        "unist-util-position"
+      ]
+    },
     "hast-util-to-html@9.0.5": {
       "integrity": "sha512-OguPdidb+fbHQSU4Q4ZiLKnzWo8Wwsf5bZfbvu7//a9oTYoqD/fWpe96NuHkoS9h0ccGOTe0C4NGXdtS0iObOw==",
       "dependencies": [
@@ -4218,10 +4229,13 @@
       "npm:gpt-tokenizer@3.4.0",
       "npm:happy-dom@20.10.6",
       "npm:hash-it@7.0.3",
+      "npm:hast-util-sanitize@5.0.2",
+      "npm:hast-util-to-html@9.0.5",
       "npm:hono@4.12.30",
       "npm:ignore@7.0.6",
       "npm:mdast-util-from-markdown@2.0.3",
       "npm:mdast-util-gfm@3.1.0",
+      "npm:mdast-util-to-hast@13.2.1",
       "npm:mdast-util-to-markdown@2.1.2",
       "npm:micromark-extension-gfm@3.0.0",
       "npm:monaco-editor@0.55.1",

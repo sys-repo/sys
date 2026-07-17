@@ -24,8 +24,6 @@ jobs:
             path: code/sys.dev
           - name: "@sys/crdt"
             path: code/sys/crdt
-          - name: "@sys/markdown"
-            path: code/sys/markdown
           - name: "@sys/std"
             path: code/sys/std
           - name: "@sys/color"
@@ -40,6 +38,8 @@ jobs:
             path: code/sys/immutable
           - name: "@sys/ui-dom"
             path: code/sys.ui/ui-dom
+          - name: "@sys/markdown"
+            path: code/sys/markdown
           - name: "@sys/net"
             path: code/sys/net
           - name: "@sys/text"
