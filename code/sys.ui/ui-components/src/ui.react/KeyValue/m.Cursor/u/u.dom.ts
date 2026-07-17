@@ -1,24 +1,5 @@
+import { Dom } from '../../common.ts';
 import { DataAttr } from './u.render.ts';
-
-export const INTERACTIVE_SELECTOR = [
-  'a[href]',
-  'button',
-  'input',
-  'select',
-  'textarea',
-  'summary',
-  '[contenteditable="true"]',
-  '[role="button"]',
-  '[role="checkbox"]',
-  '[role="combobox"]',
-  '[role="link"]',
-  '[role="menuitem"]',
-  '[role="radio"]',
-  '[role="slider"]',
-  '[role="spinbutton"]',
-  '[role="switch"]',
-  '[tabindex]:not([tabindex="-1"])',
-].join(',');
 
 export function cursorRoot(host?: HTMLElement) {
   return host?.querySelector<HTMLElement>(`[${DataAttr.root}]`);
@@ -41,13 +22,11 @@ export function shouldLetKeyValueHandle(root: HTMLElement) {
   if (!active.isConnected) return false;
   if (active === root || root.contains(active)) return true;
   if (active === globalThis.document?.body) return false;
-  return !!active.closest(INTERACTIVE_SELECTOR);
+  return Dom.Interactive.Is.at(active);
 }
 
 export function isInteractiveElement(element: Element, cursorRoot: Element | null): boolean {
-  const interactive = element.closest(INTERACTIVE_SELECTOR);
-  if (!interactive) return false;
-  return interactive !== cursorRoot;
+  return Dom.Interactive.Is.at(element, { ignore: cursorRoot });
 }
 
 export function toElement(target: EventTarget | null): Element | undefined {

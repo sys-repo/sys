@@ -1,7 +1,7 @@
 import type React from 'react';
-import { Keyboard, type t } from '../../common.ts';
+import { Dom, Keyboard, type t } from '../../common.ts';
 import { Cursor } from '../mod.ts';
-import { INTERACTIVE_SELECTOR, toElement } from './u.dom.ts';
+import { toElement } from './u.dom.ts';
 import { DataAttr } from './u.render.ts';
 
 export type EntryEvent = Pick<
@@ -280,6 +280,5 @@ function isFromInteractiveDescendant(event: EntryEvent | NavigationEvent) {
   const target = toElement(event.target);
   const current = event.currentTarget;
   if (!target || target === current) return false;
-  const interactive = target.closest(INTERACTIVE_SELECTOR);
-  return !!interactive && current.contains(interactive);
+  return Dom.Interactive.Is.within(target, current);
 }

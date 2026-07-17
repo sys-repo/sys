@@ -1,6 +1,6 @@
 import type React from 'react';
 
-import { Is, Keyboard, type t } from './common.ts';
+import { Dom, Is, Keyboard, type t } from './common.ts';
 import { fieldFromItem, isDividerItem, isField, isTitleField } from './u.fields.ts';
 
 type ConfigItem = t.Files.InfoPanel.Config.Item;
@@ -23,28 +23,7 @@ type HandlerArgs = InsertArgs & {
   readonly enabled: boolean;
   readonly onItemsChange?: NonNullable<t.Files.InfoPanel.Config.Props['onItemsChange']>;
 };
-type ClosestElement = { closest(selector: string): Element | null };
-
 const cursorRootSelector = '[data-keyvalue-cursor-root]';
-const interactiveSelector = [
-  'a[href]',
-  'button',
-  'input',
-  'select',
-  'textarea',
-  'summary',
-  '[contenteditable="true"]',
-  '[role="button"]',
-  '[role="checkbox"]',
-  '[role="combobox"]',
-  '[role="link"]',
-  '[role="menuitem"]',
-  '[role="radio"]',
-  '[role="slider"]',
-  '[role="spinbutton"]',
-  '[role="switch"]',
-  '[tabindex]:not([tabindex="-1"])',
-].join(',');
 
 /** Resolve a host-owned divider insertion keyboard handler. */
 export function toDividerInsertionHandler(
@@ -136,15 +115,13 @@ function isFromInteractiveDescendant(event: KeyboardEventLike): boolean {
   if (!target) return false;
 
   const cursorRoot = target.closest(cursorRootSelector);
-  const interactive = target.closest(interactiveSelector);
-  if (!interactive) return false;
-  return interactive !== cursorRoot;
+  return Dom.Interactive.Is.at(target, { ignore: cursorRoot });
 }
 
-function toElement(target: EventTarget | null | undefined): ClosestElement | undefined {
+function toElement(target: EventTarget | null | undefined): Element | undefined {
   if (!Is.object(target)) return undefined;
-  const candidate = target as Partial<ClosestElement>;
-  return Is.func(candidate.closest) ? candidate as ClosestElement : undefined;
+  const candidate = target as Partial<Element>;
+  return Is.func(candidate.closest) ? candidate as Element : undefined;
 }
 
 function nextDividerId(items: readonly ConfigItem[]): string {

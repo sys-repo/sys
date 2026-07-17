@@ -20,4 +20,4 @@ export { Url } from '@sys/std/url';
  * User interface:
  */
 export { Color, css } from '@sys/ui-css';
-export { Keyboard } from '@sys/ui-dom';
+export { Dom, Keyboard } from '@sys/ui-dom';
