@@ -15,6 +15,12 @@ export function useInsertAfter<T extends HTMLElement = HTMLDivElement>(
   const fallbackRef = React.useRef<T>(null);
   const ref = args.ref ?? fallbackRef;
   const { cursor, enabled = true, items = [], createItem, onChange } = args;
+  const itemsRef = React.useRef<readonly t.KeyValue.Item[]>(items);
+  const itemsPropRef = React.useRef<readonly t.KeyValue.Item[]>(items);
+  if (itemsPropRef.current !== items) {
+    itemsPropRef.current = items;
+    itemsRef.current = items;
+  }
 
   React.useEffect(() => {
     if (!enabled) return;
@@ -33,16 +39,21 @@ export function useInsertAfter<T extends HTMLElement = HTMLDivElement>(
       if (isInteractiveElement(active, root)) return;
       if (!isOptionEnter(event.event.keypress)) return;
 
-      const change = insertAfter({ items, current: cursor.model?.current, createItem });
+      const change = insertAfter({
+        items: itemsRef.current,
+        current: cursor.model?.current,
+        createItem,
+      });
       if (!change) return;
 
+      itemsRef.current = change.next;
       event.preventDefault();
       event.stopKeyboardPropagation();
       onChange(change);
     });
 
     return () => life.dispose();
-  }, [createItem, cursor, enabled, items, onChange, ref]);
+  }, [createItem, cursor, enabled, itemsRef, onChange, ref]);
 
   return { ref };
 }

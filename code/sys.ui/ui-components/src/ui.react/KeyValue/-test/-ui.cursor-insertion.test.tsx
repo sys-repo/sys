@@ -38,7 +38,7 @@ describe('KeyValue.Cursor keyboard insertion', () => {
     expect(ctx.changes.map((e) => e.item)).to.eql([{ id: 'inserted:1', kind: 'hr' }]);
     expect(ctx.items()?.map((item) => item.id)).to.eql(['alpha', 'inserted:1', 'bravo']);
 
-    releaseGlobalKey('Enter');
+    releaseOptionEnter();
     await ctx.dispose();
   });
 
@@ -50,7 +50,7 @@ describe('KeyValue.Cursor keyboard insertion', () => {
 
     expect(disabledEvent.defaultPrevented).to.eql(false);
     expect(disabled.changes.length).to.eql(0);
-    releaseGlobalKey('Enter');
+    releaseOptionEnter();
     await disabled.dispose();
 
     const missingCurrent = await renderProbe({});
@@ -60,7 +60,7 @@ describe('KeyValue.Cursor keyboard insertion', () => {
 
     expect(missingEvent.defaultPrevented).to.eql(false);
     expect(missingCurrent.changes.length).to.eql(0);
-    releaseGlobalKey('Enter');
+    releaseOptionEnter();
     await missingCurrent.dispose();
   });
 
@@ -76,7 +76,7 @@ describe('KeyValue.Cursor keyboard insertion', () => {
     expect(event.defaultPrevented).to.eql(false);
     expect(ctx.changes.length).to.eql(0);
 
-    releaseGlobalKey('Enter');
+    releaseOptionEnter();
     outside.remove();
     await ctx.dispose();
   });
@@ -95,7 +95,7 @@ describe('KeyValue.Cursor keyboard insertion', () => {
     expect(event.defaultPrevented).to.eql(false);
     expect(ctx.changes.length).to.eql(0);
 
-    releaseGlobalKey('Enter');
+    releaseOptionEnter();
     await ctx.dispose();
   });
 
@@ -105,17 +105,17 @@ describe('KeyValue.Cursor keyboard insertion', () => {
 
     const shift = globalKeydown('Enter', { altKey: true, shiftKey: true });
     await Schedule.micro();
-    releaseGlobalKey('Enter');
+    releaseOptionEnter({ shiftKey: true });
 
     act(() => root.focus());
     const ctrl = globalKeydown('Enter', { altKey: true, ctrlKey: true });
     await Schedule.micro();
-    releaseGlobalKey('Enter');
+    releaseOptionEnter({ ctrlKey: true });
 
     act(() => root.focus());
     const meta = globalKeydown('Enter', { altKey: true, metaKey: true });
     await Schedule.micro();
-    releaseGlobalKey('Enter');
+    releaseOptionEnter({ metaKey: true });
 
     expect(shift.defaultPrevented).to.eql(false);
     expect(ctrl.defaultPrevented).to.eql(false);
@@ -125,6 +125,11 @@ describe('KeyValue.Cursor keyboard insertion', () => {
     await ctx.dispose();
   });
 });
+
+function releaseOptionEnter(init: KeyboardEventInit = {}) {
+  releaseGlobalKey('Enter', { altKey: true, ...init });
+  releaseGlobalKey('Alt');
+}
 
 async function renderProbe(args: ProbeArgs) {
   const changes: InsertChange[] = [];

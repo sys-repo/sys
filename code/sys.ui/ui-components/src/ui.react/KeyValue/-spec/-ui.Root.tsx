@@ -26,10 +26,13 @@ export function Root(props: Props) {
     ref: keyboardEntry.ref,
     items: v.items,
     cursor: { enabled: v.cursor, model: v.cursorModel },
-    createItem: ({ items }) => ({
-      id: nextHrId(items),
-      kind: 'hr',
-    }),
+    createItem: ({ items, siblings, index, after }) => {
+      if (isHr(after) || isHr(siblings[index])) return undefined;
+      return {
+        id: nextHrId(items),
+        kind: 'hr',
+      };
+    },
     onChange: (e) => p.items.value = e.next,
   });
 
@@ -55,6 +58,10 @@ export function Root(props: Props) {
 /**
  * Helpers:
  */
+function isHr(item: t.KeyValue.Item | undefined): boolean {
+  return item?.kind === 'hr';
+}
+
 function nextHrId(items: readonly t.KeyValue.Item[]) {
   const existing = new Set(flatIds(items));
 
