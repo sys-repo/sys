@@ -86,6 +86,7 @@
     "code/sys/fs",
     "code/sys/http",
     "code/sys/immutable",
+    "code/sys/markdown",
     "code/sys/net",
     "code/sys/process",
     "code/sys/registry",
