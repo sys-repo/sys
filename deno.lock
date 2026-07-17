@@ -81,6 +81,7 @@
     "npm:@automerge/automerge-repo-storage-indexeddb@2.5.6": "2.5.6",
     "npm:@automerge/automerge-repo-storage-nodefs@2.5.6": "2.5.6",
     "npm:@automerge/automerge-repo@2.5.6": "2.5.6",
+    "npm:@automerge/automerge@3.3.2": "3.3.2",
     "npm:@automerge/prosemirror@0.2.0": "0.2.0",
     "npm:@deno/vite-plugin@2.0.2": "2.0.2_vite@8.1.4__yaml@2.9.0_yaml@2.9.0",
     "npm:@mariozechner/pi-coding-agent@0.73.0": "0.73.0_ws@8.21.1",
@@ -592,8 +593,8 @@
         "xstate"
       ]
     },
-    "@automerge/automerge@3.3.1": {
-      "integrity": "sha512-ZnVHlUCPB9w3CFlqWe/ex2q3JIpJ5g0jAlxpX4NxHpjad/WwnyeUM3hQC+IrPO1P5kPX18agxesnXBVUA/qlvg=="
+    "@automerge/automerge@3.3.2": {
+      "integrity": "sha512-9vCdCL7pdQwUra66SBxPVHr+/t9epXKni9KDeak2rNBFMzABVh2u6gSpcwxi3jkR5qr047jVqZv9DlrOfVxLFw=="
     },
     "@automerge/prosemirror@0.2.0": {
       "integrity": "sha512-Mixxftvfs12tKi7DsStobrQxFayoLJXhEjbrnmNnaQbMzwHrUzuwac+OUvw6ujbtXaulWX+JE8hAuHFAGRDsvQ==",
