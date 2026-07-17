@@ -1,7 +1,12 @@
 # Markdown
-Markdown parsing, serialization, frontmatter, and safe rendering primitives.
+Markdown parsing and serialization primitives.
 
 ### Usage
 ```ts
-import { pkg } from 'jsr:@sys/markdown';
+import { Markdown } from '@sys/markdown';
+
+const res = Markdown.parse('# Hello');
+if (res.error) throw res.error;
+
+const ast = res.data;
 ```

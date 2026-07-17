@@ -48,6 +48,14 @@ deno.json:
   - import: npm:prosemirror-example-setup@1.2.3
   - import: npm:prosemirror-schema-basic@1.2.4
   - import: npm:yaml@2.9.0
+  - import: npm:mdast-util-from-markdown@2.0.3
+  - import: npm:mdast-util-to-markdown@2.1.2
+  - import: npm:mdast-util-gfm@3.1.0
+  - import: npm:micromark-extension-gfm@3.0.0
+  - import: npm:@types/mdast@4.0.4
+    name: mdast
+  - import: npm:@types/unist@3.0.3
+    name: unist
   - import: jsr:@cliffy/keypress@1.2.1
   - import: jsr:@cliffy/prompt@1.2.1
   - import: jsr:@cliffy/table@1.2.1
