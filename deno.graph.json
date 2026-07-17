@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1783992465568,
+    "createdAt": 1784254081478,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-2821198ebdee68cbb5b771eed35b9322c0d104a2cffe74f948b3a6672cf3780b",
+      "/graph": "sha256-fcc238438065d07e1809b3ef1b6e83c45c8953c9030b0aecbdbd709533797983",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.138/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,13 +15,14 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.138/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1783992465574
+    "modifiedAt": 1784254081483
   },
   "graph": {
     "orderedPaths": [
       "code/sys/types",
       "code/sys.dev",
       "code/sys/crdt",
+      "code/sys/markdown",
       "code/sys/std",
       "code/sys/color",
       "code/sys.ui/ui-css",
@@ -364,6 +365,10 @@
       {
         "from": "code/sys.ui/ui-dom",
         "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys.ui/ui-dom",
+        "to": "code/sys.ui/ui"
       },
       {
         "from": "code/sys.ui/ui-dom",
@@ -1444,6 +1449,10 @@
       {
         "from": "code/sys/types",
         "to": "code/sys/immutable"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys/markdown"
       },
       {
         "from": "code/sys/types",
