@@ -1,6 +1,6 @@
 /**
  * @module
- * Markdown parsing and serialization primitives.
+ * Markdown parsing, serialization, and safe rendering primitives.
  */
 export { pkg } from './pkg.ts';
 

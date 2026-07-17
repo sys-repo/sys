@@ -1,9 +1,12 @@
 import type * as Mdast from 'mdast';
 import type * as Unist from 'unist';
 import type { StdError, StringMarkdown } from '@sys/types';
+import type { MarkdownHtml } from '../m.Markdown.Html/t.ts';
+
+export type { MarkdownHtml } from '../m.Markdown.Html/t.ts';
 
 /**
- * Markdown parsing and serialization primitives.
+ * Markdown parsing, serialization, and safe rendering primitives.
  */
 export declare namespace Markdown {
   /** Core Markdown library surface. */
@@ -13,6 +16,9 @@ export declare namespace Markdown {
 
     /** Serialize a canonical MDAST document tree back to Markdown text. */
     stringify(ast: Ast, options?: StringifyOptions): StringifyResult;
+
+    /** Safe Markdown → HTML rendering. */
+    readonly Html: Html.Lib;
 
     /** Type guards for Markdown syntax-tree values. */
     readonly Is: IsLib;
@@ -53,6 +59,24 @@ export declare namespace Markdown {
     /** True when the input is an MDAST root node. */
     ast(input: unknown): input is Ast;
   };
+
+  /** Safe Markdown → HTML rendering primitives. */
+  export namespace Html {
+    /** Safe Markdown HTML rendering surface. */
+    export type Lib = MarkdownHtml.Lib;
+
+    /** Render input: raw Markdown source or a parsed MDAST document. */
+    export type RenderInput = MarkdownHtml.RenderInput;
+
+    /** Render options. */
+    export type RenderOptions = MarkdownHtml.RenderOptions;
+
+    /** Result of rendering Markdown to safe HTML. */
+    export type RenderResult = MarkdownHtml.RenderResult;
+
+    /** Sanitized HTML string. */
+    export type StringHtml = MarkdownHtml.StringHtml;
+  }
 
   /** Successful Markdown operation result. */
   export type Ok<T> = { readonly error?: undefined; readonly data: T };
