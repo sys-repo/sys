@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1784259210557,
+    "createdAt": 1784271972611,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-5bd589974a5c0cfe25838f8cbf923d93605c3522eb209542267b61d211122b63",
+      "/graph": "sha256-ea6cf287e64f76357cfc57530de3d60b6bb9b631b73c9f1b12312fa5f05aa8b9",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.138/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,7 +15,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.138/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1784259210562
+    "modifiedAt": 1784271972622
   },
   "graph": {
     "orderedPaths": [
@@ -29,7 +29,6 @@
       "code/sys.ui/ui-state",
       "code/sys/immutable",
       "code/sys.ui/ui-dom",
-      "code/sys/markdown",
       "code/sys/net",
       "code/sys/text",
       "code/sys/cli",
@@ -46,6 +45,7 @@
       "code/sys/http",
       "code/sys.ui/ui-react",
       "code/sys.ui/ui-dev",
+      "code/sys/markdown",
       "code/sys/registry",
       "code/sys/schema",
       "code/sys.model/model",
@@ -1589,6 +1589,10 @@
       {
         "from": "code/sys/yaml",
         "to": "code/sys/http"
+      },
+      {
+        "from": "code/sys/yaml",
+        "to": "code/sys/markdown"
       },
       {
         "from": "code/sys/yaml",

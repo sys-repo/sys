@@ -38,8 +38,6 @@ jobs:
             path: code/sys/immutable
           - name: "@sys/ui-dom"
             path: code/sys.ui/ui-dom
-          - name: "@sys/markdown"
-            path: code/sys/markdown
           - name: "@sys/net"
             path: code/sys/net
           - name: "@sys/text"
@@ -73,6 +71,8 @@ jobs:
             path: code/sys.ui/ui-react
           - name: "@sys/ui-dev"
             path: code/sys.ui/ui-dev
+          - name: "@sys/markdown"
+            path: code/sys/markdown
           - name: "@sys/registry"
             path: code/sys/registry
           - name: "@sys/schema"
