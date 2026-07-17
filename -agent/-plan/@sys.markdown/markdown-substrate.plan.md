@@ -1,179 +1,158 @@
 # Markdown substrate
 
-- [ ] plan(create): markdown substrate
-- [ ] feat(markdown): add canonical markdown core substrate
-- [ ] feat(markdown): add safe markdown html and frontmatter surfaces
+Status: **retired after final plan commit**.
 
-## Purpose
+- [x] 676b6e8cf `chore(tmpl:pkg): scaffold markdown for @sys/markdown`
+- [x] 3f64ec39d `feat(markdown): add canonical markdown core substrate`
+- [x] f96caf197 `feat(markdown): add safe markdown html rendering`
+- [x] c9ea433f4 `feat(markdown): add markdown frontmatter surface`
 
-Add `@sys/markdown` as the system Markdown substrate, parallel in spirit to `@sys/yaml`: a small,
-truthful, typed wrapper over best-of-industry parsing/rendering primitives.
+## Final reality
 
-This plan is a ready-to-start marker only. Do not treat it as approval to scaffold or implement until
-that work is explicitly opened.
+`@sys/markdown` is now the system Markdown substrate.
 
-## Decision
-
-Create a dedicated package:
+The package lives at:
 
 ```text
-@sys/markdown
+code/sys/markdown
 ```
 
-Do not hide Markdown under `@sys/text/markdown`. Markdown is a document language with AST,
-rendering, sanitization, frontmatter, source positions, and editor-parser futures. That is a package
-boundary, not a string-helper submodule.
-
-## Upstream substrate
-
-Root on the unified syntax-tree stack:
-
-```text
-micromark
-mdast-util-from-markdown
-mdast-util-to-markdown
-mdast-util-gfm
-micromark-extension-gfm
-mdast-util-to-hast
-hast-util-to-html
-hast-util-sanitize
-```
-
-Frontmatter lane:
-
-```text
-micromark-extension-frontmatter
-mdast-util-frontmatter
-@sys/yaml
-```
-
-Potential future editor lane:
-
-```text
-@lezer/markdown
-```
-
-`@lezer/markdown` is promising for Monaco/CodeMirror/editor-adjacent work, but it should not be the
-root canonical document parser.
-
-## Research snapshot
-
-Registry probes run during planning, using npm registry/search and downloads APIs.
-
-Last-month download signal:
-
-| Package | Downloads | Read |
-|---|---:|---|
-| `marked` | ~221M | fast renderer, not canonical AST substrate |
-| `mdast-util-from-markdown` | ~182M | Markdown → MDAST |
-| `micromark` | ~179M | CommonMark tokenizer/parser substrate |
-| `mdast-util-to-markdown` | ~153M | MDAST → Markdown |
-| `markdown-it` | ~108M | battle-tested renderer/plugin ecosystem |
-| `hast-util-sanitize` | ~31M | safe HTML boundary |
-| `mdast-util-frontmatter` | ~24M | frontmatter AST support |
-| `micromark-extension-frontmatter` | ~22M | frontmatter parser extension |
-| `@lezer/markdown` | ~13M | incremental/editor parser |
-| `commonmark` | ~2.8M | spec parser, lower modern ecosystem pull |
-
-Before implementation, refresh package versions and maintenance signals. Do not freeze this snapshot
-as dependency authority.
-
-## API seed
-
-Keep the public surface small and direct:
-
-```ts
-import { Markdown } from '@sys/markdown';
-
-const ast = Markdown.parse(src);
-const text = Markdown.stringify(ast.data);
-const html = Markdown.Html.render(src);
-const doc = Markdown.Frontmatter.parse(src);
-```
-
-Initial conceptual surface:
-
-```ts
-Markdown = {
-  parse,
-  stringify,
-  Html,
-  Frontmatter,
-  Is,
-  Diagnostic,
-};
-```
-
-`parse` should expose MDAST truth rather than invent a parallel `@sys` Markdown AST.
-`stringify` should serialize from that AST through the upstream serializer.
-
-## Security posture
-
-Markdown parsing is document parsing. Markdown HTML rendering is a security boundary.
-
-Default HTML rendering must be safe for untrusted input:
-
-```ts
-Markdown.Html.render(src); // sanitized default
-Markdown.Html.render(src, { trust: 'untrusted' });
-Markdown.Html.render(src, { trust: 'trusted' }); // explicit raw/trusted lane
-```
-
-Do not silently pass raw HTML through a default renderer.
-
-## Package shape
-
-Expected export shape:
+Public export shape remains deliberately small:
 
 ```text
 .
-./core
-./html
-./frontmatter
 ./t
 ./types
 ```
 
-Use the normal `@sys` package/module skeleton and dependency authority. Dependency changes belong in
-`deps.yaml`, followed by `deno task prep` from the workspace root when implementation begins.
+The public runtime surface is:
 
-## First implementation slice
+```ts
+Markdown.parse(src);
+Markdown.stringify(ast);
+Markdown.Is.ast(input);
+Markdown.Html.render(input);
+Markdown.Frontmatter.parse(src);
+```
 
-Narrow first pass:
+The root package remains free of UI, DOM, browser, filesystem, editor, CLI, PDF, and React coupling.
 
-1. scaffold `@sys/markdown` deliberately from the package template;
-2. add the dependency set through `deps.yaml`;
-3. implement core Markdown → MDAST parse;
-4. implement MDAST → Markdown stringify;
-5. implement Markdown → sanitized HTML render;
-6. implement frontmatter split/parse using `@sys/yaml` for YAML semantics;
-7. prove browser/server-safe imports.
+## Landed surfaces
 
-## Test/proof seed
+### Core Markdown
 
-Initial tests should cover:
+Core landed in `3f64ec39d`.
 
-- CommonMark headings, lists, code fences, links;
-- GFM tables and task-list items if GFM is enabled by default;
-- Markdown → AST → Markdown round-trip shape;
-- unsafe raw HTML sanitized by default;
-- trusted/raw HTML requires explicit option;
-- YAML frontmatter parsed via `@sys/yaml`;
-- module exports and type surface shape.
+- Markdown text parses to real MDAST roots.
+- MDAST roots stringify back to Markdown.
+- Result shape is `{ data } | { error }`.
+- Default flavor is GFM.
+- Explicit `flavor: 'commonmark'` is supported.
+- The package exposes real upstream syntax-tree types; it does not invent a fake Markdown AST.
 
-## TMIND constraints
+Core dependency lane:
 
-- Do not expose unified processor/plugin soup as the root mental model.
-- Do not invent a fake Markdown AST.
-- Do not use `marked` or `markdown-it` as the canonical core without a concrete reason.
-- Do not optimize for raw rendering speed before measuring a real bottleneck.
-- If a faster renderer becomes necessary, add it as an adapter or implementation detail, not as the
-  source of canonical document truth.
-- Keep editor parser work separate until Monaco/CodeMirror needs are concrete.
+```text
+mdast-util-from-markdown
+mdast-util-to-markdown
+mdast-util-gfm
+micromark-extension-gfm
+@types/mdast as mdast
+@types/unist as unist
+```
 
-## Open questions
+### Safe Markdown HTML
 
-- Should GFM be default-on for system Markdown, or explicit per parse/render call?
-- What exact sanitization schema is the first `@sys` default?
-- Should frontmatter be represented as a distinct document envelope type or as a parse option that
-  returns `{ frontmatter, markdown, ast }`?
+Safe HTML rendering landed in `f96caf197`.
+
+- Public API: `Markdown.Html.render(input, options?)`.
+- Input may be Markdown source text or an existing MDAST root.
+- Rendering is safe-by-default for untrusted Markdown.
+- Raw/trusted HTML lanes were intentionally not added.
+- Runtime graph proof keeps browser/UI/React/fs substrates out.
+
+HTML dependency lane:
+
+```text
+mdast-util-to-hast
+hast-util-sanitize
+hast-util-to-html
+```
+
+### Markdown frontmatter
+
+Frontmatter landed in `c9ea433f4`.
+
+- Public API: `Markdown.Frontmatter.parse<T>(src, options?)`.
+- Frontmatter parsing is explicit; root `Markdown.parse` remains the core Markdown parser.
+- YAML frontmatter is parsed through `@sys/yaml`.
+- The result includes optional parsed frontmatter, stripped Markdown body, and body MDAST.
+- Only YAML frontmatter landed; no TOML, stringify, fs, or HTML coupling was added.
+- Default body flavor is GFM; explicit CommonMark is supported.
+
+Frontmatter dependency lane:
+
+```text
+mdast-util-frontmatter
+micromark-extension-frontmatter
+@sys/yaml
+```
+
+## Final proof status
+
+Final package validation passed from `code/sys/markdown`:
+
+```text
+deno task check
+deno task test
+deno task dry
+```
+
+Test/proof coverage includes:
+
+- public surface composition and type shape;
+- CommonMark parsing;
+- default GFM parsing;
+- Markdown stringify shape;
+- parse/stringify error normalization;
+- safe HTML rendering;
+- unsafe raw HTML sanitization;
+- unsafe `javascript:` link sanitization;
+- HTML rendering from source and from existing MDAST;
+- YAML frontmatter parsing via `@sys/yaml`;
+- stripped Markdown body output;
+- body MDAST parsing;
+- no-frontmatter success;
+- invalid YAML normalized errors;
+- unclosed frontmatter normalized errors;
+- runtime graph boundaries excluding fs, UI, browser, React, and accidental HTML/frontmatter coupling.
+
+## Decisions retained
+
+- `@sys/markdown` is the right package boundary; Markdown is a document language, not a text helper.
+- MDAST is the canonical AST substrate.
+- Root `Markdown.parse` is not a frontmatter parser.
+- `Markdown.Frontmatter.parse` owns frontmatter as explicit document metadata behavior.
+- `Markdown.Html.render` is the only HTML rendering primitive and is safe-by-default.
+- No unified processor/plugin soup is exposed as the root API.
+- No framework, DOM, UI, filesystem, editor, CLI, PDF, or React coupling belongs in the core substrate.
+
+## Follow-up candidates outside this plan
+
+These are not blockers and should become separate plans only if/when concrete work is requested:
+
+- migrate `model-slug` frontmatter helpers to `Markdown.Frontmatter`;
+- migrate future `Prose.Markdown` rendering to `Markdown.Html.render`;
+- consider Markdown frontmatter stringify only if a real producer surface needs it;
+- consider a Lezer/editor adapter only when Monaco/CodeMirror parsing needs are concrete;
+- keep PDF generation, Markdown MIME recognition, and Markdown authoring templates outside this package unless a real owner surface emerges.
+
+## Retirement
+
+The substrate arc is complete.
+
+Recommended plan-retirement commit message:
+
+```text
+docs(plan): retire markdown substrate plan
+```
