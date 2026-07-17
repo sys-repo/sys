@@ -1,10 +1,36 @@
-import { type t, expect } from '../../-test.ts';
+import { expect, Str, type t } from '../../-test.ts';
+
+export const markdown = (text: string) => `${Str.dedent(text)}\n` as t.StringMarkdown;
 
 export const Sample = {
-  commonmarkDocument: '# Hello\n\n- one\n\n```ts\nconst x = 1;\n```\n\n[example](https://example.com)\n',
-  gfmTable: '| A | B |\n| - | - |\n| 1 | 2 |\n',
-  gfmTableAndTaskList: '| A | B |\n| - | - |\n| 1 | 2 |\n\n- [x] done\n',
-  headingAndTaskList: '# Hello\n\n- [x] done\n',
+  commonmarkDocument: markdown(`
+    # Hello
+
+    - one
+
+    \`\`\`ts
+    const x = 1;
+    \`\`\`
+
+    [example](https://example.com)
+  `),
+  gfmTable: markdown(`
+    | A | B |
+    | - | - |
+    | 1 | 2 |
+  `),
+  gfmTableAndTaskList: markdown(`
+    | A | B |
+    | - | - |
+    | 1 | 2 |
+
+    - [x] done
+  `),
+  headingAndTaskList: markdown(`
+    # Hello
+
+    - [x] done
+  `),
 } as const;
 
 export const Forbidden = {

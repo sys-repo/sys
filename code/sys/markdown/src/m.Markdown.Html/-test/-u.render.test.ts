@@ -3,7 +3,7 @@ import { Markdown } from '../../m.Markdown/mod.ts';
 import { Html } from '../mod.ts';
 import { requireData, Sample } from './u.fixture.ts';
 
-describe('m.Markdown.Html/render', () => {
+describe('Markdown.Html.render', () => {
   it('renders CommonMark Markdown source to HTML', () => {
     const html = requireData(Html.render(Sample.commonmarkDocument, { flavor: 'commonmark' }));
 

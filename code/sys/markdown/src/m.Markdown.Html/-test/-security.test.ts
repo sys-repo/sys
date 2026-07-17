@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../-test.ts';
 import { Html } from '../mod.ts';
 import { requireData, Sample } from './u.fixture.ts';
 
-describe('m.Markdown.Html/security', () => {
+describe('Markdown.Html.security', () => {
   it('does not pass raw embedded HTML through the default renderer', () => {
     const html = requireData(Html.render(Sample.unsafeRawHtml));
 

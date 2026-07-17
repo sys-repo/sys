@@ -2,7 +2,7 @@ import { describe, EsmAssert, expect, it, packageRootEntry } from '../../-test.t
 import { Markdown } from '../mod.ts';
 import { Forbidden, requireData, Sample } from './u.fixture.ts';
 
-describe('m.Markdown/runtime graph', () => {
+describe('Markdown.runtime graph', () => {
   it('does not require @sys/fs to parse and stringify Markdown', async () => {
     const parsed = requireData(Markdown.parse(Sample.headingAndTaskList));
     const text = requireData(Markdown.stringify(parsed));

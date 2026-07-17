@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../-test.ts';
 import { Markdown } from '../mod.ts';
 import { requireData, Sample } from './u.fixture.ts';
 
-describe('m.Markdown/parse', () => {
+describe('Markdown.parse', () => {
   describe('CommonMark', () => {
     it('parses headings, lists, code fences, and links', () => {
       const ast = requireData(Markdown.parse(Sample.commonmarkDocument, { flavor: 'commonmark' }));

@@ -2,7 +2,7 @@ import { describe, EsmAssert, expect, it, packageRootEntry } from '../../-test.t
 import { Html } from '../mod.ts';
 import { Forbidden, requireData, Sample } from './u.fixture.ts';
 
-describe('m.Markdown.Html/runtime graph', () => {
+describe('Markdown.Html.runtime graph', () => {
   it('does not require @sys/fs to render Markdown HTML', async () => {
     const html = requireData(Html.render(Sample.commonmarkDocument));
 

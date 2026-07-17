@@ -1,4 +1,4 @@
-import { Err, hastSanitize, hastToHtml, mdastToHast, type t } from './common.ts';
+import { Err, hastSanitize, hastToHtml, Is, mdastToHast, type t } from './common.ts';
 import { MarkdownIs } from '../m.Markdown/m.Is.ts';
 import { parse } from '../m.Markdown/u/u.parse.ts';
 
@@ -22,7 +22,7 @@ function toAst(
   options?: t.Markdown.Html.RenderOptions,
 ): t.Markdown.ParseResult {
   if (MarkdownIs.ast(input)) return { data: input };
-  if (typeof input === 'string') return parse(input, { flavor: options?.flavor });
+  if (Is.string(input)) return parse(input, { flavor: options?.flavor });
 
   const cause = Err.std('Expected Markdown source text or an MDAST root.');
   return { error: Err.std('Failed to render Markdown HTML', { cause }) };

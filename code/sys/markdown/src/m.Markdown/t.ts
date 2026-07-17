@@ -1,12 +1,14 @@
 import type * as Mdast from 'mdast';
 import type * as Unist from 'unist';
 import type { StdError, StringMarkdown } from '@sys/types';
+import type { MarkdownFrontmatter } from '../m.Markdown.Frontmatter/t.ts';
 import type { MarkdownHtml } from '../m.Markdown.Html/t.ts';
 
+export type { MarkdownFrontmatter } from '../m.Markdown.Frontmatter/t.ts';
 export type { MarkdownHtml } from '../m.Markdown.Html/t.ts';
 
 /**
- * Markdown parsing, serialization, and safe rendering primitives.
+ * Markdown parsing, serialization, frontmatter, and safe rendering primitives.
  */
 export declare namespace Markdown {
   /** Core Markdown library surface. */
@@ -16,6 +18,9 @@ export declare namespace Markdown {
 
     /** Serialize a canonical MDAST document tree back to Markdown text. */
     stringify(ast: Ast, options?: StringifyOptions): StringifyResult;
+
+    /** Markdown frontmatter parsing. */
+    readonly Frontmatter: Frontmatter.Lib;
 
     /** Safe Markdown → HTML rendering. */
     readonly Html: Html.Lib;
@@ -59,6 +64,24 @@ export declare namespace Markdown {
     /** True when the input is an MDAST root node. */
     ast(input: unknown): input is Ast;
   };
+
+  /** Markdown frontmatter parsing primitives. */
+  export namespace Frontmatter {
+    /** Markdown frontmatter parsing surface. */
+    export type Lib = MarkdownFrontmatter.Lib;
+
+    /** Parse options. */
+    export type ParseOptions = MarkdownFrontmatter.ParseOptions;
+
+    /** Parsed Markdown document with optional frontmatter. */
+    export type Document<T = unknown> = MarkdownFrontmatter.Document<T>;
+
+    /** Parsed YAML frontmatter block. */
+    export type Block<T = unknown> = MarkdownFrontmatter.Block<T>;
+
+    /** Result of parsing Markdown frontmatter. */
+    export type ParseResult<T = unknown> = MarkdownFrontmatter.ParseResult<T>;
+  }
 
   /** Safe Markdown → HTML rendering primitives. */
   export namespace Html {
