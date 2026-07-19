@@ -7,7 +7,7 @@ import { Sample } from './-ui.Sample.tsx';
 type P = t.ProseMarkdown.Props;
 type Storage = Pick<P, 'debug' | 'theme'> & { sample?: SampleKind };
 
-const defaultSample: SampleKind = 'intro';
+const defaultSample: SampleKind = 'chip';
 const defaults: Storage = {
   debug: false,
   theme: 'Light',
