@@ -73,6 +73,7 @@ ${c.cyan(`         ${href}`)}
     }) {
       const { pkg, dist, paths, url, pad, ws } = args;
       const hr = c.brightGreen(c.bold(Cli.Fmt.hr()));
+      const subHr = c.dim(Cli.Fmt.hr({ color: 'green', weight: 'dashed' }));
       const key = (text: string) => c.bold(c.white(text));
       const digest = ViteLog.digest(args.dist?.hash.digest);
       const input = paths.app.entry;
@@ -89,8 +90,8 @@ ${Log.Info.toString({ pkg, dist, url, pad })}
          ${c.white('output')}   ${Path.trimCwd(outDir)} ${digest}
 
 
-${c.green(c.bold('options'))}:
-${hr}
+${c.green(c.bold('options'))}${c.dim(c.green(':'))}
+${subHr}
  quit   ${key('ctrl + c')}
  clear  ${key('k')}
  open   ${key('o')}  ${c.dim('← (in browser)')}
