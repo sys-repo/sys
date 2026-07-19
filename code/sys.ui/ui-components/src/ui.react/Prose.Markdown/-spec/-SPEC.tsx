@@ -1,7 +1,8 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { type t, D } from './common.ts';
+import { D, type t } from './common.ts';
 import { ProseMarkdown } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { Chip } from '../../Chip/mod.ts';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -9,7 +10,10 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    return <ProseMarkdown.UI debug={v.debug} theme={v.theme} />;
+    const renderers = renderersFor(v.sample, v.theme);
+    return (
+      <ProseMarkdown.UI debug={v.debug} theme={v.theme} value={v.value} renderers={renderers} />
+    );
   }
 
   e.it('init', (e) => {
@@ -25,7 +29,6 @@ export default Spec.describe(D.displayName, async (e) => {
     Dev.Theme.signalEffect(ctx, p.theme, 1);
 
     ctx.subject
-      .size('fill')
       .display('grid')
       .render(() => <Root />);
   });
@@ -35,3 +38,14 @@ export default Spec.describe(D.displayName, async (e) => {
     ctx.debug.row(<Debug debug={debug} />);
   });
 });
+
+function renderersFor(
+  sample: unknown,
+  theme?: t.CommonTheme,
+): t.ProseMarkdown.Renderers | undefined {
+  if (sample !== 'chip') return;
+
+  return {
+    inlineCode: ({ value }) => <Chip.UI size='xs' mono theme={theme}>{value}</Chip.UI>,
+  };
+}

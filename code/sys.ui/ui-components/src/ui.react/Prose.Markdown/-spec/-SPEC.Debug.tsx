@@ -1,12 +1,17 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
+import { Color, css, D, LocalStorage, Signal, type t } from '../common.ts';
+import { MarkdownSample, type SampleKind } from './-samples.ts';
+import { Sample } from './-ui.Sample.tsx';
 
 type P = t.ProseMarkdown.Props;
-type Storage = Pick<P, 'debug' | 'theme'>;
+type Storage = Pick<P, 'debug' | 'theme'> & { sample?: SampleKind };
+
+const defaultSample: SampleKind = 'intro';
 const defaults: Storage = {
   debug: false,
   theme: 'Light',
+  sample: defaultSample,
 };
 
 /**
@@ -22,10 +27,13 @@ export async function createDebugSignals() {
   const s = Signal.create;
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
+  const sample = MarkdownSample.resolveKind(snap.sample, defaultSample);
 
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    sample: s(sample),
+    value: s(MarkdownSample.value(sample)),
   };
   const p = props;
   const api = {
@@ -39,13 +47,17 @@ export async function createDebugSignals() {
   }
 
   function reset() {
-    Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
+    p.debug.value = defaults.debug;
+    p.theme.value = defaults.theme;
+    p.sample.value = defaultSample;
+    p.value.value = MarkdownSample.value(defaultSample);
   }
 
   Signal.effect(() => {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.sample = p.sample.value;
     });
   });
 
@@ -77,9 +89,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const theme = Color.theme();
   const styles = {
     base: css({ color: theme.fg }),
-    vcenter: css({ display: 'flex', alignItems: 'center', gap: 6 }),
   };
-
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
@@ -91,6 +101,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <div className={Styles.title.class}>{'Samples:'}</div>
+      <Sample.Buttons debug={debug} />
+
+      <hr />
+      <div className={Styles.title.class}>{'Debug:'}</div>
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
