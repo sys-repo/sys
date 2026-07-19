@@ -1,6 +1,7 @@
 export {
   afterEach,
   beforeEach,
+  Color,
   describe,
   DomMock,
   expect,

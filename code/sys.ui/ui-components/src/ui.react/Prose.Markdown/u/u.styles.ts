@@ -8,9 +8,15 @@ export function createStyles(args: { debug: boolean; theme: t.Color.Theme }) {
     base: css({
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
+      display: 'flow-root',
     }),
-    paragraph: css({ margin: '0 0 0.65em 0' }),
-    list: css({ margin: '0.35em 0 0.65em 0', paddingLeft: 20 }),
+    paragraph: css({ margin: '0 0 0.65em 0', ':last-child': { marginBottom: 0 } }),
+    list: css({
+      margin: '0.35em 0 0.65em 0',
+      paddingLeft: 20,
+      ':first-child': { marginTop: 0 },
+      ':last-child': { marginBottom: 0 },
+    }),
     listItem: css({ marginTop: '0.25em' }),
     strong: css({ fontWeight: 'bold' }),
     emphasis: css({ fontStyle: 'italic' }),
