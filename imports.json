@@ -38,7 +38,7 @@
     "@std/uuid": "jsr:@std/uuid@1.1.1",
     "@std/xml": "jsr:@std/xml@0.1.3",
     "@stripe/stripe-js": "npm:@stripe/stripe-js@9.10.0",
-    "@svgdotjs/svg.js": "npm:@svgdotjs/svg.js@3.2.5",
+    "@svgdotjs/svg.js": "npm:@svgdotjs/svg.js@3.2.6",
     "@types/mdast": "npm:@types/mdast@4.0.4",
     "@types/unist": "npm:@types/unist@3.0.3",
     "@types/ws": "npm:@types/ws@8.18.1",
