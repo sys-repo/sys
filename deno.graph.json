@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1784271972611,
+    "createdAt": 1784446972233,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-ea6cf287e64f76357cfc57530de3d60b6bb9b631b73c9f1b12312fa5f05aa8b9",
+      "/graph": "sha256-12c7785d0ab3aa55995f20536f9e26151acc11054c12fec181288b9d8eb47761",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.138/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,7 +15,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.138/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1784271972622
+    "modifiedAt": 1784446972239
   },
   "graph": {
     "orderedPaths": [
@@ -889,6 +889,10 @@
       {
         "from": "code/sys/immutable",
         "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys/markdown",
+        "to": "code/sys.ui/ui-components"
       },
       {
         "from": "code/sys/net",
