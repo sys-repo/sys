@@ -1,9 +1,8 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { D, type t } from './common.ts';
+import { D } from './common.ts';
 import { ProseMarkdown } from '../mod.ts';
-import { Anchor } from '../../Anchor/mod.ts';
-import { Chip } from '../../Chip/mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
+import { Sample } from './-ui.Sample.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -11,7 +10,7 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    const renderers = renderersFor(v.sample, v.theme);
+    const renderers = Sample.renderersFor(v.sample, v.theme);
     return (
       <ProseMarkdown.UI debug={v.debug} theme={v.theme} value={v.value} renderers={renderers} />
     );
@@ -40,17 +39,3 @@ export default Spec.describe(D.displayName, async (e) => {
     ctx.debug.row(<Debug debug={debug} />);
   });
 });
-
-function renderersFor(
-  sample: unknown,
-  theme?: t.CommonTheme,
-): t.ProseMarkdown.Renderers | undefined {
-  if (sample !== 'chip') return;
-
-  return {
-    inlineCode: ({ value }) => <Chip.UI size='xs' mono theme={theme}>{value}</Chip.UI>,
-    link: ({ href, title, children }) => (
-      <Anchor.UI href={href} title={title} target='_blank' theme={theme}>{children}</Anchor.UI>
-    ),
-  };
-}

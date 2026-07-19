@@ -1,7 +1,10 @@
 import React from 'react';
 import { Button } from '../../u.ts';
+import { Anchor } from '../../Anchor/mod.ts';
+import { Chip } from '../../Chip/mod.ts';
+import { ProseMarkdown } from '../mod.ts';
 import { css, type t } from './common.ts';
-import { MarkdownSample, type SampleKind } from './-samples.ts';
+import { MarkdownSample, type SampleItem, type SampleKind } from './-samples.ts';
 import type { DebugSignals } from './-SPEC.Debug.tsx';
 
 export type SampleButtonsProps = {
@@ -12,25 +15,22 @@ export type { SampleKind };
 
 export const Sample = {
   Buttons,
+  renderersFor,
   value: MarkdownSample.value,
 } as const;
 
 function Buttons(props: SampleButtonsProps) {
   const p = props.debug.props;
-
-  const Styles = {
-    base: css({}),
-  };
+  const theme = p.theme.value;
 
   const button = (kind: SampleKind) => {
     const sample = MarkdownSample.get(kind);
     const selected = p.sample.value === kind;
-    const prefix = selected ? '🌳 ' : '';
     return (
       <Button
         key={kind}
         block
-        label={`${prefix}${sample.label}`}
+        label={renderButtonLabel({ kind, sample, selected, theme })}
         onClick={() => {
           p.sample.value = kind;
           p.value.value = sample.value;
@@ -45,3 +45,40 @@ function Buttons(props: SampleButtonsProps) {
     </div>
   );
 }
+
+function renderButtonLabel(args: {
+  kind: SampleKind;
+  sample: SampleItem;
+  selected: boolean;
+  theme?: t.CommonTheme;
+}) {
+  const { kind, sample, selected, theme } = args;
+  const prefix = selected ? '🌳 ' : '';
+  return (
+    <ProseMarkdown.UI
+      value={`${prefix}${sample.label}`}
+      theme={theme}
+      renderers={renderersFor(kind, theme)}
+      style={Styles.buttonLabelMarkdown}
+    />
+  );
+}
+
+function renderersFor(
+  sample: unknown,
+  theme?: t.CommonTheme,
+): t.ProseMarkdown.Renderers | undefined {
+  if (sample !== 'chip') return;
+
+  return {
+    inlineCode: ({ value }) => <Chip.UI size='xs' mono theme={theme}>{value}</Chip.UI>,
+    link: ({ href, title, children }) => (
+      <Anchor.UI href={href} title={title} target='_blank' theme={theme}>{children}</Anchor.UI>
+    ),
+  };
+}
+
+const Styles = {
+  base: css({}),
+  buttonLabelMarkdown: css({ display: 'inline-block' }),
+};
