@@ -1,23 +1,21 @@
-import { type t, Color, css, D } from './common.ts';
+import { Color, css, D, type t } from './common.ts';
+import { renderChildren } from './u/u.render.tsx';
+import { createStyles } from './u/u.styles.ts';
+import { MarkdownValue } from './u/u.value.ts';
 
-export const Markdown: t.FC<t.ProseMarkdown.Props> = (props) => {
+type P = t.ProseMarkdown.Props;
+
+export const Markdown: t.FC<P> = (props) => {
   const { debug = false } = props;
-
-  /**
-   * Render:
-   */
   const theme = Color.theme(props.theme);
-  const styles = {
-    base: css({
-      backgroundColor: Color.ruby(debug),
-      color: theme.fg,
-      padding: 10,
-    }),
-  };
+  const styles = createStyles({ debug, theme });
+  const result = MarkdownValue.toAst(props.value);
 
   return (
     <div className={css(styles.base, props.style).class} data-component={D.displayName}>
-      {`🐷 ${D.displayName} `}
+      {result.kind === 'error'
+        ? <div className={styles.error.class} role='alert'>{result.error}</div>
+        : renderChildren(result.ast.children, { renderers: props.renderers, styles })}
     </div>
   );
 };

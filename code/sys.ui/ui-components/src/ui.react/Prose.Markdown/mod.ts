@@ -1,10 +1,10 @@
 /**
  * @module
- * Markdown adapter:
- * maps Markdown → Manuscript roles without imposing layout or typography.
+ * Markdown renderer:
+ * maps a Markdown value (source text or AST) → React prose elements without imposing layout or typography.
  *
  * Direction:
- * adapts into Manuscript + Measure (never the other way around).
+ * Markdown stays an input adapter at the prose edge; layout and typography remain caller-owned.
  */
 import type { t } from './common.ts';
 import { Markdown as UI } from './ui.tsx';

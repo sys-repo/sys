@@ -24,6 +24,7 @@ export { Timecode } from '@sys/std/timecode';
 export { Filter } from '@sys/text/filter';
 
 export { Http } from '@sys/http/client';
+export { Markdown } from '@sys/markdown';
 export { Color, css, Style } from '@sys/ui-css';
 export { Dom, Keyboard, LocalStorage } from '@sys/ui-dom';
 export { UserAgent } from '@sys/ui-dom/user-agent';

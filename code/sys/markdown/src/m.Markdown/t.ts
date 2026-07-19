@@ -32,6 +32,9 @@ export declare namespace Markdown {
   /** Canonical Markdown syntax tree. */
   export type Ast = Mdast.Root;
 
+  /** Markdown input value: source text or an already parsed document tree. */
+  export type Value = StringMarkdown | Ast;
+
   /** Markdown parse options. */
   export type ParseOptions = {
     /** Markdown flavor. Defaults to `gfm`. */

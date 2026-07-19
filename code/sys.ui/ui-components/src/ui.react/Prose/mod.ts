@@ -5,10 +5,10 @@
  * Namespace:
  *  ├─ Prose.Measure     Reading geometry: measure, margins, gutters, and responsive constraints.
  *  ├─ Prose.Manuscript  Typographic semantics: hierarchy, rhythm, and a stable set of prose roles.
- *  └─ Prose.Markdown    Markdown adapter: maps Markdown → Manuscript roles without imposing layout or typography.
+ *  └─ Prose.Markdown    Markdown renderer: value (source text or AST) → React prose elements.
  *
  * Direction:
- *  Markdown adapts into Manuscript + Measure (never the other way around).
+ *  Markdown stays an input adapter at the prose edge; layout and typography remain caller-owned.
  */
 import type { t } from './common.ts';
 import { ProseManuscript as Manuscript } from '../Prose.Manuscript/mod.ts';
