@@ -1,6 +1,7 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { D, type t } from './common.ts';
 import { ProseMarkdown } from '../mod.ts';
+import { Anchor } from '../../Anchor/mod.ts';
 import { Chip } from '../../Chip/mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
@@ -29,6 +30,7 @@ export default Spec.describe(D.displayName, async (e) => {
     Dev.Theme.signalEffect(ctx, p.theme, 1);
 
     ctx.subject
+      .size([450, null])
       .display('grid')
       .render(() => <Root />);
   });
@@ -47,5 +49,8 @@ function renderersFor(
 
   return {
     inlineCode: ({ value }) => <Chip.UI size='xs' mono theme={theme}>{value}</Chip.UI>,
+    link: ({ href, title, children }) => (
+      <Anchor.UI href={href} title={title} target='_blank' theme={theme}>{children}</Anchor.UI>
+    ),
   };
 }

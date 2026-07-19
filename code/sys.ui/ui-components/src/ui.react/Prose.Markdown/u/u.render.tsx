@@ -4,6 +4,7 @@ import { toSafeHref } from './u.href.ts';
 import {
   hasRenderableChildren,
   isInlineCodeNode,
+  isLinkNode,
   isMarkdownNodeRecord,
   type MarkdownNodeRecord,
 } from './u.node.ts';
@@ -70,14 +71,17 @@ function renderInlineCode(node: t.ProseMarkdown.Inline.Code.Node, ctx: RenderCon
 }
 
 function renderLink(node: MarkdownNodeRecord, ctx: RenderContext) {
-  const { styles } = ctx;
+  const { renderers, styles } = ctx;
   const children = renderContainerChildren(node, ctx);
+  if (!isLinkNode(node)) return children;
+
   const href = toSafeHref(node.url);
   const title = isStringValue(node.title) && node.title.trim() ? node.title : undefined;
+  if (!href) return children;
 
-  return href
-    ? <a className={styles.link.class} href={href} title={title}>{children}</a>
-    : children;
+  return renderers?.link?.({ node, href, title, children }) ?? (
+    <a className={styles.link.class} href={href} title={title}>{children}</a>
+  );
 }
 
 function renderList(node: MarkdownNodeRecord, ctx: RenderContext) {

@@ -22,6 +22,14 @@ export function isInlineCodeNode(
   return node.type === 'inlineCode' && Is.string(node.value);
 }
 
+export function isLinkNode(node: MarkdownNodeRecord): node is t.ProseMarkdown.Inline.Link.Node {
+  const title = node.title;
+  return node.type === 'link' &&
+    Is.string(node.url) &&
+    (title === undefined || title === null || Is.string(title)) &&
+    Is.array<unknown>(node.children);
+}
+
 export function hasRenderableChildren(node: MarkdownNodeRecord): node is NodeWithChildren {
   return Is.array<unknown>(node.children);
 }

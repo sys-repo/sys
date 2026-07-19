@@ -1,4 +1,4 @@
-import { Is, Markdown, Str, type t } from './common.ts';
+import { Is, Markdown, Obj, Str, type t } from './common.ts';
 
 export type SampleKind = typeof sampleKinds[number];
 export type SampleItem = {
@@ -14,6 +14,16 @@ const AST_SOURCE = Str.dedent(`
   - The debug state stores \`t.Markdown.Value\`.
   - Strings and ASTs use the same \`Prose.Markdown.UI\` value prop.
 `);
+
+const SPEC_NS = {
+  anchor: 'sys.ui.component: Anchor',
+  chip: 'sys.ui.component: Chip',
+} as const;
+
+const SPEC_HREF = {
+  anchor: toDevHref(SPEC_NS.anchor),
+  chip: toDevHref(SPEC_NS.chip),
+} as const;
 
 const SAMPLES = {
   intro: {
@@ -48,11 +58,14 @@ const SAMPLES = {
     value: 'Keep **bold** and [link text](https://example.com), with `inlineCode` intact.',
   },
   chip: {
-    label: 'sample: `@sys/<Chip>` override',
+    label: 'sample: `@sys/<Chip>` + `<Anchor>` overrides',
     value: Str.dedent(`
-      This sample renders \`MyChip\` through a caller-owned \`@sys/<Chip>\` override.
+      This sample renders \`MyChip\` through caller-owned \`Chip.UI\` and [Anchor.UI](${SPEC_HREF.anchor}) through caller-owned \`Anchor.UI\`.
 
-      Prose.Markdown stays generic; the spec harness imports \`Chip.UI\` and passes \`renderers.inlineCode\`.
+      - [\`Chip.UI\`](${SPEC_HREF.chip})
+      - [Anchor.UI](${SPEC_HREF.anchor})
+
+      Prose.Markdown stays generic; the spec harness imports both primitives and passes \`renderers.inlineCode\` plus \`renderers.link\`.
     `),
   },
   html: {
@@ -87,6 +100,10 @@ function resolveKind(input: unknown, fallback: SampleKind = 'intro'): SampleKind
 
 function value<K extends SampleKind>(kind: K): (typeof SAMPLES)[K]['value'] {
   return get(kind).value;
+}
+
+function toDevHref(namespace: string): t.StringUri {
+  return `/?dev=${Obj.hash(namespace)}`;
 }
 
 function toAst(source: t.StringMarkdown): t.Markdown.Ast {
