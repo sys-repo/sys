@@ -4,7 +4,7 @@ import { Fs } from '@sys/fs';
 import { bundleOcr } from '../src/m.core/m.extension/m.ocr/-bundle/mod.ts';
 import { bundleSandboxFs } from '../src/m.core/m.extension/m.sandbox.fs/-bundle/mod.ts';
 import { bundlePiHelp } from '../src/m.core/m.help/-bundle/mod.ts';
-import { PATH, pinPiCodingAgentImport, resolvePiCodingAgentImport } from './-prep.u.ts';
+import { PATH, pinPiAgentImport, resolvePiAgentImport } from './-prep.u.ts';
 
 const root = Fs.resolve(import.meta.dirname ?? '.', '../../../..');
 const path = PATH.fromRoot(root);
@@ -17,8 +17,8 @@ async function main() {
   await bundlePiHelp();
 
   const source = await readText(path.resolvePkgFile);
-  const specifier = await resolvePiCodingAgentImport(path.rootDepsYaml, DenoDeps);
-  const next = pinPiCodingAgentImport(source, specifier);
+  const specifier = await resolvePiAgentImport(path.rootDepsYaml, DenoDeps);
+  const next = pinPiAgentImport(source, specifier);
   await writeIfChanged(path.resolvePkgFile, source, next);
 }
 

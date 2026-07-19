@@ -1,6 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Fs, Path, type t } from '../common.ts';
 import { PiArgs } from '../u.args.ts';
+import { PI_AGENT_IMPORT_BASE } from '../u.resolve.pkg.ts';
 
 describe(`@sys/driver-pi/cli/u.args`, () => {
   it('parse → recognizes wrapper help and preserves passthrough argv otherwise', () => {
@@ -54,7 +55,7 @@ describe(`@sys/driver-pi/cli/u.args`, () => {
   it('toArgs → assembles pi launch args with scoped permissions', async () => {
     const cwd = '/tmp/pi-cli-test' as t.StringDir;
     const prevTmp = Deno.env.get('TMPDIR');
-    const pkg = 'npm:@mariozechner/pi-coding-agent@9.9.9' as t.StringModuleSpecifier;
+    const pkg = `${PI_AGENT_IMPORT_BASE}@9.9.9` as t.StringModuleSpecifier;
     try {
       Deno.env.set('TMPDIR', '/tmp/pi-cli-runtime');
       const args = [
@@ -110,18 +111,19 @@ describe(`@sys/driver-pi/cli/u.args`, () => {
       .absolute as t.StringDir;
     const cwd = Fs.join(depsDir, 'pkg') as t.StringDir;
     const depsPath = Fs.join(depsDir, 'deps.yaml');
+    const pkg = `${PI_AGENT_IMPORT_BASE}@1.2.3`;
     try {
       await Fs.ensureDir(cwd);
       await Fs.write(
         depsPath,
-        `deno.json:\n  - import: npm:@mariozechner/pi-coding-agent@1.2.3\n`,
+        `deno.json:\n  - import: ${pkg}\n`,
       );
 
       const args = [...(await PiArgs.toArgs(cwd, ['--help']))];
       expect(args).not.to.include('--no-config');
       expect(args).to.include('--no-lock');
       expect(args).to.include('--no-context-files');
-      expect(args).to.include('npm:@mariozechner/pi-coding-agent@1.2.3');
+      expect(args).to.include(pkg);
     } finally {
       await Fs.remove(depsDir);
     }

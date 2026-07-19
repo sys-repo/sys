@@ -2,6 +2,7 @@ import { describe, expect, it } from '../../../../-test.ts';
 import { Fs, Path, type t } from '../common.ts';
 import { SandboxFs } from '../mod.ts';
 import type { SandboxFsPolicy as GeneratedSandboxFsPolicy } from '../tmpl/t.ts';
+import { expectStandaloneGeneratedExtension } from '../../-test/u.generated.ts';
 
 type AssertAssignable<From, To> = From extends To ? true : never;
 
@@ -174,9 +175,7 @@ describe(`Pi: sandbox filesystem extension`, () => {
       expect(modText).to.contain('"writeRoots"');
       expect(modText).to.contain(`${cwd}/src`);
       expect(pathText).to.contain('Deno.lstat');
-      expect(generatedText).not.to.contain("from '@sys/fs'");
-      expect(generatedText).not.to.contain('@mariozechner/pi-coding-agent');
-      expect(schemaText).not.to.contain("from 'typebox'");
+      expectStandaloneGeneratedExtension(generatedText);
       expect(generatedText).not.to.contain('__SANDBOX_FS_POLICY__');
       expect(generatedText).not.to.contain(`${cwd}/.pi/@sys/tmp`);
     } finally {

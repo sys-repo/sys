@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Fs, Process, type t } from '../common.ts';
 import { Raw } from '../../m.cli.raw/mod.ts';
-import { PI_CODING_AGENT_IMPORT } from '../u.resolve.pkg.ts';
+import { PI_AGENT_IMPORT } from '../u.resolve.pkg.ts';
 
 describe(`@sys/driver-pi/cli/raw/m.run`, () => {
   it('API', async () => {
@@ -25,7 +25,7 @@ describe(`@sys/driver-pi/cli/raw/m.run`, () => {
         expect(input.args).not.to.include('--no-config');
         expect(input.args).to.include('--no-lock');
         expect(input.args).to.include('--no-context-files');
-        expect(findPkgArg(input.args)).to.eql(PI_CODING_AGENT_IMPORT);
+        expect(findPkgArg(input.args)).to.eql(PI_AGENT_IMPORT);
         expect(input.args).to.include('--help');
         expect(input.args).to.include(`--allow-ffi=${Fs.join(cwd, '.pi', '@sys', 'tmp', 'deno')}`);
         const readArg = findArg(input.args, '--allow-read=');
@@ -143,7 +143,7 @@ describe(`@sys/driver-pi/cli/raw/m.run`, () => {
           PI_SKIP_VERSION_CHECK: '1',
         });
         expect(input.args).to.include('run');
-        expect(findPkgArg(input.args)).to.eql(PI_CODING_AGENT_IMPORT);
+        expect(findPkgArg(input.args)).to.eql(PI_AGENT_IMPORT);
         expect(input.args).to.include(`--allow-ffi=${Fs.join(cwd, '.pi', '@sys', 'tmp', 'deno')}`);
         const readArg = findArg(input.args, '--allow-read=');
         const writeArg = findArg(input.args, '--allow-write=');
@@ -222,7 +222,7 @@ function findArg(args: readonly string[], prefix: string) {
 }
 
 function findPkgArg(args: readonly string[]) {
-  const value = args.find((arg) => arg.startsWith('npm:@mariozechner/pi-coding-agent'));
+  const value = args.find((arg) => arg === PI_AGENT_IMPORT);
   expect(value).to.be.a('string');
   return value as string;
 }

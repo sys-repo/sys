@@ -2,6 +2,7 @@ import { describe, expect, it } from '../../../../-test.ts';
 import { Fs, type t } from '../common.ts';
 import { Ocr } from '../mod.ts';
 import type { OcrPolicy as GeneratedOcrPolicy } from '../tmpl/t.ts';
+import { expectStandaloneGeneratedExtension } from '../../-test/u.generated.ts';
 import { importGenerated, ocrExecutables, type RegisteredTool } from './u.fixture.generated.ts';
 
 type AssertAssignable<From, To> = From extends To ? true : never;
@@ -38,6 +39,7 @@ describe(`Pi: OCR extension / write`, () => {
       const schema = await Fs.readText(Fs.join(Fs.dirname(res.path), 'u.schema.ts'));
       if (!schema.ok) throw schema.error;
       const schemaText = schema.data ?? '';
+      const generatedText = [modText, commandText, schemaText].join('\n');
 
       expect(res.path).to.eql(Fs.join(cwd, '.pi', '@sys', 'extensions', 'ocr', 'mod.ts'));
       expect(res.args).to.eql(['--extension', res.path]);
@@ -48,14 +50,8 @@ describe(`Pi: OCR extension / write`, () => {
       expect(modText).to.contain('"tesseract": "/ocr/bin/tesseract"');
       expect(modText).to.contain('"maxChars": 1234');
       expect(commandText).to.contain('new Deno.Command');
-      expect(commandText).not.to.contain('@sys/process');
-      expect(commandText).not.to.contain('jsr:@sys/process');
-      expect(commandText).not.to.contain("from '@sys/");
-      expect(commandText).not.to.contain("from 'jsr:");
+      expectStandaloneGeneratedExtension(generatedText);
       expect(modText).not.to.contain('__OCR_POLICY__');
-      expect(modText).not.to.contain('@mariozechner/pi-coding-agent');
-      expect(modText).not.to.contain("from '@sys/fs'");
-      expect(schemaText).not.to.contain("from 'typebox'");
     } finally {
       await Fs.remove(cwd);
     }

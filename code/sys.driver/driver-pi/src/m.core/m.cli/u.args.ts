@@ -1,6 +1,6 @@
 import { Args, Fs, type t } from './common.ts';
 import { parseGitRootMode } from './u.git-root.ts';
-import { PI_CODING_AGENT_IMPORT, resolvePkg } from './u.resolve.pkg.ts';
+import { PI_AGENT_IMPORT, resolvePkg } from './u.resolve.pkg.ts';
 import { resolveRead } from './u.resolve.read.ts';
 import { resolveWrite } from './u.resolve.write.ts';
 
@@ -82,7 +82,7 @@ export const PiArgs = {
     return Fs.join(PiArgs.toTmpDir(cwd), 'home');
   },
 
-  import: PI_CODING_AGENT_IMPORT,
+  import: PI_AGENT_IMPORT,
 } as const;
 
 async function toScopedPermissionArgs(

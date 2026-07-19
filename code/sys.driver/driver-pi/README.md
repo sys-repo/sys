@@ -100,6 +100,12 @@ Agent-facing OCR profile guidance lives in the Pi-Driver DSL:
 Use the DSL chapter for enablement YAML, defaults, bounds, dependency preflight, install-consent
 paths, and the live-callability boundary.
 
+## Upstream
+
+The workspace `deps.yaml` owns the upstream Pi npm package specifier and exact version.
+`deno task
+prep` copies that pin into the fallback used when no `deps.yaml` is discoverable.
+
 ## Runtime policy
 
 - Launches require a git repository by default and walk upward to the nearest `.git` root.

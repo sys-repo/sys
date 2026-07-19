@@ -5,7 +5,7 @@ import type { t } from './common.ts';
  *
  * References:
  * - https://pi.dev/
- * - https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent
+ * - https://github.com/earendil-works/pi/tree/main/packages/coding-agent
  *
  * This surface keeps upstream Pi execution behind explicit cwd, permissions,
  * package resolution, and runtime-state seams. Profile policy is modeled by
