@@ -132,6 +132,8 @@ export declare namespace ViteLog {
       title?: string;
       elapsed?: t.Msecs;
       dirs?: Partial<Bundle.IO>;
+      /** Maximum rendered line width for terminal-safe presentation. */
+      width?: number;
       pad?: boolean;
     };
   }

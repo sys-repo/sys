@@ -1,11 +1,22 @@
 import { c, Cli, HashFmt, Is, Str, stripAnsi, type t, Time } from './common.ts';
 
 const MINUTE = 60_000;
+const ELLIPSIS_SENTINEL = '\uE000';
+
+type MetadataRowArgs = {
+  label: string;
+  value: string;
+  width: number;
+  indent?: number;
+  labelWidth?: number;
+  styledLabel?: string;
+  suffixes?: readonly string[];
+};
 
 export const digest: t.ViteLog.Lib['digest'] = (hash?: t.StringHash) => {
   if (!hash) return '';
   const uri = HashFmt.digest(hash);
-  return c.gray(`${c.green('←')} ${uri}`);
+  return `${c.green('←')} ${uri}`;
 };
 
 export const elapsed: t.ViteLog.Lib['elapsed'] = (msec) => {
@@ -37,4 +48,79 @@ export function clipText(input: string, width: number) {
   if (width <= 0) return '';
   if (Cli.Fmt.Text.visibleWidth(input) <= width) return input;
   return Str.ellipsize(input, width);
+}
+
+export function clipValue(input: string, width: number) {
+  if (width <= 0) return '';
+  const text = stripAnsi(input);
+  if (Cli.Fmt.Text.visibleWidth(text) <= width) return input;
+  return Str.ellipsize(text, width, { ellipsis: ELLIPSIS_SENTINEL }).replace(
+    ELLIPSIS_SENTINEL,
+    c.gray('…'),
+  );
+}
+
+export function metadataRow(args: MetadataRowArgs) {
+  const { value, width, suffixes = [] } = args;
+  const prefix = metadataPrefix(args);
+  const base = `${prefix}${value}`;
+  const suffix = suffixes.find((candidate) => {
+    return Cli.Fmt.Text.visibleWidth(`${base} ${candidate}`) <= width;
+  });
+  if (suffix) return `${base} ${suffix}`;
+  if (Cli.Fmt.Text.visibleWidth(base) <= width) return base;
+
+  const valueWidth = Cli.Fmt.Text.fitWidth({
+    width,
+    reserve: Cli.Fmt.Text.visibleWidth(prefix),
+    terminal: false,
+  });
+  return clipLine(`${prefix}${clipValue(value, valueWidth)}`.trimEnd(), width);
+}
+
+export function metadataPrefix(
+  args: Pick<MetadataRowArgs, 'label' | 'indent' | 'labelWidth' | 'styledLabel'>,
+) {
+  const { label, indent = 0, labelWidth = 14, styledLabel = c.gray(label) } = args;
+  const labelDisplayWidth = Cli.Fmt.Text.visibleWidth(styledLabel);
+  const gap = ' '.repeat(Math.max(1, labelWidth - labelDisplayWidth));
+  return `${' '.repeat(Math.max(0, indent))}${styledLabel}${gap}`;
+}
+
+export function digestSuffixes(hash?: t.StringHash) {
+  if (!hash) return [];
+  const parts = digestParts(hash);
+  const compact = parts
+    ? [
+      styledDigest(`${parts.algorithm}:${parts.suffix}`),
+      styledDigest(parts.suffix),
+    ]
+    : [];
+  return [digest(hash), ...compact];
+}
+
+export function styledDigest(value: string) {
+  const hashIndex = value.lastIndexOf('#');
+  const body = hashIndex >= 0
+    ? `${c.gray(value.slice(0, hashIndex))}${c.green(value.slice(hashIndex))}`
+    : c.gray(value);
+  return `${c.green('←')} ${body}`;
+}
+
+export function hashValue(hash: t.StringHash, width: number) {
+  const text = clipText(hash, width);
+  if (!text) return '';
+  return `${c.dim(c.gray(text.slice(0, -5)))}${c.gray(text.slice(-5))}`;
+}
+
+export function digestParts(hash: t.StringHash) {
+  const uri = stripAnsi(HashFmt.digest(hash)).trim();
+  const uriParts = uri.split(':');
+  if (uriParts.length >= 3 && uriParts[0] === 'digest') {
+    return { algorithm: uriParts[1], suffix: uriParts.slice(2).join(':') };
+  }
+
+  const index = hash.indexOf('-');
+  if (index <= 0) return undefined;
+  return { algorithm: hash.slice(0, index), suffix: `#${hash.slice(-5)}` };
 }

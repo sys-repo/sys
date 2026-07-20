@@ -1,5 +1,14 @@
 import { c, Cli, Path, Semver, Str, type t } from './common.ts';
-import { clipLine, clipText, digest, elapsed, outputWidth, pad, reserveWidth } from './u.ts';
+import {
+  clipLine,
+  clipText,
+  digest,
+  elapsed,
+  hashValue,
+  outputWidth,
+  pad,
+  reserveWidth,
+} from './u.ts';
 
 export const Bundle: t.ViteLog.Bundle.Lib = {
   log(args) {
@@ -25,7 +34,7 @@ export const Bundle: t.ViteLog.Bundle.Lib = {
       wrangle.row('out:', `${clean(outDir)}/dist.json ${tx}`.trim(), width),
     ];
 
-    if (hash) lines.push(wrangle.row('', wrangle.hash(hash, wrangle.valueWidth(width)), width));
+    if (hash) lines.push(wrangle.row('', hashValue(hash, wrangle.valueWidth(width)), width));
 
     return pad(lines.join('\n').trim(), args.pad);
   },
@@ -71,12 +80,6 @@ const wrangle = {
     const index = name.lastIndexOf('/');
     const value = index >= 0 ? name.slice(index + 1) : name;
     return value || name || 'unknown';
-  },
-
-  hash(hash: string, width: number) {
-    const text = wrangle.clipText(hash, width);
-    if (!text) return '';
-    return `${c.dim(c.gray(text.slice(0, -5)))}${c.gray(text.slice(-5))}`;
   },
 
   clip(input: string, width: number) {

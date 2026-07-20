@@ -1,4 +1,5 @@
 import { ViteLog } from '../../m.fmt/mod.ts';
+import { digestSuffixes, metadataRow } from '../../m.fmt/u.ts';
 import { c, Cli, Is, Path, Str, stripAnsi, type t, Time } from '../common.ts';
 import { DevOutputLog } from './u.dev.output.ts';
 
@@ -141,8 +142,23 @@ export const DevScreen = {
         '',
         wrangle.info(args.url, contentColumn, width),
         `${indent}${c.green('↑')}`,
-        wrangle.valueRow('input', input, contentColumn, width, c.green('input')),
-        wrangle.outputRow(outDir, args.dist?.hash.digest, contentColumn, width),
+        metadataRow({
+          label: 'input',
+          value: input,
+          width,
+          indent: contentColumn,
+          labelWidth: 9,
+          styledLabel: c.green('input'),
+        }),
+        metadataRow({
+          label: 'output',
+          value: outDir,
+          width,
+          indent: contentColumn,
+          labelWidth: 9,
+          styledLabel: c.white('output'),
+          suffixes: digestSuffixes(args.dist?.hash.digest),
+        }),
       ];
       if (args.ws) lines.splice(2, 0, '', args.ws.toString());
       if (args.showOptions) lines.push('', wrangle.options(subHr, contentColumn));
@@ -306,75 +322,6 @@ const wrangle = {
     const gap = wrangle.indent(Math.max(1, contentColumn - label.length));
     const tail = suffix ? `  ${suffix}` : '';
     return `${label}${gap}${value}${tail}`;
-  },
-
-  valueRow(
-    label: string,
-    value: string,
-    contentColumn: number,
-    width: number,
-    styledLabel: string,
-  ) {
-    const prefix = wrangle.valuePrefix(label, contentColumn, styledLabel);
-    const valueWidth = Cli.Fmt.Text.fitWidth({
-      width,
-      reserve: Cli.Fmt.Text.visibleWidth(prefix),
-      terminal: false,
-    });
-    return `${prefix}${wrangle.clipMiddle(value, valueWidth)}`;
-  },
-
-  valuePrefix(label: string, contentColumn: number, styledLabel: string) {
-    const labelWidth = 9;
-    const gap = wrangle.indent(Math.max(1, labelWidth - label.length));
-    return `${wrangle.indent(contentColumn)}${styledLabel}${gap}`;
-  },
-
-  outputRow(outDir: string, hash: t.StringHash | undefined, contentColumn: number, width: number) {
-    const prefix = wrangle.valuePrefix('output', contentColumn, c.white('output'));
-    const base = `${prefix}${outDir}`;
-    const candidates = wrangle.digestCandidates(hash);
-    const digest = candidates.find((candidate) => {
-      return Cli.Fmt.Text.visibleWidth(`${base} ${candidate}`) <= width;
-    });
-    if (digest) return `${base} ${digest}`;
-    if (Cli.Fmt.Text.visibleWidth(base) <= width) return base;
-
-    const outDirWidth = Cli.Fmt.Text.fitWidth({
-      width,
-      reserve: Cli.Fmt.Text.visibleWidth(prefix),
-      terminal: false,
-    });
-    return `${prefix}${wrangle.clipMiddle(outDir, outDirWidth)}`;
-  },
-
-  digestCandidates(hash: t.StringHash | undefined) {
-    if (!hash) return [];
-    const parts = wrangle.digestParts(hash);
-    const short = parts
-      ? [
-        wrangle.digest(`${parts.algorithm}:${parts.suffix}`),
-        wrangle.digest(parts.suffix),
-      ]
-      : [];
-    return [ViteLog.digest(hash), ...short];
-  },
-
-  digest(value: string) {
-    return c.gray(`${c.green('←')} ${value}`);
-  },
-
-  digestParts(hash: t.StringHash) {
-    const text = stripAnsi(ViteLog.digest(hash)).trim();
-    const uri = text.replace(/^←\s*/, '');
-    const uriParts = uri.split(':');
-    if (uriParts.length >= 3 && uriParts[0] === 'digest') {
-      return { algorithm: uriParts[1], suffix: uriParts.slice(2).join(':') };
-    }
-
-    const index = hash.indexOf('-');
-    if (index <= 0) return undefined;
-    return { algorithm: hash.slice(0, index), suffix: `#${hash.slice(-5)}` };
   },
 
   indexWidth(lines: readonly OutputLine[]) {
