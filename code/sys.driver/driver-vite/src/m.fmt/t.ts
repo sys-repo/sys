@@ -15,8 +15,8 @@ export declare namespace ViteLog {
     /** Log a `/dist` bundle folder. */
     readonly Dist: Dist.Lib;
 
-    /** Log the common "dev/build/serve" API.  */
-    readonly API: API.Lib;
+    /** Log common `deno task` command help. */
+    readonly Tasks: Tasks.Lib;
 
     /** Command output. */
     readonly Help: Help.Lib;
@@ -32,10 +32,10 @@ export declare namespace ViteLog {
   };
 
   /**
-   * Log the common "dev/build/serve" (and optionally extended) API.
+   * Log common `deno task` command help.
    */
-  export namespace API {
-    /** API command logging surface. */
+  export namespace Tasks {
+    /** Task command logging surface. */
     export type Lib = {
       /** Render to console. */
       log(args?: Args): void;
@@ -44,7 +44,7 @@ export declare namespace ViteLog {
       toString(args?: Args): string;
     };
 
-    /** Arguments passed to `Log.API` method. */
+    /** Arguments passed to `ViteLog.Tasks` methods. */
     export type Args = {
       cmd?: string;
       minimal?: boolean;
@@ -112,7 +112,7 @@ export declare namespace ViteLog {
     export type Args = {
       dirs: Bundle.IO;
       pkg?: t.Pkg;
-      api?: API.Args | false;
+      tasks?: Tasks.Args | false;
     };
   }
 

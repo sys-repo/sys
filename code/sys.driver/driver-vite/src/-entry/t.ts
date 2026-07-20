@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 type P = t.StringPath;
 
 /**
- * The API invoked via the CLI command API.
+ * CLI command entrypoint surface.
  */
 export declare namespace ViteEntry {
   /** CLI entry runtime surface. */

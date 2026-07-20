@@ -1,5 +1,5 @@
 import { Wrangle } from '../m.vite/u/u.wrangle.ts';
-import { type t, Args, c, Path, pkg, ViteLog } from './common.ts';
+import { Args, c, Path, pkg, type t, ViteLog } from './common.ts';
 
 import { build } from './u.build.ts';
 import { dev } from './u.dev.ts';
@@ -13,19 +13,19 @@ export const main: t.ViteEntry.Lib['main'] = async (input) => {
   const cmd = args.cmd;
 
   if (cmd === 'dev') {
-    ViteLog.API.log({ cmd: 'dev' });
+    ViteLog.Tasks.log({ cmd: 'dev' });
     await dev(args);
     return;
   }
 
   if (cmd === 'build') {
-    if (!args.silent) ViteLog.API.log({ cmd: 'build' });
+    if (!args.silent) ViteLog.Tasks.log({ cmd: 'build' });
     await build(args);
     return;
   }
 
   if (cmd === 'serve') {
-    if (!args.silent) ViteLog.API.log({ cmd: 'serve' });
+    if (!args.silent) ViteLog.Tasks.log({ cmd: 'serve' });
     console.info();
     await serve(args);
     return;
@@ -39,10 +39,10 @@ export const main: t.ViteEntry.Lib['main'] = async (input) => {
       out: Path.join(paths.cwd, paths.app.outDir),
     };
 
-    let api: false | undefined;
-    if (info === true) api = false; // NB: don't show the API if specific "info" was requested.
+    let tasks: false | undefined;
+    if (info === true) tasks = false; // NB: don't show common tasks if specific "info" was requested.
 
-    await ViteLog.Help.log({ pkg, dirs, api });
+    await ViteLog.Help.log({ pkg, dirs, tasks });
     return;
   }
 

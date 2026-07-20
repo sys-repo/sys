@@ -2,7 +2,7 @@ import { c, Cli, type t } from './common.ts';
 import { clipLine, clipText, outputWidth, reserveWidth } from './u.ts';
 
 type C = (str: string) => string;
-type Cmd = t.ViteLog.API.Cmd;
+type Cmd = t.ViteLog.Tasks.Cmd;
 type LeftMode = 'full' | 'compact';
 type Row = { cmd: Cmd; description: string } | 'break';
 
@@ -16,9 +16,9 @@ const ROWS: readonly Row[] = [
   { cmd: 'info', description: 'Show info.' },
 ];
 
-export const API: t.ViteLog.API.Lib = {
+export const Tasks: t.ViteLog.Tasks.Lib = {
   log(args = {}) {
-    console.info(API.toString(args));
+    console.info(Tasks.toString(args));
   },
 
   toString(args = {}) {
@@ -47,7 +47,7 @@ const wrangle = {
     return clipLine(value, width);
   },
 
-  table(rows: readonly Row[], args: t.ViteLog.API.Args, mode: LeftMode, width: number) {
+  table(rows: readonly Row[], args: t.ViteLog.Tasks.Args, mode: LeftMode, width: number) {
     const leftWidth = wrangle.leftWidth(rows, args, mode);
     const rendered = rows.map((row) => {
       if (row === 'break') return '';
@@ -58,7 +58,7 @@ const wrangle = {
 
   row(
     row: Exclude<Row, 'break'>,
-    args: t.ViteLog.API.Args,
+    args: t.ViteLog.Tasks.Args,
     mode: LeftMode,
     width: number,
     leftWidth: number,
@@ -70,7 +70,7 @@ const wrangle = {
     return clipLine(`${left}${gap}${desc}`.trimEnd(), width);
   },
 
-  left(cmd: Cmd, args: t.ViteLog.API.Args, mode: LeftMode) {
+  left(cmd: Cmd, args: t.ViteLog.Tasks.Args, mode: LeftMode) {
     const isDisabled = args.disabled?.includes(cmd) ?? false;
     let name = wrangle.cmdColor(cmd, args)(cmd);
     if (args.cmd === cmd) name = c.bold(name);
@@ -79,17 +79,17 @@ const wrangle = {
     return `${c.gray(prefix)}${name}${suffix}`;
   },
 
-  leftWidth(rows: readonly Row[], args: t.ViteLog.API.Args, mode: LeftMode) {
+  leftWidth(rows: readonly Row[], args: t.ViteLog.Tasks.Args, mode: LeftMode) {
     const cells = rows.flatMap((row) => row === 'break' ? [] : [wrangle.left(row.cmd, args, mode)]);
     return Cli.Fmt.Text.maxVisibleWidth(cells);
   },
 
-  description(cmd: Cmd, text: string, args: t.ViteLog.API.Args, width: number) {
+  description(cmd: Cmd, text: string, args: t.ViteLog.Tasks.Args, width: number) {
     const color = !args.cmd || args.cmd === cmd ? c.white : c.gray;
     return color(clipText(text, width));
   },
 
-  leftMode(rows: readonly Row[], args: t.ViteLog.API.Args, width: number): LeftMode {
+  leftMode(rows: readonly Row[], args: t.ViteLog.Tasks.Args, width: number): LeftMode {
     const leftWidth = wrangle.leftWidth(rows, args, 'full');
     const descWidth = reserveWidth(width, leftWidth + GAP);
     const fullFits = rows.every((row) => {
@@ -99,14 +99,14 @@ const wrangle = {
     return fullFits ? 'full' : 'compact';
   },
 
-  cmdColor(cmd: Cmd, args: t.ViteLog.API.Args): C {
+  cmdColor(cmd: Cmd, args: t.ViteLog.Tasks.Args): C {
     const isDisabled = args.disabled?.includes(cmd) ?? false;
     const active = cmd === args.cmd || !args.cmd;
     const fmt = active ? c.green : c.gray;
     return isDisabled ? (str) => c.strikethrough(c.dim(fmt(str))) : fmt;
   },
 
-  footnote(args: t.ViteLog.API.Args, width: number) {
+  footnote(args: t.ViteLog.Tasks.Args, width: number) {
     const disabled = args.disabled ?? [];
     if (disabled.length === 0) return '';
     return clipLine(c.yellow(`* TODO 🐷 ${c.italic('(implemention in progress)')}`), width);

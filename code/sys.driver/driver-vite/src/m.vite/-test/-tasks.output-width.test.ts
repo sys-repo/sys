@@ -19,9 +19,9 @@ function expectDescriptionColumn(text: string, expected: Record<string, string>)
   expect(new Set(columns).size).to.eql(1);
 }
 
-describe('ViteLog.API output formatting', () => {
+describe('ViteLog.Tasks output formatting', () => {
   it('renders full task invocations while they fit', () => {
-    const text = ViteLog.API.toString({ cmd: 'build', width: 80 });
+    const text = ViteLog.Tasks.toString({ cmd: 'build', width: 80 });
     const output = stripAnsi(text);
 
     expectBounded(text, 80);
@@ -37,7 +37,7 @@ describe('ViteLog.API output formatting', () => {
   });
 
   it('drops the repeated deno task prefix before clipping descriptions', () => {
-    const text = ViteLog.API.toString({ cmd: 'build', width: 42 });
+    const text = ViteLog.Tasks.toString({ cmd: 'build', width: 42 });
     const output = stripAnsi(text);
     const build = lines(text).find((line) => line.includes('build') && !line.includes('Usage')) ??
       '';
@@ -55,7 +55,7 @@ describe('ViteLog.API output formatting', () => {
   });
 
   it('keeps extended command help width-safe for info/help call sites', () => {
-    const text = ViteLog.API.toString({ cmd: 'info', minimal: false, width: 44 });
+    const text = ViteLog.Tasks.toString({ cmd: 'info', minimal: false, width: 44 });
     const output = stripAnsi(text);
 
     expectBounded(text, 44);
@@ -66,7 +66,7 @@ describe('ViteLog.API output formatting', () => {
   });
 
   it('middle-ellipsizes descriptions after command-prefix compaction is exhausted', () => {
-    const text = ViteLog.API.toString({ cmd: 'build', width: 26 });
+    const text = ViteLog.Tasks.toString({ cmd: 'build', width: 26 });
     const build = lines(text).find((line) => line.includes('build') && !line.includes('Usage')) ??
       '';
 

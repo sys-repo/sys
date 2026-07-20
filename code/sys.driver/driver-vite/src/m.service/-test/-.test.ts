@@ -58,7 +58,7 @@ describe('@sys/driver-vite/service', () => {
     const handle = await startDev(
       { cwd: fs.dir, paths: { config }, silent: true, until },
       {
-        dev: async (args) => {
+        async dev(args) {
           captured = args;
           return server;
         },
@@ -102,7 +102,7 @@ describe('@sys/driver-vite/service', () => {
     const handle = await startDev(
       { cwd: fs.dir, paths: { config: configRel } },
       {
-        dev: async (args) => {
+        async dev(args) {
           captured = args;
           return fakeServer();
         },

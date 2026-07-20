@@ -1,5 +1,5 @@
-import { type t, c, pkg as modulePkg, Pkg } from './common.ts';
-import { API } from './u.API.ts';
+import { c, Pkg, pkg as modulePkg, type t } from './common.ts';
+import { Tasks } from './u.Tasks.ts';
 import { Dist } from './u.Dist.ts';
 
 export const Help: t.ViteLog.Help.Lib = {
@@ -7,8 +7,8 @@ export const Help: t.ViteLog.Help.Lib = {
     const pkg = args.pkg ?? modulePkg;
     const dirs = args.dirs;
 
-    // API (commands).
-    if (args.api !== false) API.log({ ...args.api, minimal: false });
+    // Common tasks.
+    if (args.tasks !== false) Tasks.log({ ...args.tasks, minimal: false });
     console.info();
 
     // Dist bundle.
