@@ -22,6 +22,7 @@ describe('DevScreen', () => {
     const header = text.split('\n')[0];
     expect(header).to.eql('Dev   @sys/example 0.0.0');
     expect(text).to.include('━'.repeat(24) + '\n\n         http://localhost:1234/');
+    expect(text).to.include('\n         ↑\n         input');
     expect(text).to.not.include('module');
     expect(text).to.not.include('@sys/example@0.0.0');
     expect(raw).to.include(`${c.white(c.bold('@sys/example'))} ${c.gray('0.0.0')}`);
@@ -32,6 +33,27 @@ describe('DevScreen', () => {
     expect(text).to.include(' 2  out  two');
     expect(text).to.include(' 3  err  warn');
     expect(text).to.not.include('options:');
+  });
+
+  it('compacts the header identity before allowing title/package collision', () => {
+    const header = (width: number) =>
+      stripAnsi(DevScreen.toString({
+        pkg: { name: '@sys/ui-components', version: '0.0.319' },
+        paths: paths(),
+        url: 'http://localhost:1234/',
+        lines: [],
+        width,
+      })).split('\n')[0];
+
+    expect(header(40)).to.eql('Dev           @sys/ui-components 0.0.319');
+    expect(header(29)).to.eql('Dev        @sys/ui-components');
+    expect(header(20)).to.eql('  @sys/ui-components');
+    expect(header(17)).to.eql('    ui-components');
+
+    const tight = header(8);
+    expect(tight.length).to.eql(8);
+    expect(tight).to.not.include('@sys');
+    expect(tight).to.include('…');
   });
 
   it('aligns metadata content with the log message column as sequence numbers widen', () => {

@@ -54,7 +54,9 @@ const MAX_LOG_LINES = 200;
 const REDRAW_MSEC = 50 as t.Msecs;
 const ELLIPSIS_SENTINEL = '\uE000';
 
-/** Stable parent-owned reporter for Vite dev output. */
+/**
+ * Stable parent-owned reporter for Vite dev output.
+ */
 export const DevScreen = {
   resolveReporter(input: unknown, options: ReporterResolveArgs): ReporterMode {
     const mode = wrangle.reporterMode(input);
@@ -131,21 +133,22 @@ export const DevScreen = {
     const digest = ViteLog.digest(args.dist?.hash.digest);
     const input = Path.trimCwd(args.paths.app.entry);
     const outDir = Path.trimCwd(args.paths.app.outDir);
-    const workspace = args.ws ? `\n\n${args.ws.toString()}` : '';
     const prefix = (indexWidth: number) => {
       const contentColumn = wrangle.contentColumn(indexWidth);
       const indent = wrangle.indent(contentColumn);
-      const options = args.showOptions ? `\n\n${wrangle.options(subHr, contentColumn)}` : '';
-      return `
-${wrangle.header(args.pkg, width)}
-${hr}${workspace}
-
-${wrangle.info(args.url, contentColumn)}
-${indent}${c.green('↓')}
-${indent}${c.green('input')}    ${input}
-${indent}${c.white('output')}   ${outDir} ${digest}${options}
-
-${subHr}`.trim();
+      const lines = [
+        wrangle.header(args.pkg, width),
+        hr,
+        '',
+        wrangle.info(args.url, contentColumn),
+        `${indent}${c.green('↑')}`,
+        `${indent}${c.green('input')}    ${input}`,
+        `${indent}${c.white('output')}   ${outDir} ${digest}`,
+      ];
+      if (args.ws) lines.splice(2, 0, '', args.ws.toString());
+      if (args.showOptions) lines.push('', wrangle.options(subHr, contentColumn));
+      lines.push('', subHr);
+      return lines.join('\n').trimEnd();
     };
     const rowCount = Math.min(
       wrangle.logLines(args.logLines),
@@ -157,7 +160,7 @@ ${subHr}`.trim();
     const rows = visible.map((line) => wrangle.logRow(line, width, indexWidth));
     const frame = rows.length ? `${head}\n${rows.join('\n')}` : head;
 
-    return wrangle.clipLines(frame, height).trim();
+    return wrangle.clipLines(frame, height).trimEnd();
   },
 } as const;
 
@@ -222,12 +225,46 @@ const wrangle = {
   },
 
   header(pkg: t.Pkg, width: number) {
-    const title = c.brightGreen(c.bold('Dev'));
-    const mod = wrangle.module(pkg);
-    const titleWidth = Cli.Fmt.Text.visibleWidth(title);
-    const modWidth = Cli.Fmt.Text.visibleWidth(mod);
-    const gap = width - titleWidth - modWidth;
-    return gap >= 1 ? `${title}${wrangle.indent(gap)}${mod}` : title;
+    if (width === 0) return '';
+
+    const titleText = 'Dev';
+    const title = c.brightGreen(c.bold(titleText));
+    const titleWidth = Cli.Fmt.Text.visibleWidth(titleText);
+    const name = pkg.name;
+    const version = pkg.version.trim();
+    const scoped = wrangle.moduleName(name);
+    const scopedVersion = version ? `${scoped} ${version}` : scoped;
+    const unscoped = wrangle.unscopedModuleName(scoped);
+    const renderName = (text: string) => c.white(c.bold(text));
+    const renderModule = (text: string) => {
+      if (!version || !text.endsWith(` ${version}`)) return renderName(text);
+      const base = text.slice(0, -1 * (` ${version}`).length);
+      return `${renderName(base)} ${c.gray(version)}`;
+    };
+    const split = (right: string) => {
+      const gap = width - titleWidth - Cli.Fmt.Text.visibleWidth(right);
+      return gap >= 1 ? `${title}${wrangle.indent(gap)}${renderModule(right)}` : undefined;
+    };
+    const alignRight = (text: string) => {
+      const gap = Math.max(0, width - Cli.Fmt.Text.visibleWidth(text));
+      return `${wrangle.indent(gap)}${renderName(text)}`;
+    };
+
+    return split(scopedVersion) ??
+      split(scoped) ??
+      (Cli.Fmt.Text.visibleWidth(scoped) <= width ? alignRight(scoped) : undefined) ??
+      (Cli.Fmt.Text.visibleWidth(unscoped) <= width ? alignRight(unscoped) : undefined) ??
+      renderName(wrangle.clipMiddleText(unscoped, width));
+  },
+
+  moduleName(name: string) {
+    return name.trim() || 'unknown';
+  },
+
+  unscopedModuleName(name: string) {
+    const index = name.lastIndexOf('/');
+    const value = index >= 0 ? name.slice(index + 1) : name;
+    return value || name || 'unknown';
   },
 
   info(href: string, contentColumn: number) {
@@ -235,10 +272,6 @@ const wrangle = {
     const port = c.bold(c.brightCyan(url.port));
     const indent = wrangle.indent(contentColumn);
     return c.cyan(`${indent}${url.protocol}//${url.hostname}:${port}/`);
-  },
-
-  module(pkg: t.Pkg) {
-    return `${c.white(c.bold(pkg.name))} ${c.gray(pkg.version)}`;
   },
 
   options(subHr: string, contentColumn: number) {
@@ -276,6 +309,12 @@ const wrangle = {
     });
     const text = wrangle.clipMiddle(stripAnsi(line.text).trim(), textWidth);
     return `${prefix}${text}`;
+  },
+
+  clipMiddleText(text: string, width: number) {
+    if (width === 0) return '';
+    if (Cli.Fmt.Text.visibleWidth(text) <= width) return text;
+    return Str.ellipsize(text, width);
   },
 
   clipMiddle(text: string, width: number) {
