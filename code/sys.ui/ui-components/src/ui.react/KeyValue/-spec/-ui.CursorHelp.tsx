@@ -1,5 +1,5 @@
 import React from 'react';
-import { Chip, Color, css, type t } from './common.ts';
+import { Chip, Color, css, ProseMarkdown, Str, type t } from './common.ts';
 
 type Step = { readonly gesture: string; readonly text: string };
 
@@ -18,6 +18,16 @@ const steps: readonly Step[] = [
   { gesture: 'Esc', text: 'exits.' },
 ];
 
+const toMarkdown = (items: readonly Step[]) => {
+  const intro = Str.dedent(`
+    \`Option-click\` a row, or \`Option + Enter\` to focus.
+
+    Once focused:
+  `);
+  const list = items.map((step) => `- \`${step.gesture}\` ${step.text}`).join('\n');
+  return `${intro}\n\n${list}`;
+};
+
 export const CursorHelp: React.FC<CursorHelpProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
@@ -29,41 +39,18 @@ export const CursorHelp: React.FC<CursorHelpProps> = (props) => {
       marginBottom: 8,
       marginLeft: 8,
     }),
-    focused: css({ marginTop: 6 }),
-    list: css({ margin: '3px 0 0 0', paddingLeft: 18 }),
-    listItem: css({ marginTop: 2, paddingLeft: 2 }),
-    itemContent: css({
-      display: 'grid',
-      gridTemplateColumns: 'max-content 1fr',
-      columnGap: 8,
-      alignItems: 'baseline',
-    }),
-    gesture: css({ minWidth: 0, justifySelf: 'start', whiteSpace: 'nowrap' }),
   };
 
-  const code = (text: string) => (
-    <Chip.UI mono theme={theme.name} size='sm'>
-      {text}
-    </Chip.UI>
-  );
-  const list = (items: readonly Step[]) => (
-    <ul className={styles.list.class}>
-      {items.map((step) => (
-        <li key={step.gesture} className={styles.listItem.class}>
-          <span className={styles.itemContent.class}>
-            <span className={styles.gesture.class}>{code(step.gesture)}</span>
-            <span>{step.text}</span>
-          </span>
-        </li>
-      ))}
-    </ul>
-  );
+  const renderers: t.ProseMarkdown.Renderers = {
+    inlineCode: (e) => <Chip.UI mono theme={theme.name} size='sm'>{e.value}</Chip.UI>,
+  };
 
   return (
-    <div className={css(styles.base, props.style).class}>
-      {code('Option-click')} {'a row, or '} {code('Option + Enter')} {'to focus.'}
-      <div className={styles.focused.class}>{'Once focused:'}</div>
-      {list([...steps, ...(props.extraSteps ?? [])])}
-    </div>
+    <ProseMarkdown.UI
+      value={toMarkdown([...steps, ...(props.extraSteps ?? [])])}
+      renderers={renderers}
+      theme={theme.name}
+      style={css(styles.base, props.style)}
+    />
   );
 };
