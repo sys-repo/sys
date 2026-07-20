@@ -1,12 +1,14 @@
 {
   "version": "5",
   "specifiers": {
+    "jsr:@bradenmacdonald/s3-lite-client@0.9.6": "0.9.6",
     "jsr:@cliffy/ansi@1.2.1": "1.2.1",
     "jsr:@cliffy/internal@1.2.1": "1.2.1",
     "jsr:@cliffy/keycode@1.2.1": "1.2.1",
     "jsr:@cliffy/keypress@1.2.1": "1.2.1",
     "jsr:@cliffy/prompt@1.2.1": "1.2.1",
     "jsr:@cliffy/table@1.2.1": "1.2.1",
+    "jsr:@deno/loader@0.5.0": "0.5.0",
     "jsr:@std/assert@^1.0.19": "1.0.19",
     "jsr:@std/cli@^1.0.31": "1.0.32",
     "jsr:@std/datetime@0.225.7": "0.225.7",
@@ -20,6 +22,8 @@
     "jsr:@std/html@^1.0.7": "1.0.7",
     "jsr:@std/http@1.1.2": "1.1.2",
     "jsr:@std/internal@^1.0.14": "1.0.14",
+    "jsr:@std/io@~0.225.3": "0.225.3",
+    "jsr:@std/json@^1.0.2": "1.1.0",
     "jsr:@std/jsonc@1.0.2": "1.0.2",
     "jsr:@std/media-types@^1.1.0": "1.1.0",
     "jsr:@std/net@^1.0.6": "1.0.6",
@@ -46,7 +50,7 @@
     "npm:@preact/signals-react@3.10.3": "3.10.3_react@19.2.7",
     "npm:@sinclair/typebox-codegen@0.11.1": "0.11.1",
     "npm:@stripe/stripe-js@9.10.0": "9.10.0",
-    "npm:@svgdotjs/svg.js@3.2.5": "3.2.5",
+    "npm:@svgdotjs/svg.js@3.2.6": "3.2.6",
     "npm:@testing-library/react@16.3.2": "16.3.2_@testing-library+dom@10.4.1_@types+react@19.2.17_@types+react-dom@19.2.3__@types+react@19.2.17_react@19.2.7_react-dom@19.2.7__react@19.2.7",
     "npm:@types/mdast@4.0.4": "4.0.4",
     "npm:@types/react-dom@19.2.3": "19.2.3_@types+react@19.2.17",
@@ -105,11 +109,15 @@
     "npm:yaml@2.9.0": "2.9.0"
   },
   "jsr": {
+    "@bradenmacdonald/s3-lite-client@0.9.6": {
+      "integrity": "5dac4eb9ce4d8574ce2eb21e1cff1e96b409ca3ba333913a8bbf918710dc50d9"
+    },
     "@cliffy/ansi@1.2.1": {
       "integrity": "b8702def9c0110b6eeb2b3b71e0b26cbe0a427facbb4f9c0189da0ba19feb549",
       "dependencies": [
         "jsr:@cliffy/internal",
-        "jsr:@std/encoding@^1.0.10"
+        "jsr:@std/encoding@^1.0.10",
+        "jsr:@std/io"
       ]
     },
     "@cliffy/internal@1.2.1": {
@@ -133,6 +141,7 @@
         "jsr:@cliffy/keycode",
         "jsr:@std/assert",
         "jsr:@std/fmt",
+        "jsr:@std/io",
         "jsr:@std/path@^1.1.5",
         "jsr:@std/text"
       ]
@@ -142,6 +151,9 @@
       "dependencies": [
         "jsr:@std/fmt"
       ]
+    },
+    "@deno/loader@0.5.0": {
+      "integrity": "a6d94408de5e6bacac404f8f6963c8b8cc278cfd1a878aa2f06b34a083d6bfee"
     },
     "@std/assert@1.0.19": {
       "integrity": "eaada96ee120cb980bc47e040f82814d786fe8162ecc53c91d8df60b8755991e"
@@ -188,8 +200,17 @@
     "@std/internal@1.0.14": {
       "integrity": "291516b3d4c35024d6ffbc0a9df5bf4c64116e05b50012cf846710152d2ffdf7"
     },
+    "@std/io@0.225.3": {
+      "integrity": "27b07b591384d12d7b568f39e61dff966b8230559122df1e9fd11cc068f7ddd1"
+    },
+    "@std/json@1.1.0": {
+      "integrity": "93330d3ed4054d6b1ffe54b075432c80a5f671be77277b978931e018014cb1cc"
+    },
     "@std/jsonc@1.0.2": {
-      "integrity": "909605dae3af22bd75b1cbda8d64a32cf1fd2cf6efa3f9e224aba6d22c0f44c7"
+      "integrity": "909605dae3af22bd75b1cbda8d64a32cf1fd2cf6efa3f9e224aba6d22c0f44c7",
+      "dependencies": [
+        "jsr:@std/json"
+      ]
     },
     "@std/media-types@1.1.0": {
       "integrity": "c9d093f0c05c3512932b330e3cc1fe1d627b301db33a4c2c2185c02471d6eaa4"
@@ -1330,8 +1351,8 @@
     "@stripe/stripe-js@9.10.0": {
       "integrity": "sha512-rxkKgWLAWtjvJhqEynPJ5zPXoKx5cK4eIUunnMGxwUJDRHKv3MlpA1mCCXdeiXzui5YZNWJKUJBTpe7m30jhOA=="
     },
-    "@svgdotjs/svg.js@3.2.5": {
-      "integrity": "sha512-/VNHWYhNu+BS7ktbYoVGrCmsXDh+chFMaONMwGNdIBcFHrWqk2jY8fNyr3DLdtQUIalvkPfM554ZSFa3dm3nxQ=="
+    "@svgdotjs/svg.js@3.2.6": {
+      "integrity": "sha512-W/uIcOtCM3et9sCd/Iihw7YfAQSxnNoKGFhFEJFbVHhkeleirCkX+shZnPx8jkw3fTzfyFCOf6SJ5t3LC2W7qw=="
     },
     "@testing-library/dom@10.4.1": {
       "integrity": "sha512-o4PXJQidqJl82ckFaXUeoAW+XysPLauYI43Abki5hABd853iMhitooc6znOnczgbTYmEP6U6/y1ZyKAIsvMKGg==",
@@ -3347,7 +3368,7 @@
       "npm:@preact/signals-react@3.10.3",
       "npm:@sinclair/typebox-codegen@0.11.1",
       "npm:@stripe/stripe-js@9.10.0",
-      "npm:@svgdotjs/svg.js@3.2.5",
+      "npm:@svgdotjs/svg.js@3.2.6",
       "npm:@types/mdast@4.0.4",
       "npm:@types/unist@3.0.3",
       "npm:@types/ws@8.18.1",
