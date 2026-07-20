@@ -1,4 +1,15 @@
-import { type t, pkg as builder, c, Cli, CompositeHash, Fs, Json, Pkg, Process, Time } from '../common.ts';
+import {
+  c,
+  Cli,
+  CompositeHash,
+  Fs,
+  Json,
+  Pkg,
+  pkg as builder,
+  Process,
+  type t,
+  Time,
+} from '../common.ts';
 import { ViteLog } from '../../m.fmt/mod.ts';
 import { Log } from './u.log.ts';
 import { Wrangle } from './u.wrangle.ts';
@@ -46,7 +57,7 @@ export const build: B = async (input) => {
         return { input: cmd, output };
       },
       toString(options = {}) {
-        const { pad } = options as { pad?: boolean };
+        const { pad, width } = options;
         const totalSize = dist?.build?.size?.total ?? { files: 0, bytes: 0 };
         const hash = dist?.hash?.digest ?? '';
         return Log.Build.toString({
@@ -59,6 +70,7 @@ export const build: B = async (input) => {
           hash,
           pad,
           elapsed,
+          width,
         });
       },
     };
@@ -86,14 +98,7 @@ export const build: B = async (input) => {
    * Logging (paths):
    */
   if (!silent) {
-    const table = Cli.table([]);
-    const push = (label: string, ...value: string[]) => table.push([c.gray(label), ...value]);
-    push('Directory:', c.gray(`${cwd.replace(/\/$/, '')}/`));
-    push('  • entry:', wrangle.cleanPath(paths.app.entry));
-    push('  • outDir:', wrangle.cleanPath(paths.app.outDir) + '/');
-    push('  • base:', wrangle.cleanPath(paths.app.base) + '/');
-    console.info(c.bold(c.brightGreen('Paths')));
-    console.info(table.toString().trim());
+    console.info(Log.Build.paths({ cwd, paths }));
     console.info();
   }
 
@@ -152,13 +157,6 @@ export const build: B = async (input) => {
  * Helpers:
  */
 const wrangle = {
-  cleanPath(input: t.StringPath = '') {
-    return input
-      .trim()
-      .replace(/^(?:\.\/)+/, '') //   ← strip any leading "./" segments.
-      .replace(/\/+$/, ''); //        ← strip any trailing "/" characters.
-  },
-
   spinnerText(label: string, startedAt: number) {
     const elapsed = Time.elapsed(startedAt);
     const suffix = elapsed.msec >= 1000 ? c.dim(c.gray(` ${ViteLog.elapsed(elapsed.msec)}`)) : '';

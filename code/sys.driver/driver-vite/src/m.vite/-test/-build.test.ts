@@ -1,4 +1,15 @@
-import { type t, c, describe, expect, Fs, it, pkg, SAMPLE, Testing } from '../../-test.ts';
+import {
+  c,
+  describe,
+  expect,
+  Fs,
+  it,
+  pkg,
+  SAMPLE,
+  stripAnsi,
+  type t,
+  Testing,
+} from '../../-test.ts';
 import { extractModulePreloadLinks } from './u.html.ts';
 import { writeLocalFixtureImports } from './u.bridge.fixture.ts';
 import { Vite } from '../mod.ts';
@@ -64,6 +75,7 @@ describe('Vite.build', () => {
       expect(res.cmd.input).to.include('npm:vite@');
       expect(res.elapsed).to.be.greaterThan(0);
       expect(res.paths).to.eql(expectedPaths);
+      expectBounded(res.toString({ width: 56 }), 56);
 
       // Ensure the {pkg:name:version} data is included in the composite <digest> hash.
       const keys = Object.keys(res.dist.hash.parts);
@@ -77,7 +89,7 @@ describe('Vite.build', () => {
       const json = await Fs.readJson<t.DistPkg>(Fs.join(outDir, 'dist.json'));
       const html = await readFile(Fs.join(outDir, 'index.html'));
       const entryPath = Object.keys(json.data?.hash.parts ?? {}).find((path) =>
-        path.startsWith('pkg/-entry.'),
+        path.startsWith('pkg/-entry.')
       );
       const entry = await readFile(Fs.join(outDir, entryPath ?? ''));
 
@@ -106,7 +118,7 @@ describe('Vite.build', () => {
       expect(res.dist.pkg).to.eql(pkg);
       expect(res.dist.build.size.total).to.be.greaterThan(100_000);
       const hashedEntry = Object.entries(res.dist.hash.parts).find(([path]) =>
-        path.startsWith('pkg/-entry.'),
+        path.startsWith('pkg/-entry.')
       )?.[1];
       expect(hashedEntry?.startsWith('sha256-')).to.eql(true);
 
@@ -123,3 +135,7 @@ describe('Vite.build', () => {
     });
   });
 });
+
+function expectBounded(text: string, width: number) {
+  stripAnsi(text).split('\n').forEach((line) => expect(line.length <= width).to.eql(true));
+}

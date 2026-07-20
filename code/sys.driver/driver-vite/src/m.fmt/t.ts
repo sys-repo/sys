@@ -77,6 +77,8 @@ export declare namespace ViteLog {
       pkgSize?: t.NumberBytes;
       hash?: t.StringHash;
       elapsed?: t.Msecs;
+      /** Maximum rendered line width for terminal-safe presentation. */
+      width?: number;
       pad?: boolean;
     };
   }

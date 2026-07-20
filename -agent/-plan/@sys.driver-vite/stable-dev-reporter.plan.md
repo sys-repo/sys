@@ -8,6 +8,7 @@ stable-dev-reporter.plan.md
 ## Intent
 
 Upgrade `deno task dev` from raw Vite scrollback into a stable, parent-owned console window:
+  - `--reporter=auto|screen|raw`;
 
 ```text
 Info

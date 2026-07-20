@@ -60,7 +60,12 @@ export declare namespace Vite {
     };
 
     /** Formatting options for command response text. */
-    export type ToStringOptions = { pad?: boolean };
+    export type ToStringOptions = {
+      /** Add a leading and trailing blank line. */
+      pad?: boolean;
+      /** Maximum rendered line width for terminal-safe presentation. */
+      width?: number;
+    };
   }
 
   /**
