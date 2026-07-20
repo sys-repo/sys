@@ -1,89 +1,163 @@
 # Pi upstream namespace upgrade plan
 
-- [ ] chore(driver-pi): migrate Pi upstream package namespace
-- [ ] test(driver-pi): prove Pi upstream launch spec resolution
-- [ ] docs(driver-pi): record Pi namespace provenance
+- [x] `4e5ab4934` chore(driver-pi): migrate Pi upstream package namespace
+- [x] `ea82af9c6` chore(workspace): refresh prep-generated dependency surfaces
+- [x] test(driver-pi): prove Pi upstream launch spec resolution
+  - Covered inside `4e5ab4934` by resolver/args/prep tests and by runtime smoke proof recorded
+    below; a separate test-only commit would add ceremony rather than new load-bearing proof.
+- [x] docs(driver-pi): record Pi namespace provenance
+  - Covered by this plan's provenance section and the durable README upstream/dependency-authority
+    note committed in `4e5ab4934`.
 
-## Provenance check
+## Final status
 
-Evidence gathered on 2026-07-19:
+Migration is complete.
 
-- `pi.dev` install UI now points npm users to `@earendil-works/pi-coding-agent`.
-- `pi.dev` footer names `Earendil Inc. & Contributors`, links source to `https://github.com/earendil-works/pi/tree/main/packages/coding-agent`, and links npm to `@earendil-works/pi-coding-agent`.
-- `earendil.com` describes Earendil as a public benefit corporation and says Earendil crafts tools to harness AI with Pi and Lefos.
-- GitHub org `earendil-works` is named `Earendil Works`, links to `https://earendil.com/`, and hosts the Pi repository. The org is not GitHub-verified in the API response inspected.
-- NPM `@earendil-works/pi-coding-agent@0.80.10` lists author `Mario Zechner`, maintainers `badlogic <mario@badlogicgames.com>`, `mitsuhiko <armin.ronacher@active-4.com>`, and `rwachtler <r.wachtler@outlook.com>`.
-- NPM package repository is `github.com/earendil-works/pi`, directory `packages/coding-agent`.
-- NPM publish metadata uses GitHub Actions trusted publisher and includes SLSA provenance attestation metadata.
-- Old NPM `@mariozechner/pi-coding-agent@0.73.1` is deprecated with: `please use @earendil-works/pi-coding-agent instead going forward`.
-
-Conclusion: the new namespace is the official upstream path for Pi. The evidence strongly ties it to Mario as package author and maintainer and to Earendil Inc. as the public project/company surface. I did not find a registry/API field that proves corporate ownership by Mario personally; treat `official upstream` as established, and `Mario's company` as likely but not proven from the inspected metadata alone.
-
-## Current breakage / drift
-
-`@sys/driver-pi` still resolves and pins:
-
-- `npm:@mariozechner/pi-coding-agent@0.73.0` in `deps.yaml`.
-- `npm:@mariozechner/pi-coding-agent@0.73.0` as fallback in `src/m.core/m.cli/u.resolve.pkg.ts`.
-- `npm:@mariozechner/pi-coding-agent` as the lookup base in `u.resolve.pkg.ts` and `-scripts/-prep.u.ts`.
-- tests that assert or fixture the old namespace.
-- type/docs references to the old `badlogic/pi-mono` source path.
-
-This explains missing updates: the old package is deprecated and stopped at `0.73.1`; the active package is `@earendil-works/pi-coding-agent` and is currently at `0.80.10`.
-
-## Upgrade target
-
-Use:
+`@sys/driver-pi` now launches the official upstream Pi package from:
 
 ```text
 npm:@earendil-works/pi-coding-agent@0.80.10
 ```
 
-Do not float to unpinned `latest` inside `@sys/driver-pi`; keep the launcher deterministic and update through `deps.yaml` + prep.
+The migration intentionally did not float to `latest`. The root `deps.yaml` remains the dependency
+authority; driver-pi prep copies the pinned version into the fallback used when no `deps.yaml` is
+discoverable.
 
-## Clean migration plan
+The semantic driver-pi migration and generated workspace refresh were split into two commits:
 
-1. Dependency authority
-   - Change only `deps.yaml` for the upstream Pi dependency: old `npm:@mariozechner/pi-coding-agent@0.73.0` → new `npm:@earendil-works/pi-coding-agent@0.80.10`.
-   - Run `deno task prep` from the workspace root so generated dependency surfaces and driver fallback update through the canonical path.
+1. `4e5ab4934` — driver-pi runtime/prep/tests/docs.
+2. `ea82af9c6` — generated dependency surfaces and clean regenerated lock.
 
-2. Prep script compatibility
-   - Update `code/sys.driver/driver-pi/-scripts/-prep.u.ts` to look for `npm:@earendil-works/pi-coding-agent`.
-   - Decide whether the pin regex should be migration-tolerant:
-     - preferred: accept either old or new namespace in the generated constant and replace with the current specifier;
-     - after one successful migration, tests should assert the output is only the new namespace.
+## Provenance check
 
-3. Runtime resolver
-   - Update `PI_CODING_AGENT_IMPORT_BASE` in `u.resolve.pkg.ts` to `npm:@earendil-works/pi-coding-agent`.
-   - Regenerate `PI_CODING_AGENT_IMPORT` from `deps.yaml` through prep; do not hand-edit generated fallback unless prep must be fixed first.
-   - Preserve explicit `pkg` override behavior so emergency rollback/testing can pass a package spec at runtime.
+Evidence gathered on 2026-07-19:
 
-4. Tests
-   - Update old namespace fixture assertions in driver-pi tests.
-   - Add at least one resolver/prep regression proving the old namespace is not required for current deps resolution.
-   - Add one launch-args test proving the constructed `deno run` command contains `npm:@earendil-works/pi-coding-agent@0.80.10` by default.
-   - Keep negative tests that generated extension code does not accidentally import upstream Pi internals; update them to check both old and new namespace if useful.
+- `pi.dev` install UI points npm users to `@earendil-works/pi-coding-agent`.
+- `pi.dev` footer names `Earendil Inc. & Contributors`, links source to
+  `https://github.com/earendil-works/pi/tree/main/packages/coding-agent`, and links npm to
+  `@earendil-works/pi-coding-agent`.
+- `earendil.com` describes Earendil as a public benefit corporation and says Earendil crafts tools
+  to harness AI with Pi and Lefos.
+- GitHub org `earendil-works` is named `Earendil Works`, links to `https://earendil.com/`, and hosts
+  the Pi repository. The org was not GitHub-verified in the API response inspected.
+- NPM `@earendil-works/pi-coding-agent@0.80.10` lists author `Mario Zechner`, maintainers
+  `badlogic <mario@badlogicgames.com>`, `mitsuhiko <armin.ronacher@active-4.com>`, and
+  `rwachtler <r.wachtler@outlook.com>`.
+- NPM package repository is `github.com/earendil-works/pi`, directory `packages/coding-agent`.
+- NPM publish metadata uses GitHub Actions trusted publisher and includes SLSA provenance
+  attestation metadata.
+- Old NPM `@mariozechner/pi-coding-agent@0.73.1` is deprecated with:
+  `please use @earendil-works/pi-coding-agent instead going forward`.
 
-5. Docs
-   - Update README CLI/provenance refs to name the new GitHub source path: `https://github.com/earendil-works/pi/tree/main/packages/coding-agent`.
-   - Add a short provenance note: old `@mariozechner` namespace is deprecated; official upstream package is now `@earendil-works/pi-coding-agent`.
-   - Keep Mario creator attribution, but do not overclaim ownership beyond inspected evidence.
+Conclusion: the new namespace is the official upstream path for Pi. The evidence strongly ties it to
+Mario as package author and maintainer and to Earendil Inc. as the public project/company surface.
+Do not overclaim corporate ownership beyond inspected evidence.
 
-6. Validation
-   - Run `deno task prep` from repo root.
-   - Run targeted driver-pi tests from `code/sys.driver/driver-pi`: `deno task test --trace-leaks ./src/m.core/m.cli ./-scripts`.
-   - Run `deno task check` from `code/sys.driver/driver-pi`.
-   - Smoke launch help without entering Pi interactivity: `deno task cli -- --help`.
-   - If dependency generation touches broad workspace outputs, do a final workspace-level prep/check only after targeted proof is green.
+## Pre-migration drift
 
-## Risks / decisions
+Before this migration, `@sys/driver-pi` resolved and pinned:
 
-- `@earendil-works/pi-coding-agent` requires Node `>=22.19.0`; the old package required `>=20.6.0`. Because `@sys/driver-pi` runs it via Deno npm compatibility, test the actual Deno launch path before publishing.
-- New Pi versions may have changed CLI flags. Our launcher currently passes `--no-extensions`, `--no-skills`, `--no-prompt-templates`, and `--no-context-files`; verify these still exist or remain tolerated.
-- New package has more dependencies and a shrinkwrap. Preserve the Deno sandbox posture; do not broaden permissions unless a targeted failure proves a truthful need.
-- NPM package provenance is better on the new namespace because it includes trusted publisher and SLSA attestation metadata. Keep this as a positive signal, not a substitute for runtime tests.
+- `npm:@mariozechner/pi-coding-agent@0.73.0` in `deps.yaml`.
+- `npm:@mariozechner/pi-coding-agent@0.73.0` as fallback in `src/m.core/m.cli/u.resolve.pkg.ts`.
+- `npm:@mariozechner/pi-coding-agent` as the lookup base in `u.resolve.pkg.ts` and
+  `-scripts/-prep.u.ts`.
+- tests that asserted or fixture the old namespace.
+- type/docs references to the old `badlogic/pi-mono` source path.
+
+The old package is deprecated and stopped at `0.73.1`; the active package is
+`@earendil-works/pi-coding-agent` and the selected pinned target is `0.80.10`.
+
+## Migration shape
+
+- Runtime fallback now has one current package-base authority: `PI_AGENT_IMPORT_BASE` in
+  `src/m.core/m.cli/u.resolve.pkg.ts`.
+- Prep imports that runtime base, reads the pinned version from `deps.yaml`, updates only
+  `PI_AGENT_IMPORT_VERSION`, and fails loudly if the resolver seam drifts.
+- Deprecated `@mariozechner` Pi package compatibility froth was removed from prep/tests. Old package
+  strings are not runtime/prep compatibility paths.
+- Local prep/runtime symbols were renamed from `PI_CODING_AGENT_IMPORT`-style names to
+  `PI_AGENT_IMPORT` and `pin/resolvePiAgentImport`; the upstream package name remains
+  `pi-coding-agent` where it is the actual npm specifier.
+- Generated-extension package-specific negative assertions were replaced with one shared
+  standalone-source invariant: generated extension files must not contain bare/external imports.
+- Raw launch, args, prep, profile, and extension tests prove new upstream package resolution and
+  wrapper-owned standalone extension behavior.
+- README/type refs were updated to the current upstream/dependency authority.
+- Workspace generated surfaces were refreshed separately in `ea82af9c6`.
+
+## Proof notes
+
+- `cd code/sys.driver/driver-pi && deno task test --trace-leaks ./src/m.core/m.cli ./-scripts` →
+  passed: `48 passed (235 steps)`.
+- `cd code/sys.driver/driver-pi && deno task test --trace-leaks ./-scripts/-test/-prep.test.ts ./src/m.core/m.cli/-test/-m.run.test.ts ./src/m.core/m.cli/-test/-u.args.test.ts`
+  → passed: `48 passed (236 steps)`; proved the DRY fallback and prep version-pin seam.
+- After the `PI_AGENT_IMPORT` rename and generated-extension assertion cleanup, targeted driver-pi
+  tests passed again with `48 passed (236 steps)`, and driver-pi prep reported
+  `unchanged  src/m.core/m.cli/u.resolve.pkg.ts`.
+- After strict prep cleanup, `deno task prep` remained idempotent on `u.resolve.pkg.ts`, and
+  targeted prep tests passed with `48 passed (238 steps)`.
+- `cd code/sys.driver/driver-pi && deno task cli --non-interactive --profile default -- --help` →
+  launched upstream Pi `0.80.10` help through the wrapper with scoped permissions.
+- `cd code/sys.driver/driver-pi && deno task cli --non-interactive --profile default -- --version` →
+  launched upstream Pi through the wrapper and printed `0.80.10`.
+- `cd code/sys.driver/driver-pi && deno task cli --non-interactive --profile /Users/phil/code/org.sys/sys/-config/@sys.driver-pi/canon.yaml -- --help`
+  → launched upstream Pi through the active profile and materialized wrapper-owned `sandbox.fs` and
+  `ocr` extension files without startup failure.
+- `cd code/sys.driver/driver-pi && deno task cli --non-interactive --profile default -- --offline --print --no-session "smoke"`
+  → reached the upstream agent path and exited successfully. Treat as launch-path proof, not
+  semantic model validation.
+- `cd code/sys.driver/driver-pi && deno task check` was blocked by unrelated workspace dependency
+  aliases for bare `mdast` / `unist` imports in `code/sys/markdown`; driver-pi files checked before
+  the external workspace failure.
+
+## Lock / generated-surface notes
+
+- `deno task prep` and ordinary `deno task lock:sync` did not prune stale deprecated Pi agent lock
+  entries.
+- Deleting `deno.lock` and rerunning `deno task lock:sync` regenerated a clean lock.
+- Post-refresh scan was clean for:
+  - `mariozechner/pi-coding-agent`
+  - `@mariozechner/pi-coding-agent`
+  - `npm:@mariozechner/pi-coding-agent`
+- Remaining `@mariozechner/clipboard` entries in `deno.lock` are optional transitive dependencies of
+  the new official `@earendil-works/pi-coding-agent@0.80.10`, not deprecated Pi coding-agent
+  residue.
+
+## Sandbox / trust assessment
+
+Upstream Pi `0.80.10` now has a project trust prompt that can gate loading `.pi` settings/resources,
+installing missing project packages, and executing project extensions.
+
+This does **not** obsolete `@sys/driver-pi`.
+
+- Upstream trust is an app-level consent prompt, not a deterministic sandbox boundary.
+- `@sys/driver-pi` defines the actual Deno permission envelope: read/write/run/env/sys/ffi scopes.
+- `@sys/driver-pi` prevents ambient context discovery with `--no-context-files`.
+- `@sys/driver-pi` owns profile policy, generated tools/extensions, active runtime metadata, and
+  sandbox reporting.
+- `@sys/driver-pi` keeps launch deterministic with pinned package resolution and
+  `PI_SKIP_VERSION_CHECK=1`.
+
+Correct framing: upstream Pi trust is a useful inner prompt; `@sys/driver-pi` is the outer
+capability boundary and orchestration layer.
+
+This remains a valid foundation for driving Pi processes from a future `sys` UI while reducing or
+replacing TUI dependence later.
+
+## Remaining follow-up
+
+The namespace migration is complete. No separate test/docs commit is currently earned.
+
+Useful future work:
+
+- Add wrapper-owned upstream-version visibility while keeping `PI_SKIP_VERSION_CHECK=1` for
+  deterministic launches.
+- If needed, add a narrow runtime smoke harness for upstream trust-prompt handling; do not duplicate
+  existing `u.args` / `m.run` command-construction coverage.
+- Keep Pi trust handling deliberate when the future UI layer starts driving these processes.
 
 ## Rollback path
 
-- Runtime callers can pass `pkg` explicitly to test or temporarily launch the old package.
-- Repo rollback is a single dependency line in `deps.yaml` plus prep, but only use it if the new package fails a concrete Deno launch invariant.
+- Runtime callers can pass `pkg` explicitly to test or temporarily launch another package spec.
+- Repo rollback is a single dependency line in `deps.yaml` plus prep, but only use it if the new
+  package fails a concrete Deno launch invariant.
