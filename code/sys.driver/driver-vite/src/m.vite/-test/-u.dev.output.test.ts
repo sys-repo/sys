@@ -10,12 +10,22 @@ describe('DevOutputLog', () => {
     log.push(event('stderr', 'warn\n\n\n'));
 
     expect(log.lines()).to.eql([
-      { source: 'stdout', text: 'two' },
-      { source: 'stdout', text: 'three' },
-      { source: 'stderr', text: 'warn' },
+      { index: 2, source: 'stdout', text: 'two' },
+      { index: 3, source: 'stdout', text: 'three' },
+      { index: 4, source: 'stderr', text: 'warn' },
     ]);
     expect(log.stderr()).to.eql('warn\n\n\n');
     expect(log.tailText()).to.eql(' out   two\n out   three\n err   warn');
+  });
+
+  it('keeps a stable line number for pending partial output', () => {
+    const log = DevOutputLog.create({ maxLines: 5 });
+
+    log.push(event('stdout', 'ready'));
+    expect(log.lines()).to.eql([{ index: 1, source: 'stdout', text: 'ready' }]);
+
+    log.push(event('stdout', ' now\n'));
+    expect(log.lines()).to.eql([{ index: 1, source: 'stdout', text: 'ready now' }]);
   });
 
   it('includes pending partial output in snapshots without committing it twice', () => {
@@ -54,6 +64,29 @@ describe('DevOutputLog', () => {
     log.push(event('stderr', 'second\n'));
 
     expect(log.stderr()).to.eql('second\n');
+  });
+
+  it('continues sequence numbers after clearing visible lines', () => {
+    const log = DevOutputLog.create();
+
+    log.push(event('stdout', 'one\n'));
+    log.push(event('stdout', 'two\n'));
+    log.clearLines();
+    log.push(event('stdout', 'three\n'));
+
+    expect(log.lines()).to.eql([{ index: 3, source: 'stdout', text: 'three' }]);
+  });
+
+  it('clears visible lines without erasing retained raw stderr diagnostics', () => {
+    const log = DevOutputLog.create();
+
+    log.push(event('stdout', 'ready\n'));
+    log.push(event('stderr', 'warn'));
+    log.clearLines();
+
+    expect(log.lines()).to.eql([]);
+    expect(log.tailText()).to.eql('');
+    expect(log.stderr()).to.eql('warn');
   });
 });
 

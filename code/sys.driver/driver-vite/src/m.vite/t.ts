@@ -67,6 +67,9 @@ export declare namespace Vite {
    * Vite dev command contract.
    */
   export namespace Dev {
+    /** Reporter mode for dev server output. */
+    export type ReporterMode = 'auto' | 'screen' | 'raw';
+
     /** Arguments passed to the [Vite.dev] method. */
     export type Args = {
       cwd?: t.StringAbsoluteDir;
@@ -77,6 +80,10 @@ export declare namespace Vite {
       strictPort?: boolean;
       pkg?: t.Pkg; // Consumer module.
       silent?: boolean;
+      /** Select parent-owned screen reporting or raw Vite passthrough. */
+      reporter?: ReporterMode;
+      /** Maximum visible Vite output rows in screen reporter mode. */
+      logLines?: number;
       until?: t.UntilInput;
     };
 

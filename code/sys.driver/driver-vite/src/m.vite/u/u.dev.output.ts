@@ -3,6 +3,7 @@ import { Is, stripAnsi, type t } from '../common.ts';
 type Source = t.Process.StdStream;
 
 type Line = {
+  readonly index: number;
   readonly source: Source;
   readonly text: string;
 };
@@ -10,6 +11,8 @@ type Line = {
 type State = {
   readonly lines: Line[];
   readonly pending: Record<Source, string>;
+  readonly pendingIndex: Record<Source, number | undefined>;
+  nextIndex: number;
   stderr: string;
 };
 
@@ -24,6 +27,8 @@ export const DevOutputLog = {
     const state: State = {
       lines: [],
       pending: { stdout: '', stderr: '' },
+      pendingIndex: { stdout: undefined, stderr: undefined },
+      nextIndex: 1,
       stderr: '',
     };
 
@@ -41,6 +46,14 @@ export const DevOutputLog = {
 
       lines() {
         return wrangle.snapshot(state, maxLines);
+      },
+
+      clearLines() {
+        state.lines.splice(0);
+        state.pending.stdout = '';
+        state.pending.stderr = '';
+        state.pendingIndex.stdout = undefined;
+        state.pendingIndex.stderr = undefined;
       },
 
       tailText() {
@@ -69,27 +82,41 @@ const wrangle = {
   pushText(state: State, source: Source, input: string, maxLines: number) {
     const text = input.replaceAll('\r', '\n');
     const parts = `${state.pending[source]}${text}`.split('\n');
-    state.pending[source] = parts.pop() ?? '';
+    const pending = parts.pop() ?? '';
+    const pendingIndex = state.pendingIndex[source];
 
-    parts.forEach((line) => wrangle.pushLine(state, source, line, maxLines));
+    parts.forEach((line, index) => {
+      const lineIndex = index === 0 ? pendingIndex : undefined;
+      wrangle.pushLine(state, source, line, maxLines, lineIndex);
+    });
+
+    state.pending[source] = pending;
+    state.pendingIndex[source] = stripAnsi(pending).trim()
+      ? parts.length === 0 ? pendingIndex ?? wrangle.nextIndex(state) : wrangle.nextIndex(state)
+      : undefined;
   },
 
-  pushLine(state: State, source: Source, text: string, maxLines: number) {
+  pushLine(state: State, source: Source, text: string, maxLines: number, index?: number) {
     if (!stripAnsi(text).trim()) return;
-    state.lines.push({ source, text });
+    state.lines.push({ index: index ?? wrangle.nextIndex(state), source, text });
     while (state.lines.length > maxLines) state.lines.shift();
   },
 
   snapshot(state: State, maxLines: number): readonly Line[] {
     if (maxLines === 0) return [];
     const pending: Line[] = [];
-    wrangle.pushPendingLine(pending, 'stdout', state.pending.stdout);
-    wrangle.pushPendingLine(pending, 'stderr', state.pending.stderr);
+    wrangle.pushPendingLine(state, pending, 'stdout', state.pending.stdout);
+    wrangle.pushPendingLine(state, pending, 'stderr', state.pending.stderr);
     return [...state.lines, ...pending].slice(-maxLines);
   },
 
-  pushPendingLine(lines: Line[], source: Source, text: string) {
-    if (stripAnsi(text).trim()) lines.push({ source, text });
+  pushPendingLine(state: State, lines: Line[], source: Source, text: string) {
+    if (!stripAnsi(text).trim()) return;
+    lines.push({ index: state.pendingIndex[source] ?? state.nextIndex, source, text });
+  },
+
+  nextIndex(state: State) {
+    return state.nextIndex++;
   },
 
   tailText(lines: readonly Line[]) {

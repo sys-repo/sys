@@ -47,6 +47,32 @@ describe('Vite.dev keyboard', () => {
     expect(events).to.eql(['clear', 'extended']);
   });
 
+  it('routes clear and info keys through screen reporter actions when present', async () => {
+    const events: string[] = [];
+    const keyboard = keyboardFactory({
+      paths: paths(),
+      port: 1234,
+      url: 'http://localhost:1234/',
+      pkg: pkg(),
+      dispose: async () => {},
+      screen: {
+        clearLog: () => events.push('screen:clear'),
+        toggleOptions: () => events.push('screen:options'),
+        toggleExtended: () => events.push('screen:extended'),
+      },
+    }, {
+      keypress: () => keypress([{ key: 'k' }, { key: 'i' }, { key: 'i', shiftKey: true }]),
+      workspace: async () => workspace(),
+      clear: () => events.push('legacy:clear'),
+      print: () => events.push('legacy:print'),
+      exit: (_code) => {},
+    });
+
+    await keyboard();
+
+    expect(events).to.eql(['screen:clear', 'screen:options', 'screen:extended']);
+  });
+
   it('waits for child disposal when keyboard input is unavailable', async () => {
     const events: string[] = [];
     const dispose$ = new Rx.Subject<t.DisposeAsyncEvent>();

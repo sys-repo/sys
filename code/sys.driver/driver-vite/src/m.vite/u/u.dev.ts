@@ -14,6 +14,7 @@ import {
 } from '../common.ts';
 import { Perf } from '../../common/u.perf.ts';
 import { DevOutputLog } from './u.dev.output.ts';
+import { DevScreen } from './u.dev.screen.ts';
 import { keyboardFactory } from './u.keyboard.ts';
 import { Log } from './u.log.ts';
 import { Wrangle } from './u.wrangle.ts';
@@ -41,8 +42,14 @@ export const REGEX = {
  */
 export const dev: t.Vite.Lib['dev'] = async (input) => {
   const { silent = false, pkg, strictPort = false } = input;
+  const reporter = DevScreen.resolveReporter(input.reporter, { silent, hasPkg: Boolean(pkg) });
+  const parentOwnsOutput = reporter === 'screen';
   const startedAt = Time.now.timestamp as t.Msecs;
-  const end = Perf.section('dev.parent.total', { cwd: input.cwd ?? '', silent }, { level: 1 });
+  const end = Perf.section(
+    'dev.parent.total',
+    { cwd: input.cwd ?? '', silent, reporter },
+    { level: 1 },
+  );
   const paths = input.paths ??
     (await Perf.measure(
       'dev.parent.paths',
@@ -56,9 +63,7 @@ export const dev: t.Vite.Lib['dev'] = async (input) => {
   const preferredPort = input.port ?? DEFAULTS.port;
   let requestedPort: number;
   try {
-    requestedPort = strictPort
-      ? Net.port(preferredPort, { throw: true })
-      : Net.port(preferredPort);
+    requestedPort = strictPort ? Net.port(preferredPort, { throw: true }) : Net.port(preferredPort);
   } catch (cause) {
     throw startupError({ cwd, requestedPort: preferredPort, strictPort, cause });
   }
@@ -84,7 +89,7 @@ export const dev: t.Vite.Lib['dev'] = async (input) => {
     { cwd, port: requestedPort },
     { level: 2 },
   );
-  if (!silent && pkg) Log.Entry.log(pkg, Path.join(cwd, paths.app.entry));
+  if (!silent && !parentOwnsOutput && pkg) Log.Entry.log(pkg, Path.join(cwd, paths.app.entry));
 
   // Readiness from process output establishes the resolved URL; HTTP confirms it serves.
   const readySignal: t.Process.ReadySignalFilter = (e) => {
@@ -108,19 +113,36 @@ export const dev: t.Vite.Lib['dev'] = async (input) => {
     return isReady;
   };
 
-  const output = DevOutputLog.create();
+  const logLines = DevScreen.logLines(input.logLines);
+  const output = DevOutputLog.create({ maxLines: Math.max(40, logLines) });
+  const screen = parentOwnsOutput && pkg
+    ? DevScreen.create({
+      pkg,
+      dist,
+      paths,
+      url: () => resolvedUrl,
+      output,
+      logLines,
+    })
+    : undefined;
   const proc = Process.spawn({
     cwd,
     args,
     env,
-    silent,
+    silent: silent || parentOwnsOutput,
     readySignal,
     until: input.until,
   });
-  proc.onStdOut(output.push);
-  proc.onStdErr(output.push);
+  const pushOutput = (e: t.Process.Event) => {
+    output.push(e);
+    screen?.redrawSoon();
+  };
+  proc.onStdOut(pushOutput);
+  proc.onStdErr(pushOutput);
+  screen?.redraw();
   const { dispose } = proc;
   const cleanup = async () => {
+    screen?.dispose();
     try {
       await dispose();
     } finally {
@@ -171,6 +193,7 @@ export const dev: t.Vite.Lib['dev'] = async (input) => {
     elapsed: Time.elapsed(startedAt).msec,
   }, { level: 1 });
   end({ port, resolvedUrl, elapsed: Time.elapsed(startedAt).msec });
+  screen?.redraw();
   const keyboard = keyboardFactory({
     pkg,
     dist,
@@ -179,6 +202,7 @@ export const dev: t.Vite.Lib['dev'] = async (input) => {
     url: resolvedUrl,
     until: proc.dispose$,
     dispose: cleanup,
+    screen,
   });
   const listen = async () => void await keyboard();
 

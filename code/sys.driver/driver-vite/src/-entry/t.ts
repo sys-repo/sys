@@ -29,7 +29,16 @@ export declare namespace ViteEntry {
    */
   export namespace Args {
     /** The HMR `dev` server. */
-    export type Dev = { cmd: 'dev'; dir?: P; entry?: P; open?: boolean; port?: number };
+    export type Dev = {
+      cmd: 'dev';
+      dir?: P;
+      entry?: P;
+      open?: boolean;
+      port?: number;
+      reporter?: t.Vite.Dev.ReporterMode;
+      logLines?: number;
+      'log-lines'?: number;
+    };
 
     /** The `build` project command. */
     export type Build = { cmd: 'build'; dir?: P; silent?: boolean };

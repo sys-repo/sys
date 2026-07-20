@@ -1,4 +1,4 @@
-import { type t, Cli, Process, Rx, ViteConfig } from '../common.ts';
+import { Cli, Process, Rx, type t, ViteConfig } from '../common.ts';
 import { Log } from './u.log.ts';
 
 type KeypressEvent = {
@@ -8,6 +8,11 @@ type KeypressEvent = {
 };
 type KeypressStream = AsyncIterable<KeypressEvent>;
 type KeyboardAction = 'noop' | 'open' | 'quit' | 'clear' | 'info' | 'info.extended';
+type KeyboardScreen = {
+  clearLog(): void;
+  toggleOptions(): void;
+  toggleExtended(ws: t.ViteDenoWorkspace): void;
+};
 type KeyboardDeps = {
   keypress?: () => KeypressStream;
   workspace?: () => Promise<t.ViteDenoWorkspace>;
@@ -28,6 +33,7 @@ export function keyboardFactory(args: {
   dist?: t.DistPkg;
   until?: t.Process.Handle['dispose$'];
   dispose: () => Promise<void>;
+  screen?: KeyboardScreen;
 }, deps: KeyboardDeps = {}) {
   const { pkg, dist, paths, dispose } = args;
   const sh = Process.sh();
@@ -53,6 +59,13 @@ export function keyboardFactory(args: {
           await dispose();
           exit(0);
           return;
+        }
+
+        if (args.screen) {
+          if (action === 'clear') args.screen.clearLog();
+          if (action === 'info') args.screen.toggleOptions();
+          if (action === 'info.extended') args.screen.toggleExtended(ws);
+          continue;
         }
 
         clear();
