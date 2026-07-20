@@ -13,6 +13,7 @@ import {
   Url,
 } from './common.ts';
 import { Perf } from '../common/u.perf.ts';
+import { DevOutputLog } from './u.dev.output.ts';
 import { keyboardFactory } from './u.keyboard.ts';
 import { Log, Wrangle } from './u.ts';
 
@@ -58,7 +59,7 @@ export const dev: t.Vite.Lib['dev'] = async (input) => {
       ? Net.port(preferredPort, { throw: true })
       : Net.port(preferredPort);
   } catch (cause) {
-    throw startupError({ cwd, requestedPort: preferredPort, strictPort, stderr: '', cause });
+    throw startupError({ cwd, requestedPort: preferredPort, strictPort, cause });
   }
   const { dist } = await Perf.measure(
     'dev.parent.dist',
@@ -106,7 +107,7 @@ export const dev: t.Vite.Lib['dev'] = async (input) => {
     return isReady;
   };
 
-  let stderr = '';
+  const output = DevOutputLog.create();
   const proc = Process.spawn({
     cwd,
     args,
@@ -115,9 +116,8 @@ export const dev: t.Vite.Lib['dev'] = async (input) => {
     readySignal,
     until: input.until,
   });
-  proc.onStdErr((e) => {
-    stderr += e.toString();
-  });
+  proc.onStdOut(output.push);
+  proc.onStdErr(output.push);
   const { dispose } = proc;
   const cleanup = async () => {
     try {
@@ -146,7 +146,7 @@ export const dev: t.Vite.Lib['dev'] = async (input) => {
     } catch {
       // Best effort cleanup: preserve original startup failure.
     }
-    throw startupError({ cwd, requestedPort, strictPort, stderr, cause: error });
+    throw startupError({ cwd, requestedPort, strictPort, output, cause: error });
   }
 
   const port = DevParse.port(resolvedUrl, requestedPort);
@@ -159,7 +159,7 @@ export const dev: t.Vite.Lib['dev'] = async (input) => {
     } catch {
       // Best effort cleanup: preserve strict-port failure.
     }
-    throw startupError({ cwd, requestedPort, strictPort, stderr, cause });
+    throw startupError({ cwd, requestedPort, strictPort, output, cause });
   }
 
   Perf.log('dev.parent.ready', {
@@ -209,16 +209,18 @@ function startupError(args: {
   cwd: t.StringDir;
   requestedPort: number;
   strictPort: boolean;
-  stderr: string;
+  output?: ReturnType<typeof DevOutputLog.create>;
   cause: unknown;
 }) {
-  const { cwd, requestedPort, strictPort, cause } = args;
-  const stderr = args.stderr.trim();
+  const { cwd, requestedPort, strictPort, cause, output } = args;
+  const stderr = output?.stderr().trim() ?? '';
+  const tail = output?.tailText().trimEnd() ?? '';
   const mode = strictPort ? ' strict' : '';
   const message = [
     `Vite.dev: failed to start${mode} dev server on port ${requestedPort}.`,
     `cwd: ${cwd}`,
     stderr ? `stderr:\n${stderr}` : '',
+    tail ? `recent output:\n${tail}` : '',
   ].filter(Boolean).join('\n\n');
   return new Error(message, { cause });
 }
