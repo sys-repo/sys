@@ -43,7 +43,7 @@ export async function main() {
   });
   await syncWasmPluginImport({
     depsPath,
-    targetPath: './src/m.vite.config/u.plugins.ts',
+    targetPath: './src/m.vite.config/u/u.plugins.ts',
   });
 
   for (const dir of PUBLISHED_FIXTURE_DIRS) {

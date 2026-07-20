@@ -1,4 +1,4 @@
-import { Vite } from 'jsr:@sys/driver-vite@0.0.458';
+import { Vite } from 'jsr:@sys/driver-vite@0.0.459';
 
 const workspace = `${import.meta.dirname ?? '.'}/deno.json`;
 
