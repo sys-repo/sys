@@ -66,6 +66,21 @@ describe('DevOutputLog', () => {
     expect(log.stderr()).to.eql('second\n');
   });
 
+  it('suppresses known benign visible lines without erasing raw stderr', () => {
+    const warning = 'Warning the configuration file "file:///tmp/pkg/deno.json" ' +
+      'contains an entry for "importMap" that is being ignored.\n';
+    const log = DevOutputLog.create({
+      suppressVisible: [/^Warning\s+the configuration file .+?"importMap".+?ignored\.$/],
+    });
+
+    log.push(event('stderr', warning));
+    log.push(event('stdout', 'ready\n'));
+
+    expect(log.stderr()).to.eql(warning);
+    expect(log.lines()).to.eql([{ index: 1, source: 'stdout', text: 'ready' }]);
+    expect(log.tailText()).to.eql(' out   ready');
+  });
+
   it('continues sequence numbers after clearing visible lines', () => {
     const log = DevOutputLog.create();
 

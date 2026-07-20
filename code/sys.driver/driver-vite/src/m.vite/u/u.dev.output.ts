@@ -16,14 +16,21 @@ type State = {
   stderr: string;
 };
 
+type Options = {
+  readonly maxLines?: number;
+  readonly maxStderrChars?: number;
+  readonly suppressVisible?: readonly RegExp[];
+};
+
 const DEFAULT_MAX_LINES = 40;
 const DEFAULT_MAX_STDERR_CHARS = 60_000;
 
 /** Capture bounded child-process output for dev startup diagnostics and future reporters. */
 export const DevOutputLog = {
-  create(options: { maxLines?: number; maxStderrChars?: number } = {}) {
+  create(options: Options = {}) {
     const maxLines = wrangle.maxLines(options.maxLines);
     const maxStderrChars = wrangle.maxStderrChars(options.maxStderrChars);
+    const suppressVisible = options.suppressVisible ?? [];
     const state: State = {
       lines: [],
       pending: { stdout: '', stderr: '' },
@@ -37,7 +44,7 @@ export const DevOutputLog = {
         const text = e.toString();
         const source = e.source;
         if (source === 'stderr') wrangle.pushStderr(state, text, maxStderrChars);
-        wrangle.pushText(state, source, text, maxLines);
+        wrangle.pushText(state, source, text, maxLines, suppressVisible);
       },
 
       stderr() {
@@ -45,7 +52,7 @@ export const DevOutputLog = {
       },
 
       lines() {
-        return wrangle.snapshot(state, maxLines);
+        return wrangle.snapshot(state, maxLines, suppressVisible);
       },
 
       clearLines() {
@@ -57,7 +64,7 @@ export const DevOutputLog = {
       },
 
       tailText() {
-        return wrangle.tailText(wrangle.snapshot(state, maxLines));
+        return wrangle.tailText(wrangle.snapshot(state, maxLines, suppressVisible));
       },
     } as const;
   },
@@ -79,7 +86,13 @@ const wrangle = {
     state.stderr = `${state.stderr}${text}`.slice(-maxStderrChars);
   },
 
-  pushText(state: State, source: Source, input: string, maxLines: number) {
+  pushText(
+    state: State,
+    source: Source,
+    input: string,
+    maxLines: number,
+    suppressVisible: readonly RegExp[],
+  ) {
     const text = input.replaceAll('\r', '\n');
     const parts = `${state.pending[source]}${text}`.split('\n');
     const pending = parts.pop() ?? '';
@@ -87,32 +100,54 @@ const wrangle = {
 
     parts.forEach((line, index) => {
       const lineIndex = index === 0 ? pendingIndex : undefined;
-      wrangle.pushLine(state, source, line, maxLines, lineIndex);
+      wrangle.pushLine(state, source, line, maxLines, suppressVisible, lineIndex);
     });
 
     state.pending[source] = pending;
-    state.pendingIndex[source] = stripAnsi(pending).trim()
+    state.pendingIndex[source] = wrangle.isVisibleLine(pending, suppressVisible)
       ? parts.length === 0 ? pendingIndex ?? wrangle.nextIndex(state) : wrangle.nextIndex(state)
       : undefined;
   },
 
-  pushLine(state: State, source: Source, text: string, maxLines: number, index?: number) {
-    if (!stripAnsi(text).trim()) return;
+  pushLine(
+    state: State,
+    source: Source,
+    text: string,
+    maxLines: number,
+    suppressVisible: readonly RegExp[],
+    index?: number,
+  ) {
+    if (!wrangle.isVisibleLine(text, suppressVisible)) return;
     state.lines.push({ index: index ?? wrangle.nextIndex(state), source, text });
     while (state.lines.length > maxLines) state.lines.shift();
   },
 
-  snapshot(state: State, maxLines: number): readonly Line[] {
+  snapshot(state: State, maxLines: number, suppressVisible: readonly RegExp[]): readonly Line[] {
     if (maxLines === 0) return [];
     const pending: Line[] = [];
-    wrangle.pushPendingLine(state, pending, 'stdout', state.pending.stdout);
-    wrangle.pushPendingLine(state, pending, 'stderr', state.pending.stderr);
+    wrangle.pushPendingLine(state, pending, 'stdout', state.pending.stdout, suppressVisible);
+    wrangle.pushPendingLine(state, pending, 'stderr', state.pending.stderr, suppressVisible);
     return [...state.lines, ...pending].slice(-maxLines);
   },
 
-  pushPendingLine(state: State, lines: Line[], source: Source, text: string) {
-    if (!stripAnsi(text).trim()) return;
+  pushPendingLine(
+    state: State,
+    lines: Line[],
+    source: Source,
+    text: string,
+    suppressVisible: readonly RegExp[],
+  ) {
+    if (!wrangle.isVisibleLine(text, suppressVisible)) return;
     lines.push({ index: state.pendingIndex[source] ?? state.nextIndex, source, text });
+  },
+
+  isVisibleLine(text: string, suppressVisible: readonly RegExp[]) {
+    const value = stripAnsi(text).trim();
+    if (!value) return false;
+    return !suppressVisible.some((pattern) => {
+      pattern.lastIndex = 0;
+      return pattern.test(value);
+    });
   },
 
   nextIndex(state: State) {

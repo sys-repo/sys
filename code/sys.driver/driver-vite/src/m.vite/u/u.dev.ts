@@ -19,6 +19,17 @@ import { keyboardFactory } from './u.keyboard.ts';
 import { Log } from './u.log.ts';
 import { Wrangle } from './u.wrangle.ts';
 
+const SUPPRESS_VISIBLE_OUTPUT = [
+  /**
+   * Deno auto-discovers the consumer `deno.json` while this driver also passes a
+   * generated `--import-map=...` for the child Vite CLI. Projection has already
+   * merged the consumer `deno.json.importMap` into that generated map, so Deno's
+   * warning is true but benign for this path. Suppress it only from the visible
+   * screen/recent-output tail; raw passthrough and retained stderr remain truthful.
+   */
+  /^Warning\s+the configuration file "file:\/\/\/.+?" contains an entry for "importMap" that is being ignored\.?$/,
+] as const;
+
 export const REGEX = {
   // Example matches:
   //  "VITE v7.1.9  ready in 123 ms"
@@ -114,7 +125,10 @@ export const dev: t.Vite.Lib['dev'] = async (input) => {
   };
 
   const logLines = DevScreen.logLines(input.logLines);
-  const output = DevOutputLog.create({ maxLines: Math.max(40, logLines) });
+  const output = DevOutputLog.create({
+    maxLines: Math.max(40, logLines),
+    suppressVisible: SUPPRESS_VISIBLE_OUTPUT,
+  });
   const screen = parentOwnsOutput && pkg
     ? DevScreen.create({
       pkg,
