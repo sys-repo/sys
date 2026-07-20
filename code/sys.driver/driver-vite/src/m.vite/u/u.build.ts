@@ -1,6 +1,7 @@
-import { type t, pkg as builder, c, Cli, CompositeHash, Fs, Json, Pkg, Process, Time } from './common.ts';
-import { ViteLog } from '../m.fmt/mod.ts';
-import { Log, Wrangle } from './u.ts';
+import { type t, pkg as builder, c, Cli, CompositeHash, Fs, Json, Pkg, Process, Time } from '../common.ts';
+import { ViteLog } from '../../m.fmt/mod.ts';
+import { Log } from './u.log.ts';
+import { Wrangle } from './u.wrangle.ts';
 
 type B = t.Vite.Lib['build'];
 

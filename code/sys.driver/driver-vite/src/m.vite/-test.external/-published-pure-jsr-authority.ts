@@ -1,6 +1,6 @@
 import { describe, expect, Fs, it, Json, Process, ROOT, SAMPLE, slug } from '../../-test.ts';
 import { DEFAULTS } from '../common.ts';
-import { Wrangle } from '../u.wrangle.ts';
+import { Wrangle } from '../u/u.wrangle.ts';
 
 type BuildProbeJson = {
   ok: boolean;

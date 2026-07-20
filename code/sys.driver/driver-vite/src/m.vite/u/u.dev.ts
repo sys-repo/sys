@@ -11,11 +11,12 @@ import {
   type t,
   Time,
   Url,
-} from './common.ts';
-import { Perf } from '../common/u.perf.ts';
+} from '../common.ts';
+import { Perf } from '../../common/u.perf.ts';
 import { DevOutputLog } from './u.dev.output.ts';
 import { keyboardFactory } from './u.keyboard.ts';
-import { Log, Wrangle } from './u.ts';
+import { Log } from './u.log.ts';
+import { Wrangle } from './u.wrangle.ts';
 
 export const REGEX = {
   // Example matches:

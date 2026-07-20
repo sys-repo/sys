@@ -1,4 +1,4 @@
-import { type t, Cli, Process, Rx, ViteConfig } from './common.ts';
+import { type t, Cli, Process, Rx, ViteConfig } from '../common.ts';
 import { Log } from './u.log.ts';
 
 type KeypressEvent = {

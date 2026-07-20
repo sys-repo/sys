@@ -1,6 +1,6 @@
 import { describe, expect, Fs, it, Path } from '../../-test.ts';
 import { resolveFromImportMap } from '../../-test/u.importMap.ts';
-import { Wrangle } from '../u.wrangle.ts';
+import { Wrangle } from '../u/u.wrangle.ts';
 
 describe('Vite.Wrangle', () => {
   it('build: scopes child permissions to deno and localhost dns only', async () => {
@@ -146,7 +146,7 @@ describe('Vite.Wrangle', () => {
 
     const res = await Wrangle.viteSpecifier(
       project,
-      'https://jsr.io/@sys/driver-vite/0.0.317/src/m.vite/u.wrangle.ts',
+      'https://jsr.io/@sys/driver-vite/0.0.317/src/m.vite/u/u.wrangle.ts',
     );
     expect(res).to.eql('npm:vite@7.3.1');
   });
@@ -183,7 +183,7 @@ describe('Vite.Wrangle', () => {
 
     const consumerVite = await Wrangle.viteSpecifier(
       project,
-      'https://jsr.io/@sys/driver-vite/0.0.317/src/m.vite/u.wrangle.ts',
+      'https://jsr.io/@sys/driver-vite/0.0.317/src/m.vite/u/u.wrangle.ts',
     );
     expect(consumerVite).to.eql('npm:vite@7.3.1');
   });

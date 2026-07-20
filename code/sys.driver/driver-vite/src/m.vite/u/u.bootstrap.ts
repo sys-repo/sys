@@ -1,6 +1,6 @@
-import { Perf } from '../common/u.perf.ts';
-import { type t } from './common.ts';
-import { ViteStartup } from '../m.vite.startup/mod.ts';
+import { Perf } from '../../common/u.perf.ts';
+import { type t } from '../common.ts';
+import { ViteStartup } from '../../m.vite.startup/mod.ts';
 
 type BootstrapResult = {
   readonly path: string;

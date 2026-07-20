@@ -1,5 +1,5 @@
-import { ViteLog } from '../m.fmt/mod.ts';
-import { type t, Cli, Path, c } from './common.ts';
+import { ViteLog } from '../../m.fmt/mod.ts';
+import { type t, Cli, Path, c } from '../common.ts';
 
 type BuildArgs = t.ViteLog.Bundle.Args & {
   stdio: string;

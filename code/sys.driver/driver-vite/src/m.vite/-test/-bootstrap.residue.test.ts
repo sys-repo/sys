@@ -1,5 +1,5 @@
 import { describe, expect, Fs, it } from '../../-test.ts';
-import { Wrangle } from '../u.wrangle.ts';
+import { Wrangle } from '../u/u.wrangle.ts';
 
 describe('Bootstrap residue world', () => {
   it('build: delivery materialization stays out of the consumer root surface during normal operation', async () => {

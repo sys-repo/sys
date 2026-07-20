@@ -1,5 +1,5 @@
 import { describe, expect, it, stripAnsi } from '../../-test/common.ts';
-import { Log } from '../u.log.ts';
+import { Log } from '../u/u.log.ts';
 
 describe('Vite.dev log', () => {
   it('renders the options separator as a secondary screen-width dashed rule', () => {

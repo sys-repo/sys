@@ -1,4 +1,4 @@
-import { Fs, Path } from './common.ts';
+import { Fs, Path } from '../common.ts';
 
 interface MetadataEntry {
   src?: string;

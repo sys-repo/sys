@@ -1,5 +1,5 @@
-import { Perf } from '../common/u.perf.ts';
-import { type t, Fs, Path, ViteConfig } from './common.ts';
+import { Perf } from '../../common/u.perf.ts';
+import { type t, Fs, Path, ViteConfig } from '../common.ts';
 import { Bootstrap } from './u.bootstrap.ts';
 
 /**

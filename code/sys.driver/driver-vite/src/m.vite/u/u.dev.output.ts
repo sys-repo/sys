@@ -1,4 +1,4 @@
-import { Is, stripAnsi, type t } from './common.ts';
+import { Is, stripAnsi, type t } from '../common.ts';
 
 type Source = t.Process.StdStream;
 

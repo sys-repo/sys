@@ -1,6 +1,6 @@
 import { describe, expect, it, Rx } from '../../-test/common.ts';
 import type { t } from '../common.ts';
-import { keyboardFactory } from '../u.keyboard.ts';
+import { keyboardFactory } from '../u/u.keyboard.ts';
 
 describe('Vite.dev keyboard', () => {
   it('handles info redraw before quit without losing the dispose path', async () => {
