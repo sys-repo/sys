@@ -1,5 +1,6 @@
 # Stable dev reporter DMIND plan
 
+stable-dev-reporter.plan.md
 - [ ] refactor(driver-vite): harden dev spawn output ownership
 - [ ] feat(driver-vite): add stable screen reporter for dev output
 - [ ] test(driver-vite): pin dev reporter raw, screen, and failure visibility

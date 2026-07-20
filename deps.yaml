@@ -58,7 +58,9 @@ deno.json:
   - import: npm:micromark-extension-frontmatter@2.0.0
   - import: npm:micromark-extension-gfm@3.0.0
   - import: npm:@types/mdast@4.0.4
+    name: mdast
   - import: npm:@types/unist@3.0.3
+    name: unist
   - import: jsr:@cliffy/keypress@1.2.1
   - import: jsr:@cliffy/prompt@1.2.1
   - import: jsr:@cliffy/table@1.2.1
