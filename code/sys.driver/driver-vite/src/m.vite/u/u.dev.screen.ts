@@ -130,7 +130,6 @@ export const DevScreen = {
     const { width, height } = wrangle.size(args.width, args.height);
     const hr = c.brightGreen(c.bold(Cli.Fmt.hr({ width })));
     const subHr = c.dim(Cli.Fmt.hr({ width, color: 'green', weight: 'dashed' }));
-    const digest = ViteLog.digest(args.dist?.hash.digest);
     const input = Path.trimCwd(args.paths.app.entry);
     const outDir = Path.trimCwd(args.paths.app.outDir);
     const prefix = (indexWidth: number) => {
@@ -140,10 +139,10 @@ export const DevScreen = {
         wrangle.header(args.pkg, width),
         hr,
         '',
-        wrangle.info(args.url, contentColumn),
+        wrangle.info(args.url, contentColumn, width),
         `${indent}${c.green('↑')}`,
-        `${indent}${c.green('input')}    ${input}`,
-        `${indent}${c.white('output')}   ${outDir} ${digest}`,
+        wrangle.valueRow('input', input, contentColumn, width, c.green('input')),
+        wrangle.outputRow(outDir, args.dist?.hash.digest, contentColumn, width),
       ];
       if (args.ws) lines.splice(2, 0, '', args.ws.toString());
       if (args.showOptions) lines.push('', wrangle.options(subHr, contentColumn));
@@ -160,7 +159,7 @@ export const DevScreen = {
     const rows = visible.map((line) => wrangle.logRow(line, width, indexWidth));
     const frame = rows.length ? `${head}\n${rows.join('\n')}` : head;
 
-    return wrangle.clipLines(frame, height).trimEnd();
+    return wrangle.clipLines(wrangle.clipFrameWidth(frame, width), height).trimEnd();
   },
 } as const;
 
@@ -216,6 +215,16 @@ const wrangle = {
     return lines.length <= height ? text : lines.slice(0, height).join('\n');
   },
 
+  clipFrameWidth(text: string, width: number) {
+    if (width === 0) return '';
+    return text.split('\n').map((line) => wrangle.clipFrameLine(line, width)).join('\n');
+  },
+
+  clipFrameLine(line: string, width: number) {
+    if (Cli.Fmt.Text.visibleWidth(line) <= width) return line;
+    return c.gray(wrangle.clipMiddleText(stripAnsi(line), width));
+  },
+
   contentColumn(indexWidth: number) {
     return 1 + Math.max(1, indexWidth) + 2 + 3 + 2;
   },
@@ -267,10 +276,16 @@ const wrangle = {
     return value || name || 'unknown';
   },
 
-  info(href: string, contentColumn: number) {
+  info(href: string, contentColumn: number, width: number) {
     const url = new URL(href);
-    const port = c.bold(c.brightCyan(url.port));
+    const text = `${url.protocol}//${url.hostname}:${url.port}/`;
+    const valueWidth = Cli.Fmt.Text.fitWidth({ width, reserve: contentColumn, terminal: false });
     const indent = wrangle.indent(contentColumn);
+    if (Cli.Fmt.Text.visibleWidth(text) > valueWidth) {
+      return `${indent}${c.cyan(wrangle.clipMiddleText(text, valueWidth))}`;
+    }
+
+    const port = c.bold(c.brightCyan(url.port));
     return c.cyan(`${indent}${url.protocol}//${url.hostname}:${port}/`);
   },
 
@@ -291,6 +306,75 @@ const wrangle = {
     const gap = wrangle.indent(Math.max(1, contentColumn - label.length));
     const tail = suffix ? `  ${suffix}` : '';
     return `${label}${gap}${value}${tail}`;
+  },
+
+  valueRow(
+    label: string,
+    value: string,
+    contentColumn: number,
+    width: number,
+    styledLabel: string,
+  ) {
+    const prefix = wrangle.valuePrefix(label, contentColumn, styledLabel);
+    const valueWidth = Cli.Fmt.Text.fitWidth({
+      width,
+      reserve: Cli.Fmt.Text.visibleWidth(prefix),
+      terminal: false,
+    });
+    return `${prefix}${wrangle.clipMiddle(value, valueWidth)}`;
+  },
+
+  valuePrefix(label: string, contentColumn: number, styledLabel: string) {
+    const labelWidth = 9;
+    const gap = wrangle.indent(Math.max(1, labelWidth - label.length));
+    return `${wrangle.indent(contentColumn)}${styledLabel}${gap}`;
+  },
+
+  outputRow(outDir: string, hash: t.StringHash | undefined, contentColumn: number, width: number) {
+    const prefix = wrangle.valuePrefix('output', contentColumn, c.white('output'));
+    const base = `${prefix}${outDir}`;
+    const candidates = wrangle.digestCandidates(hash);
+    const digest = candidates.find((candidate) => {
+      return Cli.Fmt.Text.visibleWidth(`${base} ${candidate}`) <= width;
+    });
+    if (digest) return `${base} ${digest}`;
+    if (Cli.Fmt.Text.visibleWidth(base) <= width) return base;
+
+    const outDirWidth = Cli.Fmt.Text.fitWidth({
+      width,
+      reserve: Cli.Fmt.Text.visibleWidth(prefix),
+      terminal: false,
+    });
+    return `${prefix}${wrangle.clipMiddle(outDir, outDirWidth)}`;
+  },
+
+  digestCandidates(hash: t.StringHash | undefined) {
+    if (!hash) return [];
+    const parts = wrangle.digestParts(hash);
+    const short = parts
+      ? [
+        wrangle.digest(`${parts.algorithm}:${parts.suffix}`),
+        wrangle.digest(parts.suffix),
+      ]
+      : [];
+    return [ViteLog.digest(hash), ...short];
+  },
+
+  digest(value: string) {
+    return c.gray(`${c.green('←')} ${value}`);
+  },
+
+  digestParts(hash: t.StringHash) {
+    const text = stripAnsi(ViteLog.digest(hash)).trim();
+    const uri = text.replace(/^←\s*/, '');
+    const uriParts = uri.split(':');
+    if (uriParts.length >= 3 && uriParts[0] === 'digest') {
+      return { algorithm: uriParts[1], suffix: uriParts.slice(2).join(':') };
+    }
+
+    const index = hash.indexOf('-');
+    if (index <= 0) return undefined;
+    return { algorithm: hash.slice(0, index), suffix: `#${hash.slice(-5)}` };
   },
 
   indexWidth(lines: readonly OutputLine[]) {
