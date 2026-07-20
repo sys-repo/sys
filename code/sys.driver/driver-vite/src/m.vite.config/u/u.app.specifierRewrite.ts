@@ -1,6 +1,6 @@
-import { Perf } from '../common/u.perf.ts';
-import { DenoFile, Fs, Is, Json, Path, type t } from './common.ts';
-import { isBarePackageId } from '../m.vite.transport/u/u.npm.ts';
+import { Perf } from '../../common/u.perf.ts';
+import { DenoFile, Fs, Is, Json, Path, type t } from '../common.ts';
+import { isBarePackageId } from '../../m.vite.transport/u/u.npm.ts';
 
 type LoadImports = (configPath: t.StringPath) => Promise<Record<string, string>>;
 type WarmNpm = (specifier: string, cwd: string) => Promise<void>;

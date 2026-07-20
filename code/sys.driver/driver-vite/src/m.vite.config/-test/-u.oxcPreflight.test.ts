@@ -1,5 +1,5 @@
 import { describe, expect, it, Path } from '../../-test.ts';
-import { oxcPreflightPlugin } from '../u.oxcPreflight.ts';
+import { oxcPreflightPlugin } from '../u/u.oxcPreflight.ts';
 
 describe('ViteConfig: oxcPreflightPlugin', () => {
   it('runs Vite transformWithOxc against the resolved config', async () => {

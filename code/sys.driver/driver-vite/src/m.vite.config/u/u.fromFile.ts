@@ -1,4 +1,4 @@
-import { type t, Delete, Err, Fs, Path, PATHS } from './common.ts';
+import { type t, Delete, Err, Fs, Path, PATHS } from '../common.ts';
 
 /**
  * Attempts to dynamically load a `vite.config.ts` module.

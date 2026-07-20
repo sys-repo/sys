@@ -1,4 +1,4 @@
-import { type t, PATHS, Path } from './common.ts';
+import { type t, PATHS, Path } from '../common.ts';
 
 type F = t.ViteConfig.Lib['paths'];
 type Options = t.DeepPartial<t.ViteConfig.Paths>;

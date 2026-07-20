@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t } from '../common.ts';
 
 type VisualizerModule = {
   readonly visualizer: (options: { readonly filename: string }) => t.VitePlugin;

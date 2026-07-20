@@ -1,6 +1,6 @@
-import { Is, type t } from './common.ts';
+import { Is, type t } from '../common.ts';
 import react from '@vitejs/plugin-react';
-import { ViteTransport } from '../m.vite.transport/mod.ts';
+import { ViteTransport } from '../../m.vite.transport/mod.ts';
 
 type CommonPluginsContext = {
   readonly denoConfig?: t.StringPath;

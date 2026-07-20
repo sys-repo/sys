@@ -1,5 +1,5 @@
 import type { ResolvedConfig } from 'vite';
-import { Path, type t } from './common.ts';
+import { Path, type t } from '../common.ts';
 
 type ViteRuntime = {
   transformWithOxc: (...args: any[]) => Promise<unknown>;
