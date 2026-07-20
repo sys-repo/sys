@@ -39,6 +39,9 @@ export declare namespace ViteLog {
     export type Lib = {
       /** Render to console. */
       log(args?: Args): void;
+
+      /** Produce command-help text. */
+      toString(args?: Args): string;
     };
 
     /** Arguments passed to `Log.API` method. */
@@ -46,6 +49,8 @@ export declare namespace ViteLog {
       cmd?: string;
       minimal?: boolean;
       disabled?: Cmd[];
+      /** Maximum rendered line width for terminal-safe presentation. */
+      width?: number;
     };
 
     /** Commands included in the Help log. */
