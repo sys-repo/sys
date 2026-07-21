@@ -396,33 +396,27 @@ const wrangle = {
   header(pkg: t.Pkg, width: number) {
     if (width === 0) return '';
 
-    const titleText = 'Dev';
-    const title = c.brightGreen(c.bold(titleText));
-    const titleWidth = Cli.Fmt.Text.visibleWidth(titleText);
     const name = pkg.name;
     const version = pkg.version.trim();
     const scoped = wrangle.moduleName(name);
-    const scopedVersion = version ? `${scoped} ${version}` : scoped;
     const unscoped = wrangle.unscopedModuleName(scoped);
-    const renderName = (text: string) => c.white(c.bold(text));
-    const renderModule = (text: string) => {
-      if (!version || !text.endsWith(` ${version}`)) return renderName(text);
-      const base = text.slice(0, -1 * (` ${version}`).length);
-      return `${renderName(base)} ${c.gray(version)}`;
+    const renderName = (text: string) => c.green(c.bold(text));
+    const renderVersion = (text: string) => c.dim(c.green(text));
+    const split = (text: string) => {
+      if (!version) return undefined;
+      const gap = width - Cli.Fmt.Text.visibleWidth(text) - Cli.Fmt.Text.visibleWidth(version);
+      return gap >= 1
+        ? `${renderName(text)}${wrangle.indent(gap)}${renderVersion(version)}`
+        : undefined;
     };
-    const split = (right: string) => {
-      const gap = width - titleWidth - Cli.Fmt.Text.visibleWidth(right);
-      return gap >= 1 ? `${title}${wrangle.indent(gap)}${renderModule(right)}` : undefined;
-    };
-    const alignRight = (text: string) => {
-      const gap = Math.max(0, width - Cli.Fmt.Text.visibleWidth(text));
-      return `${wrangle.indent(gap)}${renderName(text)}`;
+    const renderIfFits = (text: string) => {
+      return Cli.Fmt.Text.visibleWidth(text) <= width ? renderName(text) : undefined;
     };
 
-    return split(scopedVersion) ??
-      split(scoped) ??
-      (Cli.Fmt.Text.visibleWidth(scoped) <= width ? alignRight(scoped) : undefined) ??
-      (Cli.Fmt.Text.visibleWidth(unscoped) <= width ? alignRight(unscoped) : undefined) ??
+    return split(scoped) ??
+      split(unscoped) ??
+      renderIfFits(scoped) ??
+      renderIfFits(unscoped) ??
       renderName(wrangle.clipMiddleText(unscoped, width));
   },
 

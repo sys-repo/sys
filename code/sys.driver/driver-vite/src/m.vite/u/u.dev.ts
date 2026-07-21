@@ -19,6 +19,8 @@ import { keyboardFactory } from './u.keyboard.ts';
 import { Log } from './u.log.ts';
 import { Wrangle } from './u.wrangle.ts';
 
+const STARTING_DEV_SERVER = 'starting dev server…';
+
 const SUPPRESS_VISIBLE_OUTPUT = [
   /**
    * Deno auto-discovers the consumer `deno.json` while this driver also passes a
@@ -30,11 +32,12 @@ const SUPPRESS_VISIBLE_OUTPUT = [
   /^Warning\s+the configuration file "file:\/\/\/.+?" contains an entry for "importMap" that is being ignored\.?$/,
 
   /**
-   * The parent screen reporter seeds the visible log with this startup affordance before the
-   * child has produced output. If the child/toolchain emits the same line, keep the visible log
-   * stable by suppressing the duplicate child row. Raw passthrough mode is unaffected.
+   * The parent screen reporter seeds the visible log with this startup affordance
+   * before the child has produced output. If the child/toolchain emits the same
+   * startup-kind line, keep the visible log stable by suppressing the duplicate
+   * child row. Raw passthrough mode is unaffected.
    */
-  /^starting(?:\s+vite)?(?:\.{3}|…)?$/i,
+  /^starting(?:\s+(?:vite|dev\s+server))?(?:\.{3}|…)?$/i,
 ] as const;
 
 export const REGEX = {
@@ -136,7 +139,7 @@ export const dev: t.Vite.Lib['dev'] = async (input) => {
     maxLines: Math.max(40, logLines),
     suppressVisible: SUPPRESS_VISIBLE_OUTPUT,
   });
-  if (parentOwnsOutput && pkg) output.pushDisplay('stdout', 'starting…');
+  if (parentOwnsOutput && pkg) output.pushDisplay('stdout', STARTING_DEV_SERVER);
   const screen = parentOwnsOutput && pkg
     ? DevScreen.create({
       pkg,
