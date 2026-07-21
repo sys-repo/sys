@@ -4,7 +4,6 @@ import { Foo } from './-ui.Foo.tsx';
 export type SampleKind = 'comprehensive' | 'simple' | 'opacity' | 'links' | 'recursive' | 'reorder';
 
 const mono = true;
-
 const Styles = {
   nestedKey: css({ marginLeft: 20 }),
 } as const;

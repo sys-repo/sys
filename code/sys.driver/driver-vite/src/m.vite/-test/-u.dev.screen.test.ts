@@ -1,4 +1,5 @@
 import { c, describe, expect, it, stripAnsi, type t } from '../../-test.ts';
+import { Log as WorkspaceLog } from '../../m.vite.config.workspace/u.log.ts';
 import { DevOutputLog } from '../u/u.dev.output.ts';
 import { DevScreen } from '../u/u.dev.screen.ts';
 
@@ -264,6 +265,31 @@ describe('DevScreen', () => {
     expect(moreLine.indexOf('shift + i')).to.eql(column);
   });
 
+  it('keeps extended workspace import-map rows width-safe', () => {
+    const width = 42;
+    const raw = DevScreen.toString({
+      pkg: pkg(),
+      paths: paths(),
+      url: 'http://localhost:1234/',
+      lines: [],
+      ws: workspace(),
+      width,
+      height: 80,
+    });
+    const text = stripAnsi(raw);
+    const mappingRows = text.split('\n').filter((line) =>
+      line.includes('→') && line.includes('@sys/')
+    );
+    const [left, right] = (mappingRows[0] ?? '').split('→');
+
+    expectRowsBounded(raw, width);
+    expect(mappingRows.length > 0).to.eql(true);
+    expect(mappingRows.every((line) => !line.includes('import '))).to.eql(true);
+    expect(mappingRows.every((line) => line.includes('  →  '))).to.eql(true);
+    expect(left).to.include('…');
+    expect(right).to.include('…');
+  });
+
   it('renders options only when requested', () => {
     const width = 30;
     const text = stripAnsi(DevScreen.toString({
@@ -340,4 +366,38 @@ function pkg(): t.Pkg {
 
 function dist(): t.DistPkg {
   return { hash: { digest: HASH, parts: {} } } as t.DistPkg;
+}
+
+function workspace(): t.ViteDenoWorkspace {
+  type EsmImportMap = { readonly [key: string]: string };
+  function latest(name: t.StringModuleSpecifier): t.StringSemver;
+  function latest(deps: EsmImportMap): EsmImportMap;
+  function latest(input: t.StringModuleSpecifier | EsmImportMap): t.StringSemver | EsmImportMap {
+    return typeof input === 'string' ? '0.0.0' : input;
+  }
+
+  const ws = {
+    exists: true,
+    dir: '/repo',
+    file: '/repo/deno.json',
+    children: [],
+    modules: { ok: true, items: [], count: 0, latest },
+    aliases: [
+      {
+        find: '@sys/driver-automerge/client',
+        replacement: '/repo/code/sys.driver/driver-automerge/src/-exports/-ws.client.ts',
+      },
+      {
+        find: '@sys/driver-automerge/types',
+        replacement: '/repo/code/sys.driver/driver-automerge/src/types.ts',
+      },
+    ],
+    toAliasMap: () => ({}),
+    toString(options?: { pad?: boolean; width?: number }) {
+      return WorkspaceLog.toString(this, options);
+    },
+    log() {},
+  } satisfies t.ViteDenoWorkspace;
+
+  return ws;
 }

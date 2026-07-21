@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 
-type ToStringOptions = { pad?: boolean };
+type ToStringOptions = { pad?: boolean; width?: number };
 
 /**
  * Vite/Deno workspace helpers.

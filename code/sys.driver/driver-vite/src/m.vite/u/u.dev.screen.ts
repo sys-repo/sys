@@ -160,7 +160,7 @@ export const DevScreen = {
           suffixes: digestSuffixes(args.dist?.hash.digest),
         }),
       ];
-      if (args.ws) lines.splice(2, 0, '', args.ws.toString());
+      if (args.ws) lines.splice(2, 0, '', args.ws.toString({ width }));
       if (args.showOptions) lines.push('', wrangle.options(subHr, contentColumn));
       lines.push('', subHr);
       return lines.join('\n').trimEnd();
