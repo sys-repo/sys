@@ -1,314 +1,376 @@
-# Stable dev reporter DMIND plan
+# Stable dev reporter / terminal presentation plan
 
-stable-dev-reporter.plan.md
-- [ ] refactor(driver-vite): harden dev spawn output ownership
-- [ ] feat(driver-vite): add stable screen reporter for dev output
-- [ ] test(driver-vite): pin dev reporter raw, screen, and failure visibility
+## Commit arc
 
-## Intent
+- [x] af3bdfdce refactor(driver-vite): harden dev spawn output ownership
+- [x] 240eb80e0 refactor(driver-vite): group vite utility files under /u/*
+- [x] 64bc287b2 refactor(driver-vite): group vite config utility files under /u/*
+- [x] d20ce7631 feat(driver-vite): add stable screen reporter for dev output
+- [x] cdda1df03 fix(driver-vite): suppress benign import-map warning in screen reporter
+- [x] 1dc6f70fb chore(driver-vite): bump
+- [x] 31facd721 fix(driver-vite): polish dev screen flow and compact header
+- [x] fac77a0a7 fix(driver-vite): make build output width aware
+- [x] 45fb5d7a6 fix(driver-vite): make task help output width aware
+- [x] 779303663 fix(driver-vite): keep dev screen rows width safe
+- [x] a98c84fb2 fix(driver-vite): keep info bundle rows width safe
+- [x] de84dfd80 refactor(driver-vite): rename API task formatter
+- [x] 1ef3f368d fix(driver-vite): polish workspace import-map output
+- [x] 448049bd0 fix(driver-vite): show dev startup spinner in screen reporter
+- [x] c81d37d5d feat(cli): expose spinner test double
 
-Upgrade `deno task dev` from raw Vite scrollback into a stable, parent-owned console window:
-  - `--reporter=auto|screen|raw`;
+Related, not part of this plan arc:
+
+- [x] 20f68c55c chore(workspace): refreshed 10 workspace packages (49 jsr:publish modules)
+
+## Last landing
+
+Landed commit:
 
 ```text
-Info
+c81d37d5d feat(cli): expose spinner test double
+```
+
+This landing completed the reusable spinner test-double follow-up:
+
+- added `@sys/cli/testing`;
+- added `FakeSpinner.create(...)` as a tiny spinner-compatible test helper;
+- kept runtime/Ora behavior unchanged;
+- kept the fake free of timers, terminal writes, and `this` binding;
+- split implementation into canonical `common.ts`, `t.ts`, `m.FakeSpinner.ts`, and `mod.ts`;
+- split tests into API export proof and behavior/type tests;
+- replaced the local `driver-vite` fake spinner with `FakeSpinner`.
+
+## Previous landing: startup spinner
+
+Landed commit:
+
+```text
+448049bd0 fix(driver-vite): show dev startup spinner in screen reporter
+```
+
+This landing completed the startup spinner pass by keeping startup and ready frames on the same
+visible dev-log affordance:
+
+- startup clears immediately, prints the static `Dev` header, then lets Ora own only the dynamic
+  body underneath;
+- the parent seeds exactly one visible log row: `1 out starting…`;
+- real Vite rows append normally after the seeded row;
+- startup and ready frames render the same `DevOutputLog` rows;
+- duplicate child/toolchain `starting…`/`starting Vite…` rows are suppressed only in screen mode;
+- raw reporter behavior remains exact.
+
+## Previous landing: workspace import-map output
+
+Landed commit:
+
+```text
+1ef3f368d fix(driver-vite): polish workspace import-map output
+```
+
+This landing completed the current `@sys/driver-vite` terminal-presentation pass by polishing the
+`shift+i` workspace import-map output.
+
+### Scope boundary
+
+Workspace import-map display belongs in `m.vite.config.workspace/*` because the rendered data is
+`t.ViteDenoWorkspace.aliases`, projected for Vite/Rollup resolution.
+
+It is not:
+
+- generic `@sys/esm` module-specifier formatting;
+- generic `@sys/workspace` graph/CI display;
+- `@sys/driver-deno` workspace loading.
+
+### Implemented files
+
+- `src/m.vite.config.workspace/common.ts`
+- `src/m.vite.config.workspace/mod.ts`
+- `src/m.vite.config.workspace/t.ts`
+- `src/m.vite.config.workspace/u.aliases.ts`
+- `src/m.vite.config.workspace/u.log.ts`
+- `src/m.vite.config.workspace/u.log.table.ts`
+- `src/m.vite.config.workspace/-test/-.test.ts`
+- `src/m.vite/u/u.dev.screen.ts`
+- `src/m.vite/-test/-u.dev.screen.test.ts`
+
+### Current reality
+
+- `common.ts` is the standard local common surface:
+  ```ts
+  export * from '../common.ts';
+  ```
+- `mod.ts` owns the public `workspace(...)` composition.
+- `u.aliases.ts` owns Deno workspace → Vite alias discovery, sorting, and filtering.
+- `u.log.ts` owns the public workspace terminal presenter.
+- `u.log.table.ts` owns the width-aware import-map table layout/rendering.
+- `DevScreen` only threads terminal width into `ws.toString({ width })`; it does not know table
+  internals.
+
+### Target output
+
+```text
+Docs
+  Workspace <ESM Module> import-map
+
+  Export                   Maps to
+  import @sys/tmpl/testing  →  ./code/-tmpl/src/m.testing/mod.ts
+  import @sys/tmpl/types    →  ./code/-tmpl/src/types.ts
+```
+
+Filtered output keeps the suffix without restoring a trailing colon:
+
+```text
+Workspace <ESM Module> import-map (filtered)
+```
+
+### Required invariants
+
+- no `Workspace <ESM Module> import-map:` trailing colon;
+- no `Export:` or `Maps to:` header colons;
+- header labels are Title Case: `Export`, `Maps to`;
+- header row has no arrow;
+- table is a real `Cli.table(...)` three-column table: export cell, arrow cell, path cell;
+- `Maps to` aligns over the path column, not the arrow column;
+- row seam remains compact: two spaces, `→`, two spaces;
+- row arrow is green;
+- arrow columns align across rows;
+- wide output keeps the gray `import` prefix;
+- narrow output drops the `import` prefix globally before clipping values;
+- tighter output middle-ellipsizes both module specifier and path;
+- path is gray operative value, not dim background detail;
+- clipped path ellipsis is cyan;
+- standalone workspace log rows, including title rows, are bounded to requested width;
+- `shift+i` dev-screen workspace info remains bounded.
+
+### Landing proof
+
+```sh
+cd ./code/sys.driver/driver-vite
+deno fmt src/m.vite.config.workspace/-test/-.test.ts src/m.vite.config.workspace/mod.ts src/m.vite.config.workspace/t.ts src/m.vite.config.workspace/u.aliases.ts src/m.vite.config.workspace/u.log.ts src/m.vite.config.workspace/u.log.table.ts src/m.vite/u/u.dev.screen.ts src/m.vite/-test/-u.dev.screen.test.ts
+deno task test --trace-leaks ./src/m.vite.config.workspace/-test/-.test.ts ./src/m.vite/-test/-u.dev.screen.test.ts ./src/m.vite/-test/-u.keyboard.test.ts
+deno task check
+deno task test --trace-leaks ./src/m.vite.config.workspace/-test/-.test.ts ./src/m.vite/-test/-u.dev.screen.test.ts ./src/m.vite/-test/-u.keyboard.test.ts ./src/m.vite/-test/-tasks.output-width.test.ts ./src/m.vite/-test/-info.output-width.test.ts ./src/m.vite/-test/-build.output-width.test.ts ./src/m.vite/-test/-u.log.test.ts ./src/m.vite/-test/-build.elapsed.test.ts ./src/m.vite/-test/-build.test.ts
+git diff --check --cached
+```
+
+## Next side arc: startup spinner in stable screen mode
+
+This stays in this plan for now. It is a direct child of the stable dev reporter arc and is not
+large enough to justify a separate plan file yet.
+
+Split into its own plan only if it grows into a broader `@sys/cli` spinner/display-system arc with
+multiple consumers beyond `driver-vite`.
+
+### Problem
+
+- Screen reporter renders the stable frame immediately while Vite is still booting.
+- There can be a visible blank pause before the first Vite output rows arrive.
+- Keyboard shortcuts do not work during this startup phase because `Vite.dev()` returns only after
+  `proc.whenReady()` and the HTTP readiness probe complete; `server.listen()` starts after that.
+
+### Design rule
+
+- Use active Ora only during startup, before the stable screen reporter owns the terminal.
+- Do not run active Ora inside `DevScreen` after the server is ready.
+- Keep exactly one dynamic terminal owner at a time:
+  - startup phase: Ora owns the dynamic block under a static title/header;
+  - ready phase: Ora is stopped, then `DevScreen` owns the full stable frame.
+- Do not invent Vite-local spinner frames.
+- Do not add `Cli.Spinner.frame(...)` in this arc; that pure-frame API is deferred until multiple
+  stable-screen consumers prove the need.
+- Keep the startup message truthful: synthetic startup status must not masquerade as Vite stdout.
+
+### `fix(driver-vite): show dev startup spinner in screen reporter`
+
+Pre-implementation decision:
+
+- Use existing `Cli.Spinner.create(...)` / Ora for startup only.
+- Clear the terminal immediately when startup screen mode begins.
+- Print the static dev title/header once before starting Ora so the spinner appears under the main
+  title, not before it.
+- Let Ora own the multiline startup body below the title/header.
+- Use a spinner with no label on the spinner line and no blank spacer after it.
+- Seed the actual visible dev log once with `1 out starting…`, then append real Vite rows after it.
+- Render startup and ready frames from the same visible log rows; do not overlay or renumber startup
+  rows separately.
+- Stop Ora and hand terminal ownership to `DevScreen` once `proc.whenReady()` and
+  `Http.Client.waitFor(...)` pass.
+
+Startup shape:
+
+```text
+Dev                                      @sys/ui-components 0.0.319
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⠋
+         http://localhost:1235/
+         ↑
+         input    src/index.html
+         output   dist/ ← digest:sha256:#ccd11
+
+┄┄┄┄┄┄┄┄┄┄
+ 1  out  starting…
+```
+
+Task list:
+
+- [ ] Add a startup-only screen renderer, separate from the ready `DevScreen` frame, if this keeps
+      the Ora text construction pure and testable.
+- [ ] Reuse existing `DevScreen` header/metadata formatting helpers only if doing so does not blur
+      startup/ready ownership.
+- [ ] Clear the terminal before printing the static startup header.
+- [ ] Start Ora after printing the static title/header so the spinner line sits under the main
+      title.
+- [ ] Seed `DevOutputLog` once with a parent display row: `starting…`.
+- [ ] Render the seeded startup row and real output rows through the same log-row formatter as ready
+      output.
+- [ ] Do not overlay, renumber, or inject a second startup-only row in `DevScreen.startupBody(...)`.
+- [ ] Suppress duplicate child/toolchain `starting…`/`starting Vite…` visible rows in screen mode so
+      the parent affordance appears exactly once.
+- [ ] Defer additional synthetic startup milestones until they can be represented as chronological
+      display log events rather than casual one-off row mutations.
+- [ ] Update the Ora body as captured Vite stdout/stderr arrives, keeping Vite truth visible below
+      or alongside the startup status.
+- [ ] Stop Ora before calling the ready `DevScreen.redraw()`.
+- [ ] Add internal test control to disable active Ora and assert the pure startup body/header
+      output.
+- [ ] Preserve raw reporter behavior exactly.
+- [ ] Preserve startup failure diagnostics from retained output.
+- [ ] Add tests for startup layout, status truth, width bounds, and disabled-spinner test mode.
+- [ ] Add lifecycle tests proving Ora stops on ready, cleanup, and startup failure.
+
+Out of scope:
+
+- making quick keys work before `Vite.dev()` resolves;
+- changing `Vite.dev()` to return before readiness;
+- adding a full startup progress model;
+- running Ora / active `Cli.spinner(...)` inside screen mode.
+
+Later keyboard responsiveness cleanup:
+
+- [ ] If lifecycle is deliberately refactored, consider starting ordinary key listening earlier.
+- [ ] Make `shift+i` workspace loading lazy/cached so basic keys do not wait for workspace
+      discovery.
+
+## Completed follow-up: `feat(cli): expose spinner test double`
+
+Public API:
+
+```ts
+import { FakeSpinner } from '@sys/cli/testing';
+
+const spinner = FakeSpinner.create('starting…');
+```
+
+Completed files:
+
+- `code/sys/cli/deno.json` export: `./testing`;
+- `code/sys/cli/src/m.testing/common.ts`;
+- `code/sys/cli/src/m.testing/t.ts`;
+- `code/sys/cli/src/m.testing/m.FakeSpinner.ts`;
+- `code/sys/cli/src/m.testing/mod.ts`;
+- `code/sys/cli/src/m.testing/-test/-.test.ts`;
+- `code/sys/cli/src/m.testing/-test/-api.test.ts`;
+- `code/sys/cli/src/m.testing/-test/-m.FakeSpinner.test.ts`;
+- `code/sys.driver/driver-vite/src/m.vite/-test/-u.dev.screen.test.ts`.
+
+Invariants:
+
+- `FakeSpinner.create()` returns a handle usable wherever tests inject `Cli.Spinner.create(...)`;
+- the fake is assignable to `t.CliSpinner.Instance`;
+- it includes an Ora-compatible `render()` method for lower-level injected handles;
+- `start(text?)`, `succeed(text?)`, and `fail(text?)` update text when a label is passed;
+- `succeed(...)` and `fail(...)` record status and stop semantics predictably;
+- `render()` increments `renders` and returns the fake;
+- methods close over the fake object and do not depend on `this` binding;
+- no timers, terminal writes, stdin handling, or Ora import;
+- active Ora/runtime spinner behavior is unchanged.
+
+## Stable screen contract
+
+Screen mode must preserve these properties:
+
+- one terminal owner;
+- no PTY, curses, or alternate-screen dependency;
+- raw passthrough remains available via `reporter: 'raw'`;
+- Vite stdout/stderr truth remains visible through the recent tail;
+- retained output remains available for startup diagnostics;
+- no semantic parser for every Vite message;
+- final frame width/height clips protect extremely small terminals;
+- all width decisions use visible/display width, not raw `.length`.
+
+## Dev-screen visual contract
+
+Wide shape:
+
+```text
+Dev                                                 @sys/ui-components 0.0.319
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-module   @sys/ui-components@0.0.317
          http://localhost:1235/
-         ↓
+         ↑
          input    src/index.html
-         output   dist/ ← digest:sha256:#4c5a1
+         output   dist/ ← digest:sha256:#ccd11
 
-vite
 ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
- out     VITE v8.1.5 ready in 183 ms
- out     Local: http://localhost:1235/
- err     warning: ...
+ 1  out  VITE v8.1.5 ready in 183 ms
+ 2  out  ➜  Local:   http://localhost:1235/
+ 3  out  ➜  Network: http://192.168.1.147:1235/
 ```
 
-The key design move is not decoration. It is terminal ownership.
-
-The Vite child remains the substrate truth. `@sys/driver-vite` owns the frame, redraw cadence, bounded log view, and failure surfacing.
-
-## BMIND review
-
-Read paths:
-
-- `code/sys.driver/driver-vite/src/m.vite/u.dev.ts`
-- `code/sys.driver/driver-vite/src/m.vite/u.keyboard.ts`
-- `code/sys.driver/driver-vite/src/m.vite/u.log.ts`
-- `code/sys.driver/driver-vite/src/m.vite/u.wrangle.ts`
-- `code/sys.process/src/m.process/u.proc/u.spawn.ts`
-- `code/sys.process/src/m.process/u/u.kill.ts`
-- `code/sys.process/src/m.process/u/u.ts`
-
-### What is already principled
-
-- Vite is launched through `Deno.Command` argv, not shell string assembly.
-- `Wrangle.command(...)` centralizes the Deno/Vite command construction and bootstrap cleanup.
-- `Process.spawn(...)` gives a long-running handle with stdout/stderr events, readiness, and lifecycle disposal.
-- Readiness is semantically real: output-derived URL detection followed by HTTP confirmation.
-- Startup failure already preserves captured stderr.
-- Cleanup is explicit: child dispose first, bootstrap cleanup after.
-
-### What is not yet clean enough for the stable reporter
-
-- Raw mode and screen mode currently share the same terminal surface.
-  - `Process.spawn({ silent: false })` writes child chunks directly to stdout.
-  - Keyboard redraws later clear/reprint info.
-  - A stable frame requires one writer: the parent reporter.
-- Output capture is stderr-only today for startup errors.
-  - The screen reporter needs stdout and stderr captured as line events.
-  - Failure reports should include a bounded recent tail, not only stderr.
-- Chunk events are not line events.
-  - Vite can emit partial chunks.
-  - The reporter needs a line assembler so table rows are truthful and stable.
-- `open` currently uses shell sugar in `keyboardFactory`.
-  - The Vite child path is argv-clean already.
-  - A tidy pass can consider direct argv invocation for `open` as a small Unix-discipline cleanup, but it is not the core reporter seam.
-
-## DMIND frame
-
-The experience should feel like a small instrument panel, not a prettier pipe.
-
-Principles:
-
-- Stable frame over scrollback.
-- One terminal writer in screen mode.
-- Raw Vite truth remains available.
-- Bounded memory, bounded terminal height.
-- No curses/PTY/alternate-screen dependency in the first pass.
-- No hidden failures: all startup and runtime failures keep a visible recent tail.
-- Non-TTY automation should not receive redraw control sequences by default.
-
-## Reporter modes
-
-Introduce dev reporter mode:
-
-```ts
-type DevReporterMode = 'auto' | 'screen' | 'raw';
-```
-
-Default:
-
-- `auto`
-  - screen when interactive terminal support is available;
-  - raw when not interactive or when keyboard support is unavailable early enough to know.
-- `screen`
-  - force stable screen reporter.
-- `raw`
-  - preserve current Vite passthrough behavior as closely as possible.
-
-CLI shape, exact names to confirm during implementation:
-
-```text
---reporter=auto|screen|raw
---log-lines=10
-```
-
-Public API shape, exact names to confirm in `t.ts` first:
-
-```ts
-reporter?: 'auto' | 'screen' | 'raw';
-logLines?: number;
-```
-
-## Target screen behavior
-
-### Startup default
-
-- Clear/redraw into one stable frame.
-- Show compact `Info` block.
-- Do not show `options` by default.
-- Show `vite` tail below info.
-- Keep log tail height bounded by `logLines` and terminal height.
-
-### Keyboard
-
-- `i` toggles or shows options/help panel.
-- `shift+i` keeps extended workspace detail, likely as an expanded info render.
-- `k` clears the visible log buffer and redraws.
-- `o` opens browser.
-- `ctrl+c` disposes child and exits.
-
-### Log tail
-
-Keep two representations:
-
-- raw chunks/lines for diagnostics and final error text;
-- stripped, layout-safe lines for screen rendering.
-
-Render as a minimal reality table:
-
-```text
-vite
-┄┄┄┄┄┄┄┄┄┄┄┄
- out     ready in 183 ms
- err     warning: dependency pre-bundled again
-```
-
-Open design detail:
-
-- Timestamp is optional. Start without it unless it earns its place.
-- Source labels should be quiet (`out` / `err`) and not dominate the content.
-- Very long lines should be clipped or softly truncated to terminal width.
-
-## Implementation phases
-
-### Phase 1: tidy-first spawn/output ownership
-
-Goal: make the seams explicit before changing the experience.
-
-- Add dev reporter options to the `Vite.Dev.Args` type surface.
-- Add CLI parsing support in `ViteEntry.Args.Dev`.
-- Normalize reporter mode in one helper.
-- In raw mode, keep current behavior.
-- In screen mode, force child `silent: true` and make the parent the only terminal writer.
-- Capture both stdout and stderr before `whenReady()` so startup failures have full context.
-- Add a small line-buffer helper for process events.
-- Preserve existing readiness detection behavior byte-for-byte except for routing through captured events if needed.
-
-Acceptance:
-
-- Raw mode still shows Vite output directly.
-- Screen mode never lets the child write directly to stdout/stderr.
-- Startup failure includes stderr and recent captured tail.
-- Existing dev startup tests still pass.
-
-### Phase 2: compact info polish
-
-Goal: prepare the stable frame with less vertical waste.
-
-- Remove double blank-line spacing in `Log.Help.toString(...)` or introduce a compact `Log.DevScreen.Info` formatter.
-- Keep the existing full help formatter available for `i` if it remains useful.
-- Keep screen-width top HR.
-- Keep secondary dashed dim-green rule for options/help sections.
-- Keep `options:` colon dim green.
-
-Acceptance:
-
-- Compact info matches the visual target from the screenshot.
-- Existing options rendering remains available, but not necessarily default on startup.
-
-### Phase 3: screen reporter renderer
-
-Goal: build a pure render surface before wiring runtime redraw.
-
-- Add a formatter that accepts a snapshot:
-  - pkg
-  - dist
-  - paths
-  - url
-  - log lines
-  - options visibility
-  - terminal width/height if available
-- Return a complete frame string.
-- Strip child ANSI for layout by default.
-- Bound visible log lines by `logLines` and terminal height.
-- Keep the renderer pure enough to test without spawning Vite.
-
-Acceptance:
-
-- Renderer output is deterministic under fixed width/height.
-- Log view never exceeds the configured line count.
-- Options block can be hidden or shown.
-
-### Phase 4: runtime redraw loop
-
-Goal: convert process output into stable frames without overflow.
-
-- Subscribe to `proc.$`.
-- Feed stdout/stderr events into the line buffer.
-- Redraw after line changes with a small throttle to avoid flicker.
-- Use a simple clear + full-frame print strategy first.
-- Avoid alternate screen unless a later proof shows clear/redraw is insufficient.
-- Stop redraw cleanly on dispose.
-
-Acceptance:
-
-- Vite output does not scroll the terminal in screen mode.
-- The visible frame stays bounded.
-- Rapid output does not flood redraws.
-- Ctrl+C still disposes the Vite child and bootstrap.
-
-### Phase 5: keyboard integration
-
-Goal: make controls act on the screen state, not ad hoc prints.
-
-- Give keyboard handler access to reporter state/actions:
-  - toggle options
-  - clear log tail
-  - redraw now
-  - open URL
-  - dispose/exit
-- Keep unsupported keyboard fallback sane.
-- If keyboard is unavailable and reporter is `auto`, prefer raw mode before emitting screen control sequences.
-
-Acceptance:
-
-- `i` shows options without losing log tail.
-- `k` clears the visible log tail.
-- `shift+i` can show extended info without breaking the stable frame.
-- Unsupported keyboard does not crash dev server lifecycle.
-
-### Phase 6: failure and exit behavior
-
-Goal: failures stay visible and truthful.
-
-- On startup failure, stop screen redraw and print a final failure block with:
-  - cwd
-  - requested/resolved port context when known
-  - stderr
-  - recent log tail
-- On runtime child exit after readiness, surface the exit status and recent tail if available.
-- Do not swallow raw Vite diagnostics.
-
-Acceptance:
-
-- A Vite startup error is more diagnosable than today, not less.
-- Raw mode remains available for exact stream behavior.
-
-## Tests and proof
-
-Use narrow tests first.
-
-Suggested test seams:
-
-- line-buffer chunk assembly;
-- max-tail trimming;
-- compact info spacing;
-- screen renderer with options hidden/shown;
-- raw reporter mode passes `silent: false` or equivalent passthrough behavior;
-- screen reporter mode passes `silent: true` and captures stdout/stderr;
-- startup error includes recent tail.
-
-Runtime proof:
-
-- run a sample `deno task dev` under `@sys/driver-vite`;
-- observe stable frame with no scroll overflow;
-- trigger `i`, `k`, `o`, and `ctrl+c`;
-- run raw mode and confirm current Vite output remains available.
-
-## Non-goals for first pass
+Narrow degradation:
+
+- header compacts: drop version → drop `Dev` → drop scope → middle-ellipsize unscoped name;
+- URL middle-ellipsizes and preserves useful suffixes such as `:1235/`;
+- `input` / `output` values middle-ellipsize inside their value columns;
+- output digest collapses before row overflow:
+  - `← digest:sha256:#ccd11`;
+  - `← sha256:#ccd11`;
+  - `← #ccd11`;
+  - no digest;
+- log rows middle-ellipsize and preserve useful suffixes;
+- the final frame clip is quiet gray if presentation has to rebuild a row.
+
+## Completed behavior
+
+### Dev output ownership and stable screen reporter
+
+- public dev reporter modes: `reporter?: 'auto' | 'screen' | 'raw'`;
+- visible-tail bound: `logLines?: number`, capped at `200`;
+- CLI flags:
+  - `--reporter=auto|screen|raw`;
+  - `--log-lines=<n>`;
+- `auto` selects screen mode only when interactive and package metadata exists;
+- screen mode makes the parent process the single terminal writer;
+- child Vite output is captured silently and rendered through the stable frame;
+- raw mode preserves exact passthrough behavior;
+- known benign Deno `deno.json.importMap` warning is suppressed only from visible screen output and
+  recent visible tail, not from raw passthrough truth.
+
+### Width-safe build/dev/info/task terminal presentation
+
+- `ViteLog.Tasks` replaces the old `ViteLog.API` naming;
+- task help preserves table columns while compacting repeated `deno task` prefixes;
+- build `cmd.output` remains exact raw truth;
+- build `toString({ width })` clips presentation rows only;
+- Vite's own `✓ built in ...` remains visible;
+- `Bundle` summary is separated from Vite output with a blank line;
+- info/build/dev digest and hash rows share formatter primitives;
+- full SHA rows stay quiet gray/dim;
+- short digest suffixes such as `#ccd11` stay green;
+- timestamp divider uses `•`, e.g. `21 Jul 2026, 11:16am • 2m ago`.
+
+Shared formatter primitives:
+
+- `metadataRow(...)` for label/value/suffix width behavior;
+- `digestSuffixes(...)` for digest URI collapse;
+- `hashValue(...)` for full SHA row presentation;
+- `clipValue(...)` for middle-ellipsis value clipping.
+
+## Non-goals preserved
 
 - No PTY emulation.
 - No alternate-screen/curses dependency.
 - No full scrollback viewer.
 - No persistence of logs to disk.
-- No attempt to parse every Vite message semantically.
-- No broad `@sys/process` refactor unless a concrete seam is required.
-
-## Open decisions
-
-1. Should `i` toggle options persistently, or show options for a short-lived redraw only?
-2. Should log rows include timestamps, or are `out` / `err` labels enough?
-3. Should `shift+i` become an expanded frame mode rather than a one-off extended print?
-4. Should raw mode be named `raw`, `vite`, or `passthrough` on the CLI?
-
-Initial bias:
-
-- `i` toggles options persistently.
-- no timestamps initially.
-- `shift+i` toggles expanded frame mode.
-- CLI name: `raw`, because it is short and honest.
+- No semantic parser for every Vite message.
+- No broad `@sys/process` refactor.
