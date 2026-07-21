@@ -1,4 +1,4 @@
-import { describe, expect, it, Time } from '../../src/-test.ts';
+import { describe, expect, it, Testing, Time } from '../../src/-test.ts';
 import { D, Files, Fs, HttpCmd, Process, type t } from './common.ts';
 
 type Client = t.HttpCmd.Client<t.Files.Cmd.Name, t.Files.Cmd.Payload, t.Files.Cmd.Result>;
@@ -6,6 +6,8 @@ type Client = t.HttpCmd.Client<t.Files.Cmd.Name, t.Files.Cmd.Payload, t.Files.Cm
 describe('sample:files:http:cmd', () => {
   it('starts the sample server and serves dist-backed Files metadata over unary HTTP Cmd', async () => {
     const root = Fs.Path.fromFileUrl(new URL('../..', import.meta.url));
+    const port = Testing.randomPort();
+    const url = sampleUrl(port);
     const process = Process.spawn({
       args: [
         'run',
@@ -14,20 +16,21 @@ describe('sample:files:http:cmd', () => {
         './-sample/files.http.cmd/-start.ts',
       ],
       cwd: root,
+      env: { [D.env.port]: String(port) },
       readySignal: (event) => event.toString().includes(D.path),
       silent: true,
     });
 
     const client = HttpCmd.client<t.Files.Cmd.Name, t.Files.Cmd.Payload, t.Files.Cmd.Result>({
-      url: D.url,
+      url,
       ns: Files.Cmd.ns,
       timeout: 1_000,
     });
 
     try {
       await waitForReady(process);
-      await assertGetHelp();
-      await assertManifestGet(client);
+      await assertGetHelp(url);
+      await assertManifestGet(client, url);
       await assertCapabilities(client);
       await assertDocsCorpus(client);
     } finally {
@@ -40,6 +43,10 @@ describe('sample:files:http:cmd', () => {
 /**
  * Helpers:
  */
+function sampleUrl(port: t.PortNumber): string {
+  return `http://localhost:${port}${D.path}`;
+}
+
 async function waitForReady(process: ReturnType<typeof Process.spawn>): Promise<void> {
   const timeout = Time.wait(5_000);
 
@@ -55,16 +62,16 @@ async function waitForReady(process: ReturnType<typeof Process.spawn>): Promise<
   }
 }
 
-async function assertGetHelp() {
-  const res = await fetch(D.url);
+async function assertGetHelp(url: string) {
+  const res = await fetch(url);
   expect(res.status).to.eql(200);
   expect(res.headers.get('content-type')).to.contain('text/plain');
 
   const text = await res.text();
   expect(text).to.contain('👋 Files<T>');
-  expect(text).to.contain('GET  http://localhost:1236/files/manifest');
+  expect(text).to.contain(`GET  ${url}/manifest`);
   expect(text).to.contain('Files manifest JSON.');
-  expect(text).to.contain('POST http://localhost:1236/files');
+  expect(text).to.contain(`POST ${url}`);
   expect(text).to.contain('Unary Cmd<T> JSON endpoint.');
   expect(text).to.contain('Capabilities:');
   expect(text).to.contain('- list');
@@ -78,8 +85,8 @@ async function assertGetHelp() {
   expect(text).to.contain('"name":"files:read"');
 }
 
-async function assertManifestGet(client: Client) {
-  const res = await fetch(`${D.url}/manifest`);
+async function assertManifestGet(client: Client, url: string) {
+  const res = await fetch(`${url}/manifest`);
   expect(res.status).to.eql(200);
   expect(res.headers.get('content-type')).to.contain('application/json');
   expect(await res.json()).to.eql(await client.send(Files.Cmd.Name.manifest, {}));

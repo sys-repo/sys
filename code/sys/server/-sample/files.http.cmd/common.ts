@@ -13,6 +13,7 @@ export { Files } from '@sys/model/files';
 export { FilesStatic } from '@sys/model/files/static';
 export { FilesServer } from '@sys/server/files';
 export { Process } from '@sys/process';
+export { Num } from '@sys/std/num';
 export { Str } from '@sys/std/str';
 
 /**
@@ -24,6 +25,7 @@ export const DEFAULTS = {
   path: '/files',
   port,
   url: `http://127.0.0.1:${port}/files`,
+  env: { port: 'SYS_SERVER_FILES_HTTP_CMD_PORT' },
 } as const;
 
 /** Short alias for sample defaults. */
