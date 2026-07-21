@@ -4,6 +4,11 @@ import type { t } from '../common.ts';
  * Test helper types for CLI-facing modules.
  */
 export declare namespace FakeSpinner {
+  export type Lib = {
+    /** Create a fake spinner instance for tests. */
+    create(text?: string): Instance;
+  };
+
   export type Status = 'idle' | 'spinning' | 'stopped' | 'succeeded' | 'failed';
 
   export type Instance = t.CliSpinner.Instance & {

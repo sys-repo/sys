@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * Fake CLI spinner for tests that inject spinner handles.
  */
-export const FakeSpinner = {
+export const FakeSpinner: t.FakeSpinner.Lib = {
   create(text = ''): t.FakeSpinner.Instance {
     const spinner: t.FakeSpinner.Instance = {
       text,
@@ -53,4 +53,4 @@ export const FakeSpinner = {
 
     return spinner;
   },
-} as const;
+};
