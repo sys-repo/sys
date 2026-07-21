@@ -1,3 +1,4 @@
+import { FakeSpinner } from '@sys/cli/testing';
 import { c, describe, expect, it, stripAnsi, type t } from '../../-test.ts';
 import { Log as WorkspaceLog } from '../../m.vite.config.workspace/u.log.ts';
 import { DevOutputLog } from '../u/u.dev.output.ts';
@@ -396,7 +397,7 @@ describe('DevScreen', () => {
     output.pushDisplay('stdout', 'starting…');
     const printed: string[] = [];
     let clears = 0;
-    const spinner = fakeSpinner();
+    const spinner = FakeSpinner.create();
     const startup = DevScreen.createStartup({
       pkg: pkg(),
       paths: paths(),
@@ -474,27 +475,6 @@ function pkg(): t.Pkg {
     name: '@sys/example',
     version: '0.0.0',
   };
-}
-
-function fakeSpinner() {
-  const spinner = {
-    text: '',
-    starts: 0,
-    stops: 0,
-    renders: 0,
-    start() {
-      spinner.starts += 1;
-      return spinner;
-    },
-    stop() {
-      spinner.stops += 1;
-      return spinner;
-    },
-    render() {
-      spinner.renders += 1;
-    },
-  };
-  return spinner;
 }
 
 function dist(): t.DistPkg {
