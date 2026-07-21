@@ -54,10 +54,11 @@ Current posture:
 - `write` is scoped to the executing project root and the shared Vite cache roots, including canonical filesystem paths where required
 - `build` network is limited to local Vite/Deno startup addresses
 - `dev` network is limited to local Vite/Deno startup addresses
-- `dev` system access is limited to `networkInterfaces`
+- `build` system access is limited to `osRelease`, `homedir`, `uid`, and `gid`
+- `dev` system access is limited to `osRelease`, `homedir`, `uid`, `gid`, and `networkInterfaces`
 
 Current limit:
-- child `env` remains broad because Vite 7 enumerates `process.env` in its Node config path; this prevents a stable name-scoped env allow-list in Deno today
+- child `env` remains broad because Vite's Node-compatible config path enumerates `process.env`; this prevents a stable name-scoped env allow-list in Deno today
 
 Validation lanes:
 - `src/m.vite/-test/-wrangle.test.ts` locks the permission-shaping contract
