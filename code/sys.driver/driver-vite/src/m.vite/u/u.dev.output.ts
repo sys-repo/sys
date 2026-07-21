@@ -25,7 +25,7 @@ type Options = {
 const DEFAULT_MAX_LINES = 40;
 const DEFAULT_MAX_STDERR_CHARS = 60_000;
 
-/** Capture bounded child-process output for dev startup diagnostics and future reporters. */
+/** Capture bounded visible dev log rows for startup diagnostics and parent-owned reporters. */
 export const DevOutputLog = {
   create(options: Options = {}) {
     const maxLines = wrangle.maxLines(options.maxLines);
@@ -45,6 +45,11 @@ export const DevOutputLog = {
         const source = e.source;
         if (source === 'stderr') wrangle.pushStderr(state, text, maxStderrChars);
         wrangle.pushText(state, source, text, maxLines, suppressVisible);
+      },
+
+      pushDisplay(source: Source, text: string) {
+        const line = text.endsWith('\n') ? text : `${text}\n`;
+        wrangle.pushText(state, source, line, maxLines, []);
       },
 
       stderr() {

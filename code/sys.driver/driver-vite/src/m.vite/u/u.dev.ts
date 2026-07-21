@@ -28,6 +28,13 @@ const SUPPRESS_VISIBLE_OUTPUT = [
    * screen/recent-output tail; raw passthrough and retained stderr remain truthful.
    */
   /^Warning\s+the configuration file "file:\/\/\/.+?" contains an entry for "importMap" that is being ignored\.?$/,
+
+  /**
+   * The parent screen reporter seeds the visible log with this startup affordance before the
+   * child has produced output. If the child/toolchain emits the same line, keep the visible log
+   * stable by suppressing the duplicate child row. Raw passthrough mode is unaffected.
+   */
+  /^starting(?:\s+vite)?(?:\.{3}|…)?$/i,
 ] as const;
 
 export const REGEX = {
@@ -129,6 +136,7 @@ export const dev: t.Vite.Lib['dev'] = async (input) => {
     maxLines: Math.max(40, logLines),
     suppressVisible: SUPPRESS_VISIBLE_OUTPUT,
   });
+  if (parentOwnsOutput && pkg) output.pushDisplay('stdout', 'starting…');
   const screen = parentOwnsOutput && pkg
     ? DevScreen.create({
       pkg,
@@ -139,6 +147,7 @@ export const dev: t.Vite.Lib['dev'] = async (input) => {
       logLines,
     })
     : undefined;
+  let ready = false;
   const proc = Process.spawn({
     cwd,
     args,
@@ -147,15 +156,25 @@ export const dev: t.Vite.Lib['dev'] = async (input) => {
     readySignal,
     until: input.until,
   });
+  const startup = parentOwnsOutput && pkg
+    ? DevScreen.createStartup({
+      pkg,
+      dist,
+      paths,
+      url: () => resolvedUrl,
+      output,
+      logLines,
+    })
+    : undefined;
   const pushOutput = (e: t.Process.Event) => {
     output.push(e);
-    screen?.redrawSoon();
+    ready ? screen?.redrawSoon() : startup?.redrawSoon();
   };
   proc.onStdOut(pushOutput);
   proc.onStdErr(pushOutput);
-  screen?.redraw();
   const { dispose } = proc;
   const cleanup = async () => {
+    startup?.dispose();
     screen?.dispose();
     try {
       await dispose();
@@ -207,6 +226,8 @@ export const dev: t.Vite.Lib['dev'] = async (input) => {
     elapsed: Time.elapsed(startedAt).msec,
   }, { level: 1 });
   end({ port, resolvedUrl, elapsed: Time.elapsed(startedAt).msec });
+  ready = true;
+  startup?.dispose();
   screen?.redraw();
   const keyboard = keyboardFactory({
     pkg,

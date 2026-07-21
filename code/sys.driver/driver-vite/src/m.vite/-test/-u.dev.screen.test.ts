@@ -314,6 +314,118 @@ describe('DevScreen', () => {
     expect(quitLine.indexOf('ctrl + c')).to.eql(9);
   });
 
+  it('renders a startup snapshot with a spinner line and truthful parent status row', () => {
+    const output = DevOutputLog.create({ maxLines: 5 });
+    output.pushDisplay('stdout', 'starting…');
+    output.push(event('stdout', 'transforming modules…\n'));
+    output.push(event('stderr', 'warning: dependency pre-bundle pending…\n'));
+
+    const width = 50;
+    const raw = DevScreen.startupToString({
+      pkg: pkg(),
+      dist: dist(),
+      paths: paths(),
+      url: 'http://localhost:1234/',
+      lines: output.lines(),
+      logLines: 3,
+      width,
+      height: 40,
+      spinner: '⠋',
+    });
+    const text = stripAnsi(raw);
+    const rows = text.split('\n');
+
+    expectRowsBounded(raw, width);
+    expect(rows[0]).to.include('Dev');
+    expect(rows[0]).to.include('@sys/example 0.0.0');
+    expect(rows[1]).to.eql('━'.repeat(width));
+    expect(rows[2]).to.eql('⠋');
+    expect(rows[3]).to.include('http://localhost:1234/');
+    expect(text).to.not.include('⠋\n\n');
+    expect(text).to.include('\n 1  out  starting…');
+    expect(text).to.not.include('\n 0  out');
+    expect(text).to.not.include('\n -  dev');
+    expect(text).to.include('\n 2  out  transforming modules…');
+    expect(text).to.include('\n 3  err  warning: dependency pre-bundle pending…');
+  });
+
+  it('keeps the seeded startup row after the ready screen handoff', () => {
+    const output = DevOutputLog.create({ maxLines: 5 });
+    output.pushDisplay('stdout', 'starting…');
+    output.push(event('stdout', 'VITE v8.1.5  ready in 2943 ms\n'));
+    output.push(event('stdout', '➜  Local:   http://localhost:1235/\n'));
+
+    const text = stripAnsi(DevScreen.toString({
+      pkg: pkg(),
+      paths: paths(),
+      url: 'http://localhost:1235/',
+      lines: output.lines(),
+      logLines: 5,
+      width: 80,
+      height: 40,
+    }));
+
+    expect(text).to.include('\n 1  out  starting…');
+    expect(text).to.include('\n 2  out  VITE v8.1.5  ready in 2943 ms');
+    expect(text).to.include('\n 3  out  ➜  Local:   http://localhost:1235/');
+  });
+
+  it('keeps the startup status placeholder aligned with widened output indices', () => {
+    const output = DevOutputLog.create({ maxLines: 120 });
+    output.pushDisplay('stdout', 'starting…');
+    for (let i = 1; i <= 100; i++) output.push(event('stdout', `line-${i}\n`));
+
+    const text = stripAnsi(DevScreen.startupToString({
+      pkg: pkg(),
+      paths: paths(),
+      url: 'http://localhost:1234/',
+      lines: output.lines(),
+      logLines: 120,
+      width: 80,
+      height: 140,
+      spinner: '⠋',
+    }));
+
+    expect(text).to.include('\n   1  out  starting…');
+    expect(text).to.include('\n 100  out  line-99');
+    expect(text).to.include('\n 101  out  line-100');
+  });
+
+  it('drives startup through an injectable spinner and stops it on dispose', () => {
+    const output = DevOutputLog.create({ maxLines: 5 });
+    output.pushDisplay('stdout', 'starting…');
+    const printed: string[] = [];
+    let clears = 0;
+    const spinner = fakeSpinner();
+    const startup = DevScreen.createStartup({
+      pkg: pkg(),
+      paths: paths(),
+      url: () => 'http://localhost:1234/',
+      output,
+      logLines: 2,
+      deps: {
+        clear: () => clears += 1,
+        print: (text) => printed.push(stripAnsi(text)),
+        spinner: () => spinner,
+      },
+    });
+
+    expect(clears).to.eql(1);
+    expect(printed[0]).to.include('Dev');
+    expect(spinner.starts).to.eql(1);
+    expect(spinner.text.startsWith('\n\n')).to.eql(false);
+    expect(stripAnsi(spinner.text)).to.include(' 1  out  starting…');
+
+    output.push(event('stdout', 'transforming modules…\n'));
+    startup.redraw();
+    expect(stripAnsi(spinner.text)).to.include(' 2  out  transforming modules…');
+    expect(spinner.renders > 0).to.eql(true);
+
+    startup.dispose();
+    startup.dispose();
+    expect(spinner.stops).to.eql(1);
+  });
+
   it('caps configured log lines to keep retained output bounded', () => {
     expect(DevScreen.logLines(undefined)).to.eql(10);
     expect(DevScreen.logLines('3')).to.eql(3);
@@ -362,6 +474,27 @@ function pkg(): t.Pkg {
     name: '@sys/example',
     version: '0.0.0',
   };
+}
+
+function fakeSpinner() {
+  const spinner = {
+    text: '',
+    starts: 0,
+    stops: 0,
+    renders: 0,
+    start() {
+      spinner.starts += 1;
+      return spinner;
+    },
+    stop() {
+      spinner.stops += 1;
+      return spinner;
+    },
+    render() {
+      spinner.renders += 1;
+    },
+  };
+  return spinner;
 }
 
 function dist(): t.DistPkg {

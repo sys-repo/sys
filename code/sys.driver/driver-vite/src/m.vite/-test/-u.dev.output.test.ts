@@ -81,6 +81,19 @@ describe('DevOutputLog', () => {
     expect(log.tailText()).to.eql(' out   ready');
   });
 
+  it('allows parent display rows to seed the visible log while suppressing duplicate child rows', () => {
+    const log = DevOutputLog.create({ suppressVisible: [/^starting(?:\s+vite)?(?:\.{3}|…)?$/i] });
+
+    log.pushDisplay('stdout', 'starting…');
+    log.push(event('stdout', 'starting Vite…\n'));
+    log.push(event('stdout', 'ready\n'));
+
+    expect(log.lines()).to.eql([
+      { index: 1, source: 'stdout', text: 'starting…' },
+      { index: 2, source: 'stdout', text: 'ready' },
+    ]);
+  });
+
   it('continues sequence numbers after clearing visible lines', () => {
     const log = DevOutputLog.create();
 

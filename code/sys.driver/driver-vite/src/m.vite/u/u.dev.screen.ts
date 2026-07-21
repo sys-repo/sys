@@ -16,9 +16,28 @@ type ReporterHandle = {
   dispose(): void;
 };
 
+type StartupHandle = {
+  redraw(): void;
+  redrawSoon(): void;
+  dispose(): void;
+};
+
+type StartupSpinner = {
+  text: string;
+  start(): StartupSpinner;
+  stop(): StartupSpinner;
+  render?: () => unknown;
+};
+
 type ReporterDeps = {
   clear?: () => void;
   print?: (text: string) => void;
+};
+
+type StartupDeps = {
+  clear?: () => void;
+  print?: (text: string) => void;
+  spinner?: () => StartupSpinner;
 };
 
 type ReporterResolveArgs = {
@@ -37,6 +56,16 @@ type ReporterCreateArgs = {
   deps?: ReporterDeps;
 };
 
+type StartupCreateArgs = {
+  pkg: t.Pkg;
+  dist?: t.DistPkg;
+  paths: t.ViteConfig.Paths;
+  url: () => string;
+  output: Output;
+  logLines?: number;
+  deps?: StartupDeps;
+};
+
 type FrameArgs = {
   pkg: t.Pkg;
   dist?: t.DistPkg;
@@ -48,6 +77,10 @@ type FrameArgs = {
   ws?: t.ViteDenoWorkspace;
   width?: number;
   height?: number;
+};
+
+type StartupFrameArgs = FrameArgs & {
+  spinner?: string;
 };
 
 const DEFAULT_LOG_LINES = 10;
@@ -125,6 +158,69 @@ export const DevScreen = {
         redrawTimer = undefined;
       },
     };
+  },
+
+  createStartup(args: StartupCreateArgs): StartupHandle {
+    const { pkg, dist, paths, output } = args;
+    const clear = args.deps?.clear ?? (() => console.clear());
+    const print = args.deps?.print ?? ((text) => console.error(text));
+    const spinner = (args.deps?.spinner ?? (() => Cli.Spinner.create('') as StartupSpinner))();
+    const logLines = wrangle.logLines(args.logLines);
+    let redrawTimer: t.Time.Delay.Promise | undefined;
+    let disposed = false;
+    let started = false;
+
+    const body = () =>
+      DevScreen.startupBody({
+        pkg,
+        dist,
+        paths,
+        url: args.url(),
+        lines: output.lines(),
+        logLines,
+      });
+
+    const redraw = () => {
+      if (disposed) return;
+      redrawTimer?.cancel();
+      redrawTimer = undefined;
+      spinner.text = `\n${body()}`;
+      if (started) spinner.render?.();
+    };
+
+    clear();
+    print(wrangle.startupHeader(pkg));
+    redraw();
+    spinner.start();
+    started = true;
+
+    return {
+      redraw,
+
+      redrawSoon() {
+        if (disposed || redrawTimer) return;
+        redrawTimer = Time.delay(REDRAW_MSEC, redraw);
+      },
+
+      dispose() {
+        if (disposed) return;
+        disposed = true;
+        redrawTimer?.cancel?.();
+        redrawTimer = undefined;
+        started = false;
+        spinner.stop();
+      },
+    };
+  },
+
+  startupBody(args: StartupFrameArgs) {
+    return wrangle.startupBody(args);
+  },
+
+  startupToString(args: StartupFrameArgs) {
+    const spinner = args.spinner ?? '⠋';
+    const body = DevScreen.startupBody(args);
+    return `${wrangle.startupHeader(args.pkg, args.width)}\n${spinner}\n${body}`.trimEnd();
   },
 
   toString(args: FrameArgs) {
@@ -210,6 +306,54 @@ const wrangle = {
       width: wrangle.dimension(width, measured.width),
       height: wrangle.dimension(height, measured.height),
     };
+  },
+
+  startupHeader(pkg: t.Pkg, inputWidth?: number) {
+    const { width } = wrangle.size(inputWidth);
+    const hr = c.brightGreen(c.bold(Cli.Fmt.hr({ width })));
+    return [wrangle.header(pkg, width), hr].join('\n').trimEnd();
+  },
+
+  startupBody(args: StartupFrameArgs) {
+    const { width, height } = wrangle.size(args.width, args.height);
+    const subHr = c.dim(Cli.Fmt.hr({ width, color: 'green', weight: 'dashed' }));
+    const lines = args.lines;
+    const indexWidth = wrangle.indexWidth(lines);
+    const contentColumn = wrangle.contentColumn(indexWidth);
+    const indent = wrangle.indent(contentColumn);
+    const input = Path.trimCwd(args.paths.app.entry);
+    const outDir = Path.trimCwd(args.paths.app.outDir);
+    const head = [
+      wrangle.info(args.url, contentColumn, width),
+      `${indent}${c.green('↑')}`,
+      metadataRow({
+        label: 'input',
+        value: input,
+        width,
+        indent: contentColumn,
+        labelWidth: 9,
+        styledLabel: c.green('input'),
+      }),
+      metadataRow({
+        label: 'output',
+        value: outDir,
+        width,
+        indent: contentColumn,
+        labelWidth: 9,
+        styledLabel: c.white('output'),
+        suffixes: digestSuffixes(args.dist?.hash.digest),
+      }),
+      '',
+      subHr,
+    ].join('\n').trimEnd();
+    const rowCount = Math.min(
+      wrangle.logLines(args.logLines),
+      wrangle.availableRows(height, wrangle.lineCount(head)),
+    );
+    const visible = rowCount === 0 ? [] : lines.slice(-rowCount);
+    const rows = visible.map((line) => wrangle.logRow(line, width, indexWidth));
+    const frame = rows.length ? `${head}\n${rows.join('\n')}` : head;
+    return wrangle.clipLines(wrangle.clipFrameWidth(frame, width), height).trimEnd();
   },
 
   dimension(input: number | undefined, fallback: number) {
