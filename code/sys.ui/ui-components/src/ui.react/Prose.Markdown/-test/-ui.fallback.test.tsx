@@ -14,18 +14,18 @@ describe('Prose.Markdown.UI: fallback policy', () => {
   DomMock.init({ beforeEach, afterEach });
 
   it('preserves child text for unsupported container nodes', async () => {
-    const ast: t.Markdown.Ast = {
+    const ast = {
       type: 'root',
       children: [{
         type: 'paragraph',
         children: [
           { type: 'text', value: 'Keep ' },
-          // @ts-expect-error Intentional unsupported container for runtime fallback coverage.
+          // Intentional unsupported container for runtime fallback coverage.
           { type: 'unknownContainer', children: [{ type: 'text', value: 'child text' }] },
           { type: 'text', value: '.' },
         ],
       }],
-    };
+    } as unknown as t.Markdown.Ast;
 
     const res = await TestReact.render(<ProseMarkdown.UI value={ast} />, {
       strict: false,
@@ -94,14 +94,14 @@ describe('Prose.Markdown.UI: fallback policy', () => {
   });
 
   it('ignores malformed AST children without crashing', async () => {
-    const ast: t.Markdown.Ast = {
+    const ast = {
       type: 'root',
       children: [
-        // @ts-expect-error Intentional malformed child for runtime hardening coverage.
+        // Intentional malformed child for runtime hardening coverage.
         null,
         { type: 'paragraph', children: [{ type: 'text', value: 'Safe.' }] },
       ],
-    };
+    } as unknown as t.Markdown.Ast;
 
     const res = await TestReact.render(<ProseMarkdown.UI value={ast} />, {
       strict: false,
@@ -128,8 +128,8 @@ describe('Prose.Markdown.UI: fallback policy', () => {
 
   it('reports explicit null value legibly', async () => {
     const res = await TestReact.render(
-      // @ts-expect-error Intentional explicit null input for runtime hardening coverage.
-      <ProseMarkdown.UI value={null} />,
+      // Intentional explicit null input for runtime hardening coverage.
+      <ProseMarkdown.UI value={null as unknown as t.ProseMarkdown.Value} />,
       { strict: false },
     );
     try {
@@ -142,8 +142,8 @@ describe('Prose.Markdown.UI: fallback policy', () => {
 
   it('reports invalid AST value legibly', async () => {
     const res = await TestReact.render(
-      // @ts-expect-error Intentional invalid AST for runtime guard coverage.
-      <ProseMarkdown.UI value={{ type: 'paragraph', children: [] }} />,
+      // Intentional invalid AST for runtime guard coverage.
+      <ProseMarkdown.UI value={{ type: 'paragraph', children: [] } as unknown as t.ProseMarkdown.Value} />,
       { strict: false },
     );
     try {

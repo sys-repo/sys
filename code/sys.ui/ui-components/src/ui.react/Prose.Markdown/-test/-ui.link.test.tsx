@@ -109,18 +109,18 @@ describe('Prose.Markdown.UI: links', () => {
 
   it('does not call link overrides for malformed link nodes', async () => {
     let calls = 0;
-    const ast: t.Markdown.Ast = {
+    const ast = {
       type: 'root',
       children: [{
         type: 'paragraph',
         children: [
           { type: 'text', value: 'Before ' },
-          // @ts-expect-error Intentional malformed link for runtime hardening coverage.
+          // Intentional malformed link for runtime hardening coverage.
           { type: 'link', url: 123, children: [{ type: 'text', value: 'bad link' }] },
           { type: 'text', value: ' after.' },
         ],
       }],
-    };
+    } as unknown as t.Markdown.Ast;
     const renderers: t.ProseMarkdown.Renderers = {
       link: ({ children }) => {
         calls += 1;

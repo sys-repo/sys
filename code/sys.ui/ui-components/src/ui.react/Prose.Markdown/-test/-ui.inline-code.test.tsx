@@ -54,18 +54,18 @@ describe('Prose.Markdown.UI: inline code', () => {
 
   it('does not call inline-code overrides for malformed inline-code nodes', async () => {
     let calls = 0;
-    const ast: t.Markdown.Ast = {
+    const ast = {
       type: 'root',
       children: [{
         type: 'paragraph',
         children: [
           { type: 'text', value: 'Before ' },
-          // @ts-expect-error Intentional malformed value for runtime hardening coverage.
+          // Intentional malformed value for runtime hardening coverage.
           { type: 'inlineCode', value: 123 },
           { type: 'text', value: ' after.' },
         ],
       }],
-    };
+    } as unknown as t.Markdown.Ast;
     const renderers: t.ProseMarkdown.Renderers = {
       inlineCode: ({ value }) => {
         calls += 1;
