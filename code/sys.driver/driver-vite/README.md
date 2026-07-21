@@ -12,15 +12,22 @@ Vite assumes a Node/npm-oriented runtime, module-resolution, and config-loading 
 
 ## Usage
 
-In a project with `deno.json`, expose local tasks that run the driver entrypoint. The examples use a local `dev` permission set; name it to match your workspace policy.
+The current `@sys/tmpl` package shape uses a local task shim:
+
+```ts
+// -scripts/task.vite.ts
+import '@sys/driver-vite/main';
+```
+
+and `deno.json` tasks call that shim:
 
 ```json
 {
   "tasks": {
-    "dev": "deno run -P=dev jsr:@sys/driver-vite@<version>/main --cmd=dev --port=1234",
-    "build": "deno run -P=dev jsr:@sys/driver-vite@<version>/main --cmd=build",
-    "serve": "deno run -P=dev jsr:@sys/driver-vite@<version>/main --cmd=serve",
-    "info": "deno run -P=dev jsr:@sys/driver-vite@<version>/main --cmd=info"
+    "dev": "deno run -A ./-scripts/task.vite.ts --cmd=dev --in=./src/index.html",
+    "build": "deno run -A ./-scripts/task.vite.ts --cmd=build --in=./src/index.html",
+    "serve": "deno run -P=dev ./-scripts/task.vite.ts --cmd=serve",
+    "info": "deno run -P=dev ./-scripts/task.vite.ts --cmd=info"
   }
 }
 ```
@@ -41,19 +48,25 @@ Usage: deno task [COMMAND]
 ## Configuration
 
 Define explicit app paths, then hand the rest of the baseline config assembly to `Vite.Config.app(...)`.
+The current `@sys/tmpl` package config starts with this shape:
 
 ```ts
-import { Vite } from 'jsr:@sys/driver-vite';
+import { Vite } from '@sys/driver-vite';
 
 export default Vite.Config.define(() => {
-  const paths = Vite.Config.paths({
-    app: {
-      entry: 'src/index.html',
-      outDir: 'dist',
+  const entry = './src/index.html';
+  const sw = './src/-test/-sw.ts';
+  const paths = Vite.Config.paths({ app: { entry, sw } });
+  return Vite.Config.app({
+    paths,
+    visualizer: false,
+    chunks(e) {
+      e.chunk('react', 'react');
+      e.chunk('react.dom', 'react-dom');
+      e.chunk('sys', '@sys/std');
+      e.chunk('css', '@sys/ui-css');
     },
   });
-
-  return Vite.Config.app({ paths });
 });
 ```
 
