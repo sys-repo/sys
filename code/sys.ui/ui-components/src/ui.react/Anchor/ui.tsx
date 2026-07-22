@@ -1,4 +1,4 @@
-import { type t, Color, css, D, usePointer } from './common.ts';
+import { Color, css, D, type t, usePointer } from './common.ts';
 
 export const Anchor: t.FC<t.Anchor.Props> = (props) => {
   const href = props.href;
@@ -17,10 +17,11 @@ const AnchorLinkEnabled: t.FC<AnchorLinkProps> = (props) => {
   const target = props.target ?? D.target;
   const download = props.download ?? D.download;
   const rel = toRel({ ...props, target });
+  const underline = Color.alpha(theme.fg, theme.is.dark ? 0.35 : 0.25);
   const styles = {
     base: css({
       color: 'inherit',
-      textDecoration: `underline dashed ${Color.alpha(theme.fg, 0.2)}`,
+      textDecoration: `underline dashed ${underline}`,
       textUnderlineOffset: '3px',
       transition: 'text-decoration-color 100ms ease',
       transform: `translateY(${pointer.is.down ? 1 : 0}px)`,
