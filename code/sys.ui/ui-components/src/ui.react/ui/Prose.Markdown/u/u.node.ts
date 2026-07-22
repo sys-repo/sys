@@ -12,9 +12,7 @@ export type MarkdownNodeRecord = {
 };
 
 export type NodeWithChildren = MarkdownNodeRecord & { readonly children: readonly unknown[] };
-export type TaskListItemNode = Extract<t.Markdown.Node, { type: 'listItem' }> & {
-  readonly checked: boolean;
-};
+export type TaskListItemNode = t.ProseMarkdown.Block.TaskState.Node;
 
 export function isMarkdownNodeRecord(input: unknown): input is MarkdownNodeRecord {
   return Is.record<{ readonly type?: unknown }>(input) && Is.string(input.type);

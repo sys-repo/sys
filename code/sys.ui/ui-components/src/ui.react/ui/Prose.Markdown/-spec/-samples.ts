@@ -6,7 +6,16 @@ export type SampleItem = {
   readonly value?: t.Markdown.Value;
 };
 
-export const sampleKinds = ['intro', 'ast', 'lists', 'inline', 'chip', 'html', 'empty'] as const;
+export const sampleKinds = [
+  'intro',
+  'ast',
+  'lists',
+  'task-state',
+  'inline',
+  'chip',
+  'html',
+  'empty',
+] as const;
 
 const AST_SOURCE = Str.dedent(`
   This sample is an MDAST object parsed by \`@sys/markdown\` before it reaches the renderer.
@@ -56,6 +65,16 @@ const SAMPLES = {
 
       - [x] completed task
       - [ ] pending task
+    `),
+  },
+  'task-state': {
+    label: 'sample: task-state `<Switch>` override',
+    value: Str.dedent(`
+      Caller-owned task-state renderer:
+
+      - [x] completed through \`Buttons.Switch\`
+      - [ ] pending through \`Buttons.Switch\`
+      - [x] this deliberately longer task wraps within the prose measure so continuation lines stay aligned with the task body instead of sliding beneath the switch marker
     `),
   },
   inline: {

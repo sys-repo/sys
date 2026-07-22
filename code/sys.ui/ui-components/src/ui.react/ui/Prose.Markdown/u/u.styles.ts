@@ -27,6 +27,7 @@ export function createStyles(args: { debug: boolean; theme: t.Color.Theme }) {
       alignItems: 'start',
       marginLeft: -listIndent,
     }),
+    taskState: css({ display: 'flex', minWidth: 0 }),
     taskCheckbox: css({
       accentColor: theme.fg,
       margin: '0.2em 0 0',

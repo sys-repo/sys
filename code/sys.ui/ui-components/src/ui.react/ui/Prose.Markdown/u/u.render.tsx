@@ -103,19 +103,29 @@ function renderListItem(node: MarkdownNodeRecord, ctx: RenderContext) {
   return (
     <li className={css(styles.listItem, styles.taskListItem).class}>
       <div className={styles.taskRow.class}>
-        <input
-          aria-label={node.checked ? 'Completed task' : 'Incomplete task'}
-          aria-readonly={true}
-          checked={node.checked}
-          className={styles.taskCheckbox.class}
-          onClick={(e) => e.preventDefault()}
-          readOnly
-          tabIndex={-1}
-          type='checkbox'
-        />
+        <div className={styles.taskState.class}>{renderTaskState(node, ctx)}</div>
         <div className={styles.taskBody.class}>{children}</div>
       </div>
     </li>
+  );
+}
+
+function renderTaskState(node: t.ProseMarkdown.Block.TaskState.Node, ctx: RenderContext) {
+  const { renderers, styles } = ctx;
+  const checked = node.checked;
+  const ariaLabel = checked ? 'Completed task' : 'Incomplete task';
+
+  return renderers?.taskState?.({ node, checked, ariaLabel }) ?? (
+    <input
+      aria-label={ariaLabel}
+      aria-readonly={true}
+      checked={checked}
+      className={styles.taskCheckbox.class}
+      onClick={(e) => e.preventDefault()}
+      readOnly
+      tabIndex={-1}
+      type='checkbox'
+    />
   );
 }
 

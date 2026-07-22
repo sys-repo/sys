@@ -34,7 +34,36 @@ export namespace ProseMarkdown {
     inlineCode?: Inline.Code.Renderer;
     /** Render a safe link node. Defaults to a neutral `<a>` element. */
     link?: Inline.Link.Renderer;
+    /** Render validated task-list state. Defaults to a read-only native checkbox. */
+    taskState?: Block.TaskState.Renderer;
   };
+
+  /** Block prose semantics. */
+  export namespace Block {
+    /** GFM task-list checked-state semantics. */
+    export namespace TaskState {
+      /**
+       * Render override.
+       * The caller owns accessibility and interaction semantics for returned content.
+       */
+      export type Renderer = (args: RendererArgs) => t.ReactNode;
+
+      /** Render override arguments. */
+      export type RendererArgs = {
+        /** Source task-list item AST node with validated checked state. */
+        readonly node: Node;
+        /** Canonical checked state projected from the AST. */
+        readonly checked: boolean;
+        /** Accessible state label used by the default renderer. */
+        readonly ariaLabel: string;
+      };
+
+      /** Markdown task-list item AST node with validated checked state. */
+      export type Node = Extract<t.Markdown.Node, { type: 'listItem' }> & {
+        readonly checked: boolean;
+      };
+    }
+  }
 
   /** Inline prose semantics. */
   export namespace Inline {
