@@ -32,7 +32,7 @@ describe('OptimizeImportsPlugin', () => {
     const transform = asTransform(plugin.transform);
 
     const a = await transform("import { useKeyboard } from '@sys/ui-dev/react/devharness';", '/tmp/mod.css');
-    const b = await transform("import { Dev } from '@sys/ui-dev/react/devharness';", '/tmp/mod.ts');
+    const b = await transform("import { Harness } from '@sys/ui-dev/react/devharness';", '/tmp/mod.ts');
     const c = await transform("import { useKeyboard } from '@sys/ui-dev/react/devharness';", '/tmp/node_modules/pkg/mod.ts');
 
     expect(a).to.eql(null);

@@ -1,3 +1,3 @@
-import { type t, describe, it, expect, Testing } from '../../-test.ts';
+import { describe, expect, it, type t, Testing } from '../../-test.ts';
 
-describe('Dev.Theme', () => {});
+describe('Harness.Theme', () => {});

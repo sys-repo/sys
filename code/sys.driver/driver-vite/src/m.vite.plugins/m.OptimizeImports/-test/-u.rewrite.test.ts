@@ -33,18 +33,18 @@ describe('OptimizeImportsPlugin.rewriteImports', () => {
   });
 
   it('preserves unknown imports on the broad package root', () => {
-    const input = "import { Dev, useKeyboard } from '@sys/ui-dev/react/devharness';";
+    const input = "import { Harness, useKeyboard } from '@sys/ui-dev/react/devharness';";
     const result = rewriteImports(input, rules);
 
     expect(result.changed).to.eql(true);
     expect(result.code).to.eql(Str.dedent(`
       import { useKeyboard } from '@sys/ui-dev/react/devharness/hooks';
-      import { Dev } from '@sys/ui-dev/react/devharness';
+      import { Harness } from '@sys/ui-dev/react/devharness';
     `));
   });
 
   it('leaves unknown imports unchanged', () => {
-    const input = "import { Dev } from '@sys/ui-dev/react/devharness';";
+    const input = "import { Harness } from '@sys/ui-dev/react/devharness';";
     const result = rewriteImports(input, rules);
 
     expect(result.changed).to.eql(false);
@@ -62,7 +62,7 @@ describe('OptimizeImportsPlugin.rewriteImports', () => {
   });
 
   it('leaves default imports unchanged', () => {
-    const input = "import Dev, { useKeyboard } from '@sys/ui-dev/react/devharness';";
+    const input = "import Harness, { useKeyboard } from '@sys/ui-dev/react/devharness';";
     const result = rewriteImports(input, rules);
 
     expect(result.changed).to.eql(false);
@@ -86,14 +86,14 @@ describe('OptimizeImportsPlugin.rewriteImports', () => {
   });
 
   it('rewrites mixed value and type specifiers with per-kind behavior', () => {
-    const input = "import { type HookSpec, useKeyboard, Dev } from '@sys/ui-dev/react/devharness';";
+    const input = "import { type HookSpec, useKeyboard, Harness } from '@sys/ui-dev/react/devharness';";
     const result = rewriteImports(input, rules);
 
     expect(result.changed).to.eql(true);
     expect(result.code).to.eql(Str.dedent(`
       import { useKeyboard } from '@sys/ui-dev/react/devharness/hooks';
       import type { HookSpec } from '@sys/ui-dev/react/devharness/hooks';
-      import { Dev } from '@sys/ui-dev/react/devharness';
+      import { Harness } from '@sys/ui-dev/react/devharness';
     `));
   });
 
@@ -119,7 +119,7 @@ describe('OptimizeImportsPlugin.rewriteImports', () => {
     const input = Str.dedent(`
       import {
         useKeyboard,
-        Dev,
+        Harness,
       } from '@sys/ui-dev/react/devharness';
     `);
     const result = rewriteImports(input, rules);
@@ -127,7 +127,7 @@ describe('OptimizeImportsPlugin.rewriteImports', () => {
     expect(result.changed).to.eql(true);
     expect(result.code).to.eql(Str.dedent(`
       import { useKeyboard } from '@sys/ui-dev/react/devharness/hooks';
-      import { Dev } from '@sys/ui-dev/react/devharness';
+      import { Harness } from '@sys/ui-dev/react/devharness';
     `));
   });
 });

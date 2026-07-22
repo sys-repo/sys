@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { InfoPanel } from '../-dev/mod.ts';
-import { Color, css, Dev, Signal, Spec } from '../../-test.ui.ts';
+import { Color, css, Harness, Signal, Spec } from '../../-test.ui.ts';
 import { Player } from '../../Player/m.Player.ts';
 import { type t, D } from '../common.ts';
 import { useFileSize, VideoElement } from '../mod.ts';
@@ -114,7 +114,7 @@ export default Spec.describe(D.displayName, (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Harness.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
       debug.listen();
       ctx.redraw();

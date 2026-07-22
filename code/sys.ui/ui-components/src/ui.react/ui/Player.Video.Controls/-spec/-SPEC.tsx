@@ -1,4 +1,4 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { Harness, Signal, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
 import { PlayerControls } from '../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
@@ -51,7 +51,7 @@ export default Spec.describe(D.displayName, (e) => {
       ctx.redraw();
     };
 
-    Dev.Theme.signalEffect(ctx, p.theme);
+    Harness.Theme.signalEffect(ctx, p.theme);
     Signal.effect(() => {
       debug.listen();
       updateSize();

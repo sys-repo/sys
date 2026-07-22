@@ -1,5 +1,5 @@
 import { DriverDev } from '../-dev/-harness/mod.ts';
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { Harness, Signal, Spec } from '../../-test.ui.ts';
 import { Color, D, css } from './common.ts';
 
 import { Ownership } from '../../Ownership/mod.ts';
@@ -74,7 +74,7 @@ export default Spec.describe(D.displayName, async (e) => {
     }
 
     Signal.effect(update);
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Harness.Theme.signalEffect(ctx, p.theme, 1);
 
     ctx.subject
       .size('fill', 100)

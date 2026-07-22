@@ -1,4 +1,4 @@
-import { Dev, Signal, Spec } from '../../ui.react/-test.ui.ts';
+import { Harness, Signal, Spec } from '../../ui.react/-test.ui.ts';
 import { D } from './common.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { Root } from './-SPEC.ui.Root.tsx';
@@ -16,7 +16,7 @@ export default Spec.describe(D.displayName, (e) => {
     }
 
     Signal.effect(update);
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Harness.Theme.signalEffect(ctx, p.theme, 1);
 
     ctx.subject
       .size([640, null])

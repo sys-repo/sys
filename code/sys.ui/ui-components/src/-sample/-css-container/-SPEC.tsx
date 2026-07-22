@@ -1,4 +1,4 @@
-import { Dev, Spec, Signal } from '../-test.ui.ts';
+import { Harness, Spec, Signal } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { Container } from './ui.tsx';
 
@@ -9,7 +9,7 @@ export default Spec.describe('css:container-type', (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Harness.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
       // 🐷 TODO: hook into signals here.
       ctx.redraw();

@@ -1,4 +1,4 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { Harness, Signal, Spec } from '../../-test.ui.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { Root } from './-ui.Root.tsx';
 import { Color, D, Keyboard, Rx, type t } from './common.ts';
@@ -20,7 +20,7 @@ export default Spec.describe(D.displayName, async (e) => {
     const currentTheme = () => Color.theme(p.theme.value);
 
     Signal.effect(update);
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Harness.Theme.signalEffect(ctx, p.theme, 1);
 
     keyboardLife?.dispose();
     keyboardLife = Rx.lifecycle();

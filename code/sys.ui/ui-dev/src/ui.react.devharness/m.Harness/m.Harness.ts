@@ -4,19 +4,16 @@ import { Context } from '../u/m.Ctx/mod.ts';
 import { Spec } from '../u/m.Spec/mod.ts';
 import { Theme } from '../u/m.Theme/mod.ts';
 import { ValueHandler } from '../u/m.Tools/mod.ts';
-import { Harness } from '../ui/Harness/mod.ts';
+import { Harness as UI } from '../ui/Harness/mod.ts';
 import { ModuleList } from '../ui/ModuleList/mod.ts';
 
-/**
- * Root entry to the DevHarness.
- */
 /** Aggregate runtime surface for DevHarness specs, rendering, context, and headless tools. */
-export const Dev = {
+export const Harness = {
   Context,
   Bus,
   Spec,
   ModuleList,
-  Harness,
+  UI,
   Theme,
   ValueHandler,
   headless,

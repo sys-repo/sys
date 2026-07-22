@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Dev, Signal, Spec } from '../../-test.ui.ts';
+import { type t, Harness, Signal, Spec } from '../../-test.ui.ts';
 
 import { D } from '../common.ts';
 import { Devices } from '../mod.ts';
@@ -73,7 +73,7 @@ export default Spec.describe('Devices', (e) => {
     }
     update(); // Initial.
 
-    Dev.Theme.signalEffect(ctx, p.theme);
+    Harness.Theme.signalEffect(ctx, p.theme);
     Signal.effect(() => {
       debug.listen();
       update();

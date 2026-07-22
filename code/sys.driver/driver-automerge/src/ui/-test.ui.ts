@@ -4,7 +4,7 @@
  */
 import { Crdt } from '../-exports/-web.ui/mod.ts';
 
-export { Dev, Lorem, Spec } from '@sys/ui-dev/react/devharness';
+export { Harness, Lorem, Spec } from '@sys/ui-dev/react/devharness';
 export { Crdt };
 
 export * from './-test.ui.repo.ts';

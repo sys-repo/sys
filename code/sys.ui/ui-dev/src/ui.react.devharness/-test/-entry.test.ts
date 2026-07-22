@@ -1,5 +1,5 @@
-import { DomMock, afterAll, beforeAll, describe, expect, it } from '../-test.ts';
-import { Dev } from '../mod.ts';
+import { afterAll, beforeAll, describe, DomMock, expect, it } from '../-test.ts';
+import { Harness } from '../mod.ts';
 import { Specs } from './-specs.ts';
 
 /**
@@ -14,7 +14,7 @@ describe('visual specs', () => {
   DomMock.init({ beforeAll, afterAll });
 
   it('run', async () => {
-    const res = await Dev.headless(Specs);
+    const res = await Harness.headless(Specs);
     expect(res.ok).to.eql(true);
   });
 });

@@ -1,6 +1,6 @@
-import { Dev, Spec } from '../../-test.ui.ts';
+import { Harness, Spec } from '../../-test.ui.ts';
 
-import { type t, Color, Crdt, css, D, Signal, STORAGE_KEY } from '../common.ts';
+import { Color, Crdt, css, D, Signal, STORAGE_KEY, type t } from '../common.ts';
 import { CanvasProject } from '../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { HostCanvas } from './-ui.Host.Canvas.tsx';
@@ -32,7 +32,7 @@ export default Spec.describe(D.displayName, (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Harness.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
       debug.listen();
       ctx.redraw();

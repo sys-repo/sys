@@ -1,4 +1,4 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { Harness, Signal, Spec } from '../../-test.ui.ts';
 import { Media } from '../../Media/mod.ts';
 import { Video } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
@@ -49,7 +49,7 @@ export default Spec.describe('MediaVideoFiltered', (e) => {
       ctx.redraw();
     };
 
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Harness.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
       debug.listen();
       updateSize();

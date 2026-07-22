@@ -1,4 +1,4 @@
-import { Dev, Spec, Signal } from '../-test.ui.ts';
+import { Spec, Signal } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { Sample } from './ui.tsx';
 

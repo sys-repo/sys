@@ -1,4 +1,4 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { Harness, Signal, Spec } from '../../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { SpecRoot } from './-SPEC.ui.Root.tsx';
 import { BackButton } from './-ui.BackButton.tsx';
@@ -38,7 +38,7 @@ export default Spec.describe(D.displayName, async (e) => {
     }
 
     Signal.effect(update);
-    Dev.Theme.signalEffect(ctx, p.theme);
+    Harness.Theme.signalEffect(ctx, p.theme);
 
     ctx.subject
       .size('fill', 80)

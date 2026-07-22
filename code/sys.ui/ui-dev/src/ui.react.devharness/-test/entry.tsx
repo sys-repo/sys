@@ -20,9 +20,9 @@ export async function main() {
   if (isDev) {
     /**
      * NOTE:
-     *    The import of the [Dev] module happens dynamically here AFTER
-     *    the URL query-string has been interpreted.  This allows the base
-     *    module entry to be code-split in such a way that the [Dev Harness]
+     *    The import of the [Harness] module happens dynamically here AFTER
+     *    the URL query-string has been interpreted. This allows the base
+     *    module entry to be code-split in such a way that the [DevHarness]
      *    never gets sent in the normal usage payload.
      */
     const { render, useKeyboard } = await import('../mod.ts');

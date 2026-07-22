@@ -1,7 +1,7 @@
-import { Dev, Signal, Spec } from '../../../-test.ui.ts';
-import { type t, D, Is } from './common.ts';
+import { Harness, Signal, Spec } from '../../../-test.ui.ts';
+import { D, Is, type t } from './common.ts';
 import { HttpDataCards } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export const createSpec: t.DevSpec.Loader.Factory<t.HttpDataCards.Spec.Params | void> = (
   params = {},
@@ -28,7 +28,7 @@ export const createSpec: t.DevSpec.Loader.Factory<t.HttpDataCards.Spec.Params | 
       }
 
       Signal.effect(update);
-      Dev.Theme.signalEffect(ctx, p.theme, 1);
+      Harness.Theme.signalEffect(ctx, p.theme, 1);
 
       ctx.debug.width(params?.debugWidth ?? 480);
       ctx.subject

@@ -6,7 +6,7 @@
 export type * as t from './types.ts';
 
 /** DevHarness aggregate API and default renderer. */
-export { Dev, render } from './m.Dev/mod.ts';
+export { Harness, render } from './m.Harness/mod.ts';
 
 /** DevHarness React hooks for keyboard and pointer-band interactions. */
 export { useKeyboard, useRubberband } from './ui.use/mod.ts';

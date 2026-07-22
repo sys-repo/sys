@@ -1,4 +1,4 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { Signal, Spec } from '../../-test.ui.ts';
 import { type t, D } from './common.ts';
 import { TextEllipsize } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';

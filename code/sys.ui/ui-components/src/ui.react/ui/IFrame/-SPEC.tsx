@@ -1,4 +1,4 @@
-import { Dev, Spec } from '../-test.ui.ts';
+import { Harness, Spec } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { Signal } from './common.ts';
 import { IFrame } from './mod.ts';
@@ -17,7 +17,7 @@ export default Spec.describe('IFrame', (e) => {
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
-    Dev.Theme.signalEffect(ctx, p.theme);
+    Harness.Theme.signalEffect(ctx, p.theme);
 
     Signal.effect(() => {
       debug.listen();

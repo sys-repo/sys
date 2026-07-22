@@ -1,6 +1,6 @@
-import { Arr, Dev, Is, Signal, Spec } from '../../-test.ui.ts';
+import { Arr, Harness, Is, Signal, Spec } from '../../-test.ui.ts';
 import { MenuList } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe('MenuList', (e) => {
   const debug = createDebugSignals();
@@ -9,7 +9,7 @@ export default Spec.describe('MenuList', (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Harness.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
       debug.listen();
       ctx.redraw();

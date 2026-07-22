@@ -5,7 +5,7 @@
  * at this level.
  */
 import type { t } from './common.ts';
-export { Dev } from '../mod.ts';
+export { Harness } from '../mod.ts';
 
 /**
  * Actual specs for the DevHarness modules themselves.

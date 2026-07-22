@@ -1,4 +1,4 @@
-import { Dev, Signal, Spec } from '../-test.ui.ts';
+import { Harness, Signal, Spec } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { Bullet } from './mod.ts';
 
@@ -9,7 +9,7 @@ export default Spec.describe('Bullet', (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    Dev.Theme.signalEffect(ctx, p.theme);
+    Harness.Theme.signalEffect(ctx, p.theme);
     Signal.effect(() => {
       debug.listen();
       ctx.redraw();

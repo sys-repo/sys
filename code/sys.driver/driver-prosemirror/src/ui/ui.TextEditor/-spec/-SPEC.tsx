@@ -1,5 +1,5 @@
 import { DocumentId } from '@sys/driver-automerge/web/ui';
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { Harness, Signal, Spec } from '../../-test.ui.ts';
 
 import { D } from '../common.ts';
 import { TextEditor } from '../mod.ts';
@@ -35,7 +35,7 @@ export default Spec.describe(D.displayName, (e) => {
       ctx.redraw();
     };
 
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Harness.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
       debug.listen();
       updateSize();

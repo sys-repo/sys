@@ -1,4 +1,4 @@
-import { D, Dev, Signal, Spec } from './common.ts';
+import { D, Harness, Signal, Spec } from './common.ts';
 import { Files } from '../../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { connect, disconnect } from './-u.connect.ts';
@@ -33,7 +33,7 @@ export default Spec.describe(D.displayName, async (e) => {
     }
 
     Signal.effect(update);
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Harness.Theme.signalEffect(ctx, p.theme, 1);
 
     ctx.subject
       .size([360, null])

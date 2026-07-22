@@ -1,4 +1,4 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { Harness, Signal, Spec } from '../../-test.ui.ts';
 import { D, type t } from './common.ts';
 import { Chip } from '../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
@@ -28,7 +28,7 @@ export default Spec.describe(D.displayName, async (e) => {
     }
 
     Signal.effect(update);
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Harness.Theme.signalEffect(ctx, p.theme, 1);
 
     ctx.host.tracelineColor(0.03);
     ctx.subject

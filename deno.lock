@@ -99,6 +99,7 @@
     "npm:@sinclair/typebox-codegen@0.11.1": "0.11.1",
     "npm:@stripe/stripe-js@9.10.0": "9.10.0",
     "npm:@svgdotjs/svg.js@3.2.5": "3.2.5",
+    "npm:@svgdotjs/svg.js@3.2.7": "3.2.7",
     "npm:@testing-library/react@16.3.2": "16.3.2_@testing-library+dom@10.4.1_@types+react@19.2.17_@types+react-dom@19.2.3__@types+react@19.2.17_react@19.2.7_react-dom@19.2.7__react@19.2.7",
     "npm:@types/mdast@4.0.4": "4.0.4",
     "npm:@types/react-dom@19.2.3": "19.2.3_@types+react@19.2.17",
@@ -682,7 +683,7 @@
         "jsr:@sys/ui-react@^0.0.346",
         "jsr:@sys/ui-state",
         "jsr:@sys/yaml@^0.0.185",
-        "npm:@svgdotjs/svg.js",
+        "npm:@svgdotjs/svg.js@3.2.5",
         "npm:@types/react",
         "npm:motion",
         "npm:react",
@@ -1954,6 +1955,9 @@
     },
     "@svgdotjs/svg.js@3.2.5": {
       "integrity": "sha512-/VNHWYhNu+BS7ktbYoVGrCmsXDh+chFMaONMwGNdIBcFHrWqk2jY8fNyr3DLdtQUIalvkPfM554ZSFa3dm3nxQ=="
+    },
+    "@svgdotjs/svg.js@3.2.7": {
+      "integrity": "sha512-pxpRccS8zrBl97JkkTzQNqohJ4c3L+xuWH6ulMW9E6yknZ5lp4z+n6MprHNsykFvFj6O8TQJfpsXaTUAJfcUfw=="
     },
     "@testing-library/dom@10.4.1": {
       "integrity": "sha512-o4PXJQidqJl82ckFaXUeoAW+XysPLauYI43Abki5hABd853iMhitooc6znOnczgbTYmEP6U6/y1ZyKAIsvMKGg==",

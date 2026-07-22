@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Monaco } from '../../../m.Monaco/mod.ts';
 
-import { Dev, PathView, Signal, Spec } from '../../-test.ui.ts';
+import { Harness, PathView, Signal, Spec } from '../../-test.ui.ts';
 import { MonacoEditor } from '../../ui.MonacoEditor/mod.ts';
 
 import { type t, Color, Crdt, D, Obj } from '../common.ts';
@@ -119,7 +119,7 @@ export default Spec.describe(D.displayName, async (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Harness.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
       debug.listen();
       ctx.redraw();

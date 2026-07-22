@@ -1,7 +1,7 @@
 /**
  * @module types
  */
-export type * from './m.Dev/t.ts';
+export type * from './m.Harness/t.ts';
 export type * from './m.spec/t.ts';
 export type * from './t/mod.ts';
 export type * from './u/m.RxBus/t.ts';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { css, Dev, Signal, Spec } from '../../-test.ui.ts';
+import { css, Harness, Signal, Spec } from '../../-test.ui.ts';
 import { PaymentElement } from '../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { loadRuntimeSession, readRuntimeConfig } from './-u.runtimeSession.ts';
@@ -56,7 +56,7 @@ export default Spec.describe(D.displayName, async (e) => {
     }
 
     Signal.effect(update);
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Harness.Theme.signalEffect(ctx, p.theme, 1);
 
     ctx.subject
       .size([360, null])

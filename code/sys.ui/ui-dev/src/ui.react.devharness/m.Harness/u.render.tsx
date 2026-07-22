@@ -3,7 +3,7 @@ import React from 'react';
 import { DevArgs } from '../u/mod.ts';
 import { Harness } from '../ui/Harness/mod.ts';
 import { ModuleList } from '../ui/ModuleList/mod.ts';
-import { type t, Color, css } from './common.ts';
+import { Color, css, type t } from './common.ts';
 
 export type RenderOptions = {
   location?: t.UrlInput;
