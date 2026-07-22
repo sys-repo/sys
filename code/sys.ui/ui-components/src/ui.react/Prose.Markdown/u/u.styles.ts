@@ -4,6 +4,7 @@ export type MarkdownStyles = ReturnType<typeof createStyles>;
 
 export function createStyles(args: { debug: boolean; theme: t.Color.Theme }) {
   const { debug, theme } = args;
+  const listIndent = 20;
   return {
     base: css({
       backgroundColor: Color.ruby(debug),
@@ -13,11 +14,25 @@ export function createStyles(args: { debug: boolean; theme: t.Color.Theme }) {
     paragraph: css({ margin: '0 0 0.65em 0', ':last-child': { marginBottom: 0 } }),
     list: css({
       margin: '0.35em 0 0.65em 0',
-      paddingLeft: 20,
+      paddingLeft: listIndent,
       ':first-child': { marginTop: 0 },
       ':last-child': { marginBottom: 0 },
     }),
     listItem: css({ marginTop: '0.25em' }),
+    taskListItem: css({ listStyle: 'none' }),
+    taskRow: css({
+      display: 'grid',
+      gridTemplateColumns: 'auto minmax(0, 1fr)',
+      columnGap: 6,
+      alignItems: 'start',
+      marginLeft: -listIndent,
+    }),
+    taskCheckbox: css({
+      accentColor: theme.fg,
+      margin: '0.2em 0 0',
+      pointerEvents: 'none',
+    }),
+    taskBody: css({ minWidth: 0 }),
     strong: css({ fontWeight: 'bold' }),
     emphasis: css({ fontStyle: 'italic' }),
     link: css({ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: 2 }),

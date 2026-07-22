@@ -51,6 +51,11 @@ const SAMPLES = {
 
       - preserves list text
       - keeps \`inlineCode\` semantic
+
+      Task states:
+
+      - [x] completed task
+      - [ ] pending task
     `),
   },
   inline: {

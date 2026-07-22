@@ -1,11 +1,12 @@
 import React from 'react';
-import { Is, Num, type t } from '../common.ts';
+import { css, Is, Num, type t } from '../common.ts';
 import { toSafeHref } from './u.href.ts';
 import {
   hasRenderableChildren,
   isInlineCodeNode,
   isLinkNode,
   isMarkdownNodeRecord,
+  isTaskListItemNode,
   type MarkdownNodeRecord,
 } from './u.node.ts';
 import type { MarkdownStyles } from './u.styles.ts';
@@ -48,7 +49,7 @@ function renderNode(input: unknown, ctx: RenderContext): t.ReactNode {
     case 'list':
       return renderList(node, ctx);
     case 'listItem':
-      return <li className={styles.listItem.class}>{renderContainerChildren(node, ctx)}</li>;
+      return renderListItem(node, ctx);
     case 'break':
       return <br />;
     default:
@@ -92,6 +93,30 @@ function renderList(node: MarkdownNodeRecord, ctx: RenderContext) {
   return node.ordered === true
     ? <ol className={styles.list.class} start={start}>{children}</ol>
     : <ul className={styles.list.class}>{children}</ul>;
+}
+
+function renderListItem(node: MarkdownNodeRecord, ctx: RenderContext) {
+  const { styles } = ctx;
+  const children = renderContainerChildren(node, ctx);
+  if (!isTaskListItemNode(node)) return <li className={styles.listItem.class}>{children}</li>;
+
+  return (
+    <li className={css(styles.listItem, styles.taskListItem).class}>
+      <div className={styles.taskRow.class}>
+        <input
+          aria-label={node.checked ? 'Completed task' : 'Incomplete task'}
+          aria-readonly={true}
+          checked={node.checked}
+          className={styles.taskCheckbox.class}
+          onClick={(e) => e.preventDefault()}
+          readOnly
+          tabIndex={-1}
+          type='checkbox'
+        />
+        <div className={styles.taskBody.class}>{children}</div>
+      </div>
+    </li>
+  );
 }
 
 function isStringValue(input: unknown): input is string {
