@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, Is, Style, css } from './common.ts';
+import { type t, Color, Is, Style, css } from '../../../common.ts';
 
 type P = t.IconViewProps;
 
