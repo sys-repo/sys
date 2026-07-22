@@ -77,6 +77,8 @@ export const SpecsComponents = {
   [`${ns}: Dist`]: () => import('../ui.react/Dist/-spec/-SPEC.tsx'),
   [`${ns}: Dist.Browser`]: () => import('../ui.react/Dist/-spec.browser/-SPEC.tsx'),
   [`${ns}: Ownership`]: () => import('../ui.react/Ownership/-spec/-SPEC.tsx'),
+
+  [`${ns}: Dev.Help.Markdown`]: () => import('../ui.react/dev/m.Help.Markdown/-spec/-SPEC.tsx'),
 } as t.SpecImports;
 
 /**

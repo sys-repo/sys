@@ -13,6 +13,8 @@ export type * from './ui.react/Buttons.Switch/t.ts';
 export type * from './ui.react/Buttons/t.ts';
 export type * from './ui.react/Chip/t.ts';
 export type * from './ui.react/Cropmarks/t.ts';
+export type * from './ui.react/dev/m.Help.Markdown/t.ts';
+export type * from './ui.react/dev/t.ts';
 export type * from './ui.react/Dist/t.ts';
 export type * from './ui.react/ErrorBoundary/t.ts';
 export type * from './ui.react/FadeElement/t.ts';

@@ -29,6 +29,7 @@
     "./react/buttons/switch": "./src/ui.react/Buttons.Switch/mod.ts",
     "./react/chip": "./src/ui.react/Chip/mod.ts",
     "./react/cropmarks": "./src/ui.react/Cropmarks/mod.ts",
+    "./react/dev": "./src/ui.react/dev/mod.ts",
     "./react/error-boundary": "./src/ui.react/ErrorBoundary/mod.ts",
     "./react/fade-element": "./src/ui.react/FadeElement/mod.ts",
     "./react/http-origin": "./src/ui.react/Http.Origin/mod.ts",
@@ -135,4 +136,3 @@
     }
   }
 }
-

@@ -59,6 +59,7 @@ export async function main() {
         if (e.next?.endsWith(': Player.Video: Element')) return true;
         if (e.next?.endsWith(': Recorder')) return true;
         if (e.next?.endsWith(': Dist')) return true;
+        if (e.next?.endsWith(': Dev.Help.Markdown')) return true;
         if (e.next?.endsWith(': WebFonts')) return true;
       },
     });
