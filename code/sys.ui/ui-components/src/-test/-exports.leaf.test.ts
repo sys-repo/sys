@@ -1,176 +1,173 @@
 import { describe, expect, it } from '../-test.ts';
 
-import { pkg } from '../pkg.ts';
+type LeafContract = {
+  readonly path: string;
+  readonly names: readonly string[];
+};
 
-import { ActionProbe } from '../ui.react/ActionProbe/mod.ts';
-import { A, Anchor } from '../ui.react/Anchor/mod.ts';
-import { Bullet } from '../ui.react/Bullet/mod.ts';
-import { BulletList } from '../ui.react/BulletList/mod.ts';
-import { Button } from '../ui.react/Button/mod.ts';
-import { IconButtons } from '../ui.react/Buttons.Icons/mod.ts';
-import { Switch, SwitchTheme } from '../ui.react/Buttons.Switch/mod.ts';
-import { Buttons } from '../ui.react/Buttons/mod.ts';
-import { Cropmarks } from '../ui.react/Cropmarks/mod.ts';
-import { ErrorBoundary } from '../ui.react/ErrorBoundary/mod.ts';
-import { FadeElement } from '../ui.react/FadeElement/mod.ts';
-import { HttpOrigin } from '../ui.react/Http.Origin/mod.ts';
-import { IconSwatches } from '../ui.react/Icon.Swatches/mod.ts';
-import { Icon } from '../ui.react/Icon/mod.ts';
-import { IFrame } from '../ui.react/IFrame/mod.ts';
-import { Svg } from '../ui.react/Image.Svg/mod.ts';
-import { KeyValue } from '../ui.react/KeyValue/mod.ts';
-import { CenterColumn } from '../ui.react/Layout.CenterColumn/mod.ts';
-import { RectGrid } from '../ui.react/Layout.RectGrid/mod.ts';
-import { SplitPane } from '../ui.react/Layout.SplitPane/mod.ts';
-import { Tabs } from '../ui.react/Layout.Tabs/mod.ts';
-import { TreeHost } from '../ui.react/Layout.TreeHost/mod.ts';
-import { Media } from '../ui.react/Media/mod.ts';
-import { ObjectView } from '../ui.react/ObjectView/mod.ts';
-import { PathView } from '../ui.react/PathView/mod.ts';
-import { Player } from '../ui.react/Player/mod.ts';
-import { YouTube } from '../ui.react/Player.YouTube/mod.ts';
-import { Preload } from '../ui.react/Preload/mod.ts';
-import { Prose } from '../ui.react/Prose/mod.ts';
-import { Sheet } from '../ui.react/Sheet/mod.ts';
-import { Slider } from '../ui.react/Slider/mod.ts';
-import { Spinners } from '../ui.react/Spinners/mod.ts';
-import { IndexTreeView } from '../ui.react/TreeView.Index/mod.ts';
-import { TreeView } from '../ui.react/TreeView/mod.ts';
-import { VimeoBackground } from '../ui.react/VimeoBackground/mod.ts';
+/**
+ * Canonical React leaf contracts, grouped by their role in the public API.
+ *
+ * Tests below import package specifiers only. Implementation paths are
+ * deliberately absent so this file proves the consumer-facing boundary.
+ */
+const leaves = {
+  primitives: [
+    { path: 'action-probe', names: ['ActionProbe'] },
+    { path: 'anchor', names: ['A', 'Anchor'] },
+    { path: 'bullet', names: ['Bullet'] },
+    { path: 'bullet-list', names: ['BulletList'] },
+    { path: 'button', names: ['Button'] },
+    { path: 'buttons', names: ['Buttons'] },
+    { path: 'buttons/icons', names: ['IconButtons'] },
+    { path: 'buttons/switch', names: ['Switch', 'SwitchTheme'] },
+    { path: 'chip', names: ['Chip'] },
+    { path: 'cropmarks', names: ['Cropmarks'] },
+    { path: 'error-boundary', names: ['ErrorBoundary'] },
+    { path: 'fade-element', names: ['FadeElement'] },
+    { path: 'icon', names: ['Icon'] },
+    { path: 'icon-swatches', names: ['IconSwatches'] },
+    { path: 'iframe', names: ['IFrame'] },
+    { path: 'image/svg', names: ['Svg'] },
+    { path: 'preload', names: ['Preload'] },
+    { path: 'sheet', names: ['Sheet'] },
+    { path: 'slider', names: ['Slider'] },
+    { path: 'splash', names: ['Splash'] },
+    { path: 'spinners', names: ['Spinners'] },
+    { path: 'text', names: ['Text'] },
+  ],
+  content: [
+    { path: 'http-origin', names: ['HttpOrigin'] },
+    { path: 'key-value', names: ['KeyValue'] },
+    { path: 'object-view', names: ['ObjectView'] },
+    { path: 'path-view', names: ['PathView'] },
+    { path: 'prose', names: ['Prose'] },
+    { path: 'tree-view', names: ['TreeView'] },
+    { path: 'tree-view/index', names: ['IndexTreeView'] },
+  ],
+  layout: [
+    { path: 'layout/center-column', names: ['CenterColumn'] },
+    { path: 'layout/rect-grid', names: ['RectGrid'] },
+    { path: 'layout/split-pane', names: ['SplitPane'] },
+    { path: 'layout/tabs', names: ['Tabs'] },
+    { path: 'layout/tree-host', names: ['TreeHost'] },
+  ],
+  media: [
+    { path: 'media', names: ['Media'] },
+    {
+      path: 'media/recorder/dev',
+      names: ['ExternalLink', 'RecorderHookView', 'StatefulDeviceList'],
+    },
+    {
+      path: 'media/timecode/playback-driver',
+      names: ['Dev', 'PlaybackDriver'],
+    },
+    { path: 'player', names: ['Player'] },
+    { path: 'player/youtube', names: ['YouTube'] },
+    { path: 'vimeo-background', names: ['VimeoBackground'] },
+  ],
+} as const satisfies Record<string, readonly LeafContract[]>;
 
-describe('@sys/ui-components leaf exports', () => {
-  it('keeps the root exports minimal and package-only', async () => {
-    const root = await import('@sys/ui-components');
-    const react = await import('@sys/ui-components/react');
-    expect(root.pkg).to.equal(pkg);
-    expect(react.pkg).to.equal(pkg);
-    expect('Button' in root).to.eql(false);
-    expect('Button' in react).to.eql(false);
-    expect('Media' in root).to.eql(false);
-    expect('Media' in react).to.eql(false);
-    expect('TreeView' in root).to.eql(false);
-    expect('TreeView' in react).to.eql(false);
-    expect('t' in root).to.eql(false);
-    expect('t' in react).to.eql(false);
+describe('@sys/ui-components package exports', () => {
+  describe('root boundaries', () => {
+    it('keeps runtime roots minimal and package-only', async () => {
+      const [root, react] = await Promise.all([
+        import('@sys/ui-components'),
+        import('@sys/ui-components/react'),
+      ]);
+
+      expect(Object.keys(root)).to.eql(['pkg']);
+      expect(Object.keys(react)).to.eql(['pkg']);
+      expect(root.pkg).to.equal(react.pkg);
+    });
+
+    it('keeps both type entrypoints runtime-empty', async () => {
+      const [t, types] = await Promise.all([
+        import('@sys/ui-components/t'),
+        import('@sys/ui-components/types'),
+      ]);
+
+      expect(Object.keys(t)).to.eql([]);
+      expect(Object.keys(types)).to.eql([]);
+    });
   });
 
-  it('keeps old non-react leaf aliases as compatibility exports', async () => {
-    const [button, reactButton] = await Promise.all([
-      import('@sys/ui-components/button'),
-      import('@sys/ui-components/react/button'),
-    ]);
-    expect(button.Button).to.equal(reactButton.Button);
+  describe('canonical React leaves', () => {
+    it('exports interaction and presentation primitives', async () => {
+      await expectReactLeaves(leaves.primitives);
+    });
+
+    it('exports structured content and data views', async () => {
+      await expectReactLeaves(leaves.content);
+    });
+
+    it('exports layout primitives', async () => {
+      await expectReactLeaves(leaves.layout);
+    });
+
+    it('exports media and playback surfaces', async () => {
+      await expectReactLeaves(leaves.media);
+    });
   });
 
-  it('exports the core component leaves', async () => {
-    const [
-      actionProbe,
-      anchor,
-      bullet,
-      bulletList,
-      button,
-      buttons,
-      iconButtons,
-      switchButtons,
-      cropmarks,
-      errorBoundary,
-      fadeElement,
-      httpOrigin,
-      icon,
-      iconSwatches,
-      iframe,
-      imageSvg,
-      keyValue,
-      objectView,
-      pathView,
-      preload,
-      prose,
-      sheet,
-      slider,
-      spinners,
-      treeView,
-      treeViewIndex,
-      vimeoBackground,
-    ] = await Promise.all([
-      import('@sys/ui-components/react/action-probe'),
-      import('@sys/ui-components/react/anchor'),
-      import('@sys/ui-components/react/bullet'),
-      import('@sys/ui-components/react/bullet-list'),
-      import('@sys/ui-components/react/button'),
-      import('@sys/ui-components/react/buttons'),
-      import('@sys/ui-components/react/buttons/icons'),
-      import('@sys/ui-components/react/buttons/switch'),
-      import('@sys/ui-components/react/cropmarks'),
-      import('@sys/ui-components/react/error-boundary'),
-      import('@sys/ui-components/react/fade-element'),
-      import('@sys/ui-components/react/http-origin'),
-      import('@sys/ui-components/react/icon'),
-      import('@sys/ui-components/react/icon-swatches'),
-      import('@sys/ui-components/react/iframe'),
-      import('@sys/ui-components/react/image/svg'),
-      import('@sys/ui-components/react/key-value'),
-      import('@sys/ui-components/react/object-view'),
-      import('@sys/ui-components/react/path-view'),
-      import('@sys/ui-components/react/preload'),
-      import('@sys/ui-components/react/prose'),
-      import('@sys/ui-components/react/sheet'),
-      import('@sys/ui-components/react/slider'),
-      import('@sys/ui-components/react/spinners'),
-      import('@sys/ui-components/react/tree-view'),
-      import('@sys/ui-components/react/tree-view/index'),
-      import('@sys/ui-components/react/vimeo-background'),
-    ]);
+  describe('opt-in support leaves', () => {
+    it('exports development composition and visual-spec surfaces', async () => {
+      await Promise.all([
+        expectExports('@sys/ui-components/react/dev', ['Dev']),
+        expectExports('@sys/ui-components/specs', ['Specs']),
+      ]);
+    });
 
-    expect(actionProbe.ActionProbe).to.equal(ActionProbe);
-    expect(anchor.A).to.equal(A);
-    expect(anchor.Anchor).to.equal(Anchor);
-    expect(bullet.Bullet).to.equal(Bullet);
-    expect(bulletList.BulletList).to.equal(BulletList);
-    expect(button.Button).to.equal(Button);
-    expect(buttons.Buttons).to.equal(Buttons);
-    expect(iconButtons.IconButtons).to.equal(IconButtons);
-    expect(switchButtons.Switch).to.equal(Switch);
-    expect(switchButtons.SwitchTheme).to.equal(SwitchTheme);
-    expect(cropmarks.Cropmarks).to.equal(Cropmarks);
-    expect(errorBoundary.ErrorBoundary).to.equal(ErrorBoundary);
-    expect(fadeElement.FadeElement).to.equal(FadeElement);
-    expect(httpOrigin.HttpOrigin).to.equal(HttpOrigin);
-    expect(icon.Icon).to.equal(Icon);
-    expect(iconSwatches.IconSwatches).to.equal(IconSwatches);
-    expect(iframe.IFrame).to.equal(IFrame);
-    expect(imageSvg.Svg).to.equal(Svg);
-    expect(keyValue.KeyValue).to.equal(KeyValue);
-    expect(objectView.ObjectView).to.equal(ObjectView);
-    expect(pathView.PathView).to.equal(PathView);
-    expect(preload.Preload).to.equal(Preload);
-    expect(prose.Prose).to.equal(Prose);
-    expect(sheet.Sheet).to.equal(Sheet);
-    expect(slider.Slider).to.equal(Slider);
-    expect(spinners.Spinners).to.equal(Spinners);
-    expect(treeView.TreeView).to.equal(TreeView);
-    expect(treeViewIndex.IndexTreeView).to.equal(IndexTreeView);
-    expect(vimeoBackground.VimeoBackground).to.equal(VimeoBackground);
+    it('exports web-font helpers outside the React component lane', async () => {
+      await expectExports('@sys/ui-components/fonts', [
+        'ETBook',
+        'Fonts',
+        'SourceSans3',
+        'useFontBundle',
+      ]);
+    });
   });
 
-  it('exports the layout and player leaves', async () => {
-    const [centerColumn, rectGrid, splitPane, tabs, treeHost, media, player, youTube] = await Promise.all([
-      import('@sys/ui-components/react/layout/center-column'),
-      import('@sys/ui-components/react/layout/rect-grid'),
-      import('@sys/ui-components/react/layout/split-pane'),
-      import('@sys/ui-components/react/layout/tabs'),
-      import('@sys/ui-components/react/layout/tree-host'),
-      import('@sys/ui-components/react/media'),
-      import('@sys/ui-components/react/player'),
-      import('@sys/ui-components/react/player/youtube'),
-    ]);
-
-    expect(centerColumn.CenterColumn).to.equal(CenterColumn);
-    expect(rectGrid.RectGrid).to.equal(RectGrid);
-    expect(splitPane.SplitPane).to.equal(SplitPane);
-    expect(tabs.Tabs).to.equal(Tabs);
-    expect(treeHost.TreeHost).to.equal(TreeHost);
-    expect(media.Media).to.equal(Media);
-    expect(player.Player).to.equal(Player);
-    expect(youTube.YouTube).to.equal(YouTube);
+  describe('legacy compatibility aliases', () => {
+    it('maps every non-React alias to its canonical React leaf', async () => {
+      await Promise.all([
+        expectLegacyAliases(leaves.primitives),
+        expectLegacyAliases(leaves.content),
+        expectLegacyAliases(leaves.layout),
+        expectLegacyAliases(leaves.media),
+      ]);
+    });
   });
 });
+
+/**
+ * Helpers
+ */
+
+async function expectReactLeaves(contracts: readonly LeafContract[]) {
+  await Promise.all(
+    contracts.map((e) => expectExports(`@sys/ui-components/react/${e.path}`, e.names)),
+  );
+}
+
+async function expectLegacyAliases(contracts: readonly LeafContract[]) {
+  await Promise.all(
+    contracts.map(async (e) => {
+      const legacySpecifier = `@sys/ui-components/${e.path}`;
+      const canonicalSpecifier = `@sys/ui-components/react/${e.path}`;
+      const [legacy, canonical] = await Promise.all([
+        import(legacySpecifier),
+        import(canonicalSpecifier),
+      ]);
+
+      e.names.forEach((name) => {
+        expect(legacy[name], `${legacySpecifier} export: ${name}`).to.equal(canonical[name]);
+      });
+    }),
+  );
+}
+
+async function expectExports(specifier: string, names: readonly string[]) {
+  const m = await import(specifier);
+  expect(Object.keys(m), specifier).to.include.members([...names]);
+}
