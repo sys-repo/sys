@@ -21,7 +21,7 @@ describe('@sys/ui-components/react/dev: Dev.Help.Markdown', () => {
   it('exports the public API', async () => {
     const m = await import('@sys/ui-components/react/dev');
     expect(m.Dev).to.equal(Dev);
-    expect(Dev.Help.Markdown).to.equal(DevHelpMarkdown);
+    expect(m.Dev.Help.Markdown).to.equal(DevHelpMarkdown);
   });
 
   it('renders Markdown help with dev component defaults', async () => {

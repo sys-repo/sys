@@ -5,16 +5,14 @@ import type { t } from './common.ts';
  */
 export declare namespace Dev {
   export type Lib = {
-    readonly Help: Help.Lib;
+    readonly Help: t.DevHelp.Lib;
   };
 
   /**
    * Help and documentation composition helpers.
    */
   export namespace Help {
-    export type Lib = {
-      readonly Markdown: Markdown.Lib;
-    };
+    export type Lib = t.DevHelp.Lib;
 
     /**
      * Markdown help rendering with dev-friendly component defaults.
