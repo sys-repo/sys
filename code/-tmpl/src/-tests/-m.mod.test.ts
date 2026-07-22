@@ -59,16 +59,16 @@ describe('Template: m.mod', () => {
     it('preserves existing exports → adds leaf export once', async () => {
       const test = await makeTypesUpdateTarget(
         typeSource(`
-          export type * from './ui.react/t.ts';
-          export type * from './ui.react/ui.files/ui.InfoPanel/t.ts';
+          export type * from './m.webfonts/t.ts';
+          export type * from './ui.react/ui/Media/t.ts';
         `),
-        'ui.react/ui.files/ui.InfoPanel.Config',
+        'ui.react/ui/Media.Config',
       );
 
       const expected = typeSource(`
-        export type * from './ui.react/t.ts';
-        export type * from './ui.react/ui.files/ui.InfoPanel/t.ts';
-        export type * from './ui.react/ui.files/ui.InfoPanel.Config/t.ts';
+        export type * from './m.webfonts/t.ts';
+        export type * from './ui.react/ui/Media/t.ts';
+        export type * from './ui.react/ui/Media.Config/t.ts';
       `);
 
       await updateTypesFile(test.targetDir);
