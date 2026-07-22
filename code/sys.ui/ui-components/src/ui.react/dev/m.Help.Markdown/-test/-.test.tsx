@@ -8,8 +8,8 @@ import {
   it,
   TestReact,
 } from '../../../../-test.ts';
-import { D as ChipDefaults } from '../../../Chip/common.ts';
-import { D as ProseMarkdownDefaults } from '../../../Prose.Markdown/common.ts';
+import { D as ChipDefaults } from '../../../ui/Chip/common.ts';
+import { D as ProseMarkdownDefaults } from '../../../ui/Prose.Markdown/common.ts';
 import { Dev } from '../../mod.ts';
 import { DevHelpMarkdown } from '../mod.ts';
 

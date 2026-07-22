@@ -6,9 +6,9 @@ import {
   MdArrowDownward,
   MdArrowForward,
   MdArrowUpward,
+  MdCheck,
   MdChevronLeft,
   MdChevronRight,
-  MdCheck,
   MdClose,
   MdConstruction,
   MdError,
@@ -21,7 +21,7 @@ import {
 } from 'react-icons/md';
 import { VscSymbolClass } from 'react-icons/vsc';
 
-import { Icon } from '../Icon/mod.ts';
+import { Icon } from '../ui/Icon/mod.ts';
 const icon = Icon.renderer;
 
 /**

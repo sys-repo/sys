@@ -10,73 +10,79 @@ export const ns = 'sys.ui.component';
  * Components:
  */
 export const SpecsComponents = {
-  [`${ns}: ActionProbe`]: () => import('../ui.react/ActionProbe/-spec/-SPEC.tsx'),
+  [`${ns}: ActionProbe`]: () => import('../ui.react/ui/ActionProbe/-spec/-SPEC.tsx'),
 
-  [`${ns}: Button`]: () => import('../ui.react/Button/-spec/-SPEC.tsx'),
-  [`${ns}: Buttons.Switch`]: () => import('../ui.react/Buttons.Switch/-spec/-SPEC.tsx'),
-  [`${ns}: Buttons.Icons`]: () => import('../ui.react/Buttons.Icons/-spec/-SPEC.tsx'),
+  [`${ns}: Button`]: () => import('../ui.react/ui/Button/-spec/-SPEC.tsx'),
+  [`${ns}: Buttons.Switch`]: () => import('../ui.react/ui/Buttons.Switch/-spec/-SPEC.tsx'),
+  [`${ns}: Buttons.Icons`]: () => import('../ui.react/ui/Buttons.Icons/-spec/-SPEC.tsx'),
 
-  [`${ns}: Anchor`]: () => import('../ui.react/Anchor/-spec/-SPEC.tsx'),
-  [`${ns}: Chip`]: () => import('../ui.react/Chip/-spec/-SPEC.tsx'),
-  [`${ns}: KeyValue`]: () => import('../ui.react/KeyValue/-spec/-SPEC.tsx'),
-  [`${ns}: KeyValue.Switches`]: () => import('../ui.react/KeyValue.Switches/-spec/-SPEC.tsx'),
-  [`${ns}: ObjectView`]: () => import('../ui.react/ObjectView/-SPEC.tsx'),
+  [`${ns}: Anchor`]: () => import('../ui.react/ui/Anchor/-spec/-SPEC.tsx'),
+  [`${ns}: Chip`]: () => import('../ui.react/ui/Chip/-spec/-SPEC.tsx'),
+  [`${ns}: KeyValue`]: () => import('../ui.react/ui/KeyValue/-spec/-SPEC.tsx'),
+  [`${ns}: KeyValue.Switches`]: () => import('../ui.react/ui/KeyValue.Switches/-spec/-SPEC.tsx'),
+  [`${ns}: ObjectView`]: () => import('../ui.react/ui/ObjectView/-SPEC.tsx'),
 
-  [`${ns}: Bullet`]: () => import('../ui.react/Bullet/-SPEC.tsx'),
-  [`${ns}: BulletList`]: () => import('../ui.react/BulletList/-spec/-SPEC.tsx'),
-  [`${ns}: Cropmarks`]: () => import('../ui.react/Cropmarks/-spec/-SPEC.tsx'),
-  [`${ns}: ErrorBoundary`]: () => import('../ui.react/ErrorBoundary/-spec/-SPEC.tsx'),
-  [`${ns}: FadeElement`]: () => import('../ui.react/FadeElement/-SPEC.tsx'),
-  [`${ns}: Icon`]: () => import('../ui.react/Icon/-spec/-SPEC.tsx'),
-  [`${ns}: Icon.Swatches`]: () => import('../ui.react/Icon.Swatches/-spec/-SPEC.tsx'),
-  [`${ns}: IFrame`]: () => import('../ui.react/IFrame/-SPEC.tsx'),
-  [`${ns}: Image.Svg`]: () => import('../ui.react/Image.Svg/-SPEC.tsx'),
-  [`${ns}: PathView`]: () => import('../ui.react/PathView/-spec/-SPEC.tsx'),
-  [`${ns}: Preload`]: () => import('../ui.react/Preload/-SPEC.tsx'),
-  [`${ns}: Sheet`]: () => import('../ui.react/Sheet/-spec/-SPEC.tsx'),
-  [`${ns}: Slider`]: () => import('../ui.react/Slider/-spec/-SPEC.tsx'),
-  [`${ns}: Spinners.Bar`]: () => import('../ui.react/Spinners.Bar/-SPEC.tsx'),
-  [`${ns}: Splash`]: () => import('../ui.react/Splash/-spec/-SPEC.tsx'),
+  [`${ns}: Bullet`]: () => import('../ui.react/ui/Bullet/-SPEC.tsx'),
+  [`${ns}: BulletList`]: () => import('../ui.react/ui/BulletList/-spec/-SPEC.tsx'),
+  [`${ns}: Cropmarks`]: () => import('../ui.react/ui/Cropmarks/-spec/-SPEC.tsx'),
+  [`${ns}: ErrorBoundary`]: () => import('../ui.react/ui/ErrorBoundary/-spec/-SPEC.tsx'),
+  [`${ns}: FadeElement`]: () => import('../ui.react/ui/FadeElement/-SPEC.tsx'),
+  [`${ns}: Icon`]: () => import('../ui.react/ui/Icon/-spec/-SPEC.tsx'),
+  [`${ns}: Icon.Swatches`]: () => import('../ui.react/ui/Icon.Swatches/-spec/-SPEC.tsx'),
+  [`${ns}: IFrame`]: () => import('../ui.react/ui/IFrame/-SPEC.tsx'),
+  [`${ns}: Image.Svg`]: () => import('../ui.react/ui/Image.Svg/-SPEC.tsx'),
+  [`${ns}: PathView`]: () => import('../ui.react/ui/PathView/-spec/-SPEC.tsx'),
+  [`${ns}: Preload`]: () => import('../ui.react/ui/Preload/-SPEC.tsx'),
+  [`${ns}: Sheet`]: () => import('../ui.react/ui/Sheet/-spec/-SPEC.tsx'),
+  [`${ns}: Slider`]: () => import('../ui.react/ui/Slider/-spec/-SPEC.tsx'),
+  [`${ns}: Spinners.Bar`]: () => import('../ui.react/ui/Spinners.Bar/-SPEC.tsx'),
+  [`${ns}: Splash`]: () => import('../ui.react/ui/Splash/-spec/-SPEC.tsx'),
 
-  [`${ns}: Text.Input`]: () => import('../ui.react/Text.Input/-spec/-SPEC.tsx'),
-  [`${ns}: Text.Ellipsize`]: () => import('../ui.react/Text.Ellipsize/-spec/-SPEC.tsx'),
+  [`${ns}: Text.Input`]: () => import('../ui.react/ui/Text.Input/-spec/-SPEC.tsx'),
+  [`${ns}: Text.Ellipsize`]: () => import('../ui.react/ui/Text.Ellipsize/-spec/-SPEC.tsx'),
 
-  [`${ns}: Prose.Measure`]: () => import('../ui.react/Prose.Measure/-spec/-SPEC.tsx'),
-  [`${ns}: Prose.Manuscript`]: () => import('../ui.react/Prose.Manuscript/-spec/-SPEC.tsx'),
-  [`${ns}: Prose.Markdown`]: () => import('../ui.react/Prose.Markdown/-spec/-SPEC.tsx'),
+  [`${ns}: Prose.Measure`]: () => import('../ui.react/ui/Prose.Measure/-spec/-SPEC.tsx'),
+  [`${ns}: Prose.Manuscript`]: () => import('../ui.react/ui/Prose.Manuscript/-spec/-SPEC.tsx'),
+  [`${ns}: Prose.Markdown`]: () => import('../ui.react/ui/Prose.Markdown/-spec/-SPEC.tsx'),
 
-  [`${ns}: Layout.CenterColumn`]: () => import('../ui.react/Layout.CenterColumn/-spec/-SPEC.tsx'),
-  [`${ns}: Layout.RectGrid`]: () => import('../ui.react/Layout.RectGrid/-spec/-SPEC.tsx'),
-  [`${ns}: Layout.SplitPane`]: () => import('../ui.react/Layout.SplitPane/-spec/-SPEC.tsx'),
-  [`${ns}: Layout.Tabs`]: () => import('../ui.react/Layout.Tabs/-spec/-SPEC.tsx'),
-  [`${ns}: Layout.TreeHost`]: () => import('../ui.react/Layout.TreeHost/-spec/-SPEC.tsx'),
+  [`${ns}: Layout.CenterColumn`]: () =>
+    import('../ui.react/ui/Layout.CenterColumn/-spec/-SPEC.tsx'),
+  [`${ns}: Layout.RectGrid`]: () => import('../ui.react/ui/Layout.RectGrid/-spec/-SPEC.tsx'),
+  [`${ns}: Layout.SplitPane`]: () => import('../ui.react/ui/Layout.SplitPane/-spec/-SPEC.tsx'),
+  [`${ns}: Layout.Tabs`]: () => import('../ui.react/ui/Layout.Tabs/-spec/-SPEC.tsx'),
+  [`${ns}: Layout.TreeHost`]: () => import('../ui.react/ui/Layout.TreeHost/-spec/-SPEC.tsx'),
 
-  [`${ns}: Http.Origin`]: () => import('../ui.react/Http.Origin/-spec/-SPEC.tsx'),
+  [`${ns}: Http.Origin`]: () => import('../ui.react/ui/Http.Origin/-spec/-SPEC.tsx'),
 
-  [`${ns}: TreeView.Index`]: () => import('../ui.react/TreeView.Index/-spec/-SPEC.tsx'),
-  [`${ns}: TreeView.Index.Item`]: () => import('../ui.react/TreeView.Index.Item/-spec/-SPEC.tsx'),
+  [`${ns}: TreeView.Index`]: () => import('../ui.react/ui/TreeView.Index/-spec/-SPEC.tsx'),
+  [`${ns}: TreeView.Index.Item`]: () =>
+    import('../ui.react/ui/TreeView.Index.Item/-spec/-SPEC.tsx'),
 
   [`${ns}: Player.Video: Element`]: () =>
-    import('../ui.react/Player.Video.Element/-spec/-SPEC.tsx'),
+    import('../ui.react/ui/Player.Video.Element/-spec/-SPEC.tsx'),
   [`${ns}: Player.Video: Controls`]: () =>
-    import('../ui.react/Player.Video.Controls/-spec/-SPEC.tsx'),
-  [`${ns}: Player.Video: Decks`]: () => import('../ui.react/Player.Video.Decks/-spec/-SPEC.tsx'),
-  [`${ns}: Player.Video: VimeoBackground`]: () => import('../ui.react/VimeoBackground/-SPEC.tsx'),
-  [`${ns}: Player.YouTube`]: () => import('../ui.react/Player.YouTube/-spec/-SPEC.tsx'),
+    import('../ui.react/ui/Player.Video.Controls/-spec/-SPEC.tsx'),
+  [`${ns}: Player.Video: Decks`]: () => import('../ui.react/ui/Player.Video.Decks/-spec/-SPEC.tsx'),
+  [`${ns}: Player.Video: VimeoBackground`]: () =>
+    import('../ui.react/ui/VimeoBackground/-SPEC.tsx'),
+  [`${ns}: Player.YouTube`]: () => import('../ui.react/ui/Player.YouTube/-spec/-SPEC.tsx'),
 
-  [`${ns}.media: Recorder`]: () => import('../ui.react/Media.Recorder/-spec/-SPEC.tsx'),
+  [`${ns}.media: Recorder`]: () => import('../ui.react/ui/Media.Recorder/-spec/-SPEC.tsx'),
   [`${ns}.media: Timecode.PlaybackDriver`]: () =>
-    import('../ui.react/Media.Timecode.PlaybackDriver/-spec/-SPEC.tsx'),
-  [`${ns}.media: Video (Stream)`]: () => import('../ui.react/Media.Video/-spec/-SPEC.tsx'),
-  [`${ns}.media: Devices`]: () => import('../ui.react/Media.Devices/-spec/-SPEC.tsx'),
-  [`${ns}.media: AudioWaveform`]: () => import('../ui.react/Media.AudioWaveform/-spec/-SPEC.tsx'),
-  [`${ns}.media: Config.Filters`]: () => import('../ui.react/Media.Config/-spec.filters/-SPEC.tsx'),
-  [`${ns}.media: Config.Zoom`]: () => import('../ui.react/Media.Config/-spec.zoom/-SPEC.tsx'),
-  [`${ns}.media: Config.Slider`]: () => import('../ui.react/Media.Config/-spec.slider/-SPEC.tsx'),
+    import('../ui.react/ui/Media.Timecode.PlaybackDriver/-spec/-SPEC.tsx'),
+  [`${ns}.media: Video (Stream)`]: () => import('../ui.react/ui/Media.Video/-spec/-SPEC.tsx'),
+  [`${ns}.media: Devices`]: () => import('../ui.react/ui/Media.Devices/-spec/-SPEC.tsx'),
+  [`${ns}.media: AudioWaveform`]: () =>
+    import('../ui.react/ui/Media.AudioWaveform/-spec/-SPEC.tsx'),
+  [`${ns}.media: Config.Filters`]: () =>
+    import('../ui.react/ui/Media.Config/-spec.filters/-SPEC.tsx'),
+  [`${ns}.media: Config.Zoom`]: () => import('../ui.react/ui/Media.Config/-spec.zoom/-SPEC.tsx'),
+  [`${ns}.media: Config.Slider`]: () =>
+    import('../ui.react/ui/Media.Config/-spec.slider/-SPEC.tsx'),
 
-  [`${ns}: Dist`]: () => import('../ui.react/Dist/-spec/-SPEC.tsx'),
-  [`${ns}: Dist.Browser`]: () => import('../ui.react/Dist/-spec.browser/-SPEC.tsx'),
-  [`${ns}: Ownership`]: () => import('../ui.react/Ownership/-spec/-SPEC.tsx'),
+  [`${ns}: Dist`]: () => import('../ui.react/ui/Dist/-spec/-SPEC.tsx'),
+  [`${ns}: Dist.Browser`]: () => import('../ui.react/ui/Dist/-spec.browser/-SPEC.tsx'),
+  [`${ns}: Ownership`]: () => import('../ui.react/ui/Ownership/-spec/-SPEC.tsx'),
 
   [`${ns}: Dev.Help.Markdown`]: () => import('../ui.react/dev/m.Help.Markdown/-spec/-SPEC.tsx'),
 } as t.SpecImports;

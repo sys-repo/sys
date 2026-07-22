@@ -14,11 +14,13 @@ export async function main() {
   const resolved = DenoDeps.findImport(loaded.data?.deps, SPECIFIER_REACT_SPINNERS);
   if (!resolved) {
     const cause = new Error(`Source: ${depsPath}`);
-    throw Err.std(`Failed to find canonical dependency import: ${SPECIFIER_REACT_SPINNERS}`, { cause });
+    throw Err.std(`Failed to find canonical dependency import: ${SPECIFIER_REACT_SPINNERS}`, {
+      cause,
+    });
   }
 
   await rewriteImport({
-    targetPath: './src/ui.react/Spinners.Bar/u.loader.ts',
+    targetPath: './src/ui.react/ui/Spinners.Bar/u.loader.ts',
     pattern: PATTERN_REACT_SPINNERS,
     replacement: `import('${resolved}/BarLoader.js')`,
   });

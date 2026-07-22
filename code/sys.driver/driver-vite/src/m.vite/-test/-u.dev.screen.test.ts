@@ -236,7 +236,7 @@ describe('DevScreen', () => {
       output.push(
         event(
           'stdout',
-          '2:08:13 pm [vite] (client) page reload ui.react/Prose.Markdown/-spec/common.ts\n',
+          '2:08:13 pm [vite] (client) page reload ui.react/ui/Prose.Markdown/-spec/common.ts\n',
         ),
       );
 
