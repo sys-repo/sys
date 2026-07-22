@@ -1,5 +1,5 @@
 import React from 'react';
-import { Chip, Color, css, ProseMarkdown, Str, type t } from './common.ts';
+import { Color, css, Dev, Str, type t } from './common.ts';
 
 type Step = { readonly gesture: string; readonly text: string };
 
@@ -33,22 +33,15 @@ export const CursorHelp: React.FC<CursorHelpProps> = (props) => {
   const styles = {
     base: css({
       color: Color.alpha(theme.fg, 0.66),
-      fontSize: 12,
-      lineHeight: 1.45,
       marginTop: 5,
       marginBottom: 8,
       marginLeft: 8,
     }),
   };
 
-  const renderers: t.ProseMarkdown.Renderers = {
-    inlineCode: (e) => <Chip.UI mono theme={theme.name} size='sm'>{e.value}</Chip.UI>,
-  };
-
   return (
-    <ProseMarkdown.UI
+    <Dev.Help.Markdown.UI
       value={toMarkdown([...steps, ...(props.extraSteps ?? [])])}
-      renderers={renderers}
       theme={theme.name}
       style={css(styles.base, props.style)}
     />

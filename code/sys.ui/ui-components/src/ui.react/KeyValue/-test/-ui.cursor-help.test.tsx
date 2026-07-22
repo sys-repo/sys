@@ -8,7 +8,7 @@ import { CursorHelp } from '../-spec/-ui.CursorHelp.tsx';
 describe('KeyValue CursorHelp', () => {
   DomMock.init({ beforeEach, afterEach });
 
-  it('renders through Prose.Markdown with caller-owned Chip inline-code tokens', async () => {
+  it('renders through Dev.Help.Markdown with default Chip inline-code tokens', async () => {
     const extra = { gesture: 'Option + Enter', text: 'inserts an hr after current.' };
     const res = await TestReact.render(<CursorHelp extraSteps={[extra]} />, { strict: false });
 
@@ -19,6 +19,8 @@ describe('KeyValue CursorHelp', () => {
       const extraChip = extraRow?.querySelector(`[data-component="${ChipD.displayName}"]`);
 
       expect(root).to.not.eql(null);
+      expect(window.getComputedStyle(root!).fontSize).to.eql('12px');
+      expect(window.getComputedStyle(root!).lineHeight).to.eql('1.45');
       expect(listItems.length).to.eql(7);
       expect(extraRow).to.not.eql(undefined);
       expect(extraChip?.textContent).to.eql(extra.gesture);
