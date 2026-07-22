@@ -56,21 +56,27 @@ describe('Template: m.mod', () => {
   describe('updateTypesFile', () => {
     const typeSource = (text: string) => `${Str.dedent(text)}\n`;
 
-    it('preserves aggregate → adds leaf export once', async () => {
+    it('preserves existing exports → adds leaf export once', async () => {
       const test = await makeTypesUpdateTarget(
         typeSource(`
           export type * from './ui.react/t.ts';
+          export type * from './ui.react/ui.files/ui.InfoPanel/t.ts';
         `),
         'ui.react/ui.files/ui.InfoPanel.Config',
       );
 
-      await updateTypesFile(test.targetDir);
-      await updateTypesFile(test.targetDir);
-
-      expect(await test.readTypes()).to.eql(typeSource(`
+      const expected = typeSource(`
         export type * from './ui.react/t.ts';
+        export type * from './ui.react/ui.files/ui.InfoPanel/t.ts';
         export type * from './ui.react/ui.files/ui.InfoPanel.Config/t.ts';
-      `));
+      `);
+
+      await updateTypesFile(test.targetDir);
+      const first = await test.readTypes();
+      expect(first).to.eql(expected);
+
+      await updateTypesFile(test.targetDir);
+      expect(await test.readTypes()).to.eql(first);
     });
 
     it('appends export when no star exports exist', async () => {
