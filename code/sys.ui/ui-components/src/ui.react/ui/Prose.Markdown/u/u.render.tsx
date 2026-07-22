@@ -1,14 +1,13 @@
 import React from 'react';
-import { css, Is, Num, type t } from '../common.ts';
-import { toSafeHref } from './u.href.ts';
+import { Is, type t } from '../common.ts';
 import {
   hasRenderableChildren,
   isInlineCodeNode,
-  isLinkNode,
   isMarkdownNodeRecord,
-  isTaskListItemNode,
   type MarkdownNodeRecord,
 } from './u.node.ts';
+import { renderInlineCode, renderLink } from './u.render.inline.tsx';
+import { renderList, renderListItem } from './u.render.list.tsx';
 import type { MarkdownStyles } from './u.styles.ts';
 
 export type RenderContext = {
@@ -37,19 +36,19 @@ function renderNode(input: unknown, ctx: RenderContext): t.ReactNode {
     case 'paragraph':
       return <p className={styles.paragraph.class}>{renderContainerChildren(node, ctx)}</p>;
     case 'text':
-      return isStringValue(node.value) ? node.value : null;
+      return Is.string(node.value) ? node.value : null;
     case 'inlineCode':
-      return isInlineCodeNode(node) ? renderInlineCode(node, ctx) : null;
+      return isInlineCodeNode(node) ? renderInlineCode({ ...ctx, node }) : null;
     case 'strong':
       return <strong className={styles.strong.class}>{renderContainerChildren(node, ctx)}</strong>;
     case 'emphasis':
       return <em className={styles.emphasis.class}>{renderContainerChildren(node, ctx)}</em>;
     case 'link':
-      return renderLink(node, ctx);
+      return renderLink({ ...ctx, node, children: renderContainerChildren(node, ctx) });
     case 'list':
-      return renderList(node, ctx);
+      return renderList({ node, children: renderContainerChildren(node, ctx), styles });
     case 'listItem':
-      return renderListItem(node, ctx);
+      return renderListItem({ ...ctx, node, children: renderContainerChildren(node, ctx) });
     case 'break':
       return <br />;
     default:
@@ -62,73 +61,4 @@ function renderContainerChildren(
   ctx: RenderContext,
 ): readonly t.ReactNode[] {
   return hasRenderableChildren(node) ? renderChildren(node.children, ctx) : [];
-}
-
-function renderInlineCode(node: t.ProseMarkdown.Inline.Code.Node, ctx: RenderContext) {
-  const { renderers, styles } = ctx;
-  return renderers?.inlineCode?.({ node, value: node.value }) ?? (
-    <code className={styles.inlineCode.class}>{node.value}</code>
-  );
-}
-
-function renderLink(node: MarkdownNodeRecord, ctx: RenderContext) {
-  const { renderers, styles } = ctx;
-  const children = renderContainerChildren(node, ctx);
-  if (!isLinkNode(node)) return children;
-
-  const href = toSafeHref(node.url);
-  const title = isStringValue(node.title) && node.title.trim() ? node.title : undefined;
-  if (!href) return children;
-
-  return renderers?.link?.({ node, href, title, children }) ?? (
-    <a className={styles.link.class} href={href} title={title}>{children}</a>
-  );
-}
-
-function renderList(node: MarkdownNodeRecord, ctx: RenderContext) {
-  const { styles } = ctx;
-  const children = renderContainerChildren(node, ctx);
-  const start = Num.Is.safeInt(node.start) ? node.start : undefined;
-
-  return node.ordered === true
-    ? <ol className={styles.list.class} start={start}>{children}</ol>
-    : <ul className={styles.list.class}>{children}</ul>;
-}
-
-function renderListItem(node: MarkdownNodeRecord, ctx: RenderContext) {
-  const { styles } = ctx;
-  const children = renderContainerChildren(node, ctx);
-  if (!isTaskListItemNode(node)) return <li className={styles.listItem.class}>{children}</li>;
-
-  return (
-    <li className={css(styles.listItem, styles.taskListItem).class}>
-      <div className={styles.taskRow.class}>
-        <div className={styles.taskState.class}>{renderTaskState(node, ctx)}</div>
-        <div className={styles.taskBody.class}>{children}</div>
-      </div>
-    </li>
-  );
-}
-
-function renderTaskState(node: t.ProseMarkdown.Block.TaskState.Node, ctx: RenderContext) {
-  const { renderers, styles } = ctx;
-  const checked = node.checked;
-  const ariaLabel = checked ? 'Completed task' : 'Incomplete task';
-
-  return renderers?.taskState?.({ node, checked, ariaLabel }) ?? (
-    <input
-      aria-label={ariaLabel}
-      aria-readonly={true}
-      checked={checked}
-      className={styles.taskCheckbox.class}
-      onClick={(e) => e.preventDefault()}
-      readOnly
-      tabIndex={-1}
-      type='checkbox'
-    />
-  );
-}
-
-function isStringValue(input: unknown): input is string {
-  return Is.string(input);
 }
