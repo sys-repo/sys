@@ -207,4 +207,5 @@ Current trace output focuses on:
 
 - [JSR Docs: Vite](https://jsr.io/docs/with/vite)
 - [Deno Docs: Workspace](https://docs.deno.com/runtime/fundamentals/workspaces/)
-- [jsr:@sys/driver-deno](https://jsr.io/@sys/driver-deno)
+- [jsr:@sys/driver-deno](https://jsr.io/@sys/driver-deno) — Deno workspace/deps file runtime
+- [jsr:@sys/esm](https://jsr.io/@sys/esm) — ESM module/dependency graph helpers
