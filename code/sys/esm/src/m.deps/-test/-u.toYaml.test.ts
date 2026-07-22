@@ -1,5 +1,6 @@
 import { Deps, describe, expect, it, Yaml } from './common.ts';
 import type { t } from './common.ts';
+import { toDenoJson } from '../u.toJson.deno.ts';
 import { sampleYaml } from './u.fixture.yaml.ts';
 
 describe('Deps state', () => {
@@ -55,6 +56,39 @@ describe('Deps state', () => {
       expect(parsed.error).to.eql(undefined);
       expect(rendered.obj).to.eql(parsed.data);
     }
+  });
+
+  it('toYaml: preserves Deno import aliases through byte-stable manifest round-trips', async () => {
+    const yaml = `
+      deno.json:
+        - import: npm:@types/mdast@4.0.4
+          name: mdast
+        - import: npm:@types/mdast@4.0.4
+          name: mdast-legacy
+        - import: npm:@types/unist@3.0.3
+          name: unist
+    `;
+
+    const first = await Deps.from(yaml);
+    const rendered = first.data?.toYaml();
+    const second = await Deps.from(rendered?.text ?? '');
+    const rerendered = second.data?.toYaml();
+
+    expect(first.error).to.eql(undefined);
+    expect(rendered?.obj['deno.json']).to.eql([
+      { import: 'npm:@types/mdast@4.0.4', name: 'mdast' },
+      { import: 'npm:@types/mdast@4.0.4', name: 'mdast-legacy' },
+      { import: 'npm:@types/unist@3.0.3', name: 'unist' },
+    ]);
+    expect(second.error).to.eql(undefined);
+    expect(toDenoJson(second.data?.entries)).to.eql({
+      imports: {
+        mdast: 'npm:@types/mdast@4.0.4',
+        'mdast-legacy': 'npm:@types/mdast@4.0.4',
+        unist: 'npm:@types/unist@3.0.3',
+      },
+    });
+    expect(rerendered?.text).to.eql(rendered?.text);
   });
 
   it('toYaml: preserves package override policy through state round-trip', async () => {

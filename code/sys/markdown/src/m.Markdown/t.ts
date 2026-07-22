@@ -1,5 +1,5 @@
-import type * as Mdast from 'mdast';
-import type * as Unist from 'unist';
+import type { Nodes as MdastNodes, Root as MdastRoot } from 'mdast';
+import type { Position as UnistPosition } from 'unist';
 import type { StdError, StringMarkdown } from '@sys/types';
 import type { MarkdownFrontmatter } from '../m.Markdown.Frontmatter/t.ts';
 import type { MarkdownHtml } from '../m.Markdown.Html/t.ts';
@@ -30,7 +30,7 @@ export declare namespace Markdown {
   };
 
   /** Canonical Markdown syntax tree. */
-  export type Ast = Mdast.Root;
+  export type Ast = MdastRoot;
 
   /** Markdown input value: source text or an already parsed document tree. */
   export type Value = StringMarkdown | Ast;
@@ -57,10 +57,10 @@ export declare namespace Markdown {
   export type Flavor = 'gfm' | 'commonmark';
 
   /** Any Markdown AST node. */
-  export type Node = Mdast.Nodes;
+  export type Node = MdastNodes;
 
   /** Source position carried by syntax tree nodes. */
-  export type Position = Unist.Position;
+  export type Position = UnistPosition;
 
   /** Type guards for Markdown syntax-tree values. */
   export type IsLib = {

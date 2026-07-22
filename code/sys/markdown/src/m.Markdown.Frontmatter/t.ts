@@ -1,4 +1,4 @@
-import type * as Mdast from 'mdast';
+import type { Root as MdastRoot } from 'mdast';
 import type { StdError, StringMarkdown, StringYaml } from '@sys/types';
 
 /**
@@ -29,7 +29,7 @@ export declare namespace MarkdownFrontmatter {
     readonly markdown: StringMarkdown;
 
     /** Parsed MDAST root for `markdown`. */
-    readonly ast: Mdast.Root;
+    readonly ast: MdastRoot;
   };
 
   /** Parsed YAML frontmatter block. */

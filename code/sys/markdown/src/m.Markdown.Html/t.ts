@@ -1,4 +1,4 @@
-import type * as Mdast from 'mdast';
+import type { Root as MdastRoot } from 'mdast';
 import type { StdError, StringMarkdown } from '@sys/types';
 
 /**
@@ -12,7 +12,7 @@ export declare namespace MarkdownHtml {
   };
 
   /** Canonical Markdown syntax tree accepted by the renderer. */
-  export type Ast = Mdast.Root;
+  export type Ast = MdastRoot;
 
   /** Render input: raw Markdown source or a parsed MDAST document. */
   export type RenderInput = StringMarkdown | Ast;

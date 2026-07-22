@@ -148,7 +148,7 @@ const is = {
 
 const wrangle = {
   entryId(entry: t.EsmDeps.Entry): string {
-    return `${entry.module.registry}:${entry.module.name}`;
+    return `${entry.module.registry}:${entry.module.name}:${entry.module.alias}`;
   },
 
   mergeEntry(existing: t.EsmDeps.Entry, entry: t.EsmDeps.Entry): t.EsmDeps.Entry {
