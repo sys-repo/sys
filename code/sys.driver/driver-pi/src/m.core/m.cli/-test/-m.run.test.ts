@@ -63,17 +63,44 @@ describe(`@sys/driver-pi/cli/raw/m.run`, () => {
     }
   });
 
-  it('run → adds narrow ancestor discovery probes for gitless scoped launches', async () => {
+  it('run → grants narrow project-trust probes for git-rooted scoped launches', async () => {
     const prev = Process.inherit;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.run.test.' }))
+    const fixture = (await Fs.makeTempDir({ prefix: 'driver-pi.run.test.' }))
       .absolute as t.StringDir;
+    const cwd = Fs.join(fixture, 'org', 'repo') as t.StringDir;
+    const parent = Fs.dirname(cwd) as t.StringDir;
     try {
+      await Fs.ensureDir(Fs.join(cwd, '.git'));
       Process.inherit = async (input) => {
-        const readArg = findArg(input.args, '--allow-read=');
-        expect(readArg).to.contain(cwd);
-        expect(readArg).to.contain(Fs.join(Fs.dirname(cwd), '.git'));
-        expect(readArg).to.contain(Fs.join(Fs.dirname(cwd), '.agents', 'skills'));
-        expect(readArg).not.to.contain(`${Fs.dirname(cwd)},`);
+        const read = findPathScope(input.args, '--allow-read=');
+        expect(read).to.include(Fs.join(parent, '.agents', 'skills'));
+        expect(read).not.to.include(Fs.join(parent, '.git'));
+        expect(read).not.to.include(parent);
+        return { code: 0, success: true, signal: null };
+      };
+
+      const res = await Raw.run({ cwd: { invoked: cwd, git: cwd } });
+      expect(res.success).to.eql(true);
+    } finally {
+      Process.inherit = prev;
+      await Fs.remove(fixture);
+    }
+  });
+
+  it('run → grants narrow ancestor discovery probes for gitless scoped launches', async () => {
+    const prev = Process.inherit;
+    const fixture = (await Fs.makeTempDir({ prefix: 'driver-pi.run.test.' }))
+      .absolute as t.StringDir;
+    const cwd = Fs.join(fixture, 'org', 'repo') as t.StringDir;
+    const parent = Fs.dirname(cwd) as t.StringDir;
+    try {
+      await Fs.ensureDir(cwd);
+      Process.inherit = async (input) => {
+        const read = findPathScope(input.args, '--allow-read=');
+        expect(read).to.include(cwd);
+        expect(read).to.include(Fs.join(parent, '.git'));
+        expect(read).to.include(Fs.join(parent, '.agents', 'skills'));
+        expect(read).not.to.include(parent);
         return { code: 0, success: true, signal: null };
       };
 
@@ -81,7 +108,7 @@ describe(`@sys/driver-pi/cli/raw/m.run`, () => {
       expect(res.success).to.eql(true);
     } finally {
       Process.inherit = prev;
-      await Fs.remove(cwd);
+      await Fs.remove(fixture);
     }
   });
 
@@ -225,4 +252,8 @@ function findPkgArg(args: readonly string[]) {
   const value = args.find((arg) => arg === PI_AGENT_IMPORT);
   expect(value).to.be.a('string');
   return value as string;
+}
+
+function findPathScope(args: readonly string[], prefix: string) {
+  return findArg(args, prefix).slice(prefix.length).split(',');
 }

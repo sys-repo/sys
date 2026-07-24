@@ -55,16 +55,32 @@ describe(`@sys/driver-pi/cli/u.resolve.sandbox`, () => {
     }
   });
 
-  it('reports narrow ancestor discovery probes as runtime read scope for gitless launches', async () => {
+  it('reports narrow project-trust probes as runtime scope for git-rooted launches', async () => {
     const cwd = '/tmp/pi-cli-test/sample' as t.StringDir;
+    const parent = Fs.dirname(cwd) as t.StringDir;
+    const res = await resolveSandboxSummary({
+      cwd: { invoked: cwd, git: cwd },
+    });
+
+    expect(res.read?.summary).to.include.members(['cwd', 'runtime']);
+    expect(res.read?.summary).not.to.include('extra');
+    expect(res.read?.detail).to.include(Fs.join(parent, '.agents', 'skills'));
+    expect(res.read?.detail).not.to.include(Fs.join(parent, '.git'));
+    expect(res.read?.detail).not.to.include(parent);
+  });
+
+  it('reports narrow ancestor discovery probes as runtime scope for gitless launches', async () => {
+    const cwd = '/tmp/pi-cli-test/sample' as t.StringDir;
+    const parent = Fs.dirname(cwd) as t.StringDir;
     const res = await resolveSandboxSummary({
       cwd: { invoked: cwd, root: cwd },
     });
 
     expect(res.read?.summary).to.include.members(['cwd', 'runtime']);
     expect(res.read?.summary).not.to.include('extra');
-    expect(res.read?.detail).to.include('/tmp/pi-cli-test/.git');
-    expect(res.read?.detail).to.include('/tmp/pi-cli-test/.agents/skills');
+    expect(res.read?.detail).to.include(Fs.join(parent, '.git'));
+    expect(res.read?.detail).to.include(Fs.join(parent, '.agents', 'skills'));
+    expect(res.read?.detail).not.to.include(parent);
   });
 
   it('records allow-all as the effective permission posture', async () => {
