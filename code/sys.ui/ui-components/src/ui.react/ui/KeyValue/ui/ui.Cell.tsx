@@ -95,6 +95,7 @@ export const Cell: React.FC<CellProps> = (props) => {
   const content = link
     ? (
       <A
+        theme={theme.name}
         href={link.href}
         enabled={enabled}
         disabledOpacity={false}
