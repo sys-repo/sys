@@ -1,12 +1,14 @@
-import { Is } from '../common.ts';
+import { ScreenMeasure, type ScreenMeasurement } from './u.measure.ts';
 
-type Measurement = {
-  readonly width?: number;
-  readonly height?: number;
-};
+export type ScreenResizeObservation =
+  | { readonly kind: 'attached'; readonly stop: () => void }
+  | { readonly kind: 'unsupported' };
 
 type DenoRuntime = {
   consoleSize?: () => { columns: number; rows: number };
+  build?: { readonly os?: string };
+  addSignalListener?: (signal: 'SIGWINCH', handler: () => void) => void;
+  removeSignalListener?: (signal: 'SIGWINCH', handler: () => void) => void;
 };
 
 type NodeRuntime = {
@@ -19,18 +21,15 @@ type Runtime = {
 };
 
 type ReadRuntime = () => Runtime;
-type ObserveResize = (handler: () => void) => () => void;
+type ObserveResize = (handler: () => void) => ScreenResizeObservation;
 
 /** Internal platform adapter for terminal measurement and resize observation. */
 export function createPlatform(
   readRuntime: ReadRuntime,
-  observeResize: ObserveResize = (handler) => {
-    Deno.addSignalListener('SIGWINCH', handler);
-    return () => Deno.removeSignalListener('SIGWINCH', handler);
-  },
+  observeResize: ObserveResize = createResizeObserver(readRuntime),
 ) {
   return {
-    measure(): Measurement | undefined {
+    measure(): ScreenMeasurement | undefined {
       const runtime = readRuntime();
       const deno = runtime.Deno;
 
@@ -38,8 +37,8 @@ export function createPlatform(
         if (deno?.consoleSize) {
           const { columns, rows } = deno.consoleSize();
           return {
-            width: wrangle.dimension(columns),
-            height: wrangle.dimension(rows),
+            width: ScreenMeasure.dimension(columns),
+            height: ScreenMeasure.dimension(rows),
           };
         }
       } catch {
@@ -49,8 +48,8 @@ export function createPlatform(
       const stdout = runtime.process?.stdout;
       if (!stdout) return undefined;
 
-      const width = wrangle.dimension(stdout.columns);
-      const height = wrangle.dimension(stdout.rows);
+      const width = ScreenMeasure.dimension(stdout.columns);
+      const height = ScreenMeasure.dimension(stdout.rows);
       return width === undefined || height === undefined ? undefined : { width, height };
     },
 
@@ -65,8 +64,18 @@ export const ScreenPlatform = createPlatform(() => {
 /**
  * Helpers:
  */
-const wrangle = {
-  dimension(input: unknown) {
-    return Is.num(input) && input > 0 ? input : undefined;
-  },
-} as const;
+function createResizeObserver(readRuntime: ReadRuntime): ObserveResize {
+  return (handler) => {
+    const deno = readRuntime().Deno;
+    const add = deno?.addSignalListener;
+    const remove = deno?.removeSignalListener;
+    const unsupported = deno?.build?.os === 'windows' || !add || !remove;
+    if (unsupported) return { kind: 'unsupported' };
+
+    add('SIGWINCH', handler);
+    return {
+      kind: 'attached',
+      stop: () => remove('SIGWINCH', handler),
+    };
+  };
+}

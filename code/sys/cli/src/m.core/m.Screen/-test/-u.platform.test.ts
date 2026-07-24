@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../../-test.ts';
+import { describe, expect, it, Num } from '../../../-test.ts';
 import { createPlatform } from '../u.platform.ts';
 
 describe('Cli.Screen platform adapter', () => {
@@ -41,22 +41,70 @@ describe('Cli.Screen platform adapter', () => {
     expect(platform.measure()).to.eql({ width: 132, height: undefined });
   });
 
+  it('rejects non-finite terminal dimensions', () => {
+    const platform = createPlatform(() => ({
+      Deno: {
+        consoleSize: () => ({ columns: Num.INFINITY, rows: 24 }),
+      },
+    }));
+
+    expect(platform.measure()).to.eql({ width: undefined, height: 24 });
+  });
+
   it('returns an attachment-specific resize cleanup', () => {
     const attached: (() => void)[] = [];
     const removed: (() => void)[] = [];
-    const platform = createPlatform(
-      () => ({}),
-      (handler) => {
-        attached.push(handler);
-        return () => removed.push(handler);
+    const platform = createPlatform(() => ({
+      Deno: {
+        build: { os: 'linux' },
+        addSignalListener: (_signal, handler) => attached.push(handler),
+        removeSignalListener: (_signal, handler) => removed.push(handler),
       },
-    );
+    }));
     const handler = () => {};
 
-    const stop = platform.observeResize(handler);
-    stop();
+    const observation = platform.observeResize(handler);
+    expect(observation.kind).to.eql('attached');
+    if (observation.kind === 'attached') observation.stop();
 
     expect(attached).to.eql([handler]);
     expect(removed).to.eql([handler]);
+  });
+
+  it('classifies absent signal capability as unsupported', () => {
+    const platform = createPlatform(() => ({
+      process: { stdout: { columns: 100, rows: 30 } },
+    }));
+
+    expect(platform.observeResize(() => {})).to.eql({ kind: 'unsupported' });
+  });
+
+  it('classifies Windows SIGWINCH as unsupported without registration', () => {
+    let attached = 0;
+    const platform = createPlatform(() => ({
+      Deno: {
+        build: { os: 'windows' },
+        addSignalListener: () => attached += 1,
+        removeSignalListener: () => {},
+      },
+    }));
+
+    expect(platform.observeResize(() => {})).to.eql({ kind: 'unsupported' });
+    expect(attached).to.eql(0);
+  });
+
+  it('does not swallow registration failures on supported runtimes', () => {
+    const error = new Error('registration failed');
+    const platform = createPlatform(() => ({
+      Deno: {
+        build: { os: 'linux' },
+        addSignalListener: () => {
+          throw error;
+        },
+        removeSignalListener: () => {},
+      },
+    }));
+
+    expect(() => platform.observeResize(() => {})).to.throw(error);
   });
 });

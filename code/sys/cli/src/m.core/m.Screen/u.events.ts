@@ -1,40 +1,141 @@
-import { type t, Rx } from '../common.ts';
-import { ScreenPlatform } from './u.platform.ts';
-import { size } from './u.size.ts';
+import { Dispose, Is, Rx, type t } from '../common.ts';
+import { ScreenMeasure, type ScreenMeasurement } from './u.measure.ts';
+import { ScreenPlatform, type ScreenResizeObservation } from './u.platform.ts';
 
 type Deps = {
-  readSize: t.CliScreenLib['size'];
-  observeResize: (handler: () => void) => () => void;
+  measure: () => ScreenMeasurement | undefined;
+  observeResize: (handler: () => void) => ScreenResizeObservation;
 };
+
+type Subscription = { unsubscribe(): void };
+type Termination = { readonly reason?: unknown };
 
 /** Create terminal screen events over injected measurement and observation dependencies. */
 export function createEvents(deps: Deps, until?: t.UntilInput): t.CliScreenEvents {
-  const life = Rx.abortable(until);
-  let before = deps.readSize();
-
+  const life = Rx.lifecycle();
   const $$ = Rx.subject<t.CliScreenEvent>();
-  const handler = () => {
-    const after = deps.readSize();
-    $$.next({ kind: 'size:changed', before, after });
-    before = { ...after };
+  const $: t.Observable<t.CliScreenEvent> = $$.asObservable();
+  const resize$ = $.pipe(Rx.filter((event) => event.kind === 'size:changed'));
+  const api = Rx.toLifecycle<t.CliScreenEvents>(life, { $, resize$ });
+
+  const listener = createDeferredCleanup();
+  const upstream = new Set<Subscription>();
+  let before: t.CliScreenSize | undefined;
+
+  function onDispose() {
+    try {
+      listener.release();
+    } finally {
+      for (const subscription of upstream) {
+        try {
+          subscription.unsubscribe();
+        } catch {
+          // Upstream teardown must not prevent event-stream completion.
+        }
+      }
+      upstream.clear();
+      $$.complete();
+    }
+  }
+
+  life.dispose$.subscribe(onDispose);
+
+  const measure = () => {
+    if (life.disposed) return;
+    const after = ScreenMeasure.size(deps.measure());
+    if (life.disposed || !after) return;
+
+    if (!before) {
+      before = after;
+      return;
+    }
+    if (wrangle.sameSize(before, after)) return;
+
+    const event: t.CliScreenSizeChanged = { kind: 'size:changed', before, after };
+    before = after;
+    $$.next(event);
   };
 
-  const stop = deps.observeResize(handler);
-  life.dispose$.subscribe(() => stop());
+  const terminated = wrangle.termination(until);
+  if (terminated) {
+    life.dispose(terminated.reason);
+  } else {
+    for (const source$ of Dispose.until(until)) {
+      if (life.disposed) break;
+      const subscription = source$.subscribe((event) => life.dispose(wrangle.reason(event)));
+      if (life.disposed) subscription.unsubscribe();
+      else upstream.add(subscription);
+    }
+  }
+  if (life.disposed) return api;
 
-  /**
-   * API:
-   */
-  const $ = $$.pipe(Rx.takeUntil(life.dispose$));
-  return Rx.toLifecycle<t.CliScreenEvents>(life, {
-    $,
-    resize$: $.pipe(Rx.filter((e) => e.kind === 'size:changed')),
-  });
+  let observation: ScreenResizeObservation;
+  try {
+    observation = deps.observeResize(measure);
+  } catch (error) {
+    life.dispose(error);
+    throw error;
+  }
+
+  if (observation.kind === 'unsupported') return api;
+  listener.retain(observation.stop);
+  if (life.disposed) return api;
+
+  try {
+    measure();
+  } catch (error) {
+    life.dispose(error);
+    throw error;
+  }
+  return api;
 }
 
 export function events(until?: t.UntilInput): t.CliScreenEvents {
   return createEvents({
-    readSize: size,
+    measure: ScreenPlatform.measure,
     observeResize: ScreenPlatform.observeResize,
   }, until);
 }
+
+/**
+ * Helpers:
+ */
+function createDeferredCleanup() {
+  let cleanup: (() => void) | undefined;
+  let released = false;
+
+  return {
+    retain(next: () => void) {
+      if (released) next();
+      else cleanup = next;
+    },
+    release() {
+      if (released) return;
+      released = true;
+      const current = cleanup;
+      cleanup = undefined;
+      current?.();
+    },
+  } as const;
+}
+
+const wrangle = {
+  sameSize(a: t.CliScreenSize, b: t.CliScreenSize) {
+    return a.width === b.width && a.height === b.height;
+  },
+  termination(input?: t.UntilInput): Termination | undefined {
+    if (Is.array<t.UntilInput>(input)) {
+      for (const item of input) {
+        const termination = wrangle.termination(item);
+        if (termination) return termination;
+      }
+      return undefined;
+    }
+    if (Is.abortSignal(input) && input.aborted) return { reason: input.reason };
+    if (Is.disposable(input) && 'disposed' in input && input.disposed === true) return {};
+    return undefined;
+  },
+  reason(input: unknown) {
+    return Is.record(input) ? input.reason : undefined;
+  },
+} as const;

@@ -1,12 +1,8 @@
 import type { t } from '../common.ts';
+import { ScreenMeasure, type ScreenMeasurement } from './u.measure.ts';
 import { ScreenPlatform } from './u.platform.ts';
 
-type Measurement = {
-  readonly width?: number;
-  readonly height?: number;
-};
-
-type Measure = () => Measurement | undefined;
+type Measure = () => ScreenMeasurement | undefined;
 
 const FALLBACK: t.CliScreenSize = { width: 80, height: 24 };
 
@@ -15,8 +11,8 @@ export function createSize(measure: Measure): t.CliScreenLib['size'] {
   return () => {
     const current = measure();
     return {
-      width: current?.width ?? FALLBACK.width,
-      height: current?.height ?? FALLBACK.height,
+      width: ScreenMeasure.dimension(current?.width) ?? FALLBACK.width,
+      height: ScreenMeasure.dimension(current?.height) ?? FALLBACK.height,
     };
   };
 }
