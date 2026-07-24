@@ -1,4 +1,4 @@
-import { c, describe, expect, it } from '../../-test.ts';
+import { Cli, describe, expect, it } from '../../-test.ts';
 import { WorkspaceInfo } from '../mod.ts';
 
 describe(`Workspace.Info`, () => {
@@ -26,17 +26,25 @@ describe(`Workspace.Info`, () => {
     expect(text.includes('tests')).to.eql(false);
   });
 
-  it('formats line breakdown rows as dim subrows', () => {
-    const text = WorkspaceInfo.fmt({
+  it('formats line breakdown as category → line count', () => {
+    const text = Cli.stripAnsi(WorkspaceInfo.fmt({
       runtime: { deno: '2.7.4', typescript: '5.9.2', v8: '14.x' },
       source: { include: ['code/**/*.{ts,tsx}'], exclude: [] },
       files: 12,
       lines: 123,
       lineBreakdown: { source: 111, unitTests: 10, uiSpecTests: 2 },
-    });
+    }));
+    const rows = text
+      .split('\n')
+      .map((line) => line.trim().replace(/\s+/g, ' '));
+    const index = rows.indexOf('lines 123');
 
-    expect(text.includes(c.dim(`${' '.repeat(17)}111 source`))).to.eql(true);
-    expect(text.includes(c.dim(`${' '.repeat(17)} 10 unit tests`))).to.eql(true);
-    expect(text.includes(c.dim(`${' '.repeat(17)}  2 ui spec/tests`))).to.eql(true);
+    expect(index >= 0).to.eql(true);
+    expect(rows.slice(index, index + 4)).to.eql([
+      'lines 123',
+      'source code 111',
+      'unit test 10',
+      'ui harness 2',
+    ]);
   });
 });

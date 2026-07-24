@@ -22,11 +22,14 @@ function lineBreakdownRows(breakdown: t.WorkspaceInfo.LineBreakdown | undefined)
   if (!breakdown) return [];
 
   const rows = [
-    { label: 'source', value: breakdown.source.toLocaleString() },
-    { label: 'unit tests', value: breakdown.unitTests.toLocaleString() },
-    { label: 'ui spec/tests', value: breakdown.uiSpecTests.toLocaleString() },
+    { label: 'source code', value: breakdown.source.toLocaleString() },
+    { label: 'unit test', value: breakdown.unitTests.toLocaleString() },
+    { label: 'ui harness', value: breakdown.uiSpecTests.toLocaleString() },
   ];
-  const width = Math.max(...rows.map((row) => row.value.length));
+  const labelWidth = Math.max(...rows.map((row) => row.label.length));
+  const valueWidth = Math.max(...rows.map((row) => row.value.length));
 
-  return rows.map((row) => c.dim(`${' '.repeat(17)}${row.value.padStart(width)} ${row.label}`));
+  return rows.map((row) =>
+    c.dim(`${' '.repeat(17)}${row.label.padEnd(labelWidth)}   ${row.value.padStart(valueWidth)}`)
+  );
 }
