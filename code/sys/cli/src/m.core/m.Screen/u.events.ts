@@ -1,20 +1,26 @@
 import { type t, Rx } from '../common.ts';
+import { ScreenPlatform } from './u.platform.ts';
 import { size } from './u.size.ts';
 
-export function events(until?: t.UntilInput): t.CliScreenEvents {
+type Deps = {
+  readSize: t.CliScreenLib['size'];
+  observeResize: (handler: () => void) => () => void;
+};
+
+/** Create terminal screen events over injected measurement and observation dependencies. */
+export function createEvents(deps: Deps, until?: t.UntilInput): t.CliScreenEvents {
   const life = Rx.abortable(until);
-  let before = size();
+  let before = deps.readSize();
 
   const $$ = Rx.subject<t.CliScreenEvent>();
   const handler = () => {
-    const after = size();
+    const after = deps.readSize();
     $$.next({ kind: 'size:changed', before, after });
     before = { ...after };
   };
 
-  // Attach and clear event handlers.
-  Deno.addSignalListener('SIGWINCH', handler);
-  life.dispose$.subscribe(() => Deno.removeSignalListener('SIGWINCH', handler));
+  const stop = deps.observeResize(handler);
+  life.dispose$.subscribe(() => stop());
 
   /**
    * API:
@@ -24,4 +30,11 @@ export function events(until?: t.UntilInput): t.CliScreenEvents {
     $,
     resize$: $.pipe(Rx.filter((e) => e.kind === 'size:changed')),
   });
+}
+
+export function events(until?: t.UntilInput): t.CliScreenEvents {
+  return createEvents({
+    readSize: size,
+    observeResize: ScreenPlatform.observeResize,
+  }, until);
 }
