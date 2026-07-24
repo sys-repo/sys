@@ -1,17 +1,17 @@
 deno.json:
-  - import: jsr:@sys/cli@0.0.302
+  - import: jsr:@sys/cli@0.0.303
     subpaths: [ t ]
   - import: jsr:@sys/color@0.0.265
     subpaths: [ t ]
-  - import: jsr:@sys/driver-deno@0.0.388
+  - import: jsr:@sys/driver-deno@0.0.389
     subpaths: [ cloud, runtime, t ]
-  - import: jsr:@sys/driver-vite@0.0.460
+  - import: jsr:@sys/driver-vite@0.0.461
     subpaths: [ main, t ]
-  - import: jsr:@sys/fs@0.0.334
+  - import: jsr:@sys/fs@0.0.335
     subpaths: [ t ]
-  - import: jsr:@sys/http@0.0.314
+  - import: jsr:@sys/http@0.0.315
     subpaths: [ client, t ]
-  - import: jsr:@sys/process@0.0.305
+  - import: jsr:@sys/process@0.0.306
     subpaths: [ t ]
   - import: jsr:@sys/std@0.0.370
     subpaths:
@@ -34,22 +34,22 @@ deno.json:
         try,
         url
       ]
-  - import: jsr:@sys/testing@0.0.325
+  - import: jsr:@sys/testing@0.0.326
     subpaths: [ server, t ]
-  - import: jsr:@sys/tmpl@0.0.465
+  - import: jsr:@sys/tmpl@0.0.466
     subpaths: [ t ]
-  - import: jsr:@sys/tmpl-engine@0.0.337
+  - import: jsr:@sys/tmpl-engine@0.0.338
     subpaths: [ t ]
-  - import: jsr:@sys/tools@0.0.481
+  - import: jsr:@sys/tools@0.0.482
     subpaths: [ t ]
   - import: jsr:@sys/types@0.0.294
   - import: jsr:@sys/ui-css@0.0.300
     subpaths: [ t ]
   - import: jsr:@sys/ui-dom@0.0.312
     subpaths: [ t ]
-  - import: jsr:@sys/ui-react@0.0.348
+  - import: jsr:@sys/ui-react@0.0.349
     subpaths: [ t ]
-  - import: jsr:@sys/ui-components@0.0.319
+  - import: jsr:@sys/ui-components@0.0.320
     subpaths:
       [
         button,
@@ -66,17 +66,17 @@ deno.json:
         splash,
         t
       ]
-  - import: jsr:@sys/ui-dev@0.0.348
+  - import: jsr:@sys/ui-dev@0.0.349
     subpaths: [ react/devharness, react/devharness/t ]
-  - import: jsr:@sys/workspace@0.0.139
+  - import: jsr:@sys/workspace@0.0.140
     subpaths: [ cli, t, testing ]
-  - import: jsr:@sys/yaml@0.0.186
+  - import: jsr:@sys/yaml@0.0.187
     subpaths: [ t ]
-  - import: jsr:@sys/esm@0.0.80
+  - import: jsr:@sys/esm@0.0.81
     subpaths: [ testing ]
 package.json:
-  - import: npm:react@19.2.7
-  - import: npm:react-dom@19.2.7
+  - import: npm:react@19.2.8
+  - import: npm:react-dom@19.2.8
   - import: npm:react-icons@5.7.0
   - import: npm:@deno/vite-plugin@2.0.2
     dev: true
