@@ -85,8 +85,10 @@ export namespace Str {
     indent(str: string, chars: number, opts?: { char?: string }): string;
 
     /**
-     * Removes the smallest common indentation from all non-blank lines
-     * of a multi-line string, preserving relative structure.
+     * Normalize CRLF/lone-CR line endings to LF, remove one whitespace-only
+     * template edge per side from content-bearing text, and remove the smallest
+     * common space/tab indentation while preserving relative structure.
+     * Additional edge blank lines are retained.
      */
     dedent(str: string): string;
 

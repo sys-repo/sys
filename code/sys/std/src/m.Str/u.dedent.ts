@@ -1,28 +1,46 @@
 import { type t } from './common.ts';
 
 /**
- * Removes the smallest common indentation from all non-blank lines
- * of a multi-line string, preserving relative structure.
- * - Ignores a leading newline (typical of template literals).
- * - Normalizes CRLF.
- * - Pops a single trailing empty line *after* de-indentation (from closing backtick indentation).
- *   (Preserves whitespace-only lines elsewhere.)
+ * Normalize line endings, remove one template-edge blank line per side from
+ * content-bearing text, and remove the smallest shared space/tab indentation.
+ * Additional edge blank lines and relative interior indentation are preserved.
  */
 export const dedent: t.Str.Lib['dedent'] = (str) => {
-  const normalized = str.replace(/\r\n?/g, '\n');
-  const lines = normalized.replace(/^\n/, '').split('\n');
+  const lines = str.replace(/\r\n?/g, '\n').split('\n');
+  const hasContent = lines.some((line) => !isBlank(line));
 
-  // Compute min indent from non-blank lines.
-  const indents = lines
-    .filter((l) => l.trim().length > 0)
-    .map((l) => l.match(/^[ \t]*/)?.[0].length ?? 0);
-  const min = indents.length > 0 ? Math.min(...indents) : 0;
+  if (isTemplateEdge(lines[0], hasContent)) lines.shift();
+  if (isTemplateEdge(lines[lines.length - 1], hasContent)) lines.pop();
 
-  // De-indent.
-  const out = lines.map((l) => l.slice(Math.min(min, l.length)));
-
-  // If de-indentation produced a trailing empty line, drop exactly one.
-  if (out.length > 0 && out[out.length - 1] === '') out.pop();
-
-  return out.join('\n');
+  const min = minIndent(lines);
+  return lines
+    .map((line) => line.slice(Math.min(min, indentOf(line))))
+    .join('\n');
 };
+
+/** Determine whether one line is the single removable template edge. */
+function isTemplateEdge(line: string | undefined, hasContent: boolean) {
+  return line === '' || (hasContent && line !== undefined && isBlank(line));
+}
+
+/** Determine whether one line contains no visible content. */
+function isBlank(line: string) {
+  return line.trim().length === 0;
+}
+
+/** Measure leading space/tab indentation units. */
+function indentOf(line: string) {
+  return line.match(/^[ \t]*/)?.[0].length ?? 0;
+}
+
+/** Find the smallest content-line indentation without argument spreading. */
+function minIndent(lines: readonly string[]) {
+  let min: number | undefined;
+  for (const line of lines) {
+    if (isBlank(line)) continue;
+    const indent = indentOf(line);
+    min = min === undefined ? indent : Math.min(min, indent);
+    if (min === 0) break;
+  }
+  return min ?? 0;
+}
