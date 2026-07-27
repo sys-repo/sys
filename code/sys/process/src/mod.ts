@@ -1,6 +1,6 @@
 /**
  * @module
- * Tools for working with spawned child processes on modern POSIX-based systems
+ * Host stdout and spawned child-process capabilities for modern POSIX-based systems
  * (macOS, Linux, and similar “unix-like” environments) using Deno
  * (aka. [WinterTC](https://wintertc.org/) compatible) runtimes.
  *
@@ -53,7 +53,7 @@
  */
 export { pkg } from './pkg.ts';
 
-/** Child-process helpers for invoking, inheriting, and spawning commands. */
+/** Host stdout and child-process helpers. */
 export { Process } from './m.process/mod.ts';
 
 /** Detached OS open helpers for URLs and paths. */

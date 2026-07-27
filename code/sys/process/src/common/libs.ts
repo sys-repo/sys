@@ -1,4 +1,4 @@
-export { c } from '@sys/cli/fmt';
+export { c } from '@sys/color/ansi';
 export { Is } from '@sys/std/is';
 export { Num } from '@sys/std/num';
 export { slug } from '@sys/std/random';

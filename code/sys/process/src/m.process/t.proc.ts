@@ -1,11 +1,11 @@
 import type { t } from './common.ts';
 
 /**
- * Child-process contracts for `Process`.
+ * Host and child-process contracts for `Process`.
  */
 export declare namespace Process {
   /**
-   * Unix child process.
+   * Host and child process capabilities.
    * https://docs.deno.com/api/deno/~/Deno.Command
    */
   export type Lib = {
@@ -17,6 +17,9 @@ export declare namespace Process {
       /** Standard token a child process can print to stdout to mark "ready". */
       readonly ready: 'PROCESS_READY';
     };
+
+    /** Canonical host-process stdout capability. */
+    readonly stdout: Stdout;
 
     /** Determine whether an OS process currently accepts signal delivery. */
     isRunning(pid: number): boolean;
@@ -68,6 +71,14 @@ export declare namespace Process {
      * for strictness and output control.
      */
     run(script: string, opts?: t.Process.ShellOptions): Promise<t.Process.Output>;
+  };
+
+  /** Canonical host-process stdout capability. */
+  export type Stdout = {
+    /** Determine whether stdout is attached to a terminal. */
+    isTerminal(): boolean;
+    /** Write complete UTF-8 text synchronously to stdout. */
+    write(text: string): void;
   };
 
   /** Script helpers for preparing shell template strings. */

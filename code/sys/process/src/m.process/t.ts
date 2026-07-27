@@ -1,5 +1,5 @@
 /**
  * @module
- * Public child-process types for `@sys/process/process`.
+ * Public host and child-process types for `@sys/process/process`.
  */
 export type * from './t.proc.ts';

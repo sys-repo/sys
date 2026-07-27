@@ -2,7 +2,7 @@
  * @module types
  * Public type surface for `@sys/process`.
  *
- * Includes child-process contracts under `Process`
+ * Includes host and child-process contracts under `Process`
  * and detached URL/path opening contracts under `Open*`.
  */
 export type * from './m.open/t.ts';
