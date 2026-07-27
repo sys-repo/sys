@@ -6,7 +6,7 @@ const CELL_GAP = 3;
 /**
  * Tools for working with CLI tables.
  */
-export const Table: t.CliTableLib = {
+export const Table: t.CliTable.Lib = {
   cellGap: CELL_GAP,
   create(items = []) {
     return new CliffyTable(items).padding(CELL_GAP);

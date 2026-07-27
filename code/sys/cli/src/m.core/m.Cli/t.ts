@@ -137,9 +137,9 @@ export declare namespace Cli {
    */
   export namespace Table {
     /** CLI table helper library contract. */
-    export type Lib = t.CliTableLib;
+    export type Lib = t.CliTable.Lib;
     /** CLI table instance. */
-    export type Instance = t.CliTable;
+    export type Instance = t.CliTable.Instance;
   }
 
   /**
