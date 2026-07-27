@@ -1,4 +1,5 @@
-import { Cli, Num, Str, stripAnsi, type t } from './common.ts';
+import { clipLine } from '../m.fmt/u.ts';
+import { Cli, Num, type t } from './common.ts';
 import { Table } from './u.log.table.ts';
 
 type ToStringOptions = { pad?: boolean; width?: number };
@@ -25,7 +26,7 @@ export const Log: {
 };
 
 /**
- * Helpers
+ * Helpers:
  */
 const wrangle = {
   width(input?: number) {
@@ -34,11 +35,6 @@ const wrangle = {
 
   clipBlock(text: string, width: number) {
     if (width <= 0) return '';
-    return text.split('\n').map((line) => wrangle.clipLine(line, width)).join('\n');
-  },
-
-  clipLine(line: string, width: number) {
-    if (Cli.Fmt.Text.Width.measure(line) <= width) return line;
-    return Str.ellipsize(stripAnsi(line), width);
+    return text.split('\n').map((line) => clipLine(line, width)).join('\n');
   },
 } as const;

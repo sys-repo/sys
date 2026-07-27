@@ -36,7 +36,7 @@ type ExpectedCommitOptions = {
 type ExpectedTextWidthLib = {
   readonly measure: (input: string) => number;
   readonly padEnd: (input: string, width: number) => string;
-  readonly max: (inputs: readonly string[]) => number;
+  readonly max: (inputs: string[]) => number;
   readonly fit: (options?: t.CliFormatText.Width.Fit.Options) => number;
 };
 type ExpectedTextWrapLib = {
@@ -315,6 +315,26 @@ type CanonicalFormatterProof = [
       CliFormatTextFromTypes.Ellipsize.Options,
       CliFromT.Fmt.Text.Ellipsize.Options,
       CliFromTypes.Fmt.Text.Ellipsize.Options
+    >
+  >,
+  Assert<
+    Exact6<
+      t.CliFormatText.Ellipsize.Parts,
+      t.Cli.Fmt.Text.Ellipsize.Parts,
+      CliFormatTextFromT.Ellipsize.Parts,
+      CliFormatTextFromTypes.Ellipsize.Parts,
+      CliFromT.Fmt.Text.Ellipsize.Parts,
+      CliFromTypes.Fmt.Text.Ellipsize.Parts
+    >
+  >,
+  Assert<
+    Exact6<
+      t.CliFormatText.Ellipsize.Render,
+      t.Cli.Fmt.Text.Ellipsize.Render,
+      CliFormatTextFromT.Ellipsize.Render,
+      CliFormatTextFromTypes.Ellipsize.Render,
+      CliFromT.Fmt.Text.Ellipsize.Render,
+      CliFromTypes.Fmt.Text.Ellipsize.Render
     >
   >,
 

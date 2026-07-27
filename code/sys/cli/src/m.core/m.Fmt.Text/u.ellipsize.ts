@@ -20,6 +20,7 @@ const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
  * Grapheme-safe middle clipping for plain, single-line text within a terminal-cell budget.
  *
  * Retains as many cells as possible, balances the retained ends, and favors the head on ties.
+ * An optional renderer receives the final plain fragments only when clipping occurs.
  */
 export function ellipsize(
   input: string,
@@ -32,8 +33,12 @@ export function ellipsize(
 
   const marker = options.ellipsis ?? '…';
   const markerWidth = measure(marker);
-  if (markerWidth > budget) return clipStart(marker, budget);
-  if (markerWidth === budget) return marker;
+  if (markerWidth > budget) {
+    return renderParts({ head: '', ellipsis: clipStart(marker, budget), tail: '' }, options);
+  }
+  if (markerWidth === budget) {
+    return renderParts({ head: '', ellipsis: marker, tail: '' }, options);
+  }
 
   const items = graphemes(input);
   const selected = selectEnds(items, budget - markerWidth);
@@ -42,13 +47,20 @@ export function ellipsize(
     ? ''
     : items.slice(items.length - selected.tailCount).map((item) => item.text).join('');
 
-  return `${head}${marker}${tail}`;
+  return renderParts({ head, ellipsis: marker, tail }, options);
 }
 
 /**
  * Helpers:
  */
-function graphemes(input: string): readonly Grapheme[] {
+function renderParts(
+  parts: t.CliFormatText.Ellipsize.Parts,
+  options: t.CliFormatText.Ellipsize.Options,
+) {
+  return options.render?.(parts) ?? `${parts.head}${parts.ellipsis}${parts.tail}`;
+}
+
+function graphemes(input: string): Grapheme[] {
   return [...segmenter.segment(input)].map(({ segment }) => ({
     text: segment,
     width: measure(segment),
@@ -68,7 +80,7 @@ function clipStart(input: string, budget: number): string {
   return selected.join('');
 }
 
-function selectEnds(items: readonly Grapheme[], budget: number): Selection {
+function selectEnds(items: Grapheme[], budget: number): Selection {
   // Maximize retained cells, then balance both ends and favor the head on exact ties.
   const suffixWidths = [0];
   for (let index = items.length - 1; index >= 0; index--) {

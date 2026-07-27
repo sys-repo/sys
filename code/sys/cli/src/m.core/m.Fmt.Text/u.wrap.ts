@@ -10,8 +10,8 @@ const PRESERVE_PATTERNS = [
 ] as const;
 
 type WrapLineOptions = {
-  readonly indent: number;
-  readonly continuationIndent: number;
+  indent: number;
+  continuationIndent: number;
 };
 
 /** Soft-wrap prose and join the resulting display lines with newlines. */
@@ -58,6 +58,9 @@ export function lines(
 
   return output;
 }
+
+/** Soft-wrapping implementation grouped by text and line output. */
+export const Wrap: t.CliFormatText.Wrap.Lib = { text, lines };
 
 /**
  * Helpers:

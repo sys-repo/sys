@@ -17,7 +17,7 @@ export function padEnd(input: string, width: number): string {
 }
 
 /** Return the greatest measured width, or zero when no strings are provided. */
-export function max(inputs: readonly string[]): number {
+export function max(inputs: string[]): number {
   return inputs.reduce((current, input) => Math.max(current, measure(input)), 0);
 }
 
@@ -31,6 +31,9 @@ export function fit(options: t.CliFormatText.Width.Fit.Options = {}): number {
   const fitted = Math.max(0, capped - reserve);
   return minWidth > 0 && fitted < minWidth ? 0 : fitted;
 }
+
+/** Cell-width measurement and fitting implementation. */
+export const Width: t.CliFormatText.Width.Lib = { measure, padEnd, max, fit };
 
 /**
  * Helpers:

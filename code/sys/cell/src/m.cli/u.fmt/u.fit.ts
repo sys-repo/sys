@@ -1,20 +1,20 @@
-import { c, Cli, Str } from '../common.ts';
+import { c, Cli } from '../common.ts';
 
 export type FitTextOptions = {
-  readonly color?: (text: string) => string;
+  color?: (text: string) => string;
 };
 
 export type FitValueOptions = FitTextOptions & {
-  readonly terminal?: boolean;
-  readonly width?: number;
-  readonly minWidth?: number;
+  terminal?: boolean;
+  width?: number;
+  minWidth?: number;
 };
 
 export type FitPathOptions = {
-  readonly relative?: 'bare' | 'prefixed';
-  readonly terminal?: boolean;
-  readonly width?: number;
-  readonly min?: number;
+  relative?: 'bare' | 'prefixed';
+  terminal?: boolean;
+  width?: number;
+  min?: number;
 };
 
 export const FmtFit = {
@@ -27,17 +27,16 @@ export const FmtFit = {
 /**
  * Helpers:
  */
-const ELLIPSIS_SENTINEL = '\uE000';
-
 function text(value: string, width: number, options: FitTextOptions = {}): string {
   const color = options.color ?? c.white;
   if (width <= 0) return '';
+  if (Cli.Fmt.Text.Width.measure(value) <= width) return color(value);
 
-  const shortened = Str.ellipsize(value, width, { ellipsis: ELLIPSIS_SENTINEL });
-  const [head, ...tail] = shortened.split(ELLIPSIS_SENTINEL);
-  if (tail.length === 0) return color(shortened);
-
-  return [color(head), ...tail.map((part) => `${c.cyan('…')}${color(part)}`)].join('');
+  return Cli.Fmt.Text.ellipsize(value, width, {
+    render: ({ head, ellipsis, tail }) => {
+      return `${color(head)}${c.cyan(ellipsis)}${color(tail)}`;
+    },
+  });
 }
 
 function value(value: string, reserve: number, options: FitValueOptions = {}): string {

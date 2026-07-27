@@ -1,7 +1,6 @@
-import { c, Cli, HashFmt, Is, Str, stripAnsi, type t, Time } from './common.ts';
+import { c, Cli, HashFmt, Is, stripAnsi, type t, Time } from './common.ts';
 
 const MINUTE = 60_000;
-const ELLIPSIS_SENTINEL = '\uE000';
 
 type MetadataRowArgs = {
   label: string;
@@ -10,7 +9,7 @@ type MetadataRowArgs = {
   indent?: number;
   labelWidth?: number;
   styledLabel?: string;
-  suffixes?: readonly string[];
+  suffixes?: string[];
 };
 
 export const digest: t.ViteLog.Lib['digest'] = (hash?: t.StringHash) => {
@@ -47,17 +46,16 @@ export function clipLine(input: string, width: number) {
 export function clipText(input: string, width: number) {
   if (width <= 0) return '';
   if (Cli.Fmt.Text.Width.measure(input) <= width) return input;
-  return Str.ellipsize(input, width);
+  return Cli.Fmt.Text.ellipsize(input, width);
 }
 
 export function clipValue(input: string, width: number) {
   if (width <= 0) return '';
   const text = stripAnsi(input);
   if (Cli.Fmt.Text.Width.measure(text) <= width) return input;
-  return Str.ellipsize(text, width, { ellipsis: ELLIPSIS_SENTINEL }).replace(
-    ELLIPSIS_SENTINEL,
-    c.gray('…'),
-  );
+  return Cli.Fmt.Text.ellipsize(text, width, {
+    render: ({ head, ellipsis, tail }) => `${head}${c.gray(ellipsis)}${tail}`,
+  });
 }
 
 export function metadataRow(args: MetadataRowArgs) {

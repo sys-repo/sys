@@ -2,7 +2,7 @@
  * @module
  * Command-line formatting tools (e.g. color, tree, path).
  */
-import { c, Num, Path as StdPath, Str, type t } from '../common.ts';
+import { c, Num, Path as StdPath, type t } from '../common.ts';
 import { Chapters } from '../m.Fmt.Chapters/mod.ts';
 import { Commit } from './m.Fmt.Commit.ts';
 import { Help } from './m.Fmt.Help.ts';
@@ -29,12 +29,14 @@ export const Path: t.CliFormat.Path.Lib = {
     const reserve = numberOr(options.reserve, 0);
     const min = numberOr(options.min, 32);
     const max = Math.max(min, width - reserve);
-    const shortened = Str.ellipsize(display, max, { ellipsis: ELLIPSIS_SENTINEL });
-    const [head, tail] = shortened.split(ELLIPSIS_SENTINEL);
-    if (tail === undefined) return formatDisplayPath(display, options);
+    if (Text.Width.measure(display) <= max) return formatDisplayPath(display, options);
 
-    const ellipsis = formatEllipsis(options);
-    return `${formatPathFragment(head, options)}${ellipsis}${formatPathFragment(tail, options)}`;
+    const formatFragment = (text: string) => text ? formatPathFragment(text, options) : '';
+    return Text.ellipsize(display, max, {
+      render: ({ head, ellipsis, tail }) => {
+        return `${formatFragment(head)}${formatEllipsis(ellipsis, options)}${formatFragment(tail)}`;
+      },
+    });
   },
   fmt(opts = {}) {
     return (e) => {
@@ -42,8 +44,6 @@ export const Path: t.CliFormat.Path.Lib = {
     };
   },
 };
-
-const ELLIPSIS_SENTINEL = '\uE000';
 
 function displayPath(path: string, options: t.CliFormat.Path.FormatOptions = {}): string {
   const value = path.trim();
@@ -65,8 +65,9 @@ function formatPathFragment(display: string, options: t.CliFormat.Path.FormatOpt
   return colorPath(Fmt.path(display, Fmt.Path.fmt(options)), options);
 }
 
-function formatEllipsis(options: t.CliFormat.Path.FormatOptions): string {
-  return options.tone === 'muted' ? colorPath('…', options) : c.cyan('…');
+function formatEllipsis(text: string, options: t.CliFormat.Path.FormatOptions): string {
+  if (!text) return '';
+  return options.tone === 'muted' ? colorPath(text, options) : c.cyan(text);
 }
 
 function colorPath(text: string, options: t.CliFormat.Path.FormatOptions): string {

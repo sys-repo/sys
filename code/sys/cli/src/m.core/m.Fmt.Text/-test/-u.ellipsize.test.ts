@@ -1,4 +1,4 @@
-import { describe, expect, it, Num } from '../../../-test.ts';
+import { c, describe, expect, it, Num, stripAnsi, type t } from '../../../-test.ts';
 import { ellipsize } from '../u.ellipsize.ts';
 import { measure } from '../u.width.ts';
 
@@ -38,7 +38,27 @@ describe('Cli.Fmt.Text.ellipsize', () => {
   it('includes a custom ellipsis in the same cell budget', () => {
     expect(ellipsize('abcdefghij', 8, { ellipsis: '--' })).to.eql('abc--hij');
     expect(ellipsize('abcdefghij', 6, { ellipsis: '' })).to.eql('abchij');
-    expect(ellipsize('abcdefghij', 7, { ellipsis: '\uE000' })).to.eql('abc\uE000hij');
+  });
+
+  it('renders clipped parts without sentinel strings', () => {
+    let renders = 0;
+    const render = (parts: t.CliFormatText.Ellipsize.Parts) => {
+      renders += 1;
+      return `${c.white(parts.head)}${c.gray(parts.ellipsis)}${c.white(parts.tail)}`;
+    };
+    const clipped = ellipsize('abcdefghij', 7, { render });
+
+    expect(stripAnsi(clipped)).to.eql('abc…hij');
+    expect(clipped).to.include(c.gray('…'));
+    expect(measure(clipped)).to.eql(7);
+    expect(renders).to.eql(1);
+
+    const privateUseInput = ellipsize('ab\uE000cdefgh', 7, { render });
+    expect(stripAnsi(privateUseInput)).to.eql('ab\uE000…fgh');
+    expect(renders).to.eql(2);
+
+    expect(ellipsize('abc', 3, { render })).to.eql('abc');
+    expect(renders).to.eql(2);
   });
 
   it('never emits text wider than the requested cell budget', () => {

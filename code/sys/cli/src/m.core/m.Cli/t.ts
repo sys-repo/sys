@@ -355,11 +355,15 @@ export declare namespace Cli {
       }
 
       /**
-       * Exact projection of the formatter-owned middle-clipping marker policy.
+       * Exact projections of formatter-owned middle-clipping marker and rendering contracts.
        */
       export namespace Ellipsize {
         /** Options for terminal-cell-aware middle ellipsis. */
         export type Options = t.CliFormatText.Ellipsize.Options;
+        /** Plain clipped fragments supplied to a styling-only renderer. */
+        export type Parts = t.CliFormatText.Ellipsize.Parts;
+        /** Styling-only renderer for a clipped plain-text result. */
+        export type Render = t.CliFormatText.Ellipsize.Render;
       }
     }
 

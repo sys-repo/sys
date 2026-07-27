@@ -1,4 +1,5 @@
-import { c, Cli, Str, stripAnsi, type t } from './common.ts';
+import { clipLine } from '../m.fmt/u.ts';
+import { c, Cli, type t } from './common.ts';
 
 type Mode = 'verbose' | 'compact' | 'fit';
 type Row = { specifier: string; path: string };
@@ -7,7 +8,6 @@ type Layout = { mode: Mode; leftWidth: number; pathWidth: number };
 const INDENT = 2;
 const TABLE_GAP = 2;
 const ARROW = '→';
-const ELLIPSIS_SENTINEL = '\uE000';
 const HEADER = { left: 'Export', right: 'Maps to' } as const;
 const PATH_FMT = { relative: 'prefixed', highlightBasename: false } as const;
 
@@ -22,7 +22,7 @@ export const Table = {
     }));
   },
 
-  toString(rows: readonly Row[], width: number) {
+  toString(rows: Row[], width: number) {
     const layout = wrangle.layout(rows, width);
     const table = Cli.table([]).padding(TABLE_GAP).indent(INDENT);
 
@@ -50,7 +50,7 @@ const wrangle = {
     return path.startsWith(prefix) ? path.slice(prefix.length) : path;
   },
 
-  layout(rows: readonly Row[], width: number): Layout {
+  layout(rows: Row[], width: number): Layout {
     const verbose = wrangle.naturalLayout(rows, 'verbose');
     if (wrangle.tableWidth(verbose) <= width) return verbose;
 
@@ -60,7 +60,7 @@ const wrangle = {
     return wrangle.fitLayout(rows, width);
   },
 
-  naturalLayout(rows: readonly Row[], mode: Exclude<Mode, 'fit'>): Layout {
+  naturalLayout(rows: Row[], mode: Exclude<Mode, 'fit'>): Layout {
     const left = [HEADER.left, ...rows.map((row) => wrangle.leftPlain(row, mode))];
     const paths = [HEADER.right, ...rows.map((row) => wrangle.pathFull(row.path))];
     return {
@@ -70,7 +70,7 @@ const wrangle = {
     };
   },
 
-  fitLayout(rows: readonly Row[], width: number): Layout {
+  fitLayout(rows: Row[], width: number): Layout {
     const compact = wrangle.naturalLayout(rows, 'compact');
     const fixed = INDENT + (TABLE_GAP * 2) + ARROW.length;
     const budget = Math.max(0, width - fixed);
@@ -107,10 +107,13 @@ const wrangle = {
   },
 
   specifier(input: string, width: number) {
-    const clipped = wrangle.clipPlain(input, width, ELLIPSIS_SENTINEL);
-    const [head, tail] = clipped.split(ELLIPSIS_SENTINEL);
-    if (tail === undefined) return c.white(clipped);
-    return `${c.white(head)}${c.gray('…')}${c.white(tail)}`;
+    if (width <= 0) return '';
+    if (Cli.Fmt.Text.Width.measure(input) <= width) return c.white(input);
+    return Cli.Fmt.Text.ellipsize(input, width, {
+      render: ({ head, ellipsis, tail }) => {
+        return `${c.white(head)}${c.gray(ellipsis)}${c.white(tail)}`;
+      },
+    });
   },
 
   path(path: string, layout: Layout) {
@@ -132,17 +135,12 @@ const wrangle = {
 
   clipBlock(text: string, width: number) {
     if (width <= 0) return '';
-    return text.split('\n').map((line) => wrangle.clipLine(line, width)).join('\n');
+    return text.split('\n').map((line) => clipLine(line, width)).join('\n');
   },
 
-  clipLine(line: string, width: number) {
-    if (Cli.Fmt.Text.Width.measure(line) <= width) return line;
-    return c.gray(wrangle.clipPlain(stripAnsi(line), width));
-  },
-
-  clipPlain(input: string, width: number, ellipsis = '…') {
+  clipPlain(input: string, width: number) {
     if (width <= 0) return '';
     if (Cli.Fmt.Text.Width.measure(input) <= width) return input;
-    return Str.ellipsize(input, width, { ellipsis });
+    return Cli.Fmt.Text.ellipsize(input, width);
   },
 } as const;

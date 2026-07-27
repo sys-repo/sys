@@ -4,7 +4,7 @@ import type { t } from '../common.ts';
  * Contracts for measuring, fitting, clipping, and wrapping terminal text.
  *
  * Widths are terminal-cell counts. Measurement ignores ANSI escape sequences. `ellipsize` accepts
- * plain text only; callers apply and balance terminal styling after clipping.
+ * plain text and can render its clipped parts through a styling-only callback.
  */
 export declare namespace CliFormatText {
   /**
@@ -36,7 +36,7 @@ export declare namespace CliFormatText {
       /** Append spaces up to a normalized target width; never truncate wider input. */
       readonly padEnd: (input: string, width: number) => string;
       /** Return the greatest measured width, or `0` for an empty collection. */
-      readonly max: (inputs: readonly string[]) => number;
+      readonly max: (inputs: string[]) => number;
       /** Derive a non-negative usable width after capping, reserve, and minimum policies. */
       readonly fit: (options?: Fit.Options) => number;
     };
@@ -52,19 +52,19 @@ export declare namespace CliFormatText {
       /** Width fitting options for terminal-aware text layout. */
       export type Options = {
         /** Positive explicit source width; takes precedence over terminal measurement. */
-        readonly width?: number;
+        width?: number;
         /** Positive source-width cap; also the last fallback before the default width. */
-        readonly maxWidth?: number;
+        maxWidth?: number;
         /** Cells reserved for surrounding labels, gutters, or decoration. Defaults to `0`. */
-        readonly reserve?: number;
+        reserve?: number;
         /** Usable-width threshold; fitted values below it collapse to `0`. Defaults to `0`. */
-        readonly minWidth?: number;
+        minWidth?: number;
         /** Fallback source width when terminal measurement is skipped or unavailable. */
-        readonly fallbackWidth?: number;
+        fallbackWidth?: number;
         /** Standard stream used to detect terminal output. Defaults to `stdout`. */
-        readonly stream?: t.StdioName;
+        stream?: t.StdioName;
         /** Terminal detection override. Defaults to the selected stream's detected state. */
-        readonly terminal?: boolean;
+        terminal?: boolean;
       };
     }
   }
@@ -93,20 +93,20 @@ export declare namespace CliFormatText {
        * Target terminal-cell width, including formatter-added indentation. Non-positive values
        * disable soft wrapping. Preserved lines and indivisible words may exceed this target.
        */
-      readonly width: number;
+      width: number;
       /** Spaces prefixed to the first rendered line. Defaults to `0`. */
-      readonly indent?: number;
+      indent?: number;
       /**
        * Non-negative spaces prefixed to wrapped and explicit continuation lines. Defaults to
        * `indent`.
        */
-      readonly continuationIndent?: number;
+      continuationIndent?: number;
       /**
        * Whole-line preservation policy. Defaults to recognized code, command, and URL lines;
        * `none` disables those patterns and a predicate replaces them. Fenced blocks are always
        * preserved.
        */
-      readonly preserve?: Preserve;
+      preserve?: Preserve;
     };
 
     /** Built-in, disabled, or caller-defined whole-line preservation policy. */
@@ -117,13 +117,31 @@ export declare namespace CliFormatText {
   }
 
   /**
-   * Plain-text marker policy for grapheme-safe middle clipping within a cell budget.
+   * Plain-text marker and styling-only rendering policy for grapheme-safe middle clipping.
    */
   export namespace Ellipsize {
     /** Options for terminal-cell-aware middle clipping. */
     export type Options = {
       /** Plain marker used between retained ends and clipped if necessary. Defaults to `…`. */
-      readonly ellipsis?: string;
+      ellipsis?: string;
+      /**
+       * Styling-only renderer invoked when clipping occurs. It must preserve the supplied visible
+       * text and terminal-cell width while adding only balanced presentation sequences.
+       */
+      render?: Render;
     };
+
+    /** Plain clipped fragments supplied to a styling-only renderer. */
+    export type Parts = {
+      /** Retained leading text. */
+      readonly head: string;
+      /** Plain marker between retained ends. */
+      readonly ellipsis: string;
+      /** Retained trailing text. */
+      readonly tail: string;
+    };
+
+    /** Styling-only renderer for a clipped plain-text result. */
+    export type Render = (parts: Parts) => string;
   }
 }
