@@ -5,17 +5,26 @@
 - [x] 3c48e8586 fix(cli): make terminal text fitting cell-aware
 - [x] 87f4b4ea9 refactor(cli): canonicalize table type namespace
 - [x] 9833f2132 refactor(cli): canonicalize helper type namespaces
-- [ ] refactor(cli): canonicalize formatter type namespaces
-- [ ] refactor(cli): namespace text width and wrapping helpers
-- [ ] refactor(driver-vite): centralize dev screen render lifecycle
-- [ ] feat(driver-vite): fit dev screen rendering to the terminal viewport
+- [x] 9de396c5c refactor(cli): canonicalize formatter type namespaces
+- [x] 1a806c709 refactor(cli): namespace text width and wrapping helpers
+- [x] 67fe9739a feat(cli): render styled ellipses without sentinels
+- [x] 2deec18c5 refactor(driver-vite): centralize dev screen render lifecycle
+- [x] 777afd0d8 feat(driver-vite): fit dev screen rendering to the terminal viewport
+- [x] 221426360 feat(process): expose canonical host stdout
+- [x] d325aae92 feat(cli): repaint terminal frames without blanking
+- [x] 9588b4e45 fix(driver-vite): avoid clear-before-render dev frames
 
-Plan status: **finalized and implementation-ready**.
+Plan status: **complete**. The responsive Driver Vite renderer, canonical host stdout, stateless CLI
+repaint, and semantic Driver repaint integration have landed through `9588b4e45`. Focused proof,
+package checks, dry-publishes, and live resize review are complete. Live review confirms that
+terminal-native resize reflow and Ora coordination may still produce visible flicker; the accepted,
+portable guarantee is narrower and truthful: Driver Vite never issues a whole-screen clear or a
+separable blank frame before rendering replacement content.
 
-Execution thinking level: **XHIGH** across the remaining arc. The remaining formatter type-plane
-commit requires published-contract conformance discipline; the Text runtime cut requires exact
-identity preservation; and the Vite cuts require lifecycle, scheduling, terminal-stream, viewport,
-and disposal correctness.
+Execution status: **TMIND closed**. One reporter remains the sole phase, scheduler, spinner,
+terminal-effect, acquisition, resize, and disposal owner. No retained renderer, debounce,
+alternate-screen mode, terminal-specific branch, or generic TUI framework is justified by the
+accepted residual presentation behavior.
 
 ## Purpose
 
@@ -23,19 +32,31 @@ Harden `Cli.Screen` as a truthful, lifecycle-safe resize substrate, then make th
 a single responsive screen renderer whose width and height behavior remains correct throughout
 startup, ready-state logging, user actions, terminal resize, and disposal.
 
-The target is an S-tier internal architecture, not a resize callback patched onto the current
-dual-reporter arrangement.
+The target is an S-tier internal architecture. The final viewport behavior must extend the landed
+single-reporter lifecycle, not become an isolated resize callback beside it. A repaint may replace
+one complete frame with another, but must never publish an empty intermediate screen.
 
 ## Scope
 
 Packages:
 
+- `@sys/process`
 - `@sys/cli`
 - `@sys/driver-vite`
 
-Primary files currently involved:
+Primary files involved across the landed arc and final viewport cut:
 
 - `deps.yaml`
+- `code/sys/process/README.md`
+- `code/sys/process/src/common/libs.ts`
+- `code/sys/process/src/m.process/-test/-u.stdout.test.ts`
+- `code/sys/process/src/m.process/m.Process.ts`
+- `code/sys/process/src/m.process/mod.ts`
+- `code/sys/process/src/m.process/t.proc.ts`
+- `code/sys/process/src/m.process/t.ts`
+- `code/sys/process/src/m.process/u/u.stdout.ts`
+- `code/sys/process/src/mod.ts`
+- `code/sys/process/src/types.ts`
 - `imports.json`
 - `deno.lock`
 - `code/sys/cli/src/common/libs.ts`
@@ -49,6 +70,8 @@ Primary files currently involved:
 - `code/sys/cli/src/m.core/m.Is/t.ts`
 - `code/sys/cli/src/m.core/m.Table/t.ts`
 - `code/sys/cli/src/m.core/m.Spinner/t.ts`
+- `code/sys/cli/src/m.core/m.Spinner/mod.ts`
+- `code/sys/cli/src/m.core/m.Spinner/-test/-.test.ts`
 - `code/sys/cli/src/m.core/u/t.ts`
 - `code/sys/cli/src/m.shell/t.ts`
 - `code/sys/cli/src/m.core/m.Fmt/t.ts`
@@ -60,38 +83,49 @@ Primary files currently involved:
 - `code/sys/cli/src/m.core/m.Screen/u.platform.ts`
 - `code/sys/cli/src/m.core/m.Screen/u.size.ts`
 - `code/sys/cli/src/m.core/m.Screen/u.events.ts`
+- `code/sys/cli/src/m.core/m.Screen/u.repaint.ts`
+- `code/sys/cli/src/m.core/m.Screen/-test/-u.repaint.test.ts`
 - `code/sys/cli/src/m.core/m.Fmt.Text/u.width.ts`
 - `code/sys/cli/src/m.core/m.Fmt.Text/u.ellipsize.ts`
 - `code/sys/cli/src/m.core/m.Fmt.Text/t.ts`
 - `code/sys/cli/src/m.core/m.Screen/mod.ts`
 - `code/sys/cli/src/m.core/m.Cli/-test/-.test.ts`
 - `code/sys.driver/driver-vite/deno.json`
+- `code/sys.driver/driver-vite/src/m.vite/t.internal.ts`
 - `code/sys.driver/driver-vite/src/m.vite/u/u.dev.ts`
 - `code/sys.driver/driver-vite/src/m.vite/u/u.dev.screen.ts`
+- `code/sys.driver/driver-vite/src/m.vite/u/u.dev.screen.layout.ts`
+- `code/sys.driver/driver-vite/src/m.vite/u/u.dev.screen.runtime.ts`
 - `code/sys.driver/driver-vite/src/m.vite/u/u.dev.output.ts`
 - `code/sys.driver/driver-vite/src/m.vite/u/u.keyboard.ts`
+- `code/sys.driver/driver-vite/src/m.vite/-test/-u.dev.screen.runtime.test.ts`
 - `code/sys.driver/driver-vite/src/m.vite/-test/-u.dev.screen.test.ts`
 - `code/sys.driver/driver-vite/src/m.vite/-test/-dev.test.ts`
 - `code/sys.driver/driver-vite/src/m.vite/-test/-u.keyboard.test.ts`
 
-The Vite implementation will use definite internal factor boundaries:
+The Vite implementation now has definite internal factor boundaries:
 
 - `u.dev.screen.ts` - stable internal facade;
-- `u.dev.screen.layout.ts` - pure viewport layout;
-- `u.dev.screen.runtime.ts` - phase, scheduler, resize, terminal sink, spinner, and disposal
-  ownership.
+- `u.dev.screen.layout.ts` - frame layout and formatting owner;
+- `u.dev.screen.runtime.ts` - phase, scheduler, terminal sink, spinner, and disposal ownership.
 
-Do not create a new public module or package surface for this work.
+Commit `777afd0d8` added resize and explicit viewport ownership to those established boundaries.
+Commit `9588b4e45` changed only the terminal commit effect.
+
+Do not create a new public module or package. The amendment added only canonical
+`Process.stdout.isTerminal()`/`write(text)` transport and the stateless `Cli.Screen.repaint(frame)`
+operation on existing modules.
 
 ## Current reality
 
 ### `Cli.Screen`
 
-The public shape is stable:
+The public shape now includes:
 
 ```ts
 Cli.Screen.size();
 Cli.Screen.events(until).resize$;
+Cli.Screen.repaint(frame);
 ```
 
 Commit `b052e4f83` landed the behavior-preserving isolation seam. Commit `0e56910b9` then landed
@@ -105,35 +139,53 @@ truthful transition semantics:
   accepted state before delivery, and owns exact-once teardown;
 - manual, upstream, prior, synchronous, unsupported, re-entrant, initialization-failure, and
   late-subscriber lifecycle cases are proven;
-- focused Screen tests pass with leak tracing: 4 files, 25 steps;
-- the full CLI suite passes: 30 tests, 176 steps.
+- focused Screen verification at landing passed with leak tracing: 4 files, 25 steps;
+- the latest landed full CLI proof passed: 34 tests, 191 steps.
 
-No further Screen semantic work belongs in the remaining arc. The next cut is type-plane-only CLI
-formatter namespace conformance.
+The measurement, observation, and Text substrate is complete. Commit `67fe9739a` landed canonical
+clipped-part rendering and removed sentinel substitution before the Driver Vite lifecycle cut.
+Commit `221426360` then landed canonical `Process.stdout`, and commit `d325aae92` landed
+`Cli.Screen.repaint(frame)` over that substrate. Repaint replaces stdout terminal rows without
+publishing a blank intermediate screen, but Driver Vite does not yet call it.
 
 ### Vite dev reporter
 
-The formatter already measures width and height while producing snapshots. The ready frame
-dynamically limits log rows, but the runtime does not redraw on terminal resize.
+Commit `2deec18c5` landed the behavior-preserving lifecycle centralization:
 
-The startup and ready paths currently have separate handles:
+- one reporter owns the explicit `startup → ready → disposed` state machine;
+- `u.dev.screen.runtime.ts` solely owns scheduling, spinner state, presentation state, terminal
+  effects, transitions, and disposal;
+- `u.dev.screen.layout.ts` owns startup and ready frame construction and formatting;
+- `u.dev.ts` reports domain events without startup/ready repaint routing;
+- content work coalesces, layout work dominates it, readiness absorbs stale startup work, and
+  post-disposal operations are inert;
+- production uses only declared `Cli.Spinner.Instance` members, with transactional acquisition and
+  exhaustive cleanup.
 
-- `DevScreen.createStartup(...)`
-- `DevScreen.create(...)`
+Commit `777afd0d8` landed the viewport implementation directly on that lifecycle:
 
-`u.dev.ts` routes log invalidation between them using a local `ready` flag. Both handles coexist
-during startup.
+- one reporter-owned `Cli.Screen.events(until).resize$` subscription adopts independent exact copies
+  of `event.after` and coalesces rapid transitions as dominant layout work;
+- runtime retains one exact viewport snapshot and feeds it explicitly into every frame calculation;
+- layout performs no ambient Screen measurement and reconstructs complete startup or ready output;
+- startup regions share one calculation that budgets header, spinner, cursor, metadata, separator,
+  and elastic logs from generated region lengths rather than mirrored row-count constants;
+- ready layout budgets generated core, operational options, extended workspace detail, and
+  retained-log projection by explicit priority;
+- shrink alters projection only, so expansion reveals retained recent output again;
+- clearing, Ora, startup output, and ready output share stdout through the declared
+  `CliSpinner.Create.Options` target;
+- resize acquisition, scheduling, spinner state, and cleanup remain transactional and terminal.
 
-The startup renderer prints its header once, then updates only spinner text. Calling its existing
-`redrawSoon()` after resize would leave the header and primary rule at their old width.
-
-The startup height calculation also budgets only the body. It does not subtract the separately
-printed header and spinner row, so startup can exceed the terminal height even though the ready
-frame is bounded.
-
-The startup runtime reaches through the local spinner contract to an optional `render()` method.
-That is architectural residue: the reporter should use a truthful spinner surface or only the public
-`text`, `start`, and `stop` contract.
+The transport defect was live-confirmed before integration: human resizing exercised the original
+split clear/print path and showed repeated blank flashes, especially while shrinking combined
+terminal reflow with resize-driven clear operations. The landed runtime exposes one terminal
+`repaint(frame)` effect backed by `Cli.Screen.repaint`, repaints startup headers only after stopping
+Ora, and commits each ready frame through one repaint. Production dev-screen runtime and focused
+proof contain no split clear/print effect. Post-integration live review still observes flicker while
+resizing. TMIND accepts this as terminal-native reflow, optional synchronized-output support, and
+Ora's independently owned startup rows—not evidence that Driver Vite publishes the removed
+application-level blank state.
 
 ## TMIND design review
 
@@ -183,6 +235,27 @@ That is architectural residue: the reporter should use a truthful spinner surfac
 14. The production adapter and transition kernel are separable enough for deterministic tests
     without sending process-global signals.
 
+### Screen repaint
+
+1. Repaint accepts one complete frame and targets the same stdout terminal used for measurement and
+   resize observation.
+2. TTY repaint publishes one preconstructed write payload and never emits erase-entire-display
+   before frame content.
+3. Each frame row is addressed and erased before replacement; terminal rendition is reset around
+   authored styled rows, and stale rows below the complete frame are erased afterwards.
+4. Repaint leaves the cursor at column one on the first row below the frame, matching one explicit
+   sink cursor row in layout budgets.
+5. Synchronized-output control brackets a TTY payload but is never required for nonblank fallback
+   correctness.
+6. Repaint is a full-visible-viewport operation whose caller owns terminal rows from origin; it is
+   not an inline-region or prompt-preserving writer.
+7. Repaint does not hide/show the cursor, enter alternate-screen mode, clear scrollback, measure the
+   viewport, clip text, retain a prior frame, or schedule work.
+8. Non-TTY repaint strips ANSI and emits plain frame text plus one newline with no terminal-control
+   sequences.
+9. Production writing and pure payload construction are separable for deterministic one-write and
+   byte-order tests.
+
 ### Dev screen runtime
 
 1. One reporter session owns startup, ready transition, resize observation, redraw scheduling,
@@ -199,15 +272,24 @@ That is architectural residue: the reporter should use a truthful spinner surfac
 9. Pure layout functions receive the viewport explicitly and perform no ambient terminal
    measurement.
 10. Startup → ready is an explicit one-way transition; disposed is terminal.
-11. Disposal first marks the reporter disposed, then cancels pending work, releases resize
-    observation, and stops the spinner.
+11. Disposal first marks the reporter disposed, then exhaustively attempts pending-work
+    cancellation, resize unsubscription/event disposal, and spinner stop even if an earlier cleanup
+    action fails.
 12. Runtime rendering uses only declared dependency contracts.
+13. Each resize adopts an independent exact copy of `event.after` before requesting layout work.
+    Rapid transitions may coalesce, but the eventual repaint always uses the latest accepted
+    viewport.
+14. Runtime exposes one semantic repaint effect; separable clear and print effects are absent from
+    its terminal dependency.
+15. The existing bounded scheduler remains the first pacing policy. Timing changes require a
+    separate failing live proof after nonblank transport is installed.
 
 ### Viewport layout
 
 1. Every rendered row is bounded by terminal-cell width, not JavaScript string length.
 2. Total physical frame rows, including sink newline/cursor cost, are bounded by terminal height.
-3. Measurement, clearing, spinner output, and frame output use one explicit terminal stream.
+3. Viewport observation, nonblank repaint, spinner output, startup output, and ready output belong
+   to one stdout terminal session.
 4. Core package identity and URL/input/output metadata have higher vertical priority than optional
    detail and logs.
 5. `logLines` remains the operator-configured maximum, not a promise to render that many rows.
@@ -317,7 +399,7 @@ The reporter controller owns:
 - pending invalidation strength;
 - startup spinner state;
 - options/workspace presentation state;
-- all terminal clear/print effects.
+- all terminal repaint effects.
 
 `u.dev.ts` then becomes structurally simpler:
 
@@ -334,17 +416,19 @@ Keep invalidation internal to the reporter:
 - `content`: output changed without changing frame structure or viewport;
 - `layout`: viewport, phase, or presentation structure changed.
 
-The scheduler coalesces rapid updates using the existing short delay. If a layout invalidation
-arrives while content is pending, the pending work becomes layout work.
+The scheduler coalesces rapid updates using the existing bounded short delay. If a layout
+invalidation arrives while content is pending, the pending work becomes layout work. This is
+latest-state frame pacing with bounded latency, not a trailing debounce: continuous resize remains
+responsive and cannot starve the final frame.
 
-Ready-state rendering always repaints the full frame.
+Ready-state rendering always recalculates and repaints the full frame.
 
 Startup behavior remains efficient without leaving stale structure:
 
 - content invalidation updates the spinner-owned body through its declared surface;
-- layout invalidation stops the spinner, clears the terminal, prints a freshly sized header,
-  installs the freshly sized body, and restarts the spinner;
-- the ready transition stops the spinner once and performs one full ready-frame render.
+- layout invalidation stops the spinner, repaints a freshly sized header without a preceding blank
+  screen, installs the freshly sized body, and restarts the spinner;
+- the ready transition stops the spinner once and performs one full ready-frame repaint.
 
 Remove the optional `spinner.render?.()` reach-through. If immediate render is genuinely required,
 first make it a truthful `@sys/cli` spinner contract backed by Ora; do not retain an undeclared
@@ -352,19 +436,23 @@ local method.
 
 ### 4. Explicit terminal sink
 
-The reporter runtime owns one terminal sink. The sink contract must make these mechanics explicit:
+The reporter runtime owns one terminal sink. Stdout is the canonical target because screen-mode
+selection, `Cli.Screen` measurement fallback, repaint, and ready output use stdout. The sink
+contract makes these mechanics explicit:
 
-- target stream identity;
-- terminal measurement source;
-- clear operation;
-- exact frame write semantics;
-- whether writing appends a newline;
-- final cursor-row cost;
-- spinner binding to the same stream.
+- `Cli.Screen.size()` and one `Cli.Screen.events(until)` handle for the terminal session;
+- one semantic stdout `repaint(frame)` effect rather than separable clear/print effects;
+- one cursor row below each committed frame;
+- spinner creation bound explicitly to stdout.
 
-Do not mix startup stderr, ready stdout, an implicit Ora stream, and an unnamed measurement stream.
-If Ora cannot bind through the declared `Cli.Spinner` contract, either extend that contract
-truthfully or remove Ora from this renderer path.
+Keep Ora authoritative through `Cli.Spinner.create(...)`. Add only the truthful missing creation
+contract needed to select stdout, under `CliSpinner.Create.Options`; map that semantic target to
+Ora's declared `stream` option inside the CLI spinner owner. Do not expose Node stream objects,
+reach through the returned spinner instance, or build a Driver-owned spinner implementation.
+
+The default sink remains injectable as one cohesive runtime dependency for deterministic tests. Do
+not mix startup stderr, ready stdout, an implicit Ora target, and an independently selected clear
+stream.
 
 ### 5. Pure frame layout
 
@@ -406,31 +494,31 @@ Tests must cover terminal shrink and re-expansion to prove that hidden rows were
 
 ## Implementation status
 
-The first five CLI prerequisite commits are landed, most recently
-`9833f2132 refactor(cli): canonicalize helper type namespaces`. The public Screen grammar is
-unchanged, resize transitions are truthful, terminal text fitting is cell-aware, and Table plus the
-non-formatter helpers provide known-good canonical namespace patterns. The formatter type-plane cut
-is implemented and verified locally but not committed. The behavior-neutral `Text.Width` and
-`Text.Wrap` runtime cut follows after it lands.
+All substrate and lifecycle commits are landed through
+`2deec18c5 refactor(driver-vite): centralize dev screen render lifecycle`. The public Screen grammar
+is stable, resize transitions are truthful, terminal text fitting and clipping are cell-aware,
+helper and formatter namespaces are canonical, styled clipping has no sentinel substitution, and
+Driver Vite now has one reporter lifecycle and resize owner, exact viewport-driven layout, derived
+height budgeting, stdout stream alignment, and focused/live proof. The observed resize flash leaves
+one final transport amendment: replace split `clear()`/`print()` effects with a nonblank
+complete-frame repaint, then repeat live startup and ready resize acceptance.
 
 ## DMIND namespace-conformance review
 
-### Current `@sys/cli` type-plane reality
+### Completed `@sys/cli` type-plane result
 
-A package-wide audit found three classes of files:
+The package-wide audit and migration are complete:
 
-1. canonical namespaces already in good shape: `Cli`, `CliFormatChapters`, `CliSpinner`, `CliTable`,
-   `CliScreen`, `CliKeyboard`, `CliInput`, `CliPrompt`, `CliIs`, `Shell`, and `FakeSpinner`;
-2. remaining formatter debt: flat Help, Commit, and Text contracts, operation-level Code options,
-   and inline Path, Url, and Tree library shapes inside `CliFormat.Lib`;
-3. type-only aggregators and external bridges: root `types.ts`, `common/t.ts`, and internal Cliffy
-   `t.ext.ts` remain structurally unchanged; the landed helper cut retired the emptied
-   `m.core/u/t.ts` type spine.
+1. helper and formatter modules each own one canonical domain namespace with `Lib` first;
+2. focused Help, Commit, Text, Code, Chapters, Path, Url, and Tree contracts remain in their
+   established owner files;
+3. root `Cli.*` and `Cli.Fmt.*` paths are exact projections rather than copied shapes;
+4. `Text.Width` and `Text.Wrap` now exist on both the runtime and type planes with exact operation
+   identities;
+5. superseded flat names are absent, and the base formatter entrypoint still excludes Code.
 
-The root `Cli` namespace already projects many formatter contracts into navigable consumer paths, so
-this is contract-plane coherence debt rather than a runtime design defect. Current Git reality:
-`9833f2132` is landed; the formatter namespace cut is implemented and verified locally but not
-committed; unrelated workspace plan edits remain outside this arc.
+The Driver Vite responsive viewport implementation is complete. Unrelated workspace plan edits
+remain outside this arc.
 
 ### Cross-package canonical reference set
 
@@ -468,12 +556,11 @@ These references establish the package rules:
 
 ### Scope decision
 
-Because no competing CLI arc is active, paying down the complete namespace debt now has positive
-ROI. The work is split into independently truthful commits:
+The CLI namespace work landed as independently truthful commits:
 
 - the `CliTable` nominal-instance and canonical public-surface edge as a standalone anchor;
-- the landed non-formatter helper namespaces as a mechanical follow-on;
-- formatter namespaces and aggregate projections as the next cut;
+- the non-formatter helper namespaces as a mechanical follow-on;
+- formatter namespaces and aggregate projections;
 - matching `Text.Width`/`Text.Wrap` runtime namespaces.
 
 This is **not** authorization for unrelated public export surgery. Module entrypoints that currently
@@ -507,8 +594,10 @@ The revised namespace program is approved as a bounded canon-conformance refacto
 
 The canonical `CliTable` hard gate landed as `87f4b4ea9` without casts or widening. The helper
 namespace rewrite then landed as `9833f2132` with exact module/root/public projections and no legacy
-helper residue. The formatter cut has passed its XHIGH implementation proof gate locally and is
-awaiting commit. The remaining plan stays STIER-A and implementation-ready.
+helper residue. The formatter namespace cut landed as `9de396c5c` with exact base and isolated Code
+contracts. The Text runtime namespace cut landed as `1a806c709`, clipped-part hardening landed as
+`67fe9739a`, and the Driver Vite lifecycle cut landed as `2deec18c5`. The subsequent viewport and
+repaint work stayed within the established runtime/layout boundary.
 
 ## Commit sequence
 
@@ -988,9 +1077,9 @@ helper namespaces were absent. Local verification is green:
 - removed `m.core/u/t.ts` with no stale aggregation or published residue;
 - changed TypeScript and plan formatting plus repository whitespace checks.
 
-### 6. `refactor(cli): canonicalize formatter type namespaces`
+### 6. `9de396c5c refactor(cli): canonicalize formatter type namespaces`
 
-Status: implemented and verified locally; awaiting commit.
+Status: landed.
 
 Normalize the remaining formatter contracts around stable domain namespaces:
 
@@ -1195,9 +1284,9 @@ root projections, and Code operation paths. Local verification is green:
   projection boundaries under the canonical type-plane hierarchy rules;
 - changed TypeScript and plan formatting plus repository whitespace checks.
 
-### 7. `refactor(cli): namespace text width and wrapping helpers`
+### 7. `1a806c709 refactor(cli): namespace text width and wrapping helpers`
 
-Status: planned; behavior-neutral runtime-surface coherence cut.
+Status: landed.
 
 Extend the type grammar and runtime surface atomically:
 
@@ -1245,8 +1334,9 @@ Exact contract:
   resolving width.
 - Remove the flat `visibleWidth`, `padEnd`, `maxVisibleWidth`, `fitWidth`, `wrap`, and `wrapLines`
   members after introducing their canonical nested replacements.
-- Assemble the two namespace objects once in `m.Text.ts`; do not create a helper-file cascade or
-  callable function-object namespace.
+- Let `u.width.ts` and `u.wrap.ts` own their exact contract-bound sub-libraries; keep `m.Text.ts` as
+  the composition facade and do not create a helper-file cascade or callable function-object
+  namespace.
 - Migrate all in-repository CLI, Workspace, Cell, Driver Vite, and other direct consumers to
   `Text.Width.*` and `Text.Wrap.*` in this same commit.
 - Keep that cross-package migration strictly mechanical; do not mix viewport behavior or unrelated
@@ -1304,29 +1394,502 @@ deno task check
 deno task test
 ```
 
-### 8. `refactor(driver-vite): centralize dev screen render lifecycle`
+The red-first Text proofs failed with 34 type errors solely on the absent nested operation
+contracts, runtime namespaces, focused function names, and public projections. Local verification is
+green:
 
-- Introduce one reporter session and one explicit startup → ready transition.
-- Move render, spinner, terminal-sink, and future resize ownership behind that session boundary.
-- Replace phase routing in `u.dev.ts` with domain-level reporter notifications.
-- Introduce the content/layout invalidation scheduler.
-- Ensure `ready()` absorbs pending startup work and flushes against current phase.
-- Remove dual reporter handles and undeclared spinner `render()` reach-through.
-- Preserve current visible output before enabling resize behavior.
-- Keep keyboard actions routed through the single reporter handle.
+- focused Text, formatter type, Help, and Chapters tests with leak tracing: 7 tests, 78 steps;
+- exact runtime keys for `Text`, `Text.Width`, and `Text.Wrap`, with every nested operation
+  identity-equal to its focused implementation function;
+- exact `CliFormatText`, root `Cli.Fmt.Text`, `@sys/cli/t`, and `@sys/cli/types` equality for `Lib`,
+  `Width.Lib`, `Wrap.Lib`, and all retained policy contracts;
+- CLI check, dry-publish, and full suite: 34 tests, 190 steps;
+- Driver Vite focused output tests: 8 tests, 52 steps; full suite: 56 tests, 304 steps;
+- Workspace focused reporter test: 1 test, 25 steps; full suite: 56 tests, 330 steps;
+- Cell full suite: 29 tests, 228 steps;
+- `@sys/tools`, Driver Vite, Workspace, and Cell checks;
+- repository-wide direct-consumer migration with no superseded flat Text member, declaration, or
+  utility export residue;
+- BMIND JSDoc audit covering canonical ownership and projections, terminal-cell and ANSI semantics,
+  plain-text clipping responsibility, width selection and normalization, and wrapping overflow,
+  whitespace, indentation, and preservation invariants;
+- targeted local `deno doc` rendering plus live JSR score/docs inspection; published `0.0.303`
+  remains the pre-refactor surface and must not be represented as containing these local docs;
+- changed TypeScript and plan formatting plus repository whitespace checks.
 
-### 9. `feat(driver-vite): fit dev screen rendering to the terminal viewport`
+### 7a. `67fe9739a feat(cli): render styled ellipses without sentinels`
 
-- Bind the single reporter session to hardened `Cli.Screen.events(until).resize$`.
-- Feed one explicit viewport snapshot into pure layout.
-- Fully rebuild startup layout on resize and fully repaint ready layout.
-- Correct startup height accounting to include header, spinner, and sink cursor rows.
-- Make configured log rows a maximum bounded by current vertical capacity.
-- Keep core metadata ahead of locally bounded optional detail and elastic logs.
-- Prove shrink, expansion, startup, ready, options, extended information, and disposal behavior.
-- Add a declared `dev` task for the existing sample-1 entrypoint because the package currently has
-  no authoritative interactive dev task.
-- Perform the runtime TTY resize proof.
+Status: landed.
+
+- Add canonical clipped-part rendering to `Cli.Fmt.Text.ellipsize` with exact
+  `{ head, ellipsis, tail }` contracts.
+- Keep clipping and terminal-cell budgeting inside CLI while callers add styling only.
+- Remove private-use sentinel substitution from CLI, Driver Vite, and Cell formatting.
+- Let focused width and wrapping modules own their exact contract-bound runtime objects.
+- Keep mutable input requirements free of `readonly`; retain immutability on outputs and stored
+  state.
+- Centralize Driver Vite clipping helpers and migrate all direct call sites atomically.
+- Preserve visible text, ANSI intent, grapheme safety, and terminal-cell bounds.
+
+Verification at landing was green:
+
+- CLI full suite: 34 tests, 191 steps;
+- Driver Vite full suite: 57 tests, 318 steps;
+- Cell full suite: 29 tests, 228 steps;
+- CLI, Driver Vite, and Cell checks and dry-publishes;
+- repository scan contains no sentinel constant or private-use marker residue;
+- changed-file formatting and repository whitespace checks.
+
+### 8. `2deec18c5 refactor(driver-vite): centralize dev screen render lifecycle`
+
+Status: landed.
+
+#### DMIND subject, need, and fit
+
+The subject is one long-lived parent-owned dev-screen session, not two render helpers coordinated by
+`u.dev.ts`. The session needs one phase authority, one redraw scheduler, one spinner owner, one
+presentation state, and one terminal-effect boundary so callers can report domain events without
+choosing repaint mechanics.
+
+The internal handle is intentionally narrow:
+
+```ts
+type DevScreenReporter = {
+  outputChanged(): void;
+  ready(): void;
+  clearLog(): void;
+  toggleOptions(): void;
+  toggleExtended(ws: t.ViteDenoWorkspace): void;
+  dispose(): void;
+};
+```
+
+Do not retain `redraw`, `redrawSoon`, `createStartup`, a caller-visible phase flag, or generic
+invalidation methods. The form should invite only valid domain operations.
+
+#### Runtime state machine
+
+The runtime owns one explicit phase:
+
+```text
+startup ── ready() ──> ready ── dispose() ──> disposed
+   └──────────────── dispose() ─────────────> disposed
+```
+
+`ready()` is a one-way, idempotent transition. Every operation is inert after disposal. Transition
+order is contractual:
+
+1. adopt the new phase first;
+2. cancel and clear pending work;
+3. stop the spinner at most once when leaving startup;
+4. perform the immediate render required by the new phase;
+5. never allow a canceled startup callback to paint after readiness.
+
+Disposal likewise adopts `disposed` first, cancels pending work, clears pending invalidation state,
+and stops the spinner at most once. Scheduled callbacks read current state at flush time; they never
+capture a phase-specific renderer.
+
+#### Invalidation and render matrix
+
+Keep two internal invalidation strengths:
+
+```text
+content < layout
+```
+
+Rapid output changes request deferred `content` work through the existing 50 ms coalescing delay. An
+immediate structural action merges as `layout`, cancels the pending delay, and flushes once.
+`ready()` uses that same dominance rule while forcing an immediate ready render.
+
+Render behavior for this refactor is exact:
+
+| Phase    | Content flush                            | Layout flush                                               |
+| -------- | ---------------------------------------- | ---------------------------------------------------------- |
+| startup  | update declared spinner `text` only      | stop if running, clear, print header, update body, restart |
+| ready    | clear and print the complete ready frame | clear and print the complete ready frame                   |
+| disposed | no effect                                | no effect                                                  |
+
+Assigning declared spinner `text` is the only startup content-update affordance. Remove the optional
+`spinner.render?.()` reach-through and do not broaden `Cli.Spinner.Instance` merely to preserve an
+implementation detail.
+
+#### Ownership and file boundaries
+
+- `t.internal.ts` is the scoped, non-public type owner for retained dev-output contracts, dev-screen
+  render phases and output projection, effect seams, lifecycle contracts, and frame inputs;
+  `m.vite/common.ts` exposes that pool only inside the Vite implementation area.
+- `u.dev.screen.ts` remains the stable internal facade: reporter policy, `logLines`, runtime
+  composition, and snapshot helpers.
+- `u.dev.screen.runtime.ts` becomes the sole effectful owner of phase, invalidation, scheduling,
+  spinner lifecycle, presentation state, clear/print effects, and disposal.
+- `u.dev.screen.layout.ts` receives a mechanical extraction of the existing frame and formatting
+  logic so runtime and layout cannot become mutually recursive. Rendered text, ANSI structure, and
+  row ordering must remain unchanged; explicit viewport input is deferred to the next commit.
+- `u.dev.ts` owns process orchestration only. It creates one reporter after the process lifetime
+  exists, forwards output through `outputChanged()`, forwards readiness through `ready()`, gives the
+  same handle to keyboard actions, and disposes that one handle during cleanup.
+- `u.keyboard.ts` retains its narrow structural capability contract; it does not learn phases,
+  scheduling, spinners, or terminal effects.
+
+Use one runtime dependency object for clear, phase-aware print, spinner creation, and delayed-work
+scheduling. Preserve the current startup/ready stream behavior in this refactor; explicit stream
+identity and spinner-stream alignment belong to the viewport commit, where they can be changed and
+proven together.
+
+Reporter acquisition must be transactional. If initial startup rendering or spinner start fails,
+stop any acquired spinner without masking the original error. Place reporter acquisition inside the
+existing `u.dev.ts` guarded cleanup path so the child process and bootstrap authority are still
+released. Cleanup must attempt reporter, process, and bootstrap release even when an earlier cleanup
+step throws.
+
+#### Red-first proof
+
+Add the narrow runtime tests before implementation and observe failure solely because the unified
+session contract is absent:
+
+1. `DevScreen.create(...)` immediately renders startup and returns `outputChanged()` plus `ready()`;
+2. `DevScreen.createStartup` is absent;
+3. repeated output changes retain one scheduled task and produce one startup body update;
+4. a pending content update followed by `ready()` is canceled and absorbed into one immediate ready
+   frame with no stale startup flush;
+5. `ready()` and spinner stop are idempotent;
+6. ready-state output changes coalesce into one complete repaint;
+7. clear/options/extended actions dominate pending content, preserve state semantics, and repaint
+   immediately;
+8. disposal cancels pending work, stops the spinner exactly once, and makes all later operations
+   inert;
+9. runtime behavior depends only on declared spinner members and leaves an injected fake's
+   Ora-compatible `render()` count untouched;
+10. startup and ready snapshot strings remain unchanged under the extracted layout owner.
+
+Use a deterministic injected scheduler with explicit schedule, flush, and cancel evidence. Do not
+sleep real time or assert private closure fields.
+
+#### Strict exclusions
+
+- no `Cli.Screen.events()` subscription or resize listener;
+- no viewport snapshot contract, width/height policy, or row-budget change;
+- no startup height correction, log projection change, or TTY task;
+- no terminal stream unification or `Cli.Spinner` API change;
+- no visible frame, ANSI, ordering, readiness, URL, process spawn, port, or raw reporter change;
+- no public Driver Vite type, option, entrypoint, dependency, or export;
+- no compatibility `createStartup` bridge;
+- no scheduler, phase, or spinner ownership left in `u.dev.ts`.
+
+#### Proof sequence
+
+From `/Users/phil/code/org.sys/sys/code/sys.driver/driver-vite`, run the red test first, then:
+
+```sh
+deno task test --trace-leaks ./src/m.vite/-test/-u.dev.screen.runtime.test.ts
+deno task test --trace-leaks ./src/m.vite/-test/-u.dev.screen.test.ts
+deno task test --trace-leaks ./src/m.vite/-test/-u.dev.output.test.ts
+deno task test --trace-leaks ./src/m.vite/-test/-u.keyboard.test.ts
+deno task test --trace-leaks ./src/m.vite/-test/-dev.test.ts
+deno task check
+deno task test
+deno task dry
+```
+
+Residue scans from `/Users/phil/code/org.sys/sys`:
+
+```sh
+rg -n "createStartup|StartupHandle|StartupDeps|StartupSpinner|render\?\." code/sys.driver/driver-vite/src/m.vite/u
+rg -n "let ready|ready \?|startup\?\.redrawSoon|screen\?\.redrawSoon" code/sys.driver/driver-vite/src/m.vite/u/u.dev.ts
+rg -n "Time\.delay" code/sys.driver/driver-vite/src/m.vite/u/u.dev.screen.runtime.ts code/sys.driver/driver-vite/src/m.vite/u/u.dev.screen.ts
+
+deno fmt --check -- code/sys.driver/driver-vite/src/common/t.ts code/sys.driver/driver-vite/src/m.vite/common.ts code/sys.driver/driver-vite/src/m.vite/t.internal.ts code/sys.driver/driver-vite/src/m.vite/u/u.dev.ts code/sys.driver/driver-vite/src/m.vite/u/u.dev.output.ts code/sys.driver/driver-vite/src/m.vite/u/u.dev.screen.ts code/sys.driver/driver-vite/src/m.vite/u/u.dev.screen.layout.ts code/sys.driver/driver-vite/src/m.vite/u/u.dev.screen.runtime.ts code/sys.driver/driver-vite/src/m.vite/-test/u.fixture.dev-screen.ts code/sys.driver/driver-vite/src/m.vite/-test/-u.dev.screen.test.ts code/sys.driver/driver-vite/src/m.vite/-test/-u.dev.screen.runtime.test.ts code/sys.driver/driver-vite/src/m.vite/-test/-u.keyboard.test.ts ./-agent/-plan/@sys.driver-vite/dev-screen-viewport-renderer.plan.md
+git diff --check
+```
+
+Baseline before implementation is green: focused dev-screen, output-log, and keyboard coverage
+passes with leak tracing at 3 files and 36 steps; Driver Vite check and dry-publish pass.
+
+The red-first runtime proof failed with 15 type errors solely on the absent unified session methods
+and dependency seams. Verification at landing was green:
+
+- focused runtime state-machine suite with leak tracing: 1 file, 16 steps;
+- combined runtime, layout, output-log, and keyboard suite with leak tracing: 4 files, 50 steps;
+- real Vite dev integration: 1 file, 3 steps;
+- full Driver Vite suite: 57 tests, 318 steps;
+- Driver Vite check and dry-publish;
+- exact startup → ready absorption, synchronous and deferred scheduler behavior, layout dominance,
+  exact-once spinner ownership, construction rollback, cancellation-failure cleanup, and terminal
+  disposal proofs;
+- existing startup and ready layout snapshots unchanged after mechanical extraction;
+- scoped `t.ViteDev.Output` and `t.ViteDev.Screen` own the internal output, render-phase, and
+  lifecycle contracts without widening the package's public `t.Vite` surface, importing types from
+  runtime modules, or deriving shared contracts through `ReturnType`;
+- styled middle clipping routes through canonical `Cli.Fmt.Text.ellipsize` clipped-part rendering;
+  private-use sentinel strings and duplicated clipping wrappers are absent;
+- retained output captures mutable filtering input without retaining or mutating caller-owned
+  collections or regular expressions;
+- production runtime still creates Ora through `Cli.Spinner.create` and uses only declared
+  `Cli.Spinner.Instance` members; the fake's Ora-compatible `render()` hook remains untouched;
+- production residue scans show one reporter creation, one delay owner, no phase routing in
+  `u.dev.ts`, and no `createStartup`, startup handle, or spinner reach-through;
+- changed TypeScript and plan formatting plus repository whitespace checks.
+
+#### TMIND hostile review gate
+
+Hard-stop and revise the design if any implementation leaves:
+
+- two live handles, timers, spinner owners, or phase selectors;
+- a callback that can render startup after `ready()` or anything after disposal;
+- scheduler state retained after synchronous flush, cancellation, readiness, or disposal;
+- spinner start/stop imbalance or undeclared method access;
+- reporter acquisition outside process/bootstrap cleanup ownership;
+- layout behavior changes hidden inside the mechanical extraction;
+- a resize/viewport feature smuggled into this refactor;
+- a compatibility facade that preserves the dual grammar.
+
+Landed verdict: **STIER-A**. The package-internal lifecycle surface, scheduler, transitions, spinner
+ownership, acquisition, and disposal are bounded by deterministic state-machine proofs. The viewport
+feature extends this owner without reopening the lifecycle architecture.
+
+### 9. `221426360 feat(process)` → `d325aae92 feat(cli)` nonblank repaint substrate
+
+Status: landed. Commit `221426360` exposes canonical host stdout; commit `d325aae92` exposes
+stateless terminal-frame repaint over it. Focused Process stdout and Screen verification plus both
+package checks and dry-publishes are green.
+
+Failure that motivated the substrate:
+
+- Driver Vite calculates a complete frame correctly but commits it through `clear → print`;
+- a terminal emulator may paint the clear before receiving or presenting the replacement;
+- the existing 50ms scheduler is bounded latest-state frame pacing, not a trailing debounce, so a
+  resize storm can expose that blank intermediate state repeatedly;
+- sleeping after clear, adding a speculative 30ms debounce, or introducing a retained-mode TUI does
+  not repair the transport invariant.
+
+MAX verdict:
+
+1. The complete frame string is already the back buffer. Do not add a row-diff model or stateful TUI
+   framebuffer.
+2. Preserve the prior complete frame until the next complete frame is ready, then replace terminal
+   rows without a leading full-screen clear.
+3. Add exactly one stdout-owned terminal capability:
+
+   ```ts
+   Cli.Screen.repaint(frame: string): void;
+   ```
+
+4. Keep this primitive stateless. It is explicitly a full-visible-viewport operation whose caller
+   owns rows from terminal origin. It owns terminal transport only: no model, viewport, scheduler,
+   phase, logs, spinner, Vite policy, inline-region preservation, or retained front-buffer state.
+5. On a TTY, construct the complete control sequence before writing and issue one stdout write:
+   - enable synchronized output as a progressive enhancement;
+   - address each frame row from terminal origin;
+   - erase that row, then write its complete styled content;
+   - place the cursor on the first row below the frame;
+   - erase stale content from that cursor to the end of the display;
+   - disable synchronized output;
+   - never issue erase-entire-display before frame content.
+6. Unsupported synchronized-output mode must degrade to visible top-to-bottom row replacement, not a
+   blank screen. Do not use alternate-screen mode, clear scrollback, hide/show the cursor, or assume
+   synchronized-output support.
+7. On a non-TTY, strip ANSI and emit the plain frame followed by one newline without
+   terminal-control sequences.
+8. Preserve authored ANSI styling and row text exactly on a TTY. Repaint owns positioning and
+   stale-row removal, not clipping, wrapping, or content normalization.
+9. Implement the public operation through a testable `u.repaint.ts` adapter seam, parallel to the
+   existing Screen measurement/event adapter seams. Production binds terminal detection and one
+   logical write through canonical `Process.stdout` from `@sys/process`, imported through CLI's
+   local `common.ts`. No host runtime stream or direct platform import crosses into CLI.
+10. Keep the unavoidable Deno stdout adaptation inside `@sys/process`, remove its upward
+    `@sys/cli/fmt` dependency in favor of the lower-level `@sys/color/ansi` owner, and expose only
+    `isTerminal()` plus `write(text)`—not a Deno or Node stream.
+11. Project the operation through canonical `CliScreen.Lib` and `Cli.Screen.Lib` only. Do not add an
+    options namespace or semantic target: `Cli.Screen` measurement and repaint are one stdout
+    terminal session.
+
+TTY payload grammar:
+
+```text
+CSI ?2026h                         synchronized output on
+CSI 0m                             reset terminal rendition
+for each frame row at 1-based r:
+  CSI r;1H                        cursor position
+  CSI 2K                          erase complete row
+  <styled row>
+  CSI 0m                          prevent style leakage
+CSI (frame-row-count + 1);1H       cursor below frame
+CSI 0J                            erase stale content below
+CSI ?2026l                         synchronized output off
+```
+
+An empty frame skips row replacement, positions at row one, and erases downward. A trailing input
+newline represents an explicit empty frame row; repaint adds no implicit TTY content row. Non-TTY
+fallback strips ANSI and writes the plain input frame plus one sink newline.
+
+Required red-first CLI proof:
+
+- `Cli.Screen.repaint` is absent before implementation;
+- TTY repaint performs exactly one write;
+- the payload replaces rows without an erase-entire-display prefix;
+- synchronized-output enable/disable brackets the complete payload;
+- every prior-row tail is erased before new content and rows below the frame are erased afterwards;
+- the final cursor is one row below the frame;
+- empty, one-line, multiline, ANSI-styled, narrower, and shorter frames are deterministic;
+- non-TTY output contains no control sequences and ends with one newline;
+- the root CLI runtime and canonical type projections expose the exact operation.
+
+Implementation proof:
+
+- the canonical substrate proof failed first on absent `Process.stdout`, `t.Process.Stdout`, and
+  `u.stdout.ts` contracts;
+- `@sys/process` now owns terminal detection, UTF-8 encoding, and complete synchronous host stdout
+  writing (including partial-write continuation and zero-progress failure) behind `Process.stdout`,
+  with no runtime stream leakage;
+- the former `@sys/process → @sys/cli/fmt` dependency is removed, preserving the lower-level
+  `@sys/process → @sys/color/ansi` direction required before CLI can consume Process safely;
+- repaint red proof failed on the absent `u.repaint.ts` module and `CliScreen.Lib.repaint` contract;
+- TTY proof covers one-write addressed replacement, synchronized-output bracketing, rendition reset,
+  no erase-entire-display sequence, explicit empty rows, final cursor placement, and stale-content
+  erasure;
+- non-TTY proof covers ANSI stripping, plain output, empty output, and one sink newline;
+- canonical runtime assembly and exact type identity are green;
+- focused Process stdout verification passes with leak tracing: 1 file, 2 steps;
+- focused Screen verification passes with leak tracing: 5 files, 29 steps;
+- Process and CLI checks and dry-publishes pass.
+
+Landed boundaries:
+
+- `221426360 feat(process): expose canonical host stdout` contains the narrow host stdout capability
+  and removes the process-to-CLI color dependency before CLI consumes it;
+- `d325aae92 feat(cli): repaint terminal frames without blanking` contains only the Screen contract,
+  implementation, assembly, exact type projection, and focused proof;
+- plan artifacts remain outside implementation commits;
+- the human operator owns all Git staging and commits.
+
+### 10. `777afd0d8 feat(driver-vite)` → `9588b4e45 fix(driver-vite)` responsive repaint
+
+Status: complete. Viewport ownership, responsive layout, lifecycle integration, and focused proof
+landed in `777afd0d8`. Semantic repaint integration landed in `9588b4e45` over the Process/CLI
+substrate. Deterministic proof, package check, dry-publish, and live resize review are complete.
+
+The viewport portions of decisions 1–11 and the sample-task portion of decision 15 landed in
+`777afd0d8`. The repaint binding in decision 1 and decisions 12–14 landed in `9588b4e45`. Live
+review closes decision 15 with the documented terminal-native and Ora flicker residual.
+
+Hard decisions:
+
+1. Add one cohesive terminal dependency to the reporter runtime. Production binds its measurement,
+   resize events, complete-frame repaint, cursor-row policy, and Ora creation to stdout.
+2. Extend only `CliSpinner.Create.Options` with a semantic stdout/stderr target and bind Ora through
+   that declared creation option. Keep `CliSpinner.Instance` unchanged.
+3. Pass `proc.dispose$` into reporter creation. Acquire one `Cli.Screen.events(until)` handle and
+   one resize subscription transactionally; release both on rollback and disposal.
+4. Subscribe to resize transitions before taking the initial formatting snapshot. Seed the viewport
+   from an independent exact copy of `Cli.Screen.size()`, then adopt an independent exact copy of
+   each `event.after` snapshot without remeasuring or applying geometry policy in runtime.
+5. Make viewport input mandatory in frame contracts. Remove every ambient `Cli.Screen.size()` call
+   from `u.dev.screen.layout.ts`.
+6. On resize, adopt the latest viewport and request coalesced `layout` invalidation. A flush
+   rebuilds every startup region or the complete ready frame; no row-level patching is permitted.
+7. Return startup regions from one layout calculation so runtime output and snapshot composition
+   share header, body, spinner-row, and cursor-row accounting. Derive fixed row budgets from those
+   generated regions rather than mirrored numeric constants.
+8. Define physical content capacity as `max(0, viewport.height - sinkCursorRows)`. Startup also
+   subtracts header and spinner rows before projecting logs.
+9. Build ready layout from core, optional, and log regions. Logs contract first; after logs reach
+   zero, extended workspace detail contracts before the shorter operational-options panel. Core
+   package and URL/input/output metadata remain ahead of both.
+10. Keep `DevOutputLog` retention independent from projection. Shrink hides older visible rows;
+    expansion reveals retained rows again.
+11. Disposal becomes exhaustive across scheduled work, resize subscription, event handle, and
+    spinner, while preserving terminal phase adoption and exact-once ownership.
+12. Replace the injected terminal's separable `clear()` and phase-aware `print()` effects with one
+    `repaint(frame)` capability backed by `Cli.Screen.repaint(frame)`. Phase remains reporter state,
+    not a terminal transport argument. Ready rendering always commits one complete frame; startup
+    layout stops Ora, repaints the header without blanking, installs the new body, and restarts Ora
+    through declared spinner members only.
+13. Retain the existing bounded 50ms latest-state frame pacing for the first nonblank implementation
+    and rename its constant from redraw terminology to explicit repaint-delay terminology. Do not
+    add trailing debounce, maximum-wait timers, or tune to 30ms before live proof isolates a
+    remaining frequency problem from the repaired transport problem.
+14. If repaint integration still exposes startup-only flicker, treat Ora coordination as a separate
+    proven defect. Do not reach into private Ora methods, widen `CliSpinner.Instance`, or invent a
+    generic terminal transaction without a failing proof that the narrow repaint cannot satisfy.
+15. Add the declared sample `dev` task and complete the live wide → narrow → wide and tall → short →
+    tall TTY proof with no blank intermediate frame before calling the arc finished.
+
+Red-first proof must cover initial acquisition, exact `event.after` snapshot ownership, rapid-resize
+coalescing, startup full rebuild, ready full repaint, readiness absorbing pending resize work,
+shrink/re-expansion without retention loss, options/workspace pressure, tiny viewports, acquisition
+rollback, one repaint per complete ready render, no clear-before-frame effect, and no resize-driven
+output after disposal.
+
+Driver test migration:
+
+- replace separate clear and print counters with ordered semantic repaint records;
+- initial startup acquisition performs one startup repaint before starting Ora;
+- startup content-only work changes declared spinner text without repainting;
+- startup layout work stops Ora, performs one startup repaint, then restarts Ora exactly once;
+- ready transition and every ready invalidation perform one ready repaint;
+- repaint failure participates in transactional acquisition/transition cleanup without masking the
+  first error;
+- rapid resize still schedules once and commits the independently retained latest viewport;
+- runtime production residue contains no `console.clear`, split terminal `clear`/`print`, second
+  scheduler, debounce timer, private Ora method, or frame-diff state.
+
+Verification constraint: run only tests related to Screen observation, Spinner targeting, Driver
+Vite dev-screen runtime/layout, keyboard integration, and the real Vite dev path. Do not rerun
+entire package test suites.
+
+Landed viewport proof before repaint integration is green:
+
+- red-first CLI proof failed on the absent spinner creation target;
+- red-first Driver Vite proof failed on the absent terminal/resize harness;
+- focused CLI Screen and Spinner suites: 5 files, 27 steps;
+- focused Driver Vite runtime, layout, keyboard, and real dev suites: 4 files, 51 steps;
+- CLI and Driver Vite checks and dry-publishes;
+- deterministic proof covers synchronous initial resize, independent exact `event.after` snapshot
+  ownership, rapid resize coalescing, startup full rebuild, ready full repaint, readiness
+  absorption, optional-panel state, generated physical row budgets, shrink/re-expansion, tiny
+  viewports, rollback, cancellation failure, and terminal disposal;
+- a real pseudo-TTY run proved ready-state viewport rerendering from 100 columns to 50 and then 120,
+  with matching complete primary rules and retained frame content, but still through the landed
+  split clear/print transport;
+- the pseudo-TTY harness itself crashes when changing dimensions while Ora is actively spinning, so
+  startup-phase acceptance was supplied by final human live review rather than imagined automated
+  evidence;
+- no probe-owned child process remains after either pseudo-TTY attempt;
+- visible clear-before-print flashing was the outstanding runtime proof at landing;
+- after `221426360` and `d325aae92` landed but before Driver integration, repository inspection
+  found no production Driver Vite repaint call and still found the split
+  `console.clear`/`console.info` terminal transport;
+- the pre-integration human baseline confirmed the blank flash remained and was more visible while
+  shrinking; that observation did not exercise `Cli.Screen.repaint`.
+
+Post-integration implementation proof is green:
+
+- red proof failed on the absent `Runtime.Terminal.repaint` contract;
+- the terminal seam now exposes only semantic `repaint(frame)` alongside measurement, events,
+  cursor-row policy, and spinner creation; `RenderPhase`, terminal `clear`, and terminal `print` are
+  removed;
+- initial startup ordering is `repaint → spinner:start`; startup layout ordering is
+  `spinner:stop → repaint → spinner:start`; ready transition ordering is `spinner:stop → repaint`;
+- startup content-only work does not repaint; ready invalidations perform one complete repaint;
+- acquisition and ready-transition repaint failures preserve the first error, phase adoption,
+  spinner ownership, and terminal-event cleanup;
+- focused CLI Screen and Spinner dependency suites pass with leak tracing: 6 files, 31 steps;
+- focused Driver Vite runtime, layout, keyboard, and real dev suites pass with leak tracing: 4
+  files, 53 steps; focused runtime proof contributes 23 steps;
+- Driver Vite check and dry-publish pass;
+- production runtime and focused proof contain no `console.clear`, `console.info`, split terminal
+  clear/print, `RenderPhase`, second scheduler, new debounce, private Ora method, or frame-diff
+  state;
+- human startup and ready resize review confirms the final frame remains correct while visible
+  terminal-native/Ora flicker persists during active resizing.
+
+Landed commit boundary:
+
+- `9588b4e45 fix(driver-vite): avoid clear-before-render dev frames` replaces only the split
+  terminal transport, migrates focused runtime proof to semantic repaint records, and preserves the
+  landed lifecycle, viewport, scheduler, layout, Ora, retention, process, URL, and port behavior;
+- plan artifacts remain outside the implementation commit;
+- the human operator owns all Git staging and commits.
 
 ## Proof plan
 
@@ -1339,16 +1902,23 @@ deno task test --trace-leaks ./src/m.core/m.Screen
 ```
 
 ```sh
-deno task check
+deno task test --trace-leaks ./src/m.core/m.Spinner
 ```
 
 ```sh
-deno task test
+deno task check
+deno task dry
 ```
 
 Required focused proofs:
 
 - `Cli.Screen` is assembled on the root CLI surface;
+- TTY repaint emits one complete stdout write and never clears the entire display before content;
+- repaint brackets row replacement with synchronized-output control as a progressive enhancement;
+- repaint resets terminal rendition around styled rows, erases each addressed row before writing,
+  leaves the cursor one row below the frame, and erases stale content below;
+- non-TTY repaint emits plain frame text plus one newline without control sequences;
+- repaint preserves ANSI-styled frame content and handles empty, shorter, and narrower frames;
 - stable measurement produces no resize event;
 - width-only and height-only changes emit exact `{ before, after }` transitions;
 - unavailable measurement produces no event and preserves the last accepted baseline;
@@ -1361,11 +1931,17 @@ Required focused proofs:
 - unexpected platform registration failure remains legible;
 - ANSI text preserves existing width behavior;
 - CJK, emoji, combining marks, and grapheme clusters use rendered-cell width;
-- cell-aware clipping never splits a grapheme cluster.
+- cell-aware clipping never splits a grapheme cluster;
+- spinner creation maps the declared semantic stdout target to Ora without widening the spinner
+  instance contract or changing default stderr behavior.
 
 ### `@sys/driver-vite`
 
 From `/Users/phil/code/org.sys/sys/code/sys.driver/driver-vite`:
+
+```sh
+deno task test --trace-leaks ./src/m.vite/-test/-u.dev.screen.runtime.test.ts
+```
 
 ```sh
 deno task test --trace-leaks ./src/m.vite/-test/-u.dev.screen.test.ts
@@ -1381,23 +1957,21 @@ deno task test --trace-leaks ./src/m.vite/-test/-dev.test.ts
 
 ```sh
 deno task check
-```
-
-```sh
-deno task test
+deno task dry
 ```
 
 Required focused proofs:
 
 - one reporter owns startup and ready phases;
 - one resize observer and one redraw scheduler exist per reporter session;
-- one explicit stream owns measurement, clearing, spinner output, and frame output;
+- one terminal session owns viewport observation, while stdout owns nonblank repaint and spinner
+  output;
 - content invalidations coalesce;
 - layout invalidation dominates pending content invalidation;
 - readiness absorbs pending startup work without a stale startup flush;
 - resize uses the latest width and height together;
-- startup resize rebuilds header, rule, body, and spinner ownership cleanly;
-- ready resize clears and repaints the complete frame;
+- startup resize rebuilds header, rule, body, and spinner ownership without a full-screen blank;
+- ready resize performs one complete semantic repaint with no separable clear effect;
 - no render occurs after disposal;
 - ready transition and spinner stop are idempotent;
 - all rows remain within viewport width;
@@ -1409,7 +1983,7 @@ Required focused proofs:
 
 ### Runtime TTY proof
 
-The final renderer commit should add this package task to `deno.json`:
+The landed renderer provides this package task in `deno.json`:
 
 ```json
 "dev": "deno run -P=dev ./-scripts/task.main.ts --cmd=dev --dir=./src/-test/vite.sample-1"
@@ -1423,16 +1997,21 @@ deno task dev
 
 While the sample dev server is running:
 
-1. resize wide → narrow → wide and verify every rule, metadata row, and log row is repainted without
-   stale wrapped residue;
+1. resize wide → narrow → wide and verify every rule, metadata row, and log row converges to the
+   accepted viewport without stale wrapped residue or an application-issued whole-screen clear;
 2. resize tall → short and verify recent logs contract before the frame overflows;
 3. resize short → tall and verify retained recent logs reappear;
-4. resize during startup and after readiness;
-5. toggle options and extended information, then resize again;
-6. quit and verify no further repaint or signal-listener activity occurs.
+4. resize during startup and after readiness and verify neither phase issues a separable
+   clear-before-render operation;
+5. sustain a resize storm and verify bounded responsive frame pacing plus one latest final frame;
+6. toggle options and extended information, then resize again;
+7. quit and verify no further repaint or signal-listener activity occurs.
 
-If the runtime probe exposes a missed case, add the narrowest permanent regression test before
-closing.
+Live outcome: startup and ready frames converge correctly, retained output survives projection, and
+no application whole-screen clear remains. Visible flicker persists during active resizing because
+terminal resize reflow precedes application notification, synchronized output is optional, and Ora
+owns independently cleared startup rows. This residual is accepted. Universal compositor-atomic
+rendering is not promised by the portable stateless repaint contract.
 
 ## Non-goals
 
@@ -1440,20 +2019,21 @@ closing.
   commit after repository-wide usage scans and atomic in-repository migration.
 - No redesign of package/module type-export entrypoints; namespace conformance is separate from
   export-discipline migration.
-- No runtime CLI API changes except replacing the declared flat Text members with `Text.Width` and
-  `Text.Wrap`.
+- No runtime CLI API changes beyond the landed Text namespace replacement, the narrow
+  `CliSpinner.Create.Options` output-target contract, and stateless `Cli.Screen.repaint(frame)`.
 - No downstream migration beyond direct consumers of names removed by this namespace program.
 - No change to raw reporter output.
 - No change to Vite readiness detection, URL resolution, process spawning, or port policy.
 - No public Vite option beyond the existing `reporter` and `logLines` controls.
 - No deletion of retained log rows in response to viewport shrink.
-- No scrolling, paging, terminal alternate-screen mode, or general TUI framework.
+- No scrolling, paging, terminal alternate-screen mode, clear-scrollback behavior, retained frame
+  diffing, or general TUI framework.
 - No wrapping of log rows; retain bounded single-line middle ellipsis behavior.
 - No broad rewrite of `Cli.Spinner` unless a truthful missing contract is proven necessary.
 
-## S-tier acceptance gate
+## S-tier acceptance record
 
-Do not call this complete unless all are true:
+Complete with all of the following established:
 
 - `Cli.Screen.events()` emits semantic size transitions rather than raw signal notifications.
 - Screen listener ownership and stream completion are deterministic under manual, upstream, prior,
@@ -1472,7 +2052,10 @@ Do not call this complete unless all are true:
   scheduler.
 - `u.dev.ts` contains no startup-vs-ready repaint branching.
 - Pure layout contains no ambient screen measurement or terminal effects.
-- One explicit terminal stream owns measurement, clearing, spinner output, and frame output.
+- One terminal session owns viewport observation, while stdout owns nonblank repaint and spinner
+  output.
+- `Cli.Screen.repaint` commits one complete payload, never clears the entire display before content,
+  and leaves one cursor row below the frame.
 - Runtime code does not call undeclared spinner methods.
 - Startup and ready rendering share one viewport model.
 - Width and height are both responsive.
@@ -1480,9 +2063,11 @@ Do not call this complete unless all are true:
 - Core metadata survives before optional detail and logs under vertical pressure.
 - Sink newline/cursor cost is included in physical row budgeting.
 - Shrinking the terminal does not destroy retained output.
-- No stale wrapped lines remain after narrowing.
+- No application-issued whole-screen clear, separable clear-before-render effect, or stale wrapped
+  line remains after narrowing; terminal-native and Ora resize flicker is an accepted residual.
 - No scheduled or signal-driven render survives disposal.
-- Focused tests, package checks, full package tests, and the live TTY probe are green.
+- Focused Screen/Spinner/Driver Vite tests, package checks and dry-publishes, the previously landed
+  full-suite baseline, and the live TTY review are complete under the documented portable guarantee.
 
 ## TMIND failure review
 
@@ -1498,7 +2083,7 @@ Do not call this complete unless all are true:
   resize can be missed.
 - **Dual-owner race:** separate startup and ready resize subscriptions can clear or repaint over
   each other during handoff.
-- **Resize-only patch:** calling the existing startup `redrawSoon()` does not repaint its separately
+- **Resize-only patch:** invalidating only startup body content would not repaint its separately
   printed header.
 - **Mixed viewport race:** measuring width and height in separate render helpers can compose a frame
   from different terminal states.
@@ -1528,5 +2113,25 @@ Do not call this complete unless all are true:
   protected-member constraint.
 - **Type-plane scope creep:** namespace conformance does not authorize module-export redesign,
   dependency changes, or runtime cleanup.
-- **Over-abstraction:** one reporter controller and one pure layout boundary are sufficient; do not
-  grow a generic terminal rendering framework.
+- **Blank publication:** `clear → print` exposes an invalid intermediate screen even when both calls
+  occur synchronously in JavaScript.
+- **False atomicity:** placing erase-entire-display before frame text in one write still permits a
+  non-synchronized terminal to paint blank first; replace addressed rows instead.
+- **Synchronization dependence:** DEC synchronized output is a progressive enhancement, not a
+  portable visual-atomicity guarantee. Unsynchronized terminals may visibly process addressed row
+  erasure and replacement even though Driver Vite issues one logical payload and no whole-display
+  clear.
+- **Naive newline addressing:** full-width rows and terminal auto-wrap make relative newline
+  movement fragile; use explicit row addressing and place the final cursor deliberately.
+- **Debounce category error:** timing cannot repair an invalid terminal transaction. Preserve the
+  bounded scheduler until live proof demonstrates a separate pacing problem.
+- **Trailing-debounce starvation:** resetting one timer forever during continuous resize can prevent
+  any responsive frame; do not add quiescence semantics without a separately proven need and bounded
+  latency.
+- **Ora cursor collision:** repaint while Ora owns hooked streams can trigger undeclared
+  clear/render behavior; stop through the declared contract before repaint and restart afterwards.
+- **Non-TTY escape leakage:** forced screen mode must not emit cursor-control sequences into logs or
+  pipes.
+- **Over-abstraction:** `Cli.Screen.repaint(frame)` is a stateless terminal capability; one reporter
+  controller and one pure layout boundary remain sufficient. Do not grow scheduling, model,
+  retained-state, or Vite policy into a generic terminal rendering framework.
