@@ -11,6 +11,9 @@ export declare namespace CliScreen {
 
     /** Listen to events related to the terminal screen. */
     events(until?: t.UntilInput): Events;
+
+    /** Replace the complete stdout terminal frame without a leading full-screen clear. */
+    repaint(frame: string): void;
   };
 
   /** Current terminal dimensions in character cells. */
