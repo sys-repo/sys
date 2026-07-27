@@ -11,7 +11,7 @@ export type * from '@sys/types';
 export type * from '@sys/model-slug/t';
 export type * from '@sys/model/timecode/playback/t';
 
-export type { MenuResult, MenuResultKind } from '@sys/cli/t';
+export type { Cli } from '@sys/cli/t';
 export type { Crdt } from '@sys/driver-automerge/t';
 export type { Graph } from '@sys/immutable/t';
 export type { TSchema, ValueError } from '@sys/schema/t';
