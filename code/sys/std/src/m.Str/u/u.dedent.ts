@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import type { t } from '../common.ts';
 
 /**
  * Normalize line endings, remove one template-edge blank line per side from
@@ -13,27 +13,24 @@ export const dedent: t.Str.Lib['dedent'] = (str) => {
   if (isTemplateEdge(lines[lines.length - 1], hasContent)) lines.pop();
 
   const min = minIndent(lines);
-  return lines
-    .map((line) => line.slice(Math.min(min, indentOf(line))))
-    .join('\n');
+  return lines.map((line) => line.slice(Math.min(min, indentOf(line)))).join('\n');
 };
 
-/** Determine whether one line is the single removable template edge. */
+/**
+ * Helpers:
+ */
 function isTemplateEdge(line: string | undefined, hasContent: boolean) {
   return line === '' || (hasContent && line !== undefined && isBlank(line));
 }
 
-/** Determine whether one line contains no visible content. */
 function isBlank(line: string) {
   return line.trim().length === 0;
 }
 
-/** Measure leading space/tab indentation units. */
 function indentOf(line: string) {
   return line.match(/^[ \t]*/)?.[0].length ?? 0;
 }
 
-/** Find the smallest content-line indentation without argument spreading. */
 function minIndent(lines: readonly string[]) {
   let min: number | undefined;
   for (const line of lines) {
