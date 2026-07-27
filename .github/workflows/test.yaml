@@ -40,6 +40,8 @@ jobs:
             path: code/sys.ui/ui-dom
           - name: "@sys/net"
             path: code/sys/net
+          - name: "@sys/process"
+            path: code/sys/process
           - name: "@sys/text"
             path: code/sys/text
           - name: "@sys/cli"
@@ -48,8 +50,6 @@ jobs:
             path: code/sys/crypto
           - name: "@sys/fs"
             path: code/sys/fs
-          - name: "@sys/process"
-            path: code/sys/process
           - name: "@sys/driver-process"
             path: code/sys.driver/driver-process
           - name: "@sys/driver-signer"
@@ -131,7 +131,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.3
+          deno-version: v2.9.4
       - name: Install Dependencies
         run: |
           max_attempts=3

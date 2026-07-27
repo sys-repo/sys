@@ -1,21 +1,21 @@
 {
   ".meta": {
-    "createdAt": 1784600214175,
+    "createdAt": 1785153303025,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-12c7785d0ab3aa55995f20536f9e26151acc11054c12fec181288b9d8eb47761",
-      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.140/src/m.graph/m.snapshot/m.Hash.ts"
+      "/graph": "sha256-d5ebe197611c5b7f8659f29e1d92a69abb713888094ff94a5e22952f1c576cc0",
+      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.141/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
       "pkg": {
         "name": "@sys/workspace",
-        "version": "0.0.140"
+        "version": "0.0.141"
       },
       "types": {
-        "/graph": "https://jsr.io/@sys/workspace/0.0.140/src/m.graph/t.ts"
+        "/graph": "https://jsr.io/@sys/workspace/0.0.141/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1784600214180
+    "modifiedAt": 1785153303035
   },
   "graph": {
     "orderedPaths": [
@@ -30,11 +30,11 @@
       "code/sys/immutable",
       "code/sys.ui/ui-dom",
       "code/sys/net",
+      "code/sys/process",
       "code/sys/text",
       "code/sys/cli",
       "code/sys/crypto",
       "code/sys/fs",
-      "code/sys/process",
       "code/sys.driver/driver-process",
       "code/sys.driver/driver-signer",
       "code/sys/testing",
@@ -508,10 +508,6 @@
       },
       {
         "from": "code/sys/cli",
-        "to": "code/sys/process"
-      },
-      {
-        "from": "code/sys/cli",
         "to": "code/sys/server"
       },
       {
@@ -589,6 +585,10 @@
       {
         "from": "code/sys/color",
         "to": "code/sys/cli"
+      },
+      {
+        "from": "code/sys/color",
+        "to": "code/sys/process"
       },
       {
         "from": "code/sys/color",
@@ -953,6 +953,10 @@
       {
         "from": "code/sys/process",
         "to": "code/sys/cell"
+      },
+      {
+        "from": "code/sys/process",
+        "to": "code/sys/cli"
       },
       {
         "from": "code/sys/process",
