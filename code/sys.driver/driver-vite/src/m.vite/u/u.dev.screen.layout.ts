@@ -7,6 +7,7 @@ type Viewport = t.ViteDev.Screen.Frame.Viewport;
 
 const DEFAULT_LOG_LINES = 10;
 const MAX_LOG_LINES = 200;
+const LOG_ROW_GUTTER = 1;
 
 /** Dev-screen frame layout isolated from runtime lifecycle effects. */
 export const DevScreenLayout = {
@@ -290,16 +291,17 @@ const wrangle = {
   },
 
   logRow(line: OutputLine, width: number, indexWidth: number) {
+    const rowWidth = wrangle.dimension(width - LOG_ROW_GUTTER);
     const index = c.gray(String(line.index).padStart(indexWidth, ' '));
     const source = line.source === 'stderr' ? c.yellow('err') : c.gray('out');
     const messageGap = '  ';
-    const prefix = ` ${index}  ${source}${messageGap}`;
-    const textWidth = width <= 0 ? 0 : Cli.Fmt.Text.Width.fit({
-      width,
+    const prefix = `${wrangle.indent(LOG_ROW_GUTTER)}${index}  ${source}${messageGap}`;
+    const textWidth = Cli.Fmt.Text.Width.fit({
+      width: rowWidth,
       reserve: Cli.Fmt.Text.Width.measure(prefix),
       terminal: false,
     });
     const text = clipValue(stripAnsi(line.text).trim(), textWidth);
-    return `${prefix}${text}`;
+    return clipLine(`${prefix}${text}`, rowWidth);
   },
 } as const;

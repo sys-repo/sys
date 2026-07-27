@@ -368,7 +368,7 @@ describe('DevScreen', () => {
       output.push(
         processEvent(
           'stdout',
-          '2:08:13 pm [vite] (client) page reload ui.react/ui/Prose.Markdown/-spec/common.ts\n',
+          '2:08:13 pm [vite] (client) page reload ui.react/ui/Prose.Markdown/-spec/common-界.ts\n',
         ),
       );
 
@@ -381,13 +381,41 @@ describe('DevScreen', () => {
         logLines: 2,
         ...frame(width),
       });
-      const rows = stripAnsi(raw).split('\n').filter((line) => /^\s+\d+  (err|out)  /.test(line));
+      const text = stripAnsi(raw);
+      const allRows = text.split('\n');
+      const rows = allRows.filter((line) => /^\s+\d+  (err|out)  /.test(line));
 
       expect(rows.length).to.eql(2);
-      rows.forEach((line) => expect(Cli.Fmt.Text.Width.measure(line) <= width).to.eql(true));
+      rows.forEach((line) => {
+        expect(line.startsWith(' ')).to.eql(true);
+        expect(Cli.Fmt.Text.Width.measure(line)).to.eql(width - 1);
+      });
+      expect(allRows[1]).to.eql('━'.repeat(width));
+      expect(allRows).to.include('┄'.repeat(width));
       expect(rows[0]).to.include('…');
       expect(rows[0]).to.include('deno.json');
+      expect(rows[1]).to.include('common-界.ts');
       expect(raw).to.include(c.gray('…'));
+    });
+
+    it('keeps the child lane bounded below the log-prefix width', () => {
+      const output = DevOutputLog.create({ maxLines: 1 });
+      output.push(processEvent('stdout', 'a long retained log value\n'));
+      const render = (width: number) =>
+        stripAnsi(DevScreen.toString({
+          pkg: pkg(),
+          paths: paths(),
+          url: 'http://localhost:1234/',
+          lines: output.lines(),
+          logLines: 1,
+          ...frame(width, 40),
+        }));
+
+      for (const width of [0, 1]) expectRowsBounded(render(width), width);
+      for (const width of [2, 8]) {
+        const logRow = render(width).split('\n').at(-1) ?? '';
+        expect(Cli.Fmt.Text.Width.measure(logRow)).to.eql(width - 1);
+      }
     });
 
     it('keeps extended workspace import-map rows cell-safe', () => {
@@ -441,6 +469,46 @@ describe('DevScreen', () => {
   });
 
   describe('startup frame', () => {
+    it('shares the balanced log lane with ready output', () => {
+      const output = DevOutputLog.create({ maxLines: 2 });
+      output.push(
+        processEvent(
+          'stdout',
+          '2:08:13 pm [vite] page reload /Users/phil/code/org.sys/sys/retained-tail.ts\n',
+        ),
+      );
+      output.push(processEvent('stdout', 'short\n'));
+      const width = 40;
+      const args = {
+        pkg: pkg(),
+        paths: paths(),
+        url: 'http://localhost:1234/',
+        lines: output.lines(),
+        logLines: 2,
+        ...frame(width, 40),
+      };
+      const startupRows = stripAnsi(DevScreen.startupToString({ ...args, spinner: '⠋' })).split(
+        '\n',
+      );
+      const readyRows = stripAnsi(DevScreen.toString(args)).split('\n');
+      const findLog = (rows: string[], index: number) => {
+        return rows.find((line) => line.startsWith(` ${index}  out  `)) ?? '';
+      };
+      const startupLog = findLog(startupRows, 1);
+      const readyLog = findLog(readyRows, 1);
+
+      for (const line of [startupLog, readyLog]) {
+        expect(line.startsWith(' 1  out  ')).to.eql(true);
+        expect(Cli.Fmt.Text.Width.measure(line)).to.eql(width - 1);
+        expect(line).to.include('…');
+        expect(line).to.include('tail.ts');
+      }
+      expect(findLog(startupRows, 2)).to.eql(' 2  out  short');
+      expect(findLog(readyRows, 2)).to.eql(' 2  out  short');
+      expect(readyRows[1]).to.eql('━'.repeat(width));
+      expect(readyRows).to.include('┄'.repeat(width));
+    });
+
     it('budgets header, spinner, cursor, metadata, and elastic logs as one physical frame', () => {
       const output = DevOutputLog.create({ maxLines: 5 });
       output.push(processEvent('stdout', 'one\n'));
