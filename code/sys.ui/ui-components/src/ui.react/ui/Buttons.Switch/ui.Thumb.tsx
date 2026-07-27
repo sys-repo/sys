@@ -45,7 +45,7 @@ export const SwitchThumb: React.FC<SwitchThumbProps> = (props) => {
     }),
   };
 
-  return <span className={styles.base.class} aria-hidden="true" />;
+  return <span className={styles.base.class} aria-hidden='true' />;
 };
 
 /**
