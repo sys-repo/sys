@@ -51,7 +51,7 @@ export declare namespace WebSocketServer {
   /** Hosted terminal keyboard controls. */
   export namespace Keyboard {
     /** Keyboard options supported by hosted WebSocket startup. */
-    export type Options = Pick<t.Cli.Keyboard.BindOptions, 'exit'>;
+    export type Options = Pick<t.Cli.Keyboard.Bind.Options, 'exit'>;
 
     /** Keyboard input accepted by hosted WebSocket startup. */
     export type Input = boolean | Options;
