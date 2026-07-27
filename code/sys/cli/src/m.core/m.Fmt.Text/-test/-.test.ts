@@ -1,6 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Fmt } from '../../mod.ts';
 import { Text } from '../mod.ts';
+import { ellipsize } from '../u.ellipsize.ts';
 import { fitWidth, maxVisibleWidth, padEnd, visibleWidth } from '../u.width.ts';
 import { wrap, wrapLines } from '../u.wrap.ts';
 
@@ -18,6 +19,7 @@ describe('Cli.Fmt.Text', () => {
       expect(Text.visibleWidth).to.equal(visibleWidth);
       expect(Text.padEnd).to.equal(padEnd);
       expect(Text.maxVisibleWidth).to.equal(maxVisibleWidth);
+      expect(Text.ellipsize).to.equal(ellipsize);
       expect(Text.fitWidth).to.equal(fitWidth);
       expect(Text.wrap).to.equal(wrap);
       expect(Text.wrapLines).to.equal(wrapLines);

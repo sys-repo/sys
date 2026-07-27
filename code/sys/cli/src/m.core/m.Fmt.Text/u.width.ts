@@ -1,4 +1,4 @@
-import { stripAnsi, type t } from '../common.ts';
+import { stringWidth, type t } from '../common.ts';
 import { terminal as isTerminal } from '../m.Is/u.terminal.ts';
 import { Screen } from '../m.Screen/mod.ts';
 import { nonNegativeInt, optionalPositiveInt } from './u.number.ts';
@@ -6,7 +6,7 @@ import { nonNegativeInt, optionalPositiveInt } from './u.number.ts';
 const DEFAULT_FALLBACK_WIDTH = 80;
 
 export function visibleWidth(input: string): number {
-  return stripAnsi(input).length;
+  return stringWidth(input);
 }
 
 export function padEnd(input: string, width: number): string {

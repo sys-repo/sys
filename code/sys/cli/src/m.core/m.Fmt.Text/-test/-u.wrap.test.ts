@@ -24,6 +24,18 @@ describe('Cli.Fmt.Text.wrap', () => {
         continuationIndent: 2,
       })).to.eql(['alpha', '  supercalifragilistic', '  beta']);
     });
+
+    it('makes wrap decisions using rendered terminal cells', () => {
+      expect(wrapLines('界界 ab', {
+        width: 5,
+        continuationIndent: 1,
+      })).to.eql(['界界', ' ab']);
+
+      expect(wrapLines('👨‍👩‍👧‍👦 x', {
+        width: 3,
+        continuationIndent: 1,
+      })).to.eql(['👨‍👩‍👧‍👦', ' x']);
+    });
   });
 
   describe('source structure', () => {

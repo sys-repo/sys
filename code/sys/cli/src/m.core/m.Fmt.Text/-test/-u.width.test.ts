@@ -6,6 +6,18 @@ describe('Cli.Fmt.Text.width', () => {
   describe('visible width', () => {
     it('measures rendered text after ANSI codes are stripped', () => {
       expect(visibleWidth(c.cyan('cell'))).to.eql(4);
+      expect(visibleWidth(c.cyan('界'))).to.eql(2);
+      expect(visibleWidth('\u001B]8;;https://example.com\u0007界\u001B]8;;\u0007')).to.eql(2);
+    });
+
+    it('measures terminal cells for wide, combining, and emoji graphemes', () => {
+      expect(visibleWidth('·')).to.eql(1);
+      expect(visibleWidth('界')).to.eql(2);
+      expect(visibleWidth('e\u0301')).to.eql(1);
+      expect(visibleWidth('👨‍👩‍👧‍👦')).to.eql(2);
+      expect(visibleWidth('🇳🇿')).to.eql(2);
+      expect(visibleWidth('👍🏽')).to.eql(2);
+      expect(visibleWidth('1️⃣')).to.eql(2);
     });
   });
 
@@ -16,11 +28,22 @@ describe('Cli.Fmt.Text.width', () => {
 
       expect(Cli.stripAnsi(padded)).to.eql('cell  ');
     });
+
+    it('pads by missing terminal cells rather than code units', () => {
+      const padded = padEnd(c.cyan('界'), 4);
+
+      expect(Cli.stripAnsi(padded)).to.eql('界  ');
+      expect(visibleWidth(padded)).to.eql(4);
+    });
   });
 
   describe('aggregate width', () => {
-    it('returns the largest ANSI-stripped visible width', () => {
+    it('returns the largest rendered terminal-cell width', () => {
       expect(maxVisibleWidth([c.cyan('cell'), c.gray('runtime')])).to.eql(7);
+    });
+
+    it('compares rendered terminal cells', () => {
+      expect(maxVisibleWidth(['abc', '界界'])).to.eql(4);
     });
   });
 

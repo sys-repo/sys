@@ -2,18 +2,30 @@ import type { t } from '../common.ts';
 
 /** Shared text fitting and wrapping formatter surface. */
 export type CliFormatTextLib = {
-  /** Visible string width after ANSI escape codes are stripped. */
+  /** Rendered terminal-cell width; ANSI escape codes consume no cells. */
   readonly visibleWidth: (input: string) => number;
   /** Pad a string to the requested visible width. */
   readonly padEnd: (input: string, width: number) => string;
   /** Return the largest visible width among the given strings. */
   readonly maxVisibleWidth: (inputs: readonly string[]) => number;
+  /** Middle-ellipsize plain single-line text within a terminal-cell budget. */
+  readonly ellipsize: (
+    input: string,
+    width: number,
+    options?: CliFormatTextEllipsizeOptions,
+  ) => string;
   /** Resolve a fitted usable width from explicit, terminal, or fallback widths. */
   readonly fitWidth: (options?: CliFormatTextFitOptions) => number;
   /** Soft-wrap prose and join the result with newlines. */
   readonly wrap: (input: string, options: CliFormatTextWrapOptions) => string;
   /** Soft-wrap prose into display lines. */
   readonly wrapLines: (input: string, options: CliFormatTextWrapOptions) => readonly string[];
+};
+
+/** Options for terminal-cell-aware middle ellipsis. */
+export type CliFormatTextEllipsizeOptions = {
+  /** Plain marker inserted between the retained start and end. Defaults to `…`. */
+  readonly ellipsis?: string;
 };
 
 /** Width fitting options for terminal-aware text layout. */
