@@ -1,12 +1,7 @@
 import { Is, stripAnsi, type t } from '../common.ts';
 
 type Source = t.Process.StdStream;
-
-type Line = {
-  readonly index: number;
-  readonly source: Source;
-  readonly text: string;
-};
+type Line = t.ViteDev.Output.Line;
 
 type State = {
   readonly lines: Line[];
@@ -16,21 +11,17 @@ type State = {
   stderr: string;
 };
 
-type Options = {
-  readonly maxLines?: number;
-  readonly maxStderrChars?: number;
-  readonly suppressVisible?: readonly RegExp[];
-};
-
 const DEFAULT_MAX_LINES = 40;
 const DEFAULT_MAX_STDERR_CHARS = 60_000;
 
 /** Capture bounded visible dev log rows for startup diagnostics and parent-owned reporters. */
-export const DevOutputLog = {
-  create(options: Options = {}) {
+export const DevOutputLog: t.ViteDev.Output.Lib = {
+  create(options = {}) {
     const maxLines = wrangle.maxLines(options.maxLines);
     const maxStderrChars = wrangle.maxStderrChars(options.maxStderrChars);
-    const suppressVisible = options.suppressVisible ?? [];
+    const suppressVisible = (options.suppressVisible ?? []).map((pattern) => {
+      return new RegExp(pattern.source, pattern.flags);
+    });
     const state: State = {
       lines: [],
       pending: { stdout: '', stderr: '' },
@@ -96,7 +87,7 @@ const wrangle = {
     source: Source,
     input: string,
     maxLines: number,
-    suppressVisible: readonly RegExp[],
+    suppressVisible: RegExp[],
   ) {
     const text = input.replaceAll('\r', '\n');
     const parts = `${state.pending[source]}${text}`.split('\n');
@@ -119,7 +110,7 @@ const wrangle = {
     source: Source,
     text: string,
     maxLines: number,
-    suppressVisible: readonly RegExp[],
+    suppressVisible: RegExp[],
     index?: number,
   ) {
     if (!wrangle.isVisibleLine(text, suppressVisible)) return;
@@ -127,7 +118,7 @@ const wrangle = {
     while (state.lines.length > maxLines) state.lines.shift();
   },
 
-  snapshot(state: State, maxLines: number, suppressVisible: readonly RegExp[]): readonly Line[] {
+  snapshot(state: State, maxLines: number, suppressVisible: RegExp[]): Line[] {
     if (maxLines === 0) return [];
     const pending: Line[] = [];
     wrangle.pushPendingLine(state, pending, 'stdout', state.pending.stdout, suppressVisible);
@@ -140,13 +131,13 @@ const wrangle = {
     lines: Line[],
     source: Source,
     text: string,
-    suppressVisible: readonly RegExp[],
+    suppressVisible: RegExp[],
   ) {
     if (!wrangle.isVisibleLine(text, suppressVisible)) return;
     lines.push({ index: state.pendingIndex[source] ?? state.nextIndex, source, text });
   },
 
-  isVisibleLine(text: string, suppressVisible: readonly RegExp[]) {
+  isVisibleLine(text: string, suppressVisible: RegExp[]) {
     const value = stripAnsi(text).trim();
     if (!value) return false;
     return !suppressVisible.some((pattern) => {
@@ -159,7 +150,7 @@ const wrangle = {
     return state.nextIndex++;
   },
 
-  tailText(lines: readonly Line[]) {
+  tailText(lines: Line[]) {
     return lines
       .map((line) => {
         const source = line.source === 'stderr' ? 'err' : 'out';

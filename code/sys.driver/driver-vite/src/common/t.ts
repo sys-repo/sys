@@ -6,11 +6,11 @@ export type {
   BuildEnvironmentOptions as ViteBuildEnvironmentOptions,
   ConfigEnv as ViteConfigEnv,
   LibraryOptions as ViteLibraryOptions,
-  UserConfigExport as ViteUserConfigExport,
   Plugin as VitePlugin,
   PluginOption as VitePluginOption,
   Rollup,
   UserConfig as ViteUserConfig,
+  UserConfigExport as ViteUserConfigExport,
 } from 'vite';
 
 /**
@@ -18,6 +18,7 @@ export type {
  */
 export type * from '@sys/types';
 
+export type { Cli } from '@sys/cli/t';
 export type { DenoDeps, DenoFile } from '@sys/driver-deno/t';
 export type { Process } from '@sys/process/t';
 export type { Time } from '@sys/std/t';

@@ -38,7 +38,7 @@ const SUPPRESS_VISIBLE_OUTPUT = [
    * child row. Raw passthrough mode is unaffected.
    */
   /^starting(?:\s+(?:vite|dev\s+server))?(?:\.{3}|…)?$/i,
-] as const;
+];
 
 export const REGEX = {
   // Example matches:
@@ -63,12 +63,15 @@ export const REGEX = {
  */
 export const dev: t.Vite.Lib['dev'] = async (input) => {
   const { silent = false, pkg, strictPort = false } = input;
-  const reporter = DevScreen.resolveReporter(input.reporter, { silent, hasPkg: Boolean(pkg) });
-  const parentOwnsOutput = reporter === 'screen';
+  const reporterMode = DevScreen.resolveReporter(input.reporter, {
+    silent,
+    hasPkg: Boolean(pkg),
+  });
+  const parentOwnsOutput = reporterMode === 'screen';
   const startedAt = Time.now.timestamp as t.Msecs;
   const end = Perf.section(
     'dev.parent.total',
-    { cwd: input.cwd ?? '', silent, reporter },
+    { cwd: input.cwd ?? '', silent, reporter: reporterMode },
     { level: 1 },
   );
   const paths = input.paths ??
@@ -140,17 +143,6 @@ export const dev: t.Vite.Lib['dev'] = async (input) => {
     suppressVisible: SUPPRESS_VISIBLE_OUTPUT,
   });
   if (parentOwnsOutput && pkg) output.pushDisplay('stdout', STARTING_DEV_SERVER);
-  const screen = parentOwnsOutput && pkg
-    ? DevScreen.create({
-      pkg,
-      dist,
-      paths,
-      url: () => resolvedUrl,
-      output,
-      logLines,
-    })
-    : undefined;
-  let ready = false;
   const proc = Process.spawn({
     cwd,
     args,
@@ -159,34 +151,38 @@ export const dev: t.Vite.Lib['dev'] = async (input) => {
     readySignal,
     until: input.until,
   });
-  const startup = parentOwnsOutput && pkg
-    ? DevScreen.createStartup({
-      pkg,
-      dist,
-      paths,
-      url: () => resolvedUrl,
-      output,
-      logLines,
-    })
-    : undefined;
-  const pushOutput = (e: t.Process.Event) => {
-    output.push(e);
-    ready ? screen?.redrawSoon() : startup?.redrawSoon();
-  };
-  proc.onStdOut(pushOutput);
-  proc.onStdErr(pushOutput);
   const { dispose } = proc;
+  let screen: t.ViteDev.Screen.Reporter | undefined;
   const cleanup = async () => {
-    startup?.dispose();
-    screen?.dispose();
     try {
-      await dispose();
+      screen?.dispose();
     } finally {
-      await disposeBootstrap();
+      try {
+        await dispose();
+      } finally {
+        await disposeBootstrap();
+      }
     }
   };
 
   try {
+    screen = parentOwnsOutput && pkg
+      ? DevScreen.create({
+        pkg,
+        dist,
+        paths,
+        url: () => resolvedUrl,
+        output,
+        logLines,
+      })
+      : undefined;
+    const pushOutput = (e: t.Process.Event) => {
+      output.push(e);
+      screen?.outputChanged();
+    };
+    proc.onStdOut(pushOutput);
+    proc.onStdErr(pushOutput);
+
     const waitForReady = Perf.section('dev.parent.waitForReady', { requestedUrl }, { level: 2 });
     await proc.whenReady();
     waitForReady({ resolvedUrl });
@@ -229,9 +225,16 @@ export const dev: t.Vite.Lib['dev'] = async (input) => {
     elapsed: Time.elapsed(startedAt).msec,
   }, { level: 1 });
   end({ port, resolvedUrl, elapsed: Time.elapsed(startedAt).msec });
-  ready = true;
-  startup?.dispose();
-  screen?.redraw();
+  try {
+    screen?.ready();
+  } catch (error) {
+    try {
+      await cleanup();
+    } catch {
+      // Best effort cleanup: preserve the reporter transition failure.
+    }
+    throw startupError({ cwd, requestedPort, strictPort, output, cause: error });
+  }
   const keyboard = keyboardFactory({
     pkg,
     dist,
@@ -272,7 +275,7 @@ function startupError(args: {
   cwd: t.StringDir;
   requestedPort: number;
   strictPort: boolean;
-  output?: ReturnType<typeof DevOutputLog.create>;
+  output?: t.ViteDev.Output.Log;
   cause: unknown;
 }) {
   const { cwd, requestedPort, strictPort, cause, output } = args;

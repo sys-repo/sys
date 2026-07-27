@@ -81,6 +81,18 @@ describe('DevOutputLog', () => {
     expect(log.tailText()).to.eql(' out   ready');
   });
 
+  it('captures suppression policy without retaining or mutating caller-owned input', () => {
+    const pattern = /^hidden$/g;
+    const suppressVisible = [pattern];
+    const log = DevOutputLog.create({ suppressVisible });
+    suppressVisible.splice(0);
+
+    log.push(event('stdout', 'hidden\n'));
+
+    expect(log.lines()).to.eql([]);
+    expect(pattern.lastIndex).to.eql(0);
+  });
+
   it('allows parent display rows to seed the visible log while suppressing duplicate child rows', () => {
     const log = DevOutputLog.create({ suppressVisible: [/^starting(?:\s+vite)?(?:\.{3}|…)?$/i] });
 

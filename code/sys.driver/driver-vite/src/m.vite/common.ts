@@ -1,4 +1,4 @@
-export type * as t from '../common/t.ts';
+export type * as t from './t.internal.ts';
 
 export { pkg } from '../pkg.ts';
 
