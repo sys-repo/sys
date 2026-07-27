@@ -13,14 +13,13 @@ type SchedulerEntry = {
 
 describe('DevScreen runtime', () => {
   describe('session acquisition', () => {
-    it('starts with one header, one spinner, and the seeded status row', () => {
+    it('starts with one header repaint, one spinner, and the seeded status row', () => {
       const runtime = createRuntimeHarness();
-      const { reporter, spinner, prints } = runtime;
+      const { reporter, spinner, repaints } = runtime;
 
-      expect(runtime.clears).to.eql(1);
-      expect(prints.length).to.eql(1);
-      expect(prints[0]?.phase).to.eql('startup');
-      expect(stripAnsi(prints[0]?.text ?? '').startsWith('@sys/example')).to.eql(true);
+      expect(repaints.length).to.eql(1);
+      expect(stripAnsi(repaints[0] ?? '').startsWith('@sys/example')).to.eql(true);
+      expect(runtime.effects).to.eql(['repaint', 'spinner:start']);
       expect(spinner.starts).to.eql(1);
       expect(spinner.stops).to.eql(0);
       expect(spinner.renders).to.eql(0);
@@ -40,8 +39,7 @@ describe('DevScreen runtime', () => {
       reporter.toggleExtended(workspace());
       reporter.dispose();
 
-      expect(runtime.clears).to.eql(0);
-      expect(runtime.prints).to.eql([]);
+      expect(runtime.repaints).to.eql([]);
       expect(spinner.starts).to.eql(0);
       expect(spinner.stops).to.eql(0);
       expect(terminal.events.disposed).to.eql(true);
@@ -55,7 +53,7 @@ describe('DevScreen runtime', () => {
       });
 
       expect(runtime.terminal.until).to.equal(controller.signal);
-      expect(stripAnsi(runtime.prints[0]?.text ?? '').split('\n')[1]).to.eql('━'.repeat(36));
+      expect(stripAnsi(runtime.repaints[0] ?? '').split('\n')[1]).to.eql('━'.repeat(36));
 
       runtime.reporter.dispose();
     });
@@ -92,6 +90,34 @@ describe('DevScreen runtime', () => {
       expect(spinner.stops).to.eql(1);
       expect(terminal.events.disposed).to.eql(true);
     });
+
+    it('releases acquired screen effects without masking an initial repaint failure', () => {
+      const output = createOutputLog();
+      const spinner = FakeSpinner.create();
+      const terminal = createTerminalHarness(spinner);
+      const cause = new Error('repaint-failed');
+      let thrown: unknown;
+      terminal.deps.repaint = () => {
+        throw cause;
+      };
+
+      try {
+        DevScreen.create({
+          pkg: pkg(),
+          paths: paths(),
+          url: () => 'http://localhost:1234/',
+          output,
+          deps: { terminal: terminal.deps },
+        });
+      } catch (error) {
+        thrown = error;
+      }
+
+      expect(thrown).to.equal(cause);
+      expect(spinner.starts).to.eql(0);
+      expect(spinner.stops).to.eql(0);
+      expect(terminal.events.disposed).to.eql(true);
+    });
   });
 
   describe('startup phase', () => {
@@ -114,8 +140,7 @@ describe('DevScreen runtime', () => {
       expect(spinner.starts).to.eql(1);
       expect(spinner.stops).to.eql(0);
       expect(spinner.renders).to.eql(0);
-      expect(runtime.clears).to.eql(1);
-      expect(runtime.prints.length).to.eql(1);
+      expect(runtime.repaints.length).to.eql(1);
 
       reporter.dispose();
     });
@@ -133,9 +158,15 @@ describe('DevScreen runtime', () => {
       expect(scheduler.schedules).to.eql(1);
       scheduler.flush();
 
-      expect(runtime.clears).to.eql(2);
-      expect(runtime.prints.length).to.eql(2);
-      expect(stripAnsi(runtime.prints.at(-1)?.text ?? '').split('\n')[1]).to.eql('━'.repeat(20));
+      expect(runtime.repaints.length).to.eql(2);
+      expect(stripAnsi(runtime.repaints.at(-1) ?? '').split('\n')[1]).to.eql('━'.repeat(20));
+      expect(runtime.effects).to.eql([
+        'repaint',
+        'spinner:start',
+        'spinner:stop',
+        'repaint',
+        'spinner:start',
+      ]);
       expect(spinner.starts).to.eql(2);
       expect(spinner.stops).to.eql(1);
 
@@ -175,7 +206,7 @@ describe('DevScreen runtime', () => {
       reporter.dispose();
     });
 
-    it('clear absorbs pending output and leaves a canceled callback inert', () => {
+    it('clear-log action absorbs pending output and leaves a canceled callback inert', () => {
       const runtime = createRuntimeHarness();
       const { output, reporter, scheduler, spinner } = runtime;
       output.push(processEvent('stdout', 'pending output\n'));
@@ -186,14 +217,12 @@ describe('DevScreen runtime', () => {
       expect(scheduler.cancels).to.eql(1);
       expect(scheduler.active).to.eql(0);
       expect(output.lines()).to.eql([]);
-      expect(runtime.clears).to.eql(2);
-      expect(runtime.prints.map((item) => item.phase)).to.eql(['startup', 'startup']);
+      expect(runtime.repaints.length).to.eql(2);
       expect(spinner.starts).to.eql(2);
       expect(spinner.stops).to.eql(1);
 
       scheduler.force(0);
-      expect(runtime.clears).to.eql(2);
-      expect(runtime.prints.length).to.eql(2);
+      expect(runtime.repaints.length).to.eql(2);
       expect(spinner.starts).to.eql(2);
       expect(spinner.stops).to.eql(1);
 
@@ -210,14 +239,38 @@ describe('DevScreen runtime', () => {
       reporter.ready();
 
       expect(scheduler.cancels).to.eql(1);
-      expect(runtime.prints.map((item) => item.phase)).to.eql(['startup', 'ready']);
-      expect(stripAnsi(runtime.prints.at(-1)?.text ?? '').split('\n')[1]).to.eql('━'.repeat(32));
-      const prints = runtime.prints.length;
+      expect(runtime.repaints.length).to.eql(2);
+      expect(stripAnsi(runtime.repaints.at(-1) ?? '').split('\n')[1]).to.eql('━'.repeat(32));
+      const repaints = runtime.repaints.length;
 
       scheduler.force(0);
-      expect(runtime.prints.length).to.eql(prints);
+      expect(runtime.repaints.length).to.eql(repaints);
 
       reporter.dispose();
+    });
+
+    it('adopts ready and stops the spinner without masking a repaint failure', () => {
+      const runtime = createRuntimeHarness();
+      const cause = new Error('ready-repaint-failed');
+      let thrown: unknown;
+      runtime.terminal.deps.repaint = () => {
+        throw cause;
+      };
+
+      try {
+        runtime.reporter.ready();
+      } catch (error) {
+        thrown = error;
+      }
+      runtime.reporter.ready();
+
+      expect(thrown).to.equal(cause);
+      expect(runtime.spinner.starts).to.eql(1);
+      expect(runtime.spinner.stops).to.eql(1);
+      expect(runtime.effects).to.eql(['repaint', 'spinner:start', 'spinner:stop']);
+
+      runtime.reporter.dispose();
+      expect(runtime.terminal.events.disposed).to.eql(true);
     });
 
     it('absorbs pending startup work and transitions exactly once', () => {
@@ -235,15 +288,14 @@ describe('DevScreen runtime', () => {
       expect(scheduler.active).to.eql(0);
       expect(spinner.starts).to.eql(1);
       expect(spinner.stops).to.eql(1);
-      expect(runtime.clears).to.eql(2);
-      expect(runtime.prints.map((item) => item.phase)).to.eql(['startup', 'ready']);
-      const ready = stripAnsi(runtime.prints[1]?.text ?? '');
+      expect(runtime.repaints.length).to.eql(2);
+      expect(runtime.effects).to.eql(['repaint', 'spinner:start', 'spinner:stop', 'repaint']);
+      const ready = stripAnsi(runtime.repaints[1] ?? '');
       expect(ready).to.include(' 1  out  starting dev server…');
       expect(ready).to.include('VITE v8.1.5 ready in 10 ms');
 
       scheduler.force(0);
-      expect(runtime.clears).to.eql(2);
-      expect(runtime.prints.length).to.eql(2);
+      expect(runtime.repaints.length).to.eql(2);
       expect(spinner.starts).to.eql(1);
       expect(spinner.stops).to.eql(1);
 
@@ -257,16 +309,14 @@ describe('DevScreen runtime', () => {
       const runtime = createRuntimeHarness();
       const { reporter, scheduler, terminal } = runtime;
       reporter.ready();
-      const prints = runtime.prints.length;
+      const repaints = runtime.repaints.length;
 
       terminal.resize({ width: 26, height: 12 }, false);
       expect(scheduler.schedules).to.eql(1);
       scheduler.flush();
 
-      const rendered = runtime.prints.at(-1);
-      const text = rendered?.text ?? '';
-      expect(runtime.prints.length).to.eql(prints + 1);
-      expect(rendered?.phase).to.eql('ready');
+      const text = runtime.repaints.at(-1) ?? '';
+      expect(runtime.repaints.length).to.eql(repaints + 1);
       expect(stripAnsi(text).split('\n')[1]).to.eql('━'.repeat(26));
       expect(text.split('\n').length <= 11).to.eql(true);
 
@@ -277,8 +327,7 @@ describe('DevScreen runtime', () => {
       const runtime = createRuntimeHarness();
       const { output, reporter, scheduler } = runtime;
       reporter.ready();
-      const clears = runtime.clears;
-      const prints = runtime.prints.length;
+      const repaints = runtime.repaints.length;
 
       output.push(processEvent('stdout', 'one\n'));
       reporter.outputChanged();
@@ -288,11 +337,9 @@ describe('DevScreen runtime', () => {
       expect(scheduler.schedules).to.eql(1);
       scheduler.flush();
 
-      expect(runtime.clears).to.eql(clears + 1);
-      expect(runtime.prints.length).to.eql(prints + 1);
-      expect(runtime.prints.at(-1)?.phase).to.eql('ready');
-      expect(stripAnsi(runtime.prints.at(-1)?.text ?? '')).to.include(' out  one');
-      expect(stripAnsi(runtime.prints.at(-1)?.text ?? '')).to.include(' err  two');
+      expect(runtime.repaints.length).to.eql(repaints + 1);
+      expect(stripAnsi(runtime.repaints.at(-1) ?? '')).to.include(' out  one');
+      expect(stripAnsi(runtime.repaints.at(-1) ?? '')).to.include(' err  two');
 
       reporter.dispose();
     });
@@ -308,11 +355,11 @@ describe('DevScreen runtime', () => {
 
       expect(scheduler.cancels).to.eql(1);
       expect(scheduler.active).to.eql(0);
-      expect(stripAnsi(runtime.prints.at(-1)?.text ?? '')).to.include('options:');
-      const prints = runtime.prints.length;
+      expect(stripAnsi(runtime.repaints.at(-1) ?? '')).to.include('options:');
+      const repaints = runtime.repaints.length;
 
       scheduler.force(0);
-      expect(runtime.prints.length).to.eql(prints);
+      expect(runtime.repaints.length).to.eql(repaints);
 
       reporter.dispose();
     });
@@ -323,23 +370,23 @@ describe('DevScreen runtime', () => {
       reporter.ready();
 
       reporter.toggleOptions();
-      expect(stripAnsi(runtime.prints.at(-1)?.text ?? '')).to.include('options:');
+      expect(stripAnsi(runtime.repaints.at(-1) ?? '')).to.include('options:');
 
       terminal.resize({ width: 34, height: 22 }, false);
       scheduler.flush();
-      const resized = stripAnsi(runtime.prints.at(-1)?.text ?? '');
+      const resized = stripAnsi(runtime.repaints.at(-1) ?? '');
       expect(resized).to.include('options:');
       expect(resized.split('\n')[1]).to.eql('━'.repeat(34));
 
       reporter.toggleExtended(workspace());
-      expect(stripAnsi(runtime.prints.at(-1)?.text ?? '')).to.include('workspace-render');
+      expect(stripAnsi(runtime.repaints.at(-1) ?? '')).to.include('workspace-render');
 
       reporter.toggleExtended(workspace());
-      expect(stripAnsi(runtime.prints.at(-1)?.text ?? '')).to.not.include('workspace-render');
+      expect(stripAnsi(runtime.repaints.at(-1) ?? '')).to.not.include('workspace-render');
 
       reporter.clearLog();
       expect(output.lines()).to.eql([]);
-      expect(runtime.prints.at(-1)?.phase).to.eql('ready');
+      expect(stripAnsi(runtime.repaints.at(-1) ?? '')).to.include('@sys/example');
 
       reporter.dispose();
     });
@@ -418,8 +465,7 @@ describe('DevScreen runtime', () => {
 
       expect(scheduler.cancels).to.eql(1);
       expect(spinner.stops).to.eql(1);
-      const clears = runtime.clears;
-      const prints = runtime.prints.length;
+      const repaints = runtime.repaints.length;
 
       scheduler.force(0);
       reporter.outputChanged();
@@ -428,8 +474,7 @@ describe('DevScreen runtime', () => {
       reporter.toggleOptions();
       reporter.toggleExtended(workspace());
 
-      expect(runtime.clears).to.eql(clears);
-      expect(runtime.prints.length).to.eql(prints);
+      expect(runtime.repaints.length).to.eql(repaints);
       expect(output.lines().map((item) => item.text)).to.eql([
         'starting dev server…',
         'retained',
@@ -440,8 +485,7 @@ describe('DevScreen runtime', () => {
       expect(terminal.events.disposed).to.eql(true);
 
       terminal.resize({ width: 20, height: 10 });
-      expect(runtime.clears).to.eql(clears);
-      expect(runtime.prints.length).to.eql(prints);
+      expect(runtime.repaints.length).to.eql(repaints);
     });
   });
 });
@@ -456,11 +500,27 @@ function createRuntimeHarness(options: {
 } = {}) {
   const output = createOutputLog();
   const spinner = FakeSpinner.create();
+  const effects: string[] = [];
+  const startSpinner = spinner.start;
+  const stopSpinner = spinner.stop;
+  spinner.start = (text) => {
+    effects.push('spinner:start');
+    return startSpinner(text);
+  };
+  spinner.stop = () => {
+    effects.push('spinner:stop');
+    return stopSpinner();
+  };
   const scheduler = createScheduler();
   const terminal = createTerminalHarness(spinner, {
     resizeOnSize: options.resizeOnSize,
     disposedEvents: options.disposedEvents,
   });
+  const repaint = terminal.deps.repaint;
+  terminal.deps.repaint = (frame) => {
+    effects.push('repaint');
+    repaint(frame);
+  };
   const reporter = DevScreen.create({
     pkg: pkg(),
     paths: paths(),
@@ -480,10 +540,8 @@ function createRuntimeHarness(options: {
     scheduler,
     spinner,
     terminal,
-    prints: terminal.prints,
-    get clears() {
-      return terminal.clears;
-    },
+    effects,
+    repaints: terminal.repaints,
   };
 }
 
@@ -497,8 +555,7 @@ function createTerminalHarness(
   let viewport: t.ViteDev.Screen.Frame.Viewport = { width: 80, height: 24 };
   let until: t.UntilInput | undefined;
   let sizeCalls = 0;
-  let clears = 0;
-  const prints: { phase: t.ViteDev.Screen.Runtime.RenderPhase; text: string }[] = [];
+  const repaints: string[] = [];
   const events = Rx.lifecycle();
   const resize$$ = Rx.subject<t.Cli.Screen.SizeChanged>();
   const resize$ = resize$$.asObservable();
@@ -517,8 +574,7 @@ function createTerminalHarness(
       until = input;
       return screenEvents;
     },
-    clear: () => clears += 1,
-    print: (phase, text) => prints.push({ phase, text }),
+    repaint: (frame) => repaints.push(frame),
     spinner: () => spinner,
   };
 
@@ -526,7 +582,7 @@ function createTerminalHarness(
     deps,
     events,
     screenEvents,
-    prints,
+    repaints,
     resize(next: t.ViteDev.Screen.Frame.Viewport, updateMeasurement = true) {
       const before = viewport;
       if (updateMeasurement) viewport = { ...next };
@@ -534,9 +590,6 @@ function createTerminalHarness(
     },
     get until() {
       return until;
-    },
-    get clears() {
-      return clears;
     },
   };
 }

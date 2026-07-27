@@ -55,16 +55,15 @@ export declare namespace ViteDev {
 
     /** Effectful dev-screen runtime contracts. */
     export namespace Runtime {
-      /** Dev-screen phases that can produce terminal output. */
-      export type RenderPhase = 'startup' | 'ready';
+      /** Active dev-screen reporter phases. */
+      export type Phase = 'startup' | 'ready';
 
       /** Cohesive terminal effects owned by one dev-screen reporter session. */
       export type Terminal = {
         cursorRows: number;
         size(): t.Cli.Screen.Size;
         events(until?: t.UntilInput): t.Cli.Screen.Events;
-        clear(): void;
-        print(phase: RenderPhase, text: string): void;
+        repaint(frame: string): void;
         spinner(): t.Cli.Spinner.Instance;
       };
 

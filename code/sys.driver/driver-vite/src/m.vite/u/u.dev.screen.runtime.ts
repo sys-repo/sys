@@ -1,12 +1,12 @@
 import { Cli, type t, Time } from '../common.ts';
 import { DevScreenLayout } from './u.dev.screen.layout.ts';
 
-type Phase = t.ViteDev.Screen.Runtime.RenderPhase | 'disposed';
+type Phase = t.ViteDev.Screen.Runtime.Phase | 'disposed';
 type Invalidation = 'content' | 'layout';
 type Cleanup = () => void;
 type ResizeSubscription = { unsubscribe(): void };
 
-const REDRAW_DELAY = 50 as t.Msecs;
+const REPAINT_DELAY = 50 as t.Msecs;
 
 const DISPOSED_REPORTER = Object.freeze(
   {
@@ -24,8 +24,7 @@ const DEFAULT_TERMINAL = Object.freeze(
     cursorRows: 1,
     size: () => Cli.Screen.size(),
     events: (until) => Cli.Screen.events(until),
-    clear: () => console.clear(),
-    print: (_phase, text) => console.info(text),
+    repaint: (frame) => Cli.Screen.repaint(frame),
     spinner: () => Cli.Spinner.create('', { target: 'stdout' }),
   } satisfies t.ViteDev.Screen.Runtime.Terminal,
 );
@@ -35,7 +34,7 @@ export const DevScreenRuntime = {
   create(args: t.ViteDev.Screen.Runtime.CreateArgs): t.ViteDev.Screen.Reporter {
     const { pkg, dist, paths, output } = args;
     const terminal = args.deps?.terminal ?? DEFAULT_TERMINAL;
-    const schedule = args.deps?.schedule ?? ((run) => Time.delay(REDRAW_DELAY, run));
+    const schedule = args.deps?.schedule ?? ((run) => Time.delay(REPAINT_DELAY, run));
     const logLines = DevScreenLayout.logLines(args.logLines);
     const screenEvents = terminal.events(args.until);
     if (screenEvents.disposed) return DISPOSED_REPORTER;
@@ -112,9 +111,8 @@ export const DevScreenRuntime = {
 
     const renderStartupLayout = () => {
       stopSpinner();
-      terminal.clear();
       const frame = startupFrame();
-      if (frame.header) terminal.print('startup', frame.header);
+      terminal.repaint(frame.header);
       if (frame.showSpinner) {
         installStartupBody(frame);
         startSpinner();
@@ -122,9 +120,7 @@ export const DevScreenRuntime = {
     };
 
     const renderReady = () => {
-      terminal.clear();
-      const frame = readyFrame();
-      if (frame) terminal.print('ready', frame);
+      terminal.repaint(readyFrame());
     };
 
     const render = (kind: Invalidation) => {
