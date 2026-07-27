@@ -1,7 +1,13 @@
 import { c, Cli, describe, expect, it, stripAnsi, type t } from '../../-test.ts';
 import { DevOutputLog } from '../u/u.dev.output.ts';
 import { DevScreen } from '../u/u.dev.screen.ts';
-import { paths, pkg, processEvent, workspaceWithAliases } from './u.fixture.dev-screen.ts';
+import {
+  paths,
+  pkg,
+  processEvent,
+  workspace,
+  workspaceWithAliases,
+} from './u.fixture.dev-screen.ts';
 
 const HASH = `sha256-${'88f8e3e041df504c3177b35ad742f4aebf99951a0c832fb64c1e1b2edef'}ccd11`;
 const STARTING_DEV_SERVER = 'starting dev server…';
@@ -48,7 +54,7 @@ describe('DevScreen', () => {
           paths: paths(),
           url: 'http://localhost:1234/',
           lines: [],
-          width,
+          ...frame(width),
         })).split('\n')[0];
 
       expect(header(scopedWithVersionWidth).startsWith(pkgName)).to.eql(true);
@@ -76,8 +82,7 @@ describe('DevScreen', () => {
         paths: paths(),
         url: 'http://localhost:1234/',
         lines: [],
-        width: 80,
-        height: 40,
+        ...frame(80, 40),
       });
       const [rawHeader = ''] = raw.split('\n');
 
@@ -103,8 +108,7 @@ describe('DevScreen', () => {
         paths: customPaths,
         url: 'http://localhost:12345/',
         lines: [],
-        width,
-        height: 40,
+        ...frame(width, 40),
       }));
       const rows = text.split('\n');
       const urlLine = rows.find((line) => line.includes('http://')) ?? '';
@@ -133,8 +137,7 @@ describe('DevScreen', () => {
         lines: output.lines(),
         logLines: 1,
         showOptions: true,
-        width,
-        height: 40,
+        ...frame(width, 40),
       });
 
       expectRowsBounded(raw, width);
@@ -152,14 +155,34 @@ describe('DevScreen', () => {
         url: 'http://localhost:1234/',
         lines: output.lines(),
         logLines: 10,
-        width: 24,
-        height: 11,
+        ...frame(24, 11),
       }));
 
-      expect(text.split('\n').length).to.eql(11);
+      expect(text.split('\n').length).to.eql(10);
       expect(text).to.not.include(' out  one');
-      expect(text).to.include(' out  two');
+      expect(text).to.not.include(' out  two');
       expect(text).to.include(' err  warn');
+    });
+
+    it('keeps startup and ready output physically bounded in tiny viewports', () => {
+      for (const width of [0, 1, 8]) {
+        for (const height of [0, 1, 2, 3, 4, 5]) {
+          const args = {
+            pkg: pkg(),
+            paths: paths(),
+            url: 'http://localhost:1234/',
+            lines: [],
+            ...frame(width, height),
+          };
+          const startup = DevScreen.startupToString({ ...args, spinner: '⠋' });
+          const ready = DevScreen.toString(args);
+
+          expect(physicalRows(startup) <= height).to.eql(true);
+          expect(physicalRows(ready) <= height).to.eql(true);
+          expectRowsBounded(startup, width);
+          expectRowsBounded(ready, width);
+        }
+      }
     });
   });
 
@@ -177,7 +200,7 @@ describe('DevScreen', () => {
         url: 'http://localhost:1234/',
         lines: output.lines(),
         logLines: 2,
-        width,
+        ...frame(width),
       });
       const text = stripAnsi(raw);
       const rows = text.split('\n');
@@ -193,6 +216,78 @@ describe('DevScreen', () => {
       expect(text).to.include(' 3  err  warn');
     });
 
+    it('contracts and re-expands the visible tail without deleting retained output', () => {
+      const output = DevOutputLog.create({ maxLines: 10 });
+      for (let index = 1; index <= 5; index++) {
+        output.push(processEvent('stdout', `line-${index}\n`));
+      }
+      const render = (height: number) =>
+        stripAnsi(DevScreen.toString({
+          pkg: pkg(),
+          paths: paths(),
+          url: 'http://localhost:1234/',
+          lines: output.lines(),
+          logLines: 5,
+          ...frame(40, height),
+        }));
+
+      const short = render(10);
+      const medium = render(11);
+      const tall = render(13);
+
+      expect(short).to.not.include('line-5');
+      expect(medium).to.not.include('line-4');
+      expect(medium).to.include('line-5');
+      expect(tall).to.not.include('line-2');
+      expect(tall).to.include('line-3');
+      expect(tall).to.include('line-4');
+      expect(tall).to.include('line-5');
+      expect(output.lines().map((line) => line.text)).to.eql([
+        'line-1',
+        'line-2',
+        'line-3',
+        'line-4',
+        'line-5',
+      ]);
+    });
+
+    it('contracts logs and extended detail before operational options or core metadata', () => {
+      const output = DevOutputLog.create({ maxLines: 5 });
+      output.push(processEvent('stdout', 'retained-log\n'));
+      const ws = workspace(
+        Array.from({ length: 10 }, (_, index) => `workspace-${index + 1}`).join('\n'),
+      );
+      const render = (height: number) =>
+        stripAnsi(DevScreen.toString({
+          pkg: pkg(),
+          paths: paths(),
+          url: 'http://localhost:1234/',
+          lines: output.lines(),
+          logLines: 5,
+          showOptions: true,
+          ws,
+          ...frame(50, height),
+        }));
+
+      const short = render(16);
+      const medium = render(24);
+      const tall = render(35);
+
+      expect(short).to.include('input');
+      expect(short).to.include('output');
+      expect(short).to.include('options:');
+      expect(short).to.not.include('workspace-1');
+      expect(short).to.not.include('retained-log');
+
+      expect(medium).to.include('options:');
+      expect(medium).to.include('workspace-1');
+      expect(medium).to.not.include('workspace-10');
+      expect(medium).to.not.include('retained-log');
+
+      expect(tall).to.include('workspace-10');
+      expect(tall).to.include('retained-log');
+    });
+
     it('aligns metadata and option keys with widening log indices', () => {
       const output = DevOutputLog.create({ maxLines: 120 });
       for (let current = 1; current <= 100; current++) {
@@ -206,7 +301,7 @@ describe('DevScreen', () => {
         lines: output.lines(),
         logLines: 2,
         showOptions: true,
-        width: 80,
+        ...frame(80),
       }));
       const lines = text.split('\n');
       const header = lines[0];
@@ -239,8 +334,7 @@ describe('DevScreen', () => {
           paths: customPaths,
           url: 'http://x:1/',
           lines: [],
-          width,
-          height: 40,
+          ...frame(width, 40),
         }));
         return text.split('\n').find((line) => line.includes('output')) ?? '';
       };
@@ -285,7 +379,7 @@ describe('DevScreen', () => {
         url: 'http://localhost:1234/',
         lines: output.lines(),
         logLines: 2,
-        width,
+        ...frame(width),
       });
       const rows = stripAnsi(raw).split('\n').filter((line) => /^\s+\d+  (err|out)  /.test(line));
 
@@ -304,8 +398,7 @@ describe('DevScreen', () => {
         url: 'http://localhost:1234/',
         lines: [],
         ws: workspaceWithAliases(),
-        width,
-        height: 80,
+        ...frame(width, 80),
       });
       const mappingRows = stripAnsi(raw).split('\n').filter((line) =>
         line.includes('→') && line.includes('@sys/')
@@ -329,8 +422,7 @@ describe('DevScreen', () => {
           url: 'http://localhost:1234/',
           lines: [],
           showOptions,
-          width,
-          height: 40,
+          ...frame(width, 40),
         }));
       const hidden = render(false);
       const visible = render(true);
@@ -349,6 +441,40 @@ describe('DevScreen', () => {
   });
 
   describe('startup frame', () => {
+    it('budgets header, spinner, cursor, metadata, and elastic logs as one physical frame', () => {
+      const output = DevOutputLog.create({ maxLines: 5 });
+      output.push(processEvent('stdout', 'one\n'));
+      output.push(processEvent('stdout', 'two\n'));
+      output.push(processEvent('stdout', 'three\n'));
+      const render = (height: number) =>
+        stripAnsi(DevScreen.startupToString({
+          pkg: pkg(),
+          paths: paths(),
+          url: 'http://localhost:1234/',
+          lines: output.lines(),
+          logLines: 5,
+          spinner: '⠋',
+          ...frame(40, height),
+        }));
+
+      const short = render(10);
+      const medium = render(12);
+      const tall = render(13);
+
+      expect(physicalRows(short)).to.eql(10);
+      expect(short).to.not.include(' out  one');
+      expect(short).to.not.include(' out  three');
+      expect(physicalRows(medium)).to.eql(12);
+      expect(medium).to.not.include(' out  one');
+      expect(medium).to.include(' out  two');
+      expect(medium).to.include(' out  three');
+      expect(physicalRows(tall)).to.eql(13);
+      expect(tall).to.include(' out  one');
+      expect(tall).to.include(' out  two');
+      expect(tall).to.include(' out  three');
+      expect(output.lines().length).to.eql(3);
+    });
+
     it('renders header, spinner, metadata, and truthful parent-owned status rows', () => {
       const output = DevOutputLog.create({ maxLines: 5 });
       output.pushDisplay('stdout', STARTING_DEV_SERVER);
@@ -363,9 +489,8 @@ describe('DevScreen', () => {
         url: 'http://localhost:1234/',
         lines: output.lines(),
         logLines: 3,
-        width,
-        height: 40,
         spinner: '⠋',
+        ...frame(width, 40),
       });
       const text = stripAnsi(raw);
       const rows = text.split('\n');
@@ -394,9 +519,8 @@ describe('DevScreen', () => {
         url: 'http://localhost:1234/',
         lines: output.lines(),
         logLines: 120,
-        width: 80,
-        height: 140,
         spinner: '⠋',
+        ...frame(80, 140),
       }));
 
       expect(text).to.include(`\n   1  out  ${STARTING_DEV_SERVER}`);
@@ -409,6 +533,14 @@ describe('DevScreen', () => {
 /**
  * Helpers:
  */
+function frame(width: number, height = 40) {
+  return { viewport: { width, height }, cursorRows: 1 };
+}
+
+function physicalRows(text: string) {
+  return text ? text.split('\n').length + 1 : 0;
+}
+
 function expectRowsBounded(text: string, width: number) {
   text.split('\n').forEach((line) => {
     expect(Cli.Fmt.Text.Width.measure(line) <= width).to.eql(true);

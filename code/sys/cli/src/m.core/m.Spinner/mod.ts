@@ -1,3 +1,4 @@
+import process from 'node:process';
 import ora from 'ora';
 import type { t } from '../common.ts';
 
@@ -5,9 +6,15 @@ import type { t } from '../common.ts';
  * Tools for working with a CLI spinner.
  */
 export const Spinner: t.CliSpinner.Lib = {
-  create(text = '') {
+  create(text = '', options = {}) {
+    const output = options.target === 'stdout'
+      ? { stream: process.stdout }
+      : options.target === 'stderr'
+      ? { stream: process.stderr }
+      : {};
     return ora({
       text,
+      ...output,
       // Important: do NOT let Ora grab stdin in the Node-compat layer.
       // This avoids the “first Ctrl+C cancels spinner, second exits” effect.
       discardStdin: false,
@@ -16,7 +23,7 @@ export const Spinner: t.CliSpinner.Lib = {
 
   start(text = '', options = {}) {
     const { silent = false } = options;
-    const spinner = Spinner.create(text);
+    const spinner = Spinner.create(text, options);
     if (!silent) spinner.start();
     return spinner;
   },

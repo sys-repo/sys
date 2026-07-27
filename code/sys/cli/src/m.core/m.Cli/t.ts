@@ -186,7 +186,14 @@ export declare namespace Cli {
   export namespace Spinner {
     /** CLI spinner helper library contract. */
     export type Lib = t.CliSpinner.Lib;
-    /** CLI spinner creation options. */
+    /** Semantic terminal-output target used by the spinner owner. */
+    export type OutputTarget = t.CliSpinner.OutputTarget;
+    /** Spinner creation contracts. */
+    export namespace Create {
+      /** Options for creating a spinner without starting it. */
+      export type Options = t.CliSpinner.Create.Options;
+    }
+    /** CLI spinner creation and start options. */
     export type Options = t.CliSpinner.Options;
     /** Stateful CLI spinner instance. */
     export type Instance = t.CliSpinner.Instance;

@@ -174,6 +174,7 @@ export const dev: t.Vite.Lib['dev'] = async (input) => {
         url: () => resolvedUrl,
         output,
         logLines,
+        until: proc.dispose$,
       })
       : undefined;
     const pushOutput = (e: t.Process.Event) => {

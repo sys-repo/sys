@@ -12,6 +12,7 @@
     "perf": "deno run -P=dev ./-scripts/task.perf.ts",
     "smoke": "deno run -P=dev ./-scripts/task.smoke.ts",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
+    "dev": "deno run -P=dev ./-scripts/task.main.ts --cmd=dev --dir=./src/-test/vite.sample-1",
     "info": "deno run -P=dev ./-scripts/task.main.ts --cmd=info    --dir=./src/-test/vite.sample-1",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
@@ -72,4 +73,3 @@
     }
   }
 }
-

@@ -45,12 +45,12 @@ export declare namespace ViteDev {
 
     /** Domain operations accepted by one internal dev-screen reporter session. */
     export type Reporter = {
-      outputChanged(): void;
-      ready(): void;
-      clearLog(): void;
-      toggleOptions(): void;
-      toggleExtended(ws: t.ViteDenoWorkspace): void;
-      dispose(): void;
+      readonly outputChanged: () => void;
+      readonly ready: () => void;
+      readonly clearLog: () => void;
+      readonly toggleOptions: () => void;
+      readonly toggleExtended: (ws: t.ViteDenoWorkspace) => void;
+      readonly dispose: () => void;
     };
 
     /** Effectful dev-screen runtime contracts. */
@@ -58,11 +58,19 @@ export declare namespace ViteDev {
       /** Dev-screen phases that can produce terminal output. */
       export type RenderPhase = 'startup' | 'ready';
 
+      /** Cohesive terminal effects owned by one dev-screen reporter session. */
+      export type Terminal = {
+        cursorRows: number;
+        size(): t.Cli.Screen.Size;
+        events(until?: t.UntilInput): t.Cli.Screen.Events;
+        clear(): void;
+        print(phase: RenderPhase, text: string): void;
+        spinner(): t.Cli.Spinner.Instance;
+      };
+
       /** Injectable terminal and scheduling effects for deterministic runtime proof. */
       export type Deps = {
-        clear?: () => void;
-        print?: (phase: RenderPhase, text: string) => void;
-        spinner?: () => t.Cli.Spinner.Instance;
+        terminal?: Terminal;
         schedule?: (run: () => void) => t.Cancellable;
       };
 
@@ -74,12 +82,19 @@ export declare namespace ViteDev {
         url: () => string;
         output: ViteDev.Screen.Output;
         logLines?: number;
+        until?: t.UntilInput;
         deps?: Deps;
       };
     }
 
     /** Pure dev-screen frame contracts. */
     export namespace Frame {
+      /** One explicit terminal viewport snapshot. */
+      export type Viewport = {
+        width: number;
+        height: number;
+      };
+
       /** Inputs shared by startup and ready dev-screen layout. */
       export type Args = {
         pkg: t.Pkg;
@@ -88,8 +103,8 @@ export declare namespace ViteDev {
         url: string;
         lines: ViteDev.Output.Line[];
         logLines?: number;
-        width?: number;
-        height?: number;
+        viewport: Viewport;
+        cursorRows: number;
       };
 
       /** Ready-frame inputs including optional presentation detail. */
@@ -100,6 +115,13 @@ export declare namespace ViteDev {
 
       /** Startup-frame inputs including a deterministic spinner glyph. */
       export type StartupArgs = Args & { spinner?: string };
+
+      /** Regions produced by one complete startup-layout calculation. */
+      export type StartupOutput = {
+        readonly header: string;
+        readonly body: string;
+        readonly showSpinner: boolean;
+      };
     }
   }
 }

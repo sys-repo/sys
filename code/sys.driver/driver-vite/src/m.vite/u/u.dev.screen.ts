@@ -26,10 +26,6 @@ export const DevScreen = {
     return DevScreenRuntime.create(args);
   },
 
-  startupBody(args: t.ViteDev.Screen.Frame.StartupArgs) {
-    return DevScreenLayout.startupBody(args);
-  },
-
   startupToString(args: t.ViteDev.Screen.Frame.StartupArgs) {
     return DevScreenLayout.startupToString(args);
   },

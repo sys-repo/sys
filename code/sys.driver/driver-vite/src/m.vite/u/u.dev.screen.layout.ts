@@ -1,7 +1,9 @@
 import { clipLine, clipText, clipValue, digestSuffixes, metadataRow } from '../../m.fmt/u.ts';
-import { c, Cli, Is, Path, stripAnsi, type t } from '../common.ts';
+import { c, Cli, Is, Num, Path, stripAnsi, type t } from '../common.ts';
 
 type OutputLine = t.ViteDev.Output.Line;
+type FrameArgs = t.ViteDev.Screen.Frame.Args;
+type Viewport = t.ViteDev.Screen.Frame.Viewport;
 
 const DEFAULT_LOG_LINES = 10;
 const MAX_LOG_LINES = 200;
@@ -10,69 +12,85 @@ const MAX_LOG_LINES = 200;
 export const DevScreenLayout = {
   logLines: (input?: unknown) => wrangle.logLines(input),
 
-  startupHeader(pkg: t.Pkg, width?: number) {
-    return wrangle.startupHeader(pkg, width);
-  },
+  startup(args: t.ViteDev.Screen.Frame.StartupArgs): t.ViteDev.Screen.Frame.StartupOutput {
+    const viewport = wrangle.viewport(args.viewport);
+    const capacity = wrangle.capacity(viewport, args.cursorRows);
+    const headerRows = wrangle.startupHeader(args.pkg, viewport.width);
+    const visibleHeader = headerRows.slice(0, capacity);
+    const showSpinner = viewport.width > 0 && capacity > visibleHeader.length;
+    const bodyCapacity = Math.max(0, capacity - visibleHeader.length - (showSpinner ? 1 : 0));
+    const coreRowCount = wrangle.startupCore(args, viewport.width, 1).length;
+    const visibleCount = Math.min(
+      wrangle.logLines(args.logLines),
+      Math.max(0, bodyCapacity - coreRowCount),
+    );
+    const visible = visibleCount === 0 ? [] : args.lines.slice(-visibleCount);
+    const indexWidth = wrangle.indexWidth(visible);
+    const bodyRows = [
+      ...wrangle.startupCore(args, viewport.width, indexWidth),
+      ...visible.map((line) => wrangle.logRow(line, viewport.width, indexWidth)),
+    ];
 
-  startupBody(args: t.ViteDev.Screen.Frame.StartupArgs) {
-    return wrangle.startupBody(args);
+    return {
+      header: wrangle.renderRows(visibleHeader, viewport.width),
+      body: wrangle.renderRows(bodyRows.slice(0, bodyCapacity), viewport.width),
+      showSpinner,
+    };
   },
 
   startupToString(args: t.ViteDev.Screen.Frame.StartupArgs) {
-    const spinner = args.spinner ?? '⠋';
-    const body = DevScreenLayout.startupBody(args);
-    return `${wrangle.startupHeader(args.pkg, args.width)}\n${spinner}\n${body}`.trimEnd();
+    const output = DevScreenLayout.startup(args);
+    const rows = [
+      output.header,
+      output.showSpinner ? args.spinner ?? '⠋' : '',
+      output.body,
+    ].filter(Boolean);
+    return rows.join('\n').trimEnd();
   },
 
   toString(args: t.ViteDev.Screen.Frame.ReadyArgs) {
-    const { width, height } = wrangle.size(args.width, args.height);
+    const viewport = wrangle.viewport(args.viewport);
+    const { width } = viewport;
+    const capacity = wrangle.capacity(viewport, args.cursorRows);
     const hr = c.brightGreen(c.bold(Cli.Fmt.hr({ width })));
     const subHr = c.dim(Cli.Fmt.hr({ width, color: 'green', weight: 'dashed' }));
-    const input = Path.trimCwd(args.paths.app.entry);
-    const outDir = Path.trimCwd(args.paths.app.outDir);
-    const prefix = (indexWidth: number) => {
-      const contentColumn = wrangle.contentColumn(indexWidth);
-      const indent = wrangle.indent(contentColumn);
-      const lines = [
-        wrangle.header(args.pkg, width),
-        hr,
-        '',
-        wrangle.info(args.url, contentColumn, width),
-        `${indent}${c.green('↑')}`,
-        metadataRow({
-          label: 'input',
-          value: input,
-          width,
-          indent: contentColumn,
-          labelWidth: 9,
-          styledLabel: c.green('input'),
-        }),
-        metadataRow({
-          label: 'output',
-          value: outDir,
-          width,
-          indent: contentColumn,
-          labelWidth: 9,
-          styledLabel: c.white('output'),
-          suffixes: digestSuffixes(args.dist?.hash.digest),
-        }),
-      ];
-      if (args.ws) lines.splice(2, 0, '', args.ws.toString({ width }));
-      if (args.showOptions) lines.push('', wrangle.options(subHr, contentColumn));
-      lines.push('', subHr);
-      return lines.join('\n').trimEnd();
-    };
-    const rowCount = Math.min(
+    const top = [wrangle.header(args.pkg, width), hr];
+    const separator = ['', subHr];
+    const workspace = wrangle.workspace(args.ws, width);
+    const optionContent = args.showOptions ? wrangle.options(subHr, 1).split('\n') : [];
+    const fixedRowCount = top.length + wrangle.readyMetadata(args, width, 1).length +
+      separator.length;
+    const available = Math.max(0, capacity - fixedRowCount);
+    const optionalRows = wrangle.optionalRowCount(workspace) +
+      wrangle.optionalRowCount(optionContent);
+    const logCount = Math.min(
       wrangle.logLines(args.logLines),
-      wrangle.availableRows(height, wrangle.lineCount(prefix(1))),
+      Math.max(0, available - optionalRows),
     );
-    const visible = rowCount === 0 ? [] : args.lines.slice(-rowCount);
+    const optionalCapacity = Math.max(0, available - logCount);
+    const optionBudget = Math.min(optionalCapacity, wrangle.optionalRowCount(optionContent));
+    const visibleOptions = wrangle.fitOptional(optionContent, optionBudget);
+    const workspaceBudget = Math.max(0, optionalCapacity - visibleOptions.length);
+    const visibleWorkspace = wrangle.fitOptional(workspace, workspaceBudget);
+    const visible = logCount === 0 ? [] : args.lines.slice(-logCount);
     const indexWidth = wrangle.indexWidth(visible);
-    const head = prefix(indexWidth);
-    const rows = visible.map((line) => wrangle.logRow(line, width, indexWidth));
-    const frame = rows.length ? `${head}\n${rows.join('\n')}` : head;
+    const metadata = wrangle.readyMetadata(args, width, indexWidth);
+    const options = args.showOptions
+      ? wrangle.fitOptional(
+        wrangle.options(subHr, wrangle.contentColumn(indexWidth)).split('\n'),
+        optionBudget,
+      )
+      : [];
+    const rows = [
+      ...top,
+      ...visibleWorkspace,
+      ...metadata,
+      ...options,
+      ...separator,
+      ...visible.map((line) => wrangle.logRow(line, width, indexWidth)),
+    ];
 
-    return wrangle.clipLines(wrangle.clipFrameWidth(frame, width), height).trimEnd();
+    return wrangle.renderRows(rows.slice(0, capacity), width);
   },
 } as const;
 
@@ -87,30 +105,33 @@ const wrangle = {
       : DEFAULT_LOG_LINES;
   },
 
-  size(width?: number, height?: number) {
-    const measured = Cli.Screen.size();
+  viewport(input: Viewport): Viewport {
     return {
-      width: wrangle.dimension(width, measured.width),
-      height: wrangle.dimension(height, measured.height),
+      width: wrangle.dimension(input.width),
+      height: wrangle.dimension(input.height),
     };
   },
 
-  startupHeader(pkg: t.Pkg, inputWidth?: number) {
-    const { width } = wrangle.size(inputWidth);
-    const hr = c.brightGreen(c.bold(Cli.Fmt.hr({ width })));
-    return [wrangle.header(pkg, width), hr].join('\n').trimEnd();
+  dimension(input: number) {
+    return Num.Is.finite(input) ? Math.max(0, Math.floor(input)) : 0;
   },
 
-  startupBody(args: t.ViteDev.Screen.Frame.StartupArgs) {
-    const { width, height } = wrangle.size(args.width, args.height);
-    const subHr = c.dim(Cli.Fmt.hr({ width, color: 'green', weight: 'dashed' }));
-    const lines = args.lines;
-    const indexWidth = wrangle.indexWidth(lines);
+  capacity(viewport: Viewport, cursorRows: number) {
+    return Math.max(0, viewport.height - wrangle.dimension(cursorRows));
+  },
+
+  startupHeader(pkg: t.Pkg, width: number) {
+    const hr = c.brightGreen(c.bold(Cli.Fmt.hr({ width })));
+    return [wrangle.header(pkg, width), hr];
+  },
+
+  startupCore(args: FrameArgs, width: number, indexWidth: number) {
     const contentColumn = wrangle.contentColumn(indexWidth);
     const indent = wrangle.indent(contentColumn);
     const input = Path.trimCwd(args.paths.app.entry);
     const outDir = Path.trimCwd(args.paths.app.outDir);
-    const head = [
+    const subHr = c.dim(Cli.Fmt.hr({ width, color: 'green', weight: 'dashed' }));
+    return [
       wrangle.info(args.url, contentColumn, width),
       `${indent}${c.green('↑')}`,
       metadataRow({
@@ -132,39 +153,57 @@ const wrangle = {
       }),
       '',
       subHr,
-    ].join('\n').trimEnd();
-    const rowCount = Math.min(
-      wrangle.logLines(args.logLines),
-      wrangle.availableRows(height, wrangle.lineCount(head)),
-    );
-    const visible = rowCount === 0 ? [] : lines.slice(-rowCount);
-    const rows = visible.map((line) => wrangle.logRow(line, width, indexWidth));
-    const frame = rows.length ? `${head}\n${rows.join('\n')}` : head;
-    return wrangle.clipLines(wrangle.clipFrameWidth(frame, width), height).trimEnd();
+    ];
   },
 
-  dimension(input: number | undefined, fallback: number) {
-    const value = Is.num(input) ? input : fallback;
-    return Math.max(0, Math.floor(value));
+  readyMetadata(args: FrameArgs, width: number, indexWidth: number) {
+    const contentColumn = wrangle.contentColumn(indexWidth);
+    const indent = wrangle.indent(contentColumn);
+    const input = Path.trimCwd(args.paths.app.entry);
+    const outDir = Path.trimCwd(args.paths.app.outDir);
+    return [
+      '',
+      wrangle.info(args.url, contentColumn, width),
+      `${indent}${c.green('↑')}`,
+      metadataRow({
+        label: 'input',
+        value: input,
+        width,
+        indent: contentColumn,
+        labelWidth: 9,
+        styledLabel: c.green('input'),
+      }),
+      metadataRow({
+        label: 'output',
+        value: outDir,
+        width,
+        indent: contentColumn,
+        labelWidth: 9,
+        styledLabel: c.white('output'),
+        suffixes: digestSuffixes(args.dist?.hash.digest),
+      }),
+    ];
   },
 
-  lineCount(text: string) {
-    return stripAnsi(text).split('\n').length;
+  workspace(ws: t.ViteDenoWorkspace | undefined, width: number) {
+    if (!ws) return [];
+    const text = ws.toString({ width }).trimEnd();
+    return text ? text.split('\n') : [];
   },
 
-  availableRows(height: number, prefixRows: number) {
-    return Math.max(0, height - prefixRows);
+  optionalRowCount(lines: string[]) {
+    return lines.length === 0 ? 0 : lines.length + 1;
   },
 
-  clipLines(text: string, height: number) {
-    if (height === 0) return '';
-    const lines = text.split('\n');
-    return lines.length <= height ? text : lines.slice(0, height).join('\n');
+  fitOptional(lines: string[], capacity: number) {
+    if (lines.length === 0 || capacity <= 0) return [];
+    if (capacity === 1) return [lines[0]];
+    return ['', ...lines.slice(0, capacity - 1)];
   },
 
-  clipFrameWidth(text: string, width: number) {
-    if (width === 0) return '';
-    return text.split('\n').map((line) => clipLine(line, width)).join('\n');
+  renderRows(rows: string[], width: number) {
+    if (width === 0 || rows.length === 0) return '';
+    return rows.map((line) => clipLine(line, width)).join('\n').trimEnd();
   },
 
   contentColumn(indexWidth: number) {

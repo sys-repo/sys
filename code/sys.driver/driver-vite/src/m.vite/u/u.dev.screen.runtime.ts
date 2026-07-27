@@ -3,30 +3,67 @@ import { DevScreenLayout } from './u.dev.screen.layout.ts';
 
 type Phase = t.ViteDev.Screen.Runtime.RenderPhase | 'disposed';
 type Invalidation = 'content' | 'layout';
+type Cleanup = () => void;
+type ResizeSubscription = { unsubscribe(): void };
 
 const REDRAW_DELAY = 50 as t.Msecs;
 
-/** Effectful owner of one dev-screen startup → ready → disposed lifecycle. */
+const DISPOSED_REPORTER = Object.freeze(
+  {
+    outputChanged() {},
+    ready() {},
+    clearLog() {},
+    toggleOptions() {},
+    toggleExtended() {},
+    dispose() {},
+  } satisfies t.ViteDev.Screen.Reporter,
+);
+
+const DEFAULT_TERMINAL = Object.freeze(
+  {
+    cursorRows: 1,
+    size: () => Cli.Screen.size(),
+    events: (until) => Cli.Screen.events(until),
+    clear: () => console.clear(),
+    print: (_phase, text) => console.info(text),
+    spinner: () => Cli.Spinner.create('', { target: 'stdout' }),
+  } satisfies t.ViteDev.Screen.Runtime.Terminal,
+);
+
+/** Effectful owner of one responsive dev-screen startup → ready → disposed lifecycle. */
 export const DevScreenRuntime = {
   create(args: t.ViteDev.Screen.Runtime.CreateArgs): t.ViteDev.Screen.Reporter {
     const { pkg, dist, paths, output } = args;
-    const clear = args.deps?.clear ?? (() => console.clear());
-    const print = args.deps?.print ?? ((phase, text) => {
-      if (phase === 'startup') console.error(text);
-      else console.info(text);
-    });
-    const spinner = (args.deps?.spinner ?? (() => Cli.Spinner.create('')))();
+    const terminal = args.deps?.terminal ?? DEFAULT_TERMINAL;
     const schedule = args.deps?.schedule ?? ((run) => Time.delay(REDRAW_DELAY, run));
     const logLines = DevScreenLayout.logLines(args.logLines);
+    const screenEvents = terminal.events(args.until);
+    if (screenEvents.disposed) return DISPOSED_REPORTER;
+
+    let spinner: t.Cli.Spinner.Instance;
+    try {
+      spinner = terminal.spinner();
+    } catch (error) {
+      try {
+        screenEvents.dispose();
+      } catch {
+        // Preserve the spinner-acquisition error.
+      }
+      throw error;
+    }
 
     let phase: Phase = 'startup';
     let pending: Invalidation | undefined;
     let scheduleGeneration = 0;
     let acquiringSchedule: number | undefined;
     let scheduledTask: t.Cancellable | undefined;
+    let resizeSubscription: ResizeSubscription | undefined;
     let spinnerRunning = false;
     let showOptions = false;
     let ws: t.ViteDenoWorkspace | undefined;
+    let viewport: t.Cli.Screen.Size = { width: 0, height: 0 };
+    let hasViewport = false;
+    let acquired = false;
 
     const frameArgs = (): t.ViteDev.Screen.Frame.Args => ({
       pkg,
@@ -35,9 +72,11 @@ export const DevScreenRuntime = {
       url: args.url(),
       lines: output.lines(),
       logLines,
+      viewport,
+      cursorRows: terminal.cursorRows,
     });
 
-    const startupBody = () => DevScreenLayout.startupBody(frameArgs());
+    const startupFrame = () => DevScreenLayout.startup(frameArgs());
     const readyFrame = () => DevScreenLayout.toString({ ...frameArgs(), showOptions, ws });
 
     const startSpinner = () => {
@@ -62,21 +101,30 @@ export const DevScreenRuntime = {
       spinner.stop();
     };
 
+    const installStartupBody = (frame: t.ViteDev.Screen.Frame.StartupOutput) => {
+      spinner.text = frame.body ? `\n${frame.body}` : '';
+    };
+
     const renderStartupContent = () => {
-      spinner.text = `\n${startupBody()}`;
+      const frame = startupFrame();
+      if (frame.showSpinner) installStartupBody(frame);
     };
 
     const renderStartupLayout = () => {
       stopSpinner();
-      clear();
-      print('startup', DevScreenLayout.startupHeader(pkg));
-      renderStartupContent();
-      startSpinner();
+      terminal.clear();
+      const frame = startupFrame();
+      if (frame.header) terminal.print('startup', frame.header);
+      if (frame.showSpinner) {
+        installStartupBody(frame);
+        startSpinner();
+      }
     };
 
     const renderReady = () => {
-      clear();
-      print('ready', readyFrame());
+      terminal.clear();
+      const frame = readyFrame();
+      if (frame) terminal.print('ready', frame);
     };
 
     const render = (kind: Invalidation) => {
@@ -143,22 +191,39 @@ export const DevScreenRuntime = {
     const flushNow = (kind: Invalidation) => {
       if (phase === 'disposed') return;
       mergePending(kind);
-      try {
-        cancelScheduled();
-      } finally {
-        flushPending();
-      }
+      runCleanup([cancelScheduled, flushPending]);
+    };
+
+    const unsubscribeResize = () => {
+      const subscription = resizeSubscription;
+      resizeSubscription = undefined;
+      subscription?.unsubscribe();
+    };
+
+    const releaseEvents = () => screenEvents.dispose();
+
+    const release = () => {
+      runCleanup([discardPending, unsubscribeResize, releaseEvents, stopSpinner]);
     };
 
     try {
+      resizeSubscription = screenEvents.resize$.subscribe((event) => {
+        viewport = { ...event.after };
+        hasViewport = true;
+        if (acquired) request('layout');
+      });
+      if (!hasViewport) {
+        const initial = terminal.size();
+        if (!hasViewport) viewport = { ...initial };
+      }
       renderStartupLayout();
+      acquired = true;
     } catch (error) {
       phase = 'disposed';
-      discardPending();
       try {
-        stopSpinner();
+        release();
       } catch {
-        // Preserve the initial render error.
+        // Preserve the acquisition/render error.
       }
       throw error;
     }
@@ -171,15 +236,7 @@ export const DevScreenRuntime = {
       ready() {
         if (phase !== 'startup') return;
         phase = 'ready';
-        try {
-          discardPending();
-        } finally {
-          try {
-            stopSpinner();
-          } finally {
-            renderReady();
-          }
-        }
+        runCleanup([discardPending, stopSpinner, renderReady]);
       },
 
       clearLog() {
@@ -203,12 +260,26 @@ export const DevScreenRuntime = {
       dispose() {
         if (phase === 'disposed') return;
         phase = 'disposed';
-        try {
-          discardPending();
-        } finally {
-          stopSpinner();
-        }
+        release();
       },
     };
   },
 } as const;
+
+/**
+ * Helpers:
+ */
+function runCleanup(actions: Cleanup[]) {
+  let failed = false;
+  let failure: unknown;
+  for (const action of actions) {
+    try {
+      action();
+    } catch (error) {
+      if (failed) continue;
+      failed = true;
+      failure = error;
+    }
+  }
+  if (failed) throw failure;
+}

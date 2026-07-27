@@ -1,5 +1,5 @@
 import { FakeSpinner } from '@sys/cli/testing';
-import { describe, expect, it, stripAnsi } from '../../-test.ts';
+import { describe, expect, it, Rx, stripAnsi } from '../../-test.ts';
 import { type t } from '../common.ts';
 import { DevOutputLog } from '../u/u.dev.output.ts';
 import { DevScreen } from '../u/u.dev.screen.ts';
@@ -29,6 +29,37 @@ describe('DevScreen runtime', () => {
       reporter.dispose();
     });
 
+    it('stays inert when terminal observation is already disposed', () => {
+      const runtime = createRuntimeHarness({ disposedEvents: true });
+      const { reporter, spinner, terminal } = runtime;
+
+      reporter.outputChanged();
+      reporter.ready();
+      reporter.clearLog();
+      reporter.toggleOptions();
+      reporter.toggleExtended(workspace());
+      reporter.dispose();
+
+      expect(runtime.clears).to.eql(0);
+      expect(runtime.prints).to.eql([]);
+      expect(spinner.starts).to.eql(0);
+      expect(spinner.stops).to.eql(0);
+      expect(terminal.events.disposed).to.eql(true);
+    });
+
+    it('subscribes before initial measurement and adopts a synchronous accepted viewport', () => {
+      const controller = new AbortController();
+      const runtime = createRuntimeHarness({
+        until: controller.signal,
+        resizeOnSize: { width: 36, height: 15 },
+      });
+
+      expect(runtime.terminal.until).to.equal(controller.signal);
+      expect(stripAnsi(runtime.prints[0]?.text ?? '').split('\n')[1]).to.eql('━'.repeat(36));
+
+      runtime.reporter.dispose();
+    });
+
     it('rolls back a partially started spinner without masking the acquisition error', () => {
       const output = createOutputLog();
       const spinner = FakeSpinner.create();
@@ -43,17 +74,14 @@ describe('DevScreen runtime', () => {
         throw new Error('spinner-stop-failed');
       };
 
+      const terminal = createTerminalHarness(spinner);
       try {
         DevScreen.create({
           pkg: pkg(),
           paths: paths(),
           url: () => 'http://localhost:1234/',
           output,
-          deps: {
-            clear: () => {},
-            print: () => {},
-            spinner: () => spinner,
-          },
+          deps: { terminal: terminal.deps },
         });
       } catch (error) {
         thrown = error;
@@ -62,6 +90,7 @@ describe('DevScreen runtime', () => {
       expect(thrown).to.equal(cause);
       expect(spinner.starts).to.eql(1);
       expect(spinner.stops).to.eql(1);
+      expect(terminal.events.disposed).to.eql(true);
     });
   });
 
@@ -91,19 +120,40 @@ describe('DevScreen runtime', () => {
       reporter.dispose();
     });
 
+    it('rebuilds the complete startup layout from the latest coalesced viewport', () => {
+      const runtime = createRuntimeHarness();
+      const { reporter, scheduler, spinner, terminal } = runtime;
+
+      terminal.resize({ width: 30, height: 12 });
+      const latest = { width: 20, height: 10 };
+      terminal.resize(latest, false);
+      latest.width = 8;
+      latest.height = 4;
+
+      expect(scheduler.schedules).to.eql(1);
+      scheduler.flush();
+
+      expect(runtime.clears).to.eql(2);
+      expect(runtime.prints.length).to.eql(2);
+      expect(stripAnsi(runtime.prints.at(-1)?.text ?? '').split('\n')[1]).to.eql('━'.repeat(20));
+      expect(spinner.starts).to.eql(2);
+      expect(spinner.stops).to.eql(1);
+
+      reporter.dispose();
+    });
+
     it('accepts subsequent output after synchronous scheduler completion', () => {
       const output = createOutputLog();
       const spinner = FakeSpinner.create();
       let schedules = 0;
+      const terminal = createTerminalHarness(spinner);
       const reporter = DevScreen.create({
         pkg: pkg(),
         paths: paths(),
         url: () => 'http://localhost:1234/',
         output,
         deps: {
-          clear: () => {},
-          print: () => {},
-          spinner: () => spinner,
+          terminal: terminal.deps,
           schedule: (run) => {
             schedules += 1;
             run();
@@ -152,6 +202,24 @@ describe('DevScreen runtime', () => {
   });
 
   describe('startup → ready', () => {
+    it('absorbs a pending resize into one ready frame at the accepted viewport', () => {
+      const runtime = createRuntimeHarness();
+      const { reporter, scheduler, terminal } = runtime;
+
+      terminal.resize({ width: 32, height: 14 }, false);
+      reporter.ready();
+
+      expect(scheduler.cancels).to.eql(1);
+      expect(runtime.prints.map((item) => item.phase)).to.eql(['startup', 'ready']);
+      expect(stripAnsi(runtime.prints.at(-1)?.text ?? '').split('\n')[1]).to.eql('━'.repeat(32));
+      const prints = runtime.prints.length;
+
+      scheduler.force(0);
+      expect(runtime.prints.length).to.eql(prints);
+
+      reporter.dispose();
+    });
+
     it('absorbs pending startup work and transitions exactly once', () => {
       const runtime = createRuntimeHarness();
       const { output, reporter, scheduler, spinner } = runtime;
@@ -185,6 +253,26 @@ describe('DevScreen runtime', () => {
   });
 
   describe('ready phase', () => {
+    it('repaints the complete ready frame from the accepted resize snapshot', () => {
+      const runtime = createRuntimeHarness();
+      const { reporter, scheduler, terminal } = runtime;
+      reporter.ready();
+      const prints = runtime.prints.length;
+
+      terminal.resize({ width: 26, height: 12 }, false);
+      expect(scheduler.schedules).to.eql(1);
+      scheduler.flush();
+
+      const rendered = runtime.prints.at(-1);
+      const text = rendered?.text ?? '';
+      expect(runtime.prints.length).to.eql(prints + 1);
+      expect(rendered?.phase).to.eql('ready');
+      expect(stripAnsi(text).split('\n')[1]).to.eql('━'.repeat(26));
+      expect(text.split('\n').length <= 11).to.eql(true);
+
+      reporter.dispose();
+    });
+
     it('coalesces output into one complete repaint', () => {
       const runtime = createRuntimeHarness();
       const { output, reporter, scheduler } = runtime;
@@ -229,13 +317,19 @@ describe('DevScreen runtime', () => {
       reporter.dispose();
     });
 
-    it('applies options, workspace, and clear actions to complete ready frames', () => {
+    it('applies options, workspace, resize, and clear actions to complete ready frames', () => {
       const runtime = createRuntimeHarness();
-      const { output, reporter } = runtime;
+      const { output, reporter, scheduler, terminal } = runtime;
       reporter.ready();
 
       reporter.toggleOptions();
       expect(stripAnsi(runtime.prints.at(-1)?.text ?? '')).to.include('options:');
+
+      terminal.resize({ width: 34, height: 22 }, false);
+      scheduler.flush();
+      const resized = stripAnsi(runtime.prints.at(-1)?.text ?? '');
+      expect(resized).to.include('options:');
+      expect(resized.split('\n')[1]).to.eql('━'.repeat(34));
 
       reporter.toggleExtended(workspace());
       expect(stripAnsi(runtime.prints.at(-1)?.text ?? '')).to.include('workspace-render');
@@ -252,23 +346,47 @@ describe('DevScreen runtime', () => {
   });
 
   describe('disposal', () => {
-    it('stops the spinner and remains terminal when cancellation fails', () => {
+    it('attempts every teardown when cancellation, event disposal, and spinner stop fail', () => {
       const output = createOutputLog();
       const spinner = FakeSpinner.create();
-      const cause = new Error('cancel-failed');
+      const cancelCause = new Error('cancel-failed');
+      const eventCause = new Error('event-dispose-failed');
+      const spinnerCause = new Error('spinner-stop-failed');
+      let eventDisposals = 0;
       let thrown: unknown;
+      const terminal = createTerminalHarness(spinner);
+      const events = terminal.screenEvents;
+      const failingEvents: t.Cli.Screen.Events = {
+        $: events.$,
+        resize$: events.resize$,
+        get dispose$() {
+          return events.dispose$;
+        },
+        get disposed() {
+          return events.disposed;
+        },
+        dispose(reason) {
+          eventDisposals += 1;
+          events.dispose(reason);
+          throw eventCause;
+        },
+      };
+      const stopSpinner = spinner.stop;
+      spinner.stop = () => {
+        stopSpinner();
+        throw spinnerCause;
+      };
+
       const reporter = DevScreen.create({
         pkg: pkg(),
         paths: paths(),
         url: () => 'http://localhost:1234/',
         output,
         deps: {
-          clear: () => {},
-          print: () => {},
-          spinner: () => spinner,
+          terminal: { ...terminal.deps, events: () => failingEvents },
           schedule: () => ({
             cancel: () => {
-              throw cause;
+              throw cancelCause;
             },
           }),
         },
@@ -283,13 +401,15 @@ describe('DevScreen runtime', () => {
       reporter.dispose();
       reporter.outputChanged();
 
-      expect(thrown).to.equal(cause);
+      expect(thrown).to.equal(cancelCause);
+      expect(eventDisposals).to.eql(1);
       expect(spinner.stops).to.eql(1);
+      expect(events.disposed).to.eql(true);
     });
 
     it('is terminal with exact-once cancellation and spinner stop', () => {
       const runtime = createRuntimeHarness();
-      const { output, reporter, scheduler, spinner } = runtime;
+      const { output, reporter, scheduler, spinner, terminal } = runtime;
       output.push(processEvent('stdout', 'retained\n'));
       reporter.outputChanged();
 
@@ -317,6 +437,11 @@ describe('DevScreen runtime', () => {
       expect(spinner.starts).to.eql(1);
       expect(spinner.stops).to.eql(1);
       expect(spinner.renders).to.eql(0);
+      expect(terminal.events.disposed).to.eql(true);
+
+      terminal.resize({ width: 20, height: 10 });
+      expect(runtime.clears).to.eql(clears);
+      expect(runtime.prints.length).to.eql(prints);
     });
   });
 });
@@ -324,22 +449,27 @@ describe('DevScreen runtime', () => {
 /**
  * Helpers:
  */
-function createRuntimeHarness() {
+function createRuntimeHarness(options: {
+  until?: t.UntilInput;
+  resizeOnSize?: t.ViteDev.Screen.Frame.Viewport;
+  disposedEvents?: boolean;
+} = {}) {
   const output = createOutputLog();
   const spinner = FakeSpinner.create();
   const scheduler = createScheduler();
-  const prints: { phase: t.ViteDev.Screen.Runtime.RenderPhase; text: string }[] = [];
-  let clears = 0;
+  const terminal = createTerminalHarness(spinner, {
+    resizeOnSize: options.resizeOnSize,
+    disposedEvents: options.disposedEvents,
+  });
   const reporter = DevScreen.create({
     pkg: pkg(),
     paths: paths(),
     url: () => 'http://localhost:1234/',
     output,
     logLines: 5,
+    until: options.until,
     deps: {
-      clear: () => clears += 1,
-      print: (phase, text) => prints.push({ phase, text }),
-      spinner: () => spinner,
+      terminal: terminal.deps,
       schedule: scheduler.schedule,
     },
   });
@@ -349,7 +479,62 @@ function createRuntimeHarness() {
     reporter,
     scheduler,
     spinner,
+    terminal,
+    prints: terminal.prints,
+    get clears() {
+      return terminal.clears;
+    },
+  };
+}
+
+function createTerminalHarness(
+  spinner: t.Cli.Spinner.Instance,
+  options: {
+    resizeOnSize?: t.ViteDev.Screen.Frame.Viewport;
+    disposedEvents?: boolean;
+  } = {},
+) {
+  let viewport: t.ViteDev.Screen.Frame.Viewport = { width: 80, height: 24 };
+  let until: t.UntilInput | undefined;
+  let sizeCalls = 0;
+  let clears = 0;
+  const prints: { phase: t.ViteDev.Screen.Runtime.RenderPhase; text: string }[] = [];
+  const events = Rx.lifecycle();
+  const resize$$ = Rx.subject<t.Cli.Screen.SizeChanged>();
+  const resize$ = resize$$.asObservable();
+  const screenEvents = Rx.toLifecycle<t.Cli.Screen.Events>(events, { $: resize$, resize$ });
+  if (options.disposedEvents) events.dispose();
+  const deps: t.ViteDev.Screen.Runtime.Terminal = {
+    cursorRows: 1,
+    size: () => {
+      const measured = { ...viewport };
+      if (sizeCalls++ === 0 && options.resizeOnSize) {
+        resize$$.next({ kind: 'size:changed', before: measured, after: options.resizeOnSize });
+      }
+      return measured;
+    },
+    events: (input) => {
+      until = input;
+      return screenEvents;
+    },
+    clear: () => clears += 1,
+    print: (phase, text) => prints.push({ phase, text }),
+    spinner: () => spinner,
+  };
+
+  return {
+    deps,
+    events,
+    screenEvents,
     prints,
+    resize(next: t.ViteDev.Screen.Frame.Viewport, updateMeasurement = true) {
+      const before = viewport;
+      if (updateMeasurement) viewport = { ...next };
+      resize$$.next({ kind: 'size:changed', before, after: next });
+    },
+    get until() {
+      return until;
+    },
     get clears() {
       return clears;
     },
