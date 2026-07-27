@@ -318,16 +318,19 @@ export declare namespace Cli {
     }
 
     /**
-     * Terminal text measurement and layout contract projections.
+     * Exact projections of the formatter-owned terminal text contracts.
      */
     export namespace Text {
-      /** Text fitting and wrapping helper library contract. */
+      /** Exact projection of the terminal text operation library. */
       export type Lib = t.CliFormatText.Lib;
 
       /**
-       * Terminal-cell width policy projections.
+       * Exact projections of formatter-owned terminal-cell width contracts.
        */
       export namespace Width {
+        /** Exact projection of the terminal-cell width operation library. */
+        export type Lib = t.CliFormatText.Width.Lib;
+
         /**
          * Usable width fitting policy projections.
          */
@@ -338,9 +341,11 @@ export declare namespace Cli {
       }
 
       /**
-       * Prose flow and preservation policy projections.
+       * Exact projections of formatter-owned prose wrapping contracts.
        */
       export namespace Wrap {
+        /** Exact projection of the prose wrapping operation library. */
+        export type Lib = t.CliFormatText.Wrap.Lib;
         /** Prose wrapping options. */
         export type Options = t.CliFormatText.Wrap.Options;
         /** Whole-line preservation policy for wrapping. */
@@ -350,7 +355,7 @@ export declare namespace Cli {
       }
 
       /**
-       * Middle-ellipsis marker policy projections.
+       * Exact projection of the formatter-owned middle-clipping marker policy.
        */
       export namespace Ellipsize {
         /** Options for terminal-cell-aware middle ellipsis. */

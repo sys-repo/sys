@@ -1,6 +1,6 @@
 import type { t } from '../common.ts';
 import { nonNegativeInt } from './u.number.ts';
-import { visibleWidth } from './u.width.ts';
+import { measure } from './u.width.ts';
 
 type Grapheme = {
   readonly text: string;
@@ -16,7 +16,11 @@ type Selection = {
 
 const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
 
-/** Middle-ellipsize plain single-line text within a terminal-cell budget. */
+/**
+ * Grapheme-safe middle clipping for plain, single-line text within a terminal-cell budget.
+ *
+ * Retains as many cells as possible, balances the retained ends, and favors the head on ties.
+ */
 export function ellipsize(
   input: string,
   width: number,
@@ -24,10 +28,10 @@ export function ellipsize(
 ): string {
   const budget = nonNegativeInt(width, 0);
   if (budget === 0) return '';
-  if (visibleWidth(input) <= budget) return input;
+  if (measure(input) <= budget) return input;
 
   const marker = options.ellipsis ?? '…';
-  const markerWidth = visibleWidth(marker);
+  const markerWidth = measure(marker);
   if (markerWidth > budget) return clipStart(marker, budget);
   if (markerWidth === budget) return marker;
 
@@ -47,7 +51,7 @@ export function ellipsize(
 function graphemes(input: string): readonly Grapheme[] {
   return [...segmenter.segment(input)].map(({ segment }) => ({
     text: segment,
-    width: visibleWidth(segment),
+    width: measure(segment),
   }));
 }
 

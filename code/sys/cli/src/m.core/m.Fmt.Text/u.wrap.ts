@@ -1,6 +1,6 @@
 import { Is, Str, type t } from '../common.ts';
 import { nonNegativeInt, optionalPositiveInt } from './u.number.ts';
-import { visibleWidth } from './u.width.ts';
+import { measure } from './u.width.ts';
 
 const PRESERVE_PATTERNS = [
   /^`[^`]+`[.:;]?$/,
@@ -14,27 +14,29 @@ type WrapLineOptions = {
   readonly continuationIndent: number;
 };
 
-export function wrap(input: string, options: t.CliFormatText.Wrap.Options): string {
-  return wrapLines(input, options).join('\n');
+/** Soft-wrap prose and join the resulting display lines with newlines. */
+export function text(input: string, options: t.CliFormatText.Wrap.Options): string {
+  return lines(input, options).join('\n');
 }
 
-export function wrapLines(
+/** Soft-wrap prose into display lines while retaining explicit boundaries and preserved lines. */
+export function lines(
   input: string,
   options: t.CliFormatText.Wrap.Options,
 ): readonly string[] {
   const width = optionalPositiveInt(options.width) ?? 0;
   const indent = nonNegativeInt(options.indent, 0);
   const continuationIndent = nonNegativeInt(options.continuationIndent, indent);
-  const lines: string[] = [];
+  const output: string[] = [];
   let fenced = false;
   let fenceIndent = 0;
 
   sourceLines(input).forEach((line) => {
-    const lineIndent = lines.length === 0 ? indent : continuationIndent;
+    const lineIndent = output.length === 0 ? indent : continuationIndent;
     const fenceLine = line.trimStart().startsWith('```');
 
     if (fenced) {
-      lines.push(prefixText(line, fenceIndent));
+      output.push(prefixText(line, fenceIndent));
       if (fenceLine) fenced = false;
       return;
     }
@@ -42,19 +44,19 @@ export function wrapLines(
     if (fenceLine) {
       fenceIndent = lineIndent;
       fenced = true;
-      lines.push(prefixText(line, lineIndent));
+      output.push(prefixText(line, lineIndent));
       return;
     }
 
     if (shouldPreserveLine(line, options.preserve)) {
-      lines.push(prefixText(line, lineIndent));
+      output.push(prefixText(line, lineIndent));
       return;
     }
 
-    lines.push(...wrapLine(line, width, { indent: lineIndent, continuationIndent }));
+    output.push(...wrapLine(line, width, { indent: lineIndent, continuationIndent }));
   });
 
-  return lines;
+  return output;
 }
 
 /**
@@ -70,7 +72,7 @@ function wrapLine(input: string, width: number, options: WrapLineOptions): reado
 
   const prefix = ' '.repeat(options.indent);
   if (width <= 0) return [`${prefix}${input}`];
-  if (visibleWidth(`${prefix}${input}`) <= width) return [`${prefix}${input}`];
+  if (measure(`${prefix}${input}`) <= width) return [`${prefix}${input}`];
 
   const leading = input.match(/^\s*/)?.[0] ?? '';
 
@@ -80,16 +82,16 @@ function wrapLine(input: string, width: number, options: WrapLineOptions): reado
   const lines: string[] = [];
   let line = '';
   let currentPrefix = firstPrefix;
-  let available = Math.max(1, width - visibleWidth(currentPrefix));
+  let available = Math.max(1, width - measure(currentPrefix));
 
   words.forEach((word) => {
     const next = line ? `${line} ${word}` : word;
-    if (visibleWidth(next) <= available || line.length === 0) {
+    if (measure(next) <= available || line.length === 0) {
       line = next;
     } else {
       lines.push(`${currentPrefix}${line}`);
       currentPrefix = wrappedPrefix;
-      available = Math.max(1, width - visibleWidth(currentPrefix));
+      available = Math.max(1, width - measure(currentPrefix));
       line = word;
     }
   });

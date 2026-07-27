@@ -381,7 +381,7 @@ const wrangle = {
   },
 
   clipFrameLine(line: string, width: number) {
-    if (Cli.Fmt.Text.visibleWidth(line) <= width) return line;
+    if (Cli.Fmt.Text.Width.measure(line) <= width) return line;
     return c.gray(wrangle.clipMiddleText(stripAnsi(line), width));
   },
 
@@ -404,13 +404,15 @@ const wrangle = {
     const renderVersion = (text: string) => c.dim(c.green(text));
     const split = (text: string) => {
       if (!version) return undefined;
-      const gap = width - Cli.Fmt.Text.visibleWidth(text) - Cli.Fmt.Text.visibleWidth(version);
+      const gap = width -
+        Cli.Fmt.Text.Width.measure(text) -
+        Cli.Fmt.Text.Width.measure(version);
       return gap >= 1
         ? `${renderName(text)}${wrangle.indent(gap)}${renderVersion(version)}`
         : undefined;
     };
     const renderIfFits = (text: string) => {
-      return Cli.Fmt.Text.visibleWidth(text) <= width ? renderName(text) : undefined;
+      return Cli.Fmt.Text.Width.measure(text) <= width ? renderName(text) : undefined;
     };
 
     return split(scoped) ??
@@ -433,9 +435,9 @@ const wrangle = {
   info(href: string, contentColumn: number, width: number) {
     const url = new URL(href);
     const text = `${url.protocol}//${url.hostname}:${url.port}/`;
-    const valueWidth = Cli.Fmt.Text.fitWidth({ width, reserve: contentColumn, terminal: false });
+    const valueWidth = Cli.Fmt.Text.Width.fit({ width, reserve: contentColumn, terminal: false });
     const indent = wrangle.indent(contentColumn);
-    if (Cli.Fmt.Text.visibleWidth(text) > valueWidth) {
+    if (Cli.Fmt.Text.Width.measure(text) > valueWidth) {
       return `${indent}${c.cyan(wrangle.clipMiddleText(text, valueWidth))}`;
     }
 
@@ -471,9 +473,9 @@ const wrangle = {
     const source = line.source === 'stderr' ? c.yellow('err') : c.gray('out');
     const messageGap = '  ';
     const prefix = ` ${index}  ${source}${messageGap}`;
-    const textWidth = width <= 0 ? 0 : Cli.Fmt.Text.fitWidth({
+    const textWidth = width <= 0 ? 0 : Cli.Fmt.Text.Width.fit({
       width,
-      reserve: Cli.Fmt.Text.visibleWidth(prefix),
+      reserve: Cli.Fmt.Text.Width.measure(prefix),
       terminal: false,
     });
     const text = wrangle.clipMiddle(stripAnsi(line.text).trim(), textWidth);
@@ -482,13 +484,13 @@ const wrangle = {
 
   clipMiddleText(text: string, width: number) {
     if (width === 0) return '';
-    if (Cli.Fmt.Text.visibleWidth(text) <= width) return text;
+    if (Cli.Fmt.Text.Width.measure(text) <= width) return text;
     return Str.ellipsize(text, width);
   },
 
   clipMiddle(text: string, width: number) {
     if (width === 0) return '';
-    if (Cli.Fmt.Text.visibleWidth(text) <= width) return text;
+    if (Cli.Fmt.Text.Width.measure(text) <= width) return text;
     return Str.ellipsize(text, width, { ellipsis: ELLIPSIS_SENTINEL }).replace(
       ELLIPSIS_SENTINEL,
       c.gray('…'),

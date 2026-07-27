@@ -1,6 +1,6 @@
 import { describe, expect, it, Num } from '../../../-test.ts';
 import { ellipsize } from '../u.ellipsize.ts';
-import { visibleWidth } from '../u.width.ts';
+import { measure } from '../u.width.ts';
 
 describe('Cli.Fmt.Text.ellipsize', () => {
   it('preserves fitting text and balanced ASCII middle-ellipsis behavior', () => {
@@ -54,7 +54,7 @@ describe('Cli.Fmt.Text.ellipsize', () => {
       markers.forEach((ellipsis) => {
         for (let width = 0; width <= 10; width++) {
           const output = ellipsize(input, width, { ellipsis });
-          expect(visibleWidth(output) <= width).to.eql(true);
+          expect(measure(output) <= width).to.eql(true);
         }
       });
     });

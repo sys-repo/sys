@@ -5,20 +5,24 @@ import { nonNegativeInt, optionalPositiveInt } from './u.number.ts';
 
 const DEFAULT_FALLBACK_WIDTH = 80;
 
-export function visibleWidth(input: string): number {
+/** Measure terminal-cell occupancy while ignoring ANSI escape sequences. */
+export function measure(input: string): number {
   return stringWidth(input);
 }
 
+/** Append spaces up to the target cell width without truncating wider input. */
 export function padEnd(input: string, width: number): string {
   const target = nonNegativeInt(width, 0);
-  return `${input}${' '.repeat(Math.max(0, target - visibleWidth(input)))}`;
+  return `${input}${' '.repeat(Math.max(0, target - measure(input)))}`;
 }
 
-export function maxVisibleWidth(inputs: readonly string[]): number {
-  return inputs.reduce((max, input) => Math.max(max, visibleWidth(input)), 0);
+/** Return the greatest measured width, or zero when no strings are provided. */
+export function max(inputs: readonly string[]): number {
+  return inputs.reduce((current, input) => Math.max(current, measure(input)), 0);
 }
 
-export function fitWidth(options: t.CliFormatText.Width.Fit.Options = {}): number {
+/** Derive a usable cell budget from explicit, terminal, and fallback width policy. */
+export function fit(options: t.CliFormatText.Width.Fit.Options = {}): number {
   const width = sourceWidth(options);
   const maxWidth = optionalPositiveInt(options.maxWidth);
   const reserve = nonNegativeInt(options.reserve, 0);

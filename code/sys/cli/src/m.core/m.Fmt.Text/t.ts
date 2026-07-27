@@ -3,91 +3,126 @@ import type { t } from '../common.ts';
 /**
  * Contracts for measuring, fitting, clipping, and wrapping terminal text.
  *
- * Widths are rendered cell counts; ANSI escape sequences consume no cells.
+ * Widths are terminal-cell counts. Measurement ignores ANSI escape sequences. `ellipsize` accepts
+ * plain text only; callers apply and balance terminal styling after clipping.
  */
 export declare namespace CliFormatText {
   /**
-   * Terminal-aware text measurement and layout helpers.
+   * Terminal text operations grouped by width, wrapping, and clipping responsibility.
    */
   export type Lib = {
-    /** Rendered terminal-cell width; ANSI escape codes consume no cells. */
-    readonly visibleWidth: (input: string) => number;
-    /** Pad a string to the requested visible width. */
-    readonly padEnd: (input: string, width: number) => string;
-    /** Return the largest visible width among the given strings. */
-    readonly maxVisibleWidth: (inputs: readonly string[]) => number;
-    /** Middle-ellipsize plain single-line text within a terminal-cell budget. */
+    /** Terminal-cell measurement and layout-budget operations. */
+    readonly Width: Width.Lib;
+    /** Whitespace-aware prose wrapping operations. */
+    readonly Wrap: Wrap.Lib;
+    /** Grapheme-safe middle clipping for plain, single-line text within a cell budget. */
     readonly ellipsize: (
       input: string,
       width: number,
       options?: Ellipsize.Options,
     ) => string;
-    /** Resolve a fitted usable width from explicit, terminal, or fallback widths. */
-    readonly fitWidth: (options?: Width.Fit.Options) => number;
-    /** Soft-wrap prose and join the result with newlines. */
-    readonly wrap: (input: string, options: Wrap.Options) => string;
-    /** Soft-wrap prose into display lines. */
-    readonly wrapLines: (input: string, options: Wrap.Options) => readonly string[];
   };
 
   /**
-   * Policies for deriving usable terminal-cell widths.
+   * Contracts for measuring terminal text and deriving terminal-cell layout budgets.
    */
   export namespace Width {
     /**
-     * Inputs for resolving a physical width into a layout budget.
+     * Measures display width and derives usable widths without clipping content.
+     */
+    export type Lib = {
+      /** Measure rendered terminal-cell width; ANSI escape sequences consume no cells. */
+      readonly measure: (input: string) => number;
+      /** Append spaces up to a normalized target width; never truncate wider input. */
+      readonly padEnd: (input: string, width: number) => string;
+      /** Return the greatest measured width, or `0` for an empty collection. */
+      readonly max: (inputs: readonly string[]) => number;
+      /** Derive a non-negative usable width after capping, reserve, and minimum policies. */
+      readonly fit: (options?: Fit.Options) => number;
+    };
+
+    /**
+     * Policy for selecting a physical width and deriving a usable layout budget.
+     *
+     * Source precedence is explicit width, detected terminal width, fallback width, maximum width,
+     * then `80`. Finite numeric inputs are floored to integers. Non-positive source widths are
+     * unavailable; reserve and minimum values normalize to zero.
      */
     export namespace Fit {
       /** Width fitting options for terminal-aware text layout. */
       export type Options = {
-        /** Explicit physical width. Takes precedence over terminal measurement. */
+        /** Positive explicit source width; takes precedence over terminal measurement. */
         readonly width?: number;
-        /** Maximum readable width before subtracting reserve. */
+        /** Positive source-width cap; also the last fallback before the default width. */
         readonly maxWidth?: number;
-        /** Width reserved for surrounding layout such as labels and gutters. */
+        /** Cells reserved for surrounding labels, gutters, or decoration. Defaults to `0`. */
         readonly reserve?: number;
-        /** Minimum usable width; returns `0` when the fitted width falls below it. */
+        /** Usable-width threshold; fitted values below it collapse to `0`. Defaults to `0`. */
         readonly minWidth?: number;
-        /** Deterministic width used when terminal width is unavailable. Defaults to `80`. */
+        /** Fallback source width when terminal measurement is skipped or unavailable. */
         readonly fallbackWidth?: number;
         /** Standard stream used to detect terminal output. Defaults to `stdout`. */
         readonly stream?: t.StdioName;
-        /** Terminal detection override for deterministic tests. */
+        /** Terminal detection override. Defaults to the selected stream's detected state. */
         readonly terminal?: boolean;
       };
     }
   }
 
   /**
-   * Policies for prose flow, indentation, and whole-line preservation.
+   * Contracts for whitespace-aware prose flow, indentation, and line preservation.
+   *
+   * Input CRLF sequences normalize to LF, leading and trailing blank lines are removed, and
+   * explicit internal line boundaries are retained. Prose whitespace may normalize when a line
+   * requires soft wrapping. Numeric layout values normalize to non-negative integers.
    */
   export namespace Wrap {
-    /** Prose wrapping options. */
+    /**
+     * Presents the same wrapping operation as joined text or individual display lines.
+     */
+    export type Lib = {
+      /** Soft-wrap prose at whitespace and join the resulting lines with `\n`. */
+      readonly text: (input: string, options: Options) => string;
+      /** Soft-wrap prose at whitespace and return the resulting display lines. */
+      readonly lines: (input: string, options: Options) => readonly string[];
+    };
+
+    /** Prose wrapping and indentation policy. */
     export type Options = {
-      /** Maximum visible width for each rendered line; non-positive values disable soft wrapping. */
+      /**
+       * Target terminal-cell width, including formatter-added indentation. Non-positive values
+       * disable soft wrapping. Preserved lines and indivisible words may exceed this target.
+       */
       readonly width: number;
-      /** Number of spaces to prefix to the first rendered line. */
+      /** Spaces prefixed to the first rendered line. Defaults to `0`. */
       readonly indent?: number;
-      /** Number of spaces to prefix to wrapped and explicit continuation lines. */
+      /**
+       * Non-negative spaces prefixed to wrapped and explicit continuation lines. Defaults to
+       * `indent`.
+       */
       readonly continuationIndent?: number;
-      /** Whole-line preservation policy. Defaults to command/reference preservation. */
+      /**
+       * Whole-line preservation policy. Defaults to recognized code, command, and URL lines;
+       * `none` disables those patterns and a predicate replaces them. Fenced blocks are always
+       * preserved.
+       */
       readonly preserve?: Preserve;
     };
 
-    /** Whole-line preservation policy for wrapping. */
+    /** Built-in, disabled, or caller-defined whole-line preservation policy. */
     export type Preserve = 'default' | 'none' | PreserveFn;
 
-    /** Custom whole-line preservation predicate. */
+    /** Predicate preserving a source line when true, before indentation or prose normalization. */
     export type PreserveFn = (line: string) => boolean;
   }
 
   /**
-   * Marker policy for middle-ellipsizing text within a cell budget.
+   * Plain-text marker policy for grapheme-safe middle clipping within a cell budget.
    */
   export namespace Ellipsize {
-    /** Options for terminal-cell-aware middle ellipsis. */
+    /** Options for terminal-cell-aware middle clipping. */
     export type Options = {
-      /** Plain marker inserted between the retained start and end. Defaults to `…`. */
+      /** Plain marker used between retained ends and clipped if necessary. Defaults to `…`. */
       readonly ellipsis?: string;
     };
   }

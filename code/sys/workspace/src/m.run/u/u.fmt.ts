@@ -8,19 +8,19 @@ const INTRO_SEPARATOR = '  →  ';
 
 export const Fmt: t.WorkspaceRun.Fmt.Lib = {
   introLine(label, message, options) {
-    const width = Cli.Fmt.Text.fitWidth({
+    const width = Cli.Fmt.Text.Width.fit({
       width: options?.width,
       terminal: options?.terminal,
       fallbackWidth: INTRO_FALLBACK_WIDTH,
       minWidth: INTRO_MIN_WIDTH,
     });
-    const left = Cli.Fmt.Text.padEnd(label, INTRO_LABEL_WIDTH);
+    const left = Cli.Fmt.Text.Width.padEnd(label, INTRO_LABEL_WIDTH);
     const prefix = `${left}${INTRO_SEPARATOR}`;
     const line = `${prefix}${message}`;
-    if (width <= 0 || Cli.Fmt.Text.visibleWidth(line) <= width) return c.gray(line);
+    if (width <= 0 || Cli.Fmt.Text.Width.measure(line) <= width) return c.gray(line);
 
-    const continuationIndent = Cli.Fmt.Text.visibleWidth(prefix);
-    const messageLines = Cli.Fmt.Text.wrapLines(message, {
+    const continuationIndent = Cli.Fmt.Text.Width.measure(prefix);
+    const messageLines = Cli.Fmt.Text.Wrap.lines(message, {
       width,
       indent: continuationIndent,
       continuationIndent,

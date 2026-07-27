@@ -31,7 +31,7 @@ export const pad: t.ViteLog.Lib['pad'] = (text, pad) => {
 };
 
 export function outputWidth(input?: number) {
-  return Is.num(input) ? Math.max(0, Math.floor(input)) : Cli.Fmt.Text.fitWidth();
+  return Is.num(input) ? Math.max(0, Math.floor(input)) : Cli.Fmt.Text.Width.fit();
 }
 
 export function reserveWidth(width: number, reserve: number) {
@@ -40,20 +40,20 @@ export function reserveWidth(width: number, reserve: number) {
 
 export function clipLine(input: string, width: number) {
   if (width <= 0) return '';
-  if (Cli.Fmt.Text.visibleWidth(input) <= width) return input;
+  if (Cli.Fmt.Text.Width.measure(input) <= width) return input;
   return c.gray(clipText(stripAnsi(input), width));
 }
 
 export function clipText(input: string, width: number) {
   if (width <= 0) return '';
-  if (Cli.Fmt.Text.visibleWidth(input) <= width) return input;
+  if (Cli.Fmt.Text.Width.measure(input) <= width) return input;
   return Str.ellipsize(input, width);
 }
 
 export function clipValue(input: string, width: number) {
   if (width <= 0) return '';
   const text = stripAnsi(input);
-  if (Cli.Fmt.Text.visibleWidth(text) <= width) return input;
+  if (Cli.Fmt.Text.Width.measure(text) <= width) return input;
   return Str.ellipsize(text, width, { ellipsis: ELLIPSIS_SENTINEL }).replace(
     ELLIPSIS_SENTINEL,
     c.gray('…'),
@@ -65,14 +65,14 @@ export function metadataRow(args: MetadataRowArgs) {
   const prefix = metadataPrefix(args);
   const base = `${prefix}${value}`;
   const suffix = suffixes.find((candidate) => {
-    return Cli.Fmt.Text.visibleWidth(`${base} ${candidate}`) <= width;
+    return Cli.Fmt.Text.Width.measure(`${base} ${candidate}`) <= width;
   });
   if (suffix) return `${base} ${suffix}`;
-  if (Cli.Fmt.Text.visibleWidth(base) <= width) return base;
+  if (Cli.Fmt.Text.Width.measure(base) <= width) return base;
 
-  const valueWidth = Cli.Fmt.Text.fitWidth({
+  const valueWidth = Cli.Fmt.Text.Width.fit({
     width,
-    reserve: Cli.Fmt.Text.visibleWidth(prefix),
+    reserve: Cli.Fmt.Text.Width.measure(prefix),
     terminal: false,
   });
   return clipLine(`${prefix}${clipValue(value, valueWidth)}`.trimEnd(), width);
@@ -82,7 +82,7 @@ export function metadataPrefix(
   args: Pick<MetadataRowArgs, 'label' | 'indent' | 'labelWidth' | 'styledLabel'>,
 ) {
   const { label, indent = 0, labelWidth = 14, styledLabel = c.gray(label) } = args;
-  const labelDisplayWidth = Cli.Fmt.Text.visibleWidth(styledLabel);
+  const labelDisplayWidth = Cli.Fmt.Text.Width.measure(styledLabel);
   const gap = ' '.repeat(Math.max(1, labelWidth - labelDisplayWidth));
   return `${' '.repeat(Math.max(0, indent))}${styledLabel}${gap}`;
 }

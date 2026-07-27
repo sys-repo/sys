@@ -143,7 +143,7 @@ describe('WorkspaceRun.parallel reporter', () => {
         expect(frame.includes('sample/pkg-running-alpha')).to.eql(true);
         expect(runningLine.includes('⦿  sample/pkg-running-alpha')).to.eql(true);
         expect(runningLine.endsWith(' ')).to.eql(false);
-        expect(Cli.Fmt.Text.visibleWidth(runningLine) < 100).to.eql(true);
+        expect(Cli.Fmt.Text.Width.measure(runningLine) < 100).to.eql(true);
       });
 
       it('keeps active row seconds under one minute and decimal minutes from one minute', () => {
@@ -179,7 +179,7 @@ describe('WorkspaceRun.parallel reporter', () => {
         const line = contextLine(57_000, 40);
 
         expect(line).to.eql('  testing · 57s elapsed');
-        expect(Cli.Fmt.Text.visibleWidth(line) <= 40).to.eql(true);
+        expect(Cli.Fmt.Text.Width.measure(line) <= 40).to.eql(true);
         expect(line.endsWith(' ')).to.eql(false);
       });
     });
@@ -354,7 +354,7 @@ describe('WorkspaceRun.parallel reporter', () => {
         'workspace test   →  strategy: parallel,',
         '                    4 jobs (concurrent)',
       ]);
-      expect(lines.every((item) => Cli.Fmt.Text.visibleWidth(item) <= 40)).to.eql(true);
+      expect(lines.every((item) => Cli.Fmt.Text.Width.measure(item) <= 40)).to.eql(true);
     });
   });
 

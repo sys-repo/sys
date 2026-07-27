@@ -33,7 +33,7 @@ export declare namespace CliFormat {
     /** Help page formatting. */
     readonly Help: CliFormatHelp.Lib;
 
-    /** Text fitting and wrapping helpers. */
+    /** Terminal text measurement, fitting, wrapping, and clipping operations. */
     readonly Text: CliFormatText.Lib;
 
     /** Navigable help chapter formatting and tree helpers. */

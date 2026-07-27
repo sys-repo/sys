@@ -47,17 +47,17 @@ function renderLinesSection(
   layout: Layout,
 ): string {
   const labelWidth = layout.labelWidth;
-  const label = c.gray(Text.padEnd(section.label, labelWidth));
+  const label = c.gray(Text.Width.padEnd(section.label, labelWidth));
   const blank = ' '.repeat(labelWidth);
-  const bodyWidth = Text.fitWidth({
+  const bodyWidth = Text.Width.fit({
     width: layout.pageWidth,
-    reserve: labelWidth + Text.visibleWidth(layout.gap),
+    reserve: labelWidth + Text.Width.measure(layout.gap),
     minWidth: layout.minBodyWidth,
   });
   if (bodyWidth === 0) return renderStackedLinesSection(section, layout);
 
   const lines = section.items.flatMap((item, itemIndex) => {
-    const wrapped = Text.wrapLines(item, {
+    const wrapped = Text.Wrap.lines(item, {
       width: bodyWidth,
       continuationIndent: HANGING_INDENT,
     });
@@ -79,26 +79,31 @@ function renderPairsSection(
   const rightTone = section.rightTone ?? 'default';
   const labelWidth = layout.labelWidth;
   const leftValues = section.items.map(([left]) => left);
-  const leftWidth = Text.maxVisibleWidth(leftValues);
-  const label = c.gray(Text.padEnd(section.label, labelWidth));
+  const leftWidth = Text.Width.max(leftValues);
+  const label = c.gray(Text.Width.padEnd(section.label, labelWidth));
   const sectionBlank = ' '.repeat(labelWidth);
   const leftBlank = ' '.repeat(leftWidth);
-  const rightWidth = Text.fitWidth({
+  const rightWidth = Text.Width.fit({
     width: layout.pageWidth,
-    reserve: labelWidth + Text.visibleWidth(layout.gap) + leftWidth + Text.visibleWidth(layout.gap),
+    reserve: labelWidth +
+      Text.Width.measure(layout.gap) +
+      leftWidth +
+      Text.Width.measure(layout.gap),
     minWidth: layout.minBodyWidth,
   });
   if (rightWidth === 0) return renderStackedPairsSection(section, layout);
 
   const lines = section.items.flatMap(([leftValue, right], itemIndex) => {
-    const wrapped = Text.wrapLines(right, {
+    const wrapped = Text.Wrap.lines(right, {
       width: rightWidth,
       continuationIndent: HANGING_INDENT,
     });
 
     return wrapped.map((line, lineIndex) => {
       const sectionLabel = itemIndex === 0 && lineIndex === 0 ? label : sectionBlank;
-      const left = lineIndex === 0 ? tone(leftTone, Text.padEnd(leftValue, leftWidth)) : leftBlank;
+      const left = lineIndex === 0
+        ? tone(leftTone, Text.Width.padEnd(leftValue, leftWidth))
+        : leftBlank;
       return `${sectionLabel}${layout.gap}${left}${layout.gap}${tone(rightTone, line)}`;
     });
   });
@@ -113,7 +118,7 @@ function renderStackedLinesSection(
   const lines = [
     c.gray(section.label),
     ...section.items.flatMap((item) => {
-      return Text.wrapLines(item, {
+      return Text.Wrap.lines(item, {
         width: Math.max(0, layout.pageWidth - HANGING_INDENT),
         indent: HANGING_INDENT,
         continuationIndent: HANGING_INDENT,
@@ -134,12 +139,12 @@ function renderStackedPairsSection(
     c.gray(section.label),
     ...section.items.flatMap(([left, right]) => {
       return [
-        ...Text.wrapLines(left, {
+        ...Text.Wrap.lines(left, {
           width: Math.max(0, layout.pageWidth - HANGING_INDENT),
           indent: HANGING_INDENT,
           continuationIndent: HANGING_INDENT,
         }).map((line) => tone(leftTone, line)),
-        ...Text.wrapLines(right, {
+        ...Text.Wrap.lines(right, {
           width: Math.max(0, layout.pageWidth - HANGING_INDENT * 2),
           indent: HANGING_INDENT * 2,
           continuationIndent: HANGING_INDENT * 2,
@@ -156,7 +161,7 @@ function wrapTopMatter(
   layout: Layout,
   toneKind: t.CliFormatHelp.Tone,
 ): readonly string[] {
-  return Text.wrapLines(input, { width: layout.pageWidth }).map((line) => tone(toneKind, line));
+  return Text.Wrap.lines(input, { width: layout.pageWidth }).map((line) => tone(toneKind, line));
 }
 
 function tone(kind: t.CliFormatHelp.Tone, input: string): string {
@@ -172,8 +177,8 @@ const wrangle = {
 
     return {
       gap: GAP,
-      labelWidth: Text.maxVisibleWidth(labels),
-      pageWidth: Text.fitWidth({
+      labelWidth: Text.Width.max(labels),
+      pageWidth: Text.Width.fit({
         ...options,
         maxWidth: options.maxWidth ?? DEFAULT_PAGE_WIDTH,
         fallbackWidth: options.fallbackWidth ?? DEFAULT_PAGE_WIDTH,

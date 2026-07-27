@@ -11,7 +11,7 @@ export { Color } from '../common.ts';
 export { stripAnsi } from '../common.ts';
 /** Shared command-line formatting helper library. */
 export { Fmt } from './m.Fmt.ts';
-/** Text fitting and wrapping helpers. */
+/** Terminal text measurement, fitting, wrapping, and clipping operations. */
 export { Text } from '../m.Fmt.Text/mod.ts';
 /** Navigable help chapter formatting and tree helpers. */
 export { Chapters } from '../m.Fmt.Chapters/mod.ts';

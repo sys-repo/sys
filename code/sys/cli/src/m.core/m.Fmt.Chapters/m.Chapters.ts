@@ -46,13 +46,13 @@ function format(input: t.CliFormatChapters.FormatInput): string {
 
   if (chapter.chapters.length > 0) {
     if (chapter.sections.length > 0) lines.push('');
-    const commandWidth = Text.maxVisibleWidth(
+    const commandWidth = Text.Width.max(
       chapter.chapters.map((item) => chapterCommand(input, item)),
     );
     const inlineLinks = !layout.stacked && chapter.chapters.every((item) => {
       const command = chapterCommand(input, item);
-      const inline = `${Text.padEnd(command, commandWidth)}  ${c.gray(item.summary)}`;
-      return Text.visibleWidth(inline) <= layout.bodyWidth;
+      const inline = `${Text.Width.padEnd(command, commandWidth)}  ${c.gray(item.summary)}`;
+      return Text.Width.measure(inline) <= layout.bodyWidth;
     });
     chapter.chapters.forEach((item, itemIndex) => {
       lines.push(
@@ -115,9 +115,9 @@ function sectionItemLines(label: string, item: string, layout: Layout): readonly
   if (layout.stacked) return stackedLines(label, item, layout);
 
   const labelText = label
-    ? c.gray(Text.padEnd(label, layout.labelWidth))
+    ? c.gray(Text.Width.padEnd(label, layout.labelWidth))
     : ' '.repeat(layout.labelWidth);
-  const wrapped = Text.wrapLines(item, {
+  const wrapped = Text.Wrap.lines(item, {
     width: layout.bodyWidth,
     continuationIndent: HANGING_INDENT,
   });
@@ -142,17 +142,19 @@ function chapterLinkLines(
   }
 
   const labelText = label
-    ? c.gray(Text.padEnd(label, layout.labelWidth))
+    ? c.gray(Text.Width.padEnd(label, layout.labelWidth))
     : ' '.repeat(layout.labelWidth);
   const blank = ' '.repeat(layout.labelWidth);
   const command = chapterCommand(input, chapter);
   if (inline) {
     return [
-      `${labelText}${layout.gap}${Text.padEnd(command, commandWidth)}  ${c.gray(chapter.summary)}`,
+      `${labelText}${layout.gap}${Text.Width.padEnd(command, commandWidth)}  ${
+        c.gray(chapter.summary)
+      }`,
     ];
   }
 
-  const summary = Text.wrapLines(chapter.summary, {
+  const summary = Text.Wrap.lines(chapter.summary, {
     width: Math.max(0, layout.bodyWidth - HANGING_INDENT),
     indent: HANGING_INDENT,
     continuationIndent: HANGING_INDENT,
@@ -171,7 +173,7 @@ function chapterCommand(
 }
 
 function markdownSectionItems(items: readonly string[]): readonly string[] {
-  return items.flatMap((item) => Text.wrapLines(item, { width: MARKDOWN_WIDTH }));
+  return items.flatMap((item) => Text.Wrap.lines(item, { width: MARKDOWN_WIDTH }));
 }
 
 function markdownChapterLine(
@@ -222,9 +224,11 @@ function stackedLines(
   const bodyWidth = layout.pageWidth;
   const lines: string[] = [];
   if (label) lines.push(c.gray(label));
-  if (prefix) lines.push(...Text.wrapLines(prefix, { width: bodyWidth, indent: HANGING_INDENT }));
+  if (prefix) {
+    lines.push(...Text.Wrap.lines(prefix, { width: bodyWidth, indent: HANGING_INDENT }));
+  }
   lines.push(
-    ...Text.wrapLines(item, {
+    ...Text.Wrap.lines(item, {
       width: bodyWidth,
       indent: HANGING_INDENT,
       continuationIndent: HANGING_INDENT,
@@ -243,16 +247,16 @@ function resolveLayout(input: t.CliFormatChapters.FormatInput): Layout {
       : []),
   ];
   const options = input.layout ?? {};
-  const pageWidth = Text.fitWidth({
+  const pageWidth = Text.Width.fit({
     ...options,
     maxWidth: options.maxWidth ?? DEFAULT_PAGE_WIDTH,
     fallbackWidth: options.fallbackWidth ?? DEFAULT_PAGE_WIDTH,
   });
-  const labelWidth = Text.maxVisibleWidth(labels);
+  const labelWidth = Text.Width.max(labels);
   const minBodyWidth = Math.max(0, Math.floor(options.minBodyWidth ?? DEFAULT_MIN_BODY_WIDTH));
-  const bodyWidth = Text.fitWidth({
+  const bodyWidth = Text.Width.fit({
     width: pageWidth,
-    reserve: labelWidth + Text.visibleWidth(GAP),
+    reserve: labelWidth + Text.Width.measure(GAP),
     minWidth: minBodyWidth,
   });
 

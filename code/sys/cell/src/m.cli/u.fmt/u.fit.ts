@@ -60,7 +60,7 @@ function path(path: string, reserve: number, options: FitPathOptions = {}): stri
 }
 
 function valueWidth(reserve: number, options: FitValueOptions = {}): number {
-  return Cli.Fmt.Text.fitWidth({
+  return Cli.Fmt.Text.Width.fit({
     reserve,
     terminal: options.terminal ?? Cli.Is.terminal('stdout'),
     width: options.width ?? Cli.Screen.size().width,

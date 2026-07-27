@@ -71,7 +71,7 @@ const wrangle = {
       c.white(c.bold(unscoped)),
     ];
     const match = candidates.find((candidate) =>
-      Cli.Fmt.Text.visibleWidth(candidate) <= valueWidth
+      Cli.Fmt.Text.Width.measure(candidate) <= valueWidth
     );
     return match ?? c.white(c.bold(wrangle.clipText(unscoped, valueWidth)));
   },
@@ -84,7 +84,7 @@ const wrangle = {
 
   clip(input: string, width: number) {
     if (width <= 0) return '';
-    if (Cli.Fmt.Text.visibleWidth(input) <= width) return input;
+    if (Cli.Fmt.Text.Width.measure(input) <= width) return input;
     return clipLine(input, width);
   },
 

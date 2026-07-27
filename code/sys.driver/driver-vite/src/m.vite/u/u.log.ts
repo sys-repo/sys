@@ -151,7 +151,7 @@ const wrangle = {
 
   row(label: string, value: string, width: number) {
     const prefix = c.gray(label.padEnd(14, ' '));
-    const valueWidth = reserveWidth(width, Cli.Fmt.Text.visibleWidth(prefix));
+    const valueWidth = reserveWidth(width, Cli.Fmt.Text.Width.measure(prefix));
     const text = `${prefix}${clipLine(c.gray(value), valueWidth)}`.trimEnd();
     return clipLine(text, width);
   },

@@ -52,7 +52,7 @@ type ReporterState = {
 
 const GRID_GUTTER = '      ';
 const STATUS_GUTTER = '   ';
-const SPINNER_PREFIX_WIDTH = Cli.Fmt.Text.visibleWidth('⠧ ');
+const SPINNER_PREFIX_WIDTH = Cli.Fmt.Text.Width.measure('⠧ ');
 const MINUTE = Time.Date.MINUTE;
 
 /** Create a reporter that renders parallel test progress from scheduler events. */
@@ -99,7 +99,7 @@ export function formatParallelProgress(args: ParallelProgressFormatArgs): string
   const failed = args.failed > 0 ? c.red(`✕ failed ${args.failed}`) : c.gray('✕ failed 0');
   const blocked = args.blocked > 0 ? c.yellow(`⊘ blocked ${args.blocked}`) : c.gray('⊘ blocked 0');
   const skipped = args.skipped > 0 ? c.yellow(`↷ skipped ${args.skipped}`) : c.gray('↷ skipped 0');
-  const width = Cli.Fmt.Text.fitWidth({
+  const width = Cli.Fmt.Text.Width.fit({
     width: args.width,
     terminal: args.terminal,
     fallbackWidth: 100,
@@ -204,17 +204,17 @@ const wrangle = {
     const compact = elapsed ? `  ${label}${elapsedSuffix}` : `  ${label}`;
     const bare = `  ${label}`;
     const variants = [full, compact, bare];
-    return variants.find((line) => Cli.Fmt.Text.visibleWidth(line) <= width) ?? bare;
+    return variants.find((line) => Cli.Fmt.Text.Width.measure(line) <= width) ?? bare;
   },
 
   statusRows(summary: string, metrics: readonly string[], width: number, terminal?: boolean) {
     const prefixWidth = terminal ? SPINNER_PREFIX_WIDTH : 0;
     const firstLineWidth = width - prefixWidth;
     const singleLine = [summary, ...metrics].join(STATUS_GUTTER);
-    if (Cli.Fmt.Text.visibleWidth(singleLine) <= firstLineWidth) return singleLine;
+    if (Cli.Fmt.Text.Width.measure(singleLine) <= firstLineWidth) return singleLine;
 
-    const summaryWidth = Cli.Fmt.Text.visibleWidth(summary);
-    const gutterWidth = Cli.Fmt.Text.visibleWidth(STATUS_GUTTER);
+    const summaryWidth = Cli.Fmt.Text.Width.measure(summary);
+    const gutterWidth = Cli.Fmt.Text.Width.measure(STATUS_GUTTER);
     const continuationIndent = ' '.repeat(summaryWidth + gutterWidth + prefixWidth);
     const lines: string[] = [];
     let current = summary;
@@ -223,7 +223,7 @@ const wrangle = {
     for (const metric of metrics) {
       const candidate = `${current}${STATUS_GUTTER}${metric}`;
       const capacity = isFirstLine ? firstLineWidth : width;
-      if (Cli.Fmt.Text.visibleWidth(candidate) <= capacity) {
+      if (Cli.Fmt.Text.Width.measure(candidate) <= capacity) {
         current = candidate;
         continue;
       }
@@ -294,7 +294,7 @@ const wrangle = {
     const maxColumns = width >= 120 ? 3 : width >= 80 ? 2 : 1;
     const indent = '  ';
     const gutter = GRID_GUTTER;
-    const usable = width - Cli.Fmt.Text.visibleWidth(indent);
+    const usable = width - Cli.Fmt.Text.Width.measure(indent);
     const columns = wrangle.runningColumnCount(maxColumns, usable, gutter);
     if (columns < 1) return undefined;
     return {
@@ -314,7 +314,7 @@ const wrangle = {
         const cell = cells[index + offset];
         if (!cell) continue;
         const isLast = index + offset + 1 >= cells.length || offset === columns - 1;
-        row.push(isLast ? cell : Cli.Fmt.Text.padEnd(cell, widths[offset] ?? 0));
+        row.push(isLast ? cell : Cli.Fmt.Text.Width.padEnd(cell, widths[offset] ?? 0));
       }
       lines.push(`${indent}${row.join(gutter)}`);
     }
@@ -329,7 +329,7 @@ const wrangle = {
   },
 
   runningCellWidth(usable: number, columns: number, gutter: string) {
-    const gutterWidth = Cli.Fmt.Text.visibleWidth(gutter) * (columns - 1);
+    const gutterWidth = Cli.Fmt.Text.Width.measure(gutter) * (columns - 1);
     const raw = (usable - gutterWidth) / columns;
     return raw - (raw % 1);
   },
@@ -338,7 +338,7 @@ const wrangle = {
     const widths: number[] = [];
     for (let index = 0; index < cells.length; index += 1) {
       const column = index % columns;
-      const width = Cli.Fmt.Text.visibleWidth(cells[index] ?? '');
+      const width = Cli.Fmt.Text.Width.measure(cells[index] ?? '');
       const current = widths[column] ?? 0;
       widths[column] = width > current ? width : current;
     }
@@ -347,7 +347,7 @@ const wrangle = {
 
   runningCell(item: ParallelProgressRunning, width: number, terminal?: boolean) {
     const elapsed = wrangle.runningElapsed(item.elapsed);
-    const elapsedWidth = Cli.Fmt.Text.visibleWidth(elapsed);
+    const elapsedWidth = Cli.Fmt.Text.Width.measure(elapsed);
     const pathWidth = Num.clamp(8, width - 4, width - elapsedWidth - 4);
     const path = Cli.Fmt.Path.tty(item.path, {
       fit: 'width',
@@ -362,7 +362,7 @@ const wrangle = {
   completedCell(item: ParallelProgressCompleted, width: number, terminal?: boolean) {
     const mark = wrangle.completedMark(item.kind);
     const suffix = wrangle.completedSuffix(item);
-    const suffixWidth = Cli.Fmt.Text.visibleWidth(suffix);
+    const suffixWidth = Cli.Fmt.Text.Width.measure(suffix);
     const pathWidth = Num.clamp(8, width - 4, width - suffixWidth - 4);
     const path = Cli.Fmt.Path.tty(item.path, {
       fit: 'width',

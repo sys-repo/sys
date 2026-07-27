@@ -29,7 +29,7 @@ export const Log: {
  */
 const wrangle = {
   width(input?: number) {
-    return Num.Is.finite(input) ? Math.max(0, Math.floor(input)) : Cli.Fmt.Text.fitWidth();
+    return Num.Is.finite(input) ? Math.max(0, Math.floor(input)) : Cli.Fmt.Text.Width.fit();
   },
 
   clipBlock(text: string, width: number) {
@@ -38,7 +38,7 @@ const wrangle = {
   },
 
   clipLine(line: string, width: number) {
-    if (Cli.Fmt.Text.visibleWidth(line) <= width) return line;
+    if (Cli.Fmt.Text.Width.measure(line) <= width) return line;
     return Str.ellipsize(stripAnsi(line), width);
   },
 } as const;

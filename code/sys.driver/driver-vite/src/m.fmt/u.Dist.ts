@@ -63,13 +63,13 @@ const wrangle = {
     const prefix = metadataPrefix({ label, labelWidth: LABEL_WIDTH });
     const values = Array.isArray(value) ? value : [value];
     const match = values.find((candidate) => {
-      return Cli.Fmt.Text.visibleWidth(`${prefix}${candidate}`) <= width;
+      return Cli.Fmt.Text.Width.measure(`${prefix}${candidate}`) <= width;
     });
     if (match) return clipLine(`${prefix}${match}`.trimEnd(), width);
 
-    const valueWidth = Cli.Fmt.Text.fitWidth({
+    const valueWidth = Cli.Fmt.Text.Width.fit({
       width,
-      reserve: Cli.Fmt.Text.visibleWidth(prefix),
+      reserve: Cli.Fmt.Text.Width.measure(prefix),
       terminal: false,
     });
     return clipLine(`${prefix}${clipValue(values.at(-1) ?? '', valueWidth)}`.trimEnd(), width);
@@ -84,9 +84,9 @@ const wrangle = {
 
   hashRow(hash: t.StringHash, width: number) {
     const prefix = metadataPrefix({ label: '', labelWidth: LABEL_WIDTH });
-    const valueWidth = Cli.Fmt.Text.fitWidth({
+    const valueWidth = Cli.Fmt.Text.Width.fit({
       width,
-      reserve: Cli.Fmt.Text.visibleWidth(prefix),
+      reserve: Cli.Fmt.Text.Width.measure(prefix),
       terminal: false,
     });
     return clipLine(`${prefix}${hashValue(hash, valueWidth)}`.trimEnd(), width);
@@ -107,7 +107,9 @@ const wrangle = {
 
   moduleLine(pkg: t.Pkg, hash: string, width: number) {
     const candidates = wrangle.moduleCandidates(pkg, hash);
-    const match = candidates.find((candidate) => Cli.Fmt.Text.visibleWidth(candidate) <= width);
+    const match = candidates.find((candidate) => {
+      return Cli.Fmt.Text.Width.measure(candidate) <= width;
+    });
     return clipLine(c.bold(match ?? c.gray(clipValue(wrangle.unscoped(pkg.name), width))), width);
   },
 

@@ -2,8 +2,8 @@ import { describe, expect, it } from '../../../-test.ts';
 import { Fmt } from '../../mod.ts';
 import { Text } from '../mod.ts';
 import { ellipsize } from '../u.ellipsize.ts';
-import { fitWidth, maxVisibleWidth, padEnd, visibleWidth } from '../u.width.ts';
-import { wrap, wrapLines } from '../u.wrap.ts';
+import { fit, max, measure, padEnd } from '../u.width.ts';
+import { lines, text } from '../u.wrap.ts';
 
 describe('Cli.Fmt.Text', () => {
   describe('API', () => {
@@ -15,14 +15,18 @@ describe('Cli.Fmt.Text', () => {
       expect(m.Fmt.Text).to.equal(Text);
     });
 
-    it('assembles the public formatter from focused width and wrap helpers', () => {
-      expect(Text.visibleWidth).to.equal(visibleWidth);
-      expect(Text.padEnd).to.equal(padEnd);
-      expect(Text.maxVisibleWidth).to.equal(maxVisibleWidth);
+    it('assembles exact width and wrap namespaces from their focused helpers', () => {
+      expect(Reflect.ownKeys(Text)).to.eql(['Width', 'Wrap', 'ellipsize']);
+      expect(Reflect.ownKeys(Text.Width)).to.eql(['measure', 'padEnd', 'max', 'fit']);
+      expect(Reflect.ownKeys(Text.Wrap)).to.eql(['text', 'lines']);
+
+      expect(Text.Width.measure).to.equal(measure);
+      expect(Text.Width.padEnd).to.equal(padEnd);
+      expect(Text.Width.max).to.equal(max);
+      expect(Text.Width.fit).to.equal(fit);
+      expect(Text.Wrap.text).to.equal(text);
+      expect(Text.Wrap.lines).to.equal(lines);
       expect(Text.ellipsize).to.equal(ellipsize);
-      expect(Text.fitWidth).to.equal(fitWidth);
-      expect(Text.wrap).to.equal(wrap);
-      expect(Text.wrapLines).to.equal(wrapLines);
     });
   });
 });

@@ -33,6 +33,29 @@ type ExpectedCommitOptions = {
   readonly message?: ExpectedCommitText;
 };
 
+type ExpectedTextWidthLib = {
+  readonly measure: (input: string) => number;
+  readonly padEnd: (input: string, width: number) => string;
+  readonly max: (inputs: readonly string[]) => number;
+  readonly fit: (options?: t.CliFormatText.Width.Fit.Options) => number;
+};
+type ExpectedTextWrapLib = {
+  readonly text: (input: string, options: t.CliFormatText.Wrap.Options) => string;
+  readonly lines: (
+    input: string,
+    options: t.CliFormatText.Wrap.Options,
+  ) => readonly string[];
+};
+type ExpectedTextLib = {
+  readonly Width: ExpectedTextWidthLib;
+  readonly Wrap: ExpectedTextWrapLib;
+  readonly ellipsize: (
+    input: string,
+    width: number,
+    options?: t.CliFormatText.Ellipsize.Options,
+  ) => string;
+};
+
 type CanonicalFormatterProof = [
   // Preserved leaf semantics.
   Assert<Equal<t.CliFormatHelp.Pair, readonly [left: string, right: string]>>,
@@ -210,7 +233,10 @@ type CanonicalFormatterProof = [
     >
   >,
 
-  // Text policy contracts; Width.Lib and Wrap.Lib intentionally do not exist yet.
+  // Text operation and policy contracts.
+  Assert<Equal<t.CliFormatText.Lib, ExpectedTextLib>>,
+  Assert<Equal<t.CliFormatText.Width.Lib, ExpectedTextWidthLib>>,
+  Assert<Equal<t.CliFormatText.Wrap.Lib, ExpectedTextWrapLib>>,
   Assert<
     Exact6<
       t.CliFormatText.Lib,
@@ -219,6 +245,26 @@ type CanonicalFormatterProof = [
       CliFormatTextFromTypes.Lib,
       CliFromT.Fmt.Text.Lib,
       CliFromTypes.Fmt.Text.Lib
+    >
+  >,
+  Assert<
+    Exact6<
+      t.CliFormatText.Width.Lib,
+      t.Cli.Fmt.Text.Width.Lib,
+      CliFormatTextFromT.Width.Lib,
+      CliFormatTextFromTypes.Width.Lib,
+      CliFromT.Fmt.Text.Width.Lib,
+      CliFromTypes.Fmt.Text.Width.Lib
+    >
+  >,
+  Assert<
+    Exact6<
+      t.CliFormatText.Wrap.Lib,
+      t.Cli.Fmt.Text.Wrap.Lib,
+      CliFormatTextFromT.Wrap.Lib,
+      CliFormatTextFromTypes.Wrap.Lib,
+      CliFromT.Fmt.Text.Wrap.Lib,
+      CliFromTypes.Fmt.Text.Wrap.Lib
     >
   >,
   Assert<
@@ -355,6 +401,8 @@ describe('Cli.Fmt: canonical formatter type namespaces', () => {
     expectTypeOf(Fmt.Help).toEqualTypeOf<t.CliFormatHelp.Lib>();
     expectTypeOf(Fmt.Commit).toEqualTypeOf<t.CliFormatCommit.Lib>();
     expectTypeOf(Fmt.Text).toEqualTypeOf<t.CliFormatText.Lib>();
+    expectTypeOf(Fmt.Text.Width).toEqualTypeOf<t.CliFormatText.Width.Lib>();
+    expectTypeOf(Fmt.Text.Wrap).toEqualTypeOf<t.CliFormatText.Wrap.Lib>();
     expectTypeOf(Fmt.Chapters).toEqualTypeOf<t.CliFormatChapters.Lib>();
     expectTypeOf(Fmt.Path).toEqualTypeOf<t.CliFormat.Path.Lib>();
     expectTypeOf(Fmt.Url).toEqualTypeOf<t.CliFormat.Url.Lib>();

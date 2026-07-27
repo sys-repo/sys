@@ -65,8 +65,8 @@ const wrangle = {
     const paths = [HEADER.right, ...rows.map((row) => wrangle.pathFull(row.path))];
     return {
       mode,
-      leftWidth: Cli.Fmt.Text.maxVisibleWidth(left),
-      pathWidth: Cli.Fmt.Text.maxVisibleWidth(paths),
+      leftWidth: Cli.Fmt.Text.Width.max(left),
+      pathWidth: Cli.Fmt.Text.Width.max(paths),
     };
   },
 
@@ -136,13 +136,13 @@ const wrangle = {
   },
 
   clipLine(line: string, width: number) {
-    if (Cli.Fmt.Text.visibleWidth(line) <= width) return line;
+    if (Cli.Fmt.Text.Width.measure(line) <= width) return line;
     return c.gray(wrangle.clipPlain(stripAnsi(line), width));
   },
 
   clipPlain(input: string, width: number, ellipsis = '…') {
     if (width <= 0) return '';
-    if (Cli.Fmt.Text.visibleWidth(input) <= width) return input;
+    if (Cli.Fmt.Text.Width.measure(input) <= width) return input;
     return Str.ellipsize(input, width, { ellipsis });
   },
 } as const;
