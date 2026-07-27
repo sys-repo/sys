@@ -1,6 +1,6 @@
-import { type t, c } from '../common.ts';
+import { c, type t } from '../common.ts';
 
-export const Commit: t.CliFormatCommitLib = {
+export const Commit: t.CliFormatCommit.Lib = {
   suggestion(message, options = {}) {
     const title = options.title ?? 'suggested commit msg:';
     const indent = Math.max(0, options.indent ?? 0);
@@ -14,7 +14,7 @@ export const Commit: t.CliFormatCommitLib = {
   },
 };
 
-function renderTitle(title: Exclude<t.CliFormatCommitTitle, false>) {
+function renderTitle(title: Exclude<t.CliFormatCommit.Title, false>) {
   if (typeof title === 'string') {
     return renderText(title, { color: 'brightCyan', bold: true });
   }
@@ -26,7 +26,7 @@ function renderTitle(title: Exclude<t.CliFormatCommitTitle, false>) {
   });
 }
 
-function renderText(text: string, options: t.CliFormatCommitText = {}) {
+function renderText(text: string, options: t.CliFormatCommit.Text = {}) {
   const color = options.color ?? 'white';
   const bold = options.bold ?? false;
   const italic = options.italic ?? false;

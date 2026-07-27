@@ -1,7 +1,7 @@
 import { c, type t, Url } from '../common.ts';
 
 /** CLI formatting helpers for service URLs. */
-export const UrlFmt: t.CliFormat.Lib['Url'] = {
+export const UrlFmt: t.CliFormat.Url.Lib = {
   parts(url) {
     return parts(url);
   },
@@ -22,9 +22,11 @@ export const UrlFmt: t.CliFormat.Lib['Url'] = {
   },
 
   serviceList(urls) {
-    return UrlFmt.serviceParts(urls).map((part) => UrlFmt.service(part, {
-      highlightOrigin: part.highlightOrigin,
-    }));
+    return UrlFmt.serviceParts(urls).map((part) =>
+      UrlFmt.service(part, {
+        highlightOrigin: part.highlightOrigin,
+      })
+    );
   },
 };
 

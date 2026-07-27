@@ -203,38 +203,56 @@ export declare namespace Cli {
   }
 
   /**
-   * CLI formatting helper types.
+   * Consumer-facing projections of the canonical formatter contracts.
+   *
+   * Each leaf aliases its owning formatter module; no shapes are redefined here.
    */
   export namespace Fmt {
     /** CLI formatting helper library contract. */
     export type Lib = t.CliFormat.Lib;
 
     /**
-     * Help page formatter types.
+     * Help-page contract projections.
      */
     export namespace Help {
       /** Help page formatting helper library contract. */
-      export type Lib = t.CliFormatHelpLib;
+      export type Lib = t.CliFormatHelp.Lib;
       /** Declarative input contract for the shared help page formatter. */
-      export type Input = t.CliFormatHelpInput;
+      export type Input = t.CliFormatHelp.Input;
+      /** Shared top matter for help page inputs. */
+      export type InputBase = t.CliFormatHelp.InputBase;
       /** Help input form using the generalized section model. */
-      export type InputSections = t.CliFormatHelpInputSections;
+      export type InputSections = t.CliFormatHelp.InputSections;
       /** Help input form using the standard shorthand fields. */
-      export type InputShorthand = t.CliFormatHelpInputShorthand;
+      export type InputShorthand = t.CliFormatHelp.InputShorthand;
       /** Declarative section model for help page rendering. */
-      export type Section = t.CliFormatHelpSection;
+      export type Section = t.CliFormatHelp.Section;
       /** Two-column help row rendered as left/right content. */
-      export type Pair = t.CliFormatHelpPair;
+      export type Pair = t.CliFormatHelp.Pair;
       /** Standard option row shorthand for help pages. */
-      export type Option = t.CliFormatHelpOption;
+      export type Option = t.CliFormatHelp.Option;
       /** Color treatment for help section content. */
-      export type Tone = t.CliFormatHelpTone;
+      export type Tone = t.CliFormatHelp.Tone;
       /** Terminal help layout options. */
-      export type LayoutOptions = t.CliFormatHelpLayoutOptions;
+      export type LayoutOptions = t.CliFormatHelp.LayoutOptions;
     }
 
     /**
-     * Navigable help chapter formatter types.
+     * Commit suggestion contract projections.
+     */
+    export namespace Commit {
+      /** Commit suggestion formatter library contract. */
+      export type Lib = t.CliFormatCommit.Lib;
+      /** Commit suggestion formatting options. */
+      export type Options = t.CliFormatCommit.Options;
+      /** Commit suggestion title options. */
+      export type Title = t.CliFormatCommit.Title;
+      /** Commit suggestion text styling options. */
+      export type Text = t.CliFormatCommit.Text;
+    }
+
+    /**
+     * Navigable help chapter contract projections.
      */
     export namespace Chapters {
       /** Navigable chapter formatting and tree utility library. */
@@ -259,7 +277,7 @@ export declare namespace Cli {
       export type Section = t.CliFormatChapters.Section;
 
       /**
-       * Chapter-book loader types.
+       * Chapter-book loader contract projections.
        */
       export namespace Book {
         /** Chapter-book loader factory surface. */
@@ -271,7 +289,7 @@ export declare namespace Cli {
       }
 
       /**
-       * Embedded resource reader types.
+       * Embedded resource reader contract projections.
        */
       export namespace Resources {
         /** Embedded resource reader factory surface. */
@@ -287,7 +305,7 @@ export declare namespace Cli {
       }
 
       /**
-       * Navigable help chapter types.
+       * Chapter link and resource node contract projections.
        */
       export namespace Chapter {
         /** Child chapter shown as a drill-down command link. */
@@ -300,17 +318,52 @@ export declare namespace Cli {
     }
 
     /**
-     * Text fitting and wrapping helper types.
+     * Terminal text measurement and layout contract projections.
      */
     export namespace Text {
       /** Text fitting and wrapping helper library contract. */
-      export type Lib = t.CliFormatTextLib;
+      export type Lib = t.CliFormatText.Lib;
+
+      /**
+       * Terminal-cell width policy projections.
+       */
+      export namespace Width {
+        /**
+         * Usable width fitting policy projections.
+         */
+        export namespace Fit {
+          /** Width fitting options for terminal-aware text layout. */
+          export type Options = t.CliFormatText.Width.Fit.Options;
+        }
+      }
+
+      /**
+       * Prose flow and preservation policy projections.
+       */
+      export namespace Wrap {
+        /** Prose wrapping options. */
+        export type Options = t.CliFormatText.Wrap.Options;
+        /** Whole-line preservation policy for wrapping. */
+        export type Preserve = t.CliFormatText.Wrap.Preserve;
+        /** Custom whole-line preservation predicate. */
+        export type PreserveFn = t.CliFormatText.Wrap.PreserveFn;
+      }
+
+      /**
+       * Middle-ellipsis marker policy projections.
+       */
+      export namespace Ellipsize {
+        /** Options for terminal-cell-aware middle ellipsis. */
+        export type Options = t.CliFormatText.Ellipsize.Options;
+      }
     }
 
     /**
-     * Path display formatter types.
+     * Path display contract projections.
      */
     export namespace Path {
+      /** Pretty path formatting helper library contract. */
+      export type Lib = t.CliFormat.Path.Lib;
       /** Path presentation options. */
       export type FormatOptions = t.CliFormat.Path.FormatOptions;
       /** Terminal-adaptive path shortening options. */
@@ -318,9 +371,11 @@ export declare namespace Cli {
     }
 
     /**
-     * Service URL formatter types.
+     * Service URL presentation contract projections.
      */
     export namespace Url {
+      /** Service URL formatting helper library contract. */
+      export type Lib = t.CliFormat.Url.Lib;
       /** URL display parts. */
       export type Parts = t.CliFormat.Url.Parts;
       /** Service URL display parts with origin highlighting state. */
@@ -328,7 +383,15 @@ export declare namespace Cli {
     }
 
     /**
-     * Spinner text formatter types.
+     * Terminal tree contract projections.
+     */
+    export namespace Tree {
+      /** Glyph and hierarchy rendering helper library contract. */
+      export type Lib = t.CliFormat.Tree.Lib;
+    }
+
+    /**
+     * Spinner label contract projections.
      */
     export namespace Spinner {
       /** Spacing input accepted by spinner text helpers. */
@@ -338,7 +401,7 @@ export declare namespace Cli {
     }
 
     /**
-     * Horizontal rule formatter types.
+     * Horizontal rule contract projections.
      */
     export namespace Hr {
       /** Foreground color name accepted by the horizontal rule formatter. */

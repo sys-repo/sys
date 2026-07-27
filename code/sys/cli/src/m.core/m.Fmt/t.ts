@@ -1,9 +1,9 @@
 import type { t } from '../common.ts';
 import type { AnsiColor } from '@sys/color/t';
 import type { CliFormatChapters } from '../m.Fmt.Chapters/t.ts';
-import type { CliFormatCommitLib } from './t.commit.ts';
-import type { CliFormatHelpLib } from './t.help.ts';
-import type { CliFormatTextLib } from '../m.Fmt.Text/t.ts';
+import type { CliFormatCommit } from './t.commit.ts';
+import type { CliFormatHelp } from './t.help.ts';
+import type { CliFormatText } from '../m.Fmt.Text/t.ts';
 
 /** Type re-exports. */
 export type * from '../m.Fmt.Chapters/t.ts';
@@ -12,10 +12,14 @@ export type * from './t.help.ts';
 export type * from '../m.Fmt.Text/t.ts';
 
 /**
- * CLI formatting helper types.
+ * Contracts for terminal presentation shared across CLI surfaces.
+ *
+ * Focused formatter modules remain canonical owners of their own contracts.
  */
 export declare namespace CliFormat {
-  /** Common formatting helpers when working with a CLI. */
+  /**
+   * Aggregates the base CLI formatting libraries and functions.
+   */
   export type Lib = {
     /** Horizontal rule display formatting. */
     hr: Hr.Fn;
@@ -27,49 +31,46 @@ export declare namespace CliFormat {
     spinnerRaw: Spinner.Text;
 
     /** Help page formatting. */
-    readonly Help: CliFormatHelpLib;
+    readonly Help: CliFormatHelp.Lib;
 
     /** Text fitting and wrapping helpers. */
-    readonly Text: CliFormatTextLib;
+    readonly Text: CliFormatText.Lib;
 
     /** Navigable help chapter formatting and tree helpers. */
     readonly Chapters: CliFormatChapters.Lib;
 
     /** Commit message suggestion formatting. */
-    readonly Commit: CliFormatCommitLib;
+    readonly Commit: CliFormatCommit.Lib;
 
     /** Path display formatting. */
     path: t.Path.Format.Lib['string'];
 
     /** Pretty path formatting helpers. */
-    readonly Path: {
-      str: (path: string, options?: Path.FormatOptions) => string;
-      tty: (path: string, options?: Path.TtyOptions) => string;
-      fmt: (opts?: Path.FormatOptions) => t.Path.Format.Formatter;
-    };
+    readonly Path: Path.Lib;
 
     /** Service URL formatting and presentation ordering helpers. */
-    readonly Url: {
-      parts(url: t.Service.Url): Url.Parts;
-      serviceParts(urls: readonly t.Service.Url[]): readonly Url.ServicePart[];
-      service(
-        url: t.Service.Url | Url.Parts,
-        options?: { readonly highlightOrigin?: boolean },
-      ): string;
-      serviceList(urls: readonly t.Service.Url[]): readonly string[];
-    };
+    readonly Url: Url.Lib;
 
     /** Glyphs and helpers for rendering a tree hierarchy. */
-    readonly Tree: {
-      readonly vert: '│';
-      readonly mid: '├';
-      readonly last: '└';
-      readonly bar: '─';
-      branch(isLastOrTuple: boolean | [t.Index, t.Ary<unknown>], extend?: number): string;
-    };
+    readonly Tree: Tree.Lib;
   };
 
+  /**
+   * Contracts for path display and terminal-aware shortening.
+   */
   export namespace Path {
+    /**
+     * Formats paths for general and terminal-constrained presentation.
+     */
+    export type Lib = {
+      /** Format a path for display. */
+      str: (path: string, options?: FormatOptions) => string;
+      /** Format a path with optional terminal-aware shortening. */
+      tty: (path: string, options?: TtyOptions) => string;
+      /** Create a path-part formatter for the underlying path library. */
+      fmt: (opts?: FormatOptions) => t.Path.Format.Formatter;
+    };
+
     /** Path presentation options. */
     export type FormatOptions = {
       /** Highlight the basename in white. Defaults to true. */
@@ -97,21 +98,74 @@ export declare namespace CliFormat {
     };
   }
 
+  /**
+   * Contracts for service URL decomposition and presentation.
+   */
   export namespace Url {
+    /**
+     * Formats individual service URLs and ordered URL collections.
+     */
+    export type Lib = {
+      /** Decompose a service URL into display parts. */
+      parts(url: t.Service.Url): Parts;
+      /** Decompose URLs and derive origin-highlighting state in caller order. */
+      serviceParts(urls: readonly t.Service.Url[]): readonly ServicePart[];
+      /** Format a service URL or previously decomposed parts. */
+      service(
+        url: t.Service.Url | Parts,
+        options?: { readonly highlightOrigin?: boolean },
+      ): string;
+      /** Format service URLs in caller-supplied order. */
+      serviceList(urls: readonly t.Service.Url[]): readonly string[];
+    };
+
+    /** Decomposed service URL presentation state. */
     export type Parts = {
+      /** Whether the source parsed as a URL. */
       readonly ok: boolean;
+      /** Original URL text. */
       readonly href: string;
+      /** Display origin. */
       readonly origin: string;
+      /** Path, query, and fragment suffix. */
       readonly suffix: string;
+      /** Complete display text. */
       readonly display: string;
+      /** Explicit port, when present. */
       readonly port?: string;
     };
 
+    /** URL parts with origin-highlighting state for ordered presentation. */
     export type ServicePart = Parts & {
+      /** Whether presentation should emphasize the origin. */
       readonly highlightOrigin: boolean;
     };
   }
 
+  /**
+   * Contracts for terminal tree glyphs and branch rendering.
+   */
+  export namespace Tree {
+    /**
+     * Supplies canonical tree glyphs and renders branch prefixes.
+     */
+    export type Lib = {
+      /** Vertical continuation glyph. */
+      readonly vert: '│';
+      /** Non-final branch glyph. */
+      readonly mid: '├';
+      /** Final branch glyph. */
+      readonly last: '└';
+      /** Horizontal branch stroke. */
+      readonly bar: '─';
+      /** Render a branch prefix from final-row state or an indexed collection position. */
+      branch(isLastOrTuple: boolean | [t.Index, t.Ary<unknown>], extend?: number): string;
+    };
+  }
+
+  /**
+   * Contracts for spinner label formatting and spacing.
+   */
   export namespace Spinner {
     /** Spacing input accepted by spinner text helpers. */
     export type Spacing = boolean | number | [number, number];
@@ -123,6 +177,9 @@ export declare namespace CliFormat {
     };
   }
 
+  /**
+   * Contracts for horizontal rules and progress-rule presentation.
+   */
   export namespace Hr {
     /** Foreground color name accepted by the horizontal rule formatter. */
     export type Color = AnsiColor.Name;
@@ -143,7 +200,7 @@ export declare namespace CliFormat {
     };
 
     /**
-     * Progress-mode options for horizontal rules.
+     * Contracts for splitting a rule into completed and remaining segments.
      */
     export namespace Progress {
       /** Progress shorthand or expanded options. */

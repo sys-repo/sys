@@ -1,6 +1,6 @@
 import type { codeToTokens } from 'shiki';
 import { Color, D, Is } from './common.ts';
-import type { CliFormatCode, ShikiCodeToTokensOptions } from './t.ts';
+import type { CliFormatCode } from './t.ts';
 import { langLabel, layout, sourceLines } from './u.layout.ts';
 
 type ShikiTokenize = typeof codeToTokens;
@@ -10,7 +10,7 @@ type Token = TokenizeResult['tokens'][number][number];
 /** Format a terminal code snippet with Shiki-backed ANSI syntax highlighting. */
 export async function highlight(
   text: string,
-  options: CliFormatCode.HighlightOptions,
+  options: CliFormatCode.Highlight.Options,
 ): Promise<string> {
   const source = sourceLines(text).join('\n');
   const shiki = await import('shiki');
@@ -27,10 +27,12 @@ export async function highlight(
 /**
  * Helpers:
  */
-function shikiOptions(options: CliFormatCode.HighlightOptions): ShikiCodeToTokensOptions {
+function shikiOptions(
+  options: CliFormatCode.Highlight.Options,
+): CliFormatCode.Highlight.ShikiOptions {
   const { fence: _, indent: __, ...rest } = options;
-  if ('theme' in rest || 'themes' in rest) return rest as ShikiCodeToTokensOptions;
-  return { ...rest, theme: D.theme } as ShikiCodeToTokensOptions;
+  if ('theme' in rest || 'themes' in rest) return rest as CliFormatCode.Highlight.ShikiOptions;
+  return { ...rest, theme: D.theme } as CliFormatCode.Highlight.ShikiOptions;
 }
 
 function token(input: Token): string {

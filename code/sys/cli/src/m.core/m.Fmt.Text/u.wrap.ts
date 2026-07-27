@@ -14,13 +14,13 @@ type WrapLineOptions = {
   readonly continuationIndent: number;
 };
 
-export function wrap(input: string, options: t.CliFormatTextWrapOptions): string {
+export function wrap(input: string, options: t.CliFormatText.Wrap.Options): string {
   return wrapLines(input, options).join('\n');
 }
 
 export function wrapLines(
   input: string,
-  options: t.CliFormatTextWrapOptions,
+  options: t.CliFormatText.Wrap.Options,
 ): readonly string[] {
   const width = optionalPositiveInt(options.width) ?? 0;
   const indent = nonNegativeInt(options.indent, 0);
@@ -100,7 +100,7 @@ function wrapLine(input: string, width: number, options: WrapLineOptions): reado
 
 function shouldPreserveLine(
   input: string,
-  preserve: t.CliFormatTextPreserve = 'default',
+  preserve: t.CliFormatText.Wrap.Preserve = 'default',
 ): boolean {
   const text = input.trim();
   if (text.length === 0 || preserve === 'none') return false;
@@ -108,7 +108,9 @@ function shouldPreserveLine(
   return PRESERVE_PATTERNS.some((pattern) => pattern.test(text));
 }
 
-function isPreserveFn(input: t.CliFormatTextPreserve): input is t.CliFormatTextPreserveFn {
+function isPreserveFn(
+  input: t.CliFormatText.Wrap.Preserve,
+): input is t.CliFormatText.Wrap.PreserveFn {
   return Is.func(input);
 }
 

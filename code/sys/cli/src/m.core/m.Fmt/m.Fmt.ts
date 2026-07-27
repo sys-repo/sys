@@ -14,7 +14,7 @@ import { UrlFmt } from './m.Fmt.Url.ts';
 import { terminal as isTerminal } from '../m.Is/u.terminal.ts';
 import { size as screenSize } from '../m.Screen/u.size.ts';
 
-export const Path: t.CliFormat.Lib['Path'] = {
+export const Path: t.CliFormat.Path.Lib = {
   str(path, options = {}) {
     return formatDisplayPath(displayPath(path, options), options);
   },

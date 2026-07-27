@@ -14,8 +14,8 @@ type Layout = {
   readonly minBodyWidth: number;
 };
 
-export const Help: t.CliFormat.Lib['Help'] = {
-  build(input: t.CliFormatHelpInput) {
+export const Help: t.CliFormatHelp.Lib = {
+  build(input: t.CliFormatHelp.Input) {
     const sections = wrangle.sections(input);
     const layout = wrangle.layout(input, sections);
     const lines = [`  ${c.bold(c.brightCyan(input.tool))}`];
@@ -31,19 +31,19 @@ export const Help: t.CliFormat.Lib['Help'] = {
     return `\n${Str.trimEdgeNewlines(lines.join('\n'))}\n`;
   },
 
-  render(input: t.CliFormatHelpInput) {
+  render(input: t.CliFormatHelp.Input) {
     console.info(Help.build(input));
   },
 };
 
-function renderSection(section: t.CliFormatHelpSection, layout: Layout): string {
+function renderSection(section: t.CliFormatHelp.Section, layout: Layout): string {
   if (section.items.length === 0) return '';
   if (section.kind === 'pairs') return renderPairsSection(section, layout);
   return renderLinesSection(section, layout);
 }
 
 function renderLinesSection(
-  section: Extract<t.CliFormatHelpSection, { kind: 'lines' }>,
+  section: Extract<t.CliFormatHelp.Section, { kind: 'lines' }>,
   layout: Layout,
 ): string {
   const labelWidth = layout.labelWidth;
@@ -72,7 +72,7 @@ function renderLinesSection(
 }
 
 function renderPairsSection(
-  section: Extract<t.CliFormatHelpSection, { kind: 'pairs' }>,
+  section: Extract<t.CliFormatHelp.Section, { kind: 'pairs' }>,
   layout: Layout,
 ): string {
   const leftTone = section.leftTone ?? 'muted';
@@ -107,7 +107,7 @@ function renderPairsSection(
 }
 
 function renderStackedLinesSection(
-  section: Extract<t.CliFormatHelpSection, { kind: 'lines' }>,
+  section: Extract<t.CliFormatHelp.Section, { kind: 'lines' }>,
   layout: Layout,
 ): string {
   const lines = [
@@ -125,7 +125,7 @@ function renderStackedLinesSection(
 }
 
 function renderStackedPairsSection(
-  section: Extract<t.CliFormatHelpSection, { kind: 'pairs' }>,
+  section: Extract<t.CliFormatHelp.Section, { kind: 'pairs' }>,
   layout: Layout,
 ): string {
   const leftTone = section.leftTone ?? 'muted';
@@ -154,17 +154,17 @@ function renderStackedPairsSection(
 function wrapTopMatter(
   input: string,
   layout: Layout,
-  toneKind: t.CliFormatHelpTone,
+  toneKind: t.CliFormatHelp.Tone,
 ): readonly string[] {
   return Text.wrapLines(input, { width: layout.pageWidth }).map((line) => tone(toneKind, line));
 }
 
-function tone(kind: t.CliFormatHelpTone, input: string): string {
+function tone(kind: t.CliFormatHelp.Tone, input: string): string {
   return kind === 'muted' ? c.gray(input) : c.white(input);
 }
 
 const wrangle = {
-  layout(input: t.CliFormatHelpInput, sections: readonly t.CliFormatHelpSection[]): Layout {
+  layout(input: t.CliFormatHelp.Input, sections: readonly t.CliFormatHelp.Section[]): Layout {
     const labels = sections
       .filter((section) => section.items.length > 0)
       .map((section) => section.label);
@@ -182,10 +182,10 @@ const wrangle = {
     };
   },
 
-  sections(input: t.CliFormatHelpInput): readonly t.CliFormatHelpSection[] {
+  sections(input: t.CliFormatHelp.Input): readonly t.CliFormatHelp.Section[] {
     if (input.sections) return input.sections;
 
-    const sections: t.CliFormatHelpSection[] = [];
+    const sections: t.CliFormatHelp.Section[] = [];
 
     if (input.usage?.length) {
       sections.push({ kind: 'lines', label: 'Usage', items: input.usage });

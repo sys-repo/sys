@@ -1,6 +1,6 @@
 import { Is, type t } from '../common.ts';
 
-export const Tree: t.CliFormat.Lib['Tree'] = {
+export const Tree: t.CliFormat.Tree.Lib = {
   vert: '│',
   mid: '├',
   last: '└',

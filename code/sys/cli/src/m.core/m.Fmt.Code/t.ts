@@ -1,27 +1,31 @@
 import type { codeToTokens } from 'shiki';
 import type { CliFormat } from '../m.Fmt/t.ts';
 
-export type ShikiCodeToTokensOptions = NonNullable<Parameters<typeof codeToTokens>[1]>;
 type WithDefaultTheme<T> = T extends { readonly theme: infer TTheme }
   ? Omit<T, 'theme'> & { readonly theme?: TTheme }
   : T;
-export type ShikiCodeToTokensOptionsWithDefaultTheme = WithDefaultTheme<ShikiCodeToTokensOptions>;
 
 /**
- * Code block formatting helper types.
+ * Contracts for plain and syntax-highlighted terminal code blocks.
  */
 export declare namespace CliFormatCode {
-  /** Code block formatting helpers. */
+  /**
+   * Formats code as terminal display blocks.
+   */
   export type Lib = {
     /** Format a terminal code snippet as an indented text block. */
-    block(text: string, options?: BlockOptions): string;
+    block(text: string, options?: Block.Options): string;
     /** Format a terminal code snippet with Shiki-backed ANSI syntax highlighting. */
-    highlight(text: string, options: HighlightOptions): Promise<string>;
+    highlight(text: string, options: Highlight.Options): Promise<string>;
   };
 
-  /** Base formatter extension surface that adds code formatting helpers. */
+  /**
+   * Extension of the base formatter with the code-block library.
+   */
   export namespace Fmt {
-    /** Formatting helper library extended with code block formatting. */
+    /**
+     * Preserves the complete base formatter and adds `Code`.
+     */
     export type Lib = CliFormat.Lib & {
       /** Code block formatting helpers. */
       readonly Code: CliFormatCode.Lib;
@@ -36,17 +40,33 @@ export declare namespace CliFormatCode {
     readonly fence?: boolean;
   };
 
-  /** Code block formatting options. */
-  export type BlockOptions = LayoutOptions & {
-    /** Optional language tag used when rendering a fenced block. */
-    readonly lang?: string;
-    /** Optional whole-block color treatment. */
-    readonly tone?: Tone;
-  };
-
-  /** Shiki-backed syntax highlighting options. */
-  export type HighlightOptions = LayoutOptions & ShikiCodeToTokensOptionsWithDefaultTheme;
-
   /** Whole-block color treatment. */
   export type Tone = 'default' | 'muted';
+
+  /**
+   * Options owned by plain code-block formatting.
+   */
+  export namespace Block {
+    /** Code block formatting options. */
+    export type Options = LayoutOptions & {
+      /** Optional language tag used when rendering a fenced block. */
+      readonly lang?: string;
+      /** Optional whole-block color treatment. */
+      readonly tone?: Tone;
+    };
+  }
+
+  /**
+   * Options owned by Shiki-backed syntax highlighting.
+   */
+  export namespace Highlight {
+    /** Shiki-backed syntax highlighting options. */
+    export type Options = LayoutOptions & ShikiOptionsWithDefaultTheme;
+
+    /** Options accepted by Shiki's code tokenizer. */
+    export type ShikiOptions = NonNullable<Parameters<typeof codeToTokens>[1]>;
+
+    /** Shiki tokenizer options with the single-theme field made optional. */
+    export type ShikiOptionsWithDefaultTheme = WithDefaultTheme<ShikiOptions>;
+  }
 }

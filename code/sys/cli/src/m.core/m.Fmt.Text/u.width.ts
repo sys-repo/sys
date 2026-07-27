@@ -18,7 +18,7 @@ export function maxVisibleWidth(inputs: readonly string[]): number {
   return inputs.reduce((max, input) => Math.max(max, visibleWidth(input)), 0);
 }
 
-export function fitWidth(options: t.CliFormatTextFitOptions = {}): number {
+export function fitWidth(options: t.CliFormatText.Width.Fit.Options = {}): number {
   const width = sourceWidth(options);
   const maxWidth = optionalPositiveInt(options.maxWidth);
   const reserve = nonNegativeInt(options.reserve, 0);
@@ -31,7 +31,7 @@ export function fitWidth(options: t.CliFormatTextFitOptions = {}): number {
 /**
  * Helpers:
  */
-function sourceWidth(options: t.CliFormatTextFitOptions): number {
+function sourceWidth(options: t.CliFormatText.Width.Fit.Options): number {
   const explicit = optionalPositiveInt(options.width);
   if (explicit !== undefined) return explicit;
 

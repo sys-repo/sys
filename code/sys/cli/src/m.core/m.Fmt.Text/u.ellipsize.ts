@@ -20,7 +20,7 @@ const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
 export function ellipsize(
   input: string,
   width: number,
-  options: t.CliFormatTextEllipsizeOptions = {},
+  options: t.CliFormatText.Ellipsize.Options = {},
 ): string {
   const budget = nonNegativeInt(width, 0);
   if (budget === 0) return '';

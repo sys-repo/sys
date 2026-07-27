@@ -1,11 +1,13 @@
 import type { t } from '../common.ts';
-import type { CliFormatHelpInput } from '../m.Fmt/t.help.ts';
+import type { CliFormatHelp } from '../m.Fmt/t.help.ts';
 
 /**
- * Navigable help chapter formatter types.
+ * Contracts for navigable terminal help chapters and their authored resources.
  */
 export declare namespace CliFormatChapters {
-  /** Navigable chapter formatting and tree utility library. */
+  /**
+   * Formats chapters and resolves their resource trees.
+   */
   export type Lib = {
     /** Render chapter sections and child chapter index rows for terminal help. */
     format(input: FormatInput): string;
@@ -63,7 +65,7 @@ export declare namespace CliFormatChapters {
   /** Complete terminal chapter help page rendering input. */
   export type PageInput = FormatInput & {
     /** Help front matter rendered before the chapter body. */
-    readonly help: CliFormatHelpInput;
+    readonly help: CliFormatHelp.Input;
     /** Render a gray horizontal separator between help and chapter body. Defaults to true. */
     readonly separator?: boolean;
   };
@@ -99,8 +101,13 @@ export declare namespace CliFormatChapters {
     load(path?: readonly string[]): Promise<Chapter>;
   };
 
+  /**
+   * Contracts for loading an authored chapter tree by path.
+   */
   export namespace Book {
-    /** Chapter-book loader factory surface. */
+    /**
+     * Creates reusable chapter-book loaders.
+     */
     export type Lib = {
       /** Create a reusable chapter-book loader from a resource tree and record reader. */
       create<TFile extends string>(input: Input<TFile>): Book<TFile>;
@@ -134,8 +141,13 @@ export declare namespace CliFormatChapters {
     readRecord(file: TFile, fields: readonly string[]): Record<string, unknown>;
   };
 
+  /**
+   * Contracts for reading embedded chapter resource bundles.
+   */
   export namespace Resources {
-    /** Embedded resource reader factory surface. */
+    /**
+     * Creates reusable readers over embedded resource maps.
+     */
     export type Lib = {
       /** Create a reusable reader for bundled text records. */
       create<TFile extends string>(input: Input<TFile>): Resources<TFile>;
@@ -165,6 +177,9 @@ export declare namespace CliFormatChapters {
     readonly chapters: readonly Chapter.Link[];
   };
 
+  /**
+   * Contracts for chapter links and authored resource-tree nodes.
+   */
   export namespace Chapter {
     /** Child chapter shown as a drill-down command link. */
     export type Link = {

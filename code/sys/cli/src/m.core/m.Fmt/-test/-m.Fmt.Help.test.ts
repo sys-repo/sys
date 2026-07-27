@@ -4,11 +4,11 @@ import type { t } from '../../common.ts';
 
 describe('Cli.Fmt.Help', () => {
   it('types: sections and shorthand forms are mutually exclusive', () => {
-    const shorthand: t.CliFormatHelpInput = {
+    const shorthand: t.CliFormatHelp.Input = {
       tool: '@sys/workspace/cli',
       usage: ['@sys/workspace/cli [options]'],
     };
-    const sections: t.CliFormatHelpInput = {
+    const sections: t.CliFormatHelp.Input = {
       tool: '@sys/workspace/cli',
       sections: [{ kind: 'lines', label: 'Usage', items: ['@sys/workspace/cli [options]'] }],
     };
@@ -17,7 +17,7 @@ describe('Cli.Fmt.Help', () => {
     expect(sections.tool).to.eql('@sys/workspace/cli');
 
     // @ts-expect-error mixed input modes are intentionally rejected
-    const mixed: t.CliFormatHelpInput = {
+    const mixed: t.CliFormatHelp.Input = {
       tool: '@sys/workspace/cli',
       sections: [{ kind: 'lines', label: 'Usage', items: ['@sys/workspace/cli [options]'] }],
       usage: ['@sys/workspace/cli [options]'],
