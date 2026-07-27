@@ -20,7 +20,7 @@ export type {
 } from '@sys/std/t';
 
 /** @system: Common */
-export type { Cli, MenuResult, MenuResultKind, Shell } from '@sys/cli/t';
+export type { Cli, CliInput, Shell } from '@sys/cli/t';
 export type { Color } from '@sys/color/t';
 export type { FileMap, JsonFile, WalkEntry } from '@sys/fs/t';
 export type { HonoMiddlewareHandler, HttpPullEvent, HttpPullToDirResult } from '@sys/http/t';

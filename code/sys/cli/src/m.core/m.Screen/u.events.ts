@@ -11,16 +11,16 @@ type Subscription = { unsubscribe(): void };
 type Termination = { readonly reason?: unknown };
 
 /** Create terminal screen events over injected measurement and observation dependencies. */
-export function createEvents(deps: Deps, until?: t.UntilInput): t.CliScreenEvents {
+export function createEvents(deps: Deps, until?: t.UntilInput): t.CliScreen.Events {
   const life = Rx.lifecycle();
-  const $$ = Rx.subject<t.CliScreenEvent>();
-  const $: t.Observable<t.CliScreenEvent> = $$.asObservable();
+  const $$ = Rx.subject<t.CliScreen.Event>();
+  const $: t.Observable<t.CliScreen.Event> = $$.asObservable();
   const resize$ = $.pipe(Rx.filter((event) => event.kind === 'size:changed'));
-  const api = Rx.toLifecycle<t.CliScreenEvents>(life, { $, resize$ });
+  const api = Rx.toLifecycle<t.CliScreen.Events>(life, { $, resize$ });
 
   const listener = createDeferredCleanup();
   const upstream = new Set<Subscription>();
-  let before: t.CliScreenSize | undefined;
+  let before: t.CliScreen.Size | undefined;
 
   function onDispose() {
     try {
@@ -51,7 +51,7 @@ export function createEvents(deps: Deps, until?: t.UntilInput): t.CliScreenEvent
     }
     if (wrangle.sameSize(before, after)) return;
 
-    const event: t.CliScreenSizeChanged = { kind: 'size:changed', before, after };
+    const event: t.CliScreen.SizeChanged = { kind: 'size:changed', before, after };
     before = after;
     $$.next(event);
   };
@@ -90,7 +90,7 @@ export function createEvents(deps: Deps, until?: t.UntilInput): t.CliScreenEvent
   return api;
 }
 
-export function events(until?: t.UntilInput): t.CliScreenEvents {
+export function events(until?: t.UntilInput): t.CliScreen.Events {
   return createEvents({
     measure: ScreenPlatform.measure,
     observeResize: ScreenPlatform.observeResize,
@@ -120,7 +120,7 @@ function createDeferredCleanup() {
 }
 
 const wrangle = {
-  sameSize(a: t.CliScreenSize, b: t.CliScreenSize) {
+  sameSize(a: t.CliScreen.Size, b: t.CliScreen.Size) {
     return a.width === b.width && a.height === b.height;
   },
   termination(input?: t.UntilInput): Termination | undefined {

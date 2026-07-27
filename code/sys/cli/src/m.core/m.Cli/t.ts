@@ -55,7 +55,7 @@ export declare namespace Cli {
     stripAnsi(input: string): string;
 
     /** Copy arbitrary text to the system clipboard from a Deno CLI context. */
-    copyToClipboard(text: string): Promise<t.CliCopyResult>;
+    copyToClipboard(text: string): Promise<CopyToClipboard.Result>;
 
     /**
      * Keep a long-running CLI process alive until Ctrl-C.
@@ -63,15 +63,69 @@ export declare namespace Cli {
      * Installs a SIGINT handler, forwards it to a lifecycle, waits for
      * disposal, then exits the process with the given exit code.
      */
-    keepAlive: (options?: t.CliKeepAliveOptions) => Promise<never>;
+    keepAlive: (options?: KeepAlive.Options) => Promise<never>;
   };
+
+  /**
+   * Long-running CLI process types.
+   */
+  export namespace KeepAlive {
+    /** Options for a long-running CLI process that exits on Ctrl-C. */
+    export type Options = {
+      /**
+       * Optional callback invoked once the lifecycle is created and before
+       * the function starts waiting. Use this to start servers, subscribe to
+       * streams, etc.
+       */
+      readonly onStart?: (life: t.Lifecycle) => void | Promise<void>;
+
+      /**
+       * Process exit code used when Ctrl-C is received.
+       * Defaults to 0 (success).
+       */
+      readonly exitCode?: number;
+
+      /** Lifecycle kill switch. */
+      life?: t.Lifecycle;
+    };
+  }
+
+  /**
+   * Clipboard operation types.
+   */
+  export namespace CopyToClipboard {
+    /** Response from `Cli.copyToClipboard`. */
+    export type Result =
+      | {
+        /** Clipboard write completed successfully. */
+        ok: true;
+      }
+      | {
+        /** Clipboard write failed. */
+        ok: false;
+        /** Underlying clipboard error. */
+        error: Error;
+        /** Clipboard commands attempted before failing. */
+        tried: string[];
+      };
+  }
 
   /**
    * Human input helper types.
    */
   export namespace Input {
     /** Human input helper library contract. */
-    export type Lib = t.CliInputLib;
+    export type Lib = t.CliInput.Lib;
+
+    /**
+     * Menu interaction result types.
+     */
+    export namespace Menu {
+      /** Discrete menu interaction outcome. */
+      export type ResultKind = t.CliInput.Menu.ResultKind;
+      /** Result returned from a menu handler. */
+      export type Result = t.CliInput.Menu.Result;
+    }
   }
 
   /**
@@ -79,7 +133,7 @@ export declare namespace Cli {
    */
   export namespace Is {
     /** CLI runtime predicate helper library contract. */
-    export type Lib = t.CliIsLib;
+    export type Lib = t.CliIs.Lib;
   }
 
   /**
@@ -87,13 +141,19 @@ export declare namespace Cli {
    */
   export namespace Keyboard {
     /** CLI keyboard helper library contract. */
-    export type Lib = t.CliKeyboardLib;
+    export type Lib = t.CliKeyboard.Lib;
     /** Minimal keypress shape used by CLI keyboard predicates. */
-    export type Event = t.CliKeyboardEvent;
-    /** Options for binding terminal keyboard controls. */
-    export type BindOptions = t.CliKeyboardBindOptions;
-    /** Handle returned from a bound keyboard listener. */
-    export type BindHandle = t.CliKeyboardBindHandle;
+    export type Event = t.CliKeyboard.Event;
+
+    /**
+     * Keyboard binding types.
+     */
+    export namespace Bind {
+      /** Options for binding terminal keyboard controls. */
+      export type Options = t.CliKeyboard.Bind.Options;
+      /** Handle returned from a bound keyboard listener. */
+      export type Handle = t.CliKeyboard.Bind.Handle;
+    }
   }
 
   /**
@@ -101,7 +161,7 @@ export declare namespace Cli {
    */
   export namespace Prompt {
     /** Low-level prompt primitive library contract. */
-    export type Lib = t.CliPromptLib;
+    export type Lib = t.CliPrompt.Lib;
   }
 
   /**
@@ -109,15 +169,15 @@ export declare namespace Cli {
    */
   export namespace Screen {
     /** Terminal screen helper library contract. */
-    export type Lib = t.CliScreenLib;
+    export type Lib = t.CliScreen.Lib;
     /** Current terminal dimensions in character cells. */
-    export type Size = t.CliScreenSize;
+    export type Size = t.CliScreen.Size;
     /** Terminal screen events. */
-    export type Events = t.CliScreenEvents;
+    export type Events = t.CliScreen.Events;
     /** Terminal screen event union. */
-    export type Event = t.CliScreenEvent;
+    export type Event = t.CliScreen.Event;
     /** Terminal resize event. */
-    export type SizeChanged = t.CliScreenSizeChanged;
+    export type SizeChanged = t.CliScreen.SizeChanged;
   }
 
   /**

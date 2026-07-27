@@ -9,7 +9,7 @@ describe('Cli.Screen.events', () => {
     let current: ScreenMeasurement = { width: 80, height: 24 };
     let notify = () => {};
     const order: string[] = [];
-    const received: t.CliScreenSizeChanged[] = [];
+    const received: t.CliScreen.SizeChanged[] = [];
     const events = createEvents({
       measure() {
         order.push('measure');
@@ -48,7 +48,7 @@ describe('Cli.Screen.events', () => {
   it('ignores unavailable, partial, invalid, and repeated measurements', () => {
     let current: ScreenMeasurement | undefined;
     let notify = () => {};
-    const received: t.CliScreenSizeChanged[] = [];
+    const received: t.CliScreen.SizeChanged[] = [];
     const events = createEvents({
       measure: () => current,
       observeResize(handler) {
@@ -85,7 +85,7 @@ describe('Cli.Screen.events', () => {
   it('updates the accepted size before delivering re-entrant notifications', () => {
     let current: ScreenMeasurement = { width: 80, height: 24 };
     let notify = () => {};
-    const received: t.CliScreenSizeChanged[] = [];
+    const received: t.CliScreen.SizeChanged[] = [];
     const events = createEvents({
       measure: () => current,
       observeResize(handler) {

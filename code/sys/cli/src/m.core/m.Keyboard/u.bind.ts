@@ -4,7 +4,7 @@ import { Is } from '../m.Is/mod.ts';
 import { isQuit } from './u.isQuit.ts';
 import { isUnavailableError } from './u.isUnavailableError.ts';
 
-export function bind(options: t.CliKeyboardBindOptions): t.CliKeyboardBindHandle | undefined {
+export function bind(options: t.CliKeyboard.Bind.Options): t.CliKeyboard.Bind.Handle | undefined {
   if (!Is.terminal('stdin')) return undefined;
 
   const keys = keypress();

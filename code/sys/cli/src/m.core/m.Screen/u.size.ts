@@ -4,10 +4,10 @@ import { ScreenPlatform } from './u.platform.ts';
 
 type Measure = () => ScreenMeasurement | undefined;
 
-const FALLBACK: t.CliScreenSize = { width: 80, height: 24 };
+const FALLBACK: t.CliScreen.Size = { width: 80, height: 24 };
 
 /** Create a terminal-size reader over an injected raw measurement source. */
-export function createSize(measure: Measure): t.CliScreenLib['size'] {
+export function createSize(measure: Measure): t.CliScreen.Lib['size'] {
   return () => {
     const current = measure();
     return {

@@ -4,7 +4,7 @@ import type { t } from '../common.ts';
 /**
  * Index of input prompts.
  */
-export const Prompt: t.CliPromptLib = {
+export const Prompt: t.CliPrompt.Lib = {
   /** Text input prompt (String). */
   Input,
 

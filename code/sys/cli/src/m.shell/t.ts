@@ -11,7 +11,7 @@ export declare namespace Shell {
     /** Managed shell block helpers. */
     readonly Block: Block.Lib;
     /** Whole-profile plan helpers. */
-    readonly Plan: PlanLib;
+    readonly Plan: Plan.Lib;
   };
 
   /** Shell syntax family used for planning shell support. */
@@ -54,6 +54,14 @@ export declare namespace Shell {
     /** Human-readable planning warnings. */
     readonly warnings: readonly string[];
   };
+
+  /**
+   * Whole-profile plan helper types.
+   */
+  export namespace Plan {
+    /** Whole-profile plan helper library contract. */
+    export type Lib = Record<string, never>;
+  }
 
   /** Alias catalog types. */
   export namespace Alias {
@@ -174,7 +182,4 @@ export declare namespace Shell {
       readonly text: string;
     };
   }
-
-  /** Profile plan helper namespace. */
-  export type PlanLib = Record<string, never>;
 }
