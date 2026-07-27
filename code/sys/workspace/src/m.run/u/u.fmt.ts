@@ -1,4 +1,5 @@
 import { c, Cli, Str, type t, Time } from '../common.ts';
+import { projectFailedPackages } from './u.failure.ts';
 
 const SUMMARY_REPEAT_MIN_PACKAGES = 11;
 const INTRO_LABEL_WIDTH = 15;
@@ -156,15 +157,16 @@ export function formatIntroLine(
 
 /** Format grouped buffered output for failed package tasks. */
 export function formatFailedOutput(result: t.WorkspaceRun.Result): string {
-  const failed = result.packages.filter((item): item is t.WorkspaceRun.Package.Ran => {
-    return item.kind === 'ran' && !item.success && wrangle.hasOutput(item);
+  const failed = projectFailedPackages(result).filter(({ package: item }) => {
+    return wrangle.hasOutput(item);
   });
   if (failed.length === 0) return '';
 
   const str = Str.builder();
   str.line(c.red('Failed package output'));
 
-  for (const item of failed) {
+  for (const failure of failed) {
+    const item = failure.package;
     const status = item.signal ? `signal ${item.signal}` : `exit ${item.code}`;
     str.line('');
     str.line(`${c.red('✕')} ${c.white(item.path)} ${c.gray(status)}`);

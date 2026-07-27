@@ -1,4 +1,4 @@
-import { c, Cli, describe, expect, it, type t } from '../../-test.ts';
+import { c, Cli, describe, expect, it, Str, type t } from '../../-test.ts';
 import { formatFailedOutput, formatIntroLine } from '../u/u.fmt.ts';
 import { createParallelReporter, formatParallelProgress } from '../u/u.reporter.ts';
 
@@ -416,6 +416,30 @@ describe('WorkspaceRun.parallel reporter', () => {
       const fail = ran('sample/pkg-fails', false);
       expect(formatFailedOutput(result([fail], fail))).to.eql('');
     });
+
+    it('preserves graph order and complete streams while omitting empty output', () => {
+      const first = ran('sample/pkg-first', false, {
+        stdout: 'first stdout\nline 2\n',
+      });
+      const empty = ran('sample/pkg-empty', false);
+      const second = ran('sample/pkg-second', false, {
+        stderr: 'second stderr\n',
+      });
+      const text = Cli.stripAnsi(formatFailedOutput(result([first, empty, second], first)));
+
+      expect(text).to.eql(Str.dedent(`
+        Failed package output
+
+        ✕ sample/pkg-first exit 1
+          stdout
+            first stdout
+            line 2
+
+        ✕ sample/pkg-second exit 1
+          stderr
+            second stderr
+      `));
+    });
   });
 });
 
@@ -499,7 +523,7 @@ function completedRuleLine(kind: CompletedKind) {
 function ran(
   path: string,
   success = true,
-  output: { readonly stdout?: string; readonly stderr?: string } = {},
+  output: { stdout?: string; stderr?: string } = {},
 ): t.WorkspaceRun.Package.Ran {
   return {
     kind: 'ran',
