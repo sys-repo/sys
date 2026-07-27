@@ -26,7 +26,7 @@ const DEFAULTS: DebugStorage = {
   mono: D.mono,
   truncate: D.truncate,
   enabled: true,
-  reorder: false,
+  reorder: true,
   animation: true,
   cursor: true,
   cursorArrival: 'flash',
