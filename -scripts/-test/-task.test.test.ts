@@ -1,7 +1,7 @@
 import { Workspace } from '@sys/workspace';
 import { CompletionHang } from '@sys/workspace/run';
 import { describe, expect, it } from '@sys/testing/server';
-import { Cli, Str } from '../common.ts';
+import { Cli, Is, Str, type t } from '../common.ts';
 import { clearTestScreen, defaultTestArgs, main, resolveTestPresentation } from '../task.test.ts';
 
 describe('scripts/task.test', () => {
@@ -99,6 +99,60 @@ describe('scripts/task.test', () => {
 
       expect(effects).to.eql(['repaint:0', 'workspace:test']);
     });
+
+    it('uses the persisted-frame receipt to avoid repeating visible failure actions', async () => {
+      const first = failedPackage('code/pkg-first', 1);
+      const second = failedPackage('code/pkg-second', 2);
+      const result: t.WorkspaceRun.Fail = {
+        ok: false,
+        task: 'test',
+        cwd: '/tmp/workspace',
+        elapsed: 20,
+        orderedPaths: [first.path, second.path],
+        packages: [first, second],
+        failure: first,
+      };
+      const lines: string[] = [];
+      const repaint = Cli.Screen.repaint;
+      const size = Cli.Screen.size;
+      const run = Workspace.Run.test;
+      const armWarning = CompletionHang.armWarning;
+      const info = console.info;
+      const exitCode = Deno.exitCode;
+      Object.defineProperty(Cli.Screen, 'repaint', { value: () => {} });
+      Object.defineProperty(Cli.Screen, 'size', { value: () => ({ width: 80, height: 24 }) });
+      Object.defineProperty(Workspace.Run, 'test', {
+        value: (args?: t.WorkspaceRun.Test.Args) => {
+          const reporter = args?.reporter;
+          if (reporter && !Is.string(reporter)) {
+            reporter.onComplete({ failedPackages: { visible: 2, total: 2 } });
+          }
+          return Promise.resolve(result);
+        },
+      });
+      Object.defineProperty(CompletionHang, 'armWarning', {
+        value: () => ({ cancel() {} }),
+      });
+      console.info = (...args: unknown[]) => lines.push(String(args[0] ?? ''));
+
+      try {
+        await main({ argv: ['--parallel'], interactive: true });
+      } finally {
+        Object.defineProperty(Cli.Screen, 'repaint', { value: repaint });
+        Object.defineProperty(Cli.Screen, 'size', { value: size });
+        Object.defineProperty(Workspace.Run, 'test', { value: run });
+        Object.defineProperty(CompletionHang, 'armWarning', { value: armWarning });
+        console.info = info;
+        Deno.exitCode = exitCode;
+      }
+
+      const text = Str.trimEdgeNewlines(Cli.stripAnsi(lines.join('\n')));
+      expect(text).to.eql(Str.dedent(`
+        Workspace tests failed in 20ms
+        ${'━'.repeat(80)}
+        2 ran · 2 failed
+      `));
+    });
   });
 
   describe('operator help', () => {
@@ -132,6 +186,17 @@ describe('scripts/task.test', () => {
     });
   });
 });
+
+function failedPackage(path: t.StringPath, code: number): t.WorkspaceRun.Package.Ran {
+  return {
+    kind: 'ran',
+    path,
+    code,
+    success: false,
+    signal: null,
+    elapsed: 1,
+  };
+}
 
 async function runHelp(argv: readonly string[]) {
   const lines: string[] = [];

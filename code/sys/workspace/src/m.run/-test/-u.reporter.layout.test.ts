@@ -1,6 +1,6 @@
 import { c, Cli, describe, expect, it, type t } from '../../-test.ts';
 import type { FailedPackage } from '../u/u.failure.ts';
-import { formatParallelProgress } from '../u/u.reporter.layout.ts';
+import { formatParallelProgress, layoutParallelProgress } from '../u/u.reporter.layout.ts';
 import type { ParallelProgressCompleted } from '../u/u.progress.ts';
 
 type CompletedKind = ParallelProgressCompleted['kind'];
@@ -299,7 +299,7 @@ describe('WorkspaceRun.parallel reporter layout', () => {
           { length: total },
           (_, index) => failure(`sample/failure-${index + 1}`),
         );
-        const rendered = formatParallelProgress({
+        const layout = layoutParallelProgress({
           ...progress(),
           failed: failures.length,
           failures,
@@ -307,6 +307,7 @@ describe('WorkspaceRun.parallel reporter layout', () => {
           viewport: { width: 80, height: 7 },
           cursorRows: 1,
         });
+        const rendered = layout.frame;
         const frame = Cli.stripAnsi(rendered);
         const hidden = total - 1;
         const qualifier = ` failed ${hidden === 1 ? 'package' : 'packages'}`;
@@ -321,10 +322,11 @@ describe('WorkspaceRun.parallel reporter layout', () => {
           c.red(c.italic(`+${hidden}`)),
           qualifier,
         );
+        expect(layout.completion.failedPackages).to.eql({ visible: 1, total });
         expect(physicalRows(frame, 80) <= 6).to.eql(true);
       }
 
-      const allVisible = formatParallelProgress({
+      const allVisible = layoutParallelProgress({
         ...progress(),
         failed: 1,
         failures: [failure('sample/failure-only')],
@@ -332,12 +334,28 @@ describe('WorkspaceRun.parallel reporter layout', () => {
         viewport: { width: 80, height: 7 },
         cursorRows: 1,
       });
-      expect(Cli.stripAnsi(allVisible).includes('sample/failure-only')).to.eql(true);
-      expect(findContinuation(allVisible)).to.eql(undefined);
+      expect(Cli.stripAnsi(allVisible.frame).includes('sample/failure-only')).to.eql(true);
+      expect(findContinuation(allVisible.frame)).to.eql(undefined);
+      expect(allVisible.completion.failedPackages).to.eql({ visible: 1, total: 1 });
     });
   });
 
   describe('degenerate viewports', () => {
+    it('retains omitted failed-action truth when no failure row fits', () => {
+      const failures = [failure('sample/failure-a'), failure('sample/failure-b')];
+      const layout = layoutParallelProgress({
+        ...progress(),
+        failed: failures.length,
+        failures,
+        terminal: true,
+        viewport: { width: 40, height: 2 },
+        cursorRows: 1,
+      });
+
+      expect(layout.completion.failedPackages).to.eql({ visible: 0, total: 2 });
+      expect(Cli.stripAnsi(layout.frame).includes('sample/failure-')).to.eql(false);
+    });
+
     it('stays physically bounded at tiny dimensions', () => {
       for (const width of [0, 1, 8, 20, 40]) {
         for (const height of [0, 1, 2, 3, 5]) {

@@ -1,5 +1,7 @@
+import { FakeSpinner } from '@sys/cli/testing';
 import { c, Cli, describe, expect, it, type t, Testing } from '../../-test.ts';
 import { WorkspaceRun } from '../mod.ts';
+import { createReporterScreen } from './u.fixture.reporter.ts';
 import { readLog, writeWorkspace } from './u.fixture.ts';
 
 describe('WorkspaceRun', () => {
@@ -60,6 +62,52 @@ describe('WorkspaceRun', () => {
     expect(result.orderedPaths).to.eql(['code/pkg-a', 'code/pkg-b', 'code/pkg-c']);
     expect(result.packages.map((item) => item.kind)).to.eql(['ran', 'skipped', 'ran']);
     expect(log).to.eql('test:pkg-a\\ntest:pkg-c\\n');
+  });
+
+  it('delivers final persisted-frame truth through an explicit screen reporter', async () => {
+    const fs = await Testing.dir('WorkspaceRun.test.screen-receipt');
+    await writeWorkspace(fs.dir, { failCheck: false });
+    const screen = createReporterScreen({ width: 100, height: 24 });
+    const spinner = FakeSpinner.create();
+    const size = Cli.Screen.size;
+    const events = Cli.Screen.events;
+    const repaint = Cli.Screen.repaint;
+    const createSpinner = Cli.Spinner.create;
+    const effects: string[] = [];
+    let completion: t.WorkspaceRun.Test.Reporter.ScreenCompletion | undefined;
+    let result: t.WorkspaceRun.Result | undefined;
+    Object.defineProperty(Cli.Screen, 'size', {
+      value: () => ({ width: 100, height: 24 }),
+    });
+    Object.defineProperty(Cli.Screen, 'events', { value: () => screen.events });
+    Object.defineProperty(Cli.Screen, 'repaint', {
+      value: () => effects.push('repaint'),
+    });
+    Object.defineProperty(Cli.Spinner, 'create', { value: () => spinner });
+
+    try {
+      result = await WorkspaceRun.test({
+        cwd: fs.dir,
+        rebuildGraph: true,
+        strategy: { kind: 'parallel', jobs: 2 },
+        reporter: {
+          mode: 'screen',
+          onComplete(value) {
+            completion = value;
+            effects.push('complete');
+          },
+        },
+      });
+    } finally {
+      Object.defineProperty(Cli.Screen, 'size', { value: size });
+      Object.defineProperty(Cli.Screen, 'events', { value: events });
+      Object.defineProperty(Cli.Screen, 'repaint', { value: repaint });
+      Object.defineProperty(Cli.Spinner, 'create', { value: createSpinner });
+    }
+
+    expect(result?.ok).to.eql(true);
+    expect(completion).to.eql({ failedPackages: { visible: 0, total: 0 } });
+    expect(effects).to.eql(['repaint', 'complete']);
   });
 
   it('filters ordered paths when a package filter is provided', async () => {
@@ -171,7 +219,7 @@ describe('WorkspaceRun', () => {
 
     expect(text.includes('test cases 10,136')).to.eql(true);
     expect(text.includes('test failures 1,000')).to.eql(true);
-    expect(text.includes('reports 1/3 observed, 1 unavailable, 1 unsupported')).to.eql(true);
+    expect(text.includes('reports 1 collected · 1 unavailable · 1 not applicable')).to.eql(true);
     expect(rows.includes('package status elapsed tests failed')).to.eql(true);
     expect(rows.includes('code/pkg-a failed 1ms 10,136 1,000')).to.eql(true);
     expect(rows.includes('code/pkg-b ok 1ms — —')).to.eql(true);

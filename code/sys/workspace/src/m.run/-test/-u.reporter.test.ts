@@ -559,6 +559,41 @@ describe('WorkspaceRun.parallel reporter', () => {
       expect(
         afterSuccess.indexOf('✓  code/sys/std') < afterSuccess.indexOf('✕  code/sys/crdt'),
       ).to.eql(true);
+      expect(reporter.completion()).to.eql({ failedPackages: { visible: 1, total: 1 } });
+      expect(spinner.stops()).to.eql(1);
+    });
+
+    it('reports only failed-package actions visible in the persisted bounded frame', () => {
+      const spinner = spinnerProbe();
+      const failures = Array.from(
+        { length: 20 },
+        (_, index) => ran(`sample/failure-${index + 1}`, false),
+      );
+      const reporter = createParallelReporter({
+        task: 'test',
+        jobs: 4,
+        runnablePaths: failures.map((item) => item.path),
+        terminal: true,
+        write: () => {},
+        deps: createInertReporterRuntimeDeps(spinner.instance),
+      });
+
+      reporter.start();
+      failures.forEach((failure) => {
+        reporter.event({ kind: 'start', path: failure.path });
+        reporter.event({ kind: 'finish', path: failure.path, result: failure });
+      });
+      reporter.event({ kind: 'done', result: result(failures, failures[0]) });
+
+      const finalFrame = spinner.frames.at(-1) ?? '';
+      const visible = finalFrame
+        .split('\n')
+        .filter((line) => line.startsWith('✕ sample/failure-'))
+        .length;
+      expect(visible > 0 && visible < failures.length).to.eql(true);
+      expect(reporter.completion()).to.eql({
+        failedPackages: { visible, total: failures.length },
+      });
       expect(spinner.stops()).to.eql(1);
     });
 

@@ -1,6 +1,6 @@
 import { Workspace } from '@sys/workspace';
 import { CompletionHang } from '@sys/workspace/run';
-import { Args, Cli, Is, Str } from './common.ts';
+import { Args, Cli, Is, Str, type t } from './common.ts';
 
 export type TestPresentation =
   | { readonly mode: 'sequential' }
@@ -39,9 +39,20 @@ export async function main(input: MainArgs = {}) {
     strategy,
     input.interactive ?? Cli.Is.interactive(),
   );
+  let screenCompletion: t.WorkspaceRun.Test.Reporter.ScreenCompletion | undefined;
   const args = presentation.mode === 'sequential'
     ? parsed
-    : { ...parsed, reporter: presentation.reporter };
+    : presentation.mode === 'parallel-log'
+    ? { ...parsed, reporter: presentation.reporter }
+    : {
+      ...parsed,
+      reporter: {
+        mode: presentation.reporter,
+        onComplete(completion: t.WorkspaceRun.Test.Reporter.ScreenCompletion) {
+          screenCompletion = completion;
+        },
+      },
+    };
   clearTestScreen(presentation);
   const result = await Workspace.Run.test(args);
   const output = presentation.mode === 'sequential'
@@ -49,6 +60,7 @@ export async function main(input: MainArgs = {}) {
     : Workspace.Run.Fmt.handoff(result, {
       detail: presentation.detail,
       terminal: presentation.terminal,
+      ...(screenCompletion ? { screen: screenCompletion } : {}),
     });
 
   console.info();

@@ -28,10 +28,36 @@ describe('WorkspaceRun.Fmt.handoff', () => {
       expect(text).to.eql(Str.dedent(`
       Workspace tests done in 20ms
       ${RULE}
-      2 packages · 3 tests · 1/2 reports observed · 1 unsupported
+      2 packages · 3 tests · reports: 1 collected · 1 not applicable
     `));
       expect(text.includes('failed package')).to.eql(false);
       expect(text.includes('rerun:')).to.eql(false);
+    });
+
+    it('labels mixed report capability states without calling them unsupported reports', () => {
+      const packages = [
+        ran('code/pkg-unavailable', {
+          success: true,
+          code: 0,
+          testStats: unavailable(),
+        }),
+        ran('code/pkg-not-applicable', {
+          success: true,
+          code: 0,
+          testStats: unsupported(),
+        }),
+      ];
+      const text = plain(WorkspaceRun.Fmt.handoff(okResult(packages), {
+        detail: 'compact',
+        terminal: false,
+        width: 100,
+      }));
+
+      expect(text).to.eql(Str.dedent(`
+      Workspace tests done in 20ms
+      ${RULE}
+      2 packages · reports: 0 collected · 1 unavailable · 1 not applicable
+    `));
     });
 
     it('keeps structured diagnostics out of compact output and in full output', () => {
@@ -71,7 +97,7 @@ describe('WorkspaceRun.Fmt.handoff', () => {
       expect(compact).to.eql(Str.dedent(`
       Workspace tests failed in 20ms
       ${RULE}
-      1 ran · 1 failed · 5 tests · 1/1 report observed
+      1 ran · 1 failed · 5 tests · reports: 1 collected
 
       1 failed package
 
@@ -225,6 +251,92 @@ describe('WorkspaceRun.Fmt.handoff', () => {
   });
 
   describe('repair projection', () => {
+    it('omits repair actions already visible in the persisted screen frame', () => {
+      const first = ran('code/pkg-first', { code: 1 });
+      const second = ran('code/pkg-second', { code: 2 });
+      const result = failedResult([first, second], first);
+      const text = plain(WorkspaceRun.Fmt.handoff(result, {
+        detail: 'compact',
+        terminal: false,
+        width: 100,
+        screen: { failedPackages: { visible: 2, total: 2 } },
+      }));
+
+      expect(text).to.eql(Str.dedent(`
+      Workspace tests failed in 20ms
+      ${RULE}
+      2 ran · 2 failed
+    `));
+
+      const full = WorkspaceRun.Fmt.handoff(result, {
+        detail: 'full',
+        terminal: false,
+        width: 100,
+        screen: { failedPackages: { visible: 2, total: 2 } },
+      });
+      const fullWithoutReceipt = WorkspaceRun.Fmt.handoff(result, {
+        detail: 'full',
+        terminal: false,
+        width: 100,
+      });
+      expect(full).to.eql(fullWithoutReceipt);
+    });
+
+    it('appends only failed-package actions omitted from a constrained screen frame', () => {
+      const first = ran('code/pkg-first', { code: 1 });
+      const second = ran('code/pkg-second', { code: 2 });
+      const third = ran('code/pkg-third', { code: 3 });
+      const result = failedResult([first, second, third], first);
+      const text = plain(WorkspaceRun.Fmt.handoff(result, {
+        detail: 'compact',
+        terminal: false,
+        width: 100,
+        screen: { failedPackages: { visible: 1, total: 3 } },
+      }));
+
+      expect(text.includes('code/pkg-first')).to.eql(false);
+      expect(text).to.eql(Str.dedent(`
+      Workspace tests failed in 20ms
+      ${RULE}
+      3 ran · 3 failed
+
+      2 more failed packages
+
+      ✕ code/pkg-second · exit 2
+        rerun: deno task --cwd ./code/pkg-second test
+
+      ✕ code/pkg-third · exit 3
+        rerun: deno task --cwd ./code/pkg-third test
+    `));
+    });
+
+    it('falls back to every action for inconsistent screen receipts', () => {
+      const first = ran('code/pkg-first', { code: 1 });
+      const second = ran('code/pkg-second', { code: 2 });
+      const result = failedResult([first, second], first);
+      const expected = WorkspaceRun.Fmt.handoff(result, {
+        detail: 'compact',
+        terminal: false,
+        width: 100,
+      });
+      const receipts: readonly t.WorkspaceRun.Test.Reporter.ScreenCompletion[] = [
+        { failedPackages: { visible: 2, total: 3 } },
+        { failedPackages: { visible: -1, total: 2 } },
+        { failedPackages: { visible: 1.5, total: 2 } },
+        { failedPackages: { visible: 3, total: 2 } },
+      ];
+
+      receipts.forEach((screen) => {
+        const actual = WorkspaceRun.Fmt.handoff(result, {
+          detail: 'compact',
+          terminal: false,
+          width: 100,
+          screen,
+        });
+        expect(actual).to.eql(expected);
+      });
+    });
+
     it('keeps failed packages graph ordered and excludes blocked outcomes', () => {
       const first = ran('code/pkg-first', { code: 2, stderr: 'first evidence\n' });
       const second = ran('code/pkg-second', {
@@ -508,6 +620,15 @@ function observed(args: {
     skipped: 0,
     failedCases: args.failedCases ?? [],
     warnings: [],
+  };
+}
+
+function unavailable(): t.WorkspaceRun.Test.Stats.Unavailable {
+  return {
+    kind: 'unavailable',
+    capability: 'deno:junit',
+    source: 'junit',
+    reason: 'report:missing',
   };
 }
 

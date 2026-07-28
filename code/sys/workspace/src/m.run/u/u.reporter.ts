@@ -2,7 +2,7 @@ import { Cli, Str, type t } from '../common.ts';
 import { runCleanup } from './u.cleanup.ts';
 import { createFailedPackage } from './u.failure.ts';
 import { formatIntroLine } from './u.fmt.ts';
-import { formatParallelProgress } from './u.reporter.layout.ts';
+import { layoutParallelProgress } from './u.reporter.layout.ts';
 import {
   createParallelReporterRuntime,
   type ParallelReporterRuntime,
@@ -18,6 +18,8 @@ export type ParallelReporter = {
   readonly start: () => void;
   readonly event: ParallelRunEventHandler;
   readonly stop: () => void;
+  /** Return failed-action visibility from the latest installed screen frame. */
+  readonly completion: () => t.WorkspaceRun.Test.Reporter.ScreenCompletion | undefined;
 };
 
 export type ParallelReporterArgs = {
@@ -36,6 +38,7 @@ type ReporterState = {
   readonly write: (line: string) => void;
   readonly progress: ParallelProgressModel;
   runtime?: ParallelReporterRuntime;
+  completion?: t.WorkspaceRun.Test.Reporter.ScreenCompletion;
   started: boolean;
   stopped: boolean;
 };
@@ -57,13 +60,17 @@ export function createParallelReporter(args: ParallelReporterArgs): ParallelRepo
       deps: args.deps,
       frame({ viewport, cursorRows }) {
         const snapshot = state.progress.snapshot();
-        return formatParallelProgress({
+        const layout = layoutParallelProgress({
           ...snapshot,
           failures: snapshot.failedPackages.map((item) => createFailedPackage(item, state.task)),
           terminal: true,
           viewport,
           cursorRows,
         });
+        state.completion = {
+          failedPackages: { ...layout.completion.failedPackages },
+        };
+        return layout.frame;
       },
     });
   }
@@ -105,5 +112,6 @@ export function createParallelReporter(args: ParallelReporterArgs): ParallelRepo
     },
 
     stop,
+    completion: () => state.completion,
   };
 }

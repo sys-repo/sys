@@ -45,8 +45,30 @@ export declare namespace WorkspaceRun {
       /** Optional execution strategy. Defaults to the baseline sequential runner. */
       strategy?: Strategy;
       /** Parallel progress reporter mode. Omission preserves stdout-terminal auto-detection. */
-      reporter?: 'screen' | 'log';
+      reporter?: Reporter.Mode | Reporter.Screen;
     };
+
+    /** Parallel test progress reporter contracts. */
+    export namespace Reporter {
+      /** Explicit parallel reporter mode. */
+      export type Mode = 'screen' | 'log';
+
+      /** Screen reporter input with a final persisted-frame receipt. */
+      export type Screen = {
+        mode: 'screen';
+        onComplete(completion: ScreenCompletion): void;
+      };
+
+      /** Truth retained from the final frame persisted by the screen reporter. */
+      export type ScreenCompletion = {
+        readonly failedPackages: {
+          /** Graph-ordered failed-package actions visible in the persisted frame. */
+          readonly visible: number;
+          /** Total failed-package actions retained by the reporter. */
+          readonly total: number;
+        };
+      };
+    }
 
     /** Workspace package execution strategy for test runs. */
     export type Strategy = Strategy.Sequential | Strategy.Parallel;
@@ -130,6 +152,9 @@ export declare namespace WorkspaceRun {
 
     /** Test execution strategy contracts. */
     export namespace Strategy {
+      /** Concrete parallel worker bound or the default hardware-aware heuristic. */
+      export type Jobs = number | 'auto';
+
       /** Baseline graph-order runner with inherited child stdio and immediate fail-fast. */
       export type Sequential = {
         kind: 'sequential';
@@ -141,9 +166,6 @@ export declare namespace WorkspaceRun {
         /** Maximum number of package tasks to run at once. */
         jobs?: Jobs;
       };
-
-      /** Concrete parallel worker bound or the default hardware-aware heuristic. */
-      export type Jobs = number | 'auto';
     }
   }
 
@@ -243,6 +265,8 @@ export declare namespace WorkspaceRun {
     export type HandoffOptions = {
       /** Minimal repair items or full failed-package diagnostic evidence and streams. */
       detail: 'compact' | 'full';
+      /** Final screen receipt used by compact handoffs to omit repair items visible above. */
+      screen?: Test.Reporter.ScreenCompletion;
       /** Terminal-output override used for width and path presentation. */
       terminal?: boolean;
       /** Explicit output width. Defaults to terminal width or a deterministic fallback. */

@@ -88,8 +88,8 @@ describe('WorkspaceHelp', () => {
         'Sequential runs inherit child stdio for package-level debugging.',
         'Parallel workers buffer child stdout/stderr and preserve both streams on `WorkspaceRun.Result`.',
         'The parallel reporter renders scheduler-derived progress and a minimal live failed-package rerun index; it never renders failed-case identities, messages, excerpts, or buffered child streams.',
-        "For direct parallel API calls, `reporter: 'screen' | 'log'` explicitly selects terminal behavior; omission detects whether stdout is a terminal.",
-        'The root task owns final presentation. Interactive parallel runs clear the visible stdout viewport once before graph output, use screen reporter mode, and append a compact handoff. Noninteractive parallel runs use log reporter mode and a full handoff. Sequential runs retain `Workspace.Run.Fmt.result(...)`.',
+        "For direct parallel API calls, `reporter: 'screen' | 'log'` selects terminal behavior. `reporter: { mode: 'screen', onComplete }` selects the same screen behavior and receives final-frame visibility after persistence. Omission detects whether stdout is a terminal.",
+        'The root task owns final presentation. Interactive parallel runs clear the visible stdout viewport once before graph output, use screen reporter mode, and append a compact handoff that omits actions already visible above it. Noninteractive parallel runs use log reporter mode and a full handoff. Sequential runs retain `Workspace.Run.Fmt.result(...)`.',
       ]);
 
       const screen = chapter.sections.find(({ label }) => label === 'Screen lifecycle');
@@ -97,24 +97,29 @@ describe('WorkspaceHelp', () => {
         "Screen mode owns one coherent width/height viewport snapshot, adopts each resize event's exact `after` snapshot, and bounds every active frame by terminal cells and physical rows.",
         'Viewport contraction changes projection only. Expansion restores retained completions and failed-package actions without reordering.',
         'Bounded continuation summaries use the exact ASCII grammar `... +N more[ qualifier]`. Running counts are cyan, completed counts carry hidden-set severity, and failed-package or failed-test counts are red.',
-        'On completion, screen mode stops animation and repaints the latest bounded frame once. The root then appends the final handoff as ordinary output.',
+        'On completion, screen mode stops animation and repaints the latest bounded frame once. After that repaint succeeds, it reports visible and total counts for graph-ordered failed-package actions in the exact frame. The root then appends the final handoff as ordinary output without remeasuring the viewport.',
       ]);
     });
 
-    it('pins final handoff and diagnostic boundaries', async () => {
+    it('pins final handoff, diagnostic, and telemetry vocabulary', async () => {
       const chapter = await WorkspaceHelp.Dsl.load(['test']);
       const handoff = chapter.sections.find(({ label }) => label === 'Failure handoff');
       expect(handoff?.items).to.eql([
-        '`Workspace.Run.Fmt.handoff(result, { detail, terminal?, width? })` formats one deterministic final handoff; `detail` is `compact` or `full`.',
+        '`Workspace.Run.Fmt.handoff(result, { detail, screen?, terminal?, width? })` formats one deterministic final handoff. `detail` is `compact` or `full`; `screen` accepts the persisted-frame receipt so compact output can omit repair items already visible above, while full detail ignores it.',
         'Every final handoff places one green or red horizontal rule at the resolved handoff width directly between its title and aggregate summary. Width is resolved once; color follows result status.',
         'A failed package finish immediately adds a minimal actionable item beneath the live completed-results grid, and that item persists while later packages complete.',
-        'Repair items follow persisted graph order and include failed packages only; blocked outcomes remain aggregate facts, not rerun targets.',
+        "Repair items follow persisted graph order and include failed packages only; blocked outcomes remain aggregate facts, not rerun targets. Compact handoffs treat the receipt's visible count as a graph-ordered prefix and append only the remaining suffix. A missing, malformed, or total-mismatched receipt falls back to every repair item.",
         'Live and compact items contain exactly the package path, a positive observed failed-test count or process signal/exit fact, and the exact package-local rerun command.',
         'Failed-case identities, messages, ANSI-free output excerpts, stdout, and stderr are full/log-only diagnostic evidence and never appear in live or compact output.',
         'Observed failure counts without case records remain counts; unsupported or unavailable reports fall back to process signal or exit without invented test facts.',
         'Width fitting may wrap the rerun command, but it must never truncate or rewrite `deno task --cwd ./<package-path> <task>`.',
         'Full detail preserves the same minimal repair index, then adds bounded structured cases or conservative output evidence and every nonempty buffered stdout/stderr stream from failed packages.',
       ]);
+
+      const telemetry = chapter.sections.find(({ label }) => label === 'Native test telemetry');
+      expect(telemetry?.items).to.contain(
+        'Internal report states are observed, unavailable, and unsupported. Aggregate operator output says collected, unavailable, and not applicable. Composite or no-op tasks remain successful package runs when their processes succeed.',
+      );
     });
   });
 

@@ -1,5 +1,5 @@
 import { WorkspacePrep } from '../../m.prep/mod.ts';
-import { Cli, Fs, type t, Time } from '../common.ts';
+import { Cli, Fs, Is, type t, Time } from '../common.ts';
 import { formatIntroLine } from '../u/u.fmt.ts';
 import { resolveJobs } from '../u/u.jobs.ts';
 import { createRunPlan } from '../u/u.plan.ts';
@@ -36,13 +36,16 @@ export async function runTask(
       const runnablePaths = plan.candidates
         .filter((candidate) => resolveCommand(candidate.deno, task))
         .map((candidate) => candidate.dir);
-      const terminal = args.reporter === undefined
+      const reporterInput = args.reporter;
+      const reporterMode = Is.string(reporterInput) ? reporterInput : reporterInput?.mode;
+      const terminal = reporterMode === undefined
         ? Cli.Is.terminal('stdout')
-        : args.reporter === 'screen';
+        : reporterMode === 'screen';
       const reporter = createParallelReporter({ task, jobs, runnablePaths, terminal });
       reporter.start();
+      let result: t.WorkspaceRun.Result;
       try {
-        return await runParallel({
+        result = await runParallel({
           cwd,
           task,
           plan,
@@ -54,6 +57,12 @@ export async function runTask(
       } finally {
         reporter.stop();
       }
+
+      const completion = reporter.completion();
+      if (completion && reporterInput && !Is.string(reporterInput)) {
+        reporterInput.onComplete(completion);
+      }
+      return result;
     }
 
     return await runSequential({ cwd, task, plan, startedAt, testStats });

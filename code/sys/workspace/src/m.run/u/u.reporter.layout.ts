@@ -22,9 +22,19 @@ export type ParallelProgressFormatArgs = {
   cursorRows?: number;
 };
 
+export type ParallelProgressLayout = {
+  readonly frame: string;
+  readonly completion: t.WorkspaceRun.Test.Reporter.ScreenCompletion;
+};
+
 type GridLayout = {
   readonly columns: number;
   readonly cellWidth: number;
+};
+
+type FailureSection = {
+  readonly text: string;
+  readonly visible: number;
 };
 
 const GRID_GUTTER = '      ';
@@ -35,6 +45,16 @@ const MINUTE = Time.Date.MINUTE;
 
 /** Format one deterministic progress frame from retained state and one immutable viewport. */
 export function formatParallelProgress(args: ParallelProgressFormatArgs): string {
+  return layoutParallelProgress(args).frame;
+}
+
+/** Project one progress frame and the failed-package actions it truthfully contains. */
+export function layoutParallelProgress(args: ParallelProgressFormatArgs): ParallelProgressLayout {
+  const failures = args.failures ?? [];
+  const empty = (): ParallelProgressLayout => ({
+    frame: '',
+    completion: { failedPackages: { visible: 0, total: failures.length } },
+  });
   const bounded = args.viewport !== undefined;
   const width = bounded ? wrangle.dimension(args.viewport?.width) : Cli.Fmt.Text.Width.fit({
     width: args.width,
@@ -48,10 +68,10 @@ export function formatParallelProgress(args: ParallelProgressFormatArgs): string
       wrangle.dimension(args.viewport?.height) - wrangle.dimension(args.cursorRows ?? 0),
     )
     : Num.MAX_INT;
-  if (width <= 0 || capacity <= 0) return '';
+  if (width <= 0 || capacity <= 0) return empty();
 
   const status = wrangle.status(args, width, capacity, bounded);
-  if (!status) return '';
+  if (!status) return empty();
 
   const sections = { status, running: '', completed: '', failures: '' };
   let used = wrangle.physicalRows(status, width);
@@ -70,13 +90,14 @@ export function formatParallelProgress(args: ParallelProgressFormatArgs): string
   if (sections.running) used += 1 + wrangle.physicalRows(sections.running, width);
 
   const failureCapacity = wrangle.sectionCapacity(capacity, used);
-  sections.failures = wrangle.failureSection(
-    args.failures ?? [],
+  const failureSection = wrangle.failureSection(
+    failures,
     width,
     failureCapacity,
     args.terminal,
     bounded,
   );
+  sections.failures = failureSection.text;
   if (sections.failures) used += 1 + wrangle.physicalRows(sections.failures, width);
 
   const completedCapacity = wrangle.sectionCapacity(capacity, used);
@@ -88,9 +109,14 @@ export function formatParallelProgress(args: ParallelProgressFormatArgs): string
     bounded,
   );
 
-  return [sections.status, sections.running, sections.completed, sections.failures]
-    .filter(Boolean)
-    .join('\n\n');
+  return {
+    frame: [sections.status, sections.running, sections.completed, sections.failures]
+      .filter(Boolean)
+      .join('\n\n'),
+    completion: {
+      failedPackages: { visible: failureSection.visible, total: failures.length },
+    },
+  };
 }
 
 const wrangle = {
@@ -187,23 +213,30 @@ const wrangle = {
     capacity: number,
     terminal: boolean | undefined,
     bounded: boolean,
-  ) {
-    if (failures.length === 0 || capacity <= 0) return '';
-    if (!bounded) return formatFailedPackageIndex(failures, { width, terminal });
+  ): FailureSection {
+    if (failures.length === 0 || capacity <= 0) return { text: '', visible: 0 };
+    if (!bounded) {
+      return {
+        text: formatFailedPackageIndex(failures, { width, terminal }),
+        visible: failures.length,
+      };
+    }
 
     const maxVisible = Math.min(failures.length, capacity);
     const items = failures.slice(0, maxVisible).map((failure) => {
       return formatFailedPackageIndex([failure], { width, terminal });
     });
-    for (let visibleCount = items.length; visibleCount >= 0; visibleCount -= 1) {
-      const hidden = failures.length - visibleCount;
+    for (let visible = items.length; visible >= 0; visible -= 1) {
+      const hidden = failures.length - visible;
       const suffix = hidden > 0 ? wrangle.failureOverflow(hidden) : '';
-      const candidate = [items.slice(0, visibleCount).join('\n\n'), suffix]
+      const candidate = [items.slice(0, visible).join('\n\n'), suffix]
         .filter(Boolean)
         .join('\n');
-      if (candidate && wrangle.physicalRows(candidate, width) <= capacity) return candidate;
+      if (candidate && wrangle.physicalRows(candidate, width) <= capacity) {
+        return { text: candidate, visible };
+      }
     }
-    return '';
+    return { text: '', visible: 0 };
   },
 
   failureOverflow(hidden: number) {

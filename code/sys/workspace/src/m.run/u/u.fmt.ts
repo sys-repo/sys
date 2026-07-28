@@ -1,4 +1,4 @@
-import { c, Cli, Str, type t, Time } from '../common.ts';
+import { c, Cli, Num, Str, type t, Time } from '../common.ts';
 import { type FailedPackage, projectFailedPackages } from './u.failure.ts';
 import { formatContinuationSummary } from './u.fmt.continuation.ts';
 
@@ -6,7 +6,6 @@ type TestStatsSummary = {
   observed: number;
   unavailable: number;
   unsupported: number;
-  total: number;
   tests: number;
   failed: number;
 };
@@ -209,7 +208,10 @@ function formatHandoff(
     fallbackWidth: HANDOFF_FALLBACK_WIDTH,
     minWidth: HANDOFF_MIN_WIDTH,
   });
-  const failures = projectFailedPackages(result);
+  const allFailures = projectFailedPackages(result);
+  const failures = options.detail === 'compact'
+    ? wrangle.omittedFailedPackages(allFailures, options.screen)
+    : allFailures;
   const str = Str.builder();
 
   str.line(wrangle.handoffTitle(result));
@@ -217,8 +219,12 @@ function formatHandoff(
   wrangle.appendWrapped(str, '', wrangle.handoffSummary(result), width);
 
   if (failures.length > 0) {
+    const omitted = allFailures.length - failures.length;
+    const qualifier = omitted > 0 ? 'more failed' : 'failed';
     str.line('');
-    str.line(c.red(`${failures.length} failed ${Str.plural(failures.length, 'package')}`));
+    str.line(
+      c.red(`${failures.length} ${qualifier} ${Str.plural(failures.length, 'package')}`),
+    );
     str.line('');
     str.line(formatFailedPackageIndex(failures, { terminal: options.terminal, width }));
   }
@@ -226,7 +232,7 @@ function formatHandoff(
   const compact = Str.trimEdgeNewlines(String(str));
   if (options.detail === 'compact') return compact;
 
-  const details = wrangle.formatFailureDetails(failures, width, options.terminal);
+  const details = wrangle.formatFailureDetails(allFailures, width, options.terminal);
   const output = formatFailedOutput(result);
   return [compact, details, output].filter(Boolean).join('\n\n');
 }
@@ -284,20 +290,27 @@ const wrangle = {
       if (stats.observed > 0) {
         parts.push(`${wrangle.displayNumber(stats.tests)} ${Str.plural(stats.tests, 'test')}`);
       }
-      parts.push(
-        `${wrangle.displayNumber(stats.observed)}/${wrangle.displayNumber(stats.total)} ${
-          Str.plural(stats.total, 'report')
-        } observed`,
-      );
+      const reports = [`${wrangle.displayNumber(stats.observed)} collected`];
       if (stats.unavailable > 0) {
-        parts.push(`${wrangle.displayNumber(stats.unavailable)} unavailable`);
+        reports.push(`${wrangle.displayNumber(stats.unavailable)} unavailable`);
       }
       if (stats.unsupported > 0) {
-        parts.push(`${wrangle.displayNumber(stats.unsupported)} unsupported`);
+        reports.push(`${wrangle.displayNumber(stats.unsupported)} not applicable`);
       }
+      parts.push(`reports: ${reports.join(c.gray(' · '))}`);
     }
 
     return parts.join(c.gray(' · '));
+  },
+
+  omittedFailedPackages(
+    failures: readonly FailedPackage[],
+    screen?: t.WorkspaceRun.Test.Reporter.ScreenCompletion,
+  ) {
+    if (!screen || screen.failedPackages.total !== failures.length) return failures;
+    const visible = screen.failedPackages.visible;
+    if (!Num.Is.int(visible) || visible < 0 || visible > failures.length) return failures;
+    return failures.slice(visible);
   },
 
   formatFailedPackageItem(
@@ -541,14 +554,12 @@ const wrangle = {
       observed: 0,
       unavailable: 0,
       unsupported: 0,
-      total: 0,
       tests: 0,
       failed: 0,
     };
 
     for (const item of result.packages) {
       if (item.kind !== 'ran' || !item.testStats) continue;
-      summary.total += 1;
       if (item.testStats.kind === 'observed') {
         summary.observed += 1;
         summary.tests += item.testStats.tests;
@@ -574,16 +585,14 @@ const wrangle = {
   },
 
   reportsSummary(stats: TestStatsSummary) {
-    const parts = [
-      `${wrangle.displayNumber(stats.observed)}/${wrangle.displayNumber(stats.total)} observed`,
-    ];
+    const parts = [`${wrangle.displayNumber(stats.observed)} collected`];
     if (stats.unavailable > 0) {
       parts.push(`${wrangle.displayNumber(stats.unavailable)} unavailable`);
     }
     if (stats.unsupported > 0) {
-      parts.push(`${wrangle.displayNumber(stats.unsupported)} unsupported`);
+      parts.push(`${wrangle.displayNumber(stats.unsupported)} not applicable`);
     }
-    const text = parts.join(', ');
+    const text = parts.join(' · ');
     if (stats.unavailable > 0) return c.yellow(text);
     if (stats.unsupported > 0) return c.gray(text);
     return c.green(text);
