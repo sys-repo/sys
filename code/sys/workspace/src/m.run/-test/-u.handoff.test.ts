@@ -24,17 +24,26 @@ describe('WorkspaceRun.Fmt.handoff', () => {
           testStats: unsupported(),
         }),
       ];
-      const text = plain(WorkspaceRun.Fmt.handoff(okResult(packages), {
+      const rendered = WorkspaceRun.Fmt.handoff(okResult(packages), {
         detail: 'compact',
         terminal: false,
         width: 100,
-      }));
+      });
+      const text = plain(rendered);
 
       expect(text).to.eql(Str.dedent(`
       Workspace tests done in 20ms
       ${RULE}
       3 packages · 5 tests · 2 reports collected · 1 not applicable
     `));
+      expect(rendered.split('\n')[2]).to.eql(
+        [
+          c.green('3 packages'),
+          c.white('5 tests'),
+          c.white('2 reports collected'),
+          c.white('1 not applicable'),
+        ].join(c.gray(' · ')),
+      );
       expect(text.includes('failed package')).to.eql(false);
       expect(text.includes('rerun:')).to.eql(false);
     });
@@ -69,17 +78,26 @@ describe('WorkspaceRun.Fmt.handoff', () => {
           testStats: unsupported(),
         }),
       ];
-      const text = plain(WorkspaceRun.Fmt.handoff(okResult(packages), {
+      const rendered = WorkspaceRun.Fmt.handoff(okResult(packages), {
         detail: 'compact',
         terminal: false,
         width: 100,
-      }));
+      });
+      const text = plain(rendered);
 
       expect(text).to.eql(Str.dedent(`
       Workspace tests done in 20ms
       ${RULE}
       2 packages · 0 reports collected · 1 unavailable · 1 not applicable
     `));
+      expect(rendered.split('\n')[2]).to.eql(
+        [
+          c.green('2 packages'),
+          c.white('0 reports collected'),
+          c.white('1 unavailable'),
+          c.white('1 not applicable'),
+        ].join(c.gray(' · ')),
+      );
     });
 
     it('keeps structured diagnostics out of compact output and in full output', () => {
@@ -104,11 +122,12 @@ describe('WorkspaceRun.Fmt.handoff', () => {
         }),
       });
       const result = failedResult([failure], failure);
-      const compact = plain(WorkspaceRun.Fmt.handoff(result, {
+      const compactRendered = WorkspaceRun.Fmt.handoff(result, {
         detail: 'compact',
         terminal: false,
         width: 100,
-      }));
+      });
+      const compact = plain(compactRendered);
       const fullRendered = WorkspaceRun.Fmt.handoff(result, {
         detail: 'full',
         terminal: false,
@@ -126,6 +145,14 @@ describe('WorkspaceRun.Fmt.handoff', () => {
       ✕ code/sys/schema · 4 failed tests
         rerun: deno task --cwd ./code/sys/schema test
     `));
+      expect(compactRendered.split('\n')[2]).to.eql(
+        [
+          c.white('1 ran'),
+          c.red('1 failed'),
+          c.white('5 tests'),
+          c.white('1 report collected'),
+        ].join(c.gray(' · ')),
+      );
       expect(compact.includes('Schema.decode')).to.eql(false);
       expect(compact.includes('expected "foo"')).to.eql(false);
       expect(compact.includes('unstructured test runner output')).to.eql(false);
@@ -493,6 +520,10 @@ describe('WorkspaceRun.Fmt.handoff', () => {
           ]);
           expect(successLines[1]).to.eql(c.green('━'.repeat(width)));
           expect(failureLines[1]).to.eql(c.red('━'.repeat(width)));
+          expect(successLines[2]).to.eql(c.green('1 package'));
+          expect(failureLines[2]).to.eql(
+            `${c.white('1 ran')}${c.gray(' · ')}${c.red('1 failed')}`,
+          );
         }
       }
     });

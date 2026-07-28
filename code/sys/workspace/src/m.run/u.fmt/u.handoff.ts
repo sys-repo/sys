@@ -43,6 +43,10 @@ function handoffColor(result: t.WorkspaceRun.Result): 'green' | 'red' {
   return result.ok ? 'green' : 'red';
 }
 
+function handoffOutcome(result: t.WorkspaceRun.Result, text: string) {
+  return handoffColor(result) === 'green' ? c.green(text) : c.red(text);
+}
+
 function handoffTitle(result: t.WorkspaceRun.Result) {
   const noun = taskNoun(result.task);
   const elapsed = Time.duration(result.elapsed).toString();
@@ -56,27 +60,37 @@ function handoffSummary(result: t.WorkspaceRun.Result) {
   const parts: string[] = [];
 
   if (result.ok) {
-    parts.push(`${displayNumber(resultCounts.ran)} ${Str.plural(resultCounts.ran, 'package')}`);
+    const packages = `${displayNumber(resultCounts.ran)} ${
+      Str.plural(resultCounts.ran, 'package')
+    }`;
+    parts.push(handoffOutcome(result, packages));
   } else {
-    parts.push(`${displayNumber(resultCounts.ran)} ran`);
-    parts.push(`${displayNumber(resultCounts.failed)} failed`);
+    parts.push(c.white(`${displayNumber(resultCounts.ran)} ran`));
+    parts.push(handoffOutcome(result, `${displayNumber(resultCounts.failed)} failed`));
   }
-  if (resultCounts.blocked > 0) parts.push(`${displayNumber(resultCounts.blocked)} blocked`);
-  if (resultCounts.skipped > 0) parts.push(`${displayNumber(resultCounts.skipped)} skipped`);
+  if (resultCounts.blocked > 0) {
+    parts.push(c.white(`${displayNumber(resultCounts.blocked)} blocked`));
+  }
+  if (resultCounts.skipped > 0) {
+    parts.push(c.white(`${displayNumber(resultCounts.skipped)} skipped`));
+  }
 
   const stats = testStatsSummary(result);
   if (stats) {
     if (stats.observed > 0) {
-      parts.push(`${displayNumber(stats.tests)} ${Str.plural(stats.tests, 'test')}`);
+      const tests = `${displayNumber(stats.tests)} ${Str.plural(stats.tests, 'test')}`;
+      parts.push(c.white(tests));
     }
     const reports = [
-      `${displayNumber(stats.observed)} ${Str.plural(stats.observed, 'report')} collected`,
+      c.white(
+        `${displayNumber(stats.observed)} ${Str.plural(stats.observed, 'report')} collected`,
+      ),
     ];
     if (stats.unavailable > 0) {
-      reports.push(`${displayNumber(stats.unavailable)} unavailable`);
+      reports.push(c.white(`${displayNumber(stats.unavailable)} unavailable`));
     }
     if (stats.unsupported > 0) {
-      reports.push(`${displayNumber(stats.unsupported)} not applicable`);
+      reports.push(c.white(`${displayNumber(stats.unsupported)} not applicable`));
     }
     parts.push(reports.join(c.gray(' · ')));
   }
