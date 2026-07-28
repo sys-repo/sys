@@ -1,7 +1,7 @@
 import { c, Cli, Num, Str, type t, Time } from '../common.ts';
 import { formatContinuationSummary } from '../u.fmt/u.continuation.ts';
-import { packageLabel } from './u.identity.ts';
-import type { ParallelProgressCompleted, ParallelProgressRunning } from './u.progress.ts';
+import { packageLabel } from '../u/u.identity.ts';
+import type { ParallelProgressCompleted, ParallelProgressRunning } from '../u/u.progress.ts';
 
 export type ReporterGridLayout = {
   readonly columns: number;

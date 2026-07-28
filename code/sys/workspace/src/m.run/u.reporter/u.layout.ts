@@ -1,7 +1,8 @@
 import { c, Cli, Num, Str, type t, Time } from '../common.ts';
 import { formatContinuationSummary } from '../u.fmt/u.continuation.ts';
 import { formatFailedPackageIndex, formatFailedPackageSeparator } from '../u.fmt/mod.ts';
-import type { FailedPackage } from './u.failure.ts';
+import type { FailedPackage } from '../u/u.failure.ts';
+import type { ParallelProgressCompleted, ParallelProgressRunning } from '../u/u.progress.ts';
 import {
   completedOverflowSummary,
   completedSeverityColor,
@@ -10,9 +11,8 @@ import {
   formatReporterGrid,
   formatRunningCell,
   reporterGridLayout,
-} from './u.reporter.grid.ts';
-import { layoutFinalScrollback } from './u.reporter.scrollback.ts';
-import type { ParallelProgressCompleted, ParallelProgressRunning } from './u.progress.ts';
+} from './u.grid.ts';
+import { layoutFinalScrollback } from './u.scrollback.ts';
 
 export type ParallelProgressFormatArgs = {
   runnableTotal: number;

@@ -5,7 +5,7 @@ import {
   createParallelReporterRuntime,
   type ParallelReporterRuntime,
   type ParallelReporterRuntimeDeps,
-} from '../u/u.reporter.runtime.ts';
+} from '../u.reporter/mod.ts';
 import { createReporterScreen } from './u.fixture.reporter.ts';
 
 type Scheduled = {

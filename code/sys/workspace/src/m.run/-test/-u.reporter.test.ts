@@ -1,6 +1,6 @@
 import { c, Cli, describe, expect, it, type t } from '../../-test.ts';
 import { formatIntroLine } from '../u.fmt/mod.ts';
-import { createParallelReporter, formatParallelProgress } from '../u/u.reporter.ts';
+import { createParallelReporter, formatParallelProgress } from '../u.reporter/mod.ts';
 import type { ParallelRunEvent } from '../u.run/mod.ts';
 import { createInertReporterRuntimeDeps } from './u.fixture.reporter.ts';
 

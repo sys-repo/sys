@@ -1,12 +1,12 @@
 import type { t } from '../common.ts';
 import { formatFailedPackageIndex, formatFailedPackageSeparator } from '../u.fmt/mod.ts';
-import type { FailedPackage } from './u.failure.ts';
+import type { FailedPackage } from '../u/u.failure.ts';
+import type { ParallelProgressCompleted } from '../u/u.progress.ts';
 import {
   finalReporterGridLayout,
   formatCompletedCell,
   formatCompletedReporterGrid,
-} from './u.reporter.grid.ts';
-import type { ParallelProgressCompleted } from './u.progress.ts';
+} from './u.grid.ts';
 
 export type FinalScrollbackArgs = {
   completed: readonly ParallelProgressCompleted[];

@@ -1,5 +1,5 @@
 import { Cli, type t, Time } from '../common.ts';
-import { runCleanup } from './u.cleanup.ts';
+import { runCleanup } from '../u/u.cleanup.ts';
 
 type Phase = 'idle' | 'acquiring' | 'active' | 'stopped';
 type ResizeSubscription = { unsubscribe(): void };

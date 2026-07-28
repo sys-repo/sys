@@ -3,7 +3,7 @@ import { Cli, Fs, Is, type t, Time } from '../common.ts';
 import { formatIntroLine } from '../u.fmt/mod.ts';
 import { resolveJobs } from '../u/u.jobs.ts';
 import { createRunPlan } from '../u/u.plan.ts';
-import { createParallelReporter } from '../u/u.reporter.ts';
+import { createParallelReporter } from '../u.reporter/mod.ts';
 import { resolveCommand } from '../u/u.worker.ts';
 import { createNativeTestStatsRun } from '../u.testStats/mod.ts';
 import { runParallel } from './u.parallel.ts';

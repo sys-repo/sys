@@ -1,5 +1,5 @@
 import { Rx, type t } from '../../-test.ts';
-import type { ParallelReporterRuntimeDeps } from '../u/u.reporter.runtime.ts';
+import type { ParallelReporterRuntimeDeps } from '../u.reporter/mod.ts';
 
 export function createReporterScreen(
   initial: t.Cli.Screen.Size = { width: 100, height: 30 },

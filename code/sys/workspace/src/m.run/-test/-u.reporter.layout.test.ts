@@ -1,6 +1,6 @@
 import { c, Cli, describe, expect, it, type t } from '../../-test.ts';
 import type { FailedPackage } from '../u/u.failure.ts';
-import { formatParallelProgress, layoutParallelProgress } from '../u/u.reporter.layout.ts';
+import { formatParallelProgress, layoutParallelProgress } from '../u.reporter/mod.ts';
 import type { ParallelProgressCompleted } from '../u/u.progress.ts';
 
 type CompletedKind = ParallelProgressCompleted['kind'];
