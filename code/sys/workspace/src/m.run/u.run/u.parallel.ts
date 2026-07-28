@@ -9,14 +9,14 @@ import {
 import type { NativeTestStatsRun } from '../u.testStats/mod.ts';
 
 export type ParallelRunArgs = {
-  readonly cwd: t.StringDir;
-  readonly task: t.WorkspaceRun.Task;
-  readonly plan: RunPlan;
-  readonly jobs: number;
-  readonly startedAt: t.Msecs;
-  readonly worker?: PackageWorker;
-  readonly onEvent?: ParallelRunEventHandler;
-  readonly testStats?: NativeTestStatsRun;
+  cwd: t.StringDir;
+  task: t.WorkspaceRun.Task;
+  plan: RunPlan;
+  jobs: number;
+  startedAt: t.Msecs;
+  worker?: PackageWorker;
+  onEvent?: ParallelRunEventHandler;
+  testStats?: NativeTestStatsRun;
 };
 
 export type ParallelRunEventHandler = (event: ParallelRunEvent) => void;
@@ -55,7 +55,6 @@ type SchedulerState = {
   readonly ready: Set<t.StringPath>;
   readonly running: Map<t.StringPath, Promise<WorkerDone>>;
   readonly terminal: Map<t.StringPath, t.WorkspaceRun.Package.Result>;
-  failed: boolean;
 };
 
 /** Run package tasks concurrently across a topology-safe package frontier. */
@@ -69,15 +68,11 @@ export async function runParallel(args: ParallelRunArgs): Promise<t.WorkspaceRun
 
   while (state.terminal.size < state.orderedPaths.length) {
     wrangle.drainSkips(args, state);
-    if (!state.failed) wrangle.launch(args, state, worker);
+    wrangle.launch(args, state, worker);
 
     if (state.running.size === 0) {
       wrangle.drainSkips(args, state);
       if (state.terminal.size >= state.orderedPaths.length) break;
-      if (state.failed) {
-        wrangle.blockRemaining(args, state);
-        break;
-      }
       throw Err.std('Workspace.Run.parallel: no runnable packages remain');
     }
 
@@ -137,7 +132,6 @@ const wrangle = {
       ready,
       running: new Map(),
       terminal: new Map(),
-      failed: false,
     };
   },
 
@@ -171,7 +165,7 @@ const wrangle = {
   },
 
   launch(args: ParallelRunArgs, state: SchedulerState, worker: PackageWorker) {
-    while (!state.failed && state.running.size < args.jobs) {
+    while (state.running.size < args.jobs) {
       wrangle.drainSkips(args, state);
       const path = wrangle.nextRunnable(state, args.task);
       if (!path) return;
@@ -213,11 +207,7 @@ const wrangle = {
     wrangle.markTerminal(state, done.path, result);
     args.onEvent?.({ kind: 'finish', path: done.path, result });
 
-    if (result.success) {
-      wrangle.unlock(state, done.path);
-    } else {
-      state.failed = true;
-    }
+    wrangle.unlock(state, done.path);
   },
 
   unlock(state: SchedulerState, path: t.StringPath) {
@@ -232,18 +222,6 @@ const wrangle = {
       ) {
         state.ready.add(dependent);
       }
-    }
-  },
-
-  blockRemaining(args: ParallelRunArgs, state: SchedulerState) {
-    for (const path of state.orderedPaths) {
-      if (state.terminal.has(path) || state.running.has(path)) continue;
-      const reason = wrangle.getSet(state.dependencies, path).size > 0
-        ? 'dependency:failed'
-        : 'fail-fast';
-      const result: t.WorkspaceRun.Package.Blocked = { kind: 'blocked', path, reason };
-      wrangle.markTerminal(state, path, result);
-      args.onEvent?.({ kind: 'block', path, result });
     }
   },
 

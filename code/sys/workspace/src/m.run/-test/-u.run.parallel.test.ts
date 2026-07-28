@@ -1,6 +1,6 @@
 import { describe, Err, expect, it, type t, Time } from '../../-test.ts';
 import { createRunPlanFromCandidates, type RunPlan } from '../u/u.plan.ts';
-import { type ParallelRunEvent, runParallel } from '../u.run/mod.ts';
+import { runParallel } from '../u.run/mod.ts';
 import type { PackageWorker } from '../u/u.worker.ts';
 
 type Deferred = {
@@ -102,13 +102,17 @@ describe('WorkspaceRun.parallel scheduler', () => {
     ]);
   });
 
-  it('stops new launches after first failure while awaiting in-flight packages', async () => {
-    const controls = controlMap(['code/a', 'code/b']);
+  it('continues launching packages after a failure while preserving the jobs bound', async () => {
+    const controls = controlMap(['code/a', 'code/b', 'code/c']);
     const starts: string[] = [];
-    const events: ParallelRunEvent[] = [];
+    let active = 0;
+    let maxActive = 0;
     const worker: PackageWorker = async ({ candidate }) => {
       starts.push(candidate.dir);
+      active += 1;
+      maxActive = Math.max(maxActive, active);
       await getControl(controls, candidate.dir).promise;
+      active -= 1;
       return ran(candidate.dir, candidate.dir !== 'code/a');
     };
 
@@ -119,36 +123,33 @@ describe('WorkspaceRun.parallel scheduler', () => {
       jobs: 2,
       startedAt: Time.now.timestamp,
       worker,
-      onEvent: (event) => events.push(event),
     });
 
     await Time.waitFor(() => starts.length === 2, { interval: 1, timeout: 1000 });
     getControl(controls, 'code/a').resolve();
-    await Time.waitFor(
-      () => events.some((event) => event.kind === 'finish' && event.path === 'code/a'),
-      { interval: 1, timeout: 1000 },
-    );
-    await Time.wait(5);
-    expect(starts).to.eql(['code/a', 'code/b']);
+    await Time.waitFor(() => starts.includes('code/c'), { interval: 1, timeout: 1000 });
+
+    expect(starts).to.eql(['code/a', 'code/b', 'code/c']);
+    expect(maxActive).to.eql(2);
 
     getControl(controls, 'code/b').resolve();
+    getControl(controls, 'code/c').resolve();
     const result = await pending;
 
     expect(result.ok).to.eql(false);
     if (!result.ok) expect(result.failure.path).to.eql('code/a');
-    expect(starts).to.eql(['code/a', 'code/b']);
     expect(result.packages).to.eql([
       ran('code/a', false),
       ran('code/b'),
-      { kind: 'blocked', path: 'code/c', reason: 'fail-fast' },
+      ran('code/c'),
     ]);
   });
 
-  it('marks dependency-blocked and fail-fast-blocked packages distinctly', async () => {
+  it('runs dependents after a failed predecessor reaches a terminal result', async () => {
     const starts: string[] = [];
-    const worker: PackageWorker = async ({ candidate }) => {
+    const worker: PackageWorker = ({ candidate }) => {
       starts.push(candidate.dir);
-      return ran(candidate.dir, false);
+      return Promise.resolve(ran(candidate.dir, candidate.dir !== 'code/a'));
     };
 
     const result = await runParallel({
@@ -164,11 +165,11 @@ describe('WorkspaceRun.parallel scheduler', () => {
     });
 
     expect(result.ok).to.eql(false);
-    expect(starts).to.eql(['code/a']);
+    expect(starts).to.eql(['code/a', 'code/b', 'code/c']);
     expect(result.packages).to.eql([
       ran('code/a', false),
-      { kind: 'blocked', path: 'code/b', reason: 'dependency:failed' },
-      { kind: 'blocked', path: 'code/c', reason: 'fail-fast' },
+      ran('code/b'),
+      ran('code/c'),
     ]);
   });
 
@@ -227,9 +228,9 @@ describe('WorkspaceRun.parallel scheduler', () => {
 });
 
 function makePlan(args: {
-  readonly paths: readonly string[];
-  readonly edges?: readonly { readonly from: string; readonly to: string }[];
-  readonly missing?: readonly string[];
+  paths: readonly string[];
+  edges?: readonly { readonly from: string; readonly to: string }[];
+  missing?: readonly string[];
 }): RunPlan {
   const missing = new Set(args.missing ?? []);
   const graph: t.WorkspaceGraph.PersistedGraph = {
