@@ -349,11 +349,69 @@ describe('WorkspaceRun.parallel reporter', () => {
         expect(frame.includes('...and 2 more')).to.eql(true);
       });
 
-      it('keeps failed packages visible as later successful packages complete', () => {
+      it('keeps overflow truthful beyond 64 retained completions', () => {
+        const completed = Array.from({ length: 70 }, (_, index) => ({
+          kind: 'passed' as const,
+          path: `sample/pkg-${String(70 - index).padStart(2, '0')}`,
+          elapsed: 1 as t.Msecs,
+        }));
+        const frame = Cli.stripAnsi(formatParallelProgress({
+          runnableTotal: 70,
+          passed: 70,
+          skipped: 0,
+          blocked: 0,
+          blockedRunnable: 0,
+          failed: 0,
+          pending: 0,
+          running: [],
+          completed,
+          terminal: false,
+          width: 100,
+        }));
+
+        expect(frame.includes('✓  sample/pkg-70')).to.eql(true);
+        expect(frame.includes('✓  sample/pkg-61')).to.eql(true);
+        expect(frame.includes('✓  sample/pkg-60')).to.eql(false);
+        expect(frame.includes('...and 60 more')).to.eql(true);
+      });
+
+      it('renders newest completions top-left in row-major order', () => {
+        const frame = Cli.stripAnsi(formatParallelProgress({
+          runnableTotal: 3,
+          passed: 3,
+          skipped: 0,
+          blocked: 0,
+          blockedRunnable: 0,
+          failed: 0,
+          pending: 0,
+          running: [],
+          completed: [
+            { kind: 'passed', path: 'sample/pkg-newest', elapsed: 1 },
+            { kind: 'passed', path: 'sample/pkg-second', elapsed: 2 },
+            { kind: 'passed', path: 'sample/pkg-third', elapsed: 3 },
+          ],
+          terminal: false,
+          width: 100,
+        }));
+        const lines = frame.split('\n');
+        const ruleIndex = lines.findIndex((line) => line === '━'.repeat(100));
+        const firstRow = lines[ruleIndex + 1] ?? '';
+        const secondRow = lines[ruleIndex + 2] ?? '';
+
+        expect(firstRow.trimStart().startsWith('✓  sample/pkg-newest')).to.eql(true);
+        expect(firstRow.indexOf('sample/pkg-second') > firstRow.indexOf('sample/pkg-newest')).to
+          .eql(
+            true,
+          );
+        expect(secondRow.trimStart().startsWith('✓  sample/pkg-third')).to.eql(true);
+      });
+
+      it('ages an old failed row into overflow while retaining its failure action', () => {
         const completed: t.WorkspaceRun.Package.Ran[] = [];
         for (let index = 1; index <= 11; index += 1) {
           completed.push(ran(`sample/pkg-passed-${String(index).padStart(2, '0')}`));
         }
+        const failure = ran('sample/pkg-failed', false);
         const frame = Cli.stripAnsi(formatParallelProgress({
           runnableTotal: 12,
           passed: 11,
@@ -369,15 +427,48 @@ describe('WorkspaceRun.parallel reporter', () => {
               path: item.path,
               elapsed: item.elapsed,
             })),
-            { kind: 'failed', path: 'sample/pkg-failed', elapsed: 1 },
+            { kind: 'failed', path: failure.path, elapsed: failure.elapsed },
           ],
+          failures: [{
+            package: failure,
+            rerun: { cwd: failure.path, task: 'test' },
+          }],
           terminal: false,
           width: 100,
         }));
 
-        expect(frame.includes('✕  sample/pkg-failed')).to.eql(true);
-        expect(frame.includes('✓  sample/pkg-passed-10')).to.eql(false);
+        expect(frame.includes('✕  sample/pkg-failed')).to.eql(false);
+        expect(frame.includes('✓  sample/pkg-passed-10')).to.eql(true);
+        expect(frame.includes('✓  sample/pkg-passed-11')).to.eql(false);
         expect(frame.includes('...and 2 more')).to.eql(true);
+        expect(frame.includes('✕ sample/pkg-failed · exit 1')).to.eql(true);
+        expect(frame.includes('rerun: deno task --cwd ./sample/pkg-failed test')).to.eql(true);
+      });
+
+      it('preserves completed recency across repeated renders', () => {
+        const args = {
+          runnableTotal: 4,
+          passed: 1,
+          skipped: 1,
+          blocked: 1,
+          blockedRunnable: 1,
+          failed: 1,
+          pending: 0,
+          running: [],
+          completed: [
+            { kind: 'blocked' as const, path: 'sample/pkg-newest-blocked' },
+            { kind: 'passed' as const, path: 'sample/pkg-second-passed', elapsed: 2 },
+            { kind: 'failed' as const, path: 'sample/pkg-third-failed', elapsed: 3 },
+            { kind: 'skipped' as const, path: 'sample/pkg-oldest-skipped' },
+          ],
+          terminal: false,
+          width: 100,
+        };
+
+        const first = formatParallelProgress(args);
+        const repeated = formatParallelProgress({ ...args, elapsed: 9_000 });
+
+        expect(repeated).to.eql(first);
       });
 
       it('colors completed overflow count by hidden item severity', () => {
@@ -488,6 +579,9 @@ describe('WorkspaceRun.parallel reporter', () => {
       expect(afterFailure.includes('secret assertion output')).to.eql(false);
       expect(afterSuccess.includes('✕ code/sys/crdt · 2 failed tests')).to.eql(true);
       expect(afterSuccess.includes('✓  code/sys/std')).to.eql(true);
+      expect(
+        afterSuccess.indexOf('✓  code/sys/std') < afterSuccess.indexOf('✕  code/sys/crdt'),
+      ).to.eql(true);
       expect(spinner.stops()).to.eql(1);
     });
 

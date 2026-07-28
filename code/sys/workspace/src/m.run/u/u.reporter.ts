@@ -265,24 +265,14 @@ const wrangle = {
   ) {
     const layout = wrangle.gridLayout(width);
     if (!layout) return '';
-    const ordered = wrangle.prioritizeCompletedFailures(completed);
     const visibleCount = layout.columns * 5;
-    const visible = ordered.slice(0, visibleCount);
-    const hidden = ordered.slice(visibleCount);
+    const visible = completed.slice(0, visibleCount);
+    const hidden = completed.slice(visibleCount);
     const cells = visible.map((item) => wrangle.completedCell(item, layout.cellWidth, terminal));
     const grid = wrangle.grid(cells, layout.columns);
     if (hidden.length <= 0) return grid;
     const suffix = wrangle.completedOverflowSuffix(hidden);
     return grid ? `${grid}\n  ${suffix}` : `  ${suffix}`;
-  },
-
-  prioritizeCompletedFailures(completed: readonly ParallelProgressCompleted[]) {
-    const failures: ParallelProgressCompleted[] = [];
-    const remaining: ParallelProgressCompleted[] = [];
-    for (const item of completed) {
-      (item.kind === 'failed' ? failures : remaining).push(item);
-    }
-    return [...failures, ...remaining];
   },
 
   completedOverflowSuffix(hidden: readonly ParallelProgressCompleted[]) {

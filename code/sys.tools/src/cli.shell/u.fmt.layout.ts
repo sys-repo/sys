@@ -1,9 +1,9 @@
-import { c, Cli, Str } from './common.ts';
+import { c, Cli, Str, type t } from './common.ts';
 
 /** A labeled output section rendered as a left-column heading and right-column content. */
 export type Section = {
-  readonly label: string;
-  readonly lines: readonly string[];
+  label: string;
+  lines: readonly string[];
 };
 
 /** Render a shell command report with stable ANSI-safe section columns and one trailing newline. */
@@ -45,7 +45,7 @@ export function listLabels(values: readonly string[]): string {
 }
 
 function appendSection(
-  out: ReturnType<typeof Str.builder>,
+  out: t.StrBuilder,
   section: Section,
   labelWidth: number,
 ): void {
@@ -62,7 +62,7 @@ function sectionPrefix(label: string, width: number): string {
 }
 
 function visibleWidth(input: string): number {
-  return Cli.stripAnsi(input).length;
+  return Cli.Fmt.Text.Width.measure(input);
 }
 
 function maxVisibleWidth(input: readonly string[]): number {

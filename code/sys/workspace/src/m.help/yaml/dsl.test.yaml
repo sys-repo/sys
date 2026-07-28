@@ -65,15 +65,23 @@ sections:
           Missing package test tasks are terminal `skipped` outcomes that can
           unlock dependents.
       - >-
-          Package failures remain visible in the live completed-results list and
-          do not stop new launches; every selected package test runs through to
-          a terminal result.
+          Package failures remain actionable in the dedicated live failure
+          index and do not stop new launches; every selected package test runs
+          through to a terminal result.
+      - >-
+          Live completed rows use newest-first scheduler terminal-event order.
+          Each new row enters at top-left; prior visible rows shift row-major
+          toward bottom-right; the oldest moves into `...and N more`.
+      - >-
+          Passed, failed, skipped, and blocked rows share this order. Repaints
+          preserve retained order; status, graph position, path, elapsed time,
+          and test count never reorder it.
       - >-
           Dependency edges delay a dependent until its predecessors finish;
           predecessor failure does not suppress the dependent package test.
       - >-
-          Final package rows and canonical failure selection follow graph order,
-          not finish race order.
+          Final result package rows and canonical failure selection use graph
+          order, not live completion recency.
 
   - label: Output ownership
     items:

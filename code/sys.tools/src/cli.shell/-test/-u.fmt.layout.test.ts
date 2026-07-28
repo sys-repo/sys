@@ -21,4 +21,19 @@ describe('cli.shell output layout', () => {
 `,
     );
   });
+
+  it('aligns section content by terminal-cell width', () => {
+    const text = Cli.stripAnsi(renderShellOutput('wide labels', [
+      { label: '界', lines: ['one'] },
+      { label: 'abc', lines: ['two'] },
+    ]));
+    const lines = text.split('\n');
+    const first = lines.find((line) => line.includes('one')) ?? '';
+    const second = lines.find((line) => line.includes('two')) ?? '';
+    const firstPrefix = first.slice(0, first.indexOf('one'));
+    const secondPrefix = second.slice(0, second.indexOf('two'));
+
+    expect(Cli.Fmt.Text.Width.measure(firstPrefix)).to.eql(7);
+    expect(Cli.Fmt.Text.Width.measure(secondPrefix)).to.eql(7);
+  });
 });

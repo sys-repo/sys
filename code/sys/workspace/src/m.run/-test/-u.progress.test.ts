@@ -96,6 +96,32 @@ describe('WorkspaceRun.parallel progress model', () => {
     expect(snapshot.failedPackages[0]).to.equal(failure);
   });
 
+  it('retains mixed terminal events in exact newest-first completion order', () => {
+    const model = createParallelProgressModel({
+      runnablePaths: ['code/a', 'code/b', 'code/c'],
+      now: () => 0 as t.Msecs,
+    });
+    const failure = ran('code/c', false, 3);
+
+    model.event({ kind: 'skip', path: 'code/d', result: skipped('code/d') });
+    model.event({ kind: 'start', path: 'code/c' });
+    model.event({ kind: 'finish', path: 'code/c', result: failure });
+    model.event({ kind: 'start', path: 'code/b' });
+    model.event({ kind: 'finish', path: 'code/b', result: ran('code/b', true, 2) });
+    model.event({ kind: 'block', path: 'code/a', result: blocked('code/a') });
+
+    const first = model.snapshot();
+    const repeated = model.snapshot();
+    expect(first.completed.map((item) => [item.kind, item.path])).to.eql([
+      ['blocked', 'code/a'],
+      ['passed', 'code/b'],
+      ['failed', 'code/c'],
+      ['skipped', 'code/d'],
+    ]);
+    expect(repeated.completed).to.eql(first.completed);
+    expect(first.failedPackages).to.eql([failure]);
+  });
+
   it('retains every completed package for truthful live projection', () => {
     const paths = Array.from({ length: 70 }, (_, index) => `code/pkg-${index + 1}`);
     const model = createParallelProgressModel({
