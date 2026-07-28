@@ -1,8 +1,6 @@
 import type { Options as FormatOptions } from 'pretty-bytes';
+import type * as TBuilder from './t.builder.ts';
 import type { t } from './common.ts';
-
-/** Type re-exports */
-export type * from './t.builder.ts';
 
 /**
  * Convert bytes to a human-readable string: "1337 → 1.34 kB".
@@ -32,7 +30,7 @@ export namespace Str {
     readonly lorem: string;
 
     /** Create a new string builder. */
-    builder(options?: t.StrBuilderOptions): t.StrBuilder;
+    builder(options?: Builder.Options): Builder;
 
     /** Calculate a difference between two strings. */
     diff: t.TextDiffCalc;
@@ -230,6 +228,20 @@ export namespace Str {
      */
     stripTrailingPathSegment(str?: string): string;
   };
+
+  /** A mutable string builder with line-oriented ergonomics. */
+  export type Builder = TBuilder.Instance;
+
+  /**
+   * Type contracts for mutable string builders.
+   */
+  export namespace Builder {
+    /** Options for creating a string builder. */
+    export type Options = TBuilder.Options;
+
+    /** Output shaping for `Builder.toText()`. */
+    export type ToTextOptions = TBuilder.ToTextOptions;
+  }
 
   /**
    * Type contracts for sample "lorem ipsum..." text.

@@ -16,8 +16,6 @@ type OutputExcerpt = {
   readonly text: string;
 };
 
-type StringBuilder = ReturnType<typeof Str.builder>;
-
 const SUMMARY_REPEAT_MIN_PACKAGES = 11;
 const INTRO_LABEL_WIDTH = 15;
 const INTRO_MIN_WIDTH = 40;
@@ -429,7 +427,7 @@ const wrangle = {
   },
 
   appendFailedCase(
-    str: StringBuilder,
+    str: t.Str.Builder,
     failedCase: t.WorkspaceRun.Test.Stats.FailedCase,
     width: number,
   ) {
@@ -454,7 +452,7 @@ const wrangle = {
   },
 
   appendExcerpt(
-    str: StringBuilder,
+    str: t.Str.Builder,
     excerpt: OutputExcerpt,
     width: number,
   ) {
@@ -488,7 +486,7 @@ const wrangle = {
   },
 
   appendWrapped(
-    str: StringBuilder,
+    str: t.Str.Builder,
     prefix: string,
     text: string,
     width: number,
@@ -622,7 +620,7 @@ const wrangle = {
     return Boolean(item.stdout?.trim() || item.stderr?.trim());
   },
 
-  appendOutput(str: StringBuilder, label: 'stdout' | 'stderr', value?: string) {
+  appendOutput(str: t.Str.Builder, label: 'stdout' | 'stderr', value?: string) {
     const text = Str.trimEdgeNewlines(value ?? '');
     if (!text.trim()) return;
 

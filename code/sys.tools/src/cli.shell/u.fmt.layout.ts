@@ -45,7 +45,7 @@ export function listLabels(values: readonly string[]): string {
 }
 
 function appendSection(
-  out: t.StrBuilder,
+  out: t.Str.Builder,
   section: Section,
   labelWidth: number,
 ): void {

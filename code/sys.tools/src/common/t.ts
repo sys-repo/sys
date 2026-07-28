@@ -15,7 +15,7 @@ export type {
   ArgsAliasMap,
   Logger,
   ParsedArgs,
-  StrBuilder,
+  Str,
   Timecode,
 } from '@sys/std/t';
 

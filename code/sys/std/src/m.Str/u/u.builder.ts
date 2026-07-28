@@ -1,4 +1,4 @@
-import { type t, SPACE } from '../common.ts';
+import { SPACE, type t } from '../common.ts';
 
 export const builder: t.Str.Lib['builder'] = (options = {}) => {
   const {
@@ -9,7 +9,7 @@ export const builder: t.Str.Lib['builder'] = (options = {}) => {
   } = options;
   const chunks: string[] = [];
 
-  const render = (options?: t.StrBuilderToTextOptions) => {
+  const render = (options?: t.Str.Builder.ToTextOptions) => {
     const { trimEnd = defaultTrimEnd, trailingNewline = false } = options ?? {};
     let output = chunks.join('');
 
@@ -25,7 +25,7 @@ export const builder: t.Str.Lib['builder'] = (options = {}) => {
     return output;
   };
 
-  const createBuilder = (prefix: string): t.StrBuilder => {
+  const createBuilder = (prefix: string): t.Str.Builder => {
     const appendLines = (content: string, count: number) => {
       let remaining = count;
       while (remaining > 0) {
@@ -34,7 +34,7 @@ export const builder: t.Str.Lib['builder'] = (options = {}) => {
       }
     };
 
-    const self: t.StrBuilder = {
+    const self: t.Str.Builder = {
       line(input = defaultEmpty) {
         chunks.push(prefix, String(input), eol);
         return self;
