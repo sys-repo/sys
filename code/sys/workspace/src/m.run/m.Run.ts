@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 import { Args } from './u/u.args.ts';
-import { Fmt } from './u/u.fmt.ts';
+import { Fmt } from './u.fmt/mod.ts';
 import { runTask } from './u.run/mod.ts';
 
 /** Canonical workspace task runner library. */
