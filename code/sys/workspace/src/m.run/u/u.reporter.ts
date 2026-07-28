@@ -1,7 +1,7 @@
 import { Cli, Str, type t } from '../common.ts';
 import { runCleanup } from './u.cleanup.ts';
 import { createFailedPackage } from './u.failure.ts';
-import { formatIntroLine } from './u.fmt.ts';
+import { formatIntroLine } from '../u.fmt/mod.ts';
 import { layoutParallelProgress } from './u.reporter.layout.ts';
 import {
   createParallelReporterRuntime,
@@ -18,7 +18,7 @@ export type ParallelReporter = {
   readonly start: () => void;
   readonly event: ParallelRunEventHandler;
   readonly stop: () => void;
-  /** Return failed-action visibility from the latest installed screen frame. */
+  /** Return failed-action visibility from final screen scrollback. */
   readonly completion: () => t.WorkspaceRun.Test.Reporter.ScreenCompletion | undefined;
 };
 
@@ -43,6 +43,12 @@ type ReporterState = {
   stopped: boolean;
 };
 
+type ProgressLayoutOptions = {
+  viewport: t.Cli.Screen.Size;
+  cursorRows?: number;
+  complete?: boolean;
+};
+
 /** Create a reporter that renders parallel test progress from scheduler events. */
 export function createParallelReporter(args: ParallelReporterArgs): ParallelReporter {
   const state: ReporterState = {
@@ -55,30 +61,37 @@ export function createParallelReporter(args: ParallelReporterArgs): ParallelRepo
     stopped: false,
   };
 
+  const projectProgress = (options: ProgressLayoutOptions) => {
+    const snapshot = state.progress.snapshot();
+    return layoutParallelProgress({
+      ...snapshot,
+      failures: snapshot.failedPackages.map((item) => createFailedPackage(item, state.task)),
+      terminal: true,
+      ...options,
+    });
+  };
+
   if (state.terminal) {
     state.runtime = createParallelReporterRuntime({
       deps: args.deps,
-      frame({ viewport, cursorRows }) {
-        const snapshot = state.progress.snapshot();
-        const layout = layoutParallelProgress({
-          ...snapshot,
-          failures: snapshot.failedPackages.map((item) => createFailedPackage(item, state.task)),
-          terminal: true,
-          viewport,
-          cursorRows,
-        });
-        state.completion = {
-          failedPackages: { ...layout.completion.failedPackages },
-        };
-        return layout.frame;
-      },
+      frame: (options) => projectProgress(options).frame,
     });
   }
 
-  const stop = () => {
+  const stop = (persist = true) => {
     if (state.stopped) return;
     state.stopped = true;
-    state.runtime?.stop();
+    state.runtime?.stop(persist);
+  };
+
+  const writeFinalScrollback = () => {
+    const viewport = state.runtime?.viewport();
+    if (!viewport) return;
+    const layout = projectProgress({ viewport, complete: true });
+    if (layout.frame) state.write(layout.frame);
+    state.completion = {
+      failedPackages: { ...layout.completion.failedPackages },
+    };
   };
 
   return {
@@ -108,10 +121,10 @@ export function createParallelReporter(args: ParallelReporterArgs): ParallelRepo
         state.runtime?.render();
         return;
       }
-      runCleanup([() => state.runtime?.render(), stop]);
+      runCleanup([() => stop(false), writeFinalScrollback]);
     },
 
-    stop,
+    stop: () => stop(),
     completion: () => state.completion,
   };
 }

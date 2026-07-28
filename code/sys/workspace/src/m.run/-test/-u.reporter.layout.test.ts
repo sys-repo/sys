@@ -115,29 +115,136 @@ describe('WorkspaceRun.parallel reporter layout', () => {
 
         expect(hidden >= 0).to.eql(true);
         expect(frame.includes('... +')).to.eql(hidden > 0);
-        if (hidden > 0) expect(frame.includes(`... +${hidden} more`)).to.eql(true);
+        if (hidden > 0) {
+          expect(frame.split('\n').at(-1)).to.eql(`  ... +${hidden} more`);
+        }
         expect(physicalRows(frame, 100) <= height - 1).to.eql(true);
       }
     });
 
-    it('keeps newest-first row-major order as height capacity changes', () => {
+    it('moves retained completions down one column before flowing right', () => {
+      const target: ParallelProgressCompleted = {
+        kind: 'failed',
+        path: 'sample/pkg-failed',
+        elapsed: 1,
+      };
+      const positions = Array.from({ length: 8 }, (_, newerCount) => {
+        const frame = formatParallelProgress({
+          ...progress(),
+          passed: newerCount,
+          failed: 1,
+          completed: [...completed(newerCount), target],
+          terminal: true,
+          viewport: { width: 100, height: 9 },
+          cursorRows: 1,
+        });
+        return completedPosition(frame, target.path, 100);
+      });
+      const leftColumn = positions[0]?.column;
+
+      expect(positions.map((item) => item.row)).to.eql([0, 1, 2, 3, 4, 0, 1, 2]);
+      expect(positions.slice(0, 5).every((item) => item.column === leftColumn)).to.eql(true);
+      expect(positions.slice(5).every((item) => item.column > (leftColumn ?? 0))).to.eql(true);
+    });
+
+    it('expands final scrollback in completed-then-failure order without overflow', () => {
+      const failures = [failure('sample/failure-a'), failure('sample/failure-b')];
+      const layout = layoutParallelProgress({
+        ...progress(),
+        runnableTotal: 14,
+        passed: 12,
+        failed: 2,
+        pending: 0,
+        completed: [
+          ...completed(12),
+          ...failures.map(({ package: item }) => ({
+            kind: 'failed' as const,
+            path: item.path,
+            elapsed: item.elapsed,
+          })),
+        ],
+        failures,
+        terminal: true,
+        viewport: { width: 100, height: 7 },
+        cursorRows: 1,
+        complete: true,
+      });
+      expect(
+        layout.frame.includes(c.dim(Cli.Fmt.hr({ width: 100, color: 'red', weight: 'dashed' }))),
+      ).to.eql(true);
+      const frame = Cli.stripAnsi(layout.frame);
+      const lines = frame.split('\n');
+      const completedFailures = lines.filter((line) => line.includes('✕  sample/failure-'));
+      const separatorIndex = lines.indexOf('┄'.repeat(100));
+      const firstFailureAction = frame.indexOf('✕ sample/failure-a');
+
+      expect(lines[0]?.includes('sample/pkg-01')).to.eql(true);
+      expect(frame.match(/sample\/pkg-\d+/g)?.length).to.eql(12);
+      expect(completedFailures).to.have.length(2);
+      expect(frame.includes('... +')).to.eql(false);
+      expect(lines.filter((line) => line === '┄'.repeat(100))).to.have.length(1);
+      expect(lines[separatorIndex - 1]).to.eql('');
+      expect(firstFailureAction > frame.lastIndexOf('✕  sample/failure-')).to.eql(true);
+      expect(lines[separatorIndex + 1]).to.eql('✕ sample/failure-a · exit 1');
+      expect(firstFailureAction < frame.indexOf('✕ sample/failure-b')).to.eql(true);
+      expect(layout.completion.failedPackages).to.eql({ visible: 2, total: 2 });
+    });
+
+    it('uses manifest names in final rows and paths only as a defensive fallback', () => {
       const frame = Cli.stripAnsi(formatParallelProgress({
         ...progress(),
-        passed: 6,
-        completed: completed(6),
+        runnableTotal: 2,
+        passed: 2,
+        pending: 0,
+        completed: [
+          {
+            kind: 'passed',
+            name: '@sys/driver-vite',
+            path: 'code/sys.driver/driver-vite',
+            elapsed: 1,
+          },
+          { kind: 'passed', path: 'deploy/legacy-package', elapsed: 1 },
+        ],
         terminal: true,
-        viewport: { width: 100, height: 9 },
-        cursorRows: 1,
+        viewport: { width: 100, height: 8 },
+        complete: true,
       }));
-      const rows = frame.split('\n');
-      const rule = rows.findIndex((line) => line === '━'.repeat(100));
 
-      expect(rows[rule + 1]?.trimStart().startsWith('✓  sample/pkg-01')).to.eql(true);
-      expect(
-        rows[rule + 1]?.indexOf('sample/pkg-02') > (rows[rule + 1]?.indexOf('sample/pkg-01') ?? 0),
-      )
-        .to.eql(true);
-      expect(rows[rule + 2]?.trimStart().startsWith('✓  sample/pkg-03')).to.eql(true);
+      expect(frame.includes('@sys/driver-vite')).to.eql(true);
+      expect(frame.includes('code/sys.driver/driver-vite')).to.eql(false);
+      expect(frame.includes('deploy/legacy-package')).to.eql(true);
+    });
+
+    it('uses fewer final columns rather than shortening readable package paths', () => {
+      const items: readonly ParallelProgressCompleted[] = ([
+        ['code/sys.driver/driver-vite', 388],
+        ['code/sys.tools', 764],
+        ['code/sys.driver/driver-pi', 288],
+        ['code/sys.driver/driver-monaco', 374],
+        ['code/sys.driver/driver-prosemirror', 4],
+        ['code/sys.driver/driver-automerge', 367],
+      ] as const).map(([path, tests]) => ({
+        kind: 'passed' as const,
+        path,
+        elapsed: 60_000,
+        testStats: observedStats(tests),
+      }));
+      const frame = Cli.stripAnsi(formatParallelProgress({
+        ...progress(),
+        runnableTotal: items.length,
+        passed: items.length,
+        pending: 0,
+        completed: items,
+        terminal: true,
+        viewport: { width: 160, height: 8 },
+        complete: true,
+      }));
+      const first = frame.split('\n')[0] ?? '';
+
+      expect(frame.includes('…')).to.eql(false);
+      expect(frame.includes('┄')).to.eql(false);
+      expect(first.includes('code/sys.driver/driver-vite')).to.eql(true);
+      expect(first.includes('code/sys.driver/driver-monaco')).to.eql(true);
     });
 
     it('reprojects wide to narrow to wide without mutating retained order', () => {
@@ -441,10 +548,26 @@ function countKind(kinds: readonly CompletedKind[], kind: CompletedKind) {
   return kinds.filter((value) => value === kind).length;
 }
 
+function observedStats(tests: number): t.WorkspaceRun.Test.Stats.Observed {
+  return {
+    kind: 'observed',
+    capability: 'deno:junit',
+    source: 'junit',
+    tests,
+    failed: 0,
+    failures: 0,
+    errors: 0,
+    skipped: 0,
+    failedCases: [],
+    warnings: [],
+  };
+}
+
 function failure(path: string): FailedPackage {
   return {
     package: {
       kind: 'ran',
+      name: path,
       path,
       code: 1,
       success: false,
@@ -472,6 +595,13 @@ function expectContinuation(
 
 function overflowLine(count: string, qualifier = '') {
   return `  ${c.gray(c.italic('... '))}${count}${c.gray(c.italic(` more${qualifier}`))}`;
+}
+
+function completedPosition(frame: string, path: string, width: number) {
+  const rows = Cli.stripAnsi(frame).split('\n');
+  const rule = rows.findIndex((line) => line === '━'.repeat(width));
+  const row = rows.findIndex((line, index) => index > rule && line.includes(path));
+  return { row: row - rule - 1, column: rows[row]?.indexOf(path) ?? -1 };
 }
 
 function physicalRows(input: string, width: number) {

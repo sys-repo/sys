@@ -100,7 +100,7 @@ describe('scripts/task.test', () => {
       expect(effects).to.eql(['repaint:0', 'workspace:test']);
     });
 
-    it('uses the persisted-frame receipt to avoid repeating visible failure actions', async () => {
+    it('uses final scrollback truth to avoid repeating visible failure actions', async () => {
       const first = failedPackage('code/pkg-first', 1);
       const second = failedPackage('code/pkg-second', 2);
       const result: t.WorkspaceRun.Fail = {
@@ -190,6 +190,7 @@ describe('scripts/task.test', () => {
 function failedPackage(path: t.StringPath, code: number): t.WorkspaceRun.Package.Ran {
   return {
     kind: 'ran',
+    name: `@test/${path.split('/').at(-1)}`,
     path,
     code,
     success: false,

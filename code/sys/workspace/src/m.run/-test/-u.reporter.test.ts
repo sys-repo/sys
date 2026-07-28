@@ -1,6 +1,7 @@
 import { c, Cli, describe, expect, it, type t } from '../../-test.ts';
-import { formatIntroLine } from '../u/u.fmt.ts';
+import { formatIntroLine } from '../u.fmt/mod.ts';
 import { createParallelReporter, formatParallelProgress } from '../u/u.reporter.ts';
+import type { ParallelRunEvent } from '../u.run/mod.ts';
 import { createInertReporterRuntimeDeps } from './u.fixture.reporter.ts';
 
 type CompletedKind = 'passed' | 'failed' | 'skipped' | 'blocked';
@@ -113,7 +114,7 @@ describe('WorkspaceRun.parallel reporter', () => {
     });
 
     describe('running context', () => {
-      it('renders sample running package rows without trailing spaces', () => {
+      it('keeps running rows width-safe and free of trailing whitespace', () => {
         const frame = Cli.stripAnsi(formatParallelProgress({
           runnableTotal: 10,
           passed: 2,
@@ -178,7 +179,7 @@ describe('WorkspaceRun.parallel reporter', () => {
     });
 
     describe('completed rows', () => {
-      it('renders sample completed rows without a section heading', () => {
+      it('keeps completed rows directly beneath the severity rule', () => {
         const frame = Cli.stripAnsi(formatParallelProgress({
           runnableTotal: 10,
           passed: 2,
@@ -268,7 +269,7 @@ describe('WorkspaceRun.parallel reporter', () => {
         expect(frame.includes('—, 92ms')).to.eql(true);
       });
 
-      it('renders the minimal failure index directly beneath completed results', () => {
+      it('separates the minimal failure index from completed results', () => {
         const failure = ran('code/sys/crdt', false, {
           stderr: 'secret assertion output\n',
           testStats: observedStats(3, 2),
@@ -300,7 +301,7 @@ describe('WorkspaceRun.parallel reporter', () => {
         const failureIndex = lines.findIndex((line) => line.includes('✕ code/sys/crdt'));
 
         expect(completedIndex >= 0).to.eql(true);
-        expect(lines[completedIndex + 1]).to.eql('');
+        expect(lines[completedIndex + 1]).to.eql('┄'.repeat(100));
         expect(failureIndex).to.eql(completedIndex + 2);
         expect(lines[failureIndex]).to.eql('✕ code/sys/crdt · 2 failed tests');
         expect(lines[failureIndex + 1]).to.eql(
@@ -309,7 +310,7 @@ describe('WorkspaceRun.parallel reporter', () => {
         expect(frame.includes('secret assertion output')).to.eql(false);
       });
 
-      it('caps completed packages at five rows and summarizes overflow', () => {
+      it('caps unbounded completed detail at five grid rows and reports every hidden result', () => {
         const frame = Cli.stripAnsi(formatParallelProgress({
           runnableTotal: 20,
           passed: 12,
@@ -366,37 +367,6 @@ describe('WorkspaceRun.parallel reporter', () => {
         expect(frame.includes('✓  sample/pkg-61')).to.eql(true);
         expect(frame.includes('✓  sample/pkg-60')).to.eql(false);
         expect(frame.includes('... +60 more')).to.eql(true);
-      });
-
-      it('renders newest completions top-left in row-major order', () => {
-        const frame = Cli.stripAnsi(formatParallelProgress({
-          runnableTotal: 3,
-          passed: 3,
-          skipped: 0,
-          blocked: 0,
-          blockedRunnable: 0,
-          failed: 0,
-          pending: 0,
-          running: [],
-          completed: [
-            { kind: 'passed', path: 'sample/pkg-newest', elapsed: 1 },
-            { kind: 'passed', path: 'sample/pkg-second', elapsed: 2 },
-            { kind: 'passed', path: 'sample/pkg-third', elapsed: 3 },
-          ],
-          terminal: false,
-          width: 100,
-        }));
-        const lines = frame.split('\n');
-        const ruleIndex = lines.findIndex((line) => line === '━'.repeat(100));
-        const firstRow = lines[ruleIndex + 1] ?? '';
-        const secondRow = lines[ruleIndex + 2] ?? '';
-
-        expect(firstRow.trimStart().startsWith('✓  sample/pkg-newest')).to.eql(true);
-        expect(firstRow.indexOf('sample/pkg-second') > firstRow.indexOf('sample/pkg-newest')).to
-          .eql(
-            true,
-          );
-        expect(secondRow.trimStart().startsWith('✓  sample/pkg-third')).to.eql(true);
       });
 
       it('ages an old failed row into overflow while retaining its failure action', () => {
@@ -500,161 +470,188 @@ describe('WorkspaceRun.parallel reporter', () => {
   });
 
   describe('createParallelReporter', () => {
-    it('prints a plain deterministic header outside TTY contexts', () => {
-      const lines: string[] = [];
-      const reporter = createParallelReporter({
-        task: 'test',
-        jobs: 4,
-        runnablePaths: ['sample/pkg-a', 'sample/pkg-b'],
-        terminal: false,
-        write: (line) => lines.push(line),
-      });
+    describe('transport selection', () => {
+      it('prints a plain deterministic header outside TTY contexts', () => {
+        const lines: string[] = [];
+        const reporter = createParallelReporter({
+          task: 'test',
+          jobs: 4,
+          runnablePaths: ['sample/pkg-a', 'sample/pkg-b'],
+          terminal: false,
+          write: (line) => lines.push(line),
+        });
+        const success = ran('sample/pkg-a');
 
-      reporter.start();
-      reporter.event({ kind: 'start', path: 'sample/pkg-a' });
-      reporter.event({ kind: 'finish', path: 'sample/pkg-a', result: ran('sample/pkg-a') });
-      reporter.event({ kind: 'done', result: result([ran('sample/pkg-a')]) });
-
-      expect(lines.map((line) => Cli.stripAnsi(line))).to.eql([
-        'workspace test   →  strategy: parallel, 4 jobs (concurrent)',
-      ]);
-    });
-
-    it('renders a failed finish immediately and retains it through later success', () => {
-      const lines: string[] = [];
-      const spinner = spinnerProbe();
-      const reporter = createParallelReporter({
-        task: 'test',
-        jobs: 1,
-        runnablePaths: ['code/sys/crdt', 'code/sys/std'],
-        terminal: true,
-        write: (line) => lines.push(line),
-        deps: createInertReporterRuntimeDeps(spinner.instance),
-      });
-      const failure = ran('code/sys/crdt', false, {
-        stderr: 'secret assertion output\n',
-        testStats: observedStats(3, 2),
-      });
-      const success = ran('code/sys/std');
-
-      reporter.start();
-      reporter.event({ kind: 'start', path: failure.path });
-      reporter.event({ kind: 'finish', path: failure.path, result: failure });
-      const afterFailure = spinner.frames.at(-1) ?? '';
-
-      reporter.event({ kind: 'start', path: success.path });
-      reporter.event({ kind: 'finish', path: success.path, result: success });
-      const afterSuccess = spinner.frames.at(-1) ?? '';
-
-      reporter.event({ kind: 'done', result: result([failure, success], failure) });
-      reporter.stop();
-
-      expect(afterFailure.includes('✕ code/sys/crdt · 2 failed tests')).to.eql(true);
-      expect(
-        afterFailure.includes('rerun: deno task --cwd ./code/sys/crdt test'),
-      ).to.eql(true);
-      expect(afterFailure.includes('secret assertion output')).to.eql(false);
-      expect(afterSuccess.includes('✕ code/sys/crdt · 2 failed tests')).to.eql(true);
-      expect(afterSuccess.includes('✓  code/sys/std')).to.eql(true);
-      expect(
-        afterSuccess.indexOf('✓  code/sys/std') < afterSuccess.indexOf('✕  code/sys/crdt'),
-      ).to.eql(true);
-      expect(reporter.completion()).to.eql({ failedPackages: { visible: 1, total: 1 } });
-      expect(spinner.stops()).to.eql(1);
-    });
-
-    it('reports only failed-package actions visible in the persisted bounded frame', () => {
-      const spinner = spinnerProbe();
-      const failures = Array.from(
-        { length: 20 },
-        (_, index) => ran(`sample/failure-${index + 1}`, false),
-      );
-      const reporter = createParallelReporter({
-        task: 'test',
-        jobs: 4,
-        runnablePaths: failures.map((item) => item.path),
-        terminal: true,
-        write: () => {},
-        deps: createInertReporterRuntimeDeps(spinner.instance),
-      });
-
-      reporter.start();
-      failures.forEach((failure) => {
-        reporter.event({ kind: 'start', path: failure.path });
-        reporter.event({ kind: 'finish', path: failure.path, result: failure });
-      });
-      reporter.event({ kind: 'done', result: result(failures, failures[0]) });
-
-      const finalFrame = spinner.frames.at(-1) ?? '';
-      const visible = finalFrame
-        .split('\n')
-        .filter((line) => line.startsWith('✕ sample/failure-'))
-        .length;
-      expect(visible > 0 && visible < failures.length).to.eql(true);
-      expect(reporter.completion()).to.eql({
-        failedPackages: { visible, total: failures.length },
-      });
-      expect(spinner.stops()).to.eql(1);
-    });
-
-    it('stops after a final render failure without masking it', () => {
-      const cause = new Error('final-render-failed');
-      let failRender = false;
-      const spinner = spinnerProbe({
-        setText() {
-          if (failRender) throw cause;
-        },
-      });
-      const reporter = createParallelReporter({
-        task: 'test',
-        jobs: 1,
-        runnablePaths: ['sample/pkg-a'],
-        terminal: true,
-        write: () => {},
-        deps: createInertReporterRuntimeDeps(spinner.instance),
-      });
-      const success = ran('sample/pkg-a');
-      let thrown: unknown;
-
-      reporter.start();
-      reporter.event({ kind: 'start', path: success.path });
-      failRender = true;
-      try {
+        reporter.start();
+        reporter.event(started(success));
+        reporter.event({ kind: 'finish', result: success });
         reporter.event({ kind: 'done', result: result([success]) });
-      } catch (error) {
-        thrown = error;
-      }
-      reporter.event({ kind: 'finish', path: success.path, result: success });
 
-      expect(thrown).to.equal(cause);
-      expect(spinner.stops()).to.eql(1);
+        expect(lines.map((line) => Cli.stripAnsi(line))).to.eql([
+          'workspace test   →  strategy: parallel, 4 jobs (concurrent)',
+        ]);
+      });
     });
 
-    it('emits no final diagnosis and remains stopped after completion', () => {
-      const lines: string[] = [];
-      const reporter = createParallelReporter({
-        task: 'test',
-        jobs: 2,
-        runnablePaths: ['sample/pkg-fails'],
-        terminal: false,
-        write: (line) => lines.push(line),
+    describe('live projection', () => {
+      it('renders a failed finish immediately and retains it through later success', () => {
+        const lines: string[] = [];
+        const spinner = spinnerProbe();
+        const reporter = createParallelReporter({
+          task: 'test',
+          jobs: 1,
+          runnablePaths: ['code/sys/crdt', 'code/sys/std'],
+          terminal: true,
+          write: (line) => lines.push(line),
+          deps: createInertReporterRuntimeDeps(spinner.instance),
+        });
+        const failure = ran('code/sys/crdt', false, {
+          name: '@sys/crdt',
+          stderr: 'secret assertion output\n',
+          testStats: observedStats(3, 2),
+        });
+        const success = ran('code/sys/std', true, { name: '@sys/std' });
+
+        reporter.start();
+        reporter.event(started(failure));
+        reporter.event({ kind: 'finish', result: failure });
+        const afterFailure = spinner.frames.at(-1) ?? '';
+
+        reporter.event(started(success));
+        reporter.event({ kind: 'finish', result: success });
+        const afterSuccess = spinner.frames.at(-1) ?? '';
+
+        reporter.event({ kind: 'done', result: result([failure, success], failure) });
+        reporter.stop();
+
+        expect(afterFailure.includes('✕ @sys/crdt · 2 failed tests')).to.eql(true);
+        expect(
+          afterFailure.includes('rerun: deno task --cwd ./code/sys/crdt test'),
+        ).to.eql(true);
+        expect(afterFailure.includes('secret assertion output')).to.eql(false);
+        expect(afterSuccess.includes('✕ @sys/crdt · 2 failed tests')).to.eql(true);
+        expect(afterSuccess.includes('✓  @sys/std')).to.eql(true);
+        expect(afterSuccess.indexOf('✓  @sys/std') < afterSuccess.indexOf('✕  @sys/crdt')).to.eql(
+          true,
+        );
+        expect(reporter.completion()).to.eql({ failedPackages: { visible: 1, total: 1 } });
+        expect(spinner.stops()).to.eql(1);
       });
-      const fail = ran('sample/pkg-fails', false, {
-        stdout: 'sample stdout\n',
-        stderr: 'sample stderr\n',
+    });
+
+    describe('finalization', () => {
+      it('writes every completion and failed action to final scrollback', () => {
+        const lines: string[] = [];
+        const spinner = spinnerProbe();
+        const failures = Array.from(
+          { length: 20 },
+          (_, index) => ran(`sample/failure-${index + 1}`, false),
+        );
+        const reporter = createParallelReporter({
+          task: 'test',
+          jobs: 4,
+          runnablePaths: failures.map((item) => item.path),
+          terminal: true,
+          write: (line) => lines.push(line),
+          deps: createInertReporterRuntimeDeps(spinner.instance),
+        });
+
+        reporter.start();
+        failures.forEach((failure) => {
+          reporter.event(started(failure));
+          reporter.event({ kind: 'finish', result: failure });
+        });
+        const liveFrame = spinner.frames.at(-1) ?? '';
+        reporter.event({ kind: 'done', result: result(failures, failures[0]) });
+
+        const finalFrame = Cli.stripAnsi(lines.at(-1) ?? '');
+        const completed = finalFrame.match(/✕[ ]{2}sample\/failure-\d+/g)?.length ?? 0;
+        const actions = finalFrame
+          .split('\n')
+          .filter((line) => line.startsWith('✕ sample/failure-'))
+          .length;
+        expect(liveFrame.includes('... +')).to.eql(true);
+        expect(finalFrame.includes('... +')).to.eql(false);
+        expect(completed).to.eql(failures.length);
+        expect(actions).to.eql(failures.length);
+        expect(finalFrame.indexOf('✕  sample/failure-') < finalFrame.indexOf('✕ sample/failure-'))
+          .to
+          .eql(true);
+        expect(reporter.completion()).to.eql({
+          failedPackages: { visible: failures.length, total: failures.length },
+        });
+        expect(spinner.stops()).to.eql(1);
       });
 
-      reporter.start();
-      reporter.event({ kind: 'start', path: 'sample/pkg-fails' });
-      reporter.event({ kind: 'finish', path: 'sample/pkg-fails', result: fail });
-      reporter.event({ kind: 'done', result: result([fail], fail) });
-      reporter.stop();
-      reporter.stop();
-      reporter.event({ kind: 'done', result: result([fail], fail) });
+      it('stops after a final scrollback write failure without masking it or issuing a receipt', () => {
+        const cause = new Error('final-write-failed');
+        let failWrite = false;
+        let writeCalls = 0;
+        const spinner = spinnerProbe();
+        const reporter = createParallelReporter({
+          task: 'test',
+          jobs: 1,
+          runnablePaths: ['sample/pkg-a'],
+          terminal: true,
+          write() {
+            writeCalls += 1;
+            if (failWrite) throw cause;
+          },
+          deps: createInertReporterRuntimeDeps(spinner.instance),
+        });
+        const failure = ran('sample/pkg-a', false);
+        let thrown: unknown;
 
-      expect(lines.map((line) => Cli.stripAnsi(line))).to.eql([
-        'workspace test   →  strategy: parallel, 2 jobs (concurrent)',
-      ]);
+        reporter.start();
+        reporter.event(started(failure));
+        reporter.event({ kind: 'finish', result: failure });
+        failWrite = true;
+        try {
+          reporter.event({ kind: 'done', result: result([failure], failure) });
+        } catch (error) {
+          thrown = error;
+        }
+        const writesAfterFailure = writeCalls;
+        let retryThrown: unknown;
+        try {
+          reporter.event({ kind: 'done', result: result([failure], failure) });
+        } catch (error) {
+          retryThrown = error;
+        }
+
+        expect(thrown).to.equal(cause);
+        expect(retryThrown).to.eql(undefined);
+        expect(writeCalls).to.eql(writesAfterFailure);
+        expect(reporter.completion()).to.eql(undefined);
+        expect(spinner.stops()).to.eql(1);
+      });
+
+      it('emits no final diagnosis and remains stopped after completion', () => {
+        const lines: string[] = [];
+        const reporter = createParallelReporter({
+          task: 'test',
+          jobs: 2,
+          runnablePaths: ['sample/pkg-fails'],
+          terminal: false,
+          write: (line) => lines.push(line),
+        });
+        const fail = ran('sample/pkg-fails', false, {
+          stdout: 'sample stdout\n',
+          stderr: 'sample stderr\n',
+        });
+
+        reporter.start();
+        reporter.event(started(fail));
+        reporter.event({ kind: 'finish', result: fail });
+        reporter.event({ kind: 'done', result: result([fail], fail) });
+        reporter.stop();
+        reporter.stop();
+        reporter.event({ kind: 'done', result: result([fail], fail) });
+
+        expect(lines.map((line) => Cli.stripAnsi(line))).to.eql([
+          'workspace test   →  strategy: parallel, 2 jobs (concurrent)',
+        ]);
+      });
     });
   });
 });
@@ -700,6 +697,7 @@ function ran(
   path: string,
   success = true,
   output: {
+    name?: t.StringPkgName;
     stdout?: string;
     stderr?: string;
     testStats?: t.WorkspaceRun.Test.Stats.Result;
@@ -707,6 +705,7 @@ function ran(
 ): t.WorkspaceRun.Package.Ran {
   return {
     kind: 'ran',
+    name: output.name ?? path,
     path,
     code: success ? 0 : 1,
     success,
@@ -714,6 +713,10 @@ function ran(
     elapsed: 1,
     ...output,
   };
+}
+
+function started(item: t.WorkspaceRun.Package.Identity): ParallelRunEvent {
+  return { kind: 'start', name: item.name, path: item.path };
 }
 
 function observedStats(tests: number, failed: number): t.WorkspaceRun.Test.Stats.Observed {

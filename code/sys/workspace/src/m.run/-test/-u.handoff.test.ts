@@ -34,6 +34,23 @@ describe('WorkspaceRun.Fmt.handoff', () => {
       expect(text.includes('rerun:')).to.eql(false);
     });
 
+    it('uses the manifest name in repair titles and the workspace path in reruns', () => {
+      const failure = ran('code/sys/std', {
+        name: '@sys/std',
+        code: 1,
+        testStats: observed({ tests: 3, failed: 2 }),
+      });
+      const text = plain(WorkspaceRun.Fmt.handoff(failedResult([failure], failure), {
+        detail: 'compact',
+        terminal: false,
+        width: 100,
+      }));
+
+      expect(text.includes('✕ @sys/std · 2 failed tests')).to.eql(true);
+      expect(text.includes('✕ code/sys/std')).to.eql(false);
+      expect(text.includes('rerun: deno task --cwd ./code/sys/std test')).to.eql(true);
+    });
+
     it('labels mixed report capability states without calling them unsupported reports', () => {
       const packages = [
         ran('code/pkg-unavailable', {
@@ -251,7 +268,7 @@ describe('WorkspaceRun.Fmt.handoff', () => {
   });
 
   describe('repair projection', () => {
-    it('omits repair actions already visible in the persisted screen frame', () => {
+    it('omits repair actions already visible in final screen output', () => {
       const first = ran('code/pkg-first', { code: 1 });
       const second = ran('code/pkg-second', { code: 2 });
       const result = failedResult([first, second], first);
@@ -282,7 +299,7 @@ describe('WorkspaceRun.Fmt.handoff', () => {
       expect(full).to.eql(fullWithoutReceipt);
     });
 
-    it('appends only failed-package actions omitted from a constrained screen frame', () => {
+    it('appends only failed-package actions omitted from supplied screen truth', () => {
       const first = ran('code/pkg-first', { code: 1 });
       const second = ran('code/pkg-second', { code: 2 });
       const third = ran('code/pkg-third', { code: 3 });
@@ -346,6 +363,7 @@ describe('WorkspaceRun.Fmt.handoff', () => {
       });
       const blocked: t.WorkspaceRun.Package.Blocked = {
         kind: 'blocked',
+        name: 'code/pkg-blocked',
         path: 'code/pkg-blocked',
         reason: 'fail-fast',
       };
@@ -553,6 +571,7 @@ function ran(
   path: t.StringPath,
   options: {
     code: number;
+    name?: t.StringPkgName;
     success?: boolean;
     signal?: Deno.Signal | null;
     stdout?: string;
@@ -562,6 +581,7 @@ function ran(
 ): t.WorkspaceRun.Package.Ran {
   return {
     kind: 'ran',
+    name: options.name ?? path,
     path,
     code: options.code,
     success: options.success ?? false,

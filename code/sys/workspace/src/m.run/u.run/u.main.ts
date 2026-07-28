@@ -1,6 +1,6 @@
 import { WorkspacePrep } from '../../m.prep/mod.ts';
 import { Cli, Fs, Is, type t, Time } from '../common.ts';
-import { formatIntroLine } from '../u/u.fmt.ts';
+import { formatIntroLine } from '../u.fmt/mod.ts';
 import { resolveJobs } from '../u/u.jobs.ts';
 import { createRunPlan } from '../u/u.plan.ts';
 import { createParallelReporter } from '../u/u.reporter.ts';

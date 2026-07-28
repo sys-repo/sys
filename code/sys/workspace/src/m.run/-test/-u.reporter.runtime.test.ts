@@ -270,6 +270,17 @@ describe('WorkspaceRun.parallel reporter runtime', () => {
   });
 
   describe('shutdown', () => {
+    it('stops without repaint when output transfers to ordinary scrollback', () => {
+      const harness = createHarness();
+
+      harness.runtime.start();
+      harness.runtime.stop(false);
+
+      expect(harness.effects).to.eql(['spinner:start', 'spinner:stop']);
+      expect(harness.repaints).to.eql([]);
+      expect(harness.screen.events.disposed).to.eql(true);
+    });
+
     it('persists the final frame without masking a spinner-stop failure', () => {
       const spinner = FakeSpinner.create();
       const cause = new Error('spinner-stop-failed');

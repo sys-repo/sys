@@ -15,14 +15,15 @@ export type ParallelReporterRuntimeDeps = {
 };
 
 export type ParallelReporterRuntimeFrameArgs = {
-  readonly viewport: t.Cli.Screen.Size;
-  readonly cursorRows: number;
+  viewport: t.Cli.Screen.Size;
+  cursorRows: number;
 };
 
 export type ParallelReporterRuntime = {
   readonly start: () => void;
   readonly render: () => void;
-  readonly stop: () => void;
+  readonly viewport: () => t.Cli.Screen.Size | undefined;
+  readonly stop: (persist?: boolean) => void;
 };
 
 export type ParallelReporterRuntimeArgs = {
@@ -216,11 +217,13 @@ export function createParallelReporterRuntime(
     }
   };
 
-  const stop = () => {
+  const currentViewport = () => hasViewport ? { ...viewport } : undefined;
+
+  const stop = (persist = true) => {
     if (phase === 'stopped') return;
     phase = 'stopped';
-    release(true);
+    release(persist);
   };
 
-  return { start, render, stop };
+  return { start, render, viewport: currentViewport, stop };
 }

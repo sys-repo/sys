@@ -28,6 +28,11 @@ export function formatFailedPackageIndex(
     .join('\n\n');
 }
 
+/** Format the shared boundary before actionable failed-package commands. */
+export function formatFailedPackageSeparator(width: number) {
+  return c.dim(Cli.Fmt.hr({ width, color: 'red', weight: 'dashed' }));
+}
+
 /** Format full structured or conservative failure evidence. */
 export function formatFailureDetails(
   failures: readonly FailedPackage[],
