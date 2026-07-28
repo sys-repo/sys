@@ -12,16 +12,24 @@ export type FailedPackage = {
   readonly rerun: FailedPackageRerun;
 };
 
+/** Retain one failed package with its package-local rerun truth. */
+export function createFailedPackage(
+  item: t.WorkspaceRun.Package.Ran,
+  task: t.WorkspaceRun.Task,
+): FailedPackage {
+  return {
+    package: item,
+    rerun: { cwd: item.path, task },
+  };
+}
+
 /** Project every failed package in canonical result order without copying diagnostic facts. */
 export function projectFailedPackages(
   result: t.WorkspaceRun.Result,
 ): readonly FailedPackage[] {
   return result.packages
     .filter(isFailedPackage)
-    .map((item): FailedPackage => ({
-      package: item,
-      rerun: { cwd: item.path, task: result.task },
-    }));
+    .map((item) => createFailedPackage(item, result.task));
 }
 
 /** Determine whether one package outcome is a failed package run. */

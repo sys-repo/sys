@@ -1,9 +1,22 @@
 import { describe, expect, it, type t } from '../../-test.ts';
-import { projectFailedPackages } from '../u/u.failure.ts';
+import { createFailedPackage, projectFailedPackages } from '../u/u.failure.ts';
 
 const WORKSPACE = '/tmp/sample-workspace' as t.StringDir;
 
 describe('WorkspaceRun.failure projection', () => {
+  it('creates a live carrier without copying package facts', () => {
+    const failure = ran('code/pkg-failed', {
+      code: 1,
+      stderr: 'original stderr\n',
+      testStats: observedStats(),
+    });
+
+    const projected = createFailedPackage(failure, 'test');
+
+    expect(projected.package).to.equal(failure);
+    expect(projected.rerun).to.eql({ cwd: 'code/pkg-failed', task: 'test' });
+  });
+
   it('retains every failed package in result order with its original identity', () => {
     const first = ran('code/pkg-first', {
       code: 2,

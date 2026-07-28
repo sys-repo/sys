@@ -1,5 +1,5 @@
 import { WorkspacePrep } from '../../m.prep/mod.ts';
-import { Fs, type t, Time } from '../common.ts';
+import { Cli, Fs, type t, Time } from '../common.ts';
 import { formatIntroLine } from '../u/u.fmt.ts';
 import { resolveJobs } from '../u/u.jobs.ts';
 import { createRunPlan } from '../u/u.plan.ts';
@@ -36,7 +36,10 @@ export async function runTask(
       const runnablePaths = plan.candidates
         .filter((candidate) => resolveCommand(candidate.deno, task))
         .map((candidate) => candidate.dir);
-      const reporter = createParallelReporter({ task, jobs, runnablePaths });
+      const terminal = args.reporter === undefined
+        ? Cli.Is.terminal('stdout')
+        : args.reporter === 'screen';
+      const reporter = createParallelReporter({ task, jobs, runnablePaths, terminal });
       reporter.start();
       try {
         return await runParallel({
@@ -89,6 +92,6 @@ async function resolveGraph(
 
 function isParallel(
   args: t.WorkspaceRun.Args | t.WorkspaceRun.Test.Args,
-): args is t.WorkspaceRun.Test.Args & { readonly strategy: t.WorkspaceRun.Test.Strategy.Parallel } {
+): args is t.WorkspaceRun.Test.Args & { strategy: t.WorkspaceRun.Test.Strategy.Parallel } {
   return 'strategy' in args && args.strategy?.kind === 'parallel';
 }

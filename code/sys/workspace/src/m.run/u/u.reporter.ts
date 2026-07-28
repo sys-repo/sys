@@ -1,5 +1,6 @@
 import { c, Cli, Num, Str, type t, Time } from '../common.ts';
-import { formatFailedOutput, formatIntroLine } from './u.fmt.ts';
+import { createFailedPackage, type FailedPackage } from './u.failure.ts';
+import { formatFailedPackageIndex, formatIntroLine } from './u.fmt.ts';
 import {
   createParallelProgressModel,
   type ParallelProgressCompleted,
@@ -15,27 +16,29 @@ export type ParallelReporter = {
 };
 
 export type ParallelReporterArgs = {
-  readonly task: t.WorkspaceRun.Task;
-  readonly jobs: number;
-  readonly runnablePaths: readonly t.StringPath[];
-  readonly terminal?: boolean;
-  readonly width?: number;
-  readonly write?: (line: string) => void;
+  task: t.WorkspaceRun.Task;
+  jobs: number;
+  runnablePaths: readonly t.StringPath[];
+  terminal?: boolean;
+  width?: number;
+  write?: (line: string) => void;
+  startSpinner?: (text: string) => t.Cli.Spinner.Instance;
 };
 
 export type ParallelProgressFormatArgs = {
-  readonly runnableTotal: number;
-  readonly passed: number;
-  readonly skipped: number;
-  readonly blocked: number;
-  readonly blockedRunnable: number;
-  readonly failed: number;
-  readonly pending: number;
-  readonly running: readonly ParallelProgressRunning[];
-  readonly completed?: readonly ParallelProgressCompleted[];
-  readonly elapsed?: t.Msecs;
-  readonly terminal?: boolean;
-  readonly width?: number;
+  runnableTotal: number;
+  passed: number;
+  skipped: number;
+  blocked: number;
+  blockedRunnable: number;
+  failed: number;
+  pending: number;
+  running: readonly ParallelProgressRunning[];
+  completed?: readonly ParallelProgressCompleted[];
+  failures?: readonly FailedPackage[];
+  elapsed?: t.Msecs;
+  terminal?: boolean;
+  width?: number;
 };
 
 type ReporterState = {
@@ -44,9 +47,10 @@ type ReporterState = {
   readonly terminal: boolean;
   readonly width?: number;
   readonly write: (line: string) => void;
+  readonly startSpinner: (text: string) => t.Cli.Spinner.Instance;
   readonly progress: ParallelProgressModel;
   spinner?: t.Cli.Spinner.Instance;
-  tick?: ReturnType<typeof setInterval>;
+  tick?: t.Time.Interval.Handle;
   stopped: boolean;
 };
 
@@ -63,6 +67,7 @@ export function createParallelReporter(args: ParallelReporterArgs): ParallelRepo
     terminal: args.terminal ?? Cli.Is.terminal('stdout'),
     width: args.width,
     write: args.write ?? console.info,
+    startSpinner: args.startSpinner ?? ((text) => Cli.Spinner.start(text)),
     progress: createParallelProgressModel({ runnablePaths: args.runnablePaths }),
     stopped: false,
   };
@@ -77,8 +82,8 @@ export function createParallelReporter(args: ParallelReporterArgs): ParallelRepo
       );
       if (!state.terminal) return;
       state.write('');
-      state.spinner = Cli.Spinner.start(wrangle.frame(state));
-      state.tick = setInterval(() => wrangle.render(state), 1000);
+      state.spinner = state.startSpinner(wrangle.frame(state));
+      state.tick = Time.interval(1000, () => wrangle.render(state));
     },
 
     event(event) {
@@ -138,22 +143,25 @@ export function formatParallelProgress(args: ParallelProgressFormatArgs): string
     }
   }
 
+  if (args.failures && args.failures.length > 0) {
+    const failureIndex = formatFailedPackageIndex(args.failures, {
+      width,
+      terminal: args.terminal,
+    });
+    if (failureIndex) sections.push(failureIndex);
+  }
+
   const body = sections.length > 0 ? `\n\n${sections.join('\n\n')}` : '';
   return Str.trimEdgeNewlines(`${line}${body}`);
 }
 
 const wrangle = {
   event(state: ReporterState, event: ParallelRunEvent) {
-    if (state.stopped && event.kind !== 'done') return;
+    if (state.stopped) return;
 
     state.progress.event(event);
     wrangle.render(state);
-
-    if (event.kind === 'done') {
-      wrangle.stop(state);
-      const failedOutput = formatFailedOutput(event.result);
-      if (failedOutput) state.write(failedOutput);
-    }
+    if (event.kind === 'done') wrangle.stop(state);
   },
 
   render(state: ReporterState) {
@@ -162,8 +170,10 @@ const wrangle = {
   },
 
   frame(state: ReporterState) {
+    const snapshot = state.progress.snapshot();
     return formatParallelProgress({
-      ...state.progress.snapshot(),
+      ...snapshot,
+      failures: snapshot.failedPackages.map((item) => createFailedPackage(item, state.task)),
       terminal: state.terminal,
       width: state.width,
     });
@@ -172,7 +182,7 @@ const wrangle = {
   stop(state: ReporterState) {
     if (state.stopped) return;
     state.stopped = true;
-    if (state.tick) clearInterval(state.tick);
+    state.tick?.cancel();
     state.tick = undefined;
     state.spinner?.stop();
   },
@@ -255,14 +265,24 @@ const wrangle = {
   ) {
     const layout = wrangle.gridLayout(width);
     if (!layout) return '';
+    const ordered = wrangle.prioritizeCompletedFailures(completed);
     const visibleCount = layout.columns * 5;
-    const visible = completed.slice(0, visibleCount);
-    const hidden = completed.slice(visibleCount);
+    const visible = ordered.slice(0, visibleCount);
+    const hidden = ordered.slice(visibleCount);
     const cells = visible.map((item) => wrangle.completedCell(item, layout.cellWidth, terminal));
     const grid = wrangle.grid(cells, layout.columns);
     if (hidden.length <= 0) return grid;
     const suffix = wrangle.completedOverflowSuffix(hidden);
     return grid ? `${grid}\n  ${suffix}` : `  ${suffix}`;
+  },
+
+  prioritizeCompletedFailures(completed: readonly ParallelProgressCompleted[]) {
+    const failures: ParallelProgressCompleted[] = [];
+    const remaining: ParallelProgressCompleted[] = [];
+    for (const item of completed) {
+      (item.kind === 'failed' ? failures : remaining).push(item);
+    }
+    return [...failures, ...remaining];
   },
 
   completedOverflowSuffix(hidden: readonly ParallelProgressCompleted[]) {

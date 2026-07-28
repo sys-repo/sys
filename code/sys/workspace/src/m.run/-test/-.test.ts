@@ -51,6 +51,7 @@ describe('WorkspaceRun', () => {
       cwd: fs.dir,
       rebuildGraph: true,
       strategy: { kind: 'parallel', jobs: 2 },
+      reporter: 'log',
     });
     const log = await readLog(fs.dir);
 

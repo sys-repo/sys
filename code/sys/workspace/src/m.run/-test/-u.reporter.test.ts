@@ -1,5 +1,5 @@
-import { c, Cli, describe, expect, it, Str, type t } from '../../-test.ts';
-import { formatFailedOutput, formatIntroLine } from '../u/u.fmt.ts';
+import { c, Cli, describe, expect, it, type t } from '../../-test.ts';
+import { formatIntroLine } from '../u/u.fmt.ts';
 import { createParallelReporter, formatParallelProgress } from '../u/u.reporter.ts';
 
 type CompletedKind = 'passed' | 'failed' | 'skipped' | 'blocked';
@@ -275,6 +275,47 @@ describe('WorkspaceRun.parallel reporter', () => {
         expect(frame.includes('—, 92ms')).to.eql(true);
       });
 
+      it('renders the minimal failure index directly beneath completed results', () => {
+        const failure = ran('code/sys/crdt', false, {
+          stderr: 'secret assertion output\n',
+          testStats: observedStats(3, 2),
+        });
+        const frame = Cli.stripAnsi(formatParallelProgress({
+          runnableTotal: 2,
+          passed: 0,
+          skipped: 0,
+          blocked: 0,
+          blockedRunnable: 0,
+          failed: 1,
+          pending: 1,
+          running: [],
+          completed: [{
+            kind: 'failed',
+            path: failure.path,
+            elapsed: failure.elapsed,
+            testStats: failure.testStats,
+          }],
+          failures: [{
+            package: failure,
+            rerun: { cwd: failure.path, task: 'test' },
+          }],
+          terminal: false,
+          width: 100,
+        }));
+        const lines = frame.split('\n');
+        const completedIndex = lines.findIndex((line) => line.includes('✕  code/sys/crdt'));
+        const failureIndex = lines.findIndex((line) => line.includes('✕ code/sys/crdt'));
+
+        expect(completedIndex >= 0).to.eql(true);
+        expect(lines[completedIndex + 1]).to.eql('');
+        expect(failureIndex).to.eql(completedIndex + 2);
+        expect(lines[failureIndex]).to.eql('✕ code/sys/crdt · 2 failed tests');
+        expect(lines[failureIndex + 1]).to.eql(
+          '  rerun: deno task --cwd ./code/sys/crdt test',
+        );
+        expect(frame.includes('secret assertion output')).to.eql(false);
+      });
+
       it('caps completed packages at five rows and summarizes overflow', () => {
         const frame = Cli.stripAnsi(formatParallelProgress({
           runnableTotal: 20,
@@ -308,10 +349,41 @@ describe('WorkspaceRun.parallel reporter', () => {
         expect(frame.includes('...and 2 more')).to.eql(true);
       });
 
+      it('keeps failed packages visible as later successful packages complete', () => {
+        const completed: t.WorkspaceRun.Package.Ran[] = [];
+        for (let index = 1; index <= 11; index += 1) {
+          completed.push(ran(`sample/pkg-passed-${String(index).padStart(2, '0')}`));
+        }
+        const frame = Cli.stripAnsi(formatParallelProgress({
+          runnableTotal: 12,
+          passed: 11,
+          skipped: 0,
+          blocked: 0,
+          blockedRunnable: 0,
+          failed: 1,
+          pending: 0,
+          running: [],
+          completed: [
+            ...completed.map((item) => ({
+              kind: 'passed' as const,
+              path: item.path,
+              elapsed: item.elapsed,
+            })),
+            { kind: 'failed', path: 'sample/pkg-failed', elapsed: 1 },
+          ],
+          terminal: false,
+          width: 100,
+        }));
+
+        expect(frame.includes('✕  sample/pkg-failed')).to.eql(true);
+        expect(frame.includes('✓  sample/pkg-passed-10')).to.eql(false);
+        expect(frame.includes('...and 2 more')).to.eql(true);
+      });
+
       it('colors completed overflow count by hidden item severity', () => {
         const green = overflowLine(completedOverflowFrame(['passed', 'passed']));
         const yellow = overflowLine(completedOverflowFrame(['passed', 'blocked']));
-        const red = overflowLine(completedOverflowFrame(['passed', 'failed']));
+        const red = overflowLine(completedOverflowFrame(['failed', 'passed'], 'failed'));
 
         expect(Cli.stripAnsi(green).trim()).to.eql('...and 2 more');
         expect(green).to.eql(overflowLabel(c.green(c.italic('2'))));
@@ -379,7 +451,47 @@ describe('WorkspaceRun.parallel reporter', () => {
       ]);
     });
 
-    it('prints grouped buffered output for failed packages', () => {
+    it('renders a failed finish immediately and retains it through later success', () => {
+      const lines: string[] = [];
+      const spinner = spinnerProbe();
+      const reporter = createParallelReporter({
+        task: 'test',
+        jobs: 1,
+        runnablePaths: ['code/sys/crdt', 'code/sys/std'],
+        terminal: true,
+        width: 100,
+        write: (line) => lines.push(line),
+        startSpinner: (text) => spinner.startWith(text),
+      });
+      const failure = ran('code/sys/crdt', false, {
+        stderr: 'secret assertion output\n',
+        testStats: observedStats(3, 2),
+      });
+      const success = ran('code/sys/std');
+
+      reporter.start();
+      reporter.event({ kind: 'start', path: failure.path });
+      reporter.event({ kind: 'finish', path: failure.path, result: failure });
+      const afterFailure = spinner.frames.at(-1) ?? '';
+
+      reporter.event({ kind: 'start', path: success.path });
+      reporter.event({ kind: 'finish', path: success.path, result: success });
+      const afterSuccess = spinner.frames.at(-1) ?? '';
+
+      reporter.event({ kind: 'done', result: result([failure, success], failure) });
+      reporter.stop();
+
+      expect(afterFailure.includes('✕ code/sys/crdt · 2 failed tests')).to.eql(true);
+      expect(
+        afterFailure.includes('rerun: deno task --cwd ./code/sys/crdt test'),
+      ).to.eql(true);
+      expect(afterFailure.includes('secret assertion output')).to.eql(false);
+      expect(afterSuccess.includes('✕ code/sys/crdt · 2 failed tests')).to.eql(true);
+      expect(afterSuccess.includes('✓  code/sys/std')).to.eql(true);
+      expect(spinner.stops()).to.eql(1);
+    });
+
+    it('emits no final diagnosis and remains stopped after completion', () => {
       const lines: string[] = [];
       const reporter = createParallelReporter({
         task: 'test',
@@ -397,48 +509,13 @@ describe('WorkspaceRun.parallel reporter', () => {
       reporter.event({ kind: 'start', path: 'sample/pkg-fails' });
       reporter.event({ kind: 'finish', path: 'sample/pkg-fails', result: fail });
       reporter.event({ kind: 'done', result: result([fail], fail) });
+      reporter.stop();
+      reporter.stop();
+      reporter.event({ kind: 'done', result: result([fail], fail) });
 
-      const text = Cli.stripAnsi(lines.join('\n'));
-      expect(text.includes('workspace test   →  strategy: parallel, 2 jobs (concurrent)')).to.eql(
-        true,
-      );
-      expect(text.includes('Failed package output')).to.eql(true);
-      expect(text.includes('✕ sample/pkg-fails exit 1')).to.eql(true);
-      expect(text.includes('stdout')).to.eql(true);
-      expect(text.includes('sample stdout')).to.eql(true);
-      expect(text.includes('stderr')).to.eql(true);
-      expect(text.includes('sample stderr')).to.eql(true);
-    });
-  });
-
-  describe('formatFailedOutput', () => {
-    it('formats no failed output when buffered streams are empty', () => {
-      const fail = ran('sample/pkg-fails', false);
-      expect(formatFailedOutput(result([fail], fail))).to.eql('');
-    });
-
-    it('preserves graph order and complete streams while omitting empty output', () => {
-      const first = ran('sample/pkg-first', false, {
-        stdout: 'first stdout\nline 2\n',
-      });
-      const empty = ran('sample/pkg-empty', false);
-      const second = ran('sample/pkg-second', false, {
-        stderr: 'second stderr\n',
-      });
-      const text = Cli.stripAnsi(formatFailedOutput(result([first, empty, second], first)));
-
-      expect(text).to.eql(Str.dedent(`
-        Failed package output
-
-        ✕ sample/pkg-first exit 1
-          stdout
-            first stdout
-            line 2
-
-        ✕ sample/pkg-second exit 1
-          stderr
-            second stderr
-      `));
+      expect(lines.map((line) => Cli.stripAnsi(line))).to.eql([
+        'workspace test   →  strategy: parallel, 2 jobs (concurrent)',
+      ]);
     });
   });
 });
@@ -460,10 +537,13 @@ function contextLine(elapsed: t.Msecs, width = 100) {
   return Cli.stripAnsi(frame).split('\n').find((line) => line.startsWith('  testing')) ?? '';
 }
 
-function completedOverflowFrame(hiddenKinds: readonly CompletedKind[]) {
+function completedOverflowFrame(
+  hiddenKinds: readonly CompletedKind[],
+  visibleKind: CompletedKind = 'passed',
+) {
   const visibleKinds = Array.from(
     { length: VISIBLE_COMPLETED_FOR_WIDTH_100 },
-    () => 'passed' as const,
+    () => visibleKind,
   );
   const kinds = [...visibleKinds, ...hiddenKinds];
   const passed = countKind(kinds, 'passed');
@@ -523,7 +603,11 @@ function completedRuleLine(kind: CompletedKind) {
 function ran(
   path: string,
   success = true,
-  output: { stdout?: string; stderr?: string } = {},
+  output: {
+    stdout?: string;
+    stderr?: string;
+    testStats?: t.WorkspaceRun.Test.Stats.Result;
+  } = {},
 ): t.WorkspaceRun.Package.Ran {
   return {
     kind: 'ran',
@@ -533,6 +617,61 @@ function ran(
     signal: null,
     elapsed: 1,
     ...output,
+  };
+}
+
+function observedStats(tests: number, failed: number): t.WorkspaceRun.Test.Stats.Observed {
+  return {
+    kind: 'observed',
+    capability: 'deno:junit',
+    source: 'junit',
+    tests,
+    failed,
+    failures: failed,
+    errors: 0,
+    skipped: 0,
+    failedCases: [],
+    warnings: [],
+  };
+}
+
+function spinnerProbe() {
+  let text = '';
+  let stopCount = 0;
+  const frames: string[] = [];
+  const instance: t.Cli.Spinner.Instance = {
+    get text() {
+      return text;
+    },
+    set text(value) {
+      text = value;
+      frames.push(Cli.stripAnsi(value));
+    },
+    start(value) {
+      if (value !== undefined) this.text = value;
+      return this;
+    },
+    stop() {
+      stopCount += 1;
+      return this;
+    },
+    succeed(value) {
+      if (value !== undefined) this.text = value;
+      return this.stop();
+    },
+    fail(value) {
+      if (value !== undefined) this.text = value;
+      return this.stop();
+    },
+  };
+
+  return {
+    frames,
+    startWith(value: string) {
+      instance.text = value;
+      return instance;
+    },
+    stops: () => stopCount,
   };
 }
 

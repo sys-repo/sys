@@ -1,11 +1,30 @@
 import { c, Cli, Str, type t, Time } from '../common.ts';
-import { projectFailedPackages } from './u.failure.ts';
+import { type FailedPackage, projectFailedPackages } from './u.failure.ts';
+
+type TestStatsSummary = {
+  observed: number;
+  unavailable: number;
+  unsupported: number;
+  total: number;
+  tests: number;
+  failed: number;
+};
+
+type OutputExcerpt = {
+  readonly label: 'error' | 'stderr' | 'stdout';
+  readonly text: string;
+};
+
+type StringBuilder = ReturnType<typeof Str.builder>;
 
 const SUMMARY_REPEAT_MIN_PACKAGES = 11;
 const INTRO_LABEL_WIDTH = 15;
 const INTRO_MIN_WIDTH = 40;
 const INTRO_FALLBACK_WIDTH = 100;
 const INTRO_SEPARATOR = '  →  ';
+const HANDOFF_CASE_LIMIT = 3;
+const HANDOFF_FALLBACK_WIDTH = 100;
+const HANDOFF_MIN_WIDTH = 40;
 
 export const Fmt: t.WorkspaceRun.Fmt.Lib = {
   introLine(label, message, options) {
@@ -32,6 +51,10 @@ export const Fmt: t.WorkspaceRun.Fmt.Lib = {
     const lines = [`${prefix}${first.trimStart()}`];
     rest.forEach((item) => lines.push(item));
     return c.gray(lines.join('\n'));
+  },
+
+  handoff(result, options) {
+    return formatHandoff(result, options);
   },
 
   result(result) {
@@ -155,8 +178,61 @@ export function formatIntroLine(
   return Fmt.introLine(label, message, options);
 }
 
+export type FailedPackageIndexOptions = {
+  terminal?: boolean;
+  width?: number;
+};
+
+/** Format the shared minimal failed-package index used by live and compact output. */
+export function formatFailedPackageIndex(
+  failures: readonly FailedPackage[],
+  options: FailedPackageIndexOptions = {},
+): string {
+  const width = Cli.Fmt.Text.Width.fit({
+    width: options.width,
+    terminal: options.terminal,
+    fallbackWidth: HANDOFF_FALLBACK_WIDTH,
+    minWidth: HANDOFF_MIN_WIDTH,
+  });
+  return failures
+    .map((failure) => wrangle.formatFailedPackageItem(failure, width, options.terminal))
+    .join('\n\n');
+}
+
+/** Format one deterministic final run handoff. */
+function formatHandoff(
+  result: t.WorkspaceRun.Result,
+  options: t.WorkspaceRun.Fmt.HandoffOptions,
+): string {
+  const width = Cli.Fmt.Text.Width.fit({
+    width: options.width,
+    terminal: options.terminal,
+    fallbackWidth: HANDOFF_FALLBACK_WIDTH,
+    minWidth: HANDOFF_MIN_WIDTH,
+  });
+  const failures = projectFailedPackages(result);
+  const str = Str.builder();
+
+  str.line(wrangle.handoffTitle(result));
+  wrangle.appendWrapped(str, '', wrangle.handoffSummary(result), width);
+
+  if (failures.length > 0) {
+    str.line('');
+    str.line(c.red(`${failures.length} failed ${Str.plural(failures.length, 'package')}`));
+    str.line('');
+    str.line(formatFailedPackageIndex(failures, options));
+  }
+
+  const compact = Str.trimEdgeNewlines(String(str));
+  if (options.detail === 'compact') return compact;
+
+  const details = wrangle.formatFailureDetails(failures, width, options.terminal);
+  const output = formatFailedOutput(result);
+  return [compact, details, output].filter(Boolean).join('\n\n');
+}
+
 /** Format grouped buffered output for failed package tasks. */
-export function formatFailedOutput(result: t.WorkspaceRun.Result): string {
+function formatFailedOutput(result: t.WorkspaceRun.Result): string {
   const failed = projectFailedPackages(result).filter(({ package: item }) => {
     return wrangle.hasOutput(item);
   });
@@ -177,16 +253,257 @@ export function formatFailedOutput(result: t.WorkspaceRun.Result): string {
   return Str.trimEdgeNewlines(String(str));
 }
 
-type TestStatsSummary = {
-  observed: number;
-  unavailable: number;
-  unsupported: number;
-  total: number;
-  tests: number;
-  failed: number;
-};
-
 const wrangle = {
+  handoffTitle(result: t.WorkspaceRun.Result) {
+    const noun = wrangle.taskNoun(result.task);
+    const elapsed = Time.duration(result.elapsed).toString();
+    return result.ok
+      ? `${c.green('Workspace')} ${c.cyan(noun)} ${c.green(`done in ${elapsed}`)}`
+      : `${c.red('Workspace')} ${c.cyan(noun)} ${c.red(`failed in ${elapsed}`)}`;
+  },
+
+  handoffSummary(result: t.WorkspaceRun.Result) {
+    const counts = wrangle.counts(result.packages);
+    const parts: string[] = [];
+
+    if (result.ok) {
+      parts.push(`${wrangle.displayNumber(counts.ran)} ${Str.plural(counts.ran, 'package')}`);
+    } else {
+      parts.push(`${wrangle.displayNumber(counts.ran)} ran`);
+      parts.push(`${wrangle.displayNumber(counts.failed)} failed`);
+    }
+    if (counts.blocked > 0) parts.push(`${wrangle.displayNumber(counts.blocked)} blocked`);
+    if (counts.skipped > 0) parts.push(`${wrangle.displayNumber(counts.skipped)} skipped`);
+
+    const stats = wrangle.testStatsSummary(result);
+    if (stats) {
+      if (stats.observed > 0) {
+        parts.push(`${wrangle.displayNumber(stats.tests)} ${Str.plural(stats.tests, 'test')}`);
+      }
+      parts.push(
+        `${wrangle.displayNumber(stats.observed)}/${wrangle.displayNumber(stats.total)} ${
+          Str.plural(stats.total, 'report')
+        } observed`,
+      );
+      if (stats.unavailable > 0) {
+        parts.push(`${wrangle.displayNumber(stats.unavailable)} unavailable`);
+      }
+      if (stats.unsupported > 0) {
+        parts.push(`${wrangle.displayNumber(stats.unsupported)} unsupported`);
+      }
+    }
+
+    return parts.join(c.gray(' · '));
+  },
+
+  formatFailedPackageItem(
+    failure: FailedPackage,
+    width: number,
+    terminal?: boolean,
+  ) {
+    const str = Str.builder();
+    str.line(wrangle.failureHeader(failure, width, terminal));
+    wrangle.appendWrapped(
+      str,
+      `  ${c.gray('rerun:')} `,
+      c.cyan(wrangle.rerunCommand(failure)),
+      width,
+    );
+    return Str.trimEdgeNewlines(String(str));
+  },
+
+  failureHeader(
+    failure: FailedPackage,
+    width: number,
+    terminal?: boolean,
+  ) {
+    const item = failure.package;
+    const fact = wrangle.failureFact(failure);
+    const suffix = ` · ${fact}`;
+    const prefix = '✕ ';
+    const available = width > 0
+      ? width - Cli.Fmt.Text.Width.measure(prefix) - Cli.Fmt.Text.Width.measure(suffix)
+      : 0;
+    if (available >= 8 || width <= 0) {
+      const path = available >= 8
+        ? Cli.Fmt.Path.tty(item.path, {
+          fit: 'width',
+          width: available,
+          min: 8,
+          relative: 'bare',
+          terminal,
+        })
+        : item.path;
+      return `${c.red('✕')} ${c.white(path)}${c.gray(suffix)}`;
+    }
+
+    const path = Cli.Fmt.Path.tty(item.path, {
+      fit: 'width',
+      width: width - Cli.Fmt.Text.Width.measure(prefix),
+      min: 8,
+      relative: 'bare',
+      terminal,
+    });
+    const details = Cli.Fmt.Text.Wrap.text(fact, {
+      width,
+      indent: 2,
+      continuationIndent: 2,
+      preserve: 'none',
+    });
+    return `${c.red('✕')} ${c.white(path)}\n${c.gray(details)}`;
+  },
+
+  failureFact(failure: FailedPackage) {
+    const item = failure.package;
+    const stats = failure.rerun.task === 'test' ? item.testStats : undefined;
+    if (stats?.kind === 'observed') {
+      const failed = wrangle.observedFailureCount(stats);
+      if (failed > 0) {
+        const count = wrangle.displayNumber(failed);
+        return `${count} failed ${Str.plural(failed, 'test')}`;
+      }
+    }
+    return item.signal ? `signal ${item.signal}` : `exit ${item.code}`;
+  },
+
+  rerunCommand(failure: FailedPackage) {
+    return `deno task --cwd ./${failure.rerun.cwd} ${failure.rerun.task}`;
+  },
+
+  formatFailureDetails(
+    failures: readonly FailedPackage[],
+    width: number,
+    terminal?: boolean,
+  ) {
+    const str = Str.builder();
+    let hasDetails = false;
+
+    for (const failure of failures) {
+      const item = failure.package;
+      const stats = failure.rerun.task === 'test' ? item.testStats : undefined;
+      const cases = stats?.kind === 'observed' ? stats.failedCases : [];
+      const excerpt = cases.length === 0 ? wrangle.outputExcerpt(item) : undefined;
+      if (cases.length === 0 && !excerpt) continue;
+
+      if (!hasDetails) str.line(c.red('Failure details'));
+      hasDetails = true;
+      str.line('');
+      str.line(wrangle.failureDetailHeader(item.path, width, terminal));
+
+      if (cases.length > 0) {
+        const visible = cases.slice(0, HANDOFF_CASE_LIMIT);
+        visible.forEach((failedCase) => wrangle.appendFailedCase(str, failedCase, width));
+        const total = stats?.kind === 'observed'
+          ? wrangle.observedFailureCount(stats)
+          : cases.length;
+        const hidden = total - visible.length;
+        if (hidden > 0) {
+          const count = wrangle.displayNumber(hidden);
+          str.line(c.gray(`  ...and ${count} more failed ${Str.plural(hidden, 'test')}`));
+        }
+      } else if (excerpt) {
+        wrangle.appendExcerpt(str, excerpt, width);
+      }
+    }
+
+    return hasDetails ? Str.trimEdgeNewlines(String(str)) : '';
+  },
+
+  failureDetailHeader(path: t.StringPath, width: number, terminal?: boolean) {
+    const prefix = '✕ ';
+    const fitted = Cli.Fmt.Path.tty(path, {
+      fit: 'width',
+      width: width - Cli.Fmt.Text.Width.measure(prefix),
+      min: 8,
+      relative: 'bare',
+      terminal,
+    });
+    return `${c.red('✕')} ${c.white(fitted)}`;
+  },
+
+  appendFailedCase(
+    str: StringBuilder,
+    failedCase: t.WorkspaceRun.Test.Stats.FailedCase,
+    width: number,
+  ) {
+    wrangle.appendWrapped(str, `  ${c.gray('•')} `, wrangle.caseIdentity(failedCase), width);
+    const message = wrangle.firstMeaningfulLine(failedCase.message);
+    if (message) wrangle.appendWrapped(str, '    ', message, width);
+  },
+
+  caseIdentity(failedCase: t.WorkspaceRun.Test.Stats.FailedCase) {
+    const name = wrangle.firstMeaningfulLine(failedCase.name) ?? '';
+    const className = wrangle.firstMeaningfulLine(failedCase.className) ?? '';
+    if (!className) return name || `test ${failedCase.kind}`;
+    if (!name) return className;
+    if (
+      name === className ||
+      name.startsWith(`${className} `) ||
+      name.startsWith(`${className} →`)
+    ) {
+      return name;
+    }
+    return `${className} → ${name}`;
+  },
+
+  appendExcerpt(
+    str: StringBuilder,
+    excerpt: OutputExcerpt,
+    width: number,
+  ) {
+    const label = `output evidence (${excerpt.label})`;
+    const text = excerpt.text ? `${label}: ${excerpt.text}` : `${label}:`;
+    wrangle.appendWrapped(str, '  ', text, width);
+  },
+
+  outputExcerpt(item: t.WorkspaceRun.Package.Ran): OutputExcerpt | undefined {
+    const stderr = wrangle.diagnosticLines(item.stderr);
+    for (const line of stderr) {
+      const match = /^error:\s*(.*)$/i.exec(line);
+      if (match) return { label: 'error', text: match[1]?.trim() ?? '' };
+    }
+    if (stderr[0]) return { label: 'stderr', text: stderr[0] };
+
+    const stdout = wrangle.diagnosticLines(item.stdout);
+    return stdout[0] ? { label: 'stdout', text: stdout[0] } : undefined;
+  },
+
+  diagnosticLines(value?: string) {
+    return Cli.stripAnsi(value ?? '')
+      .replace(/\r\n?/g, '\n')
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean);
+  },
+
+  firstMeaningfulLine(value?: string) {
+    return wrangle.diagnosticLines(value)[0];
+  },
+
+  appendWrapped(
+    str: StringBuilder,
+    prefix: string,
+    text: string,
+    width: number,
+  ) {
+    if (width <= 0) {
+      str.line(`${prefix}${text}`);
+      return;
+    }
+
+    const indent = Cli.Fmt.Text.Width.measure(prefix);
+    const lines = Cli.Fmt.Text.Wrap.lines(text, {
+      width,
+      indent,
+      continuationIndent: indent,
+      preserve: 'none',
+    });
+    const first = lines[0];
+    if (!first) return;
+    str.line(`${prefix}${first.trimStart()}`);
+    lines.slice(1).forEach((line) => str.line(line));
+  },
+
   counts(packages: readonly t.WorkspaceRun.Package.Result[]) {
     return packages.reduce(
       (acc, item) => {
@@ -241,6 +558,10 @@ const wrangle = {
     return summary;
   },
 
+  observedFailureCount(stats: t.WorkspaceRun.Test.Stats.Observed) {
+    return Math.max(stats.failed, stats.failedCases.length);
+  },
+
   observedCount(value: number, observed: number, color?: 'red') {
     if (observed < 1) return c.gray('—');
     if (color === 'red' && value > 0) return c.red(wrangle.displayNumber(value));
@@ -280,7 +601,7 @@ const wrangle = {
     return value.toLocaleString('en-US');
   },
 
-  indentedTable(table: ReturnType<typeof Cli.table>) {
+  indentedTable(table: t.Cli.Table.Instance) {
     const lines = String(table).split('\n');
     while (lines[0]?.trim() === '') lines.shift();
     while (lines.at(-1)?.trim() === '') lines.pop();
@@ -294,7 +615,7 @@ const wrangle = {
     return Boolean(item.stdout?.trim() || item.stderr?.trim());
   },
 
-  appendOutput(str: ReturnType<typeof Str.builder>, label: 'stdout' | 'stderr', value?: string) {
+  appendOutput(str: StringBuilder, label: 'stdout' | 'stderr', value?: string) {
     const text = Str.trimEdgeNewlines(value ?? '');
     if (!text.trim()) return;
 

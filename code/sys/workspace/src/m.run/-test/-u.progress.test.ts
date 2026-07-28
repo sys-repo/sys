@@ -19,6 +19,7 @@ describe('WorkspaceRun.parallel progress model', () => {
       pending: 2,
       running: [],
       completed: [],
+      failedPackages: [],
       elapsed: 0,
     });
 
@@ -36,6 +37,7 @@ describe('WorkspaceRun.parallel progress model', () => {
       pending: 1,
       running: [{ path: 'code/a', elapsed: 500 }],
       completed: [],
+      failedPackages: [],
       elapsed: 750,
     });
 
@@ -57,6 +59,7 @@ describe('WorkspaceRun.parallel progress model', () => {
         { kind: 'passed', path: 'code/a', elapsed: 42 },
         { kind: 'skipped', path: 'code/b' },
       ],
+      failedPackages: [],
       elapsed: 750,
     });
   });
@@ -81,13 +84,34 @@ describe('WorkspaceRun.parallel progress model', () => {
       now: () => 0 as t.Msecs,
     });
 
+    const failure = ran('code/a', false, 17);
     model.event({ kind: 'start', path: 'code/a' });
-    model.event({ kind: 'finish', path: 'code/a', result: ran('code/a', false, 17) });
+    model.event({ kind: 'finish', path: 'code/a', result: failure });
 
     const snapshot = model.snapshot();
     expect(snapshot.passed).to.eql(0);
     expect(snapshot.failed).to.eql(1);
     expect(snapshot.completed).to.eql([{ kind: 'failed', path: 'code/a', elapsed: 17 }]);
+    expect(snapshot.failedPackages).to.eql([failure]);
+    expect(snapshot.failedPackages[0]).to.equal(failure);
+  });
+
+  it('retains every completed package for truthful live projection', () => {
+    const paths = Array.from({ length: 70 }, (_, index) => `code/pkg-${index + 1}`);
+    const model = createParallelProgressModel({
+      runnablePaths: paths,
+      now: () => 0 as t.Msecs,
+    });
+
+    paths.forEach((path) => {
+      model.event({ kind: 'start', path });
+      model.event({ kind: 'finish', path, result: ran(path, true, 1) });
+    });
+
+    const completed = model.snapshot().completed;
+    expect(completed).to.have.length(70);
+    expect(completed[0]?.path).to.eql('code/pkg-70');
+    expect(completed.at(-1)?.path).to.eql('code/pkg-1');
   });
 
   it('carries completed package native test stats without changing progress counts', () => {
@@ -109,6 +133,28 @@ describe('WorkspaceRun.parallel progress model', () => {
       elapsed: 17,
       testStats: stats,
     }]);
+    expect(snapshot.failedPackages[0]?.testStats).to.equal(stats);
+  });
+
+  it('retains failures in graph order while later packages complete', () => {
+    const model = createParallelProgressModel({
+      runnablePaths: ['code/a', 'code/b', 'code/c'],
+      now: () => 0 as t.Msecs,
+    });
+    const first = ran('code/a', false, 3);
+    const last = ran('code/c', false, 1);
+
+    model.event({ kind: 'start', path: 'code/c' });
+    model.event({ kind: 'finish', path: 'code/c', result: last });
+    model.event({ kind: 'start', path: 'code/b' });
+    model.event({ kind: 'finish', path: 'code/b', result: ran('code/b', true, 2) });
+    model.event({ kind: 'start', path: 'code/a' });
+    model.event({ kind: 'finish', path: 'code/a', result: first });
+
+    const failures = model.snapshot().failedPackages;
+    expect(failures.map((item) => item.path)).to.eql(['code/a', 'code/c']);
+    expect(failures[0]).to.equal(first);
+    expect(failures[1]).to.equal(last);
   });
 });
 

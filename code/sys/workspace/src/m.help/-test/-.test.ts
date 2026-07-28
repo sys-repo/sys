@@ -1,5 +1,7 @@
-import { describe, expect, expectError, it } from '../../-test.ts';
+import { describe, expect, expectError, FileMap, Fs, it } from './common.ts';
+import { json } from '../-bundle/-bundle.ts';
 import { WorkspaceHelp } from '../mod.ts';
+import { HelpResource } from '../u/u.paths.ts';
 
 describe('WorkspaceHelp', () => {
   it('loads root package help resources', async () => {
@@ -42,20 +44,64 @@ describe('WorkspaceHelp', () => {
     expect(chapter.chapters).to.eql([]);
   });
 
-  it('loads the test runner DSL chapter', async () => {
+  it('loads the test-runner ownership and handoff contracts exactly', async () => {
     const chapter = await WorkspaceHelp.Dsl.load(['test']);
 
     expect(chapter.id).to.eql('test');
     expect(chapter.path).to.eql(['test']);
+    expect(chapter.title).to.eql('Workspace Test Runner');
+    expect(chapter.summary).to.eql('Schedule tests; report truthful handoffs.');
     expect(chapter.sections.map(({ label }) => label)).to.eql([
       'Baseline',
       'Parallel control',
       'Flag boundary',
       'Scheduler truth',
-      'Output and speed',
+      'Output ownership',
+      'Failure handoff',
       'Native test telemetry',
     ]);
+
+    const scheduler = chapter.sections.find(({ label }) => label === 'Scheduler truth');
+    expect(scheduler?.items).to.eql([
+      'Parallel execution respects persisted workspace graph order and edges; it uses topological-frontier scheduling, not unordered package fan-out.',
+      'Missing package test tasks are terminal `skipped` outcomes that can unlock dependents.',
+      'Package failures remain visible in the live completed-results list and do not stop new launches; every selected package test runs through to a terminal result.',
+      'Dependency edges delay a dependent until its predecessors finish; predecessor failure does not suppress the dependent package test.',
+      'Final package rows and canonical failure selection follow graph order, not finish race order.',
+    ]);
+
+    const output = chapter.sections.find(({ label }) => label === 'Output ownership');
+    expect(output?.items).to.eql([
+      'Sequential runs inherit child stdio for package-level debugging.',
+      'Parallel workers buffer child stdout/stderr and preserve both streams on `WorkspaceRun.Result`.',
+      'The parallel reporter renders scheduler-derived progress and a minimal live failed-package rerun index; it never renders failed-case identities, messages, excerpts, or buffered child streams.',
+      "For direct parallel API calls, `reporter: 'screen' | 'log'` explicitly selects terminal behavior; omission detects whether stdout is a terminal.",
+      'The root task owns final presentation: interactive parallel runs use screen reporter mode and a compact handoff; noninteractive parallel runs use log reporter mode and a full handoff; sequential runs retain `Workspace.Run.Fmt.result(...)`.',
+    ]);
+
+    const handoff = chapter.sections.find(({ label }) => label === 'Failure handoff');
+    expect(handoff?.items).to.eql([
+      '`Workspace.Run.Fmt.handoff(result, { detail, terminal?, width? })` formats one deterministic final handoff; `detail` is `compact` or `full`.',
+      'A failed package finish immediately adds a minimal actionable item beneath the live completed-results grid, and that item persists while later packages complete.',
+      'Repair items follow persisted graph order and include failed packages only; blocked outcomes remain aggregate facts, not rerun targets.',
+      'Live and compact items contain exactly the package path, a positive observed failed-test count or process signal/exit fact, and the exact package-local rerun command.',
+      'Failed-case identities, messages, ANSI-free output excerpts, stdout, and stderr are full/log-only diagnostic evidence and never appear in live or compact output.',
+      'Observed failure counts without case records remain counts; unsupported or unavailable reports fall back to process signal or exit without invented test facts.',
+      'Width fitting may wrap the rerun command, but it must never truncate or rewrite `deno task --cwd ./<package-path> <task>`.',
+      'Full detail preserves the same minimal repair index, then adds bounded structured cases or conservative output evidence and every nonempty buffered stdout/stderr stream from failed packages.',
+    ]);
     expect(chapter.chapters).to.eql([]);
+  });
+
+  it('keeps authored help resources byte-identical to the embedded bundle', async () => {
+    expect(Object.keys(json)).to.eql([...HelpResource.Source.Files].sort());
+
+    const root = Fs.resolve(import.meta.dirname ?? '.', '..');
+    for (const file of HelpResource.Source.Files) {
+      const source = await Fs.readText(Fs.join(root, file));
+      if (!source.ok) throw source.error;
+      expect(FileMap.Data.decode(json[file])).to.eql(source.data);
+    }
   });
 
   it('reports unknown DSL chapter paths clearly', async () => {

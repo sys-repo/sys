@@ -1,4 +1,4 @@
-import { type t, Time } from '../common.ts';
+import { Num, type t, Time } from '../common.ts';
 import type { ParallelRunEvent } from '../u.run/mod.ts';
 
 export type ParallelProgressModel = {
@@ -9,8 +9,8 @@ export type ParallelProgressModel = {
 };
 
 export type ParallelProgressModelArgs = {
-  readonly runnablePaths: readonly t.StringPath[];
-  readonly now?: () => t.Msecs;
+  runnablePaths: readonly t.StringPath[];
+  now?: () => t.Msecs;
 };
 
 export type ParallelProgressSnapshot = {
@@ -23,6 +23,8 @@ export type ParallelProgressSnapshot = {
   readonly pending: number;
   readonly running: readonly ParallelProgressRunning[];
   readonly completed: readonly ParallelProgressCompleted[];
+  /** Original failed package results retained in workspace graph order. */
+  readonly failedPackages: readonly t.WorkspaceRun.Package.Ran[];
   readonly elapsed: t.Msecs;
 };
 
@@ -45,11 +47,13 @@ type Running = {
 
 type ProgressState = {
   readonly runnablePaths: Set<t.StringPath>;
+  readonly runnableOrder: Map<t.StringPath, number>;
   readonly runnableTotal: number;
   readonly startedAt: t.Msecs;
   readonly now: () => t.Msecs;
   readonly running: Map<t.StringPath, Running>;
   completed: ParallelProgressCompleted[];
+  failedPackages: t.WorkspaceRun.Package.Ran[];
   pending: number;
   passed: number;
   skipped: number;
@@ -63,14 +67,17 @@ export function createParallelProgressModel(
   args: ParallelProgressModelArgs,
 ): ParallelProgressModel {
   const runnablePaths = new Set(args.runnablePaths);
+  const runnableOrder = new Map(args.runnablePaths.map((path, index) => [path, index]));
   const now = args.now ?? (() => Time.now.timestamp);
   const state: ProgressState = {
     runnablePaths,
+    runnableOrder,
     runnableTotal: runnablePaths.size,
     startedAt: now(),
     now,
     running: new Map(),
     completed: [],
+    failedPackages: [],
     pending: runnablePaths.size,
     passed: 0,
     skipped: 0,
@@ -108,8 +115,15 @@ const wrangle = {
 
       case 'finish': {
         state.running.delete(event.path);
-        if (event.result.success) state.passed += 1;
-        else state.failed += 1;
+        if (event.result.success) {
+          state.passed += 1;
+        } else {
+          state.failed += 1;
+          state.failedPackages = wrangle.sortFailedPackages(state, [
+            ...state.failedPackages,
+            event.result,
+          ]);
+        }
         wrangle.addCompleted(state, {
           kind: event.result.success ? 'passed' : 'failed',
           path: event.path,
@@ -151,8 +165,20 @@ const wrangle = {
       pending: state.pending,
       running,
       completed: [...state.completed],
+      failedPackages: [...state.failedPackages],
       elapsed: now - state.startedAt,
     };
+  },
+
+  sortFailedPackages(
+    state: ProgressState,
+    packages: readonly t.WorkspaceRun.Package.Ran[],
+  ) {
+    return [...packages].sort((a, b) => {
+      const aIndex = state.runnableOrder.get(a.path) ?? Num.MAX_INT;
+      const bIndex = state.runnableOrder.get(b.path) ?? Num.MAX_INT;
+      return aIndex - bIndex;
+    });
   },
 
   isRunnable(state: ProgressState, path: t.StringPath) {
@@ -160,7 +186,7 @@ const wrangle = {
   },
 
   addCompleted(state: ProgressState, item: ParallelProgressCompleted) {
-    state.completed = [item, ...state.completed].slice(0, 64);
+    state.completed = [item, ...state.completed];
   },
 
   decrement(value: number) {

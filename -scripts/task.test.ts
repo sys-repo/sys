@@ -1,21 +1,57 @@
 import { Workspace } from '@sys/workspace';
 import { CompletionHang } from '@sys/workspace/run';
-import { Args, Is, Str } from './common.ts';
+import { Args, Cli, Is, Str } from './common.ts';
 
-type HelpArgs = {
-  readonly help?: boolean | readonly boolean[];
+type TestPresentation =
+  | { readonly mode: 'sequential' }
+  | {
+    readonly mode: 'parallel-screen';
+    readonly reporter: 'screen';
+    readonly detail: 'compact';
+    readonly terminal: true;
+  }
+  | {
+    readonly mode: 'parallel-log';
+    readonly reporter: 'log';
+    readonly detail: 'full';
+    readonly terminal: false;
+  };
+
+type MainArgs = {
+  argv?: readonly string[];
+  interactive?: boolean;
 };
 
-export async function main() {
-  if (wantsHelp(Deno.args)) {
+type HelpArgs = {
+  help?: boolean | readonly boolean[];
+};
+
+export async function main(input: MainArgs = {}) {
+  const argv = input.argv ?? Deno.args;
+  if (wantsHelp(argv)) {
     console.info(help());
     return;
   }
 
-  const args = Workspace.Run.Args.test(defaultTestArgs(Deno.args));
+  const parsed = Workspace.Run.Args.test(defaultTestArgs(argv));
+  const strategy = parsed.strategy?.kind ?? 'sequential';
+  const presentation = resolveTestPresentation(
+    strategy,
+    input.interactive ?? Cli.Is.interactive(),
+  );
+  const args = presentation.mode === 'sequential'
+    ? parsed
+    : { ...parsed, reporter: presentation.reporter };
   const result = await Workspace.Run.test(args);
+  const output = presentation.mode === 'sequential'
+    ? Workspace.Run.Fmt.result(result)
+    : Workspace.Run.Fmt.handoff(result, {
+      detail: presentation.detail,
+      terminal: presentation.terminal,
+    });
+
   console.info();
-  console.info(Workspace.Run.Fmt.result(result));
+  console.info(output);
   console.info();
   Deno.exitCode = result.ok ? 0 : 1;
   CompletionHang.armWarning({ result, strategy: args.strategy });
@@ -43,18 +79,38 @@ function help() {
       deno task test:seq
 
     Options:
-      --parallel=false  run the serial package test runner
+      --parallel=false  run the sequential package test runner
       --jobs=auto       use the bounded automatic worker count
       --jobs=<n>        run at most n package tests at once
       -h, --help        show this help
 
     Notes:
-      deno task test defaults to the topo-safe parallel scheduler.
+      deno task test defaults to the topology-safe parallel scheduler.
       deno task test:parallel is the explicit parallel alias.
-      deno task test:seq preserves the serial baseline.
+      deno task test:seq preserves the sequential baseline.
       @sys/workspace flags live after -- and are distinct from Deno task flags.
       For runner DSL guidance: deno run -ER jsr:@sys/workspace dsl test
   `);
+}
+
+export function resolveTestPresentation(
+  strategy: 'parallel' | 'sequential',
+  interactive: boolean,
+): TestPresentation {
+  if (strategy === 'sequential') return { mode: 'sequential' };
+  return interactive
+    ? {
+      mode: 'parallel-screen',
+      reporter: 'screen',
+      detail: 'compact',
+      terminal: true,
+    }
+    : {
+      mode: 'parallel-log',
+      reporter: 'log',
+      detail: 'full',
+      terminal: false,
+    };
 }
 
 export function defaultTestArgs(argv: readonly string[]) {

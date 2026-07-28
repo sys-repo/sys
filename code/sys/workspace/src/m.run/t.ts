@@ -21,13 +21,13 @@ export declare namespace WorkspaceRun {
   /** Shared arguments for one workspace task run. */
   export type Args = {
     /** Working directory for workspace discovery and task execution. */
-    readonly cwd?: t.StringDir;
+    cwd?: t.StringDir;
     /** Optional pre-resolved persisted workspace graph. */
-    readonly graph?: t.WorkspaceGraph.PersistedGraph;
+    graph?: t.WorkspaceGraph.PersistedGraph;
     /** Force rebuilding the workspace graph instead of reading the cached snapshot first. */
-    readonly rebuildGraph?: boolean;
+    rebuildGraph?: boolean;
     /** Optional package filter applied in graph order before task execution. */
-    readonly filter?: Filter.Predicate;
+    filter?: Filter.Predicate;
   };
 
   /** Typed argument helper contracts for workspace task runners. */
@@ -43,7 +43,9 @@ export declare namespace WorkspaceRun {
     /** Arguments for the canonical workspace test runner. */
     export type Args = WorkspaceRun.Args & {
       /** Optional execution strategy. Defaults to the baseline sequential runner. */
-      readonly strategy?: Strategy;
+      strategy?: Strategy;
+      /** Parallel progress reporter mode. Omission preserves stdout-terminal auto-detection. */
+      reporter?: 'screen' | 'log';
     };
 
     /** Workspace package execution strategy for test runs. */
@@ -130,14 +132,14 @@ export declare namespace WorkspaceRun {
     export namespace Strategy {
       /** Baseline graph-order runner with inherited child stdio and immediate fail-fast. */
       export type Sequential = {
-        readonly kind: 'sequential';
+        kind: 'sequential';
       };
 
       /** Topology-safe parallel test runner. */
       export type Parallel = {
-        readonly kind: 'parallel';
+        kind: 'parallel';
         /** Maximum number of package tasks to run at once. */
-        readonly jobs?: Jobs;
+        jobs?: Jobs;
       };
 
       /** Concrete parallel worker bound or the default hardware-aware heuristic. */
@@ -229,18 +231,30 @@ export declare namespace WorkspaceRun {
     export type Lib = {
       /** Format one aligned, width-safe runner intro line. */
       introLine(label: string, message: string, options?: IntroLineOptions): string;
+      /** Format a compact or full final handoff for one completed run. */
+      handoff(result: Result, options: HandoffOptions): string;
       /** Format the overall run summary and package rows for console output. */
       result(result: Result): string;
       /** Format package-level rows only for console output. */
       packages(result: Result): string;
     };
 
+    /** Required diagnostic detail and deterministic terminal seams for a final handoff. */
+    export type HandoffOptions = {
+      /** Minimal repair items or full failed-package diagnostic evidence and streams. */
+      detail: 'compact' | 'full';
+      /** Terminal-output override used for width and path presentation. */
+      terminal?: boolean;
+      /** Explicit output width. Defaults to terminal width or a deterministic fallback. */
+      width?: number;
+    };
+
     /** Width options for aligned runner intro lines. */
     export type IntroLineOptions = {
       /** Explicit output width. Defaults to the terminal width when available. */
-      readonly width?: number;
+      width?: number;
       /** Whether terminal width should be measured from stdout. */
-      readonly terminal?: boolean;
+      terminal?: boolean;
     };
   }
 }
@@ -260,35 +274,35 @@ export declare namespace CompletionHang {
   /** Input for arming a post-completion hang warning. */
   export type ArmInput = FormatInput & {
     /** Output sink for the warning. Defaults to `console.info`. */
-    readonly write?: (text: string) => void;
+    write?: (text: string) => void;
     /** Timer dependencies for tests and runtime adaptation. */
-    readonly deps?: Deps;
+    deps?: Deps;
   };
 
   /** Input for formatting a post-completion hang warning. */
   export type FormatInput = {
     /** Completed workspace run result. */
-    readonly result: WorkspaceRun.Result;
+    result: WorkspaceRun.Result;
     /** Run strategy context when known by the process-owning caller. */
-    readonly strategy?: StrategyContext;
+    strategy?: StrategyContext;
     /** Delay before the warning is emitted. */
-    readonly delay?: t.Msecs;
+    delay?: t.Msecs;
     /** Optional package identity context keyed by workspace path. */
-    readonly packages?: readonly PackageContext[];
+    packages?: readonly PackageContext[];
     /** Maximum number of package rows to include. */
-    readonly contextLimit?: number;
+    contextLimit?: number;
   };
 
   /** Strategy context rendered in the warning. */
   export type StrategyContext = WorkspaceRun.Test.Strategy | {
-    readonly kind: 'parallel';
-    readonly jobs: number;
+    kind: 'parallel';
+    jobs: number;
   };
 
   /** Optional package identity context for warning rows. */
   export type PackageContext = {
-    readonly path: t.StringPath;
-    readonly name?: string;
+    path: t.StringPath;
+    name?: string;
   };
 
   /** Armed warning handle. */
@@ -300,10 +314,10 @@ export declare namespace CompletionHang {
   /** Timer dependencies used by the warning arm. */
   export type Deps = {
     /** Schedule the one-shot warning callback. */
-    readonly setTimeout: (fn: () => void, delay: number) => number;
+    setTimeout: (fn: () => void, delay: number) => number;
     /** Clear a scheduled warning callback. */
-    readonly clearTimeout: (id: number) => void;
+    clearTimeout: (id: number) => void;
     /** Release the timer from process-liveness retention. */
-    readonly unrefTimer: (id: number) => void;
+    unrefTimer: (id: number) => void;
   };
 }
