@@ -29,19 +29,20 @@ export type ParallelProgressSnapshot = {
 };
 
 export type ParallelProgressRunning = {
+  readonly name?: t.StringPkgName;
   readonly path: t.StringPath;
   readonly elapsed: t.Msecs;
 };
 
 export type ParallelProgressCompleted = {
+  readonly name?: t.StringPkgName;
   readonly path: t.StringPath;
   readonly kind: 'passed' | 'failed' | 'skipped' | 'blocked';
   readonly elapsed?: t.Msecs;
   readonly testStats?: t.WorkspaceRun.Test.Stats.Result;
 };
 
-type Running = {
-  readonly path: t.StringPath;
+type Running = t.WorkspaceRun.Package.Identity & {
   readonly startedAt: t.Msecs;
 };
 
@@ -103,43 +104,54 @@ const wrangle = {
     switch (event.kind) {
       case 'start': {
         if (wrangle.isRunnable(state, event.path)) state.pending = wrangle.decrement(state.pending);
-        state.running.set(event.path, { path: event.path, startedAt: state.now() });
+        state.running.set(event.path, {
+          ...wrangle.projectIdentity(event),
+          startedAt: state.now(),
+        });
         return;
       }
 
       case 'skip': {
         state.skipped += 1;
-        wrangle.addCompleted(state, { kind: 'skipped', path: event.path });
+        wrangle.addCompleted(state, {
+          ...wrangle.projectIdentity(event.result),
+          kind: 'skipped',
+        });
         return;
       }
 
       case 'finish': {
-        state.running.delete(event.path);
-        if (event.result.success) {
+        const { result } = event;
+        state.running.delete(result.path);
+        if (result.success) {
           state.passed += 1;
         } else {
           state.failed += 1;
           state.failedPackages = wrangle.sortFailedPackages(state, [
             ...state.failedPackages,
-            event.result,
+            result,
           ]);
         }
         wrangle.addCompleted(state, {
-          kind: event.result.success ? 'passed' : 'failed',
-          path: event.path,
-          elapsed: event.result.elapsed,
-          ...(event.result.testStats ? { testStats: event.result.testStats } : {}),
+          ...wrangle.projectIdentity(result),
+          kind: result.success ? 'passed' : 'failed',
+          elapsed: result.elapsed,
+          ...(result.testStats ? { testStats: result.testStats } : {}),
         });
         return;
       }
 
       case 'block': {
+        const { result } = event;
         state.blocked += 1;
-        if (wrangle.isRunnable(state, event.path)) {
+        if (wrangle.isRunnable(state, result.path)) {
           state.pending = wrangle.decrement(state.pending);
           state.blockedRunnable += 1;
         }
-        wrangle.addCompleted(state, { kind: 'blocked', path: event.path });
+        wrangle.addCompleted(state, {
+          ...wrangle.projectIdentity(result),
+          kind: 'blocked',
+        });
         return;
       }
 
@@ -152,7 +164,11 @@ const wrangle = {
     const now = state.now();
     const running: ParallelProgressRunning[] = [];
     for (const item of state.running.values()) {
-      running.push({ path: item.path, elapsed: now - item.startedAt });
+      running.push({
+        name: item.name,
+        path: item.path,
+        elapsed: now - item.startedAt,
+      });
     }
 
     return {
@@ -179,6 +195,10 @@ const wrangle = {
       const bIndex = state.runnableOrder.get(b.path) ?? Num.MAX_INT;
       return aIndex - bIndex;
     });
+  },
+
+  projectIdentity(item: t.WorkspaceRun.Package.Identity): t.WorkspaceRun.Package.Identity {
+    return { name: item.name, path: item.path };
   },
 
   isRunnable(state: ProgressState, path: t.StringPath) {

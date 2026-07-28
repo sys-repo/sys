@@ -1,5 +1,6 @@
 import { describe, expect, it, type t } from '../../-test.ts';
 import { createParallelProgressModel } from '../u/u.progress.ts';
+import type { ParallelRunEvent } from '../u.run/mod.ts';
 
 describe('WorkspaceRun.parallel progress model', () => {
   it('tracks package progress snapshots from scheduler events', () => {
@@ -24,7 +25,7 @@ describe('WorkspaceRun.parallel progress model', () => {
     });
 
     now = 1_250 as t.Msecs;
-    model.event({ kind: 'start', path: 'code/a' });
+    model.event(started('code/a'));
     now = 1_750 as t.Msecs;
 
     expect(model.snapshot()).to.eql({
@@ -35,15 +36,15 @@ describe('WorkspaceRun.parallel progress model', () => {
       blockedRunnable: 0,
       failed: 0,
       pending: 1,
-      running: [{ path: 'code/a', elapsed: 500 }],
+      running: [{ name: 'code/a', path: 'code/a', elapsed: 500 }],
       completed: [],
       failedPackages: [],
       elapsed: 750,
     });
 
-    model.event({ kind: 'skip', path: 'code/b', result: skipped('code/b') });
-    model.event({ kind: 'finish', path: 'code/a', result: ran('code/a', true, 42) });
-    model.event({ kind: 'block', path: 'code/c', result: blocked('code/c') });
+    model.event({ kind: 'skip', result: skipped('code/b') });
+    model.event({ kind: 'finish', result: ran('code/a', true, 42) });
+    model.event({ kind: 'block', result: blocked('code/c') });
 
     expect(model.snapshot()).to.eql({
       runnableTotal: 2,
@@ -55,13 +56,38 @@ describe('WorkspaceRun.parallel progress model', () => {
       pending: 0,
       running: [],
       completed: [
-        { kind: 'blocked', path: 'code/c' },
-        { kind: 'passed', path: 'code/a', elapsed: 42 },
-        { kind: 'skipped', path: 'code/b' },
+        { kind: 'blocked', name: 'code/c', path: 'code/c' },
+        { kind: 'passed', name: 'code/a', path: 'code/a', elapsed: 42 },
+        { kind: 'skipped', name: 'code/b', path: 'code/b' },
       ],
       failedPackages: [],
       elapsed: 750,
     });
+  });
+
+  it('projects manifest names while retaining workspace paths', () => {
+    const model = createParallelProgressModel({
+      runnablePaths: ['code/sys/std'],
+      now: () => 0 as t.Msecs,
+    });
+
+    model.event(started('code/sys/std', '@sys/std'));
+    expect(model.snapshot().running).to.eql([{
+      name: '@sys/std',
+      path: 'code/sys/std',
+      elapsed: 0,
+    }]);
+
+    model.event({
+      kind: 'finish',
+      result: ran('code/sys/std', true, 1, undefined, '@sys/std'),
+    });
+    expect(model.snapshot().completed).to.eql([{
+      kind: 'passed',
+      name: '@sys/std',
+      path: 'code/sys/std',
+      elapsed: 1,
+    }]);
   });
 
   it('keeps skipped packages separate from runnable package totals', () => {
@@ -70,7 +96,7 @@ describe('WorkspaceRun.parallel progress model', () => {
       now: () => 0 as t.Msecs,
     });
 
-    model.event({ kind: 'skip', path: 'code/b', result: skipped('code/b') });
+    model.event({ kind: 'skip', result: skipped('code/b') });
 
     const snapshot = model.snapshot();
     expect(snapshot.runnableTotal).to.eql(1);
@@ -85,13 +111,18 @@ describe('WorkspaceRun.parallel progress model', () => {
     });
 
     const failure = ran('code/a', false, 17);
-    model.event({ kind: 'start', path: 'code/a' });
-    model.event({ kind: 'finish', path: 'code/a', result: failure });
+    model.event(started('code/a'));
+    model.event({ kind: 'finish', result: failure });
 
     const snapshot = model.snapshot();
     expect(snapshot.passed).to.eql(0);
     expect(snapshot.failed).to.eql(1);
-    expect(snapshot.completed).to.eql([{ kind: 'failed', path: 'code/a', elapsed: 17 }]);
+    expect(snapshot.completed).to.eql([{
+      kind: 'failed',
+      name: 'code/a',
+      path: 'code/a',
+      elapsed: 17,
+    }]);
     expect(snapshot.failedPackages).to.eql([failure]);
     expect(snapshot.failedPackages[0]).to.equal(failure);
   });
@@ -103,12 +134,12 @@ describe('WorkspaceRun.parallel progress model', () => {
     });
     const failure = ran('code/c', false, 3);
 
-    model.event({ kind: 'skip', path: 'code/d', result: skipped('code/d') });
-    model.event({ kind: 'start', path: 'code/c' });
-    model.event({ kind: 'finish', path: 'code/c', result: failure });
-    model.event({ kind: 'start', path: 'code/b' });
-    model.event({ kind: 'finish', path: 'code/b', result: ran('code/b', true, 2) });
-    model.event({ kind: 'block', path: 'code/a', result: blocked('code/a') });
+    model.event({ kind: 'skip', result: skipped('code/d') });
+    model.event(started('code/c'));
+    model.event({ kind: 'finish', result: failure });
+    model.event(started('code/b'));
+    model.event({ kind: 'finish', result: ran('code/b', true, 2) });
+    model.event({ kind: 'block', result: blocked('code/a') });
 
     const first = model.snapshot();
     const repeated = model.snapshot();
@@ -130,8 +161,8 @@ describe('WorkspaceRun.parallel progress model', () => {
     });
 
     paths.forEach((path) => {
-      model.event({ kind: 'start', path });
-      model.event({ kind: 'finish', path, result: ran(path, true, 1) });
+      model.event(started(path));
+      model.event({ kind: 'finish', result: ran(path, true, 1) });
     });
 
     const completed = model.snapshot().completed;
@@ -147,14 +178,15 @@ describe('WorkspaceRun.parallel progress model', () => {
     });
     const stats = observedStats(3, 1);
 
-    model.event({ kind: 'start', path: 'code/a' });
-    model.event({ kind: 'finish', path: 'code/a', result: ran('code/a', false, 17, stats) });
+    model.event(started('code/a'));
+    model.event({ kind: 'finish', result: ran('code/a', false, 17, stats) });
 
     const snapshot = model.snapshot();
     expect(snapshot.passed).to.eql(0);
     expect(snapshot.failed).to.eql(1);
     expect(snapshot.completed).to.eql([{
       kind: 'failed',
+      name: 'code/a',
       path: 'code/a',
       elapsed: 17,
       testStats: stats,
@@ -170,12 +202,12 @@ describe('WorkspaceRun.parallel progress model', () => {
     const first = ran('code/a', false, 3);
     const last = ran('code/c', false, 1);
 
-    model.event({ kind: 'start', path: 'code/c' });
-    model.event({ kind: 'finish', path: 'code/c', result: last });
-    model.event({ kind: 'start', path: 'code/b' });
-    model.event({ kind: 'finish', path: 'code/b', result: ran('code/b', true, 2) });
-    model.event({ kind: 'start', path: 'code/a' });
-    model.event({ kind: 'finish', path: 'code/a', result: first });
+    model.event(started('code/c'));
+    model.event({ kind: 'finish', result: last });
+    model.event(started('code/b'));
+    model.event({ kind: 'finish', result: ran('code/b', true, 2) });
+    model.event(started('code/a'));
+    model.event({ kind: 'finish', result: first });
 
     const failures = model.snapshot().failedPackages;
     expect(failures.map((item) => item.path)).to.eql(['code/a', 'code/c']);
@@ -187,14 +219,20 @@ describe('WorkspaceRun.parallel progress model', () => {
 /**
  * Helpers:
  */
+function started(path: t.StringPath, name: t.StringPkgName = path): ParallelRunEvent {
+  return { kind: 'start', name, path };
+}
+
 function ran(
   path: string,
   success: boolean,
   elapsed: number,
   testStats?: t.WorkspaceRun.Test.Stats.Result,
+  name: t.StringPkgName = path,
 ): t.WorkspaceRun.Package.Ran {
   return {
     kind: 'ran',
+    name,
     path,
     code: success ? 0 : 1,
     success,
@@ -220,9 +258,9 @@ function observedStats(tests: number, failed: number): t.WorkspaceRun.Test.Stats
 }
 
 function skipped(path: string): t.WorkspaceRun.Package.Skipped {
-  return { kind: 'skipped', path, reason: 'task:missing' };
+  return { kind: 'skipped', name: path, path, reason: 'task:missing' };
 }
 
 function blocked(path: string): t.WorkspaceRun.Package.Blocked {
-  return { kind: 'blocked', path, reason: 'fail-fast' };
+  return { kind: 'blocked', name: path, path, reason: 'fail-fast' };
 }

@@ -1,14 +1,14 @@
 import { Arr, Obj, Str, type t, Time } from '../common.ts';
-import type { RunPlan } from '../u/u.plan.ts';
+import { runCandidateIdentity, type RunPlan } from '../u/u.plan.ts';
 import { resolveCommand, runPackage } from '../u/u.worker.ts';
 import type { NativeTestStatsRun } from '../u.testStats/mod.ts';
 
 export type SequentialRunArgs = {
-  readonly cwd: t.StringDir;
-  readonly task: t.WorkspaceRun.Task;
-  readonly plan: RunPlan;
-  readonly startedAt: t.Msecs;
-  readonly testStats?: NativeTestStatsRun;
+  cwd: t.StringDir;
+  task: t.WorkspaceRun.Task;
+  plan: RunPlan;
+  startedAt: t.Msecs;
+  testStats?: NativeTestStatsRun;
 };
 
 /**
@@ -24,7 +24,11 @@ export async function runSequential(args: SequentialRunArgs): Promise<t.Workspac
   for (const candidate of plan.candidates) {
     const command = resolveCommand(candidate.deno, task);
     if (!command) {
-      packages.push({ kind: 'skipped', path: candidate.dir, reason: 'task:missing' });
+      packages.push({
+        ...runCandidateIdentity(candidate),
+        kind: 'skipped',
+        reason: 'task:missing',
+      });
       continue;
     }
 
@@ -32,17 +36,19 @@ export async function runSequential(args: SequentialRunArgs): Promise<t.Workspac
       workspace ${task} → ${candidate.dir}
     `));
 
-    const ran = await runPackage({
-      cwd,
-      task,
-      candidate,
-      command,
-      stdio: 'inherit',
-      testStats: args.testStats,
-    });
+    const result = Obj.clone(
+      await runPackage({
+        cwd,
+        task,
+        candidate,
+        command,
+        stdio: 'inherit',
+        testStats: args.testStats,
+      }),
+    );
 
-    packages.push(Obj.clone(ran));
-    if (!ran.success) {
+    packages.push(result);
+    if (!result.success) {
       const elapsed = Time.now.timestamp - startedAt;
       return {
         ok: false,
@@ -51,7 +57,7 @@ export async function runSequential(args: SequentialRunArgs): Promise<t.Workspac
         elapsed,
         orderedPaths: plan.orderedPaths,
         packages,
-        failure: ran,
+        failure: result,
       };
     }
   }

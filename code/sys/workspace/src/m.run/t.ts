@@ -53,16 +53,16 @@ export declare namespace WorkspaceRun {
       /** Explicit parallel reporter mode. */
       export type Mode = 'screen' | 'log';
 
-      /** Screen reporter input with a final persisted-frame receipt. */
+      /** Screen reporter input with final scrollback visibility. */
       export type Screen = {
         mode: 'screen';
         onComplete(completion: ScreenCompletion): void;
       };
 
-      /** Truth retained from the final frame persisted by the screen reporter. */
+      /** Failed-action visibility after final screen output enters scrollback. */
       export type ScreenCompletion = {
         readonly failedPackages: {
-          /** Graph-ordered failed-package actions visible in the persisted frame. */
+          /** Graph-ordered failed-package actions visible in final scrollback. */
           readonly visible: number;
           /** Total failed-package actions retained by the reporter. */
           readonly total: number;
@@ -190,10 +190,17 @@ export declare namespace WorkspaceRun {
 
   /** Package-level outcomes during one workspace task run. */
   export namespace Package {
-    /** Successful package task execution. */
-    export type Ran = {
-      readonly kind: 'ran';
+    /** Canonical identity retained for one selected workspace package. */
+    export type Identity = {
+      /** Canonical package name loaded from `deno.json`. */
+      readonly name: t.StringPkgName;
+      /** Workspace-relative package directory. */
       readonly path: t.StringPath;
+    };
+
+    /** Completed package task execution. */
+    export type Ran = Identity & {
+      readonly kind: 'ran';
       readonly code: number;
       readonly success: boolean;
       readonly signal: Deno.Signal | null;
@@ -207,16 +214,14 @@ export declare namespace WorkspaceRun {
     };
 
     /** Package skipped because the canonical task is not declared. */
-    export type Skipped = {
+    export type Skipped = Identity & {
       readonly kind: 'skipped';
-      readonly path: t.StringPath;
       readonly reason: 'task:missing';
     };
 
     /** Package blocked before launch because fail-fast stopped the frontier. */
-    export type Blocked = {
+    export type Blocked = Identity & {
       readonly kind: 'blocked';
-      readonly path: t.StringPath;
       readonly reason: 'dependency:failed' | 'fail-fast';
     };
 
@@ -311,8 +316,6 @@ export declare namespace CompletionHang {
     strategy?: StrategyContext;
     /** Delay before the warning is emitted. */
     delay?: t.Msecs;
-    /** Optional package identity context keyed by workspace path. */
-    packages?: readonly PackageContext[];
     /** Maximum number of package rows to include. */
     contextLimit?: number;
   };
@@ -321,12 +324,6 @@ export declare namespace CompletionHang {
   export type StrategyContext = WorkspaceRun.Test.Strategy | {
     kind: 'parallel';
     jobs: number;
-  };
-
-  /** Optional package identity context for warning rows. */
-  export type PackageContext = {
-    path: t.StringPath;
-    name?: string;
   };
 
   /** Armed warning handle. */

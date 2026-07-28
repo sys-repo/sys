@@ -1,5 +1,5 @@
 import { Fs, Is, Num, Obj, Process, type t, Time } from '../common.ts';
-import type { RunCandidate } from './u.plan.ts';
+import { type RunCandidate, runCandidateIdentity } from './u.plan.ts';
 import type { NativeTestStatsRun, PreparedNativeTestStats } from '../u.testStats/mod.ts';
 
 export type PackageCommand = {
@@ -8,11 +8,11 @@ export type PackageCommand = {
 };
 
 export type PackageWorkerArgs = {
-  readonly cwd: t.StringDir;
-  readonly task: t.WorkspaceRun.Task;
-  readonly candidate: RunCandidate;
-  readonly command: PackageCommand;
-  readonly testStats?: NativeTestStatsRun;
+  cwd: t.StringDir;
+  task: t.WorkspaceRun.Task;
+  candidate: RunCandidate;
+  command: PackageCommand;
+  testStats?: NativeTestStatsRun;
 };
 
 export type PackageWorker = (
@@ -20,7 +20,7 @@ export type PackageWorker = (
 ) => Promise<t.WorkspaceRun.Package.Ran>;
 
 export type PackageRunArgs = PackageWorkerArgs & {
-  readonly stdio: 'buffered' | 'inherit';
+  stdio: 'buffered' | 'inherit';
 };
 
 /** Resolve the command used for one package task, preserving dry-run fallback semantics. */
@@ -55,8 +55,8 @@ export async function runPackage(args: PackageRunArgs): Promise<t.WorkspaceRun.P
   if (args.stdio === 'inherit') {
     const output = await Process.inherit(command);
     return await wrangle.withStats(stats, {
+      ...runCandidateIdentity(args.candidate),
       kind: 'ran',
-      path: args.candidate.dir,
       code: output.code,
       success: output.success,
       signal: output.signal,
@@ -66,8 +66,8 @@ export async function runPackage(args: PackageRunArgs): Promise<t.WorkspaceRun.P
 
   const output = await Process.invoke({ ...command, silent: true });
   return await wrangle.withStats(stats, {
+    ...runCandidateIdentity(args.candidate),
     kind: 'ran',
-    path: args.candidate.dir,
     code: output.code,
     success: output.success,
     signal: output.signal,

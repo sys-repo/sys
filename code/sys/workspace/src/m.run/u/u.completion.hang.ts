@@ -1,4 +1,4 @@
-import { c, Str, Time, type t } from '../common.ts';
+import { c, Str, type t, Time } from '../common.ts';
 
 const DEFAULT_DELAY = 2_000 as t.Msecs;
 const DEFAULT_CONTEXT_LIMIT = 3;
@@ -28,7 +28,9 @@ export const CompletionHang: t.CompletionHang.Lib = {
   formatWarning(input) {
     const delay = input.delay ?? DEFAULT_DELAY;
     const body = wrangle.muted(
-      `workspace ${input.result.task} completed, but the parent process appears to be hanging after ${wrangle.duration(delay)}`,
+      `workspace ${input.result.task} completed, but the parent process appears to be hanging after ${
+        wrangle.duration(delay)
+      }`,
     );
     const details = wrangle.detailLines(input).join('\n');
 
@@ -80,23 +82,17 @@ const wrangle = {
   },
 
   contextRows(input: t.CompletionHang.FormatInput) {
-    const packages = wrangle.packageNames(input.packages ?? []);
     const limit = input.contextLimit ?? DEFAULT_CONTEXT_LIMIT;
     return input.result.packages
       .filter((item): item is t.WorkspaceRun.Package.Ran => item.kind === 'ran')
       .toSorted((a, b) => b.elapsed - a.elapsed)
       .slice(0, limit)
-      .map((item) => wrangle.packageRow(item, packages));
+      .map(wrangle.packageRow);
   },
 
-  packageNames(packages: readonly t.CompletionHang.PackageContext[]) {
-    return new Map(packages.map((item) => [item.path, item.name] as const));
-  },
-
-  packageRow(item: t.WorkspaceRun.Package.Ran, packages: Map<t.StringPath, string | undefined>) {
-    const name = packages.get(item.path);
+  packageRow(item: t.WorkspaceRun.Package.Ran) {
     const elapsed = Time.duration(item.elapsed).toString();
-    return name ? `${name} - ${item.path}, ${elapsed}` : `${item.path}, ${elapsed}`;
+    return `${item.name} - ${item.path}, ${elapsed}`;
   },
 
   duration(delay: t.Msecs) {

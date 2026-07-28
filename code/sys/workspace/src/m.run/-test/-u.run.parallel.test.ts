@@ -6,7 +6,6 @@ import type { PackageWorker } from '../u/u.worker.ts';
 type Deferred = {
   readonly promise: Promise<void>;
   readonly resolve: () => void;
-  readonly reject: (error?: unknown) => void;
 };
 
 describe('WorkspaceRun.parallel scheduler', () => {
@@ -76,9 +75,9 @@ describe('WorkspaceRun.parallel scheduler', () => {
 
   it('treats skipped dependencies as terminal outcomes that unlock dependents', async () => {
     const starts: string[] = [];
-    const worker: PackageWorker = async ({ candidate }) => {
+    const worker: PackageWorker = ({ candidate }) => {
       starts.push(candidate.dir);
-      return ran(candidate.dir);
+      return Promise.resolve(ran(candidate.dir));
     };
 
     const result = await runParallel({
@@ -97,7 +96,12 @@ describe('WorkspaceRun.parallel scheduler', () => {
     expect(result.ok).to.eql(true);
     expect(starts).to.eql(['code/b']);
     expect(result.packages).to.eql([
-      { kind: 'skipped', path: 'code/a', reason: 'task:missing' },
+      {
+        kind: 'skipped',
+        name: '@test/code-a',
+        path: 'code/a',
+        reason: 'task:missing',
+      },
       ran('code/b'),
     ]);
   });
@@ -175,9 +179,9 @@ describe('WorkspaceRun.parallel scheduler', () => {
 
   it('uses graph order for jobs=1 package starts', async () => {
     const starts: string[] = [];
-    const worker: PackageWorker = async ({ candidate }) => {
+    const worker: PackageWorker = ({ candidate }) => {
       starts.push(candidate.dir);
-      return ran(candidate.dir);
+      return Promise.resolve(ran(candidate.dir));
     };
 
     const result = await runParallel({
@@ -194,6 +198,36 @@ describe('WorkspaceRun.parallel scheduler', () => {
 
     expect(result.ok).to.eql(true);
     expect(starts).to.eql(['code/a', 'code/b', 'code/c']);
+  });
+
+  it('reasserts manifest identity at scheduler event and worker boundaries', async () => {
+    const starts: t.WorkspaceRun.Package.Identity[] = [];
+    const terminal: t.WorkspaceRun.Package.Ran[] = [];
+    const result = await runParallel({
+      cwd: '/tmp/workspace',
+      task: 'test',
+      plan: makePlan({ paths: ['code/internal/runtime'] }),
+      jobs: 1,
+      startedAt: Time.now.timestamp,
+      worker: () =>
+        Promise.resolve({
+          ...ran('wrong/path', false),
+          name: '@false/name',
+        }),
+      onEvent(event) {
+        if (event.kind === 'start') starts.push({ name: event.name, path: event.path });
+        if (event.kind === 'finish') terminal.push(event.result);
+      },
+    });
+
+    const identity = { name: '@test/code-internal-runtime', path: 'code/internal/runtime' };
+    expect(starts).to.eql([identity]);
+    expect(terminal.map(({ name, path }) => ({ name, path }))).to.eql([identity]);
+    expect(result.packages.map(({ name, path }) => ({ name, path }))).to.eql([identity]);
+    expect(result.ok).to.eql(false);
+    if (!result.ok) {
+      expect({ name: result.failure.name, path: result.failure.path }).to.eql(identity);
+    }
   });
 
   it('returns graph-ordered results and selects canonical failure by graph order', async () => {
@@ -259,6 +293,7 @@ function makePlan(args: {
 function ran(path: string, success = true): t.WorkspaceRun.Package.Ran {
   return {
     kind: 'ran',
+    name: `@test/${path.replaceAll('/', '-')}`,
     path,
     code: success ? 0 : 1,
     success,
@@ -279,10 +314,8 @@ function getControl(controls: Map<string, Deferred>, path: string) {
 
 function deferred(): Deferred {
   let resolve!: () => void;
-  let reject!: (error?: unknown) => void;
-  const promise = new Promise<void>((res, rej) => {
+  const promise = new Promise<void>((res) => {
     resolve = res;
-    reject = rej;
   });
-  return { promise, resolve, reject };
+  return { promise, resolve };
 }

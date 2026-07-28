@@ -1,5 +1,5 @@
 import { Arr, Err, Num, Obj, type t, Time } from '../common.ts';
-import type { RunCandidate, RunPlan } from '../u/u.plan.ts';
+import { type RunCandidate, runCandidateIdentity, type RunPlan } from '../u/u.plan.ts';
 import {
   type PackageCommand,
   type PackageWorker,
@@ -22,28 +22,11 @@ export type ParallelRunArgs = {
 export type ParallelRunEventHandler = (event: ParallelRunEvent) => void;
 
 export type ParallelRunEvent =
-  | { readonly kind: 'start'; readonly path: t.StringPath }
-  | {
-    readonly kind: 'skip';
-    readonly path: t.StringPath;
-    readonly result: t.WorkspaceRun.Package.Skipped;
-  }
-  | {
-    readonly kind: 'finish';
-    readonly path: t.StringPath;
-    readonly result: t.WorkspaceRun.Package.Ran;
-  }
-  | {
-    readonly kind: 'block';
-    readonly path: t.StringPath;
-    readonly result: t.WorkspaceRun.Package.Blocked;
-  }
+  | ({ readonly kind: 'start' } & t.WorkspaceRun.Package.Identity)
+  | { readonly kind: 'skip'; readonly result: t.WorkspaceRun.Package.Skipped }
+  | { readonly kind: 'finish'; readonly result: t.WorkspaceRun.Package.Ran }
+  | { readonly kind: 'block'; readonly result: t.WorkspaceRun.Package.Blocked }
   | { readonly kind: 'done'; readonly result: t.WorkspaceRun.Result };
-
-type WorkerDone = {
-  readonly path: t.StringPath;
-  readonly result: t.WorkspaceRun.Package.Ran;
-};
 
 type SchedulerState = {
   readonly orderedPaths: readonly t.StringPath[];
@@ -53,7 +36,7 @@ type SchedulerState = {
   readonly commands: Map<t.StringPath, PackageCommand | null>;
   readonly pending: Set<t.StringPath>;
   readonly ready: Set<t.StringPath>;
-  readonly running: Map<t.StringPath, Promise<WorkerDone>>;
+  readonly running: Map<t.StringPath, Promise<t.WorkspaceRun.Package.Ran>>;
   readonly terminal: Map<t.StringPath, t.WorkspaceRun.Package.Result>;
 };
 
@@ -151,13 +134,14 @@ const wrangle = {
         if (!state.ready.has(path)) continue;
         if (wrangle.command(state, path, args.task)) continue;
 
+        const candidate = wrangle.candidate(state, path);
         const result: t.WorkspaceRun.Package.Skipped = {
+          ...runCandidateIdentity(candidate),
           kind: 'skipped',
-          path,
           reason: 'task:missing',
         };
         wrangle.markTerminal(state, path, result);
-        args.onEvent?.({ kind: 'skip', path, result });
+        args.onEvent?.({ kind: 'skip', result });
         wrangle.unlock(state, path);
         changed = true;
       }
@@ -176,7 +160,7 @@ const wrangle = {
 
       state.ready.delete(path);
       state.pending.delete(path);
-      args.onEvent?.({ kind: 'start', path });
+      args.onEvent?.({ kind: 'start', ...runCandidateIdentity(candidate) });
       state.running.set(
         path,
         worker({
@@ -186,8 +170,8 @@ const wrangle = {
           command,
           testStats: args.testStats,
         }).then((result) => ({
-          path,
-          result: result.path === path ? result : { ...result, path },
+          ...result,
+          ...runCandidateIdentity(candidate),
         })),
       );
     }
@@ -201,13 +185,17 @@ const wrangle = {
     return undefined;
   },
 
-  finish(args: ParallelRunArgs, state: SchedulerState, done: WorkerDone) {
-    state.running.delete(done.path);
-    const result = Obj.clone(done.result);
-    wrangle.markTerminal(state, done.path, result);
-    args.onEvent?.({ kind: 'finish', path: done.path, result });
+  finish(
+    args: ParallelRunArgs,
+    state: SchedulerState,
+    completed: t.WorkspaceRun.Package.Ran,
+  ) {
+    const result = Obj.clone(completed);
+    state.running.delete(result.path);
+    wrangle.markTerminal(state, result.path, result);
+    args.onEvent?.({ kind: 'finish', result });
 
-    wrangle.unlock(state, done.path);
+    wrangle.unlock(state, result.path);
   },
 
   unlock(state: SchedulerState, path: t.StringPath) {

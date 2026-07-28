@@ -36,9 +36,9 @@ describe('WorkspaceRun.failure projection', () => {
 
     const projected = projectFailedPackages(input);
 
-    expect(projected.map((item) => item.package.path)).to.eql([
-      'code/pkg-first',
-      'code/pkg-second',
+    expect(projected.map(({ package: item }) => ({ name: item.name, path: item.path }))).to.eql([
+      { name: '@test/pkg-first', path: 'code/pkg-first' },
+      { name: '@test/pkg-second', path: 'code/pkg-second' },
     ]);
     expect(projected[0]?.package).to.equal(first);
     expect(projected[1]?.package).to.equal(second);
@@ -52,6 +52,7 @@ describe('WorkspaceRun.failure projection', () => {
     const success = ran('code/pkg-success', { code: 0, success: true });
     const skipped: t.WorkspaceRun.Package.Skipped = {
       kind: 'skipped',
+      name: '@test/pkg-skipped',
       path: 'code/pkg-skipped',
       reason: 'task:missing',
     };
@@ -64,11 +65,13 @@ describe('WorkspaceRun.failure projection', () => {
     const success = ran('code/pkg-success', { code: 0, success: true });
     const blocked: t.WorkspaceRun.Package.Blocked = {
       kind: 'blocked',
+      name: '@test/pkg-blocked',
       path: 'code/pkg-blocked',
       reason: 'fail-fast',
     };
     const skipped: t.WorkspaceRun.Package.Skipped = {
       kind: 'skipped',
+      name: '@test/pkg-skipped',
       path: 'code/pkg-skipped',
       reason: 'task:missing',
     };
@@ -100,6 +103,7 @@ function ran(
 ): t.WorkspaceRun.Package.Ran {
   return {
     kind: 'ran',
+    name: `@test/${path.split('/').at(-1)}`,
     path,
     code: options.code,
     success: options.success ?? false,

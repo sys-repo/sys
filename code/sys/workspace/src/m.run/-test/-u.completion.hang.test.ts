@@ -9,11 +9,6 @@ describe('WorkspaceRun.CompletionHang', () => {
       result: result({ ok: true }),
       strategy: { kind: 'parallel', jobs: 3 },
       delay: SAMPLE_DELAY,
-      packages: [
-        { path: 'sample/pkg-alpha', name: '@sample/alpha' },
-        { path: 'sample/pkg-beta', name: '@sample/beta' },
-        { path: 'sample/pkg-gamma', name: '@sample/gamma' },
-      ],
       contextLimit: 2,
     }));
 
@@ -32,7 +27,7 @@ describe('WorkspaceRun.CompletionHang', () => {
     `));
   });
 
-  it('does not blame packages when package identity context is absent', () => {
+  it('uses result-owned package identity without a side channel', () => {
     const text = Cli.stripAnsi(CompletionHang.formatWarning({
       result: result({ ok: false }),
       strategy: { kind: 'parallel' },
@@ -42,8 +37,7 @@ describe('WorkspaceRun.CompletionHang', () => {
 
     expect(text.includes('- result: failed')).to.eql(true);
     expect(text.includes('- strategy: parallel')).to.eql(true);
-    expect(text.includes('@sample/')).to.eql(false);
-    expect(text.includes('  - sample/pkg-beta, 12s')).to.eql(true);
+    expect(text.includes('  - @sample/beta - sample/pkg-beta, 12s')).to.eql(true);
   });
 
   it('styles the warning header, body line, and detail lines', () => {
@@ -138,7 +132,12 @@ function result(args: { readonly ok: boolean }): t.WorkspaceRun.Result {
   const packages = [
     ran('sample/pkg-alpha', 8_000),
     ran('sample/pkg-beta', 12_000, args.ok),
-    { kind: 'skipped' as const, path: 'sample/pkg-gamma', reason: 'task:missing' as const },
+    {
+      kind: 'skipped' as const,
+      name: '@sample/pkg-gamma',
+      path: 'sample/pkg-gamma',
+      reason: 'task:missing' as const,
+    },
   ];
   const base = {
     task: 'test' as const,
@@ -159,6 +158,7 @@ function result(args: { readonly ok: boolean }): t.WorkspaceRun.Result {
 function ran(path: string, elapsed: number, success = true): t.WorkspaceRun.Package.Ran {
   return {
     kind: 'ran',
+    name: `@sample/${path.split('/').at(-1)?.replace('pkg-', '')}`,
     path,
     code: success ? 0 : 1,
     success,

@@ -15,16 +15,23 @@ export type RunPlan = {
 };
 
 export type CreateRunPlanArgs = {
-  readonly cwd: t.StringDir;
-  readonly graph: t.WorkspaceGraph.PersistedGraph;
-  readonly task: t.WorkspaceRun.Task;
-  readonly filter?: t.WorkspaceRun.Filter.Predicate;
+  cwd: t.StringDir;
+  graph: t.WorkspaceGraph.PersistedGraph;
+  task: t.WorkspaceRun.Task;
+  filter?: t.WorkspaceRun.Filter.Predicate;
 };
 
 export type CreateRunPlanFromCandidatesArgs = {
-  readonly graph: t.WorkspaceGraph.PersistedGraph;
-  readonly candidates: readonly RunCandidate[];
+  graph: t.WorkspaceGraph.PersistedGraph;
+  candidates: readonly RunCandidate[];
 };
+
+/** Project the authoritative result identity retained by one run candidate. */
+export function runCandidateIdentity(
+  candidate: RunCandidate,
+): t.WorkspaceRun.Package.Identity {
+  return { name: candidate.pkg.name, path: candidate.dir };
+}
 
 /**
  * Build the task run plan consumed by sequential and parallel runners.
