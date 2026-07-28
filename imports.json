@@ -12,7 +12,7 @@
     "@cliffy/table": "jsr:@cliffy/table@1.2.1",
     "@deno/loader": "jsr:@deno/loader@0.5.0",
     "@deno/vite-plugin": "npm:@deno/vite-plugin@2.0.2",
-    "@earendil-works/pi-coding-agent": "npm:@earendil-works/pi-coding-agent@0.82.0",
+    "@earendil-works/pi-coding-agent": "npm:@earendil-works/pi-coding-agent@0.82.1",
     "@monaco-editor/react": "npm:@monaco-editor/react@4.7.0",
     "@noble/hashes": "npm:@noble/hashes@2.2.0",
     "@noble/hashes/legacy.js": "npm:@noble/hashes@2.2.0/legacy.js",
