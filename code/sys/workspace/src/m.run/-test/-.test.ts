@@ -72,10 +72,10 @@ describe('WorkspaceRun', () => {
     await writeWorkspace(fs.dir, { failCheck: false });
     const screen = createReporterScreen({ width: 100, height: 24 });
     const spinner = FakeSpinner.create();
+    using spinnerStub = FakeSpinner.stub({ spinner });
     const size = Cli.Screen.size;
     const events = Cli.Screen.events;
     const repaint = Cli.Screen.repaint;
-    const createSpinner = Cli.Spinner.create;
     const info = console.info;
     const stopSpinner = spinner.stop;
     const effects: string[] = [];
@@ -88,7 +88,6 @@ describe('WorkspaceRun', () => {
     Object.defineProperty(Cli.Screen, 'repaint', {
       value: () => effects.push('repaint'),
     });
-    Object.defineProperty(Cli.Spinner, 'create', { value: () => spinner });
     spinner.stop = () => {
       effects.push('spinner:stop');
       return stopSpinner();
@@ -115,12 +114,12 @@ describe('WorkspaceRun', () => {
       Object.defineProperty(Cli.Screen, 'size', { value: size });
       Object.defineProperty(Cli.Screen, 'events', { value: events });
       Object.defineProperty(Cli.Screen, 'repaint', { value: repaint });
-      Object.defineProperty(Cli.Spinner, 'create', { value: createSpinner });
       console.info = info;
     }
 
     expect(result?.ok).to.eql(true);
     expect(completion).to.eql({ failedPackages: { visible: 0, total: 0 } });
+    expect(spinnerStub.calls).to.eql([{ text: '', options: { target: 'stdout' } }]);
     expect(effects).to.eql(['spinner:stop', 'scrollback', 'complete']);
   });
 

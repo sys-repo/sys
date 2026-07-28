@@ -16,23 +16,12 @@ type Scheduled = {
 describe('WorkspaceRun.parallel reporter runtime', () => {
   describe('canonical dependencies', () => {
     it('binds the spinner session to stdout', () => {
-      const spinner = FakeSpinner.create();
-      const create = Cli.Spinner.create;
-      let options: t.Cli.Spinner.Create.Options | undefined;
-      Object.defineProperty(Cli.Spinner, 'create', {
-        value: (_text?: string, next?: t.Cli.Spinner.Create.Options) => {
-          options = next;
-          return spinner;
-        },
-      });
+      using stub = FakeSpinner.stub();
 
-      try {
-        createDefaultParallelReporterRuntimeDeps().spinner();
-      } finally {
-        Object.defineProperty(Cli.Spinner, 'create', { value: create });
-      }
+      const spinner = createDefaultParallelReporterRuntimeDeps().spinner();
 
-      expect(options).to.eql({ target: 'stdout' });
+      expect(spinner).to.equal(stub.spinner);
+      expect(stub.calls).to.eql([{ text: '', options: { target: 'stdout' } }]);
     });
   });
 

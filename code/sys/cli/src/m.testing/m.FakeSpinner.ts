@@ -1,4 +1,5 @@
-import type { t } from './common.ts';
+import { Err, Obj, type t } from './common.ts';
+import { Spinner } from '../m.core/m.Spinner/mod.ts';
 
 /**
  * Fake CLI spinner for tests that inject spinner handles.
@@ -52,5 +53,39 @@ export const FakeSpinner: t.FakeSpinner.Lib = {
     };
 
     return spinner;
+  },
+
+  stub(args = {}) {
+    const descriptor = Object.getOwnPropertyDescriptor(Spinner, 'create');
+    if (descriptor === undefined) {
+      throw Err.std('CLI testing: canonical Spinner.create descriptor is missing');
+    }
+
+    const spinner = args.spinner ?? FakeSpinner.create();
+    const calls: t.FakeSpinner.StubCall[] = [];
+    const create: typeof Spinner.create = (text, options) => {
+      calls.push({
+        text,
+        options: options === undefined ? undefined : Obj.clone(options),
+      });
+      return spinner;
+    };
+    Object.defineProperty(Spinner, 'create', {
+      configurable: descriptor.configurable,
+      enumerable: descriptor.enumerable,
+      writable: descriptor.writable ?? true,
+      value: create,
+    });
+
+    let disposed = false;
+    return {
+      spinner,
+      calls,
+      [Symbol.dispose]() {
+        if (disposed) return;
+        disposed = true;
+        Object.defineProperty(Spinner, 'create', descriptor);
+      },
+    };
   },
 };
