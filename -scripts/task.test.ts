@@ -2,7 +2,7 @@ import { Workspace } from '@sys/workspace';
 import { CompletionHang } from '@sys/workspace/run';
 import { Args, Cli, Is, Str } from './common.ts';
 
-type TestPresentation =
+export type TestPresentation =
   | { readonly mode: 'sequential' }
   | {
     readonly mode: 'parallel-screen';
@@ -42,6 +42,7 @@ export async function main(input: MainArgs = {}) {
   const args = presentation.mode === 'sequential'
     ? parsed
     : { ...parsed, reporter: presentation.reporter };
+  clearTestScreen(presentation);
   const result = await Workspace.Run.test(args);
   const output = presentation.mode === 'sequential'
     ? Workspace.Run.Fmt.result(result)
@@ -113,12 +114,17 @@ export function resolveTestPresentation(
     };
 }
 
+/** Clear the visible stdout viewport exactly once for the root-owned screen presentation. */
+export function clearTestScreen(presentation: TestPresentation) {
+  if (presentation.mode === 'parallel-screen') Cli.Screen.repaint('');
+}
+
 export function defaultTestArgs(argv: readonly string[]) {
   const args = argv.filter((value) => value !== '--');
   return hasParallelFlag(args) ? args : ['--parallel', ...args];
 }
 
-export function hasParallelFlag(argv: readonly string[]) {
+function hasParallelFlag(argv: readonly string[]) {
   return argv.some((value) => value === '--parallel' || value.startsWith('--parallel='));
 }
 

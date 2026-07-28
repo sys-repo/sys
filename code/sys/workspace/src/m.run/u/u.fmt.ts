@@ -1,5 +1,6 @@
 import { c, Cli, Str, type t, Time } from '../common.ts';
 import { type FailedPackage, projectFailedPackages } from './u.failure.ts';
+import { formatContinuationSummary } from './u.fmt.continuation.ts';
 
 type TestStatsSummary = {
   observed: number;
@@ -214,13 +215,14 @@ function formatHandoff(
   const str = Str.builder();
 
   str.line(wrangle.handoffTitle(result));
+  str.line(Cli.Fmt.hr({ width, color: wrangle.handoffColor(result) }));
   wrangle.appendWrapped(str, '', wrangle.handoffSummary(result), width);
 
   if (failures.length > 0) {
     str.line('');
     str.line(c.red(`${failures.length} failed ${Str.plural(failures.length, 'package')}`));
     str.line('');
-    str.line(formatFailedPackageIndex(failures, options));
+    str.line(formatFailedPackageIndex(failures, { terminal: options.terminal, width }));
   }
 
   const compact = Str.trimEdgeNewlines(String(str));
@@ -254,10 +256,14 @@ function formatFailedOutput(result: t.WorkspaceRun.Result): string {
 }
 
 const wrangle = {
+  handoffColor(result: t.WorkspaceRun.Result): 'green' | 'red' {
+    return result.ok ? 'green' : 'red';
+  },
+
   handoffTitle(result: t.WorkspaceRun.Result) {
     const noun = wrangle.taskNoun(result.task);
     const elapsed = Time.duration(result.elapsed).toString();
-    return result.ok
+    return wrangle.handoffColor(result) === 'green'
       ? `${c.green('Workspace')} ${c.cyan(noun)} ${c.green(`done in ${elapsed}`)}`
       : `${c.red('Workspace')} ${c.cyan(noun)} ${c.red(`failed in ${elapsed}`)}`;
   },
@@ -399,7 +405,8 @@ const wrangle = {
         const hidden = total - visible.length;
         if (hidden > 0) {
           const count = wrangle.displayNumber(hidden);
-          str.line(c.gray(`  ...and ${count} more failed ${Str.plural(hidden, 'test')}`));
+          const qualifier = `failed ${Str.plural(hidden, 'test')}`;
+          str.line(`  ${formatContinuationSummary(count, 'red', qualifier)}`);
         }
       } else if (excerpt) {
         wrangle.appendExcerpt(str, excerpt, width);

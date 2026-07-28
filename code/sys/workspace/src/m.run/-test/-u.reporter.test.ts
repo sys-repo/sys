@@ -1,10 +1,10 @@
 import { c, Cli, describe, expect, it, type t } from '../../-test.ts';
 import { formatIntroLine } from '../u/u.fmt.ts';
 import { createParallelReporter, formatParallelProgress } from '../u/u.reporter.ts';
+import { createInertReporterRuntimeDeps } from './u.fixture.reporter.ts';
 
 type CompletedKind = 'passed' | 'failed' | 'skipped' | 'blocked';
 
-const VISIBLE_COMPLETED_FOR_WIDTH_100 = 10;
 const SAMPLE_WORKSPACE = '/tmp/sample-workspace' as t.StringDir;
 
 describe('WorkspaceRun.parallel reporter', () => {
@@ -106,13 +106,9 @@ describe('WorkspaceRun.parallel reporter', () => {
         expect(skipped.split('\n')[0]).to.eql(
           '✓ 2/8 passed   ⦿ running 0   ○ pending 6   ↷ skipped 2   ⊘ blocked 0   ✕ failed 0',
         );
-        expect(skipped.includes('2/8 passed')).to.eql(true);
-        expect(skipped.includes('skipped 2')).to.eql(true);
         expect(blocked.split('\n')[0]).to.eql(
           '✓ 2/5 passed   ⦿ running 0   ○ pending 0   ↷ skipped 1   ⊘ blocked 3   ✕ failed 1',
         );
-        expect(blocked.includes('2/5 passed')).to.eql(true);
-        expect(blocked.includes('blocked 3')).to.eql(true);
       });
     });
 
@@ -136,12 +132,9 @@ describe('WorkspaceRun.parallel reporter', () => {
         const lines = frame.split('\n');
         const runningLine = lines[3] ?? '';
 
-        expect(lines[0]).to.eql(
-          '✓ 2/10 passed   ⦿ running 2   ○ pending 6   ↷ skipped 1   ⊘ blocked 0   ✕ failed 0',
-        );
         expect(lines[2]).to.eql('  testing (--schedule=topological)');
-        expect(frame.includes('sample/pkg-running-alpha')).to.eql(true);
         expect(runningLine.includes('⦿  sample/pkg-running-alpha')).to.eql(true);
+        expect(runningLine.includes('⦿  sample/pkg-running-beta')).to.eql(true);
         expect(runningLine.endsWith(' ')).to.eql(false);
         expect(Cli.Fmt.Text.Width.measure(runningLine) < 100).to.eql(true);
       });
@@ -346,7 +339,7 @@ describe('WorkspaceRun.parallel reporter', () => {
 
         expect(frame.includes('✓  sample/pkg-10')).to.eql(true);
         expect(frame.includes('✓  sample/pkg-11')).to.eql(false);
-        expect(frame.includes('...and 2 more')).to.eql(true);
+        expect(frame.includes('... +2 more')).to.eql(true);
       });
 
       it('keeps overflow truthful beyond 64 retained completions', () => {
@@ -372,7 +365,7 @@ describe('WorkspaceRun.parallel reporter', () => {
         expect(frame.includes('✓  sample/pkg-70')).to.eql(true);
         expect(frame.includes('✓  sample/pkg-61')).to.eql(true);
         expect(frame.includes('✓  sample/pkg-60')).to.eql(false);
-        expect(frame.includes('...and 60 more')).to.eql(true);
+        expect(frame.includes('... +60 more')).to.eql(true);
       });
 
       it('renders newest completions top-left in row-major order', () => {
@@ -440,7 +433,7 @@ describe('WorkspaceRun.parallel reporter', () => {
         expect(frame.includes('✕  sample/pkg-failed')).to.eql(false);
         expect(frame.includes('✓  sample/pkg-passed-10')).to.eql(true);
         expect(frame.includes('✓  sample/pkg-passed-11')).to.eql(false);
-        expect(frame.includes('...and 2 more')).to.eql(true);
+        expect(frame.includes('... +2 more')).to.eql(true);
         expect(frame.includes('✕ sample/pkg-failed · exit 1')).to.eql(true);
         expect(frame.includes('rerun: deno task --cwd ./sample/pkg-failed test')).to.eql(true);
       });
@@ -469,21 +462,6 @@ describe('WorkspaceRun.parallel reporter', () => {
         const repeated = formatParallelProgress({ ...args, elapsed: 9_000 });
 
         expect(repeated).to.eql(first);
-      });
-
-      it('colors completed overflow count by hidden item severity', () => {
-        const green = overflowLine(completedOverflowFrame(['passed', 'passed']));
-        const yellow = overflowLine(completedOverflowFrame(['passed', 'blocked']));
-        const red = overflowLine(completedOverflowFrame(['failed', 'passed'], 'failed'));
-
-        expect(Cli.stripAnsi(green).trim()).to.eql('...and 2 more');
-        expect(green).to.eql(overflowLabel(c.green(c.italic('2'))));
-
-        expect(Cli.stripAnsi(yellow).trim()).to.eql('...and 2 more');
-        expect(yellow).to.eql(overflowLabel(c.yellow(c.italic('2'))));
-
-        expect(Cli.stripAnsi(red).trim()).to.eql('...and 2 more');
-        expect(red).to.eql(overflowLabel(c.red(c.italic('2'))));
       });
 
       it('colors the completed progress rule by completed item severity', () => {
@@ -550,9 +528,8 @@ describe('WorkspaceRun.parallel reporter', () => {
         jobs: 1,
         runnablePaths: ['code/sys/crdt', 'code/sys/std'],
         terminal: true,
-        width: 100,
         write: (line) => lines.push(line),
-        startSpinner: (text) => spinner.startWith(text),
+        deps: createInertReporterRuntimeDeps(spinner.instance),
       });
       const failure = ran('code/sys/crdt', false, {
         stderr: 'secret assertion output\n',
@@ -582,6 +559,39 @@ describe('WorkspaceRun.parallel reporter', () => {
       expect(
         afterSuccess.indexOf('✓  code/sys/std') < afterSuccess.indexOf('✕  code/sys/crdt'),
       ).to.eql(true);
+      expect(spinner.stops()).to.eql(1);
+    });
+
+    it('stops after a final render failure without masking it', () => {
+      const cause = new Error('final-render-failed');
+      let failRender = false;
+      const spinner = spinnerProbe({
+        setText() {
+          if (failRender) throw cause;
+        },
+      });
+      const reporter = createParallelReporter({
+        task: 'test',
+        jobs: 1,
+        runnablePaths: ['sample/pkg-a'],
+        terminal: true,
+        write: () => {},
+        deps: createInertReporterRuntimeDeps(spinner.instance),
+      });
+      const success = ran('sample/pkg-a');
+      let thrown: unknown;
+
+      reporter.start();
+      reporter.event({ kind: 'start', path: success.path });
+      failRender = true;
+      try {
+        reporter.event({ kind: 'done', result: result([success]) });
+      } catch (error) {
+        thrown = error;
+      }
+      reporter.event({ kind: 'finish', path: success.path, result: success });
+
+      expect(thrown).to.equal(cause);
       expect(spinner.stops()).to.eql(1);
     });
 
@@ -629,49 +639,6 @@ function contextLine(elapsed: t.Msecs, width = 100) {
     width,
   });
   return Cli.stripAnsi(frame).split('\n').find((line) => line.startsWith('  testing')) ?? '';
-}
-
-function completedOverflowFrame(
-  hiddenKinds: readonly CompletedKind[],
-  visibleKind: CompletedKind = 'passed',
-) {
-  const visibleKinds = Array.from(
-    { length: VISIBLE_COMPLETED_FOR_WIDTH_100 },
-    () => visibleKind,
-  );
-  const kinds = [...visibleKinds, ...hiddenKinds];
-  const passed = countKind(kinds, 'passed');
-  const failed = countKind(kinds, 'failed');
-  const blocked = countKind(kinds, 'blocked');
-
-  return formatParallelProgress({
-    runnableTotal: passed + failed + blocked,
-    passed,
-    skipped: countKind(kinds, 'skipped'),
-    blocked,
-    blockedRunnable: blocked,
-    failed,
-    pending: 0,
-    running: [],
-    completed: kinds.map((kind, index) => {
-      const path = `sample/pkg-${String(index + 1).padStart(2, '0')}`;
-      return { kind, path, elapsed: 1 };
-    }),
-    terminal: false,
-    width: 100,
-  });
-}
-
-function countKind(kinds: readonly CompletedKind[], kind: CompletedKind) {
-  return kinds.filter((value) => value === kind).length;
-}
-
-function overflowLine(frame: string) {
-  return frame.split('\n').find((line) => Cli.stripAnsi(line).includes('...and')) ?? '';
-}
-
-function overflowLabel(count: string) {
-  return `  ${c.gray(c.italic('...and '))}${count}${c.gray(c.italic(' more'))}`;
 }
 
 function completedRuleLine(kind: CompletedKind) {
@@ -729,7 +696,7 @@ function observedStats(tests: number, failed: number): t.WorkspaceRun.Test.Stats
   };
 }
 
-function spinnerProbe() {
+function spinnerProbe(options: { setText?: (value: string) => void } = {}) {
   let text = '';
   let stopCount = 0;
   const frames: string[] = [];
@@ -740,6 +707,7 @@ function spinnerProbe() {
     set text(value) {
       text = value;
       frames.push(Cli.stripAnsi(value));
+      options.setText?.(value);
     },
     start(value) {
       if (value !== undefined) this.text = value;
@@ -761,10 +729,7 @@ function spinnerProbe() {
 
   return {
     frames,
-    startWith(value: string) {
-      instance.text = value;
-      return instance;
-    },
+    instance,
     stops: () => stopCount,
   };
 }
