@@ -16,6 +16,11 @@ describe('WorkspaceRun.Fmt.handoff', () => {
         ran('code/pkg-b', {
           success: true,
           code: 0,
+          testStats: observed({ tests: 2 }),
+        }),
+        ran('code/pkg-c', {
+          success: true,
+          code: 0,
           testStats: unsupported(),
         }),
       ];
@@ -28,7 +33,7 @@ describe('WorkspaceRun.Fmt.handoff', () => {
       expect(text).to.eql(Str.dedent(`
       Workspace tests done in 20ms
       ${RULE}
-      2 packages · 3 tests · reports: 1 collected · 1 not applicable
+      3 packages · 5 tests · 2 reports collected · 1 not applicable
     `));
       expect(text.includes('failed package')).to.eql(false);
       expect(text.includes('rerun:')).to.eql(false);
@@ -73,7 +78,7 @@ describe('WorkspaceRun.Fmt.handoff', () => {
       expect(text).to.eql(Str.dedent(`
       Workspace tests done in 20ms
       ${RULE}
-      2 packages · reports: 0 collected · 1 unavailable · 1 not applicable
+      2 packages · 0 reports collected · 1 unavailable · 1 not applicable
     `));
     });
 
@@ -114,7 +119,7 @@ describe('WorkspaceRun.Fmt.handoff', () => {
       expect(compact).to.eql(Str.dedent(`
       Workspace tests failed in 20ms
       ${RULE}
-      1 ran · 1 failed · 5 tests · reports: 1 collected
+      1 ran · 1 failed · 5 tests · 1 report collected
 
       1 failed package
 

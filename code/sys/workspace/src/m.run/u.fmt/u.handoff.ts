@@ -69,14 +69,16 @@ function handoffSummary(result: t.WorkspaceRun.Result) {
     if (stats.observed > 0) {
       parts.push(`${displayNumber(stats.tests)} ${Str.plural(stats.tests, 'test')}`);
     }
-    const reports = [`${displayNumber(stats.observed)} collected`];
+    const reports = [
+      `${displayNumber(stats.observed)} ${Str.plural(stats.observed, 'report')} collected`,
+    ];
     if (stats.unavailable > 0) {
       reports.push(`${displayNumber(stats.unavailable)} unavailable`);
     }
     if (stats.unsupported > 0) {
       reports.push(`${displayNumber(stats.unsupported)} not applicable`);
     }
-    parts.push(`reports: ${reports.join(c.gray(' · '))}`);
+    parts.push(reports.join(c.gray(' · ')));
   }
 
   return parts.join(c.gray(' · '));
