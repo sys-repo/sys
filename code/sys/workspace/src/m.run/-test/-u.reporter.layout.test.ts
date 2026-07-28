@@ -69,6 +69,100 @@ describe('WorkspaceRun.parallel reporter layout', () => {
     });
   });
 
+  describe('failure footer anchoring', () => {
+    it('holds the failure action against the viewport bottom as completed detail expands', () => {
+      const frames = [0, 2, 20].map((length) => {
+        return formatParallelProgress({
+          ...progress(),
+          failed: 1,
+          completed: completed(length),
+          failures: [failure('sample/failed-package')],
+          terminal: true,
+          viewport: { width: 80, height: 14 },
+          cursorRows: 1,
+        });
+      });
+
+      for (const frame of frames) {
+        expect(physicalRows(frame, 80)).to.eql(13);
+        expect(Cli.stripAnsi(frame).split('\n').slice(-3)).to.eql([
+          '┄'.repeat(80),
+          '✕ sample/failed-package · exit 1',
+          '  rerun: deno task --cwd ./sample/failed-package test',
+        ]);
+      }
+      expect(frames.map((frame) => failureSpacerRows(frame, 80))).to.eql([8, 4, 0]);
+    });
+
+    it('keeps no-failure frames compact at taller viewport heights', () => {
+      const render = (height: number) =>
+        formatParallelProgress({
+          ...progress(),
+          terminal: true,
+          viewport: { width: 80, height },
+          cursorRows: 1,
+        });
+      const baseline = render(10);
+      const tall = render(30);
+
+      expect(tall).to.eql(baseline);
+      expect(physicalRows(tall, 80)).to.eql(2);
+      expect(failureSpacerRows(tall, 80)).to.eql(0);
+    });
+
+    it('bottom-anchors a visible failure while retaining multiple-failure overflow truth', () => {
+      const failures = Array.from(
+        { length: 4 },
+        (_, index) => failure(`sample/failure-${index + 1}`),
+      );
+      const layout = layoutParallelProgress({
+        ...progress(),
+        failed: failures.length,
+        failures,
+        terminal: true,
+        viewport: { width: 80, height: 8 },
+        cursorRows: 1,
+      });
+      const frame = Cli.stripAnsi(layout.frame);
+
+      expect(physicalRows(layout.frame, 80)).to.eql(7);
+      expect(frame.split('\n').at(-1)).to.eql('  ... +3 more failed packages');
+      expect(failureSpacerRows(layout.frame, 80)).to.eql(1);
+      expect(layout.completion.failedPackages).to.eql({ visible: 1, total: 4 });
+    });
+
+    it('restores the exact anchored frame across tall to short to tall projection', () => {
+      const args = {
+        ...progress(),
+        passed: 4,
+        failed: 1,
+        completed: completed(4),
+        failures: [failure('sample/failed-package')],
+        terminal: true,
+        cursorRows: 1,
+      };
+      const render = (height: number) =>
+        formatParallelProgress({
+          ...args,
+          viewport: { width: 80, height },
+        });
+
+      const tall = render(14);
+      const short = render(7);
+      const restored = render(14);
+
+      expect(restored).to.eql(tall);
+      expect(physicalRows(tall, 80)).to.eql(13);
+      expect(physicalRows(short, 80)).to.eql(6);
+      expect(Cli.stripAnsi(tall).split('\n').at(-1)).to.eql(
+        '  rerun: deno task --cwd ./sample/failed-package test',
+      );
+      expect(Cli.stripAnsi(short).split('\n').at(-1)).to.eql(
+        '  rerun: deno task --cwd ./sample/failed-package test',
+      );
+    });
+  });
+
   describe('retained completion projection', () => {
     it('contracts and re-expands recency without reordering it', () => {
       const args = {
@@ -580,6 +674,15 @@ function failure(path: string): FailedPackage {
 
 function findContinuation(frame: string) {
   return frame.split('\n').find((line) => Cli.stripAnsi(line).includes('... +'));
+}
+
+function failureSpacerRows(frame: string, width: number) {
+  const lines = Cli.stripAnsi(frame).split('\n');
+  const separator = lines.indexOf('┄'.repeat(width));
+  if (separator < 0) return 0;
+  let count = 0;
+  for (let index = separator - 1; index >= 0 && lines[index] === ''; index -= 1) count += 1;
+  return count;
 }
 
 function expectContinuation(

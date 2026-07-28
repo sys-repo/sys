@@ -115,9 +115,7 @@ export function layoutParallelProgress(args: ParallelProgressFormatArgs): Parall
   );
   const progress = [status, running, completed].filter(Boolean).join('\n\n');
   const frame = failureSection.text
-    ? [progress, formatFailedPackageSeparator(width), failureSection.text].filter(Boolean).join(
-      '\n',
-    )
+    ? composeFailureFrame(progress, failureSection.text, width, capacity, bounded)
     : progress;
 
   return {
@@ -245,6 +243,21 @@ function formatFailureSection(
 function formatFailureOverflow(hidden: number) {
   const qualifier = `failed ${Str.plural(hidden, 'package')}`;
   return `  ${formatContinuationSummary(String(hidden), 'red', qualifier)}`;
+}
+
+function composeFailureFrame(
+  progress: string,
+  failures: string,
+  width: number,
+  capacity: number,
+  bounded: boolean,
+) {
+  const footer = `${formatFailedPackageSeparator(width)}\n${failures}`;
+  const baseline = `${progress}\n${footer}`;
+  if (!bounded) return baseline;
+
+  const spacerRows = Math.max(0, capacity - physicalRows(baseline, width));
+  return `${progress}\n${'\n'.repeat(spacerRows)}${footer}`;
 }
 
 function formatCompletedSection(
