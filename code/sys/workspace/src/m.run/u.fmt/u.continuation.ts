@@ -12,7 +12,7 @@ export function formatContinuationSummary(
   const semanticCount = colorCount(countToken, tone);
   const suffix = qualifier ? ` more ${qualifier}` : ' more';
   return [
-    c.gray(c.italic('... ')),
+    c.gray(c.italic('...')),
     semanticCount,
     c.gray(c.italic(suffix)),
   ].join('');

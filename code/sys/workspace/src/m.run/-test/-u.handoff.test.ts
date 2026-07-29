@@ -160,10 +160,10 @@ describe('WorkspaceRun.Fmt.handoff', () => {
       expect(full.includes('Failure details')).to.eql(true);
       expect(full.includes('• Schema.decode → rejects an invalid discriminant')).to.eql(true);
       expect(full.includes('expected "foo", received "bar"')).to.eql(true);
-      expect(full.includes('... +1 more failed test')).to.eql(true);
-      const overflow = fullRendered.split('\n').find((line) => plain(line).includes('... +'));
+      expect(full.includes('...+1 more failed test')).to.eql(true);
+      const overflow = fullRendered.split('\n').find((line) => plain(line).includes('...+'));
       expect(overflow).to.eql(
-        `  ${c.gray(c.italic('... '))}${c.red(c.italic('+1'))}${
+        `  ${c.gray(c.italic('...'))}${c.red(c.italic('+1'))}${
           c.gray(c.italic(' more failed test'))
         }`,
       );
@@ -190,11 +190,11 @@ describe('WorkspaceRun.Fmt.handoff', () => {
         terminal: false,
         width: 100,
       });
-      const overflow = rendered.split('\n').find((line) => plain(line).includes('... +'));
+      const overflow = rendered.split('\n').find((line) => plain(line).includes('...+'));
 
-      expect(plain(overflow ?? '')).to.eql('  ... +2 more failed tests');
+      expect(plain(overflow ?? '')).to.eql('  ...+2 more failed tests');
       expect(overflow).to.eql(
-        `  ${c.gray(c.italic('... '))}${c.red(c.italic('+2'))}${
+        `  ${c.gray(c.italic('...'))}${c.red(c.italic('+2'))}${
           c.gray(c.italic(' more failed tests'))
         }`,
       );
@@ -218,11 +218,11 @@ describe('WorkspaceRun.Fmt.handoff', () => {
         terminal: false,
         width: 100,
       });
-      const overflow = rendered.split('\n').find((line) => plain(line).includes('... +'));
+      const overflow = rendered.split('\n').find((line) => plain(line).includes('...+'));
 
-      expect(plain(overflow ?? '')).to.eql('  ... +10,000 more failed tests');
+      expect(plain(overflow ?? '')).to.eql('  ...+10,000 more failed tests');
       expect(overflow).to.eql(
-        `  ${c.gray(c.italic('... '))}${c.red(c.italic('+10,000'))}${
+        `  ${c.gray(c.italic('...'))}${c.red(c.italic('+10,000'))}${
           c.gray(c.italic(' more failed tests'))
         }`,
       );

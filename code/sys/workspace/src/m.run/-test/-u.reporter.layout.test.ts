@@ -41,7 +41,7 @@ describe('WorkspaceRun.parallel reporter layout', () => {
 
       expect(frame.includes('✕ sample/failed-package · exit 1')).to.eql(true);
       expect(frame.includes('rerun: deno task --cwd ./sample/failed-package test')).to.eql(true);
-      expect(frame.includes('... +')).to.eql(true);
+      expect(frame.includes('...+')).to.eql(true);
       expect(physicalRows(frame, 80) <= 9).to.eql(true);
     });
 
@@ -126,7 +126,7 @@ describe('WorkspaceRun.parallel reporter layout', () => {
       const frame = Cli.stripAnsi(layout.frame);
 
       expect(physicalRows(layout.frame, 80)).to.eql(7);
-      expect(frame.split('\n').at(-1)).to.eql('  ... +3 more failed packages');
+      expect(frame.split('\n').at(-1)).to.eql('  ...+3 more failed packages');
       expect(failureSpacerRows(layout.frame, 80)).to.eql(1);
       expect(layout.completion.failedPackages).to.eql({ visible: 1, total: 4 });
     });
@@ -261,7 +261,7 @@ describe('WorkspaceRun.parallel reporter layout', () => {
       expect(hidden).to.eql(9);
       expectContinuation(
         findContinuation(frame),
-        '  ... +9 more running',
+        '  ...+9 more running',
         c.cyan(c.italic('+9')),
         ' running',
       );
@@ -287,7 +287,7 @@ describe('WorkspaceRun.parallel reporter layout', () => {
       expect(rows[0]?.includes('sample/pkg-01')).to.eql(true);
       expect(rows[0]?.includes('sample/pkg-03')).to.eql(true);
       expect(rows[0]?.includes('sample/pkg-05')).to.eql(true);
-      expect(frame.includes('... +')).to.eql(false);
+      expect(frame.includes('...+')).to.eql(false);
     });
   });
 
@@ -313,7 +313,7 @@ describe('WorkspaceRun.parallel reporter layout', () => {
       expect(restored).to.eql(tall);
       expect(tall.includes('sample/pkg-18')).to.eql(true);
       expect(short.includes('sample/pkg-18')).to.eql(false);
-      expect(short.includes('... +')).to.eql(true);
+      expect(short.includes('...+')).to.eql(true);
       expect(tall.indexOf('sample/pkg-01') < tall.indexOf('sample/pkg-02')).to.eql(true);
     });
 
@@ -336,9 +336,9 @@ describe('WorkspaceRun.parallel reporter layout', () => {
         const hidden = total - visible;
 
         expect(hidden >= 0).to.eql(true);
-        expect(frame.includes('... +')).to.eql(hidden > 0);
+        expect(frame.includes('...+')).to.eql(hidden > 0);
         if (hidden > 0) {
-          expect(frame.split('\n').at(-1)).to.eql(`  ... +${hidden} more`);
+          expect(frame.split('\n').at(-1)).to.eql(`  ...+${hidden} more`);
         }
         expect(physicalRows(frame, 100) <= height - 1).to.eql(true);
       }
@@ -403,7 +403,7 @@ describe('WorkspaceRun.parallel reporter layout', () => {
       expect(lines[0]?.includes('sample/pkg-01')).to.eql(true);
       expect(frame.match(/sample\/pkg-\d+/g)?.length).to.eql(12);
       expect(completedFailures).to.have.length(2);
-      expect(frame.includes('... +')).to.eql(false);
+      expect(frame.includes('...+')).to.eql(false);
       expect(lines.filter((line) => line === '┄'.repeat(100))).to.have.length(1);
       expect(lines[separatorIndex - 1]).to.eql('');
       expect(firstFailureAction > frame.lastIndexOf('✕  sample/failure-')).to.eql(true);
@@ -513,7 +513,7 @@ describe('WorkspaceRun.parallel reporter layout', () => {
       expect(contextualText.match(/sample\/running-\d+/g)?.length).to.eql(4);
       expectContinuation(
         findContinuation(contextual),
-        '  ... +5 more running',
+        '  ...+5 more running',
         c.cyan(c.italic('+5')),
         ' running',
       );
@@ -524,7 +524,7 @@ describe('WorkspaceRun.parallel reporter layout', () => {
       expect(gridOnlyText.match(/sample\/running-\d+/g)?.length).to.eql(2);
       expectContinuation(
         findContinuation(gridOnly),
-        '  ... +7 more running',
+        '  ...+7 more running',
         c.cyan(c.italic('+7')),
         ' running',
       );
@@ -534,7 +534,7 @@ describe('WorkspaceRun.parallel reporter layout', () => {
       expect(summaryOnlyText.includes('sample/running-')).to.eql(false);
       expectContinuation(
         findContinuation(summaryOnly),
-        '  ... +9 more running',
+        '  ...+9 more running',
         c.cyan(c.italic('+9')),
         ' running',
       );
@@ -558,7 +558,7 @@ describe('WorkspaceRun.parallel reporter layout', () => {
         const frame = Cli.stripAnsi(render(item.height));
         const visible = frame.match(/sample\/running-\d+/g)?.length ?? 0;
         expect(visible).to.eql(item.visible);
-        expect(frame.includes(`... +${item.hidden} more running`)).to.eql(true);
+        expect(frame.includes(`...+${item.hidden} more running`)).to.eql(true);
         expect(visible + item.hidden).to.eql(items.length);
         expect(physicalRows(frame, WIDTH) <= item.height - 1).to.eql(true);
       }
@@ -567,7 +567,7 @@ describe('WorkspaceRun.parallel reporter layout', () => {
       expect(runningRows(wrapped)).to.have.length(1);
       expectContinuation(
         findContinuation(wrapped),
-        '  ... +8 more running',
+        '  ...+8 more running',
         c.cyan(c.italic('+8')),
         ' running',
       );
@@ -609,7 +609,7 @@ describe('WorkspaceRun.parallel reporter layout', () => {
         expect(visible + item.hidden.length).to.eql(
           VISIBLE_COMPLETED_FOR_WIDTH_100 + item.hidden.length,
         );
-        expectContinuation(findContinuation(frame), '  ... +2 more', item.count);
+        expectContinuation(findContinuation(frame), '  ...+2 more', item.count);
       }
 
       const allVisible = formatParallelProgress({
@@ -648,7 +648,7 @@ describe('WorkspaceRun.parallel reporter layout', () => {
           );
         expectContinuation(
           findContinuation(rendered),
-          `  ... +${hidden} more${qualifier}`,
+          `  ...+${hidden} more${qualifier}`,
           c.red(c.italic(`+${hidden}`)),
           qualifier,
         );
@@ -802,7 +802,7 @@ function failure(path: string): FailedPackage {
 }
 
 function findContinuation(frame: string) {
-  return frame.split('\n').find((line) => Cli.stripAnsi(line).includes('... +'));
+  return frame.split('\n').find((line) => Cli.stripAnsi(line).includes('...+'));
 }
 
 function runningRows(frame: string) {
@@ -830,7 +830,7 @@ function expectContinuation(
 }
 
 function overflowLine(count: string, qualifier = '') {
-  return `  ${c.gray(c.italic('... '))}${count}${c.gray(c.italic(` more${qualifier}`))}`;
+  return `  ${c.gray(c.italic('...'))}${count}${c.gray(c.italic(` more${qualifier}`))}`;
 }
 
 function completedPosition(frame: string, path: string, width: number) {

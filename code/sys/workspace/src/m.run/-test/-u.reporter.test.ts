@@ -340,7 +340,7 @@ describe('WorkspaceRun.parallel reporter', () => {
 
         expect(frame.includes('✓  sample/pkg-10')).to.eql(true);
         expect(frame.includes('✓  sample/pkg-11')).to.eql(false);
-        expect(frame.includes('... +2 more')).to.eql(true);
+        expect(frame.includes('...+2 more')).to.eql(true);
       });
 
       it('keeps overflow truthful beyond 64 retained completions', () => {
@@ -366,7 +366,7 @@ describe('WorkspaceRun.parallel reporter', () => {
         expect(frame.includes('✓  sample/pkg-70')).to.eql(true);
         expect(frame.includes('✓  sample/pkg-61')).to.eql(true);
         expect(frame.includes('✓  sample/pkg-60')).to.eql(false);
-        expect(frame.includes('... +60 more')).to.eql(true);
+        expect(frame.includes('...+60 more')).to.eql(true);
       });
 
       it('ages an old failed row into overflow while retaining its failure action', () => {
@@ -403,7 +403,7 @@ describe('WorkspaceRun.parallel reporter', () => {
         expect(frame.includes('✕  sample/pkg-failed')).to.eql(false);
         expect(frame.includes('✓  sample/pkg-passed-10')).to.eql(true);
         expect(frame.includes('✓  sample/pkg-passed-11')).to.eql(false);
-        expect(frame.includes('... +2 more')).to.eql(true);
+        expect(frame.includes('...+2 more')).to.eql(true);
         expect(frame.includes('✕ sample/pkg-failed · exit 1')).to.eql(true);
         expect(frame.includes('rerun: deno task --cwd ./sample/pkg-failed test')).to.eql(true);
       });
@@ -570,8 +570,8 @@ describe('WorkspaceRun.parallel reporter', () => {
           .split('\n')
           .filter((line) => line.startsWith('✕ sample/failure-'))
           .length;
-        expect(liveFrame.includes('... +')).to.eql(true);
-        expect(finalFrame.includes('... +')).to.eql(false);
+        expect(liveFrame.includes('...+')).to.eql(true);
+        expect(finalFrame.includes('...+')).to.eql(false);
         expect(completed).to.eql(failures.length);
         expect(actions).to.eql(failures.length);
         expect(finalFrame.indexOf('✕  sample/failure-') < finalFrame.indexOf('✕ sample/failure-'))
