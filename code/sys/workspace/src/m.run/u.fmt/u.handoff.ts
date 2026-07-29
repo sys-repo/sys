@@ -2,7 +2,9 @@ import { c, Cli, Num, Str, type t, Time } from '../common.ts';
 import { type FailedPackage, projectFailedPackages } from '../u/u.failure.ts';
 import { formatFailedOutput, formatFailedPackageIndex, formatFailureDetails } from './u.failure.ts';
 import { counts, testStatsSummary } from './u.stats.ts';
-import { appendWrapped, displayNumber, fitHandoffWidth, taskNoun } from './u.text.ts';
+import { displayNumber, fitHandoffWidth, taskNoun } from './u.text.ts';
+
+const SUMMARY_SEPARATOR = c.gray(' · ');
 
 /** Format one deterministic final run handoff. */
 export function formatHandoff(
@@ -18,7 +20,7 @@ export function formatHandoff(
 
   str.line(handoffTitle(result));
   str.line(Cli.Fmt.hr({ width, color: handoffColor(result) }));
-  appendWrapped(str, '', handoffSummary(result), width);
+  handoffSummary(result, width).forEach((line) => str.line(line));
 
   if (failures.length > 0) {
     const omitted = allFailures.length - failures.length;
@@ -55,47 +57,81 @@ function handoffTitle(result: t.WorkspaceRun.Result) {
     : `${c.red('Workspace')} ${c.cyan(noun)} ${c.red(`failed in ${elapsed}`)}`;
 }
 
-function handoffSummary(result: t.WorkspaceRun.Result) {
+function handoffSummary(result: t.WorkspaceRun.Result, width: number) {
   const resultCounts = counts(result.packages);
-  const parts: string[] = [];
+  const primary: string[] = [];
+  const capabilities: string[] = [];
 
   if (result.ok) {
     const packages = `${displayNumber(resultCounts.ran)} ${
       Str.plural(resultCounts.ran, 'package')
     }`;
-    parts.push(handoffOutcome(result, packages));
+    primary.push(handoffOutcome(result, packages));
   } else {
-    parts.push(c.white(`${displayNumber(resultCounts.ran)} ran`));
-    parts.push(handoffOutcome(result, `${displayNumber(resultCounts.failed)} failed`));
+    primary.push(c.white(`${displayNumber(resultCounts.ran)} ran`));
+    primary.push(handoffOutcome(result, `${displayNumber(resultCounts.failed)} failed`));
   }
   if (resultCounts.blocked > 0) {
-    parts.push(c.white(`${displayNumber(resultCounts.blocked)} blocked`));
+    primary.push(c.white(`${displayNumber(resultCounts.blocked)} blocked`));
   }
   if (resultCounts.skipped > 0) {
-    parts.push(c.white(`${displayNumber(resultCounts.skipped)} skipped`));
+    primary.push(c.white(`${displayNumber(resultCounts.skipped)} skipped`));
   }
 
   const stats = testStatsSummary(result);
   if (stats) {
     if (stats.observed > 0) {
       const tests = `${displayNumber(stats.tests)} ${Str.plural(stats.tests, 'test')}`;
-      parts.push(c.white(tests));
+      primary.push(c.white(tests));
     }
-    const reports = [
+    primary.push(
       c.white(
         `${displayNumber(stats.observed)} ${Str.plural(stats.observed, 'report')} collected`,
       ),
-    ];
+    );
     if (stats.unavailable > 0) {
-      reports.push(c.white(`${displayNumber(stats.unavailable)} unavailable`));
+      capabilities.push(c.white(`${displayNumber(stats.unavailable)} unavailable`));
     }
     if (stats.unsupported > 0) {
-      reports.push(c.white(`${displayNumber(stats.unsupported)} not applicable`));
+      capabilities.push(c.white(`${displayNumber(stats.unsupported)} not applicable`));
     }
-    parts.push(reports.join(c.gray(' · ')));
   }
 
-  return parts.join(c.gray(' · '));
+  const lines = packSummaryParts(primary, width);
+  if (capabilities.length === 0) return lines;
+
+  const capabilityLine = joinSummaryParts(capabilities);
+  const last = lines.at(-1);
+  const combined = last ? `${last}${SUMMARY_SEPARATOR}${capabilityLine}` : capabilityLine;
+  if (width <= 0 || Cli.Fmt.Text.Width.measure(combined) <= width) {
+    lines[lines.length - 1] = combined;
+  } else {
+    lines.push(...packSummaryParts(capabilities, width));
+  }
+  return lines;
+}
+
+function packSummaryParts(parts: readonly string[], width: number) {
+  if (parts.length === 0) return [];
+  if (width <= 0) return [joinSummaryParts(parts)];
+
+  const lines: string[] = [];
+  for (const part of parts) {
+    const last = lines.at(-1);
+    const candidate = last ? `${last}${SUMMARY_SEPARATOR}${part}` : part;
+    if (last && Cli.Fmt.Text.Width.measure(candidate) > width) {
+      lines.push(part);
+    } else if (last) {
+      lines[lines.length - 1] = candidate;
+    } else {
+      lines.push(part);
+    }
+  }
+  return lines;
+}
+
+function joinSummaryParts(parts: readonly string[]) {
+  return parts.join(SUMMARY_SEPARATOR);
 }
 
 function omittedFailedPackages(

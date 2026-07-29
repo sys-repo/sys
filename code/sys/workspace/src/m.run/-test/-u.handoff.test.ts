@@ -490,6 +490,49 @@ describe('WorkspaceRun.Fmt.handoff', () => {
   });
 
   describe('handoff hierarchy and width', () => {
+    it('wraps summary capability states only at semantic separators', () => {
+      const result = widthSummaryResult();
+      const render = (width: number) =>
+        WorkspaceRun.Fmt.handoff(result, {
+          detail: 'compact',
+          terminal: false,
+          width,
+          screen: { failedPackages: { visible: 2, total: 2 } },
+        });
+      const tiny = render(40);
+      const narrow = render(80);
+
+      expect(plain(tiny).split('\n').slice(2)).to.eql([
+        '6 ran · 2 failed · 10,365 tests',
+        '2 reports collected',
+        '1 unavailable · 3 not applicable',
+      ]);
+      expect(plain(narrow)).to.eql(Str.dedent(`
+      Workspace tests failed in 20ms
+      ${'━'.repeat(80)}
+      6 ran · 2 failed · 10,365 tests · 2 reports collected
+      1 unavailable · 3 not applicable
+    `));
+      expect(narrow.split('\n').slice(2)).to.eql([
+        [
+          c.white('6 ran'),
+          c.red('2 failed'),
+          c.white('10,365 tests'),
+          c.white('2 reports collected'),
+        ].join(c.gray(' · ')),
+        [c.white('1 unavailable'), c.white('3 not applicable')].join(c.gray(' · ')),
+      ]);
+      for (
+        const { rendered, width } of [{ rendered: tiny, width: 40 }, {
+          rendered: narrow,
+          width: 80,
+        }]
+      ) {
+        expect(rendered.split('\n').every((line) => Cli.Fmt.Text.Width.measure(line) <= width)).to
+          .eql(true);
+      }
+    });
+
     it('places an exact-width result-colored rule between every title and summary', () => {
       const success = okResult([ran('code/pkg-ok', { success: true, code: 0 })]);
       const failure = ran('code/pkg-failed', { code: 1 });
@@ -657,6 +700,22 @@ function failedResult(
     packages,
     failure,
   };
+}
+
+function widthSummaryResult() {
+  const first = ran('code/pkg-failed-tests', {
+    code: 1,
+    testStats: observed({ tests: 10_364, failed: 2 }),
+  });
+  return failedResult([
+    first,
+    ran('code/pkg-failed-process', { code: 1, testStats: observed({ tests: 1 }) }),
+    ran('code/pkg-unavailable', { success: true, code: 0, testStats: unavailable() }),
+    ...Array.from(
+      { length: 3 },
+      () => ran('code/pkg-not-applicable', { success: true, code: 0, testStats: unsupported() }),
+    ),
+  ], first);
 }
 
 function observed(args: {
