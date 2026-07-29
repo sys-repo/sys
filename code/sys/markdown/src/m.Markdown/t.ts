@@ -73,6 +73,18 @@ export declare namespace Markdown {
   export type IsLib = {
     /** True when the input is an MDAST root node. */
     ast(input: unknown): input is Ast;
+    /** True when the input is a structurally valid MDAST heading node. */
+    heading(input: unknown): input is Extract<Node, { type: 'heading' }>;
+    /** True when the input is a structurally valid MDAST inline-code node. */
+    inlineCode(input: unknown): input is Extract<Node, { type: 'inlineCode' }>;
+    /** True when the input is a structurally valid MDAST link node. */
+    link(input: unknown): input is Extract<Node, { type: 'link' }>;
+    /** True when the input is a GFM task-list item with concrete checked state. */
+    taskListItem(
+      input: unknown,
+    ): input is Extract<Node, { type: 'listItem' }> & { readonly checked: boolean };
+    /** True when the input is an MDAST thematic-break node. */
+    thematicBreak(input: unknown): input is Extract<Node, { type: 'thematicBreak' }>;
   };
 
   /**
