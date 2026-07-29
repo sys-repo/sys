@@ -47,19 +47,26 @@ function thematicBreak(
 
 function thematicBreakMarkers(
   raw: string,
-): Pick<t.Markdown.Source.ThematicBreakLexeme, 'marker' | 'count'> | undefined {
+): Pick<t.Markdown.Source.ThematicBreakLexeme, 'marker' | 'count' | 'spaced'> | undefined {
   let marker: t.Markdown.Source.ThematicBreakLexeme['marker'] | undefined;
   let count = 0;
+  let spaced = false;
+  let pendingSpace = false;
 
   for (const char of raw) {
-    if (char === ' ' || char === '\t') continue;
+    if (char === ' ' || char === '\t') {
+      if (count > 0) pendingSpace = true;
+      continue;
+    }
     if (!(char === '-' || char === '*' || char === '_')) return undefined;
     if (marker !== undefined && char !== marker) return undefined;
+    if (count > 0 && pendingSpace) spaced = true;
     marker = char;
     count++;
+    pendingSpace = false;
   }
 
-  return marker && count >= 3 ? { marker, count } : undefined;
+  return marker && count >= 3 ? { marker, count, spaced } : undefined;
 }
 
 function sourceSpan(node: t.Markdown.Node) {

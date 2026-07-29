@@ -115,6 +115,8 @@ export declare namespace Markdown {
       readonly marker: '-' | '*' | '_';
       /** Marker character count, excluding spaces and tabs. */
       readonly count: number;
+      /** Whether a space or tab occurs between marker characters. */
+      readonly spaced: boolean;
       /** Validated source position whose offsets identify `raw`. */
       readonly position: Position;
     };

@@ -11,10 +11,12 @@ describe('Markdown.Source', () => {
   it('extracts marker facts from CommonMark-parsed thematic breaks', () => {
     // `Markdown.parse` is grammar authority. These are CommonMark spellings, not a sys DSL.
     const cases = [
-      { source: '---\n', expected: { raw: '---', marker: '-', count: 3 } },
-      { source: '- - -\n', expected: { raw: '- - -', marker: '-', count: 3 } },
-      { source: '******\n', expected: { raw: '******', marker: '*', count: 6 } },
-      { source: '_ _ _ _\n', expected: { raw: '_ _ _ _', marker: '_', count: 4 } },
+      { source: '---\n', expected: { raw: '---', marker: '-', count: 3, spaced: false } },
+      { source: '- - -\n', expected: { raw: '- - -', marker: '-', count: 3, spaced: true } },
+      { source: '-  - - -\n', expected: { raw: '-  - - -', marker: '-', count: 4, spaced: true } },
+      { source: '******\n', expected: { raw: '******', marker: '*', count: 6, spaced: false } },
+      { source: '_ _ _ _\n', expected: { raw: '_ _ _ _', marker: '_', count: 4, spaced: true } },
+      { source: '*\t*\t*\n', expected: { raw: '*\t*\t*', marker: '*', count: 3, spaced: true } },
     ] as const;
 
     cases.forEach(({ source, expected }) => {
@@ -26,8 +28,27 @@ describe('Markdown.Source', () => {
       expect(lexeme?.raw).to.eql(expected.raw);
       expect(lexeme?.marker).to.eql(expected.marker);
       expect(lexeme?.count).to.eql(expected.count);
+      expect(lexeme?.spaced).to.eql(expected.spaced);
       expect(lexeme?.position).to.equal(node.position);
     });
+  });
+
+  it('ignores whitespace outside the first and last marker', () => {
+    const source: t.StringMarkdown = '  ---  \n';
+    const node = firstNode(source);
+    if (!node.position) throw new Error('Expected a positioned thematic break.');
+
+    const positioned = {
+      ...node,
+      position: {
+        start: { line: 1, column: 1, offset: 0 },
+        end: { line: 1, column: 8, offset: 7 },
+      },
+    } as t.Markdown.Node;
+    const lexeme = Markdown.Source.thematicBreak(source, positioned);
+
+    expect(lexeme?.raw).to.eql('  ---  ');
+    expect(lexeme?.spaced).to.eql(false);
   });
 
   it('uses JS source offsets with preceding astral characters', () => {
