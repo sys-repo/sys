@@ -91,7 +91,7 @@
     "react-icons/vsc": "npm:react-icons@5.7.0/vsc",
     "react-inspector": "npm:react-inspector@9.0.0",
     "react-spinners": "npm:react-spinners@0.17.0",
-    "rollup": "npm:rollup@4.62.2",
+    "rollup": "npm:rollup@4.62.3",
     "rollup-plugin-visualizer": "npm:rollup-plugin-visualizer@7.0.1",
     "rxjs": "npm:rxjs@7.8.2",
     "rxjs/operators": "npm:rxjs@7.8.2/operators",
