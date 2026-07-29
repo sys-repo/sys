@@ -21,7 +21,7 @@ export type {
   ShardCount,
   ShardIndex,
   ShardStrategy,
-  StrBuilder,
+  Str,
   Timecode,
 } from '@sys/std/t';
 export type { Yaml, YamlConfig } from '@sys/yaml/t';

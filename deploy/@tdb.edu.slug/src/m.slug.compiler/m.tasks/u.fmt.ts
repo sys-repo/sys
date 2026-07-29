@@ -52,7 +52,7 @@ export function tasks(docs: readonly t.DocTasks[]): string {
 /**
  * Emit a single table row (2 columns).
  */
-function row(b: t.StrBuilder, todo: string, comment: string) {
+function row(b: t.Str.Builder, todo: string, comment: string) {
   const todoText = pad(todo, TODO_WIDTH);
   const commentText = pad(comment, COMMENT_WIDTH);
   b.line(`${todoText}  ${c.italic(c.gray(commentText))}`);
