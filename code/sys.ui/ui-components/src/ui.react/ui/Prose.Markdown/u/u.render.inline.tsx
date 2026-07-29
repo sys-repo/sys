@@ -1,6 +1,6 @@
-import { Is, type t } from '../common.ts';
+import { Is, Markdown, type t } from '../common.ts';
 import { toSafeHref } from './u.href.ts';
-import { isLinkNode, type MarkdownNodeRecord } from './u.node.ts';
+import type { MarkdownNodeRecord } from './u.node.ts';
 import type { MarkdownStyles } from './u.styles.ts';
 
 type InlineRenderContext = {
@@ -27,7 +27,7 @@ export function renderInlineCode(args: InlineCodeRenderArgs) {
 
 export function renderLink(args: LinkRenderArgs) {
   const { node, children, renderers, styles } = args;
-  if (!isLinkNode(node)) return children;
+  if (!Markdown.Is.link(node)) return children;
 
   const href = toSafeHref(node.url);
   const title = Is.string(node.title) && node.title.trim() ? node.title : undefined;

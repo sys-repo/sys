@@ -1,5 +1,5 @@
-import { css, Num, type t } from '../common.ts';
-import { isTaskListItemNode, type MarkdownNodeRecord } from './u.node.ts';
+import { css, Markdown, Num, type t } from '../common.ts';
+import type { MarkdownNodeRecord } from './u.node.ts';
 import type { MarkdownStyles } from './u.styles.ts';
 
 type ListRenderArgs = {
@@ -23,7 +23,9 @@ export function renderList(args: ListRenderArgs) {
 
 export function renderListItem(args: ListItemRenderArgs) {
   const { node, children, styles } = args;
-  if (!isTaskListItemNode(node)) return <li className={styles.listItem.class}>{children}</li>;
+  if (!Markdown.Is.taskListItem(node)) {
+    return <li className={styles.listItem.class}>{children}</li>;
+  }
 
   return (
     <li className={css(styles.listItem, styles.taskListItem).class}>
@@ -46,7 +48,7 @@ function renderTaskState(
   return renderers?.taskState?.({ node, checked, ariaLabel }) ?? (
     <input
       aria-label={ariaLabel}
-      aria-readonly={true}
+      aria-readonly
       checked={checked}
       className={styles.taskCheckbox.class}
       onClick={(e) => e.preventDefault()}

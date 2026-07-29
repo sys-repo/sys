@@ -1,12 +1,6 @@
 import React from 'react';
 import { Is, Markdown, type t } from '../common.ts';
-import {
-  hasRenderableChildren,
-  isInlineCodeNode,
-  isMarkdownNodeRecord,
-  isThematicBreakNode,
-  type MarkdownNodeRecord,
-} from './u.node.ts';
+import { hasRenderableChildren, isMarkdownNodeRecord, type MarkdownNodeRecord } from './u.node.ts';
 import { renderInlineCode, renderLink } from './u.render.inline.tsx';
 import { renderList, renderListItem } from './u.render.list.tsx';
 import type { MarkdownStyles } from './u.styles.ts';
@@ -38,11 +32,11 @@ function renderNode(input: unknown, ctx: RenderContext): t.ReactNode {
     case 'paragraph':
       return <p className={styles.paragraph.class}>{renderContainerChildren(node, ctx)}</p>;
     case 'thematicBreak':
-      return isThematicBreakNode(node) ? renderThematicBreak(node, ctx) : null;
+      return Markdown.Is.thematicBreak(node) ? renderThematicBreak(node, ctx) : null;
     case 'text':
       return Is.string(node.value) ? node.value : null;
     case 'inlineCode':
-      return isInlineCodeNode(node) ? renderInlineCode({ ...ctx, node }) : null;
+      return Markdown.Is.inlineCode(node) ? renderInlineCode({ ...ctx, node }) : null;
     case 'strong':
       return <strong className={styles.strong.class}>{renderContainerChildren(node, ctx)}</strong>;
     case 'emphasis':
