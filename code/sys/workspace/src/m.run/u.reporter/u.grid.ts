@@ -9,6 +9,7 @@ export type ReporterGridLayout = {
 };
 
 const GRID_GUTTER = '      ';
+const GRID_GUTTER_WIDTH = Cli.Fmt.Text.Width.measure(GRID_GUTTER);
 const GRID_INDENT = '  ';
 const GRID_INDENT_WIDTH = Cli.Fmt.Text.Width.measure(GRID_INDENT);
 const CELL_CHROME_WIDTH = 4;
@@ -22,6 +23,32 @@ export function reporterGridLayout(width: number): ReporterGridLayout | undefine
   const columns = columnCount(maxColumns, usable);
   if (columns < 1) return undefined;
   return { columns, cellWidth: cellWidth(usable, columns) };
+}
+
+/** Use the greatest bounded running-job column count whose complete cells fit. */
+export function runningReporterGridLayout(
+  running: readonly ParallelProgressRunning[],
+  width: number,
+): ReporterGridLayout | undefined {
+  if (running.length === 0) return undefined;
+  const usable = width - GRID_INDENT_WIDTH;
+  const maximum = Math.min(
+    running.length,
+    Math.max(0, Math.floor(usable / GRID_GUTTER_WIDTH) + 1),
+  );
+
+  for (let columns = maximum; columns >= 1; columns -= 1) {
+    const widths = runningColumnWidths(running, columns);
+    const gutters = GRID_GUTTER_WIDTH * (columns - 1);
+    if (Num.sum(widths) + gutters <= usable) {
+      return { columns, cellWidth: Math.max(...widths) };
+    }
+  }
+
+  if (usable <= 0 || running.some((item) => runningCellMinimumWidth(item) > usable)) {
+    return undefined;
+  }
+  return { columns: 1, cellWidth: usable };
 }
 
 /** Prefer fewer final columns when doing so preserves complete package labels. */
@@ -122,6 +149,30 @@ export function completedSeverityColor(items: readonly ParallelProgressCompleted
   return hasWarning ? 'yellow' : 'green';
 }
 
+function runningColumnWidths(
+  running: readonly ParallelProgressRunning[],
+  columns: number,
+) {
+  const widths: number[] = [];
+  for (const [index, item] of running.entries()) {
+    const column = index % columns;
+    widths[column] = Math.max(widths[column] ?? 0, runningCellWidth(item));
+  }
+  return widths;
+}
+
+function runningCellWidth(item: ParallelProgressRunning) {
+  const labelWidth = Cli.Fmt.Text.Width.measure(packageLabel(item));
+  const elapsedWidth = Cli.Fmt.Text.Width.measure(formatRunningElapsed(item.elapsed));
+  return labelWidth + elapsedWidth + CELL_CHROME_WIDTH;
+}
+
+function runningCellMinimumWidth(item: ParallelProgressRunning) {
+  const labelWidth = Cli.Fmt.Text.Width.measure(packageLabel(item));
+  const elapsedWidth = Cli.Fmt.Text.Width.measure(formatRunningElapsed(item.elapsed));
+  return Math.min(labelWidth, MIN_LABEL_WIDTH) + elapsedWidth + CELL_CHROME_WIDTH;
+}
+
 function completedCellFits(item: ParallelProgressCompleted, width: number) {
   const labelWidth = Cli.Fmt.Text.Width.measure(packageLabel(item));
   const suffixWidth = Cli.Fmt.Text.Width.measure(completedSuffix(item));
@@ -136,7 +187,7 @@ function columnCount(maxColumns: number, usable: number) {
 }
 
 function cellWidth(usable: number, columns: number) {
-  const gutterWidth = Cli.Fmt.Text.Width.measure(GRID_GUTTER) * (columns - 1);
+  const gutterWidth = GRID_GUTTER_WIDTH * (columns - 1);
   const raw = (usable - gutterWidth) / columns;
   return raw - (raw % 1);
 }

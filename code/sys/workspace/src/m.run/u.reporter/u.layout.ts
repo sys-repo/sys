@@ -11,6 +11,7 @@ import {
   formatReporterGrid,
   formatRunningCell,
   reporterGridLayout,
+  runningReporterGridLayout,
 } from './u.grid.ts';
 import { layoutFinalScrollback } from './u.scrollback.ts';
 
@@ -173,7 +174,7 @@ function formatRunningSection(
 ) {
   if (running.length === 0 || capacity <= 0) return '';
   const fallback = `  ${formatContinuationSummary(String(running.length), 'cyan', 'running')}`;
-  const layout = reporterGridLayout(width);
+  const layout = bounded ? runningReporterGridLayout(running, width) : reporterGridLayout(width);
   if (!layout) return physicalRows(fallback, width) <= capacity ? fallback : '';
   const visibleLimit = bounded
     ? Math.min(running.length, capacity * layout.columns)

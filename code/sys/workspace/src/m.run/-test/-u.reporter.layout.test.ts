@@ -163,6 +163,134 @@ describe('WorkspaceRun.parallel reporter layout', () => {
     });
   });
 
+  describe('running width projection', () => {
+    it('renders four complete running cells on one wide row', () => {
+      const items = [
+        { path: 'sample/a-running-package-with-a-wide-label', elapsed: 65_000 },
+        { path: 'sample/b', elapsed: 65_000 },
+        { path: 'sample/c', elapsed: 65_000 },
+        { path: 'sample/d', elapsed: 65_000 },
+      ];
+      const frame = formatParallelProgress({
+        ...progress(),
+        pending: 26,
+        running: items,
+        terminal: true,
+        viewport: { width: 130, height: 20 },
+        cursorRows: 1,
+      });
+      const rows = runningRows(frame);
+      const styledRow = frame.split('\n').find((line) => Cli.stripAnsi(line).includes('⦿  ')) ?? '';
+
+      expect(rows).to.have.length(1);
+      for (const item of items) expect(rows[0]?.includes(item.path)).to.eql(true);
+      expect(Cli.stripAnsi(frame).includes('…')).to.eql(false);
+      expect(Cli.Fmt.Text.Width.measure(styledRow)).to.eql(
+        Cli.Fmt.Text.Width.measure(Cli.stripAnsi(styledRow)),
+      );
+      expectRowsCellSafe(frame, 130);
+    });
+
+    it('reduces columns before shortening complete running labels', () => {
+      const items = running(4);
+      const render = (width: number) =>
+        formatParallelProgress({
+          ...progress(),
+          pending: 26,
+          running: items,
+          terminal: true,
+          viewport: { width, height: 20 },
+          cursorRows: 1,
+        });
+
+      for (
+        const { width, columns } of [
+          { width: 110, columns: 3 },
+          { width: 80, columns: 2 },
+          { width: 50, columns: 1 },
+        ]
+      ) {
+        const frame = render(width);
+        const firstRow = runningRows(frame)[0] ?? '';
+        const visible = firstRow.match(/sample\/running-\d+/g)?.length ?? 0;
+
+        expect(visible).to.eql(columns);
+        expect(Cli.stripAnsi(frame).includes('…')).to.eql(false);
+        expectRowsCellSafe(frame, width);
+      }
+
+      const wide = render(110);
+      const narrow = render(50);
+      const restored = render(110);
+      expect(restored).to.eql(wide);
+      expect(narrow).not.to.eql(wide);
+    });
+
+    it('ellipsizes only when an overlong running label cannot fit one column', () => {
+      const path = 'sample/a-running-package-name-that-cannot-fit-one-column';
+      const frame = formatParallelProgress({
+        ...progress(),
+        pending: 29,
+        running: [{ path, elapsed: 65_000 }],
+        terminal: true,
+        viewport: { width: 40, height: 20 },
+        cursorRows: 1,
+      });
+      const row = runningRows(frame)[0] ?? '';
+
+      expect(row.includes(path)).to.eql(false);
+      expect(row.includes('…')).to.eql(true);
+      expect(Cli.Fmt.Text.Width.measure(row) <= 40).to.eql(true);
+      expectRowsCellSafe(frame, 40);
+    });
+
+    it('conserves every running job through a partial wide projection', () => {
+      const total = 17;
+      const frame = formatParallelProgress({
+        ...progress(),
+        pending: 30 - total,
+        running: running(total),
+        terminal: true,
+        viewport: { width: 130, height: 7 },
+        cursorRows: 1,
+      });
+      const visible = Cli.stripAnsi(frame).match(/sample\/running-\d+/g)?.length ?? 0;
+      const hidden = total - visible;
+
+      expect(visible).to.eql(8);
+      expect(hidden).to.eql(9);
+      expectContinuation(
+        findContinuation(frame),
+        '  ... +9 more running',
+        c.cyan(c.italic('+9')),
+        ' running',
+      );
+      expect(visible + hidden).to.eql(total);
+      expect(physicalRows(frame, 130) <= 6).to.eql(true);
+    });
+
+    it('retains the completed grid three-column geometry at wide widths', () => {
+      const frame = Cli.stripAnsi(formatParallelProgress({
+        ...progress(),
+        passed: 6,
+        pending: 24,
+        completed: completed(6),
+        terminal: true,
+        viewport: { width: 130, height: 6 },
+        cursorRows: 1,
+      }));
+      const rows = frame.split('\n').filter((line) => line.includes('sample/pkg-'));
+
+      expect(rows).to.have.length(2);
+      expect(rows[0]?.match(/sample\/pkg-\d+/g)).to.have.length(3);
+      expect(rows[1]?.match(/sample\/pkg-\d+/g)).to.have.length(3);
+      expect(rows[0]?.includes('sample/pkg-01')).to.eql(true);
+      expect(rows[0]?.includes('sample/pkg-03')).to.eql(true);
+      expect(rows[0]?.includes('sample/pkg-05')).to.eql(true);
+      expect(frame.includes('... +')).to.eql(false);
+    });
+  });
+
   describe('retained completion projection', () => {
     it('contracts and re-expands recency without reordering it', () => {
       const args = {
@@ -368,11 +496,11 @@ describe('WorkspaceRun.parallel reporter layout', () => {
 
   describe('continuation truth', () => {
     it('conserves running truth through every viewport fallback tier', () => {
-      const items = running(5);
+      const items = running(9);
       const render = (height: number, width = WIDTH) =>
         formatParallelProgress({
           ...progress(),
-          pending: 25,
+          pending: 21,
           running: items,
           terminal: true,
           viewport: { width, height },
@@ -382,22 +510,22 @@ describe('WorkspaceRun.parallel reporter layout', () => {
       const contextual = render(8);
       const contextualText = Cli.stripAnsi(contextual);
       expect(contextualText.includes('testing (--schedule=topological)')).to.eql(true);
-      expect(contextualText.match(/sample\/running-\d+/g)?.length).to.eql(2);
+      expect(contextualText.match(/sample\/running-\d+/g)?.length).to.eql(4);
       expectContinuation(
         findContinuation(contextual),
-        '  ... +3 more running',
-        c.cyan(c.italic('+3')),
+        '  ... +5 more running',
+        c.cyan(c.italic('+5')),
         ' running',
       );
 
       const gridOnly = render(6);
       const gridOnlyText = Cli.stripAnsi(gridOnly);
       expect(gridOnlyText.includes('testing')).to.eql(false);
-      expect(gridOnlyText.match(/sample\/running-\d+/g)?.length).to.eql(1);
+      expect(gridOnlyText.match(/sample\/running-\d+/g)?.length).to.eql(2);
       expectContinuation(
         findContinuation(gridOnly),
-        '  ... +4 more running',
-        c.cyan(c.italic('+4')),
+        '  ... +7 more running',
+        c.cyan(c.italic('+7')),
         ' running',
       );
 
@@ -406,8 +534,8 @@ describe('WorkspaceRun.parallel reporter layout', () => {
       expect(summaryOnlyText.includes('sample/running-')).to.eql(false);
       expectContinuation(
         findContinuation(summaryOnly),
-        '  ... +5 more running',
-        c.cyan(c.italic('+5')),
+        '  ... +9 more running',
+        c.cyan(c.italic('+9')),
         ' running',
       );
 
@@ -418,13 +546,13 @@ describe('WorkspaceRun.parallel reporter layout', () => {
       const omitted = Cli.stripAnsi(render(4));
       expect(omitted.includes('sample/running-')).to.eql(false);
       expect(omitted.includes('more running')).to.eql(false);
-      expect(omitted.includes('running 5')).to.eql(true);
+      expect(omitted.includes('running 9')).to.eql(true);
 
       for (
         const item of [
-          { height: 8, visible: 2, hidden: 3 },
-          { height: 6, visible: 1, hidden: 4 },
-          { height: 5, visible: 0, hidden: 5 },
+          { height: 8, visible: 4, hidden: 5 },
+          { height: 6, visible: 2, hidden: 7 },
+          { height: 5, visible: 0, hidden: 9 },
         ]
       ) {
         const frame = Cli.stripAnsi(render(item.height));
@@ -436,10 +564,11 @@ describe('WorkspaceRun.parallel reporter layout', () => {
       }
 
       const wrapped = render(6, 20);
+      expect(runningRows(wrapped)).to.have.length(1);
       expectContinuation(
         findContinuation(wrapped),
-        '  ... +5 more running',
-        c.cyan(c.italic('+5')),
+        '  ... +8 more running',
+        c.cyan(c.italic('+8')),
         ' running',
       );
       expect(physicalRows(wrapped, 20) <= 5).to.eql(true);
@@ -674,6 +803,10 @@ function failure(path: string): FailedPackage {
 
 function findContinuation(frame: string) {
   return frame.split('\n').find((line) => Cli.stripAnsi(line).includes('... +'));
+}
+
+function runningRows(frame: string) {
+  return Cli.stripAnsi(frame).split('\n').filter((line) => line.includes('⦿  '));
 }
 
 function failureSpacerRows(frame: string, width: number) {
