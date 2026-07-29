@@ -6,11 +6,13 @@ describe('Prose.Markdown: styles', () => {
     const styles = createStyles({ debug: false, theme: Color.theme('Light') });
 
     const paragraph = styles.paragraph.style as Record<string, unknown>;
+    const heading = styles.heading.style as Record<string, unknown>;
     const list = styles.list.style as Record<string, unknown>;
 
     expect(styles.base.style.display).to.eql('flow-root');
-    expect(paragraph[':last-child']).to.eql({ marginBottom: 0 });
-    expect(list[':first-child']).to.eql({ marginTop: 0 });
-    expect(list[':last-child']).to.eql({ marginBottom: 0 });
+    [paragraph, heading, list].forEach((block) => {
+      expect(block[':first-child']).to.eql({ marginTop: 0 });
+      expect(block[':last-child']).to.eql({ marginBottom: 0 });
+    });
   });
 });

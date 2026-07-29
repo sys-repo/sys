@@ -1,8 +1,13 @@
 import { Color, css, type t } from '../common.ts';
 
-export type MarkdownStyles = ReturnType<typeof createStyles>;
+const blockMarginEdges: t.CssValue = {
+  ':first-child': { marginTop: 0 },
+  ':last-child': { marginBottom: 0 },
+};
 
-export function createStyles(args: { debug: boolean; theme: t.Color.Theme }) {
+export function createStyles(
+  args: { debug: boolean; theme: t.Color.Theme },
+): t.ProseMarkdown.Styles {
   const { debug, theme } = args;
   const listIndent = 20;
   return {
@@ -11,13 +16,12 @@ export function createStyles(args: { debug: boolean; theme: t.Color.Theme }) {
       color: theme.fg,
       display: 'flow-root',
     }),
-    paragraph: css({ margin: '0 0 0.65em 0', ':last-child': { marginBottom: 0 } }),
+    paragraph: css({ margin: '0 0 0.65em 0' }, blockMarginEdges),
+    heading: css(blockMarginEdges),
     list: css({
       margin: '0.35em 0 0.65em 0',
       paddingLeft: listIndent,
-      ':first-child': { marginTop: 0 },
-      ':last-child': { marginBottom: 0 },
-    }),
+    }, blockMarginEdges),
     listItem: css({ marginTop: '0.25em' }),
     taskListItem: css({ listStyle: 'none' }),
     taskRow: css({

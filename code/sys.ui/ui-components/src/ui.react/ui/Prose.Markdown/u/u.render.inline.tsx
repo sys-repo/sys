@@ -1,20 +1,19 @@
 import { Is, Markdown, type t } from '../common.ts';
 import { toSafeHref } from './u.href.ts';
 import type { MarkdownNodeRecord } from './u.node.ts';
-import type { MarkdownStyles } from './u.styles.ts';
 
 type InlineRenderContext = {
-  readonly renderers?: t.ProseMarkdown.Renderers;
-  readonly styles: MarkdownStyles;
+  renderers?: t.ProseMarkdown.Renderers;
+  styles: t.ProseMarkdown.Styles;
 };
 
 type InlineCodeRenderArgs = InlineRenderContext & {
-  readonly node: t.ProseMarkdown.Inline.Code.Node;
+  node: t.ProseMarkdown.Inline.Code.Node;
 };
 
 type LinkRenderArgs = InlineRenderContext & {
-  readonly node: MarkdownNodeRecord;
-  readonly children: t.ReactNode;
+  node: MarkdownNodeRecord;
+  children: t.ReactNode;
 };
 
 export function renderInlineCode(args: InlineCodeRenderArgs) {

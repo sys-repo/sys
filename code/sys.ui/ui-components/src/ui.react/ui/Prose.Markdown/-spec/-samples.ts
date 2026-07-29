@@ -9,6 +9,7 @@ export type SampleItem = {
 export const sampleKinds = [
   'intro',
   'ast',
+  'headings',
   'lists',
   'task-state',
   'inline',
@@ -47,6 +48,22 @@ const SAMPLES = {
   ast: {
     label: 'sample: parsed AST',
     value: toAst(AST_SOURCE),
+  },
+  headings: {
+    label: 'sample: headings',
+    value: Str.dedent(`
+      # Heading level 1
+
+      ## Heading level 2
+
+      ### Heading level 3
+
+      #### Heading level 4
+
+      ##### Heading level 5
+
+      ###### Heading level 6
+    `),
   },
   lists: {
     label: 'sample: lists',

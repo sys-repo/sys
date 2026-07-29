@@ -5,6 +5,7 @@ import {
   DomMock,
   expect,
   it,
+  Str,
   type t,
   TestReact,
 } from './common.ts';
@@ -12,6 +13,65 @@ import { ProseMarkdown } from '../mod.ts';
 
 describe('Prose.Markdown.UI: semantic blocks', () => {
   DomMock.init({ beforeEach, afterEach });
+
+  it('renders heading depth with native semantics', async () => {
+    const source = Str.dedent(`
+      # Alpha
+
+      ### Charlie
+    `);
+    const res = await TestReact.render(<ProseMarkdown.UI value={source} />, { strict: false });
+
+    try {
+      expect(res.container.querySelector('h1')?.textContent).to.eql('Alpha');
+      expect(res.container.querySelector('h3')?.textContent).to.eql('Charlie');
+    } finally {
+      res.dispose();
+    }
+  });
+
+  it('passes semantic heading children and canonical depth to overrides', async () => {
+    let seen: t.ProseMarkdown.Block.Heading.RendererArgs | undefined;
+    const res = await TestReact.render(
+      <ProseMarkdown.UI
+        value='## Bravo'
+        renderers={{
+          heading: (args) => {
+            seen = args;
+            return <div data-heading={args.depth}>{args.children}</div>;
+          },
+        }}
+      />,
+      { strict: false },
+    );
+
+    try {
+      expect(res.container.querySelector('[data-heading="2"]')?.textContent).to.eql('Bravo');
+      expect(seen?.node.type).to.eql('heading');
+      expect(seen?.depth).to.eql(2);
+    } finally {
+      res.dispose();
+    }
+  });
+
+  it('preserves safe children without inventing a tag for malformed heading depth', async () => {
+    const ast = {
+      type: 'root',
+      children: [{
+        type: 'heading',
+        depth: 7,
+        children: [{ type: 'text', value: 'Visible.' }],
+      }],
+    } as unknown as t.Markdown.Ast;
+    const res = await TestReact.render(<ProseMarkdown.UI value={ast} />, { strict: false });
+
+    try {
+      expect(res.container.querySelector('h1, h2, h3, h4, h5, h6')).to.eql(null);
+      expect(res.container.textContent).to.eql('Visible.');
+    } finally {
+      res.dispose();
+    }
+  });
 
   it('renders thematic breaks with native semantics', async () => {
     const source = 'Before.\n\n---\n\nAfter.';

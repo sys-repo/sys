@@ -1,15 +1,14 @@
 import { css, Markdown, Num, type t } from '../common.ts';
 import type { MarkdownNodeRecord } from './u.node.ts';
-import type { MarkdownStyles } from './u.styles.ts';
 
 type ListRenderArgs = {
-  readonly node: MarkdownNodeRecord;
-  readonly children: t.ReactNode;
-  readonly styles: MarkdownStyles;
+  node: MarkdownNodeRecord;
+  children: t.ReactNode;
+  styles: t.ProseMarkdown.Styles;
 };
 
 type ListItemRenderArgs = ListRenderArgs & {
-  readonly renderers?: t.ProseMarkdown.Renderers;
+  renderers?: t.ProseMarkdown.Renderers;
 };
 
 export function renderList(args: ListRenderArgs) {

@@ -3,12 +3,11 @@ import { Is, Markdown, type t } from '../common.ts';
 import { hasRenderableChildren, isMarkdownNodeRecord, type MarkdownNodeRecord } from './u.node.ts';
 import { renderInlineCode, renderLink } from './u.render.inline.tsx';
 import { renderList, renderListItem } from './u.render.list.tsx';
-import type { MarkdownStyles } from './u.styles.ts';
 
 export type RenderContext = {
-  readonly renderers?: t.ProseMarkdown.Renderers;
-  readonly source?: t.StringMarkdown;
-  readonly styles: MarkdownStyles;
+  renderers?: t.ProseMarkdown.Renderers;
+  source?: t.StringMarkdown;
+  styles: t.ProseMarkdown.Styles;
 };
 
 export function renderChildren(
@@ -31,6 +30,10 @@ function renderNode(input: unknown, ctx: RenderContext): t.ReactNode {
       return renderContainerChildren(node, ctx);
     case 'paragraph':
       return <p className={styles.paragraph.class}>{renderContainerChildren(node, ctx)}</p>;
+    case 'heading':
+      return Markdown.Is.heading(node)
+        ? renderHeading(node, ctx)
+        : renderContainerChildren(node, ctx);
     case 'thematicBreak':
       return Markdown.Is.thematicBreak(node) ? renderThematicBreak(node, ctx) : null;
     case 'text':
@@ -59,6 +62,20 @@ function renderContainerChildren(
   ctx: RenderContext,
 ): readonly t.ReactNode[] {
   return hasRenderableChildren(node) ? renderChildren(node.children, ctx) : [];
+}
+
+function renderHeading(
+  node: t.ProseMarkdown.Block.Heading.Node,
+  ctx: RenderContext,
+): t.ReactNode {
+  const children = renderContainerChildren(node, ctx);
+  const args: t.ProseMarkdown.Block.Heading.RendererArgs = {
+    node,
+    depth: node.depth,
+    children,
+  };
+  return ctx.renderers?.heading?.(args) ??
+    React.createElement(`h${node.depth}`, { className: ctx.styles.heading.class }, children);
 }
 
 function renderThematicBreak(
