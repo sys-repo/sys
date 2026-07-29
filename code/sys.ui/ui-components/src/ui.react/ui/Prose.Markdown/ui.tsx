@@ -15,7 +15,11 @@ export const Markdown: t.FC<P> = (props) => {
     <div className={css(styles.base, props.style).class} data-component={D.displayName}>
       {result.kind === 'error'
         ? <div className={styles.error.class} role='alert'>{result.error}</div>
-        : renderChildren(result.ast.children, { renderers: props.renderers, styles })}
+        : renderChildren(result.ast.children, {
+          renderers: props.renderers,
+          source: result.source,
+          styles,
+        })}
     </div>
   );
 };

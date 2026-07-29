@@ -13,6 +13,7 @@ export type MarkdownNodeRecord = {
 
 export type NodeWithChildren = MarkdownNodeRecord & { readonly children: readonly unknown[] };
 export type TaskListItemNode = t.ProseMarkdown.Block.TaskState.Node;
+export type ThematicBreakNode = t.ProseMarkdown.Block.ThematicBreak.Node;
 
 export function isMarkdownNodeRecord(input: unknown): input is MarkdownNodeRecord {
   return Is.record<{ readonly type?: unknown }>(input) && Is.string(input.type);
@@ -34,6 +35,10 @@ export function isLinkNode(node: MarkdownNodeRecord): node is t.ProseMarkdown.In
 
 export function isTaskListItemNode(node: MarkdownNodeRecord): node is TaskListItemNode {
   return node.type === 'listItem' && Is.bool(node.checked) && Is.array<unknown>(node.children);
+}
+
+export function isThematicBreakNode(node: MarkdownNodeRecord): node is ThematicBreakNode {
+  return node.type === 'thematicBreak';
 }
 
 export function hasRenderableChildren(node: MarkdownNodeRecord): node is NodeWithChildren {

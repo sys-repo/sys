@@ -23,13 +23,14 @@ describe('Prose.Markdown: value resolver', () => {
     expect(MarkdownValue.toAst(ast)).to.eql({ kind: 'ast', ast });
   });
 
-  it('parses Markdown source to AST', () => {
+  it('parses Markdown source to AST while retaining its source lens', () => {
     const res = MarkdownValue.toAst('Hello.');
 
     expect(res.kind).to.eql('ast');
     if (res.kind === 'ast') {
       expect(res.ast.type).to.eql('root');
       expect(res.ast.children[0].type).to.eql('paragraph');
+      expect(res.source).to.eql('Hello.');
     }
   });
 

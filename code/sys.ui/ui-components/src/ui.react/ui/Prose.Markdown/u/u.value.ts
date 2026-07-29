@@ -5,7 +5,9 @@ export type ResolvedValue =
   | { readonly kind: 'ast'; readonly ast: t.Markdown.Ast }
   | ValueError;
 
-export type ResolvedAst = { readonly kind: 'ast'; readonly ast: t.Markdown.Ast } | ValueError;
+export type ResolvedAst =
+  | { readonly kind: 'ast'; readonly ast: t.Markdown.Ast; readonly source?: t.StringMarkdown }
+  | ValueError;
 export type ValueError = { readonly kind: 'error'; readonly error: string };
 
 export const MarkdownValue = {
@@ -30,5 +32,5 @@ function toAst(value: unknown): ResolvedAst {
   const result = MarkdownBase.parse(input.markdown);
   return result.error
     ? { kind: 'error', error: result.error.message }
-    : { kind: 'ast', ast: result.data };
+    : { kind: 'ast', ast: result.data, source: input.markdown };
 }

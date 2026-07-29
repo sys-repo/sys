@@ -56,10 +56,14 @@ const SAMPLES = {
       1. Press \`Tab\`.
       2. Press \`Enter\`.
 
+      ---
+
       Unordered notes:
 
       - preserves list text
       - keeps \`inlineCode\` semantic
+
+      ---
 
       Task states:
 

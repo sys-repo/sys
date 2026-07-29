@@ -1,9 +1,10 @@
 import React from 'react';
-import { Is, type t } from '../common.ts';
+import { Is, Markdown, type t } from '../common.ts';
 import {
   hasRenderableChildren,
   isInlineCodeNode,
   isMarkdownNodeRecord,
+  isThematicBreakNode,
   type MarkdownNodeRecord,
 } from './u.node.ts';
 import { renderInlineCode, renderLink } from './u.render.inline.tsx';
@@ -12,6 +13,7 @@ import type { MarkdownStyles } from './u.styles.ts';
 
 export type RenderContext = {
   readonly renderers?: t.ProseMarkdown.Renderers;
+  readonly source?: t.StringMarkdown;
   readonly styles: MarkdownStyles;
 };
 
@@ -35,6 +37,8 @@ function renderNode(input: unknown, ctx: RenderContext): t.ReactNode {
       return renderContainerChildren(node, ctx);
     case 'paragraph':
       return <p className={styles.paragraph.class}>{renderContainerChildren(node, ctx)}</p>;
+    case 'thematicBreak':
+      return isThematicBreakNode(node) ? renderThematicBreak(node, ctx) : null;
     case 'text':
       return Is.string(node.value) ? node.value : null;
     case 'inlineCode':
@@ -61,4 +65,14 @@ function renderContainerChildren(
   ctx: RenderContext,
 ): readonly t.ReactNode[] {
   return hasRenderableChildren(node) ? renderChildren(node.children, ctx) : [];
+}
+
+function renderThematicBreak(
+  node: t.ProseMarkdown.Block.ThematicBreak.Node,
+  ctx: RenderContext,
+): t.ReactNode {
+  const lexeme = ctx.source === undefined
+    ? undefined
+    : Markdown.Source.thematicBreak(ctx.source, node);
+  return ctx.renderers?.thematicBreak?.({ node, lexeme }) ?? <hr />;
 }

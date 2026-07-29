@@ -34,12 +34,33 @@ export namespace ProseMarkdown {
     inlineCode?: Inline.Code.Renderer;
     /** Render a safe link node. Defaults to a neutral `<a>` element. */
     link?: Inline.Link.Renderer;
+    /** Render a semantic thematic break. Defaults to a native `<hr>` element. */
+    thematicBreak?: Block.ThematicBreak.Renderer;
     /** Render validated task-list state. Defaults to a read-only native checkbox. */
     taskState?: Block.TaskState.Renderer;
   };
 
   /** Block prose semantics. */
   export namespace Block {
+    /**
+     * Markdown thematic-break semantics.
+     */
+    export namespace ThematicBreak {
+      /** Render override. */
+      export type Renderer = (args: RendererArgs) => t.ReactNode;
+
+      /** Render override arguments. */
+      export type RendererArgs = {
+        /** Source thematic-break AST node. */
+        readonly node: Node;
+        /** Exact source lexeme when the renderer received source text rather than a bare AST. */
+        readonly lexeme?: t.Markdown.Source.ThematicBreakLexeme;
+      };
+
+      /** Markdown thematic-break AST node. */
+      export type Node = Extract<t.Markdown.Node, { type: 'thematicBreak' }>;
+    }
+
     /** GFM task-list checked-state semantics. */
     export namespace TaskState {
       /**
