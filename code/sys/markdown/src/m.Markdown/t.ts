@@ -11,7 +11,9 @@ export type { MarkdownHtml } from '../m.Markdown.Html/t.ts';
  * Markdown parsing, serialization, frontmatter, and safe rendering primitives.
  */
 export declare namespace Markdown {
-  /** Core Markdown library surface. */
+  /**
+   * Core Markdown library surface.
+   */
   export type Lib = {
     /** Parse Markdown text into the canonical MDAST document tree. */
     parse(src?: StringMarkdown, options?: ParseOptions): ParseResult;
@@ -24,6 +26,9 @@ export declare namespace Markdown {
 
     /** Safe Markdown → HTML rendering. */
     readonly Html: Html.Lib;
+
+    /** Immutable source-text lenses over positioned Markdown nodes. */
+    readonly Source: Source.Lib;
 
     /** Type guards for Markdown syntax-tree values. */
     readonly Is: IsLib;
@@ -62,13 +67,50 @@ export declare namespace Markdown {
   /** Source position carried by syntax tree nodes. */
   export type Position = UnistPosition;
 
-  /** Type guards for Markdown syntax-tree values. */
+  /**
+   * Type guards for Markdown syntax-tree values.
+   */
   export type IsLib = {
     /** True when the input is an MDAST root node. */
     ast(input: unknown): input is Ast;
   };
 
-  /** Markdown frontmatter parsing primitives. */
+  /**
+   * Immutable source-text lenses over positioned Markdown nodes.
+   */
+  export namespace Source {
+    /**
+     * Markdown source lens surface.
+     */
+    export type Lib = {
+      /** Resolve the exact source span identified by a node's validated offsets. */
+      slice(source: StringMarkdown, node: Node): string | undefined;
+
+      /**
+       * Resolve lexical facts for a positioned MDAST `thematicBreak` node.
+       *
+       * The parsed node remains grammar authority; this lens only recovers exact authored marker
+       * facts.
+       */
+      thematicBreak(source: StringMarkdown, node: Node): ThematicBreakLexeme | undefined;
+    };
+
+    /** Exact lexical facts for a thematic break in its source document. */
+    export type ThematicBreakLexeme = {
+      /** Exact source span, including spaces between markers. */
+      readonly raw: string;
+      /** Repeated CommonMark thematic-break marker. */
+      readonly marker: '-' | '*' | '_';
+      /** Marker character count, excluding spaces and tabs. */
+      readonly count: number;
+      /** Validated source position whose offsets identify `raw`. */
+      readonly position: Position;
+    };
+  }
+
+  /**
+   * Markdown frontmatter parsing primitives.
+   */
   export namespace Frontmatter {
     /** Markdown frontmatter parsing surface. */
     export type Lib = MarkdownFrontmatter.Lib;
@@ -86,7 +128,9 @@ export declare namespace Markdown {
     export type ParseResult<T = unknown> = MarkdownFrontmatter.ParseResult<T>;
   }
 
-  /** Safe Markdown → HTML rendering primitives. */
+  /**
+   * Safe Markdown → HTML rendering primitives.
+   */
   export namespace Html {
     /** Safe Markdown HTML rendering surface. */
     export type Lib = MarkdownHtml.Lib;
