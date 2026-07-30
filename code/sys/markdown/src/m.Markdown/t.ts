@@ -73,6 +73,8 @@ export declare namespace Markdown {
   export type IsLib = {
     /** True when the input is an MDAST root node. */
     ast(input: unknown): input is Ast;
+    /** True when the input is a structurally valid MDAST code-block node. */
+    code(input: unknown): input is Extract<Node, { type: 'code' }>;
     /** True when the input is a structurally valid MDAST heading node. */
     heading(input: unknown): input is Extract<Node, { type: 'heading' }>;
     /** True when the input is a structurally valid MDAST inline-code node. */

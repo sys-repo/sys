@@ -39,7 +39,45 @@ describe('Markdown.Is', () => {
     expect(MarkdownIs.thematicBreak(thematicBreak)).to.eql(true);
   });
 
+  it('recognizes code blocks parsed from backtick and tilde fences', () => {
+    const sources = [
+      Str.dedent(`
+        \`\`\`ts title="backtick"
+        const answer: number = 42;
+        \`\`\`
+      `),
+      Str.dedent(`
+        ~~~ts title="tilde"
+        const answer: number = 42;
+        ~~~
+      `),
+    ];
+
+    for (const source of sources) {
+      const ast = requireData(Markdown.parse(source));
+      expect(ast.children).to.have.length(1);
+      expect(MarkdownIs.code(ast.children[0])).to.eql(true);
+    }
+  });
+
+  it('recognizes optional code-block language and metadata', () => {
+    expect(MarkdownIs.code({ type: 'code', value: 'plain' })).to.eql(true);
+    expect(MarkdownIs.code({ type: 'code', value: 'plain', lang: null, meta: null })).to.eql(true);
+    expect(
+      MarkdownIs.code({
+        type: 'code',
+        value: 'const value = 1;',
+        lang: 'ts',
+        meta: 'title=sample',
+      }),
+    ).to.eql(true);
+  });
+
   it('rejects malformed semantic node shapes', () => {
+    expect(MarkdownIs.code({ type: 'inlineCode', value: 'plain' })).to.eql(false);
+    expect(MarkdownIs.code({ type: 'code', value: 42 })).to.eql(false);
+    expect(MarkdownIs.code({ type: 'code', value: 'plain', lang: 42 })).to.eql(false);
+    expect(MarkdownIs.code({ type: 'code', value: 'plain', meta: false })).to.eql(false);
     expect(MarkdownIs.heading({ type: 'heading', depth: 7, children: [] })).to.eql(false);
     expect(MarkdownIs.inlineCode({ type: 'inlineCode', value: 42 })).to.eql(false);
     expect(MarkdownIs.link({ type: 'link', url: '/safe', title: 42, children: [] })).to.eql(false);
