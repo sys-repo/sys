@@ -1,5 +1,5 @@
 import { Color, css, D, type t } from './common.ts';
-import { renderChildren } from './u/u.render.tsx';
+import { renderChildren } from './u/u.render/mod.ts';
 import { createStyles } from './u/u.styles.ts';
 import { MarkdownValue } from './u/u.value.ts';
 
