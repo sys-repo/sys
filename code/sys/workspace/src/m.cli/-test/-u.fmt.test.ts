@@ -205,10 +205,12 @@ describe('Workspace.Cli.Fmt', () => {
     const plain = Cli.stripAnsi(text);
 
     expect(plain).to.include('checking registry...');
-    expect(plain).to.include('(jsr:2/2 npm:17/18) - 95%');
+    expect(plain).to.include('(jsr:2/2 npm:17/18) • 95%');
     expect(plain).to.include('jsr:2/2');
     expect(plain).to.include('npm:17/18');
     expect(plain).to.include('95%');
+    expect(text).to.include(c.green('jsr:'));
+    expect(text).to.include(c.cyan('npm:'));
   });
 
   it('renders applied output with updated rows instead of planned totals', () => {

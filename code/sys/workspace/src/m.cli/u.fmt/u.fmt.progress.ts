@@ -25,14 +25,15 @@ export const FmtProgress = {
     } ${FmtProgress.spinnerRegistryCount('npm', registry.current.npm, registry.total.npm)}`;
     const label = FmtProgress.spinnerText('checking registry... ', false);
     const open = FmtProgress.spinnerText('(', false);
-    const close = FmtProgress.spinnerText(') - ', false);
+    const close = FmtProgress.spinnerText(') • ', false);
     const done = c.white(`${percent}%`);
     const text = `${label}${open}${current}${close}${done}`;
     return FmtProgress.spinnerRaw(text);
   },
 
   spinnerRegistryCount(registry: 'jsr' | 'npm', current: number, total: number): string {
-    return `${c.cyan(`${registry}:`)}${c.white(String(current))}${c.gray(`/${total}`)}`;
+    const label = total > 0 && current >= total ? c.green(`${registry}:`) : c.cyan(`${registry}:`);
+    return `${label}${c.white(String(current))}${c.gray(`/${total}`)}`;
   },
 
   isRegistryProgress(progress: t.WorkspaceUpgrade.Progress): progress is RegistryProgress {
