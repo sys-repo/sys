@@ -13,7 +13,6 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
     const config = `${cwd}/-config/@sys.driver-pi/default.yaml` as t.StringPath;
     const calls: string[] = [];
     let topLevelCount = 0;
-    let actionCount = 0;
     try {
       await Fs.ensureDir(Fs.join(cwd, '.git'));
       await Fs.ensureDir(Fs.dirname(config));
@@ -30,8 +29,6 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
             return Promise.resolve('exit');
           }
           if ((input.options ?? []).some((item) => item.value === 'back')) {
-            actionCount += 1;
-            if (actionCount === 1) return Promise.resolve('sandbox');
             return Promise.resolve('back');
           }
           throw new Error(`Unexpected prompt: ${input.message}`);
@@ -42,8 +39,8 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
       expect(res.kind).to.eql('exit');
       const printed = Cli.stripAnsi(calls.join('\n'));
       expect(printed).to.match(/permissions\s+allow-all/);
-      expect(printed).to.match(/read\s+all/);
-      expect(printed).to.match(/write\s+all/);
+      expect(printed).not.to.match(/\nread\s+/);
+      expect(printed).not.to.match(/\nwrite\s+/);
     } finally {
       Process.inherit = prev;
       console.info = prevInfo;
@@ -93,7 +90,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
 
       expect(res.kind).to.eql('run');
       expect(launchCount).to.eql(1);
-      expect(printed.match(/pi:sandbox/g)?.length).to.eql(1);
+      expect(printed.match(/permissions\s+scoped/g)?.length).to.eql(1);
       expect(reportFiles.length).to.eql(1);
     } finally {
       Process.inherit = prev;

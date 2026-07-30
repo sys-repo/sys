@@ -32,10 +32,11 @@ const ValidName = {
 export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll, gitRootExplicit }) => {
   const root = runtimeRoot(cwd);
   const migration = await ProfileMigrate.dir(root);
-  const migrationMessage = ProfileMigrate.message(migration);
-  if (migrationMessage) console.info(migrationMessage);
+  let rootNotice = ProfileMigrate.message(migration);
 
   while (true) {
+    printProfileRoot(rootNotice);
+    rootNotice = undefined;
     const selected = await YamlConfig.menu<t.PiCliProfiles.Yaml.Profile, Action>({
       ...menuArgs({ cwd: root, allowAll }),
       mode: 'select',
@@ -45,13 +46,19 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll, gitRoot
     if (selected.kind === 'exit') return { kind: 'exit' };
     if (selected.kind !== 'action' || selected.action !== 'select') return { kind: 'exit' };
 
+    const selectedCheck = await ProfilesFs.validateYaml(selected.path);
     clearInteractiveScreen();
-    const preview = await printSandbox({
-      cwd,
-      path: selected.path,
-      allowAll,
-      gitRootExplicit,
-    });
+    let preview: PreviewToken | undefined;
+    if (selectedCheck.ok) {
+      preview = await printSandbox({
+        cwd,
+        path: selected.path,
+        allowAll,
+        gitRootExplicit,
+      });
+    } else {
+      printProfileTitle();
+    }
 
     const action = await YamlConfig.menu<t.PiCliProfiles.Yaml.Profile, Action>({
       ...menuArgs({ cwd: root, allowAll }),
@@ -75,6 +82,16 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll, gitRoot
 /**
  * Helpers:
  */
+function printProfileRoot(notice?: string) {
+  clearInteractiveScreen();
+  printProfileTitle();
+  if (notice) console.info(notice);
+}
+
+function printProfileTitle() {
+  console.info(c.bold(c.cyan('system:pi:sandbox')));
+}
+
 function menuArgs(args: { cwd: t.StringDir; allowAll?: boolean }) {
   const { cwd, allowAll } = args;
   const schema = {
@@ -85,13 +102,13 @@ function menuArgs(args: { cwd: t.StringDir; allowAll?: boolean }) {
   return {
     cwd,
     dir: ProfilesFs.dir,
-    label: 'agent',
+    label: '',
     itemLabel: 'profile',
     addLabel: ' add: <profile>',
     defaultName: 'default',
     schema,
     actions: {
-      message: 'agent:',
+      message: '',
       label: 'profile',
       extra: [
         {
@@ -129,13 +146,16 @@ async function printSandbox(args: MenuContext): Promise<PreviewToken | undefined
     allowAll: args.allowAll,
     ocr: { preflight: false },
   });
-  const report = await PiSandboxReport.write({ cwd: root, sandbox: resolved.sandbox });
+  const report = await PiSandboxReport.write({
+    cwd: root,
+    sandbox: resolved.sandbox,
+    gitRootExplicit: args.gitRootExplicit === true,
+  });
   console.info(
     PiSandboxFmt.table({ ...resolved.sandbox, report }, {
       gitRootExplicit: args.gitRootExplicit === true,
     }),
   );
-  console.info('');
   return await snapshotConfig(args.path);
 }
 

@@ -9,15 +9,18 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.menu.test.' }))
       .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
+    const prevInfo = console.info;
 
     await Fs.ensureDir(Fs.join(cwd, '.git'));
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
       value: (input: { message: string }) => {
-        expect(input.message).to.eql('agent:');
+        expect(input.message).to.eql('');
         return Promise.resolve('exit');
       },
     });
+
+    console.info = () => undefined;
 
     try {
       const res = await menu({ cwd: testCwd(cwd) });
@@ -28,6 +31,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(check.ok).to.eql(true);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
+      console.info = prevInfo;
       await Fs.remove(cwd);
     }
   });
@@ -60,7 +64,10 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(res).to.eql({ kind: 'exit' });
       expect(await Fs.exists(oldConfig)).to.eql(false);
       expect(await Fs.exists(newConfig)).to.eql(true);
-      expect(calls).to.eql(['Migrated 2 Pi config/runtime items.']);
+      expect(calls.map((value) => Cli.stripAnsi(value))).to.eql([
+        'system:pi:sandbox',
+        'Migrated 2 Pi config/runtime items.',
+      ]);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       console.info = prevInfo;
@@ -91,7 +98,10 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(res).to.eql({ kind: 'exit' });
       expect(text).to.contain('append: []');
       expect(text).not.to.contain('include:');
-      expect(calls).to.eql(['Migrated 1 Pi config/runtime item.']);
+      expect(calls.map((value) => Cli.stripAnsi(value))).to.eql([
+        'system:pi:sandbox',
+        'Migrated 1 Pi config/runtime item.',
+      ]);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       console.info = prevInfo;
@@ -99,7 +109,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     }
   });
 
-  it('menu → uses agent: for the action prompt', async () => {
+  it('menu → uses bare prompt messages across one back cycle', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.menu.test.' }))
       .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
@@ -132,9 +142,49 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       const res = await menu({ cwd: testCwd(cwd) });
       expect(res).to.eql({ kind: 'exit' });
       const strippedOptions = harnessOptions.map((name) => Cli.stripAnsi(name));
-      expect(calls).to.eql(['agent:', 'agent:', 'agent:']);
+      expect(calls).to.eql(['', '', '']);
       expect(harnessOptions).to.include(`  ${c.cyan('start')}`);
       expect(strippedOptions).to.include('  start');
+    } finally {
+      Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
+      console.info = prevInfo;
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('menu → preserves the invalid-YAML warning with empty prompt vocabulary', async () => {
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.menu.test.' }))
+      .absolute as t.StringDir;
+    const original = Cli.Input.Select.prompt;
+    const prevInfo = console.info;
+    const config = Fs.join(cwd, '-config/@sys.driver-pi/default.yaml');
+    const messages: string[] = [];
+    let topLevelCount = 0;
+
+    await Fs.ensureDir(Fs.join(cwd, '.git'));
+    await Fs.ensureDir(Fs.dirname(config));
+    await Fs.write(config, 'sandbox: [\n');
+
+    Object.defineProperty(Cli.Input.Select, 'prompt', {
+      value: (input: SelectInput) => {
+        messages.push(Cli.stripAnsi(input.message));
+        if (isRootMenu(input)) {
+          topLevelCount += 1;
+          if (topLevelCount === 1) return Promise.resolve(config);
+          return Promise.resolve('exit');
+        }
+        if (isActionMenu(input)) return Promise.resolve('back');
+        throw new Error(`Unexpected prompt: ${input.message}`);
+      },
+    });
+    console.info = () => undefined;
+
+    try {
+      const res = await menu({ cwd: testCwd(cwd) });
+      expect(res).to.eql({ kind: 'exit' });
+      expect(messages[0]).to.eql('');
+      expect(messages[1]).to.contain('invalid yaml');
+      expect(messages[2]).to.eql('');
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       console.info = prevInfo;
@@ -148,24 +198,28 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     const original = Cli.Input.Select.prompt;
     const prevInfo = console.info;
     const config = Fs.join(cwd, '-config/@sys.driver-pi/default.yaml');
+    const reportDir = Fs.join(cwd, '.pi/@sys/log/@sys.driver-pi') as t.StringDir;
 
     await Fs.ensureDir(Fs.join(cwd, '.git'));
     const prompts: string[] = [];
     const prints: string[] = [];
     const harnessOptions: string[] = [];
     let topLevelCount = 0;
+    let actionObservedPersistedReport = false;
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
-      value: (input: SelectInput) => {
+      value: async (input: SelectInput) => {
         prompts.push(input.message);
         if (isRootMenu(input)) {
           topLevelCount += 1;
-          if (topLevelCount === 1) return Promise.resolve(config);
-          return Promise.resolve('exit');
+          if (topLevelCount === 1) return config;
+          return 'exit';
         }
         if (isActionMenu(input)) {
           harnessOptions.push(...(input.options ?? []).map((item) => item.name));
-          return Promise.resolve('back');
+          const files = await Fs.ls(reportDir);
+          actionObservedPersistedReport = files.some((path) => path.endsWith('.sandbox.log.md'));
+          return 'back';
         }
         throw new Error(`Unexpected prompt: ${input.message}`);
       },
@@ -173,20 +227,31 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     console.info = (value?: unknown) => prints.push(String(value ?? ''));
 
     try {
-      const res = await menu({ cwd: testCwd(cwd) });
+      const res = await menu({ cwd: testCwd(cwd), gitRootExplicit: true });
       const printed = Cli.stripAnsi(prints.join('\n'));
       const strippedOptions = harnessOptions.map((name) => Cli.stripAnsi(name));
+      const reportFiles = (await Fs.ls(reportDir)).filter((path) =>
+        path.endsWith('.sandbox.log.md')
+      );
+      const report = reportFiles[0] ? await Fs.readText(reportFiles[0]) : undefined;
       expect(res).to.eql({ kind: 'exit' });
+      expect(prints).not.to.include('');
+      expect(prints.filter((value) => value.includes('.sandbox.log.md'))).to.have.length(1);
       expect(printed).to.contain('pi:sandbox');
       expect(printed).to.match(/permissions\s+scoped/);
       expect(printed).to.match(/report\s+.*\.sandbox\.log\.md/);
       expect(printed).to.not.contain(`${cwd}/.log`);
       expect(printed).to.contain('.sandbox.log.md');
-      expect(printed).to.match(/context\s+-/);
+      expect(printed).not.to.match(/\ncontext\s+/);
+      expect(reportFiles).to.have.length(1);
+      expect(actionObservedPersistedReport).to.eql(true);
+      expect(report?.data).to.contain('- cwd.git-root: explicit');
+      expect(printed).not.to.match(/\nread\s+/);
+      expect(printed).not.to.contain('write:cwd');
       expect(strippedOptions).to.include('  profile: reload');
       expect(strippedOptions).not.to.include('  config: reload');
       expect(strippedOptions).not.to.include('  reload');
-      expect(prompts).to.eql(['agent:', 'agent:', 'agent:']);
+      expect(prompts).to.eql(['', '', '']);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       console.info = prevInfo;
@@ -194,7 +259,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     }
   });
 
-  it('menu → clears transient profile list before printing the sandbox sheet on TTY', async () => {
+  it('menu → clears and restores the root title initially and after back on TTY', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.menu.test.' }))
       .absolute as t.StringDir;
     const originalPrompt = Cli.Input.Select.prompt;
@@ -214,11 +279,15 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     Object.defineProperty(Cli.Input.Select, 'prompt', {
       value: (input: SelectInput) => {
         if (isRootMenu(input)) {
+          events.push('root:prompt');
           topLevelCount += 1;
           if (topLevelCount === 1) return Promise.resolve(config);
           return Promise.resolve('exit');
         }
-        if (isActionMenu(input)) return Promise.resolve('back');
+        if (isActionMenu(input)) {
+          events.push('action:prompt');
+          return Promise.resolve('back');
+        }
         throw new Error(`Unexpected prompt: ${input.message}`);
       },
     });
@@ -230,15 +299,25 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     screen.size = () => ({ width: 80, height: 24 });
     console.clear = () => events.push('clear');
     console.info = (value?: unknown) => {
-      const text = String(value ?? '');
-      if (Cli.stripAnsi(text).includes('system:pi:sandbox')) events.push('sandbox');
+      const text = Cli.stripAnsi(String(value ?? ''));
+      if (text === 'system:pi:sandbox') events.push('root:title');
+      if (text.includes('.sandbox.log.md')) events.push('sandbox:sheet');
     };
 
     try {
       const res = await menu({ cwd: testCwd(cwd) });
       expect(res).to.eql({ kind: 'exit' });
-      expect(events).to.include.members(['clear', 'sandbox']);
-      expect(events.indexOf('clear')).to.be.lessThan(events.indexOf('sandbox'));
+      expect(events).to.eql([
+        'clear',
+        'root:title',
+        'root:prompt',
+        'clear',
+        'sandbox:sheet',
+        'action:prompt',
+        'clear',
+        'root:title',
+        'root:prompt',
+      ]);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: originalPrompt });
       Object.defineProperty(Cli.Is, 'terminal', {
@@ -253,7 +332,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     }
   });
 
-  it('menu → lists loaded standard context files in the sandbox sheet', async () => {
+  it('menu → keeps loaded standard context files in the report, not the sandbox sheet', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.menu.test.' }))
       .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
@@ -282,8 +361,16 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     try {
       const res = await menu({ cwd: testCwd(cwd) });
       const printed = Cli.stripAnsi(prints.join('\n'));
+      const reportDir = Fs.join(cwd, '.pi/@sys/log/@sys.driver-pi') as t.StringDir;
+      const reportFiles = (await Fs.ls(reportDir)).filter((path) =>
+        path.endsWith('.sandbox.log.md')
+      );
+      const report = reportFiles[0] ? await Fs.readText(reportFiles[0]) : undefined;
       expect(res).to.eql({ kind: 'exit' });
-      expect(printed).to.match(/context\s+\.\/AGENTS\.md, \.\/SYSTEM\.md/);
+      expect(printed).not.to.match(/\ncontext\s+/);
+      expect(reportFiles).to.have.length(1);
+      expect(report?.data).to.contain(`- ${Fs.join(cwd, 'AGENTS.md')}`);
+      expect(report?.data).to.contain(`- ${Fs.join(cwd, 'SYSTEM.md')}`);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       console.info = prevInfo;
@@ -380,8 +467,8 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       const printed = Cli.stripAnsi(prints.join('\n'));
       expect(res).to.eql({ kind: 'exit' });
       expect(printed).to.match(/permissions\s+allow-all/);
-      expect(printed).to.match(/read\s+all/);
-      expect(printed).to.match(/write\s+all/);
+      expect(printed).not.to.match(/\nread\s+/);
+      expect(printed).not.to.match(/\nwrite\s+/);
       const strippedOptions = harnessOptions.map((name) => Cli.stripAnsi(name));
       expect(harnessOptions).to.include(
         `  ${c.cyan('start')}${c.dim(c.yellow(' (--allow-all)'))}`,

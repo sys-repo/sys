@@ -17,7 +17,7 @@ type Marker = {
 };
 
 const SANDBOX_EDGE_MARGIN = 1;
-const SANDBOX_TABLE_LABEL_WIDTH = 'permissions'.length;
+const SANDBOX_TABLE_LABEL_WIDTH = Cli.Fmt.Text.Width.measure('permissions');
 const SANDBOX_TABLE_GAP = 3;
 const SANDBOX_TABLE_MARGIN = SANDBOX_TABLE_LABEL_WIDTH + SANDBOX_TABLE_GAP + 1;
 const PREVIEW_ELLIPSIS = '..';
@@ -42,22 +42,24 @@ export const PiSandboxFmt = {
 
     if (input.report) {
       table.push([c.gray('report'), formatReportPath(input.report, contentBudget, root)]);
-    }
-    table.push([c.gray('permissions'), formatPermissions(input.permissions)]);
-    table.push([
-      c.gray('context'),
-      formatPreview(input.context?.include ?? [], contentBudget, root),
-    ]);
-    table.push([
-      c.gray('read'),
-      input.permissions === 'allow-all'
-        ? c.yellow('all')
-        : formatPreview(cwdAndDetail(root, input.read?.detail ?? []), contentBudget),
-    ]);
-    if (input.permissions === 'allow-all') table.push([c.yellow('write'), c.yellow('all')]);
-    else {
-      const marker = writeCwdMarker(input.cwd, opts.gitRootExplicit === true);
-      pushWriteRows(table, root, input.write, contentBudget, marker);
+      table.push([c.gray('permissions'), formatPermissions(input.permissions)]);
+    } else {
+      table.push([c.gray('permissions'), formatPermissions(input.permissions)]);
+      table.push([
+        c.gray('context'),
+        formatPreview(input.context?.include ?? [], contentBudget, root),
+      ]);
+      table.push([
+        c.gray('read'),
+        input.permissions === 'allow-all'
+          ? c.yellow('all')
+          : formatPreview(cwdAndDetail(root, input.read?.detail ?? []), contentBudget),
+      ]);
+      if (input.permissions === 'allow-all') table.push([c.yellow('write'), c.yellow('all')]);
+      else {
+        const marker = writeCwdMarker(input.cwd, opts.gitRootExplicit === true);
+        pushWriteRows(table, root, input.write, contentBudget, marker);
+      }
     }
 
     const title = formatTitle(input.permissions, renderWidth);
@@ -88,9 +90,7 @@ function formatTitle(permissions: t.PiCli.PermissionMode, width: number) {
   const opsWidth = measure(CAPABILITY_OPS);
   const separatorWidth = measure(TITLE_SEPARATOR);
   const versionWidth = measure(pkg.version);
-  const ops = permissions === 'allow-all'
-    ? c.yellow(CAPABILITY_OPS)
-    : c.cyan(CAPABILITY_OPS);
+  const ops = permissions === 'allow-all' ? c.yellow(CAPABILITY_OPS) : c.cyan(CAPABILITY_OPS);
   const separator = permissions === 'allow-all'
     ? c.dim(c.yellow(TITLE_SEPARATOR))
     : c.dim(c.cyan(TITLE_SEPARATOR));
@@ -116,13 +116,51 @@ function sandboxRenderWidth(width = Cli.Screen.size().width) {
 }
 
 function sandboxContentBudget(renderWidth: number) {
-  return Num.clamp(0, renderWidth, renderWidth - SANDBOX_TABLE_MARGIN);
+  if (renderWidth <= 0) return 0;
+  return Cli.Fmt.Text.Width.fit({
+    width: renderWidth,
+    reserve: SANDBOX_TABLE_MARGIN,
+    terminal: false,
+  });
 }
 
 function formatReportPath(path: t.StringPath, budget: number, cwd: t.StringDir) {
-  const trimmed = Fs.trimCwd(path, { cwd });
-  const fitted = fitDisplayPath(trimmed, budget);
-  return c.gray(fitted);
+  if (budget <= 0) return '';
+
+  const display = Fs.trimCwd(path, { cwd });
+  const measure = Cli.Fmt.Text.Width.measure;
+  if (measure(display) <= budget) return c.gray(display);
+
+  const hasTrailingSlash = display.endsWith('/');
+  const body = hasTrailingSlash ? display.slice(0, -1) : display;
+  const basename = Path.basename(body);
+  const suffix = hasTrailingSlash ? '/' : '';
+  const tail = `${basename}${suffix}`;
+
+  if (basename.length === 0 || basename === body || measure(tail) >= budget) {
+    return ellipsizeReportPath(display, budget);
+  }
+
+  const dirname = Path.dirname(body);
+  if (dirname === '.' || dirname.length === 0) return ellipsizeReportPath(display, budget);
+
+  const separator = '/';
+  const dirBudget = Cli.Fmt.Text.Width.fit({
+    width: budget,
+    reserve: measure(`${separator}${tail}`),
+    terminal: false,
+  });
+  if (dirBudget <= 0) return ellipsizeReportPath(display, budget);
+  if (measure(dirname) <= dirBudget) return c.gray(`${dirname}${separator}${tail}`);
+
+  return `${ellipsizeReportPath(dirname, dirBudget)}${c.gray(`${separator}${tail}`)}`;
+}
+
+function ellipsizeReportPath(path: string, budget: number) {
+  return Cli.Fmt.Text.ellipsize(path, budget, {
+    ellipsis: PREVIEW_ELLIPSIS,
+    render: ({ head, ellipsis, tail }) => `${c.gray(head)}${c.cyan(ellipsis)}${c.gray(tail)}`,
+  });
 }
 
 function fitDisplayPath(path: string, budget: number) {
@@ -146,10 +184,9 @@ function fitDisplayPath(path: string, budget: number) {
   if (dirBudget <= 0) return fitPreviewPathToBudget(tail, budget);
   if (visibleWidth(dirname) <= dirBudget) return `${dirname}/${tail}`;
 
-  const left = dirBudget > PATH_DIR_PREFIX_WIDTH + PREVIEW_ELLIPSIS.length
-    ? PATH_DIR_PREFIX_WIDTH
-    : 0;
-  const right = Math.max(0, dirBudget - left - PREVIEW_ELLIPSIS.length);
+  const ellipsisWidth = visibleWidth(PREVIEW_ELLIPSIS);
+  const left = dirBudget > PATH_DIR_PREFIX_WIDTH + ellipsisWidth ? PATH_DIR_PREFIX_WIDTH : 0;
+  const right = Math.max(0, dirBudget - left - ellipsisWidth);
   const shortenedDir = Str.ellipsize(dirname, [left, right], PREVIEW_ELLIPSIS);
   return `${shortenedDir}/${tail}`;
 }
@@ -231,7 +268,7 @@ function fitPreviewPathToBudget(path: string, budget: number) {
   if (visibleWidth(path) <= budget) return path;
   if (budget === 1) return '.';
   if (budget === 2) return PREVIEW_ELLIPSIS;
-  return Str.ellipsize(path, [0, budget - PREVIEW_ELLIPSIS.length], PREVIEW_ELLIPSIS);
+  return Str.ellipsize(path, [0, budget - visibleWidth(PREVIEW_ELLIPSIS)], PREVIEW_ELLIPSIS);
 }
 
 function previewFits(visible: readonly string[], hidden: number, budget: number) {
@@ -245,7 +282,7 @@ function joinPreviewParts(visible: readonly string[], hidden: number) {
 }
 
 function visibleWidth(text: string) {
-  return Cli.stripAnsi(text).length;
+  return Cli.Fmt.Text.Width.measure(text);
 }
 
 function moreLabel(count: number) {

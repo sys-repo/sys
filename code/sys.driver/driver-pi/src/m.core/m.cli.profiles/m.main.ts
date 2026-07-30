@@ -68,7 +68,11 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
   });
   if (picked.previewed !== true) {
     if (!selection) clearInteractiveScreen();
-    const report = await PiSandboxReport.write({ cwd: root, sandbox: resolved.sandbox });
+    const report = await PiSandboxReport.write({
+      cwd: root,
+      sandbox: resolved.sandbox,
+      gitRootExplicit,
+    });
     console.info(PiSandboxFmt.table({ ...resolved.sandbox, report }, { gitRootExplicit }));
   }
   const output = await run(resolved);

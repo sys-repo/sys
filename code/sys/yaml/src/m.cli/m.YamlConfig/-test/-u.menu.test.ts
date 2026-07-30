@@ -34,6 +34,37 @@ describe('YamlConfig.menu', () => {
     }
   });
 
+  it('menu → passes an empty label through as a bare prompt message', async () => {
+    const cwd = await Fs.makeTempDir();
+    const original = Cli.Input.Select.prompt;
+    let message: string | undefined;
+
+    Object.defineProperty(Cli.Input.Select, 'prompt', {
+      value: (args: { readonly message: string }) => {
+        message = args.message;
+        return Promise.resolve('exit');
+      },
+    });
+
+    try {
+      const res = await menu({
+        cwd: cwd.absolute,
+        dir: '-config',
+        label: '',
+        schema: {
+          init: () => ({ title: 'Default' }),
+          validate: () => ({ ok: true, errors: [] }),
+        },
+      });
+
+      expect(res).to.eql({ kind: 'exit' });
+      expect(message).to.eql('');
+    } finally {
+      Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
+      await Fs.remove(cwd.absolute);
+    }
+  });
+
   it('menu → supports doc-derived itemLabel row labels', async () => {
     const cwd = await Fs.makeTempDir();
     const original = Cli.Input.Select.prompt;

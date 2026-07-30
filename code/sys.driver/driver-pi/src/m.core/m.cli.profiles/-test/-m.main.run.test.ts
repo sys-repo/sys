@@ -1,16 +1,19 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Process } from '../../m.cli/common.ts';
-import { c, Cli, Fs, Str, type t } from '../common.ts';
+import { Cli, Fs, Str, type t } from '../common.ts';
 import { Profiles } from '../mod.ts';
 import { ProfilesFs } from '../u/u.fs.ts';
+import { PiSandboxReport } from '../../m.cli/u.report.sandbox.ts';
 
 describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
-  it('runs selected profile path and passes argv after -- through to Pi', async () => {
+  it('runs selected profile path only after the report and compact sheet are observable', async () => {
     const prev = Process.inherit;
     const prevInfo = console.info;
+    const prevReportWrite = PiSandboxReport.write;
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.main.test.' })).absolute;
     const config = `${cwd}/profiles.yaml` as t.StringPath;
     const calls: string[] = [];
+    const events: string[] = [];
     try {
       await Fs.ensureDir(Fs.join(cwd, '.git'));
       await Fs.write(
@@ -25,9 +28,22 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
           `,
         ).trimStart(),
       );
-      console.info = (value?: unknown) => calls.push(String(value ?? ''));
+      console.info = (value?: unknown) => {
+        const text = String(value ?? '');
+        calls.push(text);
+        if (Cli.stripAnsi(text).includes('pi:sandbox')) events.push('sheet');
+      };
+      Object.defineProperty(PiSandboxReport, 'write', {
+        value: async (input: Parameters<typeof PiSandboxReport.write>[0]) => {
+          events.push('report:start');
+          const path = await prevReportWrite(input);
+          events.push('report:done');
+          return path;
+        },
+      });
 
       Process.inherit = async (input) => {
+        events.push('launch');
         expect(input.cwd).to.eql(cwd);
         expect(input.args).to.include.members(['--help']);
         expect(input.args).not.to.include('--model');
@@ -43,9 +59,11 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
       const printed = Cli.stripAnsi(calls.join('\n'));
       expect(printed).to.contain('pi:sandbox');
       expect(printed).to.contain('.sandbox.log.md');
+      expect(events).to.eql(['report:start', 'report:done', 'sheet', 'launch']);
     } finally {
       Process.inherit = prev;
       console.info = prevInfo;
+      Object.defineProperty(PiSandboxReport, 'write', { value: prevReportWrite });
       await Fs.remove(cwd);
     }
   });
@@ -111,8 +129,8 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
       expect(res.kind).to.eql('run');
       const printed = Cli.stripAnsi(calls.join('\n'));
       expect(printed).to.match(/permissions\s+allow-all/);
-      expect(printed).to.match(/read\s+all/);
-      expect(printed).to.match(/write\s+all/);
+      expect(printed).not.to.match(/\nread\s+/);
+      expect(printed).not.to.match(/\nwrite\s+/);
     } finally {
       Process.inherit = prev;
       console.info = prevInfo;
@@ -120,7 +138,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
     }
   });
 
-  it('brightens the git-root marker for explicit --git-root in direct profile launch', async () => {
+  it('records explicit --git-root provenance in the direct-launch report', async () => {
     const prev = Process.inherit;
     const prevInfo = console.info;
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.main.test.' }))
@@ -135,10 +153,15 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
       Process.inherit = async () => ({ code: 0, success: true, signal: null });
 
       const res = await Profiles.main({ cwd, argv: ['--git-root', 'cwd', '--profile', config] });
+      const reportDir = Fs.join(cwd, '.pi/@sys/log/@sys.driver-pi') as t.StringDir;
+      const reportFiles = (await Fs.ls(reportDir)).filter((path) =>
+        path.endsWith('.sandbox.log.md')
+      );
+      const report = reportFiles[0] ? await Fs.readText(reportFiles[0]) : undefined;
       expect(res.kind).to.eql('run');
-      const printed = calls.join('\n');
-      expect(printed).to.contain(c.cyan(' (--git-root)'));
-      expect(printed).not.to.contain(c.dim(c.cyan(' (--git-root)')));
+      expect(Cli.stripAnsi(calls.join('\n'))).not.to.contain('(--git-root)');
+      expect(reportFiles).to.have.length(1);
+      expect(report?.data).to.contain('- cwd.git-root: explicit');
     } finally {
       Process.inherit = prev;
       console.info = prevInfo;
@@ -235,10 +258,16 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
         cwd: nested,
         argv: ['--profile', 'canon', '--', '--help'],
       });
+      const reportDir = Fs.join(cwd, '.pi/@sys/log/@sys.driver-pi') as t.StringDir;
+      const reportFiles = (await Fs.ls(reportDir)).filter((path) =>
+        path.endsWith('.sandbox.log.md')
+      );
+      const report = reportFiles[0] ? await Fs.readText(reportFiles[0]) : undefined;
       expect(res.kind).to.eql('run');
       const printed = Cli.stripAnsi(calls.join('\n'));
-      expect(printed).to.contain('canon/AGENTS.md');
+      expect(printed).not.to.contain('canon/AGENTS.md');
       expect(printed).to.contain('pi:sandbox');
+      expect(report?.data).to.contain(`- ${contextFile}`);
     } finally {
       Process.inherit = prev;
       console.info = prevInfo;
@@ -312,7 +341,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
       const printed = Cli.stripAnsi(calls.join('\n'));
       expect(printed).to.contain('pi:sandbox');
       expect(printed).to.contain('.sandbox.log.md');
-      expect(printed).to.contain('write:cwd');
+      expect(printed).not.to.contain('write:cwd');
     } finally {
       Process.inherit = prev;
       console.info = prevInfo;

@@ -52,7 +52,7 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
     expect(lineAt(measure(withVersion) - 1)).to.eql(title);
   });
 
-  it('table → brightens the git-root marker only when --git-root was explicit', () => {
+  it('table → detailed fallback brightens the git-root marker only when --git-root was explicit', () => {
     const implicit = PiSandboxFmt.table({
       permissions: 'scoped',
       cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
@@ -67,7 +67,7 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
     expect(explicit).not.to.contain(c.dim(c.cyan(' (--git-root)')));
   });
 
-  it('table → uses available terminal width and trims report paths to cwd first', () => {
+  it('table → persisted-report sheet renders only launch essentials', () => {
     const width = 120;
     const input = {
       report: '/tmp/pi-cli-test/.pi/@sys/log/@sys.driver-pi/1775975797.abc123.sandbox.log.md',
@@ -85,26 +85,55 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
       },
     } as const;
     const text = render(input, width);
+    const output = lines(text);
 
     const renderWidth = width - 1;
     expectHeaderFrame(text, renderWidth);
+    expect(output.slice(2, -1)).to.have.length(2);
+    expect(output[2]).to.match(/^report\s+/);
+    expect(output[3]?.trimEnd()).to.match(/^permissions\s+scoped$/);
     expect(text).to.contain('.pi/@sys/log/@sys.driver-pi/1775975797.abc123.sandbox.log.md');
     expect(text).to.not.contain('/tmp/pi-cli-test/.pi');
-    expectTargetRowsToFit(text, renderWidth, ['report', 'context', 'read']);
-    expect(text).to.match(/write:cwd\s+\/tmp\/pi-cli-test\/\s+\(--git-root\)/);
+    expect(text).to.not.match(/\ncontext\s+/);
+    expect(text).to.not.match(/\nread\s+/);
+    expect(text).to.not.contain('write:cwd');
+    expectTargetRowsToFit(text, renderWidth, ['report']);
   });
 
-  it('table → report row preserves the final filename when ellipsized', () => {
-    const width = 52;
-    const text = render({
-      report: '/tmp/pi-cli-test/.pi/@sys/log/@sys.driver-pi/1775975797.abc123.sandbox.log.md',
+  it('table → full report paths remain gray and byte-complete when they fit', () => {
+    const width = 120;
+    const path = '/tmp/pi-cli-test/.pi/@sys/log/@sys.driver-pi/1775975797.abc123.sandbox.log.md';
+    const raw = PiSandboxFmt.table({
+      permissions: 'scoped',
+      report: path,
       cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
-    }, width);
+    }, { width });
 
-    expect(text).to.contain('sandbox.log.md');
-    expect(text).to.contain('..');
-    expect(text).to.not.contain('/tmp/pi-cli-test/.pi');
-    expectTargetRowsToFit(text, width - 1, ['report']);
+    const display = '.pi/@sys/log/@sys.driver-pi/1775975797.abc123.sandbox.log.md';
+    expect(raw).to.contain(c.gray(display));
+    expect(Cli.stripAnsi(raw)).to.contain(display);
+    expect(raw).not.to.contain(c.cyan('..'));
+  });
+
+  it('table → collapsed report path preserves its tail and colors only the injected marker', () => {
+    const width = 52;
+    const filename = '1775.audit..abc.sandbox.log.md';
+    const path = `/tmp/pi-cli-test/.pi/@sys/log/@sys.driver-pi/${filename}`;
+    const raw = PiSandboxFmt.table({
+      permissions: 'scoped',
+      report: path,
+      cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
+    }, { width });
+    const text = Cli.stripAnsi(raw);
+    const reportLine = lines(text).find((line) => line.startsWith('report')) ?? '';
+    const rawReportLine = lines(raw).find((line) => Cli.stripAnsi(line).startsWith('report')) ?? '';
+
+    expect(text).to.contain(filename);
+    expect(raw.split(c.cyan('..'))).to.have.length(2);
+    expect(Cli.Fmt.Text.Width.measure(reportLine)).to.be.at.most(width - 1);
+    expect(Cli.Fmt.Text.Width.measure(rawReportLine)).to.eql(
+      Cli.Fmt.Text.Width.measure(reportLine),
+    );
   });
 
   it('table → groups write cwd and temp roots', () => {
@@ -282,7 +311,7 @@ function expectHeaderFrame(text: string, width: number) {
 }
 
 function expectHeader(line: string, title: string, width: number) {
-  expect(line).to.have.length(width);
+  expect(Cli.Fmt.Text.Width.measure(line)).to.eql(width);
   expect(line.startsWith(title)).to.eql(true);
   expect(line.endsWith(`read, write, bash · ${pkg.version}`)).to.eql(true);
 }
@@ -291,7 +320,7 @@ function expectTargetRowsToFit(text: string, width: number, labels: readonly str
   for (const line of lines(text)) {
     const trimmed = line.trimStart();
     if (!labels.some((label) => trimmed.startsWith(label))) continue;
-    expect(line.length).to.be.at.most(width);
+    expect(Cli.Fmt.Text.Width.measure(line)).to.be.at.most(width);
   }
 }
 

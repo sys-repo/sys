@@ -45,11 +45,29 @@ describe(`@sys/driver-pi/cli/u.report.sandbox`, () => {
     expect(text).to.contain('- read: cwd + runtime');
     expect(text).to.contain('- write: cwd + tmp');
     expect(text).to.contain('- cwd.git: /tmp/pi-cli-test');
+    expect(text).to.contain('- cwd.git-root: inferred');
     expect(text).to.contain('- cwd.invoked: /tmp/pi-cli-test/nested');
     expect(text).to.contain('## Writable Paths\n- /tmp/pi-cli-test\n- /var/tmp/pi');
     expect(text).to.contain('- context: loaded context (wrapper-owned prompt)');
     expect(text).to.contain('- /tmp/pi-cli-test/canon.md');
     expect(text).to.contain('## Readable Paths\n- /tmp/pi-cli-test/.pi/@sys/tmp/deno\n- /bin/bash');
+  });
+
+  it('text → records explicit versus inferred git-root provenance', () => {
+    const inferred = PiSandboxReport.text({
+      cwd: '/tmp/pi-cli-test',
+      sandbox: sandboxOf('/tmp/pi-cli-test'),
+    });
+    const explicit = PiSandboxReport.text({
+      cwd: '/tmp/pi-cli-test',
+      sandbox: sandboxOf('/tmp/pi-cli-test'),
+      gitRootExplicit: true,
+    });
+
+    expect(inferred).to.contain('- cwd.git-root: inferred');
+    expect(inferred).not.to.contain('- cwd.git-root: explicit');
+    expect(explicit).to.contain('- cwd.git-root: explicit');
+    expect(explicit).not.to.contain('- cwd.git-root: inferred');
   });
 
   it('text → records allow-all as the effective permission posture', () => {

@@ -5,6 +5,7 @@ import { PiFs } from '../u.fs.ts';
 type Input = {
   readonly cwd: t.StringDir;
   readonly sandbox: t.PiCli.SandboxSummary;
+  readonly gitRootExplicit?: boolean;
 };
 
 const LOG_SUFFIX = 'sandbox.log.md' as const;
@@ -40,6 +41,7 @@ export const PiSandboxReport = {
       `- time: ${new Date().toISOString()}`,
       `- cwd.root: ${root}`,
       ...git,
+      `- cwd.git-root: ${input.gitRootExplicit === true ? 'explicit' : 'inferred'}`,
       `- cwd.invoked: ${sandbox.cwd.invoked}`,
       '',
       '## Summary',

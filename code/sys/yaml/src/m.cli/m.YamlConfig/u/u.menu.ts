@@ -63,7 +63,7 @@ export async function menu<T, A extends string = string>(
     const defaultValue = lastSelected && files.includes(lastSelected) ? lastSelected : files[0];
 
     const picked = await Cli.Input.Select.prompt<string>({
-      message: `${args.label}:`,
+      message: args.label.length === 0 ? '' : `${args.label}:`,
       options,
       default: defaultValue,
       hideDefault: true,
