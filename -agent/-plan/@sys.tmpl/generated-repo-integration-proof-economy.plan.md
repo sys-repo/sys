@@ -1,5 +1,4 @@
 generated-repo-integration-proof-economy.plan.md
-
 - [ ] test(tmpl): measure generated repository integration cost
 - [ ] refactor(tmpl): consolidate generated repository integration proofs
 - [ ] test(tmpl): bound generated repository integration liveness

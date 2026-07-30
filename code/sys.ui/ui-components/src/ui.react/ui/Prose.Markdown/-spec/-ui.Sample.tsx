@@ -13,6 +13,10 @@ export type SampleButtonsProps = {
 };
 export type { SampleKind };
 
+const sourceBreakRenderers = {
+  thematicBreak: ProseMarkdown.ThematicBreak.source,
+} as const satisfies t.ProseMarkdown.Renderers;
+
 export const Sample = {
   Buttons,
   renderersFor,
@@ -69,11 +73,10 @@ function renderersFor(
     <Chip.UI size='xs' mono theme={theme}>{value}</Chip.UI>
   );
 
+  if (sample === 'code-blocks') return { ...sourceBreakRenderers };
+
   if (sample === 'thematic-breaks') {
-    return {
-      inlineCode,
-      thematicBreak: ProseMarkdown.ThematicBreak.source,
-    };
+    return { ...sourceBreakRenderers, inlineCode };
   }
 
   if (sample === 'chip') {

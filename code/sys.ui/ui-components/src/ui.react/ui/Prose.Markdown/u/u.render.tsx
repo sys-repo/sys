@@ -30,6 +30,8 @@ function renderNode(input: unknown, ctx: RenderContext): t.ReactNode {
       return renderContainerChildren(node, ctx);
     case 'paragraph':
       return <p className={styles.paragraph.class}>{renderContainerChildren(node, ctx)}</p>;
+    case 'code':
+      return Markdown.Is.code(node) ? renderCodeBlock(node, ctx) : null;
     case 'heading':
       return Markdown.Is.heading(node)
         ? renderHeading(node, ctx)
@@ -62,6 +64,23 @@ function renderContainerChildren(
   ctx: RenderContext,
 ): readonly t.ReactNode[] {
   return hasRenderableChildren(node) ? renderChildren(node.children, ctx) : [];
+}
+
+function renderCodeBlock(
+  node: t.ProseMarkdown.Block.Code.Node,
+  ctx: RenderContext,
+): t.ReactNode {
+  const args: t.ProseMarkdown.Block.Code.RendererArgs = {
+    node,
+    value: node.value,
+    lang: node.lang ?? undefined,
+    meta: node.meta ?? undefined,
+  };
+  return ctx.renderers?.codeBlock?.(args) ?? (
+    <pre className={ctx.styles.codeBlock.class}>
+      <code>{node.value}</code>
+    </pre>
+  );
 }
 
 function renderHeading(

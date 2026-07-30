@@ -27,6 +27,7 @@ export namespace ProseMarkdown {
   export type Styles = {
     readonly base: t.Style.Transform.Result;
     readonly paragraph: t.Style.Transform.Result;
+    readonly codeBlock: t.Style.Transform.Result;
     readonly heading: t.Style.Transform.Result;
     readonly list: t.Style.Transform.Result;
     readonly listItem: t.Style.Transform.Result;
@@ -56,6 +57,8 @@ export namespace ProseMarkdown {
     inlineCode?: Inline.Code.Renderer;
     /** Render a safe link node. Defaults to a neutral `<a>` element. */
     link?: Inline.Link.Renderer;
+    /** Render a semantic code block. Defaults to native `<pre><code>` elements. */
+    codeBlock?: Block.Code.Renderer;
     /** Render a semantic heading. Defaults to the corresponding native heading element. */
     heading?: Block.Heading.Renderer;
     /** Render a semantic thematic break. Defaults to a native `<hr>` element. */
@@ -68,6 +71,29 @@ export namespace ProseMarkdown {
    * Block prose semantics.
    */
   export namespace Block {
+    /**
+     * Markdown code-block semantics.
+     */
+    export namespace Code {
+      /** Render override. */
+      export type Renderer = (args: RendererArgs) => t.ReactNode;
+
+      /** Render override arguments. */
+      export type RendererArgs = {
+        /** Source code-block AST node. */
+        node: Node;
+        /** Canonical code text. */
+        value: string;
+        /** Optional authored language identifier. */
+        lang?: string;
+        /** Optional authored fence metadata. */
+        meta?: string;
+      };
+
+      /** Markdown code-block AST node. */
+      export type Node = Extract<t.Markdown.Node, { type: 'code' }>;
+    }
+
     /**
      * Markdown heading semantics.
      */

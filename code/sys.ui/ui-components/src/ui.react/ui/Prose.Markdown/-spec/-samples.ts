@@ -13,6 +13,7 @@ export const sampleKinds = [
   'intro',
   'ast',
   'headings',
+  'code-blocks',
   'thematic-breaks',
   'lists',
   'task-state',
@@ -67,6 +68,29 @@ const SAMPLES = {
       ##### Heading level 5
 
       ###### Heading level 6
+    `),
+  },
+  'code-blocks': {
+    label: 'sample: code blocks',
+    value: Str.dedent(`
+      Code blocks retain native semantics and neutral styling.
+
+      ---
+
+      Backtick fence:
+
+      \`\`\`ts
+      const answer: number = 42;
+      \`\`\`
+
+      ---
+
+      Tilde fence:
+
+      ~~~text
+      plain text
+        preserved indentation
+      ~~~
     `),
   },
   'thematic-breaks': {

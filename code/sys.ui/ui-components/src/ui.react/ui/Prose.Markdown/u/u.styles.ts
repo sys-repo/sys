@@ -17,6 +17,11 @@ export function createStyles(
       display: 'flow-root',
     }),
     paragraph: css({ margin: '0 0 0.65em 0' }, blockMarginEdges),
+    codeBlock: css({
+      margin: '0 0 0.65em 0',
+      maxWidth: '100%',
+      overflowX: 'auto',
+    }, blockMarginEdges),
     heading: css(blockMarginEdges),
     list: css({
       margin: '0.35em 0 0.65em 0',
