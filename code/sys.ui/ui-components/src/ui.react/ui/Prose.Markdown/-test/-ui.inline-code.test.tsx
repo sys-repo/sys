@@ -82,7 +82,7 @@ describe('Prose.Markdown.UI: inline code', () => {
       expect(calls).to.eql(0);
       expect(res.container.querySelector('[data-token]')).to.eql(null);
       expect(fallback.getAttribute('data-node-type')).to.eql('inlineCode');
-      expect(fallback.textContent).to.eql('Invalid node: inlineCode');
+      expect(fallback.textContent).to.eql('InvalidNode:inlineCode');
     } finally {
       res.dispose();
     }

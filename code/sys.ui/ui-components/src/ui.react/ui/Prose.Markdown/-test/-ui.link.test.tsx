@@ -138,7 +138,7 @@ describe('Prose.Markdown.UI: links', () => {
       expect(res.container.querySelector('a')).to.eql(null);
       expect(res.container.querySelector('[data-link]')).to.eql(null);
       expect(fallback.getAttribute('data-node-type')).to.eql('link');
-      expect(fallback.textContent).to.eql('Invalid node: link');
+      expect(fallback.textContent).to.eql('InvalidNode:link');
       expect(res.container.querySelector('p')?.textContent).to.include('bad link after.');
     } finally {
       res.dispose();

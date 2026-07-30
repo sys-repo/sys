@@ -70,7 +70,7 @@ describe('Prose.Markdown.UI: semantic blocks', () => {
 
       expect(res.container.querySelector('h1, h2, h3, h4, h5, h6')).to.eql(null);
       expect(fallback.getAttribute('data-node-type')).to.eql('heading');
-      expect(fallback.textContent).to.eql('Invalid node: heading');
+      expect(fallback.textContent).to.eql('InvalidNode:heading');
       expect(res.container.textContent).to.include('Visible.');
     } finally {
       res.dispose();

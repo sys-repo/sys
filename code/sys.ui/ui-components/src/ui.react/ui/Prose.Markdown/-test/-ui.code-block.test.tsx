@@ -136,7 +136,7 @@ describe('Prose.Markdown.UI: code blocks', () => {
       expect(calls).to.eql(0);
       expect(res.container.querySelector('pre, [data-invalid]')).to.eql(null);
       expect(fallback.getAttribute('data-node-type')).to.eql('code');
-      expect(fallback.textContent).to.eql('Invalid node: code');
+      expect(fallback.textContent).to.eql('InvalidNode:code');
     } finally {
       res.dispose();
     }
