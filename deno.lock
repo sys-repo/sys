@@ -97,7 +97,6 @@
     "npm:@preact/signals-core@1.14.4": "1.14.4",
     "npm:@preact/signals-react@3.11.0": "3.11.0_react@19.2.8",
     "npm:@sinclair/typebox-codegen@0.11.1": "0.11.1",
-    "npm:@stripe/stripe-js@9.12.0": "9.12.0",
     "npm:@svgdotjs/svg.js@3.2.5": "3.2.5",
     "npm:@svgdotjs/svg.js@3.2.7": "3.2.7",
     "npm:@testing-library/react@16.3.2": "16.3.2_@types+react@19.2.17_@types+react-dom@19.2.3__@types+react@19.2.17_react@19.2.8_react-dom@19.2.8__react@19.2.8",
@@ -1941,9 +1940,6 @@
         "@smithy/util-buffer-from",
         "tslib"
       ]
-    },
-    "@stripe/stripe-js@9.12.0": {
-      "integrity": "sha512-wCUYZNYo7E/6B3Rv2i/g/Rmj2mTiOX6HEwWYUWUuNUKwEhzTo/SXuQ1IoNo3mknWIHUQyqdakv1Nl2SiYPrCrw=="
     },
     "@svgdotjs/svg.js@3.2.5": {
       "integrity": "sha512-/VNHWYhNu+BS7ktbYoVGrCmsXDh+chFMaONMwGNdIBcFHrWqk2jY8fNyr3DLdtQUIalvkPfM554ZSFa3dm3nxQ=="
@@ -3977,7 +3973,7 @@
       "npm:@automerge/automerge-repo@2.5.6",
       "npm:@automerge/automerge@3.3.2",
       "npm:@automerge/prosemirror@0.2.0",
-      "npm:@deno/vite-plugin@2.0.2",
+      "npm:@deno/vite-plugin@2.0.3",
       "npm:@earendil-works/pi-coding-agent@0.82.1",
       "npm:@monaco-editor/react@4.7.0",
       "npm:@noble/hashes@2.2.0",
@@ -3985,7 +3981,7 @@
       "npm:@preact/signals-core@1.14.4",
       "npm:@preact/signals-react@3.11.0",
       "npm:@sinclair/typebox-codegen@0.11.1",
-      "npm:@stripe/stripe-js@9.12.0",
+      "npm:@stripe/stripe-js@9.12.1",
       "npm:@svgdotjs/svg.js@3.2.7",
       "npm:@types/mdast@4.0.4",
       "npm:@types/unist@3.0.3",

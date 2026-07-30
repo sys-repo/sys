@@ -20,7 +20,7 @@ deno.json:
     subpaths: [ auto ]
   - import: npm:@vitejs/plugin-react@6.0.4
     dev: true
-  - import: npm:@deno/vite-plugin@2.0.2
+  - import: npm:@deno/vite-plugin@2.0.3
     dev: true
   - import: npm:rollup@4.62.3
     dev: true
@@ -86,7 +86,7 @@ deno.json:
   - import: npm:tinycolor2@1.6.0
   - import: npm:ts-essentials@10.2.1
   - import: npm:@octokit/rest@22.0.1
-  - import: npm:@stripe/stripe-js@9.12.0
+  - import: npm:@stripe/stripe-js@9.12.1
   - import: npm:ws@8.21.1
   - import: npm:@types/ws@8.18.1
   - import: npm:csstype@3.2.3
@@ -101,7 +101,7 @@ deno.json:
 package.json:
   - import: npm:@vitejs/plugin-react@6.0.4
     dev: true
-  - import: npm:@deno/vite-plugin@2.0.2
+  - import: npm:@deno/vite-plugin@2.0.3
     dev: true
   - import: npm:rollup@4.62.3
     dev: true
