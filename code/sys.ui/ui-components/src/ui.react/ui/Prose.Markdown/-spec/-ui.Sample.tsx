@@ -68,12 +68,10 @@ function renderButtonLabel(args: {
 function renderersFor(
   sample: unknown,
   theme?: t.CommonTheme,
-): t.ProseMarkdown.Renderers | undefined {
+): t.ProseMarkdown.Renderers {
   const inlineCode: t.ProseMarkdown.Inline.Code.Renderer = ({ value }) => (
     <Chip.UI size='xs' mono theme={theme}>{value}</Chip.UI>
   );
-
-  if (sample === 'code-blocks') return { ...sourceBreakRenderers };
 
   if (sample === 'thematic-breaks') {
     return { ...sourceBreakRenderers, inlineCode };
@@ -81,6 +79,7 @@ function renderersFor(
 
   if (sample === 'chip') {
     return {
+      ...sourceBreakRenderers,
       inlineCode,
       link: ({ href, title, children }) => (
         <Anchor.UI href={href} title={title} target='_blank' theme={theme}>{children}</Anchor.UI>
@@ -90,6 +89,7 @@ function renderersFor(
 
   if (sample === 'task-state') {
     return {
+      ...sourceBreakRenderers,
       taskState: ({ checked, ariaLabel }) => (
         <span
           aria-checked={checked}
@@ -111,6 +111,8 @@ function renderersFor(
       ),
     };
   }
+
+  return { ...sourceBreakRenderers };
 }
 
 const Styles = {

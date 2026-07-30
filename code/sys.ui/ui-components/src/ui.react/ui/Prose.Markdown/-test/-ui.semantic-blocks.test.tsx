@@ -54,7 +54,7 @@ describe('Prose.Markdown.UI: semantic blocks', () => {
     }
   });
 
-  it('preserves safe children without inventing a tag for malformed heading depth', async () => {
+  it('surfaces malformed heading depth while preserving safe children', async () => {
     const ast = {
       type: 'root',
       children: [{
@@ -66,8 +66,12 @@ describe('Prose.Markdown.UI: semantic blocks', () => {
     const res = await TestReact.render(<ProseMarkdown.UI value={ast} />, { strict: false });
 
     try {
+      const fallback = res.container.querySelector('[data-prose-markdown-fallback="invalid"]')!;
+
       expect(res.container.querySelector('h1, h2, h3, h4, h5, h6')).to.eql(null);
-      expect(res.container.textContent).to.eql('Visible.');
+      expect(fallback.getAttribute('data-node-type')).to.eql('heading');
+      expect(fallback.textContent).to.eql('Invalid node: heading');
+      expect(res.container.textContent).to.include('Visible.');
     } finally {
       res.dispose();
     }

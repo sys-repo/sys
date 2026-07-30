@@ -6,6 +6,7 @@ import { Sample } from './-ui.Sample.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
+  const width = 550;
   const p = debug.props;
 
   function Root() {
@@ -13,10 +14,7 @@ export default Spec.describe(D.displayName, (e) => {
     const renderers = Sample.renderersFor(v.sample, v.theme);
     const isScroll = v.viewport === 'scroll';
     const styles = {
-      base: css({
-        position: 'relative',
-        width: 450,
-      }),
+      base: css({ position: 'relative', width }),
       body: css({
         Absolute: isScroll ? 0 : undefined,
         Scroll: isScroll ? true : undefined,
@@ -44,7 +42,7 @@ export default Spec.describe(D.displayName, (e) => {
     function update() {
       debug.listen();
       if (p.viewport.value === 'scroll') ctx.subject.size('fill-y');
-      else ctx.subject.size([450, null]);
+      else ctx.subject.size([width, null]);
       ctx.redraw();
     }
 

@@ -23,7 +23,7 @@ describe('Prose.Markdown.UI: links', () => {
 
     const res = await TestReact.render(
       <ProseMarkdown.UI
-        value={'Read [docs](https://example.com "Docs title").'}
+        value='Read [docs](https://example.com "Docs title").'
         renderers={renderers}
       />,
       { strict: false },
@@ -47,7 +47,7 @@ describe('Prose.Markdown.UI: links', () => {
     };
 
     const res = await TestReact.render(
-      <ProseMarkdown.UI value={'Open [Anchor.UI](https://example.com).'} renderers={renderers} />,
+      <ProseMarkdown.UI value='Open [Anchor.UI](https://example.com).' renderers={renderers} />,
       { strict: false },
     );
     try {
@@ -94,7 +94,7 @@ describe('Prose.Markdown.UI: links', () => {
     };
 
     const res = await TestReact.render(
-      <ProseMarkdown.UI value={'Do not [run](javascript:alert(1)).'} renderers={renderers} />,
+      <ProseMarkdown.UI value='Do not [run](javascript:alert(1)).' renderers={renderers} />,
       { strict: false },
     );
     try {
@@ -132,10 +132,14 @@ describe('Prose.Markdown.UI: links', () => {
       strict: false,
     });
     try {
+      const fallback = res.container.querySelector('[data-prose-markdown-fallback="invalid"]')!;
+
       expect(calls).to.eql(0);
       expect(res.container.querySelector('a')).to.eql(null);
       expect(res.container.querySelector('[data-link]')).to.eql(null);
-      expect(res.container.querySelector('p')?.textContent).to.eql('Before bad link after.');
+      expect(fallback.getAttribute('data-node-type')).to.eql('link');
+      expect(fallback.textContent).to.eql('Invalid node: link');
+      expect(res.container.querySelector('p')?.textContent).to.include('bad link after.');
     } finally {
       res.dispose();
     }

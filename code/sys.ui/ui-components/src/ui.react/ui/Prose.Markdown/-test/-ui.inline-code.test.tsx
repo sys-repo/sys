@@ -21,7 +21,7 @@ describe('Prose.Markdown.UI: inline code', () => {
     };
 
     const res = await TestReact.render(
-      <ProseMarkdown.UI value={'Press `Enter`.'} renderers={renderers} />,
+      <ProseMarkdown.UI value='Press `Enter`.' renderers={renderers} />,
       { strict: false },
     );
     try {
@@ -39,7 +39,7 @@ describe('Prose.Markdown.UI: inline code', () => {
     };
 
     const res = await TestReact.render(
-      <ProseMarkdown.UI value={'Press `Enter`.'} renderers={renderers} />,
+      <ProseMarkdown.UI value='Press `Enter`.' renderers={renderers} />,
       { strict: false },
     );
     try {
@@ -77,9 +77,12 @@ describe('Prose.Markdown.UI: inline code', () => {
       strict: false,
     });
     try {
+      const fallback = res.container.querySelector('[data-prose-markdown-fallback="invalid"]')!;
+
       expect(calls).to.eql(0);
       expect(res.container.querySelector('[data-token]')).to.eql(null);
-      expect(res.container.querySelector('p')?.textContent).to.eql('Before  after.');
+      expect(fallback.getAttribute('data-node-type')).to.eql('inlineCode');
+      expect(fallback.textContent).to.eql('Invalid node: inlineCode');
     } finally {
       res.dispose();
     }

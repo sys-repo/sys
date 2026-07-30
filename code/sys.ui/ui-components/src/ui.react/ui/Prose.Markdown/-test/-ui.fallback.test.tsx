@@ -13,7 +13,7 @@ import { ProseMarkdown } from '../mod.ts';
 describe('Prose.Markdown.UI: fallback policy', () => {
   DomMock.init({ beforeEach, afterEach });
 
-  it('preserves child text for unsupported container nodes', async () => {
+  it('surfaces unsupported containers while preserving their child text', async () => {
     const ast = {
       type: 'root',
       children: [{
@@ -31,7 +31,11 @@ describe('Prose.Markdown.UI: fallback policy', () => {
       strict: false,
     });
     try {
-      expect(res.container.querySelector('p')?.textContent).to.eql('Keep child text.');
+      const fallback = res.container.querySelector('[data-prose-markdown-fallback="unsupported"]')!;
+
+      expect(fallback.getAttribute('data-node-type')).to.eql('unknownContainer');
+      expect(fallback.textContent).to.eql('Not implemented: unknownContainer');
+      expect(res.container.querySelector('p')?.textContent).to.include('child text.');
     } finally {
       res.dispose();
     }
@@ -55,21 +59,26 @@ describe('Prose.Markdown.UI: fallback policy', () => {
     }
   });
 
-  it('does not render raw Markdown HTML as HTML', async () => {
+  it('surfaces raw Markdown HTML without rendering or exposing its authored markup', async () => {
     const source = 'Before <strong>raw</strong> after.';
 
     const res = await TestReact.render(<ProseMarkdown.UI value={source} />, {
       strict: false,
     });
     try {
+      const fallbacks = [...res.container.querySelectorAll('[data-node-type="html"]')];
+
       expect(res.container.querySelector('strong')).to.eql(null);
-      expect(res.container.querySelector('p')?.textContent).to.eql('Before raw after.');
+      expect(fallbacks).to.have.length(2);
+      expect(fallbacks.every((element) => element.textContent?.includes('<strong>') === false)).to
+        .eql(true);
+      expect(res.container.querySelector('p')?.textContent).to.include('raw');
     } finally {
       res.dispose();
     }
   });
 
-  it('drops unsupported leaf/value AST nodes', async () => {
+  it('surfaces unsupported leaf/value AST nodes without injecting their value', async () => {
     const ast: t.Markdown.Ast = {
       type: 'root',
       children: [{
@@ -86,14 +95,18 @@ describe('Prose.Markdown.UI: fallback policy', () => {
       strict: false,
     });
     try {
+      const fallback = res.container.querySelector('[data-prose-markdown-fallback="unsupported"]')!;
+
       expect(res.container.querySelector('img')).to.eql(null);
-      expect(res.container.querySelector('p')?.textContent).to.eql('Before  after.');
+      expect(fallback.getAttribute('data-node-type')).to.eql('html');
+      expect(fallback.textContent).to.eql('Not implemented: html');
+      expect(fallback.textContent).to.not.include('<img');
     } finally {
       res.dispose();
     }
   });
 
-  it('ignores malformed AST children without crashing', async () => {
+  it('surfaces malformed AST children without crashing', async () => {
     const ast = {
       type: 'root',
       children: [
@@ -107,7 +120,11 @@ describe('Prose.Markdown.UI: fallback policy', () => {
       strict: false,
     });
     try {
+      const fallback = res.container.querySelector('[data-prose-markdown-fallback="invalid"]')!;
+
       expect(res.container.querySelector('[role="alert"]')).to.eql(null);
+      expect(fallback.getAttribute('data-node-type')).to.eql('unknown');
+      expect(fallback.textContent).to.eql('Invalid node: unknown');
       expect(res.container.querySelector('p')?.textContent).to.eql('Safe.');
     } finally {
       res.dispose();
@@ -143,7 +160,9 @@ describe('Prose.Markdown.UI: fallback policy', () => {
   it('reports invalid AST value legibly', async () => {
     const res = await TestReact.render(
       // Intentional invalid AST for runtime guard coverage.
-      <ProseMarkdown.UI value={{ type: 'paragraph', children: [] } as unknown as t.ProseMarkdown.Value} />,
+      <ProseMarkdown.UI
+        value={{ type: 'paragraph', children: [] } as unknown as t.ProseMarkdown.Value}
+      />,
       { strict: false },
     );
     try {

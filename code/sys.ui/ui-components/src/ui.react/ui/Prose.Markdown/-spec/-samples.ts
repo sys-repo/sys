@@ -14,6 +14,7 @@ export const sampleKinds = [
   'ast',
   'headings',
   'code-blocks',
+  'fallback-canary',
   'thematic-breaks',
   'lists',
   'task-state',
@@ -29,6 +30,36 @@ const AST_SOURCE = Str.dedent(`
   - The debug state stores \`t.Markdown.Value\`.
   - Strings and ASTs use the same \`Prose.Markdown.UI\` value prop.
 `);
+
+/** Permanent unsupported-node sentinel. Never add this type to production dispatch. */
+export const FALLBACK_CANARY_NODE_TYPE = 'proseMarkdownFallbackCanary';
+const FALLBACK_CANARY_AST = {
+  type: 'root',
+  children: [
+    {
+      type: 'heading',
+      depth: 3,
+      children: [{ type: 'text', value: 'Permanent fallback canary' }],
+    },
+    {
+      type: 'paragraph',
+      children: [
+        { type: 'text', value: 'Unsupported leaf: ' },
+        { type: FALLBACK_CANARY_NODE_TYPE },
+      ],
+    },
+    {
+      type: 'paragraph',
+      children: [
+        { type: 'text', value: 'Unsupported container: ' },
+        {
+          type: FALLBACK_CANARY_NODE_TYPE,
+          children: [{ type: 'text', value: 'child content remains visible.' }],
+        },
+      ],
+    },
+  ],
+} as unknown as t.Markdown.Ast;
 
 const SPEC_NS = {
   anchor: 'sys.ui.component: Anchor',
@@ -92,6 +123,10 @@ const SAMPLES = {
         preserved indentation
       ~~~
     `),
+  },
+  'fallback-canary': {
+    label: 'sample: permanent fallback canary',
+    value: FALLBACK_CANARY_AST,
   },
   'thematic-breaks': {
     label: 'sample: thematic-break source DSL',

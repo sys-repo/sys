@@ -1,17 +1,13 @@
 import React from 'react';
 import { Is, Markdown, type t } from '../../common.ts';
 import { hasRenderableChildren, isMarkdownNodeRecord, type MarkdownNodeRecord } from '../u.node.ts';
+import type { NotImplementedReason, RenderContext } from './t.ts';
 import { renderCodeBlock } from './u.code-block.tsx';
 import { renderHeading } from './u.heading.tsx';
 import { renderInlineCode, renderLink } from './u.inline.tsx';
 import { renderList, renderListItem } from './u.list.tsx';
 import { renderThematicBreak } from './u.thematic-break.tsx';
-
-type RenderContext = {
-  renderers?: t.ProseMarkdown.Renderers;
-  source?: t.StringMarkdown;
-  styles: t.ProseMarkdown.Styles;
-};
+import { NotImplemented } from './ui.NotImplemented.tsx';
 
 export function renderChildren(
   children: readonly unknown[],
@@ -23,20 +19,24 @@ export function renderChildren(
 }
 
 function renderNode(input: unknown, ctx: RenderContext): t.ReactNode {
-  if (!isMarkdownNodeRecord(input)) return null;
+  if (!isMarkdownNodeRecord(input)) return renderFallback(undefined, ctx, 'invalid');
 
   const node = input;
   const { renderers, styles } = ctx;
 
   switch (node.type) {
     case 'root':
-      return renderContainerChildren(node, ctx);
+      return hasRenderableChildren(node)
+        ? renderContainerChildren(node, ctx)
+        : renderFallback(node, ctx, 'invalid');
     case 'paragraph':
-      return <p className={styles.paragraph.class}>{renderContainerChildren(node, ctx)}</p>;
+      return hasRenderableChildren(node)
+        ? <p className={styles.paragraph.class}>{renderContainerChildren(node, ctx)}</p>
+        : renderFallback(node, ctx, 'invalid');
     case 'code':
       return Markdown.Is.code(node)
         ? renderCodeBlock({ node, renderer: renderers?.codeBlock, style: styles.codeBlock })
-        : null;
+        : renderFallback(node, ctx, 'invalid');
     case 'heading':
       return Markdown.Is.heading(node)
         ? renderHeading({
@@ -45,13 +45,13 @@ function renderNode(input: unknown, ctx: RenderContext): t.ReactNode {
           renderer: renderers?.heading,
           style: styles.heading,
         })
-        : renderContainerChildren(node, ctx);
+        : renderFallback(node, ctx, 'invalid');
     case 'thematicBreak':
       return Markdown.Is.thematicBreak(node)
         ? renderThematicBreak({ node, renderer: renderers?.thematicBreak, source: ctx.source })
-        : null;
+        : renderFallback(node, ctx, 'invalid');
     case 'text':
-      return Is.string(node.value) ? node.value : null;
+      return Is.string(node.value) ? node.value : renderFallback(node, ctx, 'invalid');
     case 'inlineCode':
       return Markdown.Is.inlineCode(node)
         ? renderInlineCode({
@@ -59,35 +59,45 @@ function renderNode(input: unknown, ctx: RenderContext): t.ReactNode {
           renderer: renderers?.inlineCode,
           style: styles.inlineCode,
         })
-        : null;
+        : renderFallback(node, ctx, 'invalid');
     case 'strong':
-      return <strong className={styles.strong.class}>{renderContainerChildren(node, ctx)}</strong>;
+      return hasRenderableChildren(node)
+        ? <strong className={styles.strong.class}>{renderContainerChildren(node, ctx)}</strong>
+        : renderFallback(node, ctx, 'invalid');
     case 'emphasis':
-      return <em className={styles.emphasis.class}>{renderContainerChildren(node, ctx)}</em>;
+      return hasRenderableChildren(node)
+        ? <em className={styles.emphasis.class}>{renderContainerChildren(node, ctx)}</em>
+        : renderFallback(node, ctx, 'invalid');
     case 'link':
-      return renderLink({
-        node,
-        children: renderContainerChildren(node, ctx),
-        renderer: renderers?.link,
-        style: styles.link,
-      });
+      return Markdown.Is.link(node)
+        ? renderLink({
+          node,
+          children: renderContainerChildren(node, ctx),
+          renderer: renderers?.link,
+          style: styles.link,
+        })
+        : renderFallback(node, ctx, 'invalid');
     case 'list':
-      return renderList({
-        node,
-        children: renderContainerChildren(node, ctx),
-        style: styles.list,
-      });
+      return hasRenderableChildren(node)
+        ? renderList({
+          node,
+          children: renderContainerChildren(node, ctx),
+          style: styles.list,
+        })
+        : renderFallback(node, ctx, 'invalid');
     case 'listItem':
-      return renderListItem({
-        node,
-        children: renderContainerChildren(node, ctx),
-        renderer: renderers?.taskState,
-        styles,
-      });
+      return hasRenderableChildren(node)
+        ? renderListItem({
+          node,
+          children: renderContainerChildren(node, ctx),
+          renderer: renderers?.taskState,
+          styles,
+        })
+        : renderFallback(node, ctx, 'invalid');
     case 'break':
       return <br />;
     default:
-      return hasRenderableChildren(node) ? renderChildren(node.children, ctx) : null;
+      return renderFallback(node, ctx, 'unsupported');
   }
 }
 
@@ -96,4 +106,20 @@ function renderContainerChildren(
   ctx: RenderContext,
 ): readonly t.ReactNode[] {
   return hasRenderableChildren(node) ? renderChildren(node.children, ctx) : [];
+}
+
+function renderFallback(
+  node: MarkdownNodeRecord | undefined,
+  ctx: RenderContext,
+  reason: NotImplementedReason,
+): t.ReactNode {
+  const children = node && hasRenderableChildren(node)
+    ? renderChildren(node.children, ctx)
+    : undefined;
+
+  return (
+    <NotImplemented nodeType={node?.type ?? 'unknown'} reason={reason}>
+      {children}
+    </NotImplemented>
+  );
 }

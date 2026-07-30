@@ -10,7 +10,6 @@ import {
   TestReact,
 } from './common.ts';
 import { ProseMarkdown } from '../mod.ts';
-import { Sample } from '../-spec/-ui.Sample.tsx';
 
 const CODE_VALUE = `const markup = '<strong>safe</strong>';
   return markup;`;
@@ -39,25 +38,6 @@ describe('Prose.Markdown.UI: code blocks', () => {
       const code = [...res.container.querySelectorAll('pre > code')];
       expect(code.map((element) => element.textContent)).to.eql([CODE_VALUE, CODE_VALUE]);
       expect(res.container.querySelector('strong')).to.eql(null);
-    } finally {
-      res.dispose();
-    }
-  });
-
-  it('composes the shared source-break renderer into the code-block sample', async () => {
-    const renderers = Sample.renderersFor('code-blocks', 'Light');
-    const res = await TestReact.render(
-      <ProseMarkdown.UI value={Sample.value('code-blocks')} renderers={renderers} />,
-      { strict: false },
-    );
-
-    try {
-      expect(renderers?.thematicBreak).to.equal(ProseMarkdown.ThematicBreak.source);
-      const rules = [...res.container.querySelectorAll('hr')];
-      const classes = rules.map((element) => element.className);
-      expect(classes).to.have.length(2);
-      expect(classes[0]).to.not.eql('');
-      expect(classes[1]).to.eql(classes[0]);
     } finally {
       res.dispose();
     }
@@ -131,7 +111,7 @@ describe('Prose.Markdown.UI: code blocks', () => {
     }
   });
 
-  it('does not render malformed code nodes or pass them to overrides', async () => {
+  it('surfaces malformed code nodes without passing them to overrides', async () => {
     const ast = {
       type: 'root',
       children: [{ type: 'code', value: 42, lang: 'ts' }],
@@ -151,9 +131,12 @@ describe('Prose.Markdown.UI: code blocks', () => {
     );
 
     try {
+      const fallback = res.container.querySelector('[data-prose-markdown-fallback="invalid"]')!;
+
       expect(calls).to.eql(0);
-      expect(res.container.querySelector('pre, code, [data-invalid]')).to.eql(null);
-      expect(res.container.textContent).to.eql('');
+      expect(res.container.querySelector('pre, [data-invalid]')).to.eql(null);
+      expect(fallback.getAttribute('data-node-type')).to.eql('code');
+      expect(fallback.textContent).to.eql('Invalid node: code');
     } finally {
       res.dispose();
     }
