@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 import { Color, css, D, LocalStorage, Signal, type t } from '../common.ts';
 import { MarkdownSample, type SampleKind } from './-samples.ts';
@@ -18,12 +18,12 @@ const defaults: Storage = {
  * Types:
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
-export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
+export type DebugSignals = ReturnType<typeof createDebugSignals>;
 
 /**
  * Signals:
  */
-export async function createDebugSignals() {
+export function createDebugSignals() {
   const s = Signal.create;
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
@@ -34,12 +34,14 @@ export async function createDebugSignals() {
     theme: s(snap.theme),
     sample: s(sample),
     value: s(MarkdownSample.value(sample)),
+    viewport: s(MarkdownSample.viewport(sample)),
   };
   const p = props;
   const api = {
     props,
     listen,
     reset,
+    select,
   };
 
   function listen() {
@@ -49,8 +51,13 @@ export async function createDebugSignals() {
   function reset() {
     p.debug.value = defaults.debug;
     p.theme.value = defaults.theme;
-    p.sample.value = defaultSample;
-    p.value.value = MarkdownSample.value(defaultSample);
+    select(defaultSample);
+  }
+
+  function select(kind: SampleKind) {
+    p.sample.value = kind;
+    p.value.value = MarkdownSample.value(kind);
+    p.viewport.value = MarkdownSample.viewport(kind);
   }
 
   Signal.effect(() => {
@@ -101,14 +108,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <div className={Styles.title.class}>{'Samples:'}</div>
+      <div className={Styles.title.class}>Samples:</div>
       <Sample.Buttons debug={debug} />
 
       <hr />
-      <div className={Styles.title.class}>{'Debug:'}</div>
+      <div className={Styles.title.class}>Debug:</div>
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <ObjectView name='debug' data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
     </div>
   );
 };

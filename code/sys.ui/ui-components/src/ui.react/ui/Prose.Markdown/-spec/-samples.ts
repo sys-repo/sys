@@ -1,15 +1,19 @@
 import { Is, Markdown, Obj, Str, type t } from './common.ts';
+import { THEMATIC_BREAK_SOURCE } from './-sample.thematic-breaks.ts';
 
 export type SampleKind = typeof sampleKinds[number];
+export type SampleViewport = 'center' | 'scroll';
 export type SampleItem = {
   readonly label: string;
   readonly value?: t.Markdown.Value;
+  readonly viewport?: SampleViewport;
 };
 
 export const sampleKinds = [
   'intro',
   'ast',
   'headings',
+  'thematic-breaks',
   'lists',
   'task-state',
   'inline',
@@ -64,6 +68,11 @@ const SAMPLES = {
 
       ###### Heading level 6
     `),
+  },
+  'thematic-breaks': {
+    label: 'sample: thematic-break source DSL',
+    viewport: 'scroll',
+    value: THEMATIC_BREAK_SOURCE,
   },
   lists: {
     label: 'sample: lists',
@@ -129,6 +138,7 @@ export const MarkdownSample = {
   isKind,
   resolveKind,
   value,
+  viewport,
 } as const;
 
 function get<K extends SampleKind>(kind: K): (typeof SAMPLES)[K] {
@@ -145,6 +155,11 @@ function resolveKind(input: unknown, fallback: SampleKind = 'intro'): SampleKind
 
 function value<K extends SampleKind>(kind: K): (typeof SAMPLES)[K]['value'] {
   return get(kind).value;
+}
+
+function viewport(kind: SampleKind): SampleViewport {
+  const sample: SampleItem = get(kind);
+  return sample.viewport ?? 'center';
 }
 
 function toDevHref(namespace: string): t.StringUri {

@@ -4,7 +4,10 @@ import type { t } from './common.ts';
  * Adapts Markdown input into prose semantics without imposing layout or typography.
  */
 export namespace ProseMarkdown {
-  export type Lib = { readonly UI: t.FC<Props> };
+  export type Lib = {
+    readonly UI: t.FC<Props>;
+    readonly ThematicBreak: Block.ThematicBreak.Lib;
+  };
 
   /** Markdown renderer props. */
   export type Props = {
@@ -61,7 +64,9 @@ export namespace ProseMarkdown {
     taskState?: Block.TaskState.Renderer;
   };
 
-  /** Block prose semantics. */
+  /**
+   * Block prose semantics.
+   */
   export namespace Block {
     /**
      * Markdown heading semantics.
@@ -88,6 +93,12 @@ export namespace ProseMarkdown {
      * Markdown thematic-break semantics.
      */
     export namespace ThematicBreak {
+      /** Source-authored thematic-break visual helpers. */
+      export type Lib = {
+        /** Opt-in renderer mapping source marker facts to native `<hr>` styling. */
+        readonly source: Renderer;
+      };
+
       /** Render override. */
       export type Renderer = (args: RendererArgs) => t.ReactNode;
 
@@ -128,9 +139,13 @@ export namespace ProseMarkdown {
     }
   }
 
-  /** Inline prose semantics. */
+  /**
+   * Inline prose semantics.
+   */
   export namespace Inline {
-    /** Markdown inline-code semantics. */
+    /**
+     * Markdown inline-code semantics.
+     */
     export namespace Code {
       /** Render override. */
       export type Renderer = (args: RendererArgs) => t.ReactNode;
@@ -147,7 +162,9 @@ export namespace ProseMarkdown {
       export type Node = Extract<t.Markdown.Node, { type: 'inlineCode' }>;
     }
 
-    /** Markdown link semantics. */
+    /**
+     * Markdown link semantics.
+     */
     export namespace Link {
       /** Render override. */
       export type Renderer = (args: RendererArgs) => t.ReactNode;

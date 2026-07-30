@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button } from '../../u.ts';
 import { Anchor } from '../../Anchor/mod.ts';
 import { Buttons as ButtonFamily } from '../../Buttons/mod.ts';
@@ -32,10 +31,7 @@ function Buttons(props: SampleButtonsProps) {
         key={kind}
         block
         label={renderButtonLabel({ kind, sample, selected, theme })}
-        onClick={() => {
-          p.sample.value = kind;
-          p.value.value = sample.value;
-        }}
+        onClick={() => props.debug.select(kind)}
       />
     );
   };
@@ -69,9 +65,20 @@ function renderersFor(
   sample: unknown,
   theme?: t.CommonTheme,
 ): t.ProseMarkdown.Renderers | undefined {
+  const inlineCode: t.ProseMarkdown.Inline.Code.Renderer = ({ value }) => (
+    <Chip.UI size='xs' mono theme={theme}>{value}</Chip.UI>
+  );
+
+  if (sample === 'thematic-breaks') {
+    return {
+      inlineCode,
+      thematicBreak: ProseMarkdown.ThematicBreak.source,
+    };
+  }
+
   if (sample === 'chip') {
     return {
-      inlineCode: ({ value }) => <Chip.UI size='xs' mono theme={theme}>{value}</Chip.UI>,
+      inlineCode,
       link: ({ href, title, children }) => (
         <Anchor.UI href={href} title={title} target='_blank' theme={theme}>{children}</Anchor.UI>
       ),
@@ -84,11 +91,11 @@ function renderersFor(
         <span
           aria-checked={checked}
           aria-label={ariaLabel}
-          aria-readonly={true}
+          aria-readonly
           className={Styles.taskState.class}
           role='switch'
         >
-          <span aria-hidden={true} inert={true}>
+          <span aria-hidden inert>
             <ButtonFamily.Switch
               value={checked}
               width={26}
