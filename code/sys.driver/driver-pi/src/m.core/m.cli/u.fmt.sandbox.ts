@@ -1,4 +1,4 @@
-import { c, Cli, Fs, Is, Num, Path, Str, type t } from './common.ts';
+import { c, Cli, Fs, Is, Num, Path, pkg, Str, type t } from './common.ts';
 import { isGitlessRoot, runtimeRoot } from './u.runtime.ts';
 
 type PiSandboxTableOptions = {
@@ -29,7 +29,8 @@ const PREVIEW_PROFILES: readonly (readonly [number, number])[] = [
 const PATH_DIR_PREFIX_WIDTH = 4;
 const WRITE_GIT_MARKER = ' (--git-root)';
 const WRITE_ROOT_MARKER = ' (root)';
-const TOOL_OPS = 'read, write, edit, bash';
+const CAPABILITY_OPS = 'read, write, bash';
+const TITLE_SEPARATOR = ' · ';
 
 export const PiSandboxFmt = {
   table(input: t.PiCli.SandboxSummary, opts: PiSandboxTableOptions = {}) {
@@ -60,7 +61,7 @@ export const PiSandboxFmt = {
     }
 
     const title = formatTitle(input.permissions, renderWidth);
-    const topHr = input.permissions === 'allow-all'
+    const headerHr = input.permissions === 'allow-all'
       ? Cli.Fmt.hr(renderWidth, 'yellow')
       : Cli.Fmt.hr(renderWidth, 'cyan');
     const bodyHr = input.permissions === 'allow-all'
@@ -68,9 +69,8 @@ export const PiSandboxFmt = {
       : c.dim(Cli.Fmt.hr(renderWidth, 'gray'));
 
     return Str.builder()
-      .line(topHr)
       .line(title)
-      .line(bodyHr)
+      .line(headerHr)
       .line(Str.trimEdgeNewlines(String(table)))
       .line(bodyHr)
       .toString();
@@ -83,14 +83,31 @@ function formatTitle(permissions: t.PiCli.PermissionMode, width: number) {
     : c.bold(c.cyan('system:pi:sandbox'));
   const flag = permissions === 'allow-all' ? c.yellow('--allow-all') : '';
   const left = [label, flag].filter((part) => part.length > 0).join(' ');
-  const leftWidth = visibleWidth(left);
-  const opsWidth = visibleWidth(TOOL_OPS);
+  const measure = Cli.Fmt.Text.Width.measure;
+  const leftWidth = measure(left);
+  const opsWidth = measure(CAPABILITY_OPS);
+  const separatorWidth = measure(TITLE_SEPARATOR);
+  const versionWidth = measure(pkg.version);
+  const ops = permissions === 'allow-all'
+    ? c.yellow(CAPABILITY_OPS)
+    : c.cyan(CAPABILITY_OPS);
+  const separator = permissions === 'allow-all'
+    ? c.dim(c.yellow(TITLE_SEPARATOR))
+    : c.dim(c.cyan(TITLE_SEPARATOR));
+  const version = permissions === 'allow-all'
+    ? c.dim(c.yellow(pkg.version))
+    : c.dim(c.cyan(pkg.version));
+  const fullRightWidth = opsWidth + separatorWidth + versionWidth;
 
-  if (leftWidth + opsWidth + 1 > width) return left;
-
-  const gap = ' '.repeat(width - leftWidth - opsWidth);
-  const ops = permissions === 'allow-all' ? c.dim(c.yellow(TOOL_OPS)) : c.cyan(TOOL_OPS);
-  return `${left}${gap}${ops}`;
+  if (leftWidth + fullRightWidth + 1 <= width) {
+    const gap = ' '.repeat(width - leftWidth - fullRightWidth);
+    return `${left}${gap}${ops}${separator}${version}`;
+  }
+  if (leftWidth + versionWidth + 1 <= width) {
+    const gap = ' '.repeat(width - leftWidth - versionWidth);
+    return `${left}${gap}${version}`;
+  }
+  return left;
 }
 
 function sandboxRenderWidth(width = Cli.Screen.size().width) {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import type { t } from '../common.ts';
-import { c, Cli } from '../common.ts';
+import { c, Cli, pkg } from '../common.ts';
 import { PiSandboxFmt } from '../u.fmt.sandbox.ts';
 
 type SandboxInput = Omit<t.PiCli.SandboxSummary, 'permissions'> & {
@@ -8,7 +8,7 @@ type SandboxInput = Omit<t.PiCli.SandboxSummary, 'permissions'> & {
 };
 
 describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
-  it('table → renders scoped sandbox chrome with cyan title operations', () => {
+  it('table → renders one scoped identity band with bright capabilities and dim provenance', () => {
     const width = 80;
     const raw = PiSandboxFmt.table({
       permissions: 'scoped',
@@ -17,12 +17,39 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
     const rawLines = lines(raw);
     const text = Cli.stripAnsi(raw);
 
-    expect(rawLines[0]).to.eql(Cli.Fmt.hr(width - 1, 'cyan'));
-    expect(rawLines[2]).to.eql(c.dim(Cli.Fmt.hr(width - 1, 'gray')));
+    expect(rawLines[0]).to.contain(c.cyan('system:pi:sandbox'));
+    expect(rawLines[0]).to.contain(c.cyan('read, write, bash'));
+    expect(rawLines[0]).not.to.contain(c.dim(c.cyan('read, write, bash')));
+    expect(rawLines[0]).to.contain(c.dim(c.cyan(' · ')));
+    expect(rawLines[0]).to.contain(c.dim(c.cyan(pkg.version)));
+    expect(rawLines[1]).to.eql(Cli.Fmt.hr(width - 1, 'cyan'));
     expect(rawLines.at(-1)).to.eql(c.dim(Cli.Fmt.hr(width - 1, 'gray')));
-    expect(raw).to.contain(c.cyan('system:pi:sandbox'));
-    expect(raw).to.contain(c.cyan('read, write, edit, bash'));
-    expectHeader(lines(text)[1], 'system:pi:sandbox', width - 1);
+    expectHeader(lines(text)[0], 'system:pi:sandbox', width - 1);
+  });
+
+  it('table → drops capabilities before version at exact width boundaries', () => {
+    const title = 'system:pi:sandbox';
+    const capabilities = 'read, write, bash';
+    const separator = ' · ';
+    const full = `${title} ${capabilities}${separator}${pkg.version}`;
+    const withVersion = `${title} ${pkg.version}`;
+    const measure = Cli.Fmt.Text.Width.measure;
+    const fullWidth = measure(full);
+    const lineAt = (renderWidth: number) => {
+      const raw = PiSandboxFmt.table({
+        permissions: 'scoped',
+        cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
+      }, { width: renderWidth + 1 });
+      return lines(Cli.stripAnsi(raw))[0];
+    };
+
+    expect(lineAt(fullWidth)).to.eql(full);
+    const versionOnlyGap = ' '.repeat(fullWidth - 1 - measure(title) - measure(pkg.version));
+    const versionOnly = `${title}${versionOnlyGap}${pkg.version}`;
+    expect(lineAt(fullWidth - 1)).to.eql(versionOnly);
+    expect(versionOnly).not.to.contain(separator);
+    expect(lineAt(measure(withVersion))).to.eql(withVersion);
+    expect(lineAt(measure(withVersion) - 1)).to.eql(title);
   });
 
   it('table → brightens the git-root marker only when --git-root was explicit', () => {
@@ -168,14 +195,20 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
         detail: ['/tmp/pi-cli-test/out'],
       },
     };
-    const text = Cli.stripAnsi(PiSandboxFmt.table(input, { width: 80 }));
+    const raw = PiSandboxFmt.table(input, { width: 80 });
+    const text = Cli.stripAnsi(raw);
 
-    expect(text).to.match(/system:pi:no-sandbox --allow-all\s+read, write, edit, bash/);
+    expect(text).to.match(
+      new RegExp(`system:pi:no-sandbox --allow-all\\s+read, write, bash · ${pkg.version}`),
+    );
     expect(text).to.match(/permissions\s+allow-all/);
     expect(text).to.match(/read\s+all/);
     expect(text).to.match(/write\s+all/);
     expect(text).not.to.contain('write:cwd');
-    expectHeader(text.split('\n')[1], 'system:pi:no-sandbox', 79);
+    expect(lines(raw)[0]).to.contain(c.yellow('read, write, bash'));
+    expect(lines(raw)[0]).to.contain(c.dim(c.yellow(' · ')));
+    expect(lines(raw)[0]).to.contain(c.dim(c.yellow(pkg.version)));
+    expectHeader(lines(text)[0], 'system:pi:no-sandbox', 79);
   });
 
   it('table → keeps zero and single-item previews free of bogus overflow suffixes', () => {
@@ -243,16 +276,15 @@ function render(input: SandboxInput, width: number) {
 
 function expectHeaderFrame(text: string, width: number) {
   const output = lines(text);
-  expect(output[0]).to.eql('━'.repeat(width));
-  expectHeader(output[1], 'system:pi:sandbox', width);
-  expect(output[2]).to.eql('━'.repeat(width));
+  expectHeader(output[0], 'system:pi:sandbox', width);
+  expect(output[1]).to.eql('━'.repeat(width));
   expect(output.at(-1)).to.eql('━'.repeat(width));
 }
 
 function expectHeader(line: string, title: string, width: number) {
   expect(line).to.have.length(width);
   expect(line.startsWith(title)).to.eql(true);
-  expect(line.endsWith('read, write, edit, bash')).to.eql(true);
+  expect(line.endsWith(`read, write, bash · ${pkg.version}`)).to.eql(true);
 }
 
 function expectTargetRowsToFit(text: string, width: number, labels: readonly string[]) {
