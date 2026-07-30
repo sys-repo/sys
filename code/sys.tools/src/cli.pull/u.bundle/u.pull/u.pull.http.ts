@@ -58,7 +58,7 @@ export async function pullHttpBundle(
   }
 
   const toMonotonic = createMonotonicProgress();
-  const onStream = (e: t.HttpPullEvent) => {
+  const onStream = (e: t.HttpPull.Event.Any) => {
     // Stream events may regress (retries / mixed event kinds).
     // Clamp display to a monotonic incrementing view.
     const next = toMonotonic(e.index, e.total);
@@ -112,7 +112,7 @@ async function pullDist(distUrl: t.StringUrl): Promise<t.DistPkg> {
 async function pullDir(
   distUrl: t.StringUrl,
   targetDir: t.StringDir,
-  opts: { dist?: t.DistPkg; onStream?: (e: t.HttpPullEvent) => void } = {},
+  opts: { dist?: t.DistPkg; onStream?: (e: t.HttpPull.Event.Any) => void } = {},
 ) {
   const dist = opts.dist ?? (await pullDist(distUrl));
   const distUrlObj = new URL(distUrl);
@@ -161,7 +161,7 @@ async function pullDir(
 /**
  * Summarise a failed pull into a single CLI-friendly message.
  */
-function summarizePullFailure(result: t.HttpPullToDirResult): string {
+function summarizePullFailure(result: t.HttpPull.ToDir.Result): string {
   const failed = result.ops.filter((op) => !op.ok);
   const total = result.ops.length;
 

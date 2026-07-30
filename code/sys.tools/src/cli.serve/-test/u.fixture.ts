@@ -5,8 +5,8 @@ export type FixtureCaptured =
   | { kind: 'text'; status: number; body: string }
   | { kind: 'response'; status: number; body: Uint8Array; headers: Headers };
 
-export type FixtureHonoCtx = Parameters<t.HonoMiddlewareHandler>[0];
-export type FixtureHonoNext = Parameters<t.HonoMiddlewareHandler>[1];
+export type FixtureHonoCtx = Parameters<t.HttpServer.Hono.MiddlewareHandler>[0];
+export type FixtureHonoNext = Parameters<t.HttpServer.Hono.MiddlewareHandler>[1];
 
 const DIST_DIGEST = 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18';
 

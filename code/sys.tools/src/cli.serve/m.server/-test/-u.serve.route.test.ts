@@ -5,7 +5,7 @@ import { type FixtureCaptured, Fixture } from './u.ts';
 describe('serve route', () => {
   it('type-level: handler matches Hono middleware shape', () => {
     const handler = route({ dir: '/tmp' });
-    expectTypeOf(handler).toEqualTypeOf<t.HonoMiddlewareHandler>();
+    expectTypeOf(handler).toEqualTypeOf<t.HttpServer.Hono.MiddlewareHandler>();
   });
 
   it('serves a known-extension file with mapped MIME', async () => {

@@ -22,7 +22,7 @@ type Target = {
  *  - closed over only [dir]
  *  - all runtime deps via imports
  */
-export function route(args: ServeRouteArgs): t.HonoMiddlewareHandler {
+export function route(args: ServeRouteArgs): t.HttpServer.Hono.MiddlewareHandler {
   const { dir } = args;
 
   return async (c) => {

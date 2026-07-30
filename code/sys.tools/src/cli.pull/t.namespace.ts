@@ -84,7 +84,7 @@ export namespace PullTool {
       };
 
     /** Result from a bundle-pull operation. */
-    export type Result = t.HttpPullToDirResult & {
+    export type Result = t.HttpPull.ToDir.Result & {
       dist?: t.DistPkg;
       dists?: readonly t.DistPkg[];
       summary?: SummaryMeta;

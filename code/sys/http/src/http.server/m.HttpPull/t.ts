@@ -220,10 +220,3 @@ export declare namespace HttpPull {
   }
 }
 
-/**
- * Compatibility aliases.
- */
-/** @deprecated Use `HttpPull.ToDir.Result`. */
-export type HttpPullToDirResult = HttpPull.ToDir.Result;
-/** @deprecated Use `HttpPull.Event.Any`. */
-export type HttpPullEvent = HttpPull.Event.Any;

@@ -60,7 +60,7 @@ export declare namespace StripeFixture {
      * service explicitly. Startup is async because lifecycle configuration is
      * loaded from `args.cwd` before the HTTP server is bound.
      */
-    start(args?: StartArgs): Promise<THttp.HttpServerStarted>;
+    start(args?: StartArgs): Promise<THttp.HttpServer.Started>;
 
     /**
      * Runs the fixture until its HTTP lifecycle finishes.

@@ -4,7 +4,7 @@ import type { StringDir } from '@sys/types';
 export type * from '@sys/types';
 export type { ParsedArgs } from '@sys/std/t';
 export type { Cli } from '@sys/cli/t';
-export type { HonoMiddlewareHandler } from '@sys/http/t';
+export type { HttpServer } from '@sys/http/t';
 export type { Schema } from '@sys/schema/t';
 export type { Yaml, YamlConfig } from '@sys/yaml/t';
 

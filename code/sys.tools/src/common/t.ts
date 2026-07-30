@@ -23,7 +23,7 @@ export type {
 export type { Cli, CliInput, Shell } from '@sys/cli/t';
 export type { Color } from '@sys/color/t';
 export type { FileMap, JsonFile, WalkEntry } from '@sys/fs/t';
-export type { HonoMiddlewareHandler, HttpPullEvent, HttpPullToDirResult } from '@sys/http/t';
+export type { HttpPull, HttpServer } from '@sys/http/t';
 export type { Graph } from '@sys/immutable/t';
 export type { Process } from '@sys/process/t';
 export type { Schema } from '@sys/schema/t';
