@@ -78,7 +78,7 @@ package.json:
   - import: npm:react@19.2.8
   - import: npm:react-dom@19.2.8
   - import: npm:react-icons@5.7.0
-  - import: npm:@deno/vite-plugin@2.0.2
+  - import: npm:@deno/vite-plugin@2.0.3
     dev: true
   - import: npm:@vitejs/plugin-react@6.0.4
     dev: true

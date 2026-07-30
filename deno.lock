@@ -88,7 +88,6 @@
     "npm:@automerge/automerge-repo@2.5.6": "2.5.6",
     "npm:@automerge/automerge@3.3.2": "3.3.2",
     "npm:@automerge/prosemirror@0.2.0": "0.2.0",
-    "npm:@deno/vite-plugin@2.0.2": "2.0.2_vite@8.1.5__yaml@2.9.0_yaml@2.9.0",
     "npm:@deno/vite-plugin@2.0.3": "2.0.3_vite@8.1.5__yaml@2.9.0",
     "npm:@earendil-works/pi-coding-agent@0.82.1": "0.82.1_ws@8.21.1_zod@4.4.3",
     "npm:@monaco-editor/react@4.7.0": "4.7.0_monaco-editor@0.56.0_react@19.2.8_react-dom@19.2.8__react@19.2.8",
@@ -1208,14 +1207,6 @@
       "integrity": "sha512-dI+9P7cfWxkTQ+oE+7Aa6onEn92PHgfWXZivjNheCRmTBDBf2fx6RyTi0cmgpYLnD1KLZK9ZYrMxaPZ4oiXhGA==",
       "os": ["win32"],
       "cpu": ["x64"]
-    },
-    "@deno/vite-plugin@2.0.2_vite@8.1.5__yaml@2.9.0_yaml@2.9.0": {
-      "integrity": "sha512-bzuKApn9Jr2x1jSrbuJEJzy++8LUwjFVOAopAbepcE3RgYzdcPEWd36PSp7P5dNMQlNnQlgtm3MeNbcKZ/Eh/Q==",
-      "dependencies": [
-        "@deno/loader@npm:@jsr/deno__loader@0.5.0",
-        "@std/jsonc@npm:@jsr/std__jsonc@1.0.2",
-        "vite"
-      ]
     },
     "@deno/vite-plugin@2.0.3_vite@8.1.5__yaml@2.9.0": {
       "integrity": "sha512-TbIawVRFqIfshSa4CYEPMgLbEIKHg+WXymWvvwlsyct1X8tG4O1OrQldvU/faw6bw7NBCyxVYdT4iIv93jQSig==",
@@ -4050,7 +4041,7 @@
     "packageJson": {
       "dependencies": [
         "npm:@automerge/automerge-repo@2.5.6",
-        "npm:@deno/vite-plugin@2.0.2",
+        "npm:@deno/vite-plugin@2.0.3",
         "npm:@testing-library/react@16.3.2",
         "npm:@types/react-dom@19.2.3",
         "npm:@types/react@19.2.17",
