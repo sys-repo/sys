@@ -73,6 +73,7 @@ export const DevScreenRuntime = {
       logLines,
       viewport,
       cursorRows: terminal.cursorRows,
+      renderedAt: Time.now.timestamp,
     });
 
     const startupFrame = () => DevScreenLayout.startup(frameArgs());

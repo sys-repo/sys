@@ -104,6 +104,8 @@ export declare namespace ViteDev {
         logLines?: number;
         viewport: Viewport;
         cursorRows: number;
+        /** Time snapshot used for deterministic relative build-age rendering. */
+        renderedAt: t.UnixTimestamp;
       };
 
       /** Ready-frame inputs including optional presentation detail. */

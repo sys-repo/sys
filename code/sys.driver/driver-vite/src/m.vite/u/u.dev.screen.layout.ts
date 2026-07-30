@@ -1,5 +1,5 @@
 import { clipLine, clipText, clipValue, digestSuffixes, metadataRow } from '../../m.fmt/u.ts';
-import { c, Cli, Is, Num, Path, stripAnsi, type t } from '../common.ts';
+import { c, Cli, Is, Num, Path, stripAnsi, type t, Time } from '../common.ts';
 
 type OutputLine = t.ViteDev.Output.Line;
 type FrameArgs = t.ViteDev.Screen.Frame.Args;
@@ -150,7 +150,7 @@ const wrangle = {
         indent: contentColumn,
         labelWidth: 9,
         styledLabel: c.white('output'),
-        suffixes: digestSuffixes(args.dist?.hash.digest),
+        suffixes: wrangle.distSuffixes(args.dist, args.renderedAt),
       }),
       '',
       subHr,
@@ -181,9 +181,16 @@ const wrangle = {
         indent: contentColumn,
         labelWidth: 9,
         styledLabel: c.white('output'),
-        suffixes: digestSuffixes(args.dist?.hash.digest),
+        suffixes: wrangle.distSuffixes(args.dist, args.renderedAt),
       }),
     ];
+  },
+
+  distSuffixes(dist: t.DistPkg | undefined, renderedAt: t.UnixTimestamp) {
+    if (!dist) return [];
+    const age = Time.elapsed(dist.build.time, renderedAt).toString();
+    const suffix = c.dim(c.gray(`· ${age}`));
+    return digestSuffixes(dist.hash.digest).map((digest) => `${digest} ${suffix}`);
   },
 
   workspace(ws: t.ViteDenoWorkspace | undefined, width: number) {

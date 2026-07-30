@@ -1,4 +1,4 @@
-import { c, Cli, describe, expect, it, stripAnsi, type t } from '../../-test.ts';
+import { c, Cli, describe, expect, it, stripAnsi, type t, Time } from '../../-test.ts';
 import { DevOutputLog } from '../u/u.dev.output.ts';
 import { DevScreen } from '../u/u.dev.screen.ts';
 import {
@@ -10,6 +10,7 @@ import {
 } from './u.fixture.dev-screen.ts';
 
 const HASH = `sha256-${'88f8e3e041df504c3177b35ad742f4aebf99951a0c832fb64c1e1b2edef'}ccd11`;
+const RENDERED_AT = 1_750_000_000_000 as t.UnixTimestamp;
 const STARTING_DEV_SERVER = 'starting dev server…';
 
 describe('DevScreen', () => {
@@ -321,39 +322,45 @@ describe('DevScreen', () => {
       expect(logLine).to.include(' 100  out  line-100');
     });
 
-    it('degrades digest detail before allowing the output row to overflow', () => {
-      const outputLine = (width: number) => {
+    it('qualifies every visible digest variant with build age', () => {
+      const outputLine = (width: number, includeDist = true) => {
         const basePaths = paths();
         const customPaths = {
           ...basePaths,
           app: { ...basePaths.app, entry: 'x', outDir: 'dist/' },
         };
-        const text = stripAnsi(DevScreen.toString({
+        const raw = DevScreen.toString({
           pkg: pkg(),
-          dist: dist(),
+          dist: includeDist ? dist() : undefined,
           paths: customPaths,
           url: 'http://x:1/',
           lines: [],
           ...frame(width, 40),
-        }));
-        return text.split('\n').find((line) => line.includes('output')) ?? '';
+        });
+        return raw.split('\n').find((line) => stripAnsi(line).includes('output')) ?? '';
       };
 
-      const full = outputLine(60);
-      const algorithm = outputLine(44);
-      const short = outputLine(34);
-      const none = outputLine(31);
+      const fullRaw = outputLine(60);
+      const full = stripAnsi(fullRaw);
+      const algorithm = stripAnsi(outputLine(44));
+      const short = stripAnsi(outputLine(37));
+      const none = stripAnsi(outputLine(31));
+      const missing = stripAnsi(outputLine(60, false));
 
-      expect(full).to.include('dist/ ← digest:sha256:#ccd11');
-      expect(algorithm).to.include('dist/ ← sha256:#ccd11');
+      expect(full).to.include('dist/ ← digest:sha256:#ccd11 · 3d');
+      expect(fullRaw).to.include(c.dim(c.gray('· 3d')));
+      expect(algorithm).to.include('dist/ ← sha256:#ccd11 · 3d');
       expect(algorithm).to.not.include('digest:');
-      expect(short).to.include('dist/ ← #ccd11');
+      expect(short).to.include('dist/ ← #ccd11 · 3d');
       expect(short).to.not.include('sha256');
       expect(none).to.include('output   dist/');
       expect(none).to.not.include('←');
+      expect(missing).to.include('output   dist/');
+      expect(missing).to.not.include('←');
+      expect(missing).to.not.include('·');
       expect(Cli.Fmt.Text.Width.measure(full) <= 60).to.eql(true);
       expect(Cli.Fmt.Text.Width.measure(algorithm) <= 44).to.eql(true);
-      expect(Cli.Fmt.Text.Width.measure(short) <= 34).to.eql(true);
+      expect(Cli.Fmt.Text.Width.measure(short) <= 37).to.eql(true);
       expect(Cli.Fmt.Text.Width.measure(none) <= 31).to.eql(true);
     });
 
@@ -569,6 +576,7 @@ describe('DevScreen', () => {
       expect(rows[1]).to.eql('━'.repeat(width));
       expect(rows[2]).to.eql('⠋');
       expect(rows[3]).to.include('http://localhost:1234/');
+      expect(text).to.include('· 3d');
       expect(text).to.include(`\n 1  out  ${STARTING_DEV_SERVER}`);
       expect(text).to.include('\n 2  out  transforming modules…');
       expect(text).to.include('\n 3  err  warning: dependency pre-bundle pending…');
@@ -602,7 +610,7 @@ describe('DevScreen', () => {
  * Helpers:
  */
 function frame(width: number, height = 40) {
-  return { viewport: { width, height }, cursorRows: 1 };
+  return { viewport: { width, height }, cursorRows: 1, renderedAt: RENDERED_AT };
 }
 
 function physicalRows(text: string) {
@@ -616,5 +624,8 @@ function expectRowsBounded(text: string, width: number) {
 }
 
 function dist(): t.DistPkg {
-  return { hash: { digest: HASH, parts: {} } } as t.DistPkg;
+  return {
+    build: { time: RENDERED_AT - 3 * Time.Date.DAY },
+    hash: { digest: HASH, parts: {} },
+  } as t.DistPkg;
 }
