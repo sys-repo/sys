@@ -1,5 +1,4 @@
-import { type t, describe, expect, Fs, it, makeTmpl, Process, Templates } from '../-test.ts';
-import { TmplTesting } from '../m.testing/mod.ts';
+import { describe, expect, Fs, it, makeTmpl, type t, Templates } from '../-test.ts';
 import { logTemplate } from './u.ts';
 
 type DenoJson = {
@@ -44,24 +43,6 @@ describe('Template: pkg.help', () => {
       Fs.join(test.pkgDir, 'src/m.help/-bundle/-bundle.json'),
     );
     expect(typeof bundleJson['yaml/root.yaml']).to.eql('string');
-
-    await TmplTesting.LocalRepoAuthorities.rewrite({ root: test.root });
-
-    const bundle = await Process.invoke({
-      cmd: 'deno',
-      args: ['task', 'help:bundle'],
-      cwd: test.pkgDir,
-      silent: true,
-    });
-    expect(bundle.success).to.eql(true, commandError('help:bundle', bundle));
-
-    const check = await Process.invoke({
-      cmd: 'deno',
-      args: ['check', '--', './src/m.help/mod.ts', './src/m.help/-bundle/mod.ts'],
-      cwd: test.pkgDir,
-      silent: true,
-    });
-    expect(check.success).to.eql(true, commandError('deno check', check));
   });
 });
 
@@ -79,7 +60,7 @@ async function makeRepoWithPkg(ns: string, name: string, pkgName: string) {
   await pkgTmpl.write(pkgDir);
   await pkgDef.default(pkgDir, { pkgName });
 
-  return { root, pkgDir, tmp } as const;
+  return { pkgDir } as const;
 }
 
 async function readPackageDenoJson(pkgDir: string): Promise<DenoJson> {
@@ -96,10 +77,4 @@ async function readText(path: string): Promise<string> {
   const res = await Fs.readText(path);
   if (!res.ok || res.data === undefined) throw new Error(`Failed to read text: ${path}`);
   return res.data;
-}
-
-type CommandResult = Awaited<ReturnType<typeof Process.invoke>>;
-
-function commandError(label: string, res: CommandResult): string {
-  return `${label} failed (code ${res.code}).\n\nstdout:\n${res.text.stdout}\n\nstderr:\n${res.text.stderr}`;
 }

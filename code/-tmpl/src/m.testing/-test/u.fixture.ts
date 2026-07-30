@@ -1,6 +1,6 @@
 import { Process } from '@sys/process';
 
-import { DenoFile, Fs } from '../../-test.ts';
+import { DenoFile, Fs, Is } from '../../-test.ts';
 import { cli as tmplCli } from '../../m.tmpl/mod.ts';
 
 export async function writeRepo() {
@@ -69,9 +69,22 @@ export async function readWorkspaceAuthorities() {
     readonly devDependencies?: Record<string, string>;
   }>(Fs.join(root, 'package.json'));
 
+  const resolveExport = (name: string) => {
+    const child = workspace.children.find((item) => item.denofile.name === name);
+    const exports = child?.denofile.exports;
+    const target = Is.str(exports) ? exports : exports?.['.'];
+    if (!(child && Is.str(target))) throw new Error(`Workspace package export not found: ${name}`);
+    return Fs.join(root, child.path.dir, target);
+  };
+
+  const react = packageJson.dependencies?.react;
+  if (!Is.str(react)) throw new Error('Workspace package authority not found: react');
+
   const localizedImports: Record<string, string> = {
     ...imports.imports,
-    react: `npm:react@${packageJson.dependencies?.react}`,
+    '@sys/std': resolveExport('@sys/std'),
+    '@sys/tmpl': resolveExport('@sys/tmpl'),
+    react: `npm:react@${react}`,
   };
 
   return {

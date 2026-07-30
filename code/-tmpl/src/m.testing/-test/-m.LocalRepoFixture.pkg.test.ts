@@ -4,6 +4,7 @@ import { TmplTesting } from '../mod.ts';
 import {
   poisonVersions,
   readAuthorityFiles,
+  readWorkspaceAuthorities,
   runRepoCi,
   writePkg,
   writePkgHelp,
@@ -15,33 +16,17 @@ type DenoJson = {
 };
 
 describe('m.testing/LocalRepoFixture/pkg', () => {
-  it('create → add pkg → rewrite → repo ci passes', async () => {
+  it('create → compose foo/help + bar importing foo → restore authorities → package + repo pass', async () => {
     console.info(Fmt.slowRepoWorkspaceNote());
-    const fixture = await TmplTesting.LocalRepoFixture.create();
-    const pkgDir = await writePkg(fixture.root);
-    await TmplTesting.LocalRepoAuthorities.rewrite({ root: fixture.root });
-
-    const denoJson = await Fs.readJson<{ readonly tasks?: Record<string, string> }>(
-      Fs.join(pkgDir, 'deno.json'),
+    const captured = await captureInfoAndWarn(() =>
+      TmplTesting.LocalRepoFixture.create({ silent: true })
     );
-    expect(denoJson.data?.tasks?.build).to.eql(
-      'deno run -A ./-scripts/task.vite.ts --cmd=build --in=./src/index.html',
-    );
-    expect(denoJson.data?.tasks?.deploy).to.eql(undefined);
-
-    const ci = await runRepoCi(fixture.root);
-    if (!ci.success) {
-      throw new Error(
-        `Localized repo fixture pkg ci failed (code ${ci.code}).\n\nstdout:\n${ci.text.stdout}\n\nstderr:\n${ci.text.stderr}`,
-      );
-    }
-  });
-
-  it('create → add foo + bar → import @tmp/foo from @tmp/bar → repo ci passes', async () => {
-    console.info(Fmt.slowRepoWorkspaceNote());
-    const fixture = await TmplTesting.LocalRepoFixture.create({ silent: true });
+    const fixture = captured.value;
     const initialFiles = await readAuthorityFiles(fixture.root);
+    const workspaceAuthorities = await readWorkspaceAuthorities();
 
+    expect(captured.info).to.eql([]);
+    expect(captured.warn).to.eql([]);
     expect(await Fs.exists(Fs.join(fixture.root, 'deno.json'))).to.eql(true);
     expect(initialFiles.imports.imports).to.eql(fixture.authorities.imports);
     expect(initialFiles.packageJson).to.eql(fixture.authorities.packageJson);
@@ -128,17 +113,17 @@ describe('module: @tmp/bar', () => {
     expect(poisonedFiles.packageJson.devDependencies?.vite).to.eql('0.0.1');
 
     const restored = await TmplTesting.LocalRepoAuthorities.rewrite({ root: fixture.root });
-    expect(restored.imports['@sys/std']).to.eql(expectedAuthorities.imports['@sys/std']);
-    expect(restored.imports['@sys/tmpl']).to.eql(expectedAuthorities.imports['@sys/tmpl']);
-    expect(restored.imports.react).to.eql(expectedAuthorities.imports.react);
+    expect(restored.imports['@sys/std']).to.eql(workspaceAuthorities.imports['@sys/std']);
+    expect(restored.imports['@sys/tmpl']).to.eql(workspaceAuthorities.imports['@sys/tmpl']);
+    expect(restored.imports.react).to.eql(workspaceAuthorities.imports.react);
     expect(restored.imports['react-icons/vsc']).to.eql(
-      expectedAuthorities.imports['react-icons/vsc'],
+      workspaceAuthorities.imports['react-icons/vsc'],
     );
     expect(restored.packageJson.dependencies?.react).to.eql(
-      expectedAuthorities.packageJson.dependencies?.react,
+      workspaceAuthorities.packageVersions.react,
     );
     expect(restored.packageJson.devDependencies?.vite).to.eql(
-      expectedAuthorities.packageJson.devDependencies?.vite,
+      workspaceAuthorities.packageVersions.vite,
     );
     const restoredFiles = await readAuthorityFiles(fixture.root);
     expect(restoredFiles.imports.imports).to.eql(restored.imports);
@@ -152,13 +137,13 @@ describe('module: @tmp/bar', () => {
     });
     expect(bundle.success).to.eql(true, commandError('help:bundle', bundle));
 
-    const check = await Process.invoke({
+    const packageCheck = await Process.invoke({
       cmd: 'deno',
-      args: ['check', '--', './src/m.help/mod.ts', './src/m.help/-bundle/mod.ts'],
+      args: ['task', 'check'],
       cwd: fooDir,
       silent: true,
     });
-    expect(check.success).to.eql(true, commandError('deno check', check));
+    expect(packageCheck.success).to.eql(true, commandError('package check', packageCheck));
 
     const crossPackage = await Process.invoke({
       cmd: 'deno',
@@ -179,6 +164,29 @@ describe('module: @tmp/bar', () => {
     }
   });
 });
+
+async function captureInfoAndWarn<T>(run: () => Promise<T>) {
+  const original = { info: console.info, warn: console.warn } as const;
+  const calls = {
+    info: [] as unknown[][],
+    warn: [] as unknown[][],
+  };
+
+  console.info = (...args: unknown[]) => {
+    calls.info.push(args);
+  };
+  console.warn = (...args: unknown[]) => {
+    calls.warn.push(args);
+  };
+
+  try {
+    const value = await run();
+    return { value, info: calls.info, warn: calls.warn } as const;
+  } finally {
+    console.info = original.info;
+    console.warn = original.warn;
+  }
+}
 
 async function readJson<T>(path: string): Promise<T> {
   const res = await Fs.readJson<T>(path);

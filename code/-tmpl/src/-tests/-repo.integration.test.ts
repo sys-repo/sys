@@ -5,7 +5,6 @@ import type * as w from '@sys/workspace/t';
 import { DenoFile, describe, expect, Fs, it, makeTmpl, Templates } from '../-test.ts';
 import type { t as tt } from '../m.testing/common.ts';
 import { TmplTesting } from '../m.testing/mod.ts';
-import { poisonSysVersions } from './u.repo.local.ts';
 import { Fmt } from './u.ts';
 
 describe('Template: repo integration', () => {
@@ -158,39 +157,6 @@ describe('Template: repo integration', () => {
     expect(test.includes(`name: "${path}"`)).to.eql(true);
   });
 
-  it('generate in temp dir → generated repo pkg check passes after local authority rewrite', async () => {
-    console.info(Fmt.slowRepoWorkspaceNote());
-    const tmp = await Fs.makeTempDir({ prefix: 'tmpl.repo.pkg-build-' });
-    const root = tmp.absolute;
-
-    const def = await Templates.repo();
-    const tmpl = await makeTmpl('repo');
-
-    await tmpl.write(root, { force: true });
-    await def.default(root);
-    await TmplTesting.LocalRepoAuthorities.rewrite({ root });
-
-    const pkgDef = await Templates.pkg();
-    const pkgTmpl = await makeTmpl('pkg');
-    const pkgDir = Fs.join(root, 'code', 'packages', 'foo');
-
-    await pkgTmpl.write(pkgDir, { force: true });
-    await pkgDef.default(pkgDir, { pkgName: '@tmp/foo' });
-
-    const res = await Process.invoke({
-      cmd: 'deno',
-      args: ['task', 'check'],
-      cwd: pkgDir,
-      silent: true,
-    });
-
-    if (!res.success) {
-      const err =
-        `Generated repo pkg check failed (code ${res.code}).\n\nstdout:\n${res.text.stdout}\n\nstderr:\n${res.text.stderr}`;
-      throw new Error(err);
-    }
-  });
-
   it('generate in temp dir → local authority rewrite injects local workspace authorities', async () => {
     const tmp = await Fs.makeTempDir({ prefix: 'tmpl.repo.authority-' });
     const root = tmp.absolute;
@@ -212,33 +178,6 @@ describe('Template: repo integration', () => {
     expect(authorities.packageJson.dependencies?.react).to.eql(
       expected.packageJson.dependencies?.react,
     );
-  });
-
-  it('generate in temp dir → local authority rewrite survives unpublished @sys version bumps', async () => {
-    console.info(Fmt.slowRepoWorkspaceNote());
-    const tmp = await Fs.makeTempDir({ prefix: 'tmpl.repo.bump-' });
-    const root = tmp.absolute;
-
-    const def = await Templates.repo();
-    const tmpl = await makeTmpl('repo');
-
-    await tmpl.write(root, { force: true });
-    await def.default(root);
-    await poisonSysVersions(root, ['@sys/std', '@sys/testing', '@sys/tmpl']);
-    await TmplTesting.LocalRepoAuthorities.rewrite({ root });
-
-    const res = await Process.invoke({
-      cmd: 'deno',
-      args: ['task', 'ci'],
-      cwd: root,
-      silent: true,
-    });
-
-    if (!res.success) {
-      const err =
-        `Generated repo CI failed after local-authority rewrite (code ${res.code}).\n\nstdout:\n${res.text.stdout}\n\nstderr:\n${res.text.stderr}`;
-      throw new Error(err);
-    }
   });
 });
 
