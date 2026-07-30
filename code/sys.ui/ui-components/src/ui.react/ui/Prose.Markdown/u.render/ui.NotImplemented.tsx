@@ -32,7 +32,7 @@ export const NotImplemented: React.FC<P> = (props) => {
       fontWeight: 600,
     }),
   };
-  const label = reason === 'invalid' ? `Invalid node: ${nodeType}` : `Not implemented: ${nodeType}`;
+  const label = reason === 'invalid' ? `InvalidNode:${nodeType}` : `NotImplemented:${nodeType}`;
 
   return (
     <>

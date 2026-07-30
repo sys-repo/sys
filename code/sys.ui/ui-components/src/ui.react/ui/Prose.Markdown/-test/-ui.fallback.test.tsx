@@ -34,7 +34,7 @@ describe('Prose.Markdown.UI: fallback policy', () => {
       const fallback = res.container.querySelector('[data-prose-markdown-fallback="unsupported"]')!;
 
       expect(fallback.getAttribute('data-node-type')).to.eql('unknownContainer');
-      expect(fallback.textContent).to.eql('Not implemented: unknownContainer');
+      expect(fallback.textContent).to.eql('NotImplemented:unknownContainer');
       expect(res.container.querySelector('p')?.textContent).to.include('child text.');
     } finally {
       res.dispose();
@@ -99,7 +99,7 @@ describe('Prose.Markdown.UI: fallback policy', () => {
 
       expect(res.container.querySelector('img')).to.eql(null);
       expect(fallback.getAttribute('data-node-type')).to.eql('html');
-      expect(fallback.textContent).to.eql('Not implemented: html');
+      expect(fallback.textContent).to.eql('NotImplemented:html');
       expect(fallback.textContent).to.not.include('<img');
     } finally {
       res.dispose();
@@ -124,7 +124,7 @@ describe('Prose.Markdown.UI: fallback policy', () => {
 
       expect(res.container.querySelector('[role="alert"]')).to.eql(null);
       expect(fallback.getAttribute('data-node-type')).to.eql('unknown');
-      expect(fallback.textContent).to.eql('Invalid node: unknown');
+      expect(fallback.textContent).to.eql('InvalidNode:unknown');
       expect(res.container.querySelector('p')?.textContent).to.eql('Safe.');
     } finally {
       res.dispose();
