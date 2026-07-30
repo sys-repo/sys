@@ -16,6 +16,7 @@ describe('Http.Fetch: hash checksums', () => {
     expect(res.ok).to.eql(false);
     expect(res.status).to.eql(412);
     expect(res.statusText).to.eql('Pre-condition failed (checksum-mismatch)');
+    expect(res.data).to.eql(undefined);
     expect(error?.message).to.include(`412: Pre-condition failed (checksum-mismatch)`);
     expect(error?.message).to.include(`does not match the expected checksum:`);
     expect(error?.message).to.include(res.checksum?.actual);
@@ -60,6 +61,28 @@ describe('Http.Fetch: hash checksums', () => {
     assertSuccess(resA);
     assertFail(resB);
     assertSuccess(resC);
+
+    fetch.dispose();
+    await server.dispose();
+  });
+
+  it('blob: { checksum } hashes exact response bytes', async () => {
+    const bytes = new Uint8Array([0, 1, 127, 128, 255]);
+    const server = Testing.Http.server(() => Testing.Http.blob(bytes));
+    const url = server.url.toString();
+    const fetch = Fetch.make();
+
+    const checksum = Hash.sha256(bytes);
+    const resA = await fetch.blob(url, {}, { checksum: 'sha256-FAIL' });
+    const resB = await fetch.blob(url, {}, { checksum });
+    const actual = new Uint8Array(resB.data ? await resB.data.arrayBuffer() : []);
+
+    assertFail(resA);
+    assertSuccess(resB);
+
+    expect(actual).to.eql(bytes);
+    expect(resA.checksum).to.eql({ valid: false, expected: 'sha256-FAIL', actual: checksum });
+    expect(resB.checksum).to.eql({ valid: true, expected: checksum, actual: checksum });
 
     fetch.dispose();
     await server.dispose();

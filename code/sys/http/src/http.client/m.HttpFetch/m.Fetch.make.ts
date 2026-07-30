@@ -16,6 +16,7 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
     init: RequestInit,
     options: t.HttpFetch.Options,
     toData: (res: Response) => Promise<T>,
+    toChecksumInput?: (data: T) => Promise<unknown>,
   ): Promise<t.FetchResponse<T>> => {
     const url = wrangle.href(input);
     const errors = Err.errors();
@@ -53,8 +54,10 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
         data = await toData(fetched);
         if (options.checksum) {
           const { verifyChecksum } = await import('./u.checksum.ts'); // ← NB: Do not load crypto-algos into memory unless needed.
-          checksum = verifyChecksum<T>(data, options.checksum, errors);
+          const checksumInput = toChecksumInput ? await toChecksumInput(data) : data;
+          checksum = verifyChecksum(checksumInput, options.checksum, errors);
           if (!checksum.valid) {
+            data = undefined;
             const err = DEFAULTS.error.checksumFail;
             status = err.status;
             statusText = err.statusText;
@@ -133,7 +136,14 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
     },
 
     blob(input: RequestInput, init: RequestInit = {}, options = {}) {
-      return invokeFetch<Blob>('application/octet-stream', input, init, options, (r) => r.blob());
+      return invokeFetch<Blob>(
+        'application/octet-stream',
+        input,
+        init,
+        options,
+        (response) => response.blob(),
+        (data) => data.arrayBuffer(),
+      );
     },
   });
 
