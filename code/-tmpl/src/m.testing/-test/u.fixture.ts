@@ -1,16 +1,23 @@
 import { Process } from '@sys/process';
 
-import { DenoFile, Fs, makeTmpl, Templates } from '../../-test.ts';
+import { DenoFile, Fs } from '../../-test.ts';
 import { cli as tmplCli } from '../../m.tmpl/mod.ts';
 
 export async function writeRepo() {
   const tmp = await Fs.makeTempDir({ prefix: 'tmpl.testing.repo.' });
   const root = tmp.absolute;
 
-  const def = await Templates.repo();
-  const tmpl = await makeTmpl('repo');
-  await tmpl.write(root, { force: true });
-  await def.default(root);
+  await tmplCli(Fs.dirname(root), {
+    _: ['repo'],
+    tmpl: 'repo',
+    interactive: false,
+    dryRun: false,
+    force: true,
+    bundle: false,
+    dir: Fs.basename(root),
+    help: false,
+    'non-interactive': true,
+  });
 
   return root;
 }
@@ -29,7 +36,7 @@ export async function poisonVersions(root: string) {
   nextImports.imports['@sys/std'] = 'jsr:@sys/std@999.0.0';
   nextImports.imports['@sys/tmpl'] = 'jsr:@sys/tmpl@999.0.0';
   nextImports.imports.react = 'npm:react@0.0.1';
-  nextImports.imports['react-dom/'] = 'npm:react-dom@0.0.1/';
+  nextImports.imports['react-icons/vsc'] = 'npm:react-icons@0.0.1/vsc';
 
   const nextPackage = structuredClone(packageJson);
   if (nextPackage.dependencies?.react) nextPackage.dependencies.react = '0.0.1';
@@ -65,7 +72,6 @@ export async function readWorkspaceAuthorities() {
   const localizedImports: Record<string, string> = {
     ...imports.imports,
     react: `npm:react@${packageJson.dependencies?.react}`,
-    'react-dom/': `npm:react-dom@${packageJson.dependencies?.['react-dom']}/`,
   };
 
   return {
@@ -94,8 +100,18 @@ export async function writePkg(root: string, dir = 'code/packages/foo', pkgName 
   return Fs.join(root, dir);
 }
 
-export async function writeText(path: string, text: string) {
-  await Fs.write(path, text);
+export async function writePkgHelp(root: string) {
+  await tmplCli(Fs.dirname(root), {
+    _: ['pkg.help'],
+    tmpl: 'pkg.help',
+    interactive: false,
+    dryRun: false,
+    force: false,
+    bundle: false,
+    dir: Fs.basename(root),
+    help: false,
+    'non-interactive': true,
+  });
 }
 
 export async function runRepoCi(root: string) {
