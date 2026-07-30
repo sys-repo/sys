@@ -1,5 +1,5 @@
-import { css, Markdown, Num, type t } from '../../common.ts';
-import type { MarkdownNodeRecord } from '../u.node.ts';
+import { css, Markdown, Num, type t } from '../common.ts';
+import type { MarkdownNodeRecord } from '../u/u.node.ts';
 
 type ListRenderArgs = {
   node: MarkdownNodeRecord;

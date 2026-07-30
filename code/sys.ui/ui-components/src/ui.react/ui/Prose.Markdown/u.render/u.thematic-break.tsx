@@ -1,4 +1,4 @@
-import { Markdown, type t } from '../../common.ts';
+import { Markdown, type t } from '../common.ts';
 
 type ThematicBreakRenderArgs = {
   node: t.ProseMarkdown.Block.ThematicBreak.Node;

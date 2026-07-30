@@ -1,6 +1,6 @@
-import { Is, Markdown, type t } from '../../common.ts';
-import { toSafeHref } from '../u.href.ts';
-import type { MarkdownNodeRecord } from '../u.node.ts';
+import { Is, Markdown, type t } from '../common.ts';
+import { toSafeHref } from '../u/u.href.ts';
+import type { MarkdownNodeRecord } from '../u/u.node.ts';
 
 type InlineCodeRenderArgs = {
   node: t.ProseMarkdown.Inline.Code.Node;

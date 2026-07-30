@@ -1,5 +1,5 @@
 import type React from 'react';
-import { Chip } from '../../../Chip/mod.ts';
+import { Chip } from '../../Chip/mod.ts';
 import { Color, css, D, type t } from './common.ts';
 import type { NotImplementedReason } from './t.ts';
 

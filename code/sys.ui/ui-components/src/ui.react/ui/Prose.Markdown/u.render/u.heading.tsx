@@ -1,5 +1,5 @@
 import React from 'react';
-import type { t } from '../../common.ts';
+import type { t } from '../common.ts';
 
 type HeadingRenderArgs = {
   node: t.ProseMarkdown.Block.Heading.Node;

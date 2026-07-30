@@ -1,4 +1,4 @@
-import type { t } from '../../common.ts';
+import type { t } from '../common.ts';
 
 type CodeBlockRenderArgs = {
   node: t.ProseMarkdown.Block.Code.Node;

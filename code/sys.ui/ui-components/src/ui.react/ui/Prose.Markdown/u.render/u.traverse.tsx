@@ -1,6 +1,10 @@
 import React from 'react';
-import { Is, Markdown, type t } from '../../common.ts';
-import { hasRenderableChildren, isMarkdownNodeRecord, type MarkdownNodeRecord } from '../u.node.ts';
+import { Is, Markdown, type t } from '../common.ts';
+import {
+  hasRenderableChildren,
+  isMarkdownNodeRecord,
+  type MarkdownNodeRecord,
+} from '../u/u.node.ts';
 import type { NotImplementedReason, RenderContext } from './t.ts';
 import { renderCodeBlock } from './u.code-block.tsx';
 import { renderHeading } from './u.heading.tsx';

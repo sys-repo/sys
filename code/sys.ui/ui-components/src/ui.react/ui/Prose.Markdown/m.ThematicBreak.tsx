@@ -15,9 +15,7 @@ const LIGHT_OPACITY = 0.4;
 /**
  * Opt-in source-authored visual grammar for semantic Markdown thematic breaks.
  */
-export const ThematicBreak: t.ProseMarkdown.Block.ThematicBreak.Lib = {
-  source,
-};
+export const ThematicBreak: t.ProseMarkdown.Block.ThematicBreak.Lib = { source };
 
 function source(args: t.ProseMarkdown.Block.ThematicBreak.RendererArgs): t.ReactNode {
   const { lexeme } = args;
