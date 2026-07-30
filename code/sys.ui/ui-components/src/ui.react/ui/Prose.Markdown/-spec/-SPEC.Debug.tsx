@@ -1,7 +1,7 @@
 import type React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 import { Color, css, D, LocalStorage, Signal, type t } from '../common.ts';
-import { MarkdownSample, type SampleKind } from './-samples.ts';
+import { MarkdownSample, type SampleKind } from './-samples/mod.ts';
 import { Sample } from './-ui.Sample.tsx';
 
 type P = t.ProseMarkdown.Props;

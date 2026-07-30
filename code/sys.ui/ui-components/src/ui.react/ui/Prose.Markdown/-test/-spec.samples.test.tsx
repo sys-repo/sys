@@ -1,4 +1,4 @@
-import { FALLBACK_CANARY_NODE_TYPE, MarkdownSample } from '../-spec/-samples.ts';
+import { FALLBACK_CANARY_NODE_TYPE, MarkdownSample } from '../-spec/-samples/mod.ts';
 import { ProseMarkdown } from '../mod.ts';
 import { afterEach, beforeEach, describe, DomMock, expect, it, TestReact } from './common.ts';
 

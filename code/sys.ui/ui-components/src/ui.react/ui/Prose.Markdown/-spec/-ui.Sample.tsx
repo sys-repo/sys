@@ -4,7 +4,7 @@ import { Buttons as ButtonFamily } from '../../Buttons/mod.ts';
 import { Chip } from '../../Chip/mod.ts';
 import { ProseMarkdown } from '../mod.ts';
 import { css, type t } from './common.ts';
-import { MarkdownSample, type SampleItem, type SampleKind } from './-samples.ts';
+import { MarkdownSample, type SampleItem, type SampleKind } from './-samples/mod.ts';
 import type { DebugSignals } from './-SPEC.Debug.tsx';
 
 export type SampleButtonsProps = {
