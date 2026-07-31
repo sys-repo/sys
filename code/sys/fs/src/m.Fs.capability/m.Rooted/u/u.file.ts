@@ -1,4 +1,4 @@
-import { Is, StdPath, type t } from './common.ts';
+import { Is, StdPath, type t } from '../common.ts';
 import { checkCancelled, failure, ioFailure, isFailure } from './u.error.ts';
 import type { FileHandle, Io } from './u.io.ts';
 import {

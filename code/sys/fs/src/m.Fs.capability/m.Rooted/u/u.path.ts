@@ -1,4 +1,4 @@
-import { Is, StdPath, type t } from './common.ts';
+import { Is, StdPath, type t } from '../common.ts';
 import { checkCancelled, failure, ioFailure } from './u.error.ts';
 import type { Io } from './u.io.ts';
 import type { NormalizedTarget } from './u.target.ts';

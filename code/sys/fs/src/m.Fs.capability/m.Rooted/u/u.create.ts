@@ -1,4 +1,4 @@
-import { Is, Rx, StdPath, type t } from './common.ts';
+import { Is, Rx, StdPath, type t } from '../common.ts';
 import { checkCancelled, failure, ioFailure, isFailure, runOperation } from './u.error.ts';
 import { publishFile } from './u.file.ts';
 import { DEFAULT_IO, type Io } from './u.io.ts';

@@ -1,4 +1,4 @@
-import { slug, type t, Time } from './common.ts';
+import { slug, type t, Time } from '../common.ts';
 
 /** Open-file operations used internally by Rooted. */
 export type FileHandle = {

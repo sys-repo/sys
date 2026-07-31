@@ -1,4 +1,4 @@
-import { Is, Rx, type t } from './common.ts';
+import { Is, Rx, type t } from '../common.ts';
 
 const NAME = 'FsRootedError' as const;
 const OPERATIONS: readonly t.FsRooted.Operation[] = [

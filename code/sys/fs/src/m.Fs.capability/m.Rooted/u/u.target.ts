@@ -1,4 +1,4 @@
-import { Is, StdPath, Str, type t } from './common.ts';
+import { Is, StdPath, Str, type t } from '../common.ts';
 import { failure, isFailure } from './u.error.ts';
 
 const compare = Str.Compare.codeUnit();

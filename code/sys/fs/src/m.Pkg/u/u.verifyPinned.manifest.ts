@@ -1,5 +1,5 @@
 import { Pkg } from '@sys/std/pkg';
-import { normalizeTargets } from '../../m.Fs.capability/m.Rooted/u.target.ts';
+import { normalizeTargets } from '../../m.Fs.capability/m.Rooted/u/u.target.ts';
 import { CompositeHash, Ignore, Is, Obj, Path, Str, type t } from '../common.ts';
 import { failure } from './u.verifyPinned.io.ts';
 import { addBytes, isSafeNonNegative } from './u.verifyPinned.limit.ts';

@@ -10,7 +10,7 @@ import {
   teardown,
   withIo,
 } from './u.fixture.ts';
-import { normalizeTargets } from '../u.target.ts';
+import { normalizeTargets } from '../u/u.target.ts';
 
 describe('Fs.Capability.Rooted admission', () => {
   it('normalizes and freezes a complete portable target batch', async () => {

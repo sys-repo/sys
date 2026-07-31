@@ -12,7 +12,7 @@ import {
   withIo,
   wrapFile,
 } from './u.fixture.ts';
-import { toLockName } from '../u.stage.ts';
+import { toLockName } from '../u/u.stage.ts';
 
 const bytes = (value: string) => new TextEncoder().encode(value);
 
