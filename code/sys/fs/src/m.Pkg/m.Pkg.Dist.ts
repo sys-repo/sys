@@ -20,7 +20,7 @@ import {
   Time,
 } from './common.ts';
 import { Log } from './m.Log.ts';
-import { verifyPinned } from './u/u.verifyPinned.ts';
+import { verifyPinned } from './u.verify/u.pinned.ts';
 
 /**
  * Tools for working with "distribution-package"

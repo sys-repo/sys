@@ -7,9 +7,9 @@ import {
   ioFailure,
   isFailure,
   type VerifyPinnedIo,
-} from './u.verifyPinned.io.ts';
-import { addBytes, isSafeNonNegative, isSafePositive } from './u.verifyPinned.limit.ts';
-import { admitManifest } from './u.verifyPinned.manifest.ts';
+} from './u.pinned.io.ts';
+import { addBytes, isSafeNonNegative, isSafePositive } from './u.pinned.limit.ts';
+import { admitManifest } from './u.pinned.manifest.ts';
 import {
   assertExactTree,
   assertObserved,
@@ -20,7 +20,7 @@ import {
   readAsset,
   readManifest,
   resolveRoot,
-} from './u.verifyPinned.tree.ts';
+} from './u.pinned.tree.ts';
 
 const decoder = new TextDecoder('utf-8', { fatal: true });
 

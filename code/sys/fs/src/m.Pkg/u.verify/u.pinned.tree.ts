@@ -1,12 +1,12 @@
 import { Num, Path, Str, type t } from '../common.ts';
-import type { StrictPart } from './u.verifyPinned.manifest.ts';
+import type { StrictPart } from './u.pinned.manifest.ts';
 import {
   checkCancelled,
   failure,
   ioFailure,
   type ReadHandle,
   type VerifyPinnedIo,
-} from './u.verifyPinned.io.ts';
+} from './u.pinned.io.ts';
 
 const compare = Str.Compare.codeUnit();
 const INDEX = new WeakMap<TreeSnapshot, ReadonlyMap<string, TreeEntry>>();

@@ -1,6 +1,6 @@
 import { describe, expect, Ignore, it, StdPath } from '../../-test.ts';
 import { Pkg } from '../mod.ts';
-import { verifyPinnedWithIo } from '../u/u.verifyPinned.ts';
+import { verifyPinnedWithIo } from '../u.verify/u.pinned.ts';
 import {
   cloneDist,
   DEFAULT_IO,

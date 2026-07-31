@@ -1,5 +1,5 @@
 import { Num } from '../common.ts';
-import { failure } from './u.verifyPinned.io.ts';
+import { failure } from './u.pinned.io.ts';
 
 export function isSafeNonNegative(input: unknown): input is number {
   return Num.Is.safeInt(input) && input >= 0;

@@ -1,6 +1,6 @@
 import { describe, expect, it, StdPath } from '../../-test.ts';
 import { Pkg } from '../mod.ts';
-import { verifyPinnedWithIo } from '../u/u.verifyPinned.ts';
+import { verifyPinnedWithIo } from '../u.verify/u.pinned.ts';
 import { DEFAULT_IO, limits, setup, teardown, withIo } from './-u.verifyPinned.fixture.ts';
 
 describe('Pkg.Dist.verifyPinned operation truth', () => {

@@ -1,6 +1,6 @@
 import { Hash, Json, type t } from '../../-test.ts';
 import { Pkg } from '../mod.ts';
-import { DEFAULT_IO, type VerifyPinnedIo } from '../u/u.verifyPinned.io.ts';
+import { DEFAULT_IO, type VerifyPinnedIo } from '../u.verify/u.pinned.io.ts';
 
 const encoder = new TextEncoder();
 
