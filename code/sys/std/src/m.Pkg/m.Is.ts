@@ -1,4 +1,5 @@
 import { D, Is, type t } from './common.ts';
+import { Part } from './m.Dist.Part.ts';
 
 export const PkgIs: t.Pkg.Is.Lib = {
   unknown(input) {
@@ -42,11 +43,7 @@ export const PkgIs: t.Pkg.Is.Lib = {
     if (!is.sha256Hash(dist.hash.digest)) return false;
 
     const values = Object.values(dist.hash.parts);
-    return values.every((value) => {
-      if (!Is.str(value)) return false;
-      const hash = value.split(':size=')[0];
-      return is.sha256Hash(hash);
-    });
+    return values.every((value) => Part.parse(value) !== undefined);
   },
 
   distCompat(input: any): input is t.DistPkg | t.DistPkgLegacy {
@@ -70,7 +67,7 @@ const wrangle = {
 
 const is = {
   sha256Hash(input: unknown): input is t.StringHash {
-    if (!Is.str(input)) return false;
-    return /^sha256-[0-9a-f]{64}$/.test(input);
+    const parsed = Part.parse(input);
+    return parsed !== undefined && parsed.hash === input && parsed.size === undefined;
   },
 } as const;

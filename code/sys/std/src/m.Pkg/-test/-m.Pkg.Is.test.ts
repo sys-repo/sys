@@ -82,6 +82,35 @@ describe('Pkg.Is', () => {
       expect(Pkg.Is.dist(dist)).to.eql(true);
     });
 
+    it('requires complete canonical part parses', () => {
+      const hash = `sha256-${'a'.repeat(64)}`;
+      const create = (part: unknown): unknown => ({
+        type: 'https://jsr.io/@sample/foo',
+        build: {
+          time: 1746520471244,
+          size: { total: 1, pkg: 0 },
+          builder: '@sys/driver-vite@0.0.0',
+          runtime: '<runtime-uri>',
+          hash: { policy: 'https://jsr.io/@sample/hash/0.0.1/src/hash.ts' },
+        },
+        hash: { digest: hash, parts: { './index.html': part } },
+      });
+
+      expect(Pkg.Is.dist(create(hash))).to.eql(true);
+      expect(Pkg.Is.dist(create(`${hash}:size=0`))).to.eql(true);
+
+      const BAD: readonly unknown[] = [
+        `${hash}:size=`,
+        `${hash}:size=-1`,
+        `${hash}:size=01`,
+        `${hash}:size=1.5`,
+        `${hash}:size=9007199254740992`,
+        `${hash}:size=12kb`,
+        `${hash}:SIZE=12`,
+      ];
+      BAD.forEach((part) => expect(Pkg.Is.dist(create(part))).to.eql(false));
+    });
+
     it('true: canonical dist may omit root pkg', () => {
       const dist: t.DistPkg = {
         type: 'https://jsr.io/@sample/foo',

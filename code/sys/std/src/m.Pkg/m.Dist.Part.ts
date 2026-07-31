@@ -1,45 +1,31 @@
-import { type t } from './common.ts';
+import { Is, Num, type t } from './common.ts';
+
+const PART_PREFIX = /^(sha256-[0-9a-f]{64})(?::size=(0|[1-9][0-9]*))?/;
 
 export const Part: t.Pkg.Dist.Part.Lib = {
-  parse(value: unknown): t.PkgDistPartInfo | undefined {
-    if (typeof value !== 'string') return undefined;
-    return parseString(value);
-  },
-
-  hash(value: unknown): t.StringHash | undefined {
-    const info = this.parse(value);
-    return info?.hash;
-  },
-
-  size(value: unknown): number | undefined {
-    const info = this.parse(value);
-    return info?.size;
-  },
+  parse,
+  hash: (value) => parse(value)?.hash,
+  size: (value) => parse(value)?.size,
 };
 
 /**
  * Helpers:
  *
  * Accepted `dist.hash.parts[path]` shapes:
- * - "sha256-<hex>:size=<bytes>"
- * - "sha256-<hex>" (no size)
+ * - "sha256-<64 lowercase hex>:size=<canonical bytes>"
+ * - "sha256-<64 lowercase hex>" (no size)
  */
-function parseString(input: string): t.PkgDistPartInfo | undefined {
-  const s = input.trim();
+function parse(value: unknown): t.PkgDistPartInfo | undefined {
+  if (!Is.str(value)) return undefined;
 
-  // 1) Full form (preferred): sha256-<hex>:size=<bytes>
-  const m = s.match(/^(sha256-[0-9a-f]{16,})(?::size=(\d+)\b)?$/i);
-  if (!m) return undefined;
+  const match = PART_PREFIX.exec(value);
+  if (!match || match[0] !== value) return undefined; // Exact: `$` may stop before a final newline.
 
-  const hash = m[1] as t.StringHash;
-  const sizeRaw = m[2];
+  const hash = match[1] as t.StringHash;
+  const sizeRaw = match[2];
+  if (sizeRaw === undefined) return { hash };
 
-  if (!sizeRaw) return { hash };
-
-  const n = Number(sizeRaw);
-  if (!Number.isFinite(n) || n < 0) return { hash };
-
-  // Keep it an integer if possible.
-  const size = Math.floor(n);
+  const size = Number(sizeRaw);
+  if (!Num.Is.safeInt(size) || size < 0) return undefined;
   return { hash, size };
 }
