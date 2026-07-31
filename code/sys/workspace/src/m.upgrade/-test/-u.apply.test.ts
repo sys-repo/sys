@@ -83,6 +83,78 @@ describe('Workspace.Upgrade.apply', () => {
     );
   });
 
+  it('projects package-only upgrades without changing Deno imports', async () => {
+    const fs = await Testing.dir('WorkspaceUpgrade.apply.package');
+    await fixture.writeDepsYaml(
+      fs,
+      `
+      deno.json:
+        - import: npm:react@19.0.0
+      package.json:
+        - import: npm:motion@12.42.2
+        - overrides:
+            react: 19.0.0
+    `,
+    );
+    await Fs.writeJson(fs.join('deno.json'), {
+      name: 'upgrade-app',
+      importMap: './imports.json',
+    });
+    await Fs.writeJson(fs.join('imports.json'), {
+      imports: { react: 'npm:react@19.0.0' },
+    });
+    await Fs.writeJson(fs.join('package.json'), {
+      name: 'upgrade-app',
+      dependencies: { motion: '12.42.2' },
+    });
+
+    await fixture.withVersions(
+      {
+        jsr: {},
+        npm: {
+          react: fixture.versionsNpm('react', '19.0.0', { '19.0.0': {} }),
+          motion: fixture.versionsNpm('motion', '12.43.0', {
+            '12.42.2': {},
+            '12.43.0': {},
+          }),
+        },
+      },
+      async () => {
+        await fixture.withInfo(
+          {
+            jsr: {},
+            npm: { 'motion@12.43.0': fixture.infoNpm('motion', '12.43.0') },
+          },
+          async () => {
+            const result = await WorkspaceUpgrade.apply(
+              { cwd: fs.dir, deps: fs.join('deps.yaml') },
+              { policy: { mode: 'latest' } },
+            );
+
+            const depsText = await Fs.readText(fs.join('deps.yaml'));
+            const importMap = await Fs.readJson<{ imports?: Record<string, string> }>(
+              fs.join('imports.json'),
+            );
+            const packageJson = await Fs.readJson<{
+              name?: string;
+              dependencies?: Record<string, string>;
+              overrides?: Record<string, string>;
+            }>(fs.join('package.json'));
+
+            expect(result.files.package?.packageFilePath).to.eql(fs.join('package.json'));
+            expect(depsText.data).to.include('npm:motion@12.43.0');
+            expect(importMap.data?.imports).to.eql({ react: 'npm:react@19.0.0' });
+            expect(packageJson.data).to.eql({
+              name: 'upgrade-app',
+              dependencies: { motion: '12.43.0' },
+              overrides: { react: '19.0.0' },
+            });
+          },
+        );
+      },
+    );
+  });
+
   it('applies the planned eligible npm fallback without recomputing visible latest', async () => {
     const fs = await Testing.dir('WorkspaceUpgrade.apply.standdown');
     await fixture.writeDepsYaml(
@@ -222,12 +294,19 @@ describe('Workspace.Upgrade.apply', () => {
       `
       deno.json:
         - import: jsr:@std/path@1.0.7
+      package.json:
+        - overrides:
+            react: 19.0.0
     `,
     );
     await Fs.writeJson(fs.join('deno.json'), {
       name: 'no-upgrade-app',
       tasks: { dev: 'deno task dev' },
       imports: { stale: 'jsr:@std/fmt@1.0.0' },
+    });
+    await Fs.writeJson(fs.join('package.json'), {
+      name: 'no-upgrade-app',
+      overrides: { stale: '1.0.0' },
     });
 
     await fixture.withVersions(
@@ -256,6 +335,10 @@ describe('Workspace.Upgrade.apply', () => {
               imports?: Record<string, string>;
               tasks?: Record<string, string>;
             }>(fs.join('deno.json'));
+            const packageJson = await Fs.readJson<{
+              name?: string;
+              overrides?: Record<string, string>;
+            }>(fs.join('package.json'));
 
             expect(result.upgrade.totals).to.eql({
               dependencies: 1,
@@ -271,6 +354,11 @@ describe('Workspace.Upgrade.apply', () => {
               '@std/path': 'jsr:@std/path@1.0.7',
             });
             expect(denoJson.data?.tasks).to.eql({ dev: 'deno task dev' });
+            expect(result.files.package?.packageFilePath).to.eql(fs.join('package.json'));
+            expect(packageJson.data).to.eql({
+              name: 'no-upgrade-app',
+              overrides: { react: '19.0.0' },
+            });
           },
         );
       },

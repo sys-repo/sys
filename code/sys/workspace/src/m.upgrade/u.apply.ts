@@ -1,4 +1,4 @@
-import { type t, Deps, Err, Esm, Fs, Path } from './common.ts';
+import { Deps, Err, Esm, Fs, Path, type t } from './common.ts';
 import { createSession, type UpgradeSession } from './u.session.ts';
 import { upgradeWithSession } from './u.upgrade.ts';
 
@@ -30,6 +30,8 @@ export async function applyWithSession(
     {
       depsPath: planned.input.deps,
       denoFilePath: wrangle.denoFilePath(planned.input),
+      packageFilePath: wrangle.packageFilePath(planned.input, manifest.data),
+      packageJson: manifest.data.packageJson,
     },
     [...entries],
   );
@@ -47,6 +49,18 @@ const wrangle = {
   denoFilePath(input: t.WorkspaceUpgrade.Input): t.StringPath {
     const dir = input.cwd ?? Fs.dirname(input.deps);
     return Path.resolve(dir, 'deno.json');
+  },
+
+  packageFilePath(
+    input: t.WorkspaceUpgrade.Input,
+    manifest: t.EsmDeps.State,
+  ): t.StringPath | undefined {
+    const requested = manifest.packageJson !== undefined ||
+      manifest.entries.some((entry) => entry.target.includes('package.json'));
+    if (!requested) return undefined;
+
+    const dir = input.cwd ?? Fs.dirname(input.deps);
+    return Path.resolve(dir, 'package.json');
   },
 
   entries(
@@ -77,11 +91,15 @@ const wrangle = {
 
   topologyError(result: Exclude<t.EsmTopological.Decision.Result, { ok: true }>): t.StdError {
     if ('cycle' in result) {
-      const err = `Workspace upgrade plan could not be applied because the dependency graph is cyclic: ${result.cycle.keys.join(', ')}`;
+      const err =
+        `Workspace upgrade plan could not be applied because the dependency graph is cyclic: ${
+          result.cycle.keys.join(', ')
+        }`;
       return Err.std(err);
     }
 
-    const err = `Workspace upgrade plan could not be applied because the dependency graph is invalid: ${result.invalid.code}`;
+    const err =
+      `Workspace upgrade plan could not be applied because the dependency graph is invalid: ${result.invalid.code}`;
     return Err.std(err);
   },
 } as const;
