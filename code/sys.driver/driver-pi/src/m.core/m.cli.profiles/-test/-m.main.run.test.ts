@@ -31,7 +31,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
       console.info = (value?: unknown) => {
         const text = String(value ?? '');
         calls.push(text);
-        if (Cli.stripAnsi(text).includes('pi:sandbox')) events.push('sheet');
+        if (Cli.stripAnsi(text).includes('sys:pi:sandbox')) events.push('sheet');
       };
       Object.defineProperty(PiSandboxReport, 'write', {
         value: async (input: Parameters<typeof PiSandboxReport.write>[0]) => {
@@ -57,7 +57,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
       });
       expect(res.kind).to.eql('run');
       const printed = Cli.stripAnsi(calls.join('\n'));
-      expect(printed).to.contain('pi:sandbox');
+      expect(printed).to.contain('sys:pi:sandbox');
       expect(printed).to.contain('.sandbox.log.md');
       expect(events).to.eql(['report:start', 'report:done', 'sheet', 'launch']);
     } finally {
@@ -98,7 +98,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
 
       const res = await Profiles.main({ cwd, argv: ['--profile', 'profiles.yaml'] });
       expect(res.kind).to.eql('run');
-      expect(Cli.stripAnsi(calls.join('\n'))).to.contain('pi:sandbox');
+      expect(Cli.stripAnsi(calls.join('\n'))).to.contain('sys:pi:sandbox');
     } finally {
       Process.inherit = prev;
       console.info = prevInfo;
@@ -206,7 +206,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
       });
       expect(res.kind).to.eql('run');
       const printed = Cli.stripAnsi(calls.join('\n'));
-      expect(printed).to.contain('pi:sandbox');
+      expect(printed).to.contain('sys:pi:sandbox');
       expect(printed).to.contain('.sandbox.log.md');
     } finally {
       Process.inherit = prev;
@@ -266,7 +266,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
       expect(res.kind).to.eql('run');
       const printed = Cli.stripAnsi(calls.join('\n'));
       expect(printed).not.to.contain('canon/AGENTS.md');
-      expect(printed).to.contain('pi:sandbox');
+      expect(printed).to.contain('sys:pi:sandbox');
       expect(report?.data).to.contain(`- ${contextFile}`);
     } finally {
       Process.inherit = prev;
@@ -309,7 +309,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
       expect(res.kind).to.eql('run');
       const printed = Cli.stripAnsi(calls.join('\n'));
       expect(printed).to.contain('Migrated 2 Pi config/runtime items.');
-      expect(printed).to.contain('pi:sandbox');
+      expect(printed).to.contain('sys:pi:sandbox');
     } finally {
       Process.inherit = prev;
       console.info = prevInfo;
@@ -339,7 +339,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
       const res = await Profiles.main({ cwd, argv: ['--profile', 'default', '--', '--help'] });
       expect(res.kind).to.eql('run');
       const printed = Cli.stripAnsi(calls.join('\n'));
-      expect(printed).to.contain('pi:sandbox');
+      expect(printed).to.contain('sys:pi:sandbox');
       expect(printed).to.contain('.sandbox.log.md');
       expect(printed).not.to.contain('write:cwd');
     } finally {

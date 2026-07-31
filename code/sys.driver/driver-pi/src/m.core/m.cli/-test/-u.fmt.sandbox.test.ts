@@ -17,18 +17,19 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
     const rawLines = lines(raw);
     const text = Cli.stripAnsi(raw);
 
-    expect(rawLines[0]).to.contain(c.cyan('system:pi:sandbox'));
+    expect(rawLines[0]).to.contain(c.bold(c.cyan('sys:pi')));
+    expect(rawLines[0]).to.contain(c.dim(c.cyan(':sandbox')));
     expect(rawLines[0]).to.contain(c.cyan('read, write, bash'));
     expect(rawLines[0]).not.to.contain(c.dim(c.cyan('read, write, bash')));
     expect(rawLines[0]).to.contain(c.dim(c.cyan(' · ')));
     expect(rawLines[0]).to.contain(c.dim(c.cyan(pkg.version)));
     expect(rawLines[1]).to.eql(Cli.Fmt.hr(width - 1, 'cyan'));
     expect(rawLines.at(-1)).to.eql(c.dim(Cli.Fmt.hr(width - 1, 'gray')));
-    expectHeader(lines(text)[0], 'system:pi:sandbox', width - 1);
+    expectHeader(lines(text)[0], 'sys:pi:sandbox', width - 1);
   });
 
   it('table → drops capabilities before version at exact width boundaries', () => {
-    const title = 'system:pi:sandbox';
+    const title = 'sys:pi:sandbox';
     const capabilities = 'read, write, bash';
     const separator = ' · ';
     const full = `${title} ${capabilities}${separator}${pkg.version}`;
@@ -228,16 +229,18 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
     const text = Cli.stripAnsi(raw);
 
     expect(text).to.match(
-      new RegExp(`system:pi:no-sandbox --allow-all\\s+read, write, bash · ${pkg.version}`),
+      new RegExp(`sys:pi:no-sandbox --allow-all\\s+read, write, bash · ${pkg.version}`),
     );
     expect(text).to.match(/permissions\s+allow-all/);
     expect(text).to.match(/read\s+all/);
     expect(text).to.match(/write\s+all/);
     expect(text).not.to.contain('write:cwd');
+    expect(lines(raw)[0]).to.contain(c.bold(c.yellow('sys:pi')));
+    expect(lines(raw)[0]).to.contain(c.dim(c.yellow(':no-sandbox')));
     expect(lines(raw)[0]).to.contain(c.yellow('read, write, bash'));
     expect(lines(raw)[0]).to.contain(c.dim(c.yellow(' · ')));
     expect(lines(raw)[0]).to.contain(c.dim(c.yellow(pkg.version)));
-    expectHeader(lines(text)[0], 'system:pi:no-sandbox', 79);
+    expectHeader(lines(text)[0], 'sys:pi:no-sandbox', 79);
   });
 
   it('table → keeps zero and single-item previews free of bogus overflow suffixes', () => {
@@ -305,7 +308,7 @@ function render(input: SandboxInput, width: number) {
 
 function expectHeaderFrame(text: string, width: number) {
   const output = lines(text);
-  expectHeader(output[0], 'system:pi:sandbox', width);
+  expectHeader(output[0], 'sys:pi:sandbox', width);
   expect(output[1]).to.eql('━'.repeat(width));
   expect(output.at(-1)).to.eql('━'.repeat(width));
 }

@@ -89,7 +89,7 @@ function printProfileRoot(notice?: string) {
 }
 
 function printProfileTitle() {
-  console.info(c.bold(c.cyan('system:pi:sandbox')));
+  console.info(PiSandboxFmt.title('scoped'));
 }
 
 function menuArgs(args: { cwd: t.StringDir; allowAll?: boolean }) {

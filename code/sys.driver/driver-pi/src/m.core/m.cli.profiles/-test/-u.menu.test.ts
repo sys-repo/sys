@@ -65,7 +65,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(await Fs.exists(oldConfig)).to.eql(false);
       expect(await Fs.exists(newConfig)).to.eql(true);
       expect(calls.map((value) => Cli.stripAnsi(value))).to.eql([
-        'system:pi:sandbox',
+        'sys:pi:sandbox',
         'Migrated 2 Pi config/runtime items.',
       ]);
     } finally {
@@ -99,7 +99,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(text).to.contain('append: []');
       expect(text).not.to.contain('include:');
       expect(calls.map((value) => Cli.stripAnsi(value))).to.eql([
-        'system:pi:sandbox',
+        'sys:pi:sandbox',
         'Migrated 1 Pi config/runtime item.',
       ]);
     } finally {
@@ -237,7 +237,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(res).to.eql({ kind: 'exit' });
       expect(prints).not.to.include('');
       expect(prints.filter((value) => value.includes('.sandbox.log.md'))).to.have.length(1);
-      expect(printed).to.contain('pi:sandbox');
+      expect(printed).to.contain('sys:pi:sandbox');
       expect(printed).to.match(/permissions\s+scoped/);
       expect(printed).to.match(/report\s+.*\.sandbox\.log\.md/);
       expect(printed).to.not.contain(`${cwd}/.log`);
@@ -300,7 +300,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     console.clear = () => events.push('clear');
     console.info = (value?: unknown) => {
       const text = Cli.stripAnsi(String(value ?? ''));
-      if (text === 'system:pi:sandbox') events.push('root:title');
+      if (text === 'sys:pi:sandbox') events.push('root:title');
       if (text.includes('.sandbox.log.md')) events.push('sandbox:sheet');
     };
 

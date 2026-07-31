@@ -32,7 +32,21 @@ const WRITE_ROOT_MARKER = ' (root)';
 const CAPABILITY_OPS = 'read, write, bash';
 const TITLE_SEPARATOR = ' · ';
 
+const PI_SANDBOX_TITLE = {
+  base: 'sys:pi',
+  scoped: ':sandbox',
+  allowAll: ':no-sandbox',
+} as const;
+
 export const PiSandboxFmt = {
+  title(permissions: t.PiCli.PermissionMode) {
+    const suffix = permissions === 'allow-all'
+      ? PI_SANDBOX_TITLE.allowAll
+      : PI_SANDBOX_TITLE.scoped;
+    const color = permissions === 'allow-all' ? c.yellow : c.cyan;
+    return `${c.bold(color(PI_SANDBOX_TITLE.base))}${c.dim(color(suffix))}`;
+  },
+
   table(input: t.PiCli.SandboxSummary, opts: PiSandboxTableOptions = {}) {
     const renderWidth = sandboxRenderWidth(opts.width);
     const contentBudget = sandboxContentBudget(renderWidth);
@@ -80,9 +94,7 @@ export const PiSandboxFmt = {
 } as const;
 
 function formatTitle(permissions: t.PiCli.PermissionMode, width: number) {
-  const label = permissions === 'allow-all'
-    ? c.bold(c.yellow('system:pi:no-sandbox'))
-    : c.bold(c.cyan('system:pi:sandbox'));
+  const label = PiSandboxFmt.title(permissions);
   const flag = permissions === 'allow-all' ? c.yellow('--allow-all') : '';
   const left = [label, flag].filter((part) => part.length > 0).join(' ');
   const measure = Cli.Fmt.Text.Width.measure;
