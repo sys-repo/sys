@@ -1,6 +1,6 @@
-import { type t } from './common.ts';
-import { children } from './u/u.log.children.ts';
-import { dist } from './u/u.log.dist.ts';
+import type { t } from './common.ts';
+import { children } from './u.log/u.children.ts';
+import { dist } from './u.log/u.dist.ts';
 
 /**
  * Logging helpers for the PkgDist data.

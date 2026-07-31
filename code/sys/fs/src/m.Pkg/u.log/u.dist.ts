@@ -1,5 +1,5 @@
-import { c, CliTable, Fs, HashFmt, Num, Path, Pkg, Str, Time, type t } from '../common.ts';
-import { toModuleString } from './u.log.ts';
+import { c, CliTable, Fs, HashFmt, Num, Path, Pkg, Str, type t, Time } from '../common.ts';
+import { toModuleString } from './u.ts';
 
 /**
  * String:
