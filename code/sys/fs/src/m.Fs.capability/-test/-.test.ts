@@ -36,5 +36,10 @@ describe(`FS: Capability`, () => {
       expect('toLiveWritable' in FsCapability.Files).to.eql(false);
       expect('toFilesFsReadonly' in FsCapability).to.eql(false);
     });
+
+    it('Rooted capability', () => {
+      expect(FsCapability.Rooted).to.equal(Fs.Capability.Rooted);
+      expectTypeOf(FsCapability.Rooted).toEqualTypeOf<t.FsRooted.Lib>();
+    });
   });
 });

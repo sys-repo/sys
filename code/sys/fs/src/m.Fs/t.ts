@@ -90,6 +90,8 @@ export namespace Fs {
   export namespace Capability {
     export type Lib = t.FsCapability.Lib;
     export type Instance = t.FsCapability.Instance;
+    /** Publisher for files and directories beneath one root. */
+    export type Rooted = t.FsRooted.Instance;
   }
 
   /** Filesystem path helper types. */

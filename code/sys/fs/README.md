@@ -7,6 +7,7 @@ It standardizes essential I/O and workspace setup operations across the sys runt
 
 ### Structure
 - `Fs` — Core file and directory operations.
+- `Fs.Capability.Rooted` — Publish files beneath one root without replacing existing paths.
 - `Path` — Path utilities.
 - `FileMap` — Declarative file-tree representation.
 - `JsonFile` — Immutable JSON-on-disk file wrapper with typed load/save helpers.
@@ -19,6 +20,31 @@ import { Fs, Path, Env } from '@sys/fs';
 import { FileMap } from '@sys/fs/filemap';
 import { Watch } from '@sys/fs/watch';
 ```
+
+<p>&nbsp;</p>
+
+## Rooted publication
+
+`Fs.Capability.Rooted` confines publication beneath one canonical directory. Target paths are
+validated as one batch before use. Publishing a file never overwrites an existing target and allows at
+most one winner when writers race. Directory publication uses staging directories and a cooperative
+lock. A target found to exist is left untouched; race guarantees cover only writers using the same
+Rooted protocol.
+
+Use Rooted when multiple workers may produce the same immutable cache entry or build directory: at
+most one Rooted writer installs a complete result, and existing content stays unchanged. By design,
+Rooted provides no methods to read, list, overwrite, or remove existing content.
+
+```ts
+import { Fs } from '@sys/fs';
+
+const rooted = await Fs.Capability.Rooted.create({ root: './store' });
+const admission = await rooted.admit([{ kind: 'file', path: 'assets/app.js' }]);
+await rooted.publishFile(admission.targets[0], new TextEncoder().encode('export default 123;'));
+```
+
+Confinement applies only to operations performed through the capability; it does not revoke ambient
+filesystem authority held by the caller.
 
 <p>&nbsp;</p>
 

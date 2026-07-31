@@ -6,6 +6,9 @@ export namespace FsCapability {
 
     /** Files capability adapters. */
     readonly Files: Files.Lib;
+
+    /** Publish files without overwriting existing targets and promote directories among Rooted writers. */
+    readonly Rooted: t.FsRooted.Lib;
   };
 
   export namespace Files {

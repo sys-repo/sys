@@ -1,5 +1,6 @@
 /**
- * @module types
+ * @module
+ * Public filesystem contracts.
  */
 import type { t } from './common.ts';
 
@@ -10,9 +11,7 @@ export type FsCopyFilterArgs = {
   target: t.StringAbsolutePath;
 };
 
-/**
- * Library:
- */
+/** Public module contracts. */
 export type * from './m.Dir/t.ts';
 export type * from './m.Env/t.ts';
 export type * from './m.FileMap/t.ts';
@@ -23,3 +22,4 @@ export type * from './m.JsonFile/t.ts';
 export type * from './m.Path/t.ts';
 export type * from './m.Pkg/t.ts';
 export type * from './m.Watch/t.ts';
+export type * from './m.Fs.capability/m.Rooted/t.ts';
