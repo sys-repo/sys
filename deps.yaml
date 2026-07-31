@@ -122,4 +122,4 @@ package.json:
   - import: npm:@types/react@19.2.17
   - import: npm:@types/react-dom@19.2.3
   - import: npm:@testing-library/react@16.3.2
-  - import: npm:motion@12.42.2
+  - import: npm:motion@12.43.0

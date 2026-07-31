@@ -133,7 +133,7 @@
     "npm:micromark-extension-frontmatter@2.0.0": "2.0.0",
     "npm:micromark-extension-gfm@3.0.0": "3.0.0",
     "npm:monaco-editor@0.56.0": "0.56.0",
-    "npm:motion@12.42.2": "12.42.2_react@19.2.8_react-dom@19.2.8__react@19.2.8",
+    "npm:motion@12.43.0": "12.43.0_react@19.2.8_react-dom@19.2.8__react@19.2.8",
     "npm:ora@9.4.1": "9.4.1",
     "npm:prettier@3.9.6": "3.9.6",
     "npm:pretty-bytes@7.1.0": "7.1.0",
@@ -684,7 +684,6 @@
         "jsr:@sys/yaml@^0.0.185",
         "npm:@svgdotjs/svg.js@3.2.5",
         "npm:@types/react",
-        "npm:motion",
         "npm:react-error-boundary",
         "npm:react-icons",
         "npm:react-inspector",
@@ -702,7 +701,6 @@
         "jsr:@sys/ui-react@^0.0.348",
         "jsr:@sys/yaml@^0.0.186",
         "npm:@types/react",
-        "npm:motion",
         "npm:react-error-boundary",
         "npm:react-icons",
         "npm:react-inspector",
@@ -2370,8 +2368,8 @@
         "fetch-blob"
       ]
     },
-    "framer-motion@12.42.2_react@19.2.8_react-dom@19.2.8__react@19.2.8": {
-      "integrity": "sha512-5XY9luDiu0oHfHBjpDthFMh0ES+122w6p/papSJBweMkO8Sn+PW2QaEgRblQBpWFnuvZS5qvarpt/hO2pjGmnw==",
+    "framer-motion@12.43.0_react@19.2.8_react-dom@19.2.8__react@19.2.8": {
+      "integrity": "sha512-1eaL3RvR/kAlbG7UYcpMptEyzPoENO0c6w7ZnB3/hh2vSAz/6uGAFn6fdoqTBguNstf3MsFhJHsD/0DHiclG+g==",
       "dependencies": [
         "motion-dom",
         "motion-utils",
@@ -3155,8 +3153,8 @@
         "marked@14.0.0"
       ]
     },
-    "motion-dom@12.42.2": {
-      "integrity": "sha512-5gIMWLp/PycBtJRJWRgjxke5n8dlvkSn2DrYW+tr3XcqAZY1xZh6BJyooJXCM8wdfM7wfMjkBJNLge1CKPUIRA==",
+    "motion-dom@12.43.0": {
+      "integrity": "sha512-azKON4d9S65PEoFUiQTMTgPheEmzf2QngdRc50AKfJp9Q9mmcBVw22c8eMq9k8kxOFHdL7+WZY7N/5F/lwiDag==",
       "dependencies": [
         "motion-utils"
       ]
@@ -3164,8 +3162,8 @@
     "motion-utils@12.39.0": {
       "integrity": "sha512-8nadJAJjTtqRkmRF36FoJTrywK9nnFmnPwnSMyxaOCU7GDjN9RTMJIxx9De8ErM+vpPhMccr/6fo5WciyQLnMQ=="
     },
-    "motion@12.42.2_react@19.2.8_react-dom@19.2.8__react@19.2.8": {
-      "integrity": "sha512-Atvv11yUKIid41cVrRBDVX5m8tF8kNpExRSlbpt6APClhDjtwQssgFHhQzejxw7/7YYbjHSPKBVbHo05BuJT5Q==",
+    "motion@12.43.0_react@19.2.8_react-dom@19.2.8__react@19.2.8": {
+      "integrity": "sha512-BQgQbSa9Hn3/mtbib0MK53y6JSANa+YKUKlaYnWzAVDH424RYQ5LVpV3pNiWH00BA2z4ojsSdMzqT7g2FQwjuQ==",
       "dependencies": [
         "framer-motion",
         "react",
@@ -4047,7 +4045,7 @@
         "npm:@types/react@19.2.17",
         "npm:@vitejs/plugin-react@6.0.4",
         "npm:monaco-editor@0.56.0",
-        "npm:motion@12.42.2",
+        "npm:motion@12.43.0",
         "npm:prettier@3.9.6",
         "npm:react-dom@19.2.8",
         "npm:react-icons@5.7.0",
