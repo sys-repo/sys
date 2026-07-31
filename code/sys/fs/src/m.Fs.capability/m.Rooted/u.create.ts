@@ -2,8 +2,9 @@ import { Is, Rx, StdPath, type t } from './common.ts';
 import { checkCancelled, failure, ioFailure, isFailure, runOperation } from './u.error.ts';
 import { publishFile } from './u.file.ts';
 import { DEFAULT_IO, type Io } from './u.io.ts';
-import { createRootState, normalizeTargets, observeTarget, type TargetState } from './u.path.ts';
+import { createRootState, observeTarget, type TargetState } from './u.path.ts';
 import { createStage, discardStage, promoteStage, type StageState } from './u.stage.ts';
+import { normalizeTargets } from './u.target.ts';
 
 /** Internal factory with injectable filesystem operations for deterministic tests. */
 export async function createRooted(

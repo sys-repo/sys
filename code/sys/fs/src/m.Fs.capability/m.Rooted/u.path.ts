@@ -1,13 +1,10 @@
 import { Is, StdPath, type t } from './common.ts';
-import { checkCancelled, failure, ioFailure, isFailure } from './u.error.ts';
+import { checkCancelled, failure, ioFailure } from './u.error.ts';
 import type { Io } from './u.io.ts';
+import type { NormalizedTarget } from './u.target.ts';
 
-export const INTERNAL_NAME = '.sys-rooted';
+export { INTERNAL_NAME } from './u.target.ts';
 export const TEMP_PREFIX = '.sys-rooted-tmp-';
-
-const DEVICE = /^(con|prn|aux|nul|clock\$|conin\$|conout\$|com[1-9¹²³]|lpt[1-9¹²³])(?:\.|$)/i;
-const CONTROL = /[\u0000-\u001f\u007f-\u009f]/;
-const RESERVED = /[:"<>|?*]/;
 
 export type Identity = {
   readonly dev: number;
@@ -17,11 +14,6 @@ export type Identity = {
 export type RootState = {
   readonly path: t.StringAbsoluteDir;
   readonly identity: Identity;
-};
-
-export type NormalizedTarget<K extends t.FsRooted.TargetKind = t.FsRooted.TargetKind> = {
-  readonly kind: K;
-  readonly path: t.StringRelativePath;
 };
 
 export type TargetState<K extends t.FsRooted.TargetKind = t.FsRooted.TargetKind> =
@@ -76,56 +68,6 @@ export async function createRootState(
     path: canonical as t.StringAbsoluteDir,
     identity,
   });
-}
-
-export function normalizeTargets<K extends t.FsRooted.TargetKind>(
-  input: readonly t.FsRooted.TargetInput<K>[],
-): readonly NormalizedTarget<K>[] {
-  const operation = 'admit';
-  if (!Is.array(input)) throw failure(operation, 'invalid-target');
-
-  const targets = input.map((item) => {
-    if (!Is.object(item)) throw failure(operation, 'invalid-target');
-    if (!(item.kind === 'file' || item.kind === 'directory')) {
-      throw failure(operation, 'invalid-target');
-    }
-
-    let path: t.StringRelativePath;
-    try {
-      path = StdPath.Bounded.visible(
-        StdPath.Bounded.posix(),
-        item.path,
-        () => failure(operation, 'invalid-target'),
-      );
-    } catch (cause) {
-      if (isFailure(cause)) throw cause;
-      throw failure(operation, 'invalid-target', { cause });
-    }
-
-    if (!path) throw failure(operation, 'invalid-target');
-    for (const segment of path.split('/')) validateSegment(segment);
-    return { kind: item.kind, path };
-  });
-
-  const ordered = [...targets].sort((a, b) => compare(a.path, b.path));
-  const byPath = new Map<string, NormalizedTarget>();
-  for (const target of ordered) {
-    if (byPath.has(target.path)) throw failure(operation, 'target-collision');
-    byPath.set(target.path, target);
-  }
-
-  for (const target of ordered) {
-    let separator = target.path.indexOf('/');
-    while (separator >= 0) {
-      const ancestor = target.path.slice(0, separator);
-      if (byPath.get(ancestor)?.kind === 'file') {
-        throw failure(operation, 'target-collision');
-      }
-      separator = target.path.indexOf('/', separator + 1);
-    }
-  }
-
-  return targets;
 }
 
 export async function revalidateRoot(
@@ -277,21 +219,6 @@ async function lstatRequired(
   return info;
 }
 
-function validateSegment(segment: string): void {
-  const lower = segment.toLowerCase();
-  if (
-    !segment ||
-    segment.endsWith('.') ||
-    segment.endsWith(' ') ||
-    CONTROL.test(segment) ||
-    RESERVED.test(segment) ||
-    DEVICE.test(segment) ||
-    lower.startsWith(INTERNAL_NAME)
-  ) {
-    throw failure('admit', 'invalid-target');
-  }
-}
-
 function ancestorChain(path: string): readonly string[] {
   const chain: string[] = [];
   let current = StdPath.resolve(path);
@@ -301,8 +228,4 @@ function ancestorChain(path: string): readonly string[] {
     if (parent === current) return chain;
     current = parent;
   }
-}
-
-function compare(a: string, b: string): number {
-  return a < b ? -1 : a > b ? 1 : 0;
 }

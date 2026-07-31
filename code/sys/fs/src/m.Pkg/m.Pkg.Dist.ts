@@ -20,6 +20,7 @@ import {
   Time,
 } from './common.ts';
 import { Log } from './m.Log.ts';
+import { verifyPinned } from './u/u.verifyPinned.ts';
 
 /**
  * Tools for working with "distribution-package"
@@ -28,6 +29,7 @@ import { Log } from './m.Log.ts';
 export const Dist: t.Pkg.Dist.Lib = {
   ...Pkg.Dist,
   Log,
+  verifyPinned,
 
   /**
    * Prepare and save a "distribution package" meta-data file `dist.json`.
