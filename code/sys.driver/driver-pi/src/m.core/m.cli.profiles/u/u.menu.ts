@@ -17,10 +17,12 @@ type MenuContext = {
   readonly gitRootExplicit?: boolean;
 };
 
-type PreviewToken = {
+type ConfigSnapshot = {
   readonly path: t.StringPath;
   readonly text: string;
 };
+
+type PreviewToken = ConfigSnapshot & t.PiCliProfiles.MenuPreview;
 
 const ValidName = {
   hint: 'letters, numbers, ".", "_" or "-"',
@@ -73,7 +75,7 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll, gitRoot
       return {
         kind: 'selected',
         config: action.path,
-        previewed: await isPreviewCurrent(preview, action.path),
+        preview: await currentPreview(preview, action.path),
       };
     }
   }
@@ -159,17 +161,22 @@ async function printSandbox(args: MenuContext): Promise<PreviewToken | undefined
       gitRootExplicit: args.gitRootExplicit === true,
     }),
   );
-  return await snapshotConfig(args.path);
+  const snapshot = await snapshotConfig(args.path);
+  return snapshot ? { ...snapshot, sandbox: resolved.sandbox, report } : undefined;
 }
 
-async function isPreviewCurrent(preview: PreviewToken | undefined, path: t.StringPath) {
-  if (!preview) return false;
-  if (preview.path !== path) return false;
+async function currentPreview(
+  preview: PreviewToken | undefined,
+  path: t.StringPath,
+): Promise<t.PiCliProfiles.MenuPreview | undefined> {
+  if (!preview) return undefined;
+  if (preview.path !== path) return undefined;
   const current = await snapshotConfig(path);
-  return current?.text === preview.text;
+  if (current?.text !== preview.text) return undefined;
+  return { sandbox: preview.sandbox, report: preview.report };
 }
 
-async function snapshotConfig(path: t.StringPath): Promise<PreviewToken | undefined> {
+async function snapshotConfig(path: t.StringPath): Promise<ConfigSnapshot | undefined> {
   const read = await Fs.readText(path);
   if (!read.ok) return undefined;
   return { path, text: read.data ?? '' };

@@ -137,6 +137,14 @@ export declare namespace PiCliProfiles {
     readonly input: Input;
   };
 
+  /** Sandbox evidence produced by the profile menu preview. */
+  export type MenuPreview = {
+    /** Sandbox snapshot represented by the preview report. */
+    readonly sandbox: t.PiCli.SandboxSummary;
+    /** Persisted report represented by the preview sheet. */
+    readonly report: t.StringPath;
+  };
+
   /** Profile menu result. */
   export type MenuResult =
     | {
@@ -148,8 +156,8 @@ export declare namespace PiCliProfiles {
       readonly kind: 'selected';
       /** Selected profile config path. */
       readonly config: t.StringPath;
-      /** Whether the sandbox preview was already rendered by the menu flow. */
-      readonly previewed?: boolean;
+      /** Current sandbox evidence rendered by the menu flow. */
+      readonly preview?: MenuPreview;
     };
 
   /** Sandbox policy for a Pi profile. */

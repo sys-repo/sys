@@ -2,7 +2,7 @@ import { run } from '../m.cli/m.run.ts';
 import { PiSandboxFmt } from '../m.cli/u.fmt.sandbox.ts';
 import { PiSandboxReport } from '../m.cli/u.report.sandbox.ts';
 
-import { type t } from './common.ts';
+import { Cli, Obj, type t } from './common.ts';
 import { ProfileArgs } from './u/u.args.ts';
 import { ProfilesDslFmt } from './u/u.fmt.dsl.ts';
 import { ProfilesFmt } from './u/u.fmt.help.ts';
@@ -10,7 +10,6 @@ import { menu } from './u/u.menu.ts';
 import { ProfileConfig } from './u/u.profile.ts';
 import { resolveRun } from './u/u.resolve.run.ts';
 import { ProfileStartup } from './u/u.startup.ts';
-import { clearInteractiveScreen } from './u/u.terminal.ts';
 
 export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
   const argv = input.argv ?? [];
@@ -66,15 +65,17 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
       interactive,
     },
   });
-  if (picked.previewed !== true) {
-    if (!selection) clearInteractiveScreen();
-    const report = await PiSandboxReport.write({
+  const report = picked.preview && Obj.eql(picked.preview.sandbox, resolved.sandbox)
+    ? picked.preview.report
+    : await PiSandboxReport.write({
       cwd: root,
       sandbox: resolved.sandbox,
       gitRootExplicit,
     });
-    console.info(PiSandboxFmt.table({ ...resolved.sandbox, report }, { gitRootExplicit }));
-  }
+  const sheet = PiSandboxFmt.table({ ...resolved.sandbox, report }, { gitRootExplicit });
+  if (selection) console.info(sheet);
+  else Cli.Screen.repaint(sheet);
+
   const output = await run(resolved);
 
   return {
