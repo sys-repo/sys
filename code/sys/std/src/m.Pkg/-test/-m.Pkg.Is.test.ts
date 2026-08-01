@@ -39,6 +39,18 @@ describe('Pkg.Is', () => {
       });
     });
 
+    it('is total for partially shaped object inputs', () => {
+      const NON: readonly unknown[] = [
+        { type: 'x', build: {} },
+        { type: 'x', build: {}, hash: null },
+        { type: 'x', build: {}, hash: 0 },
+      ];
+      NON.forEach((value) => {
+        expect(Pkg.Is.dist(value)).to.eql(false, value);
+        expect(Pkg.Is.distCompat(value)).to.eql(false, value);
+      });
+    });
+
     it('false: missing build.hash.policy', () => {
       const dist: any = {
         type: 'https://jsr.io/@sample/foo',

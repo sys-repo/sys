@@ -61,7 +61,9 @@ const wrangle = {
     const dist = input as t.DistPkg | t.DistPkgLegacy;
     if (!Is.str(dist.type)) return false;
     if (dist.pkg !== undefined && !PkgIs.pkg(dist.pkg)) return false;
-    return Is.object(dist.build) && Is.str(dist.hash.digest) && Is.object(dist.hash.parts);
+    const build = dist.build;
+    const hash = dist.hash;
+    return Is.object(build) && Is.object(hash) && Is.str(hash.digest) && Is.object(hash.parts);
   },
 } as const;
 

@@ -524,6 +524,18 @@ describe('Pkg.Dist', () => {
       expect(res.error?.message).to.include('does not exist');
     });
 
+    it('invalid: classifies partially shaped metadata without throwing', async () => {
+      const sample = await Sample.init();
+      await Fs.write(sample.path.filepath, '{"type":"x","build":{}}\n');
+
+      const res = await Pkg.Dist.load(sample.path.dir);
+      expect(res.exists).to.eql(true);
+      expect(res.kind).to.eql('invalid');
+      expect(res.dist).to.eql(undefined);
+      expect(res.legacy).to.eql(undefined);
+      expect(res.error).to.not.eql(undefined);
+    });
+
     it('legacy: loads legacy shape as compat (not canonical)', async () => {
       const sample = await Sample.init();
       const { filepath } = sample.path;

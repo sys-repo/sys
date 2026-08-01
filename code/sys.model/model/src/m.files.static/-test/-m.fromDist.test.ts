@@ -383,6 +383,10 @@ describe('FilesStatic.fromDist', () => {
       'FilesStaticError.InvalidPath',
     );
     await expectFilesStaticError(
+      () => FilesStatic.fromDist({ dist: { type: 'x', build: {} } as never }),
+      'FilesStaticError.InvalidPath',
+    );
+    await expectFilesStaticError(
       () => FilesStatic.fromDist({ dist: dist({ '../escape.txt': part(Hash.foo, 1) }) }),
       'FilesStaticError.InvalidPath',
     );
