@@ -86,6 +86,25 @@ describe('Fs.Capability.Rooted stages', () => {
     }
   });
 
+  it('leaves an existing empty directory untouched and cleans the loser', async () => {
+    const fixture = await setup();
+    try {
+      const rooted = await Fs.Capability.Rooted.create({ root: fixture.root });
+      const target = await directoryTarget(rooted, 'sha256-generation');
+      const destination = Fs.join(fixture.root, target.path);
+      await Deno.mkdir(destination, { recursive: true });
+
+      const stage = await rooted.createStage();
+      await fill(stage, 'loser');
+      expect(await rooted.promoteStage(stage, target)).to.eql({ kind: 'occupied' });
+      expect(await Fs.exists(destination)).to.eql(true);
+      expect(await Fs.exists(Fs.join(destination, 'dist.json'))).to.eql(false);
+      expect(await Fs.exists(stage.path)).to.eql(false);
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
   it('returns occupied even when stage cleanup fails after another writer wins', async () => {
     const fixture = await setup();
     try {
