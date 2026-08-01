@@ -224,7 +224,12 @@ export declare namespace CellCli {
    * Types for the `start` command.
    */
   export namespace Start {
-    /** Start command terminal reporter selection. */
+    /**
+     * Terminal ownership policy for the start command.
+     *
+     * `auto` chooses `screen` only when stdin and stdout are interactive. Explicit `screen`
+     * requires that capability; `raw` remains append-only.
+     */
     export type ReporterMode = 'auto' | 'screen' | 'raw';
 
     /** Successful Cell services start result. */

@@ -33,7 +33,9 @@ type StartReporterDeps = {
 };
 
 /**
- * Cell-owned start presentation policy and runtime factory.
+ * Owns terminal presentation for the Cell start command.
+ *
+ * Resolves capability policy once, then delegates every terminal effect to exactly one reporter.
  */
 export const StartReporter = {
   resolve,
@@ -138,6 +140,7 @@ function createScreen(deps: StartReporterDeps): StartReporterInstance {
       ? rowsOf(Str.trimEdgeNewlines(renderBody?.(viewport.width) ?? ''))
       : [];
     const summaryRows = phase === 'complete' ? rowsOf(Str.trimEdgeNewlines(summary)) : [];
+    // Completion facts outrank service-body rows when viewport height is constrained.
     const summaryBudget = Math.min(capacity, sectionRowCount(summaryRows));
     const visibleSummary = fitSection(summaryRows, summaryBudget);
     const bodyBudget = Math.max(0, capacity - visibleSummary.length);

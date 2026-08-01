@@ -9,25 +9,40 @@ import { canonicalRoot } from './u.root.ts';
 import { CellSession } from './u.session.ts';
 import { createShutdownSignal, isSignalShutdownReason, type ShutdownSignal } from './u.shutdown.ts';
 
+/**
+ * Cell service-start input with renderer-neutral lifecycle hooks.
+ *
+ * Hooks report lifecycle facts only; the caller retains terminal ownership.
+ */
 export type StartCellArgs = {
+  /** Cell root to load; omit to discover from the current working directory. */
   readonly dir?: string;
+  /** Service graph mode selected for this start. */
   readonly mode?: t.Cell.Services.ServiceMode;
+  /** Signals the resolved service count immediately before owner startup begins. */
   readonly onStarting?: (serviceCount: number) => void;
+  /** Supplies service-body content after all owners have started. */
   readonly onReady?: (input: StartCellReady) => void;
 };
 
+/** Service-body presentation supplied when startup reaches ready. */
 export type StartCellReady = {
+  /** Stable append-only rendering at the ambient output width. */
   readonly text: string;
+  /** Re-renders the same body for an explicit viewport width. */
   readonly render: (width?: number) => string;
 };
 
+/** Terminal-neutral result from a completed Cell service start. */
 export type StartCellResult = {
   readonly root: string;
   readonly services: number;
   readonly mode: t.Cell.Services.ServiceMode;
+  /** Service-status body without the application header or completion summary. */
   readonly serviceText: string;
 };
 
+/** Starts Cell services while leaving terminal presentation to the lifecycle-hook caller. */
 export async function startCell(args: StartCellArgs = {}): Promise<StartCellResult> {
   const cell = await Cell.load(args.dir);
   const mode = args.mode ?? 'default';
