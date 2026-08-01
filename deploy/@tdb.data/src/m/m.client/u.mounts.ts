@@ -1,4 +1,4 @@
-import { type t, Err, Http, SlugMounts, Url } from './common.ts';
+import { Err, Http, SlugMounts, type t, Url } from './common.ts';
 
 const FILE = 'mounts.json' as const;
 const EMPTY: t.SlugMounts.Doc = { mounts: [] };
@@ -28,7 +28,9 @@ export const loadMounts: t.SlugDataClient.Mounts.Load = async (origin) => {
       ok: false,
       error: {
         kind: 'schema',
-        message: `Mount index failed @sys/schema validation. Reason: ${Err.summary(checked.errors)}`,
+        message: `Mount index failed @sys/schema validation. Reason: ${
+          Err.summary(checked.errors)
+        }`,
       },
     };
   }
@@ -37,7 +39,7 @@ export const loadMounts: t.SlugDataClient.Mounts.Load = async (origin) => {
 };
 
 const wrangle = {
-  isEmpty(res: t.FetchResponse<unknown>) {
+  isEmpty(res: t.HttpFetch.Response<unknown>) {
     const url = res.url ?? '';
     const isMountIndex = url.endsWith('/mounts.json');
     const isLocalhost = url.startsWith('http://localhost') || url.startsWith('http://127.0.0.1');

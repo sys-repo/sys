@@ -72,7 +72,7 @@ describe('Http.Fetch: request authority', () => {
   });
 
   it('inspects and snapshots default headers case-insensitively', () => {
-    let callbackAuthorization = '';
+    let callbackAuthorization: string | undefined = '';
     const client = Fetch.make({
       accessToken: SENTINEL.bearerDefault,
       headers(e) {
@@ -276,7 +276,10 @@ describe('Http.Fetch.byteSize: request authority', () => {
   });
 });
 
-function assertCredentialSafe(res: t.FetchResponse<unknown>, sentinels: readonly string[]) {
+function assertCredentialSafe(
+  res: t.HttpFetch.Response<unknown>,
+  sentinels: readonly string[],
+) {
   const report = Json.stringify({
     url: res.url,
     message: res.error?.message,

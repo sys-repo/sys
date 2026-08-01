@@ -7,6 +7,7 @@ export type { FC, ReactElement, ReactNode } from 'react';
  * @system
  */
 export type * from '@sys/types';
+export type { HttpFetch } from '@sys/http/t';
 
 /** User-interface: */
 export type { Color } from '@sys/color/t';

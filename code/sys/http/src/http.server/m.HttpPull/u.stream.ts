@@ -1,4 +1,4 @@
-import { type t, Await, HttpClient, Rx } from './common.ts';
+import { Await, HttpClient, Rx, type t } from './common.ts';
 import { pullOne } from './u.pullOne.ts';
 import { isAbortError, makeEventQueue, resolveTarget } from './u.ts';
 
@@ -89,12 +89,18 @@ export function stream(
           const record: t.HttpPull.Record = { ok: false, error, path: { source, target } };
           records.push(record);
 
-          const errEvent: t.HttpPull.Event.Any = { kind: 'error', index: i, total, url: source, record };
+          const errEvent: t.HttpPull.Event.Any = {
+            kind: 'error',
+            index: i,
+            total,
+            url: source,
+            record,
+          };
           q.push(errEvent);
           subject$.next(errEvent);
         }
       }
-    }),
+    })
   );
 
   /**
@@ -116,7 +122,7 @@ export function stream(
     const ops = records as readonly t.HttpPull.Record[];
     const ok = ops.every((r) => r.ok);
 
-    return { ok, ops };
+    return { ok, ops } as t.HttpPull.ToDir.Result;
   })();
 
   /** Close the queue when all tasks settle (including on cancel). */

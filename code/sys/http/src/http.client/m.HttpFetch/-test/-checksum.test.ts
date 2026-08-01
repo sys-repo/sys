@@ -5,13 +5,13 @@ import { Fetch } from '../mod.ts';
 import { print } from './-u.ts';
 
 describe('Http.Fetch: hash checksums', () => {
-  const assertSuccess = (res: t.FetchResponse<unknown>) => {
+  const assertSuccess = (res: t.HttpFetch.Response<unknown>) => {
     expect(res.ok).to.eql(true);
     expect(res.status).to.eql(200);
     expect(res.error).to.eql(undefined);
   };
 
-  const assertFail = (res: t.FetchResponse<unknown>) => {
+  const assertFail = (res: t.HttpFetch.Response<unknown>) => {
     const error = res.error?.cause;
     expect(res.ok).to.eql(false);
     expect(res.status).to.eql(412);

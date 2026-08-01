@@ -1,5 +1,8 @@
 import { type t } from '../../common.ts';
 
+/**
+ * GitHub bundle-pull contracts.
+ */
 export declare namespace GithubPull {
   export type PlanKind = 'github:release' | 'github:repo';
 
@@ -47,14 +50,15 @@ export declare namespace GithubPull {
     }) => void;
   };
 
+  /** Result from executing a GitHub pull plan. */
   export type ExecuteResult =
     | {
       readonly ok: true;
-      readonly ops: readonly t.PullTool.Bundle.Result['ops'][number][];
+      readonly ops: readonly t.PullTool.Bundle.RecordSuccess[];
     }
     | {
       readonly ok: false;
-      readonly ops: readonly t.PullTool.Bundle.Result['ops'][number][];
+      readonly ops: readonly t.PullTool.Bundle.Record[];
       readonly error: string;
     };
 

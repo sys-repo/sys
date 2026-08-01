@@ -177,7 +177,7 @@ export const Fmt = {
   pullSummary(args: {
     bundle: t.PullTool.ConfigYaml.Bundle;
     data: {
-      ops: readonly t.PullTool.Bundle.Result['ops'][number][];
+      ops: readonly t.PullTool.Bundle.Record[];
       dist?: t.DistPkg;
       summary?: t.PullTool.Bundle.SummaryMeta;
     };

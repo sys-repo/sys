@@ -1,4 +1,4 @@
-import { type t, Fetch, Is, Await, HTTP_HEADER_MEDIA_FULL_CACHE_READY } from './common.ts';
+import { Await, Fetch, HTTP_HEADER_MEDIA_FULL_CACHE_READY, Is, type t } from './common.ts';
 
 export async function warm(
   input: t.HttpPreload.Input,
@@ -48,9 +48,7 @@ async function warmOne(
  */
 const wrangle = {
   targets(input: t.HttpPreload.Input): t.HttpPreload.Target[] {
-    return input.map((item) =>
-      Is.str(item) ? { url: item } : { url: item.url, range: item.range },
-    );
+    return input.map((item) => Is.str(item) ? { url: item } : { url: item.url, range: item.range });
   },
 
   init(range?: t.HttpPreload.ByteRange): RequestInit {
@@ -62,7 +60,7 @@ const wrangle = {
   record(
     url: t.StringUrl,
     range: t.HttpPreload.ByteRange | undefined,
-    res: t.FetchResponse<Blob | undefined>,
+    res: t.HttpFetch.Response<Blob | undefined>,
     bytes?: number,
   ): t.HttpPreload.Record {
     const status = res.status;

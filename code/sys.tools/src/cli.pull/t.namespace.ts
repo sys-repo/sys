@@ -4,6 +4,35 @@ import { type t } from './common.ts';
  * The Pull type namespace.
  */
 export namespace PullTool {
+  /** Public pull helper API. */
+  export type Lib = {
+    /** Resolve pull config materialization targets without pulling remote data. */
+    resolve(config: t.StringPath): Promise<ConfigYaml.Resolved>;
+
+    /** Pull configured remote bundles from owner YAML. */
+    run(args: RunArgs): Promise<RunResult>;
+  };
+
+  /** Arguments for a programmatic Pull run. */
+  export type RunArgs = {
+    readonly cwd?: t.StringDir;
+  } & t.Tools.ConfigRefArgs;
+
+  /** Result for one configured bundle. */
+  export type RunBundleResult = {
+    readonly bundle: ConfigYaml.Bundle;
+    readonly data: Bundle.Result;
+  };
+
+  /** Result from a programmatic Pull run. */
+  export type RunResult = {
+    readonly ok: true;
+    readonly config: t.StringPath;
+    readonly cwd: t.StringDir;
+    readonly dir: t.StringDir;
+    readonly bundles: readonly RunBundleResult[];
+  };
+
   export const ID = 'pull' as const;
   export const NAME = 'system/pull:tools' as const;
   export type Id = typeof ID;
@@ -46,33 +75,55 @@ export namespace PullTool {
   export type GithubRepoResolved = t.GithubSource.RepoResolved;
   export type GithubRepoResolveResult = t.GithubSource.RepoResolveResult;
 
-  /** Public pull helper API. */
-  export type Lib = {
-    /** Resolve pull config materialization targets without pulling remote data. */
-    resolve(config: t.StringPath): Promise<ConfigYaml.Resolved>;
-
-    /** Pull configured remote bundles from owner YAML. */
-    run(args: RunArgs): Promise<RunResult>;
-  };
-
-  export type RunArgs = {
-    readonly cwd?: t.StringDir;
-  } & t.Tools.ConfigRefArgs;
-
-  export type RunBundleResult = {
-    readonly bundle: ConfigYaml.Bundle;
-    readonly data: Bundle.Result;
-  };
-
-  export type RunResult = {
-    readonly ok: true;
-    readonly config: t.StringPath;
-    readonly cwd: t.StringDir;
-    readonly dir: t.StringDir;
-    readonly bundles: readonly RunBundleResult[];
-  };
-
+  /**
+   * Bundle-pull contracts.
+   */
   export namespace Bundle {
+    /** Result from a bundle-pull operation. */
+    export type Result = ResultSuccess | ResultFailure;
+
+    type ResultMeta = {
+      dist?: t.DistPkg;
+      dists?: readonly t.DistPkg[];
+      summary?: SummaryMeta;
+    };
+
+    /** Successful bundle-pull result. */
+    export type ResultSuccess = ResultMeta & {
+      readonly ok: true;
+      readonly ops: readonly RecordSuccess[];
+    };
+
+    /** Failed bundle-pull result. */
+    export type ResultFailure = ResultMeta & {
+      readonly ok: false;
+      readonly ops: readonly Record[];
+    };
+
+    /** Bundle-pull operation record. */
+    export type Record = RecordSuccess | RecordFailure;
+
+    type RecordCommon = {
+      readonly path: { readonly source: t.StringUrl; readonly target: t.StringPath };
+    };
+
+    /** Successful bundle-pull operation record. */
+    export type RecordSuccess = RecordCommon & {
+      readonly ok: true;
+      readonly status?: t.HttpStatusCode;
+      readonly bytes: t.NumberBytes;
+      readonly error?: undefined;
+    };
+
+    /** Failed bundle-pull operation record. */
+    export type RecordFailure = RecordCommon & {
+      readonly ok: false;
+      readonly status?: t.HttpStatusCode;
+      readonly bytes?: undefined;
+      readonly error: string;
+    };
+
+    /** Metadata rendered in a bundle-pull summary. */
     export type SummaryMeta =
       | { readonly kind: 'http'; readonly source: t.StringUrl }
       | { readonly kind: 'github:release'; readonly repo: string; readonly release: string }
@@ -83,24 +134,25 @@ export namespace PullTool {
         readonly path?: string;
       };
 
-    /** Result from a bundle-pull operation. */
-    export type Result = t.HttpPull.ToDir.Result & {
-      dist?: t.DistPkg;
-      dists?: readonly t.DistPkg[];
-      summary?: SummaryMeta;
-    };
-
+    /**
+     * Remote bundle-pull contracts.
+     */
     export namespace Remote {
+      /** Result from a remote bundle pull. */
       export type Result =
         | { readonly ok: true; readonly data: Bundle.Result }
         | { readonly ok: false; readonly error: string };
     }
 
+    /** Options for running a bundle pull. */
     export type RunOptions = {
       readonly silent?: boolean;
     };
   }
 
+  /**
+   * Pull configuration contracts.
+   */
   export namespace ConfigYaml {
     export type Defaults = {
       local?: {

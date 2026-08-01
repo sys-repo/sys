@@ -1,4 +1,4 @@
-import { type t, Await, HttpClient } from './common.ts';
+import { Await, HttpClient, type t } from './common.ts';
 import { pullOne } from './u.pullOne.ts';
 
 export const toDir: t.HttpPull.Lib['toDir'] = async (urls, dir, opts = {}) => {
@@ -10,5 +10,5 @@ export const toDir: t.HttpPull.Lib['toDir'] = async (urls, dir, opts = {}) => {
   const tasks = urls.map((url) => limit(() => pullOne(url, dir, client, { map, retry })));
   const ops = await Promise.all(tasks);
   const ok = ops.every((op) => op.ok);
-  return { ok, ops };
+  return { ok, ops } as t.HttpPull.ToDir.Result;
 };

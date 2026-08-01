@@ -61,13 +61,13 @@ export declare namespace JsrFetch {
     export type ChecksumOptions = Options & { checksum?: t.StringHash };
 
     /** Response to a `Jsr.Fetch.Pkg.versions` request. */
-    export type VersionsResponse = t.FetchResponse<MetaVersions>;
+    export type VersionsResponse = t.HttpFetch.Response<MetaVersions>;
 
     /** Response to a `Jsr.Fetch.Pkg.info` request. */
-    export type InfoResponse = t.FetchResponse<VersionInfo>;
+    export type InfoResponse = t.HttpFetch.Response<VersionInfo>;
 
     /** Response to a `Jsr.Fetch.Pkg.file::path()` request. */
-    export type FileResponse = t.FetchResponse<string>;
+    export type FileResponse = t.HttpFetch.Response<string>;
 
     /**
      * Top level meta-data about a published package including its version history.

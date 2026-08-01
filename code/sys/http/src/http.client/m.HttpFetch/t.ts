@@ -1,7 +1,4 @@
 import type { t } from './common.ts';
-export type * from './t.Headers.ts';
-
-type RequestInput = RequestInfo | URL;
 
 /**
  * HTTP fetch helper contracts.
@@ -26,37 +23,76 @@ export declare namespace HttpFetch {
 
     /** Invoke a fetch with the HTTP verb "HEAD" (no response body expected). */
     head(
-      input: RequestInput,
+      input: t.FetchInput,
       init?: RequestInit,
       options?: Options,
-    ): Promise<t.FetchResponse<undefined>>;
+    ): Promise<Response<undefined>>;
 
     /** Invoke a fetch with the HTTP verb "GET" to retrieve "application/json". */
     json<T>(
-      input: RequestInput,
+      input: t.FetchInput,
       init?: RequestInit,
       options?: Options,
-    ): Promise<t.FetchResponse<T>>;
+    ): Promise<Response<T>>;
 
     /** Invoke a fetch with the HTTP verb "GET" to retrieve "text/plain". */
     text(
-      input: RequestInput,
+      input: t.FetchInput,
       init?: RequestInit,
       options?: Options,
-    ): Promise<t.FetchResponse<string>>;
+    ): Promise<Response<string>>;
 
     /** Invoke a fetch with the HTTP verb "GET" to retrieve "application/octet-stream" binary file data. */
     blob(
-      input: RequestInput,
+      input: t.FetchInput,
       init?: RequestInit,
       options?: Options,
-    ): Promise<t.FetchResponse<Blob>>;
+    ): Promise<Response<Blob>>;
+  };
+
+  /** Response from an HTTP fetch request. */
+  export type Response<T> = ResponseSuccess<T> | ResponseFailure;
+
+  type ResponseCommon = {
+    status: t.HttpStatusCode;
+    statusText: string;
+    url: t.StringUrl;
+    headers: Headers;
+    checksum?: ResponseChecksum;
+  };
+
+  /** Successful HTTP fetch response. */
+  export type ResponseSuccess<T> = ResponseCommon & {
+    ok: true;
+    data: T;
+    error: undefined;
+  };
+
+  /** Failed HTTP fetch response. */
+  export type ResponseFailure = ResponseCommon & {
+    ok: false;
+    data: undefined;
+    error: HttpFetch.Error;
+  };
+
+  /** Checksum evidence for fetched response data. */
+  export type ResponseChecksum = {
+    valid: boolean;
+    expected: t.StringHash;
+    actual: t.StringHash;
+  };
+
+  /** Standard error extended with HTTP details. */
+  export type Error = t.StdError & {
+    readonly status: t.HttpStatusCode;
+    readonly statusText: string;
+    readonly headers: t.HttpHeaders;
   };
 
   /** Options passed to `Fetch.make`. */
   export type CreateOptions = {
     /** Mutate default headers used by created request helpers. */
-    headers?: t.HttpMutateHeaders;
+    headers?: Mutate.Headers;
     /** Access token or token factory normalized into an Authorization header. */
     accessToken?: t.StringJwt | (() => t.StringJwt);
     /** Lifecycle boundary that aborts in-flight requests. */
@@ -74,6 +110,32 @@ export declare namespace HttpFetch {
     /** Optional expected checksum for validating successful response data. */
     checksum?: t.StringHash;
   };
+
+  /**
+   * Fetch mutation contracts.
+   */
+  export namespace Mutate {
+    /** Safely mutate headers within a fetch client. */
+    export type Headers = (e: Headers.Args) => void;
+
+    /**
+     * Header mutation contracts.
+     */
+    export namespace Headers {
+      /** Header mutation callback arguments. */
+      export type Args = {
+        /** Current HTTP headers. */
+        readonly headers: t.HttpHeaders;
+        /** Retrieve a header by name when present. */
+        get(name: t.StringHttpHeaderName): t.StringHttpHeader | undefined;
+        /** Set or remove a header value. */
+        set(
+          name: t.StringHttpHeaderName,
+          value: t.StringHttpHeader | number | null,
+        ): Args;
+      };
+    }
+  }
 
   /**
    * HTTP byte-size probing contracts.

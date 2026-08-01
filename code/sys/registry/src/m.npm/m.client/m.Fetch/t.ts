@@ -36,10 +36,10 @@ export declare namespace NpmFetch {
     };
 
     /** Response to a `Npm.Fetch.Pkg.versions` request. */
-    export type VersionsResponse = t.FetchResponse<MetaVersions>;
+    export type VersionsResponse = t.HttpFetch.Response<MetaVersions>;
 
     /** Response to a `Npm.Fetch.Pkg.info` request. */
-    export type InfoResponse = t.FetchResponse<VersionInfo>;
+    export type InfoResponse = t.HttpFetch.Response<VersionInfo>;
 
     /**
      * Top level meta-data about a published package including version history.

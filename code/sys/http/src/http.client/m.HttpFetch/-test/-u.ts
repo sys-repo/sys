@@ -1,6 +1,6 @@
 import { c, Cli, type t } from '../../../-test.ts';
 
-export const print = (res: t.FetchResponse<unknown>) => {
+export const print = (res: t.HttpFetch.Response<unknown>) => {
   const table = Cli.table([]);
 
   table.push([c.cyan(' status:'), c.bold(String(res.status))]);
@@ -9,7 +9,7 @@ export const print = (res: t.FetchResponse<unknown>) => {
   table.push([c.cyan(' hash (actual):'), res.checksum?.actual]);
   table.push([c.cyan(' data:')]);
 
-  let data: any;
+  let data: string | undefined;
   if (typeof res.data === 'string') data = res.data;
   if (typeof res.data === 'object') data = JSON.stringify(res.data, null, '  ');
 

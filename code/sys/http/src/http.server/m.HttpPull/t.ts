@@ -27,12 +27,26 @@ export declare namespace HttpPull {
   };
 
   /** Result per URL. */
-  export type Record = {
+  export type Record = RecordSuccess | RecordFailure;
+
+  type RecordCommon = {
     readonly path: { readonly source: t.StringUrl; readonly target: t.StringPath };
-    readonly ok: boolean;
+  };
+
+  /** Successful pull record with byte evidence. */
+  export type RecordSuccess = RecordCommon & {
+    readonly ok: true;
+    readonly status: t.HttpStatusCode;
+    readonly bytes: t.NumberBytes;
+    readonly error?: undefined;
+  };
+
+  /** Failed pull record without byte evidence. */
+  export type RecordFailure = RecordCommon & {
+    readonly ok: false;
     readonly status?: t.HttpStatusCode;
-    readonly bytes?: t.NumberBytes;
-    readonly error?: string;
+    readonly bytes?: undefined;
+    readonly error: string;
   };
 
   /** Pull options. */
@@ -57,9 +71,18 @@ export declare namespace HttpPull {
    * HTTP pull-to-directory contracts.
    */
   export namespace ToDir {
-    /** Response from `HttpPull.toDir` method. */
-    export type Result = {
-      readonly ok: boolean;
+    /** Response from `HttpPull.toDir`. */
+    export type Result = ResultSuccess | ResultFailure;
+
+    /** Successful aggregate pull result. */
+    export type ResultSuccess = {
+      readonly ok: true;
+      readonly ops: readonly HttpPull.RecordSuccess[];
+    };
+
+    /** Failed aggregate pull result. */
+    export type ResultFailure = {
+      readonly ok: false;
       readonly ops: readonly HttpPull.Record[];
     };
   }
@@ -128,11 +151,25 @@ export declare namespace HttpPull {
    */
   export namespace Event {
     /** HTTP-pull progress event. */
-    export type Any =
-      | ({ readonly kind: 'start' } & Common)
-      | ({ readonly kind: 'progress'; readonly loaded?: number; readonly bytes?: number } & Common)
-      | ({ readonly kind: 'done'; readonly record: HttpPull.Record } & Common)
-      | ({ readonly kind: 'error'; readonly record: HttpPull.Record } & Common);
+    export type Any = Start | Progress | Done | Error;
+
+    /** Pull-start event. */
+    export type Start = { readonly kind: 'start' } & Common;
+
+    /** Pull-progress event. */
+    export type Progress = {
+      readonly kind: 'progress';
+      readonly loaded?: number;
+      readonly bytes?: number;
+    } & Common;
+
+    /** Successful pull-completion event. */
+    export type Done = { readonly kind: 'done'; readonly record: HttpPull.RecordSuccess } & Common;
+
+    /** Failed pull-completion event. */
+    export type Error =
+      & { readonly kind: 'error'; readonly record: HttpPull.RecordFailure }
+      & Common;
 
     /** Common HTTP-pull event fields. */
     export type Common = {
@@ -219,4 +256,3 @@ export declare namespace HttpPull {
     };
   }
 }
-

@@ -1,6 +1,5 @@
 import { DEFAULTS, Err, Is, Rx, type t, toHeaders, Url } from './common.ts';
 
-type RequestInput = RequestInfo | URL;
 type F = t.HttpFetch.Lib['make'];
 
 /**
@@ -12,12 +11,12 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
 
   const invokeFetch = async <T>(
     contentType: t.StringContentType,
-    input: RequestInput,
+    input: t.FetchInput,
     init: RequestInit,
     options: t.HttpFetch.Options,
     toData: (res: Response) => Promise<T>,
     toChecksumInput?: (data: T) => Promise<unknown>,
-  ): Promise<t.FetchResponse<T>> => {
+  ): Promise<t.HttpFetch.Response<T>> => {
     const url = wrangle.href(input);
     const safeUrl = wrangle.safeHref(url);
     const errors = Err.errors();
@@ -26,7 +25,7 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
     let statusText = 'OK';
     let data: T | undefined;
     let headers = new Headers();
-    let checksum: t.FetchResponseChecksum | undefined;
+    let checksum: t.HttpFetch.ResponseChecksum | undefined;
     let responseReceived = false;
     let requestSignal: AbortSignal | undefined;
     let disposeSignal = () => {};
@@ -104,7 +103,7 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
     }
 
     // Prepare error:
-    let error: t.HttpError | undefined;
+    let error: t.HttpFetch.Error | undefined;
     const cause = errors.toError();
     if (cause) {
       const method = (init.method ?? 'GET').toUpperCase();
@@ -129,7 +128,7 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
       },
       error,
       checksum,
-    } as t.FetchResponse<T>;
+    } as t.HttpFetch.Response<T>;
   };
 
   const api: t.HttpFetch.Instance = Rx.toLifecycle<t.HttpFetch.Instance>(life, {
@@ -138,21 +137,21 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
       return toHeaders(wrangle.headers(createOptions));
     },
 
-    head(input: RequestInput, init: RequestInit = {}, options = {}) {
+    head(input: t.FetchInput, init: RequestInit = {}, options = {}) {
       const req = { ...init, method: 'HEAD' };
       const toData = async () => undefined as undefined; // ← No body.
       return invokeFetch<undefined>('', input, req, options, toData); // '' = no header
     },
 
-    json<T>(input: RequestInput, init: RequestInit = {}, options = {}) {
+    json<T>(input: t.FetchInput, init: RequestInit = {}, options = {}) {
       return invokeFetch<T>('application/json', input, init, options, (r) => r.json());
     },
 
-    text(input: RequestInput, init: RequestInit = {}, options = {}) {
+    text(input: t.FetchInput, init: RequestInit = {}, options = {}) {
       return invokeFetch<string>('text/plain', input, init, options, (r) => r.text());
     },
 
-    blob(input: RequestInput, init: RequestInit = {}, options = {}) {
+    blob(input: t.FetchInput, init: RequestInit = {}, options = {}) {
       return invokeFetch<Blob>(
         'application/octet-stream',
         input,
@@ -178,7 +177,7 @@ const wrangle = {
     return {};
   },
 
-  href(input: RequestInput): string {
+  href(input: t.FetchInput): string {
     if (Is.str(input)) return input;
     if (input instanceof Request) return input.url;
     if (input instanceof URL) return input.href;
@@ -209,12 +208,12 @@ const wrangle = {
     if (accessToken) headers.set('authorization', accessToken);
 
     if (Is.func(options.headers)) {
-      const payload: t.HttpMutateHeadersArgs = {
+      const payload: t.HttpFetch.Mutate.Headers.Args = {
         get headers() {
           return toHeaders(headers);
         },
         get(name) {
-          return headers.get(name) ?? (undefined as unknown as t.StringHttpHeader);
+          return headers.get(name) ?? undefined;
         },
         set(name, value) {
           const next = Is.str(value) ? value.trim() : value;

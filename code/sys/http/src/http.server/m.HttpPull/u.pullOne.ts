@@ -1,9 +1,14 @@
-import { type t, Fs, HttpClient, Path, Time, Url } from './common.ts';
+import { Fs, HttpClient, Path, type t, Time, Url } from './common.ts';
 import { isAbortError, resolveTarget } from './u.ts';
 
-type FetchResponse =
-  | { ok: true; bytes: Uint8Array; status: number }
-  | { ok: false; status?: number; error: string };
+type FetchResult =
+  | { ok: true; bytes: Uint8Array; status: t.HttpStatusCode }
+  | { ok: false; status?: t.HttpStatusCode; error: string };
+
+/** Canonical response relaxed only for legacy injected clients that omit successful data. */
+type FetchBlobResponse =
+  | t.HttpFetch.ResponseFailure
+  | (Omit<t.HttpFetch.ResponseSuccess<Blob>, 'data'> & { data?: Blob });
 
 type NormalizedRetry =
   | { enabled: false }
@@ -22,11 +27,11 @@ export async function pullOne(
   const { map, signal } = opts;
   const retryOpts = normalizeRetry(opts.retry);
 
-  async function attemptFetch(u: URL): Promise<FetchResponse> {
-    let res: any;
+  async function attemptFetch(u: URL): Promise<FetchResult> {
+    let res: FetchBlobResponse;
 
     try {
-      res = await (client as any).blob(u.toString(), { signal });
+      res = await client.blob(u.toString(), { signal });
     } catch (err) {
       // Deno fetcher throws on certain HTTP errors, including 503.
       // Convert thrown errors into a retry-eligible {ok:false,status}.
@@ -61,7 +66,7 @@ export async function pullOne(
   /**
    * Retry wrapper (5xx only).
    */
-  async function fetchWithRetry(u: URL): Promise<FetchResponse> {
+  async function fetchWithRetry(u: URL): Promise<FetchResult> {
     if (!retryOpts.enabled) {
       return attemptFetch(u);
     }
@@ -116,16 +121,15 @@ export async function pullOne(
     await Fs.ensureDir(Path.dirname(target));
 
     const fetchPromise = fetchWithRetry(u.toURL());
-    const result: FetchResponse =
-      signal == null
-        ? //
-          await fetchPromise
-        : await fetchWithAbortRace(signal, fetchPromise);
+    const result: FetchResult = signal == null
+      //
+      ? await fetchPromise
+      : await fetchWithAbortRace(signal, fetchPromise);
 
     if (!result.ok) {
       return {
         ok: false,
-        status: result.status as t.HttpStatusCode | undefined,
+        status: result.status,
         error: result.error,
         path: { source: url, target },
       };
@@ -135,7 +139,7 @@ export async function pullOne(
 
     return {
       ok: true,
-      status: result.status as t.HttpStatusCode,
+      status: result.status,
       bytes: result.bytes.byteLength as t.NumberBytes,
       path: { source: url, target },
     };
@@ -181,7 +185,7 @@ function normalizeRetry(retry: t.HttpPull.Options['retry']): NormalizedRetry {
  * Races a fetch-style promise against an AbortSignal.
  *
  * Behaviour:
- *   - If the fetch promise settles first, its FetchResponse is returned.
+ *   - If the fetch promise settles first, its FetchResult is returned.
  *   - If the signal aborts first, a DOMException("Aborted", "AbortError") is thrown.
  *
  * This mirrors the semantics of a cancelled fetch so that `isAbortError(...)`
@@ -189,8 +193,8 @@ function normalizeRetry(retry: t.HttpPull.Options['retry']): NormalizedRetry {
  */
 async function fetchWithAbortRace(
   signal: AbortSignal,
-  fetchPromise: Promise<FetchResponse>,
-): Promise<FetchResponse> {
+  fetchPromise: Promise<FetchResult>,
+): Promise<FetchResult> {
   // If already aborted, fail fast with a standard AbortError.
   if (signal.aborted) {
     throw new DOMException('Aborted', 'AbortError');
@@ -201,7 +205,7 @@ async function fetchWithAbortRace(
     signal.addEventListener('abort', () => resolve('aborted'), { once: true });
   });
 
-  const winner = await Promise.race<FetchResponse | 'aborted'>([fetchPromise, abortPromise]);
+  const winner = await Promise.race<FetchResult | 'aborted'>([fetchPromise, abortPromise]);
 
   // If the abort side won the race, propagate a proper AbortError.
   if (winner === 'aborted') {

@@ -28,10 +28,10 @@ export declare namespace HttpClient {
     toHeaders(input?: Headers | HeadersInit): t.HttpHeaders;
 
     /** Convert a `Response` into an HTTP client error. */
-    toError(input: Response): t.HttpError | undefined;
+    toError(input: Response): t.HttpFetch.Error | undefined;
 
-    /** Convert a `Response` into a standard JSON HTTP fetch response. */
-    toJsonResponse<T extends O>(input: Response): Promise<t.FetchResponse<T>>;
+    /** Convert a `Response` into the legacy JSON response shape. */
+    toJsonResponse<T extends O>(input: Response): Promise<JsonResponse<T>>;
 
     /** Convert the `Blob` response to a `Uint8Array`. */
     toUint8Array(input?: Blob): Promise<Uint8Array>;
@@ -47,6 +47,28 @@ export declare namespace HttpClient {
      * Returns true if reachable within the timeout, false otherwise.
      */
     isAlive(url: string, opts?: Omit<Wait.Options, 'predicate'>): Promise<boolean>;
+  };
+
+  /** Legacy JSON response converted from a Web `Response`. */
+  export type JsonResponse<T> = JsonResponseSuccess<T> | JsonResponseFailure;
+
+  type JsonResponseCommon = {
+    status: t.HttpStatusCode;
+    url: t.StringUrl;
+  };
+
+  /** Successful JSON response conversion. */
+  export type JsonResponseSuccess<T> = JsonResponseCommon & {
+    ok: true;
+    data: T;
+    error: undefined;
+  };
+
+  /** Failed JSON response conversion. */
+  export type JsonResponseFailure = JsonResponseCommon & {
+    ok: false;
+    data: undefined;
+    error: t.HttpFetch.Error;
   };
 
   /**

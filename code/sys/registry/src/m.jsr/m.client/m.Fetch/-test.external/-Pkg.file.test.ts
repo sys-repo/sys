@@ -70,13 +70,13 @@ describe('Jsr.Fetch.Pkg.file (external)', () => {
     });
 
     describe('checksum', () => {
-      const assertSuccess = (res: t.FetchResponse<unknown>) => {
+      const assertSuccess = (res: t.HttpFetch.Response<unknown>) => {
         expect(res.ok).to.eql(true);
         expect(res.status).to.eql(200);
         expect(res.error).to.eql(undefined);
       };
 
-      const assertChecksumFail = (res: t.FetchResponse<unknown>) => {
+      const assertChecksumFail = (res: t.HttpFetch.Response<unknown>) => {
         const error = res.error?.cause;
         expect(res.ok).to.eql(false);
         expect(res.status).to.eql(412);

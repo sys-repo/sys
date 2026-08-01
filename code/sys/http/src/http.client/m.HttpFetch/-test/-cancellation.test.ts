@@ -339,7 +339,7 @@ describe('Http.Fetch.byteSize: cancellation authority', () => {
   });
 });
 
-function assertCancelled(res: t.FetchResponse<unknown>, ...reasons: string[]) {
+function assertCancelled(res: t.HttpFetch.Response<unknown>, ...reasons: string[]) {
   expect(res.ok).to.eql(false);
   expect(res.status).to.eql(499);
   expect(res.statusText).to.eql('Fetch operation cancelled before completing');
