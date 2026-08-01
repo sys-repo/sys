@@ -81,6 +81,7 @@ Usage      deno run -ER   jsr:@sys/cell --help
            deno run -ERWN jsr:@sys/cell task <name> [dir]
            deno run -ERWN jsr:@sys/cell start [dir]
            deno run -ERWN jsr:@sys/cell start [dir] --mode <mode>
+           deno run -ERWN jsr:@sys/cell start [dir] --reporter <auto|screen|raw>
            deno run -ERW --allow-run jsr:@sys/cell kill [dir]
            deno run -ERW --allow-run jsr:@sys/cell kill [dir] --mode <mode>
 
@@ -186,6 +187,10 @@ deno run -ER   jsr:@sys/cell dsl
 deno run -ER   jsr:@sys/cell info .
 
 deno run -ERWN jsr:@sys/cell task <task-name> .
-deno run -ERWN jsr:@sys/cell start
-deno run -ERWN jsr:@sys/cell start . --mode dev
+deno run -ERWN jsr:@sys/cell start --reporter auto
+deno run -ERWN jsr:@sys/cell start . --mode dev --reporter auto
 ```
+
+`--reporter auto` is the default: interactive terminals use the Cell-owned responsive screen, while
+non-interactive output remains append-only. Use `--reporter raw` to preserve terminal history or
+`--reporter screen` to require the interactive screen explicitly.

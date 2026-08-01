@@ -1,9 +1,10 @@
 import type { StartedServiceStatus } from '../../m.cell/u.services/u.status.ts';
-import { c, Cli, Fs, Is, Str, stripAnsi, type t } from '../common.ts';
+import { c, Cli, Fs, Is, Num, Str, stripAnsi, type t } from '../common.ts';
 import { FmtFit } from './u.fit.ts';
 
 type ServicesStartedResult = {
   services: readonly StartedServiceStatus[];
+  width?: number;
 };
 
 type ServiceStatusKind = 'title' | 'subtle' | 'path' | 'state' | 'error' | 'url' | 'url-muted';
@@ -21,9 +22,11 @@ export const FmtServices = {
   started(res: ServicesStartedResult): string {
     const blocks = res.services.map(serviceStatusRows);
     if (blocks.length === 0) return '';
+    const width = normalizeWidth(res.width);
+    if (width === 0) return '';
     const labelWidth = maxLabelWidth(blocks.flat());
-    const text = blocks.map((rows) => renderServiceStatus(rows, labelWidth)).join(
-      `\n${serviceDivider()}\n`,
+    const text = blocks.map((rows) => renderServiceStatus(rows, labelWidth, width)).join(
+      `\n${serviceDivider(width)}\n`,
     );
     return `\n${Str.trimEdgeNewlines(text)}\n`;
   },
@@ -54,24 +57,32 @@ function serviceStatusRows(service: StartedServiceStatus): ServiceStatusRow[] {
   return rows;
 }
 
-function renderServiceStatus(rows: readonly ServiceStatusRow[], labelWidth: number): string {
-  const lines = rows.map((row) => renderServiceStatusRow(row, labelWidth));
+function renderServiceStatus(
+  rows: readonly ServiceStatusRow[],
+  labelWidth: number,
+  width?: number,
+): string {
+  const lines = rows.map((row) => renderServiceStatusRow(row, labelWidth, width));
   return Str.trimEdgeNewlines(lines.join('\n'));
 }
 
-function renderServiceStatusRow(row: ServiceStatusRow, labelWidth: number): string {
-  const layout = rowLayout(labelWidth);
+function renderServiceStatusRow(
+  row: ServiceStatusRow,
+  labelWidth: number,
+  width?: number,
+): string {
+  const layout = rowLayout(labelWidth, width);
   const label = serviceLabel(row, layout.labelWidth);
   const reserve = stripAnsi(label).length + layout.gap.length;
-  return `${label}${layout.gap}${serviceValue(row, reserve)}`;
+  return `${label}${layout.gap}${serviceValue(row, reserve, width)}`;
 }
 
-function rowLayout(labelWidth: number) {
+function rowLayout(labelWidth: number, width?: number) {
   const gap = '   ';
-  const terminal = Cli.Is.terminal('stdout');
+  const terminal = isTerminal(width);
   if (!terminal) return { labelWidth, gap };
 
-  const screenWidth = Cli.Screen.size().width;
+  const screenWidth = width ?? Cli.Screen.size().width;
   const minValueWidth = 1;
   if (labelWidth + gap.length + minValueWidth <= screenWidth) return { labelWidth, gap };
 
@@ -84,13 +95,14 @@ function rowLayout(labelWidth: number) {
   return { labelWidth: Math.max(0, screenWidth - minValueWidth), gap: compactGap };
 }
 
-function serviceValue(row: ServiceStatusRow, reserve: number): string {
-  if (row.kind === 'path') return FmtFit.path(row.value, reserve);
-  if (row.kind === 'title') return serviceTitle(row.value, reserve);
-  if (row.kind === 'state') return serviceState(row.value as t.Service.State, reserve);
-  if (row.kind === 'error') return FmtFit.value(row.value, reserve, { color: c.yellow });
-  if (row.kind === 'url' || row.kind === 'url-muted') return serviceUrl(row, reserve);
-  return FmtFit.value(row.value, reserve, { color: c.gray });
+function serviceValue(row: ServiceStatusRow, reserve: number, width?: number): string {
+  const fit = { width, terminal: isTerminal(width) };
+  if (row.kind === 'path') return FmtFit.path(row.value, reserve, fit);
+  if (row.kind === 'title') return serviceTitle(row.value, reserve, width);
+  if (row.kind === 'state') return serviceState(row.value as t.Service.State, reserve, width);
+  if (row.kind === 'error') return FmtFit.value(row.value, reserve, { ...fit, color: c.yellow });
+  if (row.kind === 'url' || row.kind === 'url-muted') return serviceUrl(row, reserve, width);
+  return FmtFit.value(row.value, reserve, { ...fit, color: c.gray });
 }
 
 function serviceLabel(row: ServiceStatusRow, width: number): string {
@@ -169,10 +181,10 @@ function serviceRoot(root: string): string {
   return path || './';
 }
 
-function serviceTitle(text: string, reserve: number): string {
-  const terminal = Cli.Is.terminal('stdout');
-  const width = FmtFit.valueWidth(reserve, { terminal });
-  if (!terminal || text.length <= width) return serviceTitleFull(text);
+function serviceTitle(text: string, reserve: number, renderWidth?: number): string {
+  const terminal = isTerminal(renderWidth);
+  const width = FmtFit.valueWidth(reserve, { terminal, width: renderWidth });
+  if (!terminal || Cli.Fmt.Text.Width.measure(text) <= width) return serviceTitleFull(text);
   return FmtFit.text(text, width, { color: c.white });
 }
 
@@ -192,25 +204,41 @@ function serviceTitleFull(text: string): string {
   return `${c.white(name)} ${c.dim(c.cyan(`--mode=${mode}`))}`;
 }
 
-function serviceDivider(): string {
-  return c.dim(c.gray(Cli.Fmt.hr({ weight: 'dashed' })));
+function serviceDivider(width?: number): string {
+  return c.dim(c.gray(Cli.Fmt.hr({ width, weight: 'dashed' })));
 }
 
-function serviceState(state: t.Service.State, reserve: number): string {
+function serviceState(state: t.Service.State, reserve: number, width?: number): string {
   const color = state === 'error' ? c.yellow : state === 'stopped' ? c.gray : c.white;
-  return FmtFit.value(state, reserve, { color });
+  return FmtFit.value(state, reserve, { color, terminal: isTerminal(width), width });
 }
 
-function serviceUrl(row: ServiceStatusRow, reserve: number): string {
+function serviceUrl(row: ServiceStatusRow, reserve: number, renderWidth?: number): string {
   const url = row.url;
-  const terminal = Cli.Is.terminal('stdout');
-  const width = FmtFit.valueWidth(reserve, { terminal });
+  const terminal = isTerminal(renderWidth);
+  const width = FmtFit.valueWidth(reserve, { terminal, width: renderWidth });
   const highlightOrigin = row.kind === 'url';
-  if (!url) return FmtFit.value(row.value, reserve, { color: highlightOrigin ? c.cyan : c.gray });
+  if (!url) {
+    return FmtFit.value(row.value, reserve, {
+      color: highlightOrigin ? c.cyan : c.gray,
+      terminal,
+      width: renderWidth,
+    });
+  }
   if (!terminal || url.display.length <= width) {
     return Cli.Fmt.Url.service(url, { highlightOrigin: url.highlightOrigin });
   }
   return FmtFit.text(url.display, width, { color: highlightOrigin ? c.cyan : c.gray });
+}
+
+function normalizeWidth(width?: number): number | undefined {
+  if (width === undefined) return undefined;
+  if (!Num.Is.finite(width) || width <= 0) return 0;
+  return Math.floor(width);
+}
+
+function isTerminal(width?: number): boolean {
+  return width !== undefined || Cli.Is.terminal('stdout');
 }
 
 function fieldLabelColor(text: string): string {

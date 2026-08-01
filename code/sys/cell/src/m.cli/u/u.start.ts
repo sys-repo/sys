@@ -12,7 +12,13 @@ import { createShutdownSignal, isSignalShutdownReason, type ShutdownSignal } fro
 export type StartCellArgs = {
   readonly dir?: string;
   readonly mode?: t.Cell.Services.ServiceMode;
-  readonly onStarted?: (text: string) => void;
+  readonly onStarting?: (serviceCount: number) => void;
+  readonly onReady?: (input: StartCellReady) => void;
+};
+
+export type StartCellReady = {
+  readonly text: string;
+  readonly render: (width?: number) => string;
 };
 
 export type StartCellResult = {
@@ -46,10 +52,14 @@ export async function startCell(args: StartCellArgs = {}): Promise<StartCellResu
     });
     await session.resources(await sessionResources(cell, mode));
 
-    started = await startServices(cell, { until: shutdown.signal, mode }, plan.services.length);
+    args.onStarting?.(plan.services.length);
+    started = await Cell.start(cell, { until: shutdown.signal, mode });
     await session.ready();
-    serviceText = Fmt.Services.started({ services: serviceStatusesOf(started) });
-    if (serviceText) args.onStarted?.(serviceText);
+
+    const services = serviceStatusesOf(started);
+    const render = (width?: number) => Fmt.Services.started({ services, width });
+    serviceText = render();
+    args.onReady?.({ text: serviceText, render });
     await Promise.race([Cell.Services.wait(started), shutdown.done]);
   } finally {
     finalReason = shutdown.reason;
@@ -82,26 +92,6 @@ async function sessionResources(
   }));
 }
 
-async function startServices(
-  cell: t.Cell.Instance,
-  options: t.Cell.Services.StartOptions,
-  serviceCount: number,
-): Promise<t.Cell.Services.Started> {
-  const silent = !Cli.Is.terminal('stdout');
-  const startedAt = Time.now.timestamp;
-  const spinner = Cli.spinner(Cli.Fmt.spinnerText(startServicesText(serviceCount)), { silent });
-  const timer = silent ? undefined : globalThis.setInterval(() => {
-    spinner.text = Cli.Fmt.spinnerText(startServicesText(serviceCount, startedAt));
-  }, 1000);
-
-  try {
-    return await Cell.start(cell, options);
-  } finally {
-    if (timer !== undefined) globalThis.clearInterval(timer);
-    spinner.stop();
-  }
-}
-
 async function closeAndDispose(
   started: t.Cell.Services.Started | undefined,
   shutdown: ShutdownSignal,
@@ -125,8 +115,8 @@ export function startServicesText(
   return `${text}${elapsedSuffix({ startedAt, now })}`;
 }
 
-export function formatStartHeader(): string {
-  return Cli.Fmt.Header.rows({ pkg, tone: 'green' }).join('\n');
+export function formatStartHeader(width?: number): string {
+  return Cli.Fmt.Header.rows({ pkg, tone: 'green', width }).join('\n');
 }
 
 export function formatStartResult(res: StartCellResult): string {

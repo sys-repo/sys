@@ -6,6 +6,7 @@ summary: |
 usage:
   - deno run -ERWN jsr:@sys/cell start [dir]
   - deno run -ERWN jsr:@sys/cell start [dir] --mode <mode>
+  - deno run -ERWN jsr:@sys/cell start [dir] --reporter <auto|screen|raw>
   - deno run -ERWN jsr:@sys/cell start [dir] --help
 
 options:
@@ -15,10 +16,17 @@ options:
     text: >-
       select declared service variants for this start;
       omit or use `default` for base bindings
+  - name: --reporter <auto|screen|raw>
+    text: >-
+      select adaptive screen or append-only output;
+      defaults to `auto`
 
 services:
   - Cell loads `[dir]` or `.` as the Cell root.
   - Cell starts services declared in `services[]`.
+  - >-
+    `--reporter auto` uses the Cell-owned screen on interactive terminals and raw output otherwise;
+    `screen` requires an interactive terminal.
   - '`--mode <mode>` selects complete service variant bindings declared by that mode.'
   - |-
     Live-dev modes are ordinary service variants, for example `dev` selecting

@@ -28,6 +28,15 @@ describe(`@sys/cell/cli help`, () => {
     }
   });
 
+  it('start help → documents selectable reporter modes and the automatic default', async () => {
+    const res = await silent(() => CellCli.run({ argv: ['start', '--help'] }));
+    const text = stripAnsi(res.text);
+
+    expect(res.kind).to.eql('help');
+    expect(text).to.contain('--reporter <auto|screen|raw>');
+    expect(text).to.contain('defaults to `auto`');
+  });
+
   it('unknown commands fail with root help context', async () => {
     const help = await silent(() => CellCli.run({ argv: ['help', 'init'] }));
     const run = await silent(() => CellCli.run({ argv: ['run', '-h'] }));

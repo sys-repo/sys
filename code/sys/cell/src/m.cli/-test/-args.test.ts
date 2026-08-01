@@ -43,6 +43,25 @@ describe(`@sys/cell/cli args`, () => {
     );
   });
 
+  it('--reporter is scoped to start only', async () => {
+    await expectCliError(
+      ['--reporter', 'raw'],
+      'Unexpected option without command: --reporter',
+    );
+    await expectCliError(['info', '--reporter', 'raw'], 'Unexpected option for info: --reporter');
+    await expectCliError(['init', '--reporter', 'raw'], 'Unexpected option for init: --reporter');
+    await expectCliError(
+      ['migrate', '--reporter', 'raw'],
+      'Unexpected option for migrate: --reporter',
+    );
+    await expectCliError(['dsl', '--reporter', 'raw'], 'Unexpected option for dsl: --reporter');
+    await expectCliError(
+      ['task', 'capture', '--reporter', 'raw'],
+      'Unexpected option for task: --reporter',
+    );
+    await expectCliError(['kill', '--reporter', 'raw'], 'Unexpected option for kill: --reporter');
+  });
+
   it('info → rejects invalid invocation shapes', async () => {
     await expectCliError(['info', '--agent'], 'Unexpected option for info: --agent');
     await expectCliError(['info', '--dry-run'], 'Unexpected option for info: --dry-run');
@@ -72,6 +91,15 @@ describe(`@sys/cell/cli args`, () => {
       'Repeated option for start: --mode',
     );
     await expectCliError(['start', '--mode', 'Bad'], "Invalid start mode: 'Bad'");
+    await expectCliError(['start', '--reporter'], 'Option requires a value: --reporter');
+    await expectCliError(
+      ['start', '--reporter', 'raw', '--reporter', 'screen'],
+      'Repeated option for start: --reporter',
+    );
+    await expectCliError(
+      ['start', '--reporter', 'tty'],
+      "Invalid start reporter: 'tty'",
+    );
     await expectCliError(['start', '.', 'extra'], 'Unexpected argument: extra');
   });
 

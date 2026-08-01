@@ -70,7 +70,7 @@ function positional(args: readonly string[]) {
   for (let i = 0; i < args.length; i += 1) {
     const value = args[i];
     if (value.startsWith('--')) {
-      const takesValue = value === '--format' || value === '--mode';
+      const takesValue = value === '--format' || value === '--mode' || value === '--reporter';
       const next = args[i + 1];
       if (takesValue && next && !next.startsWith('-')) i += 1;
       continue;

@@ -49,6 +49,7 @@ function unsupportedFlag(args: t.CellCli.ParsedArgs): string | undefined {
   if (args.plan) return '--plan';
   if (args.force) return '--force';
   if (args.mode !== undefined) return '--mode';
+  if (args.reporter !== undefined) return '--reporter';
 }
 
 function toReport(cell: t.Cell.Instance): t.CellCli.Info.Report {

@@ -32,6 +32,8 @@ export declare namespace CellCli {
     readonly format?: string | boolean | readonly (string | boolean)[];
     /** Raw `--mode` flag value, accepted by `start` and `kill`. */
     readonly mode?: string | boolean | readonly (string | boolean)[];
+    /** Raw `--reporter` flag value, accepted only by `start`. */
+    readonly reporter?: string | boolean | readonly (string | boolean)[];
     /** Unknown flag tokens rejected by argument parsing. */
     readonly unknown: readonly string[];
     /** Positional argv tokens. */
@@ -222,6 +224,9 @@ export declare namespace CellCli {
    * Types for the `start` command.
    */
   export namespace Start {
+    /** Start command terminal reporter selection. */
+    export type ReporterMode = 'auto' | 'screen' | 'raw';
+
     /** Successful Cell services start result. */
     export type Result = {
       /** Result discriminant. */

@@ -13,6 +13,9 @@ export async function runKill(ctx: RunContext): Promise<t.CellCli.Result> {
   }
   if (args.agent) return fail({ argv }, 'Unexpected option for kill: --agent', killHelp);
   if (args.plan) return fail({ argv }, 'Unexpected option for kill: --plan', killHelp);
+  if (args.reporter !== undefined) {
+    return fail({ argv }, 'Unexpected option for kill: --reporter', killHelp);
+  }
   if (args.help) {
     print(killHelp);
     return { kind: 'help', input: { argv }, text: killHelp };

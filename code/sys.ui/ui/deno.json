@@ -4,9 +4,9 @@
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
-    "dev": "deno run -P=dev @sys/cell start . --mode dev",
+    "dev": "deno run -P=dev @sys/cell start . --mode dev --reporter auto",
     "build": "deno run -A ./-scripts/task.vite.ts --cmd=build --in=./src/index.html",
-    "serve": "deno run -P=dev @sys/cell start .",
+    "serve": "deno run -P=dev @sys/cell start . --reporter auto",
     "kill": "deno task kill:dev && deno task kill:serve",
     "kill:dev": "deno run -P=dev @sys/cell kill . --mode dev",
     "kill:serve": "deno run -P=dev @sys/cell kill . --mode default",
@@ -55,4 +55,3 @@
     }
   }
 }
-

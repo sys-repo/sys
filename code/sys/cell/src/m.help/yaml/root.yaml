@@ -14,6 +14,7 @@ usage:
   - deno run -ERWN jsr:@sys/cell task <name> [dir]
   - deno run -ERWN jsr:@sys/cell start [dir]
   - deno run -ERWN jsr:@sys/cell start [dir] --mode <mode>
+  - deno run -ERWN jsr:@sys/cell start [dir] --reporter <auto|screen|raw>
   - deno run -ERW --allow-run jsr:@sys/cell kill [dir]
   - deno run -ERW --allow-run jsr:@sys/cell kill [dir] --mode <mode>
 

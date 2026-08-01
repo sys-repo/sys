@@ -1,0 +1,211 @@
+import { FakeSpinner } from '@sys/cli/testing';
+import { describe, expect, it } from '../../-test.ts';
+import { StartReporter } from '../u/u.start.reporter.ts';
+
+describe('@sys/cell/cli start reporter', () => {
+  it('resolves automatic and explicit reporter modes truthfully', () => {
+    expect(StartReporter.resolve('auto', { isInteractive: () => true })).to.eql('screen');
+    expect(StartReporter.resolve('auto', { isInteractive: () => false })).to.eql('raw');
+    expect(StartReporter.resolve('raw', { isInteractive: () => true })).to.eql('raw');
+    expect(() => StartReporter.resolve('screen', { isInteractive: () => false })).to.throw(
+      "Cell start reporter 'screen' requires an interactive terminal.",
+    );
+  });
+
+  it('raw → preserves append-only header, body, and summary ordering', () => {
+    const harness = createHarness('raw');
+    const reporter = harness.reporter;
+
+    reporter.open();
+    reporter.starting(2);
+    reporter.ready({ text: '\nbody\n', render: () => '\nbody\n' });
+    reporter.complete('summary');
+    reporter.dispose();
+    reporter.dispose();
+
+    expect(harness.effects).to.eql([
+      'print:header:raw',
+      'print:\nbody\n',
+      'print:summary',
+    ]);
+  });
+
+  it('screen → repaints one responsive startup-to-complete frame', () => {
+    const harness = createHarness('screen');
+    const reporter = harness.reporter;
+
+    reporter.open();
+    reporter.starting(2);
+    harness.resize({ width: 50, height: 20 });
+    reporter.ready({ text: '\nbody:80\n', render: (width) => `\nbody:${width}\n` });
+    reporter.complete('summary');
+    reporter.dispose();
+    reporter.dispose();
+
+    expect(harness.effects).to.eql([
+      'screen:observe',
+      'repaint:header:80',
+      'spinner:create:stdout',
+      'spinner:start:starting:2',
+      'interval:start',
+      'spinner:stop',
+      'repaint:header:50',
+      'spinner:start:starting:2',
+      'interval:cancel',
+      'spinner:stop',
+      'repaint:header:50\n\nbody:50',
+      'repaint:header:50\n\nbody:50\n\nsummary',
+      'screen:release',
+    ]);
+  });
+
+  it('screen → adopts a synchronous viewport observed during acquisition', () => {
+    const harness = createHarness('screen', {
+      resizeOnObserve: { width: 36, height: 12 },
+    });
+
+    harness.reporter.open();
+    harness.reporter.dispose();
+
+    expect(harness.effects).to.eql([
+      'screen:observe',
+      'repaint:header:36',
+      'screen:release',
+    ]);
+  });
+
+  it('screen → releases terminal observation without masking acquisition failure', () => {
+    const cause = new Error('repaint-failed');
+    const harness = createHarness('screen', { repaintError: cause });
+    let thrown: unknown;
+
+    try {
+      harness.reporter.open();
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(thrown).to.equal(cause);
+    expect(harness.effects).to.eql([
+      'screen:observe',
+      'repaint:header:80',
+      'screen:release',
+    ]);
+  });
+
+  it('screen → bounds every completed frame row to the current viewport', () => {
+    const harness = createHarness('screen', {
+      size: { width: 8, height: 4 },
+    });
+    const reporter = harness.reporter;
+
+    reporter.open();
+    reporter.ready({ text: 'body-too-long', render: () => 'body-too-long' });
+    reporter.complete('summary');
+
+    const frame = harness.effects.filter((effect) => effect.startsWith('repaint:')).at(-1) ?? '';
+    const rows = frame.slice('repaint:'.length).split('\n');
+    expect(rows.length <= 4).to.eql(true);
+    for (const row of rows) expect(row.length <= 8).to.eql(true);
+    expect(frame).to.contain('summary');
+
+    reporter.dispose();
+  });
+
+  it('screen → releases an active startup spinner and observer exactly once', () => {
+    const harness = createHarness('screen');
+    const reporter = harness.reporter;
+
+    reporter.open();
+    reporter.starting(1);
+    reporter.dispose();
+    reporter.dispose();
+
+    expect(harness.effects).to.eql([
+      'screen:observe',
+      'repaint:header:80',
+      'spinner:create:stdout',
+      'spinner:start:starting:1',
+      'interval:start',
+      'interval:cancel',
+      'spinner:stop',
+      'screen:release',
+    ]);
+  });
+
+  it('screen → ignores resize and phase effects after disposal', () => {
+    const harness = createHarness('screen');
+    const reporter = harness.reporter;
+
+    reporter.open();
+    reporter.dispose();
+    const settled = [...harness.effects];
+
+    harness.resize({ width: 40, height: 10 });
+    reporter.starting(1);
+    reporter.ready({ text: 'body', render: () => 'body' });
+    reporter.complete('summary');
+
+    expect(harness.effects).to.eql(settled);
+  });
+});
+
+/**
+ * Helpers:
+ */
+type ReporterMode = 'raw' | 'screen';
+type ScreenSize = { readonly width: number; readonly height: number };
+
+function createHarness(
+  mode: ReporterMode,
+  options: { repaintError?: Error; resizeOnObserve?: ScreenSize; size?: ScreenSize } = {},
+) {
+  const effects: string[] = [];
+  const spinner = FakeSpinner.create();
+  const start = spinner.start;
+  const stop = spinner.stop;
+  let onResize: (size: ScreenSize) => void = () => {};
+
+  spinner.start = (text) => {
+    effects.push(`spinner:start:${text ?? spinner.text}`);
+    return start(text);
+  };
+  spinner.stop = () => {
+    effects.push('spinner:stop');
+    return stop();
+  };
+
+  const reporter = StartReporter.create(mode, {
+    isInteractive: () => true,
+    print: (text) => effects.push(`print:${text}`),
+    header: (width) => `header:${width ?? 'raw'}`,
+    startText: (count) => `starting:${count}`,
+    size: () => options.size ?? { width: 80, height: 24 },
+    observeResize(handler) {
+      effects.push('screen:observe');
+      onResize = handler;
+      if (options.resizeOnObserve) handler(options.resizeOnObserve);
+      return () => effects.push('screen:release');
+    },
+    repaint(frame) {
+      effects.push(`repaint:${frame}`);
+      if (options.repaintError) throw options.repaintError;
+    },
+    spinner: (target) => {
+      effects.push(`spinner:create:${target ?? 'raw'}`);
+      return spinner;
+    },
+    interval: () => {
+      effects.push('interval:start');
+      return () => effects.push('interval:cancel');
+    },
+  });
+
+  return {
+    reporter,
+    effects,
+    resize(size: ScreenSize) {
+      onResize(size);
+    },
+  } as const;
+}

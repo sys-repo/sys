@@ -3,6 +3,7 @@ import { FmtHelp } from '../u.help/u.mod.ts';
 import type { RunContext } from './u.context.ts';
 import { serviceModeFlag } from './u.mode.ts';
 import { fail, print } from './u.output.ts';
+import { startReporterFlag } from './u.reporter.ts';
 
 export async function runStart(ctx: RunContext): Promise<t.CellCli.Result> {
   const { args, argv } = ctx;
@@ -28,20 +29,35 @@ export async function runStart(ctx: RunContext): Promise<t.CellCli.Result> {
 
   const mode = serviceModeFlag(args.mode, 'start');
   if (!mode.ok) return fail({ argv }, mode.message, startHelp);
+  const reporter = startReporterFlag(args.reporter);
+  if (!reporter.ok) return fail({ argv }, reporter.message, startHelp);
   if (args._.length > 2) return fail({ argv }, `Unexpected argument: ${args._[2]}`, startHelp);
 
   try {
     const start = await import('../u/u.start.ts');
-    print(start.formatStartHeader());
-    const started = await start.startCell({
-      dir: args._[1],
-      mode: mode.value,
-      onStarted: print,
-    });
-    const res = start.toStartResult({ argv }, started);
-    const summary = start.formatStartResult(started);
-    print(started.serviceText ? summary : `\n${summary}`);
-    return res;
+    const reporting = await import('../u/u.start.reporter.ts');
+    const output = reporting.StartReporter.create(reporter.value);
+
+    try {
+      output.open();
+      const started = await start.startCell({
+        dir: args._[1],
+        mode: mode.value,
+        onStarting: output.starting,
+        onReady: output.ready,
+      });
+      const res = start.toStartResult({ argv }, started);
+      output.complete(start.formatStartResult(started));
+      output.dispose();
+      return res;
+    } catch (error) {
+      try {
+        output.dispose();
+      } catch {
+        // Preserve the start/reporter failure that triggered cleanup.
+      }
+      throw error;
+    }
   } catch (error) {
     return fail({ argv }, Err.summary(error, { cause: true }));
   }

@@ -13,8 +13,11 @@ sections:
 
   - label: 'Operator flow'
     items:
-      - 'Use Cell CLI: `@sys/cell start [dir]`.'
+      - 'Use Cell CLI: `@sys/cell start [dir] --reporter auto`.'
       - Pass `[dir]` when the Cell root is not the current folder.
+      - >-
+        Reporter `auto` selects the Cell-owned screen only on an interactive terminal and
+        otherwise preserves append-only raw output.
       - >-
         Use this chapter to start already-declared services; read `dsl service` before adding
         or changing variants.
@@ -41,9 +44,11 @@ sections:
 
   - label: Command
     items: |
-      deno run -ERWN jsr:@sys/cell start [dir]
-      deno run -ERWN jsr:@sys/cell start [dir] --mode <mode>
-      deno run -ERWN jsr:@sys/cell start . --mode dev
+      deno run -ERWN jsr:@sys/cell start [dir] --reporter auto
+      deno run -ERWN jsr:@sys/cell start [dir] \
+        --mode <mode> --reporter auto
+      deno run -ERWN jsr:@sys/cell start . \
+        --mode dev --reporter auto
       deno run -ERW --allow-run jsr:@sys/cell kill [dir] --mode <mode>
 
   - label: Verification
@@ -52,8 +57,8 @@ sections:
         After a descriptor edit, prove startup with the exact operator command the human is
         expected to run.
       - >-
-        If the final instruction is `deno run -ERWN jsr:@sys/cell start .`, that exact
-        unversioned command must be the proof command.
+        If the final instruction is `deno run -ERWN jsr:@sys/cell start . --reporter auto`,
+        that exact unversioned command must be the proof command.
       - >-
         If only `jsr:@sys/cell@<version>` passes, establish effective Deno dependency
         authority and re-test the unversioned command, or report the versioned command.
@@ -70,7 +75,7 @@ sections:
       - Use the public Cell CLI as the stable primitive.
       - |-
         Example `deno.json` task shape:
-        "start": "deno run -ERWN jsr:@sys/cell start ."
+        "start": "deno run -ERWN jsr:@sys/cell start . --reporter auto"
 
   - label: Services
     items:
@@ -80,6 +85,9 @@ sections:
       - >-
         At start time, `--mode <mode>` selects matching `variants.<mode>` before endpoints
         are imported.
+      - >-
+        Reporter mode controls only Cell-owned terminal presentation; service owners remain
+        silent and do not receive the reporter option.
       - >-
         Mode selection preserves one conceptual service identity; services without the selected
         variant keep their base binding.

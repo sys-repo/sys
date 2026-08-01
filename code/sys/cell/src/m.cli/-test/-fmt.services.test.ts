@@ -149,47 +149,43 @@ describe(`@sys/cell/cli service status formatter`, () => {
     }
   });
 
-  it('keeps the board safe on tiny terminals', () => {
-    const restore = stubCliTerminal(8);
-    try {
-      const now = Time.now.timestamp;
-      const text = stripAnsi(Fmt.Services.started({
-        services: [{
-          service: {
+  it('keeps the board safe at an explicit tiny render width', () => {
+    const now = Time.now.timestamp;
+    const text = stripAnsi(Fmt.Services.started({
+      width: 8,
+      services: [{
+        service: {
+          name: 'tiny-service-name' as t.Cell.Id,
+          use: 'Serve',
+          from: 'jsr:@sys/tools/serve',
+          config: './-config/view.yaml' as t.Cell.Path,
+        },
+        selection: {
+          name: 'tiny-service-name' as t.Cell.Id,
+          mode: 'default',
+          descriptor: {
             name: 'tiny-service-name' as t.Cell.Id,
             use: 'Serve',
             from: 'jsr:@sys/tools/serve',
             config: './-config/view.yaml' as t.Cell.Path,
           },
-          selection: {
-            name: 'tiny-service-name' as t.Cell.Id,
-            mode: 'default',
-            descriptor: {
-              name: 'tiny-service-name' as t.Cell.Id,
-              use: 'Serve',
-              from: 'jsr:@sys/tools/serve',
-              config: './-config/view.yaml' as t.Cell.Path,
-            },
-            binding: {
-              use: 'Serve',
-              from: 'jsr:@sys/tools/serve',
-              config: './-config/view.yaml' as t.Cell.Path,
-            },
+          binding: {
+            use: 'Serve',
+            from: 'jsr:@sys/tools/serve',
+            config: './-config/view.yaml' as t.Cell.Path,
           },
-          paths: { config: '/tmp/view.yaml' as t.StringPath },
-          metrics: { start: { startedAt: now, resolvedAt: now } },
-          owner: {
-            state: 'ready',
-            root: '/Users/phil/code/org.sys/sys/code/sys/cell/-sample/cell.stripe/view',
-            urls: [{ href: 'http://127.0.0.1:8080/payments/' }],
-          },
-        }],
-      }));
+        },
+        paths: { config: '/tmp/view.yaml' as t.StringPath },
+        metrics: { start: { startedAt: now, resolvedAt: now } },
+        owner: {
+          state: 'ready',
+          root: '/Users/phil/code/org.sys/sys/code/sys/cell/-sample/cell.stripe/view',
+          urls: [{ href: 'http://127.0.0.1:8080/payments/' }],
+        },
+      }],
+    }));
 
-      for (const line of text.split('\n').filter(Boolean)) expect(line.length <= 8).to.eql(true);
-    } finally {
-      restore();
-    }
+    for (const line of text.split('\n').filter(Boolean)) expect(line.length <= 8).to.eql(true);
   });
 
   it('hides current-directory root and URL-redundant details', () => {

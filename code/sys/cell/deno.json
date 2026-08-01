@@ -14,12 +14,12 @@
     "help:bundle": "deno run -RWE ./src/m.help/-bundle/mod.ts",
     "start": "deno task sample:stripe",
     "sample": "deno run -P=sample ./-scripts/task.sample.ts",
-    "sample:stripe": "deno run -P=sample @sys/cell start ./-sample/cell.stripe",
-    "sample:deploy:start": "deno run -P=sample @sys/cell start ./-sample/cell.deploy",
+    "sample:stripe": "deno run -P=sample @sys/cell start ./-sample/cell.stripe --reporter auto",
+    "sample:deploy:start": "deno run -P=sample @sys/cell start ./-sample/cell.deploy --reporter auto",
     "sample:deploy:prep": "deno run -P=sample @sys/cell task sample:deploy:prep ./-sample/cell.deploy",
     "sample:deploy": "deno run -P=sample @sys/cell task sample:deploy ./-sample/cell.deploy",
-    "sample:vite": "deno run -P=sample @sys/cell start ./-sample/cell.vite",
-    "sample:vite:dev": "deno run -P=sample-vite-dev @sys/cell start ./-sample/cell.vite --mode dev",
+    "sample:vite": "deno run -P=sample @sys/cell start ./-sample/cell.vite --reporter auto",
+    "sample:vite:dev": "deno run -P=sample-vite-dev @sys/cell start ./-sample/cell.vite --mode dev --reporter auto",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
@@ -104,4 +104,3 @@
     }
   }
 }
-

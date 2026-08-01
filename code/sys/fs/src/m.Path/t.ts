@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * Filesystem-aware path helpers.
  */
 export declare namespace FsPath {
-  /** Runtime library surface. */
+  /** Filesystem-aware path API. */
   export type Lib = t.Path.Lib & {
     /** Convert the path to its parent directory if it is not already a directory target. */
     asDir(path: t.StringPath): Promise<t.StringPath>;

@@ -28,9 +28,9 @@ sections:
           that loads, verifies, runs tasks for, or starts the Cell.
       - Agents must carry the same `@sys/cell` runtime authority through edits and verification.
       - >-
-          For persistent folders, unversioned commands such as `deno run -ERWN jsr:@sys/cell start .`
-          are reproducible only when effective Deno dependency authority resolves `jsr:@sys/cell`
-          to the verified runtime.
+          For persistent folders, unversioned commands such as
+          `deno run -ERWN jsr:@sys/cell start . --reporter auto` are reproducible only when
+          effective Deno dependency authority resolves `jsr:@sys/cell` to the verified runtime.
       - >-
           Effective authority means the config, import map, lock, or workspace authority Deno will
           actually use for the command.

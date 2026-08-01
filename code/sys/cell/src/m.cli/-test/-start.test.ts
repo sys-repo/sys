@@ -1,4 +1,3 @@
-import { FakeSpinner } from '@sys/cli/testing';
 import { describe, expect, Fs, it, pkg, Str, Testing } from '../../-test.ts';
 import { Cli, stripAnsi } from '../common.ts';
 import { CellCli } from '../mod.ts';
@@ -16,7 +15,9 @@ describe(`@sys/cell/cli start`, () => {
     const fs = await Testing.dir('CellCli.start.empty-services');
     await silent(() => CellCli.run({ argv: ['init', fs.dir] }));
 
-    const captured = await captureInfo(() => CellCli.run({ argv: ['start', fs.dir] }));
+    const captured = await captureInfo(() =>
+      CellCli.run({ argv: ['start', fs.dir, '--reporter', 'auto'] })
+    );
     const res = captured.result;
 
     expect(res.kind).to.eql('start');
@@ -60,7 +61,9 @@ describe(`@sys/cell/cli start`, () => {
     );
     await Fs.write(Fs.join(fs.dir, '-services/status.ts'), statusServiceSource());
 
-    const captured = await captureStartEffects(() => CellCli.run({ argv: ['start', fs.dir] }));
+    const captured = await captureInfo(() =>
+      CellCli.run({ argv: ['start', fs.dir, '--reporter', 'raw'] })
+    );
     const res = captured.result;
 
     expect(res.kind).to.eql('start');
@@ -79,13 +82,6 @@ describe(`@sys/cell/cli start`, () => {
       line.trimStart().startsWith('service')
     );
 
-    expect(captured.effects).to.eql([
-      'print',
-      'spinner:start',
-      'spinner:stop',
-      'print',
-      'print',
-    ]);
     expect(title.startsWith(pkg.name)).to.eql(true);
     expect(title.endsWith(pkg.version)).to.eql(true);
     expect(Cli.Fmt.Text.Width.measure(title)).to.eql(Cli.Fmt.Text.Width.measure(hr));
@@ -210,43 +206,14 @@ describe(`@sys/cell/cli start`, () => {
   });
 });
 
-type StartEffect = 'print' | 'spinner:start' | 'spinner:stop';
-
 /**
  * Helpers:
  */
-async function captureStartEffects<T>(fn: () => Promise<T>) {
-  const effects: StartEffect[] = [];
-  const spinner = FakeSpinner.create();
-  const start = spinner.start;
-  const stop = spinner.stop;
-
-  spinner.start = (text) => {
-    effects.push('spinner:start');
-    return start(text);
-  };
-  spinner.stop = () => {
-    effects.push('spinner:stop');
-    return stop();
-  };
-
-  using _spinnerStub = FakeSpinner.stub({ spinner });
-  const restoreTerminal = stubCliTerminal();
-  try {
-    const captured = await captureInfo(fn, () => effects.push('print'));
-    return { ...captured, effects } as const;
-  } finally {
-    restoreTerminal();
-  }
-}
-
-async function captureInfo<T>(fn: () => Promise<T>, onInfo?: (text: string) => void) {
+async function captureInfo<T>(fn: () => Promise<T>) {
   const info = console.info;
   const output: string[] = [];
   console.info = (value) => {
-    const text = String(value);
-    output.push(text);
-    onInfo?.(text);
+    output.push(String(value));
   };
 
   try {
@@ -254,15 +221,6 @@ async function captureInfo<T>(fn: () => Promise<T>, onInfo?: (text: string) => v
   } finally {
     console.info = info;
   }
-}
-
-function stubCliTerminal(): () => void {
-  const is = Cli.Is as { terminal: typeof Cli.Is.terminal };
-  const terminal = is.terminal;
-  is.terminal = () => true;
-  return () => {
-    is.terminal = terminal;
-  };
 }
 
 function countTitleRows(text: string): number {

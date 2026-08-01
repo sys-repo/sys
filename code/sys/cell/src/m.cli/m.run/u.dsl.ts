@@ -11,7 +11,14 @@ export async function runDsl(ctx: RunContext): Promise<t.CellCli.Result> {
 
   if (!format.ok) return fail({ argv }, format.message, await rootHelp());
 
-  if (args.agent || args.dryRun || args.plan || args.force || args.mode !== undefined) {
+  if (
+    args.agent ||
+    args.dryRun ||
+    args.plan ||
+    args.force ||
+    args.mode !== undefined ||
+    args.reporter !== undefined
+  ) {
     const flag = args.agent
       ? '--agent'
       : args.dryRun
@@ -20,7 +27,9 @@ export async function runDsl(ctx: RunContext): Promise<t.CellCli.Result> {
       ? '--plan'
       : args.force
       ? '--force'
-      : '--mode';
+      : args.mode !== undefined
+      ? '--mode'
+      : '--reporter';
     return fail({ argv }, `Unexpected option for dsl: ${flag}`, await rootHelp());
   }
 

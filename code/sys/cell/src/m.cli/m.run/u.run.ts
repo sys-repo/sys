@@ -1,4 +1,4 @@
-import { type t } from '../common.ts';
+import type { t } from '../common.ts';
 import { parseArgs } from '../u/u.args.ts';
 import { FmtHelp } from '../u.help/u.mod.ts';
 import type { RunContext } from './u.context.ts';
@@ -31,7 +31,8 @@ export const run: t.CellCli.Lib['run'] = async (input = {}) => {
     (!command && args.dryRun) ||
     (!command && args.plan) ||
     (!command && args.force) ||
-    (!command && args.mode !== undefined)
+    (!command && args.mode !== undefined) ||
+    (!command && args.reporter !== undefined)
   ) {
     const flag = args.agent
       ? '--agent'
@@ -41,7 +42,9 @@ export const run: t.CellCli.Lib['run'] = async (input = {}) => {
       ? '--plan'
       : args.force
       ? '--force'
-      : '--mode';
+      : args.mode !== undefined
+      ? '--mode'
+      : '--reporter';
     return fail({ argv }, `Unexpected option without command: ${flag}`, help);
   }
 
