@@ -26,6 +26,28 @@ or import helpers with server (posix) extensions:
 import { expect, describe, it, Testing, Fs, Path } from '@sys/testing/server';
 ```
 
+### Fetch global fixture
+
+Install a Fetch-compatible test function and restore the prior global exactly:
+
+```ts
+import { WebFixture } from '@sys/testing/web';
+
+const mock = WebFixture.Fetch.mock(async (input, init) => {
+  const request = new Request(input, init);
+  request.signal.throwIfAborted();
+  return Response.json({ ok: true });
+});
+
+try {
+  await fetch('https://example.test/data');
+} finally {
+  mock.dispose();
+}
+```
+
+The replacement owns Fetch and abort behavior. Dispose nested mocks in LIFO order, and do not
+overlap this process-global fixture across parallel tests.
 
 Setup a simple unit-test file named: `-<Subject>.test.ts`.
 
