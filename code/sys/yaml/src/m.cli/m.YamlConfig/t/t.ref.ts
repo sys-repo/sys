@@ -36,7 +36,7 @@ export type YamlConfigRefResolveInput = {
   readonly errorPrefix?: string;
 };
 
-/** YAML config selector helper surface. */
+/** Config selector resolution API. */
 export type YamlConfigRefLib = {
   /** Resolve a `<name|path>` config selector. */
   resolve(input: YamlConfigRefResolveInput): YamlConfigRef;

@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * Tools for working with a module's source-code.
  */
 export declare namespace JsrManifest {
-  /** JSR manifest helper library surface. */
+  /** JSR source manifest API. */
   export type Lib = {
     /**
      * Create a new manifest instance from the given fetched definition.

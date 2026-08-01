@@ -1,6 +1,7 @@
 /**
  * @module types
  */
+/** Automerge core type namespace. */
 export type * as A from '@automerge/automerge';
 
 export type * from './-exports/-fs/t.ts';

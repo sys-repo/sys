@@ -18,7 +18,7 @@ export type StaticCliParsedArgs = StaticCliArgs & {
   readonly command?: StaticCliCommand;
 };
 
-/** Parse CLI arguments for the static server owner surface. */
+/** Parse CLI arguments for the static server owner CLI. */
 export function parseArgs(argv: string[] = []): StaticCliParsedArgs {
   const args = Args.parse<StaticCliArgs>(argv, {
     alias: { h: 'help' },

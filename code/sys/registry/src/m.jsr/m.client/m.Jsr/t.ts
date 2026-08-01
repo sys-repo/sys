@@ -5,7 +5,7 @@ import type { t } from './common.ts';
  * https://jsr.io/docs
  */
 export declare namespace JsrClient {
-  /** JSR client registry helper library surface. */
+  /** JSR client registry API. */
   export type Lib = {
     /** Network fetching helpers against the "jsr.io" end-point. */
     readonly Fetch: t.JsrFetch.Lib;

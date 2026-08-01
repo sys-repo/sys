@@ -1,7 +1,10 @@
 import type { t } from './common.ts';
 
+/** Portable filesystem and path capability contracts. */
 export namespace FsCapability {
+  /** Adapter API for building portable filesystem capabilities. */
   export type Lib = {
+    /** Build a portable capability instance from the full `@sys/fs` library. */
     readonly fromFs: (fs: t.Fs.Lib) => Instance;
 
     /** Files capability adapters. */
@@ -11,7 +14,9 @@ export namespace FsCapability {
     readonly Rooted: t.FsRooted.Lib;
   };
 
+  /** Capability adapters for the `Files` data model. */
   export namespace Files {
+    /** Adapters grouped by readonly, writable, and live authority. */
     export type Lib = {
       /** Readonly Files capability adapters. */
       readonly Readonly: ReadonlyLib;
@@ -157,7 +162,7 @@ export namespace FsCapability {
   }
 
   /**
-   * Portable filesystem/path runtime capability surface.
+   * Portable filesystem/path runtime capability.
    *
    * Consumers should rely on a minimal stable subset of `stat` fields.
    * Avoid platform-specific file metadata unless explicitly required and tested.

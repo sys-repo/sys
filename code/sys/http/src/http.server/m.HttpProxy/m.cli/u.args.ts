@@ -18,7 +18,7 @@ export type ProxyCliParsedArgs = ProxyCliArgs & {
   readonly command?: ProxyCliCommand;
 };
 
-/** Parse CLI arguments for the reverse-proxy owner surface. */
+/** Parse CLI arguments for the reverse-proxy owner CLI. */
 export function parseArgs(argv: string[] = []): ProxyCliParsedArgs {
   const args = Args.parse<ProxyCliArgs>(argv, {
     alias: { h: 'help' },

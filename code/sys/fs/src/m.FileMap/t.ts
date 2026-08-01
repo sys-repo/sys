@@ -10,7 +10,7 @@ export type FileMap = { [path: t.StringPath]: string };
  * within a module's source code.
  */
 export declare namespace FileMap {
-  /** Runtime library surface. */
+  /** Runtime FileMap API. */
   export type Lib = {
     /** Helpers for encoding/decoding file data. */
     readonly Data: Data.Lib;

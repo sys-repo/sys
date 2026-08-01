@@ -52,6 +52,7 @@ export type YamlLib = {
 
 /** Generic result arms (mutually exclusive). */
 export type YamlOk<T> = { readonly error?: undefined; readonly data: T };
+/** Failed YAML operation result arm. */
 export type YamlErr<E> = { readonly error: E; readonly data?: undefined };
 
 /** YAML-specific results (align with npm:yaml semantics). */

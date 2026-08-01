@@ -14,7 +14,7 @@ export type CardProps = {
   /** Repository used to create and load CRDT documents. */
   repo?: t.CrdtRepo;
   //
-  /** Reserved debug flag on the card prop surface. */
+  /** Reserved debug flag. */
   debug?: boolean;
   /** System theme used for rendering. */
   theme?: t.CommonTheme;

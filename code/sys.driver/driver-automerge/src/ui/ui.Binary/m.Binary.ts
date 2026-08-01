@@ -1,6 +1,7 @@
-import { type t, File as FileUtil, Hash } from './common.ts';
+import { File as FileUtil, Hash, type t } from './common.ts';
 import { BinaryFile as View } from './ui.tsx';
 
+/** Binary-file UI helpers and browser file conversion utilities. */
 export const Binary: t.Binary.Lib = {
   View,
 

@@ -29,6 +29,7 @@ export type YamlToJsInput = t.YamlAst | t.Yaml.Node | t.Yaml.Pair;
  * Always returns a normalized result object instead of throwing.
  */
 export type YamlToJs = <T = unknown>(input: YamlToJsInput) => YamlToJsResult<T>;
+/** Normalized result from converting YAML AST content to JavaScript. */
 export type YamlToJsResult<T = unknown> = {
   /** True if conversion succeeded without errors. */
   readonly ok: boolean;
@@ -44,7 +45,7 @@ export type YamlToJsResult<T = unknown> = {
 export type YamlAstDocument = t.YamlAst;
 
 /**
- * Content nodes within a YAML document (things that appear under `doc.contents`).
+ * Content nodes within a YAML document under `doc.contents`.
  */
 export type YamlAstContentNode = t.Yaml.Scalar | t.Yaml.Map | t.Yaml.Seq | t.Yaml.Alias;
 

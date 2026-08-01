@@ -23,6 +23,7 @@ export type YamlConfigFileLib = {
   }) => Promise<YamlConfigFileMigrateDirResult>;
 };
 
+/** Summary of config files migrated or skipped between directories. */
 export type YamlConfigFileMigrateDirResult = {
   readonly migrated: ReadonlyArray<{ readonly from: t.StringPath; readonly to: t.StringPath }>;
   readonly skipped: ReadonlyArray<{ readonly from: t.StringPath; readonly to: t.StringPath }>;

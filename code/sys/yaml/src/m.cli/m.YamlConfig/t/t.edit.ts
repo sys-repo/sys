@@ -53,7 +53,7 @@ export type YamlConfigEditResult<TChange> = {
   readonly change: TChange;
 };
 
-/** YAML owner-config edit helper surface. */
+/** Owner-config edit transaction API. */
 export type YamlConfigEditLib = {
   /** Run a load/create → mutate → validate → dry-run/write owner-config transaction. */
   update<TDoc, TChange>(

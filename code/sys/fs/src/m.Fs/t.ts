@@ -15,6 +15,7 @@ type Methods = StdMethods & DenoMethods & NamespaceMembers & GlobMethods;
  * Tools for working with the file-system.
  */
 export namespace Fs {
+  /** Full filesystem, path, file, and watch helper API. */
   export type Lib = Methods & {
     /** Retrieve information about the given path. */
     readonly stat: GetStat;
@@ -86,9 +87,11 @@ export namespace Fs {
     makeTempDir: MakeTempDir;
   };
 
-  /** Re-exposed capability sub-surface (owned by `m.Fs.capability`). */
+  /** Filesystem capability APIs owned by `m.Fs.capability`. */
   export namespace Capability {
+    /** Adapter API for building portable filesystem capabilities. */
     export type Lib = t.FsCapability.Lib;
+    /** Portable filesystem capability instance. */
     export type Instance = t.FsCapability.Instance;
     /** Publisher for files and directories beneath one root. */
     export type Rooted = t.FsRooted.Instance;
@@ -118,6 +121,7 @@ export namespace Fs {
    * Retrieve information about the given path.
    */
   export type GetStat = (path: t.StringPath | URL) => Promise<FileInfo | undefined>;
+  /** Native Deno file metadata returned by stat operations. */
   export type FileInfo = Deno.FileInfo;
 
   /**
@@ -170,6 +174,7 @@ export namespace Fs {
    * Delete a file or directory (and its contents).
    */
   export type Remove = (path: t.StringPath, options?: RemoveOptions) => Promise<boolean>;
+  /** Options that control filesystem removal behavior. */
   export type RemoveOptions = {
     /** Print the intended removal without mutating the file-system (default: false). */
     dryRun?: boolean;
@@ -265,8 +270,11 @@ export namespace Fs {
    * Recursively walk up a directory tree (visitor pattern).
    */
   export type WalkUp = (startAt: t.StringPath, onVisit: WalkUpCallback) => Promise<void>;
+  /** Visitor invoked for each ancestor while walking upward. */
   export type WalkUpCallback = (e: WalkUpCallbackArgs) => WalkUpCallbackResult;
+  /** Result returned by a walk-up visitor. */
   export type WalkUpCallbackResult = Promise<t.IgnoredResult> | t.IgnoredResult;
+  /** Arguments supplied to a walk-up visitor. */
   export type WalkUpCallbackArgs = {
     /** Current ancestor directory being visited. */
     readonly dir: t.StringDir;
@@ -283,6 +291,7 @@ export namespace Fs {
     start: t.StringPath,
     onVisit: FindAncestorCallback<T>,
   ) => Promise<T | undefined>;
+  /** Visitor that returns the first matching ancestor result. */
   export type FindAncestorCallback<T> = (
     e: t.Fs.WalkUpCallbackArgs,
   ) => Promise<T | undefined> | T | undefined;
@@ -334,6 +343,7 @@ export namespace Fs {
    * Create a new temporary directory and return it as an FsDir handle.
    */
   export type MakeTempDir = (options?: t.Fs.MakeTempDirOptions) => Promise<t.FsDir>;
+  /** Options passed to temporary directory creation. */
   export type MakeTempDirOptions = {
     /** Parent directory for the temporary directory. */
     readonly dir?: t.StringDir;
@@ -365,7 +375,7 @@ export namespace Fs {
  * Sub-namespace properties.
  */
 type NamespaceMembers = {
-  /** Re-exposed capability sub-surface. */
+  /** Filesystem capability APIs. */
   readonly Capability: t.Fs.Capability.Lib;
 
   /** Helpers for working with resource paths. */
@@ -388,7 +398,7 @@ type NamespaceMembers = {
 };
 
 type GlobMethods = {
-  /** List the file-paths within a directory (simple glob). */
+  /** List file paths within a directory using glob matching. */
   readonly ls: t.Glob.PathList;
 
   /** Factory for a glob helper. */

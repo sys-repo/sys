@@ -3,7 +3,7 @@ import { HttpProxy } from '../m.HttpProxy.ts';
 import { parseArgs, type ProxyCliParsedArgs } from './u.args.ts';
 import { Fmt } from './u.fmt.ts';
 
-/** CLI entrypoint for the reverse-proxy owner surface. */
+/** CLI entrypoint for the reverse-proxy owner CLI. */
 export async function cli(cwd: t.StringDir, argv: string[] = []): Promise<number> {
   let args: ProxyCliParsedArgs;
   try {

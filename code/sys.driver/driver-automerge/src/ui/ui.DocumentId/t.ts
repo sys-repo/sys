@@ -38,7 +38,7 @@ export declare namespace DocumentId {
    * Document-id action contracts.
    */
   export namespace Action {
-    /** The various states the action button can assume. */
+    /** Action button state name. */
     export type Name = ActionParams['action'];
 
     /** `<DocumentId>` action triggered event. */
@@ -85,11 +85,17 @@ export declare namespace DocumentId {
    * Document-id controller hook contracts.
    */
   export namespace Hook {
+    /** Controller hook for the document-id input. */
     export type Use = THook.Use;
+    /** Arguments accepted by the document-id controller hook. */
     export type Args<T = Record<string, unknown>> = THook.Args<T>;
+    /** Controller instance returned by the hook. */
     export type Instance = THook.Instance;
+    /** Props derived for the document-id view. */
     export type Props = THook.Props;
+    /** Signal bundle managed by the controller. */
     export type Signals = THook.Signals;
+    /** Snapshot of controller signal values. */
     export type SignalValues = THook.SignalValues;
   }
 
@@ -97,7 +103,9 @@ export declare namespace DocumentId {
    * Document-id parser contracts.
    */
   export namespace Parse {
+    /** Parser API for document-id text input. */
     export type Lib = TParse.Lib;
+    /** Parsed document-id input result. */
     export type Result = TParse.Result;
   }
 }

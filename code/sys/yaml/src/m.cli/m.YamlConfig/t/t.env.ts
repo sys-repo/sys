@@ -5,7 +5,7 @@ export namespace YamlConfigEnv {
   /** `.env` file lookup strategy. */
   export type Search = 'cwd' | 'upward';
 
-  /** Dotenv-backed YAML env-ref helper surface. */
+  /** Dotenv-backed AST env-ref resolver API. */
   export type Lib = {
     /** Resolve whole-scalar `${env:NAME}` references using loaded config environment values. */
     resolveAst(ast: t.Yaml.Ast, options: Resolve.Options): Promise<Resolve.Result>;

@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * Network fetching helpers against the "jsr.io" end-point.
  */
 export declare namespace JsrFetch {
-  /** JSR fetch helper library surface. */
+  /** JSR registry fetch API. */
   export type Lib = {
     /** Package-scoped fetch helpers. */
     readonly Pkg: Pkg.Lib;

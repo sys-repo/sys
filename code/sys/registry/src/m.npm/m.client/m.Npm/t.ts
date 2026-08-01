@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * Tools for working with the npm registry.
  */
 export declare namespace NpmClient {
-  /** npm client registry helper library surface. */
+  /** npm client registry API. */
   export type Lib = {
     /** Network fetching helpers against the npm registry end-point. */
     readonly Fetch: t.NpmFetch.Lib;

@@ -2,7 +2,7 @@
  * Tools for formatting `jsr:` import specifiers.
  */
 export declare namespace JsrImport {
-  /** JSR import specifier helper library surface. */
+  /** JSR import-specifier API. */
   export type Lib = {
     /**
      * Create a canonical `jsr:` import specifier.

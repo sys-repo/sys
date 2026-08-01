@@ -2,7 +2,7 @@ import type { t } from '../common.ts';
 
 /** Pure YAML env-ref types. */
 export namespace YamlEnvRef {
-  /** Pure YAML env-ref helper surface. */
+  /** Resolver API for whole-scalar YAML env refs. */
   export type Lib = {
     /** Resolve whole-scalar `${env:NAME}` references in a parsed YAML AST. */
     resolveAst(ast: t.YamlAst, options: Resolve.Options): Resolve.Result;

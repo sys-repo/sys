@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /**
- * CRDT command RPC library surface.
+ * CRDT command RPC API.
  */
 export type CrdtCmdLib = {
   /**

@@ -31,6 +31,7 @@ export declare namespace Repo {
    * Repository info component contracts.
    */
   export namespace Info {
+    /** Props accepted by the repository info component. */
     export type Props = TInfo.Props;
   }
 
@@ -38,6 +39,7 @@ export declare namespace Repo {
    * Repository status-bullet component contracts.
    */
   export namespace StatusBullet {
+    /** Props accepted by the repository status-bullet component. */
     export type Props = TInfo.StatusBulletProps;
   }
 
@@ -45,6 +47,7 @@ export declare namespace Repo {
    * Repository sync-switch component contracts.
    */
   export namespace SyncSwitch {
+    /** Props accepted by the repository sync-switch component. */
     export type Props = TSwitch.Props;
   }
 }

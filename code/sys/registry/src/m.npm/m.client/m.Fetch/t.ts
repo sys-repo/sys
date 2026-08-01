@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * Network fetching helpers against the npm registry end-point.
  */
 export declare namespace NpmFetch {
-  /** npm fetch helper library surface. */
+  /** npm registry fetch API. */
   export type Lib = {
     /** Package-scoped fetch helpers. */
     readonly Pkg: Pkg.Lib;
@@ -92,7 +92,7 @@ export declare namespace NpmFetch {
    * URL helpers for npm registry package end-points.
    */
   export namespace Url {
-    /** npm registry URL helper surface. */
+    /** npm registry URL API. */
     export type Lib = {
       /** Package-specific URL helpers. */
       readonly Pkg: Pkg.Lib;
@@ -100,7 +100,7 @@ export declare namespace NpmFetch {
 
     /** URL helpers for a specific npm package. */
     export namespace Pkg {
-      /** Package-specific npm registry URL helper surface. */
+      /** Package-specific npm registry URL API. */
       export type Lib = {
         /** Package metadata endpoint. */
         metadata(name: string): string;

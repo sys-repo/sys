@@ -4,6 +4,6 @@ import type { t } from './common.ts';
  * Tools for working with the npm registry on the server.
  */
 export declare namespace NpmServer {
-  /** npm server registry helper library surface. */
+  /** npm server registry API. */
   export type Lib = t.NpmClient.Lib;
 }

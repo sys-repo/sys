@@ -57,7 +57,8 @@ export declare namespace FsRooted {
      * Copy and sync `bytes`, then publish the complete file only if the target is absent.
      *
      * Readers see either no target or the complete file. A successful return does not
-     * guarantee that the new directory entry survives sudden power loss.
+     * guarantee that the new directory entry survives sudden power loss. A failed operation
+     * may leave a private temporary artifact when safe cleanup cannot be completed.
      */
     readonly publishFile: (
       target: Target<'file'>,
@@ -75,7 +76,8 @@ export declare namespace FsRooted {
      * Publish an owned stage at an absent directory target.
      *
      * A target found to exist is left untouched. Races are coordinated only with writers
-     * that use the same Rooted locking protocol.
+     * that use the same Rooted locking protocol. A successful return does not guarantee that
+     * the renamed directory entry survives sudden power loss.
      */
     readonly promoteStage: (
       stage: Stage,

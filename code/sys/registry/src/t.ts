@@ -9,37 +9,37 @@ export declare namespace Registry {
   export namespace Jsr {
     /** JSR client helper aliases. */
     export namespace Client {
-      /** JSR client helper library surface. */
+      /** JSR client registry API. */
       export type Lib = J.JsrClient.Lib;
     }
 
     /** JSR server helper aliases. */
     export namespace Server {
-      /** JSR server helper library surface. */
+      /** JSR server registry API. */
       export type Lib = J.JsrServer.Lib;
     }
 
     /** JSR import-specifier helper aliases. */
     export namespace Import {
-      /** JSR import-specifier helper library surface. */
+      /** JSR import-specifier API. */
       export type Lib = J.JsrImport.Lib;
     }
 
     /** JSR URL helper aliases. */
     export namespace Url {
-      /** JSR URL helper library surface. */
+      /** JSR registry URL API. */
       export type Lib = J.JsrUrl.Lib;
 
       /** JSR package URL helper aliases. */
       export namespace Pkg {
-        /** JSR package URL helper library surface. */
+        /** JSR package URL API. */
         export type Lib = J.JsrUrl.Pkg.Lib;
       }
     }
 
     /** JSR source manifest helper aliases. */
     export namespace Manifest {
-      /** JSR manifest helper library surface. */
+      /** JSR source manifest API. */
       export type Lib = J.JsrManifest.Lib;
       /** JSR manifest instance. */
       export type Instance = J.JsrManifest.Instance;
@@ -65,12 +65,12 @@ export declare namespace Registry {
 
     /** JSR fetch helper aliases. */
     export namespace Fetch {
-      /** JSR fetch helper library surface. */
+      /** JSR registry fetch API. */
       export type Lib = J.JsrFetch.Lib;
 
       /** JSR package fetch aliases. */
       export namespace Pkg {
-        /** Package-scoped JSR fetch helper surface. */
+        /** Package-scoped JSR fetch API. */
         export type Lib = J.JsrFetch.Pkg.Lib;
         /** Package fetch options. */
         export type Options = J.JsrFetch.Pkg.Options;
@@ -108,42 +108,42 @@ export declare namespace Registry {
   export namespace Npm {
     /** npm client helper aliases. */
     export namespace Client {
-      /** npm client helper library surface. */
+      /** npm client registry API. */
       export type Lib = N.NpmClient.Lib;
     }
 
     /** npm server helper aliases. */
     export namespace Server {
-      /** npm server helper library surface. */
+      /** npm server registry API. */
       export type Lib = N.NpmServer.Lib;
     }
 
     /** npm import-specifier helper aliases. */
     export namespace Import {
-      /** npm import-specifier helper library surface. */
+      /** npm import-specifier API. */
       export type Lib = N.NpmImport.Lib;
     }
 
     /** npm URL helper aliases. */
     export namespace Url {
-      /** npm URL helper library surface. */
+      /** npm registry URL API. */
       export type Lib = N.NpmFetch.Url.Lib;
 
       /** npm package URL helper aliases. */
       export namespace Pkg {
-        /** npm package URL helper library surface. */
+        /** npm package URL API. */
         export type Lib = N.NpmFetch.Url.Pkg.Lib;
       }
     }
 
     /** npm fetch helper aliases. */
     export namespace Fetch {
-      /** npm fetch helper library surface. */
+      /** npm registry fetch API. */
       export type Lib = N.NpmFetch.Lib;
 
       /** npm package fetch aliases. */
       export namespace Pkg {
-        /** Package-scoped npm fetch helper surface. */
+        /** Package-scoped npm fetch API. */
         export type Lib = N.NpmFetch.Pkg.Lib;
         /** Package fetch options. */
         export type Options = N.NpmFetch.Pkg.Options;

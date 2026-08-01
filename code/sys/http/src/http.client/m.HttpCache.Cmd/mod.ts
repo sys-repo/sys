@@ -1,6 +1,6 @@
 /**
  * @module
- * HTTP cache command surface.
+ * HTTP cache command API.
  *
  * Exposes the typed `CacheCmd` boundary for cache-control request/response
  * commands (for example worker/client command channels).

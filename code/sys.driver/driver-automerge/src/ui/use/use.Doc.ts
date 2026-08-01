@@ -16,6 +16,9 @@ const RETRY = {
   DELAY_MAX: 30_000, // ← cap the back-off delay
 } as const;
 
+/**
+ * Load a CRDT document reference, retrying lookup errors with bounded backoff.
+ */
 export const useDoc: t.UseCrdtDoc = <T extends O = O>(
   repo?: t.Crdt.Repo,
   id?: t.StringDocumentId,

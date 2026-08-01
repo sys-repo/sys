@@ -1,7 +1,5 @@
-/**
- * @external
- */
-export * as A from '@automerge/automerge';
+/** Automerge core runtime namespace. */
+export * as A from '../m.Automerge/mod.ts';
 export { Repo as AutomergeRepo } from '@automerge/automerge-repo';
 
 /**

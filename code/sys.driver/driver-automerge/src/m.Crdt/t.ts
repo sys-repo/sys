@@ -57,7 +57,7 @@ export declare namespace Crdt {
 
   /** Document-id UI contracts. */
   export namespace DocumentId {
-    /** Document-id UI library surface. */
+    /** Document-id UI component API. */
     export type Lib = TDocumentId.DocumentId.Lib;
     /** Document-id component props. */
     export type Props = TDocumentId.DocumentId.Props;
@@ -108,7 +108,7 @@ export declare namespace Crdt {
 
     /** Document-id parser contracts. */
     export namespace Parse {
-      /** Document-id parser library surface. */
+      /** Document-id textbox parser API. */
       export type Lib = TDocumentId.DocumentId.Parse.Lib;
       /** Parsed document-id textbox result. */
       export type Result = TDocumentId.DocumentId.Parse.Result;
@@ -119,7 +119,9 @@ export declare namespace Crdt {
    * CRDT network argument contracts.
    */
   export namespace Network {
+    /** WebSocket endpoint descriptor for Automerge repository sync. */
     export type WebsocketEndpoint = TNetwork.WebsocketEndpoint;
+    /** WebSocket endpoint input accepted by repository sync setup. */
     export type WebsocketArg = TNetwork.WebsocketArg;
   }
 
@@ -127,7 +129,9 @@ export declare namespace Crdt {
    * Automerge mark contracts.
    */
   export namespace Marks {
+    /** Automerge mark descriptor. */
     export type Mark = AMMark;
+    /** Automerge mark range descriptor. */
     export type Range = AMMarkRange;
   }
 
@@ -135,8 +139,11 @@ export declare namespace Crdt {
    * CRDT worker contracts.
    */
   export namespace Worker {
+    /** Worker initialization configuration. */
     export type Config = t.CrdtWorkerConfig;
+    /** Browser-worker initialization configuration. */
     export type ConfigWeb = t.CrdtWorkerConfigWeb;
+    /** Filesystem-worker initialization configuration. */
     export type ConfigFs = t.CrdtWorkerConfigFs;
   }
 
@@ -144,7 +151,9 @@ export declare namespace Crdt {
    * CRDT command contracts.
    */
   export namespace Cmd {
+    /** Factory for creating a command client from a transport. */
     export type Factory = t.CrdtCmdFactory;
+    /** Typed CRDT command client API. */
     export type Client = t.CrdtCmdClient;
   }
 
@@ -152,6 +161,7 @@ export declare namespace Crdt {
    * CRDT sync contracts.
    */
   export namespace Sync {
+    /** Sync server instance contract. */
     export type Server = t.SyncServer.Instance;
   }
 
@@ -159,12 +169,19 @@ export declare namespace Crdt {
    * CRDT graph convenience aliases.
    */
   export namespace Graph {
+    /** Function that discovers document references from a loaded document. */
     export type DiscoverRefs = t.Graph.DiscoverRefs;
+    /** Function that loads a graph document by id. */
     export type LoadDoc<T extends O = O> = t.Graph.LoadDoc<T>;
+    /** Arguments for walking a CRDT document graph. */
     export type WalkDocArgs<T extends O = O> = t.Graph.WalkDocArgs<T>;
+    /** Arguments for walking references discovered in a document. */
     export type WalkRefsArgs = t.Graph.WalkRefsArgs;
+    /** Arguments supplied when deciding whether to skip a graph edge. */
     export type WalkSkipArgs = t.Graph.WalkSkipArgs;
+    /** Node in a discovered CRDT document graph. */
     export type Node<T extends O = O> = t.Graph.Node<T>;
+    /** Edge between documents in a discovered CRDT graph. */
     export type Edge = t.Graph.Edge;
   }
 }

@@ -6,7 +6,7 @@ type O = Record<string, unknown>;
  * CRDT graph utility contracts.
  */
 export declare namespace CrdtGraph {
-  /** Thin facade over the generic immutable graph walker for CRDT documents. */
+  /** CRDT adapter over the generic immutable graph walker. */
   export type Lib = {
     /** Graph walker entrypoint for CRDT documents. */
     readonly walk: Walk.Fn;

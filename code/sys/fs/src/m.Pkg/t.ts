@@ -143,7 +143,9 @@ export declare namespace Pkg {
      * asset through opened file handles, rejects undeclared tree entries, and compares filesystem
      * identity and metadata across repeated observations. Hash-policy and signature descriptors are
      * authenticated metadata only: they do not load code or establish signature trust, and a
-     * signature sidecar must not be present in the verified tree.
+     * signature sidecar must not be present in the verified tree. To bound synchronous ignore
+     * matching, each admitted ignore rule may contain at most one `**` path segment and at most one
+     * unescaped `*` wildcard in every other path segment.
      *
      * Security position: success attests only the stable observations completed by this call. Deno
      * exposes no portable directory-relative, no-follow open (`openat`/`O_NOFOLLOW`), so a process

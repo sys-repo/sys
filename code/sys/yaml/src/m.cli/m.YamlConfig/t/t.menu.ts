@@ -12,7 +12,9 @@ export type YamlConfigSchema<T> = {
 
 /** Menu item label. */
 export type YamlConfigMenuItemName<T = unknown> = string | YamlConfigMenuItemNameFn<T>;
+/** Function that derives a menu item label from item context. */
 export type YamlConfigMenuItemNameFn<T = unknown> = (args: YamlConfigMenuItemArgs<T>) => string;
+/** Context supplied while deriving a YAML config menu item. */
 export type YamlConfigMenuItemArgs<T = unknown> = {
   readonly name: string;
   readonly path: t.StringFile;

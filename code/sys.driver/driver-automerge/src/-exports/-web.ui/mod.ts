@@ -16,6 +16,7 @@ import { DocumentId } from '../../ui/ui.DocumentId/mod.ts';
 import { Layout } from '../../ui/ui.Layout/mod.ts';
 import { Repo } from '../../ui/ui.Repo/mod.ts';
 
+/** Automerge core runtime namespace. */
 export { A } from './common.ts';
 export { Binary, Card, Dev, DocumentId, Layout, Repo };
 

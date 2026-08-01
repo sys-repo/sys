@@ -3,7 +3,7 @@ import { HttpStatic } from './m.HttpStatic.ts';
 import { parseArgs, type StaticCliParsedArgs } from './u.args.ts';
 import { Fmt } from './u.fmt.ts';
 
-/** CLI entrypoint for the static server owner surface. */
+/** CLI entrypoint for the static server owner CLI. */
 export async function cli(cwd: t.StringDir, argv: string[] = []): Promise<number> {
   let args: StaticCliParsedArgs;
   try {

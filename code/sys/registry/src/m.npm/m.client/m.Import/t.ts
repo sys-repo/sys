@@ -2,7 +2,7 @@
  * Tools for formatting `npm:` import specifiers.
  */
 export declare namespace NpmImport {
-  /** npm import specifier helper library surface. */
+  /** npm import-specifier API. */
   export type Lib = {
     /**
      * Create a canonical `npm:` import specifier.

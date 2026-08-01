@@ -6,6 +6,7 @@ import type { t } from './common.ts';
 
 /** Filter files during a copy operation. */
 export type FsCopyFilter = (args: t.FsCopyFilterArgs) => boolean;
+/** Source and target paths evaluated by a filesystem copy filter. */
 export type FsCopyFilterArgs = {
   source: t.StringAbsolutePath;
   target: t.StringAbsolutePath;

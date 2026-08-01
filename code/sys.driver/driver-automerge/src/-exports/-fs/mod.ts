@@ -5,21 +5,21 @@
 import { BrowserWebSocketClientAdapter } from '@automerge/automerge-repo-network-websocket';
 import { NodeFSStorageAdapter } from '@automerge/automerge-repo-storage-nodefs';
 import {
-  type t,
   Arr,
   AutomergeRepo,
   CrdtCmd,
   CrdtGraph,
   CrdtId,
   CrdtIs,
+  CrdtStr,
   CrdtUrl,
   CrdtWorker,
   createPeerId,
   Is,
+  type t,
   toObject,
   toRepo,
   whenReady,
-  CrdtStr,
 } from './common.ts';
 
 type Args = t.CrdtFs.RepoArgs;
@@ -27,7 +27,9 @@ type Args = t.CrdtFs.RepoArgs;
 /**
  * Exports:
  */
-export { A, toAutomergeHandle, toAutomergeRepo } from './common.ts';
+/** Automerge core runtime namespace. */
+export { A } from './common.ts';
+export { toAutomergeHandle, toAutomergeRepo } from './common.ts';
 
 /**
  * Library:

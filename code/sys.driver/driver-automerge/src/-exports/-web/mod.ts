@@ -8,7 +8,6 @@ import {
 } from '@automerge/automerge-repo-network-websocket';
 import { IndexedDBStorageAdapter } from '@automerge/automerge-repo-storage-indexeddb';
 import {
-  type t,
   Arr,
   AutomergeRepo,
   CrdtCmd,
@@ -21,6 +20,7 @@ import {
   createPeerId,
   D,
   Is,
+  type t,
   toObject,
   toRepo,
   whenReady,
@@ -31,7 +31,9 @@ type Args = t.CrdtWeb.RepoArgs;
 /**
  * Exports:
  */
-export { A, AutomergeRepo, toAutomergeHandle, toAutomergeRepo } from './common.ts';
+/** Automerge core runtime namespace. */
+export { A } from './common.ts';
+export { AutomergeRepo, toAutomergeHandle, toAutomergeRepo } from './common.ts';
 
 /**
  * Library:

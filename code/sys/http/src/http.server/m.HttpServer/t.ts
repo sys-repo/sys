@@ -224,10 +224,15 @@ export declare namespace HttpServer {
   export namespace Hono {
     /** Hono Server application instance. */
     export type App = THonoAppBase<THonoEnv, THonoBlankSchema, '/'>;
+    /** Empty Hono route schema. */
     export type BlankSchema = THonoBlankSchema;
+    /** Hono request/response context. */
     export type Context = THonoContext;
+    /** Hono environment binding contract. */
     export type Env = THonoEnv;
+    /** Hono middleware function contract. */
     export type MiddlewareHandler = THonoMiddlewareHandler;
+    /** Hono route schema contract. */
     export type Schema = THonoSchema;
   }
 
@@ -241,4 +246,3 @@ export declare namespace HttpServer {
     };
   }
 }
-

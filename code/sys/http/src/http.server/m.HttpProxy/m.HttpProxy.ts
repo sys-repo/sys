@@ -5,6 +5,7 @@ import { Root } from './m.Root.ts';
 import { HttpProxyResolver } from './m.Resolver.ts';
 import { loadConfig } from './u.config/u.doc.ts';
 
+/** HTTP proxy helpers for route resolution, config loading, and server startup. */
 export const HttpProxy: t.HttpProxy.Lib = {
   Config,
   Root,

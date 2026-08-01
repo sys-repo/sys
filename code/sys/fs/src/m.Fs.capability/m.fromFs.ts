@@ -1,7 +1,7 @@
 import { type t } from './common.ts';
 
 /**
- * Adapt a full `@sys/fs` library surface to the portable filesystem capability subset.
+ * Adapt the full `@sys/fs` API to the portable filesystem capability subset.
  */
 export const fromFs: t.FsCapability.Lib['fromFs'] = (fs) => {
   return {

@@ -9,7 +9,7 @@ export declare namespace CrdtView {
     readonly UI: UI;
   };
 
-  /** UI surface attached to the browser CRDT library. */
+  /** UI APIs attached to the browser CRDT library. */
   export type UI = {
     /** Development/debug UI helpers. */
     readonly Dev: t.Dev.Lib;

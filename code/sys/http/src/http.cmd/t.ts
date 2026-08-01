@@ -7,7 +7,7 @@ export declare namespace HttpCmd {
   /** Fetch implementation used by the HTTP Cmd client. */
   export type Fetch = t.Fetch;
 
-  /** Namespace-style public library surface. */
+  /** Public HTTP Cmd API. */
   export type Lib = {
     /** Create a Fetch-compatible request handler bound to Cmd handlers. */
     handler<

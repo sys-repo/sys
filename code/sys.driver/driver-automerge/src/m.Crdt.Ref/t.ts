@@ -32,7 +32,7 @@ export type CrdtPatchSource = t.Automerge.PatchSource;
  */
 export type CrdtPathEvents<T extends O = O> = G.PathEvents<T, P, CX>;
 
-/** Automerge-specific event surface extensions. */
+/** Automerge-specific event extensions. */
 export type CrdtEventExtras<T extends O = O> = EX<T>;
 
 type EX<T extends O = O> = {
