@@ -74,22 +74,29 @@ describe('DevScreen', () => {
       expect(tight).to.include('…');
     });
 
-    it('renders package and version identity in the green header lane', () => {
+    it('uses the shared green application header in startup and ready frames', () => {
       const pkgName = '@sys/ui-components';
       const version = '0.0.319';
-      const raw = DevScreen.toString({
-        pkg: { name: pkgName, version },
+      const packageInfo = { name: pkgName, version };
+      const width = 80;
+      const args = {
+        pkg: packageInfo,
         dist: dist(),
         paths: paths(),
         url: 'http://localhost:1234/',
         lines: [],
-        ...frame(80, 40),
-      });
-      const [rawHeader = ''] = raw.split('\n');
+        ...frame(width, 40),
+      };
+      const ready = DevScreen.toString(args);
+      const startup = DevScreen.startupToString({ ...args, spinner: '⠋' });
+      const expectedHeaderRows = Cli.Fmt.Header.rows({ pkg: packageInfo, width, tone: 'green' });
+      const [rawHeader = ''] = ready.split('\n');
 
+      expect(ready.split('\n').slice(0, 2)).to.eql(expectedHeaderRows);
+      expect(startup.split('\n').slice(0, 2)).to.eql(expectedHeaderRows);
       expect(stripAnsi(rawHeader).startsWith(pkgName)).to.eql(true);
       expect(stripAnsi(rawHeader).endsWith(version)).to.eql(true);
-      expect(rawHeader).to.include(c.green(c.bold(pkgName)));
+      expect(rawHeader).to.include(c.bold(c.green(pkgName)));
       expect(rawHeader).to.include(c.dim(c.green(version)));
     });
 
@@ -390,7 +397,7 @@ describe('DevScreen', () => {
       });
       const text = stripAnsi(raw);
       const allRows = text.split('\n');
-      const rows = allRows.filter((line) => /^\s+\d+  (err|out)  /.test(line));
+      const rows = allRows.filter((line) => /^\s+\d+ {2}(err|out) {2}/.test(line));
 
       expect(rows.length).to.eql(2);
       rows.forEach((line) => {

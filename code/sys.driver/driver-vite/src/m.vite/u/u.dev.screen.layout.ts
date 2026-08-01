@@ -16,7 +16,7 @@ export const DevScreenLayout = {
   startup(args: t.ViteDev.Screen.Frame.StartupArgs): t.ViteDev.Screen.Frame.StartupOutput {
     const viewport = wrangle.viewport(args.viewport);
     const capacity = wrangle.capacity(viewport, args.cursorRows);
-    const headerRows = wrangle.startupHeader(args.pkg, viewport.width);
+    const headerRows = wrangle.applicationHeader(args.pkg, viewport.width);
     const visibleHeader = headerRows.slice(0, capacity);
     const showSpinner = viewport.width > 0 && capacity > visibleHeader.length;
     const bodyCapacity = Math.max(0, capacity - visibleHeader.length - (showSpinner ? 1 : 0));
@@ -53,13 +53,12 @@ export const DevScreenLayout = {
     const viewport = wrangle.viewport(args.viewport);
     const { width } = viewport;
     const capacity = wrangle.capacity(viewport, args.cursorRows);
-    const hr = c.brightGreen(c.bold(Cli.Fmt.hr({ width })));
     const subHr = c.dim(Cli.Fmt.hr({ width, color: 'green', weight: 'dashed' }));
-    const top = [wrangle.header(args.pkg, width), hr];
+    const headerRows = wrangle.applicationHeader(args.pkg, width);
     const separator = ['', subHr];
     const workspace = wrangle.workspace(args.ws, width);
     const optionContent = args.showOptions ? wrangle.options(subHr, 1).split('\n') : [];
-    const fixedRowCount = top.length + wrangle.readyMetadata(args, width, 1).length +
+    const fixedRowCount = headerRows.length + wrangle.readyMetadata(args, width, 1).length +
       separator.length;
     const available = Math.max(0, capacity - fixedRowCount);
     const optionalRows = wrangle.optionalRowCount(workspace) +
@@ -83,7 +82,7 @@ export const DevScreenLayout = {
       )
       : [];
     const rows = [
-      ...top,
+      ...headerRows,
       ...visibleWorkspace,
       ...metadata,
       ...options,
@@ -121,9 +120,8 @@ const wrangle = {
     return Math.max(0, viewport.height - wrangle.dimension(cursorRows));
   },
 
-  startupHeader(pkg: t.Pkg, width: number) {
-    const hr = c.brightGreen(c.bold(Cli.Fmt.hr({ width })));
-    return [wrangle.header(pkg, width), hr];
+  applicationHeader(pkg: t.Pkg, width: number) {
+    return Cli.Fmt.Header.rows({ pkg, width, tone: 'green' });
   },
 
   startupCore(args: FrameArgs, width: number, indexWidth: number) {
@@ -220,45 +218,6 @@ const wrangle = {
 
   indent(width: number) {
     return ' '.repeat(Math.max(0, width));
-  },
-
-  header(pkg: t.Pkg, width: number) {
-    if (width === 0) return '';
-
-    const name = pkg.name;
-    const version = pkg.version.trim();
-    const scoped = wrangle.moduleName(name);
-    const unscoped = wrangle.unscopedModuleName(scoped);
-    const renderName = (text: string) => c.green(c.bold(text));
-    const renderVersion = (text: string) => c.dim(c.green(text));
-    const split = (text: string) => {
-      if (!version) return undefined;
-      const gap = width -
-        Cli.Fmt.Text.Width.measure(text) -
-        Cli.Fmt.Text.Width.measure(version);
-      return gap >= 1
-        ? `${renderName(text)}${wrangle.indent(gap)}${renderVersion(version)}`
-        : undefined;
-    };
-    const renderIfFits = (text: string) => {
-      return Cli.Fmt.Text.Width.measure(text) <= width ? renderName(text) : undefined;
-    };
-
-    return split(scoped) ??
-      split(unscoped) ??
-      renderIfFits(scoped) ??
-      renderIfFits(unscoped) ??
-      renderName(clipText(unscoped, width));
-  },
-
-  moduleName(name: string) {
-    return name.trim() || 'unknown';
-  },
-
-  unscopedModuleName(name: string) {
-    const index = name.lastIndexOf('/');
-    const value = index >= 0 ? name.slice(index + 1) : name;
-    return value || name || 'unknown';
   },
 
   info(href: string, contentColumn: number, width: number) {
