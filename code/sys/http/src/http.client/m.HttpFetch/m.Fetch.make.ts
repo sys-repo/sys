@@ -1,4 +1,4 @@
-import { DEFAULTS, Err, Is, Rx, type t, toHeaders } from './common.ts';
+import { DEFAULTS, Err, Is, Rx, type t, toHeaders, Url } from './common.ts';
 
 type RequestInput = RequestInfo | URL;
 type F = t.HttpFetch.Lib['make'];
@@ -19,25 +19,29 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
     toChecksumInput?: (data: T) => Promise<unknown>,
   ): Promise<t.FetchResponse<T>> => {
     const url = wrangle.href(input);
+    const safeUrl = wrangle.safeHref(url);
     const errors = Err.errors();
 
     let status = 200;
     let statusText = 'OK';
     let data: T | undefined;
-    let headers: Headers = new Headers();
-    let checksum: undefined | t.FetchResponseChecksum;
+    let headers = new Headers();
+    let checksum: t.FetchResponseChecksum | undefined;
+    let responseReceived = false;
 
     try {
-      const userHeaders = toHeaders(init.headers);
-      const mergedHeaders = { ...api.headers, ...userHeaders };
+      const mergedHeaders = wrangle.headers(createOptions);
+      const callerHeaders = new Headers(init.headers);
+      callerHeaders.forEach((value, name) => mergedHeaders.set(name, value));
+
       const method = (init.method ?? 'GET').toUpperCase();
-      const hasBody = !!(init as RequestInit).body;
+      const hasBody = !Is.nil(init.body);
       const policy = createOptions.contentTypePolicy ?? 'corsSafe';
       const shouldSetContentType = policy === 'always'
         ? true
         : method !== 'GET' && method !== 'HEAD' && hasBody;
-      if (contentType && shouldSetContentType && !userHeaders['content-type']) {
-        mergedHeaders['content-type'] = contentType;
+      if (contentType && shouldSetContentType && !mergedHeaders.has('content-type')) {
+        mergedHeaders.set('content-type', contentType);
       }
 
       const { signal, dispose } = wrangle.signal(life.signal, init.signal ?? undefined);
@@ -46,6 +50,7 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
         signal,
         headers: mergedHeaders,
       }).finally(dispose);
+      responseReceived = true;
       status = fetched.status;
       statusText = fetched.statusText;
       headers = fetched.headers;
@@ -64,10 +69,11 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
           }
         }
       } else {
-        fetched.body?.cancel();
-        errors.push(fetched);
+        await fetched.body?.cancel().catch(() => undefined);
+        const message = `${status} ${statusText || 'HTTP Error'}`;
+        errors.push(Err.std(message, { name: 'HttpError' }));
       }
-    } catch (cause: unknown) {
+    } catch {
       const name = 'HttpError';
       statusText = 'HTTP Client Error';
       if (life.disposed) {
@@ -75,13 +81,12 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
         const err = DEFAULTS.error.clientDisposed;
         status = err.status;
         statusText = err.statusText;
-        const error = Err.std(statusText, { name });
-        errors.push(error);
+        errors.push(Err.std(statusText, { name }));
       } else {
         // HTTP: Unknown Error:
         status = DEFAULTS.error.unknown.status;
-        const err = Err.std(`Failed while fetching: ${url}`, { cause, name });
-        errors.push(err);
+        const stage = responseReceived ? 'decoding response' : 'fetching';
+        errors.push(Err.std(`Failed while ${stage}: ${safeUrl}`, { name }));
       }
     }
 
@@ -91,10 +96,9 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
     if (cause) {
       const method = (init.method ?? 'GET').toUpperCase();
       const name = 'HttpError';
-      const message = `HTTP/${method} request failed: ${url}`;
-      const headers = toHeaders(init.headers);
+      const message = `HTTP/${method} request failed: ${safeUrl}`;
       const base = Err.std(message, { name, cause });
-      error = { ...base, status, statusText, headers };
+      error = { ...base, status, statusText, headers: toHeaders(headers) };
     }
 
     // Finish up.
@@ -103,7 +107,7 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
       ok,
       status,
       statusText,
-      url,
+      url: ok ? url : safeUrl,
       get headers() {
         return headers;
       },
@@ -116,9 +120,9 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
   };
 
   const api: t.HttpFetch.Instance = Rx.toLifecycle<t.HttpFetch.Instance>(life, {
-    header: (name) => (api.headers as any)[name],
+    header: (name) => wrangle.headers(createOptions).get(name) ?? undefined,
     get headers() {
-      return wrangle.headers(createOptions);
+      return toHeaders(wrangle.headers(createOptions));
     },
 
     head(input: RequestInput, init: RequestInit = {}, options = {}) {
@@ -155,27 +159,28 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
  */
 const wrangle = {
   options(input: Parameters<F>[0]): t.HttpFetch.CreateOptions {
-    if (!input) return {};
+    if (Is.falsy(input)) return {};
     if (Is.untilInput(input)) return { until: input };
-    if (typeof input === 'object') return input as t.HttpFetch.CreateOptions;
+    if (Is.object(input)) return input as t.HttpFetch.CreateOptions;
     return {};
   },
 
   href(input: RequestInput): string {
-    if (typeof input === 'string') {
-      return input;
-    } else if (input instanceof Request) {
-      return input.url;
-    } else if (input instanceof URL) {
-      return input.href;
-    }
+    if (Is.str(input)) return input;
+    if (input instanceof Request) return input.url;
+    if (input instanceof URL) return input.href;
     throw new Error('Unsupported input type');
+  },
+
+  safeHref(input: string): string {
+    const canonical = Url.toCanonical(input);
+    return canonical.ok ? canonical.href : '';
   },
 
   accessToken(options: t.HttpFetch.CreateOptions): string {
     const accessToken = options.accessToken;
-    if (typeof accessToken === 'function') return accessToken();
-    if (typeof accessToken === 'string') {
+    if (Is.func(accessToken)) return accessToken();
+    if (Is.str(accessToken)) {
       const token = accessToken
         .trim()
         .replace(/^Bearer /, '')
@@ -185,23 +190,23 @@ const wrangle = {
     return '';
   },
 
-  headers(options: t.HttpFetch.CreateOptions): t.HttpHeaders {
+  headers(options: t.HttpFetch.CreateOptions): Headers {
+    const headers = new Headers();
     const accessToken = wrangle.accessToken(options);
-    const headers: any = {};
-    if (accessToken) headers['Authorization'] = accessToken;
+    if (accessToken) headers.set('authorization', accessToken);
 
-    if (typeof options.headers === 'function') {
+    if (Is.func(options.headers)) {
       const payload: t.HttpMutateHeadersArgs = {
         get headers() {
-          return { ...headers };
+          return toHeaders(headers);
         },
         get(name) {
-          return headers[name];
+          return headers.get(name) ?? (undefined as unknown as t.StringHttpHeader);
         },
         set(name, value) {
-          if (typeof value === 'string') value = value.trim();
-          if (!value) delete headers[name];
-          else headers[name] = String(value);
+          const next = Is.str(value) ? value.trim() : value;
+          if (Is.falsy(next)) headers.delete(name);
+          else headers.set(name, String(next));
           return payload;
         },
       };

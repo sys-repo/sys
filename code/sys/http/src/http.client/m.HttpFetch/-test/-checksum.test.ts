@@ -1,8 +1,8 @@
 import { Hash } from '@sys/crypto/hash';
-import { type t, Testing, describe, expect, it } from '../../-test.ts';
+import { describe, expect, it, type t, Testing } from '../../../-test.ts';
 
+import { Fetch } from '../mod.ts';
 import { print } from './-u.ts';
-import { Fetch } from './mod.ts';
 
 describe('Http.Fetch: hash checksums', () => {
   const assertSuccess = (res: t.FetchResponse<unknown>) => {

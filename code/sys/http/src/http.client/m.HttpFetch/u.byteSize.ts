@@ -1,70 +1,78 @@
-import { type t } from './common.ts';
+import { Is, Num, type t } from './common.ts';
 import { makeFetch } from './m.Fetch.make.ts';
-import { isFetch } from './u.is.ts';
+
+const PROBE_INIT: RequestInit = {
+  credentials: 'omit',
+  redirect: 'manual',
+  referrerPolicy: 'no-referrer',
+};
 
 /**
  * Probe `Content-Length`/`Content-Range` headers
  * to discover total byte size.
  */
-export const byteSize: t.HttpFetch.ByteSize.Method = async (...args: any[]) => {
-  const { url, httpFetch } = wrangle.args(args);
-  if (!url) return { url, from: 'unknown' };
+export const byteSize: t.HttpFetch.ByteSize.Method = async (url, until) => {
+  const httpFetch = makeFetch(until);
 
-  /**
-   * Probe: HEAD.
-   */
   try {
-    const res = await httpFetch.head(url);
-    const bytes = toInt(res.headers.get('Content-Length'));
-    if (res.ok && bytes !== undefined) return { url, bytes, from: 'head' };
-  } catch {
-    /* Ignore. */
-  }
+    if (!url) return { url, from: 'unknown' };
 
-  /**
-   * Probe: Range (1-byte GET).
-   */
-  const isServer = !globalThis.location;
-  const isSameOriginUrl =
-    typeof globalThis !== 'undefined' &&
-    new URL(url, globalThis.location?.href).origin === globalThis.location?.origin;
-
-  if (isServer || isSameOriginUrl) {
+    /**
+     * Probe: HEAD.
+     */
     try {
-      // We only need headers, so use a raw fetch to avoid reading the body.
-      const res = await fetch(url, {
-        method: 'GET',
-        headers: { ...httpFetch.headers, Range: 'bytes=0-0' },
-        // Abort when the caller’s HttpFetch is disposed (if available):
-        signal: (httpFetch as any)?.signal ?? undefined,
-      });
-
-      // Stop reading as soon as headers arrive.
-      res.body?.cancel?.();
-
-      if (res.ok) {
-        const byRange = toInt(res.headers.get('Content-Range')?.match(/\/(\d+)\s*$/)?.[1]);
-        const byLen = toInt(res.headers.get('Content-Length'));
-        const bytes = byRange ?? byLen;
-        if (bytes !== undefined) return { url, bytes, from: 'range' };
-      }
+      const res = await httpFetch.head(url, PROBE_INIT);
+      const bytes = toInt(res.headers.get('Content-Length'));
+      if (res.ok && bytes !== undefined) return { url, bytes, from: 'head' };
     } catch {
-      /* ignore */
+      /* Ignore. */
     }
-  }
 
-  // Finish up.
-  return { url, from: 'unknown' };
+    /**
+     * Probe: Range (1-byte GET).
+     */
+    if (rangeAllowed(url)) {
+      try {
+        const headers = new Headers({ Range: 'bytes=0-0' });
+        const res = await fetch(url, { ...PROBE_INIT, method: 'GET', headers });
+
+        try {
+          if (res.ok) {
+            const byRange = toInt(res.headers.get('Content-Range')?.match(/\/(\d+)\s*$/)?.[1]);
+            const byLen = toInt(res.headers.get('Content-Length'));
+            const bytes = byRange ?? byLen;
+            if (bytes !== undefined) return { url, bytes, from: 'range' };
+          }
+        } finally {
+          await res.body?.cancel().catch(() => undefined);
+        }
+      } catch {
+        /* Ignore. */
+      }
+    }
+
+    return { url, from: 'unknown' };
+  } finally {
+    httpFetch.dispose();
+  }
 };
 
 /**
  * Helpers:
  */
-const toInt = (v?: string | null) => (v && /^\d+$/.test(v) ? parseInt(v, 10) : undefined);
-const wrangle = {
-  args(args: any[]) {
-    const url = args[0] as string;
-    const httpFetch = isFetch(args[1]) ? args[1] : makeFetch(args[1]);
-    return { url, httpFetch } as const;
-  },
-} as const;
+const toInt = (value?: string | null) => {
+  if (!Is.str(value) || !/^\d+$/.test(value)) return undefined;
+  const number = Number(value);
+  return Num.Is.safeInt(number) ? number : undefined;
+};
+
+const rangeAllowed = (url: t.StringUrl) => {
+  if (!Is.browser()) return true;
+  if (!globalThis.location) return false;
+
+  try {
+    return new URL(url, globalThis.location.href).origin === globalThis.location.origin;
+  } catch {
+    return false;
+  }
+};

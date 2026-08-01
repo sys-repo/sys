@@ -1,15 +1,14 @@
-import { describe, expect, it, Testing, Time } from '../../-test.ts';
-import { Http } from '../mod.ts';
+import { describe, expect, it, Testing, Time, Url } from '../../../-test.ts';
+import { Http } from '../../mod.ts';
 
-import { Rx, Schedule, type t } from './common.ts';
-import { Fetch } from './mod.ts';
+import { Rx, Schedule, type t } from '../common.ts';
+import { Fetch } from '../mod.ts';
 
 describe('Http.Fetch', () => {
   it('API', () => {
     expect(Http.Fetch).to.equal(Fetch);
     expect(Http.fetcher).to.equal(Fetch.make);
-
-    Http.Url;
+    expect(Http.Url).to.equal(Url);
   });
 
   describe('create', () => {
@@ -171,7 +170,9 @@ describe('Http.Fetch', () => {
       expect(res.error?.name).to.eql('HttpError');
       expect(res.error?.message).to.include('HTTP/GET request failed');
       expect(res.error?.cause?.message).to.include('404 Not Found');
-      expect(res.error?.headers).to.eql({ foo: 'bar' });
+      expect(res.error?.headers.foo).to.eql(undefined);
+      expect(res.error?.headers['content-type']).to.eql(undefined);
+      expect(res.headers.get('content-type')).to.eql(null);
 
       await server.dispose();
     });
@@ -186,8 +187,8 @@ describe('Http.Fetch', () => {
       expect(res.status).to.eql(520);
       expect(res.error?.name).to.eql('HttpError');
       expect(res.error?.message).to.include('HTTP/GET request failed');
-      expect(res.error?.cause?.message).to.include('Failed while fetching');
-      expect(res.error?.cause?.cause?.message).to.include('is not valid JSON');
+      expect(res.error?.cause?.message).to.include('Failed while decoding response');
+      expect(res.error?.cause?.cause).to.eql(undefined);
 
       await server.dispose();
     });
@@ -345,25 +346,6 @@ describe('Http.Fetch', () => {
       const res: R = await Fetch.byteSize(url);
 
       expect(res).to.eql({ url, from: 'unknown' });
-      await server.dispose();
-    });
-
-    it('overload: uses provided Fetch instance', async () => {
-      const server = Testing.Http.server((req) => {
-        expect(req.method).to.eql('HEAD');
-        expect(req.headers.get('x-custom')).to.eql('demo');
-        return new Response(new Uint8Array(321), {
-          status: 200,
-          headers: { 'content-length': '321' },
-        });
-      });
-
-      const url = server.url.toString();
-      const fetch = Fetch.make({ headers: (e) => e.set('x-custom', 'demo') });
-      // NB: ↓ { 'x-custom': 'demo' }.
-      const res: R = await Fetch.byteSize(url, fetch);
-
-      expect(res).to.eql({ url, bytes: 321, from: 'head' });
       await server.dispose();
     });
   });

@@ -1,4 +1,4 @@
-import { type t, Cli, c } from '../../-test.ts';
+import { c, Cli, type t } from '../../../-test.ts';
 
 export const print = (res: t.FetchResponse<unknown>) => {
   const table = Cli.table([]);

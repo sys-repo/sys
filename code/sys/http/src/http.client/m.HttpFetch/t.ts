@@ -80,10 +80,7 @@ export declare namespace HttpFetch {
    */
   export namespace ByteSize {
     /** Probe header information to retrieve the byte-size of an HTTP resource. */
-    export type Method = {
-      (url: t.StringUrl, fetch: Instance): Promise<Result>;
-      (url: t.StringUrl, until?: t.UntilInput): Promise<Result>;
-    };
+    export type Method = (url: t.StringUrl, until?: t.UntilInput) => Promise<Result>;
 
     /** Response from `Fetch.byteSize`. */
     export type Result = Readonly<{
