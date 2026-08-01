@@ -116,7 +116,7 @@ function serviceLabel(row: ServiceStatusRow, width: number): string {
 
 function serviceLabelText(row: ServiceStatusRow): string {
   if (row.labelKind === 'blank') return '';
-  if (row.labelKind === 'field') return `  ${row.label}`;
+  if (row.labelKind === 'field') return ` ${row.label}`;
   return row.label;
 }
 

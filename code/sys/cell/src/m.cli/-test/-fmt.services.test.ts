@@ -38,14 +38,18 @@ describe(`@sys/cell/cli service status formatter`, () => {
       }],
     });
     const text = stripAnsi(rendered);
+    const lines = text.split('\n');
+    const serviceLine = lines.find((line) => line.trimStart().startsWith('service')) ?? '';
+    const moduleLine = lines.find((line) => line.trimStart().startsWith('module')) ?? '';
+    const rootLine = lines.find((line) => line.trimStart().startsWith('root')) ?? '';
 
     expect(rendered).to.contain(c.green('service'));
     expect(rendered).to.contain(c.white('view'));
     expect(text).to.contain('service');
     expect(text).to.contain('view --mode=dev');
     expect(text).to.contain('jsr:@sys/driver-vite/service');
-    expect(text).to.contain('\n  module');
-    expect(text).to.contain('\n  root');
+    expect(indentOf(moduleLine)).to.eql(indentOf(serviceLine) + 1);
+    expect(indentOf(rootLine)).to.eql(indentOf(serviceLine) + 1);
     expect(text).to.contain('./view');
   });
 
@@ -244,6 +248,7 @@ describe(`@sys/cell/cli service status formatter`, () => {
     const manifest = text.indexOf('http://localhost:5175/files/manifest');
     const lines = text.split('\n');
     const labels = rowLabels(text);
+    const serviceLine = lines.find((line) => line.trimStart().startsWith('service')) ?? '';
     const urlLine = lines.find((line) => line.includes('ws://localhost:5175/files')) ?? '';
     const manifestLine =
       lines.find((line) => line.includes('http://localhost:5175/files/manifest')) ?? '';
@@ -251,7 +256,7 @@ describe(`@sys/cell/cli service status formatter`, () => {
     expect(websocket >= 0).to.eql(true);
     expect(manifest >= 0).to.eql(true);
     expect(websocket < manifest).to.eql(true);
-    expect(urlLine.startsWith('  url')).to.eql(true);
+    expect(indentOf(urlLine)).to.eql(indentOf(serviceLine) + 1);
     expect(manifestLine.indexOf('http://localhost:5175/files/manifest')).to.eql(
       urlLine.indexOf('ws://localhost:5175/files'),
     );
@@ -283,6 +288,10 @@ function stubCliTerminal(width: number): () => void {
     screen.size = prevSize;
     is.terminal = prevTerminal;
   };
+}
+
+function indentOf(line: string): number {
+  return line.length - line.trimStart().length;
 }
 
 function rowLabels(text: string): readonly string[] {

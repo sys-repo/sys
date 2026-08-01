@@ -130,10 +130,10 @@ describe(`@sys/cell/cli start`, () => {
     expect(returnedLines[2]).to.eql('');
     expect(service).to.eql(3);
     expect(returnedService).to.eql(3);
-    expect(lines[service].startsWith('  service')).to.eql(true);
+    expect(indentOf(lines[service])).to.eql(2);
     expect(returnedLines[returnedService]).to.eql(lines[service]);
-    expect(module.startsWith('    module')).to.eql(true);
-    expect(url.startsWith('    url')).to.eql(true);
+    expect(indentOf(module)).to.eql(indentOf(lines[service]) + 1);
+    expect(indentOf(url)).to.eql(indentOf(lines[service]) + 1);
     expect(continuation.startsWith('  ')).to.eql(true);
     expect(url.indexOf('http://localhost:4321/')).to.eql(
       continuation.indexOf('http://localhost:4321/view/'),
@@ -278,4 +278,8 @@ async function captureInfo<T>(fn: () => Promise<T>) {
 
 function countTitleRows(text: string): number {
   return text.split('\n').filter((line) => line.startsWith(pkg.name)).length;
+}
+
+function indentOf(line: string): number {
+  return line.length - line.trimStart().length;
 }
