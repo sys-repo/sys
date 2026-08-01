@@ -219,6 +219,16 @@ export declare namespace Cli {
     export type Lib = t.CliFormat.Lib;
 
     /**
+     * Application-header contract projections.
+     */
+    export namespace Header {
+      /** Application-header formatting helper library contract. */
+      export type Lib = t.CliFormatHeader.Lib;
+      /** Application-header formatting requirements. */
+      export type Options = t.CliFormatHeader.Options;
+    }
+
+    /**
      * Help-page contract projections.
      */
     export namespace Help {

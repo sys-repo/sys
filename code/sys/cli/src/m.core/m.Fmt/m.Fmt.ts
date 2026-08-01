@@ -5,6 +5,7 @@
 import { c, Num, Path as StdPath, type t } from '../common.ts';
 import { Chapters } from '../m.Fmt.Chapters/mod.ts';
 import { Commit } from './m.Fmt.Commit.ts';
+import { Header } from './m.Fmt.Header.ts';
 import { Help } from './m.Fmt.Help.ts';
 import { hr } from './m.Fmt.Hr.ts';
 import { spinnerRaw, spinnerText } from './m.Fmt.spinnerText.ts';
@@ -82,6 +83,7 @@ function numberOr(value: number | undefined, fallback: number): number {
 /** Command-line formatting helper library. */
 export const Fmt: t.CliFormat.Lib = {
   hr,
+  Header,
   Commit,
   Help,
   Text,

@@ -2,12 +2,14 @@ import type { t } from '../common.ts';
 import type { AnsiColor } from '@sys/color/t';
 import type { CliFormatChapters } from '../m.Fmt.Chapters/t.ts';
 import type { CliFormatCommit } from './t.commit.ts';
+import type { CliFormatHeader } from './t.header.ts';
 import type { CliFormatHelp } from './t.help.ts';
 import type { CliFormatText } from '../m.Fmt.Text/t.ts';
 
 /** Type re-exports. */
 export type * from '../m.Fmt.Chapters/t.ts';
 export type * from './t.commit.ts';
+export type * from './t.header.ts';
 export type * from './t.help.ts';
 export type * from '../m.Fmt.Text/t.ts';
 
@@ -23,6 +25,9 @@ export declare namespace CliFormat {
   export type Lib = {
     /** Horizontal rule display formatting. */
     hr: Hr.Fn;
+
+    /** Application identity header formatting. */
+    readonly Header: CliFormatHeader.Lib;
 
     /** Common spinner status text formatting. */
     spinnerText: Spinner.Text;

@@ -3,6 +3,7 @@ import type {
   CliFormat as CliFormatFromT,
   CliFormatChapters as CliFormatChaptersFromT,
   CliFormatCommit as CliFormatCommitFromT,
+  CliFormatHeader as CliFormatHeaderFromT,
   CliFormatHelp as CliFormatHelpFromT,
   CliFormatText as CliFormatTextFromT,
 } from '@sys/cli/t';
@@ -11,6 +12,7 @@ import type {
   CliFormat as CliFormatFromTypes,
   CliFormatChapters as CliFormatChaptersFromTypes,
   CliFormatCommit as CliFormatCommitFromTypes,
+  CliFormatHeader as CliFormatHeaderFromTypes,
   CliFormatHelp as CliFormatHelpFromTypes,
   CliFormatText as CliFormatTextFromTypes,
 } from '@sys/cli/types';
@@ -31,6 +33,21 @@ type ExpectedCommitOptions = {
   readonly title?: ExpectedCommitTitle;
   readonly indent?: number;
   readonly message?: ExpectedCommitText;
+};
+type ExpectedHeaderOptions = {
+  pkg?: t.Pkg;
+  width?: number;
+  tone?: t.AnsiColor.Name;
+  title?: string;
+  detail?: string;
+  version?: string | false;
+  hr?: false | {
+    color?: t.CliFormat.Hr.Color;
+    weight?: t.CliFormat.Hr.Weight;
+  };
+};
+type ExpectedHeaderLib = {
+  readonly rows: (options: ExpectedHeaderOptions) => readonly string[];
 };
 
 type ExpectedTextWidthLib = {
@@ -86,6 +103,30 @@ type CanonicalFormatterProof = [
       CliFormatChaptersFromTypes.Lib,
       CliFromT.Fmt.Chapters.Lib,
       CliFromTypes.Fmt.Chapters.Lib
+    >
+  >,
+
+  // Header.
+  Assert<Equal<t.CliFormatHeader.Lib, ExpectedHeaderLib>>,
+  Assert<Equal<t.CliFormatHeader.Options, ExpectedHeaderOptions>>,
+  Assert<
+    Exact6<
+      t.CliFormatHeader.Lib,
+      t.Cli.Fmt.Header.Lib,
+      CliFormatHeaderFromT.Lib,
+      CliFormatHeaderFromTypes.Lib,
+      CliFromT.Fmt.Header.Lib,
+      CliFromTypes.Fmt.Header.Lib
+    >
+  >,
+  Assert<
+    Exact6<
+      t.CliFormatHeader.Options,
+      t.Cli.Fmt.Header.Options,
+      CliFormatHeaderFromT.Options,
+      CliFormatHeaderFromTypes.Options,
+      CliFromT.Fmt.Header.Options,
+      CliFromTypes.Fmt.Header.Options
     >
   >,
 
@@ -418,6 +459,7 @@ describe('Cli.Fmt: canonical formatter type namespaces', () => {
     expectTypeOf(Fmt).toEqualTypeOf<CliFormatFromT.Lib>();
     expectTypeOf(Fmt).toEqualTypeOf<CliFormatFromTypes.Lib>();
 
+    expectTypeOf(Fmt.Header).toEqualTypeOf<t.CliFormatHeader.Lib>();
     expectTypeOf(Fmt.Help).toEqualTypeOf<t.CliFormatHelp.Lib>();
     expectTypeOf(Fmt.Commit).toEqualTypeOf<t.CliFormatCommit.Lib>();
     expectTypeOf(Fmt.Text).toEqualTypeOf<t.CliFormatText.Lib>();

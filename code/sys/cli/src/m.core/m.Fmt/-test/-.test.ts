@@ -6,6 +6,7 @@ describe('Cli.Fmt', () => {
     const m = await import('@sys/cli/fmt');
     expect(m.Fmt).to.equal(Fmt);
     expect(m.Fmt).to.equal(Cli.Fmt);
+    expect(m.Fmt.Header).to.equal(Fmt.Header);
     expect(m.Text).to.equal(Fmt.Text);
   });
 
