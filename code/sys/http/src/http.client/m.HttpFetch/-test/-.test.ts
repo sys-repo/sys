@@ -388,7 +388,7 @@ describe('Http.Fetch', () => {
 
       const error = res.error;
       expect(error?.name).to.eql('HttpError');
-      expect(error?.cause?.message).to.include('Fetch operation disposed before completing');
+      expect(error?.cause?.message).to.include('Fetch operation cancelled before completing');
 
       expect(fetch.disposed).to.eql(true);
       await server.dispose();
@@ -407,7 +407,7 @@ describe('Http.Fetch', () => {
       const res = await promise;
 
       expect(res.ok).to.eql(false);
-      expect(res.status).to.eql(520);
+      expect(res.status).to.eql(499);
       expect(fetch.disposed).to.eql(false);
       expect(res.error?.name).to.eql('HttpError');
       await server.dispose();
@@ -443,7 +443,7 @@ describe('Http.Fetch', () => {
 
       const res = await fetch.json(server.url.toString(), { signal: ctrl.signal });
       expect(res.ok).to.eql(false);
-      expect(res.status).to.eql(520);
+      expect(res.status).to.eql(499);
       expect(res.error?.name).to.eql('HttpError');
 
       await server.dispose();

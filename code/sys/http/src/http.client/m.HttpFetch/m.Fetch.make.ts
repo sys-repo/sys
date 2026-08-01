@@ -28,6 +28,8 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
     let headers = new Headers();
     let checksum: t.FetchResponseChecksum | undefined;
     let responseReceived = false;
+    let requestSignal: AbortSignal | undefined;
+    let disposeSignal = () => {};
 
     try {
       const mergedHeaders = wrangle.headers(createOptions);
@@ -44,12 +46,15 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
         mergedHeaders.set('content-type', contentType);
       }
 
-      const { signal, dispose } = wrangle.signal(life.signal, init.signal ?? undefined);
+      const request = wrangle.signal(life.signal, init.signal ?? undefined);
+      requestSignal = request.signal;
+      disposeSignal = request.dispose;
       const fetched = await fetch(url, {
         ...init,
-        signal,
+        signal: requestSignal,
         headers: mergedHeaders,
-      }).finally(dispose);
+      });
+      requestSignal?.throwIfAborted();
       responseReceived = true;
       status = fetched.status;
       statusText = fetched.statusText;
@@ -57,9 +62,12 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
 
       if (fetched.ok) {
         data = await toData(fetched);
+        requestSignal?.throwIfAborted();
         if (options.checksum) {
           const { verifyChecksum } = await import('./u.checksum.ts'); // ← NB: Do not load crypto-algos into memory unless needed.
+          requestSignal?.throwIfAborted();
           const checksumInput = toChecksumInput ? await toChecksumInput(data) : data;
+          requestSignal?.throwIfAborted();
           checksum = verifyChecksum(checksumInput, options.checksum, errors);
           if (!checksum.valid) {
             data = undefined;
@@ -70,15 +78,18 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
         }
       } else {
         await fetched.body?.cancel().catch(() => undefined);
+        requestSignal?.throwIfAborted();
         const message = `${status} ${statusText || 'HTTP Error'}`;
         errors.push(Err.std(message, { name: 'HttpError' }));
       }
     } catch {
       const name = 'HttpError';
       statusText = 'HTTP Client Error';
-      if (life.disposed) {
-        // HTTP: Client Closed Request:
-        const err = DEFAULTS.error.clientDisposed;
+      if (requestSignal?.aborted) {
+        // HTTP: Request Cancelled:
+        data = undefined;
+        checksum = undefined;
+        const err = DEFAULTS.error.cancelled;
         status = err.status;
         statusText = err.statusText;
         errors.push(Err.std(statusText, { name }));
@@ -88,6 +99,8 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
         const stage = responseReceived ? 'decoding response' : 'fetching';
         errors.push(Err.std(`Failed while ${stage}: ${safeUrl}`, { name }));
       }
+    } finally {
+      disposeSignal();
     }
 
     // Prepare error:
@@ -217,15 +230,29 @@ const wrangle = {
   },
 
   signal(...signals: Array<AbortSignal | undefined>) {
-    const active = signals.filter((signal): signal is AbortSignal => !!signal);
+    const active = signals.filter(Is.abortSignal);
     if (active.length <= 1) return { signal: active[0], dispose: () => {} };
 
     const controller = new AbortController();
-    const onAbort = () => controller.abort();
-    active.forEach((signal) => signal.addEventListener('abort', onAbort, { once: true }));
-    if (active.some((signal) => signal.aborted)) onAbort();
+    const abort = (signal: AbortSignal) => {
+      if (!controller.signal.aborted) controller.abort(signal.reason);
+    };
+    const listeners = active.map((signal) => {
+      const onAbort = () => abort(signal);
+      signal.addEventListener('abort', onAbort, { once: true });
+      return { signal, onAbort };
+    });
 
-    const dispose = () => active.forEach((signal) => signal.removeEventListener('abort', onAbort));
+    for (const signal of active) {
+      if (signal.aborted) {
+        abort(signal);
+        break;
+      }
+    }
+
+    const dispose = () => {
+      listeners.forEach(({ signal, onAbort }) => signal.removeEventListener('abort', onAbort));
+    };
     return { signal: controller.signal, dispose };
   },
 } as const;

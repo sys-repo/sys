@@ -8,9 +8,9 @@ export const DEFAULTS = {
       status: 412,
       statusText: 'Pre-condition failed (checksum-mismatch)',
     },
-    clientDisposed: {
+    cancelled: {
       status: 499,
-      statusText: 'Fetch operation disposed before completing',
+      statusText: 'Fetch operation cancelled before completing',
     },
     unknown: {
       status: 520,

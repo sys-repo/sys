@@ -88,6 +88,8 @@ export declare namespace HttpFetch {
       url: string;
       /** Byte size when discoverable from headers. */
       bytes?: t.NumberBytes;
+      /** Indicates that probing ended because its lifecycle was cancelled. */
+      cancelled?: true;
       /** Header strategy that produced the byte size. */
       from: 'head' | 'range' | 'unknown';
     }>;
