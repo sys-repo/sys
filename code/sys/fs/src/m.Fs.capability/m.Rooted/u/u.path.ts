@@ -1,4 +1,4 @@
-import { Is, StdPath, type t } from '../common.ts';
+import { Is, Num, StdPath, type t } from '../common.ts';
 import { checkCancelled, failure, ioFailure } from './u.error.ts';
 import type { Io } from './u.io.ts';
 import type { NormalizedTarget } from './u.target.ts';
@@ -6,6 +6,7 @@ import type { NormalizedTarget } from './u.target.ts';
 export { INTERNAL_NAME } from './u.target.ts';
 export const TEMP_PREFIX = '.sys-rooted-tmp-';
 
+/** Filesystem identity represented by non-negative safe integers. */
 export type Identity = {
   readonly dev: number;
   readonly ino: number;
@@ -20,6 +21,7 @@ export type TargetState<K extends t.FsRooted.TargetKind = t.FsRooted.TargetKind>
   & NormalizedTarget<K>
   & { readonly absolute: t.StringAbsolutePath };
 
+/** Establish one canonical root with required stable identity evidence. */
 export async function createRootState(
   root: unknown,
   io: Io,
@@ -189,6 +191,7 @@ export async function lstatMaybe(
   }
 }
 
+/** Require safely representable device and inode identity metadata. */
 export function identityRequired(
   info: Deno.FileInfo,
   operation: t.FsRooted.Operation,
@@ -199,12 +202,20 @@ export function identityRequired(
   return identity;
 }
 
+/** Compare trusted identity evidence with one filesystem observation. */
 export function sameIdentity(identity: Identity, info: Deno.FileInfo): boolean {
   return info.dev === identity.dev && info.ino === identity.ino;
 }
 
 function identityOf(info: Deno.FileInfo): Identity | undefined {
-  if (!Is.number(info.dev) || !Is.number(info.ino)) return undefined;
+  if (
+    !Num.Is.safeInt(info.dev) ||
+    info.dev < 0 ||
+    !Num.Is.safeInt(info.ino) ||
+    info.ino < 0
+  ) {
+    return undefined;
+  }
   return { dev: info.dev, ino: info.ino };
 }
 

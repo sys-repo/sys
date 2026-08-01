@@ -10,9 +10,10 @@ declare const STAGE: unique symbol;
  * target and allows at most one concurrent winner. Directory promotion leaves a target
  * found to exist untouched. Its race guarantee covers only writers that use the same
  * Rooted locking protocol. Cleanup removes an artifact only after confirming its
- * filesystem identity. If an operation
- * fails, its error says whether the target had already been published. These guarantees
- * apply only to operations through this capability; Rooted is not an OS sandbox.
+ * filesystem identity. An operation reports `unsupported` when required stable identity
+ * evidence is unavailable or cannot be represented safely. If an operation fails, its
+ * error says whether the target had already been published. These guarantees apply only
+ * to operations through this capability; Rooted is not an OS sandbox.
  */
 export declare namespace FsRooted {
   /** Runtime API for creating Rooted capabilities and checking their errors. */

@@ -6,6 +6,7 @@ import {
   expectFailure,
   Fs,
   it,
+  Num,
   setup,
   type t,
   teardown,
@@ -220,6 +221,46 @@ describe('Fs.Capability.Rooted.publishFile', () => {
     }
   });
 
+  it('rejects an untrustworthy temp identity without publishing or speculative cleanup', async () => {
+    const fixture = await setup();
+    try {
+      let temp = '';
+      let links = 0;
+      let removals = 0;
+      const io = withIo({
+        open: async (path, options) => {
+          const file = await DEFAULT_IO.open(path, options);
+          if (!Fs.basename(path).startsWith('.sys-rooted-tmp-')) return file;
+          temp = path;
+          return wrapFile(file, {
+            stat: async () => ({ ...await file.stat(), ino: Num.INFINITY }),
+          });
+        },
+        link: async (from, to) => {
+          links++;
+          await DEFAULT_IO.link(from, to);
+        },
+        remove: async (path, options) => {
+          if (path === temp) removals++;
+          await DEFAULT_IO.remove(path, options);
+        },
+      });
+      const rooted = await createRooted({ root: fixture.root }, io);
+      const target = await fileTarget(rooted, 'untrusted-temp.txt');
+
+      await expectFailure(
+        () => rooted.publishFile(target, bytes('no')),
+        'unsupported',
+      );
+      expect(links).to.eql(0);
+      expect(removals).to.eql(0);
+      expect(await Fs.exists(temp)).to.eql(true);
+      expect(await Fs.exists(Fs.join(fixture.root, target.path))).to.eql(false);
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
   it('never cleans a temp path after its owned identity is replaced', async () => {
     const fixture = await setup();
     try {
@@ -280,7 +321,7 @@ describe('Fs.Capability.Rooted.publishFile', () => {
     }
   });
 
-  it('sets committed when target identity verification fails after hard-link publication', async () => {
+  it('sets committed when an untrustworthy target identity is observed after publication', async () => {
     const fixture = await setup();
     try {
       let published = '';
@@ -291,8 +332,7 @@ describe('Fs.Capability.Rooted.publishFile', () => {
         },
         lstat: async (path) => {
           const info = await DEFAULT_IO.lstat(path);
-          if (path !== published || info.ino === null) return info;
-          return { ...info, ino: info.ino + 1 };
+          return path === published ? { ...info, ino: Num.MAX_INT + 1 } : info;
         },
       });
       const rooted = await createRooted({ root: fixture.root }, io);

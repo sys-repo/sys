@@ -6,6 +6,7 @@ import {
   expectFailure,
   Fs,
   it,
+  Num,
   setup,
   type t,
   teardown,
@@ -188,6 +189,91 @@ describe('Fs.Capability.Rooted stages', () => {
     }
   });
 
+  it('leaves a stage container untouched when its identity is untrustworthy', async () => {
+    const fixture = await setup();
+    try {
+      const token = 'untrusted-container';
+      const container = Fs.join(fixture.root, '.sys-rooted', 'stages', token);
+      let removals = 0;
+      const io = withIo({
+        token: () => token,
+        lstat: async (path) => {
+          const info = await DEFAULT_IO.lstat(path);
+          return path === container ? { ...info, dev: -1 } : info;
+        },
+        remove: async (path, options) => {
+          if (path === container && options?.recursive) removals++;
+          await DEFAULT_IO.remove(path, options);
+        },
+      });
+      const rooted = await createRooted({ root: fixture.root }, io);
+
+      await expectFailure(() => rooted.createStage(), 'unsupported');
+      expect(removals).to.eql(0);
+      expect(await Fs.exists(container)).to.eql(true);
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
+  it('removes a trusted stage container when content identity is untrustworthy', async () => {
+    const fixture = await setup();
+    try {
+      const token = 'untrusted-content';
+      const container = Fs.join(fixture.root, '.sys-rooted', 'stages', token);
+      const content = Fs.join(container, 'content');
+      let removals = 0;
+      const io = withIo({
+        token: () => token,
+        lstat: async (path) => {
+          const info = await DEFAULT_IO.lstat(path);
+          return path === content ? { ...info, ino: 0.5 } : info;
+        },
+        remove: async (path, options) => {
+          if (path === container && options?.recursive) removals++;
+          await DEFAULT_IO.remove(path, options);
+        },
+      });
+      const rooted = await createRooted({ root: fixture.root }, io);
+
+      await expectFailure(() => rooted.createStage(), 'unsupported');
+      expect(removals).to.eql(1);
+      expect(await Fs.exists(container)).to.eql(false);
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
+  it('removes a trusted stage container when marker identity is untrustworthy', async () => {
+    const fixture = await setup();
+    try {
+      const token = 'untrusted-marker';
+      const container = Fs.join(fixture.root, '.sys-rooted', 'stages', token);
+      let removals = 0;
+      const io = withIo({
+        token: () => token,
+        open: async (path, options) => {
+          const file = await DEFAULT_IO.open(path, options);
+          if (Fs.basename(path) !== 'owner') return file;
+          return wrapFile(file, {
+            stat: async () => ({ ...await file.stat(), dev: Num.INFINITY }),
+          });
+        },
+        remove: async (path, options) => {
+          if (path === container && options?.recursive) removals++;
+          await DEFAULT_IO.remove(path, options);
+        },
+      });
+      const rooted = await createRooted({ root: fixture.root }, io);
+
+      await expectFailure(() => rooted.createStage(), 'unsupported');
+      expect(removals).to.eql(1);
+      expect(await Fs.exists(container)).to.eql(false);
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
   it('cancels before promotion and removes only the owned stage', async () => {
     const fixture = await setup();
     try {
@@ -276,6 +362,41 @@ describe('Fs.Capability.Rooted stages', () => {
       const retryStage = await retry.createStage();
       await fill(retryStage, 'retry');
       expect(await retry.promoteStage(retryStage, retryTarget)).to.eql({ kind: 'published' });
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
+  it('rejects an untrustworthy persistent lock identity before promotion', async () => {
+    const fixture = await setup();
+    try {
+      let renames = 0;
+      const io = withIo({
+        lstat: async (path) => {
+          const info = await DEFAULT_IO.lstat(path);
+          return path.endsWith('.lock') ? { ...info, ino: Num.INFINITY } : info;
+        },
+        open: async (path, options) => {
+          const file = await DEFAULT_IO.open(path, options);
+          if (!path.endsWith('.lock')) return file;
+          return wrapFile(file, {
+            stat: async () => ({ ...await file.stat(), ino: Num.INFINITY }),
+          });
+        },
+        rename: async (from, to) => {
+          renames++;
+          await DEFAULT_IO.rename(from, to);
+        },
+      });
+      const rooted = await createRooted({ root: fixture.root }, io);
+      const target = await directoryTarget(rooted, 'untrusted-lock-generation');
+      const stage = await rooted.createStage();
+      await fill(stage, 'manifest');
+
+      await expectFailure(() => rooted.promoteStage(stage, target), 'unsupported');
+      expect(renames).to.eql(0);
+      expect(await Fs.exists(stage.path)).to.eql(false);
+      expect(await Fs.exists(Fs.join(fixture.root, target.path))).to.eql(false);
     } finally {
       await teardown(fixture);
     }
@@ -422,6 +543,38 @@ describe('Fs.Capability.Rooted stages', () => {
       expect(result.cleanupError?.committed).to.eql(true);
       await Deno.writeTextFile(marker, 'foreign');
       await expectFailure(() => rooted.discardStage(stage), 'ownership-lost', true);
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
+  it('preserves published truth when an untrustworthy target identity is observed', async () => {
+    const fixture = await setup();
+    try {
+      let published = '';
+      const io = withIo({
+        rename: async (from, to) => {
+          await DEFAULT_IO.rename(from, to);
+          published = to;
+        },
+        lstat: async (path) => {
+          const info = await DEFAULT_IO.lstat(path);
+          return path === published ? { ...info, dev: Num.MAX_INT + 1 } : info;
+        },
+      });
+      const rooted = await createRooted({ root: fixture.root }, io);
+      const target = await directoryTarget(rooted, 'untrusted-published-generation');
+      const stage = await rooted.createStage();
+      await fill(stage, 'manifest');
+
+      const result = await rooted.promoteStage(stage, target);
+      expect(result.kind).to.eql('published');
+      expect(result.cleanupError?.kind).to.eql('unsafe-filesystem');
+      expect(result.cleanupError?.committed).to.eql(true);
+      expect(await Deno.readTextFile(Fs.join(fixture.root, target.path, 'dist.json'))).to.eql(
+        'manifest',
+      );
+      await rooted.discardStage(stage);
     } finally {
       await teardown(fixture);
     }

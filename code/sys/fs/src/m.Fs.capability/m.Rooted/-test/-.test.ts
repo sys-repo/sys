@@ -7,6 +7,7 @@ import {
   expectTypeOf,
   Fs,
   it,
+  Num,
   setup,
   type t,
   teardown,
@@ -94,17 +95,43 @@ describe('Fs.Capability.Rooted', () => {
     }
   });
 
-  it('fails closed when stable root identity is unavailable', async () => {
+  it('fails closed when root identity is unavailable or untrustworthy', async () => {
     const fixture = await setup();
     try {
-      const io = withIo({
-        lstat: async (path) => {
-          const info = await DEFAULT_IO.lstat(path);
-          return path === fixture.root ? { ...info, ino: null } : info;
-        },
-      });
+      const invalid = [null, -1, 0.5, Num.INFINITY, Num.MAX_INT + 1] as const;
+      for (const field of ['dev', 'ino'] as const) {
+        for (const value of invalid) {
+          const io = withIo({
+            lstat: async (path) => {
+              const info = await DEFAULT_IO.lstat(path);
+              return path === fixture.root ? { ...info, [field]: value } : info;
+            },
+          });
 
-      await expectFailure(() => createRooted({ root: fixture.root }, io), 'unsupported');
+          await expectFailure(() => createRooted({ root: fixture.root }, io), 'unsupported');
+        }
+      }
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
+  it('accepts safe non-negative root identity boundaries', async () => {
+    const fixture = await setup();
+    try {
+      for (const field of ['dev', 'ino'] as const) {
+        for (const value of [0, Num.MAX_INT]) {
+          const io = withIo({
+            lstat: async (path) => {
+              const info = await DEFAULT_IO.lstat(path);
+              return path === fixture.root ? { ...info, [field]: value } : info;
+            },
+          });
+
+          const rooted = await createRooted({ root: fixture.root }, io);
+          expect(rooted.path).to.eql(await Deno.realPath(fixture.root));
+        }
+      }
     } finally {
       await teardown(fixture);
     }
