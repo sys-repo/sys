@@ -1,6 +1,7 @@
 import { FakeSpinner } from '@sys/cli/testing';
 import { describe, expect, it } from '../../-test.ts';
 import { StartReporter } from '../u/u.start.reporter.ts';
+import { formatStartServiceBody } from '../u/u.start.ts';
 
 describe('@sys/cell/cli start reporter', () => {
   it('resolves automatic and explicit reporter modes truthfully', () => {
@@ -18,14 +19,14 @@ describe('@sys/cell/cli start reporter', () => {
 
     reporter.open();
     reporter.starting(2);
-    reporter.ready({ text: '\nbody\n', render: () => '\nbody\n' });
+    reporter.ready(readyBody());
     reporter.complete('summary');
     reporter.dispose();
     reporter.dispose();
 
     expect(harness.effects).to.eql([
       'print:header:raw',
-      'print:\nbody\n',
+      'print:\n  body:76\n',
       'print:summary',
     ]);
   });
@@ -37,7 +38,7 @@ describe('@sys/cell/cli start reporter', () => {
     reporter.open();
     reporter.starting(2);
     harness.resize({ width: 50, height: 20 });
-    reporter.ready({ text: '\nbody:80\n', render: (width) => `\nbody:${width}\n` });
+    reporter.ready(readyBody());
     reporter.complete('summary');
     reporter.dispose();
     reporter.dispose();
@@ -53,8 +54,8 @@ describe('@sys/cell/cli start reporter', () => {
       'spinner:start:starting:2',
       'interval:cancel',
       'spinner:stop',
-      'repaint:header:50\n\nbody:50',
-      'repaint:header:50\n\nbody:50\n\nsummary',
+      'repaint:header:50\n\n  body:46',
+      'repaint:header:50\n\n  body:46\n\nsummary',
       'screen:release',
     ]);
   });
@@ -155,6 +156,14 @@ describe('@sys/cell/cli start reporter', () => {
  */
 type ReporterMode = 'raw' | 'screen';
 type ScreenSize = { readonly width: number; readonly height: number };
+
+function readyBody() {
+  const render = (width: number) => `\nbody:${width}\n`;
+  return {
+    text: formatStartServiceBody(render, 80),
+    render: (width?: number) => formatStartServiceBody(render, width),
+  } as const;
+}
 
 function createHarness(
   mode: ReporterMode,

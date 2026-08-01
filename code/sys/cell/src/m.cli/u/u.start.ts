@@ -1,6 +1,6 @@
 import { Cell } from '../../m.cell/mod.ts';
 import { serviceStatusesOf } from '../../m.cell/u.services/u.status.ts';
-import { c, Cli, CliTable, pkg, Str, type t, Time, Try } from '../common.ts';
+import { c, Cli, CliTable, Num, pkg, Str, type t, Time, Try } from '../common.ts';
 import { smallCountText } from '../u.fmt/u.count.ts';
 import { elapsedSuffix } from '../u.fmt/u.elapsed.ts';
 import { Fmt } from '../u.fmt/u.mod.ts';
@@ -10,9 +10,10 @@ import { CellSession } from './u.session.ts';
 import { createShutdownSignal, isSignalShutdownReason, type ShutdownSignal } from './u.shutdown.ts';
 
 /**
- * Cell service-start input with renderer-neutral lifecycle hooks.
+ * Cell service-start input with effect-free lifecycle hooks.
  *
- * Hooks report lifecycle facts only; the caller retains terminal ownership.
+ * Hooks report lifecycle facts and formatted body content without writing to the terminal; the
+ * caller retains terminal ownership.
  */
 export type StartCellArgs = {
   /** Cell root to load; omit to discover from the current working directory. */
@@ -33,7 +34,7 @@ export type StartCellReady = {
   readonly render: (width?: number) => string;
 };
 
-/** Terminal-neutral result from a completed Cell service start. */
+/** Effect-free result from a completed Cell service start. */
 export type StartCellResult = {
   readonly root: string;
   readonly services: number;
@@ -42,7 +43,7 @@ export type StartCellResult = {
   readonly serviceText: string;
 };
 
-/** Starts Cell services while leaving terminal presentation to the lifecycle-hook caller. */
+/** Starts Cell services while leaving terminal effects to the lifecycle-hook caller. */
 export async function startCell(args: StartCellArgs = {}): Promise<StartCellResult> {
   const cell = await Cell.load(args.dir);
   const mode = args.mode ?? 'default';
@@ -72,7 +73,8 @@ export async function startCell(args: StartCellArgs = {}): Promise<StartCellResu
     await session.ready();
 
     const services = serviceStatusesOf(started);
-    const render = (width?: number) => Fmt.Services.started({ services, width });
+    const renderServices = (width: number) => Fmt.Services.started({ services, width });
+    const render = (width?: number) => formatStartServiceBody(renderServices, width);
     serviceText = render();
     args.onReady?.({ text: serviceText, render });
     await Promise.race([Cell.Services.wait(started), shutdown.done]);
@@ -132,6 +134,25 @@ export function startServicesText(
 
 export function formatStartHeader(width?: number): string {
   return Cli.Fmt.Header.rows({ pkg, tone: 'green', width }).join('\n');
+}
+
+/**
+ * Renders service content inside the Cell start frame's two-cell gutter.
+ *
+ * The renderer receives the inner width; visible rows retain two cells at each frame edge.
+ */
+export function formatStartServiceBody(
+  render: (width: number) => string,
+  width?: number,
+): string {
+  const frameWidth = width !== undefined && (!Num.Is.finite(width) || width <= 0)
+    ? 0
+    : Cli.Fmt.Text.Width.fit({ width });
+  const gutter = 2;
+  const innerWidth = Math.max(0, frameWidth - gutter * 2);
+  if (innerWidth === 0) return '';
+  const inset = ' '.repeat(gutter);
+  return render(innerWidth).split('\n').map((row) => row ? `${inset}${row}` : row).join('\n');
 }
 
 export function formatStartResult(res: StartCellResult): string {
