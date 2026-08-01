@@ -195,6 +195,49 @@ describe('Pkg.Dist.verifyPinned manifest admission', () => {
     }
   });
 
+  it('admits bounded ignore wildcards and rejects ambiguous repetition', async () => {
+    const fixture = await setup();
+    try {
+      const accepted = cloneDist(fixture.dist);
+      const acceptedRules = Ignore.normalize([
+        ...accepted.build.hash.ignore!.rules,
+        '**/*.map',
+      ]);
+      accepted.build.hash.ignore = {
+        format: 'gitignore',
+        rules: [...acceptedRules],
+        'rules:digest': await Ignore.digest(acceptedRules),
+      };
+      const acceptedManifest = await writeManifest(fixture.dir, accepted);
+      const verified = await Pkg.Dist.verifyPinned({
+        dir: fixture.dir,
+        integrity: acceptedManifest.integrity,
+        limits,
+      });
+      expect(verified.kind).to.eql('verified');
+
+      const ambiguousRules: readonly string[] = ['a/**/**/zz', '*a*a'];
+      for (const rule of ambiguousRules) {
+        const rejected = cloneDist(fixture.dist);
+        const rules = Ignore.normalize([...rejected.build.hash.ignore!.rules, rule]);
+        rejected.build.hash.ignore = {
+          format: 'gitignore',
+          rules: [...rules],
+          'rules:digest': await Ignore.digest(rules),
+        };
+        const manifest = await writeManifest(fixture.dir, rejected);
+        const result = await Pkg.Dist.verifyPinned({
+          dir: fixture.dir,
+          integrity: manifest.integrity,
+          limits,
+        });
+        expect(result).to.eql({ kind: 'malformed' });
+      }
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
   it('rejects noncanonical, reserved, colliding, and structurally conflicting paths', async () => {
     const fixture = await setup();
     try {

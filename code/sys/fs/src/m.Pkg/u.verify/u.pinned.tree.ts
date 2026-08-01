@@ -339,7 +339,7 @@ async function readRegularFile(
   try {
     handle.close();
   } catch {
-    operationFailure = failure('io-failure');
+    operationFailure ??= failure('io-failure');
   }
   if (operationFailure) throw operationFailure;
   if (!result) throw failure('io-failure');

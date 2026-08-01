@@ -68,6 +68,7 @@ export async function admitManifest(
   }
   const normalizedRules = Ignore.normalize(ignore.rules);
   if (!Obj.eql(normalizedRules, ignore.rules)) throw failure('malformed');
+  if (!normalizedRules.every(hasBoundedWildcardStructure)) throw failure('malformed');
   if (!hashOnly(ignore['rules:digest'])) throw failure('malformed');
   let rulesDigest: t.StringHash;
   try {
@@ -171,6 +172,51 @@ function createMatcher(rules: readonly string[]): ReturnType<typeof Ignore.creat
   } catch {
     throw failure('malformed');
   }
+}
+
+/** Keep synchronous matching bounded by preventing wildcards from competing for one path region. */
+function hasBoundedWildcardStructure(rule: string): boolean {
+  const start = rule.startsWith('!') ? 1 : 0;
+  let crossDirectory = 0;
+  let starsInSegment = 0;
+  let inRange = false;
+
+  for (let index = start; index < rule.length; index++) {
+    const char = rule[index];
+    if (char === '\\') {
+      if (index + 1 >= rule.length) return false;
+      index++;
+      continue;
+    }
+    if (char === '[' && !inRange) {
+      inRange = true;
+      continue;
+    }
+    if (char === ']' && inRange) {
+      inRange = false;
+      continue;
+    }
+    if (inRange) continue;
+    if (char === '/') {
+      starsInSegment = 0;
+      continue;
+    }
+    if (char !== '*') continue;
+
+    if (rule[index + 1] === '*') {
+      const atSegmentStart = index === start || rule[index - 1] === '/';
+      const after = rule[index + 2];
+      const atSegmentEnd = after === undefined || after === '/';
+      if (!atSegmentStart || !atSegmentEnd || crossDirectory > 0) return false;
+      crossDirectory++;
+      index++;
+      continue;
+    }
+
+    starsInSegment++;
+    if (starsInSegment > 1) return false;
+  }
+  return !inRange;
 }
 
 function hashOnly(input: unknown): input is t.StringHash {

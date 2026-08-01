@@ -486,6 +486,33 @@ describe('Pkg.Dist.verifyPinned operation truth', () => {
     }
   });
 
+  it('preserves an observed change when closing the same handle also fails', async () => {
+    const fixture = await setup();
+    try {
+      const io = withIo({
+        open: async (path) => {
+          const handle = await DEFAULT_IO.open(path);
+          if (path !== StdPath.join(fixture.dir, 'assets', 'app.js')) return handle;
+          return {
+            read: async () => null,
+            stat: () => handle.stat(),
+            close: () => {
+              handle.close();
+              throw new Deno.errors.NotSupported('close failed');
+            },
+          };
+        },
+      });
+      const result = await verifyPinnedWithIo(
+        { dir: fixture.dir, integrity: fixture.integrity, limits },
+        io,
+      );
+      expect(result).to.eql({ kind: 'changed' });
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
   it('maps host failures without exposing paths or raw causes', async () => {
     const fixture = await setup();
     try {
