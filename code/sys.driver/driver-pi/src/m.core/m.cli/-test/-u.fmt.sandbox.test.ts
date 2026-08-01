@@ -8,7 +8,7 @@ type SandboxInput = Omit<t.PiCli.SandboxSummary, 'permissions'> & {
 };
 
 describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
-  it('table → renders one scoped identity band with bright capabilities and dim provenance', () => {
+  it('table → renders the shared scoped identity band with bright capabilities and dim provenance', () => {
     const width = 80;
     const raw = PiSandboxFmt.table({
       permissions: 'scoped',
@@ -17,6 +17,7 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
     const rawLines = lines(raw);
     const text = Cli.stripAnsi(raw);
 
+    expect(rawLines.slice(0, 2)).to.eql(PiSandboxFmt.header('scoped', width - 1));
     expect(rawLines[0]).to.contain(c.bold(c.cyan('sys:pi')));
     expect(rawLines[0]).to.contain(c.dim(c.cyan(':sandbox')));
     expect(rawLines[0]).to.contain(c.cyan('read, write, bash'));
@@ -24,7 +25,9 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
     expect(rawLines[0]).to.contain(c.dim(c.cyan(' · ')));
     expect(rawLines[0]).to.contain(c.dim(c.cyan(pkg.version)));
     expect(rawLines[1]).to.eql(Cli.Fmt.hr(width - 1, 'cyan'));
-    expect(rawLines.at(-1)).to.eql(c.dim(Cli.Fmt.hr(width - 1, 'gray')));
+    expect(rawLines.at(-1)).to.eql(
+      c.dim(Cli.Fmt.hr({ width: width - 1, color: 'gray', weight: 'dashed' })),
+    );
     expectHeader(lines(text)[0], 'sys:pi:sandbox', width - 1);
   });
 
@@ -235,11 +238,15 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
     expect(text).to.match(/read\s+all/);
     expect(text).to.match(/write\s+all/);
     expect(text).not.to.contain('write:cwd');
+    expect(lines(raw).slice(0, 2)).to.eql(PiSandboxFmt.header('allow-all', 79));
     expect(lines(raw)[0]).to.contain(c.bold(c.yellow('sys:pi')));
     expect(lines(raw)[0]).to.contain(c.dim(c.yellow(':no-sandbox')));
     expect(lines(raw)[0]).to.contain(c.yellow('read, write, bash'));
     expect(lines(raw)[0]).to.contain(c.dim(c.yellow(' · ')));
     expect(lines(raw)[0]).to.contain(c.dim(c.yellow(pkg.version)));
+    expect(lines(raw).at(-1)).to.eql(
+      c.dim(Cli.Fmt.hr({ width: 79, color: 'gray', weight: 'dashed' })),
+    );
     expectHeader(lines(text)[0], 'sys:pi:no-sandbox', 79);
   });
 
@@ -310,7 +317,7 @@ function expectHeaderFrame(text: string, width: number) {
   const output = lines(text);
   expectHeader(output[0], 'sys:pi:sandbox', width);
   expect(output[1]).to.eql('━'.repeat(width));
-  expect(output.at(-1)).to.eql('━'.repeat(width));
+  expect(output.at(-1)).to.eql('┄'.repeat(width));
 }
 
 function expectHeader(line: string, title: string, width: number) {

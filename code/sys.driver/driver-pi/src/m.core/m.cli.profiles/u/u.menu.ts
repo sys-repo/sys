@@ -1,4 +1,4 @@
-import { c, Cli, Fs, type t, YamlConfig } from '../common.ts';
+import { c, Fs, type t, YamlConfig } from '../common.ts';
 import { PiSandboxFmt } from '../../m.cli/u.fmt.sandbox.ts';
 import { PiSandboxReport } from '../../m.cli/u.report.sandbox.ts';
 import { runtimeRoot } from '../../m.cli/u.runtime.ts';
@@ -35,7 +35,7 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll, gitRoot
   let rootNotice = ProfileMigrate.message(migration);
 
   while (true) {
-    printProfileRoot(rootNotice);
+    printProfileRoot({ allowAll, notice: rootNotice });
     rootNotice = undefined;
     const selected = await YamlConfig.menu<t.PiCliProfiles.Yaml.Profile, Action>({
       ...menuArgs({ cwd: root, allowAll }),
@@ -57,7 +57,7 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll, gitRoot
         gitRootExplicit,
       });
     } else {
-      printProfileTitle();
+      printProfileHeader(allowAll);
     }
 
     const action = await YamlConfig.menu<t.PiCliProfiles.Yaml.Profile, Action>({
@@ -82,14 +82,15 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll, gitRoot
 /**
  * Helpers:
  */
-function printProfileRoot(notice?: string) {
+function printProfileRoot(input: { allowAll?: boolean; notice?: string }) {
   clearInteractiveScreen();
-  printProfileTitle();
-  if (notice) console.info(notice);
+  printProfileHeader(input.allowAll);
+  if (input.notice) console.info(input.notice);
 }
 
-function printProfileTitle() {
-  console.info(PiSandboxFmt.title('scoped'));
+function printProfileHeader(allowAll?: boolean) {
+  const permissions = allowAll === true ? 'allow-all' : 'scoped';
+  console.info(PiSandboxFmt.header(permissions).join('\n'));
 }
 
 function menuArgs(args: { cwd: t.StringDir; allowAll?: boolean }) {
@@ -118,12 +119,14 @@ function menuArgs(args: { cwd: t.StringDir; allowAll?: boolean }) {
           value: 'run' as const,
         },
       ],
-      async onAction({ action, path }: { action: string; path: t.StringPath }) {
-        if (action === 'run') return { kind: 'action' as const, action: 'run' as const, path };
-        if (action === 'select') {
-          return { kind: 'action' as const, action: 'select' as const, path };
+      onAction({ action, path }: { action: string; path: t.StringPath }) {
+        if (action === 'run') {
+          return Promise.resolve({ kind: 'action' as const, action: 'run' as const, path });
         }
-        return { kind: 'exit' as const };
+        if (action === 'select') {
+          return Promise.resolve({ kind: 'action' as const, action: 'select' as const, path });
+        }
+        return Promise.resolve({ kind: 'exit' as const });
       },
     },
     add: {

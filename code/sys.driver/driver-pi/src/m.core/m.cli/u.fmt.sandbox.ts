@@ -30,7 +30,6 @@ const PATH_DIR_PREFIX_WIDTH = 4;
 const WRITE_GIT_MARKER = ' (--git-root)';
 const WRITE_ROOT_MARKER = ' (root)';
 const CAPABILITY_OPS = 'read, write, bash';
-const TITLE_SEPARATOR = ' · ';
 
 const PI_SANDBOX_TITLE = {
   base: 'sys:pi',
@@ -38,6 +37,9 @@ const PI_SANDBOX_TITLE = {
   allowAll: ':no-sandbox',
 } as const;
 
+/**
+ * Pi sandbox CLI formatters.
+ */
 export const PiSandboxFmt = {
   title(permissions: t.PiCli.PermissionMode) {
     const suffix = permissions === 'allow-all'
@@ -45,6 +47,24 @@ export const PiSandboxFmt = {
       : PI_SANDBOX_TITLE.scoped;
     const color = permissions === 'allow-all' ? c.yellow : c.cyan;
     return `${c.bold(color(PI_SANDBOX_TITLE.base))}${c.dim(color(suffix))}`;
+  },
+
+  /** Render the permission-truthful Pi application header. */
+  header(
+    permissions: t.PiCli.PermissionMode,
+    renderWidth = sandboxRenderWidth(),
+  ): readonly string[] {
+    const tone = permissions === 'allow-all' ? 'yellow' : 'cyan';
+    const identity = PiSandboxFmt.title(permissions);
+    const flag = permissions === 'allow-all' ? c.yellow('--allow-all') : '';
+    const title = flag ? `${identity} ${flag}` : identity;
+    return Cli.Fmt.Header.rows({
+      pkg,
+      width: renderWidth,
+      tone,
+      title,
+      detail: CAPABILITY_OPS,
+    });
   },
 
   table(input: t.PiCli.SandboxSummary, opts: PiSandboxTableOptions = {}) {
@@ -76,13 +96,10 @@ export const PiSandboxFmt = {
       }
     }
 
-    const title = formatTitle(input.permissions, renderWidth);
-    const headerHr = input.permissions === 'allow-all'
-      ? Cli.Fmt.hr(renderWidth, 'yellow')
-      : Cli.Fmt.hr(renderWidth, 'cyan');
-    const bodyHr = input.permissions === 'allow-all'
-      ? Cli.Fmt.hr(renderWidth, 'yellow')
-      : c.dim(Cli.Fmt.hr(renderWidth, 'gray'));
+    const [title = '', headerHr = ''] = PiSandboxFmt.header(input.permissions, renderWidth);
+    const bodyHr = c.dim(
+      Cli.Fmt.hr({ width: renderWidth, color: 'gray', weight: 'dashed' }),
+    );
 
     return Str.builder()
       .line(title)
@@ -92,35 +109,6 @@ export const PiSandboxFmt = {
       .toString();
   },
 } as const;
-
-function formatTitle(permissions: t.PiCli.PermissionMode, width: number) {
-  const label = PiSandboxFmt.title(permissions);
-  const flag = permissions === 'allow-all' ? c.yellow('--allow-all') : '';
-  const left = [label, flag].filter((part) => part.length > 0).join(' ');
-  const measure = Cli.Fmt.Text.Width.measure;
-  const leftWidth = measure(left);
-  const opsWidth = measure(CAPABILITY_OPS);
-  const separatorWidth = measure(TITLE_SEPARATOR);
-  const versionWidth = measure(pkg.version);
-  const ops = permissions === 'allow-all' ? c.yellow(CAPABILITY_OPS) : c.cyan(CAPABILITY_OPS);
-  const separator = permissions === 'allow-all'
-    ? c.dim(c.yellow(TITLE_SEPARATOR))
-    : c.dim(c.cyan(TITLE_SEPARATOR));
-  const version = permissions === 'allow-all'
-    ? c.dim(c.yellow(pkg.version))
-    : c.dim(c.cyan(pkg.version));
-  const fullRightWidth = opsWidth + separatorWidth + versionWidth;
-
-  if (leftWidth + fullRightWidth + 1 <= width) {
-    const gap = ' '.repeat(width - leftWidth - fullRightWidth);
-    return `${left}${gap}${ops}${separator}${version}`;
-  }
-  if (leftWidth + versionWidth + 1 <= width) {
-    const gap = ' '.repeat(width - leftWidth - versionWidth);
-    return `${left}${gap}${version}`;
-  }
-  return left;
-}
 
 function sandboxRenderWidth(width = Cli.Screen.size().width) {
   const measured = Is.num(width) && width > 0 ? width : Cli.Screen.size().width;

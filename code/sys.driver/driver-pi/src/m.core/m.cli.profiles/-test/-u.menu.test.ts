@@ -1,7 +1,8 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { c, Cli, Fs, type t } from '../common.ts';
+import { c, Cli, Fs, pkg, type t } from '../common.ts';
 import { menu } from '../u/u.menu.ts';
 import { ProfilesFs } from '../u/u.fs.ts';
+import { PiSandboxFmt } from '../../m.cli/u.fmt.sandbox.ts';
 import { Ocr } from '../../m.extension/m.ocr/mod.ts';
 
 describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
@@ -65,7 +66,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(await Fs.exists(oldConfig)).to.eql(false);
       expect(await Fs.exists(newConfig)).to.eql(true);
       expect(calls.map((value) => Cli.stripAnsi(value))).to.eql([
-        'sys:pi:sandbox',
+        expectedProfileHeader('scoped'),
         'Migrated 2 Pi config/runtime items.',
       ]);
     } finally {
@@ -99,7 +100,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(text).to.contain('append: []');
       expect(text).not.to.contain('include:');
       expect(calls.map((value) => Cli.stripAnsi(value))).to.eql([
-        'sys:pi:sandbox',
+        expectedProfileHeader('scoped'),
         'Migrated 1 Pi config/runtime item.',
       ]);
     } finally {
@@ -159,6 +160,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     const prevInfo = console.info;
     const config = Fs.join(cwd, '-config/@sys.driver-pi/default.yaml');
     const messages: string[] = [];
+    const prints: string[] = [];
     let topLevelCount = 0;
 
     await Fs.ensureDir(Fs.join(cwd, '.git'));
@@ -177,7 +179,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
         throw new Error(`Unexpected prompt: ${input.message}`);
       },
     });
-    console.info = () => undefined;
+    console.info = (value?: unknown) => prints.push(String(value ?? ''));
 
     try {
       const res = await menu({ cwd: testCwd(cwd) });
@@ -185,6 +187,11 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(messages[0]).to.eql('');
       expect(messages[1]).to.contain('invalid yaml');
       expect(messages[2]).to.eql('');
+      expect(prints.map((value) => Cli.stripAnsi(value))).to.eql([
+        expectedProfileHeader('scoped'),
+        expectedProfileHeader('scoped'),
+        expectedProfileHeader('scoped'),
+      ]);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       console.info = prevInfo;
@@ -259,7 +266,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     }
   });
 
-  it('menu → clears and restores the root title initially and after back on TTY', async () => {
+  it('menu → clears and restores the root header initially and after back on TTY', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.menu.test.' }))
       .absolute as t.StringDir;
     const originalPrompt = Cli.Input.Select.prompt;
@@ -300,7 +307,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     console.clear = () => events.push('clear');
     console.info = (value?: unknown) => {
       const text = Cli.stripAnsi(String(value ?? ''));
-      if (text === 'sys:pi:sandbox') events.push('root:title');
+      if (text === expectedProfileHeader('scoped')) events.push('root:header');
       if (text.includes('.sandbox.log.md')) events.push('sandbox:sheet');
     };
 
@@ -309,13 +316,13 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(res).to.eql({ kind: 'exit' });
       expect(events).to.eql([
         'clear',
-        'root:title',
+        'root:header',
         'root:prompt',
         'clear',
         'sandbox:sheet',
         'action:prompt',
         'clear',
-        'root:title',
+        'root:header',
         'root:prompt',
       ]);
     } finally {
@@ -407,7 +414,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       },
     });
     Object.defineProperty(Ocr.Resolve, 'dependencies', {
-      value: async () => {
+      value: () => {
         preflightRan = true;
         throw new Error('OCR preflight must not run during menu preview.');
       },
@@ -465,7 +472,11 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     try {
       const res = await menu({ cwd: testCwd(cwd), allowAll: true });
       const printed = Cli.stripAnsi(prints.join('\n'));
+      const rootHeader = Cli.stripAnsi(prints[0] ?? '');
       expect(res).to.eql({ kind: 'exit' });
+      expect(rootHeader).to.eql(expectedProfileHeader('allow-all'));
+      expect(rootHeader).to.contain('sys:pi:no-sandbox --allow-all');
+      expect(rootHeader).to.contain(`read, write, bash · ${pkg.version}`);
       expect(printed).to.match(/permissions\s+allow-all/);
       expect(printed).not.to.match(/\nread\s+/);
       expect(printed).not.to.match(/\nwrite\s+/);
@@ -492,6 +503,10 @@ type SelectInput = {
   readonly message: string;
   readonly options?: readonly { readonly name: string; readonly value: string }[];
 };
+
+function expectedProfileHeader(permissions: t.PiCli.PermissionMode) {
+  return Cli.stripAnsi(PiSandboxFmt.header(permissions).join('\n'));
+}
 
 function testCwd(cwd: t.StringDir): t.PiCli.Cwd {
   return { invoked: cwd, git: cwd };
