@@ -10,7 +10,7 @@ describe('Npm.Fetch.Pkg (external)', () => {
         const res = await Npm.Fetch.Pkg.versions(name);
         expect(res.status).to.eql(200);
         expect(res.error).to.eql(undefined);
-        expect(res.url).to.eql('https://registry.npmjs.org/react');
+        expect(res.ok ? res.finalUrl : res.url).to.eql('https://registry.npmjs.org/react');
         expect(res.data?.name).to.eql('react');
         expect(Is.str(res.data?.latest)).to.eql(true);
         expect(Obj.keys(res.data?.versions ?? {}).length > 0).to.eql(true);
@@ -26,7 +26,7 @@ describe('Npm.Fetch.Pkg (external)', () => {
           {
             ok: res.ok,
             status: res.status,
-            url: res.url,
+            url: res.ok ? res.finalUrl : res.url,
             data: {
               name: res.data?.name,
               latest: res.data?.latest,

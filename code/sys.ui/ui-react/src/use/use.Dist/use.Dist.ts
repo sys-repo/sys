@@ -1,6 +1,6 @@
 import { Http } from '@sys/http/client';
 import { useEffect, useRef, useState } from 'react';
-import { type t, Err, Pkg } from '../common.ts';
+import { Err, Pkg, type t } from '../common.ts';
 
 /**
  * Hook: Load the `dist.json` file from the server (if avilable).
@@ -19,7 +19,17 @@ export const useDist: t.UseDistFactory = (options = {}) => {
    * Effect: Fetch JSON (or optionally load sample data).
    */
   useEffect(() => {
-    const fetch = Http.fetcher();
+    const url = new URL('./dist.json', globalThis.location.href);
+    const fetch = Http.fetcher({
+      policy: {
+        maxBytes: 16 * 1024 * 1024,
+        timeout: 30_000,
+        maxRedirects: 3,
+        progressInterval: 100,
+        sourceOrigins: [url.origin],
+        credentialOrigins: [],
+      },
+    });
 
     const update = (dist?: t.DistPkg) => {
       jsonRef.current = dist;
@@ -28,7 +38,7 @@ export const useDist: t.UseDistFactory = (options = {}) => {
 
     const loadJson = async () => {
       jsonRef.current = undefined;
-      const res = await fetch.json<t.DistPkg>('./dist.json');
+      const res = await fetch.json<t.DistPkg>(url.href);
       if (fetch.disposed) return;
       if (res.ok) update(res.data);
       else {
@@ -43,7 +53,7 @@ export const useDist: t.UseDistFactory = (options = {}) => {
     };
 
     const finish = async () => {
-      if (!jsonRef.current && is.sample) loadSample();
+      if (!jsonRef.current && is.sample) await loadSample();
     };
 
     loadJson().then(finish).catch(finish);

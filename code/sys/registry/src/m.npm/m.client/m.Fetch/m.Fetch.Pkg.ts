@@ -1,5 +1,6 @@
-import { Fetch, Obj, type t } from './common.ts';
+import { Obj, type t } from './common.ts';
 import { Url } from './m.Url.ts';
+import { fetchJson } from './u.fetch.ts';
 
 type MetadataResponse = {
   name: string;
@@ -27,8 +28,7 @@ type VersionResponse = {
 export const Pkg: t.NpmFetch.Pkg.Lib = {
   async versions(name, options = {}) {
     const url = Url.Pkg.metadata(name);
-    const fetch = Fetch.make(options.until);
-    const res = await fetch.json<MetadataResponse>(url, { cache: 'no-store' });
+    const res = await fetchJson<MetadataResponse>(url, { cache: 'no-store' }, options.until);
     if (!res.data) return res;
 
     const data: t.NpmFetch.Pkg.MetaVersions = {
@@ -51,8 +51,7 @@ export const Pkg: t.NpmFetch.Pkg.Lib = {
   async info(name, vInput, options = {}) {
     const version = vInput ? vInput : ((await Pkg.versions(name, options)).data?.latest ?? '');
     const url = Url.Pkg.version(name, version);
-    const fetch = Fetch.make(options.until);
-    const res = await fetch.json<VersionResponse>(url, { cache: 'no-store' });
+    const res = await fetchJson<VersionResponse>(url, { cache: 'no-store' }, options.until);
     if (!res.data) return res;
 
     const pkg: t.Pkg = { name, version };

@@ -1,6 +1,7 @@
 import { DESCRIPTOR } from '../-CONST.ts';
-import { type t, SlugLoader } from './common.ts';
+import { SlugLoader, type t } from './common.ts';
 import { renderDescriptorCard } from './-ui.descriptor.card.tsx';
+import { slugTransport } from './u.fixture.ts';
 
 type Params = t.DescriptorParams;
 
@@ -35,7 +36,8 @@ export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     e.item({ k: 'path', v: path });
     e.item({ k: 'kind', v: kind });
 
-    const descriptor = await descriptorLoader.load(e.origin.cdn.default);
+    const transport = slugTransport(e.origin.cdn.default);
+    const descriptor = await descriptorLoader.load(e.origin.cdn.default, transport);
     if (!descriptor.ok) return e.result(descriptor);
     const selected = SlugLoader.Fetch.FromDescriptor.select({ descriptor: descriptor.value, kind });
     const docid = selected.ok ? selected.value.docid : undefined;
@@ -45,15 +47,39 @@ export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
 
     const client = await descriptorLoader.client({
       origin: e.origin,
+      ...transport,
     });
     if (!client.ok) return e.result(client);
 
-    if (kind === 'slug-tree:fs') {
-      const tree = await client.value.Tree.load();
-      if (!tree.ok) return e.result(tree);
+    try {
+      if (kind === 'slug-tree:fs') {
+        const tree = await client.value.Tree.load();
+        if (!tree.ok) return e.result(tree);
 
-      const content = await client.value.FileContent.index();
-      if (!content.ok) return e.result(content);
+        const content = await client.value.FileContent.index();
+        if (!content.ok) return e.result(content);
+
+        return e.result({
+          ok: true,
+          value: {
+            kind,
+            descriptor: descriptor.value,
+            client: {
+              docid: client.value.docid,
+              baseUrl: client.value.baseUrl,
+              layout: client.value.layout,
+            },
+            tree: tree.value,
+            contentIndex: content.value,
+          },
+        });
+      }
+
+      const assets = await client.value.Timeline.Assets.load();
+      if (!assets.ok) return e.result(assets);
+
+      const playback = await client.value.Timeline.Playback.load();
+      if (!playback.ok) return e.result(playback);
 
       return e.result({
         ok: true,
@@ -65,32 +91,13 @@ export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
             baseUrl: client.value.baseUrl,
             layout: client.value.layout,
           },
-          tree: tree.value,
-          contentIndex: content.value,
+          assets: assets.value,
+          playback: playback.value,
+          bundle: 'skipped (manifest-only proof)',
         },
       });
+    } finally {
+      client.value.dispose();
     }
-
-    const assets = await client.value.Timeline.Assets.load();
-    if (!assets.ok) return e.result(assets);
-
-    const playback = await client.value.Timeline.Playback.load();
-    if (!playback.ok) return e.result(playback);
-
-    return e.result({
-      ok: true,
-      value: {
-        kind,
-        descriptor: descriptor.value,
-        client: {
-          docid: client.value.docid,
-          baseUrl: client.value.baseUrl,
-          layout: client.value.layout,
-        },
-        assets: assets.value,
-        playback: playback.value,
-        bundle: 'skipped (manifest-only proof)',
-      },
-    });
   },
 };

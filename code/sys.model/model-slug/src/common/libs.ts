@@ -16,5 +16,6 @@ export { Err } from '@sys/std/error';
 export { Is } from '@sys/std/is';
 export { Path } from '@sys/std/path';
 export { Pkg } from '@sys/std/pkg';
+export { Rx } from '@sys/std/rx';
 export { Shard } from '@sys/std/shard';
 export { Url } from '@sys/std/url';

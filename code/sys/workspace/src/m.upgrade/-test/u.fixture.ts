@@ -32,11 +32,13 @@ export function versionsJsr(
   published: Record<string, { yanked?: boolean }> = {},
 ): VersionsResponse {
   const [scope, name] = pkgName.slice(1).split('/');
+  const url = Jsr.Url.Pkg.metadata(pkgName);
   return {
     ok: true,
     status: 200,
     statusText: 'OK',
-    url: 'https://jsr.io',
+    requestedUrl: url,
+    finalUrl: url,
     headers: new Headers(),
     error: undefined,
     data: { latest, versions: published, scope, name },
@@ -48,11 +50,13 @@ export function versionsNpm(
   latest: string,
   published: Record<string, { deprecated?: string; publishedAt?: t.StringTimestamp }> = {},
 ): VersionsResponse {
+  const url = Npm.Url.Pkg.metadata(name);
   return {
     ok: true,
     status: 200,
     statusText: 'OK',
-    url: 'https://registry.npmjs.org',
+    requestedUrl: url,
+    finalUrl: url,
     headers: new Headers(),
     error: undefined,
     data: { latest, versions: published, name },
@@ -81,11 +85,13 @@ export function infoNpm(
   version: string,
   dependencies: Record<string, string> = {},
 ): t.Registry.Npm.Fetch.Pkg.InfoResponse {
+  const url = Npm.Url.Pkg.version(name, version);
   return {
     ok: true,
     status: 200,
     statusText: 'OK',
-    url: `https://registry.npmjs.org/${name}/${version}`,
+    requestedUrl: url,
+    finalUrl: url,
     headers: new Headers(),
     error: undefined,
     data: {
@@ -103,11 +109,13 @@ export function infoJsr(
   version: string,
   graph?: t.Registry.Jsr.Fetch.Pkg.Graph,
 ): t.Registry.Jsr.Fetch.Pkg.InfoResponse {
+  const url = Jsr.Url.Pkg.version(name, version);
   return {
     ok: true,
     status: 200,
     statusText: 'OK',
-    url: `https://jsr.io/${name}/${version}_meta.json`,
+    requestedUrl: url,
+    finalUrl: url,
     headers: new Headers(),
     error: undefined,
     data: {
@@ -149,8 +157,8 @@ export async function withVersions(
   const mutableJsr = Jsr.Fetch.Pkg as t.Mutable<t.Registry.Jsr.Fetch.Pkg.Lib>;
   const mutableNpm = Npm.Fetch.Pkg as t.Mutable<t.Registry.Npm.Fetch.Pkg.Lib>;
 
-  mutableJsr.versions = async (name) => map.jsr[name] as never;
-  mutableNpm.versions = async (name) => map.npm[name] as never;
+  mutableJsr.versions = (name) => Promise.resolve(map.jsr[name] as never);
+  mutableNpm.versions = (name) => Promise.resolve(map.npm[name] as never);
   try {
     await fn();
   } finally {
@@ -171,8 +179,10 @@ export async function withInfo(
   const mutableJsr = Jsr.Fetch.Pkg as t.Mutable<t.Registry.Jsr.Fetch.Pkg.Lib>;
   const mutableNpm = Npm.Fetch.Pkg as t.Mutable<t.Registry.Npm.Fetch.Pkg.Lib>;
 
-  mutableJsr.info = async (name, version) => map.jsr[`${name}@${version ?? ''}`] as never;
-  mutableNpm.info = async (name, version) => map.npm[`${name}@${version ?? ''}`] as never;
+  mutableJsr.info = (name, version) =>
+    Promise.resolve(map.jsr[`${name}@${version ?? ''}`] as never);
+  mutableNpm.info = (name, version) =>
+    Promise.resolve(map.npm[`${name}@${version ?? ''}`] as never);
   try {
     await fn();
   } finally {

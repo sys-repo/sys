@@ -1,4 +1,4 @@
-import { type t, Http, Rx } from './common.ts';
+import { Http, Rx, type t } from './common.ts';
 import { VideoWarmup } from './u.VideoWarmup.ts';
 
 type WarmBatch = {
@@ -53,9 +53,21 @@ async function run(urls: readonly string[], priority: number) {
       if (current?.life !== life) break;
       if (completed.has(url)) continue;
 
+      const origin = new URL(url).origin;
       const result = await Http.Preload.warm(
         [{ url, range: { start: 0, end: 0 } }],
-        { concurrency: 1, until: life.dispose$ },
+        {
+          policy: {
+            maxBytes: 1024 * 1024,
+            timeout: 30_000,
+            maxRedirects: 3,
+            progressInterval: 100,
+            sourceOrigins: [origin],
+            credentialOrigins: [],
+          },
+          concurrency: 1,
+          until: life.dispose$,
+        },
       );
 
       if (life.disposed) break;
@@ -99,7 +111,7 @@ async function whenServiceWorkerControls() {
       resolve(value);
     };
 
-    const timeout = window.setTimeout(() => done(!!navigator.serviceWorker.controller), 1500);
+    const timeout = globalThis.setTimeout(() => done(!!navigator.serviceWorker.controller), 1500);
     navigator.serviceWorker.addEventListener('controllerchange', handler, { once: true });
   });
 }

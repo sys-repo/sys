@@ -1,6 +1,7 @@
 import { describe, expect, it, pkg } from '../../../-test.ts';
 import { Http, Pkg } from '../common.ts';
 import { HttpServer } from '../mod.ts';
+import { testFetcher } from './u.fixture.usingServer.ts';
 
 describe('HTTP: Server', () => {
   describe('HttpServer: create → fetch', () => {
@@ -11,8 +12,8 @@ describe('HTTP: Server', () => {
       type T = { count: number };
       app.get('/', (c) => c.json({ count: 123 }));
 
-      const fetch = Http.fetcher();
       const url = Http.url(listener.addr);
+      const fetch = testFetcher(new URL(url.raw).origin);
 
       const res1 = await fetch.json<T>(url.raw);
       const res2 = await fetch.json<T>(url.join('404'));
@@ -32,8 +33,8 @@ describe('HTTP: Server', () => {
       const listener = Deno.serve({ port: 0 }, app.fetch);
       app.get('/', (c) => c.text('no-op'));
 
-      const fetch = Http.fetcher();
       const url = Http.url(listener.addr);
+      const fetch = testFetcher(new URL(url.raw).origin);
       const res = await fetch.text(url.raw);
 
       const headers = res.headers;

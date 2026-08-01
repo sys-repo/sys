@@ -1,5 +1,14 @@
-import { describe, expect, Fs, it, Path, Testing, Time } from '../../../-test.ts';
-import { HttpPull } from '../mod.ts';
+import { describe, expect, Fs, it, Path, type t, Testing, Time } from '../../../-test.ts';
+import { HttpPull as HttpPullRaw } from '../mod.ts';
+import { options as transport } from './u.fixture.ts';
+
+type PullOptions = Omit<t.HttpPull.Options, 'client' | 'policy'>;
+const HttpPull = {
+  ...HttpPullRaw,
+  toDir(urls: readonly t.StringUrl[], dir: t.StringDir, options: PullOptions = {}) {
+    return HttpPullRaw.toDir(urls, dir, transport(urls, options));
+  },
+};
 
 describe(`HttpPull.toDir`, () => {
   const mkTmpDir = async () => (await Fs.makeTempDir({ prefix: 'http-pull-' })).absolute;

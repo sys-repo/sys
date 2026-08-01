@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-import { Url } from './common.ts';
+import { Http, Rx, Url } from './common.ts';
 import { Bundle } from './m.io.timeline.Bundle.ts';
 import { FileContent } from './m.io.FileContent.ts';
 import { Assets } from './m.io.timeline.Assets.ts';
@@ -23,10 +23,13 @@ function make(args: t.SlugClientFromDescriptorArgs) {
   const baseUrl = applyBasePath(args.baseUrl, descriptor.basePath);
   const assetBase = baseUrl;
   const layout = descriptorLayout(descriptor);
+  const life = Rx.lifecycle();
+  const http = args.client ?? Http.fetcher({ policy: args.policy, until: life });
 
-  const withOptions = <T extends t.SlugLoadOptions>(options?: T): T => {
+  const withOptions = <T extends t.SlugScopedLoadOptions>(options?: T) => {
     const next = {
       ...options,
+      client: http,
       urls: {
         ...(options?.urls ?? {}),
         assetBase: options?.urls?.assetBase ?? assetBase,
@@ -36,10 +39,10 @@ function make(args: t.SlugClientFromDescriptorArgs) {
         ...(options?.layout ?? {}),
       },
     };
-    return next as T;
+    return next;
   };
 
-  const client: t.SlugClientDescriptor = {
+  const client = Rx.toLifecycle<t.SlugClientDescriptor>(life, {
     kind: descriptor.kind,
     docid: descriptor.docid,
     baseUrl,
@@ -63,7 +66,7 @@ function make(args: t.SlugClientFromDescriptorArgs) {
       index: (options) => FileContent.index(baseUrl, descriptor.docid, withOptions(options)),
       get: (hash, options) => FileContent.get(baseUrl, hash, withOptions(options)),
     },
-  };
+  });
 
   return {
     ok: true,
@@ -71,7 +74,9 @@ function make(args: t.SlugClientFromDescriptorArgs) {
   } satisfies t.SlugClientResult<t.SlugClientDescriptor>;
 }
 
-function select(args: t.SlugClientFromDescriptorSelectArgs): t.SlugClientResult<t.BundleDescriptor> {
+function select(
+  args: t.SlugClientFromDescriptorSelectArgs,
+): t.SlugClientResult<t.BundleDescriptor> {
   return resolveDescriptor(args.descriptor, args.kind, args.docid);
 }
 

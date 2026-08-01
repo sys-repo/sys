@@ -4,27 +4,29 @@ import { Jsr } from '../../m.Jsr/mod.ts';
 describe('Jsr.Fetch.Pkg', () => {
   describe('Pkg.info( name, version )', () => {
     it('prefers moduleGraph2 when both graph payloads are present', async () => {
-      const restore = mock.fetch(async (input, init) => {
+      const restore = mock.fetch((input, init) => {
         expect(String(input)).to.eql('https://jsr.io/@sys/fs/0.0.3_meta.json');
         expect(init?.cache).to.eql(undefined);
-        expect(init?.headers).to.eql({});
-        return json({
-          manifest: { '/mod.ts': { size: 10, checksum: 'sha256-demo' } },
-          exports: { '.': './mod.ts' },
-          moduleGraph1: {
-            '/mod.ts': {
-              'jsr:@sys/old@^0.0.1': {},
+        expect([...new Headers(init?.headers)]).to.eql([]);
+        return Promise.resolve(
+          json({
+            manifest: { '/mod.ts': { size: 10, checksum: 'sha256-demo' } },
+            exports: { '.': './mod.ts' },
+            moduleGraph1: {
+              '/mod.ts': {
+                'jsr:@sys/old@^0.0.1': {},
+              },
             },
-          },
-          moduleGraph2: {
-            '/mod.ts': {
-              dependencies: [
-                { type: 'static', specifier: 'jsr:@sys/std@^0.0.3', kind: 'import' },
-                { type: 'static', specifier: './local.ts', kind: 'importType' },
-              ],
+            moduleGraph2: {
+              '/mod.ts': {
+                dependencies: [
+                  { type: 'static', specifier: 'jsr:@sys/std@^0.0.3', kind: 'import' },
+                  { type: 'static', specifier: './local.ts', kind: 'importType' },
+                ],
+              },
             },
-          },
-        });
+          }),
+        );
       });
 
       try {
@@ -53,11 +55,13 @@ describe('Jsr.Fetch.Pkg', () => {
     });
 
     it('requests fresh exact-version metadata when freshness is required', async () => {
-      const restore = mock.fetch(async (input, init) => {
+      const restore = mock.fetch((input, init) => {
         expect(String(input)).to.include('https://jsr.io/@sys/fs/0.0.3_meta.json?sys-cache-bust=');
         expect(init?.cache).to.eql('reload');
-        expect(init?.headers).to.eql({ 'cache-control': 'no-cache', pragma: 'no-cache' });
-        return json({ moduleGraph2: { '/mod.ts': { dependencies: [] } } });
+        const headers = new Headers(init?.headers);
+        expect(headers.get('cache-control')).to.eql('no-cache');
+        expect(headers.get('pragma')).to.eql('no-cache');
+        return Promise.resolve(json({ moduleGraph2: { '/mod.ts': { dependencies: [] } } }));
       });
 
       try {
@@ -71,13 +75,15 @@ describe('Jsr.Fetch.Pkg', () => {
 
     it('requests fresh latest-version metadata when no version is specified', async () => {
       const seen: { input: RequestInfo | URL; init?: RequestInit }[] = [];
-      const restore = mock.fetch(async (input, init) => {
+      const restore = mock.fetch((input, init) => {
         seen.push({ input, init });
         const url = String(input);
         if (url.includes('/meta.json')) {
-          return json({ scope: 'sys', name: 'fs', latest: '0.0.3', versions: { '0.0.3': {} } });
+          return Promise.resolve(
+            json({ scope: 'sys', name: 'fs', latest: '0.0.3', versions: { '0.0.3': {} } }),
+          );
         }
-        return json({ moduleGraph2: { '/mod.ts': { dependencies: [] } } });
+        return Promise.resolve(json({ moduleGraph2: { '/mod.ts': { dependencies: [] } } }));
       });
 
       try {
@@ -97,15 +103,17 @@ describe('Jsr.Fetch.Pkg', () => {
     });
 
     it('falls back to moduleGraph1 when moduleGraph2 is absent', async () => {
-      const restore = mock.fetch(async () =>
-        json({
-          moduleGraph1: {
-            '/mod.ts': {
-              'jsr:@sys/std@^0.0.3': {},
-              './local.ts': {},
+      const restore = mock.fetch(() =>
+        Promise.resolve(
+          json({
+            moduleGraph1: {
+              '/mod.ts': {
+                'jsr:@sys/std@^0.0.3': {},
+                './local.ts': {},
+              },
             },
-          },
-        })
+          }),
+        )
       );
 
       try {

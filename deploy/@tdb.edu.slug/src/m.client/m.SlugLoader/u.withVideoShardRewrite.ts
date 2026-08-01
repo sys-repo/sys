@@ -1,4 +1,4 @@
-import { type t, Is, SlugClient, Url } from './common.ts';
+import { Is, SlugClient, type t, Url } from './common.ts';
 
 /**
  * Media deploys serve stream assets from `origin.cdn.video`.
@@ -10,7 +10,7 @@ export function withVideoShardRewrite(
 ): t.SlugClientDescriptor {
   if (client.kind !== 'slug-tree:media:seq') return client;
 
-  const withAssetBase = <T extends t.SlugLoadOptions>(options?: T): T => {
+  const withAssetBase = <T extends t.SlugScopedLoadOptions>(options?: T): T => {
     const value = {
       ...(options ?? {}),
       urls: {
@@ -21,7 +21,7 @@ export function withVideoShardRewrite(
     return value as T;
   };
 
-  const mergeLayout = (options?: t.SlugLoadOptions): t.SlugClientLayout | undefined => {
+  const mergeLayout = (options?: t.SlugScopedLoadOptions): t.SlugClientLayout | undefined => {
     const value = {
       ...(client.layout ?? {}),
       ...(options?.layout ?? {}),
@@ -29,7 +29,10 @@ export function withVideoShardRewrite(
     return Object.keys(value).length > 0 ? value : undefined;
   };
 
-  const rewriteAssetHref = (asset: t.SpecTimelineAsset, options?: t.SlugLoadOptions): string => {
+  const rewriteAssetHref = (
+    asset: t.SpecTimelineAsset,
+    options?: t.SlugScopedLoadOptions,
+  ): string => {
     const href = toAbsoluteHref(asset.href, origin.cdn.video);
     return SlugClient.Url.Composition.rewriteShardHost({
       href,
@@ -40,6 +43,15 @@ export function withVideoShardRewrite(
 
   return {
     ...client,
+    get disposed() {
+      return client.disposed;
+    },
+    get dispose$() {
+      return client.dispose$;
+    },
+    dispose(reason?: unknown) {
+      client.dispose(reason);
+    },
     Timeline: {
       ...client.Timeline,
       Assets: {

@@ -13,7 +13,7 @@ describe('Jsr.Fetch.Pkg.file (external)', () => {
       'Jsr.Fetch.Pkg.file',
       [
         { label: 'status', value: String(res.status) },
-        { label: 'url', value: res.url },
+        { label: 'url', value: res.ok ? res.finalUrl : res.url },
         { label: 'hash (manifest)', value: checksum },
         { label: 'hash (pulled)', value: hx },
       ],
@@ -30,7 +30,7 @@ describe('Jsr.Fetch.Pkg.file (external)', () => {
 
       expect(res.status).to.eql(200);
       expect(res.error).to.eql(undefined);
-      expect(res.url).to.eql(JsrUrl.Pkg.file(name, version, path));
+      expect(res.ok ? res.finalUrl : res.url).to.eql(JsrUrl.Pkg.file(name, version, path));
       expect(hx).to.eql(SAMPLE.def[path].checksum);
       expectText.forEach((text) => {
         expect(res.data).to.include(text);

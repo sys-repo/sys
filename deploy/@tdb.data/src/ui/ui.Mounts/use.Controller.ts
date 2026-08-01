@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, DataClient, Signal } from './common.ts';
+import { DataClient, Signal, type t } from './common.ts';
 
 export const useController: t.Mounts.UseController = (args) => {
   const state = React.useMemo<t.Mounts.ControllerState>(() => {
@@ -27,7 +27,7 @@ export const useController: t.Mounts.UseController = (args) => {
       state.loading.value = true;
       state.error.value = undefined;
 
-      const res = await DataClient.Mounts.load(args.origin);
+      const res = await DataClient.Mounts.load(args.origin, args);
       if (cancelled) return;
 
       state.loading.value = false;

@@ -5,11 +5,6 @@ type FetchResult =
   | { ok: true; bytes: Uint8Array; status: t.HttpStatusCode }
   | { ok: false; status?: t.HttpStatusCode; error: string };
 
-/** Canonical response relaxed only for legacy injected clients that omit successful data. */
-type FetchBlobResponse =
-  | t.HttpFetch.ResponseFailure
-  | (Omit<t.HttpFetch.ResponseSuccess<Blob>, 'data'> & { data?: Blob });
-
 type NormalizedRetry =
   | { enabled: false }
   | { enabled: true; attempts: number; base: t.Msecs; factor: number; jitter: boolean };
@@ -28,7 +23,7 @@ export async function pullOne(
   const retryOpts = normalizeRetry(opts.retry);
 
   async function attemptFetch(u: URL): Promise<FetchResult> {
-    let res: FetchBlobResponse;
+    let res: t.HttpFetch.Response<Blob>;
 
     try {
       res = await client.blob(u.toString(), { signal });
@@ -50,15 +45,6 @@ export async function pullOne(
         error: res.error?.message ?? (res.status ? `HTTP ${res.status}` : 'Network error'),
       };
     }
-    if (!res.data) {
-      const is5xx = res.status >= 500 && res.status <= 599;
-      return {
-        ok: false,
-        status: res.status,
-        error: is5xx ? `HTTP ${res.status}` : 'Network error',
-      };
-    }
-
     const bytes = await HttpClient.toUint8Array(res.data);
     return { ok: true, status: res.status, bytes };
   }

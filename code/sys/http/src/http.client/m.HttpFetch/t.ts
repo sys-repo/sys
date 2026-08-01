@@ -6,8 +6,8 @@ import type { t } from './common.ts';
 export declare namespace HttpFetch {
   /** Fetch helper library. */
   export type Lib = {
-    /** Fetch helper that can cancel fetch operations mid-stream. */
-    make(args?: CreateOptions | t.UntilInput): Instance;
+    /** Create one bounded Fetch capability. */
+    make(options: CreateOptions): Instance;
 
     /** Probe header information to retrieve the byte-size of an HTTP resource. */
     readonly byteSize: ByteSize.Method;
@@ -21,65 +21,68 @@ export declare namespace HttpFetch {
     /** Retrieve the value for the specified header. */
     header(name: t.StringHttpHeaderName): t.StringHttpHeader | undefined;
 
-    /** Invoke a fetch with the HTTP verb "HEAD" (no response body expected). */
-    head(
-      input: t.FetchInput,
-      init?: RequestInit,
-      options?: Options,
-    ): Promise<Response<undefined>>;
+    /** Invoke a bounded fetch with the HTTP verb "HEAD". */
+    head(input: t.FetchInput, init?: Init): Promise<Response<undefined>>;
 
-    /** Invoke a fetch with the HTTP verb "GET" to retrieve "application/json". */
-    json<T>(
-      input: t.FetchInput,
-      init?: RequestInit,
-      options?: Options,
-    ): Promise<Response<T>>;
+    /** Invoke a bounded fetch with the HTTP verb "GET" for JSON data. */
+    json<T>(input: t.FetchInput, init?: Init, options?: Options): Promise<Response<T>>;
 
-    /** Invoke a fetch with the HTTP verb "GET" to retrieve "text/plain". */
-    text(
-      input: t.FetchInput,
-      init?: RequestInit,
-      options?: Options,
-    ): Promise<Response<string>>;
+    /** Invoke a bounded fetch with the HTTP verb "GET" for text data. */
+    text(input: t.FetchInput, init?: Init, options?: Options): Promise<Response<string>>;
 
-    /** Invoke a fetch with the HTTP verb "GET" to retrieve "application/octet-stream" binary file data. */
-    blob(
-      input: t.FetchInput,
-      init?: RequestInit,
-      options?: Options,
-    ): Promise<Response<Blob>>;
+    /** Invoke a bounded fetch with the HTTP verb "GET" for binary data. */
+    blob(input: t.FetchInput, init?: Init, options?: Options): Promise<Response<Blob>>;
+  };
+
+  type OwnedInitKey =
+    | 'body'
+    | 'credentials'
+    | 'method'
+    | 'redirect'
+    | 'referrer'
+    | 'referrerPolicy';
+
+  /** Request initialization excluding authority owned by bounded Fetch helpers. */
+  export type Init = Omit<RequestInit, OwnedInitKey> & {
+    readonly body?: never;
+    readonly credentials?: never;
+    readonly method?: never;
+    readonly redirect?: never;
+    readonly referrer?: never;
+    readonly referrerPolicy?: never;
   };
 
   /** Response from an HTTP fetch request. */
   export type Response<T> = ResponseSuccess<T> | ResponseFailure;
 
   type ResponseCommon = {
-    status: t.HttpStatusCode;
-    statusText: string;
-    url: t.StringUrl;
-    headers: Headers;
-    checksum?: ResponseChecksum;
+    readonly status: t.HttpStatusCode;
+    readonly statusText: string;
+    readonly headers: Headers;
+    readonly checksum?: ResponseChecksum;
   };
 
   /** Successful HTTP fetch response. */
-  export type ResponseSuccess<T> = ResponseCommon & {
-    ok: true;
-    data: T;
-    error: undefined;
+  export type ResponseSuccess<T> = ResponseCommon & ResponsePolicy.SourceEvidence & {
+    readonly ok: true;
+    readonly data: T;
+    readonly error: undefined;
   };
 
   /** Failed HTTP fetch response. */
   export type ResponseFailure = ResponseCommon & {
-    ok: false;
-    data: undefined;
-    error: HttpFetch.Error;
+    readonly ok: false;
+    /** Sanitized requested URL retained for diagnostics. */
+    readonly url: t.StringUrl;
+    readonly data: undefined;
+    readonly error: HttpFetch.Error;
   };
 
   /** Checksum evidence for fetched response data. */
   export type ResponseChecksum = {
-    valid: boolean;
-    expected: t.StringHash;
-    actual: t.StringHash;
+    readonly valid: boolean;
+    readonly expected: t.StringHash;
+    readonly actual: t.StringHash;
   };
 
   /** Standard error extended with HTTP details. */
@@ -87,29 +90,86 @@ export declare namespace HttpFetch {
     readonly status: t.HttpStatusCode;
     readonly statusText: string;
     readonly headers: t.HttpHeaders;
+    /** Stable diagnostic code for an owner-authenticated policy failure. */
+    readonly policyFailure?: ResponsePolicy.FailureKind;
   };
 
   /** Options passed to `Fetch.make`. */
   export type CreateOptions = {
+    /** Finite response and source-authority policy snapshotted by the client. */
+    readonly policy: ResponsePolicy;
     /** Mutate default headers used by created request helpers. */
-    headers?: Mutate.Headers;
+    readonly headers?: Mutate.Headers;
     /** Access token or token factory normalized into an Authorization header. */
-    accessToken?: t.StringJwt | (() => t.StringJwt);
+    readonly accessToken?: t.StringJwt | (() => t.StringJwt);
     /** Lifecycle boundary that aborts in-flight requests. */
-    until?: t.UntilInput;
+    readonly until?: t.UntilInput;
     /**
      * Controls when the default `content-type` header is set.
-     * - 'corsSafe' (default) sets it only for non-GET/HEAD requests that include a body.
-     * - 'always' sets it whenever a content type is available and the user didn't supply one.
+     * - 'corsSafe' (default) sets it only for requests that include a body.
+     * - 'always' sets it whenever a content type is available and the caller omitted one.
      */
-    contentTypePolicy?: 'corsSafe' | 'always';
+    readonly contentTypePolicy?: 'corsSafe' | 'always';
   };
 
-  /** Options passed to fetch request helpers. */
+  /** Options passed to body-bearing Fetch helpers. */
   export type Options = {
     /** Optional expected checksum for validating successful response data. */
-    checksum?: t.StringHash;
+    readonly checksum?: t.StringHash;
+    /** Receive bounded body-transfer progress. */
+    readonly onProgress?: ResponsePolicy.ProgressHandler;
   };
+
+  /** Finite response and source-authority policy. */
+  export type ResponsePolicy = {
+    /** Maximum successful response-body bytes retained. */
+    readonly maxBytes: t.NumberBytes;
+    /** Maximum milliseconds for one complete Fetch operation. */
+    readonly timeout: t.Msecs;
+    /** Maximum redirect hops followed. */
+    readonly maxRedirects: number;
+    /** Minimum milliseconds between non-terminal progress events. */
+    readonly progressInterval: t.Msecs;
+    /** Exact HTTP(S) origins admitted for requests. */
+    readonly sourceOrigins: readonly t.StringUrl[];
+    /** Admitted source origins authorized to receive caller/default headers. */
+    readonly credentialOrigins: readonly t.StringUrl[];
+  };
+
+  /**
+   * Bounded response-policy contracts.
+   */
+  export namespace ResponsePolicy {
+    /** Requested and terminal source evidence from a successful policy-bound request. */
+    export type SourceEvidence = {
+      readonly requestedUrl: t.StringUrl;
+      readonly finalUrl: t.StringUrl;
+    };
+
+    /** Synchronous body-transfer progress callback. */
+    export type ProgressHandler = (event: ProgressEvent) => void;
+
+    /** Body-transfer progress from a policy-bound response. */
+    export type ProgressEvent = SourceEvidence & {
+      readonly loaded: t.NumberBytes;
+      readonly total?: t.NumberBytes;
+      readonly complete: boolean;
+    };
+
+    /** Stable diagnostic code for a bounded Fetch policy failure. */
+    export type FailureKind =
+      | 'invalid-policy'
+      | 'invalid-request'
+      | 'invalid-url'
+      | 'source-denied'
+      | 'redirect-invalid'
+      | 'redirect-downgrade'
+      | 'redirect-loop'
+      | 'redirect-limit'
+      | 'response-timeout'
+      | 'response-too-large'
+      | 'progress-failure';
+  }
 
   /**
    * Fetch mutation contracts.

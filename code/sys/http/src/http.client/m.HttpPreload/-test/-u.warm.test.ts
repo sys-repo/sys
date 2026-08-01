@@ -1,17 +1,31 @@
-import { Testing, describe, expect, it } from '../../../-test.ts';
+import { describe, expect, it, type t, Testing } from '../../../-test.ts';
 import { HTTP_HEADER_MEDIA_FULL_CACHE_READY } from '../../common.ts';
 import { Preload } from '../mod.ts';
+
+const options = (origin: t.StringUrl): t.HttpPreload.Options => ({
+  policy: {
+    maxBytes: 2048,
+    timeout: 1000,
+    maxRedirects: 0,
+    progressInterval: 25,
+    sourceOrigins: [origin],
+    credentialOrigins: [origin],
+  },
+});
 
 describe('Http.Preload.warm', () => {
   it('HEAD: warms via metadata (content-length)', async () => {
     let method = '';
     const server = Testing.Http.server((req) => {
       method = req.method;
-      return new Response(new Uint8Array(1234), { status: 200, headers: { 'content-length': '1234' } });
+      return new Response(new Uint8Array(1234), {
+        status: 200,
+        headers: { 'content-length': '1234' },
+      });
     });
 
     const url = server.url.toString();
-    const res = await Preload.warm([url]);
+    const res = await Preload.warm([url], options(server.url.toURL().origin));
 
     expect(method).to.eql('HEAD');
     expect(res.ok).to.eql(true);
@@ -34,7 +48,10 @@ describe('Http.Preload.warm', () => {
     });
 
     const url = server.url.toString();
-    const res = await Preload.warm([{ url, range: { start: 0, end: 0 } }]);
+    const res = await Preload.warm(
+      [{ url, range: { start: 0, end: 0 } }],
+      options(server.url.toURL().origin),
+    );
 
     expect(method).to.eql('GET');
     expect(range).to.eql('bytes=0-0');
@@ -59,7 +76,10 @@ describe('Http.Preload.warm', () => {
     );
 
     const url = server.url.toString();
-    const res = await Preload.warm([{ url, range: { start: 0, end: 0 } }]);
+    const res = await Preload.warm(
+      [{ url, range: { start: 0, end: 0 } }],
+      options(server.url.toURL().origin),
+    );
 
     expect(res.ok).to.eql(true);
     expect(res.ops[0].ok).to.eql(true);
@@ -72,7 +92,7 @@ describe('Http.Preload.warm', () => {
     const server = Testing.Http.server(() => new Response(null, { status: 404 }));
     const url = server.url.toString();
 
-    const res = await Preload.warm([url]);
+    const res = await Preload.warm([url], options(server.url.toURL().origin));
     const [op] = res.ops;
 
     expect(res.ok).to.eql(false);

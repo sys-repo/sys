@@ -3,22 +3,56 @@ import { Http, type t, Time } from '../common.ts';
 export const DEFAULT_TIMEOUT = 10_000;
 
 type UsingServerArgsCallback = (e: UsingServerArgsCallbackArgs) => Promise<void>;
-type UsingServerArgsCallbackArgs = { readonly url: t.HttpUrl; readonly fetch: t.HttpFetch.Instance };
+type UsingServerArgsCallbackArgs = {
+  readonly url: t.HttpUrl;
+  readonly fetch: t.HttpFetch.Instance;
+};
 type UsingServerArgs = {
   app: t.HttpServer.App;
   fn: UsingServerArgsCallback;
   timeout?: t.Msecs;
 
-  /** Optional custom fetcher (e.g. Range requests). Must be disposed by fixture. */
-  mkFetch?: () => t.HttpFetch.Instance;
+  /** Optional custom bounded fetcher. Must be disposed by fixture. */
+  mkFetch?: (origin: t.StringUrl) => t.HttpFetch.Instance;
 };
+
+type TestFetcherOptions = Omit<t.HttpFetch.CreateOptions, 'policy'> & {
+  readonly policy?: Partial<t.HttpFetch.ResponsePolicy>;
+};
+
+/** Create a test-owned bounded client for one loopback origin. */
+export function testFetcher(
+  origin: t.StringUrl,
+  options: TestFetcherOptions = {},
+): t.HttpFetch.Instance {
+  const { policy = {}, ...createOptions } = options;
+  return Http.fetcher({
+    ...createOptions,
+    policy: {
+      maxBytes: 1024,
+      timeout: 1000,
+      maxRedirects: 0,
+      progressInterval: 25,
+      sourceOrigins: [origin],
+      credentialOrigins: [],
+      ...policy,
+    },
+  });
+}
 
 export async function usingServer(args: UsingServerArgs): Promise<void> {
   const { app, fn, timeout = DEFAULT_TIMEOUT, mkFetch } = args;
   const ac = new AbortController();
   const listener = Deno.serve({ port: 0, signal: ac.signal }, app.fetch);
   const url = Http.url(listener.addr);
-  const fetch = (mkFetch ?? (() => Http.fetcher()))();
+  const origin = new URL(url.raw).origin;
+  const fetch = mkFetch ? mkFetch(origin) : testFetcher(origin, {
+    policy: {
+      maxBytes: 1024 * 1024,
+      timeout,
+      maxRedirects: 3,
+    },
+  });
 
   let didAbort = false;
 

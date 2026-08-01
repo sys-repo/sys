@@ -11,7 +11,7 @@ type UsingServerArgs = {
   readonly app: t.HttpServer.App;
   readonly fn: UsingServerArgsCallback;
   readonly timeout?: number;
-  readonly mkFetch?: () => t.HttpFetch.Instance;
+  readonly mkFetch?: (origin: t.StringUrl) => t.HttpFetch.Instance;
 };
 
 export async function usingServer(args: UsingServerArgs): Promise<void> {
@@ -19,7 +19,17 @@ export async function usingServer(args: UsingServerArgs): Promise<void> {
   const { signal, abort } = new AbortController();
   const listener = Deno.serve({ port: 0, signal }, app.fetch);
   const url = HttpClient.url(listener.addr);
-  const fetch = (mkFetch ?? (() => HttpClient.fetcher()))();
+  const origin = new URL(url.raw).origin;
+  const fetch = mkFetch ? mkFetch(origin) : HttpClient.fetcher({
+    policy: {
+      maxBytes: 1024 * 1024,
+      timeout,
+      maxRedirects: 0,
+      progressInterval: 25,
+      sourceOrigins: [origin],
+      credentialOrigins: [],
+    },
+  });
 
   try {
     await fn({ url, fetch });

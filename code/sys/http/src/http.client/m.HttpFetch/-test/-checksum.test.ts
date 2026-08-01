@@ -2,7 +2,7 @@ import { Hash } from '@sys/crypto/hash';
 import { describe, expect, it, type t, Testing } from '../../../-test.ts';
 
 import { Fetch } from '../mod.ts';
-import { print } from './-u.ts';
+import { fetchOptions } from './u.fixture.ts';
 
 describe('Http.Fetch: hash checksums', () => {
   const assertSuccess = (res: t.HttpFetch.Response<unknown>) => {
@@ -27,13 +27,12 @@ describe('Http.Fetch: hash checksums', () => {
     const text = 'text-🌳';
     const server = Testing.Http.server(() => Testing.Http.text(text));
     const url = server.url.raw;
-    const fetch = Fetch.make();
+    const fetch = Fetch.make(fetchOptions([server.url.toURL().origin]));
 
     const checksum = Hash.sha256(text);
     const resA = await fetch.text(url); // NB: "control" (defaults).
     const resB = await fetch.text(url, {}, { checksum: 'sha256-FAIL' });
     const resC = await fetch.text(url, {}, { checksum });
-    print(resB);
 
     assertSuccess(resA);
     assertFail(resB);
@@ -50,13 +49,12 @@ describe('Http.Fetch: hash checksums', () => {
     const json = { foo: 123 };
     const server = Testing.Http.server(() => Testing.Http.json(json));
     const url = server.url.toString();
-    const fetch = Fetch.make();
+    const fetch = Fetch.make(fetchOptions([server.url.toURL().origin]));
 
     const checksum = Hash.sha256(json);
     const resA = await fetch.json(url); // NB: "control" (defaults).
     const resB = await fetch.json(url, {}, { checksum: 'sha256-FAIL' });
     const resC = await fetch.json(url, {}, { checksum });
-    print(resB);
 
     assertSuccess(resA);
     assertFail(resB);
@@ -70,7 +68,7 @@ describe('Http.Fetch: hash checksums', () => {
     const bytes = new Uint8Array([0, 1, 127, 128, 255]);
     const server = Testing.Http.server(() => Testing.Http.blob(bytes));
     const url = server.url.toString();
-    const fetch = Fetch.make();
+    const fetch = Fetch.make(fetchOptions([server.url.toURL().origin]));
 
     const checksum = Hash.sha256(bytes);
     const resA = await fetch.blob(url, {}, { checksum: 'sha256-FAIL' });

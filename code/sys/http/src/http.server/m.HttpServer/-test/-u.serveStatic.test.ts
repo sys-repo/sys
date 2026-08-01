@@ -1,7 +1,7 @@
 import { describe, expect, it, Testing, Time } from '../../../-test.ts';
 import { Fs, Http } from '../common.ts';
 import { HttpServer } from '../mod.ts';
-import { usingServer } from './u.fixture.usingServer.ts';
+import { testFetcher, usingServer } from './u.fixture.usingServer.ts';
 
 /**
  * Invariant:
@@ -96,7 +96,11 @@ describe('HttpServer: serve static', () => {
 
     await usingServer({
       app,
-      mkFetch: () => Http.fetcher({ headers: (e) => e.set('range', 'bytes=0-') }),
+      mkFetch: (origin) =>
+        testFetcher(origin, {
+          policy: { credentialOrigins: [origin] },
+          headers: (event) => event.set('range', 'bytes=0-'),
+        }),
       fn: async ({ url, fetch }) => {
         const res = await fetch.blob(url.join(filename));
 

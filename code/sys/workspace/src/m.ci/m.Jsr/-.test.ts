@@ -504,7 +504,7 @@ function unpublished(): VersionsResponse {
 
 function unpublished404(pkgName: string): VersionsResponse {
   return {
-    ...responseBase(),
+    ...failureBase(`https://jsr.io/${pkgName}/meta.json`),
     ok: false,
     status: 404,
     statusText: 'Not Found',
@@ -527,7 +527,7 @@ function versions(
 ): VersionsResponse {
   const [scope, name] = pkgName.slice(1).split('/');
   return {
-    ...responseBase(),
+    ...responseBase(`https://jsr.io/${pkgName}/meta.json`),
     ok: true,
     data: { scope, name, latest, versions: published },
     error: undefined,
@@ -536,7 +536,7 @@ function versions(
 
 async function withPkgVersions(map: Record<string, VersionsResponse>, fn: () => Promise<void>) {
   const original = Jsr.Fetch.Pkg.versions;
-  Jsr.Fetch.Pkg.versions = async (name) => map[name] ?? unpublished();
+  Jsr.Fetch.Pkg.versions = (name) => Promise.resolve(map[name] ?? unpublished());
   try {
     await fn();
   } finally {
@@ -544,11 +544,21 @@ async function withPkgVersions(map: Record<string, VersionsResponse>, fn: () => 
   }
 }
 
-function responseBase() {
+function responseBase(url = 'https://jsr.io') {
   return {
     status: 200,
     statusText: 'OK',
-    url: 'https://jsr.io',
+    requestedUrl: url,
+    finalUrl: url,
+    headers: new Headers(),
+  } as const;
+}
+
+function failureBase(url: string) {
+  return {
+    status: 200,
+    statusText: 'OK',
+    url,
     headers: new Headers(),
   } as const;
 }

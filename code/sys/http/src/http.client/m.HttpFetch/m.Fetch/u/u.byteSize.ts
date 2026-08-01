@@ -1,5 +1,4 @@
-import { Is, Num, Rx, Schedule, type t } from './common.ts';
-import { makeFetch } from './m.Fetch.make.ts';
+import { Is, Num, Rx, Schedule, type t } from '../common.ts';
 
 const PROBE_INIT: RequestInit = {
   credentials: 'omit',
@@ -13,7 +12,6 @@ const PROBE_INIT: RequestInit = {
  */
 export const byteSize: t.HttpFetch.ByteSize.Method = async (url, until) => {
   const life = Rx.abortable(until);
-  const httpFetch = makeFetch(life.signal);
 
   try {
     // Rx bridges pre-aborted signal inputs on a microtask; latch that state before network work.
@@ -25,11 +23,22 @@ export const byteSize: t.HttpFetch.ByteSize.Method = async (url, until) => {
      * Probe: HEAD.
      */
     try {
-      const res = await httpFetch.head(url, PROBE_INIT);
-      if (life.signal.aborted) return cancelled(url);
+      const response = await fetch(url, {
+        ...PROBE_INIT,
+        method: 'HEAD',
+        signal: life.signal,
+      });
+      let bytes: number | undefined;
+      try {
+        if (response.ok && !life.signal.aborted) {
+          bytes = toInt(response.headers.get('Content-Length'));
+        }
+      } finally {
+        await response.body?.cancel().catch(() => undefined);
+      }
 
-      const bytes = toInt(res.headers.get('Content-Length'));
-      if (res.ok && bytes !== undefined) return { url, bytes, from: 'head' };
+      if (life.signal.aborted) return cancelled(url);
+      if (bytes !== undefined) return { url, bytes, from: 'head' };
     } catch {
       if (life.signal.aborted) return cancelled(url);
     }
@@ -42,7 +51,7 @@ export const byteSize: t.HttpFetch.ByteSize.Method = async (url, until) => {
     if (rangeAllowed(url)) {
       try {
         const headers = new Headers({ Range: 'bytes=0-0' });
-        const res = await fetch(url, {
+        const response = await fetch(url, {
           ...PROBE_INIT,
           method: 'GET',
           headers,
@@ -51,13 +60,13 @@ export const byteSize: t.HttpFetch.ByteSize.Method = async (url, until) => {
         let bytes: number | undefined;
 
         try {
-          if (res.ok && !life.signal.aborted) {
-            const byRange = toInt(res.headers.get('Content-Range')?.match(/\/(\d+)\s*$/)?.[1]);
-            const byLen = toInt(res.headers.get('Content-Length'));
+          if (response.ok && !life.signal.aborted) {
+            const byRange = toInt(response.headers.get('Content-Range')?.match(/\/(\d+)\s*$/)?.[1]);
+            const byLen = toInt(response.headers.get('Content-Length'));
             bytes = byRange ?? byLen;
           }
         } finally {
-          await res.body?.cancel().catch(() => undefined);
+          await response.body?.cancel().catch(() => undefined);
         }
 
         if (life.signal.aborted) return cancelled(url);
@@ -69,14 +78,10 @@ export const byteSize: t.HttpFetch.ByteSize.Method = async (url, until) => {
 
     return life.signal.aborted ? cancelled(url) : { url, from: 'unknown' };
   } finally {
-    httpFetch.dispose();
     life.dispose();
   }
 };
 
-/**
- * Helpers:
- */
 const cancelled = (url: t.StringUrl): t.HttpFetch.ByteSize.Result => ({
   url,
   from: 'unknown',

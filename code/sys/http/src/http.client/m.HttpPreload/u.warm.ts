@@ -2,13 +2,13 @@ import { Await, Fetch, HTTP_HEADER_MEDIA_FULL_CACHE_READY, Is, type t } from './
 
 export async function warm(
   input: t.HttpPreload.Input,
-  options: t.HttpPreload.Options = {},
+  options: t.HttpPreload.Options,
 ): Promise<t.HttpPreload.Result> {
   const targets = wrangle.targets(input);
   const concurrency = Math.max(1, options.concurrency ?? 8);
   const limit = Await.semaphore(concurrency);
   const ownsClient = !options.client;
-  const client = options.client ?? Fetch.make(options.until);
+  const client = options.client ?? Fetch.make({ policy: options.policy, until: options.until });
 
   try {
     const tasks = targets.map((target) => limit(() => warmOne(target, client)));
@@ -51,7 +51,7 @@ const wrangle = {
     return input.map((item) => Is.str(item) ? { url: item } : { url: item.url, range: item.range });
   },
 
-  init(range?: t.HttpPreload.ByteRange): RequestInit {
+  init(range?: t.HttpPreload.ByteRange): t.HttpFetch.Init {
     if (!range) return {};
     const end = typeof range.end === 'number' ? range.end : '';
     return { headers: { Range: `bytes=${range.start}-${end}` } };

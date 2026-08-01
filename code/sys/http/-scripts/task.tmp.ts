@@ -11,8 +11,18 @@ await clear('./.tmp');
 /**
  * Context:
  */
-const client = Http.client();
 const url = 'https://fs.db.team/sys/driver.monaco/dist.json';
+const origin = new URL(url).origin;
+const client = Http.client({
+  policy: {
+    maxBytes: 100 * 1024 * 1024,
+    timeout: 30_000,
+    maxRedirects: 5,
+    progressInterval: 250,
+    sourceOrigins: [origin],
+    credentialOrigins: [],
+  },
+});
 const dir = './.tmp/foo';
 
 /**

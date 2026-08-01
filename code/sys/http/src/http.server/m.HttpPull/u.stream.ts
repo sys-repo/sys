@@ -14,11 +14,15 @@ import { isAbortError, makeEventQueue, resolveTarget } from './u.ts';
 export function stream(
   urls: readonly string[],
   dir: t.StringDir,
-  options: t.HttpPull.Options = {},
+  options: t.HttpPull.Options,
 ): t.HttpPull.Stream.Instance {
   const { map, retry } = options;
 
-  const client = options.client ?? HttpClient.fetcher();
+  const ownsClient = !options.client;
+  const client = options.client ?? HttpClient.fetcher({
+    policy: options.policy,
+    until: options.until,
+  });
   const concurrency = Math.max(1, options.concurrency ?? 8);
   const total = urls.length;
 
@@ -107,7 +111,9 @@ export function stream(
    * Shared completion for all pull tasks.
    * Both the queue-closer and `done` derive from this.
    */
-  const settled = Promise.allSettled(tasks);
+  const settled = Promise.allSettled(tasks).finally(() => {
+    if (ownsClient) client.dispose();
+  });
 
   /**
    * Aggregated result of the pull-stream.

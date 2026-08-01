@@ -10,7 +10,21 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    return <Mounts.UI origin={origin} debug={v.debug} theme={v.theme} />;
+    return (
+      <Mounts.UI
+        origin={origin}
+        policy={{
+          maxBytes: 16 * 1024 * 1024,
+          timeout: 30_000,
+          maxRedirects: 3,
+          progressInterval: 100,
+          sourceOrigins: ['http://localhost:1234'],
+          credentialOrigins: [],
+        }}
+        debug={v.debug}
+        theme={v.theme}
+      />
+    );
   }
 
   e.it('init', (e) => {

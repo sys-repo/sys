@@ -96,7 +96,8 @@ describe('Jsr.Manifest (integration test)', () => {
         expect(file.error).to.eql(undefined);
         expect(file.checksum?.valid).to.eql(true);
 
-        const path = file.url.slice(baseUrl.length - 1) as keyof typeof SAMPLE.def;
+        const url = file.ok ? file.finalUrl : file.url;
+        const path = url.slice(baseUrl.length - 1) as keyof typeof SAMPLE.def;
         const def = SAMPLE.def[path];
         expect(file.checksum?.actual).to.eql(def.checksum);
         expect(file.checksum?.expected).to.eql(def.checksum);
@@ -115,7 +116,8 @@ describe('Jsr.Manifest (integration test)', () => {
       expect(res.written?.relative).to.eql(Pkg.toString(SAMPLE.pkg));
 
       for (const file of res.files) {
-        const path = Fs.join(res.written?.absolute || '', file.url.slice(baseUrl.length));
+        const url = file.ok ? file.finalUrl : file.url;
+        const path = Fs.join(res.written?.absolute || '', url.slice(baseUrl.length));
         const data = (await Fs.read(path)).data;
         expect(Hash.sha256(data)).to.eql(file.checksum?.expected);
       }

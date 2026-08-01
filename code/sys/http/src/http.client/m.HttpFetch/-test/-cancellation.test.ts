@@ -1,8 +1,11 @@
 import { WebFixture } from '@sys/testing/web';
 import { describe, expect, it, Json, Schedule, type t, Testing } from '../../../-test.ts';
 import { Fetch } from '../mod.ts';
+import { fetchOptions } from './u.fixture.ts';
 
 const URL = 'https://example.test/resource';
+const ORIGIN = 'https://example.test';
+const makeClient = () => Fetch.make(fetchOptions([ORIGIN]));
 const REASON = {
   caller: 'caller-abort-SECRET',
   lifecycle: 'lifecycle-abort-SECRET',
@@ -12,10 +15,12 @@ const REASON = {
 describe('Http.Fetch: cancellation authority', () => {
   it('caller abort → canonical path-safe 499 and first reason wins internally', async () => {
     const caller = new AbortController();
-    const client = Fetch.make();
+    const client = makeClient();
+    let fetchStarted = false;
     let observedReason: unknown;
 
     const mock = WebFixture.Fetch.mock((_input, init) => {
+      fetchStarted = true;
       return new Promise((_resolve, reject) => {
         const signal = init?.signal;
         const onAbort = () => {
@@ -30,6 +35,7 @@ describe('Http.Fetch: cancellation authority', () => {
 
     try {
       const promise = client.text(URL, { signal: caller.signal });
+      await Testing.until(() => fetchStarted);
       caller.abort(REASON.caller);
       client.dispose(REASON.later);
 
@@ -44,7 +50,7 @@ describe('Http.Fetch: cancellation authority', () => {
   });
 
   it('lifecycle abort → canonical path-safe 499', async () => {
-    const client = Fetch.make();
+    const client = makeClient();
 
     const mock = WebFixture.Fetch.mock((_input, init) => {
       return new Promise((_resolve, reject) => {
@@ -68,7 +74,7 @@ describe('Http.Fetch: cancellation authority', () => {
 
   it('pre-aborted caller signal → canonical path-safe 499', async () => {
     const caller = new AbortController();
-    const client = Fetch.make();
+    const client = makeClient();
     caller.abort(REASON.caller);
 
     const mock = WebFixture.Fetch.mock((_input, init) => {
@@ -89,7 +95,7 @@ describe('Http.Fetch: cancellation authority', () => {
 
   it('abort during body consumption → canonical path-safe 499', async () => {
     const caller = new AbortController();
-    const client = Fetch.make();
+    const client = makeClient();
     let bodyReady = false;
 
     const mock = WebFixture.Fetch.mock((_input, init) => {
@@ -116,19 +122,19 @@ describe('Http.Fetch: cancellation authority', () => {
     }
   });
 
-  it('abort during checksum preparation → canonical path-safe 499', async () => {
-    const nativeArrayBuffer = Blob.prototype.arrayBuffer;
+  it('abort before checksum verification → canonical path-safe 499', async () => {
+    const nativeBlob = Response.prototype.blob;
     const caller = new AbortController();
-    const client = Fetch.make();
-    let checksumReady = false;
+    const client = makeClient();
+    let decodeReady = false;
 
     const mock = WebFixture.Fetch.mock(() =>
       Promise.resolve(new Response(new Uint8Array([0, 1, 2])))
     );
-    Blob.prototype.arrayBuffer = function (this: Blob) {
-      checksumReady = true;
+    Response.prototype.blob = function (this: Response) {
+      decodeReady = true;
       return new Promise((resolve) => {
-        const finish = () => resolve(nativeArrayBuffer.call(this));
+        const finish = () => resolve(nativeBlob.call(this));
         if (caller.signal.aborted) finish();
         else caller.signal.addEventListener('abort', finish, { once: true });
       });
@@ -140,21 +146,21 @@ describe('Http.Fetch: cancellation authority', () => {
         { signal: caller.signal },
         { checksum: 'sha256-cancel-before-verification' },
       );
-      await Testing.until(() => checksumReady);
+      await Testing.until(() => decodeReady);
       caller.abort(REASON.caller);
 
       const res = await promise;
       assertCancelled(res, REASON.caller);
     } finally {
       mock.dispose();
-      Blob.prototype.arrayBuffer = nativeArrayBuffer;
+      Response.prototype.blob = nativeBlob;
       client.dispose();
     }
   });
 
   it('removes composed-signal listeners after successful settlement', async () => {
     const caller = new AbortController();
-    const client = Fetch.make();
+    const client = makeClient();
     const listeners = trackAbortListeners(caller.signal);
     const mock = WebFixture.Fetch.mock(() => Promise.resolve(new Response('done')));
 
@@ -170,7 +176,7 @@ describe('Http.Fetch: cancellation authority', () => {
 
   it('removes composed-signal listeners after cancelled settlement', async () => {
     const caller = new AbortController();
-    const client = Fetch.make();
+    const client = makeClient();
     const listeners = trackAbortListeners(caller.signal);
 
     const mock = WebFixture.Fetch.mock((_input, init) => {
@@ -305,7 +311,7 @@ describe('Http.Fetch.byteSize: cancellation authority', () => {
     try {
       const res = await Fetch.byteSize(URL, caller.signal);
       expect(res).to.eql({ url: URL, bytes: 64, from: 'head' });
-      expect(listeners.count()).to.eql({ added: 2, removed: 2 });
+      expect(listeners.count()).to.eql({ added: 1, removed: 1 });
     } finally {
       listeners.restore();
       mock.dispose();
@@ -331,7 +337,7 @@ describe('Http.Fetch.byteSize: cancellation authority', () => {
 
       const res = await promise;
       expect(res).to.eql({ url: URL, from: 'unknown', cancelled: true });
-      expect(listeners.count()).to.eql({ added: 2, removed: 2 });
+      expect(listeners.count()).to.eql({ added: 1, removed: 1 });
     } finally {
       listeners.restore();
       mock.dispose();
@@ -341,6 +347,7 @@ describe('Http.Fetch.byteSize: cancellation authority', () => {
 
 function assertCancelled(res: t.HttpFetch.Response<unknown>, ...reasons: string[]) {
   expect(res.ok).to.eql(false);
+  if (res.ok) throw new Error('Expected a cancelled Fetch response');
   expect(res.status).to.eql(499);
   expect(res.statusText).to.eql('Fetch operation cancelled before completing');
   expect(res.data).to.eql(undefined);

@@ -99,10 +99,24 @@ export async function pullHttpBundle(
 }
 
 async function pullDist(distUrl: t.StringUrl): Promise<t.DistPkg> {
-  const client = Http.client();
-  const r = await client.json<t.DistPkg>(distUrl);
-  if (!r.ok) throw Err.std('dist.json fetch failed', { cause: r.error });
-  return r.data!;
+  const origin = new URL(distUrl).origin;
+  const client = Http.client({
+    policy: {
+      maxBytes: 16 * 1024 * 1024,
+      timeout: 30_000,
+      maxRedirects: 3,
+      progressInterval: 100,
+      sourceOrigins: [origin],
+      credentialOrigins: [],
+    },
+  });
+  try {
+    const response = await client.json<t.DistPkg>(distUrl);
+    if (!response.ok) throw Err.std('dist.json fetch failed', { cause: response.error });
+    return response.data;
+  } finally {
+    client.dispose();
+  }
 }
 
 /**
@@ -136,6 +150,14 @@ async function pullDir(
   const urls = [distUrlObj.href, ...assetUrls];
 
   const stream = Http.Pull.stream(urls, targetDir, {
+    policy: {
+      maxBytes: 256 * 1024 * 1024,
+      timeout: 60_000,
+      maxRedirects: 3,
+      progressInterval: 100,
+      sourceOrigins: [distUrlObj.origin],
+      credentialOrigins: [],
+    },
     retry: { attempts: 8, base: 200, factor: 2, jitter: true },
     map: {
       /**

@@ -1,5 +1,6 @@
 import type { t } from './common.ts';
-import { D, Http, Schema, SlugSchema, SlugUrl } from './common.ts';
+import { D, Schema, SlugSchema, SlugUrl } from './common.ts';
+import { fetchJson } from './u.fetch.ts';
 import { formatSchemaReason } from './u.schema.ts';
 
 export const Descriptor: t.SlugClientDescriptorLoadLib = {
@@ -9,19 +10,21 @@ export const Descriptor: t.SlugClientDescriptorLoadLib = {
 async function load(
   origin: t.StringUrl,
   manifests: t.StringPath,
+  transport: t.SlugLoadTransport,
 ): Promise<t.SlugClientResult<t.BundleDescriptorDoc>> {
-  const fetch = Http.fetcher();
   const url = SlugUrl.Composition.descriptor({ origin, manifests, filename: 'dist.client.json' });
-  const req: RequestInit = { ...D.CACHE_INIT };
+  const req: t.HttpFetch.Init = { ...D.CACHE_INIT };
   req.cache = D.CACHE_INIT.cache;
 
-  const res = await fetch.json<unknown>(url, req);
+  const res = await fetchJson<unknown>(url, req, transport);
   if (!res.ok) {
     return {
       ok: false,
       error: {
         kind: 'http',
-        message: `dist.client.json fetch failed. ${res.status} ${res.statusText} @ ${res.url ?? url}`,
+        message: `dist.client.json fetch failed. ${res.status} ${res.statusText} @ ${
+          res.url ?? url
+        }`,
         status: res.status,
         statusText: res.statusText,
         url: res.url ?? url,

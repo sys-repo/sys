@@ -7,7 +7,7 @@ export declare namespace HttpPreload {
   /** Small, pure preloader for warming HTTP cache/network only. */
   export type Lib = {
     /** Warm a set of HTTP resources to prime cache ahead of use. */
-    warm(input: Input, options?: Options): Promise<Result>;
+    warm(input: Input, options: Options): Promise<Result>;
   };
 
   /** Preload input: list of URLs or structured targets. */
@@ -17,7 +17,10 @@ export declare namespace HttpPreload {
   export type Target = {
     /** URL to warm. */
     readonly url: t.StringUrl;
-    /** Optional byte-range to warm (inclusive start, optional end). */
+    /**
+     * Optional byte-range to warm (inclusive start, optional end).
+     * The bounded client must admit this target origin for caller-provided headers.
+     */
     readonly range?: ByteRange;
   };
 
@@ -29,13 +32,26 @@ export declare namespace HttpPreload {
     readonly end?: t.NumberBytes;
   };
 
-  /** Preload options. */
-  export type Options = {
-    /** Late-bound client (defaults to standard fetcher). */
-    readonly client?: t.HttpFetch.Instance;
+  type OptionsCommon = {
     /** Concurrency limiter (default implementation-defined). */
     readonly concurrency?: number;
-    /** Cancel warm operation. */
+  };
+
+  /** Preload transport and execution options. */
+  export type Options = OptionsCommon & (OptionsClient | OptionsPolicy);
+
+  type OptionsClient = {
+    /** Caller-owned bounded Fetch capability. */
+    readonly client: t.HttpFetch.Instance;
+    readonly policy?: never;
+    readonly until?: never;
+  };
+
+  type OptionsPolicy = {
+    readonly client?: undefined;
+    /** Response policy for the internally owned Fetch capability. */
+    readonly policy: t.HttpFetch.ResponsePolicy;
+    /** Cancel the internally owned Fetch capability. */
     readonly until?: t.UntilInput;
   };
 

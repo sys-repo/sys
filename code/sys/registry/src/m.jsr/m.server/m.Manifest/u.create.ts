@@ -53,7 +53,8 @@ export const create: t.JsrManifest.Lib['create'] = (pkg, def) => {
         };
 
         for (const item of items) {
-          const path = Path.join(absolute, item.url.slice(baseUrl.length));
+          const url = item.ok ? item.finalUrl : item.url;
+          const path = Path.join(absolute, url.slice(baseUrl.length));
           const res = await Fs.write(path, item.data || '');
           if (res.error) errors.push(res.error);
         }

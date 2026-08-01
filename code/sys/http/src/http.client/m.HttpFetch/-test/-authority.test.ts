@@ -1,7 +1,9 @@
 import { WebFixture } from '@sys/testing/web';
 import { describe, expect, it, Json, type t, Testing, Url } from '../../../-test.ts';
 import { Fetch } from '../mod.ts';
+import { fetchOptions } from './u.fixture.ts';
 
+const ORIGIN = 'https://example.test';
 const SENTINEL = {
   apiKey: 'api-key-SECRET',
   bearerCaller: 'Bearer CALLER-SECRET',
@@ -33,14 +35,19 @@ describe('Http.Fetch: request authority', () => {
     input.searchParams.set('token', SENTINEL.query);
     input.hash = SENTINEL.fragment;
 
-    const client = Fetch.make({
-      accessToken: SENTINEL.bearerDefault,
-      contentTypePolicy: 'always',
-      headers(e) {
-        e.set('X-Default', 'default');
-        e.set('Content-Type', 'application/x-default');
+    const origin = server.url.toURL().origin;
+    const client = Fetch.make(fetchOptions(
+      [origin],
+      { credentialOrigins: [origin] },
+      {
+        accessToken: SENTINEL.bearerDefault,
+        contentTypePolicy: 'always',
+        headers(e) {
+          e.set('X-Default', 'default');
+          e.set('Content-Type', 'application/x-default');
+        },
       },
-    });
+    ));
     const res = await client.text(input.href, {
       headers: {
         authorization: SENTINEL.bearerCaller,
@@ -52,6 +59,7 @@ describe('Http.Fetch: request authority', () => {
     });
 
     expect(res.ok).to.eql(false);
+    if (res.ok) throw new Error('Expected a failed Fetch response');
     expect(res.url).to.eql(Url.toCanonical(input).href);
     expect(res.headers.get('x-response-proof')).to.eql('response');
     expect(res.error?.headers['x-response-proof']).to.eql('response');
@@ -73,14 +81,14 @@ describe('Http.Fetch: request authority', () => {
 
   it('inspects and snapshots default headers case-insensitively', () => {
     let callbackAuthorization: string | undefined = '';
-    const client = Fetch.make({
+    const client = Fetch.make(fetchOptions([ORIGIN], {}, {
       accessToken: SENTINEL.bearerDefault,
       headers(e) {
         callbackAuthorization = e.get('authorization');
         e.set('X-Mixed-Case', 'safe');
         expect(e.get('x-mixed-case')).to.eql('safe');
       },
-    });
+    }));
 
     const snapshot = client.headers as Record<string, string>;
     expect(callbackAuthorization).to.eql(SENTINEL.bearerDefault);
@@ -109,12 +117,18 @@ describe('Http.Fetch: request authority', () => {
     input.searchParams.set('token', SENTINEL.query);
     input.hash = SENTINEL.fragment;
 
-    const client = Fetch.make({ accessToken: SENTINEL.bearerDefault });
+    const origin = server.url.toURL().origin;
+    const client = Fetch.make(fetchOptions(
+      [origin],
+      { credentialOrigins: [origin] },
+      { accessToken: SENTINEL.bearerDefault },
+    ));
     const res = await client.json(input.href, {
       headers: { Cookie: SENTINEL.cookie, 'X-API-Key': SENTINEL.apiKey },
     });
 
     expect(res.ok).to.eql(false);
+    if (res.ok) throw new Error('Expected a failed Fetch response');
     expect(res.status).to.eql(520);
     expect(res.url).to.eql(Url.toCanonical(input).href);
     expect(res.error?.headers['x-response-proof']).to.eql('decode');
@@ -133,21 +147,27 @@ describe('Http.Fetch: request authority', () => {
     await server.dispose();
   });
 
-  it('sanitizes transport failures without retaining the raw cause', async () => {
+  it('rejects userinfo without retaining raw request authority', async () => {
     const input = new URL('http://127.0.0.1:1/private');
     input.username = SENTINEL.username;
     input.password = SENTINEL.password;
     input.searchParams.set('token', SENTINEL.query);
     input.hash = SENTINEL.fragment;
 
-    const client = Fetch.make({ accessToken: SENTINEL.bearerDefault });
+    const client = Fetch.make(fetchOptions(
+      [input.origin],
+      { credentialOrigins: [input.origin] },
+      { accessToken: SENTINEL.bearerDefault },
+    ));
     const res = await client.text(input.href, {
       headers: { Cookie: SENTINEL.cookie, 'X-API-Key': SENTINEL.apiKey },
     });
 
     expect(res.ok).to.eql(false);
-    expect(res.status).to.eql(520);
+    if (res.ok) throw new Error('Expected a failed Fetch response');
+    expect(res.status).to.eql(400);
     expect(res.url).to.eql(Url.toCanonical(input).href);
+    expect(res.error?.policyFailure).to.eql('invalid-url');
     expect(res.error?.headers).to.eql({});
     expect(res.error?.cause?.cause).to.eql(undefined);
     assertCredentialSafe(res, [
@@ -189,10 +209,10 @@ describe('Http.Fetch.byteSize: request authority', () => {
       });
     });
 
-    const injected = Fetch.make({
+    const injected = Fetch.make(fetchOptions([ORIGIN], {}, {
       accessToken: SENTINEL.bearerDefault,
       headers: (e) => e.set('Cookie', SENTINEL.cookie).set('X-API-Key', SENTINEL.apiKey),
-    });
+    }));
 
     try {
       type RuntimeProbe = (
@@ -280,6 +300,7 @@ function assertCredentialSafe(
   res: t.HttpFetch.Response<unknown>,
   sentinels: readonly string[],
 ) {
+  if (res.ok) throw new Error('Expected a failed Fetch response');
   const report = Json.stringify({
     url: res.url,
     message: res.error?.message,

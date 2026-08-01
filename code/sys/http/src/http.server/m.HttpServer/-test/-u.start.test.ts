@@ -1,6 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { Dispose, Http, type t } from '../common.ts';
+import { Dispose, type t } from '../common.ts';
 import { HttpServer } from '../mod.ts';
+import { testFetcher } from './u.fixture.usingServer.ts';
 
 describe('HttpServer.start', () => {
   it('app: start → req/res → close', async () => {
@@ -8,7 +9,7 @@ describe('HttpServer.start', () => {
     app.get('/', (c) => c.json({ count: 123 }));
 
     const server = HttpServer.start(app, { silent: true, hostname: '127.0.0.1' });
-    const fetch = Http.fetcher();
+    const fetch = testFetcher(server.origin);
 
     try {
       type T = { count: number };
@@ -135,11 +136,10 @@ function waitForDispose(life: t.LifecycleAsync) {
   if (life.disposed) return Promise.resolve();
 
   return new Promise<void>((resolve) => {
-    let sub: { unsubscribe(): void } | undefined;
-    sub = life.dispose$.subscribe((e) => {
+    const sub = life.dispose$.subscribe((e) => {
       const stage = e.payload.stage;
       if (stage === 'complete' || stage === 'error') {
-        sub?.unsubscribe();
+        sub.unsubscribe();
         resolve();
       }
     });

@@ -1,6 +1,7 @@
 import React from 'react';
 import { DESCRIPTOR } from '../-CONST.ts';
-import { type t, BulletList } from './common.ts';
+import { BulletList, type t } from './common.ts';
+import { slugTransport } from './u.fixture.ts';
 
 type Props = {
   origin: t.SlugUrlOrigin;
@@ -16,7 +17,8 @@ export function renderDescriptorCard(
 
   e.element(
     <div>
-      Loads <code>dist.client.json</code>, then runs kind-specific calls for filesystem or media
+      Loads{' '}
+      <code>dist.client.json</code>, then runs kind-specific calls for filesystem or media
       descriptors.
     </div>,
   );
@@ -63,9 +65,10 @@ function isDescriptorMode(input: string): input is t.DescriptorMode {
 }
 
 async function loadItems(origin: string): Promise<t.BulletList.Item[]> {
+  const transport = slugTransport(origin);
   const discovered = await Promise.all([
-    DESCRIPTOR.file.load(origin),
-    DESCRIPTOR.media.load(origin),
+    DESCRIPTOR.file.load(origin, transport),
+    DESCRIPTOR.media.load(origin, transport),
   ]);
   const ids = DESCRIPTOR.KINDS.filter((_kind, index) => discovered[index]?.ok);
   const selected = ids.length > 0 ? ids : [...DESCRIPTOR.KINDS];

@@ -1,7 +1,7 @@
 # Testing
-Tools for testing.
-Standard testing helpers (surfaced from [@sys/std](https://jsr.io/@sys/std/testing)).
 
+Tools for testing. Standard testing helpers (surfaced from
+[@sys/std](https://jsr.io/@sys/std/testing)).
 
 ### Local verification
 
@@ -12,18 +12,18 @@ deno task test
 The normal test suite includes a `Browser.load(...)` proof that opens a local page in an installed
 Chrome/Chromium browser. Set `CHROME_BIN` if Chrome is not in a common platform location.
 
-
 ### Examples
+
 Import test helpers (all environments, browser AND server):
 
 ```ts
-import { expect, describe, it, Testing } from '@sys/testing';
+import { describe, expect, it, Testing } from '@sys/testing';
 ```
 
 or import helpers with server (posix) extensions:
 
 ```ts
-import { expect, describe, it, Testing, Fs, Path } from '@sys/testing/server';
+import { describe, expect, Fs, it, Path, Testing } from '@sys/testing/server';
 ```
 
 ### Fetch global fixture
@@ -51,13 +51,12 @@ overlap this process-global fixture across parallel tests.
 
 Setup a simple unit-test file named: `-<Subject>.test.ts`.
 
-The test runner picks up on the `*.test.ts` pattern, and the
-`-<Subject>.` name prefix highlights it both visually as a "unit test" in
-the folder as well as ensuring the tests are naturally grouped together
-within the folder structure.
+The test runner picks up on the `*.test.ts` pattern, and the `-<Subject>.` name prefix highlights it
+both visually as a "unit test" in the folder as well as ensuring the tests are naturally grouped
+together within the folder structure.
 
 ```ts
-import { Testing, describe, expect, it } from '@std/testing';
+import { describe, expect, it, Testing } from '@std/testing';
 
 describe('My Suite', () => {
   it('does something', async () => {
@@ -68,10 +67,11 @@ describe('My Suite', () => {
 ```
 
 ## Mocking the DOM
+
 The DOM can be simulated on the server using `DomMock`:
 
 ```ts
-import { DomMock, beforeAll, afterAll } from '@sys/testing/server';
+import { afterAll, beforeAll, DomMock } from '@sys/testing/server';
 
 // Setup the environment with a browser `window` object (`globalThis`).
 DomMock.init({ beforeAll, afterAll });

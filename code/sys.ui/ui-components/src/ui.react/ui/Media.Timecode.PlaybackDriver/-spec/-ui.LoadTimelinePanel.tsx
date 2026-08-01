@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Dist, Http } from './common.ts';
+import { Dist, Http, type t } from './common.ts';
 
 export type LoadTimelinePanelSelectHandler = (e: LoadTimelinePanelSelect) => void;
 export type LoadTimelinePanelSelect = {
@@ -20,8 +20,8 @@ export type LoadTimelinePanelProps = {
   readonly selectedDocid?: t.StringId;
 
   /**
- * Fired when the user selects a dist entry that looks like a slug manifest path.
- * (Eg. "-manifests/slug.<docid>.playback.json")
+   * Fired when the user selects a dist entry that looks like a slug manifest path.
+   * (Eg. "-manifests/slug.<docid>.playback.json")
    */
   readonly onSelect?: LoadTimelinePanelSelectHandler;
 };
@@ -52,16 +52,30 @@ export const LoadTimelinePanel: React.FC<LoadTimelinePanelProps> = (props) => {
 
   React.useEffect(() => {
     let disposed = false;
+    const url = new URL(`${baseUrl}/-manifests/dist.json`, globalThis.location.href);
+    const http = Http.fetcher({
+      policy: {
+        maxBytes: 16 * 1024 * 1024,
+        timeout: 30_000,
+        maxRedirects: 3,
+        progressInterval: 100,
+        sourceOrigins: [url.origin],
+        credentialOrigins: [],
+      },
+    });
 
-    (async () => {
-      const http = Http.fetcher();
-      const res = await http.json(`${baseUrl}/-manifests/dist.json`);
-      if (disposed) return;
-      setDist(res.data as t.DistPkg);
+    void (async () => {
+      try {
+        const res = await http.json<t.DistPkg>(url.href);
+        if (!disposed && res.ok) setDist(res.data);
+      } finally {
+        http.dispose();
+      }
     })();
 
     return () => {
       disposed = true;
+      http.dispose();
     };
   }, [baseUrl]);
 

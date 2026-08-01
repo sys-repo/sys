@@ -1,4 +1,5 @@
-import { Err, Fetch, JsrUrl, type t } from './common.ts';
+import { JsrUrl, type t } from './common.ts';
+import { fetchJson, fetchText } from './u.fetch.ts';
 import { graph, type RawPkgVersionInfo } from './u.graph.ts';
 
 const D = {
@@ -19,8 +20,11 @@ export const Pkg: t.JsrFetch.Pkg.Lib = {
   async versions(name, options = {}) {
     const fresh = wrangle.fresh(options, D.fresh.versions);
     const url = wrangle.freshUrl(JsrUrl.Pkg.metadata(name), fresh);
-    const fetch = Fetch.make(options.until);
-    const res = await fetch.json<t.JsrFetch.Pkg.MetaVersions>(url, wrangle.freshInit(fresh));
+    const res = await fetchJson<t.JsrFetch.Pkg.MetaVersions>(
+      url,
+      wrangle.freshInit(fresh),
+      options.until,
+    );
     const data = res.data
       ? {
         ...res.data,
@@ -47,8 +51,11 @@ export const Pkg: t.JsrFetch.Pkg.Lib = {
     const version = vInput ? vInput : ((await Pkg.versions(name, options)).data?.latest ?? '');
     const fresh = wrangle.fresh(options, latest ? D.fresh.latestInfo : D.fresh.exactInfo);
     const url = wrangle.freshUrl(JsrUrl.Pkg.version(name, version), fresh);
-    const fetch = Fetch.make(options.until);
-    const res = await fetch.json<RawPkgVersionInfo>(url, wrangle.freshInit(fresh));
+    const res = await fetchJson<RawPkgVersionInfo>(
+      url,
+      wrangle.freshInit(fresh),
+      options.until,
+    );
     if (!res.data) return res;
 
     const pkg: t.Pkg = { name, version: version ?? '' };
@@ -75,26 +82,12 @@ export const Pkg: t.JsrFetch.Pkg.Lib = {
     const api: t.JsrFetch.Pkg.FileFetcher = {
       pkg: { name, version },
       async text(path, options = {}) {
-        const { checksum } = options;
-        const errors = Err.errors();
-        const fetch = Fetch.make([opt.until, options.until]);
         const url = JsrUrl.Pkg.file(name, version, path);
-
-        let res = await fetch.text(url, {}, { checksum });
-        let status = res.status;
-
-        if (errors.ok) return res;
-        if (res.error) errors.push(res.error);
-        return {
-          ...res,
-          ok: false,
-          status,
-          path,
-          get headers() {
-            return res.headers;
-          },
-          error: errors.toError(),
-        } as any; // NB: type-hack, error.
+        return await fetchText(
+          url,
+          { checksum: options.checksum },
+          [opt.until, options.until],
+        );
       },
     };
 
@@ -110,7 +103,7 @@ const wrangle = {
     return options.fresh ?? defaultValue;
   },
 
-  freshInit(fresh: boolean): RequestInit {
+  freshInit(fresh: boolean): t.HttpFetch.Init {
     if (!fresh) return {};
     return {
       cache: 'reload',

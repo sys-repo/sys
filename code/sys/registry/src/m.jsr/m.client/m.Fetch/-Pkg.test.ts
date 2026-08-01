@@ -9,7 +9,7 @@ describe('Jsr.Fetch.Pkg', () => {
 
       Object.defineProperty(globalThis, 'fetch', {
         configurable: true,
-        value: async (input: RequestInfo | URL, init?: RequestInit) => {
+        value: (input: RequestInfo | URL, init?: RequestInit) => {
           expect(String(input)).to.include('https://jsr.io/@sys/std/meta.json?sys-cache-bust=');
           captured = init;
           const res = JSON.stringify({
@@ -18,10 +18,12 @@ describe('Jsr.Fetch.Pkg', () => {
             latest: '1.0.0',
             versions: { '1.0.0': { createdAt: '2026-07-05T01:17:43.938610Z' } },
           });
-          return new Response(res, {
-            status: 200,
-            headers: { 'content-type': 'application/json' },
-          });
+          return Promise.resolve(
+            new Response(res, {
+              status: 200,
+              headers: { 'content-type': 'application/json' },
+            }),
+          );
         },
       });
 
@@ -30,7 +32,9 @@ describe('Jsr.Fetch.Pkg', () => {
         expect(res.ok).to.eql(true);
         expect(res.data?.versions['1.0.0']?.createdAt).to.eql('2026-07-05T01:17:43.938610Z');
         expect(captured?.cache).to.eql('reload');
-        expect(captured?.headers).to.eql({ 'cache-control': 'no-cache', pragma: 'no-cache' });
+        const headers = new Headers(captured?.headers);
+        expect(headers.get('cache-control')).to.eql('no-cache');
+        expect(headers.get('pragma')).to.eql('no-cache');
       } finally {
         Object.defineProperty(globalThis, 'fetch', { configurable: true, value: original });
       }
@@ -42,7 +46,7 @@ describe('Jsr.Fetch.Pkg', () => {
 
       Object.defineProperty(globalThis, 'fetch', {
         configurable: true,
-        value: async (input: RequestInfo | URL, init?: RequestInit) => {
+        value: (input: RequestInfo | URL, init?: RequestInit) => {
           captured = { input, init };
           const res = JSON.stringify({
             scope: 'sys',
@@ -50,10 +54,12 @@ describe('Jsr.Fetch.Pkg', () => {
             latest: '1.0.0',
             versions: { '1.0.0': { createdAt: '2026-07-05T01:17:43.938610Z' } },
           });
-          return new Response(res, {
-            status: 200,
-            headers: { 'content-type': 'application/json' },
-          });
+          return Promise.resolve(
+            new Response(res, {
+              status: 200,
+              headers: { 'content-type': 'application/json' },
+            }),
+          );
         },
       });
 
@@ -62,7 +68,8 @@ describe('Jsr.Fetch.Pkg', () => {
         expect(res.ok).to.eql(true);
         expect(String(captured?.input)).to.eql('https://jsr.io/@sys/std/meta.json');
         expect(captured?.init?.cache).to.eql(undefined);
-        expect(captured?.init?.headers).to.eql({});
+        const headers = new Headers(captured?.init?.headers);
+        expect([...headers]).to.eql([]);
       } finally {
         Object.defineProperty(globalThis, 'fetch', { configurable: true, value: original });
       }

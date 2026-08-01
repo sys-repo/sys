@@ -1,6 +1,5 @@
-import React from 'react';
+import type React from 'react';
 import {
-  type t,
   Button,
   Color,
   css,
@@ -12,6 +11,7 @@ import {
   Obj,
   ObjectView,
   Signal,
+  type t,
 } from './common.ts';
 
 const LOCAL_SPEC = {
@@ -127,10 +127,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
         theme={theme.name}
         style={{ MarginY: 20 }}
       />
-      {origin && <div className={Styles.title.class}>{'Mounts'}</div>}
+      {origin && <div className={Styles.title.class}>Mounts</div>}
       {origin && (
         <Mounts.UI
           origin={origin}
+          policy={{
+            maxBytes: 16 * 1024 * 1024,
+            timeout: 30_000,
+            maxRedirects: 3,
+            progressInterval: 100,
+            sourceOrigins: [new URL(origin).origin],
+            credentialOrigins: [],
+          }}
           selected={v.dataset}
           onSelect={(next) => (p.dataset.value = next)}
           theme={theme.name}
@@ -160,7 +168,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => Signal.toggle(p.debug)}
       />
       <Button block theme={theme.name} label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={v} expand={0} theme={theme.name} style={{ marginTop: 20 }} />
+      <ObjectView name='debug' data={v} expand={0} theme={theme.name} style={{ marginTop: 20 }} />
     </div>
   );
 };

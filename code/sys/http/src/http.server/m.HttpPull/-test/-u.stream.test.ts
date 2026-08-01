@@ -1,5 +1,14 @@
-import { type t, describe, expect, Fs, it, Path, Rx, Testing } from '../../../-test.ts';
-import { HttpPull } from '../mod.ts';
+import { describe, expect, Fs, it, Path, Rx, type t, Testing } from '../../../-test.ts';
+import { HttpPull as HttpPullRaw } from '../mod.ts';
+import { options as transport } from './u.fixture.ts';
+
+type PullOptions = Omit<t.HttpPull.Options, 'client' | 'policy'>;
+const HttpPull = {
+  ...HttpPullRaw,
+  stream(urls: readonly t.StringUrl[], dir: t.StringDir, options: PullOptions = {}) {
+    return HttpPullRaw.stream(urls, dir, transport(urls, options));
+  },
+};
 
 describe('HttpPull.stream', () => {
   const mkTmpDir = async () => (await Fs.makeTempDir({ prefix: 'http-pull-' })).absolute;
@@ -32,7 +41,7 @@ describe('HttpPull.stream', () => {
       const u = new URL(req.url);
       if (u.pathname.endsWith('/slow.txt')) {
         return new Promise<Response>((resolve) =>
-          setTimeout(() => resolve(Testing.Http.text(req, 'SLOW')), 30),
+          setTimeout(() => resolve(Testing.Http.text(req, 'SLOW')), 30)
         );
       }
       return Testing.Http.text(req, 'FAST'); // ← /fast.txt

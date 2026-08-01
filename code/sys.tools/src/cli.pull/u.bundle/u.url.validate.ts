@@ -22,18 +22,27 @@ export async function validateDistUrl(input: t.StringUrl): Promise<DistUrlCheck>
 
   const url = canonical.href;
 
+  const origin = new URL(url).origin;
+  const http = Http.client({
+    policy: {
+      maxBytes: 16 * 1024 * 1024,
+      timeout: 30_000,
+      maxRedirects: 3,
+      progressInterval: 100,
+      sourceOrigins: [origin],
+      credentialOrigins: [],
+    },
+  });
   try {
-    // Must be reachable and return valid JSON.
-    const http = Http.client();
     const res = await http.json(url);
-
     if (!Pkg.Is.dist(res.data)) {
       return fail(url, `Does not have a valid ${c.italic(c.cyan('dist.json'))} file.`);
     }
-
     return { ok: true, url };
   } catch (err) {
     const reason = Err.summary(err, { cause: true, stack: false });
     return fail(url, `Failed to fetch or parse dist.json. ${reason}`);
+  } finally {
+    http.dispose();
   }
 }

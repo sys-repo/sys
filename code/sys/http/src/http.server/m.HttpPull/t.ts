@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import type { t } from './common.ts';
 
 /**
  * HTTP pull contracts.
@@ -16,14 +16,14 @@ export declare namespace HttpPull {
     toDir(
       urls: readonly string[],
       dir: t.StringDir,
-      options?: Options,
+      options: Options,
     ): Promise<ToDir.Result>;
 
     /**
      * Same as `toDir`, but yields progress events.
      * Emission order is not guaranteed to be request order.
      */
-    stream(urls: readonly string[], dir: t.StringDir, options?: Options): Stream.Instance;
+    stream(urls: readonly string[], dir: t.StringDir, options: Options): Stream.Instance;
   };
 
   /** Result per URL. */
@@ -49,22 +49,30 @@ export declare namespace HttpPull {
     readonly error: string;
   };
 
-  /** Pull options. */
-  export type Options = {
-    /** Late-bound client. Default: `Http.client()` */
-    readonly client?: t.HttpFetch.Instance;
-
+  type OptionsCommon = {
     /** URL → path mapping rules used by `Map.urlToPath`. */
     readonly map?: Map.Options;
-
     /** Concurrency limiter. Default: 8 */
     readonly concurrency?: number;
-
     /** Cancel pull operation. */
     readonly until?: t.UntilInput;
-
     /** Retry options. */
     readonly retry?: Retry.Options | boolean;
+  };
+
+  /** Pull transport and execution options. */
+  export type Options = OptionsCommon & (OptionsClient | OptionsPolicy);
+
+  type OptionsClient = {
+    /** Caller-owned bounded Fetch capability. */
+    readonly client: t.HttpFetch.Instance;
+    readonly policy?: never;
+  };
+
+  type OptionsPolicy = {
+    readonly client?: undefined;
+    /** Response policy for the internally owned Fetch capability. */
+    readonly policy: t.HttpFetch.ResponsePolicy;
   };
 
   /**

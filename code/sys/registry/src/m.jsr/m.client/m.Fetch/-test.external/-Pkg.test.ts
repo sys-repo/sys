@@ -11,7 +11,8 @@ describe('Jsr.Fetch.Pkg (external)', () => {
       await Testing.retry(3, async () => {
         const name = '@sys/std';
         const res = await Jsr.Fetch.Pkg.versions(name);
-        expect(Url.toCanonical(res.url).href).to.eql(`https://jsr.io/${name}/meta.json`);
+        const url = res.ok ? res.finalUrl : res.url;
+        expect(Url.toCanonical(url).href).to.eql(`https://jsr.io/${name}/meta.json`);
         expect(res.status).to.eql(200);
         expect(res.error).to.eql(undefined);
 
@@ -26,7 +27,7 @@ describe('Jsr.Fetch.Pkg (external)', () => {
         Fmt.printExternalObject('Jsr.Fetch.Pkg.versions:', {
           ok: res.ok,
           status: res.status,
-          url: res.url,
+          url,
           data: {
             scope: res.data?.scope,
             name: res.data?.name,
@@ -85,7 +86,7 @@ describe('Jsr.Fetch.Pkg (external)', () => {
         Fmt.printExternalObject('Jsr.Fetch.Pkg.info:', {
           ok: res.ok,
           status: res.status,
-          url: res.url,
+          url: res.ok ? res.finalUrl : res.url,
           data: {
             pkg: res.data?.pkg,
             manifest: Object.keys(res.data?.manifest ?? {}).length,

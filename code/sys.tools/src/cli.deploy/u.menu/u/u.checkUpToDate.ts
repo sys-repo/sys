@@ -1,4 +1,4 @@
-import { type t, c, Cli, Http, Is, Pkg, Str, Url } from './common.ts';
+import { c, Cli, Http, Is, Pkg, Str, type t, Url } from './common.ts';
 
 type Result =
   | { readonly ok: true; readonly localHash: string; readonly remoteHash: string }
@@ -19,18 +19,33 @@ export async function checkUpToDate(args: {
   if (!base) return { ok: false, reason: 'no-domain' };
   const distUrl = `${Str.trimTrailingSlashes(base)}/dist.json`;
   const distUrlText = `${c.white(Str.trimTrailingSlashes(base))}/${c.cyan('dist.json')}`;
-  const client = Http.fetcher();
+  const origin = new URL(distUrl).origin;
+  const client = Http.fetcher({
+    policy: {
+      maxBytes: 16 * 1024 * 1024,
+      timeout: 30_000,
+      maxRedirects: 3,
+      progressInterval: 100,
+      sourceOrigins: [origin],
+      credentialOrigins: [],
+    },
+  });
   const spinner = Cli.spinner();
   spinner.start(Cli.Fmt.spinnerText(c.italic(c.gray(`checking version ${distUrlText}`))));
-  const remote = await client.json<t.DistPkg>(distUrl);
-  spinner.stop();
-  if (!remote.ok) return { ok: false, reason: 'remote-fetch-failed', error: remote.error };
 
-  const remoteHash = String(remote.data?.hash?.digest ?? '').trim();
-  if (!remoteHash) return { ok: false, reason: 'no-remote-hash' };
+  try {
+    const remote = await client.json<t.DistPkg>(distUrl);
+    if (!remote.ok) return { ok: false, reason: 'remote-fetch-failed', error: remote.error };
 
-  if (localHash !== remoteHash) return { ok: false, reason: 'hash-mismatch' };
-  return { ok: true, localHash, remoteHash };
+    const remoteHash = String(remote.data?.hash?.digest ?? '').trim();
+    if (!remoteHash) return { ok: false, reason: 'no-remote-hash' };
+
+    if (localHash !== remoteHash) return { ok: false, reason: 'hash-mismatch' };
+    return { ok: true, localHash, remoteHash };
+  } finally {
+    spinner.stop();
+    client.dispose();
+  }
 }
 
 function toHttpsUrl(input: string): string {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Http, Path, Pkg, Rx, Time } from './common.ts';
+import { Http, Path, Pkg, Rx, type t, Time } from './common.ts';
 import { logVerifyResults } from './u.log.ts';
 
 export type UseVerifyArgs = {
@@ -56,7 +56,17 @@ export function useVerify(args: UseVerifyArgs) {
     void (async () => {
       const tasks = args.rows.map(async (row) => {
         const url = resolved[row.key];
-        const fetch = Http.fetcher();
+        const origin = new URL(url).origin;
+        const fetch = Http.fetcher({
+          policy: {
+            maxBytes: 16 * 1024 * 1024,
+            timeout: 30_000,
+            maxRedirects: 3,
+            progressInterval: 100,
+            sourceOrigins: [origin],
+            credentialOrigins: [],
+          },
+        });
         current.dispose$.subscribe(() => fetch.dispose());
 
         try {
