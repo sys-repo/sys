@@ -1,6 +1,6 @@
 import { Cell } from '../../m.cell/mod.ts';
 import { serviceStatusesOf } from '../../m.cell/u.services/u.status.ts';
-import { c, Cli, CliTable, Str, type t, Time, Try } from '../common.ts';
+import { c, Cli, CliTable, pkg, Str, type t, Time, Try } from '../common.ts';
 import { smallCountText } from '../u.fmt/u.count.ts';
 import { elapsedSuffix } from '../u.fmt/u.elapsed.ts';
 import { Fmt } from '../u.fmt/u.mod.ts';
@@ -106,7 +106,7 @@ async function closeAndDispose(
   started: t.Cell.Services.Started | undefined,
   shutdown: ShutdownSignal,
 ) {
-  const close = await Try.run(async () => started?.close(shutdown.reason ?? 'cell.start.finished'));
+  const close = await Try.run(() => started?.close(shutdown.reason ?? 'cell.start.finished'));
   try {
     if (!close.result.ok) throw close.result.error;
   } finally {
@@ -125,6 +125,10 @@ export function startServicesText(
   return `${text}${elapsedSuffix({ startedAt, now })}`;
 }
 
+export function formatStartHeader(): string {
+  return Cli.Fmt.Header.rows({ pkg, tone: 'green' }).join('\n');
+}
+
 export function formatStartResult(res: StartCellResult): string {
   const table = CliTable.create([]);
   table.push([c.gray('root'), FmtPath.display(res.root)]);
@@ -134,8 +138,9 @@ export function formatStartResult(res: StartCellResult): string {
 }
 
 export function formatStartOutput(res: StartCellResult): string {
+  const header = formatStartHeader();
   const summary = formatStartResult(res);
-  return res.serviceText ? `${res.serviceText}\n${summary}` : summary;
+  return res.serviceText ? `${header}\n${res.serviceText}\n${summary}` : `${header}\n\n${summary}`;
 }
 
 export function toStartResult(

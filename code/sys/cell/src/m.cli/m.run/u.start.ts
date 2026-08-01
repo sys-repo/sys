@@ -31,14 +31,16 @@ export async function runStart(ctx: RunContext): Promise<t.CellCli.Result> {
   if (args._.length > 2) return fail({ argv }, `Unexpected argument: ${args._[2]}`, startHelp);
 
   try {
-    const { formatStartResult, startCell, toStartResult } = await import('../u/u.start.ts');
-    const started = await startCell({
+    const start = await import('../u/u.start.ts');
+    print(start.formatStartHeader());
+    const started = await start.startCell({
       dir: args._[1],
       mode: mode.value,
       onStarted: print,
     });
-    const res = toStartResult({ argv }, started);
-    print(formatStartResult(started));
+    const res = start.toStartResult({ argv }, started);
+    const summary = start.formatStartResult(started);
+    print(started.serviceText ? summary : `\n${summary}`);
     return res;
   } catch (error) {
     return fail({ argv }, Err.summary(error, { cause: true }));
