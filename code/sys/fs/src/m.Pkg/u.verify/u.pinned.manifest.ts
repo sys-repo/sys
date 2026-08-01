@@ -29,10 +29,24 @@ export async function admitManifest(
   }
   const baseBuild = value.build as Record<string, unknown>;
   if (!Is.plainObject(baseBuild.hash)) throw failure('malformed');
+
+  const baseHash = value.hash as Record<string, unknown>;
+  const rawParts = baseHash.parts;
+  if (!Is.plainObject(rawParts)) throw failure('malformed');
+
+  // Enforce the declared-entry work bound before whole-collection arrays or part-value parsing.
+  let partCount = 0;
+  for (const path in rawParts) {
+    if (!Obj.hasOwn(rawParts, path)) continue;
+    if (partCount >= limits.entries) throw failure('limit-exceeded');
+    partCount++;
+  }
+  if (partCount === 0) throw failure('malformed');
   if (!Pkg.Is.dist(value)) throw failure('malformed');
 
   const dist = value as t.DistPkg;
   const { build, hash } = dist;
+  const entries = Object.entries(rawParts);
   if (!Is.urlString(dist.type)) throw failure('malformed');
   validatePkg(dist.pkg);
 
@@ -63,11 +77,7 @@ export async function admitManifest(
   }
   if (rulesDigest !== ignore['rules:digest']) throw failure('malformed');
 
-  if (!Is.plainObject(hash.parts)) throw failure('malformed');
   if (!hashOnly(hash.digest)) throw failure('malformed');
-  const entries = Object.entries(hash.parts);
-  if (entries.length === 0) throw failure('malformed');
-  if (entries.length > limits.entries) throw failure('limit-exceeded');
 
   const sign = build.sign;
   if (sign !== undefined) validateSign(sign);

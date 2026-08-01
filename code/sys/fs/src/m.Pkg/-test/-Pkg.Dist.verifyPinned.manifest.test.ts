@@ -7,6 +7,7 @@ import {
   Is,
   it,
   Json,
+  Num,
   type t,
 } from '../../-test.ts';
 import { Pkg } from '../mod.ts';
@@ -263,6 +264,37 @@ describe('Pkg.Dist.verifyPinned manifest admission', () => {
     }
   });
 
+  it('admits the declared-part limit before bounding a malformed excess value', async () => {
+    const fixture = await setup();
+    try {
+      const paths = Object.keys(fixture.dist.hash.parts);
+
+      const atLimit = cloneDist(fixture.dist);
+      const atLimitPath = paths[paths.length - 1];
+      atLimit.hash.parts[atLimitPath] = 'malformed' as t.StringFileHashUri;
+      const atLimitManifest = await writeManifest(fixture.dir, atLimit);
+      const admitted = await Pkg.Dist.verifyPinned({
+        dir: fixture.dir,
+        integrity: atLimitManifest.integrity,
+        limits: { ...limits, entries: paths.length },
+      });
+      expect(admitted).to.eql({ kind: 'malformed' });
+
+      const excess = cloneDist(fixture.dist);
+      const excessPath = paths[1];
+      excess.hash.parts[excessPath] = 'malformed' as t.StringFileHashUri;
+      const excessManifest = await writeManifest(fixture.dir, excess);
+      const bounded = await Pkg.Dist.verifyPinned({
+        dir: fixture.dir,
+        integrity: excessManifest.integrity,
+        limits: { ...limits, entries: 1 },
+      });
+      expect(bounded).to.eql({ kind: 'limit-exceeded' });
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
   it('enforces every caller-owned resource limit', async () => {
     const fixture = await setup();
     try {
@@ -297,12 +329,11 @@ describe('Pkg.Dist.verifyPinned manifest admission', () => {
       const unsafeArithmetic = cloneDist(fixture.dist);
       for (const [path, part] of Object.entries(unsafeArithmetic.hash.parts)) {
         const hash = Pkg.Dist.Part.hash(part)!;
-        unsafeArithmetic.hash.parts[path] =
-          `${hash}:size=${Number.MAX_SAFE_INTEGER}` as t.StringFileHashUri;
+        unsafeArithmetic.hash.parts[path] = `${hash}:size=${Num.MAX_INT}` as t.StringFileHashUri;
       }
       unsafeArithmetic.build.size = {
-        total: Number.MAX_SAFE_INTEGER,
-        pkg: Number.MAX_SAFE_INTEGER,
+        total: Num.MAX_INT,
+        pkg: Num.MAX_INT,
       };
       const arithmeticManifest = await writeManifest(fixture.dir, unsafeArithmetic);
       const arithmetic = await Pkg.Dist.verifyPinned({
@@ -310,8 +341,8 @@ describe('Pkg.Dist.verifyPinned manifest admission', () => {
         integrity: arithmeticManifest.integrity,
         limits: {
           ...limits,
-          fileBytes: Number.MAX_SAFE_INTEGER,
-          totalBytes: Number.MAX_SAFE_INTEGER,
+          fileBytes: Num.MAX_INT,
+          totalBytes: Num.MAX_INT,
         },
       });
       expect(arithmetic).to.eql({ kind: 'limit-exceeded' });
