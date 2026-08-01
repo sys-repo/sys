@@ -1,3 +1,4 @@
+import { WebFixture } from '@sys/testing/web';
 import { describe, expect, it, Json, type t, Testing, Url } from '../../../-test.ts';
 import { Fetch } from '../mod.ts';
 
@@ -172,7 +173,7 @@ describe('Http.Fetch.byteSize: request authority', () => {
       calls.push(init ?? {});
       return await nativeFetch(input, init);
     };
-    globalThis.fetch = trackedFetch;
+    const mock = WebFixture.Fetch.mock(trackedFetch);
 
     const server = Testing.Http.server((req) => {
       expect(req.headers.get('authorization')).to.eql(null);
@@ -210,7 +211,7 @@ describe('Http.Fetch.byteSize: request authority', () => {
         expect(init.referrerPolicy).to.eql('no-referrer');
       });
     } finally {
-      globalThis.fetch = nativeFetch;
+      mock.dispose();
       injected.dispose();
       await server.dispose();
     }
@@ -241,8 +242,7 @@ describe('Http.Fetch.byteSize: request authority', () => {
   it('cancels the range response body', async () => {
     let calls = 0;
     let cancellations = 0;
-    const nativeFetch = globalThis.fetch;
-    globalThis.fetch = (_input, init) => {
+    const mock = WebFixture.Fetch.mock((_input, init) => {
       calls++;
       if (init?.method === 'HEAD') {
         return Promise.resolve(new Response(null, { status: 405 }));
@@ -262,7 +262,7 @@ describe('Http.Fetch.byteSize: request authority', () => {
           headers: { 'content-range': 'bytes 0-0/64' },
         }),
       );
-    };
+    });
 
     try {
       const url = 'https://example.test/resource';
@@ -271,7 +271,7 @@ describe('Http.Fetch.byteSize: request authority', () => {
       expect(calls).to.eql(2);
       expect(cancellations).to.eql(1);
     } finally {
-      globalThis.fetch = nativeFetch;
+      mock.dispose();
     }
   });
 });
