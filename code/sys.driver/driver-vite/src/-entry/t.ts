@@ -36,6 +36,10 @@ export declare namespace ViteEntry {
       open?: boolean;
       port?: number;
       reporter?: t.Vite.Dev.ReporterMode;
+      /** Package subpath appended to the dev-server display title. */
+      pkgSubpath?: string;
+      /** CLI spelling of `pkgSubpath`. */
+      'pkg-subpath'?: string;
       logLines?: number;
       'log-lines'?: number;
     };

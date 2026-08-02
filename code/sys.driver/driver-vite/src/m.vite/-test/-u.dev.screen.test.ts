@@ -100,6 +100,21 @@ describe('DevScreen', () => {
       expect(rawHeader).to.include(c.dim(c.green(version)));
     });
 
+    it('dims package subpaths beneath the primary application identity', () => {
+      const packageName = '@sys/driver-pi';
+      const subpath = '/ui';
+      const rawHeader = DevScreen.toString({
+        pkg: { name: `${packageName}${subpath}`, version: '0.0.128' },
+        paths: paths(),
+        url: 'http://localhost:1234/',
+        lines: [],
+        ...frame(80),
+      }).split('\n')[0] ?? '';
+
+      expect(rawHeader).to.include(`${c.bold(c.green(packageName))}${c.dim(c.green(subpath))}`);
+      expect(stripAnsi(rawHeader).startsWith(`${packageName}${subpath}`)).to.eql(true);
+    });
+
     it('uses compact rail space before middle-ellipsizing metadata values', () => {
       const basePaths = paths();
       const customPaths = {

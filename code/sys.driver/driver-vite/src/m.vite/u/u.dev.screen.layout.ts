@@ -124,7 +124,18 @@ const wrangle = {
   },
 
   applicationHeader(pkg: t.Pkg, width: number) {
-    return Cli.Fmt.Header.rows({ pkg, width, tone: 'green' });
+    const title = wrangle.packageTitle(pkg.name);
+    return Cli.Fmt.Header.rows({ pkg, width, tone: 'green', ...(title ? { title } : {}) });
+  },
+
+  packageTitle(name: string) {
+    const firstSlash = name.indexOf('/');
+    const subpathAt = name.startsWith('@') ? name.indexOf('/', firstSlash + 1) : firstSlash;
+    if (subpathAt < 0) return;
+
+    const packageName = name.slice(0, subpathAt);
+    const subpath = name.slice(subpathAt);
+    return `${c.bold(c.green(packageName))}${c.dim(c.green(subpath))}`;
   },
 
   startupCore(args: FrameArgs, width: number, indexWidth: number) {
