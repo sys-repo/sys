@@ -5,9 +5,12 @@ type OutputLine = t.ViteDev.Output.Line;
 type FrameArgs = t.ViteDev.Screen.Frame.Args;
 type Viewport = t.ViteDev.Screen.Frame.Viewport;
 
+const COMPACT_METADATA_MAX_WIDTH = 80;
 const DEFAULT_LOG_LINES = 10;
-const MAX_LOG_LINES = 200;
+const LOG_COLUMN_GAP = 2;
 const LOG_ROW_GUTTER = 1;
+const LOG_SOURCE_WIDTH = 3;
+const MAX_LOG_LINES = 200;
 
 /** Dev-screen frame layout isolated from runtime lifecycle effects. */
 export const DevScreenLayout = {
@@ -125,19 +128,19 @@ const wrangle = {
   },
 
   startupCore(args: FrameArgs, width: number, indexWidth: number) {
-    const contentColumn = wrangle.contentColumn(indexWidth);
-    const indent = wrangle.indent(contentColumn);
+    const metadataColumn = wrangle.metadataColumn(width, indexWidth);
+    const indent = wrangle.indent(metadataColumn);
     const input = Path.trimCwd(args.paths.app.entry);
     const outDir = Path.trimCwd(args.paths.app.outDir);
     const subHr = c.dim(Cli.Fmt.hr({ width, color: 'green', weight: 'dashed' }));
     return [
-      wrangle.info(args.url, contentColumn, width),
+      wrangle.info(args.url, metadataColumn, width),
       `${indent}${c.green('↑')}`,
       metadataRow({
         label: 'input',
         value: input,
         width,
-        indent: contentColumn,
+        indent: metadataColumn,
         labelWidth: 9,
         styledLabel: c.green('input'),
       }),
@@ -145,7 +148,7 @@ const wrangle = {
         label: 'output',
         value: outDir,
         width,
-        indent: contentColumn,
+        indent: metadataColumn,
         labelWidth: 9,
         styledLabel: c.white('output'),
         suffixes: wrangle.distSuffixes(args.dist, args.renderedAt),
@@ -156,19 +159,19 @@ const wrangle = {
   },
 
   readyMetadata(args: FrameArgs, width: number, indexWidth: number) {
-    const contentColumn = wrangle.contentColumn(indexWidth);
-    const indent = wrangle.indent(contentColumn);
+    const metadataColumn = wrangle.metadataColumn(width, indexWidth);
+    const indent = wrangle.indent(metadataColumn);
     const input = Path.trimCwd(args.paths.app.entry);
     const outDir = Path.trimCwd(args.paths.app.outDir);
     return [
       '',
-      wrangle.info(args.url, contentColumn, width),
+      wrangle.info(args.url, metadataColumn, width),
       `${indent}${c.green('↑')}`,
       metadataRow({
         label: 'input',
         value: input,
         width,
-        indent: contentColumn,
+        indent: metadataColumn,
         labelWidth: 9,
         styledLabel: c.green('input'),
       }),
@@ -176,7 +179,7 @@ const wrangle = {
         label: 'output',
         value: outDir,
         width,
-        indent: contentColumn,
+        indent: metadataColumn,
         labelWidth: 9,
         styledLabel: c.white('output'),
         suffixes: wrangle.distSuffixes(args.dist, args.renderedAt),
@@ -212,19 +215,29 @@ const wrangle = {
     return rows.map((line) => clipLine(line, width)).join('\n').trimEnd();
   },
 
+  sourceColumn(indexWidth: number) {
+    return LOG_ROW_GUTTER + Math.max(1, indexWidth) + LOG_COLUMN_GAP;
+  },
+
   contentColumn(indexWidth: number) {
-    return 1 + Math.max(1, indexWidth) + 2 + 3 + 2;
+    return wrangle.sourceColumn(indexWidth) + LOG_SOURCE_WIDTH + LOG_COLUMN_GAP;
+  },
+
+  metadataColumn(width: number, indexWidth: number) {
+    return width <= COMPACT_METADATA_MAX_WIDTH
+      ? wrangle.sourceColumn(indexWidth)
+      : wrangle.contentColumn(indexWidth);
   },
 
   indent(width: number) {
     return ' '.repeat(Math.max(0, width));
   },
 
-  info(href: string, contentColumn: number, width: number) {
+  info(href: string, column: number, width: number) {
     const url = new URL(href);
     const text = `${url.protocol}//${url.hostname}:${url.port}/`;
-    const valueWidth = Cli.Fmt.Text.Width.fit({ width, reserve: contentColumn, terminal: false });
-    const indent = wrangle.indent(contentColumn);
+    const valueWidth = Cli.Fmt.Text.Width.fit({ width, reserve: column, terminal: false });
+    const indent = wrangle.indent(column);
     if (Cli.Fmt.Text.Width.measure(text) > valueWidth) {
       return `${indent}${c.cyan(clipText(text, valueWidth))}`;
     }
@@ -260,8 +273,8 @@ const wrangle = {
     const rowWidth = wrangle.dimension(width - LOG_ROW_GUTTER);
     const index = c.gray(String(line.index).padStart(indexWidth, ' '));
     const source = line.source === 'stderr' ? c.yellow('err') : c.gray('out');
-    const messageGap = '  ';
-    const prefix = `${wrangle.indent(LOG_ROW_GUTTER)}${index}  ${source}${messageGap}`;
+    const gap = wrangle.indent(LOG_COLUMN_GAP);
+    const prefix = `${wrangle.indent(LOG_ROW_GUTTER)}${index}${gap}${source}${gap}`;
     const textWidth = Cli.Fmt.Text.Width.fit({
       width: rowWidth,
       reserve: Cli.Fmt.Text.Width.measure(prefix),

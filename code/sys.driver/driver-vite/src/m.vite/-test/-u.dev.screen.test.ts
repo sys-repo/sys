@@ -100,7 +100,7 @@ describe('DevScreen', () => {
       expect(rawHeader).to.include(c.dim(c.green(version)));
     });
 
-    it('middle-ellipsizes URL, input, and output values within the frame width', () => {
+    it('uses compact rail space before middle-ellipsizing metadata values', () => {
       const basePaths = paths();
       const customPaths = {
         ...basePaths,
@@ -124,8 +124,7 @@ describe('DevScreen', () => {
       const outputLine = rows.find((line) => line.includes('output')) ?? '';
 
       expectRowsBounded(text, width);
-      expect(urlLine).to.include('…');
-      expect(urlLine).to.include(':12345/');
+      expect(urlLine.trim()).to.eql('http://localhost:12345/');
       expect(inputLine).to.include('src/');
       expect(inputLine).to.include('…');
       expect(inputLine).to.include('.html');
@@ -296,37 +295,48 @@ describe('DevScreen', () => {
       expect(tall).to.include('retained-log');
     });
 
-    it('aligns metadata and option keys with widening log indices', () => {
-      const output = DevOutputLog.create({ maxLines: 120 });
-      for (let current = 1; current <= 100; current++) {
-        output.push(processEvent('stdout', `line-${current}\n`));
+    it('switches the complete metadata rail at the narrow-width boundary', () => {
+      for (const index of [1, 10, 100]) {
+        for (const width of [79, 80, 81]) {
+          const source: t.Process.StdStream = 'stdout';
+          const args = {
+            pkg: pkg(),
+            paths: paths(),
+            url: 'http://localhost:1234/',
+            lines: [{ index, source, text: `line-${index}` }],
+            logLines: 1,
+            ...frame(width),
+          };
+          const ready = stripAnsi(DevScreen.toString({ ...args, showOptions: true }));
+          const startup = stripAnsi(DevScreen.startupToString({ ...args, spinner: '⠋' }));
+          const readyLines = ready.split('\n');
+          const logLine = readyLines.find((line) => line.includes(`line-${index}`)) ?? '';
+          const sourceColumn = logLine.indexOf('out');
+          const contentColumn = logLine.indexOf(`line-${index}`);
+          const metadataColumn = width <= 80 ? sourceColumn : contentColumn;
+
+          for (const text of [ready, startup]) {
+            const lines = text.split('\n');
+            const urlLine = lines.find((line) => line.includes('http://localhost')) ?? '';
+            const arrowLine = lines.find((line) => line.trim() === '↑') ?? '';
+            const inputLine = lines.find((line) => line.includes('input')) ?? '';
+            const outputLine = lines.find((line) => line.includes('output')) ?? '';
+
+            expectRowsBounded(text, width);
+            expect(urlLine.indexOf('http://localhost')).to.eql(metadataColumn);
+            expect(arrowLine.indexOf('↑')).to.eql(metadataColumn);
+            expect(inputLine.indexOf('input')).to.eql(metadataColumn);
+            expect(outputLine.indexOf('output')).to.eql(metadataColumn);
+          }
+
+          const quitLine = readyLines.find((line) => line.includes('ctrl + c')) ?? '';
+          const moreLine = readyLines.find((line) => line.includes('shift + i')) ?? '';
+          expect(quitLine.indexOf('ctrl + c')).to.eql(contentColumn);
+          expect(moreLine.indexOf('shift + i')).to.eql(contentColumn);
+          expect(logLine).to.eql(` ${index}  out  line-${index}`);
+          expect(readyLines[0].indexOf('0.0.0')).to.eql(width - '0.0.0'.length);
+        }
       }
-
-      const text = stripAnsi(DevScreen.toString({
-        pkg: pkg(),
-        paths: paths(),
-        url: 'http://localhost:1234/',
-        lines: output.lines(),
-        logLines: 2,
-        showOptions: true,
-        ...frame(80),
-      }));
-      const lines = text.split('\n');
-      const header = lines[0];
-      const urlLine = lines.find((line) => line.includes('http://localhost')) ?? '';
-      const inputLine = lines.find((line) => line.includes('input')) ?? '';
-      const logLine = lines.find((line) => line.includes('line-100')) ?? '';
-      const quitLine = lines.find((line) => line.includes('ctrl + c')) ?? '';
-      const moreLine = lines.find((line) => line.includes('shift + i')) ?? '';
-      const column = logLine.indexOf('line-100');
-
-      expect(column).to.eql(11);
-      expect(header.indexOf('0.0.0')).to.eql(80 - '0.0.0'.length);
-      expect(urlLine.indexOf('http://localhost')).to.eql(column);
-      expect(inputLine.indexOf('input')).to.eql(column);
-      expect(quitLine.indexOf('ctrl + c')).to.eql(column);
-      expect(moreLine.indexOf('shift + i')).to.eql(column);
-      expect(logLine).to.include(' 100  out  line-100');
     });
 
     it('qualifies every visible digest variant with build age', () => {
