@@ -1,4 +1,4 @@
-import { Dispose, Err, type t } from './common.ts';
+import { Dispose, Err, type t } from '../common.ts';
 import { bindKeyboard } from './u.keyboard.ts';
 import { localOrigin } from './u.origin.ts';
 import { options as createOptions } from './u.options.ts';

@@ -1,4 +1,4 @@
-import { c, Cli, Process, Str } from './common.ts';
+import { c, Cli, Process, Str } from '../common.ts';
 
 type Args = {
   port: number;

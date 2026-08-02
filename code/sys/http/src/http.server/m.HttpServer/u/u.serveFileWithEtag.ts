@@ -1,6 +1,6 @@
 import { serveFile } from '@std/http/file-server';
 
-import { Fs } from './common.ts';
+import { Fs } from '../common.ts';
 import { computeEtag } from './u.computeEtag.ts';
 
 /**

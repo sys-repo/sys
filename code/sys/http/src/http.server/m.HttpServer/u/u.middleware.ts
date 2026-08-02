@@ -1,4 +1,4 @@
-import { type t, Err, Fs, Path } from './common.ts';
+import { Fs, Path, type t } from '../common.ts';
 
 /**
  * Returns a middleware that:

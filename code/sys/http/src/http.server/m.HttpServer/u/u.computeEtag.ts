@@ -1,4 +1,4 @@
-import { Fs, Hash } from './common.ts';
+import { Fs, Hash } from '../common.ts';
 
 const DEFAULT_SMALL_JSON_MAX_BYTES = 256 * 1024;
 

@@ -1,6 +1,6 @@
-import { Hono, cors, type t } from './common.ts';
-import { forceDirSlash } from './u.middleware.ts';
-import { serveStatic } from './u.serveStatic.ts';
+import { cors, Hono, type t } from './common.ts';
+import { forceDirSlash } from './u/u.middleware.ts';
+import { serveStatic } from './u/u.serveStatic.ts';
 
 type Options = t.HttpServer.Create.Options;
 

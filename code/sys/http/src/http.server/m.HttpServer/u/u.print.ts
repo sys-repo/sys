@@ -1,4 +1,4 @@
-import { c, Cli, Fs, Str, type t } from './common.ts';
+import { c, Cli, Fs, Str, type t } from '../common.ts';
 import { formatPrintUrls } from './u.print.url.ts';
 
 /**

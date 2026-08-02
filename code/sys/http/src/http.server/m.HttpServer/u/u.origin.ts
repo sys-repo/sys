@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import type { t } from '../common.ts';
 
 /** Browser-safe local origin for an HTTP listener. */
 export function localOrigin(

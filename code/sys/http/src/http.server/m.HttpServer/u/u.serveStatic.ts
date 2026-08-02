@@ -1,6 +1,5 @@
-import { serveFile } from '@std/http/file-server';
 import { serveStatic as honoStatic } from 'hono/deno';
-import { type t, Fs, Path } from './common.ts';
+import { Fs, Path, type t } from '../common.ts';
 import { serveFileWithEtag } from './u.serveFileWithEtag.ts';
 
 type Input = Parameters<t.HttpServer.ServeStatic.Method>[0];

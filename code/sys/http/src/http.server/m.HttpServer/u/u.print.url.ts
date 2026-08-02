@@ -1,4 +1,4 @@
-import { Cli, type t } from './common.ts';
+import { Cli, type t } from '../common.ts';
 import { localOrigin } from './u.origin.ts';
 import { statusUrls } from './u.status.url.ts';
 

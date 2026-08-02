@@ -1,10 +1,10 @@
 import { cors, Hono, type t } from './common.ts';
 import { create } from './m.Server.create.ts';
-import { forceDirSlash } from './u.middleware.ts';
-import { options } from './u.options.ts';
-import { print } from './u.print.ts';
-import { serveStatic } from './u.serveStatic.ts';
-import { start } from './u.start.ts';
+import { forceDirSlash } from './u/u.middleware.ts';
+import { options } from './u/u.options.ts';
+import { print } from './u/u.print.ts';
+import { serveStatic } from './u/u.serveStatic.ts';
+import { start } from './u/u.start.ts';
 
 /**
  * HTTP Server.
