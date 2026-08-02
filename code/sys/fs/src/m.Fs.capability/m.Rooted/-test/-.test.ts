@@ -42,6 +42,7 @@ describe('Fs.Capability.Rooted', () => {
       expect(rooted.path).to.eql(await Deno.realPath(fixture.root));
       expect((await Deno.lstat(rooted.path)).isDirectory).to.eql(true);
       expectTypeOf(rooted).toEqualTypeOf<t.FsRooted.Instance>();
+      expectTypeOf(rooted).toEqualTypeOf<t.Fs.Rooted.Instance>();
     } finally {
       await teardown(fixture);
     }

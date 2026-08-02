@@ -93,8 +93,14 @@ export namespace Fs {
     export type Lib = t.FsCapability.Lib;
     /** Portable filesystem capability instance. */
     export type Instance = t.FsCapability.Instance;
-    /** Publisher for files and directories beneath one root. */
-    export type Rooted = t.FsRooted.Instance;
+  }
+
+  /** Rooted filesystem capability contracts used across package boundaries. */
+  export namespace Rooted {
+    export type Instance = t.FsRooted.Instance;
+    export type Failure = t.FsRooted.Failure;
+    export type Operation = t.FsRooted.Operation;
+    export type FailureKind = t.FsRooted.FailureKind;
   }
 
   /** Filesystem path helper types. */

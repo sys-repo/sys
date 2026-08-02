@@ -1,5 +1,6 @@
-import { Await, HttpClient, Rx, type t } from './common.ts';
+import { Await, HttpClient, Is, Rx, type t } from './common.ts';
 import { pullOne } from './u.pullOne.ts';
+import { streamResources } from './u.resource.stream.ts';
 import { isAbortError, makeEventQueue, resolveTarget } from './u.ts';
 
 /**
@@ -12,6 +13,30 @@ import { isAbortError, makeEventQueue, resolveTarget } from './u.ts';
  *   stream(urls, dir, opts).cancel(); // aborts in-flight work
  */
 export function stream(
+  resources: readonly t.HttpPull.Resource[],
+  rooted: t.Fs.Rooted.Instance,
+  options: t.HttpPull.ResourceOptions,
+): t.HttpPull.Stream.Instance;
+export function stream(
+  urls: readonly string[],
+  dir: t.StringDir,
+  options: t.HttpPull.Options,
+): t.HttpPull.Stream.Instance;
+export function stream(
+  input: readonly t.HttpPull.Resource[] | readonly string[],
+  destination: t.Fs.Rooted.Instance | t.StringDir,
+  options: t.HttpPull.ResourceOptions | t.HttpPull.Options,
+): t.HttpPull.Stream.Instance {
+  return Is.str(destination)
+    ? streamUrls(input as readonly string[], destination, options as t.HttpPull.Options)
+    : streamResources(
+      input as readonly t.HttpPull.Resource[],
+      destination,
+      options as t.HttpPull.ResourceOptions,
+    );
+}
+
+function streamUrls(
   urls: readonly string[],
   dir: t.StringDir,
   options: t.HttpPull.Options,

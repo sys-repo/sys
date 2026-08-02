@@ -1,13 +1,6 @@
-import { Fs, HttpClient, Path, type t, Time, Url } from './common.ts';
+import { Fs, Path, type t, Url } from './common.ts';
+import { fetchBytes } from './u.fetch.ts';
 import { isAbortError, resolveTarget } from './u.ts';
-
-type FetchResult =
-  | { ok: true; bytes: Uint8Array; status: t.HttpStatusCode }
-  | { ok: false; status?: t.HttpStatusCode; error: string };
-
-type NormalizedRetry =
-  | { enabled: false }
-  | { enabled: true; attempts: number; base: t.Msecs; factor: number; jitter: boolean };
 
 export async function pullOne(
   url: t.StringUrl,
@@ -20,78 +13,6 @@ export async function pullOne(
   },
 ): Promise<t.HttpPull.Record> {
   const { map, signal } = opts;
-  const retryOpts = normalizeRetry(opts.retry);
-
-  async function attemptFetch(u: URL): Promise<FetchResult> {
-    let res: t.HttpFetch.Response<Blob>;
-
-    try {
-      res = await client.blob(u.toString(), { signal });
-    } catch (err) {
-      // Deno fetcher throws on certain HTTP errors, including 503.
-      // Convert thrown errors into a retry-eligible {ok:false,status}.
-      const msg = err instanceof Error ? err.message : String(err);
-      const match = msg.match(/(\d{3})/);
-      const code = match ? Number(match[1]) : undefined;
-      return { ok: false, status: code, error: msg };
-    }
-
-    // If status is 5xx, treat it as retry-eligible even if data is missing.
-    // Previously this returned a fatal error too early.
-    if (!res.ok) {
-      return {
-        ok: false,
-        status: res.status,
-        error: res.error?.message ?? (res.status ? `HTTP ${res.status}` : 'Network error'),
-      };
-    }
-    const bytes = await HttpClient.toUint8Array(res.data);
-    return { ok: true, status: res.status, bytes };
-  }
-
-  /**
-   * Retry wrapper (5xx only).
-   */
-  async function fetchWithRetry(u: URL): Promise<FetchResult> {
-    if (!retryOpts.enabled) {
-      return attemptFetch(u);
-    }
-
-    const { attempts, base, factor, jitter } = retryOpts;
-
-    for (let attempt = 0; attempt < attempts; attempt++) {
-      try {
-        const result = await attemptFetch(u);
-        if (result.ok) return result;
-
-        const is5xx = result.status && result.status >= 500 && result.status <= 599;
-        const last = attempt === attempts - 1;
-        if (!is5xx || last) return result;
-
-        const raw = base * Math.pow(factor, attempt);
-        const ms = jitter ? raw + Math.floor(Math.random() * raw * 0.3) : raw;
-
-        await Time.wait(ms as t.Msecs, { signal });
-      } catch (err) {
-        if (isAbortError(err)) throw err;
-
-        const msg = err instanceof Error ? err.message : String(err);
-        const looks5xx = msg.includes('5');
-        const last = attempt === attempts - 1;
-
-        if (!looks5xx || last) {
-          return { ok: false, error: msg };
-        }
-
-        const raw = base * Math.pow(factor, attempt);
-        const ms = jitter ? raw + Math.floor(Math.random() * raw * 0.3) : raw;
-
-        await Time.wait(ms as t.Msecs, { signal });
-      }
-    }
-
-    return { ok: false, error: 'Unknown pull error' };
-  }
 
   /** -------------------------------------------------------
    * Main body
@@ -106,9 +27,8 @@ export async function pullOne(
   try {
     await Fs.ensureDir(Path.dirname(target));
 
-    const fetchPromise = fetchWithRetry(u.toURL());
-    const result: FetchResult = signal == null
-      //
+    const fetchPromise = fetchBytes(u.toURL(), client, { signal, retry: opts.retry });
+    const result = signal == null
       ? await fetchPromise
       : await fetchWithAbortRace(signal, fetchPromise);
 
@@ -140,63 +60,38 @@ export async function pullOne(
 }
 
 /**
- * Pure retry normalizer.
- * Ensures:
- *   - enabled: false  → no retries
- *   - enabled: true   → all fields fully defined (no undefined)
- */
-function normalizeRetry(retry: t.HttpPull.Options['retry']): NormalizedRetry {
-  // - retry === false      → disabled
-  // - retry === undefined  → enabled with defaults
-  // - retry === true       → enabled with defaults
-  // - retry is object      → enabled with merged overrides
-  if (retry === false) {
-    return { enabled: false };
-  }
-
-  if (retry == null || retry === true) {
-    return { enabled: true, attempts: 3, base: 50, factor: 2, jitter: true };
-  }
-
-  return {
-    enabled: true,
-    attempts: retry.attempts ?? 3,
-    base: retry.base ?? 50,
-    factor: retry.factor ?? 2,
-    jitter: retry.jitter ?? true,
-  };
-}
-
-/**
  * Races a fetch-style promise against an AbortSignal.
  *
  * Behaviour:
- *   - If the fetch promise settles first, its FetchResult is returned.
+ *   - If the fetch promise settles first, its result is returned.
  *   - If the signal aborts first, a DOMException("Aborted", "AbortError") is thrown.
  *
  * This mirrors the semantics of a cancelled fetch so that `isAbortError(...)`
  * higher up can recognise and handle the abort in a consistent way.
  */
-async function fetchWithAbortRace(
-  signal: AbortSignal,
-  fetchPromise: Promise<FetchResult>,
-): Promise<FetchResult> {
+async function fetchWithAbortRace<T>(signal: AbortSignal, fetchPromise: Promise<T>): Promise<T> {
   // If already aborted, fail fast with a standard AbortError.
   if (signal.aborted) {
     throw new DOMException('Aborted', 'AbortError');
   }
 
   // Promise that resolves when the abort signal fires; used as the other side of the race.
+  let onAbort = () => {};
   const abortPromise = new Promise<'aborted'>((resolve) => {
-    signal.addEventListener('abort', () => resolve('aborted'), { once: true });
+    onAbort = () => resolve('aborted');
+    signal.addEventListener('abort', onAbort, { once: true });
   });
 
-  const winner = await Promise.race<FetchResult | 'aborted'>([fetchPromise, abortPromise]);
+  try {
+    const winner = await Promise.race<T | 'aborted'>([fetchPromise, abortPromise]);
 
-  // If the abort side won the race, propagate a proper AbortError.
-  if (winner === 'aborted') {
-    throw new DOMException('Aborted', 'AbortError');
+    // If the abort side won the race, propagate a proper AbortError.
+    if (winner === 'aborted') {
+      throw new DOMException('Aborted', 'AbortError');
+    }
+
+    return winner;
+  } finally {
+    signal.removeEventListener('abort', onAbort);
   }
-
-  return winner;
 }

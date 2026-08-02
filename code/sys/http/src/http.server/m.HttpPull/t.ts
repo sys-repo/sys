@@ -9,6 +9,13 @@ export declare namespace HttpPull {
     /** Pure mapping helpers (no IO). */
     readonly Map: Map.Lib;
 
+    /** Download checksum-bound resources through one Rooted destination capability. */
+    toDir(
+      resources: readonly Resource[],
+      rooted: t.Fs.Rooted.Instance,
+      options: ResourceOptions,
+    ): Promise<ToDir.Result>;
+
     /**
      * Download a list of URLs into `dir`.
      * Path mapping uses `Map.urlToPath` with `options.map` rules.
@@ -19,12 +26,40 @@ export declare namespace HttpPull {
       options: Options,
     ): Promise<ToDir.Result>;
 
+    /** Stream checksum-bound resources through one Rooted destination capability. */
+    stream(
+      resources: readonly Resource[],
+      rooted: t.Fs.Rooted.Instance,
+      options: ResourceOptions,
+    ): Stream.Instance;
+
     /**
      * Same as `toDir`, but yields progress events.
      * Emission order is not guaranteed to be request order.
      */
     stream(urls: readonly string[], dir: t.StringDir, options: Options): Stream.Instance;
   };
+
+  /** One checksum-bound resource with an explicit root-relative destination. */
+  export type Resource = {
+    readonly source: t.StringUrl;
+    readonly target: t.StringRelativePath;
+    readonly checksum: t.StringHash;
+    readonly expectedBytes?: t.NumberBytes;
+  };
+
+  /**
+   * Secure resource options require owned bounded transport.
+   * Scheduling and retry authority belong to later bounded execution policy.
+   */
+  export type ResourceOptions =
+    & {
+      readonly until?: t.UntilInput;
+      readonly concurrency?: never;
+      readonly retry?: never;
+      readonly map?: never;
+    }
+    & OptionsPolicy;
 
   /** Result per URL. */
   export type Record = RecordSuccess | RecordFailure;
@@ -41,17 +76,23 @@ export declare namespace HttpPull {
     readonly error?: undefined;
   };
 
+  /** Sanitized Rooted failure evidence retained by secure resource pulls. */
+  export type RootedFailureEvidence = {
+    readonly operation: t.Fs.Rooted.Operation;
+    readonly kind: t.Fs.Rooted.FailureKind;
+    readonly committed: boolean;
+  };
+
   /** Failed pull record without byte evidence. */
   export type RecordFailure = RecordCommon & {
     readonly ok: false;
     readonly status?: t.HttpStatusCode;
     readonly bytes?: undefined;
     readonly error: string;
+    readonly filesystem?: RootedFailureEvidence;
   };
 
-  type OptionsCommon = {
-    /** URL → path mapping rules used by `Map.urlToPath`. */
-    readonly map?: Map.Options;
+  type ExecutionOptions = {
     /** Concurrency limiter. Default: 8 */
     readonly concurrency?: number;
     /** Cancel pull operation. */
@@ -60,8 +101,13 @@ export declare namespace HttpPull {
     readonly retry?: Retry.Options | boolean;
   };
 
+  type LegacyOptions = ExecutionOptions & {
+    /** URL → path mapping rules used by `Map.urlToPath`. */
+    readonly map?: Map.Options;
+  };
+
   /** Pull transport and execution options. */
-  export type Options = OptionsCommon & (OptionsClient | OptionsPolicy);
+  export type Options = LegacyOptions & (OptionsClient | OptionsPolicy);
 
   type OptionsClient = {
     /** Caller-owned bounded Fetch capability. */
