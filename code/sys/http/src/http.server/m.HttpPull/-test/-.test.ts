@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { HttpPull } from '../mod.ts';
-import { PullMap } from '../u.map.ts';
+import { PullMap } from '../u/u.map.ts';
 
 const U = (s: string) => new URL(s);
 

@@ -1,4 +1,4 @@
-import { HttpClient, Rx, type t } from './common.ts';
+import { HttpClient, Rx, type t } from '../common.ts';
 import { isAbortError, makeEventQueue } from './u.ts';
 import { preflightResources, pullResource } from './u.resource.ts';
 

@@ -1,4 +1,4 @@
-import { Path, type t } from './common.ts';
+import { Path, type t } from '../common.ts';
 import { PullMap } from './u.map.ts';
 
 /**

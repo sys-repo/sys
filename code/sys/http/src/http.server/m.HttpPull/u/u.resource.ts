@@ -1,4 +1,4 @@
-import { Arr, Fs, Is, Num, Obj, Pkg, type t, Url } from './common.ts';
+import { Arr, Fs, Is, Num, Obj, Pkg, type t, Url } from '../common.ts';
 import { fetchBytesOnce } from './u.fetch.ts';
 
 const FAILURE = {

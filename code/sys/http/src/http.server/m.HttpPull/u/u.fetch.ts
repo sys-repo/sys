@@ -1,4 +1,4 @@
-import { HttpClient, type t, Time } from './common.ts';
+import { HttpClient, type t, Time } from '../common.ts';
 import { isAbortError } from './u.ts';
 
 type FetchBytesResult =

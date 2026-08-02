@@ -1,4 +1,4 @@
-import { Fs, Path, type t, Url } from './common.ts';
+import { Fs, Path, type t, Url } from '../common.ts';
 import { fetchBytes } from './u.fetch.ts';
 import { isAbortError, resolveTarget } from './u.ts';
 

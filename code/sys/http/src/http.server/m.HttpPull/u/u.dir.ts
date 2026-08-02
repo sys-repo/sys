@@ -1,4 +1,4 @@
-import { Await, HttpClient, Is, Rx, type t } from './common.ts';
+import { Await, HttpClient, Is, Rx, type t } from '../common.ts';
 import { pullOne } from './u.pullOne.ts';
 import { preflightResources, pullResource } from './u.resource.ts';
 

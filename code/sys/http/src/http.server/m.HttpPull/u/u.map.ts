@@ -1,4 +1,4 @@
-import { type t, Path } from './common.ts';
+import { Path, type t } from '../common.ts';
 
 export const PullMap: t.HttpPull.Map.Lib = {
   urlToPath(u, options) {
