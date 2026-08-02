@@ -124,8 +124,7 @@ describe(`HttpPull`, () => {
         expect(PullMap.baseFrom('\\path\\sample')).to.eql('path/sample');
       });
 
-      it('treats invalid URL-looking strings as plain input', () => {
-        // "http:::/bad" will throw URL parse error, caught and passed to relativePosix
+      it('treats URL-looking strings as path input', () => {
         expect(PullMap.baseFrom('http:::/bad')).to.eql('http:::/bad');
       });
 

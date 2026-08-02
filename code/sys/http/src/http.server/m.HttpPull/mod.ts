@@ -1,11 +1,11 @@
 /**
  * @module HttpPull
  *
- * HTTP → FS utilities.
- * Provides functions for pulling remote resources into a local directory:
- *  - IO:   download URLs to a directory, with optional progress events.
- *  - Map:  pure helpers for rebasing/mirroring URL paths into relative POSIX paths.
+ * Materializes HTTP resources into filesystem destinations.
  *
- * Use when you need to "mirror" or "rebase" a set of HTTP assets into the filesystem.
+ * Legacy pulls mirror URLs into a directory. Verified pulls bind each source to an explicit
+ * checksum and root-relative target, then publish through a Rooted capability. Both `toDir` and
+ * `stream` execute through the same operation; `stream` additionally exposes bounded event views
+ * and cancellation.
  */
 export { HttpPull } from './m.HttpPull.ts';

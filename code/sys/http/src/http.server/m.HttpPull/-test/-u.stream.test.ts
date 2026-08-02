@@ -1,6 +1,8 @@
-import { describe, expect, Fs, it, Path, Rx, type t, Testing } from '../../../-test.ts';
+import { describe, expect, Fs, it, Path, Rx, type t, Testing, Time } from '../../../-test.ts';
+import { Http } from '../../../http.client/mod.ts';
 import { HttpPull as HttpPullRaw } from '../mod.ts';
-import { options as transport } from './u.fixture.ts';
+import { createExecutor } from '../u/u.execute.ts';
+import { options as transport, responsePolicy } from './u.fixture.ts';
 
 type PullOptions = Omit<t.HttpPull.Options, 'client' | 'policy'>;
 const HttpPull = {
@@ -35,13 +37,41 @@ describe('HttpPull.stream', () => {
     }
   };
 
+  const clientView = (
+    base: t.HttpFetch.Instance,
+    options: {
+      readonly blob?: t.HttpFetch.Instance['blob'];
+      readonly onDispose?: () => void;
+    } = {},
+  ): t.HttpFetch.Instance => {
+    const client = Object.create(base) as t.HttpFetch.Instance;
+    if (options.blob) Object.defineProperty(client, 'blob', { value: options.blob });
+    Object.defineProperty(client, 'dispose', {
+      value(reason?: unknown) {
+        options.onDispose?.();
+        base.dispose(reason);
+      },
+    });
+    return client;
+  };
+
+  const pendingServer = () => {
+    let release!: () => void;
+    const released = new Promise<void>((resolve) => release = resolve);
+    const server = Testing.Http.server(async (request) => {
+      await released;
+      return Testing.Http.text(request, 'late');
+    });
+    return { server, release };
+  };
+
   it('emits start + done for each URL; done order reflects completion, not input', async () => {
     // Slow/fast endpoints:
     const server = Testing.Http.server((req) => {
       const u = new URL(req.url);
       if (u.pathname.endsWith('/slow.txt')) {
         return new Promise<Response>((resolve) =>
-          setTimeout(() => resolve(Testing.Http.text(req, 'SLOW')), 30)
+          Time.delay(30, () => resolve(Testing.Http.text(req, 'SLOW')))
         );
       }
       return Testing.Http.text(req, 'FAST'); // ← /fast.txt
@@ -73,8 +103,8 @@ describe('HttpPull.stream', () => {
       expect(firstDone.record.path.source.endsWith('/fast.txt')).to.eql(true);
 
       // Files are written:
-      const a = dones.find((d: any) => d.record.path.source.endsWith('/fast.txt'))!.record;
-      const b = dones.find((d: any) => d.record.path.source.endsWith('/slow.txt'))!.record;
+      const a = dones.find((event) => event.record.path.source.endsWith('/fast.txt'))!.record;
+      const b = dones.find((event) => event.record.path.source.endsWith('/slow.txt'))!.record;
 
       const ta = await Fs.readText(a.path.target);
       const tb = await Fs.readText(b.path.target);
@@ -87,9 +117,7 @@ describe('HttpPull.stream', () => {
       expect(result.ok).to.eql(true);
       expect(result.ops).to.have.length(2);
 
-      const sources = result.ops.map((r) => r.path.source).sort();
-      expect(sources[0].endsWith('/fast.txt')).to.eql(true);
-      expect(sources[1].endsWith('/slow.txt')).to.eql(true);
+      expect(result.ops.map((record) => record.path.source)).to.eql([slow, fast]);
     } finally {
       await server.dispose();
     }
@@ -162,30 +190,164 @@ describe('HttpPull.stream', () => {
     expect(await Fs.exists(op.path.target)).to.eql(false);
   });
 
-  it('cancels via `until` (no done/error)', async () => {
-    // Server that never responds; requests hang until aborted.
-    const server = Testing.Http.server((_req) => new Promise<Response>(() => {}));
-    const a = toLocalhost(server.url.join('x', 'a.txt'));
-    const b = toLocalhost(server.url.join('x', 'b.txt'));
+  it('records every queued and in-flight input cancelled via `until`', async () => {
+    const pending = pendingServer();
+    const { server } = pending;
+    try {
+      const a = toLocalhost(server.url.join('x', 'a.txt'));
+      const b = toLocalhost(server.url.join('x', 'b.txt'));
+      const outDir = await mkTmpDir();
+      const until = Rx.disposable();
+      const events: t.HttpPull.Event.Any[] = [];
+      const stream = HttpPull.stream([a, b], outDir, { until, concurrency: 2 });
+
+      queueMicrotask(() => until.dispose());
+      for await (const event of stream) events.push(event);
+
+      expect(events.some((event) => event.kind === 'done')).to.eql(false);
+      expect(events.filter((event) => event.kind === 'error')).to.have.length(2);
+
+      const result = await stream.done;
+      expect(result.ok).to.eql(false);
+      expect(result.ops).to.have.length(2);
+      expect(result.ops.map((record) => record.path.source)).to.eql([a, b]);
+      expect(
+        result.ops.every((record) =>
+          !record.ok && record.cancelled === true && record.status === 499
+        ),
+      ).to.eql(true);
+    } finally {
+      pending.release();
+      await server.dispose();
+    }
+  });
+
+  it('honors a pre-aborted lifecycle before creating owned transport', async () => {
+    const a = 'https://example.test/a.txt';
+    const b = 'https://example.test/b.txt';
     const outDir = await mkTmpDir();
+    const until = new AbortController();
+    let clientCreations = 0;
+    const executor = createExecutor(() => {
+      clientCreations++;
+      throw new Error('Unexpected client creation');
+    });
+    until.abort('test:pre-aborted');
 
-    const until = Rx.disposable();
-    const events: t.HttpPull.Event.Any[] = [];
+    const result = await executor([a, b], outDir, {
+      policy: responsePolicy([a, b]),
+      until: until.signal,
+    }).done;
 
-    const stream = HttpPull.stream([a, b], outDir, { until, concurrency: 2 });
-    queueMicrotask(() => until.dispose()); // ← cancel immediately on next microtask.
+    expect(clientCreations).to.eql(0);
+    expect(result.ok).to.eql(false);
+    expect(result.ops).to.have.length(2);
+    expect(result.ops.every((record) => !record.ok && record.cancelled === true)).to.eql(true);
+  });
 
-    for await (const ev of stream) events.push(ev);
-
-    // Cancellation is quiet: no 'done' and no 'error'
-    expect(events.some((e) => e.kind === 'done')).to.eql(false);
-    expect(events.some((e) => e.kind === 'error')).to.eql(false);
+  it('bounds retained events when no consumer is attached', async () => {
+    const urls = Array.from({ length: 300 }, (_, index) => `::::bad-${index}::::`);
+    const outDir = await mkTmpDir();
+    const stream = HttpPull.stream(urls, outDir, { concurrency: 32 });
 
     const result = await stream.done;
-    expect(result.ok).to.eql(true); // empty ops → trivially true
-    expect(result.ops).to.have.length(0);
+    expect(result.ok).to.eql(false);
+    expect(result.ops).to.have.length(urls.length);
+    expect(result.ops.map((record) => record.path.source)).to.eql(urls);
 
-    await server.dispose();
+    const retained: t.HttpPull.Event.Any[] = [];
+    for await (const event of stream) retained.push(event);
+    expect(retained.length).to.be.gte(1).and.lte(256);
+  });
+
+  it('early iterator return cancels queued/in-flight work and awaits quiescence', async () => {
+    const a = 'https://example.test/a.txt';
+    const b = 'https://example.test/b.txt';
+    const outDir = await mkTmpDir();
+    const entered = deferred<void>();
+    let active = 0;
+
+    const base = Http.Fetch.make({ policy: responsePolicy([a, b]) });
+    const blob: t.HttpFetch.Instance['blob'] = (_input, init = {}) =>
+      new Promise((_resolve, reject) => {
+        active++;
+        entered.resolve();
+        const abort = () => {
+          Time.delay(20, () => {
+            active--;
+            reject(new DOMException('Aborted', 'AbortError'));
+          });
+        };
+        if (init.signal?.aborted) abort();
+        else init.signal?.addEventListener('abort', abort, { once: true });
+      });
+    const client = clientView(base, { blob });
+    const stream = HttpPullRaw.stream([a, b], outDir, { client, concurrency: 1 });
+    const observed: t.HttpPull.Event.Any[] = [];
+    const view = stream.events();
+    const subscription = view.$.subscribe((event) => observed.push(event));
+    const iterator = stream[Symbol.asyncIterator]();
+
+    const first = await iterator.next();
+    expect(first.value?.kind).to.eql('start');
+    await entered.promise;
+    await iterator.return?.();
+
+    const result = await stream.done;
+    const eventsAtDone = observed.length;
+    expect(active).to.eql(0);
+    expect(result.ok).to.eql(false);
+    expect(result.ops).to.have.length(2);
+    expect(result.ops.map((record) => record.path.source)).to.eql([a, b]);
+    expect(result.ops.every((record) => !record.ok && record.cancelled === true)).to.eql(true);
+    expect(await Fs.exists(result.ops[0].path.target)).to.eql(false);
+    expect(await Fs.exists(result.ops[1].path.target)).to.eql(false);
+
+    await Time.wait(30);
+    expect(observed.length).to.eql(eventsAtDone);
+    subscription.unsubscribe();
+    view.dispose();
+    client.dispose('test:complete');
+  });
+
+  it('disposes owned clients exactly once and leaves injected clients caller-owned', async () => {
+    const server = Testing.Http.server((req) => Testing.Http.text(req, 'owned'));
+    let injected: t.HttpFetch.Instance | undefined;
+    try {
+      const url = toLocalhost(server.url.join('client.txt'));
+      const policy = responsePolicy([url]);
+      let owned: t.HttpFetch.Instance | undefined;
+      let ownedDisposals = 0;
+      const executor = createExecutor((createOptions) => {
+        const base = Http.Fetch.make(createOptions);
+        owned = clientView(base, { onDispose: () => ownedDisposals++ });
+        return owned;
+      });
+
+      const ownedDir = await mkTmpDir();
+      const ownedResult = await executor([url], ownedDir, { policy }).done;
+      expect(ownedResult.ok).to.eql(true);
+      expect(ownedDisposals).to.eql(1);
+      expect(owned?.disposed).to.eql(true);
+
+      let injectedDisposals = 0;
+      injected = clientView(Http.Fetch.make({ policy }), {
+        onDispose: () => injectedDisposals++,
+      });
+      const injectedDir = await mkTmpDir();
+      const injectedResult = await HttpPullRaw.stream([url], injectedDir, { client: injected })
+        .done;
+      expect(injectedResult.ok).to.eql(true);
+      expect(injectedDisposals).to.eql(0);
+      expect(injected.disposed).to.eql(false);
+
+      injected.dispose('caller:complete');
+      expect(injectedDisposals).to.eql(1);
+      expect(injected.disposed).to.eql(true);
+    } finally {
+      if (injected && !injected.disposed) injected.dispose('test:cleanup');
+      await server.dispose();
+    }
   });
 
   describe('retry', () => {
@@ -310,7 +472,7 @@ describe('HttpPull.stream', () => {
       // Deterministic invariants for a hot Subject:
       expect(dones.length).to.eql(2);
       expect(errors.length).to.eql(0);
-      expect(starts.length).to.be.gte(0).and.lte(2);
+      expect(starts.length).to.be.lte(2);
 
       const result = await stream.done;
       expect(result.ok).to.eql(true);
@@ -319,40 +481,42 @@ describe('HttpPull.stream', () => {
       await server.dispose();
     });
 
-    it('cancel(reason) → completes observable quietly (no done/error)', async () => {
-      // Never-responding server; stream should end quietly on cancel.
-      const server = Testing.Http.server((_req) => new Promise<Response>(() => {}));
-      const a = toLocalhost(server.url.join('x', 'a.txt'));
-      const b = toLocalhost(server.url.join('x', 'b.txt'));
-      const outDir = await mkTmpDir();
+    it('cancel(reason) emits terminal cancellation records, then completes', async () => {
+      const pending = pendingServer();
+      const { server } = pending;
+      try {
+        const a = toLocalhost(server.url.join('x', 'a.txt'));
+        const b = toLocalhost(server.url.join('x', 'b.txt'));
+        const outDir = await mkTmpDir();
+        const stream = HttpPull.stream([a, b], outDir, { concurrency: 2 });
+        const events: t.HttpPull.Event.Any[] = [];
+        const done = deferred();
+        const sub = stream.events().$.subscribe({
+          next: (event) => events.push(event),
+          error: done.reject,
+          complete: done.resolve,
+        });
 
-      const stream = HttpPull.stream([a, b], outDir, { concurrency: 2 });
+        queueMicrotask(() => stream.cancel('react:unmount'));
+        await done.promise;
+        sub.unsubscribe();
 
-      const events: t.HttpPull.Event.Any[] = [];
-      const done = deferred();
-      const sub = stream.events().$.subscribe({
-        next: (e) => events.push(e),
-        error: done.reject,
-        complete: done.resolve,
-      });
+        expect(events.some((event) => event.kind === 'done')).to.eql(false);
+        expect(events.filter((event) => event.kind === 'error')).to.have.length(2);
 
-      // Cancel on next microtask.
-      queueMicrotask(() => stream.cancel('react:unmount'));
-
-      await done.promise;
-      sub.unsubscribe();
-
-      expect(events.some((e) => e.kind === 'done')).to.eql(false);
-      expect(events.some((e) => e.kind === 'error')).to.eql(false);
-
-      const result = await stream.done;
-      expect(result.ok).to.eql(true);
-      expect(result.ops).to.have.length(0);
-
-      await server.dispose();
+        const result = await stream.done;
+        expect(result.ok).to.eql(false);
+        expect(result.ops).to.have.length(2);
+        expect(result.ops.every((record) => !record.ok && record.cancelled === true)).to.eql(
+          true,
+        );
+      } finally {
+        pending.release();
+        await server.dispose();
+      }
     });
 
-    it('events(until) has independent lifetime from iterator (observable completes; iterator continues)', async () => {
+    it('isolates one disposed observable view from its sibling and iterator', async () => {
       const server = Testing.Http.server((req) => Testing.Http.text(req, 'OK'));
       const a = toLocalhost(server.url.join('p', 'a.txt'));
       const b = toLocalhost(server.url.join('p', 'b.txt'));
@@ -368,31 +532,40 @@ describe('HttpPull.stream', () => {
         iterDone.resolve();
       })();
 
-      // Create an events() subscription with its own until; we dispose it immediately.
+      // Create sibling views, then end only the first view.
       const local = Rx.disposable();
-      const obsEvents: t.HttpPull.Event.Any[] = [];
-      const obsDone = deferred<void>();
-      const sub = stream.events(local).$.subscribe({
-        next: (e) => obsEvents.push(e),
-        error: obsDone.reject,
-        complete: obsDone.resolve,
+      const localDone = deferred<void>();
+      const localView = stream.events(local);
+      const localSub = localView.$.subscribe({
+        error: localDone.reject,
+        complete: localDone.resolve,
+      });
+      const siblingEvents: t.HttpPull.Event.Any[] = [];
+      const siblingDone = deferred<void>();
+      const siblingView = stream.events();
+      const siblingSub = siblingView.$.subscribe({
+        next: (event) => siblingEvents.push(event),
+        error: siblingDone.reject,
+        complete: siblingDone.resolve,
       });
 
-      // End only the observable view.
       local.dispose('local:unsubscribe');
+      await localDone.promise;
+      localSub.unsubscribe();
 
-      await obsDone.promise;
-      sub.unsubscribe();
+      // The sibling view and iterator continue to the operation's natural completion.
+      await Promise.all([iterDone.promise, siblingDone.promise]);
+      siblingSub.unsubscribe();
 
-      // Observable ended early; iterator should still complete and see all events.
-      await iterDone.promise;
+      const iterStarts = iterEvents.filter((event) => event.kind === 'start').length;
+      const iterDones = iterEvents.filter((event) => event.kind === 'done').length;
+      const siblingDones = siblingEvents.filter((event) => event.kind === 'done').length;
 
-      const iterStarts = iterEvents.filter((e) => e.kind === 'start').length;
-      const iterDones = iterEvents.filter((e) => e.kind === 'done').length;
-
-      expect(obsEvents.length).to.be.gte(0); // may be 0 or a few 'start' depending on timing
+      expect(localView.disposed).to.eql(true);
+      expect(siblingView.disposed).to.eql(true);
       expect(iterStarts).to.eql(2);
       expect(iterDones).to.eql(2);
+      expect(siblingDones).to.eql(2);
 
       const result = await stream.done;
       expect(result.ok).to.eql(true);

@@ -121,7 +121,7 @@ describe(`HttpPull.toDir`, () => {
         map: {
           relativeTo: '/any',
           includeHost: true,
-          mapPath: () => 'custom/out.js' as any,
+          mapPath: () => 'custom/out.js' as t.StringPath,
         },
       });
       expect(ops[0].path.target.endsWith('custom/out.js')).to.eql(true);
@@ -165,12 +165,15 @@ describe(`HttpPull.toDir`, () => {
         ];
         const outDir = await mkTmpDir();
 
-        const { ok, ops } = await HttpPull.toDir(urls, outDir);
+        const { ok, ops } = await HttpPull.toDir(urls, outDir, { concurrency: 1 });
         expect(ok).to.eql(false);
         expect(ops).to.have.length(2);
         const [a, b] = ops;
-        expect(a.ok || b.ok).to.eql(true);
-        expect(a.ok && b.ok).to.eql(false);
+        expect(ops.map((record) => record.path.source)).to.eql(urls);
+        expect(a.ok).to.eql(true);
+        expect(b.ok).to.eql(false);
+        expect(await Fs.exists(a.path.target)).to.eql(true);
+        expect(await Fs.exists(b.path.target)).to.eql(false);
       } finally {
         await server.dispose();
       }
@@ -198,22 +201,34 @@ describe(`HttpPull.toDir`, () => {
       }
     });
 
-    it('invalid URL → ok:false, sanitized target, no write', async () => {
+    it('invalid URLs → confined bounded fallback targets; no writes', async () => {
       const outDir = await mkTmpDir();
-      const bad = '::::bad::::';
+      const long = 'a'.repeat(240);
+      const cases = [
+        { source: '::::bad::::', filename: '_bad_' },
+        { source: '.', filename: 'invalid' },
+        { source: '..', filename: 'invalid' },
+        { source: 'bad\0name', filename: 'bad_name' },
+        { source: 'évil', filename: '_vil' },
+        { source: long, filename: long.slice(0, 180) },
+      ] as const;
 
-      const { ok, ops } = await HttpPull.toDir([bad], outDir);
+      const { ok, ops } = await HttpPull.toDir(cases.map(({ source }) => source), outDir);
       expect(ok).to.eql(false);
-      const r = ops[0];
+      expect(ops).to.have.length(cases.length);
 
-      expect(r.ok).to.eql(false);
-      expect(r.error).to.eql('Invalid URL');
-      expect(await Fs.exists(r.path.target)).to.eql(false);
-
-      const base = Path.basename(r.path.target);
-      expect(base).to.eql('_bad_');
-      expect(base.includes('/')).to.eql(false);
-      expect(r.path.target.startsWith(outDir)).to.eql(true);
+      for (let index = 0; index < cases.length; index++) {
+        const record = ops[index];
+        const expected = cases[index];
+        expect(record.ok).to.eql(false);
+        expect(record.error).to.eql('Invalid URL');
+        expect(record.path.source).to.eql(expected.source);
+        expect(Path.dirname(record.path.target)).to.eql(outDir);
+        const filename = Path.basename(record.path.target);
+        expect(filename).to.eql(expected.filename);
+        expect(filename.length <= 180).to.eql(true);
+        expect(await Fs.exists(record.path.target)).to.eql(false);
+      }
     });
   });
 

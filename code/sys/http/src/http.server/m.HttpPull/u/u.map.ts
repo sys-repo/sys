@@ -2,24 +2,16 @@ import { Path, type t } from '../common.ts';
 
 export const PullMap: t.HttpPull.Map.Lib = {
   urlToPath(u, options) {
-    // 1. mapPath wins (still normalized to relative POSIX):
     const mapped = options?.mapPath?.(u);
     if (mapped) return Path.relativePosix(mapped) as t.StringPath;
 
     const emptyBasename = options?.emptyBasename ?? 'index';
     const host = u.host;
     const base = PullMap.baseFrom(options?.relativeTo);
-
-    // 2. start with pathname → relative POSIX:
     let rel = Path.relativePosix(u.pathname);
 
-    // 3. rebase on segment boundary:
     rel = PullMap.rebase(rel, base);
-
-    // 4. optional host prefix:
     if (options?.includeHost) rel = rel ? `${host}/${rel}` : host;
-
-    // 5. never return empty:
     return (rel || emptyBasename) as t.StringPath;
   },
 
@@ -35,7 +27,6 @@ export const PullMap: t.HttpPull.Map.Lib = {
       const raw = typeof relativeTo === 'string' ? relativeTo : (relativeTo as URL).pathname;
       return Path.relativePosix(raw);
     } catch {
-      // If it looked like a URL but failed parsing, treat it as a path.
       return Path.relativePosix(String(relativeTo));
     }
   },

@@ -19,7 +19,7 @@ export function resourceOptions(
   };
 }
 
-function responsePolicy(urls: readonly t.StringUrl[]): t.HttpFetch.ResponsePolicy {
+export function responsePolicy(urls: readonly t.StringUrl[]): t.HttpFetch.ResponsePolicy {
   const parsed = urls.flatMap((url) => {
     try {
       return [new URL(url).origin];

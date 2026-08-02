@@ -40,7 +40,10 @@ type ResourcePreflight =
   | { readonly ok: true; readonly resources: readonly PreparedResource[] }
   | { readonly ok: false; readonly records: readonly t.HttpPull.RecordFailure[] };
 
-/** Validate and snapshot a complete resource batch before admitting every target together. */
+/**
+ * Snapshot and validate the complete batch, then admit every target as one Rooted request.
+ * No transport or publication begins unless the whole preflight succeeds.
+ */
 export async function preflightResources(
   input: readonly t.HttpPull.Resource[],
   rooted: t.Fs.Rooted.Instance,
@@ -82,7 +85,7 @@ export async function preflightResources(
   }
 }
 
-/** Fetch, authenticate, and immutably publish one admitted resource. */
+/** Fetch exact bytes, authenticate checksum and optional size, then publish without clobbering. */
 export async function pullResource(
   resource: PreparedResource,
   rooted: t.Fs.Rooted.Instance,

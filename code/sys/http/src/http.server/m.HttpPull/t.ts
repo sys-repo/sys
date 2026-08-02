@@ -4,12 +4,16 @@ import type { t } from './common.ts';
  * HTTP pull contracts.
  */
 export declare namespace HttpPull {
-  /** HTTP pull helper library. */
+  /** HTTP-to-filesystem materialization API. */
   export type Lib = {
     /** Pure mapping helpers (no IO). */
     readonly Map: Map.Lib;
 
-    /** Download checksum-bound resources through one Rooted destination capability. */
+    /**
+     * Materialize checksum-bound resources through one Rooted capability.
+     * The complete batch is validated and admitted before transport; each file is authenticated
+     * before no-clobber publication.
+     */
     toDir(
       resources: readonly Resource[],
       rooted: t.Fs.Rooted.Instance,
@@ -17,8 +21,8 @@ export declare namespace HttpPull {
     ): Promise<ToDir.Result>;
 
     /**
-     * Download a list of URLs into `dir`.
-     * Path mapping uses `Map.urlToPath` with `options.map` rules.
+     * Download URLs into `dir`, deriving each target with `Map.urlToPath`.
+     * This legacy overload writes directly to derived filesystem paths and may replace files.
      */
     toDir(
       urls: readonly string[],
@@ -26,31 +30,33 @@ export declare namespace HttpPull {
       options: Options,
     ): Promise<ToDir.Result>;
 
-    /** Stream checksum-bound resources through one Rooted destination capability. */
+    /** Start the checksum-bound materialization as an observable pull operation. */
     stream(
       resources: readonly Resource[],
       rooted: t.Fs.Rooted.Instance,
       options: ResourceOptions,
     ): Stream.Instance;
 
-    /**
-     * Same as `toDir`, but yields progress events.
-     * Emission order is not guaranteed to be request order.
-     */
+    /** Start the legacy directory materialization as an observable pull operation. */
     stream(urls: readonly string[], dir: t.StringDir, options: Options): Stream.Instance;
   };
 
   /** One checksum-bound resource with an explicit root-relative destination. */
   export type Resource = {
+    /** Absolute HTTP(S) source admitted by the response policy. */
     readonly source: t.StringUrl;
+    /** Destination submitted to the Rooted capability for admission. */
     readonly target: t.StringRelativePath;
+    /** Canonical expected content hash. */
     readonly checksum: t.StringHash;
+    /** Optional exact byte length authenticated before publication. */
     readonly expectedBytes?: t.NumberBytes;
   };
 
   /**
-   * Secure resource options require owned bounded transport.
-   * Scheduling and retry authority belong to later bounded execution policy.
+   * Secure resource options.
+   * Pull constructs and owns the bounded transport from `policy`; client injection, mapping,
+   * concurrency, and retries are deliberately unavailable on this overload.
    */
   export type ResourceOptions =
     & {
@@ -61,10 +67,15 @@ export declare namespace HttpPull {
     }
     & OptionsPolicy;
 
-  /** Result per URL. */
+  /** Terminal result for one input. */
   export type Record = RecordSuccess | RecordFailure;
 
+  /** Identity shared by every terminal record. */
   type RecordCommon = {
+    /**
+     * Stable input identity and effective destination.
+     * Secure targets are admitted root-relative paths; legacy targets are directory-derived paths.
+     */
     readonly path: { readonly source: t.StringUrl; readonly target: t.StringPath };
   };
 
@@ -76,31 +87,51 @@ export declare namespace HttpPull {
     readonly error?: undefined;
   };
 
-  /** Sanitized Rooted failure evidence retained by secure resource pulls. */
+  /**
+   * Stable Rooted failure evidence retained by secure pulls.
+   * Capability messages and raw causes are intentionally omitted.
+   */
   export type RootedFailureEvidence = {
     readonly operation: t.Fs.Rooted.Operation;
     readonly kind: t.Fs.Rooted.FailureKind;
+    /** Whether publication crossed the capability's commit boundary. */
     readonly committed: boolean;
   };
 
   /** Failed pull record without byte evidence. */
-  export type RecordFailure = RecordCommon & {
+  export type RecordFailure = RecordError | RecordCancelled;
+
+  /** Ordinary HTTP, filesystem, validation, or execution failure. */
+  export type RecordError = RecordCommon & {
     readonly ok: false;
     readonly status?: t.HttpStatusCode;
     readonly bytes?: undefined;
     readonly error: string;
+    readonly cancelled?: undefined;
     readonly filesystem?: RootedFailureEvidence;
   };
 
+  /** Caller or lifecycle cancellation before an input reached a committed outcome. */
+  export type RecordCancelled = RecordCommon & {
+    readonly ok: false;
+    readonly status: 499;
+    readonly bytes?: undefined;
+    readonly error: 'Pull operation cancelled';
+    readonly cancelled: true;
+    readonly filesystem?: undefined;
+  };
+
+  /** Shared controls for legacy pull execution. */
   type ExecutionOptions = {
-    /** Concurrency limiter. Default: 8 */
+    /** Maximum concurrent legacy pulls. Default: 8. */
     readonly concurrency?: number;
-    /** Cancel pull operation. */
+    /** Lifecycle authority for cancelling the operation. */
     readonly until?: t.UntilInput;
-    /** Retry options. */
+    /** Legacy retry policy. `false` disables retries; omitted or `true` uses defaults. */
     readonly retry?: Retry.Options | boolean;
   };
 
+  /** Legacy path mapping and execution controls. */
   type LegacyOptions = ExecutionOptions & {
     /** URL → path mapping rules used by `Map.urlToPath`. */
     readonly map?: Map.Options;
@@ -109,111 +140,108 @@ export declare namespace HttpPull {
   /** Pull transport and execution options. */
   export type Options = LegacyOptions & (OptionsClient | OptionsPolicy);
 
+  /** Caller-owned transport branch. */
   type OptionsClient = {
-    /** Caller-owned bounded Fetch capability. */
+    /** Caller-owned bounded Fetch capability; Pull never disposes it. */
     readonly client: t.HttpFetch.Instance;
     readonly policy?: never;
   };
 
+  /** Pull-owned transport branch. */
   type OptionsPolicy = {
     readonly client?: undefined;
-    /** Response policy for the internally owned Fetch capability. */
+    /** Policy for a Fetch capability created and disposed by this pull operation. */
     readonly policy: t.HttpFetch.ResponsePolicy;
   };
 
-  /**
-   * HTTP pull-to-directory contracts.
-   */
+  /** Aggregate materialization results. */
   export namespace ToDir {
     /** Response from `HttpPull.toDir`. */
     export type Result = ResultSuccess | ResultFailure;
 
-    /** Successful aggregate pull result. */
+    /** Every input completed successfully; `ops` remains in input order. */
     export type ResultSuccess = {
       readonly ok: true;
       readonly ops: readonly HttpPull.RecordSuccess[];
     };
 
-    /** Failed aggregate pull result. */
+    /**
+     * At least one input failed or was cancelled.
+     * Pull is non-transactional: successful earlier publications remain successful records.
+     */
     export type ResultFailure = {
       readonly ok: false;
       readonly ops: readonly HttpPull.Record[];
     };
   }
 
-  /**
-   * HTTP pull retry contracts.
-   */
+  /** Legacy retry contracts. */
   export namespace Retry {
-    /** Retry options. */
+    /** Legacy retry options. */
     export type Options = {
+      /** Maximum total attempts. Default: 3. */
       readonly attempts?: number;
+      /** Initial delay between attempts. Default: 50ms. */
       readonly base?: t.Msecs;
+      /** Exponential delay multiplier. Default: 2. */
       readonly factor?: number;
+      /** Add up to 30% random delay. Default: true. */
       readonly jitter?: boolean;
     };
   }
 
-  /**
-   * HTTP pull stream contracts.
-   */
+  /** HTTP pull operation contracts. */
   export namespace Stream {
     /**
-     * API to a pull-stream of HTTP downloads.
+     * One pull operation, exposing event views and canonical terminal truth.
      *
-     * Features:
-     * - Async iterable of progress events (`for await ... of stream`).
-     * - `events()` exposes an observable that completes on finish or cancel.
-     * - `done` resolves with the aggregated `HttpPull.ToDir.Result`.
-     * - `cancel()` aborts in-flight work and completes the stream.
+     * Event emission follows execution order, not input order. The async iterator retains a bounded
+     * queue and may omit events under pressure; `done` is the complete source of terminal records.
      */
     export type Instance = {
-      /** Async iteration over progress events. */
+      /**
+       * Iterate the operation's single-consumer bounded event queue.
+       * Returning early cancels queued and in-flight work.
+       */
       readonly [Symbol.asyncIterator]: () => AsyncIterator<t.HttpPull.Event.Any>;
 
       /**
-       * Observable view of progress events.
-       * Completes when the stream finishes or is cancelled.
+       * Create a hot, non-replaying observable view.
+       * Disposing a view completes only that view; it does not cancel the pull or sibling views.
        */
       readonly events: (until?: t.UntilInput) => Events;
 
-      /**
-       * Abort in-flight requests, stop emitting events,
-       * and complete the stream.
-       */
+      /** Abort queued/in-flight work and complete after terminal cancellation accounting. */
       readonly cancel: (reason?: unknown) => void;
 
       /**
-       * Aggregated result of the pull.
-       *
-       * Resolves when the stream finishes or is cancelled.
-       * - `ok` is `true` only if all completed records succeeded.
-       * - `ops` contains one `HttpPull.Record` per attempted URL.
+       * Complete terminal result after every started worker has quiesced.
+       * `ops` contains exactly one input-ordered record per URL/resource.
        */
       readonly done: Promise<ToDir.Result>;
     };
 
-    /** Observable events from a pull-stream. */
+    /** Independently disposable observable view of a pull operation. */
     export type Events = t.Lifecycle & {
-      /** Observable of pull events. */
+      /** Hot, non-replaying operation events. */
       readonly $: t.Observable<t.HttpPull.Event.Any>;
     };
   }
 
-  /**
-   * HTTP pull progress event contracts.
-   */
+  /** HTTP pull operation event contracts. */
   export namespace Event {
-    /** HTTP-pull progress event. */
+    /** Event emitted while a pull operation executes. */
     export type Any = Start | Progress | Done | Error;
 
     /** Pull-start event. */
     export type Start = { readonly kind: 'start' } & Common;
 
-    /** Pull-progress event. */
+    /** Byte-progress event when transport progress evidence is available. */
     export type Progress = {
       readonly kind: 'progress';
+      /** Bytes observed so far. */
       readonly loaded?: number;
+      /** Expected total bytes, when known. */
       readonly bytes?: number;
     } & Common;
 
@@ -225,17 +253,18 @@ export declare namespace HttpPull {
       & { readonly kind: 'error'; readonly record: HttpPull.RecordFailure }
       & Common;
 
-    /** Common HTTP-pull event fields. */
+    /** Stable input identity carried by every operation event. */
     export type Common = {
+      /** Zero-based input index. */
       readonly index: t.Index;
+      /** Total inputs in the operation. */
       readonly total: number;
+      /** Original source URL. */
       readonly url: t.StringUrl;
     };
   }
 
-  /**
-   * HTTP pull mapping contracts.
-   */
+  /** URL mapping contracts. */
   export namespace Map {
     /** Pure mapping helper library. */
     export type Lib = {
@@ -243,15 +272,13 @@ export declare namespace HttpPull {
        * URL → relative POSIX path, given `HttpPull.Map.Options`.
        *
        * Algorithm:
-       *   1) Start with URL.pathname
-       *   2) `rebase(pathname, baseFrom(relativeTo))`
-       *   3) If `includeHost`, prefix with `url.host` (host[:port])
-       *   4) If empty → use `emptyBasename` (default "index")
+       *   1) If `mapPath` exists, normalize and return its result
+       *   2) Start with `URL.pathname`
+       *   3) `rebase(pathname, baseFrom(relativeTo))`
+       *   4) If `includeHost`, prefix with `URL.host` (host[:port])
+       *   5) If empty, use `emptyBasename` (default: "index")
        *
-       * Guarantees:
-       *   - No leading slash.
-       *   - Backslashes converted to "/".
-       *   - Never returns empty string.
+       * With valid options, output has no leading slash, uses POSIX separators, and is non-empty.
        */
       urlToPath(u: URL, options?: Options): t.StringPath;
 
@@ -267,12 +294,8 @@ export declare namespace HttpPull {
       rebase(pathname: string, base: string | ''): string;
 
       /**
-       * Derive a normalized "base" from `relativeTo`:
-       *   - If URL: uses its `.pathname`
-       *   - Else: uses the string as-is
-       * Then `toRelPosix(...)` for normalization.
-       *
-       * Returns a string with no leading slash (or "").
+       * Derive a relative POSIX base from `relativeTo`.
+       * URL inputs contribute their pathname; strings are normalized as paths.
        */
       baseFrom(relativeTo?: string | URL): string | '';
     };
@@ -285,7 +308,7 @@ export declare namespace HttpPull {
        *
        * Examples:
        *   relativeTo: "/path/sample"
-       *   relativeTo: "https://domain.com/path/sample/"
+       *   relativeTo: new URL("https://domain.com/path/sample/")
        */
       readonly relativeTo?: string | URL;
 
@@ -296,15 +319,14 @@ export declare namespace HttpPull {
       readonly includeHost?: boolean;
 
       /**
-       * Escape hatch for total control.
-       * If provided, wins over `relativeTo/includeHost`.
-       * Must return a POSIX *relative* path (no leading slash).
+       * Custom URL-to-path mapping; wins over `relativeTo` and `includeHost`.
+       * The returned value is normalized to a relative POSIX path.
        */
       readonly mapPath?: (u: URL) => t.StringPath;
 
       /**
-       * When rebasing yields an empty path (eg pathname === relativeTo),
-       * use this basename instead (default: "index").
+       * Non-empty relative filename used when rebasing removes the whole path.
+       * Default: "index".
        */
       readonly emptyBasename?: string;
     };

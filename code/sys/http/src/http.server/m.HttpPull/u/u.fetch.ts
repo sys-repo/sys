@@ -1,5 +1,5 @@
-import { HttpClient, type t, Time } from '../common.ts';
-import { isAbortError } from './u.ts';
+import { Err, HttpClient, Num, type t, Time } from '../common.ts';
+import { isAbortError } from './u.abort.ts';
 
 type FetchBytesResult =
   | {
@@ -52,7 +52,7 @@ export async function fetchBytesOnce(
     );
   } catch (cause) {
     // Preserve the legacy conversion of thrown status-bearing transport failures.
-    const message = cause instanceof Error ? cause.message : String(cause);
+    const message = Err.normalize(cause).message;
     const match = message.match(/(\d{3})/);
     const status = match ? Number(match[1]) : undefined;
     return { ok: false, status, error: message };
@@ -100,7 +100,7 @@ export async function fetchBytes(
     } catch (cause) {
       if (isAbortError(cause)) throw cause;
 
-      const message = cause instanceof Error ? cause.message : String(cause);
+      const message = Err.normalize(cause).message;
       const retryable = message.includes('5');
       const last = attemptIndex === retry.attempts - 1;
       if (!retryable || last) return { ok: false, error: message };
@@ -131,7 +131,7 @@ async function waitForRetry(
   attempt: number,
   signal?: AbortSignal,
 ): Promise<void> {
-  const raw = retry.base * Math.pow(retry.factor, attempt);
-  const delay = retry.jitter ? raw + Math.floor(Math.random() * raw * 0.3) : raw;
+  const raw = retry.base * retry.factor ** attempt;
+  const delay = retry.jitter ? raw + Math.floor(Num.random(0, raw * 0.3)) : raw;
   await Time.wait(delay as t.Msecs, { signal });
 }

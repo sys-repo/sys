@@ -1,4 +1,4 @@
-import { describe, expect, expectTypeOf, Fs, it, type t, Testing } from '../../../-test.ts';
+import { describe, expect, expectTypeOf, Fs, it, type t, Testing, Time } from '../../../-test.ts';
 import { Hash } from '../../common.ts';
 import { HttpPull } from '../mod.ts';
 import { resourceOptions as options } from './u.fixture.ts';
@@ -242,6 +242,41 @@ describe('HttpPull secure resources', () => {
       });
       expect(JSON.stringify([admission, publication]).includes('SECRET')).to.eql(false);
       expect(requests).to.eql(1);
+    } finally {
+      await server.dispose();
+    }
+  });
+
+  it('classifies filesystem failures identically through toDir and stream', async () => {
+    const server = Testing.Http.server((req) => Testing.Http.text(req, 'content'));
+    try {
+      const source = localhost(server.url.join('filesystem.txt'));
+      const input = [resource(source, 'filesystem.txt', 'content')];
+      const failingRoot = async (): Promise<t.Fs.Rooted.Instance> => {
+        const owner = await rooted();
+        return Object.freeze({
+          path: owner.path,
+          admit: owner.admit,
+          publishFile: () =>
+            Promise.reject(rootedFailure('publish-file', 'io-failure', 'FILESYSTEM-SECRET')),
+          createStage: owner.createStage,
+          discardStage: owner.discardStage,
+          promoteStage: owner.promoteStage,
+        });
+      };
+
+      const direct = await HttpPull.toDir(input, await failingRoot(), options(input));
+      const operation = HttpPull.stream(input, await failingRoot(), options(input));
+      const events: t.HttpPull.Event.Any[] = [];
+      for await (const event of operation) events.push(event);
+      const streamed = await operation.done;
+
+      expect(direct).to.eql(streamed);
+      expect(events.filter((event) => event.kind === 'error')).to.have.length(1);
+      expect(events.find((event) => event.kind === 'error')?.record).to.eql(direct.ops[0]);
+      expect(JSON.stringify([direct, streamed, events]).includes('FILESYSTEM-SECRET')).to.eql(
+        false,
+      );
     } finally {
       await server.dispose();
     }
@@ -495,6 +530,65 @@ describe('HttpPull secure resources', () => {
       expect(await Fs.exists(Fs.join(owner.path, 'foreign.txt'))).to.eql(false);
       expect(await Fs.exists(Fs.join(foreign.path, 'foreign.txt'))).to.eql(false);
     } finally {
+      await server.dispose();
+    }
+  });
+
+  it('quiesces secure in-flight work and contains a late response after cancellation', async () => {
+    let requests = 0;
+    let markRequested!: () => void;
+    let releaseResponse!: () => void;
+    let markHandled!: () => void;
+    const requested = new Promise<void>((resolve) => markRequested = resolve);
+    const released = new Promise<void>((resolve) => releaseResponse = resolve);
+    const handled = new Promise<void>((resolve) => markHandled = resolve);
+    const server = Testing.Http.server(async (request) => {
+      requests++;
+      markRequested();
+      await released;
+      markHandled();
+      return Testing.Http.text(request, 'late');
+    });
+    try {
+      const firstSource = localhost(server.url.join('first.txt'));
+      const secondSource = localhost(server.url.join('second.txt'));
+      const input = [
+        resource(firstSource, 'first.txt', 'first'),
+        resource(secondSource, 'second.txt', 'second'),
+      ];
+      const root = await rooted();
+      const operation = HttpPull.stream(input, root, options(input));
+      const iterator = operation[Symbol.asyncIterator]();
+      const first = await iterator.next();
+
+      expect(first.value?.kind).to.eql('start');
+      await requested;
+      operation.cancel('test:cancel');
+      const events = first.value ? [first.value] : [];
+      for (;;) {
+        const next = await iterator.next();
+        if (next.done) break;
+        events.push(next.value);
+      }
+      const result = await operation.done;
+
+      expect(result.ok).to.eql(false);
+      expect(result.ops).to.have.length(2);
+      expect(result.ops.map((record) => record.path.source)).to.eql([firstSource, secondSource]);
+      expect(result.ops.every((record) => !record.ok && record.cancelled === true)).to.eql(true);
+      expect(events.filter((event) => event.kind === 'error')).to.have.length(2);
+      expect(requests).to.eql(1);
+      expect(await Fs.exists(Fs.join(root.path, 'first.txt'))).to.eql(false);
+      expect(await Fs.exists(Fs.join(root.path, 'second.txt'))).to.eql(false);
+
+      releaseResponse();
+      await handled;
+      await Time.wait(20);
+      expect(requests).to.eql(1);
+      expect(await Fs.exists(Fs.join(root.path, 'first.txt'))).to.eql(false);
+      expect(await Fs.exists(Fs.join(root.path, 'second.txt'))).to.eql(false);
+    } finally {
+      releaseResponse();
       await server.dispose();
     }
   });
