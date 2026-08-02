@@ -2,7 +2,12 @@ import { Workspace } from '@sys/workspace';
 import { CompletionHang } from '@sys/workspace/run';
 import { describe, expect, it } from '@sys/testing/server';
 import { Cli, Is, Str, type t } from '../common.ts';
-import { clearTestScreen, defaultTestArgs, main, resolveTestPresentation } from '../task.test.ts';
+import {
+  clearTestStartupScreen,
+  defaultTestArgs,
+  main,
+  resolveTestPresentation,
+} from '../task.test.ts';
 
 describe('scripts/task.test', () => {
   describe('argument policy', () => {
@@ -40,7 +45,7 @@ describe('scripts/task.test', () => {
       });
     });
 
-    it('clears exactly once only for the interactive parallel screen', () => {
+    it('clears the startup viewport only for the interactive parallel screen', () => {
       const frames: string[] = [];
       const repaint = Cli.Screen.repaint;
       Object.defineProperty(Cli.Screen, 'repaint', {
@@ -48,9 +53,9 @@ describe('scripts/task.test', () => {
       });
 
       try {
-        clearTestScreen(resolveTestPresentation('sequential', true));
-        clearTestScreen(resolveTestPresentation('parallel', false));
-        clearTestScreen(resolveTestPresentation('parallel', true));
+        clearTestStartupScreen(resolveTestPresentation('sequential', true));
+        clearTestStartupScreen(resolveTestPresentation('parallel', false));
+        clearTestStartupScreen(resolveTestPresentation('parallel', true));
       } finally {
         Object.defineProperty(Cli.Screen, 'repaint', { value: repaint });
       }

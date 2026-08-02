@@ -67,7 +67,7 @@ describe('WorkspaceRun', () => {
     expect(log).to.eql('test:pkg-a\\ntest:pkg-c\\n');
   });
 
-  it('writes final screen scrollback before delivering completion truth', async () => {
+  it('clears setup output and writes final screen scrollback before completion truth', async () => {
     const fs = await Testing.dir('WorkspaceRun.test.screen-receipt');
     await writeWorkspace(fs.dir, { failCheck: false });
     const screen = createReporterScreen({ width: 100, height: 24 });
@@ -77,6 +77,7 @@ describe('WorkspaceRun', () => {
     const events = Cli.Screen.events;
     const repaint = Cli.Screen.repaint;
     const info = console.info;
+    const startSpinner = spinner.start;
     const stopSpinner = spinner.stop;
     const effects: string[] = [];
     let completion: t.WorkspaceRun.Test.Reporter.ScreenCompletion | undefined;
@@ -86,15 +87,21 @@ describe('WorkspaceRun', () => {
     });
     Object.defineProperty(Cli.Screen, 'events', { value: () => screen.events });
     Object.defineProperty(Cli.Screen, 'repaint', {
-      value: () => effects.push('repaint'),
+      value: (frame: string) => effects.push(`repaint:${frame.length}`),
     });
+    spinner.start = (text) => {
+      effects.push('spinner:start');
+      return startSpinner(text);
+    };
     spinner.stop = () => {
       effects.push('spinner:stop');
       return stopSpinner();
     };
     console.info = (...args: unknown[]) => {
       const text = Cli.stripAnsi(String(args[0] ?? ''));
-      if (text.includes('@test/pkg-a')) effects.push('scrollback');
+      if (text === '') effects.push('write:blank');
+      else if (text.startsWith('workspace ')) effects.push(text);
+      else if (text.includes('@test/pkg-a')) effects.push('scrollback');
     };
 
     try {
@@ -120,7 +127,16 @@ describe('WorkspaceRun', () => {
     expect(result?.ok).to.eql(true);
     expect(completion).to.eql({ failedPackages: { visible: 0, total: 0 } });
     expect(spinnerStub.calls).to.eql([{ text: '', options: { target: 'stdout' } }]);
-    expect(effects).to.eql(['spinner:stop', 'scrollback', 'complete']);
+    expect(effects).to.eql([
+      'workspace graph  →  rebuilding',
+      'workspace test   →  3 packages ordered',
+      'workspace test   →  strategy: parallel, 2 jobs (concurrent)',
+      'repaint:0',
+      'spinner:start',
+      'spinner:stop',
+      'scrollback',
+      'complete',
+    ]);
   });
 
   it('filters ordered paths when a package filter is provided', async () => {

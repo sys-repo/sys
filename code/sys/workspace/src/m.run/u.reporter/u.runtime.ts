@@ -203,6 +203,7 @@ export function createParallelReporterRuntime(
       }
 
       installFrame();
+      deps.repaint('');
       startSpinner();
       phase = 'active';
       tick = deps.tick(render);

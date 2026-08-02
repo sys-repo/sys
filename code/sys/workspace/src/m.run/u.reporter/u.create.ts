@@ -102,7 +102,6 @@ export function createParallelReporter(args: ParallelReporterArgs): ParallelRepo
         ),
       );
       if (!state.terminal) return;
-      state.write('');
       try {
         state.runtime?.start();
       } catch (error) {

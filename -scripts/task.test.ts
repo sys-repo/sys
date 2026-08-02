@@ -53,7 +53,7 @@ export async function main(input: MainArgs = {}) {
         },
       },
     };
-  clearTestScreen(presentation);
+  clearTestStartupScreen(presentation);
   const result = await Workspace.Run.test(args);
   const output = presentation.mode === 'sequential'
     ? Workspace.Run.Fmt.result(result)
@@ -126,8 +126,8 @@ export function resolveTestPresentation(
     };
 }
 
-/** Clear the visible stdout viewport exactly once for the root-owned screen presentation. */
-export function clearTestScreen(presentation: TestPresentation) {
+/** Clear prior stdout before the root-owned workspace setup phase begins. */
+export function clearTestStartupScreen(presentation: TestPresentation) {
   if (presentation.mode === 'parallel-screen') Cli.Screen.repaint('');
 }
 

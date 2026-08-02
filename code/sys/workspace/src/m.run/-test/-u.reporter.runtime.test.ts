@@ -26,7 +26,7 @@ describe('WorkspaceRun.parallel reporter runtime', () => {
   });
 
   describe('session lifecycle', () => {
-    it('acquires one accepted viewport and one stdout-aligned spinner session', () => {
+    it('clears previous output before starting one viewport-aligned spinner session', () => {
       const harness = createHarness({ viewport: { width: 100, height: 30 } });
 
       harness.runtime.start();
@@ -37,10 +37,12 @@ describe('WorkspaceRun.parallel reporter runtime', () => {
       expect(harness.spinner.starts).to.eql(1);
       expect(harness.spinner.stops).to.eql(0);
       expect(harness.spinner.text).to.eql('100x30');
+      expect(harness.effects).to.eql(['repaint', 'spinner:start']);
+      expect(harness.repaints).to.eql(['']);
 
       harness.runtime.stop();
-      expect(harness.effects).to.eql(['spinner:start', 'spinner:stop', 'repaint']);
-      expect(harness.repaints).to.eql(['100x30']);
+      expect(harness.effects).to.eql(['repaint', 'spinner:start', 'spinner:stop', 'repaint']);
+      expect(harness.repaints).to.eql(['', '100x30']);
     });
 
     it('transports one styled frame byte-identically through spinner and persisted repaint', () => {
@@ -52,7 +54,7 @@ describe('WorkspaceRun.parallel reporter runtime', () => {
       expect(Cli.stripAnsi(harness.spinner.text)).to.eql('✓ styled frame');
 
       harness.runtime.stop();
-      expect(harness.repaints).to.eql([frame]);
+      expect(harness.repaints).to.eql(['', frame]);
     });
 
     it('subscribes before initial measurement and keeps a synchronous accepted resize', () => {
@@ -205,6 +207,25 @@ describe('WorkspaceRun.parallel reporter runtime', () => {
       expect(harness.screen.events.disposed).to.eql(true);
     });
 
+    it('rolls back acquired resources when the transition clear fails', () => {
+      const harness = createHarness();
+      const cause = new Error('transition-clear-failed');
+      const runtime = createParallelReporterRuntime({
+        deps: {
+          ...harness.deps,
+          repaint() {
+            throw cause;
+          },
+        },
+        frame: () => 'frame',
+      });
+
+      expect(startFailure(runtime)).to.equal(cause);
+      expect(harness.spinner.starts).to.eql(0);
+      expect(harness.spinner.stops).to.eql(0);
+      expect(harness.screen.events.disposed).to.eql(true);
+    });
+
     it('rolls back a started terminal session when tick acquisition fails', () => {
       const harness = createHarness();
       const cause = new Error('tick-start-failed');
@@ -259,14 +280,14 @@ describe('WorkspaceRun.parallel reporter runtime', () => {
   });
 
   describe('shutdown', () => {
-    it('stops without repaint when output transfers to ordinary scrollback', () => {
+    it('stops without a final repaint when output transfers to ordinary scrollback', () => {
       const harness = createHarness();
 
       harness.runtime.start();
       harness.runtime.stop(false);
 
-      expect(harness.effects).to.eql(['spinner:start', 'spinner:stop']);
-      expect(harness.repaints).to.eql([]);
+      expect(harness.effects).to.eql(['repaint', 'spinner:start', 'spinner:stop']);
+      expect(harness.repaints).to.eql(['']);
       expect(harness.screen.events.disposed).to.eql(true);
     });
 
@@ -291,7 +312,7 @@ describe('WorkspaceRun.parallel reporter runtime', () => {
 
       expect(thrown).to.equal(cause);
       expect(spinner.stops).to.eql(1);
-      expect(harness.repaints).to.eql(['100x30']);
+      expect(harness.repaints).to.eql(['', '100x30']);
       expect(harness.screen.events.disposed).to.eql(true);
     });
 
