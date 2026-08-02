@@ -31,6 +31,7 @@ export async function actionMenu<T, A extends string = string>(
       defaultValue: lastAction,
       message: args.actions?.message,
       actionLabel: args.actions?.label,
+      labelMode: args.actions?.labelMode,
       extra: args.actions?.extra,
       extraAfter: args.actions?.extraAfter,
     });

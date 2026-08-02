@@ -18,11 +18,10 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
       await Fs.ensureDir(Fs.dirname(config));
       await Fs.write(config, 'sandbox: {}\n');
       console.info = (value?: unknown) => calls.push(String(value ?? ''));
-      Process.inherit = async () => {
-        throw new Error('Process.inherit should not run during sandbox preview.');
-      };
+      Process.inherit = () =>
+        Promise.reject(new Error('Process.inherit should not run during sandbox preview.'));
       Object.defineProperty(Cli.Input.Select, 'prompt', {
-        value: (input: { message: string; options?: { value: string }[] }) => {
+        value: (input: { message: string; options?: { value: unknown }[] }) => {
           if ((input.options ?? []).some((item) => item.value === 'exit')) {
             topLevelCount += 1;
             if (topLevelCount === 1) return Promise.resolve(config);
@@ -72,13 +71,13 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
         frames.push(frame);
         events.push('repaint');
       };
-      Process.inherit = async () => {
+      Process.inherit = () => {
         launchCount += 1;
         events.push('launch');
-        return { code: 0, success: true, signal: null };
+        return Promise.resolve({ code: 0, success: true, signal: null });
       };
       Object.defineProperty(Cli.Input.Select, 'prompt', {
-        value: (input: { message: string; options?: { value: string }[] }) => {
+        value: (input: { message: string; options?: { value: unknown }[] }) => {
           if ((input.options ?? []).some((item) => item.value === 'exit')) {
             topLevelCount += 1;
             if (topLevelCount === 1) return Promise.resolve(config);
@@ -135,9 +134,9 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
       await Fs.write(config, 'sandbox: {}\n');
       console.info = () => undefined;
       screen.repaint = (frame) => frames.push(frame);
-      Process.inherit = async () => ({ code: 0, success: true, signal: null });
+      Process.inherit = () => Promise.resolve({ code: 0, success: true, signal: null });
       Object.defineProperty(Cli.Input.Select, 'prompt', {
-        value: (input: { message: string; options?: { value: string }[] }) => {
+        value: (input: { message: string; options?: { value: unknown }[] }) => {
           if ((input.options ?? []).some((item) => item.value === 'exit')) {
             topLevelCount += 1;
             if (topLevelCount === 1) return Promise.resolve(config);

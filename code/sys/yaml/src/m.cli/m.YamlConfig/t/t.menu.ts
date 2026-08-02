@@ -85,8 +85,16 @@ export type YamlConfigMenuArgs<T, A extends string = string> = {
   actions?: {
     /** Action prompt message (default: "Actions:"). */
     message?: string;
-    /** Label used for built-in edit/reload/rename actions (default: "config"). */
-    label?: string;
+    /**
+     * Label used for built-in edit/reload/rename actions.
+     * Defaults to `config` and may derive from the selected config context.
+     */
+    label?: YamlConfigMenuItemName<T>;
+    /**
+     * Present labeled edit/reload/rename actions as prefixed rows or within a submenu.
+     * Defaults to `prefix`; delete and back remain in the parent action menu.
+     */
+    labelMode?: 'prefix' | 'submenu';
     extra?: YamlConfigMenuExtra<A, T>[];
     /** Extra actions placed after built-in edit/reload/rename and before delete. */
     extraAfter?: YamlConfigMenuExtra<A, T>[];

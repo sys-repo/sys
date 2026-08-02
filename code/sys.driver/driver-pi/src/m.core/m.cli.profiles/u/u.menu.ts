@@ -112,7 +112,8 @@ function menuArgs(args: { cwd: t.StringDir; allowAll?: boolean }) {
     schema,
     actions: {
       message: '',
-      label: 'profile',
+      label: ({ name }: { name: string }) => `profile: ${c.cyan(name)}`,
+      labelMode: 'submenu' as const,
       extra: [
         {
           name: allowAll === true

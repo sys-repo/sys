@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { c, Cli, Fs, pkg, type t } from '../common.ts';
+import { Cli, Fs, pkg, type t } from '../common.ts';
 import { menu } from '../u/u.menu.ts';
 import { ProfilesFs } from '../u/u.fs.ts';
 import { PiSandboxFmt } from '../../m.cli/u.fmt.sandbox.ts';
@@ -110,7 +110,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     }
   });
 
-  it('menu → uses bare prompt messages across one back cycle', async () => {
+  it('menu → nests profile actions under selected profile identity', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.menu.test.' }))
       .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
@@ -118,20 +118,29 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     const config = Fs.join(cwd, '-config/@sys.driver-pi/default.yaml');
 
     await Fs.ensureDir(Fs.join(cwd, '.git'));
-    const calls: string[] = [];
-    const harnessOptions: string[] = [];
+    let actionFrame: string[] = [];
+    let profileFrame: string[] = [];
     let topLevelCount = 0;
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
       value: (input: SelectInput) => {
-        calls.push(input.message);
         if (isRootMenu(input)) {
           topLevelCount += 1;
           if (topLevelCount === 1) return Promise.resolve(config);
           return Promise.resolve('exit');
         }
-        if (isActionMenu(input)) {
-          harnessOptions.push(...(input.options ?? []).map((item) => item.name));
+        if (isSelectedProfileMenu(input)) {
+          const options = input.options ?? [];
+          if (actionFrame.length === 0) {
+            actionFrame = options.map((item) => Cli.stripAnsi(item.name));
+            return Promise.resolve(
+              options.find((item) => Cli.stripAnsi(item.name) === '  profile: default')?.value,
+            );
+          }
+          return Promise.resolve('back');
+        }
+        if (isProfileSubmenu(input)) {
+          profileFrame = (input.options ?? []).map((item) => Cli.stripAnsi(item.name));
           return Promise.resolve('back');
         }
         throw new Error(`Unexpected prompt: ${input.message}`);
@@ -142,10 +151,8 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     try {
       const res = await menu({ cwd: testCwd(cwd) });
       expect(res).to.eql({ kind: 'exit' });
-      const strippedOptions = harnessOptions.map((name) => Cli.stripAnsi(name));
-      expect(calls).to.eql(['', '', '']);
-      expect(harnessOptions).to.include(`  ${c.cyan('start')}`);
-      expect(strippedOptions).to.include('  start');
+      expect(actionFrame).to.eql(['  start', '  profile: default', ' (delete)', '← back']);
+      expect(profileFrame).to.eql(['  edit', '  reload', '  rename', '← back']);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       console.info = prevInfo;
@@ -199,7 +206,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     }
   });
 
-  it('menu → shows the sandbox sheet before the action menu and keeps one reload action', async () => {
+  it('menu → shows the sandbox sheet before selected-profile actions', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.menu.test.' }))
       .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
@@ -208,22 +215,18 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     const reportDir = Fs.join(cwd, '.pi/@sys/log/@sys.driver-pi') as t.StringDir;
 
     await Fs.ensureDir(Fs.join(cwd, '.git'));
-    const prompts: string[] = [];
     const prints: string[] = [];
-    const harnessOptions: string[] = [];
     let topLevelCount = 0;
     let actionObservedPersistedReport = false;
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
       value: async (input: SelectInput) => {
-        prompts.push(input.message);
         if (isRootMenu(input)) {
           topLevelCount += 1;
           if (topLevelCount === 1) return config;
           return 'exit';
         }
         if (isActionMenu(input)) {
-          harnessOptions.push(...(input.options ?? []).map((item) => item.name));
           const files = await Fs.ls(reportDir);
           actionObservedPersistedReport = files.some((path) => path.endsWith('.sandbox.log.md'));
           return 'back';
@@ -236,7 +239,6 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     try {
       const res = await menu({ cwd: testCwd(cwd), gitRootExplicit: true });
       const printed = Cli.stripAnsi(prints.join('\n'));
-      const strippedOptions = harnessOptions.map((name) => Cli.stripAnsi(name));
       const reportFiles = (await Fs.ls(reportDir)).filter((path) =>
         path.endsWith('.sandbox.log.md')
       );
@@ -255,10 +257,6 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(report?.data).to.contain('- cwd.git-root: explicit');
       expect(printed).not.to.match(/\nread\s+/);
       expect(printed).not.to.contain('write:cwd');
-      expect(strippedOptions).to.include('  profile: reload');
-      expect(strippedOptions).not.to.include('  config: reload');
-      expect(strippedOptions).not.to.include('  reload');
-      expect(prompts).to.eql(['', '', '']);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       console.info = prevInfo;
@@ -481,16 +479,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(printed).not.to.match(/\nread\s+/);
       expect(printed).not.to.match(/\nwrite\s+/);
       const strippedOptions = harnessOptions.map((name) => Cli.stripAnsi(name));
-      expect(harnessOptions).to.include(
-        `  ${c.cyan('start')}${c.dim(c.yellow(' (--allow-all)'))}`,
-      );
       expect(strippedOptions).to.include('  start (--allow-all)');
-      expect(strippedOptions).to.include('  profile: reload');
-      expect(strippedOptions).not.to.include('  config: reload');
-      expect(strippedOptions).not.to.include('  reload');
-      expect(strippedOptions.indexOf('  profile: reload')).to.be.lessThan(
-        strippedOptions.indexOf('  profile: rename'),
-      );
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       console.info = prevInfo;
@@ -501,7 +490,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
 
 type SelectInput = {
   readonly message: string;
-  readonly options?: readonly { readonly name: string; readonly value: string }[];
+  readonly options?: readonly { readonly name: string; readonly value: unknown }[];
 };
 
 function expectedProfileHeader(permissions: t.PiCli.PermissionMode) {
@@ -518,4 +507,14 @@ function isRootMenu(input: SelectInput) {
 
 function isActionMenu(input: SelectInput) {
   return (input.options ?? []).some((item) => item.value === 'back');
+}
+
+function isSelectedProfileMenu(input: SelectInput) {
+  return (input.options ?? []).some((item) => item.value === 'run');
+}
+
+function isProfileSubmenu(input: SelectInput) {
+  const options = input.options ?? [];
+  return options.some((item) => item.value === 'edit') &&
+    !options.some((item) => item.value === 'run');
 }

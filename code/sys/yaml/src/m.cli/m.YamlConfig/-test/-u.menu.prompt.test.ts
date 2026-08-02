@@ -8,9 +8,9 @@ describe('YamlConfig.menu.prompt', () => {
     let seen: { name: string; value: string }[] = [];
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
-      value: async (args: { options: { name: string; value: string }[] }) => {
+      value: (args: { options: { name: string; value: string }[] }) => {
         seen = args.options;
-        return args.options[0]?.value ?? 'back';
+        return Promise.resolve(args.options[0]?.value ?? 'back');
       },
     });
 
@@ -33,9 +33,9 @@ describe('YamlConfig.menu.prompt', () => {
     let seen: { name: string; value: string }[] = [];
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
-      value: async (args: { options: { name: string; value: string }[] }) => {
+      value: (args: { options: { name: string; value: string }[] }) => {
         seen = args.options;
-        return args.options[0]?.value ?? 'back';
+        return Promise.resolve(args.options[0]?.value ?? 'back');
       },
     });
 
@@ -61,9 +61,9 @@ describe('YamlConfig.menu.prompt', () => {
     let seen: { name: string; value: string }[] = [];
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
-      value: async (args: { options: { name: string; value: string }[] }) => {
+      value: (args: { options: { name: string; value: string }[] }) => {
         seen = args.options;
-        return args.options[0]?.value ?? 'back';
+        return Promise.resolve(args.options[0]?.value ?? 'back');
       },
     });
 
@@ -96,10 +96,10 @@ describe('YamlConfig.menu.prompt', () => {
     let message = '';
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
-      value: async (args: { message: string; options: { name: string; value: string }[] }) => {
+      value: (args: { message: string; options: { name: string; value: string }[] }) => {
         message = args.message;
         seen = args.options;
-        return args.options[0]?.value ?? 'back';
+        return Promise.resolve(args.options[0]?.value ?? 'back');
       },
     });
 
@@ -118,6 +118,74 @@ describe('YamlConfig.menu.prompt', () => {
       expect(seen[1]?.name).to.eql('  profile: edit');
       expect(seen[2]?.name).to.eql('  profile: reload');
       expect(seen[3]?.name).to.eql('  profile: rename');
+    } finally {
+      Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
+    }
+  });
+
+  it('submenu label mode → restores a base-action default in the submenu', async () => {
+    const original = Cli.Input.Select.prompt;
+    let seen: string[] = [];
+    let defaultValue = '';
+
+    Object.defineProperty(Cli.Input.Select, 'prompt', {
+      value: (args: {
+        default?: string;
+        options: { name: string; value: string }[];
+      }) => {
+        seen = args.options.map((item) => Cli.stripAnsi(item.name));
+        defaultValue = args.default ?? '';
+        return Promise.resolve('rename');
+      },
+    });
+
+    try {
+      const action = await promptAction({
+        name: 'alpha',
+        path: '/tmp/alpha.yaml',
+        valid: true,
+        labelMode: 'submenu',
+        defaultValue: 'reload',
+      });
+
+      expect(action).to.eql('rename');
+      expect(defaultValue).to.eql('reload');
+      expect(seen).to.eql(['  edit', '  reload', '  rename', '← back']);
+    } finally {
+      Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
+    }
+  });
+
+  it('submenu label mode → filters invalid-document actions', async () => {
+    const original = Cli.Input.Select.prompt;
+    const seen: string[][] = [];
+
+    Object.defineProperty(Cli.Input.Select, 'prompt', {
+      value: (args: { options: { name: string; value: unknown }[] }) => {
+        const options = args.options;
+        seen.push(options.map((item) => Cli.stripAnsi(item.name)));
+        if (seen.length === 1) {
+          return Promise.resolve(options.find((item) => item.name === '  config')?.value);
+        }
+        return Promise.resolve('edit');
+      },
+    });
+
+    try {
+      const action = await promptAction({
+        name: 'alpha',
+        path: '/tmp/alpha.yaml',
+        valid: false,
+        labelMode: 'submenu',
+        allow: ['edit', 'back'],
+        extra: [{ name: 'start', value: 'run' }],
+      });
+
+      expect(action).to.eql('edit');
+      expect(seen).to.eql([
+        ['  config', '← back'],
+        ['  edit', '← back'],
+      ]);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
     }

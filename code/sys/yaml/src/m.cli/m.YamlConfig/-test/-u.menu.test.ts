@@ -65,6 +65,61 @@ describe('YamlConfig.menu', () => {
     }
   });
 
+  it('action menu → derives submenu identity and preserves two-level back', async () => {
+    const cwd = await Fs.makeTempDir();
+    const original = Cli.Input.Select.prompt;
+    const path = Fs.join(cwd.absolute, '-config/alpha.yaml');
+    const seen: string[][] = [];
+
+    Object.defineProperty(Cli.Input.Select, 'prompt', {
+      value: (args: {
+        readonly options: readonly {
+          readonly name: string;
+          readonly value: unknown;
+        }[];
+      }) => {
+        const options = args.options;
+        seen.push(options.map((option) => Cli.stripAnsi(option.name)));
+        if (seen.length === 1) {
+          return Promise.resolve(
+            options.find((option) => option.name === '  config: alpha')?.value,
+          );
+        }
+        return Promise.resolve('back');
+      },
+    });
+
+    try {
+      await Fs.ensureDir(Fs.dirname(path));
+      await Fs.write(path, 'title: Alpha\n');
+
+      const res = await menu({
+        cwd: cwd.absolute,
+        dir: '-config',
+        label: '',
+        mode: 'action',
+        path,
+        schema: {
+          validate: () => ({ ok: true, errors: [] }),
+        },
+        actions: {
+          label: ({ name }) => `config: ${name}`,
+          labelMode: 'submenu',
+        },
+      });
+
+      expect(res).to.eql({ kind: 'back' });
+      expect(seen).to.eql([
+        ['  config: alpha', ' (delete)', '← back'],
+        ['  edit', '  reload', '  rename', '← back'],
+        ['  config: alpha', ' (delete)', '← back'],
+      ]);
+    } finally {
+      Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
+      await Fs.remove(cwd.absolute);
+    }
+  });
+
   it('menu → supports doc-derived itemLabel row labels', async () => {
     const cwd = await Fs.makeTempDir();
     const original = Cli.Input.Select.prompt;
