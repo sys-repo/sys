@@ -1,4 +1,4 @@
-import { D, Err, Is, Json, Str, type t } from './common.ts';
+import { D, Err, Is, Json, Str, type t } from '../common.ts';
 
 export type JsonResult<D = unknown> =
   | { readonly ok: true; readonly data: D; readonly error: undefined }

@@ -1,4 +1,4 @@
-import { Cmd, type t } from './common.ts';
+import { Cmd, type t } from '../common.ts';
 import { readJson } from './u.http.ts';
 import { cmdError } from './u.ts';
 

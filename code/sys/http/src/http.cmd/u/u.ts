@@ -1,4 +1,4 @@
-import { D, Is, slug, type t, Time } from './common.ts';
+import { D, Is, slug, type t, Time } from '../common.ts';
 
 /** Create a Cmd client error with command metadata. */
 export function cmdError(

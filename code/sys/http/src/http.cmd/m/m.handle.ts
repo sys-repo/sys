@@ -1,6 +1,6 @@
-import { Cmd, D, Err, type t } from './common.ts';
-import { jsonResponse, matchesPath, readJson, textResponse } from './u.http.ts';
-import { cmdResult, missingHandlerMessage } from './u.wire.ts';
+import { Cmd, D, Err, type t } from '../common.ts';
+import { jsonResponse, matchesPath, readJson, textResponse } from '../u/u.http.ts';
+import { cmdResult, missingHandlerMessage } from '../u/u.wire.ts';
 
 /** Handle a single HTTP JSON Cmd request. */
 export async function handle<
@@ -52,4 +52,3 @@ export async function handle<
     request.signal.removeEventListener('abort', abort);
   }
 }
-

@@ -1,4 +1,4 @@
-import type { t } from './common.ts';
+import type { t } from '../common.ts';
 import { client } from './m.client.ts';
 import { handle } from './m.handle.ts';
 import { handler } from './m.handler.ts';

@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import type { t } from '../common.ts';
 import { handle } from './m.handle.ts';
 
 /** Create a Fetch-compatible request handler bound to Cmd handlers. */

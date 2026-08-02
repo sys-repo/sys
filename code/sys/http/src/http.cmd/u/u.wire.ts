@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import type { t } from '../common.ts';
 
 /** Build a Cmd result wire envelope from a request envelope. */
 export function cmdResult(

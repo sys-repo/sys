@@ -1,6 +1,6 @@
-import { Cmd, D, Err, Json, Rx, type t } from './common.ts';
-import { readResponse } from './u.response.ts';
-import { cmdError, createId, requestHeaders, startTimeout } from './u.ts';
+import { Cmd, D, Err, Json, Rx, type t } from '../common.ts';
+import { readResponse } from '../u/u.response.ts';
+import { cmdError, createId, requestHeaders, startTimeout } from '../u/u.ts';
 
 /** Create a typed unary Cmd client over HTTP JSON. */
 export function client<
