@@ -1,5 +1,5 @@
-import { type t, Path, Is } from '../common.ts';
-import { Tilde } from '../m.Tilde.ts';
+import { Is, Path, type t } from '../common.ts';
+import { Tilde } from '../m/m.Tilde.ts';
 
 export const resolve: t.Fs.Resolve = (...parts) => {
   const { pathParts, options } = wrangle.resolve(parts);

@@ -1,5 +1,5 @@
-import { isBinary, isDir, isFile, StdPath } from './common.ts';
-import type { t } from './common.ts';
+import { isBinary, isDir, isFile, StdPath } from '../common.ts';
+import type { t } from '../common.ts';
 
 /**
  * Filesystem/Path type verification flags.

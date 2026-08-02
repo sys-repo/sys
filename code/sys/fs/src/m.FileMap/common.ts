@@ -1,6 +1,6 @@
 export * from '../common.ts';
 
-export { Fs } from '../m.Fs/m.Fs.ts';
+export { Fs } from '../m.Fs/m/m.Fs.ts';
 export { Path } from '../m.Path/mod.ts';
 
 export const D = {

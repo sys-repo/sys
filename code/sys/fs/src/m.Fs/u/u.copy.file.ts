@@ -1,5 +1,5 @@
 import { ensureDir, Err, exists, Path, pkg, type t } from '../common.ts';
-import { Is } from '../m.Is.ts';
+import { Is } from '../m/m.Is.ts';
 import { Wrangle } from './u.copy.util.ts';
 import { remove } from './u.remove.ts';
 

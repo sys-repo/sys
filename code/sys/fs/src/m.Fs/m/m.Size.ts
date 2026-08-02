@@ -1,4 +1,4 @@
-import { type t, exists, Str, walk } from './common.ts';
+import { exists, Str, type t, walk } from '../common.ts';
 
 export const Size: t.Fs.SizeLib = {
   async dir(path, options = {}) {

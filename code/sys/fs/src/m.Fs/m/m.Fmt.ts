@@ -1,6 +1,6 @@
-import { CliFmt, Path, type t } from './common.ts';
-import { cwd } from './u/u.cwd.ts';
-import { walk } from './u/u.walk.ts';
+import { CliFmt, Path, type t } from '../common.ts';
+import { cwd } from '../u/u.cwd.ts';
+import { walk } from '../u/u.walk.ts';
 
 type Node = {
   name: string;

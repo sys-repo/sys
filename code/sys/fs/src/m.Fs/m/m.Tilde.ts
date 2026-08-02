@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import type { t } from '../common.ts';
 
 export const Tilde: t.Fs.TildeLib = {
   expand(input) {
