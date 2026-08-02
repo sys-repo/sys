@@ -1,5 +1,5 @@
-import { type t } from '../common.ts';
-import { HttpProxyResolver } from '../m.Resolver.ts';
+import type { t } from '../common.ts';
+import { HttpProxyResolver } from '../m/m.Resolver.ts';
 
 export function sameRoot(a: t.HttpProxy.Root.Doc | undefined, b: t.HttpProxy.Root.Doc): boolean {
   return a?.target === b.target;

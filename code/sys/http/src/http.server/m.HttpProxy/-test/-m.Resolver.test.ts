@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Http } from '../../../mod.ts';
-import { HttpProxyResolver } from '../m.Resolver.ts';
+import { HttpProxyResolver } from '../m/m.Resolver.ts';
 import { HttpProxy } from '../mod.ts';
 import { usingServer } from './u.fixture.usingServer.ts';
 
@@ -429,7 +429,7 @@ describe('HttpProxy → runtime', () => {
 function mkEchoApp(tag: string) {
   const app = Http.Server.create({ static: false, cors: false });
 
-  app.all('*', async (c) => {
+  app.all('*', (c) => {
     const url = new URL(c.req.raw.url);
     return c.json(
       {

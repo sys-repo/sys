@@ -1,5 +1,5 @@
 import { c, Err, type t } from '../common.ts';
-import { HttpProxy } from '../m.HttpProxy.ts';
+import { HttpProxy } from '../m/m.HttpProxy.ts';
 import { parseArgs, type ProxyCliParsedArgs } from './u.args.ts';
 import { Fmt } from './u.fmt.ts';
 

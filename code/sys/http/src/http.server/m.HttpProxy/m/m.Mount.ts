@@ -1,9 +1,9 @@
-import type { t } from './common.ts';
+import type { t } from '../common.ts';
 
 /** Durable reverse-proxy mount owner affordances. */
 export const Mount: t.HttpProxy.Mount.Lib = {
   async add(input) {
-    const { add } = await import('./u.config/u.mount.add.ts');
+    const { add } = await import('../u.config/u.mount.add.ts');
     return await add(input);
   },
 };

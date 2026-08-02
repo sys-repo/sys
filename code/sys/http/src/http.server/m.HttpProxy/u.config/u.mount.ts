@@ -1,5 +1,5 @@
-import { type t } from '../common.ts';
-import { HttpProxyResolver } from '../m.Resolver.ts';
+import type { t } from '../common.ts';
+import { HttpProxyResolver } from '../m/m.Resolver.ts';
 
 export function sameMount(a: t.HttpProxy.Mount.Doc, b: t.HttpProxy.Mount.Doc): boolean {
   return a.path === b.path && a.target === b.target;

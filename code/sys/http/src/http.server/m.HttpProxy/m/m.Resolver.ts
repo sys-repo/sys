@@ -1,4 +1,4 @@
-import { Is, Str, type t } from './common.ts';
+import { Is, Str, type t } from '../common.ts';
 
 export const HttpProxyResolver: t.HttpProxy.Routing.ResolverFactory = (config) => {
   const normalized = normalizeConfig(config);

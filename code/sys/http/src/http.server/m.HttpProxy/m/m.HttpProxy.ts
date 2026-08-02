@@ -1,9 +1,9 @@
-import { D, Fs, HttpServer, Path, pkg, type t } from './common.ts';
+import { D, Fs, HttpServer, Path, pkg, type t } from '../common.ts';
+import { loadConfig } from '../u.config/u.doc.ts';
 import { Config } from './m.Config.ts';
 import { Mount } from './m.Mount.ts';
 import { Root } from './m.Root.ts';
 import { HttpProxyResolver } from './m.Resolver.ts';
-import { loadConfig } from './u.config/u.doc.ts';
 
 /** HTTP proxy helpers for route resolution, config loading, and server startup. */
 export const HttpProxy: t.HttpProxy.Lib = {
