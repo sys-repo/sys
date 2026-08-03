@@ -126,14 +126,17 @@ describe('YamlConfig.menu.prompt', () => {
   it('submenu label mode → restores a base-action default in the submenu', async () => {
     const original = Cli.Input.Select.prompt;
     let seen: string[] = [];
+    let message = '';
     let defaultValue = '';
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
       value: (args: {
+        message: string;
         default?: string;
         options: { name: string; value: string }[];
       }) => {
         seen = args.options.map((item) => Cli.stripAnsi(item.name));
+        message = Cli.stripAnsi(args.message);
         defaultValue = args.default ?? '';
         return Promise.resolve('rename');
       },
@@ -149,8 +152,9 @@ describe('YamlConfig.menu.prompt', () => {
       });
 
       expect(action).to.eql('rename');
+      expect(message).to.eql('config');
       expect(defaultValue).to.eql('reload');
-      expect(seen).to.eql(['  edit', '  reload', '  rename', '  (delete)', '← back']);
+      expect(seen).to.eql(['  edit', '  reload', '  rename', ' (delete)', '← back']);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
     }

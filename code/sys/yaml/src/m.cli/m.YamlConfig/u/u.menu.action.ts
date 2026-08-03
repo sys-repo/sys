@@ -7,6 +7,7 @@ type ActionMenuArgs<T, A extends string> = {
   cwd: t.StringDir;
   path: t.StringFile;
   ext: string;
+  beforePrompt?: t.YamlConfig.Menu.Args<T, A>['beforePrompt'];
   defaultAction?: t.YamlConfig.Menu.ActionBase | A;
   schema: t.YamlConfig.Menu.Args<T, A>['schema'];
   invalid?: t.YamlConfig.Menu.Args<T, A>['invalid'];
@@ -30,6 +31,7 @@ export async function actionMenu<T, A extends string = string>(
       allow: args.invalid?.allow,
       defaultValue: lastAction,
       message: args.actions?.message,
+      beforePrompt: args.beforePrompt,
       actionLabel: args.actions?.label,
       labelMode: args.actions?.labelMode,
       deleteLabel: args.actions?.deleteLabel,
@@ -47,11 +49,13 @@ export async function actionMenu<T, A extends string = string>(
     }
     if (action === 'reload') continue;
     if (action === 'rename') {
+      await args.beforePrompt?.();
       const next = await renameConfig(current, args.ext);
       if (next) current = next;
       continue;
     }
     if (action === 'delete') {
+      await args.beforePrompt?.();
       const yes = await Cli.Input.Confirm.prompt({
         message: `Delete ${c.cyan(fileLabel(current, args.ext))}?`,
         default: false,

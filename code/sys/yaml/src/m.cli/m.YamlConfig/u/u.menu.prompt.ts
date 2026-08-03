@@ -14,6 +14,7 @@ type PromptActionArgs<A extends string, T> = {
   allow?: t.YamlConfig.Menu.ActionBase[];
   defaultValue?: t.YamlConfig.Menu.ActionBase | A;
   message?: string;
+  beforePrompt?: t.YamlConfig.Menu.Args<T, A>['beforePrompt'];
   actionLabel?: t.YamlConfig.Menu.ItemName<T>;
   labelMode?: 'prefix' | 'submenu';
   deleteLabel?: t.YamlConfig.Menu.ItemName<T>;
@@ -47,9 +48,11 @@ export async function promptAction<A extends string = string, T = unknown>(
   ];
   const deleteAction = { name: deleteLabel, value: 'delete' as const };
   const backAction = { name: `${c.cyan('←')} back`, value: 'back' as const };
-  const message = args.valid
+  const invalidLabel = c.yellow(args.invalidLabel ?? 'invalid yaml');
+  const rootMessage = args.valid
     ? args.message ?? 'Actions:'
-    : `${args.message ?? 'Actions:'} ${c.yellow(args.invalidLabel ?? 'invalid yaml')}`;
+    : `${args.message ?? 'Actions:'} ${invalidLabel}`;
+  const submenuMessage = args.valid ? actionLabel : `${actionLabel} ${invalidLabel}`;
 
   if (args.labelMode !== 'submenu') {
     const all = [
@@ -71,8 +74,9 @@ export async function promptAction<A extends string = string, T = unknown>(
       )
     );
 
+    await args.beforePrompt?.();
     const answer = await Cli.Input.Select.prompt<t.YamlConfig.Menu.ActionBase | A>({
-      message,
+      message: rootMessage,
       options: allowed,
       default: args.defaultValue,
       hideDefault: true,
@@ -85,7 +89,10 @@ export async function promptAction<A extends string = string, T = unknown>(
     ? submenuActions
     : submenuActions.filter((opt) => (args.allow ?? DEFAULT_ALLOWED).includes(opt.value));
   const submenuOptions = [
-    ...allowedSubmenuActions.map((item) => ({ name: `  ${item.name}`, value: item.value })),
+    ...allowedSubmenuActions.map((item) => ({
+      name: `${item.value === 'delete' && !args.deleteLabel ? ' ' : '  '}${item.name}`,
+      value: item.value,
+    })),
     backAction,
   ].filter((opt) =>
     args.valid ||
@@ -109,9 +116,10 @@ export async function promptAction<A extends string = string, T = unknown>(
   let submenuDefault = startsInSubmenu ? args.defaultValue : undefined;
 
   while (true) {
+    await args.beforePrompt?.();
     if (level === 'submenu') {
       const answer = await Cli.Input.Select.prompt<string>({
-        message,
+        message: submenuMessage,
         options: submenuOptions,
         default: submenuDefault,
         hideDefault: true,
@@ -123,7 +131,7 @@ export async function promptAction<A extends string = string, T = unknown>(
     }
 
     const answer = await Cli.Input.Select.prompt<PromptRootAction<A>>({
-      message,
+      message: rootMessage,
       options: rootOptions,
       default: rootDefault,
       hideDefault: true,

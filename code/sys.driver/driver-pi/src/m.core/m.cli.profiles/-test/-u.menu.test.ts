@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { Cli, Fs, pkg, type t } from '../common.ts';
+import { Cli, Fs, Is, pkg, type t } from '../common.ts';
 import { menu } from '../u/u.menu.ts';
 import { ProfilesFs } from '../u/u.fs.ts';
 import { PiSandboxFmt } from '../../m.cli/u.fmt.sandbox.ts';
@@ -120,6 +120,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     await Fs.ensureDir(Fs.join(cwd, '.git'));
     let actionFrame: string[] = [];
     let profileFrame: string[] = [];
+    let profileTitle = '';
     let topLevelCount = 0;
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
@@ -140,6 +141,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
           return Promise.resolve('back');
         }
         if (isProfileSubmenu(input)) {
+          profileTitle = Cli.stripAnsi(input.message);
           profileFrame = (input.options ?? []).map((item) => Cli.stripAnsi(item.name));
           return Promise.resolve('back');
         }
@@ -152,15 +154,119 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       const res = await menu({ cwd: testCwd(cwd) });
       expect(res).to.eql({ kind: 'exit' });
       expect(actionFrame).to.eql(['  start', '  profile: default', '← back']);
+      expect(profileTitle).to.eql('profile: default');
       expect(profileFrame).to.eql([
         '  edit',
         '  reload',
         '  rename',
-        '  delete profile',
+        ' (delete)',
         '← back',
       ]);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
+      console.info = prevInfo;
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('menu → redraws selected-profile screens across submenu transitions on TTY', async () => {
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.menu.test.' }))
+      .absolute as t.StringDir;
+    const originalPrompt = Cli.Input.Select.prompt;
+    const prevInfo = console.info;
+    const prevClear = console.clear;
+    const prevTerminal = Cli.Is.terminal;
+    const screen = Cli.Screen as { size: () => { width: number; height: number } };
+    const prevScreenSize = screen.size;
+    const config = Fs.join(cwd, '-config/@sys.driver-pi/default.yaml');
+    const reportDir = Fs.join(cwd, '.pi/@sys/log/@sys.driver-pi') as t.StringDir;
+
+    const events: string[] = [];
+    let rootCount = 0;
+    let actionCount = 0;
+
+    try {
+      await Fs.ensureDir(Fs.join(cwd, '.git'));
+      await Fs.ensureDir(Fs.dirname(config));
+      await Fs.write(config, ProfilesFs.initialYaml());
+
+      Object.defineProperty(Cli.Input.Select, 'prompt', {
+        value: (input: SelectInput) => {
+          if (isRootMenu(input)) {
+            events.push('prompt:root');
+            rootCount += 1;
+            return Promise.resolve(rootCount === 1 ? config : 'exit');
+          }
+          if (isSelectedProfileMenu(input)) {
+            events.push('prompt:action');
+            actionCount += 1;
+            if (actionCount === 1) {
+              const option = input.options?.find((item) =>
+                Cli.stripAnsi(item.name) === '  profile: default'
+              );
+              if (Is.nil(option)) throw new Error('Selected-profile submenu option is missing.');
+              return Promise.resolve(option.value);
+            }
+            return Promise.resolve('back');
+          }
+          if (isProfileSubmenu(input)) {
+            events.push('prompt:submenu');
+            return Promise.resolve('back');
+          }
+          throw new Error(`Unexpected prompt: ${input.message}`);
+        },
+      });
+      Object.defineProperty(Cli.Is, 'terminal', {
+        value: (stream: t.StdioName) => stream === 'stdout',
+        configurable: true,
+        writable: true,
+      });
+      screen.size = () => ({ width: 80, height: 24 });
+      console.clear = () => events.push('clear');
+      console.info = (value?: unknown) => {
+        const text = Cli.stripAnsi(String(value ?? ''));
+        if (text.includes('.sandbox.log.md')) {
+          events.push('screen:sandbox');
+          return;
+        }
+        if (text === expectedProfileHeader('scoped')) {
+          events.push('screen:root');
+          return;
+        }
+        throw new Error(`Unexpected screen output:\n${text}`);
+      };
+
+      const res = await menu({ cwd: testCwd(cwd) });
+      const reports = (await Fs.ls(reportDir)).filter((path) => path.endsWith('.sandbox.log.md'));
+
+      expect(res).to.eql({ kind: 'exit' });
+      expect(reports).to.have.length(1);
+      expect(events).to.eql([
+        'clear',
+        'screen:root',
+        'prompt:root',
+        'clear',
+        'screen:sandbox',
+        'prompt:action',
+        'clear',
+        'screen:sandbox',
+        'prompt:submenu',
+        'clear',
+        'screen:sandbox',
+        'prompt:action',
+        'clear',
+        'screen:root',
+        'prompt:root',
+      ]);
+    } finally {
+      Object.defineProperty(Cli.Input.Select, 'prompt', { value: originalPrompt });
+      Object.defineProperty(Cli.Is, 'terminal', {
+        value: prevTerminal,
+        configurable: true,
+        writable: true,
+      });
+      screen.size = prevScreenSize;
+      console.clear = prevClear;
       console.info = prevInfo;
       await Fs.remove(cwd);
     }

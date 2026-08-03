@@ -62,6 +62,7 @@ export async function menu<T, A extends string = string>(
 
     const defaultValue = lastSelected && files.includes(lastSelected) ? lastSelected : files[0];
 
+    await args.beforePrompt?.();
     const picked = await Cli.Input.Select.prompt<string>({
       message: args.label.length === 0 ? '' : `${args.label}:`,
       options,
@@ -92,6 +93,7 @@ export async function menu<T, A extends string = string>(
       return res;
     }
 
+    await args.beforePrompt?.();
     const name = await Cli.Input.Text.prompt({
       message: args.add?.message ?? 'Config name',
       hint: args.add?.hint ?? 'letters, numbers, ".", "_" or "-" (e.g. example)',

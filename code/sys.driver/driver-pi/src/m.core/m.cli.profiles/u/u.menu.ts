@@ -1,4 +1,4 @@
-import { c, Fs, type t, YamlConfig } from '../common.ts';
+import { c, Fs, Is, type t, YamlConfig } from '../common.ts';
 import { PiSandboxFmt } from '../../m.cli/u.fmt.sandbox.ts';
 import { PiSandboxReport } from '../../m.cli/u.report.sandbox.ts';
 import { runtimeRoot } from '../../m.cli/u.runtime.ts';
@@ -24,6 +24,18 @@ type ConfigSnapshot = {
 
 type PreviewToken = ConfigSnapshot & t.PiCliProfiles.MenuPreview;
 
+type ProfileScreen =
+  | {
+    readonly kind: 'invalid';
+    readonly allowAll?: boolean;
+  }
+  | {
+    readonly kind: 'sandbox';
+    readonly gitRootExplicit: boolean;
+    readonly preview?: PreviewToken;
+    readonly sheet: t.PiCliProfiles.MenuPreview;
+  };
+
 const ValidName = {
   hint: 'letters, numbers, ".", "_" or "-"',
   test(name: string) {
@@ -37,36 +49,35 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll, gitRoot
   let rootNotice = ProfileMigrate.message(migration);
 
   while (true) {
-    printProfileRoot({ allowAll, notice: rootNotice });
-    rootNotice = undefined;
     const selected = await YamlConfig.menu<t.PiCliProfiles.Yaml.Profile, Action>({
       ...menuArgs({ cwd: root, allowAll }),
       mode: 'select',
       selectAction: 'select',
+      beforePrompt() {
+        printProfileRoot({ allowAll, notice: rootNotice });
+        rootNotice = undefined;
+      },
     });
 
     if (selected.kind === 'exit') return { kind: 'exit' };
     if (selected.kind !== 'action' || selected.action !== 'select') return { kind: 'exit' };
 
     const selectedCheck = await ProfilesFs.validateYaml(selected.path);
-    clearInteractiveScreen();
-    let preview: PreviewToken | undefined;
-    if (selectedCheck.ok) {
-      preview = await printSandbox({
+    const screen: ProfileScreen = selectedCheck.ok
+      ? await prepareSandboxScreen({
         cwd,
         path: selected.path,
         allowAll,
         gitRootExplicit,
-      });
-    } else {
-      printProfileHeader(allowAll);
-    }
+      })
+      : { kind: 'invalid', allowAll };
 
     const action = await YamlConfig.menu<t.PiCliProfiles.Yaml.Profile, Action>({
       ...menuArgs({ cwd: root, allowAll }),
       mode: 'action',
       path: selected.path,
       defaultAction: 'run',
+      beforePrompt: () => printProfileScreen(screen),
     });
 
     if (action.kind === 'back') continue;
@@ -75,7 +86,7 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll, gitRoot
       return {
         kind: 'selected',
         config: action.path,
-        preview: await currentPreview(preview, action.path),
+        preview: await currentPreview(screen, action.path),
       };
     }
   }
@@ -114,7 +125,6 @@ function menuArgs(args: { cwd: t.StringDir; allowAll?: boolean }) {
       message: '',
       label: ({ name }: { name: string }) => `profile: ${c.cyan(name)}`,
       labelMode: 'submenu' as const,
-      deleteLabel: 'delete profile',
       extra: [
         {
           name: allowAll === true
@@ -145,7 +155,7 @@ function menuArgs(args: { cwd: t.StringDir; allowAll?: boolean }) {
   };
 }
 
-async function printSandbox(args: MenuContext): Promise<PreviewToken | undefined> {
+async function prepareSandboxScreen(args: MenuContext): Promise<ProfileScreen> {
   const root = runtimeRoot(args.cwd);
   const resolved = await resolveRun({
     cwd: args.cwd,
@@ -158,20 +168,36 @@ async function printSandbox(args: MenuContext): Promise<PreviewToken | undefined
     sandbox: resolved.sandbox,
     gitRootExplicit: args.gitRootExplicit === true,
   });
+  const sheet = { sandbox: resolved.sandbox, report };
+  const snapshot = await snapshotConfig(args.path);
+  return {
+    kind: 'sandbox',
+    gitRootExplicit: args.gitRootExplicit === true,
+    sheet,
+    preview: snapshot ? { ...snapshot, ...sheet } : undefined,
+  };
+}
+
+function printProfileScreen(input: ProfileScreen) {
+  clearInteractiveScreen();
+  if (input.kind === 'invalid') {
+    printProfileHeader(input.allowAll);
+    return;
+  }
   console.info(
-    PiSandboxFmt.table({ ...resolved.sandbox, report }, {
-      gitRootExplicit: args.gitRootExplicit === true,
+    PiSandboxFmt.table({ ...input.sheet.sandbox, report: input.sheet.report }, {
+      gitRootExplicit: input.gitRootExplicit,
     }),
   );
-  const snapshot = await snapshotConfig(args.path);
-  return snapshot ? { ...snapshot, sandbox: resolved.sandbox, report } : undefined;
 }
 
 async function currentPreview(
-  preview: PreviewToken | undefined,
+  screen: ProfileScreen,
   path: t.StringPath,
 ): Promise<t.PiCliProfiles.MenuPreview | undefined> {
-  if (!preview) return undefined;
+  if (screen.kind !== 'sandbox') return undefined;
+  const preview = screen.preview;
+  if (Is.nil(preview)) return undefined;
   if (preview.path !== path) return undefined;
   const current = await snapshotConfig(path);
   if (current?.text !== preview.text) return undefined;

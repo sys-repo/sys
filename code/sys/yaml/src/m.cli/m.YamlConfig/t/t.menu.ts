@@ -49,6 +49,8 @@ export type YamlConfigMenuArgs<T, A extends string = string> = {
   cwd: t.StringDir;
   /** Menu title (prompt header). */
   label: string;
+  /** Hook invoked immediately before each prompt owned by the menu. */
+  beforePrompt?: () => void | Promise<void>;
   /** Relative directory containing YAML configs. */
   dir: t.StringPath;
   /** File extension (default: ".yaml"). */

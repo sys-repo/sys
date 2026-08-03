@@ -65,11 +65,12 @@ describe('YamlConfig.menu', () => {
     }
   });
 
-  it('action menu → derives submenu identity and preserves two-level back', async () => {
+  it('action menu → renders before each submenu transition and preserves two-level back', async () => {
     const cwd = await Fs.makeTempDir();
     const original = Cli.Input.Select.prompt;
     const path = Fs.join(cwd.absolute, '-config/alpha.yaml');
     const seen: string[][] = [];
+    const events: string[] = [];
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
       value: (args: {
@@ -79,7 +80,9 @@ describe('YamlConfig.menu', () => {
         }[];
       }) => {
         const options = args.options;
-        seen.push(options.map((option) => Cli.stripAnsi(option.name)));
+        const frame = options.map((option) => Cli.stripAnsi(option.name));
+        seen.push(frame);
+        events.push(frame.includes('  edit') ? 'prompt:submenu' : 'prompt:action');
         if (seen.length === 1) {
           return Promise.resolve(
             options.find((option) => option.name === '  config: alpha')?.value,
@@ -99,6 +102,9 @@ describe('YamlConfig.menu', () => {
         label: '',
         mode: 'action',
         path,
+        beforePrompt: () => {
+          events.push('render');
+        },
         schema: {
           validate: () => ({ ok: true, errors: [] }),
         },
@@ -115,6 +121,14 @@ describe('YamlConfig.menu', () => {
         ['  edit', '  reload', '  rename', '  delete config', '← back'],
         ['  config: alpha', '← back'],
       ]);
+      expect(events).to.eql([
+        'render',
+        'prompt:action',
+        'render',
+        'prompt:submenu',
+        'render',
+        'prompt:action',
+      ]);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       await Fs.remove(cwd.absolute);
@@ -127,6 +141,7 @@ describe('YamlConfig.menu', () => {
     const originalConfirm = Cli.Input.Confirm.prompt;
     const path = Fs.join(cwd.absolute, '-config/canon.yaml');
     let confirmation = '';
+    let renderCount = 0;
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
       value: (args: {
@@ -157,6 +172,9 @@ describe('YamlConfig.menu', () => {
         label: '',
         mode: 'action',
         path,
+        beforePrompt: () => {
+          renderCount += 1;
+        },
         schema: {
           validate: () => ({ ok: true, errors: [] }),
         },
@@ -169,6 +187,7 @@ describe('YamlConfig.menu', () => {
 
       expect(res).to.eql({ kind: 'back' });
       expect(confirmation).to.eql('Delete canon?');
+      expect(renderCount).to.eql(3);
       expect(await Fs.exists(path)).to.eql(false);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: originalSelect });
