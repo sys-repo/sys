@@ -10,5 +10,6 @@ describe('HTTP Client', () => {
 
     expect(m.Cache).to.equal(Cache);
     expect(m.Fetch).to.equal(Fetch);
+    expect(m.Fetch.defaultHeaders).to.equal(Fetch.defaultHeaders);
   });
 });

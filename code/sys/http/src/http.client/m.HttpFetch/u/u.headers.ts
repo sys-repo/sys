@@ -1,7 +1,5 @@
 import { Is, type t, toHeaders } from '../common.ts';
 
-type DefaultHeaderOptions = Pick<t.HttpFetch.CreateOptions, 'accessToken' | 'headers'>;
-
 type RequestHeadersArgs = {
   readonly contentType: t.StringContentType;
   readonly contentTypePolicy: t.HttpFetch.CreateOptions['contentTypePolicy'];
@@ -9,13 +7,15 @@ type RequestHeadersArgs = {
   readonly defaults: () => Headers;
 };
 
-/** Snapshot default Fetch headers. */
-export function defaultHeaders(options: DefaultHeaderOptions): Headers {
+/** Snapshot canonical default Fetch headers. */
+export const defaultHeaders: t.HttpFetch.DefaultHeaders.Method = (options) => {
+  const accessTokenInput = options.accessToken;
+  const mutate = options.headers;
   const headers = new Headers();
-  const accessToken = toAccessToken(options.accessToken);
+  const accessToken = toAccessToken(accessTokenInput);
   if (accessToken) headers.set('authorization', accessToken);
 
-  if (Is.func(options.headers)) {
+  if (Is.func(mutate)) {
     const payload: t.HttpFetch.Mutate.Headers.Args = {
       get headers() {
         return toHeaders(headers);
@@ -30,11 +30,11 @@ export function defaultHeaders(options: DefaultHeaderOptions): Headers {
         return payload;
       },
     };
-    options.headers(payload);
+    rejectThenable(mutate(payload));
   }
 
   return headers;
-}
+};
 
 /** Snapshot default and caller headers with canonical caller precedence. */
 export function requestHeaders(args: RequestHeadersArgs): Headers {
@@ -49,11 +49,29 @@ export function requestHeaders(args: RequestHeadersArgs): Headers {
 }
 
 function toAccessToken(input: t.HttpFetch.CreateOptions['accessToken']): string {
-  if (Is.func(input)) return input();
-  if (!Is.str(input)) return '';
-  const token = input
+  let value: unknown = input;
+  if (Is.func(value)) value = value();
+  rejectThenable(value);
+  if (value === undefined) return '';
+  if (!Is.str(value)) throw new TypeError('Fetch access-token callbacks must return a string');
+  const token = value
     .trim()
     .replace(/^Bearer /, '')
     .trim();
   return token ? `Bearer ${token}` : '';
+}
+
+function rejectThenable(input: unknown): void {
+  if (!Is.promise(input)) return;
+  drain(input);
+  throw new TypeError('Fetch header callbacks must settle synchronously');
+}
+
+function drain(input: PromiseLike<unknown>): void {
+  try {
+    const wrapped = new Promise<unknown>((resolve) => resolve(input));
+    wrapped.catch(() => undefined);
+  } catch {
+    // A hostile thenable is rejected synchronously.
+  }
 }

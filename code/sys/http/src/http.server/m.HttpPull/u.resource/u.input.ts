@@ -1,12 +1,4 @@
-import {
-  Arr,
-  fetchDefaultHeaders,
-  Is,
-  Num,
-  Obj,
-  type t,
-  validateResponsePolicy,
-} from '../common.ts';
+import { Arr, Fetch, Is, Num, Obj, type t, validateResponsePolicy } from '../common.ts';
 import { failureRecord, RESOURCE_FAILURE, type ResourceFailure } from './u.failure.ts';
 import { type ResourceSnapshot, snapshotResources } from './u.snapshot.ts';
 
@@ -219,33 +211,15 @@ function snapshotCredentials(input: unknown):
       return { ok: false };
     }
 
-    let accessToken: unknown = Obj.hasOwn(input, 'accessToken') ? input.accessToken : undefined;
+    const accessToken = Obj.hasOwn(input, 'accessToken') ? input.accessToken : undefined;
     const mutate = Obj.hasOwn(input, 'headers') ? input.headers : undefined;
     if (accessToken !== undefined && !Is.str(accessToken) && !Is.func(accessToken)) {
       return { ok: false };
     }
     if (mutate !== undefined && !Is.func(mutate)) return { ok: false };
 
-    if (Is.func(accessToken)) accessToken = accessToken();
-    if (Is.promise(accessToken)) {
-      drain(accessToken);
-      return { ok: false };
-    }
-    if (accessToken !== undefined && !Is.str(accessToken)) return { ok: false };
-
-    let output: unknown;
-    const headers = fetchDefaultHeaders({
-      accessToken,
-      headers: mutate
-        ? (event) => {
-          output = mutate(event);
-        }
-        : undefined,
-    });
-    if (Is.promise(output)) {
-      drain(output);
-      return { ok: false };
-    }
+    const options = { accessToken, headers: mutate } as t.HttpFetch.DefaultHeaders.Options;
+    const headers = Fetch.defaultHeaders(options);
 
     const entries: Array<readonly [string, string]> = [];
     headers.forEach((value, name) => entries.push(Object.freeze([name, value])));
@@ -299,14 +273,6 @@ function snapshotRooted(input: unknown): t.Fs.Rooted.Instance | undefined {
     }) as t.Fs.Rooted.Instance;
   } catch {
     return;
-  }
-}
-
-function drain(input: PromiseLike<unknown>): void {
-  try {
-    Promise.resolve(input).catch(() => undefined);
-  } catch {
-    // A hostile thenable is already classified as invalid credential input.
   }
 }
 

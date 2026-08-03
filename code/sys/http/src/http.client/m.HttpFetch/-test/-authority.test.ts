@@ -1,5 +1,5 @@
 import { WebFixture } from '@sys/testing/web';
-import { describe, expect, it, Json, type t, Testing, Url } from '../../../-test.ts';
+import { describe, expect, it, Json, Schedule, type t, Testing, Url } from '../../../-test.ts';
 import { Fetch } from '../mod.ts';
 import { fetchOptions } from './u.fixture.ts';
 
@@ -16,6 +16,76 @@ const SENTINEL = {
 } as const;
 
 describe('Http.Fetch: request authority', () => {
+  it('snapshots canonical default headers with one callback evaluation', () => {
+    let tokenReads = 0;
+    let tokenCalls = 0;
+    let headerReads = 0;
+    let headerCalls = 0;
+    const headers = Fetch.defaultHeaders({
+      get accessToken() {
+        tokenReads++;
+        return () => {
+          tokenCalls++;
+          return '  Bearer   canonical-token  ';
+        };
+      },
+      get headers() {
+        headerReads++;
+        return (e: t.HttpFetch.Mutate.Headers.Args) => {
+          headerCalls++;
+          expect(e.get('AUTHORIZATION')).to.eql('Bearer canonical-token');
+          e.set('X-Canonical', '  safe  ');
+          e.set('X-Removed', '  ');
+        };
+      },
+    });
+
+    expect(tokenReads).to.eql(1);
+    expect(tokenCalls).to.eql(1);
+    expect(headerReads).to.eql(1);
+    expect(headerCalls).to.eql(1);
+    expect(headers.get('authorization')).to.eql('Bearer canonical-token');
+    expect(headers.get('x-canonical')).to.eql('safe');
+    expect(headers.has('x-removed')).to.eql(false);
+  });
+
+  it('rejects and drains asynchronous default-header callbacks', async () => {
+    const accessToken = (() => Promise.resolve('private-token')) as unknown as NonNullable<
+      t.HttpFetch.DefaultHeaders.Options['accessToken']
+    >;
+    let rejectionDrained = false;
+    const rejectedThenable = {
+      then(_resolve: unknown, reject: (reason: unknown) => void) {
+        rejectionDrained = true;
+        reject(new Error('private-header-rejection'));
+      },
+    } as unknown as PromiseLike<unknown>;
+    const headers = (() => rejectedThenable) as unknown as NonNullable<
+      t.HttpFetch.DefaultHeaders.Options['headers']
+    >;
+
+    let hostileCatchCalls = 0;
+    const rejectedPromise = Promise.reject(new Error('private-native-rejection'));
+    Object.defineProperty(rejectedPromise, 'catch', {
+      value() {
+        hostileCatchCalls++;
+        throw new Error('hostile-catch');
+      },
+    });
+    const hostileAccessToken = (() => rejectedPromise) as unknown as NonNullable<
+      t.HttpFetch.DefaultHeaders.Options['accessToken']
+    >;
+
+    expect(() => Fetch.defaultHeaders({ accessToken })).to.throw(/settle synchronously/);
+    expect(() => Fetch.defaultHeaders({ headers })).to.throw(/settle synchronously/);
+    expect(() => Fetch.defaultHeaders({ accessToken: hostileAccessToken })).to.throw(
+      /settle synchronously/,
+    );
+    await Schedule.micro();
+    expect(rejectionDrained).to.eql(true);
+    expect(hostileCatchCalls).to.eql(0);
+  });
+
   it('applies caller headers once with case-insensitive precedence', async () => {
     const server = Testing.Http.server((req) => {
       expect(req.headers.get('authorization')).to.eql(SENTINEL.bearerCaller);

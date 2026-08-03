@@ -50,9 +50,7 @@ export declare namespace HttpPull {
   };
 
   /** Optional credential construction data snapshotted before admission or transport. */
-  export type ResourceCredentials = Readonly<
-    Pick<t.HttpFetch.CreateOptions, 'accessToken' | 'headers'>
-  >;
+  export type ResourceCredentials = t.HttpFetch.DefaultHeaders.Options;
 
   /** Input to `HttpPull.start`. */
   export type StartOptions = {

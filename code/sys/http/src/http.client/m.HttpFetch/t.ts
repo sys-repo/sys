@@ -9,6 +9,9 @@ export declare namespace HttpFetch {
     /** Create one bounded Fetch capability. */
     make(options: CreateOptions): Instance;
 
+    /** Snapshot canonical default Fetch headers. */
+    readonly defaultHeaders: DefaultHeaders.Method;
+
     /** Probe header information to retrieve the byte-size of an HTTP resource. */
     readonly byteSize: ByteSize.Method;
   };
@@ -111,6 +114,17 @@ export declare namespace HttpFetch {
      */
     readonly contentTypePolicy?: 'corsSafe' | 'always';
   };
+
+  /**
+   * Default header snapshot contracts.
+   */
+  export namespace DefaultHeaders {
+    /** Canonical default-header construction authority. */
+    export type Options = Readonly<Pick<CreateOptions, 'accessToken' | 'headers'>>;
+
+    /** Snapshot canonical default Fetch headers. */
+    export type Method = (options: Options) => Headers;
+  }
 
   /** Options passed to body-bearing Fetch helpers. */
   export type Options = {

@@ -1,4 +1,4 @@
-import { Arr, Is, Num, Obj, Pkg, type t, Url } from './common.ts';
+import { Arr, Fetch, Is, Num, Obj, Pkg, type t, Url } from './common.ts';
 
 export type InputSnapshot = Readonly<{
   manifestUrl: t.StringUrl;
@@ -102,45 +102,7 @@ export function prepareManifestCredentials(
 ): PreparedManifestCredentials {
   if (!input) return { ok: true };
   try {
-    let accessToken: unknown = input.accessToken;
-    if (Is.func(accessToken)) accessToken = accessToken();
-    if (Is.promise(accessToken)) {
-      drain(accessToken);
-      return { ok: false };
-    }
-    if (accessToken !== undefined && !Is.str(accessToken)) return { ok: false };
-
-    const headers = new Headers();
-    if (Is.str(accessToken)) {
-      const token = accessToken.trim().replace(/^Bearer /, '').trim();
-      if (token) headers.set('authorization', `Bearer ${token}`);
-    }
-
-    const mutate = input.headers;
-    if (mutate) {
-      const payload: t.HttpFetch.Mutate.Headers.Args = {
-        get headers() {
-          const result: Record<string, string> = {};
-          headers.forEach((value, name) => (result[name] = value));
-          return result;
-        },
-        get(name) {
-          return headers.get(name) ?? undefined;
-        },
-        set(name, value) {
-          const next = Is.str(value) ? value.trim() : value;
-          if (Is.falsy(next)) headers.delete(name);
-          else headers.set(name, String(next));
-          return payload;
-        },
-      };
-      const output = mutate(payload);
-      if (Is.promise(output)) {
-        drain(output);
-        return { ok: false };
-      }
-    }
-
+    const headers = Fetch.defaultHeaders(input);
     const entries: Array<readonly [string, string]> = [];
     headers.forEach((value, name) => entries.push(Object.freeze([name, value])));
     if (entries.length === 0) return { ok: true };
@@ -353,12 +315,4 @@ function rejectedInput(
   reason: Extract<t.ServerDist.FailureReason, 'invalid-input' | 'invalid-policy'>,
 ): Extract<InputPreparation, { readonly ok: false }> {
   return Object.freeze({ ok: false, reason });
-}
-
-function drain(input: PromiseLike<unknown>): void {
-  try {
-    Promise.resolve(input).catch(() => undefined);
-  } catch {
-    // A hostile thenable is already classified as invalid credential input.
-  }
 }

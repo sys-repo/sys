@@ -52,9 +52,7 @@ export declare namespace ServerDist {
   };
 
   /** Manifest-request credentials; callbacks run only when network work is required. */
-  export type ManifestCredentials = Readonly<
-    Pick<HttpFetch.CreateOptions, 'accessToken' | 'headers'>
-  >;
+  export type ManifestCredentials = HttpFetch.DefaultHeaders.Options;
 
   /** Credentials confined independently to manifest and asset origins. */
   export type Credentials = {
