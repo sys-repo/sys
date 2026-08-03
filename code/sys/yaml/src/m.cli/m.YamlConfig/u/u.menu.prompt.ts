@@ -16,6 +16,7 @@ type PromptActionArgs<A extends string, T> = {
   message?: string;
   actionLabel?: t.YamlConfig.Menu.ItemName<T>;
   labelMode?: 'prefix' | 'submenu';
+  deleteLabel?: t.YamlConfig.Menu.ItemName<T>;
   extra?: { name: t.YamlConfig.Menu.ItemName<T>; value: A }[];
   extraAfter?: { name: t.YamlConfig.Menu.ItemName<T>; value: A }[];
 };
@@ -36,12 +37,15 @@ export async function promptAction<A extends string = string, T = unknown>(
   const extraAfterActions = resolveExtras(args.extraAfter ?? [], args);
   const itemArgs = { name: args.name, path: args.path, doc: args.doc };
   const actionLabel = resolveName(args.actionLabel ?? 'config', itemArgs).trim() || 'config';
+  const deleteLabel = args.deleteLabel
+    ? resolveName(args.deleteLabel, itemArgs)
+    : c.dim(c.gray('(delete)'));
   const baseActions = [
     { name: 'edit', value: 'edit' as const },
     { name: 'reload', value: 'reload' as const },
     { name: 'rename', value: 'rename' as const },
   ];
-  const deleteAction = { name: c.dim(c.gray(' (delete)')), value: 'delete' as const };
+  const deleteAction = { name: deleteLabel, value: 'delete' as const };
   const backAction = { name: `${c.cyan('←')} back`, value: 'back' as const };
   const message = args.valid
     ? args.message ?? 'Actions:'
@@ -55,7 +59,10 @@ export async function promptAction<A extends string = string, T = unknown>(
         value: item.value,
       })),
       ...extraAfterActions.map((item) => ({ name: `  ${item.name}`, value: item.value })),
-      deleteAction,
+      {
+        ...deleteAction,
+        name: `${args.deleteLabel ? '  ' : ' '}${deleteAction.name}`,
+      },
       backAction,
     ];
     const allowed = args.valid ? all : all.filter((opt) =>
@@ -73,11 +80,12 @@ export async function promptAction<A extends string = string, T = unknown>(
     return answer as t.YamlConfig.Menu.ActionBase | A;
   }
 
-  const allowedBaseActions = args.valid
-    ? baseActions
-    : baseActions.filter((opt) => (args.allow ?? DEFAULT_ALLOWED).includes(opt.value));
+  const submenuActions = [...baseActions, deleteAction];
+  const allowedSubmenuActions = args.valid
+    ? submenuActions
+    : submenuActions.filter((opt) => (args.allow ?? DEFAULT_ALLOWED).includes(opt.value));
   const submenuOptions = [
-    ...allowedBaseActions.map((item) => ({ name: `  ${item.name}`, value: item.value })),
+    ...allowedSubmenuActions.map((item) => ({ name: `  ${item.name}`, value: item.value })),
     backAction,
   ].filter((opt) =>
     args.valid ||
@@ -85,16 +93,17 @@ export async function promptAction<A extends string = string, T = unknown>(
   );
   const rootOptions = [
     ...extraActions.map((item) => ({ name: `  ${item.name}`, value: item.value })),
-    ...(allowedBaseActions.length > 0 ? [{ name: `  ${actionLabel}`, value: SUBMENU_VALUE }] : []),
+    ...(allowedSubmenuActions.length > 0
+      ? [{ name: `  ${actionLabel}`, value: SUBMENU_VALUE }]
+      : []),
     ...extraAfterActions.map((item) => ({ name: `  ${item.name}`, value: item.value })),
-    deleteAction,
     backAction,
   ].filter((opt) =>
     args.valid || opt.value === SUBMENU_VALUE ||
     (args.allow ?? DEFAULT_ALLOWED).includes(opt.value as t.YamlConfig.Menu.ActionBase)
   );
 
-  const startsInSubmenu = allowedBaseActions.some((item) => item.value === args.defaultValue);
+  const startsInSubmenu = allowedSubmenuActions.some((item) => item.value === args.defaultValue);
   let level: 'root' | 'submenu' = startsInSubmenu ? 'submenu' : 'root';
   let rootDefault = startsInSubmenu ? SUBMENU_VALUE : args.defaultValue;
   let submenuDefault = startsInSubmenu ? args.defaultValue : undefined;

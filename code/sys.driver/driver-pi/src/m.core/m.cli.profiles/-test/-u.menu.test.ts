@@ -151,8 +151,14 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     try {
       const res = await menu({ cwd: testCwd(cwd) });
       expect(res).to.eql({ kind: 'exit' });
-      expect(actionFrame).to.eql(['  start', '  profile: default', ' (delete)', '← back']);
-      expect(profileFrame).to.eql(['  edit', '  reload', '  rename', '← back']);
+      expect(actionFrame).to.eql(['  start', '  profile: default', '← back']);
+      expect(profileFrame).to.eql([
+        '  edit',
+        '  reload',
+        '  rename',
+        '  delete profile',
+        '← back',
+      ]);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       console.info = prevInfo;

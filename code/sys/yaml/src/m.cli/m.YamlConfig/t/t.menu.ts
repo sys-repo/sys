@@ -91,12 +91,14 @@ export type YamlConfigMenuArgs<T, A extends string = string> = {
      */
     label?: YamlConfigMenuItemName<T>;
     /**
-     * Present labeled edit/reload/rename actions as prefixed rows or within a submenu.
-     * Defaults to `prefix`; delete and back remain in the parent action menu.
+     * Present labeled edit/reload/rename/delete actions as prefixed rows or within a submenu.
+     * Defaults to `prefix`; back remains in the parent action menu.
      */
     labelMode?: 'prefix' | 'submenu';
+    /** Optional label for the built-in delete action. */
+    deleteLabel?: YamlConfigMenuItemName<T>;
     extra?: YamlConfigMenuExtra<A, T>[];
-    /** Extra actions placed after built-in edit/reload/rename and before delete. */
+    /** Extra actions rendered after the labeled built-in action group. */
     extraAfter?: YamlConfigMenuExtra<A, T>[];
     onAction?: YamlConfigMenuHandler<A>;
   };

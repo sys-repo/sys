@@ -150,7 +150,7 @@ describe('YamlConfig.menu.prompt', () => {
 
       expect(action).to.eql('rename');
       expect(defaultValue).to.eql('reload');
-      expect(seen).to.eql(['  edit', '  reload', '  rename', '← back']);
+      expect(seen).to.eql(['  edit', '  reload', '  rename', '  (delete)', '← back']);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
     }

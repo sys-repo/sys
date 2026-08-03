@@ -105,17 +105,74 @@ describe('YamlConfig.menu', () => {
         actions: {
           label: ({ name }) => `config: ${name}`,
           labelMode: 'submenu',
+          deleteLabel: 'delete config',
         },
       });
 
       expect(res).to.eql({ kind: 'back' });
       expect(seen).to.eql([
-        ['  config: alpha', ' (delete)', '← back'],
-        ['  edit', '  reload', '  rename', '← back'],
-        ['  config: alpha', ' (delete)', '← back'],
+        ['  config: alpha', '← back'],
+        ['  edit', '  reload', '  rename', '  delete config', '← back'],
+        ['  config: alpha', '← back'],
       ]);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
+      await Fs.remove(cwd.absolute);
+    }
+  });
+
+  it('action submenu → confirms deletion with the selected config name', async () => {
+    const cwd = await Fs.makeTempDir();
+    const originalSelect = Cli.Input.Select.prompt;
+    const originalConfirm = Cli.Input.Confirm.prompt;
+    const path = Fs.join(cwd.absolute, '-config/canon.yaml');
+    let confirmation = '';
+
+    Object.defineProperty(Cli.Input.Select, 'prompt', {
+      value: (args: {
+        readonly options: readonly {
+          readonly name: string;
+          readonly value: unknown;
+        }[];
+      }) => {
+        const options = args.options;
+        const submenu = options.find((option) => Cli.stripAnsi(option.name) === '  config: canon');
+        return Promise.resolve(submenu?.value ?? 'delete');
+      },
+    });
+    Object.defineProperty(Cli.Input.Confirm, 'prompt', {
+      value: (args: { readonly message: string }) => {
+        confirmation = Cli.stripAnsi(args.message);
+        return Promise.resolve(true);
+      },
+    });
+
+    try {
+      await Fs.ensureDir(Fs.dirname(path));
+      await Fs.write(path, 'title: Canon\n');
+
+      const res = await menu({
+        cwd: cwd.absolute,
+        dir: '-config',
+        label: '',
+        mode: 'action',
+        path,
+        schema: {
+          validate: () => ({ ok: true, errors: [] }),
+        },
+        actions: {
+          label: ({ name }) => `config: ${name}`,
+          labelMode: 'submenu',
+          deleteLabel: 'delete config',
+        },
+      });
+
+      expect(res).to.eql({ kind: 'back' });
+      expect(confirmation).to.eql('Delete canon?');
+      expect(await Fs.exists(path)).to.eql(false);
+    } finally {
+      Object.defineProperty(Cli.Input.Select, 'prompt', { value: originalSelect });
+      Object.defineProperty(Cli.Input.Confirm, 'prompt', { value: originalConfirm });
       await Fs.remove(cwd.absolute);
     }
   });

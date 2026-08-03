@@ -114,6 +114,7 @@ function menuArgs(args: { cwd: t.StringDir; allowAll?: boolean }) {
       message: '',
       label: ({ name }: { name: string }) => `profile: ${c.cyan(name)}`,
       labelMode: 'submenu' as const,
+      deleteLabel: 'delete profile',
       extra: [
         {
           name: allowAll === true
