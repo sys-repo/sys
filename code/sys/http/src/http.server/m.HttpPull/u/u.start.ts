@@ -1,5 +1,5 @@
 import { HttpClient, type t } from '../common.ts';
-import { createResourceOperation } from './u.resource.operation.ts';
+import { createResourceOperation } from '../u.resource/u.operation.ts';
 
 type Start = t.HttpPull.Lib['start'];
 type MakeClient = t.HttpFetch.Lib['make'];

@@ -7,8 +7,8 @@ import {
   type t,
   validateResponsePolicy,
 } from '../common.ts';
-import { failureRecord, RESOURCE_FAILURE, type ResourceFailure } from './u.resource.failure.ts';
-import { type ResourceSnapshot, snapshotResources } from './u.resource.snapshot.ts';
+import { failureRecord, RESOURCE_FAILURE, type ResourceFailure } from './u.failure.ts';
+import { type ResourceSnapshot, snapshotResources } from './u.snapshot.ts';
 
 export type PolicySnapshot = t.HttpPull.ResourcePolicy & {
   readonly sourceOrigins: ReadonlySet<string>;

@@ -1,16 +1,16 @@
 import { Err, Num, Rx, Schedule, Str, type t } from '../common.ts';
-import { eventView } from './u.events.ts';
-import { admitResources, type PreparedResource } from './u.resource.admit.ts';
-import { RESOURCE_FAILURE, type ResourceFailure, terminalEvidence } from './u.resource.failure.ts';
-import { type PreparedStart, prepareStart, rejectStart } from './u.resource.input.ts';
+import { eventView } from '../u/u.events.ts';
+import { admitResources, type PreparedResource } from './u.admit.ts';
+import { RESOURCE_FAILURE, type ResourceFailure, terminalEvidence } from './u.failure.ts';
+import { type PreparedStart, prepareStart, rejectStart } from './u.input.ts';
 import {
   createResourceState,
   isCommittedResource,
   resourceFailureRecord,
   type ResourceState,
   transferResource,
-} from './u.resource.transfer.ts';
-import { createDeadline, type Deadline } from './u.resource.time.ts';
+} from './u.transfer.ts';
+import { createDeadline, type Deadline } from './u.time.ts';
 
 type MakeClient = t.HttpFetch.Lib['make'];
 

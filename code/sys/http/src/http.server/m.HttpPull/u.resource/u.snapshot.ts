@@ -1,6 +1,6 @@
 import { Arr, Is, Num, Obj, Pkg, type t } from '../common.ts';
-import { failureRecord, RESOURCE_FAILURE, type ResourceFailure } from './u.resource.failure.ts';
-import { parseResourceSource, safeResourceSource } from './u.resource.source.ts';
+import { failureRecord, RESOURCE_FAILURE, type ResourceFailure } from './u.failure.ts';
+import { parseResourceSource, safeResourceSource } from './u.source.ts';
 
 export type SourceSnapshot = {
   readonly input: t.StringUrl;

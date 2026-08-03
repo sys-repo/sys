@@ -1,6 +1,6 @@
 import type { t } from '../common.ts';
-import type { ResourceSnapshot } from './u.resource.snapshot.ts';
-import { safeResourceSource } from './u.resource.source.ts';
+import type { ResourceSnapshot } from './u.snapshot.ts';
+import { safeResourceSource } from './u.source.ts';
 
 export const RESOURCE_FAILURE = {
   input: {

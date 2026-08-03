@@ -1,14 +1,14 @@
 import { Err, Fs, HttpClient, Is, Num, type t } from '../common.ts';
-import type { PreparedResource } from './u.resource.admit.ts';
+import type { PreparedResource } from './u.admit.ts';
 import {
   failureRecord,
   filesystemEvidence,
   RESOURCE_FAILURE,
   type ResourceFailure,
-} from './u.resource.failure.ts';
-import type { PolicySnapshot } from './u.resource.input.ts';
-import type { ResourceSnapshot } from './u.resource.snapshot.ts';
-import { createDeadline, type Deadline, waitForRetry } from './u.resource.time.ts';
+} from './u.failure.ts';
+import type { PolicySnapshot } from './u.input.ts';
+import type { ResourceSnapshot } from './u.snapshot.ts';
+import { createDeadline, type Deadline, waitForRetry } from './u.time.ts';
 
 export type ResourceState = {
   resource: ResourceSnapshot | PreparedResource;

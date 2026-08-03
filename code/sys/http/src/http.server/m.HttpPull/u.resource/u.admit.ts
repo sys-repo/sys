@@ -4,8 +4,8 @@ import {
   filesystemEvidence,
   RESOURCE_FAILURE,
   type ResourceFailure,
-} from './u.resource.failure.ts';
-import type { ResourceSnapshot } from './u.resource.snapshot.ts';
+} from './u.failure.ts';
+import type { ResourceSnapshot } from './u.snapshot.ts';
 
 export type PreparedResource = ResourceSnapshot & {
   readonly target: {
