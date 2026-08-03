@@ -43,24 +43,23 @@ export async function main() {
    */
   async function renderDev() {
     const { render, useKeyboard } = await import('@sys/ui-dev/react/devharness');
-    const { Specs } = await import('./-specs.ts');
+    const { ns, Specs } = await import('./-specs.ts');
 
     const el = await render(pkg, Specs, {
       style: { Absolute: 0 },
       hr(e) {
-        if (e.next?.endsWith(': Button')) return true;
-        if (e.next?.endsWith(': Bullet')) return true;
-        if (e.next?.endsWith(': Anchor')) return true;
-        if (e.next?.endsWith(': Layout.CenterColumn')) return true;
-        if (e.next?.endsWith(': Http.Origin')) return true;
-        if (e.next?.endsWith(': Text.Input')) return true;
-        if (e.next?.endsWith(': TreeView.Index')) return true;
-        if (e.next?.endsWith(': Prose.Measure')) return true;
-        if (e.next?.endsWith(': Player.Video: Element')) return true;
-        if (e.next?.endsWith(': Recorder')) return true;
-        if (e.next?.endsWith(': Dist')) return true;
-        if (e.next?.endsWith(': Dev.Help.Markdown')) return true;
-        if (e.next?.endsWith(': WebFonts')) return true;
+        e.byRoots([
+          `${ns}: Text`,
+          `${ns}: Prose`,
+          `${ns}: Layout`,
+          `${ns}: Http`,
+          `${ns}: TreeView`,
+          `${ns}: Player`,
+          `${ns}.media`,
+          `${ns}: Dev`,
+        ]);
+        e.byRegex(/: Buttons?(?:\.|$)/);
+        e.rule((_prev, next) => /: (?:Anchor|Bullet|Dist)$/.test(next ?? ''));
       },
     });
     function App() {
