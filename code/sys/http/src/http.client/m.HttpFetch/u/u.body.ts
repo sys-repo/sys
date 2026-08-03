@@ -67,6 +67,16 @@ export async function readBody(args: ReadBodyArgs): Promise<Uint8Array<ArrayBuff
       const chunk = item.value;
       if (!Is.uint8Array(chunk)) throw new Error('Fetch response body produced a non-byte chunk');
       if (chunk.byteLength > policy.maxBytes - loaded) {
+        const observed = loaded + chunk.byteLength;
+        if (Num.Is.safeInt(observed)) {
+          emitProgress(operation, onProgress, {
+            requestedUrl,
+            finalUrl,
+            loaded: observed,
+            total,
+            complete: false,
+          });
+        }
         void operation.cancelReader(body, reader);
         operation.fail('response-too-large');
       }

@@ -227,6 +227,7 @@ describe('Http.Fetch: bounded response policy', () => {
 
   it('accounts streamed bytes before retention when declared size is invalid', async () => {
     let cancellations = 0;
+    const progress: t.HttpFetch.ResponsePolicy.ProgressEvent[] = [];
     const body = new ReadableStream<Uint8Array>({
       start(controller) {
         controller.enqueue(new Uint8Array([1, 2, 3]));
@@ -242,9 +243,13 @@ describe('Http.Fetch: bounded response policy', () => {
     const client = makeClient({ maxBytes: 5 });
 
     try {
-      const res = await client.blob(RESOURCE_URL);
+      const res = await client.blob(RESOURCE_URL, {}, {
+        onProgress: (event) => progress.push(event),
+      });
       assertPolicyFailure(res, 'response-too-large', 413);
       expect(res.data).to.eql(undefined);
+      expect(progress.map((event) => event.loaded)).to.eql([3, 6]);
+      expect(progress.every((event) => event.complete === false)).to.eql(true);
       expect(cancellations).to.eql(1);
     } finally {
       client.dispose();

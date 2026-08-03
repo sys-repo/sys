@@ -1,163 +1,136 @@
-import { describe, expect, expectTypeOf, Fs, it, type t, Testing, Time } from '../../../-test.ts';
+import { describe, expect, expectTypeOf, Fs, it, type t, Testing } from '../../../-test.ts';
 import { Hash } from '../../common.ts';
 import { HttpPull } from '../mod.ts';
-import { resourceOptions as options } from './u.fixture.ts';
+import {
+  cleanupRoots,
+  localhost,
+  resource,
+  resourcePolicy,
+  rooted,
+  rootedFailure,
+} from './u.fixture.ts';
 
 const encoder = new TextEncoder();
-const roots = new Set<t.StringAbsoluteDir>();
 
-function resource(
-  source: t.StringUrl,
-  target: t.StringRelativePath,
-  content: string,
-  expectedBytes: t.NumberBytes | undefined = encoder.encode(content).byteLength,
-): t.HttpPull.Resource {
-  return {
-    source,
-    target,
-    checksum: Hash.sha256(encoder.encode(content)),
-    expectedBytes,
-  };
+function start(
+  resources: readonly t.HttpPull.Resource[],
+  owner: t.Fs.Rooted.Instance,
+  policy: t.HttpPull.ResourcePolicy = resourcePolicy(resources),
+  input: Pick<t.HttpPull.StartOptions, 'credentials' | 'until'> = {},
+): t.HttpPull.ResourceOperation.Instance {
+  return HttpPull.start({ resources, rooted: owner, policy, ...input });
 }
 
-async function rooted(prefix = 'http-pull-rooted-'): Promise<t.Fs.Rooted.Instance> {
-  const dir = await Fs.makeTempDir({ prefix });
-  const root = await Fs.realPath(dir.absolute);
-  roots.add(root);
-  return await Fs.Capability.Rooted.create({ root });
-}
-
-function localhost(input: t.StringUrl): t.StringUrl {
-  const url = new URL(input);
-  if (url.hostname === '0.0.0.0') url.hostname = '127.0.0.1';
-  return url.href;
-}
-
-function asFailure(record: t.HttpPull.Record): t.HttpPull.RecordFailure {
-  if (record.ok) throw new Error('Expected pull failure record');
+function asFailure(record: t.HttpPull.ResourceRecord): t.HttpPull.ResourceRecordFailure {
+  if (record.ok) throw new Error('Expected checksum-pinned Pull failure');
   return record;
 }
 
-function rootedFailure(
-  operation: t.Fs.Rooted.Operation,
-  kind: t.Fs.Rooted.FailureKind,
-  message: string,
-): t.Fs.Rooted.Failure {
-  const error = new Error(message) as t.Fs.Rooted.Failure;
-  Object.defineProperties(error, {
-    name: { value: 'FsRootedError' },
-    operation: { value: operation },
-    kind: { value: kind },
-    committed: { value: false },
-  });
-  return error;
-}
+describe('HttpPull checksum-pinned resources', () => {
+  Testing.Bdd.afterEach(cleanupRoots);
 
-describe('HttpPull secure resources', () => {
-  Testing.Bdd.afterEach(async () => {
-    const paths = [...roots];
-    roots.clear();
-    await Promise.all(paths.map((path) => Fs.remove(path, { recursive: true })));
-  });
+  it('exposes one start surface while legacy names accept URL arrays only', async () => {
+    expectTypeOf(HttpPull.start).toEqualTypeOf<
+      (options: t.HttpPull.StartOptions) => t.HttpPull.ResourceOperation.Instance
+    >();
+    expectTypeOf(HttpPull.toDir).toEqualTypeOf<
+      (
+        urls: readonly string[],
+        dir: t.StringDir,
+        options: t.HttpPull.Options,
+      ) => Promise<t.HttpPull.ToDir.Result>
+    >();
+    expectTypeOf(HttpPull.stream).toEqualTypeOf<
+      (
+        urls: readonly string[],
+        dir: t.StringDir,
+        options: t.HttpPull.Options,
+      ) => t.HttpPull.Stream.Instance
+    >();
 
-  it('exposes the checksum-bound resource contract', () => {
-    const value: t.HttpPull.Resource = {
-      source: 'https://example.test/file',
-      target: 'file',
-      checksum: `sha256-${'0'.repeat(64)}`,
-    };
-    expectTypeOf(value).toEqualTypeOf<{
-      readonly source: t.StringUrl;
-      readonly target: t.StringRelativePath;
-      readonly checksum: t.StringHash;
-      readonly expectedBytes?: t.NumberBytes;
-    }>();
-    expectTypeOf(options([value])).toEqualTypeOf<{
-      readonly until?: t.UntilInput;
-      readonly concurrency?: never;
-      readonly retry?: never;
-      readonly map?: never;
-      readonly client?: undefined;
-      readonly policy: t.HttpFetch.ResponsePolicy;
-    }>();
+    const owner = await rooted();
+    const operation = start([], owner, resourcePolicy([], { maxResources: 0 }));
+    expect(Symbol.asyncIterator in operation).to.eql(false);
+    expect(await operation.done).to.eql({
+      ok: true,
+      ops: [],
+      totals: { resources: 0, attempts: 0, transferredBytes: 0, publishedBytes: 0 },
+    });
   });
 
-  it('publishes authenticated bytes only at the explicit root-relative target', async () => {
+  it('publishes exact authenticated bytes with source, checksum, size, and commit evidence', async () => {
     const content = 'rooted-content';
     const server = Testing.Http.server((req) => Testing.Http.text(req, content));
     try {
-      const source = localhost(server.url.join('url-derived', 'ignored.txt'));
-      const input = [resource(source, './assets//explicit.bin', content)];
-      const root = await rooted();
+      const source = `${localhost(server.url.join('url-derived', 'ignored.txt'))}?v=1`;
+      const resources = [resource(source, './assets//explicit.bin', content)];
+      const owner = await rooted();
 
-      const result = await HttpPull.toDir(input, root, options(input));
+      const result = await start(resources, owner).done;
 
       expect(result.ok).to.eql(true);
       expect(result.ops).to.have.length(1);
-      expect(result.ops[0].path).to.eql({ source, target: 'assets/explicit.bin' });
-      expect(await Fs.readText(Fs.join(root.path, 'assets/explicit.bin'))).to.include({
+      const record = result.ops[0];
+      expect(record).to.include({
+        ok: true,
+        index: 0,
+        attempts: 1,
+        transferredBytes: encoder.encode(content).byteLength,
+        actualBytes: encoder.encode(content).byteLength,
+        bytes: encoder.encode(content).byteLength,
+        requestedUrl: source,
+        finalUrl: source,
+      });
+      expect(record.path).to.eql({
+        source: localhost(server.url.join('url-derived', 'ignored.txt')),
+        target: 'assets/explicit.bin',
+      });
+      expect(record.checksum).to.eql({
+        valid: true,
+        expected: resources[0].checksum,
+        actual: resources[0].checksum,
+      });
+      expect(record.filesystem).to.eql({ operation: 'publish-file', committed: true });
+      expect(result.totals).to.eql({
+        resources: 1,
+        attempts: 1,
+        transferredBytes: encoder.encode(content).byteLength,
+        publishedBytes: encoder.encode(content).byteLength,
+      });
+      expect(await Fs.readText(Fs.join(owner.path, 'assets/explicit.bin'))).to.include({
         ok: true,
         data: content,
       });
-      expect(await Fs.exists(Fs.join(root.path, 'url-derived', 'ignored.txt'))).to.eql(false);
+      expect(await Fs.exists(Fs.join(owner.path, 'url-derived', 'ignored.txt'))).to.eql(false);
     } finally {
       await server.dispose();
     }
   });
 
-  it('completes full target admission before the first request', async () => {
-    let admitted = false;
-    let requestedBeforeAdmission = false;
-    const server = Testing.Http.server((req) => {
-      requestedBeforeAdmission ||= !admitted;
-      return Testing.Http.text(req, 'content');
-    });
-    try {
-      const source = localhost(server.url.join('content.txt'));
-      const input = [resource(source, 'admitted/content.txt', 'content')];
-      const owner = await rooted();
-      const destination: t.Fs.Rooted.Instance = Object.freeze({
-        path: owner.path,
-        admit: async (targets, operationOptions) => {
-          const admission = await owner.admit(targets, operationOptions);
-          admitted = true;
-          return admission;
-        },
-        publishFile: owner.publishFile,
-        createStage: owner.createStage,
-        discardStage: owner.discardStage,
-        promoteStage: owner.promoteStage,
-      });
-
-      const result = await HttpPull.toDir(input, destination, options(input));
-
-      expect(result.ok).to.eql(true);
-      expect(admitted).to.eql(true);
-      expect(requestedBeforeAdmission).to.eql(false);
-    } finally {
-      await server.dispose();
-    }
-  });
-
-  it('snapshots resources before asynchronous admission and transport work', async () => {
+  it('snapshots every resource and policy value before asynchronous admission', async () => {
     const server = Testing.Http.server((req) => Testing.Http.text(req, 'stable'));
     try {
       const source = localhost(server.url.join('stable.txt'));
       const mutable = { ...resource(source, 'stable.txt', 'stable') };
-      const input: readonly t.HttpPull.Resource[] = [mutable];
-      const root = await rooted();
-      const pending = HttpPull.toDir(input, root, options(input));
+      const resources: readonly t.HttpPull.Resource[] = [mutable];
+      const mutablePolicy = {
+        ...resourcePolicy(resources),
+        response: { ...resourcePolicy(resources).response },
+      };
+      const owner = await rooted();
+      const operation = start(resources, owner, mutablePolicy);
 
       mutable.source = 'https://example.test/mutated.txt';
       mutable.target = '../mutated.txt';
       mutable.checksum = Hash.sha256(encoder.encode('mutated'));
       mutable.expectedBytes = 1;
+      mutablePolicy.maxTotalBytes = 0;
+      mutablePolicy.response.sourceOrigins = ['https://example.test'];
 
-      const result = await pending;
-
+      const result = await operation.done;
       expect(result.ok).to.eql(true);
-      expect(result.ops[0].path).to.eql({ source, target: 'stable.txt' });
-      expect(await Fs.readText(Fs.join(root.path, 'stable.txt'))).to.include({
+      expect(result.ops[0].path.target).to.eql('stable.txt');
+      expect(await Fs.readText(Fs.join(owner.path, 'stable.txt'))).to.include({
         ok: true,
         data: 'stable',
       });
@@ -166,7 +139,127 @@ describe('HttpPull secure resources', () => {
     }
   });
 
-  it('fails closed on hostile resource getters before network work', async () => {
+  it('completes full target admission before creating transport or making a request', async () => {
+    let admitted = false;
+    let requestBeforeAdmission = false;
+    const server = Testing.Http.server((req) => {
+      requestBeforeAdmission ||= !admitted;
+      return Testing.Http.text(req, 'content');
+    });
+    try {
+      const source = localhost(server.url.join('content.txt'));
+      const resources = [resource(source, 'admitted/content.txt', 'content')];
+      const owner = await rooted();
+      const destination: t.Fs.Rooted.Instance = Object.freeze({
+        path: owner.path,
+        admit: async (targets, options) => {
+          const result = await owner.admit(targets, options);
+          admitted = true;
+          return result;
+        },
+        publishFile: owner.publishFile,
+        createStage: owner.createStage,
+        discardStage: owner.discardStage,
+        promoteStage: owner.promoteStage,
+      });
+
+      const result = await start(resources, destination).done;
+
+      expect(result.ok).to.eql(true);
+      expect(admitted).to.eql(true);
+      expect(requestBeforeAdmission).to.eql(false);
+    } finally {
+      await server.dispose();
+    }
+  });
+
+  it('fails closed on hostile batch and resource getters without admission or network work', async () => {
+    let admissions = 0;
+    let requests = 0;
+    const server = Testing.Http.server((req) => {
+      requests++;
+      return Testing.Http.text(req, 'content');
+    });
+    try {
+      const source = localhost(server.url.join('content.txt'));
+      const authority = [resource(source, 'content.txt', 'content')];
+      const hostile = Object.defineProperty({}, 'source', {
+        enumerable: true,
+        get(): never {
+          throw new Error('RESOURCE-SECRET');
+        },
+      }) as t.HttpPull.Resource;
+      const owner = await rooted();
+      const destination: t.Fs.Rooted.Instance = Object.freeze({
+        ...owner,
+        admit: async (targets, options) => {
+          admissions++;
+          return await owner.admit(targets, options);
+        },
+      });
+
+      const resourceResult = await start([hostile], destination, resourcePolicy(authority)).done;
+      const hostileBatch = new Proxy([] as t.HttpPull.Resource[], {
+        get(target, property, receiver) {
+          if (property === 'length') throw new Error('BATCH-SECRET');
+          return Reflect.get(target, property, receiver);
+        },
+      });
+      const batchResult = await HttpPull.start({
+        resources: hostileBatch,
+        rooted: destination,
+        policy: resourcePolicy(authority),
+      }).done;
+
+      expect(resourceResult.ok).to.eql(false);
+      expect(resourceResult.terminal?.kind).to.eql('invalid-resource');
+      expect(resourceResult.ops[0].error).to.eql('Invalid checksum-pinned pull resource');
+      expect(batchResult.ok).to.eql(false);
+      expect(batchResult.terminal?.kind).to.eql('invalid-input');
+      expect(batchResult.ops).to.eql([]);
+      expect(JSON.stringify([resourceResult, batchResult]).includes('SECRET')).to.eql(false);
+      expect(admissions).to.eql(0);
+      expect(requests).to.eql(0);
+    } finally {
+      await server.dispose();
+    }
+  });
+
+  it('rejects source authority, unsafe targets, and target collisions before transport', async () => {
+    let requests = 0;
+    const server = Testing.Http.server((req) => {
+      requests++;
+      return Testing.Http.text(req, 'content');
+    });
+    try {
+      const source = `${localhost(server.url.join('content.txt'))}?token=SOURCE-SECRET`;
+      const cases: readonly (readonly t.HttpPull.Resource[])[] = [
+        [resource('https://denied.example/file', 'denied.txt', 'content')],
+        [resource(source, '../outside.txt', 'content')],
+        [resource(source, '/absolute.txt', 'content')],
+        [resource(source, 'nested\\backslash.txt', 'content')],
+        [resource(source, './same.txt', 'content'), resource(source, 'same.txt', 'content')],
+        [resource(source, 'pkg', 'content'), resource(source, 'pkg/entry.js', 'content')],
+      ];
+
+      for (const resources of cases) {
+        const owner = await rooted();
+        const policy = resourcePolicy(resources, {
+          response: { sourceOrigins: [new URL(source).origin] },
+        });
+        const result = await start(resources, owner, policy).done;
+        expect(result.ok).to.eql(false);
+        expect(result.ops.every((record) => !record.ok)).to.eql(true);
+        expect(JSON.stringify(result).includes('SOURCE-SECRET')).to.eql(false);
+      }
+      expect(requests).to.eql(0);
+    } finally {
+      await server.dispose();
+    }
+  });
+
+  it('rejects unknown resource authority, malformed checksums, and known bounds preflight', async () => {
+    let admissions = 0;
     let requests = 0;
     const server = Testing.Http.server((req) => {
       requests++;
@@ -175,307 +268,109 @@ describe('HttpPull secure resources', () => {
     try {
       const source = localhost(server.url.join('content.txt'));
       const authority = [resource(source, 'authority.txt', 'content')];
-      const hostile = Object.defineProperty({}, 'source', {
-        enumerable: true,
-        get(): never {
-          throw new Error('RESOURCE-SECRET');
-        },
-      }) as t.HttpPull.Resource;
-      const root = await rooted();
-
-      const result = await HttpPull.toDir([hostile], root, options(authority));
-
-      expect(result.ok).to.eql(false);
-      expect(result.ops).to.have.length(1);
-      expect(result.ops[0].error).to.eql('Invalid secure pull resource');
-      expect(JSON.stringify(result).includes('RESOURCE-SECRET')).to.eql(false);
-      expect(requests).to.eql(0);
-    } finally {
-      await server.dispose();
-    }
-  });
-
-  it('does not trust Rooted failure messages as HTTP diagnostics', async () => {
-    let requests = 0;
-    const server = Testing.Http.server((req) => {
-      requests++;
-      return Testing.Http.text(req, 'content');
-    });
-    try {
-      const source = localhost(server.url.join('content.txt'));
-      const input = [resource(source, 'content.txt', 'content')];
       const owner = await rooted();
-      const admissionFailure: t.Fs.Rooted.Instance = Object.freeze({
-        path: owner.path,
-        admit: () => Promise.reject(rootedFailure('admit', 'invalid-target', 'ADMISSION-SECRET')),
-        publishFile: owner.publishFile,
-        createStage: owner.createStage,
-        discardStage: owner.discardStage,
-        promoteStage: owner.promoteStage,
+      const destination: t.Fs.Rooted.Instance = Object.freeze({
+        ...owner,
+        admit: async (targets, options) => {
+          admissions++;
+          return await owner.admit(targets, options);
+        },
       });
-      const publicationFailure: t.Fs.Rooted.Instance = Object.freeze({
-        path: owner.path,
-        admit: owner.admit,
-        publishFile: () =>
-          Promise.reject(rootedFailure('publish-file', 'io-failure', 'PUBLICATION-SECRET')),
-        createStage: owner.createStage,
-        discardStage: owner.discardStage,
-        promoteStage: owner.promoteStage,
-      });
-
-      const admission = await HttpPull.toDir(input, admissionFailure, options(input));
-      const publication = await HttpPull.toDir(input, publicationFailure, options(input));
-
-      expect(admission.ok).to.eql(false);
-      expect(admission.ops[0].error).to.eql('Secure pull target admission failed');
-      expect(asFailure(admission.ops[0]).filesystem).to.eql({
-        operation: 'admit',
-        kind: 'invalid-target',
-        committed: false,
-      });
-      expect(publication.ok).to.eql(false);
-      expect(publication.ops[0].error).to.eql('Secure pull publication failed');
-      expect(asFailure(publication.ops[0]).filesystem).to.eql({
-        operation: 'publish-file',
-        kind: 'io-failure',
-        committed: false,
-      });
-      expect(JSON.stringify([admission, publication]).includes('SECRET')).to.eql(false);
-      expect(requests).to.eql(1);
-    } finally {
-      await server.dispose();
-    }
-  });
-
-  it('classifies filesystem failures identically through toDir and stream', async () => {
-    const server = Testing.Http.server((req) => Testing.Http.text(req, 'content'));
-    try {
-      const source = localhost(server.url.join('filesystem.txt'));
-      const input = [resource(source, 'filesystem.txt', 'content')];
-      const failingRoot = async (): Promise<t.Fs.Rooted.Instance> => {
-        const owner = await rooted();
-        return Object.freeze({
-          path: owner.path,
-          admit: owner.admit,
-          publishFile: () =>
-            Promise.reject(rootedFailure('publish-file', 'io-failure', 'FILESYSTEM-SECRET')),
-          createStage: owner.createStage,
-          discardStage: owner.discardStage,
-          promoteStage: owner.promoteStage,
-        });
-      };
-
-      const direct = await HttpPull.toDir(input, await failingRoot(), options(input));
-      const operation = HttpPull.stream(input, await failingRoot(), options(input));
-      const events: t.HttpPull.Event.Any[] = [];
-      for await (const event of operation) events.push(event);
-      const streamed = await operation.done;
-
-      expect(direct).to.eql(streamed);
-      expect(events.filter((event) => event.kind === 'error')).to.have.length(1);
-      expect(events.find((event) => event.kind === 'error')?.record).to.eql(direct.ops[0]);
-      expect(JSON.stringify([direct, streamed, events]).includes('FILESYSTEM-SECRET')).to.eql(
-        false,
-      );
-    } finally {
-      await server.dispose();
-    }
-  });
-
-  it('rejects every invalid source before admission effects or network work', async () => {
-    let requests = 0;
-    const server = Testing.Http.server((req) => {
-      requests++;
-      return Testing.Http.text(req, 'valid');
-    });
-    try {
-      const valid = localhost(server.url.join('valid.txt'));
-      const input = [
-        resource(valid, 'safe/valid.txt', 'valid'),
-        resource('ftp://example.test/invalid.txt', 'safe/invalid.txt', 'invalid'),
-        resource('/relative.txt', 'safe/relative.txt', 'invalid'),
-        resource(
-          'https://TRANSPORT-SECRET@example.test/credentialed.txt',
-          'safe/credentialed.txt',
-          'invalid',
-        ),
-      ];
-      const root = await rooted();
-
-      const result = await HttpPull.toDir(input, root, options(input));
-
-      expect(result.ok).to.eql(false);
-      expect(result.ops).to.have.length(input.length);
-      expect(result.ops.every((record) => !record.ok)).to.eql(true);
-      expect(result.ops.every((record) => record.error === 'Invalid secure pull source')).to.eql(
-        true,
-      );
-      expect(JSON.stringify(result).includes('TRANSPORT-SECRET')).to.eql(false);
-      expect(result.ops.slice(1).every((record) => record.path.source === '')).to.eql(true);
-      expect(result.ops.every((record) => record.path.target === '')).to.eql(true);
-      expect(requests).to.eql(0);
-      expect(await Fs.exists(Fs.join(root.path, 'safe'))).to.eql(false);
-    } finally {
-      await server.dispose();
-    }
-  });
-
-  it('rejects unsafe targets and complete-batch collisions before network work', async () => {
-    let requests = 0;
-    const server = Testing.Http.server((req) => {
-      requests++;
-      return Testing.Http.text(req, 'content');
-    });
-    try {
-      const source = `${localhost(server.url.join('content.txt'))}?token=TARGET-SECRET`;
-      const cases: readonly (readonly t.HttpPull.Resource[])[] = [
-        [resource(source, '../outside.txt', 'content')],
-        [resource(source, '/absolute.txt', 'content')],
-        [resource(source, 'C:/drive.txt', 'content')],
-        [resource(source, 'nested\\backslash.txt', 'content')],
-        [
-          resource(source, './same.txt', 'content'),
-          resource(source, 'same.txt', 'content'),
-        ],
-        [
-          resource(source, 'pkg', 'content'),
-          resource(source, 'pkg/entry.js', 'content'),
-        ],
+      const unknown = {
+        ...authority[0],
+        client: 'UNADMITTED-RESOURCE-AUTHORITY',
+      } as unknown as t.HttpPull.Resource;
+      const cases = [
+        [unknown],
+        [{ ...authority[0], checksum: 'sha256-NOT-CANONICAL' }],
+        [{ ...authority[0], expectedBytes: -1 }],
+        [authority[0]],
+        [authority[0], resource(source, 'second.txt', 'content')],
+      ] as readonly (readonly t.HttpPull.Resource[])[];
+      const policies = [
+        resourcePolicy(authority),
+        resourcePolicy(authority),
+        resourcePolicy(authority),
+        resourcePolicy(authority, { response: { maxBytes: 1 } }),
+        resourcePolicy(cases[4], { maxTotalBytes: 8 }),
       ];
 
-      for (const input of cases) {
-        const root = await rooted();
-        const result = await HttpPull.toDir(input, root, options(input));
+      for (let index = 0; index < cases.length; index++) {
+        const result = await start(cases[index], destination, policies[index]).done;
         expect(result.ok).to.eql(false);
-        expect(result.ops).to.have.length(input.length);
-        expect(result.ops.every((record) => !record.ok)).to.eql(true);
-        expect(
-          result.ops.every((record) => record.error === 'Secure pull target admission failed'),
-        ).to.eql(true);
-        expect(result.ops.every((record) => record.path.target === '')).to.eql(true);
-        expect(
-          result.ops.every((record) => {
-            const failure = asFailure(record);
-            return failure.filesystem?.operation === 'admit' &&
-              failure.filesystem.committed === false;
-          }),
-        ).to.eql(true);
-        expect(JSON.stringify(result).includes('TARGET-SECRET')).to.eql(false);
-        expect(requests).to.eql(0);
+        if (index === 0) {
+          expect(result.terminal?.kind).to.eql('invalid-resource');
+          expect(JSON.stringify(result).includes('UNADMITTED-RESOURCE-AUTHORITY')).to.eql(false);
+        }
       }
-    } finally {
-      await server.dispose();
-    }
-  });
-
-  it('preflights canonical checksums and exact byte sizes before network work', async () => {
-    let requests = 0;
-    const server = Testing.Http.server((req) => {
-      requests++;
-      return Testing.Http.text(req, 'content');
-    });
-    try {
-      const source = localhost(server.url.join('content.txt'));
-      const root = await rooted();
-      const invalid = [
-        { ...resource(source, 'bad-hash.txt', 'content'), checksum: 'sha256-NOT-CANONICAL' },
-        { ...resource(source, 'bad-size.txt', 'content'), expectedBytes: -1 },
-      ] as readonly t.HttpPull.Resource[];
-
-      const result = await HttpPull.toDir(invalid, root, options(invalid));
-
-      expect(result.ok).to.eql(false);
-      expect(result.ops).to.have.length(invalid.length);
-      expect(result.ops.every((record) => !record.ok)).to.eql(true);
+      expect(admissions).to.eql(0);
       expect(requests).to.eql(0);
-      expect(await Fs.exists(Fs.join(root.path, 'bad-hash.txt'))).to.eql(false);
-      expect(await Fs.exists(Fs.join(root.path, 'bad-size.txt'))).to.eql(false);
     } finally {
       await server.dispose();
     }
   });
 
-  it('rejects checksum and exact-size mismatches before immutable publication', async () => {
+  it('rejects checksum and exact-size mismatches before publication', async () => {
     const content = 'actual-content';
     const server = Testing.Http.server((req) => Testing.Http.text(req, content));
     try {
       const source = localhost(server.url.join('content.txt'));
-      const root = await rooted();
-      const checksumMismatch = [resource(source, 'checksum.txt', 'different-content')];
-      const sizeMismatch = [resource(source, 'size.txt', content, 1)];
+      const owner = await rooted();
+      const checksumResources = [resource(source, 'checksum.txt', 'different-content')];
+      const sizeResources = [resource(source, 'size.txt', content, 1)];
 
-      const checksum = await HttpPull.toDir(
-        checksumMismatch,
-        root,
-        options(checksumMismatch),
-      );
-      const size = await HttpPull.toDir(sizeMismatch, root, options(sizeMismatch));
+      const checksum = await start(checksumResources, owner).done;
+      const size = await start(sizeResources, owner).done;
 
       expect(checksum.ok).to.eql(false);
-      expect(checksum.ops[0].status).to.eql(412);
-      expect(checksum.ops[0].error).to.eql(
-        'Fetched resource checksum does not match expected checksum',
-      );
+      expect(asFailure(checksum.ops[0]).kind).to.eql('checksum-mismatch');
+      expect(asFailure(checksum.ops[0]).status).to.eql(412);
+      expect(asFailure(checksum.ops[0]).checksum?.valid).to.eql(false);
       expect(size.ok).to.eql(false);
-      expect(size.ops[0].error).to.eql(
-        'Fetched resource byte size does not match expected bytes',
-      );
-      expect(await Fs.exists(Fs.join(root.path, 'checksum.txt'))).to.eql(false);
-      expect(await Fs.exists(Fs.join(root.path, 'size.txt'))).to.eql(false);
+      expect(asFailure(size.ops[0]).kind).to.eql('size-mismatch');
+      expect(await Fs.exists(Fs.join(owner.path, 'checksum.txt'))).to.eql(false);
+      expect(await Fs.exists(Fs.join(owner.path, 'size.txt'))).to.eql(false);
     } finally {
       await server.dispose();
     }
   });
 
-  it('does not retry secure resources before bounded retry policy exists', async () => {
-    let requests = 0;
-    const server = Testing.Http.server(() => {
-      requests++;
-      return Testing.Http.error(503, 'TEMP');
-    });
-    try {
-      const source = localhost(server.url.join('retry.txt'));
-      const input = [resource(source, 'retry.txt', 'never-published')];
-      const root = await rooted();
-
-      const result = await HttpPull.toDir(input, root, options(input));
-
-      expect(result.ok).to.eql(false);
-      expect(result.ops[0].error).to.eql('Secure pull request failed');
-      expect(requests).to.eql(1);
-      expect(await Fs.exists(Fs.join(root.path, 'retry.txt'))).to.eql(false);
-    } finally {
-      await server.dispose();
-    }
-  });
-
-  it('never replaces an occupied target', async () => {
+  it('never clobbers an occupied target and sanitizes Rooted failures', async () => {
     const server = Testing.Http.server((req) => Testing.Http.text(req, 'challenger'));
     try {
       const source = localhost(server.url.join('occupied.txt'));
-      const input = [resource(source, 'occupied.txt', 'challenger')];
-      const root = await rooted();
-      await Fs.write(Fs.join(root.path, 'occupied.txt'), 'winner');
+      const resources = [resource(source, 'occupied.txt', 'challenger')];
+      const owner = await rooted();
+      await Fs.write(Fs.join(owner.path, 'occupied.txt'), 'winner');
 
-      const result = await HttpPull.toDir(input, root, options(input));
-
-      expect(result.ok).to.eql(false);
-      expect(result.ops[0].error).to.eql('Secure pull publication failed');
-      expect(asFailure(result.ops[0]).filesystem).to.eql({
+      const occupied = await start(resources, owner).done;
+      expect(occupied.ok).to.eql(false);
+      expect(asFailure(occupied.ops[0]).kind).to.eql('publication-failure');
+      expect(asFailure(occupied.ops[0]).filesystem).to.eql({
         operation: 'publish-file',
         kind: 'occupied',
         committed: false,
       });
-      expect(await Fs.readText(Fs.join(root.path, 'occupied.txt'))).to.include({
+      expect(await Fs.readText(Fs.join(owner.path, 'occupied.txt'))).to.include({
         ok: true,
         data: 'winner',
       });
+
+      const failing: t.Fs.Rooted.Instance = Object.freeze({
+        ...owner,
+        publishFile: () =>
+          Promise.reject(rootedFailure('publish-file', 'io-failure', 'FILESYSTEM-SECRET')),
+      });
+      const second = [resource(source, 'second.txt', 'challenger')];
+      const failed = await start(second, failing).done;
+      expect(asFailure(failed.ops[0]).filesystem?.kind).to.eql('io-failure');
+      expect(JSON.stringify(failed).includes('FILESYSTEM-SECRET')).to.eql(false);
     } finally {
       await server.dispose();
     }
   });
 
-  it('permits exactly one winner across concurrent batches targeting the same file', async () => {
+  it('permits one Rooted winner across concurrent operations targeting the same file', async () => {
     const server = Testing.Http.server((req) => {
       const content = new URL(req.url).pathname.endsWith('/alpha.txt') ? 'alpha' : 'bravo';
       return Testing.Http.text(req, content);
@@ -485,16 +380,13 @@ describe('HttpPull secure resources', () => {
       const bravoSource = localhost(server.url.join('bravo.txt'));
       const alpha = [resource(alphaSource, 'winner.txt', 'alpha')];
       const bravo = [resource(bravoSource, 'winner.txt', 'bravo')];
-      const root = await rooted();
+      const owner = await rooted();
 
-      const results = await Promise.all([
-        HttpPull.toDir(alpha, root, options(alpha)),
-        HttpPull.toDir(bravo, root, options(bravo)),
-      ]);
+      const results = await Promise.all([start(alpha, owner).done, start(bravo, owner).done]);
 
       expect(results.filter((result) => result.ok)).to.have.length(1);
       expect(results.filter((result) => !result.ok)).to.have.length(1);
-      const content = await Fs.readText(Fs.join(root.path, 'winner.txt'));
+      const content = await Fs.readText(Fs.join(owner.path, 'winner.txt'));
       expect(content.ok).to.eql(true);
       expect(['alpha', 'bravo']).to.include(content.data);
     } finally {
@@ -502,174 +394,29 @@ describe('HttpPull secure resources', () => {
     }
   });
 
-  it('surfaces foreign capability handles without publishing', async () => {
-    const server = Testing.Http.server((req) => Testing.Http.text(req, 'content'));
+  it('emits hot start/progress/done evidence without making observation an execution dependency', async () => {
+    const content = 'observed-content';
+    const server = Testing.Http.server((req) => Testing.Http.text(req, content));
     try {
-      const source = localhost(server.url.join('foreign.txt'));
-      const input = [resource(source, 'foreign.txt', 'content')];
-      const owner = await rooted('http-pull-owner-');
-      const foreign = await rooted('http-pull-foreign-');
-      const crossed: t.Fs.Rooted.Instance = Object.freeze({
-        path: owner.path,
-        admit: owner.admit,
-        publishFile: foreign.publishFile,
-        createStage: owner.createStage,
-        discardStage: owner.discardStage,
-        promoteStage: owner.promoteStage,
-      });
+      const source = localhost(server.url.join('observed.txt'));
+      const resources = [resource(source, 'observed.txt', content)];
+      const owner = await rooted();
+      const operation = start(resources, owner);
+      const events: t.HttpPull.ResourceEvent.Any[] = [];
+      const view = operation.events();
+      const subscription = view.$.subscribe((event) => events.push(event));
 
-      const result = await HttpPull.toDir(input, crossed, options(input));
-
-      expect(result.ok).to.eql(false);
-      expect(result.ops[0].error).to.eql('Secure pull publication failed');
-      expect(asFailure(result.ops[0]).filesystem).to.eql({
-        operation: 'publish-file',
-        kind: 'foreign-handle',
-        committed: false,
-      });
-      expect(await Fs.exists(Fs.join(owner.path, 'foreign.txt'))).to.eql(false);
-      expect(await Fs.exists(Fs.join(foreign.path, 'foreign.txt'))).to.eql(false);
-    } finally {
-      await server.dispose();
-    }
-  });
-
-  it('quiesces secure in-flight work and contains a late response after cancellation', async () => {
-    let requests = 0;
-    let markRequested!: () => void;
-    let releaseResponse!: () => void;
-    let markHandled!: () => void;
-    const requested = new Promise<void>((resolve) => markRequested = resolve);
-    const released = new Promise<void>((resolve) => releaseResponse = resolve);
-    const handled = new Promise<void>((resolve) => markHandled = resolve);
-    const server = Testing.Http.server(async (request) => {
-      requests++;
-      markRequested();
-      await released;
-      markHandled();
-      return Testing.Http.text(request, 'late');
-    });
-    try {
-      const firstSource = localhost(server.url.join('first.txt'));
-      const secondSource = localhost(server.url.join('second.txt'));
-      const input = [
-        resource(firstSource, 'first.txt', 'first'),
-        resource(secondSource, 'second.txt', 'second'),
-      ];
-      const root = await rooted();
-      const operation = HttpPull.stream(input, root, options(input));
-      const iterator = operation[Symbol.asyncIterator]();
-      const first = await iterator.next();
-
-      expect(first.value?.kind).to.eql('start');
-      await requested;
-      operation.cancel('test:cancel');
-      const events = first.value ? [first.value] : [];
-      for (;;) {
-        const next = await iterator.next();
-        if (next.done) break;
-        events.push(next.value);
-      }
       const result = await operation.done;
-
-      expect(result.ok).to.eql(false);
-      expect(result.ops).to.have.length(2);
-      expect(result.ops.map((record) => record.path.source)).to.eql([firstSource, secondSource]);
-      expect(result.ops.every((record) => !record.ok && record.cancelled === true)).to.eql(true);
-      expect(events.filter((event) => event.kind === 'error')).to.have.length(2);
-      expect(requests).to.eql(1);
-      expect(await Fs.exists(Fs.join(root.path, 'first.txt'))).to.eql(false);
-      expect(await Fs.exists(Fs.join(root.path, 'second.txt'))).to.eql(false);
-
-      releaseResponse();
-      await handled;
-      await Time.wait(20);
-      expect(requests).to.eql(1);
-      expect(await Fs.exists(Fs.join(root.path, 'first.txt'))).to.eql(false);
-      expect(await Fs.exists(Fs.join(root.path, 'second.txt'))).to.eql(false);
-    } finally {
-      releaseResponse();
-      await server.dispose();
-    }
-  });
-
-  it('supports the secure stream overload with root-relative records', async () => {
-    const server = Testing.Http.server((req) => Testing.Http.text(req, 'streamed'));
-    try {
-      const source = localhost(server.url.join('mapped', 'source.txt'));
-      const input = [resource(source, 'stream/target.txt', 'streamed')];
-      const root = await rooted();
-      const stream = HttpPull.stream(input, root, options(input));
-      const events: t.HttpPull.Event.Any[] = [];
-
-      for await (const event of stream) events.push(event);
-      const result = await stream.done;
+      subscription.unsubscribe();
 
       expect(result.ok).to.eql(true);
-      expect(result.ops[0].path.target).to.eql('stream/target.txt');
-      expect(events.some((event) => event.kind === 'done')).to.eql(true);
-      expect(await Fs.readText(Fs.join(root.path, 'stream/target.txt'))).to.include({
-        ok: true,
-        data: 'streamed',
-      });
-    } finally {
-      await server.dispose();
-    }
-  });
+      expect(events.filter((event) => event.kind === 'done')).to.have.length(1);
+      expect(events.some((event) => event.kind === 'progress')).to.eql(true);
+      expect(view.disposed).to.eql(true);
 
-  it('contains hostile secure stream batches within sanitized preflight', async () => {
-    let requests = 0;
-    const server = Testing.Http.server((req) => {
-      requests++;
-      return Testing.Http.text(req, 'content');
-    });
-    try {
-      const source = localhost(server.url.join('content.txt'));
-      const authority = [resource(source, 'content.txt', 'content')];
-      const input = new Proxy([] as t.HttpPull.Resource[], {
-        get(target, property, receiver) {
-          if (property === 'length') throw new Error('BATCH-SECRET');
-          return Reflect.get(target, property, receiver);
-        },
-      });
-      const root = await rooted();
-      const stream = HttpPull.stream(input, root, options(authority));
-      const events: t.HttpPull.Event.Any[] = [];
-
-      for await (const event of stream) events.push(event);
-      const result = await stream.done;
-
-      expect(result.ok).to.eql(false);
-      expect(result.ops).to.have.length(0);
-      expect(events).to.have.length(0);
-      expect(JSON.stringify(result).includes('BATCH-SECRET')).to.eql(false);
-      expect(requests).to.eql(0);
-    } finally {
-      await server.dispose();
-    }
-  });
-
-  it('preflights the secure stream batch before network work', async () => {
-    let requests = 0;
-    const server = Testing.Http.server((req) => {
-      requests++;
-      return Testing.Http.text(req, 'streamed');
-    });
-    try {
-      const source = localhost(server.url.join('source.txt'));
-      const input = [resource(source, '../invalid.txt', 'streamed')];
-      const root = await rooted();
-      const stream = HttpPull.stream(input, root, options(input));
-      const events: t.HttpPull.Event.Any[] = [];
-
-      for await (const event of stream) events.push(event);
-      const result = await stream.done;
-
-      expect(result.ok).to.eql(false);
-      expect(result.ops).to.have.length(1);
-      expect(result.ops[0].path.target).to.eql('');
-      expect(events.filter((event) => event.kind === 'error')).to.have.length(1);
-      expect(requests).to.eql(0);
+      const unobserved = [resource(source, 'unobserved.txt', content)];
+      const unobservedResult = await start(unobserved, owner).done;
+      expect(unobservedResult.ok).to.eql(true);
     } finally {
       await server.dispose();
     }

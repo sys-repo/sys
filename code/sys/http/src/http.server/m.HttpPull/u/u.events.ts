@@ -76,12 +76,12 @@ export function eventQueue(limit: number): EventQueue {
  * Create a hot, non-replaying observable view.
  * Its lifecycle owns only this subscription, never the pull operation or sibling views.
  */
-export function eventView(
-  source$: t.Observable<Event>,
+export function eventView<T>(
+  source$: t.Observable<T>,
   until?: t.UntilInput,
-): t.HttpPull.Stream.Events {
+): t.Lifecycle & { readonly $: t.Observable<T> } {
   const life = Rx.lifecycle(until);
-  const view$ = Rx.subject<Event>();
+  const view$ = Rx.subject<T>();
   const subscription = source$.subscribe({
     next: (event) => view$.next(event),
     error: (error) => view$.error(error),
@@ -94,5 +94,5 @@ export function eventView(
     subscription.unsubscribe();
     view$.complete();
   });
-  return Rx.toLifecycle<t.HttpPull.Stream.Events>(life, { $: view$.asObservable() });
+  return Rx.toLifecycle(life, { $: view$.asObservable() });
 }
