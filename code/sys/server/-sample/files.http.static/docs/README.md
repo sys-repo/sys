@@ -9,24 +9,50 @@ deno task sample:files:http:static
 ---
 
 A generated `dist.json` bundle, served by plain static HTTP, reconstructed as a bounded `Files`
-client view.
+client view. `FilesStatic.fromDist` is a structural adapter: it does not fetch, authenticate, or
+verify a manifest.
+
+The test obtains an exact manifest pin from its local fixture, then uses bounded Fetch transport
+before parsing the authenticated bytes:
 
 ```ts
-const fetched = await Pkg.Dist.fetch({ origin });
-if (!fetched.dist) throw new Error('Expected dist.json.');
+const fetch = Fetch.make({
+  policy: {
+    maxBytes: manifestBytes,
+    timeout: 1_000,
+    maxRedirects: 0,
+    progressInterval: 100,
+    sourceOrigins: [origin],
+    credentialOrigins: [],
+  },
+});
 
-const backing = FilesStatic.fromDist({ dist: fetched.dist, baseUrl: origin, policy });
-const files = Files.Client.local(backing);
-const read = await files.cmd.send(Files.Cmd.Name.read, { path: 'docs/README.md' });
-if (read.kind !== 'ref') throw new Error('Expected a content ref.');
+try {
+  const fetched = await fetch.blob(manifestUrl, undefined, {
+    checksum: manifestIntegrity,
+  });
+  if (!fetched.ok) throw fetched.error;
 
-const text = await Files.ContentRef.text(read.contentRef);
+  const value = Json.parse<unknown>(await fetched.data.text());
+  if (!Pkg.Is.dist(value)) throw new Error('Expected canonical dist.json.');
+
+  const policy = Files.Policy.readonly('**');
+  const backing = FilesStatic.fromDist({ dist: value, baseUrl: origin, policy });
+  const files = Files.Client.local(backing);
+} finally {
+  fetch.dispose('done');
+}
 ```
 
-The shape is intentionally simple:
+`manifestIntegrity` must come from an independent trusted source. A checksum derived from the same
+remote response is not artifact authority.
+
+The shape is intentionally explicit:
 
 ```text
-dist.json + assets → static HTTP server → FilesStatic backing → Files client → URL content ref
+independent manifest pin + bounded Fetch → authenticated dist.json bytes
+                                      ↓
+                     FilesStatic backing → Files client → URL content ref
 ```
 
 Files sample lanes:
@@ -35,37 +61,4 @@ Files sample lanes:
 sample:files:ws           = live authoring/dev mode over WebSocket
 sample:files:http:cmd     = unary request/response Cmd mode over HTTP JSON
 sample:files:http:static  = generated publication/runtime mode over static HTTP
-```
-
-Full version:
-
-```ts
-import { HttpStatic } from '@sys/http/server/static';
-import { Files } from '@sys/model/files';
-import { FilesStatic } from '@sys/model/files/static';
-import { Pkg } from '@sys/std/pkg';
-
-const server = await HttpStatic.start({ dir: './dist' });
-
-try {
-  const origin = server.origin;
-  const fetched = await Pkg.Dist.fetch({ origin });
-  if (!fetched.dist) throw new Error('Expected dist.json.');
-
-  const policy = Files.Policy.readonly('**');
-  const backing = FilesStatic.fromDist({ dist: fetched.dist, baseUrl: origin, policy });
-  const files = Files.Client.local(backing);
-
-  try {
-    const read = await files.cmd.send(Files.Cmd.Name.read, { path: 'docs/README.md' });
-    if (read.kind !== 'ref') throw new Error('Expected a content ref.');
-
-    const text = await Files.ContentRef.text(read.contentRef);
-    console.info(text);
-  } finally {
-    files.dispose('done');
-  }
-} finally {
-  await server.close('done');
-}
 ```

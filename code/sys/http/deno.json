@@ -7,8 +7,7 @@
     "check": "deno check -- ./src/ ./-scripts/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "test": "deno test -P=test",
-    "serve": "deno run -P=serve @sys/http/serve --cmd=start --port=1234 --dir='./src/-test/-sample.dist'",
-    "tmp": "deno run -A ./-scripts/task.tmp.ts"
+    "serve": "deno run -P=serve @sys/http/serve --cmd=start --port=1234 --dir='./src/-test/-sample.dist'"
   },
   "exports": {
     ".": "./src/-exports/-http.ts",
@@ -39,4 +38,3 @@
     }
   }
 }
-

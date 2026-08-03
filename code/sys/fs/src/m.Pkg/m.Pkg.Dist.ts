@@ -10,9 +10,12 @@ import {
   Delete,
   Err,
   Fs,
+  Hash,
   Ignore,
+  Is,
   Json,
   JsrUrl,
+  Num,
   Obj,
   Path,
   Str,
@@ -36,12 +39,12 @@ export const Dist: t.Pkg.Dist.Lib = {
    */
   async compute(args) {
     const {
-      save = false,
       filter,
       trustChildDist = false,
       onHashProgress,
       ignore: ignoreInput,
     } = args;
+    const save = Is.bool(args.save) ? args.save : false;
     const dir = Fs.resolve(args.dir);
     let error: t.StdError | undefined;
     const ignore = await wrangle.ignore(ignoreInput);
@@ -95,16 +98,25 @@ export const Dist: t.Pkg.Dist.Lib = {
     };
 
     /**
-     * Prepare response.
+     * Prepare the exact manifest bytes once for both evidence and publication.
      */
-    const res = Delete.undefined<t.Pkg.Dist.Compute.Response>({ dir, exists, dist, error });
+    const json = Json.stringify(dist, 2);
+    const manifest: t.Pkg.Dist.Compute.Manifest = {
+      integrity: Hash.sha256(json),
+    };
+    const res = Delete.undefined<t.Pkg.Dist.Compute.Response>({
+      dir,
+      exists,
+      dist,
+      manifest,
+      error,
+    });
 
     /**
      * Save to the file-system.
      */
     if (save && exists && !error) {
       const path = Fs.join(dir, 'dist.json');
-      const json = Json.stringify(dist, 2);
       const written = await Fs.write(path, json);
       if (written.error) throw written.error;
     }
@@ -155,9 +167,9 @@ export const Dist: t.Pkg.Dist.Lib = {
   },
 
   /**
-   * Verify a folder with hash definitions of the distribution-package.
+   * Check a folder against its own distribution-package hash definitions.
    */
-  async verify(dir, hash) {
+  async checkSelfReported(dir, hash) {
     dir = Fs.resolve(dir);
     const errors = Err.errors();
     const loaded = await Dist.load(dir);
@@ -165,10 +177,10 @@ export const Dist: t.Pkg.Dist.Lib = {
     if (!exists) {
       errors.push(`File at path does not exist: ${path}`);
     } else if (!dist) {
-      errors.push(`Cannot verify non-canonical dist.json (${loaded.kind}): ${path}`);
+      errors.push(`Cannot check self-reported non-canonical dist.json (${loaded.kind}): ${path}`);
     }
 
-    const res: t.Pkg.Dist.Verify.Response = {
+    const res: t.Pkg.Dist.CheckSelfReported.Response = {
       exists,
       dist,
       is: { valid: undefined },
@@ -305,12 +317,12 @@ const wrangle = {
   },
 
   async bytes(dir: t.StringDir, files: t.StringFile[]) {
-    let count = 0;
+    const sizes: number[] = [];
     for (const file of files) {
       const stat = await Fs.stat(Fs.join(dir, file));
-      count += stat?.size ?? 0;
+      sizes.push(stat?.size ?? 0);
     }
-    return count;
+    return Num.sum(sizes);
   },
 
   filepath(path: t.StringPath) {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../src/-test.ts';
 import { SampleFiles } from './-config.ts';
-import { Files, FilesStatic, HttpStatic, Pkg, type t } from './common.ts';
+import { Fetch, Files, FilesStatic, Fs, Hash, HttpStatic, Json, Pkg, type t } from './common.ts';
 
 describe('sample:files:http:static', () => {
   it('serves dist.json and reconstructs static Files content refs over plain HTTP', async () => {
@@ -14,9 +14,9 @@ describe('sample:files:http:static', () => {
     });
 
     let files: t.Files.Client.Local | undefined;
-    async function proveStaticPublication() {
+    try {
       const origin = server.origin as t.StringUrl;
-      const dist = await fetchDist(origin);
+      const dist = await fetchPinnedDist(origin);
       const backing = FilesStatic.fromDist({
         dist,
         baseUrl: origin,
@@ -26,10 +26,6 @@ describe('sample:files:http:static', () => {
       files = Files.Client.local(backing);
       await assertManifest(files, dist);
       await assertReadRefResolvesAsset(files, origin);
-    }
-
-    try {
-      await proveStaticPublication();
     } finally {
       files?.dispose('test.cleanup');
       await server.close('test.cleanup');
@@ -41,13 +37,40 @@ describe('sample:files:http:static', () => {
 /**
  * Helpers:
  */
-async function fetchDist(origin: t.StringUrl): Promise<t.DistPkg> {
-  const fetched = await Pkg.Dist.fetch({ origin });
-  expect(fetched.ok).to.eql(true);
-  expect(fetched.status).to.eql(200);
-  expect(fetched.href).to.eql(`${origin}/dist.json`);
-  if (!fetched.dist) throw new Error('Expected dist.json.');
-  return fetched.dist;
+async function fetchPinnedDist(origin: t.StringUrl): Promise<t.DistPkg> {
+  const path = Fs.join(SampleFiles.root, 'dist.json');
+  const manifest = await Fs.read(path);
+  if (!manifest.data) throw new Error(`Expected local manifest fixture: ${path}`);
+
+  const url = `${origin}/dist.json` as t.StringUrl;
+  const fetch = Fetch.make({
+    policy: {
+      maxBytes: manifest.data.byteLength,
+      timeout: 1_000,
+      maxRedirects: 0,
+      progressInterval: 100,
+      sourceOrigins: [origin],
+      credentialOrigins: [],
+    },
+  });
+
+  try {
+    const fetched = await fetch.blob(url, undefined, {
+      checksum: Hash.sha256(manifest.data),
+    });
+    expect(fetched.ok).to.eql(true);
+    expect(fetched.status).to.eql(200);
+    if (!fetched.ok) throw fetched.error;
+    expect(fetched.requestedUrl).to.eql(url);
+    expect(fetched.finalUrl).to.eql(url);
+    expect(fetched.checksum?.valid).to.eql(true);
+
+    const value = Json.parse<unknown>(await fetched.data.text());
+    if (!Pkg.Is.dist(value)) throw new Error('Expected canonical dist.json.');
+    return value;
+  } finally {
+    fetch.dispose('test.cleanup');
+  }
 }
 
 async function assertManifest(files: t.Files.Client.Local, dist: t.DistPkg) {

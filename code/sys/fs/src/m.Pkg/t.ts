@@ -25,8 +25,8 @@ export declare namespace Pkg {
       /** Compute distribution-package metadata. */
       compute: Compute.Method;
 
-      /** Verify a folder against distribution-package hash definitions. */
-      verify: Verify.Method;
+      /** Check a folder against its own distribution-package hash definitions. */
+      checkSelfReported: CheckSelfReported.Method;
 
       /** Verify a generation against an exact authenticated manifest. */
       readonly verifyPinned: VerifyPinned.Method;
@@ -92,7 +92,18 @@ export declare namespace Pkg {
         exists: boolean;
         dir: t.StringDir;
         dist: t.DistPkg;
+        /** Exact publisher-generated serialization evidence for `dist.json`. */
+        manifest: Manifest;
         error?: t.StdError;
+      };
+
+      /**
+       * Exact publisher-generated serialization evidence for `dist.json`.
+       * Integrity becomes artifact authority only when distributed independently from artifact fetch.
+       */
+      export type Manifest = {
+        /** SHA-256 of the exact serialized bytes produced by this computation. */
+        readonly integrity: t.StringHash;
       };
     }
 
@@ -118,16 +129,16 @@ export declare namespace Pkg {
     }
 
     /**
-     * Distribution-package verification contracts.
+     * Self-reported distribution-package consistency contracts.
      */
-    export namespace Verify {
-      /** Verify a folder against distribution-package hash definitions. */
+    export namespace CheckSelfReported {
+      /** Check a folder against its own distribution-package hash definitions. */
       export type Method = (
         dir: t.StringPath,
         hash?: t.Dir.Hash.Verify.Input,
       ) => Promise<Response>;
 
-      /** Response from `Pkg.Dist.verify`. */
+      /** Response from `Pkg.Dist.checkSelfReported`. */
       export type Response = {
         is: t.CompositeHash.Verify.Response['is'];
         exists: boolean;

@@ -39,20 +39,26 @@ export const build: B = async (input) => {
   };
 
   const computeDist = async (save: boolean) => {
-    const res = await Pkg.Dist.compute({ dir, pkg, builder, save });
-    return res.dist;
+    return await Pkg.Dist.compute({ dir, pkg, builder, save });
   };
 
   type R = t.Vite.Build.Response;
-  type RArgs = { ok: boolean; output: t.Process.Output; elapsed: t.Msecs; dist: t.DistPkg };
+  type RArgs = {
+    ok: boolean;
+    output: t.Process.Output;
+    elapsed: t.Msecs;
+    dist: t.DistPkg;
+    manifest: t.Vite.Build.Manifest;
+  };
   const response = (args: RArgs): R => {
-    const { ok, output, elapsed, dist } = args;
+    const { ok, output, elapsed, dist, manifest } = args;
     const stdio = output.toString();
     return {
       ok,
       paths,
       elapsed,
       dist,
+      manifest,
       get cmd() {
         return { input: cmd, output };
       },
@@ -83,8 +89,14 @@ export const build: B = async (input) => {
       stderr: output.text.stderr,
       stdout: output.text.stdout,
     };
-    const dist = await computeDist(false);
-    const res = response({ ok: false, output, elapsed: timer.elapsed.msec, dist });
+    const computed = await computeDist(false);
+    const res = response({
+      ok: false,
+      output,
+      elapsed: timer.elapsed.msec,
+      dist: computed.dist,
+      manifest: computed.manifest,
+    });
 
     console.error(message);
     if (errInfo.stderr?.trim()) console.error(errInfo.stderr.trim());
@@ -145,8 +157,17 @@ export const build: B = async (input) => {
      * Success:
      */
     const elapsed = timer.elapsed.msec;
-    const dist = await computeDist(true);
-    return response({ ok: true, output, elapsed, dist });
+    const computed = await computeDist(true);
+    if (computed.error) {
+      return await fail('Vite build failed to compute dist metadata', output);
+    }
+    return response({
+      ok: true,
+      output,
+      elapsed,
+      dist: computed.dist,
+      manifest: computed.manifest,
+    });
   } finally {
     stopSpinner();
     await dispose();

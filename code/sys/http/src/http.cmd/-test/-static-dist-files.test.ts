@@ -1,8 +1,10 @@
+import { Hash } from '@sys/crypto/hash';
 import { Files } from '@sys/model/files';
 import type * as TFiles from '@sys/model/files/t';
 import { FilesStatic } from '@sys/model/files/static';
 import type * as TFilesStatic from '@sys/model/files/static/t';
-import { describe, expect, it, Pkg, type t, Testing } from '../../-test.ts';
+import { describe, expect, it, Json, Pkg, type t, Testing } from '../../-test.ts';
+import { Fetch } from '../../http.client/m.HttpFetch/mod.ts';
 import { HttpCmd } from '../mod.ts';
 
 const HASH = {
@@ -49,20 +51,40 @@ describe('HttpCmd + FilesStatic dist integration', () => {
 
     const origin = server.url.toURL().origin as t.StringUrl;
     const cmdUrl = `${origin}${ROUTE.cmd}` as t.StringUrl;
-    const client = HttpCmd.client<TFiles.Files.Cmd.Name, TFiles.Files.Cmd.Payload, TFiles.Files.Cmd.Result>({
+    const client = HttpCmd.client<
+      TFiles.Files.Cmd.Name,
+      TFiles.Files.Cmd.Payload,
+      TFiles.Files.Cmd.Result
+    >({
       url: cmdUrl,
       ns: Files.Cmd.ns,
       timeout: 1_000,
     });
+    const manifestUrl = `${origin}${ROUTE.dist}` as t.StringUrl;
+    const manifestFetch = Fetch.make({
+      policy: {
+        maxBytes: 1024 * 1024,
+        timeout: 1_000,
+        maxRedirects: 0,
+        progressInterval: 100,
+        sourceOrigins: [origin],
+        credentialOrigins: [],
+      },
+    });
 
     try {
-      const fetched = await Pkg.Dist.fetch({ origin });
+      const fetched = await manifestFetch.blob(manifestUrl, undefined, {
+        checksum: Hash.sha256(Json.stringify(dist, 2)),
+      });
       expect(fetched.ok).to.eql(true);
       expect(fetched.status).to.eql(200);
-      expect(fetched.href).to.eql(`${origin}${ROUTE.dist}`);
-      const fetchedDist = fetched.dist;
+      if (!fetched.ok) throw fetched.error;
+      expect(fetched.requestedUrl).to.eql(manifestUrl);
+      expect(fetched.finalUrl).to.eql(manifestUrl);
+      expect(fetched.checksum?.valid).to.eql(true);
+      const fetchedDist = Json.parse<unknown>(await fetched.data.text());
       expect(Pkg.Is.dist(fetchedDist)).to.eql(true);
-      if (!fetchedDist) throw new Error('Expected fetched dist metadata.');
+      if (!Pkg.Is.dist(fetchedDist)) throw new Error('Expected fetched dist metadata.');
       expect(fetchedDist).to.eql(dist);
 
       backing = FilesStatic.fromDist({ dist: fetchedDist, baseUrl: origin, policy });
@@ -150,6 +172,7 @@ describe('HttpCmd + FilesStatic dist integration', () => {
       expect(requests.includes('GET /notes/baz.md')).to.eql(false);
       expect(requests.includes('GET /docs/read%20me.md')).to.eql(false);
     } finally {
+      manifestFetch.dispose('test.cleanup');
       client.dispose();
       await server.dispose();
     }

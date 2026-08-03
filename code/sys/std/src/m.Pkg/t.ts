@@ -1,6 +1,6 @@
 import type { Pkg as PkgValue } from '@sys/types';
 import type { t } from './common.ts';
-import type { PkgDistFetchResponse, PkgDistPartInfo } from './t.dist.ts';
+import type { PkgDistPartInfo } from './t.dist.ts';
 
 export type Pkg = PkgValue;
 export type * from './t.dist.ts';
@@ -91,9 +91,6 @@ export namespace Pkg {
 
       /** Legacy-compatibility helpers for dist schema evolution. */
       readonly Compat: Compat.Lib;
-
-      /** HTTP fetch the `dist.json` file. */
-      fetch(options?: t.PkgDistFetchOptions | t.StringUrl): Promise<PkgDistFetchResponse>;
 
       /**
        * Helpers for parsing `dist.hash.parts` values, eg:

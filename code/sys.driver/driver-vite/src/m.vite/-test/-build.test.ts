@@ -1,3 +1,4 @@
+import { Hash } from '@sys/crypto/hash';
 import {
   c,
   describe,
@@ -86,8 +87,12 @@ describe('Vite.build', () => {
       const readFile = async (path: string) => (await Fs.readText(path)).data ?? '';
       const { paths } = res;
       const outDir = Fs.join(paths.cwd, paths.app.outDir);
-      const json = await Fs.readJson<t.DistPkg>(Fs.join(outDir, 'dist.json'));
+      const distPath = Fs.join(outDir, 'dist.json');
+      const json = await Fs.readJson<t.DistPkg>(distPath);
+      const manifest = await Fs.read(distPath);
       const html = await readFile(Fs.join(outDir, 'index.html'));
+      expect(manifest.data).to.not.eql(undefined);
+      expect(res.manifest.integrity).to.eql(Hash.sha256(manifest.data));
       const entryPath = Object.keys(json.data?.hash.parts ?? {}).find((path) =>
         path.startsWith('pkg/-entry.')
       );

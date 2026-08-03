@@ -1,11 +1,9 @@
 import { type t } from './common.ts';
-import { fetchDist as fetch } from './u/u.dist.fetch.ts';
 import { Part } from './m.Dist.Part.ts';
 import { PkgIs } from './m.Is.ts';
 
 export const Dist: t.Pkg.Dist.Lib = {
   Part,
-  fetch,
   Compat: {
     legacy(input): input is t.DistPkgLegacy {
       return PkgIs.distCompat(input) && !PkgIs.dist(input);

@@ -2,7 +2,7 @@ import { describe, expect, it, pkg, type t } from '../../-test.ts';
 import { pkg as fsPkg } from '../../pkg.ts';
 import { Dir } from '../../mod.ts';
 import { Sample } from './-u.fixture.ts';
-import { c, D, Fs, Ignore, Is, JsrUrl, Obj, Path, Str, Time } from '../common.ts';
+import { c, D, Fs, Hash, Ignore, Is, Json, JsrUrl, Obj, Path, Str, Time } from '../common.ts';
 import { Dist } from '../m.Pkg.Dist.ts';
 import { Pkg } from '../mod.ts';
 
@@ -20,6 +20,8 @@ describe('Pkg.Dist', () => {
   describe('API', () => {
     it('API refs', () => {
       expect(Pkg.Dist).to.equal(Dist);
+      expect(Pkg.Dist.checkSelfReported).to.equal(Dist.checkSelfReported);
+      expect(Pkg.Dist.verifyPinned).to.equal(Dist.verifyPinned);
     });
 
     it('is not the [sys.std] client version, but surfaces all the [sys.std] interface', async () => {
@@ -47,6 +49,7 @@ describe('Pkg.Dist', () => {
 
       expect(res.exists).to.eql(true);
       expect(res.error).to.eql(undefined);
+      expect(res.manifest.integrity).to.eql(Hash.sha256(Json.stringify(res.dist, 2)));
 
       const typeUrl = res.dist.type;
       expect(typeUrl.startsWith('https://jsr.io/@sys/types')).to.eql(true);
@@ -247,14 +250,15 @@ describe('Pkg.Dist', () => {
       expect(loaded.dist?.pkg).to.eql(undefined);
     });
 
-    it('default: does not save to file', async () => {
+    it('default: returns exact manifest integrity without saving', async () => {
       const sample = await Sample.init();
       const { dir, filepath } = sample.path;
       const exists = () => Fs.exists(filepath);
 
       expect(await exists()).to.eql(false);
-      await Pkg.Dist.compute({ dir, pkg });
+      const computed = await Pkg.Dist.compute({ dir, pkg });
       expect(await exists()).to.eql(false); // NB: never written.
+      expect(computed.manifest.integrity).to.eql(Hash.sha256(Json.stringify(computed.dist, 2)));
     });
 
     it('{save:true} → saves to file-system', async () => {
@@ -270,8 +274,11 @@ describe('Pkg.Dist', () => {
       expect(json).to.eql(res.dist);
 
       const text = (await Fs.readText(filepath)).data ?? '';
+      const bytes = (await Fs.read(filepath)).data;
       expect(text.endsWith('\n')).to.eql(true);
       expect(text.endsWith('\n\n')).to.eql(false);
+      expect(bytes).to.not.eql(undefined);
+      expect(res.manifest.integrity).to.eql(Hash.sha256(bytes));
     });
 
     it('error: directory does not exist', async () => {
@@ -331,8 +338,8 @@ describe('Pkg.Dist', () => {
         const distSigKey = Path.join('child', 'dist.json.sig');
         expect(rootRes.dist.hash.parts[distSigKey]).to.eql(undefined);
 
-        const verify = await Pkg.Dist.verify(root, rootRes.dist.hash);
-        expect(verify.is.valid).to.eql(true);
+        const checked = await Pkg.Dist.checkSelfReported(root, rootRes.dist.hash);
+        expect(checked.is.valid).to.eql(true);
       } finally {
         await Fs.remove(root);
       }
@@ -376,8 +383,8 @@ describe('Pkg.Dist', () => {
         expect(Object.keys(second.dist.hash.parts).includes('child/dist.json')).to.eql(false);
         expect(Object.keys(second.dist.hash.parts).includes('child/dist.json.sig')).to.eql(false);
 
-        const verify = await Pkg.Dist.verify(root, second.dist.hash);
-        expect(verify.is.valid).to.eql(true);
+        const checked = await Pkg.Dist.checkSelfReported(root, second.dist.hash);
+        expect(checked.is.valid).to.eql(true);
       } finally {
         await Fs.remove(root);
       }
@@ -415,8 +422,8 @@ describe('Pkg.Dist', () => {
         expect(first.dist.hash.parts['child/a.txt']).to.not.eql(undefined);
         expect(first.dist.hash.parts['child/dist.json']).to.eql(undefined);
 
-        const verify = await Pkg.Dist.verify(root, second.dist.hash);
-        expect(verify.is.valid).to.eql(true);
+        const checked = await Pkg.Dist.checkSelfReported(root, second.dist.hash);
+        expect(checked.is.valid).to.eql(true);
       } finally {
         await Fs.remove(root);
       }
@@ -577,7 +584,7 @@ describe('Pkg.Dist', () => {
     });
   });
 
-  describe('Dist.verify', () => {
+  describe('Dist.checkSelfReported', () => {
     it('validate: is valid', async () => {
       const sample = await Sample.init();
       await sample.file.dist.reset();
@@ -586,7 +593,7 @@ describe('Pkg.Dist', () => {
       const { dir } = sample.path;
 
       const test = async (hashInput?: t.StringHash | t.CompositeHash) => {
-        const res = await Pkg.Dist.verify(dir, hashInput);
+        const res = await Pkg.Dist.checkSelfReported(dir, hashInput);
         expect(res.exists).to.eql(true, `exists: ${dir}`);
         expect(res.is.valid).to.eql(true);
         expect(res.dist?.pkg).to.eql(pkg);
@@ -613,7 +620,7 @@ describe('Pkg.Dist', () => {
         const hash = Obj.clone(dist.hash);
         mutate?.(hash); // ← (test manipulation) setup test conditions.
 
-        const verification = await Pkg.Dist.verify(dir, hash);
+        const verification = await Pkg.Dist.checkSelfReported(dir, hash);
         expect(verification.is.valid).to.eql(expectedValid);
       };
 
@@ -655,7 +662,7 @@ describe('Pkg.Dist', () => {
       };
       await Fs.write(path, `${JSON.stringify(tampered, null, '  ')}\n`);
 
-      const res = await Pkg.Dist.verify(dir);
+      const res = await Pkg.Dist.checkSelfReported(dir);
       expect(res.exists).to.eql(true);
       expect(res.is.valid).to.eql(false);
       expect(res.error?.message).to.include('ignore-policy digest mismatch');
@@ -691,14 +698,14 @@ describe('Pkg.Dist', () => {
       };
       await Fs.write(path, `${JSON.stringify(tampered, null, '  ')}\n`);
 
-      const res = await Pkg.Dist.verify(dir);
+      const res = await Pkg.Dist.checkSelfReported(dir);
       expect(res.exists).to.eql(true);
       expect(res.is.valid).to.eql(false);
       expect(res.error?.message).to.include('does not reproduce hash.parts');
     });
 
     it('404: target dir does not exist', async () => {
-      const res = await Pkg.Dist.verify('404_foobar');
+      const res = await Pkg.Dist.checkSelfReported('404_foobar');
       expect(res.exists).to.eql(false);
       expect(res.dist).to.eql(undefined);
       expect(res.error?.message).to.include('does not exist');
@@ -710,7 +717,7 @@ describe('Pkg.Dist', () => {
       const dir = sample.path.dir;
       await sample.file.dist.delete();
 
-      const res = await Pkg.Dist.verify(dir);
+      const res = await Pkg.Dist.checkSelfReported(dir);
       expect(res.exists).to.eql(false);
       expect(res.dist).to.eql(undefined);
       expect(res.error?.message).to.include('does not exist');

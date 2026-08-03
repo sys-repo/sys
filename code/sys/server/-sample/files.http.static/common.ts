@@ -5,10 +5,13 @@ export type { t };
 /**
  * Libraries:
  */
+export { Hash } from '@sys/crypto/hash';
 export { Fs } from '@sys/fs';
+export { Fetch } from '@sys/http/client';
 export { HttpStatic } from '@sys/http/server/static';
 export { Files } from '@sys/model/files';
 export { FilesStatic } from '@sys/model/files/static';
+export { Json } from '@sys/std/json';
 export { Pkg } from '@sys/std/pkg';
 
 /**

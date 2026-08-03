@@ -1,3 +1,4 @@
+import type { Pkg as FsPkg } from '@sys/fs/t';
 import type { t } from './common.ts';
 
 /**
@@ -54,10 +55,19 @@ export declare namespace Vite {
       readonly ok: boolean;
       readonly paths: t.ViteConfig.Paths;
       readonly dist: t.DistPkg;
+      /** Exact publisher-generated serialization evidence for the computed `dist.json`. */
+      readonly manifest: Manifest;
       readonly cmd: { readonly input: string; readonly output: t.Process.Output };
       readonly elapsed: t.Msecs;
       toString(options?: ToStringOptions): string;
     };
+
+    /**
+     * Exact publisher-generated serialization evidence for this build response. Successful builds
+     * save those exact `dist.json` bytes. Integrity becomes artifact authority only when distributed
+     * independently from artifact fetch.
+     */
+    export type Manifest = FsPkg.Dist.Compute.Manifest;
 
     /** Formatting options for command response text. */
     export type ToStringOptions = {

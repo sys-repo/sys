@@ -1,3 +1,4 @@
+import type { Pkg } from '@sys/fs/t';
 import type { t } from '../common.ts';
 
 /**
@@ -25,6 +26,8 @@ export type HashRunResult = {
   readonly bytesTotal: t.NumberBytes;
   readonly computedAt: t.UnixTimestamp;
   readonly dist: t.DistPkg;
+  /** Exact serialization evidence; authority requires independent distribution from artifact fetch. */
+  readonly manifest: Pkg.Dist.Compute.Manifest;
 };
 
 export type HashDistRowStatus = 'created' | 'changed' | 'differs' | 'invalid';
