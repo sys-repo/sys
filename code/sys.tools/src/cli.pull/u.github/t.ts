@@ -1,34 +1,7 @@
-import { type t } from '../common.ts';
+import type { t } from '../common.ts';
 
-/**
- * GitHub source-domain shapes.
- *
- * These types describe data resolved from GitHub itself. Bundle-pull
- * materialization types live under `u.bundle/u.pull.github/t.ts`.
- */
+/** Internal GitHub repository source-domain shapes. */
 export declare namespace GithubSource {
-  export type ReleaseAsset = {
-    readonly id: number;
-    readonly name: string;
-    readonly downloadUrl: t.StringUrl;
-  };
-
-  export type Release = {
-    readonly tag: string;
-    readonly draft?: boolean;
-    readonly prerelease?: boolean;
-    readonly assets: readonly ReleaseAsset[];
-  };
-
-  export type ReleaseResolved = {
-    readonly release: Release;
-    readonly assets: readonly ReleaseAsset[];
-  };
-
-  export type ReleaseResolveResult =
-    | { readonly ok: true; readonly data: ReleaseResolved }
-    | { readonly ok: false; readonly error: string };
-
   export type RepoMetadata = {
     readonly defaultBranch: string;
   };
@@ -38,7 +11,7 @@ export declare namespace GithubSource {
     readonly treeSha: string;
   };
 
-  export type RepoTreeEntryType = 'blob' | 'tree' | 'commit' | (string & {});
+  export type RepoTreeEntryType = string;
 
   export type RepoTreeEntry = {
     readonly path: t.StringPath;
@@ -46,7 +19,6 @@ export declare namespace GithubSource {
     readonly type: RepoTreeEntryType;
     readonly sha?: string;
     readonly size?: number;
-    readonly url?: t.StringUrl;
   };
 
   export type RepoTree = {
@@ -56,11 +28,9 @@ export declare namespace GithubSource {
   };
 
   export type RepoResolvedEntry = {
-    readonly sourcePath: t.StringPath;
     readonly relativePath: t.StringRelativePath;
     readonly sha: string;
     readonly size?: number;
-    readonly url?: t.StringUrl;
   };
 
   export type RepoResolved = {

@@ -16,6 +16,7 @@ export type { PiTool } from './cli.pi/t.ts';
 export type { CrdtTool } from './cli.crdt/t.namespace.ts';
 export type { CryptoTool } from './cli.crypto/t.namespace.ts';
 export type { DeployTool } from './cli.deploy/t.namespace.ts';
+export type { GithubPull } from './cli.pull/t.github.ts';
 export type { PullTool } from './cli.pull/t.namespace.ts';
 export type { ServeTool } from './cli.serve/t.namespace.ts';
 export type { ShellTool } from './cli.shell/t.namespace.ts';

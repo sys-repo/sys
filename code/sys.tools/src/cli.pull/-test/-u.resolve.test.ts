@@ -23,7 +23,11 @@ describe('@sys/tools/pull materialization resolver', () => {
       Fs.join(cwd, 'workspace/view/releases/fixture'),
     ]);
     expect(resolved.localDirs.map((dir) => dir.bundle.kind)).to.eql(['http', 'github:release']);
-    expect(resolved.localDirs.map((dir) => dir.bundle.local.clear)).to.eql([true, false]);
+    const [http, github] = resolved.localDirs.map((dir) => dir.bundle);
+    expect(http?.kind).to.eql('http');
+    expect(http?.kind === 'http' ? http.local.clear : undefined).to.eql(true);
+    expect(github?.kind).to.eql('github:release');
+    expect(github?.kind === 'github:release' ? github.local.mode : undefined).to.eql('create');
   });
 
   it('returns no local directories when no bundles are declared', async () => {
@@ -48,7 +52,7 @@ function yaml() {
   return Str.dedent(`
     dir: ./workspace
     defaults:
-      local:
+      http:
         clear: true
     bundles:
       - kind: http
@@ -60,6 +64,12 @@ function yaml() {
         tag: v1.0.0
         local:
           dir: ./view/releases/fixture
-          clear: false
+          mode: create
+        limits:
+          metadataBytes: 1000000
+          entries: 100
+          fileBytes: 10000000
+          totalBytes: 50000000
+          totalTime: 30000
   `).trimStart();
 }

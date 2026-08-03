@@ -1,5 +1,7 @@
 import { Str, type t } from './common.ts';
 
+const compare = Str.Compare.codeUnit();
+
 type NormalizedGithubPath =
   | { readonly ok: true; readonly value: string; readonly segments: readonly string[] }
   | { readonly ok: false; readonly error: string };
@@ -9,12 +11,12 @@ type ScopedEntriesResult =
   | { readonly ok: false; readonly error: string };
 
 export function resolveGithubRepoBundle(args: {
-  bundle: t.PullTool.ConfigYaml.GithubRepoBundle;
+  source: { readonly repo: string; readonly path?: string };
   ref: string;
   commit: t.GithubSource.RepoCommit;
   tree: t.GithubSource.RepoTree;
 }): t.GithubSource.RepoResolveResult {
-  const { bundle, ref, commit, tree } = args;
+  const { source, ref, commit, tree } = args;
   if (tree.truncated) {
     return {
       ok: false,
@@ -23,7 +25,7 @@ export function resolveGithubRepoBundle(args: {
     };
   }
 
-  const path = normalizeGithubPath(bundle.path ?? '');
+  const path = normalizeGithubPath(source.path ?? '');
   if (!path.ok) return { ok: false, error: `GitHub repo path is invalid: ${path.error}` };
 
   const scoped = scopedEntries(tree.entries, path.segments);
@@ -36,7 +38,7 @@ export function resolveGithubRepoBundle(args: {
       return { ok: false, error: `GitHub repo tree entry is invalid: ${entryPath.error}` };
     }
 
-    if (item.type === 'tree') continue;
+    if (item.type === 'tree' && item.mode === '040000') continue;
     if (item.type === 'commit' || item.mode === '160000') {
       return {
         ok: false,
@@ -49,7 +51,10 @@ export function resolveGithubRepoBundle(args: {
         error: `GitHub repo pull cannot materialize symlink entries yet: ${item.path}`,
       };
     }
-    if (item.type !== 'blob') {
+    if (
+      item.type !== 'blob' ||
+      (item.mode !== '100644' && item.mode !== '100755')
+    ) {
       return {
         ok: false,
         error: `GitHub repo pull cannot materialize unsupported tree entry (${
@@ -72,11 +77,9 @@ export function resolveGithubRepoBundle(args: {
     }
 
     entries.push({
-      sourcePath: entryPath.value as t.StringPath,
       relativePath: relativePath as t.StringRelativePath,
       sha: item.sha,
       size: item.size,
-      url: item.url,
     });
   }
 
@@ -89,10 +92,19 @@ export function resolveGithubRepoBundle(args: {
     };
   }
 
+  const targets = entries.map((entry) => entry.relativePath).sort(compare);
+  for (let index = 1; index < targets.length; index++) {
+    const previous = targets[index - 1]!;
+    const current = targets[index]!;
+    if (current === previous || current.startsWith(`${previous}/`)) {
+      return { ok: false, error: 'GitHub repo tree targets collide.' };
+    }
+  }
+
   return {
     ok: true,
     data: {
-      repo: bundle.repo,
+      repo: source.repo,
       ref,
       commit: commit.sha,
       tree: tree.sha,
@@ -103,7 +115,7 @@ export function resolveGithubRepoBundle(args: {
 }
 
 function normalizeGithubPath(input: string): NormalizedGithubPath {
-  const raw = String(input ?? '').trim();
+  const raw = String(input ?? '');
   if (/^[A-Za-z]:/.test(raw)) return { ok: false, error: `drive-prefixed path: ${input}` };
   if (hasControlChar(raw)) return { ok: false, error: `control characters in path: ${input}` };
   if (raw.startsWith('/') || raw.startsWith('\\')) {
@@ -165,7 +177,7 @@ function scopedEntries(
       error: `GitHub repo path resolves to a file; github:repo path must be a directory: ${label}`,
     };
   }
-  if (exact && exact.type !== 'tree') {
+  if (exact && (exact.type !== 'tree' || exact.mode !== '040000')) {
     return {
       ok: false,
       error: `GitHub repo path resolves to an unsupported entry (${

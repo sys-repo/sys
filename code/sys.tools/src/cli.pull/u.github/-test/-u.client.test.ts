@@ -8,7 +8,18 @@ describe('cli.pull/u.github → client helpers', () => {
   });
 
   it('rejects malformed repository names', () => {
-    const bad = ['foo', '/bar', 'foo/', 'foo/bar/baz', 'foo/with space'];
+    const bad = [
+      'foo',
+      '/bar',
+      'foo/',
+      'foo/bar/baz',
+      'foo/with space',
+      ' foo/bar ',
+      './repo',
+      '../repo',
+      'owner/.',
+      'owner/..',
+    ];
     for (const value of bad) {
       let error: unknown;
       try {

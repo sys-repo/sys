@@ -14,7 +14,7 @@ type ExecuteBundlePullResult =
   | {
     readonly ok: true;
     readonly bundle: t.PullTool.ConfigYaml.Bundle;
-    readonly data: t.PullTool.Bundle.Result;
+    readonly data: t.PullTool.Bundle.Result | t.GithubPull.Success;
   }
   | { readonly ok: false; readonly error: string };
 
@@ -229,7 +229,8 @@ export async function pullConfiguredBundle(
   const effectiveBundle = resolveBundleForPull(bundle, location.defaults);
   const pulled = await pullRemoteBundle(location.dir, effectiveBundle, undefined, options);
   if (!pulled.ok) return { ok: false, error: pulled.error };
-  return { ok: true, bundle: effectiveBundle, data: pulled.data };
+  const data = 'data' in pulled ? pulled.data : pulled;
+  return { ok: true, bundle: effectiveBundle, data };
 }
 
 /**

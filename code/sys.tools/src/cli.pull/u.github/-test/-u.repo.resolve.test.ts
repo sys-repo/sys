@@ -1,11 +1,11 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { type t } from '../common.ts';
+import type { t } from '../common.ts';
 import { resolveGithubRepoBundle } from '../u.repo.resolve.ts';
 
 describe('cli.pull/u.github → repo resolver', () => {
   it('maps root blobs into target-relative entries', () => {
     const res = resolveGithubRepoBundle({
-      bundle: bundle(),
+      source: source(),
       ref: 'main',
       commit: commit(),
       tree: tree([
@@ -25,7 +25,7 @@ describe('cli.pull/u.github → repo resolver', () => {
 
   it('strips a selected subpath and writes its contents into the target root', () => {
     const res = resolveGithubRepoBundle({
-      bundle: bundle({ path: 'packages/tooling' }),
+      source: source({ path: 'packages/tooling' }),
       ref: 'main',
       commit: commit(),
       tree: tree([
@@ -46,7 +46,7 @@ describe('cli.pull/u.github → repo resolver', () => {
 
   it('fails clearly for nonexistent paths, truncated trees, symlinks, and submodules', () => {
     const missing = resolveGithubRepoBundle({
-      bundle: bundle({ path: 'missing' }),
+      source: source({ path: 'missing' }),
       ref: 'main',
       commit: commit(),
       tree: tree([file('README.md', 'sha-readme')]),
@@ -55,7 +55,7 @@ describe('cli.pull/u.github → repo resolver', () => {
     if (!missing.ok) expect(missing.error).to.include('path not found');
 
     const truncated = resolveGithubRepoBundle({
-      bundle: bundle(),
+      source: source(),
       ref: 'main',
       commit: commit(),
       tree: { ...tree([file('README.md', 'sha-readme')]), truncated: true },
@@ -64,7 +64,7 @@ describe('cli.pull/u.github → repo resolver', () => {
     if (!truncated.ok) expect(truncated.error).to.include('truncated');
 
     const symlink = resolveGithubRepoBundle({
-      bundle: bundle(),
+      source: source(),
       ref: 'main',
       commit: commit(),
       tree: tree([{ ...file('latest', 'sha-link'), mode: '120000' }]),
@@ -73,7 +73,7 @@ describe('cli.pull/u.github → repo resolver', () => {
     if (!symlink.ok) expect(symlink.error).to.include('symlink');
 
     const submodule = resolveGithubRepoBundle({
-      bundle: bundle(),
+      source: source(),
       ref: 'main',
       commit: commit(),
       tree: tree([{
@@ -89,7 +89,7 @@ describe('cli.pull/u.github → repo resolver', () => {
 
   it('rejects unsafe configured paths and tree entry paths', () => {
     const badPath = resolveGithubRepoBundle({
-      bundle: bundle({ path: '../src' }),
+      source: source({ path: '../src' }),
       ref: 'main',
       commit: commit(),
       tree: tree([file('src/mod.ts', 'sha-mod')]),
@@ -97,7 +97,7 @@ describe('cli.pull/u.github → repo resolver', () => {
     expect(badPath.ok).to.eql(false);
 
     const backslashPath = resolveGithubRepoBundle({
-      bundle: bundle({ path: 'src\\mod.ts' }),
+      source: source({ path: 'src\\mod.ts' }),
       ref: 'main',
       commit: commit(),
       tree: tree([file('src/mod.ts', 'sha-mod')]),
@@ -105,7 +105,7 @@ describe('cli.pull/u.github → repo resolver', () => {
     expect(backslashPath.ok).to.eql(false);
 
     const badEntry = resolveGithubRepoBundle({
-      bundle: bundle(),
+      source: source(),
       ref: 'main',
       commit: commit(),
       tree: tree([file('../evil.ts', 'sha-evil')]),
@@ -113,49 +113,66 @@ describe('cli.pull/u.github → repo resolver', () => {
     expect(badEntry.ok).to.eql(false);
 
     const backslashEntry = resolveGithubRepoBundle({
-      bundle: bundle(),
+      source: source(),
       ref: 'main',
       commit: commit(),
       tree: tree([file('src\\mod.ts', 'sha-mod')]),
     });
     expect(backslashEntry.ok).to.eql(false);
+
+    const invalidDirectoryMode = resolveGithubRepoBundle({
+      source: source({ path: 'src' }),
+      ref: 'main',
+      commit: commit(),
+      tree: tree([
+        { ...dir('src'), mode: '100644' },
+        file('src/mod.ts', 'sha-mod'),
+      ]),
+    });
+    expect(invalidDirectoryMode.ok).to.eql(false);
+
+    const collidingEntries = resolveGithubRepoBundle({
+      source: source(),
+      ref: 'main',
+      commit: commit(),
+      tree: tree([file('same.ts', 'sha-a'), file('same.ts', 'sha-b')]),
+    });
+    expect(collidingEntries.ok).to.eql(false);
+    if (!collidingEntries.ok) expect(collidingEntries.error).to.include('collide');
+
+    const ancestorCollision = resolveGithubRepoBundle({
+      source: source(),
+      ref: 'main',
+      commit: commit(),
+      tree: tree([file('same', 'sha-a'), file('same/nested.ts', 'sha-b')]),
+    });
+    expect(ancestorCollision.ok).to.eql(false);
+    if (!ancestorCollision.ok) expect(ancestorCollision.error).to.include('collide');
   });
 });
 
-function bundle(
-  input: Partial<t.PullTool.ConfigYaml.GithubRepoBundle> = {},
-): t.PullTool.ConfigYaml.GithubRepoBundle {
-  return {
-    kind: 'github:repo',
-    repo: 'owner/repo',
-    local: { dir: 'pulled/repo' as t.StringRelativeDir },
-    ...input,
-  };
+function source(input: { repo?: string; path?: string } = {}) {
+  return { repo: input.repo ?? 'owner/repo', path: input.path };
 }
 
-function commit(): t.PullTool.GithubRepoCommit {
+function commit(): t.GithubSource.RepoCommit {
   return { sha: 'commit-sha', treeSha: 'tree-sha' };
 }
 
-function tree(entries: readonly t.PullTool.GithubRepoTreeEntry[]): t.PullTool.GithubRepoTree {
+function tree(entries: readonly t.GithubSource.RepoTreeEntry[]): t.GithubSource.RepoTree {
   return { sha: 'tree-sha', truncated: false, entries };
 }
 
-function file(
-  path: string,
-  sha: string,
-  size?: number,
-): t.PullTool.GithubRepoTreeEntry {
+function file(path: string, sha: string, size?: number): t.GithubSource.RepoTreeEntry {
   return {
     path: path as t.StringPath,
     type: 'blob',
     mode: '100644',
     sha,
     size,
-    url: `https://api.github.test/blob/${sha}` as t.StringUrl,
   };
 }
 
-function dir(path: string): t.PullTool.GithubRepoTreeEntry {
+function dir(path: string): t.GithubSource.RepoTreeEntry {
   return { path: path as t.StringPath, type: 'tree', mode: '040000', sha: `tree-${path}` };
 }

@@ -2,250 +2,158 @@ import { describe, expect, it } from '../../../-test.ts';
 import { Cli, type t } from '../../common.ts';
 import { Fmt } from '../../u.fmt.ts';
 
+const LIMITS: t.GithubPull.Limits = {
+  metadataBytes: 1_000_000,
+  entries: 100,
+  fileBytes: 100_000_000,
+  totalBytes: 200_000_000,
+  totalTime: 30_000,
+};
+
 describe('cli.pull summary formatting', () => {
   it('formats pull failures with separated message, context table, and detail', () => {
     const res = Fmt.pullError([
       'GitHub repository/path/ref not accessible.',
       'source: github:repo',
       'repo: sys-repo/sys.canon',
-      'The repository may not exist, the ref/path may be wrong, or GitHub may be hiding a private repository.',
-      'Set GH_TOKEN or GITHUB_TOKEN to a fine-grained PAT with this repository selected and grant Contents → Read-only.',
+      'The remote source did not produce a materializable bundle.',
     ].join('\n'));
 
     const text = Cli.stripAnsi(res);
     expect(text).to.include('Pull Failed');
-    expect(text).to.include('  GitHub repository/path/ref not accessible.');
+    expect(text).to.include('GitHub repository/path/ref not accessible.');
     expect(text).to.match(/source\s+github:repo/);
     expect(text).to.match(/repo\s+sys-repo\/sys\.canon/);
-    expect(text).to.not.match(
-      /token admin\s+https:\/\/github\.com\/settings\/personal-access-tokens/,
-    );
-    expect(text).to.include('  The repository may not exist');
-    expect(text).to.include('  PAT with this repository selected and:');
-    expect(text).to.include('  Contents → Read-only');
   });
 
-  it('formats github:release summary rows with aligned output size column', () => {
+  it('formats github:release results without Dist metadata', () => {
     const bundle: t.PullTool.ConfigYaml.GithubReleaseBundle = {
       kind: 'github:release',
       repo: 'owner/repo',
-      local: { dir: 'releases/repo' as t.StringRelativeDir },
+      local: { dir: 'releases/repo', mode: 'create' },
+      limits: LIMITS,
+    };
+    const data: t.GithubPull.Success = {
+      ok: true,
+      into: '/tmp/releases/repo' as t.StringAbsoluteDir,
+      resolved: {
+        kind: 'github:release',
+        repo: bundle.repo,
+        tag: 'v1.2.3',
+        assets: ['app.rpm', 'app.AppImage'],
+      },
+      files: [
+        {
+          source: 'https://api.github.com/repos/owner/repo/releases/assets/1' as t.StringUrl,
+          target: 'app.rpm' as t.StringRelativePath,
+          bytes: 3_900_000,
+        },
+        {
+          source: 'https://api.github.com/repos/owner/repo/releases/assets/2' as t.StringUrl,
+          target: 'app.AppImage' as t.StringRelativePath,
+          bytes: 81_400_000,
+        },
+      ],
     };
 
-    const ops = [
-      {
-        ok: true,
-        path: {
-          source: 'https://example.com/a.rpm' as t.StringUrl,
-          target: 'releases/repo/v1.2.3/sys-app-shell-0.1.0-1.x86_64.rpm' as t.StringPath,
-        },
-        bytes: 3_900_000,
-      },
-      {
-        ok: true,
-        path: {
-          source: 'https://example.com/b.AppImage' as t.StringUrl,
-          target: 'releases/repo/v1.2.3/sys-app-shell_0.1.0_amd64.AppImage' as t.StringPath,
-        },
-        bytes: 81_400_000,
-      },
-    ] as const satisfies readonly t.PullTool.Bundle.Result['ops'][number][];
-
-    const res = Fmt.pullSummary({
-      bundle,
-      data: {
-        ops,
-        dist: {
-          type: 'https://jsr.io/@sample/foo',
-          pkg: { name: '@sample/foo', version: '1.0.0' },
-          build: {
-            time: Date.now() - 2 * 24 * 60 * 60 * 1000,
-            size: { total: 1234, pkg: 1234 },
-            builder: '@sample/builder@1.0.0',
-            runtime: 'deno=2.6.0:v8=14.5.201.2-rusty:typescript=5.9.2',
-            hash: { policy: 'https://jsr.io/@sys/fs/0.0.229/src/m.Pkg/m.Pkg.Dist.ts' },
-          },
-          hash: {
-            digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
-            parts: {
-              './dist.json':
-                `sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18:size=1234`,
-            },
-          },
-        },
-        summary: { kind: 'github:release', repo: bundle.repo, release: 'v1.2.3' },
-      },
-    });
-
-    const text = Cli.stripAnsi(res);
-    const lines = text
-      .split('\n')
-      .map((line) => line.trimEnd())
-      .filter((line) => line.includes('releases/repo/v1.2.3/'));
-
-    expect(lines.length).to.eql(2);
-    expect(lines.every((line) => line.includes(' | '))).to.eql(true);
-    expect(new Set(lines.map((line) => line.indexOf('|'))).size).to.eql(1);
-    expect(text).to.match(/dist\s+#1bb18\s+built\s+\S+\s+ago/);
+    const text = Cli.stripAnsi(Fmt.pullSummary({ bundle, data }));
     expect(text).to.include('repo      owner/repo');
     expect(text).to.include('release   v1.2.3');
+    expect(text).to.include('assets    2');
+    expect(text).to.not.match(/^\s*dist\s/m);
   });
 
-  it('formats github:repo summary rows without requiring dist', () => {
+  it('formats github:repo results', () => {
     const bundle: t.PullTool.ConfigYaml.GithubRepoBundle = {
       kind: 'github:repo',
       repo: 'owner/repo',
       ref: 'main',
       path: 'packages/tooling',
-      local: { dir: 'pulled/tooling' as t.StringRelativeDir },
+      local: { dir: 'pulled/tooling', mode: 'replace' },
+      limits: LIMITS,
+    };
+    const data: t.GithubPull.Success = {
+      ok: true,
+      into: '/tmp/pulled/tooling' as t.StringAbsoluteDir,
+      resolved: {
+        kind: 'github:repo',
+        repo: bundle.repo,
+        ref: 'main',
+        commit: 'commit-sha',
+        tree: 'tree-sha',
+        path: bundle.path,
+      },
+      files: [
+        {
+          source: 'https://api.github.com/repos/owner/repo/git/blobs/sha-mod' as t.StringUrl,
+          target: 'mod.ts' as t.StringRelativePath,
+          bytes: 123,
+        },
+      ],
     };
 
-    const ops = [
-      {
-        ok: true,
-        path: {
-          source: 'https://github.com/owner/repo/blob/main/packages/tooling/mod.ts' as t.StringUrl,
-          target: 'pulled/tooling/mod.ts' as t.StringPath,
-        },
-        bytes: 123,
-      },
-      {
-        ok: true,
-        path: {
-          source:
-            'https://github.com/owner/repo/blob/main/packages/tooling/README.md' as t.StringUrl,
-          target: 'pulled/tooling/README.md' as t.StringPath,
-        },
-        bytes: 456,
-      },
-    ] as const satisfies readonly t.PullTool.Bundle.Result['ops'][number][];
-
-    const res = Fmt.pullSummary({
-      bundle,
-      data: {
-        ops,
-        summary: {
-          kind: 'github:repo',
-          repo: bundle.repo,
-          ref: 'main',
-          path: 'packages/tooling',
-        },
-      },
-    });
-
-    const text = Cli.stripAnsi(res);
+    const text = Cli.stripAnsi(Fmt.pullSummary({ bundle, data }));
     expect(text).to.include('repo     owner/repo');
     expect(text).to.include('ref      main');
     expect(text).to.include('path     packages/tooling');
-    expect(text).to.include('files    2');
-    expect(text).to.not.include('dist');
+    expect(text).to.include('files    1');
+    expect(text).to.not.match(/^\s*dist\s/m);
   });
 
-  it('formats http summary rows', () => {
+  it('formats transitional http summary rows', () => {
     const bundle: t.PullTool.ConfigYaml.HttpBundle = {
       kind: 'http',
       dist: 'https://fs.db.team/dist.json',
-      local: { dir: 'dev' as t.StringRelativeDir },
+      local: { dir: 'dev' },
+    };
+    const data: t.PullTool.Bundle.Result = {
+      ok: true,
+      ops: [
+        {
+          ok: true,
+          path: {
+            source: bundle.dist,
+            target: 'dev/dist.json' as t.StringPath,
+          },
+          bytes: 1200,
+        },
+      ],
+      summary: { kind: 'http', source: bundle.dist },
     };
 
-    const ops = [
-      {
-        ok: true,
-        path: {
-          source: 'https://fs.db.team/dist.json' as t.StringUrl,
-          target: 'dev/dist.json' as t.StringPath,
-        },
-        bytes: 1200,
-      },
-      {
-        ok: true,
-        path: {
-          source: 'https://fs.db.team/index.html' as t.StringUrl,
-          target: 'dev/index.html' as t.StringPath,
-        },
-        bytes: 3400,
-      },
-    ] as const satisfies readonly t.PullTool.Bundle.Result['ops'][number][];
-
-    const res = Fmt.pullSummary({
-      bundle,
-      data: {
-        ops,
-        dist: {
-          type: 'https://jsr.io/@sample/foo',
-          pkg: { name: '@sample/foo', version: '1.0.0' },
-          build: {
-            time: Date.now(),
-            size: { total: 4600, pkg: 4600 },
-            builder: '@sample/builder@1.0.0',
-            runtime: 'deno=2.6.0:v8=14.5.201.2-rusty:typescript=5.9.2',
-            hash: { policy: 'https://jsr.io/@sys/fs/0.0.229/src/m.Pkg/m.Pkg.Dist.ts' },
-          },
-          hash: {
-            digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
-            parts: {
-              './index.html':
-                `sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18:size=3400`,
-            },
-          },
-        },
-        summary: { kind: 'http', source: bundle.dist },
-      },
-    });
-
-    const text = Cli.stripAnsi(res);
+    const text = Cli.stripAnsi(Fmt.pullSummary({ bundle, data }));
     expect(text).to.match(/source\s+fs\.db\.team\/dist\.json/);
     expect(text).to.match(/files\s+1/);
-    expect(text).to.match(/dist\s+#1bb18\s+built\s+just now/);
   });
 
-  it('caps output rows at 20 and shows overflow marker', () => {
+  it('caps output rows at 20 and shows an overflow marker', () => {
     const bundle: t.PullTool.ConfigYaml.GithubReleaseBundle = {
       kind: 'github:release',
       repo: 'owner/repo',
-      local: { dir: 'releases/repo' as t.StringRelativeDir },
+      local: { dir: 'releases/repo', mode: 'create' },
+      limits: LIMITS,
+    };
+    const files = Array.from({ length: 25 }, (_, index) => ({
+      source: `https://api.github.com/repos/owner/repo/releases/assets/${index}` as t.StringUrl,
+      target: `file-${String(index).padStart(2, '0')}.bin` as t.StringRelativePath,
+      bytes: 1024 + index,
+    }));
+    const data: t.GithubPull.Success = {
+      ok: true,
+      into: '/tmp/releases/repo' as t.StringAbsoluteDir,
+      resolved: {
+        kind: 'github:release',
+        repo: bundle.repo,
+        tag: 'v1.2.3',
+        assets: files.map((file) => file.target),
+      },
+      files,
     };
 
-    const ops = Array.from({ length: 25 }, (_, i) => ({
-      ok: true as const,
-      path: {
-        source: `https://example.com/${i}.bin` as t.StringUrl,
-        target: `releases/repo/v1.2.3/file-${String(i).padStart(2, '0')}.bin` as t.StringPath,
-      },
-      bytes: 1024 + i,
-    }));
-
-    const res = Fmt.pullSummary({
-      bundle,
-      data: {
-        ops,
-        dist: {
-          type: 'https://jsr.io/@sample/foo',
-          pkg: { name: '@sample/foo', version: '1.0.0' },
-          build: {
-            time: Date.now(),
-            size: { total: 25 * 1024, pkg: 25 * 1024 },
-            builder: '@sample/builder@1.0.0',
-            runtime: 'deno=2.6.0:v8=14.5.201.2-rusty:typescript=5.9.2',
-            hash: { policy: 'https://jsr.io/@sys/fs/0.0.229/src/m.Pkg/m.Pkg.Dist.ts' },
-          },
-          hash: {
-            digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
-            parts: {
-              './index.html':
-                `sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18:size=3400`,
-            },
-          },
-        },
-        summary: { kind: 'github:release', repo: bundle.repo, release: 'v1.2.3' },
-      },
-    });
-
-    const text = Cli.stripAnsi(res);
-    const fileLines = text
-      .split('\n')
-      .filter((line) => line.includes('releases/repo/v1.2.3/'));
-    expect(fileLines.length).to.eql(19);
+    const text = Cli.stripAnsi(Fmt.pullSummary({ bundle, data }));
+    expect(text.split('\n').filter((line) => line.includes('releases/repo/file-')).length).to.eql(
+      19,
+    );
     expect(text).to.include('...6 more');
   });
 });

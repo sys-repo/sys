@@ -4,11 +4,12 @@
  */
 import { Fs, type t } from './common.ts';
 import { cli } from './m.cli.ts';
+import { GithubPull } from './u.github/u.pull.ts';
 import { resolve } from './u.resolve.ts';
 import { run } from './u.run.ts';
 import { runWithRootUpgradeAdvisory } from '../u.root/u.upgradeAdvisory.ts';
 
-export { cli };
+export { cli, GithubPull };
 export type * from './t.ts';
 
 /** Public Pull helper API. */

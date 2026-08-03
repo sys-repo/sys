@@ -1,100 +1,37 @@
+import { c, Cli, Fs, type t } from './common.ts';
 import { Fmt } from '../../u.fmt.ts';
-import {
-  downloadGithubBlob,
-  getGithubCommit,
-  getGithubRepositoryMetadata,
-  getGithubTree,
-  loadGithubToken,
-} from '../../u.github/u.client.ts';
-import { mapGithubError } from '../../u.github/u.errors.ts';
-import { resolveGithubRepoBundle } from '../../u.github/u.repo.resolve.ts';
-import { done, errorMessage, fail } from '../u.pull/u.result.ts';
-import { c, Cli, type t } from './common.ts';
-import { executeGithubPullPlan } from './u.execute.ts';
-import { createGithubRepoPullPlan } from './u.plan.ts';
+import { loadGithubToken } from '../../u.github/u.client.ts';
+import { GithubPull } from '../../u.github/u.pull.ts';
 
 export async function pullGithubRepoBundle(
   baseDir: t.StringDir,
   bundle: t.PullTool.ConfigYaml.GithubRepoBundle,
   options: t.PullTool.Bundle.RunOptions = {},
-): Promise<t.PullTool.Bundle.Remote.Result> {
+): Promise<t.GithubPull.Outcome> {
   const spinner = options.silent ? undefined : Cli.spinner();
-  const token = await loadGithubToken({ cwd: baseDir });
-  let effectiveRef = bundle.ref?.trim() || '';
-
   try {
-    spinner?.start(Fmt.spinnerText('resolving github repo...'));
-
-    if (!effectiveRef) {
-      const metadata = await getGithubRepositoryMetadata({ repo: bundle.repo, token });
-      effectiveRef = metadata.defaultBranch;
-    }
-
-    const commit = await getGithubCommit({ repo: bundle.repo, ref: effectiveRef, token });
-    const tree = await getGithubTree({ repo: bundle.repo, treeSha: commit.treeSha, token });
-    const resolved = resolveGithubRepoBundle({ bundle, ref: effectiveRef, commit, tree });
-    if (!resolved.ok) return fail(resolved.error);
-
-    const planned = createGithubRepoPullPlan({ baseDir, bundle, resolved: resolved.data });
-    if (!planned.ok) return fail(planned.error);
-
-    const executed = await executeGithubPullPlan({
-      baseDir,
-      plan: planned.plan,
-      clear: bundle.local.clear,
-      download: createGithubDownloader(token),
-      events: {
-        clearing: () => {
-          if (spinner) spinner.text = Fmt.spinnerText('clearing local target...');
-        },
-        entry({ entry, current, total }) {
-          const progress = total > 1 ? ` ${c.white(String(current))}/${total}` : '';
-          if (spinner) {
-            spinner.text = Fmt.spinnerText(
-              `downloading${progress} ${c.cyan(entry.relativePath)}...`,
-            );
-          }
-        },
-      },
-    });
-
-    if (!executed.ok) return fail(executed.error);
-
-    const total = executed.ops.length;
-    const msgPulled = `${c.green('repo pulled')} → ${c.cyan(bundle.local.dir)} (${total} files)`;
-    spinner?.succeed(Fmt.spinnerText(c.gray(msgPulled)));
-
-    return done({
-      ok: true,
-      ops: executed.ops,
-      summary: {
-        kind: 'github:repo',
-        repo: resolved.data.repo,
-        ref: resolved.data.ref,
-        path: resolved.data.path,
-      },
-    });
-  } catch (error) {
-    const auth = mapGithubError(error, {
-      kind: 'github:repo',
+    spinner?.start(Fmt.spinnerText('pulling github repo...'));
+    const token = await loadGithubToken({ cwd: baseDir });
+    const result = await GithubPull.repo({
       repo: bundle.repo,
-      ref: effectiveRef || bundle.ref,
+      ref: bundle.ref,
       path: bundle.path,
+      into: Fs.join(baseDir, bundle.local.dir) as t.StringDir,
+      mode: bundle.local.mode,
+      limits: bundle.limits,
+      token,
     });
-    return fail(auth ?? errorMessage(error));
+
+    if (result.ok) {
+      const msg = `${c.green('repo pulled')} → ${
+        c.cyan(bundle.local.dir)
+      } (${result.files.length} files)`;
+      spinner?.succeed(Fmt.spinnerText(c.gray(msg)));
+    } else {
+      spinner?.fail(Fmt.spinnerText(result.error));
+    }
+    return result;
   } finally {
     spinner?.stop();
   }
-}
-
-/**
- * Helpers:
- */
-function createGithubDownloader(token?: string): t.GithubPull.Downloader {
-  return async (request) => {
-    if (request.kind !== 'repo-blob') {
-      throw new Error(`Unsupported GitHub repo download request: ${request.kind}`);
-    }
-    return await downloadGithubBlob({ repo: request.repo, sha: request.sha, token });
-  };
 }

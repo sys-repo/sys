@@ -13,7 +13,13 @@ export async function run(args: t.PullTool.RunArgs): Promise<t.PullTool.RunResul
   for (const bundle of loaded.location.bundles ?? []) {
     const pulled = await pullConfiguredBundle(loaded.location, bundle, { silent: true });
     if (!pulled.ok) throw new Error(`Pull.run: ${pulled.error}`);
-    bundles.push({ bundle: pulled.bundle, data: pulled.data });
+    if (pulled.bundle.kind === 'http' && 'ops' in pulled.data) {
+      bundles.push({ bundle: pulled.bundle, data: pulled.data });
+    } else if (pulled.bundle.kind !== 'http' && 'files' in pulled.data) {
+      bundles.push({ bundle: pulled.bundle, data: pulled.data });
+    } else {
+      throw new Error('Pull.run: bundle result does not match its source kind.');
+    }
   }
 
   return {

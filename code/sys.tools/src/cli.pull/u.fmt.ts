@@ -176,38 +176,38 @@ export const Fmt = {
 
   pullSummary(args: {
     bundle: t.PullTool.ConfigYaml.Bundle;
-    data: {
-      ops: readonly t.PullTool.Bundle.Record[];
-      dist?: t.DistPkg;
-      summary?: t.PullTool.Bundle.SummaryMeta;
-    };
+    data: t.PullTool.Bundle.Result | t.GithubPull.Success;
   }) {
     const { bundle, data } = args;
     const table = Cli.table();
-    const outputs = data.ops.filter((m) => m.ok);
-    const bytes = outputs.reduce((acc, m) => acc + Number(m.bytes ?? 0), 0);
-    const dist = data.dist;
+    const github = 'files' in data ? data : undefined;
+    const http = 'ops' in data ? data : undefined;
+    const outputs = github
+      ? github.files.map((file) => ({
+        path: Fs.join(bundle.local.dir, file.target),
+        size: Number(file.bytes),
+      }))
+      : (http?.ops ?? []).filter((op) => op.ok).map((op) => ({
+        path: Fs.trimCwd(op.path.target),
+        size: Number(op.bytes ?? 0),
+      }));
+    const bytes = outputs.reduce((acc, item) => acc + item.size, 0);
+    const dist = http?.dist;
     const distHash = formatHashPrefix(dist?.hash?.digest);
     const built = formatBuiltAt(dist?.build?.time);
     const builtLabel = built ? `built ${built}${built === 'just now' ? '' : ' ago'}` : '';
     const distValue = builtLabel ? `${distHash}  ${c.gray(c.dim(builtLabel))}` : distHash;
 
-    const rows = outputs.map((m) => {
-      const path = Fs.trimCwd(m.path.target);
-      const size = Number(m.bytes ?? 0);
-      return { path, size };
-    });
-
     const MAX_OUTPUT_ROWS = 20;
-    const hasOverflow = rows.length > MAX_OUTPUT_ROWS;
-    const visible = hasOverflow ? rows.slice(0, MAX_OUTPUT_ROWS - 1) : rows;
-    const overflowCount = rows.length - visible.length;
-    const maxPathLen = visible.reduce((acc, m) => Math.max(acc, m.path.length), 0);
+    const hasOverflow = outputs.length > MAX_OUTPUT_ROWS;
+    const visible = hasOverflow ? outputs.slice(0, MAX_OUTPUT_ROWS - 1) : outputs;
+    const overflowCount = outputs.length - visible.length;
+    const maxPathLen = visible.reduce((acc, item) => Math.max(acc, item.path.length), 0);
 
     const items: Array<
       | { kind: 'asset'; path: string; size: number }
       | { kind: 'more'; count: number }
-    > = visible.map((m) => ({ kind: 'asset', path: m.path, size: m.size }));
+    > = visible.map((item) => ({ kind: 'asset', ...item }));
     if (hasOverflow) items.push({ kind: 'more', count: overflowCount });
 
     const outputLines = items.map((item, index, all) => {
@@ -223,15 +223,12 @@ export const Fmt = {
       return `${c.gray(c.dim(branch))} ${c.gray(parts.dir)}${file}${pad}${sizeLabel}`;
     });
 
-    const summary = data.summary;
+    const summary = github?.resolved ?? http?.summary;
     if (summary?.kind === 'github:release') {
-      const repo = summary.repo || (bundle.kind === 'github:release' ? bundle.repo : '');
-      const release = summary.release ?? '';
       table.body([
-        [c.gray(' repo'), c.cyan(repo)],
-        [c.gray(' release'), c.white(release)],
+        [c.gray(' repo'), c.cyan(summary.repo)],
+        [c.gray(' release'), c.white(summary.tag)],
         [c.gray(' assets'), c.white(String(outputs.length))],
-        [c.gray(' dist'), distValue],
         [c.gray(' bytes'), c.gray(Str.bytes(bytes))],
         [
           c.gray(' output'),
@@ -313,30 +310,16 @@ function parsePullError(error: string): PullErrorParts {
 }
 
 function isPullErrorContextKey(key: string): boolean {
-  return ['source', 'repo', 'ref', 'path', 'tag', 'asset', 'token admin'].includes(
+  return ['source', 'repo', 'ref', 'path', 'tag', 'asset'].includes(
     key.trim().toLowerCase(),
   );
 }
 
 function formatPullErrorMessage(lines: readonly string[]): string {
-  return normalizePullErrorGuidance(lines)
+  return lines
     .flatMap(wrapPullErrorLine)
     .map((line) => `  ${formatPullErrorLine(line)}`)
     .join('\n');
-}
-
-function normalizePullErrorGuidance(lines: readonly string[]): readonly string[] {
-  const privateRepo =
-    'The repository may not exist, the ref/path may be wrong, or GitHub may be hiding a private repository.';
-  const tokenRepo =
-    'Set GH_TOKEN or GITHUB_TOKEN to a fine-grained PAT with this repository selected and grant Contents → Read-only.';
-  if (lines.length === 2 && lines[0] === privateRepo && lines[1] === tokenRepo) {
-    return [
-      'The repository may not exist, the ref/path may be wrong, or GitHub may be hiding a private repository. Set GH_TOKEN or GITHUB_TOKEN to a fine-grained PAT with this repository selected and:',
-      'Contents → Read-only',
-    ];
-  }
-  return lines;
 }
 
 function wrapPullErrorLine(line: string): readonly string[] {
@@ -363,20 +346,12 @@ function wrapWords(input: string, width: number): readonly string[] {
 }
 
 function formatPullErrorLine(line: string): string {
-  const action = 'Contents → Read-only';
-  if (line === action) return c.white(action);
-
-  const index = line.indexOf(action);
-  if (index < 0) return c.yellow(c.italic(line));
-
-  const before = line.slice(0, index);
-  const after = line.slice(index + action.length);
-  return `${c.yellow(c.italic(before))}${c.white(action)}${c.yellow(c.italic(after))}`;
+  return c.yellow(c.italic(line));
 }
 
 function formatContextValue(key: string, value: string): string {
   const label = key.trim().toLowerCase();
-  if (label === 'source' || label === 'repo' || label === 'token admin') return c.cyan(value);
+  if (label === 'source' || label === 'repo') return c.cyan(value);
   return c.white(value);
 }
 

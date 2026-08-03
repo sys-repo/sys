@@ -1,8 +1,8 @@
-import { type t } from './common.ts';
+import type { t } from './common.ts';
 
 /** Type re-exports. */
+export type * from './t.github.ts';
 export type * from './t.namespace.ts';
-export type * from './u.github/t.ts';
 
 /**
  * CLI helpers for working with Pull.

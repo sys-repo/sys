@@ -1,18 +1,52 @@
 import { Schema, type t } from '../common.ts';
 
 const BundleSharedSchema = {
-  local: Schema.Type.Object(
-    {
-      dir: Schema.Type.String(),
-      clear: Schema.Type.Optional(Schema.Type.Boolean()),
-    },
-    { additionalProperties: false },
-  ),
   lastUsedAt: Schema.Type.Optional(Schema.Type.Number()),
 } as const;
 
+const HttpLocalSchema = Schema.Type.Object(
+  {
+    dir: Schema.Type.String(),
+    clear: Schema.Type.Optional(Schema.Type.Boolean()),
+  },
+  { additionalProperties: false },
+);
+
+const GithubLocalDirSchema = Schema.Type.String({
+  pattern:
+    '^(?!.*[\\u0000-\\u001f\\u007f-\\u009f])(?!.*\\\\)(?![~/\\\\])(?![A-Za-z]:)(?!\\.{1,2}$)(?!\\.\\.[/\\\\])(?!.*[/\\\\]\\.\\.(?:[/\\\\]|$)).+$',
+});
+
+const GithubLocalSchema = Schema.Type.Object(
+  {
+    dir: GithubLocalDirSchema,
+    mode: Schema.Type.Union([Schema.Type.Literal('create'), Schema.Type.Literal('replace')]),
+  },
+  { additionalProperties: false },
+);
+
+const PositiveSafeIntegerSchema = Schema.Type.Integer({
+  minimum: 1,
+  maximum: Number.MAX_SAFE_INTEGER,
+});
+
+const GithubLimitsSchema = Schema.Type.Object(
+  {
+    metadataBytes: PositiveSafeIntegerSchema,
+    entries: PositiveSafeIntegerSchema,
+    fileBytes: PositiveSafeIntegerSchema,
+    totalBytes: PositiveSafeIntegerSchema,
+    totalTime: PositiveSafeIntegerSchema,
+  },
+  { additionalProperties: false },
+);
+
 const GithubBundleSharedSchema = {
-  repo: Schema.Type.String({ pattern: '^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$' }),
+  repo: Schema.Type.String({
+    pattern: '^(?!\\.{1,2}/)(?![A-Za-z0-9_.-]+/\\.{1,2}$)[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$',
+  }),
+  local: GithubLocalSchema,
+  limits: GithubLimitsSchema,
   ...BundleSharedSchema,
 } as const;
 
@@ -20,6 +54,7 @@ const BundleHttpSchema = Schema.Type.Object(
   {
     kind: Schema.Type.Literal('http'),
     dist: Schema.Type.String(),
+    local: HttpLocalSchema,
     ...BundleSharedSchema,
   },
   { additionalProperties: false },
@@ -67,7 +102,7 @@ export const PullYamlSchema = {
       defaults: Schema.Type.Optional(
         Schema.Type.Object(
           {
-            local: Schema.Type.Optional(
+            http: Schema.Type.Optional(
               Schema.Type.Object(
                 {
                   clear: Schema.Type.Optional(Schema.Type.Boolean()),

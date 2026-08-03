@@ -1,219 +1,190 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { PullYamlSchema } from '../u.schema.ts';
 
+const LIMITS = {
+  metadataBytes: 1_000_000,
+  entries: 100,
+  fileBytes: 10_000_000,
+  totalBytes: 50_000_000,
+  totalTime: 30_000,
+} as const;
+
+const local = () => ({ dir: 'dev', mode: 'create' as const });
+
 describe('PullYamlSchema', () => {
   it('accepts http bundle entries', () => {
-    const doc = {
+    const res = PullYamlSchema.validate({
       dir: '.',
       bundles: [
         {
-          kind: 'http' as const,
+          kind: 'http',
           dist: 'https://example.com/dist.json',
           local: { dir: 'dev' },
         },
       ],
-    };
-
-    const res = PullYamlSchema.validate(doc);
+    });
     expect(res.ok).to.eql(true);
   });
 
-  it('accepts github:release bundle entries', () => {
-    const doc = {
+  it('accepts bounded github:release bundle entries', () => {
+    const res = PullYamlSchema.validate({
       dir: '.',
       bundles: [
         {
-          kind: 'github:release' as const,
+          kind: 'github:release',
           repo: 'owner/name',
           tag: 'v1.2.3',
-          asset: 'bundle.tgz',
-          local: { dir: 'dev' },
-        },
-      ],
-    };
-
-    const res = PullYamlSchema.validate(doc);
-    expect(res.ok).to.eql(true);
-  });
-
-  it('accepts github:release bundle entries with asset array', () => {
-    const doc = {
-      dir: '.',
-      bundles: [
-        {
-          kind: 'github:release' as const,
-          repo: 'owner/name',
           asset: ['bundle.tgz', 'bundle.zip'],
-          local: { dir: 'dev' },
+          local: local(),
+          limits: LIMITS,
         },
       ],
-    };
-
-    const res = PullYamlSchema.validate(doc);
+    });
     expect(res.ok).to.eql(true);
   });
 
-  it('accepts github:repo bundle entries', () => {
-    const doc = {
+  it('accepts bounded github:repo bundle entries', () => {
+    const res = PullYamlSchema.validate({
       dir: '.',
       bundles: [
         {
-          kind: 'github:repo' as const,
+          kind: 'github:repo',
           repo: 'owner/name',
           ref: 'main',
           path: 'packages/tooling',
-          local: { dir: 'dev' },
+          local: { dir: 'dev', mode: 'replace' },
+          limits: LIMITS,
         },
       ],
-    };
-
-    const res = PullYamlSchema.validate(doc);
+    });
     expect(res.ok).to.eql(true);
   });
 
-  it('accepts minimal github:repo bundle entries', () => {
-    const doc = {
+  it('requires explicit GitHub target mode and finite limits', () => {
+    const missingMode = PullYamlSchema.validate({
       dir: '.',
       bundles: [
         {
-          kind: 'github:repo' as const,
+          kind: 'github:repo',
           repo: 'owner/name',
           local: { dir: 'dev' },
+          limits: LIMITS,
         },
       ],
-    };
-
-    const res = PullYamlSchema.validate(doc);
-    expect(res.ok).to.eql(true);
-  });
-
-  it('accepts local.clear on bundle targets', () => {
-    const doc = {
+    });
+    const missingLimits = PullYamlSchema.validate({
       dir: '.',
       bundles: [
         {
-          kind: 'http' as const,
-          dist: 'https://example.com/dist.json',
-          local: { dir: 'dev', clear: true },
+          kind: 'github:repo',
+          repo: 'owner/name',
+          local: local(),
         },
       ],
-    };
+    });
+    expect(missingMode.ok).to.eql(false);
+    expect(missingLimits.ok).to.eql(false);
 
-    const res = PullYamlSchema.validate(doc);
-    expect(res.ok).to.eql(true);
-  });
-
-  it('accepts defaults.local.clear at root', () => {
-    const doc = {
-      dir: '.',
-      defaults: {
-        local: {
-          clear: true,
-        },
-      },
-      bundles: [
-        {
-          kind: 'http' as const,
-          dist: 'https://example.com/dist.json',
-          local: { dir: 'dev' },
-        },
-      ],
-    };
-
-    const res = PullYamlSchema.validate(doc);
-    expect(res.ok).to.eql(true);
-  });
-
-  it('rejects non-boolean local.clear values', () => {
-    const doc = {
-      dir: '.',
-      bundles: [
-        {
-          kind: 'http' as const,
-          dist: 'https://example.com/dist.json',
-          local: { dir: 'dev', clear: 'yes' },
-        },
-      ],
-    };
-
-    const res = PullYamlSchema.validate(doc);
-    expect(res.ok).to.eql(false);
-  });
-
-  it('rejects non-boolean defaults.local.clear values', () => {
-    const doc = {
-      dir: '.',
-      defaults: {
-        local: {
-          clear: 'yes',
-        },
-      },
-      bundles: [
-        {
-          kind: 'http' as const,
-          dist: 'https://example.com/dist.json',
-          local: { dir: 'dev' },
-        },
-      ],
-    };
-
-    const res = PullYamlSchema.validate(doc);
-    expect(res.ok).to.eql(false);
-  });
-
-  it('rejects github repo values that are not owner/repo', () => {
-    const bad = ['owner', '/repo', 'owner/', 'owner/repo/extra'];
-
-    for (const kind of ['github:release', 'github:repo'] as const) {
-      for (const repo of bad) {
-        const doc = {
-          dir: '.',
-          bundles: [
-            {
-              kind,
-              repo,
-              local: { dir: 'dev' },
-            },
-          ],
-        };
-
-        const res = PullYamlSchema.validate(doc);
-        expect(res.ok).to.eql(false);
-      }
-    }
-  });
-
-  it('rejects github bundles without repo', () => {
-    for (const kind of ['github:release', 'github:repo'] as const) {
-      const doc = {
+    for (const totalTime of [0, 0.5, Number.NaN, Number.POSITIVE_INFINITY, 2 ** 53]) {
+      const invalidLimits = PullYamlSchema.validate({
         dir: '.',
         bundles: [
           {
-            kind,
-            local: { dir: 'dev' },
+            kind: 'github:repo',
+            repo: 'owner/name',
+            local: local(),
+            limits: { ...LIMITS, totalTime },
           },
         ],
-      };
+      });
+      expect(invalidLimits.ok).to.eql(false);
+    }
+  });
 
-      const res = PullYamlSchema.validate(doc);
+  it('accepts HTTP-only clear defaults', () => {
+    const res = PullYamlSchema.validate({
+      dir: '.',
+      defaults: { http: { clear: true } },
+      bundles: [
+        {
+          kind: 'http',
+          dist: 'https://example.com/dist.json',
+          local: { dir: 'dev' },
+        },
+      ],
+    });
+    expect(res.ok).to.eql(true);
+  });
+
+  it('rejects GitHub local targets outside the configured pull root', () => {
+    for (
+      const dir of [
+        '.',
+        '..',
+        '../outside',
+        'nested/../outside',
+        '/outside',
+        '~/.outside',
+        'C:\\outside',
+        'nested\\outside',
+        'nested\ncontrol',
+      ]
+    ) {
+      const res = PullYamlSchema.validate({
+        dir: '.',
+        bundles: [
+          {
+            kind: 'github:repo',
+            repo: 'owner/name',
+            local: { dir, mode: 'create' },
+            limits: LIMITS,
+          },
+        ],
+      });
       expect(res.ok).to.eql(false);
     }
   });
 
-  it('rejects unknown github:repo fields', () => {
-    const doc = {
+  it('rejects malformed GitHub repository names', () => {
+    const bad = [
+      'owner',
+      '/repo',
+      'owner/',
+      'owner/repo/extra',
+      './repo',
+      '../repo',
+      'owner/.',
+      'owner/..',
+    ];
+    for (const repo of bad) {
+      const res = PullYamlSchema.validate({
+        dir: '.',
+        bundles: [
+          {
+            kind: 'github:repo',
+            repo,
+            local: local(),
+            limits: LIMITS,
+          },
+        ],
+      });
+      expect(res.ok).to.eql(false);
+    }
+  });
+
+  it('rejects unknown GitHub bundle fields', () => {
+    const res = PullYamlSchema.validate({
       dir: '.',
       bundles: [
         {
-          kind: 'github:repo' as const,
+          kind: 'github:repo',
           repo: 'owner/name',
-          private: true,
-          local: { dir: 'dev' },
+          local: local(),
+          limits: LIMITS,
+          mutation: 'implicit',
         },
       ],
-    };
-
-    const res = PullYamlSchema.validate(doc);
+    });
     expect(res.ok).to.eql(false);
   });
 });

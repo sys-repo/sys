@@ -120,12 +120,12 @@ function cloneDoc(doc: t.PullTool.ConfigYaml.Doc): t.PullTool.ConfigYaml.Doc {
   return {
     ...doc,
     defaults: doc.defaults
-      ? { ...doc.defaults, local: doc.defaults.local ? { ...doc.defaults.local } : undefined }
+      ? { ...doc.defaults, http: doc.defaults.http ? { ...doc.defaults.http } : undefined }
       : undefined,
-    bundles: doc.bundles?.map((bundle) => ({
-      ...bundle,
-      local: { ...bundle.local },
-    })),
+    bundles: doc.bundles?.map((bundle) => {
+      if (bundle.kind === 'http') return { ...bundle, local: { ...bundle.local } };
+      return { ...bundle, local: { ...bundle.local }, limits: { ...bundle.limits } };
+    }),
   };
 }
 

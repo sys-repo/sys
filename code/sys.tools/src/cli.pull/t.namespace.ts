@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import type { t } from './common.ts';
 
 /**
  * The Pull type namespace.
@@ -19,10 +19,12 @@ export namespace PullTool {
   } & t.Tools.ConfigRefArgs;
 
   /** Result for one configured bundle. */
-  export type RunBundleResult = {
-    readonly bundle: ConfigYaml.Bundle;
-    readonly data: Bundle.Result;
-  };
+  export type RunBundleResult =
+    | { readonly bundle: ConfigYaml.HttpBundle; readonly data: Bundle.Result }
+    | {
+      readonly bundle: ConfigYaml.GithubReleaseBundle | ConfigYaml.GithubRepoBundle;
+      readonly data: t.GithubPull.Success;
+    };
 
   /** Result from a programmatic Pull run. */
   export type RunResult = {
@@ -62,18 +64,6 @@ export namespace PullTool {
     readonly command?: CliCommand;
     readonly interactive: boolean;
   };
-
-  export type GithubReleaseAsset = t.GithubSource.ReleaseAsset;
-  export type GithubRelease = t.GithubSource.Release;
-  export type GithubReleaseResolved = t.GithubSource.ReleaseResolved;
-  export type GithubReleaseResolveResult = t.GithubSource.ReleaseResolveResult;
-  export type GithubRepoMetadata = t.GithubSource.RepoMetadata;
-  export type GithubRepoCommit = t.GithubSource.RepoCommit;
-  export type GithubRepoTreeEntry = t.GithubSource.RepoTreeEntry;
-  export type GithubRepoTree = t.GithubSource.RepoTree;
-  export type GithubRepoResolvedEntry = t.GithubSource.RepoResolvedEntry;
-  export type GithubRepoResolved = t.GithubSource.RepoResolved;
-  export type GithubRepoResolveResult = t.GithubSource.RepoResolveResult;
 
   /**
    * Bundle-pull contracts.
@@ -123,16 +113,8 @@ export namespace PullTool {
       readonly error: string;
     };
 
-    /** Metadata rendered in a bundle-pull summary. */
-    export type SummaryMeta =
-      | { readonly kind: 'http'; readonly source: t.StringUrl }
-      | { readonly kind: 'github:release'; readonly repo: string; readonly release: string }
-      | {
-        readonly kind: 'github:repo';
-        readonly repo: string;
-        readonly ref: string;
-        readonly path?: string;
-      };
+    /** Metadata rendered for the transitional HTTP bundle pull. */
+    export type SummaryMeta = { readonly kind: 'http'; readonly source: t.StringUrl };
 
     /**
      * Remote bundle-pull contracts.
@@ -155,26 +137,32 @@ export namespace PullTool {
    */
   export namespace ConfigYaml {
     export type Defaults = {
-      local?: {
+      http?: {
         clear?: boolean;
       };
     };
 
-    export type BundleLocal = {
+    export type HttpBundleLocal = {
       dir: t.StringRelativeDir;
       clear?: boolean;
+    };
+
+    export type GithubBundleLocal = {
+      dir: t.StringRelativeDir;
+      mode: t.GithubPull.Mode;
     };
 
     export type Bundle = HttpBundle | GithubReleaseBundle | GithubRepoBundle;
     export type HttpBundle = {
       kind: 'http';
       dist: t.StringUrl;
-      local: BundleLocal;
+      local: HttpBundleLocal;
       lastUsedAt?: t.UnixTimestamp;
     };
     export type GithubBundleBase = {
       repo: string;
-      local: BundleLocal;
+      local: GithubBundleLocal;
+      limits: t.GithubPull.Limits;
       lastUsedAt?: t.UnixTimestamp;
     };
     export type GithubReleaseBundle = GithubBundleBase & {

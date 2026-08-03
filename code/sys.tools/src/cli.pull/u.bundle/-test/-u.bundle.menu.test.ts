@@ -1,6 +1,14 @@
 import { Cli, describe, expect, it } from '../../../-test.ts';
-import { type t } from '../../common.ts';
+import type { t } from '../../common.ts';
 import { formatBundleOptionLocalDirWidth, formatBundleOptionName } from '../u.bundle.ts';
+
+const LIMITS: t.GithubPull.Limits = {
+  metadataBytes: 1_000_000,
+  entries: 100,
+  fileBytes: 10_000_000,
+  totalBytes: 50_000_000,
+  totalTime: 30_000,
+};
 
 describe('cli.pull/u.bundle → menu labels', () => {
   it('renders bundle local dirs as rooted relative targets', () => {
@@ -13,7 +21,8 @@ describe('cli.pull/u.bundle → menu labels', () => {
       {
         kind: 'github:repo',
         repo: 'sys-repo/sys.canon',
-        local: { dir: 'canon' as t.StringRelativeDir },
+        local: { dir: 'canon' as t.StringRelativeDir, mode: 'create' },
+        limits: LIMITS,
       },
     ];
 
