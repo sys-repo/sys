@@ -13,7 +13,7 @@ function start(
   return HttpPull.start({ resources, rooted: owner, policy, ...input });
 }
 
-function failure(result: t.HttpPull.ResourceResult): t.HttpPull.ResourceRecordFailure {
+function failure(result: t.HttpPull.Result): t.HttpPull.ResourceRecordFailure {
   const record = result.ops[0];
   if (!record || record.ok) throw new Error('Expected checksum-pinned Pull failure');
   return record;

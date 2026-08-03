@@ -10,11 +10,19 @@ export declare namespace ServerDist {
    * Product-neutral API for immutable checksum-pinned Dist generations.
    */
   export type Lib = {
-    /** Settle one pinned Dist as `existing`, `promoted`, or `failed`. */
+    /**
+     * Settle one pinned Dist as `existing`, `promoted`, or `failed`.
+     *
+     * Every success carries fresh verification evidence for its exact returned directory.
+     */
     readonly materialize: Method;
   };
 
-  /** Settle one pinned Dist as `existing`, `promoted`, or `failed`. */
+  /**
+   * Settle one pinned Dist as `existing`, `promoted`, or `failed`.
+   *
+   * Every success carries fresh verification evidence for its exact returned directory.
+   */
   export type Method = (args: MaterializeArgs) => Promise<MaterializeResult>;
 
   /** Complete caller authority for one materialization attempt. */

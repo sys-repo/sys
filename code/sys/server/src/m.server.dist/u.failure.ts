@@ -50,7 +50,7 @@ export function fetchReason(
 
 /** Classify one checksum-pinned Pull failure. */
 export function pullReason(
-  result: t.HttpPull.ResourceResultFailure,
+  result: t.HttpPull.ResultFailure,
 ): t.ServerDist.FailureReason {
   const kind = result.terminal?.kind ?? result.ops.find((item) => !item.ok)?.kind;
   switch (kind) {

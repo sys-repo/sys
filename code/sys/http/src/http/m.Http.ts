@@ -1,4 +1,4 @@
-import { type t, HttpClient as Client, HttpPull as Pull, HttpServer as Server } from './common.ts';
+import { HttpClient as Client, HttpServer as Server, type t } from './common.ts';
 
 /**
  * Universal (client + server) HTTP namespace.
@@ -7,5 +7,4 @@ export const Http: t.Http.Lib = {
   Client,
   client: Client.fetcher,
   Server,
-  Pull,
 };

@@ -1,29 +1,20 @@
 import type { t } from './common.ts';
 
 /**
- * HTTP pull contracts.
+ * Contracts for bounded checksum-pinned HTTP-to-filesystem materialization.
  */
 export declare namespace HttpPull {
-  /** HTTP-to-filesystem materialization API. */
+  /**
+   * Checksum-pinned HTTP-to-filesystem materialization API.
+   */
   export type Lib = {
-    /** Pure mapping helpers retained for the legacy URL mirror. */
-    readonly Map: Map.Lib;
-
-    /** Start one checksum-pinned, bounded Rooted materialization operation. */
-    start(options: StartOptions): ResourceOperation.Instance;
-
     /**
-     * Download URLs into `dir`, deriving each target with `Map.urlToPath`.
-     * This legacy path may replace files and remains only until its final subtraction commit.
+     * Start one bounded Rooted materialization operation.
+     *
+     * The returned handle separates explicit cancellation, observation-only events, and terminal
+     * settlement through `done`.
      */
-    toDir(
-      urls: readonly string[],
-      dir: t.StringDir,
-      options: Options,
-    ): Promise<ToDir.Result>;
-
-    /** Start the legacy URL-array materialization as an observable pull operation. */
-    stream(urls: readonly string[], dir: t.StringDir, options: Options): Stream.Instance;
+    start(options: StartOptions): ResourceOperation.Instance;
   };
 
   /** One checksum-pinned resource with an explicit root-relative destination. */
@@ -32,10 +23,7 @@ export declare namespace HttpPull {
     readonly source: t.StringUrl;
     /** Destination submitted to the Rooted capability for admission. */
     readonly target: t.StringRelativePath;
-    /**
-     * Canonical caller-supplied expected SHA-256. Equality authenticates bytes against this value;
-     * artifact authority comes from how the caller obtained it.
-     */
+    /** Caller-supplied canonical SHA-256; its provenance defines artifact authority. */
     readonly checksum: t.StringHash;
     /** Optional caller-supplied exact byte length authenticated before publication. */
     readonly expectedBytes?: t.NumberBytes;
@@ -49,23 +37,13 @@ export declare namespace HttpPull {
     readonly maxResources: number;
     /** Maximum in-flight resource workers. */
     readonly concurrency: number;
-    /**
-     * Maximum attempts for each resource, including the first attempt. The declared
-     * `maxResources × maxAttempts` accounting envelope must remain a safe integer.
-     */
+    /** Maximum attempts per resource, including the first; batch accounting stays safe-integer. */
     readonly maxAttempts: number;
     /** Fixed delay between retry attempts; zero yields through the microtask scheduler. */
     readonly retryDelay: t.Msecs;
-    /**
-     * Elapsed window, measured from the first attempt, in which retry delay and later attempts may
-     * continue. The first attempt remains independently bounded by `response.timeout`.
-     */
+    /** Retry window after the first attempt; each attempt remains bounded by `response.timeout`. */
     readonly maxRetryElapsed: t.Msecs;
-    /**
-     * Aggregate bytes transferred across successful and failed attempts. Validation reserves
-     * safe-integer headroom for one final observed stream chunk per concurrent worker so overrun
-     * evidence stays exact.
-     */
+    /** Aggregate transfer bound with safe-integer headroom for concurrent overrun evidence. */
     readonly maxTotalBytes: t.NumberBytes;
     /** Maximum elapsed time for the complete operation. */
     readonly totalTimeout: t.Msecs;
@@ -96,6 +74,13 @@ export declare namespace HttpPull {
   export type ResourcePublicationEvidence = {
     readonly operation: 'publish-file';
     readonly committed: true;
+  };
+
+  /** Stable Rooted failure evidence. */
+  export type RootedFailureEvidence = {
+    readonly operation: t.Fs.Rooted.Operation;
+    readonly kind: t.Fs.Rooted.FailureKind;
+    readonly committed: boolean;
   };
 
   /** Stable failure classification for checksum-pinned Pull. */
@@ -206,10 +191,10 @@ export declare namespace HttpPull {
   };
 
   /** Terminal checksum-pinned operation result. */
-  export type ResourceResult = ResourceResultSuccess | ResourceResultFailure;
+  export type Result = ResultSuccess | ResultFailure;
 
   /** Every resource authenticated and published successfully. */
-  export type ResourceResultSuccess = {
+  export type ResultSuccess = {
     readonly ok: true;
     readonly ops: readonly ResourceRecordSuccess[];
     readonly totals: ResourceTotals;
@@ -217,23 +202,33 @@ export declare namespace HttpPull {
   };
 
   /** At least one resource failed or the operation reached a terminal bound/cancellation. */
-  export type ResourceResultFailure = {
+  export type ResultFailure = {
     readonly ok: false;
     readonly ops: readonly ResourceRecord[];
     readonly totals: ResourceTotals;
     readonly terminal?: ResourceTerminalFailure;
   };
 
-  /** Checksum-pinned Pull operation contracts. */
+  /**
+   * Checksum-pinned Pull operation contracts.
+   */
   export namespace ResourceOperation {
     /** Explicit operation control and observation. */
     export type Instance = {
-      /** Create an independently disposable hot, non-replaying event view. */
+      /**
+       * Create an independently disposable hot, non-replaying event view.
+       *
+       * Disposing a view never cancels the operation or sibling views.
+       */
       readonly events: (until?: t.UntilInput) => Events;
-      /** Abort queued/in-flight work without exposing abort-controller authority. */
+      /**
+       * Cancel queued and in-flight work without exposing abort-controller authority.
+       *
+       * Committed publication truth remains terminal evidence.
+       */
       readonly cancel: (reason?: unknown) => void;
       /** Resolve only after complete worker quiescence and terminal accounting. */
-      readonly done: Promise<ResourceResult>;
+      readonly done: Promise<Result>;
     };
 
     /** Independently disposable event view. */
@@ -242,7 +237,9 @@ export declare namespace HttpPull {
     };
   }
 
-  /** Checksum-pinned operation events. */
+  /**
+   * Checksum-pinned operation events.
+   */
   export namespace ResourceEvent {
     export type Any = Start | Progress | Done | Error;
 
@@ -270,183 +267,6 @@ export declare namespace HttpPull {
       readonly index: t.Index;
       readonly total: number;
       readonly url: t.StringUrl;
-    };
-  }
-
-  /** Terminal result for one legacy URL input. */
-  export type Record = RecordSuccess | RecordFailure;
-
-  /** Identity shared by every legacy terminal record. */
-  type RecordCommon = {
-    readonly path: { readonly source: t.StringUrl; readonly target: t.StringPath };
-  };
-
-  /** Successful legacy Pull record with byte evidence. */
-  export type RecordSuccess = RecordCommon & {
-    readonly ok: true;
-    readonly status: t.HttpStatusCode;
-    readonly bytes: t.NumberBytes;
-    readonly error?: undefined;
-  };
-
-  /** Stable Rooted failure evidence retained by checksum-pinned pulls. */
-  export type RootedFailureEvidence = {
-    readonly operation: t.Fs.Rooted.Operation;
-    readonly kind: t.Fs.Rooted.FailureKind;
-    readonly committed: boolean;
-  };
-
-  /** Failed legacy Pull record without byte evidence. */
-  export type RecordFailure = RecordError | RecordCancelled;
-
-  /** Ordinary legacy HTTP, filesystem, validation, or execution failure. */
-  export type RecordError = RecordCommon & {
-    readonly ok: false;
-    readonly status?: t.HttpStatusCode;
-    readonly bytes?: undefined;
-    readonly error: string;
-    readonly cancelled?: undefined;
-    readonly filesystem?: RootedFailureEvidence;
-  };
-
-  /** Caller or lifecycle cancellation before a legacy input reached a committed outcome. */
-  export type RecordCancelled = RecordCommon & {
-    readonly ok: false;
-    readonly status: 499;
-    readonly bytes?: undefined;
-    readonly error: 'Pull operation cancelled';
-    readonly cancelled: true;
-    readonly filesystem?: undefined;
-  };
-
-  /** Shared controls for legacy pull execution. */
-  type ExecutionOptions = {
-    /** Maximum concurrent legacy pulls. Default: 8. */
-    readonly concurrency?: number;
-    /** Lifecycle authority for cancelling the operation. */
-    readonly until?: t.UntilInput;
-    /** Legacy retry policy. `false` disables retries; omitted or `true` uses defaults. */
-    readonly retry?: Retry.Options | boolean;
-  };
-
-  /** Legacy path mapping and execution controls. */
-  type LegacyOptions = ExecutionOptions & {
-    /** URL → path mapping rules used by `Map.urlToPath`. */
-    readonly map?: Map.Options;
-  };
-
-  /** Legacy Pull transport and execution options. */
-  export type Options = LegacyOptions & (OptionsClient | OptionsPolicy);
-
-  /** Caller-owned legacy transport branch. */
-  type OptionsClient = {
-    readonly client: t.HttpFetch.Instance;
-    readonly policy?: never;
-  };
-
-  /** Pull-owned legacy transport branch. */
-  type OptionsPolicy = {
-    readonly client?: undefined;
-    readonly policy: t.HttpFetch.ResponsePolicy;
-  };
-
-  /** Aggregate legacy materialization results. */
-  export namespace ToDir {
-    export type Result = ResultSuccess | ResultFailure;
-
-    export type ResultSuccess = {
-      readonly ok: true;
-      readonly ops: readonly HttpPull.RecordSuccess[];
-    };
-
-    export type ResultFailure = {
-      readonly ok: false;
-      readonly ops: readonly HttpPull.Record[];
-    };
-  }
-
-  /** Legacy retry contracts. */
-  export namespace Retry {
-    export type Options = {
-      readonly attempts?: number;
-      readonly base?: t.Msecs;
-      readonly factor?: number;
-      readonly jitter?: boolean;
-    };
-  }
-
-  /** Legacy Pull operation contracts. */
-  export namespace Stream {
-    export type Instance = {
-      /** Iterate the legacy operation's bounded event queue. */
-      readonly [Symbol.asyncIterator]: () => AsyncIterator<t.HttpPull.Event.Any>;
-      /** Create a hot, non-replaying observable view. */
-      readonly events: (until?: t.UntilInput) => Events;
-      /** Abort queued/in-flight work. */
-      readonly cancel: (reason?: unknown) => void;
-      /** Complete after every started worker has quiesced. */
-      readonly done: Promise<ToDir.Result>;
-    };
-
-    export type Events = t.Lifecycle & {
-      readonly $: t.Observable<t.HttpPull.Event.Any>;
-    };
-  }
-
-  /** Legacy Pull operation event contracts. */
-  export namespace Event {
-    export type Any = Start | Progress | Done | Error;
-
-    export type Start = { readonly kind: 'start' } & Common;
-
-    export type Progress = {
-      readonly kind: 'progress';
-      readonly loaded?: number;
-      readonly bytes?: number;
-    } & Common;
-
-    export type Done = { readonly kind: 'done'; readonly record: HttpPull.RecordSuccess } & Common;
-
-    export type Error =
-      & { readonly kind: 'error'; readonly record: HttpPull.RecordFailure }
-      & Common;
-
-    export type Common = {
-      readonly index: t.Index;
-      readonly total: number;
-      readonly url: t.StringUrl;
-    };
-  }
-
-  /** URL mapping contracts. */
-  export namespace Map {
-    /** Pure mapping helper library. */
-    export type Lib = {
-      /**
-       * URL → relative POSIX path, given `HttpPull.Map.Options`.
-       *
-       * Algorithm:
-       *   1) If `mapPath` exists, normalize and return its result
-       *   2) Start with `URL.pathname`
-       *   3) `rebase(pathname, baseFrom(relativeTo))`
-       *   4) If `includeHost`, prefix with `URL.host` (host[:port])
-       *   5) If empty, use `emptyBasename` (default: "index")
-       */
-      urlToPath(u: URL, options?: Options): t.StringPath;
-
-      /** Rebase `pathname` by stripping `base` only on a segment boundary. */
-      rebase(pathname: string, base: string | ''): string;
-
-      /** Derive a relative POSIX base from a string or URL. */
-      baseFrom(relativeTo?: string | URL): string | '';
-    };
-
-    /** URL-to-path mapping rules. */
-    export type Options = {
-      readonly relativeTo?: string | URL;
-      readonly includeHost?: boolean;
-      readonly mapPath?: (u: URL) => t.StringPath;
-      readonly emptyBasename?: string;
     };
   }
 }

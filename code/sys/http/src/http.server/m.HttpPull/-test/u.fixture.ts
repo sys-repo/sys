@@ -4,14 +4,6 @@ import { Hash } from '../../common.ts';
 const encoder = new TextEncoder();
 const roots = new Set<t.StringAbsoluteDir>();
 
-/** Create explicit bounded transport options for legacy Pull tests. */
-export function options(
-  urls: readonly t.StringUrl[],
-  input: Omit<t.HttpPull.Options, 'client' | 'policy'> = {},
-): t.HttpPull.Options {
-  return { ...input, policy: responsePolicy(urls) };
-}
-
 /** Create one finite checksum-pinned operation policy. */
 export function resourcePolicy(
   resources: readonly t.HttpPull.Resource[],
@@ -86,10 +78,10 @@ export function rootedFailure(
 }
 
 export function responsePolicy(
-  urls: readonly t.StringUrl[],
+  sources: readonly t.StringUrl[],
   input: Partial<t.HttpFetch.ResponsePolicy> = {},
 ): t.HttpFetch.ResponsePolicy {
-  const parsed = urls.flatMap((url) => {
+  const parsed = sources.flatMap((url) => {
     try {
       return [new URL(url).origin];
     } catch {

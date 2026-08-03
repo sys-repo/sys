@@ -85,7 +85,7 @@ export function createResourceOperation(
       }
     });
 
-  const done: Promise<t.HttpPull.ResourceResult> = settled.then(() => {
+  const done: Promise<t.HttpPull.Result> = settled.then(() => {
     const ops = records as readonly t.HttpPull.ResourceRecord[];
     const totals: t.HttpPull.ResourceTotals = Object.freeze({
       resources: prepared.resourceCount,

@@ -29,27 +29,15 @@ function asFailure(record: t.HttpPull.ResourceRecord): t.HttpPull.ResourceRecord
 describe('HttpPull checksum-pinned resources', () => {
   Testing.Bdd.afterEach(cleanupRoots);
 
-  it('exposes one start surface while legacy names accept URL arrays only', async () => {
+  it('exposes start as the sole runtime surface with one canonical terminal result', async () => {
+    expect(Object.keys(HttpPull)).to.eql(['start']);
     expectTypeOf(HttpPull.start).toEqualTypeOf<
       (options: t.HttpPull.StartOptions) => t.HttpPull.ResourceOperation.Instance
-    >();
-    expectTypeOf(HttpPull.toDir).toEqualTypeOf<
-      (
-        urls: readonly string[],
-        dir: t.StringDir,
-        options: t.HttpPull.Options,
-      ) => Promise<t.HttpPull.ToDir.Result>
-    >();
-    expectTypeOf(HttpPull.stream).toEqualTypeOf<
-      (
-        urls: readonly string[],
-        dir: t.StringDir,
-        options: t.HttpPull.Options,
-      ) => t.HttpPull.Stream.Instance
     >();
 
     const owner = await rooted();
     const operation = start([], owner, resourcePolicy([], { maxResources: 0 }));
+    expectTypeOf(operation.done).toEqualTypeOf<Promise<t.HttpPull.Result>>();
     expect(Symbol.asyncIterator in operation).to.eql(false);
     expect(await operation.done).to.eql({
       ok: true,

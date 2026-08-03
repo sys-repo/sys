@@ -119,7 +119,7 @@ export const materialize: Method = async (input) => {
     return failed('staging', causeReason(cause), cleanup);
   }
 
-  let pull: t.HttpPull.ResourceResult;
+  let pull: t.HttpPull.Result;
   try {
     const operation = HttpPull.start({
       resources: manifest.value.resources,
