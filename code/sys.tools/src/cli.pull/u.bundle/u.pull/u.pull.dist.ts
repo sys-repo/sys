@@ -1,4 +1,4 @@
-import { c, Cli, Dist, Err, Fs, Is, Rx, type t, Url } from './common.ts';
+import { c, Cli, Dist, Err, Fs, Is, Rx, Schedule, type t, Url } from './common.ts';
 import { Fmt } from '../../u.fmt.ts';
 import { rewriteProjectionTags } from '../u.pull.rewriteTags.ts';
 import { clearTargetDir } from './u.clearTargetDir.ts';
@@ -22,9 +22,11 @@ export async function pullDistBundle(
   options: t.PullTool.Bundle.RunOptions = {},
 ): Promise<t.PullTool.Bundle.Dist.Result> {
   const spinner = options.silent ? undefined : Cli.spinner();
-  spinner?.start(Fmt.spinnerText('materializing checksum-pinned dist...'));
+  const life = Rx.abortable(options.until);
 
   try {
+    spinner?.start(Fmt.spinnerText('materializing checksum-pinned dist...'));
+    await Schedule.micro();
     const source = manifestSource(bundle.manifest);
     const canonicalBase = await Fs.realPath(baseDir) as t.StringDir;
     const storeDir = resolveWithin(canonicalBase, bundle.store, 'Dist store');
@@ -33,7 +35,7 @@ export async function pullDistBundle(
       integrity: bundle.integrity,
       storeDir,
       policy: materializePolicy(source.origin),
-      until: options.until,
+      until: life.signal,
     });
 
     if (generation.kind === 'failed') {
@@ -46,7 +48,8 @@ export async function pullDistBundle(
       };
     }
 
-    if (!bundle.project) {
+    const project = bundle.project;
+    if (!project) {
       spinner?.succeed(Fmt.spinnerText(c.gray(`${c.green(generation.kind)} generation`)));
       return {
         ok: true,
@@ -59,8 +62,8 @@ export async function pullDistBundle(
     const projection = await projectGeneration(
       canonicalBase,
       generation.dir,
-      bundle.project,
-      options,
+      project,
+      life.signal,
     );
     if (projection.kind === 'failed') {
       spinner?.fail(Fmt.spinnerText(projection.error));
@@ -72,10 +75,11 @@ export async function pullDistBundle(
       };
     }
 
-    const msg = `${c.green(generation.kind)} → ${c.cyan(bundle.project.dir)} (mutable projection)`;
+    const msg = `${c.green(generation.kind)} → ${c.cyan(project.dir)} (mutable projection)`;
     spinner?.succeed(Fmt.spinnerText(c.gray(msg)));
     return { ok: true, kind: 'dist', generation, projection };
   } finally {
+    life.dispose('tools.pull.dist.complete');
     spinner?.stop();
   }
 }
@@ -84,7 +88,7 @@ async function projectGeneration(
   baseDir: t.StringDir,
   generationDir: t.StringAbsoluteDir,
   project: t.PullTool.ConfigYaml.DistProject,
-  options: t.PullTool.Bundle.RunOptions,
+  signal: AbortSignal,
 ): Promise<t.PullTool.Bundle.Dist.Projection.Success | t.PullTool.Bundle.Dist.Projection.Failure> {
   let dir: t.StringAbsoluteDir;
   try {
@@ -98,32 +102,38 @@ async function projectGeneration(
     );
   }
 
-  if (isCancelled(options.until)) {
+  if (signal.aborted) {
     return projectionFailure(dir, project.mode, 'cancelled', 'Dist projection cancelled.');
   }
 
   try {
-    const rooted = await Fs.Capability.Rooted.create({ root: baseDir, until: options.until });
+    const rooted = await Fs.Capability.Rooted.create({ root: baseDir, until: signal });
     await rooted.admit(
       [{ kind: 'directory', path: project.dir }],
-      { until: options.until },
+      { until: signal },
     );
   } catch (error) {
-    const reason = isCancelled(options.until) ? 'cancelled' : 'invalid-target';
+    const reason = signal.aborted ? 'cancelled' : 'invalid-target';
     return projectionFailure(dir, project.mode, reason, error);
   }
 
-  if (isCancelled(options.until)) {
+  if (signal.aborted) {
     return projectionFailure(dir, project.mode, 'cancelled', 'Dist projection cancelled.');
   }
 
-  if (project.mode === 'create' && await Fs.exists(dir)) {
-    return projectionFailure(
-      dir,
-      project.mode,
-      'target-occupied',
-      'Dist projection target is occupied.',
-    );
+  if (project.mode === 'create') {
+    const exists = await Fs.exists(dir);
+    if (signal.aborted) {
+      return projectionFailure(dir, project.mode, 'cancelled', 'Dist projection cancelled.');
+    }
+    if (exists) {
+      return projectionFailure(
+        dir,
+        project.mode,
+        'target-occupied',
+        'Dist projection target is occupied.',
+      );
+    }
   }
 
   try {
@@ -201,15 +211,6 @@ function resolveWithin(
     !relative.startsWith('../');
   if (!inside) throw new Error(`${label} must be a child directory under the config root.`);
   return target as t.StringAbsoluteDir;
-}
-
-function isCancelled(until?: t.UntilInput): boolean {
-  const life = Rx.abortable(until);
-  try {
-    return life.signal.aborted;
-  } finally {
-    life.dispose();
-  }
 }
 
 function projectionFailure(
