@@ -2,8 +2,8 @@
   "dependencies": {
     "@automerge/automerge-repo": "2.5.6",
     "@testing-library/react": "16.3.2",
-    "@types/react": "19.2.17",
-    "@types/react-dom": "19.2.3",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
     "monaco-editor": "0.56.0",
     "motion": "12.43.0",
     "react": "19.2.8",
@@ -12,11 +12,11 @@
   },
   "devDependencies": {
     "@deno/vite-plugin": "2.0.3",
-    "@vitejs/plugin-react": "6.0.4",
+    "@vitejs/plugin-react": "6.0.5",
     "prettier": "3.9.6",
-    "rollup": "4.62.3",
+    "rollup": "4.62.4",
     "rollup-plugin-visualizer": "7.0.1",
-    "vite": "8.1.5",
+    "vite": "8.2.0",
     "vite-plugin-wasm": "3.6.0"
   }
 }
