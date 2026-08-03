@@ -515,6 +515,44 @@ describe('HttpPull.start bounded operation policy', () => {
     }
   });
 
+  it('rejects asynchronous credential callbacks before admission or transport', async () => {
+    let admissions = 0;
+    let requests = 0;
+    const server = Testing.Http.server((request) => {
+      requests++;
+      return Testing.Http.text(request, 'content');
+    });
+    try {
+      const source = localhost(server.url.join('async-credential.txt'));
+      const resources = [resource(source, 'async-credential.txt', 'content')];
+      const owner = await rooted();
+      const destination: t.Fs.Rooted.Instance = Object.freeze({
+        ...owner,
+        admit: async (targets, options) => {
+          admissions++;
+          return await owner.admit(targets, options);
+        },
+      });
+      const accessToken = (() => Promise.resolve('private-token')) as unknown as NonNullable<
+        t.HttpFetch.CreateOptions['accessToken']
+      >;
+      const headers = (() => Promise.resolve()) as unknown as t.HttpFetch.Mutate.Headers;
+
+      for (const credentials of [{ accessToken }, { headers }]) {
+        const result = await start(resources, destination, resourcePolicy(resources), {
+          credentials,
+        }).done;
+
+        expect(result.ok).to.eql(false);
+        expect(result.terminal?.kind).to.eql('invalid-input');
+      }
+      expect(admissions).to.eql(0);
+      expect(requests).to.eql(0);
+    } finally {
+      await server.dispose();
+    }
+  });
+
   it('disposes its internally owned Fetch capability exactly once', async () => {
     const server = Testing.Http.server((request) => Testing.Http.text(request, 'content'));
     try {

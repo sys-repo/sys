@@ -219,16 +219,23 @@ function snapshotCredentials(input: unknown):
       return { ok: false };
     }
 
-    const accessToken = Obj.hasOwn(input, 'accessToken') ? input.accessToken : undefined;
+    let accessToken: unknown = Obj.hasOwn(input, 'accessToken') ? input.accessToken : undefined;
     const mutate = Obj.hasOwn(input, 'headers') ? input.headers : undefined;
     if (accessToken !== undefined && !Is.str(accessToken) && !Is.func(accessToken)) {
       return { ok: false };
     }
     if (mutate !== undefined && !Is.func(mutate)) return { ok: false };
 
+    if (Is.func(accessToken)) accessToken = accessToken();
+    if (Is.promise(accessToken)) {
+      drain(accessToken);
+      return { ok: false };
+    }
+    if (accessToken !== undefined && !Is.str(accessToken)) return { ok: false };
+
     let output: unknown;
     const headers = fetchDefaultHeaders({
-      accessToken: accessToken as t.HttpFetch.CreateOptions['accessToken'],
+      accessToken,
       headers: mutate
         ? (event) => {
           output = mutate(event);
@@ -236,7 +243,7 @@ function snapshotCredentials(input: unknown):
         : undefined,
     });
     if (Is.promise(output)) {
-      Promise.resolve(output).catch(() => undefined);
+      drain(output);
       return { ok: false };
     }
 
@@ -292,6 +299,14 @@ function snapshotRooted(input: unknown): t.Fs.Rooted.Instance | undefined {
     }) as t.Fs.Rooted.Instance;
   } catch {
     return;
+  }
+}
+
+function drain(input: PromiseLike<unknown>): void {
+  try {
+    Promise.resolve(input).catch(() => undefined);
+  } catch {
+    // A hostile thenable is already classified as invalid credential input.
   }
 }
 

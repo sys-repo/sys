@@ -79,6 +79,37 @@ describe('GithubPull.release', () => {
     });
   });
 
+  it('permits one Rooted create winner across concurrent operations', async () => {
+    await withTmpDir(async (root) => {
+      const into = Fs.join(root, 'concurrent-release') as t.StringDir;
+      const metadata = release([{ id: 1, name: 'app.tgz', body: 'app' }]);
+
+      await usingGithubFetch((call) => {
+        if (call.url.pathname.endsWith('/releases/latest')) return json(metadata);
+        if (call.url.pathname.endsWith('/releases/assets/1')) return new Response('app');
+        return new Response('not found', { status: 404 });
+      }, async () => {
+        const input: t.GithubPull.ReleaseArgs = {
+          repo: 'owner/repo',
+          into,
+          mode: 'create',
+          limits: LIMITS,
+        };
+        const results = await Promise.all([
+          GithubPull.release(input),
+          GithubPull.release(input),
+        ]);
+        const successes = results.filter((result) => result.ok);
+        const failures = results.filter((result) => !result.ok);
+
+        expect(successes.length).to.eql(1);
+        expect(failures.length).to.eql(1);
+        expect(failures[0]?.kind).to.eql('target-occupied');
+        expect((await Fs.readText(Fs.join(into, 'app.tgz'))).data).to.eql('app');
+      });
+    });
+  });
+
   it('rejects redirects outside owner-fixed GitHub source origins', async () => {
     await withTmpDir(async (root) => {
       const into = Fs.join(root, 'release') as t.StringDir;

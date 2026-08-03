@@ -103,9 +103,7 @@ export function prepareManifestCredentials(
   if (!input) return { ok: true };
   try {
     let accessToken: unknown = input.accessToken;
-    const factory = Is.func(accessToken) ? accessToken : undefined;
-    const tokenFactory = factory !== undefined;
-    if (factory) accessToken = factory();
+    if (Is.func(accessToken)) accessToken = accessToken();
     if (Is.promise(accessToken)) {
       drain(accessToken);
       return { ok: false };
@@ -114,8 +112,8 @@ export function prepareManifestCredentials(
 
     const headers = new Headers();
     if (Is.str(accessToken)) {
-      const token = tokenFactory ? accessToken : accessToken.trim().replace(/^Bearer /, '').trim();
-      if (token) headers.set('authorization', tokenFactory ? token : `Bearer ${token}`);
+      const token = accessToken.trim().replace(/^Bearer /, '').trim();
+      if (token) headers.set('authorization', `Bearer ${token}`);
     }
 
     const mutate = input.headers;

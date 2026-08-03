@@ -35,6 +35,80 @@ describe('GithubPull policy', () => {
     });
   });
 
+  it('ignores inherited optional authority and rejects unknown own authority', async () => {
+    await withTmpDir(async (root) => {
+      let inheritedReads = 0;
+      await usingGithubFetch((call) => {
+        if (call.url.pathname.endsWith('/releases/latest')) {
+          return json(release([{ id: 1, name: 'a.txt', body: 'a' }]));
+        }
+        if (call.url.pathname.endsWith('/releases/assets/1')) return new Response('a');
+        return new Response('not found', { status: 404 });
+      }, async (calls) => {
+        const args = new Proxy({
+          repo: 'owner/repo',
+          into: Fs.join(root, 'inherited') as t.StringDir,
+          mode: 'create' as const,
+          limits: LIMITS,
+        }, {
+          get(target, property, receiver) {
+            if (property === 'tag' || property === 'token' || property === 'until') {
+              inheritedReads++;
+              if (property === 'tag') return 'v-inherited';
+              if (property === 'token') return 'INHERITED-CREDENTIAL';
+              return new AbortController().signal;
+            }
+            return Reflect.get(target, property, receiver);
+          },
+        });
+
+        const inherited = await GithubPull.release(args);
+        expect(inherited.ok).to.eql(true);
+        expect(inheritedReads).to.eql(0);
+        expect(calls.every((call) => call.headers.get('authorization') === null)).to.eql(true);
+
+        const callsBeforeUnknown = calls.length;
+        const hidden = {
+          repo: 'owner/repo',
+          into: Fs.join(root, 'hidden') as t.StringDir,
+          mode: 'create' as const,
+          limits: LIMITS,
+        };
+        Object.defineProperty(hidden, 'hiddenAuthority', { value: true });
+        const symbolic = {
+          repo: 'owner/repo',
+          into: Fs.join(root, 'symbolic') as t.StringDir,
+          mode: 'create' as const,
+          limits: LIMITS,
+          [Symbol('unknownAuthority')]: true,
+        };
+        const unknownInputs = [
+          {
+            repo: 'owner/repo',
+            into: Fs.join(root, 'unknown') as t.StringDir,
+            mode: 'create' as const,
+            limits: LIMITS,
+            client: 'UNADMITTED-TRANSPORT',
+          },
+          {
+            repo: 'owner/repo',
+            into: Fs.join(root, 'unknown-limit') as t.StringDir,
+            mode: 'create' as const,
+            limits: { ...LIMITS, retries: 1 },
+          },
+          hidden,
+          symbolic,
+        ];
+        for (const input of unknownInputs) {
+          const unknown = await GithubPull.release(input as t.GithubPull.ReleaseArgs);
+          expect(unknown.ok).to.eql(false);
+          if (!unknown.ok) expect(unknown.kind).to.eql('invalid-input');
+        }
+        expect(calls.length).to.eql(callsBeforeUnknown);
+      });
+    });
+  });
+
   it('rejects dot-segment source selectors before transport', async () => {
     await withTmpDir(async (root) => {
       let calls = 0;
@@ -152,7 +226,20 @@ describe('GithubPull policy', () => {
 
   it('enforces total time and caller cancellation', async () => {
     await withTmpDir(async (root) => {
-      await usingGithubFetch((call) => abortablePending(call.signal), async () => {
+      await usingGithubFetch((call) => abortablePending(call.signal), async (calls) => {
+        const preAbortedController = new AbortController();
+        preAbortedController.abort('caller');
+        const preAborted = await GithubPull.release({
+          repo: 'owner/repo',
+          into: Fs.join(root, 'pre-aborted') as t.StringDir,
+          mode: 'create',
+          limits: LIMITS,
+          until: preAbortedController.signal,
+        });
+        expect(preAborted.ok).to.eql(false);
+        if (!preAborted.ok) expect(preAborted.kind).to.eql('cancelled');
+        expect(calls).to.eql([]);
+
         const timedOut = await GithubPull.release({
           repo: 'owner/repo',
           into: Fs.join(root, 'timeout') as t.StringDir,

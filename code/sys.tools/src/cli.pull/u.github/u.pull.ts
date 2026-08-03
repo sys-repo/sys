@@ -1,4 +1,4 @@
-import { Dispose, Fs, Is, Num, type t, Time } from './common.ts';
+import { Dispose, Fs, Is, Num, Obj, Schedule, type t, Time } from './common.ts';
 import {
   createGithubClient,
   type GithubClient,
@@ -10,6 +10,11 @@ import { resolveGithubRepoBundle } from './u.repo.resolve.ts';
 const RELEASE_ACCEPT = 'application/octet-stream';
 const BLOB_ACCEPT = 'application/vnd.github.raw+json';
 const MAX_TIMER_MSECS = 2_147_483_647;
+const COMMON_KEYS = ['repo', 'into', 'mode', 'limits', 'token', 'until'] as const;
+const RELEASE_KEYS = [...COMMON_KEYS, 'tag', 'assets'] as const;
+const REPO_KEYS = [...COMMON_KEYS, 'ref', 'path'] as const;
+const REQUIRED_KEYS = ['repo', 'into', 'mode', 'limits'] as const;
+const LIMIT_KEYS = ['metadataBytes', 'entries', 'fileBytes', 'totalBytes', 'totalTime'] as const;
 
 type Snapshot = {
   readonly repo: string;
@@ -235,6 +240,7 @@ async function run(
     return invalidFailure();
   }
 
+  await Schedule.micro();
   const timer = startDeadline(snapshot.limits.totalTime, () => {
     if (life.signal.aborted) return;
     timedOut = true;
@@ -253,6 +259,7 @@ async function run(
   };
 
   try {
+    if (operation.signal.aborted) return cancelledFailure(operation);
     return await execute(operation);
   } catch (error) {
     return unexpectedFailure(operation, error);
@@ -329,19 +336,30 @@ async function prepareTarget(
 
   try {
     const parentRooted = await prepareParentRooted(parent, operation.signal);
-    await parentRooted.admit([{ kind: 'directory', path: name }], { until: operation.signal });
+    const directory = await parentRooted.admit(
+      [{ kind: 'directory', path: name }],
+      { until: operation.signal },
+    );
+    const target = directory.targets[0]!;
 
     const exists = (await Fs.lstat(into)) !== undefined;
     if (mode === 'create' && exists) return occupiedFailure(operation);
     if (mode === 'replace' && exists) await Fs.remove(into, { log: false });
     if (operation.signal.aborted) return cancelledFailure(operation);
 
-    try {
-      await Deno.mkdir(into, { mode: 0o700 });
-    } catch (error) {
-      if (error instanceof Deno.errors.AlreadyExists) return occupiedFailure(operation);
-      throw error;
+    const stage = await parentRooted.createStage({ until: operation.signal });
+    const promotion = await parentRooted.promoteStage(stage, target, {
+      until: operation.signal,
+    });
+    if (promotion.cleanupError) {
+      try {
+        await parentRooted.discardStage(stage);
+      } catch {
+        // Preserve the original promotion failure after one safe cleanup retry.
+      }
+      return rootedFailure(operation, promotion.cleanupError);
     }
+    if (promotion.kind === 'occupied') return occupiedFailure(operation);
 
     const rooted = await Fs.Capability.Rooted.create({ root: into, until: operation.signal });
     const admitted = await rooted.admit(
@@ -376,19 +394,20 @@ async function prepareParentRooted(path: t.StringDir, until: AbortSignal) {
 }
 
 function snapshotRelease(input: unknown): Validation<ReleaseSnapshot> {
-  const common = snapshotCommon(input);
+  const common = snapshotCommon(input, RELEASE_KEYS);
   if (!common.ok) return common;
   const value = input as Record<string, unknown>;
 
-  const tag = optionalNonEmptyString(value.tag);
+  const tag = optionalNonEmptyString(Obj.hasOwn(value, 'tag') ? value.tag : undefined);
   if (!tag.ok) return invalidFailure();
 
   let assets: readonly string[] | undefined;
-  if (value.assets !== undefined) {
-    if (!Array.isArray(value.assets) || value.assets.length === 0) return invalidFailure();
+  const assetsInput = Obj.hasOwn(value, 'assets') ? value.assets : undefined;
+  if (assetsInput !== undefined) {
+    if (!Array.isArray(assetsInput) || assetsInput.length === 0) return invalidFailure();
     const names: string[] = [];
     const seen = new Set<string>();
-    for (const item of value.assets) {
+    for (const item of assetsInput) {
       if (!Is.str(item) || !item.trim() || item !== item.trim() || seen.has(item)) {
         return invalidFailure();
       }
@@ -402,28 +421,39 @@ function snapshotRelease(input: unknown): Validation<ReleaseSnapshot> {
 }
 
 function snapshotRepo(input: unknown): Validation<RepoSnapshot> {
-  const common = snapshotCommon(input);
+  const common = snapshotCommon(input, REPO_KEYS);
   if (!common.ok) return common;
   const value = input as Record<string, unknown>;
-  const ref = optionalNonEmptyString(value.ref);
-  const path = optionalNonEmptyString(value.path);
+  const ref = optionalNonEmptyString(Obj.hasOwn(value, 'ref') ? value.ref : undefined);
+  const path = optionalNonEmptyString(Obj.hasOwn(value, 'path') ? value.path : undefined);
   if (!ref.ok || !path.ok) return invalidFailure();
   return { ok: true, data: Object.freeze({ ...common.data, ref: ref.data, path: path.data }) };
 }
 
-function snapshotCommon(input: unknown): Validation<Snapshot> {
-  if (!Is.record(input)) return invalidFailure();
+function snapshotCommon(
+  input: unknown,
+  keys: readonly string[],
+): Validation<Snapshot> {
+  if (!exactRecord(input, keys) || !REQUIRED_KEYS.every((key) => Obj.hasOwn(input, key))) {
+    return invalidFailure();
+  }
   const repo = input.repo;
   const into = input.into;
   const mode = input.mode;
-  const token = input.token;
+  const token = Obj.hasOwn(input, 'token') ? input.token : undefined;
+  const until = Obj.hasOwn(input, 'until') ? input.until : undefined;
   const limits = input.limits;
   if (!Is.str(repo) || !Is.str(into) || !into.trim() || into.includes('\0')) {
     return invalidFailure();
   }
   if (mode !== 'create' && mode !== 'replace') return invalidFailure();
   if (token !== undefined && (!Is.str(token) || !token.trim())) return invalidFailure();
-  if (!Is.record(limits)) return invalidFailure();
+  if (
+    !exactRecord(limits, LIMIT_KEYS) ||
+    !LIMIT_KEYS.every((key) => Obj.hasOwn(limits, key))
+  ) {
+    return invalidFailure();
+  }
 
   const snapshotLimits: t.GithubPull.Limits = {
     metadataBytes: limits.metadataBytes as number,
@@ -450,9 +480,17 @@ function snapshotCommon(input: unknown): Validation<Snapshot> {
       mode,
       limits: Object.freeze(snapshotLimits),
       token: token?.trim(),
-      until: input.until as t.UntilInput | undefined,
+      until: until as t.UntilInput | undefined,
     }),
   };
+}
+
+function exactRecord(
+  input: unknown,
+  keys: readonly string[],
+): input is Record<string, unknown> {
+  return Is.record(input) &&
+    Reflect.ownKeys(input).every((key) => Is.str(key) && keys.includes(key));
 }
 
 function validLimits(limits: t.GithubPull.Limits): boolean {

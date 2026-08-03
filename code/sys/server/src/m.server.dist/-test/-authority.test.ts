@@ -153,7 +153,7 @@ describe('Dist.materialize authority: credentials and origins', () => {
       const result = await Dist.materialize(fixture.args({
         policy,
         credentials: {
-          manifest: { accessToken: () => (credentials++, 'Bearer private-token') },
+          manifest: { accessToken: () => (credentials++, '  private-token  ') },
         },
       }));
 
@@ -248,16 +248,20 @@ describe('Dist.materialize authority: credentials and origins', () => {
         Promise.reject(new Error('private-rejection'))) as unknown as t.HttpFetch.CreateOptions[
           'accessToken'
         ];
-      const result = await Dist.materialize(fixture.args({
-        credentials: { manifest: { accessToken } },
-      }));
+      const headers = (() =>
+        Promise.reject(
+          new Error('private-header-rejection'),
+        )) as unknown as t.HttpFetch.Mutate.Headers;
 
-      expect(result).to.eql({
-        kind: 'failed',
-        stage: 'manifest-fetch',
-        reason: 'invalid-input',
-        cleanup: 'not-needed',
-      });
+      for (const manifest of [{ accessToken }, { headers }]) {
+        const result = await Dist.materialize(fixture.args({ credentials: { manifest } }));
+        expect(result).to.eql({
+          kind: 'failed',
+          stage: 'manifest-fetch',
+          reason: 'invalid-input',
+          cleanup: 'not-needed',
+        });
+      }
       expect(fixture.calls).to.eql([]);
     } finally {
       await teardown(fixture);
