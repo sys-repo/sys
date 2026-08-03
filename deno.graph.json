@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1785395485792,
+    "createdAt": 1785742411296,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-d5ebe197611c5b7f8659f29e1d92a69abb713888094ff94a5e22952f1c576cc0",
+      "/graph": "sha256-47142eaeda2c6ca71e11744fee48d95d4eebbd00c6ee1918d05dfa24222741a5",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.143/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,7 +15,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.143/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1785395485798
+    "modifiedAt": 1785742411302
   },
   "graph": {
     "orderedPaths": [
@@ -840,6 +840,10 @@
       },
       {
         "from": "code/sys/http",
+        "to": "code/sys/server"
+      },
+      {
+        "from": "code/sys/http",
         "to": "deploy/@tdb.data"
       },
       {
@@ -1041,6 +1045,10 @@
       {
         "from": "code/sys/schema",
         "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys/server",
+        "to": "code/sys.tools"
       },
       {
         "from": "code/sys/std",
