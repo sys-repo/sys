@@ -25,6 +25,7 @@ export async function pullGithubReleaseBundle(
       mode: bundle.local.mode,
       limits: bundle.limits,
       token,
+      until: options.until,
     });
 
     if (result.ok) {

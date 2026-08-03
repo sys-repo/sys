@@ -1,5 +1,5 @@
 import { done, Err, type t } from './common.ts';
-import { addHttpBundle } from './u.add.ts';
+import { addDistBundle } from './u.add.ts';
 import { Fmt } from './u.fmt.ts';
 
 export async function runAdd(
@@ -9,11 +9,14 @@ export async function runAdd(
   try {
     if (args._.length > 1) throw new Error(`Unexpected argument: ${args._[1]}`);
 
-    const result = await addHttpBundle({
+    const result = await addDistBundle({
       cwd,
       config: args.config ?? '',
-      dist: args.dist ?? '',
-      local: args.local ?? '',
+      manifest: args.manifest ?? '',
+      integrity: args.integrity ?? '',
+      store: args.store ?? '',
+      project: args.project,
+      mode: args.mode,
       dryRun: args['dry-run'] === true,
     });
     console.info(Fmt.addResult(result));

@@ -2,9 +2,10 @@ import { describe, expect, expectError, Fs, it, Str } from '../../-test.ts';
 import { Pull } from '../mod.ts';
 
 const CONFIG = '-config/@sys.tools.pull/view.yaml';
+const INTEGRITY = `sha256-${'a'.repeat(64)}`;
 
 describe('@sys/tools/pull materialization resolver', () => {
-  it('resolves configured local materialization directories', async () => {
+  it('resolves only configured mutable output directories', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'sys.tools.pull.materialize.' })).absolute;
     const path = Fs.join(cwd, CONFIG);
     await Fs.write(path, yaml(), { force: true });
@@ -22,12 +23,52 @@ describe('@sys/tools/pull materialization resolver', () => {
       Fs.join(cwd, 'workspace/view/.pulled/driver.stripe'),
       Fs.join(cwd, 'workspace/view/releases/fixture'),
     ]);
-    expect(resolved.localDirs.map((dir) => dir.bundle.kind)).to.eql(['http', 'github:release']);
-    const [http, github] = resolved.localDirs.map((dir) => dir.bundle);
-    expect(http?.kind).to.eql('http');
-    expect(http?.kind === 'http' ? http.local.clear : undefined).to.eql(true);
-    expect(github?.kind).to.eql('github:release');
-    expect(github?.kind === 'github:release' ? github.local.mode : undefined).to.eql('create');
+    expect(resolved.localDirs.map((dir) => dir.bundle.kind)).to.eql([
+      'dist',
+      'github:release',
+    ]);
+  });
+
+  it('does not present an immutable store as a mutable local output', async () => {
+    const cwd = (await Fs.makeTempDir({ prefix: 'sys.tools.pull.materialize.' })).absolute;
+    const path = Fs.join(cwd, CONFIG);
+    await Fs.write(
+      path,
+      Str.dedent(`
+        dir: .
+        bundles:
+          - kind: dist
+            manifest: https://example.com/dist.json
+            integrity: ${INTEGRITY}
+            store: ./.dist-store
+      `).trimStart(),
+      { force: true },
+    );
+
+    const resolved = await Pull.resolve(path);
+    expect(resolved.localDirs).to.eql([]);
+  });
+
+  it('fails before work when configured filesystem authorities overlap', async () => {
+    const cwd = (await Fs.makeTempDir({ prefix: 'sys.tools.pull.materialize.' })).absolute;
+    const path = Fs.join(cwd, CONFIG);
+    await Fs.write(
+      path,
+      Str.dedent(`
+        dir: .
+        bundles:
+          - kind: dist
+            manifest: https://example.com/dist.json
+            integrity: ${INTEGRITY}
+            store: ./.dist-store
+            project:
+              dir: ./.dist-store/project
+              mode: replace
+      `).trimStart(),
+      { force: true },
+    );
+
+    await expectError(() => Pull.resolve(path), 'filesystem authorities overlap');
   });
 
   it('returns no local directories when no bundles are declared', async () => {
@@ -36,7 +77,6 @@ describe('@sys/tools/pull materialization resolver', () => {
     await Fs.write(path, `dir: .\n`, { force: true });
 
     const resolved = await Pull.resolve(path);
-
     expect(resolved.localDirs).to.eql([]);
   });
 
@@ -51,14 +91,18 @@ describe('@sys/tools/pull materialization resolver', () => {
 function yaml() {
   return Str.dedent(`
     dir: ./workspace
-    defaults:
-      http:
-        clear: true
     bundles:
-      - kind: http
-        dist: https://fs.db.team/driver.stripe/dist.json
-        local:
+      - kind: dist
+        manifest: https://fs.db.team/driver.stripe/dist.json
+        integrity: ${INTEGRITY}
+        store: ./.dist-store
+        project:
           dir: view/.pulled/driver.stripe
+          mode: replace
+      - kind: dist
+        manifest: https://fs.db.team/no-project/dist.json
+        integrity: sha256-${'b'.repeat(64)}
+        store: ./.dist-store
       - kind: github:release
         repo: sys/system
         tag: v1.0.0

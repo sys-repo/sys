@@ -10,14 +10,12 @@ const LIMITS: t.GithubPull.Limits = {
   totalTime: 30_000,
 };
 
+const INTEGRITY = `sha256-${'a'.repeat(64)}` as t.StringHash;
+
 describe('cli.pull/u.bundle → menu labels', () => {
-  it('renders bundle local dirs as rooted relative targets', () => {
+  it('renders bundle mutable targets as rooted relative paths', () => {
     const bundles: t.PullTool.ConfigYaml.Bundle[] = [
-      {
-        kind: 'http',
-        dist: 'https://fs.db.team/dist.json' as t.StringUrl,
-        local: { dir: 'dev' as t.StringRelativeDir },
-      },
+      distBundle('https://fs.db.team/dist.json', 'dev'),
       {
         kind: 'github:repo',
         repo: 'sys-repo/sys.canon',
@@ -35,18 +33,22 @@ describe('cli.pull/u.bundle → menu labels', () => {
     expect(names[1]).to.contain('pull: └─ ./canon');
   });
 
-  it('keeps local-dir alignment width rooted to the displayed ./ label', () => {
+  it('uses the immutable store label when no projection is configured', () => {
+    const bundle: t.PullTool.ConfigYaml.DistBundle = {
+      kind: 'dist',
+      manifest: 'https://fs.db.team/dist.json',
+      integrity: INTEGRITY,
+      store: './.dist-store',
+    };
+
+    const name = Cli.stripAnsi(formatBundleOptionName(bundle, 0, [bundle]));
+    expect(name).to.contain('./.dist-store ← fs.db.team/dist.json');
+  });
+
+  it('keeps target alignment width rooted to the displayed ./ label', () => {
     const bundles: t.PullTool.ConfigYaml.Bundle[] = [
-      {
-        kind: 'http',
-        dist: 'https://fs.db.team/dist.json' as t.StringUrl,
-        local: { dir: 'dev' as t.StringRelativeDir },
-      },
-      {
-        kind: 'http',
-        dist: 'https://slc.db.team/dist.json' as t.StringUrl,
-        local: { dir: './slc.db.team' as t.StringRelativeDir },
-      },
+      distBundle('https://fs.db.team/dist.json', 'dev'),
+      distBundle('https://slc.db.team/dist.json', './slc.db.team'),
     ];
 
     const width = formatBundleOptionLocalDirWidth(bundles);
@@ -60,13 +62,9 @@ describe('cli.pull/u.bundle → menu labels', () => {
     expect(names[1]).to.not.contain('././slc.db.team');
   });
 
-  it('does not trim local-dir whitespace while rendering the rooted label', () => {
+  it('does not trim target whitespace while rendering the rooted label', () => {
     const bundles: t.PullTool.ConfigYaml.Bundle[] = [
-      {
-        kind: 'http',
-        dist: 'https://fs.db.team/dist.json' as t.StringUrl,
-        local: { dir: 'dev ' as t.StringRelativeDir },
-      },
+      distBundle('https://fs.db.team/dist.json', 'dev '),
     ];
 
     const width = formatBundleOptionLocalDirWidth(bundles);
@@ -76,3 +74,13 @@ describe('cli.pull/u.bundle → menu labels', () => {
     expect(name).to.contain('./dev  ← fs.db.team/dist.json');
   });
 });
+
+function distBundle(manifest: string, project: string): t.PullTool.ConfigYaml.DistBundle {
+  return {
+    kind: 'dist',
+    manifest: manifest as t.StringUrl,
+    integrity: INTEGRITY,
+    store: './.dist-store',
+    project: { dir: project as t.StringRelativeDir, mode: 'replace' },
+  };
+}

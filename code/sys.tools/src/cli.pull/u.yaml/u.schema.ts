@@ -1,26 +1,19 @@
 import { Schema, type t } from '../common.ts';
 
-const BundleSharedSchema = {
-  lastUsedAt: Schema.Type.Optional(Schema.Type.Number()),
-} as const;
-
-const HttpLocalSchema = Schema.Type.Object(
-  {
-    dir: Schema.Type.String(),
-    clear: Schema.Type.Optional(Schema.Type.Boolean()),
-  },
-  { additionalProperties: false },
-);
-
-const GithubLocalDirSchema = Schema.Type.String({
+const RelativeDirSchema = Schema.Type.String({
   pattern:
     '^(?!.*[\\u0000-\\u001f\\u007f-\\u009f])(?!.*\\\\)(?![~/\\\\])(?![A-Za-z]:)(?!\\.{1,2}$)(?!\\.\\.[/\\\\])(?!.*[/\\\\]\\.\\.(?:[/\\\\]|$)).+$',
 });
 
-const GithubLocalSchema = Schema.Type.Object(
+const MutationModeSchema = Schema.Type.Union([
+  Schema.Type.Literal('create'),
+  Schema.Type.Literal('replace'),
+]);
+
+const MutableTargetSchema = Schema.Type.Object(
   {
-    dir: GithubLocalDirSchema,
-    mode: Schema.Type.Union([Schema.Type.Literal('create'), Schema.Type.Literal('replace')]),
+    dir: RelativeDirSchema,
+    mode: MutationModeSchema,
   },
   { additionalProperties: false },
 );
@@ -45,17 +38,17 @@ const GithubBundleSharedSchema = {
   repo: Schema.Type.String({
     pattern: '^(?!\\.{1,2}/)(?![A-Za-z0-9_.-]+/\\.{1,2}$)[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$',
   }),
-  local: GithubLocalSchema,
+  local: MutableTargetSchema,
   limits: GithubLimitsSchema,
-  ...BundleSharedSchema,
 } as const;
 
-const BundleHttpSchema = Schema.Type.Object(
+const BundleDistSchema = Schema.Type.Object(
   {
-    kind: Schema.Type.Literal('http'),
-    dist: Schema.Type.String(),
-    local: HttpLocalSchema,
-    ...BundleSharedSchema,
+    kind: Schema.Type.Literal('dist'),
+    manifest: Schema.Type.String({ pattern: '^https?://[^\\s]+$' }),
+    integrity: Schema.Type.String({ pattern: '^sha256-[0-9a-f]{64}$' }),
+    store: RelativeDirSchema,
+    project: Schema.Type.Optional(MutableTargetSchema),
   },
   { additionalProperties: false },
 );
@@ -99,24 +92,9 @@ export const PullYamlSchema = {
   schema: Schema.Type.Object(
     {
       dir: Schema.Type.Union([Schema.Type.Literal('.'), Schema.Type.String()]),
-      defaults: Schema.Type.Optional(
-        Schema.Type.Object(
-          {
-            http: Schema.Type.Optional(
-              Schema.Type.Object(
-                {
-                  clear: Schema.Type.Optional(Schema.Type.Boolean()),
-                },
-                { additionalProperties: false },
-              ),
-            ),
-          },
-          { additionalProperties: false },
-        ),
-      ),
       bundles: Schema.Type.Optional(
         Schema.Type.Array(
-          Schema.Type.Union([BundleHttpSchema, BundleGithubReleaseSchema, BundleGithubRepoSchema]),
+          Schema.Type.Union([BundleDistSchema, BundleGithubReleaseSchema, BundleGithubRepoSchema]),
         ),
       ),
     },

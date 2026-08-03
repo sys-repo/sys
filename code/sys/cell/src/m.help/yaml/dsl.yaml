@@ -85,8 +85,8 @@ sections:
   - label: Speech acts
     items:
       - initialize this folder as a Cell
-      - add a pulled view from <dist-url>
-      - pull latest configured views
+      - add a pulled view from <manifest-url> pinned by <integrity>
+      - materialize checksum-pinned configured views
       - add a static serve service for <dir>
       - add a service named <service-name> using endpoint <endpoint> from module <module>
       - add service mode <mode> for <service-name> using endpoint <endpoint> from module <module>
@@ -148,10 +148,10 @@ sections:
   - label: Mappings
     items:
       - add pulled view → run `@sys/tools pull add` against confirmed owner config
-      - prompt mentions `fs.db.team` → likely dist bundle URL shape; read examples before guessing
-      - owner pull config owns dist URL and local target
+      - prompt mentions `fs.db.team` → request manifest URL plus independent publisher integrity
+      - owner pull config owns manifest authority, immutable store, and optional mutable projection
       - do not register pulled views in `-config/@sys.cell/cell.yaml`
-      - pull latest configured views → run `@sys/tools pull` against confirmed pull config(s)
+      - materialize configured views → run `@sys/tools pull` against confirmed pull config(s)
       - if no pull config is specified or known, ask for it
       - do not edit `-config/@sys.cell/cell.yaml` for refresh-only pulls
       - |-

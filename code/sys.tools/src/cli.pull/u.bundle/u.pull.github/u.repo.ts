@@ -20,6 +20,7 @@ export async function pullGithubRepoBundle(
       mode: bundle.local.mode,
       limits: bundle.limits,
       token,
+      until: options.until,
     });
 
     if (result.ok) {

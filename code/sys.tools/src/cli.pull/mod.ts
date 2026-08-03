@@ -1,6 +1,10 @@
 /**
  * @module
- * Pull CLI tools.
+ * Configure and execute Pull-owned remote materialization.
+ *
+ * Dist bundles authenticate an exact caller-supplied manifest pin and retain evidence on the
+ * immutable generation. An optional projection is a mutable copy and carries no verification claim. GitHub
+ * bundles remain bounded downloads, not verified Dist materialization.
  */
 import { Fs, type t } from './common.ts';
 import { cli } from './m.cli.ts';
@@ -12,7 +16,9 @@ import { runWithRootUpgradeAdvisory } from '../u.root/u.upgradeAdvisory.ts';
 export { cli, GithubPull };
 export type * from './t.ts';
 
-/** Public Pull helper API. */
+/**
+ * Resolve and execute durable Pull configuration.
+ */
 export const Pull: t.PullTool.Lib = { resolve, run };
 
 /**

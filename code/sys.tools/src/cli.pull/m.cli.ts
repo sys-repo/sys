@@ -6,12 +6,10 @@ import { Fmt } from './u.fmt.ts';
 import { yamlConfigsMenu } from './u.menu.yaml.ts';
 import { resolveNonInteractive } from './u.resolve.nonInteractive.ts';
 import { run } from './u.run.ts';
-import { PullFs, PullMigrate } from './u.yaml/mod.ts';
+import { PullFs } from './u.yaml/mod.ts';
 
-/**
- * Main entry:
- */
-export const cli: t.PullToolsLib['cli'] = async (cwd, argv) => {
+/** Run Pull with interactive menus or explicit non-interactive arguments. */
+export const cli: t.PullToolsLib['cli'] = async (cwd, argv): Promise<void> => {
   const args = parseArgs(argv);
   const toolname = D.tool.name;
   cwd = cwd ?? Fs.cwd('terminal');
@@ -48,8 +46,6 @@ export const cli: t.PullToolsLib['cli'] = async (cwd, argv) => {
  * Execution:
  */
 async function runInteractive(cwd: t.StringDir): Promise<t.RunReturn> {
-  await PullMigrate.run(cwd);
-
   while (true) {
     const picked = await yamlConfigsMenu(cwd);
     if (picked.kind === 'exit') return done();

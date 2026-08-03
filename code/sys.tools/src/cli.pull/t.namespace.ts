@@ -1,32 +1,35 @@
 import type { t } from './common.ts';
 
 /**
- * The Pull type namespace.
+ * Contracts for configured remote materialization and mutable local projections.
  */
 export namespace PullTool {
-  /** Public pull helper API. */
+  /**
+   * Public API for resolving and executing durable Pull configuration.
+   */
   export type Lib = {
-    /** Resolve pull config materialization targets without pulling remote data. */
+    /** Resolve configured mutable outputs without network or filesystem mutation. */
     resolve(config: t.StringPath): Promise<ConfigYaml.Resolved>;
 
-    /** Pull configured remote bundles from owner YAML. */
+    /** Materialize every bundle in one owner config, throwing at the first failed bundle. */
     run(args: RunArgs): Promise<RunResult>;
   };
 
   /** Arguments for a programmatic Pull run. */
   export type RunArgs = {
     readonly cwd?: t.StringDir;
+    readonly until?: t.UntilInput;
   } & t.Tools.ConfigRefArgs;
 
-  /** Result for one configured bundle. */
+  /** Successful result retained for one configured bundle; `run` throws on any bundle failure. */
   export type RunBundleResult =
-    | { readonly bundle: ConfigYaml.HttpBundle; readonly data: Bundle.Result }
+    | { readonly bundle: ConfigYaml.DistBundle; readonly data: Bundle.Dist.Success }
     | {
       readonly bundle: ConfigYaml.GithubReleaseBundle | ConfigYaml.GithubRepoBundle;
       readonly data: t.GithubPull.Success;
     };
 
-  /** Result from a programmatic Pull run. */
+  /** Successful settlement of every bundle in one programmatic Pull run. */
   export type RunResult = {
     readonly ok: true;
     readonly config: t.StringPath;
@@ -35,9 +38,16 @@ export namespace PullTool {
     readonly bundles: readonly RunBundleResult[];
   };
 
+  /** Stable Pull registry identifier. */
   export const ID = 'pull' as const;
+
+  /** Stable Pull tool name. */
   export const NAME = 'system/pull:tools' as const;
+
+  /** Pull registry identifier literal. */
   export type Id = typeof ID;
+
+  /** Pull tool-name literal. */
   export type Name = typeof NAME;
 
   /** Command names. */
@@ -45,159 +55,190 @@ export namespace PullTool {
     | 'config'
     | 'config:edit'
     | 'config:rename'
-    | 'bundle:add-remote'
-    | 'bundle:pull-latest'
+    | 'bundle:add-dist'
     | 'back'
     | 'exit';
+  /** One interactive Pull menu option. */
   export type MenuOption = { readonly name: string; readonly value: MenuCmd };
 
-  /** Command line arguments (argv). */
+  /** Supported Pull subcommand. */
   export type CliCommand = 'add';
+
+  /** Raw Pull command-line arguments. */
   export type CliArgs = t.Tools.CliArgs & {
     config?: string;
-    dist?: string;
-    local?: string;
+    manifest?: string;
+    integrity?: string;
+    store?: string;
+    project?: string;
+    mode?: t.GithubPull.Mode;
     'dry-run'?: boolean;
     'non-interactive'?: boolean;
   };
+  /** Parsed Pull arguments with normalized interaction mode. */
   export type CliParsedArgs = t.ParsedArgs<CliArgs> & {
     readonly command?: CliCommand;
     readonly interactive: boolean;
   };
 
   /**
-   * Bundle-pull contracts.
+   * Execution contracts for one configured remote bundle.
    */
   export namespace Bundle {
-    /** Result from a bundle-pull operation. */
-    export type Result = ResultSuccess | ResultFailure;
-
-    type ResultMeta = {
-      dist?: t.DistPkg;
-      dists?: readonly t.DistPkg[];
-      summary?: SummaryMeta;
-    };
-
-    /** Successful bundle-pull result. */
-    export type ResultSuccess = ResultMeta & {
-      readonly ok: true;
-      readonly ops: readonly RecordSuccess[];
-    };
-
-    /** Failed bundle-pull result. */
-    export type ResultFailure = ResultMeta & {
-      readonly ok: false;
-      readonly ops: readonly Record[];
-    };
-
-    /** Bundle-pull operation record. */
-    export type Record = RecordSuccess | RecordFailure;
-
-    type RecordCommon = {
-      readonly path: { readonly source: t.StringUrl; readonly target: t.StringPath };
-    };
-
-    /** Successful bundle-pull operation record. */
-    export type RecordSuccess = RecordCommon & {
-      readonly ok: true;
-      readonly status?: t.HttpStatusCode;
-      readonly bytes: t.NumberBytes;
-      readonly error?: undefined;
-    };
-
-    /** Failed bundle-pull operation record. */
-    export type RecordFailure = RecordCommon & {
-      readonly ok: false;
-      readonly status?: t.HttpStatusCode;
-      readonly bytes?: undefined;
-      readonly error: string;
-    };
-
-    /** Metadata rendered for the transitional HTTP bundle pull. */
-    export type SummaryMeta = { readonly kind: 'http'; readonly source: t.StringUrl };
-
-    /**
-     * Remote bundle-pull contracts.
-     */
-    export namespace Remote {
-      /** Result from a remote bundle pull. */
-      export type Result =
-        | { readonly ok: true; readonly data: Bundle.Result }
-        | { readonly ok: false; readonly error: string };
-    }
-
-    /** Options for running a bundle pull. */
+    /** Lifecycle and terminal-output options for one bundle. */
     export type RunOptions = {
       readonly silent?: boolean;
+      readonly until?: t.UntilInput;
     };
+
+    /**
+     * Result truth for one checksum-pinned Dist bundle.
+     *
+     * `generation` retains Server verification evidence. `projection` reports only mutable-copy
+     * settlement and never carries that evidence.
+     */
+    export namespace Dist {
+      /** Complete materialization and projection settlement. */
+      export type Result = Success | Failure;
+
+      /** Immutable generation success with either no projection or a completed projection. */
+      export type Success = {
+        readonly ok: true;
+        readonly kind: 'dist';
+        readonly generation: t.ServerDist.Existing | t.ServerDist.Promoted;
+        readonly projection: Projection.NotRequested | Projection.Success;
+      };
+
+      /** Failure in generation materialization or later mutable projection. */
+      export type Failure = MaterializationFailure | ProjectionFailure;
+
+      /** Server-owned materialization failed, so projection never acquired authority to run. */
+      export type MaterializationFailure = {
+        readonly ok: false;
+        readonly kind: 'materialization-failed';
+        readonly generation: t.ServerDist.Failed;
+        readonly projection: Projection.NotRun;
+      };
+
+      /** Immutable generation succeeded, but its separate mutable projection failed. */
+      export type ProjectionFailure = {
+        readonly ok: false;
+        readonly kind: 'projection-failed';
+        readonly generation: t.ServerDist.Existing | t.ServerDist.Promoted;
+        readonly projection: Projection.Failure;
+      };
+
+      /**
+       * Mutable-copy settlement without generation authority or verification evidence.
+       */
+      export namespace Projection {
+        /** Projection was absent from configuration. */
+        export type NotRequested = { readonly kind: 'not-requested' };
+
+        /** Projection could not run because materialization failed. */
+        export type NotRun = { readonly kind: 'not-run' };
+
+        /** Mutable local projection completed without inheriting a verification claim. */
+        export type Success = {
+          readonly kind: 'projected';
+          readonly dir: t.StringAbsoluteDir;
+          readonly mode: t.GithubPull.Mode;
+        };
+
+        /** Projection failed after the immutable generation outcome had settled. */
+        export type Failure = {
+          readonly kind: 'failed';
+          readonly reason:
+            | 'invalid-target'
+            | 'target-occupied'
+            | 'filesystem-failure'
+            | 'rewrite-failure'
+            | 'cancelled';
+          readonly dir: t.StringAbsoluteDir;
+          readonly mode: t.GithubPull.Mode;
+          readonly error: string;
+        };
+      }
+    }
   }
 
   /**
-   * Pull configuration contracts.
+   * Strict durable configuration for Dist materialization and generic GitHub pulls.
+   *
+   * A Dist bundle requires an independently supplied manifest pin and immutable store. Its optional
+   * project is a mutable convenience, not artifact authority.
    */
   export namespace ConfigYaml {
-    export type Defaults = {
-      http?: {
-        clear?: boolean;
-      };
-    };
-
-    export type HttpBundleLocal = {
+    /** Optional mutable copy of an immutable Dist generation. */
+    export type DistProject = {
       dir: t.StringRelativeDir;
-      clear?: boolean;
+      mode: t.GithubPull.Mode;
     };
 
+    /** Explicit mutable target for a generic GitHub pull. */
     export type GithubBundleLocal = {
       dir: t.StringRelativeDir;
       mode: t.GithubPull.Mode;
     };
 
-    export type Bundle = HttpBundle | GithubReleaseBundle | GithubRepoBundle;
-    export type HttpBundle = {
-      kind: 'http';
-      dist: t.StringUrl;
-      local: HttpBundleLocal;
-      lastUsedAt?: t.UnixTimestamp;
+    /** One supported configured remote bundle. */
+    export type Bundle = DistBundle | GithubReleaseBundle | GithubRepoBundle;
+
+    /** Checksum-pinned Dist authority and optional mutable projection. */
+    export type DistBundle = {
+      kind: 'dist';
+      manifest: t.StringUrl;
+      integrity: t.StringHash;
+      store: t.StringRelativeDir;
+      project?: DistProject;
     };
+    /** Authority shared by bounded generic GitHub bundles. */
     export type GithubBundleBase = {
       repo: string;
       local: GithubBundleLocal;
       limits: t.GithubPull.Limits;
-      lastUsedAt?: t.UnixTimestamp;
     };
+    /** Bounded GitHub release-asset bundle. */
     export type GithubReleaseBundle = GithubBundleBase & {
       kind: 'github:release';
       tag?: string;
       asset?: string | string[];
     };
+    /** Bounded GitHub repository-tree bundle. */
     export type GithubRepoBundle = GithubBundleBase & {
       kind: 'github:repo';
       ref?: string;
       path?: string;
     };
 
+    /** Strict YAML document owned by Pull. */
     export type Doc = {
       dir: t.StringDir;
-      defaults?: Defaults;
       bundles?: Bundle[];
     };
 
+    /** Validated bundles with their resolved execution root. */
     export type Location = {
       readonly dir: t.StringDir;
-      readonly defaults?: Defaults;
       readonly bundles?: Bundle[];
     };
 
+    /** Canonical Pull configuration directory name. */
     export type DirName = `-config/${string}.${Id}`;
+
+    /** Pull configuration filename extension. */
     export type Ext = '.yaml';
+
+    /** Strict YAML validation result. */
     export type YamlCheck =
       | { readonly ok: true; readonly doc: Doc }
       | { readonly ok: false; readonly errors: readonly t.Schema.Error[] };
+    /** Pull configuration load result. */
     export type LoadResult =
       | { readonly ok: true; readonly cwd: t.StringDir; readonly location: Location }
       | { readonly ok: false; readonly errors: readonly t.Schema.Error[] };
 
-    /** Resolved local materialization target for a pull bundle. */
+    /** Resolved mutable output target for a pull bundle. */
     export type ResolvedLocalDir = {
       readonly index: number;
       readonly dir: t.StringRelativeDir;
@@ -205,7 +246,7 @@ export namespace PullTool {
       readonly bundle: Bundle;
     };
 
-    /** Resolved pull config materialization targets. */
+    /** Resolved Pull configuration and its mutable output targets. */
     export type Resolved = {
       readonly config: t.StringPath;
       readonly cwd: t.StringDir;

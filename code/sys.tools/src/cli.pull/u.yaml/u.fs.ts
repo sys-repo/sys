@@ -1,4 +1,4 @@
-import { type t, Fs, Path, pkg, Schema, Str, Yaml, YamlConfig } from '../common.ts';
+import { Fs, Path, pkg, Schema, Str, type t, Yaml, YamlConfig } from '../common.ts';
 import { PullTool } from '../t.namespace.ts';
 import { PullYamlErrorCode, validatePullYamlText } from './u.validate.ts';
 
@@ -64,7 +64,6 @@ export const PullFs = {
       cwd,
       location: {
         dir: resolvedDir,
-        defaults: doc.defaults,
         bundles: doc.bundles,
       },
     };

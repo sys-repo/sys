@@ -100,30 +100,45 @@ describe('cli.pull summary formatting', () => {
     expect(text).to.not.match(/^\s*dist\s/m);
   });
 
-  it('formats transitional http summary rows', () => {
-    const bundle: t.PullTool.ConfigYaml.HttpBundle = {
-      kind: 'http',
-      dist: 'https://fs.db.team/dist.json',
-      local: { dir: 'dev' },
+  it('separates immutable generation evidence from mutable projection truth', () => {
+    const integrity = `sha256-${'a'.repeat(64)}` as t.StringHash;
+    const bundle: t.PullTool.ConfigYaml.DistBundle = {
+      kind: 'dist',
+      manifest: 'https://fs.db.team/dist.json',
+      integrity,
+      store: './.dist-store',
+      project: { dir: 'dev', mode: 'replace' },
     };
-    const data: t.PullTool.Bundle.Result = {
+    const data: t.PullTool.Bundle.Dist.Success = {
       ok: true,
-      ops: [
-        {
-          ok: true,
-          path: {
-            source: bundle.dist,
-            target: 'dev/dist.json' as t.StringPath,
-          },
-          bytes: 1200,
+      kind: 'dist',
+      generation: {
+        kind: 'existing',
+        dir: '/tmp/.dist-store/generation' as t.StringAbsoluteDir,
+        integrity,
+        verification: {
+          integrity,
+          dist: distFixture(),
+          manifestBytes: 1200,
+          assets: { files: 1, totalBytes: 42, packageBytes: 42 },
         },
-      ],
-      summary: { kind: 'http', source: bundle.dist },
+        cleanup: 'not-needed',
+        source: { configuredUrl: bundle.manifest },
+      },
+      projection: {
+        kind: 'projected',
+        dir: '/tmp/dev' as t.StringAbsoluteDir,
+        mode: 'replace',
+      },
     };
 
     const text = Cli.stripAnsi(Fmt.pullSummary({ bundle, data }));
     expect(text).to.match(/source\s+fs\.db\.team\/dist\.json/);
+    expect(text).to.match(/generation\s+existing/);
     expect(text).to.match(/files\s+1/);
+    expect(text).to.include('/tmp/.dist-store/generation');
+    expect(text).to.include('/tmp/dev (replace, mutable)');
+    expect(text).to.not.include('verified projection');
   });
 
   it('caps output rows at 20 and shows an overflow marker', () => {
@@ -157,3 +172,23 @@ describe('cli.pull summary formatting', () => {
     expect(text).to.include('...6 more');
   });
 });
+
+function distFixture(): t.DistPkg {
+  return {
+    type: 'https://jsr.io/@sample/foo',
+    pkg: { name: '@sample/foo', version: '1.0.0' },
+    build: {
+      time: 0,
+      size: { total: 42, pkg: 42 },
+      builder: '@sample/builder@1.0.0',
+      runtime: 'deno=2.6.0:v8=14.5.201.2-rusty:typescript=5.9.2',
+      hash: { policy: 'https://jsr.io/@sys/fs/0.0.229/src/m.Pkg/m.Pkg.Dist.ts' },
+    },
+    hash: {
+      digest: `sha256-${'b'.repeat(64)}`,
+      parts: {
+        'index.html': `sha256-${'c'.repeat(64)}` as t.StringFileHashUri,
+      },
+    },
+  };
+}

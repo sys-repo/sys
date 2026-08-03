@@ -10,11 +10,6 @@ services:
     config: ./-config/@sys.tools.serve/view.yaml
 
 tasks:
-  - name: pull:view
-    use: PullViewTask
-    from: ./-scripts/deploy.ts
-    config: ./-config/@sys.tools.pull/view.yaml
-
   - name: deploy:prep
     use: DeployPrepTask
     from: ./-scripts/deploy.ts
@@ -27,7 +22,6 @@ tasks:
 
   - name: sample:deploy:prep
     steps:
-      - task: pull:view
       - task: deploy:prep
 
   - name: sample:deploy

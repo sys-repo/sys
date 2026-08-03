@@ -3,42 +3,41 @@ import { Cli, Fs } from '../common.ts';
 import { Fmt } from '../u.fmt.ts';
 
 describe('@sys/tools/pull help', () => {
-  it('explains pull ownership for Cell DSL pulled views', async () => {
+  it('explains pinned materialization ownership for Cell pulled views', async () => {
     const text = Cli.stripAnsi(await Fmt.help(Fs.cwd('terminal')));
 
-    expect(text).to.include('Pull owns materialization: remote source → local target.');
     expect(text).to.include(
-      'Cell views reference the pull config path, not the dist URL or local directory.',
+      'Pull owns checksum-pinned materialization and explicit mutable projection.',
     );
     expect(text).to.include(
-      'views.components.source.pull = ./-config/@sys.tools.pull/components.yaml',
+      'Cell pulled-view setup uses Pull-owned config; the Cell descriptor remains unchanged.',
+    );
+    expect(text).to.include(
+      'Pull config example: ./-config/@sys.tools.pull/components.yaml',
     );
     expect(text).to.include('deno run -A jsr:@sys/tools pull add');
     expect(text).to.include('Configure first, execute second.');
     expect(text).to.include('pull add mutates durable pull config state; it does not pull files.');
-    expect(text).to.include(
-      'Non-interactive pull execution runs an existing config; it does not create one from flags.',
-    );
-    expect(text).to.include(
-      'deno run -A jsr:@sys/tools pull add --config ./-config/@sys.tools.pull/components.yaml --dist https://example.com/ui.components/dist.json --local ./view/components',
-    );
-    expect(text).to.include('dist: https://example.com/ui.components/dist.json');
-    expect(text).to.include('dir: ./view/components');
+    expect(text).to.include('kind: dist');
+    expect(text).to.include('manifest: https://example.com/ui.components/dist.json');
+    expect(text).to.include('integrity: sha256-<publisher-provided-manifest-hash>');
+    expect(text).to.include('store: ./.dist-store');
+    expect(text).to.include('mode: replace');
+    expect(text).to.not.include('kind: http');
   });
 
-  it('documents add as the deterministic config mutation command', async () => {
+  it('requires independent publisher integrity without a TOFU affordance', async () => {
     const text = Cli.stripAnsi(await Fmt.addHelp(Fs.cwd('terminal')));
 
-    expect(text).to.include('deno run -A jsr:@sys/tools pull add');
-    expect(text).to.include('HTTP dist.json URL to record');
-    expect(text).to.include('Missing config is created with the minimal pull YAML shape.');
-    expect(text).to.include(
-      'Adds one HTTP dist bundle to durable pull config state; it does not pull files.',
-    );
-    expect(text).to.include('An exact existing dist/local bundle is a no-op success.');
-    expect(text).to.include('A reused local target with a different source fails.');
-    expect(text).to.include(
-      'Next: deno run -A jsr:@sys/tools pull --non-interactive --config ./-config/@sys.tools.pull/components.yaml',
-    );
+    expect(text).to.include('--manifest <url>');
+    expect(text).to.include('--integrity <sha256>');
+    expect(text).to.include('--store <path>');
+    expect(text).to.include('--project <path>');
+    expect(text).to.include('--mode <mode>');
+    expect(text).to.include('publisher-provided exact manifest-byte SHA-256');
+    expect(text).to.include('Hashing the same download cannot establish artifact authority.');
+    expect(text).to.include('Mutable projection is optional');
+    expect(text).to.not.include('--dist <url>');
+    expect(text).to.not.include('--local <path>');
   });
 });

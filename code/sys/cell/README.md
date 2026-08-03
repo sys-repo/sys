@@ -10,13 +10,12 @@ A **Cell** is a folder-shaped [metamedium](https://en.wikipedia.org/wiki/Metamed
 [octet-stream]: https://www.iana.org/assignments/media-types/application/octet-stream
 [dsl]: https://en.wikipedia.org/wiki/Domain-specific_language
 
-
 ---
 
-`@sys/cell` is the boot and composition kernel for a Cell: a folder boundary that gives
-ordinary file state a declared runtime.
-It loads `-config/@sys.cell/cell.yaml` — a lightweight descriptor that names trusted lifecycle
-`services`, finite `tasks` that run to completion, and the owner config files those endpoints use.
+`@sys/cell` is the boot and composition kernel for a Cell: a folder boundary that gives ordinary
+file state a declared runtime. It loads `-config/@sys.cell/cell.yaml` — a lightweight descriptor
+that names trusted lifecycle `services`, finite `tasks` that run to completion, and the owner config
+files those endpoints use.
 
 #### Terminology
 
@@ -26,14 +25,14 @@ that loads the descriptor and runs a Cell's lifecycle.
 
 #### State
 
-A Cell does not define the folder's ontology, state model, view model, or config schemas.
-Those meanings live in ordinary files and in the endpoint modules that interpret them.
-The modules define their own contracts; `@sys/cell` only composes their endpoints.
+A Cell does not define the folder's ontology, state model, view model, or config schemas. Those
+meanings live in ordinary files and in the endpoint modules that interpret them. The modules define
+their own contracts; `@sys/cell` only composes their endpoints.
 
 A Cell is [late-bound](https://en.wikipedia.org/wiki/Late_binding) by design:
 `-config/@sys.cell/cell.yaml` points to endpoint modules and config files without absorbing their
-meanings. New media, workflows, and
-services enter through files and modules without growing the kernel.
+meanings. New media, workflows, and services enter through files and modules without growing the
+kernel.
 
 A Cell's state and meaning are carried by ordinary files that can function as a [DSL][dsl]
 (domain-specific-language): their meaning can be interpreted, viewed, and validly rewritten within
@@ -44,7 +43,6 @@ the folder that bounds them.
 Concretely, the medium is a folder of ordinary files: [Markdown][commonmark], [YAML][yaml],
 [HTML][html], [TypeScript][typescript], [JSON][json], [binary data][octet-stream] (including
 file-backed databases), and any other file-carried forms.
-
 
 A Cell's [DSL][dsl] may be **prose-shaped, semi-formal, or formal.** It can begin as plain text:
 Markdown sections, naming conventions, folder layout, and other human-readable agreements that carry
@@ -100,25 +98,26 @@ Options    -h, --help   show help
 
 ## Prompting - [DSL][dsl] speech acts
 
-| Intent                    | [Speech act](https://en.wikipedia.org/wiki/Speech_act) examples:                       |
-| ------------------------- | -------------------------------------------------------------------------------------- |
-| create: Cell              | Initialize this folder as an `@sys/cell`.                                              |
-| create: Cell at path      | Initialize `./foo` as an `@sys/cell`.                                                  |
-| add: pulled view          | Add a pulled view from `<dist-url>`.                                                   |
-| refresh: pulled views     | Pull latest configured views.                                                          |
-| add: static serve service | Add an `@sys/tools/serve` static service for `<dir>`.                                  |
+| Intent                    | [Speech act](https://en.wikipedia.org/wiki/Speech_act) examples:                         |
+| ------------------------- | ---------------------------------------------------------------------------------------- |
+| create: Cell              | Initialize this folder as an `@sys/cell`.                                                |
+| create: Cell at path      | Initialize `./foo` as an `@sys/cell`.                                                    |
+| add: pulled view          | Add a pulled view from `<manifest-url>` pinned by `<integrity>`.                         |
+| refresh: pulled views     | Materialize checksum-pinned configured views.                                            |
+| add: static serve service | Add an `@sys/tools/serve` static service for `<dir>`.                                    |
 | add: service              | Add a service named `<service-name>` using endpoint `<endpoint>` from module `<module>`. |
-| add: proxy service        | Add a proxy service named `<service-name>`.                                            |
-| route: proxy root         | Route `/` to `<view/service/upstream>`.                                                |
-| route: proxy mount        | Route `<path-prefix>` to `<view/service/upstream>`.                                    |
-| run: task                 | Run a task named `<task-name>`.                                                        |
-| start: services           | Start a Cell's services.                                                              |
-| start: services in mode   | Start services with complete variant bindings for `<mode>`.                            |
+| add: proxy service        | Add a proxy service named `<service-name>`.                                              |
+| route: proxy root         | Route `/` to `<view/service/upstream>`.                                                  |
+| route: proxy mount        | Route `<path-prefix>` to `<view/service/upstream>`.                                      |
+| run: task                 | Run a task named `<task-name>`.                                                          |
+| start: services           | Start a Cell's services.                                                                 |
+| start: services in mode   | Start services with complete variant bindings for `<mode>`.                              |
 
 Sample slot values, not DSL grammar:
 
-- `<dist-url>`: `https://fs.db.team/driver.stripe/dist.json`
-- `<dist-url>`: `https://fs.db.team/ui.components/dist.json`
+- `<manifest-url>`: `https://fs.db.team/driver.stripe/dist.json`
+- `<manifest-url>`: `https://fs.db.team/ui.components/dist.json`
+- `<integrity>`: publisher-provided `sha256-<exact-manifest-byte-hash>`
 - `<service-name>`: `ui:static:views` for the sample static view service
 - `<service-name>`: `stripe:dev:fixture` for the Stripe fixture service
 - `<service-name>`: `cell:proxy` for the sample public proxy

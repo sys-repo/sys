@@ -1,4 +1,4 @@
-import { type t, Fs, Str } from '../common.ts';
+import { Fs, Str, type t } from '../common.ts';
 
 export type RewritePathsResponse = {
   readonly base: t.StringPath;
@@ -11,28 +11,21 @@ export type RewriteFile = {
 };
 
 /**
- * Rewrites an `index.html` using the original `dist.json` manifest as
- * the authoritative source of asset paths.
+ * Rewrite copied HTML only inside an explicitly mutable projection.
  *
- * Steps:
- *   1. Reset all `<script src>` / `<link href>` asset URLs in the HTML
- *      to their original values from the manifest.
- *   2. Inject a `<base>` tag that rebases all relative URLs to the
- *      mount-point directory used by the pull tool.
- *
- * Effect:
- *   The HTML becomes self-consistent under the chosen local bundle.
+ * The immutable verified generation is never passed to this helper.
  */
-
-export async function rewriteTags(
+export async function rewriteProjectionTags(
   baseDir: t.StringDir,
-  bundleConfig: t.PullTool.ConfigYaml.Bundle,
+  projectDir: t.StringDir,
 ) {
-  const glob = Fs.glob(Fs.join(baseDir, bundleConfig.local.dir));
+  const glob = Fs.glob(projectDir);
   const paths = await glob.find('**/index.html');
 
   const loadFile = async (path: t.StringPath): Promise<RewriteFile | undefined> => {
-    const before = (await Fs.readText(path)).data;
+    const read = await Fs.readText(path);
+    if (read.error) throw read.error;
+    const before = read.data;
     if (!before) return undefined;
     const html = { before, after: before };
     return {
@@ -71,26 +64,19 @@ export async function rewriteTags(
     mutateHtml(file, insertBaseTag(file.html.after, file.base));
   }
 
-  // Rewrite paths on each `index.html` file; ensure <base> tag exists on each one:
   files.forEach(rewritePaths);
   files.forEach(ensureBaseTag);
 
-  // Write changes to file system:
   for (const file of files) {
-    if (file.html.before === file.html.after) continue; // no change.
-    await Fs.write(file.path, file.html.after, { force: true });
+    if (file.html.before === file.html.after) continue;
+    const write = await Fs.write(file.path, file.html.after, { force: true });
+    if (write.error) throw write.error;
   }
 
   return res;
 }
 
-/**
- * Find all tags that have either an `href` or `src` property
- * and call the fn() passing:
- *  - tag: the complete tag element, eg., <link rel="modulepreload" crossorigin href="/path/to/./pkg/m.C_5SYDux.js">
- *  - tagname: the name of the tag only, eg "link" or "script" or "base"
- *  - path: the value of the `href` or `src`
- */
+/** Visit each quoted `href` or `src` value and let the callback replace it in place. */
 function mutatePaths(
   html: string,
   fn: (e: {

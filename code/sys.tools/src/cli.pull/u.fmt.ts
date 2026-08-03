@@ -1,4 +1,4 @@
-import { c, Cli, Fmt as Base, Fs, Str, type t, Time } from './common.ts';
+import { c, Cli, Fmt as Base, Fs, Str, type t } from './common.ts';
 import type { PullAddResult } from './u.add.ts';
 
 export const Fmt = {
@@ -15,7 +15,7 @@ export const Fmt = {
           label: 'Usage',
           items: [
             `${cmd}`,
-            `${cmd} add --config ${config} --dist <dist-url> --local <path>`,
+            `${cmd} add --config ${config} --manifest <url> --integrity <sha256> --store <path>`,
             `${cmd} --non-interactive --config ${config}`,
           ],
         },
@@ -23,7 +23,7 @@ export const Fmt = {
           kind: 'pairs',
           label: 'Commands',
           items: [
-            ['add', 'add an HTTP dist bundle to a pull config'],
+            ['add', 'add a checksum-pinned Dist bundle to a pull config'],
           ],
         },
         {
@@ -39,9 +39,9 @@ export const Fmt = {
           kind: 'lines',
           label: 'Owner',
           items: [
-            'Pull owns materialization: remote source → local target.',
-            'Cell views reference the pull config path, not the dist URL or local directory.',
-            `Cell example: views.components.source.pull = ${config}`,
+            'Pull owns checksum-pinned materialization and explicit mutable projection.',
+            'Cell pulled-view setup uses Pull-owned config; the Cell descriptor remains unchanged.',
+            `Pull config example: ${config}`,
           ],
         },
         {
@@ -62,17 +62,20 @@ export const Fmt = {
             config,
             'dir: .',
             'bundles:',
-            '  - kind: http',
-            '    dist: https://example.com/ui.components/dist.json',
-            '    local:',
+            '  - kind: dist',
+            '    manifest: https://example.com/ui.components/dist.json',
+            '    integrity: sha256-<publisher-provided-manifest-hash>',
+            '    store: ./.dist-store',
+            '    project:',
             '      dir: ./view/components',
+            '      mode: replace',
           ],
         },
         {
           kind: 'lines',
           label: 'Examples',
           items: [
-            `${cmd} add --config ${config} --dist https://example.com/ui.components/dist.json --local ./view/components`,
+            `${cmd} add --config ${config} --manifest https://example.com/ui.components/dist.json --integrity sha256-<publisher-provided-manifest-hash> --store ./.dist-store --project ./view/components --mode replace`,
             `${cmd} --non-interactive --config ${config}`,
           ],
         },
@@ -90,8 +93,8 @@ export const Fmt = {
           kind: 'lines',
           label: 'Usage',
           items: [
-            `${cmd} --config ${config} --dist <dist-url> --local <path>`,
-            `${cmd} --dry-run --config ${config} --dist <dist-url> --local <path>`,
+            `${cmd} --config ${config} --manifest <url> --integrity <sha256> --store <path>`,
+            `${cmd} --dry-run --config ${config} --manifest <url> --integrity <sha256> --store <path>`,
           ],
         },
         {
@@ -100,8 +103,11 @@ export const Fmt = {
           items: [
             ['-h, --help', 'show add help'],
             ['--config <path>', 'pull config YAML to create or mutate'],
-            ['--dist <url>', 'HTTP dist.json URL to record'],
-            ['--local <path>', 'relative local target directory under the config root'],
+            ['--manifest <url>', 'absolute HTTP(S) dist.json URL'],
+            ['--integrity <sha256>', 'publisher-provided exact manifest-byte SHA-256'],
+            ['--store <path>', 'relative immutable generation store'],
+            ['--project <path>', 'optional relative mutable projection target'],
+            ['--mode <mode>', 'required create|replace authority with --project'],
             ['--dry-run', 'preview the config mutation without writing'],
           ],
         },
@@ -109,10 +115,12 @@ export const Fmt = {
           kind: 'lines',
           label: 'Semantics',
           items: [
-            'Adds one HTTP dist bundle to durable pull config state; it does not pull files.',
-            'Missing config is created with the minimal pull YAML shape.',
-            'An exact existing dist/local bundle is a no-op success.',
-            'A reused local target with a different source fails.',
+            'Adds one checksum-pinned Dist bundle to durable config; it does not pull files.',
+            'Manifest URL, publisher-provided integrity, and immutable store are required.',
+            'Hashing the same download cannot establish artifact authority.',
+            'Mutable projection is optional and requires an explicit create|replace mode.',
+            'An exact existing bundle is a no-op success.',
+            'Overlapping immutable and mutable filesystem authority is rejected.',
             'The resulting YAML is validated before writing.',
             `Next: ${Base.invoke('pull')} --non-interactive --config ${config}`,
           ],
@@ -121,7 +129,7 @@ export const Fmt = {
           kind: 'lines',
           label: 'Examples',
           items: [
-            `${cmd} --config ${config} --dist https://example.com/ui.components/dist.json --local ./view/components`,
+            `${cmd} --config ${config} --manifest https://example.com/ui.components/dist.json --integrity sha256-<publisher-provided-manifest-hash> --store ./.dist-store --project ./view/components --mode replace`,
           ],
         },
       ],
@@ -138,8 +146,15 @@ export const Fmt = {
     table.body([
       [c.gray(' status'), c.white(status)],
       [c.gray(' config'), c.cyan(Fs.trimCwd(result.yamlPath))],
-      [c.gray(' source'), c.cyan(result.bundle.dist)],
-      [c.gray(' local'), c.white(result.bundle.local.dir)],
+      [c.gray(' manifest'), c.cyan(result.bundle.manifest)],
+      [c.gray(' integrity'), c.white(result.bundle.integrity)],
+      [c.gray(' store'), c.white(result.bundle.store)],
+      [
+        c.gray(' project'),
+        result.bundle.project
+          ? c.white(`${result.bundle.project.dir} (${result.bundle.project.mode})`)
+          : c.gray(c.dim('(none)')),
+      ],
       [c.gray(' created'), c.white(String(result.createdConfig))],
     ]);
     return String(Str.builder().blank().line(Str.trimEdgeNewlines(String(table))).blank())
@@ -176,34 +191,44 @@ export const Fmt = {
 
   pullSummary(args: {
     bundle: t.PullTool.ConfigYaml.Bundle;
-    data: t.PullTool.Bundle.Result | t.GithubPull.Success;
+    data: t.PullTool.Bundle.Dist.Success | t.GithubPull.Success;
   }) {
     const { bundle, data } = args;
     const table = Cli.table();
-    const github = 'files' in data ? data : undefined;
-    const http = 'ops' in data ? data : undefined;
-    const outputs = github
-      ? github.files.map((file) => ({
-        path: Fs.join(bundle.local.dir, file.target),
-        size: Number(file.bytes),
-      }))
-      : (http?.ops ?? []).filter((op) => op.ok).map((op) => ({
-        path: Fs.trimCwd(op.path.target),
-        size: Number(op.bytes ?? 0),
-      }));
-    const bytes = outputs.reduce((acc, item) => acc + item.size, 0);
-    const dist = http?.dist;
-    const distHash = formatHashPrefix(dist?.hash?.digest);
-    const built = formatBuiltAt(dist?.build?.time);
-    const builtLabel = built ? `built ${built}${built === 'just now' ? '' : ' ago'}` : '';
-    const distValue = builtLabel ? `${distHash}  ${c.gray(c.dim(builtLabel))}` : distHash;
 
+    if (isDistSuccess(data)) {
+      if (bundle.kind !== 'dist') throw new Error('Dist result does not match its bundle.');
+      const generation = data.generation;
+      const evidence = generation.verification;
+      const projection = data.projection.kind === 'projected'
+        ? `${data.projection.dir} (${data.projection.mode}, mutable)`
+        : '(none)';
+      table.body([
+        [c.gray(' source'), formatSourceUrl(bundle.manifest)],
+        [c.gray(' generation'), c.white(generation.kind)],
+        [c.gray(' integrity'), c.white(generation.integrity)],
+        [c.gray(' files'), c.white(String(evidence.assets.files))],
+        [c.gray(' bytes'), c.gray(Str.bytes(evidence.assets.totalBytes))],
+        [c.gray(' immutable'), c.cyan(generation.dir)],
+        [
+          c.gray(' projection'),
+          data.projection.kind === 'projected' ? c.white(projection) : c.gray(c.dim(projection)),
+        ],
+      ]);
+      return String(Str.builder().blank().line(Str.trimEdgeNewlines(String(table))).blank());
+    }
+
+    if (bundle.kind === 'dist') throw new Error('GitHub result does not match its bundle.');
+    const outputs = data.files.map((file) => ({
+      path: Fs.join(bundle.local.dir, file.target),
+      size: Number(file.bytes),
+    }));
+    const bytes = outputs.reduce((acc, item) => acc + item.size, 0);
     const MAX_OUTPUT_ROWS = 20;
     const hasOverflow = outputs.length > MAX_OUTPUT_ROWS;
     const visible = hasOverflow ? outputs.slice(0, MAX_OUTPUT_ROWS - 1) : outputs;
     const overflowCount = outputs.length - visible.length;
     const maxPathLen = visible.reduce((acc, item) => Math.max(acc, item.path.length), 0);
-
     const items: Array<
       | { kind: 'asset'; path: string; size: number }
       | { kind: 'more'; count: number }
@@ -223,8 +248,8 @@ export const Fmt = {
       return `${c.gray(c.dim(branch))} ${c.gray(parts.dir)}${file}${pad}${sizeLabel}`;
     });
 
-    const summary = github?.resolved ?? http?.summary;
-    if (summary?.kind === 'github:release') {
+    const summary = data.resolved;
+    if (summary.kind === 'github:release') {
       table.body([
         [c.gray(' repo'), c.cyan(summary.repo)],
         [c.gray(' release'), c.white(summary.tag)],
@@ -235,7 +260,7 @@ export const Fmt = {
           outputLines.length > 0 ? outputLines.join('\n') : c.gray(c.dim('(none)')),
         ],
       ]);
-    } else if (summary?.kind === 'github:repo') {
+    } else {
       table.body([
         [c.gray(' repo'), c.cyan(summary.repo)],
         [c.gray(' ref'), c.white(summary.ref)],
@@ -247,26 +272,17 @@ export const Fmt = {
           outputLines.length > 0 ? outputLines.join('\n') : c.gray(c.dim('(none)')),
         ],
       ]);
-    } else {
-      const source = summary?.source || (bundle.kind === 'http' ? bundle.dist : undefined);
-      table.body([
-        [c.gray(' source'), source ? formatSourceUrl(source) : c.gray(c.dim('(unknown)'))],
-        [
-          c.gray(' files'),
-          c.white(String(dist ? Object.keys(dist.hash.parts).length : outputs.length)),
-        ],
-        [c.gray(' dist'), distValue],
-        [c.gray(' bytes'), c.gray(Str.bytes(bytes))],
-        [
-          c.gray(' output'),
-          outputLines.length > 0 ? outputLines.join('\n') : c.gray(c.dim('(none)')),
-        ],
-      ]);
     }
 
     return String(Str.builder().blank().line(Str.trimEdgeNewlines(String(table))).blank());
   },
 } as const;
+
+function isDistSuccess(
+  data: t.PullTool.Bundle.Dist.Success | t.GithubPull.Success,
+): data is t.PullTool.Bundle.Dist.Success {
+  return 'generation' in data;
+}
 
 type PullErrorParts = {
   readonly message: readonly string[];
@@ -364,22 +380,6 @@ function splitDirAndFile(path: string): { dir: string; file: string } {
     dir: path.slice(0, i + 1),
     file: path.slice(i + 1),
   };
-}
-
-function formatHashPrefix(hash?: string): string {
-  const suffix = String(hash ?? '')
-    .trim()
-    .slice(-5);
-  if (!suffix) return `${c.gray(c.dim('#'))}${' '.repeat(5)}`;
-  return Base.hashSuffix(suffix, 5);
-}
-
-function formatBuiltAt(input?: number): string {
-  if (!Number.isFinite(input)) return '';
-  const elapsed = Time.elapsed(input as number).msec;
-  if (!Number.isFinite(elapsed) || elapsed < 0) return '';
-  if (elapsed < 1000) return 'just now';
-  return Time.Duration.create(elapsed).toString();
 }
 
 function formatSourceUrl(input: t.StringUrl): string {

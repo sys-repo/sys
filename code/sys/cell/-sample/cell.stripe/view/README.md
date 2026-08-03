@@ -1,15 +1,11 @@
 # Stripe Cell view
 
-This folder is the target for bound view artifacts.
+This folder is reserved for mutable view projections created by `@sys/tools/pull`.
 
-The intended first view is pulled with `@sys/tools/pull` from:
-
-```text
-https://fs.db.team/driver.stripe/dist.json
-```
-
-into:
+No Pull config is checked in because the remote manifest URL is not sufficient authority. Configure
+the view only after its publisher supplies the independent SHA-256 of the exact `dist.json` bytes:
 
 ```text
-./driver.stripe/
+manifest:  https://fs.db.team/driver.stripe/dist.json
+integrity: sha256-<publisher-provided-manifest-byte-hash>
 ```

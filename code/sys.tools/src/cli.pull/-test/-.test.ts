@@ -13,6 +13,16 @@ describe('tool: Pull', () => {
     expectTypeOf(m.GithubPull).toEqualTypeOf<PublicGithubPull.Lib>();
     expect(m.Pull.run).to.equal(run);
     expect(Pull.run).to.equal(run);
+    const projection: t.PullTool.Bundle.Dist.Projection.Success = {
+      kind: 'projected',
+      dir: '/tmp/project' as t.StringAbsoluteDir,
+      mode: 'replace',
+    };
+    expectTypeOf(projection).toEqualTypeOf<{
+      readonly kind: 'projected';
+      readonly dir: t.StringAbsoluteDir;
+      readonly mode: t.GithubPull.Mode;
+    }>();
   });
 
   it('exposes canonical tool metadata', () => {

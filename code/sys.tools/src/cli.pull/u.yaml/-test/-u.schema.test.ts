@@ -12,18 +12,44 @@ const LIMITS = {
 const local = () => ({ dir: 'dev', mode: 'create' as const });
 
 describe('PullYamlSchema', () => {
-  it('accepts http bundle entries', () => {
-    const res = PullYamlSchema.validate({
-      dir: '.',
-      bundles: [
-        {
-          kind: 'http',
-          dist: 'https://example.com/dist.json',
-          local: { dir: 'dev' },
-        },
-      ],
-    });
-    expect(res.ok).to.eql(true);
+  it('accepts checksum-pinned Dist bundles with optional explicit projection', () => {
+    const base = {
+      kind: 'dist',
+      manifest: 'https://example.com/dist.json',
+      integrity: `sha256-${'a'.repeat(64)}`,
+      store: './.dist-store',
+    } as const;
+
+    expect(PullYamlSchema.validate({ dir: '.', bundles: [base] }).ok).to.eql(true);
+    expect(
+      PullYamlSchema.validate({
+        dir: '.',
+        bundles: [{ ...base, project: { dir: './view/dev', mode: 'replace' } }],
+      }).ok,
+    ).to.eql(true);
+  });
+
+  it('rejects legacy or incompletely pinned Dist bundles', () => {
+    const valid = {
+      kind: 'dist',
+      manifest: 'https://example.com/dist.json',
+      integrity: `sha256-${'a'.repeat(64)}`,
+      store: './.dist-store',
+    } as const;
+
+    const invalid = [
+      { kind: 'http', dist: valid.manifest, local: { dir: 'dev' } },
+      { ...valid, manifest: undefined },
+      { ...valid, integrity: undefined },
+      { ...valid, integrity: `sha256-${'A'.repeat(64)}` },
+      { ...valid, store: undefined },
+      { ...valid, project: { dir: './view/dev' } },
+      { ...valid, project: { dir: '../outside', mode: 'replace' } },
+    ];
+
+    for (const bundle of invalid) {
+      expect(PullYamlSchema.validate({ dir: '.', bundles: [bundle] }).ok).to.eql(false);
+    }
   });
 
   it('accepts bounded github:release bundle entries', () => {
@@ -99,21 +125,6 @@ describe('PullYamlSchema', () => {
       });
       expect(invalidLimits.ok).to.eql(false);
     }
-  });
-
-  it('accepts HTTP-only clear defaults', () => {
-    const res = PullYamlSchema.validate({
-      dir: '.',
-      defaults: { http: { clear: true } },
-      bundles: [
-        {
-          kind: 'http',
-          dist: 'https://example.com/dist.json',
-          local: { dir: 'dev' },
-        },
-      ],
-    });
-    expect(res.ok).to.eql(true);
   });
 
   it('rejects GitHub local targets outside the configured pull root', () => {

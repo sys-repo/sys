@@ -3,35 +3,37 @@ import type { HttpFetch, HttpPull } from '@sys/http/t';
 import type { t } from './common.ts';
 
 /**
- * Immutable verified Dist materialization contracts.
+ * Contracts for checksum-pinned Dist materialization and final-directory evidence.
  */
 export declare namespace ServerDist {
-  /** Product-neutral verified Dist materialization API. */
+  /**
+   * Product-neutral API for immutable checksum-pinned Dist generations.
+   */
   export type Lib = {
-    /** Materialize one externally pinned remote Dist as an immutable local generation. */
+    /** Settle one pinned Dist as `existing`, `promoted`, or `failed`. */
     readonly materialize: Method;
   };
 
-  /** Materialize one externally pinned remote Dist. */
+  /** Settle one pinned Dist as `existing`, `promoted`, or `failed`. */
   export type Method = (args: MaterializeArgs) => Promise<MaterializeResult>;
 
-  /** One-shot materialization input. */
+  /** Complete caller authority for one materialization attempt. */
   export type MaterializeArgs = {
-    /** Absolute HTTP(S) URL of the exact pinned `dist.json` bytes. */
+    /** Absolute HTTP(S) location of the `dist.json` to authenticate. */
     readonly manifestUrl: t.StringUrl;
-    /** Canonical SHA-256 of the exact serialized `dist.json` bytes. */
+    /** Caller-supplied canonical SHA-256 pin for the exact `dist.json` response bytes. */
     readonly integrity: t.StringHash;
-    /** Parent directory for immutable integrity-addressed generations. */
+    /** Root directory whose children are immutable integrity-addressed generations. */
     readonly storeDir: t.StringDir;
-    /** Required finite acquisition and verification authority. */
+    /** Required finite authority for acquisition and complete-generation verification. */
     readonly policy: Policy;
-    /** Optional independently confined credential construction data. */
+    /** Optional credentials confined independently to manifest and asset requests. */
     readonly credentials?: Credentials;
-    /** Caller lifecycle applied until a publication outcome becomes visible. */
+    /** Caller lifecycle for cancellable work; visible publication outcomes settle independently. */
     readonly until?: t.UntilInput;
   };
 
-  /** Canonical owner policies composed by the materializer. */
+  /** Finite authority composed from canonical transport and verification policies. */
   export type Policy = {
     /** Bounded manifest Fetch authority. */
     readonly manifest: HttpFetch.ResponsePolicy;
@@ -41,21 +43,21 @@ export declare namespace ServerDist {
     readonly verification: FsPkg.Dist.VerifyPinned.Limits;
   };
 
-  /** Manifest Fetch credential construction data. */
+  /** Manifest-request credentials; callbacks run only when network work is required. */
   export type ManifestCredentials = Readonly<
     Pick<HttpFetch.CreateOptions, 'accessToken' | 'headers'>
   >;
 
-  /** Independently confined manifest and asset credentials. */
+  /** Credentials confined independently to manifest and asset origins. */
   export type Credentials = {
     readonly manifest?: ManifestCredentials;
     readonly resources?: HttpPull.ResourceCredentials;
   };
 
-  /** Terminal materialization result. */
+  /** Terminal truth for the immutable generation target. */
   export type MaterializeResult = Existing | Promoted | Failed;
 
-  /** Private-stage cleanup truth. */
+  /** Safe private-stage cleanup outcome; never a claim that a generation was rolled back. */
   export type Cleanup = 'not-needed' | 'complete' | 'pending';
 
   /** Sanitized configured manifest source evidence. */
@@ -67,7 +69,7 @@ export declare namespace ServerDist {
   /** Sanitized source evidence observed while fetching the promoted generation. */
   export type ObservedSource = ConfiguredSource & HttpFetch.ResponsePolicy.SourceEvidence;
 
-  /** Evidence shared by successful final-directory verification results. */
+  /** Truth shared by successes freshly verified at their returned final directory. */
   type Success = {
     /** Canonical admitted immutable-generation directory. */
     readonly dir: t.StringAbsoluteDir;
@@ -82,21 +84,21 @@ export declare namespace ServerDist {
     readonly publication?: undefined;
   };
 
-  /** A pre-existing or concurrent-winner generation verified successfully. */
+  /** Freshly verified generation that pre-existed or won a concurrent promotion. */
   export type Existing = Success & {
     readonly kind: 'existing';
     readonly source: ConfiguredSource;
     readonly totals?: undefined;
   };
 
-  /** This invocation published and then verified the immutable generation. */
+  /** Generation published here and then freshly verified at its final directory. */
   export type Promoted = Success & {
     readonly kind: 'promoted';
     readonly source: ObservedSource;
     readonly totals: HttpPull.ResourceTotals;
   };
 
-  /** Stable orchestration stage for a failed result. */
+  /** Stable orchestration phase in which materialization failed. */
   export type FailureStage =
     | 'input'
     | 'storage'
@@ -124,10 +126,10 @@ export declare namespace ServerDist {
     | 'filesystem-failure'
     | 'execution-failure';
 
-  /** Visible target truth known despite failed verified-generation settlement. */
+  /** Visible target state known even though final verified settlement failed. */
   export type FailedPublication = 'committed' | 'occupied';
 
-  /** Failed materialization with no authority-bearing or path-bearing evidence. */
+  /** Sanitized failure without paths, raw causes, credentials, or verification evidence. */
   export type Failed = {
     readonly kind: 'failed';
     readonly stage: FailureStage;

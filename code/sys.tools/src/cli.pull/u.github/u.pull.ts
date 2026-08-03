@@ -64,6 +64,7 @@ type ReleaseAsset = {
   readonly size?: t.NumberBytes;
 };
 
+/** Bounded generic GitHub release and repository downloads. */
 export const GithubPull: t.GithubPull.Lib = Object.freeze({
   release,
   repo,

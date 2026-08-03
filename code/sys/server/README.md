@@ -1,12 +1,13 @@
 # @sys/server
+
 System primitives and entrypoint surfaces for server packages.
 
 [dsl]: https://en.wikipedia.org/wiki/Domain-specific_language
 
-
 <p>&nbsp;</p>
 
 ## Usage
+
 Read the package [DSL][dsl] before using, changing, or composing server primitives:
 
 ```sh
@@ -16,10 +17,30 @@ deno run -ER jsr:@sys/server dsl websocket
 deno run -ER jsr:@sys/server dsl websocket.cmd --format skill
 ```
 
+#### Checksum-pinned Dist materialization
+
+`jsr:@sys/server/dist` turns an externally pinned `dist.json` into an immutable local generation
+without choosing product or activation policy:
+
+```text
+manifest URL + independent exact-byte checksum + finite policy
+  → bounded manifest and asset acquisition
+  → confined staging and no-clobber promotion
+  → fresh verification of the final generation directory
+```
+
+Every `existing` or `promoted` result carries verification evidence produced against its exact
+returned directory. A `failed` result reports stable stage, reason, cleanup, and any visible
+publication truth without exposing paths, credentials, or raw host causes.
+
+This surface does not discover a checksum, choose a mutable current version, enforce replay policy,
+or activate files. Operator-owned configuration and optional mutable projection belong to
+`jsr:@sys/tools/pull`.
+
 #### Files WebSocket service endpoint
 
-Use `FilesWebSocketService` from `jsr:@sys/server/files/service` when Cell should own a
-bounded Files-over-WebSocket service lifecycle.
+Use `FilesWebSocketService` from `jsr:@sys/server/files/service` when Cell should own a bounded
+Files-over-WebSocket service lifecycle.
 
 ```yaml
 services:
@@ -40,16 +61,16 @@ watch: true
 policy: '**'
 ```
 
-`root` resolves relative to the service `cwd` and may not escape it. Defaults are
-`path: /files`, `policy: '**'`, and `watch: false`. The endpoint accepts Cell `silent` args for
-compatibility, but calls `FilesServer.WebSocket.create(...)`; hosted output, keyboard, and process
-signal behavior remain `start(...)` concerns.
+`root` resolves relative to the service `cwd` and may not escape it. Defaults are `path: /files`,
+`policy: '**'`, and `watch: false`. The endpoint accepts Cell `silent` args for compatibility, but
+calls `FilesServer.WebSocket.create(...)`; hosted output, keyboard, and process signal behavior
+remain `start(...)` concerns.
 
 #### WebSocket Cmd transport
 
-Use `WebSocketServer` to bind typed [`@sys/event/cmd`](https://jsr.io/@sys/event/doc/cmd)
-handlers to WebSocket upgrades. `@sys/server` owns upgrade, transport binding, status,
-and lifecycle; applications own command grammar and handlers.
+Use `WebSocketServer` to bind typed [`@sys/event/cmd`](https://jsr.io/@sys/event/doc/cmd) handlers
+to WebSocket upgrades. `@sys/server` owns upgrade, transport binding, status, and lifecycle;
+applications own command grammar and handlers.
 
 Define the command grammar, then start the server with handlers.
 

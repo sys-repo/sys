@@ -18,7 +18,7 @@ type FetchResult =
   | { readonly ok: true; readonly value: FetchedManifest }
   | { readonly ok: false; readonly reason: t.ServerDist.FailureReason };
 
-/** Materialize one externally pinned remote Dist as an immutable local generation. */
+/** Settle one pinned Dist with an `existing`, `promoted`, or `failed` result. */
 export const materialize: Method = async (input) => {
   const prepared = snapshotInput(input);
   if (!prepared.ok) return failed('input', prepared.reason);

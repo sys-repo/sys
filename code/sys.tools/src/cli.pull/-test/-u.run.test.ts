@@ -1,33 +1,121 @@
 import { describe, expect, expectError, Fs, it, Str } from '../../-test.ts';
 import type { t } from '../common.ts';
 import { Pull } from '../mod.ts';
+import { usingDistServer } from '../u.bundle/-test/u.dist.fixture.ts';
 import { json, release, usingGithubFetch } from '../u.github/-test/u.pull.fixture.ts';
 
 const CONFIG = '-config/@sys.tools.pull/view.yaml';
+const INDEX = '<html><head><base href="https://example.com/" /></head><body>fixture</body></html>';
 
 describe('@sys/tools/pull programmatic execution', () => {
-  it('pulls configured bundles from owner YAML', async () => {
-    await withDistServer(async (distUrl) => {
+  it('materializes a pinned generation and isolates mutable projection rewrites', async () => {
+    await usingDistServer(async (fixture) => {
       await withTmpDir(async (cwd) => {
         const config = Fs.join(cwd, CONFIG);
-        await Fs.write(config, yaml(distUrl), { force: true });
+        await Fs.write(config, distYaml(fixture), { force: true });
 
         const result = await Pull.run({ cwd, config: `./${CONFIG}` });
-
-        expect(result.ok).to.eql(true);
-        expect(result.config).to.eql(config);
-        expect(result.cwd).to.eql(cwd);
-        expect(result.dir).to.eql(cwd);
-        expect(result.bundles.length).to.eql(1);
-        const [bundle] = result.bundles;
-        if (!bundle) throw new Error('expected pulled bundle result');
-        expect(bundle.bundle.kind).to.eql('http');
-        if (bundle.bundle.kind !== 'http' || !('ops' in bundle.data)) {
-          throw new Error('expected HTTP bundle result');
+        const [pulled] = result.bundles;
+        if (!pulled || pulled.bundle.kind !== 'dist' || !('kind' in pulled.data)) {
+          throw new Error('expected Dist bundle result');
         }
-        expect(bundle.bundle.local.clear).to.eql(false);
-        expect(bundle.data.dist?.pkg?.name).to.eql('@sample/foo');
-        expect(await Fs.exists(Fs.join(cwd, 'pulled/sample/dist.json'))).to.eql(true);
+
+        expect(pulled.data.kind).to.eql('dist');
+        expect(pulled.data.generation.kind).to.eql('promoted');
+        expect(pulled.data.generation.integrity).to.eql(fixture.integrity);
+        expect(pulled.data.generation.verification.dist.pkg?.name).to.eql('@sample/foo');
+        expect(pulled.data.projection.kind).to.eql('projected');
+
+        const generationIndex = await Fs.readText(
+          Fs.join(pulled.data.generation.dir, 'index.html'),
+        );
+        const projectedIndex = await Fs.readText(Fs.join(cwd, 'pulled/sample/index.html'));
+        expect(generationIndex.data).to.eql(INDEX);
+        expect(projectedIndex.data).to.include('<base href="/pulled/sample/" />');
+        expect(projectedIndex.data).to.not.eql(generationIndex.data);
+      });
+    }, { indexHtml: INDEX });
+  });
+
+  it('treats existing and promoted generations identically without refetching', async () => {
+    await usingDistServer(async (fixture) => {
+      await withTmpDir(async (cwd) => {
+        const config = Fs.join(cwd, CONFIG);
+        await Fs.write(config, distYaml(fixture), { force: true });
+
+        const first = await Pull.run({ cwd, config: `./${CONFIG}` });
+        const afterFirst = fixture.requests();
+        const second = await Pull.run({ cwd, config: `./${CONFIG}` });
+        const a = first.bundles[0];
+        const b = second.bundles[0];
+        if (
+          !a ||
+          !b ||
+          a.bundle.kind !== 'dist' ||
+          b.bundle.kind !== 'dist' ||
+          !('kind' in a.data) ||
+          !('kind' in b.data)
+        ) {
+          throw new Error('expected Dist bundle results');
+        }
+
+        expect(a.data.generation.kind).to.eql('promoted');
+        expect(b.data.generation.kind).to.eql('existing');
+        expect(b.data.generation.dir).to.eql(a.data.generation.dir);
+        expect(b.data.projection.kind).to.eql('projected');
+        expect(fixture.requests()).to.eql(afterFirst);
+      });
+    }, { indexHtml: INDEX });
+  });
+
+  it('materializes without creating a mutable projection when none is configured', async () => {
+    await usingDistServer(async (fixture) => {
+      await withTmpDir(async (cwd) => {
+        const config = Fs.join(cwd, CONFIG);
+        await Fs.write(config, distYaml(fixture, false), { force: true });
+
+        const result = await Pull.run({ cwd, config: `./${CONFIG}` });
+        const pulled = result.bundles[0];
+        if (!pulled || pulled.bundle.kind !== 'dist' || !('kind' in pulled.data)) {
+          throw new Error('expected Dist bundle result');
+        }
+
+        expect(pulled.data.projection).to.eql({ kind: 'not-requested' });
+        expect(await Fs.exists(Fs.join(cwd, 'pulled/sample'))).to.eql(false);
+        expect(await Fs.exists(pulled.data.generation.dir)).to.eql(true);
+      });
+    });
+  });
+
+  it('does not project when pinned materialization fails', async () => {
+    await usingDistServer(async (fixture) => {
+      await withTmpDir(async (cwd) => {
+        const config = Fs.join(cwd, CONFIG);
+        const wrong = { ...fixture, integrity: `sha256-${'f'.repeat(64)}` as t.StringHash };
+        await Fs.write(config, distYaml(wrong), { force: true });
+
+        await expectError(
+          () => Pull.run({ cwd, config: `./${CONFIG}` }),
+          'Dist materialization failed: manifest-fetch/integrity-mismatch',
+        );
+        expect(await Fs.exists(Fs.join(cwd, 'pulled/sample'))).to.eql(false);
+      });
+    });
+  });
+
+  it('propagates cancellation without projecting mutable bytes', async () => {
+    await usingDistServer(async (fixture) => {
+      await withTmpDir(async (cwd) => {
+        const config = Fs.join(cwd, CONFIG);
+        await Fs.write(config, distYaml(fixture), { force: true });
+        const controller = new AbortController();
+        controller.abort('test cancellation');
+
+        await expectError(
+          () => Pull.run({ cwd, config: `./${CONFIG}`, until: controller.signal }),
+          'cancelled',
+        );
+        expect(await Fs.exists(Fs.join(cwd, 'pulled/sample'))).to.eql(false);
       });
     });
   });
@@ -63,46 +151,21 @@ describe('@sys/tools/pull programmatic execution', () => {
       await Fs.write(config, 'dir: .\n', { force: true });
 
       const result = await Pull.run({ cwd, config: `./${CONFIG}` });
-
       expect(result.ok).to.eql(true);
       expect(result.bundles).to.eql([]);
     });
   });
 
-  it('accepts owner config refs from paths.config', async () => {
-    await withTmpDir(async (cwd) => {
-      const config = Fs.join(cwd, CONFIG);
-      await Fs.write(config, 'dir: .\n', { force: true });
-
-      const result = await Pull.run({ cwd, paths: { config: `./${CONFIG}` } });
-
-      expect(result.ok).to.eql(true);
-      expect(result.config).to.eql(config);
-      expect(result.bundles).to.eql([]);
-    });
-  });
-
-  it('accepts equivalent config refs', async () => {
+  it('accepts equivalent owner config refs and rejects conflicting refs', async () => {
     await withTmpDir(async (cwd) => {
       const config = Fs.join(cwd, CONFIG);
       await Fs.write(config, 'dir: .\n', { force: true });
 
       const result = await Pull.run({ cwd, config: `./${CONFIG}`, paths: { config } });
-
-      expect(result.ok).to.eql(true);
       expect(result.config).to.eql(config);
-    });
-  });
 
-  it('rejects conflicting config refs', async () => {
-    await withTmpDir(async (cwd) => {
       await expectError(
-        () =>
-          Pull.run({
-            cwd,
-            config: './a.yaml',
-            paths: { config: './b.yaml' },
-          }),
+        () => Pull.run({ cwd, config: './a.yaml', paths: { config: './b.yaml' } }),
         'Pull.run: config and paths.config resolve to different paths.',
       );
     });
@@ -136,14 +199,31 @@ function githubYaml() {
   `).trimStart();
 }
 
-function yaml(distUrl: t.StringUrl) {
+function distYaml(
+  fixture: { readonly manifest: t.StringUrl; readonly integrity: t.StringHash },
+  project = true,
+) {
+  if (!project) {
+    return Str.dedent(`
+      dir: .
+      bundles:
+        - kind: dist
+          manifest: ${fixture.manifest}
+          integrity: ${fixture.integrity}
+          store: ./.dist-store
+    `).trimStart();
+  }
+
   return Str.dedent(`
     dir: .
     bundles:
-      - kind: http
-        dist: ${distUrl}
-        local:
+      - kind: dist
+        manifest: ${fixture.manifest}
+        integrity: ${fixture.integrity}
+        store: ./.dist-store
+        project:
           dir: pulled/sample
+          mode: replace
   `).trimStart();
 }
 
@@ -154,37 +234,4 @@ async function withTmpDir(fn: (dir: t.StringDir) => Promise<void>) {
   } finally {
     await Fs.remove(dir.absolute);
   }
-}
-
-async function withDistServer(fn: (distUrl: t.StringUrl) => Promise<void>) {
-  const abort = new AbortController();
-  const server = Deno.serve({ port: 0, signal: abort.signal }, () => {
-    return Response.json(distFixture());
-  });
-
-  try {
-    const { port } = server.addr;
-    await fn(`http://127.0.0.1:${port}/dist.json` as t.StringUrl);
-  } finally {
-    abort.abort();
-    await server.finished.catch(() => undefined);
-  }
-}
-
-function distFixture(): t.DistPkg {
-  return {
-    type: 'https://jsr.io/@sample/foo',
-    pkg: { name: '@sample/foo', version: '1.0.0' },
-    build: {
-      time: Date.now(),
-      size: { total: 1234, pkg: 1234 },
-      builder: '@sample/builder@1.0.0',
-      runtime: 'deno=2.6.0:v8=14.5.201.2-rusty:typescript=5.9.2',
-      hash: { policy: 'https://jsr.io/@sys/fs/0.0.229/src/m.Pkg/m.Pkg.Dist.ts' },
-    },
-    hash: {
-      digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
-      parts: {},
-    },
-  };
 }

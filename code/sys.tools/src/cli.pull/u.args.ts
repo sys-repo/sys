@@ -4,7 +4,7 @@ export function parseArgs(argv: string[] = []): t.PullTool.CliParsedArgs {
   const args = Args.parse<t.PullTool.CliArgs>(argv, {
     alias: { h: 'help' },
     boolean: ['help', 'dry-run', 'non-interactive'],
-    string: ['config', 'dist', 'local'],
+    string: ['config', 'manifest', 'integrity', 'store', 'project', 'mode'],
   });
 
   const command = parseCommand(args._[0]);

@@ -10,19 +10,33 @@ const LIMITS: t.GithubPull.Limits = {
   totalTime: 1000,
 };
 
+const INTEGRITY = `sha256-${'a'.repeat(64)}` as t.StringHash;
+
 describe('cli.pull/u.bundle → kind dispatch', () => {
-  it('dispatches http bundles to the http puller', async () => {
+  it('dispatches Dist bundles only to the pinned materializer', async () => {
     let called = false;
-    const bundle: t.PullTool.ConfigYaml.HttpBundle = {
-      kind: 'http',
-      dist: 'https://example.com/dist.json',
-      local: { dir: 'dev' },
+    const bundle: t.PullTool.ConfigYaml.DistBundle = {
+      kind: 'dist',
+      manifest: 'https://example.com/dist.json',
+      integrity: INTEGRITY,
+      store: './.dist-store',
+    };
+    const expected: t.PullTool.Bundle.Dist.MaterializationFailure = {
+      ok: false,
+      kind: 'materialization-failed',
+      generation: {
+        kind: 'failed',
+        stage: 'manifest-fetch',
+        reason: 'integrity-mismatch',
+        cleanup: 'not-needed',
+      },
+      projection: { kind: 'not-run' },
     };
 
-    await pullRemoteBundle('/tmp' as t.StringDir, bundle, {
-      pullHttp() {
+    const result = await pullRemoteBundle('/tmp' as t.StringDir, bundle, {
+      pullDist() {
         called = true;
-        return Promise.resolve({ ok: true, data: { ok: true, ops: [] } });
+        return Promise.resolve(expected);
       },
       pullGithubRelease() {
         throw new Error('should not call github:release puller');
@@ -33,6 +47,7 @@ describe('cli.pull/u.bundle → kind dispatch', () => {
     });
 
     expect(called).to.eql(true);
+    expect(result).to.eql(expected);
   });
 
   it('dispatches github:release bundles to the public result path', async () => {
@@ -45,8 +60,8 @@ describe('cli.pull/u.bundle → kind dispatch', () => {
     };
 
     const result = await pullRemoteBundle('/tmp' as t.StringDir, bundle, {
-      pullHttp() {
-        throw new Error('should not call http puller');
+      pullDist() {
+        throw new Error('should not call Dist materializer');
       },
       pullGithubRelease() {
         called = true;
@@ -71,8 +86,8 @@ describe('cli.pull/u.bundle → kind dispatch', () => {
     };
 
     const result = await pullRemoteBundle('/tmp' as t.StringDir, bundle, {
-      pullHttp() {
-        throw new Error('should not call http puller');
+      pullDist() {
+        throw new Error('should not call Dist materializer');
       },
       pullGithubRelease() {
         throw new Error('should not call github:release puller');

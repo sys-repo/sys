@@ -7,25 +7,26 @@ sections:
   - label: Rule
     items:
       - >-
-        Use this chapter only after the prompt resembles a Cell DSL speech act but slots are
-        incomplete or informal.
+          Use this chapter only after the prompt resembles a Cell DSL speech act but slots are
+          incomplete or informal.
       - These are sample slot values, not DSL grammar, defaults, or required values.
       - Confirm missing values before editing owner configs or `-config/@sys.cell/cell.yaml`.
       - Do not inspect implementation source just to infer these examples.
 
   - label: Prompt shapes
     items:
-      - A prompt mentioning `fs.db.team` likely points to an HTTP dist bundle URL slot.
-      - Ask for or confirm a complete `https://.../dist.json` URL before configuring a pull.
+      - A prompt mentioning `fs.db.team` may identify a Dist manifest URL slot.
+      - Ask for both the complete `https://.../dist.json` URL and its independently published SHA-256.
       - 'Depending on wording, likely operations are `add: pulled view` or `refresh: pulled views`.'
       - >-
-        Do not put dist URL, local target, pull mechanics, or view registry entries in
-        `-config/@sys.cell/cell.yaml`.
+          Do not put dist URL, local target, pull mechanics, or view registry entries in
+          `-config/@sys.cell/cell.yaml`.
 
   - label: 'Sample slot values'
     items:
-      - '<dist-url>: `https://fs.db.team/driver.stripe/dist.json`'
-      - '<dist-url>: `https://fs.db.team/ui.components/dist.json`'
+      - '<manifest-url>: `https://fs.db.team/driver.stripe/dist.json`'
+      - '<manifest-url>: `https://fs.db.team/ui.components/dist.json`'
+      - '<integrity>: publisher-provided `sha256-<exact-manifest-byte-hash>`; never derive it from the pull'
       - '<service-name>: `ui:static:views` for a sample static view service'
       - '<service-name>: `stripe:dev:fixture` for a sample Stripe fixture service'
       - '<service-name>: `cell:proxy` for a sample public proxy'
@@ -36,19 +37,19 @@ sections:
   - label: 'Descriptor shapes'
     items:
       - |-
-        Current Cell descriptor entries use this generic shape:
-        ```yaml
-        services:
-          - name:
-            use:
-            from:
-            config:
-        tasks:
-          - name:
-            use:
-            from:
-            config:
-        ```
+          Current Cell descriptor entries use this generic shape:
+          ```yaml
+          services:
+            - name:
+              use:
+              from:
+              config:
+          tasks:
+            - name:
+              use:
+              from:
+              config:
+          ```
       - Service and task names are Cell descriptor IDs.
       - Owner config internals stay outside `-config/@sys.cell/cell.yaml`.
 
@@ -62,8 +63,8 @@ sections:
   - label: Source guardrail
     items:
       - >-
-        Prefer root DSL, the matching operation chapter, this examples chapter, and owner
-        `--help` before package source.
+          Prefer root DSL, the matching operation chapter, this examples chapter, and owner
+          `--help` before package source.
       - >-
-        Source inspection is a last resort for public exports, types, or lifecycle/task
-        contracts only.
+          Source inspection is a last resort for public exports, types, or lifecycle/task
+          contracts only.

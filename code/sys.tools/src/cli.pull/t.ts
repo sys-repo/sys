@@ -5,9 +5,9 @@ export type * from './t.github.ts';
 export type * from './t.namespace.ts';
 
 /**
- * CLI helpers for working with Pull.
+ * Pull CLI entry contract.
  */
 export type PullToolsLib = {
-  /** Run the interactive CLI flow (prompts + spinner). */
+  /** Run Pull with interactive menus or explicit non-interactive arguments. */
   cli(cwd?: t.StringDir, argv?: string[]): Promise<void>;
 };
