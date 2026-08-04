@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../-test.ts';
-import { HttpPull, HttpServer, serveFileWithEtag } from './mod.ts';
+import { HttpPull, HttpServer, serveFileBytes, serveFileWithEtag } from './mod.ts';
 import { Http } from '../http/mod.ts';
 
 describe('HTTP Server', () => {
@@ -8,6 +8,7 @@ describe('HTTP Server', () => {
     expect(m.Http).to.equal(Http);
     expect(m.HttpPull).to.equal(HttpPull);
     expect(m.HttpServer).to.equal(HttpServer);
+    expect(m.serveFileBytes).to.equal(serveFileBytes);
     expect(m.serveFileWithEtag).to.equal(serveFileWithEtag);
   });
 });

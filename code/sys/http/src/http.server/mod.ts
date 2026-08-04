@@ -4,5 +4,5 @@
  */
 export { HttpProxy } from './m.HttpProxy/mod.ts';
 export { HttpPull } from './m.HttpPull/mod.ts';
-export { HttpServer, serveFileWithEtag } from './m.HttpServer/mod.ts';
+export { HttpServer, serveFileBytes, serveFileWithEtag } from './m.HttpServer/mod.ts';
 export { HttpStatic } from './m.HttpStatic/mod.ts';

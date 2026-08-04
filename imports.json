@@ -57,6 +57,7 @@
     "hono/cors": "npm:hono@4.12.33/cors",
     "hono/deno": "npm:hono@4.12.33/deno",
     "hono/types": "npm:hono@4.12.33/types",
+    "hono/utils/mime": "npm:hono@4.12.33/utils/mime",
     "ignore": "npm:ignore@7.0.6",
     "mdast": "npm:@types/mdast@4.0.4",
     "mdast-util-from-markdown": "npm:mdast-util-from-markdown@2.0.3",
@@ -109,4 +110,3 @@
     "yaml": "npm:yaml@2.9.0"
   }
 }
-
