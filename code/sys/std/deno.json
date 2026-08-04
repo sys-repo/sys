@@ -35,6 +35,7 @@
     "./is": "./src/-exports/-is.ts",
     "./json": "./src/m.Json/mod.ts",
     "./log": "./src/m.Log/mod.ts",
+    "./media-type": "./src/m.MediaType/mod.ts",
     "./num": "./src/m.Num/mod.ts",
     "./path": "./src/-exports/-path.ts",
     "./pkg": "./src/-exports/-pkg.ts",
@@ -63,4 +64,3 @@
     }
   }
 }
-

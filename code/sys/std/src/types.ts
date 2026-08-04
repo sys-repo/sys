@@ -24,6 +24,7 @@ export type * from './m.Is/t.ts';
 export type * from './m.Json/t.ts';
 export type * from './m.Lazy/t.ts';
 export type * from './m.Log/t.ts';
+export type * from './m.MediaType/t.ts';
 export type * from './m.Num/t.ts';
 export type * from './m.Obj/t.ts';
 export type * from './m.Path/t.ts';
