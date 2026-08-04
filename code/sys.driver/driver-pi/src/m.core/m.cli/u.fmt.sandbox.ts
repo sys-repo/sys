@@ -18,6 +18,11 @@ type Marker = {
   readonly explicit?: boolean;
 };
 
+type ReportLink = {
+  readonly display: string;
+  readonly href: URL;
+};
+
 const SANDBOX_EDGE_MARGIN = 1;
 const SANDBOX_TABLE_LABEL_WIDTH = Cli.Fmt.Text.Width.measure('permissions');
 const SANDBOX_TABLE_GAP = 3;
@@ -75,11 +80,13 @@ export const PiSandboxFmt = {
     const table = Cli.table([]);
 
     const root = runtimeRoot(input.cwd);
+    let reportLink: ReportLink | undefined;
 
     if (input.report) {
       const terminal = opts.terminal ?? Cli.Is.terminal('stdout');
+      reportLink = terminal ? prepareReportLink(input.report, contentBudget) : undefined;
       const report = terminal
-        ? formatReportLink(input.report, contentBudget)
+        ? (reportLink?.display ?? '')
         : formatReportPath(input.report, contentBudget, root);
       table.push([c.gray('report'), report]);
       table.push([c.gray('permissions'), formatPermissions(input.permissions)]);
@@ -106,11 +113,18 @@ export const PiSandboxFmt = {
     const bodyHr = c.dim(
       Cli.Fmt.hr({ width: renderWidth, color: 'gray', weight: 'dashed' }),
     );
+    const tableText = Str.trimEdgeNewlines(String(table));
+    const body = reportLink
+      ? tableText.replace(
+        reportLink.display,
+        () => Cli.Fmt.hyperlink(reportLink.display, reportLink.href),
+      )
+      : tableText;
 
     return Str.builder()
       .line(title)
       .line(headerHr)
-      .line(Str.trimEdgeNewlines(String(table)))
+      .line(body)
       .line(bodyHr)
       .toString();
   },
@@ -130,14 +144,18 @@ function sandboxContentBudget(renderWidth: number) {
   });
 }
 
-function formatReportLink(path: t.StringPath, budget: number) {
-  if (budget <= 0) return '';
+function prepareReportLink(path: t.StringPath, budget: number): ReportLink | undefined {
+  if (budget <= 0) return;
 
   const label = Path.basename(path);
+  if (label.length === 0) return;
   const display = Cli.Fmt.Text.Width.measure(label) <= budget
     ? c.gray(label)
     : ellipsizeReportPath(label, budget);
-  return Cli.Fmt.hyperlink(c.underline(display), Path.toFileUrl(path));
+  return {
+    display: c.underline(display),
+    href: Path.toFileUrl(path),
+  };
 }
 
 function formatReportPath(path: t.StringPath, budget: number, cwd: t.StringDir) {

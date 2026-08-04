@@ -141,6 +141,9 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
       Cli.Fmt.Text.Width.measure(reportLine),
     );
     expect(Cli.Fmt.Text.Width.measure(reportLine)).to.be.at.most(width - 1);
+    for (const line of lines(raw)) {
+      expect(Cli.Fmt.Text.Width.measure(line)).to.be.at.most(width - 1);
+    }
   });
 
   it('table → non-terminal full report paths remain gray and byte-complete when they fit', () => {
