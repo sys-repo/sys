@@ -49,6 +49,7 @@ type ExpectedHeaderOptions = {
 type ExpectedHeaderLib = {
   readonly rows: (options: ExpectedHeaderOptions) => readonly string[];
 };
+type ExpectedHyperlink = (label: string, href: URL) => string;
 
 type ExpectedTextWidthLib = {
   readonly measure: (input: string) => number;
@@ -103,6 +104,19 @@ type CanonicalFormatterProof = [
       CliFormatChaptersFromTypes.Lib,
       CliFromT.Fmt.Chapters.Lib,
       CliFromTypes.Fmt.Chapters.Lib
+    >
+  >,
+
+  // Hyperlink.
+  Assert<Equal<t.CliFormat.Hyperlink.Fn, ExpectedHyperlink>>,
+  Assert<
+    Exact6<
+      t.CliFormat.Hyperlink.Fn,
+      t.Cli.Fmt.Hyperlink.Fn,
+      CliFormatFromT.Hyperlink.Fn,
+      CliFormatFromTypes.Hyperlink.Fn,
+      CliFromT.Fmt.Hyperlink.Fn,
+      CliFromTypes.Fmt.Hyperlink.Fn
     >
   >,
 
@@ -466,6 +480,7 @@ describe('Cli.Fmt: canonical formatter type namespaces', () => {
     expectTypeOf(Fmt.Text.Width).toEqualTypeOf<t.CliFormatText.Width.Lib>();
     expectTypeOf(Fmt.Text.Wrap).toEqualTypeOf<t.CliFormatText.Wrap.Lib>();
     expectTypeOf(Fmt.Chapters).toEqualTypeOf<t.CliFormatChapters.Lib>();
+    expectTypeOf(Fmt.hyperlink).toEqualTypeOf<t.CliFormat.Hyperlink.Fn>();
     expectTypeOf(Fmt.Path).toEqualTypeOf<t.CliFormat.Path.Lib>();
     expectTypeOf(Fmt.Url).toEqualTypeOf<t.CliFormat.Url.Lib>();
     expectTypeOf(Fmt.Tree).toEqualTypeOf<t.CliFormat.Tree.Lib>();

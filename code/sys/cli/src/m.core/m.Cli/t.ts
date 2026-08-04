@@ -385,6 +385,14 @@ export declare namespace Cli {
     }
 
     /**
+     * OSC 8 terminal hyperlink contract projections.
+     */
+    export namespace Hyperlink {
+      /** OSC 8 terminal hyperlink formatter. */
+      export type Fn = t.CliFormat.Hyperlink.Fn;
+    }
+
+    /**
      * Path display contract projections.
      */
     export namespace Path {

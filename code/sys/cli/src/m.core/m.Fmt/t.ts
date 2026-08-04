@@ -26,6 +26,9 @@ export declare namespace CliFormat {
     /** Horizontal rule display formatting. */
     hr: Hr.Fn;
 
+    /** OSC 8 terminal hyperlink formatting. */
+    hyperlink: Hyperlink.Fn;
+
     /** Application identity header formatting. */
     readonly Header: CliFormatHeader.Lib;
 
@@ -59,6 +62,20 @@ export declare namespace CliFormat {
     /** Glyphs and helpers for rendering a tree hierarchy. */
     readonly Tree: Tree.Lib;
   };
+
+  /**
+   * Contracts for OSC 8 terminal hyperlink formatting.
+   */
+  export namespace Hyperlink {
+    /**
+     * Wrap terminal presentation text in an OSC 8 hyperlink.
+     *
+     * The label is emitted verbatim so existing ANSI styling survives. The URL supplies the
+     * serialized absolute href. Callers own label trust, URL scheme policy, and terminal/fallback
+     * selection.
+     */
+    export type Fn = (label: string, href: URL) => string;
+  }
 
   /**
    * Contracts for path display and terminal-aware shortening.

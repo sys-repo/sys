@@ -8,6 +8,7 @@ import { Commit } from './m.Fmt.Commit.ts';
 import { Header } from './m.Fmt.Header.ts';
 import { Help } from './m.Fmt.Help.ts';
 import { hr } from './m.Fmt.Hr.ts';
+import { hyperlink } from './m.Fmt.hyperlink.ts';
 import { spinnerRaw, spinnerText } from './m.Fmt.spinnerText.ts';
 import { Text } from '../m.Fmt.Text/mod.ts';
 import { Tree } from './m.Fmt.Tree.ts';
@@ -83,6 +84,7 @@ function numberOr(value: number | undefined, fallback: number): number {
 /** Command-line formatting helper library. */
 export const Fmt: t.CliFormat.Lib = {
   hr,
+  hyperlink,
   Header,
   Commit,
   Help,
