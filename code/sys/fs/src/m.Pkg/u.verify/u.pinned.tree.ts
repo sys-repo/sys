@@ -4,8 +4,8 @@ import {
   checkCancelled,
   failure,
   ioFailure,
+  type PinnedIo,
   type ReadHandle,
-  type VerifyPinnedIo,
 } from './u.pinned.io.ts';
 
 const compare = Str.Compare.codeUnit();
@@ -28,6 +28,8 @@ export type RootState = {
   readonly path: t.StringAbsoluteDir;
   readonly metadata: Metadata & { readonly kind: 'directory' };
 };
+
+export type PartAncestors = readonly (Metadata & { readonly kind: 'directory' })[];
 
 export type TreeEntry = Metadata & {
   readonly path: t.StringRelativePath;
@@ -52,7 +54,7 @@ type ObserveTreeOptions = {
 };
 
 export async function resolveRoot(
-  io: VerifyPinnedIo,
+  io: PinnedIo,
   input: string,
   signal: AbortSignal,
 ): Promise<RootState> {
@@ -96,7 +98,7 @@ export async function resolveRoot(
 }
 
 export async function readManifest(
-  io: VerifyPinnedIo,
+  io: PinnedIo,
   root: RootState,
   maxBytes: number,
   signal: AbortSignal,
@@ -110,24 +112,54 @@ export async function readManifest(
 }
 
 export async function readAsset(
-  io: VerifyPinnedIo,
+  io: PinnedIo,
   root: RootState,
   part: StrictPart,
   observed: Metadata,
   maxBytes: number,
   signal: AbortSignal,
 ): Promise<ReadValue> {
-  const value = await readRegularFile(io, root, part.path, maxBytes, signal, {
+  return await readRegularFile(io, root, part.path, maxBytes, signal, {
     expected: observed,
+    exactSize: part.size,
     missing: 'changed',
     wrongKind: 'changed',
   });
-  if (value.metadata.size !== part.size) throw failure('content-mismatch');
-  return value;
+}
+
+export async function observePartAncestors(
+  io: PinnedIo,
+  root: RootState,
+  relative: string,
+  signal: AbortSignal,
+  expected?: PartAncestors,
+): Promise<PartAncestors> {
+  const rootInfo = await lstatMaybe(io, root.path);
+  if (!rootInfo) throw failure('changed');
+  const currentRoot = expectedDirectoryMetadata(rootInfo);
+  if (!sameMetadata(root.metadata, currentRoot)) throw failure('changed');
+
+  const entries: Array<Metadata & { readonly kind: 'directory' }> = [];
+  let current = root.path;
+  const segments = relative.split('/').slice(0, -1);
+  for (const segment of segments) {
+    checkCancelled(signal);
+    current = Path.join(current, segment);
+    const info = await lstatMaybe(io, current);
+    if (!info) throw failure(expected ? 'changed' : 'missing');
+    if (info.isSymlink) throw failure(expected ? 'changed' : 'symlink');
+    if (!info.isDirectory) throw failure(expected ? 'changed' : 'unsafe-path');
+    const metadata = directoryMetadata(info);
+    const previous = expected?.[entries.length];
+    if (previous && !sameMetadata(previous, metadata)) throw failure('changed');
+    entries.push(metadata);
+  }
+  if (expected && expected.length !== entries.length) throw failure('changed');
+  return Object.freeze(entries);
 }
 
 export async function observeTree(
-  io: VerifyPinnedIo,
+  io: PinnedIo,
   root: RootState,
   maxEntries: number,
   signal: AbortSignal,
@@ -238,7 +270,7 @@ export function assertExactTree(snapshot: TreeSnapshot, parts: readonly StrictPa
 export function observedFile(
   snapshot: TreeSnapshot,
   path: string,
-  missingKind: t.Pkg.Dist.VerifyPinned.FailureKind = 'content-mismatch',
+  missingKind: t.Pkg.Dist.Pinned.Verify.FailureKind = 'content-mismatch',
 ): Metadata {
   const entry = indexOf(snapshot).get(path);
   if (!entry || entry.kind !== 'file') throw failure(missingKind);
@@ -267,16 +299,17 @@ export function bytesEqual(a: Uint8Array, b: Uint8Array): boolean {
   return true;
 }
 
-async function readRegularFile(
-  io: VerifyPinnedIo,
+export async function readRegularFile(
+  io: PinnedIo,
   root: RootState,
   relative: string,
   maxBytes: number,
   signal: AbortSignal,
   options: {
     readonly expected?: Metadata;
-    readonly missing: t.Pkg.Dist.VerifyPinned.FailureKind;
-    readonly wrongKind: t.Pkg.Dist.VerifyPinned.FailureKind;
+    readonly exactSize?: number;
+    readonly missing: t.Pkg.Dist.Pinned.Verify.FailureKind;
+    readonly wrongKind: t.Pkg.Dist.Pinned.Verify.FailureKind;
   },
 ): Promise<ReadValue> {
   checkCancelled(signal);
@@ -287,6 +320,9 @@ async function readRegularFile(
   if (!beforeInfo.isFile) throw failure(options.wrongKind);
   const before = fileMetadata(beforeInfo);
   if (options.expected && !sameMetadata(options.expected, before)) throw failure('changed');
+  if (options.exactSize !== undefined && before.size !== options.exactSize) {
+    throw failure('content-mismatch');
+  }
   if (before.size > maxBytes) throw failure('limit-exceeded');
 
   let handle: ReadHandle;
@@ -300,11 +336,17 @@ async function readRegularFile(
   let result: ReadValue | undefined;
   let operationFailure: unknown;
   try {
+    checkCancelled(signal);
     const opened = expectedFileMetadata(await handleStat(handle));
     if (!sameMetadata(before, opened)) throw failure('changed');
     if (opened.size > maxBytes) throw failure('limit-exceeded');
 
-    const bytes = new Uint8Array(opened.size);
+    let bytes: Uint8Array;
+    try {
+      bytes = new Uint8Array(options.exactSize ?? opened.size);
+    } catch {
+      throw failure('limit-exceeded');
+    }
     let offset = 0;
     while (offset < bytes.byteLength) {
       checkCancelled(signal);
@@ -312,6 +354,7 @@ async function readRegularFile(
       if (read === null || read <= 0) throw failure('changed');
       offset += read;
     }
+    checkCancelled(signal);
     const extra = new Uint8Array(1);
     const trailing = await handleRead(handle, extra);
     if (trailing !== null) throw failure('changed');
@@ -347,7 +390,7 @@ async function readRegularFile(
 }
 
 async function lstatMaybe(
-  io: VerifyPinnedIo,
+  io: PinnedIo,
   path: string,
 ): Promise<Deno.FileInfo | undefined> {
   try {
@@ -401,7 +444,7 @@ function expectedDirectoryMetadata(
 
 function entryMetadata(
   info: Deno.FileInfo,
-  specialKind: t.Pkg.Dist.VerifyPinned.FailureKind,
+  specialKind: t.Pkg.Dist.Pinned.Verify.FailureKind,
 ): Metadata {
   if (info.isDirectory) return directoryMetadata(info);
   if (info.isFile) return fileMetadata(info);

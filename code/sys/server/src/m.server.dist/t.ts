@@ -48,7 +48,7 @@ export declare namespace ServerDist {
     /** Bounded checksum-pinned asset Pull authority. */
     readonly resources: HttpPull.ResourcePolicy;
     /** Bounded complete-generation verification authority. */
-    readonly verification: FsPkg.Dist.VerifyPinned.Limits;
+    readonly verification: FsPkg.Dist.Pinned.Verify.Limits;
   };
 
   /** Manifest-request credentials; callbacks run only when network work is required. */
@@ -82,7 +82,7 @@ export declare namespace ServerDist {
     /** Exact external manifest pin naming this generation. */
     readonly integrity: t.StringHash;
     /** Fresh owner evidence produced against this exact returned directory. */
-    readonly verification: FsPkg.Dist.VerifyPinned.Evidence;
+    readonly verification: FsPkg.Dist.Pinned.Verify.Evidence;
     /** Private-stage cleanup truth. */
     readonly cleanup: Cleanup;
     readonly stage?: undefined;

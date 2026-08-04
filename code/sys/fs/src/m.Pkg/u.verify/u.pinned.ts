@@ -6,7 +6,7 @@ import {
   failure,
   ioFailure,
   isFailure,
-  type VerifyPinnedIo,
+  type PinnedIo,
 } from './u.pinned.io.ts';
 import { addBytes, isSafeNonNegative, isSafePositive } from './u.pinned.limit.ts';
 import { admitManifest } from './u.pinned.manifest.ts';
@@ -25,15 +25,15 @@ import {
 const decoder = new TextDecoder('utf-8', { fatal: true });
 
 /** Exact pinned generation verification. */
-export const verifyPinned: t.Pkg.Dist.VerifyPinned.Method = (args) => {
+export const verifyPinned: t.Pkg.Dist.Pinned.Verify.Method = (args) => {
   return verifyPinnedWithIo(args, DEFAULT_IO);
 };
 
 /** Internal implementation seam with injectable host IO for deterministic tests. */
 export async function verifyPinnedWithIo(
-  args: t.Pkg.Dist.VerifyPinned.Args,
-  io: VerifyPinnedIo,
-): Promise<t.Pkg.Dist.VerifyPinned.Result> {
+  args: t.Pkg.Dist.Pinned.Verify.Args,
+  io: PinnedIo,
+): Promise<t.Pkg.Dist.Pinned.Verify.Result> {
   const input = admitArgs(args);
   if (!input) return failed('invalid-input');
 
@@ -128,7 +128,7 @@ export async function verifyPinnedWithIo(
       totalBytes,
       packageBytes,
     });
-    const evidence: t.Pkg.Dist.VerifyPinned.Evidence = Object.freeze({
+    const evidence: t.Pkg.Dist.Pinned.Verify.Evidence = Object.freeze({
       integrity: input.integrity,
       dist: strict.dist,
       manifestBytes: manifest.bytes.byteLength,
@@ -143,10 +143,10 @@ export async function verifyPinnedWithIo(
   }
 }
 
-function admitArgs(input: unknown): t.Pkg.Dist.VerifyPinned.Args | undefined {
+function admitArgs(input: unknown): t.Pkg.Dist.Pinned.Verify.Args | undefined {
   try {
     if (!Is.plainObject(input)) return undefined;
-    const args = input as Partial<t.Pkg.Dist.VerifyPinned.Args>;
+    const args = input as Partial<t.Pkg.Dist.Pinned.Verify.Args>;
     const { dir, integrity, until } = args;
     if (!Is.str(dir) || dir.length === 0 || dir.includes('\0')) return undefined;
     const parsed = Pkg.Dist.Part.parse(integrity);
@@ -181,7 +181,7 @@ function admitArgs(input: unknown): t.Pkg.Dist.VerifyPinned.Args | undefined {
 }
 
 function failed(
-  kind: t.Pkg.Dist.VerifyPinned.FailureKind,
-): t.Pkg.Dist.VerifyPinned.Failure {
+  kind: t.Pkg.Dist.Pinned.Verify.FailureKind,
+): t.Pkg.Dist.Pinned.Verify.Failure {
   return Object.freeze({ kind });
 }

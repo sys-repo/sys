@@ -11,30 +11,30 @@ import {
   type t,
 } from '../../-test.ts';
 import { Pkg } from '../mod.ts';
-import { cloneDist, limits, setup, teardown, writeManifest } from './-u.verifyPinned.fixture.ts';
+import { cloneDist, limits, setup, teardown, writeManifest } from './-u.pinned.fixture.ts';
 
 const decoder = new TextDecoder();
 const encoder = new TextEncoder();
 
-describe('Pkg.Dist.verifyPinned manifest admission', () => {
+describe('Pkg.Dist.Pinned.verify manifest admission', () => {
   it('distinguishes invalid caller input from an exact pin mismatch', async () => {
     const fixture = await setup();
     try {
-      const malformedPin = await Pkg.Dist.verifyPinned({
+      const malformedPin = await Pkg.Dist.Pinned.verify({
         dir: fixture.dir,
         integrity: 'sha256-nope' as t.StringHash,
         limits,
       });
       expect(malformedPin).to.eql({ kind: 'invalid-input' });
 
-      const wrongPin = await Pkg.Dist.verifyPinned({
+      const wrongPin = await Pkg.Dist.Pinned.verify({
         dir: fixture.dir,
         integrity: `sha256-${'0'.repeat(64)}` as t.StringHash,
         limits,
       });
       expect(wrongPin).to.eql({ kind: 'integrity-mismatch' });
 
-      const invalidLimits = await Pkg.Dist.verifyPinned({
+      const invalidLimits = await Pkg.Dist.Pinned.verify({
         dir: fixture.dir,
         integrity: fixture.integrity,
         limits: { ...limits, entries: 0 },
@@ -50,7 +50,7 @@ describe('Pkg.Dist.verifyPinned manifest admission', () => {
     try {
       const invalidUtf8 = new Uint8Array([0xff, 0xfe, 0xfd]);
       await Deno.writeFile(`${fixture.dir}/dist.json`, invalidUtf8);
-      const utf8 = await Pkg.Dist.verifyPinned({
+      const utf8 = await Pkg.Dist.Pinned.verify({
         dir: fixture.dir,
         integrity: Hash.sha256(invalidUtf8),
         limits,
@@ -59,7 +59,7 @@ describe('Pkg.Dist.verifyPinned manifest admission', () => {
 
       const malformedJson = encoder.encode('{');
       await Deno.writeFile(`${fixture.dir}/dist.json`, malformedJson);
-      const json = await Pkg.Dist.verifyPinned({
+      const json = await Pkg.Dist.Pinned.verify({
         dir: fixture.dir,
         integrity: Hash.sha256(malformedJson),
         limits,
@@ -76,7 +76,7 @@ describe('Pkg.Dist.verifyPinned manifest admission', () => {
       for (const value of unsafeShapes) {
         const bytes = encoder.encode(Json.stringify(value));
         await Deno.writeFile(`${fixture.dir}/dist.json`, bytes);
-        const shape = await Pkg.Dist.verifyPinned({
+        const shape = await Pkg.Dist.Pinned.verify({
           dir: fixture.dir,
           integrity: Hash.sha256(bytes),
           limits,
@@ -97,7 +97,7 @@ describe('Pkg.Dist.verifyPinned manifest admission', () => {
       const bytes = encoder.encode(text);
       await Deno.writeFile(`${fixture.dir}/dist.json`, bytes);
 
-      const result = await Pkg.Dist.verifyPinned({
+      const result = await Pkg.Dist.Pinned.verify({
         dir: fixture.dir,
         integrity: Hash.sha256(bytes),
         limits,
@@ -183,7 +183,7 @@ describe('Pkg.Dist.verifyPinned manifest admission', () => {
 
       for (const dist of cases) {
         const manifest = await writeManifest(fixture.dir, dist);
-        const result = await Pkg.Dist.verifyPinned({
+        const result = await Pkg.Dist.Pinned.verify({
           dir: fixture.dir,
           integrity: manifest.integrity,
           limits,
@@ -209,7 +209,7 @@ describe('Pkg.Dist.verifyPinned manifest admission', () => {
         'rules:digest': await Ignore.digest(acceptedRules),
       };
       const acceptedManifest = await writeManifest(fixture.dir, accepted);
-      const verified = await Pkg.Dist.verifyPinned({
+      const verified = await Pkg.Dist.Pinned.verify({
         dir: fixture.dir,
         integrity: acceptedManifest.integrity,
         limits,
@@ -226,7 +226,7 @@ describe('Pkg.Dist.verifyPinned manifest admission', () => {
           'rules:digest': await Ignore.digest(rules),
         };
         const manifest = await writeManifest(fixture.dir, rejected);
-        const result = await Pkg.Dist.verifyPinned({
+        const result = await Pkg.Dist.Pinned.verify({
           dir: fixture.dir,
           integrity: manifest.integrity,
           limits,
@@ -272,7 +272,7 @@ describe('Pkg.Dist.verifyPinned manifest admission', () => {
 
       for (const dist of cases) {
         const manifest = await writeManifest(fixture.dir, dist);
-        const result = await Pkg.Dist.verifyPinned({
+        const result = await Pkg.Dist.Pinned.verify({
           dir: fixture.dir,
           integrity: manifest.integrity,
           limits,
@@ -296,7 +296,7 @@ describe('Pkg.Dist.verifyPinned manifest admission', () => {
         key: 'release-key',
       };
       const manifest = await writeManifest(fixture.dir, dist);
-      const result = await Pkg.Dist.verifyPinned({
+      const result = await Pkg.Dist.Pinned.verify({
         dir: fixture.dir,
         integrity: manifest.integrity,
         limits,
@@ -316,7 +316,7 @@ describe('Pkg.Dist.verifyPinned manifest admission', () => {
       const atLimitPath = paths[paths.length - 1];
       atLimit.hash.parts[atLimitPath] = 'malformed' as t.StringFileHashUri;
       const atLimitManifest = await writeManifest(fixture.dir, atLimit);
-      const admitted = await Pkg.Dist.verifyPinned({
+      const admitted = await Pkg.Dist.Pinned.verify({
         dir: fixture.dir,
         integrity: atLimitManifest.integrity,
         limits: { ...limits, entries: paths.length },
@@ -327,7 +327,7 @@ describe('Pkg.Dist.verifyPinned manifest admission', () => {
       const excessPath = paths[1];
       excess.hash.parts[excessPath] = 'malformed' as t.StringFileHashUri;
       const excessManifest = await writeManifest(fixture.dir, excess);
-      const bounded = await Pkg.Dist.verifyPinned({
+      const bounded = await Pkg.Dist.Pinned.verify({
         dir: fixture.dir,
         integrity: excessManifest.integrity,
         limits: { ...limits, entries: 1 },
@@ -341,28 +341,28 @@ describe('Pkg.Dist.verifyPinned manifest admission', () => {
   it('enforces every caller-owned resource limit', async () => {
     const fixture = await setup();
     try {
-      const manifest = await Pkg.Dist.verifyPinned({
+      const manifest = await Pkg.Dist.Pinned.verify({
         dir: fixture.dir,
         integrity: fixture.integrity,
         limits: { ...limits, manifestBytes: fixture.manifest.byteLength - 1 },
       });
       expect(manifest).to.eql({ kind: 'limit-exceeded' });
 
-      const file = await Pkg.Dist.verifyPinned({
+      const file = await Pkg.Dist.Pinned.verify({
         dir: fixture.dir,
         integrity: fixture.integrity,
         limits: { ...limits, fileBytes: 1 },
       });
       expect(file).to.eql({ kind: 'limit-exceeded' });
 
-      const total = await Pkg.Dist.verifyPinned({
+      const total = await Pkg.Dist.Pinned.verify({
         dir: fixture.dir,
         integrity: fixture.integrity,
         limits: { ...limits, totalBytes: 1 },
       });
       expect(total).to.eql({ kind: 'limit-exceeded' });
 
-      const entries = await Pkg.Dist.verifyPinned({
+      const entries = await Pkg.Dist.Pinned.verify({
         dir: fixture.dir,
         integrity: fixture.integrity,
         limits: { ...limits, entries: 3 },
@@ -379,7 +379,7 @@ describe('Pkg.Dist.verifyPinned manifest admission', () => {
         pkg: Num.MAX_INT,
       };
       const arithmeticManifest = await writeManifest(fixture.dir, unsafeArithmetic);
-      const arithmetic = await Pkg.Dist.verifyPinned({
+      const arithmetic = await Pkg.Dist.Pinned.verify({
         dir: fixture.dir,
         integrity: arithmeticManifest.integrity,
         limits: {

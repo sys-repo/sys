@@ -82,7 +82,7 @@ export function pullReason(
 
 /** Classify one pinned verification failure. */
 export function verificationReason(
-  result: t.FsPkg.Dist.VerifyPinned.Failure,
+  result: t.FsPkg.Dist.Pinned.Verify.Failure,
 ): t.ServerDist.FailureReason {
   switch (result.kind) {
     case 'invalid-input':

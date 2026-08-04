@@ -9,9 +9,9 @@ import {
   teardown,
   withIo,
   writeManifest,
-} from './-u.verifyPinned.fixture.ts';
+} from './-u.pinned.fixture.ts';
 
-describe('Pkg.Dist.verifyPinned exact tree and content', () => {
+describe('Pkg.Dist.Pinned.verify exact tree and content', () => {
   it('rejects missing, truncated, enlarged, and tampered declared assets', async () => {
     for (const mutation of ['missing', 'truncated', 'enlarged', 'tampered'] as const) {
       const fixture = await setup();
@@ -25,7 +25,7 @@ describe('Pkg.Dist.verifyPinned exact tree and content', () => {
           await Deno.writeTextFile(path, original.replace('verified', 'tampered'));
         }
 
-        const result = await Pkg.Dist.verifyPinned({
+        const result = await Pkg.Dist.Pinned.verify({
           dir: fixture.dir,
           integrity: fixture.integrity,
           limits,
@@ -42,7 +42,7 @@ describe('Pkg.Dist.verifyPinned exact tree and content', () => {
     try {
       await Deno.remove(`${fileFixture.dir}/assets/app.js`);
       await Deno.mkdir(`${fileFixture.dir}/assets/app.js`);
-      const file = await Pkg.Dist.verifyPinned({
+      const file = await Pkg.Dist.Pinned.verify({
         dir: fileFixture.dir,
         integrity: fileFixture.integrity,
         limits,
@@ -56,7 +56,7 @@ describe('Pkg.Dist.verifyPinned exact tree and content', () => {
     try {
       await Deno.remove(`${directoryFixture.dir}/assets`, { recursive: true });
       await Deno.writeTextFile(`${directoryFixture.dir}/assets`, 'not a directory');
-      const directory = await Pkg.Dist.verifyPinned({
+      const directory = await Pkg.Dist.Pinned.verify({
         dir: directoryFixture.dir,
         integrity: directoryFixture.integrity,
         limits,
@@ -82,7 +82,7 @@ describe('Pkg.Dist.verifyPinned exact tree and content', () => {
         }
         if (mutation === 'directory') await Deno.mkdir(`${fixture.dir}/empty`);
 
-        const result = await Pkg.Dist.verifyPinned({
+        const result = await Pkg.Dist.Pinned.verify({
           dir: fixture.dir,
           integrity: fixture.integrity,
           limits,
@@ -131,7 +131,7 @@ describe('Pkg.Dist.verifyPinned exact tree and content', () => {
       const manifest = await writeManifest(fixture.dir, dist);
       await Deno.writeTextFile(`${fixture.dir}/.DS_Store`, 'authenticated as ignored');
 
-      const result = await Pkg.Dist.verifyPinned({
+      const result = await Pkg.Dist.Pinned.verify({
         dir: fixture.dir,
         integrity: manifest.integrity,
         limits,
@@ -144,12 +144,12 @@ describe('Pkg.Dist.verifyPinned exact tree and content', () => {
 
   it('rejects declared-file and structural-directory symlinks in isolation', async () => {
     const fileFixture = await setup();
-    const outside = await Deno.makeTempFile({ prefix: 'Pkg.Dist.verifyPinned.outside.' });
+    const outside = await Deno.makeTempFile({ prefix: 'Pkg.Dist.Pinned.verify.outside.' });
     try {
       await Deno.writeTextFile(outside, 'outside');
       await Deno.remove(`${fileFixture.dir}/assets/app.js`);
       await Deno.symlink(outside, `${fileFixture.dir}/assets/app.js`);
-      const file = await Pkg.Dist.verifyPinned({
+      const file = await Pkg.Dist.Pinned.verify({
         dir: fileFixture.dir,
         integrity: fileFixture.integrity,
         limits,
@@ -164,7 +164,7 @@ describe('Pkg.Dist.verifyPinned exact tree and content', () => {
     try {
       await Deno.remove(`${directoryFixture.dir}/assets`, { recursive: true });
       await Deno.symlink(directoryFixture.dir, `${directoryFixture.dir}/assets`);
-      const directory = await Pkg.Dist.verifyPinned({
+      const directory = await Pkg.Dist.Pinned.verify({
         dir: directoryFixture.dir,
         integrity: directoryFixture.integrity,
         limits,
@@ -181,7 +181,7 @@ describe('Pkg.Dist.verifyPinned exact tree and content', () => {
       const alias = `${rootFixture.dir}-alias`;
       await Deno.symlink(rootFixture.dir, alias);
       try {
-        const root = await Pkg.Dist.verifyPinned({
+        const root = await Pkg.Dist.Pinned.verify({
           dir: alias,
           integrity: rootFixture.integrity,
           limits,
@@ -196,7 +196,7 @@ describe('Pkg.Dist.verifyPinned exact tree and content', () => {
 
     const ancestorFixture = await setup();
     const createdAliasWorkspace = await Deno.makeTempDir({
-      prefix: 'Pkg.Dist.verifyPinned.ancestor.',
+      prefix: 'Pkg.Dist.Pinned.verify.ancestor.',
     });
     const aliasWorkspace = await Deno.realPath(createdAliasWorkspace);
     try {
@@ -207,7 +207,7 @@ describe('Pkg.Dist.verifyPinned exact tree and content', () => {
       expect(finalInfo.isDirectory).to.eql(true);
       expect(finalInfo.isSymlink).to.eql(false);
 
-      const ancestor = await Pkg.Dist.verifyPinned({
+      const ancestor = await Pkg.Dist.Pinned.verify({
         dir: throughAncestor,
         integrity: ancestorFixture.integrity,
         limits,
@@ -222,7 +222,7 @@ describe('Pkg.Dist.verifyPinned exact tree and content', () => {
   it('distinguishes initially missing generation roots and manifests', async () => {
     const fixture = await setup();
     try {
-      const root = await Pkg.Dist.verifyPinned({
+      const root = await Pkg.Dist.Pinned.verify({
         dir: `${fixture.dir}/missing`,
         integrity: fixture.integrity,
         limits,
@@ -230,7 +230,7 @@ describe('Pkg.Dist.verifyPinned exact tree and content', () => {
       expect(root).to.eql({ kind: 'missing' });
 
       await Deno.remove(`${fixture.dir}/dist.json`);
-      const manifest = await Pkg.Dist.verifyPinned({
+      const manifest = await Pkg.Dist.Pinned.verify({
         dir: fixture.dir,
         integrity: fixture.integrity,
         limits,
@@ -246,7 +246,7 @@ describe('Pkg.Dist.verifyPinned exact tree and content', () => {
     try {
       await Deno.remove(`${fixture.dir}/dist.json`);
       await Deno.mkdir(`${fixture.dir}/dist.json`);
-      const manifest = await Pkg.Dist.verifyPinned({
+      const manifest = await Pkg.Dist.Pinned.verify({
         dir: fixture.dir,
         integrity: fixture.integrity,
         limits,
@@ -254,11 +254,11 @@ describe('Pkg.Dist.verifyPinned exact tree and content', () => {
       expect(manifest).to.eql({ kind: 'content-mismatch' });
 
       const createdRootFile = await Deno.makeTempFile({
-        prefix: 'Pkg.Dist.verifyPinned.root-file.',
+        prefix: 'Pkg.Dist.Pinned.verify.root-file.',
       });
       const fileRoot = await Deno.realPath(createdRootFile);
       try {
-        const root = await Pkg.Dist.verifyPinned({
+        const root = await Pkg.Dist.Pinned.verify({
           dir: fileRoot,
           integrity: fixture.integrity,
           limits,

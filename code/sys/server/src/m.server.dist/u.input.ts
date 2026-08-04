@@ -244,7 +244,7 @@ function snapshotResourcePolicy(input: unknown): t.HttpPull.ResourcePolicy | und
   });
 }
 
-function snapshotVerification(input: unknown): t.FsPkg.Dist.VerifyPinned.Limits | undefined {
+function snapshotVerification(input: unknown): t.FsPkg.Dist.Pinned.Verify.Limits | undefined {
   if (!exactRecord(input, VERIFICATION_KEYS) || !required(input, VERIFICATION_KEYS)) return;
   const manifestBytes = input.manifestBytes;
   const entries = input.entries;

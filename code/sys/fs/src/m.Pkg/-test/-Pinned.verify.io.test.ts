@@ -1,15 +1,15 @@
 import { describe, expect, it, StdPath } from '../../-test.ts';
 import { Pkg } from '../mod.ts';
 import { verifyPinnedWithIo } from '../u.verify/u.pinned.ts';
-import { DEFAULT_IO, limits, setup, teardown, withIo } from './-u.verifyPinned.fixture.ts';
+import { DEFAULT_IO, limits, setup, teardown, withIo } from './-u.pinned.fixture.ts';
 
-describe('Pkg.Dist.verifyPinned operation truth', () => {
+describe('Pkg.Dist.Pinned.verify IO invariants', () => {
   it('returns cancelled before work, during enumeration, and at the final boundary', async () => {
     const fixture = await setup();
     try {
       const before = new AbortController();
       before.abort('before');
-      const cancelled = await Pkg.Dist.verifyPinned({
+      const cancelled = await Pkg.Dist.Pinned.verify({
         dir: fixture.dir,
         integrity: fixture.integrity,
         limits,
@@ -174,7 +174,7 @@ describe('Pkg.Dist.verifyPinned operation truth', () => {
 
   it('classifies a symlink replacement during the second tree observation as changed', async () => {
     const fixture = await setup();
-    const outside = await Deno.makeTempFile({ prefix: 'Pkg.Dist.verifyPinned.changed-link.' });
+    const outside = await Deno.makeTempFile({ prefix: 'Pkg.Dist.Pinned.verify.changed-link.' });
     try {
       let rootReads = 0;
       const io = withIo({
@@ -230,7 +230,7 @@ describe('Pkg.Dist.verifyPinned operation truth', () => {
     for (const transition of ['symlink', 'missing-with-extra'] as const) {
       const fixture = await setup();
       const outside = await Deno.makeTempFile({
-        prefix: 'Pkg.Dist.verifyPinned.manifest-transition.',
+        prefix: 'Pkg.Dist.Pinned.verify.manifest-transition.',
       });
       try {
         let mutated = false;
@@ -327,7 +327,7 @@ describe('Pkg.Dist.verifyPinned operation truth', () => {
   it('classifies kind or symlink replacement after the first tree observation as changed', async () => {
     for (const replacement of ['directory', 'symlink'] as const) {
       const fixture = await setup();
-      const outside = await Deno.makeTempFile({ prefix: 'Pkg.Dist.verifyPinned.replacement.' });
+      const outside = await Deno.makeTempFile({ prefix: 'Pkg.Dist.Pinned.verify.replacement.' });
       try {
         const asset = StdPath.join(fixture.dir, 'assets', 'app.js');
         let observations = 0;
@@ -494,7 +494,7 @@ describe('Pkg.Dist.verifyPinned operation truth', () => {
           const handle = await DEFAULT_IO.open(path);
           if (path !== StdPath.join(fixture.dir, 'assets', 'app.js')) return handle;
           return {
-            read: async () => null,
+            read: () => Promise.resolve(null),
             stat: () => handle.stat(),
             close: () => {
               handle.close();

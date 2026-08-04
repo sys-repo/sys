@@ -6,7 +6,7 @@ import { admitManifest } from './u.manifest.ts';
 type Method = t.ServerDist.Method;
 type Stage = t.FsRooted.Stage;
 type Rooted = t.Fs.Rooted.Instance;
-type Verification = t.FsPkg.Dist.VerifyPinned.Result;
+type Verification = t.FsPkg.Dist.Pinned.Verify.Result;
 
 type FetchedManifest = Readonly<{
   bytes: Uint8Array;
@@ -48,7 +48,7 @@ export const materialize: Method = async (input) => {
 
   let existing: Verification;
   try {
-    existing = await FsPkg.Dist.verifyPinned({
+    existing = await FsPkg.Dist.Pinned.verify({
       dir,
       integrity: args.integrity,
       limits: args.policy.verification,
@@ -140,7 +140,7 @@ export const materialize: Method = async (input) => {
 
   let staged: Verification;
   try {
-    staged = await FsPkg.Dist.verifyPinned({
+    staged = await FsPkg.Dist.Pinned.verify({
       dir: stage.path,
       integrity: args.integrity,
       limits: args.policy.verification,
@@ -246,7 +246,7 @@ async function settleVisible(
 ): Promise<t.ServerDist.MaterializeResult> {
   let result: Verification;
   try {
-    result = await FsPkg.Dist.verifyPinned({
+    result = await FsPkg.Dist.Pinned.verify({
       dir,
       integrity: args.integrity,
       limits: args.policy.verification,
@@ -280,7 +280,7 @@ async function discardStage(rooted: Rooted, stage: Stage): Promise<t.ServerDist.
 function existingResult(
   args: InputSnapshot,
   dir: t.StringAbsoluteDir,
-  verification: t.FsPkg.Dist.VerifyPinned.Evidence,
+  verification: t.FsPkg.Dist.Pinned.Verify.Evidence,
   cleanup: t.ServerDist.Cleanup,
 ): t.ServerDist.Existing {
   return Object.freeze({
@@ -296,7 +296,7 @@ function existingResult(
 function promotedResult(
   args: InputSnapshot,
   dir: t.StringAbsoluteDir,
-  verification: t.FsPkg.Dist.VerifyPinned.Evidence,
+  verification: t.FsPkg.Dist.Pinned.Verify.Evidence,
   fetched: FetchedManifest,
   totals: t.HttpPull.ResourceTotals,
   cleanup: t.ServerDist.Cleanup,

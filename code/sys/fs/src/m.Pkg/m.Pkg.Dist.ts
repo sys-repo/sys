@@ -23,7 +23,13 @@ import {
   Time,
 } from './common.ts';
 import { Log } from './m.Log.ts';
+import { readPinnedPart } from './u.verify/u.pinned.part.ts';
 import { verifyPinned } from './u.verify/u.pinned.ts';
+
+const Pinned: t.Pkg.Dist.Pinned.Lib = Object.freeze({
+  verify: verifyPinned,
+  readPart: readPinnedPart,
+});
 
 /**
  * Tools for working with "distribution-package"
@@ -32,7 +38,7 @@ import { verifyPinned } from './u.verify/u.pinned.ts';
 export const Dist: t.Pkg.Dist.Lib = {
   ...Pkg.Dist,
   Log,
-  verifyPinned,
+  Pinned,
 
   /**
    * Prepare and save a "distribution package" meta-data file `dist.json`.

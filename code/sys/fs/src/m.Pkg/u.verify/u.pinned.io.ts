@@ -1,10 +1,10 @@
 import { Is, type t } from '../common.ts';
 
-const FAILURE = Symbol('Pkg.Dist.verifyPinned.failure');
+const FAILURE = Symbol('Pkg.Dist.Pinned.failure');
 
 type InternalFailure = {
   readonly [FAILURE]: true;
-  readonly kind: t.Pkg.Dist.VerifyPinned.FailureKind;
+  readonly kind: t.Pkg.Dist.Pinned.Verify.FailureKind;
 };
 
 export type ReadHandle = {
@@ -13,22 +13,22 @@ export type ReadHandle = {
   readonly close: () => void;
 };
 
-/** Private host operations used by strict Dist verification. */
-export type VerifyPinnedIo = {
+/** Private host operations used by checksum-pinned Dist operations. */
+export type PinnedIo = {
   readonly lstat: (path: string) => Promise<Deno.FileInfo>;
   readonly open: (path: string) => Promise<ReadHandle>;
   readonly readDir: (path: string) => AsyncIterable<Deno.DirEntry>;
   readonly realPath: (path: string) => Promise<string>;
 };
 
-export const DEFAULT_IO: VerifyPinnedIo = Object.freeze({
+export const DEFAULT_IO: PinnedIo = Object.freeze({
   lstat: (path) => Deno.lstat(path),
   open: (path) => Deno.open(path, { read: true }),
   readDir: (path) => Deno.readDir(path),
   realPath: (path) => Deno.realPath(path),
 });
 
-export function failure(kind: t.Pkg.Dist.VerifyPinned.FailureKind): InternalFailure {
+export function failure(kind: t.Pkg.Dist.Pinned.Verify.FailureKind): InternalFailure {
   return Object.freeze({ [FAILURE]: true as const, kind });
 }
 

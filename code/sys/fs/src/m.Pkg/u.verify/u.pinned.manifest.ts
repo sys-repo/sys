@@ -19,7 +19,7 @@ export type StrictManifest = {
 
 export async function admitManifest(
   input: unknown,
-  limits: t.Pkg.Dist.VerifyPinned.Limits,
+  limits: t.Pkg.Dist.Pinned.Verify.Limits,
 ): Promise<StrictManifest> {
   if (!Is.plainObject(input)) throw failure('malformed');
 

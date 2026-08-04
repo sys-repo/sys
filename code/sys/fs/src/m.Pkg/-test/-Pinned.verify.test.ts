@@ -1,18 +1,18 @@
 import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
 import { Pkg } from '../mod.ts';
-import { limits, setup, teardown } from './-u.verifyPinned.fixture.ts';
+import { limits, setup, teardown } from './-u.pinned.fixture.ts';
 
-describe('Pkg.Dist.verifyPinned', () => {
+describe('Pkg.Dist.Pinned.verify', () => {
   it('returns immutable owner-derived evidence for one exact generation', async () => {
     const fixture = await setup();
     try {
-      const result = await Pkg.Dist.verifyPinned({
+      const result = await Pkg.Dist.Pinned.verify({
         dir: fixture.dir,
         integrity: fixture.integrity,
         limits,
       });
 
-      expectTypeOf(result).toEqualTypeOf<t.Pkg.Dist.VerifyPinned.Result>();
+      expectTypeOf(result).toEqualTypeOf<t.Pkg.Dist.Pinned.Verify.Result>();
       expect(result.kind).to.eql('verified');
       if (result.kind !== 'verified') return;
 

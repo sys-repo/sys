@@ -1,7 +1,7 @@
 import { describe, expect, it, pkg, type t } from '../../-test.ts';
 import { pkg as fsPkg } from '../../pkg.ts';
 import { Dir } from '../../mod.ts';
-import { Sample } from './-u.fixture.ts';
+import { Sample } from './-u.dist.fixture.ts';
 import { c, D, Fs, Hash, Ignore, Is, Json, JsrUrl, Obj, Path, Str, Time } from '../common.ts';
 import { Dist } from '../m.Pkg.Dist.ts';
 import { Pkg } from '../mod.ts';
@@ -21,7 +21,11 @@ describe('Pkg.Dist', () => {
     it('API refs', () => {
       expect(Pkg.Dist).to.equal(Dist);
       expect(Pkg.Dist.checkSelfReported).to.equal(Dist.checkSelfReported);
-      expect(Pkg.Dist.verifyPinned).to.equal(Dist.verifyPinned);
+      expect(Pkg.Dist.Pinned).to.equal(Dist.Pinned);
+      expect(Pkg.Dist.Pinned.verify).to.equal(Dist.Pinned.verify);
+      expect(Pkg.Dist.Pinned.readPart).to.equal(Dist.Pinned.readPart);
+      expect(Object.keys(Pkg.Dist.Pinned).sort()).to.eql(['readPart', 'verify']);
+      expect(Object.isFrozen(Pkg.Dist.Pinned)).to.eql(true);
     });
 
     it('is not the [sys.std] client version, but surfaces all the [sys.std] interface', async () => {
