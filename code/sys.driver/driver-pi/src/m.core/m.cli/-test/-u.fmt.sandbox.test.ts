@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import type { t } from '../common.ts';
-import { c, Cli, pkg } from '../common.ts';
+import { c, Cli, Path, pkg } from '../common.ts';
 import { PiSandboxFmt } from '../u.fmt.sandbox.ts';
 
 type SandboxInput = Omit<t.PiCli.SandboxSummary, 'permissions'> & {
@@ -104,14 +104,53 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
     expectTargetRowsToFit(text, renderWidth, ['report']);
   });
 
-  it('table → full report paths remain gray and byte-complete when they fit', () => {
+  it('table → terminal report renders an underlined basename linked to the complete file URL', () => {
+    const width = 120;
+    const path = '/tmp/pi-cli-test/.pi/@sys/log/@sys.driver-pi/1775975797.abc123.sandbox.log.md';
+    const filename = Path.basename(path);
+    const raw = PiSandboxFmt.table({
+      permissions: 'scoped',
+      report: path,
+      cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
+    }, { width, terminal: true });
+    const link = Cli.Fmt.hyperlink(c.underline(c.gray(filename)), Path.toFileUrl(path));
+    const text = Cli.stripAnsi(raw);
+
+    expect(raw).to.contain(link);
+    expect(text).to.contain(filename);
+    expect(text).not.to.contain('.pi/@sys/log/@sys.driver-pi');
+    expect(text).to.match(/permissions\s+scoped/);
+  });
+
+  it('table → terminal report keeps its complete target while fitting a narrow label', () => {
+    const width = 36;
+    const filename = '1775975797.abc123.sandbox.log.md';
+    const path = `/tmp/pi-cli-test/.pi/@sys/log/@sys.driver-pi/${filename}`;
+    const raw = PiSandboxFmt.table({
+      permissions: 'scoped',
+      report: path,
+      cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
+    }, { width, terminal: true });
+    const rawReportLine = lines(raw).find((line) => Cli.stripAnsi(line).startsWith('report')) ?? '';
+    const reportLine = Cli.stripAnsi(rawReportLine);
+
+    expect(rawReportLine).to.contain(Path.toFileUrl(path).href);
+    expect(reportLine).not.to.contain(filename);
+    expect(reportLine).to.contain('log.md');
+    expect(Cli.Fmt.Text.Width.measure(rawReportLine)).to.eql(
+      Cli.Fmt.Text.Width.measure(reportLine),
+    );
+    expect(Cli.Fmt.Text.Width.measure(reportLine)).to.be.at.most(width - 1);
+  });
+
+  it('table → non-terminal full report paths remain gray and byte-complete when they fit', () => {
     const width = 120;
     const path = '/tmp/pi-cli-test/.pi/@sys/log/@sys.driver-pi/1775975797.abc123.sandbox.log.md';
     const raw = PiSandboxFmt.table({
       permissions: 'scoped',
       report: path,
       cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
-    }, { width });
+    }, { width, terminal: false });
 
     const display = '.pi/@sys/log/@sys.driver-pi/1775975797.abc123.sandbox.log.md';
     expect(raw).to.contain(c.gray(display));
@@ -119,7 +158,7 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
     expect(raw).not.to.contain(c.cyan('..'));
   });
 
-  it('table → collapsed report path preserves its tail and colors only the injected marker', () => {
+  it('table → non-terminal collapsed report path preserves its tail and marker color', () => {
     const width = 52;
     const filename = '1775.audit..abc.sandbox.log.md';
     const path = `/tmp/pi-cli-test/.pi/@sys/log/@sys.driver-pi/${filename}`;
@@ -127,7 +166,7 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
       permissions: 'scoped',
       report: path,
       cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
-    }, { width });
+    }, { width, terminal: false });
     const text = Cli.stripAnsi(raw);
     const reportLine = lines(text).find((line) => line.startsWith('report')) ?? '';
     const rawReportLine = lines(raw).find((line) => Cli.stripAnsi(line).startsWith('report')) ?? '';
@@ -310,7 +349,9 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
 });
 
 function render(input: SandboxInput, width: number) {
-  return Cli.stripAnsi(PiSandboxFmt.table({ permissions: 'scoped', ...input }, { width }));
+  return Cli.stripAnsi(
+    PiSandboxFmt.table({ permissions: 'scoped', ...input }, { width, terminal: false }),
+  );
 }
 
 function expectHeaderFrame(text: string, width: number) {

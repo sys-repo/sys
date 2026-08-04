@@ -4,6 +4,8 @@ import { isGitlessRoot, runtimeRoot } from './u.runtime.ts';
 type PiSandboxTableOptions = {
   readonly width?: number;
   readonly gitRootExplicit?: boolean;
+  /** Terminal-output override for deterministic rendering tests. */
+  readonly terminal?: boolean;
 };
 
 type PreviewFit = {
@@ -75,7 +77,11 @@ export const PiSandboxFmt = {
     const root = runtimeRoot(input.cwd);
 
     if (input.report) {
-      table.push([c.gray('report'), formatReportPath(input.report, contentBudget, root)]);
+      const terminal = opts.terminal ?? Cli.Is.terminal('stdout');
+      const report = terminal
+        ? formatReportLink(input.report, contentBudget)
+        : formatReportPath(input.report, contentBudget, root);
+      table.push([c.gray('report'), report]);
       table.push([c.gray('permissions'), formatPermissions(input.permissions)]);
     } else {
       table.push([c.gray('permissions'), formatPermissions(input.permissions)]);
@@ -122,6 +128,16 @@ function sandboxContentBudget(renderWidth: number) {
     reserve: SANDBOX_TABLE_MARGIN,
     terminal: false,
   });
+}
+
+function formatReportLink(path: t.StringPath, budget: number) {
+  if (budget <= 0) return '';
+
+  const label = Path.basename(path);
+  const display = Cli.Fmt.Text.Width.measure(label) <= budget
+    ? c.gray(label)
+    : ellipsizeReportPath(label, budget);
+  return Cli.Fmt.hyperlink(c.underline(display), Path.toFileUrl(path));
 }
 
 function formatReportPath(path: t.StringPath, budget: number, cwd: t.StringDir) {
