@@ -1,0 +1,17 @@
+export const FixtureMarker = {
+  clean: 'SYS:SANITIZER:clean',
+  timerStrict: 'SYS:SANITIZER:timer-strict',
+  timerBare: 'SYS:SANITIZER:timer-bare',
+  resourceStrict: 'SYS:SANITIZER:resource-strict',
+  operationStrict: 'SYS:SANITIZER:operation-strict',
+  operationOnlyStrict: 'SYS:SANITIZER:operation-only-strict',
+  exitDefault: 'SYS:SANITIZER:exit-default',
+  exitOptOut: 'SYS:SANITIZER:exit-opt-out',
+  operationOptOut: 'SYS:SANITIZER:operation-opt-out',
+  resourceOptOut: 'SYS:SANITIZER:resource-opt-out',
+  resourceWithOperationOptOut: 'SYS:SANITIZER:resource-with-operation-opt-out',
+  operationWithResourceOptOut: 'SYS:SANITIZER:operation-with-resource-opt-out',
+  explicitUnsanitized: 'SYS:SANITIZER:explicit-unsanitized',
+  nodeTimer: 'SYS:SANITIZER:node-timer',
+  timeout: 'SYS:SANITIZER:timeout',
+} as const;
