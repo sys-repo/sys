@@ -173,7 +173,8 @@ describe('Template: repo integration', () => {
     expect(authorities.imports['@sys/cli'].includes('/code/sys/cli/')).to.eql(true);
     expect(authorities.imports['@sys/std'].includes('/code/sys/std/')).to.eql(true);
     expect(authorities.imports['@sys/tmpl'].includes('/code/-tmpl/')).to.eql(true);
-    expect(typeof authorities.imports['@std/testing']).to.eql('string');
+    expect(authorities.imports['@std/testing']).to.eql(undefined);
+    expect(authorities.imports['@std/testing/bdd']).to.eql(undefined);
     expect(authorities.imports.react).to.eql(expected.imports.react);
     expect(authorities.packageJson.dependencies?.react).to.eql(
       expected.packageJson.dependencies?.react,

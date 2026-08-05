@@ -13,5 +13,11 @@ export const FixtureMarker = {
   operationWithResourceOptOut: 'SYS:SANITIZER:operation-with-resource-opt-out',
   explicitUnsanitized: 'SYS:SANITIZER:explicit-unsanitized',
   nodeTimer: 'SYS:SANITIZER:node-timer',
+  facadeClean: 'SYS:SANITIZER:facade-clean',
+  facadeTimer: 'SYS:SANITIZER:facade-timer',
+  facadeResource: 'SYS:SANITIZER:facade-resource',
+  facadeOperation: 'SYS:SANITIZER:facade-operation',
+  facadeExit: 'SYS:SANITIZER:facade-exit',
+  facadeOperationOptOutResource: 'SYS:SANITIZER:facade-operation-opt-out-resource',
   timeout: 'SYS:SANITIZER:timeout',
 } as const;

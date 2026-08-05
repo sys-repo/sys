@@ -33,8 +33,6 @@
     "@std/path/posix/join": "jsr:@std/path@1.1.6/posix/join",
     "@std/path/windows/join": "jsr:@std/path@1.1.6/windows/join",
     "@std/semver": "jsr:@std/semver@1.0.8",
-    "@std/testing": "jsr:@std/testing@1.0.20",
-    "@std/testing/bdd": "jsr:@std/testing@1.0.20/bdd",
     "@std/uuid": "jsr:@std/uuid@1.1.1",
     "@std/xml": "jsr:@std/xml@0.2.0",
     "@stripe/stripe-js": "npm:@stripe/stripe-js@9.12.1",
@@ -111,4 +109,3 @@
     "yaml": "npm:yaml@2.9.0"
   }
 }
-

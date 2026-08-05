@@ -3,11 +3,7 @@
   "version": "0.0.329",
   "license": "MIT",
   "x-sys": {
-    "ci": {
-      "test": {
-        "browser": true
-      }
-    }
+    "ci": { "test": { "browser": true } }
   },
   "tasks": {
     "test": "deno test -P=test",
@@ -24,18 +20,7 @@
     "./web": "./src/m.web/mod.ts"
   },
   "permissions": {
-    "clean": {
-      "read": true,
-      "write": true,
-      "env": true
-    },
-    "test": {
-      "read": true,
-      "write": true,
-      "env": true,
-      "net": true,
-      "run": true
-    }
+    "clean": { "read": true, "write": true, "env": true },
+    "test": { "read": true, "write": true, "env": true, "net": true, "run": true }
   }
 }
-

@@ -1,4 +1,4 @@
-import type { afterAll, afterEach, beforeAll, beforeEach, describe, it } from '@std/testing/bdd';
+import type { Bdd as BddRunner } from '@sys/types/testing';
 import type { t } from './common.ts';
 
 /**
@@ -56,10 +56,10 @@ export type TestRetryOptions = {
 };
 
 /** Describes a test suite. */
-export type Describe = typeof describe;
+export type Describe = BddRunner.Describe;
 
 /** Defines a single BDD test. */
-export type It = typeof it;
+export type It = BddRunner.It;
 
 /** Assertion library (BDD). */
 export type Expect = typeof import('chai').expect;
@@ -72,29 +72,20 @@ export type Expect = typeof import('chai').expect;
 export type ExpectError = (fn: () => Promise<any> | any, message?: string) => Promise<any>;
 
 /** Run some shared setup before all of the tests in the group.  */
-export type BeforeAll = typeof beforeAll;
+export type BeforeAll = BddRunner.HookRegistration;
 /** Run some shared setup before each test in the suite. */
-export type BeforeEach = typeof beforeEach;
+export type BeforeEach = BddRunner.HookRegistration;
 
 /** Run some shared teardown after all of the tests in the suite. */
-export type AfterAll = typeof afterAll;
+export type AfterAll = BddRunner.HookRegistration;
 /** Run some shared teardown after each test in the suite. */
-export type AfterEach = typeof afterEach;
+export type AfterEach = BddRunner.HookRegistration;
 
 export namespace Bdd {
   /**
    * BDD semantics ("Behavior Driven Development") helper contracts.
    */
-  export type Lib = {
-    readonly describe: Describe;
-    readonly it: It;
-
-    readonly beforeAll: BeforeAll;
-    readonly afterAll: AfterAll;
-
-    readonly beforeEach: BeforeEach;
-    readonly afterEach: AfterEach;
-
+  export type Lib = BddRunner.Lib & {
     readonly expect: Expect;
     readonly expectError: t.ExpectError;
   };

@@ -11,8 +11,6 @@ deno.json:
     subpaths: [ join, posix/join, windows/join ]
   - import: jsr:@std/semver@1.0.8
   - import: jsr:@std/uuid@1.1.1
-  - import: jsr:@std/testing@1.0.20
-    subpaths: [ bdd ]
   - import: jsr:@std/xml@0.2.0
   - import: jsr:@bradenmacdonald/s3-lite-client@0.9.6
   - import: jsr:@deno/loader@0.5.0

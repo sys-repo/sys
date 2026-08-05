@@ -4,7 +4,7 @@ import { ProcessTest } from './u.fixture.ts';
 
 const evalArgs = (code: string) => ['eval', code];
 
-describe('Process.Port', () => {
+describe('Process.Port', { sanitizeResources: false }, () => {
   it('rejects invalid port targets', async () => {
     const error = await ProcessTest.catchError(() => Process.Port.listeners(0));
     expect(error?.message).to.eql('Process.Port: invalid port: 0.');

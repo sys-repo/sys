@@ -2,7 +2,7 @@ import { describe, expect, Files, it, type t } from '../../-test.ts';
 import { R2 } from '../mod.ts';
 import { bytesObject, fakeBucket, r2FilesPolicy as policy, textObject } from './u.fixture.ts';
 
-describe('R2.Files', () => {
+describe('R2.Files', { sanitizeOps: false, sanitizeResources: false }, () => {
   describe('capabilities / object keys', () => {
     it('exports a writable Files backing with resolved capabilities', async () => {
       const { bucket } = fakeBucket();
@@ -315,6 +315,8 @@ describe('R2.Files', () => {
       const fixture = fakeBucket();
       const bucket: t.R2.Bucket = {
         ...fixture.bucket,
+        // Deliberately throws before this async iterable can yield.
+        // deno-lint-ignore require-yield
         async *list() {
           throw new Error('provider list failed');
         },

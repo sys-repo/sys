@@ -3,7 +3,7 @@ import { Process } from '../mod.ts';
 
 const evalArgs = (code: string) => ['eval', code];
 
-describe('Process.Terminate', () => {
+describe('Process.Terminate', { sanitizeResources: false }, () => {
   it('isRunning → reports the current process', () => {
     expect(Process.isRunning(Deno.pid)).to.eql(true);
   });

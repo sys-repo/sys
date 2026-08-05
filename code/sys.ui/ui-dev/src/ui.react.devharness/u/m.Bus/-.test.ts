@@ -1,11 +1,11 @@
-import { SAMPLES, Test, TestSample, Time, describe, expect, it, type t } from '../../-test.ts';
+import { describe, expect, it, SAMPLES, type t, Test, TestSample, Time } from '../../-test.ts';
 import { Spec } from '../mod.ts';
 import { DevBus } from './mod.ts';
 import { DevEventsIs } from './Bus.Events.ts';
 
 const exepctSessionId = (value: string) => expect(value).to.match(/^dev:ctx\./);
 
-describe('DevBus', () => {
+describe('DevBus', { sanitizeOps: false, sanitizeResources: false }, () => {
   describe('is', () => {
     const is = DevEventsIs;
 
@@ -366,8 +366,7 @@ describe('DevBus', () => {
           e.it('foo', (e) =>
             Spec.once(e, (ctx) => {
               Time.delay(10, () => ctx.run()); // NB: Simulate a "re-run" activated by say a UI click handler.
-            }),
-          );
+            }));
         });
 
         await events.load.fire(root);

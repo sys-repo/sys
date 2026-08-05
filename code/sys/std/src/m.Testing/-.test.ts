@@ -14,18 +14,21 @@ describe('Testing', () => {
     expect(m.expectTypeOf).to.equal(expectTypeOf);
   });
 
-  it('exports BDD semantics', async () => {
-    const { describe, it } = await import('@std/testing/bdd');
-    const { afterAll, afterEach, beforeAll, beforeEach } = await import('@std/testing/bdd');
+  it('exports one BDD registration surface', async () => {
+    const runner = await import('@sys/types/testing');
+    const facade = await import('@sys/std/testing');
 
     expect(Testing.Bdd.expect).to.equal(expect);
-    expect(Testing.Bdd.describe).to.equal(describe);
-    expect(Testing.Bdd.it).to.equal(it);
+    expect(Testing.Bdd.describe).to.equal(runner.describe);
+    expect(Testing.Bdd.it).to.equal(runner.it);
 
-    expect(Testing.Bdd.beforeAll).to.equal(beforeAll);
-    expect(Testing.Bdd.afterAll).to.equal(afterAll);
-    expect(Testing.Bdd.beforeEach).to.equal(beforeEach);
-    expect(Testing.Bdd.afterEach).to.equal(afterEach);
+    expect(Testing.Bdd.beforeAll).to.equal(runner.beforeAll);
+    expect(Testing.Bdd.afterAll).to.equal(runner.afterAll);
+    expect(Testing.Bdd.beforeEach).to.equal(runner.beforeEach);
+    expect(Testing.Bdd.afterEach).to.equal(runner.afterEach);
+
+    expect(facade.describe).to.equal(runner.describe);
+    expect(facade.it).to.equal(runner.it);
   });
 
   it('randomPort', () => {

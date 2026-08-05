@@ -1,9 +1,8 @@
 # Testing
 
-Tools for testing. Standard testing helpers (surfaced from
-[@sys/std](https://jsr.io/@sys/std/testing)).
+`@sys/testing` combines BDD registration, assertions, fixtures, and environment-specific helpers.
 
-### Local verification
+## Local verification
 
 ```sh
 deno task test
@@ -12,21 +11,53 @@ deno task test
 The normal test suite includes a `Browser.load(...)` proof that opens a local page in an installed
 Chrome/Chromium browser. Set `CHROME_BIN` if Chrome is not in a common platform location.
 
-### Examples
+## Test-runner authority
 
-Import test helpers (all environments, browser AND server):
+BDD registration follows one authority chain:
+
+```text
+@sys/testing and @sys/std/testing
+  → @sys/types/testing
+  → Deno.test and Deno.TestContext.step
+  → Deno execution, sanitizers, permissions, timeouts, diagnostics, and reporting
+```
+
+`@sys/types/testing` owns the stable BDD vocabulary: `describe`, `it`, hooks, modifiers, nested
+registration, and nested focus. Deno owns execution. The adapter implements no scheduler, sanitizer,
+reporter, permission system, or timeout mechanism.
+
+Top-level options pass to `Deno.test`. Nested sanitizer and ignore keys pass to
+`Deno.TestContext.step` only when specified; omitted keys remain omitted so Deno controls
+inheritance and enforcement. Under Deno 2.9.4, `await t.step(...)` does not independently settle
+operation or resource leaks. Later teardown may complete pending work; state retained through the
+suite may still fail its strict parent boundary. The adapter reinterprets neither that timing nor
+the step result. Nested permissions and timeouts fail clearly because Deno steps cannot enforce
+them.
+
+Workspace tests enable operation and resource sanitizers at the root. Exit sanitization keeps Deno's
+per-registration default. Local exceptions must name each disabled signal explicitly. Deliberately
+clean and leaking fixtures verify each native diagnostic.
+
+`todo` registers an ignored test with a visible `[todo]` name; its body does not execute. Raw
+`node:test` remains a Node-compatible edge and needs neither an installed Node.js runtime nor an npm
+runner. It is not the default because Deno registers Node-compatible tests with operation, resource,
+and exit sanitizers disabled.
+
+## Examples
+
+Import test helpers in browser and server environments:
 
 ```ts
 import { describe, expect, it, Testing } from '@sys/testing';
 ```
 
-or import helpers with server (posix) extensions:
+Or import helpers with server-side POSIX extensions:
 
 ```ts
 import { describe, expect, Fs, it, Path, Testing } from '@sys/testing/server';
 ```
 
-### Fetch global fixture
+### Global Fetch fixture
 
 Install a Fetch-compatible test function and restore the prior global exactly:
 
@@ -49,18 +80,14 @@ try {
 The replacement owns Fetch and abort behavior. Dispose nested mocks in LIFO order, and do not
 overlap this process-global fixture across parallel tests.
 
-Setup a simple unit-test file named: `-<Subject>.test.ts`.
-
-The test runner picks up on the `*.test.ts` pattern, and the `-<Subject>.` name prefix highlights it
-both visually as a "unit test" in the folder as well as ensuring the tests are naturally grouped
-together within the folder structure.
+Name a unit-test file `-<Subject>.test.ts`. The runner discovers `*.test.ts`; the leading hyphen
+keeps unit tests visually grouped within their source folder.
 
 ```ts
-import { describe, expect, it, Testing } from '@std/testing';
+import { describe, expect, it } from '@sys/testing';
 
 describe('My Suite', () => {
-  it('does something', async () => {
-    await Testing.wait(300);
+  it('does something', () => {
     expect(123).to.eql(123);
   });
 });
@@ -68,15 +95,15 @@ describe('My Suite', () => {
 
 ## Mocking the DOM
 
-The DOM can be simulated on the server using `DomMock`:
+Use `DomMock` to simulate the DOM on the server:
 
 ```ts
 import { afterAll, beforeAll, DomMock } from '@sys/testing/server';
 
-// Setup the environment with a browser `window` object (`globalThis`).
+// Install a browser `window` on `globalThis`.
 DomMock.init({ beforeAll, afterAll });
 
-// Sample interaction with keyboard:
+// Dispatch a keyboard event.
 document.addEventListener('keydown', (e) => {
   /* handle keyboard event */
 });
@@ -85,6 +112,6 @@ const event = DomMock.Keyboard.keydownEvent('z');
 DomMock.Keyboard.fire(event);
 
 // Restore the server `globalThis` environment at any time.
-// NB: not required because `Dom.init` above cleans up `afterAll`.
+// Optional: `DomMock.init` already restores the environment in `afterAll`.
 DomMock.unpolyfill();
 ```
