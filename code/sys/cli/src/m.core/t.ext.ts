@@ -1,7 +1,10 @@
 /**
  * Cliffy:
  */
-export type { KeyPressEvent as CliffyKeyPressEvent, keypress as CliffyKeypress } from '@cliffy/keypress';
+export type {
+  keypress as CliffyKeypress,
+  KeyPressEvent as CliffyKeyPressEvent,
+} from '@cliffy/keypress';
 export type {
   Checkbox as CliffyCheckbox,
   Confirm as CliffyConfirm,
@@ -10,6 +13,7 @@ export type {
   Number as CliffyNumber,
   Secret as CliffySecret,
   Select as CliffySelect,
+  SelectOptions as CliffySelectOptions,
   Toggle as CliffyToggle,
 } from '@cliffy/prompt';
 export type { Table as CliffyTable } from '@cliffy/table';

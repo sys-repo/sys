@@ -8,7 +8,9 @@ import type { MenuResultKind } from './t.menu.ts';
  * `Cli.Prompt.*` is available where direct access to prompt primitives is needed.
  */
 export declare namespace CliInput {
-  /** Human input helper library contract. */
+  /**
+   * Human input helper library contract.
+   */
   export type Lib = {
     /** Single free-form text input. */
     readonly Text: {
@@ -42,7 +44,7 @@ export declare namespace CliInput {
 
     /** Choose exactly one option from a set. */
     readonly Select: {
-      readonly prompt: typeof ext.CliffySelect.prompt;
+      readonly prompt: Select.Prompt;
     };
 
     /** Choose zero or more options from a set. */
@@ -50,6 +52,25 @@ export declare namespace CliInput {
       prompt: typeof ext.CliffyCheckbox.prompt;
     };
   };
+
+  /**
+   * Single-selection prompt types.
+   */
+  export namespace Select {
+    /**
+     * Options for selecting one value.
+     * Omit `message` to render without a title. Other options retain Cliffy semantics.
+     */
+    export type Options<TValue> = Omit<ext.CliffySelectOptions<TValue>, 'message'> & {
+      /** Prompt title. Omit or pass `''` for none. */
+      message?: string;
+    };
+
+    /** Single-selection prompt. */
+    export type Prompt = <TValue>(
+      options: Options<TValue>,
+    ) => ReturnType<typeof ext.CliffySelect.prompt<TValue>>;
+  }
 
   /**
    * Menu interaction result types.
