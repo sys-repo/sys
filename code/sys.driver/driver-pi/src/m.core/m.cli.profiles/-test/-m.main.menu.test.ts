@@ -1,10 +1,15 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { Cli, Fs, type t } from '../common.ts';
+import { Cli, Fs, Obj, type t } from '../common.ts';
 import { Process } from '../../m.cli/common.ts';
 import { Profiles } from '../mod.ts';
 
+type SelectPromptInput = {
+  readonly message?: string;
+  readonly options?: readonly { readonly value: unknown }[];
+};
+
 describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
-  it('carries allow-all into the interactive sandbox preview', async () => {
+  it('keeps profile prompts titleless while carrying allow-all into the sandbox preview', async () => {
     const prev = Process.inherit;
     const prevInfo = console.info;
     const originalPrompt = Cli.Input.Select.prompt;
@@ -12,6 +17,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
       .absolute as t.StringDir;
     const config = `${cwd}/-config/@sys.driver-pi/default.yaml` as t.StringPath;
     const calls: string[] = [];
+    const prompts: Array<{ kind: 'profiles' | 'actions'; hasMessage: boolean }> = [];
     let topLevelCount = 0;
     try {
       await Fs.ensureDir(Fs.join(cwd, '.git'));
@@ -21,13 +27,15 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
       Process.inherit = () =>
         Promise.reject(new Error('Process.inherit should not run during sandbox preview.'));
       Object.defineProperty(Cli.Input.Select, 'prompt', {
-        value: (input: { message: string; options?: { value: unknown }[] }) => {
+        value: (input: SelectPromptInput) => {
           if ((input.options ?? []).some((item) => item.value === 'exit')) {
+            prompts.push({ kind: 'profiles', hasMessage: Obj.hasOwn(input, 'message') });
             topLevelCount += 1;
             if (topLevelCount === 1) return Promise.resolve(config);
             return Promise.resolve('exit');
           }
           if ((input.options ?? []).some((item) => item.value === 'back')) {
+            prompts.push({ kind: 'actions', hasMessage: Obj.hasOwn(input, 'message') });
             return Promise.resolve('back');
           }
           throw new Error(`Unexpected prompt: ${input.message}`);
@@ -36,6 +44,11 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
 
       const res = await Profiles.main({ cwd, argv: ['-A'], tty: { stdin: true, stdout: true } });
       expect(res.kind).to.eql('exit');
+      expect(prompts).to.eql([
+        { kind: 'profiles', hasMessage: false },
+        { kind: 'actions', hasMessage: false },
+        { kind: 'profiles', hasMessage: false },
+      ]);
       const printed = Cli.stripAnsi(calls.join('\n'));
       expect(printed).to.match(/permissions\s+allow-all/);
       expect(printed).not.to.match(/\nread\s+/);
@@ -77,7 +90,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
         return Promise.resolve({ code: 0, success: true, signal: null });
       };
       Object.defineProperty(Cli.Input.Select, 'prompt', {
-        value: (input: { message: string; options?: { value: unknown }[] }) => {
+        value: (input: SelectPromptInput) => {
           if ((input.options ?? []).some((item) => item.value === 'exit')) {
             topLevelCount += 1;
             if (topLevelCount === 1) return Promise.resolve(config);
@@ -136,7 +149,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
       screen.repaint = (frame) => frames.push(frame);
       Process.inherit = () => Promise.resolve({ code: 0, success: true, signal: null });
       Object.defineProperty(Cli.Input.Select, 'prompt', {
-        value: (input: { message: string; options?: { value: unknown }[] }) => {
+        value: (input: SelectPromptInput) => {
           if ((input.options ?? []).some((item) => item.value === 'exit')) {
             topLevelCount += 1;
             if (topLevelCount === 1) return Promise.resolve(config);

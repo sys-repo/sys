@@ -99,6 +99,7 @@ function printProfileRoot(input: { allowAll?: boolean; notice?: string }) {
   clearInteractiveScreen();
   printProfileHeader(input.allowAll);
   if (input.notice) console.info(input.notice);
+  console.info('');
 }
 
 function printProfileHeader(allowAll?: boolean) {
@@ -122,7 +123,7 @@ function menuArgs(args: { cwd: t.StringDir; allowAll?: boolean }) {
     defaultName: 'default',
     schema,
     actions: {
-      message: '',
+      message: false as const,
       label: ({ name }: { name: string }) => `profile: ${c.cyan(name)}`,
       labelMode: 'submenu' as const,
       extra: [

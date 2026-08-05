@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { Cli, Fs, Is, pkg, type t } from '../common.ts';
+import { Cli, Fs, Is, Obj, pkg, type t } from '../common.ts';
 import { menu } from '../u/u.menu.ts';
 import { ProfilesFs } from '../u/u.fs.ts';
 import { PiSandboxFmt } from '../../m.cli/u.fmt.sandbox.ts';
@@ -15,8 +15,8 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     await Fs.ensureDir(Fs.join(cwd, '.git'));
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
-      value: (input: { message: string }) => {
-        expect(input.message).to.eql('');
+      value: (input: SelectInput) => {
+        expect(Obj.hasOwn(input, 'message')).to.eql(false);
         return Promise.resolve('exit');
       },
     });
@@ -68,6 +68,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(calls.map((value) => Cli.stripAnsi(value))).to.eql([
         expectedProfileHeader('scoped'),
         'Migrated 2 Pi config/runtime items.',
+        '',
       ]);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
@@ -102,6 +103,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(calls.map((value) => Cli.stripAnsi(value))).to.eql([
         expectedProfileHeader('scoped'),
         'Migrated 1 Pi config/runtime item.',
+        '',
       ]);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
@@ -141,7 +143,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
           return Promise.resolve('back');
         }
         if (isProfileSubmenu(input)) {
-          profileTitle = Cli.stripAnsi(input.message);
+          profileTitle = Cli.stripAnsi(input.message ?? '');
           profileFrame = (input.options ?? []).map((item) => Cli.stripAnsi(item.name));
           return Promise.resolve('back');
         }
@@ -233,6 +235,10 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
           events.push('screen:root');
           return;
         }
+        if (text === '') {
+          events.push('screen:gap');
+          return;
+        }
         throw new Error(`Unexpected screen output:\n${text}`);
       };
 
@@ -244,6 +250,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(events).to.eql([
         'clear',
         'screen:root',
+        'screen:gap',
         'prompt:root',
         'clear',
         'screen:sandbox',
@@ -256,6 +263,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
         'prompt:action',
         'clear',
         'screen:root',
+        'screen:gap',
         'prompt:root',
       ]);
     } finally {
@@ -272,13 +280,13 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     }
   });
 
-  it('menu → preserves the invalid-YAML warning with empty prompt vocabulary', async () => {
+  it('menu → keeps invalid-profile root actions titleless', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.menu.test.' }))
       .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
     const prevInfo = console.info;
     const config = Fs.join(cwd, '-config/@sys.driver-pi/default.yaml');
-    const messages: string[] = [];
+    const hasMessages: boolean[] = [];
     const prints: string[] = [];
     let topLevelCount = 0;
 
@@ -288,7 +296,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
       value: (input: SelectInput) => {
-        messages.push(Cli.stripAnsi(input.message));
+        hasMessages.push(Obj.hasOwn(input, 'message'));
         if (isRootMenu(input)) {
           topLevelCount += 1;
           if (topLevelCount === 1) return Promise.resolve(config);
@@ -303,13 +311,13 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     try {
       const res = await menu({ cwd: testCwd(cwd) });
       expect(res).to.eql({ kind: 'exit' });
-      expect(messages[0]).to.eql('');
-      expect(messages[1]).to.contain('invalid yaml');
-      expect(messages[2]).to.eql('');
+      expect(hasMessages).to.eql([false, false, false]);
       expect(prints.map((value) => Cli.stripAnsi(value))).to.eql([
         expectedProfileHeader('scoped'),
+        '',
         expectedProfileHeader('scoped'),
         expectedProfileHeader('scoped'),
+        '',
       ]);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
@@ -356,7 +364,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       );
       const report = reportFiles[0] ? await Fs.readText(reportFiles[0]) : undefined;
       expect(res).to.eql({ kind: 'exit' });
-      expect(prints).not.to.include('');
+      expect(prints.filter((value) => value === '')).to.have.length(2);
       expect(prints.filter((value) => value.includes('.sandbox.log.md'))).to.have.length(1);
       expect(printed).to.contain('sys:pi:sandbox');
       expect(printed).to.match(/permissions\s+scoped/);
@@ -418,6 +426,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     console.info = (value?: unknown) => {
       const text = Cli.stripAnsi(String(value ?? ''));
       if (text === expectedProfileHeader('scoped')) events.push('root:header');
+      if (text === '') events.push('root:gap');
       if (text.includes('.sandbox.log.md')) events.push('sandbox:sheet');
     };
 
@@ -427,12 +436,14 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(events).to.eql([
         'clear',
         'root:header',
+        'root:gap',
         'root:prompt',
         'clear',
         'sandbox:sheet',
         'action:prompt',
         'clear',
         'root:header',
+        'root:gap',
         'root:prompt',
       ]);
     } finally {
@@ -601,7 +612,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
 });
 
 type SelectInput = {
-  readonly message: string;
+  readonly message?: string;
   readonly options?: readonly { readonly name: string; readonly value: unknown }[];
 };
 
