@@ -1,39 +1,21 @@
-import { type t, D, decodeBase64, encodeBase64, Path } from './common.ts';
+import { decodeBase64, encodeBase64, Is as IsBase, MediaType, type t } from './common.ts';
 import { Is } from './m.Is.ts';
-
-/** Cache a plain ext→mime map (avoid pulling the all() function into the type). */
-const EXT_TO_MIME: Record<string, string> = D.contentTypes.all();
 
 export const Data: t.FileMap.Data.Lib = {
   contentType: {
-    fromPath(path) {
-      const filename = Path.basename(path);
-      const ext = Is.dotfile(filename) ? filename : Path.extname(filename);
-      const key = (ext ?? '').toLowerCase();
-      return EXT_TO_MIME[key] ?? D.contentType;
-    },
-    fromUri(uri) {
-      if (typeof uri !== 'string') return '';
-      if (!Is.dataUri(uri)) return '';
-      // Strip "data:" and take up to the first ";" or ","
-      const rest = uri.slice(5);
-      const i = rest.indexOf(';');
-      const j = rest.indexOf(',');
-      const end = i >= 0 ? i : j >= 0 ? j : rest.length;
-      const mime = rest.slice(0, end);
-      return mime || D.contentType;
-    },
+    fromPath: (path) => MediaType.fromPath(path, { profile: 'source' }) ?? MediaType.Fallback.text,
+    fromUri: (uri) => IsBase.string(uri) ? MediaType.fromDataUri(uri) ?? '' : '',
   },
 
   encode(mime, input) {
     if (!Is.supported.contentType(mime)) {
       throw new Error(`Content-type "${mime}" not supported`);
     }
-    if (typeof input === 'string' && input.startsWith('data:')) {
+    if (IsBase.string(input) && input.startsWith('data:')) {
       // Already a data URI - don't double-encode.
       return input;
     }
-    const bytes = typeof input === 'string' ? new TextEncoder().encode(input) : input;
+    const bytes = IsBase.string(input) ? new TextEncoder().encode(input) : input;
     return `data:${mime};base64,${encodeBase64(bytes)}`;
   },
 
