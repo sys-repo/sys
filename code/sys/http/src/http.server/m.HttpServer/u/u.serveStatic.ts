@@ -1,24 +1,11 @@
-import { serveStatic as honoStatic } from 'hono/deno';
 import { Fs, Path, type t } from '../common.ts';
 import { serveFileWithEtag } from './u.serveFileWithEtag.ts';
 
 type Input = Parameters<t.HttpServer.ServeStatic.Method>[0];
 
 /**
- * The Hono version of static-file server
- * (NOTE does not support `206 Partial Content` responses).
- */
-export const serveStaticHono: t.HttpServer.ServeStatic.Method = (input: Input) => {
-  const options = wrangle.options(input);
-  return honoStatic(options);
-};
-
-/**
- * Serve static files.
- * Note:
- *    Implemented with `serveFile()` so that Range requests
- *    (e.g. `Range: bytes=0-`) are honoured with `206 Partial Content`
- *    which the Hono serveStatic helper does not support (as of version `hono@0.7.10`).
+ * Serve static files through the ETag-aware file path, preserving cache validation,
+ * streaming, and Range/206 semantics as one transport contract.
  */
 export const serveStatic: t.HttpServer.ServeStatic.Method = (input: Input) => {
   const options = wrangle.options(input);
@@ -50,16 +37,6 @@ export const serveStatic: t.HttpServer.ServeStatic.Method = (input: Input) => {
       const targetInfo = info.isDirectory ? await Fs.stat(target) : info;
       if (!targetInfo || !targetInfo.isFile) return await notFound();
 
-      /**
-       * NOTE:
-       * Static serving is routed through serveFileWithEtag to guarantee:
-       *
-       *  - Correct cache invalidation for rewritten JSON manifests
-       *  - Stable ETag semantics for browsers and CDNs
-       *  - Preservation of Range / 206 behavior for large binaries
-       *
-       * Do not replace this with hono's serveStatic helper.
-       */
       return await serveFileWithEtag({
         req: c.req.raw,
         path: target,

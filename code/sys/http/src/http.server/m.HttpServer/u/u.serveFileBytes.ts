@@ -1,4 +1,5 @@
-import { Arr, getMimeType, Is, Obj, type t } from '../common.ts';
+import { Arr, Is, Obj, type t } from '../common.ts';
+import { contentTypeFromPath } from './u.contentTypeFromPath.ts';
 
 type Method = t.HttpServer.ServeFileBytes.Method;
 type ReadResult = t.HttpServer.ServeFileBytes.Read.Result;
@@ -37,7 +38,7 @@ export const serveFileBytes: Method = async (input) => {
   const bytes = result.bytes;
   const headers = responseHeaders({
     'content-length': String(bytes.byteLength),
-    'content-type': getMimeType(path) ?? 'application/octet-stream',
+    'content-type': contentTypeFromPath(path),
   });
   const body = method === 'HEAD' ? null : responseBody(bytes);
   return new Response(body, { status: 200, headers });

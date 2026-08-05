@@ -69,7 +69,7 @@ deno.json:
   - import: npm:happy-dom@20.11.1
   - import: npm:hash-it@7.0.3
   - import: npm:hono@4.12.33
-    subpaths: [ cors, deno, types, utils/mime ]
+    subpaths: [ cors, types ]
   - import: npm:ignore@7.0.6
   - import: npm:ora@9.4.1
   - import: npm:@earendil-works/pi-coding-agent@0.83.0

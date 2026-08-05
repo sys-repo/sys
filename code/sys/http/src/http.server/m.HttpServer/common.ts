@@ -1,6 +1,6 @@
 export { Hono } from 'hono';
 export { cors } from 'hono/cors';
-export { getMimeType } from 'hono/utils/mime';
 export { Process } from '@sys/process';
+export { MediaType } from '@sys/std/media-type';
 
 export * from '../common.ts';

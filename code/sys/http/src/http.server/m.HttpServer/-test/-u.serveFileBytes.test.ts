@@ -67,11 +67,32 @@ describe('serveFileBytes', () => {
 
     expect(response.status).to.eql(200);
     expect(reads).to.eql(1);
-    expect(response.headers.get('content-type')).to.include('text/html');
+    expect(response.headers.get('content-type')).to.eql('text/html; charset=UTF-8');
     expect(response.headers.get('content-length')).to.eql(String(expected.byteLength));
     expect(new Uint8Array(await response.arrayBuffer())).to.eql(expected);
     expectPolicy(response);
     expectResidueAbsent(response);
+  });
+
+  it('uses the canonical standard registry and preserves source ambiguity', async () => {
+    const cases = [
+      ['config.yaml', 'text/yaml; charset=UTF-8'],
+      ['vector.svg', 'image/svg+xml'],
+      ['main.ts', 'video/mp2t'],
+    ] as const;
+
+    for (const [path, expected] of cases) {
+      const response = await serveFileBytes({
+        req: new Request(`http://local/${path}`),
+        path,
+        cache: 'no-store',
+        read: () => bytes('verified'),
+      });
+
+      expect(response.status).to.eql(200);
+      expect(response.headers.get('content-type')).to.eql(expected);
+      expect(await response.text()).to.eql('verified');
+    }
   });
 
   it('emits zero bytes with the binary MIME fallback', async () => {
@@ -105,7 +126,7 @@ describe('serveFileBytes', () => {
 
     expect(response.status).to.eql(200);
     expect(reads).to.eql(1);
-    expect(response.headers.get('content-type')).to.include('javascript');
+    expect(response.headers.get('content-type')).to.eql('text/javascript; charset=UTF-8');
     expect(response.headers.get('content-length')).to.eql(String(expected.byteLength));
     await expectEmpty(response);
     expectPolicy(response);
@@ -201,11 +222,11 @@ describe('serveFileBytes', () => {
     mutable.read = () => bytes('second');
     const response = await responsePromise;
 
-    expect(response.headers.get('content-type')).to.include('text/html');
+    expect(response.headers.get('content-type')).to.eql('text/html; charset=UTF-8');
     expect(await response.text()).to.eql('first');
   });
 
-  it('keeps the constrained primitive free of filesystem and checksum kernels', async () => {
+  it('keeps the primitive free of filesystem, checksum, and alternate media-type kernels', async () => {
     const path = Fs.resolve(
       './src/http.server/m.HttpServer/u/u.serveFileBytes.ts',
     );
@@ -215,6 +236,8 @@ describe('serveFileBytes', () => {
     const forbidden = [
       '@sys/fs',
       '@sys/crypto',
+      'hono/utils/mime',
+      'getMimeType',
       'Deno.open',
       'Deno.lstat',
       'Deno.readFile',

@@ -256,7 +256,6 @@ export declare namespace HttpServer {
       root?: string;
       path?: string;
       precompressed?: boolean;
-      mimes?: Record<string, string>;
       rewriteRequestPath?: (path: string) => string;
       onFound?: (path: string, c: THonoContext<E>) => void | Promise<void>;
       onNotFound?: (path: string, c: THonoContext<E>) => void | Promise<void>;

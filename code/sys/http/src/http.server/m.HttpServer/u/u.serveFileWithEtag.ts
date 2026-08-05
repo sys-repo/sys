@@ -2,9 +2,10 @@ import { serveFile } from '@std/http/file-server';
 
 import { Fs } from '../common.ts';
 import { computeEtag } from './u.computeEtag.ts';
+import { contentTypeFromPath } from './u.contentTypeFromPath.ts';
 
 /**
- * Serve a single file via `serveFile`, adding ETag / If-None-Match handling.
+ * Serve a single file via `serveFile`, adding canonical Content-Type and ETag handling.
  *
  * Goals:
  * - Preserve `Range` / `206 Partial Content` behaviour from `serveFile`.
@@ -39,8 +40,9 @@ export async function serveFileWithEtag(args: {
 
   const res = await serveFile(req, path);
 
-  // Preserve body + status, just layer in/override the ETag header.
+  // Preserve body + status while canonically shaping Content-Type and ETag.
   const headers = new Headers(res.headers);
+  headers.set('content-type', contentTypeFromPath(path));
   headers.set('etag', etag);
 
   return new Response(res.body, {

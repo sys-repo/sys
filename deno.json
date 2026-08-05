@@ -116,13 +116,48 @@
       ]
     }
   },
-  "exclude": [".pi"],
-  "test": { "permissions": "test", "sanitizeOps": true, "sanitizeResources": true },
+  "exclude": [
+    ".pi"
+  ],
+  "test": {
+    "permissions": "test",
+    "sanitizeOps": true,
+    "sanitizeResources": true
+  },
   "permissions": {
-    "test": { "read": true, "write": true, "run": true, "env": true },
-    "dev": { "read": true, "write": true, "run": true, "env": true, "net": true },
-    "tmpl": { "read": true, "write": true, "run": true, "env": true },
-    "upgrade": { "read": true, "write": true, "run": true, "env": true, "net": true, "ffi": true },
-    "clean": { "read": true, "write": true, "run": true, "env": true }
+    "test": {
+      "read": true,
+      "write": true,
+      "run": true,
+      "env": true
+    },
+    "dev": {
+      "read": true,
+      "write": true,
+      "run": true,
+      "env": true,
+      "net": true
+    },
+    "tmpl": {
+      "read": true,
+      "write": true,
+      "run": true,
+      "env": true
+    },
+    "upgrade": {
+      "read": true,
+      "write": true,
+      "run": true,
+      "env": true,
+      "net": true,
+      "ffi": true
+    },
+    "clean": {
+      "read": true,
+      "write": true,
+      "run": true,
+      "env": true
+    }
   }
 }
+
