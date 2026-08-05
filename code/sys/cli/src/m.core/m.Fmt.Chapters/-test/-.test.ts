@@ -136,27 +136,51 @@ describe('Cli.Fmt.Chapters', () => {
     await expectFailure(() => book.load(), 'ExampleHelp: missing field: title');
   });
 
-  it('reads embedded text records from bundled resource data URIs', () => {
+  it('reads embedded text records through canonical data-URI media types', () => {
     const resources = Fmt.Chapters.Resources.create({
       json: {
         'root.yaml': 'data:text/plain;base64,aWQ6IHJvb3Q=',
-        'binary.png': 'data:image/png;base64,AQID',
+        'default.yaml': 'data:;base64,aWQ6IHJvb3Q=',
+        'parameterized.txt': 'data:text/plain;charset=UTF-8;base64,aGVsbG8=',
+        'structured.json': 'data:application/vnd.api+JSON;version=1;base64,eyJpZCI6InJvb3QifQ==',
       },
       label: 'ExampleHelp',
       parse: (text, file) => ({ id: text.split(': ')[1], file }),
     });
 
     expect(resources.readText('root.yaml')).to.eql('id: root');
+    expect(resources.readText('default.yaml')).to.eql('id: root');
+    expect(resources.readText('parameterized.txt')).to.eql('hello');
+    expect(resources.readText('structured.json')).to.eql('{"id":"root"}');
     expect(resources.readParsedRecord('root.yaml')).to.eql({ id: 'root', file: 'root.yaml' });
     expect(resources.readRecord('root.yaml', ['id'])).to.eql({ id: 'root', file: 'root.yaml' });
     expect(() => resources.readText('missing.yaml')).to.throw(
       'ExampleHelp: resource not found: missing.yaml',
     );
-    expect(() => resources.readText('binary.png')).to.throw(
-      'ExampleHelp: resource is not text: binary.png',
-    );
     expect(() => resources.readRecord('root.yaml', ['title'])).to.throw(
       'ExampleHelp: missing field: title',
+    );
+  });
+
+  it('rejects non-base64, malformed, and binary resource data URIs', () => {
+    const resources = Fmt.Chapters.Resources.create({
+      json: {
+        'plain.txt': 'data:text/plain,hello',
+        'malformed.txt': 'data:text/plain;broken;base64,aGVsbG8=',
+        'binary.png': 'data:image/png;base64,AQID',
+      },
+      label: 'ExampleHelp',
+      parse: (text) => text,
+    });
+
+    expect(() => resources.readText('plain.txt')).to.throw(
+      'ExampleHelp: resource is not text: plain.txt',
+    );
+    expect(() => resources.readText('malformed.txt')).to.throw(
+      'ExampleHelp: resource is not text: malformed.txt',
+    );
+    expect(() => resources.readText('binary.png')).to.throw(
+      'ExampleHelp: resource is not text: binary.png',
     );
   });
 

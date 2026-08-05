@@ -1,5 +1,5 @@
 import { decodeBase64 } from '@std/encoding';
-import { Is, type t } from '../common.ts';
+import { Is, MediaType, type t } from '../common.ts';
 
 type O = Record<string, unknown>;
 
@@ -47,28 +47,17 @@ function decodeDataUriText<TFile extends string>(
   file: TFile,
   options: Options<TFile>,
 ) {
-  if (!fileUri.startsWith('data:') || !fileUri.includes(';base64,')) {
+  const comma = fileUri.indexOf(',');
+  const header = comma < 0 ? '' : fileUri.slice(0, comma);
+  const mediaType = MediaType.fromDataUri(fileUri);
+  const isBase64 = header.toLowerCase().endsWith(';base64');
+
+  if (!isBase64 || !mediaType || !MediaType.Is.text(mediaType)) {
     throw new Error(`${options.label}: resource is not text: ${file}`);
   }
 
-  const mime = fileUri.slice(5, Math.min(fileUri.indexOf(';'), fileUri.indexOf(',')));
-  if (!isTextMime(mime)) throw new Error(`${options.label}: resource is not text: ${file}`);
-
-  const comma = fileUri.indexOf(',');
   const data = decodeBase64(fileUri.slice(comma + 1));
   return new TextDecoder().decode(data);
-}
-
-function isTextMime(mime: string): boolean {
-  return mime.startsWith('text/') ||
-    mime === 'application/json' ||
-    mime === 'application/typescript' ||
-    mime === 'application/typescript+jsx' ||
-    mime === 'application/javascript' ||
-    mime === 'application/yaml' ||
-    mime.endsWith('+json') ||
-    mime.endsWith('+xml') ||
-    mime.endsWith('+yaml');
 }
 
 function requireFields<TFile extends string>(
