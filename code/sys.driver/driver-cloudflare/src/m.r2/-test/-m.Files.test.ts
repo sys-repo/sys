@@ -149,14 +149,50 @@ describe('R2.Files', () => {
       ]);
     });
 
-    it('API-reads JSON byte objects by path when provider media metadata is absent', async () => {
-      const body = '{"ok":true}';
+    it('API-reads canonical explicit textual media types', async () => {
+      const encoder = new TextEncoder();
       const { bucket } = fakeBucket({
-        'deploy/main/dist.json': bytesObject(new TextEncoder().encode(body)),
+        'deploy/main/plain.bin': bytesObject(
+          encoder.encode('plain'),
+          'text/plain; charset=UTF-8',
+        ),
+        'deploy/main/structured.bin': bytesObject(
+          encoder.encode('structured'),
+          'application/vnd.api+json; version=1',
+        ),
+        'deploy/main/yaml.bin': bytesObject(
+          encoder.encode('yaml'),
+          'application/example+yaml',
+        ),
+        'deploy/main/typescript.bin': bytesObject(
+          encoder.encode('typescript'),
+          'application/typescript',
+        ),
+        'deploy/main/typescript-jsx.bin': bytesObject(
+          encoder.encode('typescript-jsx'),
+          'application/typescript+jsx',
+        ),
       });
       const files = localFiles(R2.Files.create({ bucket, policy, prefix: 'deploy/main' }));
 
-      expect(await files.readText('dist.json')).to.equal(body);
+      expect(await files.readText('plain.bin')).to.equal('plain');
+      expect(await files.readText('structured.bin')).to.equal('structured');
+      expect(await files.readText('yaml.bin')).to.equal('yaml');
+      expect(await files.readText('typescript.bin')).to.equal('typescript');
+      expect(await files.readText('typescript-jsx.bin')).to.equal('typescript-jsx');
+    });
+
+    it('API-reads textual byte objects by path when provider media metadata is absent', async () => {
+      const json = '{"ok":true}';
+      const yaml = 'ok: true';
+      const { bucket } = fakeBucket({
+        'deploy/main/dist.json': bytesObject(new TextEncoder().encode(json)),
+        'deploy/main/config.yaml': bytesObject(new TextEncoder().encode(yaml)),
+      });
+      const files = localFiles(R2.Files.create({ bucket, policy, prefix: 'deploy/main' }));
+
+      expect(await files.readText('dist.json')).to.equal(json);
+      expect(await files.readText('config.yaml')).to.equal(yaml);
     });
 
     it('API-reads textual byte objects when provider size is invalid', async () => {
@@ -206,15 +242,47 @@ describe('R2.Files', () => {
       expect(pulls < 3).to.equal(true);
     });
 
+    it('preserves explicit binary media metadata over textual path derivation', async () => {
+      const { bucket } = fakeBucket({
+        'deploy/main/dist.json': bytesObject(
+          new TextEncoder().encode('{"ok":true}'),
+          'application/octet-stream',
+        ),
+      });
+      const backing = R2.Files.create({ bucket, policy, prefix: 'deploy/main' });
+
+      await rejectsName(
+        () => read(backing, { path: 'dist.json' }),
+        /FilesR2Error\.Unsupported/,
+      );
+    });
+
     it('rejects binary reads without readOrigin content refs', async () => {
       const { bucket } = fakeBucket({
         'deploy/main/assets/app.wasm': bytesObject(new Uint8Array([0, 1]), 'application/wasm'),
+        'deploy/main/source/main.ts': bytesObject(new TextEncoder().encode('const value = 1;')),
       });
       const backing = R2.Files.create({ bucket, policy, prefix: 'deploy/main' });
 
       await rejectsName(
         () => read(backing, { path: 'assets/app.wasm' }),
         /FilesR2Error\.Unsupported/,
+      );
+      await rejectsName(
+        () => read(backing, { path: 'source/main.ts' }),
+        /FilesR2Error\.Unsupported/,
+      );
+    });
+
+    it('rejects invalid UTF-8 after textual admission', async () => {
+      const { bucket } = fakeBucket({
+        'deploy/main/dist.json': bytesObject(new Uint8Array([0xff]), 'application/json'),
+      });
+      const backing = R2.Files.create({ bucket, policy, prefix: 'deploy/main' });
+
+      await rejects(
+        () => read(backing, { path: 'dist.json' }),
+        /Unsupported UTF-8 read content/,
       );
     });
   });

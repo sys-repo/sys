@@ -1,4 +1,4 @@
-import { Num, type t } from '../common.ts';
+import { MediaType, Num, type t } from '../common.ts';
 import { fileEntryFromMeta } from '../u/entry.ts';
 import { fail, provider } from '../u/error.ts';
 import { ENCODING, isFilesText } from '../u/metadata.ts';
@@ -68,27 +68,12 @@ export async function read(
   });
 }
 
-function isTextualReadCandidate(path: t.Files.String.Path, mediaType: string | undefined): boolean {
-  if (isTextualMediaType(mediaType)) return true;
-  const lowerPath = String(path).toLowerCase();
-  return lowerPath.endsWith('.json') ||
-    lowerPath.endsWith('.txt') ||
-    lowerPath.endsWith('.html') ||
-    lowerPath.endsWith('.css') ||
-    lowerPath.endsWith('.js') ||
-    lowerPath.endsWith('.mjs') ||
-    lowerPath.endsWith('.xml') ||
-    lowerPath.endsWith('.svg');
-}
-
-function isTextualMediaType(mediaType: string | undefined): boolean {
-  const type = String(mediaType ?? '').trim().toLowerCase().split(';', 1)[0];
-  if (!type) return false;
-  if (type.startsWith('text/')) return true;
-  if (type === 'application/json') return true;
-  if (type === 'application/javascript') return true;
-  if (type === 'application/xml') return true;
-  return type.endsWith('+json') || type.endsWith('+xml');
+function isTextualReadCandidate(
+  path: t.Files.String.Path,
+  mediaType: t.StringMimeType | undefined,
+): boolean {
+  const candidate = mediaType ?? MediaType.fromPath(path);
+  return MediaType.Is.text(candidate);
 }
 
 async function readResponseBytes(
