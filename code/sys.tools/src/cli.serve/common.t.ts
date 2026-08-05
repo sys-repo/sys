@@ -20,7 +20,6 @@ export type RunReturn = {
 };
 
 /** Local serve types. */
-export type * from './t.mime.ts';
 export type * from './t.namespace.ts';
 
 /** CLI helpers for working with Serve. */

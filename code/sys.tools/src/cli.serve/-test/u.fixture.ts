@@ -3,7 +3,7 @@ import { Fs, Json, type t } from '../common.ts';
 
 export type FixtureCaptured =
   | { kind: 'text'; status: number; body: string }
-  | { kind: 'response'; status: number; body: Uint8Array; headers: Headers };
+  | { kind: 'json'; status: number; body: unknown };
 
 export type FixtureHonoCtx = Parameters<t.HttpServer.Hono.MiddlewareHandler>[0];
 export type FixtureHonoNext = Parameters<t.HttpServer.Hono.MiddlewareHandler>[1];
@@ -63,10 +63,11 @@ export const Fixture = {
     return { cwd, artifact, dist } as const;
   },
 
-  makeCtx(path: string, captured: { current?: FixtureCaptured }) {
+  makeCtx(path: string, captured: { current?: FixtureCaptured }, init?: RequestInit) {
     const url = new URL(`http://localhost${path}`);
 
     const req = {
+      raw: new Request(url, init),
       url: url.toString(),
       path: url.pathname,
       query(name?: string) {
@@ -80,21 +81,18 @@ export const Fixture = {
       },
     };
 
-    const text = async (body: string, status = 200) => {
+    const text = (body: string, status = 200) => {
       captured.current = { kind: 'text', status, body };
       return new Response(body, { status });
     };
 
-    const newResponse = (body: BodyInit, init?: ResponseInit) => {
-      const status = init?.status ?? 200;
-      const headers = new Headers(init?.headers);
-      const bytes = body instanceof Uint8Array ? body : new TextEncoder().encode(String(body));
-      captured.current = { kind: 'response', status, body: bytes, headers };
-      return new Response(body, init);
+    const json = (body: unknown, status = 200) => {
+      captured.current = { kind: 'json', status, body };
+      return Response.json(body, { status });
     };
 
     // Only the bits route() actually uses.
-    const ctx = { req, text, newResponse };
+    const ctx = { req, text, json };
     return ctx as unknown as FixtureHonoCtx;
   },
 

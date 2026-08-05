@@ -1,10 +1,9 @@
-import { type t, pkg, D, Fs, Hash } from '../common.ts';
-import { Fmt } from '../u.fmt.ts';
+import { Fs, Hash, pkg, type t } from '../common.ts';
 import { makeFilter } from './u.serve.filter.ts';
 
 type Args = {
   stat: Deno.FileInfo;
-  mime: t.ServeTool.ServedMimeType;
+  mime: t.StringMimeType;
   path: { fs: t.StringPath; req: t.StringPath };
 };
 

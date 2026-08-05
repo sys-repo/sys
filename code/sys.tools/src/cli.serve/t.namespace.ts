@@ -164,11 +164,6 @@ export namespace ServeTool {
     interactive: boolean;
   };
 
-  /** Known MIME types mapped from known filename extensions. */
-  export type MimeType = t.MimeType;
-  /** MIME type emitted by the server (`octet-stream` fallback for unknown extensions). */
-  export type ServedMimeType = MimeType | 'application/octet-stream';
-
   /**
    * YAML-authored serve location configuration (authoritative).
    */
@@ -218,7 +213,7 @@ export namespace ServeTool {
     export type File = {
       readonly kind: 'file';
       readonly body: {
-        mime: t.ServeTool.ServedMimeType;
+        mime: t.StringMimeType;
         path: t.StringPath;
         hash: t.StringHash;
         bytes: t.NumberBytes;

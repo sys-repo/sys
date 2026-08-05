@@ -1,10 +1,10 @@
 import {
   Await,
   Err,
-  FileMap,
   Files,
   Fs,
   Json,
+  MediaType,
   Num,
   Obj,
   Path,
@@ -13,7 +13,6 @@ import {
   Str,
   type t,
 } from '../common.ts';
-import { Mime } from '../../../cli.serve/m.server/u.mime.ts';
 
 type FilesFactory = (provider: t.DeployTool.Config.Provider.R2) => t.Files.Client.Handle;
 
@@ -290,8 +289,7 @@ function createFilesClient(provider: t.DeployTool.Config.Provider.R2): t.Files.C
 }
 
 function mediaTypeOf(path: t.Files.String.Path): t.StringMimeType {
-  const ext = Path.extname(path).replace(/^\./, '').toLowerCase();
-  return (Mime.extensionMap[ext] ?? FileMap.Data.contentType.fromPath(path)) as t.StringMimeType;
+  return MediaType.fromPath(path) ?? MediaType.Fallback.binary;
 }
 
 function publishPolicy(): t.Files.Policy.Shape {

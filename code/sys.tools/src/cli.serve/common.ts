@@ -13,6 +13,7 @@ import { Arr } from '@sys/std/arr';
 import { Err } from '@sys/std/error';
 import { Is } from '@sys/std/is';
 import { Json } from '@sys/std/json';
+import { MediaType } from '@sys/std/media-type';
 import { Num } from '@sys/std/num';
 import { Obj } from '@sys/std/obj';
 import { Str } from '@sys/std/str';
@@ -31,6 +32,7 @@ export {
   Http,
   Is,
   Json,
+  MediaType,
   Num,
   Obj,
   Open,

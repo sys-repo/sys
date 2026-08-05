@@ -9,7 +9,7 @@ import { Args, c, Cli } from '@sys/cli';
 import { Color } from '@sys/color';
 import { R2 } from '@sys/driver-cloudflare/r2';
 import { Hash } from '@sys/crypto/hash';
-import { FileMap, Fs, Path, Pkg } from '@sys/fs';
+import { Fs, Path, Pkg } from '@sys/fs';
 import { Http } from '@sys/http/client';
 import { Files } from '@sys/model/files';
 import { Open, Process } from '@sys/process';
@@ -19,6 +19,7 @@ import { Await } from '@sys/std/async';
 import { Err } from '@sys/std/error';
 import { Is } from '@sys/std/is';
 import { Json } from '@sys/std/json';
+import { MediaType } from '@sys/std/media-type';
 import { Num } from '@sys/std/num';
 import { Obj } from '@sys/std/obj';
 import { slug } from '@sys/std/random';
@@ -36,13 +37,13 @@ export {
   Cli,
   Color,
   Err,
-  FileMap,
   Files,
   Fs,
   Hash,
   Http,
   Is,
   Json,
+  MediaType,
   Num,
   Obj,
   Open,

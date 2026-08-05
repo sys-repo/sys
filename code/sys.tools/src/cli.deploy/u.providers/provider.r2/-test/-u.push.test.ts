@@ -53,7 +53,35 @@ describe('R2 Provider: push', () => {
       expectWritesWithDistLast(writes, ['asset.bin', 'index.html']);
       expect(writes.find((write) => write.path === 'asset.bin')?.bytes).to.eql([0, 1, 2, 3]);
       expect(writes.find((write) => write.path === 'index.html')?.mediaType).to.eql('text/html');
-      expect(writes.find((write) => write.path === 'asset.bin')?.mediaType).to.eql('text/plain');
+      expect(writes.find((write) => write.path === 'asset.bin')?.mediaType).to.eql(
+        'application/octet-stream',
+      );
+    });
+  });
+
+  it('derives canonical media types and applies the binary fallback', async () => {
+    await withTmpDir(async (cwd) => {
+      const stagingDir = await stageDist(cwd);
+      await addStagedFiles(stagingDir, ['config.yaml', 'main.js', 'asset.unknown']);
+      const writes: Write[] = [];
+
+      const res = await R2Provider.push({
+        cwd: cwd as t.StringDir,
+        target: r2Target(cwd, stagingDir),
+        createFiles: () => filesHandle({ writes }),
+      });
+
+      expect(res.ok).to.eql(true);
+      expect(writes.find((write) => write.path === 'config.yaml')?.mediaType).to.eql('text/yaml');
+      expect(writes.find((write) => write.path === 'main.js')?.mediaType).to.eql(
+        'text/javascript',
+      );
+      expect(writes.find((write) => write.path === 'asset.bin')?.mediaType).to.eql(
+        'application/octet-stream',
+      );
+      expect(writes.find((write) => write.path === 'asset.unknown')?.mediaType).to.eql(
+        'application/octet-stream',
+      );
     });
   });
 
