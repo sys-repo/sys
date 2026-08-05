@@ -9,7 +9,7 @@ export const init: t.DomMock.Lib['init'] = (args) => {
 
   const after = async () => {
     await terminalDrain();
-    unpolyfill();
+    await unpolyfill();
     await terminalDrain();
   };
 

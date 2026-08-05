@@ -1,7 +1,7 @@
-import { type DocumentId, isValidAutomergeUrl, Repo } from '@automerge/automerge-repo';
+import { type DocumentId, isValidAutomergeUrl, type Repo } from '@automerge/automerge-repo';
 import { CrdtIs } from '../m.Crdt/m.Is.ts';
 
-import { type t, Delete, Err, Rx, Schedule, slug, Time, toRef, whenReady } from './common.ts';
+import { Delete, Err, Rx, Schedule, slug, type t, Time, toRef, whenReady } from './common.ts';
 import { eventsFactory } from './u.events.ts';
 import { monitorNetwork } from './u.monitorNetwork.ts';
 import { silentShutdown } from './u.shutdown.ts';
@@ -154,36 +154,50 @@ export function toRepo(
       return options.stores ?? [];
     },
 
-    async create<T extends O>(input: T | (() => T)) {
-      const initial = seedInitial<T>(input);
-      const handle = repo.create<T>(initial);
-      const doc = toRef(handle);
-      return { ok: true, doc };
+    create<T extends O>(input: T | (() => T)) {
+      try {
+        const initial = seedInitial<T>(input);
+        const handle = repo.create<T>(initial);
+        const doc = toRef(handle);
+        return Promise.resolve({ ok: true, doc } as const);
+      } catch (error) {
+        return Promise.reject(error);
+      }
     },
 
     get<T extends O>(id: t.Crdt.Id, options: t.CrdtRepoGetOptions = {}) {
       type R = t.CrdtRefResult<T>;
-      return new Promise<R>(async (resolve) => {
+      return new Promise<R>((resolve) => {
         const fail = (error: t.CrdtRepoError) => resolve({ ok: false, error });
+        let timeout: ReturnType<typeof Time.delay> | undefined;
         id = wrangle.id(id);
+
+        const onError = (err: any) => {
+          timeout?.cancel();
+          const message = err?.message ?? '';
+          if (message.includes('is unavailable')) return fail(wrangle.error('NotFound', message));
+          return fail(wrangle.error('UNKNOWN', err));
+        };
 
         try {
           const msecs = options.timeout ?? D.timeout;
-          const timeout = Time.delay(msecs, () => {
+          timeout = Time.delay(msecs, () => {
             const error = wrangle.error('Timeout', Err.std(`Timed out retrieving document ${id}`));
             return fail(error);
           });
 
-          const handle = await repo.find<T>(id as DocumentId);
-          await handle.whenReady();
-          const doc = toRef(handle);
+          void repo
+            .find<T>(id as DocumentId)
+            .then(async (handle) => {
+              await handle.whenReady();
+              const doc = toRef(handle);
 
-          timeout.cancel();
-          if (!timeout.is.completed) resolve({ ok: true, doc });
-        } catch (err: any) {
-          const message = err?.message ?? '';
-          if (message.includes('is unavailable')) return fail(wrangle.error('NotFound', message));
-          return fail(wrangle.error('UNKNOWN', err));
+              timeout?.cancel();
+              if (!timeout?.is.completed) resolve({ ok: true, doc });
+            })
+            .catch(onError);
+        } catch (err) {
+          onError(err);
         }
       });
     },

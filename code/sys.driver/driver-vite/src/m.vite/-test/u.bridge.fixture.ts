@@ -457,6 +457,9 @@ export async function writeLocalFixtureImports(
   };
 }
 
-export async function writeLocalBridgeImports(dir: string, options: { skipTsconfig?: boolean } = {}) {
+export async function writeLocalBridgeImports(
+  dir: string,
+  options: { skipTsconfig?: boolean } = {},
+) {
   return writeLocalFixtureImports(dir, 'vite.config.ts', options);
 }

@@ -3,7 +3,7 @@ import { Fs, Rx, Time } from './common.ts';
 import { Server } from './mod.ts';
 import { probe } from './u.probe.ts';
 
-describe('Crdt: SyncServer', { sanitizeResources: false, sanitizeOps: false }, () => {
+describe('Crdt: SyncServer', () => {
   const silent = true;
 
   it('API', async () => {

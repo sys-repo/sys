@@ -1,11 +1,17 @@
-import { type t, describe, expect, it } from '../../-test.ts';
+import { afterAll, beforeAll, describe, expect, it, repoCleanup, type t } from '../../-test.ts';
 import { CrdtIs } from '../mod.ts';
 import { testRepo } from './-u.ts';
 
-describe('Crdt.Is', { sanitizeResources: false, sanitizeOps: false }, () => {
+const Repos = repoCleanup(afterAll);
+
+describe('Crdt.Is', () => {
   type T = { count: number };
   const Is = CrdtIs;
-  const repo = testRepo();
+  let repo!: t.CrdtRepo;
+
+  beforeAll(() => {
+    repo = Repos.crdt(testRepo());
+  });
 
   it('Is.repo', () => {
     // Positive: real repo instance from test helper.

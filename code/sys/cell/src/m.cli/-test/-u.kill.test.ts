@@ -23,7 +23,7 @@ import {
   writeSession,
 } from './u.fixture.kill.ts';
 
-describe('@sys/cell/cli u.kill', { sanitizeResources: false }, () => {
+describe('@sys/cell/cli u.kill', () => {
   describe('session safety matrix', () => {
     it('dry-run → reports fresh matching sessions without mutation', async () => {
       const fs = await cellFixture('CellCli.kill.dry-run');

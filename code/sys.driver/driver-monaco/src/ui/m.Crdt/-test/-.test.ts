@@ -1,9 +1,20 @@
-import { type t, Schedule, describe, expect, it, MonacoFake, Rx } from '../../../-test.ts';
+import {
+  afterAll,
+  beforeAll,
+  describe,
+  expect,
+  it,
+  MonacoFake,
+  Rx,
+  Schedule,
+  type t,
+  Time,
+} from '../../../-test.ts';
 import { Crdt } from '../common.ts';
 import { EditorCrdt } from '../mod.ts';
 import { __test as RegisterTest } from '../u.Link.register.ts';
 
-describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
+describe('Monaco/Crdt', () => {
   it('API', async () => {
     const m = await import('@sys/driver-monaco');
     expect(m.Monaco.Crdt).to.equal(EditorCrdt);
@@ -163,7 +174,14 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
     });
 
     describe('Link.create', () => {
-      const repo = Crdt.repo();
+      let repo!: ReturnType<typeof Crdt.repo>;
+      beforeAll(() => {
+        repo = Crdt.repo();
+      });
+      afterAll(async () => {
+        await repo.dispose();
+        await Time.wait(110);
+      });
 
       it('creates a doc, inserts `crdt:<id>` token, moves caret, and returns { doc }', async () => {
         // Arrange.
@@ -250,7 +268,14 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
     });
 
     describe('Link.enable', () => {
-      const repo = Crdt.repo();
+      let repo!: ReturnType<typeof Crdt.repo>;
+      beforeAll(() => {
+        repo = Crdt.repo();
+      });
+      afterAll(async () => {
+        await repo.dispose();
+        await Time.wait(110);
+      });
 
       it('registers a listener and, on create-event, inserts token and calls onCreate', async () => {
         // Arrange.

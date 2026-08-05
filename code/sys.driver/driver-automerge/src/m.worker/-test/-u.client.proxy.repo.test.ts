@@ -1,13 +1,13 @@
 import {
-  type t,
-  Obj,
-  Rx,
-  Schedule,
   afterEach,
   describe,
   expect,
   expectTypeOf,
   it,
+  Obj,
+  Rx,
+  Schedule,
+  type t,
 } from '../../-test.ts';
 import { CrdtIs } from '../common.ts';
 import { CrdtWorker } from '../mod.ts';
@@ -17,7 +17,7 @@ import { createTestHelpers } from './u.ts';
 
 type O = Record<string, unknown>;
 
-describe('CrdtWorker.Client.repo (shim)', { sanitizeResources: false, sanitizeOps: false }, () => {
+describe('CrdtWorker.Client.repo (shim)', () => {
   const Test = createTestHelpers();
   afterEach(Test.reset);
 

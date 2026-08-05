@@ -1,13 +1,25 @@
-import { describe, expect, Files, it, type t } from '../../-test.ts';
+import { afterEach, describe, expect, Files, it, type t } from '../../-test.ts';
 import { R2 } from '../mod.ts';
 import { bytesObject, fakeBucket, r2FilesPolicy as policy, textObject } from './u.fixture.ts';
 
-describe('R2.Files', { sanitizeOps: false, sanitizeResources: false }, () => {
+const clients = new Set<ReturnType<typeof Files.Client.local>>();
+const localFiles = (...args: Parameters<typeof Files.Client.local>) => {
+  const client = Files.Client.local(...args);
+  clients.add(client);
+  return client;
+};
+
+afterEach(() => {
+  for (const client of clients) client.dispose('test.cleanup');
+  clients.clear();
+});
+
+describe('R2.Files', () => {
   describe('capabilities / object keys', () => {
     it('exports a writable Files backing with resolved capabilities', async () => {
       const { bucket } = fakeBucket();
       const backing = R2.Files.create({ bucket, policy });
-      const files = Files.Client.local(backing);
+      const files = localFiles(backing);
 
       expect(backing.kind).to.equal('files/r2:writable');
       expect(backing.policy).to.eql(policy);
@@ -26,7 +38,7 @@ describe('R2.Files', { sanitizeOps: false, sanitizeResources: false }, () => {
 
     it('maps Files writes through the configured R2 object-key prefix', async () => {
       const { bucket, store, calls } = fakeBucket();
-      const files = Files.Client.local(R2.Files.create({ bucket, policy, prefix: 'deploy/main' }));
+      const files = localFiles(R2.Files.create({ bucket, policy, prefix: 'deploy/main' }));
 
       const text = await files.writeText('index.html', 'hello', { mediaType: 'text/html' });
       const bytes = await files.writeBytes('assets/app.bin', new Uint8Array([1, 2, 3]), {
@@ -67,9 +79,7 @@ describe('R2.Files', { sanitizeOps: false, sanitizeResources: false }, () => {
         'deploy/main/index.html': textObject('hello', 'text/html'),
         'deploy/main/assets/app.js': textObject('console.log(1)', 'text/javascript'),
       });
-      const files = Files.Client.local(
-        R2.Files.create({ bucket, policy, prefix: '/deploy/main/' }),
-      );
+      const files = localFiles(R2.Files.create({ bucket, policy, prefix: '/deploy/main/' }));
 
       expect(await files.stat('assets')).to.eql({ path: 'assets', kind: 'dir' });
       expect(await files.stat('index.html')).to.include({
@@ -100,7 +110,7 @@ describe('R2.Files', { sanitizeOps: false, sanitizeResources: false }, () => {
         },
         'deploy/main/assets/app.wasm': bytesObject(new Uint8Array([0, 1]), 'application/wasm'),
       }, 'https://cdn.example.com/root');
-      const files = Files.Client.local(R2.Files.create({ bucket, policy, prefix: 'deploy/main' }));
+      const files = localFiles(R2.Files.create({ bucket, policy, prefix: 'deploy/main' }));
 
       expect(await files.readText('index.html')).to.equal('hello');
       const read = await files.cmd.send('files:read', { path: 'assets/app.wasm' });
@@ -129,7 +139,7 @@ describe('R2.Files', { sanitizeOps: false, sanitizeResources: false }, () => {
       const { bucket, calls } = fakeBucket({
         'deploy/main/dist.json': bytesObject(new TextEncoder().encode(body), 'application/json'),
       });
-      const files = Files.Client.local(R2.Files.create({ bucket, policy, prefix: 'deploy/main' }));
+      const files = localFiles(R2.Files.create({ bucket, policy, prefix: 'deploy/main' }));
 
       expect(await files.readText('dist.json')).to.equal(body);
       expect(calls).to.eql([
@@ -144,7 +154,7 @@ describe('R2.Files', { sanitizeOps: false, sanitizeResources: false }, () => {
       const { bucket } = fakeBucket({
         'deploy/main/dist.json': bytesObject(new TextEncoder().encode(body)),
       });
-      const files = Files.Client.local(R2.Files.create({ bucket, policy, prefix: 'deploy/main' }));
+      const files = localFiles(R2.Files.create({ bucket, policy, prefix: 'deploy/main' }));
 
       expect(await files.readText('dist.json')).to.equal(body);
     });
@@ -155,7 +165,7 @@ describe('R2.Files', { sanitizeOps: false, sanitizeResources: false }, () => {
       const { bucket } = fakeBucket({
         'deploy/main/dist.json': { ...object, size: Number.NaN },
       });
-      const files = Files.Client.local(R2.Files.create({ bucket, policy, prefix: 'deploy/main' }));
+      const files = localFiles(R2.Files.create({ bucket, policy, prefix: 'deploy/main' }));
 
       expect(await files.readText('dist.json')).to.equal(body);
     });
@@ -215,7 +225,7 @@ describe('R2.Files', { sanitizeOps: false, sanitizeResources: false }, () => {
       const { bucket } = fakeBucket({
         'deploy/main/dist.json': { ...object, size: Number.NaN },
       }, 'https://cdn.example.com/root');
-      const files = Files.Client.local(R2.Files.create({ bucket, policy, prefix: 'deploy/main' }));
+      const files = localFiles(R2.Files.create({ bucket, policy, prefix: 'deploy/main' }));
 
       expect(await files.stat('dist.json')).to.eql({
         path: 'dist.json',
@@ -247,7 +257,7 @@ describe('R2.Files', { sanitizeOps: false, sanitizeResources: false }, () => {
       const { bucket } = fakeBucket({
         'deploy/main/docs/a b+c?.txt': bytesObject(new Uint8Array([1]), 'text/plain'),
       }, 'https://cdn.example.com/root');
-      const files = Files.Client.local(R2.Files.create({ bucket, policy, prefix: 'deploy/main' }));
+      const files = localFiles(R2.Files.create({ bucket, policy, prefix: 'deploy/main' }));
 
       const read = await files.cmd.send('files:read', { path: 'docs/a b+c?.txt' });
 
@@ -273,7 +283,7 @@ describe('R2.Files', { sanitizeOps: false, sanitizeResources: false }, () => {
         'index.html': textObject('hello', 'text/html'),
         'secret.txt': textObject('secret', 'text/plain'),
       }, 'https://cdn.example.com');
-      const files = Files.Client.local(R2.Files.create({ bucket, policy: readOnlyHtml }));
+      const files = localFiles(R2.Files.create({ bucket, policy: readOnlyHtml }));
 
       const manifest = await files.manifest({ contentRefs: true });
 
@@ -301,7 +311,7 @@ describe('R2.Files', { sanitizeOps: false, sanitizeResources: false }, () => {
           return fixture.bucket.stat(key);
         },
       };
-      const files = Files.Client.local(R2.Files.create({ bucket, policy }));
+      const files = localFiles(R2.Files.create({ bucket, policy }));
 
       const manifest = await files.manifest({ contentRefs: true });
 
@@ -348,7 +358,7 @@ describe('R2.Files', { sanitizeOps: false, sanitizeResources: false }, () => {
         'assets/app.css': textObject('css'),
       });
       const backing = R2.Files.create({ bucket, policy });
-      const files = Files.Client.local(backing);
+      const files = localFiles(backing);
 
       await rejects(() => remove(backing, { path: 'assets' }), /Directory not empty/);
       await files.remove('assets', { recursive: true });

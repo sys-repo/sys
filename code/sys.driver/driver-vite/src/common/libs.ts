@@ -3,6 +3,7 @@
  */
 export { Esm } from '@sys/esm';
 export { Args } from '@sys/std/args';
+export { Arr } from '@sys/std/arr';
 export { Delete } from '@sys/std/delete';
 export { Err } from '@sys/std/error';
 export { Json } from '@sys/std/json';
@@ -12,6 +13,7 @@ export { Semver } from '@sys/std/semver/server';
 export { asArray } from '@sys/std/arr';
 export { Is, isRecord } from '@sys/std/is';
 export { Num } from '@sys/std/num';
+export { Obj } from '@sys/std/obj';
 export { Str } from '@sys/std/str';
 export { Time } from '@sys/std/time';
 export { Try } from '@sys/std/try';

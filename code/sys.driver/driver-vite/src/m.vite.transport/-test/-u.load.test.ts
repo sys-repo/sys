@@ -191,139 +191,135 @@ describe('ViteTransport.load', () => {
   });
 });
 
-describe(
-  'ViteTransport.load (deno loader)',
-  { sanitizeOps: false, sanitizeResources: false },
-  () => {
-    describe('transforms', () => {
-      it('transforms typescript content via @deno/loader', async () => {
-        const fs = await Fs.makeTempDir({ prefix: 'ViteTransport.load.ts.' });
-        const path = Fs.join(fs.absolute, 'mod.ts');
-        await Fs.write(path, 'export const value: number = 1;');
+describe('ViteTransport.load (deno loader)', () => {
+  describe('transforms', () => {
+    it('transforms typescript content via @deno/loader', async () => {
+      const fs = await Fs.makeTempDir({ prefix: 'ViteTransport.load.ts.' });
+      const path = Fs.join(fs.absolute, 'mod.ts');
+      await Fs.write(path, 'export const value: number = 1;');
 
-        const res = await loadDenoModule(toDenoSpecifier('TypeScript', './mod.ts', path));
-        expect(typeof res).to.eql('object');
-        if (typeof res === 'string') throw new Error('Expected transform result object');
-        expect(res.code.includes('const value = 1')).to.eql(true);
-        expect(typeof res.map === 'string' || res.map === null).to.eql(true);
+      const res = await loadDenoModule(toDenoSpecifier('TypeScript', './mod.ts', path));
+      expect(typeof res).to.eql('object');
+      if (typeof res === 'string') throw new Error('Expected transform result object');
+      expect(res.code.includes('const value = 1')).to.eql(true);
+      expect(typeof res.map === 'string' || res.map === null).to.eql(true);
 
-        await Fs.remove(fs.absolute);
-      });
-
-      it('reuses cached dev transport transforms for remote immutable modules', async () => {
-        const fs = await Fs.makeTempDir({ prefix: 'ViteTransport.load.cache.hit.' });
-        const path = Fs.join(fs.absolute, 'cache/mod.ts');
-        const cacheDir = Fs.join(fs.absolute, '.vite');
-        await Fs.ensureDir(Fs.dirname(path));
-        await Fs.write(path, 'export const value: number = 1;');
-
-        const id = toDenoSpecifier('TypeScript', 'https:/jsr.io/@sys/std/0.0.341/src/mod.ts', path);
-        const first = await loadDenoModule(id, [], {
-          browserIds: true,
-          transformCacheDir: cacheDir,
-        });
-        expect(typeof first).to.eql('object');
-        if (typeof first === 'string') throw new Error('Expected cached transform object');
-
-        const cacheFiles = await Fs.glob(Fs.join(cacheDir, '.sys-driver-vite', 'transport')).find(
-          '*.json',
-        );
-        expect(cacheFiles.length > 0).to.eql(true);
-
-        const second = await loadDenoModule(id, [], {
-          browserIds: true,
-          transformCacheDir: cacheDir,
-        });
-        expect(second).to.eql(first);
-
-        await Fs.remove(fs.absolute);
-      });
-
-      it('bypasses the persistent transform cache for build transport transforms', async () => {
-        const fs = await Fs.makeTempDir({ prefix: 'ViteTransport.load.cache.build.' });
-        const path = Fs.join(fs.absolute, 'cache/mod.ts');
-        const cacheDir = Fs.join(fs.absolute, '.vite');
-        await Fs.ensureDir(Fs.dirname(path));
-        await Fs.write(path, 'export const value: number = 1;');
-
-        const id = toDenoSpecifier(
-          'TypeScript',
-          'https://jsr.io/@sys/std/0.0.341/src/mod.ts',
-          path,
-        );
-        const res = await loadDenoModule(id, [], {
-          browserIds: false,
-          transformCacheDir: cacheDir,
-        });
-        expect(typeof res).to.eql('object');
-        expect(await Fs.exists(Fs.join(cacheDir, '.sys-driver-vite', 'transport'))).to.eql(false);
-
-        await Fs.remove(fs.absolute);
-      });
-
-      it('bypasses the persistent transform cache for local workspace-style module transforms', async () => {
-        const fs = await Fs.makeTempDir({ prefix: 'ViteTransport.load.cache.local.' });
-        const path = Fs.join(fs.absolute, 'mod.ts');
-        const cacheDir = Fs.join(fs.absolute, '.vite');
-        await Fs.write(path, 'export const value: number = 1;');
-
-        const id = toDenoSpecifier('TypeScript', './mod.ts', path);
-        const res = await loadDenoModule(id, [], { browserIds: true, transformCacheDir: cacheDir });
-        expect(typeof res).to.eql('object');
-        expect(await Fs.exists(Fs.join(cacheDir, '.sys-driver-vite', 'transport'))).to.eql(false);
-
-        await Fs.remove(fs.absolute);
-      });
-
-      it('bypasses the persistent transform cache for jsr specifiers without immutable remote urls', async () => {
-        const fs = await Fs.makeTempDir({ prefix: 'ViteTransport.load.cache.jsr.' });
-        const path = Fs.join(fs.absolute, 'mod.ts');
-        const cacheDir = Fs.join(fs.absolute, '.vite');
-        await Fs.write(path, 'export const value: number = 1;');
-
-        const id = toDenoSpecifier('TypeScript', 'jsr:@sys/std', path);
-        const res = await loadDenoModule(id, [], { browserIds: true, transformCacheDir: cacheDir });
-        expect(typeof res).to.eql('object');
-        expect(await Fs.exists(Fs.join(cacheDir, '.sys-driver-vite', 'transport'))).to.eql(false);
-
-        await Fs.remove(fs.absolute);
-      });
-
-      it('misses the cache when rewritten dependency targets change', async () => {
-        const fs = await Fs.makeTempDir({ prefix: 'ViteTransport.load.cache.deps.' });
-        const path = Fs.join(fs.absolute, 'cache/mod.ts');
-        const cacheDir = Fs.join(fs.absolute, '.vite');
-        await Fs.ensureDir(Fs.dirname(path));
-        await Fs.write(path, "export { value } from 'https://jsr.io/@std/path/1.1.4/value.ts';\n");
-
-        const depA = {
-          specifier: 'https://jsr.io/@std/path/1.1.4/value.ts',
-          resolvedSpecifier: 'https://jsr.io/@std/path/1.1.4/value.ts',
-          localPath: Fs.join(fs.absolute, 'cache/value.a.ts'),
-          loader: 'TypeScript' as const,
-        };
-        const depB = {
-          ...depA,
-          localPath: Fs.join(fs.absolute, 'cache/value.b.ts'),
-        };
-
-        const id = toDenoSpecifier(
-          'TypeScript',
-          'https://jsr.io/@sys/std/0.0.341/src/mod.ts',
-          path,
-        );
-        const first = await loadDenoModule(id, [depA], {
-          browserIds: true,
-          transformCacheDir: cacheDir,
-        });
-        const second = await loadDenoModule(id, [depB], {
-          browserIds: true,
-          transformCacheDir: cacheDir,
-        });
-        expect(second).not.to.eql(first);
-
-        await Fs.remove(fs.absolute);
-      });
+      await Fs.remove(fs.absolute);
     });
-  },
-);
+
+    it('reuses cached dev transport transforms for remote immutable modules', async () => {
+      const fs = await Fs.makeTempDir({ prefix: 'ViteTransport.load.cache.hit.' });
+      const path = Fs.join(fs.absolute, 'cache/mod.ts');
+      const cacheDir = Fs.join(fs.absolute, '.vite');
+      await Fs.ensureDir(Fs.dirname(path));
+      await Fs.write(path, 'export const value: number = 1;');
+
+      const id = toDenoSpecifier('TypeScript', 'https:/jsr.io/@sys/std/0.0.341/src/mod.ts', path);
+      const first = await loadDenoModule(id, [], {
+        browserIds: true,
+        transformCacheDir: cacheDir,
+      });
+      expect(typeof first).to.eql('object');
+      if (typeof first === 'string') throw new Error('Expected cached transform object');
+
+      const cacheFiles = await Fs.glob(Fs.join(cacheDir, '.sys-driver-vite', 'transport')).find(
+        '*.json',
+      );
+      expect(cacheFiles.length > 0).to.eql(true);
+
+      const second = await loadDenoModule(id, [], {
+        browserIds: true,
+        transformCacheDir: cacheDir,
+      });
+      expect(second).to.eql(first);
+
+      await Fs.remove(fs.absolute);
+    });
+
+    it('bypasses the persistent transform cache for build transport transforms', async () => {
+      const fs = await Fs.makeTempDir({ prefix: 'ViteTransport.load.cache.build.' });
+      const path = Fs.join(fs.absolute, 'cache/mod.ts');
+      const cacheDir = Fs.join(fs.absolute, '.vite');
+      await Fs.ensureDir(Fs.dirname(path));
+      await Fs.write(path, 'export const value: number = 1;');
+
+      const id = toDenoSpecifier(
+        'TypeScript',
+        'https://jsr.io/@sys/std/0.0.341/src/mod.ts',
+        path,
+      );
+      const res = await loadDenoModule(id, [], {
+        browserIds: false,
+        transformCacheDir: cacheDir,
+      });
+      expect(typeof res).to.eql('object');
+      expect(await Fs.exists(Fs.join(cacheDir, '.sys-driver-vite', 'transport'))).to.eql(false);
+
+      await Fs.remove(fs.absolute);
+    });
+
+    it('bypasses the persistent transform cache for local workspace-style module transforms', async () => {
+      const fs = await Fs.makeTempDir({ prefix: 'ViteTransport.load.cache.local.' });
+      const path = Fs.join(fs.absolute, 'mod.ts');
+      const cacheDir = Fs.join(fs.absolute, '.vite');
+      await Fs.write(path, 'export const value: number = 1;');
+
+      const id = toDenoSpecifier('TypeScript', './mod.ts', path);
+      const res = await loadDenoModule(id, [], { browserIds: true, transformCacheDir: cacheDir });
+      expect(typeof res).to.eql('object');
+      expect(await Fs.exists(Fs.join(cacheDir, '.sys-driver-vite', 'transport'))).to.eql(false);
+
+      await Fs.remove(fs.absolute);
+    });
+
+    it('bypasses the persistent transform cache for jsr specifiers without immutable remote urls', async () => {
+      const fs = await Fs.makeTempDir({ prefix: 'ViteTransport.load.cache.jsr.' });
+      const path = Fs.join(fs.absolute, 'mod.ts');
+      const cacheDir = Fs.join(fs.absolute, '.vite');
+      await Fs.write(path, 'export const value: number = 1;');
+
+      const id = toDenoSpecifier('TypeScript', 'jsr:@sys/std', path);
+      const res = await loadDenoModule(id, [], { browserIds: true, transformCacheDir: cacheDir });
+      expect(typeof res).to.eql('object');
+      expect(await Fs.exists(Fs.join(cacheDir, '.sys-driver-vite', 'transport'))).to.eql(false);
+
+      await Fs.remove(fs.absolute);
+    });
+
+    it('misses the cache when rewritten dependency targets change', async () => {
+      const fs = await Fs.makeTempDir({ prefix: 'ViteTransport.load.cache.deps.' });
+      const path = Fs.join(fs.absolute, 'cache/mod.ts');
+      const cacheDir = Fs.join(fs.absolute, '.vite');
+      await Fs.ensureDir(Fs.dirname(path));
+      await Fs.write(path, "export { value } from 'https://jsr.io/@std/path/1.1.4/value.ts';\n");
+
+      const depA = {
+        specifier: 'https://jsr.io/@std/path/1.1.4/value.ts',
+        resolvedSpecifier: 'https://jsr.io/@std/path/1.1.4/value.ts',
+        localPath: Fs.join(fs.absolute, 'cache/value.a.ts'),
+        loader: 'TypeScript' as const,
+      };
+      const depB = {
+        ...depA,
+        localPath: Fs.join(fs.absolute, 'cache/value.b.ts'),
+      };
+
+      const id = toDenoSpecifier(
+        'TypeScript',
+        'https://jsr.io/@sys/std/0.0.341/src/mod.ts',
+        path,
+      );
+      const first = await loadDenoModule(id, [depA], {
+        browserIds: true,
+        transformCacheDir: cacheDir,
+      });
+      const second = await loadDenoModule(id, [depB], {
+        browserIds: true,
+        transformCacheDir: cacheDir,
+      });
+      expect(second).not.to.eql(first);
+
+      await Fs.remove(fs.absolute);
+    });
+  });
+});

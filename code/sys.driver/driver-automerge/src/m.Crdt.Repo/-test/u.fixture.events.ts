@@ -1,4 +1,4 @@
-import { type t, Schedule } from '../../-test.ts';
+import { Schedule, type t, Time } from '../../-test.ts';
 import { Crdt } from '../../m.server/common.ts';
 import { Server } from '../../m.server/mod.ts';
 
@@ -39,6 +39,9 @@ export const EventsFixture = {
       async dispose() {
         await Promise.all(repos.map((repo) => repo.dispose()));
         await server.dispose();
+
+        // @automerge/automerge-repo@2.5.6 leaves a non-cancellable 100ms throttle tail.
+        await Time.wait(110);
       },
     };
   },

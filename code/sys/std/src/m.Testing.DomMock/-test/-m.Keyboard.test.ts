@@ -61,8 +61,8 @@ describe('DomMock.Keyboard', () => {
     expect(fired[0]).to.equal(event);
   });
 
-  it('throw: mock not poly-filled', () => {
-    DomMock.unpolyfill();
+  it('throw: mock not poly-filled', async () => {
+    await DomMock.unpolyfill();
     const fn = () => DomMock.Keyboard.fire();
     expect(fn).to.throw(/Cannot read properties of undefined/);
   });

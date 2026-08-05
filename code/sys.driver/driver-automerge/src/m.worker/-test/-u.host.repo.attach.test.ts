@@ -1,8 +1,8 @@
-import { type t, afterEach, describe, expect, it, Schedule } from '../../-test.ts';
+import { afterEach, describe, expect, it, Schedule, type t } from '../../-test.ts';
 import { CrdtWorker } from '../mod.ts';
 import { createTestHelpers } from './u.ts';
 
-describe('CrdtWorker.Host.attach', { sanitizeResources: false, sanitizeOps: false }, () => {
+describe('CrdtWorker.Host.attach', () => {
   const Test = createTestHelpers();
   afterEach(Test.reset);
 
@@ -31,7 +31,7 @@ describe('CrdtWorker.Host.attach', { sanitizeResources: false, sanitizeOps: fals
           e.type === 'props/change' &&
           e.payload.prop === 'sync.enabled' &&
           e.payload.after.sync.enabled === false,
-      ),
+      )
     );
 
     /**
@@ -132,7 +132,7 @@ describe('CrdtWorker.Host.attach', { sanitizeResources: false, sanitizeOps: fals
           e.type === 'props/change' &&
           e.payload.prop === 'status' &&
           e.payload.after.status.ready === true,
-      ),
+      )
     );
 
     type Change = Extract<t.WireRepoEventPayload, { type: 'props/change' }>;
@@ -180,7 +180,7 @@ describe('CrdtWorker.Host.attach', { sanitizeResources: false, sanitizeOps: fals
           e.type === 'props/change' &&
           e.payload.prop === 'sync.enabled' &&
           e.payload.after.sync.enabled === false,
-      ),
+      )
     );
 
     type Change = Extract<t.WireRepoEventPayload, { type: 'props/change' }>;

@@ -187,7 +187,7 @@ export function BusController(args: {
   /**
    * Props: Write.
    */
-  events.props.change.req$.subscribe(async (e) => {
+  events.props.change.req$.subscribe((e) => {
     const { tx } = e;
     let error: string | undefined;
 
@@ -207,9 +207,11 @@ export function BusController(args: {
   /**
    * Props: Ensure props changes flushed.
    */
-  events.props.flush.pending$.pipe(Rx.debounceTime(10)).subscribe(async (e) => {
-    await (await Ctx.current()).flush();
-  });
+  events.props.flush.pending$
+    .pipe(Rx.debounceTime(10), Rx.takeUntil(dispose$))
+    .subscribe(async () => {
+      await (await Ctx.current()).flush();
+    });
 
   /**
    * API

@@ -3,7 +3,7 @@ import { describe, expect, it, SAMPLE, Testing } from '../../-test.ts';
 import { buildSample } from './u.fixture.build.ts';
 import { devSample } from './u.fixture.dev.ts';
 
-describe('Vite published external smoke (baseline build)', { sanitizeOps: false, sanitizeResources: false }, () => {
+describe('Vite published external smoke (baseline build)', () => {
   it('published driver-vite resolves @sys imports from dedicated fixture', async () => {
     await Testing.retry(2, async () => {
       const { build, files } = await buildSample({

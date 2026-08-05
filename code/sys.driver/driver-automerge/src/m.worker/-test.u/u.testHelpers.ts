@@ -1,23 +1,57 @@
-import { BrowserWebSocketClientAdapter } from '@automerge/automerge-repo-network-websocket';
+import {
+  type Message,
+  NetworkAdapter,
+  type PeerId,
+  type PeerMetadata,
+} from '@automerge/automerge-repo';
 import { Crdt } from '../../-exports/-fs/mod.ts';
 
-import { type t } from '../common.ts';
+import { type t, Time } from '../common.ts';
 import { CrdtWorker } from '../m.Worker.ts';
 
 type O = Record<string, unknown>;
+
+class TestNetworkAdapter extends NetworkAdapter {
+  readonly url: t.StringUrl;
+
+  constructor(url: t.StringUrl) {
+    super();
+    this.url = url;
+  }
+
+  isReady() {
+    return true;
+  }
+
+  async whenReady() {}
+
+  connect(peerId: PeerId, peerMetadata?: PeerMetadata) {
+    this.peerId = peerId;
+    this.peerMetadata = peerMetadata;
+  }
+
+  send(_message: Message) {}
+  disconnect() {}
+}
 
 /**
  * Common test utilities for worker-based CRDT repo.
  */
 export function createTestHelpers() {
   const ports = new Set<MessagePort>();
+  const repos = new Set<t.CrdtRepo>();
   const api = {
     /**
      * Close all tracked MessagePorts.
      */
-    reset() {
-      ports.forEach((p) => p.close());
+    async reset() {
+      await Promise.all([...repos].map((repo) => repo.dispose()));
+      repos.clear();
+      ports.forEach((port) => port.close());
       ports.clear();
+
+      // @automerge/automerge-repo@2.5.6 leaves a non-cancellable 100ms throttle tail.
+      await Time.wait(110);
     },
 
     /**
@@ -43,13 +77,15 @@ export function createTestHelpers() {
     },
 
     /**
-     * Create a real CrdtRepo with optional WebSocket network adapter.
+     * Create a real CrdtRepo with an optional timer-free test network adapter.
      */
     realRepo(opts: { network?: boolean } = {}) {
       const network: t.CrdtFs.Network.Input[] = [];
-      const url = 'wss://sync.automerge.org';
-      if (opts.network) network.push(new BrowserWebSocketClientAdapter(url));
-      return Crdt.repo({ network });
+      const url = 'wss://sync.automerge.org' as t.StringUrl;
+      if (opts.network) network.push(new TestNetworkAdapter(url));
+      const repo = Crdt.repo({ network });
+      repos.add(repo);
+      return repo;
     },
 
     /**

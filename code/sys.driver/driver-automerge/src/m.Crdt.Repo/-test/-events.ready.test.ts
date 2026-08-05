@@ -1,7 +1,7 @@
-import { type t, describe, expect, it } from '../../-test.ts';
+import { describe, expect, it, type t } from '../../-test.ts';
 import { Crdt } from '../../m.server/common.ts';
 
-describe('CrdtRepo.events.ready$', { sanitizeResources: false, sanitizeOps: false }, () => {
+describe('CrdtRepo.events.ready$', () => {
   it('fires prop-change when repo becomes ready', async () => {
     const repo = Crdt.repo();
     const events = repo.events();

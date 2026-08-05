@@ -1,8 +1,8 @@
 /**
  * Published-boundary performance measurements for external driver-vite scenarios.
  */
-import { SAMPLE, Time, type t } from '../../-test.ts';
-import { buildSample } from './u.fixture.build.ts';
+import { SAMPLE, type t, Time } from '../../-test.ts';
+import { buildSample, type SerializedBuild } from './u.fixture.build.ts';
 import { devSample } from './u.fixture.dev.ts';
 
 export type PerfScenario = 'published-baseline';
@@ -121,7 +121,7 @@ const perf = {
     return index === 0 ? 'cold' : 'warm';
   },
 
-  detailFromBuild(res: t.Vite.Build.Response) {
+  detailFromBuild(res: SerializedBuild) {
     const stderr = perf.stripAnsi(res.cmd.output.text.stderr).trim();
     const stdout = perf.stripAnsi(res.cmd.output.text.stdout).trim();
     return stderr || stdout || 'build failed';

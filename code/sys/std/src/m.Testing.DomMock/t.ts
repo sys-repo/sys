@@ -1,5 +1,3 @@
-import type { t } from './common.ts';
-
 export type TestHook = <T>(fn: (this: T) => void | Promise<void>) => void;
 
 /**
@@ -25,8 +23,8 @@ export namespace DomMock {
     /** Ensure `globalThis` is polyfilled with window/document. */
     polyfill(options?: { url?: string }): void;
 
-    /** Returns the `globalThis` to it's original state. */
-    unpolyfill(): void;
+    /** Restores `globalThis` and closes detached DOM resources. */
+    unpolyfill(): Promise<void>;
 
     /**
      * Registers DomMock lifecycle with the test runner.

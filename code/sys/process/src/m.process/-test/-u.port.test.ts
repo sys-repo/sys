@@ -4,7 +4,7 @@ import { ProcessTest } from './u.fixture.ts';
 
 const evalArgs = (code: string) => ['eval', code];
 
-describe('Process.Terminate.port', { sanitizeResources: false }, () => {
+describe('Process.Terminate.port', () => {
   it('rejects invalid port targets', async () => {
     const error = await ProcessTest.catchError(() => Process.Terminate.port(0));
     expect(error?.message).to.eql('Process.Port: invalid port: 0.');
@@ -70,6 +70,7 @@ async function spawnReadyServer(port: number) {
     const { value } = await reader.read();
     expect(new TextDecoder().decode(value)).to.eql('ready\n');
   } finally {
+    await reader.cancel();
     reader.releaseLock();
   }
 

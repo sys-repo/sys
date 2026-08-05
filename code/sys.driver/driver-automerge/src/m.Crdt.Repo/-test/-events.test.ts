@@ -1,7 +1,7 @@
 import { describe, expect, it, Rx } from '../../-test.ts';
 import { Crdt } from '../../m.server/common.ts';
 
-describe('CrdtRepo.events', { sanitizeResources: false, sanitizeOps: false }, () => {
+describe('CrdtRepo.events', () => {
   it('dispose lifecycle', async () => {
     const life = Rx.lifecycle();
     const repo = Crdt.repo();

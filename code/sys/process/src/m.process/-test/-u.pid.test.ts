@@ -3,7 +3,7 @@ import { Process } from '../mod.ts';
 
 const evalArgs = (code: string) => ['eval', code];
 
-describe('Process.Terminate', { sanitizeResources: false }, () => {
+describe('Process.Terminate', () => {
   it('isRunning → reports the current process', () => {
     expect(Process.isRunning(Deno.pid)).to.eql(true);
   });
@@ -68,6 +68,7 @@ async function spawnReadyEval(code: string) {
     expect(new TextDecoder().decode(value)).to.eql('ready\n');
     return child;
   } finally {
+    await reader.cancel();
     reader.releaseLock();
   }
 }

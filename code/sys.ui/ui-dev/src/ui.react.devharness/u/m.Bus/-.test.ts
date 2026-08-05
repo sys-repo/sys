@@ -5,7 +5,7 @@ import { DevEventsIs } from './Bus.Events.ts';
 
 const exepctSessionId = (value: string) => expect(value).to.match(/^dev:ctx\./);
 
-describe('DevBus', { sanitizeOps: false, sanitizeResources: false }, () => {
+describe('DevBus', () => {
   describe('is', () => {
     const is = DevEventsIs;
 
@@ -13,6 +13,7 @@ describe('DevBus', { sanitizeOps: false, sanitizeResources: false }, () => {
       const instance = TestSample.instance();
       const events = DevBus.Events({ instance });
       expect(events.is).to.equal(is);
+      events.dispose();
     });
 
     it('is.base', () => {
@@ -348,7 +349,7 @@ describe('DevBus', { sanitizeOps: false, sanitizeResources: false }, () => {
         const info2 = await events.info.get();
         expect(info2.instance.session).to.eql(info1.instance.session); // NB: No change to the context (instance/state).
 
-        events.reset.fire();
+        await events.reset.fire();
 
         // NB: instances changed.
         const info3 = await events.info.get();
@@ -382,10 +383,13 @@ describe('DevBus', { sanitizeOps: false, sanitizeResources: false }, () => {
 
       it('ctx.run({ reset })', async () => {
         const { events } = TestSample.controller();
+        let requested = false;
 
         const root = Spec.describe('root', (e) => {
           e.it('foo', (e) => {
             Spec.once(e, (ctx) => {
+              if (requested) return;
+              requested = true;
               Time.delay(10, () => ctx.run({ reset: true })); // NB: Simulate a "re-run" activated by say a UI click handler.
             });
           });

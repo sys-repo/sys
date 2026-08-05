@@ -6,28 +6,24 @@ import { devSample } from './u.fixture.dev.ts';
 const STD_PATH_PARENT = '/@id/__x00__deno::TypeScript::@std/path::';
 const STD_PATH_CHILD = '@std/path/1.1.4/';
 
-describe(
-  'Vite published external smoke (ui-components build)',
-  { sanitizeOps: false, sanitizeResources: false },
-  () => {
-    it('published driver-vite resolves @sys/ui-components and @sys/ui-dev', async () => {
-      await Testing.retry(2, async () => {
-        const { build, files } = await buildSample({
-          sampleName: 'Vite.ui-components.published.build',
-          sampleDir: SAMPLE.Dirs.samplePublishedUiComponents,
-        });
-
-        expect(build.ok).to.eql(true);
-        expect(files.html).to.include('<title>Sample-UI-Components</title>');
-        const js = files.js.map((file) => file.text).join('\n');
-        expect(js.length > 0).to.eql(true);
-        expect(js.includes('Button')).to.eql(true);
-        expect(js.includes('ui-components')).to.eql(true);
-        expect(js.includes('@sys/ui-dev/react/devharness/hooks')).to.eql(true);
+describe('Vite published external smoke (ui-components build)', () => {
+  it('published driver-vite resolves @sys/ui-components and @sys/ui-dev', async () => {
+    await Testing.retry(2, async () => {
+      const { build, files } = await buildSample({
+        sampleName: 'Vite.ui-components.published.build',
+        sampleDir: SAMPLE.Dirs.samplePublishedUiComponents,
       });
+
+      expect(build.ok).to.eql(true);
+      expect(files.html).to.include('<title>Sample-UI-Components</title>');
+      const js = files.js.map((file) => file.text).join('\n');
+      expect(js.length > 0).to.eql(true);
+      expect(js.includes('Button')).to.eql(true);
+      expect(js.includes('ui-components')).to.eql(true);
+      expect(js.includes('@sys/ui-dev/react/devharness/hooks')).to.eql(true);
     });
-  },
-);
+  });
+});
 
 describe('Vite published external smoke (ui-components dev)', () => {
   it('published driver-vite serves ui component module graph without html fallback', async () => {
@@ -44,7 +40,11 @@ describe('Vite published external smoke (ui-components dev)', () => {
         expect(entry.text.includes(`from '@sys/ui-dev';`)).to.eql(false);
         expect(entry.text.includes(`from "@sys/ui-dev";`)).to.eql(false);
 
-        const buttonUrl = directImport(entry.imports, '@sys/ui-components/react/button', 'ui-components/react/button');
+        const buttonUrl = directImport(
+          entry.imports,
+          '@sys/ui-components/react/button',
+          'ui-components/react/button',
+        );
         const devHarnessUrl = directImport(
           entry.imports,
           '@sys/ui-dev/react/devharness/hooks',
@@ -56,7 +56,11 @@ describe('Vite published external smoke (ui-components dev)', () => {
         const devHarness = await fetch(devHarnessUrl);
         const stdPath = await fetch(stdPathUrl);
         const stdPathImports = imports(stdPath.url, stdPath.text);
-        const recursiveChild = directImport(stdPathImports, STD_PATH_CHILD, 'recursive @std/path child import');
+        const recursiveChild = directImport(
+          stdPathImports,
+          STD_PATH_CHILD,
+          'recursive @std/path child import',
+        );
         const child = await fetch(recursiveChild);
 
         for (const mod of [button, devHarness, stdPath, child]) {

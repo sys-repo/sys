@@ -191,6 +191,7 @@ export async function spawnReadyServer(port: number, host = '127.0.0.1') {
       throw new Error('server did not become ready');
     }
   } finally {
+    await reader.cancel();
     reader.releaseLock();
   }
 
