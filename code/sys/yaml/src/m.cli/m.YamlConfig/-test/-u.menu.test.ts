@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { Cli, Fs } from '../common.ts';
+import { Cli, Fs, Obj } from '../common.ts';
 import { menu } from '../u/u.menu.ts';
 
 describe('YamlConfig.menu', () => {
@@ -34,14 +34,14 @@ describe('YamlConfig.menu', () => {
     }
   });
 
-  it('menu → passes an empty label through as a bare prompt message', async () => {
+  it('menu → omits the Select message when the label is empty', async () => {
     const cwd = await Fs.makeTempDir();
     const original = Cli.Input.Select.prompt;
-    let message: string | undefined;
+    let prompt: { readonly message?: string } | undefined;
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
-      value: (args: { readonly message: string }) => {
-        message = args.message;
+      value: (args: { readonly message?: string }) => {
+        prompt = args;
         return Promise.resolve('exit');
       },
     });
@@ -58,7 +58,7 @@ describe('YamlConfig.menu', () => {
       });
 
       expect(res).to.eql({ kind: 'exit' });
-      expect(message).to.eql('');
+      expect(Obj.hasOwn(prompt, 'message')).to.eql(false);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       await Fs.remove(cwd.absolute);
@@ -70,10 +70,12 @@ describe('YamlConfig.menu', () => {
     const original = Cli.Input.Select.prompt;
     const path = Fs.join(cwd.absolute, '-config/alpha.yaml');
     const seen: string[][] = [];
+    const messages: Array<string | undefined> = [];
     const events: string[] = [];
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
       value: (args: {
+        readonly message?: string;
         readonly options: readonly {
           readonly name: string;
           readonly value: unknown;
@@ -82,6 +84,7 @@ describe('YamlConfig.menu', () => {
         const options = args.options;
         const frame = options.map((option) => Cli.stripAnsi(option.name));
         seen.push(frame);
+        messages.push(Obj.hasOwn(args, 'message') ? Cli.stripAnsi(args.message ?? '') : undefined);
         events.push(frame.includes('  edit') ? 'prompt:submenu' : 'prompt:action');
         if (seen.length === 1) {
           return Promise.resolve(
@@ -109,6 +112,7 @@ describe('YamlConfig.menu', () => {
           validate: () => ({ ok: true, errors: [] }),
         },
         actions: {
+          message: false,
           label: ({ name }) => `config: ${name}`,
           labelMode: 'submenu',
           deleteLabel: 'delete config',
@@ -121,6 +125,7 @@ describe('YamlConfig.menu', () => {
         ['  edit', '  reload', '  rename', '  delete config', '← back'],
         ['  config: alpha', '← back'],
       ]);
+      expect(messages).to.eql([undefined, 'config: alpha', undefined]);
       expect(events).to.eql([
         'render',
         'prompt:action',

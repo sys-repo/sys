@@ -13,7 +13,7 @@ type PromptActionArgs<A extends string, T> = {
   invalidLabel?: string;
   allow?: t.YamlConfig.Menu.ActionBase[];
   defaultValue?: t.YamlConfig.Menu.ActionBase | A;
-  message?: string;
+  message?: string | false;
   beforePrompt?: t.YamlConfig.Menu.Args<T, A>['beforePrompt'];
   actionLabel?: t.YamlConfig.Menu.ItemName<T>;
   labelMode?: 'prefix' | 'submenu';
@@ -49,9 +49,12 @@ export async function promptAction<A extends string = string, T = unknown>(
   const deleteAction = { name: deleteLabel, value: 'delete' as const };
   const backAction = { name: `${c.cyan('←')} back`, value: 'back' as const };
   const invalidLabel = c.yellow(args.invalidLabel ?? 'invalid yaml');
-  const rootMessage = args.valid
+  const rootMessage = Is.bool(args.message)
+    ? undefined
+    : args.valid
     ? args.message ?? 'Actions:'
     : `${args.message ?? 'Actions:'} ${invalidLabel}`;
+  const rootMessageOptions = Is.string(rootMessage) ? { message: rootMessage } : {};
   const submenuMessage = args.valid ? actionLabel : `${actionLabel} ${invalidLabel}`;
 
   if (args.labelMode !== 'submenu') {
@@ -76,7 +79,7 @@ export async function promptAction<A extends string = string, T = unknown>(
 
     await args.beforePrompt?.();
     const answer = await Cli.Input.Select.prompt<t.YamlConfig.Menu.ActionBase | A>({
-      message: rootMessage,
+      ...rootMessageOptions,
       options: allowed,
       default: args.defaultValue,
       hideDefault: true,
@@ -131,7 +134,7 @@ export async function promptAction<A extends string = string, T = unknown>(
     }
 
     const answer = await Cli.Input.Select.prompt<PromptRootAction<A>>({
-      message: rootMessage,
+      ...rootMessageOptions,
       options: rootOptions,
       default: rootDefault,
       hideDefault: true,

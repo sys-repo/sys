@@ -64,7 +64,7 @@ export async function menu<T, A extends string = string>(
 
     await args.beforePrompt?.();
     const picked = await Cli.Input.Select.prompt<string>({
-      message: args.label.length === 0 ? '' : `${args.label}:`,
+      ...(args.label.length > 0 ? { message: `${args.label}:` } : {}),
       options,
       default: defaultValue,
       hideDefault: true,

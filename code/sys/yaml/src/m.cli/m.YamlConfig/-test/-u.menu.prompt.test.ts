@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { Cli } from '../common.ts';
+import { Cli, Obj } from '../common.ts';
 import { promptAction } from '../u/u.menu.prompt.ts';
 
 describe('YamlConfig.menu.prompt', () => {
@@ -123,6 +123,41 @@ describe('YamlConfig.menu.prompt', () => {
     }
   });
 
+  it('resolves default, invalid, and titleless root messages', async () => {
+    const original = Cli.Input.Select.prompt;
+    const seen: { readonly message?: string }[] = [];
+
+    Object.defineProperty(Cli.Input.Select, 'prompt', {
+      value: (args: { readonly message?: string }) => {
+        seen.push(args);
+        return Promise.resolve('back');
+      },
+    });
+
+    try {
+      const base = { name: 'alpha', path: '/tmp/alpha.yaml' };
+      await promptAction({ ...base, valid: true });
+      await promptAction({ ...base, valid: false });
+      await promptAction({ ...base, valid: false, message: 'Profile:' });
+      await promptAction({ ...base, valid: true, message: false });
+      await promptAction({ ...base, valid: false, message: false });
+
+      expect(
+        seen.map((prompt) =>
+          Obj.hasOwn(prompt, 'message') ? Cli.stripAnsi(prompt.message ?? '') : undefined
+        ),
+      ).to.eql([
+        'Actions:',
+        'Actions: invalid yaml',
+        'Profile: invalid yaml',
+        undefined,
+        undefined,
+      ]);
+    } finally {
+      Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
+    }
+  });
+
   it('submenu label mode → restores a base-action default in the submenu', async () => {
     const original = Cli.Input.Select.prompt;
     let seen: string[] = [];
@@ -163,11 +198,13 @@ describe('YamlConfig.menu.prompt', () => {
   it('submenu label mode → filters invalid-document actions', async () => {
     const original = Cli.Input.Select.prompt;
     const seen: string[][] = [];
+    const messages: string[] = [];
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
-      value: (args: { options: { name: string; value: unknown }[] }) => {
+      value: (args: { message: string; options: { name: string; value: unknown }[] }) => {
         const options = args.options;
         seen.push(options.map((item) => Cli.stripAnsi(item.name)));
+        messages.push(Cli.stripAnsi(args.message));
         if (seen.length === 1) {
           return Promise.resolve(options.find((item) => item.name === '  config')?.value);
         }
@@ -190,6 +227,7 @@ describe('YamlConfig.menu.prompt', () => {
         ['  config', '← back'],
         ['  edit', '← back'],
       ]);
+      expect(messages).to.eql(['Actions: invalid yaml', 'config invalid yaml']);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
     }
