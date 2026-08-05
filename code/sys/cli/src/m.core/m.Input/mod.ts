@@ -9,9 +9,7 @@ export const Input: t.CliInput.Lib = {
   Secret: { prompt: Prompt.Secret.prompt.bind(Prompt.Secret) },
   Toggle: { prompt: Prompt.Toggle.prompt.bind(Prompt.Toggle) },
   MultiText: { prompt: Prompt.List.prompt.bind(Prompt.List) },
-
   Select: { prompt: promptSelect },
-
   Checkbox: {
     prompt(args) {
       return Prompt.Checkbox.prompt({
