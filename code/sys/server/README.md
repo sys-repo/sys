@@ -19,8 +19,8 @@ deno run -ER jsr:@sys/server dsl websocket.cmd --format skill
 
 #### Checksum-pinned Dist materialization
 
-`jsr:@sys/server/dist` turns an externally pinned `dist.json` into an immutable local generation
-without choosing product or activation policy:
+`jsr:@sys/server/dist` materializes an externally pinned `dist.json` as an integrity-addressed local
+generation without choosing product or activation policy:
 
 ```text
 manifest URL + independent exact-byte checksum + finite policy
@@ -36,6 +36,76 @@ publication truth without exposing paths, credentials, or raw host causes.
 This surface does not discover a checksum, choose a mutable current version, enforce replay policy,
 or activate files. Operator-owned configuration and optional mutable projection belong to
 `jsr:@sys/tools/pull`.
+
+#### Host a checksum-pinned Dist
+
+`DistServer` serves one local Dist. Before opening a listener, it checks the exact `dist.json` bytes
+against the caller's SHA-256 pin and verifies every declared file. If any check fails, no listener
+opens.
+
+For each `GET` or `HEAD`, the server finds the path in the verified manifest, reads exactly the
+declared number of bytes, checks their checksum, and returns them only when both checks pass. The
+server binds only to loopback, serves no undeclared files, rejects Range requests, disables caching,
+and sends no CORS permission. It admits only requests whose `Host` exactly matches an admitted
+loopback authority for the listener, answering `421` otherwise, and maps `/` only to authenticated
+`index.html` without an SPA fallback.
+
+Start and stop the server directly through its returned lifecycle:
+
+```ts
+import { DistServer } from 'jsr:@sys/server/dist';
+
+const server = await DistServer.start({
+  dir: '/srv/example/dist/sha256-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+  integrity: 'sha256-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+  limits: {
+    manifestBytes: 1048576,
+    entries: 1000,
+    fileBytes: 16777216,
+    totalBytes: 67108864,
+  },
+});
+
+try {
+  console.info(server.origin);
+} finally {
+  await server.close('example.complete');
+}
+```
+
+Use `DistService` when Cell should load the configuration and own shutdown:
+
+```yaml
+services:
+  - name: neutral-dist
+    use: DistService
+    from: 'jsr:@sys/server/dist/service'
+    config: ./-config/@sys.server.dist/neutral.yaml
+    timeout: 15000
+```
+
+The service reads strict YAML:
+
+```yaml
+name: neutral-dist
+dir: ./.dist-store/sha256-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+integrity: sha256-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+limits:
+  manifestBytes: 1048576
+  entries: 1000
+  fileBytes: 16777216
+  totalBytes: 67108864
+hostname: 127.0.0.1
+port: 0
+```
+
+`integrity` is the SHA-256 hash of the exact `dist.json` bytes. `dir` is resolved lexically against
+the service `cwd` and may not escape it; pinned verification rejects symlinked escapes. YAML may
+choose the display name, loopback host, port, and verification limits. Cell controls startup output
+and shutdown.
+
+Startup verifies the complete Dist. This work counts against Cell's 10-second default startup
+timeout; set `timeout:` on the service descriptor when a larger Dist needs more time.
 
 #### Files WebSocket service endpoint
 

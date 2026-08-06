@@ -3,7 +3,6 @@ import { causeReason, failed, fetchReason, pullReason, verificationReason } from
 import { type InputSnapshot, prepareManifestCredentials, snapshotInput } from './u.input.ts';
 import { admitManifest } from './u.manifest.ts';
 
-type Method = t.ServerDist.Method;
 type Stage = t.FsRooted.Stage;
 type Rooted = t.Fs.Rooted.Instance;
 type Verification = t.FsPkg.Dist.Pinned.Verify.Result;
@@ -16,10 +15,10 @@ type FetchedManifest = Readonly<{
 
 type FetchResult =
   | { readonly ok: true; readonly value: FetchedManifest }
-  | { readonly ok: false; readonly reason: t.ServerDist.FailureReason };
+  | { readonly ok: false; readonly reason: t.Dist.FailureReason };
 
 /** Settle one pinned Dist with an `existing`, `promoted`, or `failed` result. */
-export const materialize: Method = async (input) => {
+export const materialize: t.Dist.Materialize = async (input) => {
   const prepared = snapshotInput(input);
   if (!prepared.ok) return failed('input', prepared.reason);
   const args = prepared.value;
@@ -241,9 +240,9 @@ async function settleVisible(
   dir: t.StringAbsoluteDir,
   fetched: FetchedManifest,
   totals: t.HttpPull.ResourceTotals,
-  cleanup: t.ServerDist.Cleanup,
-  publication: t.ServerDist.FailedPublication,
-): Promise<t.ServerDist.MaterializeResult> {
+  cleanup: t.Dist.Cleanup,
+  publication: t.Dist.FailedPublication,
+): Promise<t.Dist.MaterializeResult> {
   let result: Verification;
   try {
     result = await FsPkg.Dist.Pinned.verify({
@@ -268,7 +267,7 @@ async function settleVisible(
     : existingResult(args, dir, result.evidence, cleanup);
 }
 
-async function discardStage(rooted: Rooted, stage: Stage): Promise<t.ServerDist.Cleanup> {
+async function discardStage(rooted: Rooted, stage: Stage): Promise<t.Dist.Cleanup> {
   try {
     await rooted.discardStage(stage);
     return 'complete';
@@ -281,8 +280,8 @@ function existingResult(
   args: InputSnapshot,
   dir: t.StringAbsoluteDir,
   verification: t.FsPkg.Dist.Pinned.Verify.Evidence,
-  cleanup: t.ServerDist.Cleanup,
-): t.ServerDist.Existing {
+  cleanup: t.Dist.Cleanup,
+): t.Dist.Existing {
   return Object.freeze({
     kind: 'existing',
     dir,
@@ -299,8 +298,8 @@ function promotedResult(
   verification: t.FsPkg.Dist.Pinned.Verify.Evidence,
   fetched: FetchedManifest,
   totals: t.HttpPull.ResourceTotals,
-  cleanup: t.ServerDist.Cleanup,
-): t.ServerDist.Promoted {
+  cleanup: t.Dist.Cleanup,
+): t.Dist.Promoted {
   return Object.freeze({
     kind: 'promoted',
     dir,

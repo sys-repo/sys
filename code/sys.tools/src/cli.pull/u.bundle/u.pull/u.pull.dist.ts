@@ -14,7 +14,7 @@ const MAX_RESOURCES = 4096;
  *
  * Only an `existing` or `promoted` generation may be copied. Verification evidence remains on
  * `generation`; copied or HTML-rewritten bytes never inherit it. A projection failure preserves the
- * immutable generation outcome while returning an unsuccessful bundle result.
+ * pinned generation outcome while returning an unsuccessful bundle result.
  */
 export async function pullDistBundle(
   baseDir: t.StringDir,
@@ -154,7 +154,7 @@ async function projectGeneration(
 }
 
 /** Bind Pull's fixed finite materialization authority to the configured manifest origin. */
-function materializePolicy(origin: t.StringUrl): t.ServerDist.Policy {
+function materializePolicy(origin: t.StringUrl): t.Dist.Policy {
   const response = {
     maxBytes: FILE_BYTES,
     timeout: 60_000,
@@ -228,6 +228,6 @@ function projectionFailure(
   };
 }
 
-function formatMaterializationFailure(failure: t.ServerDist.Failed): string {
+function formatMaterializationFailure(failure: t.Dist.Failed): string {
   return `Dist materialization failed: ${failure.stage}/${failure.reason}`;
 }

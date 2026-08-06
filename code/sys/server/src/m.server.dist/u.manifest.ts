@@ -9,7 +9,7 @@ export type ManifestAdmission =
   | {
     readonly ok: false;
     readonly reason: Extract<
-      t.ServerDist.FailureReason,
+      t.Dist.FailureReason,
       'limit-exceeded' | 'malformed-manifest'
     >;
   };
@@ -21,7 +21,7 @@ const compare = Str.Compare.codeUnit();
 export function admitManifest(
   bytes: Uint8Array,
   finalUrl: t.StringUrl,
-  policy: t.ServerDist.Policy,
+  policy: t.Dist.Policy,
 ): ManifestAdmission {
   let parsed: unknown;
   try {
@@ -104,7 +104,7 @@ export function admitManifest(
 }
 
 function rejected(
-  reason: Extract<t.ServerDist.FailureReason, 'limit-exceeded' | 'malformed-manifest'>,
+  reason: Extract<t.Dist.FailureReason, 'limit-exceeded' | 'malformed-manifest'>,
 ): Extract<ManifestAdmission, { readonly ok: false }> {
   return Object.freeze({ ok: false, reason });
 }

@@ -2,11 +2,11 @@ import { Fs, type t } from './common.ts';
 
 /** Build one frozen sanitized materialization failure. */
 export function failed(
-  stage: t.ServerDist.FailureStage,
-  reason: t.ServerDist.FailureReason,
-  cleanup: t.ServerDist.Cleanup = 'not-needed',
-  publication?: t.ServerDist.FailedPublication,
-): t.ServerDist.Failed {
+  stage: t.Dist.FailureStage,
+  reason: t.Dist.FailureReason,
+  cleanup: t.Dist.Cleanup = 'not-needed',
+  publication?: t.Dist.FailedPublication,
+): t.Dist.Failed {
   return Object.freeze({
     kind: 'failed',
     stage,
@@ -17,7 +17,7 @@ export function failed(
 }
 
 /** Classify a thrown host or Rooted failure without exposing its cause. */
-export function causeReason(cause: unknown): t.ServerDist.FailureReason {
+export function causeReason(cause: unknown): t.Dist.FailureReason {
   if (Fs.Capability.Rooted.Is.failure(cause)) {
     return cause.kind === 'cancelled' ? 'cancelled' : 'filesystem-failure';
   }
@@ -27,7 +27,7 @@ export function causeReason(cause: unknown): t.ServerDist.FailureReason {
 /** Classify one bounded manifest Fetch failure. */
 export function fetchReason(
   response: t.HttpFetch.ResponseFailure,
-): t.ServerDist.FailureReason {
+): t.Dist.FailureReason {
   if (response.status === 499) return 'cancelled';
   if (response.checksum?.valid === false) return 'integrity-mismatch';
   switch (response.error.policyFailure) {
@@ -51,7 +51,7 @@ export function fetchReason(
 /** Classify one checksum-pinned Pull failure. */
 export function pullReason(
   result: t.HttpPull.ResultFailure,
-): t.ServerDist.FailureReason {
+): t.Dist.FailureReason {
   const kind = result.terminal?.kind ?? result.ops.find((item) => !item.ok)?.kind;
   switch (kind) {
     case 'invalid-input':
@@ -83,7 +83,7 @@ export function pullReason(
 /** Classify one pinned verification failure. */
 export function verificationReason(
   result: t.FsPkg.Dist.Pinned.Verify.Failure,
-): t.ServerDist.FailureReason {
+): t.Dist.FailureReason {
   switch (result.kind) {
     case 'invalid-input':
       return 'invalid-policy';

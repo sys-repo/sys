@@ -1,14 +1,17 @@
-import type { ServerDist } from '@sys/server/t';
-import { describe, expect, expectTypeOf, it } from '../../-test.ts';
-import { Dist } from '../mod.ts';
+import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
+import { Dist, DistServer } from '../mod.ts';
 
-describe('Dist', () => {
+describe('@sys/server/dist', () => {
   it('API', async () => {
     const m = await import('@sys/server/dist');
 
     expect(m.Dist).to.equal(Dist);
-    expect(Object.keys(m)).to.eql(['Dist']);
+    expect(m.DistServer).to.equal(DistServer);
+    expect(Object.keys(m)).to.eql(['Dist', 'DistServer']);
+    expect(Object.keys(Dist)).to.eql(['materialize']);
+    expect(Object.keys(DistServer)).to.eql(['start', 'Error']);
     expect(Object.isFrozen(Dist)).to.eql(true);
-    expectTypeOf(Dist).toEqualTypeOf<ServerDist.Lib>();
+    expectTypeOf(Dist).toEqualTypeOf<t.Dist.Lib>();
+    expectTypeOf(DistServer).toEqualTypeOf<t.DistServer.Lib>();
   });
 });

@@ -5,8 +5,8 @@ export type InputSnapshot = Readonly<{
   configuredUrl: t.StringUrl;
   integrity: t.StringHash;
   storeDir: t.StringDir;
-  policy: t.ServerDist.Policy;
-  credentials?: t.ServerDist.Credentials;
+  policy: t.Dist.Policy;
+  credentials?: t.Dist.Credentials;
   until?: t.UntilInput;
 }>;
 
@@ -14,7 +14,7 @@ export type InputPreparation =
   | { readonly ok: true; readonly value: InputSnapshot }
   | {
     readonly ok: false;
-    readonly reason: Extract<t.ServerDist.FailureReason, 'invalid-input' | 'invalid-policy'>;
+    readonly reason: Extract<t.Dist.FailureReason, 'invalid-input' | 'invalid-policy'>;
   };
 
 const INPUT_KEYS = [
@@ -51,7 +51,7 @@ const CREDENTIAL_KEYS = ['accessToken', 'headers'] as const;
 const MAX_TRANSFER_CHUNK_BYTES = 4_294_967_295;
 
 export type PreparedManifestCredentials =
-  | { readonly ok: true; readonly value?: t.ServerDist.ManifestCredentials }
+  | { readonly ok: true; readonly value?: t.Dist.ManifestCredentials }
   | { readonly ok: false };
 
 /** Snapshot all caller-owned authority before the first asynchronous boundary. */
@@ -98,7 +98,7 @@ export function snapshotInput(input: unknown): InputPreparation {
 
 /** Evaluate manifest credential callbacks once when, and only when, network work is required. */
 export function prepareManifestCredentials(
-  input: t.ServerDist.ManifestCredentials | undefined,
+  input: t.Dist.ManifestCredentials | undefined,
 ): PreparedManifestCredentials {
   if (!input) return { ok: true };
   try {
@@ -145,7 +145,7 @@ function snapshotStoreDir(input: unknown): t.StringDir | undefined {
   return Is.str(input) && input.length > 0 && !input.includes('\0') ? input : undefined;
 }
 
-function snapshotPolicy(input: unknown): t.ServerDist.Policy | undefined {
+function snapshotPolicy(input: unknown): t.Dist.Policy | undefined {
   if (!exactRecord(input, POLICY_KEYS) || !required(input, POLICY_KEYS)) return;
   const manifest = snapshotResponsePolicy(input.manifest);
   const resources = snapshotResourcePolicy(input.resources);
@@ -262,7 +262,7 @@ function snapshotVerification(input: unknown): t.FsPkg.Dist.Pinned.Verify.Limits
   });
 }
 
-function snapshotCredentials(input: unknown): t.ServerDist.Credentials | undefined | false {
+function snapshotCredentials(input: unknown): t.Dist.Credentials | undefined | false {
   if (input === undefined) return;
   if (!exactRecord(input, CREDENTIALS_KEYS)) return false;
   const manifest = snapshotCredential(
@@ -280,7 +280,7 @@ function snapshotCredentials(input: unknown): t.ServerDist.Credentials | undefin
 
 function snapshotCredential(
   input: unknown,
-): t.ServerDist.ManifestCredentials | undefined | false {
+): t.Dist.ManifestCredentials | undefined | false {
   if (input === undefined) return;
   if (!exactRecord(input, CREDENTIAL_KEYS)) return false;
   const accessToken = Obj.hasOwn(input, 'accessToken') ? input.accessToken : undefined;
@@ -312,7 +312,7 @@ function isSafeInt(input: unknown, minimum: number): input is number {
 }
 
 function rejectedInput(
-  reason: Extract<t.ServerDist.FailureReason, 'invalid-input' | 'invalid-policy'>,
+  reason: Extract<t.Dist.FailureReason, 'invalid-input' | 'invalid-policy'>,
 ): Extract<InputPreparation, { readonly ok: false }> {
   return Object.freeze({ ok: false, reason });
 }

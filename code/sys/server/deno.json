@@ -20,37 +20,16 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./dist": "./src/m.server.dist/mod.ts",
+    "./dist/service": "./src/m.server.dist.service/mod.ts",
     "./websocket": "./src/m.server.websocket/mod.ts",
     "./files": "./src/m.server.files/mod.ts",
     "./files/service": "./src/m.server.files/m.Service/mod.ts",
     "./files/t": "./src/m.server.files/t.ts"
   },
   "permissions": {
-    "clean": {
-      "read": true,
-      "write": true,
-      "env": true
-    },
-    "test": {
-      "read": true,
-      "write": true,
-      "env": true,
-      "net": true,
-      "run": true
-    },
-    "sample": {
-      "read": true,
-      "env": true,
-      "run": true
-    },
-    "sample-files-tty": {
-      "read": true,
-      "env": true,
-      "net": true,
-      "run": [
-        "sh"
-      ]
-    }
+    "clean": { "read": true, "write": true, "env": true },
+    "test": { "read": true, "write": true, "env": true, "net": true, "run": true },
+    "sample": { "read": true, "env": true, "run": true },
+    "sample-files-tty": { "read": true, "env": true, "net": true, "run": ["sh"] }
   }
 }
-

@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * Contracts for configured remote materialization and mutable local projections.
  */
-export namespace PullTool {
+export declare namespace PullTool {
   /**
    * Public API for resolving and executing durable Pull configuration.
    */
@@ -38,17 +38,11 @@ export namespace PullTool {
     readonly bundles: readonly RunBundleResult[];
   };
 
-  /** Stable Pull registry identifier. */
-  export const ID = 'pull' as const;
-
-  /** Stable Pull tool name. */
-  export const NAME = 'system/pull:tools' as const;
-
   /** Pull registry identifier literal. */
-  export type Id = typeof ID;
+  export type Id = 'pull';
 
   /** Pull tool-name literal. */
-  export type Name = typeof NAME;
+  export type Name = 'system/pull:tools';
 
   /** Command names. */
   export type MenuCmd =
@@ -101,11 +95,11 @@ export namespace PullTool {
       /** Complete materialization and projection settlement. */
       export type Result = Success | Failure;
 
-      /** Immutable generation success with either no projection or a completed projection. */
+      /** Pinned generation success with either no projection or a completed projection. */
       export type Success = {
         readonly ok: true;
         readonly kind: 'dist';
-        readonly generation: t.ServerDist.Existing | t.ServerDist.Promoted;
+        readonly generation: t.Dist.Existing | t.Dist.Promoted;
         readonly projection: Projection.NotRequested | Projection.Success;
       };
 
@@ -116,15 +110,15 @@ export namespace PullTool {
       export type MaterializationFailure = {
         readonly ok: false;
         readonly kind: 'materialization-failed';
-        readonly generation: t.ServerDist.Failed;
+        readonly generation: t.Dist.Failed;
         readonly projection: Projection.NotRun;
       };
 
-      /** Immutable generation succeeded, but its separate mutable projection failed. */
+      /** Pinned generation succeeded, but its separate mutable projection failed. */
       export type ProjectionFailure = {
         readonly ok: false;
         readonly kind: 'projection-failed';
-        readonly generation: t.ServerDist.Existing | t.ServerDist.Promoted;
+        readonly generation: t.Dist.Existing | t.Dist.Promoted;
         readonly projection: Projection.Failure;
       };
 
@@ -145,7 +139,7 @@ export namespace PullTool {
           readonly mode: t.GithubPull.Mode;
         };
 
-        /** Projection failed after the immutable generation outcome had settled. */
+        /** Projection failed after the pinned generation outcome had settled. */
         export type Failure = {
           readonly kind: 'failed';
           readonly reason:
@@ -165,11 +159,11 @@ export namespace PullTool {
   /**
    * Strict durable configuration for Dist materialization and generic GitHub pulls.
    *
-   * A Dist bundle requires an independently supplied manifest pin and immutable store. Its optional
-   * project is a mutable convenience, not artifact authority.
+   * A Dist bundle requires an independently supplied manifest pin and integrity-addressed store.
+   * Its optional project is a mutable convenience, not artifact authority.
    */
   export namespace ConfigYaml {
-    /** Optional mutable copy of an immutable Dist generation. */
+    /** Optional mutable copy of a pinned Dist generation. */
     export type DistProject = {
       dir: t.StringRelativeDir;
       mode: t.GithubPull.Mode;

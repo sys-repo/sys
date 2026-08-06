@@ -1,21 +1,19 @@
 import type { Pkg as FsPkg } from '@sys/fs/t';
-import type { HttpFetch, HttpPull } from '@sys/http/t';
+import type { HttpFetch, HttpPull, HttpServer } from '@sys/http/t';
 import type { t } from './common.ts';
 
 /**
  * Contracts for checksum-pinned Dist materialization and final-directory evidence.
  */
-export declare namespace ServerDist {
-  /**
-   * Product-neutral API for immutable checksum-pinned Dist generations.
-   */
+export declare namespace Dist {
+  /** Product-neutral API for checksum-pinned Dist generations. */
   export type Lib = {
     /**
      * Settle one pinned Dist as `existing`, `promoted`, or `failed`.
      *
      * Every success carries fresh verification evidence for its exact returned directory.
      */
-    readonly materialize: Method;
+    readonly materialize: Materialize;
   };
 
   /**
@@ -23,7 +21,7 @@ export declare namespace ServerDist {
    *
    * Every success carries fresh verification evidence for its exact returned directory.
    */
-  export type Method = (args: MaterializeArgs) => Promise<MaterializeResult>;
+  export type Materialize = (args: MaterializeArgs) => Promise<MaterializeResult>;
 
   /** Complete caller authority for one materialization attempt. */
   export type MaterializeArgs = {
@@ -31,7 +29,7 @@ export declare namespace ServerDist {
     readonly manifestUrl: t.StringUrl;
     /** Caller-supplied canonical SHA-256 pin for the exact `dist.json` response bytes. */
     readonly integrity: t.StringHash;
-    /** Root directory whose children are immutable integrity-addressed generations. */
+    /** Root directory whose children are integrity-addressed generations. */
     readonly storeDir: t.StringDir;
     /** Required finite authority for acquisition and complete-generation verification. */
     readonly policy: Policy;
@@ -60,7 +58,7 @@ export declare namespace ServerDist {
     readonly resources?: HttpPull.ResourceCredentials;
   };
 
-  /** Terminal truth for the immutable generation target. */
+  /** Terminal truth for the integrity-addressed generation target. */
   export type MaterializeResult = Existing | Promoted | Failed;
 
   /** Safe private-stage cleanup outcome; never a claim that a generation was rolled back. */
@@ -77,7 +75,7 @@ export declare namespace ServerDist {
 
   /** Truth shared by successes freshly verified at their returned final directory. */
   type Success = {
-    /** Canonical admitted immutable-generation directory. */
+    /** Canonical admitted generation directory. */
     readonly dir: t.StringAbsoluteDir;
     /** Exact external manifest pin naming this generation. */
     readonly integrity: t.StringHash;
@@ -148,4 +146,69 @@ export declare namespace ServerDist {
     readonly source?: undefined;
     readonly totals?: undefined;
   };
+}
+
+/**
+ * Checksum-pinned local Dist hosting contracts.
+ */
+export declare namespace DistServer {
+  /** Direct verified-or-refuse Dist hosting surface. */
+  export type Lib = {
+    readonly start: Start;
+    readonly Error: Error.Lib;
+  };
+
+  /**
+   * Start one checksum-pinned Dist host.
+   *
+   * Unlike `Dist.materialize`, this method has one success truth: it returns the existing HTTP
+   * lifecycle and rejects every startup failure as a sanitized `StartError`.
+   */
+  export type Start = (args: StartArgs) => Promise<HttpServer.Started>;
+
+  /** Complete caller authority for one direct hosting attempt. */
+  export type StartArgs = {
+    /** Local generation directory containing the pinned `dist.json`. */
+    dir: t.StringDir;
+    /** Canonical SHA-256 pin for the exact `dist.json` bytes. */
+    integrity: t.StringHash;
+    /** Required finite complete-generation verification authority. */
+    limits: FsPkg.Dist.Pinned.Verify.Limits;
+    /** Loopback hostname. Defaults to `127.0.0.1`. */
+    hostname?: t.StringHostname;
+    /** Listen port. Defaults to an ephemeral port. */
+    port?: t.PortNumber;
+    /** Optional owner-local display name. */
+    name?: string;
+    /** Suppress owner-local startup output. */
+    silent?: boolean;
+    /** Optional keyboard controls delegated to the HTTP lifecycle owner. */
+    keyboard?: HttpServer.Start.Options['keyboard'];
+    /** Caller lifecycle for verification, serving, and admitted part reads. */
+    until?: t.UntilInput;
+  };
+
+  /** Stable sanitized startup failure reasons. */
+  export type StartFailureReason =
+    | FsPkg.Dist.Pinned.Verify.FailureKind
+    | 'invalid-hostname'
+    | 'address-in-use'
+    | 'startup-failure';
+
+  /** Frozen startup failure without embedded input or cause details. */
+  export type StartError = globalThis.Error & {
+    readonly name: 'DistServer.StartError';
+    readonly reason: StartFailureReason;
+    readonly cause?: never;
+  };
+
+  /**
+   * Startup-error classifier contracts.
+   */
+  export namespace Error {
+    export type Lib = {
+      /** Determine whether a value is an authentic DistServer startup failure. */
+      readonly is: (value: unknown) => value is StartError;
+    };
+  }
 }

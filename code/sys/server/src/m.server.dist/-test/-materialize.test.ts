@@ -114,7 +114,7 @@ describe('Dist.materialize: manifest trust and existing generations', () => {
     try {
       await Deno.mkdir(Fs.join(fixture.storeDir, fixture.integrity), { recursive: true });
       let credentials = 0;
-      const policy: t.ServerDist.Policy = {
+      const policy: t.Dist.Policy = {
         ...fixture.policy,
         manifest: {
           ...fixture.policy.manifest,
@@ -170,11 +170,11 @@ describe('Dist.materialize: manifest trust and existing generations', () => {
   });
 });
 
-describe('Dist.materialize: staging and immutable isolation', () => {
+describe('Dist.materialize: staging and generation isolation', () => {
   it('rejects excess authenticated resources before stage creation or asset transport', async () => {
     const fixture = await setup();
     try {
-      const policy: t.ServerDist.Policy = {
+      const policy: t.Dist.Policy = {
         ...fixture.policy,
         resources: { ...fixture.policy.resources, maxResources: 0 },
       };

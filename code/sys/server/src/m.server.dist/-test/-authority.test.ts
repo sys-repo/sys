@@ -10,7 +10,7 @@ describe('Dist.materialize authority: input and policy', () => {
     const fixture = await setup();
     try {
       const input = { ...fixture.args(), unexpected: true };
-      const result = await Dist.materialize(input as t.ServerDist.MaterializeArgs);
+      const result = await Dist.materialize(input as t.Dist.MaterializeArgs);
       expect(result).to.eql({
         kind: 'failed',
         stage: 'input',
@@ -20,7 +20,7 @@ describe('Dist.materialize authority: input and policy', () => {
 
       const policy = { ...fixture.policy, unexpected: true };
       const nested = await Dist.materialize(fixture.args({
-        policy: policy as t.ServerDist.Policy,
+        policy: policy as t.Dist.Policy,
       }));
       expect(nested).to.eql({
         kind: 'failed',
@@ -84,7 +84,7 @@ describe('Dist.materialize authority: input and policy', () => {
       });
 
       const result = await Dist.materialize(fixture.args({
-        credentials: credentials as t.ServerDist.Credentials,
+        credentials: credentials as t.Dist.Credentials,
       }));
       expect(result.kind).to.eql('promoted');
       expect(reads).to.eql(0);
@@ -97,7 +97,7 @@ describe('Dist.materialize authority: input and policy', () => {
   it('rejects Pull accounting overflow before filesystem or network work', async () => {
     const fixture = await setup();
     try {
-      const policy: t.ServerDist.Policy = {
+      const policy: t.Dist.Policy = {
         ...fixture.policy,
         resources: {
           ...fixture.policy.resources,
@@ -124,7 +124,7 @@ describe('Dist.materialize authority: input and policy', () => {
     try {
       const args = fixture.args();
       const pending = Dist.materialize(args);
-      const policy = args.policy as t.DeepMutable<t.ServerDist.Policy>;
+      const policy = args.policy as t.DeepMutable<t.Dist.Policy>;
       policy.manifest.maxBytes = 0;
       policy.manifest.sourceOrigins.length = 0;
       policy.resources.maxResources = 0;
@@ -143,7 +143,7 @@ describe('Dist.materialize authority: credentials and origins', () => {
     const fixture = await setup();
     try {
       let credentials = 0;
-      const policy: t.ServerDist.Policy = {
+      const policy: t.Dist.Policy = {
         ...fixture.policy,
         manifest: {
           ...fixture.policy.manifest,
@@ -175,7 +175,7 @@ describe('Dist.materialize authority: credentials and origins', () => {
       fixture.redirectManifestTo(destination.manifestUrl);
       const destinationOrigin = new URL(destination.manifestUrl).origin;
       const configuredOrigin = fixture.policy.manifest.sourceOrigins[0];
-      const policy: t.ServerDist.Policy = {
+      const policy: t.Dist.Policy = {
         ...fixture.policy,
         manifest: {
           ...fixture.policy.manifest,
@@ -212,7 +212,7 @@ describe('Dist.materialize authority: credentials and origins', () => {
     const fixture = await setup();
     try {
       let credentials = 0;
-      const policy: t.ServerDist.Policy = {
+      const policy: t.Dist.Policy = {
         ...fixture.policy,
         resources: {
           ...fixture.policy.resources,
@@ -364,7 +364,7 @@ describe('Dist.materialize authority: operation settlement', () => {
     const fixture = await setup();
     const gate = fixture.hold('/dist.json');
     try {
-      const policy: t.ServerDist.Policy = {
+      const policy: t.Dist.Policy = {
         ...fixture.policy,
         manifest: { ...fixture.policy.manifest, timeout: 10 },
       };
@@ -416,7 +416,7 @@ describe('Dist.materialize authority: authenticated admission and verification',
     const fixture = await setup();
     try {
       let credentials = 0;
-      const policy: t.ServerDist.Policy = {
+      const policy: t.Dist.Policy = {
         ...fixture.policy,
         manifest: {
           ...fixture.policy.manifest,
@@ -447,7 +447,7 @@ describe('Dist.materialize authority: authenticated admission and verification',
   it('enforces manifest and verification byte limits before decoding or asset transport', async () => {
     const fixture = await setup();
     try {
-      const manifestPolicy: t.ServerDist.Policy = {
+      const manifestPolicy: t.Dist.Policy = {
         ...fixture.policy,
         verification: { ...fixture.policy.verification, manifestBytes: 1 },
       };
@@ -461,7 +461,7 @@ describe('Dist.materialize authority: authenticated admission and verification',
 
       fixture.calls.length = 0;
       fixture.authorizations.length = 0;
-      const fetchPolicy: t.ServerDist.Policy = {
+      const fetchPolicy: t.Dist.Policy = {
         ...fixture.policy,
         manifest: { ...fixture.policy.manifest, maxBytes: 1 },
       };
@@ -476,7 +476,7 @@ describe('Dist.materialize authority: authenticated admission and verification',
 
       fixture.calls.length = 0;
       fixture.authorizations.length = 0;
-      const resourcePolicy: t.ServerDist.Policy = {
+      const resourcePolicy: t.Dist.Policy = {
         ...fixture.policy,
         verification: { ...fixture.policy.verification, fileBytes: 0 },
       };
@@ -496,7 +496,7 @@ describe('Dist.materialize authority: authenticated admission and verification',
   it('rejects structural entry overflow after canonical admission and before asset transport', async () => {
     const fixture = await setup();
     try {
-      const policy: t.ServerDist.Policy = {
+      const policy: t.Dist.Policy = {
         ...fixture.policy,
         verification: { ...fixture.policy.verification, entries: 4 },
       };

@@ -7,7 +7,7 @@ const roots = new Set<string>();
 
 export type Fixture = Awaited<ReturnType<typeof setup>>;
 
-/** Create one neutral loopback Dist source and isolated immutable-generation store. */
+/** Create one neutral loopback Dist source and isolated integrity-addressed store. */
 export async function setup() {
   const source = await Deno.realPath(
     await Deno.makeTempDir({ prefix: 'server-dist-source-' }),
@@ -77,7 +77,7 @@ export async function setup() {
   const manifestUrl = new URL('/dist.json?private=query#fragment', origin).href;
   const storeDir = Fs.join(parent, 'store');
 
-  const policy: t.ServerDist.Policy = {
+  const policy: t.Dist.Policy = {
     manifest: responsePolicy(origin, 1024 * 1024),
     resources: {
       response: responsePolicy(origin, 1024 * 1024),
@@ -98,8 +98,8 @@ export async function setup() {
   };
 
   const args = (
-    overrides: Partial<t.ServerDist.MaterializeArgs> = {},
-  ): t.ServerDist.MaterializeArgs => ({
+    overrides: Partial<t.Dist.MaterializeArgs> = {},
+  ): t.Dist.MaterializeArgs => ({
     manifestUrl,
     integrity,
     storeDir,
