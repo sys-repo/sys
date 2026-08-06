@@ -8,7 +8,7 @@ export type { FC, ReactElement, ReactNode } from 'react';
  */
 export type * from '@sys/types';
 export type { Cli } from '@sys/cli/t';
-export type { FileMap } from '@sys/fs/t';
+export type { FileMap, JsonFile } from '@sys/fs/t';
 export type { Process } from '@sys/process/t';
 export type { Tmpl, TmplProcessFile } from '@sys/tmpl-engine/t';
 export type { Yaml } from '@sys/yaml/t';

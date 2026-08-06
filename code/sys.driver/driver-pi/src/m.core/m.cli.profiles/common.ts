@@ -1,6 +1,7 @@
 export * from '../common.ts';
 
 export { Fs } from '@sys/fs';
+export { JsonFile } from '@sys/fs/file';
 export { Schema } from '@sys/schema';
 export { Args } from '@sys/std/args';
 export { Str } from '@sys/std/str';

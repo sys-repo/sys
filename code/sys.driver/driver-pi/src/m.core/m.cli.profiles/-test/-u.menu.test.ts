@@ -1,21 +1,22 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Cli, Fs, Is, Obj, pkg, type t } from '../common.ts';
 import { menu } from '../u/u.menu.ts';
+import { MenuState } from '../u/u.menu.state.ts';
 import { ProfilesFs } from '../u/u.fs.ts';
 import { PiSandboxFmt } from '../../m.cli/u.fmt.sandbox.ts';
 import { Ocr } from '../../m.extension/m.ocr/mod.ts';
 
 describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
   it('menu → creates default profile config when none exist', async () => {
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.menu.test.' }))
-      .absolute as t.StringDir;
+    const prefix = 'driver-pi.profiles.u.menu.test.';
+    const cwd = (await Fs.makeTempDir({ prefix })).absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
     const prevInfo = console.info;
 
     await Fs.ensureDir(Fs.join(cwd, '.git'));
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
-      value: (input: SelectInput) => {
+      value(input: SelectInput) {
         expect(Obj.hasOwn(input, 'message')).to.eql(false);
         return Promise.resolve('exit');
       },
@@ -167,6 +168,135 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       console.info = prevInfo;
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('menu → seeds the selected action from persisted launch preference', async () => {
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.menu.test.' }))
+      .absolute as t.StringDir;
+    const original = Cli.Input.Select.prompt;
+    const originalInfo = console.info;
+    const config = Fs.join(cwd, '-config/@sys.driver-pi/default.yaml');
+
+    await Fs.ensureDir(Fs.join(cwd, '.git'));
+    await Fs.write(config, 'sandbox: {}\n');
+    await MenuState.writeMode({ root: cwd, selectedMode: 'ui' });
+
+    let defaultAction: string | undefined;
+    let topLevelCount = 0;
+
+    Object.defineProperty(Cli.Input.Select, 'prompt', {
+      value: (input: SelectInput & { default?: string }) => {
+        if (isRootMenu(input)) {
+          topLevelCount += 1;
+          if (topLevelCount === 1) return Promise.resolve(config);
+          return Promise.resolve('exit');
+        }
+        if (isActionMenu(input)) {
+          defaultAction = input.default;
+          return Promise.resolve('back');
+        }
+        throw new Error(`Unexpected prompt: ${input.message}`);
+      },
+    });
+
+    console.info = () => undefined;
+
+    try {
+      const res = await menu({ cwd: testCwd(cwd) });
+      expect(res).to.eql({ kind: 'exit' });
+      expect(defaultAction).to.eql('start:ui');
+    } finally {
+      Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
+      console.info = originalInfo;
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('menu → defaults launch action to start:cli when persisted state is corrupted', async () => {
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.menu.test.' }))
+      .absolute as t.StringDir;
+    const original = Cli.Input.Select.prompt;
+    const originalInfo = console.info;
+    const config = Fs.join(cwd, '-config/@sys.driver-pi/default.yaml');
+    const statePath = MenuState.pathOf(cwd);
+
+    await Fs.ensureDir(Fs.join(cwd, '.git'));
+    await Fs.write(config, 'sandbox: {}\n');
+    await Fs.write(statePath, '{ invalid json');
+
+    let defaultAction: string | undefined;
+    let topLevelCount = 0;
+
+    Object.defineProperty(Cli.Input.Select, 'prompt', {
+      value: (input: SelectInput & { default?: string }) => {
+        if (isRootMenu(input)) {
+          topLevelCount += 1;
+          if (topLevelCount === 1) return Promise.resolve(config);
+          return Promise.resolve('exit');
+        }
+        if (isActionMenu(input)) {
+          defaultAction = input.default;
+          return Promise.resolve('back');
+        }
+        throw new Error(`Unexpected prompt: ${input.message}`);
+      },
+    });
+
+    console.info = () => undefined;
+
+    try {
+      const res = await menu({ cwd: testCwd(cwd) });
+      expect(res).to.eql({ kind: 'exit' });
+      expect(defaultAction).to.eql('start:cli');
+    } finally {
+      Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
+      console.info = originalInfo;
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('menu → persists launch action when an action is selected', async () => {
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.menu.test.' }))
+      .absolute as t.StringDir;
+    const original = Cli.Input.Select.prompt;
+    const originalInfo = console.info;
+    const config = Fs.join(cwd, '-config/@sys.driver-pi/default.yaml');
+
+    await Fs.ensureDir(Fs.join(cwd, '.git'));
+    await Fs.write(config, 'sandbox: {}\n');
+
+    Object.defineProperty(Cli.Input.Select, 'prompt', {
+      value: (input: SelectInput) => {
+        if (isRootMenu(input)) {
+          return Promise.resolve(config);
+        }
+        if (isSelectedProfileMenu(input)) {
+          const option = input.options?.find((item) => item.value === 'start:ui');
+          return Promise.resolve(option?.value as 'start:ui');
+        }
+        throw new Error(`Unexpected prompt: ${input.message}`);
+      },
+    });
+    console.info = () => undefined;
+
+    try {
+      const res = await menu({ cwd: testCwd(cwd) });
+      const savedMode = await MenuState.readMode(cwd);
+      expect(res.kind).to.eql('selected');
+      expect(savedMode).to.eql('ui');
+      if (res.kind === 'selected') {
+        expect(res.mode).to.eql('ui');
+        expect(res.config).to.eql(config);
+      }
+      const saved = await Fs.readJson<t.PiCliProfiles.MenuState>(MenuState.pathOf(cwd));
+      expect(saved.ok).to.eql(true);
+      expect(saved.data?.selectedMode).to.eql('ui');
+      expect(saved.data?.['.meta']?.schemaVersion).to.eql(1);
+    } finally {
+      Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
+      console.info = originalInfo;
       await Fs.remove(cwd);
     }
   });

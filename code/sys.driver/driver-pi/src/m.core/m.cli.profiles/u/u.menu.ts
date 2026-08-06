@@ -4,6 +4,7 @@ import { PiSandboxReport } from '../../m.cli/u.report.sandbox.ts';
 import { runtimeRoot } from '../../m.cli/u.runtime.ts';
 import { ProfilesFs } from './u.fs.ts';
 import { ProfileMigrate } from '../u.migrate/mod.ts';
+import { MenuState } from './u.menu.state.ts';
 import { resolveRun } from './u.resolve.run.ts';
 import { ProfileSchema } from '../u.schema/mod.ts';
 import { clearInteractiveScreen } from './u.terminal.ts';
@@ -46,11 +47,12 @@ const ValidName = {
 export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll, gitRootExplicit }) => {
   const root = runtimeRoot(cwd);
   const migration = await ProfileMigrate.dir(root);
+  const defaultAction = await MenuState.readMode(root);
   let rootNotice = ProfileMigrate.message(migration);
 
   while (true) {
     const selected = await YamlConfig.menu<t.PiCliProfiles.Yaml.Profile, Action>({
-      ...menuArgs({ cwd: root, allowAll }),
+      ...menuArgs({ cwd: root, allowAll, defaultAction: actionFromMode(defaultAction) }),
       mode: 'select',
       selectAction: 'select',
       beforePrompt() {
@@ -73,19 +75,21 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll, gitRoot
       : { kind: 'invalid', allowAll };
 
     const action = await YamlConfig.menu<t.PiCliProfiles.Yaml.Profile, Action>({
-      ...menuArgs({ cwd: root, allowAll }),
+      ...menuArgs({ cwd: root, allowAll, defaultAction: actionFromMode(defaultAction) }),
       mode: 'action',
       path: selected.path,
-      defaultAction: 'start:cli',
+      defaultAction: actionFromMode(defaultAction),
       beforePrompt: () => printProfileScreen(screen),
     });
 
     if (action.kind === 'back') continue;
     if (action.kind === 'exit') return { kind: 'exit' };
     if (action.kind === 'action' && (action.action === 'start:cli' || action.action === 'start:ui')) {
+      const mode = action.action === 'start:cli' ? 'cli' : 'ui';
+      await MenuState.writeMode({ root, selectedMode: mode });
       return {
         kind: 'selected',
-        mode: action.action === 'start:cli' ? 'cli' : 'ui',
+        mode,
         config: action.path,
         preview: await currentPreview(screen, action.path),
       };
@@ -96,6 +100,10 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll, gitRoot
 /**
  * Helpers:
  */
+function actionFromMode(mode: t.PiCliProfiles.StartMode): Action {
+  return mode === 'cli' ? 'start:cli' : 'start:ui';
+}
+
 function printProfileRoot(input: { allowAll?: boolean; notice?: string }) {
   clearInteractiveScreen();
   printProfileHeader(input.allowAll);
@@ -108,8 +116,8 @@ function printProfileHeader(allowAll?: boolean) {
   console.info(PiSandboxFmt.header(permissions).join('\n'));
 }
 
-function menuArgs(args: { cwd: t.StringDir; allowAll?: boolean }) {
-  const { cwd, allowAll } = args;
+function menuArgs(args: { cwd: t.StringDir; allowAll?: boolean; defaultAction?: Action }) {
+  const { cwd, allowAll, defaultAction = 'start:cli' } = args;
   const schema = {
     init: () => ProfileSchema.initial(),
     validate: (value: unknown) => ProfileSchema.validate(value),

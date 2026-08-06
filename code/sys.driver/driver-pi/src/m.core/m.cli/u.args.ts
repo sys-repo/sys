@@ -1,4 +1,5 @@
 import { Args, Fs, type t } from './common.ts';
+import { PiFs } from '../u.fs.ts';
 import { parseGitRootMode } from './u.git-root.ts';
 import { PI_AGENT_IMPORT, resolvePkg } from './u.resolve.pkg.ts';
 import { resolveRead } from './u.resolve.read.ts';
@@ -9,8 +10,6 @@ type ToArgsOptions = {
   readonly pkg?: t.StringModuleSpecifier;
 };
 
-const PI_SYS_SEGMENTS = ['.pi', '@sys'] as const;
-const PI_CLI_TMP_SEGMENTS = [...PI_SYS_SEGMENTS, 'tmp'] as const;
 
 export const PiArgs = {
   parse(argv: readonly string[] = []): t.PiCli.ParsedArgs {
@@ -67,11 +66,11 @@ export const PiArgs = {
   },
 
   toSysDir(cwd: t.StringDir) {
-    return Fs.join(cwd, ...PI_SYS_SEGMENTS);
+    return Fs.join(cwd, ...PiFs.sysDirSegments);
   },
 
   toTmpDir(cwd: t.StringDir) {
-    return Fs.join(cwd, ...PI_CLI_TMP_SEGMENTS);
+    return Fs.join(cwd, ...PiFs.sysTmpSegments);
   },
 
   toDenoDir(cwd: t.StringDir) {

@@ -110,6 +110,29 @@ export declare namespace PiCliProfiles {
   /** Selected profile start mode. */
   export type StartMode = 'cli' | 'ui';
 
+  /** Menu-state persistence document for interactive launch preference. */
+  export type MenuState = MenuState.Document;
+
+  export namespace MenuState {
+    /** Bump this when canonical menu-state shape changes. */
+    export type SchemaVersion = 1;
+
+    /**
+     * Persistent metadata for menu-state documents.
+     * Unknown versions are rejected and behavior falls back to the launcher default mode.
+     */
+    export type Meta = t.JsonFile.Meta & {
+      readonly schemaVersion: SchemaVersion;
+    };
+
+    /** Canonical menu-state document shape. */
+    export type Document = t.JsonFile.Doc & {
+      /** Most recently selected interactive launch mode. */
+      readonly selectedMode: StartMode;
+      readonly '.meta': Meta;
+    };
+  }
+
   /** Help output result. */
   export type Help = {
     /** Discriminator for help output. */

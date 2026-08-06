@@ -97,7 +97,7 @@ export type StringMarkdown = string;
 export type StringTimestamp = string;
 
 /**
- * ISO-8601 date/time string.
+ * RFC3339 / ISO-8601 date/time string.
  * Examples: '2025-08-10T09:15:23Z', '2025-08-10T09:15:23.123+12:00'.
  */
 export type StringIsoDate = string;
