@@ -59,6 +59,39 @@ describe('Path', () => {
       expect(Is.glob('**/foo.*')).to.eql(true);
       expect(Is.glob('./foo/bar')).to.eql(false);
     });
+
+    it('Is.within', () => {
+      const root = Path.resolve('.tmp/path-within-root');
+      const inside = Path.resolve(root, 'generation');
+      const dotCache = Path.resolve(root, '..cache');
+      const traversal = Path.resolve(root, '..');
+      const siblingPrefix = `${root}x`;
+      const descendant = Path.resolve(root, 'a', '..', 'a', 'b');
+      const escaped = Path.resolve(root, 'generation', '..', '..', 'outside');
+
+      expect(Is.within(root, root)).to.eql(true);
+      expect(Is.within(root, inside)).to.eql(true);
+      expect(Is.within(root, dotCache)).to.eql(true);
+      expect(Is.within(root, descendant)).to.eql(true);
+      expect(Is.within(Path.resolve(root, 'a'), siblingPrefix)).to.eql(false);
+      expect(Is.within(root, siblingPrefix)).to.eql(false);
+      expect(Is.within(root, traversal)).to.eql(false);
+      expect(Is.within(root, escaped)).to.eql(false);
+      expect(Is.within(root, 123 as unknown)).to.eql(false);
+      expect(Is.within(root, null as unknown)).to.eql(false);
+      expect(Is.within('./root' as unknown, inside)).to.eql(false);
+      expect(Is.within(root, './../outside')).to.eql(false);
+    });
+
+    it('Is.within: never resolves relative root or candidate inputs', () => {
+      const cwd = Deno.cwd();
+      const inside = Path.resolve(cwd, 'sub');
+
+      expect(Is.within(cwd, 'sub')).to.eql(false);
+      expect(Is.within('sub', inside)).to.eql(false);
+      expect(Is.within('', inside)).to.eql(false);
+      expect(Is.within(undefined as unknown, cwd)).to.eql(false);
+    });
   });
 
   describe('Path.extname', () => {

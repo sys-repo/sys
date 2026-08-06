@@ -35,20 +35,12 @@ export function resolveTaskConfigPath(
   const relative = Str.trimLeadingDotSlash(path);
   const resolved = Path.resolve(rootAbs, relative);
 
-  if (!isInsideRoot(rootAbs, resolved)) {
+  if (!Path.Is.within(rootAbs, resolved)) {
     throw new Error(
       `${context}: config for '${task.name}' escapes Cell root: ${path}`,
     );
   }
 
   return resolved;
-}
-
-/**
- * Helpers:
- */
-function isInsideRoot(root: string, path: string) {
-  const relative = Path.relative(root, path);
-  return relative === '' || (!relative.startsWith('..') && !Path.Is.absolute(relative));
 }
 

@@ -1,4 +1,4 @@
-import type { t } from './common.ts';
+import type { t } from '../common.ts';
 
 import { join as auto } from '@std/path/join';
 import { join as posix } from '@std/path/posix/join';

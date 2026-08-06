@@ -1,5 +1,5 @@
-import { Is, type t } from './common.ts';
-import { Join } from './m.Join.ts';
+import { Is, type t } from '../common.ts';
+import { Join } from '../m/m.Join.ts';
 
 /**
  * Curry a directory path for URLs.

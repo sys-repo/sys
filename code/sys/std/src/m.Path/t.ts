@@ -102,6 +102,14 @@ export declare namespace Path {
 
       /** Test whether the given string is a glob. */
       glob: typeof StdPath.isGlob;
+
+      /**
+       * Determine whether a candidate path is lexically within a root path.
+       * This is a lexical check only (no realpath/symlink/file-system authority).
+       * Behavior is platform-dependent (eg, Windows drive/separator semantics).
+       * Returns false for non-strings and non-absolute paths.
+       */
+      within(root: unknown, candidate: unknown): boolean;
     };
   }
 

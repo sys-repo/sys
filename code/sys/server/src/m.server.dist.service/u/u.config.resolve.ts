@@ -52,14 +52,15 @@ export function resolveConfigPath(args: ServiceArgsSnapshot): t.StringPath {
 export function resolveDir(cwd: t.StringDir, dir: string): t.StringDir {
   const root = Fs.resolve(cwd);
   const resolved = Path.Is.absolute(dir) ? Path.normalize(dir) : Path.resolve(root, dir);
-  const relative = Path.relative(root, resolved);
-  const first = Path.relativePosix(relative).split('/')[0];
-  if (Path.Is.absolute(relative) || first === '..') {
+  if (!Path.Is.within(root, resolved)) {
     throw new Error('DistService: dir escapes service cwd.');
   }
   return resolved as t.StringDir;
 }
 
+/**
+ * Helpers:
+ */
 function dataRecord(
   input: unknown,
   allowed: readonly string[],

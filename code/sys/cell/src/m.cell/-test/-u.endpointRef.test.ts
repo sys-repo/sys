@@ -90,6 +90,16 @@ describe('Cell endpoint refs', () => {
     expect(ref.authority).to.eql('relative');
   });
 
+  it('allows relative local refs that start with dot-dot inside the Cell root', () => {
+    const root = Fs.join(ROOT, 'dotcache');
+    const ref = endpointRef({ root, from: './..cache/local.ts' });
+
+    expect(ref.specifier).to.eql(String(Fs.Path.toFileUrl(Fs.join(root, '..cache/local.ts'))));
+    expect(ref.identity).to.eql('./..cache/local.ts');
+    expect(ref.source).to.eql('local');
+    expect(ref.authority).to.eql('relative');
+  });
+
   it('rejects escaping relative refs and absolute local paths', () => {
     const escapingError = catchEndpointRef({ from: './../service.ts' });
     const absoluteError = catchEndpointRef({ from: Fs.resolve('./service.ts') });

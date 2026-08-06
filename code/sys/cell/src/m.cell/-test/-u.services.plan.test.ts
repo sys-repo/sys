@@ -91,6 +91,16 @@ describe('Cell.Services.plan', () => {
     expect(plan.services[0].selection.variant).to.eql(undefined);
   });
 
+  it('accepts config paths that start with dot-dot inside the Cell root', async () => {
+    const root = await tempCell(
+      'services-plan-dotcache-config',
+      descriptor({ baseConfig: './..cache/@sys.http/static.view.yaml' }),
+    );
+    const plan = await Cell.Services.plan(await Cell.load(root));
+
+    expect(plan.services[0].paths.config).to.eql(Fs.join(root, '..cache/@sys.http/static.view.yaml'));
+  });
+
   it('fails clearly for invalid or unknown service modes', async () => {
     const root = await tempCell('services-plan-mode-errors', descriptor());
     const cell = await Cell.load(root);
@@ -170,6 +180,7 @@ async function catchPlan(
 
 type DescriptorOptions = Partial<{
   baseFrom: string;
+  baseConfig: string;
   variantUse: string;
   variantFrom: string;
   variantConfig: string;
@@ -184,7 +195,7 @@ function descriptor(options: DescriptorOptions = {}) {
       - name: view
         use: Serve
         from: '${options.baseFrom ?? './-services/static.ts'}'
-        config: ./-config/static.yaml
+        config: ${options.baseConfig ?? './-config/static.yaml'}
         variants:
           dev:
             use: ${options.variantUse ?? 'DevService'}

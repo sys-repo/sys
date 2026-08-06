@@ -118,6 +118,17 @@ describe('Cell.Task.plan', () => {
     expect(plan.leaves[0].endpoint.specifier).to.contain('/-tasks/missing.ts');
   });
 
+  it('accepts task config paths that start with dot-dot inside the Cell root', async () => {
+    const root = await tempCell(
+      'task-plan-dotcache-config',
+      descriptor([leaf('capture', { config: './..cache/capture.yaml' })]),
+    );
+
+    const plan = await Cell.Task.plan(await Cell.load(root), 'capture');
+
+    expect(plan.leaves[0].paths.config).to.eql(Fs.join(root, '..cache/capture.yaml'));
+  });
+
   it('fails clearly for unknown roots and invalid descriptor graphs', async () => {
     const unknownRootError = await catchPlan(uncheckedCell([leafDescriptor('capture')]), 'missing');
     const missingRefError = await catchPlan(

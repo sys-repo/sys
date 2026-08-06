@@ -24,17 +24,9 @@ export function resolveRoot(
   const base = Fs.resolve(cwd);
   const resolved = Path.Is.absolute(root) ? Path.normalize(root) : Path.resolve(base, root);
 
-  if (!isInsideRoot(base, resolved)) {
+  if (!Path.Is.within(base, resolved)) {
     throw new Error(`${context}: root escapes service cwd: ${root}`);
   }
 
   return resolved as t.StringDir;
-}
-
-/**
- * Helpers:
- */
-function isInsideRoot(root: string, path: string) {
-  const relative = Path.relative(root, path);
-  return relative === '' || (!relative.startsWith('..') && !Path.Is.absolute(relative));
 }

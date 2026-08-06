@@ -101,7 +101,7 @@ function resolveLocalImportSpecifier(options: {
   const root = Path.resolve(options.root, '.');
   const path = Path.resolve(root, options.from);
 
-  if (!isInsideRoot(root, path)) {
+  if (!Path.Is.within(root, path)) {
     throw new Error(
       `${options.context}: local ${options.kind} import for '${options.name}' escapes Cell root: ${options.from}`,
     );
@@ -112,11 +112,6 @@ function resolveLocalImportSpecifier(options: {
 
 function authorityOf(from: string): EndpointRefAuthority {
   return from.startsWith('jsr:') ? 'jsr' : 'bare';
-}
-
-function isInsideRoot(root: string, path: string) {
-  const relative = Path.relative(root, path);
-  return relative === '' || (!relative.startsWith('..') && !Path.Is.absolute(relative));
 }
 
 function isRelativeSpecifier(value: string) {

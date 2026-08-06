@@ -1,5 +1,5 @@
 import { extname as base } from '@std/path';
-import { Is, type t } from './common.ts';
+import { Is, type t } from '../common.ts';
 
 export const extname: t.Path.Lib['extname'] = (input) => {
   return Is.string(input) ? base(input) : '';
