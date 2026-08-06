@@ -2,6 +2,18 @@ import type { t } from '../common.ts';
 
 export type * from '../common/t.ts';
 
+/** Shared private contracts for Vite terminal presentation. */
+export declare namespace ViteScreen {
+  export namespace Output {
+    /** One terminal output row with a one-based display sequence. */
+    export type Line = {
+      readonly sequence: number;
+      readonly source: t.Process.StdStream;
+      readonly text: string;
+    };
+  }
+}
+
 /**
  * Internal contracts for the parent-owned Vite development lifecycle.
  */
@@ -14,11 +26,7 @@ export declare namespace ViteDev {
     };
 
     /** One retained process-output row. */
-    export type Line = {
-      readonly index: number;
-      readonly source: t.Process.StdStream;
-      readonly text: string;
-    };
+    export type Line = ViteScreen.Output.Line;
 
     /** Output-log retention and visible-line filtering options. */
     export type Options = {

@@ -100,6 +100,20 @@ describe('DevScreen', () => {
       expect(rawHeader).to.include(c.dim(c.green(version)));
     });
 
+    it('formats service URLs through the canonical CLI decomposition', () => {
+      const href = 'http://127.0.0.1:1234/';
+      const expected = Cli.Fmt.Url.parts({ href: href as t.StringUrl }).display;
+      const text = stripAnsi(DevScreen.toString({
+        pkg: pkg(),
+        paths: paths(),
+        url: href,
+        lines: [],
+        ...frame(80),
+      }));
+
+      expect(text).to.include(expected);
+    });
+
     it('dims package subpaths beneath the primary application identity', () => {
       const packageName = '@sys/driver-pi';
       const subpath = '/ui';
@@ -311,23 +325,23 @@ describe('DevScreen', () => {
     });
 
     it('switches the complete metadata rail at the narrow-width boundary', () => {
-      for (const index of [1, 10, 100]) {
+      for (const sequence of [1, 10, 100]) {
         for (const width of [79, 80, 81]) {
           const source: t.Process.StdStream = 'stdout';
           const args = {
             pkg: pkg(),
             paths: paths(),
             url: 'http://localhost:1234/',
-            lines: [{ index, source, text: `line-${index}` }],
+            lines: [{ sequence, source, text: `line-${sequence}` }],
             logLines: 1,
             ...frame(width),
           };
           const ready = stripAnsi(DevScreen.toString({ ...args, showOptions: true }));
           const startup = stripAnsi(DevScreen.startupToString({ ...args, spinner: '⠋' }));
           const readyLines = ready.split('\n');
-          const logLine = readyLines.find((line) => line.includes(`line-${index}`)) ?? '';
+          const logLine = readyLines.find((line) => line.includes(`line-${sequence}`)) ?? '';
           const sourceColumn = logLine.indexOf('out');
-          const contentColumn = logLine.indexOf(`line-${index}`);
+          const contentColumn = logLine.indexOf(`line-${sequence}`);
           const metadataColumn = width <= 80 ? sourceColumn : contentColumn;
 
           for (const text of [ready, startup]) {
@@ -348,7 +362,7 @@ describe('DevScreen', () => {
           const moreLine = readyLines.find((line) => line.includes('shift + i')) ?? '';
           expect(quitLine.indexOf('ctrl + c')).to.eql(contentColumn);
           expect(moreLine.indexOf('shift + i')).to.eql(contentColumn);
-          expect(logLine).to.eql(` ${index}  out  line-${index}`);
+          expect(logLine).to.eql(` ${sequence}  out  line-${sequence}`);
           expect(readyLines[0].indexOf('0.0.0')).to.eql(width - '0.0.0'.length);
         }
       }
@@ -530,8 +544,8 @@ describe('DevScreen', () => {
         '\n',
       );
       const readyRows = stripAnsi(DevScreen.toString(args)).split('\n');
-      const findLog = (rows: string[], index: number) => {
-        return rows.find((line) => line.startsWith(` ${index}  out  `)) ?? '';
+      const findLog = (rows: string[], sequence: number) => {
+        return rows.find((line) => line.startsWith(` ${sequence}  out  `)) ?? '';
       };
       const startupLog = findLog(startupRows, 1);
       const readyLog = findLog(readyRows, 1);
@@ -614,7 +628,7 @@ describe('DevScreen', () => {
       expect(text).to.include('\n 3  err  warning: dependency pre-bundle pending…');
     });
 
-    it('aligns the seeded startup row as output indices widen', () => {
+    it('aligns the seeded startup row as output sequences widen', () => {
       const output = DevOutputLog.create({ maxLines: 120 });
       output.pushDisplay('stdout', STARTING_DEV_SERVER);
       for (let current = 1; current <= 100; current++) {

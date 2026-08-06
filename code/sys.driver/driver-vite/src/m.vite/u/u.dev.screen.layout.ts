@@ -1,15 +1,11 @@
-import { clipLine, clipText, clipValue, digestSuffixes, metadataRow } from '../../m.fmt/u.ts';
-import { c, Cli, Is, Num, Path, stripAnsi, type t, Time } from '../common.ts';
+import { metadataRow } from '../../m.fmt/u.ts';
+import { c, Is, Num, Path, type t } from '../common.ts';
+import { ViteScreenLayout } from './u.vite.screen.layout.ts';
 
-type OutputLine = t.ViteDev.Output.Line;
 type FrameArgs = t.ViteDev.Screen.Frame.Args;
 type Viewport = t.ViteDev.Screen.Frame.Viewport;
 
-const COMPACT_METADATA_MAX_WIDTH = 80;
 const DEFAULT_LOG_LINES = 10;
-const LOG_COLUMN_GAP = 2;
-const LOG_ROW_GUTTER = 1;
-const LOG_SOURCE_WIDTH = 3;
 const MAX_LOG_LINES = 200;
 
 /** Dev-screen frame layout isolated from runtime lifecycle effects. */
@@ -19,7 +15,7 @@ export const DevScreenLayout = {
   startup(args: t.ViteDev.Screen.Frame.StartupArgs): t.ViteDev.Screen.Frame.StartupOutput {
     const viewport = wrangle.viewport(args.viewport);
     const capacity = wrangle.capacity(viewport, args.cursorRows);
-    const headerRows = wrangle.applicationHeader(args.pkg, viewport.width);
+    const headerRows = ViteScreenLayout.applicationHeader(args.pkg, viewport.width);
     const visibleHeader = headerRows.slice(0, capacity);
     const showSpinner = viewport.width > 0 && capacity > visibleHeader.length;
     const bodyCapacity = Math.max(0, capacity - visibleHeader.length - (showSpinner ? 1 : 0));
@@ -29,15 +25,15 @@ export const DevScreenLayout = {
       Math.max(0, bodyCapacity - coreRowCount),
     );
     const visible = visibleCount === 0 ? [] : args.lines.slice(-visibleCount);
-    const indexWidth = wrangle.indexWidth(visible);
+    const sequenceWidth = ViteScreenLayout.outputSequenceWidth(visible);
     const bodyRows = [
-      ...wrangle.startupCore(args, viewport.width, indexWidth),
-      ...visible.map((line) => wrangle.logRow(line, viewport.width, indexWidth)),
+      ...wrangle.startupCore(args, viewport.width, sequenceWidth),
+      ...visible.map((line) => ViteScreenLayout.outputRow(line, viewport.width, sequenceWidth)),
     ];
 
     return {
-      header: wrangle.renderRows(visibleHeader, viewport.width),
-      body: wrangle.renderRows(bodyRows.slice(0, bodyCapacity), viewport.width),
+      header: ViteScreenLayout.renderRows(visibleHeader, viewport.width),
+      body: ViteScreenLayout.renderRows(bodyRows.slice(0, bodyCapacity), viewport.width),
       showSpinner,
     };
   },
@@ -56,8 +52,8 @@ export const DevScreenLayout = {
     const viewport = wrangle.viewport(args.viewport);
     const { width } = viewport;
     const capacity = wrangle.capacity(viewport, args.cursorRows);
-    const subHr = c.dim(Cli.Fmt.hr({ width, color: 'green', weight: 'dashed' }));
-    const headerRows = wrangle.applicationHeader(args.pkg, width);
+    const subHr = ViteScreenLayout.dashedDivider(width);
+    const headerRows = ViteScreenLayout.applicationHeader(args.pkg, width);
     const separator = ['', subHr];
     const workspace = wrangle.workspace(args.ws, width);
     const optionContent = args.showOptions ? wrangle.options(subHr, 1).split('\n') : [];
@@ -76,11 +72,11 @@ export const DevScreenLayout = {
     const workspaceBudget = Math.max(0, optionalCapacity - visibleOptions.length);
     const visibleWorkspace = wrangle.fitOptional(workspace, workspaceBudget);
     const visible = logCount === 0 ? [] : args.lines.slice(-logCount);
-    const indexWidth = wrangle.indexWidth(visible);
-    const metadata = wrangle.readyMetadata(args, width, indexWidth);
+    const sequenceWidth = ViteScreenLayout.outputSequenceWidth(visible);
+    const metadata = wrangle.readyMetadata(args, width, sequenceWidth);
     const options = args.showOptions
       ? wrangle.fitOptional(
-        wrangle.options(subHr, wrangle.contentColumn(indexWidth)).split('\n'),
+        wrangle.options(subHr, ViteScreenLayout.contentColumn(sequenceWidth)).split('\n'),
         optionBudget,
       )
       : [];
@@ -90,10 +86,10 @@ export const DevScreenLayout = {
       ...metadata,
       ...options,
       ...separator,
-      ...visible.map((line) => wrangle.logRow(line, width, indexWidth)),
+      ...visible.map((line) => ViteScreenLayout.outputRow(line, width, sequenceWidth)),
     ];
 
-    return wrangle.renderRows(rows.slice(0, capacity), width);
+    return ViteScreenLayout.renderRows(rows.slice(0, capacity), width);
   },
 } as const;
 
@@ -123,29 +119,14 @@ const wrangle = {
     return Math.max(0, viewport.height - wrangle.dimension(cursorRows));
   },
 
-  applicationHeader(pkg: t.Pkg, width: number) {
-    const title = wrangle.packageTitle(pkg.name);
-    return Cli.Fmt.Header.rows({ pkg, width, tone: 'green', ...(title ? { title } : {}) });
-  },
-
-  packageTitle(name: string) {
-    const firstSlash = name.indexOf('/');
-    const subpathAt = name.startsWith('@') ? name.indexOf('/', firstSlash + 1) : firstSlash;
-    if (subpathAt < 0) return;
-
-    const packageName = name.slice(0, subpathAt);
-    const subpath = name.slice(subpathAt);
-    return `${c.bold(c.green(packageName))}${c.dim(c.green(subpath))}`;
-  },
-
-  startupCore(args: FrameArgs, width: number, indexWidth: number) {
-    const metadataColumn = wrangle.metadataColumn(width, indexWidth);
-    const indent = wrangle.indent(metadataColumn);
+  startupCore(args: FrameArgs, width: number, sequenceWidth: number) {
+    const metadataColumn = ViteScreenLayout.metadataColumn(width, sequenceWidth);
+    const indent = ViteScreenLayout.indent(metadataColumn);
     const input = Path.trimCwd(args.paths.app.entry);
     const outDir = Path.trimCwd(args.paths.app.outDir);
-    const subHr = c.dim(Cli.Fmt.hr({ width, color: 'green', weight: 'dashed' }));
+    const subHr = ViteScreenLayout.dashedDivider(width);
     return [
-      wrangle.info(args.url, metadataColumn, width),
+      ViteScreenLayout.serviceUrl(args.url, metadataColumn, width),
       `${indent}${c.green('↑')}`,
       metadataRow({
         label: 'input',
@@ -162,21 +143,21 @@ const wrangle = {
         indent: metadataColumn,
         labelWidth: 9,
         styledLabel: c.white('output'),
-        suffixes: wrangle.distSuffixes(args.dist, args.renderedAt),
+        suffixes: ViteScreenLayout.distSuffixes(args.dist, args.renderedAt),
       }),
       '',
       subHr,
     ];
   },
 
-  readyMetadata(args: FrameArgs, width: number, indexWidth: number) {
-    const metadataColumn = wrangle.metadataColumn(width, indexWidth);
-    const indent = wrangle.indent(metadataColumn);
+  readyMetadata(args: FrameArgs, width: number, sequenceWidth: number) {
+    const metadataColumn = ViteScreenLayout.metadataColumn(width, sequenceWidth);
+    const indent = ViteScreenLayout.indent(metadataColumn);
     const input = Path.trimCwd(args.paths.app.entry);
     const outDir = Path.trimCwd(args.paths.app.outDir);
     return [
       '',
-      wrangle.info(args.url, metadataColumn, width),
+      ViteScreenLayout.serviceUrl(args.url, metadataColumn, width),
       `${indent}${c.green('↑')}`,
       metadataRow({
         label: 'input',
@@ -193,16 +174,9 @@ const wrangle = {
         indent: metadataColumn,
         labelWidth: 9,
         styledLabel: c.white('output'),
-        suffixes: wrangle.distSuffixes(args.dist, args.renderedAt),
+        suffixes: ViteScreenLayout.distSuffixes(args.dist, args.renderedAt),
       }),
     ];
-  },
-
-  distSuffixes(dist: t.DistPkg | undefined, renderedAt: t.UnixTimestamp) {
-    if (!dist) return [];
-    const age = Time.elapsed(dist.build.time, renderedAt).toString();
-    const suffix = c.dim(c.gray(`· ${age}`));
-    return digestSuffixes(dist.hash.digest).map((digest) => `${digest} ${suffix}`);
   },
 
   workspace(ws: t.ViteDenoWorkspace | undefined, width: number) {
@@ -221,42 +195,6 @@ const wrangle = {
     return ['', ...lines.slice(0, capacity - 1)];
   },
 
-  renderRows(rows: string[], width: number) {
-    if (width === 0 || rows.length === 0) return '';
-    return rows.map((line) => clipLine(line, width)).join('\n').trimEnd();
-  },
-
-  sourceColumn(indexWidth: number) {
-    return LOG_ROW_GUTTER + Math.max(1, indexWidth) + LOG_COLUMN_GAP;
-  },
-
-  contentColumn(indexWidth: number) {
-    return wrangle.sourceColumn(indexWidth) + LOG_SOURCE_WIDTH + LOG_COLUMN_GAP;
-  },
-
-  metadataColumn(width: number, indexWidth: number) {
-    return width <= COMPACT_METADATA_MAX_WIDTH
-      ? wrangle.sourceColumn(indexWidth)
-      : wrangle.contentColumn(indexWidth);
-  },
-
-  indent(width: number) {
-    return ' '.repeat(Math.max(0, width));
-  },
-
-  info(href: string, column: number, width: number) {
-    const url = new URL(href);
-    const text = `${url.protocol}//${url.hostname}:${url.port}/`;
-    const valueWidth = Cli.Fmt.Text.Width.fit({ width, reserve: column, terminal: false });
-    const indent = wrangle.indent(column);
-    if (Cli.Fmt.Text.Width.measure(text) > valueWidth) {
-      return `${indent}${c.cyan(clipText(text, valueWidth))}`;
-    }
-
-    const port = c.bold(c.brightCyan(url.port));
-    return c.cyan(`${indent}${url.protocol}//${url.hostname}:${port}/`);
-  },
-
   options(subHr: string, contentColumn: number) {
     const key = (text: string) => c.bold(c.white(text));
     return [
@@ -271,27 +209,8 @@ const wrangle = {
   },
 
   optionRow(label: string, value: string, contentColumn: number, suffix = '') {
-    const gap = wrangle.indent(Math.max(1, contentColumn - label.length));
+    const gap = ViteScreenLayout.indent(Math.max(1, contentColumn - label.length));
     const tail = suffix ? `  ${suffix}` : '';
     return `${label}${gap}${value}${tail}`;
-  },
-
-  indexWidth(lines: OutputLine[]) {
-    return Math.max(1, ...lines.map((line) => String(line.index).length));
-  },
-
-  logRow(line: OutputLine, width: number, indexWidth: number) {
-    const rowWidth = wrangle.dimension(width - LOG_ROW_GUTTER);
-    const index = c.gray(String(line.index).padStart(indexWidth, ' '));
-    const source = line.source === 'stderr' ? c.yellow('err') : c.gray('out');
-    const gap = wrangle.indent(LOG_COLUMN_GAP);
-    const prefix = `${wrangle.indent(LOG_ROW_GUTTER)}${index}${gap}${source}${gap}`;
-    const textWidth = Cli.Fmt.Text.Width.fit({
-      width: rowWidth,
-      reserve: Cli.Fmt.Text.Width.measure(prefix),
-      terminal: false,
-    });
-    const text = clipValue(stripAnsi(line.text).trim(), textWidth);
-    return clipLine(`${prefix}${text}`, rowWidth);
   },
 } as const;

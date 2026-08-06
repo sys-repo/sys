@@ -6,8 +6,8 @@ type Line = t.ViteDev.Output.Line;
 type State = {
   readonly lines: Line[];
   readonly pending: Record<Source, string>;
-  readonly pendingIndex: Record<Source, number | undefined>;
-  nextIndex: number;
+  readonly pendingSequence: Record<Source, number | undefined>;
+  nextSequence: number;
   stderr: string;
 };
 
@@ -25,8 +25,8 @@ export const DevOutputLog: t.ViteDev.Output.Lib = {
     const state: State = {
       lines: [],
       pending: { stdout: '', stderr: '' },
-      pendingIndex: { stdout: undefined, stderr: undefined },
-      nextIndex: 1,
+      pendingSequence: { stdout: undefined, stderr: undefined },
+      nextSequence: 1,
       stderr: '',
     };
 
@@ -55,8 +55,8 @@ export const DevOutputLog: t.ViteDev.Output.Lib = {
         state.lines.splice(0);
         state.pending.stdout = '';
         state.pending.stderr = '';
-        state.pendingIndex.stdout = undefined;
-        state.pendingIndex.stderr = undefined;
+        state.pendingSequence.stdout = undefined;
+        state.pendingSequence.stderr = undefined;
       },
 
       tailText() {
@@ -92,16 +92,18 @@ const wrangle = {
     const text = input.replaceAll('\r', '\n');
     const parts = `${state.pending[source]}${text}`.split('\n');
     const pending = parts.pop() ?? '';
-    const pendingIndex = state.pendingIndex[source];
+    const pendingSequence = state.pendingSequence[source];
 
     parts.forEach((line, index) => {
-      const lineIndex = index === 0 ? pendingIndex : undefined;
-      wrangle.pushLine(state, source, line, maxLines, suppressVisible, lineIndex);
+      const lineSequence = index === 0 ? pendingSequence : undefined;
+      wrangle.pushLine(state, source, line, maxLines, suppressVisible, lineSequence);
     });
 
     state.pending[source] = pending;
-    state.pendingIndex[source] = wrangle.isVisibleLine(pending, suppressVisible)
-      ? parts.length === 0 ? pendingIndex ?? wrangle.nextIndex(state) : wrangle.nextIndex(state)
+    state.pendingSequence[source] = wrangle.isVisibleLine(pending, suppressVisible)
+      ? parts.length === 0
+        ? pendingSequence ?? wrangle.nextSequence(state)
+        : wrangle.nextSequence(state)
       : undefined;
   },
 
@@ -111,10 +113,10 @@ const wrangle = {
     text: string,
     maxLines: number,
     suppressVisible: RegExp[],
-    index?: number,
+    sequence?: number,
   ) {
     if (!wrangle.isVisibleLine(text, suppressVisible)) return;
-    state.lines.push({ index: index ?? wrangle.nextIndex(state), source, text });
+    state.lines.push({ sequence: sequence ?? wrangle.nextSequence(state), source, text });
     while (state.lines.length > maxLines) state.lines.shift();
   },
 
@@ -134,7 +136,7 @@ const wrangle = {
     suppressVisible: RegExp[],
   ) {
     if (!wrangle.isVisibleLine(text, suppressVisible)) return;
-    lines.push({ index: state.pendingIndex[source] ?? state.nextIndex, source, text });
+    lines.push({ sequence: state.pendingSequence[source] ?? state.nextSequence, source, text });
   },
 
   isVisibleLine(text: string, suppressVisible: RegExp[]) {
@@ -146,8 +148,8 @@ const wrangle = {
     });
   },
 
-  nextIndex(state: State) {
-    return state.nextIndex++;
+  nextSequence(state: State) {
+    return state.nextSequence++;
   },
 
   tailText(lines: Line[]) {
