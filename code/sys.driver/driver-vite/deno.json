@@ -12,8 +12,14 @@
     "perf": "deno run -P=dev ./-scripts/task.perf.ts",
     "smoke": "deno run -P=dev ./-scripts/task.smoke.ts",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
-    "dev": "deno run -P=dev ./-scripts/task.main.ts --cmd=dev --dir=./src/-test/vite.sample-1",
-    "info": "deno run -P=dev ./-scripts/task.main.ts --cmd=info    --dir=./src/-test/vite.sample-1",
+    "dev": "deno task sample:dev",
+    "build": "deno task sample:build",
+    "serve": "deno task sample:serve",
+    "info": "deno task sample:info",
+    "sample:dev": "deno run -P=dev ./-scripts/task.main.ts --cmd=dev --dir=./src/-test/vite.sample-1",
+    "sample:build": "deno run -P=dev ./-scripts/task.main.ts --cmd=build --dir=./src/-test/vite.sample-1",
+    "sample:serve": "deno run -P=dev ./-scripts/task.main.ts --cmd=serve --dir=./src/-test/vite.sample-1/dist",
+    "sample:info": "deno run -P=dev ./-scripts/task.main.ts --cmd=info --dir=./src/-test/vite.sample-1",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
