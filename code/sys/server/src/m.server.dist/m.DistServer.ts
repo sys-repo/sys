@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
-import { DistServerError } from './u/u.server.error.ts';
-import { start } from './u/u.server.start.ts';
+import { DistServerError } from './u.server/u.error.ts';
+import { start } from './u.server/u.start.ts';
 
 /** Verified-or-refuse local Dist hosting. */
 export const DistServer: t.DistServer.Lib = Object.freeze({

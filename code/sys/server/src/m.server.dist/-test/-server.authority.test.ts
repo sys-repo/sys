@@ -1,7 +1,7 @@
 import { describe, expect, Files, it, type t } from '../../-test.ts';
 import { Dist, DistServer } from '../mod.ts';
-import { acceptedAuthorities } from '../u/u.server.host.ts';
-import { DEFAULT_DEPENDENCIES, type StartDependencies, startWith } from '../u/u.server.start.ts';
+import { acceptedAuthorities } from '../u.server/u.host.ts';
+import { DEFAULT_DEPENDENCIES, type StartDependencies, startWith } from '../u.server/u.start.ts';
 import { setup, teardown } from './u.fixture.ts';
 
 const HASH = `sha256-${'0'.repeat(64)}` as t.StringHash;

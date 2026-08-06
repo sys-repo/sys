@@ -8,11 +8,11 @@ import {
   serveFileBytes,
   type t,
 } from '../common.ts';
-import { DistServerError, startError, startupReason } from './u.server.error.ts';
-import { acceptedAuthorities, acceptsHost } from './u.server.host.ts';
-import { snapshotStartInput } from './u.server.input.ts';
-import { requestPath } from './u.server.path.ts';
-import { readAsset } from './u.server.read.ts';
+import { DistServerError, startError, startupReason } from './u.error.ts';
+import { acceptedAuthorities, acceptsHost } from './u.host.ts';
+import { snapshotStartInput } from './u.input.ts';
+import { requestPath } from './u.path.ts';
+import { readAsset } from './u.read.ts';
 
 export type StartDependencies = Readonly<{
   verify: t.FsPkg.Dist.Pinned.Verify.Method;
