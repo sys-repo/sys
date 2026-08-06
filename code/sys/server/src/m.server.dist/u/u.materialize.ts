@@ -1,4 +1,4 @@
-import { Fetch, Fs, FsPkg, HttpPull, Num, type t, Url } from './common.ts';
+import { Fetch, Fs, FsPkg, HttpPull, Num, type t, Url } from '../common.ts';
 import { causeReason, failed, fetchReason, pullReason, verificationReason } from './u.failure.ts';
 import { type InputSnapshot, prepareManifestCredentials, snapshotInput } from './u.input.ts';
 import { admitManifest } from './u.manifest.ts';

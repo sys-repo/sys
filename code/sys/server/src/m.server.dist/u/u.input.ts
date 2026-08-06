@@ -1,4 +1,4 @@
-import { Arr, Fetch, Is, Num, Obj, Pkg, type t, Url } from './common.ts';
+import { Arr, Fetch, Is, Num, Obj, Pkg, type t, Url } from '../common.ts';
 
 export type InputSnapshot = Readonly<{
   manifestUrl: t.StringUrl;
