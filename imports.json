@@ -36,7 +36,7 @@
     "@std/uuid": "jsr:@std/uuid@1.1.1",
     "@std/xml": "jsr:@std/xml@0.2.0",
     "@stripe/stripe-js": "npm:@stripe/stripe-js@9.12.1",
-    "@svgdotjs/svg.js": "npm:@svgdotjs/svg.js@3.2.7",
+    "@svgdotjs/svg.js": "npm:@svgdotjs/svg.js@3.2.8",
     "@types/ws": "npm:@types/ws@8.18.1",
     "@vitejs/plugin-react": "npm:@vitejs/plugin-react@6.0.5",
     "bowser": "npm:bowser@2.14.1",
