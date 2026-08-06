@@ -1,6 +1,6 @@
-import { D as FilesServerDefaults } from '../common.ts';
+import { D as FilesServerDefaults } from '../m.server.files/common.ts';
 
-export * from '../common.ts';
+export * from '../m.server.files/common.ts';
 
 export { Fs } from '@sys/fs';
 export { Files } from '@sys/model/files/fs';

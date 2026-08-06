@@ -1,4 +1,4 @@
-import { describe, expect, Files, Fs, it, Str, type t, Testing } from '../../../-test.ts';
+import { describe, expect, Files, Fs, it, Str, type t, Testing } from '../../-test.ts';
 import { FilesWebSocketService } from '../mod.ts';
 
 describe('FilesWebSocketService', () => {

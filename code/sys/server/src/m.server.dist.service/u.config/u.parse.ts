@@ -1,5 +1,5 @@
 import { Fs, type t, Yaml } from '../common.ts';
-import { type DistServiceConfigDoc, DistServiceConfigSchema } from './u.config.schema.ts';
+import { type DistServiceConfigDoc, DistServiceConfigSchema } from './u.schema.ts';
 
 /** Parse and normalize one strict DistService YAML document. */
 export function parseConfigText(text: string, path: t.StringPath): t.DistService.Config {

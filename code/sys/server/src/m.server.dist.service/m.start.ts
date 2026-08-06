@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 import { DistServer } from '../m.server.dist/mod.ts';
-import { loadConfig, resolveConfigPath, resolveDir, snapshotServiceArgs } from './u/u.config.ts';
+import { loadConfig, resolveConfigPath, resolveDir, snapshotServiceArgs } from './u.config/u.ts';
 
 /** Start a checksum-pinned Dist host from Cell lifecycle args. */
 export const start: t.DistService.Start = async (input) => {

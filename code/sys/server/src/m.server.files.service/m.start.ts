@@ -1,5 +1,5 @@
 import { Files, Fs, type t } from './common.ts';
-import { WebSocket } from '../m.WebSocket/mod.ts';
+import { WebSocket } from '../m.server.files/m.WebSocket/mod.ts';
 import { loadConfig, policyOf, resolveConfigPath, resolveRoot } from './u/u.config.ts';
 
 /**

@@ -1,5 +1,5 @@
-import type { t } from './common.ts';
-import { loadConfig, resolveConfigPath, resolveDir, snapshotServiceArgs } from './u/u.config.ts';
+import type { t } from '../common.ts';
+import { loadConfig, resolveConfigPath, resolveDir, snapshotServiceArgs } from '../u.config/u.ts';
 
 const NONE: readonly t.Service.Resource.Any[] = Object.freeze([]);
 

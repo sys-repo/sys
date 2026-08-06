@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it, Testing } from '../../../-test.ts';
+import { describe, expect, Fs, it, Testing } from '../../-test.ts';
 import { loadConfig, policyOf, resolveRoot } from '../u/u.config.ts';
 
 describe('FilesWebSocketService config', () => {

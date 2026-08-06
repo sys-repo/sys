@@ -4,7 +4,7 @@
  */
 import type { t } from './common.ts';
 import { start } from './m.start.ts';
-import { resources } from './u.resources.ts';
+import { resources } from './m.resources.ts';
 
 export type * from './t.ts';
 
