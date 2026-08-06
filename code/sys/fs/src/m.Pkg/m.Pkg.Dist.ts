@@ -1,5 +1,5 @@
 import { Pkg } from '@sys/std/pkg';
-import { pkg as typesPkg } from '@sys/types';
+import { distTypePath, pkg as typesPkg } from '@sys/types';
 import { DirHash } from '../m.Dir.Hash/mod.ts';
 import { pkg as fsPkg } from '../pkg.ts';
 
@@ -97,7 +97,7 @@ export const Dist: t.Pkg.Dist.Lib = {
     };
 
     const dist: t.DistPkg = {
-      type: JsrUrl.Pkg.file(typesPkg, 'src/types/t.Pkg.dist.ts'),
+      type: JsrUrl.Pkg.file(typesPkg, distTypePath),
       ...(args.pkg ? { pkg: args.pkg } : {}),
       build,
       hash,

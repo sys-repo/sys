@@ -1,4 +1,5 @@
 import { describe, expect, it, pkg, type t } from '../../-test.ts';
+import { distTypePath as typesDistTypePath } from '@sys/types';
 import { pkg as fsPkg } from '../../pkg.ts';
 import { Dir } from '../../mod.ts';
 import { Sample } from './-u.dist.fixture.ts';
@@ -57,7 +58,7 @@ describe('Pkg.Dist', () => {
 
       const typeUrl = res.dist.type;
       expect(typeUrl.startsWith('https://jsr.io/@sys/types')).to.eql(true);
-      expect(typeUrl.endsWith('src/types/t.Pkg.dist.ts')).to.eql(true);
+      expect(typeUrl.endsWith(typesDistTypePath)).to.eql(true);
 
       expect(res.dir).to.eql(Fs.resolve(dir));
 
