@@ -105,7 +105,10 @@ export declare namespace PiCliProfiles {
   };
 
   /** Profile launcher result. */
-  export type Result = Help | Ran | Exit;
+  export type Result = Help | Ran | Ui | Exit;
+
+  /** Selected profile start mode. */
+  export type StartMode = 'cli' | 'ui';
 
   /** Help output result. */
   export type Help = {
@@ -127,6 +130,16 @@ export declare namespace PiCliProfiles {
     readonly parsed: ParsedArgs;
     /** Inherited child-process output from the Pi invocation. */
     readonly output: t.Process.InheritOutput;
+  };
+
+  /** Successful UI launch result. */
+  export type Ui = {
+    /** Discriminator for a launched local profile UI flow. */
+    readonly kind: 'ui';
+    /** Original profile launcher input. */
+    readonly input: Input;
+    /** Parsed profile launcher args used for the launch selection. */
+    readonly parsed: ParsedArgs;
   };
 
   /** User exited the profile menu without launching. */
@@ -154,6 +167,8 @@ export declare namespace PiCliProfiles {
     | {
       /** Discriminator for a selected profile config. */
       readonly kind: 'selected';
+      /** Selected profile start mode. */
+      readonly mode: StartMode;
       /** Selected profile config path. */
       readonly config: t.StringPath;
       /** Current sandbox evidence rendered by the menu flow. */

@@ -155,7 +155,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     try {
       const res = await menu({ cwd: testCwd(cwd) });
       expect(res).to.eql({ kind: 'exit' });
-      expect(actionFrame).to.eql(['  start', '  profile: default', '← back']);
+      expect(actionFrame).to.eql(['  start:ui', '  start:cli', '  profile: default', '← back']);
       expect(profileTitle).to.eql('profile: default');
       expect(profileFrame).to.eql([
         '  edit',
@@ -602,7 +602,8 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(printed).not.to.match(/\nread\s+/);
       expect(printed).not.to.match(/\nwrite\s+/);
       const strippedOptions = harnessOptions.map((name) => Cli.stripAnsi(name));
-      expect(strippedOptions).to.include('  start (--allow-all)');
+      expect(strippedOptions).to.include('  start:cli');
+      expect(strippedOptions).to.include('  start:ui');
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       console.info = prevInfo;
@@ -633,11 +634,13 @@ function isActionMenu(input: SelectInput) {
 }
 
 function isSelectedProfileMenu(input: SelectInput) {
-  return (input.options ?? []).some((item) => item.value === 'run');
+  return (input.options ?? []).some((item) => item.value === 'start:cli') ||
+    (input.options ?? []).some((item) => item.value === 'start:ui');
 }
 
 function isProfileSubmenu(input: SelectInput) {
   const options = input.options ?? [];
   return options.some((item) => item.value === 'edit') &&
-    !options.some((item) => item.value === 'run');
+    !(options.some((item) => item.value === 'start:cli') ||
+      options.some((item) => item.value === 'start:ui'));
 }

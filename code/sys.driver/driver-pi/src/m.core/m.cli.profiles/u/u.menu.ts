@@ -8,7 +8,7 @@ import { resolveRun } from './u.resolve.run.ts';
 import { ProfileSchema } from '../u.schema/mod.ts';
 import { clearInteractiveScreen } from './u.terminal.ts';
 
-type Action = 'run' | 'select';
+type Action = 'start:cli' | 'start:ui' | 'select';
 
 type MenuContext = {
   readonly cwd: t.PiCli.Cwd;
@@ -76,15 +76,16 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll, gitRoot
       ...menuArgs({ cwd: root, allowAll }),
       mode: 'action',
       path: selected.path,
-      defaultAction: 'run',
+      defaultAction: 'start:cli',
       beforePrompt: () => printProfileScreen(screen),
     });
 
     if (action.kind === 'back') continue;
     if (action.kind === 'exit') return { kind: 'exit' };
-    if (action.kind === 'action' && action.action === 'run') {
+    if (action.kind === 'action' && (action.action === 'start:cli' || action.action === 'start:ui')) {
       return {
         kind: 'selected',
+        mode: action.action === 'start:cli' ? 'cli' : 'ui',
         config: action.path,
         preview: await currentPreview(screen, action.path),
       };
@@ -128,15 +129,28 @@ function menuArgs(args: { cwd: t.StringDir; allowAll?: boolean }) {
       labelMode: 'submenu' as const,
       extra: [
         {
-          name: allowAll === true
-            ? `${c.cyan('start')}${c.dim(c.yellow(' (--allow-all)'))}`
-            : c.cyan('start'),
-          value: 'run' as const,
+          name: c.cyan('start:ui'),
+          value: 'start:ui' as const,
+        },
+        {
+          name: c.cyan('start:cli'),
+          value: 'start:cli' as const,
         },
       ],
       onAction({ action, path }: { action: string; path: t.StringPath }) {
-        if (action === 'run') {
-          return Promise.resolve({ kind: 'action' as const, action: 'run' as const, path });
+        if (action === 'start:cli') {
+          return Promise.resolve({
+            kind: 'action' as const,
+            action: 'start:cli' as const,
+            path,
+          });
+        }
+        if (action === 'start:ui') {
+          return Promise.resolve({
+            kind: 'action' as const,
+            action: 'start:ui' as const,
+            path,
+          });
         }
         if (action === 'select') {
           return Promise.resolve({ kind: 'action' as const, action: 'select' as const, path });
@@ -158,12 +172,18 @@ function menuArgs(args: { cwd: t.StringDir; allowAll?: boolean }) {
 
 async function prepareSandboxScreen(args: MenuContext): Promise<ProfileScreen> {
   const root = runtimeRoot(args.cwd);
-  const resolved = await resolveRun({
-    cwd: args.cwd,
-    config: args.path,
-    allowAll: args.allowAll,
-    ocr: { preflight: false },
-  });
+  const resolved = await resolveRun(
+    {
+      cwd: args.cwd,
+      config: args.path,
+      allowAll: args.allowAll,
+      ocr: { preflight: false },
+    },
+    {
+      extensions: false,
+      ocrPreflight: false,
+    },
+  );
   const report = await PiSandboxReport.write({
     cwd: root,
     sandbox: resolved.sandbox,

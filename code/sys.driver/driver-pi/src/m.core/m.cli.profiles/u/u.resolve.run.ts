@@ -26,10 +26,23 @@ export type ResolvedProfileRun = {
   readonly sandbox: t.PiCli.SandboxSummary;
 };
 
-export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<ResolvedProfileRun> {
+export type ResolveRunOptions = {
+  /** Whether to run and persist launcher-owned extensions. */
+  readonly extensions?: boolean;
+  /** Preflight behavior override. */
+  readonly ocrPreflight?: boolean;
+};
+
+export async function resolveRun(
+  input: t.PiCliProfiles.RunArgs,
+  options: ResolveRunOptions = {},
+): Promise<ResolvedProfileRun> {
   assertNoPromptSurfacePassthrough(input.args);
   const cwd = input.cwd;
   const root = ProfilePath.root(cwd);
+  const withExtensions = options.extensions !== false;
+  const runOcrPreflight = options.ocrPreflight !== false && input.ocr?.preflight !== false;
+
   // Path-like --profile selectors are CLI paths.
   // Profile-authored paths inside YAML use ProfilePath/root below.
   const activeProfile = Fs.resolve(cwd.invoked, input.config) as t.StringPath;
@@ -42,7 +55,7 @@ export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<Resolv
   const capability = profile.sandbox?.capability;
   const context = profile.sandbox?.context;
   const env = { ...(capability?.env ?? {}), ...(input.env ?? {}) };
-  const ocrPreflight = input.ocr?.preflight === false
+  const ocrPreflight = !runOcrPreflight
     ? { enabled: false as const }
     : await preflightOcrStartup({
       pdf: profile.tools?.ocr?.pdf,
@@ -79,10 +92,10 @@ export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<Resolv
     move: profile.tools?.move,
     copy: profile.tools?.copy,
   });
-  const extension = hasEnabledSandboxFsTool(sandboxFsPolicy)
+  const extension = withExtensions && hasEnabledSandboxFsTool(sandboxFsPolicy)
     ? await SandboxFs.write({ cwd: root, policy: sandboxFsPolicy })
     : undefined;
-  const ocrExtension = ocrPreflight.enabled
+  const ocrExtension = withExtensions && ocrPreflight.enabled
     ? await Ocr.write({
       cwd: root,
       policy: Ocr.resolveExtensionPolicy({
@@ -112,8 +125,8 @@ export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<Resolv
         finalSafety: false,
       }),
       ...contextResolution.args,
-      ...SandboxFs.toPromptArgs(sandboxFsPolicy),
-      ...(ocrPreflight.enabled ? Ocr.toPromptArgs(ocrPreflight.policy) : []),
+      ...(withExtensions ? SandboxFs.toPromptArgs(sandboxFsPolicy) : []),
+      ...(withExtensions && ocrPreflight.enabled ? Ocr.toPromptArgs(ocrPreflight.policy) : []),
       ...RuntimeMetadata.toPromptArgs({ cwd, profile: activeProfile }),
       ...(extension?.args ?? []),
       ...(ocrExtension?.args ?? []),

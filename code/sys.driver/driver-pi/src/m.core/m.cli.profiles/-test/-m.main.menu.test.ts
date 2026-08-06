@@ -97,7 +97,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
             return Promise.resolve('exit');
           }
           if ((input.options ?? []).some((item) => item.value === 'back')) {
-            return Promise.resolve('run');
+            return Promise.resolve('start:cli');
           }
           throw new Error(`Unexpected prompt: ${input.message}`);
         },
@@ -156,7 +156,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
             return Promise.resolve('exit');
           }
           if ((input.options ?? []).some((item) => item.value === 'back')) {
-            return Promise.resolve('run');
+            return Promise.resolve('start:cli');
           }
           throw new Error(`Unexpected prompt: ${input.message}`);
         },
@@ -181,6 +181,108 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
       Process.inherit = prev;
       console.info = prevInfo;
       screen.repaint = prevRepaint;
+      Object.defineProperty(Cli.Input.Select, 'prompt', { value: originalPrompt });
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('rejects passthrough args when start:ui is selected', async () => {
+    const prev = Process.inherit;
+    const prevInfo = console.info;
+    const originalPrompt = Cli.Input.Select.prompt;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.main.test.' }))
+      .absolute as t.StringDir;
+    const config = `${cwd}/-config/@sys.driver-pi/canon.yaml` as t.StringPath;
+
+    let topLevelCount = 0;
+    let selectedAction: string | undefined;
+
+    await Fs.ensureDir(Fs.join(cwd, '.git'));
+    await Fs.ensureDir(Fs.dirname(config));
+    await Fs.write(config, 'sandbox: {}\n');
+
+    console.info = () => undefined;
+    Process.inherit = () => Promise.resolve({ code: 0, success: true, signal: null });
+
+    Object.defineProperty(Cli.Input.Select, 'prompt', {
+      value: (input: SelectPromptInput) => {
+        if ((input.options ?? []).some((item) => item.value === 'exit')) {
+          topLevelCount += 1;
+          if (topLevelCount === 1) return Promise.resolve(config);
+          return Promise.resolve('exit');
+        }
+        if (selectedAction == null && (input.options ?? []).some((item) => item.value === 'start:ui')) {
+          selectedAction = 'action';
+          return Promise.resolve('start:ui');
+        }
+        if (selectedAction === 'action' && (input.options ?? []).some((item) => item.value === 'back')) {
+          return Promise.resolve('back');
+        }
+        if ((input.options ?? []).some((item) => item.value === 'back')) return Promise.resolve('back');
+        throw new Error(`Unexpected prompt: ${input.message}`);
+      },
+    });
+
+    try {
+      let err: Error | undefined;
+      try {
+        await Profiles.main({ cwd, argv: ['--', '--help'], tty: { stdin: true, stdout: true } });
+      } catch (error) {
+        err = error instanceof Error ? error : new Error(String(error));
+      }
+      expect(err?.message).to.eql('start:ui cannot accept Pi passthrough args. Select start:cli for passthrough mode.');
+    } finally {
+      Process.inherit = prev;
+      console.info = prevInfo;
+      Object.defineProperty(Cli.Input.Select, 'prompt', { value: originalPrompt });
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('returns ui result when start:ui is selected', async () => {
+    const prev = Process.inherit;
+    const prevInfo = console.info;
+    const originalPrompt = Cli.Input.Select.prompt;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.main.test.' }))
+      .absolute as t.StringDir;
+    const config = `${cwd}/-config/@sys.driver-pi/canon.yaml` as t.StringPath;
+
+    let topLevelCount = 0;
+    let selectedAction: string | undefined;
+
+    await Fs.ensureDir(Fs.join(cwd, '.git'));
+    await Fs.ensureDir(Fs.dirname(config));
+    await Fs.write(config, 'sandbox: {}\n');
+
+    console.info = () => undefined;
+    Process.inherit = () =>
+      Promise.reject(new Error('Process.inherit should not run during start:ui'));
+
+    Object.defineProperty(Cli.Input.Select, 'prompt', {
+      value: (input: SelectPromptInput) => {
+        if ((input.options ?? []).some((item) => item.value === 'exit')) {
+          topLevelCount += 1;
+          if (topLevelCount === 1) return Promise.resolve(config);
+          return Promise.resolve('exit');
+        }
+        if (selectedAction == null && (input.options ?? []).some((item) => item.value === 'start:ui')) {
+          selectedAction = 'action';
+          return Promise.resolve('start:ui');
+        }
+        if (selectedAction === 'action' && (input.options ?? []).some((item) => item.value === 'back')) {
+          return Promise.resolve('back');
+        }
+        if ((input.options ?? []).some((item) => item.value === 'back')) return Promise.resolve('back');
+        throw new Error(`Unexpected prompt: ${input.message}`);
+      },
+    });
+
+    try {
+      const res = await Profiles.main({ cwd, tty: { stdin: true, stdout: true } });
+      expect(res.kind).to.eql('ui');
+    } finally {
+      Process.inherit = prev;
+      console.info = prevInfo;
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: originalPrompt });
       await Fs.remove(cwd);
     }

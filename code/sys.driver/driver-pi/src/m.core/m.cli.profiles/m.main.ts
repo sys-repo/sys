@@ -42,29 +42,41 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
 
   if (migrationMessage) console.info(migrationMessage);
 
-  const selection = parsed.profile
-    ? await ProfileConfig.resolveSelection(root, parsed.profile)
-    : undefined;
-  const picked = selection
-    ? { kind: 'selected' as const, config: selection.config }
+  const picked = parsed.profile
+    ? { kind: 'selected' as const, mode: 'cli' as const, config: (await ProfileConfig.resolveSelection(root, parsed.profile)).config }
     : await menu({ cwd, allowAll, gitRootExplicit });
 
   if (picked.kind === 'exit') return { kind: 'exit', input };
 
-  const resolved = await resolveRun({
-    cwd,
-    config: picked.config,
-    args: parsed._,
-    env: input.env,
-    allowAll,
-    read: input.read,
-    write: input.write,
-    pkg: input.pkg,
-    ocr: {
-      installDeps: parsed.installOcrDeps === true,
-      interactive,
+  if (picked.mode === 'ui' && parsed._.length > 0) {
+    throw new Error('start:ui cannot accept Pi passthrough args. Select start:cli for passthrough mode.');
+  }
+
+  if (picked.mode === 'ui' && parsed.installOcrDeps === true) {
+    throw new Error('start:ui does not support --install-ocr-deps. Use start:cli for OCR bootstrap.');
+  }
+
+  const resolveOptions = picked.mode === 'ui'
+    ? { extensions: false, ocrPreflight: false }
+    : {};
+
+  const resolved = await resolveRun(
+    {
+      cwd,
+      config: picked.config,
+      args: parsed._,
+      env: input.env,
+      allowAll,
+      read: input.read,
+      write: input.write,
+      pkg: input.pkg,
+      ocr: {
+        installDeps: parsed.installOcrDeps === true,
+        interactive,
+      },
     },
-  });
+    resolveOptions,
+  );
   const report = picked.preview && Obj.eql(picked.preview.sandbox, resolved.sandbox)
     ? picked.preview.report
     : await PiSandboxReport.write({
@@ -73,15 +85,26 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
       gitRootExplicit,
     });
   const sheet = PiSandboxFmt.table({ ...resolved.sandbox, report }, { gitRootExplicit });
-  if (selection) console.info(sheet);
+  if (parsed.profile) console.info(sheet);
   else Cli.Screen.repaint(sheet);
 
-  const output = await run(resolved);
+  if (picked.mode === 'cli') {
+    const output = await run(resolved);
+    return {
+      kind: 'run',
+      input,
+      parsed,
+      output,
+    };
+  }
+
+  const { start } = await import('./u/u.start.ui.ts');
+  await start({ cwd, until: undefined, mode: picked.mode });
 
   return {
-    kind: 'run',
+    kind: 'ui',
     input,
     parsed,
-    output,
   };
-};
+}
+
