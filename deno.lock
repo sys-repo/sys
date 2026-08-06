@@ -106,6 +106,7 @@
     "npm:typebox@1.3.10": "1.3.10",
     "npm:vite-plugin-wasm@3.6.0": "3.6.0_vite@8.2.0__yaml@2.9.0_yaml@2.9.0",
     "npm:vite@8.2.0": "8.2.0_yaml@2.9.0",
+    "npm:ws@8.21.2": "8.21.2",
     "npm:yaml@2.9.0": "2.9.0"
   },
   "jsr": {
@@ -257,7 +258,7 @@
         "debug",
         "eventemitter3",
         "isomorphic-ws",
-        "ws"
+        "ws@8.21.1"
       ]
     },
     "@automerge/automerge-repo-storage-indexeddb@2.5.6": {
@@ -706,7 +707,7 @@
         "google-auth-library",
         "p-retry",
         "protobufjs",
-        "ws"
+        "ws@8.21.1"
       ],
       "scripts": true
     },
@@ -819,7 +820,7 @@
       "dependencies": [
         "@opentelemetry/api",
         "@opentelemetry/semantic-conventions",
-        "ws",
+        "ws@8.21.1",
         "zod",
         "zod-to-json-schema"
       ],
@@ -1772,7 +1773,7 @@
         "buffer-image-size",
         "entities",
         "whatwg-mimetype",
-        "ws"
+        "ws@8.21.1"
       ]
     },
     "hash-it@7.0.3": {
@@ -1878,7 +1879,7 @@
     "isomorphic-ws@5.0.0_ws@8.21.1": {
       "integrity": "sha512-muId7Zzn9ywDsyXgTIafTry2sV3nySZeUDe6YedVd1Hvuuep5AsIlqK+XefWpYTyJG5e503F2xIuT2lcU6rCSw==",
       "dependencies": [
-        "ws"
+        "ws@8.21.1"
       ]
     },
     "jackspeak@3.4.3": {
@@ -2524,11 +2525,11 @@
     "openai@6.26.0_ws@8.21.1_zod@4.4.3": {
       "integrity": "sha512-zd23dbWTjiJ6sSAX6s0HrCZi41JwTA1bQVs0wLQPZ2/5o2gxOJA5wh7yOAUgwYybfhDXyhwlpeQf7Mlgx8EOCA==",
       "dependencies": [
-        "ws",
+        "ws@8.21.1",
         "zod"
       ],
       "optionalPeers": [
-        "ws",
+        "ws@8.21.1",
         "zod"
       ],
       "bin": true
@@ -3190,6 +3191,9 @@
     },
     "ws@8.21.1": {
       "integrity": "sha512-+0NTnW77fFN/DjQi6k/Sq/Yvk4Sgajw7urW8V+asjXnRgDs9gyGkdb7EzgfhA4goXsRIZKE28fzIXBHEzhuiWw=="
+    },
+    "ws@8.21.2": {
+      "integrity": "sha512-54dMVAo4WIe6SKy3vBgN+9bJZqqQ8IMRevAkOLQALhi49qkkQDQfWdAZ8KQlXiEabw88ARXXdUrlvtbKQX+aKw=="
     },
     "wsl-utils@0.3.1": {
       "integrity": "sha512-g/eziiSUNBSsdDJtCLB8bdYEUMj4jR7AGeUo96p/3dTafgjHhpF4RiCFPiRILwjQoDXx5MqkBr4fwWtR3Ky4Wg==",
