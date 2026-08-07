@@ -1,21 +1,21 @@
 {
   ".meta": {
-    "createdAt": 1786012565029,
+    "createdAt": 1786093977257,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-47142eaeda2c6ca71e11744fee48d95d4eebbd00c6ee1918d05dfa24222741a5",
-      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.146/src/m.graph/m.snapshot/m.Hash.ts"
+      "/graph": "sha256-2f015bce7e88483226aa09cc04c32fe2058df64aaeaeeae57f979662bafe0a7c",
+      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.147/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
       "pkg": {
         "name": "@sys/workspace",
-        "version": "0.0.146"
+        "version": "0.0.147"
       },
       "types": {
-        "/graph": "https://jsr.io/@sys/workspace/0.0.146/src/m.graph/t.ts"
+        "/graph": "https://jsr.io/@sys/workspace/0.0.147/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1786012565035
+    "modifiedAt": 1786093977265
   },
   "graph": {
     "orderedPaths": [
@@ -664,6 +664,10 @@
       },
       {
         "from": "code/sys/crypto",
+        "to": "code/sys/server"
+      },
+      {
+        "from": "code/sys/crypto",
         "to": "code/sys/testing"
       },
       {
@@ -805,6 +809,10 @@
       {
         "from": "code/sys/http",
         "to": "code/sys.driver/driver-deno"
+      },
+      {
+        "from": "code/sys/http",
+        "to": "code/sys.driver/driver-pi"
       },
       {
         "from": "code/sys/http",
@@ -1045,6 +1053,14 @@
       {
         "from": "code/sys/schema",
         "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys/server",
+        "to": "code/sys.driver/driver-pi"
+      },
+      {
+        "from": "code/sys/server",
+        "to": "code/sys.driver/driver-vite"
       },
       {
         "from": "code/sys/server",

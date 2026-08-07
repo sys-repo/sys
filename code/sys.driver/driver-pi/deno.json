@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-pi",
-  "version": "0.0.131",
+  "version": "0.0.132",
   "license": "MIT",
   "tasks": {
     "test": "deno task test:unit && deno task test:profiles",
@@ -33,19 +33,31 @@
     "-config"
   ],
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
     "test": {
       "read": true,
       "write": true,
       "env": true,
-      "net": ["localhost", "127.0.0.1", "0.0.0.0"]
+      "net": [
+        "localhost",
+        "127.0.0.1",
+        "0.0.0.0"
+      ]
     },
     "cli": {
       "read": true,
       "write": true,
       "run": true,
       "env": true,
-      "net": ["localhost", "127.0.0.1", "0.0.0.0"]
+      "net": [
+        "localhost",
+        "127.0.0.1",
+        "0.0.0.0"
+      ]
     },
     "dev": {
       "read": true,
@@ -54,7 +66,14 @@
       "env": true,
       "net": true,
       "ffi": true,
-      "sys": { "allow": ["cpus", "networkInterfaces", "hostname"] }
+      "sys": {
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname"
+        ]
+      }
     }
   }
 }
+

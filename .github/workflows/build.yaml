@@ -36,6 +36,8 @@ jobs:
             path: code/sys.ui/ui
           - name: "@sys/driver-pi"
             path: code/sys.driver/driver-pi
+          - name: "@sys/driver-vite"
+            path: code/sys.driver/driver-vite
           - name: "@draft/shell"
             path: deploy/@draft.shell
           - name: "@tdb/data"
