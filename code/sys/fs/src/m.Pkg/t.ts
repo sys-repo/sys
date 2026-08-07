@@ -1,5 +1,5 @@
 import type { Pkg as StdPkg } from '@sys/std/t';
-import type { t } from './common.ts';
+import type { t } from '../common.ts';
 
 export type Pkg = StdPkg;
 

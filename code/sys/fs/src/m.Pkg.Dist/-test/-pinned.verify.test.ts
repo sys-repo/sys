@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
-import { Pkg } from '../mod.ts';
+import { Pkg } from '../../m.Pkg/mod.ts';
 import { limits, setup, teardown } from './-u.pinned.fixture.ts';
 
 describe('Pkg.Dist.Pinned.verify', () => {

@@ -1,5 +1,5 @@
 import { Hash, Json, StdPath, type t } from '../../-test.ts';
-import { Pkg } from '../mod.ts';
+import { Pkg } from '../../m.Pkg/mod.ts';
 import { DEFAULT_IO, type PinnedIo } from '../u.verify/u.pinned.io.ts';
 
 const encoder = new TextEncoder();

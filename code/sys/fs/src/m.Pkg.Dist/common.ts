@@ -4,13 +4,9 @@ export { Pkg } from '@sys/std/pkg';
 
 export * from '../common.ts';
 
-/**
- * Constants
- */
-export const DEFAULTS = {
+export const D = {
   hashPolicy: {
-    path: 'src/m.Pkg/m.Pkg.Dist.ts',
+    path: 'src/m.Pkg.Dist/m.Dist.ts',
     ignore: { rules: ['dist.json', 'dist.json.sig'] as const },
   },
 } as const;
-export const D = DEFAULTS;

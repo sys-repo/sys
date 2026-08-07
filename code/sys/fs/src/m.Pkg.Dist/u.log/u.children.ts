@@ -1,5 +1,5 @@
 import { Arr, c, CliFmt, CliTable, Fs, Num, Path, Pkg, Str, type t } from '../common.ts';
-import { Dist } from '../m.Pkg.Dist.ts';
+import { Dist } from '../m.Dist.ts';
 import { toModuleString } from './u.ts';
 
 export const children: t.Pkg.Dist.Log.Lib['children'] = async (dir, dist) => {

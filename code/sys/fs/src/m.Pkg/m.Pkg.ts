@@ -1,6 +1,6 @@
-import { type t } from './common.ts';
+import type { t } from '../common.ts';
 import { Pkg as Base } from '@sys/std/pkg';
-import { Dist } from './m.Pkg.Dist.ts';
+import { Dist } from '../m.Pkg.Dist/mod.ts';
 
 /**
  * Pkg.Lib (server extensions).

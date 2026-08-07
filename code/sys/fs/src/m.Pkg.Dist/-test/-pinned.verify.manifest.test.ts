@@ -10,7 +10,7 @@ import {
   Num,
   type t,
 } from '../../-test.ts';
-import { Pkg } from '../mod.ts';
+import { Pkg } from '../../m.Pkg/mod.ts';
 import { cloneDist, limits, setup, teardown, writeManifest } from './-u.pinned.fixture.ts';
 
 const decoder = new TextDecoder();

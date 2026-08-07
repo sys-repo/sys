@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, Hash, it, type t } from '../../-test.ts';
-import { Pkg } from '../mod.ts';
+import { Pkg } from '../../m.Pkg/mod.ts';
 import { verifyLocalWithIo } from '../u.verify/u.pinned.ts';
 import { limits, setup, teardown, withIo } from './-u.pinned.fixture.ts';
 

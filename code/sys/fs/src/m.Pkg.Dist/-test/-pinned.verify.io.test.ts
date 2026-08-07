@@ -1,5 +1,5 @@
 import { describe, expect, it, StdPath } from '../../-test.ts';
-import { Pkg } from '../mod.ts';
+import { Pkg } from '../../m.Pkg/mod.ts';
 import { verifyPinnedWithIo } from '../u.verify/u.pinned.ts';
 import { DEFAULT_IO, limits, setup, teardown, withIo } from './-u.pinned.fixture.ts';
 

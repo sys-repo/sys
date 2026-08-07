@@ -4,8 +4,8 @@ import { pkg as fsPkg } from '../../pkg.ts';
 import { Dir } from '../../mod.ts';
 import { Sample } from './-u.dist.fixture.ts';
 import { c, D, Fs, Hash, Ignore, Is, Json, JsrUrl, Obj, Path, Str, Time } from '../common.ts';
-import { Dist } from '../m.Pkg.Dist.ts';
-import { Pkg } from '../mod.ts';
+import { Dist } from '../m.Dist.ts';
+import { Pkg } from '../../m.Pkg/mod.ts';
 
 describe('Pkg.Dist', () => {
   const renderDist = (dist: t.DistPkg) => {
