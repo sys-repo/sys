@@ -1,6 +1,6 @@
 import { Fs, type t } from '../common.ts';
 import { Pkg as FsPkg } from '@sys/fs/pkg';
-import { START_GUI_SOURCE } from '../u.start/u.gui.ts';
+import { START_GUI_SERVICE } from '../u/u.start.gui.service.ts';
 
 export type Started = t.HttpServer.Started;
 export type Keyboard = t.Cli.Keyboard.Bind.Handle;
@@ -17,9 +17,9 @@ export function fakeGeneration(): t.Dist.Existing {
   return {
     kind: 'existing',
     dir: '/tmp/driver-pi-gui-generation' as t.StringAbsoluteDir,
-    integrity: START_GUI_SOURCE.integrity,
+    integrity: START_GUI_SERVICE.source.integrity,
     verification: {
-      integrity: START_GUI_SOURCE.integrity,
+      integrity: START_GUI_SERVICE.source.integrity,
       dist: {
         type: 'https://jsr.io/@sample/driver-pi-gui',
         pkg: { name: '@sample/driver-pi-gui', version: '1.0.0' },
@@ -30,12 +30,12 @@ export function fakeGeneration(): t.Dist.Existing {
           runtime: '<runtime-uri>',
           hash: { policy: 'https://jsr.io/@sample/hash/0.0.1/src/hash.ts' },
         },
-        hash: { digest: START_GUI_SOURCE.integrity, parts: {} },
+        hash: { digest: START_GUI_SERVICE.source.integrity, parts: {} },
       },
       manifestBytes: 0,
       assets: { files: 0, totalBytes: 0, packageBytes: 0 },
     },
-    source: { configuredUrl: START_GUI_SOURCE.manifestUrl },
+    source: { configuredUrl: START_GUI_SERVICE.source.manifestUrl },
     cleanup: 'not-needed',
   };
 }

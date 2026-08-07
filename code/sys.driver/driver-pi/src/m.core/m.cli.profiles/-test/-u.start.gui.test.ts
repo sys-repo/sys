@@ -1,7 +1,8 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Fs, type t } from '../common.ts';
 import { DistServer } from '@sys/server/dist';
-import { start, START_GUI_SOURCE } from '../u.start/u.gui.ts';
+import { start } from '../u.start/u.gui.ts';
+import { START_GUI_SERVICE } from '../u/u.start.gui.service.ts';
 import {
   asProfileRoot,
   deferred,
@@ -66,7 +67,12 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
     const storeDir = Fs.join(cwd, '.pi/@sys/dist/@sys.driver-pi') as t.StringDir;
     let materializeArgs: t.Dist.MaterializeArgs | undefined;
     let startArgs: t.DistServer.Start.Args | undefined;
-    let screenInput: { dir: t.StringDir; origin: t.StringUrl; keyboard: boolean } | undefined;
+    let screenInput: {
+      service: string;
+      dir: t.StringDir;
+      origin: t.StringUrl;
+      keyboard: boolean;
+    } | undefined;
     let screenDisposeCalls = 0;
     let openCalls = 0;
     let closeCalls = 0;
@@ -104,14 +110,16 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
         },
       });
 
-      expect(Object.isFrozen(START_GUI_SOURCE)).to.eql(true);
-      expect(materializeArgs?.manifestUrl).to.eql(START_GUI_SOURCE.manifestUrl);
-      expect(materializeArgs?.integrity).to.eql(START_GUI_SOURCE.integrity);
+      expect(Object.isFrozen(START_GUI_SERVICE)).to.eql(true);
+      expect(Object.isFrozen(START_GUI_SERVICE.source)).to.eql(true);
+      expect(START_GUI_SERVICE.name).to.eql('sys.ui:pi');
+      expect(materializeArgs?.manifestUrl).to.eql(START_GUI_SERVICE.source.manifestUrl);
+      expect(materializeArgs?.integrity).to.eql(START_GUI_SERVICE.source.integrity);
       expect(materializeArgs?.storeDir).to.eql(storeDir);
       expect(materializeArgs?.policy.manifest.sourceOrigins).to.eql(['http://localhost:8080']);
       expect(startArgs).to.include({
         dir: '/tmp/driver-pi-gui-generation',
-        integrity: START_GUI_SOURCE.integrity,
+        integrity: START_GUI_SERVICE.source.integrity,
         hostname: '127.0.0.1',
         port: 0,
         silent: true,
@@ -124,6 +132,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
       });
       expect(await Fs.exists(storeDir)).to.eql(true);
       expect(screenInput).to.eql({
+        service: 'sys.ui:pi',
         dir: '/tmp/driver-pi-gui-generation',
         origin: 'http://127.0.0.1:1234',
         keyboard: false,

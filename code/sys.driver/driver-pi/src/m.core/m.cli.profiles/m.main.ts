@@ -10,7 +10,7 @@ import { menu } from './u/u.menu.ts';
 import { ProfileConfig } from './u/u.profile.ts';
 import { resolveRun } from './u/u.resolve.run.ts';
 import { ProfileStartup } from './u/u.startup.ts';
-import { START_GUI_SOURCE } from './u/u.start.gui.source.ts';
+import { START_GUI_SERVICE } from './u/u.start.gui.service.ts';
 
 type MainDependencies = {
   readonly startGui: (input: {
@@ -92,7 +92,7 @@ export async function mainWith(
       ? PiSandboxFmt.table({ ...preview.sandbox, report: preview.report }, { gitRootExplicit })
       : '';
     Cli.Screen.repaint(frame);
-    await deps.startGui({ cwd, source: START_GUI_SOURCE });
+    await deps.startGui({ cwd, source: START_GUI_SERVICE.source });
     return {
       kind: 'gui',
       input,

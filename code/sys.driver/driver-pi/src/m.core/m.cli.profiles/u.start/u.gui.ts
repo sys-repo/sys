@@ -10,10 +10,9 @@ import {
 import { appendCleanup, closeOnce, finalize, waitForTerminal } from './u.lifecycle.ts';
 import { materialize } from './u.materialize.ts';
 import { LIMITS, resolveIntegrity, resolveManifestSource } from './u.source.ts';
-import { START_GUI_SOURCE } from '../u/u.start.gui.source.ts';
+import { START_GUI_SERVICE } from '../u/u.start.gui.service.ts';
 
 export type { StartGuiDependencies } from './u.deps.ts';
-export { START_GUI_SOURCE } from '../u/u.start.gui.source.ts';
 
 export type StartGuiInput = {
   cwd: t.PiCli.Cwd;
@@ -26,7 +25,7 @@ export type StartGuiInput = {
 export async function start(input: StartGuiInput): Promise<void> {
   const root = runtimeRoot(input.cwd);
   const deps = Object.freeze({ ...DEFAULT_DEPENDENCIES, ...(input.deps ?? {}) });
-  const sourceInput = input.source ?? START_GUI_SOURCE;
+  const sourceInput = input.source ?? START_GUI_SERVICE.source;
   const configured = Object.freeze({
     manifestUrl: sourceInput.manifestUrl,
     integrity: sourceInput.integrity,
@@ -62,6 +61,7 @@ export async function start(input: StartGuiInput): Promise<void> {
       onQuit: () => close('start:gui.keyboard.quit'),
     });
     screen = deps.createScreen({
+      service: START_GUI_SERVICE.name,
       dir: generation.dir,
       origin: started.origin,
       keyboard: keyboard !== undefined,

@@ -3,6 +3,7 @@ import { c, Cli, Fs, Num, Path, pkg, type t } from '../common.ts';
 type ScreenSize = t.Cli.Screen.Size;
 
 export type StartGuiScreenInput = {
+  readonly service: string;
   readonly dir: t.StringDir;
   readonly origin: t.StringUrl;
   readonly keyboard: boolean;
@@ -116,7 +117,7 @@ export const StartGuiScreen = {
 
     const serviceWidth = Math.max(0, viewport.width - SERVICE_INSET * 2);
     const serviceRows = [
-      serviceRow('service', { kind: 'title', text: 'dist' }, serviceWidth),
+      serviceRow('service', { kind: 'title', text: input.service }, serviceWidth),
       serviceRow('url', { kind: 'url', text: input.origin }, serviceWidth),
       serviceRow('root', {
         kind: 'path',

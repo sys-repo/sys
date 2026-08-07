@@ -3,6 +3,7 @@ import { c, Cli, Fs, Path, type t } from '../common.ts';
 import { StartGuiScreen } from '../u.start/u.screen.ts';
 import { createScreenHarness } from './u.fixture.start.gui.screen.ts';
 
+const SERVICE = 'sys.ui:pi';
 const ORIGIN = 'http://127.0.0.1:51260' as t.StringUrl;
 const SAMPLE_ROOT =
   '/test/fixtures/fake-workspace/.pi/@sys/dist/@sys.driver-pi/sha256-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef' as t.StringDir;
@@ -11,6 +12,7 @@ describe('@sys/driver-pi start:gui screen', () => {
   it('repaints the service frame at initial and resized viewport widths', () => {
     const harness = createScreenHarness({ width: 80, height: 24 });
     const screen = StartGuiScreen.create({
+      service: SERVICE,
       dir: SAMPLE_ROOT,
       origin: ORIGIN,
       keyboard: true,
@@ -44,6 +46,7 @@ describe('@sys/driver-pi start:gui screen', () => {
       { resizeOnSize: accepted },
     );
     const screen = StartGuiScreen.create({
+      service: SERVICE,
       dir: SAMPLE_ROOT,
       origin: ORIGIN,
       keyboard: true,
@@ -60,6 +63,7 @@ describe('@sys/driver-pi start:gui screen', () => {
   it('prioritizes service facts over controls in a short viewport', () => {
     const frame = (height: number) =>
       Cli.stripAnsi(StartGuiScreen.toString({
+        service: SERVICE,
         dir: SAMPLE_ROOT,
         origin: ORIGIN,
         keyboard: true,
@@ -73,6 +77,7 @@ describe('@sys/driver-pi start:gui screen', () => {
 
   it('dims subordinate labels to match the Cell service grammar', () => {
     const frame = StartGuiScreen.toString({
+      service: SERVICE,
       dir: SAMPLE_ROOT,
       origin: ORIGIN,
       keyboard: false,
@@ -89,6 +94,7 @@ describe('@sys/driver-pi start:gui screen', () => {
 
   it('links the fitted root display to the complete folder file URL', () => {
     const frame = StartGuiScreen.toString({
+      service: SERVICE,
       dir: SAMPLE_ROOT,
       origin: ORIGIN,
       keyboard: false,
@@ -105,6 +111,7 @@ describe('@sys/driver-pi start:gui screen', () => {
   it('reserves the repaint cursor row at every viewport height', () => {
     for (const height of [1, 2, 6, 9, 10]) {
       const frame = StartGuiScreen.toString({
+        service: SERVICE,
         dir: SAMPLE_ROOT,
         origin: ORIGIN,
         keyboard: true,
@@ -130,6 +137,7 @@ describe('@sys/driver-pi start:gui screen', () => {
 
     try {
       StartGuiScreen.create({
+        service: SERVICE,
         dir: SAMPLE_ROOT,
         origin: ORIGIN,
         keyboard: true,
@@ -163,6 +171,7 @@ describe('@sys/driver-pi start:gui screen', () => {
           },
         }) as unknown as t.Cli.Screen.Events;
       const screen = StartGuiScreen.create({
+        service: SERVICE,
         dir: SAMPLE_ROOT,
         origin: ORIGIN,
         keyboard: true,
@@ -200,6 +209,7 @@ describe('@sys/driver-pi start:gui screen', () => {
       },
     );
     const screen = StartGuiScreen.create({
+      service: SERVICE,
       dir: SAMPLE_ROOT,
       origin: ORIGIN,
       keyboard: true,
@@ -217,6 +227,7 @@ describe('@sys/driver-pi start:gui screen', () => {
   it('stays inert when terminal screen ownership is unavailable', () => {
     const harness = createScreenHarness({ width: 80, height: 24 }, false);
     const screen = StartGuiScreen.create({
+      service: SERVICE,
       dir: SAMPLE_ROOT,
       origin: ORIGIN,
       keyboard: false,
@@ -242,7 +253,7 @@ function expectFrame(frame: string, viewport: ScreenSize) {
 
   expect(text).to.contain('@sys/driver-pi');
   expect(text).to.contain('service');
-  expect(text).to.contain('dist');
+  expect(text).to.contain(SERVICE);
   expect(text).to.contain('http://localhost:51260/');
   expect(frame).to.contain(Path.toFileUrl(SAMPLE_ROOT).href);
   expect(text).to.not.contain('start:gui');

@@ -3,7 +3,7 @@ import { Cli, Fs, Obj, type t } from '../common.ts';
 import { Process } from '../../m.cli/common.ts';
 import { mainWith } from '../m.main.ts';
 import { Profiles } from '../mod.ts';
-import { START_GUI_SOURCE } from '../u/u.start.gui.source.ts';
+import { START_GUI_SERVICE } from '../u/u.start.gui.service.ts';
 
 type SelectPromptInput = {
   readonly message?: string;
@@ -317,7 +317,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
       expect(startGuiCalls).to.eql(1);
       expect(startGuiInput?.cwd.git).to.eql(cwd);
       expect(startGuiInput?.cwd.invoked).to.eql(cwd);
-      expect(startGuiInput?.source).to.equal(START_GUI_SOURCE);
+      expect(startGuiInput?.source).to.equal(START_GUI_SERVICE.source);
       expect(frames).to.have.length(1);
       expect(Cli.stripAnsi(frames[0] ?? '')).to.not.contain('start:gui');
     } finally {
