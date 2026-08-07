@@ -2,7 +2,7 @@ export type * as t from '../common/t.ts';
 
 export { pkg } from '../pkg.ts';
 
-export { c } from '@sys/cli';
+export { c, Cli } from '@sys/cli';
 export { DenoFile } from '@sys/driver-deno/runtime';
 export { Fs, Path, Pkg } from '@sys/fs';
 export { Http } from '@sys/http/server';
