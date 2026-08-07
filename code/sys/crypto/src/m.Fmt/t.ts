@@ -13,5 +13,7 @@ export declare namespace HashFmt {
   export type DigestOptions = {
     length?: number;
     algo?: boolean;
+    /** Maximum rendered cell width; progressively elides context to fit. */
+    maxWidth?: number;
   };
 }
