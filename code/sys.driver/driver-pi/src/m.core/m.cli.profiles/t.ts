@@ -110,6 +110,12 @@ export declare namespace PiCliProfiles {
   /** Selected profile start mode. */
   export type StartMode = 'cli' | 'ui';
 
+  /** Complete launcher-owned source pair for the verified local UI runtime. */
+  export type StartUiSource = {
+    manifestUrl: t.StringUrl;
+    integrity: t.StringHash;
+  };
+
   /** Menu-state persistence document for interactive launch preference. */
   export type MenuState = MenuState.Document;
 

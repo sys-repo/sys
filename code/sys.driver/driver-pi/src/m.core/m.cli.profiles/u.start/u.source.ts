@@ -1,4 +1,4 @@
-import { Is, type t, Url } from '../common.ts';
+import { Is, Shard, type t, Url } from '../common.ts';
 import type { Dist } from '@sys/server/dist';
 
 export const LIMITS = {
@@ -7,13 +7,6 @@ export const LIMITS = {
   fileBytes: 128 * 1024 * 1024, //      ← 128 MB
   totalBytes: 1024 * 1024 * 1024, //    ← 1,024 MB (1 GB)
 } as const;
-
-/** Canonical launcher-owned source for the verified local UI runtime. */
-export const START_UI_SOURCE = Object.freeze({
-  manifestUrl: 'http://localhost:8080/dist.json' as t.StringUrl,
-  integrity:
-    'sha256-07d24ba144edb1f84eb2db14b10fcd3c3470775ee389b518c0ae9a9b5b2ddfbc' as t.StringHash,
-});
 
 export type ManifestSource = Readonly<{
   href: t.StringUrl;
@@ -50,6 +43,23 @@ export function materializePolicy(
     },
     verification: LIMITS,
   };
+}
+
+export function resolveIntegrity(input: t.StringHash): t.StringHash {
+  if (!Is.string(input) || !input.startsWith('sha256-')) {
+    throw new Error('Invalid start:ui manifest integrity.');
+  }
+
+  try {
+    const hex = Shard.Sha256.normalizeHex(input);
+    if (hex !== input.slice('sha256-'.length)) {
+      throw new Error('Invalid start:ui manifest integrity.');
+    }
+  } catch {
+    throw new Error('Invalid start:ui manifest integrity.');
+  }
+
+  return input;
 }
 
 export function resolveManifestSource(input: t.StringUrl): ManifestSource {

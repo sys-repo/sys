@@ -5,7 +5,7 @@ import { Open } from '@sys/process';
 /** Owner seams for focused UI-start runtime tests. */
 export type StartUiDependencies = {
   readonly materialize: t.Dist.Materialize;
-  readonly start: t.DistServer.Start;
+  readonly start: (args: t.DistServer.Start.Args) => Promise<Started>;
   readonly open: t.OpenLib['invokeDetached'];
   readonly bindKeyboard: t.Cli.Keyboard.Lib['bind'];
 };

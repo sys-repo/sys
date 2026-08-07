@@ -11,6 +11,7 @@ export { Path } from '@sys/std/path';
 export { Pkg } from '@sys/std/pkg';
 export { slug } from '@sys/std/random';
 export { Rx } from '@sys/std/rx';
+export { Shard } from '@sys/std/shard';
 export { Str } from '@sys/std/str';
 export { Time } from '@sys/std/time';
 export { Try } from '@sys/std/try';

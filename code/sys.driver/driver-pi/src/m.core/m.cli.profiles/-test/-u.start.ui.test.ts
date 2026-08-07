@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Fs, type t } from '../common.ts';
-import { Dist, DistServer } from '@sys/server/dist';
+import { DistServer } from '@sys/server/dist';
 import { start, START_UI_SOURCE } from '../u.start/u.ui.ts';
 import {
   asProfileRoot,
@@ -66,7 +66,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.ui`, () => {
       .absolute as t.StringDir;
     const storeDir = Fs.join(cwd, '.pi/@sys/dist/@sys.driver-pi') as t.StringDir;
     let materializeArgs: t.Dist.MaterializeArgs | undefined;
-    let startArgs: t.DistServer.StartArgs | undefined;
+    let startArgs: t.DistServer.Start.Args | undefined;
     let openCalls = 0;
     let closeCalls = 0;
 
@@ -115,6 +115,105 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.ui`, () => {
       expect(await Fs.exists(storeDir)).to.eql(true);
       expect(openCalls).to.eql(1);
       expect(closeCalls).to.eql(1);
+    } finally {
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('accepts a complete source replacement, snapshots it, and retains fixed authority', async () => {
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.ui.test.' }))
+      .absolute as t.StringDir;
+    const source: t.PiCliProfiles.StartUiSource = {
+      manifestUrl: 'https://ui.example.test:8443/release/dist.json',
+      integrity: 'sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+    };
+    let materializeArgs: t.Dist.MaterializeArgs | undefined;
+    let startArgs: t.DistServer.Start.Args | undefined;
+
+    try {
+      const run = start({
+        cwd: asProfileRoot(cwd),
+        mode: 'ui',
+        source,
+        deps: {
+          materialize: (args) => {
+            materializeArgs = args;
+            return Promise.resolve(fakeGeneration());
+          },
+          start: (args) => {
+            startArgs = args;
+            return Promise.resolve(startedFixture());
+          },
+          bindKeyboard: () => undefined,
+          open: () => undefined,
+        },
+      });
+      source.manifestUrl = 'https://changed.example.test/dist.json';
+      source.integrity = 'sha256-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc';
+      await run;
+
+      expect(materializeArgs?.manifestUrl).to.eql(
+        'https://ui.example.test:8443/release/dist.json',
+      );
+      expect(materializeArgs?.integrity).to.eql(
+        'sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+      );
+      expect(materializeArgs?.policy.manifest.sourceOrigins).to.eql([
+        'https://ui.example.test:8443',
+      ]);
+      expect(materializeArgs?.policy.verification).to.eql({
+        manifestBytes: 16 * 1024 * 1024,
+        entries: 4096 * 2 + 1,
+        fileBytes: 128 * 1024 * 1024,
+        totalBytes: 1024 * 1024 * 1024,
+      });
+      expect(startArgs).to.include({
+        integrity: 'sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+        hostname: '127.0.0.1',
+        port: 0,
+      });
+      expect(startArgs?.limits).to.eql(materializeArgs?.policy.verification);
+    } finally {
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('rejects malformed source URL and integrity before materialization', async () => {
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.ui.test.' }))
+      .absolute as t.StringDir;
+    const validIntegrity =
+      'sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' as t.StringHash;
+    const cases: Array<{ source: t.PiCliProfiles.StartUiSource; message: string }> = [
+      {
+        source: { manifestUrl: 'file:///tmp/dist.json', integrity: validIntegrity },
+        message: 'Invalid start:ui manifest URL.',
+      },
+      {
+        source: { manifestUrl: 'https://ui.example.test/dist.json', integrity: 'sha256-invalid' },
+        message: 'Invalid start:ui manifest integrity.',
+      },
+    ];
+
+    try {
+      for (const { source, message } of cases) {
+        let materializeCalls = 0;
+        const error = await rejectionOf(() =>
+          start({
+            cwd: asProfileRoot(cwd),
+            mode: 'ui',
+            source,
+            deps: {
+              materialize: () => {
+                materializeCalls += 1;
+                return Promise.resolve(fakeGeneration());
+              },
+            },
+          })
+        );
+
+        expect(error.message).to.eql(message);
+        expect(materializeCalls).to.eql(0);
+      }
     } finally {
       await Fs.remove(cwd);
     }
@@ -366,23 +465,11 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.ui`, () => {
       await start({
         cwd: asProfileRoot(cwd),
         mode: 'ui',
+        source: {
+          manifestUrl: fixture.manifestUrl,
+          integrity: fixture.integrity,
+        },
         deps: {
-          materialize: (args) => {
-            const response = {
-              ...args.policy.manifest,
-              sourceOrigins: [fixture.origin],
-            } as const;
-            return Dist.materialize({
-              ...args,
-              manifestUrl: fixture.manifestUrl,
-              integrity: fixture.integrity,
-              policy: {
-                ...args.policy,
-                manifest: response,
-                resources: { ...args.policy.resources, response },
-              },
-            });
-          },
           start: async (args) => {
             started = await DistServer.start({
               ...args,

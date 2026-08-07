@@ -6,7 +6,7 @@ import { setup, teardown } from './u.fixture.ts';
 
 const HASH = `sha256-${'0'.repeat(64)}` as t.StringHash;
 
-function validInput(): t.DistServer.StartArgs {
+function validInput(): t.DistServer.Start.Args {
   return {
     dir: '/tmp/dist-generation' as t.StringDir,
     integrity: HASH,
@@ -32,7 +32,7 @@ describe('DistServer authority', () => {
     };
 
     let getterReads = 0;
-    const accessor = validInput() as t.DistServer.StartArgs & { name?: string };
+    const accessor = validInput() as t.DistServer.Start.Args & { name?: string };
     Object.defineProperty(accessor, 'name', {
       enumerable: true,
       get() {

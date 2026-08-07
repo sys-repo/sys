@@ -111,7 +111,7 @@ describe('DistServer', () => {
 
   it('serves declared assets from freshly verified authority', async () => {
     const fixture = await setup();
-    let server: t.HttpServer.Started | undefined;
+    let server: t.DistServer.Started | undefined;
     try {
       const materialized = await Dist.materialize(fixture.args());
       expect(materialized.kind).to.eql('promoted');
@@ -123,6 +123,14 @@ describe('DistServer', () => {
         limits: fixture.policy.verification,
         silent: true,
       });
+
+      expect(server.authority).to.eql({
+        kind: 'pinned',
+        integrity: materialized.integrity,
+      });
+      expect(server.verification).to.eql(materialized.verification);
+      expect(Object.isFrozen(server.authority)).to.eql(true);
+      expect(Object.isFrozen(server.verification)).to.eql(true);
 
       const index = await fetch(server.origin);
       expect(index.status).to.eql(200);

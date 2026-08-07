@@ -9,15 +9,17 @@ import {
 } from './u.deps.ts';
 import { appendCleanup, closeOnce, finalize, waitForTerminal } from './u.lifecycle.ts';
 import { materialize } from './u.materialize.ts';
-import { LIMITS, resolveManifestSource, START_UI_SOURCE } from './u.source.ts';
+import { LIMITS, resolveIntegrity, resolveManifestSource } from './u.source.ts';
+import { START_UI_SOURCE } from '../u/u.start.source.ts';
 
 export type { StartUiDependencies } from './u.deps.ts';
-export { START_UI_SOURCE } from './u.source.ts';
+export { START_UI_SOURCE } from '../u/u.start.source.ts';
 
 export type StartUiInput = {
   cwd: t.PiCli.Cwd;
   until?: t.UntilInput;
   mode: t.PiCliProfiles.StartMode;
+  source?: t.PiCliProfiles.StartUiSource;
   deps?: Partial<StartUiDependencies>;
 };
 
@@ -27,8 +29,13 @@ export async function start(input: StartUiInput): Promise<void> {
 
   const root = runtimeRoot(input.cwd);
   const deps = Object.freeze({ ...DEFAULT_DEPENDENCIES, ...(input.deps ?? {}) });
-  const source = resolveManifestSource(START_UI_SOURCE.manifestUrl);
-  const integrity = START_UI_SOURCE.integrity;
+  const sourceInput = input.source ?? START_UI_SOURCE;
+  const configured = Object.freeze({
+    manifestUrl: sourceInput.manifestUrl,
+    integrity: sourceInput.integrity,
+  });
+  const source = resolveManifestSource(configured.manifestUrl);
+  const integrity = resolveIntegrity(configured.integrity);
   let started: Started | undefined;
   let keyboard: Keyboard | undefined;
   let failure: unknown;

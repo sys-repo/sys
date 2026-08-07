@@ -3,6 +3,7 @@ import { Cli, Fs, Obj, type t } from '../common.ts';
 import { Process } from '../../m.cli/common.ts';
 import { mainWith } from '../m.main.ts';
 import { Profiles } from '../mod.ts';
+import { START_UI_SOURCE } from '../u/u.start.source.ts';
 
 type SelectPromptInput = {
   readonly message?: string;
@@ -261,7 +262,11 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
     let topLevelCount = 0;
     let selectedAction: string | undefined;
     let startUiCalls = 0;
-    let startUiInput: { readonly cwd: t.PiCli.Cwd; readonly mode: 'ui' } | undefined;
+    let startUiInput: {
+      cwd: t.PiCli.Cwd;
+      mode: 'ui';
+      source: t.PiCliProfiles.StartUiSource;
+    } | undefined;
 
     await Fs.ensureDir(Fs.join(cwd, '.git'));
     await Fs.ensureDir(Fs.dirname(config));
@@ -314,6 +319,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
       expect(startUiInput?.mode).to.eql('ui');
       expect(startUiInput?.cwd.git).to.eql(cwd);
       expect(startUiInput?.cwd.invoked).to.eql(cwd);
+      expect(startUiInput?.source).to.equal(START_UI_SOURCE);
       expect(frames).to.eql([]);
     } finally {
       Process.inherit = prev;

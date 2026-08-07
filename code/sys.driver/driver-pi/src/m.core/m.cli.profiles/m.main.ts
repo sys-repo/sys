@@ -10,14 +10,16 @@ import { menu } from './u/u.menu.ts';
 import { ProfileConfig } from './u/u.profile.ts';
 import { resolveRun } from './u/u.resolve.run.ts';
 import { ProfileStartup } from './u/u.startup.ts';
+import { START_UI_SOURCE } from './u/u.start.source.ts';
 
-type MainDependencies = Readonly<{
-  startUi: (input: {
-    readonly cwd: t.PiCli.Cwd;
-    readonly mode: 'ui';
-    readonly until?: t.UntilInput;
+type MainDependencies = {
+  readonly startUi: (input: {
+    cwd: t.PiCli.Cwd;
+    mode: 'ui';
+    source: t.PiCliProfiles.StartUiSource;
+    until?: t.UntilInput;
   }) => Promise<void>;
-}>;
+};
 
 const DEFAULT_DEPENDENCIES: MainDependencies = Object.freeze({
   async startUi(input) {
@@ -86,7 +88,7 @@ export async function mainWith(
   }
 
   if (picked.mode === 'ui') {
-    await deps.startUi({ cwd, mode: 'ui' });
+    await deps.startUi({ cwd, mode: 'ui', source: START_UI_SOURCE });
     return {
       kind: 'ui',
       input,

@@ -1,6 +1,6 @@
 import { FsPkg, Is, Num, Obj, type t } from '../common.ts';
 
-const INPUT_KEYS = [
+const START_KEYS = [
   'dir',
   'integrity',
   'limits',
@@ -11,7 +11,18 @@ const INPUT_KEYS = [
   'keyboard',
   'until',
 ] as const;
+const START_KEYS_LOCAL = [
+  'dir',
+  'limits',
+  'hostname',
+  'port',
+  'name',
+  'silent',
+  'keyboard',
+  'until',
+] as const;
 const REQUIRED_KEYS = ['dir', 'integrity', 'limits'] as const;
+const REQUIRED_KEYS_LOCAL = ['dir', 'limits'] as const;
 const LIMIT_KEYS = ['manifestBytes', 'entries', 'fileBytes', 'totalBytes'] as const;
 const KEYBOARD_KEYS = ['print', 'exit'] as const;
 const INVALID_KEYBOARD = Symbol('invalid-keyboard');
@@ -28,8 +39,26 @@ export type StartSnapshot = Readonly<{
   until?: t.UntilInput;
 }>;
 
+export type StartLocalSnapshot = Readonly<{
+  dir: t.StringDir;
+  limits: Readonly<t.FsPkg.Dist.Verify.Limits>;
+  hostname: t.StringHostname;
+  port: t.PortNumber;
+  name?: string;
+  silent?: boolean;
+  keyboard?: t.HttpServer.Start.Options['keyboard'];
+  until?: t.UntilInput;
+}>;
+
 export type StartPreparation =
   | { readonly ok: true; readonly value: StartSnapshot }
+  | {
+    readonly ok: false;
+    readonly reason: Extract<t.DistServer.StartFailureReason, 'invalid-input' | 'invalid-hostname'>;
+  };
+
+export type StartLocalPreparation =
+  | { readonly ok: true; readonly value: StartLocalSnapshot }
   | {
     readonly ok: false;
     readonly reason: Extract<t.DistServer.StartFailureReason, 'invalid-input' | 'invalid-hostname'>;
@@ -38,13 +67,13 @@ export type StartPreparation =
 /** Snapshot all direct hosting authority before the first asynchronous boundary. */
 export function snapshotStartInput(input: unknown): StartPreparation {
   try {
-    const source = dataRecord(input, INPUT_KEYS, REQUIRED_KEYS);
+    const source = dataRecord(input, START_KEYS, REQUIRED_KEYS);
     if (!source) return rejected('invalid-input');
 
     const dir = source.dir;
     const integrity = source.integrity;
     const limits = snapshotLimits(source.limits);
-    if (!Is.str(dir) || dir.length === 0 || dir.includes('\0')) return rejected('invalid-input');
+    if (!Is.str(dir) || dir.length === 0 || dir.includes('\\0')) return rejected('invalid-input');
     if (!canonicalHash(integrity) || !limits) return rejected('invalid-input');
 
     const hostname = source.hostname ?? '127.0.0.1';
@@ -83,6 +112,54 @@ export function snapshotStartInput(input: unknown): StartPreparation {
     };
   } catch {
     return rejected('invalid-input');
+  }
+}
+
+export function snapshotStartLocalInput(input: unknown): StartLocalPreparation {
+  try {
+    const source = dataRecord(input, START_KEYS_LOCAL, REQUIRED_KEYS_LOCAL);
+    if (!source) return rejectedLocal('invalid-input');
+
+    const dir = source.dir;
+    const limits = snapshotLimits(source.limits);
+    if (!Is.str(dir) || dir.length === 0 || dir.includes('\\0')) return rejectedLocal('invalid-input');
+    if (!limits) return rejectedLocal('invalid-input');
+
+    const hostname = source.hostname ?? '127.0.0.1';
+    if (!isLoopbackHostname(hostname)) return rejectedLocal('invalid-hostname');
+
+    const port = source.port ?? 0;
+    if (!Num.Is.safeInt(port) || port < 0 || port > 65_535) return rejectedLocal('invalid-input');
+
+    const name = source.name;
+    if (name !== undefined && (!Is.str(name) || name.length === 0 || name !== name.trim())) {
+      return rejectedLocal('invalid-input');
+    }
+
+    const silent = source.silent;
+    if (silent !== undefined && !Is.bool(silent)) return rejectedLocal('invalid-input');
+
+    const keyboard = snapshotKeyboard(source.keyboard);
+    if (keyboard === INVALID_KEYBOARD) return rejectedLocal('invalid-input');
+
+    const until = source.until;
+    if (!Is.untilInput(until)) return rejectedLocal('invalid-input');
+
+    return {
+      ok: true,
+      value: Object.freeze({
+        dir: dir as t.StringDir,
+        limits,
+        hostname,
+        port: port as t.PortNumber,
+        ...(name === undefined ? {} : { name }),
+        ...(silent === undefined ? {} : { silent }),
+        ...(keyboard === undefined ? {} : { keyboard }),
+        ...(until === undefined ? {} : { until }),
+      }),
+    };
+  } catch {
+    return rejectedLocal('invalid-input');
   }
 }
 
@@ -149,5 +226,9 @@ function nonNegative(input: unknown): input is t.NumberBytes {
 }
 
 function rejected(reason: 'invalid-input' | 'invalid-hostname'): StartPreparation {
+  return Object.freeze({ ok: false, reason });
+}
+
+function rejectedLocal(reason: 'invalid-input' | 'invalid-hostname'): StartLocalPreparation {
   return Object.freeze({ ok: false, reason });
 }
