@@ -1,13 +1,7 @@
 import { c, Cli, describe, expect, it, stripAnsi, type t, Time } from '../../-test.ts';
 import { DevOutputLog } from '../u/u.dev.output.ts';
 import { DevScreen } from '../u/u.dev.screen.ts';
-import {
-  paths,
-  pkg,
-  processEvent,
-  workspace,
-  workspaceWithAliases,
-} from './u.fixture.dev-screen.ts';
+import { paths, pkg, processEvent, workspace, workspaceWithAliases } from './u.fixture.dev.ts';
 
 const HASH = `sha256-${'88f8e3e041df504c3177b35ad742f4aebf99951a0c832fb64c1e1b2edef'}ccd11`;
 const RENDERED_AT = 1_750_000_000_000 as t.UnixTimestamp;
@@ -494,6 +488,49 @@ describe('DevScreen', () => {
       expect(right).to.include('…');
     });
 
+    it('bottom-docks complete keyboard controls and omits them under width or height pressure', () => {
+      const render = (width: number, height: number) =>
+        DevScreen.toString({
+          pkg: pkg(),
+          paths: paths(),
+          url: 'http://localhost:1234/',
+          lines: [],
+          ...frame(width, height),
+        });
+      const wide = render(120, 40);
+      const wideLines = stripAnsi(wide).split('\n');
+      const narrow = stripAnsi(render(40, 40));
+      const short = stripAnsi(render(120, 10));
+      const output = DevOutputLog.create({ maxLines: 1 });
+      output.push(processEvent('stdout', 'retained-under-pressure\n'));
+      const pressured = stripAnsi(DevScreen.toString({
+        pkg: pkg(),
+        paths: paths(),
+        url: 'http://localhost:1234/',
+        lines: output.lines(),
+        logLines: 1,
+        ...frame(120, 11),
+      }));
+
+      expectRowsBounded(wide, 120);
+      expect(wide.split('\n').at(-2)).to.eql(
+        c.dim(c.gray(Cli.Fmt.hr({ width: 120, weight: 'dashed' }))),
+      );
+      expect(wideLines.at(-2)).to.eql('┄'.repeat(120));
+      expect(wide).to.include(c.dim(c.gray('open:')));
+      expect(wide).to.include(c.bold(c.white('ctrl + c')));
+      expect(wideLines.at(-1)).to.include('open: o (in browser)');
+      expect(wideLines.at(-1)).to.include('quit: ctrl + c or q');
+      expect(narrow).to.not.include('open:');
+      expect(narrow).to.not.include('quit:');
+      expect(short).to.not.include('open:');
+      expect(short).to.not.include('quit:');
+      expect(pressured).to.include('retained-under-pressure');
+      expect(pressured).to.not.include('open:');
+      expect(pressured).to.not.include('quit:');
+      expect(render(120, 40)).to.eql(wide);
+    });
+
     it('renders options only when requested', () => {
       const width = 30;
       const render = (showOptions: boolean) =>
@@ -518,6 +555,7 @@ describe('DevScreen', () => {
       expect(closeLine.indexOf('i')).to.eql(9);
       expect(moreLine.indexOf('shift + i')).to.eql(9);
       expect(quitLine.indexOf('ctrl + c')).to.eql(9);
+      expect(quitLine).to.include('ctrl + c or q');
     });
   });
 

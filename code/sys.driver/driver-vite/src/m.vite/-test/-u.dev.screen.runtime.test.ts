@@ -3,7 +3,7 @@ import { describe, expect, it, Rx, stripAnsi } from '../../-test.ts';
 import { type t } from '../common.ts';
 import { DevOutputLog } from '../u/u.dev.output.ts';
 import { DevScreen } from '../u/u.dev.screen.ts';
-import { paths, pkg, processEvent, workspace } from './u.fixture.dev-screen.ts';
+import { paths, pkg, processEvent, workspace } from './u.fixture.dev.ts';
 
 type SchedulerEntry = {
   readonly run: () => void;
@@ -319,6 +319,29 @@ describe('DevScreen runtime', () => {
       expect(runtime.repaints.length).to.eql(repaints + 1);
       expect(stripAnsi(text).split('\n')[1]).to.eql('━'.repeat(26));
       expect(text.split('\n').length <= 11).to.eql(true);
+
+      reporter.dispose();
+    });
+
+    it('reprojects docked controls across wide, narrow, and wide resize transitions', () => {
+      const runtime = createRuntimeHarness();
+      const { reporter, scheduler, terminal } = runtime;
+      reporter.ready();
+
+      const initial = stripAnsi(runtime.repaints.at(-1) ?? '');
+      expect(initial).to.include('open: o (in browser)');
+      expect(initial).to.include('quit: ctrl + c or q');
+
+      terminal.resize({ width: 40, height: 24 }, false);
+      scheduler.flush();
+      const narrow = stripAnsi(runtime.repaints.at(-1) ?? '');
+      expect(narrow).to.not.include('open:');
+      expect(narrow).to.not.include('quit:');
+
+      terminal.resize({ width: 80, height: 24 }, false);
+      scheduler.flush();
+      const wide = stripAnsi(runtime.repaints.at(-1) ?? '');
+      expect(wide).to.eql(initial);
 
       reporter.dispose();
     });

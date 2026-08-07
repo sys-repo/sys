@@ -1,5 +1,5 @@
 import { metadataRow } from '../../m.fmt/u.ts';
-import { c, Is, Num, Path, type t } from '../common.ts';
+import { c, Cli, Is, Num, Path, type t } from '../common.ts';
 import { ViteScreenLayout } from './u.vite.screen.layout.ts';
 
 type FrameArgs = t.ViteDev.Screen.Frame.Args;
@@ -80,7 +80,7 @@ export const DevScreenLayout = {
         optionBudget,
       )
       : [];
-    const rows = [
+    const flow = [
       ...headerRows,
       ...visibleWorkspace,
       ...metadata,
@@ -88,8 +88,10 @@ export const DevScreenLayout = {
       ...separator,
       ...visible.map((line) => ViteScreenLayout.outputRow(line, width, sequenceWidth)),
     ];
+    const footer = wrangle.keyboardFooter(width);
+    const rows = Cli.Screen.Dock.bottom({ capacity, flow, footer });
 
-    return ViteScreenLayout.renderRows(rows.slice(0, capacity), width);
+    return ViteScreenLayout.renderRows(rows, width);
   },
 } as const;
 
@@ -195,6 +197,22 @@ const wrangle = {
     return ['', ...lines.slice(0, capacity - 1)];
   },
 
+  keyboardFooter(width: number) {
+    const key = (text: string) => c.bold(c.white(text));
+    const open = `${c.dim(c.gray('open:'))} ${key('o')} ${c.dim(c.gray('(in browser)'))}`;
+    const quit = `${c.dim(c.gray('quit:'))} ${key('ctrl + c')} ${c.dim(c.gray('or'))} ${key('q')}`;
+    const controlsWidth = Cli.Fmt.Text.Width.measure(`${open}  ${quit}`);
+    if (controlsWidth > width) return [];
+
+    const gap = ' '.repeat(
+      Math.max(2, width - Cli.Fmt.Text.Width.measure(open) - Cli.Fmt.Text.Width.measure(quit)),
+    );
+    return [
+      c.dim(c.gray(Cli.Fmt.hr({ width, weight: 'dashed' }))),
+      `${open}${gap}${quit}`,
+    ];
+  },
+
   options(subHr: string, contentColumn: number) {
     const key = (text: string) => c.bold(c.white(text));
     return [
@@ -204,7 +222,7 @@ const wrangle = {
       wrangle.optionRow('more', key('shift + i'), contentColumn),
       wrangle.optionRow('clear', key('k'), contentColumn),
       wrangle.optionRow('open', key('o'), contentColumn, c.dim('← (in browser)')),
-      wrangle.optionRow('quit', key('ctrl + c'), contentColumn),
+      wrangle.optionRow('quit', `${key('ctrl + c')} ${c.dim('or')} ${key('q')}`, contentColumn),
     ].join('\n');
   },
 

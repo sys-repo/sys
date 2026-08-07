@@ -95,7 +95,7 @@ export function keyboardFactory(args: {
 const wrangle = {
   action(e: KeypressEvent, hasPkg: boolean): KeyboardAction {
     if (!e.key) return 'noop';
-    if (e.ctrlKey && e.key === 'c') return 'quit';
+    if ((e.ctrlKey && e.key === 'c') || e.key === 'q') return 'quit';
     if (e.key === 'o') return 'open';
     if (!hasPkg) return 'noop';
     if (e.key === 'k') return 'clear';

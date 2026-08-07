@@ -1,6 +1,7 @@
 import { describe, expect, it, Rx } from '../../-test/common.ts';
 import type { t } from '../common.ts';
 import { keyboardFactory } from '../u/u.keyboard.ts';
+import { paths, pkg, workspace } from './u.fixture.dev.ts';
 
 describe('Vite.dev keyboard', () => {
   it('handles info redraw before quit without losing the dispose path', async () => {
@@ -10,9 +11,7 @@ describe('Vite.dev keyboard', () => {
       port: 1234,
       url: 'http://localhost:1234/',
       pkg: pkg(),
-      dispose: async () => {
-        events.push('dispose');
-      },
+      dispose: async () => void events.push('dispose'),
     }, {
       keypress: () => keypress([{ key: 'i' }, { key: 'c', ctrlKey: true }]),
       workspace: async () => workspace(),
@@ -24,6 +23,43 @@ describe('Vite.dev keyboard', () => {
     await keyboard();
 
     expect(events).to.eql(['clear', 'help', 'dispose', 'exit:0']);
+  });
+
+  it('routes footer-advertised quit controls through the same disposal path', async () => {
+    for (const input of [{ key: 'q' }, { key: 'c', ctrlKey: true }]) {
+      const events: string[] = [];
+      const keyboard = keyboardFactory({
+        paths: paths(),
+        port: 1234,
+        url: 'http://localhost:1234/',
+        dispose: async () => void events.push('dispose'),
+      }, {
+        keypress: () => keypress([input]),
+        workspace: async () => workspace(),
+        exit: (code) => events.push(`exit:${code}`),
+      });
+
+      await keyboard();
+      expect(events).to.eql(['dispose', 'exit:0']);
+    }
+  });
+
+  it('opens the normalized resolved URL without changing lifecycle state', async () => {
+    const events: string[] = [];
+    const keyboard = keyboardFactory({
+      paths: paths(),
+      port: 1234,
+      url: 'http://localhost:1234',
+      dispose: async () => void events.push('dispose'),
+    }, {
+      keypress: () => keypress([{ key: 'o' }]),
+      workspace: async () => workspace(),
+      open: (url) => events.push(`open:${url}`),
+      exit: (code) => events.push(`exit:${code}`),
+    });
+
+    await keyboard();
+    expect(events).to.eql(['open:http://localhost:1234/']);
   });
 
   it('renders extended info for shift+i before the plain info branch', async () => {
@@ -76,21 +112,25 @@ describe('Vite.dev keyboard', () => {
   it('waits for child disposal when keyboard input is unavailable', async () => {
     const events: string[] = [];
     const dispose$ = new Rx.Subject<t.DisposeAsyncEvent>();
+    let entered: () => void;
+    const inputUnavailable = new Promise<void>((resolve) => {
+      entered = resolve;
+    });
     let resolved = false;
     const keyboard = keyboardFactory({
       paths: paths(),
       port: 1234,
       url: 'http://localhost:1234/',
       until: dispose$,
-      dispose: async () => {
-        events.push('dispose');
-      },
+      dispose: async () => void events.push('dispose'),
     }, {
       keypress: () => ({
         async *[Symbol.asyncIterator]() {
+          entered();
           throw new Error('ENOTTY');
         },
       }),
+      workspace: async () => workspace(),
       exit: (_code) => {},
     });
 
@@ -98,9 +138,7 @@ describe('Vite.dev keyboard', () => {
       resolved = true;
       events.push('done');
     });
-    await Promise.resolve();
-    await Promise.resolve();
-
+    await inputUnavailable;
     expect(resolved).to.eql(false);
     expect(events).to.eql([]);
 
@@ -115,9 +153,12 @@ describe('Vite.dev keyboard', () => {
   });
 });
 
+/**
+ * Helpers:
+ */
 function keypress(items: readonly KeypressInput[]) {
   return (async function* () {
-    for (const item of items) yield event(item);
+    for (const item of items) yield item;
   })();
 }
 
@@ -126,49 +167,3 @@ type KeypressInput = {
   ctrlKey?: boolean;
   shiftKey?: boolean;
 };
-
-function event(input: KeypressInput) {
-  return {
-    key: input.key,
-    ctrlKey: input.ctrlKey ?? false,
-    shiftKey: input.shiftKey ?? false,
-  };
-}
-
-function paths(): t.ViteConfig.Paths {
-  return {
-    cwd: '/tmp/pkg',
-    app: {
-      entry: 'src/index.html',
-      outDir: 'dist',
-      base: './',
-    },
-  };
-}
-
-function pkg(): t.Pkg {
-  return {
-    name: '@sys/example',
-    version: '0.0.0',
-  };
-}
-
-function workspace(): t.ViteDenoWorkspace {
-  type EsmImportMap = { readonly [key: string]: string };
-  function latest(name: t.StringModuleSpecifier): t.StringSemver;
-  function latest(deps: EsmImportMap): EsmImportMap;
-  function latest(input: t.StringModuleSpecifier | EsmImportMap): t.StringSemver | EsmImportMap {
-    return typeof input === 'string' ? '0.0.0' : input;
-  }
-  return {
-    exists: true,
-    dir: '/tmp/pkg',
-    file: '/tmp/pkg/deno.json',
-    children: [],
-    modules: { ok: true, items: [], count: 0, latest },
-    aliases: [],
-    toAliasMap: () => ({}),
-    toString: () => 'workspace-render',
-    log: () => {},
-  };
-}
