@@ -223,7 +223,8 @@ describe('DistServeScreen', () => {
       }
 
       expect(frame(81)).to.eql(frame(81));
-      expect(text(frame(79))).to.include(text(HashFmt.digest(fixture.cloneDist().hash.digest)));
+      const digestTail = `#${fixture.cloneDist().hash.digest.slice(-5)}`;
+      expect(text(frame(79))).to.include(digestTail);
       expect(text(frame(24))).to.not.include('open:');
       expect(text(frame(120, 12))).to.not.include('open:');
     } finally {
