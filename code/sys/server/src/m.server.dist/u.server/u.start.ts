@@ -3,13 +3,18 @@ import {
   FilesStatic,
   FsPkg,
   HttpServer,
+  pkg,
   Rx,
   Schedule,
   serveFileBytes,
   type t,
+  Time,
 } from '../common.ts';
+import { Cli } from '@sys/cli';
+import { Open } from '@sys/process';
 import { DistServerError, startError, startupReason } from './u.error.ts';
 import { acceptedAuthorities, acceptsHost } from './u.host.ts';
+import { DistServeScreen } from './u.serve.screen.ts';
 import { snapshotStartInput, snapshotStartLocalInput } from './u.input.ts';
 import { requestPath } from './u.path.ts';
 import { readAsset } from './u.read.ts';
@@ -38,15 +43,21 @@ export const DEFAULT_DEPENDENCIES: StartDependencies = Object.freeze({
 export const start: (input: t.DistServer.Start.Args) => Promise<t.DistServer.Started> = (input) =>
   startWith(input, DEFAULT_DEPENDENCIES);
 
-/** Start one local, non-authoritative checked Dist host. */
-export const startLocal: (input: t.DistServer.Start.Local.Args) => Promise<t.DistServer.Started> =
-  (input) =>
-  startLocalWith(input, DEFAULT_DEPENDENCIES);
+/** Blocking terminal-ownership startup for pinned authority. */
+export const serve: (input: t.DistServer.Start.Args) => Promise<void> = (input) =>
+  serveWith(input, DEFAULT_DEPENDENCIES);
+
+/** Explicit locally verified, unpinned authority family. */
+export const Local: t.DistServer.Local.Lib = Object.freeze({
+  start: (input) => startLocalWith(input, DEFAULT_DEPENDENCIES),
+  serve: (input) => serveLocalWith(input, DEFAULT_DEPENDENCIES),
+});
 
 /** Internal deterministic dependency seam. */
 export async function startWith(
   input: unknown,
   deps: StartDependencies,
+  options: StartRunOptions = {},
 ): Promise<t.DistServer.Started> {
   const prepared = snapshotStartInput(input);
   if (!prepared.ok) throw startError(prepared.reason);
@@ -83,6 +94,7 @@ export async function startWith(
       { kind: 'pinned', integrity: prepared.value.integrity },
       life,
       deps,
+      options,
     );
   } catch (cause) {
     life?.dispose();
@@ -95,6 +107,7 @@ export async function startWith(
 export async function startLocalWith(
   input: unknown,
   deps: StartDependencies,
+  options: StartRunOptions = {},
 ): Promise<t.DistServer.Started> {
   const prepared = snapshotStartLocalInput(input);
   if (!prepared.ok) throw startError(prepared.reason);
@@ -130,6 +143,7 @@ export async function startLocalWith(
       { kind: 'local-unpinned', integrity: verified.evidence.integrity },
       life,
       deps,
+      options,
     );
   } catch (cause) {
     life?.dispose();
@@ -138,14 +152,116 @@ export async function startLocalWith(
   }
 }
 
+type ServeMode = 'screen' | 'raw';
+
+type ServeKeyboard = {
+  readonly enabled: boolean;
+  readonly print: boolean;
+  readonly exit: boolean;
+  readonly http: t.HttpServer.Start.Options['keyboard'];
+};
+
+type StartRunOptions = {
+  readonly strictPort?: boolean;
+  readonly rawOutput?: boolean;
+  readonly rawAuthority?: string;
+};
+
+type ServeLoopInput = {
+  readonly keyboard: ServeKeyboard;
+  readonly dir: t.StringDir;
+};
+
+type ServeEffects = Readonly<{
+  bindKeyboard: typeof Cli.Keyboard.bind;
+  createScreen: typeof DistServeScreen.create;
+  open(origin: t.StringUrl): void | Promise<void>;
+  now(): t.UnixTimestamp;
+}>;
+
+type ServeOutcome =
+  | { readonly kind: 'server'; readonly ok: true }
+  | { readonly kind: 'server'; readonly ok: false; readonly cause: unknown }
+  | { readonly kind: 'screen'; readonly cause: unknown }
+  | { readonly kind: 'keyboard'; readonly cause: unknown };
+
+const DEFAULT_SERVE_EFFECTS: ServeEffects = Object.freeze({
+  bindKeyboard: Cli.Keyboard.bind,
+  createScreen: DistServeScreen.create,
+  open: (origin) => Open.invokeDetached(Deno.cwd() as t.StringDir, origin, { silent: true }),
+  now: () => Time.now.timestamp,
+});
+
+/** Blocking pinned startup with terminal ownership (raw print or interactive screen). */
+export async function serveWith(
+  input: unknown,
+  deps: StartDependencies,
+  effects: ServeEffects = DEFAULT_SERVE_EFFECTS,
+): Promise<void> {
+  const prepared = snapshotStartInput(input);
+  if (!prepared.ok) throw startError(prepared.reason);
+  const value = prepared.value;
+  const mode = wrangle.serveMode(value.silent);
+  const keyboard = wrangle.serveKeyboard(value.keyboard);
+  const started = await startWith(
+    {
+      ...value,
+      silent: mode === 'screen' ? true : value.silent ?? false,
+      keyboard: mode === 'screen' ? false : keyboard.http,
+    },
+    deps,
+    {
+      strictPort: true,
+      rawOutput: mode === 'raw',
+      rawAuthority: `pinned ${value.integrity}`,
+    },
+  );
+  await serveLoop(started, mode, {
+    dir: value.dir,
+    keyboard,
+  }, effects);
+}
+
+/** Blocking local startup with terminal ownership (raw print or interactive screen). */
+export async function serveLocalWith(
+  input: unknown,
+  deps: StartDependencies,
+  effects: ServeEffects = DEFAULT_SERVE_EFFECTS,
+): Promise<void> {
+  const prepared = snapshotStartLocalInput(input);
+  if (!prepared.ok) throw startError(prepared.reason);
+  const value = prepared.value;
+  const mode = wrangle.serveMode(value.silent);
+  const keyboard = wrangle.serveKeyboard(value.keyboard);
+  const started = await startLocalWith(
+    {
+      ...value,
+      silent: mode === 'screen' ? true : value.silent ?? false,
+      keyboard: mode === 'screen' ? false : keyboard.http,
+    },
+    deps,
+    {
+      strictPort: false,
+      rawOutput: mode === 'raw',
+      rawAuthority: 'local (UNPINNED)',
+    },
+  );
+  await serveLoop(started, mode, {
+    dir: value.dir,
+    keyboard,
+  }, effects);
+}
+
 async function serveVerified(
-  input: t.DistServer.Start.Args | t.DistServer.Start.Local.Args,
+  input: t.DistServer.Start.Args | t.DistServer.Local.Args,
   evidence: t.FsPkg.Dist.Verify.Evidence,
   authority: t.DistServer.Started['authority'],
   life: t.Abortable,
   deps: StartDependencies,
+  options: StartRunOptions = {},
 ): Promise<t.DistServer.Started> {
   let started: t.HttpServer.Started | undefined;
+  const strictPort = options.strictPort ?? true;
 
   try {
     let backing: t.FilesStatic.Readonly;
@@ -199,13 +315,24 @@ async function serveVerified(
         ...(input.name === undefined ? {} : { name: input.name }),
         ...(input.silent === undefined ? {} : { silent: input.silent }),
         ...(input.keyboard === undefined ? {} : { keyboard: input.keyboard }),
+        ...(options.rawOutput
+          ? {
+            pkg: evidence.dist.pkg,
+            hash: evidence.dist.hash.digest,
+            ...(options.rawAuthority === undefined
+              ? {}
+              : { info: { authority: options.rawAuthority } }),
+          }
+          : {}),
         until: life.signal,
         status: { kind: 'dist', root: input.dir, urlPaths: ['/'] },
       });
     } catch (cause) {
       throw startError(startupReason(cause));
     }
-    if (input.port !== 0 && started.port !== input.port) throw startError('address-in-use');
+    if (strictPort && input.port !== 0 && started.port !== input.port) {
+      throw startError('address-in-use');
+    }
     hosts.hosts = acceptedAuthorities(started);
     await settleListener(started);
     if (life.signal.aborted) throw startError('cancelled');
@@ -245,6 +372,102 @@ async function serveVerified(
   }
 }
 
+async function serveLoop(
+  started: t.DistServer.Started,
+  mode: ServeMode,
+  input: ServeLoopInput,
+  effects: ServeEffects,
+): Promise<void> {
+  if (mode === 'raw') {
+    await started.finished;
+    return;
+  }
+
+  let keyboard: ReturnType<ServeEffects['bindKeyboard']>;
+  let closed = false;
+  const closeStarted = async (cause?: unknown) => {
+    if (closed) return;
+    closed = true;
+    try {
+      await started.close(cause);
+    } catch {
+      // Preserve the original presentation error.
+    }
+  };
+
+  let screen: ReturnType<ServeEffects['createScreen']> | undefined;
+  try {
+    if (input.keyboard.enabled) {
+      keyboard = effects.bindKeyboard({
+        until: started.finished,
+        exit: input.keyboard.exit,
+        onQuit: async () => {
+          await started.close('keyboard');
+        },
+        onKey: (event) => {
+          if (event.key === 'o') return effects.open(started.origin);
+        },
+      });
+    }
+
+    screen = effects.createScreen({
+      pkg: started.verification.dist.pkg ?? pkg,
+      origin: started.origin,
+      dir: input.dir,
+      evidence: started.verification,
+      authority: started.authority,
+      keyboard: {
+        enabled: keyboard !== undefined,
+        print: input.keyboard.print,
+      },
+      renderedAt: effects.now(),
+      until: started.dispose$,
+    });
+  } catch (cause) {
+    await closeStarted(cause);
+    cleanup([() => keyboard?.dispose()]);
+    throw cause;
+  }
+
+  const serverOutcome = started.finished.then(
+    () => ({ kind: 'server', ok: true } as const),
+    (cause: unknown) => ({ kind: 'server', ok: false, cause } as const),
+  );
+  const screenOutcome = screen.failure.catch(
+    (cause) => ({ kind: 'screen', cause } as const),
+  );
+  const outcomes: PromiseLike<ServeOutcome>[] = [serverOutcome, screenOutcome];
+  if (keyboard) {
+    outcomes.push(
+      keyboard.finished.then(
+        () => new Promise<never>(() => {}),
+        (cause) => ({ kind: 'keyboard', cause } as const),
+      ),
+    );
+  }
+
+  let failed = false;
+  let failure: unknown;
+  try {
+    const outcome = await Promise.race(outcomes);
+    if (outcome.kind !== 'server') {
+      await closeStarted(outcome.cause);
+      throw outcome.cause;
+    }
+    if (!outcome.ok) throw outcome.cause;
+  } catch (cause) {
+    failed = true;
+    failure = cause;
+  }
+
+  const cleaned = cleanup([
+    () => screen.dispose(),
+    () => keyboard?.dispose(),
+  ]);
+  if (failed) throw failure;
+  if (!cleaned.ok) throw cleaned.cause;
+}
+
 async function settleListener(started: t.HttpServer.Started): Promise<void> {
   let terminal: { readonly cause?: unknown } | undefined;
   void started.finished.then(
@@ -253,6 +476,52 @@ async function settleListener(started: t.HttpServer.Started): Promise<void> {
   );
   await Schedule.macro();
   if (terminal) throw startError(startupReason(terminal.cause));
+}
+
+const wrangle = {
+  serveMode(silent: boolean | undefined): ServeMode {
+    return !silent && Cli.Is.interactive() ? 'screen' : 'raw';
+  },
+  serveKeyboard(input: t.HttpServer.Start.Options['keyboard']): ServeKeyboard {
+    if (input === false) {
+      return { enabled: false, print: false, exit: false, http: false };
+    }
+
+    if (input === true || input === undefined) {
+      return {
+        enabled: true,
+        print: true,
+        exit: false,
+        http: true,
+      };
+    }
+
+    const keyboard = {
+      ...(input.print === undefined ? {} : { print: input.print }),
+      ...(input.exit === undefined ? {} : { exit: input.exit }),
+    };
+    return {
+      enabled: true,
+      print: input.print ?? true,
+      exit: input.exit ?? false,
+      http: keyboard,
+    };
+  },
+};
+
+function cleanup(actions: readonly (() => void)[]) {
+  let failed = false;
+  let failure: unknown;
+  for (const action of actions) {
+    try {
+      action();
+    } catch (cause) {
+      if (failed) continue;
+      failed = true;
+      failure = cause;
+    }
+  }
+  return failed ? { ok: false, cause: failure } as const : { ok: true } as const;
 }
 
 function hostRejected(): Response {

@@ -154,8 +154,12 @@ export declare namespace Dist {
 export declare namespace DistServer {
   /** Direct verified-or-refuse Dist hosting surface. */
   export type Lib = {
+    /** Start one checksum-pinned Dist host and return its lifecycle. */
     readonly start: (args: Start.Args) => Promise<Started>;
-    readonly startLocal: (args: Start.Local.Args) => Promise<Started>;
+    /** Blocking terminal-owned serve with pinned authority semantics. */
+    readonly serve: (args: Start.Args) => Promise<void>;
+    /** Explicit locally verified, unpinned authority family. */
+    readonly Local: Local.Lib;
     readonly Error: Error.Lib;
   };
 
@@ -182,34 +186,7 @@ export declare namespace DistServer {
         name?: string;
         /** Suppress owner-local startup output. */
         silent?: boolean;
-        /** Optional keyboard controls delegated to the HTTP lifecycle owner. */
-        keyboard?: HttpServer.Start.Options['keyboard'];
-        /** Caller lifecycle for verification, serving, and admitted part reads. */
-        until?: t.UntilInput;
-      };
-    }
-
-    /**
-     * Start one local, non-authoritative Dist host.
-     *
-     * Local starts derive manifest integrity from observed local bytes and still refuse startup if the
-     * observed generation mutates, contains undeclared entries, or fails complete verification.
-     */
-    export namespace Local {
-      export type Args = {
-        /** Local generation directory containing the `dist.json` file. */
-        dir: t.StringDir;
-        /** Required finite complete-generation verification authority. */
-        limits: FsPkg.Dist.Verify.Limits;
-        /** Loopback hostname. Defaults to `127.0.0.1`. */
-        hostname?: t.StringHostname;
-        /** Listen port. Defaults to an ephemeral port. */
-        port?: t.PortNumber;
-        /** Optional owner-local display name. */
-        name?: string;
-        /** Suppress owner-local startup output. */
-        silent?: boolean;
-        /** Optional keyboard controls delegated to the HTTP lifecycle owner. */
+        /** Optional keyboard controls for the hosting lifecycle. */
         keyboard?: HttpServer.Start.Options['keyboard'];
         /** Caller lifecycle for verification, serving, and admitted part reads. */
         until?: t.UntilInput;
@@ -218,6 +195,39 @@ export declare namespace DistServer {
 
     /** Default (pinned) start arguments. */
     export type Args = Pinned.Args;
+  }
+
+  /** Explicit locally verified, unpinned authority family. */
+  export namespace Local {
+    export type Lib = {
+      /** Start one locally verified Dist host and return its lifecycle. */
+      readonly start: (args: Args) => Promise<Started>;
+      /** Blocking terminal-owned serve for locally verified, unpinned authority. */
+      readonly serve: (args: Args) => Promise<void>;
+    };
+
+    /**
+     * Local authority derives manifest integrity from observed bytes and still refuses startup if the
+     * observed generation mutates, contains undeclared entries, or fails complete verification.
+     */
+    export type Args = {
+      /** Local generation directory containing the `dist.json` file. */
+      dir: t.StringDir;
+      /** Required finite complete-generation verification authority. */
+      limits: FsPkg.Dist.Verify.Limits;
+      /** Loopback hostname. Defaults to `127.0.0.1`. */
+      hostname?: t.StringHostname;
+      /** Listen port. Defaults to an ephemeral port. */
+      port?: t.PortNumber;
+      /** Optional owner-local display name. */
+      name?: string;
+      /** Suppress owner-local startup output. */
+      silent?: boolean;
+      /** Optional keyboard controls for the hosting lifecycle. */
+      keyboard?: HttpServer.Start.Options['keyboard'];
+      /** Caller lifecycle for verification, serving, and admitted part reads. */
+      until?: t.UntilInput;
+    };
   }
 
   /** Stable runtime truth when one Dist host is successfully started. */

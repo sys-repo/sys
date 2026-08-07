@@ -122,7 +122,9 @@ export function snapshotStartLocalInput(input: unknown): StartLocalPreparation {
 
     const dir = source.dir;
     const limits = snapshotLimits(source.limits);
-    if (!Is.str(dir) || dir.length === 0 || dir.includes('\\0')) return rejectedLocal('invalid-input');
+    if (!Is.str(dir) || dir.length === 0 || dir.includes('\\0')) {
+      return rejectedLocal('invalid-input');
+    }
     if (!limits) return rejectedLocal('invalid-input');
 
     const hostname = source.hostname ?? '127.0.0.1';

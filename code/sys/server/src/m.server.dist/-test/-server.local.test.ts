@@ -10,7 +10,7 @@ import { setup, teardown } from './u.fixture.ts';
 
 const HASH = `sha256-${'0'.repeat(64)}` as t.StringHash;
 
-function validLocalInput(): t.DistServer.Start.Local.Args {
+function validLocalInput(): t.DistServer.Local.Args {
   return {
     dir: '/tmp/dist-generation' as t.StringDir,
     limits: {
@@ -35,7 +35,7 @@ describe('DistServer local authority', () => {
       await Fs.write(Fs.join(fixture.source, 'dist.json'), exactManifest);
       const integrity = Hash.sha256(exactManifest);
 
-      server = await DistServer.startLocal({
+      server = await DistServer.Local.start({
         dir: fixture.source as t.StringDir,
         limits: fixture.policy.verification,
         silent: true,
@@ -81,7 +81,7 @@ describe('DistServer local authority', () => {
     try {
       await Fs.write(Fs.join(fixture.source, 'undeclared.txt'), 'not declared');
       const error = await catchStart(() => {
-        return DistServer.startLocal({
+        return DistServer.Local.start({
           dir: fixture.source as t.StringDir,
           limits: fixture.policy.verification,
           silent: true,
