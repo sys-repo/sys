@@ -143,7 +143,7 @@ const wrangle = {
         indent: metadataColumn,
         labelWidth: 9,
         styledLabel: c.white('output'),
-        suffixes: ViteScreenLayout.distSuffixes(args.dist, args.renderedAt),
+        suffix: ViteScreenLayout.distSuffix(args.dist, args.renderedAt),
       }),
       '',
       subHr,
@@ -174,7 +174,7 @@ const wrangle = {
         indent: metadataColumn,
         labelWidth: 9,
         styledLabel: c.white('output'),
-        suffixes: ViteScreenLayout.distSuffixes(args.dist, args.renderedAt),
+        suffix: ViteScreenLayout.distSuffix(args.dist, args.renderedAt),
       }),
     ];
   },

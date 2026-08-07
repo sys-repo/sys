@@ -9,7 +9,7 @@ type MetadataRowArgs = {
   indent?: number;
   labelWidth?: number;
   styledLabel?: string;
-  suffixes?: string[];
+  suffix?: (maxWidth: number) => string;
 };
 
 export const digest: t.ViteLog.Lib['digest'] = (hash?: t.StringHash) => {
@@ -59,13 +59,17 @@ export function clipValue(input: string, width: number) {
 }
 
 export function metadataRow(args: MetadataRowArgs) {
-  const { value, width, suffixes = [] } = args;
+  const { value, width, suffix: resolveSuffix } = args;
   const prefix = metadataPrefix(args);
   const base = `${prefix}${value}`;
-  const suffix = suffixes.find((candidate) => {
-    return Cli.Fmt.Text.Width.measure(`${base} ${candidate}`) <= width;
-  });
-  if (suffix) return `${base} ${suffix}`;
+  const availableSuffixWidth = Math.max(
+    0,
+    width - Cli.Fmt.Text.Width.measure(`${base} `),
+  );
+  const suffix = resolveSuffix?.(availableSuffixWidth);
+  if (suffix && Cli.Fmt.Text.Width.measure(`${base} ${suffix}`) <= width) {
+    return `${base} ${suffix}`;
+  }
   if (Cli.Fmt.Text.Width.measure(base) <= width) return base;
 
   const valueWidth = Cli.Fmt.Text.Width.fit({
@@ -85,40 +89,8 @@ export function metadataPrefix(
   return `${' '.repeat(Math.max(0, indent))}${styledLabel}${gap}`;
 }
 
-export function digestSuffixes(hash?: t.StringHash) {
-  if (!hash) return [];
-  const parts = digestParts(hash);
-  const compact = parts
-    ? [
-      styledDigest(`${parts.algorithm}:${parts.suffix}`),
-      styledDigest(parts.suffix),
-    ]
-    : [];
-  return [digest(hash), ...compact];
-}
-
-export function styledDigest(value: string) {
-  const hashIndex = value.lastIndexOf('#');
-  const body = hashIndex >= 0
-    ? `${c.gray(value.slice(0, hashIndex))}${c.green(value.slice(hashIndex))}`
-    : c.gray(value);
-  return `${c.green('←')} ${body}`;
-}
-
 export function hashValue(hash: t.StringHash, width: number) {
   const text = clipText(hash, width);
   if (!text) return '';
   return `${c.dim(c.gray(text.slice(0, -5)))}${c.gray(text.slice(-5))}`;
-}
-
-export function digestParts(hash: t.StringHash) {
-  const uri = stripAnsi(HashFmt.digest(hash)).trim();
-  const uriParts = uri.split(':');
-  if (uriParts.length >= 3 && uriParts[0] === 'digest') {
-    return { algorithm: uriParts[1], suffix: uriParts.slice(2).join(':') };
-  }
-
-  const index = hash.indexOf('-');
-  if (index <= 0) return undefined;
-  return { algorithm: hash.slice(0, index), suffix: `#${hash.slice(-5)}` };
 }

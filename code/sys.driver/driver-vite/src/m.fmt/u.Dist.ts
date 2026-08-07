@@ -1,13 +1,5 @@
-import { c, Cli, Num, Path, Pkg, Str, type t, Time } from './common.ts';
-import {
-  clipLine,
-  clipValue,
-  digestSuffixes,
-  hashValue,
-  metadataPrefix,
-  metadataRow,
-  outputWidth,
-} from './u.ts';
+import { c, Cli, HashFmt, Num, Path, Pkg, Str, type t, Time } from './common.ts';
+import { clipLine, clipValue, hashValue, metadataPrefix, metadataRow, outputWidth } from './u.ts';
 
 const LABEL_WIDTH = 22;
 
@@ -37,7 +29,13 @@ export const Dist: t.ViteLog.Dist.Lib = {
         value: distPath,
         width,
         labelWidth: LABEL_WIDTH,
-        suffixes: digestSuffixes(hash),
+        suffix: (maxWidth) => {
+          const arrow = c.green('←');
+          const digest = HashFmt.digest(hash, {
+            maxWidth: Math.max(0, maxWidth - Cli.Fmt.Text.Width.measure(`${arrow} `)),
+          });
+          return digest ? `${arrow} ${digest}` : '';
+        },
       }),
       wrangle.hashRow(hash, width),
       wrangle.row('timestamp:', wrangle.timestampCandidates(dist.build.time), width),

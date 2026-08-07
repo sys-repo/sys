@@ -1,4 +1,5 @@
-import { clipLine, clipText, clipValue, digestSuffixes } from '../../m.fmt/u.ts';
+import { HashFmt } from '@sys/crypto/fmt';
+import { clipLine, clipText, clipValue } from '../../m.fmt/u.ts';
 import { c, Cli, stripAnsi, type t, Time } from '../common.ts';
 
 type OutputLine = t.ViteScreen.Output.Line;
@@ -10,7 +11,7 @@ const LOG = {
   sourceWidth: 3,
 } as const;
 
-/** Private Vite terminal-layout grammar shared by dev and static serve screens. */
+/** Private Vite terminal-layout grammar for the dev screen. */
 export const ViteScreenLayout = {
   applicationHeader(pkg: t.Pkg, width: number) {
     const title = wrangle.packageTitle(pkg.name);
@@ -50,11 +51,17 @@ export const ViteScreenLayout = {
     return c.cyan(`${indent}${origin}${port}${parts.suffix}`);
   },
 
-  distSuffixes(dist: t.DistPkg | undefined, renderedAt: t.UnixTimestamp) {
-    if (!dist) return [];
-    const age = Time.elapsed(dist.build.time, renderedAt).toString();
-    const suffix = c.dim(c.gray(`· ${age}`));
-    return digestSuffixes(dist.hash.digest).map((digest) => `${digest} ${suffix}`);
+  distSuffix(dist: t.DistPkg | undefined, renderedAt: t.UnixTimestamp) {
+    return (maxWidth: number) => {
+      if (!dist) return '';
+      const age = c.dim(c.gray(`· ${Time.elapsed(dist.build.time, renderedAt)}`));
+      const arrow = c.green('←');
+      const reserve = Cli.Fmt.Text.Width.measure(`${arrow}  ${age}`);
+      const digest = HashFmt.digest(dist.hash.digest, {
+        maxWidth: Math.max(0, maxWidth - reserve),
+      });
+      return digest ? `${arrow} ${digest} ${age}` : '';
+    };
   },
 
   dashedDivider(width: number) {
