@@ -64,7 +64,8 @@ function toParts(url: t.Service.Url | t.CliFormat.Url.Parts): t.CliFormat.Url.Pa
 
 function formatParts(part: t.CliFormat.Url.Parts, highlightOrigin: boolean): string {
   const origin = highlightOrigin ? highlightOriginText(part) : c.gray(part.origin);
-  return `${origin}${c.gray(part.suffix)}`;
+  const suffix = highlightOrigin && part.suffix === '/' ? c.cyan(part.suffix) : c.gray(part.suffix);
+  return `${origin}${suffix}`;
 }
 
 function highlightOriginText(part: t.CliFormat.Url.Parts): string {

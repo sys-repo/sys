@@ -37,18 +37,13 @@ export const ViteScreenLayout = {
   },
 
   serviceUrl(href: string, column: number, width: number) {
-    const parts = Cli.Fmt.Url.parts({ href: href as t.StringUrl });
-    const text = parts.display;
+    const source = Cli.Fmt.Url.service(
+      { href: href as t.StringUrl },
+      { highlightOrigin: true },
+    );
     const valueWidth = Cli.Fmt.Text.Width.fit({ width, reserve: column, terminal: false });
     const indent = ViteScreenLayout.indent(column);
-    if (Cli.Fmt.Text.Width.measure(text) > valueWidth) {
-      return `${indent}${c.cyan(clipText(text, valueWidth))}`;
-    }
-
-    if (!parts.port) return c.cyan(`${indent}${text}`);
-    const origin = parts.origin.slice(0, -parts.port.length);
-    const port = c.bold(c.brightCyan(parts.port));
-    return c.cyan(`${indent}${origin}${port}${parts.suffix}`);
+    return `${indent}${clipText(source, valueWidth)}`;
   },
 
   distSuffix(dist: t.DistPkg | undefined, renderedAt: t.UnixTimestamp) {

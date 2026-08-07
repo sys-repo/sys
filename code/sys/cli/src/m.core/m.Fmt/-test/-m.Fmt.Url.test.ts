@@ -29,10 +29,14 @@ describe('Cli.Fmt.Url', () => {
   });
 
   it('formats service URLs', () => {
-    expect(
-      stripAnsi(Fmt.Url.service(serviceUrl('http://localhost:8081/'), { highlightOrigin: true })),
-    )
-      .to.eql('http://localhost:8081/');
+    const root = Fmt.Url.service(
+      serviceUrl('http://localhost:8081/'),
+      { highlightOrigin: true },
+    );
+    expect(root).to.eql(
+      `${c.cyan('http://localhost:')}${c.bold(c.cyan('8081'))}${c.cyan('/')}`,
+    );
+    expect(stripAnsi(root)).to.eql('http://localhost:8081/');
     expect(stripAnsi(Fmt.Url.service(serviceUrl('http://localhost:8081/payments/')))).to.eql(
       'http://localhost:8081/payments/',
     );
@@ -93,7 +97,7 @@ describe('Cli.Fmt.Url', () => {
       'http://localhost:5050/files/manifest',
     ]);
     expect(res[0]).to.eql(
-      `${c.cyan('http://localhost:')}${c.bold(c.cyan('5050'))}${c.gray('/')}`,
+      `${c.cyan('http://localhost:')}${c.bold(c.cyan('5050'))}${c.cyan('/')}`,
     );
     expect(res[1]).to.eql(
       `${c.cyan('ws://localhost:')}${c.bold(c.cyan('5050'))}${c.gray('/files')}`,

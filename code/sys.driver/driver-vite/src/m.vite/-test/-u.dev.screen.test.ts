@@ -94,18 +94,22 @@ describe('DevScreen', () => {
       expect(rawHeader).to.include(c.dim(c.green(version)));
     });
 
-    it('formats service URLs through the canonical CLI decomposition', () => {
+    it('formats service URLs through the canonical CLI formatter', () => {
       const href = 'http://127.0.0.1:1234/';
-      const expected = Cli.Fmt.Url.parts({ href: href as t.StringUrl }).display;
-      const text = stripAnsi(DevScreen.toString({
+      const expected = Cli.Fmt.Url.service(
+        { href: href as t.StringUrl },
+        { highlightOrigin: true },
+      );
+      const raw = DevScreen.toString({
         pkg: pkg(),
         paths: paths(),
         url: href,
         lines: [],
         ...frame(80),
-      }));
+      });
 
-      expect(text).to.include(expected);
+      expect(raw).to.include(expected);
+      expect(stripAnsi(raw)).to.include(stripAnsi(expected));
     });
 
     it('dims package subpaths beneath the primary application identity', () => {
