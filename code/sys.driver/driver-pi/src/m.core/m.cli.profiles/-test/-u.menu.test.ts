@@ -695,8 +695,11 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
     const prevInfo = console.info;
+    const screen = Cli.Screen as { size: () => { width: number; height: number } };
+    const prevScreenSize = screen.size;
     const config = Fs.join(cwd, '-config/@sys.driver-pi/default.yaml');
 
+    screen.size = () => ({ width: 80, height: 24 });
     await Fs.ensureDir(Fs.join(cwd, '.git'));
     await Fs.ensureDir(Fs.dirname(config));
     await Fs.write(config, 'sandbox: {}\n');
@@ -736,6 +739,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(strippedOptions).to.include('  start:ui');
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
+      screen.size = prevScreenSize;
       console.info = prevInfo;
       await Fs.remove(cwd);
     }

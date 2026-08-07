@@ -105,7 +105,7 @@ export async function startWith(
             backing,
             dir: args.dir,
             path,
-            signal: request.signal,
+            signal: life.signal,
             until: [life.signal, request.signal],
             deps,
           });

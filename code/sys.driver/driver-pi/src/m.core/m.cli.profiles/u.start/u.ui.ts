@@ -1,0 +1,71 @@
+import { Cli, type t } from '../common.ts';
+import { runtimeRoot } from '../../m.cli/u.runtime.ts';
+
+import {
+  DEFAULT_DEPENDENCIES,
+  type Keyboard,
+  type Started,
+  type StartUiDependencies,
+} from './u.deps.ts';
+import { appendCleanup, closeOnce, finalize, waitForTerminal } from './u.lifecycle.ts';
+import { materialize } from './u.materialize.ts';
+import { LIMITS, resolveManifestSource, START_UI_SOURCE } from './u.source.ts';
+
+export type { StartUiDependencies } from './u.deps.ts';
+export { START_UI_SOURCE } from './u.source.ts';
+
+export type StartUiInput = {
+  cwd: t.PiCli.Cwd;
+  until?: t.UntilInput;
+  mode: t.PiCliProfiles.StartMode;
+  deps?: Partial<StartUiDependencies>;
+};
+
+/** Lazy UI start leaf. */
+export async function start(input: StartUiInput): Promise<void> {
+  if (input.mode !== 'ui') return;
+
+  const root = runtimeRoot(input.cwd);
+  const deps = Object.freeze({ ...DEFAULT_DEPENDENCIES, ...(input.deps ?? {}) });
+  const source = resolveManifestSource(START_UI_SOURCE.manifestUrl);
+  const integrity = START_UI_SOURCE.integrity;
+  let started: Started | undefined;
+  let keyboard: Keyboard | undefined;
+  let failure: unknown;
+  const close = closeOnce(() => started);
+
+  try {
+    const generation = await materialize({
+      root,
+      source,
+      integrity,
+      deps,
+      until: input.until,
+    });
+    started = await deps.start({
+      dir: generation.dir,
+      integrity,
+      limits: LIMITS,
+      hostname: '127.0.0.1',
+      port: 0,
+      until: input.until,
+    });
+    keyboard = deps.bindKeyboard({
+      exit: false,
+      until: started.finished,
+      onQuit: () => close('start:ui.keyboard.quit'),
+    });
+    deps.open(root, started.origin);
+
+    if (keyboard) await waitForTerminal({ started, keyboard, close });
+    else await started.finished;
+  } catch (cause) {
+    failure = cause;
+  }
+
+  const cleanup = await finalize({ keyboard, close });
+  if (failure !== undefined) {
+    throw cleanup === undefined || cleanup === failure ? failure : appendCleanup(failure, cleanup);
+  }
+  if (cleanup !== undefined) throw cleanup;
+}

@@ -3,7 +3,9 @@
   "version": "0.0.131",
   "license": "MIT",
   "tasks": {
-    "test": "deno test -P=test ./src ./-scripts",
+    "test": "deno task test:unit && deno task test:profiles",
+    "test:unit": "deno test -P=test ./src ./-scripts",
+    "test:profiles": "deno test -P=test ./src/m.core/m.cli.profiles/-test",
     "prep": "deno run -P=dev ./-scripts/task.prep.ts",
     "cli": "deno run -P=cli ./-scripts/task.cli.ts",
     "cli:raw": "deno run -P=cli ./src/m.core/m.cli.raw/mod.ts",
@@ -31,21 +33,19 @@
     "-config"
   ],
   "permissions": {
-    "clean": {
-      "read": true,
-      "write": true,
-      "env": true
-    },
+    "clean": { "read": true, "write": true, "env": true },
     "test": {
       "read": true,
       "write": true,
-      "env": true
+      "env": true,
+      "net": ["localhost", "127.0.0.1", "0.0.0.0"]
     },
     "cli": {
       "read": true,
       "write": true,
       "run": true,
-      "env": true
+      "env": true,
+      "net": ["localhost", "127.0.0.1", "0.0.0.0"]
     },
     "dev": {
       "read": true,
@@ -54,14 +54,7 @@
       "env": true,
       "net": true,
       "ffi": true,
-      "sys": {
-        "allow": [
-          "cpus",
-          "networkInterfaces",
-          "hostname"
-        ]
-      }
+      "sys": { "allow": ["cpus", "networkInterfaces", "hostname"] }
     }
   }
 }
-

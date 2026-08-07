@@ -11,7 +11,28 @@ import { ProfileConfig } from './u/u.profile.ts';
 import { resolveRun } from './u/u.resolve.run.ts';
 import { ProfileStartup } from './u/u.startup.ts';
 
-export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
+type MainDependencies = Readonly<{
+  startUi: (input: {
+    readonly cwd: t.PiCli.Cwd;
+    readonly mode: 'ui';
+    readonly until?: t.UntilInput;
+  }) => Promise<void>;
+}>;
+
+const DEFAULT_DEPENDENCIES: MainDependencies = Object.freeze({
+  async startUi(input) {
+    const { start } = await import('./u.start/u.ui.ts');
+    await start(input);
+  },
+});
+
+export const main: t.PiCliProfiles.Lib['main'] = (input = {}) => mainWith(input);
+
+/** Internal deterministic dependency seam for profile-menu dispatch tests. */
+export async function mainWith(
+  input: t.PiCliProfiles.Input = {},
+  deps: MainDependencies = DEFAULT_DEPENDENCIES,
+): Promise<t.PiCliProfiles.Result> {
   const argv = input.argv ?? [];
 
   if (argv[0] === 'dsl') {
@@ -43,22 +64,35 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
   if (migrationMessage) console.info(migrationMessage);
 
   const picked = parsed.profile
-    ? { kind: 'selected' as const, mode: 'cli' as const, config: (await ProfileConfig.resolveSelection(root, parsed.profile)).config }
+    ? {
+      kind: 'selected' as const,
+      mode: 'cli' as const,
+      config: (await ProfileConfig.resolveSelection(root, parsed.profile)).config,
+    }
     : await menu({ cwd, allowAll, gitRootExplicit });
 
   if (picked.kind === 'exit') return { kind: 'exit', input };
 
   if (picked.mode === 'ui' && parsed._.length > 0) {
-    throw new Error('start:ui cannot accept Pi passthrough args. Select start:cli for passthrough mode.');
+    throw new Error(
+      'start:ui cannot accept Pi passthrough args. Select start:cli for passthrough mode.',
+    );
   }
 
   if (picked.mode === 'ui' && parsed.installOcrDeps === true) {
-    throw new Error('start:ui does not support --install-ocr-deps. Use start:cli for OCR bootstrap.');
+    throw new Error(
+      'start:ui does not support --install-ocr-deps. Use start:cli for OCR bootstrap.',
+    );
   }
 
-  const resolveOptions = picked.mode === 'ui'
-    ? { extensions: false, ocrPreflight: false }
-    : {};
+  if (picked.mode === 'ui') {
+    await deps.startUi({ cwd, mode: 'ui' });
+    return {
+      kind: 'ui',
+      input,
+      parsed,
+    };
+  }
 
   const resolved = await resolveRun(
     {
@@ -75,7 +109,6 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
         interactive,
       },
     },
-    resolveOptions,
   );
   const report = picked.preview && Obj.eql(picked.preview.sandbox, resolved.sandbox)
     ? picked.preview.report
@@ -88,23 +121,11 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
   if (parsed.profile) console.info(sheet);
   else Cli.Screen.repaint(sheet);
 
-  if (picked.mode === 'cli') {
-    const output = await run(resolved);
-    return {
-      kind: 'run',
-      input,
-      parsed,
-      output,
-    };
-  }
-
-  const { start } = await import('./u/u.start.ui.ts');
-  await start({ cwd, until: undefined, mode: picked.mode });
-
+  const output = await run(resolved);
   return {
-    kind: 'ui',
+    kind: 'run',
     input,
     parsed,
+    output,
   };
 }
-
