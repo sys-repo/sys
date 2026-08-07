@@ -35,6 +35,7 @@ export async function start(input: StartGuiInput): Promise<void> {
   const integrity = resolveIntegrity(configured.integrity);
   let started: Started | undefined;
   let keyboard: Keyboard | undefined;
+  let screen: ReturnType<StartGuiDependencies['createScreen']> | undefined;
   let failure: unknown;
   const close = closeOnce(() => started);
 
@@ -52,6 +53,7 @@ export async function start(input: StartGuiInput): Promise<void> {
       limits: LIMITS,
       hostname: '127.0.0.1',
       port: 0,
+      silent: true,
       until: input.until,
     });
     keyboard = deps.bindKeyboard({
@@ -59,15 +61,24 @@ export async function start(input: StartGuiInput): Promise<void> {
       until: started.finished,
       onQuit: () => close('start:gui.keyboard.quit'),
     });
-    deps.open(root, started.origin);
+    screen = deps.createScreen({
+      dir: generation.dir,
+      origin: started.origin,
+      keyboard: keyboard !== undefined,
+    });
+    const terminal = keyboard
+      ? waitForTerminal({ started, keyboard, close, screenFailure: screen.failure })
+      : Promise.race([started.finished, screen.failure]);
+    // Observe terminal failure before browser launch so an open failure cannot orphan it.
+    void terminal.catch(() => undefined);
 
-    if (keyboard) await waitForTerminal({ started, keyboard, close });
-    else await started.finished;
+    deps.open(root, started.origin);
+    await terminal;
   } catch (cause) {
     failure = cause;
   }
 
-  const cleanup = await finalize({ keyboard, close });
+  const cleanup = await finalize({ screen, keyboard, close });
   if (failure !== undefined) {
     throw cleanup === undefined || cleanup === failure ? failure : appendCleanup(failure, cleanup);
   }

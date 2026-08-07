@@ -15,8 +15,8 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
     const prev = Process.inherit;
     const prevInfo = console.info;
     const originalPrompt = Cli.Input.Select.prompt;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.main.test.' }))
-      .absolute as t.StringDir;
+    const prefix = 'driver-pi.profiles.m.main.test.';
+    const cwd = (await Fs.makeTempDir({ prefix })).absolute as t.StringDir;
     const config = `${cwd}/-config/@sys.driver-pi/default.yaml` as t.StringPath;
     const calls: string[] = [];
     const prompts: Array<{ kind: 'profiles' | 'actions'; hasMessage: boolean }> = [];
@@ -69,8 +69,8 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
     const originalPrompt = Cli.Input.Select.prompt;
     const screen = Cli.Screen as { repaint: (frame: string) => void };
     const prevRepaint = screen.repaint;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.main.test.' }))
-      .absolute as t.StringDir;
+    const prefix = 'driver-pi.profiles.m.main.test.';
+    const cwd = (await Fs.makeTempDir({ prefix })).absolute as t.StringDir;
     const config = `${cwd}/-config/@sys.driver-pi/canon.yaml` as t.StringPath;
     const calls: string[] = [];
     const events: string[] = [];
@@ -136,8 +136,8 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
     const originalPrompt = Cli.Input.Select.prompt;
     const screen = Cli.Screen as { repaint: (frame: string) => void };
     const prevRepaint = screen.repaint;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.main.test.' }))
-      .absolute as t.StringDir;
+    const prefix = 'driver-pi.profiles.m.main.test.';
+    const cwd = (await Fs.makeTempDir({ prefix })).absolute as t.StringDir;
     const config = `${cwd}/-config/@sys.driver-pi/canon.yaml` as t.StringPath;
     const callerRead = Fs.join(cwd, 'caller-read') as t.StringDir;
     const frames: string[] = [];
@@ -192,8 +192,8 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
     const prev = Process.inherit;
     const prevInfo = console.info;
     const originalPrompt = Cli.Input.Select.prompt;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.main.test.' }))
-      .absolute as t.StringDir;
+    const prefix = 'driver-pi.profiles.m.main.test.';
+    const cwd = (await Fs.makeTempDir({ prefix })).absolute as t.StringDir;
     const config = `${cwd}/-config/@sys.driver-pi/canon.yaml` as t.StringPath;
 
     let topLevelCount = 0;
@@ -255,8 +255,8 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
     const originalPrompt = Cli.Input.Select.prompt;
     const screen = Cli.Screen as { repaint: (frame: string) => void };
     const prevRepaint = screen.repaint;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.main.test.' }))
-      .absolute as t.StringDir;
+    const prefix = 'driver-pi.profiles.m.main.test.';
+    const cwd = (await Fs.makeTempDir({ prefix })).absolute as t.StringDir;
     const config = `${cwd}/-config/@sys.driver-pi/canon.yaml` as t.StringPath;
     const frames: string[] = [];
     let topLevelCount = 0;
@@ -318,7 +318,8 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
       expect(startGuiInput?.cwd.git).to.eql(cwd);
       expect(startGuiInput?.cwd.invoked).to.eql(cwd);
       expect(startGuiInput?.source).to.equal(START_GUI_SOURCE);
-      expect(frames).to.eql([]);
+      expect(frames).to.have.length(1);
+      expect(Cli.stripAnsi(frames[0] ?? '')).to.not.contain('start:gui');
     } finally {
       Process.inherit = prev;
       console.info = prevInfo;

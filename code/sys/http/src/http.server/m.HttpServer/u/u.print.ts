@@ -10,9 +10,19 @@ export const print: t.HttpServer.Lib['print'] = (options) => {
   const details = options.status?.details ?? infoDetails(options.info);
   const urls = formatPrintUrls({ addr, paths: options.status?.urlPaths });
   const fallback = formatPortFallback({ requestedPort, actualPort: addr.port });
+  const hx = pkg ? wrangle.hashDigest(hash) : '';
+  const rootReserve = root
+    ? tableValueReserve({
+      pkg: pkg !== undefined,
+      urls: urls.length > 0,
+      details,
+      dist: Boolean(hx),
+      port: Boolean(fallback),
+      keyboard: options.keyboard,
+    })
+    : 0;
 
   const table = Cli.Table.create([]);
-  const hx = pkg ? wrangle.hashDigest(hash) : '';
 
   table.push([label('service'), serviceName(name ?? options.status?.kind ?? 'http')]);
 
@@ -22,7 +32,7 @@ export const print: t.HttpServer.Lib['print'] = (options) => {
     table.push([childLabel('module'), value(`${pkgName} ${pkgVersion}`)]);
   }
   pushUrls(table, urls);
-  if (root) table.push([childLabel('root'), path(root)]);
+  if (root) table.push([childLabel('root'), path(root, rootReserve)]);
   for (const detail of details) table.push([childLabel(detail.label), value(detail.value)]);
   if (hx) table.push([childLabel('dist'), value(`${hx} ← dist/dist.json`)]);
   if (fallback) table.push([childLabel('port'), value(fallback)]);
@@ -71,12 +81,37 @@ function value(input: string) {
   return c.gray(input);
 }
 
-function path(input: string) {
-  return value(Fs.trimCwd(input));
+function path(input: string, reserve: number) {
+  return Cli.Fmt.Path.tty(Fs.trimCwd(input), {
+    reserve,
+    terminal: Cli.Is.terminal('stdout'),
+    width: Cli.Screen.size().width,
+    highlightBasename: false,
+    min: 1,
+  });
 }
 
 function keyboardValue(input: string) {
   return c.dim(c.gray(input));
+}
+
+function tableValueReserve(input: {
+  readonly pkg: boolean;
+  readonly urls: boolean;
+  readonly details: readonly t.Service.Detail[];
+  readonly dist: boolean;
+  readonly port: boolean;
+  readonly keyboard: t.HttpServer.Print.Keyboard.Options | undefined;
+}) {
+  const labels = [label('service'), childLabel('root')];
+  if (input.pkg) labels.push(childLabel('module'));
+  if (input.urls) labels.push(childLabel('url'));
+  for (const detail of input.details) labels.push(childLabel(detail.label));
+  if (input.dist) labels.push(childLabel('dist'));
+  if (input.port) labels.push(childLabel('port'));
+  if (input.keyboard?.open) labels.push(keyboardLabel('open'));
+  if (input.keyboard?.quit) labels.push(keyboardLabel('quit'));
+  return Cli.Fmt.Text.Width.max(labels) + Cli.Table.cellGap;
 }
 
 function formatDivider() {

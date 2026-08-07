@@ -87,6 +87,11 @@ export async function mainWith(
   }
 
   if (picked.mode === 'gui') {
+    const preview = picked.preview;
+    const frame = preview
+      ? PiSandboxFmt.table({ ...preview.sandbox, report: preview.report }, { gitRootExplicit })
+      : '';
+    Cli.Screen.repaint(frame);
     await deps.startGui({ cwd, source: START_GUI_SOURCE });
     return {
       kind: 'gui',

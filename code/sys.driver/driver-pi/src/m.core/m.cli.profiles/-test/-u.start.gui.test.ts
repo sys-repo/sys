@@ -15,8 +15,8 @@ import {
 
 describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
   it('preserves materialization failure evidence without starting a listener', async () => {
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.gui.test.' }))
-      .absolute as t.StringDir;
+    const prefix = 'driver-pi.profiles.u.start.gui.test.';
+    const cwd = (await Fs.makeTempDir({ prefix })).absolute as t.StringDir;
     const storeDir = Fs.join(cwd, '.pi/@sys/dist/@sys.driver-pi') as t.StringDir;
     let openCalls = 0;
     let serverCalls = 0;
@@ -61,11 +61,13 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
   });
 
   it('passes pinned materialization and loopback-host authority with one stable store root', async () => {
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.gui.test.' }))
-      .absolute as t.StringDir;
+    const prefix = 'driver-pi.profiles.u.start.gui.test.';
+    const cwd = (await Fs.makeTempDir({ prefix })).absolute as t.StringDir;
     const storeDir = Fs.join(cwd, '.pi/@sys/dist/@sys.driver-pi') as t.StringDir;
     let materializeArgs: t.Dist.MaterializeArgs | undefined;
     let startArgs: t.DistServer.Start.Args | undefined;
+    let screenInput: { dir: t.StringDir; origin: t.StringUrl; keyboard: boolean } | undefined;
+    let screenDisposeCalls = 0;
     let openCalls = 0;
     let closeCalls = 0;
 
@@ -90,6 +92,15 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
             openCalls += 1;
           },
           bindKeyboard: () => undefined,
+          createScreen: (input) => {
+            screenInput = input;
+            return {
+              failure: new Promise<never>(() => {}),
+              dispose() {
+                screenDisposeCalls += 1;
+              },
+            };
+          },
         },
       });
 
@@ -103,6 +114,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
         integrity: START_GUI_SOURCE.integrity,
         hostname: '127.0.0.1',
         port: 0,
+        silent: true,
       });
       expect(startArgs?.limits).to.eql({
         manifestBytes: 16 * 1024 * 1024,
@@ -111,6 +123,12 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
         totalBytes: 1024 * 1024 * 1024,
       });
       expect(await Fs.exists(storeDir)).to.eql(true);
+      expect(screenInput).to.eql({
+        dir: '/tmp/driver-pi-gui-generation',
+        origin: 'http://127.0.0.1:1234',
+        keyboard: false,
+      });
+      expect(screenDisposeCalls).to.eql(1);
       expect(openCalls).to.eql(1);
       expect(closeCalls).to.eql(1);
     } finally {
@@ -119,8 +137,8 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
   });
 
   it('accepts a complete source replacement, snapshots it, and retains fixed authority', async () => {
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.gui.test.' }))
-      .absolute as t.StringDir;
+    const prefix = 'driver-pi.profiles.u.start.gui.test.';
+    const cwd = (await Fs.makeTempDir({ prefix })).absolute as t.StringDir;
     const source: t.PiCliProfiles.StartGuiSource = {
       manifestUrl: 'https://gui.example.test:8443/release/dist.json',
       integrity: 'sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
@@ -168,6 +186,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
         integrity: 'sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
         hostname: '127.0.0.1',
         port: 0,
+        silent: true,
       });
       expect(startArgs?.limits).to.eql(materializeArgs?.policy.verification);
     } finally {
@@ -176,8 +195,8 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
   });
 
   it('rejects malformed source URL and integrity before materialization', async () => {
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.gui.test.' }))
-      .absolute as t.StringDir;
+    const prefix = 'driver-pi.profiles.u.start.gui.test.';
+    const cwd = (await Fs.makeTempDir({ prefix })).absolute as t.StringDir;
     const validIntegrity =
       'sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' as t.StringHash;
     const cases: Array<{ source: t.PiCliProfiles.StartGuiSource; message: string }> = [
@@ -216,8 +235,8 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
   });
 
   it('binds keyboard before browser open, disposes it, and preserves open failure', async () => {
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.gui.test.' }))
-      .absolute as t.StringDir;
+    const prefix = 'driver-pi.profiles.u.start.gui.test.';
+    const cwd = (await Fs.makeTempDir({ prefix })).absolute as t.StringDir;
     const events: string[] = [];
     const stop = deferred();
     const openFailure = new Error('open failed');
@@ -260,9 +279,85 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
     }
   });
 
+  it('preserves browser-open failure when screen failure is already queued', async () => {
+    const prefix = 'driver-pi.profiles.u.start.gui.test.';
+    const cwd = (await Fs.makeTempDir({ prefix })).absolute as t.StringDir;
+    const openFailure = new Error('open failed');
+    const screenFailure = new Error('screen failed');
+    let closeCalls = 0;
+
+    try {
+      const error = await rejectionOf(() =>
+        start({
+          cwd: asProfileRoot(cwd),
+          deps: {
+            materialize: () => Promise.resolve(fakeGeneration()),
+            start: () =>
+              Promise.resolve(startedFixture({
+                close: () => {
+                  closeCalls += 1;
+                  return Promise.resolve();
+                },
+              })),
+            bindKeyboard: () => undefined,
+            createScreen: () => ({
+              failure: Promise.reject(screenFailure),
+              dispose() {},
+            }),
+            open: () => {
+              throw openFailure;
+            },
+          },
+        })
+      );
+
+      expect(error).to.equal(openFailure);
+      expect(closeCalls).to.eql(1);
+    } finally {
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('closes the host when responsive screen reporting fails', async () => {
+    const prefix = 'driver-pi.profiles.u.start.gui.test.';
+    const cwd = (await Fs.makeTempDir({ prefix })).absolute as t.StringDir;
+    const screenFailure = new Error('screen failed');
+    let closeCalls = 0;
+
+    try {
+      const error = await rejectionOf(() =>
+        start({
+          cwd: asProfileRoot(cwd),
+          deps: {
+            materialize: () => Promise.resolve(fakeGeneration()),
+            start: () =>
+              Promise.resolve(startedFixture({
+                finished: new Promise<void>(() => {}),
+                close: () => {
+                  closeCalls += 1;
+                  return Promise.resolve();
+                },
+              })),
+            bindKeyboard: () => undefined,
+            createScreen: () => ({
+              failure: Promise.reject(screenFailure),
+              dispose() {},
+            }),
+            open: () => undefined,
+          },
+        })
+      );
+
+      expect(error).to.equal(screenFailure);
+      expect(closeCalls).to.eql(1);
+    } finally {
+      await Fs.remove(cwd);
+    }
+  });
+
   it('propagates keyboard-bind failure without opening a browser', async () => {
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.gui.test.' }))
-      .absolute as t.StringDir;
+    const prefix = 'driver-pi.profiles.u.start.gui.test.';
+    const cwd = (await Fs.makeTempDir({ prefix })).absolute as t.StringDir;
     const bindFailure = new Error('keyboard bind failed');
     let closeCalls = 0;
     let openCalls = 0;
@@ -299,8 +394,8 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
   });
 
   it('retains cleanup failure as secondary evidence without replacing the primary failure', async () => {
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.gui.test.' }))
-      .absolute as t.StringDir;
+    const prefix = 'driver-pi.profiles.u.start.gui.test.';
+    const cwd = (await Fs.makeTempDir({ prefix })).absolute as t.StringDir;
     const primary = new Error('open failed');
     const cleanup = new Error('close failed');
     let closeCalls = 0;
@@ -336,8 +431,8 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
   });
 
   it('uses the lower server lifecycle for external cancellation', async () => {
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.gui.test.' }))
-      .absolute as t.StringDir;
+    const prefix = 'driver-pi.profiles.u.start.gui.test.';
+    const cwd = (await Fs.makeTempDir({ prefix })).absolute as t.StringDir;
     const aborted = new AbortController();
     const startedSignal = deferred();
     const stopped = deferred();
@@ -392,8 +487,8 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
   });
 
   it('closes once after keyboard quit and disposes the binding', async () => {
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.gui.test.' }))
-      .absolute as t.StringDir;
+    const prefix = 'driver-pi.profiles.u.start.gui.test.';
+    const cwd = (await Fs.makeTempDir({ prefix })).absolute as t.StringDir;
     const serverFinished = deferred();
     let closeCalls = 0;
     let disposeCalls = 0;
@@ -443,8 +538,8 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
   });
 
   it('materializes, hosts, fetches, and closes an opaque loopback Dist', async () => {
-    const temporary = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.gui.test.' }))
-      .absolute as t.StringDir;
+    const prefix = 'driver-pi.profiles.u.start.gui.test.';
+    const temporary = (await Fs.makeTempDir({ prefix })).absolute as t.StringDir;
     const cwd = (await Fs.realPath(temporary)) as t.StringDir;
     const fixture = await loopbackDistFixture();
     let started: Started | undefined;

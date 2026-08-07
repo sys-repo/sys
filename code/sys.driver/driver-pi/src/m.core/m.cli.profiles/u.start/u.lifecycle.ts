@@ -1,6 +1,7 @@
 import { Err } from '../common.ts';
 
 import type { Keyboard, Started } from './u.deps.ts';
+import type { StartGuiScreenInstance } from './u.screen.ts';
 
 export type Close = (reason: string) => Promise<void>;
 
@@ -18,19 +19,27 @@ export async function waitForTerminal(input: {
   started: Started;
   keyboard: NonNullable<Keyboard>;
   close: Close;
+  screenFailure?: Promise<never>;
 }): Promise<void> {
   const terminal = await Promise.race([
     input.started.finished.then(() => 'server' as const),
     input.keyboard.finished.then(() => 'keyboard' as const),
+    ...(input.screenFailure ? [input.screenFailure] : []),
   ]);
   if (terminal === 'keyboard') await input.close('start:gui.keyboard.finished');
 }
 
 export async function finalize(input: {
+  screen?: StartGuiScreenInstance;
   keyboard: Keyboard | undefined;
   close: Close;
 }): Promise<unknown | undefined> {
   const failures: unknown[] = [];
+  try {
+    input.screen?.dispose();
+  } catch (cause) {
+    failures.push(cause);
+  }
   try {
     input.keyboard?.dispose();
   } catch (cause) {
