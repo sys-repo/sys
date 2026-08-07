@@ -33,17 +33,8 @@
   },
   "compilerOptions": {
     "strict": true,
-    "lib": [
-      "esnext",
-      "dom",
-      "dom.iterable",
-      "dom.asynciterable",
-      "webworker",
-      "deno.ns"
-    ],
-    "types": [
-      "@types/react"
-    ],
+    "lib": ["esnext", "dom", "dom.iterable", "dom.asynciterable", "webworker", "deno.ns"],
+    "types": ["@types/react"],
     "jsx": "react-jsx",
     "jsxImportSource": "react"
   },
@@ -110,54 +101,16 @@
   ],
   "lint": {
     "rules": {
-      "exclude": [
-        "no-explicit-any",
-        "no-slow-types"
-      ]
+      "exclude": ["no-explicit-any", "no-slow-types"]
     }
   },
-  "exclude": [
-    ".pi"
-  ],
-  "test": {
-    "permissions": "test",
-    "sanitizeOps": true,
-    "sanitizeResources": true
-  },
+  "exclude": [".pi"],
+  "test": { "permissions": "test", "sanitizeOps": true, "sanitizeResources": true },
   "permissions": {
-    "test": {
-      "read": true,
-      "write": true,
-      "run": true,
-      "env": true
-    },
-    "dev": {
-      "read": true,
-      "write": true,
-      "run": true,
-      "env": true,
-      "net": true
-    },
-    "tmpl": {
-      "read": true,
-      "write": true,
-      "run": true,
-      "env": true
-    },
-    "upgrade": {
-      "read": true,
-      "write": true,
-      "run": true,
-      "env": true,
-      "net": true,
-      "ffi": true
-    },
-    "clean": {
-      "read": true,
-      "write": true,
-      "run": true,
-      "env": true
-    }
+    "test": { "read": true, "write": true, "run": true, "env": true },
+    "dev": { "read": true, "write": true, "run": true, "env": true, "net": true },
+    "tmpl": { "read": true, "write": true, "run": true, "env": true },
+    "upgrade": { "read": true, "write": true, "run": true, "env": true, "net": true, "ffi": true },
+    "clean": { "read": true, "write": true, "run": true, "env": true }
   }
 }
-
