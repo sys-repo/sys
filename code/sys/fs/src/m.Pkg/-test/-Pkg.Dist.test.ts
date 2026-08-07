@@ -22,11 +22,15 @@ describe('Pkg.Dist', () => {
     it('API refs', () => {
       expect(Pkg.Dist).to.equal(Dist);
       expect(Pkg.Dist.checkSelfReported).to.equal(Dist.checkSelfReported);
+      expect(Pkg.Dist.Local).to.equal(Dist.Local);
+      expect(Pkg.Dist.Local.verify).to.equal(Dist.Local.verify);
       expect(Pkg.Dist.Pinned).to.equal(Dist.Pinned);
       expect(Pkg.Dist.Pinned.verify).to.equal(Dist.Pinned.verify);
       expect(Pkg.Dist.Pinned.readPart).to.equal(Dist.Pinned.readPart);
+      expect(Object.keys(Pkg.Dist.Local).sort()).to.eql(['verify']);
       expect(Object.keys(Pkg.Dist.Pinned).sort()).to.eql(['readPart', 'verify']);
       expect(Object.isFrozen(Pkg.Dist.Pinned)).to.eql(true);
+      expect(Object.isFrozen(Pkg.Dist.Local)).to.eql(true);
     });
 
     it('is not the [sys.std] client version, but surfaces all the [sys.std] interface', async () => {

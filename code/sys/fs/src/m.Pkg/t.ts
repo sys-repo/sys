@@ -28,13 +28,15 @@ export declare namespace Pkg {
       /** Check a folder against its own distribution-package hash definitions. */
       checkSelfReported: CheckSelfReported.Method;
 
+      /** Local-generation verification operations (non-authoritative local observation). */
+      readonly Local: Local.Lib;
+
       /** Checksum-pinned distribution operations. */
       readonly Pinned: Pinned.Lib;
 
       /** Logging helpers for distribution-package metadata. */
       readonly Log: Log.Lib;
     };
-
     /**
      * Distribution-package logging contracts.
      */
@@ -147,7 +149,149 @@ export declare namespace Pkg {
       };
     }
 
-    /** Checksum-pinned distribution operations. */
+    /**
+     * Shared verification contracts for checked distribution generations.
+     */
+    export namespace Verify {
+      /** Shared verification method shape. */
+      export type Method = (args: Args) => Promise<Result>;
+
+      /** Shared verification arguments. */
+      export type Args = {
+        /** Generation directory. The root and every observed ancestor must be real directories. */
+        dir: t.StringPath;
+        /** Required upper bounds applied before allocation or traversal can exceed them. */
+        limits: Limits;
+        /** Cancel when this lifecycle ends. Cancellation is checked at cooperative boundaries. */
+        until?: t.UntilInput;
+      };
+
+      /** Required resource limits. No unlimited defaults are applied. */
+      export type Limits = {
+        /** Maximum exact `dist.json` bytes. */
+        manifestBytes: t.NumberBytes;
+        /** Maximum observed descendants, including files, directories, and `dist.json`. */
+        entries: t.NumberTotal;
+        /** Maximum bytes in any one declared asset. */
+        fileBytes: t.NumberBytes;
+        /** Maximum aggregate declared asset bytes, excluding `dist.json`. */
+        totalBytes: t.NumberBytes;
+      };
+
+      /** Result of checked generation verification. Only `verified` is success. */
+      export type Result = Verified | Failure;
+
+      /** Successful verification with immutable owner-derived evidence. */
+      export type Verified = {
+        /** Successful verification with immutable owner-derived evidence. */
+        readonly kind: 'verified';
+        /** Verified artifacts, including integrity and immutable manifest+asset evidence. */
+        readonly evidence: Evidence;
+      };
+
+      /** Immutable evidence produced by the verifier. */
+      export type Evidence = {
+        /** Canonical SHA-256 of the exact manifest bytes used by this verification. */
+        readonly integrity: t.StringHash;
+        /** Strictly admitted and deeply frozen manifest verified against the complete generation. */
+        readonly dist: t.DeepReadonly<t.DistPkg>;
+        /** Number of exact `dist.json` bytes observed. */
+        readonly manifestBytes: t.NumberBytes;
+        /** Counts and byte totals derived from files read by the verifier. */
+        readonly assets: {
+          /** Number of verified declared files. */
+          readonly files: t.NumberTotal;
+          /** Aggregate bytes read from declared files. */
+          readonly totalBytes: t.NumberBytes;
+          /** Bytes whose admitted paths satisfy the Dist package-code policy. */
+          readonly packageBytes: t.NumberBytes;
+        };
+      };
+
+      /** Failed verification without raw host errors, cancellation reasons, or local paths. */
+      export type Failure = {
+        /** Stable, non-authority failure classification. */
+        readonly kind: FailureKind;
+      };
+
+      /**
+       * Stable failure classification.
+       *
+       * - `invalid-input`: the caller input, limits, or lifecycle input is invalid.
+       * - `missing`: the root or manifest is absent at its initial observation.
+       * - `malformed`: manifest structure, policy, or self-report is invalid.
+       * - `integrity-mismatch`: exact manifest bytes do not match the caller pin.
+       * - `content-mismatch`: an initial stable root, manifest, or declared tree value is wrong.
+       * - `unsafe-path`: root ancestry or admitted targets violate confinement or admission.
+       * - `symlink`: an initially checked root, ancestor, directory, or file path is a symlink.
+       * - `unexpected-entry`: the stable tree contains an undeclared or special entry.
+       * - `limit-exceeded`: caller-owned work or allocation bounds would be exceeded.
+       * - `changed`: identity, metadata, kind, presence, or bytes changed between observations.
+       * - `unsupported`: required filesystem semantics or trustworthy metadata are unavailable.
+       * - `io-failure`: another host filesystem operation failed.
+       * - `cancelled`: cancellation was observed at a cooperative boundary.
+       */
+      export type FailureKind =
+        | 'invalid-input'
+        | 'missing'
+        | 'malformed'
+        | 'integrity-mismatch'
+        | 'content-mismatch'
+        | 'unsafe-path'
+        | 'symlink'
+        | 'unexpected-entry'
+        | 'limit-exceeded'
+        | 'changed'
+        | 'unsupported'
+        | 'io-failure'
+        | 'cancelled';
+    }
+
+    /**
+     * Local verification operation contracts.
+     */
+    export namespace Local {
+      /** Local-generation verification operation library. */
+      export type Lib = {
+        /** Verify a generation with local manifest authority derived from observed bytes. */
+        readonly verify: Verify.Method;
+      };
+
+      /**
+       * Exact locally observed generation verification contracts.
+       *
+       * This variant has no caller-provided manifest integrity authority.
+       */
+      export namespace Verify {
+        /** Verify one generation through exact local manifest observation. */
+        export type Method = (args: Args) => Promise<Result>;
+
+        /** Arguments passed to `Pkg.Dist.Local.verify`. */
+        export type Args = Dist.Verify.Args;
+
+        /** Required resource limits. */
+        export type Limits = Dist.Verify.Limits;
+
+        /** Result of local generation verification. */
+        export type Result = Dist.Verify.Result;
+
+        /** Successful verification with immutable evidence. */
+        export type Verified = Dist.Verify.Verified;
+
+        /** Immutable evidence produced by the verifier. */
+        export type Evidence = Dist.Verify.Evidence;
+
+        /** Failed verification without raw host errors, cancellation reasons, or local paths. */
+        export type Failure = Dist.Verify.Failure;
+
+        /** Stable local failure classification. */
+        export type FailureKind = Dist.Verify.FailureKind;
+      }
+    }
+
+    /**
+     * Checksum-pinned distribution operations.
+     */
     export namespace Pinned {
       /** Checksum-pinned distribution operation library. */
       export type Lib = {
@@ -160,112 +304,35 @@ export declare namespace Pkg {
       /**
        * Exact pinned generation verification contracts.
        *
-       * Verification authenticates the exact `dist.json` bytes before parsing, checks every declared
-       * asset through opened file handles, rejects undeclared tree entries, and compares filesystem
-       * identity and metadata across repeated observations. Hash-policy and signature descriptors are
-       * authenticated metadata only: they do not load code or establish signature trust, and a
-       * signature sidecar must not be present in the verified tree. To bound synchronous ignore
-       * matching, each admitted ignore rule may contain at most one `**` path segment and at most one
-       * unescaped `*` wildcard in every other path segment.
-       *
-       * Security position: success attests only the stable observations completed by this call. Deno
-       * exposes no portable directory-relative, no-follow open (`openat`/`O_NOFOLLOW`), so a process
-       * with the same filesystem authority can race path replacement. This is acceptable only for
-       * published generations treated as immutable: observed changes fail closed; hostile-writer
-       * resistance requires a stronger native backend.
+       * This variant is a compatibility path for pinned authority.
        */
       export namespace Verify {
         /** Verify one generation against an exact authenticated manifest. */
         export type Method = (args: Args) => Promise<Result>;
 
         /** Arguments passed to `Pkg.Dist.Pinned.verify`. */
-        export type Args = {
-          /** Generation directory. The root and every observed ancestor must be real directories. */
-          dir: t.StringPath;
+        export type Args = Dist.Verify.Args & {
           /** Canonical SHA-256 of the exact `dist.json` bytes. */
           integrity: t.StringHash;
-          /** Required upper bounds applied before allocation or traversal can exceed them. */
-          limits: Limits;
-          /** Cancel when this lifecycle ends. Cancellation is checked at cooperative boundaries. */
-          until?: t.UntilInput;
         };
 
-        /** Required resource limits. No unlimited defaults are applied. */
-        export type Limits = {
-          /** Maximum exact `dist.json` bytes. */
-          manifestBytes: t.NumberBytes;
-          /** Maximum observed descendants, including files, directories, and `dist.json`. */
-          entries: t.NumberTotal;
-          /** Maximum bytes in any one declared asset. */
-          fileBytes: t.NumberBytes;
-          /** Maximum aggregate declared asset bytes, excluding `dist.json`. */
-          totalBytes: t.NumberBytes;
-        };
+        /** Required resource limits. */
+        export type Limits = Dist.Verify.Limits;
 
-        /** Result of pinned generation verification. Only `verified` is success. */
-        export type Result = Verified | Failure;
+        /** Result of pinned generation verification. */
+        export type Result = Dist.Verify.Result;
 
         /** Successful verification with immutable owner-derived evidence. */
-        export type Verified = {
-          readonly kind: 'verified';
-          readonly evidence: Evidence;
-        };
+        export type Verified = Dist.Verify.Verified;
 
         /** Immutable evidence produced by the verifier. */
-        export type Evidence = {
-          /** Exact caller pin matched by both manifest reads. */
-          readonly integrity: t.StringHash;
-          /** Authenticated, strictly admitted, and deeply frozen manifest value. */
-          readonly dist: t.DeepReadonly<t.DistPkg>;
-          /** Number of authenticated `dist.json` bytes. */
-          readonly manifestBytes: t.NumberBytes;
-          /** Counts and byte totals derived from files read by the verifier. */
-          readonly assets: {
-            /** Number of verified declared files. */
-            readonly files: t.NumberTotal;
-            /** Aggregate bytes read from declared files. */
-            readonly totalBytes: t.NumberBytes;
-            /** Bytes whose admitted paths satisfy the Dist package-code policy. */
-            readonly packageBytes: t.NumberBytes;
-          };
-        };
+        export type Evidence = Dist.Verify.Evidence;
 
         /** Failed verification without raw host errors, cancellation reasons, or local paths. */
-        export type Failure = {
-          readonly kind: FailureKind;
-        };
+        export type Failure = Dist.Verify.Failure;
 
-        /**
-         * Stable failure classification.
-         *
-         * - `invalid-input`: the caller pin, limits, or lifecycle input is invalid.
-         * - `missing`: the root or manifest is absent at its initial observation.
-         * - `malformed`: authenticated manifest structure, policy, or self-report is invalid.
-         * - `integrity-mismatch`: exact manifest bytes do not match the caller pin.
-         * - `content-mismatch`: an initial stable root, manifest, or declared tree value is wrong.
-         * - `unsafe-path`: root ancestry or authenticated targets violate confinement or admission.
-         * - `symlink`: an initially checked root, ancestor, directory, or file path is a symlink.
-         * - `unexpected-entry`: the stable tree contains an undeclared or special entry.
-         * - `limit-exceeded`: caller-owned work or allocation bounds would be exceeded.
-         * - `changed`: identity, metadata, kind, presence, or bytes changed between observations.
-         * - `unsupported`: required filesystem semantics or trustworthy metadata are unavailable.
-         * - `io-failure`: another host filesystem operation failed.
-         * - `cancelled`: cancellation was observed at a cooperative boundary.
-         */
-        export type FailureKind =
-          | 'invalid-input'
-          | 'missing'
-          | 'malformed'
-          | 'integrity-mismatch'
-          | 'content-mismatch'
-          | 'unsafe-path'
-          | 'symlink'
-          | 'unexpected-entry'
-          | 'limit-exceeded'
-          | 'changed'
-          | 'unsupported'
-          | 'io-failure'
-          | 'cancelled';
+        /** Stable failure classification. */
+        export type FailureKind = Dist.Verify.FailureKind;
       }
 
       /**

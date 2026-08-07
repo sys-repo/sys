@@ -24,8 +24,9 @@ import {
 } from './common.ts';
 import { Log } from './m.Log.ts';
 import { readPinnedPart } from './u.verify/u.pinned.part.ts';
-import { verifyPinned } from './u.verify/u.pinned.ts';
+import { verifyLocal, verifyPinned } from './u.verify/u.pinned.ts';
 
+const Local: t.Pkg.Dist.Local.Lib = Object.freeze({ verify: verifyLocal });
 const Pinned: t.Pkg.Dist.Pinned.Lib = Object.freeze({
   verify: verifyPinned,
   readPart: readPinnedPart,
@@ -38,6 +39,7 @@ const Pinned: t.Pkg.Dist.Pinned.Lib = Object.freeze({
 export const Dist: t.Pkg.Dist.Lib = {
   ...Pkg.Dist,
   Log,
+  Local,
   Pinned,
 
   /**
