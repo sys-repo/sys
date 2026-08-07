@@ -51,14 +51,6 @@ export const DevOutputLog: t.ViteDev.Output.Lib = {
         return wrangle.snapshot(state, maxLines, suppressVisible);
       },
 
-      clearLines() {
-        state.lines.splice(0);
-        state.pending.stdout = '';
-        state.pending.stderr = '';
-        state.pendingSequence.stdout = undefined;
-        state.pendingSequence.stderr = undefined;
-      },
-
       tailText() {
         return wrangle.tailText(wrangle.snapshot(state, maxLines, suppressVisible));
       },

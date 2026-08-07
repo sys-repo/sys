@@ -1,41 +1,17 @@
 import { describe, expect, it, Rx } from '../../-test/common.ts';
 import type { t } from '../common.ts';
 import { keyboardFactory } from '../u/u.keyboard.ts';
-import { paths, pkg, workspace } from './u.fixture.dev.ts';
 
 describe('Vite.dev keyboard', () => {
-  it('handles info redraw before quit without losing the dispose path', async () => {
-    const events: string[] = [];
-    const keyboard = keyboardFactory({
-      paths: paths(),
-      port: 1234,
-      url: 'http://localhost:1234/',
-      pkg: pkg(),
-      dispose: async () => void events.push('dispose'),
-    }, {
-      keypress: () => keypress([{ key: 'i' }, { key: 'c', ctrlKey: true }]),
-      workspace: async () => workspace(),
-      clear: () => events.push('clear'),
-      print: (text) => events.push(text.includes('options') ? 'help' : 'info'),
-      exit: (code) => events.push(`exit:${code}`),
-    });
-
-    await keyboard();
-
-    expect(events).to.eql(['clear', 'help', 'dispose', 'exit:0']);
-  });
-
   it('routes footer-advertised quit controls through the same disposal path', async () => {
     for (const input of [{ key: 'q' }, { key: 'c', ctrlKey: true }]) {
       const events: string[] = [];
       const keyboard = keyboardFactory({
-        paths: paths(),
-        port: 1234,
+        cwd: '/tmp/pkg',
         url: 'http://localhost:1234/',
         dispose: async () => void events.push('dispose'),
       }, {
         keypress: () => keypress([input]),
-        workspace: async () => workspace(),
         exit: (code) => events.push(`exit:${code}`),
       });
 
@@ -47,66 +23,17 @@ describe('Vite.dev keyboard', () => {
   it('opens the normalized resolved URL without changing lifecycle state', async () => {
     const events: string[] = [];
     const keyboard = keyboardFactory({
-      paths: paths(),
-      port: 1234,
+      cwd: '/tmp/pkg',
       url: 'http://localhost:1234',
       dispose: async () => void events.push('dispose'),
     }, {
       keypress: () => keypress([{ key: 'o' }]),
-      workspace: async () => workspace(),
       open: (url) => events.push(`open:${url}`),
       exit: (code) => events.push(`exit:${code}`),
     });
 
     await keyboard();
     expect(events).to.eql(['open:http://localhost:1234/']);
-  });
-
-  it('renders extended info for shift+i before the plain info branch', async () => {
-    const events: string[] = [];
-    const keyboard = keyboardFactory({
-      paths: paths(),
-      port: 1234,
-      url: 'http://localhost:1234/',
-      pkg: pkg(),
-      dispose: async () => {},
-    }, {
-      keypress: () => keypress([{ key: 'i', shiftKey: true }]),
-      workspace: async () => workspace(),
-      clear: () => events.push('clear'),
-      print: (text) => events.push(text.includes('workspace-render') ? 'extended' : 'plain'),
-      exit: (_code) => {},
-    });
-
-    await keyboard();
-
-    expect(events).to.eql(['clear', 'extended']);
-  });
-
-  it('routes clear and info keys through screen reporter actions when present', async () => {
-    const events: string[] = [];
-    const keyboard = keyboardFactory({
-      paths: paths(),
-      port: 1234,
-      url: 'http://localhost:1234/',
-      pkg: pkg(),
-      dispose: async () => {},
-      screen: {
-        clearLog: () => events.push('screen:clear'),
-        toggleOptions: () => events.push('screen:options'),
-        toggleExtended: () => events.push('screen:extended'),
-      },
-    }, {
-      keypress: () => keypress([{ key: 'k' }, { key: 'i' }, { key: 'i', shiftKey: true }]),
-      workspace: async () => workspace(),
-      clear: () => events.push('legacy:clear'),
-      print: () => events.push('legacy:print'),
-      exit: (_code) => {},
-    });
-
-    await keyboard();
-
-    expect(events).to.eql(['screen:clear', 'screen:options', 'screen:extended']);
   });
 
   it('waits for child disposal when keyboard input is unavailable', async () => {
@@ -118,8 +45,7 @@ describe('Vite.dev keyboard', () => {
     });
     let resolved = false;
     const keyboard = keyboardFactory({
-      paths: paths(),
-      port: 1234,
+      cwd: '/tmp/pkg',
       url: 'http://localhost:1234/',
       until: dispose$,
       dispose: async () => void events.push('dispose'),
@@ -130,7 +56,6 @@ describe('Vite.dev keyboard', () => {
           throw new Error('ENOTTY');
         },
       }),
-      workspace: async () => workspace(),
       exit: (_code) => {},
     });
 
@@ -165,5 +90,4 @@ function keypress(items: readonly KeypressInput[]) {
 type KeypressInput = {
   key: string;
   ctrlKey?: boolean;
-  shiftKey?: boolean;
 };

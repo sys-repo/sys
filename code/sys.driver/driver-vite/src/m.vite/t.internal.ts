@@ -41,7 +41,6 @@ export declare namespace ViteDev {
       pushDisplay(source: t.Process.StdStream, text: string): void;
       stderr(): string;
       lines(): Line[];
-      clearLines(): void;
       tailText(): string;
     };
   }
@@ -49,15 +48,12 @@ export declare namespace ViteDev {
   /** Parent-owned dev-screen contracts. */
   export namespace Screen {
     /** Narrow output-log capability required by the dev-screen runtime. */
-    export type Output = Pick<ViteDev.Output.Log, 'lines' | 'clearLines'>;
+    export type Output = Pick<ViteDev.Output.Log, 'lines'>;
 
     /** Domain operations accepted by one internal dev-screen reporter session. */
     export type Reporter = {
       readonly outputChanged: () => void;
       readonly ready: () => void;
-      readonly clearLog: () => void;
-      readonly toggleOptions: () => void;
-      readonly toggleExtended: (ws: t.ViteDenoWorkspace) => void;
       readonly dispose: () => void;
     };
 
@@ -114,12 +110,6 @@ export declare namespace ViteDev {
         cursorRows: number;
         /** Time snapshot used for deterministic relative build-age rendering. */
         renderedAt: t.UnixTimestamp;
-      };
-
-      /** Ready-frame inputs including optional presentation detail. */
-      export type ReadyArgs = Args & {
-        showOptions?: boolean;
-        ws?: t.ViteDenoWorkspace;
       };
 
       /** Startup-frame inputs including a deterministic spinner glyph. */

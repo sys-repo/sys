@@ -48,43 +48,25 @@ export const DevScreenLayout = {
     return rows.join('\n').trimEnd();
   },
 
-  toString(args: t.ViteDev.Screen.Frame.ReadyArgs) {
+  toString(args: t.ViteDev.Screen.Frame.Args) {
     const viewport = wrangle.viewport(args.viewport);
     const { width } = viewport;
     const capacity = wrangle.capacity(viewport, args.cursorRows);
     const subHr = ViteScreenLayout.dashedDivider(width);
     const headerRows = ViteScreenLayout.applicationHeader(args.pkg, width);
     const separator = ['', subHr];
-    const workspace = wrangle.workspace(args.ws, width);
-    const optionContent = args.showOptions ? wrangle.options(subHr, 1).split('\n') : [];
     const fixedRowCount = headerRows.length + wrangle.readyMetadata(args, width, 1).length +
       separator.length;
-    const available = Math.max(0, capacity - fixedRowCount);
-    const optionalRows = wrangle.optionalRowCount(workspace) +
-      wrangle.optionalRowCount(optionContent);
     const logCount = Math.min(
       wrangle.logLines(args.logLines),
-      Math.max(0, available - optionalRows),
+      Math.max(0, capacity - fixedRowCount),
     );
-    const optionalCapacity = Math.max(0, available - logCount);
-    const optionBudget = Math.min(optionalCapacity, wrangle.optionalRowCount(optionContent));
-    const visibleOptions = wrangle.fitOptional(optionContent, optionBudget);
-    const workspaceBudget = Math.max(0, optionalCapacity - visibleOptions.length);
-    const visibleWorkspace = wrangle.fitOptional(workspace, workspaceBudget);
     const visible = logCount === 0 ? [] : args.lines.slice(-logCount);
     const sequenceWidth = ViteScreenLayout.outputSequenceWidth(visible);
     const metadata = wrangle.readyMetadata(args, width, sequenceWidth);
-    const options = args.showOptions
-      ? wrangle.fitOptional(
-        wrangle.options(subHr, ViteScreenLayout.contentColumn(sequenceWidth)).split('\n'),
-        optionBudget,
-      )
-      : [];
     const flow = [
       ...headerRows,
-      ...visibleWorkspace,
       ...metadata,
-      ...options,
       ...separator,
       ...visible.map((line) => ViteScreenLayout.outputRow(line, width, sequenceWidth)),
     ];
@@ -181,22 +163,6 @@ const wrangle = {
     ];
   },
 
-  workspace(ws: t.ViteDenoWorkspace | undefined, width: number) {
-    if (!ws) return [];
-    const text = ws.toString({ width }).trimEnd();
-    return text ? text.split('\n') : [];
-  },
-
-  optionalRowCount(lines: string[]) {
-    return lines.length === 0 ? 0 : lines.length + 1;
-  },
-
-  fitOptional(lines: string[], capacity: number) {
-    if (lines.length === 0 || capacity <= 0) return [];
-    if (capacity === 1) return [lines[0]];
-    return ['', ...lines.slice(0, capacity - 1)];
-  },
-
   keyboardFooter(width: number) {
     const key = (text: string) => c.bold(c.white(text));
     const open = `${c.dim(c.gray('open:'))} ${key('o')} ${c.dim(c.gray('(in browser)'))}`;
@@ -211,24 +177,5 @@ const wrangle = {
       c.dim(c.gray(Cli.Fmt.hr({ width, weight: 'dashed' }))),
       `${open}${gap}${quit}`,
     ];
-  },
-
-  options(subHr: string, contentColumn: number) {
-    const key = (text: string) => c.bold(c.white(text));
-    return [
-      `${c.green(c.bold('options'))}${c.dim(c.green(':'))}`,
-      subHr,
-      wrangle.optionRow('close', key('i'), contentColumn),
-      wrangle.optionRow('more', key('shift + i'), contentColumn),
-      wrangle.optionRow('clear', key('k'), contentColumn),
-      wrangle.optionRow('open', key('o'), contentColumn, c.dim('← (in browser)')),
-      wrangle.optionRow('quit', `${key('ctrl + c')} ${c.dim('or')} ${key('q')}`, contentColumn),
-    ].join('\n');
-  },
-
-  optionRow(label: string, value: string, contentColumn: number, suffix = '') {
-    const gap = ViteScreenLayout.indent(Math.max(1, contentColumn - label.length));
-    const tail = suffix ? `  ${suffix}` : '';
-    return `${label}${gap}${value}${tail}`;
   },
 } as const;

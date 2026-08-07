@@ -12,9 +12,6 @@ const DISPOSED_REPORTER = Object.freeze(
   {
     outputChanged() {},
     ready() {},
-    clearLog() {},
-    toggleOptions() {},
-    toggleExtended() {},
     dispose() {},
   } satisfies t.ViteDev.Screen.Reporter,
 );
@@ -58,8 +55,6 @@ export const DevScreenRuntime = {
     let scheduledTask: t.Cancellable | undefined;
     let resizeSubscription: ResizeSubscription | undefined;
     let spinnerRunning = false;
-    let showOptions = false;
-    let ws: t.ViteDenoWorkspace | undefined;
     let viewport: t.Cli.Screen.Size = { width: 0, height: 0 };
     let hasViewport = false;
     let acquired = false;
@@ -77,7 +72,7 @@ export const DevScreenRuntime = {
     });
 
     const startupFrame = () => DevScreenLayout.startup(frameArgs());
-    const readyFrame = () => DevScreenLayout.toString({ ...frameArgs(), showOptions, ws });
+    const readyFrame = () => DevScreenLayout.toString(frameArgs());
 
     const startSpinner = () => {
       if (spinnerRunning) return;
@@ -185,12 +180,6 @@ export const DevScreenRuntime = {
       schedulePending();
     };
 
-    const flushNow = (kind: Invalidation) => {
-      if (phase === 'disposed') return;
-      mergePending(kind);
-      runCleanup([cancelScheduled, flushPending]);
-    };
-
     const unsubscribeResize = () => {
       const subscription = resizeSubscription;
       resizeSubscription = undefined;
@@ -234,24 +223,6 @@ export const DevScreenRuntime = {
         if (phase !== 'startup') return;
         phase = 'ready';
         runCleanup([discardPending, stopSpinner, renderReady]);
-      },
-
-      clearLog() {
-        if (phase === 'disposed') return;
-        output.clearLines();
-        flushNow('layout');
-      },
-
-      toggleOptions() {
-        if (phase === 'disposed') return;
-        showOptions = !showOptions;
-        flushNow('layout');
-      },
-
-      toggleExtended(next) {
-        if (phase === 'disposed') return;
-        ws = ws ? undefined : next;
-        flushNow('layout');
       },
 
       dispose() {

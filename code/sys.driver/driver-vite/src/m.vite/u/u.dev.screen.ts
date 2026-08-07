@@ -30,7 +30,7 @@ export const DevScreen = {
     return DevScreenLayout.startupToString(args);
   },
 
-  toString(args: t.ViteDev.Screen.Frame.ReadyArgs) {
+  toString(args: t.ViteDev.Screen.Frame.Args) {
     return DevScreenLayout.toString(args);
   },
 } as const;

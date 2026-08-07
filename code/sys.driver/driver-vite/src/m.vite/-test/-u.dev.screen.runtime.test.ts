@@ -3,7 +3,7 @@ import { describe, expect, it, Rx, stripAnsi } from '../../-test.ts';
 import { type t } from '../common.ts';
 import { DevOutputLog } from '../u/u.dev.output.ts';
 import { DevScreen } from '../u/u.dev.screen.ts';
-import { paths, pkg, processEvent, workspace } from './u.fixture.dev.ts';
+import { paths, pkg, processEvent } from './u.fixture.dev.ts';
 
 type SchedulerEntry = {
   readonly run: () => void;
@@ -34,9 +34,6 @@ describe('DevScreen runtime', () => {
 
       reporter.outputChanged();
       reporter.ready();
-      reporter.clearLog();
-      reporter.toggleOptions();
-      reporter.toggleExtended(workspace());
       reporter.dispose();
 
       expect(runtime.repaints).to.eql([]);
@@ -205,29 +202,6 @@ describe('DevScreen runtime', () => {
 
       reporter.dispose();
     });
-
-    it('clear-log action absorbs pending output and leaves a canceled callback inert', () => {
-      const runtime = createRuntimeHarness();
-      const { output, reporter, scheduler, spinner } = runtime;
-      output.push(processEvent('stdout', 'pending output\n'));
-      reporter.outputChanged();
-
-      reporter.clearLog();
-
-      expect(scheduler.cancels).to.eql(1);
-      expect(scheduler.active).to.eql(0);
-      expect(output.lines()).to.eql([]);
-      expect(runtime.repaints.length).to.eql(2);
-      expect(spinner.starts).to.eql(2);
-      expect(spinner.stops).to.eql(1);
-
-      scheduler.force(0);
-      expect(runtime.repaints.length).to.eql(2);
-      expect(spinner.starts).to.eql(2);
-      expect(spinner.stops).to.eql(1);
-
-      reporter.dispose();
-    });
   });
 
   describe('startup → ready', () => {
@@ -366,53 +340,6 @@ describe('DevScreen runtime', () => {
 
       reporter.dispose();
     });
-
-    it('lets an immediate presentation action absorb a pending output repaint', () => {
-      const runtime = createRuntimeHarness();
-      const { output, reporter, scheduler } = runtime;
-      reporter.ready();
-
-      output.push(processEvent('stdout', 'pending output\n'));
-      reporter.outputChanged();
-      reporter.toggleOptions();
-
-      expect(scheduler.cancels).to.eql(1);
-      expect(scheduler.active).to.eql(0);
-      expect(stripAnsi(runtime.repaints.at(-1) ?? '')).to.include('options:');
-      const repaints = runtime.repaints.length;
-
-      scheduler.force(0);
-      expect(runtime.repaints.length).to.eql(repaints);
-
-      reporter.dispose();
-    });
-
-    it('applies options, workspace, resize, and clear actions to complete ready frames', () => {
-      const runtime = createRuntimeHarness();
-      const { output, reporter, scheduler, terminal } = runtime;
-      reporter.ready();
-
-      reporter.toggleOptions();
-      expect(stripAnsi(runtime.repaints.at(-1) ?? '')).to.include('options:');
-
-      terminal.resize({ width: 34, height: 22 }, false);
-      scheduler.flush();
-      const resized = stripAnsi(runtime.repaints.at(-1) ?? '');
-      expect(resized).to.include('options:');
-      expect(resized.split('\n')[1]).to.eql('━'.repeat(34));
-
-      reporter.toggleExtended(workspace());
-      expect(stripAnsi(runtime.repaints.at(-1) ?? '')).to.include('workspace-render');
-
-      reporter.toggleExtended(workspace());
-      expect(stripAnsi(runtime.repaints.at(-1) ?? '')).to.not.include('workspace-render');
-
-      reporter.clearLog();
-      expect(output.lines()).to.eql([]);
-      expect(stripAnsi(runtime.repaints.at(-1) ?? '')).to.include('@sys/example');
-
-      reporter.dispose();
-    });
   });
 
   describe('disposal', () => {
@@ -493,9 +420,6 @@ describe('DevScreen runtime', () => {
       scheduler.force(0);
       reporter.outputChanged();
       reporter.ready();
-      reporter.clearLog();
-      reporter.toggleOptions();
-      reporter.toggleExtended(workspace());
 
       expect(runtime.repaints.length).to.eql(repaints);
       expect(output.lines().map((item) => item.text)).to.eql([

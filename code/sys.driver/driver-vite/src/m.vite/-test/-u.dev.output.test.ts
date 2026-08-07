@@ -105,29 +105,6 @@ describe('DevOutputLog', () => {
       { sequence: 2, source: 'stdout', text: 'ready' },
     ]);
   });
-
-  it('continues sequence numbers after clearing visible lines', () => {
-    const log = DevOutputLog.create();
-
-    log.push(event('stdout', 'one\n'));
-    log.push(event('stdout', 'two\n'));
-    log.clearLines();
-    log.push(event('stdout', 'three\n'));
-
-    expect(log.lines()).to.eql([{ sequence: 3, source: 'stdout', text: 'three' }]);
-  });
-
-  it('clears visible lines without erasing retained raw stderr diagnostics', () => {
-    const log = DevOutputLog.create();
-
-    log.push(event('stdout', 'ready\n'));
-    log.push(event('stderr', 'warn'));
-    log.clearLines();
-
-    expect(log.lines()).to.eql([]);
-    expect(log.tailText()).to.eql('');
-    expect(log.stderr()).to.eql('warn');
-  });
 });
 
 function event(source: t.Process.StdStream, text: string): t.Process.Event {

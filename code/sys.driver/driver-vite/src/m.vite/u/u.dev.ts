@@ -237,14 +237,10 @@ export const dev: t.Vite.Lib['dev'] = async (input) => {
     throw startupError({ cwd, requestedPort, strictPort, output, cause: error });
   }
   const keyboard = keyboardFactory({
-    pkg,
-    dist,
-    paths,
-    port,
+    cwd,
     url: resolvedUrl,
     until: proc.dispose$,
     dispose: cleanup,
-    screen,
   });
   const listen = async () => void await keyboard();
 

@@ -1,7 +1,7 @@
 import { c, Cli, describe, expect, it, stripAnsi, type t, Time } from '../../-test.ts';
 import { DevOutputLog } from '../u/u.dev.output.ts';
 import { DevScreen } from '../u/u.dev.screen.ts';
-import { paths, pkg, processEvent, workspace, workspaceWithAliases } from './u.fixture.dev.ts';
+import { paths, pkg, processEvent } from './u.fixture.dev.ts';
 
 const HASH = `sha256-${'88f8e3e041df504c3177b35ad742f4aebf99951a0c832fb64c1e1b2edef'}ccd11`;
 const RENDERED_AT = 1_750_000_000_000 as t.UnixTimestamp;
@@ -166,7 +166,6 @@ describe('DevScreen', () => {
         url: 'http://localhost:12345/',
         lines: output.lines(),
         logLines: 1,
-        showOptions: true,
         ...frame(width, 40),
       });
 
@@ -281,43 +280,6 @@ describe('DevScreen', () => {
       ]);
     });
 
-    it('contracts logs and extended detail before operational options or core metadata', () => {
-      const output = DevOutputLog.create({ maxLines: 5 });
-      output.push(processEvent('stdout', 'retained-log\n'));
-      const ws = workspace(
-        Array.from({ length: 10 }, (_, index) => `workspace-${index + 1}`).join('\n'),
-      );
-      const render = (height: number) =>
-        stripAnsi(DevScreen.toString({
-          pkg: pkg(),
-          paths: paths(),
-          url: 'http://localhost:1234/',
-          lines: output.lines(),
-          logLines: 5,
-          showOptions: true,
-          ws,
-          ...frame(50, height),
-        }));
-
-      const short = render(16);
-      const medium = render(24);
-      const tall = render(35);
-
-      expect(short).to.include('input');
-      expect(short).to.include('output');
-      expect(short).to.include('options:');
-      expect(short).to.not.include('workspace-1');
-      expect(short).to.not.include('retained-log');
-
-      expect(medium).to.include('options:');
-      expect(medium).to.include('workspace-1');
-      expect(medium).to.not.include('workspace-10');
-      expect(medium).to.not.include('retained-log');
-
-      expect(tall).to.include('workspace-10');
-      expect(tall).to.include('retained-log');
-    });
-
     it('switches the complete metadata rail at the narrow-width boundary', () => {
       for (const sequence of [1, 10, 100]) {
         for (const width of [79, 80, 81]) {
@@ -330,7 +292,7 @@ describe('DevScreen', () => {
             logLines: 1,
             ...frame(width),
           };
-          const ready = stripAnsi(DevScreen.toString({ ...args, showOptions: true }));
+          const ready = stripAnsi(DevScreen.toString(args));
           const startup = stripAnsi(DevScreen.startupToString({ ...args, spinner: '⠋' }));
           const readyLines = ready.split('\n');
           const logLine = readyLines.find((line) => line.includes(`line-${sequence}`)) ?? '';
@@ -352,10 +314,6 @@ describe('DevScreen', () => {
             expect(outputLine.indexOf('output')).to.eql(metadataColumn);
           }
 
-          const quitLine = readyLines.find((line) => line.includes('ctrl + c')) ?? '';
-          const moreLine = readyLines.find((line) => line.includes('shift + i')) ?? '';
-          expect(quitLine.indexOf('ctrl + c')).to.eql(contentColumn);
-          expect(moreLine.indexOf('shift + i')).to.eql(contentColumn);
           expect(logLine).to.eql(` ${sequence}  out  line-${sequence}`);
           expect(readyLines[0].indexOf('0.0.0')).to.eql(width - '0.0.0'.length);
         }
@@ -465,29 +423,6 @@ describe('DevScreen', () => {
       }
     });
 
-    it('keeps extended workspace import-map rows cell-safe', () => {
-      const width = 42;
-      const raw = DevScreen.toString({
-        pkg: pkg(),
-        paths: paths(),
-        url: 'http://localhost:1234/',
-        lines: [],
-        ws: workspaceWithAliases(),
-        ...frame(width, 80),
-      });
-      const mappingRows = stripAnsi(raw).split('\n').filter((line) =>
-        line.includes('→') && line.includes('@sys/')
-      );
-      const [left, right] = (mappingRows[0] ?? '').split('→');
-
-      expectRowsBounded(raw, width);
-      expect(mappingRows.length > 0).to.eql(true);
-      expect(mappingRows.every((line) => !line.includes('import '))).to.eql(true);
-      expect(mappingRows.every((line) => line.includes('  →  '))).to.eql(true);
-      expect(left).to.include('…');
-      expect(right).to.include('…');
-    });
-
     it('bottom-docks complete keyboard controls and omits them under width or height pressure', () => {
       const render = (width: number, height: number) =>
         DevScreen.toString({
@@ -529,33 +464,6 @@ describe('DevScreen', () => {
       expect(pressured).to.not.include('open:');
       expect(pressured).to.not.include('quit:');
       expect(render(120, 40)).to.eql(wide);
-    });
-
-    it('renders options only when requested', () => {
-      const width = 30;
-      const render = (showOptions: boolean) =>
-        stripAnsi(DevScreen.toString({
-          pkg: pkg(),
-          paths: paths(),
-          url: 'http://localhost:1234/',
-          lines: [],
-          showOptions,
-          ...frame(width, 40),
-        }));
-      const hidden = render(false);
-      const visible = render(true);
-      const lines = visible.split('\n');
-      const closeLine = lines.find((line) => line.startsWith('close')) ?? '';
-      const moreLine = lines.find((line) => line.startsWith('more')) ?? '';
-      const quitLine = lines.find((line) => line.startsWith('quit')) ?? '';
-
-      expect(hidden).to.not.include('options:');
-      expectRowsBounded(visible, width);
-      expect(visible).to.include('options:\n' + '┄'.repeat(width));
-      expect(closeLine.indexOf('i')).to.eql(9);
-      expect(moreLine.indexOf('shift + i')).to.eql(9);
-      expect(quitLine.indexOf('ctrl + c')).to.eql(9);
-      expect(quitLine).to.include('ctrl + c or q');
     });
   });
 

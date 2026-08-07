@@ -1,24 +1,14 @@
-import { Cli, Process, Rx, type t, ViteConfig } from '../common.ts';
-import { Log } from './u.log.ts';
+import { Cli, Open, Rx, type t } from '../common.ts';
 
 type KeypressEvent = {
   readonly key?: string;
   readonly ctrlKey?: boolean;
-  readonly shiftKey?: boolean;
 };
 type KeypressStream = AsyncIterable<KeypressEvent>;
-type KeyboardAction = 'noop' | 'open' | 'quit' | 'clear' | 'info' | 'info.extended';
-type KeyboardScreen = {
-  clearLog(): void;
-  toggleOptions(): void;
-  toggleExtended(ws: t.ViteDenoWorkspace): void;
-};
+type KeyboardAction = 'noop' | 'open' | 'quit';
 type KeyboardDeps = {
   keypress?: () => KeypressStream;
-  workspace?: () => Promise<t.ViteDenoWorkspace>;
-  open?: (url: string) => void;
-  clear?: () => void;
-  print?: (text: string) => void;
+  open?: (url: t.StringUrl) => void;
   exit?: (code: number) => void;
 };
 
@@ -26,30 +16,21 @@ type KeyboardDeps = {
  * Create a keyboard listener to control the running dev server.
  */
 export function keyboardFactory(args: {
-  paths: t.ViteConfig.Paths;
-  port: number;
+  cwd: t.StringDir;
   url: string;
-  pkg?: t.Pkg;
-  dist?: t.DistPkg;
   until?: t.Process.Handle['dispose$'];
   dispose: () => Promise<void>;
-  screen?: KeyboardScreen;
 }, deps: KeyboardDeps = {}) {
-  const { pkg, dist, paths, dispose } = args;
-  const sh = Process.sh();
-  const url = new URL(args.url).href;
+  const { dispose } = args;
+  const url = new URL(args.url).href as t.StringUrl;
   const keypress = deps.keypress ?? Cli.keypress;
-  const open = deps.open ?? ((url) => sh.run(`open ${url}`));
-  const clear = deps.clear ?? (() => console.clear());
-  const print = deps.print ?? ((text) => console.info(text));
+  const open = deps.open ?? ((url) => Open.invokeDetached(args.cwd, url, { silent: true }));
   const exit = deps.exit ?? ((code) => Deno.exit(code));
 
   return async () => {
     try {
-      const ws = await (deps.workspace ?? (() => ViteConfig.workspace()))();
-
       for await (const e of keypress()) {
-        const action = wrangle.action(e, Boolean(pkg));
+        const action = wrangle.action(e);
         if (action === 'noop') continue;
         if (action === 'open') {
           open(url);
@@ -59,27 +40,6 @@ export function keyboardFactory(args: {
           await dispose();
           exit(0);
           return;
-        }
-
-        if (args.screen) {
-          if (action === 'clear') args.screen.clearLog();
-          if (action === 'info') args.screen.toggleOptions();
-          if (action === 'info.extended') args.screen.toggleExtended(ws);
-          continue;
-        }
-
-        clear();
-        if (action === 'clear' && pkg) {
-          print(Log.Info.toString({ pkg, url, pad: true }));
-          continue;
-        }
-        if (action === 'info' && pkg) {
-          print(Log.Help.toString({ pkg, dist, paths, url, pad: false }));
-          continue;
-        }
-        if (action === 'info.extended' && pkg) {
-          print(Log.Help.toString({ pkg, dist, paths, ws, url, pad: true }));
-          continue;
         }
       }
     } catch (error) {
@@ -93,14 +53,10 @@ export function keyboardFactory(args: {
 }
 
 const wrangle = {
-  action(e: KeypressEvent, hasPkg: boolean): KeyboardAction {
+  action(e: KeypressEvent): KeyboardAction {
     if (!e.key) return 'noop';
     if ((e.ctrlKey && e.key === 'c') || e.key === 'q') return 'quit';
     if (e.key === 'o') return 'open';
-    if (!hasPkg) return 'noop';
-    if (e.key === 'k') return 'clear';
-    if (e.key === 'i' && e.shiftKey) return 'info.extended';
-    if (e.key === 'i') return 'info';
     return 'noop';
   },
 
