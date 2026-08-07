@@ -176,6 +176,12 @@ export declare namespace Cli {
     export type Events = t.CliScreen.Events;
     /** Terminal screen event union. */
     export type Event = t.CliScreen.Event;
+    /** Pure placement helpers for bounded screen regions. */
+    export type Dock = t.CliScreen.Dock.Lib;
+    export namespace Dock {
+      /** Pure bounded vertical layout for an optional bottom footer. */
+      export type Bottom = t.CliScreen.Dock.Bottom;
+    }
     /** Terminal resize event. */
     export type SizeChanged = t.CliScreen.SizeChanged;
   }
