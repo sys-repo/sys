@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Fs, type t } from '../common.ts';
 import { DistServer } from '@sys/server/dist';
-import { start, START_UI_SOURCE } from '../u.start/u.ui.ts';
+import { start, START_GUI_SOURCE } from '../u.start/u.gui.ts';
 import {
   asProfileRoot,
   deferred,
@@ -11,11 +11,11 @@ import {
   rejectionOf,
   type Started,
   startedFixture,
-} from './u.fixture.start.ui.ts';
+} from './u.fixture.start.gui.ts';
 
-describe(`@sys/driver-pi/cli/Profiles/u.start.ui`, () => {
+describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
   it('preserves materialization failure evidence without starting a listener', async () => {
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.ui.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.gui.test.' }))
       .absolute as t.StringDir;
     const storeDir = Fs.join(cwd, '.pi/@sys/dist/@sys.driver-pi') as t.StringDir;
     let openCalls = 0;
@@ -25,7 +25,6 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.ui`, () => {
       const error = await rejectionOf(() =>
         start({
           cwd: asProfileRoot(cwd),
-          mode: 'ui',
           deps: {
             materialize: () =>
               Promise.resolve({
@@ -46,7 +45,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.ui`, () => {
       );
 
       expect(error.message).to.eql(
-        'start:ui materialization failed: manifest-fetch/resource-failure',
+        'start:gui materialization failed: manifest-fetch/resource-failure',
       );
       expect((error as Error & { materialization?: unknown }).materialization).to.eql({
         stage: 'manifest-fetch',
@@ -62,7 +61,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.ui`, () => {
   });
 
   it('passes pinned materialization and loopback-host authority with one stable store root', async () => {
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.ui.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.gui.test.' }))
       .absolute as t.StringDir;
     const storeDir = Fs.join(cwd, '.pi/@sys/dist/@sys.driver-pi') as t.StringDir;
     let materializeArgs: t.Dist.MaterializeArgs | undefined;
@@ -73,7 +72,6 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.ui`, () => {
     try {
       await start({
         cwd: asProfileRoot(cwd),
-        mode: 'ui',
         deps: {
           materialize: (args) => {
             materializeArgs = args;
@@ -95,14 +93,14 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.ui`, () => {
         },
       });
 
-      expect(Object.isFrozen(START_UI_SOURCE)).to.eql(true);
-      expect(materializeArgs?.manifestUrl).to.eql(START_UI_SOURCE.manifestUrl);
-      expect(materializeArgs?.integrity).to.eql(START_UI_SOURCE.integrity);
+      expect(Object.isFrozen(START_GUI_SOURCE)).to.eql(true);
+      expect(materializeArgs?.manifestUrl).to.eql(START_GUI_SOURCE.manifestUrl);
+      expect(materializeArgs?.integrity).to.eql(START_GUI_SOURCE.integrity);
       expect(materializeArgs?.storeDir).to.eql(storeDir);
       expect(materializeArgs?.policy.manifest.sourceOrigins).to.eql(['http://localhost:8080']);
       expect(startArgs).to.include({
-        dir: '/tmp/driver-pi-ui-generation',
-        integrity: START_UI_SOURCE.integrity,
+        dir: '/tmp/driver-pi-gui-generation',
+        integrity: START_GUI_SOURCE.integrity,
         hostname: '127.0.0.1',
         port: 0,
       });
@@ -121,10 +119,10 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.ui`, () => {
   });
 
   it('accepts a complete source replacement, snapshots it, and retains fixed authority', async () => {
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.ui.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.gui.test.' }))
       .absolute as t.StringDir;
-    const source: t.PiCliProfiles.StartUiSource = {
-      manifestUrl: 'https://ui.example.test:8443/release/dist.json',
+    const source: t.PiCliProfiles.StartGuiSource = {
+      manifestUrl: 'https://gui.example.test:8443/release/dist.json',
       integrity: 'sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
     };
     let materializeArgs: t.Dist.MaterializeArgs | undefined;
@@ -133,7 +131,6 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.ui`, () => {
     try {
       const run = start({
         cwd: asProfileRoot(cwd),
-        mode: 'ui',
         source,
         deps: {
           materialize: (args) => {
@@ -153,13 +150,13 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.ui`, () => {
       await run;
 
       expect(materializeArgs?.manifestUrl).to.eql(
-        'https://ui.example.test:8443/release/dist.json',
+        'https://gui.example.test:8443/release/dist.json',
       );
       expect(materializeArgs?.integrity).to.eql(
         'sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
       );
       expect(materializeArgs?.policy.manifest.sourceOrigins).to.eql([
-        'https://ui.example.test:8443',
+        'https://gui.example.test:8443',
       ]);
       expect(materializeArgs?.policy.verification).to.eql({
         manifestBytes: 16 * 1024 * 1024,
@@ -179,18 +176,18 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.ui`, () => {
   });
 
   it('rejects malformed source URL and integrity before materialization', async () => {
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.ui.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.gui.test.' }))
       .absolute as t.StringDir;
     const validIntegrity =
       'sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' as t.StringHash;
-    const cases: Array<{ source: t.PiCliProfiles.StartUiSource; message: string }> = [
+    const cases: Array<{ source: t.PiCliProfiles.StartGuiSource; message: string }> = [
       {
         source: { manifestUrl: 'file:///tmp/dist.json', integrity: validIntegrity },
-        message: 'Invalid start:ui manifest URL.',
+        message: 'Invalid start:gui manifest URL.',
       },
       {
-        source: { manifestUrl: 'https://ui.example.test/dist.json', integrity: 'sha256-invalid' },
-        message: 'Invalid start:ui manifest integrity.',
+        source: { manifestUrl: 'https://gui.example.test/dist.json', integrity: 'sha256-invalid' },
+        message: 'Invalid start:gui manifest integrity.',
       },
     ];
 
@@ -200,7 +197,6 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.ui`, () => {
         const error = await rejectionOf(() =>
           start({
             cwd: asProfileRoot(cwd),
-            mode: 'ui',
             source,
             deps: {
               materialize: () => {
@@ -220,7 +216,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.ui`, () => {
   });
 
   it('binds keyboard before browser open, disposes it, and preserves open failure', async () => {
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.ui.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.gui.test.' }))
       .absolute as t.StringDir;
     const events: string[] = [];
     const stop = deferred();
@@ -234,7 +230,6 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.ui`, () => {
       const error = await rejectionOf(() =>
         start({
           cwd: asProfileRoot(cwd),
-          mode: 'ui',
           deps: {
             materialize: () => Promise.resolve(fakeGeneration()),
             start: () =>
@@ -266,7 +261,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.ui`, () => {
   });
 
   it('propagates keyboard-bind failure without opening a browser', async () => {
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.ui.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.gui.test.' }))
       .absolute as t.StringDir;
     const bindFailure = new Error('keyboard bind failed');
     let closeCalls = 0;
@@ -276,7 +271,6 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.ui`, () => {
       const error = await rejectionOf(() =>
         start({
           cwd: asProfileRoot(cwd),
-          mode: 'ui',
           deps: {
             materialize: () => Promise.resolve(fakeGeneration()),
             start: () =>
@@ -305,7 +299,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.ui`, () => {
   });
 
   it('retains cleanup failure as secondary evidence without replacing the primary failure', async () => {
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.ui.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.gui.test.' }))
       .absolute as t.StringDir;
     const primary = new Error('open failed');
     const cleanup = new Error('close failed');
@@ -315,7 +309,6 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.ui`, () => {
       const error = await rejectionOf(() =>
         start({
           cwd: asProfileRoot(cwd),
-          mode: 'ui',
           deps: {
             materialize: () => Promise.resolve(fakeGeneration()),
             start: () =>
@@ -343,7 +336,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.ui`, () => {
   });
 
   it('uses the lower server lifecycle for external cancellation', async () => {
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.ui.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.gui.test.' }))
       .absolute as t.StringDir;
     const aborted = new AbortController();
     const startedSignal = deferred();
@@ -367,7 +360,6 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.ui`, () => {
     try {
       const run = start({
         cwd: asProfileRoot(cwd),
-        mode: 'ui',
         until: aborted.signal,
         deps: {
           materialize: (args) => {
@@ -400,7 +392,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.ui`, () => {
   });
 
   it('closes once after keyboard quit and disposes the binding', async () => {
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.ui.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.gui.test.' }))
       .absolute as t.StringDir;
     const serverFinished = deferred();
     let closeCalls = 0;
@@ -417,7 +409,6 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.ui`, () => {
     try {
       const run = start({
         cwd: asProfileRoot(cwd),
-        mode: 'ui',
         deps: {
           materialize: () => Promise.resolve(fakeGeneration()),
           start: () => {
@@ -440,7 +431,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.ui`, () => {
       });
 
       await bound.promise;
-      if (!onQuit) throw new Error('Expected start:ui keyboard quit callback.');
+      if (!onQuit) throw new Error('Expected start:gui keyboard quit callback.');
       await onQuit();
       await run;
 
@@ -452,7 +443,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.ui`, () => {
   });
 
   it('materializes, hosts, fetches, and closes an opaque loopback Dist', async () => {
-    const temporary = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.ui.test.' }))
+    const temporary = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.start.gui.test.' }))
       .absolute as t.StringDir;
     const cwd = (await Fs.realPath(temporary)) as t.StringDir;
     const fixture = await loopbackDistFixture();
@@ -464,7 +455,6 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.ui`, () => {
     try {
       await start({
         cwd: asProfileRoot(cwd),
-        mode: 'ui',
         source: {
           manifestUrl: fixture.manifestUrl,
           integrity: fixture.integrity,
@@ -485,7 +475,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.ui`, () => {
               const response = await fetch(origin);
               expect(response.status).to.eql(200);
               body = await response.text();
-              await started?.close('driver-pi.start-ui.capstone');
+              await started?.close('driver-pi.start-gui.capstone');
             })();
           },
         },

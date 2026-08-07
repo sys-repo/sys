@@ -1,7 +1,7 @@
 import { Fs, type t } from '../common.ts';
 import { PiFs } from '../../u.fs.ts';
 
-import type { FailedMaterialization, StartUiDependencies } from './u.deps.ts';
+import type { FailedMaterialization, StartGuiDependencies } from './u.deps.ts';
 import { type ManifestSource, materializePolicy } from './u.source.ts';
 
 type MaterializationError = Error & {
@@ -17,7 +17,7 @@ export async function materialize(input: {
   root: t.StringDir;
   source: ManifestSource;
   integrity: t.StringHash;
-  deps: StartUiDependencies;
+  deps: StartGuiDependencies;
   until?: t.UntilInput;
 }) {
   const storeDir = Fs.join(input.root, ...PiFs.sysDirSegments, 'dist', PiFs.root) as t.StringDir;
@@ -49,7 +49,7 @@ async function ensureStore(storeDir: t.StringDir): Promise<void> {
 
 function materializationError(result: FailedMaterialization): MaterializationError {
   const error = new Error(
-    `start:ui materialization failed: ${result.stage}/${result.reason}`,
+    `start:gui materialization failed: ${result.stage}/${result.reason}`,
   ) as MaterializationError;
   Object.defineProperty(error, 'materialization', {
     configurable: false,

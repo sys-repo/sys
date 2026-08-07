@@ -9,7 +9,7 @@ import { resolveRun } from './u.resolve.run.ts';
 import { ProfileSchema } from '../u.schema/mod.ts';
 import { clearInteractiveScreen } from './u.terminal.ts';
 
-type Action = 'start:cli' | 'start:ui' | 'select';
+type Action = t.PiCliProfiles.StartAction | 'select';
 
 type MenuContext = {
   readonly cwd: t.PiCli.Cwd;
@@ -84,8 +84,8 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll, gitRoot
 
     if (action.kind === 'back') continue;
     if (action.kind === 'exit') return { kind: 'exit' };
-    if (action.kind === 'action' && (action.action === 'start:cli' || action.action === 'start:ui')) {
-      const mode = action.action === 'start:cli' ? 'cli' : 'ui';
+    if (action.kind === 'action' && (action.action === 'start:tui' || action.action === 'start:gui')) {
+      const mode = action.action === 'start:tui' ? 'tui' : 'gui';
       await MenuState.writeMode({ root, selectedMode: mode });
       return {
         kind: 'selected',
@@ -101,7 +101,7 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll, gitRoot
  * Helpers:
  */
 function actionFromMode(mode: t.PiCliProfiles.StartMode): Action {
-  return mode === 'cli' ? 'start:cli' : 'start:ui';
+  return mode === 'tui' ? 'start:tui' : 'start:gui';
 }
 
 function printProfileRoot(input: { allowAll?: boolean; notice?: string }) {
@@ -117,7 +117,7 @@ function printProfileHeader(allowAll?: boolean) {
 }
 
 function menuArgs(args: { cwd: t.StringDir; allowAll?: boolean; defaultAction?: Action }) {
-  const { cwd, allowAll, defaultAction = 'start:cli' } = args;
+  const { cwd, allowAll, defaultAction = 'start:tui' } = args;
   const schema = {
     init: () => ProfileSchema.initial(),
     validate: (value: unknown) => ProfileSchema.validate(value),
@@ -137,26 +137,26 @@ function menuArgs(args: { cwd: t.StringDir; allowAll?: boolean; defaultAction?: 
       labelMode: 'submenu' as const,
       extra: [
         {
-          name: c.cyan('start:ui'),
-          value: 'start:ui' as const,
+          name: c.cyan('start:tui'),
+          value: 'start:tui' as const,
         },
         {
-          name: c.cyan('start:cli'),
-          value: 'start:cli' as const,
+          name: c.cyan('start:gui'),
+          value: 'start:gui' as const,
         },
       ],
       onAction({ action, path }: { action: string; path: t.StringPath }) {
-        if (action === 'start:cli') {
+        if (action === 'start:tui') {
           return Promise.resolve({
             kind: 'action' as const,
-            action: 'start:cli' as const,
+            action: 'start:tui' as const,
             path,
           });
         }
-        if (action === 'start:ui') {
+        if (action === 'start:gui') {
           return Promise.resolve({
             kind: 'action' as const,
-            action: 'start:ui' as const,
+            action: 'start:gui' as const,
             path,
           });
         }

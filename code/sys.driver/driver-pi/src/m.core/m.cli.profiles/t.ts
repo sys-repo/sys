@@ -105,13 +105,16 @@ export declare namespace PiCliProfiles {
   };
 
   /** Profile launcher result. */
-  export type Result = Help | Ran | Ui | Exit;
+  export type Result = Help | Ran | Gui | Exit;
 
-  /** Selected profile start mode. */
-  export type StartMode = 'cli' | 'ui';
+  /** Interactive profile start surface. */
+  export type StartMode = 'tui' | 'gui';
 
-  /** Complete launcher-owned source pair for the verified local UI runtime. */
-  export type StartUiSource = {
+  /** Interactive profile start action. */
+  export type StartAction = `start:${StartMode}`;
+
+  /** Complete launcher-owned source pair for the verified local GUI runtime. */
+  export type StartGuiSource = {
     manifestUrl: t.StringUrl;
     integrity: t.StringHash;
   };
@@ -161,10 +164,10 @@ export declare namespace PiCliProfiles {
     readonly output: t.Process.InheritOutput;
   };
 
-  /** Successful UI launch result. */
-  export type Ui = {
-    /** Discriminator for a launched local profile UI flow. */
-    readonly kind: 'ui';
+  /** Successful GUI launch result. */
+  export type Gui = {
+    /** Discriminator for a launched local profile GUI flow. */
+    readonly kind: 'gui';
     /** Original profile launcher input. */
     readonly input: Input;
     /** Parsed profile launcher args used for the launch selection. */

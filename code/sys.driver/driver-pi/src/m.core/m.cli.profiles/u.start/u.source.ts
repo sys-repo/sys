@@ -47,30 +47,30 @@ export function materializePolicy(
 
 export function resolveIntegrity(input: t.StringHash): t.StringHash {
   if (!Is.string(input) || !input.startsWith('sha256-')) {
-    throw new Error('Invalid start:ui manifest integrity.');
+    throw new Error('Invalid start:gui manifest integrity.');
   }
 
   try {
     const hex = Shard.Sha256.normalizeHex(input);
     if (hex !== input.slice('sha256-'.length)) {
-      throw new Error('Invalid start:ui manifest integrity.');
+      throw new Error('Invalid start:gui manifest integrity.');
     }
   } catch {
-    throw new Error('Invalid start:ui manifest integrity.');
+    throw new Error('Invalid start:gui manifest integrity.');
   }
 
   return input;
 }
 
 export function resolveManifestSource(input: t.StringUrl): ManifestSource {
-  if (!Is.urlString(input)) throw new Error('Invalid start:ui manifest URL.');
+  if (!Is.urlString(input)) throw new Error('Invalid start:gui manifest URL.');
 
   const parsed = Url.parse(input);
-  if (!parsed.ok) throw new Error('Invalid start:ui manifest URL.');
+  if (!parsed.ok) throw new Error('Invalid start:gui manifest URL.');
 
   const url = parsed.toURL();
   if (url.protocol !== 'http:' && url.protocol !== 'https:') {
-    throw new Error('Invalid start:ui manifest URL.');
+    throw new Error('Invalid start:gui manifest URL.');
   }
   url.hash = '';
   return {

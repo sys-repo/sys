@@ -23,7 +23,7 @@ export async function waitForTerminal(input: {
     input.started.finished.then(() => 'server' as const),
     input.keyboard.finished.then(() => 'keyboard' as const),
   ]);
-  if (terminal === 'keyboard') await input.close('start:ui.keyboard.finished');
+  if (terminal === 'keyboard') await input.close('start:gui.keyboard.finished');
 }
 
 export async function finalize(input: {
@@ -37,14 +37,14 @@ export async function finalize(input: {
     failures.push(cause);
   }
   try {
-    await input.close('start:ui.finalized');
+    await input.close('start:gui.finalized');
   } catch (cause) {
     failures.push(cause);
   }
 
   if (failures.length === 0) return undefined;
   if (failures.length === 1) return failures[0];
-  return new AggregateError(failures, 'start:ui cleanup failed.');
+  return new AggregateError(failures, 'start:gui cleanup failed.');
 }
 
 export function appendCleanup(primary: unknown, cleanup: unknown): Error {

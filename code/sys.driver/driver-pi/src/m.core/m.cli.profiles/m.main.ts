@@ -10,20 +10,19 @@ import { menu } from './u/u.menu.ts';
 import { ProfileConfig } from './u/u.profile.ts';
 import { resolveRun } from './u/u.resolve.run.ts';
 import { ProfileStartup } from './u/u.startup.ts';
-import { START_UI_SOURCE } from './u/u.start.source.ts';
+import { START_GUI_SOURCE } from './u/u.start.gui.source.ts';
 
 type MainDependencies = {
-  readonly startUi: (input: {
+  readonly startGui: (input: {
     cwd: t.PiCli.Cwd;
-    mode: 'ui';
-    source: t.PiCliProfiles.StartUiSource;
+    source: t.PiCliProfiles.StartGuiSource;
     until?: t.UntilInput;
   }) => Promise<void>;
 };
 
 const DEFAULT_DEPENDENCIES: MainDependencies = Object.freeze({
-  async startUi(input) {
-    const { start } = await import('./u.start/u.ui.ts');
+  async startGui(input) {
+    const { start } = await import('./u.start/u.gui.ts');
     await start(input);
   },
 });
@@ -68,29 +67,29 @@ export async function mainWith(
   const picked = parsed.profile
     ? {
       kind: 'selected' as const,
-      mode: 'cli' as const,
+      mode: 'tui' as const,
       config: (await ProfileConfig.resolveSelection(root, parsed.profile)).config,
     }
     : await menu({ cwd, allowAll, gitRootExplicit });
 
   if (picked.kind === 'exit') return { kind: 'exit', input };
 
-  if (picked.mode === 'ui' && parsed._.length > 0) {
+  if (picked.mode === 'gui' && parsed._.length > 0) {
     throw new Error(
-      'start:ui cannot accept Pi passthrough args. Select start:cli for passthrough mode.',
+      'start:gui cannot accept Pi passthrough args. Select start:tui for passthrough mode.',
     );
   }
 
-  if (picked.mode === 'ui' && parsed.installOcrDeps === true) {
+  if (picked.mode === 'gui' && parsed.installOcrDeps === true) {
     throw new Error(
-      'start:ui does not support --install-ocr-deps. Use start:cli for OCR bootstrap.',
+      'start:gui does not support --install-ocr-deps. Use start:tui for OCR bootstrap.',
     );
   }
 
-  if (picked.mode === 'ui') {
-    await deps.startUi({ cwd, mode: 'ui', source: START_UI_SOURCE });
+  if (picked.mode === 'gui') {
+    await deps.startGui({ cwd, source: START_GUI_SOURCE });
     return {
-      kind: 'ui',
+      kind: 'gui',
       input,
       parsed,
     };

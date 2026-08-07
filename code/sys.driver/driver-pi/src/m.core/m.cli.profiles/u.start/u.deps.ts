@@ -2,15 +2,15 @@ import { Cli, type t } from '../common.ts';
 import { Dist, DistServer } from '@sys/server/dist';
 import { Open } from '@sys/process';
 
-/** Owner seams for focused UI-start runtime tests. */
-export type StartUiDependencies = {
+/** Owner seams for focused GUI-start runtime tests. */
+export type StartGuiDependencies = {
   readonly materialize: t.Dist.Materialize;
   readonly start: (args: t.DistServer.Start.Args) => Promise<Started>;
   readonly open: t.OpenLib['invokeDetached'];
   readonly bindKeyboard: t.Cli.Keyboard.Lib['bind'];
 };
 
-export const DEFAULT_DEPENDENCIES: StartUiDependencies = Object.freeze({
+export const DEFAULT_DEPENDENCIES: StartGuiDependencies = Object.freeze({
   materialize: Dist.materialize,
   start: DistServer.start,
   open: Open.invokeDetached,

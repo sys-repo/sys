@@ -5,31 +5,28 @@ import {
   DEFAULT_DEPENDENCIES,
   type Keyboard,
   type Started,
-  type StartUiDependencies,
+  type StartGuiDependencies,
 } from './u.deps.ts';
 import { appendCleanup, closeOnce, finalize, waitForTerminal } from './u.lifecycle.ts';
 import { materialize } from './u.materialize.ts';
 import { LIMITS, resolveIntegrity, resolveManifestSource } from './u.source.ts';
-import { START_UI_SOURCE } from '../u/u.start.source.ts';
+import { START_GUI_SOURCE } from '../u/u.start.gui.source.ts';
 
-export type { StartUiDependencies } from './u.deps.ts';
-export { START_UI_SOURCE } from '../u/u.start.source.ts';
+export type { StartGuiDependencies } from './u.deps.ts';
+export { START_GUI_SOURCE } from '../u/u.start.gui.source.ts';
 
-export type StartUiInput = {
+export type StartGuiInput = {
   cwd: t.PiCli.Cwd;
   until?: t.UntilInput;
-  mode: t.PiCliProfiles.StartMode;
-  source?: t.PiCliProfiles.StartUiSource;
-  deps?: Partial<StartUiDependencies>;
+  source?: t.PiCliProfiles.StartGuiSource;
+  deps?: Partial<StartGuiDependencies>;
 };
 
-/** Lazy UI start leaf. */
-export async function start(input: StartUiInput): Promise<void> {
-  if (input.mode !== 'ui') return;
-
+/** Lazy GUI start leaf. */
+export async function start(input: StartGuiInput): Promise<void> {
   const root = runtimeRoot(input.cwd);
   const deps = Object.freeze({ ...DEFAULT_DEPENDENCIES, ...(input.deps ?? {}) });
-  const sourceInput = input.source ?? START_UI_SOURCE;
+  const sourceInput = input.source ?? START_GUI_SOURCE;
   const configured = Object.freeze({
     manifestUrl: sourceInput.manifestUrl,
     integrity: sourceInput.integrity,
@@ -60,7 +57,7 @@ export async function start(input: StartUiInput): Promise<void> {
     keyboard = deps.bindKeyboard({
       exit: false,
       until: started.finished,
-      onQuit: () => close('start:ui.keyboard.quit'),
+      onQuit: () => close('start:gui.keyboard.quit'),
     });
     deps.open(root, started.origin);
 

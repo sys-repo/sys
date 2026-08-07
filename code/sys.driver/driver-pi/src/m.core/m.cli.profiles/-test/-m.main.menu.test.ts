@@ -3,7 +3,7 @@ import { Cli, Fs, Obj, type t } from '../common.ts';
 import { Process } from '../../m.cli/common.ts';
 import { mainWith } from '../m.main.ts';
 import { Profiles } from '../mod.ts';
-import { START_UI_SOURCE } from '../u/u.start.source.ts';
+import { START_GUI_SOURCE } from '../u/u.start.gui.source.ts';
 
 type SelectPromptInput = {
   readonly message?: string;
@@ -99,7 +99,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
             return Promise.resolve('exit');
           }
           if ((input.options ?? []).some((item) => item.value === 'back')) {
-            return Promise.resolve('start:cli');
+            return Promise.resolve('start:tui');
           }
           throw new Error(`Unexpected prompt: ${input.message}`);
         },
@@ -158,7 +158,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
             return Promise.resolve('exit');
           }
           if ((input.options ?? []).some((item) => item.value === 'back')) {
-            return Promise.resolve('start:cli');
+            return Promise.resolve('start:tui');
           }
           throw new Error(`Unexpected prompt: ${input.message}`);
         },
@@ -188,7 +188,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
     }
   });
 
-  it('rejects passthrough args when start:ui is selected', async () => {
+  it('rejects passthrough args when start:gui is selected', async () => {
     const prev = Process.inherit;
     const prevInfo = console.info;
     const originalPrompt = Cli.Input.Select.prompt;
@@ -214,10 +214,10 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
           return Promise.resolve('exit');
         }
         if (
-          selectedAction == null && (input.options ?? []).some((item) => item.value === 'start:ui')
+          selectedAction == null && (input.options ?? []).some((item) => item.value === 'start:gui')
         ) {
           selectedAction = 'action';
-          return Promise.resolve('start:ui');
+          return Promise.resolve('start:gui');
         }
         if (
           selectedAction === 'action' && (input.options ?? []).some((item) => item.value === 'back')
@@ -239,7 +239,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
         err = error instanceof Error ? error : new Error(String(error));
       }
       expect(err?.message).to.eql(
-        'start:ui cannot accept Pi passthrough args. Select start:cli for passthrough mode.',
+        'start:gui cannot accept Pi passthrough args. Select start:tui for passthrough mode.',
       );
     } finally {
       Process.inherit = prev;
@@ -249,7 +249,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
     }
   });
 
-  it('dispatches start:ui without launching a Pi child or rendering final child authority', async () => {
+  it('dispatches start:gui without launching a Pi child or rendering final child authority', async () => {
     const prev = Process.inherit;
     const prevInfo = console.info;
     const originalPrompt = Cli.Input.Select.prompt;
@@ -261,11 +261,10 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
     const frames: string[] = [];
     let topLevelCount = 0;
     let selectedAction: string | undefined;
-    let startUiCalls = 0;
-    let startUiInput: {
+    let startGuiCalls = 0;
+    let startGuiInput: {
       cwd: t.PiCli.Cwd;
-      mode: 'ui';
-      source: t.PiCliProfiles.StartUiSource;
+      source: t.PiCliProfiles.StartGuiSource;
     } | undefined;
 
     await Fs.ensureDir(Fs.join(cwd, '.git'));
@@ -275,7 +274,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
     console.info = () => undefined;
     screen.repaint = (frame) => frames.push(frame);
     Process.inherit = () =>
-      Promise.reject(new Error('Process.inherit should not run during start:ui'));
+      Promise.reject(new Error('Process.inherit should not run during start:gui'));
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
       value: (input: SelectPromptInput) => {
@@ -285,10 +284,10 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
           return Promise.resolve('exit');
         }
         if (
-          selectedAction == null && (input.options ?? []).some((item) => item.value === 'start:ui')
+          selectedAction == null && (input.options ?? []).some((item) => item.value === 'start:gui')
         ) {
           selectedAction = 'action';
-          return Promise.resolve('start:ui');
+          return Promise.resolve('start:gui');
         }
         if (
           selectedAction === 'action' && (input.options ?? []).some((item) => item.value === 'back')
@@ -306,20 +305,19 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
       const res = await mainWith(
         { cwd, tty: { stdin: true, stdout: true } },
         {
-          startUi: (input) => {
-            startUiCalls += 1;
-            startUiInput = input;
+          startGui: (input) => {
+            startGuiCalls += 1;
+            startGuiInput = input;
             return Promise.resolve();
           },
         },
       );
 
-      expect(res.kind).to.eql('ui');
-      expect(startUiCalls).to.eql(1);
-      expect(startUiInput?.mode).to.eql('ui');
-      expect(startUiInput?.cwd.git).to.eql(cwd);
-      expect(startUiInput?.cwd.invoked).to.eql(cwd);
-      expect(startUiInput?.source).to.equal(START_UI_SOURCE);
+      expect(res.kind).to.eql('gui');
+      expect(startGuiCalls).to.eql(1);
+      expect(startGuiInput?.cwd.git).to.eql(cwd);
+      expect(startGuiInput?.cwd.invoked).to.eql(cwd);
+      expect(startGuiInput?.source).to.equal(START_GUI_SOURCE);
       expect(frames).to.eql([]);
     } finally {
       Process.inherit = prev;

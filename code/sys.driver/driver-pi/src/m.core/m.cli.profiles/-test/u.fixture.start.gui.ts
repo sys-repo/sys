@@ -1,6 +1,6 @@
 import { Fs, type t } from '../common.ts';
 import { Pkg as FsPkg } from '@sys/fs/pkg';
-import { START_UI_SOURCE } from '../u.start/u.ui.ts';
+import { START_GUI_SOURCE } from '../u.start/u.gui.ts';
 
 export type Started = t.HttpServer.Started;
 export type Keyboard = t.Cli.Keyboard.Bind.Handle;
@@ -16,13 +16,13 @@ export function asProfileRoot(root: t.StringDir): t.PiCli.Cwd {
 export function fakeGeneration(): t.Dist.Existing {
   return {
     kind: 'existing',
-    dir: '/tmp/driver-pi-ui-generation' as t.StringAbsoluteDir,
-    integrity: START_UI_SOURCE.integrity,
+    dir: '/tmp/driver-pi-gui-generation' as t.StringAbsoluteDir,
+    integrity: START_GUI_SOURCE.integrity,
     verification: {
-      integrity: START_UI_SOURCE.integrity,
+      integrity: START_GUI_SOURCE.integrity,
       dist: {
-        type: 'https://jsr.io/@sample/driver-pi-ui',
-        pkg: { name: '@sample/driver-pi-ui', version: '1.0.0' },
+        type: 'https://jsr.io/@sample/driver-pi-gui',
+        pkg: { name: '@sample/driver-pi-gui', version: '1.0.0' },
         build: {
           time: 0,
           size: { total: 0, pkg: 0 },
@@ -30,12 +30,12 @@ export function fakeGeneration(): t.Dist.Existing {
           runtime: '<runtime-uri>',
           hash: { policy: 'https://jsr.io/@sample/hash/0.0.1/src/hash.ts' },
         },
-        hash: { digest: START_UI_SOURCE.integrity, parts: {} },
+        hash: { digest: START_GUI_SOURCE.integrity, parts: {} },
       },
       manifestBytes: 0,
       assets: { files: 0, totalBytes: 0, packageBytes: 0 },
     },
-    source: { configuredUrl: START_UI_SOURCE.manifestUrl },
+    source: { configuredUrl: START_GUI_SOURCE.manifestUrl },
     cleanup: 'not-needed',
   };
 }
@@ -69,13 +69,13 @@ export async function rejectionOf(action: () => Promise<unknown>): Promise<Error
 }
 
 export async function loopbackDistFixture() {
-  const source = (await Fs.makeTempDir({ prefix: 'driver-pi.start-ui.source.' }))
+  const source = (await Fs.makeTempDir({ prefix: 'driver-pi.start-gui.source.' }))
     .absolute as t.StringDir;
   await Fs.write(Fs.join(source, 'index.html'), '<h1>verified driver-pi fixture</h1>');
   await Fs.write(Fs.join(source, 'assets/app.js'), 'console.info("verified");');
   const computed = await FsPkg.Dist.compute({
     dir: source,
-    pkg: { name: '@sample/driver-pi-ui', version: '1.0.0' },
+    pkg: { name: '@sample/driver-pi-gui', version: '1.0.0' },
     builder: { name: '@sample/builder', version: '1.0.0' },
     save: true,
   });

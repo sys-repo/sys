@@ -156,7 +156,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     try {
       const res = await menu({ cwd: testCwd(cwd) });
       expect(res).to.eql({ kind: 'exit' });
-      expect(actionFrame).to.eql(['  start:ui', '  start:cli', '  profile: default', '← back']);
+      expect(actionFrame).to.eql(['  start:tui', '  start:gui', '  profile: default', '← back']);
       expect(profileTitle).to.eql('profile: default');
       expect(profileFrame).to.eql([
         '  edit',
@@ -181,7 +181,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
 
     await Fs.ensureDir(Fs.join(cwd, '.git'));
     await Fs.write(config, 'sandbox: {}\n');
-    await MenuState.writeMode({ root: cwd, selectedMode: 'ui' });
+    await MenuState.writeMode({ root: cwd, selectedMode: 'gui' });
 
     let defaultAction: string | undefined;
     let topLevelCount = 0;
@@ -206,7 +206,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     try {
       const res = await menu({ cwd: testCwd(cwd) });
       expect(res).to.eql({ kind: 'exit' });
-      expect(defaultAction).to.eql('start:ui');
+      expect(defaultAction).to.eql('start:gui');
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       console.info = originalInfo;
@@ -214,7 +214,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     }
   });
 
-  it('menu → defaults launch action to start:cli when persisted state is corrupted', async () => {
+  it('menu → defaults launch action to start:tui when persisted state is corrupted', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.menu.test.' }))
       .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
@@ -249,7 +249,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     try {
       const res = await menu({ cwd: testCwd(cwd) });
       expect(res).to.eql({ kind: 'exit' });
-      expect(defaultAction).to.eql('start:cli');
+      expect(defaultAction).to.eql('start:tui');
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       console.info = originalInfo;
@@ -273,8 +273,8 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
           return Promise.resolve(config);
         }
         if (isSelectedProfileMenu(input)) {
-          const option = input.options?.find((item) => item.value === 'start:ui');
-          return Promise.resolve(option?.value as 'start:ui');
+          const option = input.options?.find((item) => item.value === 'start:gui');
+          return Promise.resolve(option?.value as 'start:gui');
         }
         throw new Error(`Unexpected prompt: ${input.message}`);
       },
@@ -285,14 +285,14 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       const res = await menu({ cwd: testCwd(cwd) });
       const savedMode = await MenuState.readMode(cwd);
       expect(res.kind).to.eql('selected');
-      expect(savedMode).to.eql('ui');
+      expect(savedMode).to.eql('gui');
       if (res.kind === 'selected') {
-        expect(res.mode).to.eql('ui');
+        expect(res.mode).to.eql('gui');
         expect(res.config).to.eql(config);
       }
       const saved = await Fs.readJson<t.PiCliProfiles.MenuState>(MenuState.pathOf(cwd));
       expect(saved.ok).to.eql(true);
-      expect(saved.data?.selectedMode).to.eql('ui');
+      expect(saved.data?.selectedMode).to.eql('gui');
       expect(saved.data?.['.meta']?.schemaVersion).to.eql(1);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
@@ -735,8 +735,8 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(printed).not.to.match(/\nread\s+/);
       expect(printed).not.to.match(/\nwrite\s+/);
       const strippedOptions = harnessOptions.map((name) => Cli.stripAnsi(name));
-      expect(strippedOptions).to.include('  start:cli');
-      expect(strippedOptions).to.include('  start:ui');
+      expect(strippedOptions).to.include('  start:tui');
+      expect(strippedOptions).to.include('  start:gui');
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       screen.size = prevScreenSize;
@@ -768,13 +768,13 @@ function isActionMenu(input: SelectInput) {
 }
 
 function isSelectedProfileMenu(input: SelectInput) {
-  return (input.options ?? []).some((item) => item.value === 'start:cli') ||
-    (input.options ?? []).some((item) => item.value === 'start:ui');
+  return (input.options ?? []).some((item) => item.value === 'start:tui') ||
+    (input.options ?? []).some((item) => item.value === 'start:gui');
 }
 
 function isProfileSubmenu(input: SelectInput) {
   const options = input.options ?? [];
   return options.some((item) => item.value === 'edit') &&
-    !(options.some((item) => item.value === 'start:cli') ||
-      options.some((item) => item.value === 'start:ui'));
+    !(options.some((item) => item.value === 'start:tui') ||
+      options.some((item) => item.value === 'start:gui'));
 }

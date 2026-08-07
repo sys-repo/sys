@@ -6,7 +6,7 @@ type StartMode = t.PiCliProfiles.StartMode;
 
 const MENU_STATE = {
   file: 'menu.json' as const,
-  defaultMode: 'cli' as const,
+  defaultMode: 'tui' as const,
   schemaVersion: 1 as t.PiCliProfiles.MenuState.SchemaVersion,
   expectedKeys: ['selectedMode', '.meta'] as const,
 } as const;
@@ -58,7 +58,7 @@ async function readState(root: t.StringDir): Promise<StartMode | undefined> {
   if (!read.ok || !Obj.isRecord(read.data)) return undefined;
 
   if (!isCurrent(read.data)) return undefined;
-  return read.data['selectedMode'];
+  return read.data.selectedMode;
 }
 
 async function writeSafeModeFile(path: t.StringPath, seed: MenuStateDocument) {
@@ -75,14 +75,8 @@ async function writeSafeModeFile(path: t.StringPath, seed: MenuStateDocument) {
 
 function isCurrent(data: unknown): data is t.PiCliProfiles.MenuState {
   if (!Obj.isRecord(data)) return false;
-  if (!isExactShape(data)) return false;
-  if (!isStartMode(data['selectedMode'])) return false;
-  if (!Obj.isRecord(data['.meta'])) return false;
-
-  const meta = data['.meta'];
-  return Is.number(meta.createdAt) &&
-    Is.number(meta.schemaVersion) &&
-    meta.schemaVersion === MENU_STATE.schemaVersion;
+  return isExactShape(data) && isStartMode(data.selectedMode) &&
+    hasSchemaVersion(data, MENU_STATE.schemaVersion);
 }
 
 function isExactShape(data: Record<string, unknown>): boolean {
@@ -91,8 +85,14 @@ function isExactShape(data: Record<string, unknown>): boolean {
   return keys.every((key) => MENU_STATE_KEY_SET.has(key));
 }
 
+function hasSchemaVersion(data: Record<string, unknown>, version: number): boolean {
+  const meta = data['.meta'];
+  if (!Obj.isRecord(meta)) return false;
+  return Is.number(meta.createdAt) && Is.number(meta.schemaVersion) && meta.schemaVersion === version;
+}
+
 function isStartMode(value: unknown): value is StartMode {
-  return value === 'cli' || value === 'ui';
+  return value === 'tui' || value === 'gui';
 }
 
 function seedDoc(selectedMode: StartMode): MenuStateDocument {
