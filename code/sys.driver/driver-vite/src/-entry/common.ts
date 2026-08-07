@@ -2,10 +2,10 @@ export type * as t from '../common/t.ts';
 
 export { pkg } from '../pkg.ts';
 
-export { c, Cli } from '@sys/cli';
+export { c } from '@sys/cli';
 export { DenoFile } from '@sys/driver-deno/runtime';
-export { Fs, Path, Pkg } from '@sys/fs';
-export { Http } from '@sys/http/server';
+export { Path, Pkg } from '@sys/fs';
+export { DistServer } from '@sys/server/dist';
 export { Args } from '@sys/std/args';
 
 export { ViteLog } from '../m.fmt/mod.ts';

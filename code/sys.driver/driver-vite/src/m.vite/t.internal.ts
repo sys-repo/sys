@@ -2,7 +2,7 @@ import type { t } from '../common.ts';
 
 export type * from '../common/t.ts';
 
-/** Shared private contracts for Vite terminal presentation. */
+/** Private terminal output contracts shared within Vite presentation. */
 export declare namespace ViteScreen {
   export namespace Output {
     /** One terminal output row with a one-based display sequence. */
@@ -11,69 +11,6 @@ export declare namespace ViteScreen {
       readonly source: t.Process.StdStream;
       readonly text: string;
     };
-  }
-}
-
-/** Internal contracts for Vite static-serving presentation. */
-export declare namespace ViteServe {
-  /** Filesystem and distribution facts resolved once before server startup. */
-  export namespace Static {
-    export type Missing = { readonly kind: 'missing'; readonly dir: t.StringDir };
-    export type NotDirectory = { readonly kind: 'not-directory'; readonly dir: t.StringDir };
-    export type Directory = {
-      readonly kind: 'directory';
-      readonly dir: t.StringDir;
-      readonly dist?: t.DistPkg;
-    };
-    export type Snapshot = Missing | NotDirectory | Directory;
-  }
-
-  /** Parent-owned static-serve screen contracts. */
-  export namespace Screen {
-    /** One active screen session with a failure channel owned by its parent. */
-    export type Reporter = {
-      readonly failure: Promise<never>;
-      dispose(): void;
-    };
-
-    /** Pure static-serve frame contracts. */
-    export namespace Frame {
-      /** One explicit terminal viewport snapshot. */
-      export type Viewport = { readonly width: number; readonly height: number };
-
-      /** Semantic inputs for one complete static-serve screen frame. */
-      export type Args = {
-        readonly pkg: t.Pkg;
-        readonly origin: t.StringUrl;
-        readonly static: ViteServe.Static.Snapshot;
-        readonly viewport: Viewport;
-        readonly cursorRows: number;
-        readonly renderedAt: t.UnixTimestamp;
-      };
-    }
-
-    /** Effectful screen-session contracts. */
-    export namespace Runtime {
-      /** Cohesive terminal effects owned by one static-serve screen session. */
-      export type Terminal = {
-        readonly cursorRows: number;
-        size(): t.Cli.Screen.Size;
-        events(until?: t.UntilInput): t.Cli.Screen.Events;
-        repaint(frame: string): void;
-      };
-
-      /** Injectable terminal effects for deterministic screen-session proof. */
-      export type Deps = { readonly terminal?: Terminal };
-
-      /** Inputs for one static-serve screen session. */
-      export type CreateArgs = {
-        readonly pkg: t.Pkg;
-        readonly origin: t.StringUrl;
-        readonly static: ViteServe.Static.Snapshot;
-        readonly until?: t.UntilInput;
-        readonly deps?: Deps;
-      };
-    }
   }
 }
 

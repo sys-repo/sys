@@ -17,7 +17,7 @@ export declare namespace ViteEntry {
     /** Build the production `dist` bundle. */
     build(args: Args.Build): Promise<void>;
 
-    /** Start the HTTP static server on the bundled `dist/*` folder. */
+    /** Serve one locally verified production Dist preview. */
     serve(args: Args.Serve): Promise<void>;
   };
 
@@ -47,7 +47,7 @@ export declare namespace ViteEntry {
     /** The `build` project command. */
     export type Build = { cmd: 'build'; dir?: P; silent?: boolean };
 
-    /** The `serve` the built project `/dist` folder command. */
+    /** The locally verified production Dist preview command. */
     export type Serve = { cmd: 'serve'; port?: number; dir?: P; silent?: boolean };
 
     /** The `info` information command. */
