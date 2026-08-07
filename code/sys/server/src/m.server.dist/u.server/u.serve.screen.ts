@@ -311,7 +311,7 @@ const wrangle = {
       width,
       indent: column,
       labelWidth: 9,
-      styledLabel: c.white('static'),
+      styledLabel: c.green('static'),
       suffix: wrangle.digestSuffix(hash, age),
     });
   },

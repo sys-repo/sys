@@ -29,8 +29,8 @@ describe('DistServeScreen', () => {
         { highlightOrigin: true },
       ));
       expect(output).to.include('./dist/');
-      expect(raw).to.include(c.white('static'));
-      expect(raw).to.not.include(c.green('static'));
+      expect(raw).to.include(c.green('static'));
+      expect(raw).to.not.include(c.white('static'));
       expect(output).to.include(text(HashFmt.digest(dist.hash.digest)));
       expect(output).to.not.include(dist.hash.digest);
       expect(output).to.include(`pinned ${fixture.integrity}`);
