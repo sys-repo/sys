@@ -1,5 +1,6 @@
 import { filter, type t, take } from './common.ts';
 import { disposable, disposableAsync, toDisposableAsyncArgs } from './u.dispose.ts';
+import { requireSymbolAsyncDispose, requireSymbolDispose } from './u.native.ts';
 
 type L = t.Lifecycle;
 
@@ -7,14 +8,16 @@ type L = t.Lifecycle;
  * Generates a disposable interface that maintains
  * and exposes it's disposed state.
  */
-export function lifecycle(until?: t.UntilInput) {
-  const { dispose, dispose$ } = disposable(until);
+export function lifecycle(until?: t.UntilInput): t.Lifecycle & globalThis.Disposable {
+  requireSymbolDispose();
+  const owner = disposable(until);
   let _disposed = false;
-  dispose$.pipe(take(1)).subscribe(() => (_disposed = true));
+  owner.dispose$.pipe(take(1)).subscribe(() => (_disposed = true));
   return {
-    dispose,
+    dispose: owner.dispose,
+    [Symbol.dispose]: owner[Symbol.dispose],
     get dispose$() {
-      return dispose$;
+      return owner.dispose$;
     },
     get disposed() {
       return _disposed;
@@ -25,19 +28,21 @@ export function lifecycle(until?: t.UntilInput) {
 /**
  * An async variant of the lifecycle pattern.
  */
-export function lifecycleAsync(...args: any[]) {
+export function lifecycleAsync(...args: any[]): t.LifecycleAsync & globalThis.AsyncDisposable {
+  requireSymbolAsyncDispose();
   const { until, onDispose } = toDisposableAsyncArgs(args);
-  const { dispose, dispose$ } = disposableAsync(until, onDispose);
+  const owner = disposableAsync(until, onDispose);
   let _disposed = false;
-  dispose$
+  owner.dispose$
     .pipe(
       filter((e) => e.payload.stage === 'complete' || e.payload.stage === 'error'),
       take(1),
     )
     .subscribe(() => (_disposed = true));
   return {
-    dispose$,
-    dispose,
+    dispose$: owner.dispose$,
+    dispose: owner.dispose,
+    [Symbol.asyncDispose]: owner[Symbol.asyncDispose],
     get disposed() {
       return _disposed;
     },
@@ -47,13 +52,21 @@ export function lifecycleAsync(...args: any[]) {
 /**
  * Extend the given object to expose the lifecycle API.
  */
-export const toLifecycle: t.Dispose.Lib['toLifecycle'] = <T extends L>(...input: any[]): T => {
+export const toLifecycle: t.Dispose.Lib['toLifecycle'] = <T extends L>(
+  ...input: any[]
+): T & globalThis.Disposable => {
+  requireSymbolDispose();
   const { api, life } = wrangle.toLifecycleParams(input);
-  const obj = api as T & L;
+  const obj = api as T & L & globalThis.Disposable;
+  const dispose = life.dispose.bind(life);
 
   Object.defineProperties(obj, {
     dispose: {
-      value: life.dispose.bind(life),
+      value: dispose,
+      enumerable: true,
+    },
+    [Symbol.dispose]: {
+      value: () => dispose(),
       enumerable: true,
     },
     disposed: {

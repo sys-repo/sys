@@ -1,5 +1,6 @@
 import { Delete, Err, Is, Subject, type t } from './common.ts';
 import { done } from './u.done.ts';
+import { requireSymbolAsyncDispose, requireSymbolDispose } from './u.native.ts';
 import { until as untilObservables } from './u.until.ts';
 
 type LifetimeBridge = ReturnType<t.Observable<unknown>['subscribe']>;
@@ -10,7 +11,8 @@ type AsyncDisposalState = 'idle' | 'running' | 'fulfilled' | 'rejected';
  * Generates a generic disposable interface that is
  * typically mixed into a wider interface of some kind.
  */
-export function disposable(until?: t.UntilInput): t.Disposable {
+export function disposable(until?: t.UntilInput): t.Disposable & globalThis.Disposable {
+  requireSymbolDispose();
   const subject$ = new Subject<t.DisposeEvent>();
   const dispose$ = subject$.asObservable();
 
@@ -29,6 +31,9 @@ export function disposable(until?: t.UntilInput): t.Disposable {
 
   return {
     dispose,
+    [Symbol.dispose]() {
+      dispose();
+    },
     get dispose$() {
       return dispose$;
     },
@@ -38,7 +43,8 @@ export function disposable(until?: t.UntilInput): t.Disposable {
 /**
  * Generates an asynchronous Disposable interface.
  */
-export function disposableAsync(...args: any[]) {
+export function disposableAsync(...args: any[]): t.DisposableAsync & globalThis.AsyncDisposable {
+  requireSymbolAsyncDispose();
   const { until, onDispose } = toDisposableAsyncArgs(args);
   const dispose$ = new Subject<t.DisposeAsyncEvent>();
   const bridges = new Set<LifetimeBridge>();
@@ -97,9 +103,12 @@ export function disposableAsync(...args: any[]) {
     return completion;
   };
 
-  const disposable: t.DisposableAsync = {
+  const disposable: t.DisposableAsync & globalThis.AsyncDisposable = {
     dispose$: dispose$.asObservable(),
     dispose,
+    [Symbol.asyncDispose]() {
+      return dispose();
+    },
   };
 
   attachLifetimeBridges(until, bridges, () => state !== 'idle', dispose);

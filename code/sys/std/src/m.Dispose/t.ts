@@ -9,31 +9,44 @@ export namespace Dispose {
    */
   export type Lib = {
     /** Generate a disposable lifecycle with standard AbortController/Signal mechanics. */
-    abortable(until?: t.UntilInput): t.Abortable;
+    abortable(until?: t.UntilInput): t.Abortable & globalThis.Disposable;
 
     /**
      * Generates a generic disposable interface that is
      * typically mixed into a wider interface of some kind.
      */
-    disposable(until?: t.UntilInput): t.Disposable;
+    disposable(until?: t.UntilInput): t.Disposable & globalThis.Disposable;
 
     /** An async variant of the dispose pattern. */
-    disposableAsync(onDispose?: t.LifecycleStageHandler): t.DisposableAsync;
-    disposableAsync(until?: t.UntilInput, onDispose?: LifecycleStageHandler): t.DisposableAsync;
+    disposableAsync(
+      onDispose?: t.LifecycleStageHandler,
+    ): t.DisposableAsync & globalThis.AsyncDisposable;
+    disposableAsync(
+      until?: t.UntilInput,
+      onDispose?: LifecycleStageHandler,
+    ): t.DisposableAsync & globalThis.AsyncDisposable;
 
     /**
      * Generates a disposable interface that maintains
      * and exposes it's disposed state.
      */
-    lifecycle(until?: t.UntilInput): t.Lifecycle;
+    lifecycle(until?: t.UntilInput): t.Lifecycle & globalThis.Disposable;
 
     /** An async variant of the lifecycle pattern. */
-    lifecycleAsync(onDispose?: LifecycleStageHandler): t.LifecycleAsync;
-    lifecycleAsync(until?: t.UntilInput, onDispose?: LifecycleStageHandler): t.LifecycleAsync;
+    lifecycleAsync(
+      onDispose?: LifecycleStageHandler,
+    ): t.LifecycleAsync & globalThis.AsyncDisposable;
+    lifecycleAsync(
+      until?: t.UntilInput,
+      onDispose?: LifecycleStageHandler,
+    ): t.LifecycleAsync & globalThis.AsyncDisposable;
 
     /** Extend the given object to be expose the lifecycle API. */
-    toLifecycle<T extends t.Lifecycle>(api: t.OmitLifecycle<T>): T;
-    toLifecycle<T extends t.Lifecycle>(life: t.Lifecycle, api: t.OmitLifecycle<T>): T;
+    toLifecycle<T extends t.Lifecycle>(api: t.OmitLifecycle<T>): T & globalThis.Disposable;
+    toLifecycle<T extends t.Lifecycle>(
+      life: t.Lifecycle,
+      api: t.OmitLifecycle<T>,
+    ): T & globalThis.Disposable;
     toLifecycleView<T extends t.LifecycleView>(life: t.Lifecycle, api: t.OmitLifecycle<T>): T;
 
     /**
@@ -48,11 +61,12 @@ export namespace Dispose {
     done(dispose$?: t.Subject<t.DisposeEvent>, reason?: unknown): void;
 
     /**
-     * Safely remove the `dispose` method from a disposable.
-     * NB: useful for surfacing from an API where you don't want
-     *     callers to be able to disose of the resource.
+     * Safely remove direct and native disposal authority from a disposable.
+     * NB: useful for surfacing an observable lifecycle without exposing cleanup control.
      */
-    omitDispose<T extends t.Disposable | t.DisposableAsync>(obj: T): Omit<T, 'dispose'>;
+    omitDispose<T extends t.Disposable | t.DisposableAsync>(
+      obj: T,
+    ): Omit<T, 'dispose' | typeof Symbol.dispose | typeof Symbol.asyncDispose>;
   };
 }
 

@@ -8,6 +8,18 @@ describe('Dispose.abortable', () => {
     expect(abortable.signal.aborted).to.eql(false);
     expect(abortable.controller).to.be.an.instanceOf(AbortController);
     expect(abortable.signal).to.be.an.instanceOf(AbortSignal);
+    expect(Symbol.asyncDispose in abortable).to.eql(false);
+  });
+
+  it('using → aborts through native lifecycle authority', () => {
+    let signal: AbortSignal | undefined;
+    {
+      using abortable = Dispose.abortable();
+      signal = abortable.signal;
+      expect(signal.aborted).to.eql(false);
+    }
+
+    expect(signal?.aborted).to.eql(true);
   });
 
   it('synchronous until → aborted signal and terminal state after construction', async () => {

@@ -13,6 +13,55 @@ describe('Dispose.disposable', () => {
     expect(count).to.eql(1);
   });
 
+  it('direct and native disposal → one operation and first reason', () => {
+    const directFirst = Dispose.disposable();
+    const directEvents: t.DisposeEvent[] = [];
+    directFirst.dispose$.subscribe((event) => directEvents.push(event));
+
+    directFirst.dispose('direct:first');
+    directFirst[Symbol.dispose]();
+
+    expect(directEvents).to.eql([{ reason: 'direct:first' }]);
+
+    const symbolFirst = Dispose.disposable();
+    const symbolEvents: t.DisposeEvent[] = [];
+    symbolFirst.dispose$.subscribe((event) => symbolEvents.push(event));
+
+    Reflect.apply(symbolFirst[Symbol.dispose], symbolFirst, ['native:ignored']);
+    symbolFirst.dispose('direct:ignored');
+
+    expect(symbolEvents).to.eql([{ reason: undefined }]);
+  });
+
+  it('using → invokes native disposal at scope exit', () => {
+    const events: string[] = [];
+    {
+      using resource = Dispose.disposable();
+      resource.dispose$.subscribe(() => events.push('dispose'));
+      events.push('body');
+    }
+
+    expect(events).to.eql(['body', 'dispose']);
+  });
+
+  it('native sync protocol → exclusive and coherently enumerable', () => {
+    const disposable = Dispose.disposable();
+    const direct = Object.getOwnPropertyDescriptor(disposable, 'dispose');
+    const native = Object.getOwnPropertyDescriptor(disposable, Symbol.dispose);
+
+    expect(native?.enumerable).to.eql(direct?.enumerable);
+    expect(native?.value.length).to.eql(0);
+    expect(Symbol.asyncDispose in disposable).to.eql(false);
+
+    let events = 0;
+    disposable.dispose$.subscribe(() => events++);
+    const spread = { ...disposable };
+    spread[Symbol.dispose]();
+    spread.dispose();
+
+    expect(events).to.eql(1);
+  });
+
   it('synchronous until → releases the bridge after terminal disposal', async () => {
     let unsubscribed = 0;
     const until = new Rx.Observable<t.DisposeEvent>((subscriber) => {
@@ -73,6 +122,84 @@ describe('Dispose.disposable', () => {
 });
 
 describe('Dispose.disposableAsync', () => {
+  it('direct and native disposal → one stored completion and first reason', async () => {
+    const cleanup = Promise.withResolvers<void>();
+    const directReasons: unknown[] = [];
+    const directFirst = Dispose.disposableAsync((event) => {
+      directReasons.push(event.reason);
+      return cleanup.promise;
+    });
+
+    const direct = directFirst.dispose('direct:first');
+    const nativeAfterDirect = directFirst[Symbol.asyncDispose]();
+
+    expect(nativeAfterDirect).to.equal(direct);
+    expect(directReasons).to.eql(['direct:first']);
+
+    cleanup.resolve();
+    await direct;
+
+    const symbolReasons: unknown[] = [];
+    const symbolFirst = Dispose.disposableAsync((event) => {
+      symbolReasons.push(event.reason);
+    });
+    const native = Reflect.apply(symbolFirst[Symbol.asyncDispose], symbolFirst, [
+      'native:ignored',
+    ]);
+    const directAfterNative = symbolFirst.dispose('direct:ignored');
+
+    expect(directAfterNative).to.equal(native);
+    await native;
+    expect(symbolReasons).to.eql([undefined]);
+  });
+
+  it('await using → awaits native disposal completion', async () => {
+    const events: string[] = [];
+    {
+      await using _resource = Dispose.disposableAsync(async () => {
+        events.push('dispose:start');
+        await Schedule.micro();
+        events.push('dispose:complete');
+      });
+      events.push('body');
+    }
+
+    expect(events).to.eql(['body', 'dispose:start', 'dispose:complete']);
+  });
+
+  it('native async protocol → exclusive and coherently enumerable', async () => {
+    const disposable = Dispose.disposableAsync();
+    const direct = Object.getOwnPropertyDescriptor(disposable, 'dispose');
+    const native = Object.getOwnPropertyDescriptor(disposable, Symbol.asyncDispose);
+
+    expect(native?.enumerable).to.eql(direct?.enumerable);
+    expect(native?.value.length).to.eql(0);
+    expect(Symbol.dispose in disposable).to.eql(false);
+
+    const spread = { ...disposable };
+    const completion = spread[Symbol.asyncDispose]();
+    expect(spread.dispose()).to.equal(completion);
+    await completion;
+  });
+
+  it('await using: body and cleanup reject → native suppression truth', async () => {
+    const bodyFailure = new Error('body:failure');
+    const cleanupFailure = new Error('cleanup:failure');
+    let caught: unknown;
+
+    try {
+      await using _resource = Dispose.disposableAsync(() => Promise.reject(cleanupFailure));
+      throw bodyFailure;
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).to.be.instanceOf(SuppressedError);
+    const suppressed = caught as SuppressedError;
+    expect(suppressed.error).to.equal(cleanupFailure);
+    expect(suppressed.suppressed).to.equal(bodyFailure);
+  });
+
   it('attachment failure → cancels a queued subscription-time cleanup request', async () => {
     let cleanup = 0;
     let unsubscribed = 0;

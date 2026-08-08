@@ -16,6 +16,18 @@ describe('Dispose.lifecycle', () => {
     expect(lifecycle.disposed).to.eql(true);
   });
 
+  it('using → retains the owned native authority and terminal state', () => {
+    let lifecycle: ReturnType<typeof Dispose.lifecycle> | undefined;
+    {
+      using resource = Dispose.lifecycle();
+      lifecycle = resource;
+      expect(resource.disposed).to.eql(false);
+    }
+
+    expect(lifecycle?.disposed).to.eql(true);
+    expect(Symbol.asyncDispose in lifecycle!).to.eql(false);
+  });
+
   it('synchronous until → terminal state after construction', async () => {
     const lifecycle = Dispose.lifecycle(Rx.of({ reason: 'synchronous:until' }));
     const events: t.DisposeEvent[] = [];
@@ -81,6 +93,22 @@ describe('Dispose.lifecycle', () => {
 });
 
 describe('Dispose.lifecycleAsync', () => {
+  it('native disposal → returns the owned completion and terminal state', async () => {
+    const cleanup = Promise.withResolvers<void>();
+    const lifecycle = Dispose.lifecycleAsync(() => cleanup.promise);
+
+    const native = lifecycle[Symbol.asyncDispose]();
+    const direct = lifecycle.dispose('direct:ignored');
+
+    expect(direct).to.equal(native);
+    expect(lifecycle.disposed).to.eql(false);
+    expect(Symbol.dispose in lifecycle).to.eql(false);
+
+    cleanup.resolve();
+    await native;
+    expect(lifecycle.disposed).to.eql(true);
+  });
+
   it('synchronous until → cleanup starts after construction and releases its bridge', async () => {
     const cleanup = Promise.withResolvers<void>();
     let constructed = false;
@@ -285,7 +313,7 @@ describe('Dispose.lifecycleAsync', () => {
 });
 
 describe('Dispose.toLifecycle', () => {
-  type T = t.Lifecycle & { count: number };
+  type T = t.Lifecycle & globalThis.Disposable & { count: number };
 
   it('existing lifecycle → shared authority and state', () => {
     const lifecycle = Rx.lifecycle();
@@ -316,6 +344,30 @@ describe('Dispose.toLifecycle', () => {
     expect(count).to.eql(1);
     expect(api.disposed).to.eql(true);
   });
+
+  it('configurable native authority → replaced with the supplied owner', () => {
+    const lifecycle = Dispose.lifecycle();
+    const target = { count: 123 };
+    let staleCalls = 0;
+    Object.defineProperty(target, Symbol.dispose, {
+      configurable: true,
+      value: () => staleCalls++,
+    });
+
+    const events: t.DisposeEvent[] = [];
+    lifecycle.dispose$.subscribe((event) => events.push(event));
+
+    const api = Dispose.toLifecycle<T>(lifecycle, target);
+    Reflect.apply(api[Symbol.dispose], api, ['native:ignored']);
+
+    expect(staleCalls).to.eql(0);
+    expect(events).to.eql([{ reason: undefined }]);
+    expect(lifecycle.disposed).to.eql(true);
+    expect(api.disposed).to.eql(true);
+    const descriptor = Object.getOwnPropertyDescriptor(api, Symbol.dispose);
+    expect(descriptor?.enumerable).to.eql(true);
+    expect(descriptor?.value.length).to.eql(0);
+  });
 });
 
 describe('Dispose.toLifecycleView', () => {
@@ -330,6 +382,8 @@ describe('Dispose.toLifecycleView', () => {
     expect(api.count).to.eql(123);
     expect(api.disposed).to.eql(false);
     expect('dispose' in api).to.eql(false);
+    expect(Symbol.dispose in api).to.eql(false);
+    expect(Symbol.asyncDispose in api).to.eql(false);
 
     lifecycle.dispose();
 

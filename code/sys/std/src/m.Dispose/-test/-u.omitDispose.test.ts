@@ -1,16 +1,26 @@
 import { describe, Dispose, expect, it, type t } from './common.ts';
 
 describe('Dispose.omitDispose', () => {
-  type T = t.Lifecycle & { count: number };
+  type T = t.Lifecycle & globalThis.Disposable & { count: number };
 
-  it('lifecycle projection → observed state without disposal authority', () => {
+  it('lifecycle projection → observed state without direct or native authority', () => {
     const lifecycle = Dispose.lifecycle();
     const source = Dispose.toLifecycle<T>(lifecycle, { count: 123 });
     expect('dispose' in source).to.eql(true);
+    expect(Symbol.dispose in source).to.eql(true);
 
     const projection = Dispose.omitDispose(source);
+    type AuthorityKey = 'dispose' | typeof Symbol.dispose | typeof Symbol.asyncDispose;
+    type ProjectionAuthority = Extract<keyof typeof projection, AuthorityKey>;
+    const authorityOmitted: ProjectionAuthority extends never ? true : false = true;
+    const view: t.LifecycleView = projection;
+
+    expect(authorityOmitted).to.eql(true);
+    expect(view).to.equal(projection);
     expect(source).to.not.equal(projection);
     expect('dispose' in projection).to.eql(false);
+    expect(Symbol.dispose in projection).to.eql(false);
+    expect(Symbol.asyncDispose in projection).to.eql(false);
 
     let count = 0;
     projection.dispose$.subscribe(() => count++);
@@ -20,5 +30,103 @@ describe('Dispose.omitDispose', () => {
 
     expect(projection.disposed).to.eql(true);
     expect(count).to.eql(1);
+  });
+
+  it('async lifecycle projection → removes native async authority', () => {
+    const source = Dispose.lifecycleAsync();
+    expect(Symbol.asyncDispose in source).to.eql(true);
+
+    const projection = Dispose.omitDispose(source);
+
+    expect('dispose' in projection).to.eql(false);
+    expect(Symbol.dispose in projection).to.eql(false);
+    expect(Symbol.asyncDispose in projection).to.eql(false);
+  });
+
+  it('own authority accessors → omitted without invoking getters', () => {
+    const source = Dispose.lifecycle();
+    let authorityGetterReads = 0;
+    Object.defineProperties(source, {
+      dispose: {
+        configurable: true,
+        get() {
+          authorityGetterReads++;
+          return () => undefined;
+        },
+      },
+      [Symbol.dispose]: {
+        configurable: true,
+        get() {
+          authorityGetterReads++;
+          return () => undefined;
+        },
+      },
+      [Symbol.asyncDispose]: {
+        configurable: true,
+        get() {
+          authorityGetterReads++;
+          return () => Promise.resolve();
+        },
+      },
+    });
+
+    const projection = Dispose.omitDispose(source);
+
+    expect(authorityGetterReads).to.eql(0);
+    expect('dispose' in projection).to.eql(false);
+    expect(Symbol.dispose in projection).to.eql(false);
+    expect(Symbol.asyncDispose in projection).to.eql(false);
+  });
+
+  it('inherited authority → masked without invoking getters', () => {
+    const owner = Dispose.lifecycle();
+    const unrelated = Symbol('unrelated');
+    let authorityGetterReads = 0;
+    let unrelatedGetterReads = 0;
+    const unrelatedGetter = () => {
+      unrelatedGetterReads++;
+      return 123;
+    };
+    const proto = Object.create(null, {
+      dispose: { value: owner.dispose },
+      [Symbol.dispose]: {
+        get() {
+          authorityGetterReads++;
+          return owner[Symbol.dispose];
+        },
+      },
+      [Symbol.asyncDispose]: { value: () => Promise.resolve() },
+    });
+    const source = Object.create(proto, {
+      dispose$: { value: owner.dispose$ },
+      disposed: { get: () => owner.disposed },
+      [unrelated]: {
+        configurable: true,
+        enumerable: false,
+        get: unrelatedGetter,
+      },
+    }) as
+      & t.Lifecycle
+      & globalThis.Disposable
+      & globalThis.AsyncDisposable
+      & { readonly [unrelated]: number };
+
+    const projection = Dispose.omitDispose(source);
+    const unrelatedBefore = Object.getOwnPropertyDescriptor(source, unrelated);
+    const unrelatedAfter = Object.getOwnPropertyDescriptor(projection, unrelated);
+
+    expect(authorityGetterReads).to.eql(0);
+    expect(unrelatedGetterReads).to.eql(0);
+    expect(Object.getPrototypeOf(projection)).to.equal(proto);
+    expect(Object.hasOwn(projection, 'dispose')).to.eql(true);
+    expect(Object.hasOwn(projection, Symbol.dispose)).to.eql(true);
+    expect(Object.hasOwn(projection, Symbol.asyncDispose)).to.eql(true);
+    expect(Reflect.get(projection, 'dispose')).to.eql(undefined);
+    expect(Reflect.get(projection, Symbol.dispose)).to.eql(undefined);
+    expect(Reflect.get(projection, Symbol.asyncDispose)).to.eql(undefined);
+    expect(authorityGetterReads).to.eql(0);
+    expect(unrelatedGetterReads).to.eql(0);
+    expect(unrelatedAfter).to.eql(unrelatedBefore);
+    expect(unrelatedAfter?.get).to.equal(unrelatedGetter);
   });
 });
