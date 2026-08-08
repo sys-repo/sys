@@ -22,218 +22,231 @@ export function toRepo(
 ): t.CrdtRepo {
   let _enabled = true;
   let _ready = false;
+  const peers = new Set<t.PeerId>();
+  let life: t.LifecycleAsync | undefined;
 
-  async function cleanup() {
+  const cleanup = async () => {
     peers.clear();
     await silentShutdown(repo);
-  }
-  const life = Rx.lifecycleAsync(options.until, cleanup);
-  const schedule = Schedule.make(life, 'micro');
-
-  const cloneProps = (): t.CrdtRepoProps => {
-    const { id, stores, status } = api;
-    const sync = Delete.undefined({ ...api.sync, enable: undefined }); // NB: ensure method does not leak onto pure DTO props.
-    return { id, sync, status, stores: [...stores] };
   };
 
-  /**
-   * Observable (scheduled emissions):
-   */
-  const $$ = Rx.subject<t.CrdtRepoEvent>();
-  const emitAsync = (e: t.CrdtRepoEvent) => schedule(() => $$.next(e));
-  const fireChanged = (
-    prop: t.CrdtRepoPropChange['prop'],
-    before: t.CrdtRepoProps,
-    after: t.CrdtRepoProps = cloneProps(),
-  ) => emitAsync({ type: 'props/change', payload: { prop, before, after } });
+  try {
+    const lifecycle = Rx.lifecycleAsync(options.until, cleanup);
+    life = lifecycle;
+    const schedule = Schedule.make(lifecycle, 'micro');
 
-  /**
-   * State:
-   */
-  const adapters = repo.networkSubsystem.adapters;
-  const peer = adapters.length > 0 ? (options.peerId ?? '') : '';
-  const peerId = peer as t.PeerId;
-  const peers = new Set<t.PeerId>();
-  const urls = adapters
-    .filter((adapter) => 'url' in adapter && typeof (adapter as any).url === 'string')
-    .map((adapter: any) => adapter.url);
+    const cloneProps = (): t.CrdtRepoProps => {
+      const { id, stores, status } = api;
+      const sync = Delete.undefined({ ...api.sync, enable: undefined }); // NB: ensure method does not leak onto pure DTO props.
+      return { id, sync, status, stores: [...stores] };
+    };
 
-  const readyOnce = (async () => {
-    try {
-      await Promise.all(adapters.map((a) => a.whenReady()));
-    } catch {
-      /* NB: some adapters may not implement strictly */
-    }
-    await schedule();
-    if (!_ready) {
-      const before = cloneProps();
-      _ready = true;
-      fireChanged('status', before);
-    }
-  })();
+    /**
+     * Observable (scheduled emissions):
+     */
+    const $$ = Rx.subject<t.CrdtRepoEvent>();
+    const emitAsync = (e: t.CrdtRepoEvent) => schedule(() => $$.next(e));
+    const fireChanged = (
+      prop: t.CrdtRepoPropChange['prop'],
+      before: t.CrdtRepoProps,
+      after: t.CrdtRepoProps = cloneProps(),
+    ) => emitAsync({ type: 'props/change', payload: { prop, before, after } });
 
-  /**
-   * Listeners (network → scheduled):
-   */
-  monitorNetwork(adapters, life.dispose$, (e) => {
-    emitAsync(e);
-    if (e.type === 'network/peer-online' || e.type === 'network/peer-offline') {
-      const before = cloneProps();
-      if (e.type === 'network/peer-online') peers.add(e.payload.peerId);
-      if (e.type === 'network/peer-offline') peers.delete(e.payload.peerId);
-      fireChanged('sync.peers', before);
-    }
-  });
+    /**
+     * State:
+     */
+    const adapters = repo.networkSubsystem.adapters;
+    const peer = adapters.length > 0 ? (options.peerId ?? '') : '';
+    const peerId = peer as t.PeerId;
+    const urls = adapters
+      .filter((adapter) => 'url' in adapter && typeof (adapter as any).url === 'string')
+      .map((adapter: any) => adapter.url);
 
-  /**
-   * Helpers:
-   */
-  const toggleAdapters = async (enabled: boolean) => {
-    // Hop off the caller's stack so lifecycle edges (dispose, enable/disable)
-    // are always observed from a clean microtask.
-    await schedule();
-
-    for (const adapter of adapters as t.NetworkAdapterInterface[]) {
-      if (life.disposed) break;
+    const initializeReady = async () => {
       try {
-        // Wait until the adapter has finished any internal initialization.
-        await adapter.whenReady();
-        if (life.disposed) break;
-
-        if (enabled) {
-          adapter.connect(peerId, {});
-        } else {
-          // Normalize sync/async disconnect to a single awaitable.
-          await Promise.resolve(adapter.disconnect?.());
-        }
+        await Promise.all(adapters.map((a) => a.whenReady()));
       } catch {
-        /**
-         * Swallow benign races / pre-open teardown errors:
-         * - WebSocket closed before fully open
-         * - whenReady() rejecting due to concurrent dispose
-         *
-         * Domain-level failures are surfaced via repo events; adapter
-         * connect/disconnect should never crash the process or test runner.
-         */
+        /* NB: some adapters may not implement strictly */
       }
-    }
-  };
-
-  /**
-   * API:
-   */
-  const api: t.CrdtRepo = {
-    id: { peer, instance: `repo-${slug()}` },
-    get status(): t.CrdtRepoStatus {
-      return { ready: _ready, stalled: false };
-    },
-
-    async whenReady() {
-      await readyOnce;
-      return api;
-    },
-
-    sync: {
-      urls,
-      get peers() {
-        return Array.from(peers);
-      },
-      get enabled() {
-        if (urls.length === 0) return null;
-        return _enabled;
-      },
-      enable(value = true) {
-        if (value === _enabled) return;
+      await schedule();
+      if (!_ready) {
         const before = cloneProps();
-        _enabled = value;
-        void toggleAdapters(_enabled);
-        fireChanged('sync.enabled', before);
-      },
-    },
-    get stores() {
-      return options.stores ?? [];
-    },
-
-    create<T extends O>(input: T | (() => T)) {
-      try {
-        const initial = seedInitial<T>(input);
-        const handle = repo.create<T>(initial);
-        const doc = toRef(handle);
-        return Promise.resolve({ ok: true, doc } as const);
-      } catch (error) {
-        return Promise.reject(error);
+        _ready = true;
+        fireChanged('status', before);
       }
-    },
+    };
 
-    get<T extends O>(id: t.Crdt.Id, options: t.CrdtRepoGetOptions = {}) {
-      type R = t.CrdtRefResult<T>;
-      return new Promise<R>((resolve) => {
-        const fail = (error: t.CrdtRepoError) => resolve({ ok: false, error });
-        let timeout: ReturnType<typeof Time.delay> | undefined;
-        id = wrangle.id(id);
+    /**
+     * Helpers:
+     */
+    const toggleAdapters = async (enabled: boolean) => {
+      // Hop off the caller's stack so lifecycle edges (dispose, enable/disable)
+      // are always observed from a clean microtask.
+      await schedule();
 
-        const onError = (err: any) => {
-          timeout?.cancel();
-          const message = err?.message ?? '';
-          if (message.includes('is unavailable')) return fail(wrangle.error('NotFound', message));
-          return fail(wrangle.error('UNKNOWN', err));
-        };
-
+      for (const adapter of adapters as t.NetworkAdapterInterface[]) {
+        if (lifecycle.disposed) break;
         try {
-          const msecs = options.timeout ?? D.timeout;
-          timeout = Time.delay(msecs, () => {
-            const error = wrangle.error('Timeout', Err.std(`Timed out retrieving document ${id}`));
-            return fail(error);
-          });
+          // Wait until the adapter has finished any internal initialization.
+          await adapter.whenReady();
+          if (lifecycle.disposed) break;
 
-          void repo
-            .find<T>(id as DocumentId)
-            .then(async (handle) => {
-              await handle.whenReady();
-              const doc = toRef(handle);
-
-              timeout?.cancel();
-              if (!timeout?.is.completed) resolve({ ok: true, doc });
-            })
-            .catch(onError);
-        } catch (err) {
-          onError(err);
+          if (enabled) {
+            adapter.connect(peerId, {});
+          } else {
+            // Normalize sync/async disconnect to a single awaitable.
+            await Promise.resolve(adapter.disconnect?.());
+          }
+        } catch {
+          /**
+           * Swallow benign races / pre-open teardown errors:
+           * - WebSocket closed before fully open
+           * - whenReady() rejecting due to concurrent dispose
+           *
+           * Domain-level failures are surfaced via repo events; adapter
+           * connect/disconnect should never crash the process or test runner.
+           */
         }
-      });
-    },
-
-    async delete(input) {
-      const doc = CrdtIs.ref(input) ? input : (await api.get(input)).doc;
-      if (doc) {
-        if (doc.deleted || doc.disposed) return;
-        await whenReady(doc);
-        if (!doc.deleted && !doc.disposed) repo.delete(doc.id as DocumentId);
       }
-    },
+    };
 
-    events(dispose$) {
-      const until = Rx.lifecycle([dispose$, life.dispose$]);
-      return eventsFactory($$, until);
-    },
+    /**
+     * API:
+     */
+    const api: t.CrdtRepo = {
+      id: { peer, instance: `repo-${slug()}` },
+      get status(): t.CrdtRepoStatus {
+        return { ready: _ready, stalled: false };
+      },
 
-    dispose: life.dispose,
-    get dispose$() {
-      return life.dispose$;
-    },
-    get disposed() {
-      return life.disposed;
-    },
-  };
+      async whenReady() {
+        await readyOnce;
+        return api;
+      },
 
-  // Hidden reference (automerge).
-  Object.defineProperty(api, REF, {
-    value: repo,
-    writable: false,
-    enumerable: false,
-    configurable: false,
-  });
+      sync: {
+        urls,
+        get peers() {
+          return Array.from(peers);
+        },
+        get enabled() {
+          if (urls.length === 0) return null;
+          return _enabled;
+        },
+        enable(value = true) {
+          if (value === _enabled) return;
+          const before = cloneProps();
+          _enabled = value;
+          void toggleAdapters(_enabled);
+          fireChanged('sync.enabled', before);
+        },
+      },
+      get stores() {
+        return options.stores ?? [];
+      },
 
-  return api;
+      create<T extends O>(input: T | (() => T)) {
+        try {
+          const initial = seedInitial<T>(input);
+          const handle = repo.create<T>(initial);
+          const doc = toRef(handle);
+          return Promise.resolve({ ok: true, doc } as const);
+        } catch (error) {
+          return Promise.reject(error);
+        }
+      },
+
+      get<T extends O>(id: t.Crdt.Id, options: t.CrdtRepoGetOptions = {}) {
+        type R = t.CrdtRefResult<T>;
+        return new Promise<R>((resolve) => {
+          const fail = (error: t.CrdtRepoError) => resolve({ ok: false, error });
+          let timeout: ReturnType<typeof Time.delay> | undefined;
+          id = wrangle.id(id);
+
+          const onError = (err: any) => {
+            timeout?.cancel();
+            const message = err?.message ?? '';
+            if (message.includes('is unavailable')) return fail(wrangle.error('NotFound', message));
+            return fail(wrangle.error('UNKNOWN', err));
+          };
+
+          try {
+            const msecs = options.timeout ?? D.timeout;
+            timeout = Time.delay(msecs, () => {
+              const error = wrangle.error(
+                'Timeout',
+                Err.std(`Timed out retrieving document ${id}`),
+              );
+              return fail(error);
+            });
+
+            void repo
+              .find<T>(id as DocumentId)
+              .then(async (handle) => {
+                await handle.whenReady();
+                const doc = toRef(handle);
+
+                timeout?.cancel();
+                if (!timeout?.is.completed) resolve({ ok: true, doc });
+              })
+              .catch(onError);
+          } catch (err) {
+            onError(err);
+          }
+        });
+      },
+
+      async delete(input) {
+        const doc = CrdtIs.ref(input) ? input : (await api.get(input)).doc;
+        if (doc) {
+          if (doc.deleted || doc.disposed) return;
+          await whenReady(doc);
+          if (!doc.deleted && !doc.disposed) repo.delete(doc.id as DocumentId);
+        }
+      },
+
+      events(dispose$) {
+        const until = Rx.lifecycle([dispose$, lifecycle.dispose$]);
+        return eventsFactory($$, until);
+      },
+
+      dispose: lifecycle.dispose,
+      get dispose$() {
+        return lifecycle.dispose$;
+      },
+      get disposed() {
+        return lifecycle.disposed;
+      },
+    };
+
+    // Hidden reference (automerge).
+    Object.defineProperty(api, REF, {
+      value: repo,
+      writable: false,
+      enumerable: false,
+      configurable: false,
+    });
+
+    /**
+     * Listeners (network → scheduled):
+     */
+    monitorNetwork(adapters, lifecycle.dispose$, (e) => {
+      emitAsync(e);
+      if (e.type === 'network/peer-online' || e.type === 'network/peer-offline') {
+        const before = cloneProps();
+        if (e.type === 'network/peer-online') peers.add(e.payload.peerId);
+        if (e.type === 'network/peer-offline') peers.delete(e.payload.peerId);
+        fireChanged('sync.peers', before);
+      }
+    });
+
+    const readyOnce = initializeReady();
+    return api;
+  } catch (error) {
+    const rollback = life ? life.dispose(error) : cleanup();
+    void rollback.catch(() => undefined);
+    throw error;
+  }
 }
 
 /**

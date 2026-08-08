@@ -11,3 +11,25 @@ export function triggerUntil(until?: t.DisposeInput) {
     else if (Is.subject(item)) item.next(undefined);
   });
 }
+
+/** Resolves after an asynchronous lifecycle reaches a terminal stage. */
+export function waitForAsyncDispose(lifecycle: t.LifecycleAsync) {
+  if (lifecycle.disposed) return Promise.resolve();
+
+  return new Promise<void>((resolve) => {
+    const state: { terminal: boolean; subscription?: { unsubscribe(): void } } = {
+      terminal: false,
+    };
+    const subscription = lifecycle.dispose$.subscribe((event) => {
+      const { stage } = event.payload;
+      if (stage !== 'complete' && stage !== 'error') return;
+
+      state.terminal = true;
+      state.subscription?.unsubscribe();
+      resolve();
+    });
+
+    state.subscription = subscription;
+    if (state.terminal) subscription.unsubscribe();
+  });
+}

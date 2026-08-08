@@ -33,6 +33,46 @@ describe('Process.spawn (async long-lived)', () => {
       expect(handle.disposed).to.eql(true);
       expect(fired.length).to.eql(2);
     });
+
+    it('synchronous until → constructs before disposal starts', async () => {
+      const args = ProcessTest.evalArgs('setInterval(() => {}, 1_000)');
+      const handle = Process.spawn({
+        args,
+        silent: true,
+        until: Rx.of({ reason: 'synchronous:until' }),
+      });
+      const fired: t.DisposeAsyncEvent[] = [];
+      handle.dispose$.subscribe((event) => fired.push(event));
+
+      expect(handle.disposed).to.eql(false);
+      await waitForTerminal(handle);
+
+      expect(handle.disposed).to.eql(true);
+      expect(fired.map((event) => event.payload.stage)).to.eql(['start', 'complete']);
+      expect(fired[0].payload.reason).to.eql('synchronous:until');
+    });
+
+    it('synchronous until → setup failure rolls back the spawned child', async () => {
+      const failure = new Error('Process.spawn:test:setup-failure');
+      const args = ProcessTest.evalArgs('setTimeout(() => Deno.exit(0), 1_000)');
+      Object.defineProperty(args, 'join', {
+        value: () => {
+          throw failure;
+        },
+      });
+
+      let caught: unknown;
+      try {
+        Process.spawn({ args, silent: true, until: Rx.of(undefined) });
+      } catch (error) {
+        caught = error;
+      }
+
+      expect(caught).to.equal(failure);
+
+      // Allow asynchronous rollback to settle; the test sanitizer proves the child was released.
+      await Time.wait(100);
+    });
   });
 
   it('spawn → wait ("ready signal") → events', async () => {
@@ -149,3 +189,34 @@ describe('Process.spawn (async long-lived)', () => {
     await child.dispose();
   });
 });
+
+/**
+ * Helpers:
+ */
+async function waitForTerminal(life: t.LifecycleAsync) {
+  if (life.disposed) return;
+
+  const terminal = Promise.withResolvers<void>();
+  const subscription = life.dispose$.subscribe((event) => {
+    if (event.payload.is.done) terminal.resolve();
+  });
+  if (life.disposed) terminal.resolve();
+
+  const timeout = Time.delay(1_000);
+  const waitForDispose = async () => {
+    await terminal.promise;
+    return true;
+  };
+  const waitForTimeout = async () => {
+    await timeout;
+    return false;
+  };
+
+  try {
+    const completed = await Promise.race([waitForDispose(), waitForTimeout()]);
+    if (!completed) throw new Error('Timed out waiting for process disposal');
+  } finally {
+    subscription.unsubscribe();
+    timeout.cancel();
+  }
+}

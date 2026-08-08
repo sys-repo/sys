@@ -1,4 +1,4 @@
-import { describe, Dispose, expect, it, Rx, type t, Time } from './common.ts';
+import { describe, Dispose, expect, it, Rx, Schedule, type t, Time } from './common.ts';
 import { triggerUntil } from './u.fixture.ts';
 
 describe('Dispose.disposable', () => {
@@ -11,6 +11,44 @@ describe('Dispose.disposable', () => {
     disposable.dispose();
 
     expect(count).to.eql(1);
+  });
+
+  it('synchronous until → releases the bridge after terminal disposal', async () => {
+    let unsubscribed = 0;
+    const until = new Rx.Observable<t.DisposeEvent>((subscriber) => {
+      subscriber.next({ reason: 'synchronous:until' });
+      return () => unsubscribed++;
+    });
+
+    Dispose.disposable(until);
+    expect(unsubscribed).to.eql(0);
+
+    await Schedule.micro();
+    expect(unsubscribed).to.eql(1);
+  });
+
+  it('attachment failure → releases earlier bridges and preserves error identity', () => {
+    let unsubscribed = 0;
+    const first = new Rx.Observable<void>(() => () => {
+      unsubscribed++;
+      throw new Error('bridge:unsubscribe:failure');
+    });
+    const failure = new Error('bridge:subscribe:failure');
+    const second = {
+      subscribe() {
+        throw failure;
+      },
+    } as unknown as t.Observable<void>;
+
+    let caught: unknown;
+    try {
+      Dispose.disposable([first, second]);
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).to.equal(failure);
+    expect(unsubscribed).to.eql(1);
   });
 
   it('upstream disposal → one terminal event', () => {
@@ -35,6 +73,34 @@ describe('Dispose.disposable', () => {
 });
 
 describe('Dispose.disposableAsync', () => {
+  it('attachment failure → cancels a queued subscription-time cleanup request', async () => {
+    let cleanup = 0;
+    let unsubscribed = 0;
+    const first = new Rx.Observable<t.DisposeEvent>((subscriber) => {
+      subscriber.next({ reason: 'synchronous:until' });
+      return () => unsubscribed++;
+    });
+    const failure = new Error('bridge:subscribe:failure');
+    const second = {
+      subscribe() {
+        throw failure;
+      },
+    } as unknown as t.Observable<void>;
+
+    let caught: unknown;
+    try {
+      Dispose.disposableAsync([first, second], () => void cleanup++);
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).to.equal(failure);
+    expect(unsubscribed).to.eql(1);
+
+    await Schedule.micro();
+    expect(cleanup).to.eql(0);
+  });
+
   it('dispose → start then complete events', async () => {
     let count = 0;
     const disposable = Dispose.disposableAsync(async () => {

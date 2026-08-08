@@ -1,10 +1,8 @@
-import { type t, describe, expect, it, expectError } from '../-test.ts';
+import { describe, expect, expectError, it, type t } from '../-test.ts';
 import { Rx } from './common.ts';
 import { Schedule } from './mod.ts';
 
 describe(`Schedule`, () => {
-  const life = (disposed = false): t.LifeLike => ({ disposed });
-
   it('API', async () => {
     const m = await import('@sys/std/async');
     expect(m.Schedule).to.equal(Schedule);
@@ -307,6 +305,14 @@ describe(`Schedule`, () => {
         expect(count).to.eql(0);
       });
 
+      it('synchronously emitting until → prevents a queued task', async () => {
+        let count = 0;
+        Schedule.queue(() => count++, { until: Rx.of({ reason: 'synchronous:until' }) });
+
+        await Schedule.micro();
+        expect(count).to.eql(0);
+      });
+
       it('queue: { ms: 0 } behaves as macrotask (fires once)', async () => {
         let count = 0;
         Schedule.queue(() => count++, { queue: { ms: 0 } });
@@ -332,12 +338,6 @@ describe(`Schedule`, () => {
     });
 
     describe('Schedule.sleep', () => {
-      const elapsed = async (fn: () => Promise<unknown>) => {
-        const t0 = performance.now();
-        await fn();
-        return performance.now() - t0; // ms, sub-millisecond precision
-      };
-
       it('resolves after at least `ms` (default: no extra hop)', async () => {
         const ms: t.Msecs = 12;
         const dt = await elapsed(() => Schedule.sleep(ms)); // default: timer only
@@ -606,3 +606,16 @@ describe(`Schedule`, () => {
     });
   });
 });
+
+/**
+ * Helpers:
+ */
+function life(disposed = false): t.LifeLike {
+  return { disposed };
+}
+
+async function elapsed(fn: () => Promise<unknown>) {
+  const t0 = performance.now();
+  await fn();
+  return performance.now() - t0; // ms, sub-millisecond precision
+}

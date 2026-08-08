@@ -10,6 +10,18 @@ describe('Dispose.abortable', () => {
     expect(abortable.signal).to.be.an.instanceOf(AbortSignal);
   });
 
+  it('synchronous until → aborted signal and terminal state after construction', async () => {
+    const abortable = Dispose.abortable(Rx.of({ reason: 'synchronous:until' }));
+
+    expect(abortable.disposed).to.eql(false);
+    expect(abortable.signal.aborted).to.eql(false);
+    await Schedule.micro();
+
+    expect(abortable.disposed).to.eql(true);
+    expect(abortable.signal.aborted).to.eql(true);
+    expect(abortable.signal.reason).to.eql('synchronous:until');
+  });
+
   it('dispose → aborted signal and terminal state', () => {
     const abortable = Dispose.abortable();
     let events = 0;

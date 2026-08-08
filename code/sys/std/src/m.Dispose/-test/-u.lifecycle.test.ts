@@ -1,5 +1,5 @@
-import { describe, Dispose, expect, it, Rx, type t, Time } from './common.ts';
-import { triggerUntil } from './u.fixture.ts';
+import { describe, Dispose, expect, it, Rx, Schedule, type t, Time } from './common.ts';
+import { triggerUntil, waitForAsyncDispose } from './u.fixture.ts';
 
 describe('Dispose.lifecycle', () => {
   it('repeated direct disposal → one terminal event and disposed state', () => {
@@ -14,6 +14,45 @@ describe('Dispose.lifecycle', () => {
 
     expect(count).to.eql(1);
     expect(lifecycle.disposed).to.eql(true);
+  });
+
+  it('synchronous until → terminal state after construction', async () => {
+    const lifecycle = Dispose.lifecycle(Rx.of({ reason: 'synchronous:until' }));
+    const events: t.DisposeEvent[] = [];
+    lifecycle.dispose$.subscribe((event) => events.push(event));
+
+    expect(lifecycle.disposed).to.eql(false);
+    await Schedule.micro();
+
+    expect(lifecycle.disposed).to.eql(true);
+    expect(events).to.eql([{ reason: 'synchronous:until' }]);
+  });
+
+  it('direct disposal before queued synchronous until → direct reason wins', async () => {
+    const lifecycle = Dispose.lifecycle(Rx.of({ reason: 'synchronous:until' }));
+    const events: t.DisposeEvent[] = [];
+    lifecycle.dispose$.subscribe((event) => events.push(event));
+
+    lifecycle.dispose('direct:reason');
+    await Schedule.micro();
+
+    expect(events).to.eql([{ reason: 'direct:reason' }]);
+  });
+
+  it('cross-bridge emission during attachment → terminal state after construction', async () => {
+    const first = Rx.subject<t.DisposeEvent>();
+    const second = new Rx.Observable<void>(() => {
+      first.next({ reason: 'cross-bridge:until' });
+    });
+    const lifecycle = Dispose.lifecycle([first, second]);
+    const events: t.DisposeEvent[] = [];
+    lifecycle.dispose$.subscribe((event) => events.push(event));
+
+    expect(lifecycle.disposed).to.eql(false);
+    await Schedule.micro();
+
+    expect(lifecycle.disposed).to.eql(true);
+    expect(events).to.eql([{ reason: 'cross-bridge:until' }]);
   });
 
   it('upstream disposal → one terminal event and disposed state', () => {
@@ -42,6 +81,58 @@ describe('Dispose.lifecycle', () => {
 });
 
 describe('Dispose.lifecycleAsync', () => {
+  it('synchronous until → cleanup starts after construction and releases its bridge', async () => {
+    const cleanup = Promise.withResolvers<void>();
+    let constructed = false;
+    let observedBeforeConstruction = false;
+    let reason: unknown;
+    let unsubscribed = 0;
+    const until = new Rx.Observable<t.DisposeEvent>((subscriber) => {
+      subscriber.next({ reason: 'synchronous:until' });
+      return () => unsubscribed++;
+    });
+    const lifecycle = Dispose.lifecycleAsync(until, (event) => {
+      observedBeforeConstruction = !constructed;
+      reason = event.reason;
+      return cleanup.promise;
+    });
+    constructed = true;
+
+    expect(unsubscribed).to.eql(0);
+    await Schedule.micro();
+
+    expect(observedBeforeConstruction).to.eql(false);
+    expect(reason).to.eql('synchronous:until');
+    expect(unsubscribed).to.eql(1);
+    expect(lifecycle.disposed).to.eql(false);
+
+    cleanup.resolve();
+    await waitForAsyncDispose(lifecycle);
+    expect(lifecycle.disposed).to.eql(true);
+  });
+
+  it('direct disposal before queued synchronous until → direct reason wins while running', async () => {
+    const cleanup = Promise.withResolvers<void>();
+    const reasons: unknown[] = [];
+    const lifecycle = Dispose.lifecycleAsync(
+      Rx.of({ reason: 'synchronous:until' }),
+      (event) => {
+        reasons.push(event.reason);
+        return cleanup.promise;
+      },
+    );
+
+    const completion = lifecycle.dispose('direct:reason');
+    await Schedule.micro();
+
+    expect(reasons).to.eql(['direct:reason']);
+    expect(lifecycle.disposed).to.eql(false);
+
+    cleanup.resolve();
+    await completion;
+    expect(lifecycle.disposed).to.eql(true);
+  });
+
   it('dispose → terminal state after cleanup', async () => {
     let count = 0;
     const lifecycle = Dispose.lifecycleAsync(async () => {
