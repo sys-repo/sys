@@ -3,7 +3,7 @@ import type { t } from '../common.ts';
 
 describe('Types', () => {
   it('PkgName: scoped package name → "@scope/<name>"', () => {
-    // @ts-ignore
+    // @ts-expect-error: an unscoped name must not satisfy StringScopedPkgName.
     const a: t.StringScopedPkgName = 'foo'; // NB: Invalid.
     const b: t.StringScopedPkgName = '@sys/std';
     console.info();
@@ -25,5 +25,26 @@ describe('Types', () => {
     const handle: t.WaitableHandle = { finished: Promise.resolve() };
 
     expectTypeOf(handle).toMatchTypeOf<t.WaitableHandle>();
+  });
+
+  it('OmitDisposable → authority-free but state-bearing construction target', () => {
+    type Source = t.Lifecycle & globalThis.Disposable & globalThis.AsyncDisposable & {
+      readonly id: string;
+    };
+    const projection: t.OmitDisposable<Source> = { id: 'resource', disposed: false };
+
+    expectTypeOf(projection).toEqualTypeOf<{
+      readonly id: string;
+      readonly disposed: boolean;
+    }>();
+  });
+
+  it('OmitLifecycle → authority-free and state-free construction target', () => {
+    type Source = t.Lifecycle & globalThis.Disposable & globalThis.AsyncDisposable & {
+      readonly id: string;
+    };
+    const projection: t.OmitLifecycle<Source> = { id: 'resource' };
+
+    expectTypeOf(projection).toEqualTypeOf<{ readonly id: string }>();
   });
 });

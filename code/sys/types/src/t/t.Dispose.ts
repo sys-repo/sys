@@ -122,20 +122,22 @@ export type LifecycleView = Pick<t.Lifecycle, 'disposed' | 'dispose$'>;
 /** Minimal contract for disposable objects (subset of Lifecycle). */
 export type LifeLike = { readonly disposed: boolean };
 
+type DisposalAuthorityKey = 'dispose' | typeof Symbol.dispose | typeof Symbol.asyncDispose;
+
 /**
- * Utility Type: remove fields from composite Dispose object.
+ * Utility Type: remove construction fields from composite Dispose object.
  */
 export type OmitDisposable<T extends Disposable | DisposableAsync | object> = Omit<
   T,
-  'dispose' | 'dispose$'
+  DisposalAuthorityKey | 'dispose$'
 >;
 
 /**
- * Utility Type: remove fields from composite Lifecycle object.
+ * Utility Type: remove construction fields from composite Lifecycle object.
  */
 export type OmitLifecycle<T extends Lifecycle | LifecycleAsync | object> = Omit<
   T,
-  'dispose' | 'dispose$' | 'disposed'
+  DisposalAuthorityKey | 'dispose$' | 'disposed'
 >;
 
 /**
