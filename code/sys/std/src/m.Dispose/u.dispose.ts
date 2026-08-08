@@ -89,7 +89,7 @@ function attachLifetimeBridges(
   until: t.UntilInput | undefined,
   bridges: Set<LifetimeBridge>,
   hasDisposalStarted: () => boolean,
-  request: (reason?: unknown) => void,
+  request: (reason?: unknown) => void | Promise<void>,
 ) {
   let state: LifetimeBridgeState = 'attaching';
 
@@ -98,7 +98,7 @@ function attachLifetimeBridges(
       const subscription = $.subscribe((event) => {
         const reason = (event as t.DisposeEvent | undefined)?.reason;
         const run = () => {
-          if (state !== 'failed') request(reason);
+          if (state !== 'failed') ownLifetimeRequest(request, reason);
         };
 
         if (state === 'attaching') queueMicrotask(run);
@@ -114,6 +114,14 @@ function attachLifetimeBridges(
     releaseLifetimeBridges(bridges);
     throw error;
   }
+}
+
+function ownLifetimeRequest(
+  request: (reason?: unknown) => void | Promise<void>,
+  reason?: unknown,
+) {
+  const result = request(reason);
+  if (Is.promise(result)) void result.catch(() => undefined);
 }
 
 function releaseLifetimeBridge(bridge: LifetimeBridge) {

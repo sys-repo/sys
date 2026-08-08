@@ -136,10 +136,10 @@ const wrangle = {
   serverFinished(server: Deno.HttpServer<Deno.NetAddr>, life: t.LifecycleAsync) {
     void server.finished.then(
       () => {
-        if (!life.disposed) void life.dispose('server.finished');
+        if (!life.disposed) void life.dispose('server.finished').catch(() => undefined);
       },
       () => {
-        if (!life.disposed) void life.dispose('server.finished');
+        if (!life.disposed) void life.dispose('server.finished').catch(() => undefined);
       },
     );
   },

@@ -4,7 +4,6 @@ import {
   expect,
   Fs,
   it,
-  pkg,
   SAMPLE,
   Str,
   type t,
@@ -24,16 +23,8 @@ const DEV_ENTRY_RETRY_TIMEOUT = 5_000 as t.Msecs;
 const DEV_ENTRY_RETRY_INTERVAL = 100 as t.Msecs;
 
 describe('Vite.dev', () => {
-  const printHtml = (html: string, title: string, dir: t.StringDir) => {
-    console.info();
-    console.info(c.brightCyan(`${c.bold(title)}:`));
-    console.info(c.gray(Fs.trimCwd(dir)), '\n');
-    console.info(c.italic(c.yellow(html)));
-    console.info();
-  };
-
   /**
-   * Dev Mode: long-running child process runing the Vite server.
+   * Dev Mode: long-running child process running the Vite server.
    * Uses Deno's NPM compatibility layer.
    *
    * Command:
@@ -82,7 +73,7 @@ describe('Vite.dev', () => {
         // Vite.dev(...) does not return until the child server is reachable.
         timeout = Time.delay(DEV_FETCH_TIMEOUT, () => {
           controller.abort();
-          server?.dispose();
+          void server?.dispose().catch(() => undefined);
         });
         console.info(c.yellow(`\nInvoking test fetch to: ${c.white(server.url)}`));
 
@@ -205,6 +196,17 @@ describe('Vite.dev', () => {
   });
 });
 
+/**
+ * Helpers:
+ */
+function printHtml(html: string, title: string, dir: t.StringDir) {
+  console.info();
+  console.info(c.brightCyan(`${c.bold(title)}:`));
+  console.info(c.gray(Fs.trimCwd(dir)), '\n');
+  console.info(c.italic(c.yellow(html)));
+  console.info();
+}
+
 async function prepareDevEntryFixture(cwd: string) {
   const entryDir = Fs.join(cwd, 'src/-entry');
   await Fs.write(
@@ -230,7 +232,7 @@ async function prepareDevEntryFixture(cwd: string) {
       import { createRoot } from 'react-dom/client';
       import '@sys/driver-vite/sample-imports';
       const dynamic = import('../m.foo.ts');
-      dynamic.then((mod) => console.info('💦 dynmaic import', mod));
+      dynamic.then((mod) => console.info('💦 dynamic import', mod));
       const root = createRoot(document.getElementById('root'));
       root.render(React.createElement('div', { style: { border: 'solid 1px blue' } }, 'dev ok'));
     `),

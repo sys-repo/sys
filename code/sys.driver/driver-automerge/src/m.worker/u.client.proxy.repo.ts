@@ -1,4 +1,4 @@
-import { type t, Is, Rx, Try, toWorkerError } from './common.ts';
+import { Is, Rx, type t, toWorkerError, Try } from './common.ts';
 import { createDocProxy } from './u.client.proxy.doc.ts';
 import { createStallDetector } from './u.client.stall.ts';
 import { Wire } from './u.wire.ts';
@@ -143,7 +143,7 @@ export const createRepo: t.CrdtWorkerClientLib['repo'] = (port: MessagePort, opt
       if (Wire.Is.streamLifecycle(e)) {
         if (e.type === 'stream/close') {
           // The host worker-repo has gone away → dispose proxy.
-          repo.dispose('worker:repo:stream/close');
+          void repo.dispose('worker:repo:stream/close').catch(() => undefined);
         }
         return;
       }

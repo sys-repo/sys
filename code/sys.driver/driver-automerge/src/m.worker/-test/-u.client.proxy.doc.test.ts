@@ -15,7 +15,6 @@ import { CrdtIs, Schedule, toWorkerError } from '../common.ts';
 import { CrdtWorker } from '../mod.ts';
 import { createTestHelpers } from './u.ts';
 
-type O = Record<string, unknown>;
 type Doc = {
   foo: string | number;
   obj?: { foo: { msg?: string } };
@@ -48,10 +47,6 @@ describe('CrdtWorker: → repo → doc (proxy)', () => {
       const realDoc = (await realRepo.create<Doc>({ foo: 123 })).doc!;
       expect((await realRepo.get(realDoc.id)).doc?.id).to.eql(realDoc.id); // sanity
 
-      const ev = realDoc.events();
-      const m = ev.deleted$;
-      // realDoc.instance
-
       // Wire up ports.
       const { port1, port2 } = Test.makePorts();
       CrdtWorker.Host.attach(port2, realRepo);
@@ -59,7 +54,7 @@ describe('CrdtWorker: → repo → doc (proxy)', () => {
       // Client proxy repo.
       const proxyRepo = await CrdtWorker.Client.repo(port1).whenReady();
 
-      // 5. Fetch the doc through the worker doc shim.
+      // Fetch the doc through the worker doc shim.
       const res = await proxyRepo.get<Doc>(realDoc.id);
       expect(res.error).to.eql(undefined);
       if (res.doc) {
@@ -85,9 +80,9 @@ describe('CrdtWorker: → repo → doc (proxy)', () => {
         };
 
         // Stub worker-side get to always return an error.
-        const restoreGet = Test.stubRepoGet<Doc>(realRepo, async (id, options) => {
+        const restoreGet = Test.stubRepoGet<Doc>(realRepo, () => {
           const result: t.CrdtRefResult<Doc> = { ok: false, error: err };
-          return result;
+          return Promise.resolve(result);
         });
 
         const { port1, port2 } = Test.makePorts();
@@ -111,10 +106,10 @@ describe('CrdtWorker: → repo → doc (proxy)', () => {
 
       it('returns TryFail when repo.get returns neither `doc` nor `error`', async () => {
         const realRepo = Test.realRepo();
-        const restoreGet = Test.stubRepoGet<Doc>(realRepo, async (id, options) => {
+        const restoreGet = Test.stubRepoGet<Doc>(realRepo, (id) => {
           const error = toWorkerError(`No document for id "${id}" in repo`);
           const result: t.CrdtRefResult<Doc> = { ok: false, doc: undefined, error };
-          return result;
+          return Promise.resolve(result);
         });
 
         const { port1, port2 } = Test.makePorts();
@@ -184,7 +179,7 @@ describe('CrdtWorker: → repo → doc (proxy)', () => {
           doc.dispose$.subscribe({ complete: () => (completed = true) });
 
           if (disposeOf === 'real-repo') await real.repo.dispose();
-          if (disposeOf === 'proxy-repo') proxy.repo.dispose();
+          if (disposeOf === 'proxy-repo') void proxy.repo.dispose().catch(() => undefined);
 
           await Schedule.waitFor(() => doc.disposed);
 
@@ -245,7 +240,7 @@ describe('CrdtWorker: → repo → doc (proxy)', () => {
       await sample.dispose();
     });
 
-    it('lifecycle: document disposes and stops recieving updates', async () => {
+    it('lifecycle: document disposes and stops receiving updates', async () => {
       const sample = await Test.sample<Doc>({ foo: 123 });
       const { real, proxy } = sample;
 

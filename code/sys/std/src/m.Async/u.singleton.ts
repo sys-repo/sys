@@ -37,7 +37,9 @@ export function singleton<K, P extends t.DisposableLike>(
     if (curr.refCount <= 0) {
       registry.delete(key);
       try {
-        curr.producer.dispose();
+        // A void-typed disposer may still return a promise under TypeScript assignability.
+        const result = curr.producer.dispose();
+        void Promise.resolve(result).catch(() => undefined);
       } catch {
         // NB: swallow producer.dispose() errors to protect callers.
       }
