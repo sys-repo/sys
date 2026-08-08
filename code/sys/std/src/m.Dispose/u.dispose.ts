@@ -4,6 +4,7 @@ import { until as untilObservables } from './u.until.ts';
 
 type LifetimeBridge = ReturnType<t.Observable<unknown>['subscribe']>;
 type LifetimeBridgeState = 'attaching' | 'live' | 'failed';
+type AsyncDisposalState = 'idle' | 'running' | 'fulfilled' | 'rejected';
 
 /**
  * Generates a generic disposable interface that is
@@ -41,7 +42,8 @@ export function disposableAsync(...args: any[]) {
   const { until, onDispose } = toDisposableAsyncArgs(args);
   const dispose$ = new Subject<t.DisposeAsyncEvent>();
   const bridges = new Set<LifetimeBridge>();
-  let _disposing = false;
+  let state: AsyncDisposalState = 'idle';
+  let completion: Promise<void> | undefined;
 
   type P = t.DisposeAsyncEventArgs;
   const asPayload = (stage: t.DisposeAsyncStage, reason?: unknown, error?: t.DisposeError): P => {
@@ -54,30 +56,53 @@ export function disposableAsync(...args: any[]) {
     dispose$.next({ type: 'dispose', payload });
   };
 
-  const disposable: t.DisposableAsync = {
-    dispose$: dispose$.asObservable(),
-    async dispose(reason) {
-      if (_disposing) return; // idempotent
-      _disposing = true;
+  const dispose: t.DisposableAsync['dispose'] = (reason) => {
+    if (completion) return completion;
 
-      releaseLifetimeBridges(bridges);
-      fire('start', reason);
-      try {
-        // Invoke handler ("clean up resources").
-        // Pass a structured event with the optional disposal reason.
-        await onDispose?.({ reason });
-        fire('complete', reason);
-      } catch (err: any) {
-        fire('error', reason, {
-          name: 'DisposeError',
-          message: 'Failed while disposing asynchronously',
-          cause: Err.std(err),
-        });
-      }
-    },
+    const deferred = Promise.withResolvers<void>();
+    completion = deferred.promise;
+    state = 'running';
+
+    const complete = () => {
+      if (state !== 'running') return;
+      fire('complete', reason);
+      state = 'fulfilled';
+      deferred.resolve();
+    };
+    const fail = (error: unknown) => {
+      if (state !== 'running') return;
+      fire('error', reason, asDisposeError(error));
+      state = 'rejected';
+      deferred.reject(error);
+    };
+
+    releaseLifetimeBridges(bridges);
+    fire('start', reason);
+
+    let result: unknown;
+    try {
+      // Invoke the cleanup handler in the requesting turn.
+      result = onDispose?.({ reason });
+    } catch (error) {
+      fail(error);
+      return completion;
+    }
+
+    if (result === completion) {
+      fail(new TypeError('Asynchronous disposal cleanup cannot await its own completion'));
+      return completion;
+    }
+
+    void settleAsyncResult(result, complete, fail);
+    return completion;
   };
 
-  attachLifetimeBridges(until, bridges, () => _disposing, disposable.dispose);
+  const disposable: t.DisposableAsync = {
+    dispose$: dispose$.asObservable(),
+    dispose,
+  };
+
+  attachLifetimeBridges(until, bridges, () => state !== 'idle', dispose);
 
   return disposable;
 }
@@ -85,6 +110,35 @@ export function disposableAsync(...args: any[]) {
 /**
  * Helpers:
  */
+async function settleAsyncResult(
+  result: unknown,
+  onFulfilled: () => void,
+  onRejected: (error: unknown) => void,
+) {
+  try {
+    await result;
+  } catch (error) {
+    onRejected(error);
+    return;
+  }
+  onFulfilled();
+}
+
+function asDisposeError(error: unknown): t.DisposeError {
+  let cause: t.StdError | undefined;
+  try {
+    cause = Err.std(error);
+  } catch {
+    // Raw completion truth must survive opaque telemetry input.
+  }
+
+  return Delete.undefined({
+    name: 'DisposeError',
+    message: 'Failed while disposing asynchronously',
+    cause,
+  });
+}
+
 function attachLifetimeBridges(
   until: t.UntilInput | undefined,
   bridges: Set<LifetimeBridge>,
@@ -138,8 +192,7 @@ function releaseLifetimeBridges(bridges: Set<LifetimeBridge>) {
 }
 
 export function toDisposableAsyncArgs(args: any[]) {
-  type Fn = (e: t.DisposeEvent) => Promise<void>;
-  let onDispose: Fn | undefined;
+  let onDispose: t.LifecycleStageHandler | undefined;
   let untilInput: t.UntilObservable | undefined;
 
   if (typeof args[0] === 'function') onDispose = args[0];

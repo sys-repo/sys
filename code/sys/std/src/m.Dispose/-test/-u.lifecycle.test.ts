@@ -1,5 +1,5 @@
 import { describe, Dispose, expect, it, Rx, Schedule, type t, Time } from './common.ts';
-import { triggerUntil, waitForAsyncDispose } from './u.fixture.ts';
+import { captureRejection, triggerUntil, waitForAsyncDispose } from './u.fixture.ts';
 
 describe('Dispose.lifecycle', () => {
   it('repeated direct disposal → one terminal event and disposed state', () => {
@@ -141,7 +141,11 @@ describe('Dispose.lifecycleAsync', () => {
     });
 
     const events: t.DisposeAsyncEvent[] = [];
-    lifecycle.dispose$.subscribe((event) => events.push(event));
+    let disposedAtTerminal: boolean | undefined;
+    lifecycle.dispose$.subscribe((event) => {
+      events.push(event);
+      if (event.payload.is.done) disposedAtTerminal = lifecycle.disposed;
+    });
 
     expect(lifecycle.disposed).to.eql(false);
     const completion = lifecycle.dispose();
@@ -150,26 +154,53 @@ describe('Dispose.lifecycleAsync', () => {
     await completion;
 
     expect(count).to.eql(1);
+    expect(disposedAtTerminal).to.eql(true);
     expect(lifecycle.disposed).to.eql(true);
     expect(events.length).to.eql(2);
     expect(events[1].payload.stage).to.eql('complete');
     expect(events[1].payload.is).to.eql({ ok: true, done: true });
   });
 
-  it('cleanup failure → terminal error state', async () => {
+  it('synchronous cleanup failure → terminal state before dispose returns', async () => {
+    const failure = new Error('synchronous:cleanup:failure');
+    const lifecycle = Dispose.lifecycleAsync(() => {
+      throw failure;
+    });
+    const events: t.DisposeAsyncEvent[] = [];
+    let disposedAtTerminal: boolean | undefined;
+    lifecycle.dispose$.subscribe((event) => {
+      events.push(event);
+      if (event.payload.is.done) disposedAtTerminal = lifecycle.disposed;
+    });
+
+    const completion = lifecycle.dispose('first:reason');
+    const rejection = captureRejection(completion);
+
+    expect(events.map((event) => event.payload.stage)).to.eql(['start', 'error']);
+    expect(disposedAtTerminal).to.eql(true);
+    expect(lifecycle.disposed).to.eql(true);
+    expect(await rejection).to.equal(failure);
+  });
+
+  it('asynchronous cleanup failure → terminal error state and rejected completion', async () => {
+    const failure = new Error('Boo', { cause: new Error('Sad') });
     const lifecycle = Dispose.lifecycleAsync(async () => {
       await Time.wait(5);
-      throw new Error('Boo', { cause: new Error('Sad') });
+      throw failure;
     });
 
     const events: t.DisposeAsyncEvent[] = [];
-    lifecycle.dispose$.subscribe((event) => events.push(event));
+    let disposedAtTerminal: boolean | undefined;
+    lifecycle.dispose$.subscribe((event) => {
+      events.push(event);
+      if (event.payload.is.done) disposedAtTerminal = lifecycle.disposed;
+    });
 
     expect(lifecycle.disposed).to.eql(false);
     const completion = lifecycle.dispose();
     expect(lifecycle.disposed).to.eql(false);
-    await completion;
-    await completion;
+    expect(await captureRejection(completion)).to.equal(failure);
+    expect(await captureRejection(lifecycle.dispose())).to.equal(failure);
 
     expect(events.length).to.eql(2);
     expect(events[0].payload.stage).to.eql('start');
@@ -177,6 +208,7 @@ describe('Dispose.lifecycleAsync', () => {
     expect(events[1].payload.is).to.eql({ ok: false, done: true });
     expect(events[1].payload.error?.cause?.message).to.eql('Boo');
     expect(events[1].payload.error?.cause?.cause?.message).to.eql('Sad');
+    expect(disposedAtTerminal).to.eql(true);
     expect(lifecycle.disposed).to.eql(true);
   });
 

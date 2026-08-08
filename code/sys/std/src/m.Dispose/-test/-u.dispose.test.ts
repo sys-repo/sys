@@ -1,5 +1,5 @@
 import { describe, Dispose, expect, it, Rx, Schedule, type t, Time } from './common.ts';
-import { triggerUntil } from './u.fixture.ts';
+import { captureRejection, triggerUntil } from './u.fixture.ts';
 
 describe('Dispose.disposable', () => {
   it('repeated direct disposal → one terminal event', () => {
@@ -101,6 +101,102 @@ describe('Dispose.disposableAsync', () => {
     expect(cleanup).to.eql(0);
   });
 
+  it('concurrent and post-settlement calls → one stored completion', async () => {
+    const cleanup = Promise.withResolvers<void>();
+    const reasons: unknown[] = [];
+    const disposable = Dispose.disposableAsync((event) => {
+      reasons.push(event.reason);
+      return cleanup.promise;
+    });
+    const events: t.DisposeAsyncEvent[] = [];
+    disposable.dispose$.subscribe((event) => events.push(event));
+
+    const first = disposable.dispose(undefined);
+    const concurrent = disposable.dispose('ignored:concurrent');
+
+    expect(concurrent).to.equal(first);
+    expect(reasons).to.eql([undefined]);
+    expect(events.length).to.eql(1);
+    expect(events[0].payload.stage).to.eql('start');
+    expect(events[0].payload.reason).to.eql(undefined);
+
+    await Schedule.micro();
+    expect(events.length).to.eql(1);
+
+    cleanup.resolve();
+    await first;
+
+    expect(disposable.dispose('ignored:settled')).to.equal(first);
+    expect(events.length).to.eql(2);
+    expect(events[1].payload.stage).to.eql('complete');
+    expect(events[1].payload.reason).to.eql(undefined);
+  });
+
+  it('bridge-teardown re-entry → observes the stored completion', async () => {
+    const cleanup = Promise.withResolvers<void>();
+    const reasons: unknown[] = [];
+    let reentrant: Promise<void> | undefined;
+    const owner: { current?: t.DisposableAsync } = {};
+    const until = new Rx.Observable<void>(() => {
+      return () => {
+        reentrant = owner.current?.dispose('reentrant:ignored');
+      };
+    });
+    const disposable = Dispose.disposableAsync(until, (event) => {
+      reasons.push(event.reason);
+      return cleanup.promise;
+    });
+    owner.current = disposable;
+
+    const first = disposable.dispose('first:reason');
+
+    expect(reentrant).to.equal(first);
+    expect(reasons).to.eql(['first:reason']);
+
+    cleanup.resolve();
+    await first;
+  });
+
+  it('start-event re-entry → observes the stored completion', async () => {
+    const cleanup = Promise.withResolvers<void>();
+    let handlerCalled = false;
+    let reentrant: Promise<void> | undefined;
+    const disposable = Dispose.disposableAsync(() => {
+      handlerCalled = true;
+      return cleanup.promise;
+    });
+    disposable.dispose$.subscribe((event) => {
+      if (event.payload.stage === 'start') reentrant = disposable.dispose('reentrant:ignored');
+    });
+
+    const first = disposable.dispose('first:reason');
+
+    expect(reentrant).to.equal(first);
+    expect(handlerCalled).to.eql(true);
+
+    cleanup.resolve();
+    await first;
+    expect(disposable.dispose()).to.equal(first);
+  });
+
+  it('cleanup-handler re-entry → observes the stored completion', async () => {
+    const cleanup = Promise.withResolvers<void>();
+    let reentrant: Promise<void> | undefined;
+    const owner: { current?: t.DisposableAsync } = {};
+    const disposable = Dispose.disposableAsync(() => {
+      reentrant = owner.current?.dispose('reentrant:ignored');
+      return cleanup.promise;
+    });
+    owner.current = disposable;
+
+    const first = disposable.dispose('first:reason');
+
+    expect(reentrant).to.equal(first);
+
+    cleanup.resolve();
+    await first;
+  });
+
   it('dispose → start then complete events', async () => {
     let count = 0;
     const disposable = Dispose.disposableAsync(async () => {
@@ -129,13 +225,81 @@ describe('Dispose.disposableAsync', () => {
     expect(events[1].payload.reason).to.eql('test:reason');
   });
 
-  it('cleanup failure → normalized terminal error', async () => {
-    const test = async (generateError: () => unknown) => {
+  it('cleanup self-reference → rejects instead of remaining permanently pending', async () => {
+    const owner: { current?: t.DisposableAsync } = {};
+    const disposable = Dispose.disposableAsync(() => owner.current?.dispose('reentrant:self'));
+    owner.current = disposable;
+    const events: t.DisposeAsyncEvent[] = [];
+    disposable.dispose$.subscribe((event) => events.push(event));
+
+    const completion = disposable.dispose('first:reason');
+    void completion.catch(() => undefined);
+    await Schedule.tick();
+
+    expect(events.length).to.eql(2);
+    expect(events[1].payload.stage).to.eql('error');
+    expect(await captureRejection(completion)).to.be.instanceOf(TypeError);
+  });
+
+  it('hostile Promise properties → native settlement truth', async () => {
+    const thenFailure = new Error('promise:then:override');
+    const fulfilled = Promise.resolve();
+    Object.defineProperty(fulfilled, 'then', {
+      value() {
+        throw thenFailure;
+      },
+    });
+    const success = Dispose.disposableAsync(() => fulfilled);
+
+    await success.dispose();
+
+    const rejection = new Error('promise:rejection');
+    const rejected = Promise.reject(rejection);
+    Object.defineProperty(rejected, 'then', {
+      value() {
+        throw thenFailure;
+      },
+    });
+    const failure = Dispose.disposableAsync(() => rejected);
+
+    expect(await captureRejection(failure.dispose())).to.equal(rejection);
+
+    const constructorFailure = new Error('promise:constructor:getter');
+    const hostile = Promise.resolve();
+    Object.defineProperty(hostile, 'constructor', {
+      get() {
+        throw constructorFailure;
+      },
+    });
+    const constructorGetter = Dispose.disposableAsync(() => hostile);
+
+    expect(await captureRejection(constructorGetter.dispose())).to.equal(constructorFailure);
+  });
+
+  it('hostile thenable → one terminal settlement', async () => {
+    const disposable = Dispose.disposableAsync(() => ({
+      then(resolve: () => void, reject: (error: unknown) => void) {
+        resolve();
+        reject(new Error('late:rejection'));
+        resolve();
+      },
+    }));
+    const events: t.DisposeAsyncEvent[] = [];
+    disposable.dispose$.subscribe((event) => events.push(event));
+
+    const completion = disposable.dispose('first:reason');
+    await completion;
+
+    expect(disposable.dispose('ignored')).to.equal(completion);
+    expect(events.map((event) => event.payload.stage)).to.eql(['start', 'complete']);
+  });
+
+  it('cleanup failures → normalized terminal error and raw rejection identity', async () => {
+    const test = async (failure: unknown, cleanup: () => unknown) => {
       let count = 0;
-      const disposable = Dispose.disposableAsync(async () => {
-        await Time.wait(5);
+      const disposable = Dispose.disposableAsync(() => {
         count++;
-        throw generateError();
+        return cleanup();
       });
 
       const events: t.DisposeAsyncEvent[] = [];
@@ -143,8 +307,12 @@ describe('Dispose.disposableAsync', () => {
 
       const reason = 'test:error-reason';
       const completion = disposable.dispose(reason);
-      await completion;
-      await completion;
+      expect(disposable.dispose('ignored:concurrent')).to.equal(completion);
+      expect(await captureRejection(completion)).to.equal(failure);
+
+      const settled = disposable.dispose('ignored:settled');
+      expect(settled).to.equal(completion);
+      expect(await captureRejection(settled)).to.equal(failure);
       expect(count).to.eql(1);
 
       expect(events.length).to.eql(2);
@@ -160,13 +328,77 @@ describe('Dispose.disposableAsync', () => {
       return error;
     };
 
-    const stringError = await test(() => 'My String Error');
+    const stringFailure = 'My String Error';
+    const stringError = await test(stringFailure, () => {
+      throw stringFailure;
+    });
     expect(stringError?.cause?.name).to.eql('Error');
-    expect(stringError?.cause?.message).to.eql('My String Error');
+    expect(stringError?.cause?.message).to.eql(stringFailure);
 
-    const jsError = await test(() => new Error('My JS Error', { cause: new Error('fail') }));
-    expect(jsError?.cause?.message).to.eql('My JS Error');
+    const jsFailure = new Error('My JS Error', { cause: new Error('fail') });
+    const jsError = await test(jsFailure, () => Promise.reject(jsFailure));
+    expect(jsError?.cause?.message).to.eql(jsFailure.message);
     expect(jsError?.cause?.cause?.message).to.eql('fail');
+
+    const thenableFailure = new Error('Thenable getter failure');
+    await test(thenableFailure, () => ({
+      get then() {
+        throw thenableFailure;
+      },
+    }));
+
+    await test(undefined, () => Promise.reject(undefined));
+  });
+
+  it('opaque cleanup failure → raw rejection survives telemetry normalization', async () => {
+    const normalizationFailure = new Error('telemetry:normalization:failure');
+    const failure = new Proxy({}, {
+      getPrototypeOf() {
+        throw normalizationFailure;
+      },
+    });
+    const test = async (cleanup: () => unknown) => {
+      const disposable = Dispose.disposableAsync(cleanup);
+      const events: t.DisposeAsyncEvent[] = [];
+      disposable.dispose$.subscribe((event) => events.push(event));
+
+      const completion = disposable.dispose('opaque:failure');
+
+      expect(await captureRejection(completion)).to.equal(failure);
+      expect(events.length).to.eql(2);
+      expect(events[1].payload.stage).to.eql('error');
+      expect(events[1].payload.error?.name).to.eql('DisposeError');
+    };
+
+    await test(() => {
+      throw failure;
+    });
+    await test(() => Promise.reject(failure));
+  });
+
+  it('until bridge → owns rejection without changing completion truth', async () => {
+    const failure = new Error('bridge:cleanup:rejected');
+    const upstream = Dispose.disposable();
+    const trap = trapUnhandledRejections();
+    const disposable = Dispose.disposableAsync(upstream, () => Promise.reject(failure));
+    const events: t.DisposeAsyncEvent[] = [];
+    disposable.dispose$.subscribe((event) => events.push(event));
+
+    try {
+      upstream.dispose('bridge:reason');
+      await Schedule.tick();
+      await Schedule.tick();
+
+      expect(trap.reasons).to.eql([]);
+      expect(events.length).to.eql(2);
+      expect(events[0].payload.stage).to.eql('start');
+      expect(events[0].payload.reason).to.eql('bridge:reason');
+      expect(events[1].payload.stage).to.eql('error');
+      expect(events[1].payload.reason).to.eql('bridge:reason');
+      expect(await captureRejection(disposable.dispose('ignored'))).to.equal(failure);
+    } finally {
+      trap.dispose();
+    }
   });
 
   it('manual disposal with until input → one cleanup', async () => {
@@ -249,3 +481,20 @@ describe('Dispose.disposableAsync', () => {
     expect(received).to.eql([reason]);
   });
 });
+
+/**
+ * Helpers:
+ */
+function trapUnhandledRejections() {
+  const reasons: unknown[] = [];
+  const onUnhandled = (event: PromiseRejectionEvent) => {
+    event.preventDefault();
+    reasons.push(event.reason);
+  };
+
+  addEventListener('unhandledrejection', onUnhandled);
+  return {
+    reasons,
+    dispose: () => removeEventListener('unhandledrejection', onUnhandled),
+  };
+}

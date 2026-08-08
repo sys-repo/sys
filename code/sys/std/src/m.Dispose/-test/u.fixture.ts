@@ -12,6 +12,16 @@ export function triggerUntil(until?: t.DisposeInput) {
   });
 }
 
+/** Captures the exact rejection from an asynchronous disposal completion. */
+export async function captureRejection(completion: PromiseLike<unknown>) {
+  try {
+    await completion;
+  } catch (error) {
+    return error;
+  }
+  throw new Error('Expected asynchronous disposal to reject');
+}
+
 /** Resolves after an asynchronous lifecycle reaches a terminal stage. */
 export function waitForAsyncDispose(lifecycle: t.LifecycleAsync) {
   if (lifecycle.disposed) return Promise.resolve();
