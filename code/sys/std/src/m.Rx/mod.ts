@@ -4,12 +4,12 @@
  *
  * @example
  * ```ts
- * import { rx } from '@sys/std/rx';
+ * import { Rx } from '@sys/std/rx';
  *
  * type T = { count: number };
- * const $ = rx.subject<T>();
+ * const $ = Rx.subject<T>();
  * const next = (count: number) => $.next({ count });
- * $.pipe(rx.filter((e) => e.count > 2)).subscribe((e) => console.info('count:', e.count));
+ * $.pipe(Rx.filter((e) => e.count > 2)).subscribe((e) => console.info('count:', e.count));
  *
  * next(1);
  * next(2);
