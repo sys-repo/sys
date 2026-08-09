@@ -1,20 +1,34 @@
 dispose-capability-separation.plan.md
 - [x] [dispose-native-protocol-alignment.plan.md](dispose-native-protocol-alignment.plan.md)
-- [x] refactor(sys): route observable lifetimes through lifecycle factories
-- [ ] fix(std): normalize until through terminal lifecycle truth
-- [ ] refactor(std): retire unearned disposal factory surfaces
-- [ ] refactor(types): separate disposal authority from observable lifecycles
-- [ ] chore(deps): align disposal capability release authority
-- [ ] docs(std): define disposal capability boundaries
+- [x] 41160c75d refactor(sys): route observable lifetimes through lifecycle factories
+- [x] d6c1e8e4d fix(std): normalize until through terminal lifecycle truth
+- [x] ee0b3a04d refactor(std): retire unearned disposal factory surfaces
+- [x] b1de27d15 refactor(types): separate disposal authority from observable lifecycles
+- [x] 398c1174c refactor(types): separate disposal authority from observable lifecycles
+- [x] c7c71f9c5 docs(std): define disposal capability boundaries
+- [x] e86082399 fix(std): keep async projections outside lifecycle normalization
 
 ## Status
 
-Adjudicated future arc. It preserves the selected capability design while the native campaign is
-fresh and supersedes nothing until `dispose-native-protocol-alignment.plan.md` completes its opening
-arc and exit criteria.
+The opening block records the reviewed capability-separation arc and its confirmed final-review
+correction. The completed native implementation arc remains the source of truth for its own commits;
+its separate post-publication closure ledger remains authoritative for retirement readiness.
 
-An independent maximum-effort review rejected the earlier hard factory cut and non-sticky
-`UntilInput` carry-forward. The corrections below retain the type-plane reduction, retire unearned
+No `chore(deps)` implementation commit belongs to this arc. Local package resolution and the absence
+of a publication carrying this capability split made dependency or version mutation unnecessary.
+Reachable commits `f7014a4ba` and `336992bb2` are outside this arc: the former is unrelated npm
+dependency maintenance, and the latter is a lockfile-only follow-up after the documentation commit.
+Neither proves disposal release alignment.
+
+The final 3X audit completed one cold arc-wide primary review and one independent holistic review of
+the same disposal source snapshot before cross-model adjudication. It confirmed one runtime guard
+mismatch at the async omission boundary and one plan-provenance defect. Focused post-fix review then
+rechecked projection descriptors, getter safety, guard classification, dynamic normalization,
+overload grammar, active consumers, and residue; the corrected package and downstream proof remained
+green. Review is an exit criterion, not a commit item or gate.
+
+An earlier independent maximum-effort review rejected the hard factory cut and non-sticky
+`UntilInput` carry-forward. The landed corrections retain the type-plane reduction, retire unearned
 public factories rather than manufacturing authority-only products, and make already-terminal stop
 truth consistent across normalized inputs.
 
@@ -37,14 +51,13 @@ Review classes retain the predecessor's meanings:
   formatting, residue, and dependency-graph proof; escalate only when the evidence exposes semantic
   ambiguity.
 
-| Arc item                                                                  | Principal risk                                                                | Class              | Independent review                     |
-| ------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ------------------ | -------------------------------------- |
-| `refactor(sys): route observable lifetimes through lifecycle factories`   | Closed cross-package migration ledger and accidental behavior drift           | Focused 2X         | Sample in the final arc review         |
-| `fix(std): normalize until through terminal lifecycle truth`              | Terminal-state synthesis, microtask timing, recursive inputs, and guard truth | Full 3X            | Standalone                             |
-| `refactor(std): retire unearned disposal factory surfaces`                | Public API removal and private sync/async kernel preservation                 | Full 3X / combined | Batch with the canonical type split    |
-| `refactor(types): separate disposal authority from observable lifecycles` | Foundational public type break, guards, projections, and structural fallout   | Full 3X / combined | Batch with factory retirement          |
-| `chore(deps): align disposal capability release authority`                | Version, import, dependency, and publication ordering                         | Deterministic      | Include with the capability checkpoint |
-| `docs(std): define disposal capability boundaries`                        | Whole-arc semantic fidelity                                                   | Final 3X audit     | Final holistic independent review      |
+| Arc item                                                                  | Principal risk                                                                | Class              | Independent review                  |
+| ------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ------------------ | ----------------------------------- |
+| `refactor(sys): route observable lifetimes through lifecycle factories`   | Closed cross-package migration ledger and accidental behavior drift           | Focused 2X         | Sample in the final arc review      |
+| `fix(std): normalize until through terminal lifecycle truth`              | Terminal-state synthesis, microtask timing, recursive inputs, and guard truth | Full 3X            | Standalone                          |
+| `refactor(std): retire unearned disposal factory surfaces`                | Public API removal and private sync/async kernel preservation                 | Full 3X / combined | Batch with the canonical type split |
+| `refactor(types): separate disposal authority from observable lifecycles` | Foundational public type break, guards, projections, and structural fallout   | Full 3X / combined | Batch with factory retirement       |
+| `docs(std): define disposal capability boundaries`                        | Whole-arc semantic fidelity and future publication ordering                   | Final 3X audit     | Final holistic independent review   |
 
 Review checkpoints:
 
@@ -55,12 +68,12 @@ Review checkpoints:
    live, recursive, invalid-overload, and reason-fidelity cases; complete a standalone Full 3X
    checkpoint before proceeding to public type removal.
 3. **Capability split:** keep factory retirement and canonical type separation as distinct green
-   source commits, then independently review their combined public and runtime truth. Prove kernel
+   source history, then independently review their combined public and runtime truth. Prove kernel
    identity and ordering through lifecycle products, removed exports, guard alignment, omission
    semantics, and structural fallout.
-4. **Release and documentation:** prove the dependency graph deterministically, then perform one
-   cold arc-wide primary review and one holistic independent review of the completed code,
-   documentation, and external-release account.
+4. **Release and documentation:** confirm the local dependency graph and future publication order
+   without requiring a version bump, then perform one cold arc-wide primary review and one holistic
+   independent review of the completed code, documentation, and external-release account.
 
 Before each item starts, recalibrate the exact model and effort from the current tree rather than
 binding the whole roadmap in advance. Use the higher-capability tier where correctness depends on
@@ -153,15 +166,16 @@ Rx.disposableAsync()
 ```
 
 Privatize the existing sync/async kernels and preserve their tested direct/native identity,
-construction barriers, first-reason rule, Promise identity, rejection truth, and event semantics.
-Do not publish an authority-plus-observation intermediate type merely to describe a private kernel.
+construction barriers, first-reason rule, Promise identity, rejection truth, and event semantics. Do
+not publish an authority-plus-observation intermediate type merely to describe a private kernel.
 
-`toLifecycleView()` currently has no production caller. Retire it and its `Rx` alias unless the exact
-post-predecessor tree supplies an earned caller before this item begins. Keep `omitDispose()`, whose
-runtime projection has production callers and actually removes or masks direct/native authority.
+`toLifecycleView()` currently has no production caller. Retire it and its `Rx` alias unless the
+exact post-predecessor tree supplies an earned caller before this item begins. Keep `omitDispose()`,
+whose runtime projection has production callers and actually removes or masks direct/native
+authority.
 
-Do not move observation onto `.dispose.$`. `dispose$` belongs to the resource lifecycle, which may be
-entered through direct, native, bridge, delegated, or lexical cleanup.
+Do not move observation onto `.dispose.$`. `dispose$` belongs to the resource lifecycle, which may
+be entered through direct, native, bridge, delegated, or lexical cleanup.
 
 ## `LifecycleView`
 
@@ -169,12 +183,12 @@ entered through direct, native, bridge, delegated, or lexical cleanup.
 without requesting disposal methods.
 
 It is not a runtime sanitizer. Structural assignment of a full `Lifecycle` to `LifecycleView` does
-not remove methods from the object. At an ownership boundary where runtime authority must actually be
-removed, return a freshly constructed view or use the earned `omitDispose()` projection. Never claim
-a `Pick`, annotation, or cast removed runtime authority.
+not remove methods from the object. At an ownership boundary where runtime authority must actually
+be removed, return a freshly constructed view or use the earned `omitDispose()` projection. Never
+claim a `Pick`, annotation, or cast removed runtime authority.
 
-Passing a full `Lifecycle` to an internal API accepting `LifecycleView` is valid when that API merely
-observes it; this narrows the callable contract but does not project the object.
+Passing a full `Lifecycle` to an internal API accepting `LifecycleView` is valid when that API
+merely observes it; this narrows the callable contract but does not project the object.
 
 ## `UntilInput`
 
@@ -206,10 +220,10 @@ valid. Raw `life.dispose$` remains valid through the observable branch. Authorit
 objects are not observable lifetimes. Async lifecycle objects remain outside the direct object
 branch; callers may pass their `dispose$` explicitly.
 
-Add the earned `Is.lifecycleView` predicate and use it in `Is.until`, `Is.untilInput`, normalization,
-and existing hand-written lifecycle checks. `Is.disposable` becomes authority-only and must prove
-callable direct/native authority plus opposite-protocol exclusion by value; masked `undefined`
-properties are not callable protocols.
+Add the earned `Is.lifecycleView` predicate and use it in `Is.until`, `Is.untilInput`,
+normalization, and existing hand-written lifecycle checks. `Is.disposable` becomes authority-only
+and must prove callable direct/native authority plus opposite-protocol exclusion by value; masked
+`undefined` properties are not callable protocols.
 
 ### Already-terminal truth
 
@@ -221,8 +235,8 @@ This synthesis belongs only to `until` normalization. It does not make `dispose$
 replaying, alter the lifecycle stream, recover a historical reason, or change later live emissions.
 Use `undefined` when no terminal reason remains available.
 
-Harden async overload parsing so a non-function first argument that is not a valid `UntilInput` fails
-clearly rather than silently dropping the lifetime bridge.
+Harden async overload parsing so a non-function first argument that is not a valid `UntilInput`
+fails clearly rather than silently dropping the lifetime bridge.
 
 ## Omission and projection utilities
 
@@ -239,7 +253,9 @@ Delete the old unused middle meaning that removed authority plus `dispose$` whil
 Retarget `omitDispose()` to earned observable lifecycle inputs rather than authority-only disposable
 values. Its output preserves `dispose$`, `disposed`, unrelated descriptors, accessors, and prototype
 behavior while removing or masking `.dispose`, `Symbol.dispose`, and `Symbol.asyncDispose` without
-invoking getters.
+invoking getters. An asynchronous projection retains an own undefined `Symbol.asyncDispose` category
+marker: it grants no callable authority and prevents async telemetry from satisfying the synchronous
+`Is.lifecycleView` predicate after projection.
 
 ## Commit boundaries
 
@@ -286,15 +302,26 @@ Retiring factories before tightening canonical types avoids a temporary public
 - use the compiler as the exhaustive structural ledger;
 - add no migration casts or permanent compatibility hierarchy.
 
+The type split landed in two consecutive commits with the same subject: `b1de27d15` carries the
+substantive capability separation, and `398c1174c` carries the final Rx API-test and module-doc
+casing cleanup. The duplicated subject is historical record, not a second substantive type split.
+Preserve both identities in the opening arc; do not rewrite or collapse landed history.
+
 ### Release and documentation
 
-Treat the native and capability arcs as separate source histories but one external release train when
-both complete before publication. Do not intentionally publish the predecessor's transitional
-`Disposable + dispose$` contract between them. If that contract has already been externally
-published when this arc activates, report the second source break explicitly rather than claiming a
-single migration.
+Treat the native and capability arcs as separate source histories but one external release train at
+the next publication boundary. Live `@sys/types@0.0.300` and `@sys/std@0.0.377` JSR documentation
+inspected during the final review still exposed the predecessor's transitional contract. The types
+package defined `Disposable` with `dispose$`; the std package documented that shape together with
+retired factory and projection surfaces. The next publication must therefore report this capability
+split as a second public break rather than claim one continuous unpublished migration.
 
-Align release authority in dependency order:
+The local packages also remain at those already-published versions; neither is a publication
+candidate merely because source work landed, and neither may be republished without a version bump.
+No dependency or version artifact is required while the workspace resolves local packages and no
+publication is being prepared. Version bumps are publication operations, not implementation proof or
+readiness gates. At a future publication boundary, bump and align release authority in dependency
+order:
 
 ```text
 @sys/types → @sys/std → affected dependents
@@ -327,15 +354,15 @@ Initial production migration set for `Dispose.disposable()` / `Rx.disposable()`:
 - `code/sys.driver/driver-monaco/src/ui/-dev/ui.YamlObjectView.tsx`
 - `code/sys.driver/driver-automerge/src/ui/ui.DocumentId/ui.tsx`
 
-Re-run the search against the completed predecessor tree before implementation; this list is evidence,
-not a frozen substitute for compiler/search proof.
+The completed migration was rechecked against active `code/**` and `deploy/**` sources. This initial
+list remains historical evidence rather than a substitute for the compiler and residue proof.
 
 Structural and adjacent surfaces include:
 
 - DevHarness `BusConnection`, `DevEvents`, `DevContext`, and `DevCtx`;
 - `EffectAdapter`, `EffectController`, and `OmitLifecycle` construction;
 - CLI screen termination normalization;
-- `toLifecycle`, `toLifecycleView`, and `omitDispose`;
+- `toLifecycle`, retired `toLifecycleView` residue, and `omitDispose`;
 - predecessor-listed structural test doubles;
 - both `Dispose` and `Rx` public spellings.
 
@@ -373,8 +400,9 @@ At minimum prove:
 - already-aborted signal → the existing one queued stop request;
 - live lifecycle, observable, abort, nested, and undefined inputs retain their behavior;
 - authority-only disposable input is rejected as `UntilInput`;
-- async lifecycle object is rejected directly while its `dispose$` remains accepted;
-- invalid async overload input fails clearly;
+- async lifecycle object and its authority-free projection are rejected directly while an explicit
+  `dispose$` remains accepted;
+- invalid direct `until` and async overload inputs fail clearly;
 - `Is.disposable`, `Is.lifecycleView`, `Is.until`, and `Is.untilInput` agree with their predicates;
 - opposite native protocols remain rejected by value;
 - retired factory and alias exports are absent;
@@ -396,8 +424,8 @@ Name and update at least:
 
 Run focused tests first, then package test/check/dry in every touched module. At minimum include
 `@sys/types`, `@sys/std`, `@sys/cli`, `@sys/ui-dom`, `@sys/ui-dev`, `@sys/ui-react`,
-`@sys/ui-components`, `@sys/driver-monaco`, and `@sys/driver-automerge`. Carry forward any additional
-packages exposed by the completed predecessor tree.
+`@sys/ui-components`, `@sys/driver-monaco`, and `@sys/driver-automerge`. Carry forward any
+additional packages exposed by the completed predecessor tree.
 
 From the workspace root run:
 
@@ -409,21 +437,51 @@ deno task lint
 deno fmt --check code/sys/types code/sys/std code/sys/cli code/sys.ui/ui-dom code/sys.ui/ui-dev code/sys.ui/ui-react code/sys.ui/ui-components code/sys.driver/driver-monaco code/sys.driver/driver-automerge
 ```
 
-Use the predecessor's external-resolution proof when candidate versions cross package boundaries.
+Use the predecessor's external-resolution proof only when candidate versions actually cross package
+boundaries during publication preparation.
+
+Observed proof on the current source and documentation snapshot:
+
+- `@sys/types`: 21 tests / 72 steps, check, and dry publish passed;
+- `@sys/std`: 174 tests / 2,192 steps, check, dry publish, and three documentation examples passed;
+- `@sys/ui-dev`: 18 tests / 158 steps, check, and dry publish passed;
+- `@sys/driver-monaco`: 26 tests / 348 steps, check, and dry publish passed;
+- relevant downstream package proof passed;
+- workspace dry publish passed all 53 packages;
+- changed documentation is formatter-stable and contains no retired factory or projection names.
+
+The root workspace test exceeded its 300-second bound without a reported failure. Root lint and
+`deno doc --lint` retain unrelated baseline debt; package checks and publish simulation remain
+green.
 
 ## Adjudicated review decisions
 
 - **Confirmed:** `Disposable` becomes authority-only; `Lifecycle` owns observation/state.
 - **Modified:** retire unearned disposable factories instead of narrowing them into unused products.
 - **Modified:** `LifecycleView` is a contract; runtime removal requires a real projection.
-- **Rejected:** preserve non-sticky behavior inside `UntilInput`; already-terminal inputs normalize to
-  queued stop truth without changing `dispose$` itself.
+- **Rejected:** preserve non-sticky behavior inside `UntilInput`; already-terminal inputs normalize
+  to queued stop truth without changing `dispose$` itself.
 - **Confirmed:** no new permanent observation hierarchy.
 - **Confirmed:** omission names return to literal capability semantics.
 - **Deferred:** direct kernel-state optimization; measured convenience does not justify reopening
   established async event ordering in this arc.
-- **Confirmed:** sync/async types both split; async completion remains explicit in the Promise return,
-  not a symmetry-only factory tier.
+- **Confirmed:** sync/async types both split; async completion remains explicit in the Promise
+  return, not a symmetry-only factory tier.
+- **Confirmed (final 3X):** an async `omitDispose()` projection lost the only runtime evidence that
+  distinguished `DisposeAsyncEvent` telemetry from synchronous `LifecycleView` events. Preserve an
+  undefined async-protocol category marker, reject it by presence in `Is.lifecycleView`, and prove
+  direct dynamic `until` rejects malformed inputs.
+- **Accepted hardening (final 3X):** enforce the declared async lifecycle overload grammar rather
+  than silently replacing or ignoring handlers supplied through JavaScript or `any` boundaries.
+- **Rejected (final 3X):** add runtime tombstone key sets for retired APIs; typed object literals,
+  compiler checks, and active-source residue searches already prove absence without brittle key
+  snapshots.
+- **Rejected (final 3X):** make `toLifecycle()` installations configurable solely to permit repeated
+  rebinding; repeated mutation is an unearned API and weakens the construction boundary.
+- **Rejected (final 3X):** rename `BusConnection.isDisposed`; that state is deliberately separate
+  from canonical lifecycle telemetry and preserves the established bus API.
+- **Confirmed (final 3X):** both governing plan artifacts must become reachable history anchors, and
+  the external release account must name both published transitional packages.
 
 ## Non-goals
 
