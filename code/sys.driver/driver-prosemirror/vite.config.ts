@@ -1,4 +1,4 @@
-import { Vite } from 'jsr:@sys/driver-vite';
+import { Vite } from '@sys/driver-vite';
 
 export default Vite.Config.define(() => {
   const entry = 'src/index.html';
