@@ -1,11 +1,12 @@
 import { cli as tmpl } from '../../../../../-tmpl/src/m.tmpl/mod.ts';
-import { Fs, Str, type t } from '../../-test.ts';
+import { Fs, Str } from '../../-test.ts';
 import { runTask, type TaskRun } from './u.fixture.task.ts';
 
 type GeneratedRepo = {
   readonly rootDir: string;
   readonly fooDir: string;
   readonly generate: TaskRun;
+  readonly bootstrap: TaskRun;
   readonly build: TaskRun;
 };
 
@@ -31,19 +32,18 @@ export async function buildGeneratedRepo(args: {
   const projectsDir = Fs.join(rootDir, 'code', 'projects');
   const fooDir = Fs.join(projectsDir, 'foo');
   const generate = await runTmplPkg(projectsDir, 'foo', '@tmp/foo');
-  const build =
-    generate.ok && (await Fs.exists(fooDir))
-      ? await runTask(fooDir, 'build')
-      : {
-          cwd: fooDir,
-          cmd: ['task', 'build'] as const,
-          ok: false,
-          code: 1,
-          stdout: '',
-          stderr: `Skipped build because generated project was unavailable at ${fooDir}`,
-        };
+  const bootstrap = generate.ok && (await Fs.exists(fooDir))
+    ? await runTask(rootDir, 'install')
+    : skippedTask(
+      rootDir,
+      'install',
+      'Skipped bootstrap because generated project was unavailable',
+    );
+  const build = generate.ok && bootstrap.ok && (await Fs.exists(fooDir))
+    ? await runTask(fooDir, 'build')
+    : skippedTask(fooDir, 'build', 'Skipped build because generated repository was unavailable');
 
-  return { rootDir, fooDir, generate, build };
+  return { rootDir, fooDir, generate, bootstrap, build };
 }
 
 export async function buildGeneratedWorkspaceRepo(args: {
@@ -62,15 +62,26 @@ export async function buildGeneratedWorkspaceRepo(args: {
   const patch =
     generateFoo.ok && generateBar.ok && (await Fs.exists(fooDir)) && (await Fs.exists(barDir))
       ? await patchWorkspaceRepo(fooDir, barDir)
-      : skippedTask(fooDir, 'patch', 'Skipped workspace patch because generated packages were unavailable');
-  const bootstrap =
-    generateFoo.ok && generateBar.ok && patch.ok
-      ? await runTask(rootDir, 'install')
-      : skippedTask(rootDir, 'install', 'Skipped workspace bootstrap because generated packages were unavailable');
+      : skippedTask(
+        fooDir,
+        'patch',
+        'Skipped workspace patch because generated packages were unavailable',
+      );
+  const bootstrap = generateFoo.ok && generateBar.ok && patch.ok
+    ? await runTask(rootDir, 'install')
+    : skippedTask(
+      rootDir,
+      'install',
+      'Skipped workspace bootstrap because generated packages were unavailable',
+    );
   const build =
     generateFoo.ok && generateBar.ok && patch.ok && bootstrap.ok && (await Fs.exists(fooDir))
       ? await runTask(fooDir, 'build')
-      : skippedTask(fooDir, 'build', 'Skipped build because generated workspace repo was unavailable');
+      : skippedTask(
+        fooDir,
+        'build',
+        'Skipped build because generated workspace repo was unavailable',
+      );
 
   return { rootDir, fooDir, barDir, generateFoo, generateBar, patch, bootstrap, build };
 }
