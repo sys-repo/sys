@@ -121,7 +121,7 @@ describe('Dispose.lifecycle kernel behavior', () => {
 });
 
 describe('Dispose.lifecycleAsync kernel behavior', () => {
-  it('invalid first overload input → clear failure', () => {
+  it('invalid overload input → clear failure', async () => {
     const asyncLifecycle = Dispose.lifecycleAsync();
 
     for (const input of [123, {}, asyncLifecycle]) {
@@ -130,6 +130,21 @@ describe('Dispose.lifecycleAsync kernel behavior', () => {
         /UntilInput/,
       );
     }
+
+    for (
+      const args of [
+        [() => {}, () => {}],
+        [undefined, 123],
+        [undefined, () => {}, 'extra'],
+      ]
+    ) {
+      expect(() => Reflect.apply(Dispose.lifecycleAsync, undefined, args)).to.throw(
+        TypeError,
+        /overload/,
+      );
+    }
+
+    await asyncLifecycle.dispose();
   });
 
   it('direct and native disposal → one stored completion and first reason', async () => {

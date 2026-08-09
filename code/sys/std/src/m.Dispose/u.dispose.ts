@@ -216,18 +216,23 @@ function releaseLifetimeBridges(bridges: Set<LifetimeBridge>) {
 }
 
 export function toDisposableAsyncArgs(args: any[]) {
-  let onDispose: t.LifecycleStageHandler | undefined;
-  let untilInput: t.UntilObservable | undefined;
-  const first = args[0];
-
-  if (Is.func(first)) onDispose = first;
-  else if (Is.untilInput(first)) untilInput = untilObservables(first);
-  else {
-    throw new TypeError(
-      'Invalid asynchronous disposal overload: first argument must be an UntilInput or lifecycle stage handler',
+  const invalid = () =>
+    new TypeError(
+      'Invalid asynchronous disposal overload: expected (handler?) or (UntilInput?, handler?)',
     );
+  if (args.length > 2) throw invalid();
+
+  const [first, second] = args;
+  if (Is.func(first)) {
+    if (second !== undefined) throw invalid();
+    return { onDispose: first, until: undefined };
   }
 
-  if (Is.func(args[1])) onDispose = args[1];
-  return { onDispose, until: untilInput };
+  if (!Is.untilInput(first)) throw invalid();
+  if (second !== undefined && !Is.func(second)) throw invalid();
+
+  return {
+    onDispose: second,
+    until: untilObservables(first),
+  };
 }

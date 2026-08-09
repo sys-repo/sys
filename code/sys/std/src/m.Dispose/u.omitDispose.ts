@@ -13,6 +13,7 @@ export function omitDispose<T extends L>(obj: T): t.OmitDisposable<T> {
   requireSymbolDispose();
   requireSymbolAsyncDispose();
   const authorityKeys = ['dispose', Symbol.dispose, Symbol.asyncDispose] as const;
+  const hasAsyncProtocol = hasPropertyDescriptor(obj, Symbol.asyncDispose);
   const proto = Object.getPrototypeOf(obj);
   const newDescs: PropertyDescriptorMap = {};
 
@@ -24,7 +25,10 @@ export function omitDispose<T extends L>(obj: T): t.OmitDisposable<T> {
   }
 
   for (const key of authorityKeys) {
-    if (!hasPropertyDescriptor(proto, key)) continue;
+    // Keep an undefined async marker so runtime guards can distinguish its telemetry after authority
+    // removal. Undefined remains non-callable under the native protocol.
+    const preservesAsyncCategory = key === Symbol.asyncDispose && hasAsyncProtocol;
+    if (!preservesAsyncCategory && !hasPropertyDescriptor(proto, key)) continue;
     newDescs[key] = {
       configurable: true,
       value: undefined,

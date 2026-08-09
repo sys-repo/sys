@@ -10,6 +10,20 @@ describe('Dispose.until', () => {
     expect(observables[0]).to.equal(source);
   });
 
+  it('invalid dynamic input → clear failure', async () => {
+    const asyncLifecycle = Dispose.lifecycleAsync();
+    const asyncProjection = Dispose.omitDispose(asyncLifecycle);
+
+    for (const input of [123, {}, asyncProjection, [Rx.subject(), 123]]) {
+      expect(() => Reflect.apply(Dispose.until, undefined, [input])).to.throw(
+        TypeError,
+        /UntilInput/,
+      );
+    }
+
+    await asyncLifecycle.dispose();
+  });
+
   it('live lifecycle view input → non-replaying disposal observable', () => {
     const lifecycle = Rx.lifecycle();
     const view: t.LifecycleView = {

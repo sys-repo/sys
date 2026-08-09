@@ -42,7 +42,12 @@ describe('Dispose.omitDispose', () => {
 
     expect('dispose' in projection).to.eql(false);
     expect(Symbol.dispose in projection).to.eql(false);
-    expect(Symbol.asyncDispose in projection).to.eql(false);
+    expect(Symbol.asyncDispose in projection).to.eql(true);
+    expect(Object.hasOwn(projection, Symbol.asyncDispose)).to.eql(true);
+    expect(Reflect.get(projection, Symbol.asyncDispose)).to.eql(undefined);
+    expect(Is.lifecycleView(projection)).to.eql(false);
+    expect(Is.until(projection)).to.eql(false);
+    expect(Is.untilInput(projection)).to.eql(false);
     expect(projection.dispose$).to.equal(source.dispose$);
     expect(projection.disposed).to.eql(false);
 
@@ -90,7 +95,9 @@ describe('Dispose.omitDispose', () => {
     expect(authorityGetterReads).to.eql(0);
     expect('dispose' in projection).to.eql(false);
     expect(Symbol.dispose in projection).to.eql(false);
-    expect(Symbol.asyncDispose in projection).to.eql(false);
+    expect(Symbol.asyncDispose in projection).to.eql(true);
+    expect(Reflect.get(projection, Symbol.asyncDispose)).to.eql(undefined);
+    expect(Is.lifecycleView(projection)).to.eql(false);
   });
 
   it('inherited authority → masked without invoking getters', () => {

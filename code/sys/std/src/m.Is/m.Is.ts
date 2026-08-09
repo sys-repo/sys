@@ -67,8 +67,10 @@ export const Is: t.Is.Lib = {
 
     const view = input as Record<PropertyKey, unknown>;
     const asyncDispose = Symbol.asyncDispose;
-    const hasAsyncAuthority = !Is.nil(asyncDispose) && Is.func(view[asyncDispose]);
-    return Is.bool(view.disposed) && Is.observable(view.dispose$) && !hasAsyncAuthority;
+    // Async omission projections retain a non-callable protocol marker so their telemetry cannot
+    // be narrowed to the synchronous LifecycleView event contract.
+    const hasAsyncCategory = !Is.nil(asyncDispose) && asyncDispose in view;
+    return Is.bool(view.disposed) && Is.observable(view.dispose$) && !hasAsyncCategory;
   },
   disposableLike(input?: any): input is t.DisposableLike {
     if (!isObject(input)) return false;

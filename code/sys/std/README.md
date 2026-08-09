@@ -12,7 +12,7 @@ import { Obj } from 'jsr:@sys/std/obj';
 
 ### Runtimes
 
-- [jsr:`@sys/std`](https://jsr.io/@sys/std) ← Browser + [WinterTG](https://wintertc.org/)
+- [jsr:`@sys/std`](https://jsr.io/@sys/std) ← Browser + [WinterTC](https://wintertc.org/)
 
 #### see also (primitives):
 
@@ -71,14 +71,13 @@ lifecycle:
 | `Lifecycle` / `LifecycleAsync`   | Yes                | Yes                    | Yes              |
 | `LifecycleView`                  | Not promised       | Yes                    | Yes              |
 
-`Dispose.lifecycle()` and `Dispose.lifecycleAsync()` are the public constructor tier. Their
-`Rx.lifecycle()` and `Rx.lifecycleAsync()` aliases are the same functions, not a separate disposal
-model.
+`Dispose.lifecycle()` and `Dispose.lifecycleAsync()` create lifecycle owners. `Rx.lifecycle()` and
+`Rx.lifecycleAsync()` are aliases of those functions.
 
-A `LifecycleView` is a structural contract: assigning an owner to that type does not remove
-authority from the runtime object. Use `Dispose.omitDispose()` when an API must return a separate
-object without callable direct or native disposal authority. That projection preserves observation
-and state as API shaping; it is not a tamper-resistant security boundary.
+`LifecycleView` describes `dispose$` and `disposed`; it does not change the object itself.
+`Dispose.omitDispose()` returns a separate object that keeps those properties but withholds
+`dispose`, `Symbol.dispose`, and `Symbol.asyncDispose`. This narrows the API surface; it is not a
+security boundary.
 
 ```ts
 import type { t } from 'jsr:@sys/std/t';
@@ -91,9 +90,7 @@ const dependent = Dispose.lifecycle(view);
 owner.dispose('shutdown'); // The dependent observes the stop signal; ownership never transfers.
 ```
 
-An `UntilInput` is observation-only. Observable emissions, `LifecycleView` terminal truth, and abort
-signals ask the newly created owner to stop without granting authority over the input. An
-already-disposed view schedules one reasonless stop across the construction microtask; `dispose$`
-itself does not become replaying. Stateless disposable authority and direct asynchronous lifecycle
-objects are not accepted directly as `UntilInput` values, though callers may pass an explicit
-compatible `dispose$` stream.
+An `UntilInput` may be an observable, a `LifecycleView`, an abort signal, or any nested combination
+of them. `undefined` is ignored. The first trigger stops the new owner; ownership of the inputs does
+not transfer. An already-disposed view triggers that stop on the next microtask; `dispose$` remains
+non-replaying.

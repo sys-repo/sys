@@ -5,6 +5,8 @@ import { Arr, Is, Observable, type t } from './common.ts';
  * disposes of the target when any of them fire.
  */
 export function until(input?: t.DisposeInput) {
+  if (!Is.untilInput(input)) throw new TypeError('Invalid UntilInput');
+
   const list = Is.array<t.DisposeInput>(input) ? input : [input];
   return Arr.flatten<unknown>(list)
     .filter((item) => item !== undefined)

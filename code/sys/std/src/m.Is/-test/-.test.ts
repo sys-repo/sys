@@ -7,6 +7,7 @@ import {
   isPromise,
   isRecord,
 } from '../../common.ts';
+import { Dispose } from '../../m.Dispose/mod.ts';
 import { Rx } from '../../m.Rx/mod.ts';
 import { Url } from '../../m.Url/mod.ts';
 import { Err } from '../../m.Err/mod.ts';
@@ -288,13 +289,7 @@ describe('Is (common flags)', () => {
         disposed: false,
         dispose$: Rx.subject<t.DisposeEvent>(),
       });
-      const undefinedAsyncKey = {
-        disposed: false,
-        dispose$: Rx.subject<t.DisposeEvent>(),
-        [Symbol.asyncDispose]: undefined,
-      };
-
-      for (const input of [lifecycle, plain, inherited, undefinedAsyncKey]) {
+      for (const input of [lifecycle, plain, inherited]) {
         expect(Is.lifecycleView(input)).to.eql(true);
       }
 
@@ -305,9 +300,14 @@ describe('Is (common flags)', () => {
       }
     });
 
-    it('rejects malformed state and callable asynchronous authority', () => {
+    it('rejects malformed state and asynchronous category markers', () => {
       const dispose$ = Rx.subject<t.DisposeEvent>();
       const asyncLifecycle = Rx.lifecycleAsync();
+      const undefinedAsyncKey = {
+        disposed: false,
+        dispose$,
+        [Symbol.asyncDispose]: undefined,
+      };
       const NON = [
         '',
         123,
@@ -320,6 +320,8 @@ describe('Is (common flags)', () => {
         { disposed: false },
         { disposed: 'false', dispose$ },
         { disposed: false, dispose$: {} },
+        undefinedAsyncKey,
+        { disposed: false, dispose$, [Symbol.asyncDispose]: 123 },
         { disposed: false, dispose$, [Symbol.asyncDispose]: async () => {} },
         asyncLifecycle,
       ];
@@ -722,6 +724,7 @@ describe('Is (common flags)', () => {
       const disposable = { dispose() {}, dispose$, [Symbol.dispose]() {} };
       const observableWithoutState = { dispose() {}, dispose$ };
       const asyncLifecycle = Rx.lifecycleAsync();
+      const asyncProjection = Dispose.omitDispose(asyncLifecycle);
       const hybrid = {
         disposed: false,
         dispose() {},
@@ -737,6 +740,7 @@ describe('Is (common flags)', () => {
           disposable,
           observableWithoutState,
           asyncLifecycle,
+          asyncProjection,
           hybrid,
           nativeOnly,
         ]
