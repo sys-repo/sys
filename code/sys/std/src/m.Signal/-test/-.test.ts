@@ -113,7 +113,7 @@ describe('Signal', () => {
 
   describe('Signal.listeners', () => {
     it('create → <change> → dispose', () => {
-      const life = Rx.disposable();
+      const life = Rx.lifecycle();
       const a = Signal.listeners();
       const b = Signal.listeners(life.dispose$);
 

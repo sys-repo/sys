@@ -8,12 +8,15 @@ describe('Rx (API)', () => {
     expect(m.Rx).to.equal(Rx);
 
     expect(Rx.toLifecycle).to.equal(Dispose.toLifecycle);
-    expect(Rx.toLifecycleView).to.equal(Dispose.toLifecycleView);
     expect(Rx.lifecycle).to.equal(Dispose.lifecycle);
     expect(Rx.lifecycleAsync).to.equal(Dispose.lifecycleAsync);
-    expect(Rx.disposable).to.equal(Dispose.disposable);
-    expect(Rx.disposableAsync).to.equal(Dispose.disposableAsync);
     expect(Rx.abortable).to.equal(Dispose.abortable);
+
+    for (const target of [Dispose, Rx]) {
+      expect('disposable' in target).to.eql(false);
+      expect('disposableAsync' in target).to.eql(false);
+      expect('toLifecycleView' in target).to.eql(false);
+    }
   });
 
   it('dual cased names', () => {

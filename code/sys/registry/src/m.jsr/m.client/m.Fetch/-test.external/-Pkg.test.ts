@@ -152,7 +152,7 @@ describe('Jsr.Fetch.Pkg (external)', () => {
   });
 
   it('dispose ← (cancel fetch operation)', async () => {
-    const { dispose, dispose$ } = Rx.disposable();
+    const { dispose, dispose$ } = Rx.lifecycle();
     const promise = Fetch.Pkg.versions('@sys/std', { until: dispose$ });
 
     dispose();

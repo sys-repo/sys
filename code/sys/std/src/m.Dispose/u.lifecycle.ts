@@ -1,5 +1,5 @@
 import { filter, type t, take } from './common.ts';
-import { disposable, disposableAsync, toDisposableAsyncArgs } from './u.dispose.ts';
+import { createDisposable, createDisposableAsync, toDisposableAsyncArgs } from './u.dispose.ts';
 import { requireSymbolAsyncDispose, requireSymbolDispose } from './u.native.ts';
 
 type L = t.Lifecycle;
@@ -10,7 +10,7 @@ type L = t.Lifecycle;
  */
 export function lifecycle(until?: t.UntilInput): t.Lifecycle {
   requireSymbolDispose();
-  const owner = disposable(until);
+  const owner = createDisposable(until);
   let _disposed = false;
   owner.dispose$.pipe(take(1)).subscribe(() => (_disposed = true));
   return {
@@ -31,7 +31,7 @@ export function lifecycle(until?: t.UntilInput): t.Lifecycle {
 export function lifecycleAsync(...args: any[]): t.LifecycleAsync {
   requireSymbolAsyncDispose();
   const { until, onDispose } = toDisposableAsyncArgs(args);
-  const owner = disposableAsync(until, onDispose);
+  const owner = createDisposableAsync(until, onDispose);
   let _disposed = false;
   owner.dispose$
     .pipe(
@@ -69,29 +69,6 @@ export const toLifecycle: t.Dispose.Lib['toLifecycle'] = <T extends L>(
       value: () => dispose(),
       enumerable: true,
     },
-    disposed: {
-      get: () => life.disposed,
-      enumerable: true,
-    },
-    dispose$: {
-      get: () => life.dispose$,
-      enumerable: true,
-    },
-  });
-
-  return obj;
-};
-
-/**
- * Extend the given object to expose the lifecycle view (no dispose).
- */
-export const toLifecycleView: t.Dispose.Lib['toLifecycleView'] = <T extends t.LifecycleView>(
-  life: t.Lifecycle,
-  api: t.OmitLifecycle<T>,
-): T => {
-  const obj = api as T & t.LifecycleView;
-
-  Object.defineProperties(obj, {
     disposed: {
       get: () => life.disposed,
       enumerable: true,

@@ -14,7 +14,7 @@ describe('Monaco.Yaml', () => {
       });
 
       it('dispose: via dispose$', () => {
-        const life = Rx.disposable();
+        const life = Rx.lifecycle();
         const editor = MonacoFake.editor('');
         const ob = EditorYaml.Path.observe({ editor }, life.dispose$);
         expect(ob.disposed).to.eql(false);
@@ -241,7 +241,7 @@ describe('Monaco.Yaml', () => {
 
     describe('ping/pong: "cursor"', () => {
       it('responds to "editor:ping" with editor:yaml:cursor + editor:pong', async () => {
-        const life = Rx.disposable();
+        const life = Rx.lifecycle();
         const bus$ = Bus.make();
         const model = MonacoFake.model('foo: bar', { language: 'yaml' });
         const editor = MonacoFake.editor(model);

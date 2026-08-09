@@ -1,4 +1,4 @@
-import { type t, c, describe, expect, expectTypeOf, it, Rx, Schedule } from '../../-test.ts';
+import { c, describe, expect, expectTypeOf, it, Rx, Schedule, type t } from '../../-test.ts';
 import { Bus } from '../mod.ts';
 
 describe(`Editor Events`, () => {
@@ -117,16 +117,24 @@ describe(`Editor Events`, () => {
         .subscribe((e) => seen.push(e));
 
       Bus.emit(bus$, 'sync', { kind: 'editor:debug', msg: 'a' } satisfies t.EditorEvent.Debug);
-      Bus.emit(bus$, 'sync', {
-        kind: 'editor:crdt:text',
-        trigger: 'crdt',
-        path: [],
-        change: { before: '', after: '' },
-      } satisfies t.EditorEvent.Crdt.Text);
-      Bus.emit(bus$, 'sync', {
-        kind: 'editor:crdt:folding:ready',
-        areas: [],
-      } satisfies t.EditorEvent.Crdt.FoldingReady);
+      Bus.emit(
+        bus$,
+        'sync',
+        {
+          kind: 'editor:crdt:text',
+          trigger: 'crdt',
+          path: [],
+          change: { before: '', after: '' },
+        } satisfies t.EditorEvent.Crdt.Text,
+      );
+      Bus.emit(
+        bus$,
+        'sync',
+        {
+          kind: 'editor:crdt:folding:ready',
+          areas: [],
+        } satisfies t.EditorEvent.Crdt.FoldingReady,
+      );
 
       sub.unsubscribe();
       expect(seen.map((e) => e.kind)).to.eql(['editor:debug', 'editor:crdt:folding:ready']);
@@ -141,16 +149,24 @@ describe(`Editor Events`, () => {
         .subscribe((e) => crdtKinds.push(e.kind));
 
       Bus.emit(bus$, 'sync', { kind: 'editor:debug', msg: 'noop' } satisfies t.EditorEvent.Debug);
-      Bus.emit(bus$, 'sync', {
-        kind: 'editor:crdt:text',
-        trigger: 'crdt',
-        path: [],
-        change: { before: 'a', after: 'b' },
-      } satisfies t.EditorEvent.Crdt.Text);
-      Bus.emit(bus$, 'sync', {
-        kind: 'editor:crdt:folding:ready',
-        areas: [],
-      } satisfies t.EditorEvent.Crdt.FoldingReady);
+      Bus.emit(
+        bus$,
+        'sync',
+        {
+          kind: 'editor:crdt:text',
+          trigger: 'crdt',
+          path: [],
+          change: { before: 'a', after: 'b' },
+        } satisfies t.EditorEvent.Crdt.Text,
+      );
+      Bus.emit(
+        bus$,
+        'sync',
+        {
+          kind: 'editor:crdt:folding:ready',
+          areas: [],
+        } satisfies t.EditorEvent.Crdt.FoldingReady,
+      );
 
       sub.unsubscribe();
       expect(crdtKinds).to.eql(['editor:crdt:text', 'editor:crdt:folding:ready']);
@@ -165,17 +181,25 @@ describe(`Editor Events`, () => {
         .subscribe((e) => seen.push(e));
 
       Bus.emit(bus$, 'sync', { kind: 'editor:debug', msg: 'noise' } satisfies t.EditorEvent.Debug);
-      Bus.emit(bus$, 'sync', {
-        kind: 'editor:crdt:text',
-        trigger: 'crdt',
-        path: [],
-        change: { before: '', after: '' },
-      } satisfies t.EditorEvent.Crdt.Text);
-      Bus.emit(bus$, 'sync', {
-        kind: 'editor:crdt:folding',
-        trigger: 'editor',
-        areas: [],
-      } satisfies t.EditorEvent.Crdt.Folding);
+      Bus.emit(
+        bus$,
+        'sync',
+        {
+          kind: 'editor:crdt:text',
+          trigger: 'crdt',
+          path: [],
+          change: { before: '', after: '' },
+        } satisfies t.EditorEvent.Crdt.Text,
+      );
+      Bus.emit(
+        bus$,
+        'sync',
+        {
+          kind: 'editor:crdt:folding',
+          trigger: 'editor',
+          areas: [],
+        } satisfies t.EditorEvent.Crdt.Folding,
+      );
 
       sub.unsubscribe();
       expect(seen).to.have.length(1);
@@ -191,10 +215,14 @@ describe(`Editor Events`, () => {
         .subscribe((e) => seen.push(e as t.EditorEvent.Crdt.FoldingReady));
 
       Bus.emit(bus$, 'sync', { kind: 'editor:debug', msg: 'skip' } satisfies t.EditorEvent.Debug);
-      Bus.emit(bus$, 'sync', {
-        kind: 'editor:crdt:folding:ready',
-        areas: [],
-      } satisfies t.EditorEvent.Crdt.FoldingReady);
+      Bus.emit(
+        bus$,
+        'sync',
+        {
+          kind: 'editor:crdt:folding:ready',
+          areas: [],
+        } satisfies t.EditorEvent.Crdt.FoldingReady,
+      );
 
       sub.unsubscribe();
       expect(seen).to.have.length(1);
@@ -211,7 +239,7 @@ describe(`Editor Events`, () => {
     }
 
     it('emits correctly typed `ping` and `pong` events', async () => {
-      const life = Rx.disposable();
+      const life = Rx.lifecycle();
       const bus$ = Bus.make();
       const events: t.EditorEvent.Shape[] = [];
       const sub = bus$.pipe(Rx.takeUntil(life.dispose$)).subscribe((e) => events.push(e));
@@ -240,7 +268,7 @@ describe(`Editor Events`, () => {
     });
 
     it('ping: auto generate `nonce`', async () => {
-      const life = Rx.disposable();
+      const life = Rx.lifecycle();
       const bus$ = Bus.make();
       const events: t.EditorEvent.Shape[] = [];
       const sub = bus$.pipe(Rx.takeUntil(life.dispose$)).subscribe((e) => events.push(e));

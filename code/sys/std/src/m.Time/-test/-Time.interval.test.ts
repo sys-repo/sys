@@ -65,7 +65,7 @@ describe('Time.interval', () => {
   });
 
   it('Time.until(interval) cancels on dispose', async () => {
-    const { dispose, dispose$ } = Rx.disposable();
+    const { dispose, dispose$ } = Rx.lifecycle();
     const time = Time.until(dispose$);
     let count = 0;
     const tick = time.interval(10, () => count++);

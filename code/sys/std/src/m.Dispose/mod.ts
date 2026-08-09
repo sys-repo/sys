@@ -15,13 +15,12 @@
  * synchronous and asynchronous resources expose only their matching native protocol. `await using`
  * can also consume a synchronous resource through the language's standard fallback.
  *
- * Synchronous owner factories and `toLifecycle` require `Symbol.dispose`; asynchronous owner
- * factories require `Symbol.asyncDispose`; and `omitDispose` requires both because it removes both
+ * Synchronous lifecycle factories and `toLifecycle` require `Symbol.dispose`; asynchronous
+ * lifecycle factories require `Symbol.asyncDispose`; and `omitDispose` requires both because it removes both
  * forms of native authority. Missing symbols fail clearly. This module does not install a shim or
  * mutate globals.
  *
- * Projection helpers intentionally withhold disposal authority: `toLifecycleView` and `omitDispose`
- * preserve an owner's observable state without exposing direct or native disposal entrypoints.
+ * `omitDispose` intentionally withholds disposal authority while preserving observable state.
  *
  * ## Explicit and lexical cleanup
  *
@@ -54,7 +53,7 @@
  * ```ts
  * import { Dispose } from 'jsr:@sys/std/dispose';
  *
- * const resource = Dispose.disposableAsync(async ({ reason }) => {
+ * const resource = Dispose.lifecycleAsync(async ({ reason }) => {
  *   console.log(reason);
  *   await Promise.resolve();
  * });

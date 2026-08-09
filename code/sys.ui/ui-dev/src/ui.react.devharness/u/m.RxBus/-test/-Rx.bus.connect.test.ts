@@ -94,7 +94,7 @@ describe('BusConnect', () => {
   });
 
   it('dispose: via { until } param', async () => {
-    const { dispose, dispose$ } = Rx.disposable();
+    const { dispose, dispose$ } = Rx.lifecycle();
     const a = RxBus<E>();
     const b = RxBus<E>();
     connect<E>([a, b], { until: dispose$ });

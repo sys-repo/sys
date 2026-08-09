@@ -97,7 +97,7 @@ describe('Rx.withinTimeThreshold (eg. "double-click")', () => {
 
   it('dispose$', () => {
     const $ = Rx.subject();
-    const { dispose, dispose$ } = Dispose.disposable();
+    const { dispose, dispose$ } = Dispose.lifecycle();
     const threshold = Rx.withinTimeThreshold($, 10, { until: dispose$ });
     expect(threshold.disposed).to.eql(false);
 

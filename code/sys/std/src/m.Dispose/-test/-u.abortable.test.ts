@@ -107,7 +107,7 @@ describe('Dispose.abortable', () => {
     });
 
     it('external lifecycle reason → AbortSignal.reason', () => {
-      const upstream = Dispose.disposable();
+      const upstream = Dispose.lifecycle();
       const abortable = Dispose.abortable(upstream.dispose$);
       const reason = 'upstream:dispose';
 

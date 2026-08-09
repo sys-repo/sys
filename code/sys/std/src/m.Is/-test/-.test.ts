@@ -330,7 +330,11 @@ describe('Is (common flags)', () => {
 
   describe('Is.disposable', () => {
     it('Is.disposable: true', () => {
-      const disposable = Rx.disposable();
+      const disposable: t.Disposable = {
+        dispose() {},
+        dispose$: Rx.subject<t.DisposeEvent>(),
+        [Symbol.dispose]() {},
+      };
       const life = Rx.lifecycle();
       const inherited = Object.assign(
         Object.create({
@@ -348,6 +352,7 @@ describe('Is (common flags)', () => {
         [Symbol.asyncDispose]: undefined,
       };
 
+      expect('disposed' in disposable).to.eql(false);
       expect(Is.disposable(disposable)).to.be.true;
       expect(Is.disposable(life)).to.be.true;
       expect(Is.disposable(inherited)).to.be.true;
@@ -395,8 +400,12 @@ describe('Is (common flags)', () => {
 
   describe('Is.disposableLike', () => {
     it('Is.disposableLike: true (canonical + plain)', () => {
-      const disposable = Rx.disposable(); // canonical
-      const life = Rx.lifecycle(); // canonical
+      const disposable: t.Disposable = {
+        dispose() {},
+        dispose$: Rx.subject<t.DisposeEvent>(),
+        [Symbol.dispose]() {},
+      };
+      const life = Rx.lifecycle();
       const plain = { dispose() {} }; // plain dispose-only
 
       expect(Is.disposableLike(disposable)).to.be.true;
@@ -715,7 +724,7 @@ describe('Is (common flags)', () => {
 
     it('rejects owners without state and direct async lifecycle objects', () => {
       const dispose$ = Rx.subject<t.DisposeEvent>();
-      const disposable = Rx.disposable();
+      const disposable = { dispose() {}, dispose$, [Symbol.dispose]() {} };
       const observableWithoutState = { dispose() {}, dispose$ };
       const asyncLifecycle = Rx.lifecycleAsync();
       const hybrid = {
@@ -766,8 +775,13 @@ describe('Is (common flags)', () => {
     });
 
     it('rejects stateless disposal, null, primitives, and unrelated values', () => {
-      expect(Is.untilInput(Rx.disposable())).to.eql(false);
-      expect(Is.untilInput([Rx.disposable()])).to.eql(false);
+      const disposable = {
+        dispose() {},
+        dispose$: Rx.subject<t.DisposeEvent>(),
+        [Symbol.dispose]() {},
+      };
+      expect(Is.untilInput(disposable)).to.eql(false);
+      expect(Is.untilInput([disposable])).to.eql(false);
       expect(Is.untilInput(null)).to.eql(false);
       expect(Is.untilInput(42)).to.eql(false);
       expect(Is.untilInput('abc')).to.eql(false);

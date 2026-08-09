@@ -4,9 +4,10 @@
  *
  * @example
  * ```ts
+ * import { Rx } from '@sys/std/rx';
  * import { Keyboard } from '@sys/ui-dom/keyboard';
  *
- * const life = rx.disposable();
+ * const life = Rx.lifecycle();
  * const until = Keyboard.until(life.dispose$);
  *
  * until.on('KeyZ', (e) => {

@@ -73,7 +73,7 @@ describe('Keyboard.dbl', () => {
   });
 
   it('disposes', () => {
-    const life = Rx.disposable();
+    const life = Rx.lifecycle();
     const { dispose$ } = life;
     const res1 = Keyboard.dbl(2);
     const res2 = Keyboard.dbl(2, { until: dispose$ });

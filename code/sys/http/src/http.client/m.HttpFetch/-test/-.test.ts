@@ -183,7 +183,7 @@ describe('Http.Fetch', () => {
 
   describe('fetch: fail', () => {
     it('404: error with headers', async () => {
-      const life = Rx.disposable();
+      const life = Rx.lifecycle();
       const server = Testing.Http.server(() => Testing.Http.error(404, 'Not Found'));
       const fetch = Fetch.make(optionsFor(server.url.toURL().origin, { until: life.dispose$ }));
 
@@ -380,7 +380,7 @@ describe('Http.Fetch', () => {
 
   describe('lifecycle', () => {
     it('create: { until } input variants', async () => {
-      const life = Rx.disposable();
+      const life = Rx.lifecycle();
       const lifecycle = Rx.lifecycle();
       const abort = new AbortController();
       const { dispose$ } = life;
@@ -402,7 +402,7 @@ describe('Http.Fetch', () => {
     });
 
     it('dispose$ ← (observable param)', async () => {
-      const life = Rx.disposable();
+      const life = Rx.lifecycle();
       const server = Testing.Http.server(() => Testing.Http.json({ foo: 123 }));
       const url = server.url.toString();
       const fetch = Fetch.make(optionsFor(server.url.toURL().origin, { until: life.dispose$ }));
@@ -447,7 +447,7 @@ describe('Http.Fetch', () => {
     });
 
     it('lifecycle aborts even when init.signal is provided', async () => {
-      const life = Rx.disposable();
+      const life = Rx.lifecycle();
       const server = Testing.Http.server(
         () =>
           new Promise((resolve) => {
@@ -507,7 +507,7 @@ describe('Http.Fetch', () => {
     });
 
     it('fetch.dispose', () => {
-      const life = Rx.disposable();
+      const life = Rx.lifecycle();
       const fetch = Fetch.make(fetchOptions([ORIGIN], {}, { until: life.dispose$ }));
 
       const fired = { life: 0, fetch: 0 };

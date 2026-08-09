@@ -29,7 +29,7 @@ describe('Monaco.Folding', () => {
       });
 
       it('dispose: via dispose$', () => {
-        const life = Rx.disposable();
+        const life = Rx.lifecycle();
         const editor = MonacoFake.editor('');
         const ob = EditorFolding.observe({ editor }, life.dispose$);
         expect(ob.disposed).to.eql(false);

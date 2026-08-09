@@ -15,12 +15,9 @@ export namespace Rx {
     // Lifecycle:
     done: t.Dispose.Lib['done'];
     abortable: t.Dispose.Lib['abortable'];
-    disposable: t.Dispose.Lib['disposable'];
-    disposableAsync: t.Dispose.Lib['disposableAsync'];
     lifecycle: t.Dispose.Lib['lifecycle'];
     lifecycleAsync: t.Dispose.Lib['lifecycleAsync'];
     toLifecycle: t.Dispose.Lib['toLifecycle'];
-    toLifecycleView: t.Dispose.Lib['toLifecycleView'];
 
     // Helpers:
     subject<T = void>(): rxjs.Subject<T>;

@@ -30,7 +30,7 @@ describe('Fs.Watch', () => {
     });
 
     it('create: multiple paths, not recursive → until', async () => {
-      const { dispose, dispose$ } = Rx.disposable();
+      const { dispose, dispose$ } = Rx.lifecycle();
       const [_, p1, p2] = await SAMPLE.ensureExists(SAMPLE.uniq(), SAMPLE.uniq());
       const watcher = await Fs.watch([p1, p2], { recursive: false, until: dispose$ });
       expect(watcher.paths).to.eql([p1, p2]);

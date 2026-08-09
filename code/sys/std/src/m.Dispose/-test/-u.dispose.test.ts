@@ -1,9 +1,9 @@
 import { describe, Dispose, expect, it, Rx, Schedule, type t, Time } from './common.ts';
 import { captureRejection, triggerUntil } from './u.fixture.ts';
 
-describe('Dispose.disposable', () => {
+describe('Dispose.lifecycle kernel behavior', () => {
   it('repeated direct disposal → one terminal event', () => {
-    const disposable = Dispose.disposable();
+    const disposable = Dispose.lifecycle();
     let count = 0;
     disposable.dispose$.subscribe(() => count++);
 
@@ -14,7 +14,7 @@ describe('Dispose.disposable', () => {
   });
 
   it('direct and native disposal → one operation and first reason', () => {
-    const directFirst = Dispose.disposable();
+    const directFirst = Dispose.lifecycle();
     const directEvents: t.DisposeEvent[] = [];
     directFirst.dispose$.subscribe((event) => directEvents.push(event));
 
@@ -23,7 +23,7 @@ describe('Dispose.disposable', () => {
 
     expect(directEvents).to.eql([{ reason: 'direct:first' }]);
 
-    const symbolFirst = Dispose.disposable();
+    const symbolFirst = Dispose.lifecycle();
     const symbolEvents: t.DisposeEvent[] = [];
     symbolFirst.dispose$.subscribe((event) => symbolEvents.push(event));
 
@@ -36,7 +36,7 @@ describe('Dispose.disposable', () => {
   it('using → invokes native disposal at scope exit', () => {
     const events: string[] = [];
     {
-      using resource = Dispose.disposable();
+      using resource = Dispose.lifecycle();
       resource.dispose$.subscribe(() => events.push('dispose'));
       events.push('body');
     }
@@ -45,7 +45,7 @@ describe('Dispose.disposable', () => {
   });
 
   it('native sync protocol → exclusive and coherently enumerable', () => {
-    const disposable = Dispose.disposable();
+    const disposable = Dispose.lifecycle();
     const direct = Object.getOwnPropertyDescriptor(disposable, 'dispose');
     const native = Object.getOwnPropertyDescriptor(disposable, Symbol.dispose);
 
@@ -69,7 +69,7 @@ describe('Dispose.disposable', () => {
       return () => unsubscribed++;
     });
 
-    Dispose.disposable(until);
+    Dispose.lifecycle(until);
     expect(unsubscribed).to.eql(0);
 
     await Schedule.micro();
@@ -91,7 +91,7 @@ describe('Dispose.disposable', () => {
 
     let caught: unknown;
     try {
-      Dispose.disposable([first, second]);
+      Dispose.lifecycle([first, second]);
     } catch (error) {
       caught = error;
     }
@@ -102,7 +102,7 @@ describe('Dispose.disposable', () => {
 
   it('upstream disposal → one terminal event', () => {
     const test = (until: t.DisposeInput) => {
-      const disposable = Dispose.disposable(until);
+      const disposable = Dispose.lifecycle(until);
       let count = 0;
       disposable.dispose$.subscribe(() => count++);
 
@@ -120,25 +120,22 @@ describe('Dispose.disposable', () => {
   });
 });
 
-describe('Dispose.disposableAsync', () => {
-  it('invalid first overload input → clear failure across async factories', () => {
+describe('Dispose.lifecycleAsync kernel behavior', () => {
+  it('invalid first overload input → clear failure', () => {
     const asyncLifecycle = Dispose.lifecycleAsync();
-    const factories = [Dispose.disposableAsync, Dispose.lifecycleAsync];
 
-    for (const factory of factories) {
-      for (const input of [123, {}, asyncLifecycle]) {
-        expect(() => Reflect.apply(factory, undefined, [input, () => {}])).to.throw(
-          TypeError,
-          /UntilInput/,
-        );
-      }
+    for (const input of [123, {}, asyncLifecycle]) {
+      expect(() => Reflect.apply(Dispose.lifecycleAsync, undefined, [input, () => {}])).to.throw(
+        TypeError,
+        /UntilInput/,
+      );
     }
   });
 
   it('direct and native disposal → one stored completion and first reason', async () => {
     const cleanup = Promise.withResolvers<void>();
     const directReasons: unknown[] = [];
-    const directFirst = Dispose.disposableAsync((event) => {
+    const directFirst = Dispose.lifecycleAsync((event) => {
       directReasons.push(event.reason);
       return cleanup.promise;
     });
@@ -153,7 +150,7 @@ describe('Dispose.disposableAsync', () => {
     await direct;
 
     const symbolReasons: unknown[] = [];
-    const symbolFirst = Dispose.disposableAsync((event) => {
+    const symbolFirst = Dispose.lifecycleAsync((event) => {
       symbolReasons.push(event.reason);
     });
     const native = Reflect.apply(symbolFirst[Symbol.asyncDispose], symbolFirst, [
@@ -169,7 +166,7 @@ describe('Dispose.disposableAsync', () => {
   it('await using → awaits native disposal completion', async () => {
     const events: string[] = [];
     {
-      await using _resource = Dispose.disposableAsync(async () => {
+      await using _resource = Dispose.lifecycleAsync(async () => {
         events.push('dispose:start');
         await Schedule.micro();
         events.push('dispose:complete');
@@ -181,7 +178,7 @@ describe('Dispose.disposableAsync', () => {
   });
 
   it('native async protocol → exclusive and coherently enumerable', async () => {
-    const disposable = Dispose.disposableAsync();
+    const disposable = Dispose.lifecycleAsync();
     const direct = Object.getOwnPropertyDescriptor(disposable, 'dispose');
     const native = Object.getOwnPropertyDescriptor(disposable, Symbol.asyncDispose);
 
@@ -201,7 +198,7 @@ describe('Dispose.disposableAsync', () => {
     let caught: unknown;
 
     try {
-      await using _resource = Dispose.disposableAsync(() => Promise.reject(cleanupFailure));
+      await using _resource = Dispose.lifecycleAsync(() => Promise.reject(cleanupFailure));
       throw bodyFailure;
     } catch (error) {
       caught = error;
@@ -229,7 +226,7 @@ describe('Dispose.disposableAsync', () => {
 
     let caught: unknown;
     try {
-      Dispose.disposableAsync([first, second], () => void cleanup++);
+      Dispose.lifecycleAsync([first, second], () => void cleanup++);
     } catch (error) {
       caught = error;
     }
@@ -244,7 +241,7 @@ describe('Dispose.disposableAsync', () => {
   it('concurrent and post-settlement calls → one stored completion', async () => {
     const cleanup = Promise.withResolvers<void>();
     const reasons: unknown[] = [];
-    const disposable = Dispose.disposableAsync((event) => {
+    const disposable = Dispose.lifecycleAsync((event) => {
       reasons.push(event.reason);
       return cleanup.promise;
     });
@@ -282,7 +279,7 @@ describe('Dispose.disposableAsync', () => {
         reentrant = owner.current?.dispose('reentrant:ignored');
       };
     });
-    const disposable = Dispose.disposableAsync(until, (event) => {
+    const disposable = Dispose.lifecycleAsync(until, (event) => {
       reasons.push(event.reason);
       return cleanup.promise;
     });
@@ -301,7 +298,7 @@ describe('Dispose.disposableAsync', () => {
     const cleanup = Promise.withResolvers<void>();
     let handlerCalled = false;
     let reentrant: Promise<void> | undefined;
-    const disposable = Dispose.disposableAsync(() => {
+    const disposable = Dispose.lifecycleAsync(() => {
       handlerCalled = true;
       return cleanup.promise;
     });
@@ -323,7 +320,7 @@ describe('Dispose.disposableAsync', () => {
     const cleanup = Promise.withResolvers<void>();
     let reentrant: Promise<void> | undefined;
     const owner: { current?: t.DisposableAsync } = {};
-    const disposable = Dispose.disposableAsync(() => {
+    const disposable = Dispose.lifecycleAsync(() => {
       reentrant = owner.current?.dispose('reentrant:ignored');
       return cleanup.promise;
     });
@@ -339,7 +336,7 @@ describe('Dispose.disposableAsync', () => {
 
   it('dispose → start then complete events', async () => {
     let count = 0;
-    const disposable = Dispose.disposableAsync(async () => {
+    const disposable = Dispose.lifecycleAsync(async () => {
       await Time.wait(10);
       count++;
     });
@@ -367,7 +364,7 @@ describe('Dispose.disposableAsync', () => {
 
   it('cleanup self-reference → rejects instead of remaining permanently pending', async () => {
     const owner: { current?: t.DisposableAsync } = {};
-    const disposable = Dispose.disposableAsync(() => owner.current?.dispose('reentrant:self'));
+    const disposable = Dispose.lifecycleAsync(() => owner.current?.dispose('reentrant:self'));
     owner.current = disposable;
     const events: t.DisposeAsyncEvent[] = [];
     disposable.dispose$.subscribe((event) => events.push(event));
@@ -389,7 +386,7 @@ describe('Dispose.disposableAsync', () => {
         throw thenFailure;
       },
     });
-    const success = Dispose.disposableAsync(() => fulfilled);
+    const success = Dispose.lifecycleAsync(() => fulfilled);
 
     await success.dispose();
 
@@ -400,7 +397,7 @@ describe('Dispose.disposableAsync', () => {
         throw thenFailure;
       },
     });
-    const failure = Dispose.disposableAsync(() => rejected);
+    const failure = Dispose.lifecycleAsync(() => rejected);
 
     expect(await captureRejection(failure.dispose())).to.equal(rejection);
 
@@ -411,13 +408,13 @@ describe('Dispose.disposableAsync', () => {
         throw constructorFailure;
       },
     });
-    const constructorGetter = Dispose.disposableAsync(() => hostile);
+    const constructorGetter = Dispose.lifecycleAsync(() => hostile);
 
     expect(await captureRejection(constructorGetter.dispose())).to.equal(constructorFailure);
   });
 
   it('hostile thenable → one terminal settlement', async () => {
-    const disposable = Dispose.disposableAsync(() => ({
+    const disposable = Dispose.lifecycleAsync(() => ({
       then(resolve: () => void, reject: (error: unknown) => void) {
         resolve();
         reject(new Error('late:rejection'));
@@ -437,7 +434,7 @@ describe('Dispose.disposableAsync', () => {
   it('cleanup failures → normalized terminal error and raw rejection identity', async () => {
     const test = async (failure: unknown, cleanup: () => unknown) => {
       let count = 0;
-      const disposable = Dispose.disposableAsync(() => {
+      const disposable = Dispose.lifecycleAsync(() => {
         count++;
         return cleanup();
       });
@@ -498,7 +495,7 @@ describe('Dispose.disposableAsync', () => {
       },
     });
     const test = async (cleanup: () => unknown) => {
-      const disposable = Dispose.disposableAsync(cleanup);
+      const disposable = Dispose.lifecycleAsync(cleanup);
       const events: t.DisposeAsyncEvent[] = [];
       disposable.dispose$.subscribe((event) => events.push(event));
 
@@ -520,7 +517,7 @@ describe('Dispose.disposableAsync', () => {
     const failure = new Error('bridge:cleanup:rejected');
     const upstream = Dispose.lifecycle();
     const trap = trapUnhandledRejections();
-    const disposable = Dispose.disposableAsync(upstream, () => Promise.reject(failure));
+    const disposable = Dispose.lifecycleAsync(upstream, () => Promise.reject(failure));
     const events: t.DisposeAsyncEvent[] = [];
     disposable.dispose$.subscribe((event) => events.push(event));
 
@@ -544,7 +541,7 @@ describe('Dispose.disposableAsync', () => {
   it('manual disposal with until input → one cleanup', async () => {
     const test = async (until: t.UntilInput) => {
       let count = 0;
-      const disposable = Dispose.disposableAsync(until, async () => {
+      const disposable = Dispose.lifecycleAsync(until, async () => {
         await Time.wait(5);
         count++;
       });
@@ -566,14 +563,14 @@ describe('Dispose.disposableAsync', () => {
       expect(events[1].payload.reason).to.eql('upstream:manual');
     };
 
-    await test(Dispose.disposable().dispose$);
+    await test(Dispose.lifecycle().dispose$);
     await test(Dispose.lifecycle());
-    await test([undefined, [undefined, Dispose.disposable().dispose$]]);
+    await test([undefined, [undefined, Dispose.lifecycle().dispose$]]);
     await test([undefined, [undefined, Dispose.lifecycle()]]);
   });
 
   it('direct reason → terminal event reason', async () => {
-    const disposable = Dispose.disposableAsync(async () => {
+    const disposable = Dispose.lifecycleAsync(async () => {
       await Time.wait(1);
     });
 
@@ -593,7 +590,7 @@ describe('Dispose.disposableAsync', () => {
 
   it('direct reason → cleanup handler reason', async () => {
     const received: unknown[] = [];
-    const disposable = Dispose.disposableAsync(async (event) => {
+    const disposable = Dispose.lifecycleAsync(async (event) => {
       received.push(event.reason);
       await Time.wait(1);
     });
@@ -608,7 +605,7 @@ describe('Dispose.disposableAsync', () => {
   it('until bridge reason → cleanup handler reason', async () => {
     const upstream = Dispose.lifecycle();
     const received: unknown[] = [];
-    const disposable = Dispose.disposableAsync(upstream, async (event) => {
+    const disposable = Dispose.lifecycleAsync(upstream, async (event) => {
       received.push(event.reason);
       await Time.wait(1);
     });

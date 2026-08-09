@@ -7,11 +7,24 @@ type LifetimeBridge = ReturnType<t.Observable<unknown>['subscribe']>;
 type LifetimeBridgeState = 'attaching' | 'live' | 'failed';
 type AsyncDisposalState = 'idle' | 'running' | 'fulfilled' | 'rejected';
 
+type DisposableKernel = globalThis.Disposable & {
+  readonly [Symbol.asyncDispose]?: never;
+  readonly dispose$: t.DisposeObservable;
+  dispose(reason?: unknown): void;
+};
+
+type DisposableAsyncKernel = globalThis.AsyncDisposable & {
+  readonly [Symbol.dispose]?: never;
+  readonly dispose$: t.Observable<t.DisposeAsyncEvent>;
+  dispose(reason?: unknown): Promise<void>;
+};
+
 /**
- * Generates a generic disposable interface that is
- * typically mixed into a wider interface of some kind.
+ * Package-private synchronous owner kernel consumed by `lifecycle()`.
+ *
+ * @internal
  */
-export function disposable(until?: t.UntilInput): t.Disposable {
+export function createDisposable(until?: t.UntilInput): DisposableKernel {
   requireSymbolDispose();
   const subject$ = new Subject<t.DisposeEvent>();
   const dispose$ = subject$.asObservable();
@@ -19,7 +32,7 @@ export function disposable(until?: t.UntilInput): t.Disposable {
   let disposed = false;
   const bridges = new Set<LifetimeBridge>();
 
-  const dispose: t.Disposable['dispose'] = (reason) => {
+  const dispose: DisposableKernel['dispose'] = (reason) => {
     if (disposed) return; // idempotent
     disposed = true;
 
@@ -41,9 +54,11 @@ export function disposable(until?: t.UntilInput): t.Disposable {
 }
 
 /**
- * Generates an asynchronous Disposable interface.
+ * Package-private asynchronous owner kernel consumed by `lifecycleAsync()`.
+ *
+ * @internal
  */
-export function disposableAsync(...args: any[]): t.DisposableAsync {
+export function createDisposableAsync(...args: any[]): DisposableAsyncKernel {
   requireSymbolAsyncDispose();
   const { until, onDispose } = toDisposableAsyncArgs(args);
   const dispose$ = new Subject<t.DisposeAsyncEvent>();
@@ -62,7 +77,7 @@ export function disposableAsync(...args: any[]): t.DisposableAsync {
     dispose$.next({ type: 'dispose', payload });
   };
 
-  const dispose: t.DisposableAsync['dispose'] = (reason) => {
+  const dispose: DisposableAsyncKernel['dispose'] = (reason) => {
     if (completion) return completion;
 
     const deferred = Promise.withResolvers<void>();
@@ -103,7 +118,7 @@ export function disposableAsync(...args: any[]): t.DisposableAsync {
     return completion;
   };
 
-  const disposable: t.DisposableAsync = {
+  const disposable: DisposableAsyncKernel = {
     dispose$: dispose$.asObservable(),
     dispose,
     [Symbol.asyncDispose]() {

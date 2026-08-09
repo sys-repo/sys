@@ -7,16 +7,6 @@ export declare namespace Dispose {
     /** Create a synchronous lifecycle whose disposal also aborts its signal. */
     abortable(until?: t.UntilInput): t.Abortable;
 
-    /** Create a synchronous owner with explicit/native authority and an observable lifetime. */
-    disposable(until?: t.UntilInput): t.Disposable;
-
-    /** Create an asynchronous owner whose entrypoints share one completion promise. */
-    disposableAsync(onDispose?: t.LifecycleStageHandler): t.DisposableAsync;
-    disposableAsync(
-      until?: t.UntilInput,
-      onDispose?: t.LifecycleStageHandler,
-    ): t.DisposableAsync;
-
     /** Create a synchronous disposable owner with observable terminal state. */
     lifecycle(until?: t.UntilInput): t.Lifecycle;
 
@@ -30,9 +20,6 @@ export declare namespace Dispose {
     /** Add a synchronous owner's disposal authority and observable lifecycle to an object. */
     toLifecycle<T extends t.Lifecycle>(api: t.OmitLifecycle<T>): T;
     toLifecycle<T extends t.Lifecycle>(life: t.Lifecycle, api: t.OmitLifecycle<T>): T;
-
-    /** Project an owner's observable state without exposing disposal authority. */
-    toLifecycleView<T extends t.LifecycleView>(life: t.Lifecycle, api: t.OmitLifecycle<T>): T;
 
     /** Normalize inputs to stop signals, including queued truth for already-terminal state. */
     until(until?: t.UntilInput): t.Observable<unknown>[];

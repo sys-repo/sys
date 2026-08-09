@@ -128,7 +128,7 @@ describe('HttpPull.start cancellation and terminal ownership', () => {
       const source = localhost(pending.server.url.join('lifecycle.txt'));
       const resources = [resource(source, 'lifecycle.txt', 'late')];
       const owner = await rooted();
-      const until = Rx.disposable();
+      const until = Rx.lifecycle();
       const operation = start(
         resources,
         owner,

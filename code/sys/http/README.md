@@ -35,10 +35,10 @@ const text = fetch.text(url, { checksum }); // ← ensure content matches given 
 Fine grained ability to cancel fetch operations.
 
 ```ts
-import { rx } from '@sys/std';
+import { Rx } from '@sys/std/rx';
 import { Http } from 'jsr:@sys/http/client';
 
-const { dispose$, dispose } = rx.disposable();
+const { dispose$, dispose } = Rx.lifecycle();
 
 // Dispose aborts all in-progress operations.
 const fetch = Http.fetcher({ dispose$ });

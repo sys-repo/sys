@@ -263,9 +263,9 @@ describe('Dispose.lifecycleAsync', () => {
       expect(lifecycle.disposed).to.eql(true);
     };
 
-    await test(Dispose.disposable().dispose$);
+    await test(Dispose.lifecycle().dispose$);
     await test(Dispose.lifecycle());
-    await test([undefined, [undefined, Dispose.disposable().dispose$]]);
+    await test([undefined, [undefined, Dispose.lifecycle().dispose$]]);
     await test([undefined, [undefined, Dispose.lifecycle()]]);
   });
 
@@ -366,27 +366,5 @@ describe('Dispose.toLifecycle', () => {
     const descriptor = Object.getOwnPropertyDescriptor(api, Symbol.dispose);
     expect(descriptor?.enumerable).to.eql(true);
     expect(descriptor?.value.length).to.eql(0);
-  });
-});
-
-describe('Dispose.toLifecycleView', () => {
-  type T = t.LifecycleView & { count: number };
-
-  it('lifecycle → state and events without disposal authority', () => {
-    const lifecycle = Dispose.lifecycle();
-    const api = Dispose.toLifecycleView<T>(lifecycle, { count: 123 });
-    let count = 0;
-    api.dispose$.subscribe(() => count++);
-
-    expect(api.count).to.eql(123);
-    expect(api.disposed).to.eql(false);
-    expect('dispose' in api).to.eql(false);
-    expect(Symbol.dispose in api).to.eql(false);
-    expect(Symbol.asyncDispose in api).to.eql(false);
-
-    lifecycle.dispose();
-
-    expect(count).to.eql(1);
-    expect(api.disposed).to.eql(true);
   });
 });

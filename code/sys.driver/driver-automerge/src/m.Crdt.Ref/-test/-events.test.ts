@@ -156,7 +156,7 @@ describe('CrdtRef: events (observable)', () => {
 
   describe('dispose', () => {
     it('dispose events (via param)', async () => {
-      const life = Rx.disposable();
+      const life = Rx.lifecycle();
       const repo = Repos.automerge(new AutomergeRepo());
       const handle = repo.create<T>({ count: 0, foo: [] });
       const doc = toRef(handle);

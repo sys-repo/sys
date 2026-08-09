@@ -112,7 +112,7 @@ describe('Jsr.Fetch.Pkg.file (external)', () => {
     const path = '/src/pkg.ts';
 
     it('until param on fetcher constructor', async () => {
-      const { dispose, dispose$ } = Rx.disposable();
+      const { dispose, dispose$ } = Rx.lifecycle();
       const file = Fetch.Pkg.file(name, version, { until: dispose$ });
       const promise = file.text(path);
       dispose();
@@ -120,7 +120,7 @@ describe('Jsr.Fetch.Pkg.file (external)', () => {
     });
 
     it('until param on path fetch request', async () => {
-      const { dispose, dispose$ } = Rx.disposable();
+      const { dispose, dispose$ } = Rx.lifecycle();
       const file = Fetch.Pkg.file(name, version);
       const promise = file.text(path, { until: dispose$ });
       dispose();

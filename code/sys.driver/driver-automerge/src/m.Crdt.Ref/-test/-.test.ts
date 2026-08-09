@@ -56,7 +56,7 @@ describe('CrdtRef', () => {
 
   describe('dispose', () => {
     it('disposed from toRef param', () => {
-      const life = Rx.disposable();
+      const life = Rx.lifecycle();
       const repo = Repos.automerge(new AutomergeRepo());
       const handle = repo.create<T>({ count: 0 });
       const doc = toRef(handle, life.dispose$);

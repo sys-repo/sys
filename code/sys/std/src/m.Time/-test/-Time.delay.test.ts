@@ -160,7 +160,7 @@ describe('Time Delay/Wait', () => {
 
       it('race: dispose Time.until right before scheduled run', async () => {
         await Testing.retry(3, async () => {
-          const { dispose, dispose$ } = Rx.disposable();
+          const { dispose, dispose$ } = Rx.lifecycle();
           let fired = 0;
           const time = Time.until(dispose$);
           const res = time.delay(5, () => fired++);
@@ -357,7 +357,7 @@ describe('Time Delay/Wait', () => {
 
     describe('delay', () => {
       it('Time.until: completes ← (aka. not disposed)', async () => {
-        const { dispose$ } = Rx.disposable();
+        const { dispose$ } = Rx.lifecycle();
         const startedAt = now();
 
         let disposeFired = 0;
@@ -375,7 +375,7 @@ describe('Time Delay/Wait', () => {
       });
 
       it('Time.until: does not complete ← (disposed$)', async () => {
-        const { dispose, dispose$ } = Rx.disposable();
+        const { dispose, dispose$ } = Rx.lifecycle();
 
         let disposeFired = 0;
         let count = 0;
@@ -426,7 +426,7 @@ describe('Time Delay/Wait', () => {
       });
 
       it('Time.until: micro path obeys disposal', async () => {
-        const { dispose, dispose$ } = Rx.disposable();
+        const { dispose, dispose$ } = Rx.lifecycle();
         let fired = 0;
         const time = Time.until(dispose$);
         const p = time.delay(() => fired++);

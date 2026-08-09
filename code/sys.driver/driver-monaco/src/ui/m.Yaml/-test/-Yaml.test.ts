@@ -11,7 +11,7 @@ import {
   Rx,
   settle,
 } from '../../../-test.ts';
-import { type t, Bus, Immutable } from '../common.ts';
+import { Bus, Immutable, type t } from '../common.ts';
 import { EditorYaml } from '../mod.ts';
 import { useYaml } from '../use.Yaml.ts';
 import { useYamlErrorMarkers } from '../use.YamlErrorMarkers.ts';
@@ -37,10 +37,10 @@ describe('Monaco.Yaml', () => {
       const doc = Immutable.clonerRef({ text: 'foo: bar' });
 
       const { result, unmount } = renderHook(() =>
-        EditorYaml.useYaml({ bus$, doc, path: ['text'], editor, monaco, debounce: 0 }),
+        EditorYaml.useYaml({ bus$, doc, path: ['text'], editor, monaco, debounce: 0 })
       );
 
-      const life = Rx.disposable();
+      const life = Rx.lifecycle();
       const events: t.EditorEvent.Shape[] = [];
       const sub = bus$.pipe(Rx.takeUntil(life.dispose$)).subscribe((e) => events.push(e));
       try {

@@ -5,7 +5,7 @@ describe('Keyboard.until', () => {
   DomMock.init({ beforeAll, afterAll });
 
   it('until.on: stops after disposal', () => {
-    const life = Rx.disposable();
+    const life = Rx.lifecycle();
     const until = Keyboard.until(life.dispose$);
     const fired: t.Keyboard.Keypress.Event[] = [];
     until.on('KeyZ', (e) => fired.push(e.event));
@@ -21,7 +21,7 @@ describe('Keyboard.until', () => {
   });
 
   it('until.dbl: stops after disposal', () => {
-    const life = Rx.disposable();
+    const life = Rx.lifecycle();
     const until = Keyboard.until(life.dispose$);
     const dbl = until.dbl();
 
