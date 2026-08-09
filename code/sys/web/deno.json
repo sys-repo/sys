@@ -1,6 +1,6 @@
 {
   "name": "@sys/web",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "license": "MIT",
   "description": "Primitives for owned public web endpoints.",
   "tasks": {
@@ -28,4 +28,3 @@
     }
   }
 }
-
