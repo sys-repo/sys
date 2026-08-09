@@ -1,9 +1,14 @@
 import { describe, expect, Fs, it, Json, Process, ROOT, SAMPLE, slug } from '../../-test.ts';
 import { DEFAULTS } from '../common.ts';
 import { Wrangle } from '../u/u.wrangle.ts';
+import { assertBuildOk } from './u.fixture.build.ts';
+import { assertRunOk, commandRun } from './u.fixture.task.ts';
 
 type BuildProbeJson = {
   ok: boolean;
+  cwd: string;
+  cmd: string;
+  code: number;
   stderr: string;
   stdout: string;
   moduleTexts: string[];
@@ -53,9 +58,19 @@ describe('Vite published external pure-JSR authority world', () => {
   it('build: external pure-JSR world builds without falling forward to local-source alias privilege', async () => {
     const res = await runProbe(BUILD_PROBE_SOURCE);
 
-    expect(res.success).to.eql(true);
-    const data = parseProbeJson<BuildProbeJson>(res.text.stdout);
-    expect(data.ok).to.eql(true);
+    assertRunOk(res, 'Published pure-JSR build probe failed');
+    const data = parseProbeJson<BuildProbeJson>(res.stdout);
+    assertBuildOk(
+      {
+        ok: data.ok,
+        paths: { cwd: data.cwd },
+        cmd: {
+          input: data.cmd,
+          output: { code: data.code, text: { stdout: data.stdout, stderr: data.stderr } },
+        },
+      },
+      'Published pure-JSR fixture build failed',
+    );
     expect(data.moduleTexts.some((text) => text.includes('.vite.bootstrap.'))).to.eql(false);
     expect(data.moduleTexts.some((text) => text.includes('#module-sync-enabled'))).to.eql(false);
     expect(data.moduleTexts.some((text) => text.includes("from '@sys/driver-vite'"))).to.eql(false);
@@ -66,8 +81,8 @@ describe('Vite published external pure-JSR authority world', () => {
   it('dev: external pure-JSR world serves transformed entry without local-source alias privilege', async () => {
     const res = await runProbe(DEV_PROBE_SOURCE);
 
-    expect(res.success).to.eql(true);
-    const data = parseProbeJson<DevProbeJson>(res.text.stdout);
+    assertRunOk(res, 'Published pure-JSR dev probe failed');
+    const data = parseProbeJson<DevProbeJson>(res.stdout);
     expect(data.ok).to.eql(true);
     expect(data.htmlStatus).to.eql(200);
     expect(data.entryStatus).to.eql(200);
@@ -92,6 +107,9 @@ const BUILD_PROBE_SOURCE = `
   });
   console.log('${DEFAULTS.probeJsonPrefix}' + Json.stringify({
     ok: res.build.ok,
+    cwd: res.build.paths.cwd,
+    cmd: res.build.cmd.input,
+    code: res.build.cmd.output.code,
     stderr: res.build.cmd.output.text.stderr,
     stdout: res.build.cmd.output.text.stdout,
     moduleTexts: res.files.js.map((file) => file.text),
@@ -144,12 +162,22 @@ async function runProbe(source: string) {
   const path = Fs.join(cwd, `.tmp.published-pure-jsr-authority.${slug()}.ts`);
   await Fs.write(path, source);
 
+  const args = ['run', '-P=test', '--no-lock', '--node-modules-dir=auto', path] as const;
+
   try {
-    return await Process.invoke({
+    const output = await Process.invoke({
       cmd: 'deno',
-      args: ['run', '-P=test', '--no-lock', '--node-modules-dir=auto', path],
+      args: [...args],
       cwd,
       silent: true,
+    });
+    return commandRun({
+      cwd,
+      cmd: ['deno', ...args],
+      ok: output.success,
+      code: output.code,
+      stdout: output.text.stdout,
+      stderr: output.text.stderr,
     });
   } finally {
     await Fs.remove(path, { log: false });

@@ -12,3 +12,4 @@ import './-repo-generated.workspace.ts';
 import './-std-try.runtime.ts';
 import './-ui-baseline.ts';
 import './-ui-components.ts';
+import './-u.fixture.diagnostics.ts';

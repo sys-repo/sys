@@ -1,6 +1,6 @@
 import { describe, expect, it, SAMPLE, Testing } from '../../-test.ts';
 
-import { buildSample } from './u.fixture.build.ts';
+import { assertBuildOk, buildSample } from './u.fixture.build.ts';
 import { devSample } from './u.fixture.dev.ts';
 
 const STD_PATH_PARENT = '/@id/__x00__deno::TypeScript::@std/path::';
@@ -14,7 +14,7 @@ describe('Vite published external smoke (ui-components build)', () => {
         sampleDir: SAMPLE.Dirs.samplePublishedUiComponents,
       });
 
-      expect(build.ok).to.eql(true);
+      assertBuildOk(build, 'Published UI components build failed');
       expect(files.html).to.include('<title>Sample-UI-Components</title>');
       const js = files.js.map((file) => file.text).join('\n');
       expect(js.length > 0).to.eql(true);

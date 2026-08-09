@@ -1,27 +1,18 @@
 import { describe, expect, Fs, it, Json, Process, ROOT, slug, Str } from '../../-test.ts';
 import { DEFAULTS } from '../common.ts';
+import { assertRunOk, commandRun } from './u.fixture.task.ts';
 
 describe('Vite external std try runtime', () => {
   it('consumer dev entry importing @sys/std/try evaluates without Try TDZ crash', async () => {
     const res = await runProbe(PROBE_SOURCE);
-    if (!res.success) {
-      throw new Error(Str.dedent(`
-        std/try runtime probe failed.
-
-        stdout:
-        ${res.text.stdout.trim()}
-
-        stderr:
-        ${res.text.stderr.trim()}
-      `));
-    }
+    assertRunOk(res, 'std/try runtime probe failed');
 
     const data = parseProbeJson<{
       ok: boolean;
       tryOk: boolean | null;
       tryMessage: string | null;
       entryUrl: string;
-    }>(res.text.stdout);
+    }>(res.stdout);
 
     expect(data.ok).to.eql(true);
     expect(data.tryOk).to.eql(true);
@@ -117,19 +108,29 @@ async function runProbe(source: string) {
   const path = Fs.join(cwd, `.tmp.std-try-runtime.${slug()}.ts`);
   await Fs.write(path, source);
 
+  const args = [
+    'run',
+    '-P=test',
+    '--no-lock',
+    '--allow-import=jsr.io,localhost',
+    '--node-modules-dir=auto',
+    path,
+  ] as const;
+
   try {
-    return await Process.invoke({
+    const output = await Process.invoke({
       cmd: 'deno',
-      args: [
-        'run',
-        '-P=test',
-        '--no-lock',
-        '--allow-import=jsr.io,localhost',
-        '--node-modules-dir=auto',
-        path,
-      ],
+      args: [...args],
       cwd,
       silent: true,
+    });
+    return commandRun({
+      cwd,
+      cmd: ['deno', ...args],
+      ok: output.success,
+      code: output.code,
+      stdout: output.text.stdout,
+      stderr: output.text.stderr,
     });
   } finally {
     await Fs.remove(path, { log: false });

@@ -21,7 +21,9 @@ const result = {
     app: { outDir: build.paths.app.outDir },
   },
   cmd: {
+    input: build.cmd.input,
     output: {
+      code: build.cmd.output.code,
       text: {
         stdout: build.cmd.output.text.stdout,
         stderr: build.cmd.output.text.stderr,

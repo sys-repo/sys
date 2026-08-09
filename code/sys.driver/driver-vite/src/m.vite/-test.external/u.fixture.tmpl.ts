@@ -1,6 +1,6 @@
 import { cli as tmpl } from '../../../../../-tmpl/src/m.tmpl/mod.ts';
 import { Fs, Str } from '../../-test.ts';
-import { runTask, type TaskRun } from './u.fixture.task.ts';
+import { commandRun, operationRun, runTask, type TaskRun } from './u.fixture.task.ts';
 
 type GeneratedRepo = {
   readonly rootDir: string;
@@ -88,6 +88,7 @@ export async function buildGeneratedWorkspaceRepo(args: {
 
 async function runTmplPkg(cwd: string, dir: string, pkgName: string): Promise<TaskRun> {
   const cmd = [
+    'deno',
     'run',
     '-P=integration',
     '@sys/tmpl',
@@ -110,10 +111,10 @@ async function runTmplPkg(cwd: string, dir: string, pkgName: string): Promise<Ta
       dir,
       pkgName,
     });
-    return { cwd, cmd, ok: true, code: 0, stdout: '', stderr: '' };
+    return commandRun({ cwd, cmd, ok: true, code: 0, stdout: '', stderr: '' });
   } catch (error) {
     const stderr = error instanceof Error ? (error.stack ?? error.message) : String(error);
-    return { cwd, cmd, ok: false, code: 1, stdout: '', stderr };
+    return commandRun({ cwd, cmd, ok: false, code: 1, stdout: '', stderr });
   }
 }
 
@@ -130,7 +131,7 @@ async function writeRepoTemplate(cwd: string, dir: string) {
 }
 
 async function patchWorkspaceRepo(fooDir: string, barDir: string): Promise<TaskRun> {
-  const cmd = ['patch', 'workspace'] as const;
+  const operation = 'workspace patch';
 
   try {
     await Fs.write(
@@ -152,20 +153,20 @@ async function patchWorkspaceRepo(fooDir: string, barDir: string): Promise<TaskR
         );
       `),
     );
-    return { cwd: fooDir, cmd, ok: true, code: 0, stdout: '', stderr: '' };
+    return operationRun({ cwd: fooDir, operation, ok: true, code: 0, stdout: '', stderr: '' });
   } catch (error) {
     const stderr = error instanceof Error ? (error.stack ?? error.message) : String(error);
-    return { cwd: fooDir, cmd, ok: false, code: 1, stdout: '', stderr };
+    return operationRun({ cwd: fooDir, operation, ok: false, code: 1, stdout: '', stderr });
   }
 }
 
 function skippedTask(cwd: string, task: string, stderr: string): TaskRun {
-  return {
+  return commandRun({
     cwd,
-    cmd: [task] as const,
+    cmd: ['deno', 'task', task],
     ok: false,
     code: 1,
     stdout: '',
     stderr,
-  };
+  });
 }
