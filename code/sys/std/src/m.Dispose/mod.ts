@@ -2,6 +2,26 @@
  * @module
  * Observable lifecycle helpers adapted to native ECMAScript Explicit Resource Management.
  *
+ * ## Capability boundaries
+ *
+ * The canonical contracts separate disposal authority from lifecycle telemetry:
+ *
+ * - `Disposable` and `DisposableAsync` grant matching direct and native disposal authority without
+ *   promising observation or state;
+ * - `Lifecycle` and `LifecycleAsync` add `dispose$` observation and `disposed` state to that
+ *   authority; and
+ * - `LifecycleView` promises synchronous lifecycle observation and state without promising disposal
+ *   authority.
+ *
+ * Public construction starts at the full lifecycle tier through `Dispose.lifecycle()` and
+ * `Dispose.lifecycleAsync()`. The corresponding `Rx` methods are aliases to the same factories, not
+ * a parallel disposal model.
+ *
+ * Type narrowing to `LifecycleView` or `OmitDisposable<T>` does not remove authority from an
+ * existing runtime value. `Dispose.omitDispose()` returns a separate projection that excludes own
+ * authority and shadows inherited authority while preserving observation and state. It shapes an
+ * API boundary; it is not a tamper-resistant security boundary.
+ *
  * Lifecycle owners created by this module expose explicit control, lexical cleanup, and observable
  * state from one disposal operation:
  *
@@ -16,11 +36,9 @@
  * can also consume a synchronous resource through the language's standard fallback.
  *
  * Synchronous lifecycle factories and `toLifecycle` require `Symbol.dispose`; asynchronous
- * lifecycle factories require `Symbol.asyncDispose`; and `omitDispose` requires both because it removes both
- * forms of native authority. Missing symbols fail clearly. This module does not install a shim or
- * mutate globals.
- *
- * `omitDispose` intentionally withholds disposal authority while preserving observable state.
+ * lifecycle factories require `Symbol.asyncDispose`; and `omitDispose` requires both because it
+ * removes both forms of native authority. Missing symbols fail clearly. This module does not install
+ * a shim or mutate globals.
  *
  * ## Explicit and lexical cleanup
  *

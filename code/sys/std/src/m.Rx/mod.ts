@@ -2,6 +2,10 @@
  * @module
  * Tools for working with Observables (via `rxjs`).
  *
+ * `Rx.lifecycle`, `Rx.lifecycleAsync`, `Rx.abortable`, and `Rx.toLifecycle` are aliases to the
+ * corresponding `Dispose` helpers from `@sys/std/dispose`. They use the same authority, observation,
+ * and state contracts; `Rx` does not define a parallel disposal model.
+ *
  * @example
  * ```ts
  * import { Rx } from '@sys/std/rx';
