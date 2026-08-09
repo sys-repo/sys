@@ -59,8 +59,7 @@ describe('Vite published external pure-JSR authority world', () => {
     expect(data.moduleTexts.some((text) => text.includes('.vite.bootstrap.'))).to.eql(false);
     expect(data.moduleTexts.some((text) => text.includes('#module-sync-enabled'))).to.eql(false);
     expect(data.moduleTexts.some((text) => text.includes("from '@sys/driver-vite'"))).to.eql(false);
-    expect(data.moduleTexts.some((text) => text.includes('file:///Users/phil/code/org.sys'))).to
-      .eql(false);
+    expect(data.moduleTexts.some((text) => text.includes(ROOT.dir))).to.eql(false);
     expect(data.stdout.includes('built in')).to.eql(true);
   });
 
@@ -79,8 +78,7 @@ describe('Vite published external pure-JSR authority world', () => {
     expect(data.moduleTexts.some((text) => text.includes('.vite.bootstrap.'))).to.eql(false);
     expect(data.moduleTexts.some((text) => text.includes('#module-sync-enabled'))).to.eql(false);
     expect(data.moduleTexts.some((text) => text.includes("from '@sys/driver-vite'"))).to.eql(false);
-    expect(data.moduleTexts.some((text) => text.includes('file:///Users/phil/code/org.sys'))).to
-      .eql(false);
+    expect(data.moduleTexts.some((text) => text.includes(ROOT.dir))).to.eql(false);
   });
 });
 

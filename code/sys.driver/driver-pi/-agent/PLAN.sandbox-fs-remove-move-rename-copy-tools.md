@@ -15,7 +15,7 @@ Relevant commits:
 - `2a8321c13` — `feat(fs): add exact filesystem primitives for sandbox-safe mutation`
   - added related std-level `@sys/fs` primitives (`lstat`, `rename`, strict `copyFile`, `remove`);
   - these remain valid library improvements for normal consumers;
-  - the generated Pi extension intentionally does not use them at startup, to avoid widening child-process read permissions or requiring `/Users/phil/node_modules/@sys/fs` readability.
+  - the generated Pi extension intentionally does not use them at startup, to avoid widening child-process read permissions or requiring `~/node_modules/@sys/fs` readability.
 
 Reality after implementation:
 

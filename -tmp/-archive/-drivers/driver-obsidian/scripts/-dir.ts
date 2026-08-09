@@ -4,15 +4,15 @@ import { Fs } from '@sys/fs';
 import { rx } from '@sys/std/rx';
 
 /**
- * Sample Vaul/Directory monitoring.
+ * Sample vault/directory monitoring.
  */
 
 const PATH = {
-  from: { base: '/Users/phil/Documents/Notes/tdb' },
-  to: { base: '/Users/phil/code/samples/vitepress-slc/docs/sample' },
+  from: { base: '/sample/vault' },
+  to: { base: '/sample/site' },
 };
 
-const path = '/Users/phil/Documents/Notes/tdb';
+const path = '/sample/vault';
 const dir = await Vault.dir(path);
 
 // const hx = await Hash.Dir.compute(path);
@@ -21,7 +21,7 @@ const dir = await Vault.dir(path);
 const listener = await dir.listen({ log: true });
 
 listener.$.pipe(
-  rx.filter((e) => e.paths.some((p) => p.startsWith('/Users/phil/Documents/Notes/tdb/SLC/sample'))),
+  rx.filter((e) => e.paths.some((p) => p.startsWith('/sample/vault/content'))),
 ).subscribe(async (e) => {
   for (const from of e.paths) {
     const to = Fs.join(PATH.to.base, from.substring(PATH.from.base.length + 1));

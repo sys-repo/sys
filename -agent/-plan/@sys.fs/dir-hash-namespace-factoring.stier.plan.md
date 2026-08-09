@@ -86,7 +86,7 @@ Important correctness findings:
 Search evidence before this plan:
 
 ```sh
-rg -n "\bDirHash(?:Lib|ComputeOptions|ComputeProgressEvent|VerifyResponse)\b|\bt\.DirHash(?:Lib|ComputeOptions|ComputeProgressEvent|VerifyResponse)\b|\bt\.DirHash\b" /Users/phil/code/org.sys/sys/code/sys/fs/src
+rg -n "\bDirHash(?:Lib|ComputeOptions|ComputeProgressEvent|VerifyResponse)\b|\bt\.DirHash(?:Lib|ComputeOptions|ComputeProgressEvent|VerifyResponse)\b|\bt\.DirHash\b" code/sys/fs/src
 ```
 
 Expected code owners found before refactor:
@@ -249,7 +249,7 @@ Use content search only to locate residue; inspect unexpected hits with `read` b
 Old flat type names should disappear from implementation and tests:
 
 ```sh
-rg -n --glob '!**/-agent/**' "\b(DirHashLib|DirHashComputeOptions|DirHashComputeProgressEvent|DirHashVerifyResponse)\b" /Users/phil/code/org.sys/sys/code/sys/fs/src
+rg -n --glob '!**/-agent/**' "\b(DirHashLib|DirHashComputeOptions|DirHashComputeProgressEvent|DirHashVerifyResponse)\b" code/sys/fs/src
 ```
 
 Expected result after a clean cut: no hits.
@@ -257,7 +257,7 @@ Expected result after a clean cut: no hits.
 Standalone old `t.DirHash` result typing should disappear from implementation and tests:
 
 ```sh
-rg -n --glob '!**/-agent/**' "\bt\.DirHash\b" /Users/phil/code/org.sys/sys/code/sys/fs/src
+rg -n --glob '!**/-agent/**' "\bt\.DirHash\b" code/sys/fs/src
 ```
 
 Expected result after a clean cut: hits should all be namespace-qualified forms such as `t.DirHash.Lib`, `t.DirHash.Result`, `t.DirHash.Compute.*`, or `t.DirHash.Verify.*`. Inspect any standalone `t.DirHash` hit.
@@ -265,7 +265,7 @@ Expected result after a clean cut: hits should all be namespace-qualified forms 
 Direct type imports from the module `t.ts` should disappear:
 
 ```sh
-rg -n --glob '!**/-agent/**' "from './t\.ts'|from \"./t\.ts\"" /Users/phil/code/org.sys/sys/code/sys/fs/src/m.Dir.Hash
+rg -n --glob '!**/-agent/**' "from './t\.ts'|from \"./t\.ts\"" code/sys/fs/src/m.Dir.Hash
 ```
 
 Expected result after a clean cut: no hits.
@@ -273,14 +273,14 @@ Expected result after a clean cut: no hits.
 Direct filesystem/JSON runtime bypass in the touched test should disappear:
 
 ```sh
-rg -n --glob '!**/-agent/**' "Deno\.writeTextFile|JSON\.stringify" /Users/phil/code/org.sys/sys/code/sys/fs/src/m.Dir.Hash
+rg -n --glob '!**/-agent/**' "Deno\.writeTextFile|JSON\.stringify" code/sys/fs/src/m.Dir.Hash
 ```
 
 Expected result after cleanup: no hits.
 
 ## Proof plan
 
-From `/Users/phil/code/org.sys/sys/code/sys/fs`:
+From `code/sys/fs`:
 
 ```sh
 deno task check

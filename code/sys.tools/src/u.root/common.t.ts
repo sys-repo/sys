@@ -5,8 +5,7 @@
  * `types.ts` barrel. Only launcher-local contracts belong here.
  *
  * Boundary note:
- * - Use `/Users/phil/code/org.sys/sys/code/sys.tools/src/types.ts` for the
- *   public package type surface.
+ * - Use `../types.ts` for the public package type surface.
  * - Use this file only for cold-start root launcher paths that must stay
  *   isolated from package-wide runtime/type barrels.
  */

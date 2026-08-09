@@ -86,7 +86,7 @@ Important type-pool finding:
 Search evidence before this plan:
 
 ```sh
-rg -n "\bPkg(?:FsLib|DistFsLib|DistLog|DistComputeArgs|DistComputeResponse|DistLoadResponse|DistVerifyResponse)\b|\bt\.PkgDist" /Users/phil/code/org.sys/sys/code/sys /Users/phil/code/org.sys/sys/code/-tmpl
+rg -n "\bPkg(?:FsLib|DistFsLib|DistLog|DistComputeArgs|DistComputeResponse|DistLoadResponse|DistVerifyResponse)\b|\bt\.PkgDist" code/sys code/-tmpl
 ```
 
 Only `code/sys/fs/src/m.Pkg` uses the flat fs package aliases. Broader `@sys/std/pkg` flat `PkgDist*` names are out of scope for this pass.
@@ -295,7 +295,7 @@ Do not add these aliases silently; choose them deliberately as compatibility, no
 Use content search only to locate residue; inspect unexpected hits with `read` before editing.
 
 ```sh
-rg -n "\bPkg(?:FsLib|DistFsLib|DistLog|DistComputeArgs|DistComputeResponse|DistLoadResponse|DistVerifyResponse)\b|\bt\.PkgDist" /Users/phil/code/org.sys/sys/code/sys/fs/src
+rg -n "\bPkg(?:FsLib|DistFsLib|DistLog|DistComputeArgs|DistComputeResponse|DistLoadResponse|DistVerifyResponse)\b|\bt\.PkgDist" code/sys/fs/src
 ```
 
 Expected result after a clean cut: no hits.
@@ -305,14 +305,14 @@ If compatibility aliases are deliberately retained, expected remaining hits shou
 Also verify the type-pool export did not keep the std `Pkg` shadow:
 
 ```sh
-rg -n "export type \{[^}]*Pkg[^}]*\} from '@sys/std/t'|export type \{ Pkg \} from '../types.ts'" /Users/phil/code/org.sys/sys/code/sys/fs/src/common/t.ts
+rg -n "export type \{[^}]*Pkg[^}]*\} from '@sys/std/t'|export type \{ Pkg \} from '../types.ts'" code/sys/fs/src/common/t.ts
 ```
 
 Expected result: no std `Pkg` export, one local `Pkg` export.
 
 ## Proof plan
 
-From `/Users/phil/code/org.sys/sys/code/sys/fs`:
+From `code/sys/fs`:
 
 ```sh
 deno task check

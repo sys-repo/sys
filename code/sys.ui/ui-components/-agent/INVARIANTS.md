@@ -47,7 +47,7 @@ When adding a new public component/module:
 Run from:
 
 ```bash
-cd /Users/phil/code/org.sys/sys/code/sys.ui/ui-components
+cd code/sys.ui/ui-components
 ```
 
 Baseline package proof:

@@ -2,12 +2,7 @@ import { describe, expect, Fs, it, Str, Testing } from '../../-test.ts';
 import { CellCli } from '../mod.ts';
 import { c, Cli, stripAnsi, type t } from '../common.ts';
 import { Fmt } from '../u.fmt/u.mod.ts';
-import {
-  resetTaskEvents,
-  silent,
-  taskEvents,
-  taskSource,
-} from './u.fixture.ts';
+import { resetTaskEvents, silent, taskEvents, taskSource } from './u.fixture.ts';
 
 describe(`@sys/cell/cli task`, () => {
   it('task → runs a named finite task', async () => {
@@ -108,7 +103,7 @@ describe(`@sys/cell/cli task`, () => {
     const restore = stubCliTerminal(46);
     try {
       const rendered = Fmt.Task.plan(taskPlanFixture({
-        root: '/Users/phil/code/org.sys/sys/code/sys/cell/-sample/cell.deploy/with/a/very/long/root',
+        root: '/sample/workspace/cell.deploy/with/a/very/long/root',
         use: 'VeryLongDeployPushTaskNameThatShouldCollapse',
         from: './-scripts/deploy/with/a/very/long/module/path.ts',
         config: './-config/@sys.tools.deploy/orbiter/with/a/very/long/config.yaml',
@@ -129,7 +124,7 @@ function taskPlanFixture(options: {
   readonly from?: string;
   readonly config?: string;
 } = {}): { root: string; plan: t.Cell.Task.Plan } {
-  const root = options.root ?? '/Users/phil/code/org.sys/sys/code/sys/cell/-sample/cell.deploy';
+  const root = options.root ?? '/sample/workspace/cell.deploy';
   const pull = leaf(
     'pull:view',
     'PullViewTask',

@@ -5,7 +5,7 @@ import { GitInitFmt } from '../u.fmt.git.init.ts';
 describe('@sys/driver-pi/cli/u.fmt.git.init', () => {
   it('block → renders the locked directory setup copy', () => {
     const width = 80;
-    const text = render('/Users/phil/Documents/tmp/foo-1', width);
+    const text = render('/sample/project', width);
     const lines = text.split('\n');
 
     expect(lines[0]).to.eql('━'.repeat(width - 1));
@@ -14,7 +14,7 @@ describe('@sys/driver-pi/cli/u.fmt.git.init', () => {
     expect(text).to.contain('This directory is not inside a git repository.');
     expect(text).to.contain('Initialize one here to continue.');
     expect(text).to.contain('Target');
-    expect(text).to.contain('/Users/phil/Documents/tmp/foo-1/.git');
+    expect(text).to.contain('/sample/project/.git');
     expect(text).to.contain('Adds');
     expect(text).to.contain('• .gitignore');
     expect(text).to.contain('• .gitattributes (Git LFS)');
@@ -23,7 +23,7 @@ describe('@sys/driver-pi/cli/u.fmt.git.init', () => {
   it('block → preserves the .git tail on narrow widths without overflowing the frame', () => {
     const width = 44;
     const text = render(
-      '/Users/phil/Documents/tmp/a-very-long-directory-name-for-pi-testing',
+      '/sample/project-with-a-very-long-directory-name-for-pi-testing',
       width,
     );
     const lines = text.split('\n');

@@ -371,7 +371,7 @@ describe('DevScreen', () => {
       output.push(
         processEvent(
           'stderr',
-          'Warning the configuration file "file:///Users/phil/code/org.sys/sys/deno.json" is long\n',
+          'Warning the configuration file "file:///sample/project/deno.json" is long\n',
         ),
       );
       output.push(
@@ -477,7 +477,7 @@ describe('DevScreen', () => {
       output.push(
         processEvent(
           'stdout',
-          '2:08:13 pm [vite] page reload /Users/phil/code/org.sys/sys/retained-tail.ts\n',
+          '2:08:13 pm [vite] page reload /sample/project/retained-tail.ts\n',
         ),
       );
       output.push(processEvent('stdout', 'short\n'));

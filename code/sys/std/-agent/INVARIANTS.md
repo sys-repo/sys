@@ -46,7 +46,7 @@ When considering a new std leaf or migration step:
 Run from:
 
 ```bash
-cd /Users/phil/code/org.sys/sys/code/sys/std
+cd code/sys/std
 ```
 
 Baseline package proof:

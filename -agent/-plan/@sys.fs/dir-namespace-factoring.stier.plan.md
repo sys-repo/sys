@@ -257,10 +257,10 @@ Do not add these aliases silently; choose them deliberately as compatibility, no
 
 Use content search only to locate residue; inspect unexpected hits with `read` before editing.
 
-From `/Users/phil/code/org.sys/sys`:
+From the repository root:
 
 ```sh
-rg -n "\bFsDirLib\b|\bDirHash(?:Lib|ComputeOptions|ComputeProgressEvent|VerifyResponse)\b|\btype DirHash\b|\bt\.DirHash" /Users/phil/code/org.sys/sys/code/sys/fs/src
+rg -n "\bFsDirLib\b|\bDirHash(?:Lib|ComputeOptions|ComputeProgressEvent|VerifyResponse)\b|\btype DirHash\b|\bt\.DirHash" code/sys/fs/src
 ```
 
 Expected result after a clean cut: no hits.
@@ -270,7 +270,7 @@ Runtime value `DirHash` should still have legitimate hits such as imports from `
 Verify the package type surface no longer exports the old hash type spine:
 
 ```sh
-rg -n "m\.Dir\.Hash/t\.ts|m\.Dir/t\.ts" /Users/phil/code/org.sys/sys/code/sys/fs/src/types.ts
+rg -n "m\.Dir\.Hash/t\.ts|m\.Dir/t\.ts" code/sys/fs/src/types.ts
 ```
 
 Expected result: one `m.Dir/t.ts` export, no `m.Dir.Hash/t.ts` export.
@@ -278,14 +278,14 @@ Expected result: one `m.Dir/t.ts` export, no `m.Dir.Hash/t.ts` export.
 Verify runtime code does not directly import the removed type file:
 
 ```sh
-rg -n "from './t\.ts'|from \"./t\.ts\"" /Users/phil/code/org.sys/sys/code/sys/fs/src/m.Dir /Users/phil/code/org.sys/sys/code/sys/fs/src/m.Dir.Hash
+rg -n "from './t\.ts'|from \"./t\.ts\"" code/sys/fs/src/m.Dir code/sys/fs/src/m.Dir.Hash
 ```
 
 Expected result: no runtime-file hits. The remaining `t.ts` file itself is the contract owner, not a caller.
 
 ## Proof plan
 
-From `/Users/phil/code/org.sys/sys/code/sys/fs`:
+From `code/sys/fs`:
 
 ```sh
 deno task check

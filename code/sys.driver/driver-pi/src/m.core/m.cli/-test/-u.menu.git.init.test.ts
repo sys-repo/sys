@@ -24,13 +24,13 @@ describe('@sys/driver-pi/cli/u.menu.git.init', () => {
         },
       });
 
-      const res = await GitInitMenu.prompt('/Users/phil/Documents/tmp/foo-1' as never);
+      const res = await GitInitMenu.prompt('/sample/project' as never);
       const printed = Cli.stripAnsi(prints.join('\n'));
       expect(res).to.eql('create');
       expect(printed).to.contain('Agent:Directory Setup · read, write, edit, bash');
       expect(printed).to.contain('This directory is not inside a git repository.');
       expect(printed).to.contain('Target');
-      expect(printed).to.contain('/Users/phil/Documents/tmp/foo-1/.git');
+      expect(printed).to.contain('/sample/project/.git');
       expect(printed).to.contain('Adds');
       expect(printed).to.contain('.gitattributes (Git LFS)');
     } finally {

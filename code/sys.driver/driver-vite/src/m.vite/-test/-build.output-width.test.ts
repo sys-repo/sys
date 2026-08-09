@@ -11,9 +11,9 @@ function expectBounded(text: string, width: number) {
 describe('Vite.build output formatting', () => {
   it('keeps the build paths prelude within the requested width', () => {
     const text = Log.Build.paths({
-      cwd: '/Users/phil/code/org.sys/sys/code/sys.ui/ui-components',
+      cwd: '/sample/workspace/with/a/very/long/path/to/ui-components',
       paths: {
-        cwd: '/Users/phil/code/org.sys/sys/code/sys.ui/ui-components',
+        cwd: '/sample/workspace/with/a/very/long/path/to/ui-components',
         app: { entry: './src/index.html', outDir: './dist', base: './' },
       },
       width: 48,
@@ -31,9 +31,9 @@ describe('Vite.build output formatting', () => {
 
   it('keeps rows bounded even at extremely narrow widths', () => {
     const paths = Log.Build.paths({
-      cwd: '/Users/phil/code/org.sys/sys/code/sys.ui/ui-components',
+      cwd: '/sample/workspace/with/a/very/long/path/to/ui-components',
       paths: {
-        cwd: '/Users/phil/code/org.sys/sys/code/sys.ui/ui-components',
+        cwd: '/sample/workspace/with/a/very/long/path/to/ui-components',
         app: { entry: './src/index.html', outDir: './dist', base: './' },
       },
       width: 8,

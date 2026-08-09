@@ -85,7 +85,7 @@ describe(`@sys/cell/cli service status formatter`, () => {
           metrics: { start: { startedAt: now, resolvedAt: now } },
           owner: {
             state: 'ready',
-            root: '/Users/phil/code/org.sys/sys/code/sys.ui/ui-components/dist',
+            root: '/sample/workspace/with/a/very/long/path/to/ui-components/dist',
           },
         }],
       }));
@@ -94,7 +94,7 @@ describe(`@sys/cell/cli service status formatter`, () => {
 
       expect(rootLine.includes('…')).to.eql(true);
       expect(rootLine.length <= 48).to.eql(true);
-      expect(rootLine).to.contain('/Users');
+      expect(rootLine).to.contain('/sample');
       expect(rootLine).to.contain('/dist');
     } finally {
       restore();
@@ -132,7 +132,7 @@ describe(`@sys/cell/cli service status formatter`, () => {
           metrics: { start: { startedAt: now, resolvedAt: now } },
           owner: {
             state: 'ready',
-            root: '/Users/phil/code/org.sys/sys/code/sys/cell/-sample/cell.stripe/view',
+            root: '/sample/workspace/cell.stripe/view',
             urls: [{
               href: 'http://127.0.0.1:8080/payments/customer/session/that/should/not/wrap',
             }],
@@ -183,7 +183,7 @@ describe(`@sys/cell/cli service status formatter`, () => {
         metrics: { start: { startedAt: now, resolvedAt: now } },
         owner: {
           state: 'ready',
-          root: '/Users/phil/code/org.sys/sys/code/sys/cell/-sample/cell.stripe/view',
+          root: '/sample/workspace/cell.stripe/view',
           urls: [{ href: 'http://127.0.0.1:8080/payments/' }],
         },
       }],

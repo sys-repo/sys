@@ -205,19 +205,19 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
           '/bin/sh',
           '/bin/zsh',
           '/var/folders/example/T',
-          '/Users/phil/.agents/skills',
+          '/sample/skills',
           '/tmp/pi-cli-test/extra',
         ],
       },
       context: {
         include: [
           '/tmp/pi-cli-test/AGENTS.md',
-          '/Users/phil/code/org.sys/AGENTS.md',
-          '/Users/phil/code/org.sys/sys/AGENTS.md',
-          '/Users/phil/code/org.sys/sys.canon/-canon/posture.stier.md',
-          '/Users/phil/code/org.sys/sys.canon/-canon/posture.tmind.md',
-          '/Users/phil/code/org.sys/sys.canon/-canon/protocol.cli.md',
-          '/Users/phil/code/org.sys/sys.canon/-canon/protocol.testing.md',
+          '/sample/organization/AGENTS.md',
+          '/sample/organization/workspace/AGENTS.md',
+          '/sample/organization/workspace.canon/-canon/posture.stier.md',
+          '/sample/organization/workspace.canon/-canon/posture.tmind.md',
+          '/sample/organization/workspace.canon/-canon/protocol.cli.md',
+          '/sample/organization/workspace.canon/-canon/protocol.testing.md',
         ],
       },
     }, width);
@@ -230,17 +230,20 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
 
   it('table → renders sibling workspace context paths with a real relative prefix', () => {
     const text = render({
-      cwd: { invoked: '/Users/phil/code/org.sys/sys', git: '/Users/phil/code/org.sys/sys' },
+      cwd: {
+        invoked: '/sample/organization/workspace',
+        git: '/sample/organization/workspace',
+      },
       context: {
         include: [
-          '/Users/phil/code/org.sys/sys/AGENTS.md',
-          '/Users/phil/code/org.sys/sys.canon/AGENTS.md',
+          '/sample/organization/workspace/AGENTS.md',
+          '/sample/organization/workspace.canon/AGENTS.md',
         ],
       },
     }, 120);
 
     expect(text).to.contain('./AGENTS.md');
-    expect(text).to.contain('../sys.canon/AGENTS.md');
+    expect(text).to.contain('../workspace.canon/AGENTS.md');
     expect(text).to.not.match(/context\s+\.\/AGENTS\.md, canon\/AGENTS\.md/);
   });
 
@@ -248,12 +251,12 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
     const text = render({
       cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
       context: {
-        include: ['/Users/phil/code/org.sys/sys.canon/-canon/protocol.testing.md'],
+        include: ['/sample/organization/workspace.canon/-canon/protocol.testing.md'],
       },
     }, 36);
 
     expect(text).to.contain('testing.md');
-    expect(text).to.not.contain('/Users/phil/code/org.sys/sys.canon');
+    expect(text).to.not.contain('/sample/organization/workspace.canon');
     expectTargetRowsToFit(text, 35, ['context']);
   });
 
@@ -303,7 +306,7 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
     const single = render({
       cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
       context: {
-        include: ['/Users/phil/code/org.sys/sys/AGENTS.md'],
+        include: ['/sample/organization/workspace/AGENTS.md'],
       },
     }, 42);
     expect(single).to.contain('AGENTS.md');
@@ -318,8 +321,8 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
       write: {
         summary: ['cwd', 'temp', 'extra'],
         detail: [
-          '/var/folders/7n/9zpvp0kn44b4stg0zt55j8jr0000gp/T',
-          '/Users/phil/code/-people/rowanyeoman-dev/agent-projects',
+          '/var/folders/example/T',
+          '/sample/with/a/very/long/path/to/contributors/rowan/agent-projects',
         ],
       },
     }, width);

@@ -171,7 +171,7 @@ These aliases may be marked `@deprecated` only if we want the migration signal t
 Run from the owning module directory:
 
 ```sh
-cd /Users/phil/code/org.sys/sys/code/sys/fs
+cd code/sys/fs
 deno task test --trace-leaks ./src/m.FileMap
 deno task check
 ```

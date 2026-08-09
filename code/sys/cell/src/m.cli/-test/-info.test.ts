@@ -140,7 +140,7 @@ describe(`@sys/cell/cli info`, () => {
     const restore = stubCliTerminal(42);
     try {
       const rendered = Fmt.Info.cell({
-        root: '/Users/phil/code/org.sys/sys/code/sys.ui/ui-components/dist',
+        root: '/sample/workspace/ui-components/dist',
         descriptor: '-config/@sys.cell/cell.yaml',
         descriptorPath: '-config/@sys.cell/cell.yaml',
         version: 1,
