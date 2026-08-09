@@ -22,6 +22,6 @@ export type CrdtRepoWorkerProxy = t.CrdtRepo & {
  * Structurally a `t.CrdtRef<T>` with an extra `via: 'worker-proxy'` brand
  * so callers can distinguish worker-based docs from local ones.
  */
-export type CrdtDocWorkerProxy<T extends O = O> = t.CrdtRef<T> & globalThis.Disposable & {
+export type CrdtDocWorkerProxy<T extends O = O> = t.CrdtRef<T> & {
   readonly via: 'worker-proxy';
 };

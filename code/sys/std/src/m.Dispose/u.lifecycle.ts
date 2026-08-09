@@ -8,7 +8,7 @@ type L = t.Lifecycle;
  * Generates a disposable interface that maintains
  * and exposes it's disposed state.
  */
-export function lifecycle(until?: t.UntilInput): t.Lifecycle & globalThis.Disposable {
+export function lifecycle(until?: t.UntilInput): t.Lifecycle {
   requireSymbolDispose();
   const owner = disposable(until);
   let _disposed = false;
@@ -28,7 +28,7 @@ export function lifecycle(until?: t.UntilInput): t.Lifecycle & globalThis.Dispos
 /**
  * An async variant of the lifecycle pattern.
  */
-export function lifecycleAsync(...args: any[]): t.LifecycleAsync & globalThis.AsyncDisposable {
+export function lifecycleAsync(...args: any[]): t.LifecycleAsync {
   requireSymbolAsyncDispose();
   const { until, onDispose } = toDisposableAsyncArgs(args);
   const owner = disposableAsync(until, onDispose);
@@ -54,10 +54,10 @@ export function lifecycleAsync(...args: any[]): t.LifecycleAsync & globalThis.As
  */
 export const toLifecycle: t.Dispose.Lib['toLifecycle'] = <T extends L>(
   ...input: any[]
-): T & globalThis.Disposable => {
+): T => {
   requireSymbolDispose();
   const { api, life } = wrangle.toLifecycleParams(input);
-  const obj = api as T & L & globalThis.Disposable;
+  const obj = api as T;
   const dispose = life.dispose.bind(life);
 
   Object.defineProperties(obj, {

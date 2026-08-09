@@ -136,7 +136,7 @@ export const ws: t.SyncServer.Lib['ws'] = async (options = {}) => {
   }
 
   let startupCancellation: t.DisposeEvent | undefined;
-  let life: t.LifecycleAsync & globalThis.AsyncDisposable;
+  let life: t.LifecycleAsync;
   try {
     life = Rx.lifecycleAsync(options.until, async (e) => {
       startupCancellation ??= e;

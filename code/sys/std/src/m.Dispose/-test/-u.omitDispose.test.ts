@@ -1,7 +1,7 @@
-import { describe, Dispose, expect, it, type t } from './common.ts';
+import { describe, Dispose, expect, Is, it, type t } from './common.ts';
 
 describe('Dispose.omitDispose', () => {
-  type T = t.Lifecycle & globalThis.Disposable & { count: number };
+  type T = t.Lifecycle & { count: number };
 
   it('lifecycle projection → observed state without direct or native authority', () => {
     const lifecycle = Dispose.lifecycle();
@@ -21,6 +21,7 @@ describe('Dispose.omitDispose', () => {
     expect('dispose' in projection).to.eql(false);
     expect(Symbol.dispose in projection).to.eql(false);
     expect(Symbol.asyncDispose in projection).to.eql(false);
+    expect(Is.disposable(projection)).to.eql(false);
 
     let count = 0;
     projection.dispose$.subscribe(() => count++);
@@ -97,6 +98,8 @@ describe('Dispose.omitDispose', () => {
       },
       [Symbol.asyncDispose]: { value: () => Promise.resolve() },
     });
+    // Deliberately cross the canonical boundary with a hybrid fixture to prove that
+    // inherited synchronous and asynchronous authority are both masked.
     const source = Object.create(proto, {
       dispose$: { value: owner.dispose$ },
       disposed: { get: () => owner.disposed },
@@ -105,11 +108,7 @@ describe('Dispose.omitDispose', () => {
         enumerable: false,
         get: unrelatedGetter,
       },
-    }) as
-      & t.Lifecycle
-      & globalThis.Disposable
-      & globalThis.AsyncDisposable
-      & { readonly [unrelated]: number };
+    }) as unknown as t.Lifecycle & { readonly [unrelated]: number };
 
     const projection = Dispose.omitDispose(source);
     const unrelatedBefore = Object.getOwnPropertyDescriptor(source, unrelated);

@@ -78,7 +78,7 @@ export declare namespace Time {
   /**
    * Exposes timer functions that cease after a dispose signal is received.
    */
-  export type Until = t.Lifecycle & globalThis.Disposable & {
+  export type Until = t.Lifecycle & {
     /** Delay for the specified milliseconds. */
     delay: Lib['delay'];
 

@@ -10,7 +10,7 @@ type NumberOrNil = number | null | undefined;
  * Context wrapper that manages a {ctx} object passed
  * into running spec.
  */
-export type DevContext = t.Disposable & globalThis.Disposable & {
+export type DevContext = t.Disposable & {
   readonly instance: t.DevInstance;
   readonly disposed: boolean;
   readonly pending: boolean;

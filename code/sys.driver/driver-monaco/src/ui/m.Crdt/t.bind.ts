@@ -46,4 +46,4 @@ export type Args = {
 };
 
 /** An instance of the `useBinding` Monaco-Crdt two-way data binding. */
-export type Hook = Omit<BindingInstance, 'dispose'>;
+export type Hook = t.OmitDisposable<BindingInstance>;

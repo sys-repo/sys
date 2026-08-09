@@ -112,7 +112,6 @@ export declare namespace WebSocketServer {
   /** Running WebSocket command server handle. */
   export type Started =
     & t.LifecycleAsync
-    & globalThis.AsyncDisposable
     & t.Service.Handle
     & {
       /** Underlying Deno HTTP server. */

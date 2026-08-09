@@ -11,7 +11,7 @@ type AsyncDisposalState = 'idle' | 'running' | 'fulfilled' | 'rejected';
  * Generates a generic disposable interface that is
  * typically mixed into a wider interface of some kind.
  */
-export function disposable(until?: t.UntilInput): t.Disposable & globalThis.Disposable {
+export function disposable(until?: t.UntilInput): t.Disposable {
   requireSymbolDispose();
   const subject$ = new Subject<t.DisposeEvent>();
   const dispose$ = subject$.asObservable();
@@ -43,7 +43,7 @@ export function disposable(until?: t.UntilInput): t.Disposable & globalThis.Disp
 /**
  * Generates an asynchronous Disposable interface.
  */
-export function disposableAsync(...args: any[]): t.DisposableAsync & globalThis.AsyncDisposable {
+export function disposableAsync(...args: any[]): t.DisposableAsync {
   requireSymbolAsyncDispose();
   const { until, onDispose } = toDisposableAsyncArgs(args);
   const dispose$ = new Subject<t.DisposeAsyncEvent>();
@@ -103,7 +103,7 @@ export function disposableAsync(...args: any[]): t.DisposableAsync & globalThis.
     return completion;
   };
 
-  const disposable: t.DisposableAsync & globalThis.AsyncDisposable = {
+  const disposable: t.DisposableAsync = {
     dispose$: dispose$.asObservable(),
     dispose,
     [Symbol.asyncDispose]() {

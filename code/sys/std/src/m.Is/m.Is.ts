@@ -50,8 +50,18 @@ export const Is: t.Is.Lib = {
 
   disposable(input?: any): input is t.Disposable {
     if (!isObject(input)) return false;
-    const obj = input as t.Disposable;
-    return typeof obj.dispose === 'function' && Is.observable(obj.dispose$);
+    const dispose = Symbol.dispose;
+    if (Is.nil(dispose)) return false;
+
+    const obj = input as Record<PropertyKey, unknown>;
+    const asyncDispose = Symbol.asyncDispose;
+    const hasAsyncAuthority = !Is.nil(asyncDispose) && obj[asyncDispose] !== undefined;
+    return (
+      typeof obj.dispose === 'function' &&
+      Is.observable(obj.dispose$) &&
+      typeof obj[dispose] === 'function' &&
+      !hasAsyncAuthority
+    );
   },
   disposableLike(input?: any): input is t.DisposableLike {
     if (!isObject(input)) return false;

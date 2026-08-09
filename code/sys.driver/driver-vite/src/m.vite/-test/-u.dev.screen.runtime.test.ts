@@ -1,6 +1,6 @@
 import { FakeSpinner } from '@sys/cli/testing';
 import { describe, expect, it, Rx, stripAnsi } from '../../-test.ts';
-import { type t } from '../common.ts';
+import type { t } from '../common.ts';
 import { DevOutputLog } from '../u/u.dev.output.ts';
 import { DevScreen } from '../u/u.dev.screen.ts';
 import { paths, pkg, processEvent } from './u.fixture.dev.ts';
@@ -353,6 +353,11 @@ describe('DevScreen runtime', () => {
       let thrown: unknown;
       const terminal = createTerminalHarness(spinner);
       const events = terminal.screenEvents;
+      const disposeEvents: t.Disposable['dispose'] = (reason) => {
+        eventDisposals += 1;
+        events.dispose(reason);
+        throw eventCause;
+      };
       const failingEvents: t.Cli.Screen.Events = {
         $: events.$,
         resize$: events.resize$,
@@ -362,10 +367,9 @@ describe('DevScreen runtime', () => {
         get disposed() {
           return events.disposed;
         },
-        dispose(reason) {
-          eventDisposals += 1;
-          events.dispose(reason);
-          throw eventCause;
+        dispose: disposeEvents,
+        [Symbol.dispose]() {
+          disposeEvents();
         },
       };
       const stopSpinner = spinner.stop;

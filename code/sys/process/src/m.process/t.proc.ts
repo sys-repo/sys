@@ -324,7 +324,7 @@ export declare namespace Process {
    * The output from the `Process.spawn` command that represents
    * a running child-process.
    */
-  export type Handle = t.LifecycleAsync & globalThis.AsyncDisposable & {
+  export type Handle = t.LifecycleAsync & {
     /** Child process ID. */
     readonly pid: number;
     /** Stream of stdout/stderr events emitted by the child. */

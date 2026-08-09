@@ -29,7 +29,7 @@ export declare namespace HttpServer {
   export type App = Hono.App;
 
   /** Running server returned by `HttpServer.start`. */
-  export type Started = t.LifecycleAsync & globalThis.AsyncDisposable & {
+  export type Started = t.LifecycleAsync & {
     readonly app: App;
     readonly server: Deno.HttpServer<Deno.NetAddr>;
     readonly addr: Deno.NetAddr;

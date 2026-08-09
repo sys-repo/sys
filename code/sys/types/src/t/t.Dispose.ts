@@ -16,7 +16,8 @@ export type CanDispose = { dispose(): unknown };
 /**
  * An object that provides a standard destructor pattern.
  */
-export type Disposable = {
+export type Disposable = globalThis.Disposable & {
+  readonly [Symbol.asyncDispose]?: never;
   readonly dispose$: t.DisposeObservable;
   dispose(reason?: unknown): void;
 };
@@ -69,7 +70,8 @@ export type Until = t.UntilObservable | t.Disposable | AbortSignal | Until[];
 /**
  * An object that provides a standard asynchronous destructor pattern.
  */
-export type DisposableAsync = {
+export type DisposableAsync = globalThis.AsyncDisposable & {
+  readonly [Symbol.dispose]?: never;
   readonly dispose$: t.Observable<DisposeAsyncEvent>;
   dispose(reason?: unknown): Promise<void>;
 };

@@ -313,7 +313,7 @@ describe('Dispose.lifecycleAsync', () => {
 });
 
 describe('Dispose.toLifecycle', () => {
-  type T = t.Lifecycle & globalThis.Disposable & { count: number };
+  type T = t.Lifecycle & { count: number };
 
   it('existing lifecycle → shared authority and state', () => {
     const lifecycle = Rx.lifecycle();

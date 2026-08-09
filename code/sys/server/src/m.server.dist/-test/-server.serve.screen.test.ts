@@ -295,15 +295,19 @@ function createTerminalHarness(
   const lifecycle = Rx.lifecycle();
   const resize$$ = Rx.subject<t.Cli.Screen.SizeChanged>();
   const resize$ = resize$$.asObservable();
+  const dispose: t.Disposable['dispose'] = (reason) => {
+    disposeCalls += 1;
+    lifecycle.dispose(reason);
+    if (options.disposeError !== undefined) throw options.disposeError;
+  };
   const events: t.Cli.Screen.Events = {
     get disposed() {
       return lifecycle.disposed;
     },
     dispose$: lifecycle.dispose$,
-    dispose(reason?: unknown) {
-      disposeCalls += 1;
-      lifecycle.dispose(reason);
-      if (options.disposeError !== undefined) throw options.disposeError;
+    dispose,
+    [Symbol.dispose]() {
+      dispose();
     },
     $: resize$,
     resize$,

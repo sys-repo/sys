@@ -281,12 +281,63 @@ describe('Is (common flags)', () => {
     it('Is.disposable: true', () => {
       const disposable = Rx.disposable();
       const life = Rx.lifecycle();
+      const inherited = Object.assign(
+        Object.create({
+          [Symbol.dispose]() {},
+        }),
+        {
+          dispose() {},
+          dispose$: Rx.subject<t.DisposeEvent>(),
+        },
+      );
+      const undefinedAsyncKey = {
+        dispose() {},
+        dispose$: Rx.subject<t.DisposeEvent>(),
+        [Symbol.dispose]() {},
+        [Symbol.asyncDispose]: undefined,
+      };
+
       expect(Is.disposable(disposable)).to.be.true;
       expect(Is.disposable(life)).to.be.true;
+      expect(Is.disposable(inherited)).to.be.true;
+      expect(Is.disposable(undefinedAsyncKey)).to.be.true;
     });
 
     it('Is.disposable: false', () => {
-      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      const dispose$ = Rx.subject<t.DisposeEvent>();
+      const inheritedAsync = Object.assign(
+        Object.create({
+          [Symbol.asyncDispose]: async () => {},
+        }),
+        {
+          dispose() {},
+          dispose$,
+          [Symbol.dispose]() {},
+        },
+      );
+      const NON = [
+        '',
+        123,
+        true,
+        null,
+        undefined,
+        BigInt(0),
+        Symbol('foo'),
+        {},
+        [],
+        { dispose() {}, dispose$ },
+        { dispose() {}, dispose$, [Symbol.asyncDispose]: async () => {} },
+        { dispose() {}, dispose$, [Symbol.dispose]: 123 },
+        { dispose() {}, dispose$, [Symbol.dispose]() {}, [Symbol.asyncDispose]: 123 },
+        {
+          dispose() {},
+          dispose$,
+          [Symbol.dispose]() {},
+          [Symbol.asyncDispose]: async () => {},
+        },
+        inheritedAsync,
+        { [Symbol.dispose]() {} },
+      ];
       NON.forEach((value) => expect(Is.disposable(value)).to.eql(false));
     });
   });
@@ -598,6 +649,28 @@ describe('Is (common flags)', () => {
       expect(Is.until('abc')).to.eql(false);
       expect(Is.until({})).to.eql(false);
       expect(Is.until(() => {})).to.eql(false);
+    });
+
+    it('rejects shapes outside the canonical synchronous protocol', () => {
+      const dispose$ = Rx.subject<t.DisposeEvent>();
+      const observableWithoutSymbol = { dispose() {}, dispose$ };
+      const asyncOnly = {
+        dispose: async () => {},
+        dispose$,
+        [Symbol.asyncDispose]: async () => {},
+      };
+      const hybrid = {
+        dispose() {},
+        dispose$,
+        [Symbol.dispose]() {},
+        [Symbol.asyncDispose]: async () => {},
+      };
+      const nativeOnly = { [Symbol.dispose]() {} };
+
+      for (const input of [observableWithoutSymbol, asyncOnly, hybrid, nativeOnly]) {
+        expect(Is.until(input)).to.eql(false);
+        expect(Is.untilInput(input)).to.eql(false);
+      }
     });
   });
 

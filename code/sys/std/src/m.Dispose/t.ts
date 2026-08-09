@@ -3,50 +3,43 @@ import type { t } from './common.ts';
 /**
  * Type contracts for disposable lifecycle helpers.
  */
-export namespace Dispose {
+export declare namespace Dispose {
   /**
    * Toolkit for working with disposable interfaces.
    */
   export type Lib = {
     /** Generate a disposable lifecycle with standard AbortController/Signal mechanics. */
-    abortable(until?: t.UntilInput): t.Abortable & globalThis.Disposable;
+    abortable(until?: t.UntilInput): t.Abortable;
 
     /**
      * Generates a generic disposable interface that is
      * typically mixed into a wider interface of some kind.
      */
-    disposable(until?: t.UntilInput): t.Disposable & globalThis.Disposable;
+    disposable(until?: t.UntilInput): t.Disposable;
 
     /** An async variant of the dispose pattern. */
-    disposableAsync(
-      onDispose?: t.LifecycleStageHandler,
-    ): t.DisposableAsync & globalThis.AsyncDisposable;
+    disposableAsync(onDispose?: t.LifecycleStageHandler): t.DisposableAsync;
     disposableAsync(
       until?: t.UntilInput,
       onDispose?: LifecycleStageHandler,
-    ): t.DisposableAsync & globalThis.AsyncDisposable;
+    ): t.DisposableAsync;
 
     /**
      * Generates a disposable interface that maintains
      * and exposes it's disposed state.
      */
-    lifecycle(until?: t.UntilInput): t.Lifecycle & globalThis.Disposable;
+    lifecycle(until?: t.UntilInput): t.Lifecycle;
 
     /** An async variant of the lifecycle pattern. */
-    lifecycleAsync(
-      onDispose?: LifecycleStageHandler,
-    ): t.LifecycleAsync & globalThis.AsyncDisposable;
+    lifecycleAsync(onDispose?: LifecycleStageHandler): t.LifecycleAsync;
     lifecycleAsync(
       until?: t.UntilInput,
       onDispose?: LifecycleStageHandler,
-    ): t.LifecycleAsync & globalThis.AsyncDisposable;
+    ): t.LifecycleAsync;
 
     /** Extend the given object to be expose the lifecycle API. */
-    toLifecycle<T extends t.Lifecycle>(api: t.OmitLifecycle<T>): T & globalThis.Disposable;
-    toLifecycle<T extends t.Lifecycle>(
-      life: t.Lifecycle,
-      api: t.OmitLifecycle<T>,
-    ): T & globalThis.Disposable;
+    toLifecycle<T extends t.Lifecycle>(api: t.OmitLifecycle<T>): T;
+    toLifecycle<T extends t.Lifecycle>(life: t.Lifecycle, api: t.OmitLifecycle<T>): T;
     toLifecycleView<T extends t.LifecycleView>(life: t.Lifecycle, api: t.OmitLifecycle<T>): T;
 
     /**

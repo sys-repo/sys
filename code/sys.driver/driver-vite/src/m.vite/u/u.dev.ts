@@ -167,7 +167,7 @@ export const dev: t.Vite.Lib['dev'] = async (input) => {
   const procUntil = proc.dispose$.pipe(
     Rx.map((event) => ({ reason: event.payload.reason })),
   );
-  let life: t.LifecycleAsync & globalThis.AsyncDisposable;
+  let life: t.LifecycleAsync;
   try {
     life = Rx.lifecycleAsync([input.until, procUntil], async (e) => {
       if (!startupAbort.signal.aborted) startupAbort.abort(e.reason);

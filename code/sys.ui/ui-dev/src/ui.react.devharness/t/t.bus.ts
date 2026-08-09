@@ -16,7 +16,7 @@ export type DevEnvVars = any;
 /**
  * DevHarness events API.
  */
-export type DevEvents = t.Lifecycle & globalThis.Disposable & {
+export type DevEvents = t.Lifecycle & {
   $: t.Observable<t.DevEvent>;
   instance: DevInstance;
   is: { base(input: any): boolean };
