@@ -26,20 +26,15 @@ export const start: F = (app, input = {}) => {
     status: input.status,
   });
 
-  const server = Deno.serve({ ...baseOptions, hostname }, app.fetch);
-  const addr = server.addr as Deno.NetAddr;
-  const port = addr.port as t.PortNumber;
-  const origin = localOrigin({ hostname, port });
-
+  let server: Deno.HttpServer<Deno.NetAddr> | undefined;
   let state: t.Service.State = 'ready';
   let error: t.StdError | undefined;
-  let closing: Promise<void> | undefined;
 
   const life = Dispose.lifecycleAsync(input.until, async (e) => {
     state = 'stopping';
     try {
-      closing ??= closeServer({ server, controller, reason: e.reason });
-      await closing;
+      const current = server;
+      if (current) await closeServer({ server: current, controller, reason: e.reason });
       state = 'stopped';
     } catch (cause) {
       state = 'error';
@@ -48,42 +43,50 @@ export const start: F = (app, input = {}) => {
     }
   });
 
-  const context: t.HttpServer.Started = {
-    app,
-    server,
-    addr,
-    hostname,
-    port,
-    origin,
-    signal: controller.signal,
-    finished: server.finished,
+  try {
+    server = Deno.serve({ ...baseOptions, hostname }, app.fetch);
+    const activeServer = server;
+    const addr = activeServer.addr as Deno.NetAddr;
+    const port = addr.port as t.PortNumber;
+    const origin = localOrigin({ hostname, port });
 
-    status() {
-      return wrangle.status(input, { origin, state, error });
-    },
+    const context: t.HttpServer.Started = {
+      app,
+      server: activeServer,
+      addr,
+      hostname,
+      port,
+      origin,
+      signal: controller.signal,
+      finished: activeServer.finished,
 
-    get disposed() {
-      return life.disposed;
-    },
+      status() {
+        return wrangle.status(input, { origin, state, error });
+      },
 
-    get dispose$() {
-      return life.dispose$;
-    },
+      get disposed() {
+        return life.disposed;
+      },
 
-    async dispose(reason) {
-      await life.dispose(reason);
-    },
+      get dispose$() {
+        return life.dispose$;
+      },
 
-    async close(reason) {
-      await life.dispose(reason);
-    },
-  };
+      dispose: life.dispose,
+      [Symbol.asyncDispose]: life[Symbol.asyncDispose],
+      close: life.dispose,
+    };
 
-  wrangle.serverFinished(server, life);
-  const keyboardBound = wrangle.keyboard(keyboardOptions, context, input);
-  wrangle.print(input, context, keyboardOptions, keyboardBound);
+    wrangle.serverFinished(activeServer, life);
+    const keyboardBound = wrangle.keyboard(keyboardOptions, context, input);
+    wrangle.print(input, context, keyboardOptions, keyboardBound);
 
-  return context;
+    return context;
+  } catch (cause) {
+    const rollback = life.dispose(cause);
+    void rollback.catch(() => undefined);
+    throw cause;
+  }
 };
 
 /**
@@ -130,7 +133,11 @@ const wrangle = {
   },
 
   error(cause: unknown): t.StdError {
-    return Err.std(cause);
+    try {
+      return Err.std(cause);
+    } catch {
+      return { name: 'Error', message: 'HTTP server shutdown failed' };
+    }
   },
 
   serverFinished(server: Deno.HttpServer<Deno.NetAddr>, life: t.LifecycleAsync) {

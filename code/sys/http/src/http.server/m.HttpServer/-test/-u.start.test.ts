@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../../-test.ts';
+import { describe, expect, it, Rx, Testing } from '../../../-test.ts';
 import { Dispose, type t } from '../common.ts';
 import { HttpServer } from '../mod.ts';
 import { testFetcher } from './u.fixture.usingServer.ts';
@@ -67,18 +67,106 @@ describe('HttpServer.start', () => {
     expect(server.status().state).to.eql('stopped');
   });
 
-  it('close/dispose are idempotent lifecycle controls', async () => {
+  it('close/direct/native entrypoints share one completion', async () => {
     const app = HttpServer.create({ static: false });
     const server = HttpServer.start(app, { silent: true });
-    const stages: t.DisposeAsyncStage[] = [];
-    server.dispose$.subscribe((e) => stages.push(e.payload.stage));
+    const fired: t.DisposeAsyncEvent[] = [];
+    server.dispose$.subscribe((event) => fired.push(event));
 
-    await server.close('first');
-    await server.dispose('second');
-    await server.finished;
+    const completion = server.close('close:first');
+    expect(server.dispose('direct:later')).to.equal(completion);
+    expect(server[Symbol.asyncDispose]()).to.equal(completion);
+
+    await completion;
+    expect(server.disposed).to.eql(true);
+    expect(fired.map((event) => event.payload.stage)).to.eql(['start', 'complete']);
+    expect(fired.map((event) => event.payload.reason)).to.eql(['close:first', 'close:first']);
+  });
+
+  it('native disposal preserves opaque shutdown rejection identity and status', async () => {
+    const app = HttpServer.create({ static: false });
+    const server = HttpServer.start(app, { silent: true });
+    const shutdown = server.server.shutdown.bind(server.server);
+    const normalizationFailure = new Error('HttpServer.start:test:normalization-failure');
+    const failure = {
+      get message(): string {
+        throw normalizationFailure;
+      },
+    };
+    const fired: t.DisposeAsyncEvent[] = [];
+    server.dispose$.subscribe((event) => fired.push(event));
+
+    try {
+      Object.defineProperty(server.server, 'shutdown', {
+        configurable: true,
+        value: () => Promise.reject(failure),
+      });
+
+      const completion = server[Symbol.asyncDispose]();
+      expect(server.dispose('direct:later')).to.equal(completion);
+      expect(server.close('close:later')).to.equal(completion);
+
+      let caught: unknown;
+      try {
+        await completion;
+      } catch (error) {
+        caught = error;
+      }
+
+      expect(caught).to.equal(failure);
+      expect(server.disposed).to.eql(true);
+      expect(server.status().state).to.eql('error');
+      expect(fired.map((event) => event.payload.reason)).to.eql([undefined, undefined]);
+    } finally {
+      await shutdown();
+      await server.finished;
+    }
+  });
+
+  it('native await using shuts down the server', async () => {
+    const app = HttpServer.create({ static: false });
+    const server = HttpServer.start(app, { silent: true });
+
+    {
+      await using resource = server;
+      expect(resource).to.equal(server);
+      expect(server.disposed).to.eql(false);
+      expect(server.signal.aborted).to.eql(false);
+    }
 
     expect(server.disposed).to.eql(true);
-    expect(stages).to.eql(['start', 'complete']);
+    expect(server.signal.aborted).to.eql(true);
+    expect(server.status().state).to.eql('stopped');
+  });
+
+  it('setup failure after listen rolls back the server', async () => {
+    const app = HttpServer.create({ static: false });
+    const port = Testing.randomPort();
+    const failure = new Error('HttpServer.start:test:setup-failure');
+    const options: t.HttpServer.Start.Options = {
+      port,
+      hostname: '127.0.0.1',
+      get silent(): boolean {
+        throw failure;
+      },
+    };
+
+    let caught: unknown;
+    try {
+      HttpServer.start(app, options);
+    } catch (error) {
+      caught = error;
+    }
+    expect(caught).to.equal(failure);
+
+    await Testing.retry(10, { silent: true, delay: 10 }, async () => {
+      const replacement = HttpServer.start(app, {
+        port,
+        hostname: '127.0.0.1',
+        silent: true,
+      });
+      await replacement.close('test:port-reacquired');
+    });
   });
 
   it('wildcard bind address still reports a local origin', async () => {
@@ -104,6 +192,27 @@ describe('HttpServer.start', () => {
 
     expect(server.disposed).to.eql(true);
     expect(server.signal.aborted).to.eql(true);
+  });
+
+  it('synchronous until disposes only after server construction', async () => {
+    const app = HttpServer.create({ static: false });
+    const server = HttpServer.start(app, {
+      silent: true,
+      until: Rx.of({ reason: 'synchronous:until' }),
+    });
+    const fired: t.DisposeAsyncEvent[] = [];
+    server.dispose$.subscribe((event) => fired.push(event));
+
+    expect(server.disposed).to.eql(false);
+    await waitForDispose(server);
+
+    expect(server.disposed).to.eql(true);
+    expect(server.signal.aborted).to.eql(true);
+    expect(server.status().state).to.eql('stopped');
+    expect(fired.map((event) => event.payload.reason)).to.eql([
+      'synchronous:until',
+      'synchronous:until',
+    ]);
   });
 
   it('pre-aborted until AbortSignal disposes the server lifecycle', async () => {

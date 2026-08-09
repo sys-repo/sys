@@ -110,37 +110,41 @@ export declare namespace WebSocketServer {
   };
 
   /** Running WebSocket command server handle. */
-  export type Started = t.LifecycleAsync & t.Service.Handle & {
-    /** Underlying Deno HTTP server. */
-    readonly server: Deno.HttpServer<Deno.NetAddr>;
+  export type Started =
+    & t.LifecycleAsync
+    & globalThis.AsyncDisposable
+    & t.Service.Handle
+    & {
+      /** Underlying Deno HTTP server. */
+      readonly server: Deno.HttpServer<Deno.NetAddr>;
 
-    /** Bound network address. */
-    readonly addr: Deno.NetAddr;
+      /** Bound network address. */
+      readonly addr: Deno.NetAddr;
 
-    /** Bound hostname. */
-    readonly hostname: t.StringHostname;
+      /** Bound hostname. */
+      readonly hostname: t.StringHostname;
 
-    /** Bound TCP port. */
-    readonly port: t.PortNumber;
+      /** Bound TCP port. */
+      readonly port: t.PortNumber;
 
-    /** Local HTTP origin, e.g. `http://localhost:8080`. */
-    readonly origin: t.StringUrl;
+      /** Local HTTP origin, e.g. `http://localhost:8080`. */
+      readonly origin: t.StringUrl;
 
-    /** Local WebSocket URL for the accepted path. */
-    readonly url: t.StringUrl;
+      /** Local WebSocket URL for the accepted path. */
+      readonly url: t.StringUrl;
 
-    /** Server lifecycle signal; aborted when the server closes. */
-    readonly signal: AbortSignal;
+      /** Server lifecycle signal; aborted when the server closes. */
+      readonly signal: AbortSignal;
 
-    /** Resolves when the underlying Deno server has finished. */
-    readonly finished: Promise<void>;
+      /** Resolves when the underlying Deno server has finished. */
+      readonly finished: Promise<void>;
 
-    /** Renderer-neutral service status snapshot. */
-    status(): t.Service.Status;
+      /** Renderer-neutral service status snapshot. */
+      status(): t.Service.Status;
 
-    /** WebSocket/domain alias for `dispose()`. */
-    close(reason?: unknown): Promise<void>;
-  };
+      /** WebSocket/domain alias for `dispose()`. */
+      close(reason?: unknown): Promise<void>;
+    };
 
   /** Structured status metadata surfaced by WebSocket server handles. */
   export type StatusOptions = {

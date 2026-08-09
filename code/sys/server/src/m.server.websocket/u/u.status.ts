@@ -47,7 +47,11 @@ export function serviceOpenUrl(status: t.Service.Status): t.StringUrl | undefine
 
 /** Convert an unknown lifecycle failure into the standard service error shape. */
 export function serviceError(cause: unknown): t.StdError {
-  return Err.std(cause);
+  try {
+    return Err.std(cause);
+  } catch {
+    return { name: 'Error', message: 'WebSocket server shutdown failed' };
+  }
 }
 
 /**

@@ -145,6 +145,7 @@ export const spawn: t.Process.Lib['spawn'] = (config) => {
        * Lifecycle.
        */
       dispose: lifecycle.dispose,
+      [Symbol.asyncDispose]: lifecycle[Symbol.asyncDispose],
       get dispose$() {
         return lifecycle.dispose$;
       },

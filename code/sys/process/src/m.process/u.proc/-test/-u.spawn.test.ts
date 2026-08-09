@@ -19,6 +19,38 @@ describe('Process.spawn (async long-lived)', () => {
       expect(fired.length).to.eql(2);
     });
 
+    it('native disposal entrypoints share one completion', async () => {
+      const args = ProcessTest.evalArgs('setInterval(() => {}, 1_000)');
+      const handle = Process.spawn({ args, silent: true });
+      const fired: t.DisposeAsyncEvent[] = [];
+      handle.dispose$.subscribe((event) => fired.push(event));
+
+      const completion = handle.dispose('direct:first');
+      expect(handle[Symbol.asyncDispose]()).to.equal(completion);
+      expect(handle.dispose('direct:later')).to.equal(completion);
+
+      await completion;
+      expect(handle.disposed).to.eql(true);
+      expect(fired.map((event) => event.payload.stage)).to.eql(['start', 'complete']);
+      expect(fired.map((event) => event.payload.reason)).to.eql(['direct:first', 'direct:first']);
+    });
+
+    it('native await using disposes on scope exit', async () => {
+      const args = ProcessTest.evalArgs('setInterval(() => {}, 1_000)');
+      const handle = Process.spawn({ args, silent: true });
+      const fired: t.DisposeAsyncEvent[] = [];
+      handle.dispose$.subscribe((event) => fired.push(event));
+
+      {
+        await using resource = handle;
+        expect(resource).to.equal(handle);
+        expect(handle.disposed).to.eql(false);
+      }
+
+      expect(handle.disposed).to.eql(true);
+      expect(fired.map((event) => event.payload.reason)).to.eql([undefined, undefined]);
+    });
+
     it('spawn → until', async () => {
       const { dispose$, dispose } = Rx.lifecycle();
       const args = ProcessTest.evalArgs('console.log("👋")');

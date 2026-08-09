@@ -1,4 +1,4 @@
-import { describe, expect, it, Net, Time } from '../../-test.ts';
+import { describe, expect, it, Net, Rx, type t, Testing, Time } from '../../-test.ts';
 import { WebSocketServer } from '../mod.ts';
 import { Fixture } from './u.fixture.ts';
 
@@ -85,6 +85,53 @@ describe('WebSocketServer/lifecycle', () => {
     }
   });
 
+  it('synchronous until disposes only after server construction', async () => {
+    const disposed = Fixture.deferred<void>();
+    const server = WebSocketServer.create({
+      path: '/socket',
+      until: Rx.of({ reason: 'synchronous:until' }),
+      cmd: { handlers: { ping: () => 'pong' } },
+    });
+    const fired: t.DisposeAsyncEvent[] = [];
+    server.dispose$.subscribe((event) => {
+      fired.push(event);
+      if (event.payload.is.done) disposed.resolve();
+    });
+
+    expect(server.disposed).to.eql(false);
+    await disposed.promise;
+
+    expect(server.disposed).to.eql(true);
+    expect(server.signal.aborted).to.eql(true);
+    expect(server.status().state).to.eql('stopped');
+    expect(fired.map((event) => event.payload.reason)).to.eql([
+      'synchronous:until',
+      'synchronous:until',
+    ]);
+  });
+
+  it('pre-aborted until disposes the constructed server', async () => {
+    const until = new AbortController();
+    until.abort('test.pre-aborted');
+    const disposed = Fixture.deferred<void>();
+
+    const server = WebSocketServer.create({
+      path: '/socket',
+      until: until.signal,
+      cmd: { handlers: { ping: () => 'pong' } },
+    });
+    server.dispose$.subscribe((event) => {
+      if (event.payload.is.done) disposed.resolve();
+    });
+
+    expect(server.disposed).to.eql(false);
+    await disposed.promise;
+
+    expect(server.disposed).to.eql(true);
+    expect(server.signal.aborted).to.eql(true);
+    expect(server.status().state).to.eql('stopped');
+  });
+
   it('underlying server shutdown bridges into the lifecycle', async () => {
     const disposed = Fixture.deferred<void>();
     const server = WebSocketServer.create({
@@ -167,6 +214,99 @@ describe('WebSocketServer/lifecycle', () => {
     }
   });
 
+  it('native disposal preserves opaque shutdown rejection identity and status', async () => {
+    const server = WebSocketServer.create({
+      path: '/socket',
+      cmd: { handlers: { ping: () => 'pong' } },
+    });
+    const shutdown = server.server.shutdown.bind(server.server);
+    const normalizationFailure = new Error('WebSocketServer.create:test:normalization-failure');
+    const failure = {
+      get message(): string {
+        throw normalizationFailure;
+      },
+    };
+    const fired: t.DisposeAsyncEvent[] = [];
+    server.dispose$.subscribe((event) => fired.push(event));
+
+    try {
+      Object.defineProperty(server.server, 'shutdown', {
+        configurable: true,
+        value: () => Promise.reject(failure),
+      });
+
+      const completion = server[Symbol.asyncDispose]();
+      expect(server.dispose('direct:later')).to.equal(completion);
+      expect(server.close('close:later')).to.equal(completion);
+
+      let caught: unknown;
+      try {
+        await completion;
+      } catch (error) {
+        caught = error;
+      }
+
+      expect(caught).to.equal(failure);
+      expect(server.disposed).to.eql(true);
+      expect(server.status().state).to.eql('error');
+      expect(fired.map((event) => event.payload.reason)).to.eql([undefined, undefined]);
+    } finally {
+      await shutdown();
+      await server.finished;
+    }
+  });
+
+  it('setup failure after listen rolls back the server', async () => {
+    const port = Testing.randomPort();
+    const failure = new Error('WebSocketServer.create:test:setup-failure');
+    const http: t.WebSocketServer.HttpOptions = {
+      handle: () => undefined,
+      get urls(): readonly t.WebSocketServer.HttpStatusUrl[] | undefined {
+        throw failure;
+      },
+    };
+
+    let caught: unknown;
+    try {
+      WebSocketServer.create({
+        port,
+        path: '/socket',
+        cmd: { handlers: { ping: () => 'pong' } },
+        http,
+      });
+    } catch (error) {
+      caught = error;
+    }
+    expect(caught).to.equal(failure);
+
+    await Testing.retry(10, { silent: true, delay: 10 }, async () => {
+      const replacement = WebSocketServer.create({
+        port,
+        path: '/socket',
+        cmd: { handlers: { ping: () => 'pong' } },
+      });
+      await replacement.close('test:port-reacquired');
+    });
+  });
+
+  it('native await using shuts down the server', async () => {
+    const server = WebSocketServer.create({
+      path: '/socket',
+      cmd: { handlers: { ping: () => 'pong' } },
+    });
+
+    {
+      await using resource = server;
+      expect(resource).to.equal(server);
+      expect(server.disposed).to.eql(false);
+      expect(server.signal.aborted).to.eql(false);
+    }
+
+    expect(server.disposed).to.eql(true);
+    expect(server.signal.aborted).to.eql(true);
+    expect(server.status().state).to.eql('stopped');
+  });
+
   it('dispose() shuts down the server, active sockets, and command hosts', async () => {
     let accepted = false;
     const hostDisposed = Fixture.deferred<void>();
@@ -188,7 +328,10 @@ describe('WebSocketServer/lifecycle', () => {
       expect(accepted).to.eql(true);
       expect(Fixture.detail(server.status(), 'connections')).to.eql('1');
 
-      await server.dispose('test.dispose');
+      const completion = server.dispose('test.dispose');
+      expect(server.close('test.close:later')).to.equal(completion);
+      expect(server[Symbol.asyncDispose]()).to.equal(completion);
+      await completion;
       await hostDisposed.promise;
       await closed;
 

@@ -22,41 +22,21 @@ export function create<
   const cmd = Cmd.make<N, P, R, E>({ ns: input.cmd.ns });
 
   const requestedAddress: ListenAddress = { hostname, port: input.port ?? D.serve.port };
-  const server = createServer(requestedAddress, async (request) => {
-    const httpResponse = await input.http?.handle(request);
-    if (httpResponse) return httpResponse;
-
-    const accepted = await acceptRequest(request, { path, accept: input.accept });
-    if (!accepted.ok) return accepted.response;
-
-    const { socket, response } = Deno.upgradeWebSocket(request);
-    const endpoint = Cmd.Transport.fromWebSocket(socket);
-    const host = cmd.host(endpoint, input.cmd.handlers);
-    trackConnection(connections, { socket, host });
-
-    callSocketHook(input.onSocket, { request, socket, endpoint, host });
-
-    return response;
-  });
-
-  const addr = server.addr as Deno.NetAddr;
-  const port = addr.port as t.PortNumber;
-  const origin = localOrigin({ hostname, port });
-  const url = localWebSocketUrl({ origin, path });
-  const httpUrls = statusHttpUrls(origin, input.http?.urls);
   const runtime: RuntimeStatus = { state: 'ready' };
-  let closing: Promise<void> | undefined;
+  let server: Deno.HttpServer<Deno.NetAddr> | undefined;
 
   const life = Dispose.lifecycleAsync(input.until, async (e) => {
     runtime.state = 'stopping';
     try {
-      closing ??= closeServer({
-        server,
-        controller,
-        connections,
-        reason: e.reason,
-      });
-      await closing;
+      const current = server;
+      if (current) {
+        await closeServer({
+          server: current,
+          controller,
+          connections,
+          reason: e.reason,
+        });
+      }
       runtime.state = 'stopped';
     } catch (cause) {
       runtime.state = 'error';
@@ -65,46 +45,72 @@ export function create<
     }
   });
 
-  disposeWhenServerFinishes({ server, life, controller });
+  try {
+    server = createServer(requestedAddress, async (request) => {
+      const httpResponse = await input.http?.handle(request);
+      if (httpResponse) return httpResponse;
 
-  return {
-    server,
-    addr,
-    hostname,
-    port,
-    origin,
-    url,
-    signal: controller.signal,
-    finished: server.finished,
+      const accepted = await acceptRequest(request, { path, accept: input.accept });
+      if (!accepted.ok) return accepted.response;
 
-    status() {
-      return serviceStatus({
-        options: input.status,
-        url,
-        httpUrls,
-        path,
-        ns: input.cmd.ns,
-        connections: connections.size,
-        runtime,
-      });
-    },
+      const { socket, response } = Deno.upgradeWebSocket(request);
+      const endpoint = Cmd.Transport.fromWebSocket(socket);
+      const host = cmd.host(endpoint, input.cmd.handlers);
+      trackConnection(connections, { socket, host });
 
-    get disposed() {
-      return life.disposed;
-    },
+      callSocketHook(input.onSocket, { request, socket, endpoint, host });
 
-    get dispose$() {
-      return life.dispose$;
-    },
+      return response;
+    });
 
-    async dispose(reason) {
-      await life.dispose(reason);
-    },
+    const activeServer = server;
+    const addr = activeServer.addr as Deno.NetAddr;
+    const port = addr.port as t.PortNumber;
+    const origin = localOrigin({ hostname, port });
+    const url = localWebSocketUrl({ origin, path });
+    const httpUrls = statusHttpUrls(origin, input.http?.urls);
 
-    async close(reason) {
-      await life.dispose(reason);
-    },
-  };
+    disposeWhenServerFinishes({ server: activeServer, life, controller });
+
+    return {
+      server: activeServer,
+      addr,
+      hostname,
+      port,
+      origin,
+      url,
+      signal: controller.signal,
+      finished: activeServer.finished,
+
+      status() {
+        return serviceStatus({
+          options: input.status,
+          url,
+          httpUrls,
+          path,
+          ns: input.cmd.ns,
+          connections: connections.size,
+          runtime,
+        });
+      },
+
+      get disposed() {
+        return life.disposed;
+      },
+
+      get dispose$() {
+        return life.dispose$;
+      },
+
+      dispose: life.dispose,
+      [Symbol.asyncDispose]: life[Symbol.asyncDispose],
+      close: life.dispose,
+    };
+  } catch (error) {
+    const rollback = life.dispose(error);
+    void rollback.catch(() => undefined);
+    throw error;
+  }
 }
 
 /**
