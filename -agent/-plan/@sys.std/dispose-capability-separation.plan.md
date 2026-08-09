@@ -1,6 +1,6 @@
 dispose-capability-separation.plan.md
-- [ ] [dispose-native-protocol-alignment.plan.md](dispose-native-protocol-alignment.plan.md)
-- [ ] refactor(sys): route observable lifetimes through lifecycle factories
+- [x] [dispose-native-protocol-alignment.plan.md](dispose-native-protocol-alignment.plan.md)
+- [x] refactor(sys): route observable lifetimes through lifecycle factories
 - [ ] fix(std): normalize until through terminal lifecycle truth
 - [ ] refactor(std): retire unearned disposal factory surfaces
 - [ ] refactor(types): separate disposal authority from observable lifecycles
@@ -17,6 +17,62 @@ An independent maximum-effort review rejected the earlier hard factory cut and n
 `UntilInput` carry-forward. The corrections below retain the type-plane reduction, retire unearned
 public factories rather than manufacturing authority-only products, and make already-terminal stop
 truth consistent across normalized inputs.
+
+## Review economics and decision gates
+
+Do not inherit the predecessor's review intensity uniformly. That campaign changed construction
+ordering, Promise truth, rejection ownership, and third-party resource composition; this arc
+concentrates semantic risk at already-terminal normalization, private-kernel preservation, and the
+canonical authority/lifecycle split. Exhaustive search, compiler, package, and release proof is
+stronger than another model pass for closed mechanical fallout.
+
+Review classes retain the predecessor's meanings:
+
+- **Full 3X:** primary-model maximum-effort design pass, implementation and deterministic proof,
+  cold primary-model maximum-effort post-review, independent maximum-effort review, and explicit
+  cross-model adjudication;
+- **Focused 2X:** primary-model design and post-review, with independent review of the containing
+  semantic checkpoint rather than the individual commit;
+- **Deterministic:** high-reasoning implementation plus exhaustive compiler, test, check, dry-run,
+  formatting, residue, and dependency-graph proof; escalate only when the evidence exposes semantic
+  ambiguity.
+
+| Arc item                                                                  | Principal risk                                                                | Class              | Independent review                     |
+| ------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ------------------ | -------------------------------------- |
+| `refactor(sys): route observable lifetimes through lifecycle factories`   | Closed cross-package migration ledger and accidental behavior drift           | Focused 2X         | Sample in the final arc review         |
+| `fix(std): normalize until through terminal lifecycle truth`              | Terminal-state synthesis, microtask timing, recursive inputs, and guard truth | Full 3X            | Standalone                             |
+| `refactor(std): retire unearned disposal factory surfaces`                | Public API removal and private sync/async kernel preservation                 | Full 3X / combined | Batch with the canonical type split    |
+| `refactor(types): separate disposal authority from observable lifecycles` | Foundational public type break, guards, projections, and structural fallout   | Full 3X / combined | Batch with factory retirement          |
+| `chore(deps): align disposal capability release authority`                | Version, import, dependency, and publication ordering                         | Deterministic      | Include with the capability checkpoint |
+| `docs(std): define disposal capability boundaries`                        | Whole-arc semantic fidelity                                                   | Final 3X audit     | Final holistic independent review      |
+
+Review checkpoints:
+
+1. **Migration:** prove the exhaustive source/test ledger, package behavior, compiler truth, and
+   residue; perform a cold primary review and escalate only if ownership or behavior becomes
+   ambiguous.
+2. **Terminal normalization:** require red-to-green proof for already-disposed, already-aborted,
+   live, recursive, invalid-overload, and reason-fidelity cases; complete a standalone Full 3X
+   checkpoint before proceeding to public type removal.
+3. **Capability split:** keep factory retirement and canonical type separation as distinct green
+   source commits, then independently review their combined public and runtime truth. Prove kernel
+   identity and ordering through lifecycle products, removed exports, guard alignment, omission
+   semantics, and structural fallout.
+4. **Release and documentation:** prove the dependency graph deterministically, then perform one
+   cold arc-wide primary review and one holistic independent review of the completed code,
+   documentation, and external-release account.
+
+Before each item starts, recalibrate the exact model and effort from the current tree rather than
+binding the whole roadmap in advance. Use the higher-capability tier where correctness depends on
+finding hidden semantic interactions; use the lower-cost tier where an exhaustive migration ledger
+or dependency graph already constrains the answer. Escalate any item that introduces a new state
+machine, construction ambiguity, Promise/error-policy change, authority leak, compatibility surface,
+or unplanned ownership transfer.
+
+The independent review protocol is evidence-driven: freeze and identify the reviewed tree, require
+canon-access disclosure, complete the primary cold review before reading the independent conclusion,
+adjudicate every finding as confirmed, rejected with reason, or accepted hardening, and rerun the
+affected proof. Use `BLOCK`, `MATERIAL CONCERN`, or `READY` as verdict vocabulary.
 
 ## Position
 

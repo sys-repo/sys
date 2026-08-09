@@ -13,7 +13,7 @@ export function BusEvents(args: {
   until?: t.UntilInput;
 }): t.DevEvents {
   let _disposed = false;
-  const life = Rx.disposable(args.until);
+  const life = Rx.lifecycle(args.until);
   life.dispose$.subscribe(() => (_disposed = true));
 
   const bus = RxBus.asType<t.DevEvent>(args.instance.bus);

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { type t, Rx, Time } from './common.ts';
+import { Rx, type t, Time } from './common.ts';
 
 type LiMap = Map<number, HTMLLIElement>;
 
@@ -13,7 +13,7 @@ export function useScrollController(
   scrollToProp$?: t.Observable<t.ModuleListScrollTarget>,
 ) {
   useEffect(() => {
-    const { dispose, dispose$ } = Rx.disposable();
+    const { dispose, dispose$ } = Rx.lifecycle();
 
     let _latestIndex = -1;
     let _isScrolling = false;

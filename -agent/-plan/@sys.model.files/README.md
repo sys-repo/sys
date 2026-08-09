@@ -1,7 +1,5 @@
 # Files plans
 
-BMIND sync: 2026-05-22.
-
 This folder is now mostly follow-on planning. The major upstream Files/WebSocket service arc has
 landed; remaining work should stay small and avoid re-opening completed seams.
 
@@ -61,61 +59,7 @@ Completed and reusable:
   - The static Files sample now proves the real sequence: read returns a URL content ref, then
     `Files.ContentRef.text(read.contentRef)` materializes the content.
 
-Recently completed and retired plan ledgers:
-
-- Files client local facade rollout:
-  - `68da168ce0cb37377e88ada988cc79e53cc0a8a2` —
-    `feat(model): add Files client handle facade with readText`
-  - `914d9fafce2cf5ed4d9f61d4bb7e211b34e1df20` — `feat(event): add Cmd<T> local transport adapter`
-  - `e247ec9737442e120664a7f8317aae5c83d8e752` — `feat(model): add local Files client binding`
-  - `d26e8bc06c35de6d70d653079253b8dbbb867a41` —
-    `test(server): migrate Files websocket clients to handle.cmd grammar`
-  - `e7ac2012901d15c7c89cc8e5def5627ff55e89c7` —
-    `test(draft.shell): read shell sample through Files client`
-  - `9ca6c494e` — `plan(files): add Files client local facade plan`
-  - `2a407d631` — `plan(files): retire Files client local facade plan`
-- Files WebSocket sample polish rollout:
-  - `f37ff066e` — `feat(server): add hosted websocket service startup`
-  - `525acda1d` — `feat(cli): add service URL formatting helpers`
-  - `9a290f0f4` — `refactor(server): align websocket module folder naming`
-  - `8f0807357` — `feat(server): add process lifecycle start for websocket services`
-  - `6f37235cd` — `feat(model): add Files websocket client`
-  - `5715d25ce` — `feat(cli): add keyboard binding helper`
-  - `2d0fe866f` — `refactor(http): use CLI keyboard binding helper`
-  - `90324e825` — `feat(server): add keyboard controls to websocket start`
-  - `7a131e2d6` — `refactor(server): namespace websocket keyboard types`
-- Static DistPkg seam hardening:
-  - `06ea48f41` — `feat(model): confine DistPkg Files coupling to static seam`
-- Files static sample rollout:
-  - `62958485b` — `sample(server): add static Files dist sample`
-  - Adds `code/sys/server/-sample/files.static` adjacent to `files.websocket`.
-  - Proves generated publication/runtime mode: plain `@sys/http` static server →
-    `Pkg.Dist.fetch({ origin })` → `FilesStatic.fromDist({ dist, baseUrl, policy })` →
-    `Files.Client.local(...)` → Files manifest/read-ref → plain HTTP asset fetch.
-  - Keeps static read semantics honest: static `read` returns URL content refs; it does not use
-    `readText(...)` or introduce a content-ref fetch facade.
-- Files ContentRef resolver rollout:
-  - `8bebdf7b95aa3e23770cd8335e0ec3798c900f02` — `feat(model): add Files ContentRef resolvers`
-  - `294f6ae70` — `plan(files): mark ContentRef resolver plan landed`
-  - `161ac1c33ee1f4a64792e69215b17078414103bf` — `plan(files): retire ContentRef resolver plan`
-  - Adds `Files.ContentRef.bytes(ref, options?)` and `Files.ContentRef.text(ref, options?)`.
-  - Resolves URL refs with Files-domain error policy and default size/hash verification.
-  - Uses `@sys/crypto/hash`, `@sys/std/error`, `@sys/std/dispose`, and `@sys/std/is` rather than
-    ad-hoc helper policy.
-  - Updates the static sample to replace ad-hoc asset fetch with explicit Files-domain content-ref
-    resolution.
-
 ## Active plan index
-
-### `files-client-query-surface.plan.md`
-
-Completed rollout for lifting Files capability/list/stat/manifest/watch onto the humane client handle
-while keeping manifest content-ref semantics tight and explicit.
-
-- `65f6658ad` — `refactor(model): rename manifest content refs`
-- `382d585bd` — `fix(event): dispose Cmd stream event subscriptions`
-- `7d792fdd9` — `feat(model): add Files client query surface`
-- `cf86f5ce4` — `refactor(draft-shell): consume Files client query surface`
 
 ### `transport-fidelity-hardening.plan.md`
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, D, Obj, Rx } from './common.ts';
+import { Color, css, D, Obj, Rx, type t } from './common.ts';
 import { Slider } from './ui.Slider.tsx';
 
 type P = t.MediaZoomProps;
@@ -15,7 +15,7 @@ export const List: React.FC<P> = (props) => {
    * Effect: fire debounced 'onChanged' event.
    */
   React.useEffect(() => {
-    const life = Rx.disposable();
+    const life = Rx.lifecycle();
     const $ = ref$.current.pipe(Rx.takeUntil(life.dispose$), Rx.debounceTime(debounce));
     $.subscribe((e) => props.onChanged?.(e));
     return life.dispose;

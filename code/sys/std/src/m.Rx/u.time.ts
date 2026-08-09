@@ -18,7 +18,7 @@ export function withinTimeThreshold<T>(
     const startedAt = Date.now();
     const $$ = new Subject<R>();
 
-    const { dispose, dispose$ } = Dispose.disposable(options.until);
+    const { dispose, dispose$ } = Dispose.lifecycle(options.until);
 
     let timer: t.Time.Delay.Promise | undefined;
     const cancelTimer = () => {

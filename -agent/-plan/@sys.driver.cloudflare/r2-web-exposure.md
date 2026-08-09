@@ -1,5 +1,14 @@
 # r2-web-exposure
 
+## Commit plan
+
+- [x] 07a0a8028 chore(tmpl:pkg): scaffold @sys/web package
+- [ ] feat(web): add exposure model types
+- [ ] feat(driver-cloudflare): add web exposure verify seam
+- [ ] feat(driver-cloudflare): verify R2 files exposure
+- [ ] feat(tools): surface web exposure verification
+- [ ] docs(plan): record first R2 web exposure proof
+
 Single-plan anchor for the `@sys/web` exposure primitive and its first Cloudflare/R2 realization. The subject is not Cloudflare product configuration, and not R2 alone. The subject is intentional surfacing of a system resource onto the public web through an owned, protected host. This file focuses on the R2-backed Files exposure; the same root primitive also covers Deno Deploy app/API exposure.
 
 ## Collaboration guardrail
@@ -7,6 +16,8 @@ Single-plan anchor for the `@sys/web` exposure primitive and its first Cloudflar
 This is a DMIND architecture plan, not a transcript or brainstorming dump. Do not accrete AI-generated screeds, speculative option lists, or unverified product claims into this file on each turn. Only final, verified, real design judgments should land here: named invariants, chosen topology, rejected alternatives with concrete reasons, source-backed Cloudflare/Deno/R2 facts, and explicit HOLD conditions.
 
 Keep this as one plan. Do not split the primitive and Cloudflare realization into separate plan files unless a later implementation boundary forces it.
+
+
 
 ## DMIND verdict
 
@@ -238,6 +249,42 @@ What is the smallest correct `@sys/web` + Cloudflare/R2 setup for the R2-backed 
 - app/deploy URL emission that never exposes provider/raw URLs as durable product contracts;
 - no accidental Worker/app-policy creep;
 - no vendor-config weight leaking into the root `@sys` API.
+
+## Landed namespace commit
+
+```text
+chore(tmpl:pkg): scaffold @sys/web package
+```
+
+Landed as the smallest inertia-removing commit:
+
+- created the `@sys/web` package namespace;
+- kept root package shape lean: package root, types barrel, common spine, and minimal test;
+- removed UI/Vite/fs template sample cruft;
+- added no Cloudflare, R2, Deno Deploy, or deploy-provider dependency;
+- deferred `Web.Exposure` vocabulary and all runtime behavior to follow-up commits.
+
+BMIND/DMIND review: this was the right first cut. The package now exists without pretending the model is done, and without letting provider or UI template weight shape the API before the concept lands.
+
+## Speculative commit arc
+
+Keep the arc narrow and falsifiable. Each commit should either establish pure vocabulary, verify provider facts, or connect an existing workflow to the verified exposure. Do not jump straight to mutating Cloudflare apply.
+
+1. `feat(web): add exposure model types`
+   - Add `Web.Exposure`, `Web.FilesExposure`, `Web.AppExposure`, `AccessPolicy`, `UrlPolicy`, `Protection`, and `Origin` type vocabulary.
+   - Pure types/guards/schema only if needed; no provider dependencies.
+2. `feat(driver-cloudflare): add web exposure verify seam`
+   - Add a Cloudflare web module entry point with read-only verification result shapes.
+   - No mutation/apply path yet.
+3. `feat(driver-cloudflare): verify R2 files exposure`
+   - Verify owned hostname, HTTPS reachability, R2 custom-domain behavior, and public object read for a known path.
+   - Keep direct R2 vs gateway decision tied to named invariants.
+4. `feat(tools): surface web exposure verification`
+   - Add an operator-facing verify command/workflow that reports exposure status without mutating provider state.
+5. `feat(deploy): derive R2 readOrigin from web exposure`
+   - Only after the exposure model is stable enough to avoid duplicating owned host config in deploy YAML.
+6. `docs(plan): record first R2 web exposure proof`
+   - Record the first successful `nz.accountants` / `db.team` proof and any HOLDs before apply automation.
 
 ## Next pass
 

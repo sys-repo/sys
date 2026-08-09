@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import { type t, Rx } from '../common.ts';
+import { Rx, type t } from '../common.ts';
 import { useRev } from '../use.Rev/mod.ts';
 
 /**
@@ -14,7 +14,7 @@ export const useObservableRev: t.UseObservableRev = ($) => {
 
   useEffect(() => {
     if (!$) return;
-    const life = Rx.disposable();
+    const life = Rx.lifecycle();
     $.pipe(Rx.takeUntil(life.dispose$)).subscribe(bump);
     return life.dispose;
   }, [$, bump]);

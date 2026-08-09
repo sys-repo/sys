@@ -1,16 +1,16 @@
 import React from 'react';
 import {
-  type t,
   Bus,
   Delete,
   Immutable,
   Lease,
   Obj,
   Rx,
-  Yaml,
   singleton,
   slug,
+  type t,
   useBus,
+  Yaml,
 } from './common.ts';
 import { Path } from './m.Path.ts';
 import { useYamlErrorMarkers } from './use.YamlErrorMarkers.ts';
@@ -77,7 +77,11 @@ export const useYaml: t.EditorYaml.Hook.Use = (args) => {
 
     const emit = () => {
       if (editorId === '') return;
-      const e = { kind: 'editor:yaml', ...parser.current, editorId } satisfies t.EditorEvent.Yaml.Data;
+      const e = {
+        kind: 'editor:yaml',
+        ...parser.current,
+        editorId,
+      } satisfies t.EditorEvent.Yaml.Data;
       Bus.emit(bus$, 'micro', e);
     };
 
@@ -124,7 +128,7 @@ export const useYaml: t.EditorYaml.Hook.Use = (args) => {
    * Effect: revision counter (increments on yaml or cursor events).
    */
   React.useEffect(() => {
-    const life = Rx.disposable();
+    const life = Rx.lifecycle();
     const $ = bus$.pipe(Rx.takeUntil(life.dispose$));
 
     const sub = $.pipe(

@@ -1,13 +1,13 @@
 import React, { useRef, useState } from 'react';
 
 import {
-  type t,
   Color,
   css,
   D,
   Is,
   Kbd,
   Rx,
+  type t,
   TextInput,
   useDebouncedValue,
   usePointer,
@@ -56,7 +56,7 @@ export const View: React.FC<P> = (props) => {
    */
   React.useEffect(() => {
     if (!repo) return;
-    const life = Rx.disposable();
+    const life = Rx.lifecycle();
     const signals = controller.signals;
 
     const fireChanged = () => props.onChange?.(payload());
@@ -85,12 +85,11 @@ export const View: React.FC<P> = (props) => {
    * Render:
    */
   const theme = Color.theme(props.theme);
-  const backgroundColor =
-    props.background == null
-      ? theme.bg
-      : Is.num(props.background)
-      ? theme.alpha(props.background).bg
-      : props.background;
+  const backgroundColor = props.background == null
+    ? theme.bg
+    : Is.num(props.background)
+    ? theme.alpha(props.background).bg
+    : props.background;
   const styles = {
     base: css({
       position: 'relative',

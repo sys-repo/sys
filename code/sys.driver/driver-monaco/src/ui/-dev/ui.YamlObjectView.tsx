@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Bus, Color, css, Obj, ObjectView, Rx, Str, useRev } from '../common.ts';
+import { Bus, Color, css, Obj, ObjectView, Rx, Str, type t, useRev } from '../common.ts';
 import { EditorYaml } from '../m.Yaml/mod.ts';
 
 export type YamlObjectViewProps = {
@@ -45,7 +45,7 @@ export const YamlObjectView: React.FC<P> = (props) => {
    */
   React.useEffect(() => {
     if (!bus$) return;
-    const life = Rx.disposable();
+    const life = Rx.lifecycle();
 
     // Listeners:
     const $ = bus$.pipe(Rx.takeUntil(life.dispose$));
@@ -85,18 +85,19 @@ export const YamlObjectView: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  data(props: P & { yaml?: t.EditorEvent.Yaml.Data; cursor?: t.EditorEvent.Yaml.Cursor }, rev: number) {
+  data(
+    props: P & { yaml?: t.EditorEvent.Yaml.Data; cursor?: t.EditorEvent.Yaml.Cursor },
+    rev: number,
+  ) {
     const { doc, cursor, yaml } = props;
     const docField = doc ? `doc(crdt:${doc.id.slice(-5)})` : 'doc';
-    const yamlDisplay = !yaml?.path
-      ? yaml
-      : {
-          ...yaml,
-          path: {
-            source: wrangle.path(yaml.path.source),
-            target: wrangle.path(yaml.path.target),
-          },
-        };
+    const yamlDisplay = !yaml?.path ? yaml : {
+      ...yaml,
+      path: {
+        source: wrangle.path(yaml.path.source),
+        target: wrangle.path(yaml.path.target),
+      },
+    };
     return {
       rev,
       [docField]: Obj.truncateStrings(doc?.current),

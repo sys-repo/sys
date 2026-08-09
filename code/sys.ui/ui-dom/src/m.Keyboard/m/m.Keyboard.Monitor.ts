@@ -6,7 +6,7 @@ const singleton = {
   isListening: false,
   state: Obj.clone<t.Keyboard.State.Snapshot>(DEFAULTS.state),
 };
-const { dispose, dispose$ } = Rx.disposable();
+const { dispose, dispose$ } = Rx.lifecycle();
 const singleton$ = new Rx.BehaviorSubject<t.Keyboard.State.Snapshot>(singleton.state);
 const listenerOptions = { capture: true } as const;
 

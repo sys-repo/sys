@@ -12,7 +12,7 @@ export function connect<E extends t.Event>(
   }
 
   const { async = true } = options;
-  const life = Dispose.disposable(options.until);
+  const life = Dispose.lifecycle(options.until);
 
   let _isDisposed = false;
   life.dispose$.subscribe(() => (_isDisposed = true));
