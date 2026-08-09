@@ -58,9 +58,9 @@ describe('@sys/driver-vite/service', () => {
     const handle = await startDev(
       { cwd: fs.dir, paths: { config }, silent: true, until },
       {
-        async dev(args) {
+        dev(args) {
           captured = args;
-          return server;
+          return Promise.resolve(server);
         },
       },
     );
@@ -102,9 +102,9 @@ describe('@sys/driver-vite/service', () => {
     const handle = await startDev(
       { cwd: fs.dir, paths: { config: configRel } },
       {
-        async dev(args) {
+        dev(args) {
           captured = args;
-          return fakeServer();
+          return Promise.resolve(fakeServer());
         },
       },
     );
@@ -119,6 +119,36 @@ describe('@sys/driver-vite/service', () => {
       details: [{ label: 'port', value: '4321' }],
     });
     await handle.dispose();
+  });
+
+  it('surfaces outer disposal rejection while finished records error state', async () => {
+    const fs = await Testing.dir('driver-vite.service.dispose-failure');
+    const config = fs.join('-config/@sys.driver-vite/view.yaml');
+    await Fs.write(config, '{}\n');
+    const failure = new Error('ViteService:test:dispose-failure');
+    const server = fakeServer({
+      onDispose: () => Promise.reject(failure),
+    });
+    const handle = await startDev(
+      { cwd: fs.dir, paths: { config } },
+      {
+        dev() {
+          return Promise.resolve(server);
+        },
+      },
+    );
+
+    let caught: unknown;
+    try {
+      await handle.close('test:failure');
+    } catch (error) {
+      caught = error;
+    }
+    await handle.finished;
+
+    expect(caught).to.equal(failure);
+    expect(handle.status().state).to.eql('error');
+    expect(handle.status().error?.message).to.eql(failure.message);
   });
 
   it('fails clearly for invalid owner configs', async () => {
@@ -165,11 +195,12 @@ describe('@sys/driver-vite/service', () => {
 type FakeServerOptions = {
   readonly port?: number;
   readonly url?: string;
+  readonly onDispose?: (e: t.DisposeEvent) => t.IgnoredResult;
 };
 
 function fakeServer(options: FakeServerOptions = {}): t.Vite.Dev.Process {
   const port = options.port ?? 4321;
-  const life = Rx.lifecycleAsync();
+  const life = Rx.lifecycleAsync(options.onDispose);
   return {
     port,
     url: options.url ?? `http://localhost:${port}/`,
@@ -177,6 +208,7 @@ function fakeServer(options: FakeServerOptions = {}): t.Vite.Dev.Process {
     keyboard: async () => {},
     proc: {} as t.Process.Handle,
     dispose: life.dispose,
+    [Symbol.asyncDispose]: life[Symbol.asyncDispose],
     get dispose$() {
       return life.dispose$;
     },

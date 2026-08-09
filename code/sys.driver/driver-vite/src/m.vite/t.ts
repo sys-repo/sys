@@ -103,7 +103,7 @@ export declare namespace Vite {
     };
 
     /** Vite child process for long-running commands such as `$ vite dev`. */
-    export type Process = t.LifecycleAsync & {
+    export type Process = t.LifecycleAsync & globalThis.AsyncDisposable & {
       readonly proc: t.Process.Handle;
       readonly port: number;
       readonly url: t.StringPath;

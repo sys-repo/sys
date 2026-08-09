@@ -3,7 +3,9 @@ import {
   describe,
   expect,
   Fs,
+  Http,
   it,
+  Rx,
   SAMPLE,
   Str,
   type t,
@@ -111,6 +113,237 @@ describe('Vite.dev', () => {
         await restore();
       }
     });
+  });
+
+  it('native disposal is outer completion truth under await using', async () => {
+    const fs = await SAMPLE.fs('Vite.dev-native-disposal');
+    const cwd = fs.join('fixture');
+    await Fs.copy(SAMPLE.Dirs.sample2, cwd);
+    await prepareDevEntryFixture(cwd);
+    const restore = await writeLocalFixtureImports(cwd, 'vite.config.ts', { skipTsconfig: true });
+    const paths = {
+      cwd,
+      app: {
+        entry: 'index.html',
+        outDir: 'dist',
+        base: './',
+      },
+    } as const;
+    let server: t.Vite.Dev.Process | undefined;
+
+    try {
+      server = await Vite.dev({ paths, port: Testing.randomPort(), silent: true });
+      const fired: t.DisposeAsyncEvent[] = [];
+      server.dispose$.subscribe((event) => fired.push(event));
+
+      {
+        await using resource = server;
+        expect(resource.disposed).to.eql(false);
+      }
+
+      const completion = server.dispose('direct:later');
+      expect(server[Symbol.asyncDispose]()).to.equal(completion);
+      await completion;
+      expect(server.disposed).to.eql(true);
+      expect(server.proc.disposed).to.eql(true);
+      expect(fired.map((event) => event.payload.stage)).to.eql(['start', 'complete']);
+      expect(fired.map((event) => event.payload.reason)).to.eql([undefined, undefined]);
+    } finally {
+      await server?.dispose();
+      await restore();
+    }
+  });
+
+  it('preserves a child-first reason at the outer lifecycle boundary', async () => {
+    const fs = await SAMPLE.fs('Vite.dev-child-first-reason');
+    const cwd = fs.join('fixture');
+    await Fs.copy(SAMPLE.Dirs.sample2, cwd);
+    await prepareDevEntryFixture(cwd);
+    const restore = await writeLocalFixtureImports(cwd, 'vite.config.ts', { skipTsconfig: true });
+    const paths = {
+      cwd,
+      app: {
+        entry: 'index.html',
+        outDir: 'dist',
+        base: './',
+      },
+    } as const;
+    let server: t.Vite.Dev.Process | undefined;
+
+    try {
+      server = await Vite.dev({ paths, port: Testing.randomPort(), silent: true });
+      const port = server.port;
+      const fired: t.DisposeAsyncEvent[] = [];
+      server.dispose$.subscribe((event) => fired.push(event));
+
+      const childCompletion = server.proc.dispose('child:first');
+      const outerCompletion = server.dispose('outer:later');
+      expect(server[Symbol.asyncDispose]()).to.equal(outerCompletion);
+      await Promise.all([childCompletion, outerCompletion]);
+
+      expect(fired.map((event) => event.payload.stage)).to.eql(['start', 'complete']);
+      expect(fired.map((event) => event.payload.reason)).to.eql([
+        'child:first',
+        'child:first',
+      ]);
+      expect((await Testing.connect(port)).refused).to.eql(true);
+    } finally {
+      await server?.dispose();
+      await restore();
+    }
+  });
+
+  it('pre-aborted and synchronous until inputs cancel startup promptly', async () => {
+    const abort = new AbortController();
+    abort.abort('pre-aborted');
+    const cases: readonly { readonly label: string; readonly until: t.UntilInput }[] = [
+      { label: 'pre-aborted', until: abort.signal },
+      { label: 'synchronous', until: Rx.of({ reason: 'synchronous:until' }) },
+    ];
+
+    for (const test of cases) {
+      const fs = await SAMPLE.fs(`Vite.dev-${test.label}-until`);
+      const cwd = fs.join('fixture');
+      await Fs.copy(SAMPLE.Dirs.sample2, cwd);
+      await prepareDevEntryFixture(cwd);
+      const restore = await writeLocalFixtureImports(cwd, 'vite.config.ts', {
+        skipTsconfig: true,
+      });
+      const paths = {
+        cwd,
+        app: {
+          entry: 'index.html',
+          outDir: 'dist',
+          base: './',
+        },
+      } as const;
+      const port = Testing.randomPort();
+      const startedAt = Date.now();
+
+      try {
+        const error = await catchError(() =>
+          Vite.dev({ paths, port, silent: true, until: test.until })
+        );
+
+        expect(error?.message).to.contain('Vite.dev: failed to start dev server');
+        expect(Date.now() - startedAt).to.be.lessThan(10_000);
+        expect((await Testing.connect(port)).refused).to.eql(true);
+      } finally {
+        await restore();
+      }
+    }
+  });
+
+  it('cancels the HTTP readiness wait through the outer lifecycle', async () => {
+    const fs = await SAMPLE.fs('Vite.dev-http-ready-cancel');
+    const cwd = fs.join('fixture');
+    await Fs.copy(SAMPLE.Dirs.sample2, cwd);
+    await prepareDevEntryFixture(cwd);
+    const restore = await writeLocalFixtureImports(cwd, 'vite.config.ts', { skipTsconfig: true });
+    const paths = {
+      cwd,
+      app: {
+        entry: 'index.html',
+        outDir: 'dist',
+        base: './',
+      },
+    } as const;
+    const port = Testing.randomPort();
+    const until = new AbortController();
+    const waiting = Promise.withResolvers<AbortSignal | undefined>();
+    const descriptor = Object.getOwnPropertyDescriptor(Http.Client, 'waitFor');
+    if (!descriptor) throw new Error('Missing Http.Client.waitFor descriptor');
+
+    Object.defineProperty(Http.Client, 'waitFor', {
+      ...descriptor,
+      value: (...args: Parameters<typeof Http.Client.waitFor>) => {
+        const signal = args[1]?.signal;
+        waiting.resolve(signal);
+        return new Promise<never>((_resolve, reject) => {
+          const fail = () => reject(new Error('Vite.dev:test:http-wait-aborted'));
+          if (!signal || signal.aborted) fail();
+          else signal.addEventListener('abort', fail, { once: true });
+        });
+      },
+    });
+
+    try {
+      const startup = Vite.dev({ paths, port, silent: true, until: until.signal });
+      const signal = await waiting.promise;
+      const abortedAt = Date.now();
+      until.abort('test:http-ready-cancel');
+      const error = await catchError(() => startup);
+
+      expect(signal?.aborted).to.eql(true);
+      expect(error?.message).to.contain('Vite.dev: failed to start dev server');
+      expect(Date.now() - abortedAt).to.be.lessThan(2_000);
+      expect((await Testing.connect(port)).refused).to.eql(true);
+    } finally {
+      Object.defineProperty(Http.Client, 'waitFor', descriptor);
+      await restore();
+    }
+  });
+
+  it('outer disposal preserves raw child cleanup failure truth', async () => {
+    const fs = await SAMPLE.fs('Vite.dev-cleanup-failure');
+    const cwd = fs.join('fixture');
+    await Fs.copy(SAMPLE.Dirs.sample2, cwd);
+    await prepareDevEntryFixture(cwd);
+    const restore = await writeLocalFixtureImports(cwd, 'vite.config.ts', { skipTsconfig: true });
+    const paths = {
+      cwd,
+      app: {
+        entry: 'index.html',
+        outDir: 'dist',
+        base: './',
+      },
+    } as const;
+    let server: t.Vite.Dev.Process | undefined;
+    let disposeProcess: t.Process.Handle['dispose'] | undefined;
+
+    try {
+      server = await Vite.dev({ paths, port: Testing.randomPort(), silent: true });
+      disposeProcess = server.proc.dispose;
+      const failure = new Error('Vite.dev:test:cleanup-failure');
+      const fired: t.DisposeAsyncEvent[] = [];
+      let childReason: unknown;
+      server.dispose$.subscribe((event) => fired.push(event));
+      Object.defineProperty(server.proc, 'dispose', {
+        configurable: true,
+        value: (reason?: unknown) => {
+          childReason = reason;
+          return Promise.reject(failure);
+        },
+      });
+
+      const completion = server.dispose('direct:first');
+      expect(server[Symbol.asyncDispose]()).to.equal(completion);
+
+      let caught: unknown;
+      try {
+        await completion;
+      } catch (error) {
+        caught = error;
+      }
+
+      expect(caught).to.equal(failure);
+      expect(childReason).to.eql('direct:first');
+      expect(server.disposed).to.eql(true);
+      expect(fired.map((event) => event.payload.stage)).to.eql(['start', 'error']);
+      expect(fired.map((event) => event.payload.reason)).to.eql([
+        'direct:first',
+        'direct:first',
+      ]);
+    } finally {
+      if (server && disposeProcess) {
+        Object.defineProperty(server.proc, 'dispose', {
+          configurable: true,
+          value: disposeProcess,
+        });
+        await disposeProcess();
+      }
+      await restore();
+    }
   });
 
   it('rejects strict startup when requested port is occupied', async () => {

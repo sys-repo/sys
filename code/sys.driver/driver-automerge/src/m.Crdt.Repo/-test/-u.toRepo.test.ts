@@ -20,6 +20,24 @@ import { toRepo as toRepoBase } from '../mod.ts';
 const Repos = repoCleanup(afterAll); // NB: register the global cleanup hook before the root suite.
 
 describe('CrdtRepo.toRepo construction', () => {
+  it('native disposal entrypoints share one completion under await using', async () => {
+    const repo = toRepo(new AutomergeRepo());
+    const fired: t.DisposeAsyncEvent[] = [];
+    repo.dispose$.subscribe((event) => fired.push(event));
+
+    {
+      await using resource = repo;
+      expect(resource.disposed).to.eql(false);
+    }
+
+    const completion = repo.dispose('direct:later');
+    expect(repo[Symbol.asyncDispose]()).to.equal(completion);
+    await completion;
+    expect(repo.disposed).to.eql(true);
+    expect(fired.map((event) => event.payload.stage)).to.eql(['start', 'complete']);
+    expect(fired.map((event) => event.payload.reason)).to.eql([undefined, undefined]);
+  });
+
   it('synchronous until → constructs before shutdown starts', async () => {
     const repo = toRepo(new AutomergeRepo(), {
       until: Rx.of({ reason: 'synchronous:until' }),

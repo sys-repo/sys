@@ -1,4 +1,4 @@
-import { c, describe, expect, it, Pkg, pkg, slug, Testing } from '../-test.ts';
+import { c, describe, expect, expectError, it, Pkg, pkg, slug, type t, Testing } from '../-test.ts';
 import { Fs, Rx, Time } from './common.ts';
 import { Server } from './mod.ts';
 import { probe } from './u.probe.ts';
@@ -31,21 +31,61 @@ describe('Crdt: SyncServer', () => {
       expect(ws.addr.port).to.be.a('number');
       await ws.dispose();
     });
+
+    it('rolls back startup cancelled by pre-aborted and synchronous until inputs', async () => {
+      const abort = new AbortController();
+      abort.abort('pre-aborted:until');
+      const inputs = [abort.signal, Rx.of({ reason: 'synchronous:until' })];
+
+      for (const until of inputs) {
+        const port = Testing.randomPort();
+        await expectError(
+          () => Server.ws({ silent, port, until }),
+          'Server.ws: startup cancelled',
+        );
+        expect((await Testing.connect(port)).refused).to.eql(true);
+      }
+    });
   });
 
   describe('Server.ws: dispose (async)', () => {
+    it('native disposal entrypoints share one completion under await using', async () => {
+      const ws = await Server.ws({ silent });
+      const fired: t.DisposeAsyncEvent[] = [];
+      ws.dispose$.subscribe((event) => fired.push(event));
+
+      {
+        await using resource = ws;
+        expect(resource.disposed).to.eql(false);
+      }
+
+      const completion = ws.dispose('direct:later');
+      expect(ws[Symbol.asyncDispose]()).to.equal(completion);
+      await completion;
+      expect(ws.disposed).to.eql(true);
+      expect(ws.repo.disposed).to.eql(true);
+      expect(fired.map((event) => event.payload.stage)).to.eql(['start', 'complete']);
+      expect(fired.map((event) => event.payload.reason)).to.eql([undefined, undefined]);
+    });
+
     it('dispose method', async () => {
       const ws = await Server.ws({ silent });
       const port = ws.addr.port;
       expect(ws.disposed).to.eql(false);
       expect(ws.repo.disposed).to.eql(false);
+      const repoFired: t.DisposeAsyncEvent[] = [];
+      ws.repo.dispose$.subscribe((event) => repoFired.push(event));
 
       // NB: port is reachable prior to disposal.
       expect((await Testing.connect(port)).refused).to.eql(false);
 
-      await ws.dispose();
+      await ws.dispose('test:server');
       expect(ws.disposed).to.eql(true);
       expect(ws.repo.disposed).to.eql(true);
+      expect(repoFired.map((event) => event.payload.reason)).to.eql([
+        'test:server',
+        'test:server',
+      ]);
 
       // NB: port is now unreachable - server has shutdown.
       expect((await Testing.connect(port)).refused).to.eql(true);

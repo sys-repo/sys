@@ -133,6 +133,60 @@ describe('CrdtWorker.Client.repo (shim)', () => {
       expect(fired.length).to.eql(2);
     });
 
+    it('native disposal owns port and pending RPC teardown under await using', async () => {
+      const { port1 } = Test.makePorts();
+      const repo = CrdtWorker.Client.repo(port1);
+      const fired: t.DisposeAsyncEvent[] = [];
+      repo.dispose$.subscribe((event) => fired.push(event));
+      const pending = repo.delete('pending' as t.StringId).then(
+        () => undefined,
+        (cause: unknown) => cause,
+      );
+
+      {
+        await using resource = repo;
+        expect(resource.disposed).to.eql(false);
+      }
+
+      expect(await pending).to.be.instanceOf(Error);
+      const completion = repo.dispose('direct:later');
+      expect(repo[Symbol.asyncDispose]()).to.equal(completion);
+      await completion;
+      expect(repo.disposed).to.eql(true);
+      expect(fired.map((event) => event.payload.stage)).to.eql(['start', 'complete']);
+      expect(fired.map((event) => event.payload.reason)).to.eql([undefined, undefined]);
+    });
+
+    it('setup failure closes the port without masking the construction cause', () => {
+      const failure = new Error('CrdtWorker.Client.repo:test:setup-failure');
+      let closes = 0;
+      let removals = 0;
+      const port = {
+        start() {},
+        postMessage() {},
+        addEventListener() {
+          throw failure;
+        },
+        removeEventListener() {
+          removals += 1;
+        },
+        close() {
+          closes += 1;
+        },
+      } as unknown as MessagePort;
+
+      let caught: unknown;
+      try {
+        CrdtWorker.Client.repo(port);
+      } catch (error) {
+        caught = error;
+      }
+
+      expect(caught).to.equal(failure);
+      expect(removals).to.eql(1);
+      expect(closes).to.eql(1);
+    });
+
     it('lifecycle: dispose via `until` parameter option', async () => {
       const until = Rx.lifecycle();
 
@@ -467,7 +521,7 @@ describe('CrdtWorker.Client.repo (shim)', () => {
         const calls: { id: t.StringId; options?: t.CrdtRepoGetOptions }[] = [];
         const originalGet = real.get.bind(real);
 
-        real.get = (async <T extends O>(id: t.StringId, options?: t.CrdtRepoGetOptions) => {
+        real.get = (<T extends O>(id: t.StringId, options?: t.CrdtRepoGetOptions) => {
           calls.push({ id, options });
           return originalGet<T>(id, options);
         }) as typeof real.get;
@@ -515,7 +569,7 @@ describe('CrdtWorker.Client.repo (shim)', () => {
           const calls: { id: t.StringId; options?: t.CrdtRepoGetOptions }[] = [];
           const originalGet = real.get.bind(real);
 
-          real.get = (async <T extends O>(id: t.StringId, options?: t.CrdtRepoGetOptions) => {
+          real.get = (<T extends O>(id: t.StringId, options?: t.CrdtRepoGetOptions) => {
             calls.push({ id, options });
 
             const error = {
@@ -524,7 +578,7 @@ describe('CrdtWorker.Client.repo (shim)', () => {
             } as t.CrdtRepoError;
 
             const result: t.CrdtRefResult<T> = { ok: false, error };
-            return result;
+            return Promise.resolve(result);
           }) as typeof real.get;
 
           const client = CrdtWorker.Client.repo(port1);
@@ -566,9 +620,7 @@ describe('CrdtWorker.Client.repo (shim)', () => {
             message: 'boom',
           } as t.CrdtRepoError;
 
-          real.get = (async () => {
-            throw thrown;
-          }) as typeof real.get;
+          real.get = (() => Promise.reject(thrown)) as typeof real.get;
 
           const client = CrdtWorker.Client.repo(port1);
 
@@ -607,11 +659,11 @@ describe('CrdtWorker.Client.repo (shim)', () => {
          * Spy on the real repo's delete, while preserving signature.
          */
         const calls: t.StringId[] = [];
-        const originalDelete = real.delete.bind(real);
 
-        real.delete = (async (id: t.StringId | t.Crdt.Ref) => {
+        real.delete = ((id: t.StringId | t.Crdt.Ref) => {
           calls.push(id as t.StringId); // in this test we only pass a string
           // We don't need to call the original; avoiding side-effects is fine here.
+          return Promise.resolve();
         }) as typeof real.delete;
 
         const client = CrdtWorker.Client.repo(port1);

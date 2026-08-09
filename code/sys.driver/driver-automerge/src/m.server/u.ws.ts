@@ -8,12 +8,17 @@ import {
   pkg,
   Rx,
   type t,
-  WebSocket,
+  type WebSocket,
   WebSocketServer,
 } from './common.ts';
 import { createHttpServer, disposeHttpServer } from './u.http.ts';
 import { monitorPeers } from './u.monitor.ts';
 import { shutdown } from './u.shutdown.ts';
+
+const EMPTY_TOTAL: t.SyncServer.Info['total'] = {
+  connections: 0,
+  idle: { soft: 0, stale: 0, dead: 0 },
+};
 
 export const ws: t.SyncServer.Lib['ws'] = async (options = {}) => {
   const {
@@ -42,7 +47,8 @@ export const ws: t.SyncServer.Lib['ws'] = async (options = {}) => {
    * Minimal HTTP handler on the same port as websocket-server
    * that can report meta-data over HTTP:GET.
    */
-  const http = createHttpServer({ total: () => monitor.total });
+  let monitor: ReturnType<typeof monitorPeers> | undefined;
+  const http = createHttpServer({ total: () => monitor?.total ?? EMPTY_TOTAL });
   try {
     http.listen(port, host);
   } catch (cause) {
@@ -63,7 +69,9 @@ export const ws: t.SyncServer.Lib['ws'] = async (options = {}) => {
   } catch (cause) {
     try {
       http.close();
-    } catch {}
+    } catch {
+      // Preserve the WebSocket-server construction failure.
+    }
     throw new Error(`Failed to create WebSocketServer on ${host}:${port}`, { cause });
   }
 
@@ -73,10 +81,14 @@ export const ws: t.SyncServer.Lib['ws'] = async (options = {}) => {
     if (wss.clients.size > maxClients) {
       try {
         socket.close(1013, 'server overloaded');
-      } catch {}
+      } catch {
+        // Best-effort overload rejection.
+      }
       try {
         socket.terminate?.();
-      } catch {}
+      } catch {
+        // Best-effort overload rejection.
+      }
       return;
     }
 
@@ -101,60 +113,98 @@ export const ws: t.SyncServer.Lib['ws'] = async (options = {}) => {
   } catch (err) {
     try {
       wss.close();
-    } catch {}
+    } catch {
+      // Preserve the repo construction failure.
+    }
     try {
       http.close();
-    } catch {}
+    } catch {
+      // Preserve the repo construction failure.
+    }
     throw err;
   }
 
   /**
    * Lifecycle:
    */
-  async function cleanup() {
+  async function cleanup(e: t.DisposeEvent) {
     try {
-      await Promise.all([shutdown(wss), disposeHttpServer(http), repo.dispose()]);
-    } catch (err) {
-      console.error('[wss:shutdown:error]', err);
+      await Promise.all([shutdown(wss), disposeHttpServer(http), repo.dispose(e.reason)]);
+    } catch (error) {
+      console.error('[wss:shutdown:error]', error);
     }
   }
-  const life = Rx.lifecycleAsync(options.until, cleanup);
-  const monitor = monitorPeers({ network, host, port, dir, silent }, life.dispose$);
 
-  /**
-   * Await startup (retry/backoff instead of single-shot):
-   * (We still probe the TCP port, though http.listen has already bound it.)
-   */
-  await probeListen(port, host, { attempts: 5, delay: 200, backoff: 1.5 });
+  let startupCancellation: t.DisposeEvent | undefined;
+  let life: t.LifecycleAsync & globalThis.AsyncDisposable;
+  try {
+    life = Rx.lifecycleAsync(options.until, async (e) => {
+      startupCancellation ??= e;
+      await cleanup(e);
+    });
+  } catch (error) {
+    await cleanup({ reason: error });
+    throw error;
+  }
 
-  // Best-effort address; if the probe socket doesn't surface addr, synthesize.
-  const addr = { hostname: host, port } as unknown as Deno.NetAddr;
+  let startupCancellationError: Error | undefined;
+  const toStartupCancellationError = () =>
+    startupCancellationError ??= new Error(`Server.ws: startup cancelled on ${host}:${port}`, {
+      cause: startupCancellation?.reason,
+    });
 
-  /**
-   * API:
-   */
-  return {
-    get repo() {
-      return repo;
-    },
-    get addr() {
-      return addr;
-    },
-    get url() {
-      return Net.toUrl(addr, 'ws');
-    },
+  try {
+    monitor = monitorPeers({ network, host, port, dir, silent }, life.dispose$);
+
+    // Let construction-boundary lifetime requests run before probing the listener.
+    await Promise.resolve();
+    if (startupCancellation) throw toStartupCancellationError();
 
     /**
-     * Lifecycle:
+     * Await startup (retry/backoff instead of single-shot):
+     * (We still probe the TCP port, though http.listen has already bound it.)
      */
-    dispose: life.dispose,
-    get dispose$() {
-      return life.dispose$;
-    },
-    get disposed() {
-      return life.disposed;
-    },
-  };
+    await probeListen(port, host, { attempts: 5, delay: 200, backoff: 1.5 });
+    if (startupCancellation) throw toStartupCancellationError();
+
+    // Best-effort address; if the probe socket doesn't surface addr, synthesize.
+    const addr = { hostname: host, port } as unknown as Deno.NetAddr;
+
+    /**
+     * API:
+     */
+    return {
+      get repo() {
+        return repo;
+      },
+      get addr() {
+        return addr;
+      },
+      get url() {
+        return Net.toUrl(addr, 'ws');
+      },
+
+      /**
+       * Lifecycle:
+       */
+      dispose: life.dispose,
+      [Symbol.asyncDispose]: life[Symbol.asyncDispose],
+      get dispose$() {
+        return life.dispose$;
+      },
+      get disposed() {
+        return life.disposed;
+      },
+    };
+  } catch (error) {
+    const failure = startupCancellation ? toStartupCancellationError() : error;
+    try {
+      await life.dispose(failure);
+    } catch {
+      // Preserve the startup failure over best-effort rollback.
+    }
+    throw failure;
+  }
 };
 
 /**

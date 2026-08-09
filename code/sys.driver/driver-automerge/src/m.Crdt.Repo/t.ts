@@ -16,6 +16,7 @@ export type CrdtGetRepoInput = () => t.Crdt.Repo | undefined;
  */
 export type CrdtRepo =
   & t.LifecycleAsync
+  & globalThis.AsyncDisposable
   & CrdtRepoMethods
   & CrdtRepoProps
   & {

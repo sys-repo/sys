@@ -30,7 +30,7 @@ export declare namespace SyncServer {
   };
 
   /** Response from starting a new sync server. */
-  export type Instance = t.LifecycleAsync & {
+  export type Instance = t.LifecycleAsync & globalThis.AsyncDisposable & {
     readonly repo: t.CrdtRepo;
     readonly addr: Deno.NetAddr;
     readonly url: t.StringUrl;

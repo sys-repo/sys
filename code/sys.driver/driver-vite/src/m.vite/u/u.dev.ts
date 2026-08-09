@@ -7,6 +7,7 @@ import {
   Path,
   Pkg,
   Process,
+  Rx,
   stripAnsi,
   type t,
   Time,
@@ -143,27 +144,56 @@ export const dev: t.Vite.Lib['dev'] = async (input) => {
     suppressVisible: SUPPRESS_VISIBLE_OUTPUT,
   });
   if (parentOwnsOutput && pkg) output.pushDisplay('stdout', STARTING_DEV_SERVER);
-  const proc = Process.spawn({
-    cwd,
-    args,
-    env,
-    silent: silent || parentOwnsOutput,
-    readySignal,
-    until: input.until,
-  });
-  const { dispose } = proc;
-  let screen: t.ViteDev.Screen.Reporter | undefined;
-  const cleanup = async () => {
+  let proc: t.Process.Handle;
+  try {
+    proc = Process.spawn({
+      cwd,
+      args,
+      env,
+      silent: silent || parentOwnsOutput,
+      readySignal,
+    });
+  } catch (error) {
     try {
-      screen?.dispose();
-    } finally {
-      try {
-        await dispose();
-      } finally {
-        await disposeBootstrap();
-      }
+      await disposeBootstrap();
+    } catch {
+      // Preserve the process construction failure.
     }
-  };
+    throw startupError({ cwd, requestedPort, strictPort, output, cause: error });
+  }
+
+  let screen: t.ViteDev.Screen.Reporter | undefined;
+  const startupAbort = new AbortController();
+  const procUntil = proc.dispose$.pipe(
+    Rx.map((event) => ({ reason: event.payload.reason })),
+  );
+  let life: t.LifecycleAsync & globalThis.AsyncDisposable;
+  try {
+    life = Rx.lifecycleAsync([input.until, procUntil], async (e) => {
+      if (!startupAbort.signal.aborted) startupAbort.abort(e.reason);
+      try {
+        screen?.dispose();
+      } finally {
+        try {
+          await proc.dispose(e.reason);
+        } finally {
+          await disposeBootstrap();
+        }
+      }
+    });
+  } catch (error) {
+    try {
+      await proc.dispose(error);
+    } catch {
+      // Preserve the outer lifecycle construction failure.
+    }
+    try {
+      await disposeBootstrap();
+    } catch {
+      // Preserve the outer lifecycle construction failure.
+    }
+    throw startupError({ cwd, requestedPort, strictPort, output, cause: error });
+  }
 
   try {
     screen = parentOwnsOutput && pkg
@@ -174,7 +204,7 @@ export const dev: t.Vite.Lib['dev'] = async (input) => {
         url: () => resolvedUrl,
         output,
         logLines,
-        until: proc.dispose$,
+        until: life.dispose$,
       })
       : undefined;
     const pushOutput = (e: t.Process.Event) => {
@@ -190,82 +220,74 @@ export const dev: t.Vite.Lib['dev'] = async (input) => {
 
     await Perf.measure(
       'dev.parent.waitForResolvedUrl',
-      async () => await Http.Client.waitFor(resolvedUrl, { timeout: 30_000, interval: 150 }),
+      async () =>
+        await Http.Client.waitFor(resolvedUrl, {
+          timeout: 30_000,
+          interval: 150,
+          signal: startupAbort.signal,
+        }),
       {
         resolvedUrl,
       },
       { level: 2 },
     );
-  } catch (error) {
-    try {
-      await cleanup();
-    } catch {
-      // Best effort cleanup: preserve original startup failure.
-    }
-    throw startupError({ cwd, requestedPort, strictPort, output, cause: error });
-  }
 
-  const port = DevParse.port(resolvedUrl, requestedPort);
-  if (strictPort && port !== requestedPort) {
-    const cause = new Error(
-      `Vite.dev: strict port mismatch: requested ${requestedPort}, resolved ${port}.`,
-    );
-    try {
-      await cleanup();
-    } catch {
-      // Best effort cleanup: preserve strict-port failure.
+    const port = DevParse.port(resolvedUrl, requestedPort);
+    if (strictPort && port !== requestedPort) {
+      throw new Error(
+        `Vite.dev: strict port mismatch: requested ${requestedPort}, resolved ${port}.`,
+      );
     }
-    throw startupError({ cwd, requestedPort, strictPort, output, cause });
-  }
 
-  Perf.log('dev.parent.ready', {
-    requestedPort,
-    port,
-    requestedUrl,
-    resolvedUrl,
-    elapsed: Time.elapsed(startedAt).msec,
-  }, { level: 1 });
-  end({ port, resolvedUrl, elapsed: Time.elapsed(startedAt).msec });
-  try {
+    Perf.log('dev.parent.ready', {
+      requestedPort,
+      port,
+      requestedUrl,
+      resolvedUrl,
+      elapsed: Time.elapsed(startedAt).msec,
+    }, { level: 1 });
+    end({ port, resolvedUrl, elapsed: Time.elapsed(startedAt).msec });
     screen?.ready();
+
+    const keyboard = keyboardFactory({
+      cwd,
+      url: resolvedUrl,
+      until: life.dispose$,
+      dispose: life.dispose,
+    });
+    const listen = async () => void await keyboard();
+
+    /**
+     * API:
+     */
+    const api: t.Vite.Dev.Process = {
+      port,
+      url: resolvedUrl,
+      listen,
+      keyboard,
+      get proc() {
+        return proc;
+      },
+
+      // Lifecycle:
+      dispose: life.dispose,
+      [Symbol.asyncDispose]: life[Symbol.asyncDispose],
+      get dispose$() {
+        return life.dispose$;
+      },
+      get disposed() {
+        return life.disposed;
+      },
+    };
+    return api;
   } catch (error) {
     try {
-      await cleanup();
+      await life.dispose(error);
     } catch {
-      // Best effort cleanup: preserve the reporter transition failure.
+      // Best effort cleanup: preserve the startup failure.
     }
     throw startupError({ cwd, requestedPort, strictPort, output, cause: error });
   }
-  const keyboard = keyboardFactory({
-    cwd,
-    url: resolvedUrl,
-    until: proc.dispose$,
-    dispose: cleanup,
-  });
-  const listen = async () => void await keyboard();
-
-  /**
-   * API:
-   */
-  const api: t.Vite.Dev.Process = {
-    port,
-    url: resolvedUrl,
-    listen,
-    keyboard,
-    get proc() {
-      return proc;
-    },
-
-    // Lifecycle:
-    dispose: cleanup,
-    get dispose$() {
-      return proc.dispose$;
-    },
-    get disposed() {
-      return proc.disposed;
-    },
-  };
-  return api;
 };
 
 function startupError(args: {
