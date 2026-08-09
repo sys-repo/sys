@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-pi",
-  "version": "0.0.133",
+  "version": "0.0.134",
   "license": "MIT",
   "tasks": {
     "test": "deno task test:unit && deno task test:profiles",
@@ -76,3 +76,4 @@
     }
   }
 }
+

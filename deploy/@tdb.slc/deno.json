@@ -1,6 +1,6 @@
 {
   "name": "@tdb/slc",
-  "version": "0.0.85",
+  "version": "0.0.86",
   "license": "MIT",
   "private": true,
   "tasks": {
@@ -58,3 +58,4 @@
     }
   }
 }
+
