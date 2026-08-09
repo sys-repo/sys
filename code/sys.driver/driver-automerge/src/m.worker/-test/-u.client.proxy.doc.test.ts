@@ -197,6 +197,29 @@ describe('CrdtWorker: → repo → doc (proxy)', () => {
     });
   });
 
+  describe('proxy-doc: native disposal', () => {
+    it('disposes through native using', async () => {
+      const sample = await Test.sample<Doc>({ foo: 123 });
+      const { real, proxy } = sample;
+
+      const res = await proxy.repo.get<Doc>(real.doc.id);
+      if (!res.doc) throw res.error;
+      const doc = res.doc as t.CrdtDocWorkerProxy<Doc>;
+      let disposed = 0;
+      doc.dispose$.subscribe(() => disposed++);
+
+      {
+        using _doc = doc;
+        expect(doc.disposed).to.eql(false);
+      }
+
+      doc.dispose();
+      expect(doc.disposed).to.eql(true);
+      expect(disposed).to.eql(1);
+      await sample.dispose();
+    });
+  });
+
   describe('proxy-doc: event-stream (host attach → proxy ref)', () => {
     it('populated with initial snapshot', async () => {
       const sample = await Test.sample<Doc>({ foo: 123 });

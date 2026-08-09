@@ -8,13 +8,13 @@ import { dbl } from './m.Keyboard.dbl.ts';
  */
 export function until(until?: t.UntilInput): t.Keyboard.EventsUntil {
   const life = Rx.lifecycle(until);
-  const { dispose, dispose$ } = life;
 
   const on: t.Keyboard.Monitor.Lib['on'] = (...args: any) =>
-    handlerOnOverloaded(args, { until: dispose$ });
-  const filter: t.Keyboard.Monitor.Lib['filter'] = (fn) => handlerFiltered(fn, { until: dispose$ });
+    handlerOnOverloaded(args, { until: life.dispose$ });
+  const filter: t.Keyboard.Monitor.Lib['filter'] = (fn) =>
+    handlerFiltered(fn, { until: life.dispose$ });
 
-  const $ = KeyboardMonitor.$.pipe(Rx.takeUntil(dispose$));
+  const $ = KeyboardMonitor.$.pipe(Rx.takeUntil(life.dispose$));
   const down$ = $.pipe(Rx.filter((e) => e.last?.stage === 'Down'));
   const up$ = $.pipe(Rx.filter((e) => e.last?.stage === 'Up'));
 
@@ -26,11 +26,12 @@ export function until(until?: t.UntilInput): t.Keyboard.EventsUntil {
     on,
 
     dbl(threshold?: t.Msecs) {
-      return dbl(threshold, { until: dispose$ });
+      return dbl(threshold, { until: life.dispose$ });
     },
 
-    dispose,
-    dispose$,
+    dispose: life.dispose,
+    [Symbol.dispose]: life[Symbol.dispose],
+    dispose$: life.dispose$,
     get disposed() {
       return life.disposed;
     },

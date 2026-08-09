@@ -43,6 +43,21 @@ describe('DevBus', () => {
       expect(events.disposed).to.eql(true);
     });
 
+    it('dispose through native using', () => {
+      const events = DevBus.Events({ instance: TestSample.instance() });
+      let disposed = 0;
+      events.dispose$.subscribe(() => disposed++);
+
+      {
+        using _events = events;
+        expect(events.disposed).to.eql(false);
+      }
+
+      events.dispose();
+      expect(events.disposed).to.eql(true);
+      expect(disposed).to.eql(1);
+    });
+
     it('dispose (implicit attaching to dispose$)', async () => {
       const { dispose, ctx } = await TestSample.context();
       const events = DevBus.events(ctx);

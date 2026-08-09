@@ -54,7 +54,7 @@ export declare namespace Keyboard {
   };
 
   /** Lifecycle and streams of keyboard events until disposed. */
-  export type EventsUntil = t.Lifecycle & {
+  export type EventsUntil = t.Lifecycle & globalThis.Disposable & {
     /** Observable stream of keyboard states. */
     $: t.Observable<State.Snapshot>;
 
@@ -205,7 +205,7 @@ export declare namespace Keyboard {
     };
 
     /** Multi-key monitor lifecycle. */
-    export type Multi = t.Lifecycle & {
+    export type Multi = t.Lifecycle & globalThis.Disposable & {
       on(pattern: Match.Pattern, fn: Match.SubscriberHandler): Listener.Handle;
     };
   }

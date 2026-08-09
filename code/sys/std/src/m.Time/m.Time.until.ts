@@ -44,6 +44,7 @@ export function until(until?: t.UntilInput) {
      * Lifecycle:
      */
     dispose: life.dispose,
+    [Symbol.dispose]: life[Symbol.dispose],
     get dispose$() {
       return life.dispose$;
     },

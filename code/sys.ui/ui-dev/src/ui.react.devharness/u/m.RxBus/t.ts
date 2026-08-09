@@ -44,7 +44,7 @@ export type RxBus = RxBusFactory & {
 /**
  * 2-way Event Bus Connection.
  */
-export type BusConnection<E extends t.Event> = t.Disposable & {
+export type BusConnection<E extends t.Event> = t.Disposable & globalThis.Disposable & {
   readonly isDisposed: boolean;
   readonly buses: t.EventBus<E>[];
 };

@@ -6,7 +6,6 @@ import { handlerOn } from './m.Keyboard.Monitor.ts';
  */
 export function dbl(threshold = 500, options: { until?: t.UntilInput } = {}) {
   const life = Rx.lifecycle(options.until);
-  const { dispose, dispose$ } = life;
 
   const api: t.Keyboard.Monitor.Multi = {
     on(pattern, fn) {
@@ -21,7 +20,7 @@ export function dbl(threshold = 500, options: { until?: t.UntilInput } = {}) {
 
       const next = (e: E) => {
         if (!monitor) {
-          monitor = Rx.withinTimeThreshold($, threshold, { until: dispose$ });
+          monitor = Rx.withinTimeThreshold($, threshold, { until: life.dispose$ });
           monitor.timeout$.subscribe(killMonitor);
           monitor.$.subscribe((e) => {
             fn(e);
@@ -31,11 +30,12 @@ export function dbl(threshold = 500, options: { until?: t.UntilInput } = {}) {
         $.next(e);
       };
 
-      return handlerOn(pattern, (e) => next(e), { until: dispose$ });
+      return handlerOn(pattern, (e) => next(e), { until: life.dispose$ });
     },
 
-    dispose,
-    dispose$,
+    dispose: life.dispose,
+    [Symbol.dispose]: life[Symbol.dispose],
+    dispose$: life.dispose$,
     get disposed() {
       return life.disposed;
     },

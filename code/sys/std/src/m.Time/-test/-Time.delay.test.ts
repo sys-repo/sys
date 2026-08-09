@@ -410,6 +410,21 @@ describe('Time Delay/Wait', () => {
         expect(disposeFired).to.eql(1);
       });
 
+      it('Time.until: supports native using', () => {
+        const time = Time.until();
+        let disposed = 0;
+        time.dispose$.subscribe(() => disposed++);
+
+        {
+          using _time = time;
+          expect(time.disposed).to.eql(false);
+        }
+
+        time.dispose();
+        expect(time.disposed).to.eql(true);
+        expect(disposed).to.eql(1);
+      });
+
       it('Time.until: micro path obeys disposal', async () => {
         const { dispose, dispose$ } = Rx.disposable();
         let fired = 0;

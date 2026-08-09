@@ -39,6 +39,21 @@ describe('Keyboard.until', () => {
     expect(fired.length).to.eql(1); // No more events after dispose of [until]
   });
 
+  it('supports native using', () => {
+    const until = Keyboard.until();
+    let disposed = 0;
+    until.dispose$.subscribe(() => disposed++);
+
+    {
+      using _until = until;
+      expect(until.disposed).to.eql(false);
+    }
+
+    until.dispose();
+    expect(until.disposed).to.eql(true);
+    expect(disposed).to.eql(1);
+  });
+
   it('until.on: matches command shortcuts from current event modifiers', () => {
     const until = Keyboard.until();
     const fired: t.Keyboard.Keypress.Event[] = [];

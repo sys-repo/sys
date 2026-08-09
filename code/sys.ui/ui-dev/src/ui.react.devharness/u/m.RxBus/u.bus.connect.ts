@@ -12,10 +12,10 @@ export function connect<E extends t.Event>(
   }
 
   const { async = true } = options;
-  const { dispose, dispose$ } = Dispose.disposable(options.until);
+  const life = Dispose.disposable(options.until);
 
   let _isDisposed = false;
-  dispose$.subscribe(() => (_isDisposed = true));
+  life.dispose$.subscribe(() => (_isDisposed = true));
 
   const ignore = new Set<E>();
   const fire = (bus: t.EventBus<E>, event: E) => {
@@ -27,7 +27,7 @@ export function connect<E extends t.Event>(
 
   buses.forEach((source) => {
     let $ = source.$.pipe(
-      Rx.takeUntil(dispose$),
+      Rx.takeUntil(life.dispose$),
       Rx.filter((e) => !ignore.has(e)),
     );
 
@@ -42,8 +42,9 @@ export function connect<E extends t.Event>(
 
   return {
     buses,
-    dispose,
-    dispose$,
+    dispose: life.dispose,
+    [Symbol.dispose]: life[Symbol.dispose],
+    dispose$: life.dispose$,
     get isDisposed() {
       return _isDisposed;
     },

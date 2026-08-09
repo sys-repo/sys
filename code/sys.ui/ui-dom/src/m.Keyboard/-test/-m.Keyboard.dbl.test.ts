@@ -88,6 +88,21 @@ describe('Keyboard.dbl', () => {
     expect(res2.disposed).to.eql(true);
   });
 
+  it('supports native using', () => {
+    const dbl = Keyboard.dbl();
+    let disposed = 0;
+    dbl.dispose$.subscribe(() => disposed++);
+
+    {
+      using _dbl = dbl;
+      expect(dbl.disposed).to.eql(false);
+    }
+
+    dbl.dispose();
+    expect(dbl.disposed).to.eql(true);
+    expect(disposed).to.eql(1);
+  });
+
   it('does not fire when disposed', () => {
     const dbl = Keyboard.dbl(30);
     const fired: t.Keyboard.Keypress.Event[] = [];

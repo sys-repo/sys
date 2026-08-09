@@ -13,15 +13,15 @@ export function BusEvents(args: {
   until?: t.UntilInput;
 }): t.DevEvents {
   let _disposed = false;
-  const { dispose, dispose$ } = Rx.disposable(args.until);
-  dispose$.subscribe(() => (_disposed = true));
+  const life = Rx.disposable(args.until);
+  life.dispose$.subscribe(() => (_disposed = true));
 
   const bus = RxBus.asType<t.DevEvent>(args.instance.bus);
   const instance = args.instance.id;
   const is = DevEventsIs;
 
   const $ = bus.$.pipe(
-    Rx.takeUntil(dispose$),
+    Rx.takeUntil(life.dispose$),
     Rx.filter((e) => is.instance(e, instance)),
     Rx.filter((e) => args.filter?.(e) ?? true),
   );
@@ -314,8 +314,9 @@ export function BusEvents(args: {
   const events: t.DevEvents = {
     instance: { bus, id: instance },
     $,
-    dispose,
-    dispose$,
+    dispose: life.dispose,
+    [Symbol.dispose]: life[Symbol.dispose],
+    dispose$: life.dispose$,
     get disposed() {
       return _disposed;
     },

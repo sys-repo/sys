@@ -10,7 +10,7 @@ type NumberOrNil = number | null | undefined;
  * Context wrapper that manages a {ctx} object passed
  * into running spec.
  */
-export type DevContext = t.Disposable & {
+export type DevContext = t.Disposable & globalThis.Disposable & {
   readonly instance: t.DevInstance;
   readonly disposed: boolean;
   readonly pending: boolean;
@@ -19,7 +19,6 @@ export type DevContext = t.Disposable & {
   refresh(): Promise<DevContext>;
   toObject(): t.DevCtxObject;
 };
-
 
 /** DevHarness regions that can be asked to redraw. */
 export type DevRedrawTarget = 'all' | 'subject' | 'harness' | 'debug';

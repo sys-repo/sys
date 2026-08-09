@@ -16,7 +16,7 @@ export type DevEnvVars = any;
 /**
  * DevHarness events API.
  */
-export type DevEvents = t.Lifecycle & {
+export type DevEvents = t.Lifecycle & globalThis.Disposable & {
   $: t.Observable<t.DevEvent>;
   instance: DevInstance;
   is: { base(input: any): boolean };
@@ -129,7 +129,6 @@ export type DevInfoRes = {
   info?: t.DevInfo;
   error?: string;
 };
-
 
 /** Event emitted when module info changes. */
 export type DevInfoChangedEvent = {

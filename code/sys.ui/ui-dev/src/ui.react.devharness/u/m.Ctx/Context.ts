@@ -17,7 +17,6 @@ export const Context: ContextLib = {
   ) {
     const events = BusEvents({ instance, until: options?.until });
     const props = await CtxProps(events);
-    const { dispose, dispose$ } = events;
 
     let _state: t.DevCtxState<O> | undefined;
     const Session = {
@@ -39,7 +38,7 @@ export const Context: ContextLib = {
     const ctx: t.DevCtx = {
       ...props.setters,
       env: options?.env,
-      dispose$,
+      dispose$: events.dispose$,
       toObject,
 
       get is() {
@@ -83,8 +82,9 @@ export const Context: ContextLib = {
     const api: t.DevContext = {
       ctx,
       instance,
-      dispose,
-      dispose$,
+      dispose: events.dispose,
+      [Symbol.dispose]: events[Symbol.dispose],
+      dispose$: events.dispose$,
       toObject,
 
       get disposed() {

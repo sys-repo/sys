@@ -61,7 +61,7 @@ describe('BusConnect', () => {
     expect(firedB).to.eql([event]);
   });
 
-  it('async: false (aka. synchronous)', async () => {
+  it('async: false (aka. synchronous)', () => {
     const a = RxBus<E>();
     const b = RxBus<E>();
     connect<E>([a, b], { async: false });
@@ -76,6 +76,21 @@ describe('BusConnect', () => {
 
     expect(firedA).to.eql([event]);
     expect(firedB).to.eql([event]); // NB: Has immediate value (because synchronous).
+  });
+
+  it('dispose through native using', () => {
+    const conn = connect<E>([RxBus<E>(), RxBus<E>()]);
+    let disposed = 0;
+    conn.dispose$.subscribe(() => disposed++);
+
+    {
+      using _conn = conn;
+      expect(conn.isDisposed).to.eql(false);
+    }
+
+    conn.dispose();
+    expect(conn.isDisposed).to.eql(true);
+    expect(disposed).to.eql(1);
   });
 
   it('dispose: via { until } param', async () => {

@@ -51,6 +51,23 @@ describe('Context', () => {
       expect(context.disposed).to.eql(true);
     });
 
+    it('disposes through native using', async () => {
+      const { events, instance } = TestSample.controller();
+      const context = await Context.init(instance);
+      let disposed = 0;
+      context.dispose$.subscribe(() => disposed++);
+
+      {
+        using _context = context;
+        expect(context.disposed).to.eql(false);
+      }
+
+      context.dispose();
+      expect(context.disposed).to.eql(true);
+      expect(disposed).to.eql(1);
+      events.dispose();
+    });
+
     it('dispose (ctx)', async () => {
       const { dispose, ctx } = await TestSample.context();
 
