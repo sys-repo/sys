@@ -44,7 +44,6 @@ export function connect<E extends t.Event>(
     buses,
     dispose: life.dispose,
     [Symbol.dispose]: life[Symbol.dispose],
-    dispose$: life.dispose$,
     get isDisposed() {
       return _isDisposed;
     },

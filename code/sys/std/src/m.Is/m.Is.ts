@@ -48,7 +48,7 @@ export const Is: t.Is.Lib = {
   websocket,
   browser,
 
-  disposable(input?: any): input is t.Disposable {
+  disposable(input?: unknown): input is t.Disposable {
     if (!isObject(input)) return false;
     const dispose = Symbol.dispose;
     if (Is.nil(dispose)) return false;
@@ -58,12 +58,11 @@ export const Is: t.Is.Lib = {
     const hasAsyncAuthority = !Is.nil(asyncDispose) && obj[asyncDispose] !== undefined;
     return (
       typeof obj.dispose === 'function' &&
-      Is.observable(obj.dispose$) &&
       typeof obj[dispose] === 'function' &&
       !hasAsyncAuthority
     );
   },
-  lifecycleView(input?: any): input is t.LifecycleView {
+  lifecycleView(input?: unknown): input is t.LifecycleView {
     if (!isObject(input)) return false;
 
     const view = input as Record<PropertyKey, unknown>;

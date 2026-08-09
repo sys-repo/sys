@@ -14,7 +14,7 @@ export type Cancellable = {
 export type CanDispose = { dispose(): unknown };
 
 /**
- * Canonical synchronous resource with explicit/native authority and an observable lifetime.
+ * Canonical synchronous disposal authority.
  *
  * `.dispose(reason)` may carry an application reason; `[Symbol.dispose]()` carries none. Structural
  * implementers must delegate both entrypoints to one cleanup operation and must not expose callable
@@ -22,7 +22,6 @@ export type CanDispose = { dispose(): unknown };
  */
 export type Disposable = globalThis.Disposable & {
   readonly [Symbol.asyncDispose]?: never;
-  readonly dispose$: t.DisposeObservable;
   dispose(reason?: unknown): void;
 };
 
@@ -72,7 +71,7 @@ export type UntilInput = DisposeInput;
 export type Until = t.UntilObservable | t.LifecycleView | AbortSignal | Until[];
 
 /**
- * Canonical asynchronous resource with explicit/native authority and observable disposal stages.
+ * Canonical asynchronous disposal authority.
  *
  * `.dispose(reason)` and `[Symbol.asyncDispose]()` must enter one cleanup operation and expose its
  * completion promise. Structural implementers must not expose callable synchronous disposal
@@ -80,7 +79,6 @@ export type Until = t.UntilObservable | t.LifecycleView | AbortSignal | Until[];
  */
 export type DisposableAsync = globalThis.AsyncDisposable & {
   readonly [Symbol.dispose]?: never;
-  readonly dispose$: t.Observable<DisposeAsyncEvent>;
   dispose(reason?: unknown): Promise<void>;
 };
 
@@ -108,11 +106,17 @@ export type DisposeAsyncStage = 'start' | 'complete' | 'error';
 /** Normalized telemetry for an asynchronous cleanup failure. */
 export type DisposeError = { name: 'DisposeError'; message: string; cause?: t.StdError };
 
-/** Synchronous disposable resource with observable terminal state. */
-export type Lifecycle = Disposable & { readonly disposed: boolean };
+/** Synchronous disposal authority with observable terminal state. */
+export type Lifecycle = Disposable & {
+  readonly dispose$: t.DisposeObservable;
+  readonly disposed: boolean;
+};
 
-/** Asynchronous disposable resource with observable terminal state. */
-export type LifecycleAsync = DisposableAsync & { readonly disposed: boolean };
+/** Asynchronous disposal authority with observable terminal state. */
+export type LifecycleAsync = DisposableAsync & {
+  readonly dispose$: t.Observable<DisposeAsyncEvent>;
+  readonly disposed: boolean;
+};
 
 /**
  * A started lifecycle handle that exposes observed completion.
@@ -123,10 +127,12 @@ export type LifecycleAsync = DisposableAsync & { readonly disposed: boolean };
 export type WaitableHandle = { readonly finished: PromiseLike<unknown> };
 
 /**
- * Read-only lifecycle projection.
- * Provides disposal state and signal without disposal authority.
+ * Observation-and-state contract for a synchronous lifecycle.
+ *
+ * A full lifecycle satisfies this contract structurally; narrowing to it does not remove runtime
+ * disposal authority.
  */
-export type LifecycleView = Pick<t.Lifecycle, 'disposed' | 'dispose$'>;
+export type LifecycleView = Pick<Lifecycle, 'disposed' | 'dispose$'>;
 
 /** Minimal contract for disposable objects (subset of Lifecycle). */
 export type LifeLike = { readonly disposed: boolean };
@@ -134,18 +140,15 @@ export type LifeLike = { readonly disposed: boolean };
 type DisposalAuthorityKey = 'dispose' | typeof Symbol.dispose | typeof Symbol.asyncDispose;
 
 /**
- * Construction shape without direct or native disposal authority or `dispose$`.
+ * Shape without direct or native disposal authority.
  *
- * Remaining fields, including `disposed`, are preserved. This differs from the runtime
- * `Dispose.omitDispose` projection in `@sys/std/dispose`, which preserves observable state.
+ * Observable lifecycle state and unrelated fields are preserved, matching the runtime
+ * `Dispose.omitDispose` projection in `@sys/std/dispose`.
  */
-export type OmitDisposable<T extends Disposable | DisposableAsync | object> = Omit<
-  T,
-  DisposalAuthorityKey | 'dispose$'
->;
+export type OmitDisposable<T extends object> = Omit<T, DisposalAuthorityKey>;
 
 /** Construction shape without direct or native disposal authority, `dispose$`, or `disposed`. */
-export type OmitLifecycle<T extends Lifecycle | LifecycleAsync | object> = Omit<
+export type OmitLifecycle<T extends object> = Omit<
   T,
   DisposalAuthorityKey | 'dispose$' | 'disposed'
 >;

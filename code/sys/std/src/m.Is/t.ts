@@ -19,9 +19,7 @@ export declare namespace Is {
      */
     nil(input?: unknown): input is null | undefined;
 
-    /**
-     * Determine if the input is an object implementing the `Disposable` interface.
-     */
+    /** Determine if the input exposes canonical synchronous disposal authority. */
     disposable(input?: unknown): input is t.Disposable;
 
     /**

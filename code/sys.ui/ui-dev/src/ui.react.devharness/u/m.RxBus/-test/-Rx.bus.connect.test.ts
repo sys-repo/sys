@@ -78,19 +78,23 @@ describe('BusConnect', () => {
     expect(firedB).to.eql([event]); // NB: Has immediate value (because synchronous).
   });
 
+  it('exposes disposal authority without lifecycle observation', () => {
+    const conn = connect<E>([RxBus<E>(), RxBus<E>()]);
+    expect('dispose$' in conn).to.eql(false);
+    conn.dispose();
+  });
+
   it('dispose through native using', () => {
     const conn = connect<E>([RxBus<E>(), RxBus<E>()]);
-    let disposed = 0;
-    conn.dispose$.subscribe(() => disposed++);
 
     {
       using _conn = conn;
       expect(conn.isDisposed).to.eql(false);
     }
 
+    expect(conn.isDisposed).to.eql(true);
     conn.dispose();
     expect(conn.isDisposed).to.eql(true);
-    expect(disposed).to.eql(1);
   });
 
   it('dispose: via { until } param', async () => {

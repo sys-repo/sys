@@ -43,6 +43,7 @@ export type RxBus = RxBusFactory & {
 
 /**
  * 2-way Event Bus Connection.
+ * Disposal authority is public; lifecycle event telemetry remains internal.
  */
 export type BusConnection<E extends t.Event> = t.Disposable & {
   readonly isDisposed: boolean;

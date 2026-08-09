@@ -1,4 +1,4 @@
-import { describe, Dispose, expect, Is, it, type t } from './common.ts';
+import { describe, Dispose, expect, expectTypeOf, Is, it, type t } from './common.ts';
 
 describe('Dispose.omitDispose', () => {
   type T = t.Lifecycle & { count: number };
@@ -15,6 +15,7 @@ describe('Dispose.omitDispose', () => {
     const authorityOmitted: ProjectionAuthority extends never ? true : false = true;
     const view: t.LifecycleView = projection;
 
+    expectTypeOf(projection).toEqualTypeOf<t.OmitDisposable<T>>();
     expect(authorityOmitted).to.eql(true);
     expect(view).to.equal(projection);
     expect(source).to.not.equal(projection);
@@ -33,7 +34,7 @@ describe('Dispose.omitDispose', () => {
     expect(count).to.eql(1);
   });
 
-  it('async lifecycle projection → removes native async authority', () => {
+  it('async lifecycle projection → preserves observation without authority', async () => {
     const source = Dispose.lifecycleAsync();
     expect(Symbol.asyncDispose in source).to.eql(true);
 
@@ -42,6 +43,19 @@ describe('Dispose.omitDispose', () => {
     expect('dispose' in projection).to.eql(false);
     expect(Symbol.dispose in projection).to.eql(false);
     expect(Symbol.asyncDispose in projection).to.eql(false);
+    expect(projection.dispose$).to.equal(source.dispose$);
+    expect(projection.disposed).to.eql(false);
+
+    await source.dispose();
+    expect(projection.disposed).to.eql(true);
+  });
+
+  it('authority-only values → outside the observable projection boundary', () => {
+    type Input = Parameters<typeof Dispose.omitDispose>[0];
+    type AuthorityRejected = t.Disposable extends Input ? false : true;
+    const authorityRejected: AuthorityRejected = true;
+
+    expectTypeOf(authorityRejected).toEqualTypeOf<true>();
   });
 
   it('own authority accessors → omitted without invoking getters', () => {
@@ -98,9 +112,9 @@ describe('Dispose.omitDispose', () => {
       },
       [Symbol.asyncDispose]: { value: () => Promise.resolve() },
     });
-    // Deliberately cross the canonical boundary with a hybrid fixture to prove that
-    // inherited synchronous and asynchronous authority are both masked.
-    const source = Object.create(proto, {
+    // Deliberately cross the canonical boundary with a descriptor-level hybrid fixture to prove
+    // that inherited synchronous and asynchronous authority are both masked.
+    const source: t.Lifecycle & { readonly [unrelated]: number } = Object.create(proto, {
       dispose$: { value: owner.dispose$ },
       disposed: { get: () => owner.disposed },
       [unrelated]: {
@@ -108,7 +122,7 @@ describe('Dispose.omitDispose', () => {
         enumerable: false,
         get: unrelatedGetter,
       },
-    }) as unknown as t.Lifecycle & { readonly [unrelated]: number };
+    });
 
     const projection = Dispose.omitDispose(source);
     const unrelatedBefore = Object.getOwnPropertyDescriptor(source, unrelated);

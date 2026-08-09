@@ -329,10 +329,9 @@ describe('Is (common flags)', () => {
   });
 
   describe('Is.disposable', () => {
-    it('Is.disposable: true', () => {
+    it('accepts authority-only values and full lifecycles', () => {
       const disposable: t.Disposable = {
         dispose() {},
-        dispose$: Rx.subject<t.DisposeEvent>(),
         [Symbol.dispose]() {},
       };
       const life = Rx.lifecycle();
@@ -340,18 +339,15 @@ describe('Is (common flags)', () => {
         Object.create({
           [Symbol.dispose]() {},
         }),
-        {
-          dispose() {},
-          dispose$: Rx.subject<t.DisposeEvent>(),
-        },
+        { dispose() {} },
       );
       const undefinedAsyncKey = {
         dispose() {},
-        dispose$: Rx.subject<t.DisposeEvent>(),
         [Symbol.dispose]() {},
         [Symbol.asyncDispose]: undefined,
       };
 
+      expect('dispose$' in disposable).to.eql(false);
       expect('disposed' in disposable).to.eql(false);
       expect(Is.disposable(disposable)).to.be.true;
       expect(Is.disposable(life)).to.be.true;
@@ -359,7 +355,7 @@ describe('Is (common flags)', () => {
       expect(Is.disposable(undefinedAsyncKey)).to.be.true;
     });
 
-    it('Is.disposable: false', () => {
+    it('rejects missing, malformed, and opposite-protocol authority', () => {
       const dispose$ = Rx.subject<t.DisposeEvent>();
       const inheritedAsync = Object.assign(
         Object.create({
@@ -367,7 +363,6 @@ describe('Is (common flags)', () => {
         }),
         {
           dispose() {},
-          dispose$,
           [Symbol.dispose]() {},
         },
       );
@@ -381,13 +376,13 @@ describe('Is (common flags)', () => {
         Symbol('foo'),
         {},
         [],
+        { dispose() {} },
         { dispose() {}, dispose$ },
-        { dispose() {}, dispose$, [Symbol.asyncDispose]: async () => {} },
-        { dispose() {}, dispose$, [Symbol.dispose]: 123 },
-        { dispose() {}, dispose$, [Symbol.dispose]() {}, [Symbol.asyncDispose]: 123 },
+        { dispose() {}, [Symbol.asyncDispose]: async () => {} },
+        { dispose() {}, [Symbol.dispose]: 123 },
+        { dispose() {}, [Symbol.dispose]() {}, [Symbol.asyncDispose]: 123 },
         {
           dispose() {},
-          dispose$,
           [Symbol.dispose]() {},
           [Symbol.asyncDispose]: async () => {},
         },
@@ -402,7 +397,6 @@ describe('Is (common flags)', () => {
     it('Is.disposableLike: true (canonical + plain)', () => {
       const disposable: t.Disposable = {
         dispose() {},
-        dispose$: Rx.subject<t.DisposeEvent>(),
         [Symbol.dispose]() {},
       };
       const life = Rx.lifecycle();
@@ -413,7 +407,7 @@ describe('Is (common flags)', () => {
       expect(Is.disposableLike(plain)).to.be.true;
 
       // Cross-check boundary with canonical:
-      expect(Is.disposable(plain)).to.be.false; // no dispose$
+      expect(Is.disposable(plain)).to.be.false; // no native authority
     });
 
     it('Is.disposableLike: false (non-functions / non-objects)', () => {
@@ -724,6 +718,7 @@ describe('Is (common flags)', () => {
 
     it('rejects owners without state and direct async lifecycle objects', () => {
       const dispose$ = Rx.subject<t.DisposeEvent>();
+      const authorityOnly: t.Disposable = { dispose() {}, [Symbol.dispose]() {} };
       const disposable = { dispose() {}, dispose$, [Symbol.dispose]() {} };
       const observableWithoutState = { dispose() {}, dispose$ };
       const asyncLifecycle = Rx.lifecycleAsync();
@@ -738,6 +733,7 @@ describe('Is (common flags)', () => {
 
       for (
         const input of [
+          authorityOnly,
           disposable,
           observableWithoutState,
           asyncLifecycle,

@@ -10,9 +10,8 @@ type NumberOrNil = number | null | undefined;
  * Context wrapper that manages a {ctx} object passed
  * into running spec.
  */
-export type DevContext = t.Disposable & {
+export type DevContext = t.Lifecycle & {
   readonly instance: t.DevInstance;
-  readonly disposed: boolean;
   readonly pending: boolean;
   readonly ctx: t.DevCtx;
   flush(): Promise<DevContext>;

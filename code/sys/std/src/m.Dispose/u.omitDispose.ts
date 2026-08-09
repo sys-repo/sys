@@ -1,15 +1,15 @@
 import type { t } from './common.ts';
 import { requireSymbolAsyncDispose, requireSymbolDispose } from './u.native.ts';
 
-type D = t.Disposable | t.DisposableAsync;
+type L = t.Lifecycle | t.LifecycleAsync;
 type DisposalAuthorityKey = 'dispose' | typeof Symbol.dispose | typeof Symbol.asyncDispose;
 
 /**
- * Safely remove direct and native disposal authority from a disposable.
+ * Safely remove direct and native disposal authority from an observable lifecycle.
  * NB: useful for surfacing from an API where callers must only observe
  *     the resource lifecycle.
  */
-export function omitDispose<T extends D>(obj: T): Omit<T, DisposalAuthorityKey> {
+export function omitDispose<T extends L>(obj: T): t.OmitDisposable<T> {
   requireSymbolDispose();
   requireSymbolAsyncDispose();
   const authorityKeys = ['dispose', Symbol.dispose, Symbol.asyncDispose] as const;
@@ -32,7 +32,7 @@ export function omitDispose<T extends D>(obj: T): Omit<T, DisposalAuthorityKey> 
     };
   }
 
-  return Object.create(proto, newDescs) as Omit<T, DisposalAuthorityKey>;
+  return Object.create(proto, newDescs) as t.OmitDisposable<T>;
 }
 
 function hasPropertyDescriptor(value: object | null, key: PropertyKey) {
