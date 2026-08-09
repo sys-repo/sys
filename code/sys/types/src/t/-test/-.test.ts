@@ -21,6 +21,29 @@ describe('Types', () => {
     expectTypeOf(until).toMatchTypeOf<t.Until>();
   });
 
+  it('UntilInput accepts lifecycle truth rather than stateless disposal ownership', () => {
+    const view = null as unknown as t.LifecycleView;
+    const lifecycle = null as unknown as t.Lifecycle;
+    const disposable = null as unknown as t.Disposable;
+    const asyncLifecycle = null as unknown as t.LifecycleAsync;
+    const asyncSignal = null as unknown as t.LifecycleAsync['dispose$'];
+
+    const fromView: t.UntilInput = view;
+    const fromLifecycle: t.UntilInput = lifecycle;
+    const fromAsyncSignal: t.UntilInput = asyncSignal;
+
+    // @ts-expect-error: a stateless owner cannot provide already-terminal lifecycle truth.
+    const fromDisposable: t.UntilInput = disposable;
+    // @ts-expect-error: async lifecycle objects must expose their disposal stream explicitly.
+    const fromAsyncLifecycle: t.UntilInput = asyncLifecycle;
+
+    void fromView;
+    void fromLifecycle;
+    void fromAsyncSignal;
+    void fromDisposable;
+    void fromAsyncLifecycle;
+  });
+
   it('WaitableHandle exposes observed lifecycle completion', () => {
     const handle: t.WaitableHandle = { finished: Promise.resolve() };
 
@@ -86,7 +109,7 @@ describe('Types', () => {
     void asyncFromHybrid;
   });
 
-  it('direct-method concepts stay broad while Until requires canonical sync disposal', () => {
+  it('direct-method concepts stay broad while Until requires lifecycle truth', () => {
     type LegacySyncShape = {
       readonly dispose$: t.DisposeObservable;
       dispose(reason?: unknown): void;
@@ -98,9 +121,9 @@ describe('Types', () => {
     const disposableLike: t.DisposableLike = legacy;
     const canDispose: t.CanDispose = legacy;
 
-    // @ts-expect-error: legacy observable disposal lacks native synchronous authority.
+    // @ts-expect-error: observable disposal without terminal state is not lifecycle truth.
     const legacyUntil: t.Until = legacy;
-    // @ts-expect-error: a native-only resource has no observable Sys lifetime.
+    // @ts-expect-error: a native-only resource has no observable lifecycle truth.
     const nativeUntil: t.Until = nativeOnly;
     // @ts-expect-error: asynchronous lifecycle authority is not a direct Until input.
     const asyncUntil: t.Until = async;

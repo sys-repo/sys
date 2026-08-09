@@ -87,7 +87,6 @@ describe('Dispose.lifecycle', () => {
 
     test(Rx.subject<void>());
     test([Rx.subject<void>(), Rx.subject<void>()]);
-    test(Rx.disposable());
     test(Rx.lifecycle());
   });
 });
@@ -264,10 +263,10 @@ describe('Dispose.lifecycleAsync', () => {
       expect(lifecycle.disposed).to.eql(true);
     };
 
-    await test(Dispose.disposable());
+    await test(Dispose.disposable().dispose$);
     await test(Dispose.lifecycle());
-    await test([undefined, [undefined, Dispose.disposable()]]);
     await test([undefined, [undefined, Dispose.disposable().dispose$]]);
+    await test([undefined, [undefined, Dispose.lifecycle()]]);
   });
 
   it('direct reason → terminal event reason', async () => {
@@ -292,7 +291,7 @@ describe('Dispose.lifecycleAsync', () => {
   });
 
   it('until bridge reason → terminal event reason', async () => {
-    const upstream = Dispose.disposable();
+    const upstream = Dispose.lifecycle();
     const lifecycle = Dispose.lifecycleAsync(upstream, async () => void (await Time.wait(1)));
 
     const events: t.DisposeAsyncEvent[] = [];

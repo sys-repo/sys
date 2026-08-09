@@ -5,7 +5,7 @@ import { Arr, Is, Observable, type t } from './common.ts';
  * disposes of the target when any of them fire.
  */
 export function until(input?: t.DisposeInput) {
-  const list = Array.isArray(input) ? input : [input];
+  const list = Is.array<t.DisposeInput>(input) ? input : [input];
   return Arr.flatten<unknown>(list)
     .filter((item) => item !== undefined)
     .map((item) => wrangle.observable(item));
@@ -16,9 +16,28 @@ export function until(input?: t.DisposeInput) {
  */
 const wrangle = {
   observable(input: unknown): t.Observable<unknown> {
-    if (Is.disposable(input)) return input.dispose$;
+    if (Is.lifecycleView(input)) return wrangle.lifecycleView(input);
     if (Is.abortSignal(input)) return wrangle.abortSignal(input);
     return input as t.Observable<unknown>;
+  },
+
+  lifecycleView(view: t.LifecycleView): t.Observable<t.DisposeEvent> {
+    if (!view.disposed) return view.dispose$;
+
+    return new Observable<t.DisposeEvent>((subscriber) => {
+      let disposed = false;
+      const done = () => {
+        if (disposed) return;
+        disposed = true;
+        subscriber.next({ reason: undefined });
+        subscriber.complete();
+      };
+
+      queueMicrotask(() => {
+        if (!subscriber.closed) done();
+      });
+      return () => void (disposed = true);
+    });
   },
 
   abortSignal(signal: AbortSignal): t.Observable<t.DisposeEvent> {

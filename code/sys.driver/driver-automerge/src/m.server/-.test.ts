@@ -93,7 +93,7 @@ describe('Crdt: SyncServer', () => {
 
     it('until param', async () => {
       const life = Rx.disposable();
-      const ws = await Server.ws({ silent, until: life });
+      const ws = await Server.ws({ silent, until: life.dispose$ });
       const port = ws.addr.port;
       expect(ws.disposed).to.eql(false);
       expect(ws.repo.disposed).to.eql(false);

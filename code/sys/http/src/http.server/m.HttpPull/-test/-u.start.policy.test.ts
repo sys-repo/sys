@@ -593,7 +593,7 @@ describe('HttpPull.start bounded operation policy', () => {
       const owner = await rooted();
       const operation = start(resources, owner);
       const local = Rx.disposable();
-      const localView = operation.events(local);
+      const localView = operation.events(local.dispose$);
       const siblingEvents: t.HttpPull.ResourceEvent.Any[] = [];
       const sibling = operation.events();
       const subscription = sibling.$.subscribe((event) => siblingEvents.push(event));

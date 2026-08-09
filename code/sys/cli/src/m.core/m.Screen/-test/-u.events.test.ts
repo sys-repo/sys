@@ -122,13 +122,18 @@ describe('Cli.Screen.events', () => {
   it('does not attach for already-terminated stateful lifetimes', () => {
     const disposed = Rx.lifecycle();
     disposed.dispose();
+    const view: t.LifecycleView = {
+      disposed: true,
+      dispose$: Rx.subject<t.DisposeEvent>(),
+    };
     const aborted = new AbortController();
     aborted.abort('already aborted');
 
     const lifetimes: t.UntilInput[] = [
       disposed,
+      view,
       aborted.signal,
-      [undefined, [disposed]],
+      [undefined, [view]],
     ];
 
     for (const until of lifetimes) {

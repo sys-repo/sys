@@ -1,4 +1,4 @@
-import { type t, describe, expect, it, MonacoFake, Rx, Schedule } from '../../../-test.ts';
+import { describe, expect, it, MonacoFake, Rx, Schedule, type t } from '../../../-test.ts';
 import { Bus } from '../common.ts';
 import { EditorYaml } from '../mod.ts';
 
@@ -16,7 +16,7 @@ describe('Monaco.Yaml', () => {
       it('dispose: via dispose$', () => {
         const life = Rx.disposable();
         const editor = MonacoFake.editor('');
-        const ob = EditorYaml.Path.observe({ editor }, life);
+        const ob = EditorYaml.Path.observe({ editor }, life.dispose$);
         expect(ob.disposed).to.eql(false);
         life.dispose();
         expect(ob.disposed).to.eql(true);
@@ -114,7 +114,8 @@ describe('Monaco.Yaml', () => {
         });
 
         it('does not include the first child when caret is on a root key after a blank line', () => {
-          const yaml = `.foo:\n  dev: true\n\nvideo:\n  src: https://example.com/video.mp4\n  crop: [11.5, -10]\n  width: 600`;
+          const yaml =
+            `.foo:\n  dev: true\n\nvideo:\n  src: https://example.com/video.mp4\n  crop: [11.5, -10]\n  width: 600`;
           const model = MonacoFake.model(yaml, { language: 'yaml' });
           const editor = MonacoFake.editor(model);
           const ob = EditorYaml.Path.observe({ editor });
@@ -246,20 +247,24 @@ describe('Monaco.Yaml', () => {
         const editor = MonacoFake.editor(model);
 
         // Start observing (this creates the cursor producer)
-        EditorYaml.Path.observe({ editor, bus$ }, life);
+        EditorYaml.Path.observe({ editor, bus$ }, life.dispose$);
 
         const events: t.EditorEvent.Shape[] = [];
         const sub = bus$.pipe(Rx.takeUntil(life.dispose$)).subscribe((e) => events.push(e));
         try {
           const nonce = 'nonce-123';
-          bus$.next({
-            kind: 'editor:ping',
-            request: ['cursor'],
-            nonce,
-          } satisfies t.EditorEvent.Ping.Request);
+          bus$.next(
+            {
+              kind: 'editor:ping',
+              request: ['cursor'],
+              nonce,
+            } satisfies t.EditorEvent.Ping.Request,
+          );
 
           await Schedule.macro();
-          const cursor = events.find((e) => e.kind === 'editor:yaml:cursor') as t.EditorEvent.Yaml.Cursor;
+          const cursor = events.find((e) =>
+            e.kind === 'editor:yaml:cursor'
+          ) as t.EditorEvent.Yaml.Cursor;
           const pong = events.find((e) => e.kind === 'editor:pong') as t.EditorEvent.Ping.Response;
 
           expect(cursor).to.exist;

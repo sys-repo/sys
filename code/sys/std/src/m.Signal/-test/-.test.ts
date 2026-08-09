@@ -1,4 +1,4 @@
-import { type t, Time, describe, expect, it } from '../../-test.ts';
+import { describe, expect, it, type t, Time } from '../../-test.ts';
 import { Rx } from '../../m.Rx/mod.ts';
 import { Is } from '../m.Is.ts';
 import { Signal } from '../mod.ts';
@@ -115,7 +115,7 @@ describe('Signal', () => {
     it('create → <change> → dispose', () => {
       const life = Rx.disposable();
       const a = Signal.listeners();
-      const b = Signal.listeners(life);
+      const b = Signal.listeners(life.dispose$);
 
       expect(a.disposed).to.eql(false);
       expect(b.disposed).to.eql(false);
@@ -266,12 +266,11 @@ describe('Signal', () => {
 
       Signal.walk(model, (e) => {
         const before = e.value;
-        const next =
-          typeof before === 'number'
-            ? before + 1
-            : typeof before === 'string'
-              ? before.toUpperCase()
-              : before;
+        const next = typeof before === 'number'
+          ? before + 1
+          : typeof before === 'string'
+          ? before.toUpperCase()
+          : before;
         e.mutate(next as never);
         updates.push({ before, after: e.value }); // ← live view should reflect mutation.
       });

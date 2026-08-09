@@ -132,7 +132,7 @@ const wrangle = {
       return undefined;
     }
     if (Is.abortSignal(input) && input.aborted) return { reason: input.reason };
-    if (Is.disposable(input) && 'disposed' in input && input.disposed === true) return {};
+    if (Is.lifecycleView(input) && input.disposed) return {};
     return undefined;
   },
   reason(input: unknown) {

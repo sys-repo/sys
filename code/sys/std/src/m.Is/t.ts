@@ -25,6 +25,11 @@ export declare namespace Is {
     disposable(input?: unknown): input is t.Disposable;
 
     /**
+     * Determine if the input exposes synchronous lifecycle observation and terminal state.
+     */
+    lifecycleView(input?: unknown): input is t.LifecycleView;
+
+    /**
      * Determine if the input is an object implementing the `DisposableLike` interface.
      */
     disposableLike(input?: unknown): input is t.DisposableLike;

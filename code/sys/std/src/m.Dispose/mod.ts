@@ -65,15 +65,16 @@
  * ## Lifetime inputs and ownership
  *
  * An `UntilInput` asks the new resource to observe an existing signal. It does not transfer
- * ownership of that input or dispose it. An observable emission, a canonical `Disposable.dispose$`
- * event, or an `AbortSignal` abort requests disposal of the new owner. An emission made
- * synchronously while subscriptions are being attached crosses one construction microtask so the
- * factory can finish safely; later emissions request disposal in their source turn.
+ * ownership of that input or dispose it. An observable emission, synchronous `LifecycleView`
+ * terminal truth, or an `AbortSignal` abort requests disposal of the new owner. An already-disposed
+ * lifecycle view and a pre-aborted signal each synthesize one stop emission across the construction
+ * microtask without making the underlying stream replay. Other emissions made while subscriptions
+ * are being attached cross the same boundary; later emissions request disposal in their source turn.
  *
- * Native-only `globalThis.Disposable` and `globalThis.AsyncDisposable` values provide lexical
- * cleanup but no required `dispose$`, so they do not represent observable lifetimes. External
- * structural implementers of the canonical `@sys/types` disposal contracts must provide the
- * matching native symbol, expose no callable opposite-protocol authority, and forward direct and
- * symbolic entrypoints to one cleanup operation.
+ * Stateless disposable owners and direct asynchronous lifecycle objects are not `UntilInput`
+ * values; callers may pass an explicit compatible `dispose$` stream. External structural
+ * implementers of the canonical `@sys/types` disposal contracts must provide the matching native
+ * symbol, expose no callable opposite-protocol authority, and forward direct and symbolic
+ * entrypoints to one cleanup operation.
  */
 export { Dispose } from './m.Dispose.ts';

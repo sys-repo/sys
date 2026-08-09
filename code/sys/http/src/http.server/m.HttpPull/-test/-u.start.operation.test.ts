@@ -133,7 +133,7 @@ describe('HttpPull.start cancellation and terminal ownership', () => {
         resources,
         owner,
         resourcePolicy(resources, { maxAttempts: 1 }),
-        until,
+        until.dispose$,
       );
 
       await pending.requested;

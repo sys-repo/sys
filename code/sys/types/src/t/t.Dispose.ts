@@ -48,18 +48,19 @@ export type DisposeEvent = { readonly reason?: unknown };
  * An input identifies when the new owner should stop. Passing it does not transfer ownership and
  * does not authorize the consumer to invoke disposal on the input:
  *
- * - a `Disposable` contributes its `dispose$` signal;
+ * - a `LifecycleView` contributes its `dispose$` signal and already-terminal state;
  * - an `UntilObservable` contributes its emissions;
  * - an `AbortSignal` contributes its abort event and reason; and
  * - nested arrays combine those signals recursively.
  *
- * `undefined` is accepted as an ergonomic no-op placeholder, not as a termination signal. Native-only
- * `globalThis.Disposable` and `globalThis.AsyncDisposable` values have no required `dispose$` and are
- * therefore not observable lifetime inputs.
+ * `undefined` is accepted as an ergonomic no-op placeholder, not as a termination signal. A full
+ * synchronous `Lifecycle` structurally satisfies `LifecycleView`. Stateless disposable owners and
+ * direct asynchronous lifecycle objects are not observable lifetime inputs; callers may pass an
+ * explicit compatible `dispose$` stream instead.
  */
 export type DisposeInput =
   | t.UntilObservable
-  | t.Disposable
+  | t.LifecycleView
   | AbortSignal
   | undefined
   | DisposeInput[];
@@ -68,7 +69,7 @@ export type DisposeInput =
 export type UntilInput = DisposeInput;
 
 /** Definite lifetime signal, excluding the `undefined` placeholder accepted by `UntilInput`. */
-export type Until = t.UntilObservable | t.Disposable | AbortSignal | Until[];
+export type Until = t.UntilObservable | t.LifecycleView | AbortSignal | Until[];
 
 /**
  * Canonical asynchronous resource with explicit/native authority and observable disposal stages.

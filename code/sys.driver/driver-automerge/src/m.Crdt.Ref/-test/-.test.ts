@@ -59,7 +59,7 @@ describe('CrdtRef', () => {
       const life = Rx.disposable();
       const repo = Repos.automerge(new AutomergeRepo());
       const handle = repo.create<T>({ count: 0 });
-      const doc = toRef(handle, life);
+      const doc = toRef(handle, life.dispose$);
 
       life.dispose();
       expect(doc.disposed).to.eql(true);

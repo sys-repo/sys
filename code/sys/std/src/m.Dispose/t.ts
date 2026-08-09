@@ -34,7 +34,7 @@ export declare namespace Dispose {
     /** Project an owner's observable state without exposing disposal authority. */
     toLifecycleView<T extends t.LifecycleView>(life: t.Lifecycle, api: t.OmitLifecycle<T>): T;
 
-    /** Resolve each input to an observable disposal signal without subscribing or taking ownership. */
+    /** Normalize inputs to stop signals, including queued truth for already-terminal state. */
     until(until?: t.UntilInput): t.Observable<unknown>[];
 
     /** Emit one `{ reason }` event and complete the supplied disposal subject. */

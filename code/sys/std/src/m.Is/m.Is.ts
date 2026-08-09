@@ -63,6 +63,14 @@ export const Is: t.Is.Lib = {
       !hasAsyncAuthority
     );
   },
+  lifecycleView(input?: any): input is t.LifecycleView {
+    if (!isObject(input)) return false;
+
+    const view = input as Record<PropertyKey, unknown>;
+    const asyncDispose = Symbol.asyncDispose;
+    const hasAsyncAuthority = !Is.nil(asyncDispose) && Is.func(view[asyncDispose]);
+    return Is.bool(view.disposed) && Is.observable(view.dispose$) && !hasAsyncAuthority;
+  },
   disposableLike(input?: any): input is t.DisposableLike {
     if (!isObject(input)) return false;
     return typeof (input as t.DisposableLike).dispose === 'function';
@@ -245,8 +253,8 @@ export const Is: t.Is.Lib = {
    */
   until(input?: unknown): input is t.Until {
     if (input === undefined) return false; // ergonomic at call-site, but not an until
-    if (Array.isArray(input)) return input.every((v) => Is.until(v));
-    if (Is.disposable(input)) return true;
+    if (Is.array<t.Until>(input)) return input.every((v) => Is.until(v));
+    if (Is.lifecycleView(input)) return true;
     if (Is.observable(input)) return true;
     if (Is.subject(input)) return true;
     if (Is.abortSignal(input)) return true;
@@ -255,7 +263,7 @@ export const Is: t.Is.Lib = {
 
   untilInput(input?: unknown): input is t.UntilInput {
     if (input === undefined) return true;
-    if (Array.isArray(input)) return input.every((v) => Is.untilInput(v));
+    if (Is.array<t.UntilInput>(input)) return input.every((v) => Is.untilInput(v));
     return Is.until(input);
   },
 };

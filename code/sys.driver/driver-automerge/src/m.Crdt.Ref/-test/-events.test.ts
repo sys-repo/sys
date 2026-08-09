@@ -162,7 +162,7 @@ describe('CrdtRef: events (observable)', () => {
       const doc = toRef(handle);
 
       let fired = 0;
-      doc.events(life).$.subscribe(() => fired++);
+      doc.events(life.dispose$).$.subscribe(() => fired++);
 
       // Trigger one change:
       doc.change((d) => (d.count += 1));

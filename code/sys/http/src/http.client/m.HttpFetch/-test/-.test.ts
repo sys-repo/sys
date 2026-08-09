@@ -381,6 +381,7 @@ describe('Http.Fetch', () => {
   describe('lifecycle', () => {
     it('create: { until } input variants', async () => {
       const life = Rx.disposable();
+      const lifecycle = Rx.lifecycle();
       const abort = new AbortController();
       const { dispose$ } = life;
       const make = (until: t.UntilInput) => Fetch.make(fetchOptions([ORIGIN], {}, { until }));
@@ -388,12 +389,13 @@ describe('Http.Fetch', () => {
       const b = make([life.dispose$]);
       const c = make([life.dispose$, undefined]);
       const d = make(dispose$);
-      const e = make(life);
+      const e = make(lifecycle);
       const f = make(abort.signal);
       const all = [a, b, c, d, e, f];
 
       all.forEach(({ disposed }) => expect(disposed).to.eql(false));
       life.dispose();
+      lifecycle.dispose();
       abort.abort('test:abort');
       await Schedule.micro();
       all.forEach(({ disposed }) => expect(disposed).to.eql(true));

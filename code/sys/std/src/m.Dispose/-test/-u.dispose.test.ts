@@ -116,12 +116,25 @@ describe('Dispose.disposable', () => {
 
     test(Rx.subject<void>());
     test([Rx.subject<void>(), Rx.subject<void>()]);
-    test(Rx.disposable());
     test(Rx.lifecycle());
   });
 });
 
 describe('Dispose.disposableAsync', () => {
+  it('invalid first overload input → clear failure across async factories', () => {
+    const asyncLifecycle = Dispose.lifecycleAsync();
+    const factories = [Dispose.disposableAsync, Dispose.lifecycleAsync];
+
+    for (const factory of factories) {
+      for (const input of [123, {}, asyncLifecycle]) {
+        expect(() => Reflect.apply(factory, undefined, [input, () => {}])).to.throw(
+          TypeError,
+          /UntilInput/,
+        );
+      }
+    }
+  });
+
   it('direct and native disposal → one stored completion and first reason', async () => {
     const cleanup = Promise.withResolvers<void>();
     const directReasons: unknown[] = [];
@@ -505,7 +518,7 @@ describe('Dispose.disposableAsync', () => {
 
   it('until bridge → owns rejection without changing completion truth', async () => {
     const failure = new Error('bridge:cleanup:rejected');
-    const upstream = Dispose.disposable();
+    const upstream = Dispose.lifecycle();
     const trap = trapUnhandledRejections();
     const disposable = Dispose.disposableAsync(upstream, () => Promise.reject(failure));
     const events: t.DisposeAsyncEvent[] = [];
@@ -553,10 +566,10 @@ describe('Dispose.disposableAsync', () => {
       expect(events[1].payload.reason).to.eql('upstream:manual');
     };
 
-    await test(Dispose.disposable());
+    await test(Dispose.disposable().dispose$);
     await test(Dispose.lifecycle());
-    await test([undefined, [undefined, Dispose.disposable()]]);
     await test([undefined, [undefined, Dispose.disposable().dispose$]]);
+    await test([undefined, [undefined, Dispose.lifecycle()]]);
   });
 
   it('direct reason → terminal event reason', async () => {
@@ -593,7 +606,7 @@ describe('Dispose.disposableAsync', () => {
   });
 
   it('until bridge reason → cleanup handler reason', async () => {
-    const upstream = Dispose.disposable();
+    const upstream = Dispose.lifecycle();
     const received: unknown[] = [];
     const disposable = Dispose.disposableAsync(upstream, async (event) => {
       received.push(event.reason);
