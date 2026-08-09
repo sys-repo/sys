@@ -8,7 +8,10 @@ import { until } from './u.until.ts';
 import { abortable } from './u.abortable.ts';
 
 /**
- * Toolkit for working with disposable interfaces.
+ * Observable lifecycle helpers with native lexical cleanup.
+ *
+ * Created owners route explicit and native requests through one disposal operation and expose it via
+ * `dispose$`; projections may intentionally withhold disposal authority.
  */
 export const Dispose: t.Dispose.Lib = {
   done,

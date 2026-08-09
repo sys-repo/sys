@@ -1,67 +1,51 @@
 import type { t } from './common.ts';
 
-/**
- * Type contracts for disposable lifecycle helpers.
- */
+/** Type contracts for observable disposal lifecycle helpers. */
 export declare namespace Dispose {
-  /**
-   * Toolkit for working with disposable interfaces.
-   */
+  /** Lifecycle factories, signals, and authority-preserving or authority-free projections. */
   export type Lib = {
-    /** Generate a disposable lifecycle with standard AbortController/Signal mechanics. */
+    /** Create a synchronous lifecycle whose disposal also aborts its signal. */
     abortable(until?: t.UntilInput): t.Abortable;
 
-    /**
-     * Generates a generic disposable interface that is
-     * typically mixed into a wider interface of some kind.
-     */
+    /** Create a synchronous owner with explicit/native authority and an observable lifetime. */
     disposable(until?: t.UntilInput): t.Disposable;
 
-    /** An async variant of the dispose pattern. */
+    /** Create an asynchronous owner whose entrypoints share one completion promise. */
     disposableAsync(onDispose?: t.LifecycleStageHandler): t.DisposableAsync;
     disposableAsync(
       until?: t.UntilInput,
-      onDispose?: LifecycleStageHandler,
+      onDispose?: t.LifecycleStageHandler,
     ): t.DisposableAsync;
 
-    /**
-     * Generates a disposable interface that maintains
-     * and exposes it's disposed state.
-     */
+    /** Create a synchronous disposable owner with observable terminal state. */
     lifecycle(until?: t.UntilInput): t.Lifecycle;
 
-    /** An async variant of the lifecycle pattern. */
-    lifecycleAsync(onDispose?: LifecycleStageHandler): t.LifecycleAsync;
+    /** Create an asynchronous disposable owner with observable terminal state. */
+    lifecycleAsync(onDispose?: t.LifecycleStageHandler): t.LifecycleAsync;
     lifecycleAsync(
       until?: t.UntilInput,
-      onDispose?: LifecycleStageHandler,
+      onDispose?: t.LifecycleStageHandler,
     ): t.LifecycleAsync;
 
-    /** Extend the given object to be expose the lifecycle API. */
+    /** Add a synchronous owner's disposal authority and observable lifecycle to an object. */
     toLifecycle<T extends t.Lifecycle>(api: t.OmitLifecycle<T>): T;
     toLifecycle<T extends t.Lifecycle>(life: t.Lifecycle, api: t.OmitLifecycle<T>): T;
+
+    /** Project an owner's observable state without exposing disposal authority. */
     toLifecycleView<T extends t.LifecycleView>(life: t.Lifecycle, api: t.OmitLifecycle<T>): T;
 
-    /**
-     * Listens to an observable and disposes of the object when fires.
-     */
+    /** Resolve each input to an observable disposal signal without subscribing or taking ownership. */
     until(until?: t.UntilInput): t.Observable<unknown>[];
 
-    /**
-     * Emit `{ reason }` once, then complete.
-     * Safe to call with `undefined` reason.
-     */
+    /** Emit one `{ reason }` event and complete the supplied disposal subject. */
     done(dispose$?: t.Subject<t.DisposeEvent>, reason?: unknown): void;
 
-    /**
-     * Safely remove direct and native disposal authority from a disposable.
-     * NB: useful for surfacing an observable lifecycle without exposing cleanup control.
-     */
+    /** Remove direct and native disposal authority while preserving the observable projection. */
     omitDispose<T extends t.Disposable | t.DisposableAsync>(
       obj: T,
     ): Omit<T, 'dispose' | typeof Symbol.dispose | typeof Symbol.asyncDispose>;
   };
 }
 
-/** Callback invoked upon disposal of a lifecycle object  */
+/** Cleanup callback invoked by an asynchronous lifecycle owner. */
 export type LifecycleStageHandler = (e: t.DisposeEvent) => t.IgnoredResult;
