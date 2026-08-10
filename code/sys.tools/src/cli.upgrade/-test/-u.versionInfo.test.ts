@@ -1,6 +1,7 @@
 import { describe, expect, expectError, it, type t } from '../../-test.ts';
 import { pkg } from '../common.ts';
 import { getVersionInfo } from '../u.ts';
+import { resolvePublicToolsPackage } from '../u.versionInfo.ts';
 import { toVersionState } from '../u.versionState.ts';
 import { versionsFailure, versionsMalformed, versionsSuccess } from './u.fixture.ts';
 
@@ -145,6 +146,43 @@ describe('cli.upgrade.versionState', () => {
     expect(state.actionable).to.eql('0.0.319');
     expect(state.upgradeAvailable).to.eql(true);
     expect(state.pending).to.eql(false);
+  });
+});
+
+describe('cli.upgrade.resolvePublicToolsPackage', () => {
+  it('resolves the reloaded public tools specifier without workspace config or lock', async () => {
+    const calls: Array<{
+      readonly cwd: t.StringDir;
+      readonly specifier: t.StringModuleSpecifier;
+      readonly reload?: boolean;
+      readonly noConfig?: boolean;
+      readonly noLock?: boolean;
+    }> = [];
+
+    const res = await resolvePublicToolsPackage('/workspace/sys' as t.StringDir, {
+      reload: true,
+      resolvePackage: (args) => {
+        calls.push(args);
+        return Promise.resolve({
+          ok: true as const,
+          specifier: args.specifier,
+          registry: 'jsr' as const,
+          package: '@sys/tools' as t.StringPkgName,
+          resolved: '0.0.319' as t.StringSemver,
+        });
+      },
+    });
+
+    expect(res.ok).to.eql(true);
+    expect(calls).to.eql([
+      {
+        cwd: '/workspace/sys',
+        specifier: 'jsr:@sys/tools',
+        reload: true,
+        noConfig: true,
+        noLock: true,
+      },
+    ]);
   });
 });
 

@@ -1,8 +1,8 @@
-import { c, Cli, pkg, type t } from './common.ts';
+import { c, Cli, pkg, Semver, type t } from './common.ts';
 import { Fmt } from './u.fmt.ts';
 import { refreshCache } from './u.refreshCache.ts';
 import { writeUpgradeAdvisorySuccess } from './u.advisory.ts';
-import { getVersionInfo } from './u.versionInfo.ts';
+import { getVersionInfo, resolvePublicToolsPackage } from './u.versionInfo.ts';
 import { toVersionState } from './u.versionState.ts';
 
 type Spinner = t.Cli.Spinner.Instance;
@@ -24,6 +24,7 @@ type GetVersionInfo = (
   cwd: t.StringDir,
   options?: GetVersionInfoOptions,
 ) => Promise<t.UpgradeTool.VersionInfo>;
+type ResolvePublicToolsPackage = typeof resolvePublicToolsPackage;
 type WriteAdvisorySuccess = (version: t.UpgradeTool.VersionInfo) => Promise<void>;
 
 type RunUpgradeSource = NonNullable<t.UpgradeTool.CliContext['origin']>;
@@ -31,6 +32,7 @@ type RunUpgradeResult = t.UpgradeTool.CliResult;
 
 type RunUpgradeDeps = {
   readonly getVersionInfo: GetVersionInfo;
+  readonly resolvePublicToolsPackage?: ResolvePublicToolsPackage;
   readonly refreshCache: (
     cwd: t.StringDir,
     opts?: { readonly silent?: boolean },
@@ -49,6 +51,7 @@ export async function runUpgrade(
   opts: { interactive?: boolean; source?: RunUpgradeSource } = {},
   deps: RunUpgradeDeps = {
     getVersionInfo,
+    resolvePublicToolsPackage,
     refreshCache,
     prompt: Cli.Input.Select.prompt<string>,
     spinner: Cli.spinner,
@@ -165,17 +168,19 @@ export async function runUpgrade(
       throw new Error(msg);
     }
 
-    const verified = await deps.getVersionInfo(cwd, { resolverReload: true });
-    if (!resolvesPublicSpecifierTo(verified, target)) {
+    const verified = await (deps.resolvePublicToolsPackage ?? resolvePublicToolsPackage)(cwd, {
+      reload: true,
+    });
+    if (!resolvesPublicSpecifierAtOrAbove(verified, target)) {
       throw new Error(
         [
           `Failed to verify ${pkg.name} upgrade.`,
-          `Expected upgrade version ${target}; ${formatVerifiedState(verified)}.`,
+          `Expected upgrade version ${target} or newer; ${formatVerifiedResolution(verified)}.`,
         ].join(' '),
       );
     }
 
-    deps.info(formatUpgradeSuccess(target));
+    deps.info(formatUpgradeSuccess(verified.resolved));
     deps.info();
     return;
   }
@@ -200,12 +205,12 @@ function formatUpgradeSpinnerText(version: t.UpgradeTool.VersionInfo, target: t.
   ].join('');
 }
 
-function formatUpgradeSuccess(target: t.StringSemver) {
+function formatUpgradeSuccess(version: t.StringSemver) {
   return [
     c.gray('Upgraded '),
     c.white(pkg.name),
     c.gray(' to '),
-    c.green(`${target} ✔`),
+    c.green(`${version} ✔`),
   ].join('');
 }
 
@@ -214,19 +219,14 @@ function verifiedActionableTarget(state: t.UpgradeTool.VersionState): t.StringSe
   throw new Error(`Cannot run ${pkg.name} upgrade without a verified upgrade version.`);
 }
 
-function resolvesPublicSpecifierTo(
-  version: t.UpgradeTool.VersionInfo,
+function resolvesPublicSpecifierAtOrAbove(
+  resolution: t.WorkspaceResolve.PackageResolutionFact,
   target: t.StringSemver,
-) {
-  return version.resolution?.ok === true && version.resolution.resolved === target;
+): resolution is t.WorkspaceResolve.PackageResolutionOk {
+  return resolution.ok && Semver.Is.greaterOrEqual(resolution.resolved, target);
 }
 
-function formatVerifiedState(version: t.UpgradeTool.VersionInfo) {
-  const state = toVersionState(version);
-  if (version.resolution?.ok === true) {
-    return `public specifier resolved ${version.resolution.resolved}`;
-  }
-  if (state.resolverUnavailable) return 'Deno resolver state is unavailable';
-  if (!state.actionable) return 'no upgrade version was reported';
-  return `upgrade check reported ${state.actionable}`;
+function formatVerifiedResolution(resolution: t.WorkspaceResolve.PackageResolutionFact) {
+  if (resolution.ok) return `public specifier resolved ${resolution.resolved}`;
+  return 'Deno resolver state is unavailable';
 }

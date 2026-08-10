@@ -3,12 +3,31 @@ import { toVersionState } from './u.versionState.ts';
 
 type FetchPackageVersions = t.Registry.Jsr.Fetch.Pkg.Lib['versions'];
 type ResolvePackage = t.WorkspaceResolve.Lib['resolvePackage'];
+type ResolvePublicToolsPackageOptions = {
+  readonly reload?: boolean;
+  readonly resolvePackage?: ResolvePackage;
+};
 type GetVersionInfoDeps = {
   readonly versions?: FetchPackageVersions;
   readonly resolvePackage?: ResolvePackage;
   /** Force Deno to reload resolver/cache state before reporting the actionable upgrade version. */
   readonly resolverReload?: boolean;
 };
+
+/** Resolve the unpinned public tools package without workspace config or lock discovery. */
+export function resolvePublicToolsPackage(
+  cwd: t.StringDir,
+  options: ResolvePublicToolsPackageOptions = {},
+): Promise<t.WorkspaceResolve.PackageResolutionFact> {
+  const resolvePackage = options.resolvePackage ?? WorkspaceResolve.resolvePackage;
+  return resolvePackage({
+    cwd,
+    specifier: `jsr:${pkg.name}`,
+    reload: options.reload ?? false,
+    noConfig: true,
+    noLock: true,
+  });
+}
 
 export async function getVersionInfo(
   cwd: t.StringDir = Fs.cwd('terminal'),
@@ -39,9 +58,9 @@ export async function getVersionInfo(
     noConfig: true,
     noLock: true,
   } as const;
-  const resolution = await resolvePackage({
-    ...resolverOptions,
-    specifier: `jsr:${pkg.name}`,
+  const resolution = await resolvePublicToolsPackage(cwd, {
+    reload: resolverOptions.reload,
+    resolvePackage,
   });
   const actionable = resolution.ok ? resolution.resolved : undefined;
   const latest = actionable ?? local;
