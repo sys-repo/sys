@@ -41,6 +41,7 @@ const DenoInfoDependencySchema = Schema.Type.Object(
 const DenoInfoModuleSchema = Schema.Type.Object(
   {
     specifier: Schema.Type.Optional(Schema.Type.String()),
+    error: Schema.Type.Optional(Schema.Type.String()),
     dependencies: Schema.Type.Optional(Schema.Type.Array(DenoInfoDependencySchema)),
   },
   { additionalProperties: true },

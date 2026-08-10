@@ -1,5 +1,6 @@
-import { type t, Fs, Is, Str } from '../common.ts';
+import { Fs, Is, Obj, Str, type t } from '../common.ts';
 import { resolvePackagePaths } from '../../m.pkg/u.source.ts';
+import { classifyModuleSpecifier } from './u.moduleSpecifier.ts';
 
 const compare = Str.Compare.codeUnit();
 
@@ -26,15 +27,21 @@ async function resolveEntryPaths(
   packagePath: t.StringPath,
   deno: Record<string, unknown>,
 ) {
-  const explicit = exportPaths(deno.exports)
-    .map((path) => Fs.resolve(packagePath, path))
-    .filter((path, index, values) => values.indexOf(path) === index);
+  const exported = exportPaths(deno.exports);
+  const explicit = [
+    ...new Set(
+      exported
+        .filter((path) => classifyModuleSpecifier(path) === 'code-module')
+        .map((path) => Fs.resolve(packagePath, path)),
+    ),
+  ];
 
   const existing: string[] = [];
   for (const path of explicit) {
     if (await Fs.exists(path)) existing.push(toRelative(cwd, path));
   }
   if (existing.length > 0) return existing.toSorted(compare);
+  if (exported.length > 0 && explicit.length === 0) return [];
 
   const fallback: string[] = [];
   for (const rel of ['./src/mod.ts', './mod.ts'] as const) {
@@ -47,8 +54,8 @@ async function resolveEntryPaths(
 
 function exportPaths(input: unknown): string[] {
   if (Is.str(input)) return input.startsWith('.') ? [input] : [];
-  if (!input || typeof input !== 'object') return [];
-  return Object.values(input).flatMap((value) => exportPaths(value));
+  if (!Is.record(input)) return [];
+  return Obj.entries(input).flatMap(([, value]) => exportPaths(value));
 }
 
 function toRelative(cwd: string, path: string) {

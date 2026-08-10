@@ -1,4 +1,4 @@
-import { Is, Json, Num, Obj, Process, Semver, Time, type t } from './common.ts';
+import { Is, Json, Num, Obj, Process, Semver, type t, Time } from './common.ts';
 import { GraphCli } from '../m.graph/u.cli/mod.ts';
 
 type Invoke = typeof Process.invoke;
@@ -9,6 +9,7 @@ type ParsedSpecifier = {
   readonly constraint: string;
 };
 type PackageResolutionInfo = {
+  readonly roots?: readonly string[];
   readonly redirects?: Record<string, string>;
   readonly packages?: Record<string, string>;
   readonly modules?: readonly PackageResolutionModule[];
@@ -75,8 +76,10 @@ export function packageResolutionFromInfo(
     });
   }
 
-  const moduleError = firstModuleResolutionError(info, specifier);
-  if (moduleError) return failed(specifier, parsed, classifyPackageResolutionFailure(moduleError));
+  const moduleError = rootModuleResolutionError(info, specifier);
+  if (Is.str(moduleError)) {
+    return failed(specifier, parsed, classifyPackageResolutionFailure(moduleError));
+  }
 
   const resolved = findResolvedVersion(specifier, info, parsed);
   if (resolved.ok) {
@@ -126,49 +129,80 @@ export function classifyPackageResolutionFailure(
 }
 
 function packageInfoFromDenoInfo(value: unknown): PackageResolutionInfo {
-  if (!Is.record(value)) return {};
+  if (!Is.record(value)) throw new Error('Deno info output must be an object');
   return {
-    redirects: stringRecord(value.redirects),
-    packages: stringRecord(value.packages),
+    roots: stringArray(value.roots, 'roots'),
+    redirects: stringRecord(value.redirects, 'redirects'),
+    packages: stringRecord(value.packages, 'packages'),
     modules: infoModules(value.modules),
   };
 }
 
 function infoModules(value: unknown): PackageResolutionModule[] | undefined {
-  if (!Is.array<unknown>(value)) return undefined;
+  if (value === undefined) return undefined;
+  if (!Is.array<unknown>(value)) {
+    throw new Error('Deno info field "modules" must be an array');
+  }
 
   const modules: PackageResolutionModule[] = [];
   for (const item of value) {
-    if (!Is.record(item)) continue;
-    const specifier = item.specifier;
-    const error = item.error;
-    if (!Is.str(specifier) && !Is.str(error)) continue;
+    if (!Is.record(item)) {
+      throw new Error('Deno info field "modules" must contain objects');
+    }
+    const specifier = optionalString(item.specifier, 'modules[].specifier');
+    const error = optionalString(item.error, 'modules[].error');
     modules.push({
-      ...(Is.str(specifier) ? { specifier } : {}),
-      ...(Is.str(error) ? { error } : {}),
+      ...(specifier === undefined ? {} : { specifier }),
+      ...(error === undefined ? {} : { error }),
     });
   }
-  return modules.length ? modules : undefined;
+  return modules;
 }
 
-function firstModuleResolutionError(
+function rootModuleResolutionError(
   info: PackageResolutionInfo,
   root: t.StringModuleSpecifier,
 ): string | undefined {
-  const modules = info.modules ?? [];
-  const rootError = modules.find((module) => module.specifier === root && Is.str(module.error))
-    ?.error;
-  return rootError ?? modules.map((module) => module.error).find(Is.str);
+  const roots = info.roots;
+  return (info.modules ?? []).find((module) => {
+    if (!Is.str(module.specifier) || !Is.str(module.error)) return false;
+    return roots ? roots.includes(module.specifier) : module.specifier === root;
+  })?.error;
 }
 
-function stringRecord(value: unknown): Record<string, string> | undefined {
-  if (!Is.record(value)) return undefined;
+function optionalString(value: unknown, field: string): string | undefined {
+  if (value === undefined) return undefined;
+  if (!Is.str(value)) throw new Error(`Deno info field "${field}" must be a string`);
+  return value;
+}
+
+function stringArray(value: unknown, field: string): string[] | undefined {
+  if (value === undefined) return undefined;
+  if (!Is.array<unknown>(value)) {
+    throw new Error(`Deno info field "${field}" must be an array of strings`);
+  }
+
+  const strings = value.filter(Is.str);
+  if (strings.length !== value.length) {
+    throw new Error(`Deno info field "${field}" must be an array of strings`);
+  }
+  return strings;
+}
+
+function stringRecord(value: unknown, field: string): Record<string, string> | undefined {
+  if (value === undefined) return undefined;
+  if (!Is.record(value)) {
+    throw new Error(`Deno info field "${field}" must be a string record`);
+  }
 
   const res: Record<string, string> = {};
   for (const [key, item] of Obj.entries(value)) {
-    if (Is.str(item)) res[key] = item;
+    if (!Is.str(item)) {
+      throw new Error(`Deno info field "${field}" must be a string record`);
+    }
+    res[key] = item;
   }
-  return Obj.keys(res).length ? res : undefined;
+  return res;
 }
 
 function parseMinimumDependencyDate(message: string): t.StringTimestamp | undefined {

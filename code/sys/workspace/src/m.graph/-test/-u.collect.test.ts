@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it, Str, Testing } from '../../-test.ts';
+import { describe, expect, expectError, Fs, it, Obj, Str, Testing } from '../../-test.ts';
 import { WorkspaceGraph } from '../mod.ts';
 
 describe('Workspace.Graph.collect', () => {
@@ -64,6 +64,59 @@ describe('Workspace.Graph.collect', () => {
     ]);
   });
 
+  it('treats explicit non-code assets as opaque graph leaves', async () => {
+    const fs = await Testing.dir('WorkspaceGraph.collect.opaque-asset');
+
+    await writePackage(fs.dir, 'code/pkg-a', {
+      name: '@scope/a',
+      exports: { '.': './src/mod.ts', './asset': './src/sample.asset' },
+      files: {
+        'src/mod.ts': `import './sample.asset';\nexport const value = 'a';\n`,
+        'src/sample.asset': 'opaque asset\n',
+      },
+    });
+
+    const graph = await WorkspaceGraph.collect({
+      cwd: fs.dir,
+      source: { include: ['./code/**/deno.json'] },
+    });
+
+    expect(graph.packages).to.eql([
+      {
+        path: 'code/pkg-a',
+        manifestPath: 'code/pkg-a/deno.json',
+        name: '@scope/a',
+        entryPaths: ['code/pkg-a/src/mod.ts'],
+      },
+    ]);
+    expect(graph.roots).to.eql(['code/pkg-a/src/mod.ts']);
+    expect(graph.modules).to.eql([
+      { key: 'code/pkg-a/src/mod.ts', packagePath: 'code/pkg-a' },
+    ]);
+    expect(graph.edges).to.eql([]);
+  });
+
+  it('rejects a package graph with a missing dynamic import', async () => {
+    const fs = await Testing.dir('WorkspaceGraph.collect.module-error');
+
+    await writePackage(fs.dir, 'code/pkg-a', {
+      name: '@scope/a',
+      exports: { '.': './src/mod.ts' },
+      files: { 'src/mod.ts': `await import('./missing.ts');\n` },
+    });
+
+    const error = await expectError(() =>
+      WorkspaceGraph.collect({
+        cwd: fs.dir,
+        source: { include: ['./code/**/deno.json'] },
+      })
+    );
+
+    expect(error.message).to.include('Workspace.Graph.collect');
+    expect(error.message).to.include('missing.ts');
+    expect(error.message).to.include('Module not found');
+  });
+
   it('orders package paths and roots by code-unit order', async () => {
     const fs = await Testing.dir('WorkspaceGraph.collect.codeUnit');
 
@@ -114,7 +167,7 @@ async function writePackage(
     exports: args.exports,
   });
 
-  for (const [rel, source] of Object.entries(args.files)) {
+  for (const [rel, source] of Obj.entries(args.files)) {
     await Fs.write(Fs.join(cwd, path, rel), source);
   }
 }
