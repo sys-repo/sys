@@ -48,7 +48,7 @@ export const StartReporter = {
 const DEFAULT_DEPS: StartReporterDeps = {
   isInteractive: () => Cli.Is.interactive(),
   print: (text) => console.info(text),
-  header: (width) => formatStartHeader(width),
+  header: (width) => formatStartHeader(undefined, width),
   startText: (serviceCount, startedAt) =>
     Cli.Fmt.spinnerText(startServicesText(serviceCount, startedAt)),
   size: () => Cli.Screen.size(),
@@ -90,26 +90,31 @@ function createRaw(deps: StartReporterDeps): StartReporterInstance {
   type Phase = 'idle' | 'open' | 'ready' | 'complete' | 'disposed';
 
   let phase: Phase = 'idle';
-  let hasBody = false;
+  let hasSection = false;
+
+  const printSection = (text: string) => {
+    if (!text) return;
+    deps.print(hasSection ? `\n${text}` : text);
+    hasSection = true;
+  };
 
   return {
     mode: 'raw',
     open() {
       if (phase !== 'idle') return;
       phase = 'open';
-      deps.print(deps.header());
+      printSection(deps.header());
     },
     starting() {},
     ready(input) {
       if (phase === 'disposed' || phase === 'complete') return;
       phase = 'ready';
-      hasBody = Boolean(input.text);
-      if (hasBody) deps.print(input.text);
+      printSection(input.text);
     },
     complete(summary) {
       if (phase === 'disposed' || phase === 'complete') return;
       phase = 'complete';
-      deps.print(hasBody ? summary : `\n${summary}`);
+      printSection(summary);
     },
     dispose() {
       phase = 'disposed';
@@ -140,12 +145,27 @@ function createScreen(deps: StartReporterDeps): StartReporterInstance {
       ? rowsOf(Str.trimEdgeNewlines(renderBody?.(viewport.width) ?? ''))
       : [];
     const summaryRows = phase === 'complete' ? rowsOf(Str.trimEdgeNewlines(summary)) : [];
-    // Completion facts outrank service-body rows when viewport height is constrained.
-    const summaryBudget = Math.min(capacity, sectionRowCount(summaryRows));
-    const visibleSummary = fitSection(summaryRows, summaryBudget);
+
+    // Completion facts outrank service-body rows; content outranks decorative spacing.
+    const visibleSummary = summaryRows.slice(0, capacity);
     const bodyBudget = Math.max(0, capacity - visibleSummary.length);
-    const visibleBody = fitSection(body, bodyBudget);
-    const rows = [...header, ...visibleBody, ...visibleSummary];
+    const visibleBody = body.slice(0, bodyBudget);
+    let spacingBudget = Math.max(0, bodyBudget - visibleBody.length);
+
+    const separateBodySummary = visibleBody.length > 0 &&
+      visibleSummary.length > 0 &&
+      spacingBudget > 0;
+    if (separateBodySummary) spacingBudget -= 1;
+
+    const hasVisibleContent = visibleBody.length > 0 || visibleSummary.length > 0;
+    const separateHeader = header.length > 0 && hasVisibleContent && spacingBudget > 0;
+    const rows = [
+      ...header,
+      ...(separateHeader ? [''] : []),
+      ...visibleBody,
+      ...(separateBodySummary ? [''] : []),
+      ...visibleSummary,
+    ];
     return rows.map((row) => fitRow(row, viewport.width)).join('\n');
   };
 
@@ -244,16 +264,6 @@ function createScreen(deps: StartReporterDeps): StartReporterInstance {
 
 function rowsOf(text: string): string[] {
   return text ? text.split('\n') : [];
-}
-
-function sectionRowCount(rows: readonly string[]): number {
-  return rows.length === 0 ? 0 : rows.length + 1;
-}
-
-function fitSection(rows: readonly string[], capacity: number): string[] {
-  if (rows.length === 0 || capacity <= 0) return [];
-  if (capacity === 1) return [rows[0]];
-  return ['', ...rows.slice(0, capacity - 1)];
 }
 
 function fitRow(row: string, width: number): string {

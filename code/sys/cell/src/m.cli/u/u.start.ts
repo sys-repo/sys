@@ -1,6 +1,6 @@
 import { Cell } from '../../m.cell/mod.ts';
 import { serviceStatusesOf } from '../../m.cell/u.services/u.status.ts';
-import { c, Cli, CliTable, Num, pkg, Str, type t, Time, Try } from '../common.ts';
+import { c, Cli, CliTable, Num, Pkg, Str, type t, Time, Try } from '../common.ts';
 import { smallCountText } from '../u.fmt/u.count.ts';
 import { elapsedSuffix } from '../u.fmt/u.elapsed.ts';
 import { Fmt } from '../u.fmt/u.mod.ts';
@@ -16,8 +16,6 @@ import { createShutdownSignal, isSignalShutdownReason, type ShutdownSignal } fro
  * caller retains terminal ownership.
  */
 export type StartCellArgs = {
-  /** Cell root to load; omit to discover from the current working directory. */
-  readonly dir?: string;
   /** Service graph mode selected for this start. */
   readonly mode?: t.Cell.Services.ServiceMode;
   /** Signals the resolved service count immediately before owner startup begins. */
@@ -43,9 +41,16 @@ export type StartCellResult = {
   readonly serviceText: string;
 };
 
-/** Starts Cell services while leaving terminal effects to the lifecycle-hook caller. */
-export async function startCell(args: StartCellArgs = {}): Promise<StartCellResult> {
-  const cell = await Cell.load(args.dir);
+/** Loads the Cell once before start presentation acquires terminal ownership. */
+export function loadStartCell(dir?: string): Promise<t.Cell.Instance> {
+  return Cell.load(dir);
+}
+
+/** Starts one loaded Cell while leaving terminal effects to the lifecycle-hook caller. */
+export async function startCell(
+  cell: t.Cell.Instance,
+  args: StartCellArgs = {},
+): Promise<StartCellResult> {
   const mode = args.mode ?? 'default';
   const sessionRoot = await canonicalRoot(cell.root);
   const shutdown = createShutdownSignal();
@@ -132,14 +137,38 @@ export function startServicesText(
   return `${text}${elapsedSuffix({ startedAt, now })}`;
 }
 
-export function formatStartHeader(width?: number): string {
-  return Cli.Fmt.Header.rows({ pkg, tone: 'green', width }).join('\n');
+/** Resolves descriptor identity and caller-owned package provenance without ambient discovery. */
+export function resolveStartIdentity(
+  descriptor: t.Cell.Descriptor,
+  callerPkg?: t.Pkg,
+): t.CellCli.Start.Identity | undefined {
+  const pkg = realCallerPkg(callerPkg);
+  const name = descriptor.name ?? pkg?.name;
+  if (!name) return undefined;
+  return {
+    name,
+    ...(pkg ? { version: pkg.version } : {}),
+  };
+}
+
+export function formatStartHeader(
+  identity?: t.CellCli.Start.Identity,
+  width?: number,
+): string {
+  if (!identity) return '';
+  return Cli.Fmt.Header.rows({
+    title: identity.name,
+    version: identity.version ?? false,
+    tone: 'green',
+    width,
+  }).join('\n');
 }
 
 /**
  * Renders service content inside the Cell start frame's two-cell gutter.
  *
- * The renderer receives the inner width; visible rows retain two cells at each frame edge.
+ * The renderer receives the inner width; visible rows retain two cells at each frame edge. The
+ * returned body has no outer blank rows because reporters own spacing between sections.
  */
 export function formatStartServiceBody(
   render: (width: number) => string,
@@ -151,8 +180,10 @@ export function formatStartServiceBody(
   const gutter = 2;
   const innerWidth = Math.max(0, frameWidth - gutter * 2);
   if (innerWidth === 0) return '';
+  const text = Str.trimEdgeNewlines(render(innerWidth));
+  if (!text) return '';
   const inset = ' '.repeat(gutter);
-  return render(innerWidth).split('\n').map((row) => row ? `${inset}${row}` : row).join('\n');
+  return text.split('\n').map((row) => row ? `${inset}${row}` : row).join('\n');
 }
 
 export function formatStartResult(res: StartCellResult): string {
@@ -163,22 +194,34 @@ export function formatStartResult(res: StartCellResult): string {
   return Str.trimEdgeNewlines(String(table));
 }
 
-export function formatStartOutput(res: StartCellResult): string {
-  const header = formatStartHeader();
+export function formatStartOutput(
+  res: StartCellResult,
+  identity?: t.CellCli.Start.Identity,
+): string {
+  const header = formatStartHeader(identity);
   const summary = formatStartResult(res);
-  return res.serviceText ? `${header}\n${res.serviceText}\n${summary}` : `${header}\n\n${summary}`;
+  return [header, res.serviceText, summary].filter(Boolean).join('\n\n');
+}
+
+function realCallerPkg(input?: t.Pkg): t.Pkg | undefined {
+  if (!Pkg.Is.pkg(input)) return undefined;
+  if (!input.name || input.name !== input.name.trim()) return undefined;
+  if (!input.version || input.version !== input.version.trim()) return undefined;
+  return Pkg.Is.unknown(input) ? undefined : input;
 }
 
 export function toStartResult(
   input: t.CellCli.Input,
   res: StartCellResult,
+  identity?: t.CellCli.Start.Identity,
 ): t.CellCli.Start.Result {
   return {
     kind: 'start',
     input,
-    text: formatStartOutput(res),
+    text: formatStartOutput(res, identity),
     root: res.root,
     services: res.services,
+    ...(identity ? { identity } : {}),
     ...(res.mode !== 'default' ? { mode: res.mode } : {}),
   };
 }

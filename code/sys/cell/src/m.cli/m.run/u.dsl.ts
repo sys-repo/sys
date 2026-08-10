@@ -4,12 +4,12 @@ import type { RunContext } from './u.context.ts';
 import { fail, print } from './u.output.ts';
 
 export async function runDsl(ctx: RunContext): Promise<t.CellCli.Result> {
-  const { args, argv } = ctx;
+  const { args, input } = ctx;
   const path = args._.slice(1).map(String);
   const rootHelp = async () => await FmtHelp.dslOutput();
   const format = dslFormat(args.format);
 
-  if (!format.ok) return fail({ argv }, format.message, await rootHelp());
+  if (!format.ok) return fail(input, format.message, await rootHelp());
 
   if (
     args.agent ||
@@ -30,15 +30,15 @@ export async function runDsl(ctx: RunContext): Promise<t.CellCli.Result> {
       : args.mode !== undefined
       ? '--mode'
       : '--reporter';
-    return fail({ argv }, `Unexpected option for dsl: ${flag}`, await rootHelp());
+    return fail(input, `Unexpected option for dsl: ${flag}`, await rootHelp());
   }
 
   try {
     const text = await FmtHelp.dslOutput({ path, format: format.value });
     print(text);
-    return { kind: 'help', input: { argv }, text };
+    return { kind: 'help', input, text };
   } catch (error) {
-    return fail({ argv }, Err.summary(error), await rootHelp());
+    return fail(input, Err.summary(error), await rootHelp());
   }
 }
 

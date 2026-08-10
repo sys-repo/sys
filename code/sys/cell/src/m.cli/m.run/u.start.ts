@@ -6,15 +6,15 @@ import { fail, print } from './u.output.ts';
 import { startReporterFlag } from './u.reporter.ts';
 
 export async function runStart(ctx: RunContext): Promise<t.CellCli.Result> {
-  const { args, argv } = ctx;
+  const { args, input } = ctx;
   const startHelp = await FmtHelp.startOutput();
 
   if (args.format !== undefined) {
-    return fail({ argv }, 'Unexpected option for start: --format', startHelp);
+    return fail(input, 'Unexpected option for start: --format', startHelp);
   }
   if (args.help) {
     print(startHelp);
-    return { kind: 'help', input: { argv }, text: startHelp };
+    return { kind: 'help', input, text: startHelp };
   }
   if (args.agent || args.dryRun || args.plan || args.force) {
     const flag = args.agent
@@ -24,29 +24,32 @@ export async function runStart(ctx: RunContext): Promise<t.CellCli.Result> {
       : args.plan
       ? '--plan'
       : '--force';
-    return fail({ argv }, `Unexpected option for start: ${flag}`, startHelp);
+    return fail(input, `Unexpected option for start: ${flag}`, startHelp);
   }
 
   const mode = serviceModeFlag(args.mode, 'start');
-  if (!mode.ok) return fail({ argv }, mode.message, startHelp);
+  if (!mode.ok) return fail(input, mode.message, startHelp);
   const reporter = startReporterFlag(args.reporter);
-  if (!reporter.ok) return fail({ argv }, reporter.message, startHelp);
-  if (args._.length > 2) return fail({ argv }, `Unexpected argument: ${args._[2]}`, startHelp);
+  if (!reporter.ok) return fail(input, reporter.message, startHelp);
+  if (args._.length > 2) return fail(input, `Unexpected argument: ${args._[2]}`, startHelp);
 
   try {
     const start = await import('../u/u.start.ts');
     const reporting = await import('../u/u.start.reporter.ts');
-    const output = reporting.StartReporter.create(reporter.value);
+    const cell = await start.loadStartCell(args._[1]);
+    const identity = start.resolveStartIdentity(cell.descriptor, input.pkg);
+    const output = reporting.StartReporter.create(reporter.value, {
+      header: (width) => start.formatStartHeader(identity, width),
+    });
 
     try {
       output.open();
-      const started = await start.startCell({
-        dir: args._[1],
+      const started = await start.startCell(cell, {
         mode: mode.value,
         onStarting: output.starting,
         onReady: output.ready,
       });
-      const res = start.toStartResult({ argv }, started);
+      const res = start.toStartResult(input, started, identity);
       output.complete(start.formatStartResult(started));
       output.dispose();
       return res;
@@ -59,6 +62,6 @@ export async function runStart(ctx: RunContext): Promise<t.CellCli.Result> {
       throw error;
     }
   } catch (error) {
-    return fail({ argv }, Err.summary(error, { cause: true }));
+    return fail(input, Err.summary(error, { cause: true }));
   }
 }

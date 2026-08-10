@@ -176,6 +176,20 @@ await Cell.task('.', 'sample:deploy');
 await Cell.task('sample:deploy');
 ```
 
+Programmatic CLI callers may supply their own package metadata for start presentation:
+
+```ts
+import { CellCli } from 'jsr:@sys/cell/cli';
+import { pkg } from './pkg.ts';
+
+await CellCli.run({ argv: ['start', '.'], pkg });
+```
+
+Start displays the Cell descriptor's optional `name`. If the descriptor is unnamed, it displays the
+caller package name instead. The caller package version is the release provenance in either case.
+Without either name, start omits the identity header. The direct `jsr:@sys/cell start` command
+supplies no package metadata.
+
 ### CLI
 
 Use `dsl` as the agent-facing [speech-act](https://en.wikipedia.org/wiki/Speech_act) help surface.

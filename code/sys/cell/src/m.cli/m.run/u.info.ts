@@ -6,16 +6,16 @@ import type { RunContext } from './u.context.ts';
 import { fail, print } from './u.output.ts';
 
 export async function runInfo(ctx: RunContext): Promise<t.CellCli.Result> {
-  const { args, argv } = ctx;
+  const { args, input } = ctx;
   const infoHelp = await FmtHelp.infoOutput();
 
   const unsupported = unsupportedFlag(args);
-  if (unsupported) return fail({ argv }, `Unexpected option for info: ${unsupported}`, infoHelp);
+  if (unsupported) return fail(input, `Unexpected option for info: ${unsupported}`, infoHelp);
   if (args.help) {
     print(infoHelp);
-    return { kind: 'help', input: { argv }, text: infoHelp };
+    return { kind: 'help', input, text: infoHelp };
   }
-  if (args._.length > 2) return fail({ argv }, `Unexpected argument: ${args._[2]}`, infoHelp);
+  if (args._.length > 2) return fail(input, `Unexpected argument: ${args._[2]}`, infoHelp);
 
   try {
     const cell = await Cell.load(args._[1] ?? '.');
@@ -25,7 +25,7 @@ export async function runInfo(ctx: RunContext): Promise<t.CellCli.Result> {
     print(text);
     return {
       kind: 'info',
-      input: { argv },
+      input,
       text,
       root: report.root,
       descriptor: report.descriptor,
@@ -36,7 +36,7 @@ export async function runInfo(ctx: RunContext): Promise<t.CellCli.Result> {
       report,
     };
   } catch (error) {
-    return fail({ argv }, Err.summary(error));
+    return fail(input, Err.summary(error));
   }
 }
 

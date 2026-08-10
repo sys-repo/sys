@@ -14,6 +14,8 @@ export declare namespace CellCli {
   export type Input = {
     /** Raw argv tokens passed to the CLI entrypoint. */
     readonly argv?: readonly string[];
+    /** Optional package provenance supplied by a programmatic caller for start presentation. */
+    readonly pkg?: t.Pkg;
   };
 
   /** Typed argv shape produced by `Args.parse(...)` for the Cell CLI. */
@@ -236,6 +238,14 @@ export declare namespace CellCli {
      */
     export type ReporterMode = 'auto' | 'screen' | 'raw';
 
+    /** Resolved Cell identity and optional caller-owned release provenance. */
+    export type Identity = {
+      /** Descriptor name, or caller package name when the descriptor is unnamed. */
+      readonly name: t.Cell.Id | t.Pkg['name'];
+      /** Release version supplied by a real caller package. */
+      readonly version?: t.Pkg['version'];
+    };
+
     /** Successful Cell services start result. */
     export type Result = {
       /** Result discriminant. */
@@ -248,6 +258,8 @@ export declare namespace CellCli {
       readonly root: string;
       /** Number of services started. */
       readonly services: number;
+      /** Resolved Cell identity when the descriptor or caller supplied one. */
+      readonly identity?: Identity;
       /** Non-default service graph mode selected for this start. */
       readonly mode?: t.Cell.Services.ServiceMode;
     };

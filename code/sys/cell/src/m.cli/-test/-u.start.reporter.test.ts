@@ -26,8 +26,23 @@ describe('@sys/cell/cli start reporter', () => {
 
     expect(harness.effects).to.eql([
       'print:header:raw',
-      'print:\n  body:76\n',
-      'print:summary',
+      'print:\n  body:76',
+      'print:\nsummary',
+    ]);
+  });
+
+  it('raw → omits an absent identity header without changing append-only ordering', () => {
+    const harness = createHarness('raw', { header: '' });
+    const reporter = harness.reporter;
+
+    reporter.open();
+    reporter.ready(readyBody());
+    reporter.complete('summary');
+    reporter.dispose();
+
+    expect(harness.effects).to.eql([
+      'print:  body:76',
+      'print:\nsummary',
     ]);
   });
 
@@ -58,6 +73,45 @@ describe('@sys/cell/cli start reporter', () => {
       'repaint:header:50\n\n  body:46\n\nsummary',
       'screen:release',
     ]);
+  });
+
+  it('screen → uses the first row for body content when identity is absent', () => {
+    const harness = createHarness('screen', { header: '' });
+    const reporter = harness.reporter;
+
+    reporter.open();
+    reporter.ready(readyBody());
+    reporter.complete('summary');
+
+    const frame = harness.effects.filter((effect) => effect.startsWith('repaint:')).at(-1) ?? '';
+    expect(frame).to.eql('repaint:  body:76\n\nsummary');
+
+    reporter.dispose();
+  });
+
+  it('screen → spends tiny anonymous frames on content before separators', () => {
+    const cases = [
+      { height: 1, frame: 'summary' },
+      { height: 2, frame: '  body:16\nsummary' },
+      { height: 3, frame: '  body:16\n\nsummary' },
+    ] as const;
+
+    for (const item of cases) {
+      const harness = createHarness('screen', {
+        header: '',
+        size: { width: 20, height: item.height },
+      });
+      const reporter = harness.reporter;
+
+      reporter.open();
+      reporter.ready(readyBody());
+      reporter.complete('summary');
+
+      const frame = harness.effects.filter((effect) => effect.startsWith('repaint:')).at(-1) ?? '';
+      expect(frame).to.eql(`repaint:${item.frame}`);
+
+      reporter.dispose();
+    }
   });
 
   it('screen → adopts a synchronous viewport observed during acquisition', () => {
@@ -167,7 +221,12 @@ function readyBody() {
 
 function createHarness(
   mode: ReporterMode,
-  options: { repaintError?: Error; resizeOnObserve?: ScreenSize; size?: ScreenSize } = {},
+  options: {
+    header?: string;
+    repaintError?: Error;
+    resizeOnObserve?: ScreenSize;
+    size?: ScreenSize;
+  } = {},
 ) {
   const effects: string[] = [];
   const spinner = FakeSpinner.create();
@@ -187,7 +246,7 @@ function createHarness(
   const reporter = StartReporter.create(mode, {
     isInteractive: () => true,
     print: (text) => effects.push(`print:${text}`),
-    header: (width) => `header:${width ?? 'raw'}`,
+    header: (width) => options.header ?? `header:${width ?? 'raw'}`,
     startText: (count) => `starting:${count}`,
     size: () => options.size ?? { width: 80, height: 24 },
     observeResize(handler) {

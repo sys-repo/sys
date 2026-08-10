@@ -1,7 +1,7 @@
-import { describe, expect, Fs, it, pkg, Str, Testing } from '../../-test.ts';
+import { describe, expect, Fs, it, Pkg, Str, type t, Testing } from '../../-test.ts';
 import { c, Cli, stripAnsi } from '../common.ts';
 import { CellCli } from '../mod.ts';
-import { formatStartServiceBody } from '../u/u.start.ts';
+import { formatStartServiceBody, resolveStartIdentity } from '../u/u.start.ts';
 import {
   addressInUseServiceSource,
   devServiceSource,
@@ -30,6 +30,8 @@ describe(`@sys/cell/cli start`, () => {
     const rows = text.split('\n').filter(Boolean);
     const plainRows = stripAnsi(text).split('\n').filter(Boolean);
 
+    expect(text.startsWith('\n')).to.eql(false);
+    expect(text.endsWith('\n')).to.eql(false);
     expect(widths).to.eql([8]);
     expect(plainRows[0]).to.eql('  service');
     expect(plainRows[1]).to.eql('    module');
@@ -42,7 +44,36 @@ describe(`@sys/cell/cli start`, () => {
     expect(widths).to.eql([8]);
   });
 
-  it('start → frames an empty service set without duplicating the header', async () => {
+  it('identity → resolves descriptor names and caller package provenance independently', () => {
+    const named: t.Cell.Descriptor = { kind: 'cell', version: 1, name: 'sys.ui' };
+    const unnamed: t.Cell.Descriptor = { kind: 'cell', version: 1 };
+    const callerPkg: t.Pkg = { name: '@sys/ui', version: '0.0.39' };
+
+    expect(resolveStartIdentity(named, callerPkg)).to.eql({
+      name: 'sys.ui',
+      version: '0.0.39',
+    });
+    expect(resolveStartIdentity(named)).to.eql({ name: 'sys.ui' });
+    expect(resolveStartIdentity(unnamed, callerPkg)).to.eql({
+      name: '@sys/ui',
+      version: '0.0.39',
+    });
+    expect(resolveStartIdentity(unnamed)).to.eql(undefined);
+    expect(resolveStartIdentity(unnamed, Pkg.unknown())).to.eql(undefined);
+    expect(resolveStartIdentity(unnamed, { name: '   ', version: '1.0.0' })).to.eql(undefined);
+    expect(resolveStartIdentity(unnamed, { name: '@sys/ui', version: '   ' })).to.eql(undefined);
+    expect(resolveStartIdentity(unnamed, { name: ' <unknown> ', version: ' 0.0.0 ' })).to.eql(
+      undefined,
+    );
+    expect(resolveStartIdentity(unnamed, { name: ' @sys/ui ', version: ' 0.0.39 ' })).to.eql(
+      undefined,
+    );
+    expect(resolveStartIdentity(named, { name: '@sys/ui', version: '   ' })).to.eql({
+      name: 'sys.ui',
+    });
+  });
+
+  it('start → omits identity chrome for an unnamed Cell without caller package metadata', async () => {
     const fs = await Testing.dir('CellCli.start.empty-services');
     await silent(() => CellCli.run({ argv: ['init', fs.dir] }));
 
@@ -55,20 +86,85 @@ describe(`@sys/cell/cli start`, () => {
     if (res.kind !== 'start') throw new Error('expected start result');
     expect(res.root).to.eql(fs.dir);
     expect(res.services).to.eql(0);
+    expect(res.identity).to.eql(undefined);
 
     const emitted = stripAnsi(captured.output.join('\n'));
     const returned = stripAnsi(res.text);
-    const emittedLines = emitted.split('\n');
-    const returnedLines = returned.split('\n');
-    const emittedRoot = emittedLines.findIndex((line) => line.trimStart().startsWith('root'));
-    const returnedRoot = returnedLines.findIndex((line) => line.trimStart().startsWith('root'));
 
-    expect(countTitleRows(emitted)).to.eql(1);
-    expect(countTitleRows(returned)).to.eql(1);
-    expect(emittedLines[2]).to.eql('');
-    expect(returnedLines[2]).to.eql('');
-    expect(emittedRoot).to.eql(3);
-    expect(returnedRoot).to.eql(3);
+    expect(emitted).to.eql(returned);
+    expect(emitted.split('\n')[0]?.trimStart().startsWith('root')).to.eql(true);
+    expect(emitted).not.to.contain('Untitled');
+    expect(emitted).not.to.contain('@sys/cell');
+    expect(hasHeaderRule(emitted)).to.eql(false);
+  });
+
+  it('start → renders all descriptor and caller package identity combinations', async () => {
+    const callerPkg: t.Pkg = { name: '@sys/ui', version: '0.0.39' };
+    const cases: readonly {
+      label: string;
+      name?: t.Cell.Id;
+      pkg?: t.Pkg;
+      title?: string;
+      version?: string;
+    }[] = [
+      {
+        label: 'named-package',
+        name: 'sys.ui',
+        pkg: callerPkg,
+        title: 'sys.ui',
+        version: '0.0.39',
+      },
+      { label: 'named', name: 'sys.ui', title: 'sys.ui' },
+      { label: 'package', pkg: callerPkg, title: '@sys/ui', version: '0.0.39' },
+      { label: 'anonymous' },
+    ];
+
+    for (const item of cases) {
+      const fs = await Testing.dir(`CellCli.start.identity.${item.label}`);
+      await silent(() => CellCli.run({ argv: ['init', fs.dir] }));
+      if (item.name) {
+        await Fs.write(
+          Fs.join(fs.dir, '-config/@sys.cell/cell.yaml'),
+          `kind: cell\nversion: 1\nname: ${item.name}\n`,
+        );
+      }
+
+      const input: t.CellCli.Input = {
+        argv: ['start', fs.dir, '--reporter', 'raw'],
+        ...(item.pkg ? { pkg: item.pkg } : {}),
+      };
+      const captured = await captureInfo(() => CellCli.run(input));
+      const res = captured.result;
+
+      expect(res.kind).to.eql('start');
+      if (res.kind !== 'start') throw new Error('expected start result');
+      expect(res.input.pkg).to.equal(input.pkg);
+      expect(res.identity).to.eql(
+        item.title
+          ? { name: item.title, ...(item.version ? { version: item.version } : {}) }
+          : undefined,
+      );
+
+      const text = stripAnsi(captured.output.join('\n'));
+      expect(text).to.eql(stripAnsi(res.text));
+      expect(text).not.to.contain('@sys/cell');
+      expect(text).not.to.contain('Untitled');
+      expect(hasHeaderRule(text)).to.eql(Boolean(item.title));
+      if (item.title) {
+        expect(text.split('\n')[0]?.startsWith(item.title)).to.eql(true);
+        if (item.version) expect(text.split('\n')[0]?.endsWith(item.version)).to.eql(true);
+      } else {
+        expect(text.split('\n')[0]?.trimStart().startsWith('root')).to.eql(true);
+      }
+    }
+  });
+
+  it('start → preserves caller package context through validation failures', async () => {
+    const callerPkg: t.Pkg = { name: '@sys/ui', version: '0.0.39' };
+    const res = await silent(() => CellCli.run({ argv: ['start', '--dry-run'], pkg: callerPkg }));
+
+    expect(res.kind).to.eql('error');
+    expect(res.input.pkg).to.equal(callerPkg);
   });
 
   it('start → starts all services within one ordered application frame', async () => {
@@ -106,8 +202,6 @@ describe(`@sys/cell/cli start`, () => {
     const returned = stripAnsi(res.text);
     const lines = emitted.split('\n');
     const returnedLines = returned.split('\n');
-    const title = lines[0];
-    const hr = lines[1];
     const service = lines.findIndex((line) => line.trimStart().startsWith('service'));
     const returnedService = returnedLines.findIndex((line) =>
       line.trimStart().startsWith('service')
@@ -122,14 +216,12 @@ describe(`@sys/cell/cli start`, () => {
     const returnedSummaryRoot = returnedLines.find((line) => line.startsWith('root')) ?? '';
 
     expect(emitted).to.eql(returned);
-    expect(title.startsWith(pkg.name)).to.eql(true);
-    expect(title.endsWith(pkg.version)).to.eql(true);
-    expect(Cli.Fmt.Text.Width.measure(title)).to.eql(Cli.Fmt.Text.Width.measure(hr));
-    expect(hr).to.eql('━'.repeat(Cli.Fmt.Text.Width.measure(hr)));
-    expect(lines[2]).to.eql('');
-    expect(returnedLines[2]).to.eql('');
-    expect(service).to.eql(3);
-    expect(returnedService).to.eql(3);
+    expect(res.identity).to.eql(undefined);
+    expect(emitted).not.to.contain('@sys/cell');
+    expect(emitted).not.to.contain('Untitled');
+    expect(hasHeaderRule(emitted)).to.eql(false);
+    expect(service).to.eql(0);
+    expect(returnedService).to.eql(0);
     expect(indentOf(lines[service])).to.eql(2);
     expect(returnedLines[returnedService]).to.eql(lines[service]);
     expect(indentOf(module)).to.eql(indentOf(lines[service]) + 1);
@@ -140,11 +232,9 @@ describe(`@sys/cell/cli start`, () => {
     );
     expect(divider.startsWith('  ┄')).to.eql(true);
     expect(returnedDivider).to.eql(divider);
-    expect(Cli.Fmt.Text.Width.measure(divider)).to.eql(Cli.Fmt.Text.Width.measure(hr) - 2);
+    expect(Cli.Fmt.Text.Width.measure(divider)).to.eql(Cli.Fmt.Text.Width.fit() - 2);
     expect(summaryRoot.startsWith('root')).to.eql(true);
     expect(returnedSummaryRoot).to.eql(summaryRoot);
-    expect(countTitleRows(emitted)).to.eql(1);
-    expect(countTitleRows(returned)).to.eql(1);
     expect(returned).to.contain('preview');
     expect(returned).to.contain('api');
   });
@@ -224,9 +314,11 @@ describe(`@sys/cell/cli start`, () => {
     );
     await Fs.write(Fs.join(fs.dir, '-services/failing.ts'), failingServiceSource());
 
-    const res = await silent(() => CellCli.run({ argv: ['start', fs.dir] }));
+    const callerPkg: t.Pkg = { name: '@sys/ui', version: '0.0.39' };
+    const res = await silent(() => CellCli.run({ argv: ['start', fs.dir], pkg: callerPkg }));
 
     expect(res.kind).to.eql('error');
+    expect(res.input.pkg).to.equal(callerPkg);
     expect(res.text).to.contain("Cell.Services.start: failed to start service 'view'.");
     expect(res.text).to.contain('Cause: Error: Address already in use (os error 48)');
   });
@@ -276,8 +368,10 @@ async function captureInfo<T>(fn: () => Promise<T>) {
   }
 }
 
-function countTitleRows(text: string): number {
-  return text.split('\n').filter((line) => line.startsWith(pkg.name)).length;
+function hasHeaderRule(text: string): boolean {
+  return text.split('\n').some((line) =>
+    line.length > 0 && [...line].every((char) => char === '━')
+  );
 }
 
 function indentOf(line: string): number {

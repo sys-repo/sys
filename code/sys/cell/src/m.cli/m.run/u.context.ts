@@ -1,6 +1,6 @@
 import type { t } from '../common.ts';
 
 export type RunContext = {
-  readonly argv: readonly string[];
+  readonly input: t.CellCli.Input;
   readonly args: t.CellCli.ParsedArgs;
 };

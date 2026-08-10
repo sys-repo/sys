@@ -13,17 +13,18 @@ import { runTask } from './u.task.ts';
 
 export const run: t.CellCli.Lib['run'] = async (input = {}) => {
   const argv = [...(input.argv ?? [])];
+  const runInput: t.CellCli.Input = { ...input, argv };
   const args = parseArgs(argv);
   const command = args._[0];
   const help = await FmtHelp.output();
-  const ctx: RunContext = { argv, args };
+  const ctx: RunContext = { input: runInput, args };
 
   if (args.unknown.length > 0) {
-    return fail({ argv }, `Unknown option: ${args.unknown.join(', ')}`, help);
+    return fail(runInput, `Unknown option: ${args.unknown.join(', ')}`, help);
   }
 
   if (!command && args.format !== undefined) {
-    return fail({ argv }, 'Unexpected option without command: --format', help);
+    return fail(runInput, 'Unexpected option without command: --format', help);
   }
 
   if (
@@ -45,15 +46,15 @@ export const run: t.CellCli.Lib['run'] = async (input = {}) => {
       : args.mode !== undefined
       ? '--mode'
       : '--reporter';
-    return fail({ argv }, `Unexpected option without command: ${flag}`, help);
+    return fail(runInput, `Unexpected option without command: ${flag}`, help);
   }
 
   if ((!command && args.help) || argv.length === 0) {
     print(help);
-    return { kind: 'help', input: { argv }, text: help };
+    return { kind: 'help', input: runInput, text: help };
   }
 
-  if (!command) return fail({ argv }, 'Missing command.', help);
+  if (!command) return fail(runInput, 'Missing command.', help);
 
   if (command === 'info') return runInfo(ctx);
   if (command === 'init') return runInit(ctx);
@@ -63,5 +64,5 @@ export const run: t.CellCli.Lib['run'] = async (input = {}) => {
   if (command === 'start') return runStart(ctx);
   if (command === 'kill') return runKill(ctx);
 
-  return fail({ argv }, `Unknown command: ${command}`, help);
+  return fail(runInput, `Unknown command: ${command}`, help);
 };

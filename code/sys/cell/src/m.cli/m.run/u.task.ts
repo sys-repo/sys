@@ -4,15 +4,15 @@ import type { RunContext } from './u.context.ts';
 import { fail, print } from './u.output.ts';
 
 export async function runTask(ctx: RunContext): Promise<t.CellCli.Result> {
-  const { args, argv } = ctx;
+  const { args, input } = ctx;
   const taskHelp = await FmtHelp.taskOutput();
 
   if (args.format !== undefined) {
-    return fail({ argv }, 'Unexpected option for task: --format', taskHelp);
+    return fail(input, 'Unexpected option for task: --format', taskHelp);
   }
   if (args.help) {
     print(taskHelp);
-    return { kind: 'help', input: { argv }, text: taskHelp };
+    return { kind: 'help', input, text: taskHelp };
   }
   if (
     args.agent ||
@@ -30,10 +30,10 @@ export async function runTask(ctx: RunContext): Promise<t.CellCli.Result> {
       : args.mode !== undefined
       ? '--mode'
       : '--reporter';
-    return fail({ argv }, `Unexpected option for task: ${flag}`, taskHelp);
+    return fail(input, `Unexpected option for task: ${flag}`, taskHelp);
   }
-  if (args._.length < 2) return fail({ argv }, 'Missing task name.', taskHelp);
-  if (args._.length > 3) return fail({ argv }, `Unexpected argument: ${args._[3]}`, taskHelp);
+  if (args._.length < 2) return fail(input, 'Missing task name.', taskHelp);
+  if (args._.length > 3) return fail(input, `Unexpected argument: ${args._[3]}`, taskHelp);
 
   try {
     const { planCellTask, runCellTask, toTaskPlanResult, toTaskResult } = await import(
@@ -41,16 +41,16 @@ export async function runTask(ctx: RunContext): Promise<t.CellCli.Result> {
     );
     const res = args.plan
       ? toTaskPlanResult(
-        { argv },
+        input,
         await planCellTask({ name: args._[1], dir: args._[2] }),
       )
       : toTaskResult(
-        { argv },
+        input,
         await runCellTask({ name: args._[1], dir: args._[2] }),
       );
     print(res.text);
     return res;
   } catch (error) {
-    return fail({ argv }, Err.summary(error));
+    return fail(input, Err.summary(error));
   }
 }
