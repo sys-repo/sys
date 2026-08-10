@@ -458,6 +458,7 @@ describe(`Workspace.Info.stats`, () => {
       const outside = await Testing.dir('WorkspaceInfo.stats.package-symlink-directory.outside');
       await writeWorkspace(fs.dir, ['code/a']);
       await writePackage(fs.dir, 'code/a', '@sys/a');
+      await Fs.write(fs.join('code/a/src/inside.ts'), 'inside\nsource\n');
       await Fs.write(outside.join('secret.ts'), 'secret\n');
       await Deno.symlink(outside.dir, fs.join('code/a/linked'), { type: 'dir' });
 
@@ -468,8 +469,9 @@ describe(`Workspace.Info.stats`, () => {
         totals: { lines: true },
       });
 
-      expect(result.files).to.eql(0);
-      expect(result.lines).to.eql(0);
+      expect(result.files).to.eql(1);
+      expect(result.lines).to.eql(3);
+      expect(result.lineBreakdown).to.eql({ source: 3, unitTests: 0, uiSpecTests: 0 });
     });
 
     it('ignores final-path symlinks without reading their targets', async () => {
@@ -477,6 +479,7 @@ describe(`Workspace.Info.stats`, () => {
       const outside = await Testing.dir('WorkspaceInfo.stats.package-symlink-file.outside');
       await writeWorkspace(fs.dir, ['code/a']);
       await writePackage(fs.dir, 'code/a', '@sys/a');
+      await Fs.write(fs.join('code/a/src/inside.ts'), 'inside\nsource\n');
       await Fs.write(outside.join('secret.ts'), 'secret\n');
       await Deno.symlink(outside.join('secret.ts'), fs.join('code/a/escape.ts'));
 
@@ -487,8 +490,9 @@ describe(`Workspace.Info.stats`, () => {
         totals: { lines: true },
       });
 
-      expect(result.files).to.eql(0);
-      expect(result.lines).to.eql(0);
+      expect(result.files).to.eql(1);
+      expect(result.lines).to.eql(3);
+      expect(result.lineBreakdown).to.eql({ source: 3, unitTests: 0, uiSpecTests: 0 });
     });
   });
 });
