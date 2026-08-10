@@ -71,10 +71,10 @@ export function fmt(
 function createLayout(stats: t.WorkspaceInfo.StatsResult): Layout {
   const labels: Labels = stats.kind === 'package'
     ? {
-      primary: '    packages',
-      include: '     include',
-      files: '       files',
-      lines: '       lines',
+      primary: '      packages',
+      include: '       include',
+      files: '         files',
+      lines: '         lines',
     }
     : {
       primary: '  pattern.code',

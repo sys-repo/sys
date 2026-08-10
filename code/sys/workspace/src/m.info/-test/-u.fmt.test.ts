@@ -101,8 +101,13 @@ describe(`Workspace.Info.fmt`, () => {
       const files = lineWith(text, 'files');
       const lines = lineWith(text, 'lines');
       const valueColumn = columnOf(denoVersion, RUNTIME.deno);
+      const labelEndColumn = endColumnOf(denoVersion, 'Deno.version');
 
       expect(packages).to.contain('@sys/*');
+      expect(endColumnOf(packages, 'packages')).to.eql(labelEndColumn);
+      expect(endColumnOf(includeTs, 'include')).to.eql(labelEndColumn);
+      expect(endColumnOf(files, 'files')).to.eql(labelEndColumn);
+      expect(endColumnOf(lines, 'lines')).to.eql(labelEndColumn);
       expect(columnOf(packages, '3')).to.eql(valueColumn);
       expect(valueColumnAfterLabel(includeTs, 'include')).to.eql(valueColumn);
       expect(columnOf(includeTsx, '**/*.tsx')).to.eql(valueColumn);
@@ -286,6 +291,10 @@ function columnOf(line: string, token: string): number {
   const index = line.indexOf(token);
   if (index < 0) throw new Error(`Expected row token "${token}"`);
   return Cli.Fmt.Text.Width.measure(line.slice(0, index));
+}
+
+function endColumnOf(line: string, token: string): number {
+  return columnOf(line, token) + Cli.Fmt.Text.Width.measure(token);
 }
 
 function valueColumnAfterLabel(line: string, label: string): number {
