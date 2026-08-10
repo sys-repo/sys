@@ -14,7 +14,7 @@ export async function collectInfoJson(cwd: t.StringDir, roots: readonly t.String
     const output = await Process.invoke({ ...command, args: [...command.args], silent: true });
     if (!output.success) {
       const message = output.text.stderr.trim() || output.text.stdout.trim() || 'deno info failed';
-      throw new Error(`${ERR_PREFIX}}: ${message}`);
+      throw new Error(errorMessage(message));
     }
 
     const info = validateInfoJson(Json.parse(output.text.stdout));
@@ -23,7 +23,7 @@ export async function collectInfoJson(cwd: t.StringDir, roots: readonly t.String
         if (classifyModuleSpecifier(mod.specifier) === 'opaque-asset') continue;
 
         const specifier = mod.specifier ?? '<unknown>';
-        throw new Error(`${ERR_PREFIX}}: graph error for ${root} at ${specifier}: ${mod.error}`);
+        throw new Error(errorMessage(`graph error for ${root} at ${specifier}: ${mod.error}`));
       }
       modules.push(mod);
     }
@@ -34,4 +34,8 @@ export async function collectInfoJson(cwd: t.StringDir, roots: readonly t.String
     roots: allRoots,
     modules,
   } satisfies t.WorkspaceGraphCli.InfoJson;
+}
+
+function errorMessage(message: string) {
+  return `${ERR_PREFIX}: ${message}`;
 }

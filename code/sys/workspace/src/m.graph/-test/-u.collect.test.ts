@@ -112,7 +112,7 @@ describe('Workspace.Graph.collect', () => {
       })
     );
 
-    expect(error.message).to.include('Workspace.Graph.collect');
+    expect(error.message).to.include('Workspace.Graph.collect: graph error');
     expect(error.message).to.include('missing.ts');
     expect(error.message).to.include('Module not found');
   });
