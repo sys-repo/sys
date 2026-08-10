@@ -27,9 +27,13 @@ export async function main() {
     try {
       const stats = await Workspace.Info.stats({
         cwd: Deno.cwd(),
+        packages: {
+          workspace: './deno.json',
+          scope: '@sys',
+        },
         source: {
-          kind: 'glob',
-          include: ['code/**/*.{ts,tsx}'],
+          kind: 'package',
+          include: ['**/*.{ts,tsx}'],
           exclude: [
             '**/node_modules/**',
             '**/_archive/**',
