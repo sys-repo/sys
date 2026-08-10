@@ -28,6 +28,7 @@ export async function main() {
       const stats = await Workspace.Info.stats({
         cwd: Deno.cwd(),
         source: {
+          kind: 'glob',
           include: ['code/**/*.{ts,tsx}'],
           exclude: [
             '**/node_modules/**',

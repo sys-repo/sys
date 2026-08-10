@@ -8,7 +8,7 @@ export declare namespace WorkspaceInfo {
   export type Lib = {
     /** Canonical default policy used by workspace info helpers. */
     readonly DEFAULTS: Defaults;
-    /** Compute source statistics from include and exclude globs. */
+    /** Compute raw-glob or package-scoped source statistics. */
     stats(args: StatsArgs): Promise<StatsResult>;
     /** Format source statistics for console output. */
     fmt(stats: StatsResult): string;
@@ -22,21 +22,62 @@ export declare namespace WorkspaceInfo {
     readonly exclude?: readonly t.StringPath[];
   };
 
+  /** Raw working-directory-relative source policy. */
+  export type GlobSource = Source & {
+    readonly kind: 'glob';
+  };
+
+  /** Package-root-relative source policy. */
+  export type PackageSource = Source & {
+    readonly kind: 'package';
+  };
+
+  /** Normalized source policy recorded in a result. */
+  export type NormalizedSource = {
+    readonly include: readonly t.StringPath[];
+    readonly exclude: readonly t.StringPath[];
+  };
+
   /** Optional totals to compute. */
   export type Totals = {
     /** Include an aggregate line count. */
     readonly lines?: boolean;
   };
 
-  /** Arguments for workspace source statistics. */
-  export type StatsArgs = {
+  /** Arguments for raw glob statistics. */
+  export type GlobArgs = {
     /** Working directory used to resolve source globs. */
     readonly cwd?: t.StringDir;
-    /** Include and exclude globs for source discovery. */
-    readonly source: Source;
+    /** Package selection is unavailable in raw-glob mode. */
+    readonly packages?: never;
+    /** Working-directory-relative source policy. */
+    readonly source: GlobSource;
     /** Optional totals to compute. */
     readonly totals?: Totals;
   };
+
+  /** Workspace package selection. */
+  export type PackageSelection = {
+    /** Workspace manifest path relative to the working directory. */
+    readonly workspace: t.StringPath;
+    /** Single scoped package-name prefix. */
+    readonly scope: string;
+  };
+
+  /** Arguments for package-scoped statistics. */
+  export type PackageArgs = {
+    /** Working directory used to resolve the workspace manifest. */
+    readonly cwd?: t.StringDir;
+    /** Workspace package selection. */
+    readonly packages: PackageSelection;
+    /** Package-root-relative source policy. */
+    readonly source: PackageSource;
+    /** Optional totals to compute. */
+    readonly totals?: Totals;
+  };
+
+  /** Arguments for workspace source statistics. */
+  export type StatsArgs = GlobArgs | PackageArgs;
 
   /** Runtime versions included in the stats result. */
   export type Runtime = {
@@ -82,17 +123,12 @@ export declare namespace WorkspaceInfo {
     readonly uiSpecTests: number;
   };
 
-  /** Aggregate source statistics result. */
-  export type StatsResult = {
+  /** Shared aggregate statistics result. */
+  export type StatsBase = {
     /** Runtime versions used for the scan. */
     readonly runtime: Runtime;
     /** Normalized source globs used for the scan. */
-    readonly source: {
-      /** Include globs scanned for source files. */
-      readonly include: readonly t.StringPath[];
-      /** Exclude globs applied during discovery. */
-      readonly exclude: readonly t.StringPath[];
-    };
+    readonly source: NormalizedSource;
     /** Number of unique files matched. */
     readonly files: number;
     /** Aggregate line count when requested. */
@@ -100,4 +136,27 @@ export declare namespace WorkspaceInfo {
     /** Optional partition of the aggregate line count. */
     readonly lineBreakdown?: LineBreakdown;
   };
+
+  /** Raw glob statistics result. */
+  export type GlobResult = StatsBase & {
+    readonly kind: 'glob';
+    readonly selection?: never;
+    readonly packages?: never;
+  };
+
+  /** Selected package identity. */
+  export type PackageIdentity = {
+    readonly name: t.StringPkgName;
+    readonly path: t.StringDir;
+  };
+
+  /** Package-scoped statistics result. */
+  export type PackageResult = StatsBase & {
+    readonly kind: 'package';
+    readonly selection: PackageSelection;
+    readonly packages: readonly PackageIdentity[];
+  };
+
+  /** Aggregate source statistics result. */
+  export type StatsResult = GlobResult | PackageResult;
 }
