@@ -1,4 +1,4 @@
-import { Fs, Jsr, pkg, type t, WorkspaceResolve } from './common.ts';
+import { Fs, Is, Jsr, pkg, Semver, type t, WorkspaceResolve } from './common.ts';
 import { toVersionState } from './u.versionState.ts';
 
 type FetchPackageVersions = t.Registry.Jsr.Fetch.Pkg.Lib['versions'];
@@ -18,9 +18,21 @@ export async function getVersionInfo(
   const versions = deps.versions ?? Jsr.Fetch.Pkg.versions;
   const resolvePackage = deps.resolvePackage ?? WorkspaceResolve.resolvePackage;
 
-  const metadata = (await versions(pkg.name)).data;
-  const remote = metadata?.latest ?? local;
-  const remoteCreatedAt = metadata?.versions?.[remote]?.createdAt;
+  const metadataResponse = await versions(pkg.name);
+  const metadata = metadataResponse.data;
+  const remote = metadata?.latest;
+  if (!metadataResponse.ok || !metadata || !isExactSemver(remote)) {
+    const reason = !metadataResponse.ok
+      ? `HTTP ${metadataResponse.status}`
+      : !metadata
+      ? 'empty response'
+      : 'invalid latest version';
+    throw new Error(`Could not retrieve JSR package metadata for ${pkg.name}: ${reason}`, {
+      cause: metadataResponse.error,
+    });
+  }
+
+  const remoteCreatedAt = metadata.versions?.[remote]?.createdAt;
   const resolverOptions = {
     cwd,
     reload: deps.resolverReload ?? false,
@@ -60,4 +72,9 @@ export async function getVersionInfo(
       resolverUnavailable: state.resolverUnavailable,
     },
   };
+}
+
+function isExactSemver(value: unknown): value is t.StringSemver {
+  if (!Is.str(value) || Semver.Prefix.strip(value) !== value) return false;
+  return Semver.Is.valid(value);
 }

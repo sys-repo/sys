@@ -1,7 +1,8 @@
-import { describe, expect, it, type t } from '../../-test.ts';
+import { describe, expect, expectError, it, type t } from '../../-test.ts';
 import { pkg } from '../common.ts';
 import { getVersionInfo } from '../u.ts';
 import { toVersionState } from '../u.versionState.ts';
+import { versionsFailure, versionsMalformed, versionsSuccess } from './u.fixture.ts';
 
 describe('cli.upgrade.versionState', () => {
   it('derives pending when a newer published version is not actionable yet', () => {
@@ -148,38 +149,93 @@ describe('cli.upgrade.versionState', () => {
 });
 
 describe('cli.upgrade.getVersionInfo', () => {
-  it('does not mark standdown when the current version is already latest', async () => {
+  it('rejects unavailable or malformed registry metadata before resolving packages', async () => {
+    const resolutions: string[] = [];
+    const cases = [
+      {
+        versions: () => versionsFailure(),
+        error: 'Could not retrieve JSR package metadata for @sys/tools: HTTP 503',
+      },
+      {
+        versions: () => versionsMalformed(undefined),
+        error: 'Could not retrieve JSR package metadata for @sys/tools: empty response',
+      },
+      {
+        versions: () => versionsMalformed({ scope: 'sys', name: 'tools', versions: {} }),
+        error: 'Could not retrieve JSR package metadata for @sys/tools: invalid latest version',
+      },
+      {
+        versions: () =>
+          versionsMalformed({ scope: 'sys', name: 'tools', latest: 'newest', versions: {} }),
+        error: 'Could not retrieve JSR package metadata for @sys/tools: invalid latest version',
+      },
+      {
+        versions: () =>
+          versionsMalformed({ scope: 'sys', name: 'tools', latest: '^9.9.9', versions: {} }),
+        error: 'Could not retrieve JSR package metadata for @sys/tools: invalid latest version',
+      },
+    ];
+
+    for (const test of cases) {
+      await expectError(
+        () =>
+          getVersionInfo('/tmp' as t.StringDir, {
+            versions: test.versions,
+            resolvePackage: (args) => {
+              resolutions.push(args.specifier);
+              return Promise.resolve({
+                ok: true as const,
+                specifier: args.specifier,
+                registry: 'jsr' as const,
+                package: '@sys/tools' as t.StringPkgName,
+                resolved: pkg.version as t.StringSemver,
+              });
+            },
+          }),
+        test.error,
+      );
+    }
+
+    expect(resolutions).to.eql([]);
+  });
+
+  it('keeps successful registry parity truthful despite an unnecessary resolver failure', async () => {
     const local = pkg.version as t.StringSemver;
 
     const res = await getVersionInfo('/tmp' as t.StringDir, {
-      versions: async () => ({ data: { latest: local } } as never),
-      resolvePackage: async (args) => ({
-        ok: true,
-        specifier: args.specifier,
-        registry: 'jsr',
-        package: '@sys/tools' as t.StringPkgName,
-        resolved: '0.0.0' as t.StringSemver,
-      }),
+      versions: () => versionsSuccess({ latest: local }),
+      resolvePackage: (args) =>
+        Promise.resolve({
+          ok: false as const,
+          specifier: args.specifier,
+          registry: 'jsr' as const,
+          package: '@sys/tools' as t.StringPkgName,
+          reason: { code: 'registry' as const },
+        }),
     });
 
-    expect(res.is.pending).to.eql(false);
-    expect(res.is.upgradeAvailable).to.eql(false);
+    expect(res.is).to.eql({
+      latest: true,
+      upgradeAvailable: false,
+      pending: false,
+      resolverUnavailable: false,
+    });
   });
 
   it('does not force Deno resolver reload during the default foreground check', async () => {
     const reloads: Array<boolean | undefined> = [];
 
     await getVersionInfo('/tmp' as t.StringDir, {
-      versions: async () => ({ data: { latest: '0.0.319' as t.StringSemver } } as never),
-      resolvePackage: async (args) => {
+      versions: () => versionsSuccess({ latest: '0.0.319' as t.StringSemver }),
+      resolvePackage: (args) => {
         reloads.push(args.reload);
-        return {
-          ok: true,
+        return Promise.resolve({
+          ok: true as const,
           specifier: args.specifier,
-          registry: 'jsr',
+          registry: 'jsr' as const,
           package: '@sys/tools' as t.StringPkgName,
           resolved: '0.0.319' as t.StringSemver,
-        };
+        });
       },
     });
 
@@ -191,16 +247,16 @@ describe('cli.upgrade.getVersionInfo', () => {
 
     await getVersionInfo('/tmp' as t.StringDir, {
       resolverReload: true,
-      versions: async () => ({ data: { latest: '0.0.319' as t.StringSemver } } as never),
-      resolvePackage: async (args) => {
+      versions: () => versionsSuccess({ latest: '0.0.319' as t.StringSemver }),
+      resolvePackage: (args) => {
         reloads.push(args.reload);
-        return {
-          ok: true,
+        return Promise.resolve({
+          ok: true as const,
           specifier: args.specifier,
-          registry: 'jsr',
+          registry: 'jsr' as const,
           package: '@sys/tools' as t.StringPkgName,
           resolved: '0.0.319' as t.StringSemver,
-        };
+        });
       },
     });
 
@@ -215,20 +271,20 @@ describe('cli.upgrade.getVersionInfo', () => {
     }> = [];
 
     await getVersionInfo('/workspace/sys' as t.StringDir, {
-      versions: async () => ({ data: { latest: '0.0.319' as t.StringSemver } } as never),
-      resolvePackage: async (args) => {
+      versions: () => versionsSuccess({ latest: '0.0.319' as t.StringSemver }),
+      resolvePackage: (args) => {
         calls.push({
           specifier: args.specifier,
           noConfig: args.noConfig,
           noLock: args.noLock,
         });
-        return {
-          ok: true,
+        return Promise.resolve({
+          ok: true as const,
           specifier: args.specifier,
-          registry: 'jsr',
+          registry: 'jsr' as const,
           package: '@sys/tools' as t.StringPkgName,
           resolved: '0.0.319' as t.StringSemver,
-        };
+        });
       },
     });
 
@@ -242,30 +298,29 @@ describe('cli.upgrade.getVersionInfo', () => {
     const calls: Array<{ readonly specifier: string; readonly reload?: boolean }> = [];
 
     const res = await getVersionInfo('/tmp' as t.StringDir, {
-      versions: async () => ({
-        data: {
+      versions: () =>
+        versionsSuccess({
           latest: '9.9.9' as t.StringSemver,
           versions: { '9.9.9': { createdAt: '2026-07-05T01:17:43.938610Z' } },
-        },
-      } as never),
-      resolvePackage: async (args) => {
+        }),
+      resolvePackage: (args) => {
         calls.push({ specifier: args.specifier, reload: args.reload });
         if (args.specifier === 'jsr:@sys/tools@9.9.9') {
-          return {
-            ok: false,
+          return Promise.resolve({
+            ok: false as const,
             specifier: args.specifier,
-            registry: 'jsr',
+            registry: 'jsr' as const,
             package: '@sys/tools' as t.StringPkgName,
-            reason: { code: 'policy:minimum-dependency-age' },
-          };
+            reason: { code: 'policy:minimum-dependency-age' as const },
+          });
         }
-        return {
-          ok: true,
+        return Promise.resolve({
+          ok: true as const,
           specifier: args.specifier,
-          registry: 'jsr',
+          registry: 'jsr' as const,
           package: '@sys/tools' as t.StringPkgName,
           resolved: local,
-        };
+        });
       },
     });
 
@@ -286,19 +341,19 @@ describe('cli.upgrade.getVersionInfo', () => {
     const calls: Array<{ readonly specifier: string; readonly reload?: boolean }> = [];
 
     const res = await getVersionInfo('/tmp' as t.StringDir, {
-      versions: async () => ({ data: { latest: '9.9.9' as t.StringSemver } } as never),
-      resolvePackage: async (args) => {
+      versions: () => versionsSuccess({ latest: '9.9.9' as t.StringSemver }),
+      resolvePackage: (args) => {
         calls.push({ specifier: args.specifier, reload: args.reload });
         const resolved = args.specifier === 'jsr:@sys/tools@9.9.9'
           ? '9.9.9' as t.StringSemver
           : local;
-        return {
-          ok: true,
+        return Promise.resolve({
+          ok: true as const,
           specifier: args.specifier,
-          registry: 'jsr',
+          registry: 'jsr' as const,
           package: '@sys/tools' as t.StringPkgName,
           resolved,
-        };
+        });
       },
     });
 

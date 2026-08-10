@@ -1,4 +1,4 @@
-import { c, Cli, describe, expect, Fs, it, pkg, Time, type t } from '../../-test.ts';
+import { c, Cli, describe, expect, Fs, it, pkg, type t, Time } from '../../-test.ts';
 import {
   readUpgradeAdvisoryState,
   toRootUpgradeAdvisoryPrelude,
@@ -7,6 +7,8 @@ import {
 } from '../u.advisory.ts';
 import { resolveUpgradeAdvisoryPath } from '../u.advisory.path.ts';
 import { runUpgradeAdvisoryProbe } from '../u.advisory.probe.ts';
+import { getVersionInfo } from '../u.ts';
+import { versionsFailure, versionsMalformed } from './u.fixture.ts';
 
 describe('cli.upgrade advisory', () => {
   it('resolves advisory path from XDG cache home', () => {
@@ -439,17 +441,19 @@ describe('cli.upgrade advisory', () => {
   it('probe writes success advisory state from fetched version info', async () => {
     let written: t.UpgradeTool.VersionInfo | undefined;
     const res = await runUpgradeAdvisoryProbe({
-      getVersionInfo: async () => ({
-        local: '0.0.1',
-        remote: '0.0.2',
-        latest: '0.0.2',
-        actionable: '0.0.2',
-        is: { latest: false, upgradeAvailable: true, pending: false },
-      }),
-      writeSuccess: async (version) => {
+      getVersionInfo: () =>
+        Promise.resolve({
+          local: '0.0.1',
+          remote: '0.0.2',
+          latest: '0.0.2',
+          actionable: '0.0.2',
+          is: { latest: false, upgradeAvailable: true, pending: false },
+        }),
+      writeSuccess: (version) => {
         written = version;
+        return Promise.resolve();
       },
-      writeFailure: async () => {
+      writeFailure: () => {
         throw new Error('should not write failure');
       },
     });
@@ -465,17 +469,17 @@ describe('cli.upgrade advisory', () => {
 
     try {
       const res = await runUpgradeAdvisoryProbe({
-        getVersionInfo: async () => ({
-          local: '0.0.318',
-          remote: '9.9.9',
-          latest: '0.0.318',
-          actionable: '0.0.318',
-          is: { latest: true, upgradeAvailable: false, pending: true },
-        }),
-        writeSuccess: async (version) => {
-          await writeUpgradeAdvisorySuccess(version, { path, now: fixture.now(22) });
-        },
-        writeFailure: async () => {
+        getVersionInfo: () =>
+          Promise.resolve({
+            local: '0.0.318',
+            remote: '9.9.9',
+            latest: '0.0.318',
+            actionable: '0.0.318',
+            is: { latest: true, upgradeAvailable: false, pending: true },
+          }),
+        writeSuccess: (version) =>
+          writeUpgradeAdvisorySuccess(version, { path, now: fixture.now(22) }),
+        writeFailure: () => {
           throw new Error('should not write failure');
         },
       });
@@ -492,17 +496,18 @@ describe('cli.upgrade advisory', () => {
 
   it('probe keeps live success when advisory persistence fails', async () => {
     const res = await runUpgradeAdvisoryProbe({
-      getVersionInfo: async () => ({
-        local: '0.0.1',
-        remote: '0.0.2',
-        latest: '0.0.2',
-        actionable: '0.0.2',
-        is: { latest: false, upgradeAvailable: true, pending: false },
-      }),
-      writeSuccess: async () => {
+      getVersionInfo: () =>
+        Promise.resolve({
+          local: '0.0.1',
+          remote: '0.0.2',
+          latest: '0.0.2',
+          actionable: '0.0.2',
+          is: { latest: false, upgradeAvailable: true, pending: false },
+        }),
+      writeSuccess: () => {
         throw new Error('cache unavailable');
       },
-      writeFailure: async () => {
+      writeFailure: () => {
         throw new Error('should not write failure after live success');
       },
     });
@@ -510,22 +515,63 @@ describe('cli.upgrade advisory', () => {
     expect(res).to.eql({ ok: true, remote: '0.0.2' });
   });
 
-  it('probe writes failure advisory state when live version fetch fails', async () => {
-    let wroteFailure = false;
-    const res = await runUpgradeAdvisoryProbe({
-      getVersionInfo: async () => {
-        throw new Error('boom');
+  it('probe persists failure advisory state for unavailable or malformed registry metadata', async () => {
+    const tmp = await Fs.makeTempDir({ prefix: 'sys.tools.upgrade.advisory.registry-failure.' });
+    const cases = [
+      {
+        name: 'unavailable',
+        versions: () => versionsFailure(),
+        error: 'Could not retrieve JSR package metadata for @sys/tools: HTTP 503',
       },
-      writeSuccess: async () => {
-        throw new Error('should not write success');
+      {
+        name: 'empty',
+        versions: () => versionsMalformed(undefined),
+        error: 'Could not retrieve JSR package metadata for @sys/tools: empty response',
       },
-      writeFailure: async () => {
-        wroteFailure = true;
+      {
+        name: 'invalid-latest',
+        versions: () => versionsMalformed({ scope: 'sys', name: 'tools', versions: {} }),
+        error: 'Could not retrieve JSR package metadata for @sys/tools: invalid latest version',
       },
-    });
+    ];
 
-    expect(res).to.eql({ ok: false });
-    expect(wroteFailure).to.eql(true);
+    try {
+      for (const test of cases) {
+        const path = `${tmp.absolute}/${test.name}.json`;
+        let resolutions = 0;
+        let successWrites = 0;
+        const res = await runUpgradeAdvisoryProbe({
+          getVersionInfo: () =>
+            getVersionInfo('/tmp' as t.StringDir, {
+              versions: test.versions,
+              resolvePackage: () => {
+                resolutions += 1;
+                throw new Error('should not resolve a package without registry metadata');
+              },
+            }),
+          writeSuccess: () => {
+            successWrites += 1;
+            return Promise.resolve();
+          },
+          writeFailure: (error) =>
+            writeUpgradeAdvisoryFailure(error, { path, now: fixture.now(56) }),
+        });
+        const state = await readUpgradeAdvisoryState({ path });
+
+        expect(res).to.eql({ ok: false });
+        expect(resolutions).to.eql(0);
+        expect(successWrites).to.eql(0);
+        expect(state.record).to.eql({
+          schemaVersion: 2,
+          package: '@sys/tools',
+          checkedAt: 56,
+          ok: false,
+          error: test.error,
+        });
+      }
+    } finally {
+      await Fs.remove(tmp.absolute);
+    }
   });
 });
 
