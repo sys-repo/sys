@@ -33,6 +33,7 @@ export async function main() {
             '**/node_modules/**',
             '**/_archive/**',
             '**/.tmp/**',
+            '**/.pi/**',
             '**/spikes/**',
             '**/compiler/**',
             '**/compiler.samples/**',
