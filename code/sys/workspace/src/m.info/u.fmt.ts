@@ -1,31 +1,225 @@
-import { c, Cli, Str, type t } from './common.ts';
+import { c, Cli, Hash, Path, Str, type t } from './common.ts';
 
-/** Format a workspace statistics block for console output. */
-export function fmt(stats: t.WorkspaceInfo.StatsResult) {
+const CELL = {
+  gap: Cli.Table.cellGap,
+} as const;
+
+const GRAPH = {
+  hashLength: 5,
+  label: 'graph',
+} as const;
+
+const WORKSPACE = {
+  label: '  Workspace',
+} as const;
+
+/** Zero-based start column for trailing ownership detail. */
+const DETAIL_COLUMN = 32;
+
+type Labels = {
+  readonly primary: string;
+  readonly include: string;
+  readonly files: string;
+  readonly lines: string;
+};
+
+type Layout = {
+  readonly labels: Labels;
+  readonly labelWidth: number;
+  readonly valueColumn: number;
+  readonly detailColumn: number;
+};
+
+type GraphRef = {
+  readonly plain: string;
+  readonly shortHash?: string;
+};
+
+/** Format source statistics for console output. */
+export function fmt(
+  stats: t.WorkspaceInfo.StatsResult,
+  options: t.WorkspaceInfo.FormatOptions = {},
+) {
+  const layout = createLayout(stats);
   const builder = Str.builder()
     .line(`  ${c.cyan('Deno')}.version   ${c.green(stats.runtime.deno)}`)
     .line(`    typescript   ${c.green(stats.runtime.typescript)}`)
     .line(`            v8   ${c.green(stats.runtime.v8)}`)
     .line(c.bold('  ↓'))
-    .line(c.cyan('  Workspace'));
+    .line(workspaceRow(layout, options));
 
   if (stats.kind === 'glob') {
-    builder.line(`${c.dim('  pattern.code  ')} ${c.dim(stats.source.include[0] ?? '')}`);
+    builder.line(sourceRow(stats.source.include[0] ?? '', layout, options));
   } else {
-    const count = stats.packages.length.toLocaleString();
-    const label = '    packages'.padEnd(18);
-    builder.line(`${c.dim(label)}${c.cyan(count)}   ${c.dim(`${stats.selection.scope}/*`)}`);
+    builder.line(ownershipRow(stats, layout, options));
+    for (const row of includeRows(stats.source.include, layout, options)) builder.line(row);
   }
 
-  const metricIndent = stats.kind === 'package' ? '       ' : '         ';
-  const metricWidth = stats.kind === 'package' ? 18 : 17;
   builder
-    .line(`${metricIndent}files`.padEnd(metricWidth) + c.cyan(stats.files.toLocaleString()))
-    .line(`${metricIndent}lines`.padEnd(metricWidth) + c.cyan((stats.lines ?? 0).toLocaleString()));
+    .line(metricRow(layout.labels.files, stats.files, layout))
+    .line(metricRow(layout.labels.lines, stats.lines ?? 0, layout));
 
-  const branchIndent = stats.kind === 'package' ? 15 : 17;
-  for (const row of lineBreakdownRows(stats.lineBreakdown, branchIndent)) builder.line(row);
+  for (const row of lineBreakdownRows(stats.lineBreakdown, layout.valueColumn)) builder.line(row);
   return builder.toString();
+}
+
+function createLayout(stats: t.WorkspaceInfo.StatsResult): Layout {
+  const labels: Labels = stats.kind === 'package'
+    ? {
+      primary: '    packages',
+      include: '     include',
+      files: '       files',
+      lines: '       lines',
+    }
+    : {
+      primary: '  pattern.code',
+      include: '',
+      files: '         files',
+      lines: '         lines',
+    };
+  const values = [
+    stats.files.toLocaleString(),
+    (stats.lines ?? 0).toLocaleString(),
+    ...(stats.kind === 'package' ? [stats.packages.length.toLocaleString()] : []),
+  ];
+  const labelWidth = Cli.Fmt.Text.Width.max([
+    labels.primary,
+    labels.include,
+    labels.files,
+    labels.lines,
+  ]);
+  const valueColumn = labelWidth + CELL.gap;
+  const detailColumn = Math.max(
+    DETAIL_COLUMN,
+    valueColumn + Cli.Fmt.Text.Width.max(values) + CELL.gap,
+  );
+  return { labels, labelWidth, valueColumn, detailColumn };
+}
+
+function workspaceRow(
+  layout: Layout,
+  options: t.WorkspaceInfo.FormatOptions,
+): string {
+  const graph = options.graph;
+  if (!graph) return c.cyan(WORKSPACE.label);
+
+  const outputWidth = Cli.Fmt.Text.Width.fit({
+    width: options.width,
+    terminal: options.terminal,
+  });
+  const graphColumnWidth = Math.max(0, layout.detailColumn - layout.valueColumn - 1);
+  const refs = graphRefs(graph.hash);
+  const ref = refs.find((candidate) => {
+    const width = Cli.Fmt.Text.Width.measure(candidate.plain);
+    return width <= graphColumnWidth && layout.valueColumn + width <= outputWidth;
+  });
+  if (!ref) return c.cyan(WORKSPACE.label);
+
+  const title = Cli.Fmt.Text.Width.padEnd(WORKSPACE.label, layout.labelWidth);
+  const prefix = `${c.cyan(title)}${' '.repeat(CELL.gap)}`;
+  const artifact = renderGraphRef(ref, graph.path, options);
+  const edgeCount = graph.edges.toLocaleString();
+  const edgeNoun = graph.edges === 1 ? 'edge' : 'edges';
+  const summaryText = `${edgeCount} ${edgeNoun}`;
+  const summaryFits = layout.detailColumn + Cli.Fmt.Text.Width.measure(summaryText) <= outputWidth;
+  if (!summaryFits) return `${prefix}${artifact}`;
+
+  const padding = Math.max(
+    0,
+    layout.detailColumn - layout.valueColumn - Cli.Fmt.Text.Width.measure(ref.plain),
+  );
+  const summary = c.dim(summaryText);
+  return `${prefix}${artifact}${' '.repeat(padding)}${summary}`;
+}
+
+function graphRefs(hash: t.StringHash): readonly GraphRef[] {
+  const shortHash = Hash.shorten(hash, [0, GRAPH.hashLength], { trimPrefix: true });
+  if (!shortHash) return [{ plain: GRAPH.label }];
+  return [
+    { plain: `${GRAPH.label}:#${shortHash}`, shortHash },
+    { plain: GRAPH.label },
+  ];
+}
+
+function renderGraphRef(
+  ref: GraphRef,
+  path: t.StringPath,
+  options: t.WorkspaceInfo.FormatOptions,
+): string {
+  const terminal = options.terminal ?? Cli.Is.terminal('stdout');
+  const display = c.dim(ref.plain);
+  const linkedDisplay = terminal ? c.underline(display) : display;
+  return terminal ? Cli.Fmt.hyperlink(linkedDisplay, Path.toFileUrl(path)) : display;
+}
+
+function sourceRow(
+  source: string,
+  layout: Layout,
+  options: t.WorkspaceInfo.FormatOptions,
+): string {
+  const label = Cli.Fmt.Text.Width.padEnd(layout.labels.primary, layout.labelWidth);
+  const detail = fitDetail(source, layout.valueColumn, options);
+  if (!detail) return c.dim(label);
+  return `${c.dim(label)}${' '.repeat(CELL.gap)}${c.dim(detail)}`;
+}
+
+function includeRows(
+  include: readonly t.StringPath[],
+  layout: Layout,
+  options: t.WorkspaceInfo.FormatOptions,
+): readonly string[] {
+  const rows: string[] = [];
+  const patterns = include.length === 0 ? ['[]'] : include;
+  for (const [index, pattern] of patterns.entries()) {
+    const text = fitDetail(pattern, layout.valueColumn, options);
+    const label = Cli.Fmt.Text.Width.padEnd(
+      index === 0 ? layout.labels.include : '',
+      layout.labelWidth,
+    );
+    if (!text) {
+      if (index === 0) rows.push(c.dim(label));
+      break;
+    }
+    rows.push(`${c.dim(label)}${' '.repeat(CELL.gap)}${c.dim(text)}`);
+  }
+  return rows;
+}
+
+function ownershipRow(
+  stats: t.WorkspaceInfo.PackageResult,
+  layout: Layout,
+  options: t.WorkspaceInfo.FormatOptions,
+): string {
+  const label = Cli.Fmt.Text.Width.padEnd(layout.labels.primary, layout.labelWidth);
+  const value = stats.packages.length.toLocaleString();
+  const detail = fitDetail(`${stats.selection.scope}/*`, layout.detailColumn, options);
+  const prefix = `${c.dim(label)}${' '.repeat(CELL.gap)}${c.cyan(value)}`;
+  if (!detail) return prefix;
+
+  const padding = Math.max(
+    0,
+    layout.detailColumn - Cli.Fmt.Text.Width.measure(label) - CELL.gap -
+      Cli.Fmt.Text.Width.measure(value),
+  );
+  return `${prefix}${' '.repeat(padding)}${c.dim(detail)}`;
+}
+
+function metricRow(label: string, value: number, layout: Layout): string {
+  const paddedLabel = Cli.Fmt.Text.Width.padEnd(label, layout.labelWidth);
+  return `${c.dim(paddedLabel)}${' '.repeat(CELL.gap)}${c.cyan(value.toLocaleString())}`;
+}
+
+function fitDetail(
+  detail: string,
+  column: number,
+  options: t.WorkspaceInfo.FormatOptions,
+): string {
+  const width = Cli.Fmt.Text.Width.fit({
+    width: options.width,
+    reserve: column,
+    terminal: options.terminal,
+  });
+  return width === 0 ? '' : Cli.Fmt.Text.ellipsize(detail, width);
 }
 
 function lineBreakdownRows(

@@ -11,7 +11,7 @@ export declare namespace WorkspaceInfo {
     /** Compute raw-glob or package-scoped source statistics. */
     stats(args: StatsArgs): Promise<StatsResult>;
     /** Format source statistics for console output. */
-    fmt(stats: StatsResult): string;
+    fmt(stats: StatsResult, options?: FormatOptions): string;
   };
 
   /** Include and exclude globs for source discovery. */
@@ -36,6 +36,29 @@ export declare namespace WorkspaceInfo {
   export type NormalizedSource = {
     readonly include: readonly t.StringPath[];
     readonly exclude: readonly t.StringPath[];
+  };
+
+  /** Persisted workspace graph facts rendered with source statistics. */
+  export type GraphSummary = {
+    /** Absolute graph snapshot path used as the terminal hyperlink target. */
+    readonly path: t.StringPath;
+    /** Canonical hash of the persisted graph payload. */
+    readonly hash: t.StringHash;
+    /** Number of directed package dependency edges in the persisted graph. */
+    readonly edges: number;
+  };
+
+  /** Formatting options for source statistics. */
+  export type FormatOptions = {
+    /**
+     * Available terminal width in cells; defaults to the active terminal or 80 columns.
+     * Trailing scope/pattern detail is clipped or omitted before labels and metrics.
+     */
+    readonly width?: number;
+    /** Terminal-output override used for deterministic hyperlink rendering. */
+    readonly terminal?: boolean;
+    /** Optional persisted graph identity and topology summary. */
+    readonly graph?: GraphSummary;
   };
 
   /** Optional totals to compute. */

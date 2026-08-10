@@ -8,14 +8,12 @@ const Fmt = {
   },
 
   scanned(stats: t.WorkspaceInfo.StatsResult, startedAt: number) {
-    return Cli.Fmt.spinnerText(
-      `scanned ${stats.files.toLocaleString()} files in ${Time.elapsed(startedAt)}`,
-      true,
-    );
+    const text = `scanned ${stats.files.toLocaleString()} files in ${Time.elapsed(startedAt)}`;
+    return Cli.Fmt.spinnerText(text, true);
   },
 
   failed() {
-    return Cli.Fmt.spinnerText('workspace source scan failed', false);
+    return Cli.Fmt.spinnerText('workspace info failed', false);
   },
 } as const;
 
@@ -25,30 +23,46 @@ export async function main() {
     const spinner = Cli.spinner(Fmt.scanning());
 
     try {
-      const stats = await Workspace.Info.stats({
-        cwd: Deno.cwd(),
-        packages: {
-          workspace: './deno.json',
-          scope: '@sys',
-        },
-        source: {
-          kind: 'package',
-          include: ['**/*.{ts,tsx}'],
-          exclude: [
-            '**/node_modules/**',
-            '**/_archive/**',
-            '**/.tmp/**',
-            '**/.pi/**',
-            '**/spikes/**',
-            '**/compiler/**',
-            '**/compiler.samples/**',
-            '**/dist/**',
-          ],
-        },
-        totals: { lines: true },
-      });
+      const cwd = Deno.cwd();
+      const graphPath = Workspace.Prep.State.graphFile(cwd);
+      const [stats, graphSnapshot] = await Promise.all([
+        Workspace.Info.stats({
+          cwd,
+          packages: {
+            workspace: './deno.json',
+            scope: '@sys',
+          },
+          source: {
+            kind: 'package',
+            include: ['**/*.{ts,tsx}'],
+            exclude: [
+              '**/node_modules/**',
+              '**/_archive/**',
+              '**/.tmp/**',
+              '**/.pi/**',
+              '**/spikes/**',
+              '**/compiler/**',
+              '**/compiler.samples/**',
+              '**/dist/**',
+            ],
+          },
+          totals: { lines: true },
+        }),
+        Workspace.Prep.Graph.read(cwd),
+      ]);
+      if (!graphSnapshot) {
+        throw new Error(`Workspace info graph snapshot is missing or invalid: "${graphPath}"`);
+      }
+
+      const graph = graphSnapshot.graph;
       spinner.succeed(Fmt.scanned(stats, startedAt));
-      console.info(Workspace.Info.fmt(stats));
+      console.info(Workspace.Info.fmt(stats, {
+        graph: {
+          path: graphPath,
+          hash: graphSnapshot['.meta'].hash['/graph'],
+          edges: graph.edges.length,
+        },
+      }));
     } catch (error) {
       spinner.fail(Fmt.failed());
       throw error;
