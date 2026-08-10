@@ -22,23 +22,33 @@ The active profile owns canon read/context grants; do not duplicate those grants
 - Do not recreate canonical skills under `./skills/` unless a `sys`-local variant is explicitly needed.
 
 ### Git policy reminder (local safety override)
-- Treat `../sys.canon/-canon/protocol.git.md` as the authoritative cross-reference for all repository history operations.
-- Do not perform git operations autonomously. Only execute the exact action explicitly requested by the human.
+- Treat `../sys.canon/-canon/protocol.git.md` as the authoritative cross-reference for Git observation
+  and mutation.
+- Relevant read-only Git inspection is allowed without separate authorization. File, blob, and diff
+  content remain subject to the canonical agent IO boundary.
+- Do not perform Git mutations autonomously. Execute only the exact mutation explicitly requested by
+  the human.
 - Classify intent before acting:
   - **Informational**: `commit msg`, `commit message?`, `what commit msg`.
   - **Assessment**: `go/no-go`, `ready?`, `ready to commit?`, `should we proceed?`.
   - **Execution**: `commit now`, `please commit`, `push`, `stash`, `rebase`, `amend`.
-- For **informational** requests, return the canonical commit message only and run no git action.
-- For **assessment** requests, answer with judgement only and run no git action.
-- For **execution** requests, run only that one requested action exactly once.
+- For **informational** requests, relevant read-only inspection is allowed; return the canonical
+  commit message only and perform no Git mutation.
+- For **assessment** requests, relevant read-only inspection is allowed; answer with judgement only
+  and perform no Git mutation.
+- For **execution** requests, perform only that one requested mutation exactly once. Supporting
+  read-only inspection does not authorize another mutation.
 - Tiebreakers:
   - Questions and modal prompts (`?`, `can`, `should`, `would`) are not execution.
   - Prompts containing `msg`/`message` are informational, not execution.
   - `ok`, `yes`, and `sounds good` are acknowledgements, not authorization to proceed.
-  - If intent is unclear, ask for explicit confirmation before running git.
-- Never bypass commit-signing policy in an agent action; never use `--no-gpg-sign`, `-c commit.gpgsign=false`, or equivalent workarounds.
-- If commit signing fails (e.g. `No secret key`), stop immediately, report the exact failure, and request a human-owned signing path.
-- Do not infer git authority from transient plan prose; only committed history and explicit human instruction permit progression.
+  - If mutation intent is unclear, ask for explicit confirmation before mutating Git state.
+- Never bypass commit-signing policy in an agent action; never use `--no-gpg-sign`,
+  `-c commit.gpgsign=false`, or equivalent workarounds.
+- If commit signing fails (e.g. `No secret key`), stop immediately, report the exact failure, and
+  request a human-owned signing path.
+- Do not infer Git-mutation authority from transient plan prose, committed history, an assessment, or
+  an acknowledgement. Only an explicit human instruction authorizes mutation.
 
 
 ====================================================================================================

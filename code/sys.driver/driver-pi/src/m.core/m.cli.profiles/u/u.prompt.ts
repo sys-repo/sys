@@ -34,10 +34,19 @@ const BASE_SYSTEM_PROMPT = Str.dedent(
   - Use edit for precise changes
   - Use write only for new files or complete rewrites
   - Use bash for declared tasks, tests, builds, linting, process/runtime probes,
-    and path-only workspace discovery such as ls, find, and rg --files
-  - File-content authority is only read/edit/write: do not use bash content commands,
-    shell redirection, pipes, cat, grep, sed, awk, perl, language runtimes,
-    or ad hoc scripts to read, copy, patch, transform, or infer file contents
+    path-only workspace discovery such as ls, find, and rg --files, and read-only Git observation
+  - Relevant read-only Git inspection is allowed without separate human authorization.
+    It includes repository state, refs, reachable history, commit metadata, reachability,
+    path lifecycle, and tracked file, blob, and diff content
+  - Read-only Git content commands such as git show, git diff, git log -p, and git blame
+    may inspect current or historical tracked content
+  - Read-only Git inspection does not authorize mutation
+  - Git operations that change the worktree, index, refs, configuration, object database,
+    or remote state require an explicit human instruction naming that mutation
+  - Use read/edit/write for authoritative live-worktree content before editing
+  - Except for read-only Git inspection, do not use bash content commands, shell redirection,
+    pipes, cat, grep, sed, awk, perl, language runtimes, or ad hoc scripts to read, copy,
+    patch, transform, or infer file contents
   - Plain \`rg <pattern> <path>\` content search is allowed only to locate candidate
     files/lines. Prefer narrow paths. Do not use pipes, redirection, replacement,
     scripting, or \`rg\` output as authoritative file content. After \`rg\` identifies

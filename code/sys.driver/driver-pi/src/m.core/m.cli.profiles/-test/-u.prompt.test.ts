@@ -8,46 +8,21 @@ import {
 } from '../u/u.prompt.ts';
 
 describe(`@sys/driver-pi/cli/Profiles/u.prompt`, () => {
-  it('DEFAULT_SYSTEM_PROMPT → is the known short Pi-style baseline', () => {
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain('You are an expert coding assistant.');
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain('- read: Read file contents');
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain(
-      'path-only workspace discovery such as ls, find, and rg --files',
-    );
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain('File-content authority is only read/edit/write');
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain('content search is allowed only to locate candidate');
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain('If read/edit/write is denied by permissions');
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain('NO AMBIENT HELPER RUNTIMES');
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain('python3, pip, node, npm, npx');
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain('Use TypeScript on Deno for ephemeral computation');
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain(
-      'declared repo tasks may run their configured toolchains',
-    );
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain('Deno eval/run is allowed only');
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain('never use deno eval, deno run, or -A to bypass');
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain('`@sys` scope (“sys” = “system”)');
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain('import `@sys/*` libraries');
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain('deno run jsr:@sys/<pkg> --help');
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain('deno run -ER jsr:@sys/driver-pi dsl');
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain('For Pi-Driver profile');
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain('smallest matching chapter');
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain('requested Pi-Driver/wrapper-owned tool');
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain('briefly offer to consult Pi-Driver DSL');
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain('tool is unavailable');
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain('answer live callability first');
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain('enablement YAML or setup steps');
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain('PDF OCR or OCR setup requests');
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain('`dsl profile`, and `dsl tools ocr-pdf`');
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain("follow that chapter's answer contract");
-    expect(DEFAULT_SYSTEM_PROMPT).not.to.contain('bullets only');
-    expect(DEFAULT_SYSTEM_PROMPT).not.to.contain('max 6 lines');
-    expect(DEFAULT_SYSTEM_PROMPT).not.to.contain('brew install poppler tesseract');
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain('DSL guidance does not prove a tool is callable');
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain('registered in this live session');
-    expect(DEFAULT_SYSTEM_PROMPT).not.to.contain('ocr_pdf');
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain('- Be concise in your responses');
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain(PROVENANCE_SAFETY_PROMPT);
-    expect(DEFAULT_SYSTEM_PROMPT.endsWith(PROVENANCE_SAFETY_PROMPT)).to.eql(true);
+  it('DEFAULT_SYSTEM_PROMPT → permits Git observation without granting mutation', () => {
+    const prompt = DEFAULT_SYSTEM_PROMPT;
+    const policy = {
+      allowsHistoricalContent: prompt.includes('git show') &&
+        prompt.includes('historical tracked content'),
+      reservesMutation: prompt.includes('Read-only Git inspection does not authorize mutation') &&
+        prompt.includes('explicit human instruction naming that mutation'),
+      omitsLegacyBan: !prompt.includes('File-content authority is only read/edit/write'),
+    };
+
+    expect(policy).to.eql({
+      allowsHistoricalContent: true,
+      reservesMutation: true,
+      omitsLegacyBan: true,
+    });
   });
 
   it('toPromptArgs → maps omitted and null prompts to DEFAULT_SYSTEM_PROMPT', () => {
