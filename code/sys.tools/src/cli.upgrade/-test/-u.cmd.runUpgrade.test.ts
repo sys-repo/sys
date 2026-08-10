@@ -1,5 +1,7 @@
 import { c, Cli, describe, expect, Is, it, type t } from '../../-test.ts';
+import { versionsSuccess } from './u.fixture.ts';
 import { runUpgrade } from '../u.cmd.runUpgrade.ts';
+import { getVersionInfo } from '../u.versionInfo.ts';
 
 describe('cli.upgrade.runUpgrade', () => {
   describe('already latest', () => {
@@ -454,25 +456,14 @@ describe('cli.upgrade.runUpgrade', () => {
       expect(output).to.not.contain('minimum dependency age window');
     });
 
-    it('reports unavailable upgrade checks without claiming a held version', async () => {
+    it('reports bounded resolver detail and the direct cache-refresh command', async () => {
       const events: string[] = [];
+      const rawDetail = `registry resolution failed\n${'x'.repeat(300)}`;
       let refreshed = false;
       let prompted = false;
 
       await runUpgrade('/tmp' as t.StringDir, { interactive: false }, {
-        getVersionInfo: async () => ({
-          local: '0.0.318',
-          remote: '0.0.319',
-          latest: '0.0.318',
-          resolution: {
-            ok: false,
-            specifier: 'jsr:@sys/tools' as t.StringModuleSpecifier,
-            registry: 'jsr',
-            package: '@sys/tools' as t.StringPkgName,
-            reason: { code: 'registry' },
-          },
-          is: { latest: true, upgradeAvailable: false, pending: false, resolverUnavailable: true },
-        }),
+        getVersionInfo: unavailableVersionCheck(rawDetail),
         refreshCache: async () => {
           refreshed = true;
           return { success: true, toString: () => '' };
@@ -490,11 +481,46 @@ describe('cli.upgrade.runUpgrade', () => {
 
       const plain = events.map((line) => Cli.stripAnsi(line));
       const output = plain.join('\n');
+      const recovery = plain.find((line) => line.includes('No upgrade was run.')) ?? '';
+      const recoveryLines = recovery.split('\n');
+      const detail = recoveryLines[2];
+
       expect(refreshed).to.eql(false);
       expect(prompted).to.eql(false);
       expect(output).to.contain('@sys/tools upgrade check unavailable');
-      expect(output).to.contain('Could not complete the upgrade check.');
-      expect(output).to.not.contain('Deno currently resolves @sys/tools to 0.0.318');
+      expect(recoveryLines.length).to.eql(4);
+      expect(recoveryLines[0]).to.eql('info:No upgrade was run.');
+      expect(recoveryLines[1]).to.eql('Could not complete the upgrade check.');
+      expect(detail).to.contain('Resolver: registry resolution failed ');
+      expect(detail.length).to.eql(160);
+      expect(detail.endsWith('…')).to.eql(true);
+      expect(recoveryLines[3]).to.eql(
+        'Retry: deno cache --reload --no-config --no-lock jsr:@sys/tools',
+      );
+      expect(output).to.not.contain('Deno currently resolves @sys/tools');
+    });
+
+    it('omits absent resolver detail while preserving the retry path', async () => {
+      const events: string[] = [];
+
+      await runUpgrade('/tmp' as t.StringDir, { interactive: false }, {
+        getVersionInfo: unavailableVersionCheck(),
+        refreshCache: async () => ({ success: true, toString: () => '' }),
+        prompt: async () => 'upgrade',
+        spinner: () => spinner(events),
+        info(...data) {
+          events.push(`info:${data.map(String).join(' ')}`);
+        },
+        async writeAdvisorySuccess() {},
+      });
+
+      const plain = events.map((line) => Cli.stripAnsi(line));
+      const recovery = plain.find((line) => line.includes('No upgrade was run.')) ?? '';
+      expect(recovery.split('\n')).to.eql([
+        'info:No upgrade was run.',
+        'Could not complete the upgrade check.',
+        'Retry: deno cache --reload --no-config --no-lock jsr:@sys/tools',
+      ]);
     });
   });
 
@@ -683,6 +709,24 @@ describe('cli.upgrade.runUpgrade', () => {
     });
   });
 });
+
+function unavailableVersionCheck(message?: string) {
+  return (cwd: t.StringDir, options: { readonly resolverReload?: boolean } = {}) =>
+    getVersionInfo(cwd, {
+      ...options,
+      versions: () => versionsSuccess({ latest: '999999.0.0' as t.StringSemver }),
+      resolvePackage: async ({ specifier }) => ({
+        ok: false,
+        specifier,
+        registry: 'jsr',
+        package: '@sys/tools' as t.StringPkgName,
+        reason: {
+          code: 'registry',
+          ...(message ? { message } : {}),
+        },
+      }),
+    });
+}
 
 function resolved(
   specifier: string,

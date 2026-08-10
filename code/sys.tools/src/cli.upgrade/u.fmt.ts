@@ -1,5 +1,6 @@
 import { c, Cli, Jsr, Pkg, pkg, Str, type t } from './common.ts';
 import { rootAdvisoryPrelude } from './u.advisory.fmt.ts';
+import { refreshCacheCommand } from './u.refreshCache.ts';
 import { StanddownTiming } from './u.standdown.ts';
 import { toVersionState } from './u.versionState.ts';
 
@@ -9,6 +10,7 @@ type HelpInput =
 
 const g = c.green;
 const w = c.white;
+const RESOLVER_DETAIL_MAX_LENGTH = 160;
 const DISPLAY_LABEL = {
   registryLatest: 'registry:latest',
   localCurrent: 'local:current',
@@ -74,6 +76,12 @@ function registryLatestValue(
 
   const duration = StanddownTiming.formatDuration(standdown.remaining);
   return `${base}  ${c.gray(c.italic(`— minimum dependency age window clears in ${duration}`))}`;
+}
+
+function resolverDetail(message: string | undefined): string | undefined {
+  const normalized = Cli.stripAnsi(message ?? '').replace(/\s+/g, ' ').trim();
+  if (!normalized) return;
+  return Str.truncate(`Resolver: ${normalized}`, RESOLVER_DETAIL_MAX_LENGTH);
 }
 
 export const Fmt = {
@@ -149,7 +157,7 @@ export const Fmt = {
   shellcommand() {
     const str = Str.builder();
     const a = c.yellow(`sys upgrade --latest ${c.gray('[-l]')}`);
-    const b = c.gray(`# ↑ equiv: deno cache --reload --no-config --no-lock jsr:@sys/tools`);
+    const b = c.gray(`# ↑ equiv: ${refreshCacheCommand}`);
     str
       .line(c.gray('To upgrade to latest run:'))
       .line()
@@ -182,7 +190,9 @@ export const Fmt = {
     const str = Str.builder().line(c.gray('No upgrade was run.'));
 
     if (state.reason?.code === 'policy:minimum-dependency-age') {
-      const waiting = `${StanddownTiming.formatWait(state.minimumDependencyAgeStanddown?.remaining)}.`;
+      const waiting = `${
+        StanddownTiming.formatWait(state.minimumDependencyAgeStanddown?.remaining)
+      }.`;
       str.line(c.gray(c.italic(waiting)));
     } else {
       str.line(c.gray('Published version is not currently installable.'));
@@ -191,13 +201,15 @@ export const Fmt = {
     return str.toString();
   },
 
-  upgradeResolverUnavailable(_version: t.UpgradeTool.VersionInfo) {
-    return c.gray(
-      Str.builder()
-        .line('No upgrade was run.')
-        .line('Could not complete the upgrade check.')
-        .toString(),
-    );
+  upgradeResolverUnavailable(version: t.UpgradeTool.VersionInfo) {
+    const detail = resolverDetail(toVersionState(version).reason?.message);
+    const str = Str.builder()
+      .line('No upgrade was run.')
+      .line('Could not complete the upgrade check.');
+
+    if (detail) str.line(detail);
+    str.line(`Retry: ${refreshCacheCommand}`);
+    return c.gray(str.toString());
   },
 
   rootAdvisoryPrelude,
