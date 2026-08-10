@@ -61,6 +61,7 @@ export const DescriptorSchema = T.Object(
   {
     kind: T.Literal('cell'),
     version: T.Literal(1),
+    name: T.Optional(Id),
     services: T.Optional(T.Array(Service)),
     tasks: T.Optional(T.Array(Task)),
   },

@@ -87,6 +87,8 @@ export declare namespace CellCli {
       readonly descriptor: string;
       /** Descriptor schema version. */
       readonly version: t.Cell.Descriptor['version'];
+      /** Optional stable identity declared by the Cell. */
+      readonly name?: t.Cell.Descriptor['name'];
       /** Count of declared services. */
       readonly services: number;
       /** Count of declared tasks. */
@@ -105,6 +107,8 @@ export declare namespace CellCli {
       readonly descriptorPath: string;
       /** Descriptor schema version. */
       readonly version: t.Cell.Descriptor['version'];
+      /** Optional stable identity declared by the Cell. */
+      readonly name?: t.Cell.Descriptor['name'];
       /** Services declared by the Cell descriptor. */
       readonly services: readonly t.Cell.Services.Service[];
       /** Tasks declared by the Cell descriptor. */

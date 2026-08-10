@@ -13,15 +13,16 @@ A **Cell** is a folder-shaped [metamedium](https://en.wikipedia.org/wiki/Metamed
 ---
 
 `@sys/cell` is the boot and composition kernel for a Cell: a folder boundary that gives ordinary
-file state a declared runtime. It loads `-config/@sys.cell/cell.yaml` — a lightweight descriptor
-that names trusted lifecycle `services`, finite `tasks` that run to completion, and the owner config
-files those endpoints use.
+file state a declared runtime. It loads `-config/@sys.cell/cell.yaml` — a lightweight descriptor for
+its optional stable `name`, trusted lifecycle `services`, finite `tasks` that run to completion, and
+owner config files.
 
 #### Terminology
 
-**“Cell”** names the bounded medium — the folder itself. `-config/@sys.cell/cell.yaml` names its
-descriptor: the declaration of services, tasks, and owner configs. `@sys/cell` names the package
-that loads the descriptor and runs a Cell's lifecycle.
+**“Cell”** names the bounded medium — the folder itself. Its descriptor may declare its stable
+identity, services, tasks, and owner configs. Root `version: 1` is the descriptor schema version,
+not a Cell or package release version. `@sys/cell` names the package that loads the descriptor and
+runs a Cell's lifecycle.
 
 #### State
 

@@ -17,7 +17,7 @@ export declare namespace Cell {
     task(name: Id, options?: Task.Run.Options): Promise<Task.RunResult>;
   };
 
-  /** Cell-local identifier used for services and tasks. */
+  /** Stable identifier used for the Cell and its declared services and tasks. */
   export type Id = t.StringId;
 
   /** Path declared in the Cell descriptor, resolved relative to the Cell root. */
@@ -64,6 +64,8 @@ export declare namespace Cell {
   export type Descriptor = {
     kind: 'cell';
     version: 1;
+    /** Optional stable identity of the bounded Cell. */
+    name?: Id;
     services?: Services.Service[];
     tasks?: Task.Descriptor[];
   };

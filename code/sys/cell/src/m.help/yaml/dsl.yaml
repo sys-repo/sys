@@ -52,7 +52,8 @@ sections:
           lifecycle.
       - Owner configs own mechanics and state interpretation.
       - '`-config/@sys.cell/cell.yaml` is the canonical Cell descriptor path.'
-      - It names trusted services, tasks that run to completion, and owner config references.
+      - It may identify the bounded Cell.
+      - It declares trusted services, finite tasks, and owner config references.
       - Public package endpoint refs should use explicit JSR authority such as `jsr:@sys/...`.
       - >-
           Cell-local adapters should use relative refs such as `./-services/local.ts` or
@@ -69,13 +70,16 @@ sections:
   - label: 'Descriptor IDs'
     items:
       - |-
-          Service and task names in `-config/@sys.cell/cell.yaml` use the pattern
-          `^[a-z][a-z0-9]*(?:[.:-][a-z0-9]+)*$`.
+          The optional root `name` and each service and task `name` in
+          `-config/@sys.cell/cell.yaml` use the pattern `^[a-z][a-z0-9]*(?:[.:-][a-z0-9]+)*$`.
+      - >-
+          The optional root `name` identifies the bounded Cell. It is not package metadata or
+          free-form display text.
       - Allowed separators are `.`, `:`, and `-` between lowercase alphanumeric segments.
       - >-
           Do not use `_`, `/`, spaces, uppercase letters, leading/trailing separators, or
           repeated separators.
-      - Treat service and task names as opaque identifiers for display, logs, and review.
+      - Use root, service, and task names as opaque identifiers in display, logs, and review.
       - >-
           Do not treat names as raw paths, URLs, import specifiers, Deno task names, or config
           filenames.
@@ -189,8 +193,8 @@ sections:
       - composite task descriptor → record `tasks[]` with `name` and `steps[]` task refs only
       - do not put shell commands, `deno task`, or inline executable fields in `tasks[].steps[]`
       - |-
-          `-config/@sys.cell/cell.yaml` only names services, tasks that run to completion, endpoint refs,
-          and owner config refs
+          `-config/@sys.cell/cell.yaml` may identify the Cell and declare services, finite tasks,
+          endpoint refs, and owner config refs
       - verify/load → run `Cell.load` against the folder
       - run finite task → run `@sys/cell task <task-name>`
       - start services → run `@sys/cell start`

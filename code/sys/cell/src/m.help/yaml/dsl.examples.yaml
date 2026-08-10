@@ -37,8 +37,11 @@ sections:
   - label: 'Descriptor shapes'
     items:
       - |-
-          Current Cell descriptor entries use this generic shape:
+          A Cell descriptor has this shape:
           ```yaml
+          kind: cell
+          version: 1
+          name: <optional-cell-name>
           services:
             - name:
               use:
@@ -50,7 +53,8 @@ sections:
               from:
               config:
           ```
-      - Service and task names are Cell descriptor IDs.
+      - Root `name`, service names, and task names are Cell descriptor IDs.
+      - 'Root `version: 1` is the descriptor schema version, not a Cell release version.'
       - Owner config internals stay outside `-config/@sys.cell/cell.yaml`.
 
   - label: Owner reminders
@@ -58,7 +62,7 @@ sections:
       Pulled view config is owned by `@sys/tools/pull`.
       Default static serving is owned by `@sys/tools/serve`.
       Proxy routing is owned by `@sys/http/server/proxy`.
-      Cell records only services, tasks, endpoint refs, and owner config refs.
+      The descriptor may record a stable identity, services, tasks, endpoint refs, and owner config refs.
 
   - label: Source guardrail
     items:

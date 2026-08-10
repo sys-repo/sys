@@ -2,6 +2,7 @@
 
 kind: cell
 version: 1
+name: sample:deploy
 
 services:
   - name: deploy:view

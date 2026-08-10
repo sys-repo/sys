@@ -32,6 +32,24 @@ describe(`@sys/cell/cli info`, () => {
     expect(await Fs.exists(Fs.join(fs.dir, 'view'))).to.eql(before);
   });
 
+  it('info → reports an optional Cell name without package reinterpretation', async () => {
+    const fs = await Testing.dir('CellCli.info.name');
+    await Fs.write(
+      Fs.join(fs.dir, '-config/@sys.cell/cell.yaml'),
+      'kind: cell\nversion: 1\nname: sample:stripe\n',
+    );
+
+    const res = await silent(() => CellCli.run({ argv: ['info', fs.dir] }));
+    const text = stripAnsi(res.text);
+
+    expect(res.kind).to.eql('info');
+    if (res.kind !== 'info') throw new Error('expected info result');
+    expect(res.name).to.eql('sample:stripe');
+    expect(res.report.name).to.eql('sample:stripe');
+    expect(text).to.contain('name');
+    expect(text).to.contain('sample:stripe');
+  });
+
   it('info → renders declared services and tasks without importing endpoints', async () => {
     const fs = await Testing.dir('CellCli.info.declared');
     await Fs.write(

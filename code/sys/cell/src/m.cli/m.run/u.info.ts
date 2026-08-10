@@ -30,6 +30,7 @@ export async function runInfo(ctx: RunContext): Promise<t.CellCli.Result> {
       root: report.root,
       descriptor: report.descriptor,
       version: report.version,
+      ...(report.name === undefined ? {} : { name: report.name }),
       services: report.services.length,
       tasks: report.tasks.length,
       report,
@@ -59,6 +60,7 @@ function toReport(cell: t.Cell.Instance): t.CellCli.Info.Report {
     descriptor,
     descriptorPath: cell.paths.descriptor,
     version: cell.descriptor.version,
+    ...(cell.descriptor.name === undefined ? {} : { name: cell.descriptor.name }),
     services: cell.descriptor.services ?? [],
     tasks: cell.descriptor.tasks ?? [],
   };

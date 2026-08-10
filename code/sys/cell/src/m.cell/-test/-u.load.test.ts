@@ -12,6 +12,7 @@ describe('Cell.load', () => {
     expect(cell.paths.descriptor).to.eql(Fs.join(cell.root, CellPaths.descriptor));
     expect(cell.descriptor.kind).to.eql('cell');
     expect(cell.descriptor.version).to.eql(1);
+    expect(cell.descriptor.name).to.eql('sample:stripe');
     expect(cell.descriptor.services?.map((service) => service.name)).to.eql([
       'ui:static:views',
       'stripe:dev:fixture',
@@ -37,6 +38,7 @@ describe('Cell.load', () => {
     expect(cell.paths.descriptor).to.eql(Fs.join(cell.root, CellPaths.descriptor));
     expect(cell.descriptor.kind).to.eql('cell');
     expect(cell.descriptor.version).to.eql(1);
+    expect(cell.descriptor.name).to.eql('sample:deploy');
     expect(cell.descriptor.services?.map((service) => service.name)).to.eql(['deploy:view']);
   });
 

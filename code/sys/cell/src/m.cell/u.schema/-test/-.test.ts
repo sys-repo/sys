@@ -20,6 +20,16 @@ describe(`Cell.Schema`, () => {
       expect(CellSchema.Descriptor.validate(descriptor)).to.eql({ ok: true, errors: [] });
     });
 
+    it('accepts an optional stable Cell name', () => {
+      const descriptor: unknown = {
+        kind: 'cell',
+        version: 1,
+        name: 'sample:stripe',
+      };
+
+      expect(CellSchema.Descriptor.validate(descriptor)).to.eql({ ok: true, errors: [] });
+    });
+
     it('accepts service composition refs', () => {
       const descriptor: unknown = {
         kind: 'cell',
@@ -86,6 +96,20 @@ describe(`Cell.Schema`, () => {
       };
 
       expect(CellSchema.Descriptor.validate(descriptor)).to.eql({ ok: true, errors: [] });
+    });
+  });
+
+  describe('identity', () => {
+    it('rejects invalid Cell names', () => {
+      const cases = ['Bad', 'bad_name', 'bad/name', 'bad:', 'bad.', 'bad..name', '.'];
+
+      cases.forEach((name) => {
+        const descriptor: unknown = { kind: 'cell', version: 1, name };
+        const result = CellSchema.Descriptor.validate(descriptor);
+
+        expect(result.ok, name).to.eql(false);
+        expect(result.errors.some((error) => error.path === '/name')).to.eql(true);
+      });
     });
   });
 
