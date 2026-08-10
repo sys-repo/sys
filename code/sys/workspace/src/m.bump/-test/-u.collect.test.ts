@@ -1,7 +1,35 @@
-import { describe, expect, it } from '../../-test.ts';
-import { bumpOrderedPaths, orderCandidates } from '../u/u.collect.ts';
+import { describe, expect, Fs, it, Testing } from '../../-test.ts';
+import { bumpOrderedPaths, collect, orderCandidates } from '../u/u.collect.ts';
 
 describe('@sys/workspace/bump collect helpers', () => {
+  it('preserves the declared workspace path on collected bump candidates', async () => {
+    const fs = await Testing.dir('WorkspaceBump.collect.declared-path');
+    await Fs.writeJson(Fs.join(fs.dir, 'deno.json'), { workspace: ['./code/pkg'] });
+    await Fs.writeJson(Fs.join(fs.dir, 'code/pkg/deno.json'), {
+      name: '@scope/pkg',
+      version: '1.0.0',
+    });
+    const alias = await Testing.dir('WorkspaceBump.collect.declared-path.alias');
+    const cwd = Fs.join(alias.dir, 'workspace');
+    await Deno.symlink(fs.dir, cwd, { type: 'dir' });
+
+    const result = await collect({
+      cwd,
+      orderedPaths: ['./code/pkg'],
+      edges: [],
+    });
+
+    expect(
+      result.candidates.map((candidate) => ({
+        pkgPath: candidate.pkgPath,
+        denoFilePath: candidate.denoFilePath,
+      })),
+    ).to.eql([{
+      pkgPath: './code/pkg',
+      denoFilePath: Fs.join(cwd, 'code/pkg/deno.json'),
+    }]);
+  });
+
   it('orders bump rows by topological workspace package path order', () => {
     const candidates = [
       { pkgPath: 'code/sys/workspace', name: '@sys/workspace' },
