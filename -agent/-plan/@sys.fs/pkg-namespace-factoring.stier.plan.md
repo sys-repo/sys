@@ -1,6 +1,5 @@
-# Pkg namespace factoring S-tier plan
-
-- [ ] refactor(fs): namespace Pkg contract surface
+pkg-namespace-factoring.stier.plan.md
+- [x] 465eb4f05 refactor(fs): namespace Pkg contract surface
 
 ## Purpose
 

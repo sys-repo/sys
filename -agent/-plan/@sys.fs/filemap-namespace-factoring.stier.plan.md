@@ -1,6 +1,5 @@
-# FileMap namespace factoring S-tier plan
-
-- [ ] refactor(fs): namespace FileMap contract surface
+filemap-namespace-factoring.stier.plan.md
+- [x] a6e681a54 refactor(fs): namespace FileMap contract surface
 
 ## Purpose
 

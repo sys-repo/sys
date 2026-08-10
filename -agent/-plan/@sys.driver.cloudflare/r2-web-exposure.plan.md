@@ -1,7 +1,4 @@
-# r2-web-exposure
-
-## Commit plan
-
+r2-web-exposure.plan.md
 - [x] 07a0a8028 chore(tmpl:pkg): scaffold @sys/web package
 - [ ] feat(web): add exposure model types
 - [ ] feat(driver-cloudflare): add web exposure verify seam

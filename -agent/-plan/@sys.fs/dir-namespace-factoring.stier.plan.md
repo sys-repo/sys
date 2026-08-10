@@ -1,6 +1,5 @@
-# Dir namespace factoring S-tier plan
-
-- [ ] refactor(fs): namespace Dir contract surface
+dir-namespace-factoring.stier.plan.md
+- [x] e94e5d8de refactor(fs): namespace Dir contract surface
 
 ## Purpose
 

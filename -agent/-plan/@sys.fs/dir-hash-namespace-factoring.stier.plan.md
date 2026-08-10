@@ -1,6 +1,5 @@
-# DirHash namespace factoring S-tier plan
-
-- [ ] refactor(fs): namespace DirHash contract surface
+dir-hash-namespace-factoring.stier.plan.md
+- [x] 855fec8f6 refactor(fs): namespace DirHash contract surface
 
 ## Purpose
 
