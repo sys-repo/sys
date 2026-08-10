@@ -1,5 +1,6 @@
 import { cors, Hono, type t } from './common.ts';
 import { create } from './m.Server.create.ts';
+import { keyboard } from './u/u.keyboard.ts';
 import { forceDirSlash } from './u/u.middleware.ts';
 import { options } from './u/u.options.ts';
 import { print } from './u/u.print.ts';
@@ -18,8 +19,5 @@ export const HttpServer: t.HttpServer.Lib = {
   start,
   print,
   options,
-  async keyboard(args) {
-    const { keyboard } = await import('./u.keyboard.ts');
-    return await keyboard(args);
-  },
+  keyboard,
 } as const;
