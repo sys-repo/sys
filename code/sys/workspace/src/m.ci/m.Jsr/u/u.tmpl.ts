@@ -21,7 +21,6 @@ export const JSR_BODY_TEMPLATE = `- name: publish module → "__NAME__"
     fi
     pkg_meta_url="https://jsr.io/\${pkg_name}/\${pkg_version}_meta.json"
     pkg_index_url="https://jsr.io/\${pkg_name}/meta.json"
-    publish_timeout="90s"
     publish_confirm_timeout=900
     publish_confirm_interval=15
 
@@ -45,7 +44,7 @@ export const JSR_BODY_TEMPLATE = `- name: publish module → "__NAME__"
     wait_for_jsr_version() {
       elapsed=0
       exact_reported=0
-      index_reported=0
+      index_wait_reported=0
       while [ "$elapsed" -le "$publish_confirm_timeout" ]; do
         if jsr_exact_metadata_visible; then
           if [ "$exact_reported" -eq 0 ]; then
@@ -53,15 +52,15 @@ export const JSR_BODY_TEMPLATE = `- name: publish module → "__NAME__"
             exact_reported=1
           fi
           if jsr_package_index_visible; then
-            if [ "$index_reported" -eq 0 ]; then
-              echo "JSR package index confirms published version: \${pkg_name}@\${pkg_version}"
-              index_reported=1
-            fi
+            echo "JSR package index confirms published version: \${pkg_name}@\${pkg_version}"
             return 0
-          elif [ "$index_reported" -eq 0 ]; then
+          elif [ "$index_wait_reported" -eq 0 ]; then
             echo "JSR exact metadata is visible, waiting for package index visibility: \${pkg_name}@\${pkg_version}"
-            index_reported=1
+            index_wait_reported=1
           fi
+        fi
+        if [ $((elapsed % 60)) -eq 0 ]; then
+          echo "Waiting for JSR registry visibility ($elapsed/\${publish_confirm_timeout}s): \${pkg_name}@\${pkg_version}"
         fi
         if [ "$elapsed" -ge "$publish_confirm_timeout" ]; then
           break
@@ -95,7 +94,9 @@ export const JSR_BODY_TEMPLATE = `- name: publish module → "__NAME__"
           echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: \${pkg_name}@\${pkg_version}"
           exit 1
         fi
-        if timeout --foreground --kill-after=30s "$publish_timeout" deno publish; then
+        # Keep the official client attached while JSR finalizes an accepted upload. A short local
+        # timeout turns JSR's idempotent "Already uploaded, waiting" state into retry churn.
+        if deno publish; then
           echo "deno publish exited successfully; confirming JSR registry visibility..."
           if wait_for_jsr_version; then
             echo "JSR registry confirms published version: \${pkg_name}@\${pkg_version}"
@@ -106,22 +107,18 @@ export const JSR_BODY_TEMPLATE = `- name: publish module → "__NAME__"
         else
           status=$?
         fi
-        if [ "$status" -eq 124 ]; then
-          echo "deno publish reached bounded wait (\${publish_timeout}, exit code 124); checking JSR registry visibility..."
-        else
-          echo "deno publish exited with code \${status}; checking JSR registry visibility before retry/fail..."
-        fi
-        if wait_for_jsr_version; then
-          echo "JSR registry confirms published version: \${pkg_name}@\${pkg_version}; treating publish as successful."
-          exit 0
-        fi
+        echo "deno publish exited with code \${status}; checking JSR registry visibility before retry/fail..."
         if jsr_exact_metadata_visible; then
+          if wait_for_jsr_version; then
+            echo "JSR registry confirms published version: \${pkg_name}@\${pkg_version}; treating publish as successful."
+            exit 0
+          fi
           echo "::error::Published version metadata exists, but JSR registry visibility was not confirmed: \${pkg_name}@\${pkg_version}"
           exit 1
         fi
         if [ "$attempt" -lt "$max_attempts" ]; then
           delay=$((5 * 2 ** (attempt - 1)))
-          echo "JSR registry did not confirm published version after attempt $attempt/$max_attempts; retrying in \${delay}s..."
+          echo "deno publish failed before registry visibility (attempt $attempt/$max_attempts); retrying deno publish in \${delay}s..."
           sleep "$delay"
         fi
     done

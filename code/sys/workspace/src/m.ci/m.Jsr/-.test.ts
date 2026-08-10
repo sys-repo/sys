@@ -39,7 +39,7 @@ describe('WorkspaceCi.Jsr', () => {
     expect(yaml).to.include('pkg_meta_url="https://jsr.io/${pkg_name}/${pkg_version}_meta.json"');
     expect(yaml).to.include('pkg_index_url="https://jsr.io/${pkg_name}/meta.json"');
     expect(yaml).not.to.include('pkg_specifier="jsr:${pkg_name}@${pkg_version}"');
-    expect(yaml).to.include('publish_timeout="90s"');
+    expect(yaml).not.to.include('publish_timeout=');
     expect(yaml).to.include('publish_confirm_timeout=900');
     expect(yaml).to.include('publish_confirm_interval=15');
     expect(yaml).to.include('jsr_exact_metadata_visible()');
@@ -48,19 +48,23 @@ describe('WorkspaceCi.Jsr', () => {
     expect(yaml).not.to.include('deno info --reload "$pkg_specifier"');
     expect(yaml).to.include('wait_for_jsr_version()');
     expect(yaml).to.include('if jsr_exact_metadata_visible; then');
+    expect(yaml).not.to.include('timeout --foreground');
+    expect(yaml).not.to.include('--kill-after');
     expect(yaml).to.include(
-      'timeout --foreground --kill-after=30s "$publish_timeout" deno publish',
+      'Keep the official client attached while JSR finalizes an accepted upload',
     );
     expect(yaml).to.include('if wait_for_jsr_version; then');
     expect(yaml).to.include('deno publish exited successfully; confirming JSR registry visibility');
-    expect(yaml).to.include('deno publish reached bounded wait');
-    expect(yaml).to.include('checking JSR registry visibility');
+    expect(yaml).not.to.include('deno publish reached bounded wait');
+    expect(yaml).to.include('deno publish exited with code');
+    expect(yaml).to.include('checking JSR registry visibility before retry/fail');
     expect(yaml).to.include('JSR exact metadata is visible');
+    expect(yaml).to.include('Waiting for JSR registry visibility');
     expect(yaml).to.include('JSR package index confirms published version');
     expect(yaml).not.to.include('Deno resolver confirms published version');
     expect(yaml).to.include('JSR registry confirms published version');
     expect(yaml).to.include('treating publish as successful');
-    expect(yaml).to.include('JSR registry did not confirm published version after attempt');
+    expect(yaml).to.include('deno publish failed before registry visibility');
     expect(yaml).to.include(
       'Published version metadata exists, but JSR registry visibility was not confirmed',
     );
@@ -71,7 +75,7 @@ describe('WorkspaceCi.Jsr', () => {
     expect(yaml).to.include('test -z "$(git status --porcelain)"');
     expect(yaml.includes('lfs: true')).to.eql(false);
     expect(yaml.includes('git lfs pull')).to.eql(false);
-    expect(yaml.includes('if deno publish; then')).to.eql(false);
+    expect(yaml.includes('if deno publish; then')).to.eql(true);
     expect(yaml.includes('deno publish --allow-dirty')).to.eql(false);
     expect(yaml.includes('max_attempts=3')).to.eql(true);
     expect(yaml.includes('if deno task install; then')).to.eql(true);
