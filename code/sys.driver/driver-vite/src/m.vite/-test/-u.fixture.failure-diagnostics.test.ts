@@ -1,13 +1,13 @@
 import { describe, expect, it, Str, type t } from '../../-test.ts';
 
-import { assertBuildOk } from './u.fixture.build.ts';
+import { assertBuildOk } from '../-test.external/u.fixture.build.ts';
 import {
   assertRunOk,
   commandRun,
   FIXTURE_CAPTURE,
   operationRun,
   toCommandRun,
-} from './u.fixture.task.ts';
+} from '../-test.external/u.fixture.task.ts';
 
 describe('Vite external fixture diagnostics', () => {
   it('preserves failed task command context', () => {
