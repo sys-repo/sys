@@ -1,4 +1,4 @@
-import { c, Cli, describe, expect, it, Path, type t } from '../../-test.ts';
+import { c, Cli, describe, expect, it, Path, pkg, type t, Time } from '../../-test.ts';
 import { WorkspaceInfo } from '../mod.ts';
 
 const RUNTIME = { deno: '2.7.4', typescript: '5.9.2', v8: '14.x' } as const;
@@ -17,10 +17,27 @@ const PACKAGE_STATS: t.WorkspaceInfo.PackageResult = {
   lines: 123,
 };
 
-const GRAPH: t.WorkspaceInfo.GraphSummary = {
+const GRAPH: t.WorkspaceGraph.Snapshot.Artifact = {
   path: '/tmp/workspace graph/deno.graph.json' as t.StringPath,
-  hash: `sha256-${'a'.repeat(59)}e0a7c` as t.StringHash,
-  edges: 396,
+  snapshot: {
+    '.meta': {
+      createdAt: (Time.now.timestamp - 4 * Time.Date.DAY) as t.UnixTimestamp,
+      modifiedAt: (Time.now.timestamp - 3 * Time.Date.DAY) as t.UnixTimestamp,
+      schemaVersion: 2,
+      hash: {
+        '/graph': `sha256-${'a'.repeat(59)}e0a7c` as t.StringHash,
+        '/graph:policy': 'https://example.com/graph-hash-policy' as t.StringUrl,
+      },
+      generator: {
+        pkg,
+        types: { '/graph': 'https://example.com/graph-types' as t.StringUrl },
+      },
+    },
+    graph: {
+      orderedPaths: ['code/a', 'code/b'],
+      edges: Array.from({ length: 396 }, () => ({ from: 'code/a', to: 'code/b' })),
+    },
+  },
 };
 
 describe(`Workspace.Info.fmt`, () => {
@@ -103,12 +120,13 @@ describe(`Workspace.Info.fmt`, () => {
       const rawWorkspace = rawLineWith(raw, 'Workspace');
 
       expect(workspace).to.contain('graph:#e0a7c');
-      expect(workspace).to.contain('396 edges');
+      expect(workspace).to.contain('396 edges • 3d');
       expect(columnOf(workspace, 'graph')).to.eql(columnOf(packages, '3'));
       expect(columnOf(workspace, '396 edges')).to.eql(columnOf(packages, '@sys/*'));
       expect(rawWorkspace).to.contain(Path.toFileUrl(GRAPH.path).href);
       expect(rawWorkspace).to.contain(c.underline(c.dim('graph:#e0a7c')));
       expect(rawWorkspace).to.contain(c.dim('396 edges'));
+      expect(rawWorkspace).to.contain(c.dim(' • 3d'));
       expect(rawWorkspace).not.to.contain(c.green('#e0a7c'));
       expect(rawWorkspace).not.to.contain(c.cyan('396'));
 
@@ -122,7 +140,25 @@ describe(`Workspace.Info.fmt`, () => {
       );
     });
 
+    it('falls back to snapshot creation time when modification metadata is absent', () => {
+      const graph: t.WorkspaceGraph.Snapshot.Artifact = {
+        ...GRAPH,
+        snapshot: {
+          ...GRAPH.snapshot,
+          '.meta': { ...GRAPH.snapshot['.meta'], modifiedAt: undefined },
+        },
+      };
+      const text = Cli.stripAnsi(WorkspaceInfo.fmt(PACKAGE_STATS, { graph, width: 80 }));
+
+      expect(lineWith(text, 'Workspace')).to.contain('396 edges • 4d');
+    });
+
     it('drops graph detail by semantic priority under width pressure', () => {
+      const withoutAge = workspaceLine({ width: 45 });
+      expect(withoutAge).to.contain('396 edges');
+      expect(withoutAge).not.to.contain('•');
+      expect(Cli.Fmt.Text.Width.measure(withoutAge)).to.be.at.most(45);
+
       const withoutSummary = workspaceLine({ width: 40 });
       expect(withoutSummary).to.contain('graph:#e0a7c');
       expect(withoutSummary).not.to.contain('edges');

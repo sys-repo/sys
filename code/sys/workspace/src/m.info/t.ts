@@ -38,16 +38,6 @@ export declare namespace WorkspaceInfo {
     readonly exclude: readonly t.StringPath[];
   };
 
-  /** Persisted workspace graph facts rendered with source statistics. */
-  export type GraphSummary = {
-    /** Absolute graph snapshot path used as the terminal hyperlink target. */
-    readonly path: t.StringPath;
-    /** Canonical hash of the persisted graph payload. */
-    readonly hash: t.StringHash;
-    /** Number of directed package dependency edges in the persisted graph. */
-    readonly edges: number;
-  };
-
   /** Formatting options for source statistics. */
   export type FormatOptions = {
     /**
@@ -57,8 +47,8 @@ export declare namespace WorkspaceInfo {
     readonly width?: number;
     /** Terminal-output override used for deterministic hyperlink rendering. */
     readonly terminal?: boolean;
-    /** Optional persisted graph identity and topology summary. */
-    readonly graph?: GraphSummary;
+    /** Optional persisted graph artifact rendered with the source statistics. */
+    readonly graph?: t.WorkspaceGraph.Snapshot.Artifact;
   };
 
   /** Optional totals to compute. */

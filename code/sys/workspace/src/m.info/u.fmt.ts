@@ -1,4 +1,4 @@
-import { c, Cli, Hash, Path, Str, type t } from './common.ts';
+import { c, Cli, Hash, Path, Str, type t, Time } from './common.ts';
 
 const CELL = {
   gap: Cli.Table.cellGap,
@@ -105,15 +105,18 @@ function workspaceRow(
   layout: Layout,
   options: t.WorkspaceInfo.FormatOptions,
 ): string {
-  const graph = options.graph;
-  if (!graph) return c.cyan(WORKSPACE.label);
+  const artifact = options.graph;
+  if (!artifact) return c.cyan(WORKSPACE.label);
 
+  const snapshot = artifact.snapshot;
+  const graph = snapshot.graph;
+  const meta = snapshot['.meta'];
   const outputWidth = Cli.Fmt.Text.Width.fit({
     width: options.width,
     terminal: options.terminal,
   });
   const graphColumnWidth = Math.max(0, layout.detailColumn - layout.valueColumn - 1);
-  const refs = graphRefs(graph.hash);
+  const refs = graphRefs(meta.hash['/graph']);
   const ref = refs.find((candidate) => {
     const width = Cli.Fmt.Text.Width.measure(candidate.plain);
     return width <= graphColumnWidth && layout.valueColumn + width <= outputWidth;
@@ -122,19 +125,23 @@ function workspaceRow(
 
   const title = Cli.Fmt.Text.Width.padEnd(WORKSPACE.label, layout.labelWidth);
   const prefix = `${c.cyan(title)}${' '.repeat(layout.valueColumn - layout.labelWidth)}`;
-  const artifact = renderGraphRef(ref, graph.path, options);
-  const edgeCount = graph.edges.toLocaleString();
-  const edgeNoun = graph.edges === 1 ? 'edge' : 'edges';
-  const summaryText = `${edgeCount} ${edgeNoun}`;
-  const summaryFits = layout.detailColumn + Cli.Fmt.Text.Width.measure(summaryText) <= outputWidth;
-  if (!summaryFits) return `${prefix}${artifact}`;
+  const graphRef = renderGraphRef(ref, artifact.path, options);
+  const edgeCount = graph.edges.length;
+  const edgeText = `${edgeCount.toLocaleString()} ${edgeCount === 1 ? 'edge' : 'edges'}`;
+  const edgeFits = layout.detailColumn + Cli.Fmt.Text.Width.measure(edgeText) <= outputWidth;
+  if (!edgeFits) return `${prefix}${graphRef}`;
 
+  const generatedAt = meta.modifiedAt ?? meta.createdAt;
+  const elapsed = Time.elapsed(generatedAt);
+  const ageText = elapsed.ok ? ` • ${elapsed}` : '';
+  const ageFits = ageText.length > 0 &&
+    layout.detailColumn + Cli.Fmt.Text.Width.measure(`${edgeText}${ageText}`) <= outputWidth;
   const padding = Math.max(
     0,
     layout.detailColumn - layout.valueColumn - Cli.Fmt.Text.Width.measure(ref.plain),
   );
-  const summary = c.dim(summaryText);
-  return `${prefix}${artifact}${' '.repeat(padding)}${summary}`;
+  const summary = `${c.dim(edgeText)}${ageFits ? c.dim(ageText) : ''}`;
+  return `${prefix}${graphRef}${' '.repeat(padding)}${summary}`;
 }
 
 function graphRefs(hash: t.StringHash): readonly GraphRef[] {

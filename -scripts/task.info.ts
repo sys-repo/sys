@@ -54,13 +54,11 @@ export async function main() {
         throw new Error(`Workspace info graph snapshot is missing or invalid: "${graphPath}"`);
       }
 
-      const graph = graphSnapshot.graph;
       spinner.succeed(Fmt.scanned(stats, startedAt));
       console.info(Workspace.Info.fmt(stats, {
         graph: {
           path: graphPath,
-          hash: graphSnapshot['.meta'].hash['/graph'],
-          edges: graph.edges.length,
+          snapshot: graphSnapshot,
         },
       }));
     } catch (error) {

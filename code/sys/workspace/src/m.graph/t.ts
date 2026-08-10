@@ -194,6 +194,12 @@ export declare namespace WorkspaceGraph {
       write(snapshot: Doc, path: t.StringPath): Promise<Doc>;
     };
 
+    /** Persisted graph snapshot paired with its filesystem location. */
+    export type Artifact = {
+      readonly path: t.StringPath;
+      readonly snapshot: Doc;
+    };
+
     /** Snapshot document metadata. */
     export type Meta = t.JsonFile.Meta & {
       readonly schemaVersion: 2;
