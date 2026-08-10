@@ -1,6 +1,6 @@
-import { describe, expect, Fs, it, Json, Process, ROOT, slug, Str } from '../../-test.ts';
+import { describe, expect, Fs, it, Json, ROOT, slug, Str } from '../../-test.ts';
 import { DEFAULTS } from '../common.ts';
-import { assertRunOk, commandRun } from './u.fixture.task.ts';
+import { assertRunOk, runCommand } from './u.fixture.task.ts';
 
 describe('Vite external std try runtime', () => {
   it('consumer dev entry importing @sys/std/try evaluates without Try TDZ crash', async () => {
@@ -118,20 +118,7 @@ async function runProbe(source: string) {
   ] as const;
 
   try {
-    const output = await Process.invoke({
-      cmd: 'deno',
-      args: [...args],
-      cwd,
-      silent: true,
-    });
-    return commandRun({
-      cwd,
-      cmd: ['deno', ...args],
-      ok: output.success,
-      code: output.code,
-      stdout: output.text.stdout,
-      stderr: output.text.stderr,
-    });
+    return await runCommand(cwd, 'deno', args);
   } finally {
     await Fs.remove(path, { log: false });
   }

@@ -1,8 +1,8 @@
-import { describe, expect, Fs, it, Json, Process, ROOT, SAMPLE, slug } from '../../-test.ts';
+import { describe, expect, Fs, it, Json, ROOT, SAMPLE, slug } from '../../-test.ts';
 import { DEFAULTS } from '../common.ts';
 import { Wrangle } from '../u/u.wrangle.ts';
 import { assertBuildOk } from './u.fixture.build.ts';
-import { assertRunOk, commandRun } from './u.fixture.task.ts';
+import { assertRunOk, runCommand } from './u.fixture.task.ts';
 
 type BuildProbeJson = {
   ok: boolean;
@@ -165,20 +165,7 @@ async function runProbe(source: string) {
   const args = ['run', '-P=test', '--no-lock', '--node-modules-dir=auto', path] as const;
 
   try {
-    const output = await Process.invoke({
-      cmd: 'deno',
-      args: [...args],
-      cwd,
-      silent: true,
-    });
-    return commandRun({
-      cwd,
-      cmd: ['deno', ...args],
-      ok: output.success,
-      code: output.code,
-      stdout: output.text.stdout,
-      stderr: output.text.stderr,
-    });
+    return await runCommand(cwd, 'deno', args);
   } finally {
     await Fs.remove(path, { log: false });
   }

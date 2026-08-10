@@ -1,9 +1,6 @@
-import { Fs, Process, SAMPLE, Str, type t } from '../../-test.ts';
+import { Fs, Is, Process, SAMPLE, Str, type t } from '../../-test.ts';
 import { writeLocalFixtureImports } from '../-test/u.bridge.fixture.ts';
-import { formatRunFailure } from './u.fixture.task.ts';
-
-const CHILD = Fs.Path.fromFileUrl(new URL('./u.fixture.build.child.ts', import.meta.url));
-const PACKAGE_DIR = Fs.Path.fromFileUrl(new URL('../../../', import.meta.url));
+import { captureDiagnostic, FIXTURE_CAPTURE, formatRunFailure } from './u.fixture.task.ts';
 
 type BuiltJsFile = { readonly filename: string; readonly text: string };
 type BuiltFiles = {
@@ -38,6 +35,9 @@ type BuildDiagnostic = {
   readonly cmd: SerializedBuild['cmd'];
 };
 
+const CHILD = Fs.Path.fromFileUrl(new URL('./u.fixture.build.child.ts', import.meta.url));
+const PACKAGE_DIR = Fs.Path.fromFileUrl(new URL('../../../', import.meta.url));
+
 /**
  * Preserve a failed published-fixture build's command context for external-lane diagnosis.
  */
@@ -70,7 +70,7 @@ export async function buildSample(args: {
   if (entry && entry !== './index.html') {
     const source = entry.startsWith('./') ? entry.slice(2) : entry;
     const html = (await Fs.readText(Fs.join(fs.dir, source))).data;
-    if (typeof html !== 'string') throw new Error(`Missing fixture entry html: ${entry}`);
+    if (!Is.string(html)) throw new Error(`Missing fixture entry html: ${entry}`);
     await Fs.write(Fs.join(fs.dir, 'index.html'), html);
   }
   if (local) await writeLocalFixtureImports(fs.dir);
@@ -84,12 +84,10 @@ export async function buildSample(args: {
     cmd: Deno.execPath(),
     args: childArgs,
     cwd: PACKAGE_DIR,
-    timeoutMs: 120_000,
-    maxStdoutBytes: 2_000_000,
-    maxStderrBytes: 2_000_000,
-    killGraceMs: 1_000,
+    ...FIXTURE_CAPTURE,
   });
   if (child.outcome !== 'exited' || !child.success) {
+    const captured = captureDiagnostic(child);
     throw new Error(
       Str.dedent(`
         Vite fixture build process failed.
@@ -100,9 +98,9 @@ export async function buildSample(args: {
         code: ${child.code ?? 'none'}
         signal: ${child.signal ?? 'none'}
         stderr:
-        ${child.text.stderr || '(empty)'}
+        ${captured.stderr || '(empty)'}
         stdout:
-        ${child.text.stdout || '(empty)'}
+        ${captured.stdout || '(empty)'}
       `),
     );
   }
