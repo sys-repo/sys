@@ -91,6 +91,39 @@ describe('Crdt: SyncServer', () => {
       expect((await Testing.connect(port)).refused).to.eql(true);
     });
 
+    it('cleanup failure → rejects the canonical completion after every branch settles', async () => {
+      const ws = await Server.ws({ silent });
+      const port = ws.addr.port;
+      const failure = new Error('test:sync-server:repo-cleanup');
+      const disposeRepo = ws.repo.dispose;
+      const fired: t.DisposeAsyncEvent[] = [];
+      ws.dispose$.subscribe((event) => fired.push(event));
+
+      Object.defineProperty(ws.repo, 'dispose', {
+        configurable: true,
+        value: async (reason?: unknown) => {
+          await disposeRepo(reason);
+          throw failure;
+        },
+      });
+
+      const completion = ws.dispose('test:cleanup-failure');
+      expect(ws[Symbol.asyncDispose]()).to.equal(completion);
+
+      let caught: unknown;
+      try {
+        await completion;
+      } catch (error) {
+        caught = error;
+      }
+
+      expect(caught).to.equal(failure);
+      expect(ws.disposed).to.eql(true);
+      expect(ws.repo.disposed).to.eql(true);
+      expect(fired.map((event) => event.payload.stage)).to.eql(['start', 'error']);
+      expect((await Testing.connect(port)).refused).to.eql(true);
+    });
+
     it('until param', async () => {
       const life = Rx.lifecycle();
       const ws = await Server.ws({ silent, until: life.dispose$ });

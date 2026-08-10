@@ -128,10 +128,21 @@ export const ws: t.SyncServer.Lib['ws'] = async (options = {}) => {
    * Lifecycle:
    */
   async function cleanup(e: t.DisposeEvent) {
-    try {
-      await Promise.all([shutdown(wss), disposeHttpServer(http), repo.dispose(e.reason)]);
-    } catch (error) {
-      console.error('[wss:shutdown:error]', error);
+    const tasks = [
+      () => shutdown(wss),
+      () => disposeHttpServer(http),
+      () => repo.dispose(e.reason),
+    ];
+    const results = await Promise.allSettled(tasks.map(async (task) => await task()));
+    const failures: unknown[] = [];
+
+    for (const result of results) {
+      if (result.status === 'rejected') failures.push(result.reason);
+    }
+
+    if (failures.length === 1) throw failures[0];
+    if (failures.length > 1) {
+      throw new AggregateError(failures, 'Server.ws: multiple cleanup operations failed');
     }
   }
 
@@ -143,7 +154,12 @@ export const ws: t.SyncServer.Lib['ws'] = async (options = {}) => {
       await cleanup(e);
     });
   } catch (error) {
-    await cleanup({ reason: error });
+    try {
+      await cleanup({ reason: error });
+    } catch (cleanupError) {
+      console.error('[wss:shutdown:error]', cleanupError);
+      // Preserve lifecycle-construction failure over best-effort rollback.
+    }
     throw error;
   }
 
@@ -200,7 +216,8 @@ export const ws: t.SyncServer.Lib['ws'] = async (options = {}) => {
     const failure = startupCancellation ? toStartupCancellationError() : error;
     try {
       await life.dispose(failure);
-    } catch {
+    } catch (cleanupError) {
+      console.error('[wss:shutdown:error]', cleanupError);
       // Preserve the startup failure over best-effort rollback.
     }
     throw failure;
