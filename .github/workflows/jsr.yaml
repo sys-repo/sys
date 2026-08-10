@@ -31,7 +31,7 @@ jobs:
         include:
           - name: "@sys/types"
             path: "code/sys/types"
-            version: "0.0.300"
+            version: "0.0.301"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
@@ -203,16 +203,16 @@ jobs:
         include:
           - name: "@sys/dev"
             path: "code/sys.dev"
-            version: "0.0.231"
+            version: "0.0.232"
           - name: "@sys/crdt"
             path: "code/sys/crdt"
-            version: "0.0.204"
+            version: "0.0.205"
           - name: "@sys/std"
             path: "code/sys/std"
-            version: "0.0.377"
+            version: "0.0.378"
           - name: "@sys/web"
             path: "code/sys/web"
-            version: "0.0.7"
+            version: "0.0.8"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
@@ -384,19 +384,19 @@ jobs:
         include:
           - name: "@sys/color"
             path: "code/sys/color"
-            version: "0.0.272"
+            version: "0.0.273"
           - name: "@sys/event"
             path: "code/sys/event"
-            version: "0.0.175"
+            version: "0.0.176"
           - name: "@sys/immutable"
             path: "code/sys/immutable"
-            version: "0.0.165"
+            version: "0.0.166"
           - name: "@sys/net"
             path: "code/sys/net"
-            version: "0.0.149"
+            version: "0.0.150"
           - name: "@sys/text"
             path: "code/sys/text"
-            version: "0.0.327"
+            version: "0.0.328"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
@@ -568,16 +568,16 @@ jobs:
         include:
           - name: "@sys/ui-css"
             path: "code/sys.ui/ui-css"
-            version: "0.0.307"
+            version: "0.0.308"
           - name: "@sys/ui-state"
             path: "code/sys.ui/ui-state"
-            version: "0.0.125"
+            version: "0.0.126"
           - name: "@sys/ui-dom"
             path: "code/sys.ui/ui-dom"
-            version: "0.0.319"
+            version: "0.0.320"
           - name: "@sys/process"
             path: "code/sys/process"
-            version: "0.0.314"
+            version: "0.0.315"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
@@ -749,7 +749,7 @@ jobs:
         include:
           - name: "@sys/cli"
             path: "code/sys/cli"
-            version: "0.0.311"
+            version: "0.0.312"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
@@ -921,7 +921,7 @@ jobs:
         include:
           - name: "@sys/crypto"
             path: "code/sys/crypto"
-            version: "0.0.314"
+            version: "0.0.315"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
@@ -1093,7 +1093,7 @@ jobs:
         include:
           - name: "@sys/fs"
             path: "code/sys/fs"
-            version: "0.0.343"
+            version: "0.0.344"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
@@ -1265,19 +1265,19 @@ jobs:
         include:
           - name: "@sys/driver-process"
             path: "code/sys.driver/driver-process"
-            version: "0.0.136"
+            version: "0.0.137"
           - name: "@sys/driver-signer"
             path: "code/sys.driver/driver-signer"
-            version: "0.0.113"
+            version: "0.0.114"
           - name: "@sys/testing"
             path: "code/sys/testing"
-            version: "0.0.334"
+            version: "0.0.335"
           - name: "@sys/tmpl-engine"
             path: "code/sys/tmpl-engine"
-            version: "0.0.346"
+            version: "0.0.347"
           - name: "@sys/yaml"
             path: "code/sys/yaml"
-            version: "0.0.196"
+            version: "0.0.197"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
@@ -1449,16 +1449,16 @@ jobs:
         include:
           - name: "@sys/esm"
             path: "code/sys/esm"
-            version: "0.0.90"
+            version: "0.0.91"
           - name: "@sys/http"
             path: "code/sys/http"
-            version: "0.0.324"
+            version: "0.0.325"
           - name: "@sys/markdown"
             path: "code/sys/markdown"
-            version: "0.0.13"
+            version: "0.0.14"
           - name: "@sys/schema"
             path: "code/sys/schema"
-            version: "0.0.239"
+            version: "0.0.240"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
@@ -1630,16 +1630,16 @@ jobs:
         include:
           - name: "@sys/ui-react"
             path: "code/sys.ui/ui-react"
-            version: "0.0.358"
+            version: "0.0.359"
           - name: "@sys/registry"
             path: "code/sys/registry"
-            version: "0.0.319"
+            version: "0.0.320"
           - name: "@sys/model"
             path: "code/sys.model/model"
-            version: "0.0.138"
+            version: "0.0.139"
           - name: "@sys/cell"
             path: "code/sys/cell"
-            version: "0.0.75"
+            version: "0.0.76"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
@@ -1811,19 +1811,19 @@ jobs:
         include:
           - name: "@sys/ui-dev"
             path: "code/sys.ui/ui-dev"
-            version: "0.0.358"
+            version: "0.0.359"
           - name: "@sys/driver-cloudflare"
             path: "code/sys.driver/driver-cloudflare"
-            version: "0.0.34"
+            version: "0.0.35"
           - name: "@sys/model-slug"
             path: "code/sys.model/model-slug"
-            version: "0.0.148"
+            version: "0.0.149"
           - name: "@sys/server"
             path: "code/sys/server"
-            version: "0.0.48"
+            version: "0.0.49"
           - name: "@sys/workspace"
             path: "code/sys/workspace"
-            version: "0.0.149"
+            version: "0.0.150"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
@@ -1995,10 +1995,10 @@ jobs:
         include:
           - name: "@sys/ui-components"
             path: "code/sys.ui/ui-components"
-            version: "0.0.329"
+            version: "0.0.330"
           - name: "@sys/driver-deno"
             path: "code/sys.driver/driver-deno"
-            version: "0.0.398"
+            version: "0.0.399"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
@@ -2170,28 +2170,28 @@ jobs:
         include:
           - name: "@sys/driver-automerge"
             path: "code/sys.driver/driver-automerge"
-            version: "0.0.326"
+            version: "0.0.327"
           - name: "@sys/driver-stripe"
             path: "code/sys.driver/driver-stripe"
-            version: "0.0.145"
+            version: "0.0.146"
           - name: "@sys/ui"
             path: "code/sys.ui/ui"
-            version: "0.0.37"
+            version: "0.0.38"
           - name: "@sys/tmpl"
             path: "code/-tmpl"
-            version: "0.0.476"
+            version: "0.0.477"
           - name: "@sys/driver-pi"
             path: "code/sys.driver/driver-pi"
-            version: "0.0.134"
+            version: "0.0.135"
           - name: "@sys/driver-vite"
             path: "code/sys.driver/driver-vite"
-            version: "0.0.470"
+            version: "0.0.471"
           - name: "@tdb/data"
             path: "deploy/@tdb.data"
-            version: "0.0.108"
+            version: "0.0.109"
           - name: "@tdb/slc-std"
             path: "deploy/@tdb.slc.std"
-            version: "0.0.151"
+            version: "0.0.152"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
@@ -2363,16 +2363,16 @@ jobs:
         include:
           - name: "@sys/driver-monaco"
             path: "code/sys.driver/driver-monaco"
-            version: "0.0.288"
+            version: "0.0.289"
           - name: "@sys/driver-prosemirror"
             path: "code/sys.driver/driver-prosemirror"
-            version: "0.0.270"
+            version: "0.0.271"
           - name: "@sys/tools"
             path: "code/sys.tools"
-            version: "0.0.492"
+            version: "0.0.493"
           - name: "@tdb/edu-slug"
             path: "deploy/@tdb.edu.slug"
-            version: "0.0.176"
+            version: "0.0.177"
     steps:
       - uses: actions/checkout@v5
       - name: Verify clean checkout
