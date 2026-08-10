@@ -55,9 +55,11 @@ export function release(assets: readonly { id: number; name: string; body: strin
 }
 
 export async function withTmpDir<T>(run: (dir: t.StringDir) => Promise<T>): Promise<T> {
+  const scratch = Fs.join(Deno.cwd(), '.tmp') as t.StringDir;
+  await Fs.ensureDir(scratch);
   const dir = await Deno.makeTempDir({
-    dir: Deno.cwd(),
-    prefix: '.tmp-sys-tools-github-pull-',
+    dir: scratch,
+    prefix: 'sys-tools-github-pull-',
   }) as t.StringDir;
   try {
     return await run(dir);
