@@ -1,7 +1,7 @@
 explicit-cell-identity.plan.md
-- [ ] feat(cell): add explicit Cell identity
-- [ ] feat(cell): render caller-owned start identity
-- [ ] chore(ui): identify sys.ui Cell
+- [x] c1288598f feat(cell): add explicit Cell identity
+- [x] 7cf53c8c4 feat(cell): render caller-owned start identity
+- [x] 983e321ee chore(ui): identify sys.ui Cell
 
 ## Purpose
 
@@ -122,6 +122,8 @@ Boundary:
 - provide the `@sys/ui` generated `pkg` to the programmatic Cell CLI start entry;
 - preserve the existing `dev`, `serve`, `kill`, mode, reporter, and permission semantics;
 - avoid manually duplicating `0.0.39` outside generated package metadata;
+- make `Cli.Fmt.Header` apply an explicit tone to plain custom titles while preserving pre-rendered
+  ANSI titles and untoned custom-title output;
 - prove both development and static-service modes display `sys.ui` with the actual `@sys/ui`
   package version;
 - keep `@sys/cell` absent from application start chrome.
@@ -156,12 +158,25 @@ deno task dev
 
 Runtime acceptance for `deno task dev`:
 
-- the identity row shows `sys.ui` and the generated `@sys/ui` version;
+- the identity row shows green `sys.ui` and the generated green `@sys/ui` version;
 - `@sys/cell` does not appear in application chrome;
 - the service list and selected `--mode=dev` facts remain unchanged;
 - resize and Ctrl-C cleanup remain correct.
 
 Also run `deno task serve` and verify the same identity semantics for the default service graph.
+
+## Verification
+
+- `@sys/cli`: `deno task test` passed 39 tests / 227 steps; `deno task check` passed.
+- `@sys/cell`: `deno task test` passed 32 tests / 264 steps; targeted start/task trace-leak proof
+  passed; `deno task check` passed.
+- `@sys/ui`: `deno task test` passed 9 tests / 75 steps; targeted start-entry trace-leak proof
+  passed; `deno task check` passed.
+- `deno task dev` and `deno task serve` rendered a bold green `sys.ui`, green `0.0.39`, and a
+  green header rule without `@sys/cell` chrome.
+- Both runtime probes stopped before service readiness because an existing user-owned listener held
+  `127.0.0.1:5050`; it was not disturbed. The existing start-service, resize, and cleanup proofs
+  remain covered by the Cell suite.
 
 ## Non-goals
 
