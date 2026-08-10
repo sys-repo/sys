@@ -2,6 +2,7 @@
 
 kind: cell
 version: 1
+name: sys.ui
 
 services:
   - name: sys.ui:view

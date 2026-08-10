@@ -37,7 +37,18 @@ describe('Cli.Fmt.Header', () => {
     expect(rule).to.eql(Cli.Fmt.hr({ width }));
   });
 
-  it('preserves ANSI-aware custom-title alignment and Unicode cell widths', () => {
+  it('styles plain custom titles while preserving ANSI-aware custom-title alignment', () => {
+    const [plain = '', plainRule = ''] = Fmt.Header.rows({
+      title: 'sys.ui',
+      version: '0.0.39',
+      width: 32,
+      tone: 'green',
+    });
+    expect(plain).to.include(c.bold(c.green('sys.ui')));
+    expect(plain).to.include(c.dim(c.green('0.0.39')));
+    expect(plainRule).to.eql(c.green(Cli.Fmt.hr({ width: 32 })));
+    expect(Fmt.Header.rows({ title: 'sys.ui', width: 32 })[0]).to.eql('sys.ui');
+
     const title = `${c.bold(c.cyan('sys:pi'))}${c.dim(c.cyan(':sandbox'))}`;
     const custom = Fmt.Header.rows({
       pkg,

@@ -30,8 +30,9 @@ function renderHeadline(options: t.CliFormatHeader.Options, width: number): stri
   const compactName = packageName ? unscopedName(packageName) : generatedName;
   const generatedTitle = renderTitle(generatedName, options.tone);
   const compactTitle = renderTitle(compactName, options.tone);
-  const titles = customTitle
-    ? [customTitle]
+  const styledCustomTitle = customTitle && renderCustomTitle(customTitle, options.tone);
+  const titles = styledCustomTitle
+    ? [styledCustomTitle]
     : packageName
     ? [generatedTitle, compactTitle]
     : [generatedTitle];
@@ -81,6 +82,12 @@ function renderSplit(title: string, right: string, width: number): string | unde
 
 function renderTitle(plain: string, tone?: t.AnsiColor.Name): string {
   return c.bold(applyTone(plain, tone));
+}
+
+/** Plain custom identities inherit an explicit tone; rendered identities retain caller styling. */
+function renderCustomTitle(title: string, tone?: t.AnsiColor.Name): string {
+  if (!tone || stripAnsi(title) !== title) return title;
+  return renderTitle(title, tone);
 }
 
 function renderHr(options: t.CliFormatHeader.Options, width: number): string {

@@ -1,7 +1,7 @@
 import { describe, expect, Fs, it, Pkg, Str, type t, Testing } from '../../-test.ts';
 import { c, Cli, stripAnsi } from '../common.ts';
 import { CellCli } from '../mod.ts';
-import { formatStartServiceBody, resolveStartIdentity } from '../u/u.start.ts';
+import { formatStartHeader, formatStartServiceBody, resolveStartIdentity } from '../u/u.start.ts';
 import {
   addressInUseServiceSource,
   devServiceSource,
@@ -71,6 +71,13 @@ describe(`@sys/cell/cli start`, () => {
     expect(resolveStartIdentity(named, { name: '@sys/ui', version: '   ' })).to.eql({
       name: 'sys.ui',
     });
+  });
+
+  it('identity → uses the header default tone for a plain Cell name', () => {
+    const header = formatStartHeader({ name: 'sys.ui', version: '0.0.39' }, 80);
+
+    expect(header).to.contain(c.bold(c.green('sys.ui')));
+    expect(header).to.contain(c.dim(c.green('0.0.39')));
   });
 
   it('start → omits identity chrome for an unnamed Cell without caller package metadata', async () => {

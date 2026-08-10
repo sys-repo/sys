@@ -16,9 +16,9 @@ export declare namespace CliFormatHeader {
     pkg?: t.Pkg;
     /** Explicit display width; omit to use canonical terminal/fallback width policy. */
     width?: number;
-    /** Generated-title, metadata, separator, version, and default rule color. */
+    /** Generated or plain custom title, metadata, separator, version, and default rule color. */
     tone?: t.AnsiColor.Name;
-    /** Caller-rendered left identity; defaults to `pkg.name`, then `Untitled`. */
+    /** Plain left identity inherits an explicit tone; ANSI-rendered title is preserved. */
     title?: string;
     /** Optional metadata rendered before the version. */
     detail?: string;

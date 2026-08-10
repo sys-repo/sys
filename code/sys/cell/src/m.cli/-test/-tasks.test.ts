@@ -30,9 +30,9 @@ describe('@sys/cell start task projection', () => {
     const tasks = config.tasks ?? {};
 
     expect(tasks.dev).to.eql(
-      'deno run -P=dev @sys/cell start . --mode dev --reporter auto',
+      'deno run -P=dev ./-scripts/task.cell.ts --mode dev --reporter auto',
     );
-    expect(tasks.serve).to.eql('deno run -P=dev @sys/cell start . --reporter auto');
+    expect(tasks.serve).to.eql('deno run -P=dev ./-scripts/task.cell.ts --reporter auto');
   });
 });
 
