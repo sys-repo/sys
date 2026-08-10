@@ -15,6 +15,7 @@ const WORKSPACE = {
 
 /** Zero-based start column for trailing ownership detail. */
 const DETAIL_COLUMN = 32;
+const RUNTIME_VALUE_COLUMN = Cli.Fmt.Text.Width.measure('  Deno.version   ');
 
 type Labels = {
   readonly primary: string;
@@ -49,10 +50,14 @@ export function fmt(
     .line(workspaceRow(layout, options));
 
   if (stats.kind === 'glob') {
-    builder.line(sourceRow(stats.source.include[0] ?? '', layout, options));
+    for (const row of includeRows(stats.source.include, layout.labels.primary, layout, options)) {
+      builder.line(row);
+    }
   } else {
     builder.line(ownershipRow(stats, layout, options));
-    for (const row of includeRows(stats.source.include, layout, options)) builder.line(row);
+    for (const row of includeRows(stats.source.include, layout.labels.include, layout, options)) {
+      builder.line(row);
+    }
   }
 
   builder
@@ -88,7 +93,7 @@ function createLayout(stats: t.WorkspaceInfo.StatsResult): Layout {
     labels.files,
     labels.lines,
   ]);
-  const valueColumn = labelWidth + CELL.gap;
+  const valueColumn = Math.max(labelWidth + CELL.gap, RUNTIME_VALUE_COLUMN);
   const detailColumn = Math.max(
     DETAIL_COLUMN,
     valueColumn + Cli.Fmt.Text.Width.max(values) + CELL.gap,
@@ -116,7 +121,7 @@ function workspaceRow(
   if (!ref) return c.cyan(WORKSPACE.label);
 
   const title = Cli.Fmt.Text.Width.padEnd(WORKSPACE.label, layout.labelWidth);
-  const prefix = `${c.cyan(title)}${' '.repeat(CELL.gap)}`;
+  const prefix = `${c.cyan(title)}${' '.repeat(layout.valueColumn - layout.labelWidth)}`;
   const artifact = renderGraphRef(ref, graph.path, options);
   const edgeCount = graph.edges.toLocaleString();
   const edgeNoun = graph.edges === 1 ? 'edge' : 'edges';
@@ -152,19 +157,9 @@ function renderGraphRef(
   return terminal ? Cli.Fmt.hyperlink(linkedDisplay, Path.toFileUrl(path)) : display;
 }
 
-function sourceRow(
-  source: string,
-  layout: Layout,
-  options: t.WorkspaceInfo.FormatOptions,
-): string {
-  const label = Cli.Fmt.Text.Width.padEnd(layout.labels.primary, layout.labelWidth);
-  const detail = fitDetail(source, layout.valueColumn, options);
-  if (!detail) return c.dim(label);
-  return `${c.dim(label)}${' '.repeat(CELL.gap)}${c.dim(detail)}`;
-}
-
 function includeRows(
   include: readonly t.StringPath[],
+  firstLabel: string,
   layout: Layout,
   options: t.WorkspaceInfo.FormatOptions,
 ): readonly string[] {
@@ -172,15 +167,14 @@ function includeRows(
   const patterns = include.length === 0 ? ['[]'] : include;
   for (const [index, pattern] of patterns.entries()) {
     const text = fitDetail(pattern, layout.valueColumn, options);
-    const label = Cli.Fmt.Text.Width.padEnd(
-      index === 0 ? layout.labels.include : '',
-      layout.labelWidth,
-    );
+    const label = Cli.Fmt.Text.Width.padEnd(index === 0 ? firstLabel : '', layout.labelWidth);
     if (!text) {
       if (index === 0) rows.push(c.dim(label));
       break;
     }
-    rows.push(`${c.dim(label)}${' '.repeat(CELL.gap)}${c.dim(text)}`);
+    rows.push(
+      `${c.dim(label)}${' '.repeat(layout.valueColumn - layout.labelWidth)}${c.dim(text)}`,
+    );
   }
   return rows;
 }
@@ -193,20 +187,23 @@ function ownershipRow(
   const label = Cli.Fmt.Text.Width.padEnd(layout.labels.primary, layout.labelWidth);
   const value = stats.packages.length.toLocaleString();
   const detail = fitDetail(`${stats.selection.scope}/*`, layout.detailColumn, options);
-  const prefix = `${c.dim(label)}${' '.repeat(CELL.gap)}${c.cyan(value)}`;
+  const prefix = `${c.dim(label)}${' '.repeat(layout.valueColumn - layout.labelWidth)}${
+    c.cyan(value)
+  }`;
   if (!detail) return prefix;
 
   const padding = Math.max(
     0,
-    layout.detailColumn - Cli.Fmt.Text.Width.measure(label) - CELL.gap -
-      Cli.Fmt.Text.Width.measure(value),
+    layout.detailColumn - layout.valueColumn - Cli.Fmt.Text.Width.measure(value),
   );
   return `${prefix}${' '.repeat(padding)}${c.dim(detail)}`;
 }
 
 function metricRow(label: string, value: number, layout: Layout): string {
   const paddedLabel = Cli.Fmt.Text.Width.padEnd(label, layout.labelWidth);
-  return `${c.dim(paddedLabel)}${' '.repeat(CELL.gap)}${c.cyan(value.toLocaleString())}`;
+  return `${c.dim(paddedLabel)}${' '.repeat(layout.valueColumn - layout.labelWidth)}${
+    c.cyan(value.toLocaleString())
+  }`;
 }
 
 function fitDetail(

@@ -55,19 +55,38 @@ describe(`Workspace.Info.fmt`, () => {
       expect(uiHarness).to.contain('2');
     });
 
+    it('renders every normalized raw include', () => {
+      const text = Cli.stripAnsi(WorkspaceInfo.fmt({
+        kind: 'glob',
+        runtime: RUNTIME,
+        source: { include: ['code/**/*.ts', 'code/**/*.tsx'], exclude: [] },
+        files: 12,
+        lines: 123,
+      }));
+      const includeTs = lineWith(text, 'code/**/*.ts');
+      const includeTsx = lineWith(text, 'code/**/*.tsx');
+      const files = lineWith(text, 'files');
+      const valueColumn = columnOf(files, '12');
+
+      expect(valueColumnAfterLabel(includeTs, 'pattern.code')).to.eql(valueColumn);
+      expect(columnOf(includeTsx, 'code/**/*.tsx')).to.eql(valueColumn);
+    });
+
     it('renders selected package ownership and every normalized include', () => {
       const text = Cli.stripAnsi(WorkspaceInfo.fmt({
         ...PACKAGE_STATS,
         source: { include: ['**/*.ts', '**/*.tsx'], exclude: [] },
       }));
+      const denoVersion = lineWith(text, 'Deno.version');
       const packages = lineWith(text, 'packages');
       const includeTs = lineWith(text, '**/*.ts');
       const includeTsx = lineWith(text, '**/*.tsx');
       const files = lineWith(text, 'files');
       const lines = lineWith(text, 'lines');
-      const valueColumn = columnOf(packages, '3');
+      const valueColumn = columnOf(denoVersion, RUNTIME.deno);
 
       expect(packages).to.contain('@sys/*');
+      expect(columnOf(packages, '3')).to.eql(valueColumn);
       expect(valueColumnAfterLabel(includeTs, 'include')).to.eql(valueColumn);
       expect(columnOf(includeTsx, '**/*.tsx')).to.eql(valueColumn);
       expect(columnOf(files, '12')).to.eql(valueColumn);
@@ -109,10 +128,10 @@ describe(`Workspace.Info.fmt`, () => {
       expect(withoutSummary).not.to.contain('edges');
       expect(Cli.Fmt.Text.Width.measure(withoutSummary)).to.be.at.most(40);
 
-      const withoutHash = workspaceLine({ width: 21 });
+      const withoutHash = workspaceLine({ width: 23 });
       expect(withoutHash).to.contain('graph');
       expect(withoutHash).not.to.contain('#');
-      expect(Cli.Fmt.Text.Width.measure(withoutHash)).to.be.at.most(21);
+      expect(Cli.Fmt.Text.Width.measure(withoutHash)).to.be.at.most(23);
 
       const titleOnly = workspaceLine({ width: 14 });
       expect(titleOnly).to.contain('Workspace');
