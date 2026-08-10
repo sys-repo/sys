@@ -20,9 +20,12 @@
  * Type narrowing to `LifecycleView` or `OmitDisposable<T>` does not remove authority from an
  * existing runtime value. `Dispose.omitDispose()` returns a separate projection that removes
  * callable own authority and shadows inherited authority while preserving observation and state.
- * An asynchronous projection retains an undefined `Symbol.asyncDispose` category marker so its
- * telemetry is not mistaken for a synchronous `LifecycleView`; it is not a direct `UntilInput`.
- * The projection shapes an API boundary; it is not a tamper-resistant security boundary.
+ * Retained property reads and methods delegate to the source so private fields and built-in internal
+ * slots remain callable through the projection. Callable projections retain their original call and
+ * construction categories, with stable identity within one projection. An asynchronous projection
+ * retains an undefined `Symbol.asyncDispose` category marker so its telemetry is not mistaken for a
+ * synchronous `LifecycleView`; it is not a direct `UntilInput`. The projection shapes a shallow API
+ * boundary; it is not a tamper-resistant security boundary.
  *
  * Lifecycle owners created by this module expose explicit control, lexical cleanup, and observable
  * state from one disposal operation:
