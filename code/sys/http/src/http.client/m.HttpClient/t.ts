@@ -15,6 +15,8 @@ export declare namespace HttpClient {
 
     /** Tools for working with the browser's HTTP cache within a "service-worker" process. */
     readonly Cache: t.HttpCache.Lib;
+    /** Fail-closed service-worker deployment admission and migration helpers. */
+    readonly ServiceWorker: t.HttpServiceWorker.Lib;
 
     /** URL helpers for working with the HTTP lib. */
     readonly Url: t.Url.Lib;
