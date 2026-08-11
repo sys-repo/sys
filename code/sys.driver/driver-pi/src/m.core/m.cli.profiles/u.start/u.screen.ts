@@ -207,11 +207,15 @@ function fitValue(value: string, width: number) {
 }
 
 function keyboardRows(width: number): readonly string[] {
-  const text = `${c.gray('quit:')} ${c.white('ctrl + c')} ${c.gray('or')} ${c.white('q')}`;
-  const textWidth = Cli.Fmt.Text.Width.measure(text);
-  if (textWidth > width) return [];
-  const indent = ' '.repeat(Math.max(0, width - textWidth));
-  return ['', c.gray(Cli.Fmt.hr({ width, weight: 'dashed' })), `${indent}${text}`];
+  const back = `${c.cyan('←')} back`;
+  const quit = `${c.gray('quit:')} ${c.white('ctrl + c')} ${c.gray('or')} ${c.white('q')}`;
+  const backWidth = Cli.Fmt.Text.Width.measure(back);
+  const quitWidth = Cli.Fmt.Text.Width.measure(quit);
+  const controlsWidth = backWidth + 2 + quitWidth;
+  if (controlsWidth > width) return [];
+
+  const gap = ' '.repeat(Math.max(2, width - backWidth - quitWidth));
+  return ['', c.gray(Cli.Fmt.hr({ width, weight: 'dashed' })), `${back}${gap}${quit}`];
 }
 
 function fitRow(row: string, width: number) {

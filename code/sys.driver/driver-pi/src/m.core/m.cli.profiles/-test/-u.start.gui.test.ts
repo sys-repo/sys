@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { Fs, type t } from '../common.ts';
+import { Cli, Fs, type t } from '../common.ts';
 import { DistServer } from '@sys/server/dist';
 import { start } from '../u.start/u.gui.ts';
 import { START_GUI_SERVICE } from '../u/u.start.gui.service.ts';
@@ -495,6 +495,62 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
     }
   });
 
+  it('closes once after an unmodified Arrow Left and ignores other keys', async () => {
+    const prefix = 'driver-pi.profiles.u.start.gui.test.';
+    const cwd = (await Fs.makeTempDir({ prefix })).absolute as t.StringDir;
+    const serverFinished = deferred();
+    const closeReasons: unknown[] = [];
+    let disposeCalls = 0;
+    let onKey: NonNullable<Parameters<typeof Cli.Keyboard.bind>[0]['onKey']> | undefined;
+    const bound = deferred();
+    const keyboard: Keyboard = {
+      dispose: () => {
+        disposeCalls += 1;
+      },
+      finished: new Promise<void>(() => undefined),
+    };
+
+    try {
+      const run = start({
+        cwd: asProfileRoot(cwd),
+        deps: {
+          materialize: () => Promise.resolve(fakeGeneration()),
+          start: () =>
+            Promise.resolve(startedFixture({
+              finished: serverFinished.promise,
+              close: (reason) => {
+                closeReasons.push(reason);
+                serverFinished.resolve();
+                return Promise.resolve();
+              },
+            })),
+          open: () => undefined,
+          bindKeyboard: (input) => {
+            onKey = input.onKey;
+            bound.resolve();
+            return keyboard;
+          },
+        },
+      });
+
+      await bound.promise;
+      if (!onKey) throw new Error('Expected start:gui keyboard key callback.');
+      await onKey(keypress('right'));
+      await onKey(keypress('left', { altKey: true }));
+      await onKey(keypress('left', { ctrlKey: true }));
+      await onKey(keypress('left', { metaKey: true }));
+      await onKey(keypress('left', { shiftKey: true }));
+      expect(closeReasons).to.eql([]);
+      await onKey(keypress('left'));
+      await run;
+
+      expect(closeReasons).to.eql(['start:gui.keyboard.back']);
+      expect(disposeCalls).to.eql(1);
+    } finally {
+      await Fs.remove(cwd);
+    }
+  });
+
   it('closes once after keyboard quit and disposes the binding', async () => {
     const prefix = 'driver-pi.profiles.u.start.gui.test.';
     const cwd = (await Fs.makeTempDir({ prefix })).absolute as t.StringDir;
@@ -594,3 +650,13 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
     }
   });
 });
+
+/**
+ * Helpers:
+ */
+type KeyboardEvent = Parameters<NonNullable<Parameters<typeof Cli.Keyboard.bind>[0]['onKey']>>[0];
+type KeypressModifiers = Pick<KeyboardEvent, 'altKey' | 'ctrlKey' | 'metaKey' | 'shiftKey'>;
+
+function keypress(key: string, modifiers: Partial<KeypressModifiers> = {}) {
+  return { key, ...modifiers } as KeyboardEvent;
+}

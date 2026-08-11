@@ -14,6 +14,8 @@ import { START_GUI_SERVICE } from '../u/u.start.gui.service.ts';
 
 export type { StartGuiDependencies } from './u.deps.ts';
 
+type KeyboardEvent = Parameters<NonNullable<Parameters<typeof Cli.Keyboard.bind>[0]['onKey']>>[0];
+
 export type StartGuiInput = {
   cwd: t.PiCli.Cwd;
   until?: t.UntilInput;
@@ -58,6 +60,9 @@ export async function start(input: StartGuiInput): Promise<void> {
     keyboard = deps.bindKeyboard({
       exit: false,
       until: started.finished,
+      onKey: (event) => {
+        if (isBackKey(event)) return close('start:gui.keyboard.back');
+      },
       onQuit: () => close('start:gui.keyboard.quit'),
     });
     screen = deps.createScreen({
@@ -83,4 +88,8 @@ export async function start(input: StartGuiInput): Promise<void> {
     throw cleanup === undefined || cleanup === failure ? failure : appendCleanup(failure, cleanup);
   }
   if (cleanup !== undefined) throw cleanup;
+}
+
+function isBackKey(event: KeyboardEvent): boolean {
+  return event.key === 'left' && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey;
 }

@@ -75,6 +75,22 @@ describe('@sys/driver-pi start:gui screen', () => {
     expect(frame(10)).to.contain('quit: ctrl + c or q');
   });
 
+  it('omits packed keyboard controls when the complete footer cannot fit', () => {
+    const frame = (width: number) =>
+      Cli.stripAnsi(StartGuiScreen.toString({
+        service: SERVICE,
+        dir: SAMPLE_ROOT,
+        origin: ORIGIN,
+        keyboard: true,
+        viewport: { width, height: 10 },
+      }));
+
+    expect(frame(26)).to.not.contain('← back');
+    expect(frame(26)).to.not.contain('quit:');
+    expect(frame(27)).to.contain('← back');
+    expect(frame(27)).to.contain('quit: ctrl + c or q');
+  });
+
   it('dims subordinate labels to match the Cell service grammar', () => {
     const frame = StartGuiScreen.toString({
       service: SERVICE,
@@ -249,6 +265,7 @@ function expectFrame(frame: string, viewport: ScreenSize) {
   const text = Cli.stripAnsi(frame);
   const rows = text.split('\n');
   const serviceRows = rows.filter((row) => /^ {2}(service| url| root)\b/.test(row));
+  const back = rows.find((row) => row.includes('← back')) ?? '';
   const quit = rows.find((row) => row.includes('quit:')) ?? '';
 
   expect(text).to.contain('@sys/driver-pi');
@@ -261,6 +278,7 @@ function expectFrame(frame: string, viewport: ScreenSize) {
   for (const row of serviceRows) {
     expect(Cli.Fmt.Text.Width.measure(row)).to.be.at.most(width - 2);
   }
+  expect(back.startsWith('← back')).to.eql(true);
   expect(quit.endsWith('quit: ctrl + c or q')).to.eql(true);
   expect(Cli.Fmt.Text.Width.measure(quit)).to.eql(width);
   expectFrameBounds(frame, viewport);
