@@ -18,6 +18,7 @@ describe('Pkg.toFileNamespace', () => {
     expect(Pkg.toFileNamespace(pkg, { subpath: 'my/path' })).to.eql('@sys.foo.my.path');
     expect(Pkg.toFileNamespace(pkg, { subpath: '/my//path/' })).to.eql('@sys.foo.my.path');
     expect(Pkg.toFileNamespace(pkg, { subpath: '' })).to.eql('@sys.foo');
+    expect(Pkg.toFileNamespace(pkg, { subpath: 123 as never })).to.eql('@sys.foo');
   });
 
   it('rejects unknown or invalid package names', () => {
@@ -35,5 +36,9 @@ describe('Pkg.toFileNamespace', () => {
 
     expect(() => Pkg.toFileNamespace(pkg, { subpath: 'my path' })).to.throw(Error);
     expect(() => Pkg.toFileNamespace(pkg, { subpath: 'my/path🐷' })).to.throw(Error);
+    expect(() => Pkg.toFileNamespace(pkg, { subpath: 'ui\u202eadmin' })).to.throw(
+      Error,
+      'Invalid Pkg subpath.',
+    );
   });
 });

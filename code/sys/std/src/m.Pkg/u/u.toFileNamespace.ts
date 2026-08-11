@@ -1,4 +1,5 @@
 import { Is, Str, type t } from '../common.ts';
+import { Subpath } from '../m.Subpath.ts';
 
 export const toFileNamespace: t.Pkg.Lib['toFileNamespace'] = (pkg, options = {}) => {
   const name = normalizePkgName(Is.str(pkg?.name) ? pkg.name : '');
@@ -17,13 +18,15 @@ function normalizePkgName(name: string): string {
 }
 
 function normalizeSubpath(path?: t.StringPath): string {
-  if (!Is.str(path)) return '';
+  const parsed = Subpath.parse(path);
+  if (parsed.kind === 'absent') return '';
+  if (parsed.kind === 'invalid') {
+    if (!Is.str(path)) return ''; // Preserve legacy tolerance outside the typed contract.
+    throw new Error('Invalid Pkg subpath.');
+  }
 
-  const trimmed = Str.trimSlashes(path.trim());
-  if (!trimmed) return '';
-
-  validateNamespacePath(trimmed, 'Pkg subpath');
-  return normalizeSlashPath(trimmed);
+  validateNamespacePath(parsed.value, 'Pkg subpath');
+  return normalizeSlashPath(parsed.value);
 }
 
 function validateNamespacePath(path: string, label: string) {

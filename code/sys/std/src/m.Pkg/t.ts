@@ -17,6 +17,9 @@ export namespace Pkg {
     /** Boolean flag tests related to the {pkg} meta-data. */
     readonly Is: Is.Lib;
 
+    /** Canonical package-subpath parsing. */
+    readonly Subpath: Subpath.Lib;
+
     /** Tools for working with distribution packages. */
     readonly Dist: Dist.Lib;
 
@@ -54,6 +57,23 @@ export namespace Pkg {
      */
     unknown(): t.Pkg;
   };
+
+  /**
+   * Package-subpath contracts.
+   */
+  export namespace Subpath {
+    /** Canonical package-subpath parsing operations. */
+    export type Lib = {
+      /** Classify and normalize an optional package subpath without throwing. */
+      readonly parse: (input?: unknown) => ParseResult;
+    };
+
+    /** Canonical package-subpath parse result. */
+    export type ParseResult =
+      | { readonly kind: 'absent' }
+      | { readonly kind: 'invalid' }
+      | { readonly kind: 'valid'; readonly value: string };
+  }
 
   /**
    * Package type-guard contracts.
