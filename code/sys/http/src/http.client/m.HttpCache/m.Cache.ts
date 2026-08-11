@@ -1,5 +1,6 @@
 import { CacheCmd as Cmd } from '../m.HttpCache.Cmd/mod.ts';
 import { type t } from './common.ts';
+import { PkgCache as Pkg } from './u.pkg.names.ts';
 import { pkg } from './m.Cache.pkg.ts';
 
 /**
@@ -7,5 +8,6 @@ import { pkg } from './m.Cache.pkg.ts';
  */
 export const Cache: t.HttpCache.Lib = {
   Cmd,
+  Pkg,
   pkg,
 };

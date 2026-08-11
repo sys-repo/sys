@@ -8,6 +8,8 @@ export declare namespace HttpCache {
   export type Lib = {
     /** Command helpers for controlling service-worker cache state. */
     readonly Cmd: t.HttpCacheCmd.Lib;
+    /** Canonical package-cache namespace helper. */
+    readonly Pkg: Pkg.Lib;
 
     /**
      * Starts the permanent cache for all immutable,
@@ -32,12 +34,34 @@ export declare namespace HttpCache {
    * Package cache contracts.
    */
   export namespace Pkg {
+    /** Package-cache namespace helper. */
+    export type Lib = {
+      /** Snapshot the canonical cache names and ownership boundary for a package. */
+      readonly names: (pkg: t.Pkg) => Names;
+    };
+
+    /** Frozen package-cache namespace snapshot. */
+    export type Names = {
+      /** Exact delimiter-bound package namespace prefix. */
+      readonly prefix: string;
+      /** Current immutable-asset cache name. */
+      readonly asset: string;
+      /** Current full-media cache name. */
+      readonly media: string;
+      /** Current ranged-media cache name. */
+      readonly mediaRange: string;
+      /** All current package cache names. */
+      readonly current: readonly string[];
+      /** Test whether a cache belongs to this exact package namespace. */
+      readonly isOwned: (name: string) => boolean;
+      /** Test whether a cache is one of the current package cache names. */
+      readonly isCurrent: (name: string) => boolean;
+    };
+
     /** Inputs for `Http.Cache.pkg(...)`. */
     export type Args = {
       /** Package descriptor used to derive cache namespaces. */
       pkg: t.Pkg;
-      /** Reserved cache-name input; cache keys are currently derived from the package name. */
-      cacheName?: string;
       /** Suppress service-worker cache logging. */
       silent?: boolean;
       /** Optional media cache policy (defaults to `safe-full`). */

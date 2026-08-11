@@ -2,11 +2,19 @@ import { describe, expect, it, type t } from '../../../-test.ts';
 
 import { CacheCmd } from '../m.Cmd.ts';
 import { Cache } from '../../m.HttpCache/mod.ts';
+import { PkgCache } from '../../m.HttpCache/u.pkg.names.ts';
 
 describe('Http.Cache.Cmd', () => {
   describe('API', () => {
     it('exports from Http.Cache namespace', () => {
       expect(Cache.Cmd).to.equal(CacheCmd);
+      expect(Cache.Pkg).to.equal(PkgCache);
+      expect(Object.isFrozen(Cache.Pkg)).to.eql(true);
+      expect(Cache.Pkg.names({ name: 'my-pkg', version: '1.0.0' }).current).to.eql([
+        'my-pkg:asset-files',
+        'my-pkg:media-files',
+        'my-pkg:media-range-files',
+      ]);
     });
 
     it('constants', () => {
@@ -93,7 +101,9 @@ describe('Http.Cache.Cmd', () => {
       });
 
       try {
-        const clear = CacheCmd.Handlers.clear({ pkg: { name: 'my-pkg', version: '1.0.0' } });
+        const pkg = { name: 'my-pkg', version: '1.0.0' };
+        const clear = CacheCmd.Handlers.clear({ pkg });
+        pkg.name = 'changed';
         const result = await clear({});
 
         expect(deleted).to.eql([
@@ -295,10 +305,57 @@ describe('Http.Cache.Cmd', () => {
   });
 
   describe('Handlers.all', () => {
-    it('returns clear and info handlers', () => {
-      const handlers = CacheCmd.Handlers.all({ pkg: { name: 'my-pkg', version: '1.0.0' } });
-      expect(typeof handlers.clear).to.eql('function');
-      expect(typeof handlers.info).to.eql('function');
+    it('snapshots one package namespace across clear and info', async () => {
+      const original = Object.getOwnPropertyDescriptor(globalThis, 'caches');
+      const current = [
+        'my-pkg:asset-files',
+        'my-pkg:media-files',
+        'my-pkg:media-range-files',
+      ];
+      const changed = [
+        'changed:asset-files',
+        'changed:media-files',
+        'changed:media-range-files',
+      ];
+      const deleted: string[] = [];
+      const mock = {
+        keys: async () => [...current, ...changed],
+        delete: async (name: string) => {
+          deleted.push(name);
+          return true;
+        },
+        open: async (_name: string) => ({
+          keys: async () => [],
+          match: async (_key: string) => undefined,
+        }),
+      };
+      Object.defineProperty(globalThis, 'caches', {
+        value: mock,
+        configurable: true,
+        writable: true,
+      });
+
+      let reads = 0;
+      const pkg = {
+        get name() {
+          reads += 1;
+          return reads === 1 ? 'my-pkg' : 'changed';
+        },
+        version: '1.0.0',
+      };
+
+      try {
+        const handlers = CacheCmd.Handlers.all({ pkg });
+        const clear = await handlers.clear({});
+        const info = await handlers.info({});
+
+        expect(reads).to.eql(1);
+        expect(clear.deleted).to.eql(current);
+        expect(deleted).to.eql(current);
+        expect(info.caches.map((cache) => cache.name)).to.eql(current);
+      } finally {
+        if (original) Object.defineProperty(globalThis, 'caches', original);
+      }
     });
   });
 

@@ -1,5 +1,6 @@
 declare var self: ServiceWorkerGlobalScope;
-import { type t, Str, HTTP_HEADER_MEDIA_FULL_CACHE_READY } from './common.ts';
+import { HTTP_HEADER_MEDIA_FULL_CACHE_READY, Str, type t } from './common.ts';
+import { PkgCache } from './u.pkg.names.ts';
 
 export type MediaFullResponseCandidate = {
   readonly status: number;
@@ -78,10 +79,11 @@ export function isCacheableHashedAssetResponse(response: Response) {
 export const pkg: t.HttpCache.Lib['pkg'] = async (args) => {
   const { pkg, silent = false } = args;
   const media = resolveMediaPolicy(args.media);
+  const names = PkgCache.names(pkg);
 
-  const CACHE_ASSETS = `${pkg.name}:asset-files`;
-  const CACHE_MEDIA = `${pkg.name}:media-files`;
-  const CACHE_MEDIA_RANGE = `${pkg.name}:media-range-files`;
+  const CACHE_ASSETS = names.asset;
+  const CACHE_MEDIA = names.media;
+  const CACHE_MEDIA_RANGE = names.mediaRange;
 
   const HASHED_ASSET = /\/pkg\/[^/]+\.[A-Za-z0-9_-]{8,}\.\w+$/i;
   const MEDIA_EXT = /\.(mp4|m4v|mov|webm)$/i;
@@ -101,17 +103,15 @@ export const pkg: t.HttpCache.Lib['pkg'] = async (args) => {
   self.skipWaiting();
 
   /**
-   * Activation: claim clients immediately and purge stale caches.
+   * Activation: claim clients immediately and purge stale package-owned caches.
    *
-   * Keeps only the current asset/media caches (freeing space and preventing
-   * outdated responses) by deleting any other previously versioned cache names.
+   * Unrelated origin caches and delimiter-prefix neighbors remain untouched.
    */
   self.addEventListener('activate', (e) => {
     const claimAndClean = async () => {
       await self.clients.claim();
-      const keep = new Set([CACHE_ASSETS, CACHE_MEDIA, CACHE_MEDIA_RANGE]);
       for (const name of await caches.keys()) {
-        if (!keep.has(name)) await caches.delete(name);
+        if (names.isOwned(name) && !names.isCurrent(name)) await caches.delete(name);
       }
     };
 
