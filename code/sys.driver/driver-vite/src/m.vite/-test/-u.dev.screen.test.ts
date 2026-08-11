@@ -249,6 +249,24 @@ describe('DevScreen', () => {
       expect(text).to.include(' 3  err  warn');
     });
 
+    it('replaces producer ANSI with the renderer-owned white payload tone', () => {
+      const producerTone = c.yellow(c.bold('UNPINNED'));
+      const raw = DevScreen.toString({
+        pkg: pkg(),
+        paths: paths(),
+        url: 'http://localhost:1234/',
+        lines: [{ sequence: 1, source: 'stdout', text: producerTone }],
+        logLines: 1,
+        ...frame(120),
+      });
+      const outputRow = raw.split('\n').find((line) => stripAnsi(line).includes('UNPINNED'));
+
+      expect(outputRow).to.include(c.gray('1'));
+      expect(outputRow).to.include(c.gray('out'));
+      expect(outputRow).to.include(c.white('UNPINNED'));
+      expect(outputRow).to.not.include(producerTone);
+    });
+
     it('contracts and re-expands the visible tail without deleting retained output', () => {
       const output = DevOutputLog.create({ maxLines: 10 });
       for (let index = 1; index <= 5; index++) {
@@ -366,7 +384,7 @@ describe('DevScreen', () => {
       expect(Cli.Fmt.Text.Width.measure(none) <= 31).to.eql(true);
     });
 
-    it('clips log rows to available cells without wrapping', () => {
+    it('clips renderer-stamped log rows to available cells without wrapping', () => {
       const output = DevOutputLog.create({ maxLines: 5 });
       output.push(
         processEvent(
@@ -392,7 +410,9 @@ describe('DevScreen', () => {
       });
       const text = stripAnsi(raw);
       const allRows = text.split('\n');
-      const rows = allRows.filter((line) => /^\s+\d+ {2}(err|out) {2}/.test(line));
+      const logRow = /^\s+\d+ {2}(?:err|out) {2}/;
+      const rows = allRows.filter((line) => logRow.test(line));
+      const rawRows = raw.split('\n').filter((line) => logRow.test(stripAnsi(line)));
 
       expect(rows.length).to.eql(2);
       rows.forEach((line) => {
@@ -404,7 +424,9 @@ describe('DevScreen', () => {
       expect(rows[0]).to.include('…');
       expect(rows[0]).to.include('deno.json');
       expect(rows[1]).to.include('common-界.ts');
-      expect(raw).to.include(c.gray('…'));
+      const firstPayload = (rows[0] ?? '').replace(logRow, '');
+      expect(firstPayload).to.not.eql('');
+      expect(rawRows[0]).to.include(c.white(firstPayload));
     });
 
     it('keeps the child lane bounded below the log-prefix width', () => {

@@ -56,27 +56,37 @@ describe('DistServeScreen', () => {
   it('renders explicit local UNPINNED vocabulary and suppresses disabled keyboard rows', async () => {
     const fixture = await setup();
     try {
-      const dist = fixture.cloneDist();
-      const raw = DistServeScreen.toString({
-        pkg: dist.pkg,
-        origin: 'http://127.0.0.1:49152/' as t.StringUrl,
-        dir: fixture.source as t.StringDir,
-        authority: { kind: 'local-unpinned', integrity: fixture.integrity },
-        evidence: evidence(fixture),
-        renderedAt: dist.build.time,
-        viewport: { width: 120, height: 30 },
-        cursorRows: 1,
-        keyboard: { enabled: false, print: true },
-      });
+      const raw = localFrame(fixture);
       const output = text(raw);
 
       expect(output).to.include('local · UNPINNED');
-      expect(raw).to.include(c.white('authority'));
-      expect(raw).to.include(c.dim(c.gray('·')));
-      expect(raw).to.include(c.yellow(c.bold('UNPINNED')));
       expect(output).to.include('serving locally verified Dist (UNPINNED) on HTTP server…');
       expect(output).to.not.include('open:');
       expect(output).to.not.include('quit:');
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
+  it('keeps local authority emphasis out of the white output payload', async () => {
+    const fixture = await setup();
+    try {
+      const raw = localFrame(fixture);
+      const warning = c.yellow(c.bold('UNPINNED'));
+      const logRow = /^\s+\d+ {2}(?:err|out) {2}/;
+      const rows = raw.split('\n');
+      const authorityRow = rows.find((line) => text(line).includes('authority'));
+      const outputRow = rows.find((line) => text(line).includes('serving locally verified Dist'));
+      const outputPayload = text(outputRow ?? '').replace(logRow, '');
+
+      expect(authorityRow).to.include(c.white('authority'));
+      expect(authorityRow).to.include(c.dim(c.gray('·')));
+      expect(authorityRow).to.include(warning);
+      expect(outputPayload).to.not.eql('');
+      expect(outputRow).to.include(c.gray('1'));
+      expect(outputRow).to.include(c.gray('out'));
+      expect(outputRow).to.include(c.white(outputPayload));
+      expect(outputRow).to.not.include(warning);
     } finally {
       await teardown(fixture);
     }
@@ -234,6 +244,21 @@ describe('DistServeScreen', () => {
 });
 
 type Fixture = Awaited<ReturnType<typeof setup>>;
+
+function localFrame(fixture: Fixture) {
+  const dist = fixture.cloneDist();
+  return DistServeScreen.toString({
+    pkg: dist.pkg,
+    origin: 'http://127.0.0.1:49152/' as t.StringUrl,
+    dir: fixture.source as t.StringDir,
+    authority: { kind: 'local-unpinned', integrity: fixture.integrity },
+    evidence: evidence(fixture),
+    renderedAt: dist.build.time,
+    viewport: { width: 120, height: 30 },
+    cursorRows: 1,
+    keyboard: { enabled: false, print: true },
+  });
+}
 
 function evidence(fixture: Fixture): t.FsPkg.Dist.Verify.Evidence {
   const dist = fixture.cloneDist();

@@ -1,5 +1,5 @@
 import { HashFmt } from '@sys/crypto/fmt';
-import { clipLine, clipText, clipValue } from '../../m.fmt/u.ts';
+import { clipLine, clipText } from '../../m.fmt/u.ts';
 import { c, Cli, stripAnsi, type t, Time } from '../common.ts';
 
 type OutputLine = t.ViteScreen.Output.Line;
@@ -83,7 +83,7 @@ export const ViteScreenLayout = {
       reserve: Cli.Fmt.Text.Width.measure(prefix),
       terminal: false,
     });
-    const text = clipValue(stripAnsi(line.text).trim(), textWidth);
+    const text = c.white(clipText(stripAnsi(line.text).trim(), textWidth));
     return clipLine(`${prefix}${text}`, rowWidth);
   },
 } as const;

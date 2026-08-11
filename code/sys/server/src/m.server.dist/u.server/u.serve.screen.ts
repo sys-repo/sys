@@ -349,7 +349,7 @@ const wrangle = {
   outputText(authority: t.DistServer.Started['authority']) {
     return authority.kind === 'pinned'
       ? 'serving pinned Dist on HTTP server…'
-      : `serving locally verified Dist (${c.yellow(c.bold('UNPINNED'))}) on HTTP server…`;
+      : 'serving locally verified Dist (UNPINNED) on HTTP server…';
   },
 
   outputRow(
@@ -372,7 +372,7 @@ const wrangle = {
       reserve: Cli.Fmt.Text.Width.measure(prefix),
       terminal: false,
     });
-    const text = clipValue(line.text, textWidth);
+    const text = c.white(clipText(Cli.stripAnsi(line.text).trim(), textWidth));
     return clipLine(`${prefix}${text}`, rowWidth);
   },
 
