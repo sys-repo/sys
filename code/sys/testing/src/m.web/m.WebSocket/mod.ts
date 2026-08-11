@@ -1,4 +1,4 @@
-import type { t } from '../common.ts';
+import type { t } from './common.ts';
 import { mock } from './m.mock.ts';
 
 /** WebSocket test fixtures for Web Standards runtimes. */

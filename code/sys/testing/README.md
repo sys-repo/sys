@@ -1,117 +1,155 @@
 # Testing
 
-`@sys/testing` combines BDD registration, assertions, fixtures, and environment-specific helpers.
+`@sys/testing` provides Deno-backed BDD tests, assertions, runtime fixtures, and browser/server test
+helpers.
 
-## Local verification
+## Verify
 
 ```sh
+deno task check
 deno task test
+deno task dry
 ```
 
-The normal test suite includes a `Browser.load(...)` proof that opens a local page in an installed
-Chrome/Chromium browser. Set `CHROME_BIN` if Chrome is not in a common platform location.
+The test suite opens a local page in Chrome or Chromium. Set `CHROME_BIN` when the browser is not in
+a standard location.
 
-## Test-runner authority
+## Execution
 
-BDD registration follows one authority chain:
+The BDD API registers native Deno tests. Deno controls scheduling, sanitizers, permissions,
+timeouts, diagnostics, and reporting.
 
-```text
-@sys/testing and @sys/std/testing
-  → @sys/types/testing
-  → Deno.test and Deno.TestContext.step
-  → Deno execution, sanitizers, permissions, timeouts, diagnostics, and reporting
-```
+Top-level options pass to `Deno.test`. Supported nested options pass to `Deno.TestContext.step`.
+Nested permissions and timeouts are rejected because Deno steps cannot enforce them.
 
-`@sys/types/testing` owns the stable BDD vocabulary: `describe`, `it`, hooks, modifiers, nested
-registration, and nested focus. Deno owns execution. The adapter implements no scheduler, sanitizer,
-reporter, permission system, or timeout mechanism.
+Workspace tests fail on leaked asynchronous operations or resources. Teardown may finish work
+started in a nested step before the parent leak check. To disable a leak check for one test, name
+that check explicitly.
 
-Top-level options pass to `Deno.test`. Nested sanitizer and ignore keys pass to
-`Deno.TestContext.step` only when specified; omitted keys remain omitted so Deno controls
-inheritance and enforcement. Under Deno 2.9.4, `await t.step(...)` does not independently settle
-operation or resource leaks. Later teardown may complete pending work; state retained through the
-suite may still fail its strict parent boundary. The adapter reinterprets neither that timing nor
-the step result. Nested permissions and timeouts fail clearly because Deno steps cannot enforce
-them.
+`todo` registers an ignored test with a visible `[todo]` name. Its body does not run.
 
-Workspace tests enable operation and resource sanitizers at the root. Exit sanitization keeps Deno's
-per-registration default. Local exceptions must name each disabled signal explicitly. Deliberately
-clean and leaking fixtures verify each native diagnostic.
+Use `node:test` only for compatibility. Deno runs Node-compatible tests without operation, resource,
+or exit sanitizers.
 
-`todo` registers an ignored test with a visible `[todo]` name; its body does not execute. Raw
-`node:test` remains a Node-compatible edge and needs neither an installed Node.js runtime nor an npm
-runner. It is not the default because Deno registers Node-compatible tests with operation, resource,
-and exit sanitizers disabled.
+## Write a test
 
-## Examples
-
-Import test helpers in browser and server environments:
-
-```ts
-import { describe, expect, it, Testing } from '@sys/testing';
-```
-
-Or import helpers with server-side POSIX extensions:
-
-```ts
-import { describe, expect, Fs, it, Path, Testing } from '@sys/testing/server';
-```
-
-### Global Fetch fixture
-
-Install a Fetch-compatible test function and restore the prior global exactly:
-
-```ts
-import { WebFixture } from '@sys/testing/web';
-
-const mock = WebFixture.Fetch.mock(async (input, init) => {
-  const request = new Request(input, init);
-  request.signal.throwIfAborted();
-  return Response.json({ ok: true });
-});
-
-try {
-  await fetch('https://example.test/data');
-} finally {
-  mock.dispose();
-}
-```
-
-The replacement owns Fetch and abort behavior. Dispose nested mocks in LIFO order, and do not
-overlap this process-global fixture across parallel tests.
-
-Name a unit-test file `-<Subject>.test.ts`. The runner discovers `*.test.ts`; the leading hyphen
-keeps unit tests visually grouped within their source folder.
+Use `-.test.ts` for a module contract and `-m.<subject>.test.ts` for focused behavior. Deno
+discovers `*.test.ts`; the leading hyphen keeps tests grouped with their source files.
 
 ```ts
 import { describe, expect, it } from '@sys/testing';
 
 describe('My Suite', () => {
-  it('does something', () => {
+  it('returns the expected value', () => {
     expect(123).to.eql(123);
   });
 });
 ```
 
-## Mocking the DOM
+Use the server entry point when a test needs filesystem or browser helpers:
 
-Use `DomMock` to simulate the DOM on the server:
+```ts
+import { describe, expect, Fs, it, Path } from '@sys/testing/server';
+```
+
+## Web fixtures
+
+`@sys/testing/web` is a toolkit for building lifecycle-safe Web-runtime mocks. It includes
+ready-made Fetch and WebSocket fixtures and the property transaction used to build more.
+
+Import Web-runtime fixtures from `@sys/testing/web`:
+
+```ts
+import { WebFixture } from '@sys/testing/web';
+```
+
+Every mock handle supports both `using` and `.dispose()`. Successful disposal restores the exact
+prior property descriptor. Calling it again has no effect.
+
+`WebFixture.Property.isCleanupError(error)` identifies incomplete cleanup. Its `rollback` handle
+remains available after a `using` scope and retries only unfinished work. If the scope body also
+throws, JavaScript retains the cleanup error inside `SuppressedError`.
+
+Dispose nested mocks in reverse creation order (LIFO). A `using` scope does this automatically. Do
+not mutate an owned property or run parallel tests that mock the same target and property.
+
+### Property
+
+Use `Property.mock` to replace one or more own properties as one transaction.
+
+```ts
+const target = {};
+
+{
+  using mock = WebFixture.Property.mock([
+    {
+      target,
+      key: 'status',
+      descriptor: { configurable: true, value: 'testing' },
+    },
+  ]);
+
+  Object.getOwnPropertyDescriptor(target, 'status')?.value; // "testing"
+}
+
+Object.getOwnPropertyDescriptor(target, 'status'); // undefined
+```
+
+A new temporary property must be configurable so it can be removed. For ordinary objects, any change
+that cannot be undone is rejected before a target is changed.
+
+Setup either installs every entry or restores those already installed. Incomplete setup and disposal
+both retain retry authority through the cleanup error.
+
+Exact proxy and host-object restoration requires stable, truthful property descriptors. If cleanup
+is rejected, correct the blocking condition and retry through `rollback`.
+
+### Fetch
+
+`Fetch.mock` replaces `globalThis.fetch`. The replacement controls all Fetch behavior, including
+abort handling.
+
+```ts
+{
+  using mock = WebFixture.Fetch.mock(async (input, init) => {
+    const request = new Request(input, init);
+    request.signal.throwIfAborted();
+    return Response.json({ ok: true });
+  });
+
+  await fetch('https://example.test/data');
+}
+```
+
+### WebSocket
+
+`WebSocket.mock` replaces `globalThis.WebSocket` with a small deterministic test double. It provides
+`url`, `readyState`, state constants, microtask-driven open and close events, and a no-op `send`. It
+does not model messages, protocols, or `CloseEvent` metadata.
+
+```ts
+{
+  using mock = WebFixture.WebSocket.mock();
+  const socket = new WebSocket('ws://example.test/socket');
+}
+```
+
+## Mock the DOM
+
+`DomMock` installs a server-side DOM for a test suite. The `afterAll` hook restores the prior
+environment.
 
 ```ts
 import { afterAll, beforeAll, DomMock } from '@sys/testing/server';
 
-// Install a browser `window` on `globalThis`.
 DomMock.init({ beforeAll, afterAll });
 
-// Dispatch a keyboard event.
-document.addEventListener('keydown', (e) => {
-  /* handle keyboard event */
+document.addEventListener('keydown', (event) => {
+  // Handle the event.
 });
 
 const event = DomMock.Keyboard.keydownEvent('z');
 DomMock.Keyboard.fire(event);
-
-// Restore the server `globalThis` environment at any time.
-// Optional: `DomMock.init` already restores the environment in `afterAll`.
-DomMock.unpolyfill();
 ```
+
+Call `DomMock.unpolyfill()` only when a test must restore the environment before `afterAll`.

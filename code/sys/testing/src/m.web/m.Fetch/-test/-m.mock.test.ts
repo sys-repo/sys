@@ -3,7 +3,7 @@ import { Fetch } from '../mod.ts';
 import { expectFetchDescriptor, fetchDescriptor, restoreFetch } from './u.fixture.ts';
 
 describe('WebFixture.Fetch.mock', () => {
-  it('installs the exact replacement without transforming calls or results', async () => {
+  it('replacement → preserves exact calls and results', async () => {
     const before = fetchDescriptor();
     const input = new Request('https://example.test/resource');
     const controller = new AbortController();
@@ -11,7 +11,6 @@ describe('WebFixture.Fetch.mock', () => {
     const response = new Response('fixture');
     let actualInput: t.FetchInput | undefined;
     let actualInit: RequestInit | undefined;
-
     const replacement: t.Fetch = (nextInput, nextInit) => {
       actualInput = nextInput;
       actualInit = nextInit;
@@ -35,7 +34,7 @@ describe('WebFixture.Fetch.mock', () => {
     }
   });
 
-  it('preserves replacement rejection and restores through finally', async () => {
+  it('replacement rejection → preserves identity and restores through finally', async () => {
     const before = fetchDescriptor();
     const failure = new Error('fetch failed');
     const replacement: t.Fetch = () => Promise.reject(failure);
@@ -58,7 +57,7 @@ describe('WebFixture.Fetch.mock', () => {
     }
   });
 
-  it('restores the exact prior property descriptor', () => {
+  it('disposal → restores the exact prior Fetch descriptor', () => {
     const native = fetchDescriptor();
     const previousFetch: t.Fetch = () => Promise.resolve(new Response('previous'));
     const replacement: t.Fetch = () => Promise.resolve(new Response('replacement'));
@@ -84,137 +83,12 @@ describe('WebFixture.Fetch.mock', () => {
     }
   });
 
-  it('keeps descriptor restoration retryable after failure', () => {
-    const before = fetchDescriptor();
-    const replacement: t.Fetch = () => Promise.resolve(new Response());
-    const nativeDefineProperty = Object.defineProperty;
-    const methodDescriptor = Object.getOwnPropertyDescriptor(Object, 'defineProperty')!;
-    const failure = new TypeError('descriptor restoration blocked');
-    const failRestore: typeof Object.defineProperty = (target, property, attributes) => {
-      if (target === globalThis && property === 'fetch') throw failure;
-      return nativeDefineProperty(target, property, attributes);
-    };
-
-    try {
-      const mock = Fetch.mock(replacement);
-      let caught: unknown;
-
-      try {
-        nativeDefineProperty(Object, 'defineProperty', {
-          ...methodDescriptor,
-          value: failRestore,
-        });
-        try {
-          mock.dispose();
-        } catch (error) {
-          caught = error;
-        } finally {
-          nativeDefineProperty(Object, 'defineProperty', methodDescriptor);
-        }
-
-        expect(caught).to.equal(failure);
-        expect(globalThis.fetch).to.equal(replacement);
-
-        mock.dispose();
-        mock.dispose();
-        expectFetchDescriptor(before);
-        expect(Object.getOwnPropertyDescriptor(Object, 'defineProperty')).to.eql(methodDescriptor);
-      } finally {
-        nativeDefineProperty(Object, 'defineProperty', methodDescriptor);
-      }
-    } finally {
-      restoreFetch(before);
-    }
-  });
-
-  it('restores an absent prior property', () => {
-    const native = fetchDescriptor();
-    const replacement: t.Fetch = () => Promise.resolve(new Response());
-
-    try {
-      expect(Reflect.deleteProperty(globalThis, 'fetch')).to.eql(true);
-      expect(fetchDescriptor()).to.eql(undefined);
-
-      const mock = Fetch.mock(replacement);
-      try {
-        expect(globalThis.fetch).to.equal(replacement);
-      } finally {
-        mock.dispose();
-      }
-
-      expect(fetchDescriptor()).to.eql(undefined);
-    } finally {
-      restoreFetch(native);
-    }
-  });
-
-  it('keeps absent-property restoration retryable after failure', () => {
-    const native = fetchDescriptor();
-    const replacement: t.Fetch = () => Promise.resolve(new Response());
-    const nativeDeleteProperty = Reflect.deleteProperty;
-    const methodDescriptor = Object.getOwnPropertyDescriptor(Reflect, 'deleteProperty')!;
-    const failRestore: typeof Reflect.deleteProperty = (target, property) => {
-      if (target === globalThis && property === 'fetch') return false;
-      return nativeDeleteProperty(target, property);
-    };
-
-    try {
-      expect(nativeDeleteProperty(globalThis, 'fetch')).to.eql(true);
-      const mock = Fetch.mock(replacement);
-      let caught: unknown;
-
-      try {
-        Object.defineProperty(Reflect, 'deleteProperty', {
-          ...methodDescriptor,
-          value: failRestore,
-        });
-        try {
-          mock.dispose();
-        } catch (error) {
-          caught = error;
-        } finally {
-          Object.defineProperty(Reflect, 'deleteProperty', methodDescriptor);
-        }
-
-        expect(caught).to.be.instanceof(TypeError);
-        expect(caught).to.have.property(
-          'message',
-          'Failed to restore the prior globalThis.fetch state.',
-        );
-        expect(globalThis.fetch).to.equal(replacement);
-
-        mock.dispose();
-        mock.dispose();
-        expect(fetchDescriptor()).to.eql(undefined);
-        expect(Object.getOwnPropertyDescriptor(Reflect, 'deleteProperty')).to.eql(methodDescriptor);
-      } finally {
-        Object.defineProperty(Reflect, 'deleteProperty', methodDescriptor);
-      }
-    } finally {
-      restoreFetch(native);
-    }
-  });
-
-  it('disposes idempotently', () => {
-    const before = fetchDescriptor();
-    const replacement: t.Fetch = () => Promise.resolve(new Response());
-
-    try {
-      const mock = Fetch.mock(replacement);
-      mock.dispose();
-      mock.dispose();
-      expectFetchDescriptor(before);
-    } finally {
-      restoreFetch(before);
-    }
-  });
-
-  it('restores properly nested mocks in LIFO order', () => {
+  it('nested mocks → restore in LIFO order', () => {
     const native = fetchDescriptor();
     const firstFetch: t.Fetch = () => Promise.resolve(new Response('first'));
     const secondFetch: t.Fetch = () => Promise.resolve(new Response('second'));
-    let first: t.WebFixtureFetch.Mock | undefined;
-    let second: t.WebFixtureFetch.Mock | undefined;
+    let first: t.WebFixture.Fetch.Mock | undefined;
+    let second: t.WebFixture.Fetch.Mock | undefined;
 
     try {
       first = Fetch.mock(firstFetch);
@@ -229,9 +103,15 @@ describe('WebFixture.Fetch.mock', () => {
       first.dispose();
       expectFetchDescriptor(native);
     } finally {
-      second?.dispose();
-      first?.dispose();
-      restoreFetch(native);
+      try {
+        try {
+          second?.dispose();
+        } finally {
+          first?.dispose();
+        }
+      } finally {
+        restoreFetch(native);
+      }
     }
   });
 });

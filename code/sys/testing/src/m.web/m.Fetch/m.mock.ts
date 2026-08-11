@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+import { Property } from '../m.Property/mod.ts';
 
 /**
  * Replace `globalThis.fetch` with the supplied function until disposal.
@@ -8,27 +9,16 @@ import type { t } from './common.ts';
  * do not overlap this process-global fixture across parallel tests. The replacement owns all Fetch
  * behavior, including `AbortSignal` handling.
  */
-export function mock(replacement: t.Fetch): t.WebFixtureFetch.Mock {
-  const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'fetch');
-  let disposed = false;
-
-  Object.defineProperty(globalThis, 'fetch', {
-    configurable: true,
-    writable: true,
-    value: replacement,
-  });
-
-  return {
-    dispose() {
-      if (disposed) return;
-
-      if (descriptor) {
-        Object.defineProperty(globalThis, 'fetch', descriptor);
-      } else if (!Reflect.deleteProperty(globalThis, 'fetch')) {
-        throw new TypeError('Failed to restore the prior globalThis.fetch state.');
-      }
-
-      disposed = true;
+export function mock(replacement: t.Fetch): t.WebFixture.Fetch.Mock {
+  return Property.mock([
+    {
+      target: globalThis,
+      key: 'fetch',
+      descriptor: {
+        configurable: true,
+        writable: true,
+        value: replacement,
+      },
     },
-  };
+  ]);
 }

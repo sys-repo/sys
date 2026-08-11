@@ -1,11 +1,11 @@
-import { Schedule } from '../common.ts';
+import { Schedule } from './common.ts';
 
 /**
- * Fake WebSocket class used to replace `globalThis.WebSocket` in tests.
+ * Minimal WebSocket test double with URL/state observation and microtask open/close events.
  *
- * This is a known and intentional canon exception: the Web Standards API is
- * constructor/class-shaped, so this test double must also be class-shaped to
- * stand in for `globalThis.WebSocket` correctly.
+ * This is a known and intentional canon exception: the Web Standards API is class-shaped, so its
+ * global test double must also be class-shaped. Messages, protocols, and `CloseEvent` metadata are
+ * intentionally outside this fixture.
  */
 export class FakeWebSocket extends EventTarget {
   static readonly CONNECTING = 0;
@@ -15,22 +15,22 @@ export class FakeWebSocket extends EventTarget {
 
   readonly url: string;
   readyState = FakeWebSocket.CONNECTING;
-  onmessage: ((event: MessageEvent) => void) | null = null;
 
   constructor(url: string | URL) {
     super();
     this.url = String(url);
     Schedule.micro(() => {
+      if (this.readyState !== FakeWebSocket.CONNECTING) return;
       this.readyState = FakeWebSocket.OPEN;
       this.dispatchEvent(new Event('open'));
     });
   }
 
-  send(_data: unknown) {
+  send(_data: unknown): void {
     return undefined;
   }
 
-  close() {
+  close(): void {
     if (
       this.readyState === FakeWebSocket.CLOSING ||
       this.readyState === FakeWebSocket.CLOSED

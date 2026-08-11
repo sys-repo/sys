@@ -1,25 +1,24 @@
-import type { t } from '../common.ts';
+import type { t } from './common.ts';
+import { Property } from '../m.Property/mod.ts';
 import { FakeWebSocket } from './u.class.FakeWebSocket.ts';
 
+/**
+ * Replace `globalThis.WebSocket` with the minimal `FakeWebSocket` subset until disposal.
+ *
+ * Open and close transitions run on microtasks; messages, protocols, and `CloseEvent` metadata are
+ * not modeled. Successful disposal restores the exact prior descriptor. Incomplete disposal throws
+ * a retryable Property cleanup error.
+ */
 export function mock(): t.WebFixture.WebSocket.Mock {
-  const NativeWebSocket = globalThis.WebSocket;
-  let disposed = false;
-
-  Object.defineProperty(globalThis, 'WebSocket', {
-    configurable: true,
-    writable: true,
-    value: FakeWebSocket,
-  });
-
-  return {
-    dispose() {
-      if (disposed) return;
-      disposed = true;
-      Object.defineProperty(globalThis, 'WebSocket', {
+  return Property.mock([
+    {
+      target: globalThis,
+      key: 'WebSocket',
+      descriptor: {
         configurable: true,
         writable: true,
-        value: NativeWebSocket,
-      });
+        value: FakeWebSocket,
+      },
     },
-  };
+  ]);
 }
