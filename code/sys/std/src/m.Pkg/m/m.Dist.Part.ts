@@ -1,4 +1,4 @@
-import { Is, Num, type t } from './common.ts';
+import { Is, Num, type t } from '../common.ts';
 
 const PART_PREFIX = /^(sha256-[0-9a-f]{64})(?::size=(0|[1-9][0-9]*))?/;
 

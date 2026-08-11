@@ -1,4 +1,4 @@
-import { D, Is, type t } from './common.ts';
+import { D, Is, type t } from '../common.ts';
 import { Part } from './m.Dist.Part.ts';
 
 export const PkgIs: t.Pkg.Is.Lib = {

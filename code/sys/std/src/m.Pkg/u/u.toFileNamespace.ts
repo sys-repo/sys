@@ -1,5 +1,5 @@
 import { Is, Str, type t } from '../common.ts';
-import { Subpath } from '../m.Subpath.ts';
+import { Subpath } from '../m/m.Subpath.ts';
 
 export const toFileNamespace: t.Pkg.Lib['toFileNamespace'] = (pkg, options = {}) => {
   const name = normalizePkgName(Is.str(pkg?.name) ? pkg.name : '');

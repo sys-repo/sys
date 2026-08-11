@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t } from '../common.ts';
 import { Part } from './m.Dist.Part.ts';
 import { PkgIs } from './m.Is.ts';
 

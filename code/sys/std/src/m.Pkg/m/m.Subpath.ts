@@ -1,4 +1,4 @@
-import { Is, type t } from './common.ts';
+import { Is, type t } from '../common.ts';
 
 const UNSAFE_TEXT = /[\p{Cc}\p{Cf}\p{Cs}\p{Zl}\p{Zp}]/u;
 const ABSENT = Object.freeze({ kind: 'absent' } as const);
