@@ -4,7 +4,9 @@
     "jsr:@bradenmacdonald/s3-lite-client@0.9.6": "0.9.6",
     "jsr:@cliffy/ansi@1.2.1": "1.2.1",
     "jsr:@cliffy/internal@1.2.1": "1.2.1",
+    "jsr:@cliffy/keycode@*": "1.2.1",
     "jsr:@cliffy/keycode@1.2.1": "1.2.1",
+    "jsr:@cliffy/keypress@*": "1.2.1",
     "jsr:@cliffy/keypress@1.2.1": "1.2.1",
     "jsr:@cliffy/prompt@1.2.1": "1.2.1",
     "jsr:@cliffy/table@1.2.1": "1.2.1",
@@ -131,7 +133,7 @@
       "integrity": "e89ab22c66305a77720a0cc9908715697a243150c1c3d2bfdc2c47297637c426",
       "dependencies": [
         "jsr:@cliffy/internal",
-        "jsr:@cliffy/keycode"
+        "jsr:@cliffy/keycode@1.2.1"
       ]
     },
     "@cliffy/prompt@1.2.1": {
@@ -139,7 +141,7 @@
       "dependencies": [
         "jsr:@cliffy/ansi",
         "jsr:@cliffy/internal",
-        "jsr:@cliffy/keycode",
+        "jsr:@cliffy/keycode@1.2.1",
         "jsr:@std/assert",
         "jsr:@std/fmt",
         "jsr:@std/io",
