@@ -230,6 +230,8 @@ export declare namespace Cli {
     export namespace Header {
       /** Application-header formatting helper library contract. */
       export type Lib = t.CliFormatHeader.Lib;
+      /** Package-backed application identity accepted by the header formatter. */
+      export type PackageIdentity = t.CliFormatHeader.PackageIdentity;
       /** Application-header formatting requirements. */
       export type Options = t.CliFormatHeader.Options;
     }

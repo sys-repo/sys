@@ -9,6 +9,7 @@ export { MediaType } from '@sys/std/media-type';
 export { Num } from '@sys/std/num';
 export { Obj } from '@sys/std/obj';
 export { Path } from '@sys/std/path';
+export { Pkg } from '@sys/std/pkg';
 export { Rx } from '@sys/std/rx';
 export { Str } from '@sys/std/str';
 export { Time } from '@sys/std/time';

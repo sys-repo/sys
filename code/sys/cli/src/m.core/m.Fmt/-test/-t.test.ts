@@ -34,8 +34,14 @@ type ExpectedCommitOptions = {
   readonly indent?: number;
   readonly message?: ExpectedCommitText;
 };
+type ExpectedHeaderPackageIdentity =
+  | t.Pkg
+  | {
+    readonly root: t.Pkg;
+    readonly subpath: string;
+  };
 type ExpectedHeaderOptions = {
-  pkg?: t.Pkg;
+  pkg?: ExpectedHeaderPackageIdentity;
   width?: number;
   tone?: t.AnsiColor.Name;
   title?: string;
@@ -121,8 +127,19 @@ type CanonicalFormatterProof = [
   >,
 
   // Header.
+  Assert<Equal<t.CliFormatHeader.PackageIdentity, ExpectedHeaderPackageIdentity>>,
   Assert<Equal<t.CliFormatHeader.Lib, ExpectedHeaderLib>>,
   Assert<Equal<t.CliFormatHeader.Options, ExpectedHeaderOptions>>,
+  Assert<
+    Exact6<
+      t.CliFormatHeader.PackageIdentity,
+      t.Cli.Fmt.Header.PackageIdentity,
+      CliFormatHeaderFromT.PackageIdentity,
+      CliFormatHeaderFromTypes.PackageIdentity,
+      CliFromT.Fmt.Header.PackageIdentity,
+      CliFromTypes.Fmt.Header.PackageIdentity
+    >
+  >,
   Assert<
     Exact6<
       t.CliFormatHeader.Lib,
