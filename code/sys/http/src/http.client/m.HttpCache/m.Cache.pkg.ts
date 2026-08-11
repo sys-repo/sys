@@ -59,7 +59,9 @@ export function isRangeWindowCacheCandidate(input: RangeWindowCandidateInput) {
   if (bytes <= 0) return { ok: false, reason: 'empty-range' } as const;
   if (bytes > policy.maxChunkBytes) return { ok: false, reason: 'chunk-too-large' } as const;
   if (bytes > policy.maxTotalBytes) return { ok: false, reason: 'total-budget-too-small' } as const;
-  if (parsed.total > policy.maxObjectBytes) return { ok: false, reason: 'object-too-large' } as const;
+  if (parsed.total > policy.maxObjectBytes) {
+    return { ok: false, reason: 'object-too-large' } as const;
+  }
 
   return { ok: true, parsed, bytes } as const;
 }
@@ -72,7 +74,9 @@ export function isCacheableHashedAssetResponse(response: Response) {
 
   const contentType = String(response.headers.get('Content-Type') ?? '').toLowerCase();
   if (!contentType) return { ok: true } as const;
-  if (contentType.includes('text/html')) return { ok: false, reason: 'content-type:text/html' } as const;
+  if (contentType.includes('text/html')) {
+    return { ok: false, reason: 'content-type:text/html' } as const;
+  }
   return { ok: true } as const;
 }
 
@@ -88,13 +92,14 @@ export const pkg: t.HttpCache.Lib['pkg'] = async (args) => {
   const HASHED_ASSET = /\/pkg\/[^/]+\.[A-Za-z0-9_-]{8,}\.\w+$/i;
   const MEDIA_EXT = /\.(mp4|m4v|mov|webm)$/i;
 
-  if (!silent)
+  if (!silent) {
     console.info(`💦 [service-worker] starting Http.Cache: ${pkg.name} ${pkg.version}`, {
       CACHE_ASSETS,
       CACHE_MEDIA,
       CACHE_MEDIA_RANGE,
       media,
     });
+  }
 
   /**
    * Installation: instruct the new Service Worker to skip the waiting phase
@@ -206,7 +211,13 @@ export const pkg: t.HttpCache.Lib['pkg'] = async (args) => {
         await rangeMeta.remove(cache, key);
       } else {
         await rangeMeta.touch(cache, key, Date.now());
-        if (!silent) console.info(`🟢 media range cache hit: ${requestRange.start}-${requestRange.end ?? ''} • ${request.url}`);
+        if (!silent) {
+          console.info(
+            `🟢 media range cache hit: ${requestRange.start}-${
+              requestRange.end ?? ''
+            } • ${request.url}`,
+          );
+        }
         return cached;
       }
     }
@@ -247,7 +258,9 @@ export const pkg: t.HttpCache.Lib['pkg'] = async (args) => {
     }
     if (!silent) {
       const parsed = candidate.parsed;
-      console.info(`🧩 cached media range: ${parsed.from}-${parsed.to}/${parsed.total} • ${request.url}`);
+      console.info(
+        `🧩 cached media range: ${parsed.from}-${parsed.to}/${parsed.total} • ${request.url}`,
+      );
     }
     return network;
   }
@@ -322,8 +335,9 @@ export const pkg: t.HttpCache.Lib['pkg'] = async (args) => {
 
     const headers = new Headers(full.headers);
     const contentLengthRaw = Number(headers.get('Content-Length'));
-    const contentLength =
-      Number.isFinite(contentLengthRaw) && contentLengthRaw > 0 ? contentLengthRaw : undefined;
+    const contentLength = Number.isFinite(contentLengthRaw) && contentLengthRaw > 0
+      ? contentLengthRaw
+      : undefined;
     const check = isSafeFullMediaCandidate({
       status: full.status,
       contentRange: headers.get('Content-Range'),
@@ -360,7 +374,10 @@ export function isSafeFullMediaCandidate(input: MediaFullResponseCandidate) {
   if (input.status !== 200) return { ok: false, reason: `status:${input.status}` } as const;
   if (input.bodySize <= 0) return { ok: false, reason: 'empty-body' } as const;
   if (typeof input.contentLength === 'number' && input.contentLength !== input.bodySize) {
-    return { ok: false, reason: `length-mismatch:${input.contentLength}!=${input.bodySize}` } as const;
+    return {
+      ok: false,
+      reason: `length-mismatch:${input.contentLength}!=${input.bodySize}`,
+    } as const;
   }
 
   if (input.contentRange) {
@@ -386,7 +403,9 @@ const wrangle = {
     const start = Number(startStr);
     const endRaw = endStr ? Number(endStr) : undefined;
     if (!Number.isFinite(start) || start < 0) return undefined;
-    if (typeof endRaw === 'number' && (!Number.isFinite(endRaw) || endRaw < start)) return undefined;
+    if (typeof endRaw === 'number' && (!Number.isFinite(endRaw) || endRaw < start)) {
+      return undefined;
+    }
     return typeof endRaw === 'number' ? { start, end: endRaw } : { start };
   },
 
@@ -410,7 +429,9 @@ const wrangle = {
     });
   },
 
-  entryMeta(headers: Headers): { createdAt: number; lastAccessAt: number; expiresAt: number; bytes: number } | undefined {
+  entryMeta(
+    headers: Headers,
+  ): { createdAt: number; lastAccessAt: number; expiresAt: number; bytes: number } | undefined {
     const createdAt = Number(headers.get('x-sys-cache-created-at'));
     const lastAccessAt = Number(headers.get('x-sys-cache-last-access-at'));
     const expiresAt = Number(headers.get('x-sys-cache-expires-at'));
@@ -561,7 +582,8 @@ const rangeMeta = {
       delete index.entries[key];
     }
 
-    const totalBytes = () => Object.values(index.entries).reduce((acc, next) => acc + next.bytes, 0);
+    const totalBytes = () =>
+      Object.values(index.entries).reduce((acc, next) => acc + next.bytes, 0);
     let total = totalBytes();
     if (total + incomingBytes <= policy.maxTotalBytes) {
       await rangeMeta.write(cache, index);
