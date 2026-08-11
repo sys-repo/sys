@@ -54,8 +54,15 @@ import { describe, expect, Fs, it, Path } from '@sys/testing/server';
 
 ## Web fixtures
 
-`@sys/testing/web` is a toolkit for building lifecycle-safe Web-runtime mocks. It includes
-ready-made Fetch and WebSocket fixtures and the property transaction used to build more.
+A Web fixture temporarily changes part of the runtime for a test, then restores its exact prior
+state.
+
+`@sys/testing/web` provides ready-made `Fetch` and `WebSocket` fixtures and `Property`, the
+transaction primitive that owns their setup and restoration.
+
+`Property` separates lifecycle mechanics from fixture behavior. `Fetch`, `WebSocket`, and future
+fixtures reuse one exact ownership and restoration contract instead of implementing cleanup
+independently.
 
 Import Web-runtime fixtures from `@sys/testing/web`:
 
