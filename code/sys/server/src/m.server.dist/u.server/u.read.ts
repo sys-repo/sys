@@ -1,8 +1,8 @@
 import { FsPkg, Is, Num, Obj, type t } from '../common.ts';
 
-export type ReadDependencies = Readonly<{
-  readPart: t.FsPkg.Dist.Pinned.ReadPart.Method;
-}>;
+export type ReadDependencies = {
+  readonly readPart: t.FsPkg.Dist.Pinned.ReadPart.Method;
+};
 
 /** Resolve one FilesStatic reference and authenticate its exact bytes. */
 export async function readAsset(args: {
@@ -50,11 +50,11 @@ export async function readAsset(args: {
   }
 }
 
-type ReadAuthority = Readonly<{
-  path: t.Files.String.Path;
-  checksum: t.StringHash;
-  size: t.NumberBytes;
-}>;
+type ReadAuthority = {
+  readonly path: t.Files.String.Path;
+  readonly checksum: t.StringHash;
+  readonly size: t.NumberBytes;
+};
 
 function readAuthority(input: unknown, requested: t.Files.String.Path): ReadAuthority | undefined {
   try {

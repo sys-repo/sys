@@ -4,12 +4,12 @@ const START_KEYS = ['cwd', 'paths', 'silent', 'until'] as const;
 const RESOURCE_KEYS = ['cwd', 'paths'] as const;
 const PATH_KEYS = ['config'] as const;
 
-export type ServiceArgsSnapshot = Readonly<{
-  cwd: t.StringDir;
-  paths: Readonly<{ config: t.StringPath }>;
-  silent?: boolean;
-  until?: t.UntilInput;
-}>;
+export type ServiceArgsSnapshot = {
+  readonly cwd: t.StringDir;
+  readonly paths: { readonly config: t.StringPath };
+  readonly silent?: boolean;
+  readonly until?: t.UntilInput;
+};
 
 /** Snapshot exact Cell-owned service authority before configuration I/O. */
 export function snapshotServiceArgs(input: unknown, start: boolean): ServiceArgsSnapshot {

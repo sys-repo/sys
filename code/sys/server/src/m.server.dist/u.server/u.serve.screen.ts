@@ -24,7 +24,7 @@ type Terminal = {
 };
 
 type FrameArgs = {
-  readonly pkg: t.Pkg | undefined;
+  readonly identity: t.Cli.Fmt.Header.PackageIdentity | undefined;
   readonly origin: t.StringUrl;
   readonly dir: t.StringDir;
   readonly authority: t.DistServer.Started['authority'];
@@ -39,7 +39,7 @@ type FrameArgs = {
 };
 
 type RuntimeCreateArgs = {
-  readonly pkg?: t.Pkg;
+  readonly identity?: t.Cli.Fmt.Header.PackageIdentity;
   readonly origin: t.StringUrl;
   readonly dir: t.StringDir;
   readonly authority: t.DistServer.Started['authority'];
@@ -86,7 +86,7 @@ export const DistServeScreen = {
     const sequenceWidth = 1;
     const metadataColumn = wrangle.metadataColumn(viewport.width, sequenceWidth);
     const indent = wrangle.indent(metadataColumn);
-    const headerRows = wrangle.applicationHeader(args.pkg, viewport.width);
+    const headerRows = wrangle.applicationHeader(args.identity, viewport.width);
     const header = headerRows.slice(0, capacity);
     if (header.length < headerRows.length) return wrangle.renderRows(header, viewport.width);
 
@@ -155,7 +155,7 @@ export const DistServeScreen = {
     const repaint = () => {
       terminal.repaint(
         DistServeScreen.toString({
-          pkg: args.pkg,
+          identity: args.identity,
           origin: args.origin,
           dir: args.dir,
           authority: args.authority,
@@ -249,26 +249,9 @@ const wrangle = {
     return Num.Is.finite(input) ? Math.max(0, Math.floor(input)) : 0;
   },
 
-  headerTitle(pkg: t.Pkg | undefined) {
-    if (!pkg?.name) return undefined;
-    const name = pkg.name;
-    const firstSlash = name.indexOf('/');
-    const subpathAt = name.startsWith('@') ? name.indexOf('/', firstSlash + 1) : firstSlash;
-    if (subpathAt < 0) return;
-    const packageName = name.slice(0, subpathAt);
-    const subpath = name.slice(subpathAt);
-    return `${c.bold(c.green(packageName))}${c.dim(c.green(subpath))}`;
-  },
-
-  applicationHeader(pkg: t.Pkg | undefined, width: number) {
-    const title = wrangle.headerTitle(pkg);
-    if (!pkg) return [];
-    return Cli.Fmt.Header.rows({
-      pkg,
-      width,
-      tone: 'green',
-      ...(title ? { title } : {}),
-    });
+  applicationHeader(identity: t.Cli.Fmt.Header.PackageIdentity | undefined, width: number) {
+    if (!identity) return [];
+    return Cli.Fmt.Header.rows({ pkg: identity, width, tone: 'green' });
   },
 
   indent(width: number) {

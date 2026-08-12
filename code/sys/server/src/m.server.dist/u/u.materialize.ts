@@ -7,11 +7,11 @@ type Stage = t.FsRooted.Stage;
 type Rooted = t.Fs.Rooted.Instance;
 type Verification = t.FsPkg.Dist.Pinned.Verify.Result;
 
-type FetchedManifest = Readonly<{
-  bytes: Uint8Array;
-  requestedUrl: t.StringUrl;
-  finalUrl: t.StringUrl;
-}>;
+type FetchedManifest = {
+  readonly bytes: Uint8Array;
+  readonly requestedUrl: t.StringUrl;
+  readonly finalUrl: t.StringUrl;
+};
 
 type FetchResult =
   | { readonly ok: true; readonly value: FetchedManifest }

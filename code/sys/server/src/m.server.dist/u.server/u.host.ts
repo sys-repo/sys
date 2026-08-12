@@ -1,8 +1,8 @@
-type ListenerAddress = Readonly<{
-  hostname: string;
-  port: number;
-  addr: Readonly<{ hostname: string }>;
-}>;
+type ListenerAddress = {
+  readonly hostname: string;
+  readonly port: number;
+  readonly addr: { readonly hostname: string };
+};
 
 /** Derive the exact request Host authorities for one started loopback listener. */
 export function acceptedAuthorities(started: ListenerAddress): ReadonlySet<string> {

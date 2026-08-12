@@ -1,14 +1,14 @@
 import { Arr, Fetch, Is, Num, Obj, Pkg, type t, Url } from '../common.ts';
 
-export type InputSnapshot = Readonly<{
-  manifestUrl: t.StringUrl;
-  configuredUrl: t.StringUrl;
-  integrity: t.StringHash;
-  storeDir: t.StringDir;
-  policy: t.Dist.Policy;
-  credentials?: t.Dist.Credentials;
-  until?: t.UntilInput;
-}>;
+export type InputSnapshot = {
+  readonly manifestUrl: t.StringUrl;
+  readonly configuredUrl: t.StringUrl;
+  readonly integrity: t.StringHash;
+  readonly storeDir: t.StringDir;
+  readonly policy: t.Dist.Policy;
+  readonly credentials?: t.Dist.Credentials;
+  readonly until?: t.UntilInput;
+};
 
 export type InputPreparation =
   | { readonly ok: true; readonly value: InputSnapshot }

@@ -31,12 +31,12 @@ export declare namespace DistService {
   };
 
   /** Strict normalized YAML configuration. */
-  export type Config = Readonly<{
-    name?: string;
-    dir: t.StringDir;
-    integrity: t.StringHash;
-    limits: Readonly<t.FsPkg.Dist.Pinned.Verify.Limits>;
-    hostname?: t.StringHostname;
-    port?: t.PortNumber;
-  }>;
+  export type Config = {
+    readonly name?: string;
+    readonly dir: t.StringDir;
+    readonly integrity: t.StringHash;
+    readonly limits: Readonly<t.FsPkg.Dist.Pinned.Verify.Limits>;
+    readonly hostname?: t.StringHostname;
+    readonly port?: t.PortNumber;
+  };
 }

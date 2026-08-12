@@ -28,16 +28,9 @@ const LIMIT_KEYS = ['manifestBytes', 'entries', 'fileBytes', 'totalBytes'] as co
 const KEYBOARD_KEYS = ['print', 'exit'] as const;
 const INVALID_KEYBOARD = Symbol('invalid-keyboard');
 
-type VerificationLimitsSnapshot = {
-  readonly manifestBytes: t.NumberBytes;
-  readonly entries: t.NumberTotal;
-  readonly fileBytes: t.NumberBytes;
-  readonly totalBytes: t.NumberBytes;
-};
-
 type SharedStartSnapshot = {
   readonly dir: t.StringDir;
-  readonly limits: VerificationLimitsSnapshot;
+  readonly limits: Readonly<t.FsPkg.Dist.Verify.Limits>;
   readonly hostname: t.StringHostname;
   readonly port: t.PortNumber;
   readonly name?: string;
@@ -129,7 +122,7 @@ type SharedStartPreparation =
 
 function snapshotSharedStart(
   source: InputRecord,
-  limits: VerificationLimitsSnapshot,
+  limits: Readonly<t.FsPkg.Dist.Verify.Limits>,
 ): SharedStartPreparation {
   const hostname = source.hostname ?? '127.0.0.1';
   if (!isLoopbackHostname(hostname)) return rejectedShared('invalid-hostname');
@@ -176,7 +169,7 @@ function snapshotIntegrity(input: unknown): t.StringHash | undefined {
   return parsed?.hash === input && parsed.size === undefined ? (input as t.StringHash) : undefined;
 }
 
-function snapshotLimits(input: unknown): VerificationLimitsSnapshot | undefined {
+function snapshotLimits(input: unknown): Readonly<t.FsPkg.Dist.Verify.Limits> | undefined {
   const source = snapshotRecord(input, LIMIT_KEYS, LIMIT_KEYS);
   if (!source) return;
   const { manifestBytes, entries, fileBytes, totalBytes } = source;

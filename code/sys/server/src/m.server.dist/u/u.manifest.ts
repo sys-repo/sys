@@ -1,8 +1,8 @@
 import { Is, Json, Num, Obj, Path, Pkg, Str, type t } from '../common.ts';
 
-export type ManifestPlan = Readonly<{
-  resources: readonly t.HttpPull.Resource[];
-}>;
+export type ManifestPlan = {
+  readonly resources: readonly t.HttpPull.Resource[];
+};
 
 export type ManifestAdmission =
   | { readonly ok: true; readonly value: ManifestPlan }
