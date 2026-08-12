@@ -1,3 +1,4 @@
+import { loader } from '@monaco-editor/react';
 import type { t } from './common.ts';
 
 import { Error } from '../m.Error/mod.ts';
@@ -19,6 +20,9 @@ export const Monaco: t.MonacoDriver.Lib = {
   },
   get Is() {
     return EditorIs;
+  },
+  get loader() {
+    return loader;
   },
   get Editor() {
     return Editor;

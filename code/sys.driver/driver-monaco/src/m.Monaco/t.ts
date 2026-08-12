@@ -18,6 +18,9 @@ export declare namespace MonacoDriver {
     readonly Yaml: t.EditorYaml.Lib;
     readonly Link: Link.Lib;
     readonly Error: t.EditorError.Lib;
+
+    /** Upstream loader used to select Monaco's runtime asset source before initialization. */
+    readonly loader: t.MonacoLoader;
   };
 
   /** Convenience bundle of the editor with the global Monaco API. */

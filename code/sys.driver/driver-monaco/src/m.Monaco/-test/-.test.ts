@@ -1,3 +1,5 @@
+import { loader } from '@monaco-editor/react';
+import type { MonacoLoader } from '@sys/driver-monaco/t';
 import { describe, expect, it } from '../../-test.ts';
 import { EditorCrdt, EditorYaml, MonacoEditor, YamlEditor } from '../../ui/mod.ts';
 
@@ -14,6 +16,8 @@ describe('Monaco', () => {
     expect(m.Monaco).to.equal(Monaco);
 
     expect(Monaco.Bus).to.equal(Bus);
+    const publicLoader: MonacoLoader = Monaco.loader;
+    expect(publicLoader).to.equal(loader);
     expect(Monaco.Editor).to.equal(MonacoEditor);
     expect(Monaco.Crdt).to.equal(EditorCrdt);
     expect(Monaco.Yaml).to.equal(EditorYaml);

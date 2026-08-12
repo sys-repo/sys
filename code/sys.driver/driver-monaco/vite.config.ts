@@ -1,11 +1,13 @@
 import { Vite } from '@sys/driver-vite';
+import { MonacoVite } from '@sys/driver-monaco/vite';
 
 export default Vite.Config.define(() => {
   const entry = './src/index.html';
   const sw = './src/-test/-sw.ts';
-  const paths = Vite.Config.paths({ app: { entry, sw } });
+  const paths = Vite.Config.paths({ app: { entry, sw, base: './' } });
   return Vite.Config.app({
     paths,
+    vitePlugins: [MonacoVite.plugin()],
     chunks(e) {
       e.chunk('react', 'react');
       e.chunk('react.dom', 'react-dom');

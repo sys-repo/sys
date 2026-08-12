@@ -1,0 +1,42 @@
+import { Vite } from '@sys/driver-vite';
+import { describe, expect, it, Testing } from '../../-test.ts';
+import { Fs } from '../common.ts';
+
+const cwd = Fs.Path.fromFileUrl(new URL('../../../', import.meta.url));
+
+describe('MonacoVite development serving', () => {
+  it('development server → serves runtime assets and notices', async () => {
+    const server = await Vite.dev({
+      paths: {
+        cwd,
+        app: { entry: 'src/index.html', outDir: 'dist', base: './' },
+      },
+      port: Testing.randomPort(),
+      strictPort: true,
+      silent: true,
+    });
+    try {
+      const request = (path: string) => {
+        return fetch(new URL(path, server.url), { signal: AbortSignal.timeout(5_000) });
+      };
+      const [loader, license, thirdParty] = await Promise.all([
+        request('vs/loader.js'),
+        request('vs/LICENSE'),
+        request('vs/ThirdPartyNotices.txt'),
+      ]);
+
+      expect(loader.status).to.eql(200);
+      expect(loader.headers.get('cache-control')).to.eql('no-store');
+      expect(loader.headers.get('content-type')).to.eql('text/javascript; charset=UTF-8');
+      expect(loader.headers.get('x-content-type-options')).to.eql('nosniff');
+      expect((await loader.text()).length).to.be.greaterThan(1_000);
+
+      expect(license.status).to.eql(200);
+      expect(await license.text()).to.include('The MIT License');
+      expect(thirdParty.status).to.eql(200);
+      expect((await thirdParty.text()).length).to.be.greaterThan(10_000);
+    } finally {
+      await server.dispose();
+    }
+  });
+});

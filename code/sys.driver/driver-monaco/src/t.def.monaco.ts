@@ -1,7 +1,11 @@
 import type { t } from './common.ts';
 
+import type { loader } from '@monaco-editor/react';
 import type * as monaco from 'monaco-editor';
 import type { editor } from 'monaco-editor';
+
+/** Upstream Monaco runtime loader singleton. */
+export type MonacoLoader = typeof loader;
 
 /**
  * Core Monaco library types:

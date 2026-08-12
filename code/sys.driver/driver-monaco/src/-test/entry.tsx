@@ -1,6 +1,12 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import { Monaco } from '../mod.ts';
 import { pkg } from '../pkg.ts';
+
+/**
+ * Monaco runtime assets:
+ */
+Monaco.loader.config({ paths: { vs: new URL('./vs', globalThis.document.baseURI).href } });
 
 /**
  * Service Worker:
@@ -38,8 +44,17 @@ if (document) {
  */
 export async function main() {
   const params = new URL(location.href).searchParams;
-  const isDev = params.has('dev') || params.has('d');
   const root = createRoot(document.getElementById('root')!);
+
+  if (params.has('monaco-smoke')) {
+    const { MonacoSmoke } = await import('./ui.MonacoSmoke.tsx');
+    root.render(
+      <React.StrictMode>
+        <MonacoSmoke />
+      </React.StrictMode>,
+    );
+    return;
+  }
 
   /**
    * DevHarness:
