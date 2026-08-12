@@ -1,7 +1,7 @@
-import { type t } from '../common.ts';
+import { Is, type t } from '../common.ts';
 
 type VisualizerModule = {
-  readonly visualizer: (options: { readonly filename: string }) => t.VitePlugin;
+  readonly visualizer: (options: { filename: string }) => t.VitePlugin;
 };
 
 /**
@@ -21,9 +21,7 @@ export function visualizerPlugin(filename: string): t.VitePlugin {
         const plugin = visualizer({ filename }) as t.Rollup.Plugin;
         const hook = plugin.generateBundle;
         if (!hook) return;
-        if (typeof hook === 'function') {
-          return await hook.call(this, outputOptions, outputBundle, isWrite);
-        }
+        if (Is.func(hook)) return await hook.call(this, outputOptions, outputBundle, isWrite);
         return await hook.handler.call(this, outputOptions, outputBundle, isWrite);
       } catch (err) {
         if (err instanceof Error && err.name === 'NotCapable') {

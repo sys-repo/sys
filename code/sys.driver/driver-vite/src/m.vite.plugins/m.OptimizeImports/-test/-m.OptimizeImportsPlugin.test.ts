@@ -31,9 +31,18 @@ describe('OptimizeImportsPlugin', () => {
     const plugin = OptimizeImportsPlugin.plugin({ packages: TEST_RULES });
     const transform = asTransform(plugin.transform);
 
-    const a = await transform("import { useKeyboard } from '@sys/ui-dev/react/devharness';", '/tmp/mod.css');
-    const b = await transform("import { Harness } from '@sys/ui-dev/react/devharness';", '/tmp/mod.ts');
-    const c = await transform("import { useKeyboard } from '@sys/ui-dev/react/devharness';", '/tmp/node_modules/pkg/mod.ts');
+    const a = await transform(
+      "import { useKeyboard } from '@sys/ui-dev/react/devharness';",
+      '/tmp/mod.css',
+    );
+    const b = await transform(
+      "import { Harness } from '@sys/ui-dev/react/devharness';",
+      '/tmp/mod.ts',
+    );
+    const c = await transform(
+      "import { useKeyboard } from '@sys/ui-dev/react/devharness';",
+      '/tmp/node_modules/pkg/mod.ts',
+    );
 
     expect(a).to.eql(null);
     expect(b).to.eql(null);
@@ -42,11 +51,9 @@ describe('OptimizeImportsPlugin', () => {
 });
 
 function asTransform(transform: unknown) {
-  if (!transform) throw new Error('Expected transform hook');
-  if (typeof transform === 'function') return transform;
-  if (Is.object(transform) && 'handler' in transform) {
-    const handler = transform.handler;
-    if (typeof handler === 'function') return handler;
+  if (Is.func(transform)) return transform;
+  if (Is.record<Record<string, unknown>>(transform) && Is.func(transform.handler)) {
+    return transform.handler;
   }
   throw new Error('Expected callable transform hook');
 }
