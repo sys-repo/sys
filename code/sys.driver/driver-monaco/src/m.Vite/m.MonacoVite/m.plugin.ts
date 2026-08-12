@@ -1,16 +1,18 @@
 import { Fs, Is, MediaType, type t } from './common.ts';
 import { MOUNT } from './u.constants.ts';
-import type { Source } from './t.ts';
+import type { Source, SourceLocation } from './t.ts';
 import { emitAssets } from './u.emit.ts';
 import { fail } from './u.error.ts';
-import { resolveSource, sourcePath } from './u.source.ts';
+import { resolveSource, resolveSourceLocation, resolveSourcePath } from './u.source.ts';
 import { readRegularFile } from './u.tree.ts';
 import { urlRoot } from './u.url.ts';
 
 /** Create Monaco's self-hosted runtime asset integration. */
 export const plugin: t.MonacoVite.Lib['plugin'] = () => {
+  let sourceLocation: Promise<SourceLocation> | undefined;
   let source: Promise<Source> | undefined;
-  const getSource = () => source ??= resolveSource();
+  const getSourceLocation = () => sourceLocation ??= resolveSourceLocation();
+  const getSource = () => source ??= getSourceLocation().then(resolveSource);
   const emissions = new Map<string, Promise<void>>();
 
   return {
@@ -23,9 +25,14 @@ export const plugin: t.MonacoVite.Lib['plugin'] = () => {
           const requestPath = new URL(request.url ?? '/', 'http://localhost').pathname;
           if (!requestPath.startsWith(root)) return next();
 
-          const relative = decodeURIComponent(requestPath.slice(root.length));
-          const resolved = await getSource();
-          const path = sourcePath(resolved, relative);
+          let relative: string;
+          try {
+            relative = decodeURIComponent(requestPath.slice(root.length));
+          } catch {
+            return next();
+          }
+          const resolved = await getSourceLocation();
+          const path = await resolveSourcePath(resolved, relative);
           if (!path) return next();
 
           const data = await readRegularFile(path);

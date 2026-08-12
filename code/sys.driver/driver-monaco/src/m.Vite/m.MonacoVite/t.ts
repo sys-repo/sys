@@ -1,9 +1,15 @@
 export type NoticeFile = 'LICENSE' | 'ThirdPartyNotices.txt';
 
-export type Source = {
+export type SourceLocation = {
+  /** Resolved root of the pinned Monaco package. */
   readonly packageRoot: string;
+  /** Resolved root of Monaco's development runtime assets. */
   readonly runtimeDir: string;
+  /** Pinned Monaco package version. */
   readonly version: string;
+};
+
+export type Source = SourceLocation & {
   readonly bytes: number;
   readonly hash: {
     readonly digest: string;

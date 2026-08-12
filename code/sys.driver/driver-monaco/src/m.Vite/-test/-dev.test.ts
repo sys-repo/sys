@@ -1,8 +1,9 @@
 import { Vite } from '@sys/driver-vite';
 import { describe, expect, it, Testing } from '../../-test.ts';
-import { Fs } from '../common.ts';
+import { Err, Fs, Time } from '../common.ts';
 
 const cwd = Fs.Path.fromFileUrl(new URL('../../../', import.meta.url));
+const REQUEST_TIMEOUT = 5_000;
 
 describe('MonacoVite development serving', () => {
   it('development server → serves runtime assets and notices', async () => {
@@ -16,9 +17,21 @@ describe('MonacoVite development serving', () => {
       silent: true,
     });
     try {
-      const request = (path: string) => {
-        return fetch(new URL(path, server.url), { signal: AbortSignal.timeout(5_000) });
+      const request = async (path: string) => {
+        const url = new URL(path, server.url);
+        const startedAt = Time.now.timestamp;
+        try {
+          return await fetch(url, { signal: AbortSignal.timeout(REQUEST_TIMEOUT) });
+        } catch (cause) {
+          throw new Error(
+            `MonacoVite development request failed: ${url.href} ` +
+              `after ${Time.elapsed(startedAt).msec}ms (timeout ${REQUEST_TIMEOUT}ms).\n` +
+              Err.summary(cause),
+            { cause },
+          );
+        }
       };
+
       const [loader, license, thirdParty] = await Promise.all([
         request('vs/loader.js'),
         request('vs/LICENSE'),
