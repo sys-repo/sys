@@ -1,6 +1,6 @@
 import { withTmpDir } from '../../-test/u.fixture.ts';
-import { type t, describe, expect, Fs, it } from '../../../-test.ts';
-import { Json, Pkg, Path } from '../../common.ts';
+import { describe, expect, Fs, it, type t } from '../../../-test.ts';
+import { Cli, Is, Json, Path, Pkg } from '../../common.ts';
 import { executeStaging } from '../u.staging.execute.ts';
 
 describe('Staging: executeStaging', () => {
@@ -70,7 +70,10 @@ describe('Staging: executeStaging', () => {
   it('copy: injects x-build-reset into staged index.html when enabled', async () => {
     await withTmpDir(async (tmp) => {
       await Fs.ensureDir(`${tmp}/src`);
-      await Fs.write(`${tmp}/src/index.html`, '<!doctype html><html><head><title>x</title></head><body></body></html>');
+      await Fs.write(
+        `${tmp}/src/index.html`,
+        '<!doctype html><html><head><title>x</title></head><body></body></html>',
+      );
 
       const dir = { source: 'src', staging: 'dist/site' };
       await executeStaging({
@@ -329,30 +332,33 @@ describe('Staging: executeStaging', () => {
     });
   });
 
-  it('failure: emits mapping:fail and throws first error (no mapping:done); does not write dist.json', async () => {
+  it('failure: test task → reports both output streams and skips build', async () => {
     await withTmpDir(async (tmp) => {
       const srcRoot = `${tmp}/src`;
       await Fs.ensureDir(srcRoot);
 
-      // deterministic failing build task
       const denoJson = Json.stringify({
         name: 'tmp-staging-fail',
         version: '0.0.0',
-        tasks: { build: `deno eval "Deno.exit(1)"` },
+        tasks: {
+          test:
+            `deno eval "console.log('test stdout ' + 'x'.repeat(60_000) + ' test tail'); console.error('test stderr'); Deno.exit(7)"`,
+          build: `deno eval "console.log('build should not run')"`,
+        },
       });
 
       await Fs.write(`${srcRoot}/deno.json`, denoJson);
 
-      const events: Array<{ kind: string; index: number }> = [];
+      const events: Array<{ kind: string; index: number; label?: string }> = [];
       const mappings = [{ mode: 'build+copy' as const, dir: { source: 'src', staging: '.' } }];
 
-      let threw = false;
+      let error: unknown;
       let writeCalled = false;
 
       const opts = {
         ...stageOptions(tmp),
-        onProgress(e: { kind: string; index: number }) {
-          events.push({ kind: e.kind, index: e.index });
+        onProgress(e: { kind: string; index: number; label?: string }) {
+          events.push({ kind: e.kind, index: e.index, label: e.label });
         },
         onWriteDistJson: async (args: { readonly stagingRoot: string }) => {
           writeCalled = true;
@@ -362,24 +368,70 @@ describe('Staging: executeStaging', () => {
 
       try {
         await executeStaging({ ...opts, mappings });
-      } catch {
-        threw = true;
+      } catch (cause) {
+        error = cause;
       }
 
-      expect(threw).to.eql(true);
-
-      const starts = events.filter((e) => e.kind === 'mapping:start');
-      const fails = events.filter((e) => e.kind === 'mapping:fail');
-      const dones = events.filter((e) => e.kind === 'mapping:done');
-
-      expect(starts.length).to.eql(1);
-      expect(fails.length).to.eql(1);
-      expect(dones.length).to.eql(0);
-
+      const message = Cli.stripAnsi(Is.error(error) ? error.message : '');
+      expect(message).to.include(`Failed test task: ${srcRoot} (exit 7)`);
+      expect(message).to.include('command: deno -q task test');
+      expect(message).to.include('stdout:');
+      expect(message).to.include('test stdout');
+      expect(message).to.include('… output truncated …');
+      expect(message).to.include('test tail');
+      expect(message).to.include('stderr:');
+      expect(message).to.include('test stderr');
+      expect(message.includes('build should not run')).to.eql(false);
+      expect(events.filter((e) => e.kind === 'mapping:start').length).to.eql(1);
+      expect(events.filter((e) => e.kind === 'mapping:fail').length).to.eql(1);
+      expect(events.filter((e) => e.kind === 'mapping:done').length).to.eql(0);
+      expect(events.filter((e) => e.kind === 'mapping:step').map((e) => e.label)).to.eql(['test']);
       expect(writeCalled).to.eql(false);
 
       const dist = await Fs.readJson(`${tmp}/stage/dist.json`);
       expect(dist.exists).to.eql(false);
+    });
+  });
+
+  it('failure: successful test → identifies the failing build task', async () => {
+    await withTmpDir(async (tmp) => {
+      const srcRoot = `${tmp}/src`;
+      await Fs.ensureDir(srcRoot);
+      await Fs.write(
+        `${srcRoot}/deno.json`,
+        Json.stringify({
+          name: 'tmp-staging-build-fail',
+          version: '0.0.0',
+          tasks: {
+            test: `deno eval "console.log('test passed')"`,
+            build: `deno eval "console.error('build stderr'); Deno.exit(9)"`,
+          },
+        }),
+      );
+
+      const events: Array<{ kind: string; label?: string }> = [];
+      let error: unknown;
+      try {
+        await executeStaging({
+          ...stageOptions(tmp),
+          mappings: [{ mode: 'build+copy', dir: { source: 'src', staging: '.' } }],
+          onProgress(e) {
+            events.push({ kind: e.kind, label: e.kind === 'mapping:step' ? e.label : undefined });
+          },
+        });
+      } catch (cause) {
+        error = cause;
+      }
+
+      const message = Cli.stripAnsi(Is.error(error) ? error.message : '');
+      expect(message).to.include(`Failed build task: ${srcRoot} (exit 9)`);
+      expect(message).to.include('command: deno -q task build');
+      expect(message).to.include('stderr:');
+      expect(message).to.include('build stderr');
+      expect(events.filter((e) => e.kind === 'mapping:step').map((e) => e.label)).to.eql([
+        'test',
+        'build',
+      ]);
     });
   });
 
@@ -693,7 +745,6 @@ describe('Staging: executeStaging', () => {
       expect(events[0].source).to.eql(absoluteSource);
       expect(events[0].staging).to.eql(Path.resolve(tmp, 'stage'));
       expect((await Fs.readText(`${tmp}/stage/abs.txt`)).data).to.eql('absolute');
-
     });
   });
 
