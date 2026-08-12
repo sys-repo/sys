@@ -48,6 +48,7 @@
     "npm:@earendil-works/pi-coding-agent@0.84.1": "0.84.1_ws@8.21.3_zod@4.4.3",
     "npm:@monaco-editor/react@4.7.0": "4.7.0_monaco-editor@0.56.0_react@19.2.8_react-dom@19.2.8__react@19.2.8",
     "npm:@noble/hashes@2.3.0": "2.3.0",
+    "npm:@oxc-project/runtime@0.142.0": "0.142.0",
     "npm:@preact/signals-core@1.14.4": "1.14.4",
     "npm:@preact/signals-react@3.12.0": "3.12.0_react@19.2.8",
     "npm:@sinclair/typebox-codegen@0.11.1": "0.11.1",
@@ -101,6 +102,7 @@
     "npm:rollup-plugin-visualizer@7.0.1": "7.0.1_rollup@4.62.4",
     "npm:rollup@4.62.4": "4.62.4",
     "npm:rxjs@7.8.2": "7.8.2",
+    "npm:shiki@4.4.3": "4.4.3",
     "npm:string-width@8.2.2": "8.2.2",
     "npm:strip-ansi@7.2.0": "7.2.0",
     "npm:tinycolor2@1.6.0": "1.6.0",
@@ -892,6 +894,9 @@
     "@opentelemetry/semantic-conventions@1.43.0": {
       "integrity": "sha512-eSYWTm620tTk45EKSedaUL8MFYI8hW164hIXsgIHyxu3VobUB3fFCu5t0hQby6OoWRPsG1KkKUG2M5UadiLiVg=="
     },
+    "@oxc-project/runtime@0.142.0": {
+      "integrity": "sha512-Dv3jRrcXFdvUBUEljUu9kusrEo9G0iiqZFZNg3yCg+mkET4DD4S2Ow6Q6shFWDJwPidSa980d6YVXBlErUGADw=="
+    },
     "@oxc-project/types@0.142.0": {
       "integrity": "sha512-7W+2q5AKQVU36fkaryontrHn3YDt1RyUYXatw9i5H8ocYe2sPKSFB6eS8WNPeRKiN1qAWWZUPm7gwFzJGrccqQ=="
     },
@@ -1144,6 +1149,61 @@
       "integrity": "sha512-zD6NdeWEByGE9QF9vCrlJ5YQB4oq9q91kPZS37Jwj5hOkvR1lTBSpsKhKDw4IJtbQ35LsTS1HD9DZYGKIshU1Q==",
       "os": ["win32"],
       "cpu": ["x64"]
+    },
+    "@shikijs/core@4.4.3": {
+      "integrity": "sha512-QCR4q2ZO/ILJEuwiBMel4wdcTDb1JGwfjKTxPDF6x8ixOaluPrVqIn06C99AcRPhmYlBR56d/Fb+GN58GzExpg==",
+      "dependencies": [
+        "@shikijs/primitive",
+        "@shikijs/types",
+        "@shikijs/vscode-textmate",
+        "@types/hast",
+        "hast-util-to-html"
+      ]
+    },
+    "@shikijs/engine-javascript@4.4.3": {
+      "integrity": "sha512-FbOjFJp9VLdo1Wevs10BBtVxiTWwNLqZh5Gkhjgda/ioL15YOgeSl9n+6XMa3qRlPQzfhFNe641SrynFHYG0nQ==",
+      "dependencies": [
+        "@shikijs/types",
+        "@shikijs/vscode-textmate",
+        "oniguruma-to-es"
+      ]
+    },
+    "@shikijs/engine-oniguruma@4.4.3": {
+      "integrity": "sha512-EcOQkxdxGQrc1Row/cC2c96/v1dbZqGnEVu1qTuT/MJmp6+cXCvQussowVmCv5Tqr3KuY3c7IbM6HTW3LJ1k9w==",
+      "dependencies": [
+        "@shikijs/types",
+        "@shikijs/vscode-textmate"
+      ]
+    },
+    "@shikijs/langs@4.4.3": {
+      "integrity": "sha512-ePic0yfAJGOF83D5wBHK/00EjK65oahBYxFk5epgq33WRv7X9UuxLEV8PtR0szC0z8dl7INIpIodB99JRFlR+A==",
+      "dependencies": [
+        "@shikijs/types"
+      ]
+    },
+    "@shikijs/primitive@4.4.3": {
+      "integrity": "sha512-m0wBeLDQDeIxRdUmrCPdQqfuUamDwRL5isCfYbguKD6NiaKpVbsv+3J81DyIKgNW5h4WAIIr8T4EkgQrBBxvaQ==",
+      "dependencies": [
+        "@shikijs/types",
+        "@shikijs/vscode-textmate",
+        "@types/hast"
+      ]
+    },
+    "@shikijs/themes@4.4.3": {
+      "integrity": "sha512-w8UHjeUnIR965KMWJHUPXOc2mNJUnK3vpVLYLvw5IYU2mnTTJ89E24OrJDBNiJDQ0qzb0tc4l7mrIXx5cFeIyw==",
+      "dependencies": [
+        "@shikijs/types"
+      ]
+    },
+    "@shikijs/types@4.4.3": {
+      "integrity": "sha512-UEJxmRR++MAGR6hugn0vgVS2W/6lWAts84FFSrnlH9sP0LNol7E5+NQ792pH8liWUhyMyjhTgSUH3k7iD7tc5g==",
+      "dependencies": [
+        "@shikijs/vscode-textmate",
+        "@types/hast"
+      ]
+    },
+    "@shikijs/vscode-textmate@10.0.2": {
+      "integrity": "sha512-83yeghZ2xxin3Nj8z1NMd/NCuca+gsYXswywDy5bHvwlWL8tpTQmzGeUuHd9FC3E/SBEMvzJRwWEOz5gGes9Qg=="
     },
     "@silvia-odwyer/photon-node@0.3.4": {
       "integrity": "sha512-bnly4BKB3KDTFxrUIcgCLbaeVVS8lrAkri1pEzskpmxu9MdfGQTy8b8EgcD83ywD3RPMsIulY8xJH5Awa+t9fA=="
@@ -2478,6 +2538,17 @@
         "mimic-function"
       ]
     },
+    "oniguruma-parser@0.12.2": {
+      "integrity": "sha512-6HVa5oIrgMC6aA6WF6XyyqbhRPJrKR02L20+2+zpDtO5QAzGHAUGw5TKQvwi5vctNnRHkJYmjAhRVQF2EKdTQw=="
+    },
+    "oniguruma-to-es@4.3.6": {
+      "integrity": "sha512-csuQ9x3Yr0cEIs/Zgx/OEt9iBw9vqIunAPQkx19R/fiMq2oGVTgcMqO/V3Ybqefr1TBvosI6jU539ksaBULJyA==",
+      "dependencies": [
+        "oniguruma-parser",
+        "regex",
+        "regex-recursion"
+      ]
+    },
     "open@11.0.0": {
       "integrity": "sha512-smsWv2LzFjP03xmvFoJ331ss6h+jixfA4UUV/Bsiyuu4YJPfN+FIQGOIiv4w9/+MoHkfkJ22UIaQWRVFRfH6Vw==",
       "dependencies": [
@@ -2771,6 +2842,21 @@
     "react@19.2.8": {
       "integrity": "sha512-PWaYA1L/q9u2u7xYQi+Y3L3Yfnie7XyLeaJICV1MGD6LprsBxcAqGjYyr0eY3p+QdsA+x/Irkt4Qif8D63+Sbw=="
     },
+    "regex-recursion@6.0.2": {
+      "integrity": "sha512-0YCaSCq2VRIebiaUviZNs0cBz1kg5kVS2UKUfNIx8YVs1cN3AV7NTctO5FOKBA+UT2BPJIWZauYHPqJODG50cg==",
+      "dependencies": [
+        "regex-utilities"
+      ]
+    },
+    "regex-utilities@2.3.0": {
+      "integrity": "sha512-8VhliFJAWRaUiVvREIiW2NXXTmHs4vMNnSzuJVhscgmGav3g9VDxLrQndI3dZZVVdp0ZO/5v0xmX516/7M9cng=="
+    },
+    "regex@6.1.0": {
+      "integrity": "sha512-6VwtthbV4o/7+OaAF9I5L5V3llLEsoPyq9P1JVXkedTP33c7MfCG0/5NOPcSJn0TzXcG9YUrR0gQSWioew3LDg==",
+      "dependencies": [
+        "regex-utilities"
+      ]
+    },
     "restore-cursor@5.1.0": {
       "integrity": "sha512-oMA2dcrw6u0YfxJQXm342bFKX/E4sG9rbTzO9ptUcR/e8A33cHuvStiYOwH7fszkZlZ1z/ta9AAoPk2F4qIOHA==",
       "dependencies": [
@@ -2896,6 +2982,19 @@
     },
     "shebang-regex@3.0.0": {
       "integrity": "sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A=="
+    },
+    "shiki@4.4.3": {
+      "integrity": "sha512-Mb/GvXPHBAXdgGIcnfU5L3ldpn1XcxrGkPHwqgRx17/I2XRfqlFKk2vGkHWINn1kdXvzJZeuO3is6I9KLPFm0g==",
+      "dependencies": [
+        "@shikijs/core",
+        "@shikijs/engine-javascript",
+        "@shikijs/engine-oniguruma",
+        "@shikijs/langs",
+        "@shikijs/themes",
+        "@shikijs/types",
+        "@shikijs/vscode-textmate",
+        "@types/hast"
+      ]
     },
     "signal-exit@3.0.7": {
       "integrity": "sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ=="
@@ -3206,6 +3305,7 @@
       "npm:@earendil-works/pi-coding-agent@0.84.1",
       "npm:@monaco-editor/react@4.7.0",
       "npm:@noble/hashes@2.3.0",
+      "npm:@oxc-project/runtime@0.142.0",
       "npm:@preact/signals-core@1.14.4",
       "npm:@preact/signals-react@3.12.0",
       "npm:@sinclair/typebox-codegen@0.11.1",
@@ -3267,6 +3367,7 @@
       "dependencies": [
         "npm:@automerge/automerge-repo@2.5.6",
         "npm:@deno/vite-plugin@2.0.3",
+        "npm:@oxc-project/runtime@0.142.0",
         "npm:@testing-library/react@16.3.2",
         "npm:@types/react-dom@19.2.4",
         "npm:@types/react@19.2.18",
