@@ -31,7 +31,7 @@ deno.json:
     dev: true
   - import: npm:magic-string@1.1.0
     dev: true
-  - import: npm:@oxc-project/runtime@0.142.0
+  - import: npm:@oxc-project/runtime@0.143.0
     subpaths: [ helpers/usingCtx ]
     dev: true
   - import: npm:@noble/hashes@2.3.0
@@ -116,7 +116,7 @@ package.json:
     dev: true
   - import: npm:magic-string@1.1.0
     dev: true
-  - import: npm:@oxc-project/runtime@0.142.0
+  - import: npm:@oxc-project/runtime@0.143.0
     dev: true
   - import: npm:@automerge/automerge-repo@2.5.6
   - import: npm:monaco-editor@0.56.0
