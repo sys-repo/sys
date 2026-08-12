@@ -15,19 +15,20 @@ import { Open } from '@sys/process';
 import { DistServerError, startError, startupReason } from './u.error.ts';
 import { acceptedAuthorities, acceptsHost } from './u.host.ts';
 import { DistServeScreen } from './u.serve.screen.ts';
-import { snapshotStartInput, snapshotStartLocalInput } from './u.input.ts';
+import { snapshotServeInput, snapshotServeLocalInput } from './u.input/u.serve.ts';
+import { snapshotStartInput, snapshotStartLocalInput } from './u.input/u.start.ts';
 import { requestPath } from './u.path.ts';
 import { readAsset } from './u.read.ts';
 
-export type StartDependencies = Readonly<{
-  verify: t.FsPkg.Dist.Pinned.Verify.Method;
-  verifyLocal: t.FsPkg.Dist.Local.Verify.Method;
-  readPart: t.FsPkg.Dist.Pinned.ReadPart.Method;
-  fromDist: typeof FilesStatic.fromDist;
-  createApp: typeof HttpServer.create;
-  startHttp: typeof HttpServer.start;
-  serveBytes: typeof serveFileBytes;
-}>;
+export type StartDependencies = {
+  readonly verify: t.FsPkg.Dist.Pinned.Verify.Method;
+  readonly verifyLocal: t.FsPkg.Dist.Local.Verify.Method;
+  readonly readPart: t.FsPkg.Dist.Pinned.ReadPart.Method;
+  readonly fromDist: typeof FilesStatic.fromDist;
+  readonly createApp: typeof HttpServer.create;
+  readonly startHttp: typeof HttpServer.start;
+  readonly serveBytes: typeof serveFileBytes;
+};
 
 export const DEFAULT_DEPENDENCIES: StartDependencies = Object.freeze({
   verify: FsPkg.Dist.Pinned.verify,
@@ -44,7 +45,7 @@ export const start: (input: t.DistServer.Start.Args) => Promise<t.DistServer.Sta
   startWith(input, DEFAULT_DEPENDENCIES);
 
 /** Blocking terminal-ownership startup for pinned authority. */
-export const serve: (input: t.DistServer.Start.Args) => Promise<void> = (input) =>
+export const serve: (input: t.DistServer.Serve.Args) => Promise<void> = (input) =>
   serveWith(input, DEFAULT_DEPENDENCIES);
 
 /** Explicit locally verified, unpinned authority family. */
@@ -170,14 +171,15 @@ type StartRunOptions = {
 type ServeLoopInput = {
   readonly keyboard: ServeKeyboard;
   readonly dir: t.StringDir;
+  readonly pkgSubpath?: string;
 };
 
-type ServeEffects = Readonly<{
-  bindKeyboard: typeof Cli.Keyboard.bind;
-  createScreen: typeof DistServeScreen.create;
-  open(origin: t.StringUrl): void | Promise<void>;
-  now(): t.UnixTimestamp;
-}>;
+type ServeEffects = {
+  readonly bindKeyboard: typeof Cli.Keyboard.bind;
+  readonly createScreen: typeof DistServeScreen.create;
+  readonly open: (origin: t.StringUrl) => void | Promise<void>;
+  readonly now: () => t.UnixTimestamp;
+};
 
 type ServeOutcome =
   | { readonly kind: 'server'; readonly ok: true }
@@ -198,9 +200,9 @@ export async function serveWith(
   deps: StartDependencies,
   effects: ServeEffects = DEFAULT_SERVE_EFFECTS,
 ): Promise<void> {
-  const prepared = snapshotStartInput(input);
+  const prepared = snapshotServeInput(input);
   if (!prepared.ok) throw startError(prepared.reason);
-  const value = prepared.value;
+  const { pkgSubpath, start: value } = prepared.value;
   const mode = wrangle.serveMode(value.silent);
   const keyboard = wrangle.serveKeyboard(value.keyboard);
   const started = await startWith(
@@ -219,6 +221,7 @@ export async function serveWith(
   await serveLoop(started, mode, {
     dir: value.dir,
     keyboard,
+    ...(pkgSubpath === undefined ? {} : { pkgSubpath }),
   }, effects);
 }
 
@@ -228,9 +231,9 @@ export async function serveLocalWith(
   deps: StartDependencies,
   effects: ServeEffects = DEFAULT_SERVE_EFFECTS,
 ): Promise<void> {
-  const prepared = snapshotStartLocalInput(input);
+  const prepared = snapshotServeLocalInput(input);
   if (!prepared.ok) throw startError(prepared.reason);
-  const value = prepared.value;
+  const { pkgSubpath, start: value } = prepared.value;
   const mode = wrangle.serveMode(value.silent);
   const keyboard = wrangle.serveKeyboard(value.keyboard);
   const started = await startLocalWith(
@@ -249,6 +252,7 @@ export async function serveLocalWith(
   await serveLoop(started, mode, {
     dir: value.dir,
     keyboard,
+    ...(pkgSubpath === undefined ? {} : { pkgSubpath }),
   }, effects);
 }
 
@@ -410,8 +414,10 @@ async function serveLoop(
       });
     }
 
+    const root = started.verification.dist.pkg ?? pkg;
+    const identity = input.pkgSubpath === undefined ? root : { root, subpath: input.pkgSubpath };
     screen = effects.createScreen({
-      pkg: started.verification.dist.pkg ?? pkg,
+      identity,
       origin: started.origin,
       dir: input.dir,
       evidence: started.verification,

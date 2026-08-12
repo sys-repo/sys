@@ -1,7 +1,7 @@
 import { Cli } from '@sys/cli';
 import { DEFAULT_DEPENDENCIES, serveLocalWith, serveWith } from '../u.server/u.start.ts';
 import { DistServeScreen } from '../u.server/u.serve.screen.ts';
-import { describe, expect, it, Schedule, type t } from '../../-test.ts';
+import { describe, expect, it, Schedule, type t, WebFixture } from '../../-test.ts';
 import { setup, teardown } from './u.fixture.ts';
 
 type CapturedStartInput = {
@@ -10,6 +10,7 @@ type CapturedStartInput = {
   pkg?: t.Pkg;
   hash?: t.StringHash;
   info?: Record<string, string>;
+  hasPkgSubpath?: boolean;
 };
 
 describe('DistServer.serve', () => {
@@ -29,6 +30,7 @@ describe('DistServer.serve', () => {
           limits: fixture.policy.verification,
           port: 49152,
           silent: false,
+          pkgSubpath: '/ui//preview/',
         },
         {
           ...DEFAULT_DEPENDENCIES,
@@ -51,9 +53,137 @@ describe('DistServer.serve', () => {
       expect(captured.pkg).to.eql(fixture.cloneDist().pkg);
       expect(captured.hash).to.eql(fixture.cloneDist().hash.digest);
       expect(captured.info).to.eql({ authority: `pinned ${fixture.integrity}` });
+      expect(captured.hasPkgSubpath).to.eql(false);
     } finally {
       started?.release();
       Object.defineProperty(Cli.Is, 'interactive', { value: original, configurable: true });
+      await teardown(fixture);
+    }
+  });
+
+  it('rejects invalid presentation input before either verification authority', async () => {
+    const fixture = await setup();
+    let pinnedVerifies = 0;
+    let localVerifies = 0;
+    let starts = 0;
+    const deps = {
+      ...DEFAULT_DEPENDENCIES,
+      verify: async () => {
+        pinnedVerifies += 1;
+        return verified(fixture);
+      },
+      verifyLocal: async () => {
+        localVerifies += 1;
+        return verified(fixture);
+      },
+      startHttp: () => {
+        starts += 1;
+        throw new Error('listener must not start');
+      },
+    };
+
+    try {
+      const pinned = await catchStart(() =>
+        serveWith({
+          dir: fixture.source as t.StringDir,
+          integrity: fixture.integrity,
+          limits: fixture.policy.verification,
+          pkgSubpath: '\u001b[2J',
+        }, deps)
+      );
+      const local = await catchStart(() =>
+        serveLocalWith({
+          dir: fixture.source as t.StringDir,
+          limits: fixture.policy.verification,
+          pkgSubpath: '\u001b[2J',
+        }, deps)
+      );
+
+      expect(pinned?.reason).to.eql('invalid-input');
+      expect(local?.reason).to.eql('invalid-input');
+      expect({ pinnedVerifies, localVerifies, starts }).to.eql({
+        pinnedVerifies: 0,
+        localVerifies: 0,
+        starts: 0,
+      });
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
+  it('rejects accessor presentation input without reading it', async () => {
+    const fixture = await setup();
+    let pinnedVerifies = 0;
+    let localVerifies = 0;
+    let starts = 0;
+    let getterReads = 0;
+    const deps = {
+      ...DEFAULT_DEPENDENCIES,
+      verify: async () => {
+        pinnedVerifies += 1;
+        return verified(fixture);
+      },
+      verifyLocal: async () => {
+        localVerifies += 1;
+        return verified(fixture);
+      },
+      startHttp: () => {
+        starts += 1;
+        throw new Error('listener must not start');
+      },
+    };
+    const pinnedAccessor = {
+      dir: fixture.source as t.StringDir,
+      integrity: fixture.integrity,
+      limits: fixture.policy.verification,
+    };
+    const localAccessor = {
+      dir: fixture.source as t.StringDir,
+      limits: fixture.policy.verification,
+    };
+    try {
+      {
+        using properties = WebFixture.Property.mock([
+          {
+            target: pinnedAccessor,
+            key: 'pkgSubpath',
+            descriptor: {
+              configurable: true,
+              enumerable: true,
+              get() {
+                getterReads += 1;
+                return 'ui';
+              },
+            },
+          },
+          {
+            target: localAccessor,
+            key: 'pkgSubpath',
+            descriptor: {
+              configurable: true,
+              enumerable: true,
+              get() {
+                getterReads += 1;
+                return 'ui';
+              },
+            },
+          },
+        ]);
+        const pinned = await catchStart(() => serveWith(pinnedAccessor, deps));
+        const local = await catchStart(() => serveLocalWith(localAccessor, deps));
+
+        expect(pinned?.reason).to.eql('invalid-input');
+        expect(local?.reason).to.eql('invalid-input');
+        expect({ pinnedVerifies, localVerifies, starts, getterReads }).to.eql({
+          pinnedVerifies: 0,
+          localVerifies: 0,
+          starts: 0,
+          getterReads: 0,
+        });
+      }
+      expect(Object.getOwnPropertyDescriptor(pinnedAccessor, 'pkgSubpath')).to.eql(undefined);
+      expect(Object.getOwnPropertyDescriptor(localAccessor, 'pkgSubpath')).to.eql(undefined);
+    } finally {
       await teardown(fixture);
     }
   });
@@ -73,6 +203,7 @@ describe('DistServer.serve', () => {
           limits: fixture.policy.verification,
           port: 49152,
           silent: false,
+          pkgSubpath: '/ui//preview/',
         },
         {
           ...DEFAULT_DEPENDENCIES,
@@ -93,6 +224,7 @@ describe('DistServer.serve', () => {
       expect(captured.silent).to.eql(false);
       expect(captured.keyboard).to.eql(true);
       expect(captured.info).to.eql({ authority: 'local (UNPINNED)' });
+      expect(captured.hasPkgSubpath).to.eql(false);
     } finally {
       started?.release();
       Object.defineProperty(Cli.Is, 'interactive', { value: original, configurable: true });
@@ -173,6 +305,7 @@ describe('DistServer.serve', () => {
           limits: fixture.policy.verification,
           port: 8080,
           silent: false,
+          pkgSubpath: '/ui//preview/',
         },
         {
           ...DEFAULT_DEPENDENCIES,
@@ -219,6 +352,12 @@ describe('DistServer.serve', () => {
       expect(binding.until).to.equal(started.server.finished);
       expect(binding.exit).to.eql(false);
       expect(screenArgs.origin).to.eql('http://127.0.0.1:49152/');
+      expect(screenArgs.identity).to.eql({
+        root: screenArgs.evidence.dist.pkg,
+        subpath: 'ui/preview',
+      });
+      expect(screenArgs).to.not.have.property('pkg');
+      expect(screenArgs).to.not.have.property('pkgSubpath');
       expect(screenArgs.authority.kind).to.eql('local-unpinned');
       expect(screenArgs.evidence).to.equal(started.server.verification);
       expect(screenArgs.keyboard).to.eql({ enabled: true, print: true });
@@ -233,6 +372,81 @@ describe('DistServer.serve', () => {
       expect(started.closeCauses).to.eql(['keyboard']);
       expect(screenDisposals).to.eql(1);
       expect(keyboardDisposals).to.eql(1);
+    } finally {
+      started?.release();
+      Object.defineProperty(Cli.Is, 'interactive', { value: original, configurable: true });
+      await teardown(fixture);
+    }
+  });
+
+  it('passes one normalized package identity through pinned and local screens', async () => {
+    const original = Cli.Is.interactive;
+    Object.defineProperty(Cli.Is, 'interactive', { value: () => true, configurable: true });
+
+    const fixture = await setup();
+    const screens: Parameters<typeof DistServeScreen.create>[0][] = [];
+    let started: StartedController | undefined;
+    const effects = {
+      bindKeyboard: () => {
+        throw new Error('keyboard must remain disabled');
+      },
+      createScreen: (args: Parameters<typeof DistServeScreen.create>[0]) => {
+        screens.push(args);
+        return { failure: new Promise<never>(() => {}), dispose() {} };
+      },
+      open: () => {},
+      now: () => fixture.cloneDist().build.time,
+    };
+    const deps = {
+      ...DEFAULT_DEPENDENCIES,
+      verify: async () => verified(fixture),
+      verifyLocal: async () => verified(fixture),
+      startHttp: () => {
+        started = createStarted(49152);
+        return started.server;
+      },
+    };
+    const subpath = '/ui//preview/';
+
+    try {
+      const pinned = serveWith(
+        {
+          dir: fixture.source as t.StringDir,
+          integrity: fixture.integrity,
+          limits: fixture.policy.verification,
+          silent: false,
+          keyboard: false,
+          pkgSubpath: subpath,
+        },
+        deps,
+        effects,
+      );
+      await listenerSettled();
+      started?.release();
+      await pinned;
+
+      const local = serveLocalWith(
+        {
+          dir: fixture.source as t.StringDir,
+          limits: fixture.policy.verification,
+          silent: false,
+          keyboard: false,
+          pkgSubpath: subpath,
+        },
+        deps,
+        effects,
+      );
+      await listenerSettled();
+      started?.release();
+      await local;
+
+      expect(screens).to.have.length(2);
+      for (const screen of screens) {
+        const identity = screen.identity;
+        if (!identity || !('root' in identity)) throw new Error('compound identity not provided');
+        expect(identity.root).to.equal(screen.evidence.dist.pkg);
+        expect(identity.subpath).to.eql('ui/preview');
+      }
     } finally {
       started?.release();
       Object.defineProperty(Cli.Is, 'interactive', { value: original, configurable: true });
@@ -500,6 +714,7 @@ function capture(input: Record<string, unknown>): CapturedStartInput {
     pkg: input.pkg as t.Pkg,
     hash: input.hash as t.StringHash,
     info: input.info as Record<string, string>,
+    hasPkgSubpath: Object.hasOwn(input, 'pkgSubpath'),
   };
 }
 

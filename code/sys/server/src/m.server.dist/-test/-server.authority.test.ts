@@ -46,6 +46,7 @@ describe('DistServer authority', () => {
     delete inherited.dir;
 
     const cases: unknown[] = [
+      { ...validInput(), pkgSubpath: 'ui' },
       { ...validInput(), unexpected: true },
       { ...validInput(), limits: { ...validInput().limits, unexpected: true } },
       { ...validInput(), keyboard: 'nope' },

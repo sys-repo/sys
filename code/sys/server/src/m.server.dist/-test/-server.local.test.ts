@@ -133,6 +133,7 @@ describe('DistServer local authority', () => {
     delete inherited.dir;
 
     const cases: readonly [unknown, t.DistServer.StartFailureReason][] = [
+      [{ ...validLocalInput(), pkgSubpath: 'ui' }, 'invalid-input'],
       [{ ...validLocalInput(), integrity: HASH }, 'invalid-input'],
       [{ ...validLocalInput(), unexpected: true }, 'invalid-input'],
       [

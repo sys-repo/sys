@@ -10,7 +10,7 @@ describe('DistServeScreen', () => {
     try {
       const dist = fixture.cloneDist();
       const raw = DistServeScreen.toString({
-        pkg: dist.pkg,
+        identity: dist.pkg,
         origin: 'http://127.0.0.1:49152/' as t.StringUrl,
         dir: './dist' as t.StringDir,
         authority: { kind: 'pinned', integrity: fixture.integrity },
@@ -48,6 +48,31 @@ describe('DistServeScreen', () => {
       expect(lines.at(-2)).to.include('┄');
       expect(lines.at(-1)).to.include('open: o (in browser)');
       expect(lines.at(-1)).to.include('quit: ctrl + c or q');
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
+  it('renders compound package identity through the canonical header formatter', async () => {
+    const fixture = await setup();
+    try {
+      const dist = fixture.cloneDist();
+      if (!dist.pkg) throw new Error('fixture package is required');
+      const raw = DistServeScreen.toString({
+        identity: { root: dist.pkg, subpath: '/ui//preview/' },
+        origin: 'http://127.0.0.1:49152/' as t.StringUrl,
+        dir: './dist' as t.StringDir,
+        authority: { kind: 'local-unpinned', integrity: fixture.integrity },
+        evidence: evidence(fixture),
+        renderedAt: dist.build.time,
+        viewport: { width: 120, height: 30 },
+        cursorRows: 1,
+        keyboard: { enabled: false, print: false },
+      });
+
+      expect(text(raw)).to.include('@sample/foo/ui/preview');
+      expect(raw).to.include(c.bold(c.green('@sample/foo')));
+      expect(raw).to.include(c.dim(c.green('/ui/preview')));
     } finally {
       await teardown(fixture);
     }
@@ -186,7 +211,7 @@ describe('DistServeScreen', () => {
       const dist = fixture.cloneDist();
       const outputRow = (width: number) => {
         const output = text(DistServeScreen.toString({
-          pkg: dist.pkg,
+          identity: dist.pkg,
           origin: 'http://127.0.0.1:49152/' as t.StringUrl,
           dir: './dist' as t.StringDir,
           authority: { kind: 'local-unpinned', integrity: fixture.integrity },
@@ -214,7 +239,7 @@ describe('DistServeScreen', () => {
     try {
       const frame = (width: number, height = 30) =>
         DistServeScreen.toString({
-          pkg: fixture.cloneDist().pkg,
+          identity: fixture.cloneDist().pkg,
           origin: 'http://127.0.0.1:49152/' as t.StringUrl,
           dir: fixture.source as t.StringDir,
           authority: { kind: 'local-unpinned', integrity: fixture.integrity },
@@ -248,7 +273,7 @@ type Fixture = Awaited<ReturnType<typeof setup>>;
 function localFrame(fixture: Fixture) {
   const dist = fixture.cloneDist();
   return DistServeScreen.toString({
-    pkg: dist.pkg,
+    identity: dist.pkg,
     origin: 'http://127.0.0.1:49152/' as t.StringUrl,
     dir: fixture.source as t.StringDir,
     authority: { kind: 'local-unpinned', integrity: fixture.integrity },
@@ -292,7 +317,7 @@ function createReporter(
 ) {
   const dist = fixture.cloneDist();
   return DistServeScreen.create({
-    pkg: dist.pkg,
+    identity: dist.pkg,
     origin: 'http://127.0.0.1:49152/' as t.StringUrl,
     dir: './dist' as t.StringDir,
     authority: { kind: 'local-unpinned', integrity: fixture.integrity },

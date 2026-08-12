@@ -394,10 +394,10 @@ describe('DistServer', () => {
   });
 });
 
-type StartedFixture = Readonly<{
-  server: t.HttpServer.Started;
-  dir: t.StringDir;
-}>;
+type StartedFixture = {
+  readonly server: t.HttpServer.Started;
+  readonly dir: t.StringDir;
+};
 
 async function startFixture(fixture: Awaited<ReturnType<typeof setup>>): Promise<StartedFixture> {
   const materialized = await Dist.materialize(fixture.args());

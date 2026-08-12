@@ -157,7 +157,7 @@ export declare namespace DistServer {
     /** Start one checksum-pinned Dist host and return its lifecycle. */
     readonly start: (args: Start.Args) => Promise<Started>;
     /** Blocking terminal-owned serve with pinned authority semantics. */
-    readonly serve: (args: Start.Args) => Promise<void>;
+    readonly serve: (args: Serve.Args) => Promise<void>;
     /** Explicit locally verified, unpinned authority family. */
     readonly Local: Local.Lib;
     readonly Error: Error.Lib;
@@ -197,13 +197,22 @@ export declare namespace DistServer {
     export type Args = Pinned.Args;
   }
 
+  /** Terminal-only presentation inputs for pinned serve mode. */
+  export namespace Serve {
+    /** Pinned start authority plus an optional package-application subpath. */
+    export type Args = Start.Args & {
+      /** Raw package subpath rendered only after verified package resolution. */
+      pkgSubpath?: string;
+    };
+  }
+
   /** Explicit locally verified, unpinned authority family. */
   export namespace Local {
     export type Lib = {
       /** Start one locally verified Dist host and return its lifecycle. */
       readonly start: (args: Args) => Promise<Started>;
       /** Blocking terminal-owned serve for locally verified, unpinned authority. */
-      readonly serve: (args: Args) => Promise<void>;
+      readonly serve: (args: ServeArgs) => Promise<void>;
     };
 
     /**
@@ -227,6 +236,12 @@ export declare namespace DistServer {
       keyboard?: HttpServer.Start.Options['keyboard'];
       /** Caller lifecycle for verification, serving, and admitted part reads. */
       until?: t.UntilInput;
+    };
+
+    /** Local start authority plus terminal-only package-application presentation. */
+    export type ServeArgs = Args & {
+      /** Raw package subpath rendered only after verified package resolution. */
+      pkgSubpath?: string;
     };
   }
 

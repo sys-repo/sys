@@ -1,4 +1,5 @@
 export { EsmAssert } from '@sys/esm/testing';
+export { WebFixture } from '@sys/testing/web';
 export {
   afterAll,
   afterEach,
