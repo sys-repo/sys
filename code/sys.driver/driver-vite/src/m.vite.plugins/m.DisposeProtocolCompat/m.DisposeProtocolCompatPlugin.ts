@@ -35,6 +35,7 @@ function plugin(): t.VitePlugin {
     },
     async transform(code, id) {
       const cleanId = cleanModuleId(id);
+      if (cleanId.includes('\0')) return null;
       const lang = parserLanguage(cleanId);
       if (!lang) return null;
 

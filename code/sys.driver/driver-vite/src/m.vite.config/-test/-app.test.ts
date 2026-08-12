@@ -1,5 +1,6 @@
-import { c, DenoFile, describe, expect, Fs, it, Json, Path, type t } from '../../-test.ts';
+import { c, DenoFile, describe, expect, Fs, Is, it, Json, Path, type t } from '../../-test.ts';
 import { ViteConfig } from '../mod.ts';
+import { BROWSER_SYNTAX_TARGETS } from '../u/u.browserSyntaxTargets.ts';
 
 describe('Config.Build', () => {
   const { brightCyan: cyan } = c;
@@ -47,7 +48,8 @@ describe('Config.Build', () => {
       const config = await ViteConfig.app();
       print(config, '(defaults)', p);
 
-      const input = config.build?.rollupOptions?.input as any;
+      const input = config.build?.rollupOptions?.input;
+      if (!Is.record(input)) throw new Error('Expected named build inputs');
 
       expect(config.root).to.eql(p.cwd);
       expect(config.envDir).to.eql(p.cwd);
@@ -57,7 +59,9 @@ describe('Config.Build', () => {
       expect(config.build?.outDir).to.eql(Fs.join(p.cwd, p.app.outDir));
       expect(input.main).to.eql(Fs.join(p.cwd, p.app.entry));
       expect(config.optimizeDeps).to.eql(undefined);
-      expect(config.oxc).to.eql(undefined);
+      expect(config.build?.target).to.eql([...BROWSER_SYNTAX_TARGETS]);
+      expect(config.oxc).to.eql({ target: [...BROWSER_SYNTAX_TARGETS] });
+      expect(config.build?.target).not.to.equal(config.oxc && config.oxc.target);
 
       expect(includesPlugin(config, 'wasm')).to.be.true;
       expect(includesPlugin(config, 'react')).to.be.true;
@@ -193,7 +197,8 @@ describe('Config.Build', () => {
       expect(config.cacheDir).to.eql(Fs.join(paths.cwd, 'node_modules', '.vite'));
       expect(config.build?.outDir).to.eql(Fs.join(paths.cwd, 'foobar/out'));
 
-      const input = config.build?.rollupOptions?.input as any;
+      const input = config.build?.rollupOptions?.input;
+      if (!Is.record(input)) throw new Error('Expected named build inputs');
       expect(input.main).to.eql(Fs.join(paths.cwd, 'src/-foo.html'));
       expect(input.sw).to.eql(Fs.join(paths.cwd, 'src/sw.ts'));
       expect(config.envDir).to.eql(paths.cwd);
@@ -218,11 +223,20 @@ describe('Config.Build', () => {
         exclude: ['@acme/skip'],
         entries: ['src/-test/index.html'],
       };
-      const oxc: NonNullable<t.ViteUserConfig['oxc']> = { include: /\.tsx$/ };
+      const oxc: NonNullable<t.ViteUserConfig['oxc']> = {
+        include: /\.tsx$/,
+        target: ['safari18'],
+      };
       const config = await ViteConfig.app({ optimizeDeps, oxc });
 
       expect(config.optimizeDeps).to.eql(optimizeDeps);
       expect(config.oxc).to.eql(oxc);
+      expect(config.oxc).not.to.equal(oxc);
+    });
+
+    it('preserves explicit OXC disablement', async () => {
+      const config = await ViteConfig.app({ oxc: false });
+      expect(config.oxc).to.eql(false);
     });
 
     it('resolves default workspace authority from app cwd', async () => {

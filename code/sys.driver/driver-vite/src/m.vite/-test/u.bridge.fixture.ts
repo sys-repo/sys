@@ -1,7 +1,10 @@
 import { DenoFile, Fs, Is, Json, Process, ROOT, type t } from '../../-test.ts';
 
 const LOCAL_DRIVER_VITE_IMPORTS = ['@sys/driver-vite', '@sys/driver-vite/main'] as const;
-const INJECTED_SOURCE_IMPORTS = ['@sys/std/dispose/compat'] as const;
+const INJECTED_SOURCE_IMPORTS = [
+  '@oxc-project/runtime/helpers/usingCtx',
+  '@sys/std/dispose/compat',
+] as const;
 const DENO_BINARY = Deno.build.os === 'windows' ? 'deno.exe' : 'deno';
 const VALID_PACKAGE_SPECIFIER = /^(@[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+|[A-Za-z0-9._-]+)(\/.*)?$/;
 

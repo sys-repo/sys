@@ -81,9 +81,13 @@ describe('DisposeProtocolCompatPlugin', () => {
     }
   });
 
-  it('ignores unsupported module kinds', async () => {
+  it('ignores unsupported module kinds and virtual modules', async () => {
     const transform = transformHook(DisposeProtocolCompatPlugin.plugin());
     expect(await transform.call(context(), 'body {}', '/tmp/style.css')).to.eql(null);
+    expect(await transform.call(context(), 'export const value = 1;', '\0virtual.ts')).to.eql(null);
+    expect(
+      await transform.call(context(), 'export const value = 1;', '\0npm:pkg@1.0.0/mod.js'),
+    ).to.eql(null);
   });
 
   it('excludes the resolved compatibility entrypoint and its static dependency closure', async () => {

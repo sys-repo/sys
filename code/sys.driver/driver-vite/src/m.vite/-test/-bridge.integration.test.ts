@@ -1,6 +1,7 @@
 import { describe, expect, Fs, Http, it, pkg, SAMPLE, Testing } from '../../-test.ts';
 import { Vite } from '../mod.ts';
 import { writeLocalBridgeImports } from './u.bridge.fixture.ts';
+import { hasExplicitResourceManagementSyntax } from './u.syntax.ts';
 
 type O = Record<string, unknown>;
 
@@ -10,6 +11,7 @@ describe('Vite @sys bridge integration', () => {
     const dir = Fs.join(fs.absolute, Fs.basename(SAMPLE.Dirs.sampleBridge));
     const tsconfigPath = Fs.join(dir, 'tsconfig.json');
     const importsPath = Fs.join(dir, 'imports.json');
+    const packagePath = Fs.join(dir, 'package.json');
     await Fs.copy(SAMPLE.Dirs.sampleBridge, dir);
 
     const restore = await writeLocalBridgeImports(dir);
@@ -18,12 +20,19 @@ describe('Vite @sys bridge integration', () => {
       const tsconfig = (await Fs.readJson<T>(tsconfigPath)).data ?? {};
       const imports =
         (await Fs.readJson<{ imports?: Record<string, string> }>(importsPath)).data?.imports ?? {};
+      const dependencies =
+        (await Fs.readJson<{ dependencies?: Record<string, string> }>(packagePath)).data
+          ?.dependencies ?? {};
       expect(tsconfig.compilerOptions?.allowJs).to.eql(true);
       expect(tsconfig.compilerOptions?.checkJs).to.eql(false);
       expect(tsconfig.compilerOptions?.jsx).to.eql('react-jsx');
       expect(tsconfig.compilerOptions?.jsxImportSource).to.eql('react');
       expect(tsconfig.include).to.eql(['src/**/*']);
       expect(imports['@rolldown/pluginutils']).to.eql(undefined);
+      expect(imports['@oxc-project/runtime/helpers/usingCtx']).to.eql(
+        'npm:@oxc-project/runtime@0.143.0/helpers/usingCtx',
+      );
+      expect(dependencies['@oxc-project/runtime']).to.eql('0.143.0');
       expect(imports['@sys/std/dispose/compat']).to.match(
         /code\/sys\/std\/src\/m\.Dispose\/m\.Compat\/mod\.ts$/,
       );
@@ -110,10 +119,17 @@ describe('Vite @sys bridge integration', () => {
 
         const main = await fetch(`${server.url}main.ts`);
         const text = await main.text();
+        const helperPath = text.match(/from "([^"]*usingCtx\.js)"/)?.[1];
         expect(main.status).to.eql(200);
         expect(text).to.include('sample-bridge');
         expect(text).to.include('sample-bridge-http');
+        expect(helperPath).to.be.a('string');
+        expect(hasExplicitResourceManagementSyntax(text)).to.eql(false);
         expect(text.includes('@sys/std')).to.eql(false);
+
+        const helper = await fetch(new URL(helperPath ?? '', server.url));
+        expect(helper.status).to.eql(200);
+        expect(await helper.text()).to.include('function _usingCtx');
       } finally {
         if (server) await server.dispose();
         await restore();

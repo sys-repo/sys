@@ -1,9 +1,11 @@
 import type { ResolvedConfig } from 'vite';
-import { Path, type t } from '../common.ts';
+import { Is, Path, Str, type t } from '../common.ts';
+import { browserSyntaxTargets } from './u.browserSyntaxTargets.ts';
 
-type ViteRuntime = {
-  transformWithOxc: (...args: any[]) => Promise<unknown>;
-};
+type TransformWithOxc = (
+  ...args: Parameters<typeof import('vite').transformWithOxc>
+) => Promise<unknown>;
+type ViteRuntime = { transformWithOxc: TransformWithOxc };
 
 type Options = {
   /** Test seam. Production loads the active Vite runtime. */
@@ -14,9 +16,12 @@ type Options = {
   source?: string;
 };
 
-const DEFAULT_SOURCE = `const value: number = 1;
-export const SysOxcPreflight = () => <div data-sys-oxc-preflight>{value}</div>;
-`;
+const DEFAULT_SOURCE = Str.dedent(`
+  const value: number = 1;
+  using resource = { [Symbol.dispose]() {} };
+  void resource;
+  export const SysOxcPreflight = () => <div data-sys-oxc-preflight>{value}</div>;
+`);
 
 /**
  * Prove Vite's OXC native transform path during startup, before app modules are served.
@@ -40,14 +45,13 @@ async function preflight(config: ResolvedConfig, options: Options) {
   const source = options.source ?? DEFAULT_SOURCE;
 
   try {
-    const result = await runtime.transformWithOxc(
+    await runtime.transformWithOxc(
       source,
       filename,
       transformOptions(config.oxc),
       undefined,
       config,
-    ) as { errors?: readonly unknown[] };
-    if (result.errors?.length) throw new Error(result.errors.map(errorText).join('\n'));
+    );
   } catch (cause) {
     throw preflightError(config, filename, cause);
   }
@@ -65,29 +69,34 @@ function transformOptions(oxc: ResolvedConfig['oxc']) {
     jsxRefreshInclude: _jsxRefreshInclude,
     jsxRefreshExclude: _jsxRefreshExclude,
     ...options
-  } = oxc && typeof oxc === 'object' ? oxc : {};
+  } = Is.object(oxc) ? oxc : {};
 
-  return { sourcemap: true, ...options, lang: 'tsx' as const };
+  return {
+    sourcemap: true,
+    target: browserSyntaxTargets(),
+    ...options,
+    lang: 'tsx' as const,
+  };
 }
 
 function preflightError(config: ResolvedConfig, filename: string, cause: unknown) {
-  return new Error([
-    'OXC preflight failed.',
-    '',
-    'Vite/Rolldown native transform did not pass startup preflight in this Deno child process.',
-    'The dev server has not been declared healthy; no fallback or OXC disablement was applied.',
-    '',
-    'plugin: sys:oxc-preflight',
-    `root: ${config.root}`,
-    `file: ${filename}`,
-    '',
-    'cause:',
-    errorText(cause),
-  ].join('\n'), { cause });
+  const context = Str.dedent(`
+    OXC preflight failed.
+
+    Vite/Rolldown native transform did not pass startup preflight in this Deno child process.
+    The dev server has not been declared healthy; no fallback or OXC disablement was applied.
+
+    plugin: sys:oxc-preflight
+    root: ${config.root}
+    file: ${filename}
+
+    cause:
+  `);
+  return new Error(`${context}\n${errorText(cause)}`, { cause });
 }
 
 function errorText(input: unknown) {
-  if (input instanceof Error) return input.stack || input.message;
-  if (typeof input === 'string') return input;
+  if (Is.error(input)) return input.stack || input.message;
+  if (Is.string(input)) return input;
   return Deno.inspect(input, { depth: 4, colors: false });
 }

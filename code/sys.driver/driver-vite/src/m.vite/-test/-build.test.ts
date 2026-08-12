@@ -13,6 +13,7 @@ import {
 } from '../../-test.ts';
 import { extractModulePreloadLinks } from './u.html.ts';
 import { writeLocalFixtureImports } from './u.bridge.fixture.ts';
+import { hasExplicitResourceManagementSyntax } from './u.syntax.ts';
 import { Vite } from '../mod.ts';
 
 describe('Vite.build', () => {
@@ -145,6 +146,8 @@ describe('Vite.build', () => {
       expect(text.some((source) => source.includes('module-worker-loaded'))).to.eql(true);
       expect(text.some((source) => source.includes('dynamic-chunk-loaded'))).to.eql(true);
       expect(text.some((source) => source.includes('Service Worker file loaded'))).to.eql(true);
+      expect(text.some(hasExplicitResourceManagementSyntax)).to.eql(false);
+      expect(text.some((source) => source.includes('Object is not disposable.'))).to.eql(true);
     });
   });
 });

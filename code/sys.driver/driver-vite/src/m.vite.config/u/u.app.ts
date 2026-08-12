@@ -10,6 +10,7 @@ import { createNpmPrewarm, createSpecifierRewrite } from './u.app.specifierRewri
 import { visualizerPlugin } from './u.app.visualizerPlugin.ts';
 import { paths as formatPaths } from './u.paths.ts';
 import { commonPlugins } from './u.plugins.ts';
+import { browserSyntaxTargets } from './u.browserSyntaxTargets.ts';
 
 /**
  * Application bundle configuration.
@@ -135,7 +136,7 @@ export const app: t.ViteConfig.Lib['app'] = async (options = {}) => {
    * Config:
    */
   const build: t.ViteBuildEnvironmentOptions = {
-    target: 'esnext',
+    target: browserSyntaxTargets(),
     minify,
     emptyOutDir: true,
     outDir,
@@ -151,7 +152,7 @@ export const app: t.ViteConfig.Lib['app'] = async (options = {}) => {
     publicDir,
     cacheDir,
     base: paths.app.base,
-    oxc: options.oxc,
+    oxc: wrangle.oxc(options.oxc),
     optimizeDeps: options.optimizeDeps,
     server: { fs: { allow: fsAllow } },
     worker: {
@@ -197,6 +198,14 @@ export const app: t.ViteConfig.Lib['app'] = async (options = {}) => {
  * Helpers
  */
 const wrangle = {
+  oxc(input: t.ViteUserConfig['oxc']) {
+    if (input === false) return false;
+    return {
+      ...(input ?? {}),
+      target: input?.target ?? browserSyntaxTargets(),
+    };
+  },
+
   async workspace(cwd: string, options: t.ViteConfig.App.Options) {
     const { filter } = options;
     if (options.workspace === false) return undefined;

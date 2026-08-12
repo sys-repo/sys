@@ -19,7 +19,7 @@ export type Options = {
    */
   filter?: t.WorkspaceFilter;
 
-  /** Chuck a named module into it's own bundle. */
+  /** Place a named module in its own bundle. */
   chunks?: t.ViteConfig.Chunks;
 
   /**
@@ -40,10 +40,10 @@ export type Options = {
   vitePlugins?: t.VitePluginOption[];
 
   /**
-   * Canonical pass-through for Vite's OXC transform configuration.
+   * Vite OXC transform configuration.
    *
-   * Unset by default so Vite keeps its native OXC behavior. Pass `false` only
-   * when intentionally disabling Vite's OXC transform path.
+   * The driver supplies its browser syntax target by default. An explicit target is preserved;
+   * pass `false` only when intentionally disabling Vite's OXC transform path.
    */
   oxc?: t.ViteUserConfig['oxc'];
 

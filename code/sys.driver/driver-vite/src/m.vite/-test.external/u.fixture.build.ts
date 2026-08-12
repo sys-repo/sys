@@ -77,7 +77,7 @@ export async function buildSample(args: {
 
   const resultPath = Fs.join(fs.dir, '.sys-vite-build-result.json');
 
-  // Importing fixture vite.config.ts in the test process loads rolldown@1.2.1, whose SignalExit
+  // Importing fixture vite.config.ts in the test process loads Rolldown, whose SignalExit
   // installs process signal listeners without a public removal API. Isolate that world here.
   const childArgs = ['run', '-P=test', CHILD, fs.dir, resultPath];
   const child = await Process.capture({

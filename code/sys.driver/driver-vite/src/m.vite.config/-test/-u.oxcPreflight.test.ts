@@ -1,4 +1,5 @@
-import { describe, expect, it, Path } from '../../-test.ts';
+import { describe, expect, Is, it, Path } from '../../-test.ts';
+import { BROWSER_SYNTAX_TARGETS } from '../u/u.browserSyntaxTargets.ts';
 import { oxcPreflightPlugin } from '../u/u.oxcPreflight.ts';
 
 describe('ViteConfig: oxcPreflightPlugin', () => {
@@ -26,6 +27,7 @@ describe('ViteConfig: oxcPreflightPlugin', () => {
 
     expect(calls.length).to.eql(1);
     expect(calls[0][0]).to.contain('data-sys-oxc-preflight');
+    expect(calls[0][0]).to.contain('using resource');
     expect(calls[0][1]).to.eql(Path.join('/tmp/app', '-sys.oxc-preflight.tsx'));
     expect(calls[0][3]).to.eql(undefined);
     expect(calls[0][4]).to.equal(config);
@@ -33,6 +35,7 @@ describe('ViteConfig: oxcPreflightPlugin', () => {
     const options = calls[0][2] as Record<string, unknown>;
     expect(options.lang).to.eql('tsx');
     expect(options.sourcemap).to.eql(true);
+    expect(options.target).to.eql([...BROWSER_SYNTAX_TARGETS]);
     expect(options.jsx).to.eql({ runtime: 'automatic' });
     expect('include' in options).to.eql(false);
     expect('exclude' in options).to.eql(false);
@@ -63,7 +66,7 @@ describe('ViteConfig: oxcPreflightPlugin', () => {
     try {
       await configResolved(plugin, { root: '/tmp/app', oxc: { jsx: { runtime: 'automatic' } } });
     } catch (err) {
-      message = err instanceof Error ? err.message : String(err);
+      message = Is.error(err) ? err.message : String(err);
     }
 
     expect(message).to.contain('OXC preflight failed.');
@@ -76,6 +79,6 @@ describe('ViteConfig: oxcPreflightPlugin', () => {
 
 async function configResolved(plugin: unknown, config: Record<string, unknown>) {
   const hook = (plugin as { configResolved?: unknown }).configResolved;
-  if (typeof hook !== 'function') throw new Error('Expected configResolved hook');
+  if (!Is.func(hook)) throw new Error('Expected configResolved hook');
   await hook(config);
 }
