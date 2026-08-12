@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1786401341436,
+    "createdAt": 1786528815845,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-2f015bce7e88483226aa09cc04c32fe2058df64aaeaeeae57f979662bafe0a7c",
+      "/graph": "sha256-7da07ae43616fd3b066de2aca033768a98451e22d9d88d0de36b59cc471d3e26",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.152/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,7 +15,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.152/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1786401341441
+    "modifiedAt": 1786528815850
   },
   "graph": {
     "orderedPaths": [
@@ -628,6 +628,10 @@
       },
       {
         "from": "code/sys/crypto",
+        "to": "code/sys.driver/driver-monaco"
+      },
+      {
+        "from": "code/sys/crypto",
         "to": "code/sys.driver/driver-signer"
       },
       {
@@ -729,6 +733,10 @@
       {
         "from": "code/sys/fs",
         "to": "code/sys.driver/driver-deno"
+      },
+      {
+        "from": "code/sys/fs",
+        "to": "code/sys.driver/driver-monaco"
       },
       {
         "from": "code/sys/fs",

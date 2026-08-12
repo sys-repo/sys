@@ -74,6 +74,7 @@
     "npm:hast-util-to-html@9.0.5": "9.0.5",
     "npm:hono@4.13.1": "4.13.1",
     "npm:ignore@7.0.6": "7.0.6",
+    "npm:magic-string@1.1.0": "1.1.0",
     "npm:mdast-util-from-markdown@2.0.3": "2.0.3",
     "npm:mdast-util-frontmatter@2.0.1": "2.0.1",
     "npm:mdast-util-gfm@3.1.0": "3.1.0",
@@ -742,6 +743,9 @@
         "wrap-ansi@8.1.0",
         "wrap-ansi-cjs@npm:wrap-ansi@7.0.0"
       ]
+    },
+    "@jridgewell/sourcemap-codec@1.5.5": {
+      "integrity": "sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og=="
     },
     "@jsr/deno__loader@0.5.0": {
       "integrity": "sha512-sf/YBwnyAsbyeYYB71Zdj2Ca2Q9tt25EZpAiZdDA9W7Mm3GcpjA2WMeqj19xPIurZK12G3OAsa5yrtPB7E+gvA==",
@@ -2047,6 +2051,12 @@
       "integrity": "sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ==",
       "bin": true
     },
+    "magic-string@1.1.0": {
+      "integrity": "sha512-kS3VHe0nEPST2saQV4Rbkchcd3UBRkVTQHo1D3h/ZTwFDhai/mfKkmtPAtD129EOI7K3HlHIsFOt0WrI2/oU9g==",
+      "dependencies": [
+        "@jridgewell/sourcemap-codec"
+      ]
+    },
     "markdown-table@3.0.4": {
       "integrity": "sha512-wiYz4+JrLyb/DqW2hkFJxP7Vd7JuTDm77fvbM8VfEQdmSMqcImWeeRbHwZjBjIFki/VaMK2BhFi7oUUZeM5bqw=="
     },
@@ -3314,6 +3324,7 @@
       "npm:hast-util-to-html@9.0.5",
       "npm:hono@4.13.1",
       "npm:ignore@7.0.6",
+      "npm:magic-string@1.1.0",
       "npm:mdast-util-from-markdown@2.0.3",
       "npm:mdast-util-frontmatter@2.0.1",
       "npm:mdast-util-gfm@3.1.0",
@@ -3355,6 +3366,7 @@
         "npm:@types/react-dom@19.2.4",
         "npm:@types/react@19.2.18",
         "npm:@vitejs/plugin-react@6.0.5",
+        "npm:magic-string@1.1.0",
         "npm:monaco-editor@0.56.0",
         "npm:motion@12.43.0",
         "npm:prettier@3.9.6",
