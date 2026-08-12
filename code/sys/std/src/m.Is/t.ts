@@ -37,6 +37,9 @@ export declare namespace Is {
      */
     promise<T = unknown>(input?: unknown): input is PromiseLike<T>;
 
+    /** Determine if the value is a symbol. */
+    symbol(input?: unknown): input is symbol;
+
     /**
      * Determine if the value is a started lifecycle handle with observed completion.
      */

@@ -1,12 +1,12 @@
 /**
  * @module
- * Observable lifecycle helpers adapted to native ECMAScript Explicit Resource Management.
+ * Observable lifecycle helpers adapted to ECMAScript Explicit Resource Management.
  *
  * ## Capability boundaries
  *
  * The canonical contracts separate disposal authority from lifecycle telemetry:
  *
- * - `Disposable` and `DisposableAsync` grant matching direct and native disposal authority without
+ * - `Disposable` and `DisposableAsync` grant matching direct and protocol disposal authority without
  *   promising observation or state;
  * - `Lifecycle` and `LifecycleAsync` add `dispose$` observation and `disposed` state to that
  *   authority; and
@@ -35,15 +35,16 @@
  *   at scope exit without a reason; and
  * - `dispose$` reports the same owned operation to observers.
  *
- * The native symbol is a zero-argument adapter, not a second cleanup engine. The first entrypoint to
- * request disposal wins, and repeated direct or symbolic calls do not run cleanup again. Canonical
- * synchronous and asynchronous resources expose only their matching native protocol. `await using`
+ * The protocol symbol is a zero-argument adapter, not a second cleanup engine. The first entrypoint
+ * to request disposal wins, and repeated direct or symbolic calls do not run cleanup again.
+ * Canonical synchronous and asynchronous resources expose only their matching protocol. `await using`
  * can also consume a synchronous resource through the language's standard fallback.
  *
  * Synchronous lifecycle factories and `toLifecycle` require `Symbol.dispose`; asynchronous
  * lifecycle factories require `Symbol.asyncDispose`; and `omitDispose` requires both because it
- * removes both forms of native authority. Missing symbols fail clearly. This module does not install
- * a shim or mutate globals.
+ * removes both forms of protocol authority. Missing symbols fail clearly. This module does not
+ * install compatibility symbols or mutate globals; applications may opt into that behavior through
+ * `@sys/std/dispose/compat`.
  *
  * ## Explicit and lexical cleanup
  *
@@ -57,7 +58,7 @@
  * {
  *   using scoped = Dispose.lifecycle();
  *   scoped.dispose$.subscribe(({ reason }) => console.log(reason));
- * } // Lexical cleanup records `undefined` because native protocols carry no reason.
+ * } // Lexical cleanup records `undefined` because disposal protocols carry no reason.
  * ```
  *
  * A synchronous owner created here emits one event with an own `reason` property and completes the
@@ -95,7 +96,7 @@
  *
  * Stateless disposable owners and direct asynchronous lifecycle objects are not `UntilInput`
  * values; callers may pass an explicit compatible `dispose$` stream. External structural
- * implementers of the canonical `@sys/types` disposal contracts must provide the matching native
+ * implementers of the canonical `@sys/types` disposal contracts must provide the matching protocol
  * symbol, expose no callable opposite-protocol authority, and forward direct and symbolic
  * entrypoints to one cleanup operation.
  */

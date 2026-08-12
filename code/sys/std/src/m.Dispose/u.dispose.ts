@@ -1,6 +1,6 @@
 import { Delete, Err, Is, Subject, type t } from './common.ts';
 import { done } from './u.done.ts';
-import { requireSymbolAsyncDispose, requireSymbolDispose } from './u.native.ts';
+import { requireSymbolAsyncDispose, requireSymbolDispose } from './u.protocol.ts';
 import { until as untilObservables } from './u.until.ts';
 
 type LifetimeBridge = ReturnType<t.Observable<unknown>['subscribe']>;

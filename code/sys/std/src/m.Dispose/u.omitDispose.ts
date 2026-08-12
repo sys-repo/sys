@@ -1,11 +1,11 @@
 import { Is, type t } from './common.ts';
-import { requireSymbolAsyncDispose, requireSymbolDispose } from './u.native.ts';
+import { requireSymbolAsyncDispose, requireSymbolDispose } from './u.protocol.ts';
 
 type L = t.Lifecycle | t.LifecycleAsync;
 type DisposalAuthorityKey = 'dispose' | typeof Symbol.dispose | typeof Symbol.asyncDispose;
 
 /**
- * Safely remove direct and native disposal authority from an observable lifecycle.
+ * Safely remove direct and protocol disposal authority from an observable lifecycle.
  * Retained property reads and methods delegate to the source so branded behavior remains callable.
  * NB: useful for surfacing from an API where callers must only observe
  *     the resource lifecycle.
@@ -54,7 +54,7 @@ export function omitDispose<T extends L>(obj: T): t.OmitDisposable<T> {
 
   for (const key of authorityKeys) {
     // Keep an undefined async marker so runtime guards can distinguish its telemetry after authority
-    // removal. Undefined remains non-callable under the native protocol.
+    // removal. Undefined remains non-callable under the disposal protocol.
     const preservesAsyncCategory = key === Symbol.asyncDispose && hasAsyncProtocol;
     if (!preservesAsyncCategory && !hasPropertyDescriptor(proto, key)) continue;
     newDescs[key] = {

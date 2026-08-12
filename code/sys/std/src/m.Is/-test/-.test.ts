@@ -6,6 +6,7 @@ import {
   isPlainRecord,
   isPromise,
   isRecord,
+  isSymbol,
 } from '../../common.ts';
 import { Dispose } from '../../m.Dispose/mod.ts';
 import { Rx } from '../../m.Rx/mod.ts';
@@ -21,6 +22,7 @@ describe('Is (common flags)', () => {
     expect(Is.plainObject).to.eql(isPlainObject);
     expect(Is.plainRecord).to.eql(isPlainRecord);
     expect(Is.promise).to.eql(isPromise);
+    expect(Is.symbol).to.eql(isSymbol);
     expect(Is.num).to.eql(Is.number);
   });
 
@@ -116,6 +118,14 @@ describe('Is (common flags)', () => {
 
     const NON = ['', 123, true, BigInt(0), Symbol('foo'), {}, []];
     NON.forEach((v: any) => test(v, false));
+  });
+
+  it('Is.symbol', () => {
+    const symbol = Symbol('foo');
+    expect(Is.symbol(symbol)).to.eql(true);
+
+    const NON = ['', 123, true, null, undefined, BigInt(0), {}, []];
+    NON.forEach((value) => expect(Is.symbol(value)).to.eql(false));
   });
 
   it('Is.falsy', () => {
@@ -409,7 +419,7 @@ describe('Is (common flags)', () => {
       expect(Is.disposableLike(plain)).to.be.true;
 
       // Cross-check boundary with canonical:
-      expect(Is.disposable(plain)).to.be.false; // no native authority
+      expect(Is.disposable(plain)).to.be.false; // no protocol authority
     });
 
     it('Is.disposableLike: false (non-functions / non-objects)', () => {

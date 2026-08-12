@@ -7,9 +7,9 @@ import { until } from './u.until.ts';
 import { abortable } from './u.abortable.ts';
 
 /**
- * Observable lifecycle helpers with native lexical cleanup.
+ * Observable lifecycle helpers with ECMAScript protocol cleanup.
  *
- * Created owners route explicit and native requests through one disposal operation and expose it via
+ * Created owners route explicit and protocol requests through one disposal operation and expose it via
  * `dispose$`; projections may intentionally withhold disposal authority.
  */
 export const Dispose: t.Dispose.Lib = {

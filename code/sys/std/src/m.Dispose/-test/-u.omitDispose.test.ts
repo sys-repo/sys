@@ -3,7 +3,7 @@ import { describe, Dispose, expect, expectTypeOf, Is, it, type t } from './commo
 describe('Dispose.omitDispose', () => {
   type T = t.Lifecycle & { count: number };
 
-  it('lifecycle projection → observed state without direct or native authority', () => {
+  it('lifecycle projection → observed state without direct or protocol authority', () => {
     const lifecycle = Dispose.lifecycle();
     const source = Dispose.toLifecycle<T>(lifecycle, { count: 123 });
     expect('dispose' in source).to.eql(true);

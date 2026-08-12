@@ -23,6 +23,7 @@
     "./bytes": "./src/m.Bytes/mod.ts",
     "./delete": "./src/m.Delete/mod.ts",
     "./dispose": "./src/m.Dispose/mod.ts",
+    "./dispose/compat": "./src/m.Dispose/m.Compat/mod.ts",
     "./error": "./src/-exports/-err.ts",
     "./fn": "./src/m.Fn/mod.ts",
     "./glob": "./src/m.Glob/mod.ts",

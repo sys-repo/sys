@@ -1,6 +1,6 @@
 import { filter, type t, take } from './common.ts';
 import { createDisposable, createDisposableAsync, toDisposableAsyncArgs } from './u.dispose.ts';
-import { requireSymbolAsyncDispose, requireSymbolDispose } from './u.native.ts';
+import { requireSymbolAsyncDispose, requireSymbolDispose } from './u.protocol.ts';
 
 type L = t.Lifecycle;
 

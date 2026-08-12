@@ -5,6 +5,7 @@ import {
   isPlainRecord,
   isPromise,
   isRecord,
+  isSymbol,
   type t,
 } from '../common.ts';
 import { Is as ErrIs } from '../m.Err/m.Is.ts';
@@ -34,6 +35,7 @@ export const Is: t.Is.Lib = {
   plainObject: isPlainObject,
   plainRecord: isPlainRecord,
   promise: isPromise,
+  symbol: isSymbol,
   waitableHandle(input?: unknown): input is t.WaitableHandle {
     return isRecord(input) && isPromise(input.finished);
   },

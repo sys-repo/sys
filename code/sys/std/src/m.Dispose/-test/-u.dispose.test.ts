@@ -13,7 +13,7 @@ describe('Dispose.lifecycle kernel behavior', () => {
     expect(count).to.eql(1);
   });
 
-  it('direct and native disposal → one operation and first reason', () => {
+  it('direct and protocol disposal → one operation and first reason', () => {
     const directFirst = Dispose.lifecycle();
     const directEvents: t.DisposeEvent[] = [];
     directFirst.dispose$.subscribe((event) => directEvents.push(event));
@@ -27,13 +27,13 @@ describe('Dispose.lifecycle kernel behavior', () => {
     const symbolEvents: t.DisposeEvent[] = [];
     symbolFirst.dispose$.subscribe((event) => symbolEvents.push(event));
 
-    Reflect.apply(symbolFirst[Symbol.dispose], symbolFirst, ['native:ignored']);
+    Reflect.apply(symbolFirst[Symbol.dispose], symbolFirst, ['protocol:ignored']);
     symbolFirst.dispose('direct:ignored');
 
     expect(symbolEvents).to.eql([{ reason: undefined }]);
   });
 
-  it('using → invokes native disposal at scope exit', () => {
+  it('using → invokes protocol disposal at scope exit', () => {
     const events: string[] = [];
     {
       using resource = Dispose.lifecycle();
@@ -44,13 +44,13 @@ describe('Dispose.lifecycle kernel behavior', () => {
     expect(events).to.eql(['body', 'dispose']);
   });
 
-  it('native sync protocol → exclusive and coherently enumerable', () => {
+  it('sync protocol → exclusive and coherently enumerable', () => {
     const disposable = Dispose.lifecycle();
     const direct = Object.getOwnPropertyDescriptor(disposable, 'dispose');
-    const native = Object.getOwnPropertyDescriptor(disposable, Symbol.dispose);
+    const protocol = Object.getOwnPropertyDescriptor(disposable, Symbol.dispose);
 
-    expect(native?.enumerable).to.eql(direct?.enumerable);
-    expect(native?.value.length).to.eql(0);
+    expect(protocol?.enumerable).to.eql(direct?.enumerable);
+    expect(protocol?.value.length).to.eql(0);
     expect(Symbol.asyncDispose in disposable).to.eql(false);
 
     let events = 0;
@@ -147,7 +147,7 @@ describe('Dispose.lifecycleAsync kernel behavior', () => {
     await asyncLifecycle.dispose();
   });
 
-  it('direct and native disposal → one stored completion and first reason', async () => {
+  it('direct and protocol disposal → one stored completion and first reason', async () => {
     const cleanup = Promise.withResolvers<void>();
     const directReasons: unknown[] = [];
     const directFirst = Dispose.lifecycleAsync((event) => {
@@ -156,9 +156,9 @@ describe('Dispose.lifecycleAsync kernel behavior', () => {
     });
 
     const direct = directFirst.dispose('direct:first');
-    const nativeAfterDirect = directFirst[Symbol.asyncDispose]();
+    const protocolAfterDirect = directFirst[Symbol.asyncDispose]();
 
-    expect(nativeAfterDirect).to.equal(direct);
+    expect(protocolAfterDirect).to.equal(direct);
     expect(directReasons).to.eql(['direct:first']);
 
     cleanup.resolve();
@@ -168,17 +168,17 @@ describe('Dispose.lifecycleAsync kernel behavior', () => {
     const symbolFirst = Dispose.lifecycleAsync((event) => {
       symbolReasons.push(event.reason);
     });
-    const native = Reflect.apply(symbolFirst[Symbol.asyncDispose], symbolFirst, [
-      'native:ignored',
+    const protocol = Reflect.apply(symbolFirst[Symbol.asyncDispose], symbolFirst, [
+      'protocol:ignored',
     ]);
-    const directAfterNative = symbolFirst.dispose('direct:ignored');
+    const directAfterProtocol = symbolFirst.dispose('direct:ignored');
 
-    expect(directAfterNative).to.equal(native);
-    await native;
+    expect(directAfterProtocol).to.equal(protocol);
+    await protocol;
     expect(symbolReasons).to.eql([undefined]);
   });
 
-  it('await using → awaits native disposal completion', async () => {
+  it('await using → awaits protocol disposal completion', async () => {
     const events: string[] = [];
     {
       await using _resource = Dispose.lifecycleAsync(async () => {
@@ -192,13 +192,13 @@ describe('Dispose.lifecycleAsync kernel behavior', () => {
     expect(events).to.eql(['body', 'dispose:start', 'dispose:complete']);
   });
 
-  it('native async protocol → exclusive and coherently enumerable', async () => {
+  it('async protocol → exclusive and coherently enumerable', async () => {
     const disposable = Dispose.lifecycleAsync();
     const direct = Object.getOwnPropertyDescriptor(disposable, 'dispose');
-    const native = Object.getOwnPropertyDescriptor(disposable, Symbol.asyncDispose);
+    const protocol = Object.getOwnPropertyDescriptor(disposable, Symbol.asyncDispose);
 
-    expect(native?.enumerable).to.eql(direct?.enumerable);
-    expect(native?.value.length).to.eql(0);
+    expect(protocol?.enumerable).to.eql(direct?.enumerable);
+    expect(protocol?.value.length).to.eql(0);
     expect(Symbol.dispose in disposable).to.eql(false);
 
     const spread = { ...disposable };

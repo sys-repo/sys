@@ -11,7 +11,7 @@ describe('Dispose.abortable', () => {
     expect(Symbol.asyncDispose in abortable).to.eql(false);
   });
 
-  it('using → aborts through native lifecycle authority', () => {
+  it('using → aborts through protocol lifecycle authority', () => {
     let signal: AbortSignal | undefined;
     {
       using abortable = Dispose.abortable();

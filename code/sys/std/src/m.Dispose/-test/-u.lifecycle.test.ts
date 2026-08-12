@@ -16,7 +16,7 @@ describe('Dispose.lifecycle', () => {
     expect(lifecycle.disposed).to.eql(true);
   });
 
-  it('using → retains the owned native authority and terminal state', () => {
+  it('using → retains the owned protocol authority and terminal state', () => {
     let lifecycle: ReturnType<typeof Dispose.lifecycle> | undefined;
     {
       using resource = Dispose.lifecycle();
@@ -92,19 +92,19 @@ describe('Dispose.lifecycle', () => {
 });
 
 describe('Dispose.lifecycleAsync', () => {
-  it('native disposal → returns the owned completion and terminal state', async () => {
+  it('protocol disposal → returns the owned completion and terminal state', async () => {
     const cleanup = Promise.withResolvers<void>();
     const lifecycle = Dispose.lifecycleAsync(() => cleanup.promise);
 
-    const native = lifecycle[Symbol.asyncDispose]();
+    const protocol = lifecycle[Symbol.asyncDispose]();
     const direct = lifecycle.dispose('direct:ignored');
 
-    expect(direct).to.equal(native);
+    expect(direct).to.equal(protocol);
     expect(lifecycle.disposed).to.eql(false);
     expect(Symbol.dispose in lifecycle).to.eql(false);
 
     cleanup.resolve();
-    await native;
+    await protocol;
     expect(lifecycle.disposed).to.eql(true);
   });
 
@@ -344,7 +344,7 @@ describe('Dispose.toLifecycle', () => {
     expect(api.disposed).to.eql(true);
   });
 
-  it('configurable native authority → replaced with the supplied owner', () => {
+  it('configurable protocol authority → replaced with the supplied owner', () => {
     const lifecycle = Dispose.lifecycle();
     const target = { count: 123 };
     let staleCalls = 0;
@@ -357,7 +357,7 @@ describe('Dispose.toLifecycle', () => {
     lifecycle.dispose$.subscribe((event) => events.push(event));
 
     const api = Dispose.toLifecycle<T>(lifecycle, target);
-    Reflect.apply(api[Symbol.dispose], api, ['native:ignored']);
+    Reflect.apply(api[Symbol.dispose], api, ['protocol:ignored']);
 
     expect(staleCalls).to.eql(0);
     expect(events).to.eql([{ reason: undefined }]);

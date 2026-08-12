@@ -27,7 +27,7 @@ export declare namespace Dispose {
     /** Emit one `{ reason }` event and complete the supplied disposal subject. */
     done(dispose$?: t.Subject<t.DisposeEvent>, reason?: unknown): void;
 
-    /** Remove direct and native disposal authority while preserving the observable projection. */
+    /** Remove direct and protocol disposal authority while preserving the observable projection. */
     omitDispose<T extends t.Lifecycle | t.LifecycleAsync>(obj: T): t.OmitDisposable<T>;
   };
 }
