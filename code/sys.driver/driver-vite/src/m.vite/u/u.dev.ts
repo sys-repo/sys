@@ -62,8 +62,12 @@ export const REGEX = {
 /**
  * Run the <vite:dev> command (long-running spawn).
  */
-export const dev: t.Vite.Lib['dev'] = async (input) => {
+export const dev: t.Vite.Lib['dev'] = async (input) => devWithDeps(input);
+
+/** Internal dependency seam for deterministic lifecycle tests. */
+export async function devWithDeps(input: t.Vite.Dev.Args, deps: t.ViteDevDeps = {}) {
   const { silent = false, pkg, strictPort = false } = input;
+  const waitForHttp = deps.waitForHttp ?? Http.Client.waitFor;
   const reporterMode = DevScreen.resolveReporter(input.reporter, {
     silent,
     hasPkg: Boolean(pkg),
@@ -221,7 +225,7 @@ export const dev: t.Vite.Lib['dev'] = async (input) => {
     await Perf.measure(
       'dev.parent.waitForResolvedUrl',
       async () =>
-        await Http.Client.waitFor(resolvedUrl, {
+        await waitForHttp(resolvedUrl, {
           timeout: 30_000,
           interval: 150,
           signal: startupAbort.signal,
@@ -288,7 +292,7 @@ export const dev: t.Vite.Lib['dev'] = async (input) => {
     }
     throw startupError({ cwd, requestedPort, strictPort, output, cause: error });
   }
-};
+}
 
 function startupError(args: {
   cwd: t.StringDir;

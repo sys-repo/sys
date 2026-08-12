@@ -3,7 +3,6 @@ import {
   describe,
   expect,
   Fs,
-  Http,
   it,
   Rx,
   SAMPLE,
@@ -15,6 +14,8 @@ import {
 } from '../../-test.ts';
 import { writeLocalFixtureImports } from '../../m.vite/-test/u.bridge.fixture.ts';
 import { Vite } from '../mod.ts';
+import type { ViteDevDeps } from '../t.internal.ts';
+import { devWithDeps } from '../u/u.dev.ts';
 
 const DEV_FETCH_TIMEOUT = 5_000 as t.Msecs;
 const DEV_CONNECT_RETRY_TIMEOUT = 2_000 as t.Msecs;
@@ -251,24 +252,21 @@ describe('Vite.dev', () => {
     const port = Testing.randomPort();
     const until = new AbortController();
     const waiting = Promise.withResolvers<AbortSignal | undefined>();
-    const descriptor = Object.getOwnPropertyDescriptor(Http.Client, 'waitFor');
-    if (!descriptor) throw new Error('Missing Http.Client.waitFor descriptor');
-
-    Object.defineProperty(Http.Client, 'waitFor', {
-      ...descriptor,
-      value: (...args: Parameters<typeof Http.Client.waitFor>) => {
-        const signal = args[1]?.signal;
-        waiting.resolve(signal);
-        return new Promise<never>((_resolve, reject) => {
-          const fail = () => reject(new Error('Vite.dev:test:http-wait-aborted'));
-          if (!signal || signal.aborted) fail();
-          else signal.addEventListener('abort', fail, { once: true });
-        });
-      },
-    });
+    const waitForHttp: ViteDevDeps['waitForHttp'] = (_url, options) => {
+      const signal = options?.signal;
+      waiting.resolve(signal);
+      return new Promise<never>((_resolve, reject) => {
+        const fail = () => reject(new Error('Vite.dev:test:http-wait-aborted'));
+        if (!signal || signal.aborted) fail();
+        else signal.addEventListener('abort', fail, { once: true });
+      });
+    };
 
     try {
-      const startup = Vite.dev({ paths, port, silent: true, until: until.signal });
+      const startup = devWithDeps(
+        { paths, port, silent: true, until: until.signal },
+        { waitForHttp },
+      );
       const signal = await waiting.promise;
       const abortedAt = Date.now();
       until.abort('test:http-ready-cancel');
@@ -279,7 +277,6 @@ describe('Vite.dev', () => {
       expect(Date.now() - abortedAt).to.be.lessThan(2_000);
       expect((await Testing.connect(port)).refused).to.eql(true);
     } finally {
-      Object.defineProperty(Http.Client, 'waitFor', descriptor);
       await restore();
     }
   });

@@ -2,6 +2,11 @@ import type { t } from '../common.ts';
 
 export type * from '../common/t.ts';
 
+/** Injectable effects for deterministic Vite dev lifecycle proof. */
+export type ViteDevDeps = {
+  waitForHttp?: typeof import('@sys/http/server').Http.Client.waitFor;
+};
+
 /** Private terminal output contracts shared within Vite presentation. */
 export declare namespace ViteScreen {
   export namespace Output {
