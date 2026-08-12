@@ -16,13 +16,17 @@ describe('Vite @sys bridge integration', () => {
     try {
       type T = { compilerOptions?: O; include?: string[] };
       const tsconfig = (await Fs.readJson<T>(tsconfigPath)).data ?? {};
-      const imports = (await Fs.readJson<{ imports?: Record<string, string> }>(importsPath)).data?.imports ?? {};
+      const imports =
+        (await Fs.readJson<{ imports?: Record<string, string> }>(importsPath)).data?.imports ?? {};
       expect(tsconfig.compilerOptions?.allowJs).to.eql(true);
       expect(tsconfig.compilerOptions?.checkJs).to.eql(false);
       expect(tsconfig.compilerOptions?.jsx).to.eql('react-jsx');
       expect(tsconfig.compilerOptions?.jsxImportSource).to.eql('react');
       expect(tsconfig.include).to.eql(['src/**/*']);
       expect(imports['@rolldown/pluginutils']).to.eql(undefined);
+      expect(imports['@sys/std/dispose/compat']).to.match(
+        /code\/sys\/std\/src\/m\.Dispose\/m\.Compat\/mod\.ts$/,
+      );
     } finally {
       await restore();
       expect(await Fs.exists(tsconfigPath)).to.eql(false);

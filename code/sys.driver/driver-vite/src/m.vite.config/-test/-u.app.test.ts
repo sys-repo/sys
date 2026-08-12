@@ -16,9 +16,15 @@ describe('ViteConfig.app', () => {
       .flatMap((entry) => Array.isArray(entry) ? entry : [entry])
       .flatMap((entry) => pluginName(entry));
 
-    expect(names).to.eql(['sys:optimize-imports', 'user:plugin', 'sys:oxc-preflight']);
+    expect(names).to.eql([
+      'sys:dispose-protocol-compat',
+      'sys:optimize-imports',
+      'user:plugin',
+      'sys:oxc-preflight',
+    ]);
 
-    const optimize = firstPlugin(plugins[0]);
+    const optimize = plugins.flatMap((entry) => Array.isArray(entry) ? entry : [entry])
+      .find((entry) => pluginName(entry)[0] === 'sys:optimize-imports');
     expect(pluginName(optimize)[0]).to.eql(OptimizeImportsPlugin.plugin().name);
     expect(pluginEnforce(optimize)).to.eql('pre');
   });
@@ -27,8 +33,11 @@ describe('ViteConfig.app', () => {
     const config = await ViteConfig.app({
       plugins: { deno: false, react: false, wasm: false },
     });
-    const source = (await Fs.readText(`${SAMPLE.Dirs.samplePublishedUiComponents}/main.tsx`)).data ?? '';
-    const optimize = firstPlugin(config.plugins?.[0]);
+    const source =
+      (await Fs.readText(`${SAMPLE.Dirs.samplePublishedUiComponents}/main.tsx`)).data ?? '';
+    const optimize = (config.plugins ?? [])
+      .flatMap((entry) => Array.isArray(entry) ? entry : [entry])
+      .find((entry) => pluginName(entry)[0] === 'sys:optimize-imports');
     const transform = asTransform(pluginTransform(optimize));
     const result = await transform(source, '/tmp/main.tsx');
 
@@ -43,7 +52,8 @@ describe('ViteConfig.app', () => {
     const config = await ViteConfig.app({
       plugins: { deno: false, react: false, wasm: false, optimizeImports: false },
     });
-    const source = (await Fs.readText(`${SAMPLE.Dirs.samplePublishedUiComponents}/main.tsx`)).data ?? '';
+    const source =
+      (await Fs.readText(`${SAMPLE.Dirs.samplePublishedUiComponents}/main.tsx`)).data ?? '';
     const plugins = config.plugins ?? [];
     const names = plugins
       .flatMap((entry) => Array.isArray(entry) ? entry : [entry])
@@ -57,10 +67,6 @@ describe('ViteConfig.app', () => {
     expect(source.includes(`from '@sys/ui-dev/react/devharness/hooks'`)).to.eql(true);
   });
 });
-
-function firstPlugin(input: unknown) {
-  return Array.isArray(input) ? input[0] : input;
-}
 
 function pluginName(input: unknown) {
   if (!Is.record<Record<string, unknown>>(input)) return [];
@@ -80,9 +86,8 @@ function pluginTransform(input: unknown) {
 }
 
 function asTransform(transform: unknown) {
-  if (!transform) throw new Error('Expected transform hook');
-  if (typeof transform === 'function') return transform;
-  if (Is.record<Record<string, unknown>>(transform) && typeof transform.handler === 'function') {
+  if (Is.func(transform)) return transform;
+  if (Is.record<Record<string, unknown>>(transform) && Is.func(transform.handler)) {
     return transform.handler;
   }
   throw new Error('Expected callable transform hook');

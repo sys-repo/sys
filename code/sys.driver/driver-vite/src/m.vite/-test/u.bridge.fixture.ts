@@ -1,6 +1,7 @@
 import { DenoFile, Fs, Is, Json, Process, ROOT, type t } from '../../-test.ts';
 
 const LOCAL_DRIVER_VITE_IMPORTS = ['@sys/driver-vite', '@sys/driver-vite/main'] as const;
+const INJECTED_SOURCE_IMPORTS = ['@sys/std/dispose/compat'] as const;
 const DENO_BINARY = Deno.build.os === 'windows' ? 'deno.exe' : 'deno';
 const VALID_PACKAGE_SPECIFIER = /^(@[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+|[A-Za-z0-9._-]+)(\/.*)?$/;
 
@@ -396,7 +397,9 @@ export async function writeLocalFixtureImports(
   const bridgeImports = await localConfigImports(ws, authority, configEntry);
   const sourceSpecifiers = await localSourceImports(ws, authority, dir);
   const localWorkspaceSpecifiers = await localWorkspaceSourceImports(ws, sourceSpecifiers);
-  const bridgedSpecifiers = [...new Set([...sourceSpecifiers, ...localWorkspaceSpecifiers])].sort();
+  const bridgedSpecifiers = [
+    ...new Set([...sourceSpecifiers, ...localWorkspaceSpecifiers, ...INJECTED_SOURCE_IMPORTS]),
+  ].sort();
   const sourceImports = await importsMapForSpecifiers(ws, authority, bridgedSpecifiers);
   const sourceDependencies = localPackageDependencies(bridgedSpecifiers, authority);
   const toolchainDependencies = localToolchainDependencies(authority);

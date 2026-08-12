@@ -6,9 +6,11 @@
  * driver to keep Vite behavior explicit and consistent across adopting apps.
  */
 import type { t } from './common.ts';
+import { DisposeProtocolCompatPlugin as DisposeProtocolCompat } from './m.DisposeProtocolCompat/mod.ts';
 import { OptimizeImportsPlugin as OptimizeImports } from './m.OptimizeImports/mod.ts';
 
 /** Driver-owned Vite plugin helpers. */
 export const VitePlugins: t.VitePlugins.Lib = {
+  DisposeProtocolCompat,
   OptimizeImports,
 };

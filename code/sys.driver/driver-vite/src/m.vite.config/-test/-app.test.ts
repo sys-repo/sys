@@ -62,6 +62,7 @@ describe('Config.Build', () => {
       expect(includesPlugin(config, 'wasm')).to.be.true;
       expect(includesPlugin(config, 'react')).to.be.true;
       expect(includesPlugin(config, 'sys:specifier-rewrite')).to.be.true;
+      expect(includesPlugin(config, 'sys:dispose-protocol-compat')).to.be.true;
       expect(includesPlugin(config, 'sys:oxc-preflight')).to.be.true;
     });
 
@@ -69,7 +70,30 @@ describe('Config.Build', () => {
       const config = await ViteConfig.app({ plugins: { wasm: false, react: false, deno: false } });
       const names = ((config.plugins ?? []) as t.VitePlugin[]).flat().map((m) => m.name);
 
-      expect(names).to.eql(['sys:optimize-imports', 'sys:oxc-preflight']);
+      expect(names).to.eql([
+        'sys:dispose-protocol-compat',
+        'sys:optimize-imports',
+        'sys:oxc-preflight',
+      ]);
+    });
+
+    it('creates fresh worker plugin instances with disposal compatibility enabled', async () => {
+      const config = await ViteConfig.app();
+      const createWorkerPlugins = config.worker?.plugins;
+      if (!createWorkerPlugins) throw new Error('Expected worker plugin factory');
+
+      const first = createWorkerPlugins().flat() as t.VitePlugin[];
+      const second = createWorkerPlugins().flat() as t.VitePlugin[];
+      const firstCompat = first.find((plugin) => plugin.name === 'sys:dispose-protocol-compat');
+      const secondCompat = second.find((plugin) => plugin.name === 'sys:dispose-protocol-compat');
+      const firstDeno = first.find((plugin) => plugin.name === 'deno');
+      const secondDeno = second.find((plugin) => plugin.name === 'deno');
+
+      expect(first).not.to.equal(second);
+      expect(firstCompat?.name).to.eql('sys:dispose-protocol-compat');
+      expect(secondCompat?.name).to.eql('sys:dispose-protocol-compat');
+      expect(firstCompat).not.to.equal(secondCompat);
+      expect(firstDeno).not.to.equal(secondDeno);
     });
 
     it('appends caller-supplied vite plugins after the driver/common plugin set', async () => {

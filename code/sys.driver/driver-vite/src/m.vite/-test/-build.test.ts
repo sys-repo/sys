@@ -131,12 +131,20 @@ describe('Vite.build', () => {
     });
   });
 
-  it('sample-3: sw.js (service-worker)', async () => {
+  it('sample-3: module worker and service-worker entries', async () => {
     await Testing.retry(2, async () => {
       const { res, files, outDir } = await testBuild(SAMPLE.Dirs.sample3);
       if (VERBOSE) printHtml(files.html, 'sample-3', outDir);
       expect(extractModulePreloadLinks(files.html).length).to.be.greaterThan(0);
       expect(Object.keys(res.dist.hash.parts)).to.include('sw.js');
+
+      const js = Object.keys(res.dist.hash.parts).filter((path) => path.endsWith('.js'));
+      const text = await Promise.all(
+        js.map(async (path) => (await Fs.readText(Fs.join(outDir, path))).data ?? ''),
+      );
+      expect(text.some((source) => source.includes('module-worker-loaded'))).to.eql(true);
+      expect(text.some((source) => source.includes('dynamic-chunk-loaded'))).to.eql(true);
+      expect(text.some((source) => source.includes('Service Worker file loaded'))).to.eql(true);
     });
   });
 });

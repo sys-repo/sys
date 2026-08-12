@@ -1,6 +1,7 @@
 import { createRequire } from 'node:module';
 import { Perf } from '../../common/u.perf.ts';
 import { workspace } from '../../m.vite.config.workspace/mod.ts';
+import { DisposeProtocolCompatPlugin } from '../../m.vite.plugins/m.DisposeProtocolCompat/mod.ts';
 import { OptimizeImportsPlugin } from '../../m.vite.plugins/m.OptimizeImports/mod.ts';
 import { deriveWorkspacePackageRules } from '../../m.vite.plugins/m.OptimizeImports/u.derive.ts';
 import { oxcPreflightPlugin } from './u.oxcPreflight.ts';
@@ -95,7 +96,7 @@ export const app: t.ViteConfig.Lib['app'] = async (options = {}) => {
   /**
    * Plugins:
    */
-  const plugins = await Perf.measure(
+  const createCommonPlugins = await Perf.measure(
     'config.app.commonPlugins',
     async () =>
       await commonPlugins(options.plugins, {
@@ -107,22 +108,28 @@ export const app: t.ViteConfig.Lib['app'] = async (options = {}) => {
     },
     { level: 2 },
   );
-  if (denoConfig && (options.plugins?.deno ?? true)) {
-    plugins.unshift(createSpecifierRewrite(denoConfig));
-    if (npmPrewarm) plugins.unshift(createNpmPrewarm(denoConfig));
-  }
-  if (optimizeImports) {
-    plugins.push(OptimizeImportsPlugin.plugin({ packages: optimizePackages }));
-  }
-  if (options.vitePlugins?.length) {
-    plugins.push(...options.vitePlugins);
-  }
-  plugins.push(oxcPreflightPlugin());
-  if (Boolean(options.visualizer)) {
-    // NB: the visualizer must be added last.
-    const filename = Is.string(options.visualizer) ? options.visualizer : 'dist/stats.html';
-    plugins.push(visualizerPlugin(filename));
-  }
+  const createPlugins = (includeAppPlugins: boolean) => {
+    const plugins = createCommonPlugins();
+    plugins.unshift(DisposeProtocolCompatPlugin.plugin());
+    if (denoConfig && (options.plugins?.deno ?? true)) {
+      plugins.unshift(createSpecifierRewrite(denoConfig));
+      if (npmPrewarm) plugins.unshift(createNpmPrewarm(denoConfig));
+    }
+    if (optimizeImports) {
+      plugins.push(OptimizeImportsPlugin.plugin({ packages: optimizePackages }));
+    }
+    if (includeAppPlugins && options.vitePlugins?.length) {
+      plugins.push(...options.vitePlugins);
+    }
+    if (includeAppPlugins) plugins.push(oxcPreflightPlugin());
+    if (includeAppPlugins && Boolean(options.visualizer)) {
+      // NB: the visualizer must be added last.
+      const filename = Is.string(options.visualizer) ? options.visualizer : 'dist/stats.html';
+      plugins.push(visualizerPlugin(filename));
+    }
+    return plugins;
+  };
+  const plugins = createPlugins(true);
 
   /**
    * Config:
@@ -149,7 +156,7 @@ export const app: t.ViteConfig.Lib['app'] = async (options = {}) => {
     server: { fs: { allow: fsAllow } },
     worker: {
       format,
-      plugins: () => plugins,
+      plugins: () => createPlugins(false),
       rollupOptions: { output },
     },
     get build() {

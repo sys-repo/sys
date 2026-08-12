@@ -3,41 +3,41 @@ import react from '@vitejs/plugin-react';
 import { ViteTransport } from '../../m.vite.transport/mod.ts';
 
 type CommonPluginsContext = {
-  readonly denoConfig?: t.StringPath;
-  readonly configDiscovery?: t.ViteTransport.DenoPluginConfigDiscovery;
+  denoConfig?: t.StringPath;
+  configDiscovery?: t.ViteTransport.DenoPluginConfigDiscovery;
 };
 
 export async function commonPlugins(
   options: t.ViteConfig.CommonPlugins = {},
   context: CommonPluginsContext = {},
 ) {
-  const plugins: t.VitePluginOption[] = [];
+  const wasm = (options.wasm ?? true) ? await wrangle.wasmPlugin() : undefined;
 
-  /**
-   * The official Deno vite-plugin:
-   */
-  if (options.deno ?? true) {
-    plugins.push(ViteTransport.denoPlugin(wrangle.denoPluginOptions(context)));
-  }
+  return () => {
+    const plugins: t.VitePluginOption[] = [];
 
-  /**
-   * WASM support:
-   */
-  if (options.wasm ?? true) {
-    const wasm = await wrangle.wasmPlugin();
-    plugins.push(wasm());
-  }
+    /**
+     * The official Deno vite-plugin:
+     */
+    if (options.deno ?? true) {
+      plugins.push(ViteTransport.denoPlugin(wrangle.denoPluginOptions(context)));
+    }
 
-  /**
-   * React:
-   */
-  if (options.react ?? true) {
-    const exclude = [/node_modules/, /(\.|^)worker\.tsx?$/];
-    plugins.push(react({ exclude }));
-  }
+    /**
+     * WASM support:
+     */
+    if (wasm) plugins.push(wasm());
 
-  // Finish up.
-  return plugins;
+    /**
+     * React:
+     */
+    if (options.react ?? true) {
+      const exclude = [/node_modules/, /(\.|^)worker\.tsx?$/];
+      plugins.push(react({ exclude }));
+    }
+
+    return plugins;
+  };
 }
 
 /**
