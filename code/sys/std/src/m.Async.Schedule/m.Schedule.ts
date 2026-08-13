@@ -1,8 +1,11 @@
 import type { t } from './common.ts';
+import { frames as waitFrames } from './u.frames.ts';
 import { queue } from './u.queue.ts';
 import { makeScheduleFn } from './u.scheduleFunction.ts';
 import { sleep } from './u.sleep.ts';
 import { tick, waitFor } from './u.turn.ts';
+
+const raf = makeScheduleFn('raf');
 
 /**
  * Minimal, consistent API for deferring work (microtask, macrotask, or frame),
@@ -16,12 +19,11 @@ export const Schedule: t.Schedule.Lib = {
   waitFor,
 
   async frames(count = 1) {
-    const n = Number.isFinite(count) ? Math.max(0, Math.floor(count)) : 0;
-    for (let i = 0; i < n; i += 1) await Schedule.raf();
+    await waitFrames(count, raf);
   },
 
   // Static schedulers (no lifecycle):
   micro: makeScheduleFn('micro'),
   macro: makeScheduleFn('macro'),
-  raf: makeScheduleFn('raf'),
+  raf,
 };

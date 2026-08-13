@@ -8,48 +8,61 @@ import { cleanHexColor } from './u.ts';
  * - Enabled: `enabled?: t.ReadableSignal<boolean>` (defaults to true). Parent AND child are combined.
  * - Browser styling: when `Is.browser()` is true, the prefix uses `%c` with a subtle CSS accent.
  */
-export const makeLogger: t.Log.Lib['logger'] = (category, opts = {}) => {
-  const parentOpts = opts ?? {};
+export function makeLogger(
+  category: string,
+  opts: t.LogOptions = {},
+): t.Logger {
+  return loggerFactory({ isBrowser: Is.browser })(category, opts);
+}
 
-  function create(cat: string, childOpts: t.LogOptions = {}): t.Logger {
-    const opts: t.LogOptions = {
-      ...parentOpts,
-      ...childOpts,
-      enabled: combineEnabled(parentOpts.enabled, childOpts.enabled),
-      prefixColor: childOpts.prefixColor ?? parentOpts.prefixColor,
-    };
+/**
+ * Create a logger factory with an injected browser predicate.
+ * @internal
+ */
+export function loggerFactory(deps: { isBrowser: () => boolean }): t.Log.Lib['logger'] {
+  return (category, opts = {}) => {
+    const parentOpts = opts ?? {};
 
-    const method: t.LogLevel = opts.method ?? 'info';
-    const emit = getConsoleMethod(method);
-    const fmt = opts.timestamp === undefined ? defaultTimeFormatter : opts.timestamp;
+    function create(cat: string, childOpts: t.LogOptions = {}): t.Logger {
+      const opts: t.LogOptions = {
+        ...parentOpts,
+        ...childOpts,
+        enabled: combineEnabled(parentOpts.enabled, childOpts.enabled),
+        prefixColor: childOpts.prefixColor ?? parentOpts.prefixColor,
+      };
 
-    const useCss = Is.browser();
-    const prefixColor = cleanHexColor(opts.prefixColor ?? D.prefixColor);
-    const css = `color:${prefixColor};font-weight:bold;`;
+      const method: t.LogLevel = opts.method ?? 'info';
+      const emit = getConsoleMethod(method);
+      const fmt = opts.timestamp === undefined ? defaultTimeFormatter : opts.timestamp;
 
-    const loggerFn: t.LoggerFn = (...args: readonly unknown[]) => {
-      if (Signal.read(opts.enabled) === false) return;
+      const useCss = deps.isBrowser();
+      const prefixColor = cleanHexColor(opts.prefixColor ?? D.prefixColor);
+      const css = `color:${prefixColor};font-weight:bold;`;
 
-      const now = new Date();
-      const ts = fmt === null ? null : fmt(now);
-      const prefix = ts ? `[${cat}] ${ts}` : `[${cat}]`;
+      const loggerFn: t.LoggerFn = (...args: readonly unknown[]) => {
+        if (Signal.read(opts.enabled) === false) return;
 
-      if (useCss) emit(`%c${prefix}`, css, ...args);
-      else emit(prefix, ...args);
-    };
+        const now = new Date();
+        const ts = fmt === null ? null : fmt(now);
+        const prefix = ts ? `[${cat}] ${ts}` : `[${cat}]`;
 
-    const logger: t.Logger = Object.assign(loggerFn, {
-      category: cat,
-      sub(subCategory: string, subOpts?: t.LogOptions) {
-        return create(`${cat}:${subCategory}`, subOpts);
-      },
-    });
+        if (useCss) emit(`%c${prefix}`, css, ...args);
+        else emit(prefix, ...args);
+      };
 
-    return logger;
-  }
+      const logger: t.Logger = Object.assign(loggerFn, {
+        category: cat,
+        sub(subCategory: string, subOpts?: t.LogOptions) {
+          return create(`${cat}:${subCategory}`, subOpts);
+        },
+      });
 
-  return create(category, parentOpts);
-};
+      return logger;
+    }
+
+    return create(category, parentOpts);
+  };
+}
 
 /**
  * Helpers:
