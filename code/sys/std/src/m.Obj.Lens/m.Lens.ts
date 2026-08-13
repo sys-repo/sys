@@ -11,7 +11,7 @@ type PathInput = t.PathLike | undefined | null;
  * Obj.Path-based lenses.
  * Thin sugar over Obj.Path.curry + Mutate.
  */
-export const Lens: t.Obj.Lens.Lib = {
+export const Lens: t.Obj.Lens.Lib = Object.freeze({
   Is,
   toObject,
 
@@ -55,4 +55,4 @@ export const Lens: t.Obj.Lens.Lib = {
       return this.at<T>(...path).bind(subject);
     },
   }),
-};
+});

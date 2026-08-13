@@ -7,7 +7,7 @@ import { clamp, normalize } from './u.ts';
 /**
  * Tools for working with numbers that represent percentages.
  */
-export const Percent: t.Num.Percent.Lib = {
+export const Percent: t.Num.Percent.Lib = Object.freeze({
   Is,
   Range,
   normalize,
@@ -20,4 +20,4 @@ export const Percent: t.Num.Percent.Lib = {
     const percent = normalize(value) * 100;
     return `${round(percent)}%`;
   },
-} as const;
+});

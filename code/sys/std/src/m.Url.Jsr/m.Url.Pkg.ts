@@ -2,7 +2,7 @@ import { origin, type t } from './common.ts';
 import { Is } from './m.Url.Pkg.Is.ts';
 import type { JsrUrl } from './t.ts';
 
-export const Pkg: JsrUrl.Pkg.Lib = {
+export const Pkg: JsrUrl.Pkg.Lib = Object.freeze({
   Is,
 
   web(name) {
@@ -31,7 +31,7 @@ export const Pkg: JsrUrl.Pkg.Lib = {
     const module = Pkg.file(pkg, modulePath);
     return { contract, module };
   },
-};
+});
 
 /**
  * Helpers:

@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 
-export const Fake: t.DomMock.Fake.Lib = {
+export const Fake: t.DomMock.Fake.Lib = Object.freeze({
   Media: Object.freeze({
     stream(input?: Partial<{ id: string; active: boolean }>): MediaStream {
       const id = input?.id ?? 'stream-1';
@@ -79,4 +79,4 @@ export const Fake: t.DomMock.Fake.Lib = {
       return trLike as unknown as MediaStreamTrack;
     },
   }),
-};
+});

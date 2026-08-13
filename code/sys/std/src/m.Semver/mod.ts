@@ -17,7 +17,7 @@ import { sort } from './u.sort.ts';
 /**
  * Tools for working with Semver ("Semantic Versions").
  */
-export const Semver: SemverType.Lib = {
+export const Semver: SemverType.Lib = Object.freeze({
   /** Semver value assertions. */
   Is,
 
@@ -52,4 +52,4 @@ export const Semver: SemverType.Lib = {
   toString(input) {
     return typeof input === 'string' ? input : format(input);
   },
-};
+});

@@ -25,6 +25,7 @@ import { Fallback } from '../m.MediaType/m.Fallback.ts';
 import { Is as MediaTypeIs } from '../m.MediaType/m.Is.ts';
 import { Is as NumIs } from '../m.Num/m.Is.ts';
 import { Is as PercentIs } from '../m.Num/m.Percent/m.Is.ts';
+import { Percent } from '../m.Num/m.Percent/mod.ts';
 import { Range } from '../m.Num/m.Percent/m.Range.ts';
 import { Ratio } from '../m.Num/m.Ratio.ts';
 import { Is as LensIs } from '../m.Obj.Lens/m.Is.ts';
@@ -33,6 +34,7 @@ import { Codec } from '../m.Obj.Path/m.Codec.ts';
 import { CurriedPath } from '../m.Obj.Path/m.CurriedPath.ts';
 import { Is as PathIs } from '../m.Obj.Path/m.Is.ts';
 import { Mutate } from '../m.Obj.Path/m.Mutate.ts';
+import { Path as ObjPath } from '../m.Obj.Path/m.Path.ts';
 import { Rel } from '../m.Obj.Path/m.Rel.ts';
 import { Bounded } from '../m.Path/m/m.Bounded.ts';
 import { Format as PathFormat } from '../m.Path/m/m.Fmt.ts';
@@ -49,11 +51,13 @@ import { Release } from '../m.Semver/common.ts';
 import { Is as SemverIs } from '../m.Semver/m.Is.ts';
 import { Prefix } from '../m.Semver/m.Prefix.ts';
 import { Fmt } from '../m.Semver.Server/m.Fmt.ts';
+import { Semver } from '../m.Semver/mod.ts';
 import { Sha256 } from '../m.Shard/m.Sha256.ts';
 import { Is as SignalIs } from '../m.Signal/m.Is.ts';
 import { Compare } from '../m.Str/m.Compare.ts';
 import { Lorem } from '../m.Str/m.Lorem.ts';
 import { Bdd } from '../m.Testing/m.Bdd.ts';
+import { Testing } from '../m.Testing/m.Testing.ts';
 import { Fake } from '../m.Testing.DomMock/m.Fake.ts';
 import { Keyboard } from '../m.Testing.DomMock/m.Keyboard.ts';
 import { Mouse } from '../m.Testing.DomMock/m.Mouse.ts';
@@ -62,6 +66,7 @@ import { Duration } from '../m.Time/m.Time.Duration.ts';
 import { Day } from '../m.Time.Date/m.Date.Day.ts';
 import { Format as DateFormat } from '../m.Time.Date/m.Date.Format.ts';
 import { Is as DateIs } from '../m.Time.Date/m.Date.Is.ts';
+import { Date as TimeDate } from '../m.Time.Date/m.Date.ts';
 import { VClock } from '../m.Timecode/clock/m.VClock.ts';
 import { VTime } from '../m.Timecode/clock/m.VTime.ts';
 import { Map } from '../m.Timecode/composite/m.Map.ts';
@@ -71,14 +76,16 @@ import { Time as CompositeTime } from '../m.Timecode/composite/u.time.ts';
 import { Ops as TimecodeOps } from '../m.Timecode/core.ops/mod.ts';
 import { Experience } from '../m.Timecode/experience/m.Experience.ts';
 import { Pattern } from '../m.Timecode/m.Pattern.ts';
+import { Composite } from '../m.Timecode/composite/m.Composite.ts';
 import { Slice } from '../m.Timecode/slice/mod.ts';
 import { Try } from '../m.Try/mod.ts';
 import { Url } from '../m.Url/m.Url.ts';
 import { Is as JsrPkgIs } from '../m.Url.Jsr/m.Url.Pkg.Is.ts';
+import { Pkg as JsrPkg } from '../m.Url.Jsr/m.Url.Pkg.ts';
 import { Is as XmlIs } from '../m.Xml/m.Is.ts';
 import { describe, expect, it } from '../-test.ts';
 
-describe('namespace freeze: terminal leaves', () => {
+describe('namespace freeze', () => {
   it('freezes each terminal public namespace', () => {
     const values: readonly [string, object][] = [
       ['Alias.Is', AliasIs],
@@ -161,6 +168,26 @@ describe('namespace freeze: terminal leaves', () => {
       ['Url', Url],
       ['JsrUrl.Pkg.Is', JsrPkgIs],
       ['Xml.Is', XmlIs],
+    ];
+
+    for (const [label, value] of values) {
+      expect(Object.isFrozen(value), label).to.eql(true);
+    }
+  });
+
+  it('freezes each intermediate public namespace', () => {
+    const values: readonly [string, object][] = [
+      ['Num.Percent', Percent],
+      ['Obj.Lens', Lens],
+      ['Obj.Path', ObjPath],
+      ['Pkg.Dist', Dist],
+      ['Semver', Semver],
+      ['Testing', Testing],
+      ['DomMock.Fake', Fake],
+      ['Time.Duration', Duration],
+      ['Time.Date', TimeDate],
+      ['Timecode.Composite', Composite],
+      ['JsrUrl.Pkg', JsrPkg],
     ];
 
     for (const [label, value] of values) {

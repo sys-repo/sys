@@ -15,7 +15,7 @@ import { sanitize } from './m.Path.sanitize.ts';
 import { slice } from './m.Path.slice.ts';
 import { Rel } from './m.Rel.ts';
 
-export const Path: t.Obj.Path.Lib = {
+export const Path: t.Obj.Path.Lib = Object.freeze({
   Rel,
   Mutate,
   Is,
@@ -37,4 +37,4 @@ export const Path: t.Obj.Path.Lib = {
   joinAll,
   slice,
   appendSuffix,
-};
+});

@@ -13,7 +13,7 @@ const To: t.Time.Duration.To = Object.freeze({
 /**
  * Library: tools for working with an elapsed duration of time.
  */
-export const Duration: t.Time.Duration.Lib = {
+export const Duration: t.Time.Duration.Lib = Object.freeze({
   /** Time duration conversions. */
   To,
 
@@ -137,7 +137,7 @@ export const Duration: t.Time.Duration.Lib = {
         throw new Error(`Unit '${unit}' not supported `);
     }
   },
-};
+});
 
 /**
  * Helpers:

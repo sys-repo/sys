@@ -4,7 +4,7 @@ import { randomPort, retry, waitUntil } from './u.ts';
 /**
  * Testing helpers.
  */
-export const Testing: t.Testing.Lib = {
+export const Testing: t.Testing.Lib = Object.freeze({
   FALSY: [false, 0, '', null, undefined],
   Bdd,
   slug,
@@ -28,4 +28,4 @@ export const Testing: t.Testing.Lib = {
    */
   retry,
   until: waitUntil,
-};
+});
