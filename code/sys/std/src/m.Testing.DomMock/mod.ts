@@ -29,7 +29,7 @@ import { init } from './u.init.ts';
 /**
  * Helpers for testing DOM related action in unit-tests.
  */
-export const DomMock: t.DomMock.Lib = {
+export const DomMock: t.DomMock.Lib = Object.freeze({
   Fake,
   Keyboard,
   Mouse,
@@ -39,4 +39,4 @@ export const DomMock: t.DomMock.Lib = {
   get isPolyfilled() {
     return (globalThis as any).__SYS_BROWSER_MOCK__ === true;
   },
-};
+});

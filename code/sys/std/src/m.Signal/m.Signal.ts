@@ -20,7 +20,7 @@ export { signal };
  *    https://preactjs.com/blog/introducing-signals/
  *    https://preactjs.com/guide/v10/signals
  */
-export const Signal: Type.Signal.Lib = {
+export const Signal: Type.Signal.Lib = Object.freeze({
   Is,
 
   /**
@@ -41,4 +41,4 @@ export const Signal: Type.Signal.Lib = {
   cycle,
   walk,
   toObject,
-} as const;
+});

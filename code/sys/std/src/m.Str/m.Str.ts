@@ -1,4 +1,4 @@
-import { type t, SPACE } from './common.ts';
+import { SPACE, type t } from './common.ts';
 
 import { Compare } from './m.Compare.ts';
 import { Lorem } from './m.Lorem.ts';
@@ -28,7 +28,7 @@ import { truncate } from './u/u.truncate.ts';
 
 export { bytes, capitalize, diff, plural };
 
-export const Str: t.Str.Lib = {
+export const Str: t.Str.Lib = Object.freeze({
   SPACE,
   Compare,
   Lorem,
@@ -55,4 +55,4 @@ export const Str: t.Str.Lib = {
   stripPrefixOnce,
   stripTrailingPathSegment,
   splitPathSegments,
-};
+});

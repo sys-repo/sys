@@ -15,7 +15,7 @@ import { truncateStrings } from './u.truncate.ts';
 import { keys, pick, sortKeys, toArray } from './u.ts';
 import { walk } from './u.walk.ts';
 
-export const Obj: t.Obj.Lib = {
+export const Obj: t.Obj.Lib = Object.freeze({
   Path,
   Lens,
 
@@ -36,4 +36,4 @@ export const Obj: t.Obj.Lib = {
   isObject,
   isRecord,
   isEmptyRecord,
-};
+});

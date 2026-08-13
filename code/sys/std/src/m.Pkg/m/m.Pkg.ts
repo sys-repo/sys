@@ -7,7 +7,7 @@ import { Dist } from './m.Dist.ts';
 import { PkgIs as Is } from './m.Is.ts';
 import { Subpath } from './m.Subpath.ts';
 
-export const Pkg: t.Pkg.Lib = {
+export const Pkg: t.Pkg.Lib = Object.freeze({
   Is,
   Subpath,
   Dist,
@@ -16,4 +16,4 @@ export const Pkg: t.Pkg.Lib = {
   toFileNamespace,
   fromJson,
   unknown: D.unknown,
-};
+});

@@ -5,10 +5,10 @@ import { expand } from './u.expand.ts';
 import { expandChain } from './u.expandChain.ts';
 import { make } from './u.make.ts';
 
-export const AliasResolver: t.AliasResolver.Lib = {
+export const AliasResolver: t.AliasResolver.Lib = Object.freeze({
   Is,
   make,
   analyze,
   expand,
   expandChain,
-};
+});

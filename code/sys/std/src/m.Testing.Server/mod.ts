@@ -23,7 +23,7 @@ export { DomMock } from '../m.Testing.DomMock/mod.ts';
 /**
  * Testing helpers including light-weight HTTP server helpers (Deno).
  */
-export const Testing: t.Testing.Server.Lib = {
+export const Testing: t.Testing.Server.Lib = Object.freeze({
   ...Base,
   Http,
-};
+});

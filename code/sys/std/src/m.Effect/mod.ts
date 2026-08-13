@@ -9,7 +9,7 @@ import { Causal } from './m.Causal.ts';
 
 export { EffectController };
 
-export const Effect: t.Effect.Lib = {
+export const Effect: t.Effect.Lib = Object.freeze({
   Controller: EffectController,
   Causal,
-};
+});

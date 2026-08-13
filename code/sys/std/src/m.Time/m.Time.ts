@@ -12,7 +12,7 @@ import { wait, waitFor } from './m.Time.wait.ts';
 /**
  * Library: Helpers for working with time and timers (delays).
  */
-export const Time: t.Time.Lib = {
+export const Time: t.Time.Lib = Object.freeze({
   Date,
 
   get now() {
@@ -30,4 +30,4 @@ export const Time: t.Time.Lib = {
   duration: Duration.create,
   elapsed: Duration.elapsed,
   timer,
-};
+});

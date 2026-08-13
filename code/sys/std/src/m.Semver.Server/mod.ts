@@ -9,7 +9,7 @@ import { Fmt } from './m.Fmt.ts';
 /**
  * Tools for working with Semver ("Semantic Versions").
  */
-export const Semver: t.Semver.Server.Lib = {
+export const Semver: t.Semver.Server.Lib = Object.freeze({
   ...Base,
   Fmt,
-};
+});

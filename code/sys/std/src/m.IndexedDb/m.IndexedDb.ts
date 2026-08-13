@@ -5,7 +5,7 @@ type DeleteResponse = { name: string; error?: string };
 /**
  * A promise based wrapper into the IndexedDB API.
  */
-export const IndexedDb: Type.IndexedDb.Lib = {
+export const IndexedDb: Type.IndexedDb.Lib = Object.freeze({
   /**
    * Create a promised base interface into an IndexedDb
    */
@@ -112,4 +112,4 @@ export const IndexedDb: Type.IndexedDb.Lib = {
       return res;
     },
   }),
-} as const;
+});

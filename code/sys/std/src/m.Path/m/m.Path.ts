@@ -22,7 +22,7 @@ import { relativePosix } from '../u/rel.ts';
 /**
  * Helpers for working with resource paths.
  */
-export const Path: t.Path.Lib = {
+export const Path: t.Path.Lib = Object.freeze({
   Is,
   Format,
   Bounded,
@@ -41,4 +41,4 @@ export const Path: t.Path.Lib = {
   ext,
   dir,
   relativePosix,
-} as const;
+});

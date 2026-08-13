@@ -9,7 +9,7 @@ import { toLetter, toString } from './u/u.string.ts';
 /**
  * Tools for working with numbers.
  */
-export const Num: t.Num.Lib = {
+export const Num: t.Num.Lib = Object.freeze({
   Is,
   MAX_INT: Number.MAX_SAFE_INTEGER,
   MIN_INT: Number.MIN_SAFE_INTEGER,
@@ -25,4 +25,4 @@ export const Num: t.Num.Lib = {
 
   toString,
   toLetter,
-};
+});

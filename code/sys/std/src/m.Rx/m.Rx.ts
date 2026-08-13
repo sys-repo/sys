@@ -9,7 +9,7 @@ const { abortable, lifecycle, lifecycleAsync, done, toLifecycle } = Dispose;
 /**
  * Tools for working with Observables (via the RXJS library).
  */
-export const Rx: t.Rx.Lib = {
+export const Rx: t.Rx.Lib = Object.freeze({
   ...lib,
   Is,
   noop$: new lib.Subject(),
@@ -27,4 +27,4 @@ export const Rx: t.Rx.Lib = {
   behaviorSubject<T>(initial: T) {
     return new lib.BehaviorSubject<T>(initial);
   },
-};
+});
