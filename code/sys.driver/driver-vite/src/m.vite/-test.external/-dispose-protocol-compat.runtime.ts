@@ -1,10 +1,20 @@
-import { describe, expect, Fs, it, Json, ROOT, slug, Str } from '../../-test.ts';
-import { DEFAULTS } from '../common.ts';
-import { assertRunOk, runCommand } from './u.fixture.task.ts';
+import { describe, expect, it, Str } from '../../-test.ts';
+import { parseProbeJson, PROBE_JSON_PREFIX, runProbe } from './u.fixture.probe.ts';
+import { assertRunOk } from './u.fixture.task.ts';
 
 describe('Vite disposal protocol compatibility runtime', () => {
   it('dev preserves incumbent protocol identities before entry evaluation', async () => {
-    const res = await runProbe(DEV_PROBE_SOURCE);
+    const res = await runProbe({
+      name: 'dispose-protocol-compat.dev',
+      source: DEV_PROBE_SOURCE,
+      denoArgs: [
+        'run',
+        '-P=test',
+        '--no-lock',
+        '--allow-import=jsr.io,localhost',
+        '--node-modules-dir=auto',
+      ],
+    });
     assertRunOk(res, 'disposal protocol compatibility runtime probe failed');
 
     const data = parseProbeJson<{
@@ -23,7 +33,17 @@ describe('Vite disposal protocol compatibility runtime', () => {
   });
 
   it('build emits the installer once in each client bundle graph', async () => {
-    const res = await runProbe(BUILD_PROBE_SOURCE);
+    const res = await runProbe({
+      name: 'dispose-protocol-compat.build',
+      source: BUILD_PROBE_SOURCE,
+      denoArgs: [
+        'run',
+        '-P=test',
+        '--no-lock',
+        '--allow-import=jsr.io,localhost',
+        '--node-modules-dir=auto',
+      ],
+    });
     assertRunOk(res, 'disposal protocol compatibility build probe failed');
 
     const data = parseProbeJson<{
@@ -83,7 +103,7 @@ const DEV_PROBE_SOURCE = Str.dedent(`
     const mod = await import(dev.url + 'main.ts');
     const disposePreserved = mod.dispose === dispose;
     const asyncDisposePreserved = mod.asyncDispose === asyncDispose;
-    console.info('${DEFAULTS.probeJsonPrefix}' + Json.stringify({
+    console.info('${PROBE_JSON_PREFIX}' + Json.stringify({
       ok: disposePreserved && asyncDisposePreserved &&
         mod.registryDispose === undefined && mod.registryAsyncDispose === undefined,
       disposePreserved,
@@ -159,7 +179,7 @@ const BUILD_PROBE_SOURCE = Str.dedent(`
       return sources.find((file) => file.path === normalized)?.text ?? '';
     })].join('\\n');
 
-    console.info('${DEFAULTS.probeJsonPrefix}' + Json.stringify({
+    console.info('${PROBE_JSON_PREFIX}' + Json.stringify({
       mainCount: count(mainGraph),
       workerCount: count(worker),
       swCount: count(swGraph),
@@ -169,32 +189,3 @@ const BUILD_PROBE_SOURCE = Str.dedent(`
     await Fs.remove(tmp.absolute, { log: false });
   }
 `);
-
-function parseProbeJson<T>(stdout: string): T {
-  const line = stdout.trim().split('\n').findLast((line) =>
-    line.startsWith(DEFAULTS.probeJsonPrefix)
-  );
-  if (!line) throw new Error(`Probe JSON marker not found in stdout:\n${stdout.trim()}`);
-  return Json.parse(line.slice(DEFAULTS.probeJsonPrefix.length)) as T;
-}
-
-async function runProbe(source: string) {
-  const cwd = ROOT.resolve('code/sys.driver/driver-vite');
-  const path = Fs.join(cwd, `.tmp.dispose-protocol-compat.${slug()}.ts`);
-  await Fs.write(path, source);
-
-  const args = [
-    'run',
-    '-P=test',
-    '--no-lock',
-    '--allow-import=jsr.io,localhost',
-    '--node-modules-dir=auto',
-    path,
-  ] as const;
-
-  try {
-    return await runCommand(cwd, 'deno', args);
-  } finally {
-    await Fs.remove(path, { log: false });
-  }
-}

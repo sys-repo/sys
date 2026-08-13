@@ -1,10 +1,20 @@
-import { describe, expect, Fs, it, Json, ROOT, slug, Str } from '../../-test.ts';
-import { DEFAULTS } from '../common.ts';
-import { assertRunOk, runCommand } from './u.fixture.task.ts';
+import { describe, expect, it, Str } from '../../-test.ts';
+import { parseProbeJson, PROBE_JSON_PREFIX, runProbe } from './u.fixture.probe.ts';
+import { assertRunOk } from './u.fixture.task.ts';
 
 describe('Vite external std try runtime', () => {
   it('consumer dev entry importing @sys/std/try evaluates without Try TDZ crash', async () => {
-    const res = await runProbe(PROBE_SOURCE);
+    const res = await runProbe({
+      name: 'std-try-runtime',
+      source: PROBE_SOURCE,
+      denoArgs: [
+        'run',
+        '-P=test',
+        '--no-lock',
+        '--allow-import=jsr.io,localhost',
+        '--node-modules-dir=auto',
+      ],
+    });
     assertRunOk(res, 'std/try runtime probe failed');
 
     const data = parseProbeJson<{
@@ -82,7 +92,7 @@ const PROBE_SOURCE = Str.dedent(`
   try {
     const entryUrl = dev.url + 'main.ts';
     const mod = await import(entryUrl);
-    console.log('${DEFAULTS.probeJsonPrefix}' + Json.stringify({
+    console.log('${PROBE_JSON_PREFIX}' + Json.stringify({
       ok: mod.tryOk === true && mod.tryMessage === 'ok',
       tryOk: mod.tryOk ?? null,
       tryMessage: mod.tryMessage ?? null,
@@ -94,32 +104,3 @@ const PROBE_SOURCE = Str.dedent(`
     await Fs.remove(tmp.absolute, { log: false });
   }
 `);
-
-function parseProbeJson<T>(stdout: string): T {
-  const line = stdout.trim().split('\n').findLast((line) =>
-    line.startsWith(DEFAULTS.probeJsonPrefix)
-  );
-  if (!line) throw new Error(`Probe JSON marker not found in stdout:\n${stdout.trim()}`);
-  return Json.parse(line.slice(DEFAULTS.probeJsonPrefix.length)) as T;
-}
-
-async function runProbe(source: string) {
-  const cwd = ROOT.resolve('code/sys.driver/driver-vite');
-  const path = Fs.join(cwd, `.tmp.std-try-runtime.${slug()}.ts`);
-  await Fs.write(path, source);
-
-  const args = [
-    'run',
-    '-P=test',
-    '--no-lock',
-    '--allow-import=jsr.io,localhost',
-    '--node-modules-dir=auto',
-    path,
-  ] as const;
-
-  try {
-    return await runCommand(cwd, 'deno', args);
-  } finally {
-    await Fs.remove(path, { log: false });
-  }
-}

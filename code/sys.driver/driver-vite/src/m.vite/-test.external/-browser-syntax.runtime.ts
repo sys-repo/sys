@@ -1,10 +1,20 @@
-import { describe, expect, Fs, it, Json, ROOT, slug, Str } from '../../-test.ts';
-import { DEFAULTS } from '../common.ts';
-import { assertRunOk, runCommand } from './u.fixture.task.ts';
+import { describe, expect, it, Str } from '../../-test.ts';
+import { parseProbeJson, PROBE_JSON_PREFIX, runProbe } from './u.fixture.probe.ts';
+import { assertRunOk } from './u.fixture.task.ts';
 
 describe('Vite browser syntax runtime', () => {
   it('runs lowered disposal semantics against compatibility-installed symbols', async () => {
-    const res = await runProbe(PROBE_SOURCE);
+    const res = await runProbe({
+      name: 'browser-syntax-runtime',
+      source: PROBE_SOURCE,
+      denoArgs: [
+        'run',
+        '-P=test',
+        '--no-lock',
+        '--allow-import=jsr.io,localhost',
+        '--node-modules-dir=auto',
+      ],
+    });
     assertRunOk(res, 'browser syntax runtime probe failed');
 
     const data = parseProbeJson<{
@@ -149,7 +159,7 @@ const PROBE_SOURCE = Str.dedent(`
     if (!Is.symbol(data.dispose) || !Is.symbol(data.asyncDispose)) {
       throw new Error('Browser syntax runtime did not expose disposal symbols');
     }
-    console.info('${DEFAULTS.probeJsonPrefix}' + Json.stringify({
+    console.info('${PROBE_JSON_PREFIX}' + Json.stringify({
       trace: data.trace,
       error: data.error,
       disposeRegistry: nativeSymbol.keyFor(data.dispose) ?? null,
@@ -164,32 +174,3 @@ const PROBE_SOURCE = Str.dedent(`
     await Fs.remove(tmp.absolute, { log: false });
   }
 `);
-
-function parseProbeJson<T>(stdout: string): T {
-  const line = stdout.trim().split('\n').findLast((line) =>
-    line.startsWith(DEFAULTS.probeJsonPrefix)
-  );
-  if (!line) throw new Error(`Probe JSON marker not found in stdout:\n${stdout.trim()}`);
-  return Json.parse(line.slice(DEFAULTS.probeJsonPrefix.length)) as T;
-}
-
-async function runProbe(source: string) {
-  const cwd = ROOT.resolve('code/sys.driver/driver-vite');
-  const path = Fs.join(cwd, `.tmp.browser-syntax.${slug()}.ts`);
-  await Fs.write(path, source);
-
-  const args = [
-    'run',
-    '-P=test',
-    '--no-lock',
-    '--allow-import=jsr.io,localhost',
-    '--node-modules-dir=auto',
-    path,
-  ] as const;
-
-  try {
-    return await runCommand(cwd, 'deno', args);
-  } finally {
-    await Fs.remove(path, { log: false });
-  }
-}

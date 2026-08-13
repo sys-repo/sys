@@ -1,8 +1,8 @@
-import { describe, expect, Fs, it, Json, ROOT, SAMPLE, slug } from '../../-test.ts';
-import { DEFAULTS } from '../common.ts';
+import { describe, expect, Fs, it, ROOT, SAMPLE } from '../../-test.ts';
 import { Wrangle } from '../u/u.wrangle.ts';
 import { assertBuildOk } from './u.fixture.build.ts';
-import { assertRunOk, runCommand } from './u.fixture.task.ts';
+import { parseProbeJson, PROBE_JSON_PREFIX, runProbe } from './u.fixture.probe.ts';
+import { assertRunOk } from './u.fixture.task.ts';
 
 type BuildProbeJson = {
   ok: boolean;
@@ -56,7 +56,11 @@ describe('Vite published external pure-JSR authority world', () => {
   });
 
   it('build: external pure-JSR world builds without falling forward to local-source alias privilege', async () => {
-    const res = await runProbe(BUILD_PROBE_SOURCE);
+    const res = await runProbe({
+      name: 'published-pure-jsr-authority.build',
+      source: BUILD_PROBE_SOURCE,
+      denoArgs: ['run', '-P=test', '--no-lock', '--node-modules-dir=auto'],
+    });
 
     assertRunOk(res, 'Published pure-JSR build probe failed');
     const data = parseProbeJson<BuildProbeJson>(res.stdout);
@@ -79,7 +83,11 @@ describe('Vite published external pure-JSR authority world', () => {
   });
 
   it('dev: external pure-JSR world serves transformed entry without local-source alias privilege', async () => {
-    const res = await runProbe(DEV_PROBE_SOURCE);
+    const res = await runProbe({
+      name: 'published-pure-jsr-authority.dev',
+      source: DEV_PROBE_SOURCE,
+      denoArgs: ['run', '-P=test', '--no-lock', '--node-modules-dir=auto'],
+    });
 
     assertRunOk(res, 'Published pure-JSR dev probe failed');
     const data = parseProbeJson<DevProbeJson>(res.stdout);
@@ -105,7 +113,7 @@ const BUILD_PROBE_SOURCE = `
     sampleName: 'Vite.published.pure-jsr-authority.build.probe',
     sampleDir: SAMPLE.Dirs.samplePublishedBaseline,
   });
-  console.log('${DEFAULTS.probeJsonPrefix}' + Json.stringify({
+  console.log('${PROBE_JSON_PREFIX}' + Json.stringify({
     ok: res.build.ok,
     cwd: res.build.paths.cwd,
     cmd: res.build.cmd.input,
@@ -129,7 +137,7 @@ const DEV_PROBE_SOURCE = `
     const moduleTexts = await Promise.all(
       res.entry.imports.map(async (url) => (await res.fetch(url)).text),
     );
-    console.log('${DEFAULTS.probeJsonPrefix}' + Json.stringify({
+    console.log('${PROBE_JSON_PREFIX}' + Json.stringify({
       ok: true,
       htmlStatus: res.html.status,
       entryStatus: res.entry.status,
@@ -141,34 +149,12 @@ const DEV_PROBE_SOURCE = `
   }
 `;
 
-function parseProbeJson<T>(stdout: string): T {
-  const line = stdout.trim().split('\n').findLast((line) =>
-    line.startsWith(DEFAULTS.probeJsonPrefix)
-  );
-  if (!line) throw new Error(`Probe JSON marker not found in stdout:\n${stdout.trim()}`);
-  return Json.parse(line.slice(DEFAULTS.probeJsonPrefix.length)) as T;
-}
-
 async function samplePublishedImports() {
   return (
     await Fs.readJson<{ imports?: Record<string, string> }>(
       `${SAMPLE.Dirs.samplePublishedBaseline}/imports.json`,
     )
   ).data?.imports ?? {};
-}
-
-async function runProbe(source: string) {
-  const cwd = ROOT.resolve('code/sys.driver/driver-vite');
-  const path = Fs.join(cwd, `.tmp.published-pure-jsr-authority.${slug()}.ts`);
-  await Fs.write(path, source);
-
-  const args = ['run', '-P=test', '--no-lock', '--node-modules-dir=auto', path] as const;
-
-  try {
-    return await runCommand(cwd, 'deno', args);
-  } finally {
-    await Fs.remove(path, { log: false });
-  }
 }
 
 async function externalStartupImportMap(arg: string) {

@@ -24,5 +24,4 @@ export { ViteConfig } from '../m.vite.config/mod.ts';
  */
 export const DEFAULTS = {
   port: 1234,
-  probeJsonPrefix: '__SYS_VITE_PROBE__',
 } as const;
