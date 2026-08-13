@@ -48,7 +48,7 @@
     "npm:@earendil-works/pi-coding-agent@0.84.1": "0.84.1_ws@8.21.3_zod@4.4.3",
     "npm:@monaco-editor/react@4.7.0": "4.7.0_monaco-editor@0.56.0_react@19.2.8_react-dom@19.2.8__react@19.2.8",
     "npm:@noble/hashes@2.3.0": "2.3.0",
-    "npm:@oxc-project/runtime@0.143.0": "0.143.0",
+    "npm:@oxc-project/runtime@0.144.0": "0.144.0",
     "npm:@preact/signals-core@1.14.4": "1.14.4",
     "npm:@preact/signals-react@3.12.0": "3.12.0_react@19.2.8",
     "npm:@sinclair/typebox-codegen@0.11.1": "0.11.1",
@@ -868,8 +868,8 @@
     "@opentelemetry/semantic-conventions@1.43.0": {
       "integrity": "sha512-eSYWTm620tTk45EKSedaUL8MFYI8hW164hIXsgIHyxu3VobUB3fFCu5t0hQby6OoWRPsG1KkKUG2M5UadiLiVg=="
     },
-    "@oxc-project/runtime@0.143.0": {
-      "integrity": "sha512-zIuXUf+YGIgsPk0xlQmzTY8NCSc8jE/pSfDodlQ9H3EGZABmr+AtIjXRrnpQAXuXzhDSNqZz9cuhud8hDDLvpg=="
+    "@oxc-project/runtime@0.144.0": {
+      "integrity": "sha512-Ps9oSujoaerkIY8SV7onfD6ldNL6oHlVaZDVuFftDX+JAV3ZqHVx5HMBBa9n0qNkig5K/WcgNbeD94rJrSwjQQ=="
     },
     "@oxc-project/types@0.143.0": {
       "integrity": "sha512-u6JZdLBTLotrNC9Vd6vPssINdzcCzleKAH6EJKImQb7GtYvX5keN2dxkoK44stCc4tffE6QQRtZTXVSzsLUlWA=="
@@ -3266,7 +3266,7 @@
       "npm:@earendil-works/pi-coding-agent@0.84.1",
       "npm:@monaco-editor/react@4.7.0",
       "npm:@noble/hashes@2.3.0",
-      "npm:@oxc-project/runtime@0.143.0",
+      "npm:@oxc-project/runtime@0.144.0",
       "npm:@preact/signals-core@1.14.4",
       "npm:@preact/signals-react@3.12.0",
       "npm:@sinclair/typebox-codegen@0.11.1",
@@ -3328,7 +3328,7 @@
       "dependencies": [
         "npm:@automerge/automerge-repo@2.5.6",
         "npm:@deno/vite-plugin@2.0.3",
-        "npm:@oxc-project/runtime@0.143.0",
+        "npm:@oxc-project/runtime@0.144.0",
         "npm:@testing-library/react@16.3.2",
         "npm:@types/react-dom@19.2.4",
         "npm:@types/react@19.2.18",
