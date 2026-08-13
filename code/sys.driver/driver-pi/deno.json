@@ -9,7 +9,7 @@
     "prep": "deno run -P=dev ./-scripts/task.prep.ts",
     "cli": "deno run -P=cli ./-scripts/task.cli.ts",
     "cli:raw": "deno run -P=cli ./src/m.core/m.cli.raw/mod.ts",
-    "dev": "deno run -A ./-scripts/task.vite.ts --cmd=dev --in=./src/index.html --pkg-subpath=ui",
+    "dev": "deno run -A ./-scripts/task.vite.ts --cmd=dev --in=./src/index.html",
     "build": "deno run -A ./-scripts/task.vite.ts --cmd=build --in=./src/index.html",
     "serve": "deno run -P=dev ./-scripts/task.vite.ts --cmd=serve",
     "dry": "deno publish --allow-dirty --dry-run",
@@ -76,4 +76,3 @@
     }
   }
 }
-

@@ -1,1 +1,3 @@
-import '@sys/driver-vite/main';
+import { main } from './task.vite.u.ts';
+
+await main(Deno.args);
