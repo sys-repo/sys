@@ -1,8 +1,14 @@
 import { c, Cli } from '@sys/cli';
 import { HashFmt } from '@sys/crypto/fmt';
-import { describe, expect, it, Rx, type t } from '../../-test.ts';
+import { describe, expect, it, type t } from '../../-test.ts';
 import { DistServeScreen } from '../u.server/u.serve.screen.ts';
-import { setup, teardown } from './u.fixture.ts';
+import {
+  createReporter,
+  createScheduleHarness,
+  createTerminalHarness,
+  evidence,
+} from './u.fixture.serve.screen.ts';
+import { type Fixture, setup, teardown } from './u.fixture.ts';
 
 describe('DistServeScreen', () => {
   it('bottom-docks compact keyboard controls below a separate divider', async () => {
@@ -117,14 +123,15 @@ describe('DistServeScreen', () => {
     }
   });
 
-  it('subscribes before measurement, repaints accepted resize, and disposes once', async () => {
+  it('subscribes before measurement, coalesces accepted resize, and disposes once', async () => {
     const fixture = await setup();
     try {
       const initial = { width: 80, height: 24 };
       const accepted = { width: 36, height: 15 };
       const terminal = createTerminalHarness({ viewport: initial, resizeOnSize: accepted });
+      const schedule = createScheduleHarness();
       const until = new AbortController().signal;
-      const screen = createReporter(fixture, terminal.deps, until);
+      const screen = createReporter(fixture, terminal.deps, { until, schedule: schedule.schedule });
 
       expect(terminal.until).to.equal(until);
       expect(terminal.sizeCalls).to.eql(1);
@@ -134,6 +141,9 @@ describe('DistServeScreen', () => {
 
       const resized = { width: 44, height: 18 };
       terminal.resize(resized);
+      expect(schedule.calls).to.eql(1);
+      expect(terminal.repaints).to.have.length(1);
+      schedule.flush();
       expect(terminal.repaints).to.have.length(2);
       expect(text(terminal.repaints.at(-1) ?? '').split('\n')[1]).to.eql(
         '━'.repeat(resized.width),
@@ -151,13 +161,144 @@ describe('DistServeScreen', () => {
     }
   });
 
+  it('repaints one copied final viewport from each resize burst', async () => {
+    const fixture = await setup();
+    try {
+      const terminal = createTerminalHarness({ viewport: { width: 120, height: 24 } });
+      const schedule = createScheduleHarness();
+      const screen = createReporter(fixture, terminal.deps, {
+        schedule: schedule.schedule,
+        keyboard: { enabled: true, print: true },
+      });
+      expect(text(terminal.repaints[0] ?? '')).to.include('open: o (in browser)');
+
+      terminal.resize({ width: 36, height: 15 });
+      expect(terminal.repaints).to.have.length(1);
+      schedule.flush();
+      expect(text(terminal.repaints.at(-1) ?? '')).to.not.include('open:');
+
+      const final = { width: 120, height: 24 };
+      terminal.resize({ width: 120, height: 24 });
+      terminal.resize({ width: 36, height: 15 });
+      terminal.emit(final);
+      final.width = 12;
+
+      expect(schedule.calls).to.eql(2);
+      expect(terminal.repaints).to.have.length(2);
+      schedule.flush();
+      expect(terminal.repaints).to.have.length(3);
+      expect(text(terminal.repaints.at(-1) ?? '').split('\n')[1]).to.eql('━'.repeat(120));
+      expect(text(terminal.repaints.at(-1) ?? '')).to.include('open: o (in browser)');
+      screen.dispose();
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
+  it('allows synchronous schedules to repaint separate resize events', async () => {
+    const fixture = await setup();
+    try {
+      const terminal = createTerminalHarness();
+      const schedule = createScheduleHarness({ synchronous: true });
+      const screen = createReporter(fixture, terminal.deps, { schedule: schedule.schedule });
+
+      terminal.resize({ width: 44, height: 18 });
+      terminal.resize({ width: 48, height: 18 });
+
+      expect(schedule.calls).to.eql(2);
+      expect(terminal.repaints).to.have.length(3);
+      screen.dispose();
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
+  it('makes canceled and ended resize callbacks inert', async () => {
+    const fixture = await setup();
+    try {
+      const canceled = createTerminalHarness();
+      const canceledSchedule = createScheduleHarness();
+      const canceledScreen = createReporter(fixture, canceled.deps, {
+        schedule: canceledSchedule.schedule,
+      });
+
+      canceled.resize({ width: 44, height: 18 });
+      canceledScreen.dispose();
+      canceledSchedule.flush();
+      canceled.resize({ width: 48, height: 18 });
+
+      expect(canceledSchedule.calls).to.eql(1);
+      expect(canceledSchedule.cancelCalls).to.eql(1);
+      expect(canceled.repaints).to.have.length(1);
+      expect(canceled.disposeCalls).to.eql(1);
+
+      const ended = createTerminalHarness();
+      const endedSchedule = createScheduleHarness();
+      const endedScreen = createReporter(fixture, ended.deps, {
+        schedule: endedSchedule.schedule,
+      });
+      ended.resize({ width: 44, height: 18 });
+      ended.events.dispose();
+      endedSchedule.flush();
+
+      expect(ended.repaints).to.have.length(1);
+      endedScreen.dispose();
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
+  it('routes schedule failure through the screen failure channel', async () => {
+    const fixture = await setup();
+    try {
+      const cause = new Error('schedule-failed');
+      const terminal = createTerminalHarness({ disposeError: new Error('cleanup-failed') });
+      const schedule = createScheduleHarness({ error: cause });
+      const screen = createReporter(fixture, terminal.deps, { schedule: schedule.schedule });
+      const failure = screen.failure.catch((error) => error);
+
+      terminal.resize({ width: 44, height: 18 });
+
+      expect(await failure).to.equal(cause);
+      expect(terminal.disposeCalls).to.eql(1);
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
+  it('attempts event cleanup when scheduled-task cancellation fails', async () => {
+    const fixture = await setup();
+    try {
+      const cause = new Error('cancel-failed');
+      const terminal = createTerminalHarness();
+      const schedule = createScheduleHarness({ cancelError: cause });
+      const screen = createReporter(fixture, terminal.deps, { schedule: schedule.schedule });
+      terminal.resize({ width: 44, height: 18 });
+      let thrown: unknown;
+
+      try {
+        screen.dispose();
+      } catch (error) {
+        thrown = error;
+      }
+
+      expect(thrown).to.equal(cause);
+      expect(terminal.unsubscribeCalls).to.eql(1);
+      expect(terminal.events.disposed).to.eql(true);
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
   it('stays inert when terminal observation is already disposed', async () => {
     const fixture = await setup();
     try {
       const terminal = createTerminalHarness({ disposed: true });
-      const screen = createReporter(fixture, terminal.deps);
+      const schedule = createScheduleHarness();
+      const screen = createReporter(fixture, terminal.deps, { schedule: schedule.schedule });
 
       screen.dispose();
+      expect(schedule.calls).to.eql(0);
       expect(terminal.sizeCalls).to.eql(0);
       expect(terminal.repaints).to.eql([]);
       expect(terminal.disposeCalls).to.eql(0);
@@ -192,9 +333,11 @@ describe('DistServeScreen', () => {
           if (count === 2) throw resizeCause;
         },
       });
-      const screen = createReporter(fixture, resize.deps);
+      const schedule = createScheduleHarness();
+      const screen = createReporter(fixture, resize.deps, { schedule: schedule.schedule });
       const failure = screen.failure.catch((cause) => cause);
       resize.resize({ width: 44, height: 18 });
+      schedule.flush();
 
       expect(await failure).to.equal(resizeCause);
       expect(resize.disposeCalls).to.eql(1);
@@ -268,8 +411,6 @@ describe('DistServeScreen', () => {
   });
 });
 
-type Fixture = Awaited<ReturnType<typeof setup>>;
-
 function localFrame(fixture: Fixture) {
   const dist = fixture.cloneDist();
   return DistServeScreen.toString({
@@ -285,126 +426,6 @@ function localFrame(fixture: Fixture) {
   });
 }
 
-function evidence(fixture: Fixture): t.FsPkg.Dist.Verify.Evidence {
-  const dist = fixture.cloneDist();
-  return {
-    integrity: fixture.integrity,
-    manifestBytes: fixture.manifestBytes.byteLength,
-    dist,
-    assets: {
-      files: Object.keys(dist.hash.parts).length,
-      totalBytes: dist.build.size.total,
-      packageBytes: dist.build.size.pkg,
-    },
-  };
-}
-
 function text(input: string) {
   return Cli.stripAnsi(input);
-}
-
-type ScreenTerminal = {
-  readonly cursorRows: number;
-  size(): t.Cli.Screen.Size;
-  events(until?: t.UntilInput): t.Cli.Screen.Events;
-  repaint(frame: string): void;
-};
-
-function createReporter(
-  fixture: Fixture,
-  terminal: ScreenTerminal,
-  until?: t.UntilInput,
-) {
-  const dist = fixture.cloneDist();
-  return DistServeScreen.create({
-    identity: dist.pkg,
-    origin: 'http://127.0.0.1:49152/' as t.StringUrl,
-    dir: './dist' as t.StringDir,
-    authority: { kind: 'local-unpinned', integrity: fixture.integrity },
-    evidence: evidence(fixture),
-    renderedAt: dist.build.time,
-    terminal,
-    until,
-  });
-}
-
-function createTerminalHarness(
-  options: {
-    readonly viewport?: t.Cli.Screen.Size;
-    readonly resizeOnSize?: t.Cli.Screen.Size;
-    readonly disposed?: boolean;
-    readonly disposeError?: unknown;
-    readonly repaint?: (frame: string, count: number) => void;
-  } = {},
-) {
-  let viewport = { ...(options.viewport ?? { width: 80, height: 24 }) };
-  let until: t.UntilInput | undefined;
-  let sizeCalls = 0;
-  let disposeCalls = 0;
-  const repaints: string[] = [];
-  const lifecycle = Rx.lifecycle();
-  const resize$$ = Rx.subject<t.Cli.Screen.SizeChanged>();
-  const resize$ = resize$$.asObservable();
-  const dispose: t.Disposable['dispose'] = (reason) => {
-    disposeCalls += 1;
-    lifecycle.dispose(reason);
-    if (options.disposeError !== undefined) throw options.disposeError;
-  };
-  const events: t.Cli.Screen.Events = {
-    get disposed() {
-      return lifecycle.disposed;
-    },
-    dispose$: lifecycle.dispose$,
-    dispose,
-    [Symbol.dispose]() {
-      dispose();
-    },
-    $: resize$,
-    resize$,
-  };
-  if (options.disposed) lifecycle.dispose();
-
-  const deps: ScreenTerminal = {
-    cursorRows: 1,
-    size() {
-      const measured = { ...viewport };
-      sizeCalls += 1;
-      if (sizeCalls === 1 && options.resizeOnSize) {
-        resize$$.next({
-          kind: 'size:changed',
-          before: measured,
-          after: { ...options.resizeOnSize },
-        });
-      }
-      return measured;
-    },
-    events(input) {
-      until = input;
-      return events;
-    },
-    repaint(frame) {
-      repaints.push(frame);
-      options.repaint?.(frame, repaints.length);
-    },
-  };
-
-  return {
-    deps,
-    events,
-    repaints,
-    resize(next: t.Cli.Screen.Size) {
-      const before = viewport;
-      viewport = { ...next };
-      resize$$.next({ kind: 'size:changed', before, after: { ...next } });
-    },
-    get until() {
-      return until;
-    },
-    get sizeCalls() {
-      return sizeCalls;
-    },
-    get disposeCalls() {
-      return disposeCalls;
-    },
-  };
 }

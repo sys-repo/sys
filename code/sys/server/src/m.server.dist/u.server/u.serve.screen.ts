@@ -8,6 +8,7 @@ type FailureChannel = {
 };
 
 type ResizeSubscription = { unsubscribe(): void };
+type Schedule = (run: () => void) => t.Cancellable;
 
 type ScreenSize = t.Cli.Screen.Size;
 
@@ -51,7 +52,10 @@ type RuntimeCreateArgs = {
   };
   readonly until?: t.UntilInput;
   readonly terminal?: Partial<Terminal>;
+  readonly schedule?: Schedule;
 };
+
+const RESIZE_REPAINT_DELAY = 50 as t.Msecs;
 
 const LOG = {
   compactMetadataMaxWidth: 80,
@@ -142,6 +146,7 @@ export const DistServeScreen = {
 
   create(args: RuntimeCreateArgs): Reporter {
     const terminal = { ...DEFAULT_TERMINAL, ...args.terminal };
+    const schedule = args.schedule ?? ((run: () => void) => Time.delay(RESIZE_REPAINT_DELAY, run));
     const events = terminal.events(args.until);
     if (events.disposed) return DISPOSED_REPORTER;
 
@@ -149,6 +154,10 @@ export const DistServeScreen = {
     let disposed = false;
     let acquired = false;
     let observed = false;
+    let pending = false;
+    let scheduleGeneration = 0;
+    let acquiringSchedule: number | undefined;
+    let scheduledTask: t.Cancellable | undefined;
     let viewport: ScreenSize = { width: 0, height: 0 };
     let subscription: ResizeSubscription | undefined;
 
@@ -171,12 +180,22 @@ export const DistServeScreen = {
       );
     };
 
+    const cancelScheduled = () => {
+      scheduleGeneration += 1;
+      acquiringSchedule = undefined;
+      const task = scheduledTask;
+      scheduledTask = undefined;
+      task?.cancel();
+    };
+
     const release = () => {
       if (disposed) return;
       disposed = true;
+      pending = false;
       const current = subscription;
       subscription = undefined;
       wrangle.cleanup([
+        cancelScheduled,
         () => current?.unsubscribe(),
         () => events.dispose(),
       ]);
@@ -192,6 +211,45 @@ export const DistServeScreen = {
       failed.reject(cause);
     };
 
+    const flushPending = (generation: number) => {
+      if (generation !== scheduleGeneration || disposed) return;
+      acquiringSchedule = undefined;
+      scheduledTask = undefined;
+      if (events.disposed) {
+        pending = false;
+        return;
+      }
+      if (!pending) return;
+      pending = false;
+      try {
+        repaint();
+      } catch (error) {
+        fail(error);
+      }
+    };
+
+    const schedulePending = () => {
+      if (scheduledTask || acquiringSchedule !== undefined) return;
+      const generation = ++scheduleGeneration;
+      acquiringSchedule = generation;
+      let task: t.Cancellable;
+      try {
+        task = schedule(() => flushPending(generation));
+      } catch (error) {
+        if (generation === scheduleGeneration) acquiringSchedule = undefined;
+        throw error;
+      }
+      if (generation === scheduleGeneration && acquiringSchedule === generation) {
+        acquiringSchedule = undefined;
+        scheduledTask = task;
+      }
+    };
+
+    const requestRepaint = () => {
+      pending = true;
+      schedulePending();
+    };
+
     try {
       subscription = events.resize$.subscribe((event) => {
         if (disposed) return;
@@ -199,7 +257,7 @@ export const DistServeScreen = {
         observed = true;
         if (!acquired) return;
         try {
-          repaint();
+          requestRepaint();
         } catch (error) {
           fail(error);
         }
