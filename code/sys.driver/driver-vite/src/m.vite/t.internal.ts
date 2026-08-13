@@ -5,6 +5,7 @@ export type * from '../common/t.ts';
 /** Injectable effects for deterministic Vite dev lifecycle proof. */
 export type ViteDevDeps = {
   waitForHttp?: typeof import('@sys/http/server').Http.Client.waitFor;
+  createScreen?: (args: ViteDev.Screen.Runtime.CreateArgs) => ViteDev.Screen.Reporter;
 };
 
 /** Private terminal output contracts shared within Vite presentation. */
@@ -84,7 +85,7 @@ export declare namespace ViteDev {
 
       /** Inputs for one internal dev-screen reporter session. */
       export type CreateArgs = {
-        pkg: t.Pkg;
+        identity: t.Cli.Fmt.Header.PackageIdentity;
         dist?: t.DistPkg;
         paths: t.ViteConfig.Paths;
         url: () => string;
@@ -105,7 +106,7 @@ export declare namespace ViteDev {
 
       /** Inputs shared by startup and ready dev-screen layout. */
       export type Args = {
-        pkg: t.Pkg;
+        identity: t.Cli.Fmt.Header.PackageIdentity;
         dist?: t.DistPkg;
         paths: t.ViteConfig.Paths;
         url: string;

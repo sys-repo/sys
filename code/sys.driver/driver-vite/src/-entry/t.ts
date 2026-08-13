@@ -36,9 +36,9 @@ export declare namespace ViteEntry {
       open?: boolean;
       port?: number;
       reporter?: t.Vite.Dev.ReporterMode;
-      /** Package subpath appended to the dev-server display title. */
+      /** Package subpath appended to the dev-server presentation identity. */
       pkgSubpath?: string;
-      /** CLI spelling of `pkgSubpath`. */
+      /** CLI field corresponding to `pkgSubpath`. */
       'pkg-subpath'?: string;
       logLines?: number;
       'log-lines'?: number;
@@ -48,7 +48,16 @@ export declare namespace ViteEntry {
     export type Build = { cmd: 'build'; dir?: P; silent?: boolean };
 
     /** The locally verified production Dist preview command. */
-    export type Serve = { cmd: 'serve'; port?: number; dir?: P; silent?: boolean };
+    export type Serve = {
+      cmd: 'serve';
+      port?: number;
+      dir?: P;
+      silent?: boolean;
+      /** Package subpath appended to the verified preview display identity. */
+      pkgSubpath?: string;
+      /** CLI field corresponding to `pkgSubpath`. */
+      'pkg-subpath'?: string;
+    };
 
     /** The `info` information command. */
     export type Info = { cmd: 'info'; dir?: P; info?: boolean };

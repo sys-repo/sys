@@ -45,7 +45,7 @@ describe('DevScreen', () => {
       const unscopedWithVersionWidth = unscoped.length + 1 + version.length;
       const header = (width: number) =>
         stripAnsi(DevScreen.toString({
-          pkg: { name: pkgName, version },
+          identity: { name: pkgName, version },
           paths: paths(),
           url: 'http://localhost:1234/',
           lines: [],
@@ -74,7 +74,7 @@ describe('DevScreen', () => {
       const packageInfo = { name: pkgName, version };
       const width = 80;
       const args = {
-        pkg: packageInfo,
+        identity: packageInfo,
         dist: dist(),
         paths: paths(),
         url: 'http://localhost:1234/',
@@ -101,7 +101,7 @@ describe('DevScreen', () => {
         { highlightOrigin: true },
       );
       const raw = DevScreen.toString({
-        pkg: pkg(),
+        identity: pkg(),
         paths: paths(),
         url: href,
         lines: [],
@@ -112,19 +112,34 @@ describe('DevScreen', () => {
       expect(stripAnsi(raw)).to.include(stripAnsi(expected));
     });
 
-    it('dims package subpaths beneath the primary application identity', () => {
+    it('renders one compound identity across startup, ready, and width pressure', () => {
       const packageName = '@sys/driver-pi';
-      const subpath = '/ui';
-      const rawHeader = DevScreen.toString({
-        pkg: { name: `${packageName}${subpath}`, version: '0.0.128' },
-        paths: paths(),
-        url: 'http://localhost:1234/',
-        lines: [],
-        ...frame(80),
-      }).split('\n')[0] ?? '';
+      const subpath = 'ui/preview';
+      const identity = { root: { name: packageName, version: '0.0.128' }, subpath };
+      const render = (width: number) => {
+        const args = {
+          identity,
+          paths: paths(),
+          url: 'http://localhost:1234/',
+          lines: [],
+          ...frame(width),
+        };
+        return {
+          ready: DevScreen.toString(args).split('\n')[0] ?? '',
+          startup: DevScreen.startupToString({ ...args, spinner: '⠋' }).split('\n')[0] ?? '',
+        };
+      };
 
-      expect(rawHeader).to.include(`${c.bold(c.green(packageName))}${c.dim(c.green(subpath))}`);
-      expect(stripAnsi(rawHeader).startsWith(`${packageName}${subpath}`)).to.eql(true);
+      const wide = render(80);
+      const tight = render(18);
+      const styled = `${c.bold(c.green(packageName))}${c.dim(c.green(`/${subpath}`))}`;
+      expect(wide.ready).to.include(styled);
+      expect(wide.startup).to.eql(wide.ready);
+      expect(stripAnsi(wide.ready).startsWith(`${packageName}/${subpath}`)).to.eql(true);
+      expect(tight.startup).to.eql(tight.ready);
+      expect(Cli.Fmt.Text.Width.measure(tight.ready)).to.eql(18);
+      expect(stripAnsi(tight.ready)).to.include('preview');
+      expect(tight.ready).to.include(c.dim(c.green('/preview')));
     });
 
     it('uses compact rail space before middle-ellipsizing metadata values', () => {
@@ -139,7 +154,7 @@ describe('DevScreen', () => {
       };
       const width = 30;
       const text = stripAnsi(DevScreen.toString({
-        pkg: pkg(),
+        identity: pkg(),
         paths: customPaths,
         url: 'http://localhost:12345/',
         lines: [],
@@ -165,7 +180,7 @@ describe('DevScreen', () => {
       output.push(processEvent('stdout', 'VITE ready in 1234 ms\n'));
       const width = 8;
       const raw = DevScreen.toString({
-        pkg: pkg(),
+        identity: pkg(),
         paths: paths(),
         url: 'http://localhost:12345/',
         lines: output.lines(),
@@ -183,7 +198,7 @@ describe('DevScreen', () => {
       output.push(processEvent('stderr', 'warn\n'));
 
       const text = stripAnsi(DevScreen.toString({
-        pkg: pkg(),
+        identity: pkg(),
         paths: paths(),
         url: 'http://localhost:1234/',
         lines: output.lines(),
@@ -201,7 +216,7 @@ describe('DevScreen', () => {
       for (const width of [0, 1, 8]) {
         for (const height of [0, 1, 2, 3, 4, 5]) {
           const args = {
-            pkg: pkg(),
+            identity: pkg(),
             paths: paths(),
             url: 'http://localhost:1234/',
             lines: [],
@@ -228,7 +243,7 @@ describe('DevScreen', () => {
 
       const width = 24;
       const raw = DevScreen.toString({
-        pkg: pkg(),
+        identity: pkg(),
         paths: paths(),
         url: 'http://localhost:1234/',
         lines: output.lines(),
@@ -252,7 +267,7 @@ describe('DevScreen', () => {
     it('replaces producer ANSI with the renderer-owned white payload tone', () => {
       const producerTone = c.yellow(c.bold('UNPINNED'));
       const raw = DevScreen.toString({
-        pkg: pkg(),
+        identity: pkg(),
         paths: paths(),
         url: 'http://localhost:1234/',
         lines: [{ sequence: 1, source: 'stdout', text: producerTone }],
@@ -274,7 +289,7 @@ describe('DevScreen', () => {
       }
       const render = (height: number) =>
         stripAnsi(DevScreen.toString({
-          pkg: pkg(),
+          identity: pkg(),
           paths: paths(),
           url: 'http://localhost:1234/',
           lines: output.lines(),
@@ -307,7 +322,7 @@ describe('DevScreen', () => {
         for (const width of [79, 80, 81]) {
           const source: t.Process.StdStream = 'stdout';
           const args = {
-            pkg: pkg(),
+            identity: pkg(),
             paths: paths(),
             url: 'http://localhost:1234/',
             lines: [{ sequence, source, text: `line-${sequence}` }],
@@ -350,7 +365,7 @@ describe('DevScreen', () => {
           app: { ...basePaths.app, entry: 'x', outDir: 'dist/' },
         };
         const raw = DevScreen.toString({
-          pkg: pkg(),
+          identity: pkg(),
           dist: includeDist ? dist() : undefined,
           paths: customPaths,
           url: 'http://x:1/',
@@ -401,7 +416,7 @@ describe('DevScreen', () => {
 
       const width = 50;
       const raw = DevScreen.toString({
-        pkg: pkg(),
+        identity: pkg(),
         paths: paths(),
         url: 'http://localhost:1234/',
         lines: output.lines(),
@@ -434,7 +449,7 @@ describe('DevScreen', () => {
       output.push(processEvent('stdout', 'a long retained log value\n'));
       const render = (width: number) =>
         stripAnsi(DevScreen.toString({
-          pkg: pkg(),
+          identity: pkg(),
           paths: paths(),
           url: 'http://localhost:1234/',
           lines: output.lines(),
@@ -452,7 +467,7 @@ describe('DevScreen', () => {
     it('bottom-docks complete keyboard controls and omits them under width or height pressure', () => {
       const render = (width: number, height: number) =>
         DevScreen.toString({
-          pkg: pkg(),
+          identity: pkg(),
           paths: paths(),
           url: 'http://localhost:1234/',
           lines: [],
@@ -465,7 +480,7 @@ describe('DevScreen', () => {
       const output = DevOutputLog.create({ maxLines: 1 });
       output.push(processEvent('stdout', 'retained-under-pressure\n'));
       const pressured = stripAnsi(DevScreen.toString({
-        pkg: pkg(),
+        identity: pkg(),
         paths: paths(),
         url: 'http://localhost:1234/',
         lines: output.lines(),
@@ -505,7 +520,7 @@ describe('DevScreen', () => {
       output.push(processEvent('stdout', 'short\n'));
       const width = 40;
       const args = {
-        pkg: pkg(),
+        identity: pkg(),
         paths: paths(),
         url: 'http://localhost:1234/',
         lines: output.lines(),
@@ -541,7 +556,7 @@ describe('DevScreen', () => {
       output.push(processEvent('stdout', 'three\n'));
       const render = (height: number) =>
         stripAnsi(DevScreen.startupToString({
-          pkg: pkg(),
+          identity: pkg(),
           paths: paths(),
           url: 'http://localhost:1234/',
           lines: output.lines(),
@@ -576,7 +591,7 @@ describe('DevScreen', () => {
 
       const width = 50;
       const raw = DevScreen.startupToString({
-        pkg: pkg(),
+        identity: pkg(),
         dist: dist(),
         paths: paths(),
         url: 'http://localhost:1234/',
@@ -608,7 +623,7 @@ describe('DevScreen', () => {
       }
 
       const text = stripAnsi(DevScreen.startupToString({
-        pkg: pkg(),
+        identity: pkg(),
         paths: paths(),
         url: 'http://localhost:1234/',
         lines: output.lines(),

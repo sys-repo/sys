@@ -82,25 +82,8 @@ export declare namespace Vite {
    * Vite dev command contract.
    */
   export namespace Dev {
-    /** Reporter mode for dev server output. */
-    export type ReporterMode = 'auto' | 'screen' | 'raw';
-
     /** Arguments passed to the [Vite.dev] method. */
-    export type Args = {
-      cwd?: t.StringAbsoluteDir;
-      /** Explicit path authority, bypassing config file discovery when known. */
-      paths?: t.ViteConfig.Paths;
-      port?: number;
-      /** Fail startup if the requested port is unavailable. */
-      strictPort?: boolean;
-      pkg?: t.Pkg; // Consumer module.
-      silent?: boolean;
-      /** Select parent-owned screen reporting or raw Vite passthrough. */
-      reporter?: ReporterMode;
-      /** Maximum visible Vite output rows in screen reporter mode. */
-      logLines?: number;
-      until?: t.UntilInput;
-    };
+    export type Args = Options & PackageInput;
 
     /** Vite child process for long-running commands such as `$ vite dev`. */
     export type Process = t.LifecycleAsync & {
@@ -110,5 +93,29 @@ export declare namespace Vite {
       listen(): Promise<void>;
       keyboard(): Promise<void>;
     };
+
+    /** Reporter mode for dev server output. */
+    export type ReporterMode = 'auto' | 'screen' | 'raw';
+
+    /** Base dev-server options independent of package identity. */
+    export type Options = {
+      cwd?: t.StringAbsoluteDir;
+      /** Explicit path authority, bypassing config file discovery when known. */
+      paths?: t.ViteConfig.Paths;
+      port?: number;
+      /** Fail startup if the requested port is unavailable. */
+      strictPort?: boolean;
+      silent?: boolean;
+      /** Select parent-owned screen reporting or raw Vite passthrough. */
+      reporter?: ReporterMode;
+      /** Maximum visible Vite output rows in screen reporter mode. */
+      logLines?: number;
+      until?: t.UntilInput;
+    };
+
+    /** Package-backed presentation input; subpaths cannot exist without package metadata. */
+    export type PackageInput =
+      | { pkg?: undefined; pkgSubpath?: never }
+      | { pkg: t.Pkg; pkgSubpath?: string };
   }
 }

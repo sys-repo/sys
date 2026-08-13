@@ -15,7 +15,7 @@ export const DevScreenLayout = {
   startup(args: t.ViteDev.Screen.Frame.StartupArgs): t.ViteDev.Screen.Frame.StartupOutput {
     const viewport = wrangle.viewport(args.viewport);
     const capacity = wrangle.capacity(viewport, args.cursorRows);
-    const headerRows = ViteScreenLayout.applicationHeader(args.pkg, viewport.width);
+    const headerRows = ViteScreenLayout.applicationHeader(args.identity, viewport.width);
     const visibleHeader = headerRows.slice(0, capacity);
     const showSpinner = viewport.width > 0 && capacity > visibleHeader.length;
     const bodyCapacity = Math.max(0, capacity - visibleHeader.length - (showSpinner ? 1 : 0));
@@ -53,7 +53,7 @@ export const DevScreenLayout = {
     const { width } = viewport;
     const capacity = wrangle.capacity(viewport, args.cursorRows);
     const subHr = ViteScreenLayout.dashedDivider(width);
-    const headerRows = ViteScreenLayout.applicationHeader(args.pkg, width);
+    const headerRows = ViteScreenLayout.applicationHeader(args.identity, width);
     const separator = ['', subHr];
     const fixedRowCount = headerRows.length + wrangle.readyMetadata(args, width, 1).length +
       separator.length;

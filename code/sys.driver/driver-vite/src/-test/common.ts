@@ -1,3 +1,4 @@
+export { WebFixture } from '@sys/testing/web';
 export {
   Browser,
   describe,

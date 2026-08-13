@@ -1,7 +1,8 @@
 import { DistServer, type t } from './common.ts';
+import { resolvePkgSubpath } from './u.pkgSubpath.ts';
 
 type ServeDependencies = {
-  readonly Local: Pick<t.DistServer.Local.Lib, 'serve'>;
+  Local: Pick<t.DistServer.Local.Lib, 'serve'>;
 };
 
 const PREVIEW_LIMITS = Object.freeze(
@@ -25,11 +26,13 @@ export async function serveWith(
 ) {
   if (args.cmd !== 'serve') return;
 
+  const pkgSubpath = resolvePkgSubpath(args);
   const { port = 8080, dir = 'dist', silent = false } = args;
   await deps.Local.serve({
     dir: dir as t.StringDir,
     limits: PREVIEW_LIMITS,
     port,
     silent,
+    ...(pkgSubpath === undefined ? {} : { pkgSubpath }),
   });
 }

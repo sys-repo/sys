@@ -4,30 +4,47 @@ import { Args, c, Path, pkg, type t, ViteLog } from './common.ts';
 import { build } from './u.build.ts';
 import { dev } from './u.dev.ts';
 import { serve } from './u.serve.ts';
+import { resolvePkgSubpath } from './u.pkgSubpath.ts';
 
 type O = Record<string, unknown>;
+type CommandDependencies = Pick<t.ViteEntry.Lib, 'build' | 'dev' | 'serve'>;
+
+// Preserve both fields until reconciliation can reject conflicting caller input.
+const PKG_SUBPATH_FLAGS = ['pkgSubpath', 'pkg-subpath'] as const;
+const DEFAULT_COMMANDS: CommandDependencies = Object.freeze({ build, dev, serve });
 
 export const main: t.ViteEntry.Lib['main'] = async (input) => {
-  const argsAsType = <T extends O>() => wrangle.args<T>((input ?? Deno.args) as string[]);
-  const args = argsAsType<t.ViteEntry.Args>();
+  return await mainWith(input, DEFAULT_COMMANDS);
+};
+
+/** Internal dependency seam for deterministic command-dispatch tests. */
+export async function mainWith(
+  input: string[] | t.ViteEntry.Args | undefined,
+  commands: CommandDependencies,
+) {
+  const args = wrangle.args<t.ViteEntry.Args>(input ?? Deno.args);
   const cmd = args.cmd;
 
   if (cmd === 'dev') {
+    resolvePkgSubpath(args);
     ViteLog.Tasks.log({ cmd: 'dev' });
-    await dev(args);
+    await commands.dev(args);
     return;
   }
 
   if (cmd === 'build') {
     if (!args.silent) ViteLog.Tasks.log({ cmd: 'build' });
-    await build(args);
+    await commands.build(args);
     return;
   }
 
   if (cmd === 'serve') {
-    if (!args.silent) ViteLog.Tasks.log({ cmd: 'serve' });
-    console.info();
-    await serve(args);
+    resolvePkgSubpath(args);
+    if (!args.silent) {
+      ViteLog.Tasks.log({ cmd: 'serve' });
+      console.info();
+    }
+    await commands.serve(args);
     return;
   }
 
@@ -48,13 +65,15 @@ export const main: t.ViteEntry.Lib['main'] = async (input) => {
 
   // Command not matched.
   console.error(`The given --cmd="${c.yellow(c.bold(cmd))}" is not supported.`);
-};
+}
 
 /**
  * Helpers
  */
 const wrangle = {
   args<T extends O>(argv: string[] | T) {
-    return Array.isArray(argv) ? Args.parse<T>(argv) : (argv as T);
+    return Array.isArray(argv)
+      ? Args.parse<T>(argv, { string: [...PKG_SUBPATH_FLAGS] })
+      : (argv as T);
   },
 } as const;

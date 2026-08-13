@@ -66,8 +66,15 @@ export const dev: t.Vite.Lib['dev'] = async (input) => devWithDeps(input);
 
 /** Internal dependency seam for deterministic lifecycle tests. */
 export async function devWithDeps(input: t.Vite.Dev.Args, deps: t.ViteDevDeps = {}) {
+  const parsedSubpath = Pkg.Subpath.parse(input.pkgSubpath);
+  if (parsedSubpath.kind === 'invalid') throw new Error('Vite.dev: invalid package subpath.');
+  if (parsedSubpath.kind === 'valid' && !input.pkg) {
+    throw new Error('Vite.dev: package subpath requires package metadata.');
+  }
+  const pkgSubpath = parsedSubpath.kind === 'valid' ? parsedSubpath.value : undefined;
   const { silent = false, pkg, strictPort = false } = input;
   const waitForHttp = deps.waitForHttp ?? Http.Client.waitFor;
+  const createScreen = deps.createScreen ?? DevScreen.create;
   const reporterMode = DevScreen.resolveReporter(input.reporter, {
     silent,
     hasPkg: Boolean(pkg),
@@ -200,9 +207,12 @@ export async function devWithDeps(input: t.Vite.Dev.Args, deps: t.ViteDevDeps = 
   }
 
   try {
-    screen = parentOwnsOutput && pkg
-      ? DevScreen.create({
-        pkg,
+    const identity: t.Cli.Fmt.Header.PackageIdentity | undefined = pkg && pkgSubpath
+      ? { root: pkg, subpath: pkgSubpath }
+      : pkg;
+    screen = parentOwnsOutput && identity
+      ? createScreen({
+        identity,
         dist,
         paths,
         url: () => resolvedUrl,

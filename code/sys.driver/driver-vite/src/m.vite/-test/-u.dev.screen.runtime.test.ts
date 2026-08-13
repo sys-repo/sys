@@ -13,6 +13,24 @@ type SchedulerEntry = {
 
 describe('DevScreen runtime', () => {
   describe('session acquisition', () => {
+    it('preserves compound identity from startup through ready repaint', () => {
+      const identity = {
+        root: { name: '@sys/example', version: '1.2.3' },
+        subpath: 'ui/preview',
+      } as const;
+      const runtime = createRuntimeHarness({ identity });
+
+      expect(stripAnsi(runtime.repaints[0] ?? '').startsWith('@sys/example/ui/preview')).to.eql(
+        true,
+      );
+      runtime.reporter.ready();
+      expect(stripAnsi(runtime.repaints.at(-1) ?? '').startsWith('@sys/example/ui/preview')).to.eql(
+        true,
+      );
+
+      runtime.reporter.dispose();
+    });
+
     it('starts with one header repaint, one spinner, and the seeded status row', () => {
       const runtime = createRuntimeHarness();
       const { reporter, spinner, repaints } = runtime;
@@ -72,7 +90,7 @@ describe('DevScreen runtime', () => {
       const terminal = createTerminalHarness(spinner);
       try {
         DevScreen.create({
-          pkg: pkg(),
+          identity: pkg(),
           paths: paths(),
           url: () => 'http://localhost:1234/',
           output,
@@ -100,7 +118,7 @@ describe('DevScreen runtime', () => {
 
       try {
         DevScreen.create({
-          pkg: pkg(),
+          identity: pkg(),
           paths: paths(),
           url: () => 'http://localhost:1234/',
           output,
@@ -176,7 +194,7 @@ describe('DevScreen runtime', () => {
       let schedules = 0;
       const terminal = createTerminalHarness(spinner);
       const reporter = DevScreen.create({
-        pkg: pkg(),
+        identity: pkg(),
         paths: paths(),
         url: () => 'http://localhost:1234/',
         output,
@@ -379,7 +397,7 @@ describe('DevScreen runtime', () => {
       };
 
       const reporter = DevScreen.create({
-        pkg: pkg(),
+        identity: pkg(),
         paths: paths(),
         url: () => 'http://localhost:1234/',
         output,
@@ -445,6 +463,7 @@ describe('DevScreen runtime', () => {
  * Helpers:
  */
 function createRuntimeHarness(options: {
+  identity?: t.Cli.Fmt.Header.PackageIdentity;
   until?: t.UntilInput;
   resizeOnSize?: t.ViteDev.Screen.Frame.Viewport;
   disposedEvents?: boolean;
@@ -473,7 +492,7 @@ function createRuntimeHarness(options: {
     repaint(frame);
   };
   const reporter = DevScreen.create({
-    pkg: pkg(),
+    identity: options.identity ?? pkg(),
     paths: paths(),
     url: () => 'http://localhost:1234/',
     output,
