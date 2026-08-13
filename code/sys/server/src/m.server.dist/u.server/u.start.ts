@@ -185,7 +185,8 @@ type ServeOutcome =
   | { readonly kind: 'server'; readonly ok: true }
   | { readonly kind: 'server'; readonly ok: false; readonly cause: unknown }
   | { readonly kind: 'screen'; readonly cause: unknown }
-  | { readonly kind: 'keyboard'; readonly cause: unknown };
+  | { readonly kind: 'keyboard'; readonly ok: true }
+  | { readonly kind: 'keyboard'; readonly ok: false; readonly cause: unknown };
 
 const DEFAULT_SERVE_EFFECTS: ServeEffects = Object.freeze({
   bindKeyboard: Cli.Keyboard.bind,
@@ -390,14 +391,15 @@ async function serveLoop(
   }
 
   let keyboard: ReturnType<ServeEffects['bindKeyboard']>;
-  let closed = false;
-  const closeStarted = async (cause?: unknown) => {
-    if (closed) return;
-    closed = true;
+  let closePromise: Promise<void> | undefined;
+  const closeStarted = (cause?: unknown) => {
+    return closePromise ??= Promise.resolve().then(() => started.close(cause));
+  };
+  const closePreserving = async (cause: unknown) => {
     try {
-      await started.close(cause);
+      await closeStarted(cause);
     } catch {
-      // Preserve the original presentation error.
+      // Preserve the failure that required shutdown.
     }
   };
 
@@ -405,11 +407,8 @@ async function serveLoop(
   try {
     if (input.keyboard.enabled) {
       keyboard = effects.bindKeyboard({
-        until: started.finished,
         exit: input.keyboard.exit,
-        onQuit: async () => {
-          await started.close('keyboard');
-        },
+        onQuit: () => closeStarted('keyboard'),
         onKey: (event) => {
           if (event.key === 'o') return effects.open(started.origin);
         },
@@ -432,7 +431,7 @@ async function serveLoop(
       until: started.dispose$,
     });
   } catch (cause) {
-    await closeStarted(cause);
+    await closePreserving(cause);
     cleanup([() => keyboard?.dispose()]);
     throw cause;
   }
@@ -448,8 +447,8 @@ async function serveLoop(
   if (keyboard) {
     outcomes.push(
       keyboard.finished.then(
-        () => new Promise<never>(() => {}),
-        (cause) => ({ kind: 'keyboard', cause } as const),
+        () => ({ kind: 'keyboard', ok: true } as const),
+        (cause) => ({ kind: 'keyboard', ok: false, cause } as const),
       ),
     );
   }
@@ -458,11 +457,16 @@ async function serveLoop(
   let failure: unknown;
   try {
     const outcome = await Promise.race(outcomes);
-    if (outcome.kind !== 'server') {
-      await closeStarted(outcome.cause);
+    if (outcome.kind === 'keyboard' && outcome.ok) {
+      await closeStarted('keyboard.finished');
+    } else if (outcome.kind !== 'server') {
+      await closePreserving(outcome.cause);
       throw outcome.cause;
+    } else if (!outcome.ok) {
+      throw outcome.cause;
+    } else if (closePromise) {
+      await closePromise;
     }
-    if (!outcome.ok) throw outcome.cause;
   } catch (cause) {
     failed = true;
     failure = cause;

@@ -349,7 +349,7 @@ describe('DistServer.serve', () => {
       expect(captured.silent).to.eql(true);
       expect(captured.keyboard).to.eql(false);
       expect(captured.info).to.eql(undefined);
-      expect(binding.until).to.equal(started.server.finished);
+      expect(binding.until).to.eql(undefined);
       expect(binding.exit).to.eql(false);
       expect(screenArgs.origin).to.eql('http://127.0.0.1:49152/');
       expect(screenArgs.identity).to.eql({
@@ -374,6 +374,108 @@ describe('DistServer.serve', () => {
       expect(keyboardDisposals).to.eql(1);
     } finally {
       started?.release();
+      Object.defineProperty(Cli.Is, 'interactive', { value: original, configurable: true });
+      await teardown(fixture);
+    }
+  });
+
+  it('closes when an acquired keyboard finishes before the server', async () => {
+    const original = Cli.Is.interactive;
+    Object.defineProperty(Cli.Is, 'interactive', { value: () => true, configurable: true });
+
+    const fixture = await setup();
+    const started = createStarted(49152);
+    const terminal = createInteractiveEffects(fixture);
+    try {
+      const running = runInteractiveServe(fixture, started, terminal.effects);
+      await listenerSettled();
+      terminal.finishKeyboard();
+      await running;
+
+      expect(started.closeCauses).to.eql(['keyboard.finished']);
+      expect(terminal.disposals()).to.eql({ keyboard: 1, screen: 1 });
+    } finally {
+      started.release();
+      Object.defineProperty(Cli.Is, 'interactive', { value: original, configurable: true });
+      await teardown(fixture);
+    }
+  });
+
+  it('surfaces shutdown failure after an acquired keyboard finishes', async () => {
+    const original = Cli.Is.interactive;
+    Object.defineProperty(Cli.Is, 'interactive', { value: () => true, configurable: true });
+
+    const fixture = await setup();
+    const closeFailure = new Error('keyboard-shutdown-failed');
+    const started = createStarted(49152, { closeFailure });
+    const terminal = createInteractiveEffects(fixture);
+    try {
+      const running = runInteractiveServe(fixture, started, terminal.effects);
+      await listenerSettled();
+      terminal.finishKeyboard();
+      const outcome = await running.then(
+        () => ({ rejected: false, cause: undefined }),
+        (cause) => ({ rejected: true, cause }),
+      );
+
+      expect(outcome).to.eql({ rejected: true, cause: closeFailure });
+      expect(started.closeCauses).to.eql(['keyboard.finished']);
+      expect(terminal.disposals()).to.eql({ keyboard: 1, screen: 1 });
+    } finally {
+      started.release();
+      Object.defineProperty(Cli.Is, 'interactive', { value: original, configurable: true });
+      await teardown(fixture);
+    }
+  });
+
+  it('retains quit shutdown failure after the listener settles first', async () => {
+    const original = Cli.Is.interactive;
+    Object.defineProperty(Cli.Is, 'interactive', { value: () => true, configurable: true });
+
+    const fixture = await setup();
+    const closeFailure = new Error('keyboard-quit-shutdown-failed');
+    const started = createStarted(49152, { closeFailure, finishBeforeCloseFailure: true });
+    const terminal = createInteractiveEffects(fixture);
+    try {
+      const running = runInteractiveServe(fixture, started, terminal.effects);
+      await listenerSettled();
+      const quitting = Promise.resolve(terminal.quit()).then(
+        () => ({ rejected: false, cause: undefined }),
+        (cause) => ({ rejected: true, cause }),
+      );
+      const outcome = await running.then(
+        () => ({ rejected: false, cause: undefined }),
+        (cause) => ({ rejected: true, cause }),
+      );
+
+      expect(await quitting).to.eql({ rejected: true, cause: closeFailure });
+      expect(outcome).to.eql({ rejected: true, cause: closeFailure });
+      expect(started.closeCauses).to.eql(['keyboard']);
+      expect(terminal.disposals()).to.eql({ keyboard: 1, screen: 1 });
+    } finally {
+      started.release();
+      Object.defineProperty(Cli.Is, 'interactive', { value: original, configurable: true });
+      await teardown(fixture);
+    }
+  });
+
+  it('disposes the keyboard without relabeling server-first completion', async () => {
+    const original = Cli.Is.interactive;
+    Object.defineProperty(Cli.Is, 'interactive', { value: () => true, configurable: true });
+
+    const fixture = await setup();
+    const started = createStarted(49152);
+    const terminal = createInteractiveEffects(fixture);
+    try {
+      const running = runInteractiveServe(fixture, started, terminal.effects);
+      await listenerSettled();
+      started.release();
+      await running;
+
+      expect(started.closeCauses).to.eql([]);
+      expect(terminal.disposals()).to.eql({ keyboard: 1, screen: 1 });
+    } finally {
+      started.release();
       Object.defineProperty(Cli.Is, 'interactive', { value: original, configurable: true });
       await teardown(fixture);
     }
@@ -718,7 +820,75 @@ function capture(input: Record<string, unknown>): CapturedStartInput {
   };
 }
 
-function createStarted(port: number): StartedController {
+type ServeEffects = NonNullable<Parameters<typeof serveLocalWith>[2]>;
+
+function runInteractiveServe(
+  fixture: Fixture,
+  started: StartedController,
+  effects: ServeEffects,
+) {
+  return serveLocalWith(
+    {
+      dir: fixture.source as t.StringDir,
+      limits: fixture.policy.verification,
+      silent: false,
+    },
+    {
+      ...DEFAULT_DEPENDENCIES,
+      verifyLocal: async () => verified(fixture),
+      startHttp: () => started.server,
+    },
+    effects,
+  );
+}
+
+function createInteractiveEffects(fixture: Fixture) {
+  let finishKeyboard = () => {};
+  const keyboardFinished = new Promise<void>((resolve) => {
+    finishKeyboard = resolve;
+  });
+  let quit: Parameters<typeof Cli.Keyboard.bind>[0]['onQuit'] | undefined;
+  let keyboardDisposals = 0;
+  let screenDisposals = 0;
+
+  const effects: ServeEffects = {
+    bindKeyboard: (options) => {
+      quit = options.onQuit;
+      return {
+        finished: keyboardFinished,
+        dispose() {
+          keyboardDisposals += 1;
+          finishKeyboard();
+        },
+      };
+    },
+    createScreen: () => ({
+      failure: new Promise<never>(() => {}),
+      dispose() {
+        screenDisposals += 1;
+      },
+    }),
+    open: () => {},
+    now: () => fixture.cloneDist().build.time,
+  };
+
+  return {
+    effects,
+    finishKeyboard,
+    quit() {
+      if (!quit) throw new Error('keyboard binding not acquired');
+      return quit();
+    },
+    disposals: () => ({ keyboard: keyboardDisposals, screen: screenDisposals }),
+  } as const;
+}
+
+type StartedOptions = {
+  readonly closeFailure?: unknown;
+  readonly finishBeforeCloseFailure?: boolean;
+};
+
+function createStarted(port: number, options: StartedOptions = {}): StartedController {
   let release = () => {};
   let fail = (_cause?: unknown) => {};
   const closeCauses: unknown[] = [];
@@ -736,6 +906,8 @@ function createStarted(port: number): StartedController {
     finished,
     close: async (cause?: unknown) => {
       closeCauses.push(cause);
+      if (options.finishBeforeCloseFailure) release();
+      if (options.closeFailure !== undefined) throw options.closeFailure;
       release();
     },
     dispose: async () => release(),
