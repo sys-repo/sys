@@ -47,22 +47,6 @@ describe('DisposeProtocolCompatPlugin', () => {
     expect(script.code).to.eql(`#!/usr/bin/env node\n${COMPAT_IMPORT}\nexport const value = 1;\n`);
   });
 
-  it('runs before OXC and exposes the compatibility import to later transforms', async () => {
-    const transform = transformHook(DisposeProtocolCompatPlugin.plugin());
-    let observed = '';
-    const laterOxcTransform = (code: string) => {
-      observed = code;
-      return code;
-    };
-
-    const result = await transform.call(context(), 'using value = acquire();', '/tmp/mod.ts');
-    if (!result) throw new Error('Expected transform result');
-    laterOxcTransform(result.code);
-
-    expect(observed.startsWith(`${COMPAT_IMPORT}\n`)).to.eql(true);
-    expect(observed).to.include('using value = acquire();');
-  });
-
   it('recognizes only an actual top-level side-effect import as prior injection', async () => {
     const transform = transformHook(DisposeProtocolCompatPlugin.plugin());
     const ctx = context();

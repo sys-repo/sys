@@ -20,9 +20,9 @@ type BrowserLoad = (url: string) => Promise<{
 const PROOF_PATH = '/-/browser-syntax-proof';
 const PROOF_TIMEOUT = 10_000;
 
-describe('Vite browser syntax shipping runtime', () => {
+describe('Vite browser syntax Chromium runtime', () => {
   it('runs lowered disposal in Chromium development and production', async () => {
-    const tmp = await Fs.makeTempDir({ prefix: 'Vite.browser-syntax.shipping.' });
+    const tmp = await Fs.makeTempDir({ prefix: 'Vite.browser-syntax.chromium.' });
     const dir = Fs.join(tmp.absolute, 'fixture');
     const load: BrowserLoad = async (url) =>
       await Browser.load(url, {
@@ -209,13 +209,13 @@ async function writeFixture(dir: string, proofUrl: string) {
       if (!proof.disposePreserved) throw new Error('dispose-symbol-identity');
       if (!proof.asyncDisposePreserved) throw new Error('async-dispose-symbol-identity');
       if (proof.phase !== 'development' && proof.phase !== 'production') {
-        throw new Error('shipping-phase:' + proof.phase);
+        throw new Error('chromium-phase:' + proof.phase);
       }
 
       const url = new URL(${Json.stringify(proofUrl)});
       for (const [key, value] of Object.entries(proof)) url.searchParams.set(key, String(value));
       const response = await fetch(url);
-      if (!response.ok) throw new Error('shipping-proof:' + response.status);
+      if (!response.ok) throw new Error('chromium-proof:' + response.status);
     `),
   );
   await Fs.write(

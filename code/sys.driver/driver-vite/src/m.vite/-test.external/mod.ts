@@ -7,7 +7,7 @@
  */
 import './-baseline.ts';
 import './-browser-syntax.runtime.ts';
-import './-browser-syntax.shipping.ts';
+import './-browser-syntax.chromium.ts';
 import './-dispose-protocol-compat.runtime.ts';
 import './-published-pure-jsr-authority.ts';
 import './-repo-generated.ts';
