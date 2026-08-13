@@ -18,7 +18,7 @@ import { browser } from './u.browser.ts';
 /**
  * Common flag evaluators.
  */
-export const Is: t.Is.Lib = {
+export const Is: t.Is.Lib = Object.freeze({
   get error() {
     return ErrIs.error;
   },
@@ -269,4 +269,4 @@ export const Is: t.Is.Lib = {
     if (Is.array<t.UntilInput>(input)) return input.every((v) => Is.untilInput(v));
     return Is.until(input);
   },
-};
+});

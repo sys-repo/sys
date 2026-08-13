@@ -2,11 +2,11 @@ import { Is, Num, type t } from '../common.ts';
 
 const PART_PREFIX = /^(sha256-[0-9a-f]{64})(?::size=(0|[1-9][0-9]*))?/;
 
-export const Part: t.Pkg.Dist.Part.Lib = {
+export const Part: t.Pkg.Dist.Part.Lib = Object.freeze({
   parse,
   hash: (value) => parse(value)?.hash,
   size: (value) => parse(value)?.size,
-};
+});
 
 /**
  * Helpers:

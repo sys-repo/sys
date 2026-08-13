@@ -12,7 +12,7 @@ import {
 } from './u.compare.ts';
 import { parse } from './u.parse.ts';
 
-export const Is: Semver.Is.Lib = {
+export const Is: Semver.Is.Lib = Object.freeze({
   /** Equality comparison between two SemVers. */
   eql,
 
@@ -59,7 +59,7 @@ export const Is: Semver.Is.Lib = {
       isEmptyArray(range.prerelease)
     );
   },
-};
+});
 
 /**
  * Helpers

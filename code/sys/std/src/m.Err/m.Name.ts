@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * The standard named error types (JS).
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors
  */
-export const Name: t.Err.Name.Lib = {
+export const Name: t.Err.Name.Lib = Object.freeze({
   error: 'Error',
   aggregate: 'AggregateError',
   eval: 'EvalError',
@@ -17,4 +17,4 @@ export const Name: t.Err.Name.Lib = {
   link: 'LinkError',
   runtime: 'RuntimeError',
   internal: 'InternalError',
-};
+});

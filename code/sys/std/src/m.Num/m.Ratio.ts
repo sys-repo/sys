@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 
-export const Ratio: t.Num.Ratio.Lib = {
+export const Ratio: t.Num.Ratio.Lib = Object.freeze({
   parse(value) {
     if (value == null) return undefined;
     if (typeof value === 'number') return isFinite(value) && value > 0 ? value : undefined;
@@ -67,4 +67,4 @@ export const Ratio: t.Num.Ratio.Lib = {
     const rounded = Math.round(ratio * 1000) / 1000;
     return `${rounded}${sep}1`;
   },
-};
+});

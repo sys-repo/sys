@@ -29,7 +29,7 @@ const KEY_CODES: Readonly<Record<string, number | undefined>> = {
 /**
  * Helpers for testing keyboard events in unit-tests.
  */
-export const Keyboard: t.DomMock.Keyboard.Lib = {
+export const Keyboard: t.DomMock.Keyboard.Lib = Object.freeze({
   event(type, key = 'z', keyCode, code, init) {
     const args = wrangle.event(key, keyCode, code, init);
     return new globalThis.window.KeyboardEvent(type, args);
@@ -45,7 +45,7 @@ export const Keyboard: t.DomMock.Keyboard.Lib = {
     const e = event ?? Keyboard.keydownEvent();
     globalThis.document.dispatchEvent(e);
   },
-} as const;
+});
 
 /**
  * Helpers:

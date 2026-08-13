@@ -4,8 +4,8 @@ import type { JsrUrl } from './t.ts';
 const PKG_NAME = /^@[a-z0-9][a-z0-9-]*\/[a-z0-9][a-z0-9-]*$/;
 
 /** JSR package-name type predicates. */
-export const Is: JsrUrl.Pkg.IsLib = {
+export const Is: JsrUrl.Pkg.IsLib = Object.freeze({
   name(input): input is t.StringPkgName {
     return StdIs.string(input) && PKG_NAME.test(input);
   },
-};
+});

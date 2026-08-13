@@ -1,7 +1,7 @@
 import { isRecord } from '../common.ts';
 import type { t } from '../common.ts';
 
-export const Is: t.Err.Is.Lib = {
+export const Is: t.Err.Is.Lib = Object.freeze({
   error(input: unknown): input is Error {
     return input instanceof Error;
   },
@@ -37,4 +37,4 @@ export const Is: t.Err.Is.Lib = {
     if (!Array.isArray(input.errors)) return false;
     return input.errors.length > 0;
   },
-};
+});

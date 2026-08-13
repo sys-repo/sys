@@ -1,6 +1,6 @@
 import { Base, c, type t } from './common.ts';
 
-export const Fmt: t.Semver.Server.Fmt = {
+export const Fmt: t.Semver.Server.Fmt = Object.freeze({
   colorize(input, options = {}) {
     const {
       highlight,
@@ -33,4 +33,4 @@ export const Fmt: t.Semver.Server.Fmt = {
 
     return `${prefixColor(prefix)}${ver}${pre}`;
   },
-};
+});

@@ -5,7 +5,7 @@ import { equal } from './u.equality.ts';
 import { sortBy } from './u.sortBy.ts';
 import { startsWith } from './u.startsWith.ts';
 
-export const Arr: t.Arr.Lib = {
+export const Arr: t.Arr.Lib = Object.freeze({
   asArray,
   sortBy,
   startsWith,
@@ -48,4 +48,4 @@ export const Arr: t.Arr.Lib = {
     if (list.length <= 1) return list.slice();
     return [...new Set(list)];
   },
-};
+});

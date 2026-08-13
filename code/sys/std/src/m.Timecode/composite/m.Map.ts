@@ -3,9 +3,9 @@ import type { t } from './common.ts';
 /**
  * Mapping operations between the virtual timeline and source/slice domains.
  */
-export const Map: t.Timecode.Composite.Map.Lib = {
+export const Map: t.Timecode.Composite.Map.Lib = Object.freeze({
   toSource,
-};
+});
 
 /**
  * Map a virtual time to its backing source segment/time (or null).

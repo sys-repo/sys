@@ -35,7 +35,7 @@ export const Lens: t.Obj.Lens.Lib = {
   },
 
   /** Read-only variants. */
-  Readonly: {
+  Readonly: Object.freeze({
     at<T = unknown>(...path: PathInput[]): t.Obj.Lens.ReadonlyUnbound<T> {
       const cur = makeCurriedAll<T>(...path);
       const { path: p, get, exists, at: join } = cur;
@@ -54,5 +54,5 @@ export const Lens: t.Obj.Lens.Lib = {
     ): t.Obj.Lens.ReadonlyRef<S, T> {
       return this.at<T>(...path).bind(subject);
     },
-  },
+  }),
 };

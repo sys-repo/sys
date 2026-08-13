@@ -1,9 +1,9 @@
 import { type t } from './common.ts';
 
-export const Time: t.Timecode.Composite.Lib['Time'] = {
+export const Time: t.Timecode.Composite.Lib['Time'] = Object.freeze({
   toVirtual,
   clamp,
-};
+});
 
 /**
  * Convert a source timestamp inside a segment to virtual time.

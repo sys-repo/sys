@@ -1,4 +1,4 @@
-import { type t, Is } from './common.ts';
+import { Is, type t } from './common.ts';
 
 // Matches alias keys like:
 //    :index
@@ -7,8 +7,8 @@ import { type t, Is } from './common.ts';
 //    :assets-2025
 const ALIAS_KEY = /^:([a-z0-9]+(-[a-z0-9]+)*)$/;
 
-export const AliasIs: t.AliasResolver.Is.Lib = {
+export const AliasIs: t.AliasResolver.Is.Lib = Object.freeze({
   aliasKey(input?: unknown): input is t.Alias.Key {
     return Is.string(input) && ALIAS_KEY.test(input);
   },
-};
+});

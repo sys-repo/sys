@@ -3,7 +3,7 @@ import { Is as StdIs, type t } from './common.ts';
 /**
  * Predicates over numeric values.
  */
-export const Is: t.Num.Is.Lib = {
+export const Is: t.Num.Is.Lib = Object.freeze({
   finite(input?: unknown): input is number {
     return StdIs.number(input) && Number.isFinite(input);
   },
@@ -15,4 +15,4 @@ export const Is: t.Num.Is.Lib = {
   safeInt(input?: unknown): input is number {
     return Is.int(input) && Number.isSafeInteger(input);
   },
-};
+});

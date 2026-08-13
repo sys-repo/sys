@@ -1,7 +1,7 @@
-import { type t, Is } from '../common.ts';
+import { Is, type t } from '../common.ts';
 import { normalize } from './u.ts';
 
-export const Range: t.Num.Percent.Range.Lib = {
+export const Range: t.Num.Percent.Range.Lib = Object.freeze({
   toPercent(value, range) {
     if (!Range.isRange(range)) return 0;
     const [min, max] = range;
@@ -19,4 +19,4 @@ export const Range: t.Num.Percent.Range.Lib = {
     if (!Array.isArray(input)) return false;
     return Is.number(input[0]) && Is.number(input[1]);
   },
-} as const;
+});

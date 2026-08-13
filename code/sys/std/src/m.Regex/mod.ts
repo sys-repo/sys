@@ -4,7 +4,7 @@
  */
 import { type t } from './common.ts';
 
-export const Regex: t.Regex.Lib = {
+export const Regex: t.Regex.Lib = Object.freeze({
   /**
    * Escapes special characters in a string to be used in a regular expression.
    * @param input The string to escape.
@@ -13,4 +13,4 @@ export const Regex: t.Regex.Lib = {
   escape(input) {
     return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   },
-};
+});

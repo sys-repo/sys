@@ -5,9 +5,9 @@ import { within } from '../u/within.ts';
 /**
  * Path type verification flags.
  */
-export const Is: t.Path.Is.Lib = {
+export const Is: t.Path.Is.Lib = Object.freeze({
   glob,
   within,
   absolute,
   relative: (path) => !Is.absolute(path),
-};
+});

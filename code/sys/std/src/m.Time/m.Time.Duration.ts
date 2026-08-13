@@ -3,12 +3,12 @@ import { Num, type t } from './common.ts';
 
 const { MINUTE, SECOND, DAY, HOUR } = TimeDate;
 
-const To: t.Time.Duration.To = {
+const To: t.Time.Duration.To = Object.freeze({
   sec: (msec: number, round?: number) => Num.round(msec / 1000, round),
   min: (msec: number, round?: number) => Num.round(msec / 1000 / 60, round),
   hour: (msec: number, round?: number) => Num.round(msec / 1000 / 60 / 60, round),
   day: (msec: number, round?: number) => Num.round(msec / 1000 / 60 / 60 / 24, round),
-};
+});
 
 /**
  * Library: tools for working with an elapsed duration of time.

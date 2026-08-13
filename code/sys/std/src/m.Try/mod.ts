@@ -6,6 +6,6 @@ import type { t } from './common.ts';
 import { _catch } from './u.catch.ts';
 import { run } from './u.run.ts';
 
-export const Try: t.Try.Lib = {
+export const Try: t.Try.Lib = Object.freeze({
   run: run as t.TryRun,
-};
+});

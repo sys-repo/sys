@@ -11,7 +11,7 @@ const raf = makeScheduleFn('raf');
  * Minimal, consistent API for deferring work (microtask, macrotask, or frame),
  * with lifecycle-aware and static forms.
  */
-export const Schedule: t.Schedule.Lib = {
+export const Schedule: t.Schedule.Lib = Object.freeze({
   make: (life, mode = 'micro') => makeScheduleFn(mode, life),
   queue,
   sleep,
@@ -26,4 +26,4 @@ export const Schedule: t.Schedule.Lib = {
   micro: makeScheduleFn('micro'),
   macro: makeScheduleFn('macro'),
   raf,
-};
+});

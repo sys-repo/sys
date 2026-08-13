@@ -9,7 +9,7 @@ const DEFAULTS: MouseEventInit = {
 /**
  * Helpers for testing mouse events in unit-tests.
  */
-export const Mouse: t.DomMock.Mouse.Lib = {
+export const Mouse: t.DomMock.Mouse.Lib = Object.freeze({
   event(type, init) {
     return new globalThis.window.MouseEvent(type, wrangle.init(init));
   },
@@ -38,7 +38,7 @@ export const Mouse: t.DomMock.Mouse.Lib = {
       up: Mouse.up(el, init),
     };
   },
-} as const;
+});
 
 /**
  * Helpers:

@@ -4,7 +4,7 @@ import { Rel } from './m.Rel.ts';
 /**
  * Predicates over object-paths (arrays of segments).
  */
-export const Is: t.Obj.Path.Is.Lib = {
+export const Is: t.Obj.Path.Is.Lib = Object.freeze({
   path(v?: unknown): v is t.ObjectPath {
     if (!Array.isArray(v)) return false;
     for (const x of v) {
@@ -32,4 +32,4 @@ export const Is: t.Obj.Path.Is.Lib = {
   descendantOf(a, b) {
     return Rel.relate(a, b) === 'descendant';
   },
-};
+});

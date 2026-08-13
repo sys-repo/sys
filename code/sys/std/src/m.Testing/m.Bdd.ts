@@ -27,7 +27,7 @@ export {
 /**
  * BDD semantics ("Behavior Driven Development") helpers.
  */
-export const Bdd: t.Bdd.Lib = {
+export const Bdd: t.Bdd.Lib = Object.freeze({
   describe,
   it,
 
@@ -38,4 +38,4 @@ export const Bdd: t.Bdd.Lib = {
 
   expect,
   expectError,
-};
+});

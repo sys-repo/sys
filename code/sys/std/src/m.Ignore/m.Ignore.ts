@@ -4,7 +4,7 @@ import { Path, type t } from './common.ts';
 /**
  * Tools for working with ignore files (eg. ".gitignore").
  */
-export const Ignore: t.Ignore.Lib = {
+export const Ignore: t.Ignore.Lib = Object.freeze({
   normalize(input) {
     return wrangle.normalize(input);
   },
@@ -41,7 +41,7 @@ export const Ignore: t.Ignore.Lib = {
       },
     };
   },
-};
+});
 
 /**
  * Helpers

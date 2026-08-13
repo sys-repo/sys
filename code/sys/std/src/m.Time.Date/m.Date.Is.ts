@@ -1,9 +1,9 @@
-import { type t, StdDate } from './common.ts';
+import { StdDate, type t } from './common.ts';
 
 /**
  * Library: Tools for working with date/day values.
  */
-export const Is: t.Date.Is.Lib = {
+export const Is: t.Date.Is.Lib = Object.freeze({
   leapYear: StdDate.isLeap,
   leapYearUtc: StdDate.isUtcLeap,
-};
+});

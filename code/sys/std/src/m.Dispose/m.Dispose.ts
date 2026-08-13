@@ -12,7 +12,7 @@ import { abortable } from './u.abortable.ts';
  * Created owners route explicit and protocol requests through one disposal operation and expose it via
  * `dispose$`; projections may intentionally withhold disposal authority.
  */
-export const Dispose: t.Dispose.Lib = {
+export const Dispose: t.Dispose.Lib = Object.freeze({
   done,
   until,
 
@@ -22,4 +22,4 @@ export const Dispose: t.Dispose.Lib = {
   toLifecycle,
 
   omitDispose,
-};
+});

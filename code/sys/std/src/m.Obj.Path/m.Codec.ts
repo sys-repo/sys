@@ -86,11 +86,11 @@ const dot: t.Obj.Path.Codec.Definition = {
   },
 };
 
-export const Codec: t.Obj.Path.Codec.Lib = {
+export const Codec: t.Obj.Path.Codec.Lib = Object.freeze({
   default: pointer,
   pointer,
   dot,
-} as const;
+});
 
 /**
  * Helpers:

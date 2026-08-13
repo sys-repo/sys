@@ -1,11 +1,11 @@
-import { t, StdIs } from './common.ts';
+import { StdIs, t } from './common.ts';
 
 type Event = { type: string; payload: unknown };
 
 /**
  * Type guards (boolean evaluators).
  */
-export const Is: t.Rx.Is.Lib = {
+export const Is: t.Rx.Is.Lib = Object.freeze({
   observable: StdIs.observable,
   subject: StdIs.subject,
 
@@ -41,4 +41,4 @@ export const Is: t.Rx.Is.Lib = {
 
     return true;
   },
-};
+});

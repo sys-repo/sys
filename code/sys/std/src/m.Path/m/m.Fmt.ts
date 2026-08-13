@@ -3,7 +3,7 @@ import { Is, type t } from '../common.ts';
 /**
  * CLI Formatting tools.
  */
-export const Format: t.Path.Format.Lib = {
+export const Format: t.Path.Format.Lib = Object.freeze({
   /**
    * Path color formatting.
    */
@@ -30,7 +30,7 @@ export const Format: t.Path.Format.Lib = {
 
     return res.join('');
   },
-};
+});
 
 /**
  * Helpers

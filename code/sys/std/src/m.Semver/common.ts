@@ -6,6 +6,6 @@ export { Err } from '../m.Err/mod.ts';
 /**
  * Constants
  */
-export const Release: Semver.Release.Lib = {
+export const Release: Semver.Release.Lib = Object.freeze({
   types: ['pre', 'major', 'premajor', 'minor', 'preminor', 'patch', 'prepatch', 'prerelease'],
-};
+});

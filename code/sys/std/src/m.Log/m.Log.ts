@@ -4,7 +4,7 @@ import { makeLogger as logger } from './u.logger.ts';
 /**
  * Tools for standardised console logging.
  */
-export const Log: t.Log.Lib = {
+export const Log: t.Log.Lib = Object.freeze({
   levels,
   logger,
-};
+});

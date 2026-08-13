@@ -1,11 +1,11 @@
 import { type t } from './common.ts';
 import { normalize } from './u.normalize.ts';
 
-export const Durations: t.Timecode.Composite.Lib['Durations'] = {
+export const Durations: t.Timecode.Composite.Lib['Durations'] = Object.freeze({
   diff,
   probe,
   with: merge,
-};
+});
 
 /**
  * List srcs whose duration changed.

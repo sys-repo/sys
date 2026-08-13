@@ -2,7 +2,7 @@ import { type t } from './common.ts';
 
 const collatorCache = new Map<string, Intl.Collator>();
 
-export const Compare: t.Str.Compare.Lib = {
+export const Compare: t.Str.Compare.Lib = Object.freeze({
   codeUnit() {
     return (a: string, b: string) => a < b ? -1 : a > b ? 1 : 0;
   },
@@ -11,7 +11,7 @@ export const Compare: t.Str.Compare.Lib = {
     const collator = getCollator(options);
     return (a: string, b: string) => collator.compare(a, b);
   },
-};
+});
 
 /**
  * Helpers

@@ -4,7 +4,7 @@ import { PkgIs } from './m.Is.ts';
 
 export const Dist: t.Pkg.Dist.Lib = {
   Part,
-  Compat: {
+  Compat: Object.freeze({
     legacy(input): input is t.DistPkgLegacy {
       return PkgIs.distCompat(input) && !PkgIs.dist(input);
     },
@@ -16,11 +16,11 @@ export const Dist: t.Pkg.Dist.Lib = {
       const legacy = input;
       return { ...legacy, build: { ...legacy.build, hash: { policy } } };
     },
-  },
-  Is: {
+  }),
+  Is: Object.freeze({
     codePath(path) {
       if (typeof path !== 'string') return false;
       return path.startsWith('pkg/') || path.includes('/pkg/');
     },
-  },
+  }),
 };

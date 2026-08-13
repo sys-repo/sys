@@ -1,10 +1,10 @@
 import { type t } from './common.ts';
 import { resolve } from './u.resolve.ts';
 
-export const Ops: t.Timecode.Composite.Lib['Ops'] = {
+export const Ops: t.Timecode.Composite.Lib['Ops'] = Object.freeze({
   splice,
   concat,
-};
+});
 
 /**
  * Insert pieces at segment boundary; returns a new resolved timeline.

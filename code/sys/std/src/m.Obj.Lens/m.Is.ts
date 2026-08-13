@@ -1,12 +1,12 @@
 import { isRecord, Path, type t } from './common.ts';
 
-export const Is: t.Obj.Lens.Is.Lib = {
+export const Is: t.Obj.Lens.Is.Lib = Object.freeze({
   lens: isLensUnbound,
   lensRef: isLensRefAny,
   lensRefReadonly: isLensRefReadonly,
   lensRefWritable: isLensRefWritable,
   readonly: (v?: unknown): boolean => isLensRefReadonly(v),
-};
+});
 
 function isLensRefAny(
   v: unknown,

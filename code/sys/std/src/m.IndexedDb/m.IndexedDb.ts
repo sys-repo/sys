@@ -70,7 +70,7 @@ export const IndexedDb: Type.IndexedDb.Lib = {
   /**
    * Operations on DB record objects.
    */
-  Record: {
+  Record: Object.freeze({
     /**
      * Retrieves the value of the first record matching the
      * given key or key range in query.
@@ -96,12 +96,12 @@ export const IndexedDb: Type.IndexedDb.Lib = {
     delete<T>(store: IDBObjectStore, key: IDBValidKey | IDBKeyRange) {
       return IndexedDb.asPromise<T>(store.delete(key));
     },
-  },
+  }),
 
   /**
    * Determine if an IDBDatabase is closed.
    */
-  Database: {
+  Database: Object.freeze({
     isClosed(db: IDBDatabase) {
       let res = false;
       try {
@@ -111,5 +111,5 @@ export const IndexedDb: Type.IndexedDb.Lib = {
       }
       return res;
     },
-  },
+  }),
 } as const;
