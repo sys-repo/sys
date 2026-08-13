@@ -1,4 +1,4 @@
-import { describe, expect, Fs, Http, it, pkg, SAMPLE, Testing } from '../../-test.ts';
+import { describe, expect, Fs, Http, Is, it, pkg, ROOT, SAMPLE, Testing } from '../../-test.ts';
 import { Vite } from '../mod.ts';
 import { writeLocalBridgeImports } from './u.bridge.fixture.ts';
 import { hasExplicitResourceManagementSyntax } from './u.syntax.ts';
@@ -20,9 +20,9 @@ describe('Vite @sys bridge integration', () => {
       const tsconfig = (await Fs.readJson<T>(tsconfigPath)).data ?? {};
       const imports =
         (await Fs.readJson<{ imports?: Record<string, string> }>(importsPath)).data?.imports ?? {};
-      const dependencies =
-        (await Fs.readJson<{ dependencies?: Record<string, string> }>(packagePath)).data
-          ?.dependencies ?? {};
+      const dependencies = await packageDependencies(packagePath);
+      const oxcRuntimeVersion = await rootDevDependencyVersion('@oxc-project/runtime');
+
       expect(tsconfig.compilerOptions?.allowJs).to.eql(true);
       expect(tsconfig.compilerOptions?.checkJs).to.eql(false);
       expect(tsconfig.compilerOptions?.jsx).to.eql('react-jsx');
@@ -30,9 +30,9 @@ describe('Vite @sys bridge integration', () => {
       expect(tsconfig.include).to.eql(['src/**/*']);
       expect(imports['@rolldown/pluginutils']).to.eql(undefined);
       expect(imports['@oxc-project/runtime/helpers/usingCtx']).to.eql(
-        'npm:@oxc-project/runtime@0.143.0/helpers/usingCtx',
+        `npm:@oxc-project/runtime@${oxcRuntimeVersion}/helpers/usingCtx`,
       );
-      expect(dependencies['@oxc-project/runtime']).to.eql('0.143.0');
+      expect(dependencies['@oxc-project/runtime']).to.eql(oxcRuntimeVersion);
       expect(imports['@sys/std/dispose/compat']).to.match(
         /code\/sys\/std\/src\/m\.Dispose\/m\.Compat\/mod\.ts$/,
       );
@@ -138,3 +138,20 @@ describe('Vite @sys bridge integration', () => {
     });
   });
 });
+
+/**
+ * Helpers:
+ */
+
+async function packageDependencies(path: string) {
+  const pkg = (await Fs.readJson<{ dependencies?: Record<string, string> }>(path)).data;
+  return pkg?.dependencies ?? {};
+}
+
+async function rootDevDependencyVersion(name: string) {
+  const path = ROOT.resolve('package.json');
+  const pkg = (await Fs.readJson<{ devDependencies?: Record<string, string> }>(path)).data;
+  const version = pkg?.devDependencies?.[name];
+  if (Is.str(version)) return version;
+  throw new Error(`Missing root package version authority for ${name}`);
+}
