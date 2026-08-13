@@ -280,6 +280,7 @@ async function serveVerified(
 
     const app = deps.createApp({ static: false, cors: false });
     const hosts = { hosts: undefined as undefined | ReadonlySet<string> };
+    const readSignal = () => started?.signal ?? life.signal;
     app.all('*', (context) => {
       const request = context.req.raw;
       if (!hosts.hosts || !acceptsHost(request, hosts.hosts)) return hostRejected();
@@ -299,12 +300,13 @@ async function serveVerified(
         path,
         cache: 'no-store',
         read: () => {
+          const signal = readSignal();
           return readAsset({
             backing,
             dir: input.dir,
             path,
-            signal: life.signal,
-            until: [life.signal, request.signal],
+            signal,
+            until: signal,
             deps,
           });
         },

@@ -1,4 +1,4 @@
-import { describe, expect, Files, it, type t } from '../../-test.ts';
+import { describe, expect, Files, it, type t, Time } from '../../-test.ts';
 import { Dist, DistServer } from '../mod.ts';
 import { acceptedAuthorities } from '../u.server/u.host.ts';
 import { DEFAULT_DEPENDENCIES, type StartDependencies, startWith } from '../u.server/u.start.ts';
@@ -236,10 +236,7 @@ describe('DistServer authority', () => {
         { path: 'empty.txt', size: 0 },
       ]);
       const until = reads[0]?.until;
-      expect(Array.isArray(until)).to.eql(true);
-      if (!Array.isArray(until)) throw new Error('Expected composed read lifecycle.');
-      expect(until.length).to.eql(2);
-      expect(until.every((value) => value instanceof AbortSignal)).to.eql(true);
+      expect(until).to.eql(server.signal);
       await server.close('test.zero.complete');
       server = undefined;
 
@@ -406,7 +403,7 @@ describe('DistServer authority', () => {
     }
   });
 
-  it('propagates request cancellation into an admitted pinned read', async () => {
+  it('ignores request abort and cancels a delayed admitted pinned read on server close', async () => {
     const fixture = await setup();
     let server: t.HttpServer.Started | undefined;
     try {
@@ -420,15 +417,10 @@ describe('DistServer authority', () => {
         ...DEFAULT_DEPENDENCIES,
         verify: () => Promise.resolve({ kind: 'verified', evidence: materialized.verification }),
         readPart(args) {
-          const values = Array.isArray(args.until) ? args.until : [args.until];
-          const signals: AbortSignal[] = [];
-          for (const value of values) {
-            if (value instanceof AbortSignal) signals.push(value);
-          }
-          expect(signals.length).to.eql(2);
-          const signal = AbortSignal.any(signals);
+          expect(args.until).to.eql(server?.signal);
           observed();
           return new Promise((resolve) => {
+            const signal = args.until as AbortSignal;
             if (signal.aborted) return resolve({ kind: 'cancelled' });
             signal.addEventListener('abort', () => resolve({ kind: 'cancelled' }), { once: true });
           });
@@ -441,18 +433,28 @@ describe('DistServer authority', () => {
         silent: true,
       }, deps);
 
-      const controller = new AbortController();
-      const pending = server.app.request(
+      const request = new AbortController();
+      let settled = false;
+      const pending = Promise.resolve(server.app.request(
         new Request('http://local.invalid/', {
           headers: { host: `localhost:${server.port}` },
-          signal: controller.signal,
+          signal: request.signal,
         }),
+      ));
+      void pending.then(
+        () => (settled = true),
+        () => (settled = true),
       );
       await called;
-      controller.abort('request.cancelled');
+      request.abort('test.request-abort');
+      await Time.wait(0);
+      expect(settled).to.eql(false);
+
+      await server.close('test.server-close');
       const response = await pending;
       expect(response.status).to.eql(499);
       await response.body?.cancel();
+      server = undefined;
     } finally {
       await server?.close('test.cleanup');
       await teardown(fixture);
