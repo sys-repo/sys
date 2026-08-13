@@ -1,10 +1,12 @@
 import { expect, Fs, Is, Obj } from './common.ts';
 
+type PermissionSet = { readonly run?: unknown };
 type DenoConfig = {
   readonly test?: {
     readonly sanitizeOps?: unknown;
     readonly sanitizeResources?: unknown;
   };
+  readonly permissions?: Record<string, PermissionSet>;
   readonly workspace?: readonly string[];
 };
 
@@ -29,6 +31,13 @@ Deno.test('Workspace sanitizer policy → owns strict root keys only', async () 
   }
 
   expect(memberOverrides).to.eql([]);
+});
+
+Deno.test('Testing permission lanes → separate unit, fixture-process, and browser authority', async () => {
+  const testing = await readConfig(Fs.join(ROOT_DIR, 'code/sys/testing/deno.json'));
+  expect(testing.permissions?.['test-unit']?.run).to.eql(undefined);
+  expect(testing.permissions?.['test-process']?.run).to.eql(['deno']);
+  expect(testing.permissions?.['test-browser']?.run).to.eql(true);
 });
 
 /**

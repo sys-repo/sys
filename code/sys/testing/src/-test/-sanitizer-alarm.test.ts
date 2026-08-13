@@ -9,7 +9,7 @@ const HarnessDuration = {
   startupTimeout: 30_000,
   executionTimeout: 15_000,
   drainTimeout: 5_000,
-  timeoutControl: 500,
+  timeoutControl: 100,
   timeoutMin: 100,
   timeoutMax: 30_000,
 } as const satisfies Record<string, t.Msecs>;
@@ -266,9 +266,17 @@ async function runFixture(scenario: Scenario): Promise<FixtureProcessResult> {
     scenario.timeout ?? HarnessDuration.executionTimeout,
   );
   const fixture = `./src/-test/fixtures/${scenario.fixture}`;
+  // The test:process fixture check owns type safety; each isolated child proves runtime behavior only.
   return await runFixtureProcess({
     label: 'Sanitizer alarm child',
-    args: ['test', '-P=test', '--no-prompt', ...(scenario.flags ?? []), fixture],
+    args: [
+      'test',
+      '-P=test-process',
+      '--no-prompt',
+      '--no-check',
+      ...(scenario.flags ?? []),
+      fixture,
+    ],
     cwd: PACKAGE_DIR,
     env: { FORCE_COLOR: '1' },
     marker: scenario.marker,

@@ -1,92 +1,55 @@
-import { Str, Time, type t } from './common.ts';
-import { connectCdp } from './u.chrome.cdp.ts';
+import { type t, Time } from './common.ts';
 import { collectBrowserErrors } from './u.chrome.errors.ts';
-import { chromeNotFoundError, findChrome } from './u.chrome.find.ts';
-import { launchModes, startChrome } from './u.chrome.launch.ts';
+import {
+  attachChromeTarget,
+  enableChromeTarget,
+  navigateChromeTarget,
+} from './u.chrome.protocol.ts';
+import { openChromeSession } from './u.chrome.session.ts';
 
 const DEFAULT_WAIT_AFTER_LOAD = 750;
-const CDP_CONNECT_TIMEOUT = 5_000;
-const PAGE_LOAD_TIMEOUT = 15_000;
 
-export async function loadChrome(url: string, options: t.Browser.Load.Options = {}): Promise<t.Browser.Load.Result> {
+export async function loadChrome(
+  url: string,
+  options: t.Browser.Load.Options = {},
+): Promise<t.Browser.Load.Result> {
   const browser: t.Browser.Kind = 'Chrome';
-  const executablePath = options.executablePath ?? await findChrome();
-  if (!executablePath) throw await chromeNotFoundError();
+  const executablePath = options.executablePath;
+  const waitAfterLoad = options.waitAfterLoad ?? DEFAULT_WAIT_AFTER_LOAD;
+  const allowError = options.allowError;
+  const session = await openChromeSession({ executablePath });
+  const errors: string[] = [];
+  let diagnosticsOpen = true;
+  let result: t.Browser.Load.Result | undefined;
+  let primary: unknown;
 
-  const startupFailures: string[] = [];
-  for (const mode of launchModes()) {
-    const start = await startChrome(executablePath, mode);
-    if (!start.ok) {
-      startupFailures.push(start.summary);
-      continue;
-    }
+  try {
+    const target = await attachChromeTarget(session.cdp);
+    const collect = collectBrowserErrors(errors, target.sessionId);
+    session.cdp.on((message) => {
+      if (diagnosticsOpen) collect(message);
+    });
+    await enableChromeTarget(session.cdp, target.sessionId);
+    await navigateChromeTarget(session.cdp, target.sessionId, target.mainFrameId, url);
+    await Time.wait(waitAfterLoad);
 
-    const errors: string[] = [];
-    try {
-      const cdp = await connectCdpWithRetry(start.browserWs);
-      try {
-        const { targetId } = await cdp.send<{ targetId: string }>('Target.createTarget', {
-          url: 'about:blank',
-        });
-        const { sessionId } = await cdp.send<{ sessionId: string }>('Target.attachToTarget', {
-          targetId,
-          flatten: true,
-        });
-
-        cdp.on(collectBrowserErrors(errors, sessionId));
-
-        await cdp.send('Runtime.enable', {}, sessionId);
-        await cdp.send('Log.enable', {}, sessionId);
-        await cdp.send('Page.enable', {}, sessionId);
-
-        const load = cdp.waitFor('Page.loadEventFired', sessionId, PAGE_LOAD_TIMEOUT);
-        await cdp.send('Page.navigate', { url }, sessionId);
-        await load;
-        await Time.wait(options.waitAfterLoad ?? DEFAULT_WAIT_AFTER_LOAD);
-      } finally {
-        await cdp.send('Browser.close').catch(() => undefined);
-        cdp.close();
-      }
-    } finally {
-      await start.dispose();
-    }
-
-    const fatal = options.allowError ? errors.filter((text) => !options.allowError?.(text)) : errors;
-    return {
+    await Time.wait(0);
+    diagnosticsOpen = false;
+    const fatal = allowError ? errors.filter((text) => !allowError(text)) : errors;
+    result = Object.freeze({
       ok: fatal.length === 0,
       url,
       browser,
-      executablePath,
-      errors: fatal,
-      stderr: start.stderr(),
-    };
+      executablePath: session.executablePath,
+      errors: Object.freeze([...fatal]),
+      stderr: session.stderr(),
+    });
+  } catch (cause) {
+    primary = cause;
   }
 
-  throw new Error(Str.dedent(`
-    Browser.load: Chrome failed to start a DevTools Protocol endpoint.
-
-    Chrome executable: ${executablePath}
-    Attempts: ${startupFailures.length}
-
-    ${startupFailures.join('\n\n')}
-  `).trim());
-}
-
-/**
- * Helpers:
- */
-async function connectCdpWithRetry(browserWs: string) {
-  const started = Date.now();
-  let lastError: unknown;
-  while (Date.now() - started < CDP_CONNECT_TIMEOUT) {
-    try {
-      return await connectCdp(browserWs);
-    } catch (error) {
-      lastError = error;
-      await Time.wait(100);
-    }
-  }
-
-  const message = lastError instanceof Error ? lastError.message : String(lastError);
-  throw new Error(`Failed to connect to Chrome DevTools Protocol: ${message}`);
+  if (primary !== undefined) result = undefined;
+  await session.close(primary);
+  if (!result) throw new Error('Browser.load settled without result evidence.');
+  return result;
 }

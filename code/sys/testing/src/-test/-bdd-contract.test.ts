@@ -219,9 +219,10 @@ Deno.test({
  */
 async function runScenario(scenario: Scenario): Promise<FixtureProcessResult> {
   const files = scenario.files.map((file) => `./src/-test/fixtures/${file}`);
+  // The test:process fixture check owns type safety; each isolated child proves runtime behavior only.
   return await runFixtureProcess({
     label: 'BDD fixture child',
-    args: ['test', '-P=test', '--no-prompt', ...files],
+    args: ['test', '-P=test-process', '--no-prompt', '--no-check', ...files],
     cwd: PACKAGE_DIR,
     env: { FORCE_COLOR: '1' },
     marker: BddMarker.ready,

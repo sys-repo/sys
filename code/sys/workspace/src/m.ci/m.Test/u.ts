@@ -8,6 +8,9 @@ export async function loadModule(cwd: t.StringDir, path: t.StringPath) {
 
   const name = file.name;
   const browser = wrangle.browser(file);
+  if (browser && !wrangle.hasTask(file, 'test:browser')) {
+    throw Err.std(`Browser-marked module is missing task "test:browser": ${path}`);
+  }
   return { path, name: Is.str(name) && name ? name : path, browser } as const;
 }
 
@@ -21,7 +24,7 @@ export function toMatrixItemYaml(module: { path: t.StringPath; name: string; bro
 async function loadJson(path: string) {
   try {
     const text = (await Fs.readText(path)).data ?? '';
-    return Json.parse(text) as { name?: unknown; 'x-sys'?: unknown };
+    return Json.parse(text) as { name?: unknown; tasks?: unknown; 'x-sys'?: unknown };
   } catch (cause) {
     throw Err.std(`Failed to load module deno.json: ${path}`, { cause });
   }
@@ -33,6 +36,11 @@ const wrangle = {
     const ci = wrangle.record(sys?.ci);
     const test = wrangle.record(ci?.test);
     return test?.browser === true;
+  },
+
+  hasTask(file: { tasks?: unknown }, name: string) {
+    const tasks = wrangle.record(file.tasks);
+    return Is.str(tasks?.[name]) && Boolean(tasks[name]);
   },
 
   record(input: unknown) {

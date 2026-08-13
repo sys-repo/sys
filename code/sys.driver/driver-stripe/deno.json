@@ -3,11 +3,12 @@
   "version": "0.0.149",
   "license": "MIT",
   "tasks": {
-    "test": "deno task test:check && deno task test:unit && deno task test:build && deno task test:dist",
+    "test": "deno task test:check && deno task test:unit && deno task test:build",
     "test:check": "deno check --frozen -- ./src/ ./-scripts/task.vite.ts ./-scripts/task.clean.ts ./-scripts/task.fixture.ts ./vite.config.ts",
     "test:unit": "deno test --frozen -P=test",
     "test:build": "VITE_STRIPE_SESSION_URL=http://127.0.0.1:9090/-/stripe/payment-intent deno run --frozen -P=dev ./-scripts/task.vite.ts --cmd=build --in=./src/index.html",
     "test:dist": "SYS_DRIVER_STRIPE_BROWSER_DIST=1 deno test -P=test-dist --trace-leaks ./src/ui/ui.PaymentElement/-test/-spec.bundle.test.ts ./src/ui/ui.PaymentElement/-test/-dist.browser.test.ts",
+    "test:browser": "deno task test:dist",
     "verify": "deno task check && deno task test",
     "dev": "VITE_STRIPE_SESSION_URL=http://127.0.0.1:9090/-/stripe/payment-intent deno run -P=dev ./-scripts/task.vite.ts --cmd=dev --in=./src/index.html",
     "build": "VITE_STRIPE_SESSION_URL=http://127.0.0.1:9090/-/stripe/payment-intent deno run -P=dev ./-scripts/task.vite.ts --cmd=build --in=./src/index.html",
@@ -75,4 +76,3 @@
     }
   }
 }
-

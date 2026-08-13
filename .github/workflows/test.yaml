@@ -172,3 +172,9 @@ jobs:
         run: |
           cd ${{ matrix.path }}
           deno task test
+
+      - name: browser test module → "${{ matrix.name }}"
+        if: ${{ matrix.browser == true }}
+        run: |
+          cd ${{ matrix.path }}
+          deno task test:browser

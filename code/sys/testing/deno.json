@@ -3,14 +3,13 @@
   "version": "0.0.338",
   "license": "MIT",
   "x-sys": {
-    "ci": {
-      "test": {
-        "browser": true
-      }
-    }
+    "ci": { "test": { "browser": true } }
   },
   "tasks": {
-    "test": "deno test -P=test",
+    "test": "deno task test:unit && deno task test:process",
+    "test:unit": "deno test -P=test-unit --ignore=./src/-test/-bdd-contract.test.ts --ignore=./src/-test/-sanitizer-alarm.test.ts --ignore=./src/-test/u.fixture-process.ts --ignore=./src/-test/fixtures --ignore=./src/m.server/m.Browser",
+    "test:process": "deno check -- ./src/-test/fixtures ./src/-test/u.fixture-process.ts && deno test -P=test-process ./src/-test/-bdd-contract.test.ts ./src/-test/-sanitizer-alarm.test.ts",
+    "test:browser": "deno test -P=test-browser --trace-leaks ./src/m.server/m.Browser/-test/-.test.ts ./src/m.server/m.Browser/-test/-internal.test.ts",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check -- ./src/ ./scripts/*",
     "clean": "deno run -P=clean ./scripts/task.clean.ts"
@@ -24,18 +23,15 @@
     "./web": "./src/m.web/mod.ts"
   },
   "permissions": {
-    "clean": {
+    "clean": { "read": true, "write": true, "env": true },
+    "test-unit": { "read": true, "write": true, "env": true, "net": true },
+    "test-process": { "read": true, "write": true, "env": true, "net": true, "run": ["deno"] },
+    "test-browser": {
       "read": true,
       "write": true,
-      "env": true
-    },
-    "test": {
-      "read": true,
-      "write": true,
-      "env": true,
-      "net": true,
+      "env": ["CHROME_BIN", "WS_NO_BUFFER_UTIL", "WS_NO_UTF_8_VALIDATE"],
+      "net": ["127.0.0.1"],
       "run": true
     }
   }
 }
-

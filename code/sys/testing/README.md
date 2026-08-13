@@ -1,30 +1,47 @@
 # Testing
 
-`@sys/testing` provides Deno-backed BDD tests, assertions, runtime fixtures, and browser/server test
-helpers.
+`@sys/testing` provides Deno-native BDD registration, assertions, and scoped fixtures for web,
+server, filesystem, and browser tests.
 
 ## Verify
 
 ```sh
 deno task check
 deno task test
+deno task test:browser
 deno task dry
 ```
 
-The test suite opens a local page in Chrome or Chromium. Set `CHROME_BIN` when the browser is not in
-a standard location.
+`deno task test` sequences a no-subprocess `test:unit` lane and a trusted package-harness
+`test:process` lane that launches isolated Deno sanitizer fixtures. Neither lane executes browser
+files. `deno task test:browser` runs under its own permission profile. It may launch Chrome, create
+a temporary profile, and connect to loopback fixtures and Chrome's CDP endpoint. Set `CHROME_BIN`
+only when Chrome or Chromium cannot be found in a standard location.
+
+## Browser tests
+
+Import `Browser` from `@sys/testing/server`.
+
+`Browser.load(...)` loads one URL and reports browser errors.
+
+`Browser.ServiceWorker.scenario(...)` runs an ordered sequence of `navigate`, `reload`, `update`,
+and `observe` actions in one temporary Chrome profile. The first navigation fixes the origin.
+Results are frozen snapshots of that run; they say nothing about another browser profile.
+
+The public API does not expose arbitrary page evaluation, the CDP client, launch flags, or the
+profile path.
 
 ## Execution
 
-The BDD API registers native Deno tests. Deno controls scheduling, sanitizers, permissions,
-timeouts, diagnostics, and reporting.
+The BDD API registers native Deno tests. Deno owns scheduling, sanitizers, permissions, timeouts,
+diagnostics, and reporting.
 
 Top-level options pass to `Deno.test`. Supported nested options pass to `Deno.TestContext.step`.
 Nested permissions and timeouts are rejected because Deno steps cannot enforce them.
 
-Workspace tests fail on leaked asynchronous operations or resources. Teardown may finish work
-started in a nested step before the parent leak check. To disable a leak check for one test, name
-that check explicitly.
+Operation and resource sanitizers are enabled at the workspace root. Parent teardown may finish work
+started by a nested step before Deno checks the parent. Opt out only on the affected top-level test
+with `sanitizeOps: false` or `sanitizeResources: false`.
 
 `todo` registers an ignored test with a visible `[todo]` name. Its body does not run.
 
@@ -33,8 +50,8 @@ or exit sanitizers.
 
 ## Write a test
 
-Use `-.test.ts` for a module contract and `-m.<subject>.test.ts` for focused behavior. Deno
-discovers `*.test.ts`; the leading hyphen keeps tests grouped with their source files.
+Name module contract tests `-.test.ts` and focused tests `-m.<subject>.test.ts`. Deno discovers
+`*.test.ts`; the leading hyphen keeps tests beside their source.
 
 ```ts
 import { describe, expect, it } from '@sys/testing';
@@ -46,6 +63,8 @@ describe('My Suite', () => {
 });
 ```
 
+Use `.equal` only for identity and `.eql` for structural equality.
+
 Use the server entry point when a test needs filesystem or browser helpers:
 
 ```ts
@@ -54,35 +73,31 @@ import { describe, expect, Fs, it, Path } from '@sys/testing/server';
 
 ## Web fixtures
 
-A Web fixture temporarily changes part of the runtime for a test, then restores its exact prior
-state.
+A Web fixture owns a temporary runtime change and restores the prior property descriptor.
 
-`@sys/testing/web` provides ready-made `Fetch` and `WebSocket` fixtures and `Property`, the
-transaction primitive that owns their setup and restoration.
+`@sys/testing/web` provides `Property` transactions plus ready-made `Fetch` and `WebSocket`
+fixtures. Both fixtures build on `Property`, so setup, rollback, and restoration follow one
+contract.
 
-`Property` separates lifecycle mechanics from fixture behavior. `Fetch`, `WebSocket`, and future
-fixtures reuse one exact ownership and restoration contract instead of implementing cleanup
-independently.
-
-Import Web-runtime fixtures from `@sys/testing/web`:
+Import the fixtures from `@sys/testing/web`:
 
 ```ts
 import { WebFixture } from '@sys/testing/web';
 ```
 
-Every mock handle supports both `using` and `.dispose()`. Successful disposal restores the exact
-prior property descriptor. Calling it again has no effect.
+Every mock handle supports `using` and `.dispose()`. Successful disposal restores the exact prior
+descriptor; repeated disposal has no effect.
 
-`WebFixture.Property.isCleanupError(error)` identifies incomplete cleanup. Its `rollback` handle
-remains available after a `using` scope and retries only unfinished work. If the scope body also
-throws, JavaScript retains the cleanup error inside `SuppressedError`.
+`WebFixture.Property.isCleanupError(error)` identifies incomplete cleanup. The error's `rollback`
+handle retries only unfinished work, including after a `using` scope. If the scope body and disposal
+both fail, JavaScript throws a `SuppressedError` containing both failures.
 
-Dispose nested mocks in reverse creation order (LIFO). A `using` scope does this automatically. Do
-not mutate an owned property or run parallel tests that mock the same target and property.
+Dispose nested mocks in reverse creation order (LIFO); a `using` scope does this automatically. Do
+not mutate an owned property or mock the same target and property in parallel tests.
 
 ### Property
 
-Use `Property.mock` to replace one or more own properties as one transaction.
+Use `Property.mock` to replace one or more own properties in one transaction.
 
 ```ts
 const target = {};
@@ -102,14 +117,14 @@ const target = {};
 Object.getOwnPropertyDescriptor(target, 'status'); // undefined
 ```
 
-A new temporary property must be configurable so it can be removed. For ordinary objects, any change
-that cannot be undone is rejected before a target is changed.
+A new property must be configurable so it can be removed. For ordinary objects, irreversible changes
+are rejected before any target is mutated.
 
-Setup either installs every entry or restores those already installed. Incomplete setup and disposal
-both retain retry authority through the cleanup error.
+Setup installs every entry or rolls back in LIFO order. If setup rollback or disposal cannot finish,
+the cleanup error retains a `rollback` handle for the remaining entries.
 
-Exact proxy and host-object restoration requires stable, truthful property descriptors. If cleanup
-is rejected, correct the blocking condition and retry through `rollback`.
+Proxies and host objects must report stable, truthful descriptors. If restoration is blocked,
+correct the blocking condition and call `rollback` again.
 
 ### Fetch
 
@@ -143,7 +158,7 @@ does not model messages, protocols, or `CloseEvent` metadata.
 
 ## Mock the DOM
 
-`DomMock` installs a server-side DOM for a test suite. The `afterAll` hook restores the prior
+`DomMock` installs a server-side DOM for a test suite. Its `afterAll` hook restores the prior
 environment.
 
 ```ts

@@ -13,7 +13,7 @@ describe('WorkspaceCi.Test', () => {
     });
     await Fs.writeJson(Fs.join(b, 'deno.json'), {
       name: '@scope/beta',
-      tasks: { test: 'deno task info' },
+      tasks: { test: 'deno task info', 'test:browser': 'deno task info' },
       'x-sys': { ci: { test: { browser: true } } },
     });
 
@@ -33,18 +33,37 @@ describe('WorkspaceCi.Test', () => {
     expect(incl('if: ${{ matrix.browser == true }}')).to.be.true;
     expect(incl('browser-actions/setup-chrome@v1')).to.be.false;
     expect(incl('FORCE_JAVASCRIPT_ACTIONS_TO_NODE24')).to.be.false;
-    expect(incl('for bin in google-chrome google-chrome-stable chromium chromium-browser')).to.be.true;
+    expect(incl('for bin in google-chrome google-chrome-stable chromium chromium-browser')).to.be
+      .true;
     expect(incl('echo "CHROME_BIN=$path" >> "$GITHUB_ENV"')).to.be.true;
     expect(incl('browser: true')).to.be.true;
     expect(incl('Verify workspace graph')).to.be.true;
     expect(incl('run: deno task check:graph')).to.be.true;
     expect(incl('deno task test')).to.be.true;
+    expect(incl('browser test module → "${{ matrix.name }}"')).to.be.true;
+    expect(incl('deno task test:browser')).to.be.true;
     expect(incl('max_attempts=3')).to.be.true;
     expect(incl('if deno task install; then')).to.be.true;
     expect(incl('dependency install failed')).to.be.true;
     expect(incl('push:')).to.be.true;
     expect(incl('- main')).to.be.true;
     expect(incl('pull_request:')).to.be.false;
+  });
+
+  it('browser marker without an explicit browser task → fails closed', async () => {
+    const fs = await Testing.dir('WorkspaceCi.Test.browser-task');
+    const moduleDir = fs.join('code/sys/browser-missing-task');
+
+    await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), {
+      name: '@scope/browser-missing-task',
+      tasks: { test: 'deno task info' },
+      'x-sys': { ci: { test: { browser: true } } },
+    });
+
+    await expectError(
+      async () => await WorkspaceCi.Test.text({ paths: [moduleDir] }),
+      'Browser-marked module is missing task "test:browser"',
+    );
   });
 
   it('writes YAML to disk', async () => {

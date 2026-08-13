@@ -25,7 +25,13 @@ export const TEST_BODY_TEMPLATE = `      - name: 'Configure Browser Runtime: Chr
       - name: test module → "\${{ matrix.name }}"
         run: |
           cd \${{ matrix.path }}
-          deno task test`;
+          deno task test
+
+      - name: browser test module → "\${{ matrix.name }}"
+        if: \${{ matrix.browser == true }}
+        run: |
+          cd \${{ matrix.path }}
+          deno task test:browser`;
 
 export const TEST_MATRIX_ITEM_TEMPLATE = `- name: "NAME"
   path: PATH`;
