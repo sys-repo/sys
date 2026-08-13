@@ -4,9 +4,18 @@ import { Fs } from '../m.Fs/mod.ts';
 import { Path } from './mod.ts';
 
 describe('Fs.Path', () => {
-  it('refs', () => {
+  it('extends the frozen std API by spread', () => {
     expect(Fs.Path).to.equal(Path);
     expect(Fs.Path).to.not.equal(StdPath);
+    expect(Object.isFrozen(StdPath)).to.eql(true);
+    expect(Object.keys(Path).sort()).to.eql(
+      [...Object.keys(StdPath), 'asDir', 'cwd', 'trimCwd'].sort(),
+    );
+
+    for (const key of Object.keys(StdPath) as Array<keyof typeof StdPath>) {
+      expect(Path[key]).to.equal(StdPath[key]);
+    }
+
     expect(Fs.join).to.eql(Path.join);
     expect(Fs.resolve('.')).to.eql(Path.resolve('.'));
     expect(Fs.dirname).to.eql(Path.dirname);

@@ -5,6 +5,12 @@ describe('Server ← test helpers', () => {
   describe('API', () => {
     it('base: std (includes HTTP)', async () => {
       const m = await import('@sys/std/testing/server');
+      expect(Testing).to.not.equal(m.Testing);
+      expect(Object.isFrozen(m.Testing)).to.eql(true);
+      expect(Object.keys(Testing).sort()).to.eql(
+        [...Object.keys(m.Testing), 'dir', 'connect'].sort(),
+      );
+
       const props = Object.keys(m.Testing) as (keyof typeof m.Testing)[];
       props.forEach((key) => expect(Testing[key]).to.equal(m.Testing[key]));
     });

@@ -36,11 +36,22 @@ describe('Pkg.Dist', () => {
     it('is not the [sys.std] client version, but surfaces all the [sys.std] interface', async () => {
       const { Pkg: Base } = await import('@sys/std/pkg');
       expect(Pkg.Dist).to.not.equal(Base.Dist); // NB: different instance.
+      expect(Object.isFrozen(Base.Dist)).to.eql(true);
+      expect(Object.keys(Pkg.Dist).sort()).to.eql(
+        [
+          ...Object.keys(Base.Dist),
+          'Log',
+          'Local',
+          'Pinned',
+          'compute',
+          'load',
+          'checkSelfReported',
+        ].sort(),
+      );
 
       // Shares all of the base interface methods.
       for (const key of Object.keys(Base.Dist) as Array<keyof typeof Base.Dist>) {
-        const value = Base.Dist[key];
-        expect(value).to.eql(Pkg.Dist[key]);
+        expect(Pkg.Dist[key]).to.equal(Base.Dist[key]);
       }
     });
   });
