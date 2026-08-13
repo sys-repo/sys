@@ -191,9 +191,9 @@ function serviceValue(value: ServiceValue, width: number) {
     return Cli.Fmt.hyperlink(c.underline(display), value.href);
   }
   if (value.kind === 'url') {
-    const formatted = Cli.Fmt.Url.service(
+    const formatted = Cli.Fmt.ServiceUrl.format(
       { href: value.text as t.StringUrl },
-      { highlightOrigin: true },
+      { origin: 'highlight' },
     );
     return fitValue(formatted, width);
   }

@@ -100,6 +100,9 @@ export declare namespace HttpServer {
    * HTTP server start contracts.
    */
   export namespace Start {
+    /** Exact closed set of listener-origin reporting policies. */
+    export type OriginMode = 'exact-loopback';
+
     /** Arguments passed to `HttpServer.start`. */
     export type Options = {
       port?: t.PortNumber;
@@ -113,6 +116,14 @@ export declare namespace HttpServer {
 
       /** Structured, renderer-neutral status metadata for the running server handle. */
       status?: Status.Options;
+
+      /**
+       * Report the exact numeric loopback listener authority instead of `localhost`.
+       *
+       * Rejects wildcard, hostname, and non-loopback binds. Omit to preserve browser-safe
+       * `localhost` normalization.
+       */
+      origin?: OriginMode;
 
       /** Canonical @sys lifecycle bridge. */
       until?: t.UntilInput;

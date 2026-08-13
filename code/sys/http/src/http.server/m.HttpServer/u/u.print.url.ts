@@ -8,7 +8,10 @@ import { statusUrls } from './u.status.url.ts';
 export function formatPrintUrls(input: {
   readonly addr: Deno.NetAddr;
   readonly paths: readonly t.HttpServer.Status.UrlPath[] | undefined;
+  readonly settledOrigin?: t.StringUrl;
 }): readonly string[] {
-  const origin = localOrigin(input.addr);
-  return Cli.Fmt.Url.serviceList(statusUrls(origin, input.paths));
+  const origin = input.settledOrigin ?? localOrigin(input.addr);
+  return Cli.Fmt.ServiceUrl.formatList(statusUrls(origin, input.paths), {
+    ipv4Loopback: input.settledOrigin ? 'exact' : 'localhost',
+  });
 }

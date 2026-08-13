@@ -443,32 +443,52 @@ type CanonicalFormatterProof = [
   >,
   Assert<
     Exact6<
-      t.CliFormat.Url.Lib,
-      t.Cli.Fmt.Url.Lib,
-      CliFormatFromT.Url.Lib,
-      CliFormatFromTypes.Url.Lib,
-      CliFromT.Fmt.Url.Lib,
-      CliFromTypes.Fmt.Url.Lib
+      t.CliFormat.ServiceUrl.Lib,
+      t.Cli.Fmt.ServiceUrl.Lib,
+      CliFormatFromT.ServiceUrl.Lib,
+      CliFormatFromTypes.ServiceUrl.Lib,
+      CliFromT.Fmt.ServiceUrl.Lib,
+      CliFromTypes.Fmt.ServiceUrl.Lib
     >
   >,
   Assert<
     Exact6<
-      t.CliFormat.Url.Parts,
-      t.Cli.Fmt.Url.Parts,
-      CliFormatFromT.Url.Parts,
-      CliFormatFromTypes.Url.Parts,
-      CliFromT.Fmt.Url.Parts,
-      CliFromTypes.Fmt.Url.Parts
+      t.CliFormat.ServiceUrl.Part,
+      t.Cli.Fmt.ServiceUrl.Part,
+      CliFormatFromT.ServiceUrl.Part,
+      CliFormatFromTypes.ServiceUrl.Part,
+      CliFromT.Fmt.ServiceUrl.Part,
+      CliFromTypes.Fmt.ServiceUrl.Part
     >
   >,
   Assert<
     Exact6<
-      t.CliFormat.Url.ServicePart,
-      t.Cli.Fmt.Url.ServicePart,
-      CliFormatFromT.Url.ServicePart,
-      CliFormatFromTypes.Url.ServicePart,
-      CliFromT.Fmt.Url.ServicePart,
-      CliFromTypes.Fmt.Url.ServicePart
+      t.CliFormat.ServiceUrl.Parts.Options,
+      t.Cli.Fmt.ServiceUrl.Parts.Options,
+      CliFormatFromT.ServiceUrl.Parts.Options,
+      CliFormatFromTypes.ServiceUrl.Parts.Options,
+      CliFromT.Fmt.ServiceUrl.Parts.Options,
+      CliFromTypes.Fmt.ServiceUrl.Parts.Options
+    >
+  >,
+  Assert<
+    Exact6<
+      t.CliFormat.ServiceUrl.Format.Options,
+      t.Cli.Fmt.ServiceUrl.Format.Options,
+      CliFormatFromT.ServiceUrl.Format.Options,
+      CliFormatFromTypes.ServiceUrl.Format.Options,
+      CliFromT.Fmt.ServiceUrl.Format.Options,
+      CliFromTypes.Fmt.ServiceUrl.Format.Options
+    >
+  >,
+  Assert<
+    Exact6<
+      t.CliFormat.ServiceUrl.FormatList.Method,
+      t.Cli.Fmt.ServiceUrl.FormatList.Method,
+      CliFormatFromT.ServiceUrl.FormatList.Method,
+      CliFormatFromTypes.ServiceUrl.FormatList.Method,
+      CliFromT.Fmt.ServiceUrl.FormatList.Method,
+      CliFromTypes.Fmt.ServiceUrl.FormatList.Method
     >
   >,
   Assert<
@@ -499,7 +519,7 @@ describe('Cli.Fmt: canonical formatter type namespaces', () => {
     expectTypeOf(Fmt.Chapters).toEqualTypeOf<t.CliFormatChapters.Lib>();
     expectTypeOf(Fmt.hyperlink).toEqualTypeOf<t.CliFormat.Hyperlink.Fn>();
     expectTypeOf(Fmt.Path).toEqualTypeOf<t.CliFormat.Path.Lib>();
-    expectTypeOf(Fmt.Url).toEqualTypeOf<t.CliFormat.Url.Lib>();
+    expectTypeOf(Fmt.ServiceUrl).toEqualTypeOf<t.CliFormat.ServiceUrl.Lib>();
     expectTypeOf(Fmt.Tree).toEqualTypeOf<t.CliFormat.Tree.Lib>();
 
     type _CanonicalFormatterProof = CanonicalFormatterProof;

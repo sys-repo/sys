@@ -12,7 +12,7 @@ import { hyperlink } from './m.Fmt.hyperlink.ts';
 import { spinnerRaw, spinnerText } from './m.Fmt.spinnerText.ts';
 import { Text } from '../m.Fmt.Text/mod.ts';
 import { Tree } from './m.Fmt.Tree.ts';
-import { UrlFmt } from './m.Fmt.Url.ts';
+import { ServiceUrlFmt } from './m.Fmt.ServiceUrl.ts';
 import { terminal as isTerminal } from '../m.Is/u.terminal.ts';
 import { size as screenSize } from '../m.Screen/u.size.ts';
 
@@ -92,7 +92,7 @@ export const Fmt: t.CliFormat.Lib = {
   Chapters,
   Tree,
   Path,
-  Url: UrlFmt,
+  ServiceUrl: ServiceUrlFmt,
   path: StdPath.Format.string,
   spinnerRaw,
   spinnerText,

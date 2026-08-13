@@ -4,11 +4,14 @@ import { formatPrintUrls } from './u.print.url.ts';
 /**
  * Outputs HTTP-owner startup information for direct server use.
  */
-export const print: t.HttpServer.Lib['print'] = (options) => {
+export const print: t.HttpServer.Lib['print'] = (options) => printWithOrigin(options);
+
+/** Internal startup-output path for an already settled listener origin. */
+export function printWithOrigin(options: t.HttpServer.Print.Options, settledOrigin?: t.StringUrl) {
   const { addr, pkg, hash, name, requestedPort } = options;
   const root = options.status?.root ?? options.dir;
   const details = options.status?.details ?? infoDetails(options.info);
-  const urls = formatPrintUrls({ addr, paths: options.status?.urlPaths });
+  const urls = formatPrintUrls({ addr, paths: options.status?.urlPaths, settledOrigin });
   const fallback = formatPortFallback({ requestedPort, actualPort: addr.port });
   const hx = pkg ? wrangle.hashDigest(hash) : '';
   const rootReserve = root
@@ -40,7 +43,7 @@ export const print: t.HttpServer.Lib['print'] = (options) => {
 
   if (wrangle.shouldPrintDivider()) console.info(formatDivider());
   console.info(`\n${Str.trimEdgeNewlines(String(table))}\n`);
-};
+}
 
 /**
  * Helpers:

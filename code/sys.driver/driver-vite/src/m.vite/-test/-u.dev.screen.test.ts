@@ -96,9 +96,9 @@ describe('DevScreen', () => {
 
     it('formats service URLs through the canonical CLI formatter', () => {
       const href = 'http://127.0.0.1:1234/';
-      const expected = Cli.Fmt.Url.service(
+      const expected = Cli.Fmt.ServiceUrl.format(
         { href: href as t.StringUrl },
-        { highlightOrigin: true },
+        { origin: 'highlight' },
       );
       const raw = DevScreen.toString({
         identity: pkg(),

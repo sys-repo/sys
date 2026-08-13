@@ -415,13 +415,28 @@ export declare namespace Cli {
     /**
      * Service URL presentation contract projections.
      */
-    export namespace Url {
+    export namespace ServiceUrl {
       /** Service URL formatting helper library contract. */
-      export type Lib = t.CliFormat.Url.Lib;
-      /** URL display parts. */
-      export type Parts = t.CliFormat.Url.Parts;
-      /** Service URL display parts with origin highlighting state. */
-      export type ServicePart = t.CliFormat.Url.ServicePart;
+      export type Lib = t.CliFormat.ServiceUrl.Lib;
+      /** One service URL prepared for terminal presentation. */
+      export type Part = t.CliFormat.ServiceUrl.Part;
+
+      /** Ordered service URL preparation contracts. */
+      export namespace Parts {
+        export type Method = t.CliFormat.ServiceUrl.Parts.Method;
+        export type Options = t.CliFormat.ServiceUrl.Parts.Options;
+      }
+
+      /** Single service URL formatting contracts. */
+      export namespace Format {
+        export type Method = t.CliFormat.ServiceUrl.Format.Method;
+        export type Options = t.CliFormat.ServiceUrl.Format.Options;
+      }
+
+      /** Service URL list formatting contracts. */
+      export namespace FormatList {
+        export type Method = t.CliFormat.ServiceUrl.FormatList.Method;
+      }
     }
 
     /**

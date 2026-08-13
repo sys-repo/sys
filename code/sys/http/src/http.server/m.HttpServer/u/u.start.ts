@@ -1,36 +1,51 @@
 import { Dispose, Err, type t } from '../common.ts';
 import { bindKeyboard } from './u.keyboard.ts';
-import { localOrigin } from './u.origin.ts';
+import { listenerOrigin, validateOriginMode } from './u.origin.ts';
 import { options as createOptions } from './u.options.ts';
-import { print as printStarted } from './u.print.ts';
+import { printWithOrigin as printStarted } from './u.print.ts';
 import { statusUrls } from './u.status.url.ts';
 
 type F = t.HttpServer.Lib['start'];
 type KeyboardOptions = { readonly print: boolean; readonly exit: boolean } | undefined;
+type StartValues = {
+  readonly port?: t.PortNumber;
+  readonly pkg?: t.Pkg;
+  readonly hash?: t.StringHash;
+  readonly name?: string;
+  readonly info?: Record<string, string>;
+  readonly silent?: boolean;
+  readonly dir?: t.StringDir;
+  readonly status?: t.HttpServer.Status.Options;
+  readonly until?: t.UntilInput;
+  readonly keyboard?: KeyboardOptions;
+};
 
 /**
  * Start a Hono app as a managed HTTP server lifecycle.
  */
 export const start: F = (app, input = {}) => {
   const hostname = (input.hostname ?? '127.0.0.1') as t.StringHostname;
+  const originMode = input.origin;
+  validateOriginMode({ hostname, mode: originMode });
+  const values = wrangle.values(input);
   const controller = new AbortController();
-  const keyboardOptions = wrangle.keyboardOptions(input.keyboard);
+  const keyboardOptions = values.keyboard;
   const baseOptions = createOptions({
-    port: input.port,
-    pkg: input.pkg,
-    hash: input.hash,
-    name: input.name,
-    info: input.info,
+    port: values.port,
+    pkg: values.pkg,
+    hash: values.hash,
+    name: values.name,
+    info: values.info,
     silent: true,
-    dir: input.dir,
-    status: input.status,
+    dir: values.dir,
+    status: values.status,
   });
 
   let server: Deno.HttpServer<Deno.NetAddr> | undefined;
   let state: t.Service.State = 'ready';
   let error: t.StdError | undefined;
 
-  const life = Dispose.lifecycleAsync(input.until, async (e) => {
+  const life = Dispose.lifecycleAsync(values.until, async (e) => {
     state = 'stopping';
     try {
       const current = server;
@@ -48,7 +63,7 @@ export const start: F = (app, input = {}) => {
     const activeServer = server;
     const addr = activeServer.addr as Deno.NetAddr;
     const port = addr.port as t.PortNumber;
-    const origin = localOrigin({ hostname, port });
+    const origin = listenerOrigin({ hostname, port, mode: originMode });
 
     const context: t.HttpServer.Started = {
       app,
@@ -61,7 +76,7 @@ export const start: F = (app, input = {}) => {
       finished: activeServer.finished,
 
       status() {
-        return wrangle.status(input, { origin, state, error });
+        return wrangle.status(values, values.status, { origin, state, error });
       },
 
       get disposed() {
@@ -78,8 +93,8 @@ export const start: F = (app, input = {}) => {
     };
 
     wrangle.serverFinished(activeServer, life);
-    const keyboardBound = wrangle.keyboard(keyboardOptions, context, input);
-    wrangle.print(input, context, keyboardOptions, keyboardBound);
+    const keyboardBound = wrangle.keyboard(keyboardOptions, context, values.status);
+    wrangle.print(values, context, keyboardOptions, keyboardBound);
 
     return context;
   } catch (cause) {
@@ -104,14 +119,14 @@ async function closeServer(args: {
 
 const wrangle = {
   status(
-    input: t.HttpServer.Start.Options,
+    input: Pick<t.HttpServer.Start.Options, 'name' | 'dir' | 'info'>,
+    status: t.HttpServer.Status.Options | undefined,
     context: {
       readonly origin: t.StringUrl;
       readonly state: t.Service.State;
       readonly error?: t.StdError;
     },
   ): t.Service.Status {
-    const status = input.status;
     const root = status?.root ?? input.dir;
     const details = status?.details ?? wrangle.details(input.info);
     const error = context.error;
@@ -154,12 +169,12 @@ const wrangle = {
   keyboard(
     options: KeyboardOptions,
     context: t.HttpServer.Started,
-    input: t.HttpServer.Start.Options,
+    status: t.HttpServer.Status.Options | undefined,
   ): boolean {
     if (!options) return false;
     return bindKeyboard({
       port: context.port,
-      url: wrangle.openUrl(input, context.origin),
+      url: wrangle.openUrl(status, context.origin),
       print: false,
       exit: options.exit,
       dispose: () => context.close('keyboard'),
@@ -176,12 +191,15 @@ const wrangle = {
     };
   },
 
-  openUrl(input: t.HttpServer.Start.Options, origin: t.StringUrl): t.StringUrl {
-    return statusUrls(origin, input.status?.urlPaths)[0]?.href ?? origin;
+  openUrl(
+    status: t.HttpServer.Status.Options | undefined,
+    origin: t.StringUrl,
+  ): t.StringUrl {
+    return statusUrls(origin, status?.urlPaths)[0]?.href ?? origin;
   },
 
   print(
-    input: t.HttpServer.Start.Options,
+    input: StartValues,
     context: t.HttpServer.Started,
     keyboardOptions: KeyboardOptions,
     keyboardBound: boolean,
@@ -197,7 +215,37 @@ const wrangle = {
       dir: input.dir,
       status: input.status,
       keyboard: wrangle.printKeyboard(keyboardOptions, keyboardBound),
-    });
+    }, context.origin);
+  },
+
+  values(input: t.HttpServer.Start.Options): StartValues {
+    return {
+      port: input.port,
+      pkg: input.pkg,
+      hash: input.hash,
+      name: input.name,
+      info: input.info ? { ...input.info } : undefined,
+      silent: input.silent,
+      dir: input.dir,
+      status: wrangle.statusOptions(input.status),
+      until: input.until,
+      keyboard: wrangle.keyboardOptions(input.keyboard),
+    };
+  },
+
+  statusOptions(
+    input: t.HttpServer.Status.Options | undefined,
+  ): t.HttpServer.Status.Options | undefined {
+    if (!input) return undefined;
+    return {
+      kind: input.kind,
+      config: input.config,
+      root: input.root,
+      urlPaths: input.urlPaths?.map((item) =>
+        typeof item === 'string' ? item : { path: item.path, label: item.label }
+      ),
+      details: input.details?.map((detail) => ({ label: detail.label, value: detail.value })),
+    };
   },
 
   printKeyboard(

@@ -30,9 +30,9 @@ describe('DistServeScreen', () => {
 
       expect(output).to.include('@sample/foo');
       expect(output).to.include('http://localhost:49152/');
-      expect(raw).to.include(Cli.Fmt.Url.service(
+      expect(raw).to.include(Cli.Fmt.ServiceUrl.format(
         { href: 'http://localhost:49152/' as t.StringUrl },
-        { highlightOrigin: true },
+        { origin: 'highlight' },
       ));
       expect(output).to.include('./dist/');
       expect(raw).to.include(c.green('static'));

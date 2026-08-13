@@ -331,7 +331,7 @@ const wrangle = {
   },
 
   serviceUrl(href: t.StringUrl, column: number, width: number) {
-    const source = Cli.Fmt.Url.service({ href }, { highlightOrigin: true });
+    const source = Cli.Fmt.ServiceUrl.format({ href }, { origin: 'highlight' });
     const valueWidth = Cli.Fmt.Text.Width.fit({ width, reserve: column, terminal: false });
     return `${wrangle.indent(column)}${clipText(source, valueWidth)}`;
   },

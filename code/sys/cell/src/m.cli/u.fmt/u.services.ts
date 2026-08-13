@@ -15,7 +15,7 @@ type ServiceStatusRow = {
   readonly labelKind: ServiceLabelKind;
   readonly value: string;
   readonly kind: ServiceStatusKind;
-  readonly url?: t.Cli.Fmt.Url.ServicePart;
+  readonly url?: t.Cli.Fmt.ServiceUrl.Part;
 };
 
 export const FmtServices = {
@@ -121,7 +121,7 @@ function serviceLabelText(row: ServiceStatusRow): string {
 }
 
 function pushServiceUrls(rows: ServiceStatusRow[], urls: readonly t.Service.Url[]) {
-  Cli.Fmt.Url.serviceParts(urls).forEach((url, index) => {
+  Cli.Fmt.ServiceUrl.parts(urls).forEach((url, index) => {
     rows.push({
       label: index === 0 ? 'url' : '',
       labelKind: index === 0 ? 'field' : 'blank',
@@ -226,7 +226,7 @@ function serviceUrl(row: ServiceStatusRow, reserve: number, renderWidth?: number
     });
   }
   if (!terminal || url.display.length <= width) {
-    return Cli.Fmt.Url.service(url, { highlightOrigin: url.highlightOrigin });
+    return Cli.Fmt.ServiceUrl.format(url);
   }
   return FmtFit.text(url.display, width, { color: highlightOrigin ? c.cyan : c.gray });
 }

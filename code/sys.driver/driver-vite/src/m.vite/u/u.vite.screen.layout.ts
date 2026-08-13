@@ -36,9 +36,9 @@ export const ViteScreenLayout = {
   },
 
   serviceUrl(href: string, column: number, width: number) {
-    const source = Cli.Fmt.Url.service(
+    const source = Cli.Fmt.ServiceUrl.format(
       { href: href as t.StringUrl },
-      { highlightOrigin: true },
+      { origin: 'highlight' },
     );
     const valueWidth = Cli.Fmt.Text.Width.fit({ width, reserve: column, terminal: false });
     const indent = ViteScreenLayout.indent(column);

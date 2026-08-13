@@ -40,7 +40,7 @@ type StartFormatOptions = {
  * Helpers:
  */
 function pushUrls(table: t.Cli.Table.Instance, urls: readonly t.Service.Url[]) {
-  Cli.Fmt.Url.serviceList(urls).forEach((url, index) => {
+  Cli.Fmt.ServiceUrl.formatList(urls).forEach((url, index) => {
     table.push([index === 0 ? childLabel('url') : '', url]);
   });
 }

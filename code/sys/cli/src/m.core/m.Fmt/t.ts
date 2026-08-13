@@ -57,7 +57,7 @@ export declare namespace CliFormat {
     readonly Path: Path.Lib;
 
     /** Service URL formatting and presentation ordering helpers. */
-    readonly Url: Url.Lib;
+    readonly ServiceUrl: ServiceUrl.Lib;
 
     /** Glyphs and helpers for rendering a tree hierarchy. */
     readonly Tree: Tree.Lib;
@@ -121,32 +121,25 @@ export declare namespace CliFormat {
   }
 
   /**
-   * Contracts for service URL decomposition and presentation.
+   * Service URL presentation contracts.
    */
-  export namespace Url {
-    /**
-     * Formats individual service URLs and ordered URL collections.
-     */
+  export namespace ServiceUrl {
+    /** Service URL presentation library. */
     export type Lib = {
-      /** Decompose a service URL into display parts. */
-      parts(url: t.Service.Url): Parts;
-      /** Decompose URLs and derive origin-highlighting state in caller order. */
-      serviceParts(urls: readonly t.Service.Url[]): readonly ServicePart[];
-      /** Format a service URL or previously decomposed parts. */
-      service(
-        url: t.Service.Url | Parts,
-        options?: { readonly highlightOrigin?: boolean },
-      ): string;
+      /** Prepare service URLs as ordered display parts. */
+      readonly parts: Parts.Method;
+      /** Format one service URL or prepared part. */
+      readonly format: Format.Method;
       /** Format service URLs in caller-supplied order. */
-      serviceList(urls: readonly t.Service.Url[]): readonly string[];
+      readonly formatList: FormatList.Method;
     };
 
-    /** Decomposed service URL presentation state. */
-    export type Parts = {
+    /** One service URL prepared for terminal presentation. */
+    export type Part = {
       /** Whether the source parsed as a URL. */
       readonly ok: boolean;
       /** Original URL text. */
-      readonly href: string;
+      readonly href: t.StringUrl;
       /** Display origin. */
       readonly origin: string;
       /** Path, query, and fragment suffix. */
@@ -155,13 +148,51 @@ export declare namespace CliFormat {
       readonly display: string;
       /** Explicit port, when present. */
       readonly port?: string;
-    };
-
-    /** URL parts with origin-highlighting state for ordered presentation. */
-    export type ServicePart = Parts & {
       /** Whether presentation should emphasize the origin. */
       readonly highlightOrigin: boolean;
     };
+
+    /**
+     * Ordered service URL preparation contracts.
+     */
+    export namespace Parts {
+      /** Prepare service URLs in caller-supplied order. */
+      export type Method = (urls: Iterable<t.Service.Url>, options?: Options) => readonly Part[];
+
+      /** Service URL display preparation options. */
+      export type Options = {
+        /** Display `127.0.0.1` as `localhost` or preserve its numeric hostname. */
+        ipv4Loopback?: 'localhost' | 'exact';
+      };
+    }
+
+    /**
+     * Single service URL formatting contracts.
+     */
+    export namespace Format {
+      /** Format one service URL or prepared part. */
+      export type Method = {
+        (url: t.Service.Url, options?: Options): string;
+        (part: Part): string;
+      };
+
+      /** Single service URL formatting options. */
+      export type Options = Parts.Options & {
+        /** Origin presentation treatment. */
+        origin?: 'highlight' | 'muted';
+      };
+    }
+
+    /**
+     * Service URL list formatting contracts.
+     */
+    export namespace FormatList {
+      /** Format service URLs in caller-supplied order. */
+      export type Method = (
+        urls: Iterable<t.Service.Url>,
+        options?: Parts.Options,
+      ) => readonly string[];
+    }
   }
 
   /**
