@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t } from '../common.ts';
 
 /**
  * Build a ScheduleFn for a given mode and optional lifecycle.

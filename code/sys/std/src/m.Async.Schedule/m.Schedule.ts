@@ -1,9 +1,9 @@
 import type { t } from './common.ts';
-import { frames as waitFrames } from './u.frames.ts';
-import { queue } from './u.queue.ts';
-import { makeScheduleFn } from './u.scheduleFunction.ts';
-import { sleep } from './u.sleep.ts';
-import { tick, waitFor } from './u.turn.ts';
+import { frames as waitFrames } from './u/u.frames.ts';
+import { queue } from './u/u.queue.ts';
+import { makeScheduleFn } from './u/u.scheduleFunction.ts';
+import { sleep } from './u/u.sleep.ts';
+import { tick, waitFor } from './u/u.turn.ts';
 
 const raf = makeScheduleFn('raf');
 

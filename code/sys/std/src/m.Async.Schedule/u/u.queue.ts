@@ -1,4 +1,4 @@
-import { Rx, type t } from './common.ts';
+import { Rx, type t } from '../common.ts';
 import { makeScheduleFn } from './u.scheduleFunction.ts';
 
 type F = t.Schedule.Lib['queue'];

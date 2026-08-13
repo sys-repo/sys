@@ -1,5 +1,5 @@
-import { type t } from './common.ts';
-import { Schedule } from './m.Schedule.ts';
+import { type t } from '../common.ts';
+import { Schedule } from '../m.Schedule.ts';
 
 /**
  * Sleep for N milliseconds (timer-backed).

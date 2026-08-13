@@ -1,7 +1,7 @@
-import { describe, expect, expectError, it, type t } from '../-test.ts';
-import { Rx } from './common.ts';
-import { Schedule } from './mod.ts';
-import { frames } from './u.frames.ts';
+import { describe, expect, expectError, it, type t } from '../../-test.ts';
+import { Rx } from '../common.ts';
+import { Schedule } from '../mod.ts';
+import { frames } from '../u/u.frames.ts';
 
 describe(`Schedule`, () => {
   it('API', async () => {

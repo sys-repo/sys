@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t } from '../common.ts';
 import { makeScheduleFn } from './u.scheduleFunction.ts';
 
 const macro = makeScheduleFn('macro');
