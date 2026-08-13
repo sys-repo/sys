@@ -1,9 +1,9 @@
 import { Hash } from '@sys/crypto/hash';
-import { Testing } from '../../-test.ts';
-import { Fs, FsPkg, Json, type t } from '../common.ts';
+import { Pkg as FsPkg } from '@sys/fs';
+import { Testing } from './mod.ts';
+import { Fs, Json, type t } from '../common.ts';
 
 const encoder = new TextEncoder();
-const roots = new Set<string>();
 
 export type Fixture = Awaited<ReturnType<typeof setup>>;
 
@@ -15,9 +15,6 @@ export async function setup() {
   const parent = await Deno.realPath(
     await Deno.makeTempDir({ prefix: 'server-dist-store-' }),
   );
-  roots.add(source);
-  roots.add(parent);
-
   await Deno.mkdir(Fs.join(source, 'assets'));
   await Deno.writeTextFile(Fs.join(source, 'index.html'), '<h1>verified</h1>');
   await Deno.writeTextFile(Fs.join(source, 'assets/app.js'), 'console.info("verified");');
@@ -107,6 +104,26 @@ export async function setup() {
     ...overrides,
   });
 
+  let disposed = false;
+  const dispose = async () => {
+    if (disposed) return;
+    disposed = true;
+    let failed = false;
+    let failure: unknown;
+    try {
+      await server.dispose();
+    } catch (cause) {
+      failed = true;
+      failure = cause;
+    } finally {
+      await Promise.all([
+        Deno.remove(source, { recursive: true }).catch(() => undefined),
+        Deno.remove(parent, { recursive: true }).catch(() => undefined),
+      ]);
+    }
+    if (failed) throw failure;
+  };
+
   return {
     args,
     assets,
@@ -121,6 +138,7 @@ export async function setup() {
     manifestUrl,
     policy,
     server,
+    dispose,
     redirectManifest(base = '/nested') {
       redirectBase = base;
       redirectLocation = `${base}/dist.json?redirected=private`;
@@ -161,15 +179,26 @@ export async function setup() {
   };
 }
 
-export async function teardown(fixture: Fixture) {
-  await fixture.server.dispose();
-  await cleanupRoots();
+export async function teardown(fixture: Fixture): Promise<void> {
+  await fixture.dispose();
 }
 
-export async function cleanupRoots() {
-  const pending = [...roots];
-  roots.clear();
-  await Promise.all(pending.map((path) => Deno.remove(path, { recursive: true }).catch(() => {})));
+export function verified(fixture: Fixture): t.FsPkg.Dist.Verify.Verified {
+  return { kind: 'verified', evidence: evidence(fixture) };
+}
+
+export function evidence(fixture: Fixture): t.FsPkg.Dist.Verify.Evidence {
+  const dist = fixture.cloneDist();
+  return {
+    integrity: fixture.integrity,
+    manifestBytes: fixture.manifestBytes.byteLength,
+    dist,
+    assets: {
+      files: Object.keys(dist.hash.parts).length,
+      totalBytes: dist.build.size.total,
+      packageBytes: dist.build.size.pkg,
+    },
+  };
 }
 
 export function responsePolicy(

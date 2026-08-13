@@ -1,6 +1,7 @@
 import { c, Cli } from '@sys/cli';
 import { HashFmt } from '@sys/crypto/fmt';
 import { describe, expect, it, type t } from '../../-test.ts';
+import { type Fixture, setup, teardown } from '../../-test/u.fixture.dist.ts';
 import { DistServeScreen } from '../u.server/u.serve.screen.ts';
 import {
   createReporter,
@@ -8,7 +9,6 @@ import {
   createTerminalHarness,
   evidence,
 } from './u.fixture.serve.screen.ts';
-import { type Fixture, setup, teardown } from './u.fixture.ts';
 
 describe('DistServeScreen', () => {
   it('bottom-docks compact keyboard controls below a separate divider', async () => {

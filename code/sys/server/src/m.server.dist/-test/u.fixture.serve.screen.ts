@@ -1,6 +1,8 @@
 import { Rx, type t } from '../../-test.ts';
+import { evidence, type Fixture } from '../../-test/u.fixture.dist.ts';
+
+export { evidence } from '../../-test/u.fixture.dist.ts';
 import { DistServeScreen } from '../u.server/u.serve.screen.ts';
-import type { Fixture } from './u.fixture.ts';
 
 type Terminal = {
   readonly cursorRows: number;
@@ -10,38 +12,24 @@ type Terminal = {
 };
 
 type ReporterOptions = {
-  readonly until?: t.UntilInput;
-  readonly schedule?: (run: () => void) => t.Cancellable;
-  readonly keyboard?: { readonly enabled: boolean; readonly print: boolean };
+  until?: t.UntilInput;
+  schedule?: (run: () => void) => t.Cancellable;
+  keyboard?: { enabled: boolean; print: boolean };
 };
 
 type TerminalOptions = {
-  readonly viewport?: t.Cli.Screen.Size;
-  readonly resizeOnSize?: t.Cli.Screen.Size;
-  readonly disposed?: boolean;
-  readonly disposeError?: unknown;
-  readonly repaint?: (frame: string, count: number) => void;
+  viewport?: t.Cli.Screen.Size;
+  resizeOnSize?: t.Cli.Screen.Size;
+  disposed?: boolean;
+  disposeError?: unknown;
+  repaint?: (frame: string, count: number) => void;
 };
 
 type ScheduleOptions = {
-  readonly synchronous?: boolean;
-  readonly error?: unknown;
-  readonly cancelError?: unknown;
+  synchronous?: boolean;
+  error?: unknown;
+  cancelError?: unknown;
 };
-
-export function evidence(fixture: Fixture): t.FsPkg.Dist.Verify.Evidence {
-  const dist = fixture.cloneDist();
-  return {
-    integrity: fixture.integrity,
-    manifestBytes: fixture.manifestBytes.byteLength,
-    dist,
-    assets: {
-      files: Object.keys(dist.hash.parts).length,
-      totalBytes: dist.build.size.total,
-      packageBytes: dist.build.size.pkg,
-    },
-  };
-}
 
 export function createReporter(
   fixture: Fixture,

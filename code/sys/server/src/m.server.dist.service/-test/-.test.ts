@@ -1,6 +1,6 @@
-import { describe, expect, expectTypeOf, Fs, it, Str, type t, Testing } from '../../-test.ts';
+import { describe, expect, expectTypeOf, Fs, it, Json, Str, type t, Testing } from '../../-test.ts';
+import { setup, teardown } from '../../-test/u.fixture.dist.ts';
 import { Dist, DistServer } from '../../m.server.dist/mod.ts';
-import { setup, teardown } from '../../m.server.dist/-test/u.fixture.ts';
 import { DistService } from '../mod.ts';
 
 describe('DistService', () => {
@@ -170,7 +170,7 @@ describe('DistService', () => {
       if (!isStartError) return;
       expect(error.reason).to.eql('cancelled');
       expect(error.message).to.eql('DistServer.start: startup cancelled.');
-      expect(JSON.stringify(error)).to.not.include('private-cell-reason');
+      expect(Json.stringify(error)).to.not.include('private-cell-reason');
     } finally {
       await teardown(fixture);
     }
@@ -213,9 +213,9 @@ describe('DistService', () => {
 });
 
 function configYaml(options: {
-  readonly dir: string;
-  readonly integrity?: t.StringHash;
-  readonly port?: number;
+  dir: string;
+  integrity?: t.StringHash;
+  port?: number;
 }) {
   return Str.dedent(`
     name: neutral-dist
