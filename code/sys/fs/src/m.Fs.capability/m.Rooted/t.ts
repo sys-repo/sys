@@ -9,11 +9,13 @@ declare const STAGE: unique symbol;
  * Target paths are validated before use. File publication never overwrites an existing
  * target and allows at most one concurrent winner. Directory promotion leaves a target
  * found to exist untouched. Its race guarantee covers only writers that use the same
- * Rooted locking protocol. Cleanup removes an artifact only after confirming its
- * filesystem identity. An operation reports `unsupported` when required stable identity
- * evidence is unavailable or cannot be represented safely. If an operation fails, its
- * error says whether the target had already been published. These guarantees apply only
- * to operations through this capability; Rooted is not an OS sandbox.
+ * Rooted locking protocol. Shared and exclusive directory leases coordinate cooperating
+ * processes through stable Rooted-owned lock identity outside each target. Cleanup removes
+ * an artifact only after confirming its filesystem identity. An operation reports
+ * `unsupported` when required stable identity evidence is unavailable or cannot be
+ * represented safely. If an operation fails, its error says whether the target had already
+ * been published. These guarantees apply only to operations through this capability;
+ * Rooted is not an OS sandbox.
  */
 export declare namespace FsRooted {
   /** Runtime API for creating Rooted capabilities and checking their errors. */
@@ -52,6 +54,18 @@ export declare namespace FsRooted {
       targets: readonly TargetInput<K>[],
       options?: OperationOptions,
     ) => Promise<Admission<K>>;
+
+    /**
+     * Try to acquire one shared or exclusive OS-backed lease over admitted directory targets.
+     *
+     * Targets are acquired in stable lock-identity order regardless of caller order. A busy
+     * result holds no lease. Cancellation, unsupported locking, and other host failures reject
+     * with a typed Rooted failure after every partially acquired lock has been released.
+     */
+    readonly acquireLease: (
+      targets: readonly Target<'directory'>[],
+      options: LeaseOptions,
+    ) => Promise<LeaseResult>;
 
     /**
      * Copy and sync `bytes`, then publish the complete file only if the target is absent.
@@ -109,6 +123,36 @@ export declare namespace FsRooted {
     readonly targets: readonly Target<K>[];
   };
 
+  /** Advisory lock mode for one complete lease batch. */
+  export type LeaseMode = 'shared' | 'exclusive';
+
+  /** Required mode and optional acquisition lifecycle; `until` never owns a returned lease. */
+  export type LeaseOptions = OperationOptions & {
+    readonly mode: LeaseMode;
+  };
+
+  /**
+   * Held OS-backed ownership over admitted directory targets.
+   *
+   * Release is idempotent and always attempts to drop every held lock. The native async-disposal
+   * protocol enters the same release operation. Lock files remain as stable Rooted metadata after
+   * release and are never removed by the lease. They carry no PID or process-name authority; the OS
+   * releases ownership when the holding process exits.
+   */
+  export type Lease = globalThis.AsyncDisposable & {
+    readonly mode: LeaseMode;
+    /** Handles in caller-supplied order. */
+    readonly targets: readonly Target<'directory'>[];
+    /** Explicitly release every held lock. */
+    readonly release: () => Promise<void>;
+    readonly [Symbol.dispose]?: never;
+  };
+
+  /** Immediate acquisition result; a busy result retains no lock. */
+  export type LeaseResult =
+    | { readonly kind: 'acquired'; readonly lease: Lease }
+    | { readonly kind: 'busy'; readonly target: Target<'directory'> };
+
   /** Result of publishing a new complete file. */
   export type FileResult = {
     readonly kind: 'published';
@@ -139,6 +183,8 @@ export declare namespace FsRooted {
   export type Operation =
     | 'create'
     | 'admit'
+    | 'acquire-lease'
+    | 'release-lease'
     | 'publish-file'
     | 'create-stage'
     | 'discard-stage'
@@ -149,6 +195,7 @@ export declare namespace FsRooted {
     | 'cancelled'
     | 'invalid-root'
     | 'invalid-target'
+    | 'invalid-lease'
     | 'target-collision'
     | 'unsafe-filesystem'
     | 'foreign-handle'

@@ -1,6 +1,7 @@
-import { Hash, Is, StdPath, type t } from '../common.ts';
+import { Is, StdPath, type t } from '../common.ts';
 import { checkCancelled, failure, ioFailure, isFailure } from './u.error.ts';
-import type { FileHandle, Io } from './u.io.ts';
+import type { Io } from './u.io.ts';
+import { acquireLock, type LockState, releaseLock } from './u.lock.ts';
 import {
   ensureDescendantDirectory,
   type Identity,
@@ -15,10 +16,8 @@ import {
 } from './u.path.ts';
 
 const STAGES = 'stages';
-const LOCKS = 'locks';
 const OWNER = 'owner';
 const CONTENT = 'content';
-const LOCK_WAIT = 10 as t.Msecs;
 
 export type StageState = {
   readonly handle: t.FsRooted.Stage;
@@ -137,15 +136,19 @@ export async function promoteStage(
   const state = stageState(stages, stage, operation);
   if (state.status !== 'active') throw failure(operation, 'invalid-state');
 
-  let lock: FileHandle | undefined;
-  let locked = false;
+  let lock: LockState | undefined;
   let outcome: 'published' | 'occupied' | undefined;
   let cleanupError: t.FsRooted.Failure | undefined;
   let pending: unknown;
 
   try {
-    lock = await acquireLock(io, root, target, signal);
-    locked = true;
+    lock = await acquireLock(io, root, target, {
+      operation,
+      mode: 'exclusive',
+      wait: true,
+      signal,
+    });
+    if (!lock) throw failure(operation, 'io-failure');
     await validateActive(io, state, operation);
     checkCancelled(operation, signal);
 
@@ -215,16 +218,8 @@ export async function promoteStage(
     }
   } finally {
     if (lock) {
-      if (locked) {
-        try {
-          await lock.unlock();
-        } catch (cause) {
-          if (outcome) cleanupError ??= toFailure(operation, cause, outcome === 'published');
-          else pending ??= cause;
-        }
-      }
       try {
-        lock.close();
+        await releaseLock(io, root, lock, operation);
       } catch (cause) {
         if (outcome) cleanupError ??= toFailure(operation, cause, outcome === 'published');
         else pending ??= cause;
@@ -247,76 +242,6 @@ function stageState(
   const state = Is.object(stage) ? stages.get(stage) : undefined;
   if (!state) throw failure(operation, 'foreign-handle');
   return state;
-}
-
-async function acquireLock(
-  io: Io,
-  root: RootState,
-  target: TargetState<'directory'>,
-  signal: AbortSignal,
-): Promise<FileHandle> {
-  const operation = 'promote-stage';
-  await revalidateRoot(io, root, operation);
-  const lockPath = StdPath.join(root.path, INTERNAL_NAME, LOCKS, toLockName(target.path));
-  await ensureDescendantDirectory(io, root, StdPath.dirname(lockPath), operation, signal);
-
-  const before = await lstatMaybe(io, lockPath, operation);
-  if (before && (before.isSymlink || !before.isFile)) {
-    throw failure(operation, 'unsafe-filesystem');
-  }
-
-  // Keep the lock file: deleting it while held would let another writer lock a different file.
-  let file: FileHandle;
-  try {
-    file = await io.open(lockPath, { read: true, write: true, create: true, mode: 0o600 });
-  } catch (cause) {
-    throw ioFailure(operation, cause);
-  }
-
-  try {
-    const opened = await file.stat();
-    const identity = identityRequired(opened, operation);
-    const after = await lstatMaybe(io, lockPath, operation);
-    if (!opened.isFile || !after?.isFile || after.isSymlink || !sameIdentity(identity, after)) {
-      throw failure(operation, 'unsafe-filesystem');
-    }
-
-    while (true) {
-      checkCancelled(operation, signal);
-      let acquired: boolean;
-      try {
-        acquired = await file.tryLock(true);
-      } catch (cause) {
-        throw ioFailure(operation, cause);
-      }
-      if (acquired) {
-        const current = await lstatMaybe(io, lockPath, operation);
-        if (
-          !current?.isFile ||
-          current.isSymlink ||
-          !sameIdentity(identity, current)
-        ) {
-          throw failure(operation, 'unsafe-filesystem');
-        }
-        return file;
-      }
-      try {
-        await io.wait(LOCK_WAIT, signal);
-      } catch (cause) {
-        if (signal.aborted) throw failure(operation, 'cancelled', { cause });
-        throw ioFailure(operation, cause);
-      }
-    }
-  } catch (cause) {
-    file.close();
-    throw cause;
-  }
-}
-
-/** Derive one private lock name for common case and Unicode-normalization variants. */
-export function toLockName(path: string): string {
-  const key = path.normalize('NFC').toLowerCase().normalize('NFC');
-  return `${Hash.sha256(key)}.lock`;
 }
 
 async function validateActive(

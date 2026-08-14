@@ -249,6 +249,7 @@ function snapshotRooted(input: unknown): t.Fs.Rooted.Instance | undefined {
     if (!Is.record(input)) return;
     const path = input.path;
     const admit = input.admit;
+    const acquireLease = input.acquireLease;
     const publishFile = input.publishFile;
     const createStage = input.createStage;
     const discardStage = input.discardStage;
@@ -256,6 +257,7 @@ function snapshotRooted(input: unknown): t.Fs.Rooted.Instance | undefined {
     if (!Is.str(path)) return;
     if (
       !Is.func(admit) ||
+      !Is.func(acquireLease) ||
       !Is.func(publishFile) ||
       !Is.func(createStage) ||
       !Is.func(discardStage) ||
@@ -266,6 +268,7 @@ function snapshotRooted(input: unknown): t.Fs.Rooted.Instance | undefined {
     return Object.freeze({
       path,
       admit,
+      acquireLease,
       publishFile,
       createStage,
       discardStage,

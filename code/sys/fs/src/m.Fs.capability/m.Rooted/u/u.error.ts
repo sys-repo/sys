@@ -4,6 +4,8 @@ const NAME = 'FsRootedError' as const;
 const OPERATIONS: readonly t.FsRooted.Operation[] = [
   'create',
   'admit',
+  'acquire-lease',
+  'release-lease',
   'publish-file',
   'create-stage',
   'discard-stage',
@@ -13,6 +15,7 @@ const KINDS: readonly t.FsRooted.FailureKind[] = [
   'cancelled',
   'invalid-root',
   'invalid-target',
+  'invalid-lease',
   'target-collision',
   'unsafe-filesystem',
   'foreign-handle',
@@ -95,6 +98,8 @@ function message(kind: t.FsRooted.FailureKind): string {
       return 'Invalid rooted filesystem directory';
     case 'invalid-target':
       return 'Invalid rooted filesystem target';
+    case 'invalid-lease':
+      return 'Invalid rooted filesystem lease';
     case 'target-collision':
       return 'Rooted filesystem target batch contains a collision';
     case 'unsafe-filesystem':

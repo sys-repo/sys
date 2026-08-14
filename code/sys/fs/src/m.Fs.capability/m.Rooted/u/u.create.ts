@@ -2,6 +2,7 @@ import { Is, Rx, StdPath, type t } from '../common.ts';
 import { checkCancelled, failure, ioFailure, isFailure, runOperation } from './u.error.ts';
 import { publishFile } from './u.file.ts';
 import { DEFAULT_IO, type Io } from './u.io.ts';
+import { acquireLease as acquireTargetLease, leaseInput } from './u.lease.ts';
 import { createRootState, observeTarget, type TargetState } from './u.path.ts';
 import { createStage, discardStage, promoteStage, type StageState } from './u.stage.ts';
 import { normalizeTargets } from './u.target.ts';
@@ -13,7 +14,7 @@ export async function createRooted(
 ): Promise<t.FsRooted.Instance> {
   if (!Is.object(options)) throw failure('create', 'invalid-root');
 
-  return runOperation('create', options, async (signal) => {
+  return await runOperation('create', options, async (signal) => {
     const root = await createRootState(options.root, io, signal);
     const targets = new WeakMap<object, TargetState>();
     const stages = new WeakMap<object, StageState>();
@@ -48,6 +49,19 @@ export async function createRooted(
             targets: Object.freeze(handles),
           }) as t.FsRooted.Admission<K>;
         });
+      },
+
+      async acquireLease(handles, options) {
+        const input = leaseInput(
+          handles,
+          options,
+          (handle) => targetState(targets, handle, 'directory', 'acquire-lease'),
+        );
+        return await runOperation(
+          'acquire-lease',
+          { until: input.until },
+          (operationSignal) => acquireTargetLease(io, root, input, operationSignal),
+        );
       },
 
       publishFile(handle, bytes, operationOptions) {

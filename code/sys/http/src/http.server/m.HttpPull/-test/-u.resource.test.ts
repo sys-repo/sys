@@ -127,7 +127,7 @@ describe('HttpPull checksum-pinned resources', () => {
     }
   });
 
-  it('completes full target admission before creating transport or making a request', async () => {
+  it('requires complete Rooted authority before admission or transport', async () => {
     let admitted = false;
     let requestBeforeAdmission = false;
     const server = Testing.Http.server((req) => {
@@ -138,19 +138,30 @@ describe('HttpPull checksum-pinned resources', () => {
       const source = localhost(server.url.join('content.txt'));
       const resources = [resource(source, 'admitted/content.txt', 'content')];
       const owner = await rooted();
-      const destination: t.Fs.Rooted.Instance = Object.freeze({
+      const admit: t.Fs.Rooted.Instance['admit'] = async (targets, options) => {
+        const result = await owner.admit(targets, options);
+        admitted = true;
+        return result;
+      };
+      const stale = Object.freeze({
         path: owner.path,
-        admit: async (targets, options) => {
-          const result = await owner.admit(targets, options);
-          admitted = true;
-          return result;
-        },
+        admit,
         publishFile: owner.publishFile,
         createStage: owner.createStage,
         discardStage: owner.discardStage,
         promoteStage: owner.promoteStage,
-      });
+      }) as unknown as t.Fs.Rooted.Instance;
 
+      const rejected = await start(resources, stale).done;
+      expect(rejected.ok).to.eql(false);
+      expect(rejected.terminal?.kind).to.eql('invalid-input');
+      expect(admitted).to.eql(false);
+      expect(requestBeforeAdmission).to.eql(false);
+
+      const destination: t.Fs.Rooted.Instance = Object.freeze({
+        ...stale,
+        acquireLease: owner.acquireLease,
+      });
       const result = await start(resources, destination).done;
 
       expect(result.ok).to.eql(true);

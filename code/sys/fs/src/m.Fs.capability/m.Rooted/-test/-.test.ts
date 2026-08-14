@@ -32,6 +32,7 @@ describe('Fs.Capability.Rooted', () => {
     try {
       const rooted = await Rooted.create({ root: fixture.root });
       expect(Object.keys(rooted).sort()).to.eql([
+        'acquireLease',
         'admit',
         'createStage',
         'discardStage',

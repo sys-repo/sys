@@ -13,7 +13,7 @@ import {
   withIo,
   wrapFile,
 } from './u.fixture.ts';
-import { toLockName } from '../u/u.stage.ts';
+import { toLockName } from '../u/u.lock.ts';
 
 const bytes = (value: string) => new TextEncoder().encode(value);
 
@@ -429,11 +429,11 @@ describe('Fs.Capability.Rooted stages', () => {
         open: async (path, options) => {
           const file = await DEFAULT_IO.open(path, options);
           if (!path.endsWith('.lock')) return file;
-          return wrapFile(file, { tryLock: async () => false });
+          return wrapFile(file, { tryLock: () => Promise.resolve(false) });
         },
-        wait: async () => {
+        wait: () => {
           controller.abort('lock-wait');
-          throw new Error('aborted-wait');
+          return Promise.reject(new Error('aborted-wait'));
         },
       });
       const rooted = await createRooted({ root: fixture.root }, io);
@@ -459,9 +459,9 @@ describe('Fs.Capability.Rooted stages', () => {
         open: async (path, options) => {
           const file = await DEFAULT_IO.open(path, options);
           if (!path.endsWith('.lock')) return file;
-          return wrapFile(file, { tryLock: async () => false });
+          return wrapFile(file, { tryLock: () => Promise.resolve(false) });
         },
-        wait: async () => await Promise.reject(new Error('wait')),
+        wait: () => Promise.reject(new Error('wait')),
       });
       const rooted = await createRooted({ root: fixture.root }, io);
       const target = await directoryTarget(rooted, 'sha256-generation');

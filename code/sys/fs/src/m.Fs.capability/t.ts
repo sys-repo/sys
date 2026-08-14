@@ -10,7 +10,7 @@ export namespace FsCapability {
     /** Files capability adapters. */
     readonly Files: Files.Lib;
 
-    /** Publish files without overwriting existing targets and promote directories among Rooted writers. */
+    /** Publish and coordinate owned trees beneath one canonical Rooted directory. */
     readonly Rooted: t.FsRooted.Lib;
   };
 

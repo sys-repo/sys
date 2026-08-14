@@ -98,6 +98,10 @@ export namespace Fs {
   /** Rooted filesystem capability contracts used across package boundaries. */
   export namespace Rooted {
     export type Instance = t.FsRooted.Instance;
+    export type Lease = t.FsRooted.Lease;
+    export type LeaseMode = t.FsRooted.LeaseMode;
+    export type LeaseOptions = t.FsRooted.LeaseOptions;
+    export type LeaseResult = t.FsRooted.LeaseResult;
     export type Failure = t.FsRooted.Failure;
     export type Operation = t.FsRooted.Operation;
     export type FailureKind = t.FsRooted.FailureKind;
