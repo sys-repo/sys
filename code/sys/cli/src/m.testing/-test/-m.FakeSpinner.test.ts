@@ -1,5 +1,4 @@
 import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
-import { Cli } from '../../m.core/mod.ts';
 import { FakeSpinner } from '../mod.ts';
 
 describe('CLI: testing / FakeSpinner', () => {
@@ -58,66 +57,33 @@ describe('CLI: testing / FakeSpinner', () => {
     expect(spinner.stops).to.eql(1);
   });
 
-  describe('stub', () => {
+  describe('adapter', () => {
     it('returns the configured fake and snapshots factory calls in order', () => {
       const spinner = FakeSpinner.create('configured');
       const options: t.CliSpinner.Create.Options = { target: 'stdout' };
-      using stub = FakeSpinner.stub({ spinner });
+      const adapter = FakeSpinner.adapter({ spinner });
 
-      const first = Cli.Spinner.create('working', options);
+      const first = adapter.create('working', options);
       options.target = 'stderr';
-      const second = Cli.Spinner.create();
+      const second = adapter.create();
 
       expect(first).to.equal(spinner);
       expect(second).to.equal(spinner);
-      expect(stub.calls).to.eql([
+      expect(adapter.calls).to.eql([
         { text: 'working', options: { target: 'stdout' } },
         { text: undefined, options: undefined },
       ]);
     });
 
-    it('restores the exact factory descriptor idempotently', () => {
-      const before = Object.getOwnPropertyDescriptor(Cli.Spinner, 'create');
-      using stub = FakeSpinner.stub();
-      const installed = Object.getOwnPropertyDescriptor(Cli.Spinner, 'create');
+    it('creates isolated explicit factory dependencies', () => {
+      const first = FakeSpinner.adapter();
+      const second = FakeSpinner.adapter();
 
-      expect(installed?.value).not.to.equal(before?.value);
-      stub[Symbol.dispose]();
-      stub[Symbol.dispose]();
-
-      expect(Object.getOwnPropertyDescriptor(Cli.Spinner, 'create')).to.eql(before);
-    });
-
-    it('restores the factory when a using scope throws', () => {
-      const before = Object.getOwnPropertyDescriptor(Cli.Spinner, 'create');
-      const cause = new Error('scope-failed');
-      let thrown: unknown;
-
-      try {
-        using stub = FakeSpinner.stub();
-        expect(Cli.Spinner.create()).to.equal(stub.spinner);
-        throw cause;
-      } catch (error) {
-        thrown = error;
-      }
-
-      expect(thrown).to.equal(cause);
-      expect(Object.getOwnPropertyDescriptor(Cli.Spinner, 'create')).to.eql(before);
-    });
-
-    it('restores nested stubs in lexical order', () => {
-      const original = Cli.Spinner.create;
-      {
-        using outer = FakeSpinner.stub();
-        const outerFactory = Cli.Spinner.create;
-        {
-          using inner = FakeSpinner.stub();
-          expect(Cli.Spinner.create()).to.equal(inner.spinner);
-        }
-        expect(Cli.Spinner.create).to.equal(outerFactory);
-        expect(Cli.Spinner.create()).to.equal(outer.spinner);
-      }
-      expect(Cli.Spinner.create).to.equal(original);
+      expect(first.create()).to.equal(first.spinner);
+      expect(second.create()).to.equal(second.spinner);
+      expect(first.spinner).not.to.equal(second.spinner);
+      expect(first.calls).to.eql([{ text: undefined, options: undefined }]);
+      expect(second.calls).to.eql([{ text: undefined, options: undefined }]);
     });
   });
 });

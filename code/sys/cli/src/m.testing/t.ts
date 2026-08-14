@@ -7,29 +7,29 @@ export declare namespace FakeSpinner {
   export type Lib = {
     /** Create a fake spinner instance for tests. */
     create(text?: string): Instance;
-    /** Replace the process-local canonical spinner factory until the returned stub is disposed. */
-    stub(args?: StubArgs): Stub;
+    /** Create an explicit spinner-factory dependency with captured calls. */
+    adapter(args?: AdapterArgs): Adapter;
   };
 
-  /** Mutable input for one scoped canonical spinner-factory stub. */
-  export type StubArgs = {
+  /** Mutable input for one explicit spinner-factory adapter. */
+  export type AdapterArgs = {
     spinner?: Instance;
   };
 
-  /** One canonical spinner-factory invocation captured by a stub. */
-  export type StubCall = {
+  /** One spinner-factory invocation captured by an adapter. */
+  export type AdapterCall = {
     readonly text: string | undefined;
     readonly options: Readonly<t.CliSpinner.Create.Options> | undefined;
   };
 
-  /** Disposable process-local canonical spinner-factory replacement. */
-  export type Stub = {
+  /** Explicit spinner-factory dependency for injection into an owning boundary. */
+  export type Adapter = {
     /** Deterministic fake returned by every captured factory call. */
     readonly spinner: Instance;
     /** Factory calls retained in invocation order. */
-    readonly calls: readonly StubCall[];
-    /** Restore the exact canonical spinner-factory property descriptor. */
-    [Symbol.dispose](): void;
+    readonly calls: readonly AdapterCall[];
+    /** Factory dependency to inject into the code under test. */
+    readonly create: t.CliSpinner.Lib['create'];
   };
 
   export type Status = 'idle' | 'spinning' | 'stopped' | 'succeeded' | 'failed';

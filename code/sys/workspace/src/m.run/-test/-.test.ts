@@ -1,6 +1,8 @@
 import { FakeSpinner } from '@sys/cli/testing';
 import { c, Cli, describe, expect, it, type t, Testing } from '../../-test.ts';
 import { WorkspaceRun } from '../mod.ts';
+import { createDefaultParallelReporterRuntimeDeps } from '../u.reporter/mod.ts';
+import { runTaskWith } from '../u.run/mod.ts';
 import { createReporterScreen } from './u.fixture.reporter.ts';
 import { readLog, writeWorkspace } from './u.fixture.ts';
 
@@ -72,7 +74,8 @@ describe('WorkspaceRun', () => {
     await writeWorkspace(fs.dir, { failCheck: false });
     const screen = createReporterScreen({ width: 100, height: 24 });
     const spinner = FakeSpinner.create();
-    using spinnerStub = FakeSpinner.stub({ spinner });
+    const spinnerAdapter = FakeSpinner.adapter({ spinner });
+    const reporterRuntime = createDefaultParallelReporterRuntimeDeps(spinnerAdapter.create);
     const size = Cli.Screen.size;
     const events = Cli.Screen.events;
     const repaint = Cli.Screen.repaint;
@@ -105,18 +108,22 @@ describe('WorkspaceRun', () => {
     };
 
     try {
-      result = await WorkspaceRun.test({
-        cwd: fs.dir,
-        rebuildGraph: true,
-        strategy: { kind: 'parallel', jobs: 2 },
-        reporter: {
-          mode: 'screen',
-          onComplete(value) {
-            completion = value;
-            effects.push('complete');
+      result = await runTaskWith(
+        { reporterRuntime },
+        'test',
+        {
+          cwd: fs.dir,
+          rebuildGraph: true,
+          strategy: { kind: 'parallel', jobs: 2 },
+          reporter: {
+            mode: 'screen',
+            onComplete(value) {
+              completion = value;
+              effects.push('complete');
+            },
           },
         },
-      });
+      );
     } finally {
       Object.defineProperty(Cli.Screen, 'size', { value: size });
       Object.defineProperty(Cli.Screen, 'events', { value: events });
@@ -126,7 +133,7 @@ describe('WorkspaceRun', () => {
 
     expect(result?.ok).to.eql(true);
     expect(completion).to.eql({ failedPackages: { visible: 0, total: 0 } });
-    expect(spinnerStub.calls).to.eql([{ text: '', options: { target: 'stdout' } }]);
+    expect(spinnerAdapter.calls).to.eql([{ text: '', options: { target: 'stdout' } }]);
     expect(effects).to.eql([
       'workspace graph  →  rebuilding',
       'workspace test   →  3 packages ordered',

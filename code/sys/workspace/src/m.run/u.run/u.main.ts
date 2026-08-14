@@ -3,7 +3,7 @@ import { Cli, Fs, Is, type t, Time } from '../common.ts';
 import { formatIntroLine } from '../u.fmt/mod.ts';
 import { resolveJobs } from '../u/u.jobs.ts';
 import { createRunPlan } from '../u/u.plan.ts';
-import { createParallelReporter } from '../u.reporter/mod.ts';
+import { createParallelReporter, type ParallelReporterRuntimeDeps } from '../u.reporter/mod.ts';
 import { resolveCommand } from '../u/u.worker.ts';
 import { createNativeTestStatsRun } from '../u.testStats/mod.ts';
 import { runParallel } from './u.parallel.ts';
@@ -17,7 +17,20 @@ export function runTask(
   task: Exclude<t.WorkspaceRun.Task, 'test'>,
   args?: t.WorkspaceRun.Args,
 ): Promise<t.WorkspaceRun.Result>;
-export async function runTask(
+export function runTask(
+  task: t.WorkspaceRun.Task,
+  args: t.WorkspaceRun.Args | t.WorkspaceRun.Test.Args = {},
+): Promise<t.WorkspaceRun.Result> {
+  return runTaskWith({}, task, args);
+}
+
+export type RunTaskDependencies = {
+  readonly reporterRuntime?: ParallelReporterRuntimeDeps;
+};
+
+/** Package-internal task-runner dependency seam. */
+export async function runTaskWith(
+  deps: RunTaskDependencies,
   task: t.WorkspaceRun.Task,
   args: t.WorkspaceRun.Args | t.WorkspaceRun.Test.Args = {},
 ): Promise<t.WorkspaceRun.Result> {
@@ -41,7 +54,13 @@ export async function runTask(
       const terminal = reporterMode === undefined
         ? Cli.Is.terminal('stdout')
         : reporterMode === 'screen';
-      const reporter = createParallelReporter({ task, jobs, runnablePaths, terminal });
+      const reporter = createParallelReporter({
+        task,
+        jobs,
+        runnablePaths,
+        terminal,
+        deps: deps.reporterRuntime,
+      });
       reporter.start();
       let result: t.WorkspaceRun.Result;
       try {

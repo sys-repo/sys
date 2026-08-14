@@ -37,12 +37,14 @@ const TICK_INTERVAL = 1000 as t.Msecs;
 const DEFAULT_DEPS = createDefaultParallelReporterRuntimeDeps();
 
 /** Create canonical stdout terminal and scheduling effects for one reporter session. */
-export function createDefaultParallelReporterRuntimeDeps(): ParallelReporterRuntimeDeps {
+export function createDefaultParallelReporterRuntimeDeps(
+  createSpinner: t.Cli.Spinner.Lib['create'] = Cli.Spinner.create,
+): ParallelReporterRuntimeDeps {
   return {
     cursorRows: 1,
     size: () => Cli.Screen.size(),
     events: () => Cli.Screen.events(),
-    spinner: () => Cli.Spinner.create('', { target: 'stdout' }),
+    spinner: () => createSpinner('', { target: 'stdout' }),
     repaint: (frame) => Cli.Screen.repaint(frame),
     schedule: (run) => Time.delay(RESIZE_DELAY, run),
     tick: (run) => Time.interval(TICK_INTERVAL, run),

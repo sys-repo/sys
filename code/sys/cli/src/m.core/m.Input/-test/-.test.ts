@@ -1,5 +1,6 @@
 import { describe, expect, expectTypeOf, it, stripAnsi, type t } from '../../../-test.ts';
 import { Cli } from '../../mod.ts';
+import { promptSelectWith } from '../u.select.ts';
 
 describe('CLI: core / m.Input', () => {
   it('exposes the titleless Select contract', () => {
@@ -22,29 +23,19 @@ describe('CLI: core / m.Input', () => {
   });
 
   it('normalizes only title and automatic prefix without mutating caller options', async () => {
-    const descriptor = Object.getOwnPropertyDescriptor(Cli.Prompt.Select, 'prompt');
-    if (!descriptor) throw new Error('Expected Cliffy Select.prompt descriptor.');
-
-    const calls: Record<string, unknown>[] = [];
-    Object.defineProperty(Cli.Prompt.Select, 'prompt', {
-      ...descriptor,
-      value: (options: Record<string, unknown>) => {
-        calls.push(options);
-        return Promise.resolve('alpha');
-      },
-    });
+    const calls: t.CliInput.Select.Options<string>[] = [];
+    const prompt = (options: t.CliInput.Select.Options<string>) => {
+      calls.push(options);
+      return Promise.resolve('alpha');
+    };
 
     const omitted = Object.freeze({ options: ['alpha'] });
-    try {
-      await Cli.Input.Select.prompt(omitted);
-      await Cli.Input.Select.prompt({ message: '', options: ['alpha'] });
-      await Cli.Input.Select.prompt({ message: 'Choose:', options: ['alpha'] });
-      await Cli.Input.Select.prompt({ message: ' ', options: ['alpha'] });
-      await Cli.Input.Select.prompt({ message: '', prefix: '! ', options: ['alpha'] });
-      await Cli.Input.Select.prompt({ message: 'Choose:', prefix: '', options: ['alpha'] });
-    } finally {
-      Object.defineProperty(Cli.Prompt.Select, 'prompt', descriptor);
-    }
+    await promptSelectWith(prompt, omitted);
+    await promptSelectWith(prompt, { message: '', options: ['alpha'] });
+    await promptSelectWith(prompt, { message: 'Choose:', options: ['alpha'] });
+    await promptSelectWith(prompt, { message: ' ', options: ['alpha'] });
+    await promptSelectWith(prompt, { message: '', prefix: '! ', options: ['alpha'] });
+    await promptSelectWith(prompt, { message: 'Choose:', prefix: '', options: ['alpha'] });
 
     expect('message' in omitted).to.eql(false);
     expect(calls[0]?.options).to.equal(omitted.options);

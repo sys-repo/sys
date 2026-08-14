@@ -1,11 +1,29 @@
 import { Is, type t } from '../common.ts';
 import { Prompt } from '../m.Prompt/mod.ts';
 
+type NormalizedSelectOptions<TValue> = Omit<t.CliInput.Select.Options<TValue>, 'message'> & {
+  message: string;
+};
+
+type SelectPrompt<TValue> = (
+  options: NormalizedSelectOptions<TValue>,
+) => ReturnType<typeof InputSelect.prompt<TValue>>;
+
 /** Prompts for one value, omitting title chrome by default. */
-export function promptSelect<TValue>(options: t.CliInput.Select.Options<TValue>) {
+export function promptSelect<TValue>(
+  options: t.CliInput.Select.Options<TValue>,
+): ReturnType<typeof InputSelect.prompt<TValue>> {
+  return promptSelectWith((input) => InputSelect.prompt<TValue>(input), options);
+}
+
+/** Package-internal prompt dependency seam. */
+export function promptSelectWith<TValue>(
+  prompt: SelectPrompt<TValue>,
+  options: t.CliInput.Select.Options<TValue>,
+): ReturnType<typeof InputSelect.prompt<TValue>> {
   const message = options.message ?? '';
   const prefix = Is.string(options.prefix) ? options.prefix : message === '' ? '' : undefined;
-  return InputSelect.prompt<TValue>({ ...options, message, prefix });
+  return prompt({ ...options, message, prefix });
 }
 
 /**

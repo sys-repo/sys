@@ -16,12 +16,12 @@ type Scheduled = {
 describe('WorkspaceRun.parallel reporter runtime', () => {
   describe('canonical dependencies', () => {
     it('binds the spinner session to stdout', () => {
-      using stub = FakeSpinner.stub();
+      const adapter = FakeSpinner.adapter();
 
-      const spinner = createDefaultParallelReporterRuntimeDeps().spinner();
+      const spinner = createDefaultParallelReporterRuntimeDeps(adapter.create).spinner();
 
-      expect(spinner).to.equal(stub.spinner);
-      expect(stub.calls).to.eql([{ text: '', options: { target: 'stdout' } }]);
+      expect(spinner).to.equal(adapter.spinner);
+      expect(adapter.calls).to.eql([{ text: '', options: { target: 'stdout' } }]);
     });
   });
 
