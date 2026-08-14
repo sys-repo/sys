@@ -1,11 +1,20 @@
-import { c, Cli, DEFAULT, Fs, type t } from '../common.ts';
+import { c, DEFAULT, Fs, type t } from '../common.ts';
 import { ensureConfigDir, fileOf, listConfigs, readYaml, writeYaml } from './u.fs.ts';
-import { actionMenu } from './u.menu.action.ts';
+import { actionMenuWith } from './u.menu.action.ts';
 import { ADD_VALUE, NAME_REGEX } from './u.menu.constants.ts';
+import { defaultMenuPrompts, type MenuPromptDeps } from './u.menu.prompts.ts';
 import { withTree } from './u.menu.tree.ts';
 
 export async function menu<T, A extends string = string>(
   args: t.YamlConfig.Menu.Args<T, A>,
+): Promise<t.YamlConfig.Menu.Result<A>> {
+  return await menuWith(args, defaultMenuPrompts());
+}
+
+/** Package-internal menu runner parameterized by input operations. */
+export async function menuWith<T, A extends string = string>(
+  args: t.YamlConfig.Menu.Args<T, A>,
+  prompts: MenuPromptDeps,
 ): Promise<t.YamlConfig.Menu.Result<A>> {
   const { ext = DEFAULT.EXT, mode = 'menu', defaultAction } = args;
   const dir = await ensureConfigDir(args.cwd, args.dir);
@@ -13,7 +22,7 @@ export async function menu<T, A extends string = string>(
   if (mode === 'action') {
     const path = args.path ?? args.defaultPath;
     if (!path) return { kind: 'back' };
-    return await actionMenu({ ...args, path, ext, defaultAction });
+    return await actionMenuWith({ ...args, path, ext, defaultAction }, prompts);
   }
 
   let files = await listConfigs(dir, ext);
@@ -63,7 +72,7 @@ export async function menu<T, A extends string = string>(
     const defaultValue = lastSelected && files.includes(lastSelected) ? lastSelected : files[0];
 
     await args.beforePrompt?.();
-    const picked = await Cli.Input.Select.prompt<string>({
+    const picked = await prompts.select({
       ...(args.label.length > 0 ? { message: `${args.label}:` } : {}),
       options,
       default: defaultValue,
@@ -81,7 +90,7 @@ export async function menu<T, A extends string = string>(
           path: selected,
         };
       }
-      const res = await actionMenu({ ...args, path: selected, ext, defaultAction });
+      const res = await actionMenuWith({ ...args, path: selected, ext, defaultAction }, prompts);
       if (res.kind === 'back') {
         files = await listConfigs(dir, ext);
         if (files.length === 0 && args.ensureDefault !== false) {
@@ -94,7 +103,7 @@ export async function menu<T, A extends string = string>(
     }
 
     await args.beforePrompt?.();
-    const name = await Cli.Input.Text.prompt({
+    const name = await prompts.text({
       message: args.add?.message ?? 'Config name',
       hint: args.add?.hint ?? 'letters, numbers, ".", "_" or "-" (e.g. example)',
       validate: async (value) => {

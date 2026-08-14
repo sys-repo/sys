@@ -1,9 +1,5 @@
-import { c, Cli, Is, type t } from '../common.ts';
-
-type PromptRootAction<A extends string> =
-  | t.YamlConfig.Menu.ActionBase
-  | A
-  | typeof SUBMENU_VALUE;
+import { c, Is, type t } from '../common.ts';
+import { defaultMenuPrompts, type MenuPromptDeps } from './u.menu.prompts.ts';
 
 type PromptActionArgs<A extends string, T> = {
   name: string;
@@ -33,6 +29,14 @@ const DEFAULT_ALLOWED: t.YamlConfig.Menu.ActionBase[] = [
 
 export async function promptAction<A extends string = string, T = unknown>(
   args: PromptActionArgs<A, T>,
+): Promise<t.YamlConfig.Menu.ActionBase | A> {
+  return await promptActionWith(args, defaultMenuPrompts());
+}
+
+/** Package-internal action prompt parameterized by select input. */
+export async function promptActionWith<A extends string = string, T = unknown>(
+  args: PromptActionArgs<A, T>,
+  prompts: MenuPromptDeps,
 ): Promise<t.YamlConfig.Menu.ActionBase | A> {
   const extraActions = resolveExtras(args.extra ?? [], args);
   const extraAfterActions = resolveExtras(args.extraAfter ?? [], args);
@@ -78,7 +82,7 @@ export async function promptAction<A extends string = string, T = unknown>(
     );
 
     await args.beforePrompt?.();
-    const answer = await Cli.Input.Select.prompt<t.YamlConfig.Menu.ActionBase | A>({
+    const answer = await prompts.select({
       ...rootMessageOptions,
       options: allowed,
       default: args.defaultValue,
@@ -121,7 +125,7 @@ export async function promptAction<A extends string = string, T = unknown>(
   while (true) {
     await args.beforePrompt?.();
     if (level === 'submenu') {
-      const answer = await Cli.Input.Select.prompt<string>({
+      const answer = await prompts.select({
         message: submenuMessage,
         options: submenuOptions,
         default: submenuDefault,
@@ -133,7 +137,7 @@ export async function promptAction<A extends string = string, T = unknown>(
       continue;
     }
 
-    const answer = await Cli.Input.Select.prompt<PromptRootAction<A>>({
+    const answer = await prompts.select({
       ...rootMessageOptions,
       options: rootOptions,
       default: rootDefault,

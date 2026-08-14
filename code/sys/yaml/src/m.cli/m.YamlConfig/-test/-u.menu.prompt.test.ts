@@ -1,235 +1,201 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Cli, Obj } from '../common.ts';
-import { promptAction } from '../u/u.menu.prompt.ts';
+import { menuPromptDeps, selectName, selectValue } from './u.fixture.menu.ts';
+import { promptActionWith } from '../u/u.menu.prompt.ts';
 
 describe('YamlConfig.menu.prompt', () => {
   it('renders extra items with a name function', async () => {
-    const original = Cli.Input.Select.prompt;
-    let seen: { name: string; value: string }[] = [];
+    let seen: { readonly name: string; readonly value: unknown }[] = [];
 
-    Object.defineProperty(Cli.Input.Select, 'prompt', {
-      value: (args: { options: { name: string; value: string }[] }) => {
-        seen = args.options;
-        return Promise.resolve(args.options[0]?.value ?? 'back');
-      },
-    });
-
-    try {
-      await promptAction({
+    await promptActionWith(
+      {
         name: 'alpha',
         path: '/tmp/alpha.yaml',
         valid: true,
         extra: [{ name: ({ name }) => `run ${name}`, value: 'run' }],
-      });
+      },
+      menuPromptDeps({
+        select: (args) => {
+          seen = args.options;
+          return selectName(args, '  run alpha');
+        },
+      }),
+    );
 
-      expect(seen[0]?.name).to.eql('  run alpha');
-    } finally {
-      Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
-    }
+    expect(seen[0]?.name).to.eql('  run alpha');
   });
 
   it('keeps a fixed indent for action namespaces', async () => {
-    const original = Cli.Input.Select.prompt;
-    let seen: { name: string; value: string }[] = [];
+    let seen: { readonly name: string; readonly value: unknown }[] = [];
 
-    Object.defineProperty(Cli.Input.Select, 'prompt', {
-      value: (args: { options: { name: string; value: string }[] }) => {
-        seen = args.options;
-        return Promise.resolve(args.options[0]?.value ?? 'back');
-      },
-    });
-
-    try {
-      await promptAction({
+    await promptActionWith(
+      {
         name: 'alpha',
         path: '/tmp/alpha.yaml',
         valid: true,
         extra: [{ name: 'profile: run', value: 'run' }],
-      });
+      },
+      menuPromptDeps({
+        select: (args) => {
+          seen = args.options;
+          return selectName(args, '  profile: run');
+        },
+      }),
+    );
 
-      expect(seen[0]?.name).to.eql('  profile: run');
-      expect(seen[1]?.name).to.eql('  config: edit');
-      expect(seen[2]?.name).to.eql('  config: reload');
-      expect(seen[3]?.name).to.eql('  config: rename');
-    } finally {
-      Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
-    }
+    expect(seen[0]?.name).to.eql('  profile: run');
+    expect(seen[1]?.name).to.eql('  config: edit');
+    expect(seen[2]?.name).to.eql('  config: reload');
+    expect(seen[3]?.name).to.eql('  config: rename');
   });
 
   it('places extraAfter items after base actions and before delete/back', async () => {
-    const original = Cli.Input.Select.prompt;
-    let seen: { name: string; value: string }[] = [];
+    let seen: { readonly name: string; readonly value: unknown }[] = [];
 
-    Object.defineProperty(Cli.Input.Select, 'prompt', {
-      value: (args: { options: { name: string; value: string }[] }) => {
-        seen = args.options;
-        return Promise.resolve(args.options[0]?.value ?? 'back');
-      },
-    });
-
-    try {
-      await promptAction({
+    await promptActionWith(
+      {
         name: 'alpha',
         path: '/tmp/alpha.yaml',
         valid: true,
         extra: [{ name: 'start', value: 'run' }],
         extraAfter: [{ name: 'reload', value: 'sandbox' }],
-      });
+      },
+      menuPromptDeps({
+        select: (args) => {
+          seen = args.options;
+          return selectName(args, '  start');
+        },
+      }),
+    );
 
-      expect(seen.map((item) => Cli.stripAnsi(item.name))).to.eql([
-        '  start',
-        '  config: edit',
-        '  config: reload',
-        '  config: rename',
-        '  reload',
-        ' (delete)',
-        '← back',
-      ]);
-    } finally {
-      Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
-    }
+    expect(seen.map((item) => Cli.stripAnsi(item.name))).to.eql([
+      '  start',
+      '  config: edit',
+      '  config: reload',
+      '  config: rename',
+      '  reload',
+      ' (delete)',
+      '← back',
+    ]);
   });
 
   it('uses a custom base action label', async () => {
-    const original = Cli.Input.Select.prompt;
-    let seen: { name: string; value: string }[] = [];
+    let seen: { readonly name: string; readonly value: unknown }[] = [];
     let message = '';
 
-    Object.defineProperty(Cli.Input.Select, 'prompt', {
-      value: (args: { message: string; options: { name: string; value: string }[] }) => {
-        message = args.message;
-        seen = args.options;
-        return Promise.resolve(args.options[0]?.value ?? 'back');
-      },
-    });
-
-    try {
-      await promptAction({
+    await promptActionWith(
+      {
         name: 'alpha',
         path: '/tmp/alpha.yaml',
         valid: true,
         message: 'Profile:',
         actionLabel: 'profile',
         extra: [{ name: 'open', value: 'run' }],
-      });
+      },
+      menuPromptDeps({
+        select: (args) => {
+          message = args.message ?? '';
+          seen = args.options;
+          return selectName(args, '  open');
+        },
+      }),
+    );
 
-      expect(message).to.eql('Profile:');
-      expect(seen[0]?.name).to.eql('  open');
-      expect(seen[1]?.name).to.eql('  profile: edit');
-      expect(seen[2]?.name).to.eql('  profile: reload');
-      expect(seen[3]?.name).to.eql('  profile: rename');
-    } finally {
-      Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
-    }
+    expect(message).to.eql('Profile:');
+    expect(seen[0]?.name).to.eql('  open');
+    expect(seen[1]?.name).to.eql('  profile: edit');
+    expect(seen[2]?.name).to.eql('  profile: reload');
+    expect(seen[3]?.name).to.eql('  profile: rename');
   });
 
   it('resolves default, invalid, and titleless root messages', async () => {
-    const original = Cli.Input.Select.prompt;
     const seen: { readonly message?: string }[] = [];
-
-    Object.defineProperty(Cli.Input.Select, 'prompt', {
-      value: (args: { readonly message?: string }) => {
+    const prompts = menuPromptDeps({
+      select: (args) => {
         seen.push(args);
-        return Promise.resolve('back');
+        return selectValue(args, 'back');
       },
     });
+    const base = { name: 'alpha', path: '/tmp/alpha.yaml' };
 
-    try {
-      const base = { name: 'alpha', path: '/tmp/alpha.yaml' };
-      await promptAction({ ...base, valid: true });
-      await promptAction({ ...base, valid: false });
-      await promptAction({ ...base, valid: false, message: 'Profile:' });
-      await promptAction({ ...base, valid: true, message: false });
-      await promptAction({ ...base, valid: false, message: false });
+    await promptActionWith({ ...base, valid: true }, prompts);
+    await promptActionWith({ ...base, valid: false }, prompts);
+    await promptActionWith({ ...base, valid: false, message: 'Profile:' }, prompts);
+    await promptActionWith({ ...base, valid: true, message: false }, prompts);
+    await promptActionWith({ ...base, valid: false, message: false }, prompts);
 
-      expect(
-        seen.map((prompt) =>
-          Obj.hasOwn(prompt, 'message') ? Cli.stripAnsi(prompt.message ?? '') : undefined
-        ),
-      ).to.eql([
-        'Actions:',
-        'Actions: invalid yaml',
-        'Profile: invalid yaml',
-        undefined,
-        undefined,
-      ]);
-    } finally {
-      Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
-    }
+    expect(
+      seen.map((prompt) =>
+        Obj.hasOwn(prompt, 'message') ? Cli.stripAnsi(prompt.message ?? '') : undefined
+      ),
+    ).to.eql([
+      'Actions:',
+      'Actions: invalid yaml',
+      'Profile: invalid yaml',
+      undefined,
+      undefined,
+    ]);
   });
 
   it('submenu label mode → restores a base-action default in the submenu', async () => {
-    const original = Cli.Input.Select.prompt;
     let seen: string[] = [];
     let message = '';
     let defaultValue = '';
 
-    Object.defineProperty(Cli.Input.Select, 'prompt', {
-      value: (args: {
-        message: string;
-        default?: string;
-        options: { name: string; value: string }[];
-      }) => {
-        seen = args.options.map((item) => Cli.stripAnsi(item.name));
-        message = Cli.stripAnsi(args.message);
-        defaultValue = args.default ?? '';
-        return Promise.resolve('rename');
-      },
-    });
-
-    try {
-      const action = await promptAction({
+    const action = await promptActionWith(
+      {
         name: 'alpha',
         path: '/tmp/alpha.yaml',
         valid: true,
         labelMode: 'submenu',
         defaultValue: 'reload',
-      });
+      },
+      menuPromptDeps({
+        select: (args) => {
+          seen = args.options.map((item) => Cli.stripAnsi(item.name));
+          message = Cli.stripAnsi(args.message ?? '');
+          defaultValue = String(args.default ?? '');
+          return selectValue(args, 'rename');
+        },
+      }),
+    );
 
-      expect(action).to.eql('rename');
-      expect(message).to.eql('config');
-      expect(defaultValue).to.eql('reload');
-      expect(seen).to.eql(['  edit', '  reload', '  rename', ' (delete)', '← back']);
-    } finally {
-      Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
-    }
+    expect(action).to.eql('rename');
+    expect(message).to.eql('config');
+    expect(defaultValue).to.eql('reload');
+    expect(seen).to.eql(['  edit', '  reload', '  rename', ' (delete)', '← back']);
   });
 
   it('submenu label mode → filters invalid-document actions', async () => {
-    const original = Cli.Input.Select.prompt;
     const seen: string[][] = [];
     const messages: string[] = [];
 
-    Object.defineProperty(Cli.Input.Select, 'prompt', {
-      value: (args: { message: string; options: { name: string; value: unknown }[] }) => {
-        const options = args.options;
-        seen.push(options.map((item) => Cli.stripAnsi(item.name)));
-        messages.push(Cli.stripAnsi(args.message));
-        if (seen.length === 1) {
-          return Promise.resolve(options.find((item) => item.name === '  config')?.value);
-        }
-        return Promise.resolve('edit');
-      },
-    });
-
-    try {
-      const action = await promptAction({
+    const action = await promptActionWith(
+      {
         name: 'alpha',
         path: '/tmp/alpha.yaml',
         valid: false,
         labelMode: 'submenu',
         allow: ['edit', 'back'],
         extra: [{ name: 'start', value: 'run' }],
-      });
+      },
+      menuPromptDeps({
+        select: (args) => {
+          seen.push(args.options.map((item) => Cli.stripAnsi(item.name)));
+          messages.push(Cli.stripAnsi(args.message ?? ''));
+          if (seen.length === 1) {
+            return selectName(args, '  config');
+          }
+          return selectValue(args, 'edit');
+        },
+      }),
+    );
 
-      expect(action).to.eql('edit');
-      expect(seen).to.eql([
-        ['  config', '← back'],
-        ['  edit', '← back'],
-      ]);
-      expect(messages).to.eql(['Actions: invalid yaml', 'config invalid yaml']);
-    } finally {
-      Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
-    }
+    expect(action).to.eql('edit');
+    expect(seen).to.eql([
+      ['  config', '← back'],
+      ['  edit', '← back'],
+    ]);
+    expect(messages).to.eql(['Actions: invalid yaml', 'config invalid yaml']);
   });
 });

@@ -1,14 +1,24 @@
-import { type t, Cli, Fs } from '../common.ts';
+import { Fs, type t } from '../common.ts';
 import { fileLabel, fileOf } from './u.fs.ts';
 import { NAME_REGEX } from './u.menu.constants.ts';
+import { defaultMenuPrompts, type MenuPromptDeps } from './u.menu.prompts.ts';
 
 export async function renameConfig(
   path: t.StringFile,
   ext: t.StringPath,
 ): Promise<t.StringFile | undefined> {
+  return await renameConfigWith(path, ext, defaultMenuPrompts());
+}
+
+/** Package-internal config rename prompt parameterized by text input. */
+export async function renameConfigWith(
+  path: t.StringFile,
+  ext: t.StringPath,
+  prompts: MenuPromptDeps,
+): Promise<t.StringFile | undefined> {
   const dir = Fs.dirname(path);
   const name = fileLabel(path, ext);
-  const raw = await Cli.Input.Text.prompt({
+  const raw = await prompts.text({
     message: 'Config name',
     default: name,
     validate(value) {
@@ -17,7 +27,7 @@ export async function renameConfig(
       if (!NAME_REGEX.test(trimmed)) return 'Invalid name.';
       const filename = fileOf(trimmed, ext);
       return Fs.exists(Fs.join(dir, filename)).then((exists) =>
-        exists && trimmed !== name ? 'Name already exists.' : true,
+        exists && trimmed !== name ? 'Name already exists.' : true
       );
     },
   });
