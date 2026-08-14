@@ -2,7 +2,7 @@ import { Cli } from '@sys/cli';
 import { Schedule, type t, WebFixture } from '../../-test.ts';
 import type { Fixture } from '../../-test/u.fixture.dist.ts';
 import { verified } from '../../-test/u.fixture.dist.ts';
-import { DEFAULT_DEPENDENCIES, serveLocalWith } from '../u.server/u.start.ts';
+import { DEFAULT_DEPENDENCIES, serveLocalWith } from '../u.server.start/mod.ts';
 
 export type CapturedStartInput = {
   keyboard?: unknown;

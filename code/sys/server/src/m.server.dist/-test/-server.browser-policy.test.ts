@@ -6,7 +6,7 @@ import {
   type StartDependencies,
   startLocalWith,
   startWith,
-} from '../u.server/u.start.ts';
+} from '../u.server.start/mod.ts';
 
 const WORKERS = [
   { kind: 'asset', path: 'workers/default.js' },

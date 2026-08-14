@@ -1,5 +1,5 @@
 import { Is, MediaType, Num, Obj, type t } from '../common.ts';
-import { snapshotRecord } from './u.input/u.record.ts';
+import { snapshotRecord } from '../u.server.input/u.record.ts';
 
 const POLICY_KEYS = ['kind', 'dedicatedWorkers', 'serviceWorker'] as const;
 const SOURCE_KEYS = ['kind', 'path', 'worker'] as const;

@@ -1,7 +1,7 @@
 import { Cli } from '@sys/cli';
 import { describe, expect, it, type t, WebFixture } from '../../-test.ts';
 import { setup, teardown, verified } from '../../-test/u.fixture.dist.ts';
-import { DEFAULT_DEPENDENCIES, serveLocalWith, serveWith } from '../u.server/u.start.ts';
+import { DEFAULT_DEPENDENCIES, serveLocalWith, serveWith } from '../u.server.start/mod.ts';
 import { DistServeScreen } from '../u.server/u.serve.screen.ts';
 import {
   capture,

@@ -6,7 +6,7 @@ import {
   DEFAULT_DEPENDENCIES,
   type StartDependencies,
   startLocalWith,
-} from '../u.server/u.start.ts';
+} from '../u.server.start/mod.ts';
 
 const HASH = `sha256-${'0'.repeat(64)}` as t.StringHash;
 
