@@ -6,7 +6,7 @@ import type { DiffLib } from './t.ts';
 /**
  * Helpers for determining differences between text strings.
  */
-export const Diff: DiffLib = {
+export const Diff: DiffLib = Object.freeze({
   /**
    * Calculate a list of diffs between two strings.
    */
@@ -24,4 +24,4 @@ export const Diff: DiffLib = {
 
     return res;
   },
-};
+});

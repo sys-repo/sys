@@ -3,7 +3,7 @@ import { Is, type t } from './common.ts';
 /**
  * Type guards.
  */
-export const CmdIs: t.Cmd.Is.Lib = {
+export const CmdIs: t.Cmd.Is.Lib = Object.freeze({
   request: (input: unknown): input is t.Cmd.Wire.Request => isWire(input, 'cmd'),
   event: (input: unknown): input is t.Cmd.Wire.Event => isWire(input, 'cmd:event'),
   response: (input: unknown): input is t.Cmd.Wire.Result => isWire(input, 'cmd:result'),
@@ -12,7 +12,7 @@ export const CmdIs: t.Cmd.Is.Lib = {
   error(input: unknown): input is t.Cmd.Error.Instance {
     return input instanceof Error && isCmdErrorKind(input.name);
   },
-};
+});
 
 /**
  * Helpers:

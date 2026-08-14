@@ -5,7 +5,7 @@ import { port } from './u/u.port.ts';
 /**
  * Process termination helpers.
  */
-export const Terminate: t.Process.Terminate.Lib = {
+export const Terminate: t.Process.Terminate.Lib = Object.freeze({
   pid,
   port,
-};
+});

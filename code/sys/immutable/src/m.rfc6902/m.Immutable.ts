@@ -6,13 +6,15 @@ import { Patch } from './m.Patch.ts';
 /**
  * Helpers for working with raw Immutable<T> objects.
  */
-export const Immutable: t.ImmutableRfc6902.Lib = {
-  Is,
-  Events,
-  Patch,
-  Lens,
-  cloner,
-  clonerRef,
-  asReadonly,
-  toObject,
-} as const;
+export const Immutable: t.ImmutableRfc6902.Lib = Object.freeze(
+  {
+    Is,
+    Events,
+    Patch,
+    Lens,
+    cloner,
+    clonerRef,
+    asReadonly,
+    toObject,
+  } as const,
+);

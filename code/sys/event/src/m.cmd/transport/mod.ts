@@ -7,7 +7,7 @@ export { fromWebSocket, local };
 /**
  * Transport adapters for wiring Cmd to various message endpoints.
  */
-export const Transport: t.Cmd.Transport.Lib = {
+export const Transport: t.Cmd.Transport.Lib = Object.freeze({
   fromWebSocket,
   local,
-};
+});

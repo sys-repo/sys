@@ -1,9 +1,9 @@
-import { type t } from './common.ts';
+import type { t } from './common.ts';
 import { bind } from './u.bind.ts';
 
 /**
  * PathRef.
  */
-export const PathRef: t.PathRef.Lib = {
+export const PathRef: t.PathRef.Lib = Object.freeze({
   bind,
-};
+});

@@ -72,8 +72,8 @@ export function curryChangeFunction<T, P = DefaultPatch>(
 /**
  * Library:
  */
-export const Events: t.ImmutableRfc6902.Events.Lib = {
+export const Events: t.ImmutableRfc6902.Events.Lib = Object.freeze({
   viaOverride,
   viaObservable,
   pathFilter,
-};
+});

@@ -1,6 +1,6 @@
 import { isObject, type t } from './common.ts';
 
-export const Is: t.Hash.Is.Lib = {
+export const Is: t.Hash.Is.Lib = Object.freeze({
   composite(input): input is t.CompositeHash {
     if (!isObject(input)) return false;
     const obj = input as t.CompositeHash;
@@ -27,4 +27,4 @@ export const Is: t.Hash.Is.Lib = {
     }
     return false;
   },
-};
+});

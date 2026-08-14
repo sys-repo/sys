@@ -1,7 +1,7 @@
 import { c, Hash, Is, type t, Text } from './common.ts';
 
 /** Hash formatting helpers for terminal output. */
-export const HashFmt: t.HashFmt.Lib = {
+export const HashFmt: t.HashFmt.Lib = Object.freeze({
   digest(input, options = {}) {
     if (!input) return '';
 
@@ -24,4 +24,4 @@ export const HashFmt: t.HashFmt.Lib = {
     const hashIndex = uri.lastIndexOf('#');
     return `${c.gray(uri.slice(0, hashIndex))}${c.green(uri.slice(hashIndex))}`;
   },
-};
+});

@@ -6,38 +6,40 @@ type O = Record<string, unknown>;
 /**
  * Flag helpers for Immutable objects.
  */
-export const Is: t.ImmutableCore.Is.Lib = {
-  objectPath: StdIs.objectPath,
+export const Is: t.ImmutableCore.Is.Lib = Object.freeze(
+  {
+    objectPath: StdIs.objectPath,
 
-  proxy<T extends O>(input: any): input is T {
-    if (!isObject(input)) return false;
-    return markProxy.has(input);
-  },
+    proxy<T extends O>(input: any): input is T {
+      if (!isObject(input)) return false;
+      return markProxy.has(input);
+    },
 
-  immutable<D, P = unknown>(input: any): input is t.Immutable<D, P> {
-    if (!isObject(input)) return false;
-    const o = input as t.Immutable<D, P>;
-    return isObject(o.current) && areFuncs(o.change);
-  },
+    immutable<D, P = unknown>(input: any): input is t.Immutable<D, P> {
+      if (!isObject(input)) return false;
+      const o = input as t.Immutable<D, P>;
+      return isObject(o.current) && areFuncs(o.change);
+    },
 
-  immutableRef<D, P = unknown, E = unknown>(input: any): input is t.ImmutableRef<D, P, E> {
-    if (!isObject(input)) return false;
-    const o = input as t.ImmutableRef<D, E, P>;
-    return Is.immutable(o) && typeof o.instance === 'string' && areFuncs(o.events);
-  },
+    immutableRef<D, P = unknown, E = unknown>(input: any): input is t.ImmutableRef<D, P, E> {
+      if (!isObject(input)) return false;
+      const o = input as t.ImmutableRef<D, E, P>;
+      return Is.immutable(o) && typeof o.instance === 'string' && areFuncs(o.events);
+    },
 
-  readonlyImmutable<T>(input: unknown): input is t.ImmutableReadonly<T> {
-    return isObject(input) && isObject((input as any).current);
-  },
+    readonlyImmutable<T>(input: unknown): input is t.ImmutableReadonly<T> {
+      return isObject(input) && isObject((input as any).current);
+    },
 
-  readonlyImmutableRef<D, P = unknown, E = unknown>(
-    input: unknown,
-  ): input is t.ImmutableRefReadonly<D, P, E> {
-    if (!isObject(input)) return false;
-    const o = input as t.ImmutableRefReadonly<D, P, E>;
-    return typeof o.instance === 'string' && areFuncs(o.events);
-  },
-} as const;
+    readonlyImmutableRef<D, P = unknown, E = unknown>(
+      input: unknown,
+    ): input is t.ImmutableRefReadonly<D, P, E> {
+      if (!isObject(input)) return false;
+      const o = input as t.ImmutableRefReadonly<D, P, E>;
+      return typeof o.instance === 'string' && areFuncs(o.events);
+    },
+  } as const,
+);
 
 /**
  * Helpers:

@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import type { t } from './common.ts';
 
 import { Is } from './m.Is.ts';
 import { sha1, sha256, toBytes, toHex } from './u.hash.ts';
@@ -9,7 +9,7 @@ export { sha1, sha256 };
 /**
  * Tools for generating and manipulating Hash's.
  */
-export const Hash: t.Hash.Lib = {
+export const Hash: t.Hash.Lib = Object.freeze({
   Is,
 
   sha1,
@@ -30,4 +30,4 @@ export const Hash: t.Hash.Lib = {
     const index = hash.indexOf('-');
     return index < 0 ? '' : hash.slice(0, index);
   },
-};
+});

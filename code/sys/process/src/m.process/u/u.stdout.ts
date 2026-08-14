@@ -27,10 +27,12 @@ export function createStdout(runtime: Runtime): t.Process.Stdout {
 }
 
 /** Canonical host-process stdout capability. */
-export const stdout = createStdout({
-  stdout: Deno.stdout,
-  encode: (text) => encoder.encode(text),
-});
+export const stdout = Object.freeze(
+  createStdout({
+    stdout: Deno.stdout,
+    encode: (text) => encoder.encode(text),
+  }),
+);
 
 /**
  * Helpers:

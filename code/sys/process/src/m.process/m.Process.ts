@@ -16,9 +16,9 @@ import { spawn } from './u.proc/u.spawn.ts';
  * Host and child process capabilities.
  * https://docs.deno.com/api/deno/~/Deno.Command
  */
-export const Process: t.Process.Lib = {
+export const Process: t.Process.Lib = Object.freeze({
   Script,
-  Signal: { ready: 'PROCESS_READY' },
+  Signal: Object.freeze({ ready: 'PROCESS_READY' }),
   stdout,
   isRunning,
   Port,
@@ -30,4 +30,4 @@ export const Process: t.Process.Lib = {
   spawn,
   sh,
   run,
-};
+});

@@ -11,7 +11,7 @@ import { JsrUrl, pkg, type t } from './common.ts';
  * Notes:
  * - When specialTokensPolicy is "disallowed-by-default", count/encode disallow all special tokens.
  */
-export const Token: t.GptTokenLib = {
+export const Token: t.GptTokenLib = Object.freeze({
   count(text) {
     const opts = wrangle.opts();
     return opts ? countTokens(text, opts) : countTokens(text);
@@ -23,7 +23,7 @@ export const Token: t.GptTokenLib = {
   get info() {
     return info;
   },
-};
+});
 
 /**
  * Constants:

@@ -1,13 +1,13 @@
-import { type t } from './common.ts';
+import type { t } from './common.ts';
 
-export const Patch: t.ImmutableRfc6902.Patch.Lib = {
+export const Patch: t.ImmutableRfc6902.Patch.Lib = Object.freeze({
   toObjectPath<P extends { path: string } | string>(input: P) {
     const pointer = typeof input === 'string' ? input : input.path;
 
     // Root pointer:
     if (pointer === '') return [];
 
-    // Handle lone slash (`'/'`) → empty property on root:
+    // Handle lone slash (`'/'`) → empty property on root:
     if (pointer === '/') return [''];
 
     // RFC-6901 says a JSON-Pointer is either `''` or starts with "/"
@@ -31,4 +31,4 @@ export const Patch: t.ImmutableRfc6902.Patch.Lib = {
       return decoded;
     }) as t.ObjectPath;
   },
-};
+});

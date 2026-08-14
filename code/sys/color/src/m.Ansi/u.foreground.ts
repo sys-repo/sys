@@ -1,7 +1,7 @@
 import { c, type t } from './common.ts';
 
 /** Foreground ANSI formatter subset keyed by canonical color name. */
-export const foreground: t.AnsiColor.Foreground = {
+export const foreground: t.AnsiColor.Foreground = Object.freeze({
   black: c.black,
   red: c.red,
   green: c.green,
@@ -19,4 +19,4 @@ export const foreground: t.AnsiColor.Foreground = {
   brightMagenta: c.brightMagenta,
   brightCyan: c.brightCyan,
   brightWhite: c.brightWhite,
-};
+});

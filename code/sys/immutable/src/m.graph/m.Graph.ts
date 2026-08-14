@@ -8,8 +8,8 @@ import { forEach, forEachAsync } from './u.forEach.ts';
 /**
  * Generic, repo-backed DAG walker for document graphs.
  */
-export const Graph: t.Graph.Lib = {
-  default: { discoverRefs },
-  Dag: { build, index, forEach, forEachAsync },
+export const Graph: t.Graph.Lib = Object.freeze({
+  default: Object.freeze({ discoverRefs }),
+  Dag: Object.freeze({ build, index, forEach, forEachAsync }),
   walk,
-};
+});
