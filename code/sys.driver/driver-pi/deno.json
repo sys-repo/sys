@@ -27,27 +27,14 @@
     "./cli": "./src/m.core/m.cli/mod.ts",
     "./cli/raw": "./src/m.core/m.cli.raw/mod.ts"
   },
-  "exclude": [
-    ".tmp",
-    ".pi",
-    "-agent",
-    "-config"
-  ],
+  "exclude": [".tmp", ".pi", "-agent", "-config"],
   "permissions": {
-    "clean": {
-      "read": true,
-      "write": true,
-      "env": true
-    },
+    "clean": { "read": true, "write": true, "env": true },
     "test": {
       "read": true,
       "write": true,
       "env": true,
-      "net": [
-        "localhost",
-        "127.0.0.1",
-        "0.0.0.0"
-      ]
+      "net": ["localhost", "127.0.0.1", "0.0.0.0"]
     },
     "test-browser": {
       "read": true,
@@ -60,10 +47,7 @@
         "WS_NO_BUFFER_UTIL",
         "WS_NO_UTF_8_VALIDATE"
       ],
-      "net": [
-        "127.0.0.1",
-        "0.0.0.0"
-      ],
+      "net": ["127.0.0.1", "0.0.0.0"],
       "run": true
     },
     "cli": {
@@ -71,11 +55,7 @@
       "write": true,
       "run": true,
       "env": true,
-      "net": [
-        "localhost",
-        "127.0.0.1",
-        "0.0.0.0"
-      ]
+      "net": ["localhost", "127.0.0.1", "0.0.0.0"]
     },
     "dev": {
       "read": true,
@@ -85,11 +65,7 @@
       "net": true,
       "ffi": true,
       "sys": {
-        "allow": [
-          "cpus",
-          "networkInterfaces",
-          "hostname"
-        ]
+        "allow": ["cpus", "networkInterfaces", "hostname", "osRelease"]
       }
     }
   }
