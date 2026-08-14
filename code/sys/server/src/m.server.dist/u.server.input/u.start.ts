@@ -3,7 +3,7 @@ import {
   type BrowserPolicySnapshot,
   INVALID_BROWSER_POLICY,
   snapshotBrowserPolicy,
-} from '../u.server/u.browser.ts';
+} from './u.browser.ts';
 import { type InputRecord, snapshotRecord } from './u.record.ts';
 
 const START_KEYS = [

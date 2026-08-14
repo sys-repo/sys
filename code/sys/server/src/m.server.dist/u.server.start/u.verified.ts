@@ -8,7 +8,7 @@ import {
   type BrowserRuntime,
   createBrowserRuntime,
   provisionalBrowserHeaders,
-} from '../u.server/u.browser.ts';
+} from '../u.server.browser/mod.ts';
 import { DistServerError, startError, startupReason } from '../u.server/u.error.ts';
 import { acceptedAuthorities, acceptsHost, exactAuthority } from '../u.server/u.host.ts';
 import { requestPath } from '../u.server/u.path.ts';
