@@ -1,5 +1,6 @@
 import { c, Cli, describe, expect, it, Str, type t } from '../../-test.ts';
 import { WorkspaceRun } from '../mod.ts';
+import { formatHandoffWith } from '../u.fmt/u.handoff.ts';
 
 const WORKSPACE = '/tmp/sample-workspace' as t.StringDir;
 const RULE = '━'.repeat(100);
@@ -571,33 +572,21 @@ describe('WorkspaceRun.Fmt.handoff', () => {
       }
     });
 
-    it('measures terminal handoff width once and performs no screen repaint', () => {
+    it('measures terminal handoff width once through a pure dependency', () => {
+      // Screen repaint belongs to reporter-runtime tests; handoff formatting receives no effect seam.
       const failure = ran('code/pkg-failed', { code: 1 });
       const result = failedResult([failure], failure);
-      const size = Cli.Screen.size;
-      const repaint = Cli.Screen.repaint;
       let sizeCalls = 0;
-      let repaintCalls = 0;
-      let rendered = '';
-      Object.defineProperty(Cli.Screen, 'size', {
-        value: () => ({ width: ++sizeCalls === 1 ? 40 : 160, height: 24 }),
-      });
-      Object.defineProperty(Cli.Screen, 'repaint', {
-        value: () => {
-          repaintCalls += 1;
+      const rendered = formatHandoffWith(
+        {
+          fitWidth: () => ++sizeCalls === 1 ? 40 : 160,
         },
-      });
-
-      try {
-        rendered = WorkspaceRun.Fmt.handoff(result, { detail: 'compact', terminal: true });
-      } finally {
-        Object.defineProperty(Cli.Screen, 'size', { value: size });
-        Object.defineProperty(Cli.Screen, 'repaint', { value: repaint });
-      }
+        result,
+        { detail: 'compact', terminal: true },
+      );
 
       const lines = rendered.split('\n');
       expect(sizeCalls).to.eql(1);
-      expect(repaintCalls).to.eql(0);
       expect(lines[1]).to.eql(c.red('━'.repeat(40)));
       expect(lines.slice(0, 3).map(plain)).to.eql([
         'Workspace tests failed in 20ms',

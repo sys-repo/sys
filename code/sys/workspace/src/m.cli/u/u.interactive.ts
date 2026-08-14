@@ -1,6 +1,6 @@
 import { Cli, type t } from '../common.ts';
 import { applyWithSession } from '../../m.upgrade/u.apply.ts';
-import { createSession } from '../../m.upgrade/u.session.ts';
+import { createSession, type UpgradeSession } from '../../m.upgrade/u.session.ts';
 import { upgradeWithSession } from '../../m.upgrade/u.upgrade.ts';
 import { Fmt } from '../u.fmt/u.fmt.ts';
 
@@ -10,11 +10,30 @@ type InteractiveResult = {
   readonly applied?: t.WorkspaceUpgrade.ApplyResult;
 };
 
+export type InteractiveDependencies = {
+  readonly createSession: () => UpgradeSession;
+  readonly promptCheckbox: typeof Cli.Input.Checkbox.prompt<string>;
+};
+
+const DEFAULT_DEPS: InteractiveDependencies = {
+  createSession,
+  promptCheckbox: Cli.Input.Checkbox.prompt,
+};
+
 export async function runInteractive(
   input: t.WorkspaceUpgrade.Input,
   options: t.WorkspaceCli.ResolvedOptions,
 ): Promise<InteractiveResult> {
-  const session = createSession();
+  return await runInteractiveWith(DEFAULT_DEPS, input, options);
+}
+
+/** Package-internal dependency seam for one interactive upgrade session. */
+export async function runInteractiveWith(
+  deps: InteractiveDependencies,
+  input: t.WorkspaceUpgrade.Input,
+  options: t.WorkspaceCli.ResolvedOptions,
+): Promise<InteractiveResult> {
+  const session = deps.createSession();
   const initial = await Cli.Spinner.with(
     Fmt.spinnerProgress({ kind: 'plan' }),
     (spinner) =>
@@ -36,7 +55,7 @@ export async function runInteractive(
   console.info(Fmt.plan(initial));
   console.info();
 
-  const selection = await wrangle.selection(initial, options);
+  const selection = await wrangle.selection(deps, initial, options);
   const policy = wrangle.policy(initial, selection, options.policy);
   if (policy !== options.policy) {
     console.info(Fmt.overrideNotice(options.policy));
@@ -133,13 +152,14 @@ const wrangle = {
   },
 
   async selection(
+    deps: InteractiveDependencies,
     upgrade: t.WorkspaceUpgrade.Result,
     options: t.WorkspaceCli.ResolvedOptions,
   ): Promise<t.WorkspaceCli.Selection> {
     const promptOptions = Fmt.selectionOptions(upgrade, options);
     if (promptOptions.length === 0) return { include: [], exclude: options.exclude };
 
-    const rawPicked = (await Cli.Input.Checkbox.prompt<string>({
+    const rawPicked = (await deps.promptCheckbox({
       message: `Dependencies to upgrade (${promptOptions.length.toLocaleString()})`,
       options: [...promptOptions],
       maxRows: Math.min(50, promptOptions.length),

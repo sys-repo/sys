@@ -1,5 +1,6 @@
-import { describe, expect, expectError, Fs, it, Jsr, type t, Testing } from '../../-test.ts';
+import { describe, expect, expectError, Fs, it, type Jsr, type t, Testing } from '../../-test.ts';
 import { WorkspaceCi } from '../mod.ts';
+import { textWith } from './u/u.text.ts';
 
 describe('WorkspaceCi.Jsr', () => {
   it('builds YAML from ordered module paths', async () => {
@@ -412,8 +413,8 @@ describe('WorkspaceCi.Jsr', () => {
         '@scope/beta': versions('@scope/beta', '1.0.0', { '1.0.0': {} }),
         '@scope/gamma': unpublished(),
       },
-      async () => {
-        const yaml = await WorkspaceCi.Jsr.text({
+      async (deps) => {
+        const yaml = await textWith(deps, {
           paths: [alpha, beta, gamma],
           versionFilter: 'ahead',
         });
@@ -432,9 +433,9 @@ describe('WorkspaceCi.Jsr', () => {
 
     await Fs.writeJson(Fs.join(alpha, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
 
-    await withPkgVersions({ '@scope/alpha': versions('@scope/alpha', '1.1.0') }, async () => {
+    await withPkgVersions({ '@scope/alpha': versions('@scope/alpha', '1.1.0') }, async (deps) => {
       await expectError(
-        async () => await WorkspaceCi.Jsr.text({ paths: [alpha], versionFilter: 'ahead' }),
+        async () => await textWith(deps, { paths: [alpha], versionFilter: 'ahead' }),
         'Local version is behind JSR latest',
       );
     });
@@ -446,8 +447,8 @@ describe('WorkspaceCi.Jsr', () => {
 
     await Fs.writeJson(Fs.join(alpha, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
 
-    await withPkgVersions({ '@scope/alpha': unpublished404('@scope/alpha') }, async () => {
-      const yaml = await WorkspaceCi.Jsr.text({
+    await withPkgVersions({ '@scope/alpha': unpublished404('@scope/alpha') }, async (deps) => {
+      const yaml = await textWith(deps, {
         paths: [alpha],
         versionFilter: 'ahead',
       });
@@ -538,14 +539,13 @@ function versions(
   } as VersionsResponse;
 }
 
-async function withPkgVersions(map: Record<string, VersionsResponse>, fn: () => Promise<void>) {
-  const original = Jsr.Fetch.Pkg.versions;
-  Jsr.Fetch.Pkg.versions = (name) => Promise.resolve(map[name] ?? unpublished());
-  try {
-    await fn();
-  } finally {
-    Jsr.Fetch.Pkg.versions = original;
-  }
+async function withPkgVersions(
+  map: Record<string, VersionsResponse>,
+  fn: (deps: { readonly versions: typeof Jsr.Fetch.Pkg.versions }) => Promise<void>,
+) {
+  await fn({
+    versions: (name) => Promise.resolve(map[name] ?? unpublished()),
+  });
 }
 
 function responseBase(url = 'https://jsr.io') {

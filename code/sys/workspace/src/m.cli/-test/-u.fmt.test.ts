@@ -1,6 +1,7 @@
 import { c, Cli, describe, Esm, expect, it, type t, Time } from '../../-test.ts';
 import { WorkspaceHelp } from '../../m.help/mod.ts';
 import { Fmt } from '../u.fmt/u.fmt.ts';
+import { selectionOptionsWith } from '../u.fmt/u.fmt.selection.ts';
 import { FmtHelp } from '../u.fmt/u.fmt.help.ts';
 
 const HOUR = 60 * 60 * 1000;
@@ -163,16 +164,15 @@ describe('Workspace.Cli.Fmt', () => {
   });
 
   it('keeps common scoped npm package names visible before truncating interactive rows', () => {
-    const restore = stubScreenWidth(80);
-    try {
-      const options = Fmt.selectionOptions(upgradeWithLongScopedName(), cliOptions());
-      const plain = Cli.stripAnsi(options[0]!.name);
+    const options = selectionOptionsWith(
+      { size: () => ({ width: 80, height: 24 }) },
+      upgradeWithLongScopedName(),
+      cliOptions(),
+    );
+    const plain = Cli.stripAnsi(options[0]!.name);
 
-      expect(plain).to.include('@sample/foo');
-      expect(plain).to.include('blocked by policy');
-    } finally {
-      restore();
-    }
+    expect(plain).to.include('@sample/foo');
+    expect(plain).to.include('blocked by policy');
   });
 
   it('pre-checks policy-selected rows and leaves blocked rows unchecked by default', () => {
@@ -884,13 +884,4 @@ function expectMaxVisibleWidth(text: string, width: number) {
     .map((line) => line.trimEnd())
     .filter((line) => line.length > width);
   expect(wide, wide.join('\n')).to.eql([]);
-}
-
-function stubScreenWidth(width: number): () => void {
-  const screen = Cli.Screen as { size: () => { width: number; height: number } };
-  const prev = screen.size;
-  screen.size = () => ({ width, height: 24 });
-  return () => {
-    screen.size = prev;
-  };
 }

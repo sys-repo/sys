@@ -13,7 +13,20 @@ type OTarget = {
   readonly test: t.StringPath;
 };
 
+export type SyncDependencies = {
+  readonly ensureGraph: typeof WorkspacePrep.Graph.ensure;
+};
+
+const DEFAULT_DEPS: SyncDependencies = {
+  ensureGraph: WorkspacePrep.Graph.ensure,
+};
+
 export async function sync(args: t.WorkspaceCi.SyncArgs) {
+  return await syncWith(DEFAULT_DEPS, args);
+}
+
+/** Package-internal dependency seam for CI preparation. */
+export async function syncWith(deps: SyncDependencies, args: t.WorkspaceCi.SyncArgs) {
   const cwd = args.cwd ?? Fs.cwd();
   const silent = args.silent ?? false;
   const sourcePaths = args.sourcePaths;
@@ -32,7 +45,7 @@ export async function sync(args: t.WorkspaceCi.SyncArgs) {
         spinner,
         label: 'ensuring workspace graph...',
         silent,
-        fn: () => WorkspacePrep.Graph.ensure({ cwd, silent: true }),
+        fn: () => deps.ensureGraph({ cwd, silent: true }),
       });
     }
 

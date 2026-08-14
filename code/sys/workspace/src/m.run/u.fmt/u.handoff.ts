@@ -6,12 +6,30 @@ import { displayNumber, fitHandoffWidth, taskNoun } from './u.text.ts';
 
 const SUMMARY_SEPARATOR = c.gray(' · ');
 
+export type HandoffDependencies = {
+  /** Pure width measurement only; reporter runtime owns screen repaint effects. */
+  readonly fitWidth: typeof fitHandoffWidth;
+};
+
+const DEFAULT_DEPS: HandoffDependencies = {
+  fitWidth: fitHandoffWidth,
+};
+
 /** Format one deterministic final run handoff. */
 export function formatHandoff(
   result: t.WorkspaceRun.Result,
   options: t.WorkspaceRun.Fmt.HandoffOptions,
 ): string {
-  const width = fitHandoffWidth(options);
+  return formatHandoffWith(DEFAULT_DEPS, result, options);
+}
+
+/** Package-internal dependency seam for terminal-width fitting. */
+export function formatHandoffWith(
+  deps: HandoffDependencies,
+  result: t.WorkspaceRun.Result,
+  options: t.WorkspaceRun.Fmt.HandoffOptions,
+): string {
+  const width = deps.fitWidth(options);
   const allFailures = projectFailedPackages(result);
   const failures = options.detail === 'compact'
     ? omittedFailedPackages(allFailures, options.screen)

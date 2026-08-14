@@ -14,36 +14,95 @@ import type {
 const NAME_MIN_WIDTH = 25;
 const EMPTY_OVERRIDE_PARENTS: ReadonlySet<string> = new Set();
 
+export type SelectionDependencies = {
+  readonly size: typeof Cli.Screen.size;
+};
+
+const DEFAULT_DEPS: SelectionDependencies = {
+  size: Cli.Screen.size,
+};
+
+export function selectionOptionsWith(
+  deps: SelectionDependencies,
+  upgrade: t.WorkspaceUpgrade.Result,
+  options: t.WorkspaceCli.ResolvedOptions,
+): readonly SelectionOption[] {
+  const includeSet = new Set(options.include);
+  const decisionByKey = new Map(
+    upgrade.policy.decisions.map(
+      (decision) => [FmtBase.key(decision.input.subject.entry), decision] as const,
+    ),
+  );
+  const layout = selectionLayoutWith(deps, upgrade, decisionByKey);
+
+  return upgrade.collect.candidates.flatMap((candidate): readonly SelectionOption[] => {
+    const decision = decisionByKey.get(FmtBase.key(candidate.entry));
+    const state = FmtSelection.selectionState(candidate, decision);
+    if (state === 'current' || state === 'registry-behind-current') return [];
+    const name = candidate.entry.module.name;
+    const alias = candidate.entry.module.alias;
+    const label = FmtSelection.selectionLabel(
+      candidate,
+      decision,
+      layout,
+      upgrade.options.evaluatedAt,
+    );
+    const selectedByFlag = includeSet.has(name) || (!!alias && includeSet.has(alias));
+    const checked = includeSet.size > 0 ? selectedByFlag : state === 'selected';
+    const disabled = FmtStanddown.disabled(candidate, decision);
+    return [{ name: label, value: name, checked: disabled ? false : checked, disabled }];
+  });
+}
+
+export function selectionLayoutWith(
+  deps: SelectionDependencies,
+  upgrade: SelectionLayoutInput,
+  decisionByKey = new Map(
+    upgrade.policy.decisions.map((
+      decision,
+    ) => [FmtBase.key(decision.input.subject.entry), decision]),
+  ),
+): SelectionLayout {
+  const overrideParents = FmtSelection.overrideParentSet(upgrade);
+  const evaluatedAt = upgrade.options?.evaluatedAt;
+  const widths = { name: 0, current: 0, latest: 0, note: 0 };
+
+  for (const candidate of upgrade.collect.candidates) {
+    const decision = decisionByKey.get(FmtBase.key(candidate.entry));
+    const state = FmtSelection.selectionState(candidate, decision);
+    if (state === 'current' || state === 'registry-behind-current') continue;
+
+    widths.name = Math.max(widths.name, FmtBase.width(FmtBase.name(candidate.entry)));
+    widths.current = Math.max(widths.current, candidate.current.length);
+    widths.latest = Math.max(
+      widths.latest,
+      FmtSelection.selectionVersion(candidate, decision).length,
+    );
+    widths.note = Math.max(
+      widths.note,
+      FmtBase.width(
+        FmtSelection.selectionNote(candidate, decision, state, overrideParents, evaluatedAt),
+      ),
+    );
+  }
+
+  const screen = deps.size();
+  const budget = Math.max(24, screen.width - 8);
+  const reserved = widths.current + widths.latest + widths.note + 9;
+
+  return {
+    ...widths,
+    name: Math.max(NAME_MIN_WIDTH, Math.min(widths.name, budget - reserved)),
+    overrideParents,
+  };
+}
+
 export const FmtSelection = {
   selectionOptions(
     upgrade: t.WorkspaceUpgrade.Result,
     options: t.WorkspaceCli.ResolvedOptions,
   ): readonly SelectionOption[] {
-    const includeSet = new Set(options.include);
-    const decisionByKey = new Map(
-      upgrade.policy.decisions.map(
-        (decision) => [FmtBase.key(decision.input.subject.entry), decision] as const,
-      ),
-    );
-    const layout = FmtSelection.selectionLayout(upgrade, decisionByKey);
-
-    return upgrade.collect.candidates.flatMap((candidate): readonly SelectionOption[] => {
-      const decision = decisionByKey.get(FmtBase.key(candidate.entry));
-      const state = FmtSelection.selectionState(candidate, decision);
-      if (state === 'current' || state === 'registry-behind-current') return [];
-      const name = candidate.entry.module.name;
-      const alias = candidate.entry.module.alias;
-      const label = FmtSelection.selectionLabel(
-        candidate,
-        decision,
-        layout,
-        upgrade.options.evaluatedAt,
-      );
-      const selectedByFlag = includeSet.has(name) || (!!alias && includeSet.has(alias));
-      const checked = includeSet.size > 0 ? selectedByFlag : state === 'selected';
-      const disabled = FmtStanddown.disabled(candidate, decision);
-      return [{ name: label, value: name, checked: disabled ? false : checked, disabled }];
-    });
+    return selectionOptionsWith(DEFAULT_DEPS, upgrade, options);
   },
 
   selected(selection: t.WorkspaceCli.Selection): string {
@@ -226,38 +285,7 @@ export const FmtSelection = {
       ) => [FmtBase.key(decision.input.subject.entry), decision]),
     ),
   ): SelectionLayout {
-    const overrideParents = FmtSelection.overrideParentSet(upgrade);
-    const evaluatedAt = upgrade.options?.evaluatedAt;
-    const widths = { name: 0, current: 0, latest: 0, note: 0 };
-
-    for (const candidate of upgrade.collect.candidates) {
-      const decision = decisionByKey.get(FmtBase.key(candidate.entry));
-      const state = FmtSelection.selectionState(candidate, decision);
-      if (state === 'current' || state === 'registry-behind-current') continue;
-
-      widths.name = Math.max(widths.name, FmtBase.width(FmtBase.name(candidate.entry)));
-      widths.current = Math.max(widths.current, candidate.current.length);
-      widths.latest = Math.max(
-        widths.latest,
-        FmtSelection.selectionVersion(candidate, decision).length,
-      );
-      widths.note = Math.max(
-        widths.note,
-        FmtBase.width(
-          FmtSelection.selectionNote(candidate, decision, state, overrideParents, evaluatedAt),
-        ),
-      );
-    }
-
-    const screen = Cli.Screen.size();
-    const budget = Math.max(24, screen.width - 8);
-    const reserved = widths.current + widths.latest + widths.note + 9;
-
-    return {
-      ...widths,
-      name: Math.max(NAME_MIN_WIDTH, Math.min(widths.name, budget - reserved)),
-      overrideParents,
-    };
+    return selectionLayoutWith(DEFAULT_DEPS, upgrade, decisionByKey);
   },
 
   selectionName(entry: t.EsmDeps.Entry, width: number): string {

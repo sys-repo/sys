@@ -1,6 +1,7 @@
 import { Cli, describe, expect, Fs, it, Testing } from '../-test.ts';
 import { WorkspacePrep } from '../m.prep/mod.ts';
 import { WorkspaceCi } from './mod.ts';
+import { syncWith } from './u/u.sync.ts';
 
 describe(`@sys/workspace/ci`, () => {
   it('API', async () => {
@@ -100,24 +101,43 @@ describe(`@sys/workspace/ci`, () => {
   it('skips graph ensure when the caller already ran prep in this flow', async () => {
     const fs = await Testing.dir('WorkspaceCi.sync.skip-graph');
     let called = 0;
-    const ensure = WorkspacePrep.Graph.ensure;
-    WorkspacePrep.Graph.ensure = async (...args) => {
-      called += 1;
-      return await ensure(...args);
-    };
-
-    try {
-      await WorkspaceCi.sync({
+    await syncWith(
+      {
+        ensureGraph: () => {
+          called += 1;
+          throw new Error('Unexpected graph ensure');
+        },
+      },
+      {
         cwd: fs.dir,
         ensureGraph: false,
         silent: true,
         sourcePaths: [],
-      });
-    } finally {
-      WorkspacePrep.Graph.ensure = ensure;
-    }
+      },
+    );
 
     expect(called).to.eql(0);
+  });
+
+  it('uses the injected graph ensure dependency exactly once when enabled', async () => {
+    const fs = await Testing.dir('WorkspaceCi.sync.ensure-graph');
+    const calls: Parameters<typeof WorkspacePrep.Graph.ensure>[0][] = [];
+
+    await syncWith(
+      {
+        ensureGraph: async (args) => {
+          calls.push(args);
+          return await WorkspacePrep.Graph.ensure(args);
+        },
+      },
+      {
+        cwd: fs.dir,
+        silent: true,
+        sourcePaths: [],
+      },
+    );
+
+    expect(calls).to.eql([{ cwd: fs.dir, silent: true }]);
   });
 });
 

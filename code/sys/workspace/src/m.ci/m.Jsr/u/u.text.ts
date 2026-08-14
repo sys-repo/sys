@@ -1,14 +1,10 @@
-import { Err, Fs, Str, type t } from '../../common.ts';
+import { Err, Fs, Jsr, Str, type t } from '../../common.ts';
 import { CI_DENO_VERSION } from '../../u.deno.ts';
 import { wrangle } from '../../u/u.workflow.ts';
-import { filterModules } from './u.filter.ts';
-import { deriveStrata, parsePersistedGraph, type ModuleStratum } from './u.graph.ts';
+import { filterModulesWith, type ModuleFilterDependencies } from './u.filter.ts';
+import { deriveStrata, type ModuleStratum, parsePersistedGraph } from './u.graph.ts';
 import { toMatrixEntryYaml } from './u.yaml.ts';
-import {
-  JSR_JOB_CONFIG_TEMPLATE,
-  JSR_MATRIX_BODY_TEMPLATE,
-  JSR_MAX_PARALLEL,
-} from './u.tmpl.ts';
+import { JSR_JOB_CONFIG_TEMPLATE, JSR_MATRIX_BODY_TEMPLATE, JSR_MAX_PARALLEL } from './u.tmpl.ts';
 
 const JSR_MAIN_GUARD_STEP = `
 - name: Validate main-only publish commit
@@ -23,9 +19,21 @@ const PERMISSIONS = {
   'id-token': 'write # The OIDC/ID token is used for authentication with JSR.',
 } as const;
 
+const DEFAULT_DEPS: ModuleFilterDependencies = {
+  versions: Jsr.Fetch.Pkg.versions,
+};
+
 export async function text(args: t.WorkspaceCi.Jsr.TextArgs) {
+  return await textWith(DEFAULT_DEPS, args);
+}
+
+/** Package-internal dependency seam for JSR workflow rendering. */
+export async function textWith(
+  deps: ModuleFilterDependencies,
+  args: t.WorkspaceCi.Jsr.TextArgs,
+) {
   const cwd = args.cwd ?? Deno.cwd();
-  const modules = await filterModules(cwd, args.paths, args.versionFilter);
+  const modules = await filterModulesWith(deps, cwd, args.paths, args.versionFilter);
   const graph = await loadGraph(cwd);
   const strata = deriveStrata(modules, graph);
   const jobs = strata

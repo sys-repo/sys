@@ -3,7 +3,25 @@ import { loadModule, type Module } from './u.module.ts';
 
 type VersionFilter = t.WorkspaceCi.Jsr.TextArgs['versionFilter'];
 
+export type ModuleFilterDependencies = {
+  readonly versions: typeof Jsr.Fetch.Pkg.versions;
+};
+
+const DEFAULT_DEPS: ModuleFilterDependencies = {
+  versions: Jsr.Fetch.Pkg.versions,
+};
+
 export async function filterModules(
+  cwd: t.StringDir,
+  paths: readonly t.StringPath[],
+  versionFilter: VersionFilter = 'all',
+) {
+  return await filterModulesWith(DEFAULT_DEPS, cwd, paths, versionFilter);
+}
+
+/** Package-internal dependency seam for JSR publication filtering. */
+export async function filterModulesWith(
+  deps: ModuleFilterDependencies,
   cwd: t.StringDir,
   paths: readonly t.StringPath[],
   versionFilter: VersionFilter = 'all',
@@ -11,12 +29,15 @@ export async function filterModules(
   const modules = await Promise.all(paths.map((path) => loadModule(cwd, path)));
   if (versionFilter !== 'ahead') return modules;
 
-  const results = await Promise.all(modules.map((module) => filterAhead(module)));
+  const results = await Promise.all(modules.map((module) => filterAhead(deps, module)));
   return results.filter((item): item is Module => !!item);
 }
 
-async function filterAhead(module: Module): Promise<Module | undefined> {
-  const res = await Jsr.Fetch.Pkg.versions(module.name);
+async function filterAhead(
+  deps: ModuleFilterDependencies,
+  module: Module,
+): Promise<Module | undefined> {
+  const res = await deps.versions(module.name);
   if (!res.ok) {
     if (res.status === 404 || Is.httpStatus(res.error, 404)) {
       return module;

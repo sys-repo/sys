@@ -5,7 +5,27 @@ import { runFollowup, toFollowups, writePlan } from './u.apply.ts';
 import { collect } from './u.collect.ts';
 import { plan } from './u.plan.ts';
 
+type Confirmation = 'save' | 'back' | 'cancel';
+
+export type BumpRunDependencies = {
+  readonly promptCheckbox: typeof Cli.Input.Checkbox.prompt<t.StringPath>;
+  readonly promptSelect: typeof Cli.Input.Select.prompt<Confirmation>;
+};
+
+const DEFAULT_DEPS: BumpRunDependencies = {
+  promptCheckbox: Cli.Input.Checkbox.prompt,
+  promptSelect: Cli.Input.Select.prompt,
+};
+
 export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
+  return await runWith(DEFAULT_DEPS, args);
+};
+
+/** Package-internal dependency seam for interactive bump orchestration. */
+export async function runWith(
+  deps: BumpRunDependencies,
+  args: t.WorkspaceBump.RunArgs = {},
+): Promise<t.WorkspaceBump.RunResult> {
   const cwd = args.cwd ?? args.collect?.cwd ?? Fs.cwd();
   const log = args.log ?? true;
   const spinner = Cli.Spinner.create('');
@@ -17,7 +37,7 @@ export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
     spinner,
     progress: args.progress,
   });
-  let selected = await wrangle.select({
+  let selected = await wrangle.select(deps, {
     candidates: [...collected.candidates],
     release: collected.release,
     from: args.from !== undefined ? [...args.from] : undefined,
@@ -48,9 +68,9 @@ export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
 
   if (!args.nonInteractive) {
     const allowBack = selected.prompted;
-    let confirmed = await wrangle.confirm({ allowBack });
+    let confirmed = await wrangle.confirm(deps, { allowBack });
     while (allowBack && confirmed === 'back') {
-      selected = await wrangle.select({
+      selected = await wrangle.select(deps, {
         candidates: [...collected.candidates],
         release: collected.release,
         suggestedRoots: selected.pkgPaths,
@@ -63,7 +83,7 @@ export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
         spinner,
         progress: args.progress,
       });
-      confirmed = await wrangle.confirm({ allowBack });
+      confirmed = await wrangle.confirm(deps, { allowBack });
     }
     if (confirmed !== 'save') return { collect: collected, plan: planned, dryRun: false };
   }
@@ -111,7 +131,7 @@ export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
     apply: { plan: planned, writes, followups },
     dryRun: false,
   };
-};
+}
 
 const wrangle = {
   async collect(args: {
@@ -184,7 +204,7 @@ const wrangle = {
     return planned;
   },
 
-  async select(args: {
+  async select(deps: BumpRunDependencies, args: {
     candidates: readonly t.WorkspaceBump.Candidate[];
     release: t.SemverReleaseType;
     from?: readonly string[];
@@ -206,7 +226,7 @@ const wrangle = {
     let message = `Which packages should start the ${c.cyan(args.release)} bump`;
     message += ` ${c.gray(`(${args.candidates.length.toLocaleString()} total)`)}`;
 
-    const picked = await Cli.Input.Checkbox.prompt<t.StringPath>({
+    const picked = await deps.promptCheckbox({
       message,
       maxRows: Math.min(50, args.candidates.length),
       minOptions: 1,
@@ -248,8 +268,8 @@ const wrangle = {
     return [...new Set(values)];
   },
 
-  async confirm(args: { allowBack: boolean }) {
-    const options: { name: string; value: 'save' | 'back' | 'cancel' }[] = [
+  async confirm(deps: BumpRunDependencies, args: { allowBack: boolean }) {
+    const options: { name: string; value: Confirmation }[] = [
       { name: `  ${c.green('save')}`, value: 'save' },
     ];
     if (args.allowBack) {
@@ -257,7 +277,7 @@ const wrangle = {
     }
     options.push({ name: `  ${c.gray('cancel')}`, value: 'cancel' });
 
-    return await Cli.Input.Select.prompt<'save' | 'back' | 'cancel'>({
+    return await deps.promptSelect({
       message: '',
       options,
       default: 'save',

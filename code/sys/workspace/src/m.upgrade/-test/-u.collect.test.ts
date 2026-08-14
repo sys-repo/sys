@@ -1,11 +1,12 @@
-import { describe, expect, it, type t, Testing } from '../../-test.ts';
+import { describe, expect, expectError, it, type t, Testing } from '../../-test.ts';
 import { WorkspaceUpgrade } from '../mod.ts';
 import {
+  collect,
   fetchFail,
+  registry as createRegistry,
   standdownTime,
   versionsJsr,
   versionsNpm,
-  withVersions,
   writeDepsYaml,
 } from './u.fixture.ts';
 
@@ -24,29 +25,27 @@ describe('Workspace.Upgrade.collect', () => {
     `,
     );
 
-    await withVersions(
-      {
+    const registry = createRegistry({
+      versions: {
         jsr: { '@sys/std': versionsJsr('@sys/std', '0.0.3', { '0.0.1': {}, '0.0.3': {} }) },
         npm: { react: versionsNpm('react', '19.0.0', { '18.2.0': {}, '19.0.0': {} }) },
       },
-      async () => {
-        const result = await WorkspaceUpgrade.collect({ cwd: fs.dir, deps: fs.join('deps.yaml') });
+    });
+    const result = await collect(registry, { cwd: fs.dir, deps: fs.join('deps.yaml') });
 
-        expect(result.totals).to.eql({
-          dependencies: 2,
-          collected: 2,
-          skipped: 0,
-          failed: 0,
-        });
-        expect(
-          result.candidates.map((item) => [item.entry.module.name, item.current, item.latest]),
-        ).to.eql([
-          ['@sys/std', '0.0.1', '0.0.3'],
-          ['react', '18.2.0', '19.0.0'],
-        ]);
-        expect(result.uncollected).to.eql([]);
-      },
-    );
+    expect(result.totals).to.eql({
+      dependencies: 2,
+      collected: 2,
+      skipped: 0,
+      failed: 0,
+    });
+    expect(
+      result.candidates.map((item) => [item.entry.module.name, item.current, item.latest]),
+    ).to.eql([
+      ['@sys/std', '0.0.1', '0.0.3'],
+      ['react', '18.2.0', '19.0.0'],
+    ]);
+    expect(result.uncollected).to.eql([]);
   });
 
   it('keeps npm standdown versions visible while marking only eligible versions selectable', async () => {
@@ -59,8 +58,8 @@ describe('Workspace.Upgrade.collect', () => {
     `,
     );
 
-    await withVersions(
-      {
+    const registry = createRegistry({
+      versions: {
         jsr: {},
         npm: {
           motion: versionsNpm('motion', '12.42.0', {
@@ -70,30 +69,29 @@ describe('Workspace.Upgrade.collect', () => {
           }),
         },
       },
-      async () => {
-        const result = await WorkspaceUpgrade.collect(
-          { cwd: fs.dir, deps: fs.join('deps.yaml') },
-          { policy: { mode: 'latest' }, minimumDependencyAge: 2 * DAY, evaluatedAt: T.now },
-        );
-        const candidate = result.candidates[0]!;
-
-        expect(candidate.latest).to.eql('12.42.0');
-        expect(candidate.available).to.eql(['12.42.0', '12.41.0', '12.40.0']);
-        expect(candidate.eligible).to.eql(['12.41.0', '12.40.0']);
-        expect(candidate.versions.map((item) => [item.version, item.eligibility])).to.eql([
-          [
-            '12.42.0',
-            {
-              kind: 'standdown',
-              eligibleAt: T.eligibleAt,
-              age: 12 * 60 * 60 * 1000,
-            },
-          ],
-          ['12.41.0', { kind: 'eligible' }],
-          ['12.40.0', { kind: 'eligible' }],
-        ]);
-      },
+    });
+    const result = await collect(
+      registry,
+      { cwd: fs.dir, deps: fs.join('deps.yaml') },
+      { policy: { mode: 'latest' }, minimumDependencyAge: 2 * DAY, evaluatedAt: T.now },
     );
+    const candidate = result.candidates[0]!;
+
+    expect(candidate.latest).to.eql('12.42.0');
+    expect(candidate.available).to.eql(['12.42.0', '12.41.0', '12.40.0']);
+    expect(candidate.eligible).to.eql(['12.41.0', '12.40.0']);
+    expect(candidate.versions.map((item) => [item.version, item.eligibility])).to.eql([
+      [
+        '12.42.0',
+        {
+          kind: 'standdown',
+          eligibleAt: T.eligibleAt,
+          age: 12 * 60 * 60 * 1000,
+        },
+      ],
+      ['12.41.0', { kind: 'eligible' }],
+      ['12.40.0', { kind: 'eligible' }],
+    ]);
   });
 
   it('fails closed for unknown npm publish timestamps while keeping versions visible', async () => {
@@ -106,8 +104,8 @@ describe('Workspace.Upgrade.collect', () => {
     `,
     );
 
-    await withVersions(
-      {
+    const registry = createRegistry({
+      versions: {
         jsr: {},
         npm: {
           motion: versionsNpm('motion', '12.42.0', {
@@ -116,21 +114,20 @@ describe('Workspace.Upgrade.collect', () => {
           }),
         },
       },
-      async () => {
-        const result = await WorkspaceUpgrade.collect(
-          { cwd: fs.dir, deps: fs.join('deps.yaml') },
-          { policy: { mode: 'latest' }, minimumDependencyAge: 2 * DAY, evaluatedAt: T.now },
-        );
-        const candidate = result.candidates[0]!;
-
-        expect(candidate.available).to.eql(['12.42.0', '12.40.0']);
-        expect(candidate.eligible).to.eql(['12.40.0']);
-        expect(candidate.versions.map((item) => [item.version, item.eligibility])).to.eql([
-          ['12.42.0', { kind: 'unknown-published-at' }],
-          ['12.40.0', { kind: 'eligible' }],
-        ]);
-      },
+    });
+    const result = await collect(
+      registry,
+      { cwd: fs.dir, deps: fs.join('deps.yaml') },
+      { policy: { mode: 'latest' }, minimumDependencyAge: 2 * DAY, evaluatedAt: T.now },
     );
+    const candidate = result.candidates[0]!;
+
+    expect(candidate.available).to.eql(['12.42.0', '12.40.0']);
+    expect(candidate.eligible).to.eql(['12.40.0']);
+    expect(candidate.versions.map((item) => [item.version, item.eligibility])).to.eql([
+      ['12.42.0', { kind: 'unknown-published-at' }],
+      ['12.40.0', { kind: 'eligible' }],
+    ]);
   });
 
   it('leaves jsr versions eligible when npm standdown is enabled', async () => {
@@ -143,26 +140,25 @@ describe('Workspace.Upgrade.collect', () => {
     `,
     );
 
-    await withVersions(
-      {
+    const registry = createRegistry({
+      versions: {
         jsr: { '@sys/std': versionsJsr('@sys/std', '0.0.3', { '0.0.1': {}, '0.0.3': {} }) },
         npm: {},
       },
-      async () => {
-        const result = await WorkspaceUpgrade.collect(
-          { cwd: fs.dir, deps: fs.join('deps.yaml') },
-          { policy: { mode: 'latest' }, minimumDependencyAge: 2 * DAY, evaluatedAt: T.now },
-        );
-        const candidate = result.candidates[0]!;
-
-        expect(candidate.available).to.eql(['0.0.3', '0.0.1']);
-        expect(candidate.eligible).to.eql(['0.0.3', '0.0.1']);
-        expect(candidate.versions.map((item) => item.eligibility)).to.eql([
-          { kind: 'eligible' },
-          { kind: 'eligible' },
-        ]);
-      },
+    });
+    const result = await collect(
+      registry,
+      { cwd: fs.dir, deps: fs.join('deps.yaml') },
+      { policy: { mode: 'latest' }, minimumDependencyAge: 2 * DAY, evaluatedAt: T.now },
     );
+    const candidate = result.candidates[0]!;
+
+    expect(candidate.available).to.eql(['0.0.3', '0.0.1']);
+    expect(candidate.eligible).to.eql(['0.0.3', '0.0.1']);
+    expect(candidate.versions.map((item) => item.eligibility)).to.eql([
+      { kind: 'eligible' },
+      { kind: 'eligible' },
+    ]);
   });
 
   it('carries package override policy from deps.yaml', async () => {
@@ -181,24 +177,22 @@ describe('Workspace.Upgrade.collect', () => {
     `,
     );
 
-    await withVersions(
-      {
+    const registry = createRegistry({
+      versions: {
         jsr: {},
         npm: {
           'monaco-editor': versionsNpm('monaco-editor', '0.56.0', { '0.55.1': {}, '0.56.0': {} }),
         },
       },
-      async () => {
-        const result = await WorkspaceUpgrade.collect({ cwd: fs.dir, deps: fs.join('deps.yaml') });
+    });
+    const result = await collect(registry, { cwd: fs.dir, deps: fs.join('deps.yaml') });
 
-        expect(result.packageJson).to.eql({
-          overrides: {
-            '@automerge/automerge-repo': { uuid: '11.1.1' },
-            'monaco-editor': { dompurify: '3.4.0' },
-          },
-        });
+    expect(result.packageJson).to.eql({
+      overrides: {
+        '@automerge/automerge-repo': { uuid: '11.1.1' },
+        'monaco-editor': { dompurify: '3.4.0' },
       },
-    );
+    });
   });
 
   it('skips unpinned dependencies before registry fetch', async () => {
@@ -211,16 +205,15 @@ describe('Workspace.Upgrade.collect', () => {
     `,
     );
 
-    await withVersions({ jsr: {}, npm: {} }, async () => {
-      const result = await WorkspaceUpgrade.collect({ cwd: fs.dir, deps: fs.join('deps.yaml') });
-      expect(result.totals).to.eql({
-        dependencies: 1,
-        collected: 0,
-        skipped: 1,
-        failed: 0,
-      });
-      expect(result.uncollected[0]?.reason.code).to.eql('version:missing-current');
+    const registry = createRegistry({ versions: { jsr: {}, npm: {} } });
+    const result = await collect(registry, { cwd: fs.dir, deps: fs.join('deps.yaml') });
+    expect(result.totals).to.eql({
+      dependencies: 1,
+      collected: 0,
+      skipped: 1,
+      failed: 0,
     });
+    expect(result.uncollected[0]?.reason.code).to.eql('version:missing-current');
   });
 
   it('respects registry selection and marks unsupported registries as skipped', async () => {
@@ -234,26 +227,25 @@ describe('Workspace.Upgrade.collect', () => {
     `,
     );
 
-    await withVersions(
-      {
+    const registry = createRegistry({
+      versions: {
         jsr: { '@sys/std': versionsJsr('@sys/std', '0.0.2', { '0.0.1': {}, '0.0.2': {} }) },
         npm: {},
       },
-      async () => {
-        const result = await WorkspaceUpgrade.collect(
-          { cwd: fs.dir, deps: fs.join('deps.yaml') },
-          { policy: { mode: 'minor' }, registries: ['jsr'] },
-        );
-
-        expect(result.totals).to.eql({
-          dependencies: 2,
-          collected: 1,
-          skipped: 1,
-          failed: 0,
-        });
-        expect(result.uncollected[0]?.reason.code).to.eql('registry:unsupported');
-      },
+    });
+    const result = await collect(
+      registry,
+      { cwd: fs.dir, deps: fs.join('deps.yaml') },
+      { policy: { mode: 'minor' }, registries: ['jsr'] },
     );
+
+    expect(result.totals).to.eql({
+      dependencies: 2,
+      collected: 1,
+      skipped: 1,
+      failed: 0,
+    });
+    expect(result.uncollected[0]?.reason.code).to.eql('registry:unsupported');
   });
 
   it('records registry fetch failures without aborting the whole pass', async () => {
@@ -267,22 +259,20 @@ describe('Workspace.Upgrade.collect', () => {
     `,
     );
 
-    await withVersions(
-      {
+    const registry = createRegistry({
+      versions: {
         jsr: { '@sys/std': versionsJsr('@sys/std', '0.0.2', { '0.0.1': {}, '0.0.2': {} }) },
         npm: { react: fetchFail('https://registry.npmjs.org/react') },
       },
-      async () => {
-        const result = await WorkspaceUpgrade.collect({ cwd: fs.dir, deps: fs.join('deps.yaml') });
-        expect(result.totals).to.eql({
-          dependencies: 2,
-          collected: 1,
-          skipped: 0,
-          failed: 1,
-        });
-        expect(result.uncollected[0]?.reason.code).to.eql('registry:fetch');
-      },
-    );
+    });
+    const result = await collect(registry, { cwd: fs.dir, deps: fs.join('deps.yaml') });
+    expect(result.totals).to.eql({
+      dependencies: 2,
+      collected: 1,
+      skipped: 0,
+      failed: 1,
+    });
+    expect(result.uncollected[0]?.reason.code).to.eql('registry:fetch');
   });
 
   it('emits cumulative registry progress with clipped per-registry counts', async () => {
@@ -297,53 +287,52 @@ describe('Workspace.Upgrade.collect', () => {
     `,
     );
 
-    await withVersions(
-      {
+    const registry = createRegistry({
+      versions: {
         jsr: { '@sys/std': versionsJsr('@sys/std', '0.0.3', { '0.0.1': {}, '0.0.3': {} }) },
         npm: {
           react: versionsNpm('react', '19.0.0', { '18.2.0': {}, '19.0.0': {} }),
           'react-dom': versionsNpm('react-dom', '19.0.0', { '18.2.0': {}, '19.0.0': {} }),
         },
       },
-      async () => {
-        const progress: t.WorkspaceUpgrade.Progress[] = [];
+    });
+    const progress: t.WorkspaceUpgrade.Progress[] = [];
 
-        await WorkspaceUpgrade.collect(
-          { cwd: fs.dir, deps: fs.join('deps.yaml') },
-          {
-            policy: { mode: 'latest' },
-            progress: (item) => progress.push(item),
-          },
-        );
-
-        expect(progress).to.eql([
-          {
-            kind: 'registry',
-            registry: 'jsr',
-            current: { jsr: 1, npm: 0 },
-            total: { jsr: 1, npm: 2 },
-            completed: 1,
-            dependencies: 3,
-          },
-          {
-            kind: 'registry',
-            registry: 'npm',
-            current: { jsr: 1, npm: 1 },
-            total: { jsr: 1, npm: 2 },
-            completed: 2,
-            dependencies: 3,
-          },
-          {
-            kind: 'registry',
-            registry: 'npm',
-            current: { jsr: 1, npm: 2 },
-            total: { jsr: 1, npm: 2 },
-            completed: 3,
-            dependencies: 3,
-          },
-        ]);
+    await collect(
+      registry,
+      { cwd: fs.dir, deps: fs.join('deps.yaml') },
+      {
+        policy: { mode: 'latest' },
+        progress: (item) => progress.push(item),
       },
     );
+
+    expect(progress).to.eql([
+      {
+        kind: 'registry',
+        registry: 'jsr',
+        current: { jsr: 1, npm: 0 },
+        total: { jsr: 1, npm: 2 },
+        completed: 1,
+        dependencies: 3,
+      },
+      {
+        kind: 'registry',
+        registry: 'npm',
+        current: { jsr: 1, npm: 1 },
+        total: { jsr: 1, npm: 2 },
+        completed: 2,
+        dependencies: 3,
+      },
+      {
+        kind: 'registry',
+        registry: 'npm',
+        current: { jsr: 1, npm: 2 },
+        total: { jsr: 1, npm: 2 },
+        completed: 3,
+        dependencies: 3,
+      },
+    ]);
   });
 
   it('filters prerelease versions out of collected upgrade candidates', async () => {
@@ -357,8 +346,8 @@ describe('Workspace.Upgrade.collect', () => {
     `,
     );
 
-    await withVersions(
-      {
+    const registry = createRegistry({
+      versions: {
         jsr: {},
         npm: {
           '@vitejs/plugin-react': versionsNpm('@vitejs/plugin-react', '6.0.1', {
@@ -372,19 +361,17 @@ describe('Workspace.Upgrade.collect', () => {
           }),
         },
       },
-      async () => {
-        const result = await WorkspaceUpgrade.collect({ cwd: fs.dir, deps: fs.join('deps.yaml') });
+    });
+    const result = await collect(registry, { cwd: fs.dir, deps: fs.join('deps.yaml') });
 
-        expect(
-          result.candidates.map((
-            item,
-          ) => [item.entry.module.name, item.current, item.latest, item.available]),
-        ).to.eql([
-          ['@vitejs/plugin-react', '5.1.4', '6.0.1', ['6.0.1', '5.2.0', '5.1.4']],
-          ['monaco-editor', '0.55.1', '0.55.1', ['0.55.1']],
-        ]);
-      },
-    );
+    expect(
+      result.candidates.map((
+        item,
+      ) => [item.entry.module.name, item.current, item.latest, item.available]),
+    ).to.eql([
+      ['@vitejs/plugin-react', '5.1.4', '6.0.1', ['6.0.1', '5.2.0', '5.1.4']],
+      ['monaco-editor', '0.55.1', '0.55.1', ['0.55.1']],
+    ]);
   });
 
   it('excludes deprecated npm versions from collected upgrade candidates', async () => {
@@ -397,8 +384,8 @@ describe('Workspace.Upgrade.collect', () => {
     `,
     );
 
-    await withVersions(
-      {
+    const registry = createRegistry({
+      versions: {
         jsr: {},
         npm: {
           'react-spinners': versionsNpm('react-spinners', '0.17.0', {
@@ -410,21 +397,20 @@ describe('Workspace.Upgrade.collect', () => {
           }),
         },
       },
-      async () => {
-        const result = await WorkspaceUpgrade.collect(
-          { cwd: fs.dir, deps: fs.join('deps.yaml') },
-          { policy: { mode: 'latest' } },
-        );
-
-        expect(
-          result.candidates.map((
-            item,
-          ) => [item.entry.module.name, item.current, item.latest, item.available]),
-        ).to.eql([
-          ['react-spinners', '0.17.0', '0.17.0', ['0.17.0']],
-        ]);
-      },
+    });
+    const result = await collect(
+      registry,
+      { cwd: fs.dir, deps: fs.join('deps.yaml') },
+      { policy: { mode: 'latest' } },
     );
+
+    expect(
+      result.candidates.map((
+        item,
+      ) => [item.entry.module.name, item.current, item.latest, item.available]),
+    ).to.eql([
+      ['react-spinners', '0.17.0', '0.17.0', ['0.17.0']],
+    ]);
   });
 
   it('caps npm upgrade candidates at the registry latest dist-tag lane', async () => {
@@ -437,8 +423,8 @@ describe('Workspace.Upgrade.collect', () => {
     `,
     );
 
-    await withVersions(
-      {
+    const registry = createRegistry({
+      versions: {
         jsr: {},
         npm: {
           'react-spinners': versionsNpm('react-spinners', '0.17.0', {
@@ -447,21 +433,20 @@ describe('Workspace.Upgrade.collect', () => {
           }),
         },
       },
-      async () => {
-        const result = await WorkspaceUpgrade.collect(
-          { cwd: fs.dir, deps: fs.join('deps.yaml') },
-          { policy: { mode: 'latest' } },
-        );
-
-        expect(
-          result.candidates.map((
-            item,
-          ) => [item.entry.module.name, item.current, item.latest, item.available]),
-        ).to.eql([
-          ['react-spinners', '0.17.0', '0.17.0', ['0.17.0']],
-        ]);
-      },
+    });
+    const result = await collect(
+      registry,
+      { cwd: fs.dir, deps: fs.join('deps.yaml') },
+      { policy: { mode: 'latest' } },
     );
+
+    expect(
+      result.candidates.map((
+        item,
+      ) => [item.entry.module.name, item.current, item.latest, item.available]),
+    ).to.eql([
+      ['react-spinners', '0.17.0', '0.17.0', ['0.17.0']],
+    ]);
   });
 
   it('includes prerelease versions when explicitly enabled', async () => {
@@ -474,8 +459,8 @@ describe('Workspace.Upgrade.collect', () => {
     `,
     );
 
-    await withVersions(
-      {
+    const registry = createRegistry({
+      versions: {
         jsr: {},
         npm: {
           'monaco-editor': versionsNpm('monaco-editor', '0.56.0-dev-20260211', {
@@ -484,20 +469,32 @@ describe('Workspace.Upgrade.collect', () => {
           }),
         },
       },
-      async () => {
-        const result = await WorkspaceUpgrade.collect(
-          { cwd: fs.dir, deps: fs.join('deps.yaml') },
-          { policy: { mode: 'latest' }, prerelease: true },
-        );
+    });
+    const result = await collect(
+      registry,
+      { cwd: fs.dir, deps: fs.join('deps.yaml') },
+      { policy: { mode: 'latest' }, prerelease: true },
+    );
 
-        expect(
-          result.candidates.map((
-            item,
-          ) => [item.entry.module.name, item.current, item.latest, item.available]),
-        ).to.eql([
-          ['monaco-editor', '0.55.1', '0.56.0-dev-20260211', ['0.56.0-dev-20260211', '0.55.1']],
-        ]);
-      },
+    expect(
+      result.candidates.map((
+        item,
+      ) => [item.entry.module.name, item.current, item.latest, item.available]),
+    ).to.eql([
+      ['monaco-editor', '0.55.1', '0.56.0-dev-20260211', ['0.56.0-dev-20260211', '0.55.1']],
+    ]);
+  });
+
+  it('fails closed when a registry fixture receives an unconfigured lookup', async () => {
+    const registry = createRegistry({ versions: { jsr: {}, npm: {} } });
+
+    await expectError(
+      () => registry.jsr.versions('@sys/missing'),
+      'Unexpected JSR versions registry lookup: @sys/missing',
+    );
+    await expectError(
+      () => registry.npm.info('missing', '1.0.0'),
+      'Unexpected NPM info registry lookup: missing@1.0.0',
     );
   });
 

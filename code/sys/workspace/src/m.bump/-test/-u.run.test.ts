@@ -1,5 +1,5 @@
 import { Cli, describe, expect, Fs, it, Json, type t, Testing } from '../../-test.ts';
-import { run } from '../u/u.run.ts';
+import { run, runWith } from '../u/u.run.ts';
 
 const FS_MOD = new URL('../../../../fs/src/mod.ts', import.meta.url).href;
 const fsWriteEval = (path: string, value: string) => {
@@ -82,41 +82,34 @@ describe('@sys/workspace/bump run', () => {
   it('prechecks suggested interactive roots without skipping selection', async () => {
     const fs = await Testing.dir('WorkspaceBump.run.suggested');
     await writeWorkspace(fs.dir, true);
-    const prevCheckbox = Cli.Input.Checkbox.prompt;
     let promptOptions: readonly { readonly value: string; readonly checked?: boolean }[] = [];
-
-    try {
-      Object.defineProperty(Cli.Input.Checkbox, 'prompt', {
-        configurable: true,
-        value: async <TValue>(input: {
-          readonly options: readonly { readonly value: string; readonly checked?: boolean }[];
-        }) => {
-          promptOptions = input.options;
-          return input.options
-            .filter((option) => option.checked)
-            .map((option) => option.value) as TValue[];
+    const res = await runWith(
+      {
+        promptCheckbox: (input) => {
+          const options = input.options as readonly {
+            readonly value: t.StringPath;
+            readonly checked?: boolean;
+          }[];
+          promptOptions = options;
+          const picked = options.filter((option) => option.checked).map((option) => option.value);
+          return Promise.resolve(picked);
         },
-      });
-
-      const res = await run({
+        promptSelect: Cli.Input.Select.prompt,
+      },
+      {
         cwd: fs.dir,
         suggestedRoots: ['@scope/b'],
         dryRun: true,
         log: false,
-      });
+      },
+    );
 
-      expect(promptOptions.map((option) => [option.value, option.checked ?? false])).to.eql([
-        ['code/pkg-a', false],
-        ['code/pkg-b', true],
-      ]);
-      expect(res.plan.roots.map((root) => root.name)).to.eql(['@scope/b']);
-      expect(res.dryRun).to.eql(true);
-    } finally {
-      Object.defineProperty(Cli.Input.Checkbox, 'prompt', {
-        configurable: true,
-        value: prevCheckbox,
-      });
-    }
+    expect(promptOptions.map((option) => [option.value, option.checked ?? false])).to.eql([
+      ['code/pkg-a', false],
+      ['code/pkg-b', true],
+    ]);
+    expect(res.plan.roots.map((root) => root.name)).to.eql(['@scope/b']);
+    expect(res.dryRun).to.eql(true);
   });
 
   it('applies one cumulative multi-root plan once', async () => {
@@ -143,65 +136,56 @@ describe('@sys/workspace/bump run', () => {
   it('lets interactive confirmation go back to root selection before saving', async () => {
     const fs = await Testing.dir('WorkspaceBump.run.back');
     const [aPath, bPath] = await writeWorkspace(fs.dir, true);
-    const prevCheckbox = Cli.Input.Checkbox.prompt;
-    const prevSelect = Cli.Input.Select.prompt;
     const confirmMessages: string[] = [];
     const confirmOptions: string[][] = [];
     const confirmNames: string[][] = [];
     const promptChecked: string[][] = [];
-
-    try {
-      Object.defineProperty(Cli.Input.Checkbox, 'prompt', {
-        configurable: true,
-        value: async <TValue>(input: {
-          readonly options: readonly { readonly value: string; readonly checked?: boolean }[];
-        }) => {
+    const res = await runWith(
+      {
+        promptCheckbox: (input) => {
+          const options = input.options as readonly {
+            readonly value: t.StringPath;
+            readonly checked?: boolean;
+          }[];
           promptChecked.push(
-            input.options.filter((option) => option.checked).map((option) => option.value),
+            options.filter((option) => option.checked).map((option) => option.value),
           );
-          return (promptChecked.length === 1 ? ['code/pkg-a'] : ['code/pkg-b']) as TValue[];
+          const picked = promptChecked.length === 1
+            ? ['code/pkg-a' as t.StringPath]
+            : ['code/pkg-b' as t.StringPath];
+          return Promise.resolve(picked);
         },
-      });
-      Object.defineProperty(Cli.Input.Select, 'prompt', {
-        configurable: true,
-        value: async <TValue>(
-          input: { message?: string; options: readonly { name: string; value: string }[] },
-        ) => {
+        promptSelect: (input) => {
+          const options = input.options as readonly {
+            readonly name: string;
+            readonly value: 'save' | 'back' | 'cancel';
+          }[];
           confirmMessages.push(input.message ?? '');
-          confirmOptions.push(input.options.map((option) => option.value));
-          confirmNames.push(input.options.map((option) => Cli.stripAnsi(option.name)));
-          return (confirmOptions.length === 1 ? 'back' : 'save') as TValue;
+          confirmOptions.push(options.map((option) => option.value));
+          confirmNames.push(options.map((option) => Cli.stripAnsi(option.name)));
+          const picked = confirmOptions.length === 1 ? 'back' : 'save';
+          return Promise.resolve(picked);
         },
-      });
+      },
+      { cwd: fs.dir, log: false },
+    );
 
-      const res = await run({ cwd: fs.dir, log: false });
-
-      if (!bPath) throw new Error('Expected second package path');
-      const a = await Fs.readJson<{ version?: string }>(aPath);
-      const b = await Fs.readJson<{ version?: string }>(bPath);
-      expect(confirmMessages).to.eql(['', '']);
-      expect(confirmOptions).to.eql([
-        ['save', 'back', 'cancel'],
-        ['save', 'back', 'cancel'],
-      ]);
-      expect(confirmNames).to.eql([
-        ['  save', '← reselect', '  cancel'],
-        ['  save', '← reselect', '  cancel'],
-      ]);
-      expect(promptChecked).to.eql([[], ['code/pkg-a']]);
-      expect(res.plan.roots.map((root) => root.name)).to.eql(['@scope/b']);
-      expect(a.data?.version).to.eql('1.0.0');
-      expect(b.data?.version).to.eql('1.0.1');
-    } finally {
-      Object.defineProperty(Cli.Input.Checkbox, 'prompt', {
-        configurable: true,
-        value: prevCheckbox,
-      });
-      Object.defineProperty(Cli.Input.Select, 'prompt', {
-        configurable: true,
-        value: prevSelect,
-      });
-    }
+    if (!bPath) throw new Error('Expected second package path');
+    const a = await Fs.readJson<{ version?: string }>(aPath);
+    const b = await Fs.readJson<{ version?: string }>(bPath);
+    expect(confirmMessages).to.eql(['', '']);
+    expect(confirmOptions).to.eql([
+      ['save', 'back', 'cancel'],
+      ['save', 'back', 'cancel'],
+    ]);
+    expect(confirmNames).to.eql([
+      ['  save', '← reselect', '  cancel'],
+      ['  save', '← reselect', '  cancel'],
+    ]);
+    expect(promptChecked).to.eql([[], ['code/pkg-a']]);
+    expect(res.plan.roots.map((root) => root.name)).to.eql(['@scope/b']);
+    expect(a.data?.version).to.eql('1.0.0');
+    expect(b.data?.version).to.eql('1.0.1');
   });
 
   it('ignores ambient local files when checking unbumped packages', async () => {
@@ -241,7 +225,7 @@ describe('@sys/workspace/bump run', () => {
         nonInteractive: true,
         log: false,
         policy: {
-          followups: ({ cwd }) => [{
+          followups: () => [{
             label: 'mutate other package',
             cmd: 'deno',
             args: ['eval', fsWriteEval(other, 'export const b = "b2";\n')],

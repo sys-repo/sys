@@ -1,6 +1,5 @@
 import { describe, expect, Fs, it, Testing } from '../../-test.ts';
-import { Cli } from '../common.ts';
-import { runInteractive } from '../u/u.interactive.ts';
+import { runInteractiveWith } from '../u/u.interactive.ts';
 import * as fixture from '../../m.upgrade/-test/u.fixture.ts';
 
 describe('Workspace.Cli.runInteractive', () => {
@@ -16,8 +15,8 @@ describe('Workspace.Cli.runInteractive', () => {
     );
     await Fs.writeJson(fs.join('deno.json'), { name: 'interactive-upgrade-app' });
 
-    await fixture.withVersions(
-      {
+    const registry = fixture.registry({
+      versions: {
         jsr: {},
         npm: {
           'happy-dom': fixture.versionsNpm('happy-dom', '20.8.8', {
@@ -30,53 +29,41 @@ describe('Workspace.Cli.runInteractive', () => {
           }),
         },
       },
-      async () => {
-        await fixture.withInfo(
-          {
-            jsr: {},
-            npm: {
-              'happy-dom@20.8.8': fixture.infoNpm('happy-dom', '20.8.8'),
-              'react-spinners@1.0.0': fixture.infoNpm('react-spinners', '1.0.0'),
-            },
-          },
-          async () => {
-            const original = Cli.Input.Checkbox.prompt;
-
-            Object.defineProperty(Cli.Input.Checkbox, 'prompt', {
-              value: async () => ['react-spinners'],
-            });
-
-            try {
-              const result = await runInteractive(
-                { cwd: fs.dir, deps: fs.join('deps.yaml') },
-                {
-                  deps: fs.join('deps.yaml'),
-                  mode: 'interactive',
-                  policy: 'minor',
-                  prerelease: false,
-                  minimumDependencyAge: 2 * fixture.standdownTime.day,
-                  evaluatedAt: fixture.standdownTime.now,
-                  include: [],
-                  exclude: [],
-                  dryRun: false,
-                },
-              );
-
-              expect(result.selection).to.eql({
-                include: ['react-spinners'],
-                exclude: ['happy-dom'],
-              });
-              expect(result.applied).to.not.eql(undefined);
-              expect(result.applied?.entries.map((entry) => entry.module.toString())).to.eql([
-                'npm:happy-dom@20.8.4',
-                'npm:react-spinners@1.0.0',
-              ]);
-            } finally {
-              Object.defineProperty(Cli.Input.Checkbox, 'prompt', { value: original });
-            }
-          },
-        );
+      info: {
+        jsr: {},
+        npm: {
+          'happy-dom@20.8.8': fixture.infoNpm('happy-dom', '20.8.8'),
+          'react-spinners@1.0.0': fixture.infoNpm('react-spinners', '1.0.0'),
+        },
+      },
+    });
+    const result = await runInteractiveWith(
+      {
+        createSession: () => fixture.session(registry),
+        promptCheckbox: () => Promise.resolve(['react-spinners']),
+      },
+      { cwd: fs.dir, deps: fs.join('deps.yaml') },
+      {
+        deps: fs.join('deps.yaml'),
+        mode: 'interactive',
+        policy: 'minor',
+        prerelease: false,
+        minimumDependencyAge: 2 * fixture.standdownTime.day,
+        evaluatedAt: fixture.standdownTime.now,
+        include: [],
+        exclude: [],
+        dryRun: false,
       },
     );
+
+    expect(result.selection).to.eql({
+      include: ['react-spinners'],
+      exclude: ['happy-dom'],
+    });
+    expect(result.applied).to.not.eql(undefined);
+    expect(result.applied?.entries.map((entry) => entry.module.toString())).to.eql([
+      'npm:happy-dom@20.8.4',
+      'npm:react-spinners@1.0.0',
+    ]);
   });
 });

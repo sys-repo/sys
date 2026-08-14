@@ -75,23 +75,18 @@ describe('WorkspaceRun', () => {
     const screen = createReporterScreen({ width: 100, height: 24 });
     const spinner = FakeSpinner.create();
     const spinnerAdapter = FakeSpinner.adapter({ spinner });
-    const reporterRuntime = createDefaultParallelReporterRuntimeDeps(spinnerAdapter.create);
-    const size = Cli.Screen.size;
-    const events = Cli.Screen.events;
-    const repaint = Cli.Screen.repaint;
+    const reporterRuntime = {
+      ...createDefaultParallelReporterRuntimeDeps(spinnerAdapter.create),
+      size: () => ({ width: 100, height: 24 }),
+      events: () => screen.events,
+      repaint: (frame: string) => effects.push(`repaint:${frame.length}`),
+    };
     const info = console.info;
     const startSpinner = spinner.start;
     const stopSpinner = spinner.stop;
     const effects: string[] = [];
     let completion: t.WorkspaceRun.Test.Reporter.ScreenCompletion | undefined;
     let result: t.WorkspaceRun.Result | undefined;
-    Object.defineProperty(Cli.Screen, 'size', {
-      value: () => ({ width: 100, height: 24 }),
-    });
-    Object.defineProperty(Cli.Screen, 'events', { value: () => screen.events });
-    Object.defineProperty(Cli.Screen, 'repaint', {
-      value: (frame: string) => effects.push(`repaint:${frame.length}`),
-    });
     spinner.start = (text) => {
       effects.push('spinner:start');
       return startSpinner(text);
@@ -125,9 +120,6 @@ describe('WorkspaceRun', () => {
         },
       );
     } finally {
-      Object.defineProperty(Cli.Screen, 'size', { value: size });
-      Object.defineProperty(Cli.Screen, 'events', { value: events });
-      Object.defineProperty(Cli.Screen, 'repaint', { value: repaint });
       console.info = info;
     }
 
