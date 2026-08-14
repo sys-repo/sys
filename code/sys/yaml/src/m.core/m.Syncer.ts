@@ -244,7 +244,7 @@ function defaultPath(yamlPath: t.ObjectPath): t.ObjectPath {
 /**
  * Library:
  */
-export const Syncer: t.YamlSyncLib = {
+export const Syncer: t.YamlSyncLib = Object.freeze({
   make,
   defaultPath,
-};
+});

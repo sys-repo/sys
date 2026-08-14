@@ -8,7 +8,7 @@ import { run } from './m.run/mod.ts';
 /**
  * Cell operator CLI.
  */
-export const CellCli: t.CellCli.Lib = { run };
+export const CellCli: t.CellCli.Lib = Object.freeze({ run });
 
 /**
  * Main entry:

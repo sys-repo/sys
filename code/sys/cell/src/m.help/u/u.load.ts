@@ -10,7 +10,7 @@ const Resource = CliFmt.Chapters.Resources.create<t.StringPath>({
   parse: HelpYaml.record,
 });
 
-export const RootHelp: t.CellHelp.Root.Lib = {
+export const RootHelp: t.CellHelp.Root.Lib = Object.freeze({
   load() {
     const data = Resource.readRecord(HelpResource.Root, [
       'summary',
@@ -25,9 +25,9 @@ export const RootHelp: t.CellHelp.Root.Lib = {
       options: HelpYaml.pairs(data, 'options'),
     });
   },
-};
+});
 
-export const InfoHelp: t.CellHelp.Info.Lib = {
+export const InfoHelp: t.CellHelp.Info.Lib = Object.freeze({
   load() {
     const data = Resource.readRecord(HelpResource.Info, ['summary', 'usage', 'options', 'reads']);
     return Promise.resolve({
@@ -37,9 +37,9 @@ export const InfoHelp: t.CellHelp.Info.Lib = {
       reads: HelpYaml.list(data, 'reads'),
     });
   },
-};
+});
 
-export const InitHelp: t.CellHelp.Init.Lib = {
+export const InitHelp: t.CellHelp.Init.Lib = Object.freeze({
   load() {
     const data = Resource.readRecord(HelpResource.Init, [
       'summary',
@@ -56,9 +56,9 @@ export const InitHelp: t.CellHelp.Init.Lib = {
       agent: HelpYaml.list(data, 'agent'),
     });
   },
-};
+});
 
-export const MigrateHelp: t.CellHelp.Migrate.Lib = {
+export const MigrateHelp: t.CellHelp.Migrate.Lib = Object.freeze({
   load() {
     const data = Resource.readRecord(HelpResource.Migrate, [
       'summary',
@@ -73,9 +73,9 @@ export const MigrateHelp: t.CellHelp.Migrate.Lib = {
       safety: HelpYaml.list(data, 'safety'),
     });
   },
-};
+});
 
-export const TaskHelp: t.CellHelp.Task.Lib = {
+export const TaskHelp: t.CellHelp.Task.Lib = Object.freeze({
   load() {
     const data = Resource.readRecord(HelpResource.Task, ['summary', 'usage', 'options', 'task']);
     return Promise.resolve({
@@ -85,9 +85,9 @@ export const TaskHelp: t.CellHelp.Task.Lib = {
       task: HelpYaml.list(data, 'task'),
     });
   },
-};
+});
 
-export const StartHelp: t.CellHelp.Start.Lib = {
+export const StartHelp: t.CellHelp.Start.Lib = Object.freeze({
   load() {
     const data = Resource.readRecord(HelpResource.Start, [
       'summary',
@@ -102,9 +102,9 @@ export const StartHelp: t.CellHelp.Start.Lib = {
       services: HelpYaml.list(data, 'services'),
     });
   },
-};
+});
 
-export const KillHelp: t.CellHelp.Kill.Lib = {
+export const KillHelp: t.CellHelp.Kill.Lib = Object.freeze({
   load() {
     const data = Resource.readRecord(HelpResource.Kill, [
       'summary',
@@ -119,7 +119,7 @@ export const KillHelp: t.CellHelp.Kill.Lib = {
       safety: HelpYaml.list(data, 'safety'),
     });
   },
-};
+});
 
 const DslBook = CliFmt.Chapters.Book.create<t.StringPath>({
   root: HelpResource.Dsl.Root,
@@ -129,8 +129,8 @@ const DslBook = CliFmt.Chapters.Book.create<t.StringPath>({
   read: Resource.readParsedRecord,
 });
 
-export const DslHelp: t.CellHelp.Dsl.Lib = {
+export const DslHelp: t.CellHelp.Dsl.Lib = Object.freeze({
   load(path = []) {
     return DslBook.load(path);
   },
-};
+});

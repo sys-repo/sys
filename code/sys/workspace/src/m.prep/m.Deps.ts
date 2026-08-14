@@ -1,7 +1,7 @@
-import { type t, Deps as DepsBase, Fs, Path } from './common.ts';
+import { Deps as DepsBase, Fs, Path, type t } from './common.ts';
 import { Fmt } from './m.Fmt.ts';
 
-export const PrepDeps: t.WorkspacePrep.Deps.Lib = {
+export const PrepDeps: t.WorkspacePrep.Deps.Lib = Object.freeze({
   async sync(args = {}) {
     const cwd = args.cwd ?? Fs.cwd();
     const depsPath = args.depsPath ?? Path.resolve(cwd, 'deps.yaml');
@@ -29,4 +29,4 @@ export const PrepDeps: t.WorkspacePrep.Deps.Lib = {
     if (args.log) console.info(Fmt.importMapSync({ cwd, result }));
     return result;
   },
-} as const;
+});

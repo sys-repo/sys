@@ -11,6 +11,13 @@ describe('Schema', () => {
     expect(m.Schema.Error).to.equal(Error);
   });
 
+  it('freezes every namespace API', () => {
+    expect(Object.isFrozen(Schema)).to.eql(true);
+    expect(Object.isFrozen(Type)).to.eql(true);
+    expect(Object.isFrozen(Value)).to.eql(true);
+    expect(Object.isFrozen(Schema.Error)).to.eql(true);
+  });
+
   it('Type/Value author and validate runtime schemas', () => {
     const { Type, Value } = Schema;
 

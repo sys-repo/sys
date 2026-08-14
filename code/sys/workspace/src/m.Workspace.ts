@@ -11,7 +11,7 @@ import { WorkspaceRun as Run } from './m.run/mod.ts';
 import { WorkspaceUpgrade as Upgrade } from './m.upgrade/mod.ts';
 
 /** Root workspace helper library. */
-export const Workspace: t.Workspace.Lib = {
+export const Workspace: t.Workspace.Lib = Object.freeze({
   Bump,
   Pkg,
   Info,
@@ -22,4 +22,4 @@ export const Workspace: t.Workspace.Lib = {
   Graph,
   Prep,
   Run,
-};
+});

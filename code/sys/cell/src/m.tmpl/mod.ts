@@ -5,12 +5,12 @@ import { names } from './u/u.roots.ts';
 import { readTmplText } from './u/u.text.ts';
 export type * from './t.ts';
 
-export const CellTmpl: TCellTmpl.Lib = {
+export const CellTmpl: TCellTmpl.Lib = Object.freeze({
   names,
   make: makeTmpl,
   text: readTmplText,
   bundle: bundleTmpl,
-};
+});
 
 if (import.meta.main) {
   await CellTmpl.bundle();

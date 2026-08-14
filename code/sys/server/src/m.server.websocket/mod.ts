@@ -9,7 +9,7 @@ import { start } from './u/u.start.ts';
 /**
  * WebSocket command server primitive.
  */
-export const WebSocketServer: t.WebSocketServer.Lib = {
+export const WebSocketServer: t.WebSocketServer.Lib = Object.freeze({
   create,
   start,
-};
+});

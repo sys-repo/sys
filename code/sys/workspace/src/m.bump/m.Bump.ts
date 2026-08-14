@@ -9,11 +9,11 @@ import { run } from './u/u.run.ts';
 /**
  * Package version bump helpers for collect, plan, apply, and run flows.
  */
-export const WorkspaceBump: t.WorkspaceBump.Lib = {
+export const WorkspaceBump: t.WorkspaceBump.Lib = Object.freeze({
   Args,
   Fmt,
   collect,
   plan,
   apply,
   run,
-};
+});

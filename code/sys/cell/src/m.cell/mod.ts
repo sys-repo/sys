@@ -15,7 +15,7 @@ import { Task } from './m.Task.ts';
 import { CellSchema } from './u.schema/mod.ts';
 import { createTaskMethod } from './u/task.root.ts';
 
-export const Cell: t.Cell.Lib = {
+export const Cell: t.Cell.Lib = Object.freeze({
   Schema: CellSchema,
   Services,
   Task,
@@ -38,4 +38,4 @@ export const Cell: t.Cell.Lib = {
     load: (root, options) => Cell.load(root, options),
     run: (cell, name, options) => Task.run(cell, name, options),
   }),
-};
+});

@@ -5,7 +5,7 @@ import { FmtHelp } from './u.help.ts';
 /**
  * Server package help/DSL CLI.
  */
-export const ServerCli: t.ServerCli.Lib = {
+export const ServerCli: t.ServerCli.Lib = Object.freeze({
   async run(input = {}) {
     const argv = [...(input.argv ?? [])];
     const args = parseArgs(argv);
@@ -46,7 +46,7 @@ export const ServerCli: t.ServerCli.Lib = {
 
     return fail({ argv }, `Unknown command: ${command}`, help);
   },
-};
+});
 
 /**
  * Helpers:

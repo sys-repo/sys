@@ -9,7 +9,7 @@ import { runPhase } from '../u.phase.ts';
 /**
  * Workspace preparation pipeline for normalizing workspace files and graph snapshots.
  */
-export const WorkspacePrep: t.WorkspacePrep.Lib = {
+export const WorkspacePrep: t.WorkspacePrep.Lib = Object.freeze({
   State,
   Deps,
   Fmt,
@@ -25,7 +25,7 @@ export const WorkspacePrep: t.WorkspacePrep.Lib = {
     const graph = await wrangle.graphWrite({ cwd, snapshot, silent, spinner });
     return { workspace, graph };
   },
-};
+});
 
 /**
  * Helpers:

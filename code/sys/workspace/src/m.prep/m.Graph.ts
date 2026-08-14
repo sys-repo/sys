@@ -3,7 +3,7 @@ import { WorkspaceGraph } from '../m.graph/mod.ts';
 import { State } from './m.State.ts';
 import { runPhase } from '../u.phase.ts';
 
-export const Graph: t.WorkspacePrep.Graph.Lib = {
+export const Graph: t.WorkspacePrep.Graph.Lib = Object.freeze({
   async build(cwd = Fs.cwd()) {
     const deno = (await Fs.readJson<Record<string, unknown>>(State.workspaceFile(cwd))).data ?? {};
     const workspace = Is.array(deno.workspace) ? deno.workspace.filter(Is.str) : [];
@@ -111,7 +111,7 @@ export const Graph: t.WorkspacePrep.Graph.Lib = {
       },
     });
   },
-};
+});
 
 /**
  * Helpers:

@@ -6,9 +6,9 @@ import { formatPackages, formatResult } from './u.result.ts';
 
 export { formatFailedPackageIndex, formatFailedPackageSeparator, formatIntroLine };
 
-export const Fmt: t.WorkspaceRun.Fmt.Lib = {
+export const Fmt: t.WorkspaceRun.Fmt.Lib = Object.freeze({
   introLine: formatIntroLine,
   handoff: formatHandoff,
   result: formatResult,
   packages: formatPackages,
-};
+});

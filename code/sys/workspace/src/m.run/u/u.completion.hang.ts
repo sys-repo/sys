@@ -4,7 +4,7 @@ const DEFAULT_DELAY = 2_000 as t.Msecs;
 const DEFAULT_CONTEXT_LIMIT = 3;
 
 /** Warn when a completed workspace run leaves the parent process alive. */
-export const CompletionHang: t.CompletionHang.Lib = {
+export const CompletionHang: t.CompletionHang.Lib = Object.freeze({
   armWarning(input) {
     const delay = input.delay ?? DEFAULT_DELAY;
     const deps = input.deps ?? wrangle.defaultDeps();
@@ -39,7 +39,7 @@ ${body}
 
 ${details}`);
   },
-};
+});
 
 /**
  * Helpers:

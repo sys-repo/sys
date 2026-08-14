@@ -9,4 +9,7 @@ import { WebSocket } from './m.WebSocket/mod.ts';
 export type * from './t.ts';
 
 /** Files server facades over bounded Files model backings. */
-export const FilesServer: t.FilesServer.Lib = { Http, WebSocket };
+export const FilesServer: t.FilesServer.Lib = Object.freeze({
+  Http,
+  WebSocket,
+});

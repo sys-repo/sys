@@ -1,6 +1,6 @@
 import { Args as StdArgs, Fs, Is, type t } from '../common.ts';
 
-export const Args: t.WorkspaceBump.Args.Lib = {
+export const Args: t.WorkspaceBump.Args.Lib = Object.freeze({
   parse(argv = Deno.args) {
     const normalized = argv.filter((item) => item !== '--');
     const args = StdArgs.parse<{
@@ -61,7 +61,7 @@ export const Args: t.WorkspaceBump.Args.Lib = {
       },
     };
   },
-};
+});
 
 /**
  * Helpers:

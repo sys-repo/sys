@@ -80,12 +80,12 @@ function Parse(...args: ValueArgs): unknown {
   return args.length === 2 ? parse(args[0], args[1]) : parse(args[0], args[1], args[2]);
 }
 
-export const Value: Typebox.Value.Lib = {
+export const Value: Typebox.Value.Lib = Object.freeze({
   ...TypeBoxValue,
   Assert,
   Errors,
   Parse,
-};
+});
 
 /**
  * Helpers:

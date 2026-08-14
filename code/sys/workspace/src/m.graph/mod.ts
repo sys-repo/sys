@@ -12,11 +12,11 @@ import { packageEdges } from './u/u.packageEdges.ts';
 /**
  * Local workspace graph helper library.
  */
-export const WorkspaceGraph: t.WorkspaceGraph.Lib = {
+export const WorkspaceGraph: t.WorkspaceGraph.Lib = Object.freeze({
   collect,
   packageEdges,
   order,
   dependentClosure,
   minimalDependentRoots,
   Snapshot,
-};
+});

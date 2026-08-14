@@ -28,6 +28,12 @@ describe('Tmpl', () => {
     expect(TmplEngine.bundle).to.equal(FileMap.bundle);
   });
 
+  it('freezes every namespace API', () => {
+    for (const namespace of [TmplEngine, TmplEngine.File, TmplEngine.Log, File, Log]) {
+      expect(Object.isFrozen(namespace)).to.eql(true);
+    }
+  });
+
   describe('init: source path/file-map', () => {
     it('via path', async () => {
       const test = Test.sample1();

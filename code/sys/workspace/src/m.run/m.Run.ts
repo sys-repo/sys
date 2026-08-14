@@ -4,10 +4,10 @@ import { Fmt } from './u.fmt/mod.ts';
 import { runTask } from './u.run/mod.ts';
 
 /** Canonical workspace task runner library. */
-export const WorkspaceRun: t.WorkspaceRun.Lib = {
+export const WorkspaceRun: t.WorkspaceRun.Lib = Object.freeze({
   Args,
   Fmt,
   check: (args) => runTask('check', args),
   dry: (args) => runTask('dry', args),
   test: (args) => runTask('test', args),
-};
+});

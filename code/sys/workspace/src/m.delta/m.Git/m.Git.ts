@@ -5,4 +5,4 @@ import { fromNameStatus } from './u.fromNameStatus.ts';
 /**
  * Git-backed workspace delta adapters.
  */
-export const Git: t.WorkspaceDelta.Git.Lib = { fromNameStatus, fromRef };
+export const Git: t.WorkspaceDelta.Git.Lib = Object.freeze({ fromNameStatus, fromRef });

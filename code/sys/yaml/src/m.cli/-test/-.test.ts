@@ -13,4 +13,16 @@ describe(`yaml: cli tools`, () => {
     expectTypeOf(YamlConfig.Env).toMatchTypeOf<t.YamlConfig.Env.Lib>();
     expectTypeOf(YamlConfig.menu).toMatchTypeOf<t.YamlConfig.Menu.Run>();
   });
+
+  it('freezes every namespace API', () => {
+    for (
+      const namespace of [
+        YamlConfig,
+        YamlConfig.File,
+        YamlConfig.Edit,
+        YamlConfig.Ref,
+        YamlConfig.Env,
+      ]
+    ) expect(Object.isFrozen(namespace)).to.eql(true);
+  });
 });

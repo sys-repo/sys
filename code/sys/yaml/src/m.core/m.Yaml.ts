@@ -15,7 +15,7 @@ import { walk } from './u/u.walk.ts';
 /**
  * Helpers for working with YAML.
  */
-export const Yaml: t.YamlLib = {
+export const Yaml: t.YamlLib = Object.freeze({
   Is,
   Range,
   Error,
@@ -33,4 +33,4 @@ export const Yaml: t.YamlLib = {
 
   Path,
   path: Path.make,
-};
+});

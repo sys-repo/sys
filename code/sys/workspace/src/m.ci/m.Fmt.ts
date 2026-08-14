@@ -1,10 +1,10 @@
 import { Cli, Str, type t } from './common.ts';
 
 /** Commit-summary formatters for workspace CI close-out output. */
-export const Fmt: t.WorkspaceCi.Fmt.Lib = {
+export const Fmt: t.WorkspaceCi.Fmt.Lib = Object.freeze({
   finalCommitMessage,
   finalCommitSuggestion,
-};
+});
 
 /**
  * Helpers:

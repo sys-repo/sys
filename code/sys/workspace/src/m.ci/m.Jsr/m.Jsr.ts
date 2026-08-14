@@ -4,4 +4,4 @@ import { sync } from './u/u.sync.ts';
 import { text } from './u/u.text.ts';
 import { write } from './u/u.write.ts';
 
-export const Jsr: t.WorkspaceCi.Jsr.Lib = { Is, text, write, sync };
+export const Jsr: t.WorkspaceCi.Jsr.Lib = Object.freeze({ Is, text, write, sync });

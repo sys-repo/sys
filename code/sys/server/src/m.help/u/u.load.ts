@@ -9,7 +9,7 @@ const Resource = CliFmt.Chapters.Resources.create<t.StringPath>({
   parse: HelpYaml.record,
 });
 
-export const RootHelp: t.ServerHelp.Root.Lib = {
+export const RootHelp: t.ServerHelp.Root.Lib = Object.freeze({
   load() {
     const data = Resource.readRecord(HelpResource.Root, [
       'summary',
@@ -24,7 +24,7 @@ export const RootHelp: t.ServerHelp.Root.Lib = {
       options: HelpYaml.pairs(data, 'options'),
     });
   },
-};
+});
 
 const DslBook = CliFmt.Chapters.Book.create<t.StringPath>({
   root: HelpResource.Dsl.Root,
@@ -34,8 +34,8 @@ const DslBook = CliFmt.Chapters.Book.create<t.StringPath>({
   read: Resource.readParsedRecord,
 });
 
-export const DslHelp: t.ServerHelp.Dsl.Lib = {
+export const DslHelp: t.ServerHelp.Dsl.Lib = Object.freeze({
   load(path = []) {
     return DslBook.load(path);
   },
-};
+});

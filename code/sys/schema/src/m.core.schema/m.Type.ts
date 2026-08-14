@@ -6,10 +6,10 @@ const PRIVATE_SELF_REF_SUFFIX = '.Self';
 
 let recursiveOrdinal = 0;
 
-export const Type: Typebox.Lib = {
+export const Type: Typebox.Lib = Object.freeze({
   ...UpstreamType,
   Recursive,
-};
+});
 
 /**
  * Helpers:

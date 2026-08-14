@@ -9,7 +9,7 @@ const Resource = CliFmt.Chapters.Resources.create<t.StringPath>({
   parse: HelpYaml.record,
 });
 
-export const RootHelp: t.WorkspaceHelp.Root.Lib = {
+export const RootHelp: t.WorkspaceHelp.Root.Lib = Object.freeze({
   load() {
     const data = Resource.readRecord(HelpResource.Root, ['summary', 'sections']);
     return Promise.resolve({
@@ -17,7 +17,7 @@ export const RootHelp: t.WorkspaceHelp.Root.Lib = {
       sections: HelpYaml.sections(data, 'sections'),
     });
   },
-};
+});
 
 const DslBook = CliFmt.Chapters.Book.create<t.StringPath>({
   root: HelpResource.Dsl.Root,
@@ -27,8 +27,8 @@ const DslBook = CliFmt.Chapters.Book.create<t.StringPath>({
   read: Resource.readParsedRecord,
 });
 
-export const DslHelp: t.WorkspaceHelp.Dsl.Lib = {
+export const DslHelp: t.WorkspaceHelp.Dsl.Lib = Object.freeze({
   load(path = []) {
     return DslBook.load(path);
   },
-};
+});

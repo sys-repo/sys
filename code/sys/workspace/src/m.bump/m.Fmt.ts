@@ -1,7 +1,7 @@
 import { c, Cli, Str, type t } from './common.ts';
 import { Semver } from '@sys/std/semver/server';
 
-export const Fmt: t.WorkspaceBump.Fmt.Lib = {
+export const Fmt: t.WorkspaceBump.Fmt.Lib = Object.freeze({
   help(toolname = 'deno task bump') {
     const argsPrefix = toolname === 'deno task bump' ? `${toolname} --` : toolname;
     const text = Cli.Fmt.Help.build({
@@ -123,7 +123,7 @@ export const Fmt: t.WorkspaceBump.Fmt.Lib = {
     lines.push(c.gray(c.italic('Dry run only. No files updated.')));
     return lines.join('\n');
   },
-};
+});
 
 /**
  * Helpers:
@@ -143,7 +143,9 @@ const wrangle = {
     return plan.selected.length > 0 ? c.yellow('bump required') : c.green('no bump required');
   },
 
-  nextCommand(input: { readonly roots: readonly string[]; readonly release?: t.SemverReleaseType }) {
+  nextCommand(
+    input: { readonly roots: readonly string[]; readonly release?: t.SemverReleaseType },
+  ) {
     const roots = input.roots.map(wrangle.shellArg).join(' ');
     const release = input.release && input.release !== 'patch' ? ` --release ${input.release}` : '';
     return `deno task bump ${roots}${release} --non-interactive`;

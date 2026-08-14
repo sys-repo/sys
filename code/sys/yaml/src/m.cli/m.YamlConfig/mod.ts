@@ -1,5 +1,6 @@
 /**
- * YAML config helpers for CLI modules.
+ * @module
+ * YAML config file, edit, ref, env, and interactive menu helpers.
  */
 import type { t } from './common.ts';
 import { Edit } from './m/m.Edit.ts';
@@ -9,4 +10,10 @@ import { Ref } from './m/m.Ref.ts';
 import { menu } from './u.menu/u.ts';
 
 /** YAML config file, edit, ref, env, and interactive menu helpers. */
-export const YamlConfig: t.YamlConfig.Lib = { menu, File, Edit, Ref, Env };
+export const YamlConfig: t.YamlConfig.Lib = Object.freeze({
+  File,
+  Edit,
+  Ref,
+  Env,
+  menu,
+});

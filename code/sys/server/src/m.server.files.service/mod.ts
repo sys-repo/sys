@@ -11,4 +11,7 @@ export type * from './t.ts';
 /**
  * Cell-compatible lifecycle endpoint for Files-over-WebSocket services.
  */
-export const FilesWebSocketService: t.FilesWebSocketService.Lib = { resources, start };
+export const FilesWebSocketService: t.FilesWebSocketService.Lib = Object.freeze({
+  resources,
+  start,
+});

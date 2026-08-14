@@ -1,6 +1,6 @@
 import { Fs, type t } from '../common.ts';
 
-export const Edit: t.YamlConfig.Edit.Lib = {
+export const Edit: t.YamlConfig.Edit.Lib = Object.freeze({
   async update(input) {
     const path = resolveConfigPath(input.cwd, input.config);
     const exists = await Fs.exists(path);
@@ -23,7 +23,7 @@ export const Edit: t.YamlConfig.Edit.Lib = {
     await Fs.write(path, text, { force: true });
     return { kind: 'written', path, created, change: mutation.change };
   },
-};
+});
 
 function resolveConfigPath(cwd: t.StringDir, config: string): t.StringPath {
   const value = String(config ?? '').trim();

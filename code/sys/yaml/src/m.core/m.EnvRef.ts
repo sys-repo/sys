@@ -18,7 +18,7 @@ type ResolvedRef = FoundRef & {
 };
 
 /** Pure YAML env-ref helpers. */
-export const EnvRef: t.Yaml.EnvRef.Lib = {
+export const EnvRef: t.Yaml.EnvRef.Lib = Object.freeze({
   resolveAst(ast, options) {
     const refs: FoundRef[] = [];
     const errors: t.Yaml.Error[] = [];
@@ -68,7 +68,7 @@ export const EnvRef: t.Yaml.EnvRef.Lib = {
 
     return { ok: true, ast, refs: refRecords };
   },
-};
+});
 
 function resolveValue(
   item: FoundRef,

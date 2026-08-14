@@ -4,4 +4,4 @@ import { fmt } from './u.fmt.ts';
 import { stats } from './u.stats.ts';
 
 /** Workspace source statistics helper library. */
-export const WorkspaceInfo: t.WorkspaceInfo.Lib = { DEFAULTS, fmt, stats };
+export const WorkspaceInfo: t.WorkspaceInfo.Lib = Object.freeze({ DEFAULTS, fmt, stats });

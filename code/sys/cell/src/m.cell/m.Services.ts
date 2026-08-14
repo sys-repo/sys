@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 
-export const Services: t.Cell.Services.Lib = {
+export const Services: t.Cell.Services.Lib = Object.freeze({
   async plan(cell, options) {
     /**
      * Services-only planner import.
@@ -66,4 +66,4 @@ export const Services: t.Cell.Services.Lib = {
     const { CellServices } = await import(/* @vite-ignore */ SERVICES_SPEC);
     return CellServices.wait(started);
   },
-};
+});

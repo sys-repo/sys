@@ -6,9 +6,9 @@ type ParsedTestArgs = {
 };
 
 /** Typed argument helpers for workspace task runners. */
-export const Args: t.WorkspaceRun.Args.Lib = {
+export const Args: t.WorkspaceRun.Args.Lib = Object.freeze({
   test: parseTestArgs,
-};
+});
 
 /** Parse CLI argv into canonical test-runner arguments. */
 export function parseTestArgs(argv: readonly string[] = []): t.WorkspaceRun.Test.Args {

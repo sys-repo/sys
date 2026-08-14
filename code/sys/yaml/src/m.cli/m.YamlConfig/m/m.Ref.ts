@@ -2,7 +2,7 @@ import { Fs, type t } from '../common.ts';
 import { RefPath } from '../u/u.path.ts';
 
 /** YAML config selector helpers. */
-export const Ref: t.YamlConfig.Ref.Lib = {
+export const Ref: t.YamlConfig.Ref.Lib = Object.freeze({
   resolve(input) {
     const label = input.label ?? 'config';
     const errorPrefix = input.errorPrefix ?? 'YamlConfig.Ref';
@@ -32,4 +32,4 @@ export const Ref: t.YamlConfig.Ref.Lib = {
       name: value,
     };
   },
-};
+});

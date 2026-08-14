@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 
-export const Task: t.Cell.Task.Lib = {
+export const Task: t.Cell.Task.Lib = Object.freeze({
   async plan(cell, name, options) {
     /**
      * Task-only planner import.
@@ -39,4 +39,4 @@ export const Task: t.Cell.Task.Lib = {
     const { CellTask } = await import(/* @vite-ignore */ TASK_SPEC);
     return CellTask.run(cell, name, options);
   },
-};
+});

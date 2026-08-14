@@ -11,7 +11,7 @@ import {
 } from './u/u.load.ts';
 export type * from './t.ts';
 
-export const CellHelp: t.CellHelp.Lib = {
+export const CellHelp: t.CellHelp.Lib = Object.freeze({
   Root: RootHelp,
   Info: InfoHelp,
   Init: InitHelp,
@@ -20,4 +20,4 @@ export const CellHelp: t.CellHelp.Lib = {
   Start: StartHelp,
   Kill: KillHelp,
   Dsl: DslHelp,
-};
+});
