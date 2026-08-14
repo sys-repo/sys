@@ -29,7 +29,7 @@ deno.json:
     dev: true
   - import: npm:rollup-plugin-visualizer@7.0.1
     dev: true
-  - import: npm:magic-string@1.1.0
+  - import: npm:magic-string@1.1.1
     dev: true
   - import: npm:@oxc-project/runtime@0.144.0
     dev: true
@@ -114,7 +114,7 @@ package.json:
     dev: true
   - import: npm:rollup-plugin-visualizer@7.0.1
     dev: true
-  - import: npm:magic-string@1.1.0
+  - import: npm:magic-string@1.1.1
     dev: true
   - import: npm:@oxc-project/runtime@0.144.0
     dev: true
