@@ -4,6 +4,7 @@ import { Is, markProxy, Symbols } from '../m.core/m.Immutable/mod.ts';
 import { Lens } from '../m.core/m.Immutable.Lens/mod.ts';
 import { PathRef } from '../m.core/m.PathRef/mod.ts';
 import { Immutable } from '../m.rfc6902/mod.ts';
+import { Wrangle } from '../m.rfc6902/u.Wrangle.ts';
 import { Url } from '../m.url/mod.ts';
 
 describe('immutable namespace freeze contract', () => {
@@ -18,6 +19,7 @@ describe('immutable namespace freeze contract', () => {
       Immutable,
       Immutable.Events,
       Immutable.Patch,
+      Wrangle,
       Graph,
       Graph.default,
       Graph.Dag,

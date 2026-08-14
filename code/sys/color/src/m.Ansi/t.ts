@@ -6,7 +6,10 @@ import type { t } from './common.ts';
 export declare namespace AnsiColor {
   /** CLI color formatting tools. */
   export type Lib = {
-    /** Full ANSI formatter surface. */
+    /**
+     * Full ANSI formatter surface.
+     * This ESM module namespace rejects writes, although `Object.isFrozen` reports false.
+     */
     readonly ansi: t.AnsiColors;
     /** Foreground color formatters only. */
     readonly foreground: Foreground;
