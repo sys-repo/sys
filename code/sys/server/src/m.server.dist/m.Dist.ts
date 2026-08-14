@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-import { materialize } from './u/u.materialize.ts';
+import { materialize } from './u.materialize/mod.ts';
 
 /** Checksum-pinned Dist materialization. */
 export const Dist: t.Dist.Lib = Object.freeze({ materialize });

@@ -1,4 +1,4 @@
-import { Fs, type t } from '../common.ts';
+import { Fs, type t } from './common.ts';
 
 /** Build one frozen sanitized materialization failure. */
 export function failed(
