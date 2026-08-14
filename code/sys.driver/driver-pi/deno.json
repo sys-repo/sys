@@ -6,11 +6,12 @@
     "test": "deno task test:unit && deno task test:profiles",
     "test:unit": "deno test -P=test ./src ./-scripts",
     "test:profiles": "deno test -P=test ./src/m.core/m.cli.profiles/-test",
+    "test:browser": "deno task build && FORCE_COLOR=0 deno test -P=test-browser --trace-leaks ./-scripts/-test.browser.ts",
     "prep": "deno run -P=dev ./-scripts/task.prep.ts",
     "cli": "deno run -P=cli ./-scripts/task.cli.ts",
     "cli:raw": "deno run -P=cli ./src/m.core/m.cli.raw/mod.ts",
-    "dev": "deno run -A ./-scripts/task.vite.ts --cmd=dev --in=./src/index.html",
-    "build": "deno run -A ./-scripts/task.vite.ts --cmd=build --in=./src/index.html",
+    "dev": "deno run -P=dev ./-scripts/task.vite.ts --cmd=dev --in=./src/index.html",
+    "build": "deno run -P=dev ./-scripts/task.vite.ts --cmd=build --in=./src/index.html",
     "serve": "deno run -P=dev ./-scripts/task.vite.ts --cmd=serve",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check -- ./src/ ./-scripts/*",
@@ -47,6 +48,23 @@
         "127.0.0.1",
         "0.0.0.0"
       ]
+    },
+    "test-browser": {
+      "read": true,
+      "write": true,
+      "env": [
+        "CHROME_BIN",
+        "FORCE_COLOR",
+        "TERM",
+        "TERM_PROGRAM",
+        "WS_NO_BUFFER_UTIL",
+        "WS_NO_UTF_8_VALIDATE"
+      ],
+      "net": [
+        "127.0.0.1",
+        "0.0.0.0"
+      ],
+      "run": true
     },
     "cli": {
       "read": true,

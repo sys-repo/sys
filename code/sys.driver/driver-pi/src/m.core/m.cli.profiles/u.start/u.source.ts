@@ -1,12 +1,8 @@
 import { Is, Shard, type t, Url } from '../common.ts';
 import type { Dist } from '@sys/server/dist';
+import { LIMITS } from './u.limits.ts';
 
-export const LIMITS = {
-  manifestBytes: 16 * 1024 * 1024, //   ← 16 MB
-  entries: 4096 * 2 + 1, //             ← 8,193 entries
-  fileBytes: 128 * 1024 * 1024, //      ← 128 MB
-  totalBytes: 1024 * 1024 * 1024, //    ← 1,024 MB (1 GB)
-} as const;
+export { LIMITS } from './u.limits.ts';
 
 export type ManifestSource = Readonly<{
   href: t.StringUrl;

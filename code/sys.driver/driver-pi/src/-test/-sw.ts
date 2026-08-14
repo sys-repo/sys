@@ -1,21 +1,18 @@
-declare var self: ServiceWorkerGlobalScope;
 import { pkg } from '../pkg.ts';
 import { Http } from '@sys/http/client';
 
-/**
- * Ensure the service-worker takes control of all clients immediately.
- */
-self.skipWaiting();
-self.addEventListener('activate', (event) => {
-  event.waitUntil(self.clients.claim());
-});
+const worker = globalThis as unknown as ServiceWorkerGlobalScope;
+const deployment = Http.ServiceWorker.tombstone({ pkg });
 
 /**
- * Start the HTTP pkg/bundle cache.
+ * Only admitted non-loopback HTTPS deployment receives persistent cache authority.
+ * Denied loopback deployment is handled by the inert tombstone installed above.
  */
-Http.Cache.pkg({ pkg });
-Http.Cache.Cmd.listen({
-  target: self,
-  silent: false,
-  ...Http.Cache.Cmd.Handlers.all({ pkg }),
-});
+if (deployment.kind === 'admitted') {
+  void Http.Cache.pkg({ pkg });
+  Http.Cache.Cmd.listen({
+    target: worker,
+    silent: false,
+    ...Http.Cache.Cmd.Handlers.all({ pkg }),
+  });
+}

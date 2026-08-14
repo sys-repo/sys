@@ -1,6 +1,7 @@
-import { Cli, type t } from '../common.ts';
+import type { Cli, t } from '../common.ts';
 import { runtimeRoot } from '../../m.cli/u.runtime.ts';
 
+import { VERIFIED_LOOPBACK_BROWSER_POLICY } from './u.browser.ts';
 import {
   DEFAULT_DEPENDENCIES,
   type Keyboard,
@@ -54,6 +55,7 @@ export async function start(input: StartGuiInput): Promise<void> {
       limits: LIMITS,
       hostname: '127.0.0.1',
       port: 0,
+      browserPolicy: VERIFIED_LOOPBACK_BROWSER_POLICY,
       silent: true,
       until: input.until,
     });
@@ -91,5 +93,6 @@ export async function start(input: StartGuiInput): Promise<void> {
 }
 
 function isBackKey(event: KeyboardEvent): boolean {
-  return event.key === 'left' && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey;
+  return event.key === 'left' && !event.altKey && !event.ctrlKey && !event.metaKey &&
+    !event.shiftKey;
 }

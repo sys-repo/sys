@@ -73,6 +73,10 @@ export async function loopbackDistFixture() {
     .absolute as t.StringDir;
   await Fs.write(Fs.join(source, 'index.html'), '<h1>verified driver-pi fixture</h1>');
   await Fs.write(Fs.join(source, 'assets/app.js'), 'console.info("verified");');
+  await Fs.write(
+    Fs.join(source, 'sw.js'),
+    `self.addEventListener('install', (event) => event.waitUntil(self.skipWaiting()));`,
+  );
   const computed = await FsPkg.Dist.compute({
     dir: source,
     pkg: { name: '@sample/driver-pi-gui', version: '1.0.0' },

@@ -1,6 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { Cli, Fs, type t } from '../common.ts';
+import { type Cli, Fs, type t } from '../common.ts';
 import { DistServer } from '@sys/server/dist';
+import { VERIFIED_LOOPBACK_BROWSER_POLICY } from '../u.start/u.browser.ts';
 import { start } from '../u.start/u.gui.ts';
 import { START_GUI_SERVICE } from '../u/u.start.gui.service.ts';
 import {
@@ -130,6 +131,15 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
         fileBytes: 128 * 1024 * 1024,
         totalBytes: 1024 * 1024 * 1024,
       });
+      expect(startArgs?.browserPolicy).to.equal(VERIFIED_LOOPBACK_BROWSER_POLICY);
+      expect(startArgs?.browserPolicy).to.eql({
+        kind: 'verified-loopback',
+        dedicatedWorkers: [],
+        serviceWorker: { kind: 'tombstone', path: 'sw.js' },
+      });
+      expect(Object.isFrozen(VERIFIED_LOOPBACK_BROWSER_POLICY)).to.eql(true);
+      expect(Object.isFrozen(VERIFIED_LOOPBACK_BROWSER_POLICY.dedicatedWorkers)).to.eql(true);
+      expect(Object.isFrozen(VERIFIED_LOOPBACK_BROWSER_POLICY.serviceWorker)).to.eql(true);
       expect(await Fs.exists(storeDir)).to.eql(true);
       expect(screenInput).to.eql({
         service: 'sys.ui:pi',
