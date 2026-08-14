@@ -1,5 +1,6 @@
 import { c, Cli, describe, expect, it, pkg, type t } from '../../../-test.ts';
 import { HttpServer } from '../mod.ts';
+import { printWith } from '../u/u.print.ts';
 
 const SAMPLE_ROOT =
   '/test/fixtures/fake-workspace/.pi/@sys/dist/@sys.driver-pi/sha256-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef' as t.StringDir;
@@ -163,27 +164,27 @@ describe('HttpServer.print', () => {
   });
 
   it('fits root paths against the widest table label', () => {
-    const restore = stubTerminal(48);
-    try {
-      const output = capturePrint(() => {
-        HttpServer.print({
+    const output = capturePrint(() => {
+      printWith(
+        {
+          isTerminal: () => true,
+          screenSize: () => ({ width: 48, height: 24 }),
+        },
+        {
           addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
           status: {
             kind: 'dist',
             root: SAMPLE_ROOT,
             details: [{ label: 'capabilities', value: 'read, watch' }],
           },
-        });
-      }).join('\n');
-      const root = Cli.stripAnsi(output).split('\n').find((line) =>
-        line.trimStart().startsWith('root')
-      ) ?? '';
+        },
+      );
+    }).join('\n');
+    const root =
+      Cli.stripAnsi(output).split('\n').find((line) => line.trimStart().startsWith('root')) ?? '';
 
-      expect(root).to.contain('9abcdef');
-      expect(Cli.Fmt.Text.Width.measure(root)).to.be.at.most(48);
-    } finally {
-      restore();
-    }
+    expect(root).to.contain('9abcdef');
+    expect(Cli.Fmt.Text.Width.measure(root)).to.be.at.most(48);
   });
 });
 
@@ -197,19 +198,4 @@ function capturePrint(fn: () => void): string[] {
     console.info = original;
   }
   return lines;
-}
-
-function stubTerminal(width: number): () => void {
-  const screen = Cli.Screen as { size: () => { width: number; height: number } };
-  const is = Cli.Is as {
-    terminal: (stream: Parameters<typeof Cli.Is.terminal>[0]) => boolean;
-  };
-  const previousSize = screen.size;
-  const previousTerminal = is.terminal;
-  screen.size = () => ({ width, height: 24 });
-  is.terminal = () => true;
-  return () => {
-    screen.size = previousSize;
-    is.terminal = previousTerminal;
-  };
 }

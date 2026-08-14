@@ -3,8 +3,23 @@ import { HttpStatic } from './m.HttpStatic.ts';
 import { parseArgs, type StaticCliParsedArgs } from './u.args.ts';
 import { Fmt } from './u.fmt.ts';
 
+export type StaticCliDependencies = {
+  readonly start: t.HttpStatic.Lib['start'];
+};
+
+const DEFAULT_DEPS: StaticCliDependencies = { start: HttpStatic.start };
+
 /** CLI entrypoint for the static server owner CLI. */
 export async function cli(cwd: t.StringDir, argv: string[] = []): Promise<number> {
+  return await cliWith(DEFAULT_DEPS, cwd, argv);
+}
+
+/** Package-internal static-server CLI dependency seam. */
+export async function cliWith(
+  deps: StaticCliDependencies,
+  cwd: t.StringDir,
+  argv: string[] = [],
+): Promise<number> {
   let args: StaticCliParsedArgs;
   try {
     args = parseArgs(argv);
@@ -33,15 +48,19 @@ export async function cli(cwd: t.StringDir, argv: string[] = []): Promise<number
     return 0;
   }
 
-  return await runStart(cwd, args);
+  return await runStart(deps, cwd, args);
 }
 
-async function runStart(cwd: t.StringDir, args: StaticCliParsedArgs): Promise<number> {
+async function runStart(
+  deps: StaticCliDependencies,
+  cwd: t.StringDir,
+  args: StaticCliParsedArgs,
+): Promise<number> {
   try {
     if (args._.length > 0) throw new Error(`Unknown command: ${args._.join(' ')}`);
     assertStartOptions(args);
 
-    const started = await HttpStatic.start({
+    const started = await deps.start({
       cwd,
       dir: args.dir,
       hostname: args.hostname,

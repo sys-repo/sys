@@ -2,6 +2,9 @@ import { Hash } from '@sys/crypto/hash';
 import { WebFixture } from '@sys/testing/web';
 import { describe, expect, it, Json, type t, Testing } from '../../../-test.ts';
 import { Fetch } from '../mod.ts';
+import { verifyChecksum } from '../u/u.checksum.ts';
+import { createInvokeFetch } from '../u/u.invoke.ts';
+import { makeFetchWith } from '../u/u.make.ts';
 import { responsePolicy } from './u.fixture.ts';
 
 const ORIGIN = 'https://example.test';
@@ -746,17 +749,14 @@ describe('Http.Fetch: bounded response policy', () => {
     const checksumBytes = new Uint8Array([1, 2, 3]);
     const expected = Hash.sha256(checksumBytes);
     const checksumMock = WebFixture.Fetch.mock(() => Promise.resolve(new Response(checksumBytes)));
-    const checksumClient = makeClient();
-    const descriptor = Object.getOwnPropertyDescriptor(Hash, 'sha256');
-    if (!descriptor) throw new Error('Missing Hash.sha256 descriptor');
-    const nativeSha256 = Hash.sha256.bind(Hash);
-    Object.defineProperty(Hash, 'sha256', {
-      ...descriptor,
-      value(input: unknown, options?: Parameters<typeof Hash.sha256>[1]) {
-        checksumCaller.abort(SECRET.reason);
-        return nativeSha256(input, options);
-      },
+    const verifyChecksumAfterAbort: typeof verifyChecksum = (input, expected, errors) => {
+      checksumCaller.abort(SECRET.reason);
+      return verifyChecksum(input, expected, errors);
+    };
+    const invoke = createInvokeFetch({
+      loadChecksum: () => Promise.resolve({ verifyChecksum: verifyChecksumAfterAbort }),
     });
+    const checksumClient = makeFetchWith({ invoke }, { policy: policy() });
 
     try {
       const cancelled = await checksumClient.blob(
@@ -768,7 +768,6 @@ describe('Http.Fetch: bounded response policy', () => {
       expect(cancelled.checksum).to.eql(undefined);
       expect(cancelled.error?.policyFailure).to.eql(undefined);
     } finally {
-      Object.defineProperty(Hash, 'sha256', descriptor);
       checksumClient.dispose();
       checksumMock.dispose();
     }

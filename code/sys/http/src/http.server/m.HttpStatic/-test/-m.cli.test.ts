@@ -1,6 +1,5 @@
 import { describe, expect, Fs, it, type t } from '../../../-test.ts';
-import { cli } from '../m.cli.ts';
-import { HttpStatic } from '../mod.ts';
+import { cli, cliWith } from '../m.cli.ts';
 
 const CONFIG = 'view';
 const CONFIG_PATH = '-config/@sys.http/static/view.yaml';
@@ -58,31 +57,30 @@ describe('HttpStatic CLI', () => {
   it('starts the static lifecycle command from root args', async () => {
     const cwd = await tempRoot();
     const calls: t.HttpStatic.StartArgs[] = [];
-    const prev = HttpStatic.start;
-
-    HttpStatic.start = (async (args) => {
+    const start: t.HttpStatic.Lib['start'] = (args) => {
       calls.push(args ?? {});
-      return { finished: Promise.resolve() } as unknown as t.HttpServer.Started;
-    }) as typeof HttpStatic.start;
+      const started = { finished: Promise.resolve() } as unknown as t.HttpServer.Started;
+      return Promise.resolve(started);
+    };
 
-    try {
-      const res = await captureInfo(() =>
-        cli(cwd, ['--silent', '--dir', './public', '--hostname', '127.0.0.1', '--port', '0'])
-      );
-
-      expect(res.value).to.eql(0);
-      expect(calls).to.have.length(1);
-      expect(calls[0]).to.include({
+    const res = await captureInfo(() =>
+      cliWith(
+        { start },
         cwd,
-        dir: './public',
-        hostname: '127.0.0.1',
-        port: 0,
-        silent: true,
-        keyboard: false,
-      });
-    } finally {
-      HttpStatic.start = prev;
-    }
+        ['--silent', '--dir', './public', '--hostname', '127.0.0.1', '--port', '0'],
+      )
+    );
+
+    expect(res.value).to.eql(0);
+    expect(calls).to.have.length(1);
+    expect(calls[0]).to.include({
+      cwd,
+      dir: './public',
+      hostname: '127.0.0.1',
+      port: 0,
+      silent: true,
+      keyboard: false,
+    });
   });
 
   it('rejects root-only options on config add', async () => {

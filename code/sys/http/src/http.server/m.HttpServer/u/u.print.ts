@@ -1,13 +1,35 @@
 import { c, Cli, Fs, Str, type t } from '../common.ts';
 import { formatPrintUrls } from './u.print.url.ts';
 
+export type PrintDependencies = {
+  readonly isTerminal: typeof Cli.Is.terminal;
+  readonly screenSize: typeof Cli.Screen.size;
+};
+
+const DEFAULT_DEPS: PrintDependencies = {
+  isTerminal: Cli.Is.terminal,
+  screenSize: Cli.Screen.size,
+};
+
 /**
  * Outputs HTTP-owner startup information for direct server use.
  */
 export const print: t.HttpServer.Lib['print'] = (options) => printWithOrigin(options);
 
 /** Internal startup-output path for an already settled listener origin. */
-export function printWithOrigin(options: t.HttpServer.Print.Options, settledOrigin?: t.StringUrl) {
+export function printWithOrigin(
+  options: t.HttpServer.Print.Options,
+  settledOrigin?: t.StringUrl,
+) {
+  printWith(DEFAULT_DEPS, options, settledOrigin);
+}
+
+/** Package-internal terminal dependency seam. */
+export function printWith(
+  deps: PrintDependencies,
+  options: t.HttpServer.Print.Options,
+  settledOrigin?: t.StringUrl,
+) {
   const { addr, pkg, hash, name, requestedPort } = options;
   const root = options.status?.root ?? options.dir;
   const details = options.status?.details ?? infoDetails(options.info);
@@ -35,7 +57,7 @@ export function printWithOrigin(options: t.HttpServer.Print.Options, settledOrig
     table.push([childLabel('module'), value(`${pkgName} ${pkgVersion}`)]);
   }
   pushUrls(table, urls);
-  if (root) table.push([childLabel('root'), path(root, rootReserve)]);
+  if (root) table.push([childLabel('root'), path(deps, root, rootReserve)]);
   for (const detail of details) table.push([childLabel(detail.label), value(detail.value)]);
   if (hx) table.push([childLabel('dist'), value(`${hx} ← dist/dist.json`)]);
   if (fallback) table.push([childLabel('port'), value(fallback)]);
@@ -84,11 +106,11 @@ function value(input: string) {
   return c.gray(input);
 }
 
-function path(input: string, reserve: number) {
+function path(deps: PrintDependencies, input: string, reserve: number) {
   return Cli.Fmt.Path.tty(Fs.trimCwd(input), {
     reserve,
-    terminal: Cli.Is.terminal('stdout'),
-    width: Cli.Screen.size().width,
+    terminal: deps.isTerminal('stdout'),
+    width: deps.screenSize().width,
     highlightBasename: false,
     min: 1,
   });

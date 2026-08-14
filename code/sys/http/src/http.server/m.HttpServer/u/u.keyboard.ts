@@ -1,5 +1,17 @@
 import { c, Cli, Process, Str } from '../common.ts';
 
+export type KeyboardDependencies = {
+  readonly bind: typeof Cli.Keyboard.bind;
+  readonly isUnavailableError: typeof Cli.Keyboard.isUnavailableError;
+  readonly sh: typeof Process.sh;
+};
+
+const DEFAULT_DEPS: KeyboardDependencies = {
+  bind: Cli.Keyboard.bind,
+  isUnavailableError: Cli.Keyboard.isUnavailableError,
+  sh: Process.sh,
+};
+
 type Args = {
   port: number;
   url?: string;
@@ -13,7 +25,7 @@ type Args = {
  * Create a keyboard listener to control the running dev server.
  */
 export async function keyboard(args: Args) {
-  const handle = bind(args);
+  const handle = bind(DEFAULT_DEPS, args);
   if (!handle) return;
   await handle.finished;
 }
@@ -22,11 +34,16 @@ export async function keyboard(args: Args) {
  * Bind keyboard controls and report whether terminal binding is active.
  */
 export function bindKeyboard(args: Args): boolean {
-  const handle = bind(args);
+  return bindKeyboardWith(DEFAULT_DEPS, args);
+}
+
+/** Package-internal keyboard and shell dependency seam. */
+export function bindKeyboardWith(deps: KeyboardDependencies, args: Args): boolean {
+  const handle = bind(deps, args);
   if (!handle) return false;
 
   void handle.finished.catch((error: unknown) => {
-    if (!Cli.Keyboard.isUnavailableError(error)) console.warn(error);
+    if (!deps.isUnavailableError(error)) console.warn(error);
   });
   return true;
 }
@@ -34,10 +51,13 @@ export function bindKeyboard(args: Args): boolean {
 /**
  * Helpers:
  */
-function bind(args: Args): ReturnType<typeof Cli.Keyboard.bind> {
+function bind(
+  deps: KeyboardDependencies,
+  args: Args,
+): ReturnType<typeof Cli.Keyboard.bind> {
   try {
-    const sh = Process.sh();
-    const handle = Cli.Keyboard.bind({
+    const sh = deps.sh();
+    const handle = deps.bind({
       exit: args.exit ?? true,
       until: args.until,
       onQuit: async () => void await args.dispose?.(),
@@ -52,7 +72,7 @@ function bind(args: Args): ReturnType<typeof Cli.Keyboard.bind> {
     if (args.print) printKeyboard();
     return handle;
   } catch (error) {
-    if (Cli.Keyboard.isUnavailableError(error)) return;
+    if (deps.isUnavailableError(error)) return;
     throw error;
   }
 }

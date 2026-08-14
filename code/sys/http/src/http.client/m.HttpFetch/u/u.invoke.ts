@@ -14,7 +14,7 @@ import { CANCELLED, createOperation } from './u.operation.ts';
 
 const REDIRECT_STATUS = new Set([301, 302, 303, 307, 308]);
 
-type InvokeArgs<T> = {
+export type InvokeFetchArgs<T> = {
   readonly contentType: t.StringContentType;
   readonly contentTypePolicy: t.HttpFetch.CreateOptions['contentTypePolicy'];
   readonly method: 'GET' | 'HEAD';
@@ -28,8 +28,30 @@ type InvokeArgs<T> = {
   readonly checksumSource: 'bytes' | 'value';
 };
 
+export type InvokeFetch = <T>(args: InvokeFetchArgs<T>) => Promise<t.HttpFetch.Response<T>>;
+
+type ChecksumModule = Pick<typeof import('./u.checksum.ts'), 'verifyChecksum'>;
+
+export type InvokeFetchDependencies = {
+  readonly loadChecksum: () => Promise<ChecksumModule>;
+};
+
+const DEFAULT_DEPS: InvokeFetchDependencies = {
+  loadChecksum: () => import('./u.checksum.ts'),
+};
+
 /** Execute one bounded Fetch request. */
-export async function invokeFetch<T>(args: InvokeArgs<T>): Promise<t.HttpFetch.Response<T>> {
+export const invokeFetch: InvokeFetch = createInvokeFetch(DEFAULT_DEPS);
+
+/** Create a package-internal bounded Fetch dependency seam. */
+export function createInvokeFetch(deps: InvokeFetchDependencies): InvokeFetch {
+  return async (args) => await invokeFetchWith(deps, args);
+}
+
+async function invokeFetchWith<T>(
+  deps: InvokeFetchDependencies,
+  args: InvokeFetchArgs<T>,
+): Promise<t.HttpFetch.Response<T>> {
   const method = args.method;
   const href = inputHref(args.input);
   const safeUrl = safeHref(href);
@@ -166,7 +188,7 @@ export async function invokeFetch<T>(args: InvokeArgs<T>): Promise<t.HttpFetch.R
       let checksum: t.HttpFetch.ResponseChecksum | undefined;
       if (expectedChecksum) {
         const errors = Err.errors();
-        const module = await operation.race(import('./u.checksum.ts'));
+        const module = await operation.race(deps.loadChecksum());
         operation.throwIfStopped();
         const input = args.checksumSource === 'bytes' ? bytes : data;
         checksum = module.verifyChecksum(input, expectedChecksum, errors);

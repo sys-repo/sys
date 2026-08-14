@@ -2,13 +2,25 @@ import { Is, Rx, Schedule, type t, toHeaders } from '../common.ts';
 import { policyFailureResponse } from './u.failure.ts';
 import { defaultHeaders } from './u.headers.ts';
 import { inputHref, safeHref, validateResponsePolicy } from './u.input.ts';
-import { invokeFetch } from './u.invoke.ts';
+import { type InvokeFetch, invokeFetch } from './u.invoke.ts';
 import { composeSignals } from './u.signal.ts';
 
 type F = t.HttpFetch.Lib['make'];
 
+export type MakeFetchDependencies = {
+  readonly invoke: InvokeFetch;
+};
+
+const DEFAULT_DEPS: MakeFetchDependencies = { invoke: invokeFetch };
+
 /** Create one bounded Fetch capability. */
-export const makeFetch: F = (input: Parameters<F>[0]) => {
+export const makeFetch: F = (input) => makeFetchWith(DEFAULT_DEPS, input);
+
+/** Package-internal bounded Fetch construction seam. */
+export function makeFetchWith(
+  deps: MakeFetchDependencies,
+  input: Parameters<F>[0],
+): ReturnType<F> {
   type Snapshot = Omit<t.HttpFetch.CreateOptions, 'policy'> & {
     readonly policy?: t.HttpFetch.ResponsePolicy;
   };
@@ -67,7 +79,7 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
       return policyFailureResponse(args.method, safeHref(inputHref(args.input)), 'invalid-request');
     }
     try {
-      return await invokeFetch({
+      return await deps.invoke({
         ...args,
         contentTypePolicy: createOptions.contentTypePolicy,
         policy,
@@ -147,7 +159,7 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
     text,
     blob,
   });
-};
+}
 
 function isCreateOptions(input: Omit<t.HttpFetch.CreateOptions, 'policy'>): boolean {
   const { accessToken, contentTypePolicy, headers, until } = input;

@@ -1,6 +1,8 @@
 import { Cli, describe, expect, it, Rx, Testing } from '../../../-test.ts';
-import { Dispose, Process, type t } from '../common.ts';
+import { Dispose, type t } from '../common.ts';
 import { HttpServer } from '../mod.ts';
+import { bindKeyboardWith } from '../u/u.keyboard.ts';
+import { startWith } from '../u/u.start.ts';
 import { testFetcher } from './u.fixture.usingServer.ts';
 
 describe('HttpServer.start', () => {
@@ -281,41 +283,43 @@ describe('HttpServer.start', () => {
 
   it('opens the first status URL from the exact settled authority', async () => {
     const app = HttpServer.create({ static: false });
-    const originalBind = Cli.Keyboard.bind;
-    const originalSh = Process.sh;
     type KeyboardOptions = Parameters<typeof Cli.Keyboard.bind>[0];
     type KeyHandler = NonNullable<KeyboardOptions['onKey']>;
     let keyboard: KeyboardOptions | undefined;
     let command: string | undefined;
-
-    Cli.Keyboard.bind = (options) => {
-      keyboard = options;
-      return { dispose() {}, finished: Promise.resolve() };
-    };
-    Process.sh = () => ({
-      path: '',
-      async run(script) {
-        command = script;
-        return undefined as never;
+    const keyboardDeps: Parameters<typeof bindKeyboardWith>[0] = {
+      bind(options) {
+        keyboard = options;
+        return { dispose() {}, finished: Promise.resolve() };
       },
-    });
+      isUnavailableError: Cli.Keyboard.isUnavailableError,
+      sh: () => ({
+        path: '',
+        run(script) {
+          command = script;
+          return Promise.resolve(undefined as never);
+        },
+      }),
+    };
 
     let server: t.HttpServer.Started | undefined;
     try {
-      server = HttpServer.start(app, {
-        silent: true,
-        hostname: '127.0.0.1',
-        origin: 'exact-loopback',
-        status: { urlPaths: ['/health'] },
-        keyboard: true,
-      });
+      server = startWith(
+        { bindKeyboard: (args) => bindKeyboardWith(keyboardDeps, args) },
+        app,
+        {
+          silent: true,
+          hostname: '127.0.0.1',
+          origin: 'exact-loopback',
+          status: { urlPaths: ['/health'] },
+          keyboard: true,
+        },
+      );
       const event = { key: 'o', ctrlKey: false } as Parameters<KeyHandler>[0];
       await keyboard?.onKey?.(event);
 
       expect(command).to.eql(`open ${server.origin}/health`);
     } finally {
-      Cli.Keyboard.bind = originalBind;
-      Process.sh = originalSh;
       await server?.close('test');
     }
   });

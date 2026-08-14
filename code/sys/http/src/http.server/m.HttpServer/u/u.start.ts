@@ -6,6 +6,13 @@ import { printWithOrigin as printStarted } from './u.print.ts';
 import { statusUrls } from './u.status.url.ts';
 
 type F = t.HttpServer.Lib['start'];
+
+export type StartDependencies = {
+  readonly bindKeyboard: typeof bindKeyboard;
+};
+
+const DEFAULT_DEPS: StartDependencies = { bindKeyboard };
+
 type KeyboardOptions = { readonly print: boolean; readonly exit: boolean } | undefined;
 type StartValues = {
   readonly port?: t.PortNumber;
@@ -23,7 +30,14 @@ type StartValues = {
 /**
  * Start a Hono app as a managed HTTP server lifecycle.
  */
-export const start: F = (app, input = {}) => {
+export const start: F = (app, input = {}) => startWith(DEFAULT_DEPS, app, input);
+
+/** Package-internal HTTP server start dependency seam. */
+export function startWith(
+  deps: StartDependencies,
+  app: Parameters<F>[0],
+  input: NonNullable<Parameters<F>[1]> = {},
+): ReturnType<F> {
   const hostname = (input.hostname ?? '127.0.0.1') as t.StringHostname;
   const originMode = input.origin;
   validateOriginMode({ hostname, mode: originMode });
@@ -93,7 +107,12 @@ export const start: F = (app, input = {}) => {
     };
 
     wrangle.serverFinished(activeServer, life);
-    const keyboardBound = wrangle.keyboard(keyboardOptions, context, values.status);
+    const keyboardBound = wrangle.keyboard(
+      deps.bindKeyboard,
+      keyboardOptions,
+      context,
+      values.status,
+    );
     wrangle.print(values, context, keyboardOptions, keyboardBound);
 
     return context;
@@ -102,7 +121,7 @@ export const start: F = (app, input = {}) => {
     void rollback.catch(() => undefined);
     throw cause;
   }
-};
+}
 
 /**
  * Helpers:
@@ -167,12 +186,13 @@ const wrangle = {
   },
 
   keyboard(
+    bind: typeof bindKeyboard,
     options: KeyboardOptions,
     context: t.HttpServer.Started,
     status: t.HttpServer.Status.Options | undefined,
   ): boolean {
     if (!options) return false;
-    return bindKeyboard({
+    return bind({
       port: context.port,
       url: wrangle.openUrl(status, context.origin),
       print: false,
