@@ -12,6 +12,7 @@ export { Dispose } from '@sys/std/dispose';
 export { Err } from '@sys/std/error';
 export { Is } from '@sys/std/is';
 export { Json } from '@sys/std/json';
+export { MediaType } from '@sys/std/media-type';
 export { Num } from '@sys/std/num';
 export { Path } from '@sys/std/path';
 export { Rx } from '@sys/std/rx';

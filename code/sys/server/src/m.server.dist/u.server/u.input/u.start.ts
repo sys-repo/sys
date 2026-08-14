@@ -1,4 +1,9 @@
 import { FsPkg, Is, Num, type t } from './common.ts';
+import {
+  type BrowserPolicySnapshot,
+  INVALID_BROWSER_POLICY,
+  snapshotBrowserPolicy,
+} from '../u.browser.ts';
 import { type InputRecord, snapshotRecord } from './u.record.ts';
 
 const START_KEYS = [
@@ -7,6 +12,7 @@ const START_KEYS = [
   'limits',
   'hostname',
   'port',
+  'browserPolicy',
   'name',
   'silent',
   'keyboard',
@@ -17,6 +23,7 @@ const START_KEYS_LOCAL = [
   'limits',
   'hostname',
   'port',
+  'browserPolicy',
   'name',
   'silent',
   'keyboard',
@@ -33,6 +40,7 @@ type SharedStartSnapshot = {
   readonly limits: Readonly<t.FsPkg.Dist.Verify.Limits>;
   readonly hostname: t.StringHostname;
   readonly port: t.PortNumber;
+  readonly browserPolicy?: BrowserPolicySnapshot;
   readonly name?: string;
   readonly silent?: boolean;
   readonly keyboard?: t.HttpServer.Start.Options['keyboard'];
@@ -127,6 +135,12 @@ function snapshotSharedStart(
   const hostname = source.hostname ?? '127.0.0.1';
   if (!isLoopbackHostname(hostname)) return rejectedShared('invalid-hostname');
 
+  const browserPolicy = snapshotBrowserPolicy(source.browserPolicy, limits.entries);
+  if (browserPolicy === INVALID_BROWSER_POLICY) return rejectedShared('invalid-input');
+  if (browserPolicy && !isNumericLoopbackHostname(hostname)) {
+    return rejectedShared('invalid-hostname');
+  }
+
   const port = source.port ?? 0;
   if (!Num.Is.safeInt(port) || port < 0 || port > 65_535) return rejectedShared('invalid-input');
 
@@ -151,6 +165,7 @@ function snapshotSharedStart(
       limits,
       hostname,
       port: port as t.PortNumber,
+      ...(browserPolicy === undefined ? {} : { browserPolicy }),
       ...(name === undefined ? {} : { name }),
       ...(silent === undefined ? {} : { silent }),
       ...(keyboard === undefined ? {} : { keyboard }),
@@ -195,6 +210,10 @@ function snapshotKeyboard(
 
 function isLoopbackHostname(input: unknown): input is t.StringHostname {
   return input === '127.0.0.1' || input === 'localhost' || input === '::1';
+}
+
+function isNumericLoopbackHostname(input: unknown): input is t.StringHostname {
+  return input === '127.0.0.1' || input === '::1';
 }
 
 function positive(input: unknown): input is t.NumberBytes {

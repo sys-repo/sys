@@ -12,8 +12,18 @@ import {
 } from '../common.ts';
 import { Cli } from '@sys/cli';
 import { Open } from '@sys/process';
+import {
+  acceptsFetchSite,
+  acceptsWorkerDestination,
+  admitsVerifiedBrowserPolicy,
+  applyBrowserHeaders,
+  browserRejected,
+  type BrowserRuntime,
+  createBrowserRuntime,
+  provisionalBrowserHeaders,
+} from './u.browser.ts';
 import { DistServerError, startError, startupReason } from './u.error.ts';
-import { acceptedAuthorities, acceptsHost } from './u.host.ts';
+import { acceptedAuthorities, acceptsHost, exactAuthority } from './u.host.ts';
 import { DistServeScreen } from './u.serve.screen.ts';
 import { snapshotServeInput, snapshotServeLocalInput } from './u.input/u.serve.ts';
 import { snapshotStartInput, snapshotStartLocalInput } from './u.input/u.start.ts';
@@ -269,6 +279,11 @@ async function serveVerified(
   const strictPort = options.strictPort ?? true;
 
   try {
+    const browserPolicy = input.browserPolicy;
+    if (browserPolicy && !admitsVerifiedBrowserPolicy(browserPolicy, evidence)) {
+      throw startError('invalid-input');
+    }
+
     let backing: t.FilesStatic.Readonly;
     try {
       backing = deps.fromDist({
@@ -281,37 +296,63 @@ async function serveVerified(
 
     const app = deps.createApp({ static: false, cors: false });
     const hosts = { hosts: undefined as undefined | ReadonlySet<string> };
+    const provisionalHeaders = browserPolicy ? provisionalBrowserHeaders() : undefined;
+    let browserRuntime: BrowserRuntime | undefined;
     const readSignal = () => started?.signal ?? life.signal;
-    app.all('*', (context) => {
+    app.all('*', async (context) => {
       const request = context.req.raw;
-      if (!hosts.hosts || !acceptsHost(request, hosts.hosts)) return hostRejected();
-
-      const path = requestPath(request);
-      if (!path) {
-        return deps.serveBytes({
-          req: request,
-          path: 'invalid',
-          cache: 'no-store',
-          read: () => Promise.resolve({ kind: 'missing' }),
-        });
+      const browserHeaders = browserRuntime?.responseHeaders ?? provisionalHeaders;
+      if (!hosts.hosts || !acceptsHost(request, hosts.hosts)) {
+        return hostRejected(browserHeaders);
       }
 
-      return deps.serveBytes({
-        req: request,
-        path,
-        cache: 'no-store',
-        read: () => {
-          const signal = readSignal();
-          return readAsset({
-            backing,
-            dir: input.dir,
+      try {
+        if (browserPolicy && !acceptsFetchSite(request)) {
+          return browserRejected(403, browserHeaders!);
+        }
+
+        const path = requestPath(request);
+        if (
+          browserPolicy &&
+          (!browserRuntime ||
+            !acceptsWorkerDestination(
+              request,
+              path,
+              browserPolicy,
+              browserRuntime.directWorkerAssets,
+            ))
+        ) {
+          return browserRejected(403, browserHeaders!);
+        }
+
+        const response = !path
+          ? await deps.serveBytes({
+            req: request,
+            path: 'invalid',
+            cache: 'no-store',
+            read: () => Promise.resolve({ kind: 'missing' }),
+          })
+          : await deps.serveBytes({
+            req: request,
             path,
-            signal,
-            until: signal,
-            deps,
+            cache: 'no-store',
+            read: () => {
+              const signal = readSignal();
+              return readAsset({
+                backing,
+                dir: input.dir,
+                path,
+                signal,
+                until: signal,
+                deps,
+              });
+            },
           });
-        },
-      });
+        return browserHeaders ? applyBrowserHeaders(response, browserHeaders) : response;
+      } catch (cause) {
+        if (browserHeaders) return browserRejected(500, browserHeaders);
+        throw cause;
+      }
     });
 
     if (life.signal.aborted) throw startError('cancelled');
@@ -319,6 +360,7 @@ async function serveVerified(
       started = deps.startHttp(app, {
         hostname: input.hostname,
         port: input.port,
+        ...(browserPolicy === undefined ? {} : { origin: 'exact-loopback' as const }),
         ...(input.name === undefined ? {} : { name: input.name }),
         ...(input.silent === undefined ? {} : { silent: input.silent }),
         ...(input.keyboard === undefined ? {} : { keyboard: input.keyboard }),
@@ -340,7 +382,13 @@ async function serveVerified(
     if (strictPort && input.port !== 0 && started.port !== input.port) {
       throw startError('address-in-use');
     }
-    hosts.hosts = acceptedAuthorities(started);
+    if (browserPolicy) {
+      const host = exactAuthority(started);
+      browserRuntime = createBrowserRuntime(browserPolicy, started.origin, host);
+      hosts.hosts = new Set([host]);
+    } else {
+      hosts.hosts = acceptedAuthorities(started);
+    }
     await settleListener(started);
     if (life.signal.aborted) throw startError('cancelled');
 
@@ -362,6 +410,16 @@ async function serveVerified(
         writable: false,
         configurable: false,
       },
+      ...(browserRuntime
+        ? {
+          browserPolicy: {
+            value: browserRuntime.applied,
+            enumerable: true,
+            writable: false,
+            configurable: false,
+          },
+        }
+        : {}),
     });
 
     return started as t.DistServer.Started;
@@ -536,12 +594,13 @@ function cleanup(actions: readonly (() => void)[]) {
   return failed ? { ok: false, cause: failure } as const : { ok: true } as const;
 }
 
-function hostRejected(): Response {
-  return new Response(null, {
+function hostRejected(policy?: t.DistServer.BrowserPolicy.Headers): Response {
+  const response = new Response(null, {
     status: 421,
     headers: {
       'cache-control': 'no-store',
       'x-content-type-options': 'nosniff',
     },
   });
+  return policy ? applyBrowserHeaders(response, policy) : response;
 }

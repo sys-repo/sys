@@ -8,7 +8,7 @@ const encoder = new TextEncoder();
 export type Fixture = Awaited<ReturnType<typeof setup>>;
 
 /** Create one neutral loopback Dist source and isolated integrity-addressed store. */
-export async function setup() {
+export async function setup(options: { readonly browserAssets?: boolean } = {}) {
   const source = await Deno.realPath(
     await Deno.makeTempDir({ prefix: 'server-dist-source-' }),
   );
@@ -19,6 +19,13 @@ export async function setup() {
   await Deno.writeTextFile(Fs.join(source, 'index.html'), '<h1>verified</h1>');
   await Deno.writeTextFile(Fs.join(source, 'assets/app.js'), 'console.info("verified");');
   await Deno.writeTextFile(Fs.join(source, 'assets/data #1.txt'), 'encoded path');
+  if (options.browserAssets) {
+    await Deno.mkdir(Fs.join(source, 'workers'));
+    await Deno.writeTextFile(Fs.join(source, 'workers/default.js'), 'self.postMessage("default");');
+    await Deno.writeTextFile(Fs.join(source, 'workers/typescript.js'), 'self.postMessage("ts");');
+    await Deno.writeTextFile(Fs.join(source, 'workers/json.js'), 'self.postMessage("json");');
+    await Deno.writeTextFile(Fs.join(source, 'sw.js'), 'void self.registration;');
+  }
 
   const computed = await FsPkg.Dist.compute({
     dir: source,

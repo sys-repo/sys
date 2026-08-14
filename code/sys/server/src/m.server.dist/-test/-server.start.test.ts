@@ -153,6 +153,8 @@ describe('DistServer.start', () => {
         expect(server.verification).to.eql(materialized.verification);
         expect(Object.isFrozen(server.authority)).to.eql(true);
         expect(Object.isFrozen(server.verification)).to.eql(true);
+        expect(server.browserPolicy).to.eql(undefined);
+        expect(server.origin).to.eql(`http://localhost:${server.port}`);
 
         const index = await fetch(server.origin);
         expect(index.status).to.eql(200);

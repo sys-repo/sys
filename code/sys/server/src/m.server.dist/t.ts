@@ -182,6 +182,8 @@ export declare namespace DistServer {
         hostname?: t.StringHostname;
         /** Listen port. Defaults to an ephemeral port. */
         port?: t.PortNumber;
+        /** Optional explicit browser-origin authority applied to this verified generation. */
+        browserPolicy?: BrowserPolicy.Input;
         /** Optional owner-local display name. */
         name?: string;
         /** Suppress owner-local startup output. */
@@ -228,6 +230,8 @@ export declare namespace DistServer {
       hostname?: t.StringHostname;
       /** Listen port. Defaults to an ephemeral port. */
       port?: t.PortNumber;
+      /** Optional explicit browser-origin authority applied to this verified generation. */
+      browserPolicy?: BrowserPolicy.Input;
       /** Optional owner-local display name. */
       name?: string;
       /** Suppress owner-local startup output. */
@@ -245,6 +249,87 @@ export declare namespace DistServer {
     };
   }
 
+  /**
+   * Explicit browser-origin authority for one exact verified Dist.
+   *
+   * Omit this policy to retain generic Dist hosting. Selecting it switches the listener to exact
+   * numeric-loopback authority and applies the complete closed response/request policy below.
+   */
+  export namespace BrowserPolicy {
+    /** Caller-selected browser authority. Every selected asset must exist in the verified Dist. */
+    export type Input = {
+      /** Closed browser-policy variant for a verified numeric-loopback listener. */
+      readonly kind: 'verified-loopback';
+      /** Exact sources admitted for dedicated workers. An empty list denies dedicated workers. */
+      readonly dedicatedWorkers: readonly DedicatedWorker.Source[];
+      /** Independent Service Worker request admission. */
+      readonly serviceWorker: ServiceWorker.Admission;
+    };
+
+    /** Dedicated-worker source authority. */
+    export namespace DedicatedWorker {
+      /** One explicit dedicated-worker source capability. */
+      export type Source = Asset | Blob;
+      /** One exact verified Dist asset admitted as a dedicated-worker source. */
+      export type Asset = {
+        readonly kind: 'asset';
+        readonly path: t.Files.String.Path;
+      };
+      /** Explicit `blob:` bootstrap authority tied to one exact verified worker module. */
+      export type Blob = {
+        readonly kind: 'blob';
+        readonly worker: t.Files.String.Path;
+      };
+    }
+
+    /** Service Worker request authority, kept distinct from dedicated workers. */
+    export namespace ServiceWorker {
+      /** Deny every observed Service Worker destination, or admit one exact verified tombstone. */
+      export type Admission = Deny | Tombstone;
+      /** Deny every observed Service Worker destination. */
+      export type Deny = {
+        readonly kind: 'deny';
+      };
+      /** Admit one exact verified inert migration asset for observed Service Worker requests. */
+      export type Tombstone = {
+        readonly kind: 'tombstone';
+        readonly path: t.Files.String.Path;
+      };
+    }
+
+    /** Fixed response headers applied by the selected browser policy. */
+    export type Headers = {
+      readonly cacheControl: 'no-store';
+      readonly contentSecurityPolicy: string;
+      readonly crossOriginOpenerPolicy: 'same-origin';
+      readonly crossOriginResourcePolicy: 'same-origin';
+      readonly referrerPolicy: 'no-referrer';
+      readonly xContentTypeOptions: 'nosniff';
+      readonly xFrameOptions: 'DENY';
+    };
+
+    /** Immutable evidence of the browser authority actually applied by the started host. */
+    export type Applied = {
+      /** Closed browser-policy variant applied by this host. */
+      readonly kind: 'verified-loopback';
+      /** Canonical numeric-loopback origin owned by the settled listener. */
+      readonly origin: t.StringUrl;
+      /** The one exact request Host authority admitted by the host. */
+      readonly host: string;
+      /** Exact dedicated-worker sources applied to this verified Dist. */
+      readonly dedicatedWorkers: readonly DedicatedWorker.Source[];
+      /** Independent Service Worker request admission applied to this verified Dist. */
+      readonly serviceWorker: ServiceWorker.Admission;
+      /** Fetch Metadata handling; omission remains compatible with direct clients. */
+      readonly fetchMetadata: {
+        readonly crossSite: 'deny';
+        readonly missing: 'allow';
+      };
+      /** Exact fixed response headers applied on success and error responses. */
+      readonly headers: Headers;
+    };
+  }
+
   /** Stable runtime truth when one Dist host is successfully started. */
   export type Started = HttpServer.Started & {
     /** Authority provenance for this started host. */
@@ -253,6 +338,8 @@ export declare namespace DistServer {
       | { readonly kind: 'local-unpinned'; readonly integrity: t.StringHash };
     /** Immutable evidence from the exact generation verification used to start this host. */
     readonly verification: FsPkg.Dist.Verify.Evidence;
+    /** Frozen applied browser authority, when explicitly selected by the caller. */
+    readonly browserPolicy?: BrowserPolicy.Applied;
   };
 
   /** Stable sanitized startup failure reasons. */

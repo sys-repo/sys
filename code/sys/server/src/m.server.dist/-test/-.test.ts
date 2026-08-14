@@ -16,5 +16,21 @@ describe('@sys/server/dist', () => {
     expect(Object.isFrozen(DistServer.Local)).to.eql(true);
     expectTypeOf(Dist).toEqualTypeOf<t.Dist.Lib>();
     expectTypeOf(DistServer).toEqualTypeOf<t.DistServer.Lib>();
+
+    const zeroWorkerPolicy = {
+      kind: 'verified-loopback',
+      dedicatedWorkers: [],
+      serviceWorker: { kind: 'deny' },
+    } as const satisfies t.DistServer.BrowserPolicy.Input;
+    const workerPolicy = {
+      kind: 'verified-loopback',
+      dedicatedWorkers: [
+        { kind: 'asset', path: 'workers/default.js' },
+        { kind: 'blob', worker: 'workers/json.js' },
+      ],
+      serviceWorker: { kind: 'tombstone', path: 'sw.js' },
+    } as const satisfies t.DistServer.BrowserPolicy.Input;
+    expectTypeOf(zeroWorkerPolicy).toMatchTypeOf<t.DistServer.BrowserPolicy.Input>();
+    expectTypeOf(workerPolicy).toMatchTypeOf<t.DistServer.BrowserPolicy.Input>();
   });
 });

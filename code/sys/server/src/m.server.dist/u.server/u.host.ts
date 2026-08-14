@@ -4,6 +4,10 @@ type ListenerAddress = {
   readonly addr: { readonly hostname: string };
 };
 
+type ExactListenerAddress = {
+  readonly origin: string;
+};
+
 /** Derive the exact request Host authorities for one started loopback listener. */
 export function acceptedAuthorities(started: ListenerAddress): ReadonlySet<string> {
   const authorities = new Set<string>();
@@ -13,6 +17,11 @@ export function acceptedAuthorities(started: ListenerAddress): ReadonlySet<strin
     if (started.port === 80) authorities.add(host);
   }
   return authorities;
+}
+
+/** Derive the one exact canonical Host authority from the settled listener origin. */
+export function exactAuthority(started: ExactListenerAddress): string {
+  return new URL(started.origin).host.toLowerCase();
 }
 
 /** Admit one exact request Host authority. */
