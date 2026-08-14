@@ -1,5 +1,5 @@
 import { c, Fmt } from '../common.ts';
-import { fileLabel } from './u.fs.ts';
+import { fileLabel } from '../u.fs/u.ts';
 
 export function withTree(paths: readonly string[], ext: string) {
   return paths.map((path, i) => {

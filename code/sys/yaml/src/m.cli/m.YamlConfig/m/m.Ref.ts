@@ -1,5 +1,5 @@
-import { Fs, type t } from './common.ts';
-import { RefPath } from './u/u.path.ts';
+import { Fs, type t } from '../common.ts';
+import { RefPath } from '../u/u.path.ts';
 
 /** YAML config selector helpers. */
 export const Ref: t.YamlConfig.Ref.Lib = {

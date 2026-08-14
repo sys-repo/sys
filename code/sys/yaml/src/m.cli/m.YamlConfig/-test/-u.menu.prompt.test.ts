@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Cli, Obj } from '../common.ts';
 import { menuPromptDeps, selectName, selectValue } from './u.fixture.menu.ts';
-import { promptActionWith } from '../u/u.menu.prompt.ts';
+import { promptActionWith } from '../u.menu/u.prompt.ts';
 
 describe('YamlConfig.menu.prompt', () => {
   it('renders extra items with a name function', async () => {

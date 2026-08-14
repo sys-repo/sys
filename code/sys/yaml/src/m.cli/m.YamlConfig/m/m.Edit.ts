@@ -1,4 +1,4 @@
-import { Fs, type t } from './common.ts';
+import { Fs, type t } from '../common.ts';
 
 export const Edit: t.YamlConfig.Edit.Lib = {
   async update(input) {

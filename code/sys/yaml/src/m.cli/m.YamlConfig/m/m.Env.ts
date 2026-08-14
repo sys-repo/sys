@@ -1,5 +1,5 @@
 import { Env as BaseEnv } from '@sys/fs/env';
-import { type t, Yaml } from './common.ts';
+import { type t, Yaml } from '../common.ts';
 
 /** Dotenv-backed YAML config env-ref helpers. */
 export const Env: t.YamlConfig.Env.Lib = {

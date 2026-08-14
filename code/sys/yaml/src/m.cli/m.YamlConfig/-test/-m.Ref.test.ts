@@ -1,5 +1,5 @@
 import { describe, expect, expectError, it } from '../../../-test.ts';
-import { Ref } from '../m.Ref.ts';
+import { Ref } from '../m/m.Ref.ts';
 
 const dir = './-config/@sys.example/static' as const;
 

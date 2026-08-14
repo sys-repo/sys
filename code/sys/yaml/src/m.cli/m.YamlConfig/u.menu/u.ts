@@ -1,9 +1,9 @@
 import { c, DEFAULT, Fs, type t } from '../common.ts';
-import { ensureConfigDir, fileOf, listConfigs, readYaml, writeYaml } from './u.fs.ts';
-import { actionMenuWith } from './u.menu.action.ts';
-import { ADD_VALUE, NAME_REGEX } from './u.menu.constants.ts';
-import { defaultMenuPrompts, type MenuPromptDeps } from './u.menu.prompts.ts';
-import { withTree } from './u.menu.tree.ts';
+import { ensureConfigDir, fileOf, listConfigs, readYaml, writeYaml } from '../u.fs/u.ts';
+import { actionMenuWith } from './u.action.ts';
+import { ADD_VALUE, NAME_REGEX } from './u.constants.ts';
+import { defaultMenuPrompts, type MenuPromptDeps } from './u.prompts.ts';
+import { withTree } from './u.tree.ts';
 
 export async function menu<T, A extends string = string>(
   args: t.YamlConfig.Menu.Args<T, A>,

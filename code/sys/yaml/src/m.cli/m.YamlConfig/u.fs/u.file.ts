@@ -1,5 +1,5 @@
 import { type t, Fs, Pkg } from '../common.ts';
-import { DEFAULT } from './u.fs.ts';
+import { DEFAULT } from './u.ts';
 
 export const create: t.YamlConfig.File.Lib['create'] = (args) => {
   const name = args.basename;

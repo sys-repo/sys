@@ -1,4 +1,4 @@
-import type { MenuPromptDeps, MenuSelectOptions } from '../u/u.menu.prompts.ts';
+import type { MenuPromptDeps, MenuSelectOptions } from '../u.menu/u.prompts.ts';
 
 /** Creates a complete, fail-closed menu prompt provider for tests. */
 export function menuPromptDeps(overrides: Partial<MenuPromptDeps>): MenuPromptDeps {

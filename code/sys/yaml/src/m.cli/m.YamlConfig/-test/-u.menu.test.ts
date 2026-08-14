@@ -1,8 +1,8 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Cli, Fs, Is, Obj } from '../common.ts';
 import { menuPromptDeps, selectName, selectValue } from './u.fixture.menu.ts';
-import { menu, menuWith } from '../u/u.menu.ts';
-import { defaultMenuPrompts } from '../u/u.menu.prompts.ts';
+import { menu, menuWith } from '../u.menu/u.ts';
+import { defaultMenuPrompts } from '../u.menu/u.prompts.ts';
 
 describe('YamlConfig.menu', () => {
   it('menu → creates default config with add init YAML renderer', async () => {

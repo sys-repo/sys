@@ -1,5 +1,5 @@
 import { c, Is, type t } from '../common.ts';
-import { defaultMenuPrompts, type MenuPromptDeps } from './u.menu.prompts.ts';
+import { defaultMenuPrompts, type MenuPromptDeps } from './u.prompts.ts';
 
 type PromptActionArgs<A extends string, T> = {
   name: string;

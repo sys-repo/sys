@@ -1,7 +1,7 @@
 import { Fs, type t } from '../common.ts';
-import { fileLabel, fileOf } from './u.fs.ts';
-import { NAME_REGEX } from './u.menu.constants.ts';
-import { defaultMenuPrompts, type MenuPromptDeps } from './u.menu.prompts.ts';
+import { fileLabel, fileOf } from '../u.fs/u.ts';
+import { NAME_REGEX } from './u.constants.ts';
+import { defaultMenuPrompts, type MenuPromptDeps } from './u.prompts.ts';
 
 export async function renameConfig(
   path: t.StringFile,

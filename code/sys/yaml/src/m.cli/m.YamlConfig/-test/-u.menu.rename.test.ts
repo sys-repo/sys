@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Fs } from '../common.ts';
 import { menuPromptDeps } from './u.fixture.menu.ts';
-import { renameConfigWith } from '../u/u.menu.rename.ts';
+import { renameConfigWith } from '../u.menu/u.rename.ts';
 
 describe('YamlConfig.menu.rename', () => {
   it('keeps the same file when name is unchanged', async () => {

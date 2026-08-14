@@ -1,8 +1,8 @@
 import { c, Fs, Open, type t } from '../common.ts';
-import { fileLabel, readYaml } from './u.fs.ts';
-import { promptActionWith } from './u.menu.prompt.ts';
-import { defaultMenuPrompts, type MenuPromptDeps } from './u.menu.prompts.ts';
-import { renameConfigWith } from './u.menu.rename.ts';
+import { fileLabel, readYaml } from '../u.fs/u.ts';
+import { promptActionWith } from './u.prompt.ts';
+import { defaultMenuPrompts, type MenuPromptDeps } from './u.prompts.ts';
+import { renameConfigWith } from './u.rename.ts';
 
 type ActionMenuArgs<T, A extends string> = {
   cwd: t.StringDir;
