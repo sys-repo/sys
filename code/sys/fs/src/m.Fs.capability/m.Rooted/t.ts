@@ -10,12 +10,15 @@ declare const STAGE: unique symbol;
  * target and allows at most one concurrent winner. Directory promotion leaves a target
  * found to exist untouched. Its race guarantee covers only writers that use the same
  * Rooted locking protocol. Shared and exclusive directory leases coordinate cooperating
- * processes through stable Rooted-owned lock identity outside each target. Cleanup removes
- * an artifact only after confirming its filesystem identity. An operation reports
- * `unsupported` when required stable identity evidence is unavailable or cannot be
- * represented safely. If an operation fails, its error says whether the target had already
- * been published. These guarantees apply only to operations through this capability;
- * Rooted is not an OS sandbox.
+ * processes through stable Rooted-owned lock identity outside each target. Sealing clears
+ * write bits across an owned tree when the host can prove that mode state. Tree traversal
+ * refuses symlinks, special entries, cross-device descendants, and multiply linked files.
+ * Removal requires an exclusive lease and mutates only the covered target after confirming
+ * filesystem identity.
+ * An operation reports `unsupported` when required identity or permission evidence is unavailable.
+ * If an operation fails, its error says whether filesystem reconciliation may be required.
+ * These guarantees apply only to operations through this capability; Rooted is not an OS sandbox
+ * or a boundary against a hostile process running as the same user.
  */
 export declare namespace FsRooted {
   /** Runtime API for creating Rooted capabilities and checking their errors. */
@@ -67,6 +70,31 @@ export declare namespace FsRooted {
       options: LeaseOptions,
     ) => Promise<LeaseResult>;
 
+    /** Inspect one complete tree, acquiring shared ownership or reusing a compatible lease. */
+    readonly inspectSeal: (
+      tree: OwnedTree,
+      options?: OwnedTreeOptions,
+    ) => Promise<SealInspection>;
+
+    /** Seal one complete tree, acquiring exclusive ownership or reusing an exclusive lease. */
+    readonly sealTree: (
+      tree: OwnedTree,
+      options?: OwnedTreeOptions,
+    ) => Promise<SealResult>;
+
+    /**
+     * Remove an admitted directory target covered by an active exclusive lease.
+     *
+     * Missing targets return `absent`. Release waits for an in-flight removal before unlocking.
+     * A failure after permission restoration or entry removal reports `committed: true`; callers
+     * may reconcile the cause and retry with the same still-active lease. Success reports observed
+     * absence, not persistence across sudden power loss.
+     */
+    readonly removeTree: (
+      target: Target<'directory'>,
+      options: RemoveTreeOptions,
+    ) => Promise<RemoveTreeResult>;
+
     /**
      * Copy and sync `bytes`, then publish the complete file only if the target is absent.
      *
@@ -96,7 +124,7 @@ export declare namespace FsRooted {
     readonly promoteStage: (
       stage: Stage,
       target: Target<'directory'>,
-      options?: OperationOptions,
+      options?: PromotionOptions,
     ) => Promise<PromotionResult>;
   };
 
@@ -134,8 +162,9 @@ export declare namespace FsRooted {
   /**
    * Held OS-backed ownership over admitted directory targets.
    *
-   * Release is idempotent and always attempts to drop every held lock. The native async-disposal
-   * protocol enters the same release operation. Lock files remain as stable Rooted metadata after
+   * Release is idempotent, waits for operations already borrowing the lease, and always attempts
+   * to drop every held lock. The native async-disposal protocol enters the same release operation.
+   * Lock files remain as stable Rooted metadata after
    * release and are never removed by the lease. They carry no PID or process-name authority; the OS
    * releases ownership when the holding process exits.
    */
@@ -153,6 +182,46 @@ export declare namespace FsRooted {
     | { readonly kind: 'acquired'; readonly lease: Lease }
     | { readonly kind: 'busy'; readonly target: Target<'directory'> };
 
+  /** An admitted directory target or active private stage accepted by sealing operations. */
+  export type OwnedTree = Target<'directory'> | Stage;
+
+  /** Optional compatible lease for a target; omission fails fast when this instance already holds one. */
+  export type OwnedTreeOptions = OperationOptions & {
+    /** Reuse active ownership instead of reacquiring the target lock. */
+    readonly lease?: Lease;
+  };
+
+  /**
+   * Observed sealing state for one complete owned tree.
+   *
+   * `sealed` means every entry has all write bits clear, every entry is owner-readable,
+   * and every directory retains owner traversal permission.
+   */
+  export type SealInspection =
+    | { readonly kind: 'sealed' }
+    | { readonly kind: 'unsealed' }
+    | { readonly kind: 'unsupported' };
+
+  /** Verified write-bit seal evidence; it does not attest content bytes or provenance. */
+  export type SealApplied = {
+    readonly kind: 'applied';
+    /** Whether this operation changed at least one entry. */
+    readonly changed: boolean;
+  };
+
+  /** Sealing settlement; unsupported hosts never receive applied evidence. */
+  export type SealResult = SealApplied | { readonly kind: 'unsupported' };
+
+  /** Required exclusive ownership and optional cancellation for destructive removal. */
+  export type RemoveTreeOptions = OperationOptions & {
+    readonly lease: Lease;
+  };
+
+  /** Idempotent removal settlement for one admitted directory target. */
+  export type RemoveTreeResult =
+    | { readonly kind: 'removed' }
+    | { readonly kind: 'absent' };
+
   /** Result of publishing a new complete file. */
   export type FileResult = {
     readonly kind: 'published';
@@ -169,14 +238,28 @@ export declare namespace FsRooted {
     readonly [STAGE]: true;
   };
 
+  /** Promotion options; sealing is opt-in, while an already sealed stage stays sealed. */
+  export type PromotionOptions = OperationOptions & {
+    /** Seal privately, make only the root movable, then reseal and verify after publication. */
+    readonly seal?: boolean;
+    /** Reuse active exclusive ownership instead of reacquiring the target lock. */
+    readonly lease?: Lease;
+  };
+
   /**
    * Whether the stage was published or the target already existed.
    *
-   * `cleanupError` reports a cleanup or cancellation problem found after the outcome was
-   * known; it does not change `kind`.
+   * `seal` is present when sealing was requested or the stage was already sealed, and the
+   * published target was verified. `cleanupError` reports a cleanup, cancellation,
+   * commit-boundary, or post-publication verification problem after the outcome
+   * was known; neither field changes `kind`.
    */
   export type PromotionResult =
-    | { readonly kind: 'published'; readonly cleanupError?: Failure }
+    | {
+      readonly kind: 'published';
+      readonly seal?: SealApplied;
+      readonly cleanupError?: Failure;
+    }
     | { readonly kind: 'occupied'; readonly cleanupError?: Failure };
 
   /** Operation identifiers reported by `Failure`. */
@@ -185,6 +268,9 @@ export declare namespace FsRooted {
     | 'admit'
     | 'acquire-lease'
     | 'release-lease'
+    | 'inspect-seal'
+    | 'seal-tree'
+    | 'remove-tree'
     | 'publish-file'
     | 'create-stage'
     | 'discard-stage'
@@ -196,12 +282,15 @@ export declare namespace FsRooted {
     | 'invalid-root'
     | 'invalid-target'
     | 'invalid-lease'
+    | 'invalid-options'
     | 'target-collision'
     | 'unsafe-filesystem'
     | 'foreign-handle'
     | 'invalid-state'
+    | 'missing'
     | 'occupied'
     | 'ownership-lost'
+    | 'permission-denied'
     | 'unsupported'
     | 'io-failure';
 
@@ -212,7 +301,7 @@ export declare namespace FsRooted {
     readonly operation: Operation;
     /** Stable failure code. */
     readonly kind: FailureKind;
-    /** Whether this operation's file or stage was already visible before the failure. */
+    /** Whether this operation may have changed filesystem state that requires reconciliation. */
     readonly committed: boolean;
   };
 }

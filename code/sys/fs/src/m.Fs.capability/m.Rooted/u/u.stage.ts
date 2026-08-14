@@ -1,7 +1,22 @@
-import { Is, StdPath, type t } from '../common.ts';
+import { Is, Num, StdPath, type t } from '../common.ts';
 import { checkCancelled, failure, ioFailure, isFailure } from './u.error.ts';
 import type { Io } from './u.io.ts';
+import {
+  borrowLease,
+  hasLocalLease,
+  type LeaseBorrow,
+  type LeaseRegistry,
+  type LeaseState,
+  releaseLeaseBorrow,
+} from './u.lease.ts';
 import { acquireLock, type LockState, releaseLock } from './u.lock.ts';
+import {
+  changeEntryMode,
+  inspectTreeSeal,
+  removeTreeEntries,
+  sealTreeEntries,
+  type TreeAuthority,
+} from './u.tree.ts';
 import {
   ensureDescendantDirectory,
   type Identity,
@@ -18,6 +33,13 @@ import {
 const STAGES = 'stages';
 const OWNER = 'owner';
 const CONTENT = 'content';
+const CLEANUP_SIGNAL = new AbortController().signal;
+
+export type PromotionInput = {
+  readonly seal: boolean;
+  readonly lease?: t.FsRooted.Lease;
+  readonly until?: t.UntilInput;
+};
 
 export type StageState = {
   readonly handle: t.FsRooted.Stage;
@@ -28,8 +50,49 @@ export type StageState = {
   readonly containerIdentity: Identity;
   readonly markerIdentity: Identity;
   readonly contentIdentity: Identity;
-  status: 'active' | 'published' | 'discarded';
+  publishedCleanup: 'marker-required' | 'authorized';
+  status: 'active' | 'discarding' | 'published' | 'discarded';
 };
+
+/** Snapshot exact promotion and sealing input before filesystem work. */
+export function promotionInput(
+  options: t.FsRooted.PromotionOptions | undefined,
+): PromotionInput {
+  const operation = 'promote-stage';
+  try {
+    if (options === undefined) return Object.freeze({ seal: false });
+    if (!Is.plainObject(options)) throw failure(operation, 'invalid-options');
+    const keys = Reflect.ownKeys(options);
+    if (keys.some((key) => key !== 'until' && key !== 'seal' && key !== 'lease')) {
+      throw failure(operation, 'invalid-options');
+    }
+    const untilProperty = Reflect.getOwnPropertyDescriptor(options, 'until');
+    const sealProperty = Reflect.getOwnPropertyDescriptor(options, 'seal');
+    const leaseProperty = Reflect.getOwnPropertyDescriptor(options, 'lease');
+    if (
+      (untilProperty && !('value' in untilProperty)) ||
+      (sealProperty && !('value' in sealProperty)) ||
+      (leaseProperty && !('value' in leaseProperty))
+    ) {
+      throw failure(operation, 'invalid-options');
+    }
+    const until = untilProperty?.value;
+    const seal = sealProperty?.value;
+    const lease = leaseProperty?.value;
+    if (!Is.untilInput(until) || !(seal === undefined || Is.bool(seal))) {
+      throw failure(operation, 'invalid-options');
+    }
+    if (!(lease === undefined || Is.object(lease))) throw failure(operation, 'invalid-lease');
+    return Object.freeze({
+      until,
+      seal: seal === true,
+      lease: lease as t.FsRooted.Lease | undefined,
+    });
+  } catch (cause) {
+    if (isFailure(cause)) throw cause;
+    throw failure(operation, 'invalid-options');
+  }
+}
 
 export async function createStage(
   io: Io,
@@ -91,6 +154,7 @@ export async function createStage(
       containerIdentity,
       markerIdentity,
       contentIdentity,
+      publishedCleanup: 'marker-required',
       status: 'active',
     };
     stages.set(handle, state);
@@ -119,7 +183,10 @@ export async function discardStage(
     await cleanupPublished(io, state, operation);
     return;
   }
-  await validateActive(io, state, operation);
+  if (state.status === 'active') {
+    await validateActive(io, state, operation);
+    state.status = 'discarding';
+  }
   await removeContainer(io, state.container, state.containerIdentity, operation);
   state.status = 'discarded';
 }
@@ -128,27 +195,41 @@ export async function promoteStage(
   io: Io,
   root: RootState,
   stages: WeakMap<object, StageState>,
+  leases: WeakMap<object, LeaseState>,
+  registry: LeaseRegistry,
   stage: t.FsRooted.Stage,
   target: TargetState<'directory'>,
   signal: AbortSignal,
+  input: PromotionInput,
 ): Promise<t.FsRooted.PromotionResult> {
   const operation = 'promote-stage';
   const state = stageState(stages, stage, operation);
   if (state.status !== 'active') throw failure(operation, 'invalid-state');
 
+  let borrow: LeaseBorrow | undefined;
   let lock: LockState | undefined;
   let outcome: 'published' | 'occupied' | undefined;
+  let prePublicationCommitted = false;
+  let sealEvidence: t.FsRooted.SealApplied | undefined;
   let cleanupError: t.FsRooted.Failure | undefined;
   let pending: unknown;
 
+  if (input.lease) {
+    borrow = borrowLease(leases, input.lease, target, 'exclusive', operation);
+  } else if (hasLocalLease(registry, target)) {
+    throw failure(operation, 'invalid-lease');
+  }
+
   try {
-    lock = await acquireLock(io, root, target, {
-      operation,
-      mode: 'exclusive',
-      wait: true,
-      signal,
-    });
-    if (!lock) throw failure(operation, 'io-failure');
+    if (!borrow) {
+      lock = await acquireLock(io, root, target, {
+        operation,
+        mode: 'exclusive',
+        wait: true,
+        signal,
+      });
+      if (!lock) throw failure(operation, 'io-failure');
+    }
     await validateActive(io, state, operation);
     checkCancelled(operation, signal);
 
@@ -162,23 +243,63 @@ export async function promoteStage(
       }
     } else {
       checkCancelled(operation, signal);
+      let appliedSeal: t.FsRooted.SealApplied | undefined;
+      const stageTree = stageTreeAuthority(io, state, operation);
+      if (input.seal) {
+        const sealed = await sealTreeEntries(io, stageTree, operation, signal);
+        if (sealed.kind === 'unsupported') throw failure(operation, 'unsupported');
+        appliedSeal = sealed;
+        prePublicationCommitted ||= sealed.changed;
+      } else {
+        const rootInfo = await lstatMaybe(io, state.content, operation);
+        if (Num.Is.safeInt(rootInfo?.mode) && (rootInfo.mode & 0o222) === 0) {
+          const inspected = await inspectTreeSeal(io, stageTree, operation, signal);
+          if (inspected.kind === 'sealed') {
+            appliedSeal = Object.freeze({ kind: 'applied', changed: false });
+          }
+        }
+      }
+      if (appliedSeal) {
+        const movableChanged = await makeStageMovable(
+          io,
+          state,
+          operation,
+          prePublicationCommitted,
+        );
+        prePublicationCommitted ||= movableChanged;
+      }
+      checkCancelled(operation, signal, prePublicationCommitted);
       try {
         await io.rename(state.content, target.absolute);
       } catch (cause) {
-        if (cause instanceof Deno.errors.AlreadyExists) {
+        const published = await lstatMaybe(io, target.absolute, operation);
+        const source = await lstatMaybe(io, state.content, operation);
+        const moved = published?.isDirectory &&
+          !published.isSymlink &&
+          sameIdentity(state.contentIdentity, published) &&
+          !source;
+        if (moved) {
+          cleanupError = toFailure(operation, cause, true);
+        } else if (!source) {
+          state.status = 'published';
+          throw failure(operation, 'unsafe-filesystem', { cause, committed: true });
+        } else if (cause instanceof Deno.errors.AlreadyExists) {
           const raced = await observeTarget(io, root, target, operation, signal, false);
           if (raced?.isDirectory && !raced.isSymlink) {
             outcome = 'occupied';
             try {
               await discardActive(io, state, operation);
             } catch (cleanupCause) {
-              cleanupError = toFailure(operation, cleanupCause, false);
+              cleanupError = toFailure(operation, cleanupCause, prePublicationCommitted);
             }
           } else {
-            throw failure(operation, 'unsafe-filesystem', { cause });
+            throw failure(operation, 'unsafe-filesystem', {
+              cause,
+              committed: prePublicationCommitted,
+            });
           }
         } else {
-          throw ioFailure(operation, cause);
+          throw ioFailure(operation, cause, prePublicationCommitted);
         }
       }
 
@@ -195,25 +316,42 @@ export async function promoteStage(
           ) {
             throw failure(operation, 'unsafe-filesystem', { committed: true });
           }
+          if (appliedSeal) {
+            const sealed = await sealTreeEntries(
+              io,
+              targetTreeAuthority(io, root, target, state.contentIdentity, operation, signal),
+              operation,
+              signal,
+            );
+            if (sealed.kind === 'unsupported') {
+              throw failure(operation, 'unsupported', { committed: true });
+            }
+            sealEvidence = Object.freeze({
+              kind: 'applied',
+              changed: prePublicationCommitted || sealed.changed,
+            });
+          }
           await cleanupPublished(io, state, operation);
           if (signal.aborted) {
-            cleanupError = failure(operation, 'cancelled', {
+            cleanupError ??= failure(operation, 'cancelled', {
               cause: signal.reason,
               committed: true,
             });
           }
         } catch (cause) {
-          cleanupError = toFailure(operation, cause, true);
+          cleanupError ??= toFailure(operation, cause, true);
         }
       }
     }
   } catch (cause) {
-    pending = cause;
+    const operationFailure = toFailure(operation, cause, prePublicationCommitted);
+    prePublicationCommitted ||= operationFailure.committed;
+    pending = operationFailure;
     if (state.status === 'active') {
       try {
         await discardActive(io, state, operation);
       } catch (cleanupCause) {
-        pending = cleanupCause;
+        pending = toFailure(operation, cleanupCause, prePublicationCommitted);
       }
     }
   } finally {
@@ -221,20 +359,33 @@ export async function promoteStage(
       try {
         await releaseLock(io, root, lock, operation);
       } catch (cause) {
-        if (outcome) cleanupError ??= toFailure(operation, cause, outcome === 'published');
-        else pending ??= cause;
+        if (outcome) {
+          cleanupError ??= toFailure(
+            operation,
+            cause,
+            outcome === 'published' || prePublicationCommitted,
+          );
+        } else pending ??= cause;
       }
     }
+    if (borrow) releaseLeaseBorrow(borrow);
   }
 
-  if (pending) throw toFailure(operation, pending, false);
+  if (pending) throw toFailure(operation, pending, prePublicationCommitted);
   if (!outcome) throw failure(operation, 'io-failure');
-  return cleanupError
-    ? Object.freeze({ kind: outcome, cleanupError })
-    : Object.freeze({ kind: outcome });
+  if (outcome === 'occupied') {
+    return cleanupError
+      ? Object.freeze({ kind: outcome, cleanupError })
+      : Object.freeze({ kind: outcome });
+  }
+  return Object.freeze({
+    kind: outcome,
+    ...(sealEvidence ? { seal: sealEvidence } : {}),
+    ...(cleanupError ? { cleanupError } : {}),
+  });
 }
 
-function stageState(
+export function stageState(
   stages: WeakMap<object, StageState>,
   stage: t.FsRooted.Stage,
   operation: t.FsRooted.Operation,
@@ -244,7 +395,7 @@ function stageState(
   return state;
 }
 
-async function validateActive(
+export async function validateActive(
   io: Io,
   state: StageState,
   operation: t.FsRooted.Operation,
@@ -263,6 +414,93 @@ async function validateActive(
     throw failure(operation, 'ownership-lost');
   }
   await readMarker(io, state, operation);
+}
+
+export function stageTreeAuthority(
+  io: Io,
+  state: StageState,
+  operation: t.FsRooted.Operation,
+): TreeAuthority {
+  return {
+    path: state.content,
+    identity: state.contentIdentity,
+    validate: () => validateActive(io, state, operation),
+  };
+}
+
+async function makeStageMovable(
+  io: Io,
+  state: StageState,
+  operation: t.FsRooted.Operation,
+  committed: boolean,
+): Promise<boolean> {
+  try {
+    await validateActive(io, state, operation);
+  } catch (cause) {
+    throw toFailure(operation, cause, committed);
+  }
+  const info = await lstatMaybe(io, state.content, operation);
+  if (!info?.isDirectory || info.isSymlink || !sameIdentity(state.contentIdentity, info)) {
+    throw failure(operation, 'ownership-lost', { committed });
+  }
+  if (!Num.Is.safeInt(info.mode) || info.mode < 0) {
+    throw failure(operation, 'unsupported', { committed });
+  }
+
+  let changed = false;
+  if ((info.mode & 0o200) === 0) {
+    try {
+      changed = await changeEntryMode(
+        io,
+        { path: state.content, kind: 'directory', identity: state.contentIdentity },
+        info.mode,
+        (info.mode & 0o7777) | 0o200,
+        operation,
+        committed,
+      );
+    } catch (cause) {
+      throw toFailure(operation, cause, committed);
+    }
+  }
+
+  const currentCommitted = committed || changed;
+  try {
+    await validateActive(io, state, operation);
+  } catch (cause) {
+    throw toFailure(operation, cause, currentCommitted);
+  }
+  const movable = await lstatMaybe(io, state.content, operation);
+  if (
+    !movable?.isDirectory ||
+    movable.isSymlink ||
+    !sameIdentity(state.contentIdentity, movable)
+  ) {
+    throw failure(operation, 'ownership-lost', { committed: currentCommitted });
+  }
+  if (!Num.Is.safeInt(movable.mode) || (movable.mode & 0o200) === 0) {
+    throw failure(operation, 'unsupported', { committed: currentCommitted });
+  }
+  return changed;
+}
+
+function targetTreeAuthority(
+  io: Io,
+  root: RootState,
+  target: TargetState<'directory'>,
+  identity: Identity,
+  operation: t.FsRooted.Operation,
+  signal: AbortSignal,
+): TreeAuthority {
+  return {
+    path: target.absolute,
+    identity,
+    validate: async (committed) => {
+      const current = await observeTarget(io, root, target, operation, signal, false);
+      if (!current?.isDirectory || current.isSymlink || !sameIdentity(identity, current)) {
+        throw failure(operation, 'ownership-lost', { committed });
+      }
+    },
+  };
 }
 
 async function writeMarker(
@@ -336,6 +574,7 @@ async function discardActive(
   operation: t.FsRooted.Operation,
 ): Promise<void> {
   await validateActive(io, state, operation);
+  state.status = 'discarding';
   await removeContainer(io, state.container, state.containerIdentity, operation);
   state.status = 'discarded';
 }
@@ -354,10 +593,13 @@ async function cleanupPublished(
   if (!sameIdentity(state.containerIdentity, container)) {
     throw failure(operation, 'ownership-lost', { committed: true });
   }
-  try {
-    await readMarker(io, state, operation);
-  } catch (cause) {
-    throw toFailure(operation, cause, true);
+  if (state.publishedCleanup === 'marker-required') {
+    try {
+      await readMarker(io, state, operation);
+    } catch (cause) {
+      throw toFailure(operation, cause, true);
+    }
+    state.publishedCleanup = 'authorized';
   }
   await removeContainer(io, state.container, state.containerIdentity, operation, true);
 }
@@ -374,11 +616,21 @@ async function removeContainer(
   if (!info.isDirectory || info.isSymlink || !sameIdentity(identity, info)) {
     throw failure(operation, 'ownership-lost', { committed });
   }
-  try {
-    await io.remove(path, { recursive: true });
-  } catch (cause) {
-    throw ioFailure(operation, cause, committed);
-  }
+  const tree: TreeAuthority = {
+    path,
+    identity,
+    validate: async (changed) => {
+      const current = await lstatMaybe(io, path, operation);
+      if (
+        !current?.isDirectory ||
+        current.isSymlink ||
+        !sameIdentity(identity, current)
+      ) {
+        throw failure(operation, 'ownership-lost', { committed: changed });
+      }
+    },
+  };
+  await removeTreeEntries(io, tree, operation, CLEANUP_SIGNAL, committed);
 }
 
 function toFailure(

@@ -159,6 +159,7 @@ export const materialize: t.Dist.Materialize = async (input) => {
     promoted = await rooted.promoteStage(stage, generation, { until: args.until });
   } catch (cause) {
     const cleanup = await discardStage(rooted, stage);
+    // This call performs no pre-publication mutation, so commitment means rename may have exposed the target.
     if (Fs.Capability.Rooted.Is.failure(cause) && cause.committed) {
       return await settleVisible(
         args,

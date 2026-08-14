@@ -63,7 +63,12 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
       expect(lease[Symbol.asyncDispose]()).to.equal(release);
       await release;
 
-      const lockDir = Fs.join(fixture.root, '.sys-rooted', 'locks');
+      const metadataDir = Fs.join(fixture.root, '.sys-rooted');
+      const lockDir = Fs.join(metadataDir, 'locks');
+      if (Deno.build.os !== 'windows') {
+        expect(((await Deno.lstat(metadataDir)).mode ?? 0) & 0o777).to.eql(0o700);
+        expect(((await Deno.lstat(lockDir)).mode ?? 0) & 0o777).to.eql(0o700);
+      }
       const lockNames: string[] = [];
       for await (const entry of Deno.readDir(lockDir)) lockNames.push(entry.name);
       expect(lockNames.length).to.eql(1);

@@ -167,7 +167,7 @@ export async function ensureDescendantDirectory(
     let info = await lstatMaybe(io, current, operation);
     if (!info) {
       try {
-        await io.mkdir(current);
+        await io.mkdir(current, { mode: 0o700 });
       } catch (cause) {
         if (!(cause instanceof Deno.errors.AlreadyExists)) throw ioFailure(operation, cause);
       }

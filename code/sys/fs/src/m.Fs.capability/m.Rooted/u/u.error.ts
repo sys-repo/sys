@@ -6,6 +6,9 @@ const OPERATIONS: readonly t.FsRooted.Operation[] = [
   'admit',
   'acquire-lease',
   'release-lease',
+  'inspect-seal',
+  'seal-tree',
+  'remove-tree',
   'publish-file',
   'create-stage',
   'discard-stage',
@@ -16,12 +19,15 @@ const KINDS: readonly t.FsRooted.FailureKind[] = [
   'invalid-root',
   'invalid-target',
   'invalid-lease',
+  'invalid-options',
   'target-collision',
   'unsafe-filesystem',
   'foreign-handle',
   'invalid-state',
+  'missing',
   'occupied',
   'ownership-lost',
+  'permission-denied',
   'unsupported',
   'io-failure',
 ];
@@ -73,6 +79,8 @@ export async function runOperation<T>(
   try {
     checkCancelled(operation, life.signal);
     return await fn(life.signal);
+  } catch (cause) {
+    throw isFailure(cause) ? cause : ioFailure(operation, cause);
   } finally {
     life.dispose();
   }
@@ -100,6 +108,8 @@ function message(kind: t.FsRooted.FailureKind): string {
       return 'Invalid rooted filesystem target';
     case 'invalid-lease':
       return 'Invalid rooted filesystem lease';
+    case 'invalid-options':
+      return 'Invalid rooted filesystem operation options';
     case 'target-collision':
       return 'Rooted filesystem target batch contains a collision';
     case 'unsafe-filesystem':
@@ -108,10 +118,14 @@ function message(kind: t.FsRooted.FailureKind): string {
       return 'Filesystem handle does not belong to this rooted capability';
     case 'invalid-state':
       return 'Rooted filesystem handle is not active';
+    case 'missing':
+      return 'Rooted filesystem target does not exist';
     case 'occupied':
       return 'Rooted filesystem target is occupied';
     case 'ownership-lost':
       return 'Rooted filesystem ownership could not be proven';
+    case 'permission-denied':
+      return 'Rooted filesystem permission denied';
     case 'unsupported':
       return 'Required filesystem operation is unsupported';
     case 'io-failure':

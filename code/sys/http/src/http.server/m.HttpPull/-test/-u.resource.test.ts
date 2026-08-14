@@ -158,9 +158,21 @@ describe('HttpPull checksum-pinned resources', () => {
       expect(admitted).to.eql(false);
       expect(requestBeforeAdmission).to.eql(false);
 
-      const destination: t.Fs.Rooted.Instance = Object.freeze({
+      const lifecycleOnly = Object.freeze({
         ...stale,
         acquireLease: owner.acquireLease,
+      }) as unknown as t.Fs.Rooted.Instance;
+      const sealedTreeStale = await start(resources, lifecycleOnly).done;
+      expect(sealedTreeStale.ok).to.eql(false);
+      expect(sealedTreeStale.terminal?.kind).to.eql('invalid-input');
+      expect(admitted).to.eql(false);
+      expect(requestBeforeAdmission).to.eql(false);
+
+      const destination: t.Fs.Rooted.Instance = Object.freeze({
+        ...lifecycleOnly,
+        inspectSeal: owner.inspectSeal,
+        sealTree: owner.sealTree,
+        removeTree: owner.removeTree,
       });
       const result = await start(resources, destination).done;
 

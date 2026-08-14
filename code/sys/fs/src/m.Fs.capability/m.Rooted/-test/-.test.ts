@@ -15,7 +15,7 @@ import {
 } from './u.fixture.ts';
 import { Rooted } from '../mod.ts';
 
-describe('Fs.Capability.Rooted', () => {
+describe('Fs.Capability.Rooted: public surface', () => {
   it('exports the frozen public capability surface', async () => {
     const module = await import('@sys/fs/capability');
 
@@ -36,9 +36,12 @@ describe('Fs.Capability.Rooted', () => {
         'admit',
         'createStage',
         'discardStage',
+        'inspectSeal',
         'path',
         'promoteStage',
         'publishFile',
+        'removeTree',
+        'sealTree',
       ]);
       expect(rooted.path).to.eql(await Deno.realPath(fixture.root));
       expect((await Deno.lstat(rooted.path)).isDirectory).to.eql(true);
@@ -74,7 +77,9 @@ describe('Fs.Capability.Rooted', () => {
       await teardown(fixture);
     }
   });
+});
 
+describe('Fs.Capability.Rooted: canonical root identity', () => {
   it('rejects replacement while establishing the canonical root identity', async () => {
     const fixture = await setup();
     try {

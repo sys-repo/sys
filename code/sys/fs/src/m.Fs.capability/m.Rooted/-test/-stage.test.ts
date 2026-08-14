@@ -8,30 +8,15 @@ import {
   it,
   Num,
   setup,
-  type t,
   teardown,
   withIo,
   wrapFile,
 } from './u.fixture.ts';
 import { toLockName } from '../u/u.lock.ts';
+import { writeStageManifest as fill } from './u.fixture.stage.ts';
+import { directoryTarget } from './u.fixture.target.ts';
 
-const bytes = (value: string) => new TextEncoder().encode(value);
-
-async function directoryTarget(
-  rooted: t.FsRooted.Instance,
-  path: string,
-): Promise<t.FsRooted.Target<'directory'>> {
-  const admission = await rooted.admit([{ kind: 'directory', path }]);
-  return admission.targets[0];
-}
-
-async function fill(stage: t.FsRooted.Stage, value: string): Promise<void> {
-  const admission = await stage.files.admit([{ kind: 'file', path: 'dist.json' }]);
-  const target = admission.targets[0];
-  await stage.files.publishFile(target, bytes(value));
-}
-
-describe('Fs.Capability.Rooted stages', () => {
+describe('Fs.Capability.Rooted stages: publication settlement', () => {
   it('derives one private lock name for common case and Unicode aliases', () => {
     const composed = toLockName('Generations/CAFÉ');
     const decomposed = toLockName('generations/cafe\u0301');
@@ -116,7 +101,7 @@ describe('Fs.Capability.Rooted stages', () => {
           throw new Deno.errors.AlreadyExists('race');
         },
         remove: async (path, options) => {
-          if (raced && options?.recursive) throw new Error('cleanup');
+          if (raced && path.includes('.sys-rooted')) throw new Error('cleanup');
           await DEFAULT_IO.remove(path, options);
         },
       });
@@ -161,7 +146,9 @@ describe('Fs.Capability.Rooted stages', () => {
       await teardown(fixture);
     }
   });
+});
 
+describe('Fs.Capability.Rooted stages: private ownership and pre-publication cleanup', () => {
   it('discards only an active stage owned by this instance', async () => {
     const fixture = await setup();
     try {
@@ -221,7 +208,7 @@ describe('Fs.Capability.Rooted stages', () => {
           return path === container ? { ...info, dev: -1 } : info;
         },
         remove: async (path, options) => {
-          if (path === container && options?.recursive) removals++;
+          if (path === container) removals++;
           await DEFAULT_IO.remove(path, options);
         },
       });
@@ -235,7 +222,7 @@ describe('Fs.Capability.Rooted stages', () => {
     }
   });
 
-  it('removes a trusted stage container when content identity is untrustworthy', async () => {
+  it('retains a trusted stage container when descendant identity is untrustworthy', async () => {
     const fixture = await setup();
     try {
       const token = 'untrusted-content';
@@ -249,15 +236,15 @@ describe('Fs.Capability.Rooted stages', () => {
           return path === content ? { ...info, ino: 0.5 } : info;
         },
         remove: async (path, options) => {
-          if (path === container && options?.recursive) removals++;
+          if (path === container) removals++;
           await DEFAULT_IO.remove(path, options);
         },
       });
       const rooted = await createRooted({ root: fixture.root }, io);
 
       await expectFailure(() => rooted.createStage(), 'unsupported');
-      expect(removals).to.eql(1);
-      expect(await Fs.exists(container)).to.eql(false);
+      expect(removals).to.eql(0);
+      expect(await Fs.exists(container)).to.eql(true);
     } finally {
       await teardown(fixture);
     }
@@ -279,7 +266,7 @@ describe('Fs.Capability.Rooted stages', () => {
           });
         },
         remove: async (path, options) => {
-          if (path === container && options?.recursive) removals++;
+          if (path === container) removals++;
           await DEFAULT_IO.remove(path, options);
         },
       });
@@ -314,7 +301,7 @@ describe('Fs.Capability.Rooted stages', () => {
     }
   });
 
-  it('refuses recursive cleanup after stage ownership evidence changes', async () => {
+  it('refuses cleanup after stage ownership evidence changes', async () => {
     const fixture = await setup();
     try {
       const rooted = await Fs.Capability.Rooted.create({ root: fixture.root });
@@ -340,7 +327,7 @@ describe('Fs.Capability.Rooted stages', () => {
           return await DEFAULT_IO.realPath(path);
         },
         remove: async (path, options) => {
-          if (options?.recursive && path.includes('.sys-rooted')) throw new Error('cleanup');
+          if (path.includes('.sys-rooted')) throw new Error('cleanup');
           await DEFAULT_IO.remove(path, options);
         },
       });
@@ -352,7 +339,9 @@ describe('Fs.Capability.Rooted stages', () => {
       await teardown(fixture);
     }
   });
+});
 
+describe('Fs.Capability.Rooted stages: cooperative lock boundary', () => {
   it('rejects replacement of the persistent lock-file identity', async () => {
     const fixture = await setup();
     try {
@@ -500,7 +489,9 @@ describe('Fs.Capability.Rooted stages', () => {
       await teardown(fixture);
     }
   });
+});
 
+describe('Fs.Capability.Rooted stages: post-publication truth and recovery', () => {
   it('returns published with a cleanup error and allows discardStage to retry', async () => {
     const fixture = await setup();
     try {
@@ -512,7 +503,7 @@ describe('Fs.Capability.Rooted stages', () => {
           renamed = true;
         },
         remove: async (path, options) => {
-          if (renamed && options?.recursive && failCleanup) {
+          if (renamed && path.includes('.sys-rooted') && failCleanup) {
             failCleanup = false;
             throw new Error('cleanup');
           }
@@ -537,30 +528,67 @@ describe('Fs.Capability.Rooted stages', () => {
     }
   });
 
-  it('sets committed when cleanup finds that a published stage is no longer owned', async () => {
+  it('retries published cleanup after deleting its owner marker', async () => {
     const fixture = await setup();
     try {
       let renamed = false;
+      let marker = '';
+      let container = '';
+      let markerRemoved = false;
+      let failed = false;
       const io = withIo({
         rename: async (from, to) => {
           await DEFAULT_IO.rename(from, to);
           renamed = true;
         },
         remove: async (path, options) => {
-          if (renamed && options?.recursive) throw new Error('cleanup');
+          if (renamed && path === container && markerRemoved && !failed) {
+            failed = true;
+            throw new Error('container removal failed');
+          }
           await DEFAULT_IO.remove(path, options);
+          if (path === marker) markerRemoved = true;
         },
       });
       const rooted = await createRooted({ root: fixture.root }, io);
       const target = await directoryTarget(rooted, 'sha256-generation');
       const stage = await rooted.createStage();
-      const marker = Fs.join(Fs.dirname(stage.path), 'owner');
+      container = Fs.dirname(stage.path);
+      marker = Fs.join(container, 'owner');
       await fill(stage, 'manifest');
 
       const result = await rooted.promoteStage(stage, target);
       expect(result.kind).to.eql('published');
+      expect(result.cleanupError?.kind).to.eql('io-failure');
+      expect(await Fs.exists(marker)).to.eql(false);
+      expect(await Fs.exists(container)).to.eql(true);
+      await rooted.discardStage(stage);
+      expect(await Fs.exists(container)).to.eql(false);
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
+  it('sets committed when cleanup finds that a published stage is no longer owned', async () => {
+    const fixture = await setup();
+    try {
+      let marker = '';
+      const io = withIo({
+        rename: async (from, to) => {
+          await DEFAULT_IO.rename(from, to);
+          await Deno.writeTextFile(marker, 'foreign');
+        },
+      });
+      const rooted = await createRooted({ root: fixture.root }, io);
+      const target = await directoryTarget(rooted, 'sha256-generation');
+      const stage = await rooted.createStage();
+      marker = Fs.join(Fs.dirname(stage.path), 'owner');
+      await fill(stage, 'manifest');
+
+      const result = await rooted.promoteStage(stage, target);
+      expect(result.kind).to.eql('published');
+      expect(result.cleanupError?.kind).to.eql('ownership-lost');
       expect(result.cleanupError?.committed).to.eql(true);
-      await Deno.writeTextFile(marker, 'foreign');
       await expectFailure(() => rooted.discardStage(stage), 'ownership-lost', true);
     } finally {
       await teardown(fixture);

@@ -250,6 +250,9 @@ function snapshotRooted(input: unknown): t.Fs.Rooted.Instance | undefined {
     const path = input.path;
     const admit = input.admit;
     const acquireLease = input.acquireLease;
+    const inspectSeal = input.inspectSeal;
+    const sealTree = input.sealTree;
+    const removeTree = input.removeTree;
     const publishFile = input.publishFile;
     const createStage = input.createStage;
     const discardStage = input.discardStage;
@@ -258,6 +261,9 @@ function snapshotRooted(input: unknown): t.Fs.Rooted.Instance | undefined {
     if (
       !Is.func(admit) ||
       !Is.func(acquireLease) ||
+      !Is.func(inspectSeal) ||
+      !Is.func(sealTree) ||
+      !Is.func(removeTree) ||
       !Is.func(publishFile) ||
       !Is.func(createStage) ||
       !Is.func(discardStage) ||
@@ -269,6 +275,9 @@ function snapshotRooted(input: unknown): t.Fs.Rooted.Instance | undefined {
       path,
       admit,
       acquireLease,
+      inspectSeal,
+      sealTree,
+      removeTree,
       publishFile,
       createStage,
       discardStage,
