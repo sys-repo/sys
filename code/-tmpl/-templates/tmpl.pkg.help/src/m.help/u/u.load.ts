@@ -10,7 +10,7 @@ const Resource = Chapters.Resources.create<t.StringPath>({
   parse: HelpYaml.record,
 });
 
-export const RootHelp: t.Help.Root.Lib = {
+export const RootHelp: t.Help.Root.Lib = Object.freeze({
   load() {
     const data = Resource.readRecord(HelpResource.Root, ['summary', 'sections']);
     return Promise.resolve({
@@ -18,4 +18,4 @@ export const RootHelp: t.Help.Root.Lib = {
       sections: HelpYaml.sections(data, 'sections'),
     });
   },
-};
+});

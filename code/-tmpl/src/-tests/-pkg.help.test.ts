@@ -43,6 +43,11 @@ describe('Template: pkg.help', () => {
       Fs.join(test.pkgDir, 'src/m.help/-bundle/-bundle.json'),
     );
     expect(typeof bundleJson['yaml/root.yaml']).to.eql('string');
+
+    const modText = (await Fs.readText(Fs.join(test.pkgDir, 'src/m.help/mod.ts'))).data ?? '';
+    const rootText = (await Fs.readText(Fs.join(test.pkgDir, 'src/m.help/u/u.load.ts'))).data ?? '';
+    expect(modText).to.include('Object.freeze({');
+    expect(rootText).to.include('Object.freeze({');
   });
 });
 
