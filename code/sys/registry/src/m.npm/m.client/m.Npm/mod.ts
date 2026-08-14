@@ -7,9 +7,9 @@ import { Import } from '../m.Import/mod.ts';
 import { Fetch, type t } from './common.ts';
 
 /** Client-side registry helper. */
-export const Npm: t.NpmClient.Lib = {
+export const Npm: t.NpmClient.Lib = Object.freeze({
   Fetch,
   Is,
   Import,
   Url: Fetch.Url,
-};
+});

@@ -6,4 +6,4 @@ import type { NpmImport } from './t.ts';
 import { specifier } from './u.specifier.ts';
 
 /** Import specifier helpers. */
-export const Import: NpmImport.Lib = { specifier };
+export const Import: NpmImport.Lib = Object.freeze({ specifier });

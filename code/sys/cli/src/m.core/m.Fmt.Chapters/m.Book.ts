@@ -12,7 +12,7 @@ type Options<TFile extends string> = {
 };
 
 /** Reusable chapter-book loader for authored chapter resources. */
-export const Book: t.CliFormatChapters.Book.Lib = {
+export const Book: t.CliFormatChapters.Book.Lib = Object.freeze({
   create<TFile extends string>(input: t.CliFormatChapters.Book.Input<TFile>) {
     const options = wrangle.options(input);
 
@@ -23,7 +23,7 @@ export const Book: t.CliFormatChapters.Book.Lib = {
       load: (path = []) => load(path, options),
     };
   },
-};
+});
 
 /**
  * Helpers:

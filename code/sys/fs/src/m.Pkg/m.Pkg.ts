@@ -8,7 +8,7 @@ import { Dist } from '../m.Pkg.Dist/mod.ts';
  * Tools for working with the standard system
  * `{pkg}` package meta-data structure.
  */
-export const Pkg: t.Pkg.Lib = {
+export const Pkg: t.Pkg.Lib = Object.freeze({
   ...Base,
   Dist,
-};
+});

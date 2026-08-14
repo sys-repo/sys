@@ -4,7 +4,7 @@ import { Is, type t } from './common.ts';
 /**
  * Built-in command handlers.
  */
-export const Handlers: t.HttpCacheCmd.Handlers.Lib = {
+export const Handlers: t.HttpCacheCmd.Handlers.Lib = Object.freeze({
   clear(args) {
     return createClear(PkgCache.names(args.pkg));
   },
@@ -20,7 +20,7 @@ export const Handlers: t.HttpCacheCmd.Handlers.Lib = {
       info: createInfo(pkg),
     };
   },
-};
+});
 
 function createClear(pkg: t.HttpCache.Pkg.Names): t.HttpCacheCmd.Clear.Handler {
   return async (payload) => {

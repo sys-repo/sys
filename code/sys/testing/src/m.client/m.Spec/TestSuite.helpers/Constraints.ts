@@ -9,7 +9,7 @@ type M = t.TestModifier;
  * Helpers for working with ".skip" and ".only"
  * constraints accross a Suite of Tests.
  */
-export const Constraints = {
+export const Constraints = Object.freeze({
   /**
    * Scan a suite of tests looking for the specified constraint modifiers.
    */
@@ -67,7 +67,7 @@ export const Constraints = {
     if (treeContainsOnlyFlag && !Constraints.isWithinOnlySet(item)) exclusions.push('only');
     return exclusions;
   },
-};
+});
 
 /**
  * Helpers

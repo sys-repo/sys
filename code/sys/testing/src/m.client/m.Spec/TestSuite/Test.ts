@@ -8,7 +8,7 @@ const describe = Def.variants();
 /**
  * Entry point to the unit-testing system.
  */
-export const Test: t.Test = {
+export const Test: t.Test = Object.freeze({
   Is,
   Tree,
   Total,
@@ -26,4 +26,4 @@ export const Test: t.Test = {
     const bundle = await Test.bundle.apply(null, args as any);
     return bundle.run();
   },
-};
+});

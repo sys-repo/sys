@@ -1,11 +1,11 @@
 import { decodeBase64, encodeBase64, Is as IsBase, MediaType, type t } from './common.ts';
 import { Is } from './m.Is.ts';
 
-export const Data: t.FileMap.Data.Lib = {
-  contentType: {
+export const Data: t.FileMap.Data.Lib = Object.freeze({
+  contentType: Object.freeze<t.FileMap.Data.Lib['contentType']>({
     fromPath: (path) => MediaType.fromPath(path, { profile: 'source' }) ?? MediaType.Fallback.text,
     fromUri: (uri) => IsBase.string(uri) ? MediaType.fromDataUri(uri) ?? '' : '',
-  },
+  }),
 
   encode(mime, input) {
     if (!Is.supported.contentType(mime)) {
@@ -32,4 +32,4 @@ export const Data: t.FileMap.Data.Lib = {
 
     return isBinary ? binary : new TextDecoder().decode(binary);
   },
-};
+});

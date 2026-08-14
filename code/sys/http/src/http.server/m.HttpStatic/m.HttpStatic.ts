@@ -6,4 +6,4 @@ import { start } from './u.start.ts';
 /**
  * Static HTTP server lifecycle endpoint.
  */
-export const HttpStatic: t.HttpStatic.Lib = { resources, start, Config };
+export const HttpStatic: t.HttpStatic.Lib = Object.freeze({ resources, start, Config });

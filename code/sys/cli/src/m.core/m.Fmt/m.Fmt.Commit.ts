@@ -1,6 +1,6 @@
 import { c, type t } from '../common.ts';
 
-export const Commit: t.CliFormatCommit.Lib = {
+export const Commit: t.CliFormatCommit.Lib = Object.freeze({
   suggestion(message, options = {}) {
     const title = options.title ?? 'suggested commit msg:';
     const indent = Math.max(0, options.indent ?? 0);
@@ -12,7 +12,7 @@ export const Commit: t.CliFormatCommit.Lib = {
 
     return lines.map((line) => `${pad}${line}`).join('\n');
   },
-};
+});
 
 function renderTitle(title: Exclude<t.CliFormatCommit.Title, false>) {
   if (typeof title === 'string') {

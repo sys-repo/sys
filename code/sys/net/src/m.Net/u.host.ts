@@ -1,16 +1,16 @@
 import { Is } from './common.ts';
 
 /** Internal host helpers for network address formatting and probing. */
-export const Host = {
-  ipv4: {
+export const Host = Object.freeze({
+  ipv4: Object.freeze({
     wildcard: '0.0.0.0',
     loopback: '127.0.0.1',
-  },
+  }),
 
-  ipv6: {
+  ipv6: Object.freeze({
     wildcard: '::',
     loopback: '::1',
-  },
+  }),
 
   /** Determine whether a host is a bind wildcard rather than a routable client target. */
   isWildcard(hostname: string) {
@@ -31,4 +31,4 @@ export const Host = {
   urlHost(hostname: string) {
     return hostname.includes(':') && !hostname.startsWith('[') ? `[${hostname}]` : hostname;
   },
-} as const;
+});

@@ -8,8 +8,12 @@
  *
  * The canonical `CliInput.Menu.ResultKind` type is derived from this literal source.
  */
-export const MenuResultKind = {
+export const MenuResultKind: Readonly<{
+  Exit: 'exit';
+  Back: 'back';
+  Stay: 'stay';
+}> = Object.freeze({
   Exit: 'exit',
   Back: 'back',
   Stay: 'stay',
-} as const;
+});

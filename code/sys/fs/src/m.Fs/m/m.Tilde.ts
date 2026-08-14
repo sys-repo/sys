@@ -1,6 +1,6 @@
 import type { t } from '../common.ts';
 
-export const Tilde: t.Fs.TildeLib = {
+export const Tilde: t.Fs.TildeLib = Object.freeze({
   expand(input) {
     const home = Deno.env.get('HOME');
     if (!home) return input;
@@ -25,4 +25,4 @@ export const Tilde: t.Fs.TildeLib = {
 
     return input;
   },
-};
+});

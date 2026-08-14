@@ -1,15 +1,12 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { c, Cli, Fmt } from '../../mod.ts';
+import { c, Fmt } from '../../mod.ts';
+import { hrWithScreen } from '../m.Fmt.Hr.ts';
 
 describe('Cli.Fmt.hr', () => {
   describe('line mode', () => {
     it('uses measured terminal width by default', () => {
-      const restore = stubScreenWidth(12);
-      try {
-        expect(Fmt.hr()).to.eql('━'.repeat(12));
-      } finally {
-        restore();
-      }
+      const screenSize = () => ({ width: 12, height: 24 });
+      expect(hrWithScreen(screenSize)).to.eql('━'.repeat(12));
     });
 
     it('keeps existing shorthand and options call forms stable', () => {
@@ -17,13 +14,9 @@ describe('Cli.Fmt.hr', () => {
       expect(Fmt.hr(6, 'cyan')).to.eql(c.cyan('━'.repeat(6)));
       expect(Fmt.hr({ width: 5, color: 'magenta' })).to.eql(c.magenta('━'.repeat(5)));
 
-      const restore = stubScreenWidth(9);
-      try {
-        expect(Fmt.hr('green')).to.eql(c.green('━'.repeat(9)));
-        expect(Fmt.hr({ color: 'yellow' })).to.eql(c.yellow('━'.repeat(9)));
-      } finally {
-        restore();
-      }
+      const screenSize = () => ({ width: 9, height: 24 });
+      expect(hrWithScreen(screenSize, 'green')).to.eql(c.green('━'.repeat(9)));
+      expect(hrWithScreen(screenSize, { color: 'yellow' })).to.eql(c.yellow('━'.repeat(9)));
     });
 
     it('renders each rule weight', () => {
@@ -49,14 +42,10 @@ describe('Cli.Fmt.hr', () => {
       });
 
       it('uses measured terminal width when width is omitted', () => {
-        const restore = stubScreenWidth(10);
-        try {
-          expect(Fmt.hr({ progress: 0.5 })).to.eql(
-            c.green('━'.repeat(5)) + c.gray('━'.repeat(5)),
-          );
-        } finally {
-          restore();
-        }
+        const screenSize = () => ({ width: 10, height: 24 });
+        expect(hrWithScreen(screenSize, { progress: 0.5 })).to.eql(
+          c.green('━'.repeat(5)) + c.gray('━'.repeat(5)),
+        );
       });
 
       it('uses the selected weight for both indicator and track', () => {
@@ -97,12 +86,3 @@ describe('Cli.Fmt.hr', () => {
     });
   });
 });
-
-function stubScreenWidth(width: number): () => void {
-  const screen = Cli.Screen as { size: () => { width: number; height: number } };
-  const prev = screen.size;
-  screen.size = () => ({ width, height: 24 });
-  return () => {
-    screen.size = prev;
-  };
-}

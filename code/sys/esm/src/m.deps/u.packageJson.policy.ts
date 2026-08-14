@@ -3,7 +3,7 @@ import { Is, type t } from './common.ts';
 type OverrideNode = string | t.PkgNodeOverrides;
 
 /** Helpers for deps.yaml package.json resolver policy. */
-export const PackageJsonPolicy = {
+export const PackageJsonPolicy = Object.freeze({
   hasOwn(input: unknown, key: string): boolean {
     return Is.object(input) && Object.prototype.hasOwnProperty.call(input, key);
   },
@@ -114,7 +114,7 @@ export const PackageJsonPolicy = {
   cloneOverrideNode(input: OverrideNode): OverrideNode {
     return Is.str(input) ? input : PackageJsonPolicy.cloneOverrides(input);
   },
-} as const;
+});
 
 /**
  * Helpers:

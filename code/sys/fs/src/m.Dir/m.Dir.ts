@@ -1,10 +1,10 @@
-import { type t } from './common.ts';
+import type { t } from './common.ts';
 import { DirHash as Hash } from '../m.Dir.Hash/mod.ts';
 
 /**
  * Helpers for working with file-system directories.
  */
-export const Dir: t.Dir.Lib = {
+export const Dir: t.Dir.Lib = Object.freeze({
   /** Tools for working hashes of a file-system directory. */
   Hash,
-};
+});

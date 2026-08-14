@@ -5,6 +5,6 @@
 import type { t } from './common.ts';
 import { pkgName } from './u.pkgName.ts';
 
-export const Is: t.NpmIs.Lib = {
+export const Is: t.NpmIs.Lib = Object.freeze({
   pkgName,
-};
+});

@@ -3,7 +3,7 @@ import { Arr, Err, exists, Path, Rx, type t } from './common.ts';
 /**
  * Tools for watching file-system changes.
  */
-export const Watch: t.Watch.Lib = {
+export const Watch: t.Watch.Lib = Object.freeze({
   /**
    * Start a file-system watcher instance.
    */
@@ -64,7 +64,7 @@ export const Watch: t.Watch.Lib = {
     });
     return api;
   },
-};
+});
 
 /**
  * Helpers

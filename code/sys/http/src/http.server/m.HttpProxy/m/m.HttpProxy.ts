@@ -6,7 +6,7 @@ import { Root } from './m.Root.ts';
 import { HttpProxyResolver } from './m.Resolver.ts';
 
 /** HTTP proxy helpers for route resolution, config loading, and server startup. */
-export const HttpProxy: t.HttpProxy.Lib = {
+export const HttpProxy: t.HttpProxy.Lib = Object.freeze({
   Config,
   Root,
   Mount,
@@ -68,7 +68,7 @@ export const HttpProxy: t.HttpProxy.Lib = {
       until: args.until,
     });
   },
-};
+});
 
 /**
  * Helpers:

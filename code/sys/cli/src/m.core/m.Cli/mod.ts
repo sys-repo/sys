@@ -13,7 +13,7 @@ import { copyToClipboard, keepAlive } from '../u/mod.ts';
 /**
  * Tools for the CLI (command-line interfaces):
  */
-export const Cli: t.Cli.Lib = {
+export const Cli: t.Cli.Lib = Object.freeze({
   Args,
   Table,
   Spinner,
@@ -35,4 +35,4 @@ export const Cli: t.Cli.Lib = {
   stripAnsi,
   copyToClipboard,
   keepAlive,
-};
+});

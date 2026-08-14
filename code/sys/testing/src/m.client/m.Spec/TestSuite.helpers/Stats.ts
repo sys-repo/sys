@@ -4,7 +4,7 @@ import type { t } from './common.ts';
 import { Is } from './Is.ts';
 import { Tree } from './Tree.ts';
 
-export const Stats: TestStatsLib = {
+export const Stats: TestStatsLib = Object.freeze({
   /**
    * Default empty stats.
    */
@@ -53,4 +53,4 @@ export const Stats: TestStatsLib = {
 
     return res;
   },
-};
+});

@@ -1,7 +1,7 @@
-import { type t, Is as base } from './common.ts';
+import { Is as base, type t } from './common.ts';
 import type { TestIsLib } from './t.ts';
 
-export const Is: TestIsLib = {
+export const Is: TestIsLib = Object.freeze({
   promise: base.promise,
 
   suiteId(input: any) {
@@ -44,4 +44,4 @@ export const Is: TestIsLib = {
     if (typeof input !== 'object' || input === null) return false;
     return Is.suiteId(input.id) && (input.tx || '').startsWith('run.suite.tx.');
   },
-};
+});

@@ -375,6 +375,19 @@ describe('TestSuiteModel', () => {
       expect(res.time.elapsed).to.greaterThan(18);
     });
 
+    it('rejects with the suite initialization failure', async () => {
+      const failure = new Error('suite initialization failed');
+      const root = Test.describe('root', () => {
+        throw failure;
+      });
+      const caught = await root.run().then(
+        () => undefined,
+        (error) => error,
+      );
+
+      expect(caught).to.equal(failure);
+    });
+
     it('{ beforeEach, afterEach } parameter', async () => {
       const root = Test.describe('root', (e) => {
         e.it('foo', () => {});

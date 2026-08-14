@@ -10,7 +10,7 @@ import { start } from './u/u.start.ts';
 /**
  * HTTP Server.
  */
-export const HttpServer: t.HttpServer.Lib = {
+export const HttpServer: t.HttpServer.Lib = Object.freeze({
   Hono,
   cors,
   static: serveStatic,
@@ -20,4 +20,4 @@ export const HttpServer: t.HttpServer.Lib = {
   print,
   options,
   keyboard,
-} as const;
+});

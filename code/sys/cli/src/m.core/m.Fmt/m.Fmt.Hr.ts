@@ -12,15 +12,24 @@ const HR_CHARS: Record<t.CliFormat.Hr.Weight, string> = {
 };
 
 export const hr: t.CliFormat.Lib['hr'] = (first?: HrInput, second?: t.CliFormat.Hr.Color) => {
+  return hrWithScreen(Screen.size, first, second);
+};
+
+/** Package-internal screen measurement dependency seam. */
+export function hrWithScreen(
+  screenSize: typeof Screen.size,
+  first?: HrInput,
+  second?: t.CliFormat.Hr.Color,
+): string {
   const options = wrangle.options(first, second);
-  const width = wrangle.width(options.width);
+  const width = wrangle.width(options.width, screenSize);
   const char = wrangle.char(options.weight);
 
   if (options.progress !== undefined) return wrangle.progressLine(options, width, char);
 
   const line = char.repeat(width);
   return options.color ? Color.foreground[options.color](line) : line;
-};
+}
 
 /**
  * Helpers:
@@ -32,9 +41,9 @@ const wrangle = {
     return first ?? {};
   },
 
-  width(input?: number): number {
+  width(input: number | undefined, screenSize: typeof Screen.size): number {
     if (Is.number(input)) return Math.max(0, input);
-    const measured = Screen.size().width;
+    const measured = screenSize().width;
     return measured > 0 ? measured : HR_FALLBACK_WIDTH;
   },
 

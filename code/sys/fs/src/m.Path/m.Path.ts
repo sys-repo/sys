@@ -6,7 +6,7 @@ type L = t.FsPath.Lib;
  * Helpers for working with resource paths with the
  * existence of the server FS tools.
  */
-export const Path: L = {
+export const Path: L = Object.freeze({
   ...StdPath,
 
   async asDir(path) {
@@ -27,7 +27,7 @@ export const Path: L = {
       return wrangle.relativePrefix(path, prefix);
     }
   },
-};
+});
 
 /**
  * Helpers

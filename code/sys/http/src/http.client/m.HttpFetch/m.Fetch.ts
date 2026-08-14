@@ -6,8 +6,8 @@ import { makeFetch as make } from './u/u.make.ts';
 /**
  * Tools for working with the `fetch` function in system/standard ways.
  */
-export const Fetch: t.HttpFetch.Lib = {
+export const Fetch: t.HttpFetch.Lib = Object.freeze({
   make,
   defaultHeaders,
   byteSize,
-};
+});

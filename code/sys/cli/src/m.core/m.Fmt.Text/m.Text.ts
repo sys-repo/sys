@@ -4,8 +4,8 @@ import { Width } from './u.width.ts';
 import { Wrap } from './u.wrap.ts';
 
 /** Canonical terminal-text runtime grouped by width, wrapping, and clipping responsibility. */
-export const Text: t.CliFormatText.Lib = {
+export const Text: t.CliFormatText.Lib = Object.freeze({
   Width,
   Wrap,
   ellipsize,
-};
+});

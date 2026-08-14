@@ -6,4 +6,4 @@ import type { JsrImport } from './t.ts';
 import { specifier } from './u.specifier.ts';
 
 /** Import specifier helpers. */
-export const Import: JsrImport.Lib = { specifier };
+export const Import: JsrImport.Lib = Object.freeze({ specifier });

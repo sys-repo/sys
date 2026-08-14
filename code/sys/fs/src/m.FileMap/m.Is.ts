@@ -1,6 +1,6 @@
 import { Is as IsBase, MediaType, Path, type t } from './common.ts';
 
-export const Is: t.FileMap.Is.Lib = {
+export const Is: t.FileMap.Is.Lib = Object.freeze({
   fileMap(input): input is t.FileMap {
     if (!IsBase.record(input)) return false;
     for (const value of Object.values(input)) {
@@ -16,12 +16,12 @@ export const Is: t.FileMap.Is.Lib = {
     return filename.startsWith('.') && (filename.match(/\./g) || []).length === 1;
   },
 
-  supported: {
+  supported: Object.freeze<t.FileMap.Is.Lib['supported']>({
     contentType: (mediaType) => MediaType.Is.valid(mediaType),
-  },
+  }),
 
-  contentType: {
+  contentType: Object.freeze<t.FileMap.Is.Lib['contentType']>({
     string: (mediaType) => MediaType.Is.text(mediaType),
     binary: (mediaType) => MediaType.Is.binary(mediaType),
-  },
-};
+  }),
+});

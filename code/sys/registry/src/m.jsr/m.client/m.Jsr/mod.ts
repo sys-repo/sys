@@ -8,9 +8,9 @@ import { Is } from '../m.Is/mod.ts';
 import { Fetch, type t } from './common.ts';
 
 /** Client-side registry helper. */
-export const Jsr: t.JsrClient.Lib = {
+export const Jsr: t.JsrClient.Lib = Object.freeze({
   Fetch,
   Is,
   Import,
   Url: Fetch.Url,
-};
+});

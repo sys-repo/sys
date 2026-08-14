@@ -1,6 +1,6 @@
 import { Is, type t } from '../common.ts';
 
-export const Tree: t.CliFormat.Tree.Lib = {
+export const Tree: t.CliFormat.Tree.Lib = Object.freeze({
   vert: '│',
   mid: '├',
   last: '└',
@@ -11,4 +11,4 @@ export const Tree: t.CliFormat.Tree.Lib = {
     const bar = Tree.bar.repeat(extend);
     return head + bar;
   },
-};
+});

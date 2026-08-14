@@ -2,7 +2,7 @@
  * @module
  * Simple JSON based file-persitence with an ImmutableRef<T> handle API.
  */
-import { type t } from './common.ts';
+import type { t } from './common.ts';
 import { get } from './u.get.ts';
 import { defaultDoc } from './u.ts';
 import { Singleton } from './m.Singleton.ts';
@@ -10,8 +10,8 @@ import { Singleton } from './m.Singleton.ts';
 /**
  * Simple JSON based file-persitence for configuration settings file.
  */
-export const JsonFile: t.JsonFile.Lib = {
+export const JsonFile: t.JsonFile.Lib = Object.freeze({
   Singleton,
   get,
   default: defaultDoc,
-};
+});

@@ -3,7 +3,7 @@ import { Path, type t } from '../common.ts';
 /**
  * Helpers
  */
-export const Wrangle = {
+export const Wrangle = Object.freeze({
   options(input?: t.Fs.CopyFileOptions | t.FsCopyFilter): t.Fs.CopyFileOptions {
     if (!input) return {};
     if (typeof input === 'function') return { filter: input };
@@ -16,4 +16,4 @@ export const Wrangle = {
     target = Path.absolute(target);
     return filter({ source, target });
   },
-} as const;
+});

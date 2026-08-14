@@ -7,7 +7,7 @@ import { TestTree } from './TestTree.ts';
 /**
  * Helpers for calculating totals.
  */
-export const Total: TestTotalLib = {
+export const Total: TestTotalLib = Object.freeze({
   count(suite: t.TestSuiteModel) {
     const res: t.TestSuiteTotal = {
       total: 0,
@@ -31,4 +31,4 @@ export const Total: TestTotalLib = {
     });
     return res;
   },
-};
+});

@@ -8,7 +8,7 @@ type TResult = { suite: t.TestSuiteModel; isDefault: boolean };
 /**
  * Helpers for loading test suite modules.
  */
-export const Loader: TestLoaderLib = {
+export const Loader: TestLoaderLib = Object.freeze({
   /**
    * Import test suites from a variety of input types
    */
@@ -43,4 +43,4 @@ export const Loader: TestLoaderLib = {
     if (options.init) await Promise.all(res.map((item) => item?.suite.init()));
     return res.filter(Boolean);
   },
-};
+});

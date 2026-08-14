@@ -10,7 +10,7 @@ const RUN_CONFIG_ADD_DRY = 'deno run -ER jsr:@sys/http/server/static config add'
 const CONFIG = 'view';
 const CONFIG_DIR = StaticConfigPath.dir;
 
-export const Fmt = {
+export const Fmt = Object.freeze({
   help(_cwd: t.StringDir): string {
     return Cli.Fmt.Help.build({
       tool: TITLE,
@@ -165,4 +165,4 @@ export const Fmt = {
   error(error: string): string {
     return c.yellow(error);
   },
-} as const;
+});

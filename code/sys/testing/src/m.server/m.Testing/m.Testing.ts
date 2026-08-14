@@ -8,8 +8,8 @@ import { dir } from './u.dir.ts';
  * Testing helpers for working on a known server
  * (eg. HTTP/network and file-system).
  */
-export const Testing: t.TestingServerLib = {
+export const Testing: t.TestingServerLib = Object.freeze({
   ...Base,
   dir,
   connect,
-};
+});

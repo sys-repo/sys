@@ -14,7 +14,7 @@ type Layout = {
   readonly minBodyWidth: number;
 };
 
-export const Help: t.CliFormatHelp.Lib = {
+export const Help: t.CliFormatHelp.Lib = Object.freeze({
   build(input: t.CliFormatHelp.Input) {
     const sections = wrangle.sections(input);
     const layout = wrangle.layout(input, sections);
@@ -34,7 +34,7 @@ export const Help: t.CliFormatHelp.Lib = {
   render(input: t.CliFormatHelp.Input) {
     console.info(Help.build(input));
   },
-};
+});
 
 function renderSection(section: t.CliFormatHelp.Section, layout: Layout): string {
   if (section.items.length === 0) return '';

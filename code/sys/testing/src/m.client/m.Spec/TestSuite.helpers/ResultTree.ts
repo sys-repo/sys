@@ -4,7 +4,7 @@ import type { TestResultTreeLib } from './t.ts';
 /**
  * Helpers for walking a hierarchical tree of test results.
  */
-export const ResultTree: TestResultTreeLib = {
+export const ResultTree: TestResultTreeLib = Object.freeze({
   /**
    * Visit each test in the tree (descending).
    */
@@ -45,4 +45,4 @@ export const ResultTree: TestResultTreeLib = {
 
     return _result;
   },
-};
+});

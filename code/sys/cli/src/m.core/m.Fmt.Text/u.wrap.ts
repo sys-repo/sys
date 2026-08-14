@@ -60,7 +60,7 @@ export function lines(
 }
 
 /** Soft-wrapping implementation grouped by text and line output. */
-export const Wrap: t.CliFormatText.Wrap.Lib = { text, lines };
+export const Wrap: t.CliFormatText.Wrap.Lib = Object.freeze({ text, lines });
 
 /**
  * Helpers:

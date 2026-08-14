@@ -4,7 +4,7 @@ import { Pkg } from './m.Fetch.Pkg.ts';
 /**
  * Network fetching helpers against the "jsr.io" end-point.
  */
-export const Fetch: t.JsrFetch.Lib = {
+export const Fetch: t.JsrFetch.Lib = Object.freeze({
   Pkg,
   Url,
-};
+});

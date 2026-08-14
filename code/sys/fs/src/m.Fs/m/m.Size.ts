@@ -1,6 +1,6 @@
 import { exists, Str, type t, walk } from '../common.ts';
 
-export const Size: t.Fs.SizeLib = {
+export const Size: t.Fs.SizeLib = Object.freeze({
   async dir(path, options = {}) {
     const res: t.Fs.DirSize = {
       path,
@@ -21,4 +21,4 @@ export const Size: t.Fs.SizeLib = {
     }
     return res;
   },
-};
+});

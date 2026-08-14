@@ -9,10 +9,10 @@ type SourcePosition = t.Markdown.Position & {
 /**
  * Immutable source-text lenses over positioned Markdown nodes.
  */
-export const MarkdownSource: t.Markdown.Source.Lib = {
+export const MarkdownSource: t.Markdown.Source.Lib = Object.freeze({
   slice,
   thematicBreak,
-};
+});
 
 /**
  * Helpers:

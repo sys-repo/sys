@@ -23,7 +23,15 @@ export function max(inputs: string[]): number {
 
 /** Derive a usable cell budget from explicit, terminal, and fallback width policy. */
 export function fit(options: t.CliFormatText.Width.Fit.Options = {}): number {
-  const width = sourceWidth(options);
+  return fitWithScreen(Screen.size, options);
+}
+
+/** Package-internal screen measurement dependency seam. */
+export function fitWithScreen(
+  screenSize: typeof Screen.size,
+  options: t.CliFormatText.Width.Fit.Options = {},
+): number {
+  const width = sourceWidth(options, screenSize);
   const maxWidth = optionalPositiveInt(options.maxWidth);
   const reserve = nonNegativeInt(options.reserve, 0);
   const minWidth = nonNegativeInt(options.minWidth, 0);
@@ -33,19 +41,22 @@ export function fit(options: t.CliFormatText.Width.Fit.Options = {}): number {
 }
 
 /** Cell-width measurement and fitting implementation. */
-export const Width: t.CliFormatText.Width.Lib = { measure, padEnd, max, fit };
+export const Width: t.CliFormatText.Width.Lib = Object.freeze({ measure, padEnd, max, fit });
 
 /**
  * Helpers:
  */
-function sourceWidth(options: t.CliFormatText.Width.Fit.Options): number {
+function sourceWidth(
+  options: t.CliFormatText.Width.Fit.Options,
+  screenSize: typeof Screen.size,
+): number {
   const explicit = optionalPositiveInt(options.width);
   if (explicit !== undefined) return explicit;
 
   const stream = options.stream ?? 'stdout';
   const terminal = options.terminal ?? isTerminal(stream);
   if (terminal) {
-    const measured = optionalPositiveInt(Screen.size().width);
+    const measured = optionalPositiveInt(screenSize().width);
     if (measured !== undefined) return measured;
   }
 

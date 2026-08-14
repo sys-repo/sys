@@ -33,7 +33,7 @@ describe('CLI: Spinner', () => {
     expect(Spinner.with.name).to.equal('with');
     expect(Spinner.with.length).to.equal(2);
     expect(Spinner.with.constructor.name).to.equal('AsyncFunction');
-    expect(await Spinner.with('', async () => 42, { silent: true })).to.equal(42);
+    expect(await Spinner.with('', () => Promise.resolve(42), { silent: true })).to.equal(42);
   });
 
   it('stops the spinner after async work', async () => {
@@ -65,9 +65,9 @@ describe('CLI: Spinner', () => {
         };
       },
       'working...',
-      async (spinner) => {
+      (spinner) => {
         spinner.text = 'done';
-        return 42;
+        return Promise.resolve(42);
       },
     );
 

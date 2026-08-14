@@ -10,7 +10,7 @@ export { Code } from './m.Code.ts';
 export type * from './t.ts';
 
 /** Command-line formatting helper library with code block formatting. */
-export const Fmt: CliFormatCode.Fmt.Lib = {
+export const Fmt: CliFormatCode.Fmt.Lib = Object.freeze({
   ...Base,
   Code,
-};
+});

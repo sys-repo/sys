@@ -24,7 +24,7 @@ const start: t.CliSpinner.Lib['start'] = (text = '', options = {}) => {
 /**
  * Tools for working with a CLI spinner.
  */
-export const Spinner: t.CliSpinner.Lib = {
+export const Spinner: t.CliSpinner.Lib = Object.freeze({
   create,
   start,
   async with<T>(
@@ -34,7 +34,7 @@ export const Spinner: t.CliSpinner.Lib = {
   ) {
     return await withSpinner(start, text, run, options);
   },
-};
+});
 
 /** Package-internal spinner-start dependency seam. */
 export function startWith(

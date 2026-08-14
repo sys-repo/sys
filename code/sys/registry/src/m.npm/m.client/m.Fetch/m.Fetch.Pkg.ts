@@ -25,7 +25,7 @@ type VersionResponse = {
 /**
  * Network fetching helpers against a specific npm package.
  */
-export const Pkg: t.NpmFetch.Pkg.Lib = {
+export const Pkg: t.NpmFetch.Pkg.Lib = Object.freeze({
   async versions(name, options = {}) {
     const url = Url.Pkg.metadata(name);
     const res = await fetchJson<MetadataResponse>(url, { cache: 'no-store' }, options.until);
@@ -71,7 +71,7 @@ export const Pkg: t.NpmFetch.Pkg.Lib = {
       data,
     };
   },
-};
+});
 
 const wrangle = {
   versions(input: MetadataResponse['versions'] = {}, time: MetadataResponse['time'] = {}) {

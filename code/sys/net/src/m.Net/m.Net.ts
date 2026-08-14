@@ -8,10 +8,10 @@ import { waitFor } from './u.waitFor.ts';
 /**
  * Tools for working with a network.
  */
-export const Net: t.NetLib = {
+export const Net: t.NetLib = Object.freeze({
   Port,
   port: Port.get,
   connect,
   toUrl,
   waitFor,
-};
+});

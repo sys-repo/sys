@@ -8,7 +8,7 @@ type T = t.TestSuiteModel | t.TestModel;
 /**
  * Helpers for walking a hierarchical tree of tests.
  */
-export const TestTree: TestTreeLib = {
+export const TestTree: TestTreeLib = Object.freeze({
   parent(child?: T): t.TestSuiteModel | undefined {
     if (Is.test(child)) return (child as t.TestModel).parent;
     if (Is.suite(child)) return (child as t.TestSuiteModel).state.parent;
@@ -96,4 +96,4 @@ export const TestTree: TestTreeLib = {
     const tests = parent.state.tests.filter(({ id }) => id !== item.id);
     return [...suites, ...tests];
   },
-};
+});

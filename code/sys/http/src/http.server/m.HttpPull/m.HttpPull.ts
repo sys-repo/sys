@@ -4,4 +4,4 @@ import { start } from './u/u.start.ts';
 /**
  * Materialize checksum-pinned resources through one bounded Rooted operation.
  */
-export const HttpPull: t.HttpPull.Lib = { start };
+export const HttpPull: t.HttpPull.Lib = Object.freeze({ start });

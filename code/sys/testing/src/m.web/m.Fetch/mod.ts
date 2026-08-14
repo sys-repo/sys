@@ -4,6 +4,6 @@ import { mock } from './m.mock.ts';
 /**
  * Fetch test fixtures for Web Standards runtimes.
  */
-export const Fetch: t.WebFixture.Fetch.Lib = {
+export const Fetch: t.WebFixture.Fetch.Lib = Object.freeze({
   mock,
-};
+});

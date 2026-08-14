@@ -16,4 +16,4 @@ function size(input?: ScreenMeasurement): t.CliScreen.Size | undefined {
 }
 
 /** Normalize raw terminal measurements without introducing fallback dimensions. */
-export const ScreenMeasure = { dimension, size } as const;
+export const ScreenMeasure = Object.freeze({ dimension, size });

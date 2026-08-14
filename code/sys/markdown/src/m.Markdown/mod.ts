@@ -13,11 +13,11 @@ import { stringify } from './u/u.stringify.ts';
 /**
  * Markdown parsing, serialization, frontmatter, and safe rendering primitives.
  */
-export const Markdown: t.Markdown.Lib = {
+export const Markdown: t.Markdown.Lib = Object.freeze({
   Frontmatter,
   Html,
   Is,
   Source,
   parse,
   stringify,
-};
+});

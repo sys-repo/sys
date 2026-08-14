@@ -5,7 +5,7 @@ import { code, heading, inlineCode, link, taskListItem, thematicBreak } from './
 /**
  * Type guards for Markdown syntax-tree values.
  */
-export const MarkdownIs: t.Markdown.IsLib = {
+export const MarkdownIs: t.Markdown.IsLib = Object.freeze({
   ast,
   code,
   heading,
@@ -13,4 +13,4 @@ export const MarkdownIs: t.Markdown.IsLib = {
   link,
   taskListItem,
   thematicBreak,
-};
+});

@@ -7,7 +7,7 @@ export type RawPkgVersionInfo = {
   moduleGraph2?: unknown;
 };
 
-export const graph = {
+export const graph = Object.freeze({
   fromRaw(input: RawPkgVersionInfo): t.JsrFetch.Pkg.Graph | undefined {
     return graph.fromGraph2(input.moduleGraph2) ?? graph.fromGraph1(input.moduleGraph1);
   },
@@ -97,4 +97,4 @@ export const graph = {
     const kind = input.kind;
     return Is.str(kind) && kind ? { specifier, kind } : { specifier };
   },
-} as const;
+});

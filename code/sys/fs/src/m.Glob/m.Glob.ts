@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import type { t } from './common.ts';
 
 import { create } from './u.create.ts';
 import { ls } from './u.ls.ts';
@@ -6,7 +6,7 @@ import { ls } from './u.ls.ts';
 /**
  * Helpers for performing glob searches over a file-system.
  */
-export const Glob: t.Glob.Lib = {
+export const Glob: t.Glob.Lib = Object.freeze({
   create,
   ls,
-};
+});

@@ -8,7 +8,7 @@ const TITLE_SEPARATOR = ' · ';
 /**
  * Application identity header formatter.
  */
-export const Header: t.CliFormatHeader.Lib = { rows };
+export const Header: t.CliFormatHeader.Lib = Object.freeze({ rows });
 
 /**
  * Helpers:

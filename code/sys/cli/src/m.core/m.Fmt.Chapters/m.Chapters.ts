@@ -21,7 +21,7 @@ type Layout = {
 };
 
 /** Navigable help chapter formatting and tree helpers. */
-export const Chapters: t.CliFormatChapters.Lib = {
+export const Chapters: t.CliFormatChapters.Lib = Object.freeze({
   format,
   page,
   markdown,
@@ -29,7 +29,7 @@ export const Chapters: t.CliFormatChapters.Lib = {
   resolve,
   Book,
   Resources,
-};
+});
 
 function format(input: t.CliFormatChapters.FormatInput): string {
   const { chapter } = input;

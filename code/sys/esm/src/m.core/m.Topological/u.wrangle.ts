@@ -1,8 +1,8 @@
-import { type t, Str } from './common.ts';
+import { Str, type t } from './common.ts';
 
 const compare = Str.Compare.codeUnit();
 
-export const wrangle = {
+export const wrangle = Object.freeze({
   duplicates(keys: readonly string[]) {
     const seen = new Set<string>();
     const dup = new Set<string>();
@@ -66,4 +66,4 @@ export const wrangle = {
     }
     return [...unknown].sort(compare);
   },
-} as const;
+});

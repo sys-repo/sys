@@ -13,7 +13,7 @@ const D = {
 /**
  * Network fetching helpers against a specific JSR package.
  */
-export const Pkg: t.JsrFetch.Pkg.Lib = {
+export const Pkg: t.JsrFetch.Pkg.Lib = Object.freeze({
   /**
    * https://jsr.io/docs/api#package-metadata
    */
@@ -93,7 +93,7 @@ export const Pkg: t.JsrFetch.Pkg.Lib = {
 
     return api;
   },
-};
+});
 
 /**
  * Helpers:

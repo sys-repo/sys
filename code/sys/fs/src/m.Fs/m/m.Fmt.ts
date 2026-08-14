@@ -8,7 +8,7 @@ type Node = {
   dirs: Map<string, Node>;
 };
 
-export const Fmt: t.FsFmtLib = {
+export const Fmt: t.FsFmtLib = Object.freeze({
   tree(paths, opt = {}) {
     const options = wrangle.options(opt);
     const rels = [...paths]
@@ -44,7 +44,7 @@ export const Fmt: t.FsFmtLib = {
       label: options.label ?? Path.basename(abs) + '/',
     });
   },
-};
+});
 
 /** Insert a path (split into parts) into the trie. */
 function insert(node: Node, parts: string[]) {

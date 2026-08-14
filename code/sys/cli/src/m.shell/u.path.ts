@@ -15,7 +15,7 @@ const PATHS: readonly t.Shell.Path.Entry[] = [
 ];
 
 /** PATH catalog helpers. */
-export const Path: t.Shell.Path.Lib = {
+export const Path: t.Shell.Path.Lib = Object.freeze({
   list: () => PATHS,
   get: (id) => PATHS.find((entry) => entry.id === id),
-};
+});

@@ -15,7 +15,7 @@ const RUN_MOUNT_ADD_DRY = 'deno run -ER jsr:@sys/http/server/proxy mount add';
 const CONFIG = 'app';
 const CONFIG_DIR = ProxyConfigPath.dir;
 
-export const Fmt = {
+export const Fmt = Object.freeze({
   help(_cwd: t.StringDir): string {
     return Cli.Fmt.Help.build({
       tool: TITLE,
@@ -408,4 +408,4 @@ export const Fmt = {
   error(error: string): string {
     return c.yellow(error);
   },
-} as const;
+});

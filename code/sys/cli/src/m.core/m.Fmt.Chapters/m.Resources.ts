@@ -10,7 +10,7 @@ type Options<TFile extends string> = {
 };
 
 /** Embedded resource reader for bundled help/chapter resources. */
-export const Resources: t.CliFormatChapters.Resources.Lib = {
+export const Resources: t.CliFormatChapters.Resources.Lib = Object.freeze({
   create<TFile extends string>(input: t.CliFormatChapters.Resources.Input<TFile>) {
     const options = wrangle.options(input);
 
@@ -36,7 +36,7 @@ export const Resources: t.CliFormatChapters.Resources.Lib = {
 
     return { readText, readParsedRecord, readRecord };
   },
-};
+});
 
 /**
  * Helpers:

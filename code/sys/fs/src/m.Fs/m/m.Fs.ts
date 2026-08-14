@@ -28,7 +28,7 @@ const { join, basename, dirname, extname } = Path;
 /**
  * Filesystem helpers.
  */
-export const Fs: t.Fs.Lib = {
+export const Fs: t.Fs.Lib = Object.freeze({
   get Is() {
     return Is;
   },
@@ -92,4 +92,4 @@ export const Fs: t.Fs.Lib = {
   walkUp,
   findAncestor,
   watch: Watch.start,
-};
+});

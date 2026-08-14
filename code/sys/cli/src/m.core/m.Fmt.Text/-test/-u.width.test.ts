@@ -1,6 +1,6 @@
 import { c, describe, expect, it } from '../../../-test.ts';
 import { Cli } from '../../mod.ts';
-import { fit, max, measure, padEnd } from '../u.width.ts';
+import { fit, fitWithScreen, max, measure, padEnd } from '../u.width.ts';
 
 describe('Cli.Fmt.Text.Width', () => {
   describe('measurement', () => {
@@ -60,13 +60,8 @@ describe('Cli.Fmt.Text.Width', () => {
     });
 
     it('uses measured screen width when terminal output is available', () => {
-      const restore = stubScreenWidth(132);
-
-      try {
-        expect(fit({ terminal: true, maxWidth: 100, reserve: 7 })).to.eql(93);
-      } finally {
-        restore();
-      }
+      const screenSize = () => ({ width: 132, height: 24 });
+      expect(fitWithScreen(screenSize, { terminal: true, maxWidth: 100, reserve: 7 })).to.eql(93);
     });
 
     it('returns zero when the fitted width falls below the requested minimum', () => {
@@ -75,12 +70,3 @@ describe('Cli.Fmt.Text.Width', () => {
     });
   });
 });
-
-function stubScreenWidth(width: number): () => void {
-  const screen = Cli.Screen as { size: () => { width: number; height: number } };
-  const previous = screen.size;
-  screen.size = () => ({ width, height: 24 });
-  return () => {
-    screen.size = previous;
-  };
-}

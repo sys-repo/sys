@@ -6,8 +6,8 @@ import { handler } from './m.handler.ts';
 /**
  * HTTP JSON transport for unary Cmd request/response calls.
  */
-export const HttpCmd: t.HttpCmd.Lib = {
+export const HttpCmd: t.HttpCmd.Lib = Object.freeze({
   handler,
   handle,
   client,
-};
+});

@@ -16,7 +16,7 @@ import { ServiceUrlFmt } from './m.Fmt.ServiceUrl.ts';
 import { terminal as isTerminal } from '../m.Is/u.terminal.ts';
 import { size as screenSize } from '../m.Screen/u.size.ts';
 
-export const Path: t.CliFormat.Path.Lib = {
+export const Path: t.CliFormat.Path.Lib = Object.freeze({
   str(path, options = {}) {
     return formatDisplayPath(displayPath(path, options), options);
   },
@@ -45,7 +45,7 @@ export const Path: t.CliFormat.Path.Lib = {
       if (opts.highlightBasename !== false && e.is.basename) e.change(c.white(e.part));
     };
   },
-};
+});
 
 function displayPath(path: string, options: t.CliFormat.Path.FormatOptions = {}): string {
   const value = path.trim();
@@ -82,7 +82,7 @@ function numberOr(value: number | undefined, fallback: number): number {
 }
 
 /** Command-line formatting helper library. */
-export const Fmt: t.CliFormat.Lib = {
+export const Fmt: t.CliFormat.Lib = Object.freeze({
   hr,
   hyperlink,
   Header,
@@ -96,4 +96,4 @@ export const Fmt: t.CliFormat.Lib = {
   path: StdPath.Format.string,
   spinnerRaw,
   spinnerText,
-};
+});

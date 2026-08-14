@@ -6,9 +6,9 @@ import { size } from './u.size.ts';
 
 const Dock: t.CliScreen.Dock.Lib = Object.freeze({ bottom });
 
-export const Screen: t.CliScreen.Lib = {
+export const Screen: t.CliScreen.Lib = Object.freeze({
   size,
   events,
   repaint,
   Dock,
-};
+});
