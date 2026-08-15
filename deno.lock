@@ -43,6 +43,7 @@
     "npm:@automerge/automerge-repo-storage-indexeddb@2.5.6": "2.5.6",
     "npm:@automerge/automerge-repo-storage-nodefs@2.5.6": "2.5.6",
     "npm:@automerge/automerge-repo@2.5.6": "2.5.6",
+    "npm:@automerge/automerge@3.4.1": "3.4.1",
     "npm:@automerge/prosemirror@0.2.0": "0.2.0",
     "npm:@deno/vite-plugin@2.0.3": "2.0.3_vite@8.2.1__yaml@2.9.0_yaml@2.9.0",
     "npm:@earendil-works/pi-coding-agent@0.84.1": "0.84.1_ws@8.21.3_zod@4.4.3",
@@ -282,7 +283,7 @@
     "@automerge/automerge-repo@2.5.6": {
       "integrity": "sha512-ZXM6TOAwm192g3+zIxYvlB+Z3O00NP+psErOwvbSype8fFO+dhc8tB/jPwfZJqmn1ULUz5w7gssKEynwcYFRSA==",
       "dependencies": [
-        "@automerge/automerge",
+        "@automerge/automerge@3.4.0",
         "bs58check",
         "cbor-x",
         "debug",
@@ -295,10 +296,13 @@
     "@automerge/automerge@3.4.0": {
       "integrity": "sha512-THmghtTNGGt2xsI0pM3o1i3PM8oZKcYFgOj25FOzW7l6e94SQOivNtCwy6xc0I8hVJsQSSotoBNs+yk/9hM2dg=="
     },
+    "@automerge/automerge@3.4.1": {
+      "integrity": "sha512-zsZpbs/iDPvp+ZojIYd+gxmbcPVz2Xbkcx778G8zrt3E0zS+6saHJOm666lOuZyNRlTV4wHw9qzGTKueedeCsQ=="
+    },
     "@automerge/prosemirror@0.2.0": {
       "integrity": "sha512-Mixxftvfs12tKi7DsStobrQxFayoLJXhEjbrnmNnaQbMzwHrUzuwac+OUvw6ujbtXaulWX+JE8hAuHFAGRDsvQ==",
       "dependencies": [
-        "@automerge/automerge",
+        "@automerge/automerge@3.4.0",
         "ordered-map",
         "prosemirror-changeset",
         "prosemirror-history",
