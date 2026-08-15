@@ -12,7 +12,7 @@ freeze-composed-namespace-apis.plan.md
 - [x] 636a14f41 refactor(sys): freeze foundation namespace APIs
 - [x] 816db28ae refactor(sys): freeze platform namespace APIs
 - [x] 61e76a351 refactor(sys): freeze application namespace APIs
-- [ ] refactor(sys): complete frozen namespace API closure
+- [x] 4c5bd8c79 refactor(sys): complete frozen namespace API closure
 
 ## Purpose
 
