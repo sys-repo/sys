@@ -11,6 +11,10 @@ import {
 } from './u.fixture.serve.screen.ts';
 
 describe('DistServeScreen', () => {
+  it('freezes the presentation namespace', () => {
+    expect(Object.isFrozen(DistServeScreen)).to.eql(true);
+  });
+
   it('bottom-docks compact keyboard controls below a separate divider', async () => {
     const fixture = await setup();
     try {

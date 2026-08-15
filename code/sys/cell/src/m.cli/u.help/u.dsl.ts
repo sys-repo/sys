@@ -10,49 +10,51 @@ export type DslHelpInput = {
   readonly layout?: t.Cli.Fmt.Chapters.LayoutOptions;
 };
 
-export const FmtDslHelp = {
-  async output(input: DslHelpInput = {}): Promise<string> {
-    const path = input.path ?? [];
-    const format = input.format ?? 'human';
-    const chapter = await CellHelp.Dsl.load(path);
+export const FmtDslHelp = Object.freeze(
+  {
+    async output(input: DslHelpInput = {}): Promise<string> {
+      const path = input.path ?? [];
+      const format = input.format ?? 'human';
+      const chapter = await CellHelp.Dsl.load(path);
 
-    if (format === 'skill') return skill(chapter);
+      if (format === 'skill') return skill(chapter);
 
-    const toolname = input.toolname ?? ['@sys/cell dsl', ...path].join(' ');
-    return Fmt.Chapters.page({
-      command,
-      chapter: await highlightedYaml(chapter),
-      layout: input.layout,
-      help: {
-        tool: toolname,
-        summary: chapter.summary,
-        sections: [
-          {
-            kind: 'lines',
-            label: 'Usage',
-            items: [`${command} [chapter...] [--format <format>]`],
-          },
-          {
-            kind: 'pairs',
-            label: 'Options',
-            items: [
-              ['--format <format>', 'render output as human or skill'],
-              ['-h, --help', 'show DSL help'],
-            ],
-          },
-          {
-            kind: 'pairs',
-            label: 'Formats',
-            items: [
-              ['human', 'terminal help output (default)'],
-              ['skill', 'agent-skill Markdown projection of the requested DSL chapter'],
-            ],
-          },
-        ],
-      },
-    });
-  },
-} as const;
+      const toolname = input.toolname ?? ['@sys/cell dsl', ...path].join(' ');
+      return Fmt.Chapters.page({
+        command,
+        chapter: await highlightedYaml(chapter),
+        layout: input.layout,
+        help: {
+          tool: toolname,
+          summary: chapter.summary,
+          sections: [
+            {
+              kind: 'lines',
+              label: 'Usage',
+              items: [`${command} [chapter...] [--format <format>]`],
+            },
+            {
+              kind: 'pairs',
+              label: 'Options',
+              items: [
+                ['--format <format>', 'render output as human or skill'],
+                ['-h, --help', 'show DSL help'],
+              ],
+            },
+            {
+              kind: 'pairs',
+              label: 'Formats',
+              items: [
+                ['human', 'terminal help output (default)'],
+                ['skill', 'agent-skill Markdown projection of the requested DSL chapter'],
+              ],
+            },
+          ],
+        },
+      });
+    },
+  } as const,
+);
 
 async function highlightedYaml(chapter: t.CellHelp.Dsl.Chapter): Promise<t.CellHelp.Dsl.Chapter> {
   const sections = await Promise.all(chapter.sections.map(highlightYamlSection));

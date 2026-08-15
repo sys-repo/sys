@@ -2,6 +2,7 @@ import { describe, expect, expectTypeOf, Fs, it, Json, Str, type t, Testing } fr
 import { setup, teardown } from '../../-test/u.fixture.dist.ts';
 import { Dist, DistServer } from '../../m.server.dist/mod.ts';
 import { DistService } from '../mod.ts';
+import { DistServiceConfigSchema } from '../u.config/u.schema.ts';
 
 describe('DistService', () => {
   it('API', async () => {
@@ -11,6 +12,7 @@ describe('DistService', () => {
     expect(Object.keys(m)).to.eql(['DistService']);
     expect(Object.keys(DistService)).to.eql(['start', 'resources']);
     expect(Object.isFrozen(DistService)).to.eql(true);
+    expect(Object.isFrozen(DistServiceConfigSchema)).to.eql(true);
     expectTypeOf(DistService).toEqualTypeOf<t.DistService.Lib>();
     expectTypeOf(DistService).toMatchTypeOf<
       t.Service.LifecycleEndpoint<t.DistService.StartArgs, t.HttpServer.Started>

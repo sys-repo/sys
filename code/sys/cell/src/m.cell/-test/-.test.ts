@@ -19,6 +19,17 @@ describe(`Cell`, () => {
     expect(m.Cell.task).to.equal(Cell.task);
   });
 
+  it('freezes the public namespace graph', () => {
+    const values = [
+      Cell,
+      Cell.Schema,
+      Cell.Schema.Descriptor,
+      Cell.Services,
+      Cell.Task,
+    ];
+    for (const value of values) expect(Object.isFrozen(value)).to.eql(true);
+  });
+
   it('keeps FS-aware seams out of the public import graph', async () => {
     const root = Path.resolve(import.meta.dirname ?? '.');
 

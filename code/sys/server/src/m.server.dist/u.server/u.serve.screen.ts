@@ -83,206 +83,209 @@ const DEFAULT_TERMINAL = Object.freeze(
 /**
  * Dist terminal screen layout for terminal-owned `serve` workflows.
  */
-export const DistServeScreen = {
-  toString(args: FrameArgs) {
-    const viewport = wrangle.viewport(args.viewport);
-    const capacity = Math.max(0, viewport.height - wrangle.dimension(args.cursorRows));
-    const sequenceWidth = 1;
-    const metadataColumn = wrangle.metadataColumn(viewport.width, sequenceWidth);
-    const indent = wrangle.indent(metadataColumn);
-    const headerRows = wrangle.applicationHeader(args.identity, viewport.width);
-    const header = headerRows.slice(0, capacity);
-    if (header.length < headerRows.length) return wrangle.renderRows(header, viewport.width);
+export const DistServeScreen = Object.freeze(
+  {
+    toString(args: FrameArgs) {
+      const viewport = wrangle.viewport(args.viewport);
+      const capacity = Math.max(0, viewport.height - wrangle.dimension(args.cursorRows));
+      const sequenceWidth = 1;
+      const metadataColumn = wrangle.metadataColumn(viewport.width, sequenceWidth);
+      const indent = wrangle.indent(metadataColumn);
+      const headerRows = wrangle.applicationHeader(args.identity, viewport.width);
+      const header = headerRows.slice(0, capacity);
+      if (header.length < headerRows.length) return wrangle.renderRows(header, viewport.width);
 
-    let available = capacity - header.length;
-    const metadata = [
-      wrangle.serviceUrl(args.origin, metadataColumn, viewport.width),
-      `${indent}${c.green('↑')}`,
-      wrangle.distRow(args.dir, args.evidence, args.renderedAt, metadataColumn, viewport.width),
-      wrangle.authorityRow(args.authority, metadataColumn, viewport.width),
-    ];
-    const leadingGap = available >= metadata.length + 4 ? [''] : [];
-    if (leadingGap.length > 0) available -= leadingGap.length;
-    if (available < metadata.length) {
-      return wrangle.renderRows([...header, ...leadingGap], viewport.width);
-    }
+      let available = capacity - header.length;
+      const metadata = [
+        wrangle.serviceUrl(args.origin, metadataColumn, viewport.width),
+        `${indent}${c.green('↑')}`,
+        wrangle.distRow(args.dir, args.evidence, args.renderedAt, metadataColumn, viewport.width),
+        wrangle.authorityRow(args.authority, metadataColumn, viewport.width),
+      ];
+      const leadingGap = available >= metadata.length + 4 ? [''] : [];
+      if (leadingGap.length > 0) available -= leadingGap.length;
+      if (available < metadata.length) {
+        return wrangle.renderRows([...header, ...leadingGap], viewport.width);
+      }
 
-    available -= metadata.length;
-    const divider = wrangle.dashedDivider(viewport.width);
-    const output = wrangle.outputRow(
-      {
-        sequence: 1,
-        source: 'out',
-        text: wrangle.outputText(args.authority),
-      },
-      viewport.width,
-      sequenceWidth,
-    );
-    const status = ['', divider, output];
-    const keyboard = args.keyboard.enabled && args.keyboard.print
-      ? wrangle.keyboardRows(viewport.width)
-      : [];
-    const footer = keyboard.length === 0
-      ? []
-      : [wrangle.footerDivider(viewport.width), ...keyboard];
-
-    const tail = Cli.Screen.Dock.bottom({
-      capacity: available,
-      flow: available >= status.length
-        ? status
-        : available === 2
-        ? ['', divider]
-        : available === 1
-        ? [divider]
-        : [],
-      ...(footer.length === 0 ? {} : { footer }),
-    });
-
-    return wrangle.renderRows(
-      [...header, ...leadingGap, ...metadata, ...tail],
-      viewport.width,
-    );
-  },
-
-  create(args: RuntimeCreateArgs): Reporter {
-    const terminal = { ...DEFAULT_TERMINAL, ...args.terminal };
-    const schedule = args.schedule ?? ((run: () => void) => Time.delay(RESIZE_REPAINT_DELAY, run));
-    const events = terminal.events(args.until);
-    if (events.disposed) return DISPOSED_REPORTER;
-
-    const failed = wrangle.failureChannel();
-    let disposed = false;
-    let acquired = false;
-    let observed = false;
-    let pending = false;
-    let scheduleGeneration = 0;
-    let acquiringSchedule: number | undefined;
-    let scheduledTask: t.Cancellable | undefined;
-    let viewport: ScreenSize = { width: 0, height: 0 };
-    let subscription: ResizeSubscription | undefined;
-
-    const repaint = () => {
-      terminal.repaint(
-        DistServeScreen.toString({
-          identity: args.identity,
-          origin: args.origin,
-          dir: args.dir,
-          authority: args.authority,
-          evidence: args.evidence,
-          renderedAt: args.renderedAt,
-          viewport,
-          cursorRows: terminal.cursorRows,
-          keyboard: {
-            enabled: args.keyboard?.enabled ?? false,
-            print: args.keyboard?.print ?? false,
-          },
-        }),
+      available -= metadata.length;
+      const divider = wrangle.dashedDivider(viewport.width);
+      const output = wrangle.outputRow(
+        {
+          sequence: 1,
+          source: 'out',
+          text: wrangle.outputText(args.authority),
+        },
+        viewport.width,
+        sequenceWidth,
       );
-    };
+      const status = ['', divider, output];
+      const keyboard = args.keyboard.enabled && args.keyboard.print
+        ? wrangle.keyboardRows(viewport.width)
+        : [];
+      const footer = keyboard.length === 0
+        ? []
+        : [wrangle.footerDivider(viewport.width), ...keyboard];
 
-    const cancelScheduled = () => {
-      scheduleGeneration += 1;
-      acquiringSchedule = undefined;
-      const task = scheduledTask;
-      scheduledTask = undefined;
-      task?.cancel();
-    };
+      const tail = Cli.Screen.Dock.bottom({
+        capacity: available,
+        flow: available >= status.length
+          ? status
+          : available === 2
+          ? ['', divider]
+          : available === 1
+          ? [divider]
+          : [],
+        ...(footer.length === 0 ? {} : { footer }),
+      });
 
-    const release = () => {
-      if (disposed) return;
-      disposed = true;
-      pending = false;
-      const current = subscription;
-      subscription = undefined;
-      wrangle.cleanup([
-        cancelScheduled,
-        () => current?.unsubscribe(),
-        () => events.dispose(),
-      ]);
-    };
+      return wrangle.renderRows(
+        [...header, ...leadingGap, ...metadata, ...tail],
+        viewport.width,
+      );
+    },
 
-    const fail = (cause: unknown) => {
-      if (disposed) return;
-      try {
-        release();
-      } catch {
-        // Preserve the original presentation failure.
-      }
-      failed.reject(cause);
-    };
+    create(args: RuntimeCreateArgs): Reporter {
+      const terminal = { ...DEFAULT_TERMINAL, ...args.terminal };
+      const schedule = args.schedule ??
+        ((run: () => void) => Time.delay(RESIZE_REPAINT_DELAY, run));
+      const events = terminal.events(args.until);
+      if (events.disposed) return DISPOSED_REPORTER;
 
-    const flushPending = (generation: number) => {
-      if (generation !== scheduleGeneration || disposed) return;
-      acquiringSchedule = undefined;
-      scheduledTask = undefined;
-      if (events.disposed) {
-        pending = false;
-        return;
-      }
-      if (!pending) return;
-      pending = false;
-      try {
-        repaint();
-      } catch (error) {
-        fail(error);
-      }
-    };
+      const failed = wrangle.failureChannel();
+      let disposed = false;
+      let acquired = false;
+      let observed = false;
+      let pending = false;
+      let scheduleGeneration = 0;
+      let acquiringSchedule: number | undefined;
+      let scheduledTask: t.Cancellable | undefined;
+      let viewport: ScreenSize = { width: 0, height: 0 };
+      let subscription: ResizeSubscription | undefined;
 
-    const schedulePending = () => {
-      if (scheduledTask || acquiringSchedule !== undefined) return;
-      const generation = ++scheduleGeneration;
-      acquiringSchedule = generation;
-      let task: t.Cancellable;
-      try {
-        task = schedule(() => flushPending(generation));
-      } catch (error) {
-        if (generation === scheduleGeneration) acquiringSchedule = undefined;
-        throw error;
-      }
-      if (generation === scheduleGeneration && acquiringSchedule === generation) {
+      const repaint = () => {
+        terminal.repaint(
+          DistServeScreen.toString({
+            identity: args.identity,
+            origin: args.origin,
+            dir: args.dir,
+            authority: args.authority,
+            evidence: args.evidence,
+            renderedAt: args.renderedAt,
+            viewport,
+            cursorRows: terminal.cursorRows,
+            keyboard: {
+              enabled: args.keyboard?.enabled ?? false,
+              print: args.keyboard?.print ?? false,
+            },
+          }),
+        );
+      };
+
+      const cancelScheduled = () => {
+        scheduleGeneration += 1;
         acquiringSchedule = undefined;
-        scheduledTask = task;
-      }
-    };
+        const task = scheduledTask;
+        scheduledTask = undefined;
+        task?.cancel();
+      };
 
-    const requestRepaint = () => {
-      pending = true;
-      schedulePending();
-    };
-
-    try {
-      subscription = events.resize$.subscribe((event) => {
+      const release = () => {
         if (disposed) return;
-        viewport = wrangle.viewport(event.after);
-        observed = true;
-        if (!acquired) return;
+        disposed = true;
+        pending = false;
+        const current = subscription;
+        subscription = undefined;
+        wrangle.cleanup([
+          cancelScheduled,
+          () => current?.unsubscribe(),
+          () => events.dispose(),
+        ]);
+      };
+
+      const fail = (cause: unknown) => {
+        if (disposed) return;
         try {
-          requestRepaint();
+          release();
+        } catch {
+          // Preserve the original presentation failure.
+        }
+        failed.reject(cause);
+      };
+
+      const flushPending = (generation: number) => {
+        if (generation !== scheduleGeneration || disposed) return;
+        acquiringSchedule = undefined;
+        scheduledTask = undefined;
+        if (events.disposed) {
+          pending = false;
+          return;
+        }
+        if (!pending) return;
+        pending = false;
+        try {
+          repaint();
         } catch (error) {
           fail(error);
         }
-      });
-      if (!observed) {
-        const initial = wrangle.viewport(terminal.size());
-        if (!observed) {
-          viewport = initial;
-          observed = true;
-        }
-      }
-      repaint();
-      acquired = true;
-    } catch (error) {
-      try {
-        release();
-      } catch {
-        // Preserve the acquisition or initial-render failure.
-      }
-      throw error;
-    }
+      };
 
-    return { failure: failed.promise, dispose: release };
-  },
-} as const;
+      const schedulePending = () => {
+        if (scheduledTask || acquiringSchedule !== undefined) return;
+        const generation = ++scheduleGeneration;
+        acquiringSchedule = generation;
+        let task: t.Cancellable;
+        try {
+          task = schedule(() => flushPending(generation));
+        } catch (error) {
+          if (generation === scheduleGeneration) acquiringSchedule = undefined;
+          throw error;
+        }
+        if (generation === scheduleGeneration && acquiringSchedule === generation) {
+          acquiringSchedule = undefined;
+          scheduledTask = task;
+        }
+      };
+
+      const requestRepaint = () => {
+        pending = true;
+        schedulePending();
+      };
+
+      try {
+        subscription = events.resize$.subscribe((event) => {
+          if (disposed) return;
+          viewport = wrangle.viewport(event.after);
+          observed = true;
+          if (!acquired) return;
+          try {
+            requestRepaint();
+          } catch (error) {
+            fail(error);
+          }
+        });
+        if (!observed) {
+          const initial = wrangle.viewport(terminal.size());
+          if (!observed) {
+            viewport = initial;
+            observed = true;
+          }
+        }
+        repaint();
+        acquired = true;
+      } catch (error) {
+        try {
+          release();
+        } catch {
+          // Preserve the acquisition or initial-render failure.
+        }
+        throw error;
+      }
+
+      return { failure: failed.promise, dispose: release };
+    },
+  } as const,
+);
 
 /**
  * Helpers:

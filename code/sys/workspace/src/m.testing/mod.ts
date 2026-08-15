@@ -30,7 +30,10 @@ export const WorkspaceTesting: t.WorkspaceTesting.Test.Lib = Object.freeze({
 /**
  * Workspace runtime surface extended with structural test helpers.
  */
-export const Workspace = Object.freeze({ ...Base, Test: WorkspaceTesting });
+export const Workspace: t.WorkspaceTesting.Lib = Object.freeze({
+  ...Base,
+  Test: WorkspaceTesting,
+});
 
 /**
  * Helpers:

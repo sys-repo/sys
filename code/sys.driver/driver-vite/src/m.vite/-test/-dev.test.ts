@@ -4,8 +4,6 @@ import {
   expect,
   Fs,
   it,
-  Pkg,
-  Process,
   Rx,
   SAMPLE,
   Str,
@@ -59,7 +57,7 @@ describe('Vite.dev', () => {
   it('composes one normalized compound identity only for the screen reporter', async () => {
     const pkg = { name: '@sys/example', version: '1.2.3' } as const;
     const screenArgs: Parameters<NonNullable<ViteDevDeps['createScreen']>>[0][] = [];
-    using _fixtures = createDevStartupFixtures();
+    const deps = createDevStartupFixtures();
 
     const paths = {
       cwd: '/tmp/vite-dev-identity' as t.StringAbsoluteDir,
@@ -68,6 +66,7 @@ describe('Vite.dev', () => {
     const server = await devWithDeps(
       { pkg, pkgSubpath: '/ui//preview/', paths, port: 49152, reporter: 'screen' },
       {
+        ...deps,
         waitForHttp: waitForHttpReady,
         createScreen: (args) => {
           screenArgs.push(args);
@@ -101,13 +100,14 @@ describe('Vite.dev', () => {
     ) {
       let screens = 0;
       const output: unknown[][] = [];
-      using _fixtures = createDevStartupFixtures();
+      const deps = createDevStartupFixtures();
       using _console = WebFixture.Property.mock([{
         target: console,
         key: 'info',
         descriptor: { value: (...args: unknown[]) => output.push(args) },
       }]);
       const server = await devWithDeps(input, {
+        ...deps,
         waitForHttp: waitForHttpReady,
         createScreen: () => {
           screens += 1;
@@ -564,23 +564,19 @@ async function prepareDevEntryFixture(cwd: string) {
   );
 }
 
-function createDevStartupFixtures() {
+function createDevStartupFixtures(): ViteDevDeps {
   const process = createDevProcessHarness();
-  return WebFixture.Property.mock([
-    { target: Process, key: 'spawn', descriptor: { value: process.spawn } },
-    {
-      target: Pkg.Dist,
-      key: 'load',
-      descriptor: { value: () => Promise.resolve({}) },
-    },
-    {
-      target: Wrangle,
-      key: 'command',
-      descriptor: {
-        value: () => Promise.resolve({ args: [], env: {}, dispose: () => Promise.resolve() }),
-      },
-    },
-  ]);
+  return {
+    spawn: process.spawn,
+    loadDist: (path) =>
+      Promise.resolve({
+        exists: false,
+        kind: 'missing',
+        path: Fs.resolve(String(path)),
+      }),
+    command: () =>
+      Promise.resolve({ cmd: 'vite', args: [], env: {}, dispose: () => Promise.resolve() }),
+  };
 }
 
 function createDevProcessHarness() {

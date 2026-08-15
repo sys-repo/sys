@@ -9,6 +9,9 @@ describe('@sys/server/files', () => {
     expect(Object.keys(FilesServer).sort()).to.eql(['Http', 'WebSocket']);
     expect(Object.keys(FilesServer.Http).sort()).to.eql(['manifest']);
     expect(Object.keys(FilesServer.WebSocket).sort()).to.eql(['create', 'start']);
+    expect(Object.isFrozen(FilesServer)).to.eql(true);
+    expect(Object.isFrozen(FilesServer.Http)).to.eql(true);
+    expect(Object.isFrozen(FilesServer.WebSocket)).to.eql(true);
     expectTypeOf(FilesServer).toMatchTypeOf<t.FilesServer.Lib>();
   });
 });

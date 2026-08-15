@@ -1,4 +1,4 @@
-import { c, Fs, Is, type t, YamlConfig } from '../common.ts';
+import { c, Cli, Fs, Is, type t, YamlConfig } from '../common.ts';
 import { PiSandboxFmt } from '../../m.cli/u.fmt.sandbox.ts';
 import { PiSandboxReport } from '../../m.cli/u.report.sandbox.ts';
 import { runtimeRoot } from '../../m.cli/u.runtime.ts';
@@ -10,6 +10,16 @@ import { ProfileSchema } from '../u.schema/mod.ts';
 import { clearInteractiveScreen } from './u.terminal.ts';
 
 type Action = t.PiCliProfiles.StartAction | 'select';
+
+type MenuDependencies = {
+  readonly isTerminal: typeof import('@sys/cli').Cli.Is.terminal;
+  readonly screenSize: typeof import('@sys/cli').Cli.Screen.size;
+};
+
+const DEFAULT_DEPENDENCIES: MenuDependencies = Object.freeze({
+  isTerminal: Cli.Is.terminal,
+  screenSize: Cli.Screen.size,
+});
 
 type MenuContext = {
   readonly cwd: t.PiCli.Cwd;
@@ -44,7 +54,13 @@ const ValidName = {
   },
 } as const;
 
-export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll, gitRootExplicit }) => {
+export const menu: t.PiCliProfiles.Lib['menu'] = (input) => menuWith(input);
+
+/** Internal profile menu runner with explicit presentation dependencies. */
+export async function menuWith(
+  { cwd, allowAll, gitRootExplicit }: Parameters<t.PiCliProfiles.Lib['menu']>[0],
+  deps: MenuDependencies = DEFAULT_DEPENDENCIES,
+): ReturnType<t.PiCliProfiles.Lib['menu']> {
   const root = runtimeRoot(cwd);
   const migration = await ProfileMigrate.dir(root);
   const defaultAction = await MenuState.readMode(root);
@@ -56,7 +72,7 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll, gitRoot
       mode: 'select',
       selectAction: 'select',
       beforePrompt() {
-        printProfileRoot({ allowAll, notice: rootNotice });
+        printProfileRoot({ allowAll, notice: rootNotice }, deps);
         rootNotice = undefined;
       },
     });
@@ -79,12 +95,14 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll, gitRoot
       mode: 'action',
       path: selected.path,
       defaultAction: actionFromMode(defaultAction),
-      beforePrompt: () => printProfileScreen(screen),
+      beforePrompt: () => printProfileScreen(screen, deps),
     });
 
     if (action.kind === 'back') continue;
     if (action.kind === 'exit') return { kind: 'exit' };
-    if (action.kind === 'action' && (action.action === 'start:tui' || action.action === 'start:gui')) {
+    if (
+      action.kind === 'action' && (action.action === 'start:tui' || action.action === 'start:gui')
+    ) {
       const mode = action.action === 'start:tui' ? 'tui' : 'gui';
       await MenuState.writeMode({ root, selectedMode: mode });
       return {
@@ -95,7 +113,7 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll, gitRoot
       };
     }
   }
-};
+}
 
 /**
  * Helpers:
@@ -104,16 +122,19 @@ function actionFromMode(mode: t.PiCliProfiles.StartMode): Action {
   return mode === 'tui' ? 'start:tui' : 'start:gui';
 }
 
-function printProfileRoot(input: { allowAll?: boolean; notice?: string }) {
-  clearInteractiveScreen();
-  printProfileHeader(input.allowAll);
+function printProfileRoot(
+  input: { allowAll?: boolean; notice?: string },
+  deps: MenuDependencies,
+) {
+  clearInteractiveScreen(deps.isTerminal);
+  printProfileHeader(input.allowAll, deps.screenSize().width);
   if (input.notice) console.info(input.notice);
   console.info('');
 }
 
-function printProfileHeader(allowAll?: boolean) {
+function printProfileHeader(allowAll?: boolean, width?: number) {
   const permissions = allowAll === true ? 'allow-all' : 'scoped';
-  console.info(PiSandboxFmt.header(permissions).join('\n'));
+  console.info(PiSandboxFmt.header(permissions, width).join('\n'));
 }
 
 function menuArgs(args: { cwd: t.StringDir; allowAll?: boolean; defaultAction?: Action }) {
@@ -207,15 +228,18 @@ async function prepareSandboxScreen(args: MenuContext): Promise<ProfileScreen> {
   };
 }
 
-function printProfileScreen(input: ProfileScreen) {
-  clearInteractiveScreen();
+function printProfileScreen(input: ProfileScreen, deps: MenuDependencies) {
+  clearInteractiveScreen(deps.isTerminal);
+  const width = deps.screenSize().width;
   if (input.kind === 'invalid') {
-    printProfileHeader(input.allowAll);
+    printProfileHeader(input.allowAll, width);
     return;
   }
   console.info(
     PiSandboxFmt.table({ ...input.sheet.sandbox, report: input.sheet.report }, {
       gitRootExplicit: input.gitRootExplicit,
+      terminal: deps.isTerminal('stdout'),
+      width,
     }),
   );
 }

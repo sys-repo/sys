@@ -1,9 +1,17 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { Process } from '../../m.cli/common.ts';
+import { Process as ProcessOwner } from '../../m.cli/common.ts';
 import { Cli, Fs, Str, type t } from '../common.ts';
-import { Profiles } from '../mod.ts';
+import { Profiles as ProfilesOwner } from '../mod.ts';
 import { ProfilesFs } from '../u/u.fs.ts';
 import { PiSandboxReport } from '../../m.cli/u.report.sandbox.ts';
+import { withInherit } from '../../m.cli/u.inherit.ts';
+
+const Process = { ...ProcessOwner };
+const Profiles = {
+  ...ProfilesOwner,
+  main: (input: Parameters<typeof ProfilesOwner.main>[0]) =>
+    withInherit(Process.inherit, () => ProfilesOwner.main(input)),
+};
 
 describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
   it('runs selected profile path only after the report and compact sheet are observable', async () => {

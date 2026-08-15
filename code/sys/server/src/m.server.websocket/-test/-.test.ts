@@ -6,5 +6,6 @@ describe('WebSocketServer/API', () => {
     const m = await import('@sys/server/websocket');
     expect(m.WebSocketServer).to.equal(WebSocketServer);
     expect(Object.keys(WebSocketServer).sort()).to.eql(['create', 'start']);
+    expect(Object.isFrozen(WebSocketServer)).to.eql(true);
   });
 });

@@ -1,10 +1,11 @@
-import { type t, Fs, Is } from '../common.ts';
+import { Fs, Is, type t } from '../common.ts';
 import { YamlConfig } from '@sys/yaml/cli';
 import { EndpointsFs, EndpointYamlSchema } from '../u.endpoints/mod.ts';
 import { ValidName } from './is.ts';
 
 type Result = { readonly kind: 'exit' } | { readonly kind: 'selected'; readonly key: string };
 type Action = 'select';
+type YamlMenu = typeof YamlConfig.menu;
 
 /**
  * Presents an interactive menu for selecting or creating deploy endpoints.
@@ -19,13 +20,18 @@ type Action = 'select';
  * All endpoint behavior (providers, execution)
  * is intentionally handled elsewhere.
  */
-export async function endpointsMenu(cwd: t.StringDir): Promise<Result> {
+export function endpointsMenu(cwd: t.StringDir): Promise<Result> {
+  return endpointsMenuWith(cwd, YamlConfig.menu);
+}
+
+/** Internal endpoint menu runner with an explicit YAML menu effect. */
+export async function endpointsMenuWith(cwd: t.StringDir, menu: YamlMenu): Promise<Result> {
   const schema = {
     init: () => EndpointYamlSchema.initial(),
     validate: (value: unknown) => EndpointYamlSchema.validate(value),
   } as const;
 
-  const res = await YamlConfig.menu<t.DeployTool.Config.EndpointYaml.Doc, Action>({
+  const res = await menu<t.DeployTool.Config.EndpointYaml.Doc, Action>({
     cwd,
     dir: EndpointsFs.dir,
     label: 'endpoints',

@@ -13,6 +13,7 @@ import { ProfileStartup } from './u/u.startup.ts';
 import { START_GUI_SERVICE } from './u/u.start.gui.service.ts';
 
 type MainDependencies = {
+  readonly repaint: typeof Cli.Screen.repaint;
   readonly startGui: (input: {
     cwd: t.PiCli.Cwd;
     source: t.PiCliProfiles.StartGuiSource;
@@ -21,6 +22,7 @@ type MainDependencies = {
 };
 
 const DEFAULT_DEPENDENCIES: MainDependencies = Object.freeze({
+  repaint: Cli.Screen.repaint,
   async startGui(input) {
     const { start } = await import('./u.start/u.gui.ts');
     await start(input);
@@ -91,7 +93,7 @@ export async function mainWith(
     const frame = preview
       ? PiSandboxFmt.table({ ...preview.sandbox, report: preview.report }, { gitRootExplicit })
       : '';
-    Cli.Screen.repaint(frame);
+    deps.repaint(frame);
     await deps.startGui({ cwd, source: START_GUI_SERVICE.source });
     return {
       kind: 'gui',
@@ -125,7 +127,7 @@ export async function mainWith(
     });
   const sheet = PiSandboxFmt.table({ ...resolved.sandbox, report }, { gitRootExplicit });
   if (parsed.profile) console.info(sheet);
-  else Cli.Screen.repaint(sheet);
+  else deps.repaint(sheet);
 
   const output = await run(resolved);
   return {

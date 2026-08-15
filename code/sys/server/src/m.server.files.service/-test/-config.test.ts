@@ -1,7 +1,12 @@
 import { describe, expect, Fs, it, Testing } from '../../-test.ts';
 import { loadConfig, policyOf, resolveRoot } from '../u/u.config.ts';
+import { FilesWebSocketServiceConfigSchema } from '../u/u.config.schema.ts';
 
 describe('FilesWebSocketService config', () => {
+  it('freezes the schema helper namespace', () => {
+    expect(Object.isFrozen(FilesWebSocketServiceConfigSchema)).to.eql(true);
+  });
+
   it('loads config defaults and maps watch policy explicitly', async () => {
     const dir = await Testing.dir('FilesWebSocketService.config');
     const path = Fs.join(dir.dir, 'files.yaml');

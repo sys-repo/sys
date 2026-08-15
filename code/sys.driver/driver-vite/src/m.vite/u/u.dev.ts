@@ -75,6 +75,9 @@ export async function devWithDeps(input: t.Vite.Dev.Args, deps: t.ViteDevDeps = 
   const { silent = false, pkg, strictPort = false } = input;
   const waitForHttp = deps.waitForHttp ?? Http.Client.waitFor;
   const createScreen = deps.createScreen ?? DevScreen.create;
+  const spawn = deps.spawn ?? Process.spawn;
+  const loadDist = deps.loadDist ?? Pkg.Dist.load;
+  const command = deps.command ?? Wrangle.command;
   const reporterMode = DevScreen.resolveReporter(input.reporter, {
     silent,
     hasPkg: Boolean(pkg),
@@ -105,7 +108,7 @@ export async function devWithDeps(input: t.Vite.Dev.Args, deps: t.ViteDevDeps = 
   }
   const { dist } = await Perf.measure(
     'dev.parent.dist',
-    async () => await Pkg.Dist.load(Path.resolve('./dist/dist.json')),
+    async () => await loadDist(Path.resolve('./dist/dist.json')),
     {
       cwd,
     },
@@ -118,7 +121,7 @@ export async function devWithDeps(input: t.Vite.Dev.Args, deps: t.ViteDevDeps = 
   const { args, env, dispose: disposeBootstrap } = await Perf.measure(
     'dev.parent.command',
     async () =>
-      await Wrangle.command(
+      await command(
         paths,
         `dev --port=${requestedPort} --host${strictPort ? ' --strictPort' : ''}`,
       ),
@@ -157,7 +160,7 @@ export async function devWithDeps(input: t.Vite.Dev.Args, deps: t.ViteDevDeps = 
   if (parentOwnsOutput && pkg) output.pushDisplay('stdout', STARTING_DEV_SERVER);
   let proc: t.Process.Handle;
   try {
-    proc = Process.spawn({
+    proc = spawn({
       cwd,
       args,
       env,

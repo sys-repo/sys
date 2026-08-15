@@ -1,7 +1,8 @@
 import { describe, expect, Fs, it, Str, Testing } from '../../-test.ts';
 import { CellCli } from '../mod.ts';
-import { c, Cli, stripAnsi, type t } from '../common.ts';
+import { c, stripAnsi, type t } from '../common.ts';
 import { Fmt } from '../u.fmt/u.mod.ts';
+import { planWith } from '../u.fmt/u.task.ts';
 import { resetTaskEvents, silent, taskEvents, taskSource } from './u.fixture.ts';
 
 describe(`@sys/cell/cli task`, () => {
@@ -100,21 +101,19 @@ describe(`@sys/cell/cli task`, () => {
   });
 
   it('task --plan formatter → fits summary and tree values to narrow terminals', () => {
-    const restore = stubCliTerminal(46);
-    try {
-      const rendered = Fmt.Task.plan(taskPlanFixture({
+    const rendered = planWith(
+      { terminal: true, width: 46 },
+      taskPlanFixture({
         root: '/sample/workspace/cell.deploy/with/a/very/long/root',
         use: 'VeryLongDeployPushTaskNameThatShouldCollapse',
         from: './-scripts/deploy/with/a/very/long/module/path.ts',
         config: './-config/@sys.tools.deploy/orbiter/with/a/very/long/config.yaml',
-      }));
-      const text = stripAnsi(rendered);
+      }),
+    );
+    const text = stripAnsi(rendered);
 
-      expect(rendered).to.contain(c.cyan('…'));
-      for (const line of text.split('\n').filter(Boolean)) expect(line.length <= 46).to.eql(true);
-    } finally {
-      restore();
-    }
+    expect(rendered).to.contain(c.cyan('…'));
+    for (const line of text.split('\n').filter(Boolean)) expect(line.length <= 46).to.eql(true);
   });
 });
 
@@ -187,18 +186,5 @@ function leaf(
     },
     paths: config ? { config: config as t.StringPath } : {},
     endpoint: { use, from, specifier: from, source: 'local' },
-  };
-}
-
-function stubCliTerminal(width: number): () => void {
-  const screen = Cli.Screen as { size: () => { width: number; height: number } };
-  const is = Cli.Is as { terminal: (stream?: t.StdioName) => boolean };
-  const prevSize = screen.size;
-  const prevTerminal = is.terminal;
-  screen.size = () => ({ width, height: 24 });
-  is.terminal = () => true;
-  return () => {
-    screen.size = prevSize;
-    is.terminal = prevTerminal;
   };
 }

@@ -1,6 +1,7 @@
 import { describe, expect, expectTypeOf, it } from '../../-test.ts';
 import { type t } from '../common.ts';
 import { YamlConfig } from '../mod.ts';
+import { RefPath } from '../m.YamlConfig/u/u.path.ts';
 
 describe(`yaml: cli tools`, () => {
   it('API', async () => {
@@ -22,6 +23,7 @@ describe(`yaml: cli tools`, () => {
         YamlConfig.Edit,
         YamlConfig.Ref,
         YamlConfig.Env,
+        RefPath,
       ]
     ) expect(Object.isFrozen(namespace)).to.eql(true);
   });

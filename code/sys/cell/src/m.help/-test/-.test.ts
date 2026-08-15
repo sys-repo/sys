@@ -3,6 +3,21 @@ import { CellHelp } from '../mod.ts';
 import { HelpResource, resolveChapterResource } from '../u/u.paths.ts';
 
 describe('CellHelp.Dsl', () => {
+  it('freezes the public namespace graph', () => {
+    const values = [
+      CellHelp,
+      CellHelp.Root,
+      CellHelp.Info,
+      CellHelp.Init,
+      CellHelp.Migrate,
+      CellHelp.Task,
+      CellHelp.Start,
+      CellHelp.Kill,
+      CellHelp.Dsl,
+    ];
+    for (const value of values) expect(Object.isFrozen(value)).to.eql(true);
+  });
+
   it('loads the root DSL chapter index', async () => {
     const chapter = await CellHelp.Dsl.load();
 

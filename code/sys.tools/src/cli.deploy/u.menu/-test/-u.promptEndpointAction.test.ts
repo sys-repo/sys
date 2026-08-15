@@ -2,23 +2,14 @@ import { Cli, describe, expect, it } from '../../../-test.ts';
 import {
   formatPushActionName,
   formatServeActionName,
-  promptEndpointAction,
+  promptEndpointActionWith,
 } from '../u/u.promptEndpointAction.ts';
 
 describe('Deploy: promptEndpointAction', () => {
   it('uses an empty prompt message so the selector renders as bare ?', async () => {
-    const original = Cli.Input.Select.prompt;
     let message = '<unset>';
-
-    Object.defineProperty(Cli.Input.Select, 'prompt', {
-      value: (args: { readonly message: string }) => {
-        message = args.message;
-        return Promise.resolve('back');
-      },
-    });
-
-    try {
-      const res = await promptEndpointAction({
+    const res = await promptEndpointActionWith(
+      {
         checkOk: true,
         ranOk: false,
         showPush: false,
@@ -28,13 +19,15 @@ describe('Deploy: promptEndpointAction', () => {
         pushedOk: false,
         hashPrefix: '#81960',
         hasStageMeta: false,
-      });
+      },
+      (args) => {
+        message = args.message ?? '';
+        return Promise.resolve('back');
+      },
+    );
 
-      expect(res).to.eql('back');
-      expect(message).to.eql('');
-    } finally {
-      Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
-    }
+    expect(res).to.eql('back');
+    expect(message).to.eql('');
   });
 
   it('formats serve action with explicit port label', () => {

@@ -110,7 +110,7 @@ export function workflowTemplate(args: WorkflowArgs) {
     .replace(/^\s*__BODY__$/m, args.body);
 }
 
-export const wrangle = {
+export const wrangle = Object.freeze({
   indent(text: string, indent: number) {
     return text
       .split('\n')
@@ -149,4 +149,4 @@ export const wrangle = {
     if (on.workflow_dispatch) lines.push('  workflow_dispatch:');
     return lines.join('\n');
   },
-} as const;
+} as const);

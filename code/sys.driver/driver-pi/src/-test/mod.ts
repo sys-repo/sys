@@ -1,4 +1,5 @@
 export { EsmAssert } from '@sys/esm/testing';
+export { type SelectPromptDependency, withSelectPrompt } from '@sys/cli/testing';
 export {
   afterAll,
   afterEach,

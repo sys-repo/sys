@@ -1,10 +1,19 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { Process } from '../../m.cli/common.ts';
+import { Process as ProcessOwner } from '../../m.cli/common.ts';
 import { Ocr } from '../../m.extension/m.ocr/mod.ts';
 import { Fs, Path, Str, type t } from '../common.ts';
-import { Profiles } from '../mod.ts';
+import { Profiles as ProfilesOwner } from '../mod.ts';
 import { DEFAULT_SYSTEM_PROMPT, PROVENANCE_SAFETY_PROMPT } from '../u/u.prompt.ts';
 import { resolveRun } from '../u/u.resolve.run.ts';
+import { withInherit } from '../../m.cli/u.inherit.ts';
+import { withInvoke } from '../../m.cli/u.invoke.ts';
+
+const Process = { ...ProcessOwner };
+const Profiles = {
+  ...ProfilesOwner,
+  run: (input: Parameters<typeof ProfilesOwner.run>[0]) =>
+    withInherit(Process.inherit, () => withInvoke(Process.invoke, () => ProfilesOwner.run(input))),
+};
 
 type RegisteredTool = {
   readonly name: string;

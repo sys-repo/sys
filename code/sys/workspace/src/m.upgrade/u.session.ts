@@ -35,48 +35,50 @@ export function createSession(
   };
 }
 
-export const Session = {
-  versions(
-    session: UpgradeSession,
-    entry: t.EsmDeps.Entry & { module: t.EsmDeps.Entry['module'] & { registry: 'jsr' | 'npm' } },
-  ) {
-    const key = `${entry.module.registry}:${entry.module.name}`;
-    const current = session.versions.get(key);
-    if (current) return current;
+export const Session = Object.freeze(
+  {
+    versions(
+      session: UpgradeSession,
+      entry: t.EsmDeps.Entry & { module: t.EsmDeps.Entry['module'] & { registry: 'jsr' | 'npm' } },
+    ) {
+      const key = `${entry.module.registry}:${entry.module.name}`;
+      const current = session.versions.get(key);
+      if (current) return current;
 
-    const next = wrangle.versions(session, entry);
-    session.versions.set(key, next);
-    return next;
-  },
+      const next = wrangle.versions(session, entry);
+      session.versions.set(key, next);
+      return next;
+    },
 
-  npmInfo(
-    session: UpgradeSession,
-    entry: t.EsmDeps.Entry & { module: t.EsmDeps.Entry['module'] & { registry: 'npm' } },
-    version: t.StringSemver,
-  ) {
-    const key = `npm:${entry.module.name}@${version}`;
-    const current = session.info.get(key);
-    if (current) return current as Promise<t.Registry.Npm.Fetch.Pkg.InfoResponse>;
+    npmInfo(
+      session: UpgradeSession,
+      entry: t.EsmDeps.Entry & { module: t.EsmDeps.Entry['module'] & { registry: 'npm' } },
+      version: t.StringSemver,
+    ) {
+      const key = `npm:${entry.module.name}@${version}`;
+      const current = session.info.get(key);
+      if (current) return current as Promise<t.Registry.Npm.Fetch.Pkg.InfoResponse>;
 
-    const next = session.registry.npm.info(entry.module.name, version);
-    session.info.set(key, next);
-    return next;
-  },
+      const next = session.registry.npm.info(entry.module.name, version);
+      session.info.set(key, next);
+      return next;
+    },
 
-  jsrInfo(
-    session: UpgradeSession,
-    entry: t.EsmDeps.Entry & { module: t.EsmDeps.Entry['module'] & { registry: 'jsr' } },
-    version: t.StringSemver,
-  ) {
-    const key = `jsr:${entry.module.name}@${version}`;
-    const current = session.info.get(key);
-    if (current) return current as Promise<t.Registry.Jsr.Fetch.Pkg.InfoResponse>;
+    jsrInfo(
+      session: UpgradeSession,
+      entry: t.EsmDeps.Entry & { module: t.EsmDeps.Entry['module'] & { registry: 'jsr' } },
+      version: t.StringSemver,
+    ) {
+      const key = `jsr:${entry.module.name}@${version}`;
+      const current = session.info.get(key);
+      if (current) return current as Promise<t.Registry.Jsr.Fetch.Pkg.InfoResponse>;
 
-    const next = session.registry.jsr.info(entry.module.name, version, { fresh: true });
-    session.info.set(key, next);
-    return next;
-  },
-} as const;
+      const next = session.registry.jsr.info(entry.module.name, version, { fresh: true });
+      session.info.set(key, next);
+      return next;
+    },
+  } as const,
+);
 
 /**
  * Helpers:

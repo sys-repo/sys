@@ -1,9 +1,37 @@
-import { describe, expect, it } from '../../../-test.ts';
-import { Cli, Fs, Obj, type t } from '../common.ts';
-import { Process } from '../../m.cli/common.ts';
-import { mainWith } from '../m.main.ts';
-import { Profiles } from '../mod.ts';
+import { describe, expect, it, withSelectPrompt } from '../../../-test.ts';
+import { Cli as CliOwner, Fs, Obj, type t } from '../common.ts';
+import { Process as ProcessOwner } from '../../m.cli/common.ts';
+import { mainWith as mainWithOwner } from '../m.main.ts';
+import { Profiles as ProfilesOwner } from '../mod.ts';
 import { START_GUI_SERVICE } from '../u/u.start.gui.service.ts';
+import { withInherit } from '../../m.cli/u.inherit.ts';
+
+const Cli = {
+  ...CliOwner,
+  Input: { ...CliOwner.Input, Select: { ...CliOwner.Input.Select } },
+  Screen: { ...CliOwner.Screen },
+};
+const Process = { ...ProcessOwner };
+const withEffects = <T>(run: () => T): T =>
+  withSelectPrompt(
+    (options) => Cli.Input.Select.prompt(options as never) as Promise<unknown>,
+    () => withInherit(Process.inherit, run),
+  );
+const Profiles = {
+  ...ProfilesOwner,
+  main: (input: Parameters<typeof ProfilesOwner.main>[0]) =>
+    withEffects(() =>
+      mainWithOwner(input, {
+        repaint: Cli.Screen.repaint,
+        startGui: () => Promise.reject(new Error('Unexpected start:gui dispatch.')),
+      })
+    ),
+};
+type MainWithDeps = NonNullable<Parameters<typeof mainWithOwner>[1]>;
+const mainWith = (
+  input: Parameters<typeof mainWithOwner>[0],
+  deps: Pick<MainWithDeps, 'startGui'>,
+) => withEffects(() => mainWithOwner(input, { ...deps, repaint: Cli.Screen.repaint }));
 
 type SelectPromptInput = {
   readonly message?: string;

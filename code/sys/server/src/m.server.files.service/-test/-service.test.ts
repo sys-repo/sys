@@ -7,6 +7,7 @@ describe('FilesWebSocketService', () => {
     expect(mod.FilesWebSocketService).to.equal(FilesWebSocketService);
     expect(mod.FilesWebSocketService.resources).to.equal(FilesWebSocketService.resources);
     expect(mod.FilesWebSocketService.start).to.equal(FilesWebSocketService.start);
+    expect(Object.isFrozen(FilesWebSocketService)).to.eql(true);
   });
 
   it('declares configured websocket listener resources without starting services', async () => {

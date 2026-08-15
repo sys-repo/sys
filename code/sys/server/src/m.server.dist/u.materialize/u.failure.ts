@@ -1,4 +1,4 @@
-import { Fs, type t } from './common.ts';
+import { type t } from './common.ts';
 
 /** Build one frozen sanitized materialization failure. */
 export function failed(
@@ -17,8 +17,11 @@ export function failed(
 }
 
 /** Classify a thrown host or Rooted failure without exposing its cause. */
-export function causeReason(cause: unknown): t.Dist.FailureReason {
-  if (Fs.Capability.Rooted.Is.failure(cause)) {
+export function causeReason(
+  cause: unknown,
+  isRootedFailure: t.FsRooted.IsLib['failure'],
+): t.Dist.FailureReason {
+  if (isRootedFailure(cause)) {
     return cause.kind === 'cancelled' ? 'cancelled' : 'filesystem-failure';
   }
   return 'execution-failure';

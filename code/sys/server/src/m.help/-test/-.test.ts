@@ -2,6 +2,12 @@ import { describe, expect, it } from '../../-test.ts';
 import { ServerHelp } from '../mod.ts';
 
 describe('m.help', () => {
+  it('freezes the public namespace graph', () => {
+    expect(Object.isFrozen(ServerHelp)).to.eql(true);
+    expect(Object.isFrozen(ServerHelp.Root)).to.eql(true);
+    expect(Object.isFrozen(ServerHelp.Dsl)).to.eql(true);
+  });
+
   it('loads root package help', async () => {
     const root = await ServerHelp.Root.load();
 

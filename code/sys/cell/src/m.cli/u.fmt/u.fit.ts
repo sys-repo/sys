@@ -17,12 +17,26 @@ export type FitPathOptions = {
   min?: number;
 };
 
-export const FmtFit = {
-  text,
-  value,
-  path,
-  valueWidth,
-} as const;
+export type FitContext = {
+  readonly terminal: boolean;
+  readonly width: number;
+};
+
+export function currentFitContext(): FitContext {
+  return {
+    terminal: Cli.Is.terminal('stdout'),
+    width: Cli.Screen.size().width,
+  };
+}
+
+export const FmtFit = Object.freeze(
+  {
+    text,
+    value,
+    path,
+    valueWidth,
+  } as const,
+);
 
 /**
  * Helpers:

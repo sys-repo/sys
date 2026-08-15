@@ -9,49 +9,51 @@ export type DslHelpInput = {
   readonly format?: t.ServerCli.Dsl.Format;
 };
 
-export const FmtDslHelp = {
-  async output(input: DslHelpInput = {}): Promise<string> {
-    const path = input.path ?? [];
-    const format = input.format ?? 'human';
-    const chapter = await ServerHelp.Dsl.load(path);
+export const FmtDslHelp = Object.freeze(
+  {
+    async output(input: DslHelpInput = {}): Promise<string> {
+      const path = input.path ?? [];
+      const format = input.format ?? 'human';
+      const chapter = await ServerHelp.Dsl.load(path);
 
-    if (format === 'skill') return skill(chapter);
+      if (format === 'skill') return skill(chapter);
 
-    const toolname = input.toolname ?? ['@sys/server dsl', ...path].join(' ');
-    return Fmt.Chapters.page({
-      command,
-      chapter,
-      label: 'Chapter',
-      help: {
-        tool: toolname,
-        summary: chapter.summary,
-        sections: [
-          {
-            kind: 'lines',
-            label: 'Usage',
-            items: [`${command} [chapter...] [--format <format>]`],
-          },
-          {
-            kind: 'pairs',
-            label: 'Options',
-            items: [
-              ['--format <format>', 'render output as human or skill'],
-              ['-h, --help', 'show DSL help'],
-            ],
-          },
-          {
-            kind: 'pairs',
-            label: 'Formats',
-            items: [
-              ['human', 'terminal help output (default)'],
-              ['skill', 'agent-skill Markdown projection of the requested DSL chapter'],
-            ],
-          },
-        ],
-      },
-    });
-  },
-} as const;
+      const toolname = input.toolname ?? ['@sys/server dsl', ...path].join(' ');
+      return Fmt.Chapters.page({
+        command,
+        chapter,
+        label: 'Chapter',
+        help: {
+          tool: toolname,
+          summary: chapter.summary,
+          sections: [
+            {
+              kind: 'lines',
+              label: 'Usage',
+              items: [`${command} [chapter...] [--format <format>]`],
+            },
+            {
+              kind: 'pairs',
+              label: 'Options',
+              items: [
+                ['--format <format>', 'render output as human or skill'],
+                ['-h, --help', 'show DSL help'],
+              ],
+            },
+            {
+              kind: 'pairs',
+              label: 'Formats',
+              items: [
+                ['human', 'terminal help output (default)'],
+                ['skill', 'agent-skill Markdown projection of the requested DSL chapter'],
+              ],
+            },
+          ],
+        },
+      });
+    },
+  } as const,
+);
 
 function skill(chapter: t.ServerHelp.Dsl.Chapter): string {
   return Fmt.Chapters.markdown({

@@ -77,9 +77,11 @@ import { Keyboard } from '../m.Testing.DomMock/m.Keyboard.ts';
 import { Mouse } from '../m.Testing.DomMock/m.Mouse.ts';
 import { DomMock } from '../m.Testing.DomMock/mod.ts';
 import { TestHttpServer } from '../m.Testing.Server/m.HttpServer.ts';
+import { TestServer } from '../m.Testing.Server/m.Server.ts';
 import { Testing as ServerTesting } from '../m.Testing.Server/mod.ts';
 import { Time } from '../m.Time/m.Time.ts';
 import { Duration } from '../m.Time/m.Time.Duration.ts';
+import { Wrangle as DelayWrangle } from '../m.Time/m.Time.delay.ts';
 import { Day } from '../m.Time.Date/m.Date.Day.ts';
 import { Format as DateFormat } from '../m.Time.Date/m.Date.Format.ts';
 import { Is as DateIs } from '../m.Time.Date/m.Date.Is.ts';
@@ -170,6 +172,8 @@ describe('namespace freeze', () => {
       ['DomMock.Keyboard', Keyboard],
       ['DomMock.Mouse', Mouse],
       ['Testing.Http', TestHttpServer],
+      ['Testing.Server.internal', TestServer],
+      ['Time.Delay.Wrangle', DelayWrangle],
       ['Time.Duration.To', Duration.To],
       ['Time.Date.Day', Day],
       ['Time.Date.Format', DateFormat],

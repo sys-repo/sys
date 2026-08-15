@@ -1,5 +1,11 @@
 import { Fetch, Fs, FsPkg, HttpPull, Num, type t, Url } from './common.ts';
-import { causeReason, failed, fetchReason, pullReason, verificationReason } from './u.failure.ts';
+import {
+  causeReason as classifyCauseReason,
+  failed,
+  fetchReason,
+  pullReason,
+  verificationReason,
+} from './u.failure.ts';
 import { type InputSnapshot, prepareManifestCredentials, snapshotInput } from './u.input.ts';
 import { admitManifest } from './u.manifest.ts';
 
@@ -17,17 +23,34 @@ type FetchResult =
   | { readonly ok: true; readonly value: FetchedManifest }
   | { readonly ok: false; readonly reason: t.Dist.FailureReason };
 
+export type MaterializeDependencies = {
+  readonly rooted: t.FsRooted.Lib;
+};
+
+const DEFAULT_DEPENDENCIES: MaterializeDependencies = Object.freeze({
+  rooted: Fs.Capability.Rooted,
+});
+
 /** Settle one pinned Dist with an `existing`, `promoted`, or `failed` result. */
-export const materialize: t.Dist.Materialize = async (input) => {
+export const materialize: t.Dist.Materialize = (input) =>
+  materializeWith(input, DEFAULT_DEPENDENCIES);
+
+/** Settle one pinned Dist using package-internal host dependencies. */
+export async function materializeWith(
+  input: t.Dist.MaterializeArgs,
+  dependencies: MaterializeDependencies,
+): Promise<t.Dist.MaterializeResult> {
   const prepared = snapshotInput(input);
   if (!prepared.ok) return failed('input', prepared.reason);
   const args = prepared.value;
+  const causeReason = (cause: unknown) =>
+    classifyCauseReason(cause, dependencies.rooted.Is.failure);
 
   let rooted: Rooted;
   let generation: t.FsRooted.Target<'directory'>;
   let dir: t.StringAbsoluteDir;
   try {
-    rooted = await Fs.Capability.Rooted.create({ root: args.storeDir, until: args.until });
+    rooted = await dependencies.rooted.create({ root: args.storeDir, until: args.until });
     const admitted = await rooted.admit(
       [{ kind: 'directory', path: args.integrity }],
       { until: args.until },
@@ -160,7 +183,7 @@ export const materialize: t.Dist.Materialize = async (input) => {
   } catch (cause) {
     const cleanup = await discardStage(rooted, stage);
     // This call performs no pre-publication mutation, so commitment means rename may have exposed the target.
-    if (Fs.Capability.Rooted.Is.failure(cause) && cause.committed) {
+    if (dependencies.rooted.Is.failure(cause) && cause.committed) {
       return await settleVisible(
         args,
         dir,
@@ -168,6 +191,7 @@ export const materialize: t.Dist.Materialize = async (input) => {
         pull.totals,
         cleanup,
         'committed',
+        dependencies,
       );
     }
     return failed('promotion', causeReason(cause), cleanup);
@@ -181,8 +205,9 @@ export const materialize: t.Dist.Materialize = async (input) => {
     pull.totals,
     cleanup,
     promoted.kind === 'published' ? 'committed' : 'occupied',
+    dependencies,
   );
-};
+}
 
 async function fetchManifest(args: InputSnapshot): Promise<FetchResult> {
   const requestedOrigin = new URL(args.manifestUrl).origin;
@@ -243,6 +268,7 @@ async function settleVisible(
   totals: t.HttpPull.ResourceTotals,
   cleanup: t.Dist.Cleanup,
   publication: t.Dist.FailedPublication,
+  dependencies: MaterializeDependencies,
 ): Promise<t.Dist.MaterializeResult> {
   let result: Verification;
   try {
@@ -252,7 +278,12 @@ async function settleVisible(
       limits: args.policy.verification,
     });
   } catch (cause) {
-    return failed('final-verification', causeReason(cause), cleanup, publication);
+    return failed(
+      'final-verification',
+      classifyCauseReason(cause, dependencies.rooted.Is.failure),
+      cleanup,
+      publication,
+    );
   }
   if (result.kind !== 'verified') {
     return failed(

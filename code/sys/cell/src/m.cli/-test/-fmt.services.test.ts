@@ -1,5 +1,5 @@
 import { describe, expect, Fs, it, Time } from '../../-test.ts';
-import { c, Cli, stripAnsi, type t } from '../common.ts';
+import { c, stripAnsi, type t } from '../common.ts';
 import { Fmt } from '../u.fmt/u.mod.ts';
 
 describe(`@sys/cell/cli service status formatter`, () => {
@@ -54,103 +54,95 @@ describe(`@sys/cell/cli service status formatter`, () => {
   });
 
   it('ellipsizes root paths against terminal width', () => {
-    const restore = stubCliTerminal(48);
-    try {
-      const now = Time.now.timestamp;
-      const config = '/tmp/view.yaml' as t.StringPath;
-      const text = stripAnsi(Fmt.Services.started({
-        services: [{
-          service: {
+    const now = Time.now.timestamp;
+    const config = '/tmp/view.yaml' as t.StringPath;
+    const text = stripAnsi(Fmt.Services.started({
+      width: 48,
+      services: [{
+        service: {
+          name: 'view' as t.Cell.Id,
+          use: 'Serve',
+          from: 'jsr:@sys/tools/serve',
+          config: './-config/view.yaml' as t.Cell.Path,
+        },
+        selection: {
+          name: 'view' as t.Cell.Id,
+          mode: 'default',
+          descriptor: {
             name: 'view' as t.Cell.Id,
             use: 'Serve',
             from: 'jsr:@sys/tools/serve',
             config: './-config/view.yaml' as t.Cell.Path,
           },
-          selection: {
-            name: 'view' as t.Cell.Id,
-            mode: 'default',
-            descriptor: {
-              name: 'view' as t.Cell.Id,
-              use: 'Serve',
-              from: 'jsr:@sys/tools/serve',
-              config: './-config/view.yaml' as t.Cell.Path,
-            },
-            binding: {
-              use: 'Serve',
-              from: 'jsr:@sys/tools/serve',
-              config: './-config/view.yaml' as t.Cell.Path,
-            },
+          binding: {
+            use: 'Serve',
+            from: 'jsr:@sys/tools/serve',
+            config: './-config/view.yaml' as t.Cell.Path,
           },
-          paths: { config },
-          metrics: { start: { startedAt: now, resolvedAt: now } },
-          owner: {
-            state: 'ready',
-            root: '/sample/workspace/with/a/very/long/path/to/ui-components/dist',
-          },
-        }],
-      }));
+        },
+        paths: { config },
+        metrics: { start: { startedAt: now, resolvedAt: now } },
+        owner: {
+          state: 'ready',
+          root: '/sample/workspace/with/a/very/long/path/to/ui-components/dist',
+        },
+      }],
+    }));
 
-      const rootLine = text.split('\n').find((line) => line.trimStart().startsWith('root')) ?? '';
+    const rootLine = text.split('\n').find((line) => line.trimStart().startsWith('root')) ?? '';
 
-      expect(rootLine.includes('…')).to.eql(true);
-      expect(rootLine.length <= 48).to.eql(true);
-      expect(rootLine).to.contain('/sample');
-      expect(rootLine).to.contain('/dist');
-    } finally {
-      restore();
-    }
+    expect(rootLine.includes('…')).to.eql(true);
+    expect(rootLine.length <= 48).to.eql(true);
+    expect(rootLine).to.contain('/sample');
+    expect(rootLine).to.contain('/dist');
   });
 
   it('collapses long service-board values instead of terminal-wrapping', () => {
-    const restore = stubCliTerminal(42);
-    try {
-      const now = Time.now.timestamp;
-      const rendered = Fmt.Services.started({
-        services: [{
-          service: {
+    const now = Time.now.timestamp;
+    const rendered = Fmt.Services.started({
+      width: 42,
+      services: [{
+        service: {
+          name: 'very-long-static-view-service-name' as t.Cell.Id,
+          use: 'StaticService',
+          from: 'jsr:@sys/http/server/static/surfaces/that/should/not/wrap',
+          config: './-config/view.yaml' as t.Cell.Path,
+        },
+        selection: {
+          name: 'very-long-static-view-service-name' as t.Cell.Id,
+          mode: 'default',
+          descriptor: {
             name: 'very-long-static-view-service-name' as t.Cell.Id,
             use: 'StaticService',
             from: 'jsr:@sys/http/server/static/surfaces/that/should/not/wrap',
             config: './-config/view.yaml' as t.Cell.Path,
           },
-          selection: {
-            name: 'very-long-static-view-service-name' as t.Cell.Id,
-            mode: 'default',
-            descriptor: {
-              name: 'very-long-static-view-service-name' as t.Cell.Id,
-              use: 'StaticService',
-              from: 'jsr:@sys/http/server/static/surfaces/that/should/not/wrap',
-              config: './-config/view.yaml' as t.Cell.Path,
-            },
-            binding: {
-              use: 'StaticService',
-              from: 'jsr:@sys/http/server/static/surfaces/that/should/not/wrap',
-              config: './-config/view.yaml' as t.Cell.Path,
-            },
+          binding: {
+            use: 'StaticService',
+            from: 'jsr:@sys/http/server/static/surfaces/that/should/not/wrap',
+            config: './-config/view.yaml' as t.Cell.Path,
           },
-          paths: { config: '/tmp/view.yaml' as t.StringPath },
-          metrics: { start: { startedAt: now, resolvedAt: now } },
-          owner: {
-            state: 'ready',
-            root: '/sample/workspace/cell.stripe/view',
-            urls: [{
-              href: 'http://127.0.0.1:8080/payments/customer/session/that/should/not/wrap',
-            }],
-          },
-        }],
-      });
-      const text = stripAnsi(rendered);
-      const lines = text.split('\n').filter(Boolean);
+        },
+        paths: { config: '/tmp/view.yaml' as t.StringPath },
+        metrics: { start: { startedAt: now, resolvedAt: now } },
+        owner: {
+          state: 'ready',
+          root: '/sample/workspace/cell.stripe/view',
+          urls: [{
+            href: 'http://127.0.0.1:8080/payments/customer/session/that/should/not/wrap',
+          }],
+        },
+      }],
+    });
+    const text = stripAnsi(rendered);
+    const lines = text.split('\n').filter(Boolean);
 
-      expect(rendered).to.contain(c.cyan('…'));
-      expect(text).to.contain('service');
-      expect(text).to.contain('module');
-      expect(text).to.contain('url');
-      expect(text).to.not.contain('very-long-static-view-service-name');
-      for (const line of lines) expect(line.length <= 42).to.eql(true);
-    } finally {
-      restore();
-    }
+    expect(rendered).to.contain(c.cyan('…'));
+    expect(text).to.contain('service');
+    expect(text).to.contain('module');
+    expect(text).to.contain('url');
+    expect(text).to.not.contain('very-long-static-view-service-name');
+    for (const line of lines) expect(line.length <= 42).to.eql(true);
   });
 
   it('keeps the board safe at an explicit tiny render width', () => {
@@ -277,19 +269,6 @@ describe(`@sys/cell/cli service status formatter`, () => {
 /**
  * Helpers:
  */
-function stubCliTerminal(width: number): () => void {
-  const screen = Cli.Screen as { size: () => { width: number; height: number } };
-  const is = Cli.Is as { terminal: (stream?: t.StdioName) => boolean };
-  const prevSize = screen.size;
-  const prevTerminal = is.terminal;
-  screen.size = () => ({ width, height: 24 });
-  is.terminal = () => true;
-  return () => {
-    screen.size = prevSize;
-    is.terminal = prevTerminal;
-  };
-}
-
 function indentOf(line: string): number {
   return line.length - line.trimStart().length;
 }

@@ -1,5 +1,5 @@
 import { Cli } from '@sys/cli';
-import { Schedule, type t, WebFixture } from '../../-test.ts';
+import { Schedule, type t } from '../../-test.ts';
 import type { Fixture } from '../../-test/u.fixture.dist.ts';
 import { verified } from '../../-test/u.fixture.dist.ts';
 import { DEFAULT_DEPENDENCIES, serveLocalWith } from '../u.server.start/mod.ts';
@@ -27,12 +27,17 @@ type StartedOptions = {
   finishBeforeCloseFailure?: boolean;
 };
 
-export function mockInteractive(value: boolean) {
-  return WebFixture.Property.mock([{
-    target: Cli.Is,
-    key: 'interactive',
-    descriptor: { value: () => value },
-  }]);
+export function createModeEffects(isInteractive: boolean): ServeEffects {
+  const unexpected = () => {
+    throw new Error('raw serve must not acquire presentation effects');
+  };
+  return {
+    bindKeyboard: unexpected,
+    createScreen: unexpected,
+    isInteractive: () => isInteractive,
+    open: unexpected,
+    now: unexpected,
+  };
 }
 
 export function capture(input: Record<string, unknown>): CapturedStartInput {
@@ -92,6 +97,7 @@ export function createInteractiveEffects(fixture: Fixture) {
         screenDisposals += 1;
       },
     }),
+    isInteractive: () => true,
     open: () => {},
     now: () => fixture.cloneDist().build.time,
   };

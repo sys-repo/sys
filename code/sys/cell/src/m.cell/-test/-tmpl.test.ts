@@ -4,6 +4,10 @@ import { Cell } from '../mod.ts';
 import { CellPaths } from '../u/paths.ts';
 
 describe('CellTmpl', () => {
+  it('freezes the template namespace', () => {
+    expect(Object.isFrozen(CellTmpl)).to.eql(true);
+  });
+
   it('materializes the default Cell folder', async () => {
     const tmp = await Fs.makeTempDir({ prefix: 'cell.tmpl.default.' });
     const root = tmp.absolute;

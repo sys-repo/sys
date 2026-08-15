@@ -7,12 +7,14 @@ import { FmtSelection } from './u.fmt.selection.ts';
 import { FmtStanddown } from './u.fmt.standdown.ts';
 
 /** Public CLI formatter surface. */
-export const Fmt = {
-  ...FmtBase,
-  ...FmtProgress,
-  ...FmtPlan,
-  ...FmtDiagnostics,
-  ...FmtSelection,
-  ...FmtStanddown,
-  ...FmtApplied,
-} as const;
+export const Fmt = Object.freeze(
+  {
+    ...FmtBase,
+    ...FmtProgress,
+    ...FmtPlan,
+    ...FmtDiagnostics,
+    ...FmtSelection,
+    ...FmtStanddown,
+    ...FmtApplied,
+  } as const,
+);

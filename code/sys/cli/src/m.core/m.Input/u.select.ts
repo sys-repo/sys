@@ -1,5 +1,6 @@
 import { Is, type t } from '../common.ts';
 import { Prompt } from '../m.Prompt/mod.ts';
+import { selectPromptDependency } from './u.select.scope.ts';
 
 type NormalizedSelectOptions<TValue> = Omit<t.CliInput.Select.Options<TValue>, 'message'> & {
   message: string;
@@ -13,6 +14,12 @@ type SelectPrompt<TValue> = (
 export function promptSelect<TValue>(
   options: t.CliInput.Select.Options<TValue>,
 ): ReturnType<typeof InputSelect.prompt<TValue>> {
+  const dependency = selectPromptDependency();
+  if (dependency) {
+    return dependency(options as t.CliInput.Select.Options<unknown>) as ReturnType<
+      typeof InputSelect.prompt<TValue>
+    >;
+  }
   return promptSelectWith((input) => InputSelect.prompt<TValue>(input), options);
 }
 

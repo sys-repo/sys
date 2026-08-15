@@ -1,6 +1,6 @@
 import { Arr, c, Cli, Err, Fs, Is, Path, Str, type t } from '../common.ts';
-import { Process } from '../../m.cli/common.ts';
 import { Ocr } from '../../m.extension/m.ocr/mod.ts';
+import { invoke } from '../../m.cli/u.invoke.ts';
 
 /** Launcher-owned startup preflight for enabled PDF optical character recognition (OCR). */
 export type OcrStartupPreflightInput = {
@@ -232,7 +232,7 @@ async function runInstall(input: {
 async function runProcessCommand(
   input: OcrLanguageProbeInput,
 ): Promise<t.PiOcrExtension.Command.Output> {
-  const output = await Process.invoke({
+  const output = await invoke({
     cmd: input.cmd,
     args: [...input.args],
     env: input.env,
@@ -246,7 +246,7 @@ async function runProcessCommand(
 }
 
 async function runInstallCommand(input: OcrInstallInput) {
-  const output = await Process.invoke({
+  const output = await invoke({
     cmd: input.cmd,
     args: [...input.args],
     env: input.env,

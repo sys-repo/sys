@@ -2,39 +2,41 @@ import { Is, Str, type t, Yaml } from '../common.ts';
 
 type O = Record<string, unknown>;
 
-export const HelpYaml = {
-  record(text: string, path: string): O {
-    const parsed = Yaml.parse<unknown>(text);
-    if (parsed.error) {
-      const cause = parsed.error;
-      throw new Error(`WorkspaceHelp: failed to parse resource YAML: ${path}`, { cause });
-    }
+export const HelpYaml = Object.freeze(
+  {
+    record(text: string, path: string): O {
+      const parsed = Yaml.parse<unknown>(text);
+      if (parsed.error) {
+        const cause = parsed.error;
+        throw new Error(`WorkspaceHelp: failed to parse resource YAML: ${path}`, { cause });
+      }
 
-    const data = parsed.data;
-    if (!Is.record<O>(data)) {
-      throw new Error(`WorkspaceHelp: resource must be a YAML record: ${path}`);
-    }
-    return data;
-  },
+      const data = parsed.data;
+      if (!Is.record<O>(data)) {
+        throw new Error(`WorkspaceHelp: resource must be a YAML record: ${path}`);
+      }
+      return data;
+    },
 
-  string(data: O, field: string): string {
-    const value = data[field];
-    if (!Is.str(value)) throw new Error(`WorkspaceHelp: field must be a string: ${field}`);
-    return Str.trimEdgeNewlines(value);
-  },
+    string(data: O, field: string): string {
+      const value = data[field];
+      if (!Is.str(value)) throw new Error(`WorkspaceHelp: field must be a string: ${field}`);
+      return Str.trimEdgeNewlines(value);
+    },
 
-  sections(data: O, field: string): readonly t.WorkspaceHelp.Section[] {
-    const value = data[field];
-    if (!Is.array<O>(value) || !value.every(isSectionRecord)) {
-      throw new Error(`WorkspaceHelp: field must be a section record list: ${field}`);
-    }
+    sections(data: O, field: string): readonly t.WorkspaceHelp.Section[] {
+      const value = data[field];
+      if (!Is.array<O>(value) || !value.every(isSectionRecord)) {
+        throw new Error(`WorkspaceHelp: field must be a section record list: ${field}`);
+      }
 
-    return value.map((item) => ({
-      label: item.label,
-      items: sectionItems(item.items),
-    }));
-  },
-} as const;
+      return value.map((item) => ({
+        label: item.label,
+        items: sectionItems(item.items),
+      }));
+    },
+  } as const,
+);
 
 /**
  * Helpers:

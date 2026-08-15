@@ -1,17 +1,25 @@
-import { c, Cli, Fs, Is, Str, type t } from '../common.ts';
+import { c, Fs, Is, Str, type t } from '../common.ts';
 import { FmtFields } from './u.fields.ts';
-import { FmtFit } from './u.fit.ts';
+import { currentFitContext, type FitContext, FmtFit } from './u.fit.ts';
 
-export const FmtInfo = {
-  cell(report: t.CellCli.Info.Report): string {
-    const sections = infoSections(report);
-    const labelWidth = FmtFields.labelWidth(sections.flatMap((section) => section.blocks).flatMap(
+export const FmtInfo = Object.freeze(
+  {
+    cell(report: t.CellCli.Info.Report): string {
+      return cellWith(currentFitContext(), report);
+    },
+  } as const,
+);
+
+export function cellWith(context: FitContext, report: t.CellCli.Info.Report): string {
+  const sections = infoSections(report);
+  const labelWidth = FmtFields.labelWidth(
+    sections.flatMap((section) => section.blocks).flatMap(
       (block) => block.rows.map(([label]) => label),
-    ));
-    const text = sections.map((section) => renderSection(section, labelWidth)).join('\n\n');
-    return `\n${Str.trimEdgeNewlines(text)}\n`;
-  },
-} as const;
+    ),
+  );
+  const text = sections.map((section) => renderSection(section, labelWidth, context)).join('\n\n');
+  return `\n${Str.trimEdgeNewlines(text)}\n`;
+}
 
 /**
  * Helpers:
@@ -92,47 +100,58 @@ function noneBlock(): InfoBlock {
   return { rows: [['', 'none', 'none']] };
 }
 
-function renderSection(section: InfoSection, labelWidth: number): string {
-  const blocks = section.blocks.map((block) => renderBlock(block, labelWidth)).join('\n\n');
+function renderSection(section: InfoSection, labelWidth: number, context: FitContext): string {
+  const blocks = section.blocks.map((block) => renderBlock(block, labelWidth, context)).join(
+    '\n\n',
+  );
   return [FmtFields.title(section.title), blocks].filter(Boolean).join('\n');
 }
 
-function renderBlock(block: InfoBlock, labelWidth: number): string {
+function renderBlock(block: InfoBlock, labelWidth: number, context: FitContext): string {
   const title = block.title ? `${FmtFields.indent(1)}${c.white(block.title)}` : '';
-  const rows = renderRows(block.rows, labelWidth, block.title ? 2 : 1);
+  const rows = renderRows(block.rows, labelWidth, block.title ? 2 : 1, context);
   return [title, rows].filter(Boolean).join('\n');
 }
 
-function renderRows(rows: readonly InfoRow[], labelWidth: number, level: 1 | 2): string {
+function renderRows(
+  rows: readonly InfoRow[],
+  labelWidth: number,
+  level: 1 | 2,
+  context: FitContext,
+): string {
   if (rows.length === 0) return '';
 
   return rows.map(([label, value, kind]) => {
     const rowIndent = FmtFields.indent(level);
-    if (!label) return `${rowIndent}${formatValue(value, kind, rowIndent.length)}`;
+    if (!label) return `${rowIndent}${formatValue(value, kind, rowIndent.length, context)}`;
 
     const gap = '   ';
     const tone = level === 1 ? 'gray' : 'dim';
     const paddedLabel = FmtFields.label(label, labelWidth, { tone });
     const reserve = rowIndent.length + labelWidth + gap.length;
-    return `${rowIndent}${paddedLabel}${gap}${formatValue(value, kind, reserve)}`;
+    return `${rowIndent}${paddedLabel}${gap}${formatValue(value, kind, reserve, context)}`;
   }).join('\n');
 }
 
-function formatValue(value: string, kind: InfoRow[2], reserve: number): string {
-  if (kind === 'path') return pathValue(value, reserve);
-  if (kind === 'path-bare') return pathValue(value, reserve, 'bare');
-  if (kind === 'subtle') return FmtFit.value(value, reserve, { color: c.gray });
-  if (kind === 'highlight') return FmtFit.value(value, reserve, { color: c.cyan });
-  if (kind === 'steps') return stepValue(value, reserve);
+function formatValue(
+  value: string,
+  kind: InfoRow[2],
+  reserve: number,
+  context: FitContext,
+): string {
+  if (kind === 'path') return pathValue(value, reserve, context);
+  if (kind === 'path-bare') return pathValue(value, reserve, context, 'bare');
+  if (kind === 'subtle') return FmtFit.value(value, reserve, { ...context, color: c.gray });
+  if (kind === 'highlight') return FmtFit.value(value, reserve, { ...context, color: c.cyan });
+  if (kind === 'steps') return stepValue(value, reserve, context);
   if (kind === 'none') return c.gray(c.italic(value));
-  return FmtFit.value(value, reserve, { color: c.white });
+  return FmtFit.value(value, reserve, { ...context, color: c.white });
 }
 
-function stepValue(value: string, reserve: number): string {
+function stepValue(value: string, reserve: number, context: FitContext): string {
   const steps = value.split(' → ');
-  const terminal = Cli.Is.terminal('stdout');
-  const width = FmtFit.valueWidth(reserve, { terminal });
-  const fitsOneLine = !terminal || width === 0 || value.length <= width;
+  const width = FmtFit.valueWidth(reserve, context);
+  const fitsOneLine = !context.terminal || width === 0 || value.length <= width;
 
   if (fitsOneLine) return inlineSteps(value);
 
@@ -152,8 +171,13 @@ function inlineSteps(value: string): string {
   return value.split('→').map((part) => c.white(part)).join(c.cyan('→'));
 }
 
-function pathValue(path: string, reserve: number, relative: 'bare' | 'prefixed' = 'prefixed') {
-  return FmtFit.path(path, reserve, { relative });
+function pathValue(
+  path: string,
+  reserve: number,
+  context: FitContext,
+  relative: 'bare' | 'prefixed' = 'prefixed',
+) {
+  return FmtFit.path(path, reserve, { ...context, relative });
 }
 
 function displayRoot(root: string): string {

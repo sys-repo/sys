@@ -20,23 +20,25 @@ export type StanddownResult = {
  * Standdown is deliberately a workspace planning concern: registry clients expose
  * publish-time facts; policy selection receives only eligible versions.
  */
-export const Standdown = {
-  evaluate(input: StanddownInput): StanddownResult {
-    const meta = wrangle.metaByVersion(input.versions);
+export const Standdown = Object.freeze(
+  {
+    evaluate(input: StanddownInput): StanddownResult {
+      const meta = wrangle.metaByVersion(input.versions);
 
-    const versions = input.available.map((version) => {
-      const publishedAt = wrangle.publishedAt(meta.get(version));
-      const eligibility = wrangle.eligibility({ ...input, publishedAt, version });
-      return publishedAt ? { version, publishedAt, eligibility } : { version, eligibility };
-    });
+      const versions = input.available.map((version) => {
+        const publishedAt = wrangle.publishedAt(meta.get(version));
+        const eligibility = wrangle.eligibility({ ...input, publishedAt, version });
+        return publishedAt ? { version, publishedAt, eligibility } : { version, eligibility };
+      });
 
-    const eligible = versions
-      .filter((item) => item.eligibility.kind === 'eligible')
-      .map((item) => item.version);
+      const eligible = versions
+        .filter((item) => item.eligibility.kind === 'eligible')
+        .map((item) => item.version);
 
-    return { eligible, versions };
-  },
-} as const;
+      return { eligible, versions };
+    },
+  } as const,
+);
 
 const wrangle = {
   metaByVersion(input: Record<string, unknown>): Map<t.StringSemver, unknown> {

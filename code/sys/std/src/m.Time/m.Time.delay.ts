@@ -155,7 +155,7 @@ export function delay(...args: any[]): t.Time.Delay.Promise {
 /**
  * Helpers:
  */
-export const Wrangle = {
+export const Wrangle = Object.freeze({
   /**
    * Parse input into (msecs, fn, options).
    * Supports:
@@ -218,4 +218,4 @@ export const Wrangle = {
     if (!Number.isInteger(msecs)) return 0; //      fractional → 0
     return msecs <= 0 ? 0 : msecs; //               negatives → 0, otherwise exact
   },
-} as const;
+} as const);

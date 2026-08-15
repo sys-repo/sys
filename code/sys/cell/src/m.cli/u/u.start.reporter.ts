@@ -37,10 +37,12 @@ type StartReporterDeps = {
  *
  * Resolves capability policy once, then delegates every terminal effect to exactly one reporter.
  */
-export const StartReporter = {
-  resolve,
-  create,
-} as const;
+export const StartReporter = Object.freeze(
+  {
+    resolve,
+    create,
+  } as const,
+);
 
 /**
  * Helpers:

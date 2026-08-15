@@ -9,7 +9,7 @@ const DEFAULT = 2 * DAY;
 const EXPECTED = 'expected minutes, ISO-8601 duration, RFC3339 date/timestamp, or 0';
 
 /** Deno-compatible parser for `--minimum-dependency-age`. */
-export const MinimumDependencyAge = {
+export const MinimumDependencyAge = Object.freeze({
   /** CLI-surfaced default: 48 hours. */
   default: DEFAULT as t.Msecs,
 
@@ -28,7 +28,7 @@ export const MinimumDependencyAge = {
     }
     return parsed as t.Msecs;
   },
-} as const;
+} as const);
 
 const wrangle = {
   one(input: unknown): string | undefined {

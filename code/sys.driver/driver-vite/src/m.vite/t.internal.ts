@@ -6,6 +6,9 @@ export type * from '../common/t.ts';
 export type ViteDevDeps = {
   waitForHttp?: typeof import('@sys/http/server').Http.Client.waitFor;
   createScreen?: (args: ViteDev.Screen.Runtime.CreateArgs) => ViteDev.Screen.Reporter;
+  spawn?: typeof import('@sys/process').Process.spawn;
+  loadDist?: typeof import('@sys/fs').Pkg.Dist.load;
+  command?: typeof import('./u/u.wrangle.ts').Wrangle.command;
 };
 
 /** Private terminal output contracts shared within Vite presentation. */

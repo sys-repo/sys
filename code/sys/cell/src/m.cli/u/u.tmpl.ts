@@ -4,12 +4,14 @@ import { readTmplText } from '../../m.tmpl/u/u.text.ts';
 
 const MinimalTemplate = 'default';
 
-export const Tmpl = {
-  /**
-   * Import bundle readers directly so CLI help does not load template writers.
-   */
-  minimalDescriptor: () => readTmplText(MinimalTemplate, tmplDescriptorPath(MinimalTemplate)),
-  minimalOwnedPaths: () => listTmplOwnedPaths(MinimalTemplate),
-  minimalWritePaths: () => listTmplPaths(MinimalTemplate),
-  gitignore: () => ({ path: GITIGNORE_PATH, entries: GITIGNORE_ENTRIES }),
-} as const;
+export const Tmpl = Object.freeze(
+  {
+    /**
+     * Import bundle readers directly so CLI help does not load template writers.
+     */
+    minimalDescriptor: () => readTmplText(MinimalTemplate, tmplDescriptorPath(MinimalTemplate)),
+    minimalOwnedPaths: () => listTmplOwnedPaths(MinimalTemplate),
+    minimalWritePaths: () => listTmplPaths(MinimalTemplate),
+    gitignore: () => ({ path: GITIGNORE_PATH, entries: GITIGNORE_ENTRIES }),
+  } as const,
+);

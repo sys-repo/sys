@@ -1,10 +1,26 @@
-import { describe, expect, it } from '../../../-test.ts';
-import { Cli, Fs, Is, Obj, pkg, type t } from '../common.ts';
-import { menu } from '../u/u.menu.ts';
+import { describe, expect, it, withSelectPrompt } from '../../../-test.ts';
+import { Cli as CliOwner, Fs, Is, Obj, pkg, type t } from '../common.ts';
+import { menuWith } from '../u/u.menu.ts';
 import { MenuState } from '../u/u.menu.state.ts';
 import { ProfilesFs } from '../u/u.fs.ts';
 import { PiSandboxFmt } from '../../m.cli/u.fmt.sandbox.ts';
 import { Ocr } from '../../m.extension/m.ocr/mod.ts';
+
+const Cli = {
+  ...CliOwner,
+  Input: { ...CliOwner.Input, Select: { ...CliOwner.Input.Select } },
+  Is: { ...CliOwner.Is },
+  Screen: { ...CliOwner.Screen },
+};
+const menu = (input: Parameters<typeof menuWith>[0]) =>
+  withSelectPrompt(
+    (options) => Cli.Input.Select.prompt(options as never) as Promise<unknown>,
+    () =>
+      menuWith(input, {
+        isTerminal: Cli.Is.terminal,
+        screenSize: Cli.Screen.size,
+      }),
+  );
 
 describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
   it('menu → creates default profile config when none exist', async () => {
@@ -752,7 +768,7 @@ type SelectInput = {
 };
 
 function expectedProfileHeader(permissions: t.PiCli.PermissionMode) {
-  return Cli.stripAnsi(PiSandboxFmt.header(permissions).join('\n'));
+  return Cli.stripAnsi(PiSandboxFmt.header(permissions, Cli.Screen.size().width).join('\n'));
 }
 
 function testCwd(cwd: t.StringDir): t.PiCli.Cwd {

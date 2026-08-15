@@ -33,7 +33,7 @@ export function formatPushActionName(args: {
  * Prompt for the next action in the endpoint menu.
  * Keeps the option-list rules centralized.
  */
-export async function promptEndpointAction(args: {
+type PromptEndpointActionArgs = {
   checkOk: boolean;
   ranOk: boolean;
   showPush: boolean;
@@ -49,7 +49,26 @@ export async function promptEndpointAction(args: {
   stageSize?: string;
   pushUrl?: string;
   hasStageMeta: boolean;
-}): Promise<A> {
+};
+
+type SelectPrompt = (args: {
+  readonly message: string;
+  readonly options: { readonly name: string; readonly value: A }[];
+  readonly hideDefault: boolean;
+}) => Promise<A>;
+
+export function promptEndpointAction(args: PromptEndpointActionArgs): Promise<A> {
+  return promptEndpointActionWith(
+    args,
+    (input) => Cli.Input.Select.prompt<A>(input) as Promise<A>,
+  );
+}
+
+/** Internal endpoint prompt runner with an explicit selection effect. */
+export async function promptEndpointActionWith(
+  args: PromptEndpointActionArgs,
+  prompt: SelectPrompt,
+): Promise<A> {
   const {
     checkOk,
     ranOk,
@@ -82,7 +101,7 @@ export async function promptEndpointAction(args: {
     pushUrl,
   });
   const stagePushName = `  ${c.dim(c.gray('-'.repeat(6)))}  stage + push`;
-  const answer = await Cli.Input.Select.prompt<A>({
+  const answer = await prompt({
     message: '',
     options: [
       ...(checkOk ? [{ name: stageName, value: 'stage' as const }] : []),

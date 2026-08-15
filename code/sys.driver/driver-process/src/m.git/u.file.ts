@@ -1,4 +1,5 @@
-import { isMissingBinaryError, Process, type t } from './common.ts';
+import { isMissingBinaryError, type t } from './common.ts';
+import { invoke } from '../u.invoke.ts';
 
 export const fileAtRef: t.GitFileAtRefFn = async (opts) => {
   const git = opts.bin?.git ?? 'git';
@@ -6,7 +7,7 @@ export const fileAtRef: t.GitFileAtRefFn = async (opts) => {
 
   let res: t.Process.Output;
   try {
-    res = await Process.invoke({
+    res = await invoke({
       cmd: git,
       args: ['cat-file', 'blob', `${ref}:${opts.path}`],
       cwd: opts.cwd,

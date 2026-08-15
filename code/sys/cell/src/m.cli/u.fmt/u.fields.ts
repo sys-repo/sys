@@ -6,13 +6,15 @@ export type FieldLabelOptions = {
   readonly tone?: FieldLabelTone;
 };
 
-export const FmtFields = {
-  title,
-  label,
-  labelWidth,
-  padLabel,
-  indent,
-} as const;
+export const FmtFields = Object.freeze(
+  {
+    title,
+    label,
+    labelWidth,
+    padLabel,
+    indent,
+  } as const,
+);
 
 /**
  * Helpers:

@@ -1,8 +1,9 @@
-import { Fs, Process, type t } from './common.ts';
+import { Fs, type t } from './common.ts';
 import { PiArgs } from './u.args.ts';
 import { toAncestorDiscoveryReadScope } from './u.ancestor.discovery.read.ts';
 import { runtimeRoot } from './u.runtime.ts';
 import { Settings } from '../m.settings/mod.ts';
+import { inherit } from './u.inherit.ts';
 
 export const run: t.PiCli.Lib['run'] = async (input) => {
   const cwd = input.cwd;
@@ -29,5 +30,5 @@ export const run: t.PiCli.Lib['run'] = async (input) => {
       { allowAll: input.allowAll, pkg: input.pkg },
     )),
   ];
-  return await Process.inherit({ cmd: 'deno', args, cwd: cwd.invoked, env });
+  return await inherit({ cmd: 'deno', args, cwd: cwd.invoked, env });
 };

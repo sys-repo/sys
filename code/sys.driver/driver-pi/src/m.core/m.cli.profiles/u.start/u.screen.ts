@@ -29,17 +29,23 @@ const INERT: StartGuiScreenInstance = Object.freeze({
 const DEFAULT_DEPS: StartGuiScreenDependencies = Object.freeze({
   isInteractive: () => Cli.Is.interactive(),
   size: () => Cli.Screen.size(),
-  observeResize(handler) {
-    const events = Cli.Screen.events();
-    const subscription = events.resize$.subscribe((event) => handler(event.after));
-    return () =>
-      runCleanup([
-        () => subscription.unsubscribe(),
-        () => events.dispose(),
-      ]);
-  },
+  observeResize: (handler) => observeResizeWith(Cli.Screen.events, handler),
   repaint: (frame) => Cli.Screen.repaint(frame),
 });
+
+/** Observe terminal resize events with an explicit event-source dependency. */
+export function observeResizeWith(
+  createEvents: typeof Cli.Screen.events,
+  handler: (size: ScreenSize) => void,
+): () => void {
+  const events = createEvents();
+  const subscription = events.resize$.subscribe((event) => handler(event.after));
+  return () =>
+    runCleanup([
+      () => subscription.unsubscribe(),
+      () => events.dispose(),
+    ]);
+}
 
 /** Responsive terminal owner for the direct Pi GUI host. */
 export const StartGuiScreen = {

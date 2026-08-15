@@ -8,10 +8,10 @@ import {
   type CapturedStartInput,
   catchStart,
   createInteractiveEffects,
+  createModeEffects,
   createStarted,
   keypress,
   listenerSettled,
-  mockInteractive,
   runInteractiveServe,
   type StartedController,
 } from './u.fixture.serve.ts';
@@ -19,8 +19,6 @@ import {
 describe('DistServer.serve', () => {
   describe('startup and presentation authority', () => {
     it('uses raw terminal metadata for pinned startup', async () => {
-      using _interactive = mockInteractive(false);
-
       const fixture = await setup();
       let captured: CapturedStartInput = {};
       let started: StartedController | undefined;
@@ -44,6 +42,7 @@ describe('DistServer.serve', () => {
               return started.server;
             },
           },
+          createModeEffects(false),
         );
 
         await listenerSettled();
@@ -191,8 +190,6 @@ describe('DistServer.serve', () => {
     });
 
     it('uses local authority metadata in local serve mode', async () => {
-      using _interactive = mockInteractive(false);
-
       const fixture = await setup();
       let captured: CapturedStartInput = {};
       let started: StartedController | undefined;
@@ -215,6 +212,7 @@ describe('DistServer.serve', () => {
               return started.server;
             },
           },
+          createModeEffects(false),
         );
 
         await listenerSettled();
@@ -233,8 +231,6 @@ describe('DistServer.serve', () => {
     });
 
     it('lets silent mode suppress screen ownership without disabling keyboard lifecycle', async () => {
-      using _interactive = mockInteractive(true);
-
       const fixture = await setup();
       let captured: CapturedStartInput = {};
       let started: StartedController | undefined;
@@ -260,6 +256,7 @@ describe('DistServer.serve', () => {
           {
             bindKeyboard: unexpected,
             createScreen: unexpected,
+            isInteractive: unexpected,
             open: unexpected,
             now: unexpected,
           },
@@ -279,8 +276,6 @@ describe('DistServer.serve', () => {
     });
 
     it('owns interactive keyboard and screen against the actual listener origin', async () => {
-      using _interactive = mockInteractive(true);
-
       const fixture = await setup();
       const dist = fixture.cloneDist();
       let captured: CapturedStartInput = {};
@@ -333,6 +328,7 @@ describe('DistServer.serve', () => {
                 },
               };
             },
+            isInteractive: () => true,
             open: (origin) => {
               opened.push(origin);
             },
@@ -380,8 +376,6 @@ describe('DistServer.serve', () => {
 
   describe('interactive lifecycle', () => {
     it('closes when an acquired keyboard finishes before the server', async () => {
-      using _interactive = mockInteractive(true);
-
       const fixture = await setup();
       const started = createStarted(49152);
       const terminal = createInteractiveEffects(fixture);
@@ -400,8 +394,6 @@ describe('DistServer.serve', () => {
     });
 
     it('surfaces shutdown failure after an acquired keyboard finishes', async () => {
-      using _interactive = mockInteractive(true);
-
       const fixture = await setup();
       const closeFailure = new Error('keyboard-shutdown-failed');
       const started = createStarted(49152, { closeFailure });
@@ -425,8 +417,6 @@ describe('DistServer.serve', () => {
     });
 
     it('retains quit shutdown failure after the listener settles first', async () => {
-      using _interactive = mockInteractive(true);
-
       const fixture = await setup();
       const closeFailure = new Error('keyboard-quit-shutdown-failed');
       const started = createStarted(49152, { closeFailure, finishBeforeCloseFailure: true });
@@ -454,8 +444,6 @@ describe('DistServer.serve', () => {
     });
 
     it('disposes the keyboard without relabeling server-first completion', async () => {
-      using _interactive = mockInteractive(true);
-
       const fixture = await setup();
       const started = createStarted(49152);
       const terminal = createInteractiveEffects(fixture);
@@ -476,8 +464,6 @@ describe('DistServer.serve', () => {
 
   describe('presentation and failure ownership', () => {
     it('passes one normalized package identity through pinned and local screens', async () => {
-      using _interactive = mockInteractive(true);
-
       const fixture = await setup();
       const screens: Parameters<typeof DistServeScreen.create>[0][] = [];
       let started: StartedController | undefined;
@@ -489,6 +475,7 @@ describe('DistServer.serve', () => {
           screens.push(args);
           return { failure: new Promise<never>(() => {}), dispose() {} };
         },
+        isInteractive: () => true,
         open: () => {},
         now: () => fixture.cloneDist().build.time,
       };
@@ -549,8 +536,6 @@ describe('DistServer.serve', () => {
     });
 
     it('rolls back an acquired server without masking screen acquisition failure', async () => {
-      using _interactive = mockInteractive(true);
-
       const fixture = await setup();
       let started: StartedController | undefined;
       let keyboardDisposals = 0;
@@ -581,6 +566,7 @@ describe('DistServer.serve', () => {
             createScreen: () => {
               throw cause;
             },
+            isInteractive: () => true,
             open: () => {},
             now: () => fixture.cloneDist().build.time,
           },
@@ -599,8 +585,6 @@ describe('DistServer.serve', () => {
     });
 
     it('closes on keyboard failure and preserves it over presentation cleanup failures', async () => {
-      using _interactive = mockInteractive(true);
-
       const fixture = await setup();
       let started: StartedController | undefined;
       let rejectKeyboard = (_cause: unknown) => {};
@@ -641,6 +625,7 @@ describe('DistServer.serve', () => {
                 throw new Error('screen-cleanup-failed');
               },
             }),
+            isInteractive: () => true,
             open: () => {},
             now: () => fixture.cloneDist().build.time,
           },
@@ -664,8 +649,6 @@ describe('DistServer.serve', () => {
     });
 
     it('preserves an undefined-cause server rejection over screen cleanup failure', async () => {
-      using _interactive = mockInteractive(true);
-
       const fixture = await setup();
       let started: StartedController | undefined;
       let screenDisposals = 0;
@@ -696,6 +679,7 @@ describe('DistServer.serve', () => {
                 throw new Error('screen-cleanup-failed');
               },
             }),
+            isInteractive: () => true,
             open: () => {},
             now: () => fixture.cloneDist().build.time,
           },
@@ -717,8 +701,6 @@ describe('DistServer.serve', () => {
     });
 
     it('keeps pinned serve strict while local serve allows port fallback', async () => {
-      using _interactive = mockInteractive(false);
-
       const fixture = await setup();
       let localStarted: StartedController | undefined;
       try {
@@ -741,6 +723,7 @@ describe('DistServer.serve', () => {
               ...shared,
               startHttp: () => createStarted(49152).server,
             },
+            createModeEffects(false),
           )
         );
 
@@ -758,6 +741,7 @@ describe('DistServer.serve', () => {
               return localStarted.server;
             },
           },
+          createModeEffects(false),
         );
         await listenerSettled();
         expect(localStarted).to.be.an('object');

@@ -1,6 +1,19 @@
-import { describe, expect, it } from '../../../-test.ts';
-import { c, Cli } from '../common.ts';
-import { GitInitMenu } from '../u.menu.git.init.ts';
+import { describe, expect, it, withSelectPrompt } from '../../../-test.ts';
+import { c, Cli as CliOwner } from '../common.ts';
+import { GitInitMenu as GitInitMenuOwner } from '../u.menu.git.init.ts';
+
+const Cli = {
+  ...CliOwner,
+  Input: { ...CliOwner.Input, Select: { ...CliOwner.Input.Select } },
+};
+const GitInitMenu = {
+  ...GitInitMenuOwner,
+  prompt: (cwd: Parameters<typeof GitInitMenuOwner.prompt>[0]) =>
+    withSelectPrompt(
+      (options) => Cli.Input.Select.prompt(options as never) as Promise<unknown>,
+      () => GitInitMenuOwner.prompt(cwd),
+    ),
+};
 
 describe('@sys/driver-pi/cli/u.menu.git.init', () => {
   it('prompt → prints the setup block and asks for a minimal action choice', async () => {

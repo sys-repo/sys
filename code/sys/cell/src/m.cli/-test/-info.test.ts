@@ -1,6 +1,7 @@
 import { describe, expect, Fs, it, Str, Testing } from '../../-test.ts';
-import { c, Cli, stripAnsi, type t } from '../common.ts';
+import { c, stripAnsi, type t } from '../common.ts';
 import { CellCli } from '../mod.ts';
+import { cellWith } from '../u.fmt/u.info.ts';
 import { Fmt } from '../u.fmt/u.mod.ts';
 import { silent, taskEvents } from './u.fixture.ts';
 
@@ -155,83 +156,68 @@ describe(`@sys/cell/cli info`, () => {
   });
 
   it('formatter → fits path values with the canonical TTY path formatter', () => {
-    const restore = stubCliTerminal(42);
-    try {
-      const rendered = Fmt.Info.cell({
-        root: '/sample/workspace/ui-components/dist',
-        descriptor: '-config/@sys.cell/cell.yaml',
-        descriptorPath: '-config/@sys.cell/cell.yaml',
-        version: 1,
-        services: [],
-        tasks: [],
-      });
-      const text = stripAnsi(rendered);
-      const rootLine = text.split('\n').find((line) => line.trimStart().startsWith('root')) ?? '';
+    const rendered = cellWith({ terminal: true, width: 42 }, {
+      root: '/sample/workspace/ui-components/dist',
+      descriptor: '-config/@sys.cell/cell.yaml',
+      descriptorPath: '-config/@sys.cell/cell.yaml',
+      version: 1,
+      services: [],
+      tasks: [],
+    });
+    const text = stripAnsi(rendered);
+    const rootLine = text.split('\n').find((line) => line.trimStart().startsWith('root')) ?? '';
 
-      expect(rootLine.includes('…')).to.eql(true);
-      expect(rootLine.length <= 42).to.eql(true);
-      expect(rendered).to.contain('…');
-    } finally {
-      restore();
-    }
+    expect(rootLine.includes('…')).to.eql(true);
+    expect(rootLine.length <= 42).to.eql(true);
+    expect(rendered).to.contain('…');
   });
 
   it('formatter → highlights inline task arrows in TTY output', () => {
-    const restore = stubCliTerminal(80);
-    try {
-      const rendered = Fmt.Info.cell({
-        root: '.',
-        descriptor: '-config/@sys.cell/cell.yaml',
-        descriptorPath: '-config/@sys.cell/cell.yaml',
-        version: 1,
-        services: [],
-        tasks: [{
-          name: 'sample:deploy',
-          steps: [
-            { task: 'pull:view' as t.Cell.Id },
-            { task: 'deploy:prep' as t.Cell.Id },
-          ],
-        }],
-      });
+    const rendered = cellWith({ terminal: true, width: 80 }, {
+      root: '.',
+      descriptor: '-config/@sys.cell/cell.yaml',
+      descriptorPath: '-config/@sys.cell/cell.yaml',
+      version: 1,
+      services: [],
+      tasks: [{
+        name: 'sample:deploy',
+        steps: [
+          { task: 'pull:view' as t.Cell.Id },
+          { task: 'deploy:prep' as t.Cell.Id },
+        ],
+      }],
+    });
 
-      expect(rendered).to.contain(c.cyan('→'));
-      expect(stripAnsi(rendered)).to.contain('pull:view → deploy:prep');
-    } finally {
-      restore();
-    }
+    expect(rendered).to.contain(c.cyan('→'));
+    expect(stripAnsi(rendered)).to.contain('pull:view → deploy:prep');
   });
 
   it('formatter → breaks overflowing task steps into a value-aligned chain', () => {
-    const restore = stubCliTerminal(34);
-    try {
-      const rendered = Fmt.Info.cell({
-        root: '.',
-        descriptor: '-config/@sys.cell/cell.yaml',
-        descriptorPath: '-config/@sys.cell/cell.yaml',
-        version: 1,
-        services: [],
-        tasks: [{
-          name: 'sample:deploy',
-          steps: [
-            { task: 'sample:deploy:prep' as t.Cell.Id },
-            { task: 'sample:publish:assets' as t.Cell.Id },
-            { task: 'sample:publish:cdn' as t.Cell.Id },
-          ],
-        }],
-      });
-      const text = stripAnsi(rendered);
-      const stepsLine = text.split('\n').find((line) => line.trimStart().startsWith('steps')) ?? '';
-      const continuation = text.split('\n').find((line) => line.trimStart().startsWith('→')) ?? '';
+    const rendered = cellWith({ terminal: true, width: 34 }, {
+      root: '.',
+      descriptor: '-config/@sys.cell/cell.yaml',
+      descriptorPath: '-config/@sys.cell/cell.yaml',
+      version: 1,
+      services: [],
+      tasks: [{
+        name: 'sample:deploy',
+        steps: [
+          { task: 'sample:deploy:prep' as t.Cell.Id },
+          { task: 'sample:publish:assets' as t.Cell.Id },
+          { task: 'sample:publish:cdn' as t.Cell.Id },
+        ],
+      }],
+    });
+    const text = stripAnsi(rendered);
+    const stepsLine = text.split('\n').find((line) => line.trimStart().startsWith('steps')) ?? '';
+    const continuation = text.split('\n').find((line) => line.trimStart().startsWith('→')) ?? '';
 
-      expect(rendered).to.contain(c.cyan('→'));
-      expect(rendered).to.contain(c.cyan('…'));
-      expect(stepsLine).to.contain('…');
-      expect(continuation).to.contain('→');
-      expect(stepsLine.length <= 34).to.eql(true);
-      expect(continuation.length <= 34).to.eql(true);
-    } finally {
-      restore();
-    }
+    expect(rendered).to.contain(c.cyan('→'));
+    expect(rendered).to.contain(c.cyan('…'));
+    expect(stepsLine).to.contain('…');
+    expect(continuation).to.contain('→');
+    expect(stepsLine.length <= 34).to.eql(true);
+    expect(continuation.length <= 34).to.eql(true);
   });
 });
 
@@ -243,17 +229,4 @@ function valueColumn(text: string, label: string): number {
   const offset = after.search(/\S/);
   expect(offset, label).to.be.greaterThan(-1);
   return start + label.length + offset;
-}
-
-function stubCliTerminal(width: number): () => void {
-  const screen = Cli.Screen as { size: () => { width: number; height: number } };
-  const is = Cli.Is as { terminal: (stream?: t.StdioName) => boolean };
-  const prevSize = screen.size;
-  const prevTerminal = is.terminal;
-  screen.size = () => ({ width, height: 24 });
-  is.terminal = () => true;
-  return () => {
-    screen.size = prevSize;
-    is.terminal = prevTerminal;
-  };
 }

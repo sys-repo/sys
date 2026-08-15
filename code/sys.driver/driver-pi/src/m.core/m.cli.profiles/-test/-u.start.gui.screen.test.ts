@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { c, Cli, Fs, Path, type t } from '../common.ts';
-import { StartGuiScreen } from '../u.start/u.screen.ts';
+import { observeResizeWith, StartGuiScreen } from '../u.start/u.screen.ts';
 import { createScreenHarness } from './u.fixture.start.gui.screen.ts';
 
 const SERVICE = 'sys.ui:pi';
@@ -167,49 +167,43 @@ describe('@sys/driver-pi start:gui screen', () => {
   });
 
   it('disposes screen events even when resize unsubscription fails', () => {
-    const screenApi = Cli.Screen as { events: typeof Cli.Screen.events };
-    const previousEvents = screenApi.events;
     const unsubscribeFailure = new Error('unsubscribe failed');
     let eventDisposals = 0;
-
+    const createEvents = () =>
+      ({
+        resize$: {
+          subscribe: () => ({
+            unsubscribe() {
+              throw unsubscribeFailure;
+            },
+          }),
+        },
+        dispose() {
+          eventDisposals += 1;
+        },
+      }) as unknown as t.Cli.Screen.Events;
+    const screen = StartGuiScreen.create({
+      service: SERVICE,
+      dir: SAMPLE_ROOT,
+      origin: ORIGIN,
+      keyboard: true,
+    }, {
+      isInteractive: () => true,
+      size: () => ({ width: 80, height: 24 }),
+      observeResize: (handler) => observeResizeWith(createEvents, handler),
+      repaint() {},
+    });
+    let thrown: unknown;
     try {
-      screenApi.events = () =>
-        ({
-          resize$: {
-            subscribe: () => ({
-              unsubscribe() {
-                throw unsubscribeFailure;
-              },
-            }),
-          },
-          dispose() {
-            eventDisposals += 1;
-          },
-        }) as unknown as t.Cli.Screen.Events;
-      const screen = StartGuiScreen.create({
-        service: SERVICE,
-        dir: SAMPLE_ROOT,
-        origin: ORIGIN,
-        keyboard: true,
-      }, {
-        isInteractive: () => true,
-        size: () => ({ width: 80, height: 24 }),
-        repaint() {},
-      });
-      let thrown: unknown;
-      try {
-        screen.dispose();
-      } catch (cause) {
-        thrown = cause;
-      }
-
-      expect(thrown).to.equal(unsubscribeFailure);
-      expect(eventDisposals).to.eql(1);
       screen.dispose();
-      expect(eventDisposals).to.eql(1);
-    } finally {
-      screenApi.events = previousEvents;
+    } catch (cause) {
+      thrown = cause;
     }
+
+    expect(thrown).to.equal(unsubscribeFailure);
+    expect(eventDisposals).to.eql(1);
+    screen.dispose();
+    expect(eventDisposals).to.eql(1);
   });
 
   it('publishes resize repaint failure and preserves it over release failure', async () => {

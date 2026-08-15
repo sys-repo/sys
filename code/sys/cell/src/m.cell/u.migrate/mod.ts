@@ -16,27 +16,29 @@ export type CellMigrateResult = {
 /**
  * Cell descriptor/config migration spine.
  */
-export const CellMigrate = {
-  async dir(root: t.StringDir, options: CellMigrateOptions = {}): Promise<CellMigrateResult> {
-    return combine(await migrate01.dir(root, options));
-  },
+export const CellMigrate = Object.freeze(
+  {
+    async dir(root: t.StringDir, options: CellMigrateOptions = {}): Promise<CellMigrateResult> {
+      return combine(await migrate01.dir(root, options));
+    },
 
-  message(result: CellMigrateResult): string | undefined {
-    const planned = result.planned.length;
-    if (planned > 0) {
-      const noun = planned === 1 ? 'item' : 'items';
-      return `Would migrate ${planned} Cell config/runtime ${noun}.`;
-    }
+    message(result: CellMigrateResult): string | undefined {
+      const planned = result.planned.length;
+      if (planned > 0) {
+        const noun = planned === 1 ? 'item' : 'items';
+        return `Would migrate ${planned} Cell config/runtime ${noun}.`;
+      }
 
-    const migrated = result.migrated.length;
-    if (migrated > 0) {
-      const noun = migrated === 1 ? 'item' : 'items';
-      return `Migrated ${migrated} Cell config/runtime ${noun}.`;
-    }
+      const migrated = result.migrated.length;
+      if (migrated > 0) {
+        const noun = migrated === 1 ? 'item' : 'items';
+        return `Migrated ${migrated} Cell config/runtime ${noun}.`;
+      }
 
-    return undefined;
-  },
-} as const;
+      return undefined;
+    },
+  } as const,
+);
 
 /**
  * Helpers:

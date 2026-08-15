@@ -1,7 +1,15 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { Fs, Process, type t } from '../common.ts';
-import { Raw } from '../../m.cli.raw/mod.ts';
+import { Fs, Process as ProcessOwner, type t } from '../common.ts';
+import { Raw as RawOwner } from '../../m.cli.raw/mod.ts';
+import { withInherit } from '../u.inherit.ts';
 import { GitInitMenu } from '../u.menu.git.init.ts';
+
+const Process = { ...ProcessOwner };
+const Raw = {
+  ...RawOwner,
+  main: (input: Parameters<typeof RawOwner.main>[0]) =>
+    withInherit(Process.inherit, () => RawOwner.main(input)),
+};
 
 describe(`@sys/driver-pi/cli/raw/m.main`, () => {
   it('help → renders wrapper help without launching Pi', async () => {

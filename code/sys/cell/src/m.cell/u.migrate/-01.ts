@@ -17,35 +17,40 @@ const item = {
 /**
  * Migration 01: move the legacy descriptor path to the canonical Cell metadata path.
  */
-export const migrate01 = {
-  async dir(root: t.StringDir, options: CellMigrateOptions = {}): Promise<CellMigrateResult> {
-    const canonical = Fs.join(root, item.to);
-    const legacy = Fs.join(root, item.from);
-    const [hasCanonical, hasLegacy] = await Promise.all([Fs.exists(canonical), Fs.exists(legacy)]);
+export const migrate01 = Object.freeze(
+  {
+    async dir(root: t.StringDir, options: CellMigrateOptions = {}): Promise<CellMigrateResult> {
+      const canonical = Fs.join(root, item.to);
+      const legacy = Fs.join(root, item.from);
+      const [hasCanonical, hasLegacy] = await Promise.all([
+        Fs.exists(canonical),
+        Fs.exists(legacy),
+      ]);
 
-    if (hasCanonical && hasLegacy) {
-      throw new Error(
-        `Cell.migrate: multiple descriptors found: ${canonical}; ${legacy}. Resolve the descriptor conflict before migrating.`,
-      );
-    }
+      if (hasCanonical && hasLegacy) {
+        throw new Error(
+          `Cell.migrate: multiple descriptors found: ${canonical}; ${legacy}. Resolve the descriptor conflict before migrating.`,
+        );
+      }
 
-    if (hasCanonical) {
-      return result({ skipped: [{ ...item, reason: 'canonical descriptor already exists' }] });
-    }
+      if (hasCanonical) {
+        return result({ skipped: [{ ...item, reason: 'canonical descriptor already exists' }] });
+      }
 
-    if (!hasLegacy) {
-      return result({ skipped: [{ ...item, reason: 'legacy descriptor not found' }] });
-    }
+      if (!hasLegacy) {
+        return result({ skipped: [{ ...item, reason: 'legacy descriptor not found' }] });
+      }
 
-    await validateLegacyDescriptor(legacy);
+      await validateLegacyDescriptor(legacy);
 
-    if (options.dryRun === true) return result({ planned: [item] });
+      if (options.dryRun === true) return result({ planned: [item] });
 
-    await Fs.ensureDir(Fs.dirname(canonical));
-    await Fs.move(legacy, canonical, { overwrite: false });
-    return result({ migrated: [item] });
-  },
-} as const;
+      await Fs.ensureDir(Fs.dirname(canonical));
+      await Fs.move(legacy, canonical, { overwrite: false });
+      return result({ migrated: [item] });
+    },
+  } as const,
+);
 
 /**
  * Helpers:

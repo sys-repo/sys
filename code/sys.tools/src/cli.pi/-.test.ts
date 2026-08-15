@@ -1,7 +1,8 @@
 import { describe, expect, Fs, it } from '../-test.ts';
-import { Process, type t } from '../common.ts';
+import { type t } from '../common.ts';
 import { PiTool } from './t.ts';
 import * as PiTools from './mod.ts';
+import { cliPiWith, type PiCliDeps } from './u.run.ts';
 
 function expectedEnv(cwd: t.StringDir) {
   return {
@@ -17,135 +18,94 @@ describe(PiTool.NAME, () => {
   });
 
   it('inside @sys → delegates to the local driver-pi profile launcher', async () => {
-    const prev = Process.inherit;
     const cwd = Fs.cwd('process');
-
-    try {
-      Process.inherit = async (input) => {
-        expect(input.cmd).to.eql('deno');
-        expect(input.cwd).to.eql(cwd);
-        expect(input.env).to.eql(expectedEnv(cwd));
-        expect(input.args).to.eql(['run', '-A', '@sys/driver-pi/cli', '--help']);
-        return { code: 0, success: true, signal: null };
-      };
-
-      await PiTools.cli(cwd, ['--help']);
-    } finally {
-      Process.inherit = prev;
-    }
+    await run(cwd, ['--help'], async (input) => {
+      expect(input.cmd).to.eql('deno');
+      expect(input.cwd).to.eql(cwd);
+      expect(input.env).to.eql(expectedEnv(cwd));
+      expect(input.args).to.eql(['run', '-A', '@sys/driver-pi/cli', '--help']);
+      return { code: 0, success: true, signal: null };
+    });
   });
 
   it('outside @sys → delegates to the pinned JSR profile launcher', async () => {
-    const prev = Process.inherit;
     const cwd = Fs.join('/tmp', 'sys.tools.code.external') as t.StringDir;
-
-    try {
-      Process.inherit = async (input) => {
-        expect(input.cmd).to.eql('deno');
-        expect(input.cwd).to.eql(cwd);
-        expect(input.env).to.eql(expectedEnv(cwd));
-        expect(input.args.slice(0, 2)).to.eql(['run', '-A']);
-        expect(input.args[2]).to.match(/^jsr:@sys\/driver-pi@.+\/cli$/);
-        expect(input.args.slice(3)).to.eql(['--', '--model', 'gpt-5.4']);
-        return { code: 0, success: true, signal: null };
-      };
-
-      await PiTools.cli(cwd, ['--', '--model', 'gpt-5.4']);
-    } finally {
-      Process.inherit = prev;
-    }
+    await run(cwd, ['--', '--model', 'gpt-5.4'], async (input) => {
+      expect(input.cmd).to.eql('deno');
+      expect(input.cwd).to.eql(cwd);
+      expect(input.env).to.eql(expectedEnv(cwd));
+      expect(input.args.slice(0, 2)).to.eql(['run', '-A']);
+      expect(input.args[2]).to.match(/^jsr:@sys\/driver-pi@.+\/cli$/);
+      expect(input.args.slice(3)).to.eql(['--', '--model', 'gpt-5.4']);
+      return { code: 0, success: true, signal: null };
+    });
   });
 
   it('inside @sys → delegates Pi-Driver DSL help with narrow read/env permissions', async () => {
-    const prev = Process.inherit;
     const cwd = Fs.cwd('process');
-
-    try {
-      Process.inherit = async (input) => {
-        expect(input.cmd).to.eql('deno');
-        expect(input.cwd).to.eql(cwd);
-        expect(input.env).to.eql(expectedEnv(cwd));
-        expect(input.args).to.eql([
-          'run',
-          '-ER',
-          '@sys/driver-pi/cli',
-          'dsl',
-          'profile',
-          '--format',
-          'skill',
-        ]);
-        return { code: 0, success: true, signal: null };
-      };
-
-      await PiTools.cli(cwd, ['dsl', 'profile', '--format', 'skill']);
-    } finally {
-      Process.inherit = prev;
-    }
+    await run(cwd, ['dsl', 'profile', '--format', 'skill'], async (input) => {
+      expect(input.cmd).to.eql('deno');
+      expect(input.cwd).to.eql(cwd);
+      expect(input.env).to.eql(expectedEnv(cwd));
+      expect(input.args).to.eql([
+        'run',
+        '-ER',
+        '@sys/driver-pi/cli',
+        'dsl',
+        'profile',
+        '--format',
+        'skill',
+      ]);
+      return { code: 0, success: true, signal: null };
+    });
   });
 
   it('outside @sys → delegates Pi-Driver DSL help to the pinned JSR launcher with narrow permissions', async () => {
-    const prev = Process.inherit;
     const cwd = Fs.join('/tmp', 'sys.tools.code.external') as t.StringDir;
-
-    try {
-      Process.inherit = async (input) => {
-        expect(input.cmd).to.eql('deno');
-        expect(input.cwd).to.eql(cwd);
-        expect(input.env).to.eql(expectedEnv(cwd));
-        expect(input.args.slice(0, 2)).to.eql(['run', '-ER']);
-        expect(input.args[2]).to.match(/^jsr:@sys\/driver-pi@.+\/cli$/);
-        expect(input.args.slice(3)).to.eql(['dsl', 'tools']);
-        return { code: 0, success: true, signal: null };
-      };
-
-      await PiTools.cli(cwd, ['dsl', 'tools']);
-    } finally {
-      Process.inherit = prev;
-    }
+    await run(cwd, ['dsl', 'tools'], async (input) => {
+      expect(input.cmd).to.eql('deno');
+      expect(input.cwd).to.eql(cwd);
+      expect(input.env).to.eql(expectedEnv(cwd));
+      expect(input.args.slice(0, 2)).to.eql(['run', '-ER']);
+      expect(input.args[2]).to.match(/^jsr:@sys\/driver-pi@.+\/cli$/);
+      expect(input.args.slice(3)).to.eql(['dsl', 'tools']);
+      return { code: 0, success: true, signal: null };
+    });
   });
 
   it('forwards --git-root=cwd through the @sys/tools pi entrypoint', async () => {
-    const prev = Process.inherit;
     const cwd = Fs.cwd('process');
-
-    try {
-      Process.inherit = async (input) => {
-        expect(input.cmd).to.eql('deno');
-        expect(input.cwd).to.eql(cwd);
-        expect(input.env).to.eql(expectedEnv(cwd));
-        expect(input.args).to.eql([
-          'run',
-          '-A',
-          '@sys/driver-pi/cli',
-          '--git-root=cwd',
-        ]);
-        return { code: 0, success: true, signal: null };
-      };
-
-      await PiTools.cli(cwd, ['--git-root=cwd']);
-    } finally {
-      Process.inherit = prev;
-    }
+    await run(cwd, ['--git-root=cwd'], async (input) => {
+      expect(input.cmd).to.eql('deno');
+      expect(input.cwd).to.eql(cwd);
+      expect(input.env).to.eql(expectedEnv(cwd));
+      expect(input.args).to.eql(['run', '-A', '@sys/driver-pi/cli', '--git-root=cwd']);
+      return { code: 0, success: true, signal: null };
+    });
   });
 
   it('ignores stale INIT_CWD when no cwd is passed explicitly', async () => {
-    const prev = Process.inherit;
     const key = 'INIT_CWD';
     const before = Deno.env.get(key);
     const cwd = Fs.cwd('process');
 
     try {
       Deno.env.set(key, '/tmp/stale-init-cwd');
-      Process.inherit = async (input) => {
+      await run(undefined, ['--help'], async (input) => {
         expect(input.cwd).to.eql(cwd);
         expect(input.env).to.eql(expectedEnv(cwd));
         return { code: 0, success: true, signal: null };
-      };
-
-      await PiTools.cli(undefined as never, ['--help']);
+      });
     } finally {
-      Process.inherit = prev;
       before === undefined ? Deno.env.delete(key) : Deno.env.set(key, before);
     }
   });
 });
+
+async function run(
+  cwd: t.StringDir | undefined,
+  argv: string[],
+  inherit: PiCliDeps['inherit'],
+) {
+  await cliPiWith(cwd, argv, { inherit });
+}

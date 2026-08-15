@@ -1,8 +1,18 @@
-import { describe, expect, it } from '../../../-test.ts';
+import { describe, expect, it, withSelectPrompt } from '../../../-test.ts';
 import { depsFixture } from '../../m.extension/m.ocr/-test/u.fixture.ts';
 import { Ocr } from '../../m.extension/m.ocr/mod.ts';
-import { Cli, type t } from '../common.ts';
-import { preflightOcrStartup } from '../u/u.ocr.preflight.ts';
+import { Cli as CliOwner, type t } from '../common.ts';
+import { preflightOcrStartup as preflightOcrStartupOwner } from '../u/u.ocr.preflight.ts';
+
+const Cli = {
+  ...CliOwner,
+  Input: { ...CliOwner.Input, Select: { ...CliOwner.Input.Select } },
+};
+const preflightOcrStartup: typeof preflightOcrStartupOwner = (input) =>
+  withSelectPrompt(
+    (options) => Cli.Input.Select.prompt(options as never) as Promise<unknown>,
+    () => preflightOcrStartupOwner(input),
+  );
 
 describe(`@sys/driver-pi/cli/Profiles/u.ocr.preflight`, () => {
   it('preflight → skips external OCR probes unless PDF OCR is enabled', async () => {

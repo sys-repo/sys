@@ -25,6 +25,7 @@ type ServeLoopInput = {
 type ServeEffects = {
   readonly bindKeyboard: typeof Cli.Keyboard.bind;
   readonly createScreen: typeof DistServeScreen.create;
+  readonly isInteractive: typeof Cli.Is.interactive;
   readonly open: (origin: t.StringUrl) => void | Promise<void>;
   readonly now: () => t.UnixTimestamp;
 };
@@ -39,6 +40,7 @@ type ServeOutcome =
 const DEFAULT_SERVE_EFFECTS: ServeEffects = Object.freeze({
   bindKeyboard: Cli.Keyboard.bind,
   createScreen: DistServeScreen.create,
+  isInteractive: Cli.Is.interactive,
   open: (origin) => Open.invokeDetached(Deno.cwd() as t.StringDir, origin, { silent: true }),
   now: () => Time.now.timestamp,
 });
@@ -56,7 +58,7 @@ export async function serveWith(
   const prepared = snapshotServeInput(input);
   if (!prepared.ok) throw startError(prepared.reason);
   const { pkgSubpath, start: value } = prepared.value;
-  const mode = wrangle.serveMode(value.silent);
+  const mode = wrangle.serveMode(value.silent, effects.isInteractive);
   const keyboard = wrangle.serveKeyboard(value.keyboard);
   const started = await startWith(
     {
@@ -87,7 +89,7 @@ export async function serveLocalWith(
   const prepared = snapshotServeLocalInput(input);
   if (!prepared.ok) throw startError(prepared.reason);
   const { pkgSubpath, start: value } = prepared.value;
-  const mode = wrangle.serveMode(value.silent);
+  const mode = wrangle.serveMode(value.silent, effects.isInteractive);
   const keyboard = wrangle.serveKeyboard(value.keyboard);
   const started = await startLocalWith(
     {
@@ -211,8 +213,11 @@ async function serveLoop(
 }
 
 const wrangle = {
-  serveMode(silent: boolean | undefined): ServeMode {
-    return !silent && Cli.Is.interactive() ? 'screen' : 'raw';
+  serveMode(
+    silent: boolean | undefined,
+    isInteractive: ServeEffects['isInteractive'],
+  ): ServeMode {
+    return !silent && isInteractive() ? 'screen' : 'raw';
   },
   serveKeyboard(input: t.HttpServer.Start.Options['keyboard']): ServeKeyboard {
     if (input === false) {

@@ -2,6 +2,7 @@ import { Hash } from '@sys/crypto/hash';
 import { describe, expect, Fs, it, Json, type t, Time } from '../../-test.ts';
 import { setup, teardown } from '../../-test/u.fixture.dist.ts';
 import { Dist } from '../mod.ts';
+import { materializeWith } from '../u.materialize/mod.ts';
 
 describe('Dist.materialize', () => {
   describe('generation identity', () => {
@@ -285,10 +286,7 @@ describe('Dist.materialize', () => {
   describe('publication settlement', () => {
     it('preserves verified committed truth when post-publication cleanup remains pending', async () => {
       const fixture = await setup();
-      const capability = Fs.Capability as { Rooted: t.FsRooted.Lib };
-      const descriptor = Object.getOwnPropertyDescriptor(capability, 'Rooted');
-      if (!descriptor) throw new Error('Expected Rooted capability descriptor.');
-      const owner = capability.Rooted;
+      const owner = Fs.Capability.Rooted;
       const cleanupError = rootedFailure(true);
       const replacement: t.FsRooted.Lib = Object.freeze({
         Is: owner.Is,
@@ -306,17 +304,19 @@ describe('Dist.materialize', () => {
           return Object.freeze({ ...rooted, discardStage, promoteStage });
         },
       });
-      Object.defineProperty(capability, 'Rooted', { ...descriptor, value: replacement });
 
       try {
-        const result = await Dist.materialize(fixture.args());
+        const result = await materializeWith(
+          fixture.args(),
+          Object.freeze({ rooted: replacement }),
+        );
         expect(result.kind).to.eql('promoted');
         if (result.kind !== 'promoted') return;
         expect(result.dir).to.eql(Fs.join(fixture.storeDir, fixture.integrity));
         expect(result.cleanup).to.eql('pending');
         expect(result.verification.integrity).to.eql(fixture.integrity);
+        expect(Fs.Capability.Rooted).to.equal(owner);
       } finally {
-        Object.defineProperty(capability, 'Rooted', descriptor);
         await teardown(fixture);
       }
     });

@@ -1,14 +1,22 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { Fs, Process, type t } from '../common.ts';
-import { Raw } from '../../m.cli.raw/mod.ts';
+import { Fs, Process as ProcessOwner, type t } from '../common.ts';
+import { Raw as RawOwner } from '../../m.cli.raw/mod.ts';
+import { withInherit } from '../u.inherit.ts';
 import { PI_AGENT_IMPORT } from '../u.resolve.pkg.ts';
+
+const Process = { ...ProcessOwner };
+const Raw = {
+  ...RawOwner,
+  run: (input: Parameters<typeof RawOwner.run>[0]) =>
+    withInherit(Process.inherit, () => RawOwner.run(input)),
+};
 
 describe(`@sys/driver-pi/cli/raw/m.run`, () => {
   it('API', async () => {
     const m = await import('@sys/driver-pi/cli/raw');
-    expect(m.Raw).to.equal(Raw);
-    expect(m.main).to.equal(Raw.main);
-    expect(m.run).to.equal(Raw.run);
+    expect(m.Raw).to.equal(RawOwner);
+    expect(m.main).to.equal(RawOwner.main);
+    expect(m.run).to.equal(RawOwner.run);
   });
 
   it('run → writes git-rooted agent settings before launch', async () => {

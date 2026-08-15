@@ -56,14 +56,16 @@ const D = {
   freshFor: 5_000 as t.Msecs,
 } as const;
 
-export const CellSession = {
-  D,
-  isFresh,
-  create,
-  list,
-  write,
-  remove,
-} as const;
+export const CellSession = Object.freeze(
+  {
+    D,
+    isFresh,
+    create,
+    list,
+    write,
+    remove,
+  } as const,
+);
 
 async function create(
   input: CellSession.StartInput,

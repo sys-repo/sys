@@ -1,8 +1,18 @@
 import { describe, expect, it } from '../../-test.ts';
 import { stripAnsi } from '../common.ts';
 import { ServerCli } from '../mod.ts';
+import { FmtHelp } from '../u.help.ts';
+import { FmtDslHelp } from '../u.help.dsl.ts';
+import { FmtRootHelp } from '../u.help.root.ts';
 
 describe('m.cli root help', () => {
+  it('freezes the CLI namespace graph', () => {
+    expect(Object.isFrozen(ServerCli)).to.eql(true);
+    expect(Object.isFrozen(FmtHelp)).to.eql(true);
+    expect(Object.isFrozen(FmtRootHelp)).to.eql(true);
+    expect(Object.isFrozen(FmtDslHelp)).to.eql(true);
+  });
+
   it('empty argv prints root help', async () => {
     const res = await silent(() => ServerCli.run({ argv: [] }));
     const text = stripAnsi(res.text);

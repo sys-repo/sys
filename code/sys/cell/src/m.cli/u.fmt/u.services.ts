@@ -18,19 +18,21 @@ type ServiceStatusRow = {
   readonly url?: t.Cli.Fmt.ServiceUrl.Part;
 };
 
-export const FmtServices = {
-  started(res: ServicesStartedResult): string {
-    const blocks = res.services.map(serviceStatusRows);
-    if (blocks.length === 0) return '';
-    const width = normalizeWidth(res.width);
-    if (width === 0) return '';
-    const labelWidth = maxLabelWidth(blocks.flat());
-    const text = blocks.map((rows) => renderServiceStatus(rows, labelWidth, width)).join(
-      `\n${serviceDivider(width)}\n`,
-    );
-    return `\n${Str.trimEdgeNewlines(text)}\n`;
-  },
-} as const;
+export const FmtServices = Object.freeze(
+  {
+    started(res: ServicesStartedResult): string {
+      const blocks = res.services.map(serviceStatusRows);
+      if (blocks.length === 0) return '';
+      const width = normalizeWidth(res.width);
+      if (width === 0) return '';
+      const labelWidth = maxLabelWidth(blocks.flat());
+      const text = blocks.map((rows) => renderServiceStatus(rows, labelWidth, width)).join(
+        `\n${serviceDivider(width)}\n`,
+      );
+      return `\n${Str.trimEdgeNewlines(text)}\n`;
+    },
+  } as const,
+);
 
 /**
  * Helpers:

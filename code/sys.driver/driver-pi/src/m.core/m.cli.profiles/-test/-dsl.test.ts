@@ -1,9 +1,17 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { PiHelp } from '../../m.help/mod.ts';
-import { Process } from '../../m.cli/common.ts';
+import { Process as ProcessOwner } from '../../m.cli/common.ts';
 import { Cli } from '../common.ts';
-import { Profiles } from '../mod.ts';
+import { Profiles as ProfilesOwner } from '../mod.ts';
 import { GitInitMenu } from '../../m.cli/u.menu.git.init.ts';
+import { withInherit } from '../../m.cli/u.inherit.ts';
+
+const Process = { ...ProcessOwner };
+const Profiles = {
+  ...ProfilesOwner,
+  main: (input: Parameters<typeof ProfilesOwner.main>[0]) =>
+    withInherit(Process.inherit, () => ProfilesOwner.main(input)),
+};
 
 type Chapter = Awaited<ReturnType<typeof PiHelp.Dsl.load>>;
 
