@@ -53,7 +53,7 @@ describe('Pkg.Dist.Pinned.readPart IO invariants', () => {
         ['noncanonical dot prefix', { ...valid, path: `./${valid.path}` }],
         ['noncanonical parent segment', { ...valid, path: `${valid.path}/..` }],
         ['noncanonical separator', { ...valid, path: valid.path.replace('/', '\\') }],
-        ['reserved rooted path', { ...valid, path: '.sys-rooted-private' }],
+        ['reserved Rooted path', { ...valid, path: '.sys.rooted-private' }],
         ['packed checksum', { ...valid, checksum: `${valid.checksum}:size=${valid.size}` }],
         ['malformed checksum', { ...valid, checksum: 'sha256-nope' }],
         ['negative size', { ...valid, size: -1 }],

@@ -599,7 +599,7 @@ describe('Fs.Capability.Rooted owned trees: confined removal', () => {
       expect(await mode(sibling)).to.eql(siblingMode);
       expect(await Deno.readTextFile(Fs.join(sibling, 'keep.txt'))).to.eql('keep');
       expect(await Deno.readTextFile(Fs.join(fixture.outside, 'keep.txt'))).to.eql('outside');
-      expect(await Fs.exists(Fs.join(fixture.root, '.sys-rooted', 'locks'))).to.eql(true);
+      expect(await Fs.exists(Fs.join(fixture.root, '.sys.rooted', 'locks'))).to.eql(true);
       await lease.release();
     } finally {
       await teardown(fixture);

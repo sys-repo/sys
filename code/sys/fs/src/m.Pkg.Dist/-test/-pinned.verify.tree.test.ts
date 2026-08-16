@@ -78,7 +78,7 @@ describe('Pkg.Dist.Pinned.verify exact tree and content', () => {
           await Deno.writeTextFile(`${fixture.dir}/dist.json.sig`, 'signature');
         }
         if (mutation === 'temporary') {
-          await Deno.writeTextFile(`${fixture.dir}/.sys-rooted-tmp-leftover`, 'temporary');
+          await Deno.writeTextFile(`${fixture.dir}/.sys.rooted-tmp-leftover`, 'temporary');
         }
         if (mutation === 'directory') await Deno.mkdir(`${fixture.dir}/empty`);
 

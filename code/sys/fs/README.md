@@ -37,14 +37,16 @@ later.
 `admit()` validates root-relative paths as one batch. If any path is invalid, the whole batch is
 rejected. Each returned handle works only with the `Rooted` instance that created it.
 
-`publishFile()` syncs the bytes, then makes the target visible only if it is absent. An existing
-target or a lost race rejects with an `FsRootedError` whose `kind` is `occupied`.
+`publishFile()` syncs bytes in a private same-directory `.sys.rooted-tmp-<token>` file, then makes
+the target visible only if it is absent. It removes that temporary file only while its identity is
+still owned. An existing target or a lost race rejects with an `FsRootedError` whose `kind` is
+`occupied`.
 
-`createStage()` opens a private directory with its own publisher at `stage.files`. Write the
-directory contents there, then pass the stage to `promoteStage()`. Promotion moves the complete
-stage into place with one rename. If the target exists, it returns `occupied` and leaves that target
-untouched. `discardStage()` removes a stage that was not promoted or retries cleanup after
-promotion.
+`createStage()` opens a private `.sys.rooted/stages/<token>` directory with its own publisher at
+`stage.files`. Write the directory contents there, then pass the stage to `promoteStage()`.
+Promotion moves the complete stage into place with one rename. If the target exists, it returns
+`occupied` and leaves that target untouched. `discardStage()` removes a stage that was not promoted
+or retries cleanup after promotion.
 
 The directory race guarantee covers only `Rooted` instances bound to the same canonical root.
 Publication is atomic to readers, but a successful return does not guarantee that the new directory
@@ -73,9 +75,10 @@ the lock, pass the compatible lease as `{ lease }` to `inspectSeal()`, `sealTree
 caller's own lock. Inspection accepts a shared or exclusive lease; sealing and promotion require an
 exclusive lease.
 
-Empty lock files remain in `.sys-rooted/locks`. Their paths give each lock a stable identity. Do not
-delete or replace them: changing a lock path while another process holds the old file can split one
-lock into two. The files contain no process data.
+Empty lock files persist in `.sys.rooted/locks`; their paths give each lock a stable identity.
+Private stage containers are transient under `.sys.rooted/stages`; completed cleanup removes them
+after promotion or discard. Do not delete or replace lock files: changing a lock path while another
+process holds the old file can split one lock into two. Lock files contain no process data.
 
 ### Seal
 

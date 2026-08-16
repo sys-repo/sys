@@ -78,13 +78,38 @@ describe('Fs.Capability.Rooted admission', () => {
         'bad:name',
         'bad*name',
         `bad${String.fromCharCode(1)}name`,
-        '.sys-rooted',
-        '.SYS-ROOTED/stages/x',
-        '.sys-rooted-tmp-owned',
       ];
 
       for (const path of invalid) {
         await expectFailure(() => rooted.admit([{ kind: 'file', path }]), 'invalid-target');
+      }
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
+  it('reserves only the canonical Rooted namespace case-insensitively', async () => {
+    const fixture = await setup();
+    try {
+      const rooted = await Fs.Capability.Rooted.create({ root: fixture.root });
+      const reserved = [
+        '.sys.rooted',
+        '.SYS.ROOTED/stages/x',
+        '.sys.rooted-tmp-owned',
+        '.sys.rooted-private',
+      ];
+      for (const path of reserved) {
+        await expectFailure(() => rooted.admit([{ kind: 'file', path }]), 'invalid-target');
+      }
+
+      const ordinary = [
+        '.sys-rooted',
+        '.SYS-ROOTED/stages/x',
+        '.sys-rooted-tmp-owned',
+      ];
+      for (const path of ordinary) {
+        const admission = await rooted.admit([{ kind: 'file', path }]);
+        expect(admission.targets.map((target) => target.path)).to.eql([path]);
       }
     } finally {
       await teardown(fixture);
@@ -99,12 +124,14 @@ describe('Fs.Capability.Rooted admission', () => {
     expect(normalizeTargets(many).length).to.eql(many.length);
 
     await expectFailure(
-      async () =>
-        normalizeTargets([
-          { kind: 'file', path: 'a' },
-          { kind: 'directory', path: 'a-b' },
-          { kind: 'file', path: 'a/child.js' },
-        ]),
+      () =>
+        Promise.resolve(
+          normalizeTargets([
+            { kind: 'file', path: 'a' },
+            { kind: 'directory', path: 'a-b' },
+            { kind: 'file', path: 'a/child.js' },
+          ]),
+        ),
       'target-collision',
     );
   });

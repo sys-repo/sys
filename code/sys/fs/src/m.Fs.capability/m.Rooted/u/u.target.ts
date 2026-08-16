@@ -3,7 +3,7 @@ import { failure, isFailure } from './u.error.ts';
 
 const compare = Str.Compare.codeUnit();
 
-export const INTERNAL_NAME = '.sys-rooted';
+export const INTERNAL_NAME = '.sys.rooted';
 
 // deno-lint-ignore no-control-regex -- Portable paths reject ASCII and C1 controls.
 const CONTROL = /[\u0000-\u001f\u007f-\u009f]/;

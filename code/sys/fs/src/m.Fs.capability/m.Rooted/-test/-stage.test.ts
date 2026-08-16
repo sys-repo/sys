@@ -33,6 +33,9 @@ describe('Fs.Capability.Rooted stages: publication settlement', () => {
       const rooted = await Fs.Capability.Rooted.create({ root: fixture.root });
       const target = await directoryTarget(rooted, 'sha256-generation');
       const stage = await rooted.createStage();
+      expect(Fs.dirname(Fs.dirname(stage.path))).to.eql(
+        Fs.join(rooted.path, '.sys.rooted', 'stages'),
+      );
       await fill(stage, 'manifest');
 
       expect(await rooted.promoteStage(stage, target)).to.eql({ kind: 'published' });
@@ -40,7 +43,7 @@ describe('Fs.Capability.Rooted stages: publication settlement', () => {
         'manifest',
       );
       expect(await Fs.exists(stage.path)).to.eql(false);
-      const lockDir = Fs.join(fixture.root, '.sys-rooted', 'locks');
+      const lockDir = Fs.join(fixture.root, '.sys.rooted', 'locks');
       const locks: Deno.DirEntry[] = [];
       for await (const entry of Deno.readDir(lockDir)) locks.push(entry);
       expect(locks.length).to.eql(1);
@@ -101,7 +104,7 @@ describe('Fs.Capability.Rooted stages: publication settlement', () => {
           throw new Deno.errors.AlreadyExists('race');
         },
         remove: async (path, options) => {
-          if (raced && path.includes('.sys-rooted')) throw new Error('cleanup');
+          if (raced && path.includes('.sys.rooted')) throw new Error('cleanup');
           await DEFAULT_IO.remove(path, options);
         },
       });
@@ -186,7 +189,7 @@ describe('Fs.Capability.Rooted stages: private ownership and pre-publication cle
         () => rooted.createStage({ until: controller.signal }),
         'cancelled',
       );
-      const stages = Fs.join(fixture.root, '.sys-rooted', 'stages');
+      const stages = Fs.join(fixture.root, '.sys.rooted', 'stages');
       const names: string[] = [];
       for await (const entry of Deno.readDir(stages)) names.push(entry.name);
       expect(names).to.eql([]);
@@ -199,7 +202,7 @@ describe('Fs.Capability.Rooted stages: private ownership and pre-publication cle
     const fixture = await setup();
     try {
       const token = 'untrusted-container';
-      const container = Fs.join(fixture.root, '.sys-rooted', 'stages', token);
+      const container = Fs.join(fixture.root, '.sys.rooted', 'stages', token);
       let removals = 0;
       const io = withIo({
         token: () => token,
@@ -226,7 +229,7 @@ describe('Fs.Capability.Rooted stages: private ownership and pre-publication cle
     const fixture = await setup();
     try {
       const token = 'untrusted-content';
-      const container = Fs.join(fixture.root, '.sys-rooted', 'stages', token);
+      const container = Fs.join(fixture.root, '.sys.rooted', 'stages', token);
       const content = Fs.join(container, 'content');
       let removals = 0;
       const io = withIo({
@@ -254,7 +257,7 @@ describe('Fs.Capability.Rooted stages: private ownership and pre-publication cle
     const fixture = await setup();
     try {
       const token = 'untrusted-marker';
-      const container = Fs.join(fixture.root, '.sys-rooted', 'stages', token);
+      const container = Fs.join(fixture.root, '.sys.rooted', 'stages', token);
       let removals = 0;
       const io = withIo({
         token: () => token,
@@ -327,7 +330,7 @@ describe('Fs.Capability.Rooted stages: private ownership and pre-publication cle
           return await DEFAULT_IO.realPath(path);
         },
         remove: async (path, options) => {
-          if (path.includes('.sys-rooted')) throw new Error('cleanup');
+          if (path.includes('.sys.rooted')) throw new Error('cleanup');
           await DEFAULT_IO.remove(path, options);
         },
       });
@@ -503,7 +506,7 @@ describe('Fs.Capability.Rooted stages: post-publication truth and recovery', () 
           renamed = true;
         },
         remove: async (path, options) => {
-          if (renamed && path.includes('.sys-rooted') && failCleanup) {
+          if (renamed && path.includes('.sys.rooted') && failCleanup) {
             failCleanup = false;
             throw new Error('cleanup');
           }

@@ -28,15 +28,25 @@ describe('Fs.Capability.Rooted.publishFile', () => {
   it('publishes complete synced bytes and removes its owned same-directory temp', async () => {
     const fixture = await setup();
     try {
-      const rooted = await Fs.Capability.Rooted.create({ root: fixture.root });
+      let temp = '';
+      const io = withIo({
+        open: async (path, options) => {
+          const file = await DEFAULT_IO.open(path, options);
+          if (options?.createNew === true) temp = path;
+          return file;
+        },
+      });
+      const rooted = await createRooted({ root: fixture.root }, io);
       const target = await fileTarget(rooted, 'docs/readme.md');
       const result = await rooted.publishFile(target, bytes('hello\n'));
 
       expect(result).to.eql({ kind: 'published', bytes: 6 });
       expect(await Deno.readTextFile(Fs.join(fixture.root, target.path))).to.eql('hello\n');
+      expect(Fs.dirname(temp)).to.eql(Fs.join(rooted.path, 'docs'));
+      expect(Fs.basename(temp).startsWith('.sys.rooted-tmp-')).to.eql(true);
       const names: string[] = [];
       for await (const entry of Deno.readDir(Fs.join(fixture.root, 'docs'))) names.push(entry.name);
-      expect(names.some((name) => name.toLowerCase().startsWith('.sys-rooted'))).to.eql(false);
+      expect(names.some((name) => name.toLowerCase().startsWith('.sys.rooted-tmp-'))).to.eql(false);
     } finally {
       await teardown(fixture);
     }
@@ -161,7 +171,7 @@ describe('Fs.Capability.Rooted.publishFile', () => {
       const io = withIo({
         open: async (path, options) => {
           const file = await DEFAULT_IO.open(path, options);
-          if (!Fs.basename(path).startsWith('.sys-rooted-tmp-')) return file;
+          if (!Fs.basename(path).startsWith('.sys.rooted-tmp-')) return file;
           return wrapFile(file, {
             write: async (data) => {
               const written = await file.write(data.subarray(0, Math.min(2, data.byteLength)));
@@ -191,7 +201,7 @@ describe('Fs.Capability.Rooted.publishFile', () => {
       const shortIo = withIo({
         open: async (path, options) => {
           const file = await DEFAULT_IO.open(path, options);
-          if (!Fs.basename(path).startsWith('.sys-rooted-tmp-')) return file;
+          if (!Fs.basename(path).startsWith('.sys.rooted-tmp-')) return file;
           return wrapFile(file, {
             write: (data) => file.write(data.subarray(0, Math.min(2, data.byteLength))),
           });
@@ -208,8 +218,8 @@ describe('Fs.Capability.Rooted.publishFile', () => {
       const stalledIo = withIo({
         open: async (path, options) => {
           const file = await DEFAULT_IO.open(path, options);
-          if (!Fs.basename(path).startsWith('.sys-rooted-tmp-')) return file;
-          return wrapFile(file, { write: async () => 0 });
+          if (!Fs.basename(path).startsWith('.sys.rooted-tmp-')) return file;
+          return wrapFile(file, { write: () => Promise.resolve(0) });
         },
       });
       const stalled = await createRooted({ root: fixture.root }, stalledIo);
@@ -230,7 +240,7 @@ describe('Fs.Capability.Rooted.publishFile', () => {
       const io = withIo({
         open: async (path, options) => {
           const file = await DEFAULT_IO.open(path, options);
-          if (!Fs.basename(path).startsWith('.sys-rooted-tmp-')) return file;
+          if (!Fs.basename(path).startsWith('.sys.rooted-tmp-')) return file;
           temp = path;
           return wrapFile(file, {
             stat: async () => ({ ...await file.stat(), ino: Num.INFINITY }),
@@ -268,7 +278,7 @@ describe('Fs.Capability.Rooted.publishFile', () => {
       const io = withIo({
         open: async (path, options) => {
           const file = await DEFAULT_IO.open(path, options);
-          if (!Fs.basename(path).startsWith('.sys-rooted-tmp-')) return file;
+          if (!Fs.basename(path).startsWith('.sys.rooted-tmp-')) return file;
           temp = path;
           return wrapFile(file, {
             sync: async () => {
@@ -300,7 +310,7 @@ describe('Fs.Capability.Rooted.publishFile', () => {
       const syncIo = withIo({
         open: async (path, options) => {
           const file = await DEFAULT_IO.open(path, options);
-          if (!Fs.basename(path).startsWith('.sys-rooted-tmp-')) return file;
+          if (!Fs.basename(path).startsWith('.sys.rooted-tmp-')) return file;
           return wrapFile(file, { sync: async () => await Promise.reject(new Error('sync')) });
         },
       });
@@ -370,7 +380,7 @@ describe('Fs.Capability.Rooted.publishFile', () => {
 
       const cleanupIo = withIo({
         remove: async (path, options) => {
-          if (Fs.basename(path).startsWith('.sys-rooted-tmp-')) throw new Error('cleanup');
+          if (Fs.basename(path).startsWith('.sys.rooted-tmp-')) throw new Error('cleanup');
           await DEFAULT_IO.remove(path, options);
         },
       });

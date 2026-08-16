@@ -63,7 +63,7 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
       expect(lease[Symbol.asyncDispose]()).to.equal(release);
       await release;
 
-      const metadataDir = Fs.join(fixture.root, '.sys-rooted');
+      const metadataDir = Fs.join(fixture.root, '.sys.rooted');
       const lockDir = Fs.join(metadataDir, 'locks');
       if (Deno.build.os !== 'windows') {
         expect(((await Deno.lstat(metadataDir)).mode ?? 0) & 0o777).to.eql(0o700);
@@ -253,7 +253,7 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
         () => rooted.acquireLease(targets, { mode: 'shared', until: preCancelled.signal }),
         'cancelled',
       );
-      expect(await Fs.exists(Fs.join(fixture.root, '.sys-rooted'))).to.eql(false);
+      expect(await Fs.exists(Fs.join(fixture.root, '.sys.rooted'))).to.eql(false);
 
       await expectFailure(
         () => rooted.acquireLease(targets, { mode: 'exclusive', until: controller.signal }),
@@ -345,7 +345,7 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
         kind: 'busy',
         target: contenderTarget,
       });
-      expect(await Fs.exists(Fs.join(fixture.root, '.sys-rooted', 'locks'))).to.eql(true);
+      expect(await Fs.exists(Fs.join(fixture.root, '.sys.rooted', 'locks'))).to.eql(true);
 
       await lease.release();
       const replacement = await acquired(
