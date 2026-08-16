@@ -265,7 +265,7 @@ describe('DevScreen', () => {
     });
 
     it('replaces producer ANSI with the renderer-owned white payload tone', () => {
-      const producerTone = c.yellow(c.bold('UNPINNED'));
+      const producerTone = c.magenta(c.bold('UNPINNED'));
       const raw = DevScreen.toString({
         identity: pkg(),
         paths: paths(),

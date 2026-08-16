@@ -379,7 +379,7 @@ const wrangle = {
   ) {
     const value = authority.kind === 'pinned'
       ? `pinned ${authority.integrity}`
-      : `local ${c.dim(c.gray('·'))} ${c.yellow(c.bold('UNPINNED'))}`;
+      : `local ${c.dim(c.gray('·'))} ${c.magenta(c.bold('UNPINNED'))}`;
     return metadataRow({
       label: 'authority',
       value,

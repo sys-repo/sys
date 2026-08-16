@@ -107,7 +107,7 @@ describe('DistServeScreen', () => {
     const fixture = await setup();
     try {
       const raw = localFrame(fixture);
-      const warning = c.yellow(c.bold('UNPINNED'));
+      const awareness = c.magenta(c.bold('UNPINNED'));
       const logRow = /^\s+\d+ {2}(?:err|out) {2}/;
       const rows = raw.split('\n');
       const authorityRow = rows.find((line) => text(line).includes('authority'));
@@ -116,12 +116,12 @@ describe('DistServeScreen', () => {
 
       expect(authorityRow).to.include(c.white('authority'));
       expect(authorityRow).to.include(c.dim(c.gray('·')));
-      expect(authorityRow).to.include(warning);
+      expect(authorityRow).to.include(awareness);
       expect(outputPayload).to.not.eql('');
       expect(outputRow).to.include(c.gray('1'));
       expect(outputRow).to.include(c.gray('out'));
       expect(outputRow).to.include(c.white(outputPayload));
-      expect(outputRow).to.not.include(warning);
+      expect(outputRow).to.not.include(awareness);
     } finally {
       await teardown(fixture);
     }
