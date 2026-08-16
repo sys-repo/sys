@@ -1,6 +1,15 @@
 /**
  * @module
  * Formatting helpers, ANSI color tools, and ANSI stripping helpers for CLI output.
+ *
+ * Default system foreground grammar:
+ * - white → primary; gray → secondary.
+ * - green → affirmative; cyan → informational.
+ * - magenta → awareness of a valid non-default state; yellow → caution.
+ * - red → failure, hard block, or destructive change.
+ *
+ * ANSI-stripped output remains semantically complete. Identity accents do not establish status;
+ * bold and dim change emphasis, not severity.
  */
 
 /** ANSI color formatter functions. */
