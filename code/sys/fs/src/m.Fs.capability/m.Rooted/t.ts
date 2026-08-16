@@ -59,11 +59,12 @@ export declare namespace FsRooted {
     ) => Promise<Admission<K>>;
 
     /**
-     * Try to acquire one shared or exclusive OS-backed lease over admitted directory targets.
+     * Acquire one shared or exclusive OS-backed lease over admitted directory targets.
      *
-     * Targets are acquired in stable lock-identity order regardless of caller order. A busy
-     * result holds no lease. Cancellation, unsupported locking, and other host failures reject
-     * with a typed Rooted failure after every partially acquired lock has been released.
+     * Targets are acquired in stable lock-identity order regardless of caller order. By default,
+     * contention returns `busy` without retaining a partial lease; `wait: true` waits until all
+     * targets are acquired or cancellation/failure settles the operation. Unsupported locking and
+     * other host failures reject with a typed Rooted failure after every partial lock is released.
      */
     readonly acquireLease: (
       targets: readonly Target<'directory'>[],
@@ -154,9 +155,11 @@ export declare namespace FsRooted {
   /** Advisory lock mode for one complete lease batch. */
   export type LeaseMode = 'shared' | 'exclusive';
 
-  /** Required mode and optional acquisition lifecycle; `until` never owns a returned lease. */
+  /** Required mode and optional contention/lifecycle policy; `until` never owns a returned lease. */
   export type LeaseOptions = OperationOptions & {
     readonly mode: LeaseMode;
+    /** Wait for contended targets instead of returning `busy`; defaults to false. */
+    readonly wait?: boolean;
   };
 
   /**
@@ -177,7 +180,7 @@ export declare namespace FsRooted {
     readonly [Symbol.dispose]?: never;
   };
 
-  /** Immediate acquisition result; a busy result retains no lock. */
+  /** Acquisition result; `busy` is returned only by non-waiting contention. */
   export type LeaseResult =
     | { readonly kind: 'acquired'; readonly lease: Lease }
     | { readonly kind: 'busy'; readonly target: Target<'directory'> };

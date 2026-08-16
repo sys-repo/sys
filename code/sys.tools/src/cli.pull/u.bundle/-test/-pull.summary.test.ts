@@ -100,7 +100,7 @@ describe('cli.pull summary formatting', () => {
     expect(text).to.not.match(/^\s*dist\s/m);
   });
 
-  it('separates immutable generation evidence from mutable projection truth', () => {
+  it('separates sealed generation evidence from mutable projection truth', () => {
     const integrity = `sha256-${'a'.repeat(64)}` as t.StringHash;
     const bundle: t.PullTool.ConfigYaml.DistBundle = {
       kind: 'dist',
@@ -122,6 +122,7 @@ describe('cli.pull summary formatting', () => {
           manifestBytes: 1200,
           assets: { files: 1, totalBytes: 42, packageBytes: 42 },
         },
+        seal: { kind: 'applied', changed: false },
         cleanup: 'not-needed',
         source: { configuredUrl: bundle.manifest },
       },
@@ -136,7 +137,7 @@ describe('cli.pull summary formatting', () => {
     expect(text).to.match(/source\s+fs\.db\.team\/dist\.json/);
     expect(text).to.match(/generation\s+existing/);
     expect(text).to.match(/files\s+1/);
-    expect(text).to.include('/tmp/.dist-store/generation');
+    expect(text).to.match(/sealed\s+\/tmp\/\.dist-store\/generation/);
     expect(text).to.include('/tmp/dev (replace, mutable)');
     expect(text).to.not.include('verified projection');
   });

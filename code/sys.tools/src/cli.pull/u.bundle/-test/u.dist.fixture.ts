@@ -7,6 +7,24 @@ export type DistServerFixture = {
   readonly requests: () => number;
 };
 
+/** Remove a test Dist store through its lower owned-tree lifecycle authority. */
+export async function removeDistStore(baseDir: t.StringDir): Promise<void> {
+  const root = await Fs.realPath(baseDir) as t.StringDir;
+  const storeDir = Fs.join(root, '.dist-store') as t.StringDir;
+  if (!(await Fs.exists(storeDir))) return;
+
+  const rooted = await Fs.Capability.Rooted.create({ root });
+  const admitted = await rooted.admit([{ path: '.dist-store', kind: 'directory' }]);
+  const target = admitted.targets[0];
+  const acquired = await rooted.acquireLease([target], { mode: 'exclusive' });
+  if (acquired.kind !== 'acquired') throw new Error('Dist test store is busy.');
+  try {
+    await rooted.removeTree(target, { lease: acquired.lease });
+  } finally {
+    await acquired.lease.release();
+  }
+}
+
 /** Run a neutral loopback server over one publisher-computed Dist fixture. */
 export async function usingDistServer(
   fn: (fixture: DistServerFixture) => Promise<void>,

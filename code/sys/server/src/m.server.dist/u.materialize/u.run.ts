@@ -8,9 +8,11 @@ import {
 } from './u.failure.ts';
 import { type InputSnapshot, prepareManifestCredentials, snapshotInput } from './u.input.ts';
 import { admitManifest } from './u.manifest.ts';
+import { sealTarget, snapshotAppliedSeal } from './u.seal.ts';
 
 type Stage = t.FsRooted.Stage;
 type Rooted = t.Fs.Rooted.Instance;
+type Lease = t.FsRooted.Lease;
 type Verification = t.FsPkg.Dist.Pinned.Verify.Result;
 
 type FetchedManifest = {
@@ -21,6 +23,14 @@ type FetchedManifest = {
 
 type FetchResult =
   | { readonly ok: true; readonly value: FetchedManifest }
+  | { readonly ok: false; readonly reason: t.Dist.FailureReason };
+
+type InitialGenerationSettlement =
+  | { readonly kind: 'missing' }
+  | { readonly kind: 'settled'; readonly result: t.Dist.MaterializeResult };
+
+type LeaseAcquisition =
+  | { readonly ok: true; readonly lease: Lease }
   | { readonly ok: false; readonly reason: t.Dist.FailureReason };
 
 export type MaterializeDependencies = {
@@ -61,44 +71,14 @@ export async function materializeWith(
     return failed('storage', causeReason(cause));
   }
 
-  let initiallyPresent = false;
-  try {
-    initiallyPresent = (await Fs.lstat(dir)) !== undefined;
-  } catch (cause) {
-    return failed('storage', causeReason(cause));
-  }
-
-  let existing: Verification;
-  try {
-    existing = await FsPkg.Dist.Pinned.verify({
-      dir,
-      integrity: args.integrity,
-      limits: args.policy.verification,
-      until: args.until,
-    });
-  } catch (cause) {
-    return failed(
-      'existing-verification',
-      causeReason(cause),
-      'not-needed',
-      initiallyPresent ? 'occupied' : undefined,
-    );
-  }
-
-  if (existing.kind === 'verified') {
-    return existingResult(args, dir, existing.evidence, 'not-needed');
-  }
-  if (initiallyPresent) {
-    return failed(
-      'existing-verification',
-      verificationReason(existing),
-      'not-needed',
-      'occupied',
-    );
-  }
-  if (existing.kind !== 'missing') {
-    return failed('existing-verification', verificationReason(existing));
-  }
+  const initial = await settleInitialGeneration(
+    args,
+    rooted,
+    generation,
+    dir,
+    dependencies,
+  );
+  if (initial.kind === 'settled') return initial.result;
 
   let fetched: FetchResult;
   try {
@@ -177,36 +157,278 @@ export async function materializeWith(
     return failed('stage-verification', verificationReason(staged), cleanup);
   }
 
-  let promoted: t.FsRooted.PromotionResult;
-  try {
-    promoted = await rooted.promoteStage(stage, generation, { until: args.until });
-  } catch (cause) {
-    const cleanup = await discardStage(rooted, stage);
-    // This call performs no pre-publication mutation, so commitment means rename may have exposed the target.
-    if (dependencies.rooted.Is.failure(cause) && cause.committed) {
-      return await settleVisible(
-        args,
-        dir,
-        fetched.value,
-        pull.totals,
-        cleanup,
-        'committed',
-        dependencies,
-      );
-    }
-    return failed('promotion', causeReason(cause), cleanup);
-  }
-
-  const cleanup = promoted.cleanupError ? await discardStage(rooted, stage) : 'complete';
-  return await settleVisible(
+  return await promoteVerifiedStage(
     args,
+    rooted,
+    generation,
     dir,
+    stage,
     fetched.value,
     pull.totals,
-    cleanup,
-    promoted.kind === 'published' ? 'committed' : 'occupied',
     dependencies,
   );
+}
+
+async function settleInitialGeneration(
+  args: InputSnapshot,
+  rooted: Rooted,
+  generation: t.FsRooted.Target<'directory'>,
+  dir: t.StringAbsoluteDir,
+  dependencies: MaterializeDependencies,
+): Promise<InitialGenerationSettlement> {
+  const acquisition = await acquireGenerationLease(args, rooted, generation, dependencies);
+  if (!acquisition.ok) {
+    return Object.freeze({
+      kind: 'settled',
+      result: failed('storage', acquisition.reason),
+    });
+  }
+
+  let settlement: InitialGenerationSettlement;
+  try {
+    let existing: Verification;
+    try {
+      existing = await FsPkg.Dist.Pinned.verify({
+        dir,
+        integrity: args.integrity,
+        limits: args.policy.verification,
+        until: args.until,
+      });
+    } catch (cause) {
+      const occupied = await targetPresent(dir);
+      settlement = Object.freeze({
+        kind: 'settled',
+        result: failed(
+          'existing-verification',
+          classifyCauseReason(cause, dependencies.rooted.Is.failure),
+          'not-needed',
+          occupied ? 'occupied' : undefined,
+        ),
+      });
+      const releaseReason = await releaseGenerationLease(acquisition.lease, dependencies);
+      return releaseReason
+        ? Object.freeze({
+          kind: 'settled',
+          result: failed(
+            'storage',
+            releaseReason,
+            'not-needed',
+            occupied ? 'occupied' : undefined,
+          ),
+        })
+        : settlement;
+    }
+
+    const occupied = await targetPresent(dir);
+    if (existing.kind === 'verified') {
+      settlement = Object.freeze({
+        kind: 'settled',
+        result: await settleExisting(
+          args,
+          rooted,
+          generation,
+          dir,
+          acquisition.lease,
+          dependencies,
+        ),
+      });
+    } else if (occupied) {
+      settlement = Object.freeze({
+        kind: 'settled',
+        result: failed(
+          'existing-verification',
+          verificationReason(existing),
+          'not-needed',
+          'occupied',
+        ),
+      });
+    } else if (existing.kind !== 'missing') {
+      settlement = Object.freeze({
+        kind: 'settled',
+        result: failed('existing-verification', verificationReason(existing)),
+      });
+    } else {
+      settlement = Object.freeze({ kind: 'missing' });
+    }
+  } catch (cause) {
+    settlement = Object.freeze({
+      kind: 'settled',
+      result: failed('storage', classifyCauseReason(cause, dependencies.rooted.Is.failure)),
+    });
+  }
+
+  const releaseReason = await releaseGenerationLease(acquisition.lease, dependencies);
+  if (!releaseReason) return settlement;
+  const prior = settlement.kind === 'settled' ? settlement.result : undefined;
+  return Object.freeze({
+    kind: 'settled',
+    result: failed(
+      'storage',
+      releaseReason,
+      settlementCleanup(prior),
+      settlementPublication(prior),
+    ),
+  });
+}
+
+async function promoteVerifiedStage(
+  args: InputSnapshot,
+  rooted: Rooted,
+  generation: t.FsRooted.Target<'directory'>,
+  dir: t.StringAbsoluteDir,
+  stage: Stage,
+  fetched: FetchedManifest,
+  totals: t.HttpPull.ResourceTotals,
+  dependencies: MaterializeDependencies,
+): Promise<t.Dist.MaterializeResult> {
+  const acquisition = await acquireGenerationLease(args, rooted, generation, dependencies);
+  if (!acquisition.ok) {
+    const cleanup = await discardStage(rooted, stage);
+    return failed('promotion', acquisition.reason, cleanup);
+  }
+
+  let settlement: t.Dist.MaterializeResult;
+  try {
+    let promoted: t.FsRooted.PromotionResult;
+    try {
+      promoted = await rooted.promoteStage(stage, generation, {
+        seal: true,
+        lease: acquisition.lease,
+        ...(args.until === undefined ? {} : { until: args.until }),
+      });
+    } catch (cause) {
+      const cleanup = await discardStage(rooted, stage);
+      if (dependencies.rooted.Is.failure(cause) && cause.committed) {
+        let visible = false;
+        try {
+          visible = await targetPresent(dir);
+        } catch {
+          // The original typed promotion failure remains the strongest settled evidence.
+        }
+        if (visible) {
+          // `committed` may describe private-stage mode changes; visibility alone cannot prove that
+          // this stage published the target. Settle the generation conservatively as occupied.
+          settlement = await settleVisible(
+            args,
+            rooted,
+            generation,
+            dir,
+            acquisition.lease,
+            fetched,
+            totals,
+            cleanup,
+            'occupied',
+            dependencies,
+          );
+        } else {
+          settlement = failed(
+            'promotion',
+            classifyCauseReason(cause, dependencies.rooted.Is.failure),
+            cleanup,
+          );
+        }
+      } else {
+        settlement = failed(
+          'promotion',
+          classifyCauseReason(cause, dependencies.rooted.Is.failure),
+          cleanup,
+        );
+      }
+
+      const releaseReason = await releaseGenerationLease(acquisition.lease, dependencies);
+      return releaseReason
+        ? failed(
+          'promotion',
+          releaseReason,
+          settlementCleanup(settlement),
+          settlementPublication(settlement),
+        )
+        : settlement;
+    }
+
+    const cleanup = promoted.cleanupError ? await discardStage(rooted, stage) : 'complete';
+    settlement = await settleVisible(
+      args,
+      rooted,
+      generation,
+      dir,
+      acquisition.lease,
+      fetched,
+      totals,
+      cleanup,
+      promoted.kind === 'published' ? 'committed' : 'occupied',
+      dependencies,
+      promoted.kind === 'published' ? promoted.seal : undefined,
+    );
+  } catch (cause) {
+    const cleanup = await discardStage(rooted, stage);
+    settlement = failed(
+      'promotion',
+      classifyCauseReason(cause, dependencies.rooted.Is.failure),
+      cleanup,
+    );
+  }
+
+  const releaseReason = await releaseGenerationLease(acquisition.lease, dependencies);
+  return releaseReason
+    ? failed(
+      'promotion',
+      releaseReason,
+      settlementCleanup(settlement),
+      settlementPublication(settlement),
+    )
+    : settlement;
+}
+
+async function acquireGenerationLease(
+  args: InputSnapshot,
+  rooted: Rooted,
+  generation: t.FsRooted.Target<'directory'>,
+  dependencies: MaterializeDependencies,
+): Promise<LeaseAcquisition> {
+  try {
+    const acquired = await rooted.acquireLease([generation], {
+      mode: 'exclusive',
+      wait: true,
+      ...(args.until === undefined ? {} : { until: args.until }),
+    });
+    return acquired.kind === 'acquired'
+      ? Object.freeze({ ok: true, lease: acquired.lease })
+      : Object.freeze({ ok: false, reason: 'filesystem-failure' });
+  } catch (cause) {
+    return Object.freeze({
+      ok: false,
+      reason: classifyCauseReason(cause, dependencies.rooted.Is.failure),
+    });
+  }
+}
+
+async function releaseGenerationLease(
+  lease: Lease,
+  dependencies: MaterializeDependencies,
+): Promise<t.Dist.FailureReason | undefined> {
+  try {
+    await lease.release();
+    return undefined;
+  } catch (cause) {
+    return classifyCauseReason(cause, dependencies.rooted.Is.failure);
+  }
+}
+
+async function targetPresent(dir: t.StringAbsoluteDir): Promise<boolean> {
+  return (await Fs.lstat(dir)) !== undefined;
+}
+
+function settlementCleanup(result: t.Dist.MaterializeResult | undefined): t.Dist.Cleanup {
+  return result?.cleanup ?? 'not-needed';
+}
+
+function settlementPublication(
+  result: t.Dist.MaterializeResult | undefined,
+): t.Dist.FailedPublication | undefined {
+  if (result?.kind === 'promoted') return 'committed';
+  if (result?.kind === 'existing') return 'occupied';
+  return result?.publication;
 }
 
 async function fetchManifest(args: InputSnapshot): Promise<FetchResult> {
@@ -261,42 +483,116 @@ async function fetchManifest(args: InputSnapshot): Promise<FetchResult> {
   }
 }
 
+async function settleExisting(
+  args: InputSnapshot,
+  rooted: Rooted,
+  generation: t.FsRooted.Target<'directory'>,
+  dir: t.StringAbsoluteDir,
+  lease: Lease,
+  dependencies: MaterializeDependencies,
+): Promise<t.Dist.MaterializeResult> {
+  const sealed = await sealTarget(
+    rooted,
+    generation,
+    lease,
+    dependencies.rooted.Is.failure,
+    args.until,
+  );
+  if (!sealed.ok) {
+    return failed('sealing', sealed.reason, 'not-needed', 'occupied');
+  }
+
+  const final = await finalEvidence(
+    args,
+    dir,
+    'not-needed',
+    'occupied',
+    dependencies,
+    args.until,
+  );
+  return final.ok
+    ? existingResult(args, dir, final.evidence, sealed.seal, 'not-needed')
+    : final.failure;
+}
+
 async function settleVisible(
   args: InputSnapshot,
+  rooted: Rooted,
+  generation: t.FsRooted.Target<'directory'>,
   dir: t.StringAbsoluteDir,
+  lease: Lease,
   fetched: FetchedManifest,
   totals: t.HttpPull.ResourceTotals,
   cleanup: t.Dist.Cleanup,
   publication: t.Dist.FailedPublication,
   dependencies: MaterializeDependencies,
+  lowerSeal?: t.FsRooted.SealApplied,
 ): Promise<t.Dist.MaterializeResult> {
+  let seal = snapshotAppliedSeal(lowerSeal);
+  if (!seal) {
+    // Never change permission metadata on a generation that is already observably invalid.
+    const beforeSeal = await finalEvidence(args, dir, cleanup, publication, dependencies);
+    if (!beforeSeal.ok) return beforeSeal.failure;
+
+    const sealed = await sealTarget(
+      rooted,
+      generation,
+      lease,
+      dependencies.rooted.Is.failure,
+    );
+    if (!sealed.ok) return failed('sealing', sealed.reason, cleanup, publication);
+    seal = sealed.seal;
+  }
+
+  const final = await finalEvidence(args, dir, cleanup, publication, dependencies);
+  if (!final.ok) return final.failure;
+  return publication === 'committed'
+    ? promotedResult(args, dir, final.evidence, seal, fetched, totals, cleanup)
+    : existingResult(args, dir, final.evidence, seal, cleanup);
+}
+
+type FinalEvidenceResult =
+  | { readonly ok: true; readonly evidence: t.FsPkg.Dist.Pinned.Verify.Evidence }
+  | { readonly ok: false; readonly failure: t.Dist.Failed };
+
+async function finalEvidence(
+  args: InputSnapshot,
+  dir: t.StringAbsoluteDir,
+  cleanup: t.Dist.Cleanup,
+  publication: t.Dist.FailedPublication,
+  dependencies: MaterializeDependencies,
+  until?: t.UntilInput,
+): Promise<FinalEvidenceResult> {
   let result: Verification;
   try {
     result = await FsPkg.Dist.Pinned.verify({
       dir,
       integrity: args.integrity,
       limits: args.policy.verification,
+      ...(until === undefined ? {} : { until }),
     });
   } catch (cause) {
-    return failed(
-      'final-verification',
-      classifyCauseReason(cause, dependencies.rooted.Is.failure),
-      cleanup,
-      publication,
-    );
+    return Object.freeze({
+      ok: false,
+      failure: failed(
+        'final-verification',
+        classifyCauseReason(cause, dependencies.rooted.Is.failure),
+        cleanup,
+        publication,
+      ),
+    });
   }
-  if (result.kind !== 'verified') {
-    return failed(
-      'final-verification',
-      verificationReason(result),
-      cleanup,
-      publication,
-    );
-  }
-
-  return publication === 'committed'
-    ? promotedResult(args, dir, result.evidence, fetched, totals, cleanup)
-    : existingResult(args, dir, result.evidence, cleanup);
+  return result.kind === 'verified'
+    ? Object.freeze({ ok: true, evidence: result.evidence })
+    : Object.freeze({
+      ok: false,
+      failure: failed(
+        'final-verification',
+        verificationReason(result),
+        cleanup,
+        publication,
+      ),
+    });
 }
 
 async function discardStage(rooted: Rooted, stage: Stage): Promise<t.Dist.Cleanup> {
@@ -312,6 +608,7 @@ function existingResult(
   args: InputSnapshot,
   dir: t.StringAbsoluteDir,
   verification: t.FsPkg.Dist.Pinned.Verify.Evidence,
+  seal: t.FsRooted.SealApplied,
   cleanup: t.Dist.Cleanup,
 ): t.Dist.Existing {
   return Object.freeze({
@@ -319,6 +616,7 @@ function existingResult(
     dir,
     integrity: args.integrity,
     verification,
+    seal,
     source: Object.freeze({ configuredUrl: args.configuredUrl }),
     cleanup,
   });
@@ -328,6 +626,7 @@ function promotedResult(
   args: InputSnapshot,
   dir: t.StringAbsoluteDir,
   verification: t.FsPkg.Dist.Pinned.Verify.Evidence,
+  seal: t.FsRooted.SealApplied,
   fetched: FetchedManifest,
   totals: t.HttpPull.ResourceTotals,
   cleanup: t.Dist.Cleanup,
@@ -337,6 +636,7 @@ function promotedResult(
     dir,
     integrity: args.integrity,
     verification,
+    seal,
     source: Object.freeze({
       configuredUrl: args.configuredUrl,
       requestedUrl: safeSource(fetched.requestedUrl),

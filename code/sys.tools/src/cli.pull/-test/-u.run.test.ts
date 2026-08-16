@@ -1,7 +1,7 @@
 import { describe, expect, expectError, Fs, it, Str } from '../../-test.ts';
 import type { t } from '../common.ts';
 import { Pull } from '../mod.ts';
-import { usingDistServer } from '../u.bundle/-test/u.dist.fixture.ts';
+import { removeDistStore, usingDistServer } from '../u.bundle/-test/u.dist.fixture.ts';
 import { json, release, usingGithubFetch } from '../u.github/-test/u.pull.fixture.ts';
 
 const CONFIG = '-config/@sys.tools.pull/view.yaml';
@@ -33,6 +33,20 @@ describe('@sys/tools/pull programmatic execution', () => {
         expect(generationIndex.data).to.eql(INDEX);
         expect(projectedIndex.data).to.include('<base href="/pulled/sample/" />');
         expect(projectedIndex.data).to.not.eql(generationIndex.data);
+
+        const generationAsset = Fs.join(pulled.data.generation.dir, 'asset.txt');
+        const projectedAsset = Fs.join(cwd, 'pulled/sample/asset.txt');
+        const generationMode = (await Deno.lstat(generationAsset)).mode;
+        const projectionMode = (await Deno.lstat(projectedAsset)).mode;
+        if (generationMode !== null && projectionMode !== null) {
+          expect(generationMode & 0o222).to.eql(0);
+          expect(projectionMode & 0o600).to.eql(0o600);
+        }
+
+        await Fs.write(projectedAsset, 'mutated projection', { force: true });
+        expect((await Fs.readText(projectedAsset)).data).to.eql('mutated projection');
+        expect((await Fs.readText(generationAsset)).data).to.eql('fixture-asset');
+        expect((await Deno.lstat(generationAsset)).mode).to.eql(generationMode);
       });
     }, { indexHtml: INDEX });
   });
@@ -229,9 +243,30 @@ function distYaml(
 
 async function withTmpDir(fn: (dir: t.StringDir) => Promise<void>) {
   const dir = await Fs.makeTempDir({ prefix: 'sys.tools.pull.run.' });
+  const failures: unknown[] = [];
   try {
     await fn(dir.absolute as t.StringDir);
-  } finally {
-    await Fs.remove(dir.absolute);
+  } catch (cause) {
+    failures.push(cause);
+  }
+
+  let storeRemoved = false;
+  try {
+    await removeDistStore(dir.absolute as t.StringDir);
+    storeRemoved = true;
+  } catch (cause) {
+    failures.push(cause);
+  }
+  if (storeRemoved) {
+    try {
+      await Fs.remove(dir.absolute);
+    } catch (cause) {
+      failures.push(cause);
+    }
+  }
+
+  if (failures.length === 1) throw failures[0];
+  if (failures.length > 1) {
+    throw new AggregateError(failures, '@sys/tools Pull fixture cleanup failed.');
   }
 }

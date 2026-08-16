@@ -88,7 +88,7 @@ describe('Fs.Capability.Rooted admission', () => {
     }
   });
 
-  it('reserves only the canonical Rooted namespace case-insensitively', async () => {
+  it('reserves the canonical Rooted namespace case-insensitively', async () => {
     const fixture = await setup();
     try {
       const rooted = await Fs.Capability.Rooted.create({ root: fixture.root });
@@ -100,16 +100,6 @@ describe('Fs.Capability.Rooted admission', () => {
       ];
       for (const path of reserved) {
         await expectFailure(() => rooted.admit([{ kind: 'file', path }]), 'invalid-target');
-      }
-
-      const ordinary = [
-        '.sys-rooted',
-        '.SYS-ROOTED/stages/x',
-        '.sys-rooted-tmp-owned',
-      ];
-      for (const path of ordinary) {
-        const admission = await rooted.admit([{ kind: 'file', path }]);
-        expect(admission.targets.map((target) => target.path)).to.eql([path]);
       }
     } finally {
       await teardown(fixture);

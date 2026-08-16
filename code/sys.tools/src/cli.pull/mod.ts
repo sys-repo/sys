@@ -3,8 +3,9 @@
  * Configure and execute Pull-owned remote materialization.
  *
  * Dist bundles authenticate an exact caller-supplied manifest pin and retain evidence on the
- * immutable generation. An optional projection is a mutable copy and carries no verification claim. GitHub
- * bundles remain bounded downloads, not verified Dist materialization.
+ * sealed generation. Sealing is point-in-time mode-bit evidence, not an OS security boundary. An
+ * optional projection is a mutable copy and carries no verification claim. GitHub bundles remain
+ * bounded downloads, not verified Dist materialization.
  */
 import { Fs, type t } from './common.ts';
 import { cli } from './m.cli.ts';

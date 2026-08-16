@@ -13,7 +13,7 @@ export type RewriteFile = {
 /**
  * Rewrite copied HTML only inside an explicitly mutable projection.
  *
- * The immutable verified generation is never passed to this helper.
+ * The sealed verified generation is never passed to this helper.
  */
 export async function rewriteProjectionTags(
   baseDir: t.StringDir,

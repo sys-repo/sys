@@ -1,10 +1,9 @@
 # @sys/server
 
-System primitives and entrypoint surfaces for server packages.
+`@sys/server` provides bounded HTTP, WebSocket, and file-serving primitives, plus service entry
+points for Cell.
 
 [dsl]: https://en.wikipedia.org/wiki/Domain-specific_language
-
-<p>&nbsp;</p>
 
 ## Usage
 
@@ -17,38 +16,82 @@ deno run -ER jsr:@sys/server dsl websocket
 deno run -ER jsr:@sys/server dsl websocket.cmd --format skill
 ```
 
-#### Checksum-pinned Dist materialization
+### Materialize a checksum-pinned Dist
 
-`jsr:@sys/server/dist` materializes an externally pinned `dist.json` as an integrity-addressed local
-generation without choosing product or activation policy:
+A Dist is a directory whose `dist.json` declares each payload file's path, byte length, and
+checksum. `Dist.materialize()` turns a caller-supplied SHA-256 pin into one local generation
+directory. It does not choose a release. It answers a narrower question: can this exact Dist be
+settled here as a sealed, verified generation?
+
+The target directory is `<storeDir>/<integrity>`, where `integrity` is the canonical manifest pin.
+When that generation is absent, the path is:
 
 ```text
-manifest URL + independent exact-byte checksum + finite policy
-  → bounded manifest and asset acquisition
-  → confined staging and no-clobber promotion
-  → fresh verification of the final generation directory
+manifest URL + exact dist.json SHA-256 + explicit source and resource limits
+  → authenticate the manifest bytes
+  → fetch only declared assets into a private stage
+  → verify the complete staged tree
+  → publish without replacing an existing generation
+  → clear write bits and verify the final directory
 ```
 
-Every `existing` or `promoted` result carries verification evidence produced against its exact
-returned directory. A `failed` result reports stable stage, reason, cleanup, and any visible
-publication truth without exposing paths, credentials, or raw host causes.
+The result states what became true:
 
-This surface does not discover a checksum, choose a mutable current version, enforce replay policy,
-or activate files. Operator-owned configuration and optional mutable projection belong to
-`jsr:@sys/tools/pull`.
+| Result     | Meaning                                                                                   |
+| ---------- | ----------------------------------------------------------------------------------------- |
+| `existing` | A valid generation occupied the target; this attempt does not claim to have published it. |
+| `promoted` | This attempt published its private stage and verified the published generation.           |
+| `failed`   | No usable generation settled; inspect `stage`, `reason`, `cleanup`, and `publication`.    |
 
-#### Host a checksum-pinned Dist
+Every success carries two independent forms of evidence:
+
+| Evidence       | What it proves                                                                                |
+| -------------- | --------------------------------------------------------------------------------------------- |
+| `verification` | The exact `dist.json` matched the pin, and the final directory matched its complete manifest. |
+| `seal`         | Rooted verified that all write bits were clear across the tree, clearing them when necessary. |
+
+Both fields describe the exact returned directory at settlement time. `seal.changed` says whether
+sealing changed at least one entry. Verification does not say that the pin names the newest release
+or should be activated. Sealing does not provide OS containment or protection from direct filesystem
+authority.
+
+During final settlement, `materialize()` holds one exclusive Rooted lease. It does not release that
+lease between checking the target, sealing the visible generation, and performing the final
+verification. Network transfer and private-stage work do not hold the target lease. The lease
+coordinates processes that use the same Rooted protocol; it does not block code with direct
+filesystem access.
+
+A valid but unsealed existing generation is sealed locally and verified again without contacting the
+source or invoking credential callbacks. An invalid occupied generation is rejected without being
+sealed, repaired, replaced, or removed. If the host cannot provide the required identity or
+permission evidence, materialization fails rather than returning an unsealed success.
+
+A `failed` result uses stable, sanitized fields. It does not expose credentials, filesystem paths,
+or raw host causes. Publication and private-stage cleanup are reported separately because a
+published generation cannot be truthfully described as rolled back.
+
+`materialize()` does not discover a checksum, select a mutable current version, enforce replay
+policy, or activate files. Operator-owned selection and optional mutable projections belong to
+`jsr:@sys/tools/pull`. A seal is point-in-time mode evidence—not a sandbox, retention lock,
+hostile-process boundary, ACL guarantee, or sudden-power-loss durability claim.
+
+### Host a checksum-pinned Dist
 
 `DistServer` serves one local Dist. Before opening a listener, it checks the exact `dist.json` bytes
 against the caller's SHA-256 pin and verifies every declared file. If any check fails, no listener
 opens.
 
 For each `GET` or `HEAD`, the server finds the path in the verified manifest, reads exactly the
-declared number of bytes, checks their checksum, and returns them only when both checks pass. The
-server binds only to loopback, serves no undeclared files, rejects Range requests, disables caching,
-and sends no CORS permission. It admits only requests whose `Host` exactly matches an admitted
-loopback authority for the listener, answering `421` otherwise, and maps `/` only to authenticated
-`index.html` without an SPA fallback.
+number of bytes declared for that file, checks its checksum, and returns it only when both checks
+pass.
+
+The HTTP boundary is closed by default:
+
+- The listener binds only to loopback.
+- `Host` must exactly match an admitted loopback authority; otherwise the response is `421`.
+- Only files declared by the verified manifest are served.
+- `/` maps only to authenticated `index.html`; there is no SPA fallback.
+- Range requests are rejected, caching is disabled, and no CORS permission is granted.
 
 Start and stop the server directly through its returned lifecycle:
 
@@ -107,7 +150,7 @@ and shutdown.
 Startup verifies the complete Dist. This work counts against Cell's 10-second default startup
 timeout; set `timeout:` on the service descriptor when a larger Dist needs more time.
 
-#### Files WebSocket service endpoint
+### Files WebSocket service endpoint
 
 Use `FilesWebSocketService` from `jsr:@sys/server/files/service` when Cell should own a bounded
 Files-over-WebSocket service lifecycle.
@@ -132,11 +175,11 @@ policy: '**'
 ```
 
 `root` resolves relative to the service `cwd` and may not escape it. Defaults are `path: /files`,
-`policy: '**'`, and `watch: false`. The endpoint accepts Cell `silent` args for compatibility, but
-calls `FilesServer.WebSocket.create(...)`; hosted output, keyboard, and process signal behavior
-remain `start(...)` concerns.
+`policy: '**'`, and `watch: false`. The service calls `FilesServer.WebSocket.create(...)`, not
+`start(...)`. It accepts Cell's `silent` setting for compatibility but does not own terminal output,
+keyboard input, or process signals.
 
-#### WebSocket Cmd transport
+### WebSocket Cmd transport
 
 Use `WebSocketServer` to bind typed [`@sys/event/cmd`](https://jsr.io/@sys/event/doc/cmd) handlers
 to WebSocket upgrades. `@sys/server` owns upgrade, transport binding, status, and lifecycle;

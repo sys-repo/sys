@@ -29,7 +29,7 @@ describe('@sys/tools/pull materialization resolver', () => {
     ]);
   });
 
-  it('does not present an immutable store as a mutable local output', async () => {
+  it('does not present a sealed store as a mutable local output', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'sys.tools.pull.materialize.' })).absolute;
     const path = Fs.join(cwd, CONFIG);
     await Fs.write(

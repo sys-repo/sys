@@ -61,7 +61,7 @@ export async function pullDistBundle(
 
     const projection = await projectGeneration(
       canonicalBase,
-      generation.dir,
+      generation,
       project,
       life.signal,
     );
@@ -86,7 +86,7 @@ export async function pullDistBundle(
 
 async function projectGeneration(
   baseDir: t.StringDir,
-  generationDir: t.StringAbsoluteDir,
+  generation: t.Dist.Existing | t.Dist.Promoted,
   project: t.PullTool.ConfigYaml.DistProject,
   signal: AbortSignal,
 ): Promise<t.PullTool.Bundle.Dist.Projection.Success | t.PullTool.Bundle.Dist.Projection.Failure> {
@@ -102,55 +102,169 @@ async function projectGeneration(
     );
   }
 
-  if (signal.aborted) {
-    return projectionFailure(dir, project.mode, 'cancelled', 'Dist projection cancelled.');
-  }
+  if (signal.aborted) return cancelledProjection(dir, project.mode);
 
+  let rooted: t.FsRooted.Instance;
+  let target: t.FsRooted.Target<'directory'>;
   try {
-    const rooted = await Fs.Capability.Rooted.create({ root: baseDir, until: signal });
-    await rooted.admit(
+    rooted = await Fs.Capability.Rooted.create({ root: baseDir, until: signal });
+    const admitted = await rooted.admit(
       [{ kind: 'directory', path: project.dir }],
       { until: signal },
     );
+    target = admitted.targets[0];
   } catch (error) {
     const reason = signal.aborted ? 'cancelled' : 'invalid-target';
     return projectionFailure(dir, project.mode, reason, error);
   }
 
-  if (signal.aborted) {
-    return projectionFailure(dir, project.mode, 'cancelled', 'Dist projection cancelled.');
+  let stage: t.FsRooted.Stage;
+  try {
+    stage = await rooted.createStage({ until: signal });
+  } catch (error) {
+    return projectionFailure(
+      dir,
+      project.mode,
+      signal.aborted ? 'cancelled' : 'filesystem-failure',
+      error,
+    );
+  }
+  try {
+    await populateProjectionStage(stage, generation, signal);
+  } catch (error) {
+    const cleanupError = await discardProjectionStage(rooted, stage);
+    return projectionFailure(
+      dir,
+      project.mode,
+      cleanupError ? 'filesystem-failure' : signal.aborted ? 'cancelled' : 'filesystem-failure',
+      cleanupError ?? error,
+    );
   }
 
-  if (project.mode === 'create') {
-    const exists = await Fs.exists(dir);
-    if (signal.aborted) {
-      return projectionFailure(dir, project.mode, 'cancelled', 'Dist projection cancelled.');
-    }
-    if (exists) {
-      return projectionFailure(
-        dir,
-        project.mode,
-        'target-occupied',
-        'Dist projection target is occupied.',
-      );
-    }
+  let acquired: t.FsRooted.LeaseResult;
+  try {
+    acquired = await rooted.acquireLease([target], {
+      mode: 'exclusive',
+      wait: true,
+      until: signal,
+    });
+  } catch (error) {
+    const cleanupError = await discardProjectionStage(rooted, stage);
+    return projectionFailure(
+      dir,
+      project.mode,
+      cleanupError ? 'filesystem-failure' : signal.aborted ? 'cancelled' : 'filesystem-failure',
+      cleanupError ?? error,
+    );
+  }
+  if (acquired.kind !== 'acquired') {
+    const cleanupError = await discardProjectionStage(rooted, stage);
+    return projectionFailure(
+      dir,
+      project.mode,
+      'filesystem-failure',
+      cleanupError ?? 'Dist projection target remained busy.',
+    );
   }
 
+  let outcome:
+    | t.PullTool.Bundle.Dist.Projection.Success
+    | t.PullTool.Bundle.Dist.Projection.Failure;
   try {
     if (project.mode === 'replace') await clearTargetDir({ baseDir, targetDir: dir });
-    const copied = await Fs.copy(generationDir, dir, { throw: true });
-    if (copied.error) throw copied.error;
+    if (signal.aborted) {
+      outcome = cancelledProjection(dir, project.mode);
+    } else {
+      const promoted = await rooted.promoteStage(stage, target, {
+        lease: acquired.lease,
+        until: signal,
+      });
+      if (promoted.kind === 'occupied') {
+        outcome = projectionFailure(
+          dir,
+          project.mode,
+          'target-occupied',
+          'Dist projection target is occupied.',
+        );
+      } else if (promoted.cleanupError) {
+        outcome = projectionFailure(
+          dir,
+          project.mode,
+          promoted.cleanupError.kind === 'cancelled' ? 'cancelled' : 'filesystem-failure',
+          promoted.cleanupError,
+        );
+      } else if (signal.aborted) {
+        outcome = cancelledProjection(dir, project.mode);
+      } else {
+        try {
+          await rewriteProjectionTags(baseDir, dir);
+          outcome = { kind: 'projected', dir, mode: project.mode };
+        } catch (error) {
+          outcome = projectionFailure(dir, project.mode, 'rewrite-failure', error);
+        }
+      }
+    }
   } catch (error) {
-    return projectionFailure(dir, project.mode, 'filesystem-failure', error);
+    outcome = projectionFailure(
+      dir,
+      project.mode,
+      signal.aborted ? 'cancelled' : 'filesystem-failure',
+      error,
+    );
   }
 
+  const cleanupError = await discardProjectionStage(rooted, stage);
+  let releaseError: unknown;
   try {
-    await rewriteProjectionTags(baseDir, dir);
+    await acquired.lease.release();
   } catch (error) {
-    return projectionFailure(dir, project.mode, 'rewrite-failure', error);
+    releaseError = error;
   }
+  if (cleanupError || releaseError) {
+    return projectionFailure(
+      dir,
+      project.mode,
+      'filesystem-failure',
+      cleanupError ?? releaseError,
+    );
+  }
+  return outcome;
+}
 
-  return { kind: 'projected', dir, mode: project.mode };
+async function populateProjectionStage(
+  stage: t.FsRooted.Stage,
+  generation: t.Dist.Existing | t.Dist.Promoted,
+  signal: AbortSignal,
+): Promise<void> {
+  const paths = ['dist.json', ...Object.keys(generation.verification.dist.hash.parts)];
+  const admitted = await stage.files.admit(
+    paths.map((path) => ({ kind: 'file' as const, path })),
+    { until: signal },
+  );
+  for (const target of admitted.targets) {
+    if (signal.aborted) throw new Error('Dist projection cancelled.');
+    const bytes = await Deno.readFile(Fs.join(generation.dir, target.path), { signal });
+    await stage.files.publishFile(target, bytes, { until: signal });
+  }
+}
+
+async function discardProjectionStage(
+  rooted: t.FsRooted.Instance,
+  stage: t.FsRooted.Stage,
+): Promise<unknown | undefined> {
+  try {
+    await rooted.discardStage(stage);
+    return undefined;
+  } catch (error) {
+    return error;
+  }
+}
+
+function cancelledProjection(
+  dir: t.StringAbsoluteDir,
+  mode: t.GithubPull.Mode,
+): t.PullTool.Bundle.Dist.Projection.Failure {
+  return projectionFailure(dir, mode, 'cancelled', 'Dist projection cancelled.');
 }
 
 /** Bind Pull's fixed finite materialization authority to the configured manifest origin. */

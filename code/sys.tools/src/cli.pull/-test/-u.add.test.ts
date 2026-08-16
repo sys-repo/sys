@@ -9,7 +9,7 @@ const STORE = './.dist-store';
 const PROJECT = './view/components';
 
 describe('@sys/tools/pull add', () => {
-  it('creates a missing config with explicit pin and immutable store authority', async () => {
+  it('creates a missing config with explicit pin and sealed store authority', async () => {
     const cwd = await tempRoot();
     const res = await addDistBundle(input(cwd));
 
@@ -89,7 +89,7 @@ describe('@sys/tools/pull add', () => {
     );
     await expectError(
       () => addDistBundle({ ...input(cwd), project: STORE }),
-      'Pull add: --project must be separate from the immutable --store.',
+      'Pull add: --project must be separate from the sealed-generation --store.',
     );
     expect(await Fs.exists(Fs.join(cwd, CONFIG))).to.eql(false);
   });

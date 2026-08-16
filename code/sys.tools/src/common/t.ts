@@ -22,7 +22,7 @@ export type {
 /** @system: Common */
 export type { Cli, CliInput, Shell } from '@sys/cli/t';
 export type { Color } from '@sys/color/t';
-export type { FileMap, JsonFile, WalkEntry } from '@sys/fs/t';
+export type { FileMap, FsRooted, JsonFile, WalkEntry } from '@sys/fs/t';
 export type { HttpFetch, HttpServer } from '@sys/http/t';
 export type { Graph } from '@sys/immutable/t';
 export type { Dist } from '@sys/server/t';

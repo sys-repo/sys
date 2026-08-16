@@ -96,7 +96,7 @@ function resolveBundle(input: PullAddInput): t.PullTool.ConfigYaml.DistBundle {
   const store = relativeDir(input.store, '--store');
   const project = optionalProject(input.project, input.mode);
   if (project && pathsOverlap(store, project.dir)) {
-    throw new Error('Pull add: --project must be separate from the immutable --store.');
+    throw new Error('Pull add: --project must be separate from the sealed-generation --store.');
   }
   return { kind: 'dist', manifest, integrity, store, project };
 }

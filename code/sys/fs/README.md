@@ -20,17 +20,32 @@ publish complete data or coordinate its use and removal.
 
 ## Rooted
 
-A `Rooted` instance is a filesystem capability bound to one canonical directory. It publishes files
-and directories, holds leases, seals owned trees, and removes leased targets. Its admitted targets,
-private stages, and lock files all stay beneath that root.
+A `Rooted` instance binds a cooperative publication protocol to one canonical directory. Every
+admitted target, private stage, and lock file stays beneath that root. `Rooted` does not replace
+Deno permissions or restrict direct filesystem calls.
 
-Use `Rooted` for assets, builds, application versions, and caches that are written once and removed
-later.
+Use it for assets, builds, application versions, and caches that are published once, used by several
+processes, and removed later.
 
-- Publication exposes only complete targets and leaves existing targets untouched.
-- File races have at most one winner. Directory races have the same guarantee only among `Rooted`
-  instances on the same root.
-- A shared lease keeps cooperating cleanup from removing a directory in use.
+The API works with three scoped handles:
+
+| Handle | Meaning                                                                    |
+| ------ | -------------------------------------------------------------------------- |
+| Target | A validated root-relative path accepted only by the creating instance.     |
+| Stage  | Private content owned by the creating instance until promotion or discard. |
+| Lease  | A shared or exclusive OS-backed lock for cooperating callers.              |
+
+Protocol metadata lives under `.sys.rooted`; transient publication files use
+`.sys.rooted-tmp-<token>`.
+
+Its central promises are deliberately narrow:
+
+- Successful publication makes one complete target visible; it never replaces an existing target.
+- File publication has at most one winner. Directory publication has at most one winner among
+  `Rooted` instances bound to the same root.
+- Leases coordinate use, publication, sealing, and removal among cooperating `Rooted` callers.
+- When identity or permission safety cannot be proved, Rooted refuses the operation rather than
+  guessing or falling back to recursive mutation.
 
 ### Publish
 
@@ -56,47 +71,59 @@ If stage construction or cleanup can no longer prove that it owns a private cont
 is left in place rather than risk deleting the wrong path. The capability exposes no API for reading
 file contents, listing directories, or overwriting targets.
 
-### Lock
+### Lease
 
-A shared lease marks a directory as in use. An exclusive lease reserves it for work such as cleanup.
-If a requested lease conflicts with one already held, `acquireLease()` returns `busy` and holds no
-locks.
+A shared lease marks a directory as in use. An exclusive lease reserves it from cooperating callers
+for publication, sealing, or removal. A returned result is all-or-nothing: `acquired` owns every
+requested target, while `busy` owns none.
 
-`acquireLease()` takes each batch in a fixed order, regardless of caller order. If the whole batch
-cannot be acquired, it releases every lock already taken. The `until` option can cancel acquisition;
-it never releases a lease already returned.
+| Option                  | Contention behavior                                              |
+| ----------------------- | ---------------------------------------------------------------- |
+| `wait` omitted or false | Return `busy` immediately and release any partial acquisition.   |
+| `wait: true`            | Wait for the complete batch, or stop on cancellation or failure. |
 
-`release()` waits for operations already using the lease before it unlocks. `await using` disposal
-follows the same path. The operating system releases the locks if the process exits.
+Targets are always acquired in stable lock-identity order, regardless of caller order. This prevents
+two cooperating callers from deadlocking merely because they listed the same targets differently.
+The `until` option can cancel acquisition. It never releases a lease that has already been returned.
 
-Operations that need a target lock normally acquire it themselves. If this instance already holds
-the lock, pass the compatible lease as `{ lease }` to `inspectSeal()`, `sealTree()`, or
+`release()` waits for operations currently borrowing the lease, then attempts to unlock every
+target. `await using` disposal follows the same path. If the process exits, the operating system
+releases its locks.
+
+Operations that need ownership normally acquire it themselves. When the same instance already holds
+the target, pass the compatible lease as `{ lease }` to `inspectSeal()`, `sealTree()`, or
 `promoteStage()`. Omitting it fails immediately with `invalid-lease` instead of waiting on the
-caller's own lock. Inspection accepts a shared or exclusive lease; sealing and promotion require an
+caller's own lock. Inspection accepts a shared or exclusive lease. Sealing and promotion require an
 exclusive lease.
 
-Empty lock files persist in `.sys.rooted/locks`; their paths give each lock a stable identity.
-Private stage containers are transient under `.sys.rooted/stages`; completed cleanup removes them
-after promotion or discard. Do not delete or replace lock files: changing a lock path while another
-process holds the old file can split one lock into two. Lock files contain no process data.
+Empty lock files persist in `.sys.rooted/locks`; their paths provide stable lock identity across
+release and reacquisition. Private stage containers are transient under `.sys.rooted/stages` and are
+removed after completed promotion or discard. Never delete or replace a lock file: a process could
+keep locking the old file while another process locks its replacement, splitting one lock into two.
+Lock files contain no process data.
 
 ### Seal
 
-Sealing makes an owned tree read-only. The filesystem owner can still read files and traverse
-directories. This protects published data from accidental changes. `inspectSeal()` reports `sealed`,
-`unsealed`, or `unsupported`. `sealTree()` changes and checks the complete tree before returning
-`applied`.
+A sealed tree has all write bits clear on every ordinary file and directory in the owned tree. Files
+remain readable by the owner, and directories retain owner traversal. This is a checked mode state,
+not permanent immutability.
 
-Before changing permissions, `sealTree()` opens and rechecks the exact entry. Replacing its path
-cannot redirect that change to another file. If the host cannot safely identify entries or prove
-their permissions, sealing reports `unsupported`.
+`inspectSeal()` reports `sealed`, `unsealed`, or `unsupported` without changing the tree.
+`sealTree()` clears the required bits and rechecks the complete tree before returning `applied`.
+`changed: false` means the tree already satisfied the seal.
 
-Passing `{ seal: true }` to `promoteStage()` seals the private stage, makes only its root writable
-when needed for the rename, then reseals and checks the published target. The seal result describes
-permissions only. It says nothing about file contents or origin.
+Before changing an entry, Rooted opens it and rechecks its filesystem identity. Replacing the path
+cannot redirect that permission change to a different file. If the host cannot provide the required
+identity or mode evidence, the operation reports `unsupported`. A changed or unsafe tree fails with
+a typed error. Rooted never fabricates applied evidence.
 
-A seal prevents ordinary writes; it is not a retention lock. With an exclusive lease, `removeTree()`
-restores only the permissions needed inside the target and removes it.
+With `{ seal: true }`, `promoteStage()` performs the sensitive work before publication: it seals the
+private tree, temporarily adds owner-write to the stage root, renames the tree into place, then
+reseals and checks the published target. Seal evidence describes permissions only. It says nothing
+about content bytes, provenance, or future state.
+
+With an exclusive lease, `removeTree()` can restore only the permissions needed inside that target
+and remove it. Sealing therefore resists ordinary writes; it is not a retention lock.
 
 ### Remove
 
@@ -104,9 +131,10 @@ restores only the permissions needed inside the target and removes it.
 cooperating cleanup from removing a directory that is still in use. Releasing the lease while
 removal is running waits for that operation before unlocking. A missing target returns `absent`.
 
-On POSIX hosts, the target's parent must already permit removal: at least one permission class needs
-both write and traversal access. A sealed parent therefore fails with `permission-denied` without
-weakening or deleting the target. The operation never broadens ancestor or sibling permissions.
+On POSIX hosts, Rooted refuses removal unless the parent's mode grants write and traversal in at
+least one permission class. The operating system still applies the process identity and its other
+rules. A sealed parent therefore fails with `permission-denied` without weakening or deleting the
+target. The operation never broadens ancestor or sibling permissions.
 
 If removal starts but does not finish, the error has `committed: true`. Filesystem state may have
 changed; keep the still-active lease, inspect the cause, and retry. Success means the target was
@@ -120,20 +148,23 @@ unverified recursive delete.
 
 ### Outcomes and failures
 
-| Operation                       | Expected outcome when work cannot proceed    |
-| ------------------------------- | -------------------------------------------- |
-| `acquireLease()`                | Returns `busy`                               |
-| `promoteStage()`                | Returns `occupied`                           |
-| `removeTree()`                  | Returns `absent`                             |
-| `inspectSeal()` or `sealTree()` | May return `unsupported`                     |
-| `publishFile()`                 | Rejects with `FsRootedError` kind `occupied` |
+Expected conditions settle explicitly:
 
-Rejected operations use `FsRootedError`. Call `Fs.Capability.Rooted.Is.failure(error)` to identify
-one. Its `operation` and `kind` fields say where and why it failed. `committed: true` means
+| Condition                                     | Settlement                                   |
+| --------------------------------------------- | -------------------------------------------- |
+| A non-waiting lease is contended              | `acquireLease()` returns `busy`              |
+| A directory target already exists             | `promoteStage()` returns `occupied`          |
+| A removal target is already absent            | `removeTree()` returns `absent`              |
+| The host cannot prove identity or mode safety | Seal operations may return `unsupported`     |
+| A file target already exists                  | `publishFile()` rejects with kind `occupied` |
+
+Other rejected operations use `FsRootedError`. Call `Fs.Capability.Rooted.Is.failure(error)` to
+identify one. Its `operation` and `kind` fields say where and why it failed. `committed: true` means
 filesystem state may have changed and must be checked before retry.
 
 Once publication or occupation is known, `promoteStage()` preserves that outcome in `kind`. A later
-cleanup or verification problem appears in `cleanupError` instead of rewriting what happened.
+cleanup, cancellation, or post-publication seal problem appears in `cleanupError` instead of
+rewriting what happened.
 
 ### Example
 
@@ -148,25 +179,33 @@ const stage = await rooted.createStage();
 const files = await stage.files.admit([{ kind: 'file', path: 'index.html' }]);
 await stage.files.publishFile(files.targets[0], new TextEncoder().encode('<h1>Hello</h1>'));
 
-const publication = await rooted.promoteStage(stage, target, { seal: true });
+const ownership = await rooted.acquireLease([target], {
+  mode: 'exclusive',
+  wait: true,
+});
+if (ownership.kind === 'busy') {
+  await rooted.discardStage(stage);
+  throw new Error(`Directory is busy: ${ownership.target.path}`);
+}
+
+await using lease = ownership.lease;
+const publication = await rooted.promoteStage(stage, target, { seal: true, lease });
 if (publication.cleanupError) {
   await rooted.discardStage(stage);
   throw publication.cleanupError;
 }
 if (publication.kind === 'occupied') throw new Error(`Target exists: ${target.path}`);
 
-const leaseResult = await rooted.acquireLease([target], { mode: 'shared' });
-if (leaseResult.kind === 'busy') throw new Error(`Directory is busy: ${leaseResult.target.path}`);
-
-await using lease = leaseResult.lease;
-// Cooperating cleanup cannot remove the target before this scope exits.
+// Keep the lease while inspecting or otherwise settling the published target.
 ```
 
-### Limits
+### Security boundary
 
-A `Rooted` instance is not a sandbox. It constrains only calls made through that instance. Code with
-direct filesystem access can still change the same files. Sealing does not revoke open handles or
-protect against a hostile process running as the same user.
+`Rooted` provides coordination and mutation safety, not containment. Its leases coordinate only
+callers that use the same Rooted protocol. Code with direct filesystem authority can ignore those
+locks, change mode bits, replace names, or remove targets. Sealing does not revoke open handles or
+protect against a hostile process running as the same user. Run untrusted code behind a separate OS
+sandbox or account boundary.
 
 ## Environment
 

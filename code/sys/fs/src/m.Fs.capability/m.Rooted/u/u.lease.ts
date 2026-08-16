@@ -32,6 +32,7 @@ type LeaseInput = {
   readonly mode: t.FsRooted.LeaseMode;
   readonly targets: readonly t.FsRooted.Target<'directory'>[];
   readonly ordered: readonly LeaseTarget[];
+  readonly wait: boolean;
   readonly until?: t.UntilInput;
 };
 
@@ -47,21 +48,28 @@ export function leaseInput(
       throw failure(operation, 'invalid-lease');
     }
     const keys = Reflect.ownKeys(options);
-    if (keys.some((key) => key !== 'mode' && key !== 'until')) {
+    if (keys.some((key) => key !== 'mode' && key !== 'wait' && key !== 'until')) {
       throw failure(operation, 'invalid-lease');
     }
     const modeProperty = Reflect.getOwnPropertyDescriptor(options, 'mode');
+    const waitProperty = Reflect.getOwnPropertyDescriptor(options, 'wait');
     const untilProperty = Reflect.getOwnPropertyDescriptor(options, 'until');
     if (
       !modeProperty ||
       !('value' in modeProperty) ||
+      (waitProperty && !('value' in waitProperty)) ||
       (untilProperty && !('value' in untilProperty))
     ) {
       throw failure(operation, 'invalid-lease');
     }
     const mode = modeProperty.value;
+    const wait = waitProperty?.value;
     const until = untilProperty?.value;
-    if (!(mode === 'shared' || mode === 'exclusive') || !Is.untilInput(until)) {
+    if (
+      !(mode === 'shared' || mode === 'exclusive') ||
+      !(wait === undefined || Is.bool(wait)) ||
+      !Is.untilInput(until)
+    ) {
       throw failure(operation, 'invalid-lease');
     }
 
@@ -81,6 +89,7 @@ export function leaseInput(
       mode,
       targets,
       ordered: Object.freeze(ordered),
+      wait: wait ?? false,
       until,
     });
   } catch (cause) {
@@ -107,7 +116,7 @@ export async function acquireLease(
       const lock = await acquireLock(io, root, target.state, {
         operation,
         mode: input.mode,
-        wait: false,
+        wait: input.wait,
         signal,
       });
       if (!lock) {

@@ -33,7 +33,7 @@ describe('cli.pull/u.bundle → menu labels', () => {
     expect(names[1]).to.contain('pull: └─ ./canon');
   });
 
-  it('uses the immutable store label when no projection is configured', () => {
+  it('uses the sealed store target when no projection is configured', () => {
     const bundle: t.PullTool.ConfigYaml.DistBundle = {
       kind: 'dist',
       manifest: 'https://fs.db.team/dist.json',

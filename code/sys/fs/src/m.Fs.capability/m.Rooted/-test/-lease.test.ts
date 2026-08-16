@@ -135,6 +135,80 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
     }
   });
 
+  it('waits for contended ownership only when explicitly requested', async () => {
+    const fixture = await setup();
+    try {
+      let observed = () => {};
+      let resume = () => {};
+      const waiting = new Promise<void>((resolve) => (observed = resolve));
+      const resumed = new Promise<void>((resolve) => (resume = resolve));
+      const io = withIo({
+        wait: async () => {
+          observed();
+          await resumed;
+        },
+      });
+      const holder = await createRooted({ root: fixture.root }, io);
+      const contender = await createRooted({ root: fixture.root }, io);
+      const [heldTarget] = await directoryTargets(holder, 'generation');
+      const [contenderTarget] = await directoryTargets(contender, 'generation');
+      const held = await acquired(
+        await holder.acquireLease([heldTarget], { mode: 'exclusive' }),
+      );
+
+      let settled = false;
+      const pending = contender.acquireLease([contenderTarget], {
+        mode: 'exclusive',
+        wait: true,
+      }).finally(() => (settled = true));
+      await waiting;
+      expect(settled).to.eql(false);
+
+      await held.release();
+      resume();
+      const lease = await acquired(await pending);
+      await lease.release();
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
+  it('cancels explicit lease waiting without retaining ownership', async () => {
+    const fixture = await setup();
+    try {
+      const holder = await Fs.Capability.Rooted.create({ root: fixture.root });
+      const contender = await Fs.Capability.Rooted.create({ root: fixture.root });
+      const [heldTarget] = await directoryTargets(holder, 'generation');
+      const [contenderTarget] = await directoryTargets(contender, 'generation');
+      const held = await acquired(
+        await holder.acquireLease([heldTarget], { mode: 'exclusive' }),
+      );
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort('cancel-waiting-lease'), 20);
+      try {
+        await expectFailure(
+          () =>
+            contender.acquireLease([contenderTarget], {
+              mode: 'exclusive',
+              wait: true,
+              until: controller.signal,
+            }),
+          'cancelled',
+        );
+      } finally {
+        clearTimeout(timer);
+        await held.release();
+      }
+
+      const retry = await acquired(
+        await contender.acquireLease([contenderTarget], { mode: 'exclusive' }),
+      );
+      await retry.release();
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
   it('shares one lock protocol with exclusive stage promotion', async () => {
     const fixture = await setup();
     try {
@@ -481,6 +555,14 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
       });
       const untilFailure = await expectFailure(() => invalidUntil, 'invalid-lease');
       expect(untilFailure.operation).to.eql('acquire-lease');
+      await expectFailure(
+        () =>
+          rooted.acquireLease([target], {
+            mode: 'shared',
+            wait: 'yes' as unknown as boolean,
+          }),
+        'invalid-lease',
+      );
       await expectFailure(
         () =>
           rooted.acquireLease(

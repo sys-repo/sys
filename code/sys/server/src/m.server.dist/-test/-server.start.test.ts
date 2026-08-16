@@ -110,8 +110,10 @@ describe('DistServer.start', () => {
           ['legacy', encoder.encode(Json.stringify(legacy))],
         ] as const;
 
+        const manifest = Fs.join(materialized.dir, 'dist.json');
         for (const [label, bytes] of cases) {
-          await Fs.write(Fs.join(materialized.dir, 'dist.json'), bytes);
+          await Deno.chmod(manifest, 0o600);
+          await Deno.writeFile(manifest, bytes);
           const error = await catchStart(() => {
             return DistServer.start({
               dir: materialized.dir,
@@ -298,6 +300,8 @@ describe('DistServer.start', () => {
         const started = await startFixture(fixture);
         server = started.server;
 
+        await Deno.chmod(started.dir, 0o700);
+        await Deno.chmod(Fs.join(started.dir, 'assets'), 0o700);
         for (const path of ['incidental.txt', 'dist.json.sig', 'receipt.json']) {
           await Fs.write(Fs.join(started.dir, path), 'not declared');
         }
@@ -317,7 +321,9 @@ describe('DistServer.start', () => {
         expect(missing.status).to.eql(404);
         await missing.body?.cancel();
 
-        await Fs.write(Fs.join(started.dir, 'index.html'), '<h1>tampered</h1>');
+        const index = Fs.join(started.dir, 'index.html');
+        await Deno.chmod(index, 0o600);
+        await Deno.writeTextFile(index, '<h1>tampered</h1>');
         const changed = await fetch(server.origin);
         expect(changed.status).to.eql(412);
         expect((await changed.arrayBuffer()).byteLength).to.eql(0);

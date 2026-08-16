@@ -12,7 +12,7 @@ const LIMITS: t.GithubPull.Limits = {
 };
 
 describe('cli.pull/u.bundle → filesystem authority isolation', () => {
-  it('allows Dist bundles to share one immutable store', () => {
+  it('allows Dist bundles to share one sealed store', () => {
     const result = validateBundleIsolation(location([
       dist('https://example.com/a/dist.json', INTEGRITY),
       dist('https://example.com/b/dist.json', `sha256-${'b'.repeat(64)}` as t.StringHash),
@@ -21,7 +21,7 @@ describe('cli.pull/u.bundle → filesystem authority isolation', () => {
     expect(result).to.eql({ ok: true });
   });
 
-  it('rejects projection overlap with immutable stores', () => {
+  it('rejects projection overlap with sealed stores', () => {
     const bundle = {
       ...dist('https://example.com/dist.json', INTEGRITY),
       project: { dir: '.dist-store/project' as t.StringRelativeDir, mode: 'replace' as const },

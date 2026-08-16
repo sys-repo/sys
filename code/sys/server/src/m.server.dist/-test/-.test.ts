@@ -16,6 +16,10 @@ describe('@sys/server/dist', () => {
     expect(Object.isFrozen(DistServer.Local)).to.eql(true);
     expectTypeOf(Dist).toEqualTypeOf<t.Dist.Lib>();
     expectTypeOf(DistServer).toEqualTypeOf<t.DistServer.Lib>();
+    expectTypeOf({ kind: 'applied', changed: false } as t.Dist.Existing['seal'])
+      .toEqualTypeOf<t.FsRooted.SealApplied>();
+    expectTypeOf({ kind: 'applied', changed: false } as t.Dist.Promoted['seal'])
+      .toEqualTypeOf<t.FsRooted.SealApplied>();
 
     const zeroWorkerPolicy = {
       kind: 'verified-loopback',

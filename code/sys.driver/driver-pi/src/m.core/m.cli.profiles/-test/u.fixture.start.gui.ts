@@ -36,6 +36,7 @@ export function fakeGeneration(): t.Dist.Existing {
       assets: { files: 0, totalBytes: 0, packageBytes: 0 },
     },
     source: { configuredUrl: START_GUI_SERVICE.source.manifestUrl },
+    seal: { kind: 'applied', changed: false },
     cleanup: 'not-needed',
   };
 }
@@ -66,6 +67,25 @@ export async function rejectionOf(action: () => Promise<unknown>): Promise<Error
     return cause instanceof Error ? cause : new Error(String(cause));
   }
   throw new Error('Expected rejection.');
+}
+
+/** Remove a test Dist store through its lower owned-tree lifecycle authority. */
+export async function removeDistStore(storeDir: t.StringDir): Promise<void> {
+  if (!(await Fs.exists(storeDir))) return;
+
+  const parent = Fs.dirname(storeDir) as t.StringDir;
+  const rooted = await Fs.Capability.Rooted.create({ root: parent });
+  const admitted = await rooted.admit([
+    { path: Fs.basename(storeDir), kind: 'directory' },
+  ]);
+  const target = admitted.targets[0];
+  const acquired = await rooted.acquireLease([target], { mode: 'exclusive' });
+  if (acquired.kind !== 'acquired') throw new Error('Dist test store is busy.');
+  try {
+    await rooted.removeTree(target, { lease: acquired.lease });
+  } finally {
+    await acquired.lease.release();
+  }
 }
 
 export async function loopbackDistFixture() {
@@ -102,8 +122,21 @@ export async function loopbackDistFixture() {
     manifestUrl: `${origin}/dist.json` as t.StringUrl,
     origin,
     async dispose() {
-      await server.shutdown();
-      await Fs.remove(source);
+      const failures: unknown[] = [];
+      try {
+        await server.shutdown();
+      } catch (cause) {
+        failures.push(cause);
+      }
+      try {
+        await Fs.remove(source);
+      } catch (cause) {
+        failures.push(cause);
+      }
+      if (failures.length === 1) throw failures[0];
+      if (failures.length > 1) {
+        throw new AggregateError(failures, 'Driver Pi source fixture cleanup failed.');
+      }
     },
   };
 }

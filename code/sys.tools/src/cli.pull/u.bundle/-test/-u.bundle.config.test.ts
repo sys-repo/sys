@@ -1,7 +1,7 @@
 import { describe, expect, Fs, it, Str } from '../../../-test.ts';
 import type { t } from '../../common.ts';
 import { pullBundleWithSummary } from '../u.bundle.ts';
-import { usingDistServer } from './u.dist.fixture.ts';
+import { removeDistStore, usingDistServer } from './u.dist.fixture.ts';
 
 describe('cli.pull/u.bundle → config stability', () => {
   it('successful materialization does not mutate source config', async () => {
@@ -48,6 +48,7 @@ async function withTmpDir(fn: (dir: t.StringDir) => Promise<void>) {
   try {
     await fn(dir.absolute as t.StringDir);
   } finally {
+    await removeDistStore(dir.absolute as t.StringDir);
     await Fs.remove(dir.absolute);
   }
 }

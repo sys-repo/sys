@@ -24,7 +24,7 @@ export async function setupDistFixture(root: string): Promise<DistFixture> {
   const storeDir = Fs.join(root, 'dist-store');
   await Promise.all([
     Fs.remove(source, { recursive: true }).catch(() => undefined),
-    Fs.remove(storeDir, { recursive: true }).catch(() => undefined),
+    removeDistStore(root, storeDir),
   ]);
 
   await Fs.ensureDir(source);
@@ -60,10 +60,10 @@ export async function setupDistFixture(root: string): Promise<DistFixture> {
     assets.set(`/${path}`, bytes as Uint8Array<ArrayBuffer>);
   }
 
-  let manifest = await Deno.readFile(Fs.join(canonicalSource, 'dist.json'));
-  let integrity = computed.manifest.integrity;
+  const manifest = await Deno.readFile(Fs.join(canonicalSource, 'dist.json'));
+  const integrity = computed.manifest.integrity;
 
-  const server = Testing.Http.server(async (request) => {
+  const server = Testing.Http.server((request) => {
     const url = new URL(request.url);
     if (url.pathname === '/dist.json') return new Response(manifest);
 
@@ -119,13 +119,41 @@ export async function setupDistFixture(root: string): Promise<DistFixture> {
     },
     policy,
     async teardown() {
-      await server.dispose();
-      await Promise.all([
-        Fs.remove(canonicalSource, { recursive: true }).catch(() => undefined),
-        Fs.remove(canonicalStoreDir, { recursive: true }).catch(() => undefined),
+      const failures: unknown[] = [];
+      try {
+        await server.dispose();
+      } catch (cause) {
+        failures.push(cause);
+      }
+      const cleanup = await Promise.allSettled([
+        Fs.remove(canonicalSource, { recursive: true }),
+        removeDistStore(root, canonicalStoreDir),
       ]);
+      cleanup.forEach((result) => {
+        if (result.status === 'rejected') failures.push(result.reason);
+      });
+      if (failures.length === 1) throw failures[0];
+      if (failures.length > 1) {
+        throw new AggregateError(failures, 'Cell Dist fixture cleanup failed.');
+      }
     },
   };
+}
+
+async function removeDistStore(root: string, storeDir: string): Promise<void> {
+  if (!(await Fs.exists(storeDir))) return;
+  const rooted = await Fs.Capability.Rooted.create({ root });
+  const admitted = await rooted.admit([
+    { kind: 'directory', path: Fs.basename(storeDir) },
+  ]);
+  const target = admitted.targets[0];
+  const acquired = await rooted.acquireLease([target], { mode: 'exclusive' });
+  if (acquired.kind !== 'acquired') throw new Error('Dist test store is busy.');
+  try {
+    await rooted.removeTree(target, { lease: acquired.lease });
+  } finally {
+    await acquired.lease.release();
+  }
 }
 
 /**

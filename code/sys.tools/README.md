@@ -12,8 +12,10 @@ deno run -A jsr:@sys/tools --help
 Pull separates artifact identity from mutable local presentation. A Dist bundle requires an exact
 publisher-provided checksum for the serialized `dist.json`. That pin authenticates the manifest's
 asset checksums and declared sizes; hashing the manifest returned by the same download cannot
-establish that authority. The immutable store is keyed by this pin. An optional projection is a
-mutable copy and does not inherit verification evidence.
+establish that authority. The sealed generation store is keyed by this pin. Here, “sealed” means
+Rooted mode-bit, point-in-time mutation resistance—not an OS sandbox, retention lock,
+hostile-process boundary, ACL guarantee, or sudden-power-loss guarantee. An optional projection is a
+mutable copy and does not inherit verification or sealing evidence.
 
 Create the durable Pull configuration through its owner CLI:
 

@@ -11,6 +11,7 @@ import {
   type Keyboard,
   loopbackDistFixture,
   rejectionOf,
+  removeDistStore,
   type Started,
   startedFixture,
 } from './u.fixture.start.gui.ts';
@@ -621,6 +622,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
     let opened = 0;
     let body = '';
     let visit: Promise<void> | undefined;
+    const failures: unknown[] = [];
 
     try {
       await start({
@@ -654,9 +656,33 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
       await visit;
       expect(opened).to.eql(1);
       expect(body).to.contain('verified driver-pi fixture');
-    } finally {
+    } catch (cause) {
+      failures.push(cause);
+    }
+
+    try {
       await fixture.dispose();
-      await Fs.remove(cwd);
+    } catch (cause) {
+      failures.push(cause);
+    }
+    const storeDir = Fs.join(cwd, '.pi/@sys/dist/@sys.driver-pi') as t.StringDir;
+    let storeRemoved = false;
+    try {
+      await removeDistStore(storeDir);
+      storeRemoved = true;
+    } catch (cause) {
+      failures.push(cause);
+    }
+    if (storeRemoved) {
+      try {
+        await Fs.remove(cwd);
+      } catch (cause) {
+        failures.push(cause);
+      }
+    }
+    if (failures.length === 1) throw failures[0];
+    if (failures.length > 1) {
+      throw new AggregateError(failures, 'Driver Pi Dist fixture cleanup failed.');
     }
   });
 });

@@ -114,21 +114,38 @@ export async function setup(options: { readonly browserAssets?: boolean } = {}) 
   let disposed = false;
   const dispose = async () => {
     if (disposed) return;
-    disposed = true;
-    let failed = false;
-    let failure: unknown;
+    const failures: unknown[] = [];
     try {
       await server.dispose();
     } catch (cause) {
-      failed = true;
-      failure = cause;
-    } finally {
-      await Promise.all([
-        Deno.remove(source, { recursive: true }).catch(() => undefined),
-        Deno.remove(parent, { recursive: true }).catch(() => undefined),
-      ]);
+      failures.push(cause);
     }
-    if (failed) throw failure;
+
+    let storeRemoved = false;
+    try {
+      await removeOwnedStore(parent, storeDir);
+      storeRemoved = true;
+    } catch (cause) {
+      failures.push(cause);
+    }
+    try {
+      await Deno.remove(source, { recursive: true });
+    } catch (cause) {
+      if (!(cause instanceof Deno.errors.NotFound)) failures.push(cause);
+    }
+    if (storeRemoved) {
+      try {
+        await Deno.remove(parent, { recursive: true });
+      } catch (cause) {
+        if (!(cause instanceof Deno.errors.NotFound)) failures.push(cause);
+      }
+    }
+
+    if (failures.length === 1) throw failures[0];
+    if (failures.length > 1) {
+      throw new AggregateError(failures, 'Server Dist fixture cleanup failed.');
+    }
+    disposed = true;
   };
 
   return {
@@ -188,6 +205,22 @@ export async function setup(options: { readonly browserAssets?: boolean } = {}) 
 
 export async function teardown(fixture: Fixture): Promise<void> {
   await fixture.dispose();
+}
+
+async function removeOwnedStore(parent: t.StringDir, storeDir: t.StringDir): Promise<void> {
+  if (!(await Fs.exists(storeDir))) return;
+  const rooted = await Fs.Capability.Rooted.create({ root: parent });
+  const admitted = await rooted.admit([
+    { kind: 'directory', path: Fs.basename(storeDir) },
+  ]);
+  const target = admitted.targets[0];
+  const acquired = await rooted.acquireLease([target], { mode: 'exclusive' });
+  if (acquired.kind !== 'acquired') throw new Error('Dist fixture store is busy.');
+  try {
+    await rooted.removeTree(target, { lease: acquired.lease });
+  } finally {
+    await acquired.lease.release();
+  }
 }
 
 export function verified(fixture: Fixture): t.FsPkg.Dist.Verify.Verified {

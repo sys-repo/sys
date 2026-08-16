@@ -1,9 +1,9 @@
-import type { Pkg as FsPkg } from '@sys/fs/t';
+import type { FsRooted, Pkg as FsPkg } from '@sys/fs/t';
 import type { HttpFetch, HttpPull, HttpServer } from '@sys/http/t';
 import type { t } from './common.ts';
 
 /**
- * Contracts for checksum-pinned Dist materialization and final-directory evidence.
+ * Contracts for checksum-pinned Dist materialization, sealing, and final-directory evidence.
  */
 export declare namespace Dist {
   /** Product-neutral API for checksum-pinned Dist generations. */
@@ -11,7 +11,8 @@ export declare namespace Dist {
     /**
      * Settle one pinned Dist as `existing`, `promoted`, or `failed`.
      *
-     * Every success carries fresh verification evidence for its exact returned directory.
+     * Every success carries fresh verification and applied sealing evidence for its exact returned
+     * directory.
      */
     readonly materialize: Materialize;
   };
@@ -19,7 +20,8 @@ export declare namespace Dist {
   /**
    * Settle one pinned Dist as `existing`, `promoted`, or `failed`.
    *
-   * Every success carries fresh verification evidence for its exact returned directory.
+   * Every success carries fresh verification and applied sealing evidence for its exact returned
+   * directory.
    */
   export type Materialize = (args: MaterializeArgs) => Promise<MaterializeResult>;
 
@@ -81,6 +83,8 @@ export declare namespace Dist {
     readonly integrity: t.StringHash;
     /** Fresh owner evidence produced against this exact returned directory. */
     readonly verification: FsPkg.Dist.Pinned.Verify.Evidence;
+    /** Frozen lower-owner evidence that the complete returned generation is sealed. */
+    readonly seal: FsRooted.SealApplied;
     /** Private-stage cleanup truth. */
     readonly cleanup: Cleanup;
     readonly stage?: undefined;
@@ -88,7 +92,7 @@ export declare namespace Dist {
     readonly publication?: undefined;
   };
 
-  /** Freshly verified generation that pre-existed or won a concurrent promotion. */
+  /** Freshly verified generation whose publication was not proven by this attempt. */
   export type Existing = Success & {
     readonly kind: 'existing';
     readonly source: ConfiguredSource;
@@ -113,6 +117,7 @@ export declare namespace Dist {
     | 'resource-pull'
     | 'stage-verification'
     | 'promotion'
+    | 'sealing'
     | 'final-verification';
 
   /** Stable sanitized reason for a failed result. */
@@ -128,6 +133,7 @@ export declare namespace Dist {
     | 'resource-failure'
     | 'verification-failure'
     | 'filesystem-failure'
+    | 'unsupported'
     | 'execution-failure';
 
   /** Visible target state known even though final verified settlement failed. */
@@ -143,6 +149,7 @@ export declare namespace Dist {
     readonly dir?: undefined;
     readonly integrity?: undefined;
     readonly verification?: undefined;
+    readonly seal?: undefined;
     readonly source?: undefined;
     readonly totals?: undefined;
   };

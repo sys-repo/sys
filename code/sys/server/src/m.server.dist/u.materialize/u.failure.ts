@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import type { t } from './common.ts';
 
 /** Build one frozen sanitized materialization failure. */
 export function failed(
@@ -22,7 +22,9 @@ export function causeReason(
   isRootedFailure: t.FsRooted.IsLib['failure'],
 ): t.Dist.FailureReason {
   if (isRootedFailure(cause)) {
-    return cause.kind === 'cancelled' ? 'cancelled' : 'filesystem-failure';
+    if (cause.kind === 'cancelled') return 'cancelled';
+    if (cause.kind === 'unsupported') return 'unsupported';
+    return 'filesystem-failure';
   }
   return 'execution-failure';
 }
