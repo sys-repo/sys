@@ -226,6 +226,35 @@ export declare namespace Is {
      */
     urlString(input: unknown): input is t.StringUrl;
   };
+
+  /**
+   * Deno/Node-only predicates backed by `node:util.types` host introspection.
+   *
+   * Here “server” denotes a runtime-capability boundary, not network authority. These predicates
+   * inspect native identity without reading input properties or invoking userland Proxy traps.
+   * Browser runtimes do not expose an equivalent Proxy detector, so this contract deliberately
+   * remains outside the universal `Is.Lib` surface. A positive result proves identity only; it
+   * does not authenticate ownership or make later operations on the value non-observing.
+   */
+  export namespace Server {
+    /** Universal predicates extended with host-native identity guards. */
+    export type Lib = Is.Lib & {
+      /** Determine whether the value is a Proxy without invoking its traps. */
+      proxy(input?: unknown): boolean;
+
+      /** Determine whether the host recognizes the value as a native Promise. */
+      nativePromise(input?: unknown): input is Promise<unknown>;
+
+      /** Determine whether the host recognizes the value as a native Error. */
+      nativeError(input?: unknown): input is Error;
+
+      /** Determine whether the host recognizes the value as a native Uint8Array. */
+      nativeUint8Array(input?: unknown): input is Uint8Array;
+
+      /** Determine whether the host recognizes the value as a native SharedArrayBuffer. */
+      nativeSharedArrayBuffer(input?: unknown): input is SharedArrayBuffer;
+    };
+  }
 }
 
 type O = Record<string, unknown>;

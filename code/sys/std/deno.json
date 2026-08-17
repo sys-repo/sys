@@ -34,6 +34,7 @@
     "./obj/path": "./src/m.Obj.Path/mod.ts",
     "./indexeddb": "./src/m.IndexedDb/mod.ts",
     "./is": "./src/-exports/-is.ts",
+    "./is/server": "./src/-exports/-is.server.ts",
     "./json": "./src/m.Json/mod.ts",
     "./log": "./src/m.Log/mod.ts",
     "./media-type": "./src/m.MediaType/mod.ts",
@@ -65,4 +66,3 @@
     }
   }
 }
-
