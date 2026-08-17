@@ -27,9 +27,9 @@ deno.json:
     dev: true
   - import: npm:vite-plugin-wasm@3.6.0
     dev: true
-  - import: npm:rollup-plugin-visualizer@7.0.1
+  - import: npm:rollup-plugin-visualizer@7.1.1
     dev: true
-  - import: npm:magic-string@1.1.1
+  - import: npm:magic-string@1.2.0
     dev: true
   - import: npm:@oxc-project/runtime@0.144.0
     dev: true
@@ -73,12 +73,12 @@ deno.json:
   - import: npm:fast-json-patch@3.1.1
   - import: npm:happy-dom@20.11.2
   - import: npm:hash-it@7.0.3
-  - import: npm:hono@4.13.1
+  - import: npm:hono@4.13.2
     subpaths: [ cors, types ]
   - import: npm:ignore@7.0.6
   - import: npm:ora@9.4.1
-  - import: npm:@earendil-works/pi-coding-agent@0.84.1
-  - import: npm:typebox@1.3.13
+  - import: npm:@earendil-works/pi-coding-agent@0.84.2
+  - import: npm:typebox@1.3.14
     subpaths: [ error, value ]
   - import: npm:@preact/signals-core@1.14.4
   - import: npm:pretty-bytes@7.1.1
@@ -112,9 +112,9 @@ package.json:
     dev: true
   - import: npm:vite-plugin-wasm@3.6.0
     dev: true
-  - import: npm:rollup-plugin-visualizer@7.0.1
+  - import: npm:rollup-plugin-visualizer@7.1.1
     dev: true
-  - import: npm:magic-string@1.1.1
+  - import: npm:magic-string@1.2.0
     dev: true
   - import: npm:@oxc-project/runtime@0.144.0
     dev: true
