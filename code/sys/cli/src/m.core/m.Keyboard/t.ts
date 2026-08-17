@@ -1,11 +1,11 @@
-import type { t } from '../common.ts';
+import type { t } from './common.ts';
 import type { CliffyKeypress, CliffyKeyPressEvent } from '../t.ext.ts';
 
 /**
- * Tools for working with the keyboard within a CLI.
+ * Tools for owning keyboard input within a CLI lifecycle.
  */
 export declare namespace CliKeyboard {
-  /** CLI keyboard helper library contract. */
+  /** CLI keyboard lifecycle library contract. */
   export type Lib = {
     /**
      * Listen to keypress events.
@@ -29,6 +29,9 @@ export declare namespace CliKeyboard {
 
     /** Bind canonical terminal keyboard controls to callbacks. */
     bind(options: Bind.Options): Bind.Handle | undefined;
+
+    /** Request disposal, retry once, and wait until autonomous listener work terminates. */
+    shutdown(handle: Bind.Handle): Promise<void>;
   };
 
   /** Minimal keypress shape used by CLI keyboard predicates. */
@@ -46,17 +49,22 @@ export declare namespace CliKeyboard {
       /** Called when the canonical quit keys are pressed. */
       readonly onQuit: () => void | Promise<void>;
 
-      /** Optional lifecycle boundary that disposes the keyboard listener. */
+      /** Optional lifecycle boundary that requests keyboard shutdown. */
       readonly until?: PromiseLike<unknown>;
 
       /** Exit the process after `onQuit` completes. Defaults false. */
       readonly exit?: boolean;
 
-      /** Handle unexpected keyboard listener errors. Defaults to rejecting `finished`. */
-      readonly onError?: (error: unknown) => void;
+      /** Handle fixed package-owned keyboard listener failure. Defaults to rejecting `finished`. */
+      readonly onError?: (error: unknown) => void | Promise<void>;
     };
 
-    /** Handle returned from a bound keyboard listener. */
+    /**
+     * Caller-owned keyboard listener handle.
+     *
+     * Disposal requests lower shutdown; `finished` settles only after autonomous listener work has
+     * actually stopped.
+     */
     export type Handle = t.DisposableLike & t.WaitableHandle & {
       readonly finished: Promise<void>;
     };
