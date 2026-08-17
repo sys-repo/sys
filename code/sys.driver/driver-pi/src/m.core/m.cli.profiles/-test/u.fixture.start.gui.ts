@@ -13,32 +13,57 @@ export function asProfileRoot(root: t.StringDir): t.PiCli.Cwd {
   };
 }
 
-export function fakeGeneration(): t.Dist.Existing {
-  return {
+export function fakeGeneration(
+  pkg: Readonly<t.Pkg> = START_GUI_SERVICE.source.expectedPkg,
+  source: Readonly<{
+    integrity?: t.StringHash;
+    manifestUrl?: t.StringUrl;
+  }> = {},
+): t.Dist.Existing {
+  return fakeGenerationWithPkgEvidence({
+    pkg: Object.freeze({ name: pkg.name, version: pkg.version }),
+    ...source,
+  });
+}
+
+export function fakeGenerationWithPkgEvidence(
+  input: Readonly<{
+    pkg: unknown;
+    omitPkg?: boolean;
+    integrity?: t.StringHash;
+    manifestUrl?: t.StringUrl;
+  }>,
+): t.Dist.Existing {
+  const integrity = input.integrity ?? START_GUI_SERVICE.source.integrity;
+  const manifestUrl = input.manifestUrl ?? START_GUI_SERVICE.source.manifestUrl;
+  const dist = Object.freeze({
+    type: 'https://jsr.io/@sample/driver-pi-gui',
+    ...(input.omitPkg ? {} : { pkg: input.pkg }),
+    build: Object.freeze({
+      time: 0,
+      size: Object.freeze({ total: 0, pkg: 0 }),
+      builder: '@sample/builder@1.0.0',
+      runtime: '<runtime-uri>',
+      hash: Object.freeze({ policy: 'https://jsr.io/@sample/hash/0.0.1/src/hash.ts' }),
+    }),
+    hash: Object.freeze({ digest: integrity, parts: Object.freeze({}) }),
+  });
+  const verification = Object.freeze({
+    integrity,
+    dist,
+    manifestBytes: 0,
+    assets: Object.freeze({ files: 0, totalBytes: 0, packageBytes: 0 }),
+  });
+
+  return Object.freeze({
     kind: 'existing',
     dir: '/tmp/driver-pi-gui-generation' as t.StringAbsoluteDir,
-    integrity: START_GUI_SERVICE.source.integrity,
-    verification: {
-      integrity: START_GUI_SERVICE.source.integrity,
-      dist: {
-        type: 'https://jsr.io/@sample/driver-pi-gui',
-        pkg: { name: '@sample/driver-pi-gui', version: '1.0.0' },
-        build: {
-          time: 0,
-          size: { total: 0, pkg: 0 },
-          builder: '@sample/builder@1.0.0',
-          runtime: '<runtime-uri>',
-          hash: { policy: 'https://jsr.io/@sample/hash/0.0.1/src/hash.ts' },
-        },
-        hash: { digest: START_GUI_SERVICE.source.integrity, parts: {} },
-      },
-      manifestBytes: 0,
-      assets: { files: 0, totalBytes: 0, packageBytes: 0 },
-    },
-    source: { configuredUrl: START_GUI_SERVICE.source.manifestUrl },
-    seal: { kind: 'applied', changed: false },
+    integrity,
+    verification,
+    source: Object.freeze({ configuredUrl: manifestUrl }),
+    seal: Object.freeze({ kind: 'applied', changed: false }),
     cleanup: 'not-needed',
-  };
+  }) as t.Dist.Existing;
 }
 
 export function deferred(): { readonly promise: Promise<void>; readonly resolve: () => void } {
@@ -97,9 +122,13 @@ export async function loopbackDistFixture() {
     Fs.join(source, 'sw.js'),
     `self.addEventListener('install', (event) => event.waitUntil(self.skipWaiting()));`,
   );
+  const expectedPkg = Object.freeze({
+    name: '@sample/driver-pi-gui' as t.StringPkgName,
+    version: '1.0.0' as t.StringSemver,
+  });
   const computed = await FsPkg.Dist.compute({
     dir: source,
-    pkg: { name: '@sample/driver-pi-gui', version: '1.0.0' },
+    pkg: expectedPkg,
     builder: { name: '@sample/builder', version: '1.0.0' },
     save: true,
   });
@@ -120,6 +149,7 @@ export async function loopbackDistFixture() {
   return {
     integrity: computed.manifest.integrity,
     manifestUrl: `${origin}/dist.json` as t.StringUrl,
+    expectedPkg,
     origin,
     async dispose() {
       const failures: unknown[] = [];

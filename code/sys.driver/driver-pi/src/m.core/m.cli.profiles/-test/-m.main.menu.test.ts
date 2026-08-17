@@ -3,7 +3,7 @@ import { Cli as CliOwner, Fs, Obj, type t } from '../common.ts';
 import { Process as ProcessOwner } from '../../m.cli/common.ts';
 import { mainWith as mainWithOwner } from '../m.main.ts';
 import { Profiles as ProfilesOwner } from '../mod.ts';
-import { START_GUI_SERVICE } from '../u/u.start.gui.service.ts';
+import { START_GUI_SERVICE, type StartGuiEvidence } from '../u/u.start.gui.service.ts';
 import { withInherit } from '../../m.cli/u.inherit.ts';
 
 const Cli = {
@@ -292,7 +292,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
     let startGuiCalls = 0;
     let startGuiInput: {
       cwd: t.PiCli.Cwd;
-      source: t.PiCliProfiles.StartGuiSource;
+      source: StartGuiEvidence;
     } | undefined;
 
     await Fs.ensureDir(Fs.join(cwd, '.git'));

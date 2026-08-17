@@ -8,10 +8,16 @@ import {
   type Started,
   type StartGuiDependencies,
 } from './u.deps.ts';
+import {
+  admitGenerationPkg,
+  refuseIdentity,
+  snapshotEvidence,
+  snapshotExpectedPkg,
+} from './u.identity.ts';
 import { appendCleanup, closeOnce, finalize, waitForTerminal } from './u.lifecycle.ts';
-import { materialize } from './u.materialize.ts';
+import { materializationError, materialize } from './u.materialize.ts';
 import { LIMITS, resolveIntegrity, resolveManifestSource } from './u.source.ts';
-import { START_GUI_SERVICE } from '../u/u.start.gui.service.ts';
+import { START_GUI_SERVICE, type StartGuiEvidence } from '../u/u.start.gui.service.ts';
 
 export type { StartGuiDependencies } from './u.deps.ts';
 
@@ -20,7 +26,7 @@ type KeyboardEvent = Parameters<NonNullable<Parameters<typeof Cli.Keyboard.bind>
 export type StartGuiInput = {
   cwd: t.PiCli.Cwd;
   until?: t.UntilInput;
-  source?: t.PiCliProfiles.StartGuiSource;
+  source?: StartGuiEvidence;
   deps?: Partial<StartGuiDependencies>;
 };
 
@@ -28,13 +34,13 @@ export type StartGuiInput = {
 export async function start(input: StartGuiInput): Promise<void> {
   const root = runtimeRoot(input.cwd);
   const deps = Object.freeze({ ...DEFAULT_DEPENDENCIES, ...(input.deps ?? {}) });
-  const sourceInput = input.source ?? START_GUI_SERVICE.source;
-  const configured = Object.freeze({
-    manifestUrl: sourceInput.manifestUrl,
-    integrity: sourceInput.integrity,
-  });
+  const sourceInput = input.source === undefined ? START_GUI_SERVICE.source : input.source;
+  const configured = snapshotEvidence(sourceInput);
+  if (!configured.authorityReadable) refuseIdentity();
   const source = resolveManifestSource(configured.manifestUrl);
   const integrity = resolveIntegrity(configured.integrity);
+  const identity = Object.freeze({ manifestUrl: source.configuredUrl, integrity });
+  const expectedPkg = snapshotExpectedPkg(configured, identity);
   let started: Started | undefined;
   let keyboard: Keyboard | undefined;
   let screen: ReturnType<StartGuiDependencies['createScreen']> | undefined;
@@ -42,15 +48,22 @@ export async function start(input: StartGuiInput): Promise<void> {
   const close = closeOnce(() => started);
 
   try {
-    const generation = await materialize({
+    const result = await materialize({
       root,
       source,
       integrity,
       deps,
       until: input.until,
     });
+    const admitted = admitGenerationPkg({
+      expected: expectedPkg,
+      generation: result,
+      diagnostics: identity,
+    });
+    if (admitted.kind === 'failed') throw materializationError(admitted);
+    const dir = admitted.dir;
     started = await deps.start({
-      dir: generation.dir,
+      dir,
       integrity,
       limits: LIMITS,
       hostname: '127.0.0.1',
@@ -69,7 +82,7 @@ export async function start(input: StartGuiInput): Promise<void> {
     });
     screen = deps.createScreen({
       service: START_GUI_SERVICE.name,
-      dir: generation.dir,
+      dir,
       origin: started.origin,
       keyboard: keyboard !== undefined,
     });

@@ -10,13 +10,13 @@ import { menu } from './u/u.menu.ts';
 import { ProfileConfig } from './u/u.profile.ts';
 import { resolveRun } from './u/u.resolve.run.ts';
 import { ProfileStartup } from './u/u.startup.ts';
-import { START_GUI_SERVICE } from './u/u.start.gui.service.ts';
+import { START_GUI_SERVICE, type StartGuiEvidence } from './u/u.start.gui.service.ts';
 
 type MainDependencies = {
   readonly repaint: typeof Cli.Screen.repaint;
   readonly startGui: (input: {
     cwd: t.PiCli.Cwd;
-    source: t.PiCliProfiles.StartGuiSource;
+    source: StartGuiEvidence;
     until?: t.UntilInput;
   }) => Promise<void>;
 };

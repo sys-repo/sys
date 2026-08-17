@@ -5,6 +5,7 @@ import { LIMITS } from './u.limits.ts';
 export { LIMITS } from './u.limits.ts';
 
 export type ManifestSource = Readonly<{
+  configuredUrl: t.StringUrl;
   href: t.StringUrl;
   origin: t.StringUrl;
 }>;
@@ -41,7 +42,7 @@ export function materializePolicy(
   };
 }
 
-export function resolveIntegrity(input: t.StringHash): t.StringHash {
+export function resolveIntegrity(input: unknown): t.StringHash {
   if (!Is.string(input) || !input.startsWith('sha256-')) {
     throw new Error('Invalid start:gui manifest integrity.');
   }
@@ -55,10 +56,10 @@ export function resolveIntegrity(input: t.StringHash): t.StringHash {
     throw new Error('Invalid start:gui manifest integrity.');
   }
 
-  return input;
+  return input as t.StringHash;
 }
 
-export function resolveManifestSource(input: t.StringUrl): ManifestSource {
+export function resolveManifestSource(input: unknown): ManifestSource {
   if (!Is.urlString(input)) throw new Error('Invalid start:gui manifest URL.');
 
   const parsed = Url.parse(input);
@@ -70,6 +71,7 @@ export function resolveManifestSource(input: t.StringUrl): ManifestSource {
   }
   url.hash = '';
   return {
+    configuredUrl: input as t.StringUrl,
     href: url.href as t.StringUrl,
     origin: url.origin as t.StringUrl,
   };

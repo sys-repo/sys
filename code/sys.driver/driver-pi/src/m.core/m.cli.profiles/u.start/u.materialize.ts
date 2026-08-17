@@ -19,19 +19,17 @@ export async function materialize(input: {
   integrity: t.StringHash;
   deps: StartGuiDependencies;
   until?: t.UntilInput;
-}) {
+}): Promise<unknown> {
   const storeDir = Fs.join(input.root, ...PiFs.sysDirSegments, 'dist', PiFs.root) as t.StringDir;
   await ensureStore(storeDir);
 
-  const generation = await input.deps.materialize({
+  return await input.deps.materialize({
     manifestUrl: input.source.href,
     integrity: input.integrity,
     storeDir,
     policy: materializePolicy(input.source),
     until: input.until,
   });
-  if (generation.kind === 'failed') throw materializationError(generation);
-  return generation;
 }
 
 async function ensureStore(storeDir: t.StringDir): Promise<void> {
@@ -47,7 +45,7 @@ async function ensureStore(storeDir: t.StringDir): Promise<void> {
   }
 }
 
-function materializationError(result: FailedMaterialization): MaterializationError {
+export function materializationError(result: FailedMaterialization): MaterializationError {
   const error = new Error(
     `start:gui materialization failed: ${result.stage}/${result.reason}`,
   ) as MaterializationError;
