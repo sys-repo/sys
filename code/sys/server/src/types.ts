@@ -3,6 +3,7 @@
  * Public type surface for server package entrypoints.
  */
 export type * from './m.server.websocket/t.ts';
+export type * from './m.server.bootstrap-status/t.ts';
 export type * from './m.server.dist/t.ts';
 export type * from './m.server.dist.service/t.ts';
 export type * from './m.server.files/t.ts';

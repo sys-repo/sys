@@ -1,5 +1,7 @@
 start-ui.design.md
-- [x] 6bf22370f [verified-dist-materialization.plan.md](../@sys.server/verified-dist-materialization.plan.md)
+
+- [x] 6bf22370f
+      [verified-dist-materialization.plan.md](../@sys.server/verified-dist-materialization.plan.md)
 - [x] b59dbdd7b [local-dist-host.plan.md](../@sys.server/local-dist-host.plan.md)
 - [x] 1ddeb15d feat(driver-pi): split profile start modes to CLI vs local UI launch
 - [x] 58a62cb7d feat(driver-pi): persist interactive start-mode preference
@@ -10,15 +12,16 @@ start-ui.design.md
 - [x] 8e9c9f398 feat(testing): add exact property fixture transactions
 - [x] dc244efba feat(http): expose fail-closed service-worker deployment admission
 - [x] ccdd57863 [self-hosted-assets.plan.md](../@sys.driver-monaco/self-hosted-assets.plan.md)
-- [ ] feat(testing): expose isolated service-worker lifecycle observations
-- [ ] feat(http): expose exact loopback listener origins
-- [ ] fix(server.dist): avoid Deno.serve legacy per-request abort in dist asset reads
-- [ ] feat(server.dist): expose explicit browser-origin policy for verified Dist hosts
-- [ ] fix(driver-pi): deny service-worker authority on verified loopback origins
-- [ ] feat(fs): expose owned-tree lifecycle leases
-- [ ] feat(fs): expose sealed owned-tree publication and removal
-- [ ] fix(server.dist): publish Dist generations through sealed promotion
-- [ ] feat(driver-pi): admit GUI Dist identity from frozen launcher evidence
+- [x] 789cc0e6a feat(testing): expose isolated service-worker lifecycle observations
+- [x] 87f968f8e feat(http): expose exact loopback listener origins
+- [x] 1ac62b764 fix(server.dist): avoid Deno.serve legacy per-request abort in dist asset reads
+- [x] 29afbf59a feat(server.dist): expose explicit browser-origin policy for verified Dist hosts
+- [x] e050ecad3 fix(driver-pi): deny service-worker authority on verified loopback origins
+- [x] dd627678c feat(fs): expose owned-tree lifecycle leases
+- [x] 52bd78839 feat(fs): expose sealed owned-tree publication and removal
+- [x] 6a18c31d refactor(fs)!: move Rooted metadata to .sys.rooted
+- [x] e5ab20e02 fix(server.dist): publish Dist generations through sealed promotion
+- [x] 0cefa30b7 feat(driver-pi): admit GUI Dist identity from frozen launcher evidence
 - [ ] feat(server): expose an inert loopback bootstrap status host
 - [ ] feat(driver-pi): supervise start:gui through one boot state
 - [ ] feat(driver-pi): bind local GUI preview directly to Vite build evidence
@@ -32,8 +35,9 @@ This file is the anchor. The checked prerequisite records are retired, hash-anch
 their source files need not remain in the live worktree. The checked Monaco prerequisite's recovered
 final snapshot owns complete self-hosted runtime emission and its dedicated-worker browser proof; it
 does not mean Driver Pi yet consumes that runtime. This arc owns composition through verified
-materialization, pinned hosting, and Service Worker policy. The opening arc is the sole state ledger.
-Body sections define durable contracts, commit boundaries, and proof without duplicating item status.
+materialization, pinned hosting, and Service Worker policy. The opening arc is the sole state
+ledger. Body sections define durable contracts, commit boundaries, and proof without duplicating
+item status.
 
 Planning does not imply permission to implement.
 
@@ -92,47 +96,51 @@ delivered change always overrides it.
     - Thing: foundational cross-platform publication durability plus confined destructive removal.
     - Likely: implementation `gpt-5.6-sol • max`; landed review `gpt-5.6-sol • max`.
     - Posture: BMIND → DMIND → TMIND → S-tier.
-11. `fix(server.dist): publish Dist generations through sealed promotion`
-    - Thing: integration of strict verification, legacy migration, sealing evidence, and publication
-      truth.
+11. `refactor(fs)!: move Rooted metadata to .sys.rooted`
+    - Thing: persistent cross-process lock identity and fail-closed on-disk namespace transition.
     - Likely: implementation `gpt-5.6-sol • max`; landed review `gpt-5.6-sol • max`.
     - Posture: BMIND → DMIND → TMIND → S-tier.
-12. `feat(driver-pi): admit GUI Dist identity from frozen launcher evidence`
+12. `fix(server.dist): publish Dist generations through sealed promotion`
+    - Thing: integration of strict verification, pre-sealing generation migration, sealing evidence,
+      and publication truth.
+    - Likely: implementation `gpt-5.6-sol • max`; landed review `gpt-5.6-sol • max`.
+    - Posture: BMIND → DMIND → TMIND → S-tier.
+13. `feat(driver-pi): admit GUI Dist identity from frozen launcher evidence`
     - Thing: launcher-owned provenance and package/Dist identity refusal before execution.
     - Likely: implementation `gpt-5.6-sol • xhigh`; landed review `gpt-5.6-sol • max`.
     - Posture: BMIND → DMIND → TMIND → S-tier.
-13. `feat(server): expose an inert loopback bootstrap status host`
+14. `feat(server): expose an inert loopback bootstrap status host`
     - Thing: reusable capability-routed status hosting with no browser control authority.
     - Likely: implementation `gpt-5.6-sol • xhigh`; landed review `gpt-5.6-sol • xhigh`.
     - Posture: BMIND → DMIND → TMIND → S-tier.
-14. `feat(driver-pi): supervise start:gui through one boot state`
+15. `feat(driver-pi): supervise start:gui through one boot state`
     - Thing: cross-resource lifecycle, state projection, failure precedence, and cleanup
       composition.
     - Likely: implementation `gpt-5.6-sol • max`; landed review `gpt-5.6-sol • max`.
     - Posture: BMIND → DMIND → TMIND → S-tier.
-15. `feat(driver-pi): bind local GUI preview directly to Vite build evidence`
+16. `feat(driver-pi): bind local GUI preview directly to Vite build evidence`
     - Thing: build/runtime graph separation and direct prepared-generation authority transfer.
     - Likely: implementation `gpt-5.6-terra • high`; landed review `gpt-5.6-sol • xhigh`.
     - Posture: BMIND → DMIND → TMIND → S-tier.
-16. `feat(driver-pi): expose scoped start:gui Dist reset`
+17. `feat(driver-pi): expose scoped start:gui Dist reset`
     - Thing: published destructive operation with exact identity, locking, and confinement
       requirements.
     - Likely: implementation `gpt-5.6-sol • max`; landed review `gpt-5.6-sol • max`.
     - Posture: BMIND → DMIND → TMIND → S-tier.
-17. `fix(driver-pi): diagnose invalid GUI cache`
+18. `fix(driver-pi): diagnose invalid GUI cache`
     - Thing: occupied-generation classification and reset guidance without filesystem or tamper
       inference.
     - Likely: implementation `gpt-5.6-terra • high`; landed review `gpt-5.6-terra • high`.
     - Posture: BMIND → DMIND → TMIND → S-tier.
-18. `feat(driver-pi): diagnose unavailable start:gui manifest sources`
+19. `feat(driver-pi): diagnose unavailable start:gui manifest sources`
     - Thing: bounded evidence sanitization and truthful user guidance over ambiguous lower failures.
     - Likely: implementation `gpt-5.6-terra • high`; landed review `gpt-5.6-terra • high`.
     - Posture: BMIND → DMIND → TMIND → S-tier.
-19. `refactor(http): fit direct service startup output to terminal width`
+20. `refactor(http): fit direct service startup output to terminal width`
     - Thing: presentation-only terminal-cell fitting with Unicode and non-TTY compatibility.
     - Likely: implementation `gpt-5.6-terra • medium`; landed review `gpt-5.6-terra • medium`.
     - Posture: BMIND → DMIND → S-tier.
-20. `feat(driver-pi): bind published GUI Dist evidence for release`
+21. `feat(driver-pi): bind published GUI Dist evidence for release`
     - Thing: final irreversible artifact provenance, public-browser proof, and publication ordering.
     - Likely: implementation `gpt-5.6-sol • max`; landed review `gpt-5.6-sol • max`.
     - Posture: BMIND → DMIND → TMIND → S-tier.
@@ -262,9 +270,10 @@ browser smoke. The Vite handoff proves compatibility installation/lowering acros
 document, dynamic, dedicated-worker, and explicit Service Worker graphs. Neither proves browser
 persistence transitions, controls the generic testing API, permits `@sys/testing` to import either
 product/build owner, or establishes that Driver Pi's current Dist includes Monaco. Its current Vite
-configuration neither imports `@sys/driver-monaco` nor installs `MonacoVite.plugin()`; the handoff is
-evidence for an explicit later product integration. `Browser.load(...)` remains only a one-navigation
-smoke assertion; the next Testing item earns the separate multi-navigation lifecycle owner.
+configuration neither imports `@sys/driver-monaco` nor installs `MonacoVite.plugin()`; the handoff
+is evidence for an explicit later product integration. `Browser.load(...)` remains only a
+one-navigation smoke assertion; the next Testing item earns the separate multi-navigation lifecycle
+owner.
 
 Driver Pi never imports `@sys/tools`, `@sys/tools/pull`, or `@sys/tools/serve`. `@sys/tools` already
 embeds Driver Pi at its CLI surface and must not be pulled back beneath it.
@@ -420,13 +429,13 @@ unknown or non-HTTPS non-loopback
 Dedicated Web Workers are a separate application capability, not browser-persistence authority. A
 future exact Dist that deliberately self-hosts Monaco requires its default, TypeScript, and JSON
 workers, which use same-origin modules and Monaco's blob bootstrap. That requirement belongs only to
-a Dist that actually declares it: Driver Pi's current placeholder graph has no Monaco integration and
-must not gain a worker grant merely because the checked prerequisite exists. Each typed browser policy
-admits only sources proven necessary by its own exact Dist.
+a Dist that actually declares it: Driver Pi's current placeholder graph has no Monaco integration
+and must not gain a worker grant merely because the checked prerequisite exists. Each typed browser
+policy admits only sources proven necessary by its own exact Dist.
 
 The checked legacy `dist/` generation and current placeholder browser graph are unsafe for verified
-loopback hosting: `src/-test/entry.tsx` directly registers `sw.js`, Vite includes it in the Dist, and
-`src/-test/-sw.ts` calls both `skipWaiting()` and `clients.claim()`. The legacy bundled cache
+loopback hosting: `src/-test/entry.tsx` directly registers `sw.js`, Vite includes it in the Dist,
+and `src/-test/-sw.ts` calls both `skipWaiting()` and `clients.claim()`. The legacy bundled cache
 implementation predates package confinement; current `Http.Cache.pkg` now cleans only exact
 package-owned namespaces, but still claims clients when deliberately composed in an admitted public
 worker branch. Neither the current entry nor worker has yet been wired to canonical
@@ -456,11 +465,12 @@ confined to the selected package namespace; unrelated same-origin cache names su
 
 CSP `worker-src` does not provide a separate switch for dedicated workers and Service Workers. The
 application-host policy must not claim that it does. Verified `DistServer` startup instead receives
-one fixed typed browser policy that selects zero or more dedicated-worker sources for its exact Dist,
-rejects browser-observed `Sec-Fetch-Dest: serviceworker` requests except the exact verified tombstone
-asset, and leaves canonical application registration denied on loopback. Fetch Metadata rejection is
-defense in depth: an absent header is not proof that a request was not a Service Worker request, and
-no host response can prove that an older controller did not intercept the first navigation.
+one fixed typed browser policy that selects zero or more dedicated-worker sources for its exact
+Dist, rejects browser-observed `Sec-Fetch-Dest: serviceworker` requests except the exact verified
+tombstone asset, and leaves canonical application registration denied on loopback. Fetch Metadata
+rejection is defense in depth: an absent header is not proof that a request was not a Service Worker
+request, and no host response can prove that an older controller did not intercept the first
+navigation.
 
 A tombstone test may prove eventual update, owned-cache cleanup, and unregister, but cannot prove
 that the first navigation escaped an already controlling worker. Before product release, evidence
@@ -491,9 +501,9 @@ The verified application host also:
 The package-owned application CSP is fixed launcher/release policy, not profile or browser input. A
 generic Dist consumer with different browser needs must select its own explicit typed policy; Driver
 Pi does not weaken a universal default through ambient overrides. If the supported browser floor
-cannot preserve an exact Dist's declared dedicated workers while enforcing the claimed Service Worker
-boundary, the relevant product integration must revise that boundary honestly rather than ship a
-hobbled application or overstate denial.
+cannot preserve an exact Dist's declared dedicated workers while enforcing the claimed Service
+Worker boundary, the relevant product integration must revise that boundary honestly rather than
+ship a hobbled application or overstate denial.
 
 ## Embedded bootstrap status contract
 
@@ -632,8 +642,9 @@ Failure and lifecycle behavior:
 - Primary failures remain primary while cleanup and opener failures remain typed secondary evidence.
   `Dist.cleanup: 'pending'` means a private stage may remain; Driver Pi preserves that truth and
   never upgrades settlement to a no-residue claim.
-- Screen and keyboard disposal are explicit in `finally`; lower server lifecycle owns `until`, so
-  Driver Pi adds no redundant AbortSignal-only listener.
+- Screen and keyboard disposal are explicit in `finally`; the status host admits no caller-owned
+  lifecycle object, so Driver Pi owns its returned idempotent `close()` handle directly within the
+  shared supervisor.
 - Successful cancellation, keyboard quit, and normal completion prove that both listeners, keyboard,
   private stages, refresh bookkeeping, and owned foreground promises are gone. Cleanup or close
   failure retains typed unresolved-resource evidence, continues independent close attempts, and must
@@ -849,39 +860,40 @@ and future items use the current TUI/GUI vocabulary.
   `Browser.ServiceWorker.scenario(...)` surface to the product-neutral `@sys/testing/server` owner.
   A scenario owns exactly one temporary Chrome profile and one target session across ordered fixed
   `navigate`, `reload`, `update`, and `observe` steps. The first admitted URL fixes the observed
-  origin; later navigation and update-scope inputs must remain on that origin. It exposes neither the
-  internal CDP client, caller-supplied page-evaluation code, profile path, nor arbitrary browser
+  origin; later navigation and update-scope inputs must remain on that origin. It exposes neither
+  the internal CDP client, caller-supplied page-evaluation code, profile path, nor arbitrary browser
   flags;
 - extract one truthful internal Chrome-session lifecycle from the existing load path. Remove the
   legacy `--no-sandbox`, `--disable-setuid-sandbox`, and `--no-zygote` launch flags; inability to
   launch with the browser sandbox intact is a typed startup failure, never a reason to restore a
   bypass. A rejected headless-mode attempt must clean its profile before fallback, and a failed
-  attempt cleanup is terminal rather than hidden by a later successful mode. Every completed scenario
-  closes the browser/CDP session before attempting profile removal; a primary startup/navigation/action
-  failure remains primary while profile-close/removal failure remains explicit unresolved-resource
-  evidence. No result may claim profile cleanup after a failed removal or silently retain current
-  best-effort cleanup swallowing. Startup diagnostics retain only bounded, sanitized mode/error
-  evidence and never expose temporary profile paths or full launch arguments;
+  attempt cleanup is terminal rather than hidden by a later successful mode. Every completed
+  scenario closes the browser/CDP session before attempting profile removal; a primary
+  startup/navigation/action failure remains primary while profile-close/removal failure remains
+  explicit unresolved-resource evidence. No result may claim profile cleanup after a failed removal
+  or silently retain current best-effort cleanup swallowing. Startup diagnostics retain only
+  bounded, sanitized mode/error evidence and never expose temporary profile paths or full launch
+  arguments;
 - split the current mixed `@sys/testing` browser lane before this scenario lands: ordinary
-  `deno task test` must retain no Chrome process authority, while an explicit `test:browser` task and
-  profile own temporary-profile read/write, `CHROME_BIN` discovery, Chrome process launch, and
+  `deno task test` must retain no Chrome process authority, while an explicit `test:browser` task
+  and profile own temporary-profile read/write, `CHROME_BIN` discovery, Chrome process launch, and
   numeric-loopback CDP/fixture access. Move the existing `Browser.load` smoke into that task so it
-  shares the hardened session lifecycle, and update its diagnostics and package documentation to name
-  `test:browser` rather than ordinary test. Ordinary test excludes browser files and does not execute
-  the browser task; the explicit browser task carries its dedicated profile. Extend generated
-  workspace CI only as needed so that it runs and Chrome-marks `test:browser` rather than the
-  ordinary test task. It must not rely on the current package-wide `test` `run` grant or silently
-  broaden ordinary unit-test permissions. It adds no `-A`, FFI, default profile, hard-coded browser
-  binary, or Deno claim over the launched browser's network;
+  shares the hardened session lifecycle, and update its diagnostics and package documentation to
+  name `test:browser` rather than ordinary test. Ordinary test excludes browser files and does not
+  execute the browser task; the explicit browser task carries its dedicated profile. Extend
+  generated workspace CI only as needed so that it runs and Chrome-marks `test:browser` rather than
+  the ordinary test task. It must not rely on the current package-wide `test` `run` grant or
+  silently broaden ordinary unit-test permissions. It adds no `-A`, FFI, default profile, hard-coded
+  browser binary, or Deno claim over the launched browser's network;
 - after each settled step, return frozen point-in-time registration, controller, cache-name, update,
   and unregistration observations plus bounded captured console/runtime/navigation error evidence.
   Retained diagnostics label truncation rather than claiming a complete log. An `observe` step
   performs bounded polling of this fixed browser snapshot under a closed host-side expectation
-  vocabulary, never caller-provided browser code or predicate. `update` selects one exact same-origin
-  registration scope and records only the requested browser operation and its outcome, never
-  activation or controller proof; zero or ambiguous matches remain observations rather than guessed
-  selection. Unregistration is observed from the registration inventory, not fabricated by a generic
-  direct-removal action;
+  vocabulary, never caller-provided browser code or predicate. `update` selects one exact
+  same-origin registration scope and records only the requested browser operation and its outcome,
+  never activation or controller proof; zero or ambiguous matches remain observations rather than
+  guessed selection. Unregistration is observed from the registration inventory, not fabricated by a
+  generic direct-removal action;
 - permit a caller fixture to seed a claiming worker, replace same-origin served bytes with a
   tombstone, reload, and observe eventual transitions in one temporary profile without importing a
   product package, `@sys/driver-vite`, or `@sys/driver-monaco` into `@sys/testing`. The completed
@@ -889,18 +901,19 @@ and future items use the current TUI/GUI vocabulary.
   compatibility work proves transformed document/worker graphs. Neither is a substitute for this
   multi-navigation lifecycle owner or an additional prerequisite to its generic API;
 - accept a caller-supplied normally trusted HTTPS URL for the later public-provider proof and let
-  normal Chrome navigation surface certificate or secure-context failure. The synthetic local fixture
-  uses its ordinary numeric-loopback context; no command-line origin is upgraded to secure. Do not add
-  `--ignore-certificate-errors`, insecure-origin treatment, a default user profile, sandbox-disabling
-  launch flag, or any other TLS, secure-context, or browser-sandbox bypass;
+  normal Chrome navigation surface certificate or secure-context failure. The synthetic local
+  fixture uses its ordinary numeric-loopback context; no command-line origin is upgraded to secure.
+  Do not add `--ignore-certificate-errors`, insecure-origin treatment, a default user profile,
+  sandbox-disabling launch flag, or any other TLS, secure-context, or browser-sandbox bypass;
 - state in every result contract that browser observations describe only the controlled run and
   never attest that a prior controller was absent outside a freshly created profile;
 - test sandboxed launch arguments, temporary-path/argument sanitization, fresh-profile isolation,
-  strict multi-step ordering, timeout/error settlement, primary versus cleanup-failure truth, profile
-  cleanup, and a package-neutral synthetic worker migration. The scenario API has no public generic
-  `unregister`, cache-clear, registration, script, scope, page-evaluation, CDP, profile-path, or
-  browser-flag action: served fixture bytes and the fixed browser protocol drive every transition.
-  Driver Pi owns proof against its checked worker fixture and later exact built artifact.
+  strict multi-step ordering, timeout/error settlement, primary versus cleanup-failure truth,
+  profile cleanup, and a package-neutral synthetic worker migration. The scenario API has no public
+  generic `unregister`, cache-clear, registration, script, scope, page-evaluation, CDP,
+  profile-path, or browser-flag action: served fixture bytes and the fixed browser protocol drive
+  every transition. Driver Pi owns proof against its checked worker fixture and later exact built
+  artifact.
 
 ### `feat(http): expose exact loopback listener origins`
 
@@ -917,8 +930,9 @@ and future items use the current TUI/GUI vocabulary.
 
 ### `fix(server.dist): avoid Deno.serve legacy per-request abort in dist asset reads`
 
-- remove `request.signal` from admitted pinned-read lifecycle composition and retain `life.signal`
-  as the stable server-owned cancellation authority;
+- remove `request.signal` from admitted pinned-read lifecycle composition and use the settled
+  listener-owned `started.signal` as the stable cancellation authority; this lets
+  `server.close(...)` cancel delayed reads before listener shutdown waits for handler settlement;
 - keep listener shutdown, authority checks, GET/HEAD response shape, and pinned byte verification
   unchanged;
 - replace the two-signal assertion with server-lifecycle proof and test delayed-read cancellation
@@ -976,15 +990,15 @@ and future items use the current TUI/GUI vocabulary.
   isolated-profile Driver Pi browser task. That task owns its dedicated permission profile for
   temporary-profile read/write, browser process launch, `CHROME_BIN` discovery, and loopback
   CDP/fixture access; Deno's parent `net` allowlist does not sandbox the launched browser's network.
-  Do not broaden unit-test permissions or substitute `-A`, DOM mocks, one-shot page-load output, or a
-  human's default browser profile;
+  Do not broaden unit-test permissions or substitute `-A`, DOM mocks, one-shot page-load output, or
+  a human's default browser profile;
 - prove fresh-profile no-controller behavior, unrelated-cache preservation, and migration from the
   currently checked claiming-worker fixture to owned-cache cleanup and eventual unregister. The
   required Driver Pi browser task and its CI selection land with this item after the generic Testing
   API already owns the hardened Chrome lifecycle. If a later Driver Pi product change adds Monaco,
-  prove its default, TypeScript, and JSON dedicated workers through that change's exact Vite-build pin
-  and materialized `DistServer` generation; do not make an unintegrated Monaco prerequisite a blocker
-  or a claim about this artifact;
+  prove its default, TypeScript, and JSON dedicated workers through that change's exact Vite-build
+  pin and materialized `DistServer` generation; do not make an unintegrated Monaco prerequisite a
+  blocker or a claim about this artifact;
 - retain same-byte public registration as the final trusted-provider proof rather than weakening TLS
   or secure-context validation in a local fixture;
 - keep the bootstrap permanently worker-free under its independent stricter policy.
@@ -1025,6 +1039,22 @@ and future items use the current TUI/GUI vocabulary.
   unsupported platforms, cleanup retry, mixed sealed-descendant removal, and exact removal
   confinement.
 
+### `refactor(fs)!: move Rooted metadata to .sys.rooted`
+
+- move Rooted's private metadata directory from `.sys-rooted/` to the canonical `.sys.rooted/`
+  protocol namespace and derive same-directory publication temp names from that one owner noun
+  rather than maintaining a parallel literal;
+- preserve `.sys.rooted/locks` as stable persistent lock identity outside deletable targets and
+  `.sys.rooted/stages` as private transient publication state; this item changes naming only and
+  must not weaken lease, publication, sealing, removal, or cleanup semantics;
+- treat this as a greenfield breaking rename: retain no migration, dual-locking, detection, refusal,
+  or reservation for `.sys-rooted`; only `.sys.rooted` has Rooted protocol meaning;
+- update package documentation and independent path-contract tests to distinguish persistent locks,
+  transient stages, and same-directory temp artifacts without importing production constants into
+  assertions;
+- prove canonical path derivation, canonical-namespace reservation, unchanged stable lock identity
+  across release/reacquisition, transient cleanup, and no collision with admitted user targets.
+
 ### `fix(server.dist): publish Dist generations through sealed promotion`
 
 - preserve `assertExactTree` and its rejection of every undeclared entry; never ignore `.DS_Store`,
@@ -1035,14 +1065,15 @@ and future items use the current TUI/GUI vocabulary.
   target lock when absent, then perform another exact-tree verification before returning success;
   this local metadata migration performs no source or credential work and never makes an invalid
   occupied tree a repair candidate;
-- on a platform where the lower owner reports sealing unsupported, return honest typed failure or
-  explicitly withhold the warm-cache durability claim; never silently claim protection;
+- on a platform where the lower owner reports sealing unsupported, fail materialization closed with
+  a sanitized typed failure that distinguishes unsupported sealing; every success requires applied
+  seal evidence, and no unsealed fallback or warm-cache durability claim is permitted;
 - preserve an occupied corrupt generation and require explicit reset rather than automatic discard,
   reachability probing, or reacquisition;
 - make reset consume only the lower owned-removal capability for the sealed representation;
-- test ambient root/nested entry attempts, unsupported settlement, promotion races, valid unsealed
-  legacy migration, applied-evidence snapshotting, final verification, reset removal, and unchanged
-  exact-tree refusal.
+- test ambient root/nested entry attempts, unsupported settlement, promotion races, valid
+  pre-sealing generation migration, applied-evidence snapshotting, final verification, reset
+  removal, and unchanged exact-tree refusal.
 
 ### `feat(driver-pi): admit GUI Dist identity from frozen launcher evidence`
 
@@ -1064,6 +1095,13 @@ and future items use the current TUI/GUI vocabulary.
 
 - expose a product-neutral `@sys/server` primitive over `127.0.0.1:0` using the lower exact-loopback
   origin mode; Driver Pi remains owner of page bytes, wording, state categories, and composition;
+- before listener startup, admit at most 16 pages, 128 UTF-16 code units per key, 256 KiB per page,
+  and 1 MiB of copied page bytes in aggregate; reject shared-buffer views, use bounded targeted
+  own-data descriptor reads, explicitly reject legacy lifecycle/caller-capability keys, and ignore
+  inert extras without enumeration;
+- keep the raw Hono application and Deno listener private behind a narrow returned lifecycle facade;
+  map lower promise failures to fixed package-owned errors, own disposal truth locally, and retain
+  private shutdown authority after startup failure until listener termination is proven;
 - internally generate one launch-scoped cryptographically random path capability and return its URL;
   accept no caller token or query authority, and expose only side-effect-free `GET`/`HEAD`
   observation plus strict unknown-route `404`;
@@ -1345,7 +1383,7 @@ occupied invalid generation + every source down   → repair guidance; preserve 
 valid pre-sealing generation                      → local seal migration + fresh verify; zero source work
 ambient undeclared file attempt                   → prevented where supported or freshly refused exactly
 target locking unsupported                        → startup/reset refuse before store access or deletion
-sealing unsupported                               → typed settlement; no silent warm-durability claim
+sealing unsupported                               → materialization fails closed with typed evidence
 
 published reset executable + local task alias     → same canonical runtime root and exact targets
 reset canonical + observed legacy roots           → only exact Driver Pi owner trees removed
@@ -1464,8 +1502,9 @@ sw.js
 
 The browser graph proves only the URL classification shown above. Public release status remains
 trusted publication/host evidence and is never inferred from the worker's HTTPS observation. A later
-product entry that adds a dedicated worker declares the narrow source set beside that entry and earns
-its own exact-Dist browser proof; the current placeholder graph does not inherit Monaco capability.
+product entry that adds a dedicated worker declares the narrow source set beside that entry and
+earns its own exact-Dist browser proof; the current placeholder graph does not inherit Monaco
+capability.
 
 Deferred product-entry rules, enforced before artifact release:
 
@@ -1544,9 +1583,10 @@ Code evidence cannot choose or silently erase these gates:
   migration behavior are actually proven. A browser that omits the distinguishing request evidence
   cannot inherit a host-level denial claim from tests on another browser.
 - **Supported filesystem floor:** release must name the supported OS/filesystem set. Owner-locking
-  `unsupported` always fails startup/reset closed; for sealing `unsupported`, the human must decide
-  whether to refuse release or explicitly withhold the warm-cache durability claim. The
-  implementation cannot silently choose.
+  `unsupported` always fails startup/reset closed. Sealing `unsupported` also fails materialization
+  closed, and every success requires applied seal evidence. Any future unsealed mode requires a
+  separately named human decision, typed non-applied evidence, and explicit removal of the
+  warm-cache durability claim; it is never an automatic fallback.
 
 ## Stop conditions
 
@@ -1565,9 +1605,9 @@ Stop rather than broaden or weaken the slice if:
 - local Service Worker denial depended only on `sw.js` voluntarily disabling itself rather than
   application admission plus the strongest browser-supported host enforcement, or a prior published
   local worker lacked an explicit fresh-origin/site-data migration gate;
-- Service Worker denial widened an undeclared dedicated-worker source or disabled one declared by the
-  exact application Dist, or CSP/Fetch Metadata evidence was described as stronger than the supported
-  browser actually proves;
+- Service Worker denial widened an undeclared dedicated-worker source or disabled one declared by
+  the exact application Dist, or CSP/Fetch Metadata evidence was described as stronger than the
+  supported browser actually proves;
 - exact-tree verification would be relaxed to tolerate ambient filesystem residue;
 - reset would probe the network, use wildcard sibling deletion, keep its lock inside a deletable
   owner tree, or run automatically as recovery;
@@ -1615,8 +1655,8 @@ Stop rather than broaden or weaken the slice if:
 - First-ever offline startup guarantees the bootstrap status surface; full GUI offline startup
   requires an already verified release generation unless package-local bytes are chosen later.
 - Promoted generations remain exact trees and gain ambient-mutation resistance without claiming an
-  OS sandbox or automatic recovery. The durable warm-cache claim requires applied sealing evidence
-  on the supported platform; unsupported sealing cannot be hidden.
+  OS sandbox or automatic recovery. Every successful materialization requires applied sealing
+  evidence on the supported platform; unsupported sealing fails closed and cannot be hidden.
 - Released sessions and reset coordinate through lower Rooted target leases whose stable lock
   identity remains outside deletable owner trees; Driver Pi performs no raw locking.
 - Reset is whole-owner, explicit, offline-independent, idempotent, and confined to the canonical and

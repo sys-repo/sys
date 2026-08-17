@@ -2,12 +2,7 @@ import type { t } from './common.ts';
 import type { BrowserPolicySnapshot } from '../u.server.input/u.browser.ts';
 import { assetPathname } from './u.asset.ts';
 
-/** Admit Fetch Metadata values accepted by the verified-loopback browser policy. */
-export function acceptsFetchSite(request: Request): boolean {
-  const value = request.headers.get('sec-fetch-site');
-  if (value === null) return true;
-  return value === 'same-origin' || value === 'same-site' || value === 'none';
-}
+export { acceptsFetchSite } from '../../u.server.request.ts';
 
 /** Admit observed worker destinations independently from ordinary asset routing. */
 export function acceptsWorkerDestination(

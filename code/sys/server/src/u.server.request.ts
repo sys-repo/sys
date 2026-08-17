@@ -8,7 +8,7 @@ type ExactListenerAddress = {
   readonly origin: string;
 };
 
-/** Derive the exact request Host authorities for one started loopback listener. */
+/** Derive admitted request Host authorities for one settled loopback listener. */
 export function acceptedAuthorities(started: ListenerAddress): ReadonlySet<string> {
   const authorities = new Set<string>();
   for (const hostname of ['localhost', started.hostname, started.addr.hostname]) {
@@ -19,15 +19,22 @@ export function acceptedAuthorities(started: ListenerAddress): ReadonlySet<strin
   return authorities;
 }
 
-/** Derive the one exact canonical Host authority from the settled listener origin. */
+/** Derive the one exact canonical Host authority from a settled listener origin. */
 export function exactAuthority(started: ExactListenerAddress): string {
   return new URL(started.origin).host.toLowerCase();
 }
 
-/** Admit one exact request Host authority. */
+/** Admit one request carrying an exact settled Host authority. */
 export function acceptsHost(request: Request, authorities: ReadonlySet<string>): boolean {
   const value = request.headers.get('host');
   return value !== null && value === value.trim() && authorities.has(value.toLowerCase());
+}
+
+/** Admit Fetch Metadata values accepted by loopback browser-response policies. */
+export function acceptsFetchSite(request: Request): boolean {
+  const value = request.headers.get('sec-fetch-site');
+  if (value === null) return true;
+  return value === 'same-origin' || value === 'same-site' || value === 'none';
 }
 
 function normalizedHost(hostname: string): string {

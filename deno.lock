@@ -73,6 +73,7 @@
     "npm:hash-it@7.0.3": "7.0.3",
     "npm:hast-util-sanitize@5.0.2": "5.0.2",
     "npm:hast-util-to-html@9.0.5": "9.0.5",
+    "npm:hono@4.13.2": "4.13.2",
     "npm:ignore@7.0.6": "7.0.6",
     "npm:magic-string@1.2.0": "1.2.0",
     "npm:mdast-util-from-markdown@2.0.3": "2.0.3",
@@ -1149,6 +1150,9 @@
       "dependencies": [
         "@types/hast"
       ]
+    },
+    "hono@4.13.2": {
+      "integrity": "sha512-JydRilDRkYBQMt9qR9U92mXxmbGqsqSn/IKOrh4e7/gEbn+0zSr8igTu0obwJoNGN4sez28DIql7FBHWydoJpA=="
     },
     "html-void-elements@3.0.0": {
       "integrity": "sha512-bEqo66MRXsUGxWHV5IP0PUiAWwoEjba4VCzg0LjFJBpchPaTfyfCKTG6bc5F8ucKec3q5y6qOdGyYTSBEvhCrg=="

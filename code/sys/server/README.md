@@ -16,6 +16,50 @@ deno run -ER jsr:@sys/server dsl websocket
 deno run -ER jsr:@sys/server dsl websocket.cmd --format skill
 ```
 
+### Host inert bootstrap status pages
+
+`BootstrapStatus` exposes caller-owned status pages on one ephemeral numeric-loopback listener. It
+copies every page before startup, generates a cryptographically random path capability internally,
+and returns the resulting URL. Startup accepts at most 16 pages, 128 UTF-16 code units per key, 256
+KiB per page, and 1 MiB across all copied page bytes. Admission reads only a fixed set of required
+own data descriptors: inert extra properties are ignored without enumeration, while legacy lifecycle
+and caller-capability keys are rejected without reading their values. Shared-buffer views are
+rejected; accepted page bytes are copied once into owner-controlled storage. The capability grants
+observation only: requests cannot mutate state, retry work, select a source, or provide redirect
+authority.
+
+```ts
+import { BootstrapStatus } from 'jsr:@sys/server/bootstrap-status';
+
+const encoder = new TextEncoder();
+let readyOrigin: string | undefined;
+const host = await BootstrapStatus.start({
+  pages: [
+    { key: 'preparing', bytes: encoder.encode('<!doctype html><p>Preparing.</p>') },
+  ],
+  resolve: () =>
+    readyOrigin ? { kind: 'redirect', origin: readyOrigin } : { kind: 'page', key: 'preparing' },
+});
+
+try {
+  console.info(host.url);
+} finally {
+  await host.close('example.complete');
+}
+```
+
+Only exact-capability `GET` and `HEAD` requests are observationally admitted. A redirect is `303`
+and only accepts an exact HTTP numeric-loopback origin distinct from the bootstrap origin. Unknown
+paths remain fixed `404` responses; resolver or projection failure becomes a fixed sanitized `500`.
+Every response is `no-store`, denies scripts, workers, framing, forms, and remote resources, removes
+cookie/CORS authority, and rejects wrong `Host` or cross-site Fetch Metadata before state
+resolution. The frozen returned handle exposes only `url`, `finished`, `disposed`, and idempotent
+`close()`; the Hono application and raw listener remain private. Startup admits no caller-owned
+lifecycle object. Package-owned promises sanitize lower lifecycle failures, and failed startup
+retains private shutdown authority until listener termination is proven. The caller owns page
+wording, finite projection keys, refresh markup, and trusted application state; the Server primitive
+owns only constrained HTTP behavior and listener lifecycle.
+
 ### Materialize a checksum-pinned Dist
 
 A Dist is a directory whose `dist.json` declares each payload file's path, byte length, and

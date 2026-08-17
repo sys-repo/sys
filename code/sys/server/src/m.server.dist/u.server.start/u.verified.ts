@@ -10,7 +10,7 @@ import {
   provisionalBrowserHeaders,
 } from '../u.server.browser/mod.ts';
 import { DistServerError, startError, startupReason } from '../u.server/u.error.ts';
-import { acceptedAuthorities, acceptsHost, exactAuthority } from '../u.server/u.host.ts';
+import { acceptedAuthorities, acceptsHost, exactAuthority } from '../../u.server.request.ts';
 import { requestPath } from '../u.server/u.path.ts';
 import { readAsset } from '../u.server/u.read.ts';
 import { settleListener } from './u.lifecycle.ts';
