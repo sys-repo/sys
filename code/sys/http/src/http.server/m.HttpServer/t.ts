@@ -140,7 +140,7 @@ export declare namespace HttpServer {
         print?: boolean;
 
         /**
-         * Exit the process when keyboard quit is received.
+         * Exit the process after keyboard-triggered server shutdown completes.
          *
          * Defaults to false. Server shutdown is the primitive behavior;
          * process exit must be explicit.

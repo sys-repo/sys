@@ -1,4 +1,4 @@
-import { Dispose, Err, type t } from '../common.ts';
+import { Cli, Dispose, Err, Is, type t } from '../common.ts';
 import { bindKeyboard } from './u.keyboard.ts';
 import { listenerOrigin, validateOriginMode } from './u.origin.ts';
 import { options as createOptions } from './u.options.ts';
@@ -38,7 +38,7 @@ export function startWith(
   app: Parameters<F>[0],
   input: NonNullable<Parameters<F>[1]> = {},
 ): ReturnType<F> {
-  const hostname = (input.hostname ?? '127.0.0.1') as t.StringHostname;
+  const hostname: t.StringHostname = input.hostname ?? '127.0.0.1';
   const originMode = input.origin;
   validateOriginMode({ hostname, mode: originMode });
   const values = wrangle.values(input);
@@ -56,14 +56,19 @@ export function startWith(
   });
 
   let server: Deno.HttpServer<Deno.NetAddr> | undefined;
+  let keyboardOwner: ReturnType<typeof bindKeyboard>;
   let state: t.Service.State = 'ready';
   let error: t.StdError | undefined;
 
   const life = Dispose.lifecycleAsync(values.until, async (e) => {
     state = 'stopping';
     try {
-      const current = server;
-      if (current) await closeServer({ server: current, controller, reason: e.reason });
+      await closeRuntime({
+        server,
+        keyboard: keyboardOwner,
+        controller,
+        reason: e.reason,
+      });
       state = 'stopped';
     } catch (cause) {
       state = 'error';
@@ -75,8 +80,8 @@ export function startWith(
   try {
     server = Deno.serve({ ...baseOptions, hostname }, app.fetch);
     const activeServer = server;
-    const addr = activeServer.addr as Deno.NetAddr;
-    const port = addr.port as t.PortNumber;
+    const addr: Deno.NetAddr = activeServer.addr;
+    const port: t.PortNumber = addr.port;
     const origin = listenerOrigin({ hostname, port, mode: originMode });
 
     const context: t.HttpServer.Started = {
@@ -107,13 +112,14 @@ export function startWith(
     };
 
     wrangle.serverFinished(activeServer, life);
-    const keyboardBound = wrangle.keyboard(
+    keyboardOwner = wrangle.keyboard(
       deps.bindKeyboard,
       keyboardOptions,
       context,
       values.status,
     );
-    wrangle.print(values, context, keyboardOptions, keyboardBound);
+    if (keyboardOwner) wrangle.keyboardFinished(keyboardOwner, life);
+    wrangle.print(values, context, keyboardOptions, keyboardOwner !== undefined);
 
     return context;
   } catch (cause) {
@@ -126,6 +132,37 @@ export function startWith(
 /**
  * Helpers:
  */
+async function closeRuntime(args: {
+  readonly server?: Deno.HttpServer<Deno.NetAddr>;
+  readonly keyboard?: ReturnType<typeof bindKeyboard>;
+  readonly controller: AbortController;
+  readonly reason?: unknown;
+}) {
+  let failed = false;
+  let failure: unknown;
+
+  if (args.server) {
+    try {
+      await closeServer({ server: args.server, controller: args.controller, reason: args.reason });
+    } catch (cause) {
+      failed = true;
+      failure = cause;
+    }
+  }
+  if (args.keyboard) {
+    try {
+      await Cli.Keyboard.shutdown(args.keyboard);
+    } catch (cause) {
+      if (!failed) {
+        failed = true;
+        failure = cause;
+      }
+    }
+  }
+
+  if (failed) throw failure;
+}
+
 async function closeServer(args: {
   readonly server: Deno.HttpServer<Deno.NetAddr>;
   readonly controller: AbortController;
@@ -190,8 +227,8 @@ const wrangle = {
     options: KeyboardOptions,
     context: t.HttpServer.Started,
     status: t.HttpServer.Status.Options | undefined,
-  ): boolean {
-    if (!options) return false;
+  ) {
+    if (!options) return;
     return bind({
       port: context.port,
       url: wrangle.openUrl(status, context.origin),
@@ -200,6 +237,18 @@ const wrangle = {
       dispose: () => context.close('keyboard'),
       until: context.finished,
     });
+  },
+
+  keyboardFinished(
+    keyboard: NonNullable<ReturnType<typeof bindKeyboard>>,
+    life: t.LifecycleAsync,
+  ) {
+    const close = () => {
+      const completion = life.dispose('keyboard.finished');
+      void completion.catch(() => undefined);
+    };
+    const observation = keyboard.finished.then(close, close);
+    void observation.then(undefined, () => undefined);
   },
 
   keyboardOptions(input: t.HttpServer.Start.Options['keyboard']) {
@@ -262,7 +311,7 @@ const wrangle = {
       config: input.config,
       root: input.root,
       urlPaths: input.urlPaths?.map((item) =>
-        typeof item === 'string' ? item : { path: item.path, label: item.label }
+        Is.string(item) ? item : { path: item.path, label: item.label }
       ),
       details: input.details?.map((detail) => ({ label: detail.label, value: detail.value })),
     };

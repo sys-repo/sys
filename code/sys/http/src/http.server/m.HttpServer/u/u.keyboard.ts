@@ -4,12 +4,14 @@ export type KeyboardDependencies = {
   readonly bind: typeof Cli.Keyboard.bind;
   readonly isUnavailableError: typeof Cli.Keyboard.isUnavailableError;
   readonly sh: typeof Process.sh;
+  readonly exit: typeof Deno.exit;
 };
 
 const DEFAULT_DEPS: KeyboardDependencies = {
   bind: Cli.Keyboard.bind,
   isUnavailableError: Cli.Keyboard.isUnavailableError,
   sh: Process.sh,
+  exit: Deno.exit,
 };
 
 type Args = {
@@ -30,22 +32,14 @@ export async function keyboard(args: Args) {
   await handle.finished;
 }
 
-/**
- * Bind keyboard controls and report whether terminal binding is active.
- */
-export function bindKeyboard(args: Args): boolean {
+/** Bind keyboard controls and return caller-owned lifecycle authority when active. */
+export function bindKeyboard(args: Args) {
   return bindKeyboardWith(DEFAULT_DEPS, args);
 }
 
 /** Package-internal keyboard and shell dependency seam. */
-export function bindKeyboardWith(deps: KeyboardDependencies, args: Args): boolean {
-  const handle = bind(deps, args);
-  if (!handle) return false;
-
-  void handle.finished.catch((error: unknown) => {
-    if (!deps.isUnavailableError(error)) console.warn(error);
-  });
-  return true;
+export function bindKeyboardWith(deps: KeyboardDependencies, args: Args) {
+  return bind(deps, args);
 }
 
 /**
@@ -57,10 +51,26 @@ function bind(
 ): ReturnType<typeof Cli.Keyboard.bind> {
   try {
     const sh = deps.sh();
+    const shouldExit = args.exit ?? true;
     const handle = deps.bind({
-      exit: args.exit ?? true,
+      // Server close waits for `finished`; own exit here so `onQuit` can return first.
+      exit: false,
       until: args.until,
-      onQuit: async () => void await args.dispose?.(),
+      onQuit() {
+        const closing = args.dispose?.();
+        if (!closing) {
+          if (shouldExit) deps.exit(0);
+          return;
+        }
+
+        const completion = shouldExit
+          ? closing.then(
+            () => deps.exit(0),
+            () => undefined,
+          )
+          : closing;
+        void completion.catch(() => undefined);
+      },
       onKey(e) {
         if (e.key !== 'o') return;
         const url = args.url ?? `http://localhost:${args.port}`;
@@ -69,7 +79,13 @@ function bind(
     });
     if (!handle) return;
 
-    if (args.print) printKeyboard();
+    try {
+      if (args.print) printKeyboard();
+    } catch (cause) {
+      const closing = Cli.Keyboard.shutdown(handle);
+      void closing.catch(() => undefined);
+      throw cause;
+    }
     return handle;
   } catch (error) {
     if (deps.isUnavailableError(error)) return;

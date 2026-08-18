@@ -287,10 +287,14 @@ describe('HttpServer.start', () => {
     type KeyHandler = NonNullable<KeyboardOptions['onKey']>;
     let keyboard: KeyboardOptions | undefined;
     let command: string | undefined;
+    const keyboardFinished = Promise.withResolvers<void>();
     const keyboardDeps: Parameters<typeof bindKeyboardWith>[0] = {
       bind(options) {
         keyboard = options;
-        return { dispose() {}, finished: Promise.resolve() };
+        return {
+          dispose: () => keyboardFinished.resolve(),
+          finished: keyboardFinished.promise,
+        };
       },
       isUnavailableError: Cli.Keyboard.isUnavailableError,
       sh: () => ({
@@ -300,6 +304,9 @@ describe('HttpServer.start', () => {
           return Promise.resolve(undefined as never);
         },
       }),
+      exit: () => {
+        throw new Error('Unexpected process exit.');
+      },
     };
 
     let server: t.HttpServer.Started | undefined;
@@ -322,6 +329,130 @@ describe('HttpServer.start', () => {
     } finally {
       await server?.close('test');
     }
+  });
+
+  it('defers explicit process exit until owned keyboard shutdown completes', async () => {
+    const app = HttpServer.create({ static: false });
+    type KeyboardOptions = Parameters<typeof Cli.Keyboard.bind>[0];
+    let keyboard: KeyboardOptions | undefined;
+    const keyboardFinished = Promise.withResolvers<void>();
+    const exitRequested = Promise.withResolvers<void>();
+    const exitFailure = new Error('test process exit');
+    let exitCalls = 0;
+    const keyboardDeps: Parameters<typeof bindKeyboardWith>[0] = {
+      bind(options) {
+        keyboard = options;
+        return {
+          dispose: () => keyboardFinished.resolve(),
+          finished: keyboardFinished.promise,
+        };
+      },
+      isUnavailableError: Cli.Keyboard.isUnavailableError,
+      sh: () => ({
+        path: '',
+        run: () => Promise.resolve(undefined as never),
+      }),
+      exit() {
+        exitCalls += 1;
+        exitRequested.resolve();
+        throw exitFailure;
+      },
+    };
+    const server = startWith(
+      { bindKeyboard: (args) => bindKeyboardWith(keyboardDeps, args) },
+      app,
+      { silent: true, keyboard: { exit: true } },
+    );
+
+    expect(keyboard?.exit).to.eql(false);
+    expect(keyboard?.onQuit()).to.eql(undefined);
+    expect(exitCalls).to.eql(0);
+    expect(server.status().state).to.eql('stopping');
+
+    await exitRequested.promise;
+    expect(exitCalls).to.eql(1);
+    expect(server.status().state).to.eql('stopped');
+    await server.close('test.keyboard.already-stopped');
+  });
+
+  it('retries keyboard disposal and waits for listener termination before stopped', async () => {
+    const keyboardFinished = Promise.withResolvers<void>();
+    const disposalAccepted = Promise.withResolvers<void>();
+    let disposeCalls = 0;
+    const server = startWithKeyboard({
+      finished: keyboardFinished.promise,
+      dispose() {
+        disposeCalls += 1;
+        if (disposeCalls === 1) throw new Error('first keyboard disposal failed');
+        disposalAccepted.resolve();
+      },
+    });
+
+    const closing = server.close('test.keyboard.retry');
+    await server.finished;
+    await disposalAccepted.promise;
+    expect(disposeCalls).to.eql(2);
+    expect(server.status().state).to.eql('stopping');
+
+    keyboardFinished.resolve();
+    await closing;
+    expect(server.status().state).to.eql('stopped');
+  });
+
+  it('keeps shutdown stopping while failed keyboard disposal remains unresolved', async () => {
+    const keyboardFinished = Promise.withResolvers<void>();
+    const disposalRequested = Promise.withResolvers<void>();
+    const keyboardFailure = new Error('keyboard listener failed');
+    let disposeCalls = 0;
+    const server = startWithKeyboard({
+      finished: keyboardFinished.promise,
+      dispose() {
+        disposeCalls += 1;
+        disposalRequested.resolve();
+        throw new Error('keyboard disposal failed');
+      },
+    });
+
+    const closing = server.close('test.keyboard.pending').then(
+      () => undefined,
+      (cause) => cause,
+    );
+    await server.finished;
+    await disposalRequested.promise;
+    expect(disposeCalls).to.eql(2);
+    expect(server.status().state).to.eql('stopping');
+
+    keyboardFinished.reject(keyboardFailure);
+    expect(await closing).to.equal(keyboardFailure);
+    expect(server.status().state).to.eql('error');
+  });
+
+  it('enters shutdown autonomously when the keyboard listener fails', async () => {
+    const keyboardFinished = Promise.withResolvers<void>();
+    const disposalRequested = Promise.withResolvers<void>();
+    const keyboardFailure = new Error('keyboard listener failed');
+    let disposeCalls = 0;
+    const server = startWithKeyboard({
+      finished: keyboardFinished.promise,
+      dispose() {
+        disposeCalls += 1;
+        disposalRequested.resolve();
+      },
+    });
+    const disposed = waitForDispose(server);
+
+    keyboardFinished.reject(keyboardFailure);
+    await disposalRequested.promise;
+    await disposed;
+
+    expect(disposeCalls).to.eql(1);
+    expect(server.signal.aborted).to.eql(true);
+    expect(server.status().state).to.eql('error');
+    const failure = await server.close('test.keyboard.already-failed').then(
+      () => undefined,
+      (cause) => cause,
+    );
+    expect(failure).to.equal(keyboardFailure);
   });
 
   it('until AbortSignal disposes the server lifecycle', async () => {
@@ -383,6 +514,11 @@ describe('HttpServer.start', () => {
     expect(server.signal.aborted).to.eql(true);
   });
 });
+
+function startWithKeyboard(handle: NonNullable<ReturnType<typeof Cli.Keyboard.bind>>) {
+  const app = HttpServer.create({ static: false });
+  return startWith({ bindKeyboard: () => handle }, app, { silent: true, keyboard: true });
+}
 
 function capturePrint<T>(fn: () => T): { readonly value: T; readonly output: readonly string[] } {
   const output: string[] = [];
