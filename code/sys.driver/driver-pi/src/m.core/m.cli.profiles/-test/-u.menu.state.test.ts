@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { Fs, type t } from '../common.ts';
+import { Fs, Json, type t } from '../common.ts';
 import { MenuState } from '../u/u.menu.state.ts';
 
 describe(`@sys/driver-pi/cli/Profiles/u.menu-state`, () => {
@@ -105,7 +105,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu-state`, () => {
     const path = MenuState.pathOf(root);
 
     try {
-      await Fs.write(path, JSON.stringify([1, 2, 3]));
+      await Fs.write(path, Json.stringify([1, 2, 3]));
       const wrote = await MenuState.writeMode({ root, selectedMode: 'tui' });
       expect(wrote).to.eql(true);
 
