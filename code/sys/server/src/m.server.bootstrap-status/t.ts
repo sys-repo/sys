@@ -46,7 +46,7 @@ export declare namespace BootstrapStatus {
     readonly origin: t.StringUrl;
   };
 
-  /** Narrow lifecycle facade for one running status host. */
+  /** Narrow async-disposable lifecycle facade for one running status host. */
   export type Started = {
     /** Exact capability URL; possession grants observation only. */
     readonly url: t.StringUrl;
@@ -58,6 +58,12 @@ export declare namespace BootstrapStatus {
     readonly disposed: boolean;
 
     /** Idempotently close the internal listener through one sanitized completion. */
-    close(reason?: unknown): Promise<void>;
+    readonly close: (reason?: unknown) => Promise<void>;
+
+    /** Close without a reason through the same memoized completion as `close()`. */
+    readonly [Symbol.asyncDispose]: () => Promise<void>;
+
+    /** This listener requires asynchronous disposal. */
+    readonly [Symbol.dispose]?: never;
   };
 }

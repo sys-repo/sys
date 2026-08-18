@@ -1,5 +1,5 @@
-import { describe, Err, expect, it, Rx, type t } from '../../-test.ts';
-import { INPUT_LIMITS, snapshotInput } from '../u/u.input.ts';
+import { describe, Err, expect, it, Json, Rx, type t, WebFixture } from '../../-test.ts';
+import { INPUT_LIMITS, snapshotInput, snapshotProjection } from '../u/u.input.ts';
 import { DEFAULT_DEPENDENCIES, type StartDependencies, startWith } from '../u/u.start.ts';
 import { statusResponse } from '../u/u.response.ts';
 import { BootstrapStatus } from '../mod.ts';
@@ -18,12 +18,27 @@ type HasExactPublicStartOptionKeys =
     : false;
 const HAS_EXACT_PUBLIC_START_OPTION_KEYS: HasExactPublicStartOptionKeys = true;
 
-type PublicStartedKey = 'url' | 'finished' | 'disposed' | 'close';
+type PublicStartedKey =
+  | 'url'
+  | 'finished'
+  | 'disposed'
+  | 'close'
+  | typeof Symbol.asyncDispose
+  | typeof Symbol.dispose;
 type HasExactPublicStartedKeys = Exclude<keyof t.BootstrapStatus.Started, PublicStartedKey> extends
   never ? Exclude<PublicStartedKey, keyof t.BootstrapStatus.Started> extends never ? true
   : false
   : false;
+type StartedIsAsyncDisposable = t.BootstrapStatus.Started extends globalThis.AsyncDisposable ? true
+  : false;
+type DualProtocolStarted =
+  & Omit<t.BootstrapStatus.Started, typeof Symbol.dispose>
+  & globalThis.Disposable;
+type StartedRejectsDualProtocol = DualProtocolStarted extends t.BootstrapStatus.Started ? false
+  : true;
 const HAS_EXACT_PUBLIC_STARTED_KEYS: HasExactPublicStartedKeys = true;
+const STARTED_IS_ASYNC_DISPOSABLE: StartedIsAsyncDisposable = true;
+const STARTED_REJECTS_DUAL_PROTOCOL: StartedRejectsDualProtocol = true;
 
 const POLICY_HEADERS = {
   'cache-control': 'no-store',
@@ -68,7 +83,17 @@ describe('BootstrapStatus.start', () => {
       expect(internal.status().urls).to.eql([{ href: `${url.origin}/` }]);
       expect(HAS_EXACT_PUBLIC_START_OPTION_KEYS).to.eql(true);
       expect(HAS_EXACT_PUBLIC_STARTED_KEYS).to.eql(true);
-      expect(Reflect.ownKeys(started)).to.eql(['url', 'finished', 'disposed', 'close']);
+      expect(STARTED_IS_ASYNC_DISPOSABLE).to.eql(true);
+      expect(STARTED_REJECTS_DUAL_PROTOCOL).to.eql(true);
+      const asyncDisposable: globalThis.AsyncDisposable = started;
+      expect(asyncDisposable).to.equal(started);
+      expect(Reflect.ownKeys(started)).to.eql([
+        'url',
+        'finished',
+        'disposed',
+        'close',
+        Symbol.asyncDispose,
+      ]);
       expect(Object.isFrozen(started)).to.eql(true);
       expect(started).to.not.equal(internal);
       expect(
@@ -76,7 +101,8 @@ describe('BootstrapStatus.start', () => {
           key in started
         ),
       ).to.eql(false);
-      expect(Symbol.asyncDispose in started).to.eql(false);
+      expect(Symbol.asyncDispose in started).to.eql(true);
+      expect(Symbol.dispose in started).to.eql(false);
 
       const get = await fetch(started.url);
       expect(get.status).to.eql(200);
@@ -91,6 +117,87 @@ describe('BootstrapStatus.start', () => {
       assertPolicy(head);
     } finally {
       await started.close('test.cleanup');
+    }
+  });
+
+  it('native await using closes the host and awaits listener settlement', async () => {
+    let started: t.BootstrapStatus.Started | undefined;
+
+    {
+      await using host = await BootstrapStatus.start({
+        pages: [{ key: 'preparing', bytes: PAGE }],
+        resolve: () => ({ kind: 'page', key: 'preparing' }),
+      });
+      started = host;
+      expect(host.disposed).to.eql(false);
+    }
+
+    if (!started) throw new Error('Expected BootstrapStatus host.');
+    expect(started.disposed).to.eql(true);
+    await started.finished;
+  });
+
+  it('adapts native disposal without admitting a close reason', async () => {
+    const lowerReasons: unknown[] = [];
+    const started = await startWith({
+      pages: [{ key: 'preparing', bytes: PAGE }],
+      resolve: () => ({ kind: 'page', key: 'preparing' }),
+    }, {
+      ...DEFAULT_DEPENDENCIES,
+      startHttp(...args) {
+        const listener = DEFAULT_DEPENDENCIES.startHttp(...args);
+        const close = listener.close.bind(listener);
+        Object.defineProperty(listener, 'close', {
+          configurable: true,
+          enumerable: true,
+          value(reason?: unknown) {
+            lowerReasons.push(reason);
+            return close(reason);
+          },
+        });
+        return listener;
+      },
+    });
+
+    expect(started[Symbol.asyncDispose].length).to.eql(0);
+    const disposing = Reflect.apply(
+      started[Symbol.asyncDispose] as (...args: unknown[]) => Promise<void>,
+      started,
+      ['symbol-reason'],
+    );
+    const explicit = started.close('owner-reason');
+    expect(disposing).to.equal(explicit);
+    expect(started[Symbol.asyncDispose]()).to.equal(disposing);
+    await disposing;
+    await started.finished;
+    expect(lowerReasons).to.eql([undefined]);
+    expect(started.disposed).to.eql(true);
+  });
+
+  it('keeps disposal proof private from public finished-promise mutation', async () => {
+    const started = await BootstrapStatus.start({
+      pages: [{ key: 'preparing', bytes: PAGE }],
+      resolve: () => ({ kind: 'page', key: 'preparing' }),
+    });
+    let constructorReads = 0;
+
+    try {
+      Object.defineProperty(started.finished, 'constructor', {
+        configurable: true,
+        get() {
+          constructorReads += 1;
+          throw new Error('public finished constructor invoked');
+        },
+      });
+      await started[Symbol.asyncDispose]();
+      expect({ constructorReads, disposed: started.disposed }).to.eql({
+        constructorReads: 0,
+        disposed: true,
+      });
+    } finally {
+      Reflect.deleteProperty(started.finished, 'constructor');
+      await started.close('test.cleanup');
+      await started.finished;
     }
   });
 
@@ -235,7 +342,7 @@ describe('BootstrapStatus.start', () => {
       const failed = await fetch(started.url);
       expect(failed.status).to.eql(500);
       expect(await failed.text()).to.eql(FAILURE_HTML);
-      expect(JSON.stringify([...failed.headers])).to.not.include(thrown.message);
+      expect(Json.stringify([...failed.headers])).to.not.include(thrown.message);
       expect(getterCalls).to.eql(0);
 
       let proxyTraps = 0;
@@ -471,6 +578,52 @@ describe('BootstrapStatus.start', () => {
     expect(prepared?.pages.size).to.eql(1);
     expect(prepared?.pages.get('ready')).to.eql(PAGE);
     expect(extraReads).to.eql(0);
+  });
+
+  it('uses captured reflection while snapshotting input and resolver projections', () => {
+    const originalApply = Reflect.apply;
+    const originalDescriptor = Object.getOwnPropertyDescriptor;
+    const originalFreeze = Object.freeze;
+    const originalPrototype = Object.getPrototypeOf;
+    const attacks = [
+      { target: Reflect, key: 'apply', value: originalApply },
+      { target: Object, key: 'getOwnPropertyDescriptor', value: originalDescriptor },
+      { target: Object, key: 'freeze', value: originalFreeze },
+      { target: Object, key: 'getPrototypeOf', value: originalPrototype },
+    ] as const;
+
+    for (const attack of attacks) {
+      let ambientCalls = 0;
+      let prepared: ReturnType<typeof snapshotInput>;
+      let projection: ReturnType<typeof snapshotProjection>;
+      {
+        using _mock = WebFixture.Property.mock([{
+          target: attack.target,
+          key: attack.key,
+          descriptor: {
+            configurable: true,
+            value: (...args: unknown[]) => {
+              ambientCalls += 1;
+              return originalApply(attack.value, attack.target, args);
+            },
+          },
+        }]);
+        prepared = snapshotInput({
+          pages: [{ key: 'ready', bytes: PAGE }],
+          resolve: () => ({ kind: 'page', key: 'ready' }),
+        });
+        projection = snapshotProjection({ kind: 'page', key: 'ready' });
+        expect(snapshotProjection(Promise.resolve({ kind: 'page', key: 'ready' }))).to.eql(
+          undefined,
+        );
+      }
+      expect({ key: attack.key, ambientCalls, pages: prepared?.pages.size, projection }).to.eql({
+        key: attack.key,
+        ambientCalls: 0,
+        pages: 1,
+        projection: { kind: 'page', key: 'ready' },
+      });
+    }
   });
 
   it('rejects malformed authority before listener startup and owns explicit close', async () => {
@@ -843,6 +996,55 @@ describe('BootstrapStatus.start', () => {
     expect(invalidCapability?.message).to.eql('BootstrapStatus.start failed.');
     expect(starts).to.eql(0);
 
+    let capabilityCoercions = 0;
+    const hostileCapability = {
+      [Symbol.toPrimitive]() {
+        capabilityCoercions += 1;
+        throw new Error('capability coercion invoked');
+      },
+    };
+    const hostileCapabilityFailure = await catchError(() =>
+      startWith({
+        pages: [{ key: 'ready', bytes: PAGE }],
+        resolve: () => ({ kind: 'page', key: 'ready' }),
+      }, {
+        ...deps,
+        capability: () => hostileCapability as unknown as string,
+      })
+    );
+    expect(hostileCapabilityFailure?.message).to.eql('BootstrapStatus.start failed.');
+    expect({ starts, capabilityCoercions }).to.eql({ starts: 0, capabilityCoercions: 0 });
+
+    let speciesReads = 0;
+    let poisonedStarts = 0;
+    const poisonedStartup = startWith({
+      pages: [{ key: 'ready', bytes: PAGE }],
+      resolve: () => ({ kind: 'page', key: 'ready' }),
+    }, {
+      ...deps,
+      startHttp(...args) {
+        poisonedStarts++;
+        return DEFAULT_DEPENDENCIES.startHttp(...args);
+      },
+    });
+    let poisonedFailure: Error | undefined;
+    {
+      using _mock = WebFixture.Property.mock([{
+        target: Promise,
+        key: Symbol.species,
+        descriptor: {
+          configurable: true,
+          get() {
+            speciesReads++;
+            throw new Error('Promise species accessor invoked');
+          },
+        },
+      }]);
+      poisonedFailure = await catchError(() => poisonedStartup);
+    }
+    expect(poisonedFailure?.message).to.eql('BootstrapStatus.start failed.');
+    expect({ poisonedStarts, speciesReads }).to.eql({ poisonedStarts: 0, speciesReads: 0 });
+
     let bindAttempts = 0;
     const bindFailure = await catchError(() =>
       startWith({
@@ -899,7 +1101,7 @@ describe('BootstrapStatus.start', () => {
       pages: [{ key: 'ready', bytes: PAGE }],
       resolve: () => ({ kind: 'page', key: 'ready' }),
     });
-    const close1 = raced.close('test.race-1');
+    const close1 = raced[Symbol.asyncDispose]();
     const close2 = raced.close('test.race-2');
     expect(close1).to.equal(close2);
     await Promise.all([close1, close2]);
@@ -907,7 +1109,128 @@ describe('BootstrapStatus.start', () => {
     expect(raced.disposed).to.eql(true);
   });
 
-  it('sanitizes lower finished rejection and owns disposal truth locally', async () => {
+  it('rolls back a listener when its start dependency poisons Promise after bind', async () => {
+    const speciesDescriptor = Object.getOwnPropertyDescriptor(Promise, Symbol.species);
+    if (!speciesDescriptor) throw new Error('Expected Promise species descriptor.');
+    let internalFinished: Promise<void> | undefined;
+    let starts = 0;
+    let closeCalls = 0;
+    let speciesReads = 0;
+    let failure: unknown;
+
+    try {
+      failure = await catchCause(() =>
+        startWith({
+          pages: [{ key: 'ready', bytes: PAGE }],
+          resolve: () => ({ kind: 'page', key: 'ready' }),
+        }, {
+          ...DEFAULT_DEPENDENCIES,
+          startHttp(...args) {
+            starts += 1;
+            const listener = DEFAULT_DEPENDENCIES.startHttp(...args);
+            internalFinished = listener.finished;
+            const close = listener.close.bind(listener);
+            Object.defineProperty(listener, 'close', {
+              configurable: true,
+              enumerable: true,
+              value: (reason?: unknown) => {
+                closeCalls += 1;
+                return close(reason);
+              },
+            });
+            Object.defineProperty(Promise, Symbol.species, {
+              configurable: true,
+              get() {
+                speciesReads += 1;
+                throw new Error('Promise species accessor invoked');
+              },
+            });
+            return listener;
+          },
+        })
+      );
+    } finally {
+      Object.defineProperty(Promise, Symbol.species, speciesDescriptor);
+    }
+
+    if (!internalFinished) throw new Error('Expected internal listener completion.');
+    await internalFinished;
+    expect(failure).to.be.instanceOf(Error);
+    expect((failure as Error).message).to.eql('BootstrapStatus.start failed.');
+    expect({ starts, closeCalls, speciesReads }).to.eql({
+      starts: 1,
+      closeCalls: 1,
+      speciesReads: 0,
+    });
+  });
+
+  it('retains an unobservable rollback operation without retrying it', async () => {
+    const operation = Promise.withResolvers<void>();
+    let constructorReads = 0;
+    Object.defineProperty(operation.promise, 'constructor', {
+      configurable: true,
+      get() {
+        constructorReads += 1;
+        throw new Error('rollback constructor invoked');
+      },
+    });
+    let listener: t.HttpServer.Started | undefined;
+    let originalShutdown: (() => Promise<void>) | undefined;
+    let closeCalls = 0;
+    let shutdownCalls = 0;
+
+    const failure = await catchCause(() =>
+      startWith({
+        pages: [{ key: 'ready', bytes: PAGE }],
+        resolve: () => ({ kind: 'page', key: 'ready' }),
+      }, {
+        ...DEFAULT_DEPENDENCIES,
+        startHttp(...args) {
+          listener = DEFAULT_DEPENDENCIES.startHttp(...args);
+          originalShutdown = listener.server.shutdown.bind(listener.server);
+          Object.defineProperties(listener, {
+            origin: {
+              configurable: true,
+              enumerable: true,
+              value: 'not-an-origin',
+            },
+            close: {
+              configurable: true,
+              enumerable: true,
+              value: () => {
+                closeCalls += 1;
+                return operation.promise;
+              },
+            },
+          });
+          Object.defineProperty(listener.server, 'shutdown', {
+            configurable: true,
+            value: () => {
+              shutdownCalls += 1;
+              return operation.promise;
+            },
+          });
+          return listener;
+        },
+      })
+    );
+
+    expect(failure).to.be.instanceOf(Error);
+    expect((failure as Error).message).to.eql('BootstrapStatus.start failed.');
+    expect({ closeCalls, shutdownCalls, constructorReads }).to.eql({
+      closeCalls: 1,
+      shutdownCalls: 1,
+      constructorReads: 0,
+    });
+
+    if (!listener || !originalShutdown) throw new Error('Expected retained lower listener.');
+    Reflect.deleteProperty(listener.server, 'shutdown');
+    await originalShutdown();
+    await listener.finished;
+    operation.resolve();
+  });
+
+  it('sanitizes lower finished rejection only after real listener termination', async () => {
     const delayedFinished = Promise.withResolvers<void>();
     let internal: t.HttpServer.Started | undefined;
     let actualFinished: Promise<void> | undefined;
@@ -936,15 +1259,26 @@ describe('BootstrapStatus.start', () => {
     });
     if (!internal || !actualFinished || !rawFailure) throw new Error('Expected internal listener');
 
+    let disposing: Promise<void> | undefined;
     try {
       expect(started.disposed).to.eql(false);
+      disposing = started[Symbol.asyncDispose]();
+      await actualFinished;
+      const reachabilityFailure = await catchCause(() => fetch(started.url));
+      expect(reachabilityFailure).to.be.instanceOf(Error);
+      expect(started.disposed).to.eql(false);
+
       delayedFinished.reject(rawFailure);
-      const failure = await catchCause(() => started.finished);
-      assertLifecycleFailure(failure, rawFailure);
+      const disposalFailure = await catchCause(() => disposing!);
+      assertLifecycleFailure(disposalFailure, rawFailure);
+      const finishedFailure = await catchCause(() => started.finished);
+      assertLifecycleFailure(finishedFailure, rawFailure);
       expect(started.disposed).to.eql(true);
     } finally {
+      delayedFinished.reject(rawFailure);
       await internal.close('test.lifecycle-finished.cleanup');
       await actualFinished;
+      if (disposing) await catchCause(() => disposing);
     }
   });
 

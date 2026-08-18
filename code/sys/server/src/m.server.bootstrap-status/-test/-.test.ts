@@ -4,7 +4,7 @@ import { BootstrapStatus } from '../mod.ts';
 
 describe('BootstrapStatus/API', () => {
   it('exports one frozen start surface', async () => {
-    const module = await import('@sys/server/bootstrap-status');
+    const module = await import('@sys/server/bootstrap/status');
     const contract: BootstrapStatusContract.Lib = BootstrapStatus;
     expect(module.BootstrapStatus).to.equal(contract);
     expect(Object.keys(BootstrapStatus)).to.eql(['start']);

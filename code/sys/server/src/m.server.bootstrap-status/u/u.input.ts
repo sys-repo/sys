@@ -11,17 +11,20 @@ type AdmittedPage = {
 };
 
 const FORBIDDEN_INPUT_KEYS = ['until', 'token', 'capability'] as const;
-const TYPED_ARRAY_PROTOTYPE = Object.getPrototypeOf(Uint8Array.prototype);
-const BYTE_LENGTH_GETTER = Object.getOwnPropertyDescriptor(
-  TYPED_ARRAY_PROTOTYPE,
-  'byteLength',
-)?.get;
-const BUFFER_GETTER = Object.getOwnPropertyDescriptor(
-  TYPED_ARRAY_PROTOTYPE,
-  'buffer',
-)?.get;
+const NativePromisePrototype = Promise.prototype;
+const NativeUint8Array = Uint8Array;
+const NativeUint8ArrayPrototype = NativeUint8Array.prototype;
+const arrayPrototype = Array.prototype;
+const objectPrototype = Object.prototype;
+const apply = Reflect.apply;
+const freeze = Object.freeze;
+const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+const getPrototypeOf = Object.getPrototypeOf;
+const TYPED_ARRAY_PROTOTYPE = getPrototypeOf(NativeUint8ArrayPrototype);
+const BYTE_LENGTH_GETTER = getOwnPropertyDescriptor(TYPED_ARRAY_PROTOTYPE, 'byteLength')?.get;
+const BUFFER_GETTER = getOwnPropertyDescriptor(TYPED_ARRAY_PROTOTYPE, 'buffer')?.get;
 
-export const INPUT_LIMITS = Object.freeze({
+export const INPUT_LIMITS = freeze({
   pages: 16,
   keyChars: 128,
   pageBytes: 256 * 1024,
@@ -41,7 +44,7 @@ export function snapshotInput(input: unknown): PreparedInput | undefined {
   const pages = snapshotPages(pagesValue.value);
   if (!pages) return;
 
-  return Object.freeze({
+  return freeze({
     pages,
     resolve: () => resolve(),
   });
@@ -55,12 +58,8 @@ export function snapshotProjection(
   | Readonly<{ kind: 'redirect'; origin: string }>
   | undefined {
   if (Is.object(input) && Is.proxy(input)) return;
-  try {
-    if (Is.nativePromise(input)) {
-      void Promise.prototype.then.call(input, undefined, () => undefined);
-      return;
-    }
-  } catch {
+  if (isNativePromise(input)) {
+    void drainPromise(input);
     return;
   }
 
@@ -85,7 +84,7 @@ function snapshotPages(input: unknown): ReadonlyMap<string, Uint8Array<ArrayBuff
   try {
     if (!Is.array(input)) return;
     if (
-      Object.getPrototypeOf(input) !== Array.prototype ||
+      getPrototypeOf(input) !== arrayPrototype ||
       input.length === 0 ||
       input.length > INPUT_LIMITS.pages
     ) {
@@ -95,7 +94,7 @@ function snapshotPages(input: unknown): ReadonlyMap<string, Uint8Array<ArrayBuff
     let totalBytes = 0;
     const pages = new Map<string, Uint8Array<ArrayBuffer>>();
     for (let index = 0; index < input.length; index++) {
-      const descriptor = Object.getOwnPropertyDescriptor(input, String(index));
+      const descriptor = getOwnPropertyDescriptor(input, String(index));
       if (!descriptor || !descriptor.enumerable || !('value' in descriptor)) return;
       const page = admitPage(descriptor.value);
       if (!page || pages.has(page.key)) return;
@@ -127,10 +126,27 @@ function admitPage(input: unknown): AdmittedPage | undefined {
   return { key: key.value, bytes: bytes.value };
 }
 
+function isNativePromise(input: unknown): input is Promise<unknown> {
+  if (!Is.object(input) || Is.proxy(input) || !Is.nativePromise(input)) return false;
+  try {
+    return getPrototypeOf(input) === NativePromisePrototype;
+  } catch {
+    return false;
+  }
+}
+
+async function drainPromise(input: Promise<unknown>): Promise<void> {
+  try {
+    await input;
+  } catch {
+    // Asynchronous resolver projections are invalid, but their rejection remains owned.
+  }
+}
+
 function isPlainRecord(input: unknown): input is object {
   if (!Is.object(input) || Is.proxy(input)) return false;
   try {
-    return Object.getPrototypeOf(input) === Object.prototype;
+    return getPrototypeOf(input) === objectPrototype;
   } catch {
     return false;
   }
@@ -141,7 +157,7 @@ function ownData(
   key: PropertyKey,
 ): Readonly<{ ok: true; value: unknown }> | Readonly<{ ok: false }> {
   try {
-    const property = Object.getOwnPropertyDescriptor(input, key);
+    const property = getOwnPropertyDescriptor(input, key);
     return property?.enumerable && 'value' in property
       ? { ok: true, value: property.value }
       : { ok: false };
@@ -152,7 +168,7 @@ function ownData(
 
 function hasAnyOwn(input: object, keys: readonly PropertyKey[]): boolean {
   try {
-    return keys.some((key) => Object.getOwnPropertyDescriptor(input, key) !== undefined);
+    return keys.some((key) => getOwnPropertyDescriptor(input, key) !== undefined);
   } catch {
     return true;
   }
@@ -161,7 +177,7 @@ function hasAnyOwn(input: object, keys: readonly PropertyKey[]): boolean {
 function isUint8Array(input: unknown): input is Uint8Array {
   if (!Is.object(input) || Is.proxy(input)) return false;
   try {
-    return Is.nativeUint8Array(input) && Object.getPrototypeOf(input) === Uint8Array.prototype;
+    return Is.nativeUint8Array(input) && getPrototypeOf(input) === NativeUint8ArrayPrototype;
   } catch {
     return false;
   }
@@ -170,7 +186,7 @@ function isUint8Array(input: unknown): input is Uint8Array {
 function copyBytes(input: Uint8Array, remainingBytes: number): Uint8Array<ArrayBuffer> | undefined {
   if (!BUFFER_GETTER) return;
   try {
-    const buffer = Reflect.apply(BUFFER_GETTER, input, []);
+    const buffer = apply(BUFFER_GETTER, input, []);
     if (Is.nativeSharedArrayBuffer(buffer)) return;
 
     const admittedLength = byteLengthOf(input);
@@ -182,7 +198,7 @@ function copyBytes(input: Uint8Array, remainingBytes: number): Uint8Array<ArrayB
       return;
     }
 
-    const copied = new Uint8Array(input);
+    const copied = new NativeUint8Array(input);
     return copied.byteLength === admittedLength ? copied : undefined;
   } catch {
     return;
@@ -192,7 +208,7 @@ function copyBytes(input: Uint8Array, remainingBytes: number): Uint8Array<ArrayB
 function byteLengthOf(input: Uint8Array): number | undefined {
   if (!BYTE_LENGTH_GETTER) return;
   try {
-    const value = Reflect.apply(BYTE_LENGTH_GETTER, input, []);
+    const value = apply(BYTE_LENGTH_GETTER, input, []);
     return Num.Is.safeInt(value) && value >= 0 ? value : undefined;
   } catch {
     return;
