@@ -123,8 +123,11 @@ export function startWith(
 
     return context;
   } catch (cause) {
-    const rollback = life.dispose(cause);
-    void rollback.catch(() => undefined);
+    try {
+      void ownCompletion(life.dispose(cause));
+    } catch {
+      // Preserve the startup failure; upper owners may retain direct listener authority.
+    }
     throw cause;
   }
 }
@@ -132,6 +135,28 @@ export function startWith(
 /**
  * Helpers:
  */
+async function ownCompletion(input: unknown): Promise<void> {
+  try {
+    await input;
+  } catch {
+    // Package-owned lifecycle observation cannot create an unhandled rejection.
+  }
+}
+
+async function closeAfterSettlement(
+  completion: Promise<void>,
+  life: t.LifecycleAsync,
+  reason: string,
+): Promise<void> {
+  await ownCompletion(completion);
+  if (life.disposed) return;
+  try {
+    await life.dispose(reason);
+  } catch {
+    // The lifecycle retains its own sanitized shutdown error state.
+  }
+}
+
 async function closeRuntime(args: {
   readonly server?: Deno.HttpServer<Deno.NetAddr>;
   readonly keyboard?: ReturnType<typeof bindKeyboard>;
@@ -212,14 +237,7 @@ const wrangle = {
   },
 
   serverFinished(server: Deno.HttpServer<Deno.NetAddr>, life: t.LifecycleAsync) {
-    void server.finished.then(
-      () => {
-        if (!life.disposed) void life.dispose('server.finished').catch(() => undefined);
-      },
-      () => {
-        if (!life.disposed) void life.dispose('server.finished').catch(() => undefined);
-      },
-    );
+    void closeAfterSettlement(server.finished, life, 'server.finished');
   },
 
   keyboard(
@@ -243,12 +261,7 @@ const wrangle = {
     keyboard: NonNullable<ReturnType<typeof bindKeyboard>>,
     life: t.LifecycleAsync,
   ) {
-    const close = () => {
-      const completion = life.dispose('keyboard.finished');
-      void completion.catch(() => undefined);
-    };
-    const observation = keyboard.finished.then(close, close);
-    void observation.then(undefined, () => undefined);
+    void closeAfterSettlement(keyboard.finished, life, 'keyboard.finished');
   },
 
   keyboardOptions(input: t.HttpServer.Start.Options['keyboard']) {
