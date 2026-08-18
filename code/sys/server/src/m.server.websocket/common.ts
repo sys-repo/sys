@@ -2,6 +2,7 @@ export * from '../common.ts';
 export { c, Cli } from '@sys/cli';
 export { Fs } from '@sys/fs';
 export { Process } from '@sys/process';
+export { Is } from '@sys/std/is/server';
 
 const localhost = '127.0.0.1';
 const publicHost = '0.0.0.0';

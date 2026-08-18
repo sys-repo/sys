@@ -1,5 +1,7 @@
 import { describe, expect, it, Net, Rx, type t, Testing, Time } from '../../-test.ts';
 import { WebSocketServer } from '../mod.ts';
+import { create } from '../u/u.create.ts';
+import { bindKeyboardWith } from '../u/u.keyboard.ts';
 import { Fixture } from './u.fixture.ts';
 
 describe('WebSocketServer/lifecycle', () => {
@@ -19,6 +21,157 @@ describe('WebSocketServer/lifecycle', () => {
     }
 
     expect(server.status().state).to.eql('stopped');
+  });
+
+  it('defers explicit process exit until owned keyboard shutdown completes', async () => {
+    let binding: t.Cli.Keyboard.Bind.Options | undefined;
+    const keyboardFinished = Promise.withResolvers<void>();
+    const exitRequested = Promise.withResolvers<void>();
+    const exitFailure = new Error('test process exit');
+    let exitCalls = 0;
+    const keyboardDeps: Parameters<typeof bindKeyboardWith>[0] = {
+      bind(options) {
+        binding = options;
+        return {
+          dispose: () => keyboardFinished.resolve(),
+          finished: keyboardFinished.promise,
+        };
+      },
+      sh: () => ({
+        path: '',
+        run: () => Promise.resolve(undefined as never),
+      }),
+      exit() {
+        exitCalls += 1;
+        exitRequested.resolve();
+        throw exitFailure;
+      },
+    };
+    const server = create(
+      {
+        path: '/socket',
+        cmd: { handlers: { ping: () => 'pong' } },
+      },
+      {
+        bindKeyboard: (started) => bindKeyboardWith(keyboardDeps, started, { exit: true }),
+      },
+    );
+
+    expect(binding?.exit).to.eql(false);
+    expect(binding?.onQuit()).to.eql(undefined);
+    expect(exitCalls).to.eql(0);
+    expect(server.status().state).to.eql('stopping');
+
+    await exitRequested.promise;
+    expect(exitCalls).to.eql(1);
+    expect(server.status().state).to.eql('stopped');
+    await server.close('test.keyboard.already-stopped');
+  });
+
+  it('hosted close retries keyboard disposal before reporting stopped', async () => {
+    const keyboardFinished = Promise.withResolvers<void>();
+    const disposalAccepted = Promise.withResolvers<void>();
+    let disposeCalls = 0;
+    const server = createWithKeyboard({
+      finished: keyboardFinished.promise,
+      dispose() {
+        disposeCalls += 1;
+        if (disposeCalls === 1) throw new Error('first keyboard disposal failed');
+        disposalAccepted.resolve();
+      },
+    });
+
+    const closing = server.close('test.keyboard.retry');
+    await server.finished;
+    await disposalAccepted.promise;
+    expect(disposeCalls).to.eql(2);
+    expect(server.status().state).to.eql('stopping');
+
+    keyboardFinished.resolve();
+    await closing;
+    expect(server.status().state).to.eql('stopped');
+  });
+
+  it('keeps hosted shutdown stopping while keyboard ownership remains unresolved', async () => {
+    const keyboardFinished = Promise.withResolvers<void>();
+    const disposalRequested = Promise.withResolvers<void>();
+    const keyboardFailure = new Error('keyboard listener failed');
+    let disposeCalls = 0;
+    const server = createWithKeyboard({
+      finished: keyboardFinished.promise,
+      dispose() {
+        disposeCalls += 1;
+        disposalRequested.resolve();
+        throw new Error('keyboard disposal failed');
+      },
+    });
+
+    const closing = catchCause(() => server.close('test.keyboard.pending'));
+    await server.finished;
+    await disposalRequested.promise;
+    expect(disposeCalls).to.eql(2);
+    expect(server.status().state).to.eql('stopping');
+
+    keyboardFinished.reject(keyboardFailure);
+    expect(await closing).to.equal(keyboardFailure);
+    expect(server.status().state).to.eql('error');
+  });
+
+  it('enters shutdown autonomously when the keyboard listener fails', async () => {
+    const keyboardFinished = Promise.withResolvers<void>();
+    const disposalRequested = Promise.withResolvers<void>();
+    const keyboardFailure = new Error('keyboard listener failed');
+    let disposeCalls = 0;
+    const server = createWithKeyboard({
+      finished: keyboardFinished.promise,
+      dispose() {
+        disposeCalls += 1;
+        disposalRequested.resolve();
+      },
+    });
+    const disposed = waitForDispose(server);
+
+    keyboardFinished.reject(keyboardFailure);
+    await disposalRequested.promise;
+    await disposed;
+
+    expect(disposeCalls).to.eql(1);
+    expect(server.signal.aborted).to.eql(true);
+    expect(server.status().state).to.eql('error');
+    const failure = await catchCause(() => server.close('test.keyboard.already-failed'));
+    expect(failure).to.equal(keyboardFailure);
+  });
+
+  it('rolls back the listener when hosted keyboard acquisition fails', async () => {
+    const port = Testing.randomPort();
+    const failure = new Error('keyboard acquisition failed');
+    let caught: unknown;
+    try {
+      create(
+        {
+          port,
+          path: '/socket',
+          cmd: { handlers: { ping: () => 'pong' } },
+        },
+        {
+          bindKeyboard() {
+            throw failure;
+          },
+        },
+      );
+    } catch (cause) {
+      caught = cause;
+    }
+    expect(caught).to.equal(failure);
+
+    await Testing.retry(10, { silent: true, delay: 10 }, async () => {
+      const replacement = WebSocketServer.create({
+        port,
+        path: '/socket',
+        cmd: { handlers: { ping: () => 'pong' } },
+      });
+      await replacement.close('test.keyboard.rollback');
+    });
   });
 
   it('client socket close disposes the command host and removes the connection', async () => {
@@ -345,3 +498,34 @@ describe('WebSocketServer/lifecycle', () => {
     }
   });
 });
+
+function createWithKeyboard(handle: t.Cli.Keyboard.Bind.Handle) {
+  return create(
+    {
+      path: '/socket',
+      cmd: { handlers: { ping: () => 'pong' } },
+    },
+    { bindKeyboard: () => handle },
+  );
+}
+
+function waitForDispose(life: t.LifecycleAsync) {
+  if (life.disposed) return Promise.resolve();
+
+  return new Promise<void>((resolve) => {
+    const sub = life.dispose$.subscribe((event) => {
+      if (event.payload.is.done) {
+        sub.unsubscribe();
+        resolve();
+      }
+    });
+  });
+}
+
+async function catchCause(fn: () => unknown): Promise<unknown> {
+  try {
+    await fn();
+  } catch (cause) {
+    return cause;
+  }
+}

@@ -11,12 +11,24 @@ export function start<
   E extends t.Cmd.Event.Map<N> = t.Cmd.Event.Map<N>,
 >(input: t.WebSocketServer.StartOptions<N, P, R, E>): t.WebSocketServer.Started {
   const { lifecycle = 'manual', silent, keyboard: keyboardInput, ...createOptions } = input;
-  const server = create<N, P, R, E>(createOptions);
+  let keyboard = false;
+  const server = create<N, P, R, E>(createOptions, {
+    bindKeyboard(server) {
+      const owner = bindKeyboard(server, keyboardInput);
+      keyboard = owner !== undefined;
+      return owner;
+    },
+  });
 
-  if (lifecycle === 'process') bindProcessLifecycle(server);
-  const keyboard = bindKeyboard(server, keyboardInput);
-  if (!silent) printStarted(server, { lifecycle, keyboard });
-  return server;
+  try {
+    if (lifecycle === 'process') bindProcessLifecycle(server);
+    if (!silent) printStarted(server, { lifecycle, keyboard });
+    return server;
+  } catch (cause) {
+    const close = async () => void await server.close(cause);
+    void close().catch(() => undefined);
+    throw cause;
+  }
 }
 
 /**
