@@ -1,4 +1,5 @@
 import { Delete, Err, Is, Subject, type t } from './common.ts';
+import { createDeferred, enqueueMicrotask } from './u.async.ts';
 import { done } from './u.done.ts';
 import { requireSymbolAsyncDispose, requireSymbolDispose } from './u.protocol.ts';
 import { until as untilObservables } from './u.until.ts';
@@ -80,7 +81,7 @@ export function createDisposableAsync(...args: any[]): DisposableAsyncKernel {
   const dispose: DisposableAsyncKernel['dispose'] = (reason) => {
     if (completion) return completion;
 
-    const deferred = Promise.withResolvers<void>();
+    const deferred = createDeferred<void>();
     completion = deferred.promise;
     state = 'running';
 
@@ -88,7 +89,7 @@ export function createDisposableAsync(...args: any[]): DisposableAsyncKernel {
       if (state !== 'running') return;
       fire('complete', reason);
       state = 'fulfilled';
-      deferred.resolve();
+      deferred.resolve(undefined);
     };
     const fail = (error: unknown) => {
       if (state !== 'running') return;
@@ -179,7 +180,7 @@ function attachLifetimeBridges(
           if (state !== 'failed') ownLifetimeRequest(request, reason);
         };
 
-        if (state === 'attaching') queueMicrotask(run);
+        if (state === 'attaching') enqueueMicrotask(run);
         else run();
       });
 
@@ -198,8 +199,15 @@ function ownLifetimeRequest(
   request: (reason?: unknown) => void | Promise<void>,
   reason?: unknown,
 ) {
-  const result = request(reason);
-  if (Is.promise(result)) void result.catch(() => undefined);
+  void settleLifetimeRequest(request(reason));
+}
+
+async function settleLifetimeRequest(result: unknown): Promise<void> {
+  try {
+    await result;
+  } catch {
+    // Lifetime-triggered disposal owns its rejection without changing disposal truth.
+  }
 }
 
 function releaseLifetimeBridge(bridge: LifetimeBridge) {

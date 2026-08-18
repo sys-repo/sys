@@ -11,6 +11,74 @@ describe('Dispose.abortable', () => {
     expect(Symbol.asyncDispose in abortable).to.eql(false);
   });
 
+  it('uses captured controller construction and abort authority after ambient replacement', () => {
+    const NativeAbortController = AbortController;
+    const controllerDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'AbortController');
+    const abortDescriptor = Object.getOwnPropertyDescriptor(
+      NativeAbortController.prototype,
+      'abort',
+    );
+    if (!controllerDescriptor || !abortDescriptor) throw new Error('Expected abort descriptors.');
+    let constructorCalls = 0;
+    let abortCalls = 0;
+    let abortable: ReturnType<typeof Dispose.abortable>;
+
+    try {
+      Object.defineProperty(globalThis, 'AbortController', {
+        ...controllerDescriptor,
+        value: class {
+          constructor() {
+            constructorCalls += 1;
+            throw new Error('ambient AbortController invoked');
+          }
+        },
+      });
+      Object.defineProperty(NativeAbortController.prototype, 'abort', {
+        ...abortDescriptor,
+        value() {
+          abortCalls += 1;
+          throw new Error('ambient AbortController.prototype.abort invoked');
+        },
+      });
+      abortable = Dispose.abortable();
+      abortable.dispose('captured abort');
+    } finally {
+      Object.defineProperty(globalThis, 'AbortController', controllerDescriptor);
+      Object.defineProperty(NativeAbortController.prototype, 'abort', abortDescriptor);
+    }
+
+    expect({ constructorCalls, abortCalls }).to.eql({ constructorCalls: 0, abortCalls: 0 });
+    expect(abortable!.signal.aborted).to.eql(true);
+    expect(abortable!.signal.reason).to.eql('captured abort');
+  });
+
+  it('delivers pre-aborted input through captured microtask scheduling', async () => {
+    const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'queueMicrotask');
+    if (!descriptor) throw new Error('Expected queueMicrotask descriptor.');
+    const controller = new AbortController();
+    controller.abort('captured microtask');
+    let calls = 0;
+    let abortable: ReturnType<typeof Dispose.abortable>;
+
+    try {
+      Object.defineProperty(globalThis, 'queueMicrotask', {
+        ...descriptor,
+        value() {
+          calls += 1;
+        },
+      });
+      abortable = Dispose.abortable(controller.signal);
+    } finally {
+      Object.defineProperty(globalThis, 'queueMicrotask', descriptor);
+    }
+
+    await Schedule.micro();
+    expect(calls).to.eql(0);
+    expect(abortable!.disposed).to.eql(true);
+    expect(abortable!.signal.aborted).to.eql(true);
+    expect(abortable!.signal.reason).to.eql('captured microtask');
+  });
+
   it('using → aborts through protocol lifecycle authority', () => {
     let signal: AbortSignal | undefined;
     {

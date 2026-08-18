@@ -24,6 +24,46 @@ describe(`Schedule`, () => {
         await p;
       });
 
+      it('uses captured Promise construction and microtask scheduling', async () => {
+        const promiseDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'Promise');
+        const queueDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'queueMicrotask');
+        if (!promiseDescriptor || !queueDescriptor) throw new Error('Expected async descriptors.');
+        let promiseCalls = 0;
+        let queueCalls = 0;
+        let callbackCalls = 0;
+        let hop: Promise<void>;
+
+        try {
+          Object.defineProperty(globalThis, 'Promise', {
+            ...promiseDescriptor,
+            value: class {
+              constructor() {
+                promiseCalls += 1;
+                throw new Error('ambient Promise constructor invoked');
+              }
+            },
+          });
+          Object.defineProperty(globalThis, 'queueMicrotask', {
+            ...queueDescriptor,
+            value() {
+              queueCalls += 1;
+            },
+          });
+          Schedule.micro(() => callbackCalls++);
+          hop = Schedule.micro();
+        } finally {
+          Object.defineProperty(globalThis, 'Promise', promiseDescriptor);
+          Object.defineProperty(globalThis, 'queueMicrotask', queueDescriptor);
+        }
+
+        await hop!;
+        expect({ promiseCalls, queueCalls, callbackCalls }).to.eql({
+          promiseCalls: 0,
+          queueCalls: 0,
+          callbackCalls: 1,
+        });
+      });
+
       it('fires callback on a microtask; not same tick', async () => {
         const calls: string[] = [];
         Schedule.micro(() => calls.push('cb'));

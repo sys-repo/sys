@@ -1,13 +1,13 @@
 import type { t } from './common.ts';
+import { abortController, createAbortOwner, isAbortSignalAborted } from './u.async.ts';
 import { lifecycle, toLifecycle } from './u.lifecycle.ts';
 
 export function abortable(until?: t.UntilInput): t.Abortable {
   const life = lifecycle(until);
-  const controller = new AbortController();
-  const { signal } = controller;
+  const { controller, signal } = createAbortOwner();
 
   life.dispose$.subscribe((e) => {
-    if (!controller.signal.aborted) controller.abort(e.reason);
+    if (!isAbortSignalAborted(signal)) abortController(controller, e.reason);
   });
 
   return toLifecycle<t.Abortable>(life, {

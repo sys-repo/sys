@@ -207,6 +207,30 @@ describe('Dispose.lifecycleAsync kernel behavior', () => {
     await completion;
   });
 
+  it('uses captured deferred construction after ambient Promise static replacement', async () => {
+    const descriptor = Object.getOwnPropertyDescriptor(Promise, 'withResolvers');
+    if (!descriptor) throw new Error('Expected Promise.withResolvers descriptor.');
+    let calls = 0;
+    let completion: Promise<void>;
+    const disposable = Dispose.lifecycleAsync();
+
+    try {
+      Object.defineProperty(Promise, 'withResolvers', {
+        ...descriptor,
+        value() {
+          calls += 1;
+          throw new Error('ambient Promise.withResolvers invoked');
+        },
+      });
+      completion = disposable.dispose();
+    } finally {
+      Object.defineProperty(Promise, 'withResolvers', descriptor);
+    }
+
+    await completion!;
+    expect(calls).to.eql(0);
+  });
+
   it('await using: body and cleanup reject → native suppression truth', async () => {
     const bodyFailure = new Error('body:failure');
     const cleanupFailure = new Error('cleanup:failure');

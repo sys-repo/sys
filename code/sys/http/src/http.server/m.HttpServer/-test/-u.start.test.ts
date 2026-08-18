@@ -85,6 +85,33 @@ describe('HttpServer.start', () => {
     expect(fired.map((event) => event.payload.reason)).to.eql(['close:first', 'close:first']);
   });
 
+  it('closes through captured disposal construction after ambient Promise mutation', async () => {
+    const app = HttpServer.create({ static: false });
+    const server = HttpServer.start(app, { silent: true });
+    const descriptor = Object.getOwnPropertyDescriptor(Promise, 'withResolvers');
+    if (!descriptor) throw new Error('Expected Promise.withResolvers descriptor.');
+    let calls = 0;
+    let completion: Promise<void>;
+
+    try {
+      Object.defineProperty(Promise, 'withResolvers', {
+        ...descriptor,
+        value() {
+          calls += 1;
+          throw new Error('ambient Promise.withResolvers invoked');
+        },
+      });
+      completion = server.close('captured-disposal-authority');
+    } finally {
+      Object.defineProperty(Promise, 'withResolvers', descriptor);
+    }
+
+    await completion!;
+    await server.finished;
+    expect(calls).to.eql(0);
+    expect(server.disposed).to.eql(true);
+  });
+
   it('native disposal preserves opaque shutdown rejection identity and status', async () => {
     const app = HttpServer.create({ static: false });
     const server = HttpServer.start(app, { silent: true });

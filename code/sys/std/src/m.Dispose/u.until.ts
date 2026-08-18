@@ -1,4 +1,11 @@
 import { Arr, Is, Observable, type t } from './common.ts';
+import {
+  abortSignalReason,
+  addAbortListener,
+  enqueueMicrotask,
+  isAbortSignalAborted,
+  removeAbortListener,
+} from './u.async.ts';
 
 /**
  * Listens to an observable (or set of observables) and
@@ -35,7 +42,7 @@ const wrangle = {
         subscriber.complete();
       };
 
-      queueMicrotask(() => {
+      enqueueMicrotask(() => {
         if (!subscriber.closed) done();
       });
       return () => void (disposed = true);
@@ -48,21 +55,21 @@ const wrangle = {
       const done = () => {
         if (disposed) return;
         disposed = true;
-        subscriber.next({ reason: signal.reason });
+        subscriber.next({ reason: abortSignalReason(signal) });
         subscriber.complete();
       };
 
-      if (signal.aborted) {
-        queueMicrotask(() => {
+      if (isAbortSignalAborted(signal)) {
+        enqueueMicrotask(() => {
           if (!subscriber.closed) done();
         });
         return () => void (disposed = true);
       }
 
-      signal.addEventListener('abort', done, { once: true });
+      addAbortListener(signal, done);
       return () => {
         disposed = true;
-        signal.removeEventListener('abort', done);
+        removeAbortListener(signal, done);
       };
     });
   },

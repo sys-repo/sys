@@ -301,7 +301,7 @@ describe('Http.Fetch.byteSize: cancellation authority', () => {
 
   it('disposes operation and client lifecycle bridges exactly once', async () => {
     const caller = new AbortController();
-    const listeners = trackAllAbortListeners();
+    const listeners = trackStructuralAbortSignal(caller.signal);
     const mock = WebFixture.Fetch.mock(() => {
       return Promise.resolve(
         new Response(null, { status: 200, headers: { 'content-length': '64' } }),
@@ -309,18 +309,17 @@ describe('Http.Fetch.byteSize: cancellation authority', () => {
     });
 
     try {
-      const res = await Fetch.byteSize(URL, caller.signal);
+      const res = await Fetch.byteSize(URL, listeners.signal);
       expect(res).to.eql({ url: URL, bytes: 64, from: 'head' });
       expect(listeners.count()).to.eql({ added: 1, removed: 1 });
     } finally {
-      listeners.restore();
       mock.dispose();
     }
   });
 
   it('disposes operation and client lifecycle bridges after cancellation', async () => {
     const caller = new AbortController();
-    const listeners = trackAllAbortListeners();
+    const listeners = trackStructuralAbortSignal(caller.signal);
     let rejectFetch: (reason?: unknown) => void = () => {};
     let requestStarted = false;
 
@@ -330,7 +329,7 @@ describe('Http.Fetch.byteSize: cancellation authority', () => {
     });
 
     try {
-      const promise = Fetch.byteSize(URL, caller.signal);
+      const promise = Fetch.byteSize(URL, listeners.signal);
       await Testing.until(() => requestStarted);
       caller.abort(REASON.caller);
       rejectFetch(REASON.caller);
@@ -339,7 +338,6 @@ describe('Http.Fetch.byteSize: cancellation authority', () => {
       expect(res).to.eql({ url: URL, from: 'unknown', cancelled: true });
       expect(listeners.count()).to.eql({ added: 1, removed: 1 });
     } finally {
-      listeners.restore();
       mock.dispose();
     }
   });
@@ -395,41 +393,35 @@ function trackAbortListeners(signal: AbortSignal) {
   return { count: () => ({ added, removed }) };
 }
 
-function trackAllAbortListeners() {
-  const prototype = AbortSignal.prototype;
-  const addEventListener = prototype.addEventListener;
-  const removeEventListener = prototype.removeEventListener;
+function trackStructuralAbortSignal(source: AbortSignal) {
+  const addEventListener = source.addEventListener.bind(source);
+  const removeEventListener = source.removeEventListener.bind(source);
   let added = 0;
   let removed = 0;
-
-  Object.defineProperty(prototype, 'addEventListener', {
-    value(
-      this: AbortSignal,
+  const signal = {
+    get aborted() {
+      return source.aborted;
+    },
+    get reason() {
+      return source.reason;
+    },
+    addEventListener(
       type: string,
       listener: EventListenerOrEventListenerObject,
       options?: boolean | AddEventListenerOptions,
     ) {
       if (type === 'abort') added++;
-      addEventListener.call(this, type, listener, options);
+      addEventListener(type, listener, options);
     },
-  });
-  Object.defineProperty(prototype, 'removeEventListener', {
-    value(
-      this: AbortSignal,
+    removeEventListener(
       type: string,
       listener: EventListenerOrEventListenerObject,
       options?: boolean | EventListenerOptions,
     ) {
       if (type === 'abort') removed++;
-      removeEventListener.call(this, type, listener, options);
+      removeEventListener(type, listener, options);
     },
-  });
+  } as AbortSignal;
 
-  return {
-    count: () => ({ added, removed }),
-    restore() {
-      Object.defineProperty(prototype, 'addEventListener', { value: addEventListener });
-      Object.defineProperty(prototype, 'removeEventListener', { value: removeEventListener });
-    },
-  };
+  return { signal, count: () => ({ added, removed }) };
 }

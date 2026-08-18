@@ -1,4 +1,12 @@
-import { type t } from '../common.ts';
+import type { t } from '../common.ts';
+
+const NativePromise = Promise;
+const NativePromiseThen = NativePromise.prototype.then;
+const NativeQueueMicrotask = globalThis.queueMicrotask;
+const NativeSetTimeout = globalThis.setTimeout;
+const NativeRequestAnimationFrame = globalThis.requestAnimationFrame;
+const resolved = new NativePromise<void>((resolve) => resolve());
+const apply = Reflect.apply;
 
 /**
  * Build a ScheduleFn for a given mode and optional lifecycle.
@@ -19,7 +27,7 @@ export function makeScheduleFn(mode: t.AsyncSchedule, life?: t.LifeLike): t.Sche
     }
 
     // Awaitable hop (resolves even if disposed).
-    return new Promise<void>((resolve) => {
+    return new NativePromise<void>((resolve) => {
       scheduleInternal(mode, () => resolve());
     });
   }) as t.ScheduleFn;
@@ -32,27 +40,26 @@ export function makeScheduleFn(mode: t.AsyncSchedule, life?: t.LifeLike): t.Sche
  */
 function scheduleInternal(mode: t.AsyncSchedule, f: () => void) {
   if (mode === 'micro') {
-    if (typeof queueMicrotask === 'function') queueMicrotask(f);
-    else Promise.resolve().then(f);
+    if (typeof NativeQueueMicrotask === 'function') {
+      apply(NativeQueueMicrotask, globalThis, [f]);
+    } else {
+      void apply(NativePromiseThen, resolved, [f]);
+    }
     return;
   }
 
   if (mode === 'raf') {
-    const raf = (globalThis as any).requestAnimationFrame as
-      | ((cb: FrameRequestCallback) => number)
-      | undefined;
-
-    if (typeof raf === 'function') {
+    if (typeof NativeRequestAnimationFrame === 'function') {
       // Frame-aligned; no extra macro hop.
-      raf(() => f());
+      apply(NativeRequestAnimationFrame, globalThis, [() => f()]);
       return;
     }
 
     // Non-DOM fallback ≈ one frame.
-    setTimeout(f, 16);
+    apply(NativeSetTimeout, globalThis, [f, 16]);
     return;
   }
 
   // "macro"
-  setTimeout(f, 0);
+  apply(NativeSetTimeout, globalThis, [f, 0]);
 }
