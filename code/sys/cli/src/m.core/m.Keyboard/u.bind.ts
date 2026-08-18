@@ -22,6 +22,22 @@ const DEFAULT_DEPS: BindDependencies = Object.freeze({
   keypress,
 });
 
+const NativePromise = Promise;
+const NativePromiseThen = NativePromise.prototype.then;
+const PromiseSpecies = Symbol.species;
+const apply = Reflect.apply;
+const defineProperty = Object.defineProperty;
+const deleteProperty = Reflect.deleteProperty;
+const freeze = Object.freeze;
+const REACTION_CONSTRUCTOR = freeze({ [PromiseSpecies]: NativePromise });
+const REACTION_CONSTRUCTOR_DESCRIPTOR = freeze({
+  configurable: true,
+  enumerable: false,
+  value: REACTION_CONSTRUCTOR,
+  writable: false,
+});
+const RETAINED_KEYPRESS_OWNERS = new Set<KeypressOwner>();
+
 export function bind(options: t.CliKeyboard.Bind.Options): t.CliKeyboard.Bind.Handle | undefined {
   return bindWith(options, DEFAULT_DEPS);
 }
@@ -46,11 +62,12 @@ export function bindWith(
   };
   if (snapshot.until) {
     try {
-      const until = Promise.resolve(snapshot.until).then(
+      const until = new NativePromise<unknown>((resolve) => resolve(snapshot.until));
+      observePromise(
+        until,
         () => requestCancellation(),
         () => requestCancellation(),
       );
-      void until.catch(() => undefined);
     } catch {
       throw bindingError();
     }
@@ -71,12 +88,18 @@ export function bindWith(
   let disposalFailure: Error | undefined;
   let resolve!: () => void;
   let reject!: (error: unknown) => void;
-  const finished = new Promise<void>((res, rej) => {
-    resolve = res;
-    reject = rej;
-  });
-  // The autonomous listener owns its rejection even when a caller does not observe `finished`.
-  void finished.catch(() => undefined);
+  let finished: Promise<void>;
+  try {
+    finished = new NativePromise<void>((res, rej) => {
+      resolve = res;
+      reject = rej;
+    });
+    // The autonomous listener owns its rejection even when a caller does not observe `finished`.
+    observePromise(finished, undefined, () => undefined);
+  } catch {
+    retainAndStop(keys);
+    throw bindingError();
+  }
 
   const settleFinished = () => {
     if (!listenerSettled || finishedSettled) return;
@@ -185,11 +208,20 @@ export function bindWith(
       settleFinished();
     }
   })();
-  void listening.catch(() => {
-    recordListenerFailure('Keyboard listener failed.');
-    listenerSettled = true;
-    settleFinished();
-  });
+  try {
+    observePromise(listening, undefined, () => {
+      try {
+        recordListenerFailure('Keyboard listener failed.');
+        listenerSettled = true;
+        settleFinished();
+      } catch {
+        // The listener and keypress owner remain retained by their active closure.
+      }
+    });
+  } catch {
+    retainAndStop(keys);
+    throw bindingError();
+  }
 
   return { dispose, finished };
 }
@@ -223,6 +255,31 @@ function ownValue<K extends keyof t.CliKeyboard.Bind.Options>(
   if (!descriptor) return undefined;
   if (!('value' in descriptor)) throw bindingError();
   return descriptor.value;
+}
+
+function observePromise<T>(
+  promise: Promise<T>,
+  fulfilled: ((value: T) => void) | undefined,
+  rejected: ((cause: unknown) => void) | undefined,
+): void {
+  defineProperty(promise, 'constructor', REACTION_CONSTRUCTOR_DESCRIPTOR);
+  let failed = false;
+  try {
+    void apply(NativePromiseThen, promise, [fulfilled, rejected]);
+  } catch {
+    failed = true;
+  }
+  if (!deleteProperty(promise, 'constructor')) failed = true;
+  if (failed) throw bindingError();
+}
+
+function retainAndStop(keys: KeypressOwner): void {
+  RETAINED_KEYPRESS_OWNERS.add(keys);
+  try {
+    if (!keys.disposed) keys.dispose();
+  } catch {
+    // Retention preserves lower ownership when synchronous rollback cannot prove absence.
+  }
 }
 
 function bindingError(): Error {

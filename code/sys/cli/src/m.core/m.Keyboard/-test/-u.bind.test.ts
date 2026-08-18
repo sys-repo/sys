@@ -283,6 +283,37 @@ describe('CLI: core / Keyboard.bind lifecycle', () => {
     expect(fixture.disposeCalls).to.eql(2);
   });
 
+  it('owns Promise reactions after ambient then and catch replacement', async () => {
+    for (const key of ['then', 'catch'] as const) {
+      const descriptor = Object.getOwnPropertyDescriptor(Promise.prototype, key);
+      if (!descriptor) throw new Error(`Expected Promise.prototype.${key} descriptor.`);
+      const fixture = keypressOwner({ disposeFailures: 0, finishImmediately: true });
+      let ambientCalls = 0;
+      let handle: ReturnType<typeof bindWith> | undefined;
+
+      try {
+        Object.defineProperty(Promise.prototype, key, {
+          ...descriptor,
+          value() {
+            ambientCalls += 1;
+            throw new Error(`ambient Promise.prototype.${key} invoked`);
+          },
+        });
+        handle = bindWith({ onQuit() {} }, {
+          isTerminal: () => true,
+          keypress: () => fixture.owner,
+        });
+      } finally {
+        Object.defineProperty(Promise.prototype, key, descriptor);
+      }
+
+      if (!handle) throw new Error('Expected keyboard handle.');
+      await handle.finished;
+      expect(ambientCalls).to.eql(0);
+      expect(fixture.disposeCalls).to.eql(1);
+    }
+  });
+
   it('contains terminal and keypress acquisition throws as fixed package errors', async () => {
     const raw = new Proxy({}, {
       getPrototypeOf() {
