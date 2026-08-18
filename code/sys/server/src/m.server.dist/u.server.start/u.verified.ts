@@ -13,7 +13,21 @@ import { DistServerError, startError, startupReason } from '../u.server/u.error.
 import { acceptedAuthorities, acceptsHost, exactAuthority } from '../../u.server.request.ts';
 import { requestPath } from '../u.server/u.path.ts';
 import { readAsset } from '../u.server/u.read.ts';
-import { settleListener } from './u.lifecycle.ts';
+import {
+  type CompleteListenerOwner,
+  disposeLifeWhenReady,
+  isCompleteListenerOwner,
+  type ListenerObservation,
+  type ListenerOwner,
+  observeListener,
+  rollbackListenerOwner,
+  settleListener,
+  snapshotListenerOwner,
+} from './u.lifecycle.ts';
+import { isPromiseTransportReady } from './u.promise.ts';
+
+const defineProperties = Object.defineProperties;
+const freeze = Object.freeze;
 
 /** Host one freshly verified Dist under its selected listener authority. */
 export async function serveVerified(
@@ -25,6 +39,8 @@ export async function serveVerified(
   options: StartRunOptions = {},
 ): Promise<t.DistServer.Started> {
   let started: t.HttpServer.Started | undefined;
+  let owner: ListenerOwner | undefined;
+  let observed: ListenerObservation | undefined;
   const strictPort = options.strictPort ?? true;
 
   try {
@@ -47,7 +63,7 @@ export async function serveVerified(
     const hosts = { hosts: undefined as undefined | ReadonlySet<string> };
     const provisionalHeaders = browserPolicy ? provisionalBrowserHeaders() : undefined;
     let browserRuntime: BrowserRuntime | undefined;
-    const readSignal = () => started?.signal ?? life.signal;
+    const readSignal = () => owner?.signal ?? life.signal;
     app.all('*', async (context) => {
       const request = context.req.raw;
       const browserHeaders = browserRuntime?.responseHeaders ?? provisionalHeaders;
@@ -105,6 +121,7 @@ export async function serveVerified(
     });
 
     if (life.signal.aborted) throw startError('cancelled');
+    assertPromiseTransport();
     try {
       started = deps.startHttp(app, {
         hostname: input.hostname,
@@ -128,33 +145,38 @@ export async function serveVerified(
     } catch (cause) {
       throw startError(startupReason(cause));
     }
-    if (strictPort && input.port !== 0 && started.port !== input.port) {
+    owner = snapshotListenerOwner(started);
+    if (!isCompleteListenerOwner(owner)) throw startError('startup-failure');
+    observed = observeOwner(owner, life);
+    assertPromiseTransport();
+
+    if (strictPort && input.port !== 0 && owner.port !== input.port) {
       throw startError('address-in-use');
     }
     if (browserPolicy) {
-      const host = exactAuthority(started);
-      browserRuntime = createBrowserRuntime(browserPolicy, started.origin, host);
+      const host = exactAuthority({ origin: owner.origin });
+      browserRuntime = createBrowserRuntime(browserPolicy, owner.origin, host);
       hosts.hosts = new Set([host]);
     } else {
-      hosts.hosts = acceptedAuthorities(started);
+      hosts.hosts = acceptedAuthorities({
+        hostname: owner.hostname,
+        port: owner.port,
+        addr: { hostname: owner.addrHostname },
+      });
     }
-    await settleListener(started);
+    await settleListener(observed);
+    assertPromiseTransport();
     if (life.signal.aborted) throw startError('cancelled');
 
-    void started.finished.then(
-      () => life.dispose('server.finished'),
-      () => life.dispose('server.finished'),
-    ).catch(() => {});
-
-    Object.defineProperties(started, {
+    defineProperties(started, {
       authority: {
-        value: Object.freeze(authority),
+        value: freeze(authority),
         enumerable: true,
         writable: false,
         configurable: false,
       },
       verification: {
-        value: Object.freeze(evidence),
+        value: freeze(evidence),
         enumerable: true,
         writable: false,
         configurable: false,
@@ -173,17 +195,26 @@ export async function serveVerified(
 
     return started as t.DistServer.Started;
   } catch (cause) {
-    if (started) {
-      try {
-        await started.close('startup.failure');
-      } catch {
-        // Preserve the original sanitized startup failure.
-      }
-    }
-    life.dispose();
+    if (owner) await rollbackListenerOwner(owner, observed);
+    else if (started) await rollbackListenerOwner(snapshotListenerOwner(started));
+    disposeLifeWhenReady(life);
     if (DistServerError.is(cause)) throw cause;
     throw startError('startup-failure');
   }
+}
+
+function observeOwner(
+  owner: CompleteListenerOwner,
+  life: t.Abortable,
+): ListenerObservation {
+  return observeListener(
+    owner.finished,
+    () => disposeLifeWhenReady(life, 'server.finished'),
+  );
+}
+
+function assertPromiseTransport(): void {
+  if (!isPromiseTransportReady()) throw startError('startup-failure');
 }
 
 function hostRejected(policy?: t.DistServer.BrowserPolicy.Headers): Response {

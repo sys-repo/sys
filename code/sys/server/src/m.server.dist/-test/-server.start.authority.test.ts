@@ -188,6 +188,135 @@ describe('DistServer.start', () => {
       }
     });
 
+    it('classifies an opaque bind failure without invoking Proxy traps', async () => {
+      const fixture = await setup();
+      let traps = 0;
+      const opaque = new Proxy({}, {
+        getPrototypeOf() {
+          traps += 1;
+          throw new Error('bind failure proxy trap');
+        },
+      });
+
+      try {
+        const materialized = await Dist.materialize(fixture.args());
+        expect(materialized.kind).to.eql('promoted');
+        if (materialized.kind !== 'promoted') return;
+
+        const error = await catchStart(() =>
+          startWith({
+            ...validInput(),
+            dir: materialized.dir,
+            integrity: materialized.integrity,
+            limits: fixture.policy.verification,
+          }, {
+            ...DEFAULT_DEPENDENCIES,
+            verify: () =>
+              Promise.resolve({
+                kind: 'verified',
+                evidence: materialized.verification,
+              }),
+            startHttp() {
+              throw opaque;
+            },
+          })
+        );
+
+        expect(error?.reason).to.eql('startup-failure');
+        expect(error?.message).to.eql('DistServer.start: startup failed.');
+        expect(traps).to.eql(0);
+      } finally {
+        await teardown(fixture);
+      }
+    });
+
+    it('rolls back a bound listener after its dependency mutates Promise species', async () => {
+      const fixture = await setup();
+      const speciesDescriptor = Object.getOwnPropertyDescriptor(Promise, Symbol.species);
+      if (!speciesDescriptor) throw new Error('Expected Promise species descriptor.');
+      let internalFinished: Promise<void> | undefined;
+      let closeCalls = 0;
+      let shutdownCalls = 0;
+      let speciesReads = 0;
+      let settled = false;
+      let settledAfterFailure = false;
+      let settledAfterRecovery = false;
+      let failure: unknown;
+
+      try {
+        const materialized = await Dist.materialize(fixture.args());
+        expect(materialized.kind).to.eql('promoted');
+        if (materialized.kind !== 'promoted') return;
+
+        try {
+          await startWith({
+            ...validInput(),
+            dir: materialized.dir,
+            integrity: materialized.integrity,
+            limits: fixture.policy.verification,
+          }, {
+            ...DEFAULT_DEPENDENCIES,
+            verify: () =>
+              Promise.resolve({
+                kind: 'verified',
+                evidence: materialized.verification,
+              }),
+            startHttp(...args) {
+              const listener = DEFAULT_DEPENDENCIES.startHttp(...args);
+              internalFinished = listener.finished;
+              void listener.finished.then(
+                () => (settled = true),
+                () => (settled = true),
+              );
+              const close = listener.close.bind(listener);
+              const shutdown = listener.server.shutdown.bind(listener.server);
+              Object.defineProperty(listener, 'close', {
+                configurable: true,
+                enumerable: true,
+                value: (reason?: unknown) => {
+                  closeCalls += 1;
+                  return close(reason);
+                },
+              });
+              Object.defineProperty(listener.server, 'shutdown', {
+                configurable: true,
+                value: () => {
+                  shutdownCalls += 1;
+                  return shutdown();
+                },
+              });
+              Object.defineProperty(Promise, Symbol.species, {
+                configurable: true,
+                get() {
+                  speciesReads += 1;
+                  throw new Error('Promise species accessor invoked');
+                },
+              });
+              return listener;
+            },
+          });
+        } catch (cause) {
+          failure = cause;
+        }
+        settledAfterFailure = settled;
+      } finally {
+        Object.defineProperty(Promise, Symbol.species, speciesDescriptor);
+        await internalFinished?.catch(() => undefined);
+        settledAfterRecovery = settled;
+        await teardown(fixture);
+      }
+
+      expect(DistServer.Error.is(failure)).to.eql(true);
+      expect((failure as t.DistServer.StartError | undefined)?.reason).to.eql('startup-failure');
+      expect([
+        closeCalls,
+        shutdownCalls,
+        speciesReads,
+        settledAfterFailure,
+        settledAfterRecovery,
+      ]).to.eql([1, 1, 0, false, true]);
+    });
+
     it('admits a present zero-byte hash ref and fails malformed ref authority before part reads', async () => {
       const fixture = await setup();
       let server: t.HttpServer.Started | undefined;

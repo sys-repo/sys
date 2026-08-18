@@ -8,6 +8,7 @@ import {
 } from './common.ts';
 import { snapshotStartInput, snapshotStartLocalInput } from '../u.server.input/u.start.ts';
 import { DistServerError, startError } from '../u.server/u.error.ts';
+import { disposeLifeWhenReady } from './u.lifecycle.ts';
 import { serveVerified } from './u.verified.ts';
 
 /** Start one checksum-pinned local Dist host. */
@@ -58,7 +59,7 @@ export async function startWith(
       options,
     );
   } catch (cause) {
-    life?.dispose();
+    disposeLifeWhenReady(life);
     if (DistServerError.is(cause)) throw cause;
     throw startError('startup-failure');
   }
@@ -107,7 +108,7 @@ export async function startLocalWith(
       options,
     );
   } catch (cause) {
-    life?.dispose();
+    disposeLifeWhenReady(life);
     if (DistServerError.is(cause)) throw cause;
     throw startError('startup-failure');
   }

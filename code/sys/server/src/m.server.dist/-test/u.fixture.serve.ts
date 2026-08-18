@@ -1,4 +1,4 @@
-import { Cli } from '@sys/cli';
+import type { Cli } from '@sys/cli';
 import { Schedule, type t } from '../../-test.ts';
 import type { Fixture } from '../../-test/u.fixture.dist.ts';
 import { verified } from '../../-test/u.fixture.dist.ts';
@@ -64,7 +64,7 @@ export function runInteractiveServe(
     },
     {
       ...DEFAULT_DEPENDENCIES,
-      verifyLocal: async () => verified(fixture),
+      verifyLocal: () => Promise.resolve(verified(fixture)),
       startHttp: () => started.server,
     },
     effects,
@@ -121,21 +121,36 @@ export function createStarted(port: number, options: StartedOptions = {}): Start
     release = resolve;
     fail = reject;
   });
+  const controller = new AbortController();
+  const runtime = {
+    finished,
+    shutdown: () => {
+      release();
+      return Promise.resolve();
+    },
+  } as unknown as Deno.HttpServer<Deno.NetAddr>;
 
   const server = {
     port,
     hostname: '127.0.0.1',
     addr: { hostname: '127.0.0.1' },
     origin: `http://127.0.0.1:${port}/`,
-    dispose$: new AbortController().signal,
+    server: runtime,
+    signal: controller.signal,
+    dispose$: controller.signal,
     finished,
-    close: async (cause?: unknown) => {
+    close: (cause?: unknown) => {
       closeCauses.push(cause);
+      controller.abort(cause);
       if (options.finishBeforeCloseFailure) release();
-      if (options.closeFailure !== undefined) throw options.closeFailure;
+      if (options.closeFailure !== undefined) return Promise.reject(options.closeFailure);
       release();
+      return Promise.resolve();
     },
-    dispose: async () => release(),
+    dispose: () => {
+      release();
+      return Promise.resolve();
+    },
   } as unknown as t.DistServer.Started;
 
   return { release, fail, closeCauses, server };

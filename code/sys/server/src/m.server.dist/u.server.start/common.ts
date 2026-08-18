@@ -3,6 +3,7 @@ import { FilesStatic, FsPkg, HttpServer, serveFileBytes, type t } from '../commo
 export * from '../common.ts';
 export { Cli } from '@sys/cli';
 export { Open } from '@sys/process';
+export { Is } from '@sys/std/is/server';
 
 export type StartDependencies = {
   readonly verify: t.FsPkg.Dist.Pinned.Verify.Method;
