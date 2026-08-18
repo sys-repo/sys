@@ -1,8 +1,7 @@
-import { Cli } from '@sys/cli';
 import { describe, expect, it, type t, WebFixture } from '../../-test.ts';
 import { setup, teardown, verified } from '../../-test/u.fixture.dist.ts';
 import { DEFAULT_DEPENDENCIES, serveLocalWith, serveWith } from '../u.server.start/mod.ts';
-import { DistServeScreen } from '../u.server/u.serve.screen.ts';
+import type { DistServeScreen } from '../u.server/u.serve.screen.ts';
 import {
   capture,
   type CapturedStartInput,
@@ -275,12 +274,61 @@ describe('DistServer.serve', () => {
       }
     });
 
+    it('keeps raw serve pending until the hosted listener lifecycle closes', async () => {
+      const fixture = await setup();
+      const started = createStarted(49152);
+      const closeRequested = Promise.withResolvers<unknown>();
+      const closeFinished = Promise.withResolvers<void>();
+      Object.defineProperty(started.server, 'close', {
+        configurable: true,
+        value: (cause?: unknown) => {
+          closeRequested.resolve(cause);
+          return closeFinished.promise;
+        },
+      });
+
+      try {
+        const running = serveLocalWith(
+          {
+            dir: fixture.source as t.StringDir,
+            limits: fixture.policy.verification,
+            silent: true,
+          },
+          {
+            ...DEFAULT_DEPENDENCIES,
+            verifyLocal: () => Promise.resolve(verified(fixture)),
+            startHttp: () => started.server,
+          },
+          createModeEffects(false),
+        );
+        let settled = false;
+        void running.then(
+          () => (settled = true),
+          () => (settled = true),
+        );
+
+        await listenerSettled();
+        started.release();
+        expect(await closeRequested.promise).to.eql('server.finished');
+        await Promise.resolve();
+        expect(settled).to.eql(false);
+
+        closeFinished.resolve();
+        await running;
+        expect(settled).to.eql(true);
+      } finally {
+        started.release();
+        closeFinished.resolve();
+        await teardown(fixture);
+      }
+    });
+
     it('owns interactive keyboard and screen against the actual listener origin', async () => {
       const fixture = await setup();
       const dist = fixture.cloneDist();
       let captured: CapturedStartInput = {};
       let started: StartedController | undefined;
-      let binding: Parameters<typeof Cli.Keyboard.bind>[0] | undefined;
+      let binding: t.Cli.Keyboard.Bind.Options | undefined;
       let screenArgs: Parameters<typeof DistServeScreen.create>[0] | undefined;
       let keyboardDisposals = 0;
       let screenDisposals = 0;
@@ -460,6 +508,54 @@ describe('DistServer.serve', () => {
         await teardown(fixture);
       }
     });
+
+    it('keeps serve pending until disposed keyboard listener work terminates', async () => {
+      const fixture = await setup();
+      const started = createStarted(49152);
+      const keyboardFinished = Promise.withResolvers<void>();
+      const disposalRequested = Promise.withResolvers<void>();
+      let keyboardDisposals = 0;
+      const effects = {
+        bindKeyboard: () => ({
+          finished: keyboardFinished.promise,
+          dispose() {
+            keyboardDisposals += 1;
+            disposalRequested.resolve();
+          },
+        }),
+        createScreen: () => ({
+          failure: new Promise<never>(() => undefined),
+          dispose() {},
+        }),
+        isInteractive: () => true,
+        open: () => {},
+        now: () => fixture.cloneDist().build.time,
+      };
+
+      try {
+        const running = runInteractiveServe(fixture, started, effects);
+        let settled = false;
+        void running.then(
+          () => (settled = true),
+          () => (settled = true),
+        );
+        await listenerSettled();
+        started.release();
+        await disposalRequested.promise;
+        await Promise.resolve();
+
+        expect(settled).to.eql(false);
+        expect(keyboardDisposals).to.eql(1);
+
+        keyboardFinished.resolve();
+        await running;
+        expect(settled).to.eql(true);
+      } finally {
+        keyboardFinished.resolve();
+        started.release();
+        await teardown(fixture);
+      }
+    });
   });
 
   describe('presentation and failure ownership', () => {
@@ -539,6 +635,7 @@ describe('DistServer.serve', () => {
       const fixture = await setup();
       let started: StartedController | undefined;
       let keyboardDisposals = 0;
+      const keyboardFinished = Promise.withResolvers<void>();
       const cause = new Error('screen-acquisition-failed');
       try {
         const outcome = await serveLocalWith(
@@ -557,10 +654,11 @@ describe('DistServer.serve', () => {
           },
           {
             bindKeyboard: () => ({
-              finished: new Promise<void>(() => {}),
+              finished: keyboardFinished.promise,
               dispose() {
                 keyboardDisposals += 1;
-                throw new Error('keyboard-cleanup-failed');
+                if (keyboardDisposals === 1) throw new Error('keyboard-cleanup-failed');
+                keyboardFinished.resolve();
               },
             }),
             createScreen: () => {
@@ -577,7 +675,7 @@ describe('DistServer.serve', () => {
 
         expect(outcome).to.eql({ rejected: true, cause });
         expect(started?.closeCauses).to.eql([cause]);
-        expect(keyboardDisposals).to.eql(1);
+        expect(keyboardDisposals).to.eql(2);
       } finally {
         started?.release();
         await teardown(fixture);
@@ -641,7 +739,7 @@ describe('DistServer.serve', () => {
         expect(outcome).to.eql({ rejected: true, cause });
         expect(started?.closeCauses).to.eql([cause]);
         expect(screenDisposals).to.eql(1);
-        expect(keyboardDisposals).to.eql(1);
+        expect(keyboardDisposals).to.eql(2);
       } finally {
         started?.release();
         await teardown(fixture);

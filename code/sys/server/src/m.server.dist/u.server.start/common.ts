@@ -1,6 +1,8 @@
 import { FilesStatic, FsPkg, HttpServer, serveFileBytes, type t } from '../common.ts';
 
 export * from '../common.ts';
+export { Cli } from '@sys/cli';
+export { Open } from '@sys/process';
 
 export type StartDependencies = {
   readonly verify: t.FsPkg.Dist.Pinned.Verify.Method;

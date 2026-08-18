@@ -1,10 +1,15 @@
-import { Cli } from '@sys/cli';
-import { Open } from '@sys/process';
-import { DEFAULT_DEPENDENCIES, pkg, type StartDependencies, type t, Time } from './common.ts';
+import {
+  Cli,
+  DEFAULT_DEPENDENCIES,
+  Open,
+  pkg,
+  type StartDependencies,
+  type t,
+  Time,
+} from './common.ts';
 import { snapshotServeInput, snapshotServeLocalInput } from '../u.server.input/u.serve.ts';
 import { DistServeScreen } from '../u.server/u.serve.screen.ts';
 import { startError } from '../u.server/u.error.ts';
-import { cleanup } from './u.lifecycle.ts';
 import { startLocalWith, startWith } from './u.start.ts';
 
 type ServeMode = 'screen' | 'raw';
@@ -41,7 +46,7 @@ const DEFAULT_SERVE_EFFECTS: ServeEffects = Object.freeze({
   bindKeyboard: Cli.Keyboard.bind,
   createScreen: DistServeScreen.create,
   isInteractive: Cli.Is.interactive,
-  open: (origin) => Open.invokeDetached(Deno.cwd() as t.StringDir, origin, { silent: true }),
+  open: (origin) => Open.invokeDetached(Deno.cwd(), origin, { silent: true }),
   now: () => Time.now.timestamp,
 });
 
@@ -118,7 +123,7 @@ async function serveLoop(
   effects: ServeEffects,
 ): Promise<void> {
   if (mode === 'raw') {
-    await started.finished;
+    await closeRaw(started);
     return;
   }
 
@@ -164,7 +169,7 @@ async function serveLoop(
     });
   } catch (cause) {
     await closePreserving(cause);
-    cleanup([() => keyboard?.dispose()]);
+    await closePresentation(undefined, keyboard);
     throw cause;
   }
 
@@ -204,12 +209,60 @@ async function serveLoop(
     failure = cause;
   }
 
-  const cleaned = cleanup([
-    () => screen.dispose(),
-    () => keyboard?.dispose(),
-  ]);
+  const cleaned = await closePresentation(screen, keyboard);
   if (failed) throw failure;
   if (!cleaned.ok) throw cleaned.cause;
+}
+
+async function closeRaw(started: t.DistServer.Started): Promise<void> {
+  let failed = false;
+  let failure: unknown;
+
+  try {
+    await started.finished;
+  } catch (cause) {
+    failed = true;
+    failure = cause;
+  }
+  try {
+    await started.close('server.finished');
+  } catch (cause) {
+    if (!failed) {
+      failed = true;
+      failure = cause;
+    }
+  }
+
+  if (failed) throw failure;
+}
+
+async function closePresentation(
+  screen: ReturnType<ServeEffects['createScreen']> | undefined,
+  keyboard: ReturnType<ServeEffects['bindKeyboard']>,
+) {
+  let failed = false;
+  let failure: unknown;
+
+  if (screen) {
+    try {
+      screen.dispose();
+    } catch (cause) {
+      failed = true;
+      failure = cause;
+    }
+  }
+  if (keyboard) {
+    try {
+      await Cli.Keyboard.shutdown(keyboard);
+    } catch (cause) {
+      if (!failed) {
+        failed = true;
+        failure = cause;
+      }
+    }
+  }
+
+  return failed ? { ok: false, cause: failure } as const : { ok: true } as const;
 }
 
 const wrangle = {
