@@ -1,5 +1,5 @@
 import { Color, Is, Num, type t } from '../common.ts';
-import { Screen } from '../m.Screen/mod.ts';
+import { Screen } from '../../m.Screen/mod.ts';
 
 type HrInput = number | t.CliFormat.Hr.Color | t.CliFormat.Hr.Options | undefined;
 

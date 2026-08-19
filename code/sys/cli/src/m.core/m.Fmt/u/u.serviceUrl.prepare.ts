@@ -1,30 +1,6 @@
-import { c, type t, Url } from '../common.ts';
+import { type t, Url } from '../common.ts';
 
-/** CLI formatting helpers for service URLs. */
-export const ServiceUrl: t.CliFormat.ServiceUrl.Lib = Object.freeze({
-  parts(urls, options = {}) {
-    return parts(urls, options);
-  },
-
-  format(
-    input: t.Service.Url | t.CliFormat.ServiceUrl.Part,
-    options: t.CliFormat.ServiceUrl.Format.Options = {},
-  ) {
-    const prepared = 'highlightOrigin' in input
-      ? input
-      : prepare(input, options, options.origin === 'highlight');
-    return formatPart(prepared);
-  },
-
-  formatList(urls, options = {}) {
-    return parts(urls, options).map(formatPart);
-  },
-});
-
-/**
- * Helpers:
- */
-function parts(
+export function parts(
   urls: Iterable<t.Service.Url>,
   options: t.CliFormat.ServiceUrl.Parts.Options,
 ): readonly t.CliFormat.ServiceUrl.Part[] {
@@ -44,7 +20,7 @@ function parts(
   return Object.freeze(result);
 }
 
-function prepare(
+export function prepare(
   url: t.Service.Url,
   options: t.CliFormat.ServiceUrl.Parts.Options,
   highlightOrigin: boolean,
@@ -73,21 +49,6 @@ function prepare(
     highlightOrigin,
     ...(value.port ? { port: value.port } : {}),
   });
-}
-
-function formatPart(part: t.CliFormat.ServiceUrl.Part): string {
-  const origin = part.highlightOrigin ? highlightOriginText(part) : c.gray(part.origin);
-  const suffix = part.highlightOrigin && part.suffix === '/'
-    ? c.cyan(part.suffix)
-    : c.gray(part.suffix);
-  return `${origin}${suffix}`;
-}
-
-function highlightOriginText(part: t.CliFormat.ServiceUrl.Part): string {
-  if (!part.port) return c.cyan(part.origin);
-
-  const prefix = part.origin.slice(0, -part.port.length);
-  return `${c.cyan(prefix)}${c.bold(c.cyan(part.port))}`;
 }
 
 function formatSuffix(url: URL): string {

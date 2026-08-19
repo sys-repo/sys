@@ -3,19 +3,10 @@
  * Command-line formatting tools (e.g. color, tree, path).
  */
 import { c, Num, Path as StdPath, type t } from '../common.ts';
-import { Chapters } from '../m.Fmt.Chapters/mod.ts';
-import { Commit } from './m.Fmt.Commit.ts';
-import { Header } from './m.Fmt.Header.ts';
-import { Help } from './m.Fmt.Help.ts';
-import { omission } from './m.Fmt.Omission.ts';
-import { hr } from './m.Fmt.Hr.ts';
-import { hyperlink } from './m.Fmt.hyperlink.ts';
-import { spinnerRaw, spinnerText } from './m.Fmt.spinnerText.ts';
-import { Text } from '../m.Fmt.Text/mod.ts';
-import { Tree } from './m.Fmt.Tree.ts';
-import { ServiceUrl } from './m.Fmt.ServiceUrl.ts';
-import { terminal as isTerminal } from '../m.Is/u.terminal.ts';
-import { size as screenSize } from '../m.Screen/u.size.ts';
+import { Text } from '../../m.Fmt.Text/mod.ts';
+import { terminal as isTerminal } from '../../m.Is/u.terminal.ts';
+import { size as screenSize } from '../../m.Screen/u.size.ts';
+import { omission } from '../u/u.omission.ts';
 
 export const Path: t.CliFormat.Path.Lib = Object.freeze({
   str(path, options = {}) {
@@ -65,7 +56,7 @@ function formatDisplayPath(display: string, options: t.CliFormat.Path.FormatOpti
 }
 
 function formatPathFragment(display: string, options: t.CliFormat.Path.FormatOptions): string {
-  return colorPath(Fmt.path(display, Fmt.Path.fmt(options)), options);
+  return colorPath(StdPath.Format.string(display, Path.fmt(options)), options);
 }
 
 function colorPath(text: string, options: t.CliFormat.Path.FormatOptions): string {
@@ -76,23 +67,3 @@ function colorPath(text: string, options: t.CliFormat.Path.FormatOptions): strin
 function numberOr(value: number | undefined, fallback: number): number {
   return Num.Is.finite(value) ? value : fallback;
 }
-
-/**
- * Command-line formatting helper library.
- */
-export const Fmt: t.CliFormat.Lib = Object.freeze({
-  Header,
-  Commit,
-  Help,
-  Text,
-  Chapters,
-  Tree,
-  Path,
-  ServiceUrl,
-  hr,
-  hyperlink,
-  omission,
-  path: StdPath.Format.string,
-  spinnerRaw,
-  spinnerText,
-});

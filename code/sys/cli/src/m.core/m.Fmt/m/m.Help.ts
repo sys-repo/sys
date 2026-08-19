@@ -1,5 +1,5 @@
 import { c, Str, type t } from '../common.ts';
-import { Text } from '../m.Fmt.Text/mod.ts';
+import { Text } from '../../m.Fmt.Text/mod.ts';
 
 const DEFAULT_PAGE_WIDTH = 120;
 const DEFAULT_MIN_BODY_WIDTH = 20;

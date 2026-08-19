@@ -1,5 +1,4 @@
-import { c, Num } from '../common.ts';
-import type { t } from '../common.ts';
+import { c, Num, type t } from '../common.ts';
 
 export const spinnerText: t.CliFormat.Lib['spinnerText'] = (
   text,

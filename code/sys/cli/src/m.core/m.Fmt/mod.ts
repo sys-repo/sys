@@ -13,14 +13,15 @@
  * structural context and do not inherit the foreground of retained content.
  */
 
+/** Shared command-line formatting helper library. */
+export { Fmt } from './m/m.Fmt.ts';
+
 /** ANSI color formatter functions. */
 export { c } from '../common.ts';
 /** ANSI color helper library. */
 export { Color } from '../common.ts';
 /** Remove ANSI escape codes from a string. */
 export { stripAnsi } from '../common.ts';
-/** Shared command-line formatting helper library. */
-export { Fmt } from './m.Fmt.ts';
 /** Terminal text measurement, fitting, wrapping, and clipping operations. */
 export { Text } from '../m.Fmt.Text/mod.ts';
 /** Navigable help chapter formatting and tree helpers. */

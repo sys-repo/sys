@@ -1,6 +1,6 @@
 import { c, Str, type t } from '../common.ts';
-import { Help } from '../m.Fmt/m.Fmt.Help.ts';
-import { hr } from '../m.Fmt/m.Fmt.Hr.ts';
+import { Help } from '../m.Fmt/m/m.Help.ts';
+import { hr } from '../m.Fmt/u/u.hr.ts';
 import { Text } from '../m.Fmt.Text/mod.ts';
 import { Book } from './m.Book.ts';
 import { Resources } from './m.Resources.ts';

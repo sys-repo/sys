@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { c, Fmt } from '../../mod.ts';
-import { hrWithScreen } from '../m.Fmt.Hr.ts';
+import { hrWithScreen } from '../u/u.hr.ts';
 
 describe('Cli.Fmt.hr', () => {
   describe('line mode', () => {
