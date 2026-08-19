@@ -16,7 +16,7 @@ describe('Cli.Fmt.Text', () => {
     });
 
     it('assembles exact width and wrap namespaces from their focused helpers', () => {
-      expect(Reflect.ownKeys(Text)).to.eql(['isReady', 'Width', 'Wrap', 'ellipsize']);
+      expect(Reflect.ownKeys(Text)).to.eql(['Width', 'Wrap', 'ellipsize', 'isReady']);
       expect(Reflect.ownKeys(Text.Width)).to.eql(['measure', 'padEnd', 'max', 'fit']);
       expect(Reflect.ownKeys(Text.Wrap)).to.eql(['text', 'lines']);
 
