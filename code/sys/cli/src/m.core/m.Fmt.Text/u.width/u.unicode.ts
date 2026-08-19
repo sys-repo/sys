@@ -1,10 +1,10 @@
-import { TextIntrinsic } from './u.authority.ts';
+import { TextIntrinsic } from '../u/u.authority.ts';
 
 /**
  * Private East Asian Width W/F range snapshot used by the owned terminal-cell engine.
  *
  * Data provenance: get-east-asian-width@1.6.0 `lookup-data.js`.
- * Upstream license: ./LICENSE.sindresorhus.txt
+ * Upstream license: ../LICENSE/mit.sindresorhus.txt
  *
  * Ambiguous characters intentionally remain narrow, matching string-width@8.2.2 defaults. Keeping
  * these arrays module-private prevents another importer from acquiring the live semantic tables.

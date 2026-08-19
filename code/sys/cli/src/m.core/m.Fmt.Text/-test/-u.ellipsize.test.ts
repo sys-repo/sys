@@ -4,8 +4,8 @@ import {
   MAX_TERMINAL_TEXT_OUTPUT_CODE_UNITS,
   MAX_TERMINAL_TEXT_SOURCE_CODE_UNITS,
 } from '../../u/u.layout.ts';
-import { ellipsize } from '../u.ellipsize.ts';
-import { measure } from '../u.width.ts';
+import { ellipsize } from '../u/u.ellipsize.ts';
+import { measure } from '../u.width/u.width.ts';
 
 describe('Cli.Fmt.Text.ellipsize', () => {
   it('preserves fitting text and balanced ASCII middle-ellipsis behavior', () => {

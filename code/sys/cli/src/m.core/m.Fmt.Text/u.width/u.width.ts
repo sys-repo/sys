@@ -4,18 +4,18 @@ import {
   runTextPresentationAuthority,
   TextIntrinsic,
   TextNumeric,
-} from './u.authority.ts';
-import type { t } from '../common.ts';
-import { measureTerminalCells } from './u.width.measure.ts';
-import { terminal as isTerminal } from '../m.Is/u.terminal.ts';
-import { Screen } from '../m.Screen/mod.ts';
+} from '../u/u.authority.ts';
+import type { t } from '../../common.ts';
+import { measureTerminalCells } from './u.measure.ts';
+import { terminal as isTerminal } from '../../m.Is/u.terminal.ts';
+import { Screen } from '../../m.Screen/mod.ts';
 import {
   addSourceCodeUnits,
   assertOutputCodeUnits,
   assertWidthCollectionLength,
   publishTerminalCells,
-} from './u.budget.ts';
-import { nonNegativeInt, optionalPositiveInt } from './u.number.ts';
+} from '../u/u.budget.ts';
+import { nonNegativeInt, optionalPositiveInt } from '../u/u.number.ts';
 
 const DEFAULT_FALLBACK_WIDTH = 80;
 const MALFORMED_MAX_LENGTH = TextIntrinsic.freeze(

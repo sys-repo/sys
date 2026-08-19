@@ -4,7 +4,7 @@ import {
   TextIntrinsic,
   TextNumeric,
 } from './u.authority.ts';
-import { Is, type t } from '../common.ts';
+import { Is, type t } from '../../common.ts';
 import { terminalLines, terminalWords } from './u.ansi.ts';
 import {
   addSourceCodeUnits,
@@ -17,7 +17,7 @@ import {
   appendTerminalCellMeasurement,
   startTerminalCellMeasurement,
   type TerminalCellMeasurement,
-} from './u.width.measure.ts';
+} from '../u.width/u.measure.ts';
 
 const PRESERVE_PATTERNS = [
   /^`[^`]+`[.:;]?$/,

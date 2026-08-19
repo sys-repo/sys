@@ -6,7 +6,7 @@ import {
   MAX_WIDTH_COLLECTION_LENGTH,
 } from '../../u/u.layout.ts';
 import { Text } from '../m.Text.ts';
-import { fitWithScreen } from '../u.width.ts';
+import { fitWithScreen } from '../u.width/u.width.ts';
 
 const apply = Reflect.apply;
 const defineProperty = Object.defineProperty;

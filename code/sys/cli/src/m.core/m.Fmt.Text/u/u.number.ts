@@ -1,4 +1,4 @@
-import { MAX_TERMINAL_CELLS } from '../u/u.layout.ts';
+import { MAX_TERMINAL_CELLS } from '../../u/u.layout.ts';
 import { assertTextPresentationAuthority, TextIntrinsic, TextNumeric } from './u.authority.ts';
 
 export function optionalPositiveInt(input: number | undefined): number | undefined {

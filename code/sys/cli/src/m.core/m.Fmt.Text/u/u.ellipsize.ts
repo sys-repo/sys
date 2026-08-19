@@ -4,10 +4,10 @@ import {
   TextIntrinsic,
   TextNumeric,
 } from './u.authority.ts';
-import type { t } from '../common.ts';
+import type { t } from '../../common.ts';
 import { addSourceCodeUnits, assertOutputCodeUnits } from './u.budget.ts';
 import { nonNegativeInt } from './u.number.ts';
-import { measureAdmitted } from './u.width.ts';
+import { measureAdmitted } from '../u.width/u.width.ts';
 
 type Grapheme = {
   readonly text: string;

@@ -1,13 +1,13 @@
 // Establish captured presentation authority before initializing private RegExp and Unicode state.
-import { TextIntrinsic, TextNumeric } from './u.authority.ts';
-import { MAX_TERMINAL_CELLS } from '../u/u.layout.ts';
-import { stripAnsi } from './u.ansi.ts';
-import { addSourceCodeUnits } from './u.budget.ts';
-import { eastAsianCellWidth } from './u.width.unicode.ts';
+import { TextIntrinsic, TextNumeric } from '../u/u.authority.ts';
+import { MAX_TERMINAL_CELLS } from '../../u/u.layout.ts';
+import { stripAnsi } from '../u/u.ansi.ts';
+import { addSourceCodeUnits } from '../u/u.budget.ts';
+import { eastAsianCellWidth } from './u.unicode.ts';
 
 /**
  * Owned terminal-cell measurement adapted from string-width@8.2.2.
- * Upstream license: ./LICENSE.sindresorhus.txt
+ * Upstream license: ../LICENSE/mit.sindresorhus.txt
  *
  * The algorithm retains only the fixed default behavior used by Cli.Fmt.Text: ANSI is ignored and
  * ambiguous East Asian characters remain narrow. All mutable semantic state is module-private.

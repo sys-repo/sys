@@ -1,12 +1,12 @@
-import { isTerminalAuthorityReady } from '../m.Is/u.terminal.ts';
-import { isScreenMeasurementAuthorityReady } from '../m.Screen/u.platform.ts';
+import { isTerminalAuthorityReady } from '../../m.Is/u.terminal.ts';
+import { isScreenMeasurementAuthorityReady } from '../../m.Screen/u.platform.ts';
 import {
   type AuthoritySnapshot,
   createSynchronousAuthority,
   snapshotProperty,
   snapshotShape,
   snapshotsReady,
-} from '../u/u.authority.ts';
+} from '../../u/u.authority.ts';
 
 const NativeArray = Array;
 const NativeError = Error;

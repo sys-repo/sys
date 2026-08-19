@@ -1,9 +1,12 @@
 import { c, describe, expect, it } from '../../../-test.ts';
 import { Cli, Fmt } from '../../mod.ts';
 import { MAX_TERMINAL_CELLS, MAX_TERMINAL_TEXT_SOURCE_CODE_UNITS } from '../../u/u.layout.ts';
-import { appendTerminalCellMeasurement, startTerminalCellMeasurement } from '../u.width.measure.ts';
-import { fit, fitWithScreen, max, measure, padEnd } from '../u.width.ts';
-import * as UnicodeWidth from '../u.width.unicode.ts';
+import {
+  appendTerminalCellMeasurement,
+  startTerminalCellMeasurement,
+} from '../u.width/u.measure.ts';
+import { fit, fitWithScreen, max, measure, padEnd } from '../u.width/u.width.ts';
+import * as UnicodeWidth from '../u.width/u.unicode.ts';
 
 describe('Cli.Fmt.Text.Width', () => {
   describe('measurement', () => {

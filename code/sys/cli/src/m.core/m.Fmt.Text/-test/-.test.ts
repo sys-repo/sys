@@ -1,9 +1,9 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Fmt } from '../../mod.ts';
 import { Text } from '../mod.ts';
-import { ellipsize } from '../u.ellipsize.ts';
-import { fit, max, measure, padEnd } from '../u.width.ts';
-import { lines, text } from '../u.wrap.ts';
+import { ellipsize } from '../u/u.ellipsize.ts';
+import { fit, max, measure, padEnd } from '../u.width/u.width.ts';
+import { lines, text } from '../u/u.wrap.ts';
 
 describe('Cli.Fmt.Text', () => {
   describe('API', () => {

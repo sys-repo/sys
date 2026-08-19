@@ -5,8 +5,8 @@ import {
   MAX_TERMINAL_TEXT_OUTPUT_CODE_UNITS,
   MAX_TERMINAL_TEXT_SOURCE_CODE_UNITS,
 } from '../../u/u.layout.ts';
-import { measure } from '../u.width.ts';
-import { lines, text } from '../u.wrap.ts';
+import { measure } from '../u.width/u.width.ts';
+import { lines, text } from '../u/u.wrap.ts';
 
 // Complete visible Grapheme_Cluster_Break=Prepend set from the current Segmenter/width proof.
 const VISIBLE_PREPEND_SCALARS = [

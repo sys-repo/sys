@@ -4,7 +4,7 @@ import { assertLineCount } from './u.budget.ts';
 
 /**
  * Owned ANSI recognition adapted from string-width@8.2.2 and its ansi-regex@6.2.2 path.
- * Upstream license: ./LICENSE.sindresorhus.txt
+ * Upstream license: ../LICENSE/mit.sindresorhus.txt
  */
 const ANSI_CSI =
   '[\\u001B\\u009B][[\\]()#;?]*(?:\\d{1,4}(?:[;:]\\d{0,4})*)?[\\dA-PR-TZcf-nq-uy=><~]';

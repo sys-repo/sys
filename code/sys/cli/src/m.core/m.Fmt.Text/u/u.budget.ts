@@ -6,7 +6,7 @@ import {
   MAX_TERMINAL_TEXT_OUTPUT_CODE_UNITS,
   MAX_TERMINAL_TEXT_SOURCE_CODE_UNITS,
   MAX_WIDTH_COLLECTION_LENGTH,
-} from '../u/u.layout.ts';
+} from '../../u/u.layout.ts';
 
 const LIMIT_EXCEEDED = TextIntrinsic.freeze(
   new Error('Cli.Fmt.Text finite presentation limit exceeded.'),
