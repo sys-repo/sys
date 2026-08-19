@@ -1,7 +1,5 @@
 start-ui.design.md
-
-- [x] 6bf22370f
-      [verified-dist-materialization.plan.md](../@sys.server/verified-dist-materialization.plan.md)
+- [x] 6bf22370f [verified-dist-materialization.plan.md](../@sys.server/verified-dist-materialization.plan.md)
 - [x] b59dbdd7b [local-dist-host.plan.md](../@sys.server/local-dist-host.plan.md)
 - [x] 1ddeb15d feat(driver-pi): split profile start modes to CLI vs local UI launch
 - [x] 58a62cb7d feat(driver-pi): persist interactive start-mode preference
@@ -22,8 +20,24 @@ start-ui.design.md
 - [x] 6a18c31d refactor(fs)!: move Rooted metadata to .sys.rooted
 - [x] e5ab20e02 fix(server.dist): publish Dist generations through sealed promotion
 - [x] 0cefa30b7 feat(driver-pi): admit GUI Dist identity from frozen launcher evidence
-- [ ] feat(server): expose an inert loopback bootstrap status host
-- [ ] feat(driver-pi): supervise start:gui through one boot state
+- [x] 923f23990 feat(server): expose an inert loopback bootstrap status host
+- [x] 8a93318f8 feat(std): expose trap-free server predicates
+- [x] a860cdebb feat(cli): expose owned keyboard listener completion
+- [x] c99ddaf3e fix(http): retain keyboard ownership through server shutdown
+- [x] 765be8c04 refactor(server.bootstrap-status): use canonical server predicates
+- [x] 46a42d181 fix(server.websocket): retain keyboard ownership through shutdown
+- [x] 1852ddf73 fix(server.dist): retain keyboard ownership through serve shutdown
+- [x] d76c7471e fix(http): own listener settlement without ambient Promise reactions
+- [x] f53a05a62 fix(server.bootstrap-status): retain listener ownership across Promise substrate failure
+- [x] b99c8ca9a fix(server.dist): retain listener ownership across Promise substrate failure
+- [x] d005f8772 fix(std): own disposal lifecycles without ambient async authority
+- [x] 46c2c5161 fix(cli): own keyboard acquisition without ambient Promise reactions
+- [x] f2d3c2a07 fix(cli): own terminal text presentation authority.
+- [x] c953b90d2 refactor(cli): group terminal text utilities
+- [x] 0ae39a4d5 chore(deps): refresh workspace dependency state
+- [x] 45a13ace2 test(cli): align Text namespace ordering contract
+- [x] fea59dbf0 feat(driver-pi): supervise start:gui through one boot state
+- [x] 41e2befec fix(driver-pi): render failed start:gui state in yellow
 - [ ] feat(driver-pi): bind local GUI preview directly to Vite build evidence
 - [ ] feat(driver-pi): expose scoped start:gui Dist reset
 - [ ] fix(driver-pi): diagnose invalid GUI cache
@@ -113,34 +127,67 @@ delivered change always overrides it.
     - Thing: reusable capability-routed status hosting with no browser control authority.
     - Likely: implementation `gpt-5.6-sol • xhigh`; landed review `gpt-5.6-sol • xhigh`.
     - Posture: BMIND → DMIND → TMIND → S-tier.
-15. `feat(driver-pi): supervise start:gui through one boot state`
+15. `fix(http): own listener settlement without ambient Promise reactions`
+    - Thing: lower HTTP lifecycle observation that cannot escape through later Promise mutation.
+    - Likely: implementation `gpt-5.6-sol • max`; landed review `gpt-5.6-sol • max`.
+    - Posture: BMIND → DMIND → TMIND → S-tier.
+16. `fix(server.bootstrap-status): retain listener ownership across Promise substrate failure`
+    - Thing: lower listener rollback after post-invocation Promise mutation without exposing raw
+      shutdown authority.
+    - Likely: implementation `gpt-5.6-sol • max`; landed review `gpt-5.6-sol • max`.
+    - Posture: BMIND → DMIND → TMIND → S-tier.
+17. `fix(server.dist): retain listener ownership across Promise substrate failure`
+    - Thing: verified Dist listener rollback and immutable runtime evidence after post-bind
+      substrate mutation.
+    - Likely: implementation `gpt-5.6-sol • max`; landed review `gpt-5.6-sol • max`.
+    - Posture: BMIND → DMIND → TMIND → S-tier.
+18. `fix(std): own disposal lifecycles without ambient async authority`
+    - Thing: shared cancellation and asynchronous-disposal construction that remains owned after
+      ambient scheduler, Promise-static, and Abort primitive mutation.
+    - Likely: implementation `gpt-5.6-sol • max`; landed review `gpt-5.6-sol • max`.
+    - Posture: BMIND → DMIND → TMIND → S-tier.
+19. `fix(cli): own keyboard acquisition without ambient Promise reactions`
+    - Thing: shared terminal-listener ownership after keypress acquisition and later Promise-method
+      mutation.
+    - Likely: implementation `gpt-5.6-sol • max`; landed review `gpt-5.6-sol • max`.
+    - Posture: BMIND → DMIND → TMIND → S-tier.
+20. `fix(cli): own terminal text presentation authority`
+    - Thing: complete synchronous terminal-cell measurement and clipping authority across CLI-owned
+      formatters and their transitive Unicode/ANSI dependencies.
+    - Likely: implementation `gpt-5.6-sol • max`; landed review `gpt-5.6-sol • max`.
+    - Posture: BMIND → DMIND → TMIND → S-tier.
+21. `test(cli): align Text namespace ordering contract`
+    - Thing: exact namespace-first public API ordering proof after private utility grouping.
+    - Likely: implementation `gpt-5.6-terra • medium`; landed review `gpt-5.6-terra • medium`.
+    - Posture: BMIND → DMIND → S-tier.
+22. `feat(driver-pi): supervise start:gui through one boot state`
     - Thing: cross-resource lifecycle, state projection, failure precedence, and cleanup
       composition.
     - Likely: implementation `gpt-5.6-sol • max`; landed review `gpt-5.6-sol • max`.
     - Posture: BMIND → DMIND → TMIND → S-tier.
-16. `feat(driver-pi): bind local GUI preview directly to Vite build evidence`
+23. `feat(driver-pi): bind local GUI preview directly to Vite build evidence`
     - Thing: build/runtime graph separation and direct prepared-generation authority transfer.
     - Likely: implementation `gpt-5.6-terra • high`; landed review `gpt-5.6-sol • xhigh`.
     - Posture: BMIND → DMIND → TMIND → S-tier.
-17. `feat(driver-pi): expose scoped start:gui Dist reset`
+24. `feat(driver-pi): expose scoped start:gui Dist reset`
     - Thing: published destructive operation with exact identity, locking, and confinement
       requirements.
     - Likely: implementation `gpt-5.6-sol • max`; landed review `gpt-5.6-sol • max`.
     - Posture: BMIND → DMIND → TMIND → S-tier.
-18. `fix(driver-pi): diagnose invalid GUI cache`
+25. `fix(driver-pi): diagnose invalid GUI cache`
     - Thing: occupied-generation classification and reset guidance without filesystem or tamper
       inference.
     - Likely: implementation `gpt-5.6-terra • high`; landed review `gpt-5.6-terra • high`.
     - Posture: BMIND → DMIND → TMIND → S-tier.
-19. `feat(driver-pi): diagnose unavailable start:gui manifest sources`
+26. `feat(driver-pi): diagnose unavailable start:gui manifest sources`
     - Thing: bounded evidence sanitization and truthful user guidance over ambiguous lower failures.
     - Likely: implementation `gpt-5.6-terra • high`; landed review `gpt-5.6-terra • high`.
     - Posture: BMIND → DMIND → TMIND → S-tier.
-20. `refactor(http): fit direct service startup output to terminal width`
+27. `refactor(http): fit direct service startup output to terminal width`
     - Thing: presentation-only terminal-cell fitting with Unicode and non-TTY compatibility.
     - Likely: implementation `gpt-5.6-terra • medium`; landed review `gpt-5.6-terra • medium`.
     - Posture: BMIND → DMIND → S-tier.
-21. `feat(driver-pi): bind published GUI Dist evidence for release`
+28. `feat(driver-pi): bind published GUI Dist evidence for release`
     - Thing: final irreversible artifact provenance, public-browser proof, and publication ordering.
     - Likely: implementation `gpt-5.6-sol • max`; landed review `gpt-5.6-sol • max`.
     - Posture: BMIND → DMIND → TMIND → S-tier.
@@ -1115,27 +1162,214 @@ and future items use the current TUI/GUI vocabulary.
 - test capability entropy/shape, stale and unknown paths, methods, fixed bytes, redirect admission,
   headers, cross-site requests, cancellation, close races, and leak-free settlement.
 
+### `fix(http): own listener settlement without ambient Promise reactions`
+
+- replace direct `.then()`/`.catch()` settlement bridges in the managed HTTP listener with
+  package-owned async observers that contain both fulfillment and rejection;
+- preserve one idempotent lifecycle completion for explicit close, underlying listener completion,
+  keyboard completion, and startup rollback without consulting later ambient Promise methods;
+- prove the complete HTTP package and the post-bind Dist Promise-mutation sequence without an
+  unhandled reaction or premature keyboard completion.
+
+### `fix(server.bootstrap-status): retain listener ownership across Promise substrate failure`
+
+- capture Promise construction, microtask/macrotask scheduling, native identity, and descriptor
+  authority before caller code can mutate ambient bindings;
+- reject substrate mutation immediately before listener creation, then snapshot the returned lower
+  listener lifecycle synchronously without invoking accessors;
+- after binding, use only captured/internal completion observation, preserve private close and
+  direct shutdown authority, and retain the lower owner whenever listener termination cannot be
+  proven; defer rollback while the captured substrate is invalid and do not retry an invoked
+  unobservable shutdown transport;
+- expose native asynchronous disposal as a zero-argument adapter onto the same memoized close
+  completion, retain explicit `close(reason)` for caller-owned cancellation evidence, and admit no
+  synchronous disposal protocol;
+- prove both mutation before the first startup continuation, which starts no listener, and mutation
+  returned synchronously by the binding dependency, which returns fixed failure without poisoned
+  accessor reads and closes the retained listener after substrate restoration.
+
+### `fix(server.dist): retain listener ownership across Promise substrate failure`
+
+- capture Dist-start Promise construction, scheduling, native identity, descriptor, and lower method
+  authority before caller code can mutate ambient bindings;
+- synchronously snapshot the bound listener's address, origin, signal, completion, close, and direct
+  shutdown authority without invoking accessors or Proxy traps; request handlers consume only that
+  immutable signal/address evidence;
+- if the substrate changes after bind, return one sanitized startup failure while strongly retaining
+  the owner and invoked operations; defer close until the captured descriptor check proves the
+  substrate restored, rather than invoking Deno shutdown through known-poisoned Promise authority;
+- prove zero poisoned species reads, no unhandled lower reaction, unresolved ownership at failure
+  settlement, eventual listener termination after restoration, and unchanged normal request
+  cancellation and serve lifecycles.
+
+### `fix(std): own disposal lifecycles without ambient async authority`
+
+- capture native Promise construction, microtask/macrotask/frame scheduling, AbortController
+  construction, abort, signal-state, and EventTarget listener authority when the asynchronous and
+  Dispose owners load;
+- construct asynchronous disposal completion without later `Promise.withResolvers`, and own
+  lifetime-triggered rejection without direct ambient Promise reaction lookup;
+- preserve structural AbortSignal compatibility while using captured native authority for native
+  signals and controllers;
+- prove pre-aborted delivery after ambient scheduler replacement, direct disposal after ambient
+  Abort replacement, asynchronous disposal after Promise-static replacement, and one real HTTP
+  listener shutdown through the hardened lifecycle.
+
+### `fix(cli): own keyboard acquisition without ambient Promise reactions`
+
+- capture Promise construction and reaction authority before caller callbacks can mutate ambient
+  methods; observe cancellation, autonomous listener work, and public completion without later
+  `.then` or `.catch` lookup;
+- once a keypress owner is acquired, either return its complete disposal/listener handle or request
+  rollback and strongly retain the lower owner when synchronous setup cannot prove absence;
+- preserve the distinction between stop intent, disposal acceptance, callback completion, listener
+  settlement, and fixed package-owned failure evidence;
+- prove independent replacement of `Promise.prototype.then` and `.catch` causes zero ambient calls,
+  returns one usable handle, and leaves no active keypress owner after listener settlement.
+
+### `fix(cli): own terminal text presentation authority`
+
+- establish one trusted first-module-evaluation baseline before initializing the owned width engine;
+  explicitly do not claim recovery of native identity after pre-import same-realm poisoning.
+  Snapshot complete intrinsic shapes, prototype identities, and expected absence rather than
+  maintaining an open-ended consumer-side method list. Replace the production `string-width` path
+  with private, frozen East Asian W/F data adapted from the pinned behavior and retained under its
+  MIT notice;
+- own Deno/process terminal detection and measurement at `Cli.Is` and `Cli.Screen`, then compose
+  their readiness into one stable `Cli.Fmt.Text.isReady()` contract. Every width, wrapping, and
+  ellipsizing entry fails before changed authority executes, while lower public probes remain safely
+  unavailable;
+- centralize descriptor-only authority snapshots and synchronous caller transactions. Re-admit
+  around each option, collection, Proxy, measurement, preserve, and renderer boundary before
+  branching, member lookup, protected continuation, or successful return; preserve ordinary caller
+  failures only while authority remains intact;
+- use captured operations and indexed algorithms after admission; eliminate avoidable RegExp split,
+  array species, iterator-close, eager width-segmentation materialization, and caller-owned
+  collection method dispatch. Use one bounded linear ANSI scanner for stripping, external-line
+  projection, and word measurement: retain complete controls byte-for-byte when payloads contain
+  spaces, tabs, or line breaks, and normalize only plain external edge whitespace. Preserve
+  whole-fragment grapheme decisions with an incremental width state that retains the unresolved
+  prior grapheme and re-segments only that tail with each normalized separator and following word;
+  measure each indentation plus leading-whitespace prefix with its first word. Preflight fenced
+  output against the opening fence indentation rather than an unrelated continuation value. Bound
+  the transactional `Width.max` scan to 4,096 entries sharing one 65,535-code-unit source-work
+  budget; route finite count overflow through the shared fixed presentation-limit policy while
+  retaining the distinct trap-free malformed-length refusal;
+- preserve existing terminal-cell, grapheme, ANSI, Deno/Node fallback, wrapping, and public type
+  behavior; bound physical and published derived layout integers to 65,535 cells. Bound each Text
+  transaction to 65,535 aggregate UTF-16 source and output code units, with Wrap source and produced
+  lines capped at 4,096; refuse overflow before segmentation, repeat, join, renderer continuation,
+  or an unsafe public allocation count. Prove the owned engine matches the pinned width result
+  across every Unicode scalar while former dependency table mutation cannot influence CLI
+  measurement;
+- prove independent mutation and addition across intrinsic shapes, owned iterator state, runtime
+  providers, numeric/string/RegExp/segmenter authority, and returning or throwing caller boundaries
+  causes zero hostile presentation calls and one fixed CLI error;
+- keep direct dependency cleanup separate from the terminal-text implementation: remove
+  `string-width@8.2.2` through canonical `deps.yaml` preparation while retaining `strip-ansi` for
+  its independent consumers and preserving the owned engine's upstream provenance and MIT notice.
+
+### `test(cli): align Text namespace ordering contract`
+
+- retain the `Cli.Fmt.Text` public order as namespace members first (`Width`, `Wrap`) followed by
+  function members (`ellipsize`, `isReady`), and align the exact API-shape assertion with that
+  intentional grouping;
+- change no formatter runtime behavior or type surface, and prove the complete frozen CLI package.
+
 ### `feat(driver-pi): supervise start:gui through one boot state`
 
-- start the generic status host before authority settlement and project one Driver Pi host state
+- synchronously validate, canonicalize, and discard raw authority before any asynchronous boundary;
+  admit the complete top-level input, nested cwd, exact plain dependency subset, and direct native
+  cancellation signal without structural access or Proxy invocation; refuse accessors, custom
+  prototypes, symbols, and unknown residue before any lower call; start the generic status host
+  before publishing or acting on that frozen authority outcome, and project one Driver Pi host state
   value into terminal and finite package-owned browser variants;
+- capture Promise construction, reaction, microtask, reflection, descriptor, collection, string,
+  AbortSignal/EventTarget, and URL constructor/getter authority at module initialization; before
+  bootstrap or another unsafe promise-returning operation, reject later ambient Promise binding,
+  inherited constructor, species, or URL-prototype mutation through descriptor inspection without
+  invoking accessors. Use no later ambient Promise, collection, string, abort-listener/state, URL
+  getter, or direct reaction lookup; invoke each copied dependency with an undefined receiver so no
+  override receives unrelated capabilities. Attach dependency transports in their invocation turn,
+  and own package-created rejection observation before a hostile synchronous callback can invalidate
+  the substrate;
+- if the substrate becomes invalid after a lower owner becomes observable, synchronously transfer
+  and retain that owner, stop unsafe work, and preserve unresolved cleanup truth. A per-instance
+  inadmissible Promise or an invocation that throws without returning a transport remains
+  dependency-owned when its contract exposes no synchronous handle or rollback authority; retain
+  that invoked operation as unresolved evidence, report an unobservable bootstrap start as
+  unresolved status ownership, and never release the shared generation lease while materialization
+  or application effects may still be running;
+- keep boot-state subscriptions synchronous and serialize each transition over one immutable finite
+  listener snapshot: unsubscription affects only future transitions and reentrant transitions wait
+  until the active snapshot completes. The supervisor owns invocation throws, while callback return
+  values and any work they start remain observer-owned. Expose no hidden Promise-return or
+  observer-settlement channel through the state projection;
+- bound retained manifest URLs and development directories to 4,096 UTF-16 code units, integrity
+  strings to the exact 71-code-unit SHA-256 form, and package names/versions to 256 each; validate
+  the integrity and status-capability alphabets with captured code-unit authority rather than RegExp
+  dispatch; reject controls and over-bound values before asynchronous retention, URL parsing, or
+  identity admission, and retain only canonical admitted URL text in fixed identity diagnostics;
 - use only `preparing`, `starting-app-host`, `ready(origin)`, `failed(category, safeEvidence)`, and
   `stopping`; do not invent internal materializer progress that the lower API does not expose;
-- bind terminal controls before attempting browser open; invoke the opener exactly once, retain a
-  failed opener as secondary presentation evidence, print the capability URL, and continue securely;
+- bind terminal controls before attempting browser open; a keyboard or screen invocation that throws
+  without returning a handle remains conservatively unresolved presentation ownership even when the
+  default lower owner is transactional. Admit resize stream, subscription, unsubscription, and event
+  disposal through non-Proxy data descriptors, transfer retryable rollback immediately, and never
+  report acquisition after a synchronous resize callback has already failed ownership. Consume the
+  lower CLI terminal-text readiness contract before presentation. Invoke the opener exactly once,
+  observe an unexpected native Promise in its invocation turn, strongly retain an unobservable
+  return, reduce rejection to secondary presentation evidence, print the capability URL through
+  captured URL authority without a lower ambient reparse, and continue securely;
 - settle one frozen release or development mode, admit expected package identity, and start the Dist
-  host before publishing `ready`; released sessions consume the lower Rooted target API to hold one
-  OS-backed shared owner lifecycle lease that reset must acquire exclusively, never raw lock calls
-  or a PID-file heuristic;
+  host before publishing `ready`; atomically snapshot the returned pinned authority, matching
+  verification integrity and package, close/listener authority, origin, and recursively frozen
+  applied verified-loopback policy through exact data descriptors. Require one concrete nonzero IPv4
+  loopback port and exact agreement among returned hostname, address, port, origin, policy origin,
+  and policy host; reject omitted/default ports, port zero, IPv6, and mixed listener evidence.
+  Compare the exact host, zero dedicated-worker grant, `sw.js` tombstone, Fetch-Metadata posture,
+  and fixed response headers before retaining only copied evidence. Missing, mutable, or mismatched
+  pin/verification evidence closes the captured host and cannot publish `ready`. Released sessions
+  consume the lower Rooted target API to hold one OS-backed shared owner lifecycle lease that reset
+  must acquire exclusively, never raw lock calls or a PID-file heuristic. Capture the fixed store
+  namespace and owner target before any lower callback can mutate exported PiFs data, resolve that
+  canonical store parent independently, bind the returned Rooted path to it, and require exact
+  shared-mode/target lease evidence. Validate all fallible path material before acquisition, install
+  the lease into a rollback slot immediately, and report `complete` versus `pending` cleanup
+  truthfully when cancellation or another post-acquisition failure prevents ownership transfer;
+- treat Rooted lease release as one idempotent lower operation: rejection retains process-lifetime
+  unresolved ownership and relies on OS release at process exit; it does not claim a second
+  in-process release attempt or reconciliation authority that the lower contract does not expose;
 - keep refresh observational, retain failure in foreground, and add no browser mutation;
 - close application host before status host and dispose keyboard, screen, timers, and cancellation
-  through one shared idempotent lifecycle; successful closure proves absence, while a rejected lower
-  close retains typed unresolved-listener evidence and triggers remaining independent close
-  attempts;
-- test state transitions, two projections, malformed-authority status, first-request-ready, nonfatal
-  opener failure, bootstrap bind failure, no-application failure, listener death after ready,
-  cancellation, cleanup precedence, unresolved-close evidence, and no duplicate attempt or browser
-  open.
+  through one shared idempotent lifecycle; after Keyboard disposal is accepted, continue independent
+  lower cleanup but do not publish final completion until the already-owned `Keyboard.finished`
+  observation and its settlement callbacks terminate. Preserve unresolved keyboard evidence only
+  when disposal or Promise-transport admission prevents safe waiting. Successful closure proves
+  absence, while a rejected lower close retains typed unresolved-listener evidence and triggers
+  remaining independent close attempts;
+- test state-transition cross-unsubscription and reentrancy, two projections, malformed authority
+  held behind a deterministic bootstrap barrier with recursive secret inspection,
+  first-request-ready, top-level/cwd/dependency/lifecycle accessor and Proxy refusal, receiverless
+  exact dependencies, mutable returned origins, exact pinned application authority and verification
+  in both modes, complete applied-policy mismatch, captured collection/string/URL and
+  AbortSignal/EventTarget authority, RegExp-exec and inherited-setter poisoning, canonical Rooted
+  path plus callback-mutated PiFs and shared-mode/target lease evidence, lifecycle accessors,
+  synchronous and rejected-Promise opener failure, hostile opener thenables, exact IPv4
+  listener/port consistency, descriptor-only resize rollback, synchronous resize failure during
+  measurement, bootstrap bind failure, delayed Keyboard settlement after accepted disposal, public
+  quit-before-accessor precedence, unobservable keyboard acquisition and
+  acquisition/materialization/application transports, real exclusive contention behind unresolved
+  materialization, no-application failure, listener death after ready, reaction-local trusted stop,
+  cancellation, cleanup precedence, one-shot unresolved release evidence, and no duplicate attempt
+  or browser open.
+
+### `fix(driver-pi): render failed start:gui state in yellow`
+
+- keep normal boot-state values white and render failed-state values yellow without changing failure
+  text, evidence, state ownership, or lifecycle semantics;
+- preserve yellow head and tail styling when a failed value is clipped while rendering the inserted
+  ellipsis gray, and prove both complete and clipped failed rows plus every normal state.
 
 ### `feat(driver-pi): bind local GUI preview directly to Vite build evidence`
 
