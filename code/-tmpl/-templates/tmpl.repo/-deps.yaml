@@ -84,7 +84,7 @@ package.json:
     dev: true
   - import: npm:rollup@4.62.4
     dev: true
-  - import: npm:rollup-plugin-visualizer@7.0.1
+  - import: npm:rollup-plugin-visualizer@7.1.1
     dev: true
   - import: npm:vite@8.2.1
     dev: true

@@ -85,7 +85,6 @@ deno.json:
   - import: npm:rxjs@7.8.2
     subpaths: [ operators ]
   - import: npm:shiki@4.4.3
-  - import: npm:string-width@8.2.2
   - import: npm:strip-ansi@7.2.0
   - import: npm:tinycolor2@1.6.0
   - import: npm:ts-essentials@10.2.1
