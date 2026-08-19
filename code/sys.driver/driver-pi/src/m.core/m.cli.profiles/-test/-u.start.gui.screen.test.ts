@@ -1,7 +1,7 @@
 import { describe, expect, it, WebFixture } from '../../../-test.ts';
 import { c, Cli, type t } from '../common.ts';
 import { observeResizeWith, StartGuiScreen } from '../u.start/u.screen.ts';
-import { Boot, createBootState } from '../u.start/u.state.ts';
+import { Boot, type BootState, createBootState } from '../u.start/u.state.ts';
 import { createScreenHarness } from './u.fixture.start.gui.screen.ts';
 
 const SERVICE = 'sys.ui:pi';
@@ -682,6 +682,26 @@ describe('@sys/driver-pi start:gui screen', () => {
     expect(row('open')).to.contain(c.dim(c.gray(' open')));
   });
 
+  it('renders failed state yellow and all other states white', () => {
+    const failed = Boot.failed('repair-required', { kind: 'cancellation' });
+    expect(renderStateRow(failed)).to.contain(c.yellow('failed: repair-required'));
+
+    const clipped = renderStateRow(failed, 33);
+    expect(clipped).to.contain(c.yellow('failed: '));
+    expect(clipped).to.contain(c.gray('…'));
+    expect(clipped).to.contain(c.yellow('required'));
+
+    const normalStates = [
+      [Boot.preparing, 'preparing'],
+      [Boot.startingAppHost, 'starting application host'],
+      [Boot.ready(APPLICATION), 'ready'],
+      [Boot.stopping, 'stopping'],
+    ] as const;
+    for (const [state, text] of normalStates) {
+      expect(renderStateRow(state)).to.contain(c.white(text));
+    }
+  });
+
   it('renders consistent modifier and key footer grammar', () => {
     const frame = StartGuiScreen.toString({
       service: SERVICE,
@@ -1189,6 +1209,22 @@ describe('@sys/driver-pi start:gui screen', () => {
  * Helpers:
  */
 type ScreenSize = t.Cli.Screen.Size;
+
+function renderStateRow(state: BootState, width = 80): string {
+  const frame = StartGuiScreen.toString({
+    service: SERVICE,
+    url: CAPABILITY,
+    state,
+    keyboard: false,
+    openWarning: false,
+    viewport: { width, height: 12 },
+  });
+  return frame.split('\n').find(isStateRow) ?? '';
+}
+
+function isStateRow(row: string): boolean {
+  return Cli.stripAnsi(row).trimStart().startsWith('state');
+}
 
 function expectFrame(frame: string, viewport: ScreenSize, state: string) {
   const width = viewport.width;

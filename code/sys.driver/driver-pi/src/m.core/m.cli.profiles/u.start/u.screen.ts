@@ -298,7 +298,7 @@ export const StartGuiScreen = {
     ]);
     StartGuiIntrinsic.arrayPush(facts, [
       'state',
-      { kind: 'text', text: stateText(input.state) },
+      { kind: 'state', state: input.state },
     ]);
     if (input.state.kind === 'ready') {
       StartGuiIntrinsic.arrayPush(facts, [
@@ -352,6 +352,7 @@ export const StartGuiScreen = {
  */
 type ServiceValue =
   | { readonly kind: 'title' | 'text'; readonly text: string }
+  | { readonly kind: 'state'; readonly state: BootState }
   | { readonly kind: 'url'; readonly text: t.StringUrl };
 
 const FRAME_CURSOR_ROWS = 1;
@@ -394,7 +395,10 @@ function serviceValue(value: ServiceValue, width: number) {
     const display = fitServiceUrl(part, width);
     return Cli.Fmt.hyperlink(display, href);
   }
-  return fitValue(c.white(value.text), width);
+  if (value.kind === 'state') {
+    return fitValue(stateText(value.state), width, stateColor(value.state));
+  }
+  return fitValue(value.text, width, c.white);
 }
 
 function captureServiceUrl(input: t.StringUrl): t.Cli.Fmt.ServiceUrl.Part | undefined {
@@ -435,6 +439,10 @@ function formatServiceOrigin(part: t.Cli.Fmt.ServiceUrl.Part): string {
     part.origin.length - part.port.length,
   );
   return `${c.cyan(prefix)}${c.bold(c.cyan(part.port))}`;
+}
+
+function stateColor(state: BootState): (text: string) => string {
+  return state.kind === 'failed' ? c.yellow : c.white;
 }
 
 function stateText(state: BootState): string {
@@ -478,10 +486,12 @@ function evidenceText(evidence: BootSafeEvidence): string {
   }
 }
 
-function fitValue(value: string, width: number) {
+function fitValue(value: string, width: number, color: (text: string) => string) {
   if (width <= 0) return '';
-  if (Cli.Fmt.Text.Width.measure(value) <= width) return value;
-  return ellipsize(value, width);
+  if (Cli.Fmt.Text.Width.measure(value) <= width) return color(value);
+  return Cli.Fmt.Text.ellipsize(value, width, {
+    render: ({ head, ellipsis, tail }) => `${color(head)}${c.gray(ellipsis)}${color(tail)}`,
+  });
 }
 
 function keyboardRows(width: number): readonly string[] {
