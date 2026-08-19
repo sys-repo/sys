@@ -1,4 +1,4 @@
-import type { t } from '../common.ts';
+import type { t } from './common.ts';
 
 /** Fixed browser authority for one verified Driver Pi Dist on numeric loopback. */
 export const VERIFIED_LOOPBACK_BROWSER_POLICY = Object.freeze({

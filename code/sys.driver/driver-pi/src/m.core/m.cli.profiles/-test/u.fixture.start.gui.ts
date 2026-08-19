@@ -1,8 +1,8 @@
-import { Fs, type t } from '../common.ts';
-import { Pkg as FsPkg } from '@sys/fs/pkg';
+import { FsPkg } from '../../../-test.ts';
+import { Fs, type t, Url } from '../common.ts';
 import { START_GUI_SERVICE } from '../u/u.start.gui.service.ts';
 
-export type Started = t.HttpServer.Started;
+export type Started = t.DistServer.Started;
 export type Keyboard = t.Cli.Keyboard.Bind.Handle;
 
 export function asProfileRoot(root: t.StringDir): t.PiCli.Cwd {
@@ -18,6 +18,7 @@ export function fakeGeneration(
   source: Readonly<{
     integrity?: t.StringHash;
     manifestUrl?: t.StringUrl;
+    cleanup?: t.Dist.Cleanup;
   }> = {},
 ): t.Dist.Existing {
   return fakeGenerationWithPkgEvidence({
@@ -32,6 +33,7 @@ export function fakeGenerationWithPkgEvidence(
     omitPkg?: boolean;
     integrity?: t.StringHash;
     manifestUrl?: t.StringUrl;
+    cleanup?: t.Dist.Cleanup;
   }>,
 ): t.Dist.Existing {
   const integrity = input.integrity ?? START_GUI_SERVICE.source.integrity;
@@ -62,26 +64,156 @@ export function fakeGenerationWithPkgEvidence(
     verification,
     source: Object.freeze({ configuredUrl: manifestUrl }),
     seal: Object.freeze({ kind: 'applied', changed: false }),
-    cleanup: 'not-needed',
+    cleanup: input.cleanup ?? 'not-needed',
   }) as t.Dist.Existing;
 }
 
-export function deferred(): { readonly promise: Promise<void>; readonly resolve: () => void } {
+export function deferred(): {
+  readonly promise: Promise<void>;
+  readonly resolve: () => void;
+  readonly reject: (cause?: unknown) => void;
+} {
   let resolve!: () => void;
-  const promise = new Promise<void>((done) => {
+  let reject!: (cause?: unknown) => void;
+  const promise = new Promise<void>((done, fail) => {
     resolve = done;
+    reject = fail;
   });
-  return { promise, resolve };
+  return { promise, resolve, reject };
+}
+
+export type BootstrapStatusFixtureOptions = {
+  url?: t.StringUrl;
+  finished?: Promise<void>;
+  close?: (reason?: unknown) => void | Promise<void>;
+};
+
+/** Create one truthful, memoized BootstrapStatus lifecycle double. */
+export function bootstrapStatusFixture(
+  options: BootstrapStatusFixtureOptions = {},
+): t.BootstrapStatus.Started {
+  const localFinished = deferred();
+  const finished = options.finished ?? localFinished.promise;
+  let disposed = false;
+  let closeCompletion: Promise<void> | undefined;
+
+  void finished.then(
+    () => (disposed = true),
+    () => (disposed = true),
+  );
+
+  const close = (reason?: unknown): Promise<void> => {
+    if (closeCompletion) return closeCompletion;
+    const completion = deferred();
+    closeCompletion = completion.promise;
+    void settle(reason, completion);
+    return closeCompletion;
+  };
+  const asyncDispose = (): Promise<void> => close();
+
+  return Object.freeze({
+    url: options.url ??
+      'http://127.0.0.1:45000/0123456789abcdefghijklmnopqrstuvwxyzabcd' as t.StringUrl,
+    finished,
+    get disposed() {
+      return disposed;
+    },
+    close,
+    [Symbol.asyncDispose]: asyncDispose,
+  });
+
+  async function settle(
+    reason: unknown,
+    completion: ReturnType<typeof deferred>,
+  ): Promise<void> {
+    let failed = false;
+    let failure: unknown;
+    try {
+      await options.close?.(reason);
+    } catch (cause) {
+      failed = true;
+      failure = cause;
+    }
+
+    if (!options.finished) localFinished.resolve();
+
+    try {
+      await finished;
+    } catch (cause) {
+      failed = true;
+      failure ??= cause;
+    }
+
+    if (failed) completion.reject(failure);
+    else completion.resolve();
+  }
+}
+
+export function appliedBrowserPolicyFixture(
+  origin: t.StringUrl,
+): t.DistServer.BrowserPolicy.Applied {
+  const parsed = Url.parse(origin);
+  if (!parsed.ok) throw new Error('Invalid application-origin fixture.');
+  const worker = `${origin}/sw.js`;
+  const contentSecurityPolicy = [
+    "default-src 'none'",
+    "base-uri 'none'",
+    `child-src ${worker}`,
+    "connect-src 'self'",
+    "font-src 'self'",
+    "form-action 'none'",
+    "frame-ancestors 'none'",
+    "frame-src 'none'",
+    "img-src 'self' data:",
+    "manifest-src 'self'",
+    "media-src 'self'",
+    "object-src 'none'",
+    "script-src 'self'",
+    "style-src 'self' 'unsafe-inline'",
+    `worker-src ${worker}`,
+  ].join('; ');
+  return Object.freeze({
+    kind: 'verified-loopback',
+    origin,
+    host: parsed.toURL().host,
+    dedicatedWorkers: Object.freeze([]),
+    serviceWorker: Object.freeze({ kind: 'tombstone', path: 'sw.js' }),
+    fetchMetadata: Object.freeze({ crossSite: 'deny', missing: 'allow' }),
+    headers: Object.freeze({
+      cacheControl: 'no-store',
+      contentSecurityPolicy,
+      crossOriginOpenerPolicy: 'same-origin',
+      crossOriginResourcePolicy: 'same-origin',
+      referrerPolicy: 'no-referrer',
+      xContentTypeOptions: 'nosniff',
+      xFrameOptions: 'DENY',
+    }),
+  });
 }
 
 export function startedFixture(input: {
   close?: (reason: unknown) => Promise<void>;
   finished?: Promise<void>;
+  pkg?: Readonly<t.Pkg>;
+  integrity?: t.StringHash;
 } = {}): Started {
+  const generation = fakeGeneration(input.pkg, { integrity: input.integrity });
+  const origin = 'http://127.0.0.1:1234' as t.StringUrl;
+  const completion = deferred();
+  const close = async (reason: unknown) => {
+    await input.close?.(reason);
+    if (!input.finished) completion.resolve();
+  };
   return {
-    origin: 'http://127.0.0.1:1234' as t.StringUrl,
-    close: input.close ?? (() => Promise.resolve()),
-    finished: input.finished ?? Promise.resolve(),
+    addr: { transport: 'tcp', hostname: '127.0.0.1', port: 1234 },
+    hostname: '127.0.0.1',
+    port: 1234,
+    origin,
+    close,
+    finished: input.finished ?? completion.promise,
+    authority: Object.freeze({ kind: 'pinned', integrity: generation.integrity }),
+    verification: generation.verification,
+    browserPolicy: appliedBrowserPolicyFixture(origin),
   } as Started;
 }
 
@@ -104,7 +236,10 @@ export async function removeDistStore(storeDir: t.StringDir): Promise<void> {
     { path: Fs.basename(storeDir), kind: 'directory' },
   ]);
   const target = admitted.targets[0];
-  const acquired = await rooted.acquireLease([target], { mode: 'exclusive' });
+  const acquired = await rooted.acquireLease([target], {
+    mode: 'exclusive',
+    wait: true,
+  });
   if (acquired.kind !== 'acquired') throw new Error('Dist test store is busy.');
   try {
     await rooted.removeTree(target, { lease: acquired.lease });
@@ -138,7 +273,8 @@ export async function loopbackDistFixture() {
   }
   const manifest = await Deno.readFile(Fs.join(source, 'dist.json'));
   const server = Deno.serve({ hostname: '127.0.0.1', port: 0, onListen() {} }, (request) => {
-    const path = new URL(request.url).pathname;
+    const parsed = Url.parse(request.url);
+    const path = parsed.ok ? parsed.toURL().pathname : '';
     if (path === '/dist.json') return new Response(manifest);
     const asset = assets.get(path);
     return asset ? new Response(asset.buffer as ArrayBuffer) : new Response(null, { status: 404 });

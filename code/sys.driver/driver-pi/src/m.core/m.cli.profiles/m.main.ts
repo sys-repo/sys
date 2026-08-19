@@ -17,7 +17,7 @@ type MainDependencies = {
   readonly startGui: (input: {
     cwd: t.PiCli.Cwd;
     source: StartGuiEvidence;
-    until?: t.UntilInput;
+    until?: AbortSignal;
   }) => Promise<void>;
 };
 

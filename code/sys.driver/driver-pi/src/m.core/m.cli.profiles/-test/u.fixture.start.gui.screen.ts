@@ -1,4 +1,4 @@
-import { type t } from '../common.ts';
+import type { t } from '../common.ts';
 
 type ScreenSize = t.Cli.Screen.Size;
 
@@ -17,7 +17,7 @@ export function createScreenHarness(
   const frames: string[] = [];
   let releases = 0;
   let measured = false;
-  let onResize: (size: ScreenSize) => void = () => {};
+  let onResize: (size: unknown) => void = () => {};
 
   return {
     frames,
@@ -33,7 +33,7 @@ export function createScreenHarness(
         }
         return initial;
       },
-      observeResize(handler: (size: ScreenSize) => void) {
+      observeResize(handler: (size: unknown) => void) {
         onResize = handler;
         return () => {
           releases += 1;

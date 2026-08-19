@@ -8,10 +8,10 @@ export type { FC, ReactElement, ReactNode } from 'react';
  */
 export type * from '@sys/types';
 export type { Cli } from '@sys/cli/t';
-export type { FileMap, JsonFile } from '@sys/fs/t';
+export type { FileMap, FsRooted, JsonFile } from '@sys/fs/t';
 export type { HttpServer } from '@sys/http/t';
 export type { OpenLib, Process } from '@sys/process/t';
-export type { Dist, DistServer } from '@sys/server/t';
+export type { BootstrapStatus, Dist, DistServer } from '@sys/server/t';
 export type { Tmpl, TmplProcessFile } from '@sys/tmpl-engine/t';
 export type { Yaml } from '@sys/yaml/t';
 
