@@ -1,6 +1,13 @@
+import {
+  assertTextPresentationAuthority,
+  runTextPresentationAuthority,
+  TextIntrinsic,
+  TextNumeric,
+} from './u.authority.ts';
 import type { t } from '../common.ts';
+import { addSourceCodeUnits, assertOutputCodeUnits } from './u.budget.ts';
 import { nonNegativeInt } from './u.number.ts';
-import { measure } from './u.width.ts';
+import { measureAdmitted } from './u.width.ts';
 
 type Grapheme = {
   readonly text: string;
@@ -14,8 +21,6 @@ type Selection = {
   readonly tailWidth: number;
 };
 
-const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
-
 /**
  * Grapheme-safe middle clipping for plain, single-line text within a terminal-cell budget.
  *
@@ -27,12 +32,17 @@ export function ellipsize(
   width: number,
   options: t.CliFormatText.Ellipsize.Options = {},
 ): string {
+  assertTextPresentationAuthority();
+  const text = typeof input === 'string' ? input : '';
+  const sourceCodeUnits = addSourceCodeUnits(0, text);
   const budget = nonNegativeInt(width, 0);
   if (budget === 0) return '';
-  if (measure(input) <= budget) return input;
+  if (measureAdmitted(text) <= budget) return text;
 
-  const marker = options.ellipsis ?? '…';
-  const markerWidth = measure(marker);
+  const markerInput: unknown = readOption(options, 'ellipsis');
+  const marker = typeof markerInput === 'string' ? markerInput : '…';
+  addSourceCodeUnits(sourceCodeUnits, marker);
+  const markerWidth = measureAdmitted(marker);
   if (markerWidth > budget) {
     return renderParts({ head: '', ellipsis: clipStart(marker, budget), tail: '' }, options);
   }
@@ -40,13 +50,10 @@ export function ellipsize(
     return renderParts({ head: '', ellipsis: marker, tail: '' }, options);
   }
 
-  const items = graphemes(input);
+  const items = graphemes(text);
   const selected = selectEnds(items, budget - markerWidth);
-  const head = items.slice(0, selected.headCount).map((item) => item.text).join('');
-  const tail = selected.tailCount === 0
-    ? ''
-    : items.slice(items.length - selected.tailCount).map((item) => item.text).join('');
-
+  const head = joinItems(items, 0, selected.headCount);
+  const tail = joinItems(items, items.length - selected.tailCount, items.length);
   return renderParts({ head, ellipsis: marker, tail }, options);
 }
 
@@ -54,38 +61,67 @@ export function ellipsize(
  * Helpers:
  */
 function renderParts(
-  parts: t.CliFormatText.Ellipsize.Parts,
+  source: t.CliFormatText.Ellipsize.Parts,
   options: t.CliFormatText.Ellipsize.Options,
-) {
-  return options.render?.(parts) ?? `${parts.head}${parts.ellipsis}${parts.tail}`;
+): string {
+  assertOutputCodeUnits(source.head.length + source.ellipsis.length + source.tail.length);
+  const fallback = `${source.head}${source.ellipsis}${source.tail}`;
+  const parts = TextIntrinsic.freeze({ ...source });
+  const render: unknown = readOption(options, 'render');
+  if (typeof render !== 'function') return fallback;
+  const output: unknown = runTextPresentationAuthority(() => render(parts));
+  if (typeof output !== 'string') return fallback;
+  assertOutputCodeUnits(output.length);
+  return output;
 }
 
 function graphemes(input: string): Grapheme[] {
-  return [...segmenter.segment(input)].map(({ segment }) => ({
-    text: segment,
-    width: measure(segment),
-  }));
+  const output: Grapheme[] = [];
+  TextIntrinsic.forEachSegment(input, (text) => {
+    TextIntrinsic.arrayPush(
+      output,
+      TextIntrinsic.freeze({
+        text,
+        width: measureAdmitted(text),
+      }),
+    );
+  });
+  return output;
 }
 
 function clipStart(input: string, budget: number): string {
-  const selected: string[] = [];
+  const output: string[] = [];
+  let outputCodeUnits = 0;
   let width = 0;
-
-  for (const item of graphemes(input)) {
-    if (width + item.width > budget) break;
-    selected.push(item.text);
-    width += item.width;
-  }
-
-  return selected.join('');
+  TextIntrinsic.forEachSegment(input, (text) => {
+    const itemWidth = measureAdmitted(text);
+    if (width + itemWidth > budget) return false;
+    outputCodeUnits += text.length;
+    assertOutputCodeUnits(outputCodeUnits);
+    TextIntrinsic.arrayPush(output, text);
+    width += itemWidth;
+  });
+  return TextIntrinsic.arrayJoin(output, '');
 }
 
-function selectEnds(items: Grapheme[], budget: number): Selection {
+function joinItems(items: readonly Grapheme[], start: number, end: number): string {
+  const output: string[] = [];
+  let outputCodeUnits = 0;
+  for (let index = start; index < end; index += 1) {
+    const text = items[index].text;
+    outputCodeUnits += text.length;
+    assertOutputCodeUnits(outputCodeUnits);
+    TextIntrinsic.arrayPush(output, text);
+  }
+  return TextIntrinsic.arrayJoin(output, '');
+}
+
+function selectEnds(items: readonly Grapheme[], budget: number): Selection {
   // Maximize retained cells, then balance both ends and favor the head on exact ties.
   const suffixWidths = [0];
   for (let index = items.length - 1; index >= 0; index--) {
     const width = suffixWidths[suffixWidths.length - 1] ?? 0;
-    suffixWidths.push(width + items[index]!.width);
+    TextIntrinsic.arrayPush(suffixWidths, width + items[index].width);
   }
 
   let best: Selection | undefined;
@@ -93,12 +129,12 @@ function selectEnds(items: Grapheme[], budget: number): Selection {
   let tailCount = items.length;
 
   for (let headCount = 0; headCount <= items.length; headCount++) {
-    if (headCount > 0) headWidth += items[headCount - 1]!.width;
+    if (headCount > 0) headWidth += items[headCount - 1].width;
     if (headWidth > budget) break;
 
     while (
       tailCount > items.length - headCount ||
-      headWidth + suffixWidths[tailCount]! > budget
+      headWidth + suffixWidths[tailCount] > budget
     ) {
       tailCount--;
     }
@@ -107,7 +143,7 @@ function selectEnds(items: Grapheme[], budget: number): Selection {
       headCount,
       headWidth,
       tailCount,
-      tailWidth: suffixWidths[tailCount]!,
+      tailWidth: suffixWidths[tailCount],
     };
     if (isBetter(candidate, best)) best = candidate;
   }
@@ -122,8 +158,8 @@ function isBetter(candidate: Selection, current?: Selection): boolean {
   const currentUsed = current.headWidth + current.tailWidth;
   if (used !== currentUsed) return used > currentUsed;
 
-  const balance = Math.abs(candidate.headWidth - candidate.tailWidth);
-  const currentBalance = Math.abs(current.headWidth - current.tailWidth);
+  const balance = TextNumeric.abs(candidate.headWidth - candidate.tailWidth);
+  const currentBalance = TextNumeric.abs(current.headWidth - current.tailWidth);
   if (balance !== currentBalance) return balance < currentBalance;
 
   if (candidate.headWidth !== current.headWidth) {
@@ -131,4 +167,11 @@ function isBetter(candidate: Selection, current?: Selection): boolean {
   }
 
   return candidate.headCount > current.headCount;
+}
+
+function readOption<K extends keyof t.CliFormatText.Ellipsize.Options>(
+  options: t.CliFormatText.Ellipsize.Options,
+  key: K,
+): t.CliFormatText.Ellipsize.Options[K] {
+  return runTextPresentationAuthority(() => options[key]);
 }

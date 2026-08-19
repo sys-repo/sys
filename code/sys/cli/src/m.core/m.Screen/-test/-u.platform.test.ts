@@ -1,4 +1,5 @@
 import { describe, expect, it, Num } from '../../../-test.ts';
+import { MAX_TERMINAL_CELLS } from '../../u/u.layout.ts';
 import { createPlatform } from '../u.platform.ts';
 
 describe('Cli.Screen platform adapter', () => {
@@ -49,6 +50,22 @@ describe('Cli.Screen platform adapter', () => {
     }));
 
     expect(platform.measure()).to.eql({ width: undefined, height: 24 });
+  });
+
+  it('floors terminal dimensions and rejects values above the layout maximum', () => {
+    const exact = createPlatform(() => ({
+      Deno: {
+        consoleSize: () => ({ columns: MAX_TERMINAL_CELLS + 0.9, rows: 24.9 }),
+      },
+    }));
+    const oversized = createPlatform(() => ({
+      Deno: {
+        consoleSize: () => ({ columns: MAX_TERMINAL_CELLS + 1, rows: Number.MAX_VALUE }),
+      },
+    }));
+
+    expect(exact.measure()).to.eql({ width: MAX_TERMINAL_CELLS, height: 24 });
+    expect(oversized.measure()).to.eql({ width: undefined, height: undefined });
   });
 
   it('returns an attachment-specific resize cleanup', () => {

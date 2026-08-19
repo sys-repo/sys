@@ -71,6 +71,7 @@ type ExpectedTextWrapLib = {
   ) => readonly string[];
 };
 type ExpectedTextLib = {
+  readonly isReady: () => boolean;
   readonly Width: ExpectedTextWidthLib;
   readonly Wrap: ExpectedTextWrapLib;
   readonly ellipsize: (

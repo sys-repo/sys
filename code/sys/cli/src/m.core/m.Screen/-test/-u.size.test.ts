@@ -1,4 +1,5 @@
 import { describe, expect, it, Num } from '../../../-test.ts';
+import { MAX_TERMINAL_CELLS } from '../../u/u.layout.ts';
 import { createSize } from '../u.size.ts';
 
 describe('Cli.Screen.size', () => {
@@ -25,5 +26,16 @@ describe('Cli.Screen.size', () => {
     }));
 
     expect(size()).to.eql({ width: 80, height: 24 });
+  });
+
+  it('bounds physical dimensions before publishing screen size', () => {
+    const exact = createSize(() => ({ width: MAX_TERMINAL_CELLS + 0.9, height: 24.9 }));
+    const oversized = createSize(() => ({
+      width: MAX_TERMINAL_CELLS + 1,
+      height: Number.MAX_VALUE,
+    }));
+
+    expect(exact()).to.eql({ width: MAX_TERMINAL_CELLS, height: 24 });
+    expect(oversized()).to.eql({ width: 80, height: 24 });
   });
 });

@@ -1,12 +1,16 @@
-import { Num } from '../common.ts';
+import { MAX_TERMINAL_CELLS } from '../u/u.layout.ts';
+import { assertTextPresentationAuthority, TextIntrinsic, TextNumeric } from './u.authority.ts';
 
 export function optionalPositiveInt(input: number | undefined): number | undefined {
-  if (!Num.Is.finite(input)) return undefined;
-  const value = Math.floor(input);
-  return value > 0 ? value : undefined;
+  assertTextPresentationAuthority();
+  if (typeof input !== 'number' || !TextIntrinsic.numberIsFinite(input)) return undefined;
+  const value = TextNumeric.floor(input);
+  return value > 0 && value <= MAX_TERMINAL_CELLS ? value : undefined;
 }
 
 export function nonNegativeInt(input: number | undefined, fallback: number): number {
-  if (!Num.Is.finite(input)) return fallback;
-  return Math.max(0, Math.floor(input));
+  assertTextPresentationAuthority();
+  if (typeof input !== 'number' || !TextIntrinsic.numberIsFinite(input)) return fallback;
+  const value = TextNumeric.floor(input);
+  return value <= MAX_TERMINAL_CELLS ? TextNumeric.max(0, value) : fallback;
 }

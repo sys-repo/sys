@@ -19,7 +19,7 @@ export declare namespace CliScreen {
     readonly Dock: Dock.Lib;
   };
 
-  /** Current terminal dimensions in character cells. */
+  /** Current terminal dimensions in character cells, each bounded to 65,535. */
   export type Size = {
     /** Terminal width in character cells. */
     readonly width: number;

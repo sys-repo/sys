@@ -1,4 +1,9 @@
 import { c, describe, expect, it, Num, stripAnsi, type t } from '../../../-test.ts';
+import {
+  MAX_TERMINAL_CELLS,
+  MAX_TERMINAL_TEXT_OUTPUT_CODE_UNITS,
+  MAX_TERMINAL_TEXT_SOURCE_CODE_UNITS,
+} from '../../u/u.layout.ts';
 import { ellipsize } from '../u.ellipsize.ts';
 import { measure } from '../u.width.ts';
 
@@ -31,6 +36,7 @@ describe('Cli.Fmt.Text.ellipsize', () => {
     expect(ellipsize('\u0301', 0)).to.eql('');
     expect(ellipsize('abcdef', -1)).to.eql('');
     expect(ellipsize('abcdef', Num.INFINITY)).to.eql('');
+    expect(ellipsize('abcdef', Number.MAX_VALUE)).to.eql('');
     expect(ellipsize('abcdef', 1, { ellipsis: '界' })).to.eql('');
     expect(ellipsize('abcdef', 2, { ellipsis: '界' })).to.eql('界');
   });
@@ -79,4 +85,54 @@ describe('Cli.Fmt.Text.ellipsize', () => {
       });
     });
   });
+
+  it('retains internal overflow knowledge at the maximum clipping budget', () => {
+    const input = '界'.repeat((MAX_TERMINAL_CELLS + 1) / 2);
+    const output = ellipsize(input, MAX_TERMINAL_CELLS);
+
+    expect(output).to.not.eql(input);
+    expect(measure(output)).to.eql(MAX_TERMINAL_CELLS);
+  });
+
+  it('bounds aggregate source work, markers, and renderer output', () => {
+    const marker = '\u200B'.repeat(MAX_TERMINAL_TEXT_SOURCE_CODE_UNITS - 2);
+    const exact = ellipsize('ab', 1, { ellipsis: marker });
+    expect(exact.length).to.eql(MAX_TERMINAL_TEXT_SOURCE_CODE_UNITS - 1);
+
+    let renders = 0;
+    const markerFailure = failureOf(() =>
+      ellipsize('ab', 1, {
+        ellipsis: `${marker}\u200B`,
+        render: () => {
+          renders += 1;
+          return '';
+        },
+      })
+    );
+    const sourceFailure = failureOf(() =>
+      ellipsize('\u200B'.repeat(MAX_TERMINAL_TEXT_SOURCE_CODE_UNITS + 1), 1)
+    );
+    const rendererFailure = failureOf(() =>
+      ellipsize('abcdefghij', 3, {
+        render: () => 'x'.repeat(MAX_TERMINAL_TEXT_OUTPUT_CODE_UNITS + 1),
+      })
+    );
+
+    expect(renders).to.eql(0);
+    for (const failure of [markerFailure, sourceFailure, rendererFailure]) {
+      expect((failure as Error).message).to.eql(
+        'Cli.Fmt.Text finite presentation limit exceeded.',
+      );
+      expect(failure).to.equal(markerFailure);
+    }
+    expect(Object.isFrozen(markerFailure)).to.eql(true);
+  });
 });
+
+function failureOf(operation: () => unknown): unknown {
+  try {
+    operation();
+  } catch (cause) {
+    return cause;
+  }
+}

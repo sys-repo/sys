@@ -3,14 +3,22 @@ import type { t } from '../common.ts';
 /**
  * Contracts for measuring, fitting, clipping, and wrapping terminal text.
  *
- * Widths are terminal-cell counts. Measurement ignores ANSI escape sequences. `ellipsize` accepts
- * plain text and can render its clipped parts through a styling-only callback.
+ * Widths are terminal-cell counts backed by package-owned, versioned Unicode width data.
+ * Measurement ignores ANSI escape sequences. Each synchronous operation admits at most 65,535
+ * aggregate UTF-16 source and output code units; exceeding a finite presentation ceiling throws one
+ * fixed package-owned error. `ellipsize` accepts plain text and can render its clipped parts through
+ * a styling-only callback.
  */
 export declare namespace CliFormatText {
   /**
    * Terminal text operations grouped by width, wrapping, and clipping responsibility.
    */
   export type Lib = {
+    /**
+     * Whether the complete synchronous terminal-text substrate still matches its trusted
+     * module-initialization baseline. This does not authenticate a realm poisoned before import.
+     */
+    readonly isReady: () => boolean;
     /** Terminal-cell measurement and layout-budget operations. */
     readonly Width: Width.Lib;
     /** Whitespace-aware prose wrapping operations. */
@@ -31,11 +39,22 @@ export declare namespace CliFormatText {
      * Measures display width and derives usable widths without clipping content.
      */
     export type Lib = {
-      /** Measure rendered terminal-cell width; ANSI escape sequences consume no cells. */
+      /**
+       * Measure rendered terminal-cell width; ANSI escape sequences consume no cells. Exact results
+       * above 65,535 cells are refused rather than published as allocation counts.
+       */
       readonly measure: (input: string) => number;
-      /** Append spaces up to a normalized target width; never truncate wider input. */
+      /**
+       * Append spaces up to a normalized target width without truncation or exceeding the aggregate
+       * output ceiling.
+       */
       readonly padEnd: (input: string, width: number) => string;
-      /** Return the greatest measured width, or `0` for an empty collection. */
+      /**
+       * Return the greatest measured width, or `0` for an empty collection. Runtime collection
+       * lengths are admitted without coercion; malformed or non-finite lengths are invalid, while a
+       * finite count above 4,096 uses the shared presentation-limit refusal. All present primitive
+       * strings share one 65,535-code-unit source-work budget.
+       */
       readonly max: (inputs: string[]) => number;
       /** Derive a non-negative usable width after capping, reserve, and minimum policies. */
       readonly fit: (options?: Fit.Options) => number;
@@ -45,8 +64,9 @@ export declare namespace CliFormatText {
      * Policy for selecting a physical width and deriving a usable layout budget.
      *
      * Source precedence is explicit width, detected terminal width, fallback width, maximum width,
-     * then `80`. Finite numeric inputs are floored to integers. Non-positive source widths are
-     * unavailable; reserve and minimum values normalize to zero.
+     * then `80`. Numeric inputs are floored and bounded to 65,535 terminal cells. Values above that
+     * bound follow the same unavailable or fallback policy as non-finite values; non-positive source
+     * widths are unavailable, while reserve and minimum values normalize to zero.
      */
     export namespace Fit {
       /** Width fitting options for terminal-aware text layout. */
@@ -72,9 +92,13 @@ export declare namespace CliFormatText {
   /**
    * Contracts for whitespace-aware prose flow, indentation, and line preservation.
    *
-   * Input CRLF sequences normalize to LF, leading and trailing blank lines are removed, and
-   * explicit internal line boundaries are retained. Prose whitespace may normalize when a line
-   * requires soft wrapping. Numeric layout values normalize to non-negative integers.
+   * Plain CRLF sequences outside complete ANSI controls normalize to LF, leading and trailing plain
+   * blank lines are removed, and explicit internal plain line boundaries are retained. Complete ANSI
+   * controls remain byte-preserved and atomic. Prose whitespace may normalize when a line requires
+   * soft wrapping; width decisions retain grapheme context across normalized separators and line
+   * prefixes. Numeric layout values normalize to non-negative integers bounded to 65,535
+   * terminal cells; larger values use the option's default. Source and produced display-line
+   * collections are bounded to 4,096 lines, and joined output shares the aggregate code-unit ceiling.
    */
   export namespace Wrap {
     /**
@@ -122,7 +146,10 @@ export declare namespace CliFormatText {
   export namespace Ellipsize {
     /** Options for terminal-cell-aware middle clipping. */
     export type Options = {
-      /** Plain marker used between retained ends and clipped if necessary. Defaults to `…`. */
+      /**
+       * Plain marker used between retained ends and clipped if necessary. Defaults to `…`; input and
+       * marker share one aggregate source-work budget.
+       */
       ellipsis?: string;
       /**
        * Styling-only renderer invoked when clipping occurs. It must preserve the supplied visible

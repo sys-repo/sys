@@ -14,4 +14,3 @@ export { Rx } from '@sys/std/rx';
 export { Str } from '@sys/std/str';
 export { Time } from '@sys/std/time';
 export { Url } from '@sys/std/url';
-export { default as stringWidth } from 'string-width';
