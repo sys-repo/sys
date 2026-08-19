@@ -237,9 +237,12 @@ describe('WorkspaceRun.parallel reporter layout', () => {
         cursorRows: 1,
       });
       const row = runningRows(frame)[0] ?? '';
+      const rawRow = frame.split('\n').find((line) => Cli.stripAnsi(line).includes('⦿  ')) ?? '';
 
       expect(row.includes(path)).to.eql(false);
       expect(row.includes('…')).to.eql(true);
+      expect(rawRow).to.include(Cli.Fmt.omission());
+      expect(rawRow).not.to.include(c.white('…'));
       expect(Cli.Fmt.Text.Width.measure(row) <= 40).to.eql(true);
       expectRowsCellSafe(frame, 40);
     });

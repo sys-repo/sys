@@ -11,6 +11,13 @@ describe('Cli.Fmt', () => {
     expect(m.Text).to.equal(Fmt.Text);
   });
 
+  it('formats formatter-inserted omission markers as dim gray structural context', () => {
+    expect(Fmt.omission()).to.eql(c.dim(c.gray('…')));
+    expect(Fmt.omission('...')).to.eql(c.dim(c.gray('...')));
+    expect(Fmt.omission('')).to.eql('');
+    expect(Cli.Fmt.omission()).to.eql(Fmt.omission());
+  });
+
   it('formats spinner text consistently', () => {
     expect(Cli.Fmt.spinnerText('working...')).to.eql(Fmt.spinnerText('working...'));
   });

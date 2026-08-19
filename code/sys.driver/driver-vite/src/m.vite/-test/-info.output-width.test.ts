@@ -55,6 +55,7 @@ describe('ViteLog.Dist info output formatting', () => {
     expect(hash).to.not.include('digest:');
     expect(hash).to.include('…');
     expect(hash).to.include('ccd11');
+    expect(rawHash).to.include(c.dim(c.gray('…')));
     expect(rawHash).to.include(c.gray('ccd11'));
     expect(rawHash).to.not.include(c.green('digest:'));
     expect(timestamp).to.include(' • ');

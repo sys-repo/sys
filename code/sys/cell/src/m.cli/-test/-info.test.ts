@@ -213,7 +213,8 @@ describe(`@sys/cell/cli info`, () => {
     const continuation = text.split('\n').find((line) => line.trimStart().startsWith('→')) ?? '';
 
     expect(rendered).to.contain(c.cyan('→'));
-    expect(rendered).to.contain(c.cyan('…'));
+    expect(rendered).to.contain(c.dim(c.gray('…')));
+    expect(rendered).not.to.contain(c.cyan('…'));
     expect(stepsLine).to.contain('…');
     expect(continuation).to.contain('→');
     expect(stepsLine.length <= 34).to.eql(true);

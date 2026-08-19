@@ -48,7 +48,7 @@ function text(value: string, width: number, options: FitTextOptions = {}): strin
 
   return Cli.Fmt.Text.ellipsize(value, width, {
     render: ({ head, ellipsis, tail }) => {
-      return `${color(head)}${c.cyan(ellipsis)}${color(tail)}`;
+      return `${color(head)}${Cli.Fmt.omission(ellipsis)}${color(tail)}`;
     },
   });
 }

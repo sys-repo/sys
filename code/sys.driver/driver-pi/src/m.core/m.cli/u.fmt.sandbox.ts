@@ -23,6 +23,12 @@ type ReportLink = {
   readonly href: URL;
 };
 
+type DisplayPathFit = {
+  readonly head: string;
+  readonly omission?: string;
+  readonly tail: string;
+};
+
 const SANDBOX_EDGE_MARGIN = 1;
 const SANDBOX_TABLE_LABEL_WIDTH = Cli.Fmt.Text.Width.measure('permissions');
 const SANDBOX_TABLE_GAP = 3;
@@ -193,13 +199,15 @@ function formatReportPath(path: t.StringPath, budget: number, cwd: t.StringDir) 
 function ellipsizeReportPath(path: string, budget: number) {
   return Cli.Fmt.Text.ellipsize(path, budget, {
     ellipsis: PREVIEW_ELLIPSIS,
-    render: ({ head, ellipsis, tail }) => `${c.gray(head)}${c.cyan(ellipsis)}${c.gray(tail)}`,
+    render: ({ head, ellipsis, tail }) => {
+      return `${c.gray(head)}${Cli.Fmt.omission(ellipsis)}${c.gray(tail)}`;
+    },
   });
 }
 
-function fitDisplayPath(path: string, budget: number) {
-  if (budget <= 0) return '';
-  if (visibleWidth(path) <= budget) return path;
+function fitDisplayPath(path: string, budget: number): DisplayPathFit {
+  if (budget <= 0) return { head: '', tail: '' };
+  if (visibleWidth(path) <= budget) return { head: path, tail: '' };
 
   const hasTrailingSlash = path.endsWith('/');
   const body = hasTrailingSlash ? path.slice(0, -1) : path;
@@ -207,22 +215,38 @@ function fitDisplayPath(path: string, budget: number) {
   const suffix = hasTrailingSlash ? '/' : '';
   const tail = `${basename}${suffix}`;
 
-  if (basename.length === 0 || basename === body) return fitPreviewPathToBudget(path, budget);
-  if (visibleWidth(tail) >= budget) return fitPreviewPathToBudget(tail, budget);
+  if (basename.length === 0 || basename === body) return fitPathToBudget(path, budget);
+  if (visibleWidth(tail) >= budget) return fitPathToBudget(tail, budget);
 
   const dirname = Path.dirname(body);
-  if (dirname === '.' || dirname.length === 0) return tail;
+  if (dirname === '.' || dirname.length === 0) return { head: tail, tail: '' };
 
   const separatorWidth = visibleWidth('/');
   const dirBudget = budget - visibleWidth(tail) - separatorWidth;
-  if (dirBudget <= 0) return fitPreviewPathToBudget(tail, budget);
-  if (visibleWidth(dirname) <= dirBudget) return `${dirname}/${tail}`;
+  if (dirBudget <= 0) return fitPathToBudget(tail, budget);
+  if (visibleWidth(dirname) <= dirBudget) return { head: `${dirname}/${tail}`, tail: '' };
 
   const ellipsisWidth = visibleWidth(PREVIEW_ELLIPSIS);
   const left = dirBudget > PATH_DIR_PREFIX_WIDTH + ellipsisWidth ? PATH_DIR_PREFIX_WIDTH : 0;
   const right = Math.max(0, dirBudget - left - ellipsisWidth);
-  const shortenedDir = Str.ellipsize(dirname, [left, right], PREVIEW_ELLIPSIS);
-  return `${shortenedDir}/${tail}`;
+  return {
+    head: dirname.slice(0, left),
+    omission: PREVIEW_ELLIPSIS,
+    tail: `${right > 0 ? dirname.slice(-right) : ''}/${tail}`,
+  };
+}
+
+function fitPathToBudget(path: string, budget: number): DisplayPathFit {
+  if (budget <= 0) return { head: '', tail: '' };
+  if (visibleWidth(path) <= budget) return { head: path, tail: '' };
+  if (budget === 1) return { head: '', omission: '.', tail: '' };
+
+  const right = budget - visibleWidth(PREVIEW_ELLIPSIS);
+  return {
+    head: '',
+    omission: PREVIEW_ELLIPSIS,
+    tail: right > 0 ? path.slice(-right) : '',
+  };
 }
 
 function formatPermissions(input: t.PiCli.PermissionMode) {
@@ -253,7 +277,7 @@ function formatPreview(input: readonly t.StringPath[], budget: number, cwd?: t.S
   if (items.length === 0) return c.dim('-');
 
   const fit = fitPreview(items, budget);
-  const parts = fit.visible.map((item) => c.gray(item));
+  const parts = [...fit.visible];
   if (fit.hidden > 0) parts.push(c.italic(c.cyan(moreLabel(fit.hidden))));
 
   return parts.join(c.gray(', '));
@@ -294,15 +318,20 @@ function fallbackPreviewFit(input: readonly string[], budget: number): PreviewFi
 }
 
 function fitPreviewPath(path: string, profile: readonly [number, number]) {
-  return Str.ellipsize(path, profile, PREVIEW_ELLIPSIS);
+  const [left, right] = profile;
+  const budget = left + visibleWidth(PREVIEW_ELLIPSIS) + right;
+  if (visibleWidth(path) <= budget) return c.gray(path);
+
+  const head = path.slice(0, left);
+  const tail = right > 0 ? path.slice(-right) : '';
+  return `${c.gray(head)}${Cli.Fmt.omission(PREVIEW_ELLIPSIS)}${c.gray(tail)}`;
 }
 
 function fitPreviewPathToBudget(path: string, budget: number) {
   if (budget <= 0) return '';
-  if (visibleWidth(path) <= budget) return path;
-  if (budget === 1) return '.';
-  if (budget === 2) return PREVIEW_ELLIPSIS;
-  return Str.ellipsize(path, [0, budget - visibleWidth(PREVIEW_ELLIPSIS)], PREVIEW_ELLIPSIS);
+  if (visibleWidth(path) <= budget) return c.gray(path);
+  if (budget === 1) return Cli.Fmt.omission('.');
+  return fitPreviewPath(path, [0, budget - visibleWidth(PREVIEW_ELLIPSIS)]);
 }
 
 function previewFits(visible: readonly string[], hidden: number, budget: number) {
@@ -365,7 +394,15 @@ function prettyPath(path: t.StringPath) {
 function formatWritePath(path: t.StringPath, cwd: t.StringDir, budget: number) {
   const normalized = normalizeWritePath(path, cwd);
   const fitted = fitDisplayPath(normalized, budget);
-  return c.gray(Cli.Fmt.path(fitted, (e) => {
+  if (!fitted.omission) return formatWritePathFragment(fitted.head);
+  return `${c.gray(fitted.head)}${Cli.Fmt.omission(fitted.omission)}${
+    formatWritePathFragment(fitted.tail)
+  }`;
+}
+
+function formatWritePathFragment(path: string) {
+  if (!path) return '';
+  return c.gray(Cli.Fmt.path(path, (e) => {
     if (e.is.basename) e.change(c.dim(c.magenta(e.part)));
   }));
 }

@@ -162,7 +162,11 @@ function formatStatus(
     `⊘${args.blocked}`,
     `✕${args.failed}`,
   ].join(' ');
-  return c.gray(Cli.Fmt.Text.ellipsize(terse, available));
+  return Cli.Fmt.Text.ellipsize(terse, available, {
+    render: ({ head, ellipsis, tail }) => {
+      return `${c.gray(head)}${Cli.Fmt.omission(ellipsis)}${c.gray(tail)}`;
+    },
+  });
 }
 
 function formatRunningSection(

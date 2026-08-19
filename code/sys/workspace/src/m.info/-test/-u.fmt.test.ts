@@ -184,21 +184,24 @@ describe(`Workspace.Info.fmt`, () => {
   describe('layout under width pressure', () => {
     it('fits package details without moving labels or metric values', () => {
       const width = 40;
-      const text = Cli.stripAnsi(WorkspaceInfo.fmt({
+      const raw = WorkspaceInfo.fmt({
         ...PACKAGE_STATS,
         selection: { workspace: './deno.json', scope: '@a-very-long-package-scope' },
         packages: [{ name: '@a-very-long-package-scope/a', path: 'code/a' }],
         source: { include: ['**/*.ts'], exclude: [] },
         files: 1_000,
         lines: 1_000,
-      }, { width }));
+      }, { width });
+      const text = Cli.stripAnsi(raw);
       const packages = lineWith(text, 'packages');
+      const rawPackages = rawLineWith(raw, 'packages');
       const include = lineWith(text, 'include');
       const files = lineWith(text, 'files');
       const lines = lineWith(text, 'lines');
       const valueColumn = columnOf(packages, '1');
 
       expect(packages).to.contain('…');
+      expect(rawPackages).to.contain(Cli.Fmt.omission());
       expect(valueColumnAfterLabel(include, 'include')).to.eql(valueColumn);
       expect(columnOf(files, '1,000')).to.eql(valueColumn);
       expect(columnOf(lines, '1,000')).to.eql(valueColumn);
@@ -230,19 +233,22 @@ describe(`Workspace.Info.fmt`, () => {
     it('clips raw source detail without moving aggregate metrics', () => {
       const width = 40;
       const sourcePattern = 'code/this-is-a-very-long-source-pattern/**/*.ts';
-      const text = Cli.stripAnsi(WorkspaceInfo.fmt({
+      const raw = WorkspaceInfo.fmt({
         kind: 'glob',
         runtime: RUNTIME,
         source: { include: [sourcePattern], exclude: [] },
         files: 1_000,
         lines: 1_000,
-      }, { width }));
+      }, { width });
+      const text = Cli.stripAnsi(raw);
       const source = lineWith(text, 'pattern.code');
+      const rawSource = rawLineWith(raw, 'pattern.code');
       const files = lineWith(text, 'files');
       const lines = lineWith(text, 'lines');
       const valueColumn = columnOf(files, '1,000');
 
       expect(source).to.contain('…');
+      expect(rawSource).to.contain(Cli.Fmt.omission());
       expect(source).not.to.contain(sourcePattern);
       expect(valueColumnAfterLabel(source, 'pattern.code')).to.eql(valueColumn);
       expect(columnOf(lines, '1,000')).to.eql(valueColumn);

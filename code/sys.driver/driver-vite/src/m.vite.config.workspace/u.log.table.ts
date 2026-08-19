@@ -27,9 +27,9 @@ export const Table = {
     const table = Cli.table([]).padding(TABLE_GAP).indent(INDENT);
 
     table.push([
-      c.gray(wrangle.clipPlain(HEADER.left, layout.leftWidth)),
+      wrangle.clipMuted(HEADER.left, layout.leftWidth),
       '',
-      c.gray(wrangle.clipPlain(HEADER.right, layout.pathWidth)),
+      wrangle.clipMuted(HEADER.right, layout.pathWidth),
     ]);
 
     for (const row of rows) {
@@ -111,7 +111,7 @@ const wrangle = {
     if (Cli.Fmt.Text.Width.measure(input) <= width) return c.white(input);
     return Cli.Fmt.Text.ellipsize(input, width, {
       render: ({ head, ellipsis, tail }) => {
-        return `${c.white(head)}${c.gray(ellipsis)}${c.white(tail)}`;
+        return `${c.white(head)}${Cli.Fmt.omission(ellipsis)}${c.white(tail)}`;
       },
     });
   },
@@ -138,9 +138,13 @@ const wrangle = {
     return text.split('\n').map((line) => clipLine(line, width)).join('\n');
   },
 
-  clipPlain(input: string, width: number) {
+  clipMuted(input: string, width: number) {
     if (width <= 0) return '';
-    if (Cli.Fmt.Text.Width.measure(input) <= width) return input;
-    return Cli.Fmt.Text.ellipsize(input, width);
+    if (Cli.Fmt.Text.Width.measure(input) <= width) return c.gray(input);
+    return Cli.Fmt.Text.ellipsize(input, width, {
+      render: ({ head, ellipsis, tail }) => {
+        return `${c.gray(head)}${Cli.Fmt.omission(ellipsis)}${c.gray(tail)}`;
+      },
+    });
   },
 } as const;

@@ -119,8 +119,8 @@ export function formatRunningCell(item: ParallelProgressRunning, width: number) 
     width - CELL_CHROME_WIDTH,
     width - elapsedWidth - CELL_CHROME_WIDTH,
   );
-  const label = Cli.Fmt.Text.ellipsize(packageLabel(item), labelWidth);
-  return `${c.cyan('⦿')}  ${c.white(label)} ${c.gray(elapsed)}`;
+  const label = formatLabel(packageLabel(item), labelWidth);
+  return `${c.cyan('⦿')}  ${label} ${c.gray(elapsed)}`;
 }
 
 export function formatCompletedCell(item: ParallelProgressCompleted, width: number) {
@@ -132,8 +132,17 @@ export function formatCompletedCell(item: ParallelProgressCompleted, width: numb
     width - CELL_CHROME_WIDTH,
     width - suffixWidth - CELL_CHROME_WIDTH,
   );
-  const label = Cli.Fmt.Text.ellipsize(packageLabel(item), labelWidth);
-  return `${mark}  ${c.white(label)}${suffix}`;
+  const label = formatLabel(packageLabel(item), labelWidth);
+  return `${mark}  ${label}${suffix}`;
+}
+
+function formatLabel(label: string, width: number): string {
+  if (Cli.Fmt.Text.Width.measure(label) <= width) return c.white(label);
+  return Cli.Fmt.Text.ellipsize(label, width, {
+    render: ({ head, ellipsis, tail }) => {
+      return `${c.white(head)}${Cli.Fmt.omission(ellipsis)}${c.white(tail)}`;
+    },
+  });
 }
 
 export function completedOverflowSummary(hidden: readonly ParallelProgressCompleted[]) {

@@ -175,7 +175,8 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
     const rawReportLine = lines(raw).find((line) => Cli.stripAnsi(line).startsWith('report')) ?? '';
 
     expect(text).to.contain(filename);
-    expect(raw.split(c.cyan('..'))).to.have.length(2);
+    expect(raw.split(Cli.Fmt.omission('..'))).to.have.length(2);
+    expect(raw).not.to.contain(c.cyan('..'));
     expect(Cli.Fmt.Text.Width.measure(reportLine)).to.be.at.most(width - 1);
     expect(Cli.Fmt.Text.Width.measure(rawReportLine)).to.eql(
       Cli.Fmt.Text.Width.measure(reportLine),
@@ -248,14 +249,18 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
   });
 
   it('table → preserves tail identity for truncated preview paths', () => {
-    const text = render({
+    const input = {
+      permissions: 'scoped' as const,
       cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
       context: {
         include: ['/sample/organization/workspace.canon/-canon/protocol.testing.md'],
       },
-    }, 36);
+    };
+    const raw = PiSandboxFmt.table(input, { width: 36, terminal: false });
+    const text = Cli.stripAnsi(raw);
 
     expect(text).to.contain('testing.md');
+    expect(raw).to.contain(Cli.Fmt.omission('..'));
     expect(text).to.not.contain('/sample/organization/workspace.canon');
     expectTargetRowsToFit(text, 35, ['context']);
   });
@@ -316,7 +321,8 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
 
   it('table → gives write rows a width escape hatch on narrow screens', () => {
     const width = 60;
-    const text = render({
+    const input = {
+      permissions: 'scoped' as const,
       cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
       write: {
         summary: ['cwd', 'temp', 'extra'],
@@ -325,7 +331,9 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
           '/sample/with/a/very/long/path/to/contributors/rowan/agent-projects',
         ],
       },
-    }, width);
+    };
+    const raw = PiSandboxFmt.table(input, { width, terminal: false });
+    const text = Cli.stripAnsi(raw);
 
     expect(text).to.contain('write:cwd');
     expect(text).to.contain(':tmp');
@@ -333,6 +341,7 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
     expect(text).to.contain('/T/');
     expect(text).to.contain('agent-projects/');
     expect(text).to.contain('..');
+    expect(raw).to.contain(Cli.Fmt.omission('..'));
     expectTargetRowsToFit(text, width - 1, ['write:cwd', ':tmp', ':extra']);
   });
 

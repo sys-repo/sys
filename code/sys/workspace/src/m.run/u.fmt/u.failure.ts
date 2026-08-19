@@ -115,19 +115,28 @@ function failureHeader(failure: FailedPackage, width: number) {
     ? width - Cli.Fmt.Text.Width.measure(prefix) - Cli.Fmt.Text.Width.measure(suffix)
     : 0;
   if (available >= 8 || width <= 0) {
-    const fitted = available >= 8 ? Cli.Fmt.Text.ellipsize(label, available) : label;
-    return `${c.red('✕')} ${c.white(fitted)}${c.gray(suffix)}`;
+    const fitted = available >= 8 ? fitLabel(label, available) : c.white(label);
+    return `${c.red('✕')} ${fitted}${c.gray(suffix)}`;
   }
 
   const labelWidth = Num.clamp(0, width, width - Cli.Fmt.Text.Width.measure(prefix));
-  const fitted = Cli.Fmt.Text.ellipsize(label, labelWidth);
+  const fitted = fitLabel(label, labelWidth);
   const details = Cli.Fmt.Text.Wrap.text(fact, {
     width,
     indent: 2,
     continuationIndent: 2,
     preserve: 'none',
   });
-  return `${c.red('✕')} ${c.white(fitted)}\n${c.gray(details)}`;
+  return `${c.red('✕')} ${fitted}\n${c.gray(details)}`;
+}
+
+function fitLabel(label: string, width: number): string {
+  if (Cli.Fmt.Text.Width.measure(label) <= width) return c.white(label);
+  return Cli.Fmt.Text.ellipsize(label, width, {
+    render: ({ head, ellipsis, tail }) => {
+      return `${c.white(head)}${Cli.Fmt.omission(ellipsis)}${c.white(tail)}`;
+    },
+  });
 }
 
 function failureFact(failure: FailedPackage) {

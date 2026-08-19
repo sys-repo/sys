@@ -279,7 +279,7 @@ describe('Cli.Fmt.Header', () => {
 
         expect(Cli.stripAnsi(header)).to.eql('drive…pi/ui');
         expect(header).to.eql(
-          `${c.bold(c.cyan('drive'))}${c.bold(c.cyan('…'))}${c.bold(c.cyan('pi'))}${
+          `${c.bold(c.cyan('drive'))}${Fmt.omission('…')}${c.bold(c.cyan('pi'))}${
             c.dim(c.cyan('/ui'))
           }`,
         );
@@ -298,7 +298,7 @@ describe('Cli.Fmt.Header', () => {
 
         expect(Cli.stripAnsi(header)).to.eql('app/a…mnop');
         expect(header).to.eql(
-          `${c.bold(c.cyan('app'))}${c.dim(c.cyan('/a'))}${c.dim(c.cyan('…'))}${
+          `${c.bold(c.cyan('app'))}${c.dim(c.cyan('/a'))}${Fmt.omission('…')}${
             c.dim(c.cyan('mnop'))
           }`,
         );
@@ -316,7 +316,8 @@ describe('Cli.Fmt.Header', () => {
         });
 
         expect(Cli.Fmt.Text.Width.measure(header)).to.eql(8);
-        expect(header).to.include(c.dim(c.cyan('…')));
+        expect(header).to.include(Fmt.omission('…'));
+        expect(header).not.to.include(c.cyan('…'));
       });
 
       it('preserves custom semantic identity before dropping overflowing detail', () => {
@@ -347,10 +348,14 @@ describe('Cli.Fmt.Header', () => {
           title: c.bold(c.cyan(title)),
           tone: 'cyan',
         });
-        const expected = Cli.Fmt.Text.ellipsize(title, 9);
+        const expected = Cli.Fmt.Text.ellipsize(title, 9, {
+          render: ({ head, ellipsis, tail }) => {
+            return `${c.bold(c.cyan(head))}${Fmt.omission(ellipsis)}${c.bold(c.cyan(tail))}`;
+          },
+        });
 
-        expect(Cli.stripAnsi(header)).to.eql(expected);
-        expect(header).to.eql(c.bold(c.cyan(expected)));
+        expect(Cli.stripAnsi(header)).to.eql(Cli.stripAnsi(expected));
+        expect(header).to.eql(expected);
       });
     });
 

@@ -427,8 +427,12 @@ function fitServiceUrl(part: t.Cli.Fmt.ServiceUrl.Part, width: number) {
   if (originWidth >= width) return ellipsize(formatted, width);
 
   const suffixWidth = Cli.Fmt.Text.Width.fit({ width, reserve: originWidth, terminal: false });
-  const suffix = Cli.Fmt.Text.ellipsize(part.suffix, suffixWidth);
-  return `${origin}${c.gray(suffix)}`;
+  const suffix = Cli.Fmt.Text.ellipsize(part.suffix, suffixWidth, {
+    render: ({ head, ellipsis, tail }) => {
+      return `${c.gray(head)}${Cli.Fmt.omission(ellipsis)}${c.gray(tail)}`;
+    },
+  });
+  return `${origin}${suffix}`;
 }
 
 function formatServiceOrigin(part: t.Cli.Fmt.ServiceUrl.Part): string {
@@ -490,7 +494,9 @@ function fitValue(value: string, width: number, color: (text: string) => string)
   if (width <= 0) return '';
   if (Cli.Fmt.Text.Width.measure(value) <= width) return color(value);
   return Cli.Fmt.Text.ellipsize(value, width, {
-    render: ({ head, ellipsis, tail }) => `${color(head)}${c.gray(ellipsis)}${color(tail)}`,
+    render: ({ head, ellipsis, tail }) => {
+      return `${color(head)}${Cli.Fmt.omission(ellipsis)}${color(tail)}`;
+    },
   });
 }
 
@@ -516,7 +522,7 @@ function fitRow(row: string, width: number) {
 
 function ellipsize(value: string, width: number) {
   return Cli.Fmt.Text.ellipsize(Cli.stripAnsi(value), width, {
-    render: ({ head, ellipsis, tail }) => `${head}${c.gray(ellipsis)}${tail}`,
+    render: ({ head, ellipsis, tail }) => `${head}${Cli.Fmt.omission(ellipsis)}${tail}`,
   });
 }
 

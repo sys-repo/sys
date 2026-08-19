@@ -179,9 +179,7 @@ function includeRows(
       if (index === 0) rows.push(c.dim(label));
       break;
     }
-    rows.push(
-      `${c.dim(label)}${' '.repeat(layout.valueColumn - layout.labelWidth)}${c.dim(text)}`,
-    );
+    rows.push(`${c.dim(label)}${' '.repeat(layout.valueColumn - layout.labelWidth)}${text}`);
   }
   return rows;
 }
@@ -203,7 +201,7 @@ function ownershipRow(
     0,
     layout.detailColumn - layout.valueColumn - Cli.Fmt.Text.Width.measure(value),
   );
-  return `${prefix}${' '.repeat(padding)}${c.dim(detail)}`;
+  return `${prefix}${' '.repeat(padding)}${detail}`;
 }
 
 function metricRow(label: string, value: number, layout: Layout): string {
@@ -223,7 +221,13 @@ function fitDetail(
     reserve: column,
     terminal: options.terminal,
   });
-  return width === 0 ? '' : Cli.Fmt.Text.ellipsize(detail, width);
+  if (width === 0) return '';
+  if (Cli.Fmt.Text.Width.measure(detail) <= width) return c.dim(detail);
+  return Cli.Fmt.Text.ellipsize(detail, width, {
+    render: ({ head, ellipsis, tail }) => {
+      return `${c.dim(head)}${Cli.Fmt.omission(ellipsis)}${c.dim(tail)}`;
+    },
+  });
 }
 
 function lineBreakdownRows(

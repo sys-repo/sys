@@ -97,9 +97,12 @@ describe('Vite.build output formatting', () => {
     });
     const plain = stripAnsi(text);
     const clippedViteRow = text.split('\n')[0];
+    const [head = '', tail = ''] = stripAnsi(clippedViteRow).split('…');
 
     expectBounded(text, 60);
-    expect(clippedViteRow).to.eql(c.gray(stripAnsi(clippedViteRow)));
+    expect(clippedViteRow).to.include(c.gray(head));
+    expect(clippedViteRow).to.include(c.dim(c.gray('…')));
+    expect(clippedViteRow).to.include(c.gray(tail));
     expect(stripAnsi(clippedViteRow)).to.include('dist/pkg/m.');
     expect(stripAnsi(clippedViteRow)).to.include('…');
     expect(stripAnsi(clippedViteRow)).to.include('116.78 kB');

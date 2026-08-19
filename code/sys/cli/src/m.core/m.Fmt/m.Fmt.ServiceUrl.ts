@@ -1,7 +1,7 @@
 import { c, type t, Url } from '../common.ts';
 
 /** CLI formatting helpers for service URLs. */
-export const ServiceUrlFmt: t.CliFormat.ServiceUrl.Lib = Object.freeze({
+export const ServiceUrl: t.CliFormat.ServiceUrl.Lib = Object.freeze({
   parts(urls, options = {}) {
     return parts(urls, options);
   },

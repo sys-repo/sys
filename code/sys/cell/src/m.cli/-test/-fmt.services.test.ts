@@ -137,7 +137,8 @@ describe(`@sys/cell/cli service status formatter`, () => {
     const text = stripAnsi(rendered);
     const lines = text.split('\n').filter(Boolean);
 
-    expect(rendered).to.contain(c.cyan('…'));
+    expect(rendered).to.contain(c.dim(c.gray('…')));
+    expect(rendered).not.to.contain(c.cyan('…'));
     expect(text).to.contain('service');
     expect(text).to.contain('module');
     expect(text).to.contain('url');

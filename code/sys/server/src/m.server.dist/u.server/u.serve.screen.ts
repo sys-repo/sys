@@ -334,9 +334,9 @@ const wrangle = {
   },
 
   serviceUrl(href: t.StringUrl, column: number, width: number) {
-    const source = Cli.Fmt.ServiceUrl.format({ href }, { origin: 'highlight' });
+    const [part] = Cli.Fmt.ServiceUrl.parts([{ href }]);
     const valueWidth = Cli.Fmt.Text.Width.fit({ width, reserve: column, terminal: false });
-    return `${wrangle.indent(column)}${clipText(source, valueWidth)}`;
+    return `${wrangle.indent(column)}${part ? clipServiceUrl(part, valueWidth) : ''}`;
   },
 
   distRow(
@@ -416,7 +416,7 @@ const wrangle = {
       reserve: Cli.Fmt.Text.Width.measure(prefix),
       terminal: false,
     });
-    const text = c.white(clipText(Cli.stripAnsi(line.text).trim(), textWidth));
+    const text = clipColored(Cli.stripAnsi(line.text).trim(), textWidth, c.white);
     return clipLine(`${prefix}${text}`, rowWidth);
   },
 
@@ -538,12 +538,11 @@ function clipLine(input: string, width: number) {
   if (width <= 0) return '';
   const plain = Cli.stripAnsi(input);
   if (Cli.Fmt.Text.Width.measure(plain) <= width) return input;
-  return c.gray(clipText(plain, width));
-}
-
-function clipText(input: string, width: number) {
-  if (width <= 0) return '';
-  return Cli.Fmt.Text.ellipsize(input, width);
+  return Cli.Fmt.Text.ellipsize(plain, width, {
+    render: ({ head, ellipsis, tail }) => {
+      return `${c.gray(head)}${Cli.Fmt.omission(ellipsis)}${c.gray(tail)}`;
+    },
+  });
 }
 
 function clipValue(input: string, width: number) {
@@ -551,6 +550,54 @@ function clipValue(input: string, width: number) {
   const plain = Cli.stripAnsi(input);
   if (Cli.Fmt.Text.Width.measure(plain) <= width) return input;
   return Cli.Fmt.Text.ellipsize(plain, width, {
-    render: ({ head, ellipsis, tail }) => `${head}${c.gray(ellipsis)}${tail}`,
+    render: ({ head, ellipsis, tail }) => `${head}${Cli.Fmt.omission(ellipsis)}${tail}`,
+  });
+}
+
+function clipServiceUrl(part: t.Cli.Fmt.ServiceUrl.Part, width: number) {
+  if (width <= 0) return '';
+  if (Cli.Fmt.Text.Width.measure(part.display) <= width) return Cli.Fmt.ServiceUrl.format(part);
+  return Cli.Fmt.Text.ellipsize(part.display, width, {
+    render: ({ head, ellipsis, tail }) => {
+      const tailStart = part.display.length - tail.length;
+      return `${formatServiceUrlFragment(part, head, 0)}${Cli.Fmt.omission(ellipsis)}${
+        formatServiceUrlFragment(part, tail, tailStart)
+      }`;
+    },
+  });
+}
+
+function formatServiceUrlFragment(part: t.Cli.Fmt.ServiceUrl.Part, text: string, offset: number) {
+  const originEnd = part.origin.length;
+  const portStart = part.port ? originEnd - part.port.length : originEnd;
+  const origin = part.highlightOrigin ? c.cyan : c.gray;
+  const port = part.highlightOrigin ? (value: string) => c.bold(c.cyan(value)) : c.gray;
+  const suffix = part.highlightOrigin && part.suffix === '/' ? c.cyan : c.gray;
+  return [
+    formatServiceUrlRange(text, offset, 0, portStart, origin),
+    formatServiceUrlRange(text, offset, portStart, originEnd, port),
+    formatServiceUrlRange(text, offset, originEnd, part.display.length, suffix),
+  ].join('');
+}
+
+function formatServiceUrlRange(
+  text: string,
+  offset: number,
+  start: number,
+  end: number,
+  color: (value: string) => string,
+) {
+  const from = Math.max(offset, start);
+  const to = Math.min(offset + text.length, end);
+  return from >= to ? '' : color(text.slice(from - offset, to - offset));
+}
+
+function clipColored(input: string, width: number, color: (text: string) => string) {
+  if (width <= 0) return '';
+  if (Cli.Fmt.Text.Width.measure(input) <= width) return color(input);
+  return Cli.Fmt.Text.ellipsize(input, width, {
+    render: ({ head, ellipsis, tail }) => {
+      return `${color(head)}${Cli.Fmt.omission(ellipsis)}${color(tail)}`;
+    },
   });
 }

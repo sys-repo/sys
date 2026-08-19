@@ -1,5 +1,6 @@
 import { FakeSpinner } from '@sys/cli/testing';
 import { describe, expect, it } from '../../-test.ts';
+import { Cli } from '../common.ts';
 import { StartReporter } from '../u/u.start.reporter.ts';
 import { formatStartServiceBody } from '../u/u.start.ts';
 
@@ -161,7 +162,8 @@ describe('@sys/cell/cli start reporter', () => {
     const frame = harness.effects.filter((effect) => effect.startsWith('repaint:')).at(-1) ?? '';
     const rows = frame.slice('repaint:'.length).split('\n');
     expect(rows.length <= 4).to.eql(true);
-    for (const row of rows) expect(row.length <= 8).to.eql(true);
+    for (const row of rows) expect(Cli.Fmt.Text.Width.measure(row) <= 8).to.eql(true);
+    expect(frame).to.contain(Cli.Fmt.omission());
     expect(frame).to.contain('summary');
 
     reporter.dispose();

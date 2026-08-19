@@ -112,7 +112,8 @@ describe(`@sys/cell/cli task`, () => {
     );
     const text = stripAnsi(rendered);
 
-    expect(rendered).to.contain(c.cyan('…'));
+    expect(rendered).to.contain(c.dim(c.gray('…')));
+    expect(rendered).not.to.contain(c.cyan('…'));
     for (const line of text.split('\n').filter(Boolean)) expect(line.length <= 46).to.eql(true);
   });
 });

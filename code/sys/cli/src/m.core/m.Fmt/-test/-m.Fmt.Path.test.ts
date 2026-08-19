@@ -27,12 +27,13 @@ describe('Cli.Fmt.Path', () => {
     expect(Fmt.Path.tty(path, { terminal: false, width: 20 })).to.eql(Fmt.Path.str(path));
   });
 
-  it('tty: shortens terminal paths and calls out only the inserted ellipsis', () => {
+  it('tty: shortens terminal paths with a dim gray inserted omission marker', () => {
     const path = '/abcdefghij/klmnopqr/file.txt';
     const res = Fmt.Path.tty(path, { terminal: true, width: 14, min: 1 });
 
     expect(stripAnsi(res)).to.eql('/abcdef…le.txt');
-    expect(res).to.contain(c.cyan('…'));
+    expect(res).to.contain(Fmt.omission('…'));
+    expect(res).not.to.contain(c.cyan('…'));
   });
 
   it('tty: can keep the basename gray for table detail values', () => {
@@ -45,7 +46,8 @@ describe('Cli.Fmt.Path', () => {
     });
 
     expect(stripAnsi(res)).to.eql('/abcdef…le.txt');
-    expect(res).to.contain(c.cyan('…'));
+    expect(res).to.contain(Fmt.omission('…'));
+    expect(res).not.to.contain(c.cyan('…'));
     expect(res).not.to.contain(c.white('le.txt'));
   });
 
@@ -82,6 +84,6 @@ describe('Cli.Fmt.Path', () => {
     const res = Fmt.Path.tty(path, { terminal: true, width: 30, min: 1 });
 
     expect(stripAnsi(res)).to.contain('……');
-    expect(res.split(c.cyan('…')).length).to.eql(2);
+    expect(res.split(Fmt.omission('…')).length).to.eql(2);
   });
 });

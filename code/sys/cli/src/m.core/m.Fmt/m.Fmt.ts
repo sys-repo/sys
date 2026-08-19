@@ -7,12 +7,13 @@ import { Chapters } from '../m.Fmt.Chapters/mod.ts';
 import { Commit } from './m.Fmt.Commit.ts';
 import { Header } from './m.Fmt.Header.ts';
 import { Help } from './m.Fmt.Help.ts';
+import { omission } from './m.Fmt.Omission.ts';
 import { hr } from './m.Fmt.Hr.ts';
 import { hyperlink } from './m.Fmt.hyperlink.ts';
 import { spinnerRaw, spinnerText } from './m.Fmt.spinnerText.ts';
 import { Text } from '../m.Fmt.Text/mod.ts';
 import { Tree } from './m.Fmt.Tree.ts';
-import { ServiceUrlFmt } from './m.Fmt.ServiceUrl.ts';
+import { ServiceUrl } from './m.Fmt.ServiceUrl.ts';
 import { terminal as isTerminal } from '../m.Is/u.terminal.ts';
 import { size as screenSize } from '../m.Screen/u.size.ts';
 
@@ -36,7 +37,7 @@ export const Path: t.CliFormat.Path.Lib = Object.freeze({
     const formatFragment = (text: string) => text ? formatPathFragment(text, options) : '';
     return Text.ellipsize(display, max, {
       render: ({ head, ellipsis, tail }) => {
-        return `${formatFragment(head)}${formatEllipsis(ellipsis, options)}${formatFragment(tail)}`;
+        return `${formatFragment(head)}${omission(ellipsis)}${formatFragment(tail)}`;
       },
     });
   },
@@ -67,11 +68,6 @@ function formatPathFragment(display: string, options: t.CliFormat.Path.FormatOpt
   return colorPath(Fmt.path(display, Fmt.Path.fmt(options)), options);
 }
 
-function formatEllipsis(text: string, options: t.CliFormat.Path.FormatOptions): string {
-  if (!text) return '';
-  return options.tone === 'muted' ? colorPath(text, options) : c.cyan(text);
-}
-
 function colorPath(text: string, options: t.CliFormat.Path.FormatOptions): string {
   const color = c.gray(text);
   return options.tone === 'muted' ? c.dim(color) : color;
@@ -81,10 +77,10 @@ function numberOr(value: number | undefined, fallback: number): number {
   return Num.Is.finite(value) ? value : fallback;
 }
 
-/** Command-line formatting helper library. */
+/**
+ * Command-line formatting helper library.
+ */
 export const Fmt: t.CliFormat.Lib = Object.freeze({
-  hr,
-  hyperlink,
   Header,
   Commit,
   Help,
@@ -92,7 +88,10 @@ export const Fmt: t.CliFormat.Lib = Object.freeze({
   Chapters,
   Tree,
   Path,
-  ServiceUrl: ServiceUrlFmt,
+  ServiceUrl,
+  hr,
+  hyperlink,
+  omission,
   path: StdPath.Format.string,
   spinnerRaw,
   spinnerText,

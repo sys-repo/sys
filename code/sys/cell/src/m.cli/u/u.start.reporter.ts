@@ -270,7 +270,9 @@ function rowsOf(text: string): string[] {
 
 function fitRow(row: string, width: number): string {
   if (Cli.Fmt.Text.Width.measure(row) <= width) return row;
-  return Cli.Fmt.Text.ellipsize(stripAnsi(row), width);
+  return Cli.Fmt.Text.ellipsize(stripAnsi(row), width, {
+    render: ({ head, ellipsis, tail }) => `${head}${Cli.Fmt.omission(ellipsis)}${tail}`,
+  });
 }
 
 function normalizeSize(size: ScreenSize): ScreenSize {

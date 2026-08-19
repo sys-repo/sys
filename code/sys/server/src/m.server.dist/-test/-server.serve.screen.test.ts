@@ -384,10 +384,14 @@ describe('DistServeScreen', () => {
   it('bounds every rendered row across compact-width transitions and tiny viewports', async () => {
     const fixture = await setup();
     try {
-      const frame = (width: number, height = 30) =>
+      const frame = (
+        width: number,
+        height = 30,
+        origin: t.StringUrl = 'http://127.0.0.1:49152/' as t.StringUrl,
+      ) =>
         DistServeScreen.toString({
           identity: fixture.cloneDist().pkg,
-          origin: 'http://127.0.0.1:49152/' as t.StringUrl,
+          origin,
           dir: fixture.source as t.StringDir,
           authority: { kind: 'local-unpinned', integrity: fixture.integrity },
           evidence: evidence(fixture),
@@ -406,7 +410,14 @@ describe('DistServeScreen', () => {
 
       expect(frame(81)).to.eql(frame(81));
       const digestTail = `#${fixture.cloneDist().hash.digest.slice(-5)}`;
+      const narrow = frame(
+        40,
+        30,
+        'http://a-very-long-origin.example.test:49152/' as t.StringUrl,
+      );
       expect(text(frame(79))).to.include(digestTail);
+      expect(narrow).to.include(Cli.Fmt.omission());
+      expect(narrow).to.include(c.bold(c.cyan('49152')));
       expect(text(frame(24))).to.not.include('open:');
       expect(text(frame(120, 12))).to.not.include('open:');
     } finally {

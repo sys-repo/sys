@@ -688,7 +688,8 @@ describe('@sys/driver-pi start:gui screen', () => {
 
     const clipped = renderStateRow(failed, 33);
     expect(clipped).to.contain(c.yellow('failed: '));
-    expect(clipped).to.contain(c.gray('…'));
+    expect(clipped).to.contain(Cli.Fmt.omission());
+    expect(clipped).not.to.contain(c.yellow('…'));
     expect(clipped).to.contain(c.yellow('required'));
 
     const normalStates = [
@@ -738,11 +739,15 @@ describe('@sys/driver-pi start:gui screen', () => {
     expect(Cli.stripAnsi(exact)).to.contain(CAPABILITY);
     expect(Cli.Fmt.Text.Width.measure(exact)).to.eql(85);
 
-    const clippedSuffix = '/0123456789abcdefghijklm…pqrstuvwxyzabcdefghijkl';
+    const clippedHead = '/0123456789abcdefghijklm';
+    const clippedTail = 'pqrstuvwxyzabcdefghijkl';
+    const clippedSuffix = `${clippedHead}…${clippedTail}`;
     const clipped = openRow(86);
     expect(Cli.stripAnsi(clipped)).to.contain(`${CAPABILITY_ORIGIN}${clippedSuffix}`);
     expect(Cli.stripAnsi(clipped)).to.not.contain(CAPABILITY);
-    expect(clipped).to.contain(c.gray(clippedSuffix));
+    expect(clipped).to.contain(c.gray(clippedHead));
+    expect(clipped).to.contain(Cli.Fmt.omission());
+    expect(clipped).to.contain(c.gray(clippedTail));
     expect(clipped).to.contain(CAPABILITY);
     expect(Cli.Fmt.Text.Width.measure(clipped)).to.eql(84);
   });

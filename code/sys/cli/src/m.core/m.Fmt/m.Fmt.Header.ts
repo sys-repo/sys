@@ -1,6 +1,7 @@
 import { c, Color, Is, Num, Obj, Pkg, stripAnsi, type t } from '../common.ts';
 import { Text } from '../m.Fmt.Text/mod.ts';
 import { hr } from './m.Fmt.Hr.ts';
+import { omission } from './m.Fmt.Omission.ts';
 
 const DEFAULT_TITLE = 'Untitled';
 const TITLE_SEPARATOR = ' · ';
@@ -53,11 +54,9 @@ function renderHeadline(options: t.CliFormatHeader.Options, width: number): stri
     if (Text.Width.measure(title) <= width) return title;
   }
 
-  if (customTitle) {
-    return renderTitle(Text.ellipsize(stripAnsi(customTitle).trim(), width), options.tone);
-  }
+  if (customTitle) return ellipsizeTitle(stripAnsi(customTitle).trim(), width, options.tone);
   if (pkgIdentity) return ellipsizePkgTitle(pkgIdentity.compact, width, options.tone);
-  return renderTitle(Text.ellipsize(generatedName, width), options.tone);
+  return ellipsizeTitle(generatedName, width, options.tone);
 }
 
 function renderRightLanes(
@@ -90,13 +89,21 @@ function renderPkgTitle(identity: PkgIdentity, tone?: t.AnsiColor.Name): string 
   return `${renderTitle(identity.root, tone)}${renderPkgSubpath(identity.subpath, tone)}`;
 }
 
+function ellipsizeTitle(title: string, width: number, tone?: t.AnsiColor.Name): string {
+  return Text.ellipsize(title, width, {
+    render: ({ head, ellipsis, tail }) => {
+      return `${renderTitle(head, tone)}${omission(ellipsis)}${renderTitle(tail, tone)}`;
+    },
+  });
+}
+
 function ellipsizePkgTitle(identity: PkgIdentity, width: number, tone?: t.AnsiColor.Name): string {
   return Text.ellipsize(identity.plain, width, {
     render: ({ head, ellipsis, tail }) => {
       const tailStart = identity.plain.length - tail.length;
       return [
         renderPkgFragment(head, 0, identity, tone),
-        renderPkgEllipsis(ellipsis, head.length, identity, tone),
+        omission(ellipsis),
         renderPkgFragment(tail, tailStart, identity, tone),
       ].join('');
     },
@@ -123,17 +130,6 @@ function renderPkgFragment(
       tone,
     )
   }`;
-}
-
-function renderPkgEllipsis(
-  ellipsis: string,
-  position: number,
-  identity: PkgIdentity,
-  tone?: t.AnsiColor.Name,
-): string {
-  return position >= identity.root.length
-    ? renderPkgSubpath(ellipsis, tone)
-    : renderTitle(ellipsis, tone);
 }
 
 function renderPkgSubpath(subpath: string, tone?: t.AnsiColor.Name): string {

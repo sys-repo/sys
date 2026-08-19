@@ -99,7 +99,8 @@ describe('ViteConfig.workspace', () => {
       expect(left).to.include('…');
       expect(right).to.include('…');
       expect(right).to.include('.ts');
-      expect(raw).to.include(c.cyan('…'));
+      expect(raw).to.include(c.dim(c.gray('…')));
+      expect(raw).not.to.include(c.cyan('…'));
     });
   });
 

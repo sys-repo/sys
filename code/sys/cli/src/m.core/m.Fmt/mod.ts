@@ -9,7 +9,8 @@
  * - red → failure, hard block, or destructive change.
  *
  * ANSI-stripped output remains semantically complete. Identity accents do not establish status;
- * bold and dim change emphasis, not severity.
+ * bold and dim change emphasis, not severity. Formatter-inserted omission markers are dim gray
+ * structural context and do not inherit the foreground of retained content.
  */
 
 /** ANSI color formatter functions. */

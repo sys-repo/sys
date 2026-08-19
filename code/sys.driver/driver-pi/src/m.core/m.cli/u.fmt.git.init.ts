@@ -6,6 +6,7 @@ type GitInitFmtOptions = {
 
 const EDGE_MARGIN = 1;
 const ELLIPSIS = '..';
+const OMISSION_TOKEN = '\u{E000}';
 const PATH_DIR_PREFIX_WIDTH = 4;
 const SECTION = '  ';
 const DETAIL = '    ';
@@ -81,36 +82,35 @@ function wrapLine(text: string, indent: string, width: number) {
   return lines.map((entry) => `${indent}${entry}`);
 }
 
+type DisplayFit = {
+  readonly text: string;
+  readonly omission?: { readonly at: number; readonly text: string };
+};
+
 function formatTitle(width: number) {
   const budget = Math.max(0, width - SECTION.length);
-  const title = fitToBudget(TITLE, budget);
+  const title = formatTextFit(fitToBudget(TITLE, budget), (text) => c.bold(c.green(text)));
   const meta = formatTitleMeta(Math.max(0, budget - visibleWidth(title)));
-  return `${c.bold(c.green(title))}${meta ? c.gray(meta) : ''}`;
+  return `${title}${meta}`;
 }
 
 function formatTitleMeta(budget: number) {
   if (budget <= 0) return '';
 
-  const meta = ` ${TITLE_META}`;
-  if (visibleWidth(meta) <= budget) return meta;
-
-  const fitted = fitToBudget(meta, budget);
-  return fitted.trim().length > 0 && fitted !== '.' && fitted !== '..' ? fitted : '';
+  const fitted = fitToBudget(` ${TITLE_META}`, budget);
+  if (fitted.text.trim().length === 0 || fitted.text === '.' || fitted.text === ELLIPSIS) return '';
+  return formatTextFit(fitted, c.gray);
 }
 
 function formatTarget(cwd: t.StringDir, width: number) {
   const path = Fs.join(cwd, '.git');
   const budget = Math.max(0, width - DETAIL.length);
-  const fitted = fitDisplayPath(path, budget);
-  return Cli.Fmt.path(fitted, (e) => {
-    if (e.is.basename) e.change(c.white(e.part));
-    else e.change(c.gray(e.part));
-  });
+  return formatPathFit(fitDisplayPath(path, budget));
 }
 
-function fitDisplayPath(path: string, budget: number) {
-  if (budget <= 0) return '';
-  if (visibleWidth(path) <= budget) return path;
+function fitDisplayPath(path: string, budget: number): DisplayFit {
+  if (budget <= 0) return { text: '' };
+  if (visibleWidth(path) <= budget) return { text: path };
 
   const basename = Path.basename(path);
   if (basename.length === 0 || basename === path) return fitToBudget(path, budget);
@@ -120,20 +120,59 @@ function fitDisplayPath(path: string, budget: number) {
   const separatorWidth = visibleWidth('/');
   const dirBudget = budget - visibleWidth(basename) - separatorWidth;
   if (dirBudget <= 0) return fitToBudget(basename, budget);
-  if (visibleWidth(dirname) <= dirBudget) return `${dirname}/${basename}`;
+  if (visibleWidth(dirname) <= dirBudget) return { text: `${dirname}/${basename}` };
 
   const left = dirBudget > PATH_DIR_PREFIX_WIDTH + ELLIPSIS.length ? PATH_DIR_PREFIX_WIDTH : 0;
   const right = Math.max(0, dirBudget - left - ELLIPSIS.length);
   const shortenedDir = Str.ellipsize(dirname, [left, right], ELLIPSIS);
-  return `${shortenedDir}/${basename}`;
+  return {
+    text: `${shortenedDir}/${basename}`,
+    omission: { at: left, text: ELLIPSIS },
+  };
 }
 
-function fitToBudget(text: string, budget: number) {
-  if (budget <= 0) return '';
-  if (visibleWidth(text) <= budget) return text;
-  if (budget === 1) return '.';
-  if (budget === 2) return ELLIPSIS;
-  return Str.ellipsize(text, [0, budget - ELLIPSIS.length], ELLIPSIS);
+function fitToBudget(text: string, budget: number): DisplayFit {
+  if (budget <= 0) return { text: '' };
+  if (visibleWidth(text) <= budget) return { text };
+  if (budget === 1) return { text: '.', omission: { at: 0, text: '.' } };
+  if (budget === 2) return { text: ELLIPSIS, omission: { at: 0, text: ELLIPSIS } };
+
+  const fitted = Str.ellipsize(text, [0, budget - ELLIPSIS.length], ELLIPSIS);
+  return {
+    text: fitted,
+    omission: { at: fitted.length - ELLIPSIS.length, text: ELLIPSIS },
+  };
+}
+
+function formatTextFit(fit: DisplayFit, color: (value: string) => string) {
+  if (!fit.omission) return color(fit.text);
+  const { at, text } = fit.omission;
+  return `${color(fit.text.slice(0, at))}${Cli.Fmt.omission(text)}${
+    color(fit.text.slice(at + text.length))
+  }`;
+}
+
+function formatPathFit(fit: DisplayFit) {
+  if (!fit.omission) return formatPath(fit.text);
+
+  const { at, text } = fit.omission;
+  const display = `${fit.text.slice(0, at)}${OMISSION_TOKEN}${fit.text.slice(at + text.length)}`;
+  return Cli.Fmt.path(display, (entry) => {
+    const color = entry.is.basename ? c.white : c.gray;
+    const index = entry.part.indexOf(OMISSION_TOKEN);
+    if (index < 0) return entry.change(color(entry.part));
+    return entry.change(
+      `${color(entry.part.slice(0, index))}${Cli.Fmt.omission(text)}${
+        color(entry.part.slice(index + OMISSION_TOKEN.length))
+      }`,
+    );
+  });
+}
+
+function formatPath(path: string) {
+  return Cli.Fmt.path(path, (entry) => {
+    entry.change(entry.is.basename ? c.white(entry.part) : c.gray(entry.part));
+  });
 }
 
 function visibleWidth(text: string) {

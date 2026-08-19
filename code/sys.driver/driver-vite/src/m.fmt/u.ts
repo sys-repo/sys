@@ -40,7 +40,11 @@ export function reserveWidth(width: number, reserve: number) {
 export function clipLine(input: string, width: number) {
   if (width <= 0) return '';
   if (Cli.Fmt.Text.Width.measure(input) <= width) return input;
-  return c.gray(clipText(stripAnsi(input), width));
+  return Cli.Fmt.Text.ellipsize(stripAnsi(input), width, {
+    render: ({ head, ellipsis, tail }) => {
+      return `${c.gray(head)}${Cli.Fmt.omission(ellipsis)}${c.gray(tail)}`;
+    },
+  });
 }
 
 export function clipText(input: string, width: number) {
@@ -54,7 +58,7 @@ export function clipValue(input: string, width: number) {
   const text = stripAnsi(input);
   if (Cli.Fmt.Text.Width.measure(text) <= width) return input;
   return Cli.Fmt.Text.ellipsize(text, width, {
-    render: ({ head, ellipsis, tail }) => `${head}${c.gray(ellipsis)}${tail}`,
+    render: ({ head, ellipsis, tail }) => `${head}${Cli.Fmt.omission(ellipsis)}${tail}`,
   });
 }
 
@@ -90,7 +94,15 @@ export function metadataPrefix(
 }
 
 export function hashValue(hash: t.StringHash, width: number) {
-  const text = clipText(hash, width);
-  if (!text) return '';
-  return `${c.dim(c.gray(text.slice(0, -5)))}${c.gray(text.slice(-5))}`;
+  if (width <= 0) return '';
+  if (Cli.Fmt.Text.Width.measure(hash) <= width) return formatHashTail(hash);
+  return Cli.Fmt.Text.ellipsize(hash, width, {
+    render: ({ head, ellipsis, tail }) => {
+      return `${c.dim(c.gray(head))}${Cli.Fmt.omission(ellipsis)}${formatHashTail(tail)}`;
+    },
+  });
+}
+
+function formatHashTail(tail: string) {
+  return `${c.dim(c.gray(tail.slice(0, -5)))}${c.gray(tail.slice(-5))}`;
 }

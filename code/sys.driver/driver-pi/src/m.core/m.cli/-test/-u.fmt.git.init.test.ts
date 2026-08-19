@@ -22,15 +22,15 @@ describe('@sys/driver-pi/cli/u.fmt.git.init', () => {
 
   it('block → preserves the .git tail on narrow widths without overflowing the frame', () => {
     const width = 44;
-    const text = render(
-      '/sample/project-with-a-very-long-directory-name-for-pi-testing',
-      width,
-    );
+    const cwd = '/sample/project-with-a-very-long-directory-name-for-pi-testing';
+    const raw = GitInitFmt.block(cwd as never, { width });
+    const text = Cli.stripAnsi(raw);
     const lines = text.split('\n');
 
     expect(text).to.contain('Agent:Directory Setup');
     expect(text).to.contain('.git');
     expect(text).to.contain('..');
+    expect(raw).to.contain(Cli.Fmt.omission('..'));
     expect(Math.max(...lines.map((line) => line.length))).to.be.at.most(width - 1);
   });
 });

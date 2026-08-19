@@ -41,6 +41,9 @@ export declare namespace CliFormat {
     /** Help page formatting. */
     readonly Help: CliFormatHelp.Lib;
 
+    /** Format a formatter-inserted omission marker as dim gray structural context. Defaults to `…`. */
+    readonly omission: (text?: string) => string;
+
     /** Terminal text measurement, fitting, wrapping, and clipping operations. */
     readonly Text: CliFormatText.Lib;
 
@@ -99,7 +102,7 @@ export declare namespace CliFormat {
       readonly highlightBasename?: boolean;
       /** Display style for formatter-added relative prefixes. Defaults to `prefixed`. */
       readonly relative?: 'prefixed' | 'bare';
-      /** Color treatment for path fragments and inserted ellipses. Defaults to `default`. */
+      /** Color treatment for path fragments. Inserted omission markers are always dim gray. */
       readonly tone?: 'default' | 'muted';
     };
 
