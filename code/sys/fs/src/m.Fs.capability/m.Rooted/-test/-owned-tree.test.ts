@@ -970,6 +970,72 @@ describe('Fs.Capability.Rooted owned trees: committed outcomes and recovery', ()
     }
   });
 
+  it('preserves commitment when post-remove observation fails and completes retry', async () => {
+    const fixture = await setup();
+    try {
+      let removedPath: string | undefined;
+      let failed = false;
+      const io = withIo({
+        remove: async (path, options) => {
+          await DEFAULT_IO.remove(path, options);
+          if (!failed) removedPath = path;
+        },
+        lstat: async (path) => {
+          if (!failed && path === removedPath) {
+            failed = true;
+            throw new Error('post-remove observation failed');
+          }
+          return await DEFAULT_IO.lstat(path);
+        },
+      });
+      const rooted = await createRooted({ root: fixture.root }, io);
+      await writeTree(fixture.root);
+      const target = await directoryTarget(rooted, 'generation');
+      const lease = await acquired(rooted, target, 'exclusive');
+
+      await expectFailure(() => rooted.removeTree(target, { lease }), 'io-failure', true);
+      expect(await rooted.removeTree(target, { lease })).to.eql({ kind: 'removed' });
+      await lease.release();
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
+  it('conservatively reports commitment when remove and reconciliation both fail', async () => {
+    const fixture = await setup();
+    try {
+      let reconcilePath: string | undefined;
+      let fail = true;
+      const io = withIo({
+        remove: async (path, options) => {
+          if (fail) {
+            reconcilePath = path;
+            throw new Error('remove failed');
+          }
+          await DEFAULT_IO.remove(path, options);
+        },
+        lstat: async (path) => {
+          if (path === reconcilePath) {
+            reconcilePath = undefined;
+            throw new Error('reconciliation failed');
+          }
+          return await DEFAULT_IO.lstat(path);
+        },
+      });
+      const rooted = await createRooted({ root: fixture.root }, io);
+      await writeTree(fixture.root);
+      const target = await directoryTarget(rooted, 'generation');
+      const lease = await acquired(rooted, target, 'exclusive');
+
+      await expectFailure(() => rooted.removeTree(target, { lease }), 'io-failure', true);
+      fail = false;
+      expect(await rooted.removeTree(target, { lease })).to.eql({ kind: 'removed' });
+      await lease.release();
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
   it('reports committed when remove fails after deleting an entry and completes retry', async () => {
     const fixture = await setup();
     try {

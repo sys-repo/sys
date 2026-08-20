@@ -52,6 +52,32 @@ describe('Fs.Capability.Rooted: public surface', () => {
     }
   });
 
+  it('binds an existing canonical root without requesting ambient ancestor reads', async () => {
+    const fixture = await setup();
+    try {
+      await Deno.mkdir(fixture.root, { recursive: true });
+      const canonical = await Deno.realPath(fixture.root);
+      const observed: string[] = [];
+      const rooted = await createRooted(
+        { root: fixture.root },
+        withIo({
+          lstat: async (path) => {
+            observed.push(path);
+            if (path !== fixture.root && path !== canonical) {
+              throw new Error(`Unexpected ancestor read: ${path}`);
+            }
+            return await DEFAULT_IO.lstat(path);
+          },
+        }),
+      );
+
+      expect(rooted.path).to.eql(canonical);
+      expect(observed).to.eql([fixture.root, canonical]);
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
   it('preserves file and directory kinds so mixed target handles narrow by kind', async () => {
     const fixture = await setup();
     try {

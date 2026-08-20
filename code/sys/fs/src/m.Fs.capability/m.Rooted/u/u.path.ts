@@ -33,16 +33,16 @@ export async function createRootState(
   }
 
   const absolute = StdPath.resolve(root) as t.StringAbsoluteDir;
-  await ensureDirectoryPath(
-    io,
-    StdPath.dirname(absolute),
-    operation,
-    signal,
-    'invalid-root',
-    false,
-  );
   let rootInfo = await lstatMaybe(io, absolute, operation);
   if (!rootInfo) {
+    await ensureDirectoryPath(
+      io,
+      StdPath.dirname(absolute),
+      operation,
+      signal,
+      'invalid-root',
+      false,
+    );
     try {
       await io.mkdir(absolute, { mode: 0o700 });
     } catch (cause) {
@@ -61,8 +61,8 @@ export async function createRootState(
     throw ioFailure(operation, cause);
   }
 
-  await ensureDirectoryPath(io, canonical, operation, signal, 'invalid-root', false);
   const info = await lstatRequired(io, canonical, operation, 'invalid-root');
+  if (!info.isDirectory || info.isSymlink) throw failure(operation, 'invalid-root');
   const identity = identityRequired(info, operation);
   if (!sameIdentity(selectedIdentity, info)) throw failure(operation, 'invalid-root');
   checkCancelled(operation, signal);

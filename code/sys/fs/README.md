@@ -21,8 +21,10 @@ publish complete data or coordinate its use and removal.
 ## Rooted
 
 A `Rooted` instance binds a cooperative publication protocol to one canonical directory. Every
-admitted target, private stage, and lock file stays beneath that root. `Rooted` does not replace
-Deno permissions or restrict direct filesystem calls.
+admitted target, private stage, and lock file stays beneath that root. Binding an existing root
+observes and canonicalizes that exact directory without requesting ambient ancestor reads; creating
+a missing root still validates its complete parent chain. `Rooted` does not replace Deno permissions
+or restrict direct filesystem calls.
 
 Use it for assets, builds, application versions, and caches that are published once, used by several
 processes, and removed later.

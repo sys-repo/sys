@@ -176,7 +176,19 @@ export async function removeTreeEntries(
     }
 
     if (!removed) {
-      const remaining = await lstatMaybe(io, entry.path, operation);
+      let remaining: Deno.FileInfo | undefined;
+      try {
+        remaining = await lstatMaybe(io, entry.path, operation);
+      } catch (reconciliationCause) {
+        throw ioFailure(
+          operation,
+          new AggregateError(
+            [removalCause, reconciliationCause],
+            'Removal and filesystem reconciliation both failed.',
+          ),
+          true,
+        );
+      }
       if (removalCause instanceof Deno.errors.NotFound) {
         throw failure(operation, 'ownership-lost', {
           cause: removalCause,
@@ -194,7 +206,12 @@ export async function removeTreeEntries(
     }
     committed = true;
 
-    const remaining = await lstatMaybe(io, entry.path, operation);
+    let remaining: Deno.FileInfo | undefined;
+    try {
+      remaining = await lstatMaybe(io, entry.path, operation);
+    } catch (cause) {
+      throw toFailure(operation, cause, true);
+    }
     if (remaining) throw failure(operation, 'ownership-lost', { committed: true });
     checkCancelled(operation, signal, true);
   }
