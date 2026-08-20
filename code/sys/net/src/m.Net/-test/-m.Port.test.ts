@@ -132,3 +132,11 @@ describe('Net.Port', () => {
     });
   });
 });
+
+Deno.test({
+  name: 'Net.Port.get preserves port zero without wildcard probe authority',
+  permissions: { net: ['127.0.0.1'] },
+  fn() {
+    expect(Port.get(0)).to.eql(0);
+  },
+});

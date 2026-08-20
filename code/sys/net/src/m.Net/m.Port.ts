@@ -37,6 +37,9 @@ export const Port: t.PortLib = Object.freeze({
 
   get(pref?: t.PortNumber, options: { throw?: boolean } = {}) {
     if (pref === undefined) return Port.random();
+    // Port zero delegates allocation to the eventual listener. Probing it first is both
+    // meaningless and needlessly requests wildcard IPv4/IPv6 bind authority.
+    if (pref === 0) return pref;
 
     if (!Port.inUse(pref)) return pref;
 
