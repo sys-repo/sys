@@ -29,7 +29,7 @@
     "test-browser": {
       "read": true,
       "write": true,
-      "env": ["CHROME_BIN", "WS_NO_BUFFER_UTIL", "WS_NO_UTF_8_VALIDATE"],
+      "env": true,
       "net": ["127.0.0.1"],
       "run": true
     }
