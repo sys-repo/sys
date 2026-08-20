@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1787136227052,
+    "createdAt": 1787257240349,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-95c260d0fdaaddc93c3c679f8fc7cb4fb1f6ef9acce4d3c0cbe8c528836c3cd2",
+      "/graph": "sha256-7da07ae43616fd3b066de2aca033768a98451e22d9d88d0de36b59cc471d3e26",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.153/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,7 +15,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.153/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1787136227057
+    "modifiedAt": 1787257240356
   },
   "graph": {
     "orderedPaths": [
@@ -349,6 +349,10 @@
       {
         "from": "code/sys.ui/ui-dom",
         "to": "code/sys.driver/driver-monaco"
+      },
+      {
+        "from": "code/sys.ui/ui-dom",
+        "to": "code/sys.driver/driver-pi"
       },
       {
         "from": "code/sys.ui/ui-dom",
