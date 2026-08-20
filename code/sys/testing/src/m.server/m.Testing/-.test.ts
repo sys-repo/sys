@@ -5,6 +5,8 @@ describe('Server ← test helpers', () => {
   describe('API', () => {
     it('base: std (includes HTTP)', async () => {
       const m = await import('@sys/std/testing/server');
+      const server = await import('@sys/testing/server');
+      expect('DomMock' in server).to.eql(false);
       expect(Testing).to.not.equal(m.Testing);
       expect(Object.isFrozen(m.Testing)).to.eql(true);
       expect(Object.keys(Testing).sort()).to.eql(

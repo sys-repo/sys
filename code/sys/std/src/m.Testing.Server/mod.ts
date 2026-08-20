@@ -18,7 +18,6 @@ export {
 } from '../m.Testing/mod.ts';
 
 import { TestHttpServer as Http } from './m.HttpServer.ts';
-export { DomMock } from '../m.Testing.DomMock/mod.ts';
 
 /**
  * Testing helpers including light-weight HTTP server helpers (Deno).
