@@ -1,5 +1,5 @@
 import { describe, expect, it, WebFixture } from '../../../-test.ts';
-import { c, Cli, type t } from '../common.ts';
+import { c, Cli, Fs, type t } from '../common.ts';
 import { observeResizeWith, StartGuiScreen } from '../u.start/u.screen.ts';
 import { Boot, type BootState, createBootState } from '../u.start/u.state.ts';
 import { createScreenHarness } from './u.fixture.start.gui.screen.ts';
@@ -9,6 +9,8 @@ const CAPABILITY_ORIGIN = 'http://127.0.0.1:51260';
 const CAPABILITY_SUFFIX = '/0123456789abcdefghijklmnopqrstuvwxyzabcdefghijkl';
 const CAPABILITY = `${CAPABILITY_ORIGIN}${CAPABILITY_SUFFIX}` as t.StringUrl;
 const APPLICATION = 'http://127.0.0.1:51261' as t.StringUrl;
+const DEVELOPMENT_ROOT =
+  '/private/var/folders/ab/cdef/T/@sys-driver-pi.start-gui-preview.0123456789abcdef' as t.StringAbsoluteDir;
 const stringIteratorPrototype = Object.getPrototypeOf('screen'[Symbol.iterator]());
 const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
 const segmentIteratorPrototype = Object.getPrototypeOf(
@@ -334,6 +336,7 @@ describe('@sys/driver-pi start:gui screen', () => {
     const screen = StartGuiScreen.create({
       service: SERVICE,
       url: CAPABILITY,
+      root: DEVELOPMENT_ROOT,
       state,
       keyboard: true,
       onFailure() {
@@ -366,6 +369,7 @@ describe('@sys/driver-pi start:gui screen', () => {
     expect(ambientCalls).to.eql(0);
     expect(frame).to.contain(CAPABILITY);
     expect(frame).to.contain(APPLICATION);
+    expect(frame).to.contain(Fs.Path.toFileUrl(DEVELOPMENT_ROOT).href);
 
     const hrefDescriptor = Object.getOwnPropertyDescriptor(NativeURL.prototype, 'href');
     if (!hrefDescriptor?.get) throw new Error('Expected URL.prototype.href getter.');
@@ -386,6 +390,47 @@ describe('@sys/driver-pi start:gui screen', () => {
     }
 
     expect({ getterCalls, failures }).to.eql({ getterCalls: 0, failures: 0 });
+    screen.dispose();
+  });
+
+  it('captures development file authority before screen callbacks mutate URL prototypes', () => {
+    const NativeURL = URL;
+    const hrefDescriptor = Object.getOwnPropertyDescriptor(NativeURL.prototype, 'href');
+    if (!hrefDescriptor?.get) throw new Error('Expected URL.prototype.href getter.');
+    const expected = Fs.Path.toFileUrl(DEVELOPMENT_ROOT).href;
+    const harness = createScreenHarness({ width: 100, height: 18 });
+    let getterCalls = 0;
+    let screen: ReturnType<typeof StartGuiScreen.create> | undefined;
+
+    try {
+      screen = StartGuiScreen.create({
+        service: SERVICE,
+        url: CAPABILITY,
+        root: DEVELOPMENT_ROOT,
+        state: createBootState(),
+        keyboard: false,
+        onFailure() {},
+      }, {
+        ...harness.deps,
+        isInteractive() {
+          Object.defineProperty(NativeURL.prototype, 'href', {
+            ...hrefDescriptor,
+            get() {
+              getterCalls += 1;
+              throw new Error('ambient URL getter invoked after root capture');
+            },
+          });
+          return true;
+        },
+      });
+    } finally {
+      Object.defineProperty(NativeURL.prototype, 'href', hrefDescriptor);
+    }
+
+    if (!screen) throw new Error('Expected screen instance.');
+    expect(screen.kind).to.eql('acquired');
+    expect(getterCalls).to.eql(0);
+    expect(harness.frames.at(-1) ?? '').to.contain(expected);
     screen.dispose();
   });
 
@@ -547,9 +592,9 @@ describe('@sys/driver-pi start:gui screen', () => {
     expect(frame).to.contain('failed: source-unavailable');
     expect(frame).to.contain('manifest-fetch · resource-failure · cleanup:pending');
     expect(rendered).to.contain(
-      `${c.white('manifest-fetch ')}${c.dim(c.gray('·'))}${c.white(' resource-failure ')}`,
+      `${c.gray('manifest-fetch ')}${c.dim(c.gray('·'))}${c.gray(' resource-failure ')}`,
     );
-    expect(frame).to.contain('browser did not open; use launch URL');
+    expect(rendered).to.contain(c.yellow('browser did not open; use launch URL'));
     expect(frame).to.contain('/0123456789abcdef');
     expect(frame).to.not.contain('evi…nce');
 
@@ -682,11 +727,12 @@ describe('@sys/driver-pi start:gui screen', () => {
       rows.find((candidate) => Cli.stripAnsi(candidate).trimStart().startsWith(label)) ?? '';
 
     expect(row('service')).to.contain(c.green('service'));
+    expect(row('service')).to.contain(c.white(SERVICE));
     expect(row('state')).to.contain(c.dim(c.gray(' state')));
     expect(row('open')).to.contain(c.dim(c.gray(' open')));
   });
 
-  it('renders failed state yellow and all other states white', () => {
+  it('renders failed state yellow and all other states gray', () => {
     const failed = Boot.failed('repair-required', { kind: 'cancellation' });
     expect(renderStateRow(failed)).to.contain(c.yellow('failed: repair-required'));
 
@@ -703,7 +749,7 @@ describe('@sys/driver-pi start:gui screen', () => {
       [Boot.stopping, 'stopping'],
     ] as const;
     for (const [state, text] of normalStates) {
-      expect(renderStateRow(state)).to.contain(c.white(text));
+      expect(renderStateRow(state)).to.contain(c.gray(text));
     }
   });
 
@@ -726,6 +772,73 @@ describe('@sys/driver-pi start:gui screen', () => {
     expect(text.startsWith('← + ctrl')).to.eql(true);
     expect(text.endsWith('quit: ctrl + c or q')).to.eql(true);
     expect(Cli.Fmt.Text.Width.measure(text)).to.eql(80);
+  });
+
+  it('formats and links the exact development root while retaining its full file authority', () => {
+    const renderRoot = (width: number, root: t.StringAbsoluteDir = DEVELOPMENT_ROOT) =>
+      StartGuiScreen.toString({
+        service: SERVICE,
+        url: CAPABILITY,
+        root,
+        state: Boot.ready(APPLICATION),
+        keyboard: false,
+        openWarning: false,
+        viewport: { width, height: 14 },
+      });
+    const rootRow = (width: number, root: t.StringAbsoluteDir = DEVELOPMENT_ROOT) =>
+      renderRoot(width, root).split('\n').find((row) =>
+        Cli.stripAnsi(row).trimStart().startsWith('root')
+      ) ?? '';
+    const linkedRootRow = (width: number, root: t.StringAbsoluteDir = DEVELOPMENT_ROOT) => {
+      const href = Fs.Path.toFileUrl(root).href;
+      return renderRoot(width, root).split('\n').find((row) => row.includes(href)) ?? '';
+    };
+
+    const href = Fs.Path.toFileUrl(DEVELOPMENT_ROOT).href;
+    const exact = rootRow(120);
+    expect(Cli.stripAnsi(exact)).to.contain(DEVELOPMENT_ROOT);
+    expect(exact).to.contain(Cli.Fmt.Path.str(DEVELOPMENT_ROOT));
+    expect(exact).to.contain(href);
+
+    const clipped = rootRow(58);
+    expect(Cli.stripAnsi(clipped)).to.contain('…');
+    expect(Cli.stripAnsi(clipped)).to.not.contain(DEVELOPMENT_ROOT);
+    expect(clipped).to.contain(Cli.Fmt.omission());
+    expect(clipped).to.contain(href);
+    expect(Cli.Fmt.Text.Width.measure(clipped)).to.eql(56);
+
+    for (const width of [24, 16, 8, 5]) {
+      const narrow = linkedRootRow(width);
+      expect(narrow).not.to.eql('');
+      expect(narrow).to.contain(href);
+      expect(Cli.Fmt.Text.Width.measure(narrow)).to.be.at.most(width);
+      expect(Cli.stripAnsi(narrow)).not.to.contain('\u001b');
+    }
+    for (const width of [4, 1]) {
+      const frame = renderRoot(width);
+      expect(frame).not.to.contain(href);
+      for (const row of frame.split('\n')) {
+        expect(Cli.Fmt.Text.Width.measure(row)).to.be.at.most(width);
+      }
+    }
+
+    const unicodeRoot = '/tmp/café/東京/🚀/e\u0301' as t.StringAbsoluteDir;
+    const unicode = rootRow(120, unicodeRoot);
+    expect(Cli.stripAnsi(unicode)).to.contain(unicodeRoot);
+    expect(unicode).to.contain(Fs.Path.toFileUrl(unicodeRoot).href);
+
+    const unsafeRoots = [
+      '/tmp/unsafe\u001b]8;;https://example.test',
+      '/tmp/display-mismatch ',
+      '/tmp/unpaired-high-\ud800',
+      '/tmp/unpaired-low-\udc00',
+      '/tmp/reversed-\u202etxt',
+      '/tmp/zero-width-\u200bname',
+      '/tmp/line-separator-\u2028name',
+    ] as const;
+    for (const root of unsafeRoots) {
+      expect(rootRow(120, root as t.StringAbsoluteDir)).to.eql('');
+    }
   });
 
   it('fits a production capability by row and origin offsets while retaining its full link', () => {

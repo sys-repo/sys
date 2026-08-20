@@ -3625,6 +3625,7 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
     expect(harness.materializeCalls).to.eql(0);
     expect(count(harness.events, 'lease.acquire')).to.eql(0);
     expect(harness.applicationStarts).to.eql(1);
+    expect(harness.screenRoot).to.eql(source.dir);
 
     await harness.quit();
     await run;
@@ -3747,6 +3748,7 @@ function createHarness(options: HarnessOptions = {}) {
   let materializeCalls = 0;
   let applicationStarts = 0;
   let openWarnings = 0;
+  let screenRoot: t.StringAbsoluteDir | undefined;
   let leaseMode: FsRooted.LeaseMode | undefined;
 
   const target = Object.freeze({
@@ -3867,6 +3869,7 @@ function createHarness(options: HarnessOptions = {}) {
     },
     createScreen: (input) => {
       emit('screen.create');
+      screenRoot = input.root;
       releaseState = trackState(input.state);
       return {
         kind: 'acquired',
@@ -3899,6 +3902,9 @@ function createHarness(options: HarnessOptions = {}) {
     },
     get openWarnings() {
       return openWarnings;
+    },
+    get screenRoot() {
+      return screenRoot;
     },
     get leaseMode() {
       return leaseMode;

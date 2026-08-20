@@ -1,14 +1,21 @@
-import { c, Cli, Is, pkg, StartGuiIntrinsic, type t } from './common.ts';
+import { c, Cli, Fs, Is, pkg, StartGuiIntrinsic, type t } from './common.ts';
 import { createOwnedError, ownedError } from './u.error.ts';
 import { createPromiseDeferred, observePromiseTransport, pendingPromise } from './u.promise.ts';
 import type { BootSafeEvidence, BootState, BootStateSource } from './u.state.ts';
-import { captureUrl, stableNativeUrl } from './u.url.ts';
+import { captureNativeUrl, captureUrl, stableNativeUrl } from './u.url.ts';
 
 type ScreenSize = t.Cli.Screen.Size;
+type CapturedRootLink = Readonly<{
+  readonly text: t.StringAbsoluteDir;
+  readonly url: URL;
+}>;
+type RootLinkInput = t.StringAbsoluteDir | CapturedRootLink;
 
 export type StartGuiScreenInput = {
   readonly service: string;
   readonly url: t.StringUrl;
+  /** Exact development generation hosted by this session; omitted for release acquisition. */
+  readonly root?: t.StringAbsoluteDir;
   readonly state: BootStateSource;
   readonly keyboard: boolean;
   /** Synchronously publishes a screen failure at its package-controlled source. */
@@ -36,6 +43,7 @@ const apply = Reflect.apply;
 const freeze = Object.freeze;
 const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
 const getPrototypeOf = Object.getPrototypeOf;
+const isAbsolutePath = Fs.Path.Is.absolute;
 const NativeMath = Math;
 const NativeNumber = Number;
 const mathFloor = NativeMath.floor;
@@ -43,6 +51,10 @@ const mathMax = NativeMath.max;
 const numberIsFinite = NativeNumber.isFinite;
 const objectPrototype = Object.prototype;
 const ownKeys = Reflect.ownKeys;
+const pathFromFileUrl = Fs.Path.fromFileUrl;
+const pathToFileUrl = Fs.Path.toFileUrl;
+const ROOT_LINKS = StartGuiIntrinsic.createWeakSet<object>();
+const stringTrim = String.prototype.trim;
 const MAX_SCREEN_DIMENSION = 65_535;
 const PRESENTATION_AUTHORITIES = freeze([
   prototypeAuthority(String.prototype, 'charCodeAt'),
@@ -133,6 +145,7 @@ export const StartGuiScreen = {
     input: StartGuiScreenInput,
     overrides: Partial<StartGuiScreenDependencies> = {},
   ): StartGuiScreenInstance {
+    const root = captureRootLink(input.root);
     const deps = { ...DEFAULT_DEPS, ...overrides };
     if (!deps.isInteractive()) {
       return freeze({
@@ -182,6 +195,7 @@ export const StartGuiScreen = {
       deps.repaint(StartGuiScreen.toString({
         service: input.service,
         url: input.url,
+        root,
         state: input.state.current,
         keyboard: input.keyboard,
         openWarning,
@@ -278,6 +292,7 @@ export const StartGuiScreen = {
   toString(input: {
     readonly service: string;
     readonly url: t.StringUrl;
+    readonly root?: RootLinkInput;
     readonly state: BootState;
     readonly keyboard: boolean;
     readonly openWarning: boolean;
@@ -300,6 +315,13 @@ export const StartGuiScreen = {
       'state',
       { kind: 'state', state: input.state },
     ]);
+    const root = capturedRootLink(input.root);
+    if (root) {
+      StartGuiIntrinsic.arrayPush(facts, [
+        'root',
+        { kind: 'path', root },
+      ]);
+    }
     if (input.state.kind === 'ready') {
       StartGuiIntrinsic.arrayPush(facts, [
         'app',
@@ -315,7 +337,7 @@ export const StartGuiScreen = {
     if (input.openWarning) {
       StartGuiIntrinsic.arrayPush(facts, [
         'warning',
-        { kind: 'text', text: 'browser did not open; use launch URL' },
+        { kind: 'warning', text: 'browser did not open; use launch URL' },
       ]);
     }
     StartGuiIntrinsic.arrayPush(facts, ['open', { kind: 'url', text: input.url }]);
@@ -351,7 +373,8 @@ export const StartGuiScreen = {
  * Helpers:
  */
 type ServiceValue =
-  | { readonly kind: 'title' | 'text' | 'evidence'; readonly text: string }
+  | { readonly kind: 'title' | 'warning' | 'evidence'; readonly text: string }
+  | { readonly kind: 'path'; readonly root: CapturedRootLink }
   | { readonly kind: 'state'; readonly state: BootState }
   | { readonly kind: 'url'; readonly text: t.StringUrl };
 
@@ -387,6 +410,16 @@ function fieldLabelColor(text: string) {
 }
 
 function serviceValue(value: ServiceValue, width: number) {
+  if (value.kind === 'path') {
+    if (width <= 0) return '';
+    const display = Cli.Fmt.Path.tty(value.root.text, {
+      fit: 'width',
+      min: 1,
+      terminal: true,
+      width,
+    });
+    return Cli.Fmt.hyperlink(display, value.root.url);
+  }
   if (value.kind === 'url') {
     const part = captureServiceUrl(value.text);
     if (!part) return '';
@@ -399,7 +432,72 @@ function serviceValue(value: ServiceValue, width: number) {
     return fitValue(stateText(value.state), width, stateColor(value.state));
   }
   if (value.kind === 'evidence') return fitValue(value.text, width, colorEvidence);
+  if (value.kind === 'warning') return fitValue(value.text, width, c.yellow);
   return fitValue(value.text, width, c.white);
+}
+
+function capturedRootLink(input: unknown): CapturedRootLink | undefined {
+  if (Is.object(input) && StartGuiIntrinsic.weakSetHas(ROOT_LINKS, input)) {
+    return input as CapturedRootLink;
+  }
+  return captureRootLink(input);
+}
+
+function captureRootLink(input: unknown): CapturedRootLink | undefined {
+  const text = captureDisplayRoot(input);
+  if (!text) return;
+  try {
+    const native = apply(pathToFileUrl, undefined, [text]) as URL;
+    const captured = captureNativeUrl(native);
+    if (!captured || captured.protocol !== 'file:' || captured.search || captured.hash) return;
+    const roundTrip = apply(pathFromFileUrl, undefined, [captured.href]);
+    if (roundTrip !== text) return;
+    const url = stableNativeUrl(captured.href);
+    if (!url) return;
+    const root = freeze({ text, url });
+    StartGuiIntrinsic.weakSetAdd(ROOT_LINKS, root);
+    return root;
+  } catch {
+    return;
+  }
+}
+
+function captureDisplayRoot(input: unknown): t.StringAbsoluteDir | undefined {
+  if (
+    !Is.string(input) || apply(stringTrim, input, []) !== input ||
+    !apply(isAbsolutePath, undefined, [input])
+  ) return;
+  for (let index = 0; index < input.length; index += 1) {
+    const first = StartGuiIntrinsic.stringCharCodeAt(input, index);
+    if (first <= 0x1f || (first >= 0x7f && first <= 0x9f)) return;
+    if (first === 0x2028 || first === 0x2029) return;
+
+    let codePoint = first;
+    if (first >= 0xd800 && first <= 0xdbff) {
+      if (index + 1 >= input.length) return;
+      const second = StartGuiIntrinsic.stringCharCodeAt(input, index + 1);
+      if (second < 0xdc00 || second > 0xdfff) return;
+      codePoint = 0x10000 + ((first - 0xd800) * 0x400) + (second - 0xdc00);
+      index += 1;
+    } else if (first >= 0xdc00 && first <= 0xdfff) {
+      return;
+    }
+    if (isUnicodeFormatControl(codePoint)) return;
+  }
+  return input as t.StringAbsoluteDir;
+}
+
+function isUnicodeFormatControl(code: number): boolean {
+  return code === 0x00ad ||
+    (code >= 0x0600 && code <= 0x0605) || code === 0x061c || code === 0x06dd ||
+    code === 0x070f || (code >= 0x0890 && code <= 0x0891) || code === 0x08e2 ||
+    code === 0x180e || (code >= 0x200b && code <= 0x200f) ||
+    (code >= 0x202a && code <= 0x202e) || (code >= 0x2060 && code <= 0x2064) ||
+    (code >= 0x2066 && code <= 0x206f) || code === 0xfeff ||
+    (code >= 0xfff9 && code <= 0xfffb) || code === 0x110bd || code === 0x110cd ||
+    (code >= 0x13430 && code <= 0x1343f) || (code >= 0x1bca0 && code <= 0x1bca3) ||
+    (code >= 0x1d173 && code <= 0x1d17a) || code === 0xe0001 ||
+    (code >= 0xe0020 && code <= 0xe007f);
 }
 
 function captureServiceUrl(input: t.StringUrl): t.Cli.Fmt.ServiceUrl.Part | undefined {
@@ -447,7 +545,7 @@ function formatServiceOrigin(part: t.Cli.Fmt.ServiceUrl.Part): string {
 }
 
 function stateColor(state: BootState): (text: string) => string {
-  return state.kind === 'failed' ? c.yellow : c.white;
+  return state.kind === 'failed' ? c.yellow : c.gray;
 }
 
 function stateText(state: BootState): string {
@@ -508,12 +606,12 @@ function colorEvidence(value: string) {
     // Captured positional scanning keeps presentation independent of mutable string methods.
     const separatorIndex = StartGuiIntrinsic.stringIndexOf(remaining, '·');
     if (separatorIndex < 0) {
-      StartGuiIntrinsic.arrayPush(output, c.white(remaining));
+      StartGuiIntrinsic.arrayPush(output, c.gray(remaining));
       break;
     }
     StartGuiIntrinsic.arrayPush(
       output,
-      c.white(StartGuiIntrinsic.stringSlice(remaining, 0, separatorIndex)),
+      c.gray(StartGuiIntrinsic.stringSlice(remaining, 0, separatorIndex)),
     );
     StartGuiIntrinsic.arrayPush(output, c.dim(c.gray('·')));
     remaining = StartGuiIntrinsic.stringSlice(remaining, separatorIndex + 1);

@@ -122,6 +122,10 @@ export function start(input: StartGuiInput): Promise<void> {
 
 async function startPrepared(input: PreparedStartGui): Promise<void> {
   const { root, deps, authorityEvidence, state, stateSource, stopLife, workLife } = input;
+  const displayRoot = authorityEvidence.kind === 'valid' &&
+      authorityEvidence.authority.kind === 'development'
+    ? authorityEvidence.authority.dir
+    : undefined;
   let status: StatusOwner;
   let statusInvoked = false;
   let statusAbsenceProved = false;
@@ -222,6 +226,7 @@ async function startPrepared(input: PreparedStartGui): Promise<void> {
           return deps.createScreen({
             service: START_GUI_SERVICE.name,
             url: status.url,
+            ...(displayRoot === undefined ? {} : { root: displayRoot }),
             state: stateSource,
             keyboard: true,
             onFailure: supervisor.publishScreenFailure,

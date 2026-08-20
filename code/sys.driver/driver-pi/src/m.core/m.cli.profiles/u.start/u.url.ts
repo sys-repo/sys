@@ -54,7 +54,16 @@ const getters = freeze({
 export function captureUrl(input: string): CapturedUrl | undefined {
   if (!isUrlSubstrateReady()) return;
   try {
-    const url = new NativeURL(input);
+    return captureNativeUrl(new NativeURL(input));
+  } catch {
+    return;
+  }
+}
+
+/** Copy one native URL through module-captured getters after substrate verification. */
+export function captureNativeUrl(url: URL): CapturedUrl | undefined {
+  if (!isUrlSubstrateReady()) return;
+  try {
     const href = readString(getters.href, url);
     const origin = readString(getters.origin, url);
     const protocol = readString(getters.protocol, url);
