@@ -45,38 +45,53 @@ describe('Vite.build', () => {
     console.info();
   };
 
-  const testBuild = async (sample: t.StringDir) => {
+  const testBuild = async (sample: t.StringDir, outputKind: 'relative' | 'absolute') => {
     const fs = await SAMPLE.fs('Vite.build');
     const cwd = fs.join('fixture');
     await Fs.copy(sample, cwd);
     const restore = await writeLocalFixtureImports(cwd);
 
     try {
+      const expectedOutput = outputKind === 'relative' ? 'dist' : fs.join('output');
+      const expectedOutputAbsolute = Fs.resolve(cwd, expectedOutput);
       const expectedPaths = {
         cwd,
         app: {
           entry: 'index.html',
-          outDir: 'dist',
+          outDir: expectedOutput,
           base: './',
         },
       } as const;
+      const callerPaths = { cwd: expectedPaths.cwd, app: { ...expectedPaths.app } };
+      const mutatedDuringBuild = fs.join('mutated-during-build');
+      const mutatedAfterBuild = fs.join('mutated-after-build');
 
-      const res = await Vite.build({
+      const pending = Vite.build({
         cwd,
-        paths: expectedPaths,
+        paths: callerPaths,
         pkg,
         silent: true,
         spinner: false, // Test runner owns progress/logging; avoid long-lived spinner timers in tests.
         exitOnError: false, // Never terminate the whole test process on a transient build failure.
       });
+      callerPaths.app.outDir = mutatedDuringBuild;
+      const res = await pending;
+      callerPaths.app.outDir = mutatedAfterBuild;
       if (!res.ok) console.warn(res.toString());
 
       expect(res.ok).to.eql(true);
       expect(res.cmd.input).to.include('deno run');
       expect(res.cmd.input).to.include('--node-modules-dir');
       expect(res.cmd.input).to.include('npm:vite@');
+      expect(res.cmd.input).to.include(`--outDir=${expectedOutputAbsolute}`);
       expect(res.elapsed).to.be.greaterThan(0);
       expect(res.paths).to.eql(expectedPaths);
+      expect(res.paths).not.to.equal(callerPaths);
+      expect(res.paths.app).not.to.equal(callerPaths.app);
+      expect(Object.isFrozen(res.paths)).to.eql(true);
+      expect(Object.isFrozen(res.paths.app)).to.eql(true);
+      expect(await Fs.exists(mutatedDuringBuild)).to.eql(false);
+      expect(await Fs.exists(mutatedAfterBuild)).to.eql(false);
       expectBounded(res.toString({ width: 56 }), 56);
 
       // Ensure the {pkg:name:version} data is included in the composite <digest> hash.
@@ -87,7 +102,7 @@ describe('Vite.build', () => {
       // Load file outputs.
       const readFile = async (path: string) => (await Fs.readText(path)).data ?? '';
       const { paths } = res;
-      const outDir = Fs.join(paths.cwd, paths.app.outDir);
+      const outDir = Fs.resolve(paths.cwd, paths.app.outDir);
       const distPath = Fs.join(outDir, 'dist.json');
       const json = await Fs.readJson<t.DistPkg>(distPath);
       const manifest = await Fs.read(distPath);
@@ -98,6 +113,7 @@ describe('Vite.build', () => {
         path.startsWith('pkg/-entry.')
       );
       const entry = await readFile(Fs.join(outDir, entryPath ?? ''));
+      if (VERBOSE) printDist(res.dist, paths);
 
       return {
         res,
@@ -112,9 +128,9 @@ describe('Vite.build', () => {
     }
   };
 
-  it('sample-1: simple', async () => {
+  it('sample-1: simple with absolute output authority', async () => {
     await Testing.retry(2, async () => {
-      const { res, files, outDir } = await testBuild(SAMPLE.Dirs.sample1);
+      const { res, files, outDir } = await testBuild(SAMPLE.Dirs.sample1, 'absolute');
       if (VERBOSE) printHtml(files.html, 'sample-1', outDir);
       expect(files.html).to.include(`<title>Sample-1</title>`);
       expect(files.entry).to.include(`Hello World 👋`);
@@ -132,9 +148,9 @@ describe('Vite.build', () => {
     });
   });
 
-  it('sample-3: module worker and service-worker entries', async () => {
+  it('sample-3: module worker and service-worker entries with relative output authority', async () => {
     await Testing.retry(2, async () => {
-      const { res, files, outDir } = await testBuild(SAMPLE.Dirs.sample3);
+      const { res, files, outDir } = await testBuild(SAMPLE.Dirs.sample3, 'relative');
       if (VERBOSE) printHtml(files.html, 'sample-3', outDir);
       expect(extractModulePreloadLinks(files.html).length).to.be.greaterThan(0);
       expect(Object.keys(res.dist.hash.parts)).to.include('sw.js');

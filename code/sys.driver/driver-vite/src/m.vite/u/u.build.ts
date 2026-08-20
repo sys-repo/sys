@@ -21,10 +21,10 @@ type B = t.Vite.Lib['build'];
  */
 export const build: B = async (input) => {
   const timer = Time.timer();
-  const paths = input.paths ?? (await Wrangle.pathsFromConfigfile(input.cwd));
+  const paths = snapshotPaths(input.paths ?? (await Wrangle.pathsFromConfigfile(input.cwd)));
   const { pkg, silent = false, spinner: useSpinner = true, exitOnError = true } = input;
   const { cmd, args, env, dispose } = await Wrangle.command(paths, 'build');
-  const dir = Fs.join(paths.cwd, paths.app.outDir);
+  const dir = Fs.resolve(paths.cwd, paths.app.outDir);
   const cwd = paths.cwd;
 
   /**
@@ -143,7 +143,7 @@ export const build: B = async (input) => {
       await Fs.write(path, Json.stringify(pkg, 2));
     }
 
-    await clean(paths.app.outDir);
+    await clean(dir);
 
     /**
      * Assert non-empty dist after apparent success:
@@ -173,6 +173,22 @@ export const build: B = async (input) => {
     await dispose();
   }
 };
+
+/**
+ * Capture one immutable path authority before command construction yields to caller mutation.
+ */
+function snapshotPaths(input: t.ViteConfig.Paths): t.ViteConfig.Paths {
+  const cwd = input.cwd;
+  const source = input.app;
+  const entry = source.entry;
+  const sw = source.sw;
+  const outDir = source.outDir;
+  const base = source.base;
+  const app = sw === undefined
+    ? Object.freeze({ entry, outDir, base })
+    : Object.freeze({ entry, sw, outDir, base });
+  return Object.freeze({ cwd, app });
+}
 
 /**
  * Helpers:

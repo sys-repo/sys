@@ -3,7 +3,7 @@ import { resolveFromImportMap } from '../../-test/u.importMap.ts';
 import { Wrangle } from '../u/u.wrangle.ts';
 
 describe('Vite.Wrangle', () => {
-  it('build: scopes child permissions to deno and localhost dns only', async () => {
+  it('build: scopes child writes to output/cache and network to localhost dns', async () => {
     const tmp = await Fs.makeTempDir({ prefix: 'vite.wrangle.build-' });
     const root = tmp.absolute;
     const consumerVite = '8.0.2';
@@ -44,16 +44,27 @@ describe('Vite.Wrangle', () => {
     expect(importMap?.data?.imports?.['rolldown/experimental']).to.eql(undefined);
     expect(importMap?.data?.imports?.tinyglobby).to.eql(undefined);
     expect(importMap?.data?.imports?.['@rolldown/pluginutils']).to.eql(undefined);
-    expect(resolveFromImportMap(importMapPath ?? '', importMap?.data?.imports?.['@sys/http'])).to.eql(
-      Path.toFileUrl(Path.join(root, 'src/http.ts')).href,
-    );
+    expect(resolveFromImportMap(importMapPath ?? '', importMap?.data?.imports?.['@sys/http'])).to
+      .eql(
+        Path.toFileUrl(Path.join(root, 'src/http.ts')).href,
+      );
     const allowWrite = res.args.find((item) => item.startsWith('--allow-write='));
-    expect(allowWrite).to.include(root);
-    expect(allowWrite).to.include(`${root}/node_modules/.vite`);
+    const writeRoots = allowWrite?.replace('--allow-write=', '').split(',') ?? [];
+    expect(writeRoots).to.include(Path.resolve(root, 'dist'));
+    expect(writeRoots).to.include(`${root}/node_modules/.vite`);
+    expect(writeRoots).to.not.include(`${root}/node_modules/.vite-temp`);
+    expect(writeRoots).to.not.include(root);
+    expect(res.args).to.include('--no-prompt');
     expect(res.args).to.include('--allow-env');
-    expect(res.args).to.include('--allow-net=localhost,127.0.0.1,0.0.0.0,[::1],[::]');
+    expect(res.args).to.include('--allow-net=localhost');
+    expect(res.args.some((item) => item.includes('0.0.0.0'))).to.eql(false);
+    expect(res.args.some((item) => item.includes('[::]'))).to.eql(false);
     expect(res.args).to.include('--allow-sys=osRelease,homedir,uid,gid');
     expect(res.args.filter((item) => item.startsWith('--allow-sys=')).length).to.eql(1);
+    const allowFfi = res.args.find((item) => item.startsWith('--allow-ffi='));
+    const ffiRoots = allowFfi?.replace('--allow-ffi=', '').split(',') ?? [];
+    expect(ffiRoots).to.include(`${root}/node_modules/.deno`);
+    expect(res.args).to.not.include('--allow-ffi');
     expect(res.args).to.include(`--allow-run=${Deno.execPath()}`);
     expect(res.args).to.not.include('--allow-run');
     expect(res.args).to.not.include('-A');
@@ -169,6 +180,12 @@ describe('Vite.Wrangle', () => {
     const res = await Wrangle.command(paths, 'build');
     expect(res.args).to.include('npm:vite@7.3.1');
     expect(res.args).to.not.include('--configLoader=native');
+    const allowWrite = res.args.find((item) => item.startsWith('--allow-write='));
+    const writeRoots = allowWrite?.replace('--allow-write=', '').split(',') ?? [];
+    expect(writeRoots).to.include(Path.resolve(root, 'dist'));
+    expect(writeRoots).to.include(`${root}/node_modules/.vite`);
+    expect(writeRoots).to.include(`${root}/node_modules/.vite-temp`);
+    expect(writeRoots).to.not.include(root);
     await res.dispose();
   });
 
