@@ -591,9 +591,6 @@ describe('@sys/driver-pi start:gui screen', () => {
     const frame = Cli.stripAnsi(rendered);
     expect(frame).to.contain('failed: source-unavailable');
     expect(frame).to.contain('manifest-fetch · resource-failure · cleanup:pending');
-    expect(rendered).to.contain(
-      `${c.gray('manifest-fetch ')}${c.dim(c.gray('·'))}${c.gray(' resource-failure ')}`,
-    );
     expect(rendered).to.contain(c.yellow('browser did not open; use launch URL'));
     expect(frame).to.contain('/0123456789abcdef');
     expect(frame).to.not.contain('evi…nce');

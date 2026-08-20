@@ -613,7 +613,7 @@ function colorEvidence(value: string) {
       output,
       c.gray(StartGuiIntrinsic.stringSlice(remaining, 0, separatorIndex)),
     );
-    StartGuiIntrinsic.arrayPush(output, c.dim(c.gray('·')));
+    StartGuiIntrinsic.arrayPush(output, c.gray('·'));
     remaining = StartGuiIntrinsic.stringSlice(remaining, separatorIndex + 1);
   }
   return StartGuiIntrinsic.arrayJoin(output, '');
