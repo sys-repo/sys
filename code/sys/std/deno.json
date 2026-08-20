@@ -51,6 +51,7 @@
     "./str": "./src/m.Str/mod.ts",
     "./testing": "./src/-exports/-testing.ts",
     "./testing/server": "./src/-exports/-testing.server.ts",
+    "./testing/server/dom": "./src/-exports/-testing.server.dom.ts",
     "./time": "./src/-exports/-time.ts",
     "./timecode": "./src/-exports/-time.timecode.ts",
     "./try": "./src/m.Try/mod.ts",

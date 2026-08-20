@@ -158,11 +158,13 @@ does not model messages, protocols, or `CloseEvent` metadata.
 
 ## Mock the DOM
 
-`DomMock` installs a server-side DOM for a test suite. Its `afterAll` hook restores the prior
-environment.
+`DomMock` installs a server-side DOM for a test suite. Importing the entry does not install DOM
+globals; `init` registers lifecycle hooks, `polyfill` installs the DOM, and `afterAll` restores the
+prior environment.
 
 ```ts
-import { afterAll, beforeAll, DomMock } from '@sys/testing/server';
+import { afterAll, beforeAll } from '@sys/testing/server';
+import { DomMock } from '@sys/testing/server/dom';
 
 DomMock.init({ beforeAll, afterAll });
 

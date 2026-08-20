@@ -20,6 +20,7 @@
     "./types": "./src/types.ts",
     "./spec": "./src/m.client/m.Spec/mod.ts",
     "./server": "./src/m.server/mod.ts",
+    "./server/dom": "./src/m.server/m.DomMock/mod.ts",
     "./web": "./src/m.web/mod.ts"
   },
   "permissions": {

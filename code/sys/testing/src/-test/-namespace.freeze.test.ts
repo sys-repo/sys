@@ -1,4 +1,5 @@
 import { describe, expect, it } from '../-test.ts';
+import { DomMock } from '../m.server/m.DomMock/mod.ts';
 import { Browser, Testing } from '../m.server/mod.ts';
 import { WebFixture } from '../m.web/mod.ts';
 import { Test } from '../m.client/m.Spec/TestSuite/mod.ts';
@@ -19,6 +20,7 @@ describe('testing namespace freeze contract', () => {
     const namespaces = [
       Testing,
       Browser,
+      DomMock,
       Browser.ServiceWorker,
       WebFixture,
       WebFixture.Fetch,
