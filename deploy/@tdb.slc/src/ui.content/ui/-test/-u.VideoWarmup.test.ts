@@ -1,5 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { afterEach, beforeEach, DomMock, Testing } from '@sys/testing/server';
+import { afterEach, beforeEach, Testing } from '@sys/testing/server';
+import { DomMock } from '@sys/testing/server/dom';
 import { VIDEO } from '../../-VIDEO.ts';
 import { createWarmVideo } from '../m.VideoWarmup.ts';
 import { VideoWarmup } from '../u.VideoWarmup.ts';

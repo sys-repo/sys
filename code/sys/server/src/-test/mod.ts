@@ -7,7 +7,6 @@ export {
   beforeEach,
   c,
   describe,
-  DomMock,
   expect,
   expectError,
   expectTypeOf,

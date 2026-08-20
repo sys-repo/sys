@@ -20,6 +20,9 @@ describe('Template: repo integration', () => {
     await def.default(root);
     await TmplTesting.LocalRepoAuthorities.rewrite({ root });
 
+    const testBarrel = (await Fs.readText(Fs.join(root, 'code/common/-test.ts'))).data ?? '';
+    expect(testBarrel.includes('DomMock')).to.eql(false);
+
     const res = await Process.invoke({
       cmd: 'deno',
       args: ['task', 'ci'],

@@ -1,4 +1,4 @@
-import { type t, describe, expect, Fs, it, makeTmpl, Process, Templates } from '../-test.ts';
+import { describe, expect, Fs, it, makeTmpl, Process, type t, Templates } from '../-test.ts';
 import { logTemplate, makeWorkspace } from './u.ts';
 
 describe('Template: pkg', () => {
@@ -44,6 +44,12 @@ describe('Template: pkg', () => {
       const blob = texts.join('\n');
       expect(blob.includes('@sample/foo-1')).to.eql(false, 'should replace all @sample/foo');
       expect(blob.includes('@my-scope/foo-1')).to.eql(true, 'should insert provided pkgName');
+    }
+
+    // Generic test barrels must not preinstall server-side DOM emulation.
+    {
+      const testBarrel = (await Fs.readText(Fs.join(dirA, 'src/-test/mod.ts'))).data ?? '';
+      expect(testBarrel.includes('DomMock')).to.eql(false);
     }
 
     // Workspace update: `deno.json` workspace should now include a new comma-terminated entry

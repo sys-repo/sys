@@ -4,11 +4,11 @@ export {
   beforeAll,
   beforeEach,
   describe,
-  DomMock,
   expect,
   it,
   Testing,
 } from '@sys/testing/server';
+export { DomMock } from '@sys/testing/server/dom';
 export { Test } from '@sys/testing/spec';
 
 export * from './common.ts';
