@@ -106,6 +106,37 @@ describe('FilesServer.WebSocket.create', () => {
     }
   });
 
+  it('threads the server lifecycle through the HTTP manifest command', async () => {
+    let observedSignal: AbortSignal | undefined;
+    const backing = FilesMemory.Readonly.create({
+      files: { 'foo.txt': 'foo\n' },
+      policy: Files.Policy.readonly('**'),
+    });
+    const files: t.FilesServer.Backing = {
+      ...backing,
+      handlers: {
+        ...backing.handlers,
+        'files:manifest': (payload, context) => {
+          observedSignal = context.signal;
+          return backing.handlers[Files.Cmd.Name.manifest](payload, context);
+        },
+      },
+    };
+    const server = FilesServer.WebSocket.create({ files });
+
+    try {
+      const response = await fetch(`${server.origin}/files/manifest`);
+      expect(response.status).to.eql(200);
+      await response.body?.cancel();
+      expect(observedSignal).to.equal(server.signal);
+      expect(observedSignal?.aborted).to.eql(false);
+    } finally {
+      await server.close('test.cleanup');
+    }
+
+    expect(observedSignal?.aborted).to.eql(true);
+  });
+
   it('does not expose an HTTP manifest projection when unsupported', async () => {
     const backing = FilesMemory.Readonly.create({
       files: { 'foo.txt': 'foo\n' },

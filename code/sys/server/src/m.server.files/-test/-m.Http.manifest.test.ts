@@ -22,6 +22,36 @@ describe('FilesServer.Http.manifest', () => {
     expect(await res.json()).to.eql(await Fixture.direct(backing, Files.Cmd.Name.manifest, {}));
   });
 
+  it('uses the explicit owner lifecycle instead of the request signal', async () => {
+    let observedSignal: AbortSignal | undefined;
+    const backing = backingOf();
+    const projection = FilesServer.Http.manifest({
+      files: {
+        ...backing,
+        handlers: {
+          ...backing.handlers,
+          'files:manifest': (payload, context) => {
+            observedSignal = context.signal;
+            return backing.handlers[Files.Cmd.Name.manifest](payload, context);
+          },
+        },
+      },
+    });
+    if (!projection) throw new Error('Expected manifest projection.');
+
+    const requestOwner = new AbortController();
+    requestOwner.abort('test.request-abort');
+    const operationOwner = new AbortController();
+    const request = new Request('http://localhost/files/manifest', {
+      signal: requestOwner.signal,
+    });
+    const response = await projection.response(request, operationOwner.signal);
+
+    expect(response.status).to.eql(200);
+    expect(observedSignal).to.equal(operationOwner.signal);
+    expect(observedSignal?.aborted).to.eql(false);
+  });
+
   it('derives the manifest route from a custom base path', () => {
     const backing = backingOf();
     const projection = FilesServer.Http.manifest({ files: backing, path: '/draft/files' });

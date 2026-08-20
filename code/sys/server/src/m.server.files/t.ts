@@ -57,8 +57,8 @@ export declare namespace FilesServer {
       /** True when the request targets this projection path. */
       readonly matches: (request: Request) => boolean;
 
-      /** Build the HTTP response for a matching request. */
-      readonly response: (request: Request) => Promise<Response>;
+      /** Build the HTTP response, optionally bounded by an operation-owner signal. */
+      readonly response: (request: Request, signal?: AbortSignal) => Promise<Response>;
     };
   }
 

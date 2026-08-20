@@ -55,7 +55,7 @@ export function create<
 
   try {
     server = createServer(requestedAddress, async (request) => {
-      const httpResponse = await input.http?.handle(request);
+      const httpResponse = await input.http?.handle(request, controller.signal);
       if (httpResponse) return httpResponse;
 
       const accepted = await acceptRequest(request, { path, accept: input.accept });

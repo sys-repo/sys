@@ -32,8 +32,10 @@ function httpOptions(
   manifest: t.FilesServer.Http.ManifestProjection,
 ): t.WebSocketServer.HttpOptions {
   return {
-    handle: (request) => manifest.matches(request) ? manifest.response(request) : undefined,
     urls: [{ path: manifest.path, label: manifest.label }],
+    handle(request, signal) {
+      return manifest.matches(request) ? manifest.response(request, signal) : undefined;
+    },
   };
 }
 

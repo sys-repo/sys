@@ -175,9 +175,10 @@ export declare namespace WebSocketServer {
     readonly urls?: readonly HttpStatusUrl[];
   };
 
-  /** Owner HTTP sidecar handler. */
+  /** Owner HTTP sidecar handler receiving the server lifecycle signal. */
   export type HttpHandler = (
     request: Request,
+    signal: AbortSignal,
   ) => Response | undefined | Promise<Response | undefined>;
 
   /** HTTP status URL path resolved against the server origin. */

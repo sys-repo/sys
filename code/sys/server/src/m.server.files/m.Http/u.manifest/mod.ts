@@ -1,5 +1,5 @@
 import type { t } from '../../common.ts';
-import { matchesPath, manifestPath } from './u.path.ts';
+import { manifestPath, matchesPath } from './u.path.ts';
 import { manifestResponse } from './u.response.ts';
 
 /** Create a GET JSON projection of the Files manifest command when supported. */
@@ -14,6 +14,6 @@ export function manifest(
     path,
     label: 'files:manifest',
     matches: (request) => matchesPath(request, path),
-    response: (request) => manifestResponse(request, options.files, path),
+    response: (request, signal) => manifestResponse(request, options.files, path, signal),
   };
 }

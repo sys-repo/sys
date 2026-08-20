@@ -21,13 +21,15 @@ describe('WebSocketServer/request admission', () => {
     }
   });
 
-  it('allows owner HTTP sidecar responses before websocket admission', async () => {
+  it('allows owner HTTP sidecar responses within the server lifecycle', async () => {
+    let sidecarSignal: AbortSignal | undefined;
     const server = WebSocketServer.create({
       path: '/socket',
       cmd: { handlers: { ping: () => 'pong' } },
       http: {
         urls: [{ path: '/manifest', label: 'fixture:manifest' }],
-        handle(request) {
+        handle(request, signal) {
+          sidecarSignal = signal;
           const url = new URL(request.url);
           if (url.pathname !== '/manifest') return undefined;
           return Response.json({ ok: true });
@@ -39,6 +41,8 @@ describe('WebSocketServer/request admission', () => {
       const manifest = await fetch(`${server.origin}/manifest`);
       expect(manifest.status).to.eql(200);
       expect(await manifest.json()).to.eql({ ok: true });
+      expect(sidecarSignal).to.equal(server.signal);
+      expect(sidecarSignal?.aborted).to.eql(false);
       expect(server.status().urls).to.eql([
         { href: server.url, label: 'websocket' },
         { href: `${server.origin}/manifest`, label: 'fixture:manifest' },
@@ -50,6 +54,8 @@ describe('WebSocketServer/request admission', () => {
     } finally {
       await server.close('test.cleanup');
     }
+
+    expect(sidecarSignal?.aborted).to.eql(true);
   });
 
   it('honors custom accept rejection before upgrade', async () => {

@@ -1,4 +1,4 @@
-import { Err, Json, type t } from '../../common.ts';
+import { Dispose, Err, Json, type t } from '../../common.ts';
 import { readManifest } from './u.read.ts';
 import { matchesPath } from './u.path.ts';
 
@@ -6,16 +6,25 @@ export async function manifestResponse(
   request: Request,
   files: t.FilesServer.Backing,
   path: t.StringUrlRoute,
+  signal?: AbortSignal,
 ): Promise<Response> {
   if (!matchesPath(request, path)) return textResponse('Not Found', 404);
   if (request.method !== 'GET') return textResponse('Method Not Allowed', 405, { allow: 'GET' });
 
+  let owner: t.Abortable | undefined;
+  if (signal === undefined) {
+    owner = Dispose.abortable();
+    signal = owner.signal;
+  }
+
   try {
-    const data = await readManifest(request, files);
+    const data = await readManifest(files, signal);
     return jsonResponse(data);
   } catch (cause) {
     const error = Err.std(cause);
     return jsonResponse({ error }, errorStatus(error));
+  } finally {
+    owner?.dispose();
   }
 }
 
