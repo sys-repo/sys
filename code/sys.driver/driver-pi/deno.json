@@ -3,9 +3,11 @@
   "version": "0.0.138",
   "license": "MIT",
   "tasks": {
-    "test": "deno task test:unit && deno task test:profiles",
+    "test": "deno task test:unit && deno task test:profiles && deno task test:preview:real",
     "test:unit": "deno test -P=test ./src ./-scripts",
     "test:profiles": "deno test -P=test ./src/m.core/m.cli.profiles/-test",
+    "test:preview": "deno test -P=test --trace-leaks ./-scripts/-test/-task.start.gui.preview.test.ts",
+    "test:preview:real": "deno test -P=preview-test --no-prompt --deny-write=../../.. --trace-leaks ./-scripts/-test.external/-task.start.gui.preview.real.ts",
     "test:browser": "deno task build && FORCE_COLOR=0 deno test -P=test-browser --trace-leaks ./-scripts/-test.browser.ts",
     "prep": "deno run -P=dev ./-scripts/task.prep.ts",
     "cli": "deno run -P=cli ./-scripts/task.cli.ts",
@@ -13,6 +15,7 @@
     "dev": "deno run -P=dev ./-scripts/task.vite.ts --cmd=dev --in=./src/index.html",
     "build": "deno run -P=dev ./-scripts/task.vite.ts --cmd=build --in=./src/index.html",
     "serve": "deno run -P=dev ./-scripts/task.vite.ts --cmd=serve",
+    "start:gui:preview": "deno run -P=preview-launch --no-prompt ./-scripts/task.start.gui.preview.ts",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check -- ./src/ ./-scripts/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
@@ -36,17 +39,38 @@
       "env": true,
       "net": ["localhost", "127.0.0.1", "0.0.0.0"]
     },
+    "preview-launch": {
+      "read": true,
+      "env": ["DENO_DIR", "SystemRoot"],
+      "run": ["deno"]
+    },
+    "preview-worker": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": ["localhost", "127.0.0.1"],
+      "run": ["deno", "open", "wslview", "xdg-open", "powershell.exe", "cmd.exe", "explorer.exe"]
+    },
+    "preview-build": {
+      "read": true,
+      "env": true,
+      "run": ["deno"],
+      "ffi": ["../../../node_modules/.deno"],
+      "sys": {
+        "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"]
+      }
+    },
+    "preview-test": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": ["localhost", "127.0.0.1"],
+      "run": ["deno"]
+    },
     "test-browser": {
       "read": true,
       "write": true,
-      "env": [
-        "CHROME_BIN",
-        "FORCE_COLOR",
-        "TERM",
-        "TERM_PROGRAM",
-        "WS_NO_BUFFER_UTIL",
-        "WS_NO_UTF_8_VALIDATE"
-      ],
+      "env": true,
       "net": ["127.0.0.1", "0.0.0.0"],
       "run": true
     },

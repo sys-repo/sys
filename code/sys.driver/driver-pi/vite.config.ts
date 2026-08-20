@@ -1,9 +1,8 @@
 import { Vite } from '@sys/driver-vite';
+import { vitePaths } from './-scripts/u.vite.paths.ts';
 
 export default Vite.Config.define(() => {
-  const entry = './src/index.html';
-  const sw = './src/-test/-sw.ts';
-  const paths = Vite.Config.paths({ app: { entry, sw } });
+  const paths = vitePaths(import.meta.dirname ?? '.');
   return Vite.Config.app({
     paths,
     visualizer: false,
