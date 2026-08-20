@@ -202,6 +202,8 @@ export declare namespace Process {
     args: string[];
     cmd?: string;
     cwd?: string;
+    /** Do not inherit the parent environment; expose only `env` and owned command defaults. */
+    clearEnv?: boolean;
     env?: t.Process.Env;
     silent?: boolean;
   };
@@ -211,6 +213,8 @@ export declare namespace Process {
     args: string[];
     cmd?: string;
     cwd?: string;
+    /** Do not inherit the parent environment; expose only `env` and owned command defaults. */
+    clearEnv?: boolean;
     env?: t.Process.Env;
     signal?: AbortSignal;
     timeoutMs?: t.Msecs;

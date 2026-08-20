@@ -36,6 +36,34 @@ describe('Process.capture', () => {
     expect(res.text.stdout).to.eql('ok:1');
   });
 
+  it('can replace inherited environment authority with an explicit child environment', async () => {
+    const parentOnly = 'SYS_PROCESS_CAPTURE_PARENT_ONLY_TEST';
+    const previous = Deno.env.get(parentOnly);
+    Deno.env.set(parentOnly, 'secret');
+
+    try {
+      const res = await captureEval(
+        `
+          const out = [
+            Deno.env.get('SYS_PROCESS_CAPTURE_PARENT_ONLY_TEST') ?? 'absent',
+            Deno.env.get('PROCESS_CAPTURE_EXPLICIT') ?? 'absent',
+            Deno.env.get('FORCE_COLOR') ?? 'absent',
+          ].join(':');
+          await Deno.stdout.write(new TextEncoder().encode(out));
+        `,
+        {
+          clearEnv: true,
+          env: { PROCESS_CAPTURE_EXPLICIT: 'owned' },
+        },
+      );
+
+      expect(res.text.stdout).to.eql('absent:owned:1');
+    } finally {
+      if (previous === undefined) Deno.env.delete(parentOnly);
+      else Deno.env.set(parentOnly, previous);
+    }
+  });
+
   it('allows callers to override FORCE_COLOR', async () => {
     const res = await captureEval(
       `

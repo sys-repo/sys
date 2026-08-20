@@ -39,6 +39,7 @@ export const capture: t.Process.Lib['capture'] = async (config) => {
         args: config.args,
         cmd: config.cmd,
         cwd: config.cwd,
+        clearEnv: config.clearEnv,
         env: config.env,
       },
       { stdin: 'null', stdout: 'piped', stderr: 'piped' },

@@ -13,13 +13,14 @@ export function asCommand(
     forceColor?: boolean;
   } = {},
 ) {
-  const { cwd, env } = input;
+  const { clearEnv, cwd, env } = input;
   const { stdin, stdout = 'piped', stderr = 'piped', forceColor = true } = options;
 
   const cmd = input.cmd ?? Deno.execPath();
   return new Deno.Command(cmd, {
     args: input.args ?? [],
     cwd,
+    clearEnv,
     env: forceColor ? { ...env, FORCE_COLOR: env?.FORCE_COLOR ?? '1' } : env,
     stdin,
     stdout,

@@ -52,6 +52,32 @@ describe('Process.inherit', () => {
     expect(res.code).to.eql(0);
   });
 
+  it('can replace inherited environment authority with explicit child values', async () => {
+    const parentOnly = 'SYS_PROCESS_INHERIT_PARENT_ONLY_TEST';
+    const previous = Deno.env.get(parentOnly);
+    Deno.env.set(parentOnly, 'secret');
+
+    try {
+      const script = `
+        const valid =
+          !Deno.env.has('SYS_PROCESS_INHERIT_PARENT_ONLY_TEST') &&
+          Deno.env.get('PROCESS_INHERIT_EXPLICIT') === 'owned' &&
+          Deno.env.get('FORCE_COLOR') === '1';
+        Deno.exit(valid ? 0 : 1);
+      `;
+      const res = await Process.inherit({
+        args: ProcessTest.evalArgs(script),
+        clearEnv: true,
+        env: { PROCESS_INHERIT_EXPLICIT: 'owned' },
+      });
+      expect(res.success).to.eql(true);
+      expect(res.code).to.eql(0);
+    } finally {
+      if (previous === undefined) Deno.env.delete(parentOnly);
+      else Deno.env.set(parentOnly, previous);
+    }
+  });
+
   it('defaults FORCE_COLOR=1 (override allowed)', async () => {
     const defaultScript = `
       const value = Deno.env.get('FORCE_COLOR');
