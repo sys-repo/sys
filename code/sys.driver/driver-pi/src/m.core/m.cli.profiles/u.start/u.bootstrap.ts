@@ -22,7 +22,8 @@ type PageCopy = {
 const encoder = new TextEncoder();
 const freeze = Object.freeze;
 const applicationName = `${pkg.name}/ui`;
-const bodyStyle = 'font-family:sans-serif;font-size:16px;line-height:1.3;margin:0;padding:30px';
+const bodyStyle =
+  'font-family:sans-serif;font-size:16px;line-height:1.3;margin:0;padding:24px 30px';
 const titleStyle = 'font-size:inherit;line-height:inherit;font-weight:700;margin:0';
 const messageStyle = 'font-size:inherit;line-height:inherit;font-weight:400;margin:4px 0 0';
 const couldNotStart = `${applicationName} could not start`;
