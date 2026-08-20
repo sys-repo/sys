@@ -25,6 +25,10 @@ function assertSanitizedEnvironment(): void {
   if (Deno.env.has('SYS_DRIVER_PI_PREVIEW_AMBIENT_SENTINEL')) {
     throw new Error('start:gui:preview build child environment unsanitized.');
   }
+  const denoDir = Deno.env.get('DENO_DIR');
+  if (!denoDir || !Fs.Path.Is.absolute(denoDir)) {
+    throw new Error('start:gui:preview build child Deno cache authority unavailable.');
+  }
 }
 
 async function assertConfinedAuthority(): Promise<void> {

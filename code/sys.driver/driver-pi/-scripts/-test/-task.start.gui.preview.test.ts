@@ -1,4 +1,15 @@
-import { describe, DistServer, expect, Fs, FsDist, it, Open, Str, type t } from '../common.ts';
+import {
+  describe,
+  DistServer,
+  expect,
+  Fs,
+  FsDist,
+  it,
+  Json,
+  Open,
+  Str,
+  type t,
+} from '../common.ts';
 
 import { default as deno } from '../../deno.json' with { type: 'json' };
 import { EsmAssert } from '../../src/-test.ts';
@@ -8,6 +19,7 @@ import {
   bootstrapStatusFixture,
   deferred,
 } from '../../src/m.core/m.cli.profiles/-test/u.fixture.start.gui.ts';
+import { resolvePreviewDenoDir } from '../task.start.gui.preview.deno.ts';
 import {
   mainWith,
   PACKAGE_ROOT,
@@ -49,6 +61,59 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
       .filter(([, value]) => Array.isArray(value.env))
       .map(([name]) => name);
     expect(listed).to.eql(['preview-launch']);
+  });
+
+  it('preserves explicit and materializes implicit Deno cache authority before sanitization', async () => {
+    const expected = Fs.resolve(PACKAGE_ROOT, '.tmp/runtime-deno-cache') as t.StringAbsoluteDir;
+    let invocation: t.Process.CaptureArgs | undefined;
+    const actual = await resolvePreviewDenoDir(PACKAGE_ROOT, {
+      getEnv: () => undefined,
+      capture(input) {
+        invocation = input;
+        return Promise.resolve({
+          outcome: 'exited',
+          success: true,
+          text: { stdout: Json.stringify({ denoDir: expected }), stderr: '' },
+        });
+      },
+    });
+
+    expect(actual).to.eql(expected);
+    expect(
+      await resolvePreviewDenoDir(PACKAGE_ROOT, {
+        getEnv: () => expected,
+        capture() {
+          throw new Error('Explicit DENO_DIR must not require runtime discovery.');
+        },
+      }),
+    ).to.eql(expected);
+    expect(invocation).to.eql({
+      cmd: Deno.execPath(),
+      args: ['info', '--json'],
+      cwd: PACKAGE_ROOT,
+      clearEnv: false,
+      env: { FORCE_COLOR: '0' },
+      timeoutMs: 10_000,
+      maxStdoutBytes: 64 * 1024,
+      maxStderrBytes: 64 * 1024,
+    });
+  });
+
+  it('rejects malformed Deno cache authority', async () => {
+    const error = await rejectionOf(() =>
+      resolvePreviewDenoDir(PACKAGE_ROOT, {
+        getEnv: () => undefined,
+        capture() {
+          return Promise.resolve({
+            outcome: 'exited',
+            success: true,
+            text: { stdout: Json.stringify({ denoDir: 'relative/cache' }), stderr: '' },
+          });
+        },
+      })
+    );
+
+    expect(error.message).to.eql('start:gui:preview Deno cache authority unavailable.');
   });
 
   it('grants finite worker authority for every supported OS opener candidate', () => {

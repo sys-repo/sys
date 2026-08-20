@@ -1,10 +1,11 @@
 import { Fs, Process } from './task.start.gui.preview.common.ts';
+import { resolvePreviewDenoDir } from './task.start.gui.preview.deno.ts';
 
 const packageRoot = Fs.resolve(import.meta.dirname ?? '.', '..');
 const worker = Fs.Path.fromFileUrl(
   new URL('./task.start.gui.preview.worker.ts', import.meta.url),
 );
-const denoDir = Deno.env.get('DENO_DIR');
+const denoDir = await resolvePreviewDenoDir(packageRoot);
 const systemRoot = Deno.build.os === 'windows' ? Deno.env.get('SystemRoot') : undefined;
 const executableSearchPath = Deno.build.os === 'windows'
   ? [
@@ -27,9 +28,10 @@ const result = await Process.inherit({
   cwd: packageRoot,
   clearEnv: true,
   env: {
+    DENO_DIR: denoDir,
     FORCE_COLOR: '1',
     PATH: executableSearchPath,
-    ...(denoDir ? { DENO_DIR: denoDir } : {}),
+    ...(systemRoot ? { SystemRoot: systemRoot } : {}),
   },
 });
 if (!result.success) Deno.exit(result.code);

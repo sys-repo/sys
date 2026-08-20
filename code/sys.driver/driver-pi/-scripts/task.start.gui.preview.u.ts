@@ -2,6 +2,7 @@ import { pkg } from '../src/pkg.ts';
 import { start, type StartGuiInput } from '../src/m.core/m.cli.profiles/u.start/u.gui.ts';
 import type { StartGuiEvidence } from '../src/m.core/m.cli.profiles/u/u.start.gui.service.ts';
 import { Fs, Json, Process, Str, type t } from './task.start.gui.preview.common.ts';
+import { resolvePreviewDenoDir } from './task.start.gui.preview.deno.ts';
 import type {
   PreviewBuildInput,
   PreviewBuildPaths,
@@ -29,12 +30,6 @@ export const PREVIEW_BUILD_TEMP_PREFIX = `${TEMP_OWNER}.start-gui-preview-build.
 const BUILD_CHILD = Fs.Path.fromFileUrl(
   new URL('./task.start.gui.preview.build.ts', import.meta.url),
 );
-const denoDir = Deno.env.get('DENO_DIR');
-const BUILD_CHILD_ENV = Object.freeze({
-  FORCE_COLOR: '0',
-  PATH: Fs.Path.dirname(Deno.execPath()),
-  ...(denoDir ? { DENO_DIR: denoDir } : {}),
-});
 
 export type PreviewGeneration = Readonly<{
   /** Exact task-owned output directory retained for one host session. */
@@ -133,6 +128,14 @@ export async function mainWith(deps: PreviewDependencies): Promise<void> {
 export async function buildPreviewGeneration(
   input: PreviewBuildInput,
 ): Promise<PreviewBuildResponse> {
+  const denoDir = await resolvePreviewDenoDir(PACKAGE_ROOT);
+  const systemRoot = Deno.build.os === 'windows' ? Deno.env.get('SystemRoot') : undefined;
+  const buildChildEnv = Object.freeze({
+    DENO_DIR: denoDir,
+    FORCE_COLOR: '0',
+    PATH: Fs.Path.dirname(Deno.execPath()),
+    ...(systemRoot ? { SystemRoot: systemRoot } : {}),
+  });
   const exchange = await Fs.makeTempDir({ prefix: PREVIEW_BUILD_TEMP_PREFIX });
   const exchangeDir = exchange.absolute as t.StringAbsoluteDir;
   const inputPath = Fs.join(exchangeDir, 'input.json');
@@ -163,7 +166,7 @@ export async function buildPreviewGeneration(
       ],
       cwd: PACKAGE_ROOT,
       clearEnv: true,
-      env: BUILD_CHILD_ENV,
+      env: buildChildEnv,
       maxStdoutBytes: 1024 * 1024,
       maxStderrBytes: 1024 * 1024,
     });
