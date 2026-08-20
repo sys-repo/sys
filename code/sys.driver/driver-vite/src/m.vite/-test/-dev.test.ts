@@ -57,7 +57,20 @@ describe('Vite.dev', () => {
   it('composes one normalized compound identity only for the screen reporter', async () => {
     const pkg = { name: '@sys/example', version: '1.2.3' } as const;
     const screenArgs: Parameters<NonNullable<ViteDevDeps['createScreen']>>[0][] = [];
-    const deps = createDevStartupFixtures();
+    const manifestPath = 'vite manifest #1/dist.json';
+    const deps = {
+      ...createDevStartupFixtures(),
+      loadDist: () =>
+        Promise.resolve({
+          exists: true,
+          kind: 'canonical' as const,
+          path: manifestPath,
+          dist: {
+            build: { time: 1 },
+            hash: { digest: 'sha256-deadbeef', parts: {} },
+          } as t.DistPkg,
+        }),
+    };
 
     const paths = {
       cwd: '/tmp/vite-dev-identity' as t.StringAbsoluteDir,
@@ -78,6 +91,12 @@ describe('Vite.dev', () => {
     try {
       expect(screenArgs).to.have.length(1);
       expect(screenArgs[0]?.identity).to.eql({ root: pkg, subpath: 'ui/preview' });
+      expect(screenArgs[0]?.manifestHref?.href).to.eql(
+        Fs.Path.toFileUrl(Fs.Path.resolve(manifestPath)).href,
+      );
+      expect(screenArgs[0]?.manifestHref?.protocol).to.eql('file:');
+      expect(screenArgs[0]?.manifestHref?.hash).to.eql('');
+      expect(screenArgs[0]?.manifestHref?.href).to.include('vite%20manifest%20%231/dist.json');
       expect(screenArgs[0]).to.not.have.property('pkg');
       expect(screenArgs[0]).to.not.have.property('pkgSubpath');
     } finally {
@@ -100,7 +119,19 @@ describe('Vite.dev', () => {
     ) {
       let screens = 0;
       const output: unknown[][] = [];
-      const deps = createDevStartupFixtures();
+      const deps = {
+        ...createDevStartupFixtures(),
+        loadDist: () =>
+          Promise.resolve({
+            exists: true,
+            kind: 'canonical' as const,
+            path: 'relative manifest #1/dist.json',
+            dist: {
+              build: { time: 1 },
+              hash: { digest: 'sha256-deadbeef', parts: {} },
+            } as t.DistPkg,
+          }),
+      };
       using _console = WebFixture.Property.mock([{
         target: console,
         key: 'info',

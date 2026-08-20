@@ -2,7 +2,7 @@ import { Rx, type t } from '../../-test.ts';
 import { evidence, type Fixture } from '../../-test/u.fixture.dist.ts';
 
 export { evidence } from '../../-test/u.fixture.dist.ts';
-import { DistServeScreen } from '../u.server/u.serve.screen.ts';
+import { DistServeScreen } from '../u.server.screen/mod.ts';
 
 type Terminal = {
   readonly cursorRows: number;

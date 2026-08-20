@@ -1,7 +1,7 @@
-import { describe, expect, it, type t, WebFixture } from '../../-test.ts';
+import { describe, expect, Fs, it, type t, WebFixture } from '../../-test.ts';
 import { setup, teardown, verified } from '../../-test/u.fixture.dist.ts';
 import { DEFAULT_DEPENDENCIES, serveLocalWith, serveWith } from '../u.server.start/mod.ts';
-import type { DistServeScreen } from '../u.server/u.serve.screen.ts';
+import type { DistServeScreen } from '../u.server.screen/mod.ts';
 import {
   capture,
   type CapturedStartInput,
@@ -326,7 +326,9 @@ describe('DistServer.serve', () => {
     it('owns interactive keyboard and screen against the actual listener origin', async () => {
       const fixture = await setup();
       const dist = fixture.cloneDist();
+      const relativeDir = Fs.Path.relative(Deno.cwd(), fixture.source) as t.StringDir;
       let captured: CapturedStartInput = {};
+      let verificationDir: t.StringDir | undefined;
       let started: StartedController | undefined;
       let binding: t.Cli.Keyboard.Bind.Options | undefined;
       let screenArgs: Parameters<typeof DistServeScreen.create>[0] | undefined;
@@ -341,7 +343,7 @@ describe('DistServer.serve', () => {
       try {
         const running = serveLocalWith(
           {
-            dir: fixture.source as t.StringDir,
+            dir: relativeDir,
             limits: fixture.policy.verification,
             port: 8080,
             silent: false,
@@ -349,7 +351,10 @@ describe('DistServer.serve', () => {
           },
           {
             ...DEFAULT_DEPENDENCIES,
-            verifyLocal: async () => verified(fixture),
+            verifyLocal: async (input) => {
+              verificationDir = input.dir;
+              return verified(fixture);
+            },
             startHttp: (_app: unknown, input: Record<string, unknown>) => {
               captured = capture(input);
               started = createStarted(49152);
@@ -395,6 +400,11 @@ describe('DistServer.serve', () => {
         expect(binding.until).to.eql(undefined);
         expect(binding.exit).to.eql(false);
         expect(screenArgs.origin).to.eql('http://127.0.0.1:49152/');
+        expect(verificationDir).to.eql(Fs.Path.resolve(relativeDir));
+        expect(screenArgs.dir).to.eql(relativeDir);
+        expect(screenArgs.manifestHref?.href).to.eql(
+          Fs.Path.toFileUrl(Fs.Path.join(Fs.Path.resolve(relativeDir), 'dist.json')).href,
+        );
         expect(screenArgs.identity).to.eql({
           root: screenArgs.evidence.dist.pkg,
           subpath: 'ui/preview',

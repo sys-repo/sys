@@ -1,6 +1,7 @@
 import {
   Cli,
   DEFAULT_DEPENDENCIES,
+  Fs,
   Open,
   pkg,
   type StartDependencies,
@@ -8,11 +9,22 @@ import {
   Time,
 } from './common.ts';
 import { snapshotServeInput, snapshotServeLocalInput } from '../u.server.input/u.serve.ts';
-import { DistServeScreen } from '../u.server/u.serve.screen.ts';
+import { DistServeScreen } from '../u.server.screen/mod.ts';
 import { startError } from '../u.server/u.error.ts';
 import { startLocalWith, startWith } from './u.start.ts';
 
 type ServeMode = 'screen' | 'raw';
+
+type ServeSource =
+  | {
+    readonly kind: 'screen';
+    readonly verificationDir: t.StringDir;
+    readonly manifestHref: URL;
+  }
+  | {
+    readonly kind: 'raw';
+    readonly verificationDir: t.StringDir;
+  };
 
 type ServeKeyboard = {
   readonly enabled: boolean;
@@ -63,22 +75,26 @@ export async function serveWith(
   const prepared = snapshotServeInput(input);
   if (!prepared.ok) throw startError(prepared.reason);
   const { pkgSubpath, start: value } = prepared.value;
-  const mode = wrangle.serveMode(value.silent, effects.isInteractive);
+  const source = wrangle.serveSource(
+    value.dir,
+    wrangle.serveMode(value.silent, effects.isInteractive),
+  );
   const keyboard = wrangle.serveKeyboard(value.keyboard);
   const started = await startWith(
     {
       ...value,
-      silent: mode === 'screen' ? true : value.silent ?? false,
-      keyboard: mode === 'screen' ? false : keyboard.http,
+      dir: source.verificationDir,
+      silent: source.kind === 'screen' ? true : value.silent ?? false,
+      keyboard: source.kind === 'screen' ? false : keyboard.http,
     },
     deps,
     {
       strictPort: true,
-      rawOutput: mode === 'raw',
+      rawOutput: source.kind === 'raw',
       rawAuthority: `pinned ${value.integrity}`,
     },
   );
-  await serveLoop(started, mode, {
+  await serveLoop(started, source, {
     dir: value.dir,
     keyboard,
     ...(pkgSubpath === undefined ? {} : { pkgSubpath }),
@@ -94,22 +110,26 @@ export async function serveLocalWith(
   const prepared = snapshotServeLocalInput(input);
   if (!prepared.ok) throw startError(prepared.reason);
   const { pkgSubpath, start: value } = prepared.value;
-  const mode = wrangle.serveMode(value.silent, effects.isInteractive);
+  const source = wrangle.serveSource(
+    value.dir,
+    wrangle.serveMode(value.silent, effects.isInteractive),
+  );
   const keyboard = wrangle.serveKeyboard(value.keyboard);
   const started = await startLocalWith(
     {
       ...value,
-      silent: mode === 'screen' ? true : value.silent ?? false,
-      keyboard: mode === 'screen' ? false : keyboard.http,
+      dir: source.verificationDir,
+      silent: source.kind === 'screen' ? true : value.silent ?? false,
+      keyboard: source.kind === 'screen' ? false : keyboard.http,
     },
     deps,
     {
       strictPort: false,
-      rawOutput: mode === 'raw',
+      rawOutput: source.kind === 'raw',
       rawAuthority: 'local (UNPINNED)',
     },
   );
-  await serveLoop(started, mode, {
+  await serveLoop(started, source, {
     dir: value.dir,
     keyboard,
     ...(pkgSubpath === undefined ? {} : { pkgSubpath }),
@@ -118,11 +138,11 @@ export async function serveLocalWith(
 
 async function serveLoop(
   started: t.DistServer.Started,
-  mode: ServeMode,
+  source: ServeSource,
   input: ServeLoopInput,
   effects: ServeEffects,
 ): Promise<void> {
-  if (mode === 'raw') {
+  if (source.kind === 'raw') {
     await closeRaw(started);
     return;
   }
@@ -158,6 +178,7 @@ async function serveLoop(
       identity,
       origin: started.origin,
       dir: input.dir,
+      manifestHref: source.manifestHref,
       evidence: started.verification,
       authority: started.authority,
       keyboard: {
@@ -271,6 +292,12 @@ const wrangle = {
     isInteractive: ServeEffects['isInteractive'],
   ): ServeMode {
     return !silent && isInteractive() ? 'screen' : 'raw';
+  },
+  serveSource(dir: t.StringDir, mode: ServeMode): ServeSource {
+    if (mode === 'raw') return { kind: 'raw', verificationDir: dir };
+    const verificationDir = Fs.Path.resolve(dir) as t.StringDir;
+    const manifestHref = Fs.Path.toFileUrl(Fs.Path.join(verificationDir, 'dist.json'));
+    return { kind: 'screen', verificationDir, manifestHref };
   },
   serveKeyboard(input: t.HttpServer.Start.Options['keyboard']): ServeKeyboard {
     if (input === false) {

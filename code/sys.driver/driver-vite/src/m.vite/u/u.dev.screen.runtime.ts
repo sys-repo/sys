@@ -29,7 +29,7 @@ const DEFAULT_TERMINAL = Object.freeze(
 /** Effectful owner of one responsive dev-screen startup → ready → disposed lifecycle. */
 export const DevScreenRuntime = {
   create(args: t.ViteDev.Screen.Runtime.CreateArgs): t.ViteDev.Screen.Reporter {
-    const { identity, dist, paths, output } = args;
+    const { identity, dist, manifestHref, paths, output } = args;
     const terminal = args.deps?.terminal ?? DEFAULT_TERMINAL;
     const schedule = args.deps?.schedule ?? ((run) => Time.delay(REPAINT_DELAY, run));
     const logLines = DevScreenLayout.logLines(args.logLines);
@@ -62,6 +62,7 @@ export const DevScreenRuntime = {
     const frameArgs = (): t.ViteDev.Screen.Frame.Args => ({
       identity,
       dist,
+      manifestHref,
       paths,
       url: args.url(),
       lines: output.lines(),

@@ -1,8 +1,8 @@
 import { c, Cli } from '@sys/cli';
 import { HashFmt } from '@sys/crypto/fmt';
-import { describe, expect, it, type t } from '../../-test.ts';
+import { describe, expect, Fs, it, type t } from '../../-test.ts';
 import { type Fixture, setup, teardown } from '../../-test/u.fixture.dist.ts';
-import { DistServeScreen } from '../u.server/u.serve.screen.ts';
+import { DistServeScreen } from '../u.server.screen/mod.ts';
 import {
   createReporter,
   createScheduleHarness,
@@ -352,30 +352,83 @@ describe('DistServeScreen', () => {
     }
   });
 
-  it('collapses the digest against its remaining Dist-row width', async () => {
+  it('collapses and wholly links the digest against its remaining Dist-row width', async () => {
     const fixture = await setup();
     try {
       const dist = fixture.cloneDist();
+      const manifestHref = Fs.Path.toFileUrl(Fs.Path.resolve('serve digest #1/dist.json'));
       const outputRow = (width: number) => {
-        const output = text(DistServeScreen.toString({
+        const output = DistServeScreen.toString({
           identity: dist.pkg,
           origin: 'http://127.0.0.1:49152/' as t.StringUrl,
           dir: './dist' as t.StringDir,
+          manifestHref,
           authority: { kind: 'local-unpinned', integrity: fixture.integrity },
           evidence: evidence(fixture),
           renderedAt: dist.build.time,
           viewport: { width, height: 30 },
           cursorRows: 1,
           keyboard: { enabled: false, print: true },
-        }));
-        return output.split('\n').find((line) => line.includes('dist')) ?? '';
+        });
+        return output.split('\n').find((line) => text(line).includes('dist')) ?? '';
       };
       const suffix = `#${dist.hash.digest.slice(-5)}`;
+      const full = outputRow(60);
+      const algorithm = outputRow(44);
+      const short = outputRow(37);
 
-      expect(outputRow(60)).to.include(`dist/ ← digest:sha256:${suffix}`);
-      expect(outputRow(44)).to.include(`dist/ ← sha256:${suffix}`);
-      expect(outputRow(37)).to.include(`dist/ ← ${suffix}`);
-      expect(outputRow(31)).to.not.include('←');
+      expect(text(full)).to.include(`dist/ ← digest:sha256:${suffix}`);
+      expect(full).to.include(
+        Cli.Fmt.hyperlink(
+          c.underline(HashFmt.digest(dist.hash.digest, { maxWidth: 20 })),
+          manifestHref,
+        ),
+      );
+      expect(text(algorithm)).to.include(`dist/ ← sha256:${suffix}`);
+      expect(algorithm).to.include(
+        Cli.Fmt.hyperlink(
+          c.underline(HashFmt.digest(dist.hash.digest, { maxWidth: 13 })),
+          manifestHref,
+        ),
+      );
+      expect(text(short)).to.include(`dist/ ← ${suffix}`);
+      expect(short).to.include(
+        Cli.Fmt.hyperlink(
+          c.underline(HashFmt.digest(dist.hash.digest, { maxWidth: 6 })),
+          manifestHref,
+        ),
+      );
+      expect(text(outputRow(31))).to.not.include('←');
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
+  it('links only the digest label to the supplied manifest', async () => {
+    const fixture = await setup();
+    try {
+      const dist = fixture.cloneDist();
+      const manifestHref = Fs.Path.toFileUrl(Fs.Path.resolve('serve digest #1/dist.json'));
+      const digest = HashFmt.digest(dist.hash.digest);
+      const link = Cli.Fmt.hyperlink(c.underline(digest), manifestHref);
+      const frame = DistServeScreen.toString({
+        identity: dist.pkg,
+        origin: 'http://127.0.0.1:49152/' as t.StringUrl,
+        dir: fixture.source as t.StringDir,
+        manifestHref,
+        authority: { kind: 'local-unpinned', integrity: fixture.integrity },
+        evidence: evidence(fixture),
+        renderedAt: dist.build.time,
+        viewport: { width: 80, height: 30 },
+        cursorRows: 1,
+        keyboard: { enabled: false, print: true },
+      });
+
+      expect(manifestHref.protocol).to.eql('file:');
+      expect(manifestHref.hash).to.eql('');
+      expect(manifestHref.href).to.include('serve%20digest%20%231/dist.json');
+      expect(frame).to.include(`${c.green('←')} ${link}`);
+      expect(text(link)).to.eql(`digest:sha256:#${dist.hash.digest.slice(-5)}`);
     } finally {
       await teardown(fixture);
     }
@@ -393,6 +446,7 @@ describe('DistServeScreen', () => {
           identity: fixture.cloneDist().pkg,
           origin,
           dir: fixture.source as t.StringDir,
+          manifestHref: Fs.Path.toFileUrl(Fs.Path.join(fixture.source, 'dist.json')),
           authority: { kind: 'local-unpinned', integrity: fixture.integrity },
           evidence: evidence(fixture),
           renderedAt: fixture.cloneDist().build.time,

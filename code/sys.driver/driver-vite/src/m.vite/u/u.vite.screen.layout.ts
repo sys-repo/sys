@@ -45,7 +45,11 @@ export const ViteScreenLayout = {
     return `${indent}${clipText(source, valueWidth)}`;
   },
 
-  distSuffix(dist: t.DistPkg | undefined, renderedAt: t.UnixTimestamp) {
+  distSuffix(
+    dist: t.DistPkg | undefined,
+    manifestHref: URL | undefined,
+    renderedAt: t.UnixTimestamp,
+  ) {
     return (maxWidth: number) => {
       if (!dist) return '';
       const age = c.dim(c.gray(`· ${Time.elapsed(dist.build.time, renderedAt)}`));
@@ -54,7 +58,9 @@ export const ViteScreenLayout = {
       const digest = HashFmt.digest(dist.hash.digest, {
         maxWidth: Math.max(0, maxWidth - reserve),
       });
-      return digest ? `${arrow} ${digest} ${age}` : '';
+      if (!digest) return '';
+      const linked = manifestHref ? Cli.Fmt.hyperlink(c.underline(digest), manifestHref) : digest;
+      return `${arrow} ${linked} ${age}`;
     };
   },
 

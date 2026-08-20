@@ -90,6 +90,8 @@ export declare namespace ViteDev {
       export type CreateArgs = {
         identity: t.Cli.Fmt.Header.PackageIdentity;
         dist?: t.DistPkg;
+        /** Local manifest recording the displayed Dist digest. */
+        manifestHref?: URL;
         paths: t.ViteConfig.Paths;
         url: () => string;
         output: ViteDev.Screen.Output;
@@ -111,6 +113,8 @@ export declare namespace ViteDev {
       export type Args = {
         identity: t.Cli.Fmt.Header.PackageIdentity;
         dist?: t.DistPkg;
+        /** Local manifest recording the displayed Dist digest. */
+        manifestHref?: URL;
         paths: t.ViteConfig.Paths;
         url: string;
         lines: ViteDev.Output.Line[];
