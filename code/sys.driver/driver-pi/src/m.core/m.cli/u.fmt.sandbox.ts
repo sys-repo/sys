@@ -159,7 +159,7 @@ function prepareReportLink(path: t.StringPath, budget: number): ReportLink | und
     ? c.gray(label)
     : ellipsizeReportPath(label, budget);
   return {
-    display: c.underline(display),
+    display,
     href: Path.toFileUrl(path),
   };
 }

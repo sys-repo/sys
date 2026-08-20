@@ -12,15 +12,15 @@ describe('Cli.Fmt.hyperlink', () => {
 
     expect(url.href).to.contain('sandbox%20report.log.md');
     expect(result).to.eql(
-      `${OSC_8}${url.href}${STRING_TERMINATOR}${label}${OSC_8}${STRING_TERMINATOR}`,
+      `${OSC_8}${url.href}${STRING_TERMINATOR}${c.underline(label)}${OSC_8}${STRING_TERMINATOR}`,
     );
   });
 
-  it('keeps hyperlink controls transparent to stripping and cell-width measurement', () => {
+  it('underlines styled labels while preserving ANSI stripping and cell width', () => {
     const label = c.cyan('sandbox-report.log.md');
     const result = Fmt.hyperlink(label, new URL('file:///tmp/sandbox-report.log.md'));
 
-    expect(result).to.contain(label);
+    expect(result).to.contain(c.underline(label));
     expect(stripAnsi(result)).to.eql('sandbox-report.log.md');
     expect(Fmt.Text.Width.measure(result)).to.eql(Fmt.Text.Width.measure(label));
   });

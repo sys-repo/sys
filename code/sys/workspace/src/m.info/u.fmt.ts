@@ -160,8 +160,7 @@ function renderGraphRef(
 ): string {
   const terminal = options.terminal ?? Cli.Is.terminal('stdout');
   const display = c.dim(ref.plain);
-  const linkedDisplay = terminal ? c.underline(display) : display;
-  return terminal ? Cli.Fmt.hyperlink(linkedDisplay, Path.toFileUrl(path)) : display;
+  return terminal ? Cli.Fmt.hyperlink(display, Path.toFileUrl(path)) : display;
 }
 
 function includeRows(

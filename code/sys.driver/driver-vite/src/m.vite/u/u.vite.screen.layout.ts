@@ -59,7 +59,7 @@ export const ViteScreenLayout = {
         maxWidth: Math.max(0, maxWidth - reserve),
       });
       if (!digest) return '';
-      const linked = manifestHref ? Cli.Fmt.hyperlink(c.underline(digest), manifestHref) : digest;
+      const linked = manifestHref ? Cli.Fmt.hyperlink(digest, manifestHref) : digest;
       return `${arrow} ${linked} ${age}`;
     };
   },

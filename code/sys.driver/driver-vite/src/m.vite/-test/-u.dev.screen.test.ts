@@ -389,18 +389,18 @@ describe('DevScreen', () => {
 
       expect(full).to.include('dist/ ← digest:sha256:#ccd11 · 3d');
       expect(fullRaw).to.include(
-        Cli.Fmt.hyperlink(c.underline(HashFmt.digest(HASH, { maxWidth: 20 })), manifestHref),
+        Cli.Fmt.hyperlink(HashFmt.digest(HASH, { maxWidth: 20 }), manifestHref),
       );
       expect(fullRaw).to.include(c.dim(c.gray('· 3d')));
       expect(algorithm).to.include('dist/ ← sha256:#ccd11 · 3d');
       expect(algorithm).to.not.include('digest:');
       expect(algorithmRaw).to.include(
-        Cli.Fmt.hyperlink(c.underline(HashFmt.digest(HASH, { maxWidth: 13 })), manifestHref),
+        Cli.Fmt.hyperlink(HashFmt.digest(HASH, { maxWidth: 13 }), manifestHref),
       );
       expect(short).to.include('dist/ ← #ccd11 · 3d');
       expect(short).to.not.include('sha256');
       expect(shortRaw).to.include(
-        Cli.Fmt.hyperlink(c.underline(HashFmt.digest(HASH, { maxWidth: 6 })), manifestHref),
+        Cli.Fmt.hyperlink(HashFmt.digest(HASH, { maxWidth: 6 }), manifestHref),
       );
       expect(none).to.include('output   dist/');
       expect(none).to.not.include('←');
@@ -416,7 +416,7 @@ describe('DevScreen', () => {
     it('links only digest labels to the supplied manifest in startup and ready frames', () => {
       const manifestHref = Path.toFileUrl(Path.resolve('vite digest #1/dist.json'));
       const digest = HashFmt.digest(HASH);
-      const link = Cli.Fmt.hyperlink(c.underline(digest), manifestHref);
+      const link = Cli.Fmt.hyperlink(digest, manifestHref);
       const args = {
         identity: pkg(),
         dist: dist(),

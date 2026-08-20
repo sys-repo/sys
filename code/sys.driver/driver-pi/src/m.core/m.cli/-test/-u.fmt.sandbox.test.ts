@@ -113,7 +113,7 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
       report: path,
       cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
     }, { width, terminal: true });
-    const link = Cli.Fmt.hyperlink(c.underline(c.gray(filename)), Path.toFileUrl(path));
+    const link = Cli.Fmt.hyperlink(c.gray(filename), Path.toFileUrl(path));
     const text = Cli.stripAnsi(raw);
 
     expect(raw).to.contain(link);

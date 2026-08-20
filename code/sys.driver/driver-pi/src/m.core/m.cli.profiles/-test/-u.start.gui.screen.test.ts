@@ -798,7 +798,7 @@ describe('@sys/driver-pi start:gui screen', () => {
     const exact = rootRow(120);
     expect(Cli.stripAnsi(exact)).to.contain(DEVELOPMENT_ROOT);
     expect(exact).to.contain(Cli.Fmt.Path.str(DEVELOPMENT_ROOT));
-    expect(exact).to.contain(href);
+    expect(exact).to.contain(Cli.Fmt.hyperlink(Cli.Fmt.Path.str(DEVELOPMENT_ROOT), new URL(href)));
 
     const clipped = rootRow(58);
     expect(Cli.stripAnsi(clipped)).to.contain('…');

@@ -379,24 +379,15 @@ describe('DistServeScreen', () => {
 
       expect(text(full)).to.include(`dist/ ← digest:sha256:${suffix}`);
       expect(full).to.include(
-        Cli.Fmt.hyperlink(
-          c.underline(HashFmt.digest(dist.hash.digest, { maxWidth: 20 })),
-          manifestHref,
-        ),
+        Cli.Fmt.hyperlink(HashFmt.digest(dist.hash.digest, { maxWidth: 20 }), manifestHref),
       );
       expect(text(algorithm)).to.include(`dist/ ← sha256:${suffix}`);
       expect(algorithm).to.include(
-        Cli.Fmt.hyperlink(
-          c.underline(HashFmt.digest(dist.hash.digest, { maxWidth: 13 })),
-          manifestHref,
-        ),
+        Cli.Fmt.hyperlink(HashFmt.digest(dist.hash.digest, { maxWidth: 13 }), manifestHref),
       );
       expect(text(short)).to.include(`dist/ ← ${suffix}`);
       expect(short).to.include(
-        Cli.Fmt.hyperlink(
-          c.underline(HashFmt.digest(dist.hash.digest, { maxWidth: 6 })),
-          manifestHref,
-        ),
+        Cli.Fmt.hyperlink(HashFmt.digest(dist.hash.digest, { maxWidth: 6 }), manifestHref),
       );
       expect(text(outputRow(31))).to.not.include('←');
     } finally {
@@ -410,7 +401,7 @@ describe('DistServeScreen', () => {
       const dist = fixture.cloneDist();
       const manifestHref = Fs.Path.toFileUrl(Fs.Path.resolve('serve digest #1/dist.json'));
       const digest = HashFmt.digest(dist.hash.digest);
-      const link = Cli.Fmt.hyperlink(c.underline(digest), manifestHref);
+      const link = Cli.Fmt.hyperlink(digest, manifestHref);
       const frame = DistServeScreen.toString({
         identity: dist.pkg,
         origin: 'http://127.0.0.1:49152/' as t.StringUrl,
