@@ -542,9 +542,13 @@ describe('@sys/driver-pi start:gui screen', () => {
     screen.warnOpen();
     screen.warnOpen();
 
-    const frame = Cli.stripAnsi(harness.frames.at(-1) ?? '');
+    const rendered = harness.frames.at(-1) ?? '';
+    const frame = Cli.stripAnsi(rendered);
     expect(frame).to.contain('failed: source-unavailable');
-    expect(frame).to.contain('manifest-fetch / resource-failure / cleanup:pending');
+    expect(frame).to.contain('manifest-fetch · resource-failure · cleanup:pending');
+    expect(rendered).to.contain(
+      `${c.white('manifest-fetch ')}${c.dim(c.gray('·'))}${c.white(' resource-failure ')}`,
+    );
     expect(frame).to.contain('browser did not open; use launch URL');
     expect(frame).to.contain('/0123456789abcdef');
     expect(frame).to.not.contain('evi…nce');

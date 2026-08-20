@@ -309,7 +309,7 @@ export const StartGuiScreen = {
     if (input.state.kind === 'failed') {
       StartGuiIntrinsic.arrayPush(facts, [
         'evidence',
-        { kind: 'text', text: evidenceText(input.state.safeEvidence) },
+        { kind: 'evidence', text: evidenceText(input.state.safeEvidence) },
       ]);
     }
     if (input.openWarning) {
@@ -351,7 +351,7 @@ export const StartGuiScreen = {
  * Helpers:
  */
 type ServiceValue =
-  | { readonly kind: 'title' | 'text'; readonly text: string }
+  | { readonly kind: 'title' | 'text' | 'evidence'; readonly text: string }
   | { readonly kind: 'state'; readonly state: BootState }
   | { readonly kind: 'url'; readonly text: t.StringUrl };
 
@@ -398,6 +398,7 @@ function serviceValue(value: ServiceValue, width: number) {
   if (value.kind === 'state') {
     return fitValue(stateText(value.state), width, stateColor(value.state));
   }
+  if (value.kind === 'evidence') return fitValue(value.text, width, colorEvidence);
   return fitValue(value.text, width, c.white);
 }
 
@@ -479,7 +480,7 @@ function evidenceText(evidence: BootSafeEvidence): string {
       if (evidence.publication) {
         StartGuiIntrinsic.arrayPush(parts, `publication:${evidence.publication}`);
       }
-      return StartGuiIntrinsic.arrayJoin(parts, ' / ');
+      return StartGuiIntrinsic.arrayJoin(parts, ' · ');
     }
     case 'application-host':
       return `application-host/${evidence.reason}`;
@@ -498,6 +499,26 @@ function fitValue(value: string, width: number, color: (text: string) => string)
       return `${color(head)}${Cli.Fmt.omission(ellipsis)}${color(tail)}`;
     },
   });
+}
+
+function colorEvidence(value: string) {
+  const output: string[] = [];
+  let remaining = value;
+  while (true) {
+    // Captured positional scanning keeps presentation independent of mutable string methods.
+    const separatorIndex = StartGuiIntrinsic.stringIndexOf(remaining, '·');
+    if (separatorIndex < 0) {
+      StartGuiIntrinsic.arrayPush(output, c.white(remaining));
+      break;
+    }
+    StartGuiIntrinsic.arrayPush(
+      output,
+      c.white(StartGuiIntrinsic.stringSlice(remaining, 0, separatorIndex)),
+    );
+    StartGuiIntrinsic.arrayPush(output, c.dim(c.gray('·')));
+    remaining = StartGuiIntrinsic.stringSlice(remaining, separatorIndex + 1);
+  }
+  return StartGuiIntrinsic.arrayJoin(output, '');
 }
 
 function keyboardRows(width: number): readonly string[] {
