@@ -331,7 +331,7 @@ export const StartGuiScreen = {
     if (input.state.kind === 'failed') {
       StartGuiIntrinsic.arrayPush(facts, [
         'evidence',
-        { kind: 'evidence', text: evidenceText(input.state.safeEvidence) },
+        { kind: 'evidence', items: evidenceItems(input.state.safeEvidence) },
       ]);
     }
     if (input.openWarning) {
@@ -341,14 +341,14 @@ export const StartGuiScreen = {
       ]);
     }
     StartGuiIntrinsic.arrayPush(facts, ['open', { kind: 'url', text: input.url }]);
-    const serviceRows = StartGuiIntrinsic.arrayMap(
-      facts,
-      ([label, value]) =>
-        insetServiceRow(
-          serviceRow(label, value, serviceWidth, serviceLabelWidth),
-          serviceWidth,
-        ),
-    );
+    const serviceRows: string[] = [];
+    for (const [label, value] of facts) {
+      const rendered = StartGuiIntrinsic.arrayMap(
+        serviceRow(label, value, serviceWidth, serviceLabelWidth),
+        (row) => insetServiceRow(row, serviceWidth),
+      );
+      StartGuiIntrinsic.arrayAppend(serviceRows, rendered);
+    }
     const rows: string[] = [];
     StartGuiIntrinsic.arrayAppend(
       rows,
@@ -373,10 +373,13 @@ export const StartGuiScreen = {
  * Helpers:
  */
 type ServiceValue =
-  | { readonly kind: 'title' | 'warning' | 'evidence'; readonly text: string }
+  | { readonly kind: 'title' | 'warning'; readonly text: string }
+  | { readonly kind: 'evidence'; readonly items: readonly string[] }
   | { readonly kind: 'path'; readonly root: CapturedRootLink }
   | { readonly kind: 'state'; readonly state: BootState }
   | { readonly kind: 'url'; readonly text: t.StringUrl };
+
+type SingleLineServiceValue = Exclude<ServiceValue, { readonly kind: 'evidence' }>;
 
 const FRAME_CURSOR_ROWS = 1;
 const SERVICE_LEFT_INSET = 2;
@@ -393,23 +396,34 @@ function serviceRow(
   value: ServiceValue,
   width: number,
   labelWidth: number,
-) {
+): readonly string[] {
   const minValueWidth = 1;
   const reserve = labelWidth + Cli.Fmt.Text.Width.measure(SERVICE_GAP);
-  if (reserve + minValueWidth > width) return serviceValue(value, width);
+  const valueWidth = reserve + minValueWidth > width
+    ? width
+    : Cli.Fmt.Text.Width.fit({ width, reserve, terminal: false });
+  const valueRows = serviceValueRows(value, valueWidth);
+  if (reserve + minValueWidth > width) return valueRows;
 
   const labelText = label === 'service' ? label : ` ${label}`;
   const coloredLabel = label === 'service' ? c.green(labelText) : fieldLabelColor(labelText);
   const renderedLabel = Cli.Fmt.Text.Width.padEnd(coloredLabel, labelWidth);
-  const valueWidth = Cli.Fmt.Text.Width.fit({ width, reserve, terminal: false });
-  return `${renderedLabel}${SERVICE_GAP}${serviceValue(value, valueWidth)}`;
+  const continuation = StartGuiIntrinsic.stringRepeat(' ', reserve);
+  return StartGuiIntrinsic.arrayMap(valueRows, (row, index) => {
+    return index === 0 ? `${renderedLabel}${SERVICE_GAP}${row}` : `${continuation}${row}`;
+  });
 }
 
 function fieldLabelColor(text: string) {
   return c.dim(c.gray(text));
 }
 
-function serviceValue(value: ServiceValue, width: number) {
+function serviceValueRows(value: ServiceValue, width: number): readonly string[] {
+  if (value.kind === 'evidence') return evidenceRows(value.items, width);
+  return [serviceValue(value, width)];
+}
+
+function serviceValue(value: SingleLineServiceValue, width: number) {
   if (value.kind === 'path') {
     if (width <= 0) return '';
     const display = Cli.Fmt.Path.tty(value.root.text, {
@@ -431,7 +445,6 @@ function serviceValue(value: ServiceValue, width: number) {
   if (value.kind === 'state') {
     return fitValue(stateText(value.state), width, stateColor(value.state));
   }
-  if (value.kind === 'evidence') return fitValue(value.text, width, colorEvidence);
   if (value.kind === 'warning') return fitValue(value.text, width, c.yellow);
   return fitValue(value.text, width, c.white);
 }
@@ -563,30 +576,48 @@ function stateText(state: BootState): string {
   }
 }
 
-function evidenceText(evidence: BootSafeEvidence): string {
+function evidenceItems(evidence: BootSafeEvidence): readonly string[] {
   switch (evidence.kind) {
     case 'configuration':
-      return `configuration/${evidence.reason}`;
+      return [`configuration/${evidence.reason}`];
     case 'identity':
-      return 'package identity refused';
+      return ['package identity refused'];
     case 'materialization': {
-      const parts = [
+      const items = [
         evidence.stage,
         evidence.reason,
         `cleanup:${evidence.cleanup}`,
       ];
       if (evidence.publication) {
-        StartGuiIntrinsic.arrayPush(parts, `publication:${evidence.publication}`);
+        StartGuiIntrinsic.arrayPush(items, `publication:${evidence.publication}`);
       }
-      return StartGuiIntrinsic.arrayJoin(parts, ' · ');
+      return items;
     }
     case 'application-host':
-      return `application-host/${evidence.reason}`;
+      return [`application-host/${evidence.reason}`];
     case 'local':
-      return `local/${evidence.operation}`;
+      return [`local/${evidence.operation}`];
     case 'cancellation':
-      return 'cancelled by trusted launcher';
+      return ['cancelled by trusted launcher'];
   }
+}
+
+function evidenceRows(items: readonly string[], width: number): readonly string[] {
+  const separator = ' · ';
+  const rows: string[] = [];
+  let current = '';
+
+  for (const item of items) {
+    const candidate = current ? `${current}${separator}${item}` : item;
+    if (current && Cli.Fmt.Text.Width.measure(candidate) > width) {
+      StartGuiIntrinsic.arrayPush(rows, colorEvidence(current));
+      current = item;
+    } else {
+      current = candidate;
+    }
+  }
+  if (current) StartGuiIntrinsic.arrayPush(rows, colorEvidence(current));
+  return rows.length > 0 ? rows : [''];
 }
 
 function fitValue(value: string, width: number, color: (text: string) => string) {

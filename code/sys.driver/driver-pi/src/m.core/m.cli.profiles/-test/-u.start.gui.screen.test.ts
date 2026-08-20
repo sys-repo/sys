@@ -615,6 +615,35 @@ describe('@sys/driver-pi start:gui screen', () => {
     screen.dispose();
   });
 
+  it('wraps materialization evidence at whole-item boundaries', () => {
+    const frame = Cli.stripAnsi(StartGuiScreen.toString({
+      service: SERVICE,
+      url: CAPABILITY,
+      state: Boot.failed(
+        'repair-required',
+        Object.freeze({
+          kind: 'materialization',
+          stage: 'existing-verification',
+          reason: 'verification-failure',
+          cleanup: 'not-needed',
+          publication: 'occupied',
+        }),
+      ),
+      keyboard: false,
+      openWarning: false,
+      viewport: { width: 80, height: 14 },
+    }));
+    const rows = frame.split('\n');
+    const evidenceIndex = rows.findIndex((row) => row.trimStart().startsWith('evidence'));
+    const evidenceRows = rows.slice(evidenceIndex, evidenceIndex + 2);
+
+    expect(evidenceRows).to.eql([
+      '   evidence   existing-verification · verification-failure',
+      '              cleanup:not-needed · publication:occupied',
+    ]);
+    expect(evidenceRows.join('\n')).to.not.contain('…');
+  });
+
   it('reports failed when synchronous measurement reentrantly fails resize ownership', async () => {
     let resize: ((size: t.Cli.Screen.Size) => void) | undefined;
     let releases = 0;
