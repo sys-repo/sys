@@ -205,7 +205,8 @@ describe(`@sys/cell/cli start`, () => {
     expect(res.root).to.eql(fs.dir);
     expect(res.services).to.eql(2);
 
-    const emitted = stripAnsi(captured.output.join('\n'));
+    const raw = captured.output.join('\n');
+    const emitted = stripAnsi(raw);
     const returned = stripAnsi(res.text);
     const lines = emitted.split('\n');
     const returnedLines = returned.split('\n');
@@ -222,6 +223,7 @@ describe(`@sys/cell/cli start`, () => {
     const summaryRoot = lines.find((line) => line.startsWith('root')) ?? '';
     const returnedSummaryRoot = returnedLines.find((line) => line.startsWith('root')) ?? '';
 
+    expect(raw).not.to.contain('\x1b]8;;');
     expect(emitted).to.eql(returned);
     expect(res.identity).to.eql(undefined);
     expect(emitted).not.to.contain('@sys/cell');

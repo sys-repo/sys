@@ -47,6 +47,31 @@ describe('@sys/cell/cli start reporter', () => {
     ]);
   });
 
+  it('propagates stdout hyperlink policy independently from reporter mode and width', () => {
+    const rawTerminal = createHarness('raw', { header: '', terminal: true });
+    const rawTerminalReady = readyProbe();
+    rawTerminal.reporter.open();
+    rawTerminal.reporter.ready(rawTerminalReady.input);
+    expect(rawTerminalReady.calls).to.eql([{ hyperlinks: true }]);
+    expect(rawTerminal.effects).to.eql(['print:linked']);
+    rawTerminal.reporter.dispose();
+
+    const rawRedirected = createHarness('raw', { header: '', terminal: false });
+    const rawRedirectedReady = readyProbe();
+    rawRedirected.reporter.open();
+    rawRedirected.reporter.ready(rawRedirectedReady.input);
+    expect(rawRedirectedReady.calls).to.eql([]);
+    expect(rawRedirected.effects).to.eql(['print:plain']);
+    rawRedirected.reporter.dispose();
+
+    const screen = createHarness('screen', { terminal: true });
+    const screenReady = readyProbe();
+    screen.reporter.open();
+    screen.reporter.ready(screenReady.input);
+    expect(screenReady.calls).to.eql([{ width: 80, hyperlinks: true }]);
+    screen.reporter.dispose();
+  });
+
   it('screen → repaints one responsive startup-to-complete frame', () => {
     const harness = createHarness('screen');
     const reporter = harness.reporter;
@@ -217,7 +242,26 @@ function readyBody() {
   const render = (width: number) => `\nbody:${width}\n`;
   return {
     text: formatStartServiceBody(render, 80),
-    render: (width?: number) => formatStartServiceBody(render, width),
+    render: (options?: { width?: number; hyperlinks?: boolean }) => {
+      return formatStartServiceBody(render, options?.width);
+    },
+  } as const;
+}
+
+function readyProbe() {
+  const calls: { width?: number; hyperlinks?: boolean }[] = [];
+  return {
+    calls,
+    input: {
+      text: 'plain',
+      render(options?: { width?: number; hyperlinks?: boolean }) {
+        calls.push({
+          ...(options?.width === undefined ? {} : { width: options.width }),
+          ...(options?.hyperlinks === undefined ? {} : { hyperlinks: options.hyperlinks }),
+        });
+        return options?.hyperlinks ? 'linked' : 'rendered';
+      },
+    },
   } as const;
 }
 
@@ -228,6 +272,7 @@ function createHarness(
     repaintError?: Error;
     resizeOnObserve?: ScreenSize;
     size?: ScreenSize;
+    terminal?: boolean;
   } = {},
 ) {
   const effects: string[] = [];
@@ -247,6 +292,7 @@ function createHarness(
 
   const reporter = StartReporter.create(mode, {
     isInteractive: () => true,
+    isTerminal: () => options.terminal ?? true,
     print: (text) => effects.push(`print:${text}`),
     header: (width) => options.header ?? `header:${width ?? 'raw'}`,
     startText: (count) => `starting:${count}`,

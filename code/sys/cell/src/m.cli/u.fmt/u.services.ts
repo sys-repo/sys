@@ -1,13 +1,14 @@
 import type { StartedServiceStatus } from '../../m.cell/u.services/u.status.ts';
-import { c, Cli, Fs, Is, Num, Str, stripAnsi, type t } from '../common.ts';
+import { c, Cli, Fs, Is, Num, Str, stripAnsi, type t, Url } from '../common.ts';
 import { FmtFit } from './u.fit.ts';
 
-type ServicesStartedResult = {
-  services: readonly StartedServiceStatus[];
-  width?: number;
+type ServicesStartedOptions = {
+  readonly services: readonly StartedServiceStatus[];
+  readonly width?: number;
+  readonly hyperlinks?: boolean;
 };
 
-type ServiceStatusKind = 'title' | 'subtle' | 'path' | 'state' | 'error' | 'url' | 'url-muted';
+type ServiceStatusKind = 'title' | 'subtle' | 'path' | 'state' | 'error' | 'url';
 type ServiceLabelKind = 'anchor' | 'field' | 'blank';
 
 type ServiceStatusRow = {
@@ -18,18 +19,35 @@ type ServiceStatusRow = {
   readonly url?: t.Cli.Fmt.ServiceUrl.Part;
 };
 
+type ServiceUrlAdmission =
+  | { readonly kind: 'link'; readonly target: URL }
+  | { readonly kind: 'plain' }
+  | { readonly kind: 'invalid' };
+
+type ServiceRenderContext = {
+  readonly labelWidth: number;
+  readonly gap: string;
+  readonly width: number | undefined;
+  readonly hyperlinks: boolean;
+};
+
 export const FmtServices = Object.freeze(
   {
-    started(res: ServicesStartedResult): string {
-      const blocks = res.services.map(serviceStatusRows);
-      if (blocks.length === 0) return '';
-      const width = normalizeWidth(res.width);
-      if (width === 0) return '';
-      const labelWidth = maxLabelWidth(blocks.flat());
-      const text = blocks.map((rows) => renderServiceStatus(rows, labelWidth, width)).join(
-        `\n${serviceDivider(width)}\n`,
-      );
-      return `\n${Str.trimEdgeNewlines(text)}\n`;
+    started(options: ServicesStartedOptions): string {
+      const width = normalizeWidth(options.width);
+      if (options.services.length === 0 || width === 0) return '';
+
+      const sections = options.services.map(serviceStatusRows);
+      const layout = rowLayout(maxLabelWidth(sections.flat()), width);
+      const context: ServiceRenderContext = {
+        ...layout,
+        width,
+        hyperlinks: options.hyperlinks === true,
+      };
+      const separator = `\n${serviceDivider(width)}\n`;
+      const body = sections.map((rows) => renderServiceStatus(rows, context)).join(separator);
+
+      return `\n${body}\n`;
     },
   } as const,
 );
@@ -61,28 +79,26 @@ function serviceStatusRows(service: StartedServiceStatus): ServiceStatusRow[] {
 
 function renderServiceStatus(
   rows: readonly ServiceStatusRow[],
-  labelWidth: number,
-  width?: number,
+  context: ServiceRenderContext,
 ): string {
-  const lines = rows.map((row) => renderServiceStatusRow(row, labelWidth, width));
+  const lines = rows.map((row) => renderServiceStatusRow(row, context));
   return Str.trimEdgeNewlines(lines.join('\n'));
 }
 
 function renderServiceStatusRow(
   row: ServiceStatusRow,
-  labelWidth: number,
-  width?: number,
+  context: ServiceRenderContext,
 ): string {
-  const layout = rowLayout(labelWidth, width);
-  const label = serviceLabel(row, layout.labelWidth);
-  const reserve = stripAnsi(label).length + layout.gap.length;
-  return `${label}${layout.gap}${serviceValue(row, reserve, width)}`;
+  const label = serviceLabel(row, context.labelWidth);
+  const reserve = stripAnsi(label).length + context.gap.length;
+  const value = serviceValue(row, reserve, context);
+  return `${label}${context.gap}${value}`;
 }
 
 function rowLayout(labelWidth: number, width?: number) {
   const gap = '   ';
-  const terminal = isTerminal(width);
-  if (!terminal) return { labelWidth, gap };
+  const fit = shouldFit(width);
+  if (!fit) return { labelWidth, gap };
 
   const screenWidth = width ?? Cli.Screen.size().width;
   const minValueWidth = 1;
@@ -97,13 +113,18 @@ function rowLayout(labelWidth: number, width?: number) {
   return { labelWidth: Math.max(0, screenWidth - minValueWidth), gap: compactGap };
 }
 
-function serviceValue(row: ServiceStatusRow, reserve: number, width?: number): string {
-  const fit = { width, terminal: isTerminal(width) };
+function serviceValue(
+  row: ServiceStatusRow,
+  reserve: number,
+  context: ServiceRenderContext,
+): string {
+  const { hyperlinks, width } = context;
+  const fit = { width, terminal: shouldFit(width) };
   if (row.kind === 'path') return FmtFit.path(row.value, reserve, fit);
   if (row.kind === 'title') return serviceTitle(row.value, reserve, width);
   if (row.kind === 'state') return serviceState(row.value as t.Service.State, reserve, width);
   if (row.kind === 'error') return FmtFit.value(row.value, reserve, { ...fit, color: c.yellow });
-  if (row.kind === 'url' || row.kind === 'url-muted') return serviceUrl(row, reserve, width);
+  if (row.kind === 'url') return serviceUrl(row.url, reserve, width, hyperlinks);
   return FmtFit.value(row.value, reserve, { ...fit, color: c.gray });
 }
 
@@ -128,7 +149,7 @@ function pushServiceUrls(rows: ServiceStatusRow[], urls: readonly t.Service.Url[
       label: index === 0 ? 'url' : '',
       labelKind: index === 0 ? 'field' : 'blank',
       value: url.display,
-      kind: url.highlightOrigin ? 'url' : 'url-muted',
+      kind: 'url',
       url,
     });
   });
@@ -184,9 +205,9 @@ function serviceRoot(root: string): string {
 }
 
 function serviceTitle(text: string, reserve: number, renderWidth?: number): string {
-  const terminal = isTerminal(renderWidth);
-  const width = FmtFit.valueWidth(reserve, { terminal, width: renderWidth });
-  if (!terminal || Cli.Fmt.Text.Width.measure(text) <= width) return serviceTitleFull(text);
+  const fit = shouldFit(renderWidth);
+  const width = FmtFit.valueWidth(reserve, { terminal: fit, width: renderWidth });
+  if (!fit || Cli.Fmt.Text.Width.measure(text) <= width) return serviceTitleFull(text);
   return FmtFit.text(text, width, { color: c.white });
 }
 
@@ -212,25 +233,111 @@ function serviceDivider(width?: number): string {
 
 function serviceState(state: t.Service.State, reserve: number, width?: number): string {
   const color = state === 'error' ? c.yellow : state === 'stopped' ? c.gray : c.white;
-  return FmtFit.value(state, reserve, { color, terminal: isTerminal(width), width });
+  return FmtFit.value(state, reserve, { color, terminal: shouldFit(width), width });
 }
 
-function serviceUrl(row: ServiceStatusRow, reserve: number, renderWidth?: number): string {
-  const url = row.url;
-  const terminal = isTerminal(renderWidth);
-  const width = FmtFit.valueWidth(reserve, { terminal, width: renderWidth });
-  const highlightOrigin = row.kind === 'url';
-  if (!url) {
-    return FmtFit.value(row.value, reserve, {
-      color: highlightOrigin ? c.cyan : c.gray,
-      terminal,
-      width: renderWidth,
-    });
+function serviceUrl(
+  url: t.Cli.Fmt.ServiceUrl.Part | undefined,
+  reserve: number,
+  renderWidth: number | undefined,
+  hyperlinks: boolean,
+): string {
+  const fit = shouldFit(renderWidth);
+  const width = FmtFit.valueWidth(reserve, { terminal: fit, width: renderWidth });
+  if (!url) return invalidServiceUrl(reserve, renderWidth, fit);
+
+  const admission = admitServiceUrl(url);
+  if (admission.kind === 'invalid') return invalidServiceUrl(reserve, renderWidth, fit);
+
+  const label = fit ? clipServiceUrl(url, width) : Cli.Fmt.ServiceUrl.format(url);
+  if (!hyperlinks || admission.kind !== 'link' || !isLinkLabel(label)) return label;
+  return Cli.Fmt.hyperlink(label, admission.target);
+}
+
+function invalidServiceUrl(
+  reserve: number,
+  renderWidth: number | undefined,
+  fit: boolean,
+): string {
+  return FmtFit.value('invalid URL', reserve, {
+    color: c.yellow,
+    terminal: fit,
+    width: renderWidth,
+  });
+}
+
+function clipServiceUrl(part: t.Cli.Fmt.ServiceUrl.Part, width: number): string {
+  if (width <= 0) return '';
+  if (Cli.Fmt.Text.Width.measure(part.display) <= width) return Cli.Fmt.ServiceUrl.format(part);
+
+  return Cli.Fmt.Text.ellipsize(part.display, width, {
+    render: ({ head, ellipsis, tail }) => {
+      const tailStart = part.display.length - tail.length;
+      return `${formatServiceUrlFragment(part, head, 0)}${Cli.Fmt.omission(ellipsis)}${
+        formatServiceUrlFragment(part, tail, tailStart)
+      }`;
+    },
+  });
+}
+
+function formatServiceUrlFragment(
+  part: t.Cli.Fmt.ServiceUrl.Part,
+  text: string,
+  offset: number,
+): string {
+  const originEnd = part.origin.length;
+  const portStart = part.port ? originEnd - part.port.length : originEnd;
+  const origin = part.highlightOrigin ? c.cyan : c.gray;
+  const port = part.highlightOrigin ? (value: string) => c.bold(c.cyan(value)) : c.gray;
+  const suffix = part.highlightOrigin && part.suffix === '/' ? c.cyan : c.gray;
+
+  return [
+    formatServiceUrlRange(text, offset, 0, portStart, origin),
+    formatServiceUrlRange(text, offset, portStart, originEnd, port),
+    formatServiceUrlRange(text, offset, originEnd, part.display.length, suffix),
+  ].join('');
+}
+
+function formatServiceUrlRange(
+  text: string,
+  offset: number,
+  start: number,
+  end: number,
+  color: (value: string) => string,
+): string {
+  const from = Math.max(offset, start);
+  const to = Math.min(offset + text.length, end);
+  return from >= to ? '' : color(text.slice(from - offset, to - offset));
+}
+
+function admitServiceUrl(part: t.Cli.Fmt.ServiceUrl.Part): ServiceUrlAdmission {
+  if (!part.ok || hasTerminalControl(part.href)) return { kind: 'invalid' };
+
+  const parsed = Url.parse(part.href);
+  if (!parsed.ok) return { kind: 'invalid' };
+  const target = parsed.toURL();
+  if (target.username || target.password) return { kind: 'invalid' };
+  return isServiceLinkProtocol(target.protocol) ? { kind: 'link', target } : { kind: 'plain' };
+}
+
+function hasTerminalControl(value: string): boolean {
+  for (const character of value) {
+    const code = character.charCodeAt(0);
+    if (code <= 0x1f || (code >= 0x7f && code <= 0x9f)) return true;
   }
-  if (!terminal || url.display.length <= width) {
-    return Cli.Fmt.ServiceUrl.format(url);
-  }
-  return FmtFit.text(url.display, width, { color: highlightOrigin ? c.cyan : c.gray });
+  return false;
+}
+
+function isServiceLinkProtocol(protocol: string): boolean {
+  return protocol === 'http:' ||
+    protocol === 'https:' ||
+    protocol === 'ws:' ||
+    protocol === 'wss:';
+}
+
+function isLinkLabel(label: string): boolean {
+  const text = stripAnsi(label);
+  return text.length > 0 && text !== '…';
 }
 
 function normalizeWidth(width?: number): number | undefined {
@@ -239,7 +346,7 @@ function normalizeWidth(width?: number): number | undefined {
   return Math.floor(width);
 }
 
-function isTerminal(width?: number): boolean {
+function shouldFit(width?: number): boolean {
   return width !== undefined || Cli.Is.terminal('stdout');
 }
 

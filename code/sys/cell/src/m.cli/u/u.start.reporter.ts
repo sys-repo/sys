@@ -1,27 +1,23 @@
 import { Cli, Num, Str, stripAnsi, type t, Time } from '../common.ts';
-import { formatStartHeader, startServicesText } from './u.start.ts';
+import { formatStartHeader, type StartCellReady, startServicesText } from './u.start.ts';
 
 type Mode = t.CellCli.Start.ReporterMode;
 type ResolvedMode = Exclude<Mode, 'auto'>;
 type ScreenSize = t.Cli.Screen.Size;
 type Spinner = t.Cli.Spinner.Instance;
 
-type StartReporterReady = {
-  readonly text: string;
-  readonly render: (width?: number) => string;
-};
-
 type StartReporterInstance = {
   readonly mode: ResolvedMode;
   open(): void;
   starting(serviceCount: number): void;
-  ready(input: StartReporterReady): void;
+  ready(input: StartCellReady): void;
   complete(summary: string): void;
   dispose(): void;
 };
 
 type StartReporterDeps = {
   readonly isInteractive: () => boolean;
+  readonly isTerminal: () => boolean;
   readonly print: (text: string) => void;
   readonly header: (width?: number) => string;
   readonly startText: (serviceCount: number, startedAt?: t.UnixTimestamp) => string;
@@ -49,6 +45,7 @@ export const StartReporter = Object.freeze(
  */
 const DEFAULT_DEPS: StartReporterDeps = {
   isInteractive: () => Cli.Is.interactive(),
+  isTerminal: () => Cli.Is.terminal('stdout'),
   print: (text) => console.info(text),
   header: (width) => formatStartHeader(undefined, width),
   startText: (serviceCount, startedAt) =>
@@ -85,10 +82,11 @@ function create(
 ): StartReporterInstance {
   const deps: StartReporterDeps = { ...DEFAULT_DEPS, ...overrides };
   const resolved = resolve(mode, deps);
-  return resolved === 'screen' ? createScreen(deps) : createRaw(deps);
+  const hyperlinks = deps.isTerminal();
+  return resolved === 'screen' ? createScreen(deps, hyperlinks) : createRaw(deps, hyperlinks);
 }
 
-function createRaw(deps: StartReporterDeps): StartReporterInstance {
+function createRaw(deps: StartReporterDeps, hyperlinks: boolean): StartReporterInstance {
   type Phase = 'idle' | 'open' | 'ready' | 'complete' | 'disposed';
 
   let phase: Phase = 'idle';
@@ -111,7 +109,7 @@ function createRaw(deps: StartReporterDeps): StartReporterInstance {
     ready(input) {
       if (phase === 'disposed' || phase === 'complete') return;
       phase = 'ready';
-      printSection(input.text);
+      printSection(hyperlinks ? input.render({ hyperlinks: true }) : input.text);
     },
     complete(summary) {
       if (phase === 'disposed' || phase === 'complete') return;
@@ -124,7 +122,7 @@ function createRaw(deps: StartReporterDeps): StartReporterInstance {
   };
 }
 
-function createScreen(deps: StartReporterDeps): StartReporterInstance {
+function createScreen(deps: StartReporterDeps, hyperlinks: boolean): StartReporterInstance {
   type Phase = 'idle' | 'open' | 'starting' | 'ready' | 'complete' | 'disposed';
 
   let phase: Phase = 'idle';
@@ -133,7 +131,7 @@ function createScreen(deps: StartReporterDeps): StartReporterInstance {
   let spinner: Spinner | undefined;
   let spinnerRunning = false;
   let cancelInterval: (() => void) | undefined;
-  let renderBody: ((width?: number) => string) | undefined;
+  let renderBody: StartCellReady['render'] | undefined;
   let summary = '';
 
   const headerRows = () => rowsOf(deps.header(viewport.width));
@@ -144,7 +142,7 @@ function createScreen(deps: StartReporterDeps): StartReporterInstance {
     const header = headerRows().slice(0, viewport.height);
     const capacity = Math.max(0, viewport.height - header.length);
     const body = phase === 'ready' || phase === 'complete'
-      ? rowsOf(Str.trimEdgeNewlines(renderBody?.(viewport.width) ?? ''))
+      ? rowsOf(Str.trimEdgeNewlines(renderBody?.({ width: viewport.width, hyperlinks }) ?? ''))
       : [];
     const summaryRows = phase === 'complete' ? rowsOf(Str.trimEdgeNewlines(summary)) : [];
 

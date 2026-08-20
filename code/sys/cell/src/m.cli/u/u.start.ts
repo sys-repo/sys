@@ -24,12 +24,20 @@ export type StartCellArgs = {
   readonly onReady?: (input: StartCellReady) => void;
 };
 
+/** Private presentation options selected by the terminal-owning reporter. */
+export type StartCellRenderOptions = {
+  /** Optional viewport width for responsive terminal presentation. */
+  readonly width?: number;
+  /** Whether final eligible service labels should use OSC 8 hyperlinks. */
+  readonly hyperlinks?: boolean;
+};
+
 /** Service-body presentation supplied when startup reaches ready. */
 export type StartCellReady = {
   /** Stable append-only rendering at the ambient output width. */
   readonly text: string;
-  /** Re-renders the same body for an explicit viewport width. */
-  readonly render: (width?: number) => string;
+  /** Re-renders the same body for an explicit presentation context. */
+  readonly render: (options?: StartCellRenderOptions) => string;
 };
 
 /** Effect-free result from a completed Cell service start. */
@@ -78,8 +86,15 @@ export async function startCell(
     await session.ready();
 
     const services = serviceStatusesOf(started);
-    const renderServices = (width: number) => Fmt.Services.started({ services, width });
-    const render = (width?: number) => formatStartServiceBody(renderServices, width);
+    const render = (options: StartCellRenderOptions = {}) => {
+      const renderServices = (width: number) =>
+        Fmt.Services.started({
+          services,
+          width,
+          hyperlinks: options.hyperlinks,
+        });
+      return formatStartServiceBody(renderServices, options.width);
+    };
     serviceText = render();
     args.onReady?.({ text: serviceText, render });
     await Promise.race([Cell.Services.wait(started), shutdown.done]);
