@@ -405,7 +405,7 @@ describe('DistServeScreen', () => {
       const frame = DistServeScreen.toString({
         identity: dist.pkg,
         origin: 'http://127.0.0.1:49152/' as t.StringUrl,
-        dir: fixture.source as t.StringDir,
+        dir: './dist' as t.StringDir,
         manifestHref,
         authority: { kind: 'local-unpinned', integrity: fixture.integrity },
         evidence: evidence(fixture),
