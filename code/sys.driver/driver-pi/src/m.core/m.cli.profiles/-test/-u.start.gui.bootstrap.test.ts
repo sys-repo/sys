@@ -44,7 +44,7 @@ describe('@sys/driver-pi start:gui bootstrap projection', () => {
       expect(html).to.contain(APPLICATION_NAME);
       expect(html).to.not.contain(DUPLICATED_APPLICATION_NAME);
       expect(html).to.contain('font-family:sans-serif');
-      expect(html).to.contain('padding:30px');
+      expect(html).to.contain('padding:24px 30px');
       expect(html).to.contain('font-size:inherit;line-height:inherit;font-weight:700');
       expect(html).to.contain('font-size:inherit;line-height:inherit;font-weight:400');
       expect(html).to.not.contain('Driver Pi');
