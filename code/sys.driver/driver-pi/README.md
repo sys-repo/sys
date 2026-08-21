@@ -1,9 +1,7 @@
 # @sys/driver-pi
 
-A Deno launcher for running [Pi](https://pi.dev/) as a profile-driven system agent with an explicit
-launch sandbox.
-
-<p>&nbsp;</p>
+A profile-driven Deno launcher for [Pi](https://pi.dev/) with explicit runtime roots, permissions,
+and wrapper-owned tools.
 
 ## Conceptual Primitives
 
@@ -25,7 +23,34 @@ It is:
 - ↑ shell, `bash`
 - ↑ language-model (LLM)
 
-## Usage
+## CLI
+
+```sh
+# Profile-driven launcher.
+deno run -A jsr:@sys/driver-pi                     # alias to /cli
+deno run -A jsr:@sys/driver-pi/cli
+deno run -A jsr:@sys/driver-pi/cli --profile canon
+deno run -A jsr:@sys/driver-pi/cli --profile ./profiles/canon.yaml
+
+# Explicit raw upstream Pi boundary.
+deno run -A jsr:@sys/driver-pi/cli/raw -- --help
+
+# Unsafe debugging: grant the launched Pi child full authority.
+deno run -A jsr:@sys/driver-pi/cli --allow-all
+```
+
+The leading `deno run -A` authorizes the launcher itself. The trailing `--allow-all` is a launcher
+option that grants full authority to the Pi child.
+
+The equivalent `@sys/tools` wrapper delegates to the same launcher:
+
+```sh
+deno run -A jsr:@sys/tools pi
+deno run -A jsr:@sys/tools pi --profile canon
+deno run -A jsr:@sys/tools pi --allow-all
+```
+
+## Library
 
 ```ts
 import { Pi, pkg } from 'jsr:@sys/driver-pi';
@@ -34,42 +59,27 @@ import { Cli, Profiles } from 'jsr:@sys/driver-pi/cli';
 import { Raw } from 'jsr:@sys/driver-pi/cli/raw';
 ```
 
-## CLI
+## Configuration
 
-```sh
-deno run -A jsr:@sys/driver-pi                     # alias to /cli
-deno run -A jsr:@sys/driver-pi/cli
-deno run -A jsr:@sys/driver-pi/cli --profile canon
-deno run -A jsr:@sys/driver-pi/cli --profile ./profiles/canon.yaml
-deno run -A jsr:@sys/driver-pi/cli --allow-all    # unsafe debug
-deno run -A jsr:@sys/driver-pi/cli/raw -- --help  # explicit raw Pi boundary
+### Profiles
 
-# help-only Pi-Driver DSL
-deno run -ER jsr:@sys/driver-pi dsl
-deno run -ER jsr:@sys/driver-pi dsl tools ocr-pdf --format skill
+- `--profile <name|path>` loads a named profile or an explicit profile YAML file.
+- Ordinary arguments after `--` pass through to Pi unchanged; profile mode still owns prompt,
+  context, skill, and extension startup surfaces.
 
-# equivalent wrapper from @sys/tools
-deno run -A jsr:@sys/tools pi
-deno run -A jsr:@sys/tools pi --profile canon
-deno run -A jsr:@sys/tools pi dsl
-deno run -A jsr:@sys/tools pi --allow-all  # unsafe debug
-```
+### Pi-Driver DSL
 
-<p>&nbsp;</p>
+Pi-Driver includes a help-only DSL chapter book for profile, tool, and extension policy. Live
+session tools are the source of callability truth; the DSL describes durable profile edits and
+next-launch configuration.
 
-## Pi-Driver DSL
-
-Pi-Driver includes a help-only DSL chapter book for profile, tool, and extension policy. Use live
-session tools as the source of callability truth; use the DSL for durable profile edits and
-next-launch explanations.
-
-The direct command uses narrow permissions because it only reads packaged guidance:
+The direct command uses narrow permissions because it reads only packaged guidance:
 
 ```sh
 deno run -ER jsr:@sys/driver-pi dsl [chapter...] [--format human|skill]
 ```
 
-The `@sys/tools` wrapper delegates to the same Pi-Driver DSL route:
+The `@sys/tools` wrapper delegates to the same route:
 
 ```sh
 deno run -A jsr:@sys/tools pi dsl [chapter...] [--format human|skill]
@@ -78,65 +88,56 @@ deno run -A jsr:@sys/tools pi dsl [chapter...] [--format human|skill]
 Run the root command for the current chapter index. Add `--format skill` to project a chapter as
 agent-facing Markdown.
 
-<p>&nbsp;</p>
+Profile guidance starts here:
 
-## Profiles
+```sh
+deno run -ER jsr:@sys/driver-pi dsl profile
+```
 
-- `/cli` is profile-driven by default; raw upstream Pi access is explicit at `/cli/raw`.
-- `--profile <name|path>` loads a named profile or an explicit profile YAML file.
-- Ordinary arguments after `--` pass through to Pi unchanged; profile mode still owns prompt,
-  context, skill, and extension startup surfaces.
-- Agent-facing profile edit rules live in the Pi-Driver DSL:
-  `deno run -ER jsr:@sys/driver-pi dsl profile`.
-
-## OCR PDF tool
+### OCR PDF
 
 PDF OCR is disabled by default. The wrapper-owned `ocr_pdf` tool is advertised only after profile
 policy enables it and startup preflight succeeds.
 
-Agent-facing OCR profile guidance lives in the Pi-Driver DSL:
-`deno run -ER jsr:@sys/driver-pi dsl tools ocr-pdf`.
-
 Use the DSL chapter for enablement YAML, defaults, bounds, dependency preflight, install-consent
-paths, and the live-callability boundary.
+paths, and the live-callability boundary:
+
+```sh
+deno run -ER jsr:@sys/driver-pi dsl tools ocr-pdf
+```
 
 ## Upstream
 
 The workspace `deps.yaml` owns the upstream Pi npm package specifier and exact version.
-`deno task
-prep` copies that pin into the fallback used when no `deps.yaml` is discoverable.
+`deno task prep` copies that pin into the fallback used when no `deps.yaml` is discoverable.
 
 ## Runtime policy
 
-- Launches require a git repository by default and walk upward to the nearest `.git` root.
+- Launches require a Git repository by default and walk upward to the nearest `.git` root.
 - `--git-root cwd` disables ancestor walk-up and treats the current directory as the candidate root.
-- Runtime state is anchored to the resolved git root:
-  - `./.pi/agent/`
-  - `./.tmp/pi.cli/`
-  - `./.log/@sys.driver-pi/`
+- Repository-local runtime state is anchored under `./.pi/` at the resolved Git root.
 - The launcher writes wrapper-owned Pi settings to `./.pi/agent/settings.json`.
-- Default launches use scoped Deno permissions derived from cwd, runtime dirs, profile policy, and
-  explicit extras.
-- `-A` / `--allow-all` is an explicit unsafe debug mode for the launched Pi child.
-- Sandbox previews and `.log/@sys.driver-pi/*.sandbox.log.md` record the effective permission
-  posture.
-- Legacy `.log/@sys.driver-pi.pi/` reports migrate without overwriting canonical files.
+- Default launches derive scoped Deno permissions from the working directory, runtime directories,
+  profile policy, and explicit extras.
+- Launcher arguments `-A` and `--allow-all` explicitly disable child scoping for unsafe debugging.
+- Sandbox previews and `./.pi/@sys/log/@sys.driver-pi/*.sandbox.log.md` record the effective
+  permission posture.
+- Legacy `.log/@sys.driver-pi/` and `.log/@sys.driver-pi.pi/` reports migrate without overwriting
+  canonical files.
 
-Local raw bash is not a sandbox boundary. These rules are defense-in-depth around Pi launch
+Local raw bash is not a sandbox boundary. These rules provide defense in depth around Pi launch
 behavior, not complete containment.
 
-<p>&nbsp;</p>
+## References
 
-## Refs
-
-- Mario Zechner, [Pi](https://pi.dev/) creator —
-  [ref:video](https://www.youtube.com/watch?v=Dli5slNaJu0)
-- Lucas Meijer — [ref:video](https://www.youtube.com/watch?v=fdbXNWkpPMY) ("love letter to pi")
-- Mario and Armin Ronacher — [ref:video](https://www.youtube.com/watch?v=n5f51gtuGHE) ("self
-  modifying software")
-- John McCarthy, creator of Lisp —
+- Mario Zechner, creator of [Pi](https://pi.dev/) —
+  [video](https://www.youtube.com/watch?v=Dli5slNaJu0)
+- Lucas Meijer — [video](https://www.youtube.com/watch?v=fdbXNWkpPMY), “love letter to Pi”
+- Mario Zechner and Armin Ronacher — [video](https://www.youtube.com/watch?v=n5f51gtuGHE),
+  “self-modifying software”
+- John McCarthy,
   [A programming language based on speech acts](https://www-formal.stanford.edu/jmc/elephant.pdf)
   (1990)
 - Birgitta Böckeler,
-  [Harness Engineering](https://martinfowler.com/articles/harness-engineering.html) —
-  MartinFowler.com, 2026
+  [Harness Engineering](https://martinfowler.com/articles/harness-engineering.html),
+  MartinFowler.com (2026)
