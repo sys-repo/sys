@@ -8,7 +8,6 @@ import { Testing as Base } from '../m.Testing/mod.ts';
 export {
   afterAll,
   afterEach,
-  Bdd,
   beforeAll,
   beforeEach,
   describe,

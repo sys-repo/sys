@@ -5,7 +5,6 @@ export { Fs, Path } from '@sys/fs';
 export {
   afterAll,
   afterEach,
-  Bdd,
   beforeAll,
   beforeEach,
   describe,

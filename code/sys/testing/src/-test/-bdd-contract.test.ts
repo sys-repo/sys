@@ -1,4 +1,4 @@
-import { expect, Is, Obj, Path, Str, Testing } from './common.ts';
+import { expect, Is, Obj, Path, Str } from './common.ts';
 import type { t } from './common.ts';
 import { BddMarker } from './fixtures/u.bdd-markers.ts';
 import { type FixtureProcessResult, runFixtureProcess } from './u.fixture-process.ts';
@@ -169,6 +169,8 @@ Deno.test({
       const leaf = await import('@sys/types/testing');
       const std = await import('@sys/std/testing');
       const facade = await import('@sys/testing');
+      const stdServer = await import('@sys/std/testing/server');
+      const server = await import('@sys/testing/server');
       const names = [
         'describe',
         'it',
@@ -181,7 +183,8 @@ Deno.test({
       names.forEach((name) => {
         expect(std[name]).to.equal(leaf[name]);
         expect(facade[name]).to.equal(leaf[name]);
-        expect(Testing.Bdd[name]).to.equal(leaf[name]);
+        expect(stdServer[name]).to.equal(leaf[name]);
+        expect(server[name]).to.equal(leaf[name]);
       });
     });
 

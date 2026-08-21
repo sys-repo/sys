@@ -1,4 +1,15 @@
-import { describe, Err, expect, Fs, it, Rx, type t, Testing, Time } from '../../../-test.ts';
+import {
+  afterEach,
+  describe,
+  Err,
+  expect,
+  Fs,
+  it,
+  Rx,
+  type t,
+  Testing,
+  Time,
+} from '../../../-test.ts';
 import { Http } from '../../../http.client/mod.ts';
 import { HttpPull } from '../mod.ts';
 import { createStarter } from '../u/u.start.ts';
@@ -75,7 +86,7 @@ function retryStarter(resource: t.HttpPull.Resource) {
 }
 
 describe('HttpPull.start bounded operation policy', () => {
-  Testing.Bdd.afterEach(cleanupRoots);
+  afterEach(cleanupRoots);
 
   it('rejects every malformed finite bound before Rooted admission or transport', async () => {
     let admissions = 0;

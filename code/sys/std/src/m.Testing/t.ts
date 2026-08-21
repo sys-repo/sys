@@ -10,7 +10,6 @@ export namespace Testing {
    */
   export type Lib = {
     readonly FALSY: t.Falsy[];
-    readonly Bdd: t.Bdd.Lib;
     slug: t.Random.Lib['slug'];
 
     /** Wait for n-milliseconds, or a "tick" (micrso-task queue) if no delay specified. */
@@ -80,13 +79,3 @@ export type BeforeEach = BddRunner.HookRegistration;
 export type AfterAll = BddRunner.HookRegistration;
 /** Run some shared teardown after each test in the suite. */
 export type AfterEach = BddRunner.HookRegistration;
-
-export namespace Bdd {
-  /**
-   * BDD semantics ("Behavior Driven Development") helper contracts.
-   */
-  export type Lib = BddRunner.Lib & {
-    readonly expect: Expect;
-    readonly expectError: t.ExpectError;
-  };
-}

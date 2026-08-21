@@ -1,4 +1,13 @@
-import { describe, expect, expectTypeOf, Fs, it, type t, Testing } from '../../../-test.ts';
+import {
+  afterEach,
+  describe,
+  expect,
+  expectTypeOf,
+  Fs,
+  it,
+  type t,
+  Testing,
+} from '../../../-test.ts';
 import { Hash } from '../../common.ts';
 import { HttpPull } from '../mod.ts';
 import {
@@ -27,7 +36,7 @@ function asFailure(record: t.HttpPull.ResourceRecord): t.HttpPull.ResourceRecord
 }
 
 describe('HttpPull checksum-pinned resources', () => {
-  Testing.Bdd.afterEach(cleanupRoots);
+  afterEach(cleanupRoots);
 
   it('exposes start as the sole runtime surface with one canonical terminal result', async () => {
     expect(Object.keys(HttpPull)).to.eql(['start']);

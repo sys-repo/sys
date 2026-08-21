@@ -70,7 +70,6 @@ import { Signal } from '../m.Signal/m.Signal.ts';
 import { Compare } from '../m.Str/m.Compare.ts';
 import { Lorem } from '../m.Str/m.Lorem.ts';
 import { Str } from '../m.Str/m.Str.ts';
-import { Bdd } from '../m.Testing/m.Bdd.ts';
 import { Testing } from '../m.Testing/m.Testing.ts';
 import { Fake } from '../m.Testing.DomMock/m.Fake.ts';
 import { Keyboard } from '../m.Testing.DomMock/m.Keyboard.ts';
@@ -167,7 +166,6 @@ describe('namespace freeze', () => {
       ['Signal.Is', SignalIs],
       ['Str.Compare', Compare],
       ['Str.Lorem', Lorem],
-      ['Testing.Bdd', Bdd],
       ['DomMock.Fake.Media', Fake.Media],
       ['DomMock.Keyboard', Keyboard],
       ['DomMock.Mouse', Mouse],

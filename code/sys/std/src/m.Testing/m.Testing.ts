@@ -1,4 +1,4 @@
-import { Bdd, slug, type t } from './common.ts';
+import { slug, type t } from './common.ts';
 import { randomPort, retry, waitUntil } from './u.ts';
 
 /**
@@ -6,7 +6,6 @@ import { randomPort, retry, waitUntil } from './u.ts';
  */
 export const Testing: t.Testing.Lib = Object.freeze({
   FALSY: [false, 0, '', null, undefined],
-  Bdd,
   slug,
 
   /**

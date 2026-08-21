@@ -14,21 +14,12 @@ describe('Testing', () => {
     expect(m.expectTypeOf).to.equal(expectTypeOf);
   });
 
-  it('exports one BDD registration surface', async () => {
+  it('exports canonical BDD registrations directly', async () => {
     const runner = await import('@sys/types/testing');
     const facade = await import('@sys/std/testing');
+    const names = ['describe', 'it', 'beforeAll', 'beforeEach', 'afterEach', 'afterAll'] as const;
 
-    expect(Testing.Bdd.expect).to.equal(expect);
-    expect(Testing.Bdd.describe).to.equal(runner.describe);
-    expect(Testing.Bdd.it).to.equal(runner.it);
-
-    expect(Testing.Bdd.beforeAll).to.equal(runner.beforeAll);
-    expect(Testing.Bdd.afterAll).to.equal(runner.afterAll);
-    expect(Testing.Bdd.beforeEach).to.equal(runner.beforeEach);
-    expect(Testing.Bdd.afterEach).to.equal(runner.afterEach);
-
-    expect(facade.describe).to.equal(runner.describe);
-    expect(facade.it).to.equal(runner.it);
+    names.forEach((name) => expect(facade[name]).to.equal(runner[name]));
   });
 
   it('randomPort', () => {

@@ -1,6 +1,5 @@
 import { Hash } from '@sys/crypto/hash';
-import { WebFixture } from '@sys/testing/web';
-import { describe, expect, it, Json, type t, Testing } from '../../../-test.ts';
+import { describe, expect, it, Json, type t, Testing, WebFixture } from '../../../-test.ts';
 import { Fetch } from '../mod.ts';
 import { verifyChecksum } from '../u/u.checksum.ts';
 import { createInvokeFetch } from '../u/u.invoke.ts';

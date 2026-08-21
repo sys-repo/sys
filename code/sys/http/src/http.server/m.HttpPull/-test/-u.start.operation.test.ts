@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it, Rx, type t, Testing, Time } from '../../../-test.ts';
+import { afterEach, describe, expect, Fs, it, Rx, type t, Testing, Time } from '../../../-test.ts';
 import { HttpPull } from '../mod.ts';
 import {
   cleanupRoots,
@@ -40,7 +40,7 @@ function asFailure(record: t.HttpPull.ResourceRecord): t.HttpPull.ResourceRecord
 }
 
 describe('HttpPull.start cancellation and terminal ownership', () => {
-  Testing.Bdd.afterEach(cleanupRoots);
+  afterEach(cleanupRoots);
 
   it('honors a pre-aborted lifecycle before Rooted admission or transport', async () => {
     let admissions = 0;

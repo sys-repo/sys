@@ -1,5 +1,14 @@
-import { WebFixture } from '@sys/testing/web';
-import { describe, expect, it, Json, Schedule, type t, Testing, Url } from '../../../-test.ts';
+import {
+  describe,
+  expect,
+  it,
+  Json,
+  Schedule,
+  type t,
+  Testing,
+  Url,
+  WebFixture,
+} from '../../../-test.ts';
 import { Fetch } from '../mod.ts';
 import { fetchOptions } from './u.fixture.ts';
 

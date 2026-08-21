@@ -23,7 +23,6 @@
 export {
   afterAll,
   afterEach,
-  Bdd,
   beforeAll,
   beforeEach,
   describe,
