@@ -334,6 +334,7 @@ describe('DistServer.serve', () => {
       let screenArgs: Parameters<typeof DistServeScreen.create>[0] | undefined;
       let keyboardDisposals = 0;
       let screenDisposals = 0;
+      let redraws = 0;
       const opened: t.StringUrl[] = [];
       let finishKeyboard = () => {};
       const keyboardFinished = new Promise<void>((resolve) => {
@@ -374,8 +375,15 @@ describe('DistServer.serve', () => {
             },
             createScreen: (args) => {
               screenArgs = args;
+              void binding?.onKey?.(keypress('r', {
+                altKey: false,
+                ctrlKey: false,
+                metaKey: false,
+                shiftKey: false,
+              }));
               return {
                 failure: new Promise<never>(() => {}),
+                redraw: () => void (redraws += 1),
                 dispose: () => {
                   screenDisposals += 1;
                 },
@@ -416,13 +424,35 @@ describe('DistServer.serve', () => {
         expect(screenArgs.keyboard).to.eql({ enabled: true, print: true });
         expect(screenArgs.renderedAt).to.eql(dist.build.time);
 
+        const exactRedraw = {
+          altKey: false,
+          ctrlKey: false,
+          metaKey: false,
+          shiftKey: false,
+        } as const;
         await binding.onKey?.(keypress('o'));
+        await binding.onKey?.(keypress('r'));
+        await binding.onKey?.(keypress('r', { ...exactRedraw, ctrlKey: true }));
+        await binding.onKey?.(keypress('r', { ...exactRedraw, altKey: true }));
+        await binding.onKey?.(keypress('r', { ...exactRedraw, metaKey: true }));
+        await binding.onKey?.(keypress('r', { ...exactRedraw, shiftKey: true }));
+        await binding.onKey?.(keypress('R', exactRedraw));
+        await binding.onKey?.(keypress('r', exactRedraw));
         await binding.onKey?.(keypress('x'));
-        expect(opened).to.eql(['http://127.0.0.1:49152/']);
+        await binding.onKey?.(keypress('r', exactRedraw));
+        await binding.onKey?.(keypress('o'));
+        expect(opened).to.eql([
+          'http://127.0.0.1:49152/',
+          'http://127.0.0.1:49152/',
+        ]);
+        expect(redraws).to.eql(2);
+        expect(started.closeCauses).to.eql([]);
 
         await binding.onQuit();
         await running;
+        await binding.onKey?.(keypress('r', exactRedraw));
         expect(started.closeCauses).to.eql(['keyboard']);
+        expect(redraws).to.eql(2);
         expect(screenDisposals).to.eql(1);
         expect(keyboardDisposals).to.eql(1);
       } finally {
@@ -535,6 +565,7 @@ describe('DistServer.serve', () => {
         }),
         createScreen: () => ({
           failure: new Promise<never>(() => undefined),
+          redraw() {},
           dispose() {},
         }),
         isInteractive: () => true,
@@ -579,7 +610,7 @@ describe('DistServer.serve', () => {
         },
         createScreen: (args: Parameters<typeof DistServeScreen.create>[0]) => {
           screens.push(args);
-          return { failure: new Promise<never>(() => {}), dispose() {} };
+          return { failure: new Promise<never>(() => {}), redraw() {}, dispose() {} };
         },
         isInteractive: () => true,
         open: () => {},
@@ -728,6 +759,7 @@ describe('DistServer.serve', () => {
             }),
             createScreen: () => ({
               failure: new Promise<never>(() => {}),
+              redraw() {},
               dispose() {
                 screenDisposals += 1;
                 throw new Error('screen-cleanup-failed');
@@ -752,6 +784,76 @@ describe('DistServer.serve', () => {
         expect(keyboardDisposals).to.eql(2);
       } finally {
         started?.release();
+        await teardown(fixture);
+      }
+    });
+
+    it('closes on redraw failure and preserves it over presentation cleanup failure', async () => {
+      const fixture = await setup();
+      const started = createStarted(49152);
+      const keyboardFinished = Promise.withResolvers<void>();
+      const screenFailure = Promise.withResolvers<never>();
+      const cause = new Error('redraw-failed');
+      let onKey: t.Cli.Keyboard.Bind.Options['onKey'];
+      let redraws = 0;
+      let screenDisposals = 0;
+      let keyboardDisposals = 0;
+      let failed = false;
+      const effects = {
+        bindKeyboard: (options: t.Cli.Keyboard.Bind.Options) => {
+          onKey = options.onKey;
+          return {
+            finished: keyboardFinished.promise,
+            dispose() {
+              keyboardDisposals += 1;
+              keyboardFinished.resolve();
+            },
+          };
+        },
+        createScreen: () => ({
+          failure: screenFailure.promise,
+          redraw() {
+            if (failed) return;
+            failed = true;
+            redraws += 1;
+            screenFailure.reject(cause);
+          },
+          dispose() {
+            screenDisposals += 1;
+            throw new Error('screen-cleanup-failed');
+          },
+        }),
+        isInteractive: () => true,
+        open: () => {},
+        now: () => fixture.cloneDist().build.time,
+      };
+
+      try {
+        const running = runInteractiveServe(fixture, started, effects);
+        await listenerSettled();
+        if (!onKey) throw new Error('keyboard binding not acquired');
+        const redraw = keypress('r', {
+          altKey: false,
+          ctrlKey: false,
+          metaKey: false,
+          shiftKey: false,
+        });
+        await onKey(redraw);
+        await onKey(redraw);
+        const outcome = await running.then(
+          () => ({ rejected: false, cause: undefined }),
+          (error) => ({ rejected: true, cause: error }),
+        );
+
+        await onKey(redraw);
+        expect(outcome).to.eql({ rejected: true, cause });
+        expect(started.closeCauses).to.eql([cause]);
+        expect(redraws).to.eql(1);
+        expect(screenDisposals).to.eql(1);
+        expect(keyboardDisposals).to.eql(1);
+      } finally {
+        keyboardFinished.resolve();
+        started.release();
         await teardown(fixture);
       }
     });
@@ -782,6 +884,7 @@ describe('DistServer.serve', () => {
             },
             createScreen: () => ({
               failure: new Promise<never>(() => {}),
+              redraw() {},
               dispose() {
                 screenDisposals += 1;
                 throw new Error('screen-cleanup-failed');

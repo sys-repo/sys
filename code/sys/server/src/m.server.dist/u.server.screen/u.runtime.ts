@@ -18,6 +18,8 @@ type Terminal = {
 
 export type DistServeScreenReporter = {
   readonly failure: Promise<never>;
+  /** Synchronously remeasure the terminal and repaint from retained startup inputs. */
+  readonly redraw: () => void;
   readonly dispose: () => void;
 };
 
@@ -42,6 +44,7 @@ const RESIZE_REPAINT_DELAY = 50 as t.Msecs;
 const DISPOSED_REPORTER = Object.freeze(
   {
     failure: new Promise<never>(() => {}),
+    redraw() {},
     dispose() {},
   } satisfies DistServeScreenReporter,
 );
@@ -69,6 +72,8 @@ export const DistServeScreenRuntime = {
     let acquired = false;
     let observed = false;
     let pending = false;
+    let redrawing = false;
+    let resizeRevision = 0;
     let scheduleGeneration = 0;
     let acquiringSchedule: number | undefined;
     let scheduledTask: t.Cancellable | undefined;
@@ -130,6 +135,7 @@ export const DistServeScreenRuntime = {
       if (generation !== scheduleGeneration || disposed) return;
       acquiringSchedule = undefined;
       scheduledTask = undefined;
+      if (redrawing) return;
       if (events.disposed) {
         pending = false;
         return;
@@ -165,12 +171,32 @@ export const DistServeScreenRuntime = {
       schedulePending();
     };
 
+    const redraw = () => {
+      if (disposed || !acquired || redrawing || events.disposed) return;
+      redrawing = true;
+      const revision = resizeRevision;
+      try {
+        const measured = normalizeViewport(terminal.size());
+        if (disposed || !acquired || events.disposed) return;
+        if (resizeRevision === revision) viewport = measured;
+        pending = false;
+        cancelScheduled();
+        if (disposed || !acquired || events.disposed) return;
+        repaint();
+      } catch (error) {
+        fail(error);
+      } finally {
+        redrawing = false;
+      }
+    };
+
     try {
       subscription = events.resize$.subscribe((event) => {
         if (disposed) return;
         viewport = normalizeViewport(event.after);
         observed = true;
-        if (!acquired) return;
+        resizeRevision += 1;
+        if (!acquired || redrawing) return;
         try {
           requestRepaint();
         } catch (error) {
@@ -195,7 +221,7 @@ export const DistServeScreenRuntime = {
       throw error;
     }
 
-    return { failure: failed.promise, dispose: release };
+    return { failure: failed.promise, redraw, dispose: release };
   },
 } as const;
 

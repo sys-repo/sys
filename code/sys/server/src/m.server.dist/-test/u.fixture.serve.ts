@@ -1,4 +1,3 @@
-import type { Cli } from '@sys/cli';
 import { Schedule, type t } from '../../-test.ts';
 import type { Fixture } from '../../-test/u.fixture.dist.ts';
 import { verified } from '../../-test/u.fixture.dist.ts';
@@ -21,6 +20,7 @@ export type StartedController = {
 };
 
 type ServeEffects = NonNullable<Parameters<typeof serveLocalWith>[2]>;
+type KeypressEvent = Parameters<NonNullable<t.Cli.Keyboard.Bind.Options['onKey']>>[0];
 
 type StartedOptions = {
   closeFailure?: unknown;
@@ -76,7 +76,7 @@ export function createInteractiveEffects(fixture: Fixture) {
   const keyboardFinished = new Promise<void>((resolve) => {
     finishKeyboard = resolve;
   });
-  let quit: Parameters<typeof Cli.Keyboard.bind>[0]['onQuit'] | undefined;
+  let quit: t.Cli.Keyboard.Bind.Options['onQuit'];
   let keyboardDisposals = 0;
   let screenDisposals = 0;
 
@@ -93,6 +93,7 @@ export function createInteractiveEffects(fixture: Fixture) {
     },
     createScreen: () => ({
       failure: new Promise<never>(() => {}),
+      redraw() {},
       dispose() {
         screenDisposals += 1;
       },
@@ -156,10 +157,8 @@ export function createStarted(port: number, options: StartedOptions = {}): Start
   return { release, fail, closeCauses, server };
 }
 
-export function keypress(key: string) {
-  return { key } as Parameters<
-    NonNullable<Parameters<typeof Cli.Keyboard.bind>[0]['onKey']>
-  >[0];
+export function keypress(key: string, overrides: Partial<KeypressEvent> = {}) {
+  return { key, ...overrides } as KeypressEvent;
 }
 
 export async function listenerSettled() {

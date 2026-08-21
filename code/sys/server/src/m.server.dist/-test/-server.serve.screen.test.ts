@@ -199,6 +199,66 @@ describe('DistServeScreen', () => {
     }
   });
 
+  it('remeasures redraw and invalidates an older pending resize repaint', async () => {
+    const fixture = await setup();
+    try {
+      const schedule = createScheduleHarness();
+      const terminal = createTerminalHarness({
+        viewport: { width: 80, height: 24 },
+        onSize: (call) => {
+          if (call === 2) schedule.flush();
+        },
+      });
+      const screen = createReporter(fixture, terminal.deps, { schedule: schedule.schedule });
+
+      terminal.resize({ width: 44, height: 18 });
+      terminal.setViewport({ width: 96, height: 28 });
+      screen.redraw();
+
+      expect(terminal.sizeCalls).to.eql(2);
+      expect(schedule.calls).to.eql(1);
+      expect(schedule.cancelCalls).to.eql(0);
+      expect(terminal.repaints).to.have.length(2);
+      expect(text(terminal.repaints.at(-1) ?? '').split('\n')[1]).to.eql('━'.repeat(96));
+
+      schedule.flush();
+      expect(terminal.repaints).to.have.length(2);
+
+      terminal.setViewport({ width: 72, height: 22 });
+      screen.redraw();
+      expect(terminal.sizeCalls).to.eql(3);
+      expect(terminal.repaints).to.have.length(3);
+      expect(text(terminal.repaints.at(-1) ?? '').split('\n')[1]).to.eql('━'.repeat(72));
+      screen.dispose();
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
+  it('retains a newer resize observed during redraw measurement', async () => {
+    const fixture = await setup();
+    try {
+      const terminal = createTerminalHarness({
+        viewport: { width: 80, height: 24 },
+        resizeOnSize: { width: 52, height: 18 },
+        resizeOnSizeCall: 2,
+      });
+      const schedule = createScheduleHarness({ synchronous: true });
+      const screen = createReporter(fixture, terminal.deps, { schedule: schedule.schedule });
+
+      terminal.setViewport({ width: 100, height: 30 });
+      screen.redraw();
+
+      expect(terminal.sizeCalls).to.eql(2);
+      expect(schedule.calls).to.eql(0);
+      expect(terminal.repaints).to.have.length(2);
+      expect(text(terminal.repaints.at(-1) ?? '').split('\n')[1]).to.eql('━'.repeat(52));
+      screen.dispose();
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
   it('allows synchronous schedules to repaint separate resize events', async () => {
     const fixture = await setup();
     try {
@@ -228,11 +288,13 @@ describe('DistServeScreen', () => {
 
       canceled.resize({ width: 44, height: 18 });
       canceledScreen.dispose();
+      canceledScreen.redraw();
       canceledSchedule.flush();
       canceled.resize({ width: 48, height: 18 });
 
       expect(canceledSchedule.calls).to.eql(1);
       expect(canceledSchedule.cancelCalls).to.eql(1);
+      expect(canceled.sizeCalls).to.eql(1);
       expect(canceled.repaints).to.have.length(1);
       expect(canceled.disposeCalls).to.eql(1);
 
@@ -247,6 +309,55 @@ describe('DistServeScreen', () => {
 
       expect(ended.repaints).to.have.length(1);
       endedScreen.dispose();
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
+  it('routes redraw failure once through the screen failure channel', async () => {
+    const fixture = await setup();
+    try {
+      const cause = new Error('redraw-failed');
+      const terminal = createTerminalHarness({
+        disposeError: new Error('cleanup-failed'),
+        repaint: (_frame, count) => {
+          if (count === 2) throw cause;
+        },
+      });
+      const screen = createReporter(fixture, terminal.deps);
+      const failure = screen.failure.catch((error) => error);
+
+      screen.redraw();
+      screen.redraw();
+
+      expect(await failure).to.equal(cause);
+      expect(terminal.sizeCalls).to.eql(2);
+      expect(terminal.repaints).to.have.length(2);
+      expect(terminal.disposeCalls).to.eql(1);
+      screen.dispose();
+      expect(terminal.disposeCalls).to.eql(1);
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
+  it('routes redraw cancellation failure through the screen failure channel', async () => {
+    const fixture = await setup();
+    try {
+      const cause = new Error('redraw-cancel-failed');
+      const terminal = createTerminalHarness();
+      const schedule = createScheduleHarness({ cancelError: cause });
+      const screen = createReporter(fixture, terminal.deps, { schedule: schedule.schedule });
+      const failure = screen.failure.catch((error) => error);
+
+      terminal.resize({ width: 44, height: 18 });
+      screen.redraw();
+      schedule.flush();
+
+      expect(await failure).to.equal(cause);
+      expect(schedule.cancelCalls).to.eql(1);
+      expect(terminal.repaints).to.have.length(1);
+      expect(terminal.disposeCalls).to.eql(1);
     } finally {
       await teardown(fixture);
     }
@@ -301,7 +412,9 @@ describe('DistServeScreen', () => {
       const schedule = createScheduleHarness();
       const screen = createReporter(fixture, terminal.deps, { schedule: schedule.schedule });
 
+      screen.redraw();
       screen.dispose();
+      screen.redraw();
       expect(schedule.calls).to.eql(0);
       expect(terminal.sizeCalls).to.eql(0);
       expect(terminal.repaints).to.eql([]);

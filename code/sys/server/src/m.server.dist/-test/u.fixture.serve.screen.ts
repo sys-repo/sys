@@ -20,6 +20,8 @@ type ReporterOptions = {
 type TerminalOptions = {
   viewport?: t.Cli.Screen.Size;
   resizeOnSize?: t.Cli.Screen.Size;
+  resizeOnSizeCall?: number;
+  onSize?: (call: number) => void;
   disposed?: boolean;
   disposeError?: unknown;
   repaint?: (frame: string, count: number) => void;
@@ -91,10 +93,13 @@ export function createTerminalHarness(options: TerminalOptions = {}) {
     size() {
       const measured = { ...viewport };
       sizeCalls += 1;
-      if (sizeCalls === 1 && options.resizeOnSize) {
+      options.onSize?.(sizeCalls);
+      if (sizeCalls === (options.resizeOnSizeCall ?? 1) && options.resizeOnSize) {
+        const before = viewport;
+        viewport = { ...options.resizeOnSize };
         resize$$.next({
           kind: 'size:changed',
-          before: measured,
+          before,
           after: { ...options.resizeOnSize },
         });
       }
@@ -123,6 +128,9 @@ export function createTerminalHarness(options: TerminalOptions = {}) {
       const before = viewport;
       viewport = { ...after };
       resize$$.next({ kind: 'size:changed', before, after });
+    },
+    setViewport(next: t.Cli.Screen.Size) {
+      viewport = { ...next };
     },
     get until() {
       return until;
