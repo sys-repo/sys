@@ -1,5 +1,4 @@
-import { HashFmt } from '@sys/crypto/fmt';
-import { clipLine, clipText } from '../../m.fmt/u.ts';
+import { clipLine, clipText, digest } from '../../m.fmt/u.ts';
 import { c, Cli, stripAnsi, type t, Time } from '../common.ts';
 
 type OutputLine = t.ViteScreen.Output.Line;
@@ -45,22 +44,14 @@ export const ViteScreenLayout = {
     return `${indent}${clipText(source, valueWidth)}`;
   },
 
-  distSuffix(
-    dist: t.DistPkg | undefined,
-    manifestHref: URL | undefined,
-    renderedAt: t.UnixTimestamp,
-  ) {
-    return (maxWidth: number) => {
+  distSuffix(dist: t.DistPkg | undefined, renderedAt: t.UnixTimestamp) {
+    return (max: number) => {
       if (!dist) return '';
       const age = c.dim(c.gray(`· ${Time.elapsed(dist.build.time, renderedAt)}`));
-      const arrow = c.green('←');
-      const reserve = Cli.Fmt.Text.Width.measure(`${arrow}  ${age}`);
-      const digest = HashFmt.digest(dist.hash.digest, {
-        maxWidth: Math.max(0, maxWidth - reserve),
-      });
-      if (!digest) return '';
-      const linked = manifestHref ? Cli.Fmt.hyperlink(digest, manifestHref) : digest;
-      return `${arrow} ${linked} ${age}`;
+      const reserve = Cli.Fmt.Text.Width.measure(` ${age}`);
+      const maxWidth = Math.max(0, max - reserve);
+      const value = digest(dist.hash.digest, { maxWidth });
+      return value ? `${value} ${age}` : '';
     };
   },
 

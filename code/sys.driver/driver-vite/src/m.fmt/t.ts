@@ -24,8 +24,8 @@ export declare namespace ViteLog {
     /** Helper for padding an output string. */
     pad(text: string, pad?: boolean): string;
 
-    /** Format the digest-hash. */
-    digest(hash?: t.StringHash): string;
+    /** Format a Dist digest. */
+    digest(hash?: t.StringHash, options?: Digest.Options): string;
 
     /** Format elapsed build/dev timing for CLI surfaces. */
     elapsed(msec?: t.Msecs): string;
@@ -58,6 +58,17 @@ export declare namespace ViteLog {
   }
 
   /**
+   * Dist digest presentation.
+   */
+  export namespace Digest {
+    /** Optional digest presentation settings. */
+    export type Options = {
+      /** Maximum width of the complete arrow-and-digest value. */
+      maxWidth?: number;
+    };
+  }
+
+  /**
    * Log bundled distribution details.
    */
   export namespace Bundle {
@@ -81,6 +92,8 @@ export declare namespace ViteLog {
       pkg?: t.Pkg;
       pkgSize?: t.NumberBytes;
       hash?: t.StringHash;
+      /** Manifest file to navigate from successful bundle output. */
+      manifestUrl?: URL;
       elapsed?: t.Msecs;
       /** Maximum rendered line width for terminal-safe presentation. */
       width?: number;

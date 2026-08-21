@@ -1,6 +1,8 @@
 import { c, Cli, HashFmt, Is, stripAnsi, type t, Time } from './common.ts';
 
 const MINUTE = 60_000;
+const DIGEST_ARROW = c.green('←');
+const DIGEST_PREFIX_WIDTH = Cli.Fmt.Text.Width.measure(`${DIGEST_ARROW} `);
 
 type MetadataRowArgs = {
   label: string;
@@ -12,10 +14,14 @@ type MetadataRowArgs = {
   suffix?: (maxWidth: number) => string;
 };
 
-export const digest: t.ViteLog.Lib['digest'] = (hash?: t.StringHash) => {
+export const digest: t.ViteLog.Lib['digest'] = (hash, options = {}) => {
   if (!hash) return '';
-  const uri = HashFmt.digest(hash);
-  return `${c.green('←')} ${uri}`;
+
+  const maxWidth = Is.num(options.maxWidth)
+    ? reserveWidth(options.maxWidth, DIGEST_PREFIX_WIDTH)
+    : undefined;
+  const uri = HashFmt.digest(hash, { maxWidth });
+  return uri ? `${DIGEST_ARROW} ${uri}` : '';
 };
 
 export const elapsed: t.ViteLog.Lib['elapsed'] = (msec) => {

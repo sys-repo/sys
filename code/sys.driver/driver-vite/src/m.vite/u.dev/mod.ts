@@ -106,18 +106,16 @@ export async function devWithDeps(input: t.Vite.Dev.Args, deps: t.ViteDevDeps = 
   } catch (cause) {
     throw startupError({ cwd, requestedPort: preferredPort, strictPort, cause });
   }
+  const manifestPath = Path.resolve(paths.cwd, paths.app.outDir, 'dist.json');
   const manifest = await Perf.measure(
     'dev.parent.dist',
-    async () => await loadDist(Path.resolve('./dist/dist.json')),
+    async () => await loadDist(manifestPath),
     {
       cwd,
     },
     { level: 2 },
   );
   const { dist } = manifest;
-  const manifestHref = parentOwnsOutput && dist
-    ? Path.toFileUrl(Path.resolve(manifest.path))
-    : undefined;
 
   const requestedUrl = `http://localhost:${requestedPort}/`;
   let resolvedUrl = requestedUrl;
@@ -221,7 +219,6 @@ export async function devWithDeps(input: t.Vite.Dev.Args, deps: t.ViteDevDeps = 
       ? createScreen({
         identity,
         dist,
-        manifestHref,
         paths,
         url: () => resolvedUrl,
         output,

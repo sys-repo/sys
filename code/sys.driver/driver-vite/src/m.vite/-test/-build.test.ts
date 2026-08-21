@@ -1,10 +1,13 @@
 import { Hash } from '@sys/crypto/hash';
 import {
   c,
+  Cli,
   describe,
   expect,
   Fs,
+  HashFmt,
   it,
+  Path,
   pkg,
   SAMPLE,
   stripAnsi,
@@ -104,6 +107,11 @@ describe('Vite.build', () => {
       const { paths } = res;
       const outDir = Fs.resolve(paths.cwd, paths.app.outDir);
       const distPath = Fs.join(outDir, 'dist.json');
+      const manifestUrl = Path.toFileUrl(distPath);
+      const digest = HashFmt.digest(res.dist.hash.digest);
+      const output = res.toString({ width: 500 });
+      expect(output).to.include(Cli.Fmt.hyperlink('dist.json', manifestUrl));
+      expect(output).to.not.include(Cli.Fmt.hyperlink(digest, manifestUrl));
       const json = await Fs.readJson<t.DistPkg>(distPath);
       const manifest = await Fs.read(distPath);
       const html = await readFile(Fs.join(outDir, 'index.html'));
@@ -165,6 +173,74 @@ describe('Vite.build', () => {
       expect(text.some(hasExplicitResourceManagementSyntax)).to.eql(false);
       expect(text.some((source) => source.includes('Object is not disposable.'))).to.eql(true);
     });
+  });
+
+  it('keeps a retained build digest unlinked after its output is replaced', async () => {
+    const fs = await SAMPLE.fs('Vite.build retained output');
+    const cwd = fs.join('fixture');
+    await Fs.copy(SAMPLE.Dirs.sample1, cwd);
+    const restore = await writeLocalFixtureImports(cwd);
+    const paths = { cwd, app: { entry: 'index.html', outDir: 'dist', base: './' } } as const;
+    const build = async () => {
+      return await Vite.build({
+        cwd,
+        paths,
+        pkg,
+        silent: true,
+        spinner: false,
+        exitOnError: false,
+      });
+    };
+
+    try {
+      const first = await build();
+      const source = (await Fs.readText(Fs.join(cwd, 'main.tsx'))).data ?? '';
+      await Fs.write(Fs.join(cwd, 'main.tsx'), `${source}\nconsole.info('revision-b');\n`);
+      const second = await build();
+      const manifestUrl = Path.toFileUrl(Fs.join(cwd, 'dist', 'dist.json'));
+      const firstDigest = HashFmt.digest(first.dist.hash.digest);
+      const firstOutput = first.toString({ width: 500 });
+
+      expect(first.ok).to.eql(true);
+      expect(second.ok).to.eql(true);
+      expect(first.dist.hash.digest).to.not.eql(second.dist.hash.digest);
+      expect(firstOutput).to.include(Cli.Fmt.hyperlink('dist.json', manifestUrl));
+      expect(stripAnsi(firstOutput)).to.include(`← ${stripAnsi(firstDigest)}`);
+      expect(firstOutput).to.not.include(Cli.Fmt.hyperlink(firstDigest, manifestUrl));
+    } finally {
+      await restore();
+    }
+  });
+
+  it('does not link an actual failed build', async () => {
+    const fs = await SAMPLE.fs('Vite.build failure output');
+    const cwd = fs.join('fixture');
+    await Fs.copy(SAMPLE.Dirs.sample1, cwd);
+    const restore = await writeLocalFixtureImports(cwd);
+    const paths = { cwd, app: { entry: 'index.html', outDir: 'dist', base: './' } } as const;
+
+    try {
+      await Fs.write(
+        Fs.join(cwd, 'index.html'),
+        '<script type="module" src="./missing.ts"></script>',
+      );
+      const res = await Vite.build({
+        cwd,
+        paths,
+        pkg,
+        silent: true,
+        spinner: false,
+        exitOnError: false,
+      });
+      const output = res.toString({ width: 80 });
+
+      expect(res.ok).to.eql(false);
+      expectBounded(output, 80);
+      expect(output).to.not.include('\x1b]8;;');
+      expect(stripAnsi(output)).to.include('Bundle');
+    } finally {
+      await restore();
+    }
   });
 });
 

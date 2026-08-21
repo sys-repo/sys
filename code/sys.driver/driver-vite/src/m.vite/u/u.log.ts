@@ -52,7 +52,7 @@ ${c.brightGreen(`entry:    ${wrangle.fmtPath(input)}`)}
       ].join('\n').trimEnd();
     },
     toString(args: BuildArgs) {
-      const { ok, stdio, dirs, pkg, pkgSize, hash, totalSize, elapsed, width } = args;
+      const { ok, stdio, dirs, pkg, pkgSize, hash, manifestUrl, totalSize, elapsed, width } = args;
       const bundle = ViteLog.Bundle.toString({
         ok,
         dirs,
@@ -60,6 +60,7 @@ ${c.brightGreen(`entry:    ${wrangle.fmtPath(input)}`)}
         pkg,
         pkgSize,
         hash,
+        manifestUrl,
         elapsed,
         width,
       });

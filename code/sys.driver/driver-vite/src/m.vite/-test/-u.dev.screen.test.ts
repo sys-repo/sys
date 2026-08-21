@@ -1,5 +1,4 @@
-import { HashFmt } from '@sys/crypto/fmt';
-import { c, Cli, describe, expect, it, Path, stripAnsi, type t, Time } from '../../-test.ts';
+import { c, Cli, describe, expect, it, stripAnsi, type t, Time } from '../../-test.ts';
 import { DevOutputLog } from '../u.dev/u.output.ts';
 import { DevScreen } from '../u.dev/u.screen.ts';
 import { paths, pkg, processEvent } from './u.fixture.dev.ts';
@@ -358,8 +357,7 @@ describe('DevScreen', () => {
       }
     });
 
-    it('qualifies and wholly links every visible digest variant with build age', () => {
-      const manifestHref = Path.toFileUrl(Path.resolve('vite digest #1/dist.json'));
+    it('qualifies every visible digest variant with build age', () => {
       const outputLine = (width: number, includeDist = true) => {
         const basePaths = paths();
         const customPaths = {
@@ -369,7 +367,6 @@ describe('DevScreen', () => {
         const raw = DevScreen.toString({
           identity: pkg(),
           dist: includeDist ? dist() : undefined,
-          manifestHref,
           paths: customPaths,
           url: 'http://x:1/',
           lines: [],
@@ -388,20 +385,11 @@ describe('DevScreen', () => {
       const missing = stripAnsi(outputLine(60, false));
 
       expect(full).to.include('dist/ ← digest:sha256:#ccd11 · 3d');
-      expect(fullRaw).to.include(
-        Cli.Fmt.hyperlink(HashFmt.digest(HASH, { maxWidth: 20 }), manifestHref),
-      );
       expect(fullRaw).to.include(c.dim(c.gray('· 3d')));
       expect(algorithm).to.include('dist/ ← sha256:#ccd11 · 3d');
       expect(algorithm).to.not.include('digest:');
-      expect(algorithmRaw).to.include(
-        Cli.Fmt.hyperlink(HashFmt.digest(HASH, { maxWidth: 13 }), manifestHref),
-      );
       expect(short).to.include('dist/ ← #ccd11 · 3d');
       expect(short).to.not.include('sha256');
-      expect(shortRaw).to.include(
-        Cli.Fmt.hyperlink(HashFmt.digest(HASH, { maxWidth: 6 }), manifestHref),
-      );
       expect(none).to.include('output   dist/');
       expect(none).to.not.include('←');
       expect(missing).to.include('output   dist/');
@@ -411,33 +399,6 @@ describe('DevScreen', () => {
       expect(Cli.Fmt.Text.Width.measure(algorithm) <= 44).to.eql(true);
       expect(Cli.Fmt.Text.Width.measure(short) <= 37).to.eql(true);
       expect(Cli.Fmt.Text.Width.measure(none) <= 31).to.eql(true);
-    });
-
-    it('links only digest labels to the supplied manifest in startup and ready frames', () => {
-      const manifestHref = Path.toFileUrl(Path.resolve('vite digest #1/dist.json'));
-      const digest = HashFmt.digest(HASH);
-      const link = Cli.Fmt.hyperlink(digest, manifestHref);
-      const args = {
-        identity: pkg(),
-        dist: dist(),
-        manifestHref,
-        paths: paths(),
-        url: 'http://localhost:1234/',
-        lines: [],
-        ...frame(80),
-      };
-      const frames = [
-        DevScreen.startupToString({ ...args, spinner: '⠋' }),
-        DevScreen.toString(args),
-      ];
-
-      expect(manifestHref.protocol).to.eql('file:');
-      expect(manifestHref.hash).to.eql('');
-      expect(manifestHref.href).to.include('vite%20digest%20%231/dist.json');
-      for (const frame of frames) {
-        expect(frame).to.include(`${c.green('←')} ${link} ${c.dim(c.gray('· 3d'))}`);
-        expect(stripAnsi(link)).to.eql('digest:sha256:#ccd11');
-      }
     });
 
     it('clips renderer-stamped log rows to available cells without wrapping', () => {

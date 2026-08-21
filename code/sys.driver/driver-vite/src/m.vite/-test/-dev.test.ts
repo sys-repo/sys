@@ -91,14 +91,51 @@ describe('Vite.dev', () => {
     try {
       expect(screenArgs).to.have.length(1);
       expect(screenArgs[0]?.identity).to.eql({ root: pkg, subpath: 'ui/preview' });
-      expect(screenArgs[0]?.manifestHref?.href).to.eql(
-        Fs.Path.toFileUrl(Fs.Path.resolve(manifestPath)).href,
-      );
-      expect(screenArgs[0]?.manifestHref?.protocol).to.eql('file:');
-      expect(screenArgs[0]?.manifestHref?.hash).to.eql('');
-      expect(screenArgs[0]?.manifestHref?.href).to.include('vite%20manifest%20%231/dist.json');
+      expect(screenArgs[0]).to.not.have.property('manifestUrl');
       expect(screenArgs[0]).to.not.have.property('pkg');
       expect(screenArgs[0]).to.not.have.property('pkgSubpath');
+    } finally {
+      await server.dispose();
+    }
+  });
+
+  it('loads the screen digest from its declared output directory', async () => {
+    const pkg = { name: '@sys/example', version: '1.2.3' } as const;
+    const paths = {
+      cwd: '/tmp/vite-dev-output-authority' as t.StringAbsoluteDir,
+      app: { entry: 'src/index.html', outDir: 'custom-output', base: './' },
+    } as const;
+    const manifestPath = Fs.resolve(paths.cwd, paths.app.outDir, 'dist.json');
+    const loadedPaths: string[] = [];
+    const screenArgs: Parameters<NonNullable<ViteDevDeps['createScreen']>>[0][] = [];
+    const server = await devWithDeps(
+      { pkg, paths, port: 49152, reporter: 'screen' },
+      {
+        ...createDevStartupFixtures(),
+        loadDist: (path) => {
+          loadedPaths.push(path);
+          return Promise.resolve({
+            exists: true,
+            kind: 'canonical' as const,
+            path,
+            dist: {
+              build: { time: 1 },
+              hash: { digest: 'sha256-output-authority', parts: {} },
+            } as t.DistPkg,
+          });
+        },
+        waitForHttp: waitForHttpReady,
+        createScreen: (args) => {
+          screenArgs.push(args);
+          return { outputChanged() {}, ready() {}, redraw() {}, dispose() {} };
+        },
+      },
+    );
+
+    try {
+      expect(loadedPaths).to.eql([manifestPath]);
+      expect(screenArgs[0]?.dist?.hash.digest).to.eql('sha256-output-authority');
+      expect(screenArgs[0]).to.not.have.property('manifestUrl');
     } finally {
       await server.dispose();
     }

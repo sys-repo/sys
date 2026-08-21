@@ -5,6 +5,7 @@ import {
   digest,
   elapsed,
   hashValue,
+  metadataRow,
   outputWidth,
   pad,
   reserveWidth,
@@ -23,7 +24,7 @@ export const Bundle: t.ViteLog.Bundle.Lib = {
     const input = Path.trimCwd(dirs.in) || './';
     const outDir = Path.trimCwd(dirs.out);
     const fmtElapsed = elapsed(args.elapsed);
-    const tx = digest(hash);
+    const manifestUrl = ok ? args.manifestUrl : undefined;
     const lines = [
       wrangle.clip(
         `${titleColor(c.bold('Bundle'))}    ${titleColor(size)} ${c.gray(`(${fmtElapsed})`)}`,
@@ -31,7 +32,13 @@ export const Bundle: t.ViteLog.Bundle.Lib = {
       ),
       wrangle.row('pkg:', pkg ? wrangle.pkg(pkg, args.pkgSize, width) : '', width),
       wrangle.row('in:', clean(input), width),
-      wrangle.row('out:', `${clean(outDir)}/dist.json ${tx}`.trim(), width),
+      metadataRow({
+        label: 'out:',
+        value: wrangle.manifest(clean(outDir), manifestUrl),
+        width,
+        labelWidth: 10,
+        suffix: (maxWidth) => digest(hash, { maxWidth }),
+      }),
     ];
 
     if (hash) lines.push(wrangle.row('', hashValue(hash, wrangle.valueWidth(width)), width));
@@ -45,6 +52,11 @@ export const Bundle: t.ViteLog.Bundle.Lib = {
  */
 const wrangle = {
   width: outputWidth,
+
+  manifest(outDir: string, manifestUrl: URL | undefined) {
+    const filename = manifestUrl ? Cli.Fmt.hyperlink('dist.json', manifestUrl) : 'dist.json';
+    return `${outDir ? `${outDir}/` : '/'}${filename}`;
+  },
 
   row(label: string, value: string, width: number) {
     const prefix = c.gray(label.padEnd(10, ' '));

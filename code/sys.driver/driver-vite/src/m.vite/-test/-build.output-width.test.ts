@@ -1,4 +1,4 @@
-import { c, describe, expect, it, stripAnsi } from '../../-test/common.ts';
+import { c, Cli, describe, expect, HashFmt, it, Path, stripAnsi } from '../../-test/common.ts';
 import { ViteLog } from '../../m.fmt/mod.ts';
 import { Log } from '../u/u.log.ts';
 
@@ -51,6 +51,62 @@ describe('Vite.build output formatting', () => {
 
     expectBounded(paths, 8);
     expectBounded(bundle, 8);
+  });
+
+  it('links the bundle manifest label without linking its digest', () => {
+    const manifestUrl = Path.toFileUrl(Path.resolve('bundle digest #1/dist.json'));
+    const text = ViteLog.Bundle.toString({
+      ok: true,
+      dirs: { in: './src/index.html', out: './dist' },
+      totalSize: 2_350_000,
+      hash,
+      manifestUrl,
+      elapsed: 4_000,
+      width: 80,
+    });
+    const digest = HashFmt.digest(hash);
+
+    expect(text).to.include(Cli.Fmt.hyperlink('dist.json', manifestUrl));
+    expect(text).to.not.include(Cli.Fmt.hyperlink(digest, manifestUrl));
+    expect(stripAnsi(text)).to.include(`dist/dist.json ← ${stripAnsi(digest)}`);
+    expect(manifestUrl.protocol).to.eql('file:');
+    expect(manifestUrl.hash).to.eql('');
+    expect(manifestUrl.href).to.include('bundle%20digest%20%231/dist.json');
+  });
+
+  it('keeps compact bundle digests beside their linked manifest label', () => {
+    const manifestUrl = Path.toFileUrl(Path.resolve('bundle digest #1/dist.json'));
+    const text = ViteLog.Bundle.toString({
+      ok: true,
+      dirs: { in: './src/index.html', out: './dist' },
+      totalSize: 2_350_000,
+      hash,
+      manifestUrl,
+      elapsed: 4_000,
+      width: 40,
+    });
+    const compact = HashFmt.digest(hash, { maxWidth: 13 });
+
+    expectBounded(text, 40);
+    expect(text).to.include(Cli.Fmt.hyperlink('dist.json', manifestUrl));
+    expect(text).to.not.include(Cli.Fmt.hyperlink(compact, manifestUrl));
+    expect(stripAnsi(text)).to.include('dist/dist.json ← sha256:#ccd11');
+  });
+
+  it('does not link a failed bundle manifest', () => {
+    const text = ViteLog.Bundle.toString({
+      ok: false,
+      dirs: { in: './src/index.html', out: './dist' },
+      totalSize: 2_350_000,
+      hash,
+      manifestUrl: Path.toFileUrl(Path.resolve('bundle digest #1/dist.json')),
+      elapsed: 4_000,
+      width: 80,
+    });
+
+    expectBounded(text, 80);
+    expect(text).to.not.include('\x1b]8;;');
+    expect(stripAnsi(text)).to.include('dist/dist.json ← digest:sha256:#ccd11');
   });
 
   it('keeps bundle summary rows within the requested width', () => {
