@@ -651,6 +651,43 @@ describe('@sys/driver-pi start:gui screen', () => {
     expect(evidenceRows.join('\n')).to.not.contain('…');
   });
 
+  it('guides only an occupied refused cache through reset and a fresh launch', () => {
+    const render = (state: BootState) =>
+      Cli.stripAnsi(StartGuiScreen.toString({
+        service: SERVICE,
+        url: CAPABILITY,
+        state,
+        keyboard: false,
+        openWarning: false,
+        viewport: { width: 120, height: 14 },
+      }));
+    const occupied = render(Boot.failed(
+      'repair-required',
+      Object.freeze({
+        kind: 'materialization',
+        stage: 'existing-verification',
+        reason: 'verification-failure',
+        cleanup: 'not-needed',
+        publication: 'occupied',
+      }),
+    ));
+    const committed = render(Boot.failed(
+      'artifact-refused',
+      Object.freeze({
+        kind: 'materialization',
+        stage: 'existing-verification',
+        reason: 'verification-failure',
+        cleanup: 'not-needed',
+        publication: 'committed',
+      }),
+    ));
+
+    expect(occupied).to.contain(
+      'The cache was refused and retained. Run deno task reset, then launch a fresh session.',
+    );
+    expect(committed).to.not.contain('Run deno task reset');
+  });
+
   it('reports failed when synchronous measurement reentrantly fails resize ownership', async () => {
     let resize: ((size: t.Cli.Screen.Size) => void) | undefined;
     let releases = 0;

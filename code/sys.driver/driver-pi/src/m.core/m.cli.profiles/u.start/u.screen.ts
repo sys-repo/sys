@@ -333,6 +333,10 @@ export const StartGuiScreen = {
         'evidence',
         { kind: 'evidence', items: evidenceItems(input.state.safeEvidence) },
       ]);
+      const guidance = failureGuidance(input.state);
+      if (guidance) {
+        StartGuiIntrinsic.arrayPush(facts, ['guidance', { kind: 'title', text: guidance }]);
+      }
     }
     if (input.openWarning) {
       StartGuiIntrinsic.arrayPush(facts, [
@@ -576,6 +580,13 @@ function stateText(state: BootState): string {
     case 'stopping':
       return 'stopping';
   }
+}
+
+function failureGuidance(
+  state: Extract<BootState, { readonly kind: 'failed' }>,
+): string | undefined {
+  if (state.category !== 'repair-required') return;
+  return 'The cache was refused and retained. Run deno task reset, then launch a fresh session.';
 }
 
 function evidenceItems(evidence: BootSafeEvidence): readonly string[] {
