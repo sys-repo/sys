@@ -83,7 +83,7 @@ describe('Vite.dev', () => {
         waitForHttp: waitForHttpReady,
         createScreen: (args) => {
           screenArgs.push(args);
-          return { outputChanged() {}, ready() {}, dispose() {} };
+          return { outputChanged() {}, ready() {}, redraw() {}, dispose() {} };
         },
       },
     );
@@ -101,6 +101,50 @@ describe('Vite.dev', () => {
       expect(screenArgs[0]).to.not.have.property('pkgSubpath');
     } finally {
       await server.dispose();
+    }
+  });
+
+  it('passes a redraw adapter only for an acquired ready screen', async () => {
+    const pkg = { name: '@sys/example', version: '1.2.3' } as const;
+    const paths = {
+      cwd: '/tmp/vite-dev-redraw' as t.StringAbsoluteDir,
+      app: { entry: 'src/index.html', outDir: 'dist', base: './' },
+    } as const;
+
+    for (const reporter of ['screen', 'raw'] as const) {
+      const events: string[] = [];
+      const keyboardArgs: Parameters<NonNullable<ViteDevDeps['keyboardFactory']>>[0][] = [];
+      const server = await devWithDeps(
+        { pkg, paths, port: 49152, reporter, silent: reporter === 'raw' },
+        {
+          ...createDevStartupFixtures(),
+          waitForHttp: waitForHttpReady,
+          createScreen: () => ({
+            outputChanged() {},
+            ready: () => void events.push('ready'),
+            redraw: () => void events.push('redraw'),
+            dispose: () => void events.push('dispose'),
+          }),
+          keyboardFactory: (args) => {
+            keyboardArgs.push(args);
+            return async () => {};
+          },
+        },
+      );
+
+      try {
+        expect(keyboardArgs).to.have.length(1);
+        if (reporter === 'screen') {
+          expect(events).to.eql(['ready']);
+          keyboardArgs[0]?.redraw?.();
+          expect(events).to.eql(['ready', 'redraw']);
+        } else {
+          expect(keyboardArgs[0]).to.not.have.property('redraw');
+          expect(events).to.eql([]);
+        }
+      } finally {
+        await server.dispose();
+      }
     }
   });
 
@@ -142,7 +186,7 @@ describe('Vite.dev', () => {
         waitForHttp: waitForHttpReady,
         createScreen: () => {
           screens += 1;
-          return { outputChanged() {}, ready() {}, dispose() {} };
+          return { outputChanged() {}, ready() {}, redraw() {}, dispose() {} };
         },
       });
 

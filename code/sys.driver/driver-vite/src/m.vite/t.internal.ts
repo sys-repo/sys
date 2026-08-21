@@ -6,6 +6,7 @@ export type * from '../common/t.ts';
 export type ViteDevDeps = {
   waitForHttp?: typeof import('@sys/http/server').Http.Client.waitFor;
   createScreen?: (args: ViteDev.Screen.Runtime.CreateArgs) => ViteDev.Screen.Reporter;
+  keyboardFactory?: typeof import('./u/u.keyboard.ts').keyboardFactory;
   spawn?: typeof import('@sys/process').Process.spawn;
   loadDist?: typeof import('@sys/fs').Pkg.Dist.load;
   command?: typeof import('./u/u.wrangle.ts').Wrangle.command;
@@ -63,6 +64,8 @@ export declare namespace ViteDev {
     export type Reporter = {
       readonly outputChanged: () => void;
       readonly ready: () => void;
+      /** Synchronously remeasure and repaint the retained ready-screen state. */
+      readonly redraw: () => void;
       readonly dispose: () => void;
     };
 

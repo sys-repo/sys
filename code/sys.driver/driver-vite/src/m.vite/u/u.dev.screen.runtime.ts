@@ -12,6 +12,7 @@ const DISPOSED_REPORTER = Object.freeze(
   {
     outputChanged() {},
     ready() {},
+    redraw() {},
     dispose() {},
   } satisfies t.ViteDev.Screen.Reporter,
 );
@@ -58,6 +59,8 @@ export const DevScreenRuntime = {
     let viewport: t.Cli.Screen.Size = { width: 0, height: 0 };
     let hasViewport = false;
     let acquired = false;
+    let resizeRevision = 0;
+    let redrawing = false;
 
     const frameArgs = (): t.ViteDev.Screen.Frame.Args => ({
       identity,
@@ -156,7 +159,7 @@ export const DevScreenRuntime = {
       let task: t.Cancellable;
       try {
         task = schedule(() => {
-          if (generation !== scheduleGeneration) return;
+          if (generation !== scheduleGeneration || redrawing) return;
           acquiringSchedule = undefined;
           scheduledTask = undefined;
           flushPending();
@@ -178,7 +181,7 @@ export const DevScreenRuntime = {
     const request = (kind: Invalidation) => {
       if (phase === 'disposed') return;
       mergePending(kind);
-      schedulePending();
+      if (!redrawing) schedulePending();
     };
 
     const unsubscribeResize = () => {
@@ -195,6 +198,7 @@ export const DevScreenRuntime = {
 
     try {
       resizeSubscription = screenEvents.resize$.subscribe((event) => {
+        resizeRevision += 1;
         viewport = { ...event.after };
         hasViewport = true;
         if (acquired) request('layout');
@@ -224,6 +228,27 @@ export const DevScreenRuntime = {
         if (phase !== 'startup') return;
         phase = 'ready';
         runCleanup([discardPending, stopSpinner, renderReady]);
+      },
+
+      redraw() {
+        if (phase !== 'ready' || redrawing) return;
+        redrawing = true;
+        let completed = false;
+        try {
+          const revision = resizeRevision;
+          const measured = terminal.size();
+          if (phase !== 'ready') return;
+          if (revision === resizeRevision) {
+            viewport = { ...measured };
+            hasViewport = true;
+          }
+          discardPending();
+          renderReady();
+          completed = true;
+        } finally {
+          redrawing = false;
+          if (completed && phase === 'ready' && pending) schedulePending();
+        }
       },
 
       dispose() {

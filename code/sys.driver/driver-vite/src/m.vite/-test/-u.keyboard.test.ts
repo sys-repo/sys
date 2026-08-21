@@ -36,6 +36,99 @@ describe('Vite.dev keyboard', () => {
     expect(events).to.eql(['open:http://localhost:1234/']);
   });
 
+  it('admits canonical redraw without changing open or quit controls', async () => {
+    const events: string[] = [];
+    const exact = {
+      key: 'r',
+      ctrlKey: false,
+      altKey: false,
+      metaKey: false,
+      shiftKey: false,
+    } as const;
+    const keyboard = keyboardFactory({
+      cwd: '/tmp/pkg',
+      url: 'http://localhost:1234',
+      redraw: () => events.push('redraw'),
+      dispose: async () => void events.push('dispose'),
+    }, {
+      keypress: () =>
+        keypress([
+          { key: 'o' },
+          { ...exact, key: 'R' },
+          { ...exact, ctrlKey: true },
+          { ...exact, altKey: true },
+          { ...exact, metaKey: true },
+          { ...exact, shiftKey: true },
+          { key: 'r' },
+          exact,
+          { key: 'o' },
+          { key: 'q' },
+        ]),
+      open: () => events.push('open'),
+      exit: (code) => events.push(`exit:${code}`),
+    });
+
+    await keyboard();
+    expect(events).to.eql(['open', 'redraw', 'open', 'dispose', 'exit:0']);
+  });
+
+  it('preserves redraw failure over lifecycle cleanup failure', async () => {
+    const redrawFailure = new Error('ENOTTY redraw failed');
+    let thrown: unknown;
+    let disposals = 0;
+    const keyboard = keyboardFactory({
+      cwd: '/tmp/pkg',
+      url: 'http://localhost:1234',
+      redraw: () => {
+        throw redrawFailure;
+      },
+      dispose: () => {
+        disposals += 1;
+        throw new Error('dispose-failed');
+      },
+    }, {
+      keypress: () =>
+        keypress([{
+          key: 'r',
+          ctrlKey: false,
+          altKey: false,
+          metaKey: false,
+          shiftKey: false,
+        }]),
+      exit: () => {
+        throw new Error('redraw failure must not exit');
+      },
+    });
+
+    try {
+      await keyboard();
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(thrown).to.equal(redrawFailure);
+    expect(disposals).to.eql(1);
+  });
+
+  it('keeps redraw inert when no screen adapter exists', async () => {
+    const keyboard = keyboardFactory({
+      cwd: '/tmp/pkg',
+      url: 'http://localhost:1234',
+      dispose: () => Promise.resolve(),
+    }, {
+      keypress: () =>
+        keypress([{
+          key: 'r',
+          ctrlKey: false,
+          altKey: false,
+          metaKey: false,
+          shiftKey: false,
+        }]),
+    });
+
+    await keyboard();
+  });
+
   it('waits for child disposal when keyboard input is unavailable', async () => {
     const events: string[] = [];
     const dispose$ = new Rx.Subject<t.DisposeAsyncEvent>();
@@ -88,6 +181,9 @@ function keypress(items: readonly KeypressInput[]) {
 }
 
 type KeypressInput = {
-  key: string;
+  key?: string;
   ctrlKey?: boolean;
+  altKey?: boolean;
+  metaKey?: boolean;
+  shiftKey?: boolean;
 };

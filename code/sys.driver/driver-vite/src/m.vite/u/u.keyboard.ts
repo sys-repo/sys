@@ -1,11 +1,8 @@
 import { Cli, Open, Rx, type t } from '../common.ts';
 
-type KeypressEvent = {
-  readonly key?: string;
-  readonly ctrlKey?: boolean;
-};
+type KeypressEvent = Parameters<t.Cli.Keyboard.Lib['isRedraw']>[0];
 type KeypressStream = AsyncIterable<KeypressEvent>;
-type KeyboardAction = 'noop' | 'open' | 'quit';
+type KeyboardAction = 'noop' | 'open' | 'redraw' | 'quit';
 type KeyboardDeps = {
   keypress?: () => KeypressStream;
   open?: (url: t.StringUrl) => void;
@@ -19,6 +16,7 @@ export function keyboardFactory(args: {
   cwd: t.StringDir;
   url: string;
   until?: t.Process.Handle['dispose$'];
+  redraw?: () => void;
   dispose: () => Promise<void>;
 }, deps: KeyboardDeps = {}) {
   const { dispose } = args;
@@ -28,35 +26,56 @@ export function keyboardFactory(args: {
   const exit = deps.exit ?? ((code) => Deno.exit(code));
 
   return async () => {
-    try {
-      for await (const e of keypress()) {
-        const action = wrangle.action(e);
-        if (action === 'noop') continue;
-        if (action === 'open') {
+    for await (const e of wrangle.keypressEvents(keypress, args.until)) {
+      switch (wrangle.action(e)) {
+        case 'noop':
+          continue;
+        case 'open':
           open(url);
           continue;
-        }
-        if (action === 'quit') {
+        case 'redraw':
+          await wrangle.redraw(args.redraw, dispose);
+          continue;
+        case 'quit':
           await dispose();
           exit(0);
           return;
-        }
       }
-    } catch (error) {
-      if (wrangle.isUnsupportedKeyboard(error)) {
-        await wrangle.waitUntil(args.until);
-        return;
-      }
-      throw error;
     }
   };
 }
 
 const wrangle = {
+  async *keypressEvents(
+    keypress: () => KeypressStream,
+    until?: t.Process.Handle['dispose$'],
+  ) {
+    try {
+      for await (const event of keypress()) yield event;
+    } catch (error) {
+      if (!wrangle.isUnsupportedKeyboard(error)) throw error;
+      await wrangle.waitUntil(until);
+    }
+  },
+
+  async redraw(redraw: (() => void) | undefined, dispose: () => Promise<void>) {
+    try {
+      redraw?.();
+    } catch (cause) {
+      try {
+        await dispose();
+      } catch {
+        // Redraw remains the primary failure.
+      }
+      throw cause;
+    }
+  },
+
   action(e: KeypressEvent): KeyboardAction {
     if (!e.key) return 'noop';
     if ((e.ctrlKey && e.key === 'c') || e.key === 'q') return 'quit';
     if (e.key === 'o') return 'open';
+    if (Cli.Keyboard.isRedraw(e)) return 'redraw';
     return 'noop';
   },
 

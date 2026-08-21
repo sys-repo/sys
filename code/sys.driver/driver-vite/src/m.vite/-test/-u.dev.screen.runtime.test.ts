@@ -52,6 +52,7 @@ describe('DevScreen runtime', () => {
 
       reporter.outputChanged();
       reporter.ready();
+      reporter.redraw();
       reporter.dispose();
 
       expect(runtime.repaints).to.eql([]);
@@ -136,6 +137,20 @@ describe('DevScreen runtime', () => {
   });
 
   describe('startup phase', () => {
+    it('keeps redraw inert before ready and after disposal', () => {
+      const runtime = createRuntimeHarness();
+      const { reporter, terminal } = runtime;
+      const repaints = runtime.repaints.length;
+      const sizeCalls = terminal.sizeCalls;
+
+      reporter.redraw();
+      reporter.dispose();
+      reporter.redraw();
+
+      expect(runtime.repaints.length).to.eql(repaints);
+      expect(terminal.sizeCalls).to.eql(sizeCalls);
+    });
+
     it('coalesces output and updates only the declared spinner text contract', () => {
       const runtime = createRuntimeHarness();
       const { output, reporter, scheduler, spinner } = runtime;
@@ -297,6 +312,94 @@ describe('DevScreen runtime', () => {
   });
 
   describe('ready phase', () => {
+    it('remeasures, absorbs pending work, and invalidates the stale repaint', () => {
+      const runtime = createRuntimeHarness();
+      const { output, reporter, scheduler, terminal } = runtime;
+      reporter.ready();
+      const repaints = runtime.repaints.length;
+      const sizeCalls = terminal.sizeCalls;
+
+      output.push(processEvent('stdout', 'retained redraw output\n'));
+      reporter.outputChanged();
+      terminal.resize({ width: 72, height: 24 });
+      expect(scheduler.active).to.eql(1);
+
+      reporter.redraw();
+
+      expect(terminal.sizeCalls).to.eql(sizeCalls + 1);
+      expect(scheduler.cancels).to.eql(1);
+      expect(scheduler.active).to.eql(0);
+      expect(runtime.repaints.length).to.eql(repaints + 1);
+      expect(stripAnsi(runtime.repaints.at(-1) ?? '').split('\n')[1]).to.eql('━'.repeat(72));
+      expect(stripAnsi(runtime.repaints.at(-1) ?? '')).to.include('retained redraw output');
+
+      scheduler.force(0);
+      expect(runtime.repaints.length).to.eql(repaints + 1);
+
+      reporter.redraw();
+      expect(runtime.repaints.length).to.eql(repaints + 2);
+      reporter.dispose();
+    });
+
+    it('retains a newer resize observed during redraw measurement', () => {
+      const runtime = createRuntimeHarness();
+      const { reporter, scheduler, terminal } = runtime;
+      reporter.ready();
+      const repaints = runtime.repaints.length;
+      const schedules = scheduler.schedules;
+
+      terminal.resizeOnNextSize({ width: 34, height: 13 });
+      reporter.redraw();
+
+      expect(scheduler.schedules).to.eql(schedules);
+      expect(runtime.repaints.length).to.eql(repaints + 1);
+      expect(stripAnsi(runtime.repaints.at(-1) ?? '').split('\n')[1]).to.eql('━'.repeat(34));
+      reporter.dispose();
+    });
+
+    it('invalidates pending work before surfacing redraw cancellation failure', () => {
+      const cause = new Error('redraw-cancel-failed');
+      const runtime = createRuntimeHarness({ cancelFailure: cause });
+      const { reporter, scheduler } = runtime;
+      reporter.ready();
+      reporter.outputChanged();
+      const repaints = runtime.repaints.length;
+      let thrown: unknown;
+
+      try {
+        reporter.redraw();
+      } catch (error) {
+        thrown = error;
+      }
+
+      expect(thrown).to.equal(cause);
+      expect(scheduler.cancels).to.eql(1);
+      scheduler.force(0);
+      expect(runtime.repaints.length).to.eql(repaints);
+      reporter.dispose();
+    });
+
+    it('surfaces redraw repaint failure through the reporter boundary', () => {
+      const runtime = createRuntimeHarness();
+      const cause = new Error('redraw-repaint-failed');
+      const repaint = runtime.terminal.deps.repaint;
+      let thrown: unknown;
+      runtime.reporter.ready();
+      runtime.terminal.deps.repaint = () => {
+        throw cause;
+      };
+
+      try {
+        runtime.reporter.redraw();
+      } catch (error) {
+        thrown = error;
+      }
+
+      expect(thrown).to.equal(cause);
+      runtime.terminal.deps.repaint = repaint;
+      runtime.reporter.dispose();
+    });
+
     it('repaints the complete ready frame from the accepted resize snapshot', () => {
       const runtime = createRuntimeHarness();
       const { reporter, scheduler, terminal } = runtime;
@@ -467,6 +570,7 @@ function createRuntimeHarness(options: {
   until?: t.UntilInput;
   resizeOnSize?: t.ViteDev.Screen.Frame.Viewport;
   disposedEvents?: boolean;
+  cancelFailure?: unknown;
 } = {}) {
   const output = createOutputLog();
   const spinner = FakeSpinner.create();
@@ -481,7 +585,7 @@ function createRuntimeHarness(options: {
     effects.push('spinner:stop');
     return stopSpinner();
   };
-  const scheduler = createScheduler();
+  const scheduler = createScheduler(options.cancelFailure);
   const terminal = createTerminalHarness(spinner, {
     resizeOnSize: options.resizeOnSize,
     disposedEvents: options.disposedEvents,
@@ -525,6 +629,7 @@ function createTerminalHarness(
   let viewport: t.ViteDev.Screen.Frame.Viewport = { width: 80, height: 24 };
   let until: t.UntilInput | undefined;
   let sizeCalls = 0;
+  let resizeOnNextSize = options.resizeOnSize;
   const repaints: string[] = [];
   const events = Rx.lifecycle();
   const resize$$ = Rx.subject<t.Cli.Screen.SizeChanged>();
@@ -535,8 +640,11 @@ function createTerminalHarness(
     cursorRows: 1,
     size: () => {
       const measured = { ...viewport };
-      if (sizeCalls++ === 0 && options.resizeOnSize) {
-        resize$$.next({ kind: 'size:changed', before: measured, after: options.resizeOnSize });
+      sizeCalls += 1;
+      const observed = resizeOnNextSize;
+      resizeOnNextSize = undefined;
+      if (observed) {
+        resize$$.next({ kind: 'size:changed', before: measured, after: observed });
       }
       return measured;
     },
@@ -558,6 +666,12 @@ function createTerminalHarness(
       if (updateMeasurement) viewport = { ...next };
       resize$$.next({ kind: 'size:changed', before, after: next });
     },
+    resizeOnNextSize(next: t.ViteDev.Screen.Frame.Viewport) {
+      resizeOnNextSize = next;
+    },
+    get sizeCalls() {
+      return sizeCalls;
+    },
     get until() {
       return until;
     },
@@ -570,7 +684,7 @@ function createOutputLog() {
   return output;
 }
 
-function createScheduler() {
+function createScheduler(cancelFailure?: unknown) {
   const tasks: SchedulerEntry[] = [];
   let schedules = 0;
   let cancels = 0;
@@ -584,6 +698,7 @@ function createScheduler() {
         if (task.canceled || task.complete) return;
         task.canceled = true;
         cancels += 1;
+        if (cancelFailure !== undefined) throw cancelFailure;
       },
     };
   };

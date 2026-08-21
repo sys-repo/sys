@@ -75,6 +75,7 @@ export async function devWithDeps(input: t.Vite.Dev.Args, deps: t.ViteDevDeps = 
   const { silent = false, pkg, strictPort = false } = input;
   const waitForHttp = deps.waitForHttp ?? Http.Client.waitFor;
   const createScreen = deps.createScreen ?? DevScreen.create;
+  const createKeyboard = deps.keyboardFactory ?? keyboardFactory;
   const spawn = deps.spawn ?? Process.spawn;
   const loadDist = deps.loadDist ?? Pkg.Dist.load;
   const command = deps.command ?? Wrangle.command;
@@ -271,10 +272,12 @@ export async function devWithDeps(input: t.Vite.Dev.Args, deps: t.ViteDevDeps = 
     end({ port, resolvedUrl, elapsed: Time.elapsed(startedAt).msec });
     screen?.ready();
 
-    const keyboard = keyboardFactory({
+    const readyScreen = screen;
+    const keyboard = createKeyboard({
       cwd,
       url: resolvedUrl,
       until: life.dispose$,
+      ...(readyScreen ? { redraw: () => readyScreen.redraw() } : {}),
       dispose: life.dispose,
     });
     const listen = async () => void await keyboard();
