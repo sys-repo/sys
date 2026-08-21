@@ -1,6 +1,7 @@
 import { keypress, type t } from './common.ts';
 import { bind } from './u.bind.ts';
 import { isQuit } from './u.isQuit.ts';
+import { isRedraw } from './u.isRedraw.ts';
 import { isUnavailableError } from './u.isUnavailableError.ts';
 import { shutdown } from './u.shutdown.ts';
 
@@ -10,6 +11,7 @@ import { shutdown } from './u.shutdown.ts';
 export const Keyboard: t.CliKeyboard.Lib = Object.freeze({
   keypress,
   isQuit,
+  isRedraw,
   isUnavailableError,
   bind,
   shutdown,

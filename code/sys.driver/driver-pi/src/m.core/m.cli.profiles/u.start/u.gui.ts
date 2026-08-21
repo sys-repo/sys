@@ -1,4 +1,4 @@
-import { type Cli, Fs, Is, Rx, StartGuiIntrinsic, type t } from './common.ts';
+import { Cli, Fs, Is, Rx, StartGuiIntrinsic, type t } from './common.ts';
 
 import { snapshotCapturedAbortSignal } from './u.abort.ts';
 import { snapshotAuthorityEvidence } from './u.authority.ts';
@@ -208,7 +208,7 @@ async function startPrepared(input: PreparedStartGui): Promise<void> {
         return deps.bindKeyboard({
           exit: false,
           onKey: (event) => {
-            if (isRedrawKey(event)) redrawScreen();
+            if (Cli.Keyboard.isRedraw(event)) redrawScreen();
             if (isBackKey(event)) supervisor.requestStop('start:gui.keyboard.back');
           },
           onQuit: () => supervisor.requestStop('start:gui.keyboard.quit'),
@@ -952,11 +952,6 @@ function disposeLife(life: t.Abortable, reason: string): void {
   } catch {
     // Startup failure still owns its package-controlled terminal error.
   }
-}
-
-function isRedrawKey(event: KeyboardEvent): boolean {
-  return event.key === 'r' && event.ctrlKey === false && event.altKey === false &&
-    event.metaKey === false && event.shiftKey === false;
 }
 
 function isBackKey(event: KeyboardEvent): boolean {

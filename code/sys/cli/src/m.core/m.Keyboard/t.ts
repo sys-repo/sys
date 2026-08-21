@@ -1,6 +1,11 @@
 import type { t } from './common.ts';
 import type { CliffyKeypress, CliffyKeyPressEvent } from '../t.ext.ts';
 
+/** Partial keypress input; missing fields are rejected by the redraw predicate. */
+type RedrawInput = Partial<
+  Pick<CliffyKeyPressEvent, 'key' | 'ctrlKey' | 'altKey' | 'metaKey' | 'shiftKey'>
+>;
+
 /**
  * Tools for owning keyboard input within a CLI lifecycle.
  */
@@ -23,6 +28,9 @@ export declare namespace CliKeyboard {
 
     /** True for canonical terminal quit keys. */
     isQuit(event: Event): boolean;
+
+    /** True only for lowercase `r` with every modifier explicitly false. */
+    isRedraw(event: RedrawInput): boolean;
 
     /** True for expected keyboard-listener failures in non-terminal runtimes. */
     isUnavailableError(error: unknown): boolean;

@@ -54,8 +54,6 @@ type ServeOutcome =
   | { readonly kind: 'keyboard'; readonly ok: true }
   | { readonly kind: 'keyboard'; readonly ok: false; readonly cause: unknown };
 
-type ServeKeyEvent = Parameters<NonNullable<t.Cli.Keyboard.Bind.Options['onKey']>>[0];
-
 const DEFAULT_SERVE_EFFECTS: ServeEffects = Object.freeze({
   bindKeyboard: Cli.Keyboard.bind,
   createScreen: DistServeScreen.create,
@@ -170,7 +168,7 @@ async function serveLoop(
         exit: input.keyboard.exit,
         onQuit: () => closeStarted('keyboard'),
         onKey: (event) => {
-          if (isRedrawKey(event)) return redrawScreen();
+          if (Cli.Keyboard.isRedraw(event)) return redrawScreen();
           if (event.key === 'o') return effects.open(started.origin);
         },
       });
@@ -241,11 +239,6 @@ async function serveLoop(
   const cleaned = await closePresentation(screen, keyboard);
   if (failed) throw failure;
   if (!cleaned.ok) throw cleaned.cause;
-}
-
-function isRedrawKey(event: ServeKeyEvent): boolean {
-  return event.key === 'r' && event.ctrlKey === false && event.altKey === false &&
-    event.metaKey === false && event.shiftKey === false;
 }
 
 async function closeRaw(started: t.DistServer.Started): Promise<void> {

@@ -24,6 +24,11 @@ import { Cli } from '../mod.ts';
 
 type Assert<T extends true> = t.Type.Assert<T>;
 type Equal<A, B> = t.Type.Equal<A, B>;
+type BoundKeypressEvent = Parameters<NonNullable<t.CliKeyboard.Bind.Options['onKey']>>[0];
+type ExpectedRedrawInput = Partial<
+  Pick<BoundKeypressEvent, 'key' | 'ctrlKey' | 'altKey' | 'metaKey' | 'shiftKey'>
+>;
+type RedrawInput = Parameters<t.CliKeyboard.Lib['isRedraw']>[0];
 type ExpectedMenuResultKind = 'exit' | 'back' | 'stay';
 type ExpectedMenuResult =
   | { readonly kind: ExpectedMenuResultKind }
@@ -49,6 +54,8 @@ type CanonicalHelperProof = [
   Assert<Equal<t.CliKeyboard.Event, t.Cli.Keyboard.Event>>,
   Assert<Equal<t.CliKeyboard.Event, CliKeyboardFromT.Event>>,
   Assert<Equal<t.CliKeyboard.Event, CliKeyboardFromTypes.Event>>,
+  Assert<Equal<RedrawInput, ExpectedRedrawInput>>,
+  Assert<BoundKeypressEvent extends RedrawInput ? true : false>,
   Assert<Equal<t.CliKeyboard.Bind.Options, t.Cli.Keyboard.Bind.Options>>,
   Assert<Equal<t.CliKeyboard.Bind.Options, CliKeyboardFromT.Bind.Options>>,
   Assert<Equal<t.CliKeyboard.Bind.Options, CliKeyboardFromTypes.Bind.Options>>,
