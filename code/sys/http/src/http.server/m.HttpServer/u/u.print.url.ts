@@ -9,9 +9,9 @@ export function formatPrintUrls(input: {
   readonly addr: Deno.NetAddr;
   readonly paths: readonly t.HttpServer.Status.UrlPath[] | undefined;
   readonly settledOrigin?: t.StringUrl;
-}): readonly string[] {
+}) {
   const origin = input.settledOrigin ?? localOrigin(input.addr);
-  return Cli.Fmt.ServiceUrl.formatList(statusUrls(origin, input.paths), {
+  return Cli.Fmt.ServiceUrl.parts(statusUrls(origin, input.paths), {
     ipv4Loopback: input.settledOrigin ? 'exact' : 'localhost',
   });
 }

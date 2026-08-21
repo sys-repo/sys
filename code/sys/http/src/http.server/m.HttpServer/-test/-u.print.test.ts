@@ -163,6 +163,56 @@ describe('HttpServer.print', () => {
     expect(Cli.stripAnsi(network)).to.contain('http://192.0.2.10:9090/');
   });
 
+  it('fits direct startup rows and dividers to terminal cells without changing non-TTY output', () => {
+    const detail = '東京 café e\u0301 — retained startup detail for a narrow terminal';
+    const input = {
+      addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' as const },
+      name: '🧪 direct startup service with a long terminal identity',
+      pkg,
+      hash: 'sha256-0391f000000000000000000000000000000000000000000000000000b313a8',
+      requestedPort: 8090,
+      keyboard: { open: 'Open the application in a browser', quit: 'Ctrl+C or Q to stop service' },
+      status: {
+        kind: 'dist',
+        root: SAMPLE_ROOT,
+        urlPaths: ['/東京/café/e\u0301/long/startup/path/' as t.StringUrlRoute],
+        details: [{ label: 'capabilities-東京-e\u0301-with-a-long-name', value: detail }],
+      },
+    };
+    const render = (isTerminal: boolean, width: number) =>
+      capturePrint(() => {
+        printWith(
+          {
+            isTerminal: () => isTerminal,
+            screenSize: () => ({ width, height: 24 }),
+          },
+          input,
+        );
+        printWith(
+          {
+            isTerminal: () => isTerminal,
+            screenSize: () => ({ width, height: 24 }),
+          },
+          input,
+        );
+      }).join('\n');
+
+    for (const width of [48, 24, 8]) {
+      const terminal = render(true, width);
+      const terminalRows = Cli.stripAnsi(terminal).split('\n').filter((row) => row !== '');
+      expect(terminal).to.contain('\u001b[');
+      expect(Cli.stripAnsi(terminal)).to.contain('…');
+      for (const row of terminalRows) {
+        expect(Cli.Fmt.Text.Width.measure(row)).to.be.at.most(width);
+      }
+    }
+
+    const narrowNonTty = render(false, 24);
+    expect(narrowNonTty).to.eql(render(false, 120));
+    expect(Cli.stripAnsi(narrowNonTty)).to.contain(SAMPLE_ROOT);
+    expect(Cli.stripAnsi(narrowNonTty)).to.contain(detail);
+  });
+
   it('fits root paths against the widest table label', () => {
     const output = capturePrint(() => {
       printWith(
