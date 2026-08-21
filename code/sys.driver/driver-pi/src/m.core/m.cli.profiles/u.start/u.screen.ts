@@ -27,6 +27,8 @@ export type StartGuiScreenInstance = {
   readonly kind: 'acquired' | 'failed' | 'unavailable';
   /** Rejects for acquisition or later repaint failure without losing cleanup authority. */
   readonly failure: Promise<never>;
+  /** Remeasure and repaint the current authoritative screen state. */
+  readonly redraw: () => void;
   readonly warnOpen: () => void;
   /** Retryable release; completed subresources are never disposed twice. */
   readonly dispose: () => void;
@@ -151,6 +153,7 @@ export const StartGuiScreen = {
       return freeze({
         kind: 'unavailable',
         failure: pendingPromise<never>(),
+        redraw() {},
         warnOpen() {},
         dispose() {},
       });
@@ -164,6 +167,8 @@ export const StartGuiScreen = {
     let active = true;
     let acquired = false;
     let observed = false;
+    let redrawing = false;
+    let resizeRevision = 0;
     let failureSettled = false;
     let openWarning = false;
     let viewport: ScreenSize = { width: 0, height: 0 };
@@ -219,7 +224,7 @@ export const StartGuiScreen = {
 
     try {
       releaseState = input.state.subscribe(() => {
-        if (!active || !acquired) return;
+        if (!active || !acquired || redrawing) return;
         try {
           repaint();
         } catch (cause) {
@@ -232,7 +237,8 @@ export const StartGuiScreen = {
           try {
             viewport = normalizeSize(size);
             observed = true;
-            if (!acquired) return;
+            resizeRevision += 1;
+            if (!acquired || redrawing) return;
             repaint();
           } catch (cause) {
             fail(cause);
@@ -275,6 +281,21 @@ export const StartGuiScreen = {
     return freeze({
       kind: acquired ? 'acquired' : 'failed',
       failure: failure.promise,
+      redraw() {
+        if (!active || !acquired || redrawing) return;
+        const revision = resizeRevision;
+        redrawing = true;
+        try {
+          const measured = normalizeSize(deps.size());
+          if (!active || !acquired) return;
+          if (resizeRevision === revision) viewport = measured;
+          repaint();
+        } catch (cause) {
+          fail(cause);
+        } finally {
+          redrawing = false;
+        }
+      },
       warnOpen() {
         if (!active || openWarning) return;
         openWarning = true;

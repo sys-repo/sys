@@ -231,6 +231,7 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
           return {
             kind: 'acquired',
             failure: Promise.reject(screenFailure),
+            redraw() {},
             warnOpen() {},
             dispose: release,
           };
@@ -546,6 +547,7 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
         createScreen: () => ({
           kind: 'unavailable',
           failure: new Promise<never>(() => undefined),
+          redraw() {},
           warnOpen() {},
           dispose() {
             disposalCalls += 1;
@@ -572,6 +574,7 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
       const target = {
         kind: 'acquired' as const,
         failure: new Promise<never>(() => undefined),
+        redraw() {},
         warnOpen() {},
         dispose() {
           disposalCalls += 1;
@@ -627,6 +630,7 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
     const screen = {
       kind: 'acquired' as 'acquired' | 'unavailable',
       failure: new Promise<never>(() => undefined),
+      redraw() {},
       warnOpen() {},
       dispose() {},
     };
@@ -1746,6 +1750,7 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
           return {
             kind: 'acquired',
             failure: failure.promise,
+            redraw() {},
             warnOpen() {},
             dispose() {
               releaseObserver();
@@ -1798,6 +1803,7 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
           return {
             kind: screen.kind,
             failure: screen.failure,
+            redraw: () => screen.redraw(),
             warnOpen: () => screen.warnOpen(),
             dispose() {
               release();
@@ -2342,6 +2348,7 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
           return {
             kind: 'acquired',
             failure: new Promise<never>(() => undefined),
+            redraw() {},
             warnOpen() {},
             dispose() {
               releaseObserver();
@@ -2385,6 +2392,7 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
           return {
             kind: 'acquired',
             failure: new Promise<never>(() => undefined),
+            redraw() {},
             warnOpen() {},
             dispose() {
               releaseObserver();
@@ -3228,6 +3236,7 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
           return {
             kind: 'acquired',
             failure: new Promise<never>(() => undefined),
+            redraw() {},
             warnOpen() {},
             dispose() {
               release();
@@ -3357,6 +3366,7 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
           return {
             kind: 'acquired',
             failure: new Promise<never>(() => undefined),
+            redraw() {},
             warnOpen() {},
             dispose() {
               release();
@@ -3875,6 +3885,7 @@ function createHarness(options: HarnessOptions = {}) {
       return {
         kind: 'acquired',
         failure: screenFailure.promise,
+        redraw() {},
         warnOpen() {
           openWarnings += 1;
         },

@@ -67,6 +67,7 @@ const start = async (input: StartGuiInput): Promise<void> => {
             return {
               kind: selected.kind,
               failure: selected.failure,
+              redraw: () => selected.redraw(),
               warnOpen: () => selected.warnOpen(),
               dispose() {
                 let failure: unknown;
@@ -1168,6 +1169,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
             return {
               kind: 'acquired',
               failure: new Promise<never>(() => {}),
+              redraw() {},
               warnOpen() {},
               dispose() {
                 screenDisposeCalls += 1;
@@ -2141,6 +2143,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
           createScreen: () => ({
             kind: 'acquired',
             failure: new Promise<never>(() => undefined),
+            redraw() {},
             warnOpen() {
               warnings += 1;
             },
@@ -2191,6 +2194,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
           createScreen: () => ({
             kind: 'acquired',
             failure: new Promise<never>(() => undefined),
+            redraw() {},
             warnOpen() {
               warnings += 1;
             },
@@ -2238,6 +2242,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
               return {
                 kind: 'acquired',
                 failure: Promise.reject(screenFailure),
+                redraw() {},
                 warnOpen() {},
                 dispose: release,
               };
@@ -2289,6 +2294,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
               return {
                 kind: 'acquired',
                 failure: failure.promise,
+                redraw() {},
                 warnOpen() {},
                 dispose: release,
               };
@@ -2427,6 +2433,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
               return {
                 kind: 'acquired',
                 failure: failure.promise,
+                redraw() {},
                 warnOpen() {},
                 dispose: release,
               };
@@ -2515,13 +2522,15 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
     }
   });
 
-  it('closes once after Ctrl+Arrow Left and ignores other key chords', async () => {
+  it('redraws only for exact lowercase r and preserves Ctrl+Arrow Left shutdown', async () => {
     const prefix = 'driver-pi.profiles.u.start.gui.test.';
     const cwd = (await Fs.makeTempDir({ prefix })).absolute as t.StringDir;
     const serverFinished = deferred();
     const appStarted = deferred();
     const closeReasons: unknown[] = [];
     let disposeCalls = 0;
+    let openCalls = 0;
+    let redrawCalls = 0;
     let onKey: NonNullable<Parameters<typeof Cli.Keyboard.bind>[0]['onKey']> | undefined;
     const bound = deferred();
     const keyboardFinished = deferred();
@@ -2549,24 +2558,86 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
               },
             }));
           },
-          open: () => undefined,
+          open: () => void (openCalls += 1),
           bindKeyboard: (input) => {
             onKey = input.onKey;
+            void input.onKey?.(keypress('r', {
+              altKey: false,
+              ctrlKey: false,
+              metaKey: false,
+              shiftKey: false,
+            }));
             bound.resolve();
             return keyboard;
           },
+          createScreen: () => ({
+            kind: 'acquired',
+            failure: new Promise<never>(() => undefined),
+            redraw: () => void (redrawCalls += 1),
+            warnOpen() {},
+            dispose() {},
+          }),
         },
       });
 
       await bound.promise;
       await appStarted.promise;
       if (!onKey) throw new Error('Expected start:gui keyboard key callback.');
+      await onKey(keypress('r'));
+      await onKey(keypress('R', {
+        altKey: false,
+        ctrlKey: false,
+        metaKey: false,
+        shiftKey: false,
+      }));
+      await onKey(keypress('r', {
+        altKey: false,
+        ctrlKey: false,
+        metaKey: false,
+        shiftKey: true,
+      }));
+      await onKey(keypress('r', {
+        altKey: false,
+        ctrlKey: true,
+        metaKey: false,
+        shiftKey: false,
+      }));
+      await onKey(keypress('r', {
+        altKey: true,
+        ctrlKey: false,
+        metaKey: false,
+        shiftKey: false,
+      }));
+      await onKey(keypress('r', {
+        altKey: false,
+        ctrlKey: false,
+        metaKey: true,
+        shiftKey: false,
+      }));
+      expect({ closeReasons, openCalls, redrawCalls }).to.eql({
+        closeReasons: [],
+        openCalls: 1,
+        redrawCalls: 0,
+      });
+
+      const redraw = keypress('r', {
+        altKey: false,
+        ctrlKey: false,
+        metaKey: false,
+        shiftKey: false,
+      });
+      await onKey(redraw);
+      await onKey(redraw);
       await onKey(keypress('right', { ctrlKey: true }));
       await onKey(keypress('left'));
       await onKey(keypress('left', { ctrlKey: true, altKey: true }));
       await onKey(keypress('left', { ctrlKey: true, metaKey: true }));
       await onKey(keypress('left', { ctrlKey: true, shiftKey: true }));
-      expect(closeReasons).to.eql([]);
+      expect({ closeReasons, openCalls, redrawCalls }).to.eql({
+        closeReasons: [],
+        openCalls: 1,
+        redrawCalls: 2,
+      });
       await onKey(keypress('left', { ctrlKey: true }));
       await onKey(keypress('left', { ctrlKey: true }));
       await run;
@@ -2574,6 +2645,234 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
       expect(closeReasons).to.eql(['start:gui.finalized']);
       expect(disposeCalls).to.eql(1);
     } finally {
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('publishes redraw throws through screen failure precedence', async () => {
+    const prefix = 'driver-pi.profiles.u.start.gui.test.';
+    const cwd = (await Fs.makeTempDir({ prefix })).absolute as t.StringDir;
+    const stop = new AbortController();
+    const serverFinished = deferred();
+    const appStarted = deferred();
+    const keyboardFinished = deferred();
+    const redrawFailure = new Error('raw redraw failure');
+    let closeCalls = 0;
+    let redrawCalls = 0;
+    let onKey: NonNullable<Parameters<typeof Cli.Keyboard.bind>[0]['onKey']> | undefined;
+    let onQuit: (() => void | Promise<void>) | undefined;
+
+    try {
+      const run = start({
+        cwd: asProfileRoot(cwd),
+        until: stop.signal,
+        deps: {
+          materialize: () => Promise.resolve(fakeGeneration()),
+          start: () => {
+            appStarted.resolve();
+            return Promise.resolve(startedFixture({
+              finished: serverFinished.promise,
+              close: () => {
+                closeCalls += 1;
+                serverFinished.resolve();
+                return Promise.resolve();
+              },
+            }));
+          },
+          open: () => undefined,
+          bindKeyboard: (input) => {
+            onKey = input.onKey;
+            onQuit = input.onQuit;
+            return {
+              finished: keyboardFinished.promise,
+              dispose: keyboardFinished.resolve,
+            };
+          },
+          createScreen: () => ({
+            kind: 'acquired',
+            failure: new Promise<never>(() => undefined),
+            redraw() {
+              redrawCalls += 1;
+              throw redrawFailure;
+            },
+            warnOpen() {},
+            dispose() {},
+          }),
+        },
+      });
+      const rejected = rejectionOf(() => run);
+
+      await appStarted.promise;
+      if (!onKey || !onQuit) throw new Error('Expected start:gui keyboard callbacks.');
+      const redraw = keypress('r', {
+        altKey: false,
+        ctrlKey: false,
+        metaKey: false,
+        shiftKey: false,
+      });
+      await onKey(redraw);
+      await onKey(redraw);
+      await onQuit();
+
+      const error = await rejected;
+      expect(error).not.to.equal(redrawFailure);
+      expect(error.message).to.eql('start:gui screen failed.');
+      expect({ closeCalls, redrawCalls }).to.eql({ closeCalls: 1, redrawCalls: 1 });
+    } finally {
+      keyboardFinished.resolve();
+      stop.abort('redraw failure test cleanup');
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('makes redraw inert after direct package screen-failure publication', async () => {
+    const prefix = 'driver-pi.profiles.u.start.gui.test.';
+    const cwd = (await Fs.makeTempDir({ prefix })).absolute as t.StringDir;
+    const stop = new AbortController();
+    const serverFinished = deferred();
+    const appStarted = deferred();
+    const keyboardFinished = deferred();
+    let closeCalls = 0;
+    let redrawCalls = 0;
+    let onKey: NonNullable<Parameters<typeof Cli.Keyboard.bind>[0]['onKey']> | undefined;
+    let onQuit: (() => void | Promise<void>) | undefined;
+
+    try {
+      const run = start({
+        cwd: asProfileRoot(cwd),
+        until: stop.signal,
+        deps: {
+          materialize: () => Promise.resolve(fakeGeneration()),
+          start: () => {
+            appStarted.resolve();
+            return Promise.resolve(startedFixture({
+              finished: serverFinished.promise,
+              close: () => {
+                closeCalls += 1;
+                serverFinished.resolve();
+                return Promise.resolve();
+              },
+            }));
+          },
+          open: () => undefined,
+          bindKeyboard: (input) => {
+            onKey = input.onKey;
+            onQuit = input.onQuit;
+            return {
+              finished: keyboardFinished.promise,
+              dispose: keyboardFinished.resolve,
+            };
+          },
+          createScreen: (input) => ({
+            kind: 'acquired',
+            failure: new Promise<never>(() => undefined),
+            redraw() {
+              redrawCalls += 1;
+              input.onFailure(new Error('direct screen failure'));
+            },
+            warnOpen() {},
+            dispose() {},
+          }),
+        },
+      });
+      const rejected = rejectionOf(() => run);
+
+      await appStarted.promise;
+      if (!onKey || !onQuit) throw new Error('Expected start:gui keyboard callbacks.');
+      const redraw = keypress('r', {
+        altKey: false,
+        ctrlKey: false,
+        metaKey: false,
+        shiftKey: false,
+      });
+      await onKey(redraw);
+      await onKey(redraw);
+      await onQuit();
+
+      const error = await rejected;
+      expect(error.message).to.eql('start:gui screen failed.');
+      expect({ closeCalls, redrawCalls }).to.eql({ closeCalls: 1, redrawCalls: 1 });
+    } finally {
+      keyboardFinished.resolve();
+      stop.abort('direct screen failure test cleanup');
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('makes redraw inert after screen failure-promise rejection', async () => {
+    const prefix = 'driver-pi.profiles.u.start.gui.test.';
+    const cwd = (await Fs.makeTempDir({ prefix })).absolute as t.StringDir;
+    const stop = new AbortController();
+    const serverFinished = deferred();
+    const appStarted = deferred();
+    const keyboardFinished = deferred();
+    const failedState = deferred();
+    const screenFailure = Promise.withResolvers<never>();
+    let closeCalls = 0;
+    let redrawCalls = 0;
+    let onKey: NonNullable<Parameters<typeof Cli.Keyboard.bind>[0]['onKey']> | undefined;
+    let onQuit: (() => void | Promise<void>) | undefined;
+
+    try {
+      const run = start({
+        cwd: asProfileRoot(cwd),
+        until: stop.signal,
+        deps: {
+          materialize: () => Promise.resolve(fakeGeneration()),
+          start: () => {
+            appStarted.resolve();
+            return Promise.resolve(startedFixture({
+              finished: serverFinished.promise,
+              close: () => {
+                closeCalls += 1;
+                serverFinished.resolve();
+                return Promise.resolve();
+              },
+            }));
+          },
+          open: () => undefined,
+          bindKeyboard: (input) => {
+            onKey = input.onKey;
+            onQuit = input.onQuit;
+            return {
+              finished: keyboardFinished.promise,
+              dispose: keyboardFinished.resolve,
+            };
+          },
+          createScreen: (input) => {
+            const release = input.state.subscribe((state) => {
+              if (state.kind === 'failed') failedState.resolve();
+            });
+            return {
+              kind: 'acquired',
+              failure: screenFailure.promise,
+              redraw: () => void (redrawCalls += 1),
+              warnOpen() {},
+              dispose: release,
+            };
+          },
+        },
+      });
+      const rejected = rejectionOf(() => run);
+
+      await appStarted.promise;
+      if (!onKey || !onQuit) throw new Error('Expected start:gui keyboard callbacks.');
+      screenFailure.reject(new Error('screen failure promise rejected'));
+      await failedState.promise;
+      await onKey(keypress('r', {
+        altKey: false,
+        ctrlKey: false,
+        metaKey: false,
+        shiftKey: false,
+      }));
+      await onQuit();
+
+      const error = await rejected;
+      expect(error.message).to.eql('start:gui screen failed.');
+      expect({ closeCalls, redrawCalls }).to.eql({ closeCalls: 1, redrawCalls: 0 });
+    } finally {
+      keyboardFinished.resolve();
+      stop.abort('screen failure promise test cleanup');
       await Fs.remove(cwd);
     }
   });
@@ -2735,6 +3034,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
             return {
               kind: 'acquired',
               failure: new Promise<never>(() => undefined),
+              redraw() {},
               warnOpen() {},
               dispose: release,
             };
@@ -2884,6 +3184,7 @@ function automaticSession(autoQuit: boolean): Pick<
       return {
         kind: 'acquired',
         failure: new Promise<never>(() => undefined),
+        redraw() {},
         warnOpen() {},
         dispose() {
           releaseState?.();

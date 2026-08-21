@@ -50,6 +50,7 @@ describe('@sys/driver-pi start:gui screen ownership', () => {
     expect(harness.releases).to.eql(1);
 
     harness.resize({ width: 36, height: 12 });
+    screen.redraw();
     expect(harness.frames).to.have.length(4);
   });
 
@@ -299,6 +300,39 @@ describe('@sys/driver-pi start:gui screen ownership', () => {
     expect(harness.releases).to.eql(2);
   });
 
+  it('publishes redraw failure once and leaves the failed reporter inert', async () => {
+    const repaintFailure = new Error('redraw repaint failed');
+    const harness = createScreenHarness(
+      { width: 80, height: 24 },
+      true,
+      {
+        repaint: (_frame, count) => {
+          if (count === 2) throw repaintFailure;
+        },
+      },
+    );
+    const published: unknown[] = [];
+    const screen = StartGuiScreen.create({
+      service: SERVICE,
+      url: CAPABILITY.URL,
+      state: createBootState(),
+      keyboard: true,
+      onFailure: (cause) => published.push(cause),
+    }, harness.deps);
+
+    screen.redraw();
+    const failure = await screen.failure.catch((cause) => cause);
+    screen.redraw();
+
+    expect(screen.kind).to.eql('acquired');
+    expect(harness.frames).to.have.length(2);
+    expect(harness.releases).to.eql(1);
+    expect(published).to.have.length(1);
+    expect((published[0] as Error).message).to.eql('start:gui screen failed.');
+    expect((failure as Error).message).to.eql('start:gui screen failed.');
+    screen.dispose();
+  });
+
   it('returns explicit unavailability when terminal screen ownership is absent', () => {
     const harness = createScreenHarness({ width: 80, height: 24 }, false);
     const state = createBootState();
@@ -324,8 +358,11 @@ describe('@sys/driver-pi start:gui screen ownership', () => {
     });
     expect(screen.failure).not.to.equal(another.failure);
     state.set(Boot.startingAppHost);
+    screen.redraw();
     screen.warnOpen();
     screen.dispose();
+    screen.redraw();
+    another.redraw();
     another.dispose();
     expect(harness.frames).to.eql([]);
     expect(harness.releases).to.eql(0);

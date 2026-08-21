@@ -198,6 +198,7 @@ async function startPrepared(input: PreparedStartGui): Promise<void> {
   let cleanup: CleanupEvidence | undefined;
   let bootResult: BootResult = EXTERNAL_STOP_RESULT;
   let controlsReady = false;
+  let redrawScreen = () => {};
 
   try {
     // Acquire controls synchronously after the immediate pre-abort latch. Already-queued listener
@@ -207,6 +208,7 @@ async function startPrepared(input: PreparedStartGui): Promise<void> {
         return deps.bindKeyboard({
           exit: false,
           onKey: (event) => {
+            if (isRedrawKey(event)) redrawScreen();
             if (isBackKey(event)) supervisor.requestStop('start:gui.keyboard.back');
           },
           onQuit: () => supervisor.requestStop('start:gui.keyboard.quit'),
@@ -244,6 +246,15 @@ async function startPrepared(input: PreparedStartGui): Promise<void> {
         if (screen.kind === 'failed') {
           supervisor.publishScreenFailure(undefined);
         } else {
+          redrawScreen = () => {
+            if (supervisor.currentBlocker) return;
+            try {
+              screen.redraw();
+            } catch (cause) {
+              redrawScreen = () => {};
+              supervisor.publishScreenFailure(cause);
+            }
+          };
           controlsReady = true;
           const openAdmission = await beginPromise(() =>
             admitAfterCheckpoint(supervisor, () => {
@@ -941,6 +952,11 @@ function disposeLife(life: t.Abortable, reason: string): void {
   } catch {
     // Startup failure still owns its package-controlled terminal error.
   }
+}
+
+function isRedrawKey(event: KeyboardEvent): boolean {
+  return event.key === 'r' && event.ctrlKey === false && event.altKey === false &&
+    event.metaKey === false && event.shiftKey === false;
 }
 
 function isBackKey(event: KeyboardEvent): boolean {

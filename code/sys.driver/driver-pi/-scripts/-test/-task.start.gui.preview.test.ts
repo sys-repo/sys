@@ -560,6 +560,7 @@ function realStartGui(options: RealStartGuiOptions): (input: StartGuiInput) => P
           return {
             kind: 'acquired',
             failure: new Promise<never>(() => undefined),
+            redraw() {},
             warnOpen() {},
             dispose() {
               releaseState?.();

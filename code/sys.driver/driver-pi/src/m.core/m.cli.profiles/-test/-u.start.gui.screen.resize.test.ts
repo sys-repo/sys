@@ -415,6 +415,45 @@ describe('@sys/driver-pi start:gui screen resize ownership', () => {
     screen.dispose();
   });
 
+  it('remeasures each redraw and retains a resize observed during measurement', () => {
+    const state = createBootState();
+    const initialState = state.current;
+    const frames: string[] = [];
+    let measurements = 0;
+    let resize: (size: t.Cli.Screen.Size) => void = () => {};
+    const screen = StartGuiScreen.create({
+      service: SERVICE,
+      url: CAPABILITY.URL,
+      state,
+      keyboard: true,
+      onFailure() {},
+    }, {
+      isInteractive: () => true,
+      observeResize(handler) {
+        resize = handler;
+        return () => {};
+      },
+      size() {
+        measurements += 1;
+        if (measurements === 2) resize({ width: 48, height: 18 });
+        if (measurements === 3) return { width: 60, height: 20 };
+        return { width: 80, height: 24 };
+      },
+      repaint: (frame) => frames.push(frame),
+    });
+
+    expect({ measurements, frames: frames.length }).to.eql({ measurements: 1, frames: 1 });
+    screen.redraw();
+    expect({ measurements, frames: frames.length }).to.eql({ measurements: 2, frames: 2 });
+    expectFrameBounds(frames[1] ?? '', { width: 48, height: 18 });
+
+    screen.redraw();
+    expect({ measurements, frames: frames.length }).to.eql({ measurements: 3, frames: 3 });
+    expectFrameBounds(frames[2] ?? '', { width: 60, height: 20 });
+    expect(state.current).to.equal(initialState);
+    screen.dispose();
+  });
+
   it('rolls back an event owner when resize subscription acquisition throws', async () => {
     const subscriptionFailure = new Error('resize subscription failed');
     let eventDisposals = 0;

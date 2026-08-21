@@ -295,14 +295,17 @@ function snapshotScreenOwner(input: unknown): ScreenOwnerSnapshot {
   });
   const kind = directData(input, 'kind');
   const failure = directData(input, 'failure');
+  const redraw = directData(input, 'redraw');
   const warnOpen = directData(input, 'warnOpen');
   if (
     !kind.ok || (kind.value !== 'acquired' && kind.value !== 'failed' &&
       kind.value !== 'unavailable') ||
     !failure.ok || !isPromiseTransport(failure.value) ||
+    !redraw.ok || !Is.func(redraw.value) || Is.proxy(redraw.value) ||
     !warnOpen.ok || !Is.func(warnOpen.value) || Is.proxy(warnOpen.value)
   ) return freeze({ kind: 'invalid', owner: cleanupOwner });
 
+  const redrawMethod = redraw.value;
   const warnOpenMethod = warnOpen.value;
   return freeze({
     kind: 'admitted',
@@ -310,6 +313,9 @@ function snapshotScreenOwner(input: unknown): ScreenOwnerSnapshot {
       ...cleanupOwner,
       kind: kind.value,
       failure: failure.value as Promise<never>,
+      redraw() {
+        apply(redrawMethod, undefined, []);
+      },
       warnOpen() {
         apply(warnOpenMethod, undefined, []);
       },
