@@ -65,6 +65,8 @@ export declare namespace ViteLog {
     export type Options = {
       /** Maximum width of the complete arrow-and-digest value. */
       maxWidth?: number;
+      /** Navigation target applied only to the visible digest label. */
+      url?: URL;
     };
   }
 

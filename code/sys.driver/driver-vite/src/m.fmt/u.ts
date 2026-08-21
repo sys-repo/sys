@@ -7,6 +7,7 @@ const DIGEST_PREFIX_WIDTH = Cli.Fmt.Text.Width.measure(`${DIGEST_ARROW} `);
 type MetadataRowArgs = {
   label: string;
   value: string;
+  valueUrl?: URL;
   width: number;
   indent?: number;
   labelWidth?: number;
@@ -21,7 +22,9 @@ export const digest: t.ViteLog.Lib['digest'] = (hash, options = {}) => {
     ? reserveWidth(options.maxWidth, DIGEST_PREFIX_WIDTH)
     : undefined;
   const uri = HashFmt.digest(hash, { maxWidth });
-  return uri ? `${DIGEST_ARROW} ${uri}` : '';
+  if (!uri) return '';
+  const value = options.url ? Cli.Fmt.hyperlink(uri, options.url) : uri;
+  return `${DIGEST_ARROW} ${value}`;
 };
 
 export const elapsed: t.ViteLog.Lib['elapsed'] = (msec) => {
@@ -69,9 +72,9 @@ export function clipValue(input: string, width: number) {
 }
 
 export function metadataRow(args: MetadataRowArgs) {
-  const { value, width, suffix: resolveSuffix } = args;
+  const { value, valueUrl, width, suffix: resolveSuffix } = args;
   const prefix = metadataPrefix(args);
-  const base = `${prefix}${value}`;
+  const base = `${prefix}${formatMetadataValue(value, valueUrl)}`;
   const availableSuffixWidth = Math.max(
     0,
     width - Cli.Fmt.Text.Width.measure(`${base} `),
@@ -82,12 +85,30 @@ export function metadataRow(args: MetadataRowArgs) {
   }
   if (Cli.Fmt.Text.Width.measure(base) <= width) return base;
 
+  const compactSuffix = resolveSuffix?.(
+    Math.max(0, width - Cli.Fmt.Text.Width.measure(`${prefix}… `)),
+  );
+  if (compactSuffix && Cli.Fmt.Text.Width.measure(`${prefix}… ${compactSuffix}`) <= width) {
+    const valueWidth = Cli.Fmt.Text.Width.fit({
+      width,
+      reserve: Cli.Fmt.Text.Width.measure(`${prefix} ${compactSuffix}`),
+      terminal: false,
+    });
+    const clipped = formatMetadataValue(clipValue(value, valueWidth), valueUrl);
+    return `${prefix}${clipped} ${compactSuffix}`;
+  }
+
   const valueWidth = Cli.Fmt.Text.Width.fit({
     width,
     reserve: Cli.Fmt.Text.Width.measure(prefix),
     terminal: false,
   });
-  return clipLine(`${prefix}${clipValue(value, valueWidth)}`.trimEnd(), width);
+  const clipped = formatMetadataValue(clipValue(value, valueWidth), valueUrl);
+  return clipLine(`${prefix}${clipped}`.trimEnd(), width);
+}
+
+function formatMetadataValue(value: string, url: URL | undefined) {
+  return value && url ? Cli.Fmt.hyperlink(value, url) : value;
 }
 
 export function metadataPrefix(

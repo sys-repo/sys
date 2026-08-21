@@ -146,18 +146,25 @@ const wrangle = {
     column: number,
     width: number,
   ) {
-    const value = metadataValue(dir);
+    const directory = wrangle.staticDir(dir, manifestHref);
     const hash = evidence.dist.hash?.digest;
     const age = wrangle.ageText(evidence.dist.build?.time, renderedAt);
     return metadataRow({
       label: 'static',
-      value,
+      value: directory.label,
+      valueUrl: directory.directoryUrl,
       width,
       indent: column,
       labelWidth: 9,
       styledLabel: c.green('static'),
       suffix: wrangle.digestSuffix(hash, manifestHref, age),
     });
+  },
+
+  staticDir(dir: t.StringDir, manifestHref: URL | undefined) {
+    const label = metadataValue(dir);
+    const directoryUrl = manifestHref ? new URL('./', manifestHref) : undefined;
+    return { label, directoryUrl } as const;
   },
 
   digestSuffix(
@@ -265,23 +272,25 @@ const wrangle = {
  * Utilities:
  */
 type MetadataRowArgs = {
-  readonly label: string;
-  readonly value: string;
-  readonly width: number;
-  readonly indent?: number;
-  readonly labelWidth?: number;
-  readonly styledLabel?: string;
-  readonly suffix?: (maxWidth: number) => string;
+  label: string;
+  value: string;
+  valueUrl?: URL;
+  width: number;
+  indent?: number;
+  labelWidth?: number;
+  styledLabel?: string;
+  suffix?: (maxWidth: number) => string;
 };
 
 function metadataRow(args: MetadataRowArgs) {
-  const { value, width, suffix: resolveSuffix } = args;
+  const { value, valueUrl, width, suffix: resolveSuffix } = args;
   const prefix = metadataPrefix(args);
-  const base = `${prefix}${value}`;
+  const base = `${prefix}${formatMetadataValue(value, valueUrl)}`;
   const suffix = resolveSuffix?.(Math.max(0, width - Cli.Fmt.Text.Width.measure(`${base} `)));
   if (suffix && Cli.Fmt.Text.Width.measure(`${base} ${suffix}`) <= width) {
     return `${base} ${suffix}`;
   }
+  if (Cli.Fmt.Text.Width.measure(base) <= width) return base;
 
   const compactSuffix = resolveSuffix?.(
     Math.max(0, width - Cli.Fmt.Text.Width.measure(`${prefix}… `)),
@@ -292,17 +301,21 @@ function metadataRow(args: MetadataRowArgs) {
       reserve: Cli.Fmt.Text.Width.measure(`${prefix} ${compactSuffix}`),
       terminal: false,
     });
-    return `${prefix}${clipValue(value, valueWidth)} ${compactSuffix}`;
+    const clipped = formatMetadataValue(clipValue(value, valueWidth), valueUrl);
+    return `${prefix}${clipped} ${compactSuffix}`;
   }
-
-  if (Cli.Fmt.Text.Width.measure(base) <= width) return base;
 
   const valueWidth = Cli.Fmt.Text.Width.fit({
     width,
     reserve: Cli.Fmt.Text.Width.measure(prefix),
     terminal: false,
   });
-  return clipLine(`${prefix}${clipValue(value, valueWidth)}`.trimEnd(), width);
+  const clipped = formatMetadataValue(clipValue(value, valueWidth), valueUrl);
+  return clipLine(`${prefix}${clipped}`.trimEnd(), width);
+}
+
+function formatMetadataValue(value: string, url: URL | undefined) {
+  return value && url ? Cli.Fmt.hyperlink(value, url) : value;
 }
 
 function metadataPrefix(

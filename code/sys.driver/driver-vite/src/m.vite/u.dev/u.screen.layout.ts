@@ -107,7 +107,7 @@ const wrangle = {
     const metadataColumn = ViteScreenLayout.metadataColumn(width, sequenceWidth);
     const indent = ViteScreenLayout.indent(metadataColumn);
     const input = Path.trimCwd(args.paths.app.entry);
-    const outDir = Path.trimCwd(args.paths.app.outDir);
+    const output = wrangle.outputDir(args);
     const subHr = ViteScreenLayout.dashedDivider(width);
     return [
       ViteScreenLayout.serviceUrl(args.url, metadataColumn, width),
@@ -122,12 +122,13 @@ const wrangle = {
       }),
       metadataRow({
         label: 'output',
-        value: outDir,
+        value: output.label,
+        valueUrl: output.directoryUrl,
         width,
         indent: metadataColumn,
         labelWidth: 9,
         styledLabel: c.white('output'),
-        suffix: ViteScreenLayout.distSuffix(args.dist, args.renderedAt),
+        suffix: ViteScreenLayout.distSuffix(args.dist, output.manifestUrl, args.renderedAt),
       }),
       '',
       subHr,
@@ -138,7 +139,7 @@ const wrangle = {
     const metadataColumn = ViteScreenLayout.metadataColumn(width, sequenceWidth);
     const indent = ViteScreenLayout.indent(metadataColumn);
     const input = Path.trimCwd(args.paths.app.entry);
-    const outDir = Path.trimCwd(args.paths.app.outDir);
+    const output = wrangle.outputDir(args);
     return [
       '',
       ViteScreenLayout.serviceUrl(args.url, metadataColumn, width),
@@ -153,14 +154,24 @@ const wrangle = {
       }),
       metadataRow({
         label: 'output',
-        value: outDir,
+        value: output.label,
+        valueUrl: output.directoryUrl,
         width,
         indent: metadataColumn,
         labelWidth: 9,
         styledLabel: c.white('output'),
-        suffix: ViteScreenLayout.distSuffix(args.dist, args.renderedAt),
+        suffix: ViteScreenLayout.distSuffix(args.dist, output.manifestUrl, args.renderedAt),
       }),
     ];
+  },
+
+  outputDir(args: FrameArgs) {
+    const label = Path.trimCwd(args.paths.app.outDir);
+    const manifestUrl = args.dist
+      ? Path.toFileUrl(Path.resolve(args.paths.cwd, args.paths.app.outDir, 'dist.json'))
+      : undefined;
+    const directoryUrl = manifestUrl ? new URL('./', manifestUrl) : undefined;
+    return { label, directoryUrl, manifestUrl } as const;
   },
 
   keyboardFooter(width: number) {

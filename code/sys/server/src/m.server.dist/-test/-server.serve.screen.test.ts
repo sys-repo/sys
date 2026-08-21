@@ -470,6 +470,8 @@ describe('DistServeScreen', () => {
     try {
       const dist = fixture.cloneDist();
       const manifestHref = Fs.Path.toFileUrl(Fs.Path.resolve('serve digest #1/dist.json'));
+      const staticHref = new URL('./', manifestHref);
+      const staticLink = Cli.Fmt.hyperlink('./dist/', staticHref);
       const outputRow = (width: number) => {
         const output = DistServeScreen.toString({
           identity: dist.pkg,
@@ -491,14 +493,17 @@ describe('DistServeScreen', () => {
       const short = outputRow(37);
 
       expect(text(full)).to.include(`dist/ ← digest:sha256:${suffix}`);
+      expect(full).to.include(staticLink);
       expect(full).to.include(
         Cli.Fmt.hyperlink(HashFmt.digest(dist.hash.digest, { maxWidth: 20 }), manifestHref),
       );
       expect(text(algorithm)).to.include(`dist/ ← sha256:${suffix}`);
+      expect(algorithm).to.include(staticLink);
       expect(algorithm).to.include(
         Cli.Fmt.hyperlink(HashFmt.digest(dist.hash.digest, { maxWidth: 13 }), manifestHref),
       );
       expect(text(short)).to.include(`dist/ ← ${suffix}`);
+      expect(short).to.include(staticLink);
       expect(short).to.include(
         Cli.Fmt.hyperlink(HashFmt.digest(dist.hash.digest, { maxWidth: 6 }), manifestHref),
       );
@@ -508,13 +513,15 @@ describe('DistServeScreen', () => {
     }
   });
 
-  it('links only the digest label to the supplied manifest', async () => {
+  it('links the static directory and digest to their separate targets', async () => {
     const fixture = await setup();
     try {
       const dist = fixture.cloneDist();
       const manifestHref = Fs.Path.toFileUrl(Fs.Path.resolve('serve digest #1/dist.json'));
+      const staticHref = new URL('./', manifestHref);
+      const staticLink = Cli.Fmt.hyperlink('./dist/', staticHref);
       const digest = HashFmt.digest(dist.hash.digest);
-      const link = Cli.Fmt.hyperlink(digest, manifestHref);
+      const digestLink = Cli.Fmt.hyperlink(digest, manifestHref);
       const frame = DistServeScreen.toString({
         identity: dist.pkg,
         origin: 'http://127.0.0.1:49152/' as t.StringUrl,
@@ -528,11 +535,59 @@ describe('DistServeScreen', () => {
         keyboard: { enabled: false, print: true },
       });
 
+      expect(staticHref.protocol).to.eql('file:');
+      expect(staticHref.hash).to.eql('');
+      expect(staticHref.href).to.include('serve%20digest%20%231/');
+      expect(staticHref.href).to.not.eql(manifestHref.href);
+      expect(frame).to.include(staticLink);
       expect(manifestHref.protocol).to.eql('file:');
       expect(manifestHref.hash).to.eql('');
       expect(manifestHref.href).to.include('serve%20digest%20%231/dist.json');
-      expect(frame).to.include(`${c.green('←')} ${link}`);
-      expect(text(link)).to.eql(`digest:sha256:#${dist.hash.digest.slice(-5)}`);
+      expect(frame).to.include(`${c.green('←')} ${digestLink}`);
+      expect(text(digestLink)).to.eql(`digest:sha256:#${dist.hash.digest.slice(-5)}`);
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
+  it('retains both targets while a long static directory clips across digest collapse', async () => {
+    const fixture = await setup();
+    try {
+      const dist = fixture.cloneDist();
+      const dir = `./dist/${'nested/'.repeat(20)}` as t.StringDir;
+      const manifestHref = Fs.Path.toFileUrl(Fs.Path.resolve('serve digest #1/dist.json'));
+      const staticHref = new URL('./', manifestHref);
+      const variants = new Set<'algorithm' | 'full' | 'short'>();
+
+      for (let width = 24; width <= 68; width++) {
+        const output = DistServeScreen.toString({
+          identity: dist.pkg,
+          origin: 'http://127.0.0.1:49152/' as t.StringUrl,
+          dir,
+          manifestHref,
+          authority: { kind: 'local-unpinned', integrity: fixture.integrity },
+          evidence: evidence(fixture),
+          renderedAt: dist.build.time,
+          viewport: { width, height: 30 },
+          cursorRows: 1,
+          keyboard: { enabled: false, print: true },
+        });
+        const row = output.split('\n').find((line) => text(line).includes('static')) ?? '';
+        const digest = hyperlinkLabel(row, manifestHref);
+        if (!digest) continue;
+
+        const directory = hyperlinkLabel(row, staticHref);
+        expect(directory).to.not.eql(undefined);
+        expect(text(directory ?? '')).to.include('…');
+        expect(Cli.Fmt.Text.Width.measure(row)).to.be.at.most(width);
+
+        const label = text(digest);
+        if (label.startsWith('digest:')) variants.add('full');
+        else if (label.startsWith('sha256:')) variants.add('algorithm');
+        else if (label.startsWith('#')) variants.add('short');
+      }
+
+      expect([...variants].sort()).to.eql(['algorithm', 'full', 'short']);
     } finally {
       await teardown(fixture);
     }
@@ -601,4 +656,14 @@ function localFrame(fixture: Fixture) {
 
 function text(input: string) {
   return Cli.stripAnsi(input);
+}
+
+function hyperlinkLabel(input: string, url: URL) {
+  const open = `\x1b]8;;${url.href}\x1b\\`;
+  const close = '\x1b]8;;\x1b\\';
+  const start = input.indexOf(open);
+  if (start < 0) return undefined;
+  const labelStart = start + open.length;
+  const end = input.indexOf(close, labelStart);
+  return end < 0 ? undefined : input.slice(labelStart, end);
 }

@@ -1,4 +1,15 @@
-import { c, Cli, describe, expect, it, stripAnsi, type t, Time } from '../../-test.ts';
+import {
+  c,
+  Cli,
+  describe,
+  expect,
+  HashFmt,
+  it,
+  Path,
+  stripAnsi,
+  type t,
+  Time,
+} from '../../-test.ts';
 import { DevOutputLog } from '../u.dev/u.output.ts';
 import { DevScreen } from '../u.dev/u.screen.ts';
 import { paths, pkg, processEvent } from './u.fixture.dev.ts';
@@ -357,13 +368,91 @@ describe('DevScreen', () => {
       }
     });
 
-    it('qualifies every visible digest variant with build age', () => {
-      const outputLine = (width: number, includeDist = true) => {
-        const basePaths = paths();
-        const customPaths = {
-          ...basePaths,
-          app: { ...basePaths.app, entry: 'x', outDir: 'dist/' },
+    it('links the loaded output directory and digest to separate targets in both frames', () => {
+      const customPaths = {
+        cwd: '/tmp/pkg with spaces',
+        app: { entry: 'src/index.html', outDir: 'dist/', base: './' },
+      } as const;
+      const args = {
+        identity: pkg(),
+        dist: dist(),
+        paths: customPaths,
+        url: 'http://x:1/',
+        lines: [],
+        ...frame(60, 40),
+      };
+      const manifestUrl = Path.toFileUrl(
+        Path.resolve(customPaths.cwd, customPaths.app.outDir, 'dist.json'),
+      );
+      const directoryUrl = new URL('./', manifestUrl);
+      const directoryLink = Cli.Fmt.hyperlink('dist/', directoryUrl);
+      const digestLink = Cli.Fmt.hyperlink(HashFmt.digest(HASH), manifestUrl);
+      const outputs = [
+        DevScreen.startupToString({ ...args, spinner: '⠋' }),
+        DevScreen.toString(args),
+      ];
+
+      expect(directoryUrl.href).to.include('pkg%20with%20spaces/dist/');
+      expect(manifestUrl.href).to.include('pkg%20with%20spaces/dist/dist.json');
+      for (const output of outputs) {
+        const row = output.split('\n').find((line) => stripAnsi(line).includes('output')) ?? '';
+
+        expect(row).to.include(directoryLink);
+        expect(row).to.include(`${c.green('←')} ${digestLink} ${c.dim(c.gray('· 3d'))}`);
+      }
+    });
+
+    it('keeps missing output directories plain and clipped loaded directories linked', () => {
+      const customPaths = {
+        cwd: '/tmp/pkg',
+        app: {
+          entry: 'src/index.html',
+          outDir: 'dist/generated/very/deep/package/',
+          base: './',
+        },
+      } as const;
+      const manifestUrl = Path.toFileUrl(
+        Path.resolve(customPaths.cwd, customPaths.app.outDir, 'dist.json'),
+      );
+      const directoryUrl = new URL('./', manifestUrl);
+      const renderRow = (width: number, includeDist: boolean, startup = false) => {
+        const args = {
+          identity: pkg(),
+          dist: includeDist ? dist() : undefined,
+          paths: customPaths,
+          url: 'http://x:1/',
+          lines: [],
+          ...frame(width, 40),
         };
+        const output = startup
+          ? DevScreen.startupToString({ ...args, spinner: '⠋' })
+          : DevScreen.toString(args);
+        return output.split('\n').find((line) => stripAnsi(line).includes('output')) ?? '';
+      };
+      const missing = renderRow(60, false);
+      const clippedRows = [renderRow(24, true, true), renderRow(24, true)];
+
+      expect(missing).to.not.include('\x1b]8;;');
+      for (const row of clippedRows) {
+        const label = hyperlinkLabel(row, directoryUrl);
+        expect(label).to.not.eql(undefined);
+        expect(stripAnsi(label ?? '')).to.include('…');
+        expect(Cli.Fmt.Text.Width.measure(row) <= 24).to.eql(true);
+      }
+    });
+
+    it('qualifies and wholly links every visible digest variant with build age', () => {
+      const basePaths = paths();
+      const customPaths = {
+        ...basePaths,
+        app: { ...basePaths.app, entry: 'x', outDir: 'dist/' },
+      };
+      const manifestUrl = Path.toFileUrl(
+        Path.resolve(customPaths.cwd, customPaths.app.outDir, 'dist.json'),
+      );
+      const directoryUrl = new URL('./', manifestUrl);
+      const directoryLink = Cli.Fmt.hyperlink('dist/', directoryUrl);
+      const outputLine = (width: number, includeDist = true) => {
         const raw = DevScreen.toString({
           identity: pkg(),
           dist: includeDist ? dist() : undefined,
@@ -378,20 +467,34 @@ describe('DevScreen', () => {
       const fullRaw = outputLine(60);
       const algorithmRaw = outputLine(44);
       const shortRaw = outputLine(37);
+      const noneRaw = outputLine(31);
       const full = stripAnsi(fullRaw);
       const algorithm = stripAnsi(algorithmRaw);
       const short = stripAnsi(shortRaw);
-      const none = stripAnsi(outputLine(31));
+      const none = stripAnsi(noneRaw);
       const missing = stripAnsi(outputLine(60, false));
 
       expect(full).to.include('dist/ ← digest:sha256:#ccd11 · 3d');
+      expect(fullRaw).to.include(directoryLink);
+      expect(fullRaw).to.include(
+        Cli.Fmt.hyperlink(HashFmt.digest(HASH, { maxWidth: 20 }), manifestUrl),
+      );
       expect(fullRaw).to.include(c.dim(c.gray('· 3d')));
       expect(algorithm).to.include('dist/ ← sha256:#ccd11 · 3d');
       expect(algorithm).to.not.include('digest:');
+      expect(algorithmRaw).to.include(directoryLink);
+      expect(algorithmRaw).to.include(
+        Cli.Fmt.hyperlink(HashFmt.digest(HASH, { maxWidth: 13 }), manifestUrl),
+      );
       expect(short).to.include('dist/ ← #ccd11 · 3d');
       expect(short).to.not.include('sha256');
+      expect(shortRaw).to.include(directoryLink);
+      expect(shortRaw).to.include(
+        Cli.Fmt.hyperlink(HashFmt.digest(HASH, { maxWidth: 6 }), manifestUrl),
+      );
       expect(none).to.include('output   dist/');
       expect(none).to.not.include('←');
+      expect(noneRaw).to.include(directoryLink);
       expect(missing).to.include('output   dist/');
       expect(missing).to.not.include('←');
       expect(missing).to.not.include('·');
@@ -399,6 +502,49 @@ describe('DevScreen', () => {
       expect(Cli.Fmt.Text.Width.measure(algorithm) <= 44).to.eql(true);
       expect(Cli.Fmt.Text.Width.measure(short) <= 37).to.eql(true);
       expect(Cli.Fmt.Text.Width.measure(none) <= 31).to.eql(true);
+    });
+
+    it('retains both targets while a long output directory clips across digest collapse', () => {
+      const basePaths = paths();
+      const customPaths = {
+        ...basePaths,
+        app: {
+          ...basePaths.app,
+          entry: 'x',
+          outDir: `dist/${'nested/'.repeat(20)}`,
+        },
+      };
+      const manifestUrl = Path.toFileUrl(
+        Path.resolve(customPaths.cwd, customPaths.app.outDir, 'dist.json'),
+      );
+      const directoryUrl = new URL('./', manifestUrl);
+      const variants = new Set<'algorithm' | 'full' | 'short'>();
+
+      for (let width = 24; width <= 64; width++) {
+        const raw = DevScreen.toString({
+          identity: pkg(),
+          dist: dist(),
+          paths: customPaths,
+          url: 'http://x:1/',
+          lines: [],
+          ...frame(width, 40),
+        });
+        const row = raw.split('\n').find((line) => stripAnsi(line).includes('output')) ?? '';
+        const digest = hyperlinkLabel(row, manifestUrl);
+        if (!digest) continue;
+
+        const directory = hyperlinkLabel(row, directoryUrl);
+        expect(directory).to.not.eql(undefined);
+        expect(stripAnsi(directory ?? '')).to.include('…');
+        expect(Cli.Fmt.Text.Width.measure(row) <= width).to.eql(true);
+
+        const label = stripAnsi(digest);
+        if (label.startsWith('digest:')) variants.add('full');
+        else if (label.startsWith('sha256:')) variants.add('algorithm');
+        else if (label.startsWith('#')) variants.add('short');
+      }
+
+      expect([...variants].sort()).to.eql(['algorithm', 'full', 'short']);
     });
 
     it('clips renderer-stamped log rows to available cells without wrapping', () => {
@@ -656,6 +802,16 @@ function expectRowsBounded(text: string, width: number) {
   text.split('\n').forEach((line) => {
     expect(Cli.Fmt.Text.Width.measure(line) <= width).to.eql(true);
   });
+}
+
+function hyperlinkLabel(input: string, url: URL) {
+  const open = `\x1b]8;;${url.href}\x1b\\`;
+  const close = '\x1b]8;;\x1b\\';
+  const start = input.indexOf(open);
+  if (start < 0) return undefined;
+  const labelStart = start + open.length;
+  const end = input.indexOf(close, labelStart);
+  return end < 0 ? undefined : input.slice(labelStart, end);
 }
 
 function dist(): t.DistPkg {

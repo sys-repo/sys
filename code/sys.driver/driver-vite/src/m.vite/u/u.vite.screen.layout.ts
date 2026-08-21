@@ -44,13 +44,19 @@ export const ViteScreenLayout = {
     return `${indent}${clipText(source, valueWidth)}`;
   },
 
-  distSuffix(dist: t.DistPkg | undefined, renderedAt: t.UnixTimestamp) {
-    return (max: number) => {
+  distSuffix(
+    dist: t.DistPkg | undefined,
+    manifestUrl: URL | undefined,
+    renderedAt: t.UnixTimestamp,
+  ) {
+    return (maxWidth: number) => {
       if (!dist) return '';
       const age = c.dim(c.gray(`· ${Time.elapsed(dist.build.time, renderedAt)}`));
       const reserve = Cli.Fmt.Text.Width.measure(` ${age}`);
-      const maxWidth = Math.max(0, max - reserve);
-      const value = digest(dist.hash.digest, { maxWidth });
+      const value = digest(dist.hash.digest, {
+        maxWidth: Math.max(0, maxWidth - reserve),
+        url: manifestUrl,
+      });
       return value ? `${value} ${age}` : '';
     };
   },
