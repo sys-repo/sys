@@ -1,8 +1,42 @@
 import { describe, expect, it, WebFixture } from '../../../-test.ts';
 import { createOwnedError, ownedError } from '../u.start/u.error.ts';
-import { captureFailure } from '../u.start/u.failure.ts';
+import { captureFailure, failedBootState } from '../u.start/u.failure.ts';
+import { materializationError } from '../u.start/u.materialize.ts';
 
 describe('@sys/driver-pi start:gui owned errors', () => {
+  it('maps unavailable materialization boundaries to sanitized source state', () => {
+    const cases = [
+      {
+        kind: 'failed',
+        stage: 'manifest-fetch',
+        reason: 'resource-failure',
+        cleanup: 'pending',
+      },
+      { kind: 'failed', stage: 'manifest-fetch', reason: 'timeout', cleanup: 'complete' },
+      {
+        kind: 'failed',
+        stage: 'resource-pull',
+        reason: 'source-denied',
+        cleanup: 'not-needed',
+      },
+    ] as const;
+
+    for (const materialization of cases) {
+      expect(
+        failedBootState(materializationError(materialization), 'release-owner'),
+      ).to.eql({
+        kind: 'failed',
+        category: 'source-unavailable',
+        safeEvidence: {
+          kind: 'materialization',
+          stage: materialization.stage,
+          reason: materialization.reason,
+          cleanup: materialization.cleanup,
+        },
+      });
+    }
+  });
+
   it('replaces primitives, proxies, revoked proxies, and caller-native errors', () => {
     let trapCalls = 0;
     const native = new Error('caller native error');

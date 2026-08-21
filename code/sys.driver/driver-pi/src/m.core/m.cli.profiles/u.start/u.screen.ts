@@ -585,8 +585,12 @@ function stateText(state: BootState): string {
 function failureGuidance(
   state: Extract<BootState, { readonly kind: 'failed' }>,
 ): string | undefined {
-  if (state.category !== 'repair-required') return;
-  return 'The cache was refused and retained. Run deno task reset, then launch a fresh session.';
+  if (state.category === 'repair-required') {
+    return 'The cache was refused and retained. Run deno task reset, then launch a fresh session.';
+  }
+  if (state.category === 'source-unavailable') {
+    return 'Check access to the configured source, then launch a fresh session.';
+  }
 }
 
 function evidenceItems(evidence: BootSafeEvidence): readonly string[] {

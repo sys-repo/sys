@@ -2466,6 +2466,7 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
         cleanup: 'pending',
       },
     });
+    await expectPending(rejected);
 
     await harness.quit();
     const error = await rejected;

@@ -38,13 +38,12 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
     const frame = Cli.stripAnsi(rendered);
     expect(frame).to.contain('failed: source-unavailable');
     expect(frame).to.contain('manifest-fetch · resource-failure · cleanup:pending');
+    expect(frame).to.not.contain('deno task reset');
     expect(rendered).to.contain(c.yellow('browser did not open; use launch URL'));
-    expect(frame).to.contain('/0123456789abcdef');
-    expect(frame).to.not.contain('evi…nce');
 
     const rows = frame.split('\n');
-    const row = (label: string) =>
-      rows.find((candidate) => candidate.trimStart().startsWith(label)) ?? '';
+    const row = (label: string) => rows.find((line) => line.trimStart().startsWith(label)) ?? '';
+    expect(row('guidance')).to.contain('configured source, then launch a fresh session');
     expect([
       row('service').indexOf(SERVICE),
       row('state').indexOf('failed: source-unavailable'),
@@ -56,10 +55,29 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
       rows.indexOf(row('service')),
       rows.indexOf(row('state')),
       rows.indexOf(row('evidence')),
+      rows.indexOf(row('guidance')),
       rows.indexOf(row('warning')),
       rows.indexOf(row('open')),
-    ]).to.eql([3, 4, 5, 6, 7]);
+    ]).to.eql([3, 4, 5, 6, 7, 8]);
     screen.dispose();
+  });
+
+  it('keeps malformed release configuration distinct from source guidance', () => {
+    const frame = Cli.stripAnsi(StartGuiScreen.toString({
+      service: SERVICE,
+      url: CAPABILITY.URL,
+      state: Boot.failed(
+        'configuration-invalid',
+        Object.freeze({ kind: 'configuration', reason: 'manifest-url' }),
+      ),
+      keyboard: false,
+      openWarning: false,
+      viewport: { width: 100, height: 14 },
+    }));
+
+    expect(frame).to.contain('failed: configuration-invalid');
+    expect(frame).to.contain('configuration/manifest-url');
+    expect(frame).to.not.contain('Check access to the configured source');
   });
 
   it('wraps materialization evidence at whole-item boundaries', () => {
