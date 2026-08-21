@@ -141,3 +141,24 @@ behavior, not complete containment.
 - Birgitta Böckeler,
   [Harness Engineering](https://martinfowler.com/articles/harness-engineering.html),
   MartinFowler.com (2026)
+
+
+
+<p>&nbsp;</p>
+
+---
+
+<p>&nbsp;</p>
+
+## Development
+
+### Reset
+
+Run only when GUI startup reports `The cache was refused and retained`:
+
+```sh
+deno task reset
+```
+
+This deletes the rejected cache; the next launch rebuilds it. For `source-unavailable`, restore source
+access and relaunch instead.
