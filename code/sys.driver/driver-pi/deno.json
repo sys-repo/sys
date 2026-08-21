@@ -15,6 +15,8 @@
     "dev": "deno run -P=dev ./-scripts/task.vite.ts --cmd=dev --in=./src/index.html",
     "build": "deno run -P=dev ./-scripts/task.vite.ts --cmd=build --in=./src/index.html",
     "serve": "deno run -P=dev ./-scripts/task.vite.ts --cmd=serve",
+    "reset": "deno task start:gui:reset",
+    "start:gui:reset": "deno run -P=clean ./-scripts/task.start.gui.reset.ts",
     "start:gui:preview": "deno run -P=preview-launch --no-prompt ./-scripts/task.start.gui.preview.ts",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check -- ./src/ ./-scripts/*",
