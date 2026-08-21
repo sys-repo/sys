@@ -516,7 +516,9 @@ function isUnicodeFormatControl(code: number): boolean {
 function captureServiceUrl(input: t.StringUrl): t.Cli.Fmt.ServiceUrl.Part | undefined {
   const url = captureUrl(input);
   if (!url) return;
-  const origin = `${url.protocol}//${url.host}`;
+  const hostname = Cli.Fmt.ServiceUrl.displayHostname(url.hostname);
+  const host = url.port ? `${hostname}:${url.port}` : hostname;
+  const origin = `${url.protocol}//${host}`;
   const suffix = `${url.pathname}${url.search}${url.hash}` || '/';
   return freeze({
     ok: true,

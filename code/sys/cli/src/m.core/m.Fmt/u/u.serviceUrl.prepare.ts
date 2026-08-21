@@ -60,11 +60,15 @@ function displayOrigin(url: URL, options: t.CliFormat.ServiceUrl.Parts.Options):
 }
 
 function displayHost(url: URL, options: t.CliFormat.ServiceUrl.Parts.Options): string {
-  const hostname = displayHostname(url, options);
+  const hostname = displayHostname(url.hostname, options);
   return url.port ? `${hostname}:${url.port}` : hostname;
 }
 
-function displayHostname(url: URL, options: t.CliFormat.ServiceUrl.Parts.Options): string {
+/** Apply service URL display policy to one hostname without parsing a URL. */
+export function displayHostname(
+  hostname: t.StringHostname,
+  options: t.CliFormat.ServiceUrl.DisplayHostname.Options = {},
+): t.StringHostname {
   const exact = options.ipv4Loopback === 'exact';
-  return !exact && url.hostname === '127.0.0.1' ? 'localhost' : url.hostname;
+  return !exact && hostname === '127.0.0.1' ? 'localhost' : hostname;
 }

@@ -1,8 +1,10 @@
 import { c, type t } from '../common.ts';
-import { parts, prepare } from '../u/u.serviceUrl.prepare.ts';
+import { displayHostname, parts, prepare } from '../u/u.serviceUrl.prepare.ts';
 
 /** CLI formatting helpers for service URLs. */
 export const ServiceUrl: t.CliFormat.ServiceUrl.Lib = Object.freeze({
+  displayHostname,
+
   parts(urls, options = {}) {
     return parts(urls, options);
   },

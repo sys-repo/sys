@@ -6,9 +6,12 @@ import { createScreenHarness } from './u.fixture.start.gui.screen.ts';
 
 const SERVICE = 'sys.ui:pi';
 const CAPABILITY_ORIGIN = 'http://127.0.0.1:51260';
+const CAPABILITY_DISPLAY_ORIGIN = 'http://localhost:51260';
 const CAPABILITY_SUFFIX = '/0123456789abcdefghijklmnopqrstuvwxyzabcdefghijkl';
 const CAPABILITY = `${CAPABILITY_ORIGIN}${CAPABILITY_SUFFIX}` as t.StringUrl;
+const CAPABILITY_DISPLAY = `${CAPABILITY_DISPLAY_ORIGIN}${CAPABILITY_SUFFIX}`;
 const APPLICATION = 'http://127.0.0.1:51261' as t.StringUrl;
+const APPLICATION_DISPLAY = 'http://localhost:51261';
 const DEVELOPMENT_ROOT =
   '/private/var/folders/ab/cdef/T/@sys-driver-pi.start-gui-preview.0123456789abcdef' as t.StringAbsoluteDir;
 const stringIteratorPrototype = Object.getPrototypeOf('screen'[Symbol.iterator]());
@@ -39,7 +42,7 @@ describe('@sys/driver-pi start:gui screen', () => {
     state.set(Boot.ready(APPLICATION));
     expect(harness.frames).to.have.length(3);
     expect(Cli.stripAnsi(harness.frames[2] ?? '')).to.contain('ready');
-    expect(Cli.stripAnsi(harness.frames[2] ?? '')).to.contain('127.0.0.1:51261');
+    expect(Cli.stripAnsi(harness.frames[2] ?? '')).to.contain(APPLICATION_DISPLAY);
     expect(harness.frames[2] ?? '').to.contain(CAPABILITY);
 
     harness.resize({ width: 48, height: 18 });
@@ -328,7 +331,7 @@ describe('@sys/driver-pi start:gui screen', () => {
     }
   });
 
-  it('repaints terminal links through captured URL authority after acquisition', () => {
+  it('repaints localhost display with exact links through captured URL authority', () => {
     const NativeURL = URL;
     const state = createBootState();
     const harness = createScreenHarness({ width: 100, height: 18 });
@@ -366,7 +369,11 @@ describe('@sys/driver-pi start:gui screen', () => {
     }
 
     const frame = harness.frames.at(-1) ?? '';
+    const text = Cli.stripAnsi(frame);
     expect(ambientCalls).to.eql(0);
+    expect(text).to.contain(CAPABILITY_DISPLAY);
+    expect(text).to.contain(APPLICATION_DISPLAY);
+    expect(text).to.not.contain('127.0.0.1');
     expect(frame).to.contain(CAPABILITY);
     expect(frame).to.contain(APPLICATION);
     expect(frame).to.contain(Fs.Path.toFileUrl(DEVELOPMENT_ROOT).href);
@@ -601,7 +608,7 @@ describe('@sys/driver-pi start:gui screen', () => {
     expect([
       row('service').indexOf(SERVICE),
       row('state').indexOf('failed: source-unavailable'),
-      row('open').indexOf(CAPABILITY_ORIGIN),
+      row('open').indexOf(CAPABILITY_DISPLAY_ORIGIN),
       row('evidence').indexOf('manifest-fetch'),
       row('warning').indexOf('browser did not open'),
     ]).to.eql([14, 14, 14, 14, 14]);
@@ -879,15 +886,15 @@ describe('@sys/driver-pi start:gui screen', () => {
       }).split('\n').find((row) => Cli.stripAnsi(row).trimStart().startsWith('open')) ?? '';
 
     const exact = openRow(87);
-    expect(Cli.stripAnsi(exact)).to.contain(CAPABILITY);
+    expect(Cli.stripAnsi(exact)).to.contain(CAPABILITY_DISPLAY);
     expect(Cli.Fmt.Text.Width.measure(exact)).to.eql(85);
 
     const clippedHead = '/0123456789abcdefghijklm';
     const clippedTail = 'pqrstuvwxyzabcdefghijkl';
     const clippedSuffix = `${clippedHead}…${clippedTail}`;
     const clipped = openRow(86);
-    expect(Cli.stripAnsi(clipped)).to.contain(`${CAPABILITY_ORIGIN}${clippedSuffix}`);
-    expect(Cli.stripAnsi(clipped)).to.not.contain(CAPABILITY);
+    expect(Cli.stripAnsi(clipped)).to.contain(`${CAPABILITY_DISPLAY_ORIGIN}${clippedSuffix}`);
+    expect(Cli.stripAnsi(clipped)).to.not.contain(CAPABILITY_DISPLAY);
     expect(clipped).to.contain(c.gray(clippedHead));
     expect(clipped).to.contain(Cli.Fmt.omission());
     expect(clipped).to.contain(c.gray(clippedTail));
@@ -1387,7 +1394,7 @@ function expectFrame(frame: string, viewport: ScreenSize, state: string) {
   expect(text).to.contain('service');
   expect(text).to.contain(SERVICE);
   expect(text).to.contain(state);
-  if (width >= 87) expect(text).to.contain(CAPABILITY);
+  if (width >= 87) expect(text).to.contain(CAPABILITY_DISPLAY);
   expect(text).to.not.contain('start:gui');
   expect(serviceRows).to.have.length(3);
   for (const row of serviceRows) {

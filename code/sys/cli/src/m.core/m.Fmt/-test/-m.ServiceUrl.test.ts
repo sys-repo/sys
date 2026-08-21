@@ -2,6 +2,17 @@ import { c, describe, expect, it, stripAnsi, type t } from '../../../-test.ts';
 import { Fmt } from '../mod.ts';
 
 describe('Cli.Fmt.ServiceUrl', () => {
+  it('applies loopback hostname display policy without URL parsing', () => {
+    expect(Fmt.ServiceUrl.displayHostname('127.0.0.1')).to.eql('localhost');
+    expect(Fmt.ServiceUrl.displayHostname('127.0.0.1', { ipv4Loopback: 'localhost' })).to.eql(
+      'localhost',
+    );
+    expect(Fmt.ServiceUrl.displayHostname('127.0.0.1', { ipv4Loopback: 'exact' })).to.eql(
+      '127.0.0.1',
+    );
+    expect(Fmt.ServiceUrl.displayHostname('service.internal')).to.eql('service.internal');
+  });
+
   it('prepares pure display parts for service URLs', () => {
     const [part] = Fmt.ServiceUrl.parts([serviceUrl('http://127.0.0.1:8081/payments/?a=b#top')]);
 

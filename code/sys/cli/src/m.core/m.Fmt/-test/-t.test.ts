@@ -464,6 +464,26 @@ type CanonicalFormatterProof = [
   >,
   Assert<
     Exact6<
+      t.CliFormat.ServiceUrl.DisplayHostname.Method,
+      t.Cli.Fmt.ServiceUrl.DisplayHostname.Method,
+      CliFormatFromT.ServiceUrl.DisplayHostname.Method,
+      CliFormatFromTypes.ServiceUrl.DisplayHostname.Method,
+      CliFromT.Fmt.ServiceUrl.DisplayHostname.Method,
+      CliFromTypes.Fmt.ServiceUrl.DisplayHostname.Method
+    >
+  >,
+  Assert<
+    Exact6<
+      t.CliFormat.ServiceUrl.DisplayHostname.Options,
+      t.Cli.Fmt.ServiceUrl.DisplayHostname.Options,
+      CliFormatFromT.ServiceUrl.DisplayHostname.Options,
+      CliFormatFromTypes.ServiceUrl.DisplayHostname.Options,
+      CliFromT.Fmt.ServiceUrl.DisplayHostname.Options,
+      CliFromTypes.Fmt.ServiceUrl.DisplayHostname.Options
+    >
+  >,
+  Assert<
+    Exact6<
       t.CliFormat.ServiceUrl.Parts.Options,
       t.Cli.Fmt.ServiceUrl.Parts.Options,
       CliFormatFromT.ServiceUrl.Parts.Options,

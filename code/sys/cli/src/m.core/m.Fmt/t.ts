@@ -126,8 +126,12 @@ export declare namespace CliFormat {
    * Service URL presentation contracts.
    */
   export namespace ServiceUrl {
-    /** Service URL presentation library. */
+    /**
+     * Service URL presentation library.
+     */
     export type Lib = {
+      /** Apply service URL display policy to one hostname without parsing a URL. */
+      readonly displayHostname: DisplayHostname.Method;
       /** Prepare service URLs as ordered display parts. */
       readonly parts: Parts.Method;
       /** Format one service URL or prepared part. */
@@ -155,6 +159,20 @@ export declare namespace CliFormat {
     };
 
     /**
+     * Hostname display policy contracts.
+     */
+    export namespace DisplayHostname {
+      /** Apply service URL display policy to one hostname without parsing a URL. */
+      export type Method = (hostname: t.StringHostname, options?: Options) => t.StringHostname;
+
+      /** Service hostname display options. */
+      export type Options = {
+        /** Display `127.0.0.1` as `localhost` by default or preserve its numeric hostname. */
+        ipv4Loopback?: 'localhost' | 'exact';
+      };
+    }
+
+    /**
      * Ordered service URL preparation contracts.
      */
     export namespace Parts {
@@ -162,10 +180,7 @@ export declare namespace CliFormat {
       export type Method = (urls: Iterable<t.Service.Url>, options?: Options) => readonly Part[];
 
       /** Service URL display preparation options. */
-      export type Options = {
-        /** Display `127.0.0.1` as `localhost` or preserve its numeric hostname. */
-        ipv4Loopback?: 'localhost' | 'exact';
-      };
+      export type Options = DisplayHostname.Options;
     }
 
     /**
