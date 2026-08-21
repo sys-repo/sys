@@ -57,18 +57,19 @@ start-ui.design.md
 - [x] 7f1853239 refactor(driver-pi): split GUI screen test concerns
 - [x] 17f68a5af feat(driver-pi): diagnose unavailable start:gui manifest sources
 - [x] 969df90c9 refactor(http): fit direct service startup output to terminal width
-- [ ] fix(driver-pi): settle failed start:gui exits without uncaught stacks
+- [x] 5055ec0a6 fix(driver-pi): settle failed start:gui exits without uncaught stacks
 
 ## Closure boundary
 
-The landed structure through `969df90c9` is uniquely reachable with its recorded subjects, and the
-three checked prerequisite snapshots are reachable completion commits. A real failed-session run
-then exposed one unresolved user-facing exit boundary, so this plan is not complete or
-retirement-ready.
+The landed structure through `5055ec0a6` is uniquely reachable with its recorded subjects, and the
+three checked prerequisite snapshots are reachable completion commits. The final process-settlement
+commit preserves exact internal rejection and cleanup truth while converting only privately
+authenticated, fully settled GUI failures to deliberate user-facing exit status `1`. This plan is
+complete and retirement-ready.
 
 Product-entry, local `:8080` source/rehearsal, immutable publication, and public HTTPS proof work is
 owned by [start-ui-release-evidence.plan.md](start-ui-release-evidence.plan.md). Its prerequisite
-reference to this plan remains unchecked until the failed-exit follow-up lands and this plan closes.
+reference to this completed plan is checked; none of that successor work is claimed here.
 
 ## Final runtime shape
 
@@ -256,9 +257,13 @@ The commits and their tests establish:
   exact user guidance; and
 - direct HTTP startup fitting for Unicode/ANSI TTY output with unchanged non-TTY output.
 
-No fresh broad test run is claimed by this plan rewrite. Closure additionally requires the focused
-process-level exit proof above. Future production entry, local cold/warm rehearsal, and public
-artifact/browser proof belong only to the successor.
+Final closure validation passed the Driver Pi package check and complete package test graph: 62 unit
+suites with 491 steps, 27 profile suites with 327 steps, five process-settlement scenarios, and four
+real-preview steps. Focused process proof established clean nonzero dismissal for source-unavailable
+and repair-required failures through `q` and `Ctrl+C`, zero status after ready quit, ordered cleanup,
+bounded output without duplicate errors or internal stacks, and ordinary uncaught visibility for an
+unowned programmer failure. Formatting and `git diff --check` also passed. Future production entry,
+local cold/warm rehearsal, and public artifact/browser proof belong only to the successor.
 
 ## Durable non-goals
 
@@ -275,7 +280,6 @@ This plan does not provide:
 
 ## Lifecycle
 
-Retirement is blocked by the unchecked failed-exit item. After that item lands, reconcile its hash,
-revalidate this final reality and proof record, then preserve a `plan(done)` snapshot before deleting
-the file with `plan(retire)`. The successor's prerequisite reference stays unchecked until this plan
-is complete.
+Complete at `5055ec0a6`. The final reality and proof record are reconciled, and the successor's
+prerequisite reference is checked. Preserve a `plan(done)` snapshot before deleting this file with
+`plan(retire)`; retirement remains a separate Git mutation.
