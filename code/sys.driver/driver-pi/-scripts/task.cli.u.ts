@@ -1,6 +1,7 @@
 import { Fs } from '@sys/fs';
 import { Path } from '@sys/std/path';
 import type { t } from '../src/common.ts';
+import { settleCliRun } from '../src/m.core/m.cli.profiles/u/u.start.gui.settlement.ts';
 
 export const TaskCli = {
   async input(argv: readonly string[] = []) {
@@ -13,6 +14,7 @@ export const TaskCli = {
       read: await resolveReadScope(gitRoot),
     };
   },
+  settle: settleCliRun,
 } as const;
 
 /**

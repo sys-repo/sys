@@ -8,6 +8,7 @@ import {
 } from '../../../-test.ts';
 import { Fs, Json, type t } from '../common.ts';
 import { PiFs } from '../../u.fs.ts';
+import { isCliSettledFailure } from '../u/u.start.gui.settlement.ts';
 import { start, type StartGuiDependencies, type StartGuiInput } from '../u.start/u.gui.ts';
 import { snapshotApplicationOwner } from '../u.start/u.identity.ts';
 import { prepareReleaseOwner } from '../u.start/u.materialize.ts';
@@ -2490,6 +2491,7 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
       kind: 'cleanup-failed',
       issues: [{ resource: 'status-listener', state: 'failed' }],
     });
+    expect(isCliSettledFailure(error)).to.eql(true);
     expect(count(harness.events, 'lease.release')).to.eql(1);
     expect(count(harness.events, 'status.close')).to.eql(1);
   });
@@ -2701,7 +2703,7 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
       projection.kind === 'page' && projection.key === 'failed-repair-required'
     );
     await harness.quit();
-    await rejected;
+    expect(isCliSettledFailure(await rejected)).to.eql(true);
   });
 
   it('keeps an unexplained lower cancelled result as a primary failure', async () => {
@@ -2741,6 +2743,7 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
 
     expect(error).not.to.equal(failure);
     expect(error.message).to.eql('start:gui bootstrap startup failed.');
+    expect(isCliSettledFailure(error)).to.eql(false);
     expect(harness.events).to.eql([]);
     expect(harness.opened).to.eql([]);
     expect(harness.materializeCalls).to.eql(0);

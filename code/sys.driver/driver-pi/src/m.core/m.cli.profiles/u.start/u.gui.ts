@@ -33,6 +33,7 @@ import {
 } from './u.promise.ts';
 import { Boot, bootStateSource, createBootState } from './u.state.ts';
 import { START_GUI_SERVICE, type StartGuiEvidence } from '../u/u.start.gui.service.ts';
+import { markCliSettledFailure } from '../u/u.start.gui.settlement.ts';
 
 export type { StartGuiDependencies } from './u.deps.ts';
 
@@ -46,6 +47,8 @@ type BootResult =
 type Observed<T> =
   | Readonly<{ kind: 'value'; value: T }>
   | Readonly<{ kind: 'failed' }>;
+
+type FailureEvent = Extract<TerminalEvent, { kind: 'failure' }>;
 
 export type StartGuiInput = {
   readonly cwd: t.PiCli.Cwd;
@@ -198,7 +201,17 @@ async function startPrepared(input: PreparedStartGui): Promise<void> {
   let cleanup: CleanupEvidence | undefined;
   let bootResult: BootResult = EXTERNAL_STOP_RESULT;
   let controlsReady = false;
+  let trustedStopRequested = false;
+  let presentableFailureReleased = false;
   let redrawScreen = () => {};
+  const requestTrustedStop = (source: 'back' | 'quit') => {
+    trustedStopRequested = true;
+    supervisor.requestStop(`start:gui.keyboard.${source}`);
+  };
+  const isFailureHeld = (event: FailureEvent) => controlsReady && retainsFailureForeground(event);
+  const recordPresentableRelease = (event: FailureEvent) => {
+    presentableFailureReleased = trustedStopRequested && isCliPresentableFailure(event);
+  };
 
   try {
     // Acquire controls synchronously after the immediate pre-abort latch. Already-queued listener
@@ -209,9 +222,9 @@ async function startPrepared(input: PreparedStartGui): Promise<void> {
           exit: false,
           onKey: (event) => {
             if (Cli.Keyboard.isRedraw(event)) redrawScreen();
-            if (isBackKey(event)) supervisor.requestStop('start:gui.keyboard.back');
+            if (isBackKey(event)) requestTrustedStop('back');
           },
-          onQuit: () => supervisor.requestStop('start:gui.keyboard.quit'),
+          onQuit: () => requestTrustedStop('quit'),
         });
       } catch {
         supervisor.recordUnobservableControl('keyboard');
@@ -293,8 +306,9 @@ async function startPrepared(input: PreparedStartGui): Promise<void> {
       await awaitPromise(supervisor.terminal);
     if (terminal.kind === 'failure') {
       primary = terminal.error;
-      if (controlsReady && retainsFailureForeground(terminal)) {
+      if (isFailureHeld(terminal)) {
         await awaitPromise(supervisor.foregroundReleased);
+        recordPresentableRelease(terminal);
       }
     } else if (
       bootResult.kind === 'stop' && bootResult.source === 'external-cancellation' &&
@@ -307,16 +321,12 @@ async function startPrepared(input: PreparedStartGui): Promise<void> {
     supervisor.publishFailure(failure.error, failure.state);
     const terminal = supervisor.currentTerminal ?? supervisor.currentBlocker ??
       (isPromiseTransportReady() ? await awaitPromise(supervisor.terminal) : undefined);
-    primary = terminal?.kind === 'failure'
-      ? terminal.error
-      : terminal?.kind === 'stop'
-      ? primary
-      : failure.error;
-    if (
-      terminal?.kind === 'failure' && controlsReady && retainsFailureForeground(terminal) &&
-      isPromiseTransportReady()
-    ) {
+    if (terminal?.kind === 'failure') primary = terminal.error;
+    else if (terminal === undefined) primary = failure.error;
+    const canAwaitRelease = terminal?.kind === 'failure' && isPromiseTransportReady();
+    if (canAwaitRelease && isFailureHeld(terminal)) {
       await awaitPromise(supervisor.foregroundReleased);
+      recordPresentableRelease(terminal);
     }
   } finally {
     if (state.current.kind !== 'stopping') {
@@ -345,7 +355,9 @@ async function startPrepared(input: PreparedStartGui): Promise<void> {
     presentation,
     materialization: supervisor.materializationEvidence,
   });
-  if (error) throw error;
+  if (!error) return;
+  if (presentableFailureReleased) markCliSettledFailure(error);
+  throw error;
 }
 
 async function runBoot(input: {
@@ -932,9 +944,15 @@ function bootResultOf(event: TerminalEvent): BootResult {
   return event.source === 'external-cancellation' ? EXTERNAL_STOP_RESULT : TRUSTED_STOP_RESULT;
 }
 
-function retainsFailureForeground(event: Extract<TerminalEvent, { kind: 'failure' }>): boolean {
+function retainsFailureForeground(event: FailureEvent): boolean {
   const evidence = event.state.safeEvidence;
   return !(evidence.kind === 'local' && evidence.operation === 'controls');
+}
+
+function isCliPresentableFailure(event: FailureEvent): boolean {
+  const evidence = event.state.safeEvidence;
+  if (evidence.kind !== 'local') return true;
+  return evidence.operation !== 'controls' && evidence.operation !== 'screen';
 }
 
 function unresolvedStatusCleanup(): CleanupEvidence {
