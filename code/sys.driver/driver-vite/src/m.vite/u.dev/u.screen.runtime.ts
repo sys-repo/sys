@@ -1,5 +1,5 @@
 import { Cli, type t, Time } from '../common.ts';
-import { DevScreenLayout } from './u.dev.screen.layout.ts';
+import { DevScreenLayout } from './u.screen.layout.ts';
 
 type Phase = t.ViteDev.Screen.Runtime.Phase | 'disposed';
 type Invalidation = 'content' | 'layout';

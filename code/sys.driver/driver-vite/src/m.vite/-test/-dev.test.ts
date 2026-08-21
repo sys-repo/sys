@@ -16,7 +16,7 @@ import {
 import { writeLocalFixtureImports } from '../../m.vite/-test/u.bridge.fixture.ts';
 import { Vite } from '../mod.ts';
 import type { ViteDevDeps } from '../t.internal.ts';
-import { devWithDeps } from '../u/u.dev.ts';
+import { devWithDeps } from '../u.dev/mod.ts';
 import { Wrangle } from '../u/u.wrangle.ts';
 
 const DEV_FETCH_TIMEOUT = 5_000 as t.Msecs;

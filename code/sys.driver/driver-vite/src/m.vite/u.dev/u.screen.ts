@@ -1,6 +1,6 @@
 import { Is, type t } from '../common.ts';
-import { DevScreenLayout } from './u.dev.screen.layout.ts';
-import { DevScreenRuntime } from './u.dev.screen.runtime.ts';
+import { DevScreenLayout } from './u.screen.layout.ts';
+import { DevScreenRuntime } from './u.screen.runtime.ts';
 
 type ReporterMode = t.Vite.Dev.ReporterMode;
 

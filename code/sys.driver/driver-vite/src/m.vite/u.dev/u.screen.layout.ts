@@ -1,6 +1,6 @@
 import { metadataRow } from '../../m.fmt/u.ts';
 import { c, Cli, Is, Num, Path, type t } from '../common.ts';
-import { ViteScreenLayout } from './u.vite.screen.layout.ts';
+import { ViteScreenLayout } from '../u/u.vite.screen.layout.ts';
 
 type FrameArgs = t.ViteDev.Screen.Frame.Args;
 type Viewport = t.ViteDev.Screen.Frame.Viewport;

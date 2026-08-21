@@ -1,7 +1,7 @@
 import { HashFmt } from '@sys/crypto/fmt';
 import { c, Cli, describe, expect, it, Path, stripAnsi, type t, Time } from '../../-test.ts';
-import { DevOutputLog } from '../u/u.dev.output.ts';
-import { DevScreen } from '../u/u.dev.screen.ts';
+import { DevOutputLog } from '../u.dev/u.output.ts';
+import { DevScreen } from '../u.dev/u.screen.ts';
 import { paths, pkg, processEvent } from './u.fixture.dev.ts';
 
 const HASH = `sha256-${'88f8e3e041df504c3177b35ad742f4aebf99951a0c832fb64c1e1b2edef'}ccd11`;

@@ -1,5 +1,5 @@
 import { describe, expect, it, type t } from '../../-test.ts';
-import { DevOutputLog } from '../u/u.dev.output.ts';
+import { DevOutputLog } from '../u.dev/u.output.ts';
 
 describe('DevOutputLog', () => {
   it('assembles process chunks into bounded stdout and stderr lines', () => {

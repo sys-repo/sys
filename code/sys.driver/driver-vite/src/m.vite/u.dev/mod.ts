@@ -14,14 +14,13 @@ import {
   Url,
 } from '../common.ts';
 import { Perf } from '../../common/u.perf.ts';
-import { DevOutputLog } from './u.dev.output.ts';
-import { DevScreen } from './u.dev.screen.ts';
-import { keyboardFactory } from './u.keyboard.ts';
-import { Log } from './u.log.ts';
-import { Wrangle } from './u.wrangle.ts';
+import { DevOutputLog } from './u.output.ts';
+import { DevScreen } from './u.screen.ts';
+import { keyboardFactory } from '../u/u.keyboard.ts';
+import { Log } from '../u/u.log.ts';
+import { Wrangle } from '../u/u.wrangle.ts';
 
 const STARTING_DEV_SERVER = 'starting dev server…';
-
 const SUPPRESS_VISIBLE_OUTPUT = [
   /**
    * Deno auto-discovers the consumer `deno.json` while this driver also passes a

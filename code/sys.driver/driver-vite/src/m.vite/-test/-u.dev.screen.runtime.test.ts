@@ -1,8 +1,8 @@
 import { FakeSpinner } from '@sys/cli/testing';
 import { describe, expect, it, Rx, stripAnsi } from '../../-test.ts';
 import type { t } from '../common.ts';
-import { DevOutputLog } from '../u/u.dev.output.ts';
-import { DevScreen } from '../u/u.dev.screen.ts';
+import { DevOutputLog } from '../u.dev/u.output.ts';
+import { DevScreen } from '../u.dev/u.screen.ts';
 import { paths, pkg, processEvent } from './u.fixture.dev.ts';
 
 type SchedulerEntry = {
