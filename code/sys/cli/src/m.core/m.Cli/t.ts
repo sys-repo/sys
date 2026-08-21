@@ -142,8 +142,17 @@ export declare namespace Cli {
   export namespace Keyboard {
     /** CLI keyboard helper library contract. */
     export type Lib = t.CliKeyboard.Lib;
-    /** Minimal keypress shape used by CLI keyboard predicates. */
-    export type Event = t.CliKeyboard.Event;
+    /**
+     * Keyboard predicate type projections.
+     */
+    export namespace Is {
+      /** Keyboard predicate library contract. */
+      export type Lib = t.CliKeyboard.Is.Lib;
+      /** Minimal keypress shape required by the canonical quit predicate. */
+      export type QuitInput = t.CliKeyboard.Is.QuitInput;
+      /** Partial keypress input accepted by the canonical redraw predicate. */
+      export type RedrawInput = t.CliKeyboard.Is.RedrawInput;
+    }
 
     /**
      * Keyboard binding types.

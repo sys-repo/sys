@@ -221,7 +221,7 @@ async function startPrepared(input: PreparedStartGui): Promise<void> {
         return deps.bindKeyboard({
           exit: false,
           onKey: (event) => {
-            if (Cli.Keyboard.isRedraw(event)) redrawScreen();
+            if (Cli.Keyboard.Is.redraw(event)) redrawScreen();
             if (isBackKey(event)) requestTrustedStop('back');
           },
           onQuit: () => requestTrustedStop('quit'),

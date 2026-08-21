@@ -1,11 +1,6 @@
 import type { t } from './common.ts';
 import type { CliffyKeypress, CliffyKeyPressEvent } from '../t.ext.ts';
 
-/** Partial keypress input; missing fields are rejected by the redraw predicate. */
-type RedrawInput = Partial<
-  Pick<CliffyKeyPressEvent, 'key' | 'ctrlKey' | 'altKey' | 'metaKey' | 'shiftKey'>
->;
-
 /**
  * Tools for owning keyboard input within a CLI lifecycle.
  */
@@ -26,14 +21,8 @@ export declare namespace CliKeyboard {
      */
     readonly keypress: typeof CliffyKeypress;
 
-    /** True for canonical terminal quit keys. */
-    isQuit(event: Event): boolean;
-
-    /** True only for lowercase `r` with every modifier explicitly false. */
-    isRedraw(event: RedrawInput): boolean;
-
-    /** True for expected keyboard-listener failures in non-terminal runtimes. */
-    isUnavailableError(error: unknown): boolean;
+    /** Predicates for canonical keyboard controls and listener failures. */
+    readonly Is: Is.Lib;
 
     /** Bind canonical terminal keyboard controls to callbacks. */
     bind(options: Bind.Options): Bind.Handle | undefined;
@@ -42,8 +31,30 @@ export declare namespace CliKeyboard {
     shutdown(handle: Bind.Handle): Promise<void>;
   };
 
-  /** Minimal keypress shape used by CLI keyboard predicates. */
-  export type Event = Pick<CliffyKeyPressEvent, 'key' | 'ctrlKey'>;
+  /**
+   * Keyboard predicate types.
+   */
+  export namespace Is {
+    /** Predicate library for canonical keyboard controls and listener failures. */
+    export type Lib = {
+      /** True for canonical terminal quit keys. */
+      quit(event: QuitInput): boolean;
+
+      /** True only for lowercase `r` with every modifier explicitly false. */
+      redraw(event: RedrawInput): boolean;
+
+      /** True for expected keyboard-listener failures in non-terminal runtimes. */
+      unavailableError(error: unknown): boolean;
+    };
+
+    /** Minimal keypress shape required by the canonical quit predicate. */
+    export type QuitInput = Pick<CliffyKeyPressEvent, 'key' | 'ctrlKey'>;
+
+    /** Partial keypress input; missing fields are rejected by the redraw predicate. */
+    export type RedrawInput = Partial<
+      Pick<CliffyKeyPressEvent, 'key' | 'ctrlKey' | 'altKey' | 'metaKey' | 'shiftKey'>
+    >;
+  }
 
   /**
    * Keyboard binding types.

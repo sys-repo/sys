@@ -1,6 +1,6 @@
 import { Cli, Open, Rx, type t } from '../common.ts';
 
-type KeypressEvent = Parameters<t.Cli.Keyboard.Lib['isRedraw']>[0];
+type KeypressEvent = t.Cli.Keyboard.Is.RedrawInput;
 type KeypressStream = AsyncIterable<KeypressEvent>;
 type KeyboardAction = 'noop' | 'open' | 'redraw' | 'quit';
 type KeyboardDeps = {
@@ -75,7 +75,7 @@ const wrangle = {
     if (!e.key) return 'noop';
     if ((e.ctrlKey && e.key === 'c') || e.key === 'q') return 'quit';
     if (e.key === 'o') return 'open';
-    if (Cli.Keyboard.isRedraw(e)) return 'redraw';
+    if (Cli.Keyboard.Is.redraw(e)) return 'redraw';
     return 'noop';
   },
 

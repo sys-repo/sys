@@ -323,7 +323,7 @@ describe('HttpServer.start', () => {
           finished: keyboardFinished.promise,
         };
       },
-      isUnavailableError: Cli.Keyboard.isUnavailableError,
+      isUnavailableError: Cli.Keyboard.Is.unavailableError,
       sh: () => ({
         path: '',
         run(script) {
@@ -374,7 +374,7 @@ describe('HttpServer.start', () => {
           finished: keyboardFinished.promise,
         };
       },
-      isUnavailableError: Cli.Keyboard.isUnavailableError,
+      isUnavailableError: Cli.Keyboard.Is.unavailableError,
       sh: () => ({
         path: '',
         run: () => Promise.resolve(undefined as never),

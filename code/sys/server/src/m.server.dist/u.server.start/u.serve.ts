@@ -168,7 +168,7 @@ async function serveLoop(
         exit: input.keyboard.exit,
         onQuit: () => closeStarted('keyboard'),
         onKey: (event) => {
-          if (Cli.Keyboard.isRedraw(event)) return redrawScreen();
+          if (Cli.Keyboard.Is.redraw(event)) return redrawScreen();
           if (event.key === 'o') return effects.open(started.origin);
         },
       });

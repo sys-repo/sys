@@ -2,14 +2,14 @@ import { c, Cli, Process, Str } from '../common.ts';
 
 export type KeyboardDependencies = {
   readonly bind: typeof Cli.Keyboard.bind;
-  readonly isUnavailableError: typeof Cli.Keyboard.isUnavailableError;
+  readonly isUnavailableError: typeof Cli.Keyboard.Is.unavailableError;
   readonly sh: typeof Process.sh;
   readonly exit: typeof Deno.exit;
 };
 
 const DEFAULT_DEPS: KeyboardDependencies = {
   bind: Cli.Keyboard.bind,
-  isUnavailableError: Cli.Keyboard.isUnavailableError,
+  isUnavailableError: Cli.Keyboard.Is.unavailableError,
   sh: Process.sh,
   exit: Deno.exit,
 };

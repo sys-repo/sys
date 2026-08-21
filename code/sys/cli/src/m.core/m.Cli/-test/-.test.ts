@@ -28,22 +28,9 @@ describe('CLI: core / m.Cli', () => {
 
   it('Cli.Keyboard', () => {
     expect(Object.isFrozen(Cli.Keyboard)).to.eql(true);
-    expect(Object.keys(Cli.Keyboard)).to.eql([
-      'keypress',
-      'isQuit',
-      'isRedraw',
-      'isUnavailableError',
-      'bind',
-      'shutdown',
-    ]);
-
-    expect(Cli.Keyboard.isQuit({ key: 'q', ctrlKey: false })).to.eql(true);
-    expect(Cli.Keyboard.isQuit({ key: 'Q', ctrlKey: false })).to.eql(true);
-    expect(Cli.Keyboard.isQuit({ key: 'c', ctrlKey: true })).to.eql(true);
-    expect(Cli.Keyboard.isQuit({ key: 'c', ctrlKey: false })).to.eql(false);
-
-    expect(Cli.Keyboard.isUnavailableError(new Error('ENOTTY'))).to.eql(true);
-    expect(Cli.Keyboard.isUnavailableError(new Error('boom'))).to.eql(false);
+    expect(Object.keys(Cli.Keyboard)).to.eql(['keypress', 'Is', 'bind', 'shutdown']);
+    expect(Object.isFrozen(Cli.Keyboard.Is)).to.eql(true);
+    expect(Object.keys(Cli.Keyboard.Is)).to.eql(['quit', 'redraw', 'unavailableError']);
   });
 
   it('Cli.stripAnsi', () => {

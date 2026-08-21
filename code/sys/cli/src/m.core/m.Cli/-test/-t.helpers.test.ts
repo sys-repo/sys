@@ -25,10 +25,10 @@ import { Cli } from '../mod.ts';
 type Assert<T extends true> = t.Type.Assert<T>;
 type Equal<A, B> = t.Type.Equal<A, B>;
 type BoundKeypressEvent = Parameters<NonNullable<t.CliKeyboard.Bind.Options['onKey']>>[0];
+type ExpectedQuitInput = Pick<BoundKeypressEvent, 'key' | 'ctrlKey'>;
 type ExpectedRedrawInput = Partial<
   Pick<BoundKeypressEvent, 'key' | 'ctrlKey' | 'altKey' | 'metaKey' | 'shiftKey'>
 >;
-type RedrawInput = Parameters<t.CliKeyboard.Lib['isRedraw']>[0];
 type ExpectedMenuResultKind = 'exit' | 'back' | 'stay';
 type ExpectedMenuResult =
   | { readonly kind: ExpectedMenuResultKind }
@@ -50,12 +50,19 @@ type CanonicalHelperProof = [
   Assert<Equal<t.CliScreen.SizeChanged, CliScreenFromT.SizeChanged>>,
   Assert<Equal<t.CliScreen.SizeChanged, CliScreenFromTypes.SizeChanged>>,
 
-  // Keyboard: operation-owned binding contracts.
-  Assert<Equal<t.CliKeyboard.Event, t.Cli.Keyboard.Event>>,
-  Assert<Equal<t.CliKeyboard.Event, CliKeyboardFromT.Event>>,
-  Assert<Equal<t.CliKeyboard.Event, CliKeyboardFromTypes.Event>>,
-  Assert<Equal<RedrawInput, ExpectedRedrawInput>>,
-  Assert<BoundKeypressEvent extends RedrawInput ? true : false>,
+  // Keyboard: predicate and binding contracts.
+  Assert<Equal<t.CliKeyboard.Is.Lib, t.Cli.Keyboard.Is.Lib>>,
+  Assert<Equal<t.CliKeyboard.Is.Lib, CliKeyboardFromT.Is.Lib>>,
+  Assert<Equal<t.CliKeyboard.Is.Lib, CliKeyboardFromTypes.Is.Lib>>,
+  Assert<Equal<t.CliKeyboard.Is.QuitInput, ExpectedQuitInput>>,
+  Assert<Equal<t.CliKeyboard.Is.QuitInput, t.Cli.Keyboard.Is.QuitInput>>,
+  Assert<Equal<t.CliKeyboard.Is.QuitInput, CliKeyboardFromT.Is.QuitInput>>,
+  Assert<Equal<t.CliKeyboard.Is.QuitInput, CliKeyboardFromTypes.Is.QuitInput>>,
+  Assert<Equal<t.CliKeyboard.Is.RedrawInput, ExpectedRedrawInput>>,
+  Assert<BoundKeypressEvent extends t.CliKeyboard.Is.RedrawInput ? true : false>,
+  Assert<Equal<t.CliKeyboard.Is.RedrawInput, t.Cli.Keyboard.Is.RedrawInput>>,
+  Assert<Equal<t.CliKeyboard.Is.RedrawInput, CliKeyboardFromT.Is.RedrawInput>>,
+  Assert<Equal<t.CliKeyboard.Is.RedrawInput, CliKeyboardFromTypes.Is.RedrawInput>>,
   Assert<Equal<t.CliKeyboard.Bind.Options, t.Cli.Keyboard.Bind.Options>>,
   Assert<Equal<t.CliKeyboard.Bind.Options, CliKeyboardFromT.Bind.Options>>,
   Assert<Equal<t.CliKeyboard.Bind.Options, CliKeyboardFromTypes.Bind.Options>>,
@@ -91,6 +98,10 @@ describe('Cli: canonical helper type namespaces', () => {
     expectTypeOf(Keyboard).toEqualTypeOf<t.Cli.Keyboard.Lib>();
     expectTypeOf(Keyboard).toEqualTypeOf<CliKeyboardFromT.Lib>();
     expectTypeOf(Keyboard).toEqualTypeOf<CliKeyboardFromTypes.Lib>();
+    expectTypeOf(Keyboard.Is).toEqualTypeOf<t.CliKeyboard.Is.Lib>();
+    expectTypeOf(Keyboard.Is).toEqualTypeOf<t.Cli.Keyboard.Is.Lib>();
+    expectTypeOf(Keyboard.Is).toEqualTypeOf<CliKeyboardFromT.Is.Lib>();
+    expectTypeOf(Keyboard.Is).toEqualTypeOf<CliKeyboardFromTypes.Is.Lib>();
 
     expectTypeOf(Input).toEqualTypeOf<t.CliInput.Lib>();
     expectTypeOf(Input).toEqualTypeOf<t.Cli.Input.Lib>();

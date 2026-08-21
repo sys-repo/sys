@@ -77,7 +77,7 @@ function run(scenario: Scenario, cleanup: CleanupEvent[]): Promise<void> {
   let terminalPrinted = false;
   const requestQuit = () => {
     if (!onQuit) throw new Error('Expected bound quit callback.');
-    if (!Cli.Keyboard.isQuit(quitEventOf(scenario))) {
+    if (!Cli.Keyboard.Is.quit(quitEventOf(scenario))) {
       throw new Error('Expected canonical quit control.');
     }
     void onQuit();
@@ -130,7 +130,7 @@ function rootedFixture(target: DirectoryTarget, lease: FsRooted.Lease): FsRooted
   }) as unknown as FsRooted.Instance;
 }
 
-function quitEventOf(scenario: GuiScenario): t.Cli.Keyboard.Event {
+function quitEventOf(scenario: GuiScenario): t.Cli.Keyboard.Is.QuitInput {
   return scenario === 'source-ctrl-c' ? CTRL_C_EVENT : Q_EVENT;
 }
 

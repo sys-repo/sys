@@ -1,6 +1,5 @@
 import { CliIs, Is, keypress, type t } from './common.ts';
-import { isQuit } from './u.isQuit.ts';
-import { isUnavailableError } from './u.isUnavailableError.ts';
+import { Is as KeyboardIs } from './m.Is.ts';
 
 type KeypressOwner = ReturnType<typeof keypress>;
 
@@ -181,7 +180,7 @@ export function bindWith(
       while (!stopRequested) {
         const next = await readNext();
         if (next.kind === 'failed') {
-          await reportListenerFailure(isUnavailableError(next.cause));
+          await reportListenerFailure(KeyboardIs.unavailableError(next.cause));
           return;
         }
 
@@ -189,7 +188,7 @@ export function bindWith(
           if (stopRequested) return;
           if (next.value.done) return;
           const event = next.value.value;
-          if (isQuit(event)) {
+          if (KeyboardIs.quit(event)) {
             await snapshot.onQuit();
             if (snapshot.exit ?? false) Deno.exit(0);
             return;
