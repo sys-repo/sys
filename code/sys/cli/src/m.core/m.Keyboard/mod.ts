@@ -1,4 +1,5 @@
-import { keypress, type t } from './common.ts';
+import { keypress } from '@cliffy/keypress';
+import type { t } from './common.ts';
 import { Is } from './m.Is.ts';
 import { bind } from './u.bind.ts';
 import { shutdown } from './u.shutdown.ts';

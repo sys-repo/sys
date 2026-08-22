@@ -1,4 +1,5 @@
-import { Is as IsBase, type t } from './common.ts';
+import { Is as IsBase } from '@sys/std/is/server';
+import type { t } from './common.ts';
 
 /**
  * Predicates for canonical keyboard controls and listener failures.

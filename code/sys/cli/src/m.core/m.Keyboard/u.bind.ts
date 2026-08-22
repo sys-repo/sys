@@ -1,4 +1,7 @@
-import { CliIs, Is, keypress, type t } from './common.ts';
+import { keypress } from '@cliffy/keypress';
+import { Is } from '@sys/std/is/server';
+import type { t } from './common.ts';
+import { Is as CliIs } from '../m.Is/mod.ts';
 import { Is as KeyboardIs } from './m.Is.ts';
 
 type KeypressOwner = ReturnType<typeof keypress>;
