@@ -1,3 +1,5 @@
+import { runInNewContext } from 'node:vm';
+import { Is } from '@sys/std/is';
 import { describe, expect, expectTypeOf, Fs, it, type t } from '../../../-test.ts';
 import { serveFileBytes } from '../mod.ts';
 
@@ -181,16 +183,35 @@ describe('serveFileBytes', () => {
       value: '/private/path',
     });
     const symbolExtra = { kind: 'missing', [Symbol('checksum-secret')]: true };
+    const forgedBytes = { 0: 120, length: 1, [Symbol.toStringTag]: 'Uint8Array' };
+    const forgedView = new Uint16Array([0x1234, 0x5678]);
+    Object.defineProperty(forgedView, Symbol.toStringTag, { value: 'Uint8Array' });
+    const proxied = new Proxy(
+      { kind: 'missing' },
+      {
+        ownKeys: () => {
+          throw new Error('/private/path checksum-secret');
+        },
+      },
+    );
+    const revoked = Proxy.revocable({ kind: 'missing' }, {});
+    revoked.revoke();
     const invalid: readonly unknown[] = [
       null,
+      1,
+      Object.create({ kind: 'missing' }),
       { kind: 'unknown' },
       { kind: 'missing', extra: '/private/path' },
       { kind: 'bytes', bytes: 'private' },
+      { kind: 'bytes', bytes: forgedBytes },
+      { kind: 'bytes', bytes: forgedView },
       { kind: 'bytes', bytes: new Uint8Array(), extra: 'checksum-secret' },
       throwingKind,
       accessorBytes,
       hiddenExtra,
       symbolExtra,
+      proxied,
+      revoked.proxy,
     ];
 
     for (const input of invalid) {
@@ -204,25 +225,129 @@ describe('serveFileBytes', () => {
       expect(response.status).to.eql(500);
       await expectEmpty(response);
       expectPolicy(response);
+      expect(response.headers.get('content-type')).to.eql(null);
       expectResidueAbsent(response);
     }
   });
 
-  it('snapshots the lazy reader and logical path at call time', async () => {
-    const mutable = {
-      req: new Request('http://local/index.html'),
-      path: 'index.html',
+  it('contains malformed outer and request authority as fixed empty failures', async () => {
+    let reads = 0;
+    const valid = {
+      req: new Request('http://local/private.txt'),
+      path: 'private.txt',
       cache: 'no-store' as const,
-      read: () => bytes('first'),
+      read: () => {
+        reads++;
+        return bytes('private');
+      },
+    };
+    const accessor = {
+      path: valid.path,
+      cache: valid.cache,
+      read: valid.read,
+    };
+    Object.defineProperty(accessor, 'req', {
+      enumerable: true,
+      get: () => {
+        throw new Error('/private/path checksum-secret');
+      },
+    });
+    const proxied = new Proxy(valid, {
+      ownKeys: () => {
+        throw new Error('/private/path checksum-secret');
+      },
+    });
+    const revoked = Proxy.revocable(valid, {});
+    revoked.revoke();
+    const requestProxy = new Proxy(valid.req, {
+      getPrototypeOf: () => {
+        throw new Error('/private/path checksum-secret');
+      },
+    });
+    const invalid: readonly unknown[] = [
+      null,
+      1,
+      Object.create(valid),
+      accessor,
+      proxied,
+      revoked.proxy,
+      { ...valid, req: requestProxy },
+      { ...valid, [Symbol('checksum-secret')]: true },
+    ];
+
+    for (const input of invalid) {
+      const response = await serveFileBytes(input as t.HttpServer.ServeFileBytes.Args);
+      expect(response.status).to.eql(500);
+      await expectEmpty(response);
+      expectPolicy(response);
+      expectResidueAbsent(response);
+    }
+
+    expect(reads).to.eql(0);
+  });
+
+  it('admits cross-realm exact records and snapshots accepted bytes', async () => {
+    const foreign = runInNewContext('({ kind: "bytes", bytes: new Uint8Array([7]) })');
+    const crossRealm = await serveFileBytes({
+      req: new Request('http://local/value.bin'),
+      path: 'value.bin',
+      cache: 'no-store',
+      read: () => Promise.resolve(foreign) as Promise<t.HttpServer.ServeFileBytes.Read.Result>,
+    });
+
+    expect(crossRealm.status).to.eql(200);
+    expect(new Uint8Array(await crossRealm.arrayBuffer())).to.eql(new Uint8Array([7]));
+
+    const detached = new Uint8Array([7]);
+    structuredClone(detached.buffer, { transfer: [detached.buffer] });
+    const detachedResponse = await serveFileBytes({
+      req: new Request('http://local/value.bin'),
+      path: 'value.bin',
+      cache: 'no-store',
+      read: () => Promise.resolve({ kind: 'bytes', bytes: detached }),
+    });
+
+    expect(detachedResponse.status).to.eql(500);
+    await expectEmpty(detachedResponse);
+    expectPolicy(detachedResponse);
+    expectResidueAbsent(detachedResponse);
+
+    const mutableBytes = new Uint8Array([7]);
+    const response = await serveFileBytes({
+      req: new Request('http://local/value.bin'),
+      path: 'value.bin',
+      cache: 'no-store',
+      read: () => {
+        setTimeout(() => mutableBytes.fill(9));
+        return Promise.resolve({ kind: 'bytes', bytes: mutableBytes });
+      },
+    });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(new Uint8Array(await response.arrayBuffer())).to.eql(new Uint8Array([7]));
+  });
+
+  it('detaches the lazy reader and logical path before reader re-entrancy', async () => {
+    let receiver: unknown;
+    const mutable = {
+      req: new Request('http://local/value.bin'),
+      path: 'value.bin',
+      cache: 'no-store' as const,
+      read: function (this: unknown) {
+        receiver = this;
+        mutable.path = 'mutated.html';
+        mutable.read = () => bytes('second');
+        if (Is.object(this)) Reflect.set(this, 'path', 'mutated.html');
+        return bytes('first');
+      },
     };
     const args: t.HttpServer.ServeFileBytes.Args = mutable;
 
-    const responsePromise = serveFileBytes(args);
-    mutable.path = 'mutated.bin';
-    mutable.read = () => bytes('second');
-    const response = await responsePromise;
+    const response = await serveFileBytes(args);
 
-    expect(response.headers.get('content-type')).to.eql('text/html; charset=UTF-8');
+    expect(receiver).to.eql(undefined);
+    expect(response.status).to.eql(200);
+    expect(response.headers.get('content-type')).to.eql('application/octet-stream');
     expect(await response.text()).to.eql('first');
   });
 

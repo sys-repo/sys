@@ -6,7 +6,8 @@
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check -- ./src/ ./-scripts/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
-    "test": "deno test -P=test",
+    "test": "deno test -P=test && deno task test:file-bytes:entry",
+    "test:file-bytes:entry": "deno run --no-prompt -P=file-bytes-entry ./src/http.server/m.FileBytes/-test.external/-entry.process-proof.ts",
     "serve": "deno run -P=serve @sys/http/serve --cmd=start --port=1234 --dir='./src/-test/-sample.dist'"
   },
   "exports": {
@@ -16,6 +17,7 @@
     "./client": "./src/-exports/-http.client.ts",
     "./cmd": "./src/http.cmd/mod.ts",
     "./server": "./src/-exports/-http.server.ts",
+    "./server/file-bytes": "./src/http.server/m.FileBytes/mod.ts",
     "./server/proxy": "./src/http.server/m.HttpProxy/mod.ts",
     "./server/static": "./src/http.server/m.HttpStatic/mod.ts",
     "./serve": "./src/-serve/mod.ts"
@@ -35,7 +37,7 @@
     "serve": {
       "read": true,
       "net": true
-    }
+    },
+    "file-bytes-entry": {}
   }
 }
-
