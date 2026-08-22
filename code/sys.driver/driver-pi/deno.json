@@ -9,6 +9,7 @@
     "test:profiles:process": "deno test -P=test-process --trace-leaks ./src/m.core/m.cli.profiles/-test.external/-u.start.gui.exit.process-proof.ts",
     "test:preview": "deno test -P=test --trace-leaks ./-scripts/-test/-task.start.gui.preview.test.ts",
     "test:preview:real": "deno test -P=preview-test --no-prompt --deny-write=../../.. --trace-leaks ./-scripts/-test.external/-task.start.gui.preview.real.ts",
+    "test:source:process": "deno run --no-prompt -P=source-process ./-scripts/-test.external/-task.start.gui.source.process-proof.ts",
     "test:browser": "deno task build && FORCE_COLOR=0 deno test -P=test-browser --trace-leaks ./-scripts/-test.browser.ts",
     "prep": "deno run -P=dev ./-scripts/task.prep.ts",
     "cli": "deno run -P=cli ./-scripts/task.cli.ts",
@@ -18,6 +19,7 @@
     "serve": "deno run -P=dev ./-scripts/task.vite.ts --cmd=serve",
     "reset": "deno task start:gui:reset",
     "start:gui:reset": "deno run -P=clean ./-scripts/task.start.gui.reset.ts",
+    "start:gui:source": "deno run --no-prompt -P=source ./-scripts/task.start.gui.source.ts",
     "start:gui:preview": "deno run -P=preview-launch --no-prompt ./-scripts/task.start.gui.preview.ts",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check -- ./src/ ./-scripts/*",
@@ -50,6 +52,15 @@
     "test-process-child": {
       "read": true,
       "env": true
+    },
+    "source": {
+      "read": ["./dist"],
+      "net": ["127.0.0.1:8080"]
+    },
+    "source-process": {
+      "read": ["./dist"],
+      "net": ["localhost:8080", "127.0.0.1:8080"],
+      "run": ["deno"]
     },
     "preview-launch": {
       "read": true,
