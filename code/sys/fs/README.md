@@ -3,8 +3,9 @@
 `@sys/fs` is the Deno-native filesystem layer used across `@sys`. It builds on Deno's filesystem
 APIs and runs under Deno's permission model. It is not a cross-runtime abstraction.
 
-Use `Fs` and `Path` for ordinary file and path work. Use `Rooted` when cooperating processes must
-publish complete data or coordinate its use and removal.
+Use `Fs` and `Path` for ordinary file and path work. Use `Rooted` when a caller needs reads of
+admitted files beneath one canonical root or cooperating processes must publish complete data or
+coordinate its use and removal.
 
 ## Primary imports
 
@@ -20,10 +21,11 @@ publish complete data or coordinate its use and removal.
 
 ## Rooted
 
-A `Rooted` instance binds a cooperative publication protocol to one canonical directory. Every
-admitted target, private stage, and lock file stays beneath that root. Binding an existing root
-observes and canonicalizes that exact directory without requesting ambient ancestor reads; creating
-a missing root still validates its complete parent chain. `Rooted` does not replace Deno permissions
+A `Rooted` instance binds operations on admitted paths and a cooperative publication protocol to one
+canonical directory. Admitted target paths, private stages, and lock files are selected beneath that
+root. Binding an existing root observes and canonicalizes that exact directory without requesting
+ambient ancestor reads. Set `{ create: false }` to require the selected root to exist. Creating a
+missing root still validates its complete parent chain. `Rooted` does not replace Deno permissions
 or restrict direct filesystem calls.
 
 Use it for assets, builds, application versions, and caches that are published once, used by several
@@ -46,8 +48,21 @@ Its central promises are deliberately narrow:
 - File publication has at most one winner. Directory publication has at most one winner among
   `Rooted` instances bound to the same root.
 - Leases coordinate use, publication, sealing, and removal among cooperating `Rooted` callers.
+- `readFile()` reads only an admitted regular-file handle and rejects observed root, ancestor,
+  entry, or descriptor identity changes.
 - When identity or permission safety cannot be proved, Rooted refuses the operation rather than
   guessing or falling back to recursive mutation.
+
+### Read
+
+`readFile()` reads a file `Target` admitted by the same `Rooted` instance. `maxBytes` bounds
+allocation; `until` may cancel the operation. A missing target settles as `absent`; a successful
+read returns independently owned bytes.
+
+Each read rejects symlinks and checks that the root, path ancestry, selected entry, and opened
+descriptor remain consistent. An observed identity replacement or size change, a size above
+`maxBytes`, or a state that cannot be proved safe causes rejection. Content is not authenticated,
+and same-inode concurrent writes can produce non-coherent bytes.
 
 ### Publish
 
@@ -70,8 +85,8 @@ Publication is atomic to readers, but a successful return does not guarantee tha
 entry survives sudden power loss.
 
 If stage construction or cleanup can no longer prove that it owns a private container, the container
-is left in place rather than risk deleting the wrong path. The capability exposes no API for reading
-file contents, listing directories, or overwriting targets.
+is left in place rather than risk deleting the wrong path. The capability exposes no API for listing
+directories or overwriting targets.
 
 ### Lease
 
@@ -152,13 +167,15 @@ unverified recursive delete.
 
 Expected conditions settle explicitly:
 
-| Condition                                     | Settlement                                   |
-| --------------------------------------------- | -------------------------------------------- |
-| A non-waiting lease is contended              | `acquireLease()` returns `busy`              |
-| A directory target already exists             | `promoteStage()` returns `occupied`          |
-| A removal target is already absent            | `removeTree()` returns `absent`              |
-| The host cannot prove identity or mode safety | Seal operations may return `unsupported`     |
-| A file target already exists                  | `publishFile()` rejects with kind `occupied` |
+| Condition                                     | Settlement                                      |
+| --------------------------------------------- | ----------------------------------------------- |
+| A read target is absent                       | `readFile()` returns `absent`                   |
+| An observed file exceeds `maxBytes`           | `readFile()` rejects with kind `limit-exceeded` |
+| A non-waiting lease is contended              | `acquireLease()` returns `busy`                 |
+| A directory target already exists             | `promoteStage()` returns `occupied`             |
+| A removal target is already absent            | `removeTree()` returns `absent`                 |
+| The host cannot prove identity or mode safety | Seal operations may return `unsupported`        |
+| A file target already exists                  | `publishFile()` rejects with kind `occupied`    |
 
 Other rejected operations use `FsRootedError`. Call `Fs.Capability.Rooted.Is.failure(error)` to
 identify one. Its `operation` and `kind` fields say where and why it failed. `committed: true` means

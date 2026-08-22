@@ -6,6 +6,7 @@ import {
   expectFailure,
   expectTypeOf,
   Fs,
+  type Io,
   it,
   Num,
   setup,
@@ -40,6 +41,7 @@ describe('Fs.Capability.Rooted: public surface', () => {
         'path',
         'promoteStage',
         'publishFile',
+        'readFile',
         'removeTree',
         'sealTree',
       ]);
@@ -106,6 +108,55 @@ describe('Fs.Capability.Rooted: public surface', () => {
 });
 
 describe('Fs.Capability.Rooted: canonical root identity', () => {
+  it('snapshots exact creation authority before filesystem observation', async () => {
+    const fixture = await setup();
+    try {
+      let observations = 0;
+      const io = withIo({
+        lstat: async (path) => {
+          observations += 1;
+          return await DEFAULT_IO.lstat(path);
+        },
+      });
+      const invoke = (options: unknown) => {
+        const create = createRooted as unknown as (
+          input: unknown,
+          operations: Io,
+        ) => Promise<t.FsRooted.Instance>;
+        return create(options, io);
+      };
+      let getterCalls = 0;
+      const accessor = Object.defineProperty({ root: fixture.root }, 'create', {
+        get() {
+          getterCalls += 1;
+          return true;
+        },
+      });
+      const inherited = Object.create({ root: fixture.root });
+      const proxied = new Proxy({ root: fixture.root }, {});
+      const revoked = Proxy.revocable({ root: fixture.root }, {});
+      revoked.revoke();
+
+      for (
+        const input of [
+          { root: fixture.root, unexpected: true },
+          inherited,
+          accessor,
+          proxied,
+          revoked.proxy,
+        ]
+      ) {
+        const failure = await expectFailure(() => invoke(input), 'invalid-options');
+        expect(failure.operation).to.eql('create');
+      }
+      expect(getterCalls).to.eql(0);
+      expect(observations).to.eql(0);
+      expect(await Fs.exists(fixture.root)).to.eql(false);
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
   it('rejects replacement while establishing the canonical root identity', async () => {
     const fixture = await setup();
     try {
@@ -165,6 +216,23 @@ describe('Fs.Capability.Rooted: canonical root identity', () => {
           expect(rooted.path).to.eql(await Deno.realPath(fixture.root));
         }
       }
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
+  it('can require an existing root without mutating an absent selection', async () => {
+    const fixture = await setup();
+    try {
+      await expectFailure(
+        () => Rooted.create({ root: fixture.root, create: false }),
+        'invalid-root',
+      );
+      expect(await Fs.exists(fixture.root)).to.eql(false);
+
+      await Deno.mkdir(fixture.root);
+      const rooted = await Rooted.create({ root: fixture.root, create: false });
+      expect(rooted.path).to.eql(await Deno.realPath(fixture.root));
     } finally {
       await teardown(fixture);
     }

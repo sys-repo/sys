@@ -12,6 +12,11 @@ export type Identity = {
   readonly ino: number;
 };
 
+type IdentityInfo = {
+  readonly dev: number | null;
+  readonly ino: number | null;
+};
+
 export type RootState = {
   readonly path: t.StringAbsoluteDir;
   readonly identity: Identity;
@@ -21,11 +26,17 @@ export type TargetState<K extends t.FsRooted.TargetKind = t.FsRooted.TargetKind>
   & NormalizedTarget<K>
   & { readonly absolute: t.StringAbsolutePath };
 
+export type TargetObservation = {
+  readonly ancestors: readonly Identity[];
+  readonly target?: Deno.FileInfo;
+};
+
 /** Establish one canonical root with required stable identity evidence. */
 export async function createRootState(
   root: unknown,
   io: Io,
   signal: AbortSignal,
+  create: boolean,
 ): Promise<RootState> {
   const operation = 'create';
   if (!Is.str(root) || root.length === 0 || root.includes('\0')) {
@@ -34,7 +45,7 @@ export async function createRootState(
 
   const absolute = StdPath.resolve(root) as t.StringAbsoluteDir;
   let rootInfo = await lstatMaybe(io, absolute, operation);
-  if (!rootInfo) {
+  if (!rootInfo && create) {
     await ensureDirectoryPath(
       io,
       StdPath.dirname(absolute),
@@ -90,9 +101,42 @@ export async function observeTarget(
   signal: AbortSignal,
   createParents: boolean,
 ): Promise<Deno.FileInfo | undefined> {
+  const observed = await observeTargetState(
+    io,
+    root,
+    target,
+    operation,
+    signal,
+    createParents,
+    false,
+  );
+  return observed.target;
+}
+
+/** Observe one target while retaining every non-root ancestor identity. */
+export function observeTargetIdentity(
+  io: Io,
+  root: RootState,
+  target: TargetState,
+  operation: t.FsRooted.Operation,
+  signal: AbortSignal,
+): Promise<TargetObservation> {
+  return observeTargetState(io, root, target, operation, signal, false, true);
+}
+
+async function observeTargetState(
+  io: Io,
+  root: RootState,
+  target: TargetState,
+  operation: t.FsRooted.Operation,
+  signal: AbortSignal,
+  createParents: boolean,
+  retainAncestors: boolean,
+): Promise<TargetObservation> {
   await revalidateRoot(io, root, operation);
   let current = root.path as string;
   const segments = target.path.split('/');
+  const ancestors: Identity[] = [];
 
   for (let index = 0; index < segments.length; index++) {
     checkCancelled(operation, signal);
@@ -109,7 +153,10 @@ export async function observeTarget(
       info = await lstatMaybe(io, current, operation);
     }
 
-    if (!info) return undefined;
+    if (!info) {
+      checkCancelled(operation, signal);
+      return Object.freeze({ ancestors: Object.freeze(ancestors) });
+    }
     if (info.isSymlink) throw failure(operation, 'unsafe-filesystem');
     if (!final && !info.isDirectory) throw failure(operation, 'unsafe-filesystem');
     if (final && target.kind === 'directory' && !info.isDirectory) {
@@ -118,10 +165,14 @@ export async function observeTarget(
     if (final && target.kind === 'file' && !info.isFile) {
       throw failure(operation, 'unsafe-filesystem');
     }
-    if (final) return info;
+    if (final) {
+      checkCancelled(operation, signal);
+      return Object.freeze({ ancestors: Object.freeze(ancestors), target: info });
+    }
+    if (retainAncestors) ancestors.push(identityRequired(info, operation));
   }
 
-  return undefined;
+  return Object.freeze({ ancestors: Object.freeze(ancestors) });
 }
 
 export async function ensureDirectoryPath(
@@ -193,7 +244,7 @@ export async function lstatMaybe(
 
 /** Require safely representable device and inode identity metadata. */
 export function identityRequired(
-  info: Deno.FileInfo,
+  info: IdentityInfo,
   operation: t.FsRooted.Operation,
   committed = false,
 ): Identity {
@@ -203,11 +254,11 @@ export function identityRequired(
 }
 
 /** Compare trusted identity evidence with one filesystem observation. */
-export function sameIdentity(identity: Identity, info: Deno.FileInfo): boolean {
+export function sameIdentity(identity: Identity, info: IdentityInfo): boolean {
   return info.dev === identity.dev && info.ino === identity.ino;
 }
 
-function identityOf(info: Deno.FileInfo): Identity | undefined {
+function identityOf(info: IdentityInfo): Identity | undefined {
   if (
     !Num.Is.safeInt(info.dev) ||
     info.dev < 0 ||
@@ -216,7 +267,7 @@ function identityOf(info: Deno.FileInfo): Identity | undefined {
   ) {
     return undefined;
   }
-  return { dev: info.dev, ino: info.ino };
+  return Object.freeze({ dev: info.dev, ino: info.ino });
 }
 
 async function lstatRequired(

@@ -1,3 +1,5 @@
+import { Is as ServerIs } from '@sys/std/is/server';
+
 import { Is, Rx, StdPath, type t } from '../common.ts';
 import { checkCancelled, failure, ioFailure, isFailure, runOperation } from './u.error.ts';
 import { publishFile } from './u.file.ts';
@@ -15,7 +17,8 @@ import {
   removeTreeInput,
   sealOwnedTree,
 } from './u.owner.ts';
-import { createRootState, observeTarget, type TargetState } from './u.path.ts';
+import { createRootState, identityRequired, observeTarget, type TargetState } from './u.path.ts';
+import { readFile, readFileOptions } from './u.read.ts';
 import {
   createStage,
   discardStage,
@@ -25,15 +28,23 @@ import {
 } from './u.stage.ts';
 import { normalizeTargets } from './u.target.ts';
 
+const operation = 'create' as const;
+const OPTION_KEYS = ['root', 'create', 'until'] as const;
+
+type CreateInput = {
+  readonly root: t.StringPath;
+  readonly create: boolean;
+  readonly until?: t.UntilInput;
+};
+
 /** Internal factory with injectable filesystem operations for deterministic tests. */
 export async function createRooted(
   options: t.FsRooted.CreateOptions,
   io: Io = DEFAULT_IO,
 ): Promise<t.FsRooted.Instance> {
-  if (!Is.object(options)) throw failure('create', 'invalid-root');
-
-  return await runOperation('create', options, async (signal) => {
-    const root = await createRootState(options.root, io, signal);
+  const input = createInput(options);
+  return await runOperation(operation, input, async (signal) => {
+    const root = await createRootState(input.root, io, signal, input.create);
     const targets = new WeakMap<object, TargetState>();
     const stages = new WeakMap<object, StageState>();
     const leases = new WeakMap<object, LeaseState>();
@@ -49,13 +60,27 @@ export async function createRooted(
         return runOperation('admit', operationOptions, async (operationSignal) => {
           const normalized = normalizeTargets(input);
           const handles: t.FsRooted.Target<K>[] = [];
+          const observedIdentities = new Map<string, t.StringRelativePath>();
 
           for (const item of normalized) {
             const target: TargetState<K> = Object.freeze({
               ...item,
               absolute: StdPath.join(root.path, item.path) as t.StringAbsolutePath,
             });
-            await observeTarget(io, root, target, 'admit', operationSignal, false);
+            const info = await observeTarget(
+              io,
+              root,
+              target,
+              'admit',
+              operationSignal,
+              false,
+            );
+            if (info) {
+              const identity = identityRequired(info, 'admit');
+              const key = `${identity.dev}:${identity.ino}`;
+              if (observedIdentities.has(key)) throw failure('admit', 'target-collision');
+              observedIdentities.set(key, target.path);
+            }
             const handle = Object.freeze({
               kind: target.kind,
               path: target.path,
@@ -68,6 +93,14 @@ export async function createRooted(
           return Object.freeze({
             targets: Object.freeze(handles),
           }) as t.FsRooted.Admission<K>;
+        });
+      },
+
+      async readFile(handle, operationOptions) {
+        const input = readFileOptions(operationOptions);
+        return await runOperation('read-file', input, (operationSignal) => {
+          const target = targetState(targets, handle, 'file', 'read-file');
+          return readFile(io, root, target, input.maxBytes, operationSignal);
         });
       },
 
@@ -200,6 +233,40 @@ export async function createRooted(
 
     return api;
   });
+}
+
+/** Snapshot exact root-creation authority before observing or mutating the filesystem. */
+function createInput(input: unknown): CreateInput {
+  try {
+    if (!Is.object(input) || ServerIs.proxy(input) || !Is.plainObject(input)) {
+      throw failure(operation, 'invalid-options');
+    }
+    const keys = Reflect.ownKeys(input);
+    if (keys.some((key) => !Is.str(key) || !OPTION_KEYS.some((name) => name === key))) {
+      throw failure(operation, 'invalid-options');
+    }
+
+    const root = ownValue(input, 'root');
+    const create = ownValue(input, 'create');
+    const until = ownValue(input, 'until');
+    if (!Is.str(root) || (create !== undefined && !Is.bool(create)) || !Is.untilInput(until)) {
+      throw failure(operation, 'invalid-options');
+    }
+    return Object.freeze({
+      root: root as t.StringPath,
+      create: create ?? true,
+      until,
+    });
+  } catch {
+    throw failure(operation, 'invalid-options');
+  }
+}
+
+function ownValue(input: object, key: (typeof OPTION_KEYS)[number]): unknown {
+  const descriptor = Object.getOwnPropertyDescriptor(input, key);
+  if (!descriptor) return undefined;
+  if (!('value' in descriptor)) throw failure(operation, 'invalid-options');
+  return descriptor.value;
 }
 
 function targetState<K extends t.FsRooted.TargetKind>(

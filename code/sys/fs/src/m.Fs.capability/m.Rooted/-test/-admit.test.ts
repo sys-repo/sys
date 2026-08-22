@@ -158,6 +158,54 @@ describe('Fs.Capability.Rooted admission', () => {
     }
   });
 
+  it('rejects existing filesystem aliases by retained identity', async () => {
+    const fixture = await setup();
+    try {
+      const rooted = await Fs.Capability.Rooted.create({ root: fixture.root });
+      const canonical = Fs.join(fixture.root, 'canonical.txt');
+      await Deno.writeTextFile(canonical, 'canonical');
+      await Deno.link(canonical, Fs.join(fixture.root, 'hardlink.txt'));
+
+      await expectFailure(
+        () =>
+          rooted.admit([
+            { kind: 'file', path: 'canonical.txt' },
+            { kind: 'file', path: 'hardlink.txt' },
+          ]),
+        'target-collision',
+      );
+
+      for (
+        const alias of [
+          ['case.txt', 'CASE.txt'],
+          ['caf\u00e9.txt', 'cafe\u0301.txt'],
+        ] as const
+      ) {
+        await Deno.writeTextFile(Fs.join(fixture.root, alias[0]), alias[0]);
+        let sameIdentity = false;
+        try {
+          const selected = await Deno.lstat(Fs.join(fixture.root, alias[0]));
+          const candidate = await Deno.lstat(Fs.join(fixture.root, alias[1]));
+          sameIdentity = selected.dev === candidate.dev && selected.ino === candidate.ino;
+        } catch (cause) {
+          if (!(cause instanceof Deno.errors.NotFound)) throw cause;
+        }
+        if (sameIdentity) {
+          await expectFailure(
+            () =>
+              rooted.admit([
+                { kind: 'file', path: alias[0] },
+                { kind: 'file', path: alias[1] },
+              ]),
+            'target-collision',
+          );
+        }
+      }
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
   it('rejects replacement of the rooted directory identity', async () => {
     const fixture = await setup();
     try {

@@ -96,10 +96,12 @@ export namespace Fs {
   }
 
   /**
-   * Rooted publication, sealing, lifecycle, and removal contracts used across packages.
+   * Rooted read, publication, sealing, lifecycle, and removal contracts used across packages.
    */
   export namespace Rooted {
     export type Instance = t.FsRooted.Instance;
+    export type ReadFileOptions = t.FsRooted.ReadFileOptions;
+    export type ReadFileResult = t.FsRooted.ReadFileResult;
     export type Lease = t.FsRooted.Lease;
     export type LeaseMode = t.FsRooted.LeaseMode;
     export type LeaseOptions = t.FsRooted.LeaseOptions;

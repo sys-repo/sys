@@ -10,7 +10,7 @@ export namespace FsCapability {
     /** Files capability adapters. */
     readonly Files: Files.Lib;
 
-    /** Publish, seal, coordinate, and remove owned trees beneath one canonical root. */
+    /** Read admitted files and own published trees beneath one canonical root. */
     readonly Rooted: t.FsRooted.Lib;
   };
 
