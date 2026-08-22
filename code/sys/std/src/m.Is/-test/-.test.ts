@@ -1,3 +1,4 @@
+import { runInNewContext } from 'node:vm';
 import { describe, expect, it, type t } from '../../-test.ts';
 import {
   isEmptyRecord,
@@ -194,14 +195,22 @@ describe('Is (common flags)', () => {
   describe('Is.uint8Array', () => {
     const binary = new Uint8Array([1, 2, 3]);
 
-    it('is not Uint8Array', () => {
+    it('rejects non-views and forged view tags', () => {
       const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
       NON.forEach((v) => expect(Is.uint8Array(v)).to.eql(false));
       expect(Is.uint8Array(binary.buffer)).to.eql(false);
+      expect(Is.uint8Array({ [Symbol.toStringTag]: 'Uint8Array' })).to.eql(false);
+
+      const uint16 = new Uint16Array([1, 2, 3]);
+      Object.defineProperty(uint16, Symbol.toStringTag, { value: 'Uint8Array' });
+      expect(Is.uint8Array(uint16)).to.eql(false);
     });
 
-    it('is Uint8Array', () => {
+    it('admits same-realm and cross-realm Uint8Array values', () => {
+      const foreign = runInNewContext('new Uint8Array([1, 2, 3])');
+
       expect(Is.uint8Array(binary)).to.eql(true);
+      expect(Is.uint8Array(foreign)).to.eql(true);
     });
   });
 

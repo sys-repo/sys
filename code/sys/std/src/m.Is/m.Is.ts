@@ -15,6 +15,11 @@ import { urlLike, urlString } from './u.url.ts';
 import { websocket } from './u.websocket.ts';
 import { browser } from './u.browser.ts';
 
+const typedArrayTag = Object.getOwnPropertyDescriptor(
+  Object.getPrototypeOf(Uint8Array.prototype),
+  Symbol.toStringTag,
+)?.get;
+
 /**
  * Common flag evaluators.
  */
@@ -152,8 +157,12 @@ export const Is: t.Is.Lib = Object.freeze({
     return tag === '[object ArrayBuffer]' || tag === '[object SharedArrayBuffer]';
   },
 
-  uint8Array(input?: any): input is Uint8Array {
-    return Object.prototype.toString.call(input) === '[object Uint8Array]';
+  uint8Array(input?: unknown): input is Uint8Array {
+    return (
+      ArrayBuffer.isView(input) &&
+      typeof typedArrayTag === 'function' &&
+      Reflect.apply(typedArrayTag, input, []) === 'Uint8Array'
+    );
   },
 
   /**
