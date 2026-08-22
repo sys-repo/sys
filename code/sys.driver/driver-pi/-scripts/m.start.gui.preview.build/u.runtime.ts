@@ -1,25 +1,17 @@
-import { pkg } from '../src/pkg.ts';
-import { start, type StartGuiInput } from '../src/m.core/m.cli.profiles/u.start/u.gui.ts';
-import type { StartGuiEvidence } from '../src/m.core/m.cli.profiles/u/u.start.gui.service.ts';
-import { Fs, Json, Process, Str, type t } from './task.start.gui.preview.common.ts';
-import { resolvePreviewDenoDir } from './task.start.gui.preview.deno.ts';
-import type {
-  PreviewBuildInput,
-  PreviewBuildPaths,
-  PreviewBuildResponse,
-} from './task.start.gui.preview.t.ts';
-import { vitePaths } from './u.vite.paths.ts';
+import { pkg } from '../../src/pkg.ts';
+import { start, type StartGuiInput } from '../../src/m.core/m.cli.profiles/u.start/u.gui.ts';
+import type { StartGuiEvidence } from '../../src/m.core/m.cli.profiles/u/u.start.gui.service.ts';
+import { Fs, Json, Process, Str, type t } from './common.ts';
+import { resolvePreviewDenoDir } from './u.deno.ts';
+import type { PreviewBuildInput, PreviewBuildPaths, PreviewBuildResponse } from './t.ts';
+import { vitePaths } from '../u.vite.paths.ts';
 
-export type {
-  PreviewBuildInput,
-  PreviewBuildPaths,
-  PreviewBuildResponse,
-} from './task.start.gui.preview.t.ts';
+export type { PreviewBuildInput, PreviewBuildPaths, PreviewBuildResponse } from './t.ts';
 
 /** Explicit package checkout containing the Vite configuration and generated GUI artifact. */
-export const PACKAGE_ROOT = Fs.resolve(import.meta.dirname ?? '.', '..') as t.StringAbsoluteDir;
+export const PACKAGE_ROOT = Fs.resolve(import.meta.dirname ?? '.', '../..') as t.StringAbsoluteDir;
 /** Repository root passed to the existing launcher lifecycle; preview never uses its release store. */
-export const WORKSPACE_ROOT = Fs.resolve(import.meta.dirname ?? '.', '../../../..') as t.StringDir;
+export const WORKSPACE_ROOT = Fs.resolve(PACKAGE_ROOT, '../../..') as t.StringDir;
 /** Package-owner expectation captured before dependency reads, callbacks, or asynchronous work. */
 const EXPECTED_PKG = Object.freeze({ name: pkg.name, version: pkg.version });
 
@@ -27,9 +19,7 @@ const TEMP_OWNER = Str.replaceAll(EXPECTED_PKG.name, '/', '-').after;
 export const PREVIEW_TEMP_PREFIX = `${TEMP_OWNER}.start-gui-preview.`;
 export const PREVIEW_BUILD_TEMP_PREFIX = `${TEMP_OWNER}.start-gui-preview-build.`;
 
-const BUILD_CHILD = Fs.Path.fromFileUrl(
-  new URL('./task.start.gui.preview.build.ts', import.meta.url),
-);
+const BUILD_CHILD = Fs.Path.fromFileUrl(new URL('./-entry.build.ts', import.meta.url));
 
 export type PreviewGeneration = Readonly<{
   /** Exact task-owned output directory retained for one host session. */

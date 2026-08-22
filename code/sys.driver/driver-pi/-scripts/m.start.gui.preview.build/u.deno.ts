@@ -1,4 +1,4 @@
-import { Fs, Is, Json, Process, type t } from './task.start.gui.preview.common.ts';
+import { Fs, Is, Json, Process, type t } from './common.ts';
 
 type DenoInfoOutput = Readonly<{
   outcome: t.Process.CaptureOutput['outcome'];

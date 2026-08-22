@@ -1,4 +1,5 @@
-export type * as t from '../src/common/t.ts';
+/** Narrow preview-build lane; intentionally excludes the broader script tooling graph. */
+export type * as t from '../../src/common/t.ts';
 
 export { Fs } from '@sys/fs';
 export { Process } from '@sys/process';

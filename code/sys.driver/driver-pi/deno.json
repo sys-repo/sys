@@ -7,7 +7,7 @@
     "test:unit": "deno test -P=test ./src ./-scripts",
     "test:profiles": "deno test -P=test ./src/m.core/m.cli.profiles/-test && deno task test:profiles:process",
     "test:profiles:process": "deno test -P=test-process --trace-leaks ./src/m.core/m.cli.profiles/-test.external/-u.start.gui.exit.process-proof.ts",
-    "test:preview": "deno test -P=test --trace-leaks ./-scripts/-test/-task.start.gui.preview.test.ts",
+    "test:preview": "deno test -P=test --trace-leaks ./-scripts/m.start.gui.preview.build/-test/-.test.ts",
     "test:preview:real": "deno test -P=preview-test --no-prompt --deny-write=../../.. --trace-leaks ./-scripts/-test.external/-task.start.gui.preview.real.ts",
     "test:source:process": "deno run --no-prompt -P=source-process ./-scripts/-test.external/-task.start.gui.source.process-proof.ts",
     "test:browser": "deno task build && FORCE_COLOR=0 deno test -P=test-browser --trace-leaks ./-scripts/-test.browser.ts",

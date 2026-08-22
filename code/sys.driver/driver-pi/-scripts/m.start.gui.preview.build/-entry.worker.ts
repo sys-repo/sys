@@ -1,5 +1,5 @@
-import { Fs } from './task.start.gui.preview.common.ts';
-import { main } from './task.start.gui.preview.u.ts';
+import { Fs } from './common.ts';
+import { main } from './u.runtime.ts';
 
 if (Deno.env.has('SYS_DRIVER_PI_PREVIEW_AMBIENT_SENTINEL')) {
   throw new Error('start:gui:preview worker environment unsanitized.');

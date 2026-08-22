@@ -1,10 +1,10 @@
-import { Fs, Json } from './task.start.gui.preview.common.ts';
-import type { PreviewBuildInput, PreviewBuildResponse } from './task.start.gui.preview.t.ts';
+import { Fs, Json } from './common.ts';
+import type { PreviewBuildInput, PreviewBuildResponse } from './t.ts';
 
 const [inputPath, outputPath] = Deno.args;
 if (!inputPath || !outputPath) throw new Error('start:gui:preview build child input invalid.');
 
-const packageRoot = Fs.resolve(import.meta.dirname ?? '.', '..');
+const packageRoot = Fs.resolve(import.meta.dirname ?? '.', '../..');
 const workspaceRoot = Fs.resolve(packageRoot, '../../..');
 assertSanitizedEnvironment();
 await assertConfinedAuthority();

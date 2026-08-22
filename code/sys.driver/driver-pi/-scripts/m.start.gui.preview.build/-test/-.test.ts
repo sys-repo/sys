@@ -9,17 +9,17 @@ import {
   Open,
   Str,
   type t,
-} from '../common.ts';
+} from '../../common.ts';
 
-import { default as deno } from '../../deno.json' with { type: 'json' };
-import { EsmAssert } from '../../src/-test.ts';
-import { pkg } from '../../src/pkg.ts';
-import { start, type StartGuiInput } from '../../src/m.core/m.cli.profiles/u.start/u.gui.ts';
+import { default as deno } from '../../../deno.json' with { type: 'json' };
+import { EsmAssert } from '../../../src/-test.ts';
+import { pkg } from '../../../src/pkg.ts';
+import { start, type StartGuiInput } from '../../../src/m.core/m.cli.profiles/u.start/u.gui.ts';
 import {
   bootstrapStatusFixture,
   deferred,
-} from '../../src/m.core/m.cli.profiles/-test/u.fixture.start.gui.ts';
-import { resolvePreviewDenoDir } from '../task.start.gui.preview.deno.ts';
+} from '../../../src/m.core/m.cli.profiles/-test/u.fixture.start.gui.ts';
+import { resolvePreviewDenoDir } from '../u.deno.ts';
 import {
   mainWith,
   PACKAGE_ROOT,
@@ -30,8 +30,8 @@ import {
   type PreviewDependencies,
   type PreviewGeneration,
   WORKSPACE_ROOT,
-} from '../task.start.gui.preview.u.ts';
-import { vitePaths } from '../u.vite.paths.ts';
+} from '../u.runtime.ts';
+import { vitePaths } from '../../u.vite.paths.ts';
 
 const FIRST_PIN = `sha256-${'1'.repeat(64)}` as t.StringHash;
 const SECOND_PIN = `sha256-${'2'.repeat(64)}` as t.StringHash;
@@ -40,8 +40,7 @@ const SECOND_DIR = Fs.resolve(PACKAGE_ROOT, '.tmp/driver-pi-preview-two') as t.S
 const INDEX_BODY = '<h1>verified local Driver Pi preview</h1>';
 const MUTATED_INDEX_BODY = '<h1>mutated local Driver Pi preview</h1>';
 const BASE_PATHS: PreviewDependencies['paths'] = vitePaths(PACKAGE_ROOT);
-const PREVIEW_WORKER_ENTRY =
-  new URL('../task.start.gui.preview.worker.ts', import.meta.url).pathname;
+const PREVIEW_WORKER_ENTRY = new URL('../-entry.worker.ts', import.meta.url).pathname;
 
 describe('driver-pi/scripts/task.start.gui.preview', () => {
   it('derives attributable filesystem-safe temp prefixes from the package name', () => {
@@ -133,7 +132,7 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
   it('keeps the long-lived preview host graph outside Vite build runtime', async () => {
     await EsmAssert.runtimeGraphOwnership({
       entry: PREVIEW_WORKER_ENTRY,
-      ownedImports: ['./task.start.gui.preview.u.ts'],
+      ownedImports: ['./u.runtime.ts'],
     });
     await EsmAssert.runtimeGraphBoundary({
       entry: PREVIEW_WORKER_ENTRY,

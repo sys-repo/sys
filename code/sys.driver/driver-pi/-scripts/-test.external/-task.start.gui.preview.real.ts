@@ -8,7 +8,7 @@ import {
   mainWith,
   PACKAGE_ROOT,
   WORKSPACE_ROOT,
-} from '../task.start.gui.preview.u.ts';
+} from '../m.start.gui.preview.build/u.runtime.ts';
 import { vitePaths } from '../u.vite.paths.ts';
 
 const SHARED_DIST = Fs.join(PACKAGE_ROOT, 'dist') as t.StringAbsoluteDir;
@@ -34,7 +34,7 @@ describe('driver-pi/scripts/task.start.gui.preview real build isolation', () => 
       '--no-prompt',
       '-P=preview-worker',
       '--deny-write=../../..',
-      './-scripts/task.start.gui.preview.worker.ts',
+      './-scripts/m.start.gui.preview.build/-entry.worker.ts',
       '--environment-preflight',
     ]);
     expect(unsanitized.outcome).to.eql('exited');
