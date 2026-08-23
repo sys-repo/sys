@@ -73,6 +73,11 @@ export declare namespace HttpServer {
     /** Arguments passed to `HttpServer.options`. */
     export type Args = {
       port?: number;
+      /**
+       * With an explicit `port`, bypass available-port selection and bind that value directly.
+       * Without `port`, preserve ordinary port selection.
+       */
+      strictPort?: boolean;
       pkg?: t.Pkg;
       hash?: t.StringHash;
       name?: string;
@@ -107,6 +112,11 @@ export declare namespace HttpServer {
     /** Arguments passed to `HttpServer.start`. */
     export type Options = {
       port?: t.PortNumber;
+      /**
+       * With an explicit `port`, bypass available-port selection and bind that value directly.
+       * Without `port`, preserve ordinary port selection.
+       */
+      strictPort?: boolean;
       hostname?: t.StringHostname;
       pkg?: t.Pkg;
       hash?: t.StringHash;

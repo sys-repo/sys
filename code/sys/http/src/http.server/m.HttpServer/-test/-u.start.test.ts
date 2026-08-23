@@ -32,6 +32,97 @@ describe('HttpServer.start', () => {
     expect(server.signal.aborted).to.eql(true);
   });
 
+  it('binds an explicit strict port directly while preserving default fallback selection', async () => {
+    const blocker = Deno.listen({ hostname: '127.0.0.1', port: 0 });
+    const port = (blocker.addr as Deno.NetAddr).port as t.PortNumber;
+    const app = HttpServer.create({ static: false });
+    const abort = new AbortController();
+    let keyboardBinds = 0;
+    let fallback: t.HttpServer.Started | undefined;
+    let strict: t.HttpServer.Started | undefined;
+
+    try {
+      fallback = HttpServer.start(app, { hostname: '127.0.0.1', port, silent: true });
+      expect(fallback.port).to.not.eql(port);
+      await fallback.close('test:fallback');
+      fallback = undefined;
+
+      let failure: unknown;
+      try {
+        strict = startWith(
+          {
+            bindKeyboard: () => {
+              keyboardBinds += 1;
+              return undefined;
+            },
+          },
+          app,
+          {
+            hostname: '127.0.0.1',
+            port,
+            strictPort: true,
+            silent: true,
+            keyboard: true,
+            until: abort.signal,
+          },
+        );
+      } catch (cause) {
+        failure = cause;
+      }
+      expect(failure).to.be.instanceOf(Deno.errors.AddrInUse);
+      expect(keyboardBinds).to.eql(0);
+    } finally {
+      abort.abort('test:cleanup');
+      await strict?.close('test:unexpected-strict-listener');
+      await fallback?.close('test:cleanup');
+      blocker.close();
+    }
+  });
+
+  it('preserves native invalid-port validation for explicit strict ports', async () => {
+    const app = HttpServer.create({ static: false });
+    const port = -1 as t.PortNumber;
+    let nativeServer: Deno.HttpServer<Deno.NetAddr> | undefined;
+    let wrappedServer: t.HttpServer.Started | undefined;
+    let nativeFailure: unknown;
+    let wrappedFailure: unknown;
+
+    try {
+      try {
+        nativeServer = Deno.serve(
+          { hostname: '127.0.0.1', port, onListen: () => undefined },
+          () => new Response(),
+        );
+      } catch (cause) {
+        nativeFailure = cause;
+      }
+      try {
+        wrappedServer = HttpServer.start(app, {
+          hostname: '127.0.0.1',
+          port,
+          strictPort: true,
+          silent: true,
+        });
+      } catch (cause) {
+        wrappedFailure = cause;
+      }
+
+      expect(nativeFailure).to.be.instanceOf(Error);
+      expect(wrappedFailure).to.be.instanceOf(Error);
+      const nativeError = nativeFailure as Error;
+      const wrappedError = wrappedFailure as Error;
+      expect(wrappedError.constructor).to.equal(nativeError.constructor);
+      expect(wrappedError.name).to.eql(nativeError.name);
+      expect(wrappedError.message).to.eql(nativeError.message);
+    } finally {
+      if (nativeServer) {
+        await nativeServer.shutdown();
+        await nativeServer.finished;
+      }
+      await wrappedServer?.close('test:unexpected-invalid-port-listener');
+    }
+  });
+
   it('exposes renderer-neutral service status snapshots', async () => {
     const app = HttpServer.create({ static: false });
     const server = HttpServer.start(app, {

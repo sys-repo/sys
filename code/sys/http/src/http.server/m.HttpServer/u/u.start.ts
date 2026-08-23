@@ -16,6 +16,7 @@ const DEFAULT_DEPS: StartDependencies = { bindKeyboard };
 type KeyboardOptions = { readonly print: boolean; readonly exit: boolean } | undefined;
 type StartValues = {
   readonly port?: t.PortNumber;
+  readonly strictPort?: boolean;
   readonly pkg?: t.Pkg;
   readonly hash?: t.StringHash;
   readonly name?: string;
@@ -46,6 +47,7 @@ export function startWith(
   const keyboardOptions = values.keyboard;
   const baseOptions = createOptions({
     port: values.port,
+    strictPort: values.strictPort,
     pkg: values.pkg,
     hash: values.hash,
     name: values.name,
@@ -303,6 +305,7 @@ const wrangle = {
   values(input: t.HttpServer.Start.Options): StartValues {
     return {
       port: input.port,
+      strictPort: input.strictPort,
       pkg: input.pkg,
       hash: input.hash,
       name: input.name,
