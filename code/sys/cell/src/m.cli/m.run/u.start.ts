@@ -1,5 +1,6 @@
 import { Err, type t } from '../common.ts';
 import { FmtHelp } from '../u.help/u.mod.ts';
+import { mergeFailures } from '../u.lifecycle/u.failure.ts';
 import type { RunContext } from './u.context.ts';
 import { serviceModeFlag } from './u.mode.ts';
 import { fail, print } from './u.output.ts';
@@ -33,35 +34,96 @@ export async function runStart(ctx: RunContext): Promise<t.CellCli.Result> {
   if (!reporter.ok) return fail(input, reporter.message, startHelp);
   if (args._.length > 2) return fail(input, `Unexpected argument: ${args._[2]}`, startHelp);
 
+  let interruptExit = false;
   try {
-    const start = await import('../u/u.start.ts');
-    const reporting = await import('../u/u.start.reporter.ts');
+    const start = await import('../u.lifecycle/u.start.ts');
+    const reporting = await import('../u.lifecycle/u.start.reporter.ts');
+    const lifecycle = await import('../u.lifecycle/u.shutdown.ts');
     const cell = await start.loadStartCell(args._[1]);
     const identity = start.resolveStartIdentity(cell.descriptor, input.pkg);
-    const output = reporting.StartReporter.create(reporter.value, {
-      header: (width) => start.formatStartHeader(identity, width),
-    });
+    const shutdown = lifecycle.createShutdownSignal();
 
     try {
-      output.open();
-      const started = await start.startCell(cell, {
-        mode: mode.value,
-        onStarting: output.starting,
-        onReady: output.ready,
-      });
-      const res = start.toStartResult(input, started, identity);
-      output.complete(start.formatStartResult(started));
-      output.dispose();
-      return res;
-    } catch (error) {
+      let output: ReturnType<typeof reporting.StartReporter.create>;
       try {
-        output.dispose();
-      } catch {
-        // Preserve the start/reporter failure that triggered cleanup.
+        output = reporting.StartReporter.create(
+          reporter.value,
+          { header: (width) => start.formatStartHeader(identity, width) },
+          {
+            until: shutdown.done,
+            onInterrupt() {
+              shutdown.interrupt();
+            },
+            onFailure(cause) {
+              return shutdown.failPresentation(cause);
+            },
+          },
+        );
+      } catch (cause) {
+        try {
+          shutdown.dispose();
+        } catch (cleanup) {
+          throw mergeFailures(cause, cleanup, 'Cell start setup failed and cleanup also failed.');
+        }
+        throw cause;
       }
-      throw error;
+
+      let outcome: RunStartOutcome;
+      try {
+        output.open();
+        const started = await start.startCell(cell, {
+          mode: mode.value,
+          shutdown,
+          onStarting: output.starting,
+          onReady: output.ready,
+        });
+        const res = start.toStartResult(input, started, identity);
+        output.complete(start.formatStartResult(started));
+        outcome = { ok: true, value: res };
+      } catch (cause) {
+        outcome = { ok: false, cause };
+      }
+
+      try {
+        await output.dispose();
+      } catch (cause) {
+        outcome = withCleanupFailure(
+          outcome,
+          cause,
+          'Cell start failed while releasing terminal presentation.',
+        );
+      }
+      try {
+        shutdown.dispose();
+      } catch (cause) {
+        outcome = withCleanupFailure(
+          outcome,
+          cause,
+          'Cell start failed while releasing shutdown ownership.',
+        );
+      }
+
+      if (!outcome.ok) throw outcome.cause;
+      return outcome.value;
+    } finally {
+      interruptExit = lifecycle.isInterruptShutdownReason(shutdown.reason);
+      if (interruptExit) Deno.exitCode = 130;
     }
   } catch (error) {
-    return fail(input, Err.summary(error, { cause: true }));
+    const result = fail(input, Err.summary(error, { cause: true }));
+    return interruptExit ? { ...result, code: 130 } : result;
   }
+}
+
+type RunStartOutcome =
+  | { readonly ok: true; readonly value: t.CellCli.Result }
+  | { readonly ok: false; readonly cause: unknown };
+
+function withCleanupFailure(
+  outcome: RunStartOutcome,
+  cleanup: unknown,
+  message: string,
+): RunStartOutcome {
+  if (outcome.ok) return { ok: false, cause: cleanup };
+  return { ok: false, cause: mergeFailures(outcome.cause, cleanup, message) };
 }

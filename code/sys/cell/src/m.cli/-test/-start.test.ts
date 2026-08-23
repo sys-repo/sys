@@ -1,7 +1,11 @@
 import { describe, expect, Fs, it, Pkg, Str, type t, Testing } from '../../-test.ts';
 import { c, Cli, stripAnsi } from '../common.ts';
 import { CellCli } from '../mod.ts';
-import { formatStartHeader, formatStartServiceBody, resolveStartIdentity } from '../u/u.start.ts';
+import {
+  formatStartHeader,
+  formatStartServiceBody,
+  resolveStartIdentity,
+} from '../u.lifecycle/u.start.ts';
 import {
   addressInUseServiceSource,
   devServiceSource,

@@ -1,4 +1,5 @@
 import { Cli, Num, Str, stripAnsi, type t, Time } from '../common.ts';
+import { mergeFailures } from './u.failure.ts';
 import { formatStartHeader, type StartCellReady, startServicesText } from './u.start.ts';
 
 type Mode = t.CellCli.Start.ReporterMode;
@@ -12,26 +13,38 @@ type StartReporterInstance = {
   starting(serviceCount: number): void;
   ready(input: StartCellReady): void;
   complete(summary: string): void;
-  dispose(): void;
+  redraw(): void;
+  dispose(): Promise<void>;
+};
+
+type StartReporterControls = {
+  until: PromiseLike<unknown>;
+  /** Publish an admitted Ctrl+C keyboard interrupt. */
+  onInterrupt: () => void;
+  /** Publish a presentation failure; true means this failure became terminal. */
+  onFailure: (cause: unknown) => boolean;
 };
 
 type StartReporterDeps = {
-  readonly isInteractive: () => boolean;
-  readonly isTerminal: () => boolean;
-  readonly print: (text: string) => void;
-  readonly header: (width?: number) => string;
-  readonly startText: (serviceCount: number, startedAt?: t.UnixTimestamp) => string;
-  readonly size: () => ScreenSize;
-  readonly observeResize: (handler: (size: ScreenSize) => void) => () => void;
-  readonly repaint: (frame: string) => void;
-  readonly spinner: (target?: t.Cli.Spinner.OutputTarget) => Spinner;
-  readonly interval: (run: () => void) => () => void;
+  isInteractive: () => boolean;
+  isTerminal: () => boolean;
+  print: (text: string) => void;
+  header: (width?: number) => string;
+  startText: (serviceCount: number, startedAt?: t.UnixTimestamp) => string;
+  size: () => ScreenSize;
+  observeResize: (handler: (size: ScreenSize) => void) => () => void;
+  repaint: (frame: string) => void;
+  spinner: (target?: t.Cli.Spinner.OutputTarget) => Spinner;
+  interval: (run: () => void) => () => void;
+  bindKeyboard: typeof Cli.Keyboard.bind;
+  shutdownKeyboard: typeof Cli.Keyboard.shutdown;
 };
 
 /**
  * Owns terminal presentation for the Cell start command.
  *
  * Resolves capability policy once, then delegates every terminal effect to exactly one reporter.
+ * Raw output remains append-only; the ready screen owns resize, redraw, keyboard, and repaint.
  */
 export const StartReporter = Object.freeze(
   {
@@ -65,6 +78,8 @@ const DEFAULT_DEPS: StartReporterDeps = {
     const id = globalThis.setInterval(run, 1000);
     return () => globalThis.clearInterval(id);
   },
+  bindKeyboard: Cli.Keyboard.bind,
+  shutdownKeyboard: Cli.Keyboard.shutdown,
 };
 
 function resolve(mode: Mode, options: Pick<StartReporterDeps, 'isInteractive'>): ResolvedMode {
@@ -79,16 +94,24 @@ function resolve(mode: Mode, options: Pick<StartReporterDeps, 'isInteractive'>):
 function create(
   mode: Mode,
   overrides: Partial<StartReporterDeps> = {},
+  controls?: StartReporterControls,
 ): StartReporterInstance {
   const deps: StartReporterDeps = { ...DEFAULT_DEPS, ...overrides };
   const resolved = resolve(mode, deps);
   const hyperlinks = deps.isTerminal();
-  return resolved === 'screen' ? createScreen(deps, hyperlinks) : createRaw(deps, hyperlinks);
+  return resolved === 'screen'
+    ? createScreen(deps, hyperlinks, controls)
+    : createRaw(deps, hyperlinks, controls);
 }
 
-function createRaw(deps: StartReporterDeps, hyperlinks: boolean): StartReporterInstance {
+function createRaw(
+  deps: StartReporterDeps,
+  hyperlinks: boolean,
+  controls?: StartReporterControls,
+): StartReporterInstance {
   type Phase = 'idle' | 'open' | 'ready' | 'complete' | 'disposed';
 
+  const disposed = Promise.resolve();
   let phase: Phase = 'idle';
   let hasSection = false;
 
@@ -112,18 +135,28 @@ function createRaw(deps: StartReporterDeps, hyperlinks: boolean): StartReporterI
       printSection(hyperlinks ? input.render({ hyperlinks: true }) : input.text);
     },
     complete(summary) {
-      if (phase === 'disposed' || phase === 'complete') return;
+      if (phase !== 'ready') return;
       phase = 'complete';
-      printSection(summary);
+      try {
+        printSection(summary);
+      } catch (cause) {
+        if (controls?.onFailure(cause) ?? true) throw cause;
+      }
     },
+    redraw() {},
     dispose() {
       phase = 'disposed';
+      return disposed;
     },
   };
 }
 
-function createScreen(deps: StartReporterDeps, hyperlinks: boolean): StartReporterInstance {
-  type Phase = 'idle' | 'open' | 'starting' | 'ready' | 'complete' | 'disposed';
+function createScreen(
+  deps: StartReporterDeps,
+  hyperlinks: boolean,
+  controls?: StartReporterControls,
+): StartReporterInstance {
+  type Phase = 'idle' | 'open' | 'starting' | 'ready' | 'complete' | 'failed' | 'disposed';
 
   let phase: Phase = 'idle';
   let viewport: ScreenSize = { width: 0, height: 0 };
@@ -133,6 +166,14 @@ function createScreen(deps: StartReporterDeps, hyperlinks: boolean): StartReport
   let cancelInterval: (() => void) | undefined;
   let renderBody: StartCellReady['render'] | undefined;
   let summary = '';
+  let resizeRevision = 0;
+  let painting = false;
+  let paintPending = false;
+  let measurePending = false;
+  let failureSettled = false;
+  let reportedFailure: unknown;
+  let keyboard: ReturnType<StartReporterDeps['bindKeyboard']>;
+  let disposePromise: Promise<void> | undefined;
 
   const headerRows = () => rowsOf(deps.header(viewport.width));
   const hasSpinnerRow = () => viewport.width > 0 && viewport.height > headerRows().length;
@@ -141,7 +182,7 @@ function createScreen(deps: StartReporterDeps, hyperlinks: boolean): StartReport
     if (viewport.width === 0 || viewport.height === 0) return '';
     const header = headerRows().slice(0, viewport.height);
     const capacity = Math.max(0, viewport.height - header.length);
-    const body = phase === 'ready' || phase === 'complete'
+    const body = phase === 'ready' || phase === 'complete' || phase === 'failed'
       ? rowsOf(Str.trimEdgeNewlines(renderBody?.({ width: viewport.width, hyperlinks }) ?? ''))
       : [];
     const summaryRows = phase === 'complete' ? rowsOf(Str.trimEdgeNewlines(summary)) : [];
@@ -169,7 +210,38 @@ function createScreen(deps: StartReporterDeps, hyperlinks: boolean): StartReport
     return rows.map((row) => fitRow(row, viewport.width)).join('\n');
   };
 
-  const repaint = () => deps.repaint(frame());
+  const repaint = (remeasure = false) => {
+    paintPending = true;
+    if (remeasure) measurePending = true;
+    if (painting) return;
+
+    painting = true;
+    try {
+      while (paintPending || measurePending) {
+        if (phase === 'failed' || phase === 'disposed') {
+          paintPending = false;
+          measurePending = false;
+          break;
+        }
+        if (measurePending) {
+          measurePending = false;
+          const revision = resizeRevision;
+          const measured = normalizeSize(deps.size());
+          if (resizeRevision === revision) viewport = measured;
+        }
+
+        // State published during frame construction or repaint requests one newest-state follow-up.
+        paintPending = false;
+        deps.repaint(frame());
+      }
+    } catch (cause) {
+      paintPending = false;
+      measurePending = false;
+      throw cause;
+    } finally {
+      painting = false;
+    }
+  };
 
   const pauseSpinner = () => {
     if (!spinnerRunning) return;
@@ -193,13 +265,53 @@ function createScreen(deps: StartReporterDeps, hyperlinks: boolean): StartReport
     }
   };
 
+  const fail = (cause: unknown) => {
+    if (failureSettled || phase === 'disposed') return;
+    failureSettled = true;
+    reportedFailure = cause;
+    if (controls?.onFailure(cause) ?? true) phase = 'failed';
+  };
+
+  const redraw = () => {
+    if (phase !== 'ready') return;
+    try {
+      repaint(true);
+    } catch (cause) {
+      fail(cause);
+    }
+  };
+
+  const acquireKeyboard = () => {
+    if (!controls || keyboard) return;
+    const owner = deps.bindKeyboard({
+      quitKeys: 'interrupt-only',
+      until: controls.until,
+      onQuit: controls.onInterrupt,
+      onKey(event) {
+        if (Cli.Keyboard.Is.redraw(event)) redraw();
+      },
+    });
+    keyboard = owner;
+    if (!owner) return;
+
+    void owner.finished.then(
+      () => undefined,
+      (cause) => fail(cause),
+    );
+  };
+
   const onResize = (size: ScreenSize) => {
-    if (phase === 'disposed') return;
+    if (phase === 'disposed' || phase === 'failed') return;
     viewport = normalizeSize(size);
+    resizeRevision += 1;
     if (phase === 'idle') return;
-    pauseSpinner();
-    repaint();
-    startSpinner();
+    try {
+      pauseSpinner();
+      repaint();
+      startSpinner();
+    } catch (cause) {
+      fail(cause);
+    }
   };
 
   return {
@@ -216,14 +328,19 @@ function createScreen(deps: StartReporterDeps, hyperlinks: boolean): StartReport
         phase = 'open';
         repaint();
       } catch (error) {
+        let failure: unknown = error;
         try {
           releaseResize?.();
-        } catch {
-          // Preserve the acquisition failure.
+        } catch (cleanup) {
+          failure = mergeFailures(
+            error,
+            cleanup,
+            'Cell start presentation acquisition and cleanup failed.',
+          );
         }
         releaseResize = undefined;
         phase = 'disposed';
-        throw error;
+        throw failure;
       }
     },
     starting(serviceCount) {
@@ -243,6 +360,7 @@ function createScreen(deps: StartReporterDeps, hyperlinks: boolean): StartReport
       releaseSpinner();
       renderBody = input.render;
       phase = 'ready';
+      acquireKeyboard();
       repaint();
     },
     complete(text) {
@@ -250,14 +368,51 @@ function createScreen(deps: StartReporterDeps, hyperlinks: boolean): StartReport
       releaseSpinner();
       summary = text;
       phase = 'complete';
-      repaint();
+      try {
+        repaint();
+      } catch (cause) {
+        fail(cause);
+      }
     },
+    redraw,
     dispose() {
-      if (phase === 'disposed') return;
+      if (disposePromise) return disposePromise;
       phase = 'disposed';
       const releaseScreen = releaseResize;
+      const ownedKeyboard = keyboard;
       releaseResize = undefined;
-      runCleanup([releaseSpinner, () => releaseScreen?.()]);
+      keyboard = undefined;
+      disposePromise = (async () => {
+        await Promise.resolve();
+        let failed = false;
+        let cleanupFailure: unknown;
+        try {
+          runCleanup([releaseSpinner, () => releaseScreen?.()]);
+        } catch (cause) {
+          failed = true;
+          cleanupFailure = cause;
+        }
+        if (ownedKeyboard) {
+          try {
+            await deps.shutdownKeyboard(ownedKeyboard);
+          } catch (cause) {
+            if (cause === reportedFailure) {
+              // The lifecycle already owns this terminal failure.
+            } else if (!failed) {
+              failed = true;
+              cleanupFailure = cause;
+            } else {
+              cleanupFailure = mergeFailures(
+                cleanupFailure,
+                cause,
+                'Cell start presentation cleanup failed.',
+              );
+            }
+          }
+        }
+        if (failed) throw cleanupFailure;
+      })();
+      return disposePromise;
     },
   };
 }
@@ -285,9 +440,12 @@ function runCleanup(actions: readonly (() => void)[]): void {
     try {
       action();
     } catch (error) {
-      if (failed) continue;
-      failed = true;
-      failure = error;
+      if (!failed) {
+        failed = true;
+        failure = error;
+      } else {
+        failure = mergeFailures(failure, error, 'Cell start presentation cleanup failed.');
+      }
     }
   }
   if (failed) throw failure;

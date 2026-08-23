@@ -1,35 +1,38 @@
 import { Cell } from '../../m.cell/mod.ts';
 import { serviceStatusesOf } from '../../m.cell/u.services/u.status.ts';
-import { c, Cli, CliTable, Num, Pkg, Str, type t, Time, Try } from '../common.ts';
+import { c, Cli, CliTable, Is, Num, Pkg, Str, type t, Time } from '../common.ts';
 import { smallCountText } from '../u.fmt/u.count.ts';
 import { elapsedSuffix } from '../u.fmt/u.elapsed.ts';
 import { Fmt } from '../u.fmt/u.mod.ts';
 import { FmtPath } from '../u.fmt/u.path.ts';
-import { canonicalRoot } from './u.root.ts';
-import { CellSession } from './u.session.ts';
-import { createShutdownSignal, isSignalShutdownReason, type ShutdownSignal } from './u.shutdown.ts';
+import { canonicalRoot } from '../u/u.root.ts';
+import { CellSession } from '../u/u.session.ts';
+import { mergeFailures } from './u.failure.ts';
+import { createShutdownSignal, type ShutdownReason, type ShutdownSignal } from './u.shutdown.ts';
 
 /**
- * Cell service-start input with effect-free lifecycle hooks.
+ * Cell service-start input with caller-owned lifecycle controls and effect-free reporting hooks.
  *
  * Hooks report lifecycle facts and formatted body content without writing to the terminal; the
  * caller retains terminal ownership.
  */
 export type StartCellArgs = {
   /** Service graph mode selected for this start. */
-  readonly mode?: t.Cell.Services.ServiceMode;
+  mode?: t.Cell.Services.ServiceMode;
+  /** Optional command-owned shutdown authority transferred to this lifecycle. */
+  shutdown?: ShutdownSignal;
   /** Signals the resolved service count immediately before owner startup begins. */
-  readonly onStarting?: (serviceCount: number) => void;
+  onStarting?: (serviceCount: number) => void;
   /** Supplies service-body content after all owners have started. */
-  readonly onReady?: (input: StartCellReady) => void;
+  onReady?: (input: StartCellReady) => void;
 };
 
 /** Private presentation options selected by the terminal-owning reporter. */
 export type StartCellRenderOptions = {
   /** Optional viewport width for responsive terminal presentation. */
-  readonly width?: number;
+  width?: number;
   /** Whether final eligible service labels should use OSC 8 hyperlinks. */
-  readonly hyperlinks?: boolean;
+  hyperlinks?: boolean;
 };
 
 /** Service-body presentation supplied when startup reaches ready. */
@@ -40,12 +43,12 @@ export type StartCellReady = {
   readonly render: (options?: StartCellRenderOptions) => string;
 };
 
-/** Effect-free result from a completed Cell service start. */
+/** Effect-free terminal result from one Cell service-start lifecycle. */
 export type StartCellResult = {
   readonly root: string;
   readonly services: number;
   readonly mode: t.Cell.Services.ServiceMode;
-  /** Service-status body without the application header or completion summary. */
+  /** Ready service-status body, or empty when interruption wins before ready. */
   readonly serviceText: string;
 };
 
@@ -54,20 +57,22 @@ export function loadStartCell(dir?: string): Promise<t.Cell.Instance> {
   return Cell.load(dir);
 }
 
-/** Starts one loaded Cell while leaving terminal effects to the lifecycle-hook caller. */
+/** Runs one loaded Cell start lifecycle while leaving terminal effects to the hook caller. */
 export async function startCell(
   cell: t.Cell.Instance,
   args: StartCellArgs = {},
 ): Promise<StartCellResult> {
   const mode = args.mode ?? 'default';
-  const sessionRoot = await canonicalRoot(cell.root);
-  const shutdown = createShutdownSignal();
+  const shutdown = args.shutdown ?? createShutdownSignal();
   let started: t.Cell.Services.Started | undefined;
   let serviceText = '';
-  let finalReason: string | undefined;
+  let closeReason: unknown = 'cell.start.finished';
+  let failed = false;
+  let failure: unknown;
   let session: CellSession.Handle | undefined;
 
   try {
+    const sessionRoot = await canonicalRoot(cell.root);
     const plan = await Cell.Services.plan(cell, { mode });
     session = await CellSession.create({
       root: sessionRoot,
@@ -96,19 +101,48 @@ export async function startCell(
       return formatStartServiceBody(renderServices, options.width);
     };
     serviceText = render();
-    args.onReady?.({ text: serviceText, render });
-    await Promise.race([Cell.Services.wait(started), shutdown.done]);
-  } finally {
-    finalReason = shutdown.reason;
-    await session?.stopping().catch(() => undefined);
-    try {
-      await closeAndDispose(started, shutdown);
-    } finally {
-      await session?.dispose().catch(() => undefined);
+    const completion = waitForStartOutcome(started, shutdown);
+    if (shutdown.reason === undefined) args.onReady?.({ text: serviceText, render });
+
+    const outcome = await completion;
+
+    if (outcome.kind === 'shutdown') {
+      if (Is.str(outcome.reason)) {
+        closeReason = outcome.reason;
+      } else {
+        failed = true;
+        failure = outcome.reason.cause;
+        closeReason = failure;
+      }
+    } else if (!outcome.ok) {
+      failed = true;
+      failure = outcome.cause;
+      closeReason = failure;
+    }
+  } catch (cause) {
+    const reason = shutdown.reason;
+    if (reason === undefined) {
+      shutdown.seal();
+      failed = true;
+      failure = cause;
+      closeReason = cause;
+    } else if (Is.str(reason)) {
+      closeReason = reason;
+    } else {
+      failed = true;
+      failure = reason.cause;
+      closeReason = failure;
     }
   }
 
-  if (isSignalShutdownReason(finalReason)) Deno.exitCode = 130;
+  const cleanup = await cleanupStart(started, shutdown, session, closeReason);
+
+  if (failed) {
+    throw cleanup.ok
+      ? failure
+      : mergeFailures(failure, cleanup.cause, 'Cell start failed and cleanup also failed.');
+  }
+  if (!cleanup.ok) throw cleanup.cause;
 
   return {
     root: cell.root,
@@ -129,16 +163,60 @@ async function sessionResources(
   }));
 }
 
-async function closeAndDispose(
+type StartOutcome =
+  | { readonly kind: 'shutdown'; readonly reason: ShutdownReason }
+  | { readonly kind: 'services'; readonly ok: true }
+  | { readonly kind: 'services'; readonly ok: false; readonly cause: unknown };
+
+type CleanupResult =
+  | { readonly ok: true }
+  | { readonly ok: false; readonly cause: unknown };
+
+/** Resolves the first shutdown or service outcome admitted by the shared terminal latch. */
+function waitForStartOutcome(
+  started: t.Cell.Services.Started,
+  shutdown: ShutdownSignal,
+): Promise<StartOutcome> {
+  return new Promise<StartOutcome>((resolve) => {
+    void shutdown.done.then((reason) => resolve({ kind: 'shutdown', reason }));
+    void Cell.Services.wait(started).then(
+      () => {
+        if (shutdown.seal()) resolve({ kind: 'services', ok: true });
+      },
+      (cause) => {
+        if (shutdown.seal()) resolve({ kind: 'services', ok: false, cause });
+      },
+    );
+  });
+}
+
+async function cleanupStart(
   started: t.Cell.Services.Started | undefined,
   shutdown: ShutdownSignal,
-) {
-  const close = await Try.run(() => started?.close(shutdown.reason ?? 'cell.start.finished'));
-  try {
-    if (!close.result.ok) throw close.result.error;
-  } finally {
-    shutdown.dispose();
-  }
+  session: CellSession.Handle | undefined,
+  reason: unknown,
+): Promise<CleanupResult> {
+  let failed = false;
+  let failure: unknown;
+  const run = async (cleanup: () => void | Promise<void>) => {
+    try {
+      await cleanup();
+    } catch (cause) {
+      if (!failed) {
+        failed = true;
+        failure = cause;
+      } else {
+        failure = mergeFailures(failure, cause, 'Cell start cleanup failed.');
+      }
+    }
+  };
+
+  await run(() => session?.stopping());
+  await run(() => started?.close(reason));
+  await run(() => shutdown.dispose());
+  await run(() => session?.dispose());
+
+  return failed ? { ok: false, cause: failure } : { ok: true };
 }
 
 export function startServicesText(
