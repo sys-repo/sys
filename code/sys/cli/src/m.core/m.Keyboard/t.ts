@@ -60,22 +60,33 @@ export declare namespace CliKeyboard {
    * Keyboard binding types.
    */
   export namespace Bind {
+    /**
+     * Quit-key grammar owned by one keyboard binding.
+     *
+     * `canonical` intercepts `q` and Ctrl+C. `interrupt-only` intercepts only Ctrl+C, allowing `q`
+     * to flow through `onKey`.
+     */
+    export type QuitKeys = 'canonical' | 'interrupt-only';
+
     /** Options for binding terminal keyboard controls. */
     export type Options = {
-      /** Called for non-quit keypress events. */
-      readonly onKey?: (event: CliffyKeyPressEvent) => void | Promise<void>;
+      /** Called for keypress events not admitted by `quitKeys`. */
+      onKey?: (event: CliffyKeyPressEvent) => void | Promise<void>;
 
-      /** Called when the canonical quit keys are pressed. */
-      readonly onQuit: () => void | Promise<void>;
+      /** Called when an admitted quit key is pressed. */
+      onQuit: () => void | Promise<void>;
+
+      /** Quit-key grammar. Defaults to `canonical`. */
+      quitKeys?: QuitKeys;
 
       /** Optional lifecycle boundary that requests keyboard shutdown. */
-      readonly until?: PromiseLike<unknown>;
+      until?: PromiseLike<unknown>;
 
       /** Exit the process after `onQuit` completes. Defaults false. */
-      readonly exit?: boolean;
+      exit?: boolean;
 
       /** Handle fixed package-owned keyboard listener failure. Defaults to rejecting `finished`. */
-      readonly onError?: (error: unknown) => void | Promise<void>;
+      onError?: (error: unknown) => void | Promise<void>;
     };
 
     /**

@@ -371,6 +371,86 @@ describe('CLI: core / Keyboard.bind lifecycle', () => {
     expect(keypressCalls).to.eql(0);
   });
 
+  it('interrupt-only forwards q and continues until Ctrl+C quits', async () => {
+    const fixture = keypressOwner({
+      disposeFailures: 0,
+      events: [
+        { key: 'q', ctrlKey: false },
+        { key: 'r', ctrlKey: false },
+        { key: 'c', ctrlKey: true },
+      ],
+    });
+    const keys: string[] = [];
+    let quitCalls = 0;
+    const handle = bindWith({
+      quitKeys: 'interrupt-only',
+      onQuit() {
+        quitCalls += 1;
+      },
+      onKey(event) {
+        keys.push(`${event.key}:${event.ctrlKey}`);
+      },
+    }, {
+      isTerminal: () => true,
+      keypress: () => fixture.owner,
+    });
+    if (!handle) throw new Error('Expected keyboard handle.');
+
+    await handle.finished;
+
+    expect(keys).to.eql(['q:false', 'r:false']);
+    expect(quitCalls).to.eql(1);
+    expect(fixture.nextCalls).to.eql(3);
+    expect(fixture.disposeCalls).to.eql(1);
+  });
+
+  it('validates quit-key grammar before acquiring a keypress owner', () => {
+    let keypressCalls = 0;
+    const options = {
+      onQuit() {},
+      quitKeys: 'other',
+    } as unknown as Parameters<typeof bindWith>[0];
+
+    const failure = catchSync(() =>
+      bindWith(options, {
+        isTerminal: () => true,
+        keypress: () => {
+          keypressCalls += 1;
+          return keypressOwner({ disposeFailures: 0 }).owner;
+        },
+      })
+    );
+
+    expect(errorMessage(failure)).to.eql('Keyboard binding failed.');
+    expect(keypressCalls).to.eql(0);
+  });
+
+  it('rejects hostile quit-key access before acquiring a keypress owner', () => {
+    let keypressCalls = 0;
+    let accessorCalls = 0;
+    const options = {
+      onQuit() {},
+      get quitKeys() {
+        accessorCalls += 1;
+        return 'canonical' as const;
+      },
+    } as unknown as Parameters<typeof bindWith>[0];
+
+    const failure = catchSync(() =>
+      bindWith(options, {
+        isTerminal: () => true,
+        keypress: () => {
+          keypressCalls += 1;
+          return keypressOwner({ disposeFailures: 0 }).owner;
+        },
+      })
+    );
+
+    expect(errorMessage(failure)).to.eql('Keyboard binding failed.');
+    expect(accessorCalls).to.eql(0);
+    expect(keypressCalls).to.eql(0);
+  });
+
   it('settles only after pending quit work terminates', async () => {
     const quitEntered = Promise.withResolvers<void>();
     const quitRelease = Promise.withResolvers<void>();

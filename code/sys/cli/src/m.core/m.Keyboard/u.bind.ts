@@ -9,6 +9,7 @@ type KeypressOwner = ReturnType<typeof keypress>;
 type OptionsSnapshot = Readonly<{
   onKey?: t.CliKeyboard.Bind.Options['onKey'];
   onQuit: t.CliKeyboard.Bind.Options['onQuit'];
+  quitKeys: t.CliKeyboard.Bind.QuitKeys;
   until?: PromiseLike<unknown>;
   exit?: boolean;
   onError?: t.CliKeyboard.Bind.Options['onError'];
@@ -191,7 +192,7 @@ export function bindWith(
           if (stopRequested) return;
           if (next.value.done) return;
           const event = next.value.value;
-          if (KeyboardIs.quit(event)) {
+          if (isAdmittedQuit(event, snapshot.quitKeys)) {
             await snapshot.onQuit();
             if (snapshot.exit ?? false) Deno.exit(0);
             return;
@@ -236,17 +237,27 @@ function snapshotOptions(input: t.CliKeyboard.Bind.Options): OptionsSnapshot {
     if (!Is.object(input) || Is.proxy(input)) throw bindingError();
     const onKey = ownValue(input, 'onKey');
     const onQuit = ownValue(input, 'onQuit');
+    const quitKeys = ownValue(input, 'quitKeys') ?? 'canonical';
     const until = ownValue(input, 'until');
     const exit = ownValue(input, 'exit');
     const onError = ownValue(input, 'onError');
     if (onKey !== undefined && !Is.func(onKey)) throw bindingError();
     if (!Is.func(onQuit)) throw bindingError();
+    if (quitKeys !== 'canonical' && quitKeys !== 'interrupt-only') throw bindingError();
     if (exit !== undefined && !Is.bool(exit)) throw bindingError();
     if (onError !== undefined && !Is.func(onError)) throw bindingError();
-    return Object.freeze({ onKey, onQuit, until, exit, onError });
+    return Object.freeze({ onKey, onQuit, quitKeys, until, exit, onError });
   } catch {
     throw bindingError();
   }
+}
+
+function isAdmittedQuit(
+  event: t.CliKeyboard.Is.QuitInput,
+  quitKeys: t.CliKeyboard.Bind.QuitKeys,
+): boolean {
+  if (quitKeys === 'canonical') return KeyboardIs.quit(event);
+  return event.key?.toLowerCase() === 'c' && event.ctrlKey === true;
 }
 
 function ownValue<K extends keyof t.CliKeyboard.Bind.Options>(
