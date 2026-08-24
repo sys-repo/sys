@@ -161,13 +161,22 @@ export declare namespace Num {
      * Kept generic so it can serve Media, CSS, image/layout, etc.
      */
     export type Lib = {
-      /** Parse a ratio from string or number. "16/9" → 1.777… */
+      /** Parse a positive finite ratio from string or number; invalid input returns `undefined`. */
       parse(value?: string | number): number | undefined;
 
-      /** Convert a decimal ratio → best fraction within a max denominator. */
+      /**
+       * Convert a positive finite ratio to its closest reduced fraction whose numerator and denominator
+       * are positive safe integers and whose denominator does not exceed `maxDenominator`.
+       * `maxDenominator` must be a positive safe integer. Ties select the lower denominator, then
+       * numerator. Invalid input returns `undefined`.
+       */
       toFraction(value?: number, maxDenominator?: number): { num: number; den: number } | undefined;
 
-      /** Format a ratio as "A/B" (or "X.XXX/1" fallback). */
+      /**
+       * Format a positive finite ratio as `A/B`.
+       * Invalid ratios return `"0/1"`; invalid bounds or a non-finite, negative, or unmet `maxError`
+       * return a decimal `/1` fallback.
+       */
       toString(
         value?: number,
         options?: { maxDenominator?: number; spaces?: boolean; maxError?: number },
