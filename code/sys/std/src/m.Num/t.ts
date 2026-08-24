@@ -190,7 +190,13 @@ export declare namespace Num {
        */
       (min?: number, max?: number, opts?: Options): number;
 
-      /** Random integer in [min, max] (inclusive). */
+      /**
+       * Random integer in [min, max] (inclusive).
+       * Bounds must be ordered safe integers with exact cardinality no greater than
+       * `Number.MAX_SAFE_INTEGER`.
+       * A fixed range returns its endpoint without reading the source; `crypto` uses unbiased 53-bit
+       * rejection sampling, while `math` and custom sources inherit their unit-source distribution.
+       */
       int(min: number, max: number, opts?: Options): number;
     };
 
@@ -198,9 +204,9 @@ export declare namespace Num {
     export type Options = {
       /**
        * Random source to use.
-       * - 'math': Math.random (default)
-       * - 'crypto': crypto.getRandomValues
-       * - fn: custom RNG that must return [0, 1)
+       * - 'math': `Math.random` (default)
+       * - 'crypto': `crypto.getRandomValues`
+       * - fn: custom source returning [0, 1)
        */
       readonly source?: Source;
     };
