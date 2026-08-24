@@ -1,14 +1,17 @@
 import { describe, expect, it } from '../../-test.ts';
 import { Path } from '../mod.ts';
 
+const platformJoin = Deno.build.os === 'windows' ? Path.Join.windows : Path.Join.posix;
+const platformSeparator = Deno.build.os === 'windows' ? '\\' : '/';
+
 describe('Path', () => {
   describe('join', () => {
     it('API', () => {
       expect(Path.join).to.equal(Path.Join.auto);
     });
 
-    it('join', () => {
-      expect(Path.join('foo', 'bar')).to.eql('foo/bar');
+    it('join (host platform)', () => {
+      expect(Path.join('foo', 'bar')).to.eql(platformJoin('foo', 'bar'));
     });
 
     it('absolute', () => {
@@ -35,7 +38,7 @@ describe('Path', () => {
   describe('joinGlobs', () => {
     it('joinGlobs', () => {
       const res = Path.joinGlobs(['src', '**', '*.ts']);
-      expect(res).to.eql('src/**/*.ts');
+      expect(res).to.eql(['src', '**', '*.ts'].join(platformSeparator));
     });
   });
 
@@ -148,19 +151,19 @@ describe('Path', () => {
     it('joins parts onto the base with path()', () => {
       const dir = Path.dir('foo');
       const result = dir.path('bar', 'baz');
-      expect(result).to.eql('foo/bar/baz');
+      expect(result).to.eql(platformJoin('foo', 'bar', 'baz'));
     });
 
     it('creates a new scoped builder with dir()', () => {
       const dir = Path.dir('foo').dir('bar');
-      expect(String(dir)).to.eql('foo/bar');
-      expect(dir.path('baz')).to.eql('foo/bar/baz');
+      expect(String(dir)).to.eql(platformJoin('foo', 'bar'));
+      expect(dir.path('baz')).to.eql(platformJoin('foo', 'bar', 'baz'));
     });
 
     it('supports nesting dir() calls', () => {
       const dir = Path.dir('foo').dir('bar').dir('baz');
-      expect(String(dir)).to.eql('foo/bar/baz');
-      expect(dir.path('qux', 'quux')).to.eql('foo/bar/baz/qux/quux');
+      expect(String(dir)).to.eql(platformJoin('foo', 'bar', 'baz'));
+      expect(dir.path('qux', 'quux')).to.eql(platformJoin('foo', 'bar', 'baz', 'qux', 'quux'));
     });
 
     it('change platform', () => {
