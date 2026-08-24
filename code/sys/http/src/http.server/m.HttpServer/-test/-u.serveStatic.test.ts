@@ -1,5 +1,6 @@
 import { describe, expect, it, Testing, Time } from '../../../-test.ts';
-import { Fs, Http } from '../common.ts';
+import { Fs } from '../common.ts';
+import { Http } from '../../../http.client/mod.ts';
 import { HttpServer } from '../mod.ts';
 import { testFetcher, usingServer } from './u.fixture.usingServer.ts';
 

@@ -1,5 +1,6 @@
 import { describe, expect, it, pkg } from '../../../-test.ts';
-import { Http, Pkg } from '../common.ts';
+import { Pkg } from '../common.ts';
+import { Http } from '../../../http.client/mod.ts';
 import { HttpServer } from '../mod.ts';
 import { testFetcher } from './u.fixture.usingServer.ts';
 

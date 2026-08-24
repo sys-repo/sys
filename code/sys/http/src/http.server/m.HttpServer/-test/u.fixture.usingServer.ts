@@ -1,4 +1,5 @@
-import { Http, type t, Time } from '../common.ts';
+import { type t, Time } from '../common.ts';
+import { Http } from '../../../http.client/mod.ts';
 
 export const DEFAULT_TIMEOUT = 10_000;
 
