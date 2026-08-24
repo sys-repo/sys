@@ -132,6 +132,194 @@ describe('Fs: write to the file-system operations', () => {
       expect(await Deno.readFile(path)).to.eql(data);
     });
 
+    describe('failure settlement', () => {
+      const expectCause = async (fn: () => Promise<unknown>, cause: Error) => {
+        let thrown: unknown;
+        try {
+          await fn();
+        } catch (error) {
+          thrown = error;
+        }
+        expect(thrown).to.equal(cause);
+      };
+
+      const expectOperationalFailure = async (
+        run: (shouldThrow: boolean) => ReturnType<typeof Fs.write>,
+        cause: Error,
+      ) => {
+        const result = await run(false);
+        expect(result.overwritten).to.eql(false);
+        expect(result.error?.cause?.name).to.eql(cause.name);
+        expect(result.error?.cause?.message).to.eql(cause.message);
+        await expectCause(() => run(true), cause);
+        return result;
+      };
+
+      it('settles parent-preparation failures and performs no write', async () => {
+        const parent = getDir();
+        const path = Fs.join(parent, 'file.txt');
+        const cause = new Error('parent preparation failed');
+        const originalStat = Deno.stat;
+        const originalWriteText = Deno.writeTextFile;
+        const originalWriteBytes = Deno.writeFile;
+        let textWrites = 0;
+        let binaryWrites = 0;
+
+        Deno.stat = (async (target) => {
+          if (String(target) === parent) throw cause;
+          return await originalStat(target);
+        }) as typeof Deno.stat;
+        Deno.writeTextFile = (() => {
+          textWrites++;
+          return Promise.resolve();
+        }) as typeof Deno.writeTextFile;
+        Deno.writeFile = (() => {
+          binaryWrites++;
+          return Promise.resolve();
+        }) as typeof Deno.writeFile;
+
+        try {
+          await expectOperationalFailure(
+            (shouldThrow) =>
+              Fs.write(path, shouldThrow ? new Uint8Array([1]) : 'text', { throw: shouldThrow }),
+            cause,
+          );
+          expect(textWrites).to.eql(0);
+          expect(binaryWrites).to.eql(0);
+        } finally {
+          Deno.stat = originalStat;
+          Deno.writeTextFile = originalWriteText;
+          Deno.writeFile = originalWriteBytes;
+        }
+      });
+
+      it('settles target-observation failures and performs no write', async () => {
+        const dir = getDir();
+        const path = Fs.join(dir, 'file.txt');
+        const cause = new Deno.errors.PermissionDenied('target observation failed');
+        await Fs.ensureDir(dir);
+
+        const originalStat = Deno.stat;
+        const originalWriteText = Deno.writeTextFile;
+        const originalWriteBytes = Deno.writeFile;
+        let textWrites = 0;
+        let binaryWrites = 0;
+
+        Deno.stat = (async (target) => {
+          if (String(target) === path) throw cause;
+          return await originalStat(target);
+        }) as typeof Deno.stat;
+        Deno.writeTextFile = (() => {
+          textWrites++;
+          return Promise.resolve();
+        }) as typeof Deno.writeTextFile;
+        Deno.writeFile = (() => {
+          binaryWrites++;
+          return Promise.resolve();
+        }) as typeof Deno.writeFile;
+
+        try {
+          await expectOperationalFailure(
+            (shouldThrow) =>
+              Fs.write(path, shouldThrow ? new Uint8Array([1]) : 'text', { throw: shouldThrow }),
+            cause,
+          );
+          expect(textWrites).to.eql(0);
+          expect(binaryWrites).to.eql(0);
+        } finally {
+          Deno.stat = originalStat;
+          Deno.writeTextFile = originalWriteText;
+          Deno.writeFile = originalWriteBytes;
+        }
+      });
+
+      it('settles text-write failures and preserves the thrown cause', async () => {
+        const path = Fs.join(getDir(), 'text.txt');
+        const cause = new Error('text write failed');
+        const original = Deno.writeTextFile;
+        Deno.writeTextFile = (() => Promise.reject(cause)) as typeof Deno.writeTextFile;
+
+        try {
+          await expectOperationalFailure(
+            (shouldThrow) => Fs.write(path, 'text', { throw: shouldThrow }),
+            cause,
+          );
+        } finally {
+          Deno.writeTextFile = original;
+        }
+      });
+
+      it('settles binary-write failures and preserves the thrown cause', async () => {
+        const path = Fs.join(getDir(), 'bytes.bin');
+        const cause = new Error('binary write failed');
+        const original = Deno.writeFile;
+        Deno.writeFile = (() => Promise.reject(cause)) as typeof Deno.writeFile;
+
+        try {
+          await expectOperationalFailure(
+            (shouldThrow) => Fs.write(path, new Uint8Array([1]), { throw: shouldThrow }),
+            cause,
+          );
+        } finally {
+          Deno.writeFile = original;
+        }
+      });
+
+      it('returns target-kind failures by default and rejects them when throwing', async () => {
+        const path = getDir();
+        await Fs.ensureDir(path);
+
+        const result = await Fs.write(path, 'text');
+        expect(result.overwritten).to.eql(false);
+        expect(result.error?.message).to.include('Failed while writing file');
+
+        await expectError(() => Fs.write(path, 'text', { throw: true }));
+      });
+
+      it('delegates JSON write failures without relabeling or replacing them', async () => {
+        const path = Fs.join(getDir(), 'file.json');
+        const cause = new Error('delegated JSON write failed');
+        const original = Deno.writeTextFile;
+        Deno.writeTextFile = (() => Promise.reject(cause)) as typeof Deno.writeTextFile;
+
+        try {
+          const result = await expectOperationalFailure(
+            (shouldThrow) => Fs.writeJson(path, { value: true }, { throw: shouldThrow }),
+            cause,
+          );
+          expect(result.error?.message).to.include('Failed while writing file');
+          expect(result.error?.message).not.to.include('serializing JSON');
+        } finally {
+          Deno.writeTextFile = original;
+        }
+      });
+
+      it('keeps JSON serialization failures separate and performs no write', async () => {
+        const path = Fs.join(getDir(), 'file.json');
+        const original = Deno.writeTextFile;
+        let writes = 0;
+        Deno.writeTextFile = (() => {
+          writes++;
+          return Promise.resolve();
+        }) as typeof Deno.writeTextFile;
+
+        try {
+          const result = await Fs.writeJson(path, undefined as unknown as t.Json);
+          expect(result.overwritten).to.eql(false);
+          expect(result.error?.message).to.include('Failed while serializing JSON');
+          expect(result.error?.cause?.message).to.include('[undefined] is not valid JSON input');
+
+          await expectError(
+            () => Fs.writeJson(path, undefined as unknown as t.Json, { throw: true }),
+            'Failed while serializing JSON',
+          );
+          expect(writes).to.eql(0);
+        } finally {
+          Deno.writeTextFile = original;
+        }
+      });
+    });
+
     describe('param: {force}', () => {
       const a = '👋';
       const b = new Uint8Array([1, 2, 3]);

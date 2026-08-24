@@ -230,9 +230,9 @@ export namespace Fs {
 
   /** Options passed to the `Fs.write` method. */
   export type WriteFileOptions = {
-    /** Overwrite existing directory files (default: false). */
+    /** Overwrite existing files (default: true). */
     force?: boolean;
-    /** Flag indicating if errors should be thrown (default: false). */
+    /** Reject write failures instead of returning them (default: false). */
     throw?: boolean;
   };
 
