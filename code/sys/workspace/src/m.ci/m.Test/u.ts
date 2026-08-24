@@ -5,13 +5,17 @@ import { TEST_MATRIX_ITEM_TEMPLATE } from './u.tmpl.ts';
 export async function loadModule(cwd: t.StringDir, path: t.StringPath) {
   const resolved = Fs.join(Fs.resolve(cwd, path), 'deno.json');
   const file = await loadJson(resolved);
-
   const name = file.name;
-  const browser = wrangle.browser(file);
-  if (browser && !wrangle.hasTask(file, 'test:browser')) {
+  return { path, name: Is.str(name) && name ? name : path, file } as const;
+}
+
+export async function loadLinuxModule(cwd: t.StringDir, path: t.StringPath) {
+  const module = await loadModule(cwd, path);
+  const browser = wrangle.browser(module.file);
+  if (browser && !wrangle.hasTask(module.file, 'test:browser')) {
     throw Err.std(`Browser-marked module is missing task "test:browser": ${path}`);
   }
-  return { path, name: Is.str(name) && name ? name : path, browser } as const;
+  return { path: module.path, name: module.name, browser } as const;
 }
 
 export function toMatrixItemYaml(module: { path: t.StringPath; name: string; browser?: boolean }) {

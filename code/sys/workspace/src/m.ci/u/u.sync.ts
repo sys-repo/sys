@@ -10,7 +10,10 @@ import { formatSyncResult } from './u.source.ts';
 type OTarget = {
   readonly jsr: t.StringPath;
   readonly build: t.StringPath;
-  readonly test: t.StringPath;
+  readonly test: {
+    readonly linux: t.StringPath;
+    readonly windows: t.StringPath;
+  };
 };
 
 export type SyncDependencies = {
@@ -84,21 +87,37 @@ export async function syncWith(deps: SyncDependencies, args: t.WorkspaceCi.SyncA
       done: (result) => formatSyncResult('build', result),
     });
 
-    const test = await runPhase({
+    const linux = await runPhase({
       spinner,
-      label: 'syncing test workflow...',
+      label: 'syncing Linux test workflow...',
       silent,
       fn() {
-        return Test.sync({
+        return Test.Linux.sync({
           cwd,
           env,
           log: false,
           on,
           source: { paths: sourcePaths },
-          target: targets.test,
+          target: targets.test.linux,
         });
       },
-      done: (result) => formatSyncResult('test', result),
+      done: (result) => formatSyncResult('test:linux', result),
+    });
+
+    const windows = await runPhase({
+      spinner,
+      label: 'syncing Windows test workflow...',
+      silent,
+      fn() {
+        return Test.Windows.sync({
+          cwd,
+          log: false,
+          on,
+          source: { paths: sourcePaths },
+          target: targets.test.windows,
+        });
+      },
+      done: (result) => formatSyncResult('test:windows', result),
     });
 
     if (!silent) {
@@ -109,7 +128,7 @@ export async function syncWith(deps: SyncDependencies, args: t.WorkspaceCi.SyncA
         jsr,
       });
     }
-    return { jsr, build, test };
+    return { jsr, build, test: { linux, windows } };
   } finally {
     spinner.stop();
   }
@@ -129,7 +148,10 @@ const wrangle = {
     return {
       jsr: targets?.jsr ?? '.github/workflows/jsr.yaml',
       build: targets?.build ?? '.github/workflows/build.yaml',
-      test: targets?.test ?? '.github/workflows/test.linux.yaml',
+      test: {
+        linux: targets?.test?.linux ?? '.github/workflows/test.linux.yaml',
+        windows: targets?.test?.windows ?? '.github/workflows/test.windows.yaml',
+      },
     };
   },
 

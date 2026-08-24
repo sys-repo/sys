@@ -1,7 +1,7 @@
 import { Fs, type t } from '../common.ts';
-import { text } from './u.text.ts';
+import { text } from './u.windows.text.ts';
 
-export async function write(args: t.WorkspaceCi.Test.Linux.WriteArgs) {
+export async function write(args: t.WorkspaceCi.Test.Windows.WriteArgs) {
   const yaml = await text(args);
   const cwd = args.cwd ?? Fs.cwd();
   const target = Fs.resolve(cwd, args.target);

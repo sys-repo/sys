@@ -1,7 +1,7 @@
 import { describe, expect, expectError, Fs, it, Testing } from '../../-test.ts';
 import { WorkspaceCi } from '../mod.ts';
 
-describe('WorkspaceCi.Test', () => {
+describe('WorkspaceCi.Test.Linux', () => {
   it('builds matrix YAML from ordered module paths', async () => {
     const fs = await Testing.dir('WorkspaceCi.Test.text');
     const a = fs.join('code/sys/alpha');
@@ -17,7 +17,7 @@ describe('WorkspaceCi.Test', () => {
       'x-sys': { ci: { test: { browser: true } } },
     });
 
-    const yaml = await WorkspaceCi.Test.text({ paths: [a, b] });
+    const yaml = await WorkspaceCi.Test.Linux.text({ paths: [a, b] });
 
     const incl = (value: string) => yaml.includes(value);
 
@@ -61,7 +61,7 @@ describe('WorkspaceCi.Test', () => {
     });
 
     await expectError(
-      async () => await WorkspaceCi.Test.text({ paths: [moduleDir] }),
+      async () => await WorkspaceCi.Test.Linux.text({ paths: [moduleDir] }),
       'Browser-marked module is missing task "test:browser"',
     );
   });
@@ -75,7 +75,7 @@ describe('WorkspaceCi.Test', () => {
       name: '@scope/alpha',
       tasks: { test: 'deno task info' },
     });
-    const res = await WorkspaceCi.Test.write({ paths: [moduleDir], target });
+    const res = await WorkspaceCi.Test.Linux.write({ paths: [moduleDir], target });
 
     expect(res.target).to.eql(target);
     expect(res.count).to.eql(1);
@@ -94,7 +94,7 @@ describe('WorkspaceCi.Test', () => {
     });
 
     await expectError(
-      async () => await WorkspaceCi.Test.text({ paths: [moduleDir] }),
+      async () => await WorkspaceCi.Test.Linux.text({ paths: [moduleDir] }),
       'Unsafe workflow matrix name',
     );
   });
@@ -109,14 +109,14 @@ describe('WorkspaceCi.Test', () => {
       tasks: { test: 'deno task info' },
     });
 
-    const first = await WorkspaceCi.Test.sync({
+    const first = await WorkspaceCi.Test.Linux.sync({
       cwd: fs.dir,
       source: { paths: [moduleDir] },
       target,
     });
     expect(first.kind).to.eql('written');
 
-    const second = await WorkspaceCi.Test.sync({
+    const second = await WorkspaceCi.Test.Linux.sync({
       cwd: fs.dir,
       source: { paths: [moduleDir] },
       target,
@@ -134,7 +134,7 @@ describe('WorkspaceCi.Test', () => {
       name: '@scope/alpha',
       tasks: { test: 'deno task info' },
     });
-    const yaml = await WorkspaceCi.Test.text({
+    const yaml = await WorkspaceCi.Test.Linux.text({
       on: {
         pull_request: { branches: ['main'], paths_ignore: ['.github/workflows/jsr.yaml'] },
         push: {
@@ -157,7 +157,7 @@ describe('WorkspaceCi.Test', () => {
     const moduleDir = fs.join('code/projects/demo');
 
     await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { tasks: { test: 'deno task info' } });
-    const yaml = await WorkspaceCi.Test.text({ paths: [moduleDir] });
+    const yaml = await WorkspaceCi.Test.Linux.text({ paths: [moduleDir] });
 
     expect(yaml.includes(`name: "${moduleDir}"`)).to.be.true;
   });
@@ -170,17 +170,17 @@ describe('WorkspaceCi.Test', () => {
     await Fs.writeJson(Fs.join(root, 'alpha/deno.json'), { tasks: { test: 'deno task info' } });
     await Fs.writeJson(Fs.join(root, 'beta/deno.json'), { tasks: { build: 'deno task info' } });
 
-    const written = await WorkspaceCi.Test.sync({ cwd: fs.dir, source: { root }, target });
+    const written = await WorkspaceCi.Test.Linux.sync({ cwd: fs.dir, source: { root }, target });
     expect(written.kind).to.eql('written');
     expect(written.count).to.eql(1);
     expect(await Fs.exists(fs.join(target))).to.be.true;
 
     await Fs.remove(Fs.join(root, 'alpha'));
-    const removed = await WorkspaceCi.Test.sync({ cwd: fs.dir, source: { root }, target });
+    const removed = await WorkspaceCi.Test.Linux.sync({ cwd: fs.dir, source: { root }, target });
     expect(removed.kind).to.eql('removed');
     expect(await Fs.exists(fs.join(target))).to.be.false;
 
-    const skipped = await WorkspaceCi.Test.sync({ cwd: fs.dir, source: { root }, target });
+    const skipped = await WorkspaceCi.Test.Linux.sync({ cwd: fs.dir, source: { root }, target });
     expect(skipped.kind).to.eql('skipped');
   });
 
@@ -192,7 +192,7 @@ describe('WorkspaceCi.Test', () => {
     await Fs.writeJson(Fs.join(testDir, 'deno.json'), { tasks: { test: 'deno task info' } });
     await Fs.writeJson(Fs.join(buildDir, 'deno.json'), { tasks: { build: 'deno task info' } });
 
-    const written = await WorkspaceCi.Test.sync({
+    const written = await WorkspaceCi.Test.Linux.sync({
       cwd: fs.dir,
       source: { paths: [buildDir, testDir] },
       target: '.github/workflows/test.yaml',

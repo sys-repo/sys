@@ -1,11 +1,12 @@
-import { c, Fs, Json, Path, Str, type t } from '../common.ts';
+import { c, Fs, Is, Json, Path, Str, type t } from '../common.ts';
 
-type SyncSubject = 'build' | 'test' | 'jsr';
+type SyncSubject = 'build' | 'test:linux' | 'test:windows' | 'jsr';
+export type WorkspaceTask = 'build' | 'test' | 'test:windows';
 
 export async function resolveSourcePaths(
   cwd: t.StringDir,
   source: t.WorkspaceCi.Source,
-  options: { task?: 'build' | 'test'; named?: boolean },
+  options: { task?: WorkspaceTask; named?: boolean },
 ) {
   if ('paths' in source) {
     const include = (path: string) => shouldInclude(cwd, path, options);
@@ -66,22 +67,23 @@ export function formatSyncResult(subject: SyncSubject, result: t.WorkspaceCi.Syn
   return `${c.gray('Skipped file:')} ${c.gray(label)}`;
 }
 
-function hasTask(value: unknown, key: 'build' | 'test') {
-  if (!value || typeof value !== 'object') return false;
-  const tasks = (value as { tasks?: Record<string, unknown> }).tasks;
-  return typeof tasks?.[key] === 'string' && !!tasks[key];
+export function hasTask(value: unknown, key: WorkspaceTask) {
+  if (!Is.record<Record<string, unknown>>(value)) return false;
+  const tasks = value.tasks;
+  if (!Is.record<Record<string, unknown>>(tasks)) return false;
+  const task = tasks[key];
+  return Is.str(task) && Boolean(task.trim());
 }
 
 function hasName(value: unknown) {
-  if (!value || typeof value !== 'object') return false;
-  const name = (value as { name?: unknown }).name;
-  return typeof name === 'string' && !!name;
+  if (!Is.record<Record<string, unknown>>(value)) return false;
+  return Is.str(value.name) && Boolean(value.name);
 }
 
 async function shouldInclude(
   cwd: t.StringDir,
   path: t.StringPath,
-  options: { task?: 'build' | 'test'; named?: boolean },
+  options: { task?: WorkspaceTask; named?: boolean },
 ) {
   const filepath = Fs.join(Fs.resolve(cwd, path), 'deno.json');
   if (!(await Fs.exists(filepath))) return false;

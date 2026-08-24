@@ -43,13 +43,16 @@ export namespace WorkspaceCi {
     readonly targets?: {
       readonly jsr?: t.StringPath;
       readonly build?: t.StringPath;
-      readonly test?: t.StringPath;
+      readonly test?: {
+        readonly linux?: t.StringPath;
+        readonly windows?: t.StringPath;
+      };
     };
     /** Build/test workflow trigger configuration. */
     readonly on?: WorkflowOn;
     /** JSR publish workflow trigger configuration. */
     readonly jsrOn?: WorkflowOn;
-    /** Workflow environment variables. */
+    /** Workflow environment variables for JSR, build, and Linux test workflows. */
     readonly env?: WorkflowEntries;
   };
 
@@ -57,7 +60,10 @@ export namespace WorkspaceCi {
   export type SyncSummary = {
     readonly jsr: SyncResult;
     readonly build: SyncResult;
-    readonly test: SyncResult;
+    readonly test: {
+      readonly linux: SyncResult;
+      readonly windows: SyncResult;
+    };
   };
 
   /** Commit-summary formatters for workspace CI close-out output. */
@@ -216,48 +222,101 @@ export namespace WorkspaceCi {
   }
 
   /**
-   * Test workflow generation for modules with a `deno task test` surface.
+   * Host-specific test workflow generation.
    */
   export namespace Test {
-    /** Test workflow helper surface. */
+    /** Root test workflow helper surface. */
     export type Lib = {
-      /** Render workflow YAML without writing files. */
-      text(args: Args): Promise<string>;
-      /** Write a test workflow file to disk. */
-      write(args: WriteArgs): Promise<WriteResult>;
-      /** Sync a test workflow file from discovered source modules. */
-      sync(args: SyncArgs): Promise<SyncResult>;
+      /** Linux test workflow helpers. */
+      readonly Linux: Linux.Lib;
+      /** Windows test workflow helpers. */
+      readonly Windows: Windows.Lib;
     };
-    /** Arguments for rendering a test workflow. */
-    export type Args = {
-      /** Working directory used to resolve module paths. */
-      readonly cwd?: t.StringDir;
-      /** Module paths to include in the test matrix. */
-      readonly paths: readonly t.StringPath[];
-      /** Optional workflow trigger configuration. */
-      readonly on?: WorkflowOn;
-      /** Optional workflow environment variables. */
-      readonly env?: WorkflowEntries;
-    };
-    /** Arguments for writing a rendered test workflow file. */
-    export type WriteArgs = Args & { readonly target: t.StringPath };
-    /** Arguments for syncing a test workflow from discovered modules. */
-    export type SyncArgs = {
-      /** Working directory used to resolve source paths. */
-      readonly cwd?: t.StringDir;
-      /** Source selection for workflow module discovery. */
-      readonly source: Source;
-      /** Output workflow file path. */
-      readonly target: t.StringPath;
-      /** Optional workflow trigger configuration. */
-      readonly on?: WorkflowOn;
-      /** Optional workflow environment variables. */
-      readonly env?: WorkflowEntries;
-      /** Emit sync logging to the console. */
-      readonly log?: boolean;
-    };
-    /** Result from writing a test workflow file. */
-    export type WriteResult = {
+
+    /** Linux workflow generation for modules with a `deno task test` surface. */
+    export namespace Linux {
+      /** Linux test workflow helper surface. */
+      export type Lib = {
+        /** Render workflow YAML without writing files. */
+        text(args: Args): Promise<string>;
+        /** Write a Linux test workflow file to disk. */
+        write(args: WriteArgs): Promise<WriteResult>;
+        /** Sync a Linux test workflow file from discovered source modules. */
+        sync(args: SyncArgs): Promise<SyncResult>;
+      };
+      /** Arguments for rendering a Linux test workflow. */
+      export type Args = {
+        /** Working directory used to resolve module paths. */
+        readonly cwd?: t.StringDir;
+        /** Module paths to include in the test matrix. */
+        readonly paths: readonly t.StringPath[];
+        /** Optional workflow trigger configuration. */
+        readonly on?: WorkflowOn;
+        /** Optional workflow environment variables. */
+        readonly env?: WorkflowEntries;
+      };
+      /** Arguments for writing a rendered Linux test workflow file. */
+      export type WriteArgs = Args & { readonly target: t.StringPath };
+      /** Arguments for syncing a Linux test workflow from discovered modules. */
+      export type SyncArgs = {
+        /** Working directory used to resolve source paths. */
+        readonly cwd?: t.StringDir;
+        /** Source selection for workflow module discovery. */
+        readonly source: Source;
+        /** Output workflow file path. */
+        readonly target: t.StringPath;
+        /** Optional workflow trigger configuration. */
+        readonly on?: WorkflowOn;
+        /** Optional workflow environment variables. */
+        readonly env?: WorkflowEntries;
+        /** Emit sync logging to the console. */
+        readonly log?: boolean;
+      };
+      /** Result from writing a Linux test workflow file. */
+      export type WriteResult = TestWriteResult;
+    }
+
+    /** Windows workflow generation for modules with a `deno task test:windows` surface. */
+    export namespace Windows {
+      /** Windows test workflow helper surface. */
+      export type Lib = {
+        /** Render workflow YAML without writing files. */
+        text(args: Args): Promise<string>;
+        /** Write a Windows test workflow file to disk. */
+        write(args: WriteArgs): Promise<WriteResult>;
+        /** Sync a Windows test workflow file from discovered source modules. */
+        sync(args: SyncArgs): Promise<SyncResult>;
+      };
+      /** Arguments for rendering a Windows test workflow. */
+      export type Args = {
+        /** Working directory used to resolve module paths. */
+        readonly cwd?: t.StringDir;
+        /** Module paths to include in the test matrix. */
+        readonly paths: readonly t.StringPath[];
+        /** Optional workflow trigger configuration. */
+        readonly on?: WorkflowOn;
+      };
+      /** Arguments for writing a rendered Windows test workflow file. */
+      export type WriteArgs = Args & { readonly target: t.StringPath };
+      /** Arguments for syncing a Windows test workflow from discovered modules. */
+      export type SyncArgs = {
+        /** Working directory used to resolve source paths. */
+        readonly cwd?: t.StringDir;
+        /** Source selection for workflow module discovery. */
+        readonly source: Source;
+        /** Output workflow file path. */
+        readonly target: t.StringPath;
+        /** Optional workflow trigger configuration. */
+        readonly on?: WorkflowOn;
+        /** Emit sync logging to the console. */
+        readonly log?: boolean;
+      };
+      /** Result from writing a Windows test workflow file. */
+      export type WriteResult = TestWriteResult;
+    }
+
+    /** Result from writing a host-specific test workflow file. */
+    export type TestWriteResult = {
       /** Written workflow file path. */
       readonly target: t.StringPath;
       /** Rendered workflow YAML. */
