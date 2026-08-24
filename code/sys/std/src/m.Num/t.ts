@@ -136,17 +136,17 @@ export declare namespace Num {
       export type Lib = {
         /**
          * Convert a real value (eg brightness) → slider percent.
-         * Returns 0 ..1, clamped if the input is outside the range.
+         * Valid ranges have exactly two finite endpoints with `min <= max`; invalid ranges return `0`.
          */
-        toPercent(value: number, range: t.MinMaxNumberRange): number;
+        toPercent(value: number, range: t.MinMaxNumberRange): t.Percent;
 
         /**
          * Convert a slider percent (0 … 1) → real value within the range.
-         * Percent is clamped, output is always within [min, max].
+         * Percent is clamped and output stays within a valid range; invalid ranges return `0`.
          */
         fromPercent(percent: number, range: t.MinMaxNumberRange): number;
 
-        /** Determine if the given input is a valid range. */
+        /** Determine whether input has exactly two finite endpoints with `min <= max`. */
         isRange(input?: unknown): input is t.MinMaxNumberRange;
       };
     }
