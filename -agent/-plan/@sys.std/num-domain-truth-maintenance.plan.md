@@ -1,9 +1,9 @@
 num-domain-truth-maintenance.plan.md
 - [x] 5f1ed22ee fix(std): codify Num predicate correspondence
-- [ ] fix(std): enforce exact random integer ranges
-- [ ] fix(std): validate percent ranges truthfully
-- [ ] fix(std): make ratio approximation truthful
-- [ ] docs(std): define Num display formatting semantics
+- [x] 7e48ca5cb fix(std): enforce exact random integer ranges
+- [x] 7e89518a9 fix(std): validate percent ranges truthfully
+- [x] a30261b7b fix(std): make ratio approximation truthful
+- [x] 55f15937e docs(std): define Num display formatting semantics
 
 ## Purpose
 
@@ -17,6 +17,37 @@ and authority.
 
 This plan records migration scope; it is not durable API authority. Every lasting rule must land in
 the public type spine, runtime/module hierarchy docs where relevant, and executable tests.
+
+## Completion evidence
+
+All five local items landed as the uniquely reachable commits recorded in the opening arc, in that
+order. Their committed path sets match the item-attribution boundaries below. No package version
+bump, publication, speculative API, production-consumer migration, or deferred work entered the arc.
+
+Final proof from `code/sys/std` after the display-formatting item:
+
+```text
+deno task test --trace-leaks src/m.Num
+  7 tests | 112 steps | 0 failed
+
+deno task test --trace-leaks
+  185 tests | 2244 steps | 0 failed
+
+deno task check
+  passed
+
+deno task dry
+  passed
+```
+
+The display suite also passed under both the host `en-NZ` locale and an explicit `de-DE` default.
+Mutation probes proved that its tests reject a hard-coded locale and a zero-argument-only
+regression; the production body was restored before the final green proof. `git diff --check`
+passed.
+
+Workspace-wide root proof is not claimed: the wider worktree contained substantial unrelated
+changes, so failure attribution was not independently safe. The plan makes that proof conditional;
+complete package-local proof is recorded above.
 
 ## Foundational design rules
 
@@ -278,34 +309,49 @@ Stable compatibility:
 - retain positive finite input semantics;
 - retain `parse` and `toFraction` invalid input → `undefined`;
 - retain `toString` invalid input → `"0/1"` and document it explicitly as a compatibility sentinel;
-- retain spacing and `maxError` options unless focused evidence proves a contradiction.
+- retain the default denominator of `32`, spacing option, and `maxError` option; and
+- retain decimal `/1` fallback when a valid ratio is not represented as an accepted fraction.
 
-Required correction:
+Decided ratio contract and algorithm:
 
-- validate `maxDenominator` as a positive safe integer;
-- prevent work proportional to an effectively unbounded caller value;
-- select and document either:
-  - a demonstrated hard denominator ceiling, or
-  - an algorithm whose operation count is bounded without iterating every denominator;
-- do not begin this item until that computational bound is concrete;
-- remove signed 32-bit bitwise narrowing from GCD or replacement arithmetic;
-- return only safe positive integer numerator/denominator pairs;
-- compute the actual closest fraction under the stated denominator bound when the contract says
-  “best”; otherwise replace that claim with exact approximation wording; and
-- validate `maxError` according to one finite, non-negative policy.
+- `toFraction` accepts a positive finite number and a positive safe-integer `maxDenominator`; an
+  invalid ratio or denominator returns `undefined`. `toFraction` and `toString` validate numeric
+  ratios without coercion; `parse` remains the explicit string-conversion route.
+- A result is a reduced pair of positive safe integers. For every valid positive finite ratio,
+  including ratios outside the exact safe-integer magnitude, return the closest pair in that safe
+  output domain rather than rejecting the ratio; the approximation may therefore be coarse.
+- “Best” means minimum absolute IEEE-754 error among all such pairs with `den <= maxDenominator`.
+  Equal errors select the lower denominator, then the lower numerator.
+- Use bounded continued-fraction convergents and the final admissible semiconvergent, constraining
+  both numerator and denominator before recurrence multiplication. This compares candidates without
+  a linear denominator walk, never materializes an unsafe recurrence, and has at most 80 accepted
+  recurrence steps under the safe-integer output bounds, before the Fibonacci lower bound exceeds
+  `Number.MAX_SAFE_INTEGER`.
+- Convergents and semiconvergents are already reduced; remove the signed 32-bit bitwise GCD path
+  rather than replacing it with another reduction pass.
+- A supplied `maxError` is valid only when finite and non-negative. It accepts a fraction only when
+  its absolute error is at most the threshold; an invalid or unmet supplied threshold produces the
+  decimal `/1` fallback, while an omitted threshold accepts the closest fraction.
+- For a valid ratio with an invalid denominator option, `toString` uses the decimal `/1` fallback,
+  not the invalid-ratio sentinel. A finite ratio must never become an `Infinity/1` fallback.
 
 Required proof:
 
-- exhaustive comparison against a simple oracle over small denominator bounds;
-- regression for `0.0339` with denominator bound `32`;
-- exact/common fractions and monotonic approximation quality as the bound grows;
-- zero, negative, non-finite, fractional, oversized, and malformed denominator bounds;
-- large input values and safe-output guarantees;
-- GCD behavior beyond signed 32-bit magnitude; and
-- explicit sentinel and `maxError` compatibility tests.
+- exhaustive comparison against a simple small-bound oracle over positive numerator and denominator
+  candidates, including the documented tie rule;
+- regression for `0.0339` with denominator bound `32` → `1/30`;
+- exact/common fractions, reduced output, and monotonic non-increasing approximation error as the
+  denominator bound grows;
+- zero, negative, non-finite, fractional, oversized, malformed, and non-numeric runtime ratio or
+  denominator inputs;
+- tiny and large positive finite ratios, safe-output guarantees, and the coarse safe-domain
+  boundary;
+- recurrence candidates beyond signed 32-bit magnitude without bitwise narrowing; and
+- explicit invalid-ratio sentinel, denominator fallback, `maxError`, decimal-fallback finiteness,
+  and spacing compatibility tests.
 
-The computational bound is an item-specific readiness condition. It does not block earlier arc
-items.
+The continued-fraction bound is concrete for this item: no iteration is proportional to the caller's
+denominator value. It does not block earlier arc items.
 
 ## Item 5 — display formatting semantics
 
