@@ -1,28 +1,65 @@
 import { normalizeTargets } from '../../m.Fs.capability/m.Rooted/u/u.target.ts';
-import { Hash, Is, Obj, Pkg, Rx, type t } from '../common.ts';
+import { Hash, Is, Path, Pkg, Rx, type t } from '../common.ts';
+import { snapshotExactDataObject, snapshotUntilInput } from './u.input.ts';
 import {
   checkCancelled,
   DEFAULT_IO,
   failure,
   ioFailure,
   isFailure,
-  type PinnedIo,
+  type VerifyIo,
 } from './u.pinned.io.ts';
 import { isSafeNonNegative } from './u.pinned.limit.ts';
-import { observePartAncestors, readRegularFile, resolveRoot } from './u.pinned.tree.ts';
+import {
+  observePartAncestors,
+  readRegularFile,
+  resolveLocalRoot,
+  resolveRoot,
+} from './u.pinned.tree.ts';
 
-const INPUT_KEYS = ['dir', 'path', 'checksum', 'size', 'until'] as const;
-const REQUIRED_KEYS = ['dir', 'path', 'checksum', 'size'] as const;
+type ReadMode = 'local' | 'pinned';
+type ReadArgs = Omit<t.Pkg.Dist.Pinned.ReadPart.Args, 'dir'> & {
+  readonly dir: t.StringAbsoluteDir;
+};
+
+const KEYS = {
+  ALLOWED: ['dir', 'path', 'checksum', 'size', 'until'],
+  REQUIRED: ['dir', 'path', 'checksum', 'size'],
+} as const;
 
 /** Read one exact checksum-pinned distribution part. */
 export const readPinnedPart: t.Pkg.Dist.Pinned.ReadPart.Method = (args) => {
-  return readPinnedPartWithIo(args, DEFAULT_IO);
+  return readPartWithIo(args, DEFAULT_IO, 'pinned');
 };
 
-/** Internal implementation seam with injectable host IO for deterministic tests. */
-export async function readPinnedPartWithIo(
+/** Read one checksum-matched file using a root resolved for this call. */
+export const readLocalPart: t.Pkg.Dist.Local.ReadPart.Method = (args) => {
+  return readPartWithIo(args, DEFAULT_IO, 'local');
+};
+
+/** Internal pinned-read implementation seam with injectable host IO. */
+export function readPinnedPartWithIo(
   input: unknown,
-  io: PinnedIo,
+  io: VerifyIo,
+): Promise<t.Pkg.Dist.Pinned.ReadPart.Result> {
+  return readPartWithIo(input, io, 'pinned');
+}
+
+/** Internal local-read implementation seam with injectable host IO. */
+export function readLocalPartWithIo(
+  input: unknown,
+  io: VerifyIo,
+): Promise<t.Pkg.Dist.Local.ReadPart.Result> {
+  return readPartWithIo(input, io, 'local');
+}
+
+/**
+ * Helpers:
+ */
+async function readPartWithIo(
+  input: unknown,
+  io: VerifyIo,
+  mode: ReadMode,
 ): Promise<t.Pkg.Dist.Pinned.ReadPart.Result> {
   const args = admitArgs(input);
   if (!args) return failed('invalid-input');
@@ -35,8 +72,12 @@ export async function readPinnedPartWithIo(
   }
 
   try {
+    // Pre-ended lifecycle bridges settle asynchronously; observe them before any host operation.
+    await Promise.resolve();
     checkCancelled(life.signal);
-    const root = await resolveRoot(io, args.dir, life.signal);
+    const root = mode === 'local'
+      ? await resolveLocalRoot(io, args.dir, life.signal)
+      : await resolveRoot(io, args.dir, life.signal);
     const ancestors = await observePartAncestors(io, root, args.path, life.signal);
     const value = await readRegularFile(io, root, args.path, args.size, life.signal, {
       exactSize: args.size,
@@ -53,29 +94,23 @@ export async function readPinnedPartWithIo(
     return Object.freeze({ kind: 'read', bytes: value.bytes });
   } catch (cause) {
     const error = isFailure(cause) ? cause : ioFailure(cause);
-    return failed(toPinnedPartFailureKind(error.kind));
+    return failed(toPartFailureKind(error.kind));
   } finally {
     life.dispose();
   }
 }
 
-function admitArgs(input: unknown): t.Pkg.Dist.Pinned.ReadPart.Args | undefined {
+function admitArgs(input: unknown): ReadArgs | undefined {
   try {
-    if (!Is.plainObject(input)) return undefined;
-    const keys = Reflect.ownKeys(input);
-    if (
-      keys.some((key) => !Is.str(key) || !INPUT_KEYS.some((name) => name === key)) ||
-      REQUIRED_KEYS.some((key) => !Obj.hasOwn(input, key))
-    ) {
-      return undefined;
-    }
+    const values = snapshotExactDataObject(input, KEYS);
+    if (!values) return undefined;
 
-    const { dir, path, checksum, size, until } = input;
+    const { dir, path, checksum, size, until } = values;
     if (!Is.str(dir) || dir.length === 0 || dir.includes('\0')) return undefined;
     if (!Is.str(path)) return undefined;
     if (!Is.str(checksum)) return undefined;
     if (!isSafeNonNegative(size)) return undefined;
-    if (!Is.untilInput(until)) return undefined;
+    const absoluteDir = Path.resolve(dir) as t.StringAbsoluteDir;
 
     const parsed = Pkg.Dist.Part.parse(checksum);
     if (!parsed || parsed.hash !== checksum || parsed.size !== undefined) return undefined;
@@ -84,12 +119,15 @@ function admitArgs(input: unknown): t.Pkg.Dist.Pinned.ReadPart.Args | undefined 
     const target = normalized[0];
     if (!target || target.path !== path) return undefined;
 
+    const untilSnapshot = snapshotUntilInput(until);
+    if (!untilSnapshot) return undefined;
+
     return Object.freeze({
-      dir,
+      dir: absoluteDir,
       path: target.path,
       checksum: parsed.hash,
       size,
-      until,
+      until: untilSnapshot.value,
     });
   } catch {
     return undefined;
@@ -97,8 +135,8 @@ function admitArgs(input: unknown): t.Pkg.Dist.Pinned.ReadPart.Args | undefined 
 }
 
 /** Keep verifier-only grammar out of this narrower public operation. */
-function toPinnedPartFailureKind(
-  kind: t.Pkg.Dist.Pinned.Verify.FailureKind,
+function toPartFailureKind(
+  kind: t.Pkg.Dist.Verify.FailureKind,
 ): t.Pkg.Dist.Pinned.ReadPart.FailureKind {
   switch (kind) {
     case 'malformed':

@@ -228,7 +228,7 @@ function nonEmpty(input: unknown): input is string {
   return Is.str(input) && input.length > 0;
 }
 
-/** Freeze the plain object/array graph produced by authenticated `Json.parse`. */
+/** Freeze the admitted plain object/array graph produced by `Json.parse`. */
 function freezeJsonTree<T>(input: T): t.DeepReadonly<T> {
   if (!Is.object(input)) return input as t.DeepReadonly<T>;
 

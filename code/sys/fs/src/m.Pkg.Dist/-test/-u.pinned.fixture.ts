@@ -1,6 +1,6 @@
-import { Hash, Json, StdPath, type t } from '../../-test.ts';
+import { expect, Hash, Json, StdPath, type t } from '../../-test.ts';
 import { Pkg } from '../../m.Pkg/mod.ts';
-import { DEFAULT_IO, type PinnedIo } from '../u.verify/u.pinned.io.ts';
+import { DEFAULT_IO, type VerifyIo } from '../u.verify/u.pinned.io.ts';
 
 const encoder = new TextEncoder();
 
@@ -13,8 +13,14 @@ export const limits: t.Pkg.Dist.Pinned.Verify.Limits = Object.freeze({
 
 export type Fixture = Awaited<ReturnType<typeof setup>>;
 
-export async function setup() {
-  const created = await Deno.makeTempDir({ prefix: 'Pkg.Dist.Pinned.' });
+export type IoCall = Readonly<{
+  operation: 'lstat' | 'open' | 'readDir' | 'realPath';
+  path: string;
+}>;
+
+export async function setup(path?: string) {
+  const created = path ?? await Deno.makeTempDir({ prefix: 'Pkg.Dist.Pinned.' });
+  if (path) await Deno.mkdir(created, { recursive: true });
   const dir = await Deno.realPath(created);
   await Deno.mkdir(StdPath.join(dir, 'assets'));
   await Deno.mkdir(StdPath.join(dir, 'pkg'));
@@ -58,7 +64,7 @@ export async function writeManifest(
   return { bytes, integrity: Hash.sha256(bytes) };
 }
 
-/** Derive exact read authority from one manifest part value. */
+/** Derive one exact file claim from its manifest part value. */
 export function fixturePart(
   fixture: Fixture,
   path: t.StringPath,
@@ -81,8 +87,39 @@ export function cloneDist(dist: t.DistPkg): t.DeepMutable<t.DistPkg> {
   return Json.parse(Json.stringify(dist)) as t.DeepMutable<t.DistPkg>;
 }
 
-export function withIo(overrides: Partial<PinnedIo>): PinnedIo {
+export function withIo(overrides: Partial<VerifyIo>): VerifyIo {
   return Object.freeze({ ...DEFAULT_IO, ...overrides });
+}
+
+export function traceIo(calls: IoCall[]): VerifyIo {
+  return withIo({
+    lstat: async (path) => {
+      calls.push({ operation: 'lstat', path });
+      return await DEFAULT_IO.lstat(path);
+    },
+    open: async (path) => {
+      calls.push({ operation: 'open', path });
+      return await DEFAULT_IO.open(path);
+    },
+    readDir: (path) => {
+      calls.push({ operation: 'readDir', path });
+      return DEFAULT_IO.readDir(path);
+    },
+    realPath: async (path) => {
+      calls.push({ operation: 'realPath', path });
+      return await DEFAULT_IO.realPath(path);
+    },
+  });
+}
+
+export function expectIoPathsWithin(calls: readonly IoCall[], root: string): void {
+  for (const call of calls) {
+    expect([call.operation, call.path, StdPath.Is.within(root, call.path)]).to.eql([
+      call.operation,
+      call.path,
+      true,
+    ]);
+  }
 }
 
 export { DEFAULT_IO };

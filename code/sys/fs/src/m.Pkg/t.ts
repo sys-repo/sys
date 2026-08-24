@@ -14,10 +14,10 @@ export declare namespace Pkg {
   };
 
   /**
-   * Distribution package filesystem contracts.
+   * Distribution metadata and integrity contracts.
    */
   export namespace Dist {
-    /** Filesystem helpers for distribution-package metadata. */
+    /** Filesystem tools for distribution metadata and integrity. */
     export type Lib = StdPkg.Dist.Lib & {
       /** Load a `dist.json` file. */
       load: Load.Method;
@@ -25,13 +25,13 @@ export declare namespace Pkg {
       /** Compute distribution-package metadata. */
       compute: Compute.Method;
 
-      /** Check a folder against its own distribution-package hash definitions. */
+      /** Check a directory against the checksum claims in its own manifest. */
       checkSelfReported: CheckSelfReported.Method;
 
-      /** Local-generation verification operations (non-authoritative local observation). */
+      /** Check a local distribution from its own manifest and read checksum-matched files. */
       readonly Local: Local.Lib;
 
-      /** Checksum-pinned distribution operations. */
+      /** Check against an external manifest checksum and read checksum-matched files. */
       readonly Pinned: Pinned.Lib;
 
       /** Logging helpers for distribution-package metadata. */
@@ -94,14 +94,15 @@ export declare namespace Pkg {
         exists: boolean;
         dir: t.StringDir;
         dist: t.DistPkg;
-        /** Exact publisher-generated serialization evidence for `dist.json`. */
+        /** Checksum for the exact `dist.json` bytes produced by this computation. */
         manifest: Manifest;
         error?: t.StdError;
       };
 
       /**
-       * Exact publisher-generated serialization evidence for `dist.json`.
-       * Integrity becomes artifact authority only when distributed independently from artifact fetch.
+       * Checksum of the exact `dist.json` bytes produced by the publisher.
+       *
+       * This checksum identifies an artifact only when obtained independently of the artifact itself.
        */
       export type Manifest = {
         /** SHA-256 of the exact serialized bytes produced by this computation. */
@@ -150,15 +151,18 @@ export declare namespace Pkg {
     }
 
     /**
-     * Shared verification contracts for checked distribution generations.
+     * Verification contracts shared by local and pinned distributions.
      */
     export namespace Verify {
-      /** Shared verification method shape. */
+      /** Verify a complete distribution. */
       export type Method = (args: Args) => Promise<Result>;
 
-      /** Shared verification arguments. */
+      /** Inputs shared by local and pinned verification. */
       export type Args = {
-        /** Generation directory. The root and every observed ancestor must be real directories. */
+        /**
+         * Directory containing `dist.json` and the files it names.
+         * Relative spelling resolves synchronously against the process CWD at invocation.
+         */
         dir: t.StringPath;
         /** Required upper bounds applied before allocation or traversal can exceed them. */
         limits: Limits;
@@ -178,14 +182,14 @@ export declare namespace Pkg {
         totalBytes: t.NumberBytes;
       };
 
-      /** Result of checked generation verification. Only `verified` is success. */
+      /** Result of checking a complete distribution. Only `verified` is success. */
       export type Result = Verified | Failure;
 
-      /** Successful verification with immutable owner-derived evidence. */
+      /** Successful verification with immutable evidence derived from observed bytes. */
       export type Verified = {
-        /** Successful verification with immutable owner-derived evidence. */
+        /** Verification succeeded. */
         readonly kind: 'verified';
-        /** Verified artifacts, including integrity and immutable manifest+asset evidence. */
+        /** Integrity, manifest, and asset totals derived from the verified bytes. */
         readonly evidence: Evidence;
       };
 
@@ -193,7 +197,7 @@ export declare namespace Pkg {
       export type Evidence = {
         /** Canonical SHA-256 of the exact manifest bytes used by this verification. */
         readonly integrity: t.StringHash;
-        /** Strictly admitted and deeply frozen manifest verified against the complete generation. */
+        /** Manifest checked against the complete distribution tree. */
         readonly dist: t.DeepReadonly<t.DistPkg>;
         /** Number of exact `dist.json` bytes observed. */
         readonly manifestBytes: t.NumberBytes;
@@ -210,24 +214,24 @@ export declare namespace Pkg {
 
       /** Failed verification without raw host errors, cancellation reasons, or local paths. */
       export type Failure = {
-        /** Stable, non-authority failure classification. */
+        /** Stable failure category. */
         readonly kind: FailureKind;
       };
 
       /**
-       * Stable failure classification.
+       * Stable failure categories.
        *
        * - `invalid-input`: the caller input, limits, or lifecycle input is invalid.
-       * - `missing`: the root or manifest is absent at its initial observation.
-       * - `malformed`: manifest structure, policy, or self-report is invalid.
-       * - `integrity-mismatch`: exact manifest bytes do not match the caller pin.
-       * - `content-mismatch`: an initial stable root, manifest, or declared tree value is wrong.
-       * - `unsafe-path`: root ancestry or admitted targets violate confinement or admission.
-       * - `symlink`: an initially checked root, ancestor, directory, or file path is a symlink.
-       * - `unexpected-entry`: the stable tree contains an undeclared or special entry.
-       * - `limit-exceeded`: caller-owned work or allocation bounds would be exceeded.
-       * - `changed`: identity, metadata, kind, presence, or bytes changed between observations.
-       * - `unsupported`: required filesystem semantics or trustworthy metadata are unavailable.
+       * - `missing`: the root or manifest was not found.
+       * - `malformed`: the manifest structure, policy, or self-report is invalid.
+       * - `integrity-mismatch`: the manifest bytes do not match the caller's pin.
+       * - `content-mismatch`: the root, manifest, or a declared entry has unexpected content.
+       * - `unsafe-path`: the selected root, ancestry, or target fails required path checks.
+       * - `symlink`: a symbolic link appeared where a real directory or file was required.
+       * - `unexpected-entry`: the tree contains an undeclared or special entry.
+       * - `limit-exceeded`: the operation would exceed a caller-supplied bound.
+       * - `changed`: the tree changed while it was being checked.
+       * - `unsupported`: the host cannot provide the filesystem evidence required for safety.
        * - `io-failure`: another host filesystem operation failed.
        * - `cancelled`: cancellation was observed at a cooperative boundary.
        */
@@ -248,31 +252,113 @@ export declare namespace Pkg {
     }
 
     /**
-     * Local verification operation contracts.
+     * Verify and read a distribution using the manifest found in its directory.
+     *
+     * Local verification derives the manifest checksum from the bytes it reads; the caller does not
+     * supply an expected checksum. Each call captures `dir` synchronously and resolves it
+     * independently. These operations authenticate observed bytes, not filesystem location against
+     * hostile path replacement.
      */
     export namespace Local {
-      /** Local-generation verification operation library. */
+      /** Local distribution operations. */
       export type Lib = {
-        /** Verify a generation with local manifest authority derived from observed bytes. */
+        /** Verify the manifest and the complete tree it describes. */
         readonly verify: Verify.Method;
+        /** Read one file only when its path, size, and checksum match. */
+        readonly readPart: ReadPart.Method;
       };
 
       /**
-       * Exact locally observed generation verification contracts.
-       *
-       * This variant has no caller-provided manifest integrity authority.
+       * Verification of a complete distribution using the manifest found at its root.
        */
       export namespace Verify {
-        /** Verify one generation through exact local manifest observation. */
+        /** Verify one local distribution. */
         export type Method = (args: Args) => Promise<Result>;
 
         /** Arguments passed to `Pkg.Dist.Local.verify`. */
-        export type Args = Dist.Verify.Args;
+        export type Args = Omit<Dist.Verify.Args, 'dir'> & {
+          /** Directory captured at invocation whose path must match the host's canonical path. */
+          dir: t.StringPath;
+        };
 
         /** Required resource limits. */
         export type Limits = Dist.Verify.Limits;
 
-        /** Result of local generation verification. */
+        /** Result of local distribution verification. Only `verified` is success. */
+        export type Result = Verified | Failure;
+
+        /** Successful verification with immutable evidence. */
+        export type Verified = Dist.Verify.Verified;
+
+        /** Immutable evidence produced by the verifier. */
+        export type Evidence = Dist.Verify.Evidence;
+
+        /** Failed verification without raw host errors, cancellation reasons, or local paths. */
+        export type Failure = { readonly kind: FailureKind };
+
+        /** Stable local failure category. Local verification has no caller pin to mismatch. */
+        export type FailureKind = Exclude<Dist.Verify.FailureKind, 'integrity-mismatch'>;
+      }
+
+      /**
+       * Checksum-matched file reads using a root canonicalized for each call.
+       */
+      export namespace ReadPart {
+        /** Read one checksum-matched file from a local distribution. */
+        export type Method = (args: Args) => Promise<Result>;
+        /** Selected root, expected file properties, and optional cancellation. */
+        export type Args = Omit<Pinned.ReadPart.Args, 'dir'> & {
+          /** Directory captured at invocation whose path must match the host's canonical path. */
+          dir: t.StringPath;
+        };
+        /** Successful read or failure. */
+        export type Result = Pinned.ReadPart.Result;
+        /** Successful checksum-matched read. */
+        export type Read = Pinned.ReadPart.Read;
+        /** Failed read without sensitive host details. */
+        export type Failure = Pinned.ReadPart.Failure;
+        /** Stable local read failure category. */
+        export type FailureKind = Pinned.ReadPart.FailureKind;
+      }
+    }
+
+    /**
+     * Verify and read a distribution against an expected manifest checksum.
+     *
+     * The caller obtains that checksum elsewhere, connecting local bytes to an independently chosen
+     * distribution identity.
+     */
+    export namespace Pinned {
+      /** Pinned distribution operations. */
+      export type Lib = {
+        /** Verify a complete distribution against an expected manifest checksum. */
+        readonly verify: Verify.Method;
+        /** Read one file only when its path, size, and checksum match. */
+        readonly readPart: ReadPart.Method;
+      };
+
+      /**
+       * Verification of a complete distribution against an expected manifest checksum.
+       */
+      export namespace Verify {
+        /** Verify one pinned distribution. */
+        export type Method = (args: Args) => Promise<Result>;
+
+        /** Arguments passed to `Pkg.Dist.Pinned.verify`. */
+        export type Args = Omit<Dist.Verify.Args, 'dir'> & {
+          /**
+           * Distribution directory whose root and observed ancestors must be real directories.
+           * Relative spelling resolves synchronously against the process CWD at invocation.
+           */
+          dir: t.StringPath;
+          /** Canonical SHA-256 of the exact `dist.json` bytes. */
+          integrity: t.StringHash;
+        };
+
+        /** Required resource limits. */
+        export type Limits = Dist.Verify.Limits;
+
+        /** Result of pinned distribution verification. */
         export type Result = Dist.Verify.Result;
 
         /** Successful verification with immutable evidence. */
@@ -284,71 +370,26 @@ export declare namespace Pkg {
         /** Failed verification without raw host errors, cancellation reasons, or local paths. */
         export type Failure = Dist.Verify.Failure;
 
-        /** Stable local failure classification. */
-        export type FailureKind = Dist.Verify.FailureKind;
-      }
-    }
-
-    /**
-     * Checksum-pinned distribution operations.
-     */
-    export namespace Pinned {
-      /** Checksum-pinned distribution operation library. */
-      export type Lib = {
-        /** Verify a generation against an exact authenticated manifest. */
-        readonly verify: Verify.Method;
-        /** Read one exact checksum-pinned part from a distribution generation. */
-        readonly readPart: ReadPart.Method;
-      };
-
-      /**
-       * Exact pinned generation verification contracts.
-       *
-       * This variant is a compatibility path for pinned authority.
-       */
-      export namespace Verify {
-        /** Verify one generation against an exact authenticated manifest. */
-        export type Method = (args: Args) => Promise<Result>;
-
-        /** Arguments passed to `Pkg.Dist.Pinned.verify`. */
-        export type Args = Dist.Verify.Args & {
-          /** Canonical SHA-256 of the exact `dist.json` bytes. */
-          integrity: t.StringHash;
-        };
-
-        /** Required resource limits. */
-        export type Limits = Dist.Verify.Limits;
-
-        /** Result of pinned generation verification. */
-        export type Result = Dist.Verify.Result;
-
-        /** Successful verification with immutable owner-derived evidence. */
-        export type Verified = Dist.Verify.Verified;
-
-        /** Immutable evidence produced by the verifier. */
-        export type Evidence = Dist.Verify.Evidence;
-
-        /** Failed verification without raw host errors, cancellation reasons, or local paths. */
-        export type Failure = Dist.Verify.Failure;
-
-        /** Stable failure classification. */
+        /** Stable failure category. */
         export type FailureKind = Dist.Verify.FailureKind;
       }
 
       /**
-       * Exact checksum-pinned distribution part-read contracts.
+       * One-file reads checked against a caller-supplied path, checksum, and size.
        *
-       * This operation authenticates one bounded file read against caller-supplied path, checksum,
-       * and size authority, typically parsed from an authenticated `DistPkg.hash.parts` value. It
-       * does not verify a complete generation or produce reusable evidence.
+       * This operation does not verify the complete distribution or return reusable verification
+       * evidence.
        */
       export namespace ReadPart {
-        /** Read one exact checksum-pinned distribution part. */
+        /** Read one checksum-matched file from a pinned distribution. */
         export type Method = (args: Args) => Promise<Result>;
 
         /** Arguments passed to `Pkg.Dist.Pinned.readPart`. */
         export type Args = {
-          /** Generation directory. The root and every observed ancestor must be real directories. */
+          /**
+           * Distribution directory whose root and observed ancestors must be real directories.
+           * Relative spelling resolves synchronously against the process CWD at invocation.
+           */
           dir: t.StringPath;
           /** Canonical Rooted-compatible root-relative part path. */
           path: t.StringPath;
@@ -360,21 +401,19 @@ export declare namespace Pkg {
           until?: t.UntilInput;
         };
 
-        /** Result of a checksum-pinned part read. Only `read` is success. */
+        /** Result of a checksum-matched read. Only `read` is success. */
         export type Result = Read | Failure;
 
-        /** Successful exact read whose bytes match the supplied checksum and size. */
+        /** Successful read whose bytes match the supplied checksum and size. */
         export type Read = {
           readonly kind: 'read';
           readonly bytes: Uint8Array;
         };
 
-        /** Failed part read without raw host errors, cancellation reasons, or local paths. */
-        export type Failure = {
-          readonly kind: FailureKind;
-        };
+        /** Failed read without raw host errors, cancellation reasons, or local paths. */
+        export type Failure = { readonly kind: FailureKind };
 
-        /** Stable part-read failure classification. */
+        /** Stable read failure category. */
         export type FailureKind =
           | 'invalid-input'
           | 'missing'

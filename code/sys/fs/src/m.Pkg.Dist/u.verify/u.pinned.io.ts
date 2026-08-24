@@ -4,7 +4,7 @@ const FAILURE = Symbol('Pkg.Dist.Pinned.failure');
 
 type InternalFailure = {
   readonly [FAILURE]: true;
-  readonly kind: t.Pkg.Dist.Pinned.Verify.FailureKind;
+  readonly kind: t.Pkg.Dist.Verify.FailureKind;
 };
 
 export type ReadHandle = {
@@ -13,22 +13,22 @@ export type ReadHandle = {
   readonly close: () => void;
 };
 
-/** Private host operations used by checksum-pinned Dist operations. */
-export type PinnedIo = {
+/** Private host operations shared by local and pinned Dist verification. */
+export type VerifyIo = {
   readonly lstat: (path: string) => Promise<Deno.FileInfo>;
   readonly open: (path: string) => Promise<ReadHandle>;
   readonly readDir: (path: string) => AsyncIterable<Deno.DirEntry>;
   readonly realPath: (path: string) => Promise<string>;
 };
 
-export const DEFAULT_IO: PinnedIo = Object.freeze({
+export const DEFAULT_IO: VerifyIo = Object.freeze({
   lstat: (path) => Deno.lstat(path),
   open: (path) => Deno.open(path, { read: true }),
   readDir: (path) => Deno.readDir(path),
   realPath: (path) => Deno.realPath(path),
 });
 
-export function failure(kind: t.Pkg.Dist.Pinned.Verify.FailureKind): InternalFailure {
+export function failure(kind: t.Pkg.Dist.Verify.FailureKind): InternalFailure {
   return Object.freeze({ [FAILURE]: true as const, kind });
 }
 

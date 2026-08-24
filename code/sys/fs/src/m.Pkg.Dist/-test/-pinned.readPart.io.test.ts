@@ -208,8 +208,18 @@ describe('Pkg.Dist.Pinned.readPart IO invariants', () => {
       const part = fixturePart(fixture, 'assets/app.js');
       const before = new AbortController();
       before.abort('before');
-      const preCancelled = await Pkg.Dist.Pinned.readPart({ ...part, until: before.signal });
+      let preCancelledCalls = 0;
+      const preCancelled = await readPinnedPartWithIo(
+        { ...part, until: before.signal },
+        withIo({
+          lstat: async (path) => {
+            preCancelledCalls += 1;
+            return await DEFAULT_IO.lstat(path);
+          },
+        }),
+      );
       expect(preCancelled).to.eql({ kind: 'cancelled' });
+      expect(preCancelledCalls).to.eql(0);
 
       const during = new AbortController();
       const target = StdPath.join(part.dir, part.path);

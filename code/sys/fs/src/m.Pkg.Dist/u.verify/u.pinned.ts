@@ -1,12 +1,13 @@
 import { Pkg } from '@sys/std/pkg';
-import { Hash, Is, Json, Obj, Rx, type t } from '../common.ts';
+import { Hash, Is, Json, Path, Rx, type t } from '../common.ts';
+import { snapshotExactDataObject, snapshotUntilInput } from './u.input.ts';
 import {
   checkCancelled,
   DEFAULT_IO,
   failure,
   ioFailure,
   isFailure,
-  type PinnedIo,
+  type VerifyIo,
 } from './u.pinned.io.ts';
 import { addBytes, isSafeNonNegative, isSafePositive } from './u.pinned.limit.ts';
 import { admitManifest } from './u.pinned.manifest.ts';
@@ -19,31 +20,55 @@ import {
   observeTree,
   readAsset,
   readManifest,
+  resolveLocalRoot,
   resolveRoot,
 } from './u.pinned.tree.ts';
 
+type VerifiedBase = {
+  readonly dir: t.StringAbsoluteDir;
+  readonly limits: t.Pkg.Dist.Verify.Limits;
+  readonly until?: t.UntilInput;
+};
+
+type VerifiedArgs =
+  & VerifiedBase
+  & ({ readonly mode: 'pinned'; readonly integrity: t.StringHash } | { readonly mode: 'local' });
+
 const decoder = new TextDecoder('utf-8', { fatal: true });
 
-const PINNED_KEYS = ['dir', 'integrity', 'limits', 'until'] as const;
-const PINNED_REQUIRED_KEYS = ['dir', 'integrity', 'limits'] as const;
-const LOCAL_KEYS = ['dir', 'limits', 'until'] as const;
-const LOCAL_REQUIRED_KEYS = ['dir', 'limits'] as const;
-const LIMIT_KEYS = ['manifestBytes', 'entries', 'fileBytes', 'totalBytes'] as const;
+const KEYS = {
+  PINNED: {
+    ALLOWED: ['dir', 'integrity', 'limits', 'until'],
+    REQUIRED: ['dir', 'integrity', 'limits'],
+  },
+  LOCAL: {
+    ALLOWED: ['dir', 'limits', 'until'],
+    REQUIRED: ['dir', 'limits'],
+  },
+  LIMITS: {
+    ALLOWED: ['manifestBytes', 'entries', 'fileBytes', 'totalBytes'],
+    REQUIRED: ['manifestBytes', 'entries', 'fileBytes', 'totalBytes'],
+  },
+} as const;
 
-/** Exact pinned generation verification. */
+/**
+ * Exact pinned distribution verification.
+ */
 export const verifyPinned: t.Pkg.Dist.Pinned.Verify.Method = (args) => {
   return verifyPinnedWithIo(args, DEFAULT_IO);
 };
 
-/** Exact local generation verification. */
+/**
+ * Exact local distribution verification.
+ */
 export const verifyLocal: t.Pkg.Dist.Local.Verify.Method = (args) => {
   return verifyLocalWithIo(args, DEFAULT_IO);
 };
 
 /** Internal implementation seam with injectable host IO for deterministic tests. */
 export async function verifyPinnedWithIo(
-  args: t.Pkg.Dist.Pinned.Verify.Args,
-  io: PinnedIo,
+  args: unknown,
+  io: VerifyIo,
 ): Promise<t.Pkg.Dist.Pinned.Verify.Result> {
   const input = admitPinnedArgs(args);
   if (!input) return failed('invalid-input');
@@ -53,18 +78,25 @@ export async function verifyPinnedWithIo(
 
 /** Internal implementation seam with injectable host IO for deterministic tests. */
 export async function verifyLocalWithIo(
-  args: t.Pkg.Dist.Local.Verify.Args,
-  io: PinnedIo,
+  args: unknown,
+  io: VerifyIo,
 ): Promise<t.Pkg.Dist.Local.Verify.Result> {
   const input = admitLocalArgs(args);
-  if (!input) return failed('invalid-input');
+  if (!input) return localFailed('invalid-input');
+
   const result = await verifyWithIo(input, io);
-  return result;
+  if (result.kind === 'verified') return result;
+  // Local mode has no caller pin; fail closed if the shared kernel ever violates that grammar.
+  if (result.kind === 'integrity-mismatch') return localFailed('io-failure');
+  return localFailed(result.kind);
 }
 
+/**
+ * Helpers:
+ */
 async function verifyWithIo(
   args: VerifiedArgs,
-  io: PinnedIo,
+  io: VerifyIo,
 ): Promise<t.Pkg.Dist.Verify.Result> {
   let life: ReturnType<typeof Rx.abortable>;
   try {
@@ -73,13 +105,15 @@ async function verifyWithIo(
     return failed('invalid-input');
   }
 
-  const authority = args.mode === 'pinned' ? args.integrity : undefined;
+  const expectedManifestChecksum = args.mode === 'pinned' ? args.integrity : undefined;
 
   try {
     // Pre-ended lifecycle bridges settle asynchronously; observe them before any host operation.
     await Promise.resolve();
     checkCancelled(life.signal);
-    const root = await resolveRoot(io, args.dir, life.signal);
+    const root = args.mode === 'local'
+      ? await resolveLocalRoot(io, args.dir, life.signal)
+      : await resolveRoot(io, args.dir, life.signal);
     const manifest = await readManifest(
       io,
       root,
@@ -89,7 +123,7 @@ async function verifyWithIo(
 
     checkCancelled(life.signal);
     const manifestIntegrity = Hash.sha256(manifest.bytes);
-    if (args.mode === 'pinned' && manifestIntegrity !== authority) {
+    if (args.mode === 'pinned' && manifestIntegrity !== expectedManifestChecksum) {
       throw failure('integrity-mismatch');
     }
 
@@ -100,18 +134,18 @@ async function verifyWithIo(
     } catch {
       throw failure('malformed');
     }
-    const strict = await admitManifest(parsed, args.limits);
+    const admitted = await admitManifest(parsed, args.limits);
     checkCancelled(life.signal);
 
     const before = await observeTree(io, root, args.limits.entries, life.signal, {
       expected: { path: 'dist.json', metadata: manifest.metadata },
     });
     assertObserved(manifest.metadata, observedFile(before, 'dist.json', 'changed'));
-    assertExactTree(before, strict.parts);
+    assertExactTree(before, admitted.parts);
 
     let totalBytes = 0;
     let packageBytes = 0;
-    for (const part of strict.parts) {
+    for (const part of admitted.parts) {
       checkCancelled(life.signal);
       const observed = observedFile(before, part.path);
       const value = await readAsset(
@@ -134,8 +168,8 @@ async function verifyWithIo(
     }
 
     if (
-      totalBytes !== strict.dist.build.size.total ||
-      packageBytes !== strict.dist.build.size.pkg
+      totalBytes !== admitted.dist.build.size.total ||
+      packageBytes !== admitted.dist.build.size.pkg
     ) {
       throw failure('content-mismatch');
     }
@@ -154,19 +188,21 @@ async function verifyWithIo(
     );
     if (!bytesEqual(manifest.bytes, finalManifest.bytes)) throw failure('changed');
     checkCancelled(life.signal);
-    if (Hash.sha256(finalManifest.bytes) !== (authority ?? manifestIntegrity)) {
+    if (
+      Hash.sha256(finalManifest.bytes) !== (expectedManifestChecksum ?? manifestIntegrity)
+    ) {
       throw failure('changed');
     }
     checkCancelled(life.signal);
 
     const assets = Object.freeze({
-      files: strict.parts.length,
+      files: admitted.parts.length,
       totalBytes,
       packageBytes,
     });
     const evidence: t.Pkg.Dist.Verify.Evidence = Object.freeze({
-      integrity: authority ?? manifestIntegrity,
-      dist: strict.dist,
+      integrity: expectedManifestChecksum ?? manifestIntegrity,
+      dist: admitted.dist,
       manifestBytes: manifest.bytes.byteLength,
       assets,
     });
@@ -180,10 +216,13 @@ async function verifyWithIo(
 }
 
 function admitPinnedArgs(input: unknown): VerifiedArgs | undefined {
-  const args = admitBaseArgs(input, PINNED_KEYS, PINNED_REQUIRED_KEYS);
+  const values = snapshotExactDataObject(input, KEYS.PINNED);
+  if (!values) return undefined;
+
+  const args = admitBaseArgs(values);
   if (!args) return undefined;
 
-  const rawIntegrity = (input as { integrity?: unknown }).integrity;
+  const rawIntegrity = values.integrity;
   if (!Is.str(rawIntegrity) || rawIntegrity.length === 0) return undefined;
 
   const parsed = Pkg.Dist.Part.parse(rawIntegrity);
@@ -197,7 +236,10 @@ function admitPinnedArgs(input: unknown): VerifiedArgs | undefined {
 }
 
 function admitLocalArgs(input: unknown): VerifiedArgs | undefined {
-  const args = admitBaseArgs(input, LOCAL_KEYS, LOCAL_REQUIRED_KEYS);
+  const values = snapshotExactDataObject(input, KEYS.LOCAL);
+  if (!values) return undefined;
+
+  const args = admitBaseArgs(values);
   if (!args) return undefined;
 
   return Object.freeze({
@@ -206,27 +248,16 @@ function admitLocalArgs(input: unknown): VerifiedArgs | undefined {
   });
 }
 
-function admitBaseArgs(
-  input: unknown,
-  allowedKeys: readonly string[],
-  requiredKeys: readonly string[],
-): VerifiedBase | undefined {
+function admitBaseArgs(values: Readonly<Record<string, unknown>>): VerifiedBase | undefined {
   try {
-    if (!isExactPlainDataObject(input, allowedKeys, requiredKeys)) return undefined;
-
-    const values = input as Partial<
-      t.Pkg.Dist.Verify.Args & { until?: unknown } & Record<string, unknown>
-    >;
     const { dir, limits, until } = values;
     if (!Is.str(dir) || dir.length === 0 || dir.includes('\0')) return undefined;
-    if (!Is.untilInput(until)) return undefined;
-    if (!isExactPlainDataObject(limits, LIMIT_KEYS, LIMIT_KEYS)) return undefined;
+    const absoluteDir = Path.resolve(dir) as t.StringAbsoluteDir;
 
-    const manifestBytes = limits.manifestBytes;
-    const entries = limits.entries;
-    const fileBytes = limits.fileBytes;
-    const totalBytes = limits.totalBytes;
+    const admittedLimits = snapshotExactDataObject(limits, KEYS.LIMITS);
+    if (!admittedLimits) return undefined;
 
+    const { manifestBytes, entries, fileBytes, totalBytes } = admittedLimits;
     if (
       !isSafePositive(manifestBytes) ||
       !isSafePositive(entries) ||
@@ -242,37 +273,17 @@ function admitBaseArgs(
       fileBytes,
       totalBytes,
     };
+    const untilSnapshot = snapshotUntilInput(until);
+    if (!untilSnapshot) return undefined;
 
     return Object.freeze({
-      dir,
+      dir: absoluteDir,
       limits: Object.freeze(admissible),
-      until,
+      until: untilSnapshot.value,
     });
   } catch {
     return undefined;
   }
-}
-
-function isExactPlainDataObject(
-  input: unknown,
-  allowedKeys: readonly string[],
-  requiredKeys: readonly string[],
-): input is Record<string, unknown> {
-  if (!Is.object(input)) return false;
-
-  const keys = Reflect.ownKeys(input);
-  for (const key of keys) {
-    if (!Is.str(key) || !allowedKeys.includes(key)) return false;
-    const descriptor = Object.getOwnPropertyDescriptor(input, key);
-    if (!descriptor || descriptor.get !== undefined || descriptor.set !== undefined) return false;
-  }
-
-  if (!Is.plainObject(input)) return false;
-  if (Object.getPrototypeOf(input) !== Object.prototype) return false;
-  for (const key of requiredKeys) {
-    if (!Obj.hasOwn(input, key)) return false;
-  }
-  return true;
 }
 
 function failed(
@@ -281,16 +292,8 @@ function failed(
   return Object.freeze({ kind });
 }
 
-type VerifyMode = 'pinned' | 'local';
-
-type VerifiedBase = {
-  readonly dir: t.StringPath;
-  readonly limits: t.Pkg.Dist.Verify.Limits;
-  readonly until?: t.UntilInput;
-};
-
-type VerifiedArgs =
-  & VerifiedBase
-  & ({ readonly mode: 'pinned'; readonly integrity: t.StringHash } | {
-    readonly mode: 'local';
-  });
+function localFailed(
+  kind: t.Pkg.Dist.Local.Verify.FailureKind,
+): t.Pkg.Dist.Local.Verify.Failure {
+  return Object.freeze({ kind });
+}

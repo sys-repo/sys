@@ -4,12 +4,9 @@ import {
   checkCancelled,
   failure,
   ioFailure,
-  type PinnedIo,
   type ReadHandle,
+  type VerifyIo,
 } from './u.pinned.io.ts';
-
-const compare = Str.Compare.codeUnit();
-const INDEX = new WeakMap<TreeSnapshot, ReadonlyMap<string, TreeEntry>>();
 
 export type Identity = {
   readonly dev: number;
@@ -53,12 +50,15 @@ type ObserveTreeOptions = {
   };
 };
 
+const compare = Str.Compare.codeUnit();
+const INDEX = new WeakMap<TreeSnapshot, ReadonlyMap<string, TreeEntry>>();
+
 export async function resolveRoot(
-  io: PinnedIo,
-  input: string,
+  io: VerifyIo,
+  input: t.StringAbsoluteDir,
   signal: AbortSignal,
 ): Promise<RootState> {
-  const absolute = Path.resolve(input);
+  const absolute = input;
   let initial: (Metadata & { readonly kind: 'directory' }) | undefined;
   for (const current of ancestorChain(absolute)) {
     checkCancelled(signal);
@@ -97,8 +97,49 @@ export async function resolveRoot(
   });
 }
 
+/** Resolve one exact canonical local root without requesting ambient ancestor reads. */
+export async function resolveLocalRoot(
+  io: VerifyIo,
+  input: t.StringAbsoluteDir,
+  signal: AbortSignal,
+): Promise<RootState> {
+  const absolute = input;
+  checkCancelled(signal);
+  const initialInfo = await lstatMaybe(io, absolute);
+  if (!initialInfo) throw failure('missing');
+  if (initialInfo.isSymlink) throw failure('symlink');
+  if (!initialInfo.isDirectory) throw failure('content-mismatch');
+  const initial = directoryMetadata(initialInfo);
+
+  let canonical: string;
+  try {
+    canonical = await io.realPath(absolute);
+  } catch (cause) {
+    if (isPathTransition(cause)) throw failure('changed');
+    throw ioFailure(cause);
+  }
+  checkCancelled(signal);
+  if (canonical !== absolute) {
+    const selectedInfo = await lstatMaybe(io, absolute);
+    if (!selectedInfo) throw failure('changed');
+    const selected = expectedDirectoryMetadata(selectedInfo);
+    if (!sameMetadata(initial, selected)) throw failure('changed');
+    throw failure('unsafe-path');
+  }
+
+  const canonicalInfo = await lstatMaybe(io, canonical);
+  if (!canonicalInfo) throw failure('changed');
+  const metadata = expectedDirectoryMetadata(canonicalInfo);
+  if (!sameMetadata(initial, metadata)) throw failure('changed');
+
+  return Object.freeze({
+    path: canonical as t.StringAbsoluteDir,
+    metadata,
+  });
+}
+
 export async function readManifest(
-  io: PinnedIo,
+  io: VerifyIo,
   root: RootState,
   maxBytes: number,
   signal: AbortSignal,
@@ -112,7 +153,7 @@ export async function readManifest(
 }
 
 export async function readAsset(
-  io: PinnedIo,
+  io: VerifyIo,
   root: RootState,
   part: StrictPart,
   observed: Metadata,
@@ -128,7 +169,7 @@ export async function readAsset(
 }
 
 export async function observePartAncestors(
-  io: PinnedIo,
+  io: VerifyIo,
   root: RootState,
   relative: string,
   signal: AbortSignal,
@@ -159,7 +200,7 @@ export async function observePartAncestors(
 }
 
 export async function observeTree(
-  io: PinnedIo,
+  io: VerifyIo,
   root: RootState,
   maxEntries: number,
   signal: AbortSignal,
@@ -270,7 +311,7 @@ export function assertExactTree(snapshot: TreeSnapshot, parts: readonly StrictPa
 export function observedFile(
   snapshot: TreeSnapshot,
   path: string,
-  missingKind: t.Pkg.Dist.Pinned.Verify.FailureKind = 'content-mismatch',
+  missingKind: t.Pkg.Dist.Verify.FailureKind = 'content-mismatch',
 ): Metadata {
   const entry = indexOf(snapshot).get(path);
   if (!entry || entry.kind !== 'file') throw failure(missingKind);
@@ -300,7 +341,7 @@ export function bytesEqual(a: Uint8Array, b: Uint8Array): boolean {
 }
 
 export async function readRegularFile(
-  io: PinnedIo,
+  io: VerifyIo,
   root: RootState,
   relative: string,
   maxBytes: number,
@@ -308,8 +349,8 @@ export async function readRegularFile(
   options: {
     readonly expected?: Metadata;
     readonly exactSize?: number;
-    readonly missing: t.Pkg.Dist.Pinned.Verify.FailureKind;
-    readonly wrongKind: t.Pkg.Dist.Pinned.Verify.FailureKind;
+    readonly missing: t.Pkg.Dist.Verify.FailureKind;
+    readonly wrongKind: t.Pkg.Dist.Verify.FailureKind;
   },
 ): Promise<ReadValue> {
   checkCancelled(signal);
@@ -389,8 +430,11 @@ export async function readRegularFile(
   return result;
 }
 
+/**
+ * Helpers:
+ */
 async function lstatMaybe(
-  io: PinnedIo,
+  io: VerifyIo,
   path: string,
 ): Promise<Deno.FileInfo | undefined> {
   try {
@@ -444,7 +488,7 @@ function expectedDirectoryMetadata(
 
 function entryMetadata(
   info: Deno.FileInfo,
-  specialKind: t.Pkg.Dist.Pinned.Verify.FailureKind,
+  specialKind: t.Pkg.Dist.Verify.FailureKind,
 ): Metadata {
   if (info.isDirectory) return directoryMetadata(info);
   if (info.isFile) return fileMetadata(info);

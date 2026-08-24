@@ -7,7 +7,9 @@ import { Local } from './m.Local.ts';
 import { Log } from './m.Log.ts';
 import { Pinned } from './m.Pinned.ts';
 
-/** Filesystem operations for distribution-package metadata. */
+/**
+ * Filesystem tools for distribution metadata and integrity.
+ */
 export const Dist: t.Pkg.Dist.Lib = Object.freeze({
   ...Pkg.Dist,
   Log,
