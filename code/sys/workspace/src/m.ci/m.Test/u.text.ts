@@ -10,7 +10,7 @@ export async function text(args: t.WorkspaceCi.Test.Args) {
     ? modules.map((module) => wrangle.indent(toMatrixItemYaml(module), 10)).join('\n')
     : '          []';
   return `${workflowTemplate({
-    name: 'test',
+    name: 'test:linux',
     permissions: { contents: 'read' },
     on: args.on,
     env: args.env,

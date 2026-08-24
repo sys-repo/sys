@@ -21,7 +21,7 @@ describe('WorkspaceCi.Test', () => {
 
     const incl = (value: string) => yaml.includes(value);
 
-    expect(incl('name: test')).to.be.true;
+    expect(incl('name: test:linux')).to.be.true;
     expect(incl('test module → "${{ matrix.name }}"')).to.be.true;
     expect(incl('name: ${{ matrix.name }}')).to.be.true;
     expect(incl(`path: ${a}`)).to.be.true;

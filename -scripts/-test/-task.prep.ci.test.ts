@@ -15,7 +15,7 @@ describe('scripts/task.prep.ci', () => {
       return {
         jsr: { kind: 'unchanged', target: '.github/workflows/jsr.yaml', count: 2 },
         build: { kind: 'unchanged', target: '.github/workflows/build.yaml', count: 0 },
-        test: { kind: 'unchanged', target: '.github/workflows/test.yaml', count: 0 },
+        test: { kind: 'unchanged', target: '.github/workflows/test.linux.yaml', count: 0 },
       } as const;
     };
 

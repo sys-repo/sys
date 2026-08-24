@@ -83,7 +83,8 @@ describe(`@sys/workspace/ci`, () => {
     const jsrText = (await Fs.readText(Fs.join(fs.dir, '.github/workflows/jsr.yaml'))).data ?? '';
     const buildText = (await Fs.readText(Fs.join(fs.dir, '.github/workflows/build.yaml'))).data ??
       '';
-    const testText = (await Fs.readText(Fs.join(fs.dir, '.github/workflows/test.yaml'))).data ?? '';
+    const testText = (await Fs.readText(Fs.join(fs.dir, '.github/workflows/test.linux.yaml')))
+      .data ?? '';
 
     expect(graphText).to.include('code/sys/workspace');
     expect(jsrText).to.include('@sys/workspace');

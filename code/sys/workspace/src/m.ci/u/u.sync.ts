@@ -129,7 +129,7 @@ const wrangle = {
     return {
       jsr: targets?.jsr ?? '.github/workflows/jsr.yaml',
       build: targets?.build ?? '.github/workflows/build.yaml',
-      test: targets?.test ?? '.github/workflows/test.yaml',
+      test: targets?.test ?? '.github/workflows/test.linux.yaml',
     };
   },
 

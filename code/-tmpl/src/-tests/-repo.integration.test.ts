@@ -152,7 +152,7 @@ describe('Template: repo integration', () => {
     await def.default(root);
 
     const build = (await Fs.readText(Fs.join(root, '.github/workflows/build.yaml'))).data ?? '';
-    const test = (await Fs.readText(Fs.join(root, '.github/workflows/test.yaml'))).data ?? '';
+    const test = (await Fs.readText(Fs.join(root, '.github/workflows/test.linux.yaml'))).data ?? '';
 
     expect(build.includes(`path: ${path}`)).to.eql(true);
     expect(test.includes(`path: ${path}`)).to.eql(true);
