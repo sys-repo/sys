@@ -15,6 +15,26 @@ describe('Value.Num', () => {
   });
 
   describe('Num.Is', () => {
+    const predicateInputs: readonly unknown[] = [
+      Num.MIN_INT - 1,
+      Num.MIN_INT,
+      -12,
+      -1.5,
+      0,
+      1.5,
+      12,
+      Num.MAX_INT,
+      Num.MAX_INT + 1,
+      NaN,
+      Number.NEGATIVE_INFINITY,
+      Number.POSITIVE_INFINITY,
+      '1',
+      1n,
+      {},
+      null,
+      undefined,
+    ];
+
     it('finite', () => {
       expect(Num.Is.finite(0)).to.eql(true);
       expect(Num.Is.finite(1.5)).to.eql(true);
@@ -23,20 +43,16 @@ describe('Value.Num', () => {
       expect(Num.Is.finite('1')).to.eql(false);
     });
 
-    it('int', () => {
-      expect(Num.Is.int(0)).to.eql(true);
-      expect(Num.Is.int(-12)).to.eql(true);
-      expect(Num.Is.int(1.5)).to.eql(false);
-      expect(Num.Is.int(NaN)).to.eql(false);
-      expect(Num.Is.int('1')).to.eql(false);
+    it('int corresponds to Number.isInteger', () => {
+      for (const input of predicateInputs) {
+        expect(Num.Is.int(input)).to.equal(Number.isInteger(input));
+      }
     });
 
-    it('safeInt', () => {
-      expect(Num.Is.safeInt(0)).to.eql(true);
-      expect(Num.Is.safeInt(Number.MAX_SAFE_INTEGER)).to.eql(true);
-      expect(Num.Is.safeInt(Number.MAX_SAFE_INTEGER + 1)).to.eql(false);
-      expect(Num.Is.safeInt(1.5)).to.eql(false);
-      expect(Num.Is.safeInt('1')).to.eql(false);
+    it('safeInt corresponds to Number.isSafeInteger', () => {
+      for (const input of predicateInputs) {
+        expect(Num.Is.safeInt(input)).to.equal(Number.isSafeInteger(input));
+      }
     });
   });
 
@@ -211,8 +227,8 @@ describe('Value.Num', () => {
       expect(Num.MAX_INT).to.equal(Number.MAX_SAFE_INTEGER);
     });
 
-    it('MIN_INT equals negative Number.MAX_SAFE_INTEGER', () => {
-      expect(Num.MIN_INT).to.equal(-Number.MAX_SAFE_INTEGER);
+    it('MIN_INT equals Number.MIN_SAFE_INTEGER', () => {
+      expect(Num.MIN_INT).to.equal(Number.MIN_SAFE_INTEGER);
     });
 
     it('INFINITY equals Number.POSITIVE_INFINITY', () => {

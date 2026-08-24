@@ -2,42 +2,45 @@ import type { t } from './common.ts';
 
 /**
  * Number utility contracts.
+ *
+ * Members that correspond to `Number` or `Math` preserve the native base semantics. Stronger
+ * operational contracts use self-describing names and state their refinement locally.
  */
 export declare namespace Num {
   /**
    * Tools for working with numbers.
    */
   export type Lib = {
-    /** Predicates over number values. */
+    /** ECMAScript-aligned predicates over number values. */
     readonly Is: Is.Lib;
 
-    /** Tools for working with percentages. */
+    /** Num-owned percentage domain. */
     readonly Percent: t.Num.Percent.Lib;
-    /** Tools for working with ratios. */
+    /** Num-owned aspect-ratio domain. */
     readonly Ratio: t.Num.Ratio.Lib;
 
     /**
-     * Maximum integer representable exactly in the Num domain.
-     * Alias of Number.MAX_SAFE_INTEGER (IEEE-754 safe integer limit).
+     * Exact alias of `Number.MAX_SAFE_INTEGER`.
+     * Upper bound for contracts that explicitly require safe integers.
      */
     readonly MAX_INT: number;
 
     /**
-     * Minimum integer representable exactly in the Num domain.
-     * Equivalent to -Number.MAX_SAFE_INTEGER.
+     * Exact alias of `Number.MIN_SAFE_INTEGER`.
+     * Lower bound for contracts that explicitly require safe integers.
      */
     readonly MIN_INT: number;
 
-    /**
-     * Positive infinity.
-     * Alias of Number.POSITIVE_INFINITY.
-     */
+    /** Exact alias of `Number.POSITIVE_INFINITY`. */
     readonly INFINITY: number;
 
-    /** Random number tools. */
+    /** Distinct bounded and source-aware random number tools. */
     readonly random: Random.Fn;
 
-    /** Rounds a number to the specified number of decimal places. */
+    /**
+     * Rounds to an optional decimal precision.
+     * Omitted or zero precision corresponds to `Math.round`; non-zero precision is an extension.
+     */
     round(value: number, precision?: number): number;
 
     /** Clamps a number between a minimum and maximum value. */
@@ -52,23 +55,32 @@ export declare namespace Num {
      */
     toLetter: (index: number) => string;
 
-    /** Formats a number into a display string. */
+    /**
+     * Formats a number for display.
+     * This is not `Number.prototype.toString` radix conversion or serialization.
+     */
     toString(value?: number, maxDecimals?: number): string;
   };
 
   /**
    * Number predicate contracts.
+   *
+   * Native correspondence is preserved without redefining “integer” inside Num.
    */
   export namespace Is {
     /** Predicates over number values. */
     export type Lib = {
-      /** True when the input is a finite number. */
+      /** Corresponds to `Number.isFinite`. */
       finite(input?: unknown): input is number;
 
-      /** True when the input is an integer number. */
+      /** Corresponds to `Number.isInteger`. */
       int(input?: unknown): input is number;
 
-      /** True when the input is a safe integer number. */
+      /**
+       * Corresponds to `Number.isSafeInteger`.
+       * Canonical for operations requiring safe integer arithmetic, bounds, counts, indexing, or
+       * cardinality.
+       */
       safeInt(input?: unknown): input is number;
     };
   }

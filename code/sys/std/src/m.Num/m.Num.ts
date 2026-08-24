@@ -7,7 +7,7 @@ import { random } from './u/u.random.ts';
 import { toLetter, toString } from './u/u.string.ts';
 
 /**
- * Tools for working with numbers.
+ * Number tools with ECMAScript-aligned predicates and explicit numeric domains.
  */
 export const Num: t.Num.Lib = Object.freeze({
   Is,
