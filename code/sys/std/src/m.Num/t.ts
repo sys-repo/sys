@@ -56,8 +56,11 @@ export declare namespace Num {
     toLetter: (index: number) => string;
 
     /**
-     * Formats a number for display.
-     * This is not `Number.prototype.toString` radix conversion or serialization.
+     * Formats a number for human display with `Intl.NumberFormat` at the host-default locale.
+     * Omitted `value` defaults to `0`; omitted `maxDecimals` defaults to `2`.
+     * `maxDecimals` maps to `maximumFractionDigits`, including its native coercion and
+     * `RangeError` behavior. This is not `Number.prototype.toString` radix conversion or
+     * serialization.
      */
     toString(value?: number, maxDecimals?: number): string;
   };

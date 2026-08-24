@@ -1,7 +1,10 @@
 import { type t } from '../common.ts';
 
 /**
- * Formats a number into a display string.
+ * Formats a number for human display with `Intl.NumberFormat` at the host-default locale.
+ * Omitted `value` defaults to `0`; omitted `maxDecimals` defaults to `2`.
+ * `maxDecimals` maps to `maximumFractionDigits`, including its native coercion and
+ * `RangeError` behavior.
  */
 export const toString: t.Num.Lib['toString'] = (value = 0, maxDecimals = 2) => {
   const fmt = new Intl.NumberFormat(undefined, {
