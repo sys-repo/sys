@@ -1,4 +1,7 @@
-import { c, Pkg, pkg as modulePkg, type t } from './common.ts';
+import type { t } from './common.ts';
+import { c } from '@sys/cli/fmt';
+import { Pkg } from '@sys/fs/pkg';
+import { pkg as modulePkg } from '../pkg.ts';
 import { Tasks } from './u.Tasks.ts';
 import { Dist } from './u.Dist.ts';
 

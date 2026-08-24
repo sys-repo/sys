@@ -1,4 +1,8 @@
-import { DenoFile, Path, Pkg, type t, Vite } from './common.ts';
+import type { t } from './common.ts';
+import { DenoFile } from '@sys/driver-deno/runtime';
+import { Path } from '@sys/fs/path';
+import { Pkg } from '@sys/std/pkg';
+import { dev as viteDev } from '../m.vite/u.dev/mod.ts';
 import { resolvePkgSubpath } from './u.pkgSubpath.ts';
 
 type DevDependencies = {
@@ -10,7 +14,7 @@ const DEFAULT_DEPS: DevDependencies = Object.freeze({
   async loadPkg(cwd) {
     return Pkg.toPkg((await DenoFile.load(cwd)).data);
   },
-  start: Vite.dev,
+  start: viteDev,
 });
 
 /** Start the Vite dev server from entry command args. */

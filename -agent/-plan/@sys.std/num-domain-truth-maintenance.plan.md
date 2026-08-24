@@ -1,5 +1,5 @@
 num-domain-truth-maintenance.plan.md
-- [ ] fix(std): codify Num predicate correspondence
+- [x] 5f1ed22ee fix(std): codify Num predicate correspondence
 - [ ] fix(std): enforce exact random integer ranges
 - [ ] fix(std): validate percent ranges truthfully
 - [ ] fix(std): make ratio approximation truthful
@@ -16,8 +16,7 @@ support. It adds no speculative API and performs no compatibility cleanup withou
 and authority.
 
 This plan records migration scope; it is not durable API authority. Every lasting rule must land in
-the public type spine, runtime/module hierarchy docs where relevant, executable tests, and the
-package-owned invariant cross-reference.
+the public type spine, runtime/module hierarchy docs where relevant, and executable tests.
 
 ## Foundational design rules
 
@@ -85,8 +84,6 @@ The first item establishes the general rules in:
    - concise runtime/module wording where it improves first inspection and generated JSR docs.
 3. `code/sys/std/src/m.Num/-test/`
    - executable native-correspondence and boundary proof.
-4. `code/sys/std/-agent/INVARIANTS.md`
-   - evergreen cross-reference to the public contract, not a second independent definition.
 
 Before revising published JSDoc, inspect local package metadata and current live JSR documentation
 under the canonical JSR documentation protocol. Never describe unpublished local changes as live.
@@ -124,7 +121,6 @@ Intended paths:
 - `code/sys/std/src/m.Num/m.Num.ts`
 - `code/sys/std/src/m.Num/mod.ts`
 - `code/sys/std/src/m.Num/-test/-.test.ts`
-- `code/sys/std/-agent/INVARIANTS.md`
 
 Excluded: all downstream consumers.
 
@@ -184,7 +180,7 @@ Required changes:
 3. Preserve their current distinct runtime behavior.
 4. Correct `MAX_INT` and `MIN_INT` documentation to identify exact native aliases and safe-contract
    bounds.
-5. Add the native-correspondence rule to the public hierarchy and package invariant cross-reference.
+5. Add the native-correspondence rule to the public hierarchy.
 6. Classify existing Num members without expanding the API:
    - constants are exact aliases;
    - `round` is a precision extension whose zero/default case corresponds to `Math.round`;

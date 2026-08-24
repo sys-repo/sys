@@ -1,4 +1,5 @@
-import { c, Cli, type t } from './common.ts';
+import type { t } from './common.ts';
+import { c, Text } from '@sys/cli/fmt';
 import { clipLine, clipText, outputWidth, reserveWidth } from './u.ts';
 
 type C = (str: string) => string;
@@ -63,7 +64,7 @@ const wrangle = {
     width: number,
     leftWidth: number,
   ) {
-    const left = Cli.Fmt.Text.Width.padEnd(wrangle.left(row.cmd, args, mode), leftWidth);
+    const left = Text.Width.padEnd(wrangle.left(row.cmd, args, mode), leftWidth);
     const descWidth = reserveWidth(width, leftWidth + GAP);
     const desc = wrangle.description(row.cmd, row.description, args, descWidth);
     const gap = ' '.repeat(GAP);
@@ -81,7 +82,7 @@ const wrangle = {
 
   leftWidth(rows: readonly Row[], args: t.ViteLog.Tasks.Args, mode: LeftMode) {
     const cells = rows.flatMap((row) => row === 'break' ? [] : [wrangle.left(row.cmd, args, mode)]);
-    return Cli.Fmt.Text.Width.max(cells);
+    return Text.Width.max(cells);
   },
 
   description(cmd: Cmd, text: string, args: t.ViteLog.Tasks.Args, width: number) {
@@ -94,7 +95,7 @@ const wrangle = {
     const descWidth = reserveWidth(width, leftWidth + GAP);
     const fullFits = rows.every((row) => {
       if (row === 'break') return true;
-      return Cli.Fmt.Text.Width.measure(row.description) <= descWidth;
+      return Text.Width.measure(row.description) <= descWidth;
     });
     return fullFits ? 'full' : 'compact';
   },

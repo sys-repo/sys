@@ -1,8 +1,12 @@
-import { c, Cli, HashFmt, Is, stripAnsi, type t, Time } from './common.ts';
+import type { t } from './common.ts';
+import { c, Fmt, stripAnsi, Text } from '@sys/cli/fmt';
+import { HashFmt } from '@sys/crypto/fmt';
+import { Is } from '@sys/std/is';
+import { Time } from '@sys/std/time';
 
 const MINUTE = 60_000;
 const DIGEST_ARROW = c.green('←');
-const DIGEST_PREFIX_WIDTH = Cli.Fmt.Text.Width.measure(`${DIGEST_ARROW} `);
+const DIGEST_PREFIX_WIDTH = Text.Width.measure(`${DIGEST_ARROW} `);
 
 type MetadataRowArgs = {
   label: string;
@@ -23,7 +27,7 @@ export const digest: t.ViteLog.Lib['digest'] = (hash, options = {}) => {
     : undefined;
   const uri = HashFmt.digest(hash, { maxWidth });
   if (!uri) return '';
-  const value = options.url ? Cli.Fmt.hyperlink(uri, options.url) : uri;
+  const value = options.url ? Fmt.hyperlink(uri, options.url) : uri;
   return `${DIGEST_ARROW} ${value}`;
 };
 
@@ -39,7 +43,7 @@ export const pad: t.ViteLog.Lib['pad'] = (text, pad) => {
 };
 
 export function outputWidth(input?: number) {
-  return Is.num(input) ? Math.max(0, Math.floor(input)) : Cli.Fmt.Text.Width.fit();
+  return Is.num(input) ? Math.max(0, Math.floor(input)) : Text.Width.fit();
 }
 
 export function reserveWidth(width: number, reserve: number) {
@@ -48,26 +52,26 @@ export function reserveWidth(width: number, reserve: number) {
 
 export function clipLine(input: string, width: number) {
   if (width <= 0) return '';
-  if (Cli.Fmt.Text.Width.measure(input) <= width) return input;
-  return Cli.Fmt.Text.ellipsize(stripAnsi(input), width, {
+  if (Text.Width.measure(input) <= width) return input;
+  return Text.ellipsize(stripAnsi(input), width, {
     render: ({ head, ellipsis, tail }) => {
-      return `${c.gray(head)}${Cli.Fmt.omission(ellipsis)}${c.gray(tail)}`;
+      return `${c.gray(head)}${Fmt.omission(ellipsis)}${c.gray(tail)}`;
     },
   });
 }
 
 export function clipText(input: string, width: number) {
   if (width <= 0) return '';
-  if (Cli.Fmt.Text.Width.measure(input) <= width) return input;
-  return Cli.Fmt.Text.ellipsize(input, width);
+  if (Text.Width.measure(input) <= width) return input;
+  return Text.ellipsize(input, width);
 }
 
 export function clipValue(input: string, width: number) {
   if (width <= 0) return '';
   const text = stripAnsi(input);
-  if (Cli.Fmt.Text.Width.measure(text) <= width) return input;
-  return Cli.Fmt.Text.ellipsize(text, width, {
-    render: ({ head, ellipsis, tail }) => `${head}${Cli.Fmt.omission(ellipsis)}${tail}`,
+  if (Text.Width.measure(text) <= width) return input;
+  return Text.ellipsize(text, width, {
+    render: ({ head, ellipsis, tail }) => `${head}${Fmt.omission(ellipsis)}${tail}`,
   });
 }
 
@@ -77,30 +81,30 @@ export function metadataRow(args: MetadataRowArgs) {
   const base = `${prefix}${formatMetadataValue(value, valueUrl)}`;
   const availableSuffixWidth = Math.max(
     0,
-    width - Cli.Fmt.Text.Width.measure(`${base} `),
+    width - Text.Width.measure(`${base} `),
   );
   const suffix = resolveSuffix?.(availableSuffixWidth);
-  if (suffix && Cli.Fmt.Text.Width.measure(`${base} ${suffix}`) <= width) {
+  if (suffix && Text.Width.measure(`${base} ${suffix}`) <= width) {
     return `${base} ${suffix}`;
   }
-  if (Cli.Fmt.Text.Width.measure(base) <= width) return base;
+  if (Text.Width.measure(base) <= width) return base;
 
   const compactSuffix = resolveSuffix?.(
-    Math.max(0, width - Cli.Fmt.Text.Width.measure(`${prefix}… `)),
+    Math.max(0, width - Text.Width.measure(`${prefix}… `)),
   );
-  if (compactSuffix && Cli.Fmt.Text.Width.measure(`${prefix}… ${compactSuffix}`) <= width) {
-    const valueWidth = Cli.Fmt.Text.Width.fit({
+  if (compactSuffix && Text.Width.measure(`${prefix}… ${compactSuffix}`) <= width) {
+    const valueWidth = Text.Width.fit({
       width,
-      reserve: Cli.Fmt.Text.Width.measure(`${prefix} ${compactSuffix}`),
+      reserve: Text.Width.measure(`${prefix} ${compactSuffix}`),
       terminal: false,
     });
     const clipped = formatMetadataValue(clipValue(value, valueWidth), valueUrl);
     return `${prefix}${clipped} ${compactSuffix}`;
   }
 
-  const valueWidth = Cli.Fmt.Text.Width.fit({
+  const valueWidth = Text.Width.fit({
     width,
-    reserve: Cli.Fmt.Text.Width.measure(prefix),
+    reserve: Text.Width.measure(prefix),
     terminal: false,
   });
   const clipped = formatMetadataValue(clipValue(value, valueWidth), valueUrl);
@@ -108,24 +112,24 @@ export function metadataRow(args: MetadataRowArgs) {
 }
 
 function formatMetadataValue(value: string, url: URL | undefined) {
-  return value && url ? Cli.Fmt.hyperlink(value, url) : value;
+  return value && url ? Fmt.hyperlink(value, url) : value;
 }
 
 export function metadataPrefix(
   args: Pick<MetadataRowArgs, 'label' | 'indent' | 'labelWidth' | 'styledLabel'>,
 ) {
   const { label, indent = 0, labelWidth = 14, styledLabel = c.gray(label) } = args;
-  const labelDisplayWidth = Cli.Fmt.Text.Width.measure(styledLabel);
+  const labelDisplayWidth = Text.Width.measure(styledLabel);
   const gap = ' '.repeat(Math.max(1, labelWidth - labelDisplayWidth));
   return `${' '.repeat(Math.max(0, indent))}${styledLabel}${gap}`;
 }
 
 export function hashValue(hash: t.StringHash, width: number) {
   if (width <= 0) return '';
-  if (Cli.Fmt.Text.Width.measure(hash) <= width) return formatHashTail(hash);
-  return Cli.Fmt.Text.ellipsize(hash, width, {
+  if (Text.Width.measure(hash) <= width) return formatHashTail(hash);
+  return Text.ellipsize(hash, width, {
     render: ({ head, ellipsis, tail }) => {
-      return `${c.dim(c.gray(head))}${Cli.Fmt.omission(ellipsis)}${formatHashTail(tail)}`;
+      return `${c.dim(c.gray(head))}${Fmt.omission(ellipsis)}${formatHashTail(tail)}`;
     },
   });
 }
