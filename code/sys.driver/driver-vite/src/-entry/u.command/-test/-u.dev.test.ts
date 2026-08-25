@@ -1,4 +1,4 @@
-import { describe, expect, it, type t } from '../../-test.ts';
+import { describe, expect, it, type t } from '../../../-test.ts';
 import { devWith } from '../u.dev.ts';
 
 const PKG = { name: '@sys/example', version: '1.2.3' } as const;

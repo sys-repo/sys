@@ -1,8 +1,8 @@
-import type { t } from './common.ts';
+import type { t } from '../common.ts';
 import { DenoFile } from '@sys/driver-deno/runtime';
 import { Path } from '@sys/fs/path';
 import { Pkg } from '@sys/std/pkg';
-import { dev as viteDev } from '../m.vite/u.dev/mod.ts';
+import { dev as viteDev } from '../../m.vite/u.dev/mod.ts';
 import { resolvePkgSubpath } from './u.pkgSubpath.ts';
 
 type DevDependencies = {
@@ -11,10 +11,10 @@ type DevDependencies = {
 };
 
 const DEFAULT_DEPS: DevDependencies = Object.freeze({
+  start: viteDev,
   async loadPkg(cwd) {
     return Pkg.toPkg((await DenoFile.load(cwd)).data);
   },
-  start: viteDev,
 });
 
 /** Start the Vite dev server from entry command args. */
@@ -38,4 +38,19 @@ export async function devWith(args: t.ViteEntry.Args.Dev, deps: DevDependencies)
     logLines: args.logLines ?? args['log-lines'],
   });
   return server.listen();
+}
+
+/** Present and run the selected development command. */
+export async function dispatch(args: t.ViteEntry.Args.Dev): Promise<void> {
+  await dispatchWith(args, dev);
+}
+
+/** Internal command-runner seam for presentation tests. */
+export async function dispatchWith(
+  args: t.ViteEntry.Args.Dev,
+  run: (args: t.ViteEntry.Args.Dev) => Promise<void>,
+): Promise<void> {
+  const { Tasks } = await import('../../m.fmt/u.Tasks.ts');
+  Tasks.log({ cmd: 'dev' });
+  await run(args);
 }

@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 import { Args } from '@sys/std/args';
 import { Is } from '@sys/std/is';
-import { COMMAND_LOADERS } from './m.Command.ts';
+import { COMMAND_LOADERS } from './u.command/mod.ts';
 
 type O = Record<string, unknown>;
 type CommandModule<A extends t.ViteEntry.Args> = {
@@ -34,7 +34,7 @@ export async function mainWith(
   const cmd = args.cmd;
 
   if (cmd === 'dev') {
-    const { resolvePkgSubpath } = await import('./u.pkgSubpath.ts');
+    const { resolvePkgSubpath } = await import('./u.command/u.pkgSubpath.ts');
     resolvePkgSubpath(args);
     await (await loaders.dev()).dispatch(args);
     return;
@@ -46,7 +46,7 @@ export async function mainWith(
   }
 
   if (cmd === 'serve') {
-    const { resolvePkgSubpath } = await import('./u.pkgSubpath.ts');
+    const { resolvePkgSubpath } = await import('./u.command/u.pkgSubpath.ts');
     resolvePkgSubpath(args);
     await (await loaders.serve()).dispatch(args);
     return;

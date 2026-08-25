@@ -3,7 +3,7 @@
  * The entry points, when using the module from the command-line [argv].
  */
 import type { t } from './common.ts';
-import { build, dev, serve } from './m.Command.ts';
+import { build, dev, serve } from './u.command/mod.ts';
 import { main } from './m.Entry.main.ts';
 
 /**

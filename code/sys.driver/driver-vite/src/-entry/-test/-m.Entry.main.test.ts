@@ -1,12 +1,12 @@
 import { WebFixture } from '@sys/testing/web';
 import { Cli, describe, expect, it, type t } from '../../-test.ts';
-import { COMMAND_LOADERS } from '../m.Command.ts';
+import { COMMAND_LOADERS } from '../u.command/mod.ts';
 import { type DispatchLoaders, mainWith } from '../m.Entry.main.ts';
-import { dispatchWith as dispatchServeWith } from '../u.command.serve.ts';
-import { load as loadBuild } from '../u.load.build.ts';
-import { load as loadDev } from '../u.load.dev.ts';
-import { load as loadInfo } from '../u.load.info.ts';
-import { load as loadServe } from '../u.load.serve.ts';
+import { dispatchWith as dispatchServeWith } from '../u.command/u.serve.ts';
+import { load as loadBuild } from '../u.command/u.load/u.build.ts';
+import { load as loadDev } from '../u.command/u.load/u.dev.ts';
+import { load as loadInfo } from '../u.command/u.load/u.info.ts';
+import { load as loadServe } from '../u.command/u.load/u.serve.ts';
 
 const NOOP_LOADERS: DispatchLoaders = Object.freeze({
   build: () => Promise.resolve({ dispatch: () => Promise.resolve() }),
@@ -16,17 +16,17 @@ const NOOP_LOADERS: DispatchLoaders = Object.freeze({
 });
 
 describe('ViteEntry.main', () => {
-  it('binds each production command key to its exact loader and wrapper', async () => {
+  it('binds each production command key to its exact loader and command module', async () => {
     expect(COMMAND_LOADERS.build).to.equal(loadBuild);
     expect(COMMAND_LOADERS.dev).to.equal(loadDev);
     expect(COMMAND_LOADERS.info).to.equal(loadInfo);
     expect(COMMAND_LOADERS.serve).to.equal(loadServe);
 
     const [build, dev, info, serve] = await Promise.all([
-      import('../u.command.build.ts'),
-      import('../u.command.dev.ts'),
-      import('../u.command.info.ts'),
-      import('../u.command.serve.ts'),
+      import('../u.command/u.build.ts'),
+      import('../u.command/u.dev.ts'),
+      import('../u.command/u.info.ts'),
+      import('../u.command/u.serve.ts'),
     ]);
     expect(await COMMAND_LOADERS.build()).to.equal(build);
     expect(await COMMAND_LOADERS.dev()).to.equal(dev);
@@ -34,7 +34,7 @@ describe('ViteEntry.main', () => {
     expect(await COMMAND_LOADERS.serve()).to.equal(serve);
   });
 
-  it('routes production CLI wrappers through their selected implementations', async () => {
+  it('routes production CLI dispatch through selected command modules', async () => {
     const causes = {
       build: new Error('build dispatch implementation sentinel'),
       dev: new Error('dev dispatch implementation sentinel'),
@@ -93,7 +93,7 @@ describe('ViteEntry.main', () => {
     }
   });
 
-  it('keeps the production serve presentation wrapper silent', async () => {
+  it('keeps production serve dispatch silent', async () => {
     const calls: string[] = [];
     const original = Object.getOwnPropertyDescriptor(console, 'info');
     {
@@ -105,20 +105,17 @@ describe('ViteEntry.main', () => {
 
       await dispatchServeWith(
         { cmd: 'serve', silent: true, pkgSubpath: 'ui' },
-        () =>
-          Promise.resolve({
-            serve: () => {
-              calls.push('serve');
-              return Promise.resolve();
-            },
-          }),
+        () => {
+          calls.push('serve');
+          return Promise.resolve();
+        },
       );
       expect(calls).to.eql(['serve']);
     }
     expect(Object.getOwnPropertyDescriptor(console, 'info')).to.eql(original);
   });
 
-  it('loads and dispatches only the selected command wrapper', async () => {
+  it('loads and dispatches only the selected command module', async () => {
     for (const cmd of ['build', 'dev', 'serve', 'info'] as const) {
       const calls: string[] = [];
       using _fixture = WebFixture.Property.mock([{
@@ -160,7 +157,7 @@ describe('ViteEntry.main', () => {
     expect(commandError).to.equal(commandCause);
   });
 
-  it('preserves unsupported-command output without loading a command wrapper', async () => {
+  it('preserves unsupported-command output without loading a command module', async () => {
     const terminal: string[] = [];
     const calls: string[] = [];
     using _fixture = WebFixture.Property.mock([{
@@ -177,7 +174,7 @@ describe('ViteEntry.main', () => {
     ]);
   });
 
-  it('rejects invalid dev and serve input before wrapper or terminal effects', async () => {
+  it('rejects invalid dev and serve input before command or terminal effects', async () => {
     for (const cmd of ['dev', 'serve'] as const) {
       const calls: string[] = [];
       const original = Object.getOwnPropertyDescriptor(console, 'info');

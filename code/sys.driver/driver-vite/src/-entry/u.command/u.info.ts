@@ -1,8 +1,8 @@
-import type { t } from './common.ts';
+import type { t } from '../common.ts';
 import { Path } from '@sys/fs/path';
-import { pkg } from '../pkg.ts';
-import { Help } from '../m.fmt/u.Help.ts';
-import { pathsFromConfigfile } from '../m.vite/u/u.pathsFromConfigfile.ts';
+import { pkg } from '../../pkg.ts';
+import { Help } from '../../m.fmt/u.Help.ts';
+import { pathsFromConfigfile } from '../../m.vite/u/u.pathsFromConfigfile.ts';
 
 /**
  * Present package and output-path information for one Vite project.
@@ -19,4 +19,9 @@ export async function info(args: t.ViteEntry.Args.Info): Promise<void> {
   let tasks: false | undefined;
   if (args.info === true) tasks = false; // NB: omit common tasks for specific info requests.
   await Help.log({ pkg, dirs, tasks });
+}
+
+/** Run the selected information command. */
+export async function dispatch(args: t.ViteEntry.Args.Info): Promise<void> {
+  await info(args);
 }

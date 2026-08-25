@@ -9,59 +9,56 @@ const PUBLIC_ENTRY = '@sys/driver-vite/entry';
 const PUBLIC_URL = new URL('../mod.ts', import.meta.url).href;
 const EXECUTABLE_URL = new URL('../-main.ts', import.meta.url).href;
 const ENTRY_URL = new URL('../m.Entry.ts', import.meta.url).href;
-const COMMAND_URL = new URL('../m.Command.ts', import.meta.url).href;
+const COMMAND_URL = new URL('../u.command/mod.ts', import.meta.url).href;
 const MAIN_URL = new URL('../m.Entry.main.ts', import.meta.url).href;
 const decoder = new TextDecoder();
 
-const IMPLEMENTATIONS = [
-  '/src/-entry/u.build.ts',
-  '/src/-entry/u.dev.ts',
-  '/src/-entry/u.info.ts',
-  '/src/-entry/u.serve.ts',
+const COMMAND_MODULES = [
+  '/src/-entry/u.command/u.build.ts',
+  '/src/-entry/u.command/u.dev.ts',
+  '/src/-entry/u.command/u.info.ts',
+  '/src/-entry/u.command/u.serve.ts',
 ] as const;
 
 const COMMANDS = [
   {
     name: 'build',
-    loader: new URL('../u.load.build.ts', import.meta.url).href,
-    loaderDynamic: './u.command.build.ts',
-    wrapper: new URL('../u.command.build.ts', import.meta.url).href,
-    dynamic: ['../m.fmt/u.Tasks.ts', './u.build.ts'],
-    implementation: '/src/-entry/u.build.ts',
+    loader: new URL('../u.command/u.load/u.build.ts', import.meta.url).href,
+    loaderDynamic: '../u.build.ts',
+    command: new URL('../u.command/u.build.ts', import.meta.url).href,
+    dynamic: ['../../m.fmt/u.Tasks.ts'],
     forbidden: [
-      '/src/-entry/u.dev.ts',
-      '/src/-entry/u.info.ts',
-      '/src/-entry/u.serve.ts',
+      '/src/-entry/u.command/u.dev.ts',
+      '/src/-entry/u.command/u.info.ts',
+      '/src/-entry/u.command/u.serve.ts',
       '/src/m.vite/u.dev/',
       '/src/m.server.dist/',
     ],
   },
   {
     name: 'dev',
-    loader: new URL('../u.load.dev.ts', import.meta.url).href,
-    loaderDynamic: './u.command.dev.ts',
-    wrapper: new URL('../u.command.dev.ts', import.meta.url).href,
-    dynamic: ['../m.fmt/u.Tasks.ts', './u.dev.ts'],
-    implementation: '/src/-entry/u.dev.ts',
+    loader: new URL('../u.command/u.load/u.dev.ts', import.meta.url).href,
+    loaderDynamic: '../u.dev.ts',
+    command: new URL('../u.command/u.dev.ts', import.meta.url).href,
+    dynamic: ['../../m.fmt/u.Tasks.ts'],
     forbidden: [
-      '/src/-entry/u.build.ts',
-      '/src/-entry/u.info.ts',
-      '/src/-entry/u.serve.ts',
+      '/src/-entry/u.command/u.build.ts',
+      '/src/-entry/u.command/u.info.ts',
+      '/src/-entry/u.command/u.serve.ts',
       '/src/m.vite/u/u.build.ts',
       '/src/m.server.dist/',
     ],
   },
   {
     name: 'info',
-    loader: new URL('../u.load.info.ts', import.meta.url).href,
-    loaderDynamic: './u.command.info.ts',
-    wrapper: new URL('../u.command.info.ts', import.meta.url).href,
-    dynamic: ['./u.info.ts'],
-    implementation: '/src/-entry/u.info.ts',
+    loader: new URL('../u.command/u.load/u.info.ts', import.meta.url).href,
+    loaderDynamic: '../u.info.ts',
+    command: new URL('../u.command/u.info.ts', import.meta.url).href,
+    dynamic: [] as const,
     forbidden: [
-      '/src/-entry/u.build.ts',
-      '/src/-entry/u.dev.ts',
-      '/src/-entry/u.serve.ts',
+      '/src/-entry/u.command/u.build.ts',
+      '/src/-entry/u.command/u.dev.ts',
+      '/src/-entry/u.command/u.serve.ts',
       '/src/m.vite/u/u.build.ts',
       '/src/m.vite/u.dev/',
       '/src/m.server.dist/',
@@ -69,15 +66,14 @@ const COMMANDS = [
   },
   {
     name: 'serve',
-    loader: new URL('../u.load.serve.ts', import.meta.url).href,
-    loaderDynamic: './u.command.serve.ts',
-    wrapper: new URL('../u.command.serve.ts', import.meta.url).href,
-    dynamic: ['../m.fmt/u.Tasks.ts', './u.serve.ts'],
-    implementation: '/src/-entry/u.serve.ts',
+    loader: new URL('../u.command/u.load/u.serve.ts', import.meta.url).href,
+    loaderDynamic: '../u.serve.ts',
+    command: new URL('../u.command/u.serve.ts', import.meta.url).href,
+    dynamic: ['../../m.fmt/u.Tasks.ts'],
     forbidden: [
-      '/src/-entry/u.build.ts',
-      '/src/-entry/u.dev.ts',
-      '/src/-entry/u.info.ts',
+      '/src/-entry/u.command/u.build.ts',
+      '/src/-entry/u.command/u.dev.ts',
+      '/src/-entry/u.command/u.info.ts',
       '/src/m.vite/',
       '/code/sys.driver/driver-deno/',
       '/code/sys/server/src/m.server.dist/mod.ts',
@@ -96,7 +92,7 @@ const COMMANDS = [
   },
 ] as const;
 
-const DISPATCH_DYNAMIC = ['./u.pkgSubpath.ts', '@sys/cli/fmt'] as const;
+const DISPATCH_DYNAMIC = ['./u.command/u.pkgSubpath.ts', '@sys/cli/fmt'] as const;
 const SCRIPT_EXTENSIONS = new Set(['.cjs', '.cts', '.js', '.jsx', '.mjs', '.mts', '.ts', '.tsx']);
 
 const AUTHORITY_ROOTS = [
@@ -105,7 +101,7 @@ const AUTHORITY_ROOTS = [
   ENTRY_URL,
   COMMAND_URL,
   MAIN_URL,
-  ...COMMANDS.flatMap((command) => [command.loader, command.wrapper]),
+  ...COMMANDS.flatMap((command) => [command.loader, command.command]),
 ] as const;
 
 const MODULE_AUTHORITY_PLUGIN = {
@@ -186,7 +182,7 @@ const INFO_GRAPHS = new Map<string, Promise<ResolvedGraph>>();
 describe('ViteEntry resolved-literal command authority', () => {
   it('admits only literal module loading across package-local runtime closures', async () => {
     const specifiers = await authoritySources();
-    expectSome(specifiers, [...IMPLEMENTATIONS, '/src/-entry/u.pkgSubpath.ts']);
+    expectSome(specifiers, [...COMMAND_MODULES, '/src/-entry/u.command/u.pkgSubpath.ts']);
 
     const failures: string[] = [];
     for (const specifier of specifiers) {
@@ -227,7 +223,7 @@ describe('ViteEntry resolved-literal command authority', () => {
     }
   });
 
-  it('keeps the public and executable entries statically free of command wrappers', async () => {
+  it('keeps the public and executable entries statically free of command modules', async () => {
     const publicGraph = await infoGraph(PUBLIC_ENTRY);
     const executableGraph = await infoGraph(EXECUTABLE_URL);
 
@@ -237,17 +233,16 @@ describe('ViteEntry resolved-literal command authority', () => {
     for (const graph of [publicGraph, executableGraph]) {
       const closure = staticClosure(graph);
       expectSome(closure.modules, [
-        '/src/-entry/m.Command.ts',
+        '/src/-entry/u.command/mod.ts',
         '/src/-entry/m.Entry.ts',
         '/src/-entry/m.Entry.main.ts',
-        '/src/-entry/u.load.build.ts',
-        '/src/-entry/u.load.dev.ts',
-        '/src/-entry/u.load.info.ts',
-        '/src/-entry/u.load.serve.ts',
+        '/src/-entry/u.command/u.load/u.build.ts',
+        '/src/-entry/u.command/u.load/u.dev.ts',
+        '/src/-entry/u.command/u.load/u.info.ts',
+        '/src/-entry/u.command/u.load/u.serve.ts',
       ]);
       expectNone(resolvedIdentities(closure.modules), [
-        '/src/-entry/u.command.',
-        ...IMPLEMENTATIONS,
+        ...COMMAND_MODULES,
         '/src/m.fmt/',
         '/src/m.vite/',
         '/src/m.server.dist/',
@@ -256,49 +251,47 @@ describe('ViteEntry resolved-literal command authority', () => {
     }
   });
 
-  it('keeps default dispatch free of direct command-wrapper edges', async () => {
+  it('keeps default dispatch free of direct command-module edges', async () => {
     const graph = await infoGraph(MAIN_URL);
     const dynamic = directDynamic(graph, MAIN_URL);
 
     expect(dynamic.map((edge) => edge.authored).sort()).to.eql([...DISPATCH_DYNAMIC].sort());
-    expectNone(resolvedIdentities(dynamic.map((edge) => edge.target)), [
-      '/src/-entry/u.command.',
-    ]);
+    expectNone(resolvedIdentities(dynamic.map((edge) => edge.target)), COMMAND_MODULES);
 
     const registry = staticClosure(await infoGraph(COMMAND_URL));
     expectSome(registry.modules, COMMANDS.map((command) => command.loader));
-    expectNone(resolvedIdentities(registry.modules), COMMANDS.map((command) => command.wrapper));
+    expectNone(resolvedIdentities(registry.modules), COMMANDS.map((command) => command.command));
   });
 
-  it('binds each production loader to exactly one command wrapper', async () => {
+  it('binds each production loader to exactly one command module', async () => {
     for (const command of COMMANDS) {
       const graph = await infoGraph(command.loader);
       expect(graph.roots).to.eql([command.loader]);
 
       const dynamic = directDynamic(graph, command.loader);
       expect(dynamic.map((edge) => edge.authored)).to.eql([command.loaderDynamic]);
-      expect(terminal(graph, dynamic[0].target)).to.eql(command.wrapper);
+      expect(terminal(graph, dynamic[0].target)).to.eql(command.command);
 
       const closure = runtimeClosure(graph);
-      expectSome(closure.modules, [command.wrapper, command.implementation]);
+      expectSome(closure.modules, [command.command]);
       expectNone(
         resolvedIdentities(closure.modules),
-        COMMANDS.filter((item) => item.name !== command.name).map((item) => item.wrapper),
+        COMMANDS.filter((item) => item.name !== command.name).map((item) => item.command),
       );
       expectNone(closure.identities, command.forbidden);
     }
   });
 
-  it('binds each wrapper to one selected implementation and excludes sibling authority', async () => {
+  it('keeps each selected command module within its declared authority', async () => {
     for (const command of COMMANDS) {
-      const graph = await infoGraph(command.wrapper);
-      expect(graph.roots).to.eql([command.wrapper]);
+      const graph = await infoGraph(command.command);
+      expect(graph.roots).to.eql([command.command]);
 
-      const dynamic = directDynamic(graph, command.wrapper);
+      const dynamic = directDynamic(graph, command.command);
       expect(dynamic.map((edge) => edge.authored).sort()).to.eql([...command.dynamic].sort());
 
       const closure = runtimeClosure(graph);
-      expectSome(closure.modules, [command.implementation]);
+      expectSome(closure.modules, [command.command]);
       expectNone(closure.identities, command.forbidden);
 
       if (command.name === 'serve') {
@@ -350,7 +343,7 @@ describe('ViteEntry resolved-literal command authority', () => {
     }, []));
     expect(staticClosure(typeOnly).modules).to.eql([root]);
 
-    const forbidden = new URL('../u.build.ts', import.meta.url).href;
+    const forbidden = new URL('../u.command/u.build.ts', import.meta.url).href;
     const encoded = forbidden.replace('/u.build.ts', '/%75.build.ts');
     const alias = resolveGraph({
       version: 1,
@@ -361,9 +354,10 @@ describe('ViteEntry resolved-literal command authority', () => {
         { specifier: encoded },
       ],
     });
-    expect(() => expectNone(staticClosure(alias).identities, ['/src/-entry/u.build.ts'])).to.throw(
-      /forbidden/,
-    );
+    expect(() => expectNone(staticClosure(alias).identities, ['/src/-entry/u.command/u.build.ts']))
+      .to.throw(
+        /forbidden/,
+      );
   });
 });
 

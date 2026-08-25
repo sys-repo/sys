@@ -1,10 +1,11 @@
+import { WebFixture } from '@sys/testing/web';
 import { describe, expect, it, type t } from '../../-test.ts';
-import { build, dev, serve } from '../m.Command.ts';
+import { build, dev, serve } from '../u.command/mod.ts';
 import { ViteEntry } from '../m.Entry.ts';
 import { main } from '../m.Entry.main.ts';
-import { buildWith } from '../u.command.build.ts';
-import { devWith } from '../u.command.dev.ts';
-import { serveWith } from '../u.command.serve.ts';
+import { dispatchWith as dispatchBuildWith } from '../u.command/u.build.ts';
+import { dispatchWith as dispatchDevWith } from '../u.command/u.dev.ts';
+import { dispatchWith as dispatchServeWith } from '../u.command/u.serve.ts';
 
 describe('ViteEntry public command surface', () => {
   it('binds the exported entry to fixed lazy command proxies', () => {
@@ -14,7 +15,7 @@ describe('ViteEntry public command surface', () => {
     expect(ViteEntry.serve).to.equal(serve);
   });
 
-  it('routes public proxies through production wrappers and implementations', async () => {
+  it('routes public proxies through selected production command modules', async () => {
     const causes = {
       build: new Error('build implementation sentinel'),
       dev: new Error('dev implementation sentinel'),
@@ -40,69 +41,48 @@ describe('ViteEntry public command surface', () => {
     expect(serveError).to.equal(causes.serve);
   });
 
-  it('keeps implementation injection behind explicit wrapper seams', async () => {
+  it('keeps command-runner injection behind explicit dispatch seams', async () => {
+    using _fixture = WebFixture.Property.mock([{
+      target: console,
+      key: 'info',
+      descriptor: { value: () => undefined },
+    }]);
     const calls: string[] = [];
     const buildArgs: t.ViteEntry.Args.Build = { cmd: 'build', silent: true };
     const devArgs: t.ViteEntry.Args.Dev = { cmd: 'dev' };
     const serveArgs: t.ViteEntry.Args.Serve = { cmd: 'serve', silent: true };
 
-    await buildWith(buildArgs, () => {
-      calls.push('load:build');
-      return Promise.resolve({
-        build: (args) => {
-          expect(args).to.equal(buildArgs);
-          calls.push('run:build');
-          return Promise.resolve();
-        },
-      });
+    await dispatchBuildWith(buildArgs, (args) => {
+      expect(args).to.equal(buildArgs);
+      calls.push('run:build');
+      return Promise.resolve();
     });
-    await devWith(devArgs, () => {
-      calls.push('load:dev');
-      return Promise.resolve({
-        dev: (args) => {
-          expect(args).to.equal(devArgs);
-          calls.push('run:dev');
-          return Promise.resolve();
-        },
-      });
+    await dispatchDevWith(devArgs, (args) => {
+      expect(args).to.equal(devArgs);
+      calls.push('run:dev');
+      return Promise.resolve();
     });
-    await serveWith(serveArgs, () => {
-      calls.push('load:serve');
-      return Promise.resolve({
-        serve: (args) => {
-          expect(args).to.equal(serveArgs);
-          calls.push('run:serve');
-          return Promise.resolve();
-        },
-      });
+    await dispatchServeWith(serveArgs, (args) => {
+      expect(args).to.equal(serveArgs);
+      calls.push('run:serve');
+      return Promise.resolve();
     });
 
-    expect(calls).to.eql([
-      'load:build',
-      'run:build',
-      'load:dev',
-      'run:dev',
-      'load:serve',
-      'run:serve',
-    ]);
+    expect(calls).to.eql(['run:build', 'run:dev', 'run:serve']);
   });
 
-  it('preserves wrapper loader and command rejection identity', async () => {
-    const loadCause = new Error('load failed');
-    const commandCause = new Error('command failed');
-
-    const loadError = await catchError(() =>
-      buildWith({ cmd: 'build' }, () => Promise.reject(loadCause))
-    );
-    const commandError = await catchError(() =>
-      serveWith(
-        { cmd: 'serve' },
-        () => Promise.resolve({ serve: () => Promise.reject(commandCause) }),
-      )
+  it('preserves command-runner rejection identity', async () => {
+    using _fixture = WebFixture.Property.mock([{
+      target: console,
+      key: 'info',
+      descriptor: { value: () => undefined },
+    }]);
+    const cause = new Error('command failed');
+    const error = await catchError(() =>
+      dispatchServeWith({ cmd: 'serve' }, () => Promise.reject(cause))
     );
 
-    expect(loadError).to.equal(loadCause);
-    expect(commandError).to.equal(commandCause);
+    expect(error).to.equal(cause);
   });
 });
 
