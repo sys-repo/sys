@@ -1,6 +1,5 @@
-import { Pkg } from '@sys/std/pkg';
 import { normalizeTargets } from '../../m.Fs.capability/m.Rooted/u/u.target.ts';
-import { CompositeHash, Ignore, Is, Obj, Path, Str, type t } from '../common.ts';
+import { CompositeHash, Ignore, Is, Obj, Path, Pkg, Str, type t } from './common.ts';
 import { failure } from './u.pinned.io.ts';
 import { addBytes, isSafeNonNegative } from './u.pinned.limit.ts';
 

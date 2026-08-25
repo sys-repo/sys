@@ -1,5 +1,4 @@
-import { Pkg } from '@sys/std/pkg';
-import { Hash, Is, Json, Path, Rx, type t } from '../common.ts';
+import { Hash, Is, Json, Path, Pkg, Rx, type t } from './common.ts';
 import { snapshotExactDataObject, snapshotUntilInput } from './u.input.ts';
 import {
   checkCancelled,

@@ -1,4 +1,4 @@
-import { Is, type t } from '../common.ts';
+import { Is, type t } from './common.ts';
 
 const FAILURE = Symbol('Pkg.Dist.Pinned.failure');
 

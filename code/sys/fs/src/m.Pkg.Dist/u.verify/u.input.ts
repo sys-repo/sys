@@ -1,5 +1,4 @@
-import { Is as ServerIs } from '@sys/std/is/server';
-import { Is, Obj, type t } from '../common.ts';
+import { Is, Obj, ServerIs, type t } from './common.ts';
 
 const arrayPrototype = Array.prototype;
 const freeze = Object.freeze;

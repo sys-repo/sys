@@ -1,4 +1,4 @@
-import { Num, Path, Str, type t } from '../common.ts';
+import { Num, Path, Str, type t } from './common.ts';
 import type { StrictPart } from './u.pinned.manifest.ts';
 import {
   checkCancelled,

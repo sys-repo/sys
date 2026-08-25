@@ -1,4 +1,5 @@
 import { describe, expect, it, pkg, type t } from '../../-test.ts';
+import { Local as VerifyLocal, Pinned as VerifyPinned } from '@sys/fs/pkg/dist/verify';
 import { distTypePath as typesDistTypePath } from '@sys/types';
 import { pkg as fsPkg } from '../../pkg.ts';
 import { Dir } from '../../mod.ts';
@@ -28,6 +29,8 @@ describe('Pkg.Dist', () => {
       expect(Pkg.Dist.Pinned).to.equal(Dist.Pinned);
       expect(Pkg.Dist.Pinned.verify).to.equal(Dist.Pinned.verify);
       expect(Pkg.Dist.Pinned.readPart).to.equal(Dist.Pinned.readPart);
+      expect(VerifyLocal).to.equal(Dist.Local);
+      expect(VerifyPinned).to.equal(Dist.Pinned);
       expect(Object.keys(Pkg.Dist.Local).sort()).to.eql(['readPart', 'verify']);
       expect(Object.keys(Pkg.Dist.Pinned).sort()).to.eql(['readPart', 'verify']);
       expect(Object.isFrozen(Pkg.Dist.Pinned)).to.eql(true);

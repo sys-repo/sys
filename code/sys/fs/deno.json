@@ -22,6 +22,7 @@
     "./filemap": "./src/m.FileMap/mod.ts",
     "./path": "./src/m.Path/mod.ts",
     "./pkg": "./src/m.Pkg/mod.ts",
+    "./pkg/dist/verify": "./src/-exports/-pkg.dist.verify.ts",
     "./watch": "./src/m.Watch/mod.ts"
   },
   "permissions": {

@@ -1,4 +1,4 @@
-import { Num } from '../common.ts';
+import { Num } from './common.ts';
 import { failure } from './u.pinned.io.ts';
 
 export function isSafeNonNegative(input: unknown): input is number {

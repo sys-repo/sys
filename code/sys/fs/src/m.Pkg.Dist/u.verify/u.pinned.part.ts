@@ -1,5 +1,5 @@
 import { normalizeTargets } from '../../m.Fs.capability/m.Rooted/u/u.target.ts';
-import { Hash, Is, Path, Pkg, Rx, type t } from '../common.ts';
+import { Hash, Is, Path, Pkg, Rx, type t } from './common.ts';
 import { snapshotExactDataObject, snapshotUntilInput } from './u.input.ts';
 import {
   checkCancelled,
