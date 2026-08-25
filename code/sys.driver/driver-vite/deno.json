@@ -7,8 +7,10 @@
     "prep": "deno run -P=dev ./-scripts/task.prep.ts",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check --node-modules-dir=auto src/*",
-    "test": "deno test --node-modules-dir=auto -P=test",
-    "test:external": "deno task test --trace-leaks ./src/m.vite/-test.external/mod.ts",
+    "test": "deno task test:unit && deno task test:entry:process",
+    "test:unit": "deno test --node-modules-dir=auto -P=test",
+    "test:entry:process": "deno test --node-modules-dir=auto -P=test --trace-leaks ./src/-entry/-test.external/-graph.process.ts ./src/-entry/-test.external/-serve.cached.process.ts",
+    "test:external": "deno task test:unit --trace-leaks ./src/m.vite/-test.external/mod.ts",
     "perf": "deno run -P=dev ./-scripts/task.perf.ts",
     "smoke": "deno run -P=dev ./-scripts/task.smoke.ts",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
@@ -33,11 +35,22 @@
     "./plugins": "./src/m.vite.plugins/mod.ts",
     "./sample-imports": "./src/-test/-sample-imports.ts"
   },
+  "publish": {
+    "exclude": [
+      "src/-entry/-test.external",
+      "src/-entry/-test.fixture"
+    ]
+  },
   "permissions": {
     "clean": {
       "read": true,
       "write": true,
       "env": true
+    },
+    "entry-serve-proof": {
+      "read": ["./.tmp/entry-serve-proof/dist"],
+      "net": ["127.0.0.1:0"],
+      "env": ["FORCE_COLOR", "TERM", "TERM_PROGRAM"]
     },
     "test": {
       "read": true,
@@ -79,4 +92,3 @@
     }
   }
 }
-

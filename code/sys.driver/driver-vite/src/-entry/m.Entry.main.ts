@@ -1,78 +1,64 @@
 import type { t } from './common.ts';
-
-import { c } from '@sys/cli/fmt';
-import { Path } from '@sys/fs/path';
 import { Args } from '@sys/std/args';
 import { Is } from '@sys/std/is';
-
-import { Help } from '../m.fmt/u.Help.ts';
-import { Tasks } from '../m.fmt/u.Tasks.ts';
-import { Wrangle } from '../m.vite/u/u.wrangle.ts';
-import { pkg } from '../pkg.ts';
-
-import { build } from './u.build.ts';
-import { dev } from './u.dev.ts';
-import { resolvePkgSubpath } from './u.pkgSubpath.ts';
-import { serve } from './u.serve.ts';
+import { COMMAND_LOADERS } from './m.Command.ts';
 
 type O = Record<string, unknown>;
-type CommandDependencies = Pick<t.ViteEntry.Lib, 'build' | 'dev' | 'serve'>;
+type CommandModule<A extends t.ViteEntry.Args> = {
+  dispatch(args: A): Promise<void>;
+};
+
+export type DispatchLoaders = Readonly<{
+  build(): Promise<CommandModule<t.ViteEntry.Args.Build>>;
+  dev(): Promise<CommandModule<t.ViteEntry.Args.Dev>>;
+  info(): Promise<CommandModule<t.ViteEntry.Args.Info>>;
+  serve(): Promise<CommandModule<t.ViteEntry.Args.Serve>>;
+}>;
 
 // Preserve both fields until reconciliation can reject conflicting caller input.
 const PKG_SUBPATH_FLAGS = ['pkgSubpath', 'pkg-subpath'] as const;
-const DEFAULT_COMMANDS: CommandDependencies = Object.freeze({ build, dev, serve });
 
+/**
+ * Dispatch one CLI invocation without loading an unrequested command graph.
+ */
 export const main: t.ViteEntry.Lib['main'] = async (input) => {
-  return await mainWith(input, DEFAULT_COMMANDS);
+  return await mainWith(input, COMMAND_LOADERS);
 };
 
 /** Internal dependency seam for deterministic command-dispatch tests. */
 export async function mainWith(
   input: string[] | t.ViteEntry.Args | undefined,
-  commands: CommandDependencies,
-) {
+  loaders: DispatchLoaders,
+): Promise<void> {
   const args = wrangle.args<t.ViteEntry.Args>(input ?? Deno.args);
   const cmd = args.cmd;
 
   if (cmd === 'dev') {
+    const { resolvePkgSubpath } = await import('./u.pkgSubpath.ts');
     resolvePkgSubpath(args);
-    Tasks.log({ cmd: 'dev' });
-    await commands.dev(args);
+    await (await loaders.dev()).dispatch(args);
     return;
   }
 
   if (cmd === 'build') {
-    if (!args.silent) Tasks.log({ cmd: 'build' });
-    await commands.build(args);
+    await (await loaders.build()).dispatch(args);
     return;
   }
 
   if (cmd === 'serve') {
+    const { resolvePkgSubpath } = await import('./u.pkgSubpath.ts');
     resolvePkgSubpath(args);
-    if (!args.silent) {
-      Tasks.log({ cmd: 'serve' });
-      console.info();
-    }
-    await commands.serve(args);
+    await (await loaders.serve()).dispatch(args);
     return;
   }
 
   if (cmd === 'info') {
-    const { dir, info } = args;
-    const paths = await Wrangle.pathsFromConfigfile(dir);
-    const dirs = {
-      in: Path.join(paths.cwd, paths.app.entry),
-      out: Path.join(paths.cwd, paths.app.outDir),
-    };
-
-    let tasks: false | undefined;
-    if (info === true) tasks = false; // NB: don't show common tasks if specific "info" was requested.
-
-    await Help.log({ pkg, dirs, tasks });
+    await (await loaders.info()).dispatch(args);
     return;
   }
 
   // Command not matched.
+  const { c } = await import('@sys/cli/fmt');
   console.error(`The given --cmd="${c.yellow(c.bold(cmd))}" is not supported.`);
 }
 
