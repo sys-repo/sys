@@ -19,6 +19,7 @@
     "./cmd": "./src/http.cmd/mod.ts",
     "./server": "./src/-exports/-http.server.ts",
     "./server/file-bytes": "./src/http.server/m.FileBytes/mod.ts",
+    "./server/host": "./src/-exports/-http.server.host.ts",
     "./server/lifecycle": "./src/-exports/-http.server.lifecycle.ts",
     "./server/proxy": "./src/http.server/m.HttpProxy/mod.ts",
     "./server/static": "./src/http.server/m.HttpStatic/mod.ts",

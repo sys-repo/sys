@@ -1,4 +1,4 @@
-import { c, Cli, Fs, Str, type t } from '../common.ts';
+import { c, Cli, Path, Str, type t } from '../common.host.ts';
 import { formatPrintUrls } from './u.print.url.ts';
 
 type PrintUrl = ReturnType<typeof formatPrintUrls>[number];
@@ -126,13 +126,20 @@ function value(deps: PrintDependencies, input: string, reserve: number) {
 
 function path(deps: PrintDependencies, input: string, reserve: number) {
   if (deps.isTerminal('stdout') && valueWidth(deps, reserve) === 0) return '';
-  return Cli.Fmt.Path.tty(Fs.trimCwd(input), {
+  return Cli.Fmt.Path.tty(trimCwd(input), {
     reserve,
     terminal: deps.isTerminal('stdout'),
     width: deps.screenSize().width,
     highlightBasename: false,
     min: 1,
   });
+}
+
+function trimCwd(input: string): string {
+  if (Path.Is.relative(input)) return input.replace(/^\.\//, '');
+  const cwd = Deno.cwd();
+  const prefix = cwd.endsWith('/') ? cwd : `${cwd}/`;
+  return input === cwd ? '' : input.startsWith(prefix) ? input.slice(prefix.length) : input;
 }
 
 function keyboardValue(deps: PrintDependencies, input: string, reserve: number) {

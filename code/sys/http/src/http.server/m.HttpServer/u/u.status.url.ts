@@ -1,4 +1,4 @@
-import { Is, Str, type t } from '../common.ts';
+import { Is, Str, type t } from '../common.host.ts';
 
 /** Convert HTTP-server owner URL paths into renderer-neutral service URLs. */
 export function statusUrls(

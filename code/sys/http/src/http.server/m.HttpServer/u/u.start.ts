@@ -1,4 +1,4 @@
-import { Cli, Dispose, Err, Is, type t } from '../common.ts';
+import { Cli, Dispose, Err, Is, type t } from '../common.host.ts';
 import { bindKeyboard } from './u.keyboard.ts';
 import { listenerOrigin, validateOriginMode } from './u.origin.ts';
 import { options as createOptions } from './u.options.ts';

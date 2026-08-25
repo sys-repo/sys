@@ -57,6 +57,19 @@ describe('HttpServer.print', () => {
     expect(output).to.contain('static');
   });
 
+  it('keeps roots beneath the current directory relative in startup output', () => {
+    const lines = capturePrint(() => {
+      HttpServer.print({
+        addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
+        status: { root: `${Deno.cwd()}/dist` as t.StringDir },
+      });
+    });
+
+    const output = Cli.stripAnsi(lines.join('\n'));
+    expect(output).to.contain('dist');
+    expect(output).to.not.contain(Deno.cwd());
+  });
+
   it('keeps service identity and module provenance readable without bold weight', () => {
     const raw = capturePrint(() => {
       HttpServer.print({

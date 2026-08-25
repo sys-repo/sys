@@ -82,3 +82,13 @@ const url = Http.url(listener.addr);
 const res = await fetch.json<T>(url.base);
 res.data; // ← { count: 123 }
 ```
+
+For a bare application and managed listener without loading static-file helpers:
+
+```ts
+import { create, start } from 'jsr:@sys/http/server/host';
+
+const app = create();
+app.get('/', (c) => c.text('ready'));
+const server = start(app, { hostname: '127.0.0.1', port: 8080, strictPort: true });
+```

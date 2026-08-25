@@ -21,4 +21,18 @@ describe('HTTP Server', () => {
       expect(Object.isFrozen(lifecycle.HttpServer)).to.eql(true);
     });
   });
+
+  describe('host entry', () => {
+    it('exports bare app creation with the identical managed start function', async () => {
+      const host = await import('@sys/http/server/host');
+      const app = host.create();
+      app.get('/', (c) => c.text('host'));
+
+      const response = await app.request('/');
+      expect(Object.keys(host).sort()).to.eql(['create', 'start']);
+      expect(host.start).to.equal(HttpServer.start);
+      expect(response.status).to.eql(200);
+      expect(await response.text()).to.eql('host');
+    });
+  });
 });
