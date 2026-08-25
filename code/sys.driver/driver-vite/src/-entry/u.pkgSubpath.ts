@@ -1,4 +1,4 @@
-import { Pkg } from './common.ts';
+import { Pkg } from '@sys/std/pkg';
 
 type PackageSubpathInput = {
   pkgSubpath?: unknown;

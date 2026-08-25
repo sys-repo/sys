@@ -1,4 +1,5 @@
-import { DistServer, type t } from './common.ts';
+import type { t } from './common.ts';
+import { DistServer } from '@sys/server/dist/server';
 import { resolvePkgSubpath } from './u.pkgSubpath.ts';
 
 type ServeDependencies = {

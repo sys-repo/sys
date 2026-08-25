@@ -1,10 +1,19 @@
+import type { t } from './common.ts';
+
+import { c } from '@sys/cli/fmt';
+import { Path } from '@sys/fs/path';
+import { Args } from '@sys/std/args';
+import { Is } from '@sys/std/is';
+
+import { Help } from '../m.fmt/u.Help.ts';
+import { Tasks } from '../m.fmt/u.Tasks.ts';
 import { Wrangle } from '../m.vite/u/u.wrangle.ts';
-import { Args, c, Path, pkg, type t, ViteLog } from './common.ts';
+import { pkg } from '../pkg.ts';
 
 import { build } from './u.build.ts';
 import { dev } from './u.dev.ts';
-import { serve } from './u.serve.ts';
 import { resolvePkgSubpath } from './u.pkgSubpath.ts';
+import { serve } from './u.serve.ts';
 
 type O = Record<string, unknown>;
 type CommandDependencies = Pick<t.ViteEntry.Lib, 'build' | 'dev' | 'serve'>;
@@ -27,13 +36,13 @@ export async function mainWith(
 
   if (cmd === 'dev') {
     resolvePkgSubpath(args);
-    ViteLog.Tasks.log({ cmd: 'dev' });
+    Tasks.log({ cmd: 'dev' });
     await commands.dev(args);
     return;
   }
 
   if (cmd === 'build') {
-    if (!args.silent) ViteLog.Tasks.log({ cmd: 'build' });
+    if (!args.silent) Tasks.log({ cmd: 'build' });
     await commands.build(args);
     return;
   }
@@ -41,7 +50,7 @@ export async function mainWith(
   if (cmd === 'serve') {
     resolvePkgSubpath(args);
     if (!args.silent) {
-      ViteLog.Tasks.log({ cmd: 'serve' });
+      Tasks.log({ cmd: 'serve' });
       console.info();
     }
     await commands.serve(args);
@@ -59,7 +68,7 @@ export async function mainWith(
     let tasks: false | undefined;
     if (info === true) tasks = false; // NB: don't show common tasks if specific "info" was requested.
 
-    await ViteLog.Help.log({ pkg, dirs, tasks });
+    await Help.log({ pkg, dirs, tasks });
     return;
   }
 
@@ -72,8 +81,6 @@ export async function mainWith(
  */
 const wrangle = {
   args<T extends O>(argv: string[] | T) {
-    return Array.isArray(argv)
-      ? Args.parse<T>(argv, { string: [...PKG_SUBPATH_FLAGS] })
-      : (argv as T);
+    return Is.array(argv) ? Args.parse<T>(argv, { string: [...PKG_SUBPATH_FLAGS] }) : (argv as T);
   },
 } as const;
