@@ -11,8 +11,8 @@ package owns the network, verification, and lifecycle boundaries declared by eac
 - **`BootstrapStatus`** — show finite caller-owned status, then redirect once.
 - **`Dist.materialize()`** — acquire one caller-selected manifest under an exact SHA-256 pin.
 - **`DistServer.start()`** — host one externally pinned, continuously verified Dist.
-- **`DistServer.Local.start()`** — host one locally observed build without claiming external
-  authenticity.
+- **`DistServer.Local.start()`** — host one locally observed build, including its exact verified
+  manifest, without claiming external authenticity.
 - **`DistService` / `FilesWebSocketService`** — let `@sys/cell` own configured service lifecycles.
 - **`WebSocketServer`** — bind application-owned command handlers to a managed transport.
 
@@ -156,7 +156,7 @@ The authority is explicit:
   the complete tree without claiming external authenticity.
 
 ```ts
-import { DistServer } from 'jsr:@sys/server/dist';
+import { DistServer } from 'jsr:@sys/server/dist/server';
 
 const integrity = 'sha256-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
 const server = await DistServer.start({
@@ -177,11 +177,20 @@ try {
 }
 ```
 
+The narrow `@sys/server/dist/server` entry exposes hosting without loading Dist acquisition or
+materialization. The aggregate `@sys/server/dist` entry remains available when one caller needs both
+`Dist` and `DistServer`.
+
+Pinned and Local hosting keep separate manifest contracts. `DistServer.start()` is asset-only and
+returns `404` for `/dist.json`. `DistServer.Local.start()` serves the exact manifest bytes admitted
+by Local verification at `/dist.json`, every checksum-matched declared part, and the authenticated
+`index.html` preview at `/`.
+
 The default HTTP boundary is closed:
 
 - the listener accepts only loopback hostnames;
 - `Host` must match an admitted loopback authority, otherwise the response is `421`;
-- only manifest-declared files are addressable;
+- only the Local manifest route and manifest-declared files are addressable;
 - `/` maps only to authenticated `index.html`; there is no SPA fallback;
 - unsafe paths and range requests are refused;
 - responses are `no-store`, and no CORS authority is granted.

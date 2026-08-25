@@ -21,6 +21,7 @@ export type ServeSnapshot = {
 
 export type ServeLocalSnapshot = {
   readonly start: StartLocalSnapshot;
+  readonly displayDir: t.StringDir;
   readonly pkgSubpath?: string;
 };
 
@@ -78,6 +79,7 @@ export function snapshotServeLocalInput(input: unknown): ServeLocalPreparation {
       ok: true,
       value: Object.freeze({
         start: start.value,
+        displayDir: source.dir as t.StringDir,
         ...(parsed.kind === 'valid' ? { pkgSubpath: parsed.value } : {}),
       }),
     };

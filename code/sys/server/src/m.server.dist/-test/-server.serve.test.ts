@@ -34,8 +34,8 @@ describe('DistServer.serve', () => {
           },
           {
             ...DEFAULT_DEPENDENCIES,
-            verify: async () => verified(fixture),
-            startHttp: (_app: unknown, input: Record<string, unknown>) => {
+            verify: () => Promise.resolve(verified(fixture)),
+            startHttp: (_app, input) => {
               captured = capture(input);
               started = createStarted(49152);
               return started.server;
@@ -51,6 +51,7 @@ describe('DistServer.serve', () => {
 
         expect(captured.silent).to.eql(false);
         expect(captured.keyboard).to.eql(true);
+        expect(captured.strictPort).to.eql(true);
         expect(captured.pkg).to.eql(fixture.cloneDist().pkg);
         expect(captured.hash).to.eql(fixture.cloneDist().hash.digest);
         expect(captured.info).to.eql({ authority: `pinned ${fixture.integrity}` });
@@ -68,13 +69,13 @@ describe('DistServer.serve', () => {
       let starts = 0;
       const deps = {
         ...DEFAULT_DEPENDENCIES,
-        verify: async () => {
+        verify: () => {
           pinnedVerifies += 1;
-          return verified(fixture);
+          return Promise.resolve(verified(fixture));
         },
-        verifyLocal: async () => {
+        verifyLocal: () => {
           localVerifies += 1;
-          return verified(fixture);
+          return Promise.resolve(verified(fixture));
         },
         startHttp: () => {
           starts += 1;
@@ -119,13 +120,13 @@ describe('DistServer.serve', () => {
       let getterReads = 0;
       const deps = {
         ...DEFAULT_DEPENDENCIES,
-        verify: async () => {
+        verify: () => {
           pinnedVerifies += 1;
-          return verified(fixture);
+          return Promise.resolve(verified(fixture));
         },
-        verifyLocal: async () => {
+        verifyLocal: () => {
           localVerifies += 1;
-          return verified(fixture);
+          return Promise.resolve(verified(fixture));
         },
         startHttp: () => {
           starts += 1;
@@ -143,7 +144,7 @@ describe('DistServer.serve', () => {
       };
       try {
         {
-          using properties = WebFixture.Property.mock([
+          using _properties = WebFixture.Property.mock([
             {
               target: pinnedAccessor,
               key: 'pkgSubpath',
@@ -204,8 +205,8 @@ describe('DistServer.serve', () => {
           },
           {
             ...DEFAULT_DEPENDENCIES,
-            verifyLocal: async () => verified(fixture),
-            startHttp: (_app: unknown, input: Record<string, unknown>) => {
+            verifyLocal: () => Promise.resolve(verified(fixture)),
+            startHttp: (_app, input) => {
               captured = capture(input);
               started = createStarted(49152);
               return started.server;
@@ -221,6 +222,7 @@ describe('DistServer.serve', () => {
 
         expect(captured.silent).to.eql(false);
         expect(captured.keyboard).to.eql(true);
+        expect(captured.strictPort).to.eql(true);
         expect(captured.info).to.eql({ authority: 'local (UNPINNED)' });
         expect(captured.hasPkgSubpath).to.eql(false);
       } finally {
@@ -245,8 +247,8 @@ describe('DistServer.serve', () => {
           },
           {
             ...DEFAULT_DEPENDENCIES,
-            verifyLocal: async () => verified(fixture),
-            startHttp: (_app: unknown, input: Record<string, unknown>) => {
+            verifyLocal: () => Promise.resolve(verified(fixture)),
+            startHttp: (_app, input) => {
               captured = capture(input);
               started = createStarted(49152);
               return started.server;
@@ -346,17 +348,17 @@ describe('DistServer.serve', () => {
           {
             dir: relativeDir,
             limits: fixture.policy.verification,
-            port: 8080,
+            port: 0,
             silent: false,
             pkgSubpath: '/ui//preview/',
           },
           {
             ...DEFAULT_DEPENDENCIES,
-            verifyLocal: async (input) => {
+            verifyLocal: (input) => {
               verificationDir = input.dir;
-              return verified(fixture);
+              return Promise.resolve(verified(fixture));
             },
-            startHttp: (_app: unknown, input: Record<string, unknown>) => {
+            startHttp: (_app, input) => {
               captured = capture(input);
               started = createStarted(49152);
               return started.server;
@@ -618,8 +620,8 @@ describe('DistServer.serve', () => {
       };
       const deps = {
         ...DEFAULT_DEPENDENCIES,
-        verify: async () => verified(fixture),
-        verifyLocal: async () => verified(fixture),
+        verify: () => Promise.resolve(verified(fixture)),
+        verifyLocal: () => Promise.resolve(verified(fixture)),
         startHttp: () => {
           started = createStarted(49152);
           return started.server;
@@ -687,7 +689,7 @@ describe('DistServer.serve', () => {
           },
           {
             ...DEFAULT_DEPENDENCIES,
-            verifyLocal: async () => verified(fixture),
+            verifyLocal: () => Promise.resolve(verified(fixture)),
             startHttp: () => {
               started = createStarted(49152);
               return started.server;
@@ -743,7 +745,7 @@ describe('DistServer.serve', () => {
           },
           {
             ...DEFAULT_DEPENDENCIES,
-            verifyLocal: async () => verified(fixture),
+            verifyLocal: () => Promise.resolve(verified(fixture)),
             startHttp: () => {
               started = createStarted(49152);
               return started.server;
@@ -872,7 +874,7 @@ describe('DistServer.serve', () => {
           },
           {
             ...DEFAULT_DEPENDENCIES,
-            verifyLocal: async () => verified(fixture),
+            verifyLocal: () => Promise.resolve(verified(fixture)),
             startHttp: () => {
               started = createStarted(49152);
               return started.server;
@@ -911,14 +913,14 @@ describe('DistServer.serve', () => {
       }
     });
 
-    it('keeps pinned serve strict while local serve allows port fallback', async () => {
+    it('keeps pinned and local serve strict on explicit ports', async () => {
       const fixture = await setup();
       let localStarted: StartedController | undefined;
       try {
         const shared = {
           ...DEFAULT_DEPENDENCIES,
-          verify: async () => verified(fixture),
-          verifyLocal: async () => verified(fixture),
+          verify: () => Promise.resolve(verified(fixture)),
+          verifyLocal: () => Promise.resolve(verified(fixture)),
         };
 
         const pinnedError = await catchStart(() =>
@@ -938,29 +940,28 @@ describe('DistServer.serve', () => {
           )
         );
 
-        const localRun = serveLocalWith(
-          {
-            dir: fixture.source as t.StringDir,
-            limits: fixture.policy.verification,
-            port: 8080,
-            silent: false,
-          },
-          {
-            ...shared,
-            startHttp: () => {
-              localStarted = createStarted(49152);
-              return localStarted.server;
+        const localError = await catchStart(() =>
+          serveLocalWith(
+            {
+              dir: fixture.source as t.StringDir,
+              limits: fixture.policy.verification,
+              port: 8080,
+              silent: false,
             },
-          },
-          createModeEffects(false),
+            {
+              ...shared,
+              startHttp: () => {
+                localStarted = createStarted(49152);
+                return localStarted.server;
+              },
+            },
+            createModeEffects(false),
+          )
         );
-        await listenerSettled();
-        expect(localStarted).to.be.an('object');
-        localStarted?.release();
-        const localError = await catchStart(() => localRun);
 
         expect(pinnedError?.reason).to.eql('address-in-use');
-        expect(localError).to.eql(undefined);
+        expect(localError?.reason).to.eql('address-in-use');
+        expect(localStarted?.closeCauses).to.eql(['dist-server.start.failed']);
       } finally {
         localStarted?.release();
         await teardown(fixture);

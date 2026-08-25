@@ -1,16 +1,44 @@
-import { FsPkg, Is, Num, Obj, type t } from '../common.ts';
+import { Is, Num, Obj, Pkg, type t } from './common.ts';
 
+/**
+ * Authenticated part-read dependencies for pinned and local Dist hosts.
+ */
 export type ReadDependencies = {
   readonly readPart: t.FsPkg.Dist.Pinned.ReadPart.Method;
+  readonly readLocalPart: t.FsPkg.Dist.Local.ReadPart.Method;
 };
 
-/** Resolve one FilesStatic reference and authenticate its exact bytes. */
+/**
+ * Read the exact local manifest using its verified root, integrity, and byte-length authority.
+ */
+export async function readManifest(args: {
+  readonly dir: t.StringDir;
+  readonly integrity: t.StringHash;
+  readonly size: t.NumberBytes;
+  readonly until: t.UntilInput;
+  readonly deps: ReadDependencies;
+}): Promise<t.HttpServer.ServeFileBytes.Read.Result> {
+  const read = await args.deps.readLocalPart({
+    dir: args.dir,
+    path: 'dist.json',
+    checksum: args.integrity,
+    size: args.size,
+    until: args.until,
+  });
+  return readResult(read);
+}
+
+/**
+ * Resolve one declared FilesStatic reference, then read only the bytes authenticated by that
+ * reference.
+ */
 export async function readAsset(args: {
   readonly backing: t.FilesStatic.Readonly;
   readonly dir: t.StringDir;
   readonly path: t.Files.String.Path;
   readonly signal: AbortSignal;
   readonly until: t.UntilInput;
+  readonly local: boolean;
   readonly deps: ReadDependencies;
 }): Promise<t.HttpServer.ServeFileBytes.Read.Result> {
   let result: unknown;
@@ -26,28 +54,15 @@ export async function readAsset(args: {
   const authority = readAuthority(result, args.path);
   if (!authority) return { kind: 'failure' };
 
-  const read = await args.deps.readPart({
+  const readPart = args.local ? args.deps.readLocalPart : args.deps.readPart;
+  const read = await readPart({
     dir: args.dir,
     path: authority.path,
     checksum: authority.checksum,
     size: authority.size,
     until: args.until,
   });
-  if (read.kind === 'read') return { kind: 'bytes', bytes: read.bytes };
-
-  switch (read.kind) {
-    case 'missing':
-      return { kind: 'missing' };
-    case 'cancelled':
-      return { kind: 'cancelled' };
-    case 'content-mismatch':
-    case 'unsafe-path':
-    case 'symlink':
-    case 'changed':
-      return { kind: 'changed' };
-    default:
-      return { kind: 'failure' };
-  }
+  return readResult(read);
 }
 
 type ReadAuthority = {
@@ -71,11 +86,31 @@ function readAuthority(input: unknown, requested: t.Files.String.Path): ReadAuth
     if (data(file, 'hash') !== checksum || data(file, 'size') !== size) return;
     if (!Is.str(checksum) || !Num.Is.safeInt(size) || size < 0) return;
 
-    const parsed = FsPkg.Dist.Part.parse(checksum);
+    const parsed = Pkg.Dist.Part.parse(checksum);
     if (!parsed || parsed.hash !== checksum || parsed.size !== undefined) return;
     return Object.freeze({ path, checksum: parsed.hash, size });
   } catch {
     return;
+  }
+}
+
+function readResult(
+  read: t.FsPkg.Dist.Pinned.ReadPart.Result,
+): t.HttpServer.ServeFileBytes.Read.Result {
+  if (read.kind === 'read') return { kind: 'bytes', bytes: read.bytes };
+
+  switch (read.kind) {
+    case 'missing':
+      return { kind: 'missing' };
+    case 'cancelled':
+      return { kind: 'cancelled' };
+    case 'content-mismatch':
+    case 'unsafe-path':
+    case 'symlink':
+    case 'changed':
+      return { kind: 'changed' };
+    default:
+      return { kind: 'failure' };
   }
 }
 

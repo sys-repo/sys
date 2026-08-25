@@ -170,12 +170,15 @@ export declare namespace DistServer {
     readonly Error: Error.Lib;
   };
 
+  /**
+   * Direct verified-or-refuse startup contracts.
+   */
   export namespace Start {
     /**
      * Start one checksum-pinned Dist host.
      *
-     * Unlike `Dist.materialize`, this method has one success truth: it returns the existing HTTP
-     * lifecycle and rejects every startup failure as a sanitized `StartError`.
+     * Unlike `Dist.materialize`, this method returns only a running HTTP lifecycle. Every startup
+     * failure rejects as a sanitized `StartError`.
      */
     export namespace Pinned {
       export type Args = {
@@ -206,7 +209,9 @@ export declare namespace DistServer {
     export type Args = Pinned.Args;
   }
 
-  /** Terminal-only presentation inputs for pinned serve mode. */
+  /**
+   * Terminal-owned serving contracts for checksum-pinned authority.
+   */
   export namespace Serve {
     /** Pinned start authority plus an optional package-application subpath. */
     export type Args = Start.Args & {
@@ -215,21 +220,25 @@ export declare namespace DistServer {
     };
   }
 
-  /** Explicit locally verified, unpinned authority family. */
+  /**
+   * Locally verified, unpinned hosting contracts.
+   */
   export namespace Local {
     export type Lib = {
-      /** Start one locally verified Dist host and return its lifecycle. */
+      /** Start one complete local Dist transport, including its exact verified manifest bytes. */
       readonly start: (args: Args) => Promise<Started>;
-      /** Blocking terminal-owned serve for locally verified, unpinned authority. */
+      /** Blocking terminal-owned serve for one complete locally verified Dist transport. */
       readonly serve: (args: ServeArgs) => Promise<void>;
     };
 
     /**
      * Local authority derives manifest integrity from observed bytes and still refuses startup if the
-     * observed generation mutates, contains undeclared entries, or fails complete verification.
+     * observed generation mutates, contains undeclared entries, or fails complete verification. Its
+     * listener serves the exact verified manifest at `/dist.json`, all declared parts, and the `/`
+     * preview alias. Pinned application hosts keep their separate asset-only contract.
      */
     export type Args = {
-      /** Local generation directory containing the `dist.json` file. */
+      /** Local generation directory whose resolved path must be exact canonical authority. */
       dir: t.StringDir;
       /** Required finite complete-generation verification authority. */
       limits: FsPkg.Dist.Verify.Limits;
@@ -273,7 +282,9 @@ export declare namespace DistServer {
       readonly serviceWorker: ServiceWorker.Admission;
     };
 
-    /** Dedicated-worker source authority. */
+    /**
+     * Dedicated-worker source authority.
+     */
     export namespace DedicatedWorker {
       /** One explicit dedicated-worker source capability. */
       export type Source = Asset | Blob;
@@ -289,7 +300,9 @@ export declare namespace DistServer {
       };
     }
 
-    /** Service Worker request authority, kept distinct from dedicated workers. */
+    /**
+     * Service Worker request authority, kept distinct from dedicated workers.
+     */
     export namespace ServiceWorker {
       /** Deny every observed Service Worker destination, or admit one exact verified tombstone. */
       export type Admission = Deny | Tombstone;

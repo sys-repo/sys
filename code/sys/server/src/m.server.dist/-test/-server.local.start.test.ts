@@ -1,5 +1,5 @@
 import { Hash } from '@sys/crypto/hash';
-import { describe, expect, Fs, it, Json, type t } from '../../-test.ts';
+import { describe, expect, Fs, it, Json, type t, WebFixture } from '../../-test.ts';
 import { setup, teardown } from '../../-test/u.fixture.dist.ts';
 import { DistServer } from '../mod.ts';
 import {
@@ -15,6 +15,8 @@ describe('DistServer.Local.start', () => {
     it('derives explicit local-unpinned authority from exact manifest bytes', async () => {
       const fixture = await setup();
       let server: t.DistServer.Started | undefined;
+      let pinnedReads = 0;
+      let localReads = 0;
       try {
         const manifest = fixture.manifestBytes;
         const exactManifest = new Uint8Array(manifest.byteLength + 1);
@@ -23,11 +25,24 @@ describe('DistServer.Local.start', () => {
         await Fs.write(Fs.join(fixture.source, 'dist.json'), exactManifest);
         const integrity = Hash.sha256(exactManifest);
 
-        server = await DistServer.Local.start({
-          dir: fixture.source as t.StringDir,
-          limits: fixture.policy.verification,
-          silent: true,
-        });
+        server = await startLocalWith(
+          {
+            dir: fixture.source as t.StringDir,
+            limits: fixture.policy.verification,
+            silent: true,
+          },
+          {
+            ...DEFAULT_DEPENDENCIES,
+            readPart(args) {
+              pinnedReads += 1;
+              return DEFAULT_DEPENDENCIES.readPart(args);
+            },
+            readLocalPart(args) {
+              localReads += 1;
+              return DEFAULT_DEPENDENCIES.readLocalPart(args);
+            },
+          },
+        );
 
         expect(server.authority).to.eql({ kind: 'local-unpinned', integrity });
         expect(server.verification.integrity).to.eql(integrity);
@@ -54,10 +69,40 @@ describe('DistServer.Local.start', () => {
         expect(initial.status).to.eql(200);
         expect(await initial.text()).to.eql('<h1>verified</h1>');
 
+        const asset = await fetch(`${server.origin}/assets/app.js`);
+        expect(asset.status).to.eql(200);
+        expect(await asset.text()).to.eql('console.info("verified");');
+
+        const assetHead = await fetch(`${server.origin}/assets/app.js`, { method: 'HEAD' });
+        expect(assetHead.status).to.eql(200);
+        expect(assetHead.headers.get('content-length')).to.eql(
+          String(new TextEncoder().encode('console.info("verified");').byteLength),
+        );
+        expect((await assetHead.arrayBuffer()).byteLength).to.eql(0);
+
+        const servedManifest = await fetch(`${server.origin}/dist.json`);
+        expect(servedManifest.status).to.eql(200);
+        expect(servedManifest.headers.get('cache-control')).to.eql('no-store');
+        expect(new Uint8Array(await servedManifest.arrayBuffer())).to.eql(exactManifest);
+
+        const manifestHead = await fetch(`${server.origin}/dist.json`, { method: 'HEAD' });
+        expect(manifestHead.status).to.eql(200);
+        expect(manifestHead.headers.get('content-length')).to.eql(String(exactManifest.byteLength));
+        expect((await manifestHead.arrayBuffer()).byteLength).to.eql(0);
+
+        const changedManifestBytes = new Uint8Array(exactManifest.byteLength + 1);
+        changedManifestBytes.set(exactManifest);
+        await Fs.write(Fs.join(fixture.source, 'dist.json'), changedManifestBytes);
+        const changedManifest = await fetch(`${server.origin}/dist.json`);
+        expect(changedManifest.status).to.eql(412);
+        expect((await changedManifest.arrayBuffer()).byteLength).to.eql(0);
+
         await Fs.write(Fs.join(fixture.source, 'index.html'), '<h1>tampered</h1>');
         const changed = await fetch(server.origin);
         expect(changed.status).to.eql(412);
         expect((await changed.arrayBuffer()).byteLength).to.eql(0);
+        expect(pinnedReads).to.eql(0);
+        expect(localReads).to.be.greaterThan(0);
       } finally {
         await server?.close('test.cleanup');
         await teardown(fixture);
@@ -173,11 +218,65 @@ describe('DistServer.Local.start', () => {
       const error = await catchStart(() => pending);
       expect(error?.reason).to.eql('missing');
       expect(observed).to.eql({
-        dir: expected.dir,
+        dir: Fs.Path.resolve(Fs.cwd(), expected.dir),
         limits: expected.limits,
         until: observed?.until,
       });
       expect(Object.isFrozen(observed?.limits)).to.eql(true);
+    });
+
+    it('reuses one absolute local root when the invocation CWD later changes', async () => {
+      const fixture = await setup();
+      const invocationCwd = Fs.cwd();
+      const relativeDir = Fs.Path.relative(invocationCwd, fixture.source) as t.StringDir;
+      const expectedDir = Fs.Path.resolve(invocationCwd, relativeDir) as t.StringAbsoluteDir;
+      const readDirs: t.StringDir[] = [];
+      let verifiedDir: t.StringDir | undefined;
+      let server: t.DistServer.Started | undefined;
+
+      try {
+        server = await startLocalWith(
+          {
+            dir: relativeDir,
+            limits: fixture.policy.verification,
+            silent: true,
+          },
+          {
+            ...DEFAULT_DEPENDENCIES,
+            verifyLocal(args) {
+              verifiedDir = args.dir;
+              return DEFAULT_DEPENDENCIES.verifyLocal(args);
+            },
+            readLocalPart(args) {
+              readDirs.push(args.dir);
+              return DEFAULT_DEPENDENCIES.readLocalPart(args);
+            },
+          },
+        );
+
+        {
+          using _cwd = WebFixture.Property.mock([{
+            target: Deno,
+            key: 'cwd',
+            descriptor: { value: () => fixture.storeDir },
+          }]);
+
+          const manifest = await fetch(`${server.origin}/dist.json`);
+          expect(manifest.status).to.eql(200);
+          await manifest.body?.cancel();
+
+          const index = await fetch(server.origin);
+          expect(index.status).to.eql(200);
+          expect(await index.text()).to.eql('<h1>verified</h1>');
+        }
+
+        expect(verifiedDir).to.eql(expectedDir);
+        expect(readDirs.length).to.eql(2);
+        expect(new Set(readDirs)).to.eql(new Set([expectedDir]));
+      } finally {
+        await server?.close('test.cleanup');
+        await teardown(fixture);
+      }
     });
   });
 });

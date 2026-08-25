@@ -1,4 +1,4 @@
-import { FsPkg, Is, Num, type t } from './common.ts';
+import { Is, Num, Path, Pkg, type t } from './common.ts';
 import {
   type BrowserPolicySnapshot,
   INVALID_BROWSER_POLICY,
@@ -91,7 +91,7 @@ export function snapshotStartInput(input: unknown): StartPreparation {
     const integrity = snapshotIntegrity(source.integrity);
     if (!integrity) return rejected('invalid-input');
 
-    const shared = snapshotSharedStart(source, limits);
+    const shared = snapshotSharedStart(source, limits, source.dir as t.StringDir);
     if (!shared.ok) return rejected(shared.reason);
 
     return {
@@ -112,7 +112,8 @@ export function snapshotStartLocalInput(input: unknown): StartLocalPreparation {
     const limits = snapshotLimits(source.limits);
     if (!validDir(source.dir) || !limits) return rejectedLocal('invalid-input');
 
-    const shared = snapshotSharedStart(source, limits);
+    const dir = Path.resolve(Deno.cwd(), source.dir) as t.StringAbsoluteDir;
+    const shared = snapshotSharedStart(source, limits, dir);
     if (!shared.ok) return rejectedLocal(shared.reason);
 
     return {
@@ -131,6 +132,7 @@ type SharedStartPreparation =
 function snapshotSharedStart(
   source: InputRecord,
   limits: Readonly<t.FsPkg.Dist.Verify.Limits>,
+  dir: t.StringDir,
 ): SharedStartPreparation {
   const hostname = source.hostname ?? '127.0.0.1';
   if (!isLoopbackHostname(hostname)) return rejectedShared('invalid-hostname');
@@ -161,7 +163,7 @@ function snapshotSharedStart(
   return {
     ok: true,
     value: Object.freeze({
-      dir: source.dir as t.StringDir,
+      dir,
       limits,
       hostname,
       port: port as t.PortNumber,
@@ -180,7 +182,7 @@ function validDir(input: unknown): input is t.StringDir {
 
 function snapshotIntegrity(input: unknown): t.StringHash | undefined {
   if (!Is.str(input)) return;
-  const parsed = FsPkg.Dist.Part.parse(input);
+  const parsed = Pkg.Dist.Part.parse(input);
   return parsed?.hash === input && parsed.size === undefined ? (input as t.StringHash) : undefined;
 }
 

@@ -1,4 +1,4 @@
-import { Is, type t } from './common.ts';
+import { Is, Num, type t } from './common.ts';
 import { startError } from '../u.server/u.error.ts';
 import {
   isExactNativePromise,
@@ -8,11 +8,17 @@ import {
   observeExactPromise,
 } from './u.promise.ts';
 
+/**
+ * Observed settlement state for one admitted listener completion.
+ */
 export type ListenerObservation = Readonly<{
   settled: boolean;
   failed: boolean;
 }>;
 
+/**
+ * Authority safely captured from one lower listener; absent fields were not admitted.
+ */
 export type ListenerOwner = Readonly<{
   raw: unknown;
   finished?: Promise<void>;
@@ -26,6 +32,9 @@ export type ListenerOwner = Readonly<{
   signal?: AbortSignal;
 }>;
 
+/**
+ * Listener snapshot containing every authority required by a public Dist host.
+ */
 export type CompleteListenerOwner =
   & ListenerOwner
   & Required<
@@ -49,15 +58,20 @@ type RetainedListenerOwner = Readonly<{
   observation?: ListenerObservation;
 }>;
 
-const RETAINED_LISTENER_OWNERS = new Set<RetainedListenerOwner>();
-const NativeAbortSignalPrototype = AbortSignal.prototype;
 const apply = Reflect.apply;
 const freeze = Object.freeze;
 const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
 const getPrototypeOf = Object.getPrototypeOf;
-const isInteger = Number.isInteger;
+const RETAINED_LISTENER_OWNERS = new Set<RetainedListenerOwner>();
+const NativeAbortSignalPrototype = AbortSignal.prototype;
+const NOT_DATA = freeze({ ok: false as const });
 
-/** Dispose one owner only when its lower Promise substrate is safe to enter. */
+/**
+ * Dispose one lifecycle only when the captured Promise substrate is safe to enter.
+ *
+ * If the substrate is temporarily unsafe, defer disposal until it recovers. Disposal remains
+ * best-effort and never replaces the caller's primary failure.
+ */
 export function disposeLifeWhenReady(life: t.Abortable | undefined, reason?: unknown): void {
   if (!life) return;
   if (isPromiseTransportReady()) {
@@ -71,7 +85,12 @@ export function disposeLifeWhenReady(life: t.Abortable | undefined, reason?: unk
   void resumeLifeDisposal(life, reason);
 }
 
-/** Snapshot lower listener and shutdown authority without invoking accessors or proxy traps. */
+/**
+ * Capture one lower listener's lifecycle and shutdown authority from own data properties only.
+ *
+ * The snapshot never invokes caller-owned accessors or Proxy traps. Any authority that cannot be
+ * authenticated remains absent from the result.
+ */
 export function snapshotListenerOwner(input: unknown): ListenerOwner {
   if (!Is.object(input) || Is.proxy(input)) return freeze({ raw: input });
   const finished = ownData(input, 'finished');
@@ -101,8 +120,7 @@ export function snapshotListenerOwner(input: unknown): ListenerOwner {
       ? { server: server.value as Deno.HttpServer<Deno.NetAddr> }
       : {}),
     ...(shutdown ? { shutdown } : {}),
-    ...(port.ok && Is.number(port.value) && isInteger(port.value) && port.value > 0 &&
-        port.value <= 65_535
+    ...(port.ok && Num.Is.int(port.value) && port.value > 0 && port.value <= 65_535
       ? { port: port.value as t.PortNumber }
       : {}),
     ...(origin.ok && Is.string(origin.value) ? { origin: origin.value as t.StringUrl } : {}),
@@ -116,7 +134,9 @@ export function snapshotListenerOwner(input: unknown): ListenerOwner {
   });
 }
 
-/** Whether a lower owner carries all authority required for a public Dist host. */
+/**
+ * Determine whether a listener snapshot contains every authority required by a public Dist host.
+ */
 export function isCompleteListenerOwner(
   owner: ListenerOwner,
 ): owner is CompleteListenerOwner {
@@ -125,7 +145,11 @@ export function isCompleteListenerOwner(
     owner.hostname !== undefined && owner.addrHostname !== undefined && owner.signal !== undefined;
 }
 
-/** Observe lower listener settlement without Promise reaction-property dispatch. */
+/**
+ * Observe one admitted listener completion without Promise reaction-property dispatch.
+ *
+ * Settlement is recorded once, and a failing observer callback cannot rewrite lower completion.
+ */
 export function observeListener(
   finished: Promise<void>,
   onSettled: (failed: boolean) => void = () => undefined,
@@ -160,7 +184,9 @@ export function observeListener(
   }
 }
 
-/** Refuse a listener that terminates during its first captured scheduler turn. */
+/**
+ * Reject startup when a listener terminates during its first captured scheduler turn.
+ */
 export async function settleListener(observation: ListenerObservation): Promise<void> {
   await macrotaskPromise();
   if (observation.settled) throw startError('startup-failure');
@@ -169,8 +195,9 @@ export async function settleListener(observation: ListenerObservation): Promise<
 /**
  * Roll back one bound lower listener through captured close or direct shutdown authority.
  *
- * If termination cannot be proved after bounded captured scheduler turns, retain the owner and every
- * invoked but unobservable operation for process-lifetime truth rather than hanging startup.
+ * When bounded captured scheduler turns cannot prove termination, retain the owner and every
+ * invoked operation whose settlement remains unobservable for the process lifetime. Startup never
+ * hangs or reports termination it could not observe.
  */
 export async function rollbackListenerOwner(
   owner: ListenerOwner,
@@ -297,5 +324,3 @@ function dataMethod(
     }
   }
 }
-
-const NOT_DATA = freeze({ ok: false as const });

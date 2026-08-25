@@ -1,4 +1,4 @@
-import type { t } from '../common.ts';
+import type { t } from './common.ts';
 
 /** Decode one request URL pathname exactly once into a Files-visible path. */
 export function requestPath(request: Request): t.Files.String.Path | undefined {

@@ -1,5 +1,5 @@
 import { Hash } from '@sys/crypto/hash';
-import { describe, expect, Fs, it, Json, type t, Time } from '../../-test.ts';
+import { describe, expect, Fs, it, Json, Num, type t, Time } from '../../-test.ts';
 import { setup, teardown } from '../../-test/u.fixture.dist.ts';
 import { Dist, DistServer } from '../mod.ts';
 
@@ -443,7 +443,7 @@ async function rawStatus(server: t.HttpServer.Started, target: string): Promise<
 
     const line = text.split('\r\n')[0];
     const status = Number(line.split(' ')[1]);
-    if (!Number.isInteger(status)) throw new Error('Expected HTTP status line.');
+    if (!Num.Is.int(status)) throw new Error('Expected HTTP status line.');
     return status;
   } finally {
     connection.close();

@@ -3,14 +3,16 @@ import type { Fixture } from '../../-test/u.fixture.dist.ts';
 import { verified } from '../../-test/u.fixture.dist.ts';
 import { DEFAULT_DEPENDENCIES, serveLocalWith } from '../u.server.start/mod.ts';
 
-export type CapturedStartInput = {
-  keyboard?: unknown;
-  silent?: boolean;
-  pkg?: t.Pkg;
-  hash?: t.StringHash;
-  info?: Record<string, string>;
-  hasPkgSubpath?: boolean;
-};
+type StartHttpInput = NonNullable<Parameters<typeof DEFAULT_DEPENDENCIES.startHttp>[1]>;
+
+export type CapturedStartInput =
+  & Pick<
+    StartHttpInput,
+    'keyboard' | 'silent' | 'strictPort' | 'pkg' | 'hash' | 'info'
+  >
+  & {
+    readonly hasPkgSubpath?: boolean;
+  };
 
 export type StartedController = {
   readonly release: () => void;
@@ -40,13 +42,14 @@ export function createModeEffects(isInteractive: boolean): ServeEffects {
   };
 }
 
-export function capture(input: Record<string, unknown>): CapturedStartInput {
+export function capture(input: StartHttpInput = {}): CapturedStartInput {
   return {
     keyboard: input.keyboard,
-    silent: input.silent as boolean,
-    pkg: input.pkg as t.Pkg,
-    hash: input.hash as t.StringHash,
-    info: input.info as Record<string, string>,
+    silent: input.silent,
+    strictPort: input.strictPort,
+    pkg: input.pkg,
+    hash: input.hash,
+    info: input.info,
     hasPkgSubpath: Object.hasOwn(input, 'pkgSubpath'),
   };
 }

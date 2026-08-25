@@ -1,8 +1,8 @@
 import {
   Cli,
   DEFAULT_DEPENDENCIES,
-  Fs,
   Open,
+  Path,
   pkg,
   type StartDependencies,
   type t,
@@ -62,11 +62,15 @@ const DEFAULT_SERVE_EFFECTS: ServeEffects = Object.freeze({
   now: () => Time.now.timestamp,
 });
 
-/** Blocking terminal-ownership startup for pinned authority. */
+/**
+ * Serve one checksum-pinned Dist with terminal lifecycle ownership.
+ */
 export const serve: (input: t.DistServer.Serve.Args) => Promise<void> = (input) =>
   serveWith(input, DEFAULT_DEPENDENCIES);
 
-/** Blocking pinned startup with terminal ownership (raw print or interactive screen). */
+/**
+ * Serve one checksum-pinned Dist through explicit host and presentation dependencies.
+ */
 export async function serveWith(
   input: unknown,
   deps: StartDependencies,
@@ -101,7 +105,9 @@ export async function serveWith(
   }, effects);
 }
 
-/** Blocking local startup with terminal ownership (raw print or interactive screen). */
+/**
+ * Serve one locally verified, unpinned Dist through explicit host and presentation dependencies.
+ */
 export async function serveLocalWith(
   input: unknown,
   deps: StartDependencies,
@@ -109,7 +115,7 @@ export async function serveLocalWith(
 ): Promise<void> {
   const prepared = snapshotServeLocalInput(input);
   if (!prepared.ok) throw startError(prepared.reason);
-  const { pkgSubpath, start: value } = prepared.value;
+  const { displayDir, pkgSubpath, start: value } = prepared.value;
   const source = wrangle.serveSource(
     value.dir,
     wrangle.serveMode(value.silent, effects.isInteractive),
@@ -124,13 +130,13 @@ export async function serveLocalWith(
     },
     deps,
     {
-      strictPort: false,
+      strictPort: true,
       rawOutput: source.kind === 'raw',
       rawAuthority: 'local (UNPINNED)',
     },
   );
   await serveLoop(started, source, {
-    dir: value.dir,
+    dir: displayDir,
     keyboard,
     ...(pkgSubpath === undefined ? {} : { pkgSubpath }),
   }, effects);
@@ -301,8 +307,8 @@ const wrangle = {
   },
   serveSource(dir: t.StringDir, mode: ServeMode): ServeSource {
     if (mode === 'raw') return { kind: 'raw', verificationDir: dir };
-    const verificationDir = Fs.Path.resolve(dir) as t.StringDir;
-    const manifestHref = Fs.Path.toFileUrl(Fs.Path.join(verificationDir, 'dist.json'));
+    const verificationDir = Path.resolve(dir) as t.StringDir;
+    const manifestHref = Path.toFileUrl(Path.join(verificationDir, 'dist.json'));
     return { kind: 'screen', verificationDir, manifestHref };
   },
   serveKeyboard(input: t.HttpServer.Start.Options['keyboard']): ServeKeyboard {

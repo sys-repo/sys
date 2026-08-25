@@ -3,7 +3,9 @@
   "version": "0.0.52",
   "license": "MIT",
   "tasks": {
-    "test": "deno test -P=test",
+    "test": "deno task test:unit && deno task test:dist:process",
+    "test:unit": "deno test -P=test",
+    "test:dist:process": "deno test -P=test --trace-leaks ./src/m.server.dist/-test.external/-dist-server.graph.process.ts ./src/m.server.dist/-test.external/-local.permission.process.ts",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check -- ./src/ ./-scripts/* ./-sample/files.ws/* ./-sample/files.http.cmd/* ./-sample/files.http.static/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
@@ -21,6 +23,7 @@
     "./types": "./src/types.ts",
     "./bootstrap/status": "./src/m.server.bootstrap-status/mod.ts",
     "./dist": "./src/m.server.dist/mod.ts",
+    "./dist/server": "./src/-exports/-dist.server.ts",
     "./dist/service": "./src/m.server.dist.service/mod.ts",
     "./files": "./src/m.server.files/mod.ts",
     "./files/service": "./src/m.server.files.service/mod.ts",

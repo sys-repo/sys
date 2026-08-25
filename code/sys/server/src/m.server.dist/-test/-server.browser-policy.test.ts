@@ -270,6 +270,11 @@ describe('DistServer browser policy', () => {
       expect(await canonical.text()).to.eql('<h1>verified</h1>');
       assertPolicyHeaders(canonical, csp);
 
+      const manifest = await direct(server, '/dist.json', expectedHost);
+      expect(manifest.status).to.eql(404);
+      assertPolicyHeaders(manifest, csp);
+      await manifest.body?.cancel();
+
       for (const host of [`localhost:${server.port}`, `[::1]:${server.port}`]) {
         const response = await direct(server, '/', host);
         expect([host, response.status]).to.eql([host, 421]);

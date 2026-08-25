@@ -1,32 +1,51 @@
-import { FilesStatic, FsPkg, HttpServer, serveFileBytes, type t } from '../common.ts';
+import {
+  createHttpApp,
+  FilesStatic,
+  FsDistLocal,
+  FsDistPinned,
+  serveFileBytes,
+  startHttp,
+  type t,
+} from '../common.server.ts';
 
-export * from '../common.ts';
+export * from '../common.server.ts';
 export { Cli } from '@sys/cli';
 export { Open } from '@sys/process';
 export { Is } from '@sys/std/is/server';
 
+/**
+ * Owner dependencies for verified Dist startup.
+ */
 export type StartDependencies = {
   readonly verify: t.FsPkg.Dist.Pinned.Verify.Method;
   readonly verifyLocal: t.FsPkg.Dist.Local.Verify.Method;
   readonly readPart: t.FsPkg.Dist.Pinned.ReadPart.Method;
+  readonly readLocalPart: t.FsPkg.Dist.Local.ReadPart.Method;
   readonly fromDist: typeof FilesStatic.fromDist;
-  readonly createApp: typeof HttpServer.create;
-  readonly startHttp: typeof HttpServer.start;
+  readonly createApp: typeof createHttpApp;
+  readonly startHttp: typeof startHttp;
   readonly serveBytes: typeof serveFileBytes;
 };
 
+/**
+ * Package-internal controls for verified Dist startup.
+ */
 export type StartRunOptions = {
   readonly strictPort?: boolean;
   readonly rawOutput?: boolean;
   readonly rawAuthority?: string;
 };
 
+/**
+ * Production dependencies for verified Dist startup.
+ */
 export const DEFAULT_DEPENDENCIES: StartDependencies = Object.freeze({
-  verify: FsPkg.Dist.Pinned.verify,
-  verifyLocal: FsPkg.Dist.Local.verify,
-  readPart: FsPkg.Dist.Pinned.readPart,
+  verify: FsDistPinned.verify,
+  verifyLocal: FsDistLocal.verify,
+  readPart: FsDistPinned.readPart,
+  readLocalPart: FsDistLocal.readPart,
   fromDist: FilesStatic.fromDist,
-  createApp: HttpServer.create,
-  startHttp: HttpServer.start,
+  createApp: createHttpApp,
+  startHttp,
   serveBytes: serveFileBytes,
 });

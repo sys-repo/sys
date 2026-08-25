@@ -4,10 +4,13 @@ import { Dist, DistServer } from '../mod.ts';
 describe('@sys/server/dist', () => {
   it('API', async () => {
     const m = await import('@sys/server/dist');
+    const host = await import('@sys/server/dist/server');
 
     expect(m.Dist).to.equal(Dist);
     expect(m.DistServer).to.equal(DistServer);
     expect(Object.keys(m)).to.eql(['Dist', 'DistServer']);
+    expect(Object.keys(host)).to.eql(['DistServer']);
+    expect(host.DistServer).to.equal(DistServer);
     expect(Object.keys(Dist)).to.eql(['materialize']);
     expect(Object.keys(DistServer)).to.eql(['start', 'serve', 'Local', 'Error']);
     expect(Object.keys(DistServer.Local)).to.eql(['start', 'serve']);
