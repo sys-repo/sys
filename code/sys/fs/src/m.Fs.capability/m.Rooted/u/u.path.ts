@@ -26,11 +26,6 @@ export type TargetState<K extends t.FsRooted.TargetKind = t.FsRooted.TargetKind>
   & NormalizedTarget<K>
   & { readonly absolute: t.StringAbsolutePath };
 
-export type TargetObservation = {
-  readonly ancestors: readonly Identity[];
-  readonly target?: Deno.FileInfo;
-};
-
 /** Establish one canonical root with required stable identity evidence. */
 export async function createRootState(
   root: unknown,
@@ -101,42 +96,9 @@ export async function observeTarget(
   signal: AbortSignal,
   createParents: boolean,
 ): Promise<Deno.FileInfo | undefined> {
-  const observed = await observeTargetState(
-    io,
-    root,
-    target,
-    operation,
-    signal,
-    createParents,
-    false,
-  );
-  return observed.target;
-}
-
-/** Observe one target while retaining every non-root ancestor identity. */
-export function observeTargetIdentity(
-  io: Io,
-  root: RootState,
-  target: TargetState,
-  operation: t.FsRooted.Operation,
-  signal: AbortSignal,
-): Promise<TargetObservation> {
-  return observeTargetState(io, root, target, operation, signal, false, true);
-}
-
-async function observeTargetState(
-  io: Io,
-  root: RootState,
-  target: TargetState,
-  operation: t.FsRooted.Operation,
-  signal: AbortSignal,
-  createParents: boolean,
-  retainAncestors: boolean,
-): Promise<TargetObservation> {
   await revalidateRoot(io, root, operation);
   let current = root.path as string;
   const segments = target.path.split('/');
-  const ancestors: Identity[] = [];
 
   for (let index = 0; index < segments.length; index++) {
     checkCancelled(operation, signal);
@@ -155,7 +117,7 @@ async function observeTargetState(
 
     if (!info) {
       checkCancelled(operation, signal);
-      return Object.freeze({ ancestors: Object.freeze(ancestors) });
+      return undefined;
     }
     if (info.isSymlink) throw failure(operation, 'unsafe-filesystem');
     if (!final && !info.isDirectory) throw failure(operation, 'unsafe-filesystem');
@@ -167,12 +129,11 @@ async function observeTargetState(
     }
     if (final) {
       checkCancelled(operation, signal);
-      return Object.freeze({ ancestors: Object.freeze(ancestors), target: info });
+      return info;
     }
-    if (retainAncestors) ancestors.push(identityRequired(info, operation));
   }
 
-  return Object.freeze({ ancestors: Object.freeze(ancestors) });
+  return undefined;
 }
 
 export async function ensureDirectoryPath(

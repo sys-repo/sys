@@ -4,7 +4,6 @@ const NAME = 'FsRootedError' as const;
 const OPERATIONS: readonly t.FsRooted.Operation[] = [
   'create',
   'admit',
-  'read-file',
   'acquire-lease',
   'release-lease',
   'inspect-seal',
@@ -29,7 +28,6 @@ const KINDS: readonly t.FsRooted.FailureKind[] = [
   'occupied',
   'ownership-lost',
   'permission-denied',
-  'limit-exceeded',
   'unsupported',
   'io-failure',
 ];
@@ -128,8 +126,6 @@ function message(kind: t.FsRooted.FailureKind): string {
       return 'Rooted filesystem ownership could not be proven';
     case 'permission-denied':
       return 'Rooted filesystem permission denied';
-    case 'limit-exceeded':
-      return 'Rooted filesystem operation limit exceeded';
     case 'unsupported':
       return 'Required filesystem operation is unsupported';
     case 'io-failure':

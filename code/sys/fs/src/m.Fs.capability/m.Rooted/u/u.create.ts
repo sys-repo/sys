@@ -18,7 +18,6 @@ import {
   sealOwnedTree,
 } from './u.owner.ts';
 import { createRootState, identityRequired, observeTarget, type TargetState } from './u.path.ts';
-import { readFile, readFileOptions } from './u.read.ts';
 import {
   createStage,
   discardStage,
@@ -93,14 +92,6 @@ export async function createRooted(
           return Object.freeze({
             targets: Object.freeze(handles),
           }) as t.FsRooted.Admission<K>;
-        });
-      },
-
-      async readFile(handle, operationOptions) {
-        const input = readFileOptions(operationOptions);
-        return await runOperation('read-file', input, (operationSignal) => {
-          const target = targetState(targets, handle, 'file', 'read-file');
-          return readFile(io, root, target, input.maxBytes, operationSignal);
         });
       },
 

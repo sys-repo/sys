@@ -4,7 +4,7 @@ declare const TARGET: unique symbol;
 declare const STAGE: unique symbol;
 
 /**
- * Read, publish, and own files and directories beneath one canonical root.
+ * Publish and own files and directories beneath one canonical root.
  *
  * Target paths are validated before use. File publication never overwrites an existing
  * target and allows at most one concurrent winner. Directory promotion leaves a target
@@ -49,7 +49,7 @@ export declare namespace FsRooted {
     readonly until?: t.UntilInput;
   };
 
-  /** Rooted filesystem capability bound to one canonical absolute directory. */
+  /** Rooted publisher bound to one canonical absolute directory. */
   export type Instance = {
     /** Canonical absolute root directory. */
     readonly path: t.StringAbsoluteDir;
@@ -59,18 +59,6 @@ export declare namespace FsRooted {
       targets: readonly TargetInput<K>[],
       options?: OperationOptions,
     ) => Promise<Admission<K>>;
-
-    /**
-     * Read one admitted regular file through retained root and descriptor identity checks.
-     *
-     * The operation rejects symlinks and any root, ancestor, entry, or opened-file identity change
-     * it observes. It does not authenticate bytes or promise a coherent snapshot while another
-     * process writes through the same file identity.
-     */
-    readonly readFile: (
-      target: Target<'file'>,
-      options: ReadFileOptions,
-    ) => Promise<ReadFileResult>;
 
     /**
      * Acquire one shared or exclusive OS-backed lease over admitted directory targets.
@@ -165,16 +153,6 @@ export declare namespace FsRooted {
     /** Handles in caller-supplied order. */
     readonly targets: readonly Target<K>[];
   };
-
-  /** Required allocation bound and optional lifecycle for one admitted-file read. */
-  export type ReadFileOptions = OperationOptions & {
-    readonly maxBytes: t.NumberBytes;
-  };
-
-  /** Result of reading one admitted regular file without authenticating its bytes. */
-  export type ReadFileResult =
-    | { readonly kind: 'read'; readonly bytes: Uint8Array }
-    | { readonly kind: 'absent' };
 
   /** Advisory lock mode for one complete lease batch. */
   export type LeaseMode = 'shared' | 'exclusive';
@@ -293,7 +271,6 @@ export declare namespace FsRooted {
   export type Operation =
     | 'create'
     | 'admit'
-    | 'read-file'
     | 'acquire-lease'
     | 'release-lease'
     | 'inspect-seal'
@@ -319,7 +296,6 @@ export declare namespace FsRooted {
     | 'occupied'
     | 'ownership-lost'
     | 'permission-denied'
-    | 'limit-exceeded'
     | 'unsupported'
     | 'io-failure';
 

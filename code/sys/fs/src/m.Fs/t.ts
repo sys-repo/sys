@@ -87,7 +87,9 @@ export namespace Fs {
     makeTempDir: MakeTempDir;
   };
 
-  /** Filesystem capability APIs owned by `m.Fs.capability`. */
+  /**
+   * Filesystem capability adapter contracts.
+   */
   export namespace Capability {
     /** Adapter API for building portable filesystem capabilities. */
     export type Lib = t.FsCapability.Lib;
@@ -96,12 +98,10 @@ export namespace Fs {
   }
 
   /**
-   * Rooted read, publication, sealing, lifecycle, and removal contracts used across packages.
+   * Rooted publication, sealing, lifecycle, and removal contracts used across packages.
    */
   export namespace Rooted {
     export type Instance = t.FsRooted.Instance;
-    export type ReadFileOptions = t.FsRooted.ReadFileOptions;
-    export type ReadFileResult = t.FsRooted.ReadFileResult;
     export type Lease = t.FsRooted.Lease;
     export type LeaseMode = t.FsRooted.LeaseMode;
     export type LeaseOptions = t.FsRooted.LeaseOptions;
@@ -120,7 +120,9 @@ export namespace Fs {
     export type FailureKind = t.FsRooted.FailureKind;
   }
 
-  /** Filesystem path helper types. */
+  /**
+   * Filesystem path helper contracts.
+   */
   export namespace Path {
     /** Filters on an absolute path. */
     export type Filter = (path: t.StringAbsolutePath) => boolean;

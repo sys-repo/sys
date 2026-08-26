@@ -41,7 +41,6 @@ describe('Fs.Capability.Rooted: public surface', () => {
         'path',
         'promoteStage',
         'publishFile',
-        'readFile',
         'removeTree',
         'sealTree',
       ]);

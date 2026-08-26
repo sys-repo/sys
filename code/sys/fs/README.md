@@ -3,9 +3,9 @@
 `@sys/fs` is the Deno-native filesystem layer used across `@sys`. It builds on Deno's filesystem
 APIs and runs under Deno's permission model. It is not a cross-runtime abstraction.
 
-Use `Fs` and `Path` for ordinary file and path work. Use `Rooted` when a caller needs reads of
-admitted files beneath one canonical root or cooperating processes must publish complete data or
-coordinate its use and removal.
+Use `Fs` and `Path` for ordinary file and path work. Use `Pkg.Dist` for complete-tree verification
+and checksum-matched distribution reads. Use `Rooted` to publish complete targets without
+replacement and coordinate directory use, sealing, and removal beneath one canonical root.
 
 ## Primary imports
 
@@ -16,20 +16,45 @@ coordinate its use and removal.
 | `@sys/fs/env`        | `Env` and `.env` loading                   |
 | `@sys/fs/file`       | `JsonFile` for JSON and JSONC              |
 | `@sys/fs/filemap`    | `FileMap` for declarative file trees       |
+| `@sys/fs/pkg`        | `Pkg.Dist` package metadata and integrity  |
 | `@sys/fs/watch`      | `Watch` for directory changes              |
 | `@sys/fs/t`          | Public types                               |
 
+## Distribution integrity
+
+A distribution consists of one `dist.json` manifest and the files it names. The manifest describes
+the expected complete tree. Because it belongs to the artifact it describes, it cannot by itself
+identify which artifact the caller intended.
+
+`Pkg.Dist.Local.verify()` checks the complete tree against the manifest found at its root. A
+successful result includes the checksum of those exact manifest bytes. This establishes internal
+consistency, not independent identity. Local verification can run with Deno read permission limited
+to that root.
+
+`Pkg.Dist.Pinned.verify()` additionally requires a caller-supplied expected manifest checksum. When
+obtained independently, that value binds successful verification to the distribution selected by the
+caller.
+
+`Pkg.Dist.Local.readPart()` and `Pkg.Dist.Pinned.readPart()` are narrower. Given a root-relative
+path, exact byte length, and checksum, each returns one file only when all three match. Neither
+verifies the complete distribution. These reads verify returned bytes against caller-supplied
+values. They provide no stable-location guarantee while another process can replace paths. Use them
+only where mutation is excluded or a separate sandbox provides containment.
+
+Each call captures its root at invocation; relative roots resolve against the process CWD. A
+long-lived service should resolve one absolute root at startup and reuse it.
+
 ## Rooted
 
-A `Rooted` instance binds operations on admitted paths and a cooperative publication protocol to one
-canonical directory. Admitted target paths, private stages, and lock files are selected beneath that
-root. Binding an existing root observes and canonicalizes that exact directory without requesting
-ambient ancestor reads. Set `{ create: false }` to require the selected root to exist. Creating a
-missing root still validates its complete parent chain. `Rooted` does not replace Deno permissions
-or restrict direct filesystem calls.
+A `Rooted` instance binds publication, sealing, lease coordination, and removal to one canonical
+directory. Use it for assets, builds, application versions, and caches that are published once, used
+by several processes, and removed later.
 
-Use it for assets, builds, application versions, and caches that are published once, used by several
-processes, and removed later.
+Every admitted target names a validated root-relative path, and every private stage and lock file
+remains beneath that root. Binding an existing root observes and canonicalizes that exact directory
+without requesting ambient ancestor reads. Set `{ create: false }` to require the selected root to
+exist. Creating a missing root still validates its complete parent chain. `Rooted` does not replace
+Deno permissions or restrict direct filesystem calls.
 
 The API works with three scoped handles:
 
@@ -48,21 +73,8 @@ Its central promises are deliberately narrow:
 - File publication has at most one winner. Directory publication has at most one winner among
   `Rooted` instances bound to the same root.
 - Leases coordinate use, publication, sealing, and removal among cooperating `Rooted` callers.
-- `readFile()` reads only an admitted regular-file handle and rejects observed root, ancestor,
-  entry, or descriptor identity changes.
 - When identity or permission safety cannot be proved, Rooted refuses the operation rather than
   guessing or falling back to recursive mutation.
-
-### Read
-
-`readFile()` reads a file `Target` admitted by the same `Rooted` instance. `maxBytes` bounds
-allocation; `until` may cancel the operation. A missing target settles as `absent`; a successful
-read returns independently owned bytes.
-
-Each read rejects symlinks and checks that the root, path ancestry, selected entry, and opened
-descriptor remain consistent. An observed identity replacement or size change, a size above
-`maxBytes`, or a state that cannot be proved safe causes rejection. Content is not authenticated,
-and same-inode concurrent writes can produce non-coherent bytes.
 
 ### Publish
 
@@ -85,8 +97,8 @@ Publication is atomic to readers, but a successful return does not guarantee tha
 entry survives sudden power loss.
 
 If stage construction or cleanup can no longer prove that it owns a private container, the container
-is left in place rather than risk deleting the wrong path. The capability exposes no API for listing
-directories or overwriting targets.
+is left in place rather than risk deleting the wrong path. The capability exposes no API for reading
+file contents, listing directories, or overwriting targets.
 
 ### Lease
 
@@ -167,15 +179,13 @@ unverified recursive delete.
 
 Expected conditions settle explicitly:
 
-| Condition                                     | Settlement                                      |
-| --------------------------------------------- | ----------------------------------------------- |
-| A read target is absent                       | `readFile()` returns `absent`                   |
-| An observed file exceeds `maxBytes`           | `readFile()` rejects with kind `limit-exceeded` |
-| A non-waiting lease is contended              | `acquireLease()` returns `busy`                 |
-| A directory target already exists             | `promoteStage()` returns `occupied`             |
-| A removal target is already absent            | `removeTree()` returns `absent`                 |
-| The host cannot prove identity or mode safety | Seal operations may return `unsupported`        |
-| A file target already exists                  | `publishFile()` rejects with kind `occupied`    |
+| Condition                                     | Settlement                                   |
+| --------------------------------------------- | -------------------------------------------- |
+| A non-waiting lease is contended              | `acquireLease()` returns `busy`              |
+| A directory target already exists             | `promoteStage()` returns `occupied`          |
+| A removal target is already absent            | `removeTree()` returns `absent`              |
+| The host cannot prove identity or mode safety | Seal operations may return `unsupported`     |
+| A file target already exists                  | `publishFile()` rejects with kind `occupied` |
 
 Other rejected operations use `FsRootedError`. Call `Fs.Capability.Rooted.Is.failure(error)` to
 identify one. Its `operation` and `kind` fields say where and why it failed. `committed: true` means

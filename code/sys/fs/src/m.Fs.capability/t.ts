@@ -1,6 +1,8 @@
 import type { t } from './common.ts';
 
-/** Portable filesystem and path capability contracts. */
+/**
+ * Filesystem capability contracts for portable adapters and confined owned trees.
+ */
 export namespace FsCapability {
   /** Adapter API for building portable filesystem capabilities. */
   export type Lib = {
@@ -10,11 +12,13 @@ export namespace FsCapability {
     /** Files capability adapters. */
     readonly Files: Files.Lib;
 
-    /** Read admitted files and own published trees beneath one canonical root. */
+    /** Publish, seal, coordinate, and remove owned trees beneath one canonical root. */
     readonly Rooted: t.FsRooted.Lib;
   };
 
-  /** Capability adapters for the `Files` data model. */
+  /**
+   * Structural filesystem capability contracts for the `Files` data model.
+   */
   export namespace Files {
     /** Adapters grouped by readonly, writable, and live authority. */
     export type Lib = {
