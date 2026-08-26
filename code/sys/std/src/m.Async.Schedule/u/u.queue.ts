@@ -3,10 +3,7 @@ import { makeScheduleFn } from './u.scheduleFunction.ts';
 
 type F = t.Schedule.Lib['queue'];
 
-/**
- * Canonical implementation of `Schedule.once`, built on the same scheduling
- * primitives as Schedule.make/micro/raf. No duplicated timing logic.
- */
+/** Queue one lifecycle-bound task through the selected scheduling mode. */
 export const queue: F = (...args) => {
   const { task, options } = wrangle.args(args);
   const life = Rx.lifecycle(options.until);

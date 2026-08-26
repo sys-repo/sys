@@ -8,8 +8,7 @@ import { tick, waitFor } from './u/u.turn.ts';
 const raf = makeScheduleFn('raf');
 
 /**
- * Minimal, consistent API for deferring work (microtask, macrotask, or frame),
- * with lifecycle-aware and static forms.
+ * Defers callbacks and exposes awaitable host-queue hops.
  */
 export const Schedule: t.Schedule.Lib = Object.freeze({
   make: (life, mode = 'micro') => makeScheduleFn(mode, life),
