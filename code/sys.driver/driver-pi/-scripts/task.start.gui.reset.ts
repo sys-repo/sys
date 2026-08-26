@@ -1,19 +1,218 @@
-import { c, Cli, Fs } from './common.ts';
+import { c, Cli, Fs, type t } from './common.ts';
 
-const targets = [
-  '.pi/@sys/dist/@sys.driver-pi',
-  '.pi/@sys/dist/@sys/driver-pi',
-] as const;
-const root = Fs.resolve(import.meta.dirname ?? '.', '../../../..');
-const table = Cli.table();
+const STORE_ROOT_SEGMENTS = Object.freeze(['.pi', '@sys', 'dist'] as const);
 
-for (const target of targets) {
-  const deleted = await Fs.remove(Fs.join(root, target));
-  const status = deleted ? c.green('deleted') : c.italic(c.gray('already absent'));
-  table.push([c.cyan('delete'), c.gray(target), status]);
+export const GUI_RELEASE_STORE_ROOT = STORE_ROOT_SEGMENTS.join('/') as '.pi/@sys/dist';
+export const GUI_RELEASE_STORE_TARGETS = Object.freeze(
+  [
+    '@sys.driver-pi',
+    '@sys/driver-pi',
+  ] as const,
+);
+
+export type GuiReleaseStoreReset = Readonly<{
+  path: `${typeof GUI_RELEASE_STORE_ROOT}/${(typeof GUI_RELEASE_STORE_TARGETS)[number]}`;
+  kind: t.FsRooted.RemoveTreeResult['kind'];
+}>;
+
+type GuiReleaseStoreTarget = (typeof GUI_RELEASE_STORE_TARGETS)[number];
+type StoreRootSelection =
+  | Readonly<{ kind: 'present'; path: t.StringAbsoluteDir }>
+  | Readonly<{ kind: 'absent' }>;
+
+const TARGET_INPUTS = Object.freeze(
+  GUI_RELEASE_STORE_TARGETS.map((path) => Object.freeze({ kind: 'directory' as const, path })),
+);
+const WORKSPACE_ROOT: t.StringAbsoluteDir = Fs.resolve(
+  import.meta.dirname ?? '.',
+  '../../../..',
+);
+const Rooted = Fs.Capability.Rooted;
+
+export async function resetGuiReleaseStores(
+  workspaceRoot: t.StringDir,
+): Promise<readonly GuiReleaseStoreReset[]> {
+  const selected = await selectStoreRoot(workspaceRoot);
+  if (selected.kind === 'absent') return absentSettlements();
+
+  let rooted: t.FsRooted.Instance;
+  try {
+    rooted = await Rooted.create({ root: selected.path, create: false });
+  } catch (cause) {
+    throw resetFailure(`while binding ${GUI_RELEASE_STORE_ROOT}`, cause);
+  }
+  if (rooted.path !== selected.path) {
+    throw new Error(
+      `GUI Dist reset refused ${GUI_RELEASE_STORE_ROOT}: Rooted canonical path escaped the selected workspace root.`,
+    );
+  }
+
+  let targets: readonly t.FsRooted.Target<'directory'>[];
+  try {
+    targets = (await rooted.admit(TARGET_INPUTS)).targets;
+  } catch (cause) {
+    throw resetFailure(`while admitting ${displayPaths().join(', ')}`, cause);
+  }
+
+  let acquired: t.FsRooted.LeaseResult;
+  try {
+    acquired = await rooted.acquireLease(targets, { mode: 'exclusive', wait: false });
+  } catch (cause) {
+    throw resetFailure('while acquiring release-store ownership', cause);
+  }
+  if (acquired.kind === 'busy') {
+    const target = GUI_RELEASE_STORE_TARGETS.find((value) => value === acquired.target.path);
+    const path = target ? displayPath(target) : `${GUI_RELEASE_STORE_ROOT}/${acquired.target.path}`;
+    throw new Error(
+      `GUI Dist reset refused ${path}: another owner holds this store; finish or stop that owning operation, then retry.`,
+    );
+  }
+
+  const results: GuiReleaseStoreReset[] = [];
+  let primaryFailure: unknown;
+  for (let index = 0; index < targets.length; index++) {
+    const target = GUI_RELEASE_STORE_TARGETS[index];
+    try {
+      const result = await rooted.removeTree(targets[index], { lease: acquired.lease });
+      results.push(Object.freeze({ path: displayPath(target), kind: result.kind }));
+    } catch (cause) {
+      primaryFailure = resetFailure(
+        `for ${displayPath(target)}`,
+        cause,
+        results.some((result) => result.kind === 'removed'),
+      );
+      break;
+    }
+  }
+
+  let releaseFailure: unknown;
+  try {
+    await acquired.lease.release();
+  } catch (cause) {
+    releaseFailure = resetFailure(
+      'while releasing release-store ownership',
+      cause,
+      results.some((result) => result.kind === 'removed'),
+    );
+  }
+
+  if (primaryFailure && releaseFailure) {
+    throw new AggregateError(
+      [primaryFailure, releaseFailure],
+      'GUI Dist reset and ownership release both failed; inspect the store before retrying.',
+    );
+  }
+  if (primaryFailure) throw primaryFailure;
+  if (releaseFailure) throw releaseFailure;
+  return Object.freeze(results);
 }
 
-console.info();
-console.info(c.bold('Dist Reset (GUI)'));
-console.info(table.toString().trim());
-console.info();
+export function printGuiReleaseStoreReset(
+  results: readonly GuiReleaseStoreReset[],
+  print: (...data: unknown[]) => void = console.info,
+): void {
+  const table = Cli.table();
+  for (const result of results) {
+    const status = result.kind === 'removed'
+      ? c.green('deleted')
+      : c.italic(c.gray('already absent'));
+    table.push([c.cyan('delete'), c.gray(result.path), status]);
+  }
+
+  print();
+  print(c.bold('Dist Reset (GUI)'));
+  print(table.toString().trim());
+  print();
+}
+
+export async function main(workspaceRoot: t.StringDir = WORKSPACE_ROOT): Promise<void> {
+  printGuiReleaseStoreReset(await resetGuiReleaseStores(workspaceRoot));
+}
+
+if (import.meta.main) await main();
+
+async function selectStoreRoot(workspaceRoot: t.StringDir): Promise<StoreRootSelection> {
+  let workspace: t.StringAbsoluteDir;
+  try {
+    workspace = Fs.resolve(workspaceRoot);
+  } catch (cause) {
+    throw resetFailure('while resolving the workspace root', cause);
+  }
+
+  const workspaceInfo = await inspectStoreRootSegment(workspace);
+  if (!workspaceInfo) {
+    throw new Error(`GUI Dist reset refused ${workspace}: workspace root is missing.`);
+  }
+  assertDirectorySegment(workspace, workspaceInfo);
+  await assertCanonicalSegment(workspace);
+
+  let path: t.StringAbsoluteDir = workspace;
+  for (const segment of STORE_ROOT_SEGMENTS) {
+    path = Fs.join(path, segment);
+    const info = await inspectStoreRootSegment(path);
+    if (!info) return Object.freeze({ kind: 'absent' });
+    assertDirectorySegment(path, info);
+    await assertCanonicalSegment(path);
+  }
+  return Object.freeze({ kind: 'present', path });
+}
+
+async function inspectStoreRootSegment(
+  path: t.StringAbsoluteDir,
+): Promise<Deno.FileInfo | undefined> {
+  try {
+    return await Fs.lstat(path);
+  } catch (cause) {
+    throw resetFailure(`while inspecting ${path}`, cause);
+  }
+}
+
+function assertDirectorySegment(path: t.StringAbsoluteDir, info: Deno.FileInfo): void {
+  if (info.isSymlink) {
+    throw new Error(`GUI Dist reset refused ${path}: store-root ancestry is a symlink.`);
+  }
+  if (!info.isDirectory) {
+    throw new Error(`GUI Dist reset refused ${path}: store-root ancestry is not a directory.`);
+  }
+}
+
+async function assertCanonicalSegment(path: t.StringAbsoluteDir): Promise<void> {
+  let canonical: string;
+  try {
+    canonical = await Fs.realPath(path);
+  } catch (cause) {
+    throw resetFailure(`while resolving ${path}`, cause);
+  }
+  if (canonical !== path) {
+    throw new Error(`GUI Dist reset refused ${path}: store-root ancestry is not canonical.`);
+  }
+}
+
+function absentSettlements(): readonly GuiReleaseStoreReset[] {
+  return Object.freeze(
+    GUI_RELEASE_STORE_TARGETS.map((target) =>
+      Object.freeze({ path: displayPath(target), kind: 'absent' as const })
+    ),
+  );
+}
+
+function displayPaths(): readonly GuiReleaseStoreReset['path'][] {
+  return GUI_RELEASE_STORE_TARGETS.map(displayPath);
+}
+
+function displayPath(target: GuiReleaseStoreTarget): GuiReleaseStoreReset['path'] {
+  return `${GUI_RELEASE_STORE_ROOT}/${target}`;
+}
+
+function resetFailure(scope: string, cause: unknown, priorCommitted = false): Error {
+  if (Rooted.Is.failure(cause)) {
+    const recovery = cause.committed || priorCommitted
+      ? 'filesystem state may have changed; inspect the store before retrying'
+      : 'no owned removal committed; correct the filesystem state and retry';
+    return new Error(
+      `GUI Dist reset refused ${scope}: ${cause.operation}/${cause.kind}; ${recovery}.`,
+      { cause },
+    );
+  }
+  return new Error(`GUI Dist reset failed ${scope}; inspect the cause and retry.`, { cause });
+}

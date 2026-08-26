@@ -3,8 +3,9 @@
   "version": "0.0.138",
   "license": "MIT",
   "tasks": {
-    "test": "deno task test:unit && deno task test:profiles && deno task test:preview:real",
+    "test": "deno task test:unit && deno task test:reset:process && deno task test:profiles && deno task test:preview:real",
     "test:unit": "deno test -P=test ./src ./-scripts",
+    "test:reset:process": "deno test --frozen --cached-only --no-prompt -P=test-reset-process --trace-leaks ./-scripts/-test.external/-task.start.gui.reset.process-proof.ts",
     "test:profiles": "deno test -P=test ./src/m.core/m.cli.profiles/-test && deno task test:profiles:process",
     "test:profiles:process": "deno test -P=test-process --trace-leaks ./src/m.core/m.cli.profiles/-test.external/-u.start.gui.exit.process-proof.ts",
     "test:preview": "deno test -P=test --trace-leaks ./-scripts/m.start.gui.preview.build/-test/-.test.ts",
@@ -47,6 +48,12 @@
       "read": true,
       "run": ["deno"],
       "env": true
+    },
+    "test-reset-process": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "run": ["deno"]
     },
     "test-process-child": {
       "read": true,
