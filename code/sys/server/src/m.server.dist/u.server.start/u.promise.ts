@@ -13,8 +13,6 @@ type PromiseHandlers<T> = Readonly<{
 
 const NativePromise = Promise;
 const NativePromisePrototype = NativePromise.prototype;
-const NativeQueueMicrotask = globalThis.queueMicrotask;
-const NativeSetTimeout = globalThis.setTimeout;
 const PromiseSpecies = Symbol.species;
 const freeze = Object.freeze;
 const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
@@ -46,20 +44,6 @@ export function createPromiseDeferred<T>(): PromiseDeferred<T> {
       rejectNative(cause);
     },
   });
-}
-
-/** Resolve after one captured host microtask. */
-export function microtaskPromise(): Promise<void> {
-  const deferred = createPromiseDeferred<void>();
-  NativeQueueMicrotask(() => deferred.resolve());
-  return deferred.promise;
-}
-
-/** Resolve after one captured host macrotask. */
-export function macrotaskPromise(): Promise<void> {
-  const deferred = createPromiseDeferred<void>();
-  NativeSetTimeout(() => deferred.resolve(), 0);
-  return deferred.promise;
 }
 
 /** Whether later ambient mutation preserved the captured Promise substrate. */

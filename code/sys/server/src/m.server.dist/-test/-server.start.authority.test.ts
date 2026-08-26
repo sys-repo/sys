@@ -3,6 +3,7 @@ import { setup, teardown } from '../../-test/u.fixture.dist.ts';
 import { Dist, DistServer } from '../mod.ts';
 import { acceptedAuthorities } from '../../u.server.request.ts';
 import { DEFAULT_DEPENDENCIES, type StartDependencies, startWith } from '../u.server.start/mod.ts';
+import { createStartTurnAuthorityFixture } from './u.fixture.start.turn-authority.ts';
 
 const HASH = `sha256-${'0'.repeat(64)}` as t.StringHash;
 
@@ -230,15 +231,9 @@ describe('DistServer.start', () => {
       }
     });
 
-    it('rolls back a bound listener after its dependency mutates Promise species', async () => {
+    it('rolls back a bound listener after its dependency mutates Promise and schedulers', async () => {
       const fixture = await setup();
-      const speciesDescriptor = Object.getOwnPropertyDescriptor(Promise, Symbol.species);
-      if (!speciesDescriptor) throw new Error('Expected Promise species descriptor.');
-      let internalFinished: Promise<void> | undefined;
-      let closeCalls = 0;
-      let shutdownCalls = 0;
-      let speciesReads = 0;
-      let settled = false;
+      const turns = createStartTurnAuthorityFixture();
       let settledAfterFailure = false;
       let settledAfterRecovery = false;
       let failure: unknown;
@@ -262,59 +257,43 @@ describe('DistServer.start', () => {
                 evidence: materialized.verification,
               }),
             startHttp(...args) {
-              const listener = DEFAULT_DEPENDENCIES.startHttp(...args);
-              internalFinished = listener.finished;
-              void listener.finished.then(
-                () => (settled = true),
-                () => (settled = true),
-              );
-              const close = listener.close.bind(listener);
-              const shutdown = listener.server.shutdown.bind(listener.server);
-              Object.defineProperty(listener, 'close', {
-                configurable: true,
-                enumerable: true,
-                value: (reason?: unknown) => {
-                  closeCalls += 1;
-                  return close(reason);
-                },
-              });
-              Object.defineProperty(listener.server, 'shutdown', {
-                configurable: true,
-                value: () => {
-                  shutdownCalls += 1;
-                  return shutdown();
-                },
-              });
-              Object.defineProperty(Promise, Symbol.species, {
-                configurable: true,
-                get() {
-                  speciesReads += 1;
-                  throw new Error('Promise species accessor invoked');
-                },
-              });
-              return listener;
+              return turns.bind(DEFAULT_DEPENDENCIES.startHttp(...args));
             },
           });
         } catch (cause) {
           failure = cause;
         }
-        settledAfterFailure = settled;
+        settledAfterFailure = turns.settled;
       } finally {
-        Object.defineProperty(Promise, Symbol.species, speciesDescriptor);
-        await internalFinished?.catch(() => undefined);
-        settledAfterRecovery = settled;
-        await teardown(fixture);
+        try {
+          turns.restorePromiseTransport();
+          await turns.awaitListenerSettlement();
+          settledAfterRecovery = turns.settled;
+        } finally {
+          try {
+            turns.dispose();
+          } finally {
+            await teardown(fixture);
+          }
+        }
       }
 
       expect(DistServer.Error.is(failure)).to.eql(true);
       expect((failure as t.DistServer.StartError | undefined)?.reason).to.eql('startup-failure');
-      expect([
-        closeCalls,
-        shutdownCalls,
-        speciesReads,
+      expect({
+        ...turns.evidence(),
         settledAfterFailure,
         settledAfterRecovery,
-      ]).to.eql([1, 1, 0, false, true]);
+      }).to.eql({
+        ambientPromiseCalls: 0,
+        ambientQueueCalls: 0,
+        ambientTimerCalls: 0,
+        closeCalls: 1,
+        shutdownCalls: 1,
+        speciesReads: 0,
+        settledAfterFailure: false,
+        settledAfterRecovery: true,
+      });
     });
 
     it('admits a present zero-byte hash ref and fails malformed ref authority before part reads', async () => {

@@ -1,12 +1,6 @@
-import { Is, Num, type t } from './common.ts';
+import { Is, Num, Schedule, type t } from './common.ts';
 import { startError } from '../u.server/u.error.ts';
-import {
-  isExactNativePromise,
-  isPromiseTransportReady,
-  macrotaskPromise,
-  microtaskPromise,
-  observeExactPromise,
-} from './u.promise.ts';
+import { isExactNativePromise, isPromiseTransportReady, observeExactPromise } from './u.promise.ts';
 
 /**
  * Observed settlement state for one admitted listener completion.
@@ -188,7 +182,7 @@ export function observeListener(
  * Reject startup when a listener terminates during its first captured scheduler turn.
  */
 export async function settleListener(observation: ListenerObservation): Promise<void> {
-  await macrotaskPromise();
+  await Schedule.macro();
   if (observation.settled) throw startError('startup-failure');
 }
 
@@ -224,9 +218,9 @@ export async function rollbackListenerOwner(
     } catch {
       // Direct shutdown below remains independent rollback authority.
     }
-    await microtaskPromise();
+    await Schedule.micro();
     for (let turn = 0; turn < 2 && !observation?.settled; turn += 1) {
-      await macrotaskPromise();
+      await Schedule.macro();
     }
     if (observation?.settled) return;
   }
@@ -240,7 +234,7 @@ export async function rollbackListenerOwner(
   }
 
   for (let turn = 0; turn < 4 && !observation?.settled; turn += 1) {
-    await macrotaskPromise();
+    await Schedule.macro();
   }
   if (observation?.settled) return;
 
@@ -253,7 +247,7 @@ export async function rollbackListenerOwner(
 
 async function resumeLifeDisposal(life: t.Abortable, reason: unknown): Promise<void> {
   try {
-    while (!isPromiseTransportReady()) await macrotaskPromise();
+    while (!isPromiseTransportReady()) await Schedule.macro();
     life.dispose(reason);
   } catch {
     // Retained lower ownership remains the process-lifetime fallback.
@@ -275,7 +269,7 @@ function retainUntilPromiseTransport(
 
 async function resumeRollback(record: RetainedListenerOwner): Promise<void> {
   try {
-    while (!isPromiseTransportReady()) await macrotaskPromise();
+    while (!isPromiseTransportReady()) await Schedule.macro();
     await rollbackListenerOwner(record.owner, record.observation);
   } catch {
     // The retained owner remains the truthful process-lifetime fallback.
