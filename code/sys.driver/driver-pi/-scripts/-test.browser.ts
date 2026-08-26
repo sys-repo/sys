@@ -16,9 +16,20 @@ import {
 import { pkg } from '../src/pkg.ts';
 import { VERIFIED_LOOPBACK_BROWSER_POLICY } from '../src/m.core/m.cli.profiles/u.start/u.browser.ts';
 import { LIMITS } from '../src/m.core/m.cli.profiles/u.start/u.limits.ts';
+import { START_GUI_SERVICE } from '../src/m.core/m.cli.profiles/u/u.start.gui.service.ts';
 
 const CWD = Fs.Path.fromFileUrl(new URL('../', import.meta.url));
 const DIST_DIR = Fs.join(CWD, 'dist') as t.StringDir;
+const DIST_MANIFEST = Fs.join(DIST_DIR, 'dist.json');
+const TEST_TMP_DIR = Fs.join(CWD, '.tmp');
+const WORKSPACE_ROOT = Fs.resolve(CWD, '../../..');
+const PROTECTED_WRITES = [
+  DIST_DIR,
+  Fs.join(CWD, '.pi'),
+  Fs.join(WORKSPACE_ROOT, '.pi'),
+  Fs.join(CWD, 'src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts'),
+] as const;
+const ASSERT_RELEASE_EVIDENCE = Deno.env.get('SYS_DRIVER_PI_RELEASE_EVIDENCE') === '1';
 const OWNED_CACHE = `${pkg.name}:asset-files`;
 const UNRELATED_CACHE = `${pkg.name}-neighbor:asset-files`;
 
@@ -46,12 +57,45 @@ const LEGACY_REGISTER_PAGE = `<!doctype html>
   </script>`;
 
 describe('Driver Pi verified-loopback Service Worker policy', () => {
+  if (ASSERT_RELEASE_EVIDENCE) {
+    it('denies protected writes, wildcard bind, and the operator source port', async () => {
+      expect(await permissionState({ name: 'write', path: TEST_TMP_DIR })).to.eql('granted');
+      for (const path of PROTECTED_WRITES) {
+        expect(await permissionState({ name: 'write', path })).to.eql('denied');
+      }
+      expect(await permissionState({ name: 'env', variable: 'DENO_DIR' })).to.eql('denied');
+      expect(await permissionState({ name: 'net', host: '0.0.0.0' })).to.eql('denied');
+      expect(
+        await permissionState({ name: 'net', host: '127.0.0.1:8080' }),
+      ).to.eql('denied');
+    });
+  }
+
+  it('rejects development and launcher markers in arbitrary emitted bytes', () => {
+    const encoder = new TextEncoder();
+    for (
+      const marker of [
+        '@sys/ui-dev',
+        'DevHarness',
+        START_GUI_SERVICE.source.manifestUrl,
+        START_GUI_SERVICE.source.integrity,
+      ]
+    ) {
+      const assets = new Map([['fixture.bin', encoder.encode(`prefix:${marker}:suffix`)]]);
+      expect(() => proveProductionGraph(assets)).to.throw(marker);
+    }
+  });
+
+  it('keeps emitted assets free of development and launcher authority', async () => {
+    proveProductionGraph(await readAssets(await loadBuild()));
+  });
+
   it('denies fresh registration and migrates the former claiming worker to the exact tombstone', async () => {
-    const build = await loadBuild();
-    const assets = await readAssets(build);
-    proveProductionGraph(assets);
-    await proveFreshVerifiedLoopback(build, assets);
-    await proveClaimingWorkerMigration(assets);
+    await Fs.ensureDir(TEST_TMP_DIR);
+    await withCandidatePreserved(async ({ build, assets }) => {
+      await proveFreshVerifiedLoopback(build, assets);
+      await proveClaimingWorkerMigration(assets);
+    });
   });
 });
 
@@ -60,20 +104,53 @@ type Build = {
   readonly integrity: t.StringHash;
   readonly dist: t.DeepReadonly<t.DistPkg>;
 };
+type CandidateSnapshot = Readonly<{
+  build: Build;
+  manifest: Uint8Array;
+  assets: ReadonlyMap<string, Uint8Array>;
+}>;
 
 function proveProductionGraph(assets: ReadonlyMap<string, Uint8Array>) {
-  const decoder = new TextDecoder();
-  const forbidden = ['@sys/ui-dev', 'DevHarness'] as const;
+  const encoder = new TextEncoder();
+
+  // Production must eliminate the real DevHarness import and its runtime name.
+  const developmentOnlyMarkers = ['@sys/ui-dev', 'DevHarness'].map((value) => ({
+    value,
+    bytes: encoder.encode(value),
+  }));
+
+  // Launcher acquisition authority belongs outside emitted browser assets.
+  const launcherAuthorityMarkers = [
+    START_GUI_SERVICE.source.manifestUrl,
+    START_GUI_SERVICE.source.integrity,
+  ].map((value) => ({ value, bytes: encoder.encode(value) }));
 
   for (const [path, bytes] of assets) {
-    if (!(path.endsWith('.html') || path.endsWith('.js'))) continue;
-    const source = decoder.decode(bytes);
-    for (const marker of forbidden) {
-      if (source.includes(marker)) {
-        throw Err.std(`Production Driver Pi Dist retained development marker ${marker}: ${path}`);
+    for (const marker of developmentOnlyMarkers) {
+      if (includesBytes(bytes, marker.bytes)) {
+        throw Err.std(
+          `Production Driver Pi Dist retained real development-only marker ${marker.value}: ${path}`,
+        );
+      }
+    }
+    for (const marker of launcherAuthorityMarkers) {
+      if (includesBytes(bytes, marker.bytes)) {
+        throw Err.std(
+          `Production Driver Pi Dist embedded launcher-owned acquisition authority ${marker.value}: ${path}`,
+        );
       }
     }
   }
+}
+
+function includesBytes(source: Uint8Array, marker: Uint8Array): boolean {
+  search: for (let index = 0; index <= source.length - marker.length; index += 1) {
+    for (let offset = 0; offset < marker.length; offset += 1) {
+      if (source[index + offset] !== marker[offset]) continue search;
+    }
+    return true;
+  }
+  return false;
 }
 
 async function proveFreshVerifiedLoopback(
@@ -196,8 +273,57 @@ async function proveClaimingWorkerMigration(assets: ReadonlyMap<string, Uint8Arr
   }
 }
 
+async function withCandidatePreserved(
+  operation: (snapshot: CandidateSnapshot) => Promise<void>,
+): Promise<void> {
+  const before = await candidateSnapshot();
+  const expectedManifest = before.manifest.slice();
+  const expectedAssets = new Map<string, Uint8Array>();
+  for (const [path, bytes] of before.assets) expectedAssets.set(path, bytes.slice());
+
+  let operationFailed = false;
+  let operationFailure: unknown;
+  try {
+    await operation(before);
+  } catch (cause) {
+    operationFailed = true;
+    operationFailure = cause;
+  }
+
+  let preservationFailed = false;
+  let preservationFailure: unknown;
+  try {
+    const after = await candidateSnapshot();
+    expect(after.manifest).to.eql(expectedManifest);
+    expect(after.assets.size).to.eql(expectedAssets.size);
+    for (const [path, bytes] of expectedAssets) expect(after.assets.get(path)).to.eql(bytes);
+  } catch (cause) {
+    preservationFailed = true;
+    preservationFailure = cause;
+  }
+
+  if (operationFailed && preservationFailed) {
+    throw new SuppressedError(
+      operationFailure,
+      preservationFailure,
+      'Driver Pi browser proof failed and the frozen candidate also changed.',
+    );
+  }
+  if (operationFailed) throw operationFailure;
+  if (preservationFailed) throw preservationFailure;
+}
+
+async function candidateSnapshot(): Promise<CandidateSnapshot> {
+  const build = await loadBuild();
+  return Object.freeze({
+    build,
+    manifest: await Deno.readFile(DIST_MANIFEST),
+    assets: await readAssets(build),
+  });
+}
+
 async function loadBuild(): Promise<Build> {
-  const manifest = await Fs.read(Fs.join(DIST_DIR, 'dist.json'));
+  const manifest = await Fs.read(DIST_MANIFEST);
   if (!(manifest.ok && manifest.data)) {
     throw Err.std('Driver Pi browser build is missing dist.json.');
   }
@@ -206,6 +332,11 @@ async function loadBuild(): Promise<Build> {
   const verified = await FsDist.Pinned.verify({ dir: DIST_DIR, integrity, limits: LIMITS });
   if (verified.kind !== 'verified') {
     throw Err.std(`Driver Pi browser build verification failed: ${verified.kind}`);
+  }
+  expect(verified.evidence.dist.pkg).to.eql(pkg);
+  if (ASSERT_RELEASE_EVIDENCE) {
+    expect(integrity).to.eql(START_GUI_SERVICE.source.integrity);
+    expect(verified.evidence.dist.pkg).to.eql(START_GUI_SERVICE.source.expectedPkg);
   }
   return {
     dir: DIST_DIR,
@@ -267,4 +398,10 @@ function javascript(body: string): Response {
       'service-worker-allowed': '/',
     },
   });
+}
+
+async function permissionState(
+  descriptor: Deno.PermissionDescriptor,
+): Promise<PermissionState> {
+  return (await Deno.permissions.query(descriptor)).state;
 }

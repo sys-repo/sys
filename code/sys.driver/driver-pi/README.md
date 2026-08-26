@@ -142,8 +142,6 @@ behavior, not complete containment.
   [Harness Engineering](https://martinfowler.com/articles/harness-engineering.html),
   MartinFowler.com (2026)
 
-
-
 <p>&nbsp;</p>
 
 ---
@@ -151,6 +149,26 @@ behavior, not complete containment.
 <p>&nbsp;</p>
 
 ## Development
+
+### Local GUI evidence
+
+`start:gui` uses checked-in local-rehearsal authority, not published release evidence. A verified
+cached generation starts offline; a cold start acquires the exact Dist from
+`http://localhost:8080/dist.json`. It never builds or starts the local server. The local `dist/` is
+proof input and is excluded from package publication.
+
+Serve the already-built `dist/` for browser preview and local acquisition:
+
+```sh
+deno task serve
+```
+
+The one verified local listener serves the preview at `/`, the exact saved manifest at `/dist.json`,
+and every manifest-declared part. In another workspace terminal, run `sys pi`, select `<profile>`,
+then `start:gui`.
+
+`deno task test:browser` rebuilds `dist/`; it is not a frozen-candidate check. The
+`test:release:local:browser:frozen` lane consumes and preserves the selected local candidate.
 
 ### Reset
 
@@ -160,5 +178,5 @@ Run only when GUI startup reports `The cache was refused and retained`:
 deno task reset
 ```
 
-This deletes the rejected cache; the next launch rebuilds it. For `source-unavailable`, restore source
-access and relaunch instead.
+This deletes the rejected cache; the next launch reacquires it. For `source-unavailable`, restore
+source access and relaunch instead.

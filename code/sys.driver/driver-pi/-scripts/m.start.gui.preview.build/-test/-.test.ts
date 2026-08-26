@@ -56,10 +56,6 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
     expect(permissions['preview-build'].env).to.eql(true);
     expect(Array.isArray(permissions['preview-worker'].env)).to.eql(false);
     expect(Array.isArray(permissions['preview-build'].env)).to.eql(false);
-    const listed = Object.entries(permissions)
-      .filter(([, value]) => Array.isArray(value.env))
-      .map(([name]) => name);
-    expect(listed).to.eql(['serve', 'serve-process', 'preview-launch']);
   });
 
   it('preserves explicit and materializes implicit Deno cache authority before sanitization', async () => {

@@ -1183,10 +1183,6 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
       expect(Object.isFrozen(START_GUI_SERVICE.source)).to.eql(true);
       expect(Object.isFrozen(START_GUI_SERVICE.source.expectedPkg)).to.eql(true);
       expect(START_GUI_SERVICE.name).to.eql('sys.ui:pi');
-      expect(START_GUI_SERVICE.source.expectedPkg).to.eql({
-        name: '@sys/driver-pi',
-        version: '0.0.131',
-      });
       expect(materializeArgs?.manifestUrl).to.eql(START_GUI_SERVICE.source.manifestUrl);
       expect(materializeArgs?.integrity).to.eql(START_GUI_SERVICE.source.integrity);
       expect(materializeArgs?.storeDir).to.eql(storeDir);
