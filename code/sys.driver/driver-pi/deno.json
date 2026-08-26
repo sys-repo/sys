@@ -9,17 +9,16 @@
     "test:profiles:process": "deno test -P=test-process --trace-leaks ./src/m.core/m.cli.profiles/-test.external/-u.start.gui.exit.process-proof.ts",
     "test:preview": "deno test -P=test --trace-leaks ./-scripts/m.start.gui.preview.build/-test/-.test.ts",
     "test:preview:real": "deno test -P=preview-test --no-prompt --deny-write=../../.. --trace-leaks ./-scripts/-test.external/-task.start.gui.preview.real.ts",
-    "test:source:process": "deno run --no-prompt -P=source-process ./-scripts/-test.external/-task.start.gui.source.process-proof.ts",
+    "test:serve:process": "FORCE_COLOR=0 deno run --no-prompt -P=serve-process ./-scripts/-test.external/-task.serve.process-proof.ts",
     "test:browser": "deno task build && FORCE_COLOR=0 deno test -P=test-browser --trace-leaks ./-scripts/-test.browser.ts",
     "prep": "deno run -P=dev ./-scripts/task.prep.ts",
     "cli": "deno run -P=cli ./-scripts/task.cli.ts",
     "cli:raw": "deno run -P=cli ./src/m.core/m.cli.raw/mod.ts",
     "dev": "deno run -P=dev ./-scripts/task.vite.ts --cmd=dev --in=./src/index.html",
     "build": "deno run -P=dev ./-scripts/task.vite.ts --cmd=build --in=./src/index.html",
-    "serve": "deno run -P=dev ./-scripts/task.vite.ts --cmd=serve",
+    "serve": "FORCE_COLOR=0 deno run --frozen --cached-only --no-prompt -P=serve ./-scripts/task.vite.ts --cmd=serve --port=8080",
     "reset": "deno task start:gui:reset",
     "start:gui:reset": "deno run -P=clean ./-scripts/task.start.gui.reset.ts",
-    "start:gui:source": "deno run --no-prompt -P=source ./-scripts/task.start.gui.source.ts",
     "start:gui:preview": "deno run -P=preview-launch --no-prompt ./-scripts/task.start.gui.preview.ts",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check -- ./src/ ./-scripts/*",
@@ -53,13 +52,16 @@
       "read": true,
       "env": true
     },
-    "source": {
+    "serve": {
       "read": ["./dist"],
-      "net": ["127.0.0.1:8080"]
+      "net": ["127.0.0.1:8080"],
+      "env": ["FORCE_COLOR", "NODE_DISABLE_COLORS", "NO_COLOR", "TERM", "TERM_PROGRAM"],
+      "run": ["open", "wslview", "xdg-open", "powershell.exe", "cmd.exe", "explorer.exe"]
     },
-    "source-process": {
+    "serve-process": {
       "read": ["./dist"],
       "net": ["localhost:8080", "127.0.0.1:8080"],
+      "env": ["FORCE_COLOR"],
       "run": ["deno"]
     },
     "preview-launch": {
@@ -89,6 +91,16 @@
       "env": true,
       "net": ["localhost", "127.0.0.1"],
       "run": ["deno"]
+    },
+    "evidence-local": {
+      "read": ["./dist"],
+      "write": ["./src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts"]
+    },
+    "release-local-test": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": ["localhost:8080", "127.0.0.1"]
     },
     "test-browser": {
       "read": true,

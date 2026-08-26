@@ -49,7 +49,7 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
     expect(PREVIEW_BUILD_TEMP_PREFIX).to.eql(`${owner}.start-gui-preview-build.`);
   });
 
-  it('keeps vendor environment discovery out of package permission lists', () => {
+  it('keeps vendor environment authority finite outside isolated preview workers', () => {
     const permissions = deno.permissions as Record<string, { env?: unknown }>;
     expect(permissions['preview-launch'].env).to.eql(['DENO_DIR', 'SystemRoot']);
     expect(permissions['preview-worker'].env).to.eql(true);
@@ -59,7 +59,7 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
     const listed = Object.entries(permissions)
       .filter(([, value]) => Array.isArray(value.env))
       .map(([name]) => name);
-    expect(listed).to.eql(['preview-launch']);
+    expect(listed).to.eql(['serve', 'serve-process', 'preview-launch']);
   });
 
   it('preserves explicit and materializes implicit Deno cache authority before sanitization', async () => {

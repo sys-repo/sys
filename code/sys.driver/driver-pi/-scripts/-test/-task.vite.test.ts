@@ -1,7 +1,32 @@
 import { describe, expect, it } from '../../src/-test.ts';
+import { default as deno } from '../../deno.json' with { type: 'json' };
 import { mainWith, PKG_SUBPATH } from '../task.vite.u.ts';
 
 describe('driver-pi/scripts/task.vite', () => {
+  it('wires the fixed local Dist serve task through finite permissions', () => {
+    const tasks = deno.tasks as Record<string, string | undefined>;
+    const permissions = deno.permissions as Record<string, Record<string, unknown> | undefined>;
+
+    expect(tasks.serve).to.eql(
+      'FORCE_COLOR=0 deno run --frozen --cached-only --no-prompt -P=serve ./-scripts/task.vite.ts --cmd=serve --port=8080',
+    );
+    expect(tasks['test:serve:process']).to.eql(
+      'FORCE_COLOR=0 deno run --no-prompt -P=serve-process ./-scripts/-test.external/-task.serve.process-proof.ts',
+    );
+    expect(permissions.serve).to.eql({
+      read: ['./dist'],
+      net: ['127.0.0.1:8080'],
+      env: ['FORCE_COLOR', 'NODE_DISABLE_COLORS', 'NO_COLOR', 'TERM', 'TERM_PROGRAM'],
+      run: ['open', 'wslview', 'xdg-open', 'powershell.exe', 'cmd.exe', 'explorer.exe'],
+    });
+    expect(permissions['serve-process']).to.eql({
+      read: ['./dist'],
+      net: ['localhost:8080', '127.0.0.1:8080'],
+      env: ['FORCE_COLOR'],
+      run: ['deno'],
+    });
+  });
+
   it('injects the package-owned ui identity into dev and serve', async () => {
     for (const cmd of ['dev', 'serve'] as const) {
       const seen: unknown[] = [];
