@@ -30,7 +30,7 @@ describe('driver-pi/scripts/task.vite', () => {
   it('injects the package-owned ui identity into dev and serve', async () => {
     for (const cmd of ['dev', 'serve'] as const) {
       const seen: unknown[] = [];
-      await mainWith([`--cmd=${cmd}`], { main: async (args) => void seen.push(args) });
+      await mainWith([`--cmd=${cmd}`], { main: (args) => Promise.resolve(void seen.push(args)) });
       expect(seen).to.eql([{ _: [], cmd, pkgSubpath: PKG_SUBPATH }]);
     }
   });
@@ -38,7 +38,7 @@ describe('driver-pi/scripts/task.vite', () => {
   it('leaves build and info structurally unchanged', async () => {
     for (const cmd of ['build', 'info'] as const) {
       const seen: unknown[] = [];
-      await mainWith([`--cmd=${cmd}`], { main: async (args) => void seen.push(args) });
+      await mainWith([`--cmd=${cmd}`], { main: (args) => Promise.resolve(void seen.push(args)) });
       expect(seen).to.eql([{ _: [], cmd }]);
     }
   });
@@ -48,7 +48,7 @@ describe('driver-pi/scripts/task.vite', () => {
       const seen: unknown[] = [];
       await mainWith(
         ['--cmd=serve', `--${field}=///${PKG_SUBPATH}//`],
-        { main: async (args) => void seen.push(args) },
+        { main: (args) => Promise.resolve(void seen.push(args)) },
       );
       expect(seen).to.eql([{ _: [], cmd: 'serve', [field]: `///${PKG_SUBPATH}//` }]);
     }
@@ -58,7 +58,7 @@ describe('driver-pi/scripts/task.vite', () => {
     const seen: unknown[] = [];
     await mainWith(
       [`--cmd=dev`, `--pkgSubpath=${PKG_SUBPATH}`, `--pkg-subpath=///${PKG_SUBPATH}//`],
-      { main: async (args) => void seen.push(args) },
+      { main: (args) => Promise.resolve(void seen.push(args)) },
     );
     expect(seen).to.eql([{
       _: [],
@@ -73,7 +73,7 @@ describe('driver-pi/scripts/task.vite', () => {
       const seen: unknown[] = [];
       await mainWith(
         ['--cmd=serve', `--${field}=///`],
-        { main: async (args) => void seen.push(args) },
+        { main: (args) => Promise.resolve(void seen.push(args)) },
       );
       expect(seen).to.eql([{ _: [], cmd: 'serve', [field]: '///', pkgSubpath: PKG_SUBPATH }]);
     }
@@ -87,7 +87,9 @@ describe('driver-pi/scripts/task.vite', () => {
       ]
     ) {
       let calls = 0;
-      const error = await catchError(() => mainWith(input, { main: async () => void calls++ }));
+      const error = await catchError(() =>
+        mainWith(input, { main: () => Promise.resolve(void calls++) })
+      );
       expect(error?.message).to.include('DriverPiVite:');
       expect(calls).to.eql(0);
     }
@@ -98,7 +100,7 @@ describe('driver-pi/scripts/task.vite', () => {
     const error = await catchError(() =>
       mainWith(
         [`--cmd=dev`, `--pkgSubpath=${PKG_SUBPATH}`, '--pkg-subpath=other'],
-        { main: async (args) => void seen.push(args) },
+        { main: (args) => Promise.resolve(void seen.push(args)) },
       )
     );
     expect(error?.message).to.eql('DriverPiVite: pkgSubpath and pkg-subpath conflict.');
