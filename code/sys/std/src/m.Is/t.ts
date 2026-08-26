@@ -239,6 +239,9 @@ export declare namespace Is {
   export namespace Server {
     /** Universal predicates extended with host-native identity guards. */
     export type Lib = Is.Lib & {
+      /** JavaScript identity classifiers backed by host introspection. */
+      readonly Native: Native.Lib;
+
       /** Determine whether the value is a Proxy without invoking its traps. */
       proxy(input?: unknown): boolean;
 
@@ -254,6 +257,29 @@ export declare namespace Is {
       /** Determine whether the host recognizes the value as a native SharedArrayBuffer. */
       nativeSharedArrayBuffer(input?: unknown): input is SharedArrayBuffer;
     };
+
+    /**
+     * JavaScript identity classifiers backed by host introspection.
+     */
+    export namespace Native {
+      /** Host-native identity predicate surface. */
+      export type Lib = {
+        /** Determine whether the host recognizes the value as a Proxy. */
+        proxy(input?: unknown): boolean;
+
+        /** Determine whether the host recognizes the value as a native Promise. */
+        promise(input?: unknown): input is Promise<unknown>;
+
+        /** Determine whether the host recognizes the value as a native Error. */
+        error(input?: unknown): input is Error;
+
+        /** Determine whether the host recognizes the value as a native Uint8Array. */
+        uint8Array(input?: unknown): input is Uint8Array;
+
+        /** Determine whether the host recognizes the value as a native SharedArrayBuffer. */
+        sharedArrayBuffer(input?: unknown): input is SharedArrayBuffer;
+      };
+    }
   }
 }
 

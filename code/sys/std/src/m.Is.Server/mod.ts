@@ -9,16 +9,18 @@
  * A match proves identity only. It does not establish ownership or make later
  * operations safe.
  */
-import { BaseIs, NodeTypes, type t } from './common.ts';
+import { BaseIs, type t } from './common.ts';
+import { Native } from './m.Native.ts';
 
 /**
  * The universal `Is` surface with Deno and Node native-identity predicates.
  */
 export const Is: t.Is.Server.Lib = Object.freeze({
   ...BaseIs,
-  proxy: NodeTypes.isProxy,
-  nativePromise: NodeTypes.isPromise,
-  nativeError: NodeTypes.isNativeError,
-  nativeUint8Array: NodeTypes.isUint8Array,
-  nativeSharedArrayBuffer: NodeTypes.isSharedArrayBuffer,
+  Native,
+  proxy: Native.proxy,
+  nativePromise: Native.promise,
+  nativeError: Native.error,
+  nativeUint8Array: Native.uint8Array,
+  nativeSharedArrayBuffer: Native.sharedArrayBuffer,
 });
