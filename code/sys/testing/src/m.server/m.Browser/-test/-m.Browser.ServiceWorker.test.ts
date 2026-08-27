@@ -16,21 +16,6 @@ const workerTombstone = `
   });
 `;
 
-describe('Browser.load', () => {
-  it('loads a local page in Chrome without browser runtime errors', async () => {
-    const server = startPageServer();
-    try {
-      const res = await Browser.load(server.url.raw);
-      if (!res.ok) console.info(res);
-      expect(res.ok).to.eql(true);
-      expect(res.errors).to.eql([]);
-      expect(res.browser).to.eql('Chrome');
-    } finally {
-      await server.dispose();
-    }
-  });
-});
-
 describe('Browser.ServiceWorker.scenario', () => {
   it('claiming worker → tombstone update → verified unregister and owned cleanup', async () => {
     let workerRequests = 0;
@@ -409,7 +394,7 @@ describe('Browser.ServiceWorker.scenario', () => {
 
 function startPageServer() {
   return Testing.Http.server(() => {
-    return html('<title>@sys/testing Browser.load</title><main>ok</main>');
+    return html('<title>@sys/testing clean page</title><main>ok</main>');
   });
 }
 

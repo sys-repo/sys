@@ -9,7 +9,7 @@
     "test": "deno task test:unit && deno task test:process",
     "test:unit": "deno test -P=test-unit --ignore=./src/-test/-bdd-contract.test.ts --ignore=./src/-test/-sanitizer-alarm.test.ts --ignore=./src/-test/u.fixture-process.ts --ignore=./src/-test/fixtures --ignore=./src/m.server/m.Browser",
     "test:process": "deno check -- ./src/-test/fixtures ./src/-test/u.fixture-process.ts && deno test -P=test-process ./src/-test/-bdd-contract.test.ts ./src/-test/-sanitizer-alarm.test.ts",
-    "test:browser": "deno test -P=test-browser --trace-leaks ./src/m.server/m.Browser/-test/-.test.ts ./src/m.server/m.Browser/-test/-internal.test.ts",
+    "test:browser": "deno test -P=test-browser --trace-leaks ./src/m.server/m.Browser/-test",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check -- ./src/ ./scripts/*",
     "clean": "deno run -P=clean ./scripts/task.clean.ts"
