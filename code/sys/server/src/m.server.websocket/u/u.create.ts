@@ -147,8 +147,8 @@ function createServer(address: ListenAddress, handler: Deno.ServeHandler) {
 }
 
 function isAddressInUseError(input: unknown): input is Deno.errors.AddrInUse {
-  return Is.nativeError(input) &&
-    !Is.proxy(input) &&
+  return Is.Native.error(input) &&
+    !Is.Native.proxy(input) &&
     Object.getPrototypeOf(input) === Deno.errors.AddrInUse.prototype;
 }
 

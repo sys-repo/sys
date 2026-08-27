@@ -751,7 +751,7 @@ function snapshotResizeAfter(event: unknown): unknown {
 }
 
 function isDirectObject(input: unknown): input is object {
-  if (!Is.object(input) || Is.proxy(input)) return false;
+  if (!Is.object(input) || Is.Native.proxy(input)) return false;
   try {
     return getPrototypeOf(input) === objectPrototype;
   } catch {
@@ -832,11 +832,11 @@ function unresolvedCleanup(owner: unknown): () => void {
 }
 
 function descriptorValue(input: unknown, key: PropertyKey): unknown {
-  if (!Is.object(input) || Is.proxy(input)) return;
+  if (!Is.object(input) || Is.Native.proxy(input)) return;
   let target: object | null = input;
   try {
     for (let depth = 0; target && depth < 8; depth += 1) {
-      if (Is.proxy(target)) return;
+      if (Is.Native.proxy(target)) return;
       const descriptor = getOwnPropertyDescriptor(target, key);
       if (descriptor) return 'value' in descriptor ? descriptor.value : undefined;
       target = getPrototypeOf(target);
@@ -851,7 +851,9 @@ function descriptorMethod(
   key: PropertyKey,
 ): ((...args: never[]) => unknown) | undefined {
   const value = descriptorValue(input, key);
-  return Is.func(value) && !Is.proxy(value) ? value as (...args: never[]) => unknown : undefined;
+  return Is.func(value) && !Is.Native.proxy(value)
+    ? value as (...args: never[]) => unknown
+    : undefined;
 }
 
 function retryableCleanup(actions: readonly (() => void)[]): () => void {

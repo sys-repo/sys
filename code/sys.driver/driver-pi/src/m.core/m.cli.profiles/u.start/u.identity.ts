@@ -304,7 +304,7 @@ export function snapshotApplicationOwner(
   if (!isDirectObject(input)) return INVALID_APPLICATION_OWNER;
   const closeProperty = ownDirectData(input, 'close');
   if (
-    !closeProperty.ok || !Is.func(closeProperty.value) || Is.proxy(closeProperty.value)
+    !closeProperty.ok || !Is.func(closeProperty.value) || Is.Native.proxy(closeProperty.value)
   ) return INVALID_APPLICATION_OWNER;
 
   const closeMethod = closeProperty.value;
@@ -506,7 +506,7 @@ function snapshotObject(input: unknown): ObjectSnapshot | undefined {
 
 /** Admit either a plain record or Deno's exact null-prototype NetAddr data record. */
 function snapshotListenerAddress(input: unknown): ObjectSnapshot | undefined {
-  if (!Is.object(input) || Is.proxy(input)) return;
+  if (!Is.object(input) || Is.Native.proxy(input)) return;
   try {
     const prototype = getPrototypeOf(input);
     if (prototype !== objectPrototype && prototype !== null) return;
@@ -544,7 +544,7 @@ function snapshotProperties(input: object): ObjectSnapshot | undefined {
 function isDirectObject(input: unknown): input is object {
   if (!Is.object(input)) return false;
   try {
-    return !Is.proxy(input) && getPrototypeOf(input) === objectPrototype;
+    return !Is.Native.proxy(input) && getPrototypeOf(input) === objectPrototype;
   } catch {
     return false;
   }
@@ -570,7 +570,7 @@ function ownObjectData(
   input: unknown,
   key: PropertyKey,
 ): Readonly<{ ok: true; value: unknown }> | Readonly<{ ok: false }> {
-  if (!Is.object(input) || Is.proxy(input)) return NOT_DATA;
+  if (!Is.object(input) || Is.Native.proxy(input)) return NOT_DATA;
   try {
     const descriptor = getOwnPropertyDescriptor(input, key);
     return descriptor?.enumerable === true && 'value' in descriptor
@@ -607,7 +607,7 @@ function oneOf<T extends string>(input: unknown, values: readonly T[]): input is
 
 function isExactNativePromise(input: unknown): input is Promise<void> {
   try {
-    return Is.object(input) && !Is.proxy(input) && Is.nativePromise(input) &&
+    return Is.object(input) && !Is.Native.proxy(input) && Is.Native.promise(input) &&
       getPrototypeOf(input) === NativePromisePrototype &&
       getOwnPropertyDescriptor(input, 'constructor') === undefined;
   } catch {
@@ -639,7 +639,7 @@ function isConcreteListenerPort(input: unknown): input is number {
 }
 
 function isExactFrozenEmptyArray(input: unknown): boolean {
-  if (!Is.array(input) || Is.proxy(input)) return false;
+  if (!Is.array(input) || Is.Native.proxy(input)) return false;
   try {
     if (getPrototypeOf(input) !== arrayPrototype || !isFrozen(input)) return false;
     const keys = ownKeys(input);

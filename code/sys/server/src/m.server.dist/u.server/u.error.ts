@@ -26,7 +26,7 @@ export function startError(reason: t.DistServer.StartFailureReason): t.DistServe
 
 /** Classify a listener-start failure without retaining its cause. */
 export function startupReason(cause: unknown): t.DistServer.StartFailureReason {
-  return Is.nativeError(cause) && cause instanceof NativeAddrInUse
+  return Is.Native.error(cause) && cause instanceof NativeAddrInUse
     ? 'address-in-use'
     : 'startup-failure';
 }

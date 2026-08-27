@@ -234,7 +234,7 @@ export function bindWith(
  */
 function snapshotOptions(input: t.CliKeyboard.Bind.Options): OptionsSnapshot {
   try {
-    if (!Is.object(input) || Is.proxy(input)) throw bindingError();
+    if (!Is.object(input) || Is.Native.proxy(input)) throw bindingError();
     const onKey = ownValue(input, 'onKey');
     const onQuit = ownValue(input, 'onQuit');
     const quitKeys = ownValue(input, 'quitKeys') ?? 'canonical';

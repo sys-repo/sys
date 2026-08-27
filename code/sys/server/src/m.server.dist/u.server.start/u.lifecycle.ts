@@ -86,18 +86,18 @@ export function disposeLifeWhenReady(life: t.Abortable | undefined, reason?: unk
  * authenticated remains absent from the result.
  */
 export function snapshotListenerOwner(input: unknown): ListenerOwner {
-  if (!Is.object(input) || Is.proxy(input)) return freeze({ raw: input });
+  if (!Is.object(input) || Is.Native.proxy(input)) return freeze({ raw: input });
   const finished = ownData(input, 'finished');
   const close = ownData(input, 'close');
   const server = ownData(input, 'server');
-  const shutdown = server.ok && Is.object(server.value) && !Is.proxy(server.value)
+  const shutdown = server.ok && Is.object(server.value) && !Is.Native.proxy(server.value)
     ? dataMethod(server.value, 'shutdown')
     : undefined;
   const port = ownData(input, 'port');
   const origin = ownData(input, 'origin');
   const hostname = ownData(input, 'hostname');
   const addr = ownData(input, 'addr');
-  const addrHostname = addr.ok && Is.object(addr.value) && !Is.proxy(addr.value)
+  const addrHostname = addr.ok && Is.object(addr.value) && !Is.Native.proxy(addr.value)
     ? ownData(addr.value, 'hostname')
     : NOT_DATA;
   const signal = ownData(input, 'signal');
@@ -110,7 +110,7 @@ export function snapshotListenerOwner(input: unknown): ListenerOwner {
     ...(close.ok && Is.func(close.value)
       ? { close: close.value as (reason?: unknown) => unknown }
       : {}),
-    ...(server.ok && Is.object(server.value) && !Is.proxy(server.value)
+    ...(server.ok && Is.object(server.value) && !Is.Native.proxy(server.value)
       ? { server: server.value as Deno.HttpServer<Deno.NetAddr> }
       : {}),
     ...(shutdown ? { shutdown } : {}),
@@ -280,7 +280,7 @@ async function resumeRollback(record: RetainedListenerOwner): Promise<void> {
 
 function isExactAbortSignal(input: unknown): input is AbortSignal {
   try {
-    return Is.object(input) && !Is.proxy(input) &&
+    return Is.object(input) && !Is.Native.proxy(input) &&
       getPrototypeOf(input) === NativeAbortSignalPrototype;
   } catch {
     return false;

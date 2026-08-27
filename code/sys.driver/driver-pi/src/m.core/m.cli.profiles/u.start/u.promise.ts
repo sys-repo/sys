@@ -131,7 +131,7 @@ export function observePromiseTransport<T, R>(
  */
 export function isPromiseTransport(input: unknown): input is Promise<unknown> {
   if (!isPromiseTransportReady()) return false;
-  if (!Is.object(input) || Is.proxy(input) || !Is.nativePromise(input)) return false;
+  if (!Is.object(input) || Is.Native.proxy(input) || !Is.Native.promise(input)) return false;
   if (getPrototypeOf(input) !== NativePromisePrototype) return false;
   return getOwnPropertyDescriptor(input, 'constructor') === undefined;
 }

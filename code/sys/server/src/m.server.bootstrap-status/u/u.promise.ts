@@ -117,7 +117,7 @@ export async function promiseFailed(input: unknown): Promise<boolean> {
 
 export function isExactNativePromise(input: unknown): input is Promise<unknown> {
   try {
-    return Is.object(input) && !Is.proxy(input) && Is.nativePromise(input) &&
+    return Is.object(input) && !Is.Native.proxy(input) && Is.Native.promise(input) &&
       getPrototypeOf(input) === NativePromisePrototype &&
       getOwnPropertyDescriptor(input, 'constructor') === undefined;
   } catch {

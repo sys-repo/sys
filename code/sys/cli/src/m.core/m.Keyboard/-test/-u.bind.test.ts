@@ -482,7 +482,7 @@ describe('CLI: core / Keyboard.bind lifecycle', () => {
 });
 
 function errorMessage(input: unknown): string {
-  if (!Is.nativeError(input)) throw new Error('Expected native Error.');
+  if (!Is.Native.error(input)) throw new Error('Expected native Error.');
   const descriptor = Object.getOwnPropertyDescriptor(input, 'message');
   if (!descriptor || !('value' in descriptor) || !Is.string(descriptor.value)) {
     throw new Error('Expected an own Error message.');

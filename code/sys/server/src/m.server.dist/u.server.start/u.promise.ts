@@ -74,7 +74,7 @@ export function observeExactPromise<T>(input: unknown, handlers: PromiseHandlers
 /** Whether an input is one exact native Promise without caller-owned constructor authority. */
 export function isExactNativePromise(input: unknown): input is Promise<unknown> {
   try {
-    return Is.object(input) && !Is.proxy(input) && Is.nativePromise(input) &&
+    return Is.object(input) && !Is.Native.proxy(input) && Is.Native.promise(input) &&
       getPrototypeOf(input) === NativePromisePrototype &&
       getOwnPropertyDescriptor(input, 'constructor') === undefined;
   } catch {

@@ -16,7 +16,7 @@ export function snapshotExactDataObject(
     REQUIRED: readonly string[];
   }>,
 ): Readonly<Record<string, unknown>> | undefined {
-  if (ServerIs.proxy(input) || !Is.object(input)) return;
+  if (ServerIs.Native.proxy(input) || !Is.object(input)) return;
 
   try {
     if (getPrototypeOf(input) !== objectPrototype) return;
@@ -60,7 +60,7 @@ function snapshotUntilArrays(
   input: unknown,
   active: WeakSet<object>,
 ): unknown | typeof INVALID_UNTIL {
-  if (ServerIs.proxy(input) || hasProxyPrototype(input)) return INVALID_UNTIL;
+  if (ServerIs.Native.proxy(input) || hasProxyPrototype(input)) return INVALID_UNTIL;
   if (!Is.array(input)) return input;
 
   try {
@@ -101,7 +101,7 @@ function hasProxyPrototype(input: unknown): boolean {
   try {
     let current: object | null = input;
     while (current) {
-      if (ServerIs.proxy(current)) return true;
+      if (ServerIs.Native.proxy(current)) return true;
       current = getPrototypeOf(current);
     }
     return false;

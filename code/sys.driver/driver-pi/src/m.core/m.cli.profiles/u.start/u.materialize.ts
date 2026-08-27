@@ -278,8 +278,8 @@ function snapshotRootedOwner(
   const acquireLease = ownData(input, 'acquireLease');
   if (
     !path.ok || path.value !== expectedRoot || !admit.ok || !Is.func(admit.value) ||
-    Is.proxy(admit.value) || !acquireLease.ok || !Is.func(acquireLease.value) ||
-    Is.proxy(acquireLease.value)
+    Is.Native.proxy(admit.value) || !acquireLease.ok || !Is.func(acquireLease.value) ||
+    Is.Native.proxy(acquireLease.value)
   ) return;
 
   const admitMethod = admit.value;
@@ -303,7 +303,7 @@ function snapshotAdmittedTarget(input: unknown): t.FsRooted.Target<'directory'> 
   if (!isFrozenDirectObject(input) || !hasExactDataShape(input, ['targets'])) return;
   const targets = ownData(input, 'targets');
   if (
-    !targets.ok || !Is.array(targets.value) || Is.proxy(targets.value) ||
+    !targets.ok || !Is.array(targets.value) || Is.Native.proxy(targets.value) ||
     getPrototypeOf(targets.value) !== arrayPrototype || !isFrozen(targets.value)
   ) return;
   if (targets.value.length !== 1 || !hasExactDataShape(targets.value, ['0', 'length'])) return;
@@ -354,12 +354,13 @@ function snapshotLeaseAcquisition(
   const asyncDisposeProperty = ownData(leaseValue, asyncDispose);
   if (
     !mode.ok || mode.value !== 'shared' || !targets.ok || !Is.array(targets.value) ||
-    Is.proxy(targets.value) || getPrototypeOf(targets.value) !== arrayPrototype ||
+    Is.Native.proxy(targets.value) || getPrototypeOf(targets.value) !== arrayPrototype ||
     !isFrozen(targets.value) || targets.value.length !== 1 ||
     !hasExactDataShape(targets.value, ['0', 'length']) || targets.value[0] !== expectedTarget ||
-    !releaseProperty.ok || !Is.func(releaseProperty.value) || Is.proxy(releaseProperty.value) ||
+    !releaseProperty.ok || !Is.func(releaseProperty.value) ||
+    Is.Native.proxy(releaseProperty.value) ||
     !asyncDisposeProperty.ok || !Is.func(asyncDisposeProperty.value) ||
-    Is.proxy(asyncDisposeProperty.value)
+    Is.Native.proxy(asyncDisposeProperty.value)
   ) return retainUnresolvedAcquisition(input);
 
   const release = releaseProperty.value;
@@ -405,7 +406,7 @@ function hasExactDataShape(input: object, keys: readonly (string | symbol)[]): b
 }
 
 function isFrozenDirectObject(input: unknown): input is object {
-  if (!Is.object(input) || Is.proxy(input)) return false;
+  if (!Is.object(input) || Is.Native.proxy(input)) return false;
   try {
     return getPrototypeOf(input) === objectPrototype && isFrozen(input);
   } catch {

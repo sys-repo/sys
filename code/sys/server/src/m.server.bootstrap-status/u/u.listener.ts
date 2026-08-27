@@ -37,18 +37,18 @@ const NOT_DATA = freeze({ ok: false as const });
 
 /** Snapshot lower listener authority without invoking accessors or Proxy traps. */
 export function snapshotLowerOwner(started: t.HttpServer.Started): LowerOwner {
-  if (!Is.object(started) || Is.proxy(started)) return freeze({ raw: started });
+  if (!Is.object(started) || Is.Native.proxy(started)) return freeze({ raw: started });
   const origin = ownData(started, 'origin');
   const finished = ownData(started, 'finished');
   const close = ownData(started, 'close');
   const server = ownData(started, 'server');
-  const shutdown = server.ok && Is.object(server.value) && !Is.proxy(server.value)
+  const shutdown = server.ok && Is.object(server.value) && !Is.Native.proxy(server.value)
     ? dataMethod(server.value, 'shutdown')
     : undefined;
   return freeze({
     raw: started,
     ...(origin.ok && Is.string(origin.value) ? { origin: origin.value } : {}),
-    ...(finished.ok && Is.nativePromise(finished.value)
+    ...(finished.ok && Is.Native.promise(finished.value)
       ? { finished: finished.value as Promise<void> }
       : {}),
     ...(close.ok && Is.func(close.value)

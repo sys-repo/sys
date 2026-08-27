@@ -33,7 +33,7 @@ const nativeSignalShape = snapshotNativeSignalShape();
 
 /** Admit only one direct native signal without invoking structural accessors or Proxy traps. */
 export function snapshotCapturedAbortSignal(input: unknown): AbortSignal | undefined {
-  if (!Is.object(input) || Is.proxy(input) || !abortSubstrateReady()) return;
+  if (!Is.object(input) || Is.Native.proxy(input) || !abortSubstrateReady()) return;
   try {
     if (getPrototypeOf(input) !== signalPrototype || !sameNativeSignalShape(input)) return;
     const value = signalAborted ? apply(signalAborted, input, []) : undefined;

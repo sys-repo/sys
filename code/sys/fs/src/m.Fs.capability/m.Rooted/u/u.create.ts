@@ -229,7 +229,7 @@ export async function createRooted(
 /** Snapshot exact root-creation authority before observing or mutating the filesystem. */
 function createInput(input: unknown): CreateInput {
   try {
-    if (!Is.object(input) || ServerIs.proxy(input) || !Is.plainObject(input)) {
+    if (!Is.object(input) || ServerIs.Native.proxy(input) || !Is.plainObject(input)) {
       throw failure(operation, 'invalid-options');
     }
     const keys = Reflect.ownKeys(input);

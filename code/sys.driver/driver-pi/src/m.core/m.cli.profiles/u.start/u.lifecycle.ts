@@ -230,10 +230,10 @@ type ScreenOwnerSnapshot =
 
 /** Copy one narrow status owner without retaining its raw listener facade. */
 export function snapshotStatusOwner(input: unknown): StatusOwnerSnapshot {
-  if (!Is.object(input) || Is.proxy(input)) return INVALID_STATUS_OWNER;
+  if (!Is.object(input) || Is.Native.proxy(input)) return INVALID_STATUS_OWNER;
   const closeProperty = directData(input, 'close');
   if (
-    !closeProperty.ok || !Is.func(closeProperty.value) || Is.proxy(closeProperty.value)
+    !closeProperty.ok || !Is.func(closeProperty.value) || Is.Native.proxy(closeProperty.value)
   ) return INVALID_STATUS_OWNER;
 
   const closeMethod = closeProperty.value;
@@ -258,10 +258,10 @@ export function snapshotStatusOwner(input: unknown): StatusOwnerSnapshot {
 }
 
 function snapshotKeyboardOwner(input: unknown): KeyboardOwnerSnapshot {
-  if (!Is.object(input) || Is.proxy(input)) return INVALID_KEYBOARD_OWNER;
+  if (!Is.object(input) || Is.Native.proxy(input)) return INVALID_KEYBOARD_OWNER;
   const disposeProperty = directData(input, 'dispose');
   if (
-    !disposeProperty.ok || !Is.func(disposeProperty.value) || Is.proxy(disposeProperty.value)
+    !disposeProperty.ok || !Is.func(disposeProperty.value) || Is.Native.proxy(disposeProperty.value)
   ) return INVALID_KEYBOARD_OWNER;
 
   const disposeMethod = disposeProperty.value;
@@ -281,10 +281,10 @@ function snapshotKeyboardOwner(input: unknown): KeyboardOwnerSnapshot {
 }
 
 function snapshotScreenOwner(input: unknown): ScreenOwnerSnapshot {
-  if (!Is.object(input) || Is.proxy(input)) return INVALID_SCREEN_OWNER;
+  if (!Is.object(input) || Is.Native.proxy(input)) return INVALID_SCREEN_OWNER;
   const disposeProperty = directData(input, 'dispose');
   if (
-    !disposeProperty.ok || !Is.func(disposeProperty.value) || Is.proxy(disposeProperty.value)
+    !disposeProperty.ok || !Is.func(disposeProperty.value) || Is.Native.proxy(disposeProperty.value)
   ) return INVALID_SCREEN_OWNER;
 
   const disposeMethod = disposeProperty.value;
@@ -301,8 +301,8 @@ function snapshotScreenOwner(input: unknown): ScreenOwnerSnapshot {
     !kind.ok || (kind.value !== 'acquired' && kind.value !== 'failed' &&
       kind.value !== 'unavailable') ||
     !failure.ok || !isPromiseTransport(failure.value) ||
-    !redraw.ok || !Is.func(redraw.value) || Is.proxy(redraw.value) ||
-    !warnOpen.ok || !Is.func(warnOpen.value) || Is.proxy(warnOpen.value)
+    !redraw.ok || !Is.func(redraw.value) || Is.Native.proxy(redraw.value) ||
+    !warnOpen.ok || !Is.func(warnOpen.value) || Is.Native.proxy(warnOpen.value)
   ) return freeze({ kind: 'invalid', owner: cleanupOwner });
 
   const redrawMethod = redraw.value;

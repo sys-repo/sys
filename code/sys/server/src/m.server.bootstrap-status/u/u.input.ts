@@ -39,7 +39,7 @@ export function snapshotInput(input: unknown): PreparedInput | undefined {
   const resolveValue = ownData(input, 'resolve');
   if (!pagesValue.ok || !resolveValue.ok || !Is.func(resolveValue.value)) return;
   const resolve = resolveValue.value;
-  if (Is.proxy(resolve)) return;
+  if (Is.Native.proxy(resolve)) return;
 
   const pages = snapshotPages(pagesValue.value);
   if (!pages) return;
@@ -57,7 +57,7 @@ export function snapshotProjection(
   | Readonly<{ kind: 'page'; key: string }>
   | Readonly<{ kind: 'redirect'; origin: string }>
   | undefined {
-  if (Is.object(input) && Is.proxy(input)) return;
+  if (Is.object(input) && Is.Native.proxy(input)) return;
   if (isNativePromise(input)) {
     void drainPromise(input);
     return;
@@ -80,7 +80,7 @@ export function snapshotProjection(
 }
 
 function snapshotPages(input: unknown): ReadonlyMap<string, Uint8Array<ArrayBuffer>> | undefined {
-  if (!Is.object(input) || Is.proxy(input)) return;
+  if (!Is.object(input) || Is.Native.proxy(input)) return;
   try {
     if (!Is.array(input)) return;
     if (
@@ -127,7 +127,7 @@ function admitPage(input: unknown): AdmittedPage | undefined {
 }
 
 function isNativePromise(input: unknown): input is Promise<unknown> {
-  if (!Is.object(input) || Is.proxy(input) || !Is.nativePromise(input)) return false;
+  if (!Is.object(input) || Is.Native.proxy(input) || !Is.Native.promise(input)) return false;
   try {
     return getPrototypeOf(input) === NativePromisePrototype;
   } catch {
@@ -144,7 +144,7 @@ async function drainPromise(input: Promise<unknown>): Promise<void> {
 }
 
 function isPlainRecord(input: unknown): input is object {
-  if (!Is.object(input) || Is.proxy(input)) return false;
+  if (!Is.object(input) || Is.Native.proxy(input)) return false;
   try {
     return getPrototypeOf(input) === objectPrototype;
   } catch {
@@ -175,9 +175,9 @@ function hasAnyOwn(input: object, keys: readonly PropertyKey[]): boolean {
 }
 
 function isUint8Array(input: unknown): input is Uint8Array {
-  if (!Is.object(input) || Is.proxy(input)) return false;
+  if (!Is.object(input) || Is.Native.proxy(input)) return false;
   try {
-    return Is.nativeUint8Array(input) && getPrototypeOf(input) === NativeUint8ArrayPrototype;
+    return Is.Native.uint8Array(input) && getPrototypeOf(input) === NativeUint8ArrayPrototype;
   } catch {
     return false;
   }
@@ -187,7 +187,7 @@ function copyBytes(input: Uint8Array, remainingBytes: number): Uint8Array<ArrayB
   if (!BUFFER_GETTER) return;
   try {
     const buffer = apply(BUFFER_GETTER, input, []);
-    if (Is.nativeSharedArrayBuffer(buffer)) return;
+    if (Is.Native.sharedArrayBuffer(buffer)) return;
 
     const admittedLength = byteLengthOf(input);
     if (

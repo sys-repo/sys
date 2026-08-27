@@ -800,7 +800,7 @@ function ownInputData(input: object, key: PropertyKey): OptionalData {
 }
 
 function isDirectInputObject(input: unknown): input is object {
-  if (!Is.object(input) || Is.proxy(input)) return false;
+  if (!Is.object(input) || Is.Native.proxy(input)) return false;
   try {
     return getPrototypeOf(input) === objectPrototype;
   } catch {
@@ -857,7 +857,7 @@ function dependency<K extends keyof StartGuiDependencies>(
     throw createOwnedError('start:gui dependencies invalid.');
   }
   const value = descriptor.value;
-  if (!Is.func(value) || Is.proxy(value)) {
+  if (!Is.func(value) || Is.Native.proxy(value)) {
     throw createOwnedError('start:gui dependencies invalid.');
   }
   return value as StartGuiDependencies[K];
