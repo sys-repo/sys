@@ -1,282 +1,252 @@
 import type { t } from '../common.ts';
 
 /**
- * Boolean type guard evaluator contracts.
+ * Boolean predicates and type guards.
  */
 export declare namespace Is {
   /**
-   * Boolean type guard evaluators.
+   * Universal predicate surface.
    */
   export type Lib = {
-    /**
-     * Falsy check.
-     * https://developer.mozilla.org/en-US/docs/Glossary/Falsy
-     */
+    /** True for `false`, `0`, `0n`, `NaN`, the empty string, `null`, or `undefined`. */
     falsy(input?: unknown): input is t.Falsy | typeof NaN;
 
-    /**
-     * Determine if the input is nill (undefined or null).
-     */
+    /** True only for `null` or `undefined`. */
     nil(input?: unknown): input is null | undefined;
 
-    /** Determine if the input exposes canonical synchronous disposal authority. */
+    /**
+     * True for objects with callable `dispose` and `[Symbol.dispose]` methods whose
+     * `[Symbol.asyncDispose]` value is `undefined`.
+     */
     disposable(input?: unknown): input is t.Disposable;
 
     /**
-     * Determine if the input exposes synchronous lifecycle observation and terminal state.
+     * True for objects with boolean `disposed` state, observable `dispose$`, and no
+     * `[Symbol.asyncDispose]` property on the object or its prototype chain.
      */
     lifecycleView(input?: unknown): input is t.LifecycleView;
 
-    /**
-     * Determine if the input is an object implementing the `DisposableLike` interface.
-     */
+    /** True for non-null objects with a callable `dispose` method. */
     disposableLike(input?: unknown): input is t.DisposableLike;
 
-    /**
-     * Determine if the value is a Promise or thenable.
-     */
+    /** True for non-null objects or functions with a callable `then` property. */
     promise<T = unknown>(input?: unknown): input is PromiseLike<T>;
 
-    /** Determine if the value is a symbol. */
+    /** True for symbols. */
     symbol(input?: unknown): input is symbol;
 
-    /**
-     * Determine if the value is a started lifecycle handle with observed completion.
-     */
+    /** True for non-array objects with a Promise-like `finished` property. */
     waitableHandle(input?: unknown): input is t.WaitableHandle;
 
-    /**
-     * Determine if the value is an observable Subject.
-     */
+    /** True for non-null objects with callable `subscribe` and `next` methods. */
     subject<T = unknown>(input?: any): input is t.Subject<T>;
 
-    /**
-     * Determine if the value is an Observable.
-     */
+    /** True for non-null objects with a callable `subscribe` method. */
     observable<T = unknown>(input?: any): input is t.Observable<T>;
 
-    /**
-     * Determine if the given value is an Error instance.
-     */
+    /** True for `Error` instances recognized by the current realm. */
     error: t.Err.Is.Lib['error'];
-    /**
-     * Determine if the value is like an Error object.
-     */
+
+    /** True for `Error` instances or non-array objects with a string `message` property. */
     errorLike: t.Err.Is.Lib['errorLike'];
 
     /**
-     * Determine if the given value conforms to the [StdError] type.
+     * True for non-array objects that are not current-realm `Error` instances and have string `name`
+     * and `message` properties plus an optional recursively valid `cause`.
      */
     stdError: t.Err.Is.Lib['stdError'];
 
-    /**
-     * Determine if the value is a number.
-     */
+    /** True for finite numbers, bigint values, or non-blank strings that convert to finite numbers. */
     numeric(input?: unknown): boolean;
 
-    /**
-     * Determine if the input is a JSON structure.
-     */
+    /** True when a trimmed string begins with `{` or `[`. The content is not parsed or validated. */
     json(input?: unknown): input is t.Json;
 
     /**
-     * Determine if the input is [ArrayBufferLike].
+     * True when `Object.prototype.toString` reports `[object ArrayBuffer]` or
+     * `[object SharedArrayBuffer]`.
      */
     arrayBufferLike(input?: unknown): input is ArrayBufferLike;
 
     /**
-     * Determine if the inut is a [Uint8Array].
+     * True when `ArrayBuffer.isView` accepts the value and the intrinsic typed-array tag identifies
+     * a `Uint8Array`.
      */
     uint8Array(input?: unknown): input is Uint8Array;
 
     /**
-     * A safe way to test any value as to wheather is is 'blank'
-     * meaning it can be either:
-     *   - null
-     *   - undefined
-     *   - empty-string ('')
-     *   - empty-array ([]).
+     * True for `null`, `undefined`, whitespace-only strings, or arrays whose every element is blank.
      */
     blank(value?: unknown): boolean;
 
-    /** Determine if the given value is a `NetAddr`. */
+    /**
+     * True for objects with `tcp` or `udp` transport, a string hostname, and a number-valued port.
+     */
     netaddr(input: unknown): input is Deno.NetAddr;
 
-    /** Determine if the HTTP status code is within the 200 range.  */
+    /** True when the status code's string form begins with `2`. */
     statusOK(status: number): boolean;
 
-    /** True if the input or any nested `cause` carries the given HTTP status code. */
+    /** True when the input or any nested `cause` carries the given HTTP status code. */
     httpStatus(input: unknown, status: t.HttpStatusCode): boolean;
 
     /**
-     * True if running inside *any* browser JS runtime:
-     * window, iframe, or any Web Worker.
+     * True when the internal browser mock is active, or when `navigator.userAgent` is a string and
+     * no Deno runtime is detected.
      */
     browser(): boolean;
 
     /**
-     * True if running inside a Web Worker (Dedicated/Shared/Service).
+     * True when the global constructor is named `DedicatedWorkerGlobalScope`,
+     * `SharedWorkerGlobalScope`, or `ServiceWorkerGlobalScope`.
      */
     worker(): boolean;
 
-    /** Determine if the given input is typeof {object} and not Null. */
+    /** True for non-null values whose `typeof` is `object`. */
     object(input?: unknown): input is object;
-    /** Determine if the given input is a simple {key:value} record object. */
+
+    /** True for non-null, non-array objects; prototypes are unrestricted. */
     record<T extends O>(input?: unknown): input is T;
-    /** Determine if the given object is empty of all fields. */
+
+    /** True for records with no own enumerable string keys. */
     emptyRecord<T extends O>(input?: unknown): input is T;
 
     /**
-     * Test whether a value is a *plain* object.
-     * - Excludes arrays, functions, class instances, Dates, etc.
-     * - Prototype must be exactly `Object.prototype` or `null`.
-     * - Cross-realm safe (`Object.prototype.toString` check).
+     * True for values tagged `[object Object]` whose prototype is this realm's `Object.prototype`
+     * or `null`.
      */
     plainObject(input?: unknown): input is Record<PropertyKey, unknown>;
 
-    /**
-     * Test whether a value is a *plain record* (null-prototype object).
-     * - Excludes arrays, functions, class instances, Dates, etc.
-     * - Prototype must be exactly `null`.
-     * - Useful for dictionary / map-like objects that avoid prototype pollution.
-     */
+    /** True for values tagged `[object Object]` whose prototype is `null`. */
     plainRecord(input?: unknown): input is Record<PropertyKey, unknown>;
 
-    /**
-     * Determine if the value is a function.
-     * typeof === 'function'
-     */
+    /** True for functions. */
     func(input?: unknown): input is Function;
 
-    /**
-     * Determine if the value is a boolean.
-     * typeof === 'boolean'
-     */
+    /** True for boolean values. */
     bool(input?: unknown): input is boolean;
 
-    /**
-     * Determine if the value is a string.
-     * typeof === 'string'
-     */
+    /** True for strings. */
     string(input?: unknown): input is string;
+
+    /** Alias of `string`. */
     str(input?: unknown): input is string;
 
-    /**
-     * Determine if the value is a number.
-     * typeof === 'number'
-     */
+    /** True for numbers other than `NaN`. */
     number(input?: unknown): input is number;
+
+    /** Alias of `number`. */
     num(input?: unknown): input is number;
 
-    /**
-     * Determine if the value is an array.
-     */
+    /** True for arrays. */
     array<T>(input?: unknown): input is T[];
 
     /**
-     * Determine if the given value (or the browser is environment) is "localhost".
+     * True when an absolute URL string or location object has hostname `localhost`, `127.0.0.1`,
+     * `::1`, or `[::1]`. With no argument, reads `window.location.hostname` after `browser()` passes,
+     * so a window-like global is required.
      */
     localhost(value?: string | Location): boolean;
 
-    /**
-     * Determine if the given value is an ['object', 'path'] array.
-     */
+    /** True for arrays containing only string or number path segments. */
     objectPath(input?: unknown): input is t.ObjectPath;
 
     /**
-     * Determine if the given value is an `AbortSignal`.
+     * True for objects with boolean `aborted` state and callable `addEventListener` and
+     * `removeEventListener` methods.
      */
     abortSignal(input?: unknown): input is AbortSignal;
 
-    /**
-     * Determine if the given value is an `AbortController`.
-     */
+    /** True for objects with a callable `abort` method and a `signal` accepted by `abortSignal`. */
     abortController(input?: unknown): input is AbortController;
 
     /**
-     * Determine if the value conforms to an `Until`:
+     * True for lifecycle views, observables, abort signals, or arrays recursively containing only
+     * those values.
      */
     until(input?: unknown): input is t.Until;
 
-    /**
-     * Determine if the value conforms to an `UntilInput` API parameter.
-     */
+    /** True for `undefined`, any `Until`, or arrays recursively containing either. */
     untilInput(input?: unknown): input is t.UntilInput;
 
     /**
-     * True if the value structurally matches a WebSocket.
+     * True for non-null objects with callable `send`, `close`, and `addEventListener` methods.
      */
     websocket(input?: unknown): input is WebSocket;
 
     /**
-     * Determine if the given value is structurally URL-like.
-     *
-     * Matches:
-     *  - `URL` instances
-     *  - any `{ href: string }`
-     *  - any `{ toURL(): URL }`
+     * True for `URL` instances or non-array objects with a string `href` property or callable
+     * `toURL` method.
      */
     urlLike(input?: unknown): input is t.UrlLike;
 
-    /**
-     * True if the input is a valid http/https URL string.
-     *
-     * Only absolute http/https URLs are treated as URL strings;
-     * everything else (relative, malformed, non-string) returns false.
-     */
+    /** True when a string begins with an HTTP or HTTPS scheme and parses as an absolute URL. */
     urlString(input: unknown): input is t.StringUrl;
   };
 
   /**
-   * Deno/Node-only predicates backed by `node:util.types` host introspection.
+   * Deno and Node extension of the universal predicate surface, backed by `node:util.types`.
    *
-   * Here “server” denotes a runtime-capability boundary, not network authority. These predicates
-   * inspect native identity without reading input properties or invoking userland Proxy traps.
-   * Browser runtimes do not expose an equivalent Proxy detector, so this contract deliberately
-   * remains outside the universal `Is.Lib` surface. A positive result proves identity only; it
-   * does not authenticate ownership or make later operations on the value non-observing.
+   * `Server` marks a runtime capability boundary, not network authority. The implementation
+   * captures the host classifier functions as the module evaluates. Each must still be the original
+   * host function at that moment. Later replacement of properties on `node:util.types` cannot
+   * redirect the captured predicates.
+   *
+   * The host classifiers read no properties from the tested value and invoke no userland Proxy
+   * traps. A positive result establishes only the identity recognized by the captured classifier,
+   * not provenance, ownership, trust, or safety for later operations.
+   *
+   * Browsers expose no equivalent Proxy classifier, so this namespace is absent from `Is.Lib`.
    */
   export namespace Server {
-    /** Universal predicates extended with host-native identity guards. */
+    /**
+     * Universal predicates plus captured Deno and Node identity classifiers.
+     */
     export type Lib = Is.Lib & {
-      /** JavaScript identity classifiers backed by host introspection. */
+      /** Host identity classifiers captured when the server module evaluates. */
       readonly Native: Native.Lib;
 
-      /** Determine whether the value is a Proxy without invoking its traps. */
+      /** Compatibility alias for `Native.proxy`. */
       proxy(input?: unknown): boolean;
 
-      /** Determine whether the host recognizes the value as a native Promise. */
+      /** Compatibility alias for `Native.promise`. */
       nativePromise(input?: unknown): input is Promise<unknown>;
 
-      /** Determine whether the host recognizes the value as a native Error. */
+      /** Compatibility alias for `Native.error`. */
       nativeError(input?: unknown): input is Error;
 
-      /** Determine whether the host recognizes the value as a native Uint8Array. */
+      /** Compatibility alias for `Native.uint8Array`. */
       nativeUint8Array(input?: unknown): input is Uint8Array;
 
-      /** Determine whether the host recognizes the value as a native SharedArrayBuffer. */
+      /** Compatibility alias for `Native.sharedArrayBuffer`. */
       nativeSharedArrayBuffer(input?: unknown): input is SharedArrayBuffer;
     };
 
     /**
-     * JavaScript identity classifiers backed by host introspection.
+     * Identity predicates captured from `node:util.types` at module evaluation. The runtime
+     * namespace is frozen.
      */
     export namespace Native {
-      /** Host-native identity predicate surface. */
+      /**
+       * Captured host identity predicate surface.
+       */
       export type Lib = {
-        /** Determine whether the host recognizes the value as a Proxy. */
+        /**
+         * True when the captured host classifier identifies a live or revoked Proxy without
+         * invoking its traps.
+         */
         proxy(input?: unknown): boolean;
 
-        /** Determine whether the host recognizes the value as a native Promise. */
+        /** True when the captured host classifier recognizes the value as a Promise. */
         promise(input?: unknown): input is Promise<unknown>;
 
-        /** Determine whether the host recognizes the value as a native Error. */
+        /** True when the captured host classifier recognizes the value as a native Error. */
         error(input?: unknown): input is Error;
 
-        /** Determine whether the host recognizes the value as a native Uint8Array. */
+        /** True when the captured host classifier recognizes a `Uint8Array`. */
         uint8Array(input?: unknown): input is Uint8Array;
 
-        /** Determine whether the host recognizes the value as a native SharedArrayBuffer. */
+        /** True when the captured host classifier recognizes a `SharedArrayBuffer`. */
         sharedArrayBuffer(input?: unknown): input is SharedArrayBuffer;
       };
     }
