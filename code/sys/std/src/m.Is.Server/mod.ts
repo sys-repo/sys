@@ -21,9 +21,4 @@ import { Native } from './m.Native.ts';
 export const Is: t.Is.Server.Lib = Object.freeze({
   ...BaseIs,
   Native,
-  proxy: Native.proxy,
-  nativePromise: Native.promise,
-  nativeError: Native.error,
-  nativeUint8Array: Native.uint8Array,
-  nativeSharedArrayBuffer: Native.sharedArrayBuffer,
 });

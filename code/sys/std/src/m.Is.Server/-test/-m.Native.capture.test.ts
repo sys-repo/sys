@@ -1,8 +1,6 @@
 import { describe, expect, it } from '../../-test.ts';
 
 type Result = {
-  readonly aliasesClassify: boolean;
-  readonly aliasesRetainIdentity: boolean;
   readonly descriptorsRestored: boolean;
   readonly namespaceClassifies: boolean;
   readonly poisonCalls: number;
@@ -13,8 +11,6 @@ type Reply = { ok: true; value: Result } | { ok: false; error: string };
 describe('Is.Native capture authority', () => {
   it('module evaluation → later host-classifier replacement cannot redirect predicates', async () => {
     expect(await runFixture()).to.eql({
-      aliasesClassify: true,
-      aliasesRetainIdentity: true,
       descriptorsRestored: true,
       namespaceClassifies: true,
       poisonCalls: 0,

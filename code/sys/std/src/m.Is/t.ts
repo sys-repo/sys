@@ -205,21 +205,6 @@ export declare namespace Is {
     export type Lib = Is.Lib & {
       /** Host identity classifiers captured when the server module evaluates. */
       readonly Native: Native.Lib;
-
-      /** Compatibility alias for `Native.proxy`. */
-      proxy(input?: unknown): boolean;
-
-      /** Compatibility alias for `Native.promise`. */
-      nativePromise(input?: unknown): input is Promise<unknown>;
-
-      /** Compatibility alias for `Native.error`. */
-      nativeError(input?: unknown): input is Error;
-
-      /** Compatibility alias for `Native.uint8Array`. */
-      nativeUint8Array(input?: unknown): input is Uint8Array;
-
-      /** Compatibility alias for `Native.sharedArrayBuffer`. */
-      nativeSharedArrayBuffer(input?: unknown): input is SharedArrayBuffer;
     };
 
     /**

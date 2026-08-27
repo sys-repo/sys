@@ -30,8 +30,6 @@ function run() {
   const descriptors = KEYS.map((key) => requiredDescriptor(NodeTypes, key));
   let poisonCalls = 0;
   let namespaceClassifies = false;
-  let aliasesClassify = false;
-  let aliasesRetainIdentity = false;
 
   try {
     KEYS.forEach((key, index) => {
@@ -60,27 +58,11 @@ function run() {
       Is.Native.uint8Array(bytes),
       Is.Native.sharedArrayBuffer(shared),
     ].every(Boolean);
-    aliasesClassify = [
-      Is.proxy(proxy),
-      Is.nativePromise(promise),
-      Is.nativeError(error),
-      Is.nativeUint8Array(bytes),
-      Is.nativeSharedArrayBuffer(shared),
-    ].every(Boolean);
-    aliasesRetainIdentity = [
-      Is.Native.proxy === Is.proxy,
-      Is.Native.promise === Is.nativePromise,
-      Is.Native.error === Is.nativeError,
-      Is.Native.uint8Array === Is.nativeUint8Array,
-      Is.Native.sharedArrayBuffer === Is.nativeSharedArrayBuffer,
-    ].every(Boolean);
   } finally {
     KEYS.forEach((key, index) => Object.defineProperty(NodeTypes, key, descriptors[index]));
   }
 
   return {
-    aliasesClassify,
-    aliasesRetainIdentity,
     descriptorsRestored: KEYS.every((key, index) =>
       sameDescriptor(Object.getOwnPropertyDescriptor(NodeTypes, key), descriptors[index])
     ),

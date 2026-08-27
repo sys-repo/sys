@@ -3,7 +3,8 @@ import { Is as BaseIs } from '../../m.Is/mod.ts';
 import { Is } from '../mod.ts';
 
 describe('Is.Native', () => {
-  it('exposes the host-native namespace without changing flat predicate identity', () => {
+  it('exposes the complete frozen host-native namespace', () => {
+    expect(Object.keys(Is)).to.eql([...Object.keys(BaseIs), 'Native']);
     expect(Object.keys(Is.Native)).to.eql([
       'proxy',
       'promise',
@@ -11,11 +12,6 @@ describe('Is.Native', () => {
       'uint8Array',
       'sharedArrayBuffer',
     ]);
-    expect(Is.Native.proxy).to.equal(Is.proxy);
-    expect(Is.Native.promise).to.equal(Is.nativePromise);
-    expect(Is.Native.error).to.equal(Is.nativeError);
-    expect(Is.Native.uint8Array).to.equal(Is.nativeUint8Array);
-    expect(Is.Native.sharedArrayBuffer).to.equal(Is.nativeSharedArrayBuffer);
     expect(Object.isFrozen(Is.Native)).to.eql(true);
     expect(Object.isFrozen(Is)).to.eql(true);
     expectTypeOf(Is.Native).toEqualTypeOf<t.Is.Server.Native.Lib>();

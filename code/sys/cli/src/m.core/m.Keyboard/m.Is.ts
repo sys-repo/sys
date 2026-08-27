@@ -18,7 +18,7 @@ export const Is: t.CliKeyboard.Is.Lib = Object.freeze({
   unavailableError(error: unknown): boolean {
     if (!IsBase.object(error)) return false;
     try {
-      if (IsBase.proxy(error) || !IsBase.nativeError(error)) return false;
+      if (IsBase.Native.proxy(error) || !IsBase.Native.error(error)) return false;
       const name = ownString(error, 'name');
       if (name === 'BadResource') return true;
       const message = ownString(error, 'message');
