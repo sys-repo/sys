@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../-test.ts';
 import { Is } from '../mod.ts';
 
-describe('Is.nativePromise', () => {
+describe('Is.Native.promise', () => {
   it('recognizes native promises without reading properties', () => {
     const reads: string[] = [];
     const promise = Promise.resolve(123);
@@ -22,11 +22,11 @@ describe('Is.nativePromise', () => {
       },
     });
 
-    expect(Is.nativePromise(promise)).to.eql(true);
-    expect(Is.nativePromise(new Promise<void>(() => undefined))).to.eql(true);
-    expect(Is.nativePromise({ then() {} })).to.eql(false);
-    expect(Is.nativePromise(Object.create(Promise.prototype))).to.eql(false);
-    expect(Is.nativePromise(undefined)).to.eql(false);
+    expect(Is.Native.promise(promise)).to.eql(true);
+    expect(Is.Native.promise(new Promise<void>(() => undefined))).to.eql(true);
+    expect(Is.Native.promise({ then() {} })).to.eql(false);
+    expect(Is.Native.promise(Object.create(Promise.prototype))).to.eql(false);
+    expect(Is.Native.promise(undefined)).to.eql(false);
     expect(reads).to.eql([]);
   });
 
@@ -45,8 +45,8 @@ describe('Is.nativePromise', () => {
     const revoked = Proxy.revocable(Promise.resolve(), {});
     revoked.revoke();
 
-    expect(Is.nativePromise(proxy)).to.eql(false);
-    expect(Is.nativePromise(revoked.proxy)).to.eql(false);
+    expect(Is.Native.promise(proxy)).to.eql(false);
+    expect(Is.Native.promise(revoked.proxy)).to.eql(false);
     expect(traps).to.eql(0);
   });
 });

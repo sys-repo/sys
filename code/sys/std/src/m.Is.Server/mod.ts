@@ -6,7 +6,10 @@
  * `node:util.types` to classify values without reading their properties or
  * invoking Proxy traps; browsers provide no equivalent Proxy detector.
  *
- * A match proves identity only. It does not establish ownership or make later
+ * The host classifier bindings must retain their host-provided identities when
+ * this module evaluates. The frozen surface keeps those captured references and
+ * ignores later property replacement. A match proves identity only within that
+ * initialization precondition; it does not establish ownership or make later
  * operations safe.
  */
 import { BaseIs, type t } from './common.ts';

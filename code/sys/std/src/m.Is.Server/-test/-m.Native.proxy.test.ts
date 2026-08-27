@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../-test.ts';
 import { Is } from '../mod.ts';
 
-describe('Is.proxy', () => {
+describe('Is.Native.proxy', () => {
   it('detects live and revoked proxies without invoking traps', () => {
     let traps = 0;
     const proxy = new Proxy({}, {
@@ -17,10 +17,10 @@ describe('Is.proxy', () => {
     const revoked = Proxy.revocable({}, {});
     revoked.revoke();
 
-    expect(Is.proxy(proxy)).to.eql(true);
-    expect(Is.proxy(revoked.proxy)).to.eql(true);
-    expect(Is.proxy({})).to.eql(false);
-    expect(Is.proxy(undefined)).to.eql(false);
+    expect(Is.Native.proxy(proxy)).to.eql(true);
+    expect(Is.Native.proxy(revoked.proxy)).to.eql(true);
+    expect(Is.Native.proxy({})).to.eql(false);
+    expect(Is.Native.proxy(undefined)).to.eql(false);
     expect(traps).to.eql(0);
   });
 });

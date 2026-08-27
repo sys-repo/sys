@@ -1,13 +1,13 @@
 import { describe, expect, it } from '../../-test.ts';
 import { Is } from '../mod.ts';
 
-describe('Is.nativeSharedArrayBuffer', () => {
+describe('Is.Native.sharedArrayBuffer', () => {
   it('recognizes native shared buffers and rejects lookalikes', () => {
-    expect(Is.nativeSharedArrayBuffer(new SharedArrayBuffer(4))).to.eql(true);
-    expect(Is.nativeSharedArrayBuffer(new ArrayBuffer(4))).to.eql(false);
-    expect(Is.nativeSharedArrayBuffer(new Uint8Array(4))).to.eql(false);
-    expect(Is.nativeSharedArrayBuffer({ byteLength: 4 })).to.eql(false);
-    expect(Is.nativeSharedArrayBuffer(undefined)).to.eql(false);
+    expect(Is.Native.sharedArrayBuffer(new SharedArrayBuffer(4))).to.eql(true);
+    expect(Is.Native.sharedArrayBuffer(new ArrayBuffer(4))).to.eql(false);
+    expect(Is.Native.sharedArrayBuffer(new Uint8Array(4))).to.eql(false);
+    expect(Is.Native.sharedArrayBuffer({ byteLength: 4 })).to.eql(false);
+    expect(Is.Native.sharedArrayBuffer(undefined)).to.eql(false);
   });
 
   it('rejects SharedArrayBuffer proxies without invoking traps', () => {
@@ -25,8 +25,8 @@ describe('Is.nativeSharedArrayBuffer', () => {
     const revoked = Proxy.revocable(new SharedArrayBuffer(4), {});
     revoked.revoke();
 
-    expect(Is.nativeSharedArrayBuffer(proxy)).to.eql(false);
-    expect(Is.nativeSharedArrayBuffer(revoked.proxy)).to.eql(false);
+    expect(Is.Native.sharedArrayBuffer(proxy)).to.eql(false);
+    expect(Is.Native.sharedArrayBuffer(revoked.proxy)).to.eql(false);
     expect(traps).to.eql(0);
   });
 });
