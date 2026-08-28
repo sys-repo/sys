@@ -40,7 +40,10 @@ export declare namespace Process {
      */
     invoke(config: t.Process.InvokeArgs): Promise<t.Process.Output>;
 
-    /** Execute a no-shell argv command with bounded stdout/stderr capture. */
+    /**
+     * Execute a no-shell argv command with bounded stdout/stderr capture.
+     * Post-spawn execution or cleanup failures return the `failed` result variant.
+     */
     capture(config: t.Process.CaptureArgs): Promise<t.Process.CaptureOutput>;
 
     /**
@@ -222,7 +225,11 @@ export declare namespace Process {
     silent?: boolean;
   };
 
-  /** Arguments passed to `Process.capture`. */
+  /**
+   * Arguments passed to `Process.capture`.
+   * Terminal cleanup shares one aggregate budget across termination, status, and output-stream
+   * settlement.
+   */
   export type CaptureArgs = {
     args: string[];
     cmd?: string;
@@ -231,9 +238,11 @@ export declare namespace Process {
     clearEnv?: boolean;
     env?: t.Process.Env;
     signal?: AbortSignal;
+    /** Execution timeout duration in the inclusive timer domain `[0, Time.Delay.MAX]`. */
     timeoutMs?: t.Msecs;
     maxStdoutBytes: number;
     maxStderrBytes: number;
+    /** Grace duration after SIGTERM before SIGKILL; must not exceed `Time.Delay.MAX`. */
     killGraceMs?: t.Msecs;
   };
 
@@ -242,6 +251,7 @@ export declare namespace Process {
     | CaptureExitedOutput
     | CaptureTimedOutOutput
     | CaptureCancelledOutput
+    | CaptureFailedOutput
     | CaptureFailedToStartOutput;
 
   /** Shared bounded capture output fields. */
@@ -264,6 +274,21 @@ export declare namespace Process {
   export type CaptureTermination<R extends 'timeout' | 'cancelled'> = {
     readonly reason: R;
     readonly actions: readonly t.Process.Terminate.Action[];
+  };
+
+  /** Ordered failure phase emitted by a spawned capture operation. */
+  export type CaptureFailurePhase =
+    | 'setup'
+    | 'status'
+    | 'status:settle'
+    | 'termination'
+    | `signal:${'SIGTERM' | 'SIGKILL'}`
+    | `${StdStream}:${'read' | 'cancel' | 'settle' | 'release'}`;
+
+  /** One underlying capture failure with every causal phase that observed it. */
+  export type CaptureFailure = {
+    readonly phases: readonly CaptureFailurePhase[];
+    readonly error: unknown;
   };
 
   /** Capture result for a child process that exited before timeout/cancellation. */
@@ -294,6 +319,22 @@ export declare namespace Process {
     readonly success: false;
     readonly signal: Deno.Signal | null;
     readonly termination: CaptureTermination<'cancelled'>;
+  };
+
+  /** Capture result for a post-spawn execution or cleanup failure. */
+  export type CaptureFailedOutput = CaptureBaseOutput & {
+    readonly outcome: 'failed';
+    readonly status: Deno.CommandStatus | null;
+    readonly code: number | null;
+    readonly success: false;
+    readonly signal: Deno.Signal | null;
+    readonly termination: {
+      readonly reason: 'failure' | 'timeout' | 'cancelled';
+      readonly actions: readonly t.Process.Terminate.Action[];
+      readonly forceTimedOut: boolean;
+    };
+    readonly failures: readonly CaptureFailure[];
+    readonly error: unknown;
   };
 
   /** Capture result for command construction/spawn substrate failures. */
