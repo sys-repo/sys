@@ -10,8 +10,18 @@ export const TEST_BODY_TEMPLATE = `      - name: 'Configure Browser Runtime: Chr
         run: |
           for bin in google-chrome google-chrome-stable chromium chromium-browser; do
             if command -v "$bin" >/dev/null 2>&1; then
-              path="$(command -v "$bin")"
-              echo "CHROME_BIN=$path" >> "$GITHUB_ENV"
+              path="$(realpath -- "$(command -v "$bin")")"
+              case "$path" in
+                *','*|*$'\\r'*|*$'\\n'*)
+                  echo "::error::Chrome executable path is unsafe for Deno permission transport"
+                  exit 1
+                  ;;
+              esac
+              if [ ! -f "$path" ] || [ ! -x "$path" ] || [ -L "$path" ]; then
+                echo "::error::Chrome executable is not a canonical regular executable"
+                exit 1
+              fi
+              printf 'CHROME_BIN=%s\\n' "$path" >> "$GITHUB_ENV"
               "$path" --version
               exit 0
             fi

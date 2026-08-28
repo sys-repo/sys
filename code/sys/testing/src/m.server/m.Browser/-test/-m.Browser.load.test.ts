@@ -1,16 +1,19 @@
 import { describe, expect, it, Testing } from '../../-test.ts';
-import { Fs, Process } from '../common.ts';
-import { Is as UniversalIs } from '@sys/std/is';
+import type { Is as UniversalIs } from '@sys/std/is';
 import { Browser } from '../mod.ts';
+import { browserProofExecutable, consumePreparedBrowserBundle } from './u.browser.proof.ts';
 
 // @ts-expect-error `Native` exists only on the server entrypoint.
 type NativeMustBeAbsent = typeof UniversalIs.Native;
+
+const executablePath = await browserProofExecutable();
+const universalIsBundle = await consumePreparedBrowserBundle();
 
 describe('Browser.load', () => {
   it('loads a local page in Chrome without browser runtime errors', async () => {
     const server = startPageServer();
     try {
-      const res = await Browser.load(server.url.raw);
+      const res = await Browser.load(server.url.raw, { executablePath });
       if (!res.ok) console.info(res);
       expect(res.ok).to.eql(true);
       expect(res.errors).to.eql([]);
@@ -21,12 +24,11 @@ describe('Browser.load', () => {
   });
 
   it('bundles universal std Is → executes in real Chrome without server surface', async () => {
-    const bundle = await bundleUniversalIsFixture();
     let proofRequests = 0;
     const server = Testing.Http.server((request) => {
       const { pathname } = new URL(request.url);
       if (pathname === '/bundle.js') {
-        return new Response(bundle, {
+        return new Response(new Uint8Array(universalIsBundle), {
           headers: {
             'cache-control': 'no-store',
             'content-type': 'text/javascript; charset=utf-8',
@@ -41,7 +43,7 @@ describe('Browser.load', () => {
     });
 
     try {
-      const res = await Browser.load(server.url.raw, { waitAfterLoad: 1_000 });
+      const res = await Browser.load(server.url.raw, { executablePath, waitAfterLoad: 1_000 });
       if (!res.ok) console.info(res);
       expect(res.ok).to.eql(true);
       expect(res.errors).to.eql([]);
@@ -51,30 +53,6 @@ describe('Browser.load', () => {
     }
   });
 });
-
-async function bundleUniversalIsFixture() {
-  const output = await Process.capture({
-    args: [
-      'bundle',
-      '--platform=browser',
-      '--frozen',
-      '--no-remote',
-      './src/m.server/m.Browser/-test/u.fixture.std-is.browser.ts',
-    ],
-    cmd: Deno.execPath(),
-    cwd: Fs.Path.fromFileUrl(new URL('../../../../', import.meta.url)),
-    timeoutMs: 30_000,
-    maxStdoutBytes: 1_000_000,
-    maxStderrBytes: 100_000,
-  });
-
-  const failed = output.outcome !== 'exited' || !output.success;
-  if (failed || output.stdoutTruncated || output.stderrTruncated) {
-    const detail = output.text.stderr.trim() || `outcome=${output.outcome}`;
-    throw new Error(`Failed to bundle universal std Is fixture: ${detail}`);
-  }
-  return new Uint8Array(output.stdout);
-}
 
 function startPageServer() {
   return Testing.Http.server(() => {

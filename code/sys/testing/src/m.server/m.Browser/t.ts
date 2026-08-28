@@ -24,7 +24,7 @@ export declare namespace Browser {
     export type Options = {
       /** Browser backend. Defaults to Chrome. */
       browser?: Kind;
-      /** Browser executable path. Defaults to CHROME_BIN or common platform locations. */
+      /** Canonical regular browser executable path. Defaults to CHROME_BIN or platform discovery. */
       executablePath?: t.StringAbsolutePath;
       /** Milliseconds to wait after the correlated main-frame load lifecycle. */
       waitAfterLoad?: t.Msecs;
@@ -60,7 +60,7 @@ export declare namespace Browser {
       export type Options = {
         /** Ordered closed-vocabulary actions. The first navigation fixes the origin. */
         steps: readonly Step[];
-        /** Browser executable path. Defaults to CHROME_BIN or common platform locations. */
+        /** Canonical regular browser executable path. Defaults to CHROME_BIN or platform discovery. */
         executablePath?: t.StringAbsolutePath;
         /** Default action/load timeout. */
         timeout?: t.Msecs;

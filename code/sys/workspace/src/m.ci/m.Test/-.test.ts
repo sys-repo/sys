@@ -35,7 +35,10 @@ describe('WorkspaceCi.Test.Linux', () => {
     expect(incl('FORCE_JAVASCRIPT_ACTIONS_TO_NODE24')).to.be.false;
     expect(incl('for bin in google-chrome google-chrome-stable chromium chromium-browser')).to.be
       .true;
-    expect(incl('echo "CHROME_BIN=$path" >> "$GITHUB_ENV"')).to.be.true;
+    expect(incl('path="$(realpath -- "$(command -v "$bin")")"')).to.be.true;
+    expect(incl('case "$path" in')).to.be.true;
+    expect(incl('Chrome executable path is unsafe for Deno permission transport')).to.be.true;
+    expect(incl('printf \'CHROME_BIN=%s\\n\' "$path" >> "$GITHUB_ENV"')).to.be.true;
     expect(incl('browser: true')).to.be.true;
     expect(incl('Verify workspace graph')).to.be.true;
     expect(incl('run: deno task check:graph')).to.be.true;

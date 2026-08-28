@@ -7,6 +7,7 @@ const CHROME_START_TIMEOUT = 30_000;
 const CHROME_CLOSE_TIMEOUT = 10_000;
 const PROFILE_REMOVE_TIMEOUT = 10_000;
 const MAX_START_OUTPUT = 2_000;
+const CHROME_ENV = Object.freeze({ FORCE_COLOR: '0' });
 
 export function launchModes(): readonly t.Browser.Chrome.Start.Mode[] {
   return [
@@ -43,11 +44,22 @@ export async function startChrome(
     resolveDevtools(browserWs);
   };
 
+  const invocation = Object.freeze({
+    executablePath,
+    args,
+    clearEnv: true as const,
+    env: CHROME_ENV,
+  });
   let proc: ChromeProcess | undefined;
   try {
-    proc = deps.spawn
-      ? deps.spawn({ executablePath, args })
-      : Process.spawn({ cmd: executablePath, args, silent: true, readySignal: () => false });
+    proc = deps.spawn ? deps.spawn(invocation) : Process.spawn({
+      cmd: executablePath,
+      args,
+      clearEnv: invocation.clearEnv,
+      env: { ...invocation.env },
+      silent: true,
+      readySignal: () => false,
+    });
     proc.onStdErr((e) => {
       stderr = appendBounded(stderr, e.toString());
       tryResolve();
@@ -71,6 +83,7 @@ export async function startChrome(
     return {
       ok: true,
       browserWs,
+      profilePath: userDataDir,
       stderr: () => sanitizeChromeOutput(stderr, userDataDir),
       close,
     };

@@ -28,6 +28,25 @@ describe('Browser Chrome lifecycle policy', () => {
     sandboxBypasses.forEach((flag) => expect(args.includes(flag)).to.eql(false));
   });
 
+  it('process environment → clears ambient values before Chrome acquisition', async () => {
+    let invocation: Parameters<NonNullable<t.Browser.Chrome.Start.Deps['spawn']>>[0] | undefined;
+    const started = await startChrome('/fake/chrome', launchModes()[0], {
+      makeProfile: () => Promise.resolve('/custom/tmp/sys-testing-chrome-environment'),
+      spawn: (input) => {
+        invocation = input;
+        return processStub();
+      },
+      removeProfile: () => Promise.resolve(undefined),
+      devtoolsUrl: 'ws://127.0.0.1/devtools/browser/test',
+    });
+
+    expect(started.ok).to.eql(true);
+    expect(invocation?.executablePath).to.eql('/fake/chrome');
+    expect(invocation?.clearEnv).to.eql(true);
+    expect(invocation?.env).to.eql({ FORCE_COLOR: '0' });
+    if (started.ok) await started.close();
+  });
+
   it('startup diagnostics → redact the exact profile across custom temp shapes', () => {
     const secret = '/home/runner/work/_temp/custom profile/sys-testing-chrome-secret';
     const text = sanitizeChromeOutput(
@@ -534,6 +553,7 @@ describe('Browser Chrome lifecycle policy', () => {
     const start: t.Browser.Chrome.Start.Started = {
       ok: true,
       browserWs: 'ws://127.0.0.1/devtools/browser/test',
+      profilePath: '/custom/tmp/sys-testing-chrome-session-cleanup',
       stderr: () => '',
       async close() {
         processClose += 1;

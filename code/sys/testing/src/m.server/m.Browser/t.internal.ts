@@ -107,6 +107,8 @@ export declare namespace Browser {
         readonly spawn?: (args: {
           readonly executablePath: string;
           readonly args: readonly string[];
+          readonly clearEnv: true;
+          readonly env: Readonly<Record<string, string>>;
         }) => Pick<TProcess.Handle, 'dispose' | 'onStdErr' | 'onStdOut'>;
         readonly removeProfile?: (path: t.StringAbsolutePath) => Promise<unknown>;
         readonly startTimeout?: t.Msecs;
@@ -119,6 +121,8 @@ export declare namespace Browser {
       export type Started = {
         readonly ok: true;
         readonly browserWs: t.StringUrl;
+        /** Internal profile marker retained only until cleanup proof. */
+        readonly profilePath: t.StringAbsolutePath;
         readonly stderr: () => string;
         readonly close: () => Promise<readonly Cleanup.Failure[]>;
       };

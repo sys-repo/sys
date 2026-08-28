@@ -1,5 +1,6 @@
 import { Err, type t, Time } from './common.ts';
 import { connectCdp } from './u.chrome.cdp.ts';
+import { validateChromeExecutable } from './u.chrome.executable.ts';
 import { chromeNotFoundError, findChrome } from './u.chrome.find.ts';
 import { launchModes, startChrome } from './u.chrome.launch.ts';
 
@@ -11,8 +12,9 @@ const BROWSER_CLOSE_TIMEOUT = 5_000;
 export async function openChromeSession(
   options: { executablePath?: t.StringAbsolutePath } = {},
 ): Promise<t.Browser.Chrome.Session> {
-  const executablePath = options.executablePath ?? await findChrome();
-  if (!executablePath) throw await chromeNotFoundError();
+  const selectedPath = options.executablePath ?? await findChrome();
+  if (!selectedPath) throw await chromeNotFoundError();
+  const executablePath = await validateChromeExecutable(selectedPath);
 
   const startupFailures: t.Browser.Chrome.Start.Failure[] = [];
   for (const mode of launchModes()) {

@@ -8,15 +8,35 @@ server, filesystem, and browser tests.
 ```sh
 deno task check
 deno task test
-deno task test:browser
+CHROME_BIN="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" deno task test:browser
 deno task dry
 ```
 
-`deno task test` sequences a no-subprocess `test:unit` lane and a trusted package-harness
-`test:process` lane that launches isolated Deno sanitizer fixtures. Neither lane executes browser
-files. `deno task test:browser` runs under its own permission profile. It may launch Chrome, create
-a temporary profile, and connect to loopback fixtures and Chrome's CDP endpoint. Set `CHROME_BIN`
-only when Chrome or Chromium cannot be found in a standard location.
+`deno task test` runs ordinary units without subprocess authority, then isolated sanitizer fixtures
+with Deno-only authority. It excludes browser tests.
+
+### Browser authority
+
+A browser test must start Chrome; it does not need permission to start every program on the host.
+`CHROME_BIN` is trusted orchestration input: one canonical, absolute, regular executable—not a
+symlink. The browser task rejects permission-list delimiters, binds that same path to both Deno's
+sole run grant and the Browser launch argument, then removes `CHROME_BIN` from the proof process.
+The path above is the concrete Darwin form; Linux CI supplies its host's canonical path.
+
+The task separates no-run units, Deno-only bundle preparation, Chrome-only integration, and a
+postflight with only host process-list run authority. No test process can launch both Deno and
+Chrome. Testing still owns the Chrome profile, loopback CDP session, diagnostics, bounded
+termination, and cleanup. A failed run retains its evidence; a later preflight will not overwrite
+it.
+
+The boundary is deliberately narrow. It proves which pathname the Deno proof process may execute,
+not what that file is or what Chrome may do. If a trusted caller sets `CHROME_BIN=/bin/sh`, Deno
+will faithfully grant `/bin/sh`; the browser run should fail, but the selection itself is not
+attested. Likewise, executable replacement after validation and Chrome's arguments or descendants
+remain operating-system concerns. The finite task prevents browser-test code from directly launching
+Deno, shells, Node, package managers, or unrelated executables when the caller selected Chrome; it
+does not claim to sandbox Chrome. Ordinary Browser API discovery remains a convenience, not this
+proof.
 
 ## Browser tests
 

@@ -1,8 +1,14 @@
 import { Env, Fs, Str } from './common.ts';
+import { validateChromeExecutable } from './u.chrome.executable.ts';
 
 export async function findChrome() {
   for (const path of await chromeCandidates()) {
-    if (await Fs.exists(path)) return path;
+    try {
+      const canonicalPath = await Fs.realPath(path);
+      return await validateChromeExecutable(canonicalPath);
+    } catch {
+      // Continue through the bounded convenience-discovery list.
+    }
   }
   return undefined;
 }

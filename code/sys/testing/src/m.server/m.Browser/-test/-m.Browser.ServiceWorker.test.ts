@@ -1,5 +1,11 @@
 import { describe, expect, it, Testing, Time } from '../../-test.ts';
 import { Browser } from '../mod.ts';
+import { browserProofExecutable } from './u.browser.proof.ts';
+
+const executablePath = await browserProofExecutable();
+const scenario: typeof Browser.ServiceWorker.scenario = (options) => {
+  return Browser.ServiceWorker.scenario({ ...options, executablePath });
+};
 
 const workerV1 = `
   self.addEventListener('install', (event) => event.waitUntil(self.skipWaiting()));
@@ -50,7 +56,7 @@ describe('Browser.ServiceWorker.scenario', () => {
       const origin = new URL(server.url.raw).origin;
       const scope = `${origin}/`;
       const scriptURL = `${origin}/sw.js`;
-      const result = await Browser.ServiceWorker.scenario({
+      const result = await scenario({
         steps: [
           { kind: 'navigate', url: `${origin}/clean` },
           { kind: 'observe', expect: { kind: 'controller', state: 'absent' } },
@@ -131,7 +137,7 @@ describe('Browser.ServiceWorker.scenario', () => {
 
     try {
       const origin = new URL(server.url.raw).origin;
-      const first = await Browser.ServiceWorker.scenario({
+      const first = await scenario({
         steps: [
           { kind: 'navigate', url: `${origin}/register` },
           {
@@ -140,7 +146,7 @@ describe('Browser.ServiceWorker.scenario', () => {
           },
         ],
       });
-      const second = await Browser.ServiceWorker.scenario({
+      const second = await scenario({
         steps: [
           { kind: 'navigate', url: `${origin}/clean` },
           { kind: 'observe', expect: { kind: 'controller', state: 'absent' } },
@@ -176,7 +182,7 @@ describe('Browser.ServiceWorker.scenario', () => {
     try {
       const origin = new URL(server.url.raw).origin;
       const scope = `${origin}${workerScope}`;
-      const result = await Browser.ServiceWorker.scenario({
+      const result = await scenario({
         steps: [
           { kind: 'navigate', url: server.url.raw },
           { kind: 'observe', expect: { kind: 'registration', scope, state: 'present' } },
@@ -200,7 +206,7 @@ describe('Browser.ServiceWorker.scenario', () => {
     const server = startPageServer();
     try {
       const origin = new URL(server.url.raw).origin;
-      const result = await Browser.ServiceWorker.scenario({
+      const result = await scenario({
         steps: [
           { kind: 'navigate', url: server.url.raw },
           { kind: 'update', scope: `${origin}/` },
@@ -226,7 +232,7 @@ describe('Browser.ServiceWorker.scenario', () => {
       );
     });
     try {
-      const result = await Browser.ServiceWorker.scenario({
+      const result = await scenario({
         steps: [{ kind: 'navigate', url: server.url.raw }],
         maxDiagnostics: 1,
       });
@@ -249,7 +255,7 @@ describe('Browser.ServiceWorker.scenario', () => {
       </script>`);
     });
     try {
-      const result = await Browser.ServiceWorker.scenario({
+      const result = await scenario({
         steps: [
           { kind: 'navigate', url: server.url.raw },
           { kind: 'observe', expect: { kind: 'controller', state: 'absent' }, timeout: 50 },
@@ -280,7 +286,7 @@ describe('Browser.ServiceWorker.scenario', () => {
     try {
       let caught: unknown;
       try {
-        await Browser.ServiceWorker.scenario({
+        await scenario({
           steps: [
             { kind: 'navigate', url: server.url.raw },
             ...Array.from({ length: 99 }, () => ({
@@ -305,7 +311,7 @@ describe('Browser.ServiceWorker.scenario', () => {
     const server = startPageServer();
     try {
       const started = Time.now.timestamp;
-      const result = await Browser.ServiceWorker.scenario({
+      const result = await scenario({
         steps: [
           { kind: 'navigate', url: server.url.raw },
           {
@@ -339,7 +345,7 @@ describe('Browser.ServiceWorker.scenario', () => {
     try {
       let caught: unknown;
       try {
-        await Browser.ServiceWorker.scenario({
+        await scenario({
           steps: [{ kind: 'navigate', url: admitted.url.raw }],
           timeout: 2_000,
         });
@@ -360,7 +366,7 @@ describe('Browser.ServiceWorker.scenario', () => {
     try {
       let caught: unknown;
       try {
-        await Browser.ServiceWorker.scenario({
+        await scenario({
           steps: [
             { kind: 'navigate', url: server.url.raw },
             { kind: 'navigate', url: 'https://example.com/' },
@@ -381,7 +387,7 @@ describe('Browser.ServiceWorker.scenario', () => {
     steps[0] = { kind: 'reload' };
     let caught: unknown;
     try {
-      await Browser.ServiceWorker.scenario({
+      await scenario({
         steps: [{ kind: 'navigate', url: 'http://127.0.0.1/' }, ...steps],
       });
     } catch (cause) {

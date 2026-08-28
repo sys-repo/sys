@@ -1,4 +1,5 @@
 import { Err, Is, Json, Num, Str, type t, Time } from './common.ts';
+import { assertChromeExecutableInput } from './u.chrome.executable.ts';
 import {
   attachChromeTarget,
   enableChromeTarget,
@@ -516,9 +517,7 @@ function normalizeOptions(options: t.Browser.ServiceWorker.Scenario.Options): In
 
 function normalizeExecutablePath(input: unknown): t.StringAbsolutePath | undefined {
   if (input === undefined) return undefined;
-  if (!Is.str(input) || !input || input.length > HARD_MAX_INPUT_LENGTH) {
-    throw new TypeError('Browser scenario executable path must be a bounded absolute path.');
-  }
+  assertChromeExecutableInput(input);
   return input;
 }
 
