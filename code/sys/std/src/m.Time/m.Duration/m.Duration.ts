@@ -1,4 +1,4 @@
-import { Date as TimeDate } from '../m.Time.Date/mod.ts';
+import { Date as TimeDate } from '../../m.Time.Date/mod.ts';
 import { Num, type t } from './common.ts';
 
 const { MINUTE, SECOND, DAY, HOUR } = TimeDate;

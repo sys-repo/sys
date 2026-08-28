@@ -1,4 +1,4 @@
-import type { t } from '../common.ts';
+import type { t } from './common.ts';
 import { delay } from './u.delay.ts';
 import { MAX } from './u.timerMsecs.ts';
 

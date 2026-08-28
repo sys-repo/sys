@@ -1,9 +1,9 @@
-import { Dispose } from '../m.Dispose/mod.ts';
-import { Rx } from '../m.Rx/mod.ts';
+import { Dispose } from '../../m.Dispose/mod.ts';
+import { Rx } from '../../m.Rx/mod.ts';
 
-import type { t } from './common.ts';
-import { delay, Wrangle } from './m.Delay/u.delay.ts';
-import { interval } from './m.Time.interval.ts';
+import type { t } from '../common.ts';
+import { delay, Wrangle } from '../m.Delay/u.delay.ts';
+import { interval } from './u.interval.ts';
 
 /**
  * Exposes timer functions that cease after a dispose signal is received.

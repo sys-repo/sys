@@ -1,5 +1,5 @@
-import { Is, type t } from './common.ts';
-import { delay } from './m.Delay/u.delay.ts';
+import { Is, type t } from '../common.ts';
+import { delay } from '../m.Delay/u.delay.ts';
 
 /**
  * Wait for the specified milliseconds

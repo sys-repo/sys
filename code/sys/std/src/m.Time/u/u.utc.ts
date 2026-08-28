@@ -1,6 +1,6 @@
 import { parseISO } from 'date-fns';
-import { Format } from '../m.Time.Date/m.Date.Format.ts';
-import type { t } from './common.ts';
+import { Format } from '../../m.Time.Date/m.Date.Format.ts';
+import type { t } from '../common.ts';
 
 /**
  * Generate a new UTC datetime instance:

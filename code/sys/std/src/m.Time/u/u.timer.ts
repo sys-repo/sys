@@ -1,5 +1,5 @@
-import type { t } from './common.ts';
-import { Duration } from './m.Time.Duration.ts';
+import type { t } from '../common.ts';
+import { Duration } from '../m.Duration/mod.ts';
 
 /**
  * Starts a timer.

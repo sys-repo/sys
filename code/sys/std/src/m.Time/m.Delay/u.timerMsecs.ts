@@ -1,4 +1,4 @@
-import { Is, Num, type t } from '../common.ts';
+import { Is, Num, type t } from './common.ts';
 
 /**
  * Canonical ceiling for delays backed by host timeout and interval queues.
