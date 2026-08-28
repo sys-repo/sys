@@ -67,8 +67,9 @@ export namespace Schedule {
     /**
      * Queue `task` at most once and return its cancellation lifecycle.
      *
-     * Disposal before execution suppresses the task. Once admitted, the lifecycle disposes when the
-     * task settles, including rejection; the task's result is not returned.
+     * Timer delays normalize to the canonical `Time.Delay.MAX` ceiling. Disposal before
+     * execution suppresses the task. Once admitted, the lifecycle disposes when the task settles,
+     * including rejection; the task's result is not returned.
      */
     queue<T = unknown>(task: () => T | Promise<T>, opts?: ScheduleQueueOpts): t.Lifecycle;
     queue<T = unknown>(

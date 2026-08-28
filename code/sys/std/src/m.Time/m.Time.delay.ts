@@ -1,4 +1,6 @@
-import { Is, Schedule, type t } from './common.ts';
+import { Schedule } from '../m.Async.Schedule/mod.ts';
+import { Is, type t } from './common.ts';
+import { timerMsecs } from './u.timer.ts';
 
 /**
  * Delay for a specified amount of time.
@@ -6,6 +8,7 @@ import { Is, Schedule, type t } from './common.ts';
  * Semantics:
  * - `delay()` with no number → microtask "tick".
  * - `delay(ms)` with a number ≥ 0 → macrotask via setTimeout(ms).
+ * - Timer-backed inputs normalize into 0..`Time.Delay.MAX`; oversized integers clamp.
  *
  * Cancellation:
  * - Works for both micro and macro variants.
@@ -213,9 +216,7 @@ export const Wrangle = Object.freeze({
    * Normalize milliseconds.
    */
   normalizeMsecs(msecs?: number): number | undefined {
-    if (msecs === undefined) return undefined; //   micro hop (tick)
-    if (!Number.isFinite(msecs)) return 0; //       NaN / ±Infinity → 0
-    if (!Number.isInteger(msecs)) return 0; //      fractional → 0
-    return msecs <= 0 ? 0 : msecs; //               negatives → 0, otherwise exact
+    if (msecs === undefined) return undefined; // micro hop (tick)
+    return timerMsecs(msecs);
   },
-} as const);
+});

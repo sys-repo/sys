@@ -63,6 +63,20 @@ describe('Time Delay/Wait', () => {
           });
         }
       });
+
+      it('oversized delay → clamps to the canonical timer domain without firing early', async () => {
+        let fired = 0;
+        const res = Time.delay(Time.Delay.MAX + 1, () => fired++);
+
+        expect(res.timeout).to.eql(Time.Delay.MAX);
+        await Time.wait(0);
+        expect(fired).to.eql(0);
+        expect(res.is.done).to.eql(false);
+
+        res.cancel();
+        await res;
+        expect(res.is.cancelled).to.eql(true);
+      });
     });
 
     describe('cancel', () => {

@@ -1,5 +1,5 @@
-import { Is } from './common.ts';
-import type { t } from './common.ts';
+import { Is, type t } from './common.ts';
+import { timerMsecs } from './u.timer.ts';
 
 type IntervalInput =
   | t.Time.Interval.Callback
@@ -7,6 +7,7 @@ type IntervalInput =
   | AbortController
   | t.Time.Interval.Options;
 
+/** Run a recurring timer after normalizing its duration into 0..`Time.Delay.MAX`. */
 export function interval(
   msecs: t.Msecs,
   fnOrOptions: IntervalInput,
@@ -112,8 +113,6 @@ const wrangle = {
   },
 
   normalizeMsecs(input: number): t.Msecs {
-    if (!Number.isFinite(input)) return 0;
-    if (!Number.isInteger(input)) return 0;
-    return (input <= 0 ? 0 : input) as t.Msecs;
+    return timerMsecs(input);
   },
 } as const;

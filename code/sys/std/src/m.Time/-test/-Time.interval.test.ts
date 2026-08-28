@@ -32,6 +32,18 @@ describe('Time.interval', () => {
     expect(count).to.eql(stoppedAt);
   });
 
+  it('oversized interval → clamps to the canonical timer domain without firing early', async () => {
+    let count = 0;
+    const tick = Time.interval(Time.Delay.MAX + 1, () => count++);
+
+    expect(tick.interval).to.eql(Time.Delay.MAX);
+    await Time.wait(0);
+    expect(count).to.eql(0);
+
+    tick.cancel();
+    expect(tick.is.cancelled).to.eql(true);
+  });
+
   it('supports immediate execution before the first scheduled tick', async () => {
     let count = 0;
     const tick = Time.interval(20, () => count++, { immediate: true });

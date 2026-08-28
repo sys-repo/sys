@@ -1,3 +1,4 @@
+import { timerMsecs } from '../../m.Time/u.timer.ts';
 import { Rx, type t } from '../common.ts';
 import { makeScheduleFn } from './u.scheduleFunction.ts';
 
@@ -54,7 +55,7 @@ export const queue: F = (...args) => {
   }
 
   if (typeof q === 'object' && 'ms' in q) {
-    const id = setTimeout(() => run(), Math.max(0, q.ms | 0)) as unknown as number;
+    const id = setTimeout(() => run(), timerMsecs(q.ms)) as unknown as number;
     life.dispose$.subscribe(() => clearTimeout(id));
     return life;
   }

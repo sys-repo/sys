@@ -1,4 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
+import { Time } from '../../m.Time/mod.ts';
 import { Rx } from '../common.ts';
 import { Schedule } from '../mod.ts';
 
@@ -74,6 +75,20 @@ describe('Schedule.queue', () => {
 
     await new Promise((resolve) => setTimeout(resolve, 30));
 
+    expect(calls).to.equal(0);
+  });
+
+  it('oversized timer → clamps to the canonical domain instead of firing immediately', async () => {
+    let calls = 0;
+    const life = Schedule.queue(() => calls += 1, {
+      queue: { ms: Time.Delay.MAX + 1 },
+    });
+
+    await Schedule.macro();
+    expect(calls).to.equal(0);
+
+    life.dispose();
+    await Schedule.macro();
     expect(calls).to.equal(0);
   });
 

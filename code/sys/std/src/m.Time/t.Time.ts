@@ -11,6 +11,9 @@ export declare namespace Time {
     /** Tools for working with calendar dates. */
     readonly Date: t.Date.Lib;
 
+    /** Canonical policy for timer-backed delays. */
+    readonly Delay: Delay.Lib;
+
     /** Tools for working with an elapsed duration of time. */
     readonly Duration: Duration.Lib;
 
@@ -34,6 +37,7 @@ export declare namespace Time {
      *
      * Notes:
      *  • `delay(msecs, fn?)` → macrotask timer; cancellable via `.cancel()`.
+     *  • Timer delays normalize to the `Time.Delay.MAX` domain ceiling.
      *  • `delay(fn?)`        → microtask tick (queues on Promise microtask).
      */
     delay: Delay.Fn;
@@ -43,6 +47,7 @@ export declare namespace Time {
      *
      * Notes:
      *  • `interval(msecs, fn, options?)` → repeating timer; cancellable via `.cancel()`.
+     *  • Timer intervals normalize to the `Time.Delay.MAX` domain ceiling.
      *  • `interval(msecs, options, fn)` → same, with options before the callback.
      *  • Use `options.immediate` to run once before the first scheduled tick.
      */
@@ -105,6 +110,12 @@ export declare namespace Time {
 
   /** Delay timer types. */
   export namespace Delay {
+    /** Canonical policy for delays backed by host timeout and interval queues. */
+    export type Lib = {
+      /** Largest supported delay before signed 32-bit host-timer overflow, in milliseconds. */
+      readonly MAX: t.Msecs;
+    };
+
     /** Overloaded delay. */
     export type Fn =
       & ((

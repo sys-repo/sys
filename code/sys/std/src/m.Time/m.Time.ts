@@ -2,6 +2,7 @@ import type { t } from './common.ts';
 
 import { Date } from '../m.Time.Date/mod.ts';
 import { Duration } from './m.Time.Duration.ts';
+import { Delay } from './u.timer.ts';
 import { timer } from './m.Time.Timer.ts';
 import { delay } from './m.Time.delay.ts';
 import { interval } from './m.Time.interval.ts';
@@ -14,6 +15,7 @@ import { wait, waitFor } from './m.Time.wait.ts';
  */
 export const Time: t.Time.Lib = Object.freeze({
   Date,
+  Delay,
 
   get now() {
     return utc();
