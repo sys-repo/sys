@@ -1,6 +1,6 @@
 import { describe, expect, Fs, it, type t } from '../../-test.ts';
 
-import { assertRunOk } from './u.fixture.task.ts';
+import { assertRunOk } from './u.fixture.run.ts';
 import { buildGeneratedWorkspaceRepo } from './u.fixture.tmpl.ts';
 
 describe('Vite external smoke (repo-generated workspace)', () => {

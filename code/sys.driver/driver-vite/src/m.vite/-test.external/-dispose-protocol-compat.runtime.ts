@@ -1,6 +1,6 @@
 import { describe, expect, it, Str } from '../../-test.ts';
 import { parseProbeJson, PROBE_JSON_PREFIX, runProbe } from './u.fixture.probe.ts';
-import { assertRunOk } from './u.fixture.task.ts';
+import { assertRunOk } from './u.fixture.run.ts';
 
 describe('Vite disposal protocol compatibility runtime', () => {
   it('dev preserves incumbent protocol identities before entry evaluation', async () => {

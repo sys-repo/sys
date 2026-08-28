@@ -22,7 +22,7 @@ type OperationRun = {
 };
 
 /** A completed external command or named in-process fixture operation. */
-export type TaskRun = CommandRun | OperationRun;
+export type FixtureRun = CommandRun | OperationRun;
 
 type FailureArgs = {
   readonly message: string;
@@ -54,7 +54,7 @@ export function formatRunFailure(args: FailureArgs) {
   );
 }
 
-export function commandRun(args: CommandRunArgs): TaskRun {
+export function commandRun(args: CommandRunArgs): FixtureRun {
   return {
     kind: 'command',
     ...args,
@@ -62,7 +62,7 @@ export function commandRun(args: CommandRunArgs): TaskRun {
   };
 }
 
-export function operationRun(args: OperationRunArgs): TaskRun {
+export function operationRun(args: OperationRunArgs): FixtureRun {
   return {
     kind: 'operation',
     ...args,
@@ -74,12 +74,12 @@ export async function runTask(
   cwd: string,
   task: string,
   extraArgs: readonly string[] = [],
-): Promise<TaskRun> {
-  return runDeno(cwd, ['task', task, ...extraArgs]);
+): Promise<FixtureRun> {
+  return await runDeno(cwd, ['task', task, ...extraArgs]);
 }
 
 /** Preserve failed external-fixture command or operation context. */
-export function assertRunOk(run: TaskRun, message: string) {
+export function assertRunOk(run: FixtureRun, message: string) {
   if (run.ok) return;
 
   const invocation = run.kind === 'command'
@@ -101,7 +101,7 @@ export async function runCommand(
   cwd: string,
   cmd: string,
   args: readonly string[],
-): Promise<TaskRun> {
+): Promise<FixtureRun> {
   const env = minimalTaskEnv();
   const output = await Process.capture({
     cmd,
@@ -119,7 +119,7 @@ export function toCommandRun(args: {
   readonly cwd: string;
   readonly cmd: readonly string[];
   readonly output: t.Process.CaptureOutput;
-}): TaskRun {
+}): FixtureRun {
   const { cwd, cmd, output } = args;
   const captured = captureDiagnostic(output);
   return commandRun({
@@ -131,7 +131,7 @@ export function toCommandRun(args: {
   });
 }
 
-export function runDeno(cwd: string, args: readonly string[]): Promise<TaskRun> {
+export function runDeno(cwd: string, args: readonly string[]): Promise<FixtureRun> {
   return runCommand(cwd, 'deno', args);
 }
 
@@ -165,8 +165,23 @@ function captureStatus(output: t.Process.CaptureOutput): string {
       return `timed out after ${FIXTURE_CAPTURE.timeoutMs}ms`;
     case 'cancelled':
       return 'cancelled';
+    case 'failed':
+      return captureFailedStatus(output.termination.reason);
     case 'failed-to-start':
       return 'failed to start';
+  }
+}
+
+function captureFailedStatus(
+  reason: t.Process.CaptureFailedOutput['termination']['reason'],
+): string {
+  switch (reason) {
+    case 'failure':
+      return 'process failed';
+    case 'timeout':
+      return `timed out after ${FIXTURE_CAPTURE.timeoutMs}ms; process cleanup failed`;
+    case 'cancelled':
+      return 'cancelled; process cleanup failed';
   }
 }
 
@@ -185,7 +200,7 @@ function capturedStreamText(
 
 function capturedStderr(output: t.Process.CaptureOutput): string {
   const stderr = capturedStreamText(output, 'stderr');
-  if (output.outcome !== 'failed-to-start') return stderr;
+  if (output.outcome !== 'failed' && output.outcome !== 'failed-to-start') return stderr;
 
   const detail = `process error: ${Err.summary(output.error, { stack: true })}`;
   if (!stderr) return detail;

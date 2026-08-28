@@ -1,6 +1,6 @@
 import { Fs, Is, Process, SAMPLE, Str, type t } from '../../-test.ts';
 import { writeLocalFixtureImports } from '../-test/u.bridge.fixture.ts';
-import { captureDiagnostic, FIXTURE_CAPTURE, formatRunFailure } from './u.fixture.task.ts';
+import { captureDiagnostic, FIXTURE_CAPTURE, formatRunFailure } from './u.fixture.run.ts';
 
 type BuiltJsFile = { readonly filename: string; readonly text: string };
 type BuiltFiles = {

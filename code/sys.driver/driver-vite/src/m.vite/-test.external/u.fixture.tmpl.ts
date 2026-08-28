@@ -1,24 +1,24 @@
 import { cli as tmpl } from '../../../../../-tmpl/src/m.tmpl/mod.ts';
 import { Fs, Str } from '../../-test.ts';
-import { commandRun, operationRun, runTask, type TaskRun } from './u.fixture.task.ts';
+import { commandRun, type FixtureRun, operationRun, runTask } from './u.fixture.run.ts';
 
 type GeneratedRepo = {
   readonly rootDir: string;
   readonly fooDir: string;
-  readonly generate: TaskRun;
-  readonly bootstrap: TaskRun;
-  readonly build: TaskRun;
+  readonly generate: FixtureRun;
+  readonly bootstrap: FixtureRun;
+  readonly build: FixtureRun;
 };
 
 type GeneratedWorkspaceRepo = {
   readonly rootDir: string;
   readonly fooDir: string;
   readonly barDir: string;
-  readonly generateFoo: TaskRun;
-  readonly generateBar: TaskRun;
-  readonly patch: TaskRun;
-  readonly bootstrap: TaskRun;
-  readonly build: TaskRun;
+  readonly generateFoo: FixtureRun;
+  readonly generateBar: FixtureRun;
+  readonly patch: FixtureRun;
+  readonly bootstrap: FixtureRun;
+  readonly build: FixtureRun;
 };
 
 export async function buildGeneratedRepo(args: {
@@ -86,7 +86,7 @@ export async function buildGeneratedWorkspaceRepo(args: {
   return { rootDir, fooDir, barDir, generateFoo, generateBar, patch, bootstrap, build };
 }
 
-async function runTmplPkg(cwd: string, dir: string, pkgName: string): Promise<TaskRun> {
+async function runTmplPkg(cwd: string, dir: string, pkgName: string): Promise<FixtureRun> {
   const cmd = [
     'deno',
     'run',
@@ -130,7 +130,7 @@ async function writeRepoTemplate(cwd: string, dir: string) {
   });
 }
 
-async function patchWorkspaceRepo(fooDir: string, barDir: string): Promise<TaskRun> {
+async function patchWorkspaceRepo(fooDir: string, barDir: string): Promise<FixtureRun> {
   const operation = 'workspace patch';
 
   try {
@@ -160,7 +160,7 @@ async function patchWorkspaceRepo(fooDir: string, barDir: string): Promise<TaskR
   }
 }
 
-function skippedTask(cwd: string, task: string, stderr: string): TaskRun {
+function skippedTask(cwd: string, task: string, stderr: string): FixtureRun {
   return commandRun({
     cwd,
     cmd: ['deno', 'task', task],

@@ -2,7 +2,7 @@ import { describe, expect, Fs, it, ROOT, SAMPLE } from '../../-test.ts';
 import { Wrangle } from '../u/u.wrangle.ts';
 import { assertBuildOk } from './u.fixture.build.ts';
 import { parseProbeJson, PROBE_JSON_PREFIX, runProbe } from './u.fixture.probe.ts';
-import { assertRunOk } from './u.fixture.task.ts';
+import { assertRunOk } from './u.fixture.run.ts';
 
 type BuildProbeJson = {
   ok: boolean;
