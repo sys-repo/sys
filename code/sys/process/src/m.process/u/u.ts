@@ -1,5 +1,24 @@
 import type { t } from '../common.ts';
-export { kill } from './u.kill.ts';
+export {
+  createFailureLedger,
+  type FailureEvent,
+  type FailureLedger,
+  type FailureRecord,
+} from './u.failure.ts';
+export { observeChildStatus, terminateOwnedChild } from './u.child.owned.ts';
+export type {
+  OwnedChildStatusOperation,
+  OwnedChildStatusResult,
+  OwnedChildTerminationFailure,
+  OwnedChildTerminationResult,
+} from './u.child.owned.ts';
+export {
+  captureOperation,
+  type OperationDeadline,
+  operationDeadline,
+  type OperationResult,
+} from './u.operation.ts';
+export { settleOwnedStream } from './u.stream.ts';
 
 /**
  * Creates a configured `Deno.Command` from process invocation args.

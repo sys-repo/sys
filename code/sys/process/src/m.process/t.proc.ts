@@ -21,7 +21,11 @@ export declare namespace Process {
     /** Canonical host-process stdout capability. */
     readonly stdout: Stdout;
 
-    /** Determine whether an OS process currently accepts signal delivery. */
+    /**
+     * Determine whether an arbitrary OS process currently accepts signal delivery.
+     * Requires ambient authority to execute the host `kill` inspection command; owned-child
+     * disposal does not grant or use this capability.
+     */
     isRunning(pid: number): boolean;
 
     /** Local port inspection helpers. */
@@ -55,8 +59,9 @@ export declare namespace Process {
     invokeDetached(config: t.Process.InvokeArgs): { pid: number };
 
     /**
-     * Spawn a child process to run a <unix>-like command
-     * and retrieve a streaming handle to monitor and control it.
+     * Spawn a child process to run a <unix>-like command and retrieve its streaming handle.
+     * Failures before child acquisition throw. Failures after acquisition return a terminalizing
+     * handle whose readiness and disposal expose setup and cleanup truth.
      */
     spawn(config: t.Process.SpawnArgs): t.Process.Handle;
 
@@ -96,7 +101,10 @@ export declare namespace Process {
   export namespace Port {
     /** Local port inspection helper API. */
     export type Lib = {
-      /** Discover TCP LISTEN sockets matching a local port target. */
+      /**
+       * Discover TCP LISTEN sockets matching a local port target.
+       * This is ambient host inspection and requires authority for its backing command.
+       */
       listeners(input: Input): Promise<readonly Listener[]>;
     };
 
@@ -137,10 +145,16 @@ export declare namespace Process {
   export namespace Terminate {
     /** Process termination helper API. */
     export type Lib = {
-      /** Terminate an arbitrary process id with bounded graceful escalation. */
+      /**
+       * Terminate an arbitrary process id with bounded graceful escalation.
+       * Unlike `Handle.dispose`, this requires ambient PID inspection and signalling authority.
+       */
       pid(pid: number, options?: Options): Promise<Result>;
 
-      /** Terminate TCP listener process ids bound to a local port target. */
+      /**
+       * Terminate arbitrary TCP listener process ids bound to a local port target.
+       * Requires ambient host inspection and PID signalling authority.
+       */
       port(input: Process.Port.Input, options?: Options): Promise<Port.Result>;
     };
 
@@ -327,19 +341,34 @@ export declare namespace Process {
   /**
    * The output from the `Process.spawn` command that represents
    * a running child-process.
+   *
+   * Disposal terminates only the capability-bearing child acquired by `Process.spawn`; it does not
+   * require ambient authority to signal arbitrary PIDs. It settles owned status and output streams
+   * within one 8000ms aggregate cleanup budget and rejects when cleanup cannot complete truthfully.
+   * After terminal settlement, the handle releases its internal references to the owned child,
+   * status operation, readers, streams, and pumps. Child exit or a terminal status/stream failure
+   * requests the same idempotent lifecycle disposal.
    */
   export type Handle = t.LifecycleAsync & {
     /** Child process ID. */
     readonly pid: number;
-    /** Stream of stdout/stderr events emitted by the child. */
+    /**
+     * Stream of stdout/stderr events emitted by the child.
+     * Completes after owned status and output streams settle, or after their bounded settlement
+     * attempt records a cleanup failure. Rejected cleanup still completes this terminal surface.
+     */
     readonly $: t.Observable<t.Process.Event>;
     /** Runtime readiness flags. */
     readonly is: { readonly ready: boolean };
-    /** Resolves on readiness; rejects if the child exits/disposes before readiness. */
+    /**
+     * Resolves on readiness; rejects on post-acquisition setup failure or pre-readiness exit.
+     * A throwing handler rejects this call and requests shared lifecycle disposal, including when
+     * the child was already ready before the handler was supplied.
+     */
     whenReady(fn?: ReadyHandler): Promise<t.Process.Handle>;
-    /** Register a stdout event handler. */
+    /** Register a stdout handler retained through bounded cleanup until `$` completes. */
     onStdOut(fn: t.Process.EventHandler): t.Process.Handle;
-    /** Register a stderr event handler. */
+    /** Register a stderr handler retained through bounded cleanup until `$` completes. */
     onStdErr(fn: t.Process.EventHandler): t.Process.Handle;
   };
 

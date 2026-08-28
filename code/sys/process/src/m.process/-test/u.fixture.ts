@@ -15,9 +15,17 @@ export const ProcessTest = {
     timeout: t.Msecs = 1_000,
   ): Promise<Error | undefined> {
     const timer = Time.delay(timeout);
-    const timeoutError = timer.then(() => new Error('Timed out waiting for rejection'));
-    const result = await Promise.race([ProcessTest.catchError(fn), timeoutError]);
-    timer.cancel();
-    return result;
+    try {
+      const result = await Promise.race([
+        ProcessTest.catchError(fn).then((error) => ({ kind: 'settled' as const, error })),
+        timer.then(() => ({ kind: 'timeout' as const })),
+      ]);
+      if (result.kind === 'timeout') {
+        throw new Error(`Timed out waiting for operation rejection after ${timeout}ms.`);
+      }
+      return result.error;
+    } finally {
+      timer.cancel();
+    }
   },
 } as const;

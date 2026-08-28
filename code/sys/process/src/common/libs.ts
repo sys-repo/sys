@@ -1,4 +1,5 @@
 export { c } from '@sys/color/ansi';
+export { Err } from '@sys/std/error';
 export { Is } from '@sys/std/is';
 export { Num } from '@sys/std/num';
 export { slug } from '@sys/std/random';
