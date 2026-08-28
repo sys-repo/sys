@@ -1,6 +1,6 @@
-import { Schedule } from '../m.Async.Schedule/mod.ts';
-import { Is, type t } from './common.ts';
-import { timerMsecs } from './u.timer.ts';
+import { Schedule } from '../../m.Async.Schedule/mod.ts';
+import { Is, type t } from '../common.ts';
+import { timerMsecs } from './u.timerMsecs.ts';
 
 /**
  * Delay for a specified amount of time.

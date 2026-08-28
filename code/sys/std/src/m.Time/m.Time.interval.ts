@@ -1,5 +1,5 @@
 import { Is, type t } from './common.ts';
-import { timerMsecs } from './u.timer.ts';
+import { timerMsecs } from './m.Delay/u.timerMsecs.ts';
 
 type IntervalInput =
   | t.Time.Interval.Callback

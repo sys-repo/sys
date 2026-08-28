@@ -1,4 +1,4 @@
-import { timerMsecs } from '../../m.Time/u.timer.ts';
+import { timerMsecs } from '../../m.Time/m.Delay/u.timerMsecs.ts';
 import { Rx, type t } from '../common.ts';
 import { makeScheduleFn } from './u.scheduleFunction.ts';
 

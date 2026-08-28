@@ -12,6 +12,7 @@ describe('Time', () => {
     expect(Time.Duration).to.equal(Duration);
     expect(Time.duration).to.equal(Duration.create);
     expect(Time.elapsed).to.equal(Duration.elapsed);
+    expect(Time.delay).to.equal(Time.Delay.create);
     expect(Time.Delay.MAX).to.equal(2_147_483_647);
     expect(Object.isFrozen(Time.Delay)).to.equal(true);
   });

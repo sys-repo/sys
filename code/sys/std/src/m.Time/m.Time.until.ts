@@ -2,7 +2,7 @@ import { Dispose } from '../m.Dispose/mod.ts';
 import { Rx } from '../m.Rx/mod.ts';
 
 import type { t } from './common.ts';
-import { delay, Wrangle } from './m.Time.delay.ts';
+import { delay, Wrangle } from './m.Delay/u.delay.ts';
 import { interval } from './m.Time.interval.ts';
 
 /**

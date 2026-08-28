@@ -11,7 +11,7 @@ export declare namespace Time {
     /** Tools for working with calendar dates. */
     readonly Date: t.Date.Lib;
 
-    /** Canonical policy for timer-backed delays. */
+    /** Policy and behavior for creating timer-backed delays. */
     readonly Delay: Delay.Lib;
 
     /** Tools for working with an elapsed duration of time. */
@@ -33,7 +33,7 @@ export declare namespace Time {
     timer(start?: Date, options?: { round?: number }): Timer;
 
     /**
-     * Run a function after a delay.
+     * Convenience alias of `Time.Delay.create`.
      *
      * Notes:
      *  • `delay(msecs, fn?)` → macrotask timer; cancellable via `.cancel()`.
@@ -110,10 +110,13 @@ export declare namespace Time {
 
   /** Delay timer types. */
   export namespace Delay {
-    /** Canonical policy for delays backed by host timeout and interval queues. */
+    /** Policy and behavior for creating delays backed by host timer queues. */
     export type Lib = {
       /** Largest supported delay before signed 32-bit host-timer overflow, in milliseconds. */
       readonly MAX: t.Msecs;
+
+      /** Create a cancellable delay. */
+      readonly create: Fn;
     };
 
     /** Overloaded delay. */
@@ -126,7 +129,7 @@ export declare namespace Time {
       & ((fn?: Callback, options?: Options | AbortSignal | AbortController) => Promise)
       & ((options: Options | AbortSignal | AbortController) => Promise);
 
-    /** Options for `Time.delay`. */
+    /** Options for `Time.Delay.create` and its `Time.delay` alias. */
     export type Options = {
       /** Abort to cancel the pending delay. */
       readonly signal?: AbortSignal;
