@@ -1,5 +1,5 @@
 import { Hash } from '@sys/crypto/hash';
-import { describe, expect, Fs, it, Json, type t, Time } from '../../-test.ts';
+import { describe, expect, expectTypeOf, Fs, it, Json, type t, Time } from '../../-test.ts';
 import { setup, teardown } from '../../-test/u.fixture.dist.ts';
 import { Dist } from '../mod.ts';
 import { materializeWith } from '../u.materialize/mod.ts';
@@ -548,20 +548,124 @@ describe('Dist.materialize', () => {
   });
 
   describe('manifest trust and existing generations', () => {
-    it('rejects a wrong external manifest pin without publishing a generation', async () => {
+    it('preserves an ordinary origin 412 as a generic manifest resource failure', async () => {
+      const fixture = await setup();
+      try {
+        fixture.respondToManifest(() => new Response(null, { status: 412 }));
+        const result = await Dist.materialize(fixture.args());
+
+        expect(result).to.eql({
+          kind: 'failed',
+          stage: 'manifest-fetch',
+          reason: 'resource-failure',
+          cleanup: 'not-needed',
+        });
+        expect(Reflect.ownKeys(result)).to.eql(['kind', 'stage', 'reason', 'cleanup']);
+        expect(fixture.calls).to.eql(['/dist.json']);
+        expect(await Fs.exists(Fs.join(fixture.storeDir, fixture.integrity))).to.eql(false);
+      } finally {
+        await teardown(fixture);
+      }
+    });
+
+    it('correlates checksum evidence with only the exact public mismatch variant', () => {
+      type BareManifestMismatch = {
+        readonly kind: 'failed';
+        readonly stage: 'manifest-fetch';
+        readonly reason: 'integrity-mismatch';
+        readonly cleanup: 'not-needed';
+      };
+      type ExactManifestMismatch = BareManifestMismatch & {
+        readonly manifestChecksum: t.Dist.ManifestChecksumMismatch;
+      };
+      type WrongStage = Omit<ExactManifestMismatch, 'stage'> & {
+        readonly stage: 'resource-pull';
+      };
+      type WrongReason = Omit<ExactManifestMismatch, 'reason'> & {
+        readonly reason: 'resource-failure';
+      };
+      type WrongCleanup = Omit<ExactManifestMismatch, 'cleanup'> & {
+        readonly cleanup: 'complete';
+      };
+      type WrongPublication = ExactManifestMismatch & {
+        readonly publication: 'committed';
+      };
+      type AssetMismatch = Omit<BareManifestMismatch, 'stage' | 'cleanup'> & {
+        readonly stage: 'resource-pull';
+        readonly cleanup: 'complete';
+      };
+      type ManifestTransportFailure = Omit<BareManifestMismatch, 'reason'> & {
+        readonly reason: 'resource-failure';
+      };
+      type IsFailed<T> = T extends t.Dist.Failed ? true : false;
+      const contract: Readonly<{
+        exact: IsFailed<ExactManifestMismatch>;
+        bare: IsFailed<BareManifestMismatch>;
+        wrongStage: IsFailed<WrongStage>;
+        wrongReason: IsFailed<WrongReason>;
+        wrongCleanup: IsFailed<WrongCleanup>;
+        wrongPublication: IsFailed<WrongPublication>;
+        assetMismatch: IsFailed<AssetMismatch>;
+        manifestTransportFailure: IsFailed<ManifestTransportFailure>;
+      }> = {
+        exact: true,
+        bare: false,
+        wrongStage: false,
+        wrongReason: false,
+        wrongCleanup: false,
+        wrongPublication: false,
+        assetMismatch: true,
+        manifestTransportFailure: true,
+      };
+
+      expect(contract).to.eql({
+        exact: true,
+        bare: false,
+        wrongStage: false,
+        wrongReason: false,
+        wrongCleanup: false,
+        wrongPublication: false,
+        assetMismatch: true,
+        manifestTransportFailure: true,
+      });
+    });
+
+    it('returns only bounded serialized diagnostics for a wrong external manifest pin', async () => {
       const fixture = await setup();
       try {
         const integrity = Hash.sha256('not-the-manifest');
         const result = await Dist.materialize(fixture.args({ integrity }));
-        expect(result).to.eql({
+        const expectedFailure = {
           kind: 'failed',
           stage: 'manifest-fetch',
           reason: 'integrity-mismatch',
           cleanup: 'not-needed',
-        });
+          manifestChecksum: {
+            expected: integrity,
+            received: fixture.integrity,
+          },
+        } as const;
+        expect(result).to.eql(expectedFailure);
+        expect(Reflect.ownKeys(result)).to.eql([
+          'kind',
+          'stage',
+          'reason',
+          'cleanup',
+          'manifestChecksum',
+        ]);
+        expect(Json.parse(Json.stringify(result))).to.eql(expectedFailure);
+        expect(Object.isFrozen(result)).to.eql(true);
+        expect(result.kind).to.eql('failed');
+        if (
+          result.kind !== 'failed' ||
+          result.stage !== 'manifest-fetch' ||
+          result.reason !== 'integrity-mismatch'
+        ) return;
+        expectTypeOf(result.manifestChecksum).toEqualTypeOf<t.Dist.ManifestChecksumMismatch>();
+        expect(Reflect.ownKeys(result.manifestChecksum)).to.eql(['expected', 'received']);
+        expect(Object.isFrozen(result.manifestChecksum)).to.eql(true);
         expect(fixture.calls).to.eql(['/dist.json']);
         expect(await Fs.exists(Fs.join(fixture.storeDir, integrity))).to.eql(false);
-        expect(Json.stringify(result)).to.not.include(integrity);
       } finally {
         await teardown(fixture);
       }

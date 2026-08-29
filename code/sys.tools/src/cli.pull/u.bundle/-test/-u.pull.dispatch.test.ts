@@ -10,7 +10,8 @@ const LIMITS: t.GithubPull.Limits = {
   totalTime: 1000,
 };
 
-const INTEGRITY = `sha256-${'a'.repeat(64)}` as t.StringHash;
+const INTEGRITY: t.StringHash = `sha256-${'a'.repeat(64)}`;
+const RECEIVED: t.StringHash = `sha256-${'b'.repeat(64)}`;
 
 describe('cli.pull/u.bundle → kind dispatch', () => {
   it('dispatches Dist bundles only to the pinned materializer', async () => {
@@ -29,6 +30,7 @@ describe('cli.pull/u.bundle → kind dispatch', () => {
         stage: 'manifest-fetch',
         reason: 'integrity-mismatch',
         cleanup: 'not-needed',
+        manifestChecksum: { expected: INTEGRITY, received: RECEIVED },
       },
       projection: { kind: 'not-run' },
     };

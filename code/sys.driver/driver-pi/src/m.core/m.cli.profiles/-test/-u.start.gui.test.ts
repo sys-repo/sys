@@ -3,6 +3,7 @@ import {
   describe,
   DistServer,
   expect,
+  expectTypeOf,
   it,
   type TBootstrapStatus as BootstrapStatus,
   WebFixture,
@@ -10,7 +11,11 @@ import {
 import { type Cli, Fs, Json, type t } from '../common.ts';
 import { snapshotAuthorityEvidence } from '../u.start/u.authority.ts';
 import { VERIFIED_LOOPBACK_BROWSER_POLICY } from '../u.start/u.browser.ts';
-import { snapshotApplicationOwner, snapshotEvidence } from '../u.start/u.identity.ts';
+import {
+  admitMaterialization,
+  snapshotApplicationOwner,
+  snapshotEvidence,
+} from '../u.start/u.identity.ts';
 import { snapshotStatusOwner } from '../u.start/u.lifecycle.ts';
 import { AUTHORITY_LIMITS } from '../u.start/u.limits.ts';
 import { resolveIntegrity, resolveManifestSource } from '../u.start/u.source.ts';
@@ -1078,6 +1083,43 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
         expect({ key, stableHref }).to.eql({ key, stableHref: undefined });
       }
       expect({ key, getterCalls }).to.eql({ key, getterCalls: 0 });
+    }
+  });
+
+  it('refuses and excludes manifest mismatches from its admitted failure shape', () => {
+    expectTypeOf(
+      undefined as Extract<
+        ReturnType<typeof admitMaterialization>,
+        t.Dist.ManifestChecksumFailed
+      >,
+    ).toEqualTypeOf<never>();
+
+    const base = {
+      kind: 'failed',
+      stage: 'manifest-fetch',
+      reason: 'integrity-mismatch',
+      cleanup: 'not-needed',
+    } as const;
+    const generations = [
+      base,
+      {
+        ...base,
+        manifestChecksum: {
+          expected: START_GUI_SERVICE.source.integrity,
+          received: `sha256-${'b'.repeat(64)}`,
+        },
+      },
+    ];
+
+    for (const generation of generations) {
+      let error: Error | undefined;
+      try {
+        admitMaterialization({ generation, diagnostics: START_GUI_SERVICE.source });
+      } catch (cause) {
+        error = cause as Error;
+      }
+      if (!error) throw new Error('Expected strict manifest mismatch identity refusal.');
+      expectIdentityRefusal(error, 'manifest mismatch diagnostics');
     }
   });
 

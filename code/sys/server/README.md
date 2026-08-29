@@ -118,7 +118,8 @@ The result states what settled:
   publication.
 - **`promoted`** — this attempt published its stage and verified the visible generation.
 - **`failed`** — no usable generation settled; inspect `stage`, `reason`, `cleanup`, and
-  `publication`.
+  `publication`. The exact manifest checksum-mismatch variant additionally carries bounded
+  `manifestChecksum: { expected, received }` diagnostics.
 
 Every success carries independent `verification` and `seal` evidence. Verification proves the exact
 `dist.json` matched its pin and the visible tree matched the complete manifest. Sealing proves every
@@ -135,7 +136,9 @@ credential callbacks. An invalid occupied generation is retained and refused—n
 replaced, or removed. If the host cannot prove the required identity or permission state,
 materialization fails rather than returning an unsealed success.
 
-Failures expose stable sanitized fields, not credentials, absolute paths, or raw host causes.
+Failures expose stable sanitized fields, not credentials, absolute paths, source URLs, response
+bytes, headers, or raw host causes. `manifestChecksum` is diagnostic evidence only: it appears for
+one causal manifest-fetch mismatch and does not become success integrity or verification evidence.
 `cleanup` describes private-stage cleanup; `publication` separately records visible target truth. A
 published generation is never described as rolled back because later settlement failed.
 

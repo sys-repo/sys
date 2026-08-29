@@ -42,6 +42,7 @@ export async function setup(options: { readonly browserAssets?: boolean } = {}) 
   let integrity = computed.manifest.integrity;
   let redirectBase = '';
   let redirectLocation = '';
+  let manifestResponse: (() => Response | undefined) | undefined;
   let assetResponse: ((path: string, bytes: Uint8Array) => Response | undefined) | undefined;
   const calls: string[] = [];
   const authorizations: Array<string | null> = [];
@@ -65,7 +66,9 @@ export async function setup(options: { readonly browserAssets?: boolean } = {}) 
       });
     }
     const manifestPath = `${redirectBase}/dist.json`;
-    if (url.pathname === manifestPath) return new Response(manifest);
+    if (url.pathname === manifestPath) {
+      return manifestResponse?.() ?? new Response(manifest);
+    }
     const assetPath = redirectBase && url.pathname.startsWith(`${redirectBase}/`)
       ? url.pathname.slice(redirectBase.length)
       : url.pathname;
@@ -170,6 +173,9 @@ export async function setup(options: { readonly browserAssets?: boolean } = {}) 
     redirectManifestTo(location: t.StringUrl) {
       redirectBase = '';
       redirectLocation = location;
+    },
+    respondToManifest(fn: () => Response | undefined) {
+      manifestResponse = fn;
     },
     respondToAsset(fn: (path: string, bytes: Uint8Array) => Response | undefined) {
       assetResponse = fn;

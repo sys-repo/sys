@@ -31,7 +31,7 @@ export type AdmittedGeneration = Readonly<{
   cleanup: t.Dist.Cleanup;
 }>;
 
-export type AdmittedMaterialization = AdmittedGenerationSettlement | t.Dist.Failed;
+export type AdmittedMaterialization = AdmittedGenerationSettlement | AdmittedFailure;
 
 export type IdentityError = Error & {
   readonly identity?: Readonly<{
@@ -81,6 +81,8 @@ type ObjectSnapshot = Readonly<{
   target: object;
   properties: readonly PropertySnapshot[];
 }>;
+
+type AdmittedFailure = Exclude<t.Dist.Failed, t.Dist.ManifestChecksumFailed>;
 
 const RELEASE_SOURCE_KEYS = ['kind', 'manifestUrl', 'integrity', 'expectedPkg'] as const;
 const DEVELOPMENT_SOURCE_KEYS = ['kind', 'dir', 'integrity', 'expectedPkg'] as const;
@@ -418,7 +420,7 @@ const EMPTY_EVIDENCE: EvidenceSnapshot = freeze({
   expectedPkg: undefined,
 });
 
-function admitFailure(input: ObjectSnapshot): t.Dist.Failed | undefined {
+function admitFailure(input: ObjectSnapshot): AdmittedFailure | undefined {
   const hasPublication = propertyOf(input, 'publication') !== undefined;
   const keys = hasPublication ? FAILURE_WITH_PUBLICATION_KEYS : FAILURE_KEYS;
   if (!hasExactDataShape(input, keys)) return;
@@ -437,6 +439,16 @@ function admitFailure(input: ObjectSnapshot): t.Dist.Failed | undefined {
     admittedPublication = publication.value;
   }
 
+  if (stage.value === 'manifest-fetch') {
+    if (reason.value === 'integrity-mismatch') return;
+    return freeze({
+      kind: 'failed',
+      stage: stage.value,
+      reason: reason.value,
+      cleanup: cleanup.value,
+      ...(admittedPublication ? { publication: admittedPublication } : {}),
+    });
+  }
   return freeze({
     kind: 'failed',
     stage: stage.value,

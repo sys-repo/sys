@@ -1,8 +1,10 @@
 import { Fetch, Fs, FsPkg, HttpPull, Num, type t, Url } from './common.ts';
 import {
+  admitManifestResponse,
   causeReason as classifyCauseReason,
   failed,
-  fetchReason,
+  failedManifestChecksum,
+  type ManifestFetchFailure,
   pullReason,
   verificationReason,
 } from './u.failure.ts';
@@ -23,7 +25,7 @@ type FetchedManifest = {
 
 type FetchResult =
   | { readonly ok: true; readonly value: FetchedManifest }
-  | { readonly ok: false; readonly reason: t.Dist.FailureReason };
+  | ManifestFetchFailure;
 
 type InitialGenerationSettlement =
   | { readonly kind: 'missing' }
@@ -86,7 +88,11 @@ export async function materializeWith(
   } catch (cause) {
     return failed('manifest-fetch', causeReason(cause));
   }
-  if (!fetched.ok) return failed('manifest-fetch', fetched.reason);
+  if (!fetched.ok) {
+    return fetched.reason === 'integrity-mismatch'
+      ? failedManifestChecksum(fetched.manifestChecksum)
+      : failed('manifest-fetch', fetched.reason);
+  }
 
   const manifest = admitManifest(fetched.value.bytes, fetched.value.finalUrl, args.policy);
   if (!manifest.ok) return failed('manifest-admission', manifest.reason);
@@ -447,15 +453,9 @@ async function fetchManifest(args: InputSnapshot): Promise<FetchResult> {
   });
 
   try {
-    const response = await client.blob(args.manifestUrl, {}, { checksum: args.integrity });
-    if (!response.ok) return { ok: false, reason: fetchReason(response) };
-    if (
-      response.checksum?.valid !== true ||
-      response.checksum.expected !== args.integrity ||
-      response.checksum.received !== args.integrity
-    ) {
-      return { ok: false, reason: 'integrity-mismatch' };
-    }
+    const lower = await client.blob(args.manifestUrl, {}, { checksum: args.integrity });
+    const response = admitManifestResponse(lower, args.integrity);
+    if (!response.ok) return response;
 
     const size = response.data.size;
     if (!Num.Is.safeInt(size) || size > args.policy.verification.manifestBytes) {

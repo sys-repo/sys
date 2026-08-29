@@ -139,8 +139,16 @@ export declare namespace Dist {
   /** Visible target state known even though final verified settlement failed. */
   export type FailedPublication = 'committed' | 'occupied';
 
-  /** Sanitized failure without paths, raw causes, credentials, or verification evidence. */
-  export type Failed = {
+  /** Bounded checksum evidence retained from one failed manifest response. */
+  export type ManifestChecksumMismatch = {
+    /** Caller-supplied manifest pin snapshotted before transport. */
+    readonly expected: t.StringHash;
+    /** SHA-256 observed over the response bytes received by this attempt. */
+    readonly received: t.StringHash;
+  };
+
+  /** Sanitized failure fields without paths, raw causes, credentials, or verification evidence. */
+  type FailedBase = {
     readonly kind: 'failed';
     readonly stage: FailureStage;
     readonly reason: FailureReason;
@@ -153,6 +161,31 @@ export declare namespace Dist {
     readonly source?: undefined;
     readonly totals?: undefined;
   };
+
+  /** Exact manifest-fetch mismatch carrying bounded lower-owner diagnostics. */
+  export type ManifestChecksumFailed = FailedBase & {
+    readonly stage: 'manifest-fetch';
+    readonly reason: 'integrity-mismatch';
+    readonly cleanup: 'not-needed';
+    readonly publication?: undefined;
+    readonly manifestChecksum: ManifestChecksumMismatch;
+  };
+
+  /** Failure variants that cannot carry manifest checksum diagnostics. */
+  type FailedWithoutManifestChecksum =
+    | (FailedBase & {
+      readonly stage: 'manifest-fetch';
+      readonly reason: Exclude<FailureReason, 'integrity-mismatch'>;
+      readonly manifestChecksum?: undefined;
+    })
+    | (FailedBase & {
+      readonly stage: Exclude<FailureStage, 'manifest-fetch'>;
+      readonly reason: FailureReason;
+      readonly manifestChecksum?: undefined;
+    });
+
+  /** Sanitized failed settlement with diagnostics reserved to the exact mismatch variant. */
+  export type Failed = ManifestChecksumFailed | FailedWithoutManifestChecksum;
 }
 
 /**
