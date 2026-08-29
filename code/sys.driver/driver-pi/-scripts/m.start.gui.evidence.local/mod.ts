@@ -8,7 +8,7 @@ const DIST_DIR = Fs.join(PACKAGE_ROOT, 'dist');
 
 export const EVIDENCE = Object.freeze({
   packageName: pkg.name,
-  kind: 'local GUI rehearsal',
+  kind: 'LOCAL GUI (rehearsal)',
   state: 'bound',
   outputPath: 'src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts',
   commitMessage: 'chore(driver-pi): bind rebuilt local GUI evidence',
