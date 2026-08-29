@@ -85,7 +85,7 @@ export declare namespace HttpFetch {
   export type ResponseChecksum = {
     readonly valid: boolean;
     readonly expected: t.StringHash;
-    readonly actual: t.StringHash;
+    readonly received: t.StringHash;
   };
 
   /** Standard error extended with HTTP details. */

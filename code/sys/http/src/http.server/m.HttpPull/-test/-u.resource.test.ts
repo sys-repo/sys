@@ -47,6 +47,14 @@ describe('HttpPull checksum-pinned resources', () => {
     const owner = await rooted();
     const operation = start([], owner, resourcePolicy([], { maxResources: 0 }));
     expectTypeOf(operation.done).toEqualTypeOf<Promise<t.HttpPull.Result>>();
+    const checksum = {
+      expected: Hash.sha256('expected'),
+    } as t.HttpPull.ResourceChecksumEvidence;
+    expectTypeOf(checksum).toEqualTypeOf<{
+      readonly expected: t.StringHash;
+      readonly received?: t.StringHash;
+      readonly valid?: boolean;
+    }>();
     expect(Symbol.asyncIterator in operation).to.eql(false);
     expect(await operation.done).to.eql({
       ok: true,
@@ -85,7 +93,7 @@ describe('HttpPull checksum-pinned resources', () => {
       expect(record.checksum).to.eql({
         valid: true,
         expected: resources[0].checksum,
-        actual: resources[0].checksum,
+        received: resources[0].checksum,
       });
       expect(record.filesystem).to.eql({ operation: 'publish-file', committed: true });
       expect(result.totals).to.eql({

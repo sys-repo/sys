@@ -99,7 +99,7 @@ describe('Jsr.Manifest (integration test)', () => {
         const url = file.ok ? file.finalUrl : file.url;
         const path = url.slice(baseUrl.length - 1) as keyof typeof SAMPLE.def;
         const def = SAMPLE.def[path];
-        expect(file.checksum?.actual).to.eql(def.checksum);
+        expect(file.checksum?.received).to.eql(def.checksum);
         expect(file.checksum?.expected).to.eql(def.checksum);
       }
     });
@@ -133,7 +133,7 @@ describe('Jsr.Manifest (integration test)', () => {
 
       expect(resA.files.length).to.eql(Object.keys(SAMPLE.def).length);
       expect(resB.files.length).to.eql(1);
-      expect(resB.files[0].checksum?.actual).to.eql(SAMPLE.def['/src/pkg.ts'].checksum);
+      expect(resB.files[0].checksum?.received).to.eql(SAMPLE.def['/src/pkg.ts'].checksum);
     });
 
     it('error: checksum fail', async () => {

@@ -159,7 +159,7 @@ export async function transferResource(
     if (
       !checksum?.valid ||
       checksum.expected !== resource.checksum ||
-      checksum.actual !== resource.checksum
+      checksum.received !== resource.checksum
     ) {
       return resourceFailureRecord(resource, state, RESOURCE_FAILURE.checksum, 412);
     }

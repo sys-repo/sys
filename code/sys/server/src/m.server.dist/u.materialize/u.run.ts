@@ -452,7 +452,7 @@ async function fetchManifest(args: InputSnapshot): Promise<FetchResult> {
     if (
       response.checksum?.valid !== true ||
       response.checksum.expected !== args.integrity ||
-      response.checksum.actual !== args.integrity
+      response.checksum.received !== args.integrity
     ) {
       return { ok: false, reason: 'integrity-mismatch' };
     }

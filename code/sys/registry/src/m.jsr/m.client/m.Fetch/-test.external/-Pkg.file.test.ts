@@ -82,7 +82,7 @@ describe('Jsr.Fetch.Pkg.file (external)', () => {
         expect(res.status).to.eql(412);
         expect(error?.message).to.include(`412: Pre-condition failed (checksum-mismatch)`);
         expect(error?.message).to.include(`does not match the expected checksum:`);
-        expect(error?.message).to.include(res.checksum?.actual);
+        expect(error?.message).to.include(res.checksum?.received);
         expect(error?.message).to.include(res.checksum?.expected);
       };
 
@@ -103,7 +103,7 @@ describe('Jsr.Fetch.Pkg.file (external)', () => {
         print(resB, 'sha256-FAIL');
 
         expect(resA.checksum).to.eql(undefined);
-        expect(resC.checksum).to.eql({ valid: true, expected: checksum, actual: checksum });
+        expect(resC.checksum).to.eql({ valid: true, expected: checksum, received: checksum });
       });
     });
   });

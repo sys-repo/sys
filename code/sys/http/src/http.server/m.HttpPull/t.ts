@@ -64,7 +64,7 @@ export declare namespace HttpPull {
   /** Stable checksum evidence for one checksum-pinned resource. */
   export type ResourceChecksumEvidence = {
     readonly expected: t.StringHash;
-    readonly actual?: t.StringHash;
+    readonly received?: t.StringHash;
     readonly valid?: boolean;
   };
 
@@ -113,7 +113,7 @@ export declare namespace HttpPull {
     readonly attempts: number;
     /** Bytes transferred across all attempts, including failed attempts. */
     readonly transferredBytes: t.NumberBytes;
-    /** Caller checksum and any observed actual checksum. */
+    /** Caller checksum and any digest observed over received bytes. */
     readonly checksum?: ResourceChecksumEvidence;
     /** Optional caller-supplied exact size. */
     readonly expectedBytes?: t.NumberBytes;

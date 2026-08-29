@@ -1,10 +1,23 @@
 import { Hash } from '@sys/crypto/hash';
-import { describe, expect, it, type t, Testing } from '../../../-test.ts';
+import { describe, expect, expectTypeOf, it, type t, Testing } from '../../../-test.ts';
 
 import { Fetch } from '../mod.ts';
 import { fetchOptions } from './u.fixture.ts';
 
 describe('Http.Fetch: hash checksums', () => {
+  it('exposes received as the sole checksum observation field', () => {
+    const checksum = {
+      valid: true,
+      expected: Hash.sha256('expected'),
+      received: Hash.sha256('received'),
+    } as t.HttpFetch.ResponseChecksum;
+    expectTypeOf(checksum).toEqualTypeOf<{
+      readonly valid: boolean;
+      readonly expected: t.StringHash;
+      readonly received: t.StringHash;
+    }>();
+  });
+
   const assertSuccess = (res: t.HttpFetch.Response<unknown>) => {
     expect(res.ok).to.eql(true);
     expect(res.status).to.eql(200);
@@ -19,7 +32,7 @@ describe('Http.Fetch: hash checksums', () => {
     expect(res.data).to.eql(undefined);
     expect(error?.message).to.include(`412: Pre-condition failed (checksum-mismatch)`);
     expect(error?.message).to.include(`does not match the expected checksum:`);
-    expect(error?.message).to.include(res.checksum?.actual);
+    expect(error?.message).to.include(res.checksum?.received);
     expect(error?.message).to.include(res.checksum?.expected);
   };
 
@@ -39,7 +52,7 @@ describe('Http.Fetch: hash checksums', () => {
     assertSuccess(resC);
 
     expect(resA.checksum).to.eql(undefined);
-    expect(resC.checksum).to.eql({ valid: true, expected: checksum, actual: checksum });
+    expect(resC.checksum).to.eql({ valid: true, expected: checksum, received: checksum });
 
     fetch.dispose();
     await server.dispose();
@@ -79,8 +92,8 @@ describe('Http.Fetch: hash checksums', () => {
     assertSuccess(resB);
 
     expect(actual).to.eql(bytes);
-    expect(resA.checksum).to.eql({ valid: false, expected: 'sha256-FAIL', actual: checksum });
-    expect(resB.checksum).to.eql({ valid: true, expected: checksum, actual: checksum });
+    expect(resA.checksum).to.eql({ valid: false, expected: 'sha256-FAIL', received: checksum });
+    expect(resB.checksum).to.eql({ valid: true, expected: checksum, received: checksum });
 
     fetch.dispose();
     await server.dispose();

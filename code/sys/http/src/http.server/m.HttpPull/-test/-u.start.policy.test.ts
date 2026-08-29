@@ -75,7 +75,7 @@ function retryStarter(resource: t.HttpPull.Resource) {
         checksum: {
           valid: true,
           expected: resource.checksum,
-          actual: resource.checksum,
+          received: resource.checksum,
         },
       });
     };

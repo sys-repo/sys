@@ -9,15 +9,15 @@ export function verifyChecksum<T>(
   expected: t.StringHash,
   errors: t.ErrorCollection,
 ): t.HttpFetch.ResponseChecksum {
-  const actual = Hash.sha256(data);
-  const valid = actual === expected;
+  const received = Hash.sha256(data);
+  const valid = received === expected;
 
   if (!valid) {
     let message = `${STATUS}: ${STATUS_TEXT}. `;
     message +=
-      `The hash of the fetched content ("${actual}") does not match the expected checksum: "${expected}"`;
+      `The hash of the fetched content ("${received}") does not match the expected checksum: "${expected}"`;
     errors.push(message);
   }
 
-  return { valid, expected, actual };
+  return { valid, expected, received };
 }
