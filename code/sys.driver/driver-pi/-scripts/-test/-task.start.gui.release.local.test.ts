@@ -46,6 +46,14 @@ describe('driver-pi/scripts/task.start.gui.release.local', () => {
     expect((deno.tasks as Record<string, unknown>)['start:gui:evidence:local']).to.eql(undefined);
   });
 
+  it('runs build before the exact binding leaf and stops when build fails', () => {
+    expectTaskExact('bind:dev', [
+      'deno task build',
+      '&&',
+      'deno task bind:gui:evidence:local',
+    ]);
+  });
+
   it('confines disposable runtime writes, wildcard bind, and fixed-port authority', () => {
     const permissions = deno.permissions as Record<string, Record<string, unknown>>;
     // Pinned verification observes the selected root's ancestor chain; writes stay disposable.

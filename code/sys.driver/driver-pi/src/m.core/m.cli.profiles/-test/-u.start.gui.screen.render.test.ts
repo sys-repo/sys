@@ -156,7 +156,7 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
     expect(row(wide, 'expected')).to.contain(expected);
     expect(row(wide, 'received')).to.contain(received);
     expect(row(wide, 'guidance')).to.contain(
-      'Intended local build? In Driver Pi run deno task bind:gui:evidence:local, then relaunch.',
+      'Intended local build? In Driver Pi run deno task bind:dev, then relaunch.',
     );
     const evidenceIndex = wideRows.indexOf(row(wide, 'evidence'));
     expect([

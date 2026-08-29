@@ -18,7 +18,7 @@ const RECEIVED: t.StringHash = `sha256-${'b'.repeat(64)}`;
 const TERMINAL_ONLY_TEXT = [
   START_GUI_SERVICE.source.integrity,
   START_GUI_SERVICE.source.manifestUrl,
-  'deno task bind:gui:evidence:local',
+  'deno task bind:dev',
 ] as const;
 
 describe('@sys/driver-pi start:gui bootstrap projection', () => {

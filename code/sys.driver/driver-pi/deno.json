@@ -28,6 +28,7 @@
     "serve": "FORCE_COLOR=0 deno run --frozen --cached-only --no-prompt -P=serve ./-scripts/task.vite.ts --cmd=serve --port=8080",
     "info": "deno run -P=dev ./-scripts/task.vite.ts --cmd=info",
     "reset": "deno task start:gui:reset",
+    "bind:dev": "deno task build && deno task bind:gui:evidence:local",
     "start:gui:reset": "deno run -P=clean ./-scripts/task.start.gui.reset.ts",
     "start:gui:preview": "deno run -P=preview-launch --no-prompt ./-scripts/task.start.gui.preview.ts",
     "bind:gui:evidence:local": "deno run --frozen --cached-only --no-prompt -P=evidence-local ./-scripts/task.start.gui.evidence.local.ts",

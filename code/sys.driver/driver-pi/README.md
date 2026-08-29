@@ -150,21 +150,39 @@ behavior, not complete containment.
 
 ## Development
 
+Choose the task by outcome:
+
+| Outcome                                 | Task                 |
+| --------------------------------------- | -------------------- |
+| Run the source development server       | `deno task dev`      |
+| Build `dist/`                           | `deno task build`    |
+| Serve the existing `dist/`              | `deno task serve`    |
+| Remove a rejected GUI cache             | `deno task reset`    |
+| Build and bind local rehearsal evidence | `deno task bind:dev` |
+
 ### Local GUI evidence
 
-`start:gui` uses checked-in local-rehearsal authority, not published release evidence. A verified
-cached generation starts offline; a cold start acquires the exact Dist from
-`http://localhost:8080/dist.json`. It never builds or starts the local server. The local `dist/` is
-proof input and is excluded from package publication.
+Build and bind the local-rehearsal candidate from current source:
 
-Bind an already-built local candidate as the checked-in rehearsal authority:
+```sh
+deno task bind:dev
+```
+
+`bind:dev` runs `build`, then binds the resulting `dist/`. If the build fails, binding does not run.
+
+`start:gui` trusts checked-in local-rehearsal evidence, not published release evidence. A verified
+cached generation starts offline. A cold start acquires the exact Dist from
+`http://localhost:8080/dist.json`. `start:gui` never builds or starts the local server. The local
+`dist/` is proof input and is excluded from package publication.
+
+For an intentionally selected, already-built candidate, invoke only the narrow binding leaf:
 
 ```sh
 deno task bind:gui:evidence:local
 ```
 
-Binding never builds, serves, or contacts `:8080`; it verifies `dist/` and replaces only the
-launcher evidence leaf.
+The leaf verifies `dist/` and replaces only the launcher evidence file. It never builds, serves, or
+contacts `:8080`.
 
 Serve the already-built `dist/` for browser preview and local acquisition:
 
@@ -172,12 +190,13 @@ Serve the already-built `dist/` for browser preview and local acquisition:
 deno task serve
 ```
 
-The one verified local listener serves the preview at `/`, the exact saved manifest at `/dist.json`,
-and every manifest-declared part. In another workspace terminal, run `sys pi`, select `<profile>`,
-then `start:gui`.
+The task verifies `dist/` before opening one loopback listener on `:8080`. That listener serves the
+preview at `/`, the exact saved manifest at `/dist.json`, and every manifest-declared part.
 
-`deno task test:browser` rebuilds `dist/`; it is not a frozen-candidate check. The
-`test:release:local:browser:frozen` lane consumes and preserves the selected local candidate.
+In another workspace terminal, run `sys pi`, select `<profile>`, then `start:gui`.
+
+`deno task test:browser` rebuilds `dist/`; it does not test the selected candidate in place. Use
+`deno task test:release:local:browser:frozen` to test and preserve that candidate.
 
 ### Reset
 

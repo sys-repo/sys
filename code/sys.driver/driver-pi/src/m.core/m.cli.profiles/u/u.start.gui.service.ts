@@ -29,7 +29,7 @@ export type StartGuiRecoveryPolicy = Readonly<{
 const LOCAL_RECOVERY_POLICY: StartGuiRecoveryPolicy = Object.freeze({
   kind: 'local-evidence-binding',
   manifestChecksumMismatch:
-    'Intended local build? In Driver Pi run deno task bind:gui:evidence:local, then relaunch.',
+    'Intended local build? In Driver Pi run deno task bind:dev, then relaunch.',
 });
 
 /**
