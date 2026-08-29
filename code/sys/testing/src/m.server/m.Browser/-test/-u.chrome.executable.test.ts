@@ -1,4 +1,5 @@
 import { describe, expect, Fs, Hash, it, Time } from '../../-test.ts';
+import { Browser } from '../mod.ts';
 import { assertChromeExecutableInput, validateChromeExecutable } from '../u.chrome.executable.ts';
 import {
   BROWSER_BUNDLE_FILE,
@@ -56,6 +57,23 @@ describe('Browser Chrome executable admission', () => {
         expect(browserProofExecutableInput([`--chrome-executable=${input}`])).to.eql(input);
       }
     }
+  });
+
+  it('public seam → requires writable-root authority and preserves the admitted path', async () => {
+    const canonical = await Fs.realPath(Deno.execPath());
+    const writableRoots = [BROWSER_PROOF_ROOT];
+    const admission = Browser.Executable.admit(canonical, { writableRoots });
+    writableRoots[0] = canonical;
+    expect(await admission).to.eql(canonical);
+
+    let caught: unknown;
+    try {
+      await Browser.Executable.admit(canonical, undefined as never);
+    } catch (cause) {
+      caught = cause;
+    }
+    expect(caught).to.be.instanceOf(TypeError);
+    expect((caught as Error).message).to.contain('explicit writableRoots array');
   });
 
   it('prepared bundle → rejects and retains stale or altered evidence', async () => {

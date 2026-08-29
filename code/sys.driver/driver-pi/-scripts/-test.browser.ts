@@ -21,7 +21,7 @@ import { START_GUI_SERVICE } from '../src/m.core/m.cli.profiles/u/u.start.gui.se
 const CWD = Fs.Path.fromFileUrl(new URL('../', import.meta.url));
 const DIST_DIR = Fs.join(CWD, 'dist') as t.StringDir;
 const DIST_MANIFEST = Fs.join(DIST_DIR, 'dist.json');
-const TEST_TMP_DIR = Fs.join(CWD, '.tmp');
+const TEST_TMP_DIR = Fs.join(CWD, '.tmp') as t.StringAbsoluteDir;
 const WORKSPACE_ROOT = Fs.resolve(CWD, '../../..');
 const PROTECTED_WRITES = [
   DIST_DIR,
@@ -30,6 +30,8 @@ const PROTECTED_WRITES = [
   Fs.join(CWD, 'src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts'),
 ] as const;
 const ASSERT_RELEASE_EVIDENCE = Deno.env.get('SYS_DRIVER_PI_RELEASE_EVIDENCE') === '1';
+const EXECUTABLE_ARG = '--chrome-executable=';
+const BROWSER_EXECUTABLE = await browserExecutable();
 const OWNED_CACHE = `${pkg.name}:asset-files`;
 const UNRELATED_CACHE = `${pkg.name}-neighbor:asset-files`;
 
@@ -58,6 +60,24 @@ const LEGACY_REGISTER_PAGE = `<!doctype html>
 
 describe('Driver Pi verified-loopback Service Worker policy', () => {
   if (ASSERT_RELEASE_EVIDENCE) {
+    it('binds selected Chrome → unrelated direct commands remain denied', async () => {
+      const executablePath = releaseBrowserExecutable();
+      expect(await permissionState({ name: 'run', command: executablePath })).to.eql('granted');
+
+      for (const command of deniedCommands().filter((command) => command !== executablePath)) {
+        expect(await permissionState({ name: 'run', command })).not.to.eql('granted');
+      }
+
+      expect(await permissionState({ name: 'env', variable: 'CHROME_BIN' })).not.to.eql('granted');
+      let envFailure: unknown;
+      try {
+        Deno.env.get('CHROME_BIN');
+      } catch (cause) {
+        envFailure = cause;
+      }
+      expect(envFailure).to.be.instanceOf(Deno.errors.NotCapable);
+    });
+
     it('denies protected writes, wildcard bind, and the operator source port', async () => {
       expect(await permissionState({ name: 'write', path: TEST_TMP_DIR })).to.eql('granted');
       for (const path of PROTECTED_WRITES) {
@@ -175,6 +195,7 @@ async function proveFreshVerifiedLoopback(
     await proveHostServiceWorkerPolicy(started.origin, requireAsset(assets, '/sw.js'));
 
     const result = await Browser.ServiceWorker.scenario({
+      executablePath: BROWSER_EXECUTABLE,
       steps: [
         { kind: 'navigate', url: started.origin },
         { kind: 'observe', expect: { kind: 'controller', state: 'absent' } },
@@ -237,6 +258,7 @@ async function proveClaimingWorkerMigration(assets: ReadonlyMap<string, Uint8Arr
     const scope = `${origin}/` as t.StringUrl;
     const scriptURL = `${origin}/sw.js` as t.StringUrl;
     const result = await Browser.ServiceWorker.scenario({
+      executablePath: BROWSER_EXECUTABLE,
       steps: [
         { kind: 'navigate', url: scope },
         { kind: 'observe', expect: { kind: 'controller', state: 'present', scriptURL } },
@@ -398,6 +420,51 @@ function javascript(body: string): Response {
       'service-worker-allowed': '/',
     },
   });
+}
+
+async function browserExecutable(): Promise<t.StringAbsolutePath | undefined> {
+  if (!ASSERT_RELEASE_EVIDENCE) {
+    if (Deno.args.length > 0) {
+      throw new TypeError('Current-build Driver Pi browser proof accepts no arguments.');
+    }
+    return undefined;
+  }
+  if (Deno.args.length !== 1 || !Deno.args[0].startsWith(EXECUTABLE_ARG)) {
+    throw new TypeError(
+      'Frozen Driver Pi browser proof requires exactly one --chrome-executable=<absolute-path> argument.',
+    );
+  }
+
+  const input = Deno.args[0].slice(EXECUTABLE_ARG.length);
+  return await Browser.Executable.admit(input, { writableRoots: [TEST_TMP_DIR] });
+}
+
+function releaseBrowserExecutable(): t.StringAbsolutePath {
+  if (!BROWSER_EXECUTABLE) throw new Error('Frozen Driver Pi browser executable is unavailable.');
+  return BROWSER_EXECUTABLE;
+}
+
+function deniedCommands() {
+  if (Deno.build.os === 'windows') {
+    return [
+      Deno.execPath(),
+      'C:\\Windows\\System32\\cmd.exe',
+      'node.exe',
+      'npm.cmd',
+    ] as const;
+  }
+
+  return [
+    Deno.execPath(),
+    '/bin/sh',
+    '/bin/bash',
+    '/usr/bin/env',
+    '/usr/bin/true',
+    '/opt/homebrew/bin/node',
+    '/usr/local/bin/node',
+    '/opt/homebrew/bin/npm',
+    '/usr/local/bin/npm',
+  ] as const;
 }
 
 async function permissionState(

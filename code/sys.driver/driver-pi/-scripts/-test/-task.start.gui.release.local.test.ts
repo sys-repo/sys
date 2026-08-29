@@ -69,7 +69,7 @@ describe('driver-pi/scripts/task.start.gui.release.local', () => {
     );
   });
 
-  it('keeps current browser proof build-owning and frozen proof candidate-preserving', () => {
+  it('keeps current browser proof build-owning and freezes finite Chrome authority', () => {
     const permissions = deno.permissions as Record<string, Record<string, unknown>>;
     expect(permissions['test-browser']).to.eql({
       read: true,
@@ -78,12 +78,15 @@ describe('driver-pi/scripts/task.start.gui.release.local', () => {
       net: ['127.0.0.1', '0.0.0.0'],
       run: true,
     });
+    expect(permissions['test-browser-admit']).to.eql({
+      read: true,
+      env: ['CHROME_BIN'],
+    });
     expect(permissions['test-browser-frozen']).to.eql({
       read: true,
       write: ['./.tmp'],
       env: [
         'SYS_DRIVER_PI_RELEASE_EVIDENCE',
-        'CHROME_BIN',
         'FORCE_COLOR',
         'NODE_DISABLE_COLORS',
         'NO_COLOR',
@@ -91,30 +94,53 @@ describe('driver-pi/scripts/task.start.gui.release.local', () => {
         'TERM_PROGRAM',
       ],
       net: ['127.0.0.1'],
-      // The canonical Testing browser runner owns this residual authority.
-      run: true,
     });
+
     const entry = './-scripts/-test.browser.ts';
+    const admitEntry = './-scripts/-test.browser.admit.ts';
     const current = expectTask('test:browser', ['deno task build', entry]);
     expect(current.indexOf('deno task build')).to.be.lessThan(current.indexOf(entry));
-    expectTask(
+    expectTaskExact(
+      'test:release:local:browser:admit',
+      [
+        'deno run',
+        '--frozen',
+        '--cached-only',
+        '--no-prompt',
+        '-P=test-browser-admit',
+        admitEntry,
+      ],
+    );
+    expectTaskExact(
       'test:release:local:browser:frozen',
       [
+        'deno task test:release:local:browser:admit',
+        '&&',
+        'env -u CHROME_BIN',
         'TMPDIR=./.tmp',
+        'FORCE_COLOR=0',
         'SYS_DRIVER_PI_RELEASE_EVIDENCE=1',
+        'deno test',
         '--frozen',
         '--cached-only',
         '--no-prompt',
         '-P=test-browser-frozen',
+        '--allow-run="$CHROME_BIN"',
         PROTECTED_WRITE_DENIAL,
         '--deny-env=DENO_DIR',
         PROTECTED_NET_DENIAL,
+        '--trace-leaks',
         entry,
+        '--',
+        '--chrome-executable="$CHROME_BIN"',
       ],
-      ['build', '-P=test-browser ', '--allow-', ...SHELL_CHAIN_MARKERS],
     );
   });
 });
+
+function expectTaskExact(name: string, parts: readonly string[]) {
+  expect((deno.tasks as Record<string, unknown>)[name]).to.eql(parts.join(' '));
+}
 
 function expectTask(
   name: string,

@@ -42,6 +42,10 @@ proof.
 
 Import `Browser` from `@sys/testing/server`.
 
+`Browser.Executable.admit(...)` lets a trusted task wrapper apply Testing's pathname policy before
+constructing a run grant. The wrapper must declare every proof-child writable root; admission does
+not attest the selected binary.
+
 `Browser.load(...)` loads one URL and reports browser errors.
 
 `Browser.ServiceWorker.scenario(...)` runs an ordered sequence of `navigate`, `reload`, `update`,

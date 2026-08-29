@@ -12,6 +12,14 @@ export declare namespace Browser {
   export type Kind = PublicBrowser.Kind;
 
   /**
+   * Browser executable admission contracts.
+   */
+  export namespace Executable {
+    export type Lib = PublicBrowser.Executable.Lib;
+    export type Options = PublicBrowser.Executable.Options;
+  }
+
+  /**
    * Single-navigation browser assertion contracts.
    */
   export namespace Load {

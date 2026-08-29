@@ -8,6 +8,8 @@ export declare namespace Browser {
    * Product-neutral browser assertion and lifecycle observation surface.
    */
   export type Lib = {
+    /** Admit one executable pathname for trusted browser-proof orchestration. */
+    readonly Executable: Executable.Lib;
     /** Load one URL in an isolated local browser and report runtime errors. */
     load(url: string, options?: Load.Options): Promise<Load.Result>;
     /** Fixed Service Worker lifecycle observation surface. */
@@ -16,6 +18,24 @@ export declare namespace Browser {
 
   /** Browser backend used for browser assertions. */
   export type Kind = 'Chrome';
+
+  /**
+   * Browser executable admission contracts for trusted task wrappers.
+   */
+  export namespace Executable {
+    export type Lib = {
+      /** Admit one canonical executable outside every proof-child writable root. */
+      readonly admit: (
+        input: unknown,
+        options: Options,
+      ) => Promise<t.StringAbsolutePath>;
+    };
+
+    export type Options = {
+      /** Complete writable-root set of the process that will receive executable authority. */
+      readonly writableRoots: readonly t.StringAbsolutePath[];
+    };
+  }
 
   /**
    * Single-navigation browser assertion contracts.

@@ -15,7 +15,8 @@
     "test:release:local": "deno task test:release:local:evidence:process && deno task test:release:local:runtime && deno task test:release:local:browser:frozen",
     "test:release:local:evidence:process": "deno run --frozen --cached-only --no-prompt -P=test-evidence-process ./-scripts/-test.external/-task.start.gui.evidence.local.process-proof.ts",
     "test:release:local:runtime": "TMPDIR=./.tmp FORCE_COLOR=0 deno test --frozen --cached-only --no-prompt -P=release-local-test --deny-write=./dist,./.pi,../../../.pi,./src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts --deny-env=DENO_DIR --deny-net=0.0.0.0,127.0.0.1:8080 --deny-run --trace-leaks ./-scripts/-test.external/-task.start.gui.release.local.ts",
-    "test:release:local:browser:frozen": "TMPDIR=./.tmp FORCE_COLOR=0 SYS_DRIVER_PI_RELEASE_EVIDENCE=1 deno test --frozen --cached-only --no-prompt -P=test-browser-frozen --deny-write=./dist,./.pi,../../../.pi,./src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts --deny-env=DENO_DIR --deny-net=0.0.0.0,127.0.0.1:8080 --trace-leaks ./-scripts/-test.browser.ts",
+    "test:release:local:browser:admit": "deno run --frozen --cached-only --no-prompt -P=test-browser-admit ./-scripts/-test.browser.admit.ts",
+    "test:release:local:browser:frozen": "deno task test:release:local:browser:admit && env -u CHROME_BIN TMPDIR=./.tmp FORCE_COLOR=0 SYS_DRIVER_PI_RELEASE_EVIDENCE=1 deno test --frozen --cached-only --no-prompt -P=test-browser-frozen --allow-run=\"$CHROME_BIN\" --deny-write=./dist,./.pi,../../../.pi,./src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts --deny-env=DENO_DIR --deny-net=0.0.0.0,127.0.0.1:8080 --trace-leaks ./-scripts/-test.browser.ts -- --chrome-executable=\"$CHROME_BIN\"",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check -- ./src/ ./-scripts/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
@@ -133,20 +134,22 @@
       "net": ["127.0.0.1", "0.0.0.0"],
       "run": true
     },
+    "test-browser-admit": {
+      "read": true,
+      "env": ["CHROME_BIN"]
+    },
     "test-browser-frozen": {
       "read": true,
       "write": ["./.tmp"],
       "env": [
         "SYS_DRIVER_PI_RELEASE_EVIDENCE",
-        "CHROME_BIN",
         "FORCE_COLOR",
         "NODE_DISABLE_COLORS",
         "NO_COLOR",
         "TERM",
         "TERM_PROGRAM"
       ],
-      "net": ["127.0.0.1"],
-      "run": true
+      "net": ["127.0.0.1"]
     },
     "cli": {
       "read": true,

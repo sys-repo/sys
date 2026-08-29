@@ -20,6 +20,7 @@ describe('testing namespace freeze contract', () => {
     const namespaces = [
       Testing,
       Browser,
+      Browser.Executable,
       DomMock,
       Browser.ServiceWorker,
       WebFixture,
