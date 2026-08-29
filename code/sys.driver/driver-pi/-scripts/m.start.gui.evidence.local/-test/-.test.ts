@@ -2,7 +2,8 @@ import { describe, Err, expect, it, type t } from '../../common.ts';
 import { pkg } from '../../../src/pkg.ts';
 import { START_GUI_RELEASE_EVIDENCE } from '../../../src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts';
 import { START_GUI_SERVICE } from '../../../src/m.core/m.cli.profiles/u/u.start.gui.service.ts';
-import { renderEvidence, writeEvidenceWith } from '../mod.ts';
+import { c, Fmt, stripAnsi } from '../common.ts';
+import { EVIDENCE, renderEvidence, renderEvidenceBoundOutput, writeEvidenceWith } from '../mod.ts';
 
 const EVIDENCE_LEAF = new URL(
   '../../../src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts',
@@ -30,6 +31,48 @@ describe('driver-pi/scripts/m.start.gui.evidence.local', () => {
   it('renders the checked-in evidence leaf byte-for-byte', async () => {
     const rendered = new TextEncoder().encode(renderEvidence(START_GUI_RELEASE_EVIDENCE));
     expect(await Deno.readFile(EVIDENCE_LEAF)).to.eql(rendered);
+  });
+
+  it('renders semantic settlement through canonical formatters', () => {
+    const width = 80;
+    const rawLines = renderEvidenceBoundOutput({ terminal: false, width }).split('\n');
+    const lines = rawLines.map(stripAnsi);
+    const ruleIndex = lines.findIndex(isRule);
+    expect(ruleIndex).to.be.greaterThan(0);
+    expect(rawLines[ruleIndex]).to.eql(Fmt.hr({ width, color: 'cyan' }));
+
+    const tableLines = lines.slice(0, ruleIndex);
+    const facts = [
+      EVIDENCE.packageName,
+      EVIDENCE.kind,
+      EVIDENCE.state,
+      EVIDENCE.outputPath,
+    ] as const;
+    const indexes = facts.map((fact) => uniqueLineIndex(tableLines, fact));
+
+    expect(Object.isFrozen(EVIDENCE)).to.eql(true);
+    expect(EVIDENCE.packageName).to.eql(pkg.name);
+    for (let index = 1; index < indexes.length; index += 1) {
+      expect(indexes[index]).to.be.greaterThan(indexes[index - 1] ?? -1);
+    }
+
+    const stateLine = rawLines[indexes[2] ?? -1] ?? '';
+    expect(stateLine).to.contain(c.green(EVIDENCE.state));
+    const pathLine = rawLines[indexes[3] ?? -1] ?? '';
+    expect(pathLine).to.contain(Fmt.Path.str(EVIDENCE.outputPath, { relative: 'bare' }));
+
+    uniqueLineIndex(lines.slice(ruleIndex + 1), EVIDENCE.commitMessage);
+  });
+
+  it('fits bound state and output rows to narrow terminals', () => {
+    const width = 40;
+    const lines = renderEvidenceBoundOutput({ terminal: true, width }).split('\n');
+    const ruleIndex = lines.findIndex((line) => isRule(stripAnsi(line)));
+    expect(ruleIndex).to.be.greaterThan(0);
+    for (const line of lines.slice(0, ruleIndex)) {
+      if (stripAnsi(line).trim()) expect(Fmt.Text.Width.measure(line)).to.be.at.most(width);
+    }
+    expect(Fmt.Text.Width.measure(lines[ruleIndex] ?? '')).to.eql(width);
   });
 
   it('escapes admitted package strings as valid single-quoted TypeScript', () => {
@@ -90,3 +133,16 @@ describe('driver-pi/scripts/m.start.gui.evidence.local', () => {
     expect((thrown as Error).cause).to.equal(reported);
   });
 });
+
+function uniqueLineIndex(lines: readonly string[], fact: string): number {
+  const indexes: number[] = [];
+  for (let index = 0; index < lines.length; index += 1) {
+    if (lines[index]?.includes(fact)) indexes.push(index);
+  }
+  expect(indexes.length).to.eql(1);
+  return indexes[0] ?? -1;
+}
+
+function isRule(line: string): boolean {
+  return line.length > 0 && line === '━'.repeat(line.length);
+}

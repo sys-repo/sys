@@ -1,5 +1,5 @@
-import { Fs, Is, Json, type t } from '../m.start.gui.evidence.local/common.ts';
-import { EVIDENCE_BOUND_MESSAGE } from '../m.start.gui.evidence.local/mod.ts';
+import { Fs, Is, Json, stripAnsi, type t } from '../m.start.gui.evidence.local/common.ts';
+import { EVIDENCE } from '../m.start.gui.evidence.local/mod.ts';
 
 const PACKAGE_ROOT = Fs.resolve(import.meta.dirname ?? '.', '../..') as t.StringAbsoluteDir;
 const EVIDENCE_PATH = Fs.join(
@@ -22,8 +22,12 @@ try {
   const missing = await runGenerator(emptyCache.absolute);
   assert(!missing.success, 'The generator unexpectedly succeeded with an empty import cache.');
   assert(
-    !decode(missing.stdout).includes(EVIDENCE_BOUND_MESSAGE),
-    'The empty-cache run reported successful generation.',
+    !decode(missing.stdout).includes(EVIDENCE.outputPath),
+    'The empty-cache run reported bound evidence output.',
+  );
+  assert(
+    !decode(missing.stdout).includes(EVIDENCE.commitMessage),
+    'The empty-cache run suggested committing unbound evidence.',
   );
   assert(
     await evidenceEquals(expected),
@@ -32,9 +36,17 @@ try {
 
   const primed = await runGenerator(await resolveDenoDir());
   assert(primed.success, `The primed-cache generator failed: ${decode(primed.stderr)}`);
+  const primedStdout = decode(primed.stdout);
+  assert(primedStdout.startsWith('\n'), 'The successful output did not begin on a fresh line.');
+  assert(primedStdout.endsWith('\n\n'), 'The successful output did not end on a fresh line.');
+  const settledOutput = stripAnsi(primedStdout);
   assert(
-    decode(primed.stdout).trim() === EVIDENCE_BOUND_MESSAGE,
-    'The primed-cache generator did not report exact successful settlement.',
+    settledOutput.includes(EVIDENCE.outputPath),
+    'The primed-cache generator did not report the bound evidence output.',
+  );
+  assert(
+    settledOutput.includes(EVIDENCE.commitMessage),
+    'The primed-cache generator did not report the data-only commit suggestion.',
   );
   assert(
     await evidenceEquals(expected),

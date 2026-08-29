@@ -1,23 +1,34 @@
 import { pkg } from '../../src/pkg.ts';
 import { AUTHORITY_LIMITS, LIMITS } from '../../src/m.core/m.cli.profiles/u.start/u.limits.ts';
-import { Fs, FsDist, Is, Json, Str, type t } from './common.ts';
+import { c, Fmt, Fs, FsDist, Is, Json, Str, type t, Table } from './common.ts';
 
 const MANIFEST_URL: t.StringUrl = 'http://localhost:8080/dist.json';
 const PACKAGE_ROOT = Fs.resolve(import.meta.dirname ?? '.', '../..');
 const DIST_DIR = Fs.join(PACKAGE_ROOT, 'dist');
-const OUTPUT_RELATIVE_PATH = 'src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts';
-const OUTPUT_PATH = Fs.join(PACKAGE_ROOT, OUTPUT_RELATIVE_PATH);
+
+export const EVIDENCE = Object.freeze({
+  packageName: pkg.name,
+  kind: 'local GUI',
+  state: 'bound',
+  outputPath: 'src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts',
+  commitMessage: 'chore(driver-pi): bind rebuilt local GUI evidence',
+});
+
+const OUTPUT_PATH = Fs.join(PACKAGE_ROOT, EVIDENCE.outputPath);
 const OUTPUT_WRITE_FAILURE = 'Driver Pi local GUI evidence output write failed.';
 const INVALID_MANIFEST_URL = 'Driver Pi local GUI evidence manifest URL is invalid.';
 const INVALID_INTEGRITY = 'Driver Pi local GUI evidence integrity is invalid.';
 const INVALID_PACKAGE = 'Driver Pi local GUI evidence package identity is invalid.';
 
-export const EVIDENCE_BOUND_MESSAGE = `Driver Pi local GUI evidence bound: ${OUTPUT_RELATIVE_PATH}`;
-
 export type RenderEvidenceInput = Readonly<{
   manifestUrl: t.StringUrl;
   integrity: t.StringHash;
   expectedPkg: Readonly<t.Pkg>;
+}>;
+
+export type RenderEvidenceBoundOutputOptions = Readonly<{
+  terminal?: boolean;
+  width?: number;
 }>;
 
 type WriteDependencies = Readonly<{
@@ -50,7 +61,38 @@ export async function main(): Promise<void> {
     }),
     DEFAULT_WRITE_DEPENDENCIES,
   );
-  console.info(EVIDENCE_BOUND_MESSAGE);
+  console.info();
+  console.info(renderEvidenceBoundOutput());
+  console.info();
+}
+
+/** Render the successful binding result and its data-only commit suggestion. */
+export function renderEvidenceBoundOutput(
+  options: RenderEvidenceBoundOutputOptions = {},
+): string {
+  const labels = ['package:', 'evidence:', 'state:', 'output:'] as const;
+  const reserve = Fmt.Text.Width.max([...labels]) + Table.cellGap;
+  const outputPath = Fmt.Path.tty(EVIDENCE.outputPath, {
+    min: 1,
+    relative: 'bare',
+    reserve,
+    terminal: options.terminal,
+    width: options.width,
+  });
+  const table = Table.create();
+  table.push([c.gray(labels[0]), c.white(EVIDENCE.packageName)]);
+  table.push([c.gray(labels[1]), c.white(EVIDENCE.kind)]);
+  table.push([c.gray(labels[2]), c.green(EVIDENCE.state)]);
+  table.push([c.gray(labels[3]), outputPath]);
+
+  const tableText = String(table).split('\n').map((line) => line.trimEnd()).join('\n');
+  const rule = options.width === undefined
+    ? Fmt.hr('cyan')
+    : Fmt.hr({ width: options.width, color: 'cyan' });
+  return Str.dedent(`${tableText}
+
+${rule}
+${Fmt.Commit.suggestion(EVIDENCE.commitMessage)}`);
 }
 
 /** Render one admitted local-rehearsal tuple as deterministic TypeScript source. */
