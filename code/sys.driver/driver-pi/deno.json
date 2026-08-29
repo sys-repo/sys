@@ -30,7 +30,7 @@
     "reset": "deno task start:gui:reset",
     "start:gui:reset": "deno run -P=clean ./-scripts/task.start.gui.reset.ts",
     "start:gui:preview": "deno run -P=preview-launch --no-prompt ./-scripts/task.start.gui.preview.ts",
-    "start:gui:evidence:local": "deno run --frozen --cached-only --no-prompt -P=evidence-local ./-scripts/task.start.gui.evidence.local.ts",
+    "bind:gui:evidence:local": "deno run --frozen --cached-only --no-prompt -P=evidence-local ./-scripts/task.start.gui.evidence.local.ts",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {

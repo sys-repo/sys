@@ -157,6 +157,15 @@ cached generation starts offline; a cold start acquires the exact Dist from
 `http://localhost:8080/dist.json`. It never builds or starts the local server. The local `dist/` is
 proof input and is excluded from package publication.
 
+Bind an already-built local candidate as the checked-in rehearsal authority:
+
+```sh
+deno task bind:gui:evidence:local
+```
+
+Binding never builds, serves, or contacts `:8080`; it verifies `dist/` and replaces only the
+launcher evidence leaf.
+
 Serve the already-built `dist/` for browser preview and local acquisition:
 
 ```sh

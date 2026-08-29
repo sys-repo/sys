@@ -12,7 +12,7 @@ describe('driver-pi/scripts/task.start.gui.release.local', () => {
     expect(deno.exclude).to.contain('dist');
   });
 
-  it('pins least-authority evidence generation', () => {
+  it('pins least-authority evidence binding', () => {
     const permissions = deno.permissions as Record<string, Record<string, unknown>>;
     // Exact equality is intentional here: every added capability changes the security contract.
     expect(permissions['evidence-local']).to.eql({
@@ -32,7 +32,7 @@ describe('driver-pi/scripts/task.start.gui.release.local', () => {
       run: ['deno'],
     });
     expectTask(
-      'start:gui:evidence:local',
+      'bind:gui:evidence:local',
       [
         'deno run',
         '--frozen',
@@ -43,6 +43,7 @@ describe('driver-pi/scripts/task.start.gui.release.local', () => {
       ],
       [...SHELL_CHAIN_MARKERS, '-A', '-R', '-W', '-E', '-N', '-S', '-F', '--allow-'],
     );
+    expect((deno.tasks as Record<string, unknown>)['start:gui:evidence:local']).to.eql(undefined);
   });
 
   it('confines disposable runtime writes, wildcard bind, and fixed-port authority', () => {

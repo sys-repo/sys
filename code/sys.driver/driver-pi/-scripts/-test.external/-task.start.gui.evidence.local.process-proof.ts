@@ -1,5 +1,5 @@
 import { Fs, Is, Json, type t } from '../m.start.gui.evidence.local/common.ts';
-import { EVIDENCE_GENERATED_MESSAGE } from '../m.start.gui.evidence.local/mod.ts';
+import { EVIDENCE_BOUND_MESSAGE } from '../m.start.gui.evidence.local/mod.ts';
 
 const PACKAGE_ROOT = Fs.resolve(import.meta.dirname ?? '.', '../..') as t.StringAbsoluteDir;
 const EVIDENCE_PATH = Fs.join(
@@ -7,7 +7,7 @@ const EVIDENCE_PATH = Fs.join(
   'src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts',
 );
 const TEST_TMP_ROOT = Fs.join(PACKAGE_ROOT, '.tmp');
-const GENERATOR_ARGS = ['task', 'start:gui:evidence:local'] as const;
+const GENERATOR_ARGS = ['task', 'bind:gui:evidence:local'] as const;
 
 const expected = await Deno.readFile(EVIDENCE_PATH);
 await Fs.ensureDir(TEST_TMP_ROOT);
@@ -22,7 +22,7 @@ try {
   const missing = await runGenerator(emptyCache.absolute);
   assert(!missing.success, 'The generator unexpectedly succeeded with an empty import cache.');
   assert(
-    !decode(missing.stdout).includes(EVIDENCE_GENERATED_MESSAGE),
+    !decode(missing.stdout).includes(EVIDENCE_BOUND_MESSAGE),
     'The empty-cache run reported successful generation.',
   );
   assert(
@@ -33,7 +33,7 @@ try {
   const primed = await runGenerator(await resolveDenoDir());
   assert(primed.success, `The primed-cache generator failed: ${decode(primed.stderr)}`);
   assert(
-    decode(primed.stdout).trim() === EVIDENCE_GENERATED_MESSAGE,
+    decode(primed.stdout).trim() === EVIDENCE_BOUND_MESSAGE,
     'The primed-cache generator did not report exact successful settlement.',
   );
   assert(
