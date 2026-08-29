@@ -6,7 +6,7 @@
 export const START_GUI_RELEASE_EVIDENCE = Object.freeze({
   kind: 'release' as const,
   manifestUrl: 'http://localhost:8080/dist.json',
-  integrity: 'sha256-fed3ec7de9fdcce678c96d2c807619ed62f5f483fa2b1da94c3ce875626ea1a0',
+  integrity: 'sha256-ce9b78fa028c5e48e0be0c64cc1da4767faad695d23df879dc16e0d8196f7d5a',
   expectedPkg: Object.freeze({
     name: '@sys/driver-pi',
     version: '0.0.138',
