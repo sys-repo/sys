@@ -20,6 +20,7 @@ import {
   deferred,
   DIST_DIGEST,
   fakeGeneration,
+  GENERATION_HREF,
   rejectionOf,
   type Started,
   startedFixture,
@@ -62,6 +63,7 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
       kind: 'ready',
       origin: APP_ORIGIN,
       digest: DIST_DIGEST,
+      directoryHref: GENERATION_HREF,
     });
     expect(harness.leaseMode).to.eql('shared');
     expect(harness.materializeCalls).to.eql(1);

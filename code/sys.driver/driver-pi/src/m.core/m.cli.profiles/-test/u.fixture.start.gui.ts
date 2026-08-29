@@ -5,6 +5,8 @@ import { START_GUI_SERVICE } from '../u/u.start.gui.service.ts';
 export type Started = t.DistServer.Started;
 export type Keyboard = t.Cli.Keyboard.Bind.Handle;
 export const DIST_DIGEST = `sha256-${'d'.repeat(59)}84346` as t.StringHash;
+export const GENERATION_DIR = '/tmp/driver-pi-gui-generation' as t.StringAbsoluteDir;
+export const GENERATION_HREF = Fs.Path.toFileUrl(GENERATION_DIR).href as t.StringUrl;
 
 export function asProfileRoot(root: t.StringDir): t.PiCli.Cwd {
   return {
@@ -62,7 +64,7 @@ export function fakeGenerationWithPkgEvidence(
 
   return Object.freeze({
     kind: 'existing',
-    dir: '/tmp/driver-pi-gui-generation' as t.StringAbsoluteDir,
+    dir: GENERATION_DIR,
     integrity,
     verification,
     source: Object.freeze({ configuredUrl: manifestUrl }),

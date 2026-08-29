@@ -2,7 +2,7 @@ import { describe, expect, it, WebFixture } from '../../../-test.ts';
 import { Cli, Fs, type t } from '../common.ts';
 import { StartGuiScreen } from '../u.start/u.screen.ts';
 import { Boot, createBootState } from '../u.start/u.state.ts';
-import { DIST_DIGEST } from './u.fixture.start.gui.ts';
+import { DIST_DIGEST, GENERATION_HREF } from './u.fixture.start.gui.ts';
 import {
   APPLICATION,
   CAPABILITY,
@@ -36,7 +36,7 @@ describe('@sys/driver-pi start:gui screen ownership', () => {
     expect(harness.frames).to.have.length(2);
     expect(Cli.stripAnsi(harness.frames[1] ?? '')).to.contain('starting application host');
 
-    state.set(Boot.ready(APPLICATION.URL, DIST_DIGEST));
+    state.set(Boot.ready(APPLICATION.URL, DIST_DIGEST, GENERATION_HREF));
     expect(harness.frames).to.have.length(3);
     expect(Cli.stripAnsi(harness.frames[2] ?? '')).to.contain('ready');
     expect(Cli.stripAnsi(harness.frames[2] ?? '')).to.contain(APPLICATION.DISPLAY);
@@ -89,7 +89,7 @@ describe('@sys/driver-pi start:gui screen ownership', () => {
           },
         },
       }]);
-      state.set(Boot.ready(APPLICATION.URL, DIST_DIGEST));
+      state.set(Boot.ready(APPLICATION.URL, DIST_DIGEST, GENERATION_HREF));
     }
 
     const frame = harness.frames.at(-1) ?? '';
@@ -100,6 +100,7 @@ describe('@sys/driver-pi start:gui screen ownership', () => {
     expect(text).to.not.contain('127.0.0.1');
     expect(frame).to.contain(CAPABILITY.URL);
     expect(frame).to.contain(APPLICATION.URL);
+    expect(frame).to.contain(GENERATION_HREF);
     expect(frame).to.contain(Fs.Path.toFileUrl(DEVELOPMENT_ROOT).href);
 
     const hrefDescriptor = Object.getOwnPropertyDescriptor(NativeURL.prototype, 'href');

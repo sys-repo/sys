@@ -3,7 +3,7 @@ import { c, Cli, Fs, type t } from '../common.ts';
 import { StartGuiScreen } from '../u.start/u.screen.ts';
 import { Boot, type BootState, createBootState } from '../u.start/u.state.ts';
 import { START_GUI_SERVICE } from '../u/u.start.gui.service.ts';
-import { DIST_DIGEST } from './u.fixture.start.gui.ts';
+import { DIST_DIGEST, GENERATION_DIR, GENERATION_HREF } from './u.fixture.start.gui.ts';
 import {
   APPLICATION,
   CAPABILITY,
@@ -86,9 +86,9 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
     ];
     for (const state of unavailable) expect(manifestRow(render(state))).to.eql('');
 
-    const ready = Cli.stripAnsi(render(Boot.ready(APPLICATION.URL, DIST_DIGEST))).split(
-      '\n',
-    );
+    const ready = Cli.stripAnsi(
+      render(Boot.ready(APPLICATION.URL, DIST_DIGEST, GENERATION_HREF)),
+    ).split('\n');
     const stateIndex = ready.findIndex((row) => row.trimStart().startsWith('state'));
     const manifestIndex = ready.findIndex((row) => row.trimStart().startsWith('manifest'));
     expect(ready[manifestIndex].trimStart().slice('manifest'.length).trim()).to.eql(
@@ -97,13 +97,13 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
     expect(manifestIndex).to.eql(stateIndex + 1);
   });
 
-  it('links the verified Dist digest while preserving the plain fallback', () => {
+  it('links the Dist directory and digest to their separate admitted targets', () => {
     const render = (manifestUrl?: t.StringUrl) =>
       StartGuiScreen.toString({
         service: SERVICE,
         url: CAPABILITY.URL,
         ...(manifestUrl === undefined ? {} : { manifestUrl }),
-        state: Boot.ready(APPLICATION.URL, DIST_DIGEST),
+        state: Boot.ready(APPLICATION.URL, DIST_DIGEST, GENERATION_HREF),
         keyboard: false,
         openWarning: false,
         viewport: { width: 100, height: 12 },
@@ -111,11 +111,16 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
     const manifestRow = (frame: string) =>
       frame.split('\n').find((row) => Cli.stripAnsi(row).trimStart().startsWith('manifest')) ?? '';
 
-    const linked = manifestRow(render(START_GUI_SERVICE.source.manifestUrl));
-    const plain = manifestRow(render());
-    expect(linked).to.contain(START_GUI_SERVICE.source.manifestUrl);
-    expect(Cli.stripAnsi(linked)).to.eql(Cli.stripAnsi(plain));
-    expect(plain).not.to.contain(START_GUI_SERVICE.source.manifestUrl);
+    const manifestUrl = 'https://gui.example.test/releases/current/dist.json' as t.StringUrl;
+    const directoryUrl = Fs.Path.toFileUrl(GENERATION_DIR);
+    const directoryLink = Cli.Fmt.hyperlink(c.gray('dist/'), directoryUrl);
+    const linked = manifestRow(render(manifestUrl));
+    const local = manifestRow(render());
+    expect(linked).to.contain(directoryLink);
+    expect(linked).to.contain(`\x1b]8;;${manifestUrl}\x1b\\`);
+    expect(local).to.contain(directoryLink);
+    expect(Cli.stripAnsi(linked)).to.eql(Cli.stripAnsi(local));
+    expect(local).not.to.contain(manifestUrl);
   });
 
   it('preserves Dist orientation through every shared digest boundary', () => {
@@ -132,7 +137,7 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
         service: SERVICE,
         url: CAPABILITY.URL,
         manifestUrl: START_GUI_SERVICE.source.manifestUrl,
-        state: Boot.ready(APPLICATION.URL, DIST_DIGEST),
+        state: Boot.ready(APPLICATION.URL, DIST_DIGEST, GENERATION_HREF),
         keyboard: false,
         openWarning: false,
         viewport: { width, height: 12 },
@@ -145,7 +150,11 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
       const value = row.trimStart().slice('manifest'.length).trim();
       expect(value, `width:${width}`).to.eql(expected);
     }
-    expect(render(29)).not.to.contain(START_GUI_SERVICE.source.manifestUrl);
+    const manifestUrl = START_GUI_SERVICE.source.manifestUrl;
+    expect(render(29)).to.contain(
+      Cli.Fmt.hyperlink(c.gray('dist/'), Fs.Path.toFileUrl(GENERATION_DIR)),
+    );
+    expect(render(29)).not.to.contain(manifestUrl);
   });
 
   it('renders mismatch values and gates local recovery by exact policy identity', () => {
@@ -380,7 +389,7 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
     const normalStates = [
       [Boot.preparing, 'preparing'],
       [Boot.startingAppHost, 'starting application host'],
-      [Boot.ready(APPLICATION.URL, DIST_DIGEST), 'ready'],
+      [Boot.ready(APPLICATION.URL, DIST_DIGEST, GENERATION_HREF), 'ready'],
       [Boot.stopping, 'stopping'],
     ] as const;
     for (const [state, text] of normalStates) {
@@ -415,7 +424,7 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
         service: SERVICE,
         url: CAPABILITY.URL,
         root,
-        state: Boot.ready(APPLICATION.URL, DIST_DIGEST),
+        state: Boot.ready(APPLICATION.URL, DIST_DIGEST, GENERATION_HREF),
         keyboard: false,
         openWarning: false,
         viewport: { width, height: 14 },

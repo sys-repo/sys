@@ -1,4 +1,4 @@
-import { Is, type t } from './common.ts';
+import { Fs, Is, type t } from './common.ts';
 
 export type CapturedUrl = Readonly<{
   href: t.StringUrl;
@@ -19,6 +19,8 @@ type UrlGetter = ((this: URL) => unknown) | undefined;
 const NativeURL = URL;
 const NativeError = Error;
 const apply = Reflect.apply;
+const pathFromFileUrl = Fs.Path.fromFileUrl;
+const pathToFileUrl = Fs.Path.toFileUrl;
 const defineProperty = Object.defineProperty;
 const freeze = Object.freeze;
 const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
@@ -88,6 +90,20 @@ export function captureNativeUrl(url: URL): CapturedUrl | undefined {
       search,
       hash,
     });
+  } catch {
+    return;
+  }
+}
+
+/** Convert one exact absolute path into a copied file-URL href. */
+export function captureFileHref(input: t.StringAbsoluteDir): t.StringUrl | undefined {
+  try {
+    const native = apply(pathToFileUrl, undefined, [input]) as URL;
+    const captured = captureNativeUrl(native);
+    if (!captured || captured.protocol !== 'file:' || captured.search || captured.hash) return;
+    const roundTrip = apply(pathFromFileUrl, undefined, [captured.href]);
+    if (roundTrip !== input) return;
+    return captured.href;
   } catch {
     return;
   }

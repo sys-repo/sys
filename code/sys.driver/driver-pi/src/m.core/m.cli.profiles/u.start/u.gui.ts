@@ -32,6 +32,7 @@ import {
   resolvedPromise,
 } from './u.promise.ts';
 import { Boot, bootStateSource, createBootState } from './u.state.ts';
+import { captureFileHref } from './u.url.ts';
 import {
   START_GUI_SERVICE,
   type StartGuiEvidence,
@@ -454,6 +455,7 @@ async function runBoot(input: {
     } else {
       dir = authority.dir;
     }
+    const directoryHref = captureFileHref(dir);
 
     operation = 'application-host';
     const startingAdmission = await beginPromise(() =>
@@ -502,11 +504,13 @@ async function runBoot(input: {
     const application = await awaitPromise(applicationAdmission.value);
     if (application.kind === 'failed') return resultAfterObservedFailure(input.supervisor);
 
+    const readyState = Boot.ready(
+      application.value.origin,
+      application.value.digest,
+      directoryHref,
+    );
     const readyAdmission = await beginPromise(() =>
-      admitAfterCheckpoint(
-        input.supervisor,
-        () => input.state.set(Boot.ready(application.value.origin, application.value.digest)),
-      )
+      admitAfterCheckpoint(input.supervisor, () => input.state.set(readyState))
     );
     if (readyAdmission.kind === 'blocked') return bootResultOf(readyAdmission.event);
 

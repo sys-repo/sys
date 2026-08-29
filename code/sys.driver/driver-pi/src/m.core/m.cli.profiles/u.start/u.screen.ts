@@ -3,7 +3,7 @@ import { START_GUI_SERVICE, type StartGuiRecoveryPolicy } from '../u/u.start.gui
 import { createOwnedError, ownedError } from './u.error.ts';
 import { createPromiseDeferred, observePromiseTransport, pendingPromise } from './u.promise.ts';
 import type { BootSafeEvidence, BootState, BootStateSource } from './u.state.ts';
-import { captureNativeUrl, captureUrl, stableNativeUrl } from './u.url.ts';
+import { captureFileHref, captureUrl, stableNativeUrl } from './u.url.ts';
 
 type ScreenSize = t.Cli.Screen.Size;
 type CapturedRootLink = Readonly<{
@@ -58,8 +58,6 @@ const mathMax = NativeMath.max;
 const numberIsFinite = NativeNumber.isFinite;
 const objectPrototype = Object.prototype;
 const ownKeys = Reflect.ownKeys;
-const pathFromFileUrl = Fs.Path.fromFileUrl;
-const pathToFileUrl = Fs.Path.toFileUrl;
 const ROOT_LINKS = StartGuiIntrinsic.createWeakSet<object>();
 const stringTrim = String.prototype.trim;
 const MAX_SCREEN_DIMENSION = 65_535;
@@ -356,6 +354,9 @@ export const StartGuiScreen = {
         {
           kind: 'manifest',
           hash: input.state.digest,
+          ...(input.state.directoryHref === undefined
+            ? {}
+            : { directoryHref: input.state.directoryHref }),
           ...(manifestUrl === undefined ? {} : { href: manifestUrl }),
         },
       ]);
@@ -436,7 +437,12 @@ type ServiceValue =
   | { readonly kind: 'title' | 'warning'; readonly text: string }
   | { readonly kind: 'checksum'; readonly text: t.StringHash }
   | { readonly kind: 'evidence'; readonly items: readonly string[] }
-  | { readonly kind: 'manifest'; readonly hash: t.StringHash; readonly href?: t.StringUrl }
+  | {
+    readonly kind: 'manifest';
+    readonly hash: t.StringHash;
+    readonly directoryHref?: t.StringUrl;
+    readonly href?: t.StringUrl;
+  }
   | { readonly kind: 'path'; readonly root: CapturedRootLink }
   | { readonly kind: 'state'; readonly state: BootState }
   | { readonly kind: 'url'; readonly text: t.StringUrl };
@@ -510,13 +516,20 @@ function serviceValue(value: SingleLineServiceValue, width: number) {
   }
   if (value.kind === 'manifest') {
     const reserve = Cli.Fmt.Text.Width.measure(`${DIST_PATH} `);
-    const url = value.href === undefined ? undefined : stableNativeUrl(value.href);
+    const manifestUrl = value.href === undefined ? undefined : stableNativeUrl(value.href);
+    const directoryUrl = value.directoryHref === undefined
+      ? undefined
+      : stableNativeUrl(value.directoryHref);
+    const directory = fitValue(DIST_PATH, width, c.gray);
+    const linkedDirectory = directory && directoryUrl
+      ? Cli.Fmt.hyperlink(directory, directoryUrl)
+      : directory;
     const digest = HashFmt.digest(value.hash, {
       arrow: true,
       maxWidth: numericMax(0, width - reserve),
-      url,
+      url: manifestUrl,
     });
-    return digest ? `${c.gray(DIST_PATH)} ${digest}` : fitValue(DIST_PATH, width, c.gray);
+    return digest ? `${linkedDirectory} ${digest}` : linkedDirectory;
   }
   if (value.kind === 'checksum') return fitValue(value.text, width, c.gray);
   if (value.kind === 'warning') return fitValue(value.text, width, c.yellow);
@@ -534,12 +547,9 @@ function captureRootLink(input: unknown): CapturedRootLink | undefined {
   const text = captureDisplayRoot(input);
   if (!text) return;
   try {
-    const native = apply(pathToFileUrl, undefined, [text]) as URL;
-    const captured = captureNativeUrl(native);
-    if (!captured || captured.protocol !== 'file:' || captured.search || captured.hash) return;
-    const roundTrip = apply(pathFromFileUrl, undefined, [captured.href]);
-    if (roundTrip !== text) return;
-    const url = stableNativeUrl(captured.href);
+    const href = captureFileHref(text);
+    if (!href) return;
+    const url = stableNativeUrl(href);
     if (!url) return;
     const root = freeze({ text, url });
     StartGuiIntrinsic.weakSetAdd(ROOT_LINKS, root);
