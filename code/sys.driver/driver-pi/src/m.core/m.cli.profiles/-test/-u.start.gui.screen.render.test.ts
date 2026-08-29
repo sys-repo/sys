@@ -91,6 +91,28 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
     }
   });
 
+  it('links the manifest digest while preserving the plain fallback', () => {
+    const render = (manifestUrl?: t.StringUrl) =>
+      StartGuiScreen.toString({
+        service: SERVICE,
+        url: CAPABILITY.URL,
+        manifest: START_GUI_SERVICE.source.integrity,
+        ...(manifestUrl === undefined ? {} : { manifestUrl }),
+        state: Boot.preparing,
+        keyboard: false,
+        openWarning: false,
+        viewport: { width: 100, height: 12 },
+      });
+    const manifestRow = (frame: string) =>
+      frame.split('\n').find((row) => Cli.stripAnsi(row).trimStart().startsWith('manifest')) ?? '';
+
+    const linked = manifestRow(render(START_GUI_SERVICE.source.manifestUrl));
+    const plain = manifestRow(render());
+    expect(linked).to.contain(START_GUI_SERVICE.source.manifestUrl);
+    expect(Cli.stripAnsi(linked)).to.eql(Cli.stripAnsi(plain));
+    expect(plain).not.to.contain(START_GUI_SERVICE.source.manifestUrl);
+  });
+
   it('uses every shared compact digest reduction at its exact width boundary', () => {
     const tail = START_GUI_SERVICE.source.integrity.slice(-5);
     const cases = [
@@ -99,21 +121,26 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
       [22, `#${tail}`],
       [21, ''],
     ] as const;
-
-    for (const [width, expected] of cases) {
-      const rows = Cli.stripAnsi(StartGuiScreen.toString({
+    const render = (width: number) =>
+      StartGuiScreen.toString({
         service: SERVICE,
         url: CAPABILITY.URL,
         manifest: START_GUI_SERVICE.source.integrity,
+        manifestUrl: START_GUI_SERVICE.source.manifestUrl,
         state: Boot.preparing,
         keyboard: false,
         openWarning: false,
         viewport: { width, height: 12 },
-      })).split('\n');
-      const row = rows.find((candidate) => candidate.trimStart().startsWith('manifest')) ?? '';
+      });
+
+    for (const [width, expected] of cases) {
+      const row = Cli.stripAnsi(render(width)).split('\n').find((candidate) =>
+        candidate.trimStart().startsWith('manifest')
+      ) ?? '';
       const value = row.trimStart().slice('manifest'.length).trim();
       expect(value, `width:${width}`).to.eql(expected);
     }
+    expect(render(21)).not.to.contain(START_GUI_SERVICE.source.manifestUrl);
   });
 
   it('renders mismatch values and gates local recovery by exact policy identity', () => {

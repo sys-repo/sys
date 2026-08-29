@@ -141,6 +141,10 @@ async function startPrepared(input: PreparedStartGui): Promise<void> {
   const displayManifest = authorityEvidence.kind === 'valid'
     ? authorityEvidence.authority.integrity
     : undefined;
+  const displayManifestUrl = authorityEvidence.kind === 'valid' &&
+      authorityEvidence.authority.kind === 'release'
+    ? authorityEvidence.authority.source.href
+    : undefined;
   let status: StatusOwner;
   let statusInvoked = false;
   let statusAbsenceProved = false;
@@ -255,6 +259,7 @@ async function startPrepared(input: PreparedStartGui): Promise<void> {
             url: status.url,
             ...(displayRoot === undefined ? {} : { root: displayRoot }),
             ...(displayManifest === undefined ? {} : { manifest: displayManifest }),
+            ...(displayManifestUrl === undefined ? {} : { manifestUrl: displayManifestUrl }),
             ...(recovery === undefined ? {} : { recovery }),
             state: stateSource,
             keyboard: true,

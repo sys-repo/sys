@@ -19,6 +19,8 @@ export type StartGuiScreenInput = {
   readonly root?: t.StringAbsoluteDir;
   /** Independently admitted manifest pin retained as terminal orientation. */
   readonly manifest?: t.StringHash;
+  /** Exact admitted release-manifest location associated with the retained pin. */
+  readonly manifestUrl?: t.StringUrl;
   /** Package-owned policy available only for the canonical local evidence source. */
   readonly recovery?: StartGuiRecoveryPolicy;
   readonly state: BootStateSource;
@@ -155,6 +157,7 @@ export const StartGuiScreen = {
     overrides: Partial<StartGuiScreenDependencies> = {},
   ): StartGuiScreenInstance {
     const root = captureRootLink(input.root);
+    const manifestUrl = captureManifestUrl(input.manifestUrl);
     const recovery = input.recovery === START_GUI_SERVICE.recovery ? input.recovery : undefined;
     const deps = { ...DEFAULT_DEPS, ...overrides };
     if (!deps.isInteractive()) {
@@ -210,6 +213,7 @@ export const StartGuiScreen = {
         url: input.url,
         root,
         manifest: input.manifest,
+        manifestUrl,
         recovery,
         state: input.state.current,
         keyboard: input.keyboard,
@@ -325,6 +329,7 @@ export const StartGuiScreen = {
     readonly url: t.StringUrl;
     readonly root?: RootLinkInput;
     readonly manifest?: t.StringHash;
+    readonly manifestUrl?: t.StringUrl;
     readonly recovery?: StartGuiRecoveryPolicy;
     readonly state: BootState;
     readonly keyboard: boolean;
@@ -349,9 +354,14 @@ export const StartGuiScreen = {
       { kind: 'state', state: input.state },
     ]);
     if (input.manifest) {
+      const manifestUrl = captureManifestUrl(input.manifestUrl);
       StartGuiIntrinsic.arrayPush(facts, [
         'manifest',
-        { kind: 'manifest', hash: input.manifest },
+        {
+          kind: 'manifest',
+          hash: input.manifest,
+          ...(manifestUrl === undefined ? {} : { href: manifestUrl }),
+        },
       ]);
     }
     const root = capturedRootLink(input.root);
@@ -430,7 +440,7 @@ type ServiceValue =
   | { readonly kind: 'title' | 'warning'; readonly text: string }
   | { readonly kind: 'checksum'; readonly text: t.StringHash }
   | { readonly kind: 'evidence'; readonly items: readonly string[] }
-  | { readonly kind: 'manifest'; readonly hash: t.StringHash }
+  | { readonly kind: 'manifest'; readonly hash: t.StringHash; readonly href?: t.StringUrl }
   | { readonly kind: 'path'; readonly root: CapturedRootLink }
   | { readonly kind: 'state'; readonly state: BootState }
   | { readonly kind: 'url'; readonly text: t.StringUrl };
@@ -501,7 +511,12 @@ function serviceValue(value: SingleLineServiceValue, width: number) {
   if (value.kind === 'state') {
     return fitValue(stateText(value.state), width, stateColor(value.state));
   }
-  if (value.kind === 'manifest') return HashFmt.digest(value.hash, { maxWidth: width });
+  if (value.kind === 'manifest') {
+    const display = HashFmt.digest(value.hash, { maxWidth: width });
+    if (!display || value.href === undefined) return display;
+    const href = stableNativeUrl(value.href);
+    return href ? Cli.Fmt.hyperlink(display, href) : display;
+  }
   if (value.kind === 'checksum') return fitValue(value.text, width, c.gray);
   if (value.kind === 'warning') return fitValue(value.text, width, c.yellow);
   return fitValue(value.text, width, c.white);
@@ -569,6 +584,16 @@ function isUnicodeFormatControl(code: number): boolean {
     (code >= 0x13430 && code <= 0x1343f) || (code >= 0x1bca0 && code <= 0x1bca3) ||
     (code >= 0x1d173 && code <= 0x1d17a) || code === 0xe0001 ||
     (code >= 0xe0020 && code <= 0xe007f);
+}
+
+function captureManifestUrl(input: unknown): t.StringUrl | undefined {
+  if (!Is.string(input)) return;
+  const url = captureUrl(input);
+  if (
+    !url || (url.protocol !== 'http:' && url.protocol !== 'https:') || url.username ||
+    url.password || url.search || url.hash
+  ) return;
+  return url.href;
 }
 
 function captureServiceUrl(input: t.StringUrl): t.Cli.Fmt.ServiceUrl.Part | undefined {
