@@ -5,8 +5,6 @@ import { Is } from '@sys/std/is';
 import { Time } from '@sys/std/time';
 
 const MINUTE = 60_000;
-const DIGEST_ARROW = c.green('←');
-const DIGEST_PREFIX_WIDTH = Text.Width.measure(`${DIGEST_ARROW} `);
 
 type MetadataRowArgs = {
   label: string;
@@ -19,17 +17,8 @@ type MetadataRowArgs = {
   suffix?: (maxWidth: number) => string;
 };
 
-export const digest: t.ViteLog.Lib['digest'] = (hash, options = {}) => {
-  if (!hash) return '';
-
-  const maxWidth = Is.num(options.maxWidth)
-    ? reserveWidth(options.maxWidth, DIGEST_PREFIX_WIDTH)
-    : undefined;
-  const uri = HashFmt.digest(hash, { maxWidth });
-  if (!uri) return '';
-  const value = options.url ? Fmt.hyperlink(uri, options.url) : uri;
-  return `${DIGEST_ARROW} ${value}`;
-};
+export const digest: t.ViteLog.Lib['digest'] = (hash, options = {}) =>
+  HashFmt.digest(hash, { ...options, arrow: true });
 
 export const elapsed: t.ViteLog.Lib['elapsed'] = (msec) => {
   if (msec == null) return '-';

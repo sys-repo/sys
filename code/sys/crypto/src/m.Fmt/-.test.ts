@@ -1,4 +1,4 @@
-import { stripAnsi } from '@sys/cli/fmt';
+import { c, Fmt, stripAnsi } from '@sys/cli/fmt';
 import { describe, expect, it } from '../-test.ts';
 import { HashFmt } from './mod.ts';
 
@@ -23,5 +23,22 @@ describe('HashFmt.digest', () => {
 
     expect(stripAnsi(HashFmt.digest(hash, { maxWidth: 16 }))).to.eql('digest:界:#72fc9');
     expect(stripAnsi(HashFmt.digest(hash, { maxWidth: 15 }))).to.eql('界:#72fc9');
+  });
+
+  it('reserves a standard arrow and links only the digest label', () => {
+    const url = new URL('https://example.test/dist.json');
+    const digest = (maxWidth: number) => stripAnsi(HashFmt.digest(HASH, { arrow: true, maxWidth }));
+
+    expect(digest(22)).to.eql('← digest:sha256:#72fc9');
+    expect(digest(21)).to.eql('← sha256:#72fc9');
+    expect(digest(15)).to.eql('← sha256:#72fc9');
+    expect(digest(14)).to.eql('← #72fc9');
+    expect(digest(8)).to.eql('← #72fc9');
+    expect(digest(7)).to.eql('');
+
+    const linked = HashFmt.digest(HASH, { arrow: true, maxWidth: 22, url });
+    expect(linked).to.eql(
+      `${c.green('←')} ${Fmt.hyperlink(HashFmt.digest(HASH), url)}`,
+    );
   });
 });
