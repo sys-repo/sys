@@ -1,4 +1,4 @@
-import { c, Cli, Fs, type t } from './common.ts';
+import { c, Cli, Fs, Is, type t } from './common.ts';
 
 const STORE_ROOT_SEGMENTS = Object.freeze(['.pi', '@sys', 'dist'] as const);
 
@@ -28,6 +28,7 @@ const WORKSPACE_ROOT: t.StringAbsoluteDir = Fs.resolve(
   '../../../..',
 );
 const Rooted = Fs.Capability.Rooted;
+const BUSY_RESET_FAILURES = new WeakMap<object, GuiReleaseStoreReset['path']>();
 
 export async function resetGuiReleaseStores(
   workspaceRoot: t.StringDir,
@@ -62,10 +63,12 @@ export async function resetGuiReleaseStores(
   }
   if (acquired.kind === 'busy') {
     const target = GUI_RELEASE_STORE_TARGETS.find((value) => value === acquired.target.path);
-    const path = target ? displayPath(target) : `${GUI_RELEASE_STORE_ROOT}/${acquired.target.path}`;
-    throw new Error(
-      `GUI Dist reset refused ${path}: another owner holds this store; finish or stop that owning operation, then retry.`,
-    );
+    if (!target) {
+      throw new Error(
+        `GUI Dist reset refused ${GUI_RELEASE_STORE_ROOT}: Rooted reported contention outside the admitted GUI stores.`,
+      );
+    }
+    throw busyResetFailure(displayPath(target));
   }
 
   const results: GuiReleaseStoreReset[] = [];
@@ -125,11 +128,43 @@ export function printGuiReleaseStoreReset(
   print();
 }
 
-export async function main(workspaceRoot: t.StringDir = WORKSPACE_ROOT): Promise<void> {
-  printGuiReleaseStoreReset(await resetGuiReleaseStores(workspaceRoot));
+function printGuiReleaseStoreBusy(
+  path: GuiReleaseStoreReset['path'],
+  print: (...data: unknown[]) => void,
+): void {
+  const table = Cli.table();
+  table.push([c.gray('state'), c.red('refused')]);
+  table.push([c.gray('store'), c.gray(path)]);
+  table.push([c.gray('reason'), c.white('another operation owns this store')]);
+  table.push([c.gray('action'), c.white('stop it cleanly (start:gui: q or Ctrl+C)')]);
+  table.push([c.gray('retry'), c.cyan('deno task reset')]);
+
+  print();
+  print(c.bold(c.red('Dist Reset Refused (GUI)')));
+  print(table.toString().trim());
+  print();
 }
 
-if (import.meta.main) await main();
+export async function main(
+  workspaceRoot: t.StringDir = WORKSPACE_ROOT,
+  print: (...data: unknown[]) => void = console.info,
+  printError: (...data: unknown[]) => void = console.error,
+): Promise<0 | 1> {
+  try {
+    printGuiReleaseStoreReset(await resetGuiReleaseStores(workspaceRoot), print);
+    return 0;
+  } catch (cause) {
+    const path = busyResetPath(cause);
+    if (!path) throw cause;
+    printGuiReleaseStoreBusy(path, printError);
+    return 1;
+  }
+}
+
+if (import.meta.main) {
+  const exitCode = await main();
+  if (exitCode !== 0) Deno.exitCode = exitCode;
+}
 
 async function selectStoreRoot(workspaceRoot: t.StringDir): Promise<StoreRootSelection> {
   let workspace: t.StringAbsoluteDir;
@@ -202,6 +237,18 @@ function displayPaths(): readonly GuiReleaseStoreReset['path'][] {
 
 function displayPath(target: GuiReleaseStoreTarget): GuiReleaseStoreReset['path'] {
   return `${GUI_RELEASE_STORE_ROOT}/${target}`;
+}
+
+function busyResetFailure(path: GuiReleaseStoreReset['path']): Error {
+  const error = new Error(
+    `GUI Dist reset refused ${path}: another owner holds this store; finish or stop that owning operation, then retry.`,
+  );
+  BUSY_RESET_FAILURES.set(error, path);
+  return error;
+}
+
+function busyResetPath(cause: unknown): GuiReleaseStoreReset['path'] | undefined {
+  return Is.object(cause) ? BUSY_RESET_FAILURES.get(cause) : undefined;
 }
 
 function resetFailure(scope: string, cause: unknown, priorCommitted = false): Error {

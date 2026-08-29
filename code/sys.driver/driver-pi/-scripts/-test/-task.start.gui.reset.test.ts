@@ -4,6 +4,7 @@ import { Cli, Err, Fs, type t } from '../common.ts';
 import {
   GUI_RELEASE_STORE_ROOT,
   GUI_RELEASE_STORE_TARGETS,
+  main,
   printGuiReleaseStoreReset,
   resetGuiReleaseStores,
 } from '../task.start.gui.reset.ts';
@@ -112,9 +113,78 @@ describe('driver-pi/scripts/task.start.gui.reset', () => {
       expect(text.split('already absent').length - 1).to.eql(2);
       expect(await Fs.exists(Fs.join(workspace, EXPECTED_ROOT))).to.eql(false);
       expect(await Fs.exists(Fs.join(workspace, '.pi'))).to.eql(false);
+
+      const output: string[] = [];
+      const errors: string[] = [];
+      const exitCode = await main(
+        workspace,
+        (...data) => output.push(data.map(String).join(' ')),
+        (...data) => errors.push(data.map(String).join(' ')),
+      );
+      expect(exitCode).to.eql(0);
+      expect(Cli.stripAnsi(output.join('\n'))).to.contain('Dist Reset (GUI)');
+      expect(errors).to.eql([]);
     } finally {
       await cleanupWorkspace(workspace);
     }
+  });
+
+  it('returns an actionable ownership refusal instead of throwing', async () => {
+    const workspace = await temporaryWorkspace();
+    const root = await ensureDistRoot(workspace);
+    const output: string[] = [];
+    const errors: string[] = [];
+
+    try {
+      await createSealedStore(workspace, CURRENT.target, 'busy');
+      const rooted = await Fs.Capability.Rooted.create({ root, create: false });
+      const target = (await rooted.admit([
+        { kind: 'directory', path: CURRENT.target },
+      ])).targets[0];
+      const acquired = await rooted.acquireLease([target], { mode: 'shared' });
+      if (acquired.kind !== 'acquired') throw new Error('Expected reset fixture lease.');
+
+      try {
+        const exitCode = await main(
+          workspace,
+          (...data) => output.push(data.map(String).join(' ')),
+          (...data) => errors.push(data.map(String).join(' ')),
+        );
+        const text = Cli.stripAnsi(errors.join('\n'));
+
+        expect(exitCode).to.eql(1);
+        expect(output).to.eql([]);
+        expect(text).to.contain('Dist Reset Refused (GUI)');
+        expect(text).to.contain(CURRENT.path);
+        expect(text).to.contain('another operation owns this store');
+        expect(text).to.contain('start:gui: q or Ctrl+C');
+        expect(text).to.contain('deno task reset');
+        expect(await Fs.exists(Fs.join(workspace, CURRENT.path))).to.eql(true);
+      } finally {
+        await acquired.lease.release();
+      }
+    } finally {
+      await cleanupWorkspace(workspace);
+    }
+  });
+
+  it('rethrows non-ownership failures without rendering a busy refusal', async () => {
+    const workspace = await temporaryWorkspace();
+    const output: string[] = [];
+    const errors: string[] = [];
+    await Fs.remove(workspace);
+
+    const error = await rejectionOf(() =>
+      main(
+        workspace,
+        (...data) => output.push(data.map(String).join(' ')),
+        (...data) => errors.push(data.map(String).join(' ')),
+      )
+    );
+
+    expect(error.message).to.contain('workspace root is missing');
+    expect(output).to.eql([]);
+    expect(errors).to.eql([]);
   });
 
   it('refuses redirected workspace ancestry before any missing segment settles absent', async () => {
