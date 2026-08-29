@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1787257240349,
+    "createdAt": 1787987245501,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-7da07ae43616fd3b066de2aca033768a98451e22d9d88d0de36b59cc471d3e26",
+      "/graph": "sha256-75cf0bc3e2e0fb9c1cb009e0f6bfbaed1fc8d1fb73f09ac4ae79f7d7e1d5f565",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.153/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,7 +15,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.153/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1787257240356
+    "modifiedAt": 1787987245507
   },
   "graph": {
     "orderedPaths": [
@@ -629,6 +629,10 @@
       {
         "from": "code/sys/crypto",
         "to": "code/sys.driver/driver-monaco"
+      },
+      {
+        "from": "code/sys/crypto",
+        "to": "code/sys.driver/driver-pi"
       },
       {
         "from": "code/sys/crypto",
