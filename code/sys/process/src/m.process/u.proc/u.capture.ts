@@ -13,7 +13,7 @@ import {
   terminateOwnedChild,
 } from '../u/u.ts';
 
-const DEFAULT_KILL_GRACE_MS = 1_000 as t.Msecs;
+const DEFAULT_TERMINATION_GRACE = 1_000 as t.Msecs;
 const STATUS_SETTLE_TIMEOUT = 5_000 as t.Msecs;
 const STREAM_SETTLE_TIMEOUT = 5_000 as t.Msecs;
 
@@ -102,13 +102,13 @@ export async function captureWith(
     };
   } catch (error) {
     failures.record('setup', error);
-    const deadline = captureDeadline(validated.killGraceMs, deps.cleanupTimeout);
+    const deadline = captureDeadline(validated.terminationGrace, deps.cleanupTimeout);
     const termination = await terminateForCapture(
       child,
       status,
       failures,
       deadline,
-      validated.killGraceMs,
+      validated.terminationGrace,
       deps.statusSettleTimeout,
     );
     const terminalStatus = termination?.status ?? status.current;
@@ -138,9 +138,9 @@ export async function captureWith(
   const statusTrigger = status.promise.then(
     (result): TerminalTrigger => ({ kind: 'status', result }),
   );
-  const timeoutTrigger = validated.timeoutMs === undefined
+  const timeoutTrigger = validated.executionTimeout === undefined
     ? undefined
-    : timeout(validated.timeoutMs, { kind: 'timeout' });
+    : timeout(validated.executionTimeout, { kind: 'timeout' });
   const abortTrigger = config.signal ? abort(config.signal) : undefined;
 
   let trigger: TerminalTrigger;
@@ -161,14 +161,14 @@ export async function captureWith(
     failures.record('status', trigger.result.error);
   }
 
-  const deadline = captureDeadline(validated.killGraceMs, deps.cleanupTimeout);
+  const deadline = captureDeadline(validated.terminationGrace, deps.cleanupTimeout);
   const termination = trigger.kind !== 'status' || !trigger.result.ok
     ? await terminateForCapture(
       child,
       status,
       failures,
       deadline,
-      validated.killGraceMs,
+      validated.terminationGrace,
       deps.statusSettleTimeout,
     )
     : undefined;
@@ -243,10 +243,12 @@ function validate(input: t.Process.CaptureArgs) {
   return {
     maxStdoutBytes: byteCap('maxStdoutBytes', input.maxStdoutBytes),
     maxStderrBytes: byteCap('maxStderrBytes', input.maxStderrBytes),
-    timeoutMs: input.timeoutMs === undefined ? undefined : msecs('timeoutMs', input.timeoutMs),
-    killGraceMs: input.killGraceMs === undefined
-      ? DEFAULT_KILL_GRACE_MS
-      : msecs('killGraceMs', input.killGraceMs),
+    executionTimeout: input.executionTimeout === undefined
+      ? undefined
+      : msecs('executionTimeout', input.executionTimeout),
+    terminationGrace: input.terminationGrace === undefined
+      ? DEFAULT_TERMINATION_GRACE
+      : msecs('terminationGrace', input.terminationGrace),
   } as const;
 }
 
@@ -269,9 +271,9 @@ function msecs(label: string, input: t.Msecs) {
   return input;
 }
 
-function captureDeadline(killGraceMs: t.Msecs, input?: t.Msecs) {
+function captureDeadline(terminationGrace: t.Msecs, input?: t.Msecs) {
   const cleanupTail = STATUS_SETTLE_TIMEOUT + STREAM_SETTLE_TIMEOUT * 2;
-  const fallback = Num.clamp(0, Num.MAX_INT, killGraceMs + cleanupTail) as t.Msecs;
+  const fallback = Num.clamp(0, Num.MAX_INT, terminationGrace + cleanupTail) as t.Msecs;
   const timeout = input === undefined ? fallback : msecs('cleanupTimeout', input);
   return operationDeadline(timeout);
 }
@@ -377,14 +379,14 @@ async function terminateForCapture(
   status: OwnedChildStatusOperation,
   failures: FailureLedger<t.Process.CaptureFailurePhase>,
   deadline: OperationDeadline,
-  graceTimeout: t.Msecs,
+  terminationGrace: t.Msecs,
   settleTimeout = STATUS_SETTLE_TIMEOUT,
 ) {
   const events: FailureEvent<t.Process.CaptureFailurePhase>[] = [];
   try {
     const result = await terminateOwnedChild(child, status, {
       deadline,
-      graceTimeout,
+      graceTimeout: terminationGrace,
       settleTimeout,
       onFailure(failure) {
         events.push(failures.record(failure.phase, failure.error));

@@ -50,7 +50,7 @@ describe('Vite external fixture runs', () => {
       output,
     });
     const expected = Str.dedent(`
-      Fixture task failed (timed out after ${FIXTURE_CAPTURE.timeoutMs}ms)
+      Fixture task failed (timed out after ${FIXTURE_CAPTURE.executionTimeout}ms)
       cwd: /fixture
       cmd: deno task build
 
@@ -119,7 +119,7 @@ describe('Vite external fixture runs', () => {
     const cases = [
       {
         reason: 'timeout',
-        status: `timed out after ${FIXTURE_CAPTURE.timeoutMs}ms; process cleanup failed`,
+        status: `timed out after ${FIXTURE_CAPTURE.executionTimeout}ms; process cleanup failed`,
       },
       { reason: 'cancelled', status: 'cancelled; process cleanup failed' },
     ] as const;

@@ -14,7 +14,7 @@ const FAILURE_CASES = [
 
 const CAPTURE_LIMITS = {
   bytes: { stdout: 32 * 1024, stderr: 32 * 1024 },
-  timeoutMs: 5_000,
+  executionTimeout: 5_000,
 } as const;
 
 const UNOWNED_ERROR = 'Uncaught (in promise) Error: unowned programmer failure';
@@ -75,6 +75,6 @@ function run(scenario: Scenario) {
     cwd: PACKAGE_ROOT,
     maxStdoutBytes: CAPTURE_LIMITS.bytes.stdout,
     maxStderrBytes: CAPTURE_LIMITS.bytes.stderr,
-    timeoutMs: CAPTURE_LIMITS.timeoutMs,
+    executionTimeout: CAPTURE_LIMITS.executionTimeout,
   });
 }

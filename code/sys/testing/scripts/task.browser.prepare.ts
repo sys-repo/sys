@@ -39,7 +39,7 @@ const output = await Process.capture({
   cwd: Fs.cwd(),
   clearEnv: true,
   env: { FORCE_COLOR: '0' },
-  timeoutMs: 30_000,
+  executionTimeout: 30_000,
   maxStdoutBytes: 1_000_000,
   maxStderrBytes: 100_000,
 });

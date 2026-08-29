@@ -238,12 +238,12 @@ export declare namespace Process {
     clearEnv?: boolean;
     env?: t.Process.Env;
     signal?: AbortSignal;
-    /** Execution timeout duration in the inclusive timer domain `[0, Time.Delay.MAX]`. */
-    timeoutMs?: t.Msecs;
+    /** Execution timeout duration in milliseconds within `[0, Time.Delay.MAX]`. */
+    executionTimeout?: t.Msecs;
     maxStdoutBytes: number;
     maxStderrBytes: number;
-    /** Grace duration after SIGTERM before SIGKILL; must not exceed `Time.Delay.MAX`. */
-    killGraceMs?: t.Msecs;
+    /** Termination grace in milliseconds after SIGTERM before SIGKILL, within `[0, Time.Delay.MAX]`. */
+    terminationGrace?: t.Msecs;
   };
 
   /** Terminal output variants returned by `Process.capture`. */

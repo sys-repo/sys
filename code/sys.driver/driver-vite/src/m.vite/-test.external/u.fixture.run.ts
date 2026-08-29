@@ -37,10 +37,10 @@ type OperationRunArgs = Omit<OperationRun, 'kind' | 'status'> & { readonly statu
 type CaptureDiagnostic = Pick<CommandRun, 'status' | 'stdout' | 'stderr'>;
 
 export const FIXTURE_CAPTURE = {
-  timeoutMs: 120_000,
+  executionTimeout: 120_000,
   maxStdoutBytes: 2_000_000,
   maxStderrBytes: 2_000_000,
-  killGraceMs: 1_000,
+  terminationGrace: 1_000,
 } as const;
 
 /** Format one bounded diagnostic record without changing failure ownership. */
@@ -162,7 +162,7 @@ function captureStatus(output: t.Process.CaptureOutput): string {
     case 'exited':
       return `exit ${output.code}`;
     case 'timed-out':
-      return `timed out after ${FIXTURE_CAPTURE.timeoutMs}ms`;
+      return `timed out after ${FIXTURE_CAPTURE.executionTimeout}ms`;
     case 'cancelled':
       return 'cancelled';
     case 'failed':
@@ -179,7 +179,7 @@ function captureFailedStatus(
     case 'failure':
       return 'process failed';
     case 'timeout':
-      return `timed out after ${FIXTURE_CAPTURE.timeoutMs}ms; process cleanup failed`;
+      return `timed out after ${FIXTURE_CAPTURE.executionTimeout}ms; process cleanup failed`;
     case 'cancelled':
       return 'cancelled; process cleanup failed';
   }

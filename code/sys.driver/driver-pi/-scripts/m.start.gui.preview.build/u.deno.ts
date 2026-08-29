@@ -34,7 +34,7 @@ export async function resolvePreviewDenoDir(
     cwd,
     clearEnv: false,
     env: { FORCE_COLOR: '0' },
-    timeoutMs: 10_000 as t.Msecs,
+    executionTimeout: 10_000 as t.Msecs,
     maxStdoutBytes: 64 * 1024,
     maxStderrBytes: 64 * 1024,
   });

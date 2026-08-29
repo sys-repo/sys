@@ -29,7 +29,7 @@ const output = await Process.capture({
   args: ['-axo', 'command='],
   clearEnv: true,
   env: { FORCE_COLOR: '0' },
-  timeoutMs: 5_000,
+  executionTimeout: 5_000,
   maxStdoutBytes: 2_000_000,
   maxStderrBytes: 100_000,
 });

@@ -88,7 +88,7 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
       cwd: PACKAGE_ROOT,
       clearEnv: false,
       env: { FORCE_COLOR: '0' },
-      timeoutMs: 10_000,
+      executionTimeout: 10_000,
       maxStdoutBytes: 64 * 1024,
       maxStderrBytes: 64 * 1024,
     });

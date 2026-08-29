@@ -126,6 +126,32 @@ describe('Process.capture', () => {
   });
 
   describe('input bounds', () => {
+    it('duration contract → accepts lifecycle names and rejects removed names', () => {
+      const current = {
+        args: [],
+        executionTimeout: 0 as t.Msecs,
+        terminationGrace: 0 as t.Msecs,
+        ...DEFAULT_CAPS,
+      } satisfies t.Process.CaptureArgs;
+      const removedExecution: t.Process.CaptureArgs = {
+        args: [],
+        ...DEFAULT_CAPS,
+        // @ts-expect-error timeoutMs was replaced by executionTimeout.
+        timeoutMs: 0 as t.Msecs,
+      };
+      const removedTermination: t.Process.CaptureArgs = {
+        args: [],
+        ...DEFAULT_CAPS,
+        // @ts-expect-error killGraceMs was replaced by terminationGrace.
+        killGraceMs: 0 as t.Msecs,
+      };
+
+      expect(current.executionTimeout).to.eql(0);
+      expect(current.terminationGrace).to.eql(0);
+      void removedExecution;
+      void removedTermination;
+    });
+
     it('malformed command or byte cap → rejects as programmer error', async () => {
       const byteCapError = await ProcessTest.catchError(() =>
         Process.capture({
@@ -165,8 +191,8 @@ describe('Process.capture', () => {
         },
         {
           args: [],
-          timeoutMs: Time.Delay.MAX,
-          killGraceMs: Time.Delay.MAX,
+          executionTimeout: Time.Delay.MAX,
+          terminationGrace: Time.Delay.MAX,
           ...DEFAULT_CAPS,
         },
       );
@@ -176,8 +202,14 @@ describe('Process.capture', () => {
 
       for (
         const item of [
-          { label: 'timeoutMs', input: { timeoutMs: Time.Delay.MAX + 1 } },
-          { label: 'killGraceMs', input: { killGraceMs: Time.Delay.MAX + 1 } },
+          {
+            label: 'executionTimeout',
+            input: { executionTimeout: Time.Delay.MAX + 1 },
+          },
+          {
+            label: 'terminationGrace',
+            input: { terminationGrace: Time.Delay.MAX + 1 },
+          },
         ] as const
       ) {
         let spawnCalls = 0;
@@ -249,7 +281,7 @@ describe('Process.capture', () => {
           const chunk = new Uint8Array(64 * 1024).fill(65);
           for (let count = 0; count < 64; count++) await Deno.stdout.write(chunk);
         `,
-        { maxStdoutBytes: 8, timeoutMs: 5_000 },
+        { maxStdoutBytes: 8, executionTimeout: 5_000 },
       );
 
       expect(res.outcome).to.eql('exited');
@@ -264,7 +296,7 @@ describe('Process.capture', () => {
     it('execution timeout → requests SIGTERM and returns timed-out', async () => {
       const res = await captureEval(
         `setInterval(() => {}, 1_000);`,
-        { timeoutMs: 25, killGraceMs: 100 },
+        { executionTimeout: 25, terminationGrace: 100 },
       );
 
       expect(res.outcome).to.eql('timed-out');
@@ -279,7 +311,7 @@ describe('Process.capture', () => {
           Deno.addSignalListener('SIGTERM', () => undefined);
           setInterval(() => {}, 1_000);
         `,
-        { timeoutMs: 250, killGraceMs: 25 },
+        { executionTimeout: 250, terminationGrace: 25 },
       );
 
       expect(res.outcome).to.eql('timed-out');
@@ -312,7 +344,7 @@ describe('Process.capture', () => {
       const controller = new AbortController();
       const running = captureEval(
         `setInterval(() => {}, 1_000);`,
-        { signal: controller.signal, timeoutMs: 5_000, killGraceMs: 100 },
+        { signal: controller.signal, executionTimeout: 5_000, terminationGrace: 100 },
       );
 
       controller.abort();
@@ -349,7 +381,7 @@ describe('Process.capture', () => {
               () => child,
               {
                 args: [],
-                killGraceMs: 1 as t.Msecs,
+                terminationGrace: 1 as t.Msecs,
                 ...DEFAULT_CAPS,
               },
               { streamTimeout: 1 as t.Msecs },
@@ -380,7 +412,7 @@ describe('Process.capture', () => {
       });
       const output = captureWith(() => child, {
         args: [],
-        killGraceMs: 1 as t.Msecs,
+        terminationGrace: 1 as t.Msecs,
         ...DEFAULT_CAPS,
       });
 
@@ -421,8 +453,8 @@ describe('Process.capture', () => {
             () => child,
             {
               args: [],
-              timeoutMs: 0 as t.Msecs,
-              killGraceMs: 1 as t.Msecs,
+              executionTimeout: 0 as t.Msecs,
+              terminationGrace: 1 as t.Msecs,
               ...DEFAULT_CAPS,
             },
             {
@@ -482,8 +514,8 @@ describe('Process.capture', () => {
             () => child,
             {
               args: [],
-              timeoutMs: 0 as t.Msecs,
-              killGraceMs: 1 as t.Msecs,
+              executionTimeout: 0 as t.Msecs,
+              terminationGrace: 1 as t.Msecs,
               ...DEFAULT_CAPS,
             },
             {
@@ -541,7 +573,7 @@ describe('Process.capture', () => {
             () => child,
             {
               args: [],
-              killGraceMs: 1 as t.Msecs,
+              terminationGrace: 1 as t.Msecs,
               ...DEFAULT_CAPS,
             },
             { streamTimeout: 1 as t.Msecs },
@@ -605,7 +637,7 @@ describe('Process.capture', () => {
         await resolveWithin(
           captureWith(
             () => child,
-            { args: [], killGraceMs: 1 as t.Msecs, ...DEFAULT_CAPS },
+            { args: [], terminationGrace: 1 as t.Msecs, ...DEFAULT_CAPS },
           ),
           100,
         ),
@@ -641,7 +673,7 @@ describe('Process.capture', () => {
       });
       const output = captureWith(() => child, {
         args: [],
-        killGraceMs: 1 as t.Msecs,
+        terminationGrace: 1 as t.Msecs,
         ...DEFAULT_CAPS,
       });
 
@@ -678,7 +710,7 @@ describe('Process.capture', () => {
         await resolveWithin(
           captureWith(
             () => child,
-            { args: [], killGraceMs: 1 as t.Msecs, ...DEFAULT_CAPS },
+            { args: [], terminationGrace: 1 as t.Msecs, ...DEFAULT_CAPS },
             { streamTimeout: 1 as t.Msecs },
           ),
           100,
