@@ -418,6 +418,38 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
     expect(Cli.Fmt.Text.Width.measure(text)).to.eql(80);
   });
 
+  it('advertises back only while a clean boot can navigate', () => {
+    const render = (state: BootState) =>
+      Cli.stripAnsi(StartGuiScreen.toString({
+        service: SERVICE,
+        url: CAPABILITY.URL,
+        state,
+        keyboard: true,
+        openWarning: false,
+        viewport: { width: 80, height: 14 },
+      }));
+
+    for (
+      const state of [
+        Boot.preparing,
+        Boot.startingAppHost,
+        Boot.ready(APPLICATION.URL, DIST_DIGEST),
+      ]
+    ) {
+      expect(render(state)).to.contain('← + ctrl');
+    }
+    for (
+      const state of [
+        Boot.failed('source-unavailable', { kind: 'cancellation' }),
+        Boot.stopping,
+      ]
+    ) {
+      const frame = render(state);
+      expect(frame).not.to.contain('← + ctrl');
+      expect(frame).to.contain('quit: ctrl + c or q');
+    }
+  });
+
   it('formats and links the exact development root while retaining its full file authority', () => {
     const renderRoot = (width: number, root: t.StringAbsoluteDir = DEVELOPMENT_ROOT) =>
       StartGuiScreen.toString({

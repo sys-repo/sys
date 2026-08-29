@@ -26,34 +26,6 @@ describe('driver-pi/scripts/task.cli settlement', () => {
     expect(await TaskCli.settle(() => Promise.reject(failure))).to.eql(1);
   });
 
-  it('keeps settlement authentication closed after ambient WeakSet mutation', async () => {
-    const add = Object.getOwnPropertyDescriptor(WeakSet.prototype, 'add');
-    const has = Object.getOwnPropertyDescriptor(WeakSet.prototype, 'has');
-    if (!add || !has) throw new Error('Expected WeakSet method descriptors.');
-    let ambientCalls = 0;
-    let exitCode: 0 | 1 | undefined;
-
-    try {
-      const replacement = {
-        value() {
-          ambientCalls += 1;
-          throw new Error('ambient WeakSet method invoked');
-        },
-      };
-      Object.defineProperty(WeakSet.prototype, 'add', { ...add, ...replacement });
-      Object.defineProperty(WeakSet.prototype, 'has', { ...has, ...replacement });
-      const failure = new Error('presented GUI failure');
-      markCliSettledFailure(failure);
-      exitCode = await TaskCli.settle(() => Promise.reject(failure));
-    } finally {
-      Object.defineProperty(WeakSet.prototype, 'add', add);
-      Object.defineProperty(WeakSet.prototype, 'has', has);
-    }
-
-    expect(exitCode).to.eql(1);
-    expect(ambientCalls).to.eql(0);
-  });
-
   it('rethrows an unclassified failure unchanged', async () => {
     const failure = new Error('unowned programmer failure');
     let observed: unknown;

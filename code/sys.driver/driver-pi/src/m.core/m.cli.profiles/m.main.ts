@@ -6,10 +6,11 @@ import { Cli, Obj, type t } from './common.ts';
 import { ProfileArgs } from './u/u.args.ts';
 import { ProfilesDslFmt } from './u/u.fmt.dsl.ts';
 import { ProfilesFmt } from './u/u.fmt.help.ts';
-import { menu } from './u/u.menu.ts';
+import { menu, reopenProfileMenu } from './u/u.menu.ts';
 import { ProfileConfig } from './u/u.profile.ts';
 import { resolveRun } from './u/u.resolve.run.ts';
 import { ProfileStartup } from './u/u.startup.ts';
+import { type StartGuiCompletion, startGuiCompletionKind } from './u/u.start.gui.settlement.ts';
 import { START_GUI_SERVICE, type StartGuiEvidence } from './u/u.start.gui.service.ts';
 
 type MainDependencies = {
@@ -18,20 +19,20 @@ type MainDependencies = {
     cwd: t.PiCli.Cwd;
     source: StartGuiEvidence;
     until?: AbortSignal;
-  }) => Promise<void>;
+  }) => Promise<StartGuiCompletion>;
 };
 
 const DEFAULT_DEPENDENCIES: MainDependencies = Object.freeze({
   repaint: Cli.Screen.repaint,
   async startGui(input) {
     const { start } = await import('./u.start/u.gui.ts');
-    await start(input);
+    return await start(input);
   },
 });
 
 export const main: t.PiCliProfiles.Lib['main'] = (input = {}) => mainWith(input);
 
-/** Internal deterministic dependency seam for profile-menu dispatch tests. */
+/** Internal profile launcher with explicit GUI and repaint dependencies. */
 export async function mainWith(
   input: t.PiCliProfiles.Input = {},
   deps: MainDependencies = DEFAULT_DEPENDENCIES,
@@ -66,40 +67,58 @@ export async function mainWith(
 
   if (migrationMessage) console.info(migrationMessage);
 
-  const picked = parsed.profile
+  let picked: t.PiCliProfiles.MenuResult = parsed.profile
     ? {
-      kind: 'selected' as const,
-      mode: 'tui' as const,
+      kind: 'selected',
+      mode: 'tui',
       config: (await ProfileConfig.resolveSelection(root, parsed.profile)).config,
     }
     : await menu({ cwd, allowAll, gitRootExplicit });
 
   if (picked.kind === 'exit') return { kind: 'exit', input };
 
-  if (picked.mode === 'gui' && parsed._.length > 0) {
-    throw new Error(
-      'start:gui cannot accept Pi passthrough args. Select start:tui for passthrough mode.',
-    );
-  }
+  while (picked.mode === 'gui') {
+    if (parsed._.length > 0) {
+      throw new Error(
+        'start:gui cannot accept Pi passthrough args. Select start:tui for passthrough mode.',
+      );
+    }
 
-  if (picked.mode === 'gui' && parsed.installOcrDeps === true) {
-    throw new Error(
-      'start:gui does not support --install-ocr-deps. Use start:tui for OCR bootstrap.',
-    );
-  }
+    if (parsed.installOcrDeps === true) {
+      throw new Error(
+        'start:gui does not support --install-ocr-deps. Use start:tui for OCR bootstrap.',
+      );
+    }
 
-  if (picked.mode === 'gui') {
-    const preview = picked.preview;
-    const frame = preview
-      ? PiSandboxFmt.table({ ...preview.sandbox, report: preview.report }, { gitRootExplicit })
-      : '';
-    deps.repaint(frame);
-    await deps.startGui({ cwd, source: START_GUI_SERVICE.source });
-    return {
-      kind: 'gui',
-      input,
-      parsed,
-    };
+    const profilePath = picked.config;
+    deps.repaint(
+      picked.preview
+        ? PiSandboxFmt.table(
+          { ...picked.preview.sandbox, report: picked.preview.report },
+          { gitRootExplicit },
+        )
+        : '',
+    );
+    picked = { kind: 'selected', mode: 'gui', config: profilePath };
+
+    const completion = await deps.startGui({ cwd, source: START_GUI_SERVICE.source });
+    const completionKind = startGuiCompletionKind(completion);
+    if (completionKind === undefined) throw new Error('start:gui completion invalid.');
+    if (completionKind !== 'back') {
+      return {
+        kind: 'gui',
+        input,
+        parsed,
+      };
+    }
+
+    picked = await reopenProfileMenu({
+      cwd,
+      path: profilePath,
+      allowAll,
+      gitRootExplicit,
+    });
+    if (picked.kind === 'exit') return { kind: 'exit', input };
   }
 
   const resolved = await resolveRun(

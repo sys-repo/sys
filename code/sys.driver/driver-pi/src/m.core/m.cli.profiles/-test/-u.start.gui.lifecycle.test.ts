@@ -67,7 +67,8 @@ describe('@sys/driver-pi start:gui terminal arbiter', () => {
     const fixture = supervisorFixture();
     let workStarted = false;
 
-    fixture.supervisor.requestStop('trusted quit');
+    expect(fixture.supervisor.requestStop('trusted quit')).to.eql(true);
+    expect(fixture.supervisor.requestStop('later duplicate control')).to.eql(false);
     const admission = fixture.supervisor.admitWork(() => {
       workStarted = true;
     });
@@ -626,6 +627,7 @@ describe('@sys/driver-pi start:gui terminal arbiter', () => {
 
     external.abort(rawReason);
 
+    expect(fixture.supervisor.requestStop('later trusted control')).to.eql(false);
     expect(fixture.supervisor.signal.aborted).to.eql(true);
     expect(fixture.supervisor.signal.reason).to.eql('start:gui.external-cancellation');
     expect(fixture.supervisor.signal.reason).not.to.equal(rawReason);

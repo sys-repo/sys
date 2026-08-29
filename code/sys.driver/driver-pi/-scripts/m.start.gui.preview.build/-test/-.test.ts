@@ -1,34 +1,20 @@
-import {
-  describe,
-  DistServer,
-  expect,
-  Fs,
-  FsDist,
-  it,
-  Json,
-  Open,
-  Str,
-  type t,
-} from '../../common.ts';
+import { describe, DistServer, expect, Fs, FsDist, it, Json, Open, Str } from '../../common.ts';
 
 import { default as deno } from '../../../deno.json' with { type: 'json' };
 import { EsmAssert } from '../../../src/-test.ts';
 import { pkg } from '../../../src/pkg.ts';
-import { start, type StartGuiInput } from '../../../src/m.core/m.cli.profiles/u.start/u.gui.ts';
+import { start } from '../../../src/m.core/m.cli.profiles/u.start/u.gui.ts';
 import {
   bootstrapStatusFixture,
   deferred,
 } from '../../../src/m.core/m.cli.profiles/-test/u.fixture.start.gui.ts';
+import type { t } from '../common.ts';
 import { resolvePreviewDenoDir } from '../u.deno.ts';
 import {
   mainWith,
   PACKAGE_ROOT,
   PREVIEW_BUILD_TEMP_PREFIX,
   PREVIEW_TEMP_PREFIX,
-  type PreviewBuildInput,
-  type PreviewBuildResponse,
-  type PreviewDependencies,
-  type PreviewGeneration,
   WORKSPACE_ROOT,
 } from '../u.runtime.ts';
 import { vitePaths } from '../../u.vite.paths.ts';
@@ -39,7 +25,7 @@ const FIRST_DIR = Fs.resolve(PACKAGE_ROOT, '.tmp/driver-pi-preview-one') as t.St
 const SECOND_DIR = Fs.resolve(PACKAGE_ROOT, '.tmp/driver-pi-preview-two') as t.StringAbsoluteDir;
 const INDEX_BODY = '<h1>verified local Driver Pi preview</h1>';
 const MUTATED_INDEX_BODY = '<h1>mutated local Driver Pi preview</h1>';
-const BASE_PATHS: PreviewDependencies['paths'] = vitePaths(PACKAGE_ROOT);
+const BASE_PATHS: t.PreviewBuildPaths = vitePaths(PACKAGE_ROOT);
 const PREVIEW_WORKER_ENTRY = new URL('../-entry.worker.ts', import.meta.url).pathname;
 
 describe('driver-pi/scripts/task.start.gui.preview', () => {
@@ -133,12 +119,16 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
     await EsmAssert.runtimeGraphBoundary({
       entry: PREVIEW_WORKER_ENTRY,
       forbiddenImports: ['@sys/driver-vite'],
+      forbiddenPathIncludes: [
+        '/m.cli.profiles/u/u.menu.ts',
+        '\\m.cli.profiles\\u\\u.menu.ts',
+      ],
     });
   });
 
   it('builds once into its owned directory and passes only that generation to the GUI supervisor', async () => {
-    const builds: PreviewBuildInput[] = [];
-    const starts: unknown[] = [];
+    const builds: t.PreviewBuildInput[] = [];
+    const starts: t.PreviewStartInput[] = [];
     const disposals: t.StringAbsoluteDir[] = [];
     await mainWith({
       paths: BASE_PATHS,
@@ -147,9 +137,11 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
         builds.push(input);
         return Promise.resolve(buildResult({ paths: input.paths, integrity: FIRST_PIN }));
       },
-      startGui(input) {
-        starts.push(input);
-        return Promise.resolve();
+      GUI: {
+        start(input) {
+          starts.push(input);
+          return Promise.resolve();
+        },
       },
     });
 
@@ -180,7 +172,7 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
   });
 
   it('captures package-owner expectation before a hostile build callback', async () => {
-    const starts: StartGuiInput[] = [];
+    const starts: t.PreviewStartInput[] = [];
     const disposals: t.StringAbsoluteDir[] = [];
     let mutated = true;
     await mainWith({
@@ -194,9 +186,11 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
         );
         return Promise.resolve(buildResult({ paths: input.paths, integrity: FIRST_PIN }));
       },
-      startGui(input) {
-        starts.push(input);
-        return Promise.resolve();
+      GUI: {
+        start(input) {
+          starts.push(input);
+          return Promise.resolve();
+        },
       },
     });
 
@@ -213,9 +207,9 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
   it('captures distinct owned directories and build pins for consecutive preview sessions', async () => {
     const generations = [generation(FIRST_DIR), generation(SECOND_DIR)];
     const pins = [FIRST_PIN, SECOND_PIN];
-    const starts: unknown[] = [];
+    const starts: t.PreviewDevelopmentSource[] = [];
     const disposals: t.StringAbsoluteDir[] = [];
-    const deps: PreviewDependencies = {
+    const deps: t.PreviewDependencies = {
       paths: BASE_PATHS,
       allocate() {
         const owner = generations.shift();
@@ -227,9 +221,11 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
         if (!integrity) throw new Error('Unexpected preview build.');
         return Promise.resolve(buildResult({ paths: input.paths, integrity }));
       },
-      startGui(input) {
-        starts.push(input.source);
-        return Promise.resolve();
+      GUI: {
+        start(input) {
+          starts.push(input.source);
+          return Promise.resolve();
+        },
       },
     };
     await mainWith(deps);
@@ -266,9 +262,11 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
             ok: false,
           }));
         },
-        startGui() {
-          starts += 1;
-          return Promise.resolve();
+        GUI: {
+          start() {
+            starts += 1;
+            return Promise.resolve();
+          },
         },
       })
     );
@@ -287,9 +285,11 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
         build() {
           return Promise.resolve(buildResult({ paths: BASE_PATHS, integrity: FIRST_PIN }));
         },
-        startGui() {
-          starts += 1;
-          return Promise.resolve();
+        GUI: {
+          start() {
+            starts += 1;
+            return Promise.resolve();
+          },
         },
       })
     );
@@ -306,9 +306,11 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
       paths: BASE_PATHS,
       allocate: () => Promise.resolve(generation(FIRST_DIR, disposals)),
       build: (input) => Promise.resolve(buildResult({ paths: input.paths, integrity: FIRST_PIN })),
-      async startGui() {
-        entered.resolve();
-        await release.promise;
+      GUI: {
+        async start() {
+          entered.resolve();
+          await release.promise;
+        },
       },
     });
 
@@ -335,28 +337,30 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
         allocate: () => Promise.resolve(fixture.generation(disposals)),
         build: (input) =>
           Promise.resolve(buildResult({ paths: input.paths, integrity: fixture.integrity })),
-        startGui: realStartGui({
-          root: fixture.root,
-          onMaterialize: () => {
-            materializeCalls += 1;
-          },
-          onStart: (input) => {
-            applicationStarts.push({ dir: input.dir, integrity: input.integrity });
-          },
-          async onReady(origin) {
-            expect(await Fs.exists(fixture.dir)).to.eql(true);
-            expect(await Fs.exists(Fs.join(fixture.root, '.pi'))).to.eql(false);
+        GUI: {
+          start: startGuiFixture({
+            root: fixture.root,
+            onMaterialize: () => {
+              materializeCalls += 1;
+            },
+            onStart: (input) => {
+              applicationStarts.push({ dir: input.dir, integrity: input.integrity });
+            },
+            async onReady(origin) {
+              expect(await Fs.exists(fixture.dir)).to.eql(true);
+              expect(await Fs.exists(Fs.join(fixture.root, '.pi'))).to.eql(false);
 
-            const response = await fetch(origin);
-            servedStatus = response.status;
-            body = await response.text();
+              const response = await fetch(origin);
+              servedStatus = response.status;
+              body = await response.text();
 
-            await Fs.write(Fs.join(fixture.dir, 'index.html'), MUTATED_INDEX_BODY);
-            const changed = await fetch(origin);
-            changedStatus = changed.status;
-            changedBytes = (await changed.arrayBuffer()).byteLength;
-          },
-        }),
+              await Fs.write(Fs.join(fixture.dir, 'index.html'), MUTATED_INDEX_BODY);
+              const changed = await fetch(origin);
+              changedStatus = changed.status;
+              changedBytes = (await changed.arrayBuffer()).byteLength;
+            },
+          }),
+        },
       });
 
       expect({ materializeCalls, applicationStarts }).to.eql({
@@ -384,16 +388,18 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
         paths: BASE_PATHS,
         allocate: () => Promise.resolve(fixture.generation(disposals)),
         build: (input) => Promise.resolve(buildResult({ paths: input.paths, integrity })),
-        startGui: realStartGui({
-          root: fixture.root,
-          onMaterialize: () => {
-            materializeCalls += 1;
-          },
-          onStart: (input) => {
-            applicationStarts.push({ dir: input.dir, integrity: input.integrity });
-          },
-          onReady: () => Promise.reject(new Error('Expected preview host refusal.')),
-        }),
+        GUI: {
+          start: startGuiFixture({
+            root: fixture.root,
+            onMaterialize: () => {
+              materializeCalls += 1;
+            },
+            onStart: (input) => {
+              applicationStarts.push({ dir: input.dir, integrity: input.integrity });
+            },
+            onReady: () => Promise.reject(new Error('Expected preview host refusal.')),
+          }),
+        },
       });
 
     try {
@@ -445,7 +451,7 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
           })),
         build: (input) =>
           Promise.resolve(buildResult({ paths: input.paths, integrity: FIRST_PIN })),
-        startGui: () => Promise.reject(sessionFailure),
+        GUI: { start: () => Promise.reject(sessionFailure) },
       })
     );
 
@@ -465,7 +471,7 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
           })),
         build: (input) =>
           Promise.resolve(buildResult({ paths: input.paths, integrity: FIRST_PIN, ok: false })),
-        startGui: () => Promise.resolve(),
+        GUI: { start: () => Promise.resolve() },
       })
     );
 
@@ -480,10 +486,10 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
 });
 
 function buildResult(input: {
-  readonly paths: PreviewDependencies['paths'];
+  readonly paths: t.PreviewBuildPaths;
   readonly integrity: t.StringHash;
   readonly ok?: boolean;
-}): PreviewBuildResponse {
+}): t.PreviewBuildResponse {
   return {
     ok: input.ok ?? true,
     paths: input.paths,
@@ -494,7 +500,7 @@ function buildResult(input: {
 function generation(
   dir: t.StringAbsoluteDir,
   disposals: t.StringAbsoluteDir[] = [],
-): PreviewGeneration {
+): t.PreviewGeneration {
   return Object.freeze({
     dir,
     dispose() {
@@ -504,14 +510,14 @@ function generation(
   });
 }
 
-type RealStartGuiOptions = Readonly<{
-  root: t.StringAbsoluteDir;
-  onMaterialize: () => void;
-  onStart: (input: t.DistServer.Start.Args) => void;
-  onReady: (origin: t.StringUrl) => Promise<void>;
-}>;
+type StartGuiFixtureOptions = {
+  readonly root: t.StringAbsoluteDir;
+  readonly onMaterialize: () => void;
+  readonly onStart: (input: t.DistServer.Start.Args) => void;
+  readonly onReady: (origin: t.StringUrl) => Promise<void>;
+};
 
-function realStartGui(options: RealStartGuiOptions): (input: StartGuiInput) => Promise<void> {
+function startGuiFixture(options: StartGuiFixtureOptions): t.PreviewGuiStart {
   return async (input) => {
     const stop = new AbortController();
     const keyboard = deferred();
@@ -599,13 +605,13 @@ function realStartGui(options: RealStartGuiOptions): (input: StartGuiInput) => P
   };
 }
 
-type PreviewDistFixture = Readonly<{
-  root: t.StringAbsoluteDir;
-  dir: t.StringAbsoluteDir;
-  integrity: t.StringHash;
-  generation(disposals?: t.StringAbsoluteDir[]): PreviewGeneration;
-  dispose(): Promise<void>;
-}>;
+type PreviewDistFixture = {
+  readonly root: t.StringAbsoluteDir;
+  readonly dir: t.StringAbsoluteDir;
+  readonly integrity: t.StringHash;
+  readonly generation: (disposals?: t.StringAbsoluteDir[]) => t.PreviewGeneration;
+  readonly dispose: () => Promise<void>;
+};
 
 async function previewDistFixture(): Promise<PreviewDistFixture> {
   const temporary = (await Fs.makeTempDir({ prefix: 'driver-pi.start-gui.preview.' })).absolute;

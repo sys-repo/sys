@@ -96,7 +96,7 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
       .absolute as t.StringDir;
     const root = await Fs.realPath(temporary) as t.StringDir;
     const harness = createHarness();
-    let run: Promise<void> | undefined;
+    let run: ReturnType<typeof start> | undefined;
     let exclusive: FsRooted.Lease | undefined;
 
     try {
@@ -144,7 +144,7 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
     const root = await Fs.realPath(temporary) as t.StringDir;
     const harness = createHarness();
     const listenerFinished = deferred();
-    let run: Promise<void> | undefined;
+    let run: ReturnType<typeof start> | undefined;
     let exclusive: FsRooted.Lease | undefined;
 
     try {
@@ -824,7 +824,7 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
       originalSegments[1] = `redirected-${mutations}`;
     };
     let projection: BootstrapStatus.Projection<string> | undefined;
-    let run: Promise<void> | undefined;
+    let run: ReturnType<typeof start> | undefined;
     let error: Error | undefined;
 
     try {
@@ -1584,7 +1584,7 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
     });
     let shared: FsRooted.Lease | undefined;
     let exclusive: FsRooted.Lease | undefined;
-    let run: Promise<void> | undefined;
+    let run: ReturnType<typeof start> | undefined;
 
     try {
       run = start({
@@ -2716,6 +2716,28 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
     expect(isCliSettledFailure(await rejected)).to.eql(true);
   });
 
+  it('keeps failed sessions terminal when the keyboard callback receives Ctrl+Arrow Left', async () => {
+    const harness = createHarness({
+      materialization: Object.freeze({
+        kind: 'failed',
+        stage: 'manifest-fetch',
+        reason: 'resource-failure',
+        cleanup: 'not-needed',
+      }),
+    });
+    const run = startInput(harness);
+    const rejected = rejectionOf(() => run);
+
+    await harness.waitFor((projection) =>
+      projection.kind === 'page' && projection.key === 'failed-source-unavailable'
+    );
+    expect(await harness.invokeBackKey()).to.eql(undefined);
+    await expectPending(run);
+    await harness.quit();
+
+    expect(isCliSettledFailure(await rejected)).to.eql(true);
+  });
+
   it('keeps an unexplained lower cancelled result as a primary failure', async () => {
     const harness = createHarness({
       materialization: Object.freeze({
@@ -2812,7 +2834,7 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
     const cancelled = new AbortController();
     cancelled.abort('already cancelled');
     let ambientQueueCalls = 0;
-    let run: Promise<void>;
+    let run: ReturnType<typeof start>;
 
     {
       using _mock = WebFixture.Property.mock([{
@@ -3780,6 +3802,7 @@ function createHarness(options: HarnessOptions = {}) {
     return release;
   };
   let statusPages: string[] = [];
+  let onKey: NonNullable<Parameters<StartGuiDependencies['bindKeyboard']>[0]['onKey']> | undefined;
   let onQuit: (() => void | Promise<void>) | undefined;
   let statusDisposed = false;
   let statusClose: Promise<void> | undefined;
@@ -3900,6 +3923,7 @@ function createHarness(options: HarnessOptions = {}) {
     },
     bindKeyboard: (input) => {
       emit('keyboard.bind');
+      onKey = input.onKey;
       onQuit = input.onQuit;
       return {
         finished: keyboardDone.promise,
@@ -3982,6 +4006,10 @@ function createHarness(options: HarnessOptions = {}) {
     },
     waitForEvent,
     trackState,
+    async invokeBackKey() {
+      if (!onKey) throw new Error('Expected bound key callback.');
+      return await onKey({ key: 'left', ctrlKey: true } as Parameters<typeof onKey>[0]);
+    },
     async quit() {
       if (!onQuit) throw new Error('Expected bound quit callback.');
       await onQuit();
@@ -4005,7 +4033,7 @@ function createHarness(options: HarnessOptions = {}) {
 function startInput(
   harness: ReturnType<typeof createHarness>,
   source?: StartGuiEvidence,
-): Promise<void> {
+): ReturnType<typeof start> {
   const input: StartGuiInput = {
     cwd: asProfileRoot(ROOT),
     deps: harness.deps,

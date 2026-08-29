@@ -20,6 +20,7 @@ import {
   type StartGuiDependencies,
   type StartGuiInput,
 } from '../u.start/u.gui.ts';
+import { startGuiCompletionKind } from '../u/u.start.gui.settlement.ts';
 import { START_GUI_SERVICE, type StartGuiEvidence } from '../u/u.start.gui.service.ts';
 import {
   asProfileRoot,
@@ -39,7 +40,7 @@ const APPLICATION_EXPECTATION = Object.freeze({
   expectedPkg: START_GUI_SERVICE.source.expectedPkg,
 });
 
-const start = async (input: StartGuiInput): Promise<void> => {
+const start = async (input: StartGuiInput): ReturnType<typeof startRuntime> => {
   const automatic = automaticSession(input.until === undefined);
   const selectedRoot = input.cwd.root;
   if (!selectedRoot) throw new Error('Expected test runtime root.');
@@ -107,7 +108,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
       },
     }) as Partial<StartGuiDependencies>;
     const originalDescriptor = Object.getOwnPropertyDescriptor;
-    let accessorRun: Promise<void>;
+    let accessorRun: ReturnType<typeof startRuntime>;
     {
       using _mock = WebFixture.Property.mock([{
         target: Object,
@@ -381,7 +382,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
     let statusStarts = 0;
     let materializeCalls = 0;
     let applicationStarts = 0;
-    let run: Promise<void>;
+    let run: ReturnType<typeof startRuntime>;
     {
       using _mock = WebFixture.Property.mock([{
         target: Promise,
@@ -425,7 +426,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
   it('refuses poisoned inherited Promise construction before bootstrap starts', async () => {
     let constructorReads = 0;
     let statusStarts = 0;
-    let run: Promise<void>;
+    let run: ReturnType<typeof startRuntime>;
     {
       using _mock = WebFixture.Property.mock([{
         target: Promise.prototype,
@@ -2502,8 +2503,9 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
       await startedSignal.promise;
       const rawReason = new Error('caller-owned cancellation reason');
       aborted.abort(rawReason);
-      await run;
+      const completion = await run;
 
+      expect(startGuiCompletionKind(completion)).to.eql('external-cancellation');
       expect(materializeUntil).to.equal(startUntil);
       expect(materializeUntil).to.be.an.instanceOf(AbortSignal);
       expect(materializeUntil).not.to.equal(aborted.signal);
@@ -2518,7 +2520,40 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
     }
   });
 
-  it('redraws only for exact lowercase r and preserves Ctrl+Arrow Left shutdown', async () => {
+  it('returns the keyboard stop disposition when clean back wins during preparing', async () => {
+    const keyboardFinished = deferred();
+    let materializeCalls = 0;
+    let disposition: ReturnType<
+      NonNullable<Parameters<typeof Cli.Keyboard.bind>[0]['onKey']>
+    > = undefined;
+
+    const completion = await startRuntime({
+      cwd: asProfileRoot('/tmp/driver-pi-preparing-back-test'),
+      deps: {
+        startStatus: () => Promise.resolve(bootstrapStatusFixture()),
+        materialize: () => {
+          materializeCalls += 1;
+          return Promise.resolve(fakeGeneration());
+        },
+        bindKeyboard(input) {
+          disposition = input.onKey?.(keypress('left', { ctrlKey: true }));
+          return {
+            finished: keyboardFinished.promise,
+            dispose: keyboardFinished.resolve,
+          };
+        },
+        createScreen() {
+          throw new Error('Back during preparing must block screen acquisition.');
+        },
+      },
+    });
+
+    expect(disposition).to.eql('stop');
+    expect(startGuiCompletionKind(completion)).to.eql('back');
+    expect(materializeCalls).to.eql(0);
+  });
+
+  it('maps exact lowercase r to redraw and exact Ctrl+Arrow Left to clean back', async () => {
     const prefix = 'driver-pi.profiles.u.start.gui.test.';
     const cwd = (await Fs.makeTempDir({ prefix })).absolute as t.StringDir;
     const serverFinished = deferred();
@@ -2528,6 +2563,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
     let openCalls = 0;
     let redrawCalls = 0;
     let onKey: NonNullable<Parameters<typeof Cli.Keyboard.bind>[0]['onKey']> | undefined;
+    let onQuit: (() => void | Promise<void>) | undefined;
     const bound = deferred();
     const keyboardFinished = deferred();
     const keyboard: Keyboard = {
@@ -2557,6 +2593,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
           open: () => void (openCalls += 1),
           bindKeyboard: (input) => {
             onKey = input.onKey;
+            onQuit = input.onQuit;
             void input.onKey?.(keypress('r', {
               altKey: false,
               ctrlKey: false,
@@ -2578,7 +2615,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
 
       await bound.promise;
       await appStarted.promise;
-      if (!onKey) throw new Error('Expected start:gui keyboard key callback.');
+      if (!onKey || !onQuit) throw new Error('Expected start:gui keyboard callbacks.');
       await onKey(keypress('r'));
       await onKey(keypress('R', {
         altKey: false,
@@ -2634,10 +2671,13 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
         openCalls: 1,
         redrawCalls: 2,
       });
-      await onKey(keypress('left', { ctrlKey: true }));
-      await onKey(keypress('left', { ctrlKey: true }));
-      await run;
+      const firstBack = await onKey(keypress('left', { ctrlKey: true }));
+      const secondBack = await onKey(keypress('left', { ctrlKey: true }));
+      await onQuit();
+      const completion = await run;
 
+      expect([firstBack, secondBack]).to.eql(['stop', 'stop']);
+      expect(startGuiCompletionKind(completion)).to.eql('back');
       expect(closeReasons).to.eql(['start:gui.finalized']);
       expect(disposeCalls).to.eql(1);
     } finally {
@@ -2880,6 +2920,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
     const appStarted = deferred();
     let closeCalls = 0;
     let disposeCalls = 0;
+    let onKey: NonNullable<Parameters<typeof Cli.Keyboard.bind>[0]['onKey']> | undefined;
     let onQuit: (() => void | Promise<void>) | undefined;
     const bound = deferred();
     const keyboardFinished = deferred();
@@ -2909,6 +2950,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
           },
           open: () => undefined,
           bindKeyboard: (input) => {
+            onKey = input.onKey;
             onQuit = input.onQuit;
             bound.resolve();
             return keyboard;
@@ -2918,10 +2960,12 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
 
       await bound.promise;
       await appStarted.promise;
-      if (!onQuit) throw new Error('Expected start:gui keyboard quit callback.');
+      if (!onKey || !onQuit) throw new Error('Expected start:gui keyboard callbacks.');
       await onQuit();
-      await run;
+      await onKey(keypress('left', { ctrlKey: true }));
+      const completion = await run;
 
+      expect(startGuiCompletionKind(completion)).to.eql('quit');
       expect(closeCalls).to.eql(1);
       expect(disposeCalls).to.eql(1);
     } finally {

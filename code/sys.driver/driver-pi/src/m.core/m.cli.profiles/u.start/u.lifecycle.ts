@@ -123,7 +123,8 @@ export type Supervisor = {
   checkpoint(): Promise<TerminalEvent | undefined>;
   /** Synchronously admit an unsafe action only while no terminal event blocks new work. */
   admitWork<T>(action: () => T): WorkAdmission<T>;
-  requestStop(reason: unknown): void;
+  /** Request trusted stop and report whether this call owns the first stop latch. */
+  requestStop(reason: unknown): boolean;
   /** Publish a synchronous failure; a preceding pending stop retains precedence. */
   publishFailure(error: Error, state: FailedBootState): boolean;
   /** Snapshot the pending candidate before one direct reaction invokes any admitted callback. */
@@ -479,7 +480,7 @@ export function createSupervisor(input: {
     return true;
   };
   const latchStop = (source: StopSource) => {
-    if (stopState === 'requested') return;
+    if (stopState === 'requested') return false;
     stopState = 'requested';
     foregroundReleased.resolve();
     if (terminalState === 'pending') {
@@ -491,16 +492,18 @@ export function createSupervisor(input: {
     if (blocker()?.kind !== 'failure') {
       abortWork(source === 'trusted-control' ? TRUSTED_STOP_REASON : EXTERNAL_STOP_REASON);
     }
+    return true;
   };
   const stop = (_reason: unknown) => {
     // Latch trusted intent before disposing the shared stop lifecycle, whose abort listener would
     // otherwise misclassify this same request as external cancellation.
-    latchStop('trusted-control');
+    const accepted = latchStop('trusted-control');
     try {
       input.stopLife.dispose(TRUSTED_STOP_REASON);
     } catch {
       // The trusted stop request still owns termination if lifecycle delivery faults.
     }
+    return accepted;
   };
   const fail = (error: Error, state: FailedBootState) => {
     // Immediate publication reserves a queue position and blocks work now. An already-queued direct

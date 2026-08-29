@@ -1,64 +1,61 @@
 import { pkg } from '../../src/pkg.ts';
-import { start, type StartGuiInput } from '../../src/m.core/m.cli.profiles/u.start/u.gui.ts';
-import type { StartGuiEvidence } from '../../src/m.core/m.cli.profiles/u/u.start.gui.service.ts';
+import { start as startGui } from '../../src/m.core/m.cli.profiles/u.start/u.gui.ts';
 import { Fs, Json, Process, Str, type t } from './common.ts';
 import { resolvePreviewDenoDir } from './u.deno.ts';
-import type { PreviewBuildInput, PreviewBuildPaths, PreviewBuildResponse } from './t.ts';
 import { vitePaths } from '../u.vite.paths.ts';
 
-export type { PreviewBuildInput, PreviewBuildPaths, PreviewBuildResponse } from './t.ts';
+type PreviewFailure = {
+  readonly cause: unknown;
+};
 
-/** Explicit package checkout containing the Vite configuration and generated GUI artifact. */
-export const PACKAGE_ROOT = Fs.resolve(import.meta.dirname ?? '.', '../..') as t.StringAbsoluteDir;
-/** Repository root passed to the existing launcher lifecycle; preview never uses its release store. */
-export const WORKSPACE_ROOT = Fs.resolve(PACKAGE_ROOT, '../../..') as t.StringDir;
-/** Package-owner expectation captured before dependency reads, callbacks, or asynchronous work. */
-const EXPECTED_PKG = Object.freeze({ name: pkg.name, version: pkg.version });
+export const PACKAGE_ROOT: t.StringAbsoluteDir = Fs.resolve(import.meta.dirname ?? '.', '../..');
+export const WORKSPACE_ROOT: t.StringDir = Fs.resolve(PACKAGE_ROOT, '../../..');
 
+/** Copy generated metadata into finite immutable authority before dependency callbacks run. */
+const EXPECTED_PKG: t.PreviewPackageIdentity = Object.freeze({
+  name: pkg.name,
+  version: pkg.version,
+});
 const TEMP_OWNER = Str.replaceAll(EXPECTED_PKG.name, '/', '-').after;
+const BUILD_CHILD = Fs.Path.fromFileUrl(new URL('./-entry.build.ts', import.meta.url));
+const GUI: t.PreviewGui = Object.freeze({
+  async start(input) {
+    await startGui(input);
+  },
+});
+
 export const PREVIEW_TEMP_PREFIX = `${TEMP_OWNER}.start-gui-preview.`;
 export const PREVIEW_BUILD_TEMP_PREFIX = `${TEMP_OWNER}.start-gui-preview-build.`;
 
-const BUILD_CHILD = Fs.Path.fromFileUrl(new URL('./-entry.build.ts', import.meta.url));
-
-export type PreviewGeneration = Readonly<{
-  /** Exact task-owned output directory retained for one host session. */
-  dir: t.StringAbsoluteDir;
-  /** Remove only this generation after its host session settles. */
-  dispose(): Promise<void>;
-}>;
-
-export type PreviewDependencies = Readonly<{
-  readonly paths: PreviewBuildPaths;
-  readonly allocate: () => Promise<PreviewGeneration>;
-  readonly build: (input: PreviewBuildInput) => Promise<PreviewBuildResponse>;
-  readonly startGui: (input: StartGuiInput) => Promise<void>;
-}>;
-
-/** Build one isolated generation and remove it only after positive GUI-session settlement. */
+/**
+ * Build and host one isolated preview generation.
+ *
+ * The generation is removed after pre-host failure or successful GUI settlement and retained when
+ * GUI invocation rejects without proving host settlement.
+ */
 export async function main(): Promise<void> {
   await mainWith(Object.freeze({
     paths: vitePaths(PACKAGE_ROOT),
     allocate: allocatePreviewGeneration,
     build: buildPreviewGeneration,
-    startGui: start,
+    GUI,
   }));
 }
 
-/** Internal seam proving owner expectation and task-owned build evidence reach GUI admission. */
-export async function mainWith(deps: PreviewDependencies): Promise<void> {
+/** Internal preview runner with explicit generation, build, and GUI dependencies. */
+export async function mainWith(deps: t.PreviewDependencies): Promise<void> {
   const configuredCwd = Fs.resolve(deps.paths.cwd);
   if (configuredCwd !== PACKAGE_ROOT) {
     throw new Error('start:gui:preview Vite package root mismatch.');
   }
   const configuredApp = Object.freeze({ ...deps.paths.app });
   const generation = await deps.allocate();
-  let primary: Readonly<{ failed: true; cause: unknown }> | undefined;
+  let primary: PreviewFailure | undefined;
   let guiInvoked = false;
   let guiSettled = false;
 
   try {
-    const paths: PreviewBuildPaths = Object.freeze({
+    const paths: t.PreviewBuildPaths = Object.freeze({
       cwd: PACKAGE_ROOT,
       app: Object.freeze({ ...configuredApp, outDir: generation.dir }),
     });
@@ -75,20 +72,20 @@ export async function mainWith(deps: PreviewDependencies): Promise<void> {
       throw new Error('start:gui:preview build output authority mismatch.');
     }
 
-    const source: StartGuiEvidence = Object.freeze({
+    const source = Object.freeze({
       kind: 'development',
       dir,
       integrity: build.manifest.integrity,
       expectedPkg: EXPECTED_PKG,
     });
     guiInvoked = true;
-    await deps.startGui(Object.freeze({
+    await deps.GUI.start(Object.freeze({
       cwd: Object.freeze({ invoked: WORKSPACE_ROOT, git: WORKSPACE_ROOT }),
       source,
     }));
     guiSettled = true;
   } catch (cause) {
-    primary = Object.freeze({ failed: true, cause });
+    primary = Object.freeze({ cause });
   }
 
   let cleanup: unknown;
@@ -116,8 +113,8 @@ export async function mainWith(deps: PreviewDependencies): Promise<void> {
 
 /** Run Vite in one isolated child so build-tool signal ownership cannot enter the GUI host. */
 export async function buildPreviewGeneration(
-  input: PreviewBuildInput,
-): Promise<PreviewBuildResponse> {
+  input: t.PreviewBuildInput,
+): Promise<t.PreviewBuildResponse> {
   const denoDir = await resolvePreviewDenoDir(PACKAGE_ROOT);
   const systemRoot = Deno.build.os === 'windows' ? Deno.env.get('SystemRoot') : undefined;
   const buildChildEnv = Object.freeze({
@@ -133,7 +130,7 @@ export async function buildPreviewGeneration(
   const outputDir = Fs.resolve(input.paths.cwd, input.paths.app.outDir);
   const packageViteCacheDir = Fs.resolve(input.paths.cwd, 'node_modules/.vite');
   const workspaceViteCacheDir = Fs.resolve(WORKSPACE_ROOT, 'node_modules/.vite');
-  let result: PreviewBuildResponse | undefined;
+  let result: t.PreviewBuildResponse | undefined;
   let primary: unknown;
   let failed = false;
 
@@ -166,7 +163,7 @@ export async function buildPreviewGeneration(
       throw new Error(`start:gui:preview build child failed.${suffix}`);
     }
 
-    result = (await Fs.readJson<PreviewBuildResponse>(outputPath)).data;
+    result = (await Fs.readJson<t.PreviewBuildResponse>(outputPath)).data;
     if (!result) throw new Error('start:gui:preview build child output unavailable.');
     if (!result.ok) {
       const diagnostic = child.text.stderr.trim() || child.text.stdout.trim();
@@ -201,7 +198,7 @@ export async function buildPreviewGeneration(
 }
 
 /** Allocate one unique task-owned generation whose exact path is the sole cleanup target. */
-export async function allocatePreviewGeneration(): Promise<PreviewGeneration> {
+export async function allocatePreviewGeneration(): Promise<t.PreviewGeneration> {
   const created = await Fs.makeTempDir({ prefix: PREVIEW_TEMP_PREFIX });
   let dir: t.StringAbsoluteDir;
   try {

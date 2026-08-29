@@ -1,5 +1,4 @@
-import { Fs, Json } from './common.ts';
-import type { PreviewBuildInput, PreviewBuildResponse } from './t.ts';
+import { Fs, Json, type t } from './common.ts';
 
 const [inputPath, outputPath] = Deno.args;
 if (!inputPath || !outputPath) throw new Error('start:gui:preview build child input invalid.');
@@ -9,12 +8,12 @@ const workspaceRoot = Fs.resolve(packageRoot, '../../..');
 assertSanitizedEnvironment();
 await assertConfinedAuthority();
 
-const input = (await Fs.readJson<PreviewBuildInput>(inputPath)).data;
+const input = (await Fs.readJson<t.PreviewBuildInput>(inputPath)).data;
 if (!input) throw new Error('start:gui:preview build child input unavailable.');
 
 const { Vite } = await import('@sys/driver-vite');
 const build = await Vite.build({ ...input, silent: true, spinner: false });
-const output: PreviewBuildResponse = Object.freeze({
+const output: t.PreviewBuildResponse = Object.freeze({
   ok: build.ok,
   paths: build.paths,
   manifest: build.manifest,

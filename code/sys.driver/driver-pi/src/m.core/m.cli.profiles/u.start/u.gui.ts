@@ -38,7 +38,14 @@ import {
   type StartGuiEvidence,
   type StartGuiRecoveryPolicy,
 } from '../u/u.start.gui.service.ts';
-import { markCliSettledFailure } from '../u/u.start.gui.settlement.ts';
+import {
+  allowsBack,
+  markCliSettledFailure,
+  type StartGuiCompletion,
+  startGuiCompletion,
+  type StartGuiCompletionKind,
+  type StartGuiControl,
+} from '../u/u.start.gui.settlement.ts';
 
 export type { StartGuiDependencies } from './u.deps.ts';
 
@@ -97,12 +104,13 @@ const DEFAULT_SNAPSHOT_DEPENDENCIES = receiverlessDependencies(DEFAULT_DEPENDENC
 const RETAINED_OPEN_RESULTS = StartGuiIntrinsic.createSet<unknown>();
 
 /**
- * Lazy GUI start leaf.
+ * Start one verified GUI session.
  *
- * Caller authority is copied into finite owned evidence before the asynchronous implementation is
- * entered, so the raw input container and its credential-bearing source cannot cross an await.
+ * Caller authority is copied into finite owned evidence before asynchronous work begins, so the raw
+ * input container and its credential-bearing source never cross an await. A successful promise
+ * resolves with a package-owned completion only after foreground release and owned cleanup settle.
  */
-export function start(input: StartGuiInput): Promise<void> {
+export function start(input: StartGuiInput): Promise<StartGuiCompletion> {
   try {
     assertPromiseTransportReady();
     const snapshot = snapshotStartInput(input);
@@ -127,13 +135,13 @@ export function start(input: StartGuiInput): Promise<void> {
       workLife,
     }));
   } catch (cause) {
-    const rejected = createPromiseDeferred<void>();
+    const rejected = createPromiseDeferred<StartGuiCompletion>();
     rejected.reject(ownedError(cause, 'start:gui startup failed.'));
     return rejected.promise;
   }
 }
 
-async function startPrepared(input: PreparedStartGui): Promise<void> {
+async function startPrepared(input: PreparedStartGui): Promise<StartGuiCompletion> {
   const { root, deps, authorityEvidence, recovery, state, stateSource, stopLife, workLife } = input;
   const displayRoot = authorityEvidence.kind === 'valid' &&
       authorityEvidence.authority.kind === 'development'
@@ -214,17 +222,18 @@ async function startPrepared(input: PreparedStartGui): Promise<void> {
   let presentation: PresentationEvidence | undefined;
   let cleanup: CleanupEvidence | undefined;
   let bootResult: BootResult = EXTERNAL_STOP_RESULT;
+  let completionKind: StartGuiCompletionKind | undefined;
   let controlsReady = false;
-  let trustedStopRequested = false;
+  let trustedControl: StartGuiControl | undefined;
   let presentableFailureReleased = false;
   let redrawScreen = () => {};
-  const requestTrustedStop = (source: 'back' | 'quit') => {
-    trustedStopRequested = true;
-    supervisor.requestStop(`start:gui.keyboard.${source}`);
+  const requestTrustedStop = (source: StartGuiControl) => {
+    if (trustedControl !== undefined) return;
+    if (supervisor.requestStop(`start:gui.keyboard.${source}`)) trustedControl = source;
   };
   const isFailureHeld = (event: FailureEvent) => controlsReady && retainsFailureForeground(event);
   const recordPresentableRelease = (event: FailureEvent) => {
-    presentableFailureReleased = trustedStopRequested && isCliPresentableFailure(event);
+    presentableFailureReleased = trustedControl !== undefined && isCliPresentableFailure(event);
   };
 
   try {
@@ -236,7 +245,10 @@ async function startPrepared(input: PreparedStartGui): Promise<void> {
           exit: false,
           onKey: (event) => {
             if (Cli.Keyboard.Is.redraw(event)) redrawScreen();
-            if (isBackKey(event)) requestTrustedStop('back');
+            if (isBackKey(event) && allowsBack(state.current)) {
+              requestTrustedStop('back');
+              return 'stop';
+            }
           },
           onQuit: () => requestTrustedStop('quit'),
         });
@@ -326,11 +338,18 @@ async function startPrepared(input: PreparedStartGui): Promise<void> {
         await awaitPromise(supervisor.foregroundReleased);
         recordPresentableRelease(terminal);
       }
-    } else if (
-      bootResult.kind === 'stop' && bootResult.source === 'external-cancellation' &&
-      state.current.kind !== 'failed' && state.current.kind !== 'stopping'
-    ) {
-      state.set(cancelledBootState());
+    } else if (terminal.source === 'external-cancellation') {
+      completionKind = 'external-cancellation';
+      if (
+        bootResult.kind === 'stop' && bootResult.source === 'external-cancellation' &&
+        state.current.kind !== 'failed' && state.current.kind !== 'stopping'
+      ) {
+        state.set(cancelledBootState());
+      }
+    } else if (trustedControl !== undefined) {
+      completionKind = trustedControl;
+    } else {
+      primary = createOwnedError('start:gui trusted completion unavailable.');
     }
   } catch (cause) {
     const failure = captureFailure(cause, controlsReady ? 'application-host' : 'controls');
@@ -371,7 +390,12 @@ async function startPrepared(input: PreparedStartGui): Promise<void> {
     presentation,
     materialization: supervisor.materializationEvidence,
   });
-  if (!error) return;
+  if (!error) {
+    if (completionKind === undefined) {
+      throw createOwnedError('start:gui completion unavailable.');
+    }
+    return startGuiCompletion(completionKind);
+  }
   if (presentableFailureReleased) markCliSettledFailure(error);
   throw error;
 }

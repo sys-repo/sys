@@ -58,42 +58,64 @@ export const menu: t.PiCliProfiles.Lib['menu'] = (input) => menuWith(input);
 
 /** Internal profile menu runner with explicit presentation dependencies. */
 export async function menuWith(
-  { cwd, allowAll, gitRootExplicit }: Parameters<t.PiCliProfiles.Lib['menu']>[0],
+  input: Parameters<t.PiCliProfiles.Lib['menu']>[0],
   deps: MenuDependencies = DEFAULT_DEPENDENCIES,
+): ReturnType<t.PiCliProfiles.Lib['menu']> {
+  return await runMenu(input, deps);
+}
+
+/** Reopen one selected profile's action menu by re-reading its YAML and runtime evidence. */
+export async function reopenProfileMenu(
+  input: MenuContext,
+  deps: MenuDependencies = DEFAULT_DEPENDENCIES,
+): ReturnType<t.PiCliProfiles.Lib['menu']> {
+  return await runMenu(input, deps, input.path);
+}
+
+async function runMenu(
+  { cwd, allowAll, gitRootExplicit }: Parameters<t.PiCliProfiles.Lib['menu']>[0],
+  deps: MenuDependencies,
+  initialPath?: t.StringPath,
 ): ReturnType<t.PiCliProfiles.Lib['menu']> {
   const root = runtimeRoot(cwd);
   const migration = await ProfileMigrate.dir(root);
   const defaultAction = await MenuState.readMode(root);
   let rootNotice = ProfileMigrate.message(migration);
+  let selectedPath = initialPath;
 
   while (true) {
-    const selected = await YamlConfig.menu<t.PiCliProfiles.Yaml.Profile, Action>({
-      ...menuArgs({ cwd: root, allowAll, defaultAction: actionFromMode(defaultAction) }),
-      mode: 'select',
-      selectAction: 'select',
-      beforePrompt() {
-        printProfileRoot({ allowAll, notice: rootNotice }, deps);
-        rootNotice = undefined;
-      },
-    });
+    if (selectedPath === undefined) {
+      const selected = await YamlConfig.menu<t.PiCliProfiles.Yaml.Profile, Action>({
+        ...menuArgs(root),
+        mode: 'select',
+        selectAction: 'select',
+        beforePrompt() {
+          printProfileRoot({ allowAll, notice: rootNotice }, deps);
+          rootNotice = undefined;
+        },
+      });
 
-    if (selected.kind === 'exit') return { kind: 'exit' };
-    if (selected.kind !== 'action' || selected.action !== 'select') return { kind: 'exit' };
+      if (selected.kind === 'exit') return { kind: 'exit' };
+      if (selected.kind !== 'action' || selected.action !== 'select') return { kind: 'exit' };
+      selectedPath = selected.path;
+    }
 
-    const selectedCheck = await ProfilesFs.validateYaml(selected.path);
+    const path = selectedPath;
+    selectedPath = undefined;
+    const selectedCheck = await ProfilesFs.validateYaml(path);
     const screen: ProfileScreen = selectedCheck.ok
       ? await prepareSandboxScreen({
         cwd,
-        path: selected.path,
+        path,
         allowAll,
         gitRootExplicit,
       })
       : { kind: 'invalid', allowAll };
 
     const action = await YamlConfig.menu<t.PiCliProfiles.Yaml.Profile, Action>({
-      ...menuArgs({ cwd: root, allowAll, defaultAction: actionFromMode(defaultAction) }),
+      ...menuArgs(root),
       mode: 'action',
-      path: selected.path,
+      path,
       defaultAction: actionFromMode(defaultAction),
       beforePrompt: () => printProfileScreen(screen, deps),
     });
@@ -137,8 +159,7 @@ function printProfileHeader(allowAll?: boolean, width?: number) {
   console.info(PiSandboxFmt.header(permissions, width).join('\n'));
 }
 
-function menuArgs(args: { cwd: t.StringDir; allowAll?: boolean; defaultAction?: Action }) {
-  const { cwd, allowAll, defaultAction = 'start:tui' } = args;
+function menuArgs(cwd: t.StringDir) {
   const schema = {
     init: () => ProfileSchema.initial(),
     validate: (value: unknown) => ProfileSchema.validate(value),

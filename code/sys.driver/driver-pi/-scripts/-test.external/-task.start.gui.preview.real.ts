@@ -1,7 +1,7 @@
-import { describe, DistServer, expect, Fs, Hash, it, Process, Str, type t } from '../common.ts';
+import { describe, DistServer, expect, Fs, Hash, it, Process, Str } from '../common.ts';
 
 import { LIMITS } from '../../src/m.core/m.cli.profiles/u.start/u.limits.ts';
-import type { StartGuiEvidence } from '../../src/m.core/m.cli.profiles/u/u.start.gui.service.ts';
+import type { t } from '../m.start.gui.preview.build/common.ts';
 import {
   allocatePreviewGeneration,
   buildPreviewGeneration,
@@ -79,8 +79,8 @@ describe('driver-pi/scripts/task.start.gui.preview real build isolation', () => 
     const sharedBefore = await directorySnapshot(SHARED_DIST);
     const firstReady = Promise.withResolvers<void>();
     const releaseFirst = Promise.withResolvers<void>();
-    let firstSource: StartGuiEvidence | undefined;
-    let secondSource: StartGuiEvidence | undefined;
+    let firstSource: DevelopmentSource | undefined;
+    let secondSource: DevelopmentSource | undefined;
     let firstOrigin: t.StringUrl | undefined;
     let firstManifest: FileSnapshot | undefined;
     let secondManifest: FileSnapshot | undefined;
@@ -90,23 +90,25 @@ describe('driver-pi/scripts/task.start.gui.preview real build isolation', () => 
       paths,
       allocate: allocatePreviewGeneration,
       build: buildPreviewGeneration,
-      async startGui(input) {
-        const source = developmentSource(input.source);
-        firstSource = source;
-        let server: t.DistServer.Started | undefined;
-        try {
-          firstManifest = await fileSnapshot(Fs.join(source.dir, 'dist.json'));
-          expect(firstManifest).to.eql({ exists: true, integrity: source.integrity });
-          server = await startHost(source);
-          firstOrigin = server.origin;
-          firstReady.resolve();
-          await releaseFirst.promise;
-        } catch (cause) {
-          firstReady.reject(cause);
-          throw cause;
-        } finally {
-          await server?.close('preview-real.first-complete');
-        }
+      GUI: {
+        async start(input) {
+          const source = developmentSource(input.source);
+          firstSource = source;
+          let server: t.DistServer.Started | undefined;
+          try {
+            firstManifest = await fileSnapshot(Fs.join(source.dir, 'dist.json'));
+            expect(firstManifest).to.eql({ exists: true, integrity: source.integrity });
+            server = await startHost(source);
+            firstOrigin = server.origin;
+            firstReady.resolve();
+            await releaseFirst.promise;
+          } catch (cause) {
+            firstReady.reject(cause);
+            throw cause;
+          } finally {
+            await server?.close('preview-real.first-complete');
+          }
+        },
       },
     });
     void firstRun.then(
@@ -130,19 +132,21 @@ describe('driver-pi/scripts/task.start.gui.preview real build isolation', () => 
         paths,
         allocate: allocatePreviewGeneration,
         build: buildPreviewGeneration,
-        async startGui(input) {
-          const source = developmentSource(input.source);
-          secondSource = source;
-          secondManifest = await fileSnapshot(Fs.join(source.dir, 'dist.json'));
-          expect(secondManifest).to.eql({ exists: true, integrity: source.integrity });
-          const server = await startHost(source);
-          try {
-            const response = await fetchText(server.origin);
-            expect(response.status).to.eql(200);
-            secondBody = response.body;
-          } finally {
-            await server.close('preview-real.second-complete');
-          }
+        GUI: {
+          async start(input) {
+            const source = developmentSource(input.source);
+            secondSource = source;
+            secondManifest = await fileSnapshot(Fs.join(source.dir, 'dist.json'));
+            expect(secondManifest).to.eql({ exists: true, integrity: source.integrity });
+            const server = await startHost(source);
+            try {
+              const response = await fetchText(server.origin);
+              expect(response.status).to.eql(200);
+              secondBody = response.body;
+            } finally {
+              await server.close('preview-real.second-complete');
+            }
+          },
         },
       });
 
@@ -230,12 +234,14 @@ describe('driver-pi/scripts/task.start.gui.preview real build isolation', () => 
   });
 });
 
-function developmentSource(input: StartGuiEvidence | undefined) {
+type DevelopmentSource = t.PreviewDevelopmentSource;
+
+function developmentSource(input: DevelopmentSource | undefined): DevelopmentSource {
   if (input?.kind !== 'development') throw new Error('Expected development preview evidence.');
   return input;
 }
 
-async function startHost(source: Extract<StartGuiEvidence, { kind: 'development' }>) {
+async function startHost(source: DevelopmentSource) {
   try {
     return await DistServer.start({
       dir: source.dir,
@@ -253,19 +259,16 @@ async function startHost(source: Extract<StartGuiEvidence, { kind: 'development'
   }
 }
 
-type DirectoryEntry = Readonly<
-  | { path: string; kind: 'directory' }
-  | { path: string; kind: 'file'; integrity: t.StringHash }
->;
-type DirectorySnapshot = Readonly<
-  | { kind: 'absent' }
-  | { kind: 'present'; entries: readonly DirectoryEntry[] }
->;
+type DirectoryEntry =
+  | { readonly path: string; readonly kind: 'directory' }
+  | { readonly path: string; readonly kind: 'file'; readonly integrity: t.StringHash };
+type DirectorySnapshot =
+  | { readonly kind: 'absent' }
+  | { readonly kind: 'present'; readonly entries: readonly DirectoryEntry[] };
 
-type FileSnapshot = Readonly<
-  | { exists: false }
-  | { exists: true; integrity: t.StringHash }
->;
+type FileSnapshot =
+  | { readonly exists: false }
+  | { readonly exists: true; readonly integrity: t.StringHash };
 
 /** Exact shared-tree observation preserves absence and rejects links or special entries. */
 async function directorySnapshot(dir: t.StringAbsoluteDir): Promise<DirectorySnapshot> {
@@ -319,7 +322,9 @@ async function fileSnapshot(path: t.StringPath): Promise<FileSnapshot> {
   return Object.freeze({ exists: true, integrity: Hash.sha256(result.data) });
 }
 
-async function fetchText(origin: t.StringUrl): Promise<Readonly<{ status: number; body: string }>> {
+async function fetchText(
+  origin: t.StringUrl,
+): Promise<{ readonly status: number; readonly body: string }> {
   const response = await fetch(origin);
   return Object.freeze({ status: response.status, body: await response.text() });
 }

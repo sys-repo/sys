@@ -41,8 +41,8 @@ const exitCode = await TaskCli.settle(() => run(scenario, cleanup));
 if (scenario !== 'unowned') expect(cleanup).to.eql(cleanupOf(scenario));
 if (exitCode !== 0) Deno.exitCode = exitCode;
 
-function run(scenario: Scenario, cleanup: CleanupEvent[]): Promise<void> {
-  if (scenario === 'unowned') return Promise.reject(new Error('unowned programmer failure'));
+async function run(scenario: Scenario, cleanup: CleanupEvent[]): Promise<void> {
+  if (scenario === 'unowned') throw new Error('unowned programmer failure');
 
   const keyboardDone = deferred();
   const target = Object.freeze({
@@ -119,7 +119,8 @@ function run(scenario: Scenario, cleanup: CleanupEvent[]): Promise<void> {
     },
   };
 
-  return start({ cwd: asProfileRoot(ROOT), deps });
+  const completion = await start({ cwd: asProfileRoot(ROOT), deps });
+  expect(completion).to.eql({ kind: 'quit' });
 }
 
 function rootedFixture(target: DirectoryTarget, lease: FsRooted.Lease): FsRooted.Instance {

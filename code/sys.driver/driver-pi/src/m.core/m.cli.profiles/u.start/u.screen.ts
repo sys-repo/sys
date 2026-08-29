@@ -1,4 +1,5 @@
 import { c, Cli, Fs, HashFmt, Is, pkg, StartGuiIntrinsic, type t } from './common.ts';
+import { allowsBack } from '../u/u.start.gui.settlement.ts';
 import { START_GUI_SERVICE, type StartGuiRecoveryPolicy } from '../u/u.start.gui.service.ts';
 import { createOwnedError, ownedError } from './u.error.ts';
 import { createPromiseDeferred, observePromiseTransport, pendingPromise } from './u.promise.ts';
@@ -418,7 +419,9 @@ export const StartGuiScreen = {
     StartGuiIntrinsic.arrayPush(rows, '');
     StartGuiIntrinsic.arrayAppend(rows, serviceRows);
     const capacity = numericMax(0, viewport.height - FRAME_CURSOR_ROWS);
-    const candidateControls = input.keyboard ? keyboardRows(viewport.width) : [];
+    const candidateControls = input.keyboard
+      ? keyboardRows(viewport.width, allowsBack(input.state))
+      : [];
     const controls = rows.length + candidateControls.length <= capacity ? candidateControls : [];
     const available = numericMax(0, capacity - controls.length);
     const visible = StartGuiIntrinsic.arraySlice(rows, 0, available);
@@ -770,11 +773,17 @@ function colorEvidence(value: string) {
   return StartGuiIntrinsic.arrayJoin(output, '');
 }
 
-function keyboardRows(width: number): readonly string[] {
-  const back = `${c.cyan('←')} ${c.gray('+ ctrl')}`;
+function keyboardRows(width: number, backEnabled: boolean): readonly string[] {
   const quit = `${c.gray('quit: ctrl +')} ${c.white('c')} ${c.gray('or')} ${c.white('q')}`;
-  const backWidth = Cli.Fmt.Text.Width.measure(back);
   const quitWidth = Cli.Fmt.Text.Width.measure(quit);
+  if (!backEnabled) {
+    if (quitWidth > width) return [];
+    const inset = StartGuiIntrinsic.stringRepeat(' ', numericMax(0, width - quitWidth));
+    return ['', c.gray(Cli.Fmt.hr({ width, weight: 'dashed' })), `${inset}${quit}`];
+  }
+
+  const back = `${c.cyan('←')} ${c.gray('+ ctrl')}`;
+  const backWidth = Cli.Fmt.Text.Width.measure(back);
   const controlsWidth = backWidth + 2 + quitWidth;
   if (controlsWidth > width) return [];
 
