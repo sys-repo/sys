@@ -10,14 +10,36 @@ export type BootFailureCategory =
   | 'local-failure'
   | 'cancelled';
 
+/** Sanitized materialization failure retained before terminal projection. */
+export type MaterializationFailureEvidence =
+  | Readonly<{
+    stage: 'manifest-fetch';
+    reason: 'integrity-mismatch';
+    cleanup: 'not-needed';
+    publication?: undefined;
+    manifestChecksum: t.Dist.ManifestChecksumMismatch;
+  }>
+  | Readonly<{
+    stage: 'manifest-fetch';
+    reason: Exclude<t.Dist.FailureReason, 'integrity-mismatch'>;
+    cleanup: t.Dist.Cleanup;
+    publication?: t.Dist.FailedPublication;
+    manifestChecksum?: undefined;
+  }>
+  | Readonly<{
+    stage: Exclude<t.Dist.FailureStage, 'manifest-fetch'>;
+    reason: t.Dist.FailureReason;
+    cleanup: t.Dist.Cleanup;
+    publication?: t.Dist.FailedPublication;
+    manifestChecksum?: undefined;
+  }>;
+
 /** Sanitized materialization evidence retained by the trusted terminal projection. */
-export type MaterializationEvidence = Readonly<{
-  kind: 'materialization';
-  stage: t.Dist.FailureStage;
-  reason: t.Dist.FailureReason;
-  cleanup: t.Dist.Cleanup;
-  publication?: t.Dist.FailedPublication;
-}>;
+export type MaterializationEvidence = MaterializationFailureEvidence extends infer Evidence
+  ? Evidence extends MaterializationFailureEvidence
+    ? Readonly<Evidence & { kind: 'materialization' }>
+  : never
+  : never;
 
 /** Finite evidence retained by a failed boot state. */
 export type BootSafeEvidence =

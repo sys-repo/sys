@@ -6,16 +6,10 @@ import type { FailedMaterialization, StartGuiDependencies } from './u.deps.ts';
 import { createOwnedError } from './u.error.ts';
 import { isPromiseTransportReady, microtaskPromise, observePromiseTransport } from './u.promise.ts';
 import { type ManifestSource, materializePolicy } from './u.source.ts';
-
-type MaterializationEvidence = Readonly<{
-  stage: FailedMaterialization['stage'];
-  reason: FailedMaterialization['reason'];
-  cleanup: FailedMaterialization['cleanup'];
-  publication?: FailedMaterialization['publication'];
-}>;
+import type { MaterializationFailureEvidence } from './u.state.ts';
 
 type MaterializationError = Error & {
-  readonly materialization: MaterializationEvidence;
+  readonly materialization: MaterializationFailureEvidence;
 };
 
 export type ReleaseLease = Readonly<{
@@ -204,15 +198,40 @@ export function materializationError(result: FailedMaterialization): Materializa
   defineProperty(error, 'materialization', {
     configurable: false,
     enumerable: true,
-    value: freeze({
-      stage: result.stage,
-      reason: result.reason,
-      cleanup: result.cleanup,
-      ...(result.publication === undefined ? {} : { publication: result.publication }),
-    }),
+    value: snapshotMaterializationFailure(result),
   });
   StartGuiIntrinsic.weakSetAdd(MATERIALIZATION_ERRORS, error);
   return error;
+}
+
+function snapshotMaterializationFailure(
+  result: FailedMaterialization,
+): MaterializationFailureEvidence {
+  if (result.stage === 'manifest-fetch' && result.reason === 'integrity-mismatch') {
+    return freeze({
+      stage: 'manifest-fetch',
+      reason: 'integrity-mismatch',
+      cleanup: 'not-needed',
+      manifestChecksum: freeze({
+        expected: result.manifestChecksum.expected,
+        received: result.manifestChecksum.received,
+      }),
+    });
+  }
+  if (result.stage === 'manifest-fetch') {
+    return freeze({
+      stage: 'manifest-fetch',
+      reason: result.reason,
+      cleanup: result.cleanup,
+      ...(result.publication === undefined ? {} : { publication: result.publication }),
+    });
+  }
+  return freeze({
+    stage: result.stage,
+    reason: result.reason,
+    cleanup: result.cleanup,
+    ...(result.publication === undefined ? {} : { publication: result.publication }),
+  });
 }
 
 function observeOperation<T>(invoke: () => Promise<T>): OperationStart<T>;

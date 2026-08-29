@@ -1,4 +1,5 @@
-import { c, Cli, Fs, Is, pkg, StartGuiIntrinsic, type t } from './common.ts';
+import { c, Cli, Fs, HashFmt, Is, pkg, StartGuiIntrinsic, type t } from './common.ts';
+import { START_GUI_SERVICE, type StartGuiRecoveryPolicy } from '../u/u.start.gui.service.ts';
 import { createOwnedError, ownedError } from './u.error.ts';
 import { createPromiseDeferred, observePromiseTransport, pendingPromise } from './u.promise.ts';
 import type { BootSafeEvidence, BootState, BootStateSource } from './u.state.ts';
@@ -16,6 +17,10 @@ export type StartGuiScreenInput = {
   readonly url: t.StringUrl;
   /** Exact development generation hosted by this session; omitted for release acquisition. */
   readonly root?: t.StringAbsoluteDir;
+  /** Independently admitted manifest pin retained as terminal orientation. */
+  readonly manifest?: t.StringHash;
+  /** Package-owned policy available only for the canonical local evidence source. */
+  readonly recovery?: StartGuiRecoveryPolicy;
   readonly state: BootStateSource;
   readonly keyboard: boolean;
   /** Synchronously publishes a screen failure at its package-controlled source. */
@@ -63,6 +68,7 @@ const PRESENTATION_AUTHORITIES = freeze([
   prototypeAuthority(String.prototype, 'endsWith'),
   prototypeAuthority(String.prototype, 'includes'),
   prototypeAuthority(String.prototype, 'indexOf'),
+  prototypeAuthority(String.prototype, 'lastIndexOf'),
   prototypeAuthority(String.prototype, 'padEnd'),
   prototypeAuthority(String.prototype, 'repeat'),
   prototypeAuthority(String.prototype, 'replace'),
@@ -81,6 +87,7 @@ const PRESENTATION_AUTHORITIES = freeze([
   prototypeAuthority(Array.prototype, 'slice'),
   prototypeAuthority(Array.prototype, 'some'),
   prototypeAuthority(Array.prototype, Symbol.iterator),
+  prototypeAuthority(Array, 'isArray'),
   prototypeAuthority(Set.prototype, 'add'),
   prototypeAuthority(Set.prototype, 'has'),
   prototypeAuthority(Set.prototype, Symbol.iterator),
@@ -148,6 +155,7 @@ export const StartGuiScreen = {
     overrides: Partial<StartGuiScreenDependencies> = {},
   ): StartGuiScreenInstance {
     const root = captureRootLink(input.root);
+    const recovery = input.recovery === START_GUI_SERVICE.recovery ? input.recovery : undefined;
     const deps = { ...DEFAULT_DEPS, ...overrides };
     if (!deps.isInteractive()) {
       return freeze({
@@ -201,6 +209,8 @@ export const StartGuiScreen = {
         service: input.service,
         url: input.url,
         root,
+        manifest: input.manifest,
+        recovery,
         state: input.state.current,
         keyboard: input.keyboard,
         openWarning,
@@ -314,6 +324,8 @@ export const StartGuiScreen = {
     readonly service: string;
     readonly url: t.StringUrl;
     readonly root?: RootLinkInput;
+    readonly manifest?: t.StringHash;
+    readonly recovery?: StartGuiRecoveryPolicy;
     readonly state: BootState;
     readonly keyboard: boolean;
     readonly openWarning: boolean;
@@ -336,6 +348,12 @@ export const StartGuiScreen = {
       'state',
       { kind: 'state', state: input.state },
     ]);
+    if (input.manifest) {
+      StartGuiIntrinsic.arrayPush(facts, [
+        'manifest',
+        { kind: 'manifest', hash: input.manifest },
+      ]);
+    }
     const root = capturedRootLink(input.root);
     if (root) {
       StartGuiIntrinsic.arrayPush(facts, [
@@ -354,7 +372,18 @@ export const StartGuiScreen = {
         'evidence',
         { kind: 'evidence', items: evidenceItems(input.state.safeEvidence) },
       ]);
-      const guidance = failureGuidance(input.state);
+      const manifestChecksum = manifestChecksumOf(input.state.safeEvidence);
+      if (manifestChecksum) {
+        StartGuiIntrinsic.arrayPush(facts, [
+          'expected',
+          { kind: 'checksum', text: manifestChecksum.expected },
+        ]);
+        StartGuiIntrinsic.arrayPush(facts, [
+          'received',
+          { kind: 'checksum', text: manifestChecksum.received },
+        ]);
+      }
+      const guidance = failureGuidance(input.state, input.recovery);
       if (guidance) {
         StartGuiIntrinsic.arrayPush(facts, ['guidance', { kind: 'title', text: guidance }]);
       }
@@ -399,7 +428,9 @@ export const StartGuiScreen = {
  */
 type ServiceValue =
   | { readonly kind: 'title' | 'warning'; readonly text: string }
+  | { readonly kind: 'checksum'; readonly text: t.StringHash }
   | { readonly kind: 'evidence'; readonly items: readonly string[] }
+  | { readonly kind: 'manifest'; readonly hash: t.StringHash }
   | { readonly kind: 'path'; readonly root: CapturedRootLink }
   | { readonly kind: 'state'; readonly state: BootState }
   | { readonly kind: 'url'; readonly text: t.StringUrl };
@@ -470,6 +501,8 @@ function serviceValue(value: SingleLineServiceValue, width: number) {
   if (value.kind === 'state') {
     return fitValue(stateText(value.state), width, stateColor(value.state));
   }
+  if (value.kind === 'manifest') return HashFmt.digest(value.hash, { maxWidth: width });
+  if (value.kind === 'checksum') return fitValue(value.text, width, c.gray);
   if (value.kind === 'warning') return fitValue(value.text, width, c.yellow);
   return fitValue(value.text, width, c.white);
 }
@@ -605,13 +638,26 @@ function stateText(state: BootState): string {
 
 function failureGuidance(
   state: Extract<BootState, { readonly kind: 'failed' }>,
+  recovery?: StartGuiRecoveryPolicy,
 ): string | undefined {
+  if (
+    recovery === START_GUI_SERVICE.recovery && manifestChecksumOf(state.safeEvidence)
+  ) return recovery.manifestChecksumMismatch;
   if (state.category === 'repair-required') {
     return 'The cache was refused and retained. Run deno task reset, then launch a fresh session.';
   }
   if (state.category === 'source-unavailable') {
     return 'Check access to the configured source, then launch a fresh session.';
   }
+}
+
+function manifestChecksumOf(
+  evidence: BootSafeEvidence,
+): t.Dist.ManifestChecksumMismatch | undefined {
+  return evidence.kind === 'materialization' && evidence.stage === 'manifest-fetch' &&
+      evidence.reason === 'integrity-mismatch'
+    ? evidence.manifestChecksum
+    : undefined;
 }
 
 function evidenceItems(evidence: BootSafeEvidence): readonly string[] {

@@ -1,7 +1,12 @@
 import { describe, expect, it, type TBootstrapStatus as BootstrapStatus } from '../../../-test.ts';
 import { pkg, type t } from '../common.ts';
 import { projectBootstrap, startBootstrap } from '../u.start/u.bootstrap.ts';
-import { Boot, type BootFailureCategory, createBootState } from '../u.start/u.state.ts';
+import {
+  Boot,
+  type BootFailureCategory,
+  type BootSafeEvidence,
+  createBootState,
+} from '../u.start/u.state.ts';
 import { START_GUI_SERVICE } from '../u/u.start.gui.service.ts';
 import { bootstrapStatusFixture } from './u.fixture.start.gui.ts';
 
@@ -9,6 +14,12 @@ const APP_ORIGIN = 'http://127.0.0.1:47001' as t.StringUrl;
 const STATUS_URL = 'http://127.0.0.1:47000/0123456789abcdefghijklmnopqrstuvwxyzabcd' as t.StringUrl;
 const APPLICATION_NAME = `${pkg.name}/ui`;
 const DUPLICATED_APPLICATION_NAME = `${APPLICATION_NAME}/ui`;
+const RECEIVED: t.StringHash = `sha256-${'b'.repeat(64)}`;
+const TERMINAL_ONLY_TEXT = [
+  START_GUI_SERVICE.source.integrity,
+  START_GUI_SERVICE.source.manifestUrl,
+  'deno task bind:gui:evidence:local',
+] as const;
 
 describe('@sys/driver-pi start:gui bootstrap projection', () => {
   it('passes exactly finite pages and one resolver to the generic status host', async () => {
@@ -50,8 +61,9 @@ describe('@sys/driver-pi start:gui bootstrap projection', () => {
       expect(html).to.not.contain('Driver Pi');
       expect(html).to.not.contain('<script');
       expect(html).to.not.contain('<form');
-      expect(html).to.not.contain(START_GUI_SERVICE.source.integrity);
-      expect(html).to.not.contain(START_GUI_SERVICE.source.manifestUrl);
+      for (const terminalOnly of TERMINAL_ONLY_TEXT) {
+        expect(html).to.not.contain(terminalOnly);
+      }
     }
     const pages = new Map((options?.pages ?? []).map((page) => [
       page.key,
@@ -138,7 +150,7 @@ describe('@sys/driver-pi start:gui bootstrap projection', () => {
     expect(projectBootstrap(state)).to.eql({ kind: 'redirect', origin: APP_ORIGIN });
   });
 
-  it('maps every browser-safe category to one fixed page without safe evidence', () => {
+  it('maps every browser-safe category without projecting terminal evidence', () => {
     const categories: readonly BootFailureCategory[] = [
       'configuration-invalid',
       'source-unavailable',
@@ -150,13 +162,22 @@ describe('@sys/driver-pi start:gui bootstrap projection', () => {
 
     for (const category of categories) {
       const state = createBootState();
-      state.set(Boot.failed(
-        category,
-        Object.freeze({
+      const safeEvidence: BootSafeEvidence = category === 'artifact-refused'
+        ? Object.freeze({
+          kind: 'materialization',
+          stage: 'manifest-fetch',
+          reason: 'integrity-mismatch',
+          cleanup: 'not-needed',
+          manifestChecksum: Object.freeze({
+            expected: START_GUI_SERVICE.source.integrity,
+            received: RECEIVED,
+          }),
+        })
+        : Object.freeze({
           kind: 'local',
           operation: 'application-host',
-        }),
-      ));
+        });
+      state.set(Boot.failed(category, safeEvidence));
       const projection = projectBootstrap(state);
       expect(projection).to.eql({ kind: 'page', key: `failed-${category}` });
       expect(Reflect.ownKeys(projection)).to.eql(['kind', 'key']);

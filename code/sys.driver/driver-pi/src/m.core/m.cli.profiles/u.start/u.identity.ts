@@ -1,6 +1,7 @@
 import { Fs, Is, StartGuiIntrinsic, type t } from './common.ts';
 import { createOwnedError } from './u.error.ts';
 import { AUTHORITY_LIMITS } from './u.limits.ts';
+import { resolveIntegrity } from './u.source.ts';
 import { type CapturedUrl, captureUrl } from './u.url.ts';
 
 export type IdentityDiagnostics = Readonly<{
@@ -82,7 +83,7 @@ type ObjectSnapshot = Readonly<{
   properties: readonly PropertySnapshot[];
 }>;
 
-type AdmittedFailure = Exclude<t.Dist.Failed, t.Dist.ManifestChecksumFailed>;
+type AdmittedFailure = t.Dist.Failed;
 
 const RELEASE_SOURCE_KEYS = ['kind', 'manifestUrl', 'integrity', 'expectedPkg'] as const;
 const DEVELOPMENT_SOURCE_KEYS = ['kind', 'dir', 'integrity', 'expectedPkg'] as const;
@@ -100,6 +101,8 @@ const EXISTING_KEYS = [
 const PROMOTED_KEYS = [...EXISTING_KEYS, 'totals'] as const;
 const FAILURE_KEYS = ['kind', 'stage', 'reason', 'cleanup'] as const;
 const FAILURE_WITH_PUBLICATION_KEYS = [...FAILURE_KEYS, 'publication'] as const;
+const MANIFEST_CHECKSUM_FAILURE_KEYS = [...FAILURE_KEYS, 'manifestChecksum'] as const;
+const MANIFEST_CHECKSUM_KEYS = ['expected', 'received'] as const;
 const VERIFICATION_KEYS = ['integrity', 'dist', 'manifestBytes', 'assets'] as const;
 const DIST_KEYS = ['type', 'pkg', 'build', 'hash'] as const;
 const HOST_AUTHORITY_KEYS = ['kind', 'integrity'] as const;
@@ -239,7 +242,7 @@ export function admitMaterialization(input: {
   const kind = ownData(generation, 'kind');
   if (!kind.ok) refuseIdentity(input.diagnostics);
   if (kind.value === 'failed') {
-    const failure = admitFailure(generation);
+    const failure = admitFailure(generation, input.diagnostics.integrity);
     if (!failure) refuseIdentity(input.diagnostics);
     return failure;
   }
@@ -420,19 +423,50 @@ const EMPTY_EVIDENCE: EvidenceSnapshot = freeze({
   expectedPkg: undefined,
 });
 
-function admitFailure(input: ObjectSnapshot): AdmittedFailure | undefined {
-  const hasPublication = propertyOf(input, 'publication') !== undefined;
-  const keys = hasPublication ? FAILURE_WITH_PUBLICATION_KEYS : FAILURE_KEYS;
-  if (!hasExactDataShape(input, keys)) return;
-
+function admitFailure(
+  input: ObjectSnapshot,
+  expectedIntegrity: t.StringHash,
+): AdmittedFailure | undefined {
   const stage = ownData(input, 'stage');
   const reason = ownData(input, 'reason');
   const cleanup = ownData(input, 'cleanup');
-  const publication = ownData(input, 'publication');
   if (!stage.ok || !reason.ok || !cleanup.ok) return;
   if (!oneOf(stage.value, FAILURE_STAGES)) return;
   if (!oneOf(reason.value, FAILURE_REASONS)) return;
   if (!oneOf(cleanup.value, CLEANUP_OUTCOMES)) return;
+
+  if (stage.value === 'manifest-fetch' && reason.value === 'integrity-mismatch') {
+    if (
+      cleanup.value !== 'not-needed' ||
+      !hasExactDataShape(input, MANIFEST_CHECKSUM_FAILURE_KEYS)
+    ) return;
+    const manifestChecksum = ownData(input, 'manifestChecksum');
+    if (!manifestChecksum.ok) return;
+    const pair = snapshotObject(manifestChecksum.value);
+    if (!pair || !hasExactDataShape(pair, MANIFEST_CHECKSUM_KEYS)) return;
+    const expected = ownData(pair, 'expected');
+    const received = ownData(pair, 'received');
+    if (
+      !expected.ok || !received.ok || expected.value !== expectedIntegrity ||
+      !isCanonicalIntegrity(expected.value) || !isCanonicalIntegrity(received.value) ||
+      received.value === expected.value
+    ) return;
+    return freeze({
+      kind: 'failed',
+      stage: 'manifest-fetch',
+      reason: 'integrity-mismatch',
+      cleanup: 'not-needed',
+      manifestChecksum: freeze({
+        expected: expected.value,
+        received: received.value,
+      }),
+    });
+  }
+
+  const hasPublication = propertyOf(input, 'publication') !== undefined;
+  const keys = hasPublication ? FAILURE_WITH_PUBLICATION_KEYS : FAILURE_KEYS;
+  if (!hasExactDataShape(input, keys)) return;
+  const publication = ownData(input, 'publication');
   let admittedPublication: t.Dist.FailedPublication | undefined;
   if (hasPublication) {
     if (!publication.ok || !oneOf(publication.value, FAILED_PUBLICATIONS)) return;
@@ -443,7 +477,7 @@ function admitFailure(input: ObjectSnapshot): AdmittedFailure | undefined {
     if (reason.value === 'integrity-mismatch') return;
     return freeze({
       kind: 'failed',
-      stage: stage.value,
+      stage: 'manifest-fetch',
       reason: reason.value,
       cleanup: cleanup.value,
       ...(admittedPublication ? { publication: admittedPublication } : {}),
@@ -456,6 +490,14 @@ function admitFailure(input: ObjectSnapshot): AdmittedFailure | undefined {
     cleanup: cleanup.value,
     ...(admittedPublication ? { publication: admittedPublication } : {}),
   });
+}
+
+function isCanonicalIntegrity(input: unknown): input is t.StringHash {
+  try {
+    return resolveIntegrity(input) === input;
+  } catch {
+    return false;
+  }
 }
 
 function snapshotVerifiedPkg(

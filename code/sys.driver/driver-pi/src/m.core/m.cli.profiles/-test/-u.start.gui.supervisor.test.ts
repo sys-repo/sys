@@ -60,6 +60,8 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
     expect(harness.leaseMode).to.eql('shared');
     expect(harness.materializeCalls).to.eql(1);
     expect(harness.applicationStarts).to.eql(1);
+    expect(harness.screenManifest).to.eql(START_GUI_SERVICE.source.integrity);
+    expect(harness.screenRecovery).to.equal(START_GUI_SERVICE.recovery);
 
     await harness.quit();
     await run;
@@ -3525,6 +3527,18 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
     expect(count(harness.events, 'lease.release')).to.eql(1);
   });
 
+  it('withholds local recovery policy from structurally identical caller evidence', async () => {
+    const harness = createHarness();
+    const run = startInput(harness, Object.freeze({ ...START_GUI_SERVICE.source }));
+
+    await harness.waitFor((projection) => projection.kind === 'redirect');
+    expect(harness.screenManifest).to.eql(START_GUI_SERVICE.source.integrity);
+    expect(harness.screenRecovery).to.eql(undefined);
+
+    await harness.quit();
+    await run;
+  });
+
   it('refuses mixed release and development authority without fallback or field merge', async () => {
     const mixed = Object.freeze({
       kind: 'development',
@@ -3542,6 +3556,8 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
     );
     expect(harness.materializeCalls).to.eql(0);
     expect(harness.applicationStarts).to.eql(0);
+    expect(harness.screenManifest).to.eql(undefined);
+    expect(harness.screenRecovery).to.eql(undefined);
 
     await harness.quit();
     expect((await rejected).message).to.eql(
@@ -3640,6 +3656,8 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
     expect(count(harness.events, 'lease.acquire')).to.eql(0);
     expect(harness.applicationStarts).to.eql(1);
     expect(harness.screenRoot).to.eql(source.dir);
+    expect(harness.screenManifest).to.eql(source.integrity);
+    expect(harness.screenRecovery).to.eql(undefined);
 
     await harness.quit();
     await run;
@@ -3763,6 +3781,8 @@ function createHarness(options: HarnessOptions = {}) {
   let applicationStarts = 0;
   let openWarnings = 0;
   let screenRoot: t.StringAbsoluteDir | undefined;
+  let screenManifest: t.StringHash | undefined;
+  let screenRecovery: typeof START_GUI_SERVICE.recovery | undefined;
   let leaseMode: FsRooted.LeaseMode | undefined;
 
   const target = Object.freeze({
@@ -3884,6 +3904,8 @@ function createHarness(options: HarnessOptions = {}) {
     createScreen: (input) => {
       emit('screen.create');
       screenRoot = input.root;
+      screenManifest = input.manifest;
+      screenRecovery = input.recovery;
       releaseState = trackState(input.state);
       return {
         kind: 'acquired',
@@ -3920,6 +3942,12 @@ function createHarness(options: HarnessOptions = {}) {
     },
     get screenRoot() {
       return screenRoot;
+    },
+    get screenManifest() {
+      return screenManifest;
+    },
+    get screenRecovery() {
+      return screenRecovery;
     },
     get leaseMode() {
       return leaseMode;

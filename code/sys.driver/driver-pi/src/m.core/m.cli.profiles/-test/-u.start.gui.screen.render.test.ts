@@ -2,6 +2,7 @@ import { describe, expect, it } from '../../../-test.ts';
 import { c, Cli, Fs, type t } from '../common.ts';
 import { StartGuiScreen } from '../u.start/u.screen.ts';
 import { Boot, type BootState, createBootState } from '../u.start/u.state.ts';
+import { START_GUI_SERVICE } from '../u/u.start.gui.service.ts';
 import {
   APPLICATION,
   CAPABILITY,
@@ -62,6 +63,142 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
     screen.dispose();
   });
 
+  it('keeps one manifest orientation row after state in every lifecycle state', () => {
+    const states: readonly (readonly [BootState, string])[] = [
+      [Boot.preparing, 'preparing'],
+      [Boot.startingAppHost, 'starting application host'],
+      [Boot.ready(APPLICATION.URL), 'ready'],
+      [Boot.failed('local-failure', { kind: 'local', operation: 'application-host' }), 'failed'],
+      [Boot.stopping, 'stopping'],
+    ];
+    const digest = `digest:sha256:#${START_GUI_SERVICE.source.integrity.slice(-5)}`;
+
+    for (const [state, stateText] of states) {
+      const rows = Cli.stripAnsi(StartGuiScreen.toString({
+        service: SERVICE,
+        url: CAPABILITY.URL,
+        manifest: START_GUI_SERVICE.source.integrity,
+        state,
+        keyboard: false,
+        openWarning: false,
+        viewport: { width: 100, height: 18 },
+      })).split('\n');
+      const stateIndex = rows.findIndex((row) => row.trimStart().startsWith('state'));
+      const manifestIndex = rows.findIndex((row) => row.trimStart().startsWith('manifest'));
+      expect(rows[stateIndex]).to.contain(stateText);
+      expect(rows[manifestIndex]).to.contain(digest);
+      expect(manifestIndex).to.eql(stateIndex + 1);
+    }
+  });
+
+  it('uses every shared compact digest reduction at its exact width boundary', () => {
+    const tail = START_GUI_SERVICE.source.integrity.slice(-5);
+    const cases = [
+      [36, `digest:sha256:#${tail}`],
+      [29, `sha256:#${tail}`],
+      [22, `#${tail}`],
+      [21, ''],
+    ] as const;
+
+    for (const [width, expected] of cases) {
+      const rows = Cli.stripAnsi(StartGuiScreen.toString({
+        service: SERVICE,
+        url: CAPABILITY.URL,
+        manifest: START_GUI_SERVICE.source.integrity,
+        state: Boot.preparing,
+        keyboard: false,
+        openWarning: false,
+        viewport: { width, height: 12 },
+      })).split('\n');
+      const row = rows.find((candidate) => candidate.trimStart().startsWith('manifest')) ?? '';
+      const value = row.trimStart().slice('manifest'.length).trim();
+      expect(value, `width:${width}`).to.eql(expected);
+    }
+  });
+
+  it('renders mismatch values and gates local recovery by exact policy identity', () => {
+    const expected = START_GUI_SERVICE.source.integrity;
+    const received: t.StringHash = `sha256-${'b'.repeat(64)}`;
+    const mismatch = Boot.failed(
+      'artifact-refused',
+      Object.freeze({
+        kind: 'materialization',
+        stage: 'manifest-fetch',
+        reason: 'integrity-mismatch',
+        cleanup: 'not-needed',
+        manifestChecksum: Object.freeze({ expected, received }),
+      }),
+    );
+    const render = (
+      width: number,
+      state: BootState = mismatch,
+      recovery: typeof START_GUI_SERVICE.recovery = START_GUI_SERVICE.recovery,
+      height = 20,
+    ) =>
+      Cli.stripAnsi(StartGuiScreen.toString({
+        service: SERVICE,
+        url: CAPABILITY.URL,
+        manifest: expected,
+        recovery,
+        state,
+        keyboard: false,
+        openWarning: false,
+        viewport: { width, height },
+      }));
+    const row = (frame: string, label: string) =>
+      frame.split('\n').find((candidate) => candidate.trimStart().startsWith(label)) ?? '';
+
+    const wide = render(120);
+    const wideRows = wide.split('\n');
+    expect(row(wide, 'evidence')).to.contain(
+      'manifest-fetch · integrity-mismatch · cleanup:not-needed',
+    );
+    expect(row(wide, 'expected')).to.contain(expected);
+    expect(row(wide, 'received')).to.contain(received);
+    expect(row(wide, 'guidance')).to.contain(
+      'Intended local build? In Driver Pi run deno task bind:gui:evidence:local, then relaunch.',
+    );
+    const evidenceIndex = wideRows.indexOf(row(wide, 'evidence'));
+    expect([
+      wideRows.indexOf(row(wide, 'expected')),
+      wideRows.indexOf(row(wide, 'received')),
+      wideRows.indexOf(row(wide, 'guidance')),
+    ]).to.eql([evidenceIndex + 1, evidenceIndex + 2, evidenceIndex + 3]);
+
+    const lookalike = Object.freeze({ ...START_GUI_SERVICE.recovery });
+    expect(row(render(120, mismatch, lookalike), 'guidance')).to.eql('');
+
+    const assetMismatch = Boot.failed(
+      'artifact-refused',
+      Object.freeze({
+        kind: 'materialization',
+        stage: 'resource-pull',
+        reason: 'integrity-mismatch',
+        cleanup: 'complete',
+      }),
+    );
+    const asset = render(120, assetMismatch);
+    expect([
+      row(asset, 'expected'),
+      row(asset, 'received'),
+      row(asset, 'guidance'),
+    ]).to.eql(['', '', '']);
+
+    const narrow = render(58);
+    for (const [label, value] of [['expected', expected], ['received', received]] as const) {
+      const diagnostic = row(narrow, label);
+      expect(diagnostic).to.contain('…');
+      expect(diagnostic).not.to.contain(value);
+      expect(Cli.Fmt.Text.Width.measure(diagnostic)).to.be.at.most(56);
+    }
+
+    const shortRows = render(58, mismatch, START_GUI_SERVICE.recovery, 8).split('\n');
+    expect(shortRows.length).to.be.at.most(7);
+    for (const shortRow of shortRows) {
+      expect(Cli.Fmt.Text.Width.measure(shortRow)).to.be.at.most(58);
+    }
+  });
+
   it('keeps malformed release configuration distinct from source guidance', () => {
     const frame = Cli.stripAnsi(StartGuiScreen.toString({
       service: SERVICE,
@@ -77,6 +214,7 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
 
     expect(frame).to.contain('failed: configuration-invalid');
     expect(frame).to.contain('configuration/manifest-url');
+    expect(frame.split('\n').some((row) => row.trimStart().startsWith('manifest'))).to.eql(false);
     expect(frame).to.not.contain('Check access to the configured source');
   });
 

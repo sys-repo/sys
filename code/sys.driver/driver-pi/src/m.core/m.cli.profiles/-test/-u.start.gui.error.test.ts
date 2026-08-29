@@ -1,4 +1,4 @@
-import { describe, expect, it, WebFixture } from '../../../-test.ts';
+import { describe, expect, it, type t, WebFixture } from '../../../-test.ts';
 import { createOwnedError, ownedError } from '../u.start/u.error.ts';
 import { captureFailure, failedBootState } from '../u.start/u.failure.ts';
 import { materializationError } from '../u.start/u.materialize.ts';
@@ -35,6 +35,44 @@ describe('@sys/driver-pi start:gui owned errors', () => {
         },
       });
     }
+  });
+
+  it('copies manifest mismatch diagnostics into owned error and terminal state', () => {
+    const expected: t.StringHash = `sha256-${'a'.repeat(64)}`;
+    const received: t.StringHash = `sha256-${'b'.repeat(64)}`;
+    const lowerPair: { expected: t.StringHash; received: t.StringHash } = { expected, received };
+    const error = materializationError({
+      kind: 'failed',
+      stage: 'manifest-fetch',
+      reason: 'integrity-mismatch',
+      cleanup: 'not-needed',
+      manifestChecksum: lowerPair,
+    });
+    lowerPair.expected = `sha256-${'c'.repeat(64)}`;
+    lowerPair.received = `sha256-${'d'.repeat(64)}`;
+
+    expect(error.message).to.eql(
+      'start:gui materialization failed: manifest-fetch/integrity-mismatch',
+    );
+    expect(error.materialization).to.eql({
+      stage: 'manifest-fetch',
+      reason: 'integrity-mismatch',
+      cleanup: 'not-needed',
+      manifestChecksum: { expected, received },
+    });
+    expect(Object.isFrozen(error.materialization)).to.eql(true);
+    expect(Object.isFrozen(error.materialization.manifestChecksum)).to.eql(true);
+    expect(failedBootState(error, 'release-owner')).to.eql({
+      kind: 'failed',
+      category: 'artifact-refused',
+      safeEvidence: {
+        kind: 'materialization',
+        stage: 'manifest-fetch',
+        reason: 'integrity-mismatch',
+        cleanup: 'not-needed',
+        manifestChecksum: { expected, received },
+      },
+    });
   });
 
   it('replaces primitives, proxies, revoked proxies, and caller-native errors', () => {

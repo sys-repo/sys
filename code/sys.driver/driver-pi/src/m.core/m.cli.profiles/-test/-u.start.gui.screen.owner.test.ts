@@ -167,9 +167,11 @@ describe('@sys/driver-pi start:gui screen ownership', () => {
   it('fails closed before mutated collection or string presentation methods run', () => {
     const cases: readonly Readonly<{ target: object; key: PropertyKey; label: string }>[] = [
       { target: String.prototype, key: 'slice', label: 'String.slice' },
+      { target: String.prototype, key: 'lastIndexOf', label: 'String.lastIndexOf' },
       { target: String.prototype, key: 'codePointAt', label: 'String.codePointAt' },
       { target: stringIteratorPrototype, key: 'next', label: 'StringIterator.next' },
       { target: Array.prototype, key: 'some', label: 'Array.some' },
+      { target: Array, key: 'isArray', label: 'Array.isArray' },
       { target: Set.prototype, key: Symbol.iterator, label: 'Set.iterator' },
       { target: Number, key: 'isSafeInteger', label: 'Number.isSafeInteger' },
       { target: Math, key: 'abs', label: 'Math.abs' },
@@ -186,6 +188,7 @@ describe('@sys/driver-pi start:gui screen ownership', () => {
       const screen = StartGuiScreen.create({
         service: SERVICE,
         url: CAPABILITY.URL,
+        manifest: `sha256-${'a'.repeat(64)}`,
         state,
         keyboard: true,
         onFailure() {

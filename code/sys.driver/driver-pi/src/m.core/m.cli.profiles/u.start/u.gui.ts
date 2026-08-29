@@ -32,7 +32,11 @@ import {
   resolvedPromise,
 } from './u.promise.ts';
 import { Boot, bootStateSource, createBootState } from './u.state.ts';
-import { START_GUI_SERVICE, type StartGuiEvidence } from '../u/u.start.gui.service.ts';
+import {
+  START_GUI_SERVICE,
+  type StartGuiEvidence,
+  type StartGuiRecoveryPolicy,
+} from '../u/u.start.gui.service.ts';
 import { markCliSettledFailure } from '../u/u.start.gui.settlement.ts';
 
 export type { StartGuiDependencies } from './u.deps.ts';
@@ -61,6 +65,7 @@ type PreparedStartGui = Readonly<{
   root: t.StringDir;
   deps: StartGuiDependencies;
   authorityEvidence: ReturnType<typeof snapshotAuthorityEvidence>;
+  recovery?: StartGuiRecoveryPolicy;
   state: ReturnType<typeof createBootState>;
   stateSource: ReturnType<typeof bootStateSource>;
   stopLife: t.Abortable;
@@ -103,6 +108,9 @@ export function start(input: StartGuiInput): Promise<void> {
     const deps = snapshotDependencies(snapshot.deps);
     const sourceInput = snapshot.source === undefined ? START_GUI_SERVICE.source : snapshot.source;
     const authorityEvidence = snapshotAuthorityEvidence(sourceInput);
+    const recovery = sourceInput === START_GUI_SERVICE.source
+      ? START_GUI_SERVICE.recovery
+      : undefined;
     const state = createBootState();
     const stateSource = bootStateSource(state);
     const stopLife = Rx.abortable(snapshot.until);
@@ -111,6 +119,7 @@ export function start(input: StartGuiInput): Promise<void> {
       root: snapshot.root,
       deps,
       authorityEvidence,
+      ...(recovery ? { recovery } : {}),
       state,
       stateSource,
       stopLife,
@@ -124,10 +133,13 @@ export function start(input: StartGuiInput): Promise<void> {
 }
 
 async function startPrepared(input: PreparedStartGui): Promise<void> {
-  const { root, deps, authorityEvidence, state, stateSource, stopLife, workLife } = input;
+  const { root, deps, authorityEvidence, recovery, state, stateSource, stopLife, workLife } = input;
   const displayRoot = authorityEvidence.kind === 'valid' &&
       authorityEvidence.authority.kind === 'development'
     ? authorityEvidence.authority.dir
+    : undefined;
+  const displayManifest = authorityEvidence.kind === 'valid'
+    ? authorityEvidence.authority.integrity
     : undefined;
   let status: StatusOwner;
   let statusInvoked = false;
@@ -242,6 +254,8 @@ async function startPrepared(input: PreparedStartGui): Promise<void> {
             service: START_GUI_SERVICE.name,
             url: status.url,
             ...(displayRoot === undefined ? {} : { root: displayRoot }),
+            ...(displayManifest === undefined ? {} : { manifest: displayManifest }),
+            ...(recovery === undefined ? {} : { recovery }),
             state: stateSource,
             keyboard: true,
             onFailure: supervisor.publishScreenFailure,

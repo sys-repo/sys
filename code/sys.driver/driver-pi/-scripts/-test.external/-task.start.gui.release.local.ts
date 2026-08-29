@@ -143,9 +143,15 @@ describe('driver-pi local GUI release evidence', () => {
         expect(refusedPin.state.kind).to.eql('failed');
         if (refusedPin.state.kind !== 'failed') throw new Error('Expected failed pin state.');
         expect(refusedPin.state.category).to.eql('artifact-refused');
-        expect(refusedPin.state.safeEvidence).to.include({
+        expect(refusedPin.state.safeEvidence).to.eql({
           kind: 'materialization',
+          stage: 'manifest-fetch',
           reason: 'integrity-mismatch',
+          cleanup: 'not-needed',
+          manifestChecksum: {
+            expected: wrongPin,
+            received: evidence.integrity,
+          },
         });
         expect(refusedPin.appStarts).to.eql(0);
         expect(refusedPin.bootstrapStatus).to.eql(200);
@@ -190,6 +196,13 @@ describe('driver-pi local GUI release evidence', () => {
         expect(session.state.kind).to.eql('failed');
         if (session.state.kind !== 'failed') throw new Error('Expected manifest refusal.');
         expect(session.state.category).to.eql('artifact-refused');
+        const safeEvidence = session.state.safeEvidence;
+        if (
+          safeEvidence.kind !== 'materialization' || safeEvidence.stage !== 'manifest-fetch' ||
+          safeEvidence.reason !== 'integrity-mismatch'
+        ) throw new Error('Expected manifest checksum mismatch evidence.');
+        expect(safeEvidence.manifestChecksum.expected).to.eql(transport.source.integrity);
+        expect(safeEvidence.manifestChecksum.received).not.to.eql(transport.source.integrity);
         expect(session.appStarts).to.eql(0);
         expect(session.bootstrapStatus).to.eql(200);
         expect(session.location).to.eql(undefined);
@@ -212,6 +225,10 @@ describe('driver-pi local GUI release evidence', () => {
         expect(session.state.kind).to.eql('failed');
         if (session.state.kind !== 'failed') throw new Error('Expected asset refusal.');
         expect(session.state.category).to.eql('artifact-refused');
+        if (session.state.safeEvidence.kind !== 'materialization') {
+          throw new Error('Expected asset materialization evidence.');
+        }
+        expect(session.state.safeEvidence.manifestChecksum).to.eql(undefined);
         expect(session.appStarts).to.eql(0);
         expect(session.bootstrapStatus).to.eql(200);
         expect(session.location).to.eql(undefined);

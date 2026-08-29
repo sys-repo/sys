@@ -20,6 +20,18 @@ export type StartGuiDevelopmentEvidence = Readonly<{
   expectedPkg: Readonly<t.Pkg>;
 }>;
 
+/** Package-owned recovery policy for the canonical local evidence source. */
+export type StartGuiRecoveryPolicy = Readonly<{
+  kind: 'local-evidence-binding';
+  manifestChecksumMismatch: string;
+}>;
+
+const LOCAL_RECOVERY_POLICY: StartGuiRecoveryPolicy = Object.freeze({
+  kind: 'local-evidence-binding',
+  manifestChecksumMismatch:
+    'Intended local build? In Driver Pi run deno task bind:gui:evidence:local, then relaunch.',
+});
+
 /**
  * Canonical launcher-owned identity and materialization evidence for the local GUI service.
  *
@@ -30,4 +42,9 @@ export type StartGuiDevelopmentEvidence = Readonly<{
 export const START_GUI_SERVICE = Object.freeze({
   name: 'sys.ui:pi',
   source: START_GUI_RELEASE_EVIDENCE,
-}) satisfies Readonly<{ name: string; source: StartGuiEvidence }>;
+  recovery: LOCAL_RECOVERY_POLICY,
+}) satisfies Readonly<{
+  name: string;
+  source: StartGuiEvidence;
+  recovery: StartGuiRecoveryPolicy;
+}>;
