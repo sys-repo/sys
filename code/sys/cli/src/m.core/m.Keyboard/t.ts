@@ -68,10 +68,13 @@ export declare namespace CliKeyboard {
      */
     export type QuitKeys = 'canonical' | 'interrupt-only';
 
+    /** Result of one non-quit key callback; `stop` ends the binding. */
+    export type OnKeyResult = 'stop' | void;
+
     /** Options for binding terminal keyboard controls. */
     export type Options = {
       /** Called for keypress events not admitted by `quitKeys`. */
-      onKey?: (event: CliffyKeyPressEvent) => void | Promise<void>;
+      onKey?: (event: CliffyKeyPressEvent) => OnKeyResult | Promise<OnKeyResult>;
 
       /** Called when an admitted quit key is pressed. */
       onQuit: () => void | Promise<void>;

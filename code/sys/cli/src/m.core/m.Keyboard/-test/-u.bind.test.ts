@@ -451,6 +451,32 @@ describe('CLI: core / Keyboard.bind lifecycle', () => {
     expect(keypressCalls).to.eql(0);
   });
 
+  it('stops after one handled key without entering another iterator read', async () => {
+    const fixture = keypressOwner({
+      disposeFailures: 0,
+      events: [{ key: 'left', ctrlKey: true }],
+      finishImmediately: true,
+    });
+    const keys: string[] = [];
+    const handle = bindWith({
+      onQuit() {},
+      onKey(event) {
+        keys.push(`${event.key}:${event.ctrlKey}`);
+        return 'stop';
+      },
+    }, {
+      isTerminal: () => true,
+      keypress: () => fixture.owner,
+    });
+    if (!handle) throw new Error('Expected keyboard handle.');
+
+    await handle.finished;
+
+    expect(keys).to.eql(['left:true']);
+    expect(fixture.nextCalls).to.eql(1);
+    expect(fixture.disposeCalls).to.eql(1);
+  });
+
   it('settles only after pending quit work terminates', async () => {
     const quitEntered = Promise.withResolvers<void>();
     const quitRelease = Promise.withResolvers<void>();

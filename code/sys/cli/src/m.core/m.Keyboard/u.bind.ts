@@ -197,7 +197,8 @@ export function bindWith(
             if (snapshot.exit ?? false) Deno.exit(0);
             return;
           }
-          await snapshot.onKey?.(event);
+          const disposition = await snapshot.onKey?.(event);
+          if (disposition === 'stop') return;
         } catch {
           await reportListenerFailure(false);
           return;
