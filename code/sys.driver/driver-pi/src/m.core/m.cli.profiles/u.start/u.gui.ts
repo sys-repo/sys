@@ -138,9 +138,6 @@ async function startPrepared(input: PreparedStartGui): Promise<void> {
       authorityEvidence.authority.kind === 'development'
     ? authorityEvidence.authority.dir
     : undefined;
-  const displayManifest = authorityEvidence.kind === 'valid'
-    ? authorityEvidence.authority.integrity
-    : undefined;
   const displayManifestUrl = authorityEvidence.kind === 'valid' &&
       authorityEvidence.authority.kind === 'release'
     ? authorityEvidence.authority.source.href
@@ -258,7 +255,6 @@ async function startPrepared(input: PreparedStartGui): Promise<void> {
             service: START_GUI_SERVICE.name,
             url: status.url,
             ...(displayRoot === undefined ? {} : { root: displayRoot }),
-            ...(displayManifest === undefined ? {} : { manifest: displayManifest }),
             ...(displayManifestUrl === undefined ? {} : { manifestUrl: displayManifestUrl }),
             ...(recovery === undefined ? {} : { recovery }),
             state: stateSource,
@@ -509,7 +505,7 @@ async function runBoot(input: {
     const readyAdmission = await beginPromise(() =>
       admitAfterCheckpoint(
         input.supervisor,
-        () => input.state.set(Boot.ready(application.value.origin)),
+        () => input.state.set(Boot.ready(application.value.origin, application.value.digest)),
       )
     );
     if (readyAdmission.kind === 'blocked') return bootResultOf(readyAdmission.event);

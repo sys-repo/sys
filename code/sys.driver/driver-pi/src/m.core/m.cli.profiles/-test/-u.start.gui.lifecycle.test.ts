@@ -7,7 +7,12 @@ import { createSupervisor, finalError, snapshotStatusOwner } from '../u.start/u.
 import { isPromiseTransportReady, observePromiseTransport } from '../u.start/u.promise.ts';
 import { Boot, createBootState } from '../u.start/u.state.ts';
 import { START_GUI_SERVICE } from '../u/u.start.gui.service.ts';
-import { bootstrapStatusFixture, deferred, startedFixture } from './u.fixture.start.gui.ts';
+import {
+  bootstrapStatusFixture,
+  deferred,
+  DIST_DIGEST,
+  startedFixture,
+} from './u.fixture.start.gui.ts';
 
 const STATUS_URL = 'http://127.0.0.1:45000/0123456789abcdefghijklmnopqrstuvwxyzabcd' as t.StringUrl;
 const APPLICATION_EXPECTATION = Object.freeze({
@@ -34,7 +39,7 @@ describe('@sys/driver-pi start:gui terminal arbiter', () => {
     }
   });
 
-  it('copies only close and origin from an admitted application owner', async () => {
+  it('copies only close, origin, and verified digest from an admitted application owner', async () => {
     const base = startedFixture();
     let receiver: unknown = 'not-called';
     let reason: unknown;
@@ -51,7 +56,8 @@ describe('@sys/driver-pi start:gui terminal arbiter', () => {
     const snapshot = snapshotApplicationOwner(started, APPLICATION_EXPECTATION);
     expect(snapshot.kind).to.eql('admitted');
     if (snapshot.kind !== 'admitted') throw new Error('Expected admitted application owner.');
-    expect(Reflect.ownKeys(snapshot.owner)).to.eql(['close', 'origin']);
+    expect(Reflect.ownKeys(snapshot.owner)).to.eql(['close', 'origin', 'digest']);
+    expect(snapshot.owner.digest).to.eql(DIST_DIGEST);
     expect(Reflect.ownKeys(snapshot)).to.eql(['kind', 'owner', 'finished']);
     await snapshot.owner.close('narrow-close');
     expect({ receiver, reason }).to.eql({ receiver: undefined, reason: 'narrow-close' });
@@ -483,7 +489,7 @@ describe('@sys/driver-pi start:gui terminal arbiter', () => {
     unsubscribeSecond = state.subscribe(() => calls.push('second'));
 
     state.set(Boot.startingAppHost);
-    state.set(Boot.ready('http://127.0.0.1:1234' as t.StringUrl));
+    state.set(Boot.ready('http://127.0.0.1:1234' as t.StringUrl, DIST_DIGEST));
 
     expect(calls).to.eql(['first', 'second', 'first']);
   });
@@ -494,7 +500,7 @@ describe('@sys/driver-pi start:gui terminal arbiter', () => {
     state.subscribe((value) => {
       calls.push(`first:${value.kind}:${state.current.kind}`);
       if (value.kind === 'starting-app-host') {
-        state.set(Boot.ready('http://127.0.0.1:1234' as t.StringUrl));
+        state.set(Boot.ready('http://127.0.0.1:1234' as t.StringUrl, DIST_DIGEST));
       }
     });
     state.subscribe((value) => calls.push(`second:${value.kind}:${state.current.kind}`));

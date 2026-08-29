@@ -3,6 +3,7 @@ import { c, Cli, Fs, type t } from '../common.ts';
 import { StartGuiScreen } from '../u.start/u.screen.ts';
 import { Boot, type BootState, createBootState } from '../u.start/u.state.ts';
 import { START_GUI_SERVICE } from '../u/u.start.gui.service.ts';
+import { DIST_DIGEST } from './u.fixture.start.gui.ts';
 import {
   APPLICATION,
   CAPABILITY,
@@ -63,42 +64,46 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
     screen.dispose();
   });
 
-  it('keeps one manifest orientation row after state in every lifecycle state', () => {
-    const states: readonly (readonly [BootState, string])[] = [
-      [Boot.preparing, 'preparing'],
-      [Boot.startingAppHost, 'starting application host'],
-      [Boot.ready(APPLICATION.URL), 'ready'],
-      [Boot.failed('local-failure', { kind: 'local', operation: 'application-host' }), 'failed'],
-      [Boot.stopping, 'stopping'],
-    ];
-    const digest = `digest:sha256:#${START_GUI_SERVICE.source.integrity.slice(-5)}`;
-
-    for (const [state, stateText] of states) {
-      const rows = Cli.stripAnsi(StartGuiScreen.toString({
+  it('shows the verified Dist digest only after the application is ready', () => {
+    const render = (state: BootState) =>
+      StartGuiScreen.toString({
         service: SERVICE,
         url: CAPABILITY.URL,
-        manifest: START_GUI_SERVICE.source.integrity,
+        manifestUrl: START_GUI_SERVICE.source.manifestUrl,
         state,
         keyboard: false,
         openWarning: false,
         viewport: { width: 100, height: 18 },
-      })).split('\n');
-      const stateIndex = rows.findIndex((row) => row.trimStart().startsWith('state'));
-      const manifestIndex = rows.findIndex((row) => row.trimStart().startsWith('manifest'));
-      expect(rows[stateIndex]).to.contain(stateText);
-      expect(rows[manifestIndex]).to.contain(digest);
-      expect(manifestIndex).to.eql(stateIndex + 1);
-    }
+      });
+    const manifestRow = (frame: string) =>
+      Cli.stripAnsi(frame).split('\n').find((row) => row.trimStart().startsWith('manifest')) ?? '';
+
+    const unavailable = [
+      Boot.preparing,
+      Boot.startingAppHost,
+      Boot.failed('local-failure', { kind: 'local', operation: 'application-host' }),
+      Boot.stopping,
+    ];
+    for (const state of unavailable) expect(manifestRow(render(state))).to.eql('');
+
+    const ready = Cli.stripAnsi(render(Boot.ready(APPLICATION.URL, DIST_DIGEST))).split(
+      '\n',
+    );
+    const stateIndex = ready.findIndex((row) => row.trimStart().startsWith('state'));
+    const manifestIndex = ready.findIndex((row) => row.trimStart().startsWith('manifest'));
+    expect(ready[manifestIndex].trimStart().slice('manifest'.length).trim()).to.eql(
+      `dist/ ← digest:sha256:#${DIST_DIGEST.slice(-5)}`,
+    );
+    expect(manifestIndex).to.eql(stateIndex + 1);
   });
 
-  it('links the manifest digest while preserving the plain fallback', () => {
+  it('links the verified Dist digest while preserving the plain fallback', () => {
     const render = (manifestUrl?: t.StringUrl) =>
       StartGuiScreen.toString({
         service: SERVICE,
         url: CAPABILITY.URL,
-        manifest: START_GUI_SERVICE.source.integrity,
         ...(manifestUrl === undefined ? {} : { manifestUrl }),
-        state: Boot.preparing,
+        state: Boot.ready(APPLICATION.URL, DIST_DIGEST),
         keyboard: false,
         openWarning: false,
         viewport: { width: 100, height: 12 },
@@ -113,21 +118,21 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
     expect(plain).not.to.contain(START_GUI_SERVICE.source.manifestUrl);
   });
 
-  it('uses every shared compact digest reduction at its exact width boundary', () => {
-    const tail = START_GUI_SERVICE.source.integrity.slice(-5);
+  it('preserves Dist orientation through every shared digest boundary', () => {
+    const tail = DIST_DIGEST.slice(-5);
     const cases = [
-      [36, `digest:sha256:#${tail}`],
-      [29, `sha256:#${tail}`],
-      [22, `#${tail}`],
-      [21, ''],
+      [44, `dist/ ← digest:sha256:#${tail}`],
+      [37, `dist/ ← sha256:#${tail}`],
+      [30, `dist/ ← #${tail}`],
+      [29, 'dist/'],
+      [22, 'dist/'],
     ] as const;
     const render = (width: number) =>
       StartGuiScreen.toString({
         service: SERVICE,
         url: CAPABILITY.URL,
-        manifest: START_GUI_SERVICE.source.integrity,
         manifestUrl: START_GUI_SERVICE.source.manifestUrl,
-        state: Boot.preparing,
+        state: Boot.ready(APPLICATION.URL, DIST_DIGEST),
         keyboard: false,
         openWarning: false,
         viewport: { width, height: 12 },
@@ -140,7 +145,7 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
       const value = row.trimStart().slice('manifest'.length).trim();
       expect(value, `width:${width}`).to.eql(expected);
     }
-    expect(render(21)).not.to.contain(START_GUI_SERVICE.source.manifestUrl);
+    expect(render(29)).not.to.contain(START_GUI_SERVICE.source.manifestUrl);
   });
 
   it('renders mismatch values and gates local recovery by exact policy identity', () => {
@@ -165,7 +170,6 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
       Cli.stripAnsi(StartGuiScreen.toString({
         service: SERVICE,
         url: CAPABILITY.URL,
-        manifest: expected,
         recovery,
         state,
         keyboard: false,
@@ -376,7 +380,7 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
     const normalStates = [
       [Boot.preparing, 'preparing'],
       [Boot.startingAppHost, 'starting application host'],
-      [Boot.ready(APPLICATION.URL), 'ready'],
+      [Boot.ready(APPLICATION.URL, DIST_DIGEST), 'ready'],
       [Boot.stopping, 'stopping'],
     ] as const;
     for (const [state, text] of normalStates) {
@@ -411,7 +415,7 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
         service: SERVICE,
         url: CAPABILITY.URL,
         root,
-        state: Boot.ready(APPLICATION.URL),
+        state: Boot.ready(APPLICATION.URL, DIST_DIGEST),
         keyboard: false,
         openWarning: false,
         viewport: { width, height: 14 },

@@ -18,6 +18,7 @@ import {
   appliedBrowserPolicyFixture,
   asProfileRoot,
   deferred,
+  DIST_DIGEST,
   fakeGeneration,
   rejectionOf,
   type Started,
@@ -57,10 +58,15 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
       'starting-app-host',
       'ready',
     ]);
+    expect(harness.states.at(-1)).to.eql({
+      kind: 'ready',
+      origin: APP_ORIGIN,
+      digest: DIST_DIGEST,
+    });
     expect(harness.leaseMode).to.eql('shared');
     expect(harness.materializeCalls).to.eql(1);
     expect(harness.applicationStarts).to.eql(1);
-    expect(harness.screenManifest).to.eql(START_GUI_SERVICE.source.integrity);
+    expect(harness.screenManifestUrl).to.eql(START_GUI_SERVICE.source.manifestUrl);
     expect(harness.screenRecovery).to.equal(START_GUI_SERVICE.recovery);
 
     await harness.quit();
@@ -3532,7 +3538,7 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
     const run = startInput(harness, Object.freeze({ ...START_GUI_SERVICE.source }));
 
     await harness.waitFor((projection) => projection.kind === 'redirect');
-    expect(harness.screenManifest).to.eql(START_GUI_SERVICE.source.integrity);
+    expect(harness.screenManifestUrl).to.eql(START_GUI_SERVICE.source.manifestUrl);
     expect(harness.screenRecovery).to.eql(undefined);
 
     await harness.quit();
@@ -3556,7 +3562,7 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
     );
     expect(harness.materializeCalls).to.eql(0);
     expect(harness.applicationStarts).to.eql(0);
-    expect(harness.screenManifest).to.eql(undefined);
+    expect(harness.screenManifestUrl).to.eql(undefined);
     expect(harness.screenRecovery).to.eql(undefined);
 
     await harness.quit();
@@ -3656,7 +3662,7 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
     expect(count(harness.events, 'lease.acquire')).to.eql(0);
     expect(harness.applicationStarts).to.eql(1);
     expect(harness.screenRoot).to.eql(source.dir);
-    expect(harness.screenManifest).to.eql(source.integrity);
+    expect(harness.screenManifestUrl).to.eql(undefined);
     expect(harness.screenRecovery).to.eql(undefined);
 
     await harness.quit();
@@ -3781,7 +3787,7 @@ function createHarness(options: HarnessOptions = {}) {
   let applicationStarts = 0;
   let openWarnings = 0;
   let screenRoot: t.StringAbsoluteDir | undefined;
-  let screenManifest: t.StringHash | undefined;
+  let screenManifestUrl: t.StringUrl | undefined;
   let screenRecovery: typeof START_GUI_SERVICE.recovery | undefined;
   let leaseMode: FsRooted.LeaseMode | undefined;
 
@@ -3904,7 +3910,7 @@ function createHarness(options: HarnessOptions = {}) {
     createScreen: (input) => {
       emit('screen.create');
       screenRoot = input.root;
-      screenManifest = input.manifest;
+      screenManifestUrl = input.manifestUrl;
       screenRecovery = input.recovery;
       releaseState = trackState(input.state);
       return {
@@ -3943,8 +3949,8 @@ function createHarness(options: HarnessOptions = {}) {
     get screenRoot() {
       return screenRoot;
     },
-    get screenManifest() {
-      return screenManifest;
+    get screenManifestUrl() {
+      return screenManifestUrl;
     },
     get screenRecovery() {
       return screenRecovery;

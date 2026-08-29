@@ -8,7 +8,7 @@ import {
   createBootState,
 } from '../u.start/u.state.ts';
 import { START_GUI_SERVICE } from '../u/u.start.gui.service.ts';
-import { bootstrapStatusFixture } from './u.fixture.start.gui.ts';
+import { bootstrapStatusFixture, DIST_DIGEST } from './u.fixture.start.gui.ts';
 
 const APP_ORIGIN = 'http://127.0.0.1:47001' as t.StringUrl;
 const STATUS_URL = 'http://127.0.0.1:47000/0123456789abcdefghijklmnopqrstuvwxyzabcd' as t.StringUrl;
@@ -145,7 +145,7 @@ describe('@sys/driver-pi start:gui bootstrap projection', () => {
   it('redirects on the first observation when readiness settled before any request', () => {
     const state = createBootState();
     state.set(Boot.startingAppHost);
-    state.set(Boot.ready(APP_ORIGIN));
+    state.set(Boot.ready(APP_ORIGIN, DIST_DIGEST));
 
     expect(projectBootstrap(state)).to.eql({ kind: 'redirect', origin: APP_ORIGIN });
   });

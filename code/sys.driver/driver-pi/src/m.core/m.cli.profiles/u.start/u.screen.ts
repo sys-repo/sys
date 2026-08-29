@@ -17,9 +17,7 @@ export type StartGuiScreenInput = {
   readonly url: t.StringUrl;
   /** Exact development generation hosted by this session; omitted for release acquisition. */
   readonly root?: t.StringAbsoluteDir;
-  /** Independently admitted manifest pin retained as terminal orientation. */
-  readonly manifest?: t.StringHash;
-  /** Exact admitted release-manifest location associated with the retained pin. */
+  /** Exact admitted release-manifest location associated with the verified Dist digest. */
   readonly manifestUrl?: t.StringUrl;
   /** Package-owned policy available only for the canonical local evidence source. */
   readonly recovery?: StartGuiRecoveryPolicy;
@@ -212,7 +210,6 @@ export const StartGuiScreen = {
         service: input.service,
         url: input.url,
         root,
-        manifest: input.manifest,
         manifestUrl,
         recovery,
         state: input.state.current,
@@ -328,7 +325,6 @@ export const StartGuiScreen = {
     readonly service: string;
     readonly url: t.StringUrl;
     readonly root?: RootLinkInput;
-    readonly manifest?: t.StringHash;
     readonly manifestUrl?: t.StringUrl;
     readonly recovery?: StartGuiRecoveryPolicy;
     readonly state: BootState;
@@ -353,13 +349,13 @@ export const StartGuiScreen = {
       'state',
       { kind: 'state', state: input.state },
     ]);
-    if (input.manifest) {
+    if (input.state.kind === 'ready') {
       const manifestUrl = captureManifestUrl(input.manifestUrl);
       StartGuiIntrinsic.arrayPush(facts, [
         'manifest',
         {
           kind: 'manifest',
-          hash: input.manifest,
+          hash: input.state.digest,
           ...(manifestUrl === undefined ? {} : { href: manifestUrl }),
         },
       ]);
@@ -451,6 +447,7 @@ const FRAME_CURSOR_ROWS = 1;
 const SERVICE_LEFT_INSET = 2;
 const SERVICE_RIGHT_GUTTER = 2;
 const SERVICE_GAP = '   ';
+const DIST_PATH = 'dist/';
 
 function insetServiceRow(row: string, width: number) {
   if (width === 0) return '';
@@ -512,10 +509,14 @@ function serviceValue(value: SingleLineServiceValue, width: number) {
     return fitValue(stateText(value.state), width, stateColor(value.state));
   }
   if (value.kind === 'manifest') {
-    const display = HashFmt.digest(value.hash, { maxWidth: width });
-    if (!display || value.href === undefined) return display;
-    const href = stableNativeUrl(value.href);
-    return href ? Cli.Fmt.hyperlink(display, href) : display;
+    const reserve = Cli.Fmt.Text.Width.measure(`${DIST_PATH} `);
+    const url = value.href === undefined ? undefined : stableNativeUrl(value.href);
+    const digest = HashFmt.digest(value.hash, {
+      arrow: true,
+      maxWidth: numericMax(0, width - reserve),
+      url,
+    });
+    return digest ? `${c.gray(DIST_PATH)} ${digest}` : fitValue(DIST_PATH, width, c.gray);
   }
   if (value.kind === 'checksum') return fitValue(value.text, width, c.gray);
   if (value.kind === 'warning') return fitValue(value.text, width, c.yellow);

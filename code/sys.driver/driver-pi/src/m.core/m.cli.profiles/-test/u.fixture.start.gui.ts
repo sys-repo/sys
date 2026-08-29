@@ -4,6 +4,7 @@ import { START_GUI_SERVICE } from '../u/u.start.gui.service.ts';
 
 export type Started = t.DistServer.Started;
 export type Keyboard = t.Cli.Keyboard.Bind.Handle;
+export const DIST_DIGEST = `sha256-${'d'.repeat(59)}84346` as t.StringHash;
 
 export function asProfileRoot(root: t.StringDir): t.PiCli.Cwd {
   return {
@@ -17,6 +18,7 @@ export function fakeGeneration(
   pkg: Readonly<t.Pkg> = START_GUI_SERVICE.source.expectedPkg,
   source: Readonly<{
     integrity?: t.StringHash;
+    digest?: t.StringHash;
     manifestUrl?: t.StringUrl;
     cleanup?: t.Dist.Cleanup;
   }> = {},
@@ -32,6 +34,7 @@ export function fakeGenerationWithPkgEvidence(
     pkg: unknown;
     omitPkg?: boolean;
     integrity?: t.StringHash;
+    digest?: t.StringHash;
     manifestUrl?: t.StringUrl;
     cleanup?: t.Dist.Cleanup;
   }>,
@@ -48,7 +51,7 @@ export function fakeGenerationWithPkgEvidence(
       runtime: '<runtime-uri>',
       hash: Object.freeze({ policy: 'https://jsr.io/@sample/hash/0.0.1/src/hash.ts' }),
     }),
-    hash: Object.freeze({ digest: integrity, parts: Object.freeze({}) }),
+    hash: Object.freeze({ digest: input.digest ?? DIST_DIGEST, parts: Object.freeze({}) }),
   });
   const verification = Object.freeze({
     integrity,
@@ -196,8 +199,12 @@ export function startedFixture(input: {
   finished?: Promise<void>;
   pkg?: Readonly<t.Pkg>;
   integrity?: t.StringHash;
+  digest?: t.StringHash;
 } = {}): Started {
-  const generation = fakeGeneration(input.pkg, { integrity: input.integrity });
+  const generation = fakeGeneration(input.pkg, {
+    integrity: input.integrity,
+    digest: input.digest,
+  });
   const origin = 'http://127.0.0.1:1234' as t.StringUrl;
   const completion = deferred();
   const close = async (reason: unknown) => {

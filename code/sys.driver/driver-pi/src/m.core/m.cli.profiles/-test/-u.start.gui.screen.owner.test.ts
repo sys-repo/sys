@@ -2,6 +2,7 @@ import { describe, expect, it, WebFixture } from '../../../-test.ts';
 import { Cli, Fs, type t } from '../common.ts';
 import { StartGuiScreen } from '../u.start/u.screen.ts';
 import { Boot, createBootState } from '../u.start/u.state.ts';
+import { DIST_DIGEST } from './u.fixture.start.gui.ts';
 import {
   APPLICATION,
   CAPABILITY,
@@ -35,7 +36,7 @@ describe('@sys/driver-pi start:gui screen ownership', () => {
     expect(harness.frames).to.have.length(2);
     expect(Cli.stripAnsi(harness.frames[1] ?? '')).to.contain('starting application host');
 
-    state.set(Boot.ready(APPLICATION.URL));
+    state.set(Boot.ready(APPLICATION.URL, DIST_DIGEST));
     expect(harness.frames).to.have.length(3);
     expect(Cli.stripAnsi(harness.frames[2] ?? '')).to.contain('ready');
     expect(Cli.stripAnsi(harness.frames[2] ?? '')).to.contain(APPLICATION.DISPLAY);
@@ -88,7 +89,7 @@ describe('@sys/driver-pi start:gui screen ownership', () => {
           },
         },
       }]);
-      state.set(Boot.ready(APPLICATION.URL));
+      state.set(Boot.ready(APPLICATION.URL, DIST_DIGEST));
     }
 
     const frame = harness.frames.at(-1) ?? '';
@@ -188,7 +189,6 @@ describe('@sys/driver-pi start:gui screen ownership', () => {
       const screen = StartGuiScreen.create({
         service: SERVICE,
         url: CAPABILITY.URL,
-        manifest: `sha256-${'a'.repeat(64)}`,
         state,
         keyboard: true,
         onFailure() {

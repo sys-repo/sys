@@ -77,7 +77,7 @@ export type BootSafeEvidence =
 export type BootState =
   | Readonly<{ kind: 'preparing' }>
   | Readonly<{ kind: 'starting-app-host' }>
-  | Readonly<{ kind: 'ready'; origin: t.StringUrl }>
+  | Readonly<{ kind: 'ready'; origin: t.StringUrl; digest: t.StringHash }>
   | Readonly<{
     kind: 'failed';
     category: BootFailureCategory;
@@ -112,7 +112,8 @@ export const Boot = freeze({
   startingAppHost: STARTING,
   ready: (
     origin: t.StringUrl,
-  ): Extract<BootState, { kind: 'ready' }> => freeze({ kind: 'ready', origin }),
+    digest: t.StringHash,
+  ): Extract<BootState, { kind: 'ready' }> => freeze({ kind: 'ready', origin, digest }),
   failed: (
     category: BootFailureCategory,
     safeEvidence: BootSafeEvidence,

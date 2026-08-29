@@ -46,7 +46,9 @@ export type ApplicationOwner = Readonly<{
   close(reason?: unknown): Promise<void>;
 }>;
 
-export type AdmittedApplicationOwner = ApplicationOwner & Readonly<{ origin: t.StringUrl }>;
+export type AdmittedApplicationOwner =
+  & ApplicationOwner
+  & Readonly<{ origin: t.StringUrl; digest: t.StringHash }>;
 
 export type ApplicationIdentityExpectation = Readonly<{
   integrity: t.StringHash;
@@ -105,6 +107,7 @@ const MANIFEST_CHECKSUM_FAILURE_KEYS = [...FAILURE_KEYS, 'manifestChecksum'] as 
 const MANIFEST_CHECKSUM_KEYS = ['expected', 'received'] as const;
 const VERIFICATION_KEYS = ['integrity', 'dist', 'manifestBytes', 'assets'] as const;
 const DIST_KEYS = ['type', 'pkg', 'build', 'hash'] as const;
+const DIST_HASH_KEYS = ['digest', 'parts'] as const;
 const HOST_AUTHORITY_KEYS = ['kind', 'integrity'] as const;
 const APPLIED_BROWSER_POLICY_KEYS = [
   'kind',
@@ -272,7 +275,7 @@ export function admitMaterialization(input: {
     kind: 'generation',
     dir: dir.value,
     cleanup: cleanup.value,
-    observedPkg: snapshotVerifiedPkg(verificationValue.value, input.diagnostics.integrity),
+    observedPkg: snapshotVerifiedDist(verificationValue.value, input.diagnostics.integrity)?.pkg,
   });
 }
 
@@ -386,19 +389,20 @@ export function snapshotApplicationOwner(
     HOST_AUTHORITY_KEYS,
     { kind: 'pinned', integrity: expected.integrity },
   );
-  const observedPkg = verificationProperty.ok
-    ? snapshotVerifiedPkg(verificationProperty.value, expected.integrity)
+  const observedDist = verificationProperty.ok
+    ? snapshotVerifiedDist(verificationProperty.value, expected.integrity)
     : undefined;
   if (
-    !authorityAccepted || !observedPkg || observedPkg.name !== expected.expectedPkg.name ||
-    observedPkg.version !== expected.expectedPkg.version
+    !authorityAccepted || !observedDist?.pkg ||
+    observedDist.pkg.name !== expected.expectedPkg.name ||
+    observedDist.pkg.version !== expected.expectedPkg.version
   ) {
     return freeze({ kind: 'refused', owner, finished });
   }
 
   return freeze({
     kind: 'admitted',
-    owner: freeze({ ...owner, origin: loopback.origin }),
+    owner: freeze({ ...owner, origin: loopback.origin, digest: observedDist.digest }),
     finished,
   });
 }
@@ -500,10 +504,10 @@ function isCanonicalIntegrity(input: unknown): input is t.StringHash {
   }
 }
 
-function snapshotVerifiedPkg(
+function snapshotVerifiedDist(
   input: unknown,
   integrity: t.StringHash,
-): Readonly<t.Pkg> | undefined {
+): Readonly<{ pkg: Readonly<t.Pkg> | undefined; digest: t.StringHash }> | undefined {
   const verification = snapshotObject(input);
   if (
     !verification || !isFrozenObject(verification.target) ||
@@ -518,7 +522,15 @@ function snapshotVerifiedPkg(
   const dist = snapshotObject(distValue.value);
   if (!dist || !isFrozenObject(dist.target) || !hasExactDataShape(dist, DIST_KEYS)) return;
   const pkgValue = ownData(dist, 'pkg');
-  return pkgValue.ok ? snapshotObservedPkg(pkgValue.value) : undefined;
+  const hashValue = ownData(dist, 'hash');
+  const hash = hashValue.ok ? snapshotObject(hashValue.value) : undefined;
+  if (!hash || !isFrozenObject(hash.target) || !hasExactDataShape(hash, DIST_HASH_KEYS)) return;
+  const digest = ownData(hash, 'digest');
+  if (!digest.ok || !isCanonicalIntegrity(digest.value)) return;
+  return freeze({
+    pkg: pkgValue.ok ? snapshotObservedPkg(pkgValue.value) : undefined,
+    digest: digest.value,
+  });
 }
 
 function snapshotExpectedPkgValue(input: unknown): Readonly<t.Pkg> | undefined {
