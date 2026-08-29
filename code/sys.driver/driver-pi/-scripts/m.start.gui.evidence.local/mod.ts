@@ -1,6 +1,6 @@
 import { pkg } from '../../src/pkg.ts';
 import { AUTHORITY_LIMITS, LIMITS } from '../../src/m.core/m.cli.profiles/u.start/u.limits.ts';
-import { c, Fmt, Fs, FsDist, Is, Json, Str, type t, Table } from './common.ts';
+import { c, Fmt, Fs, FsDist, Is, Json, Pkg, Str, type t, Table } from './common.ts';
 
 const MANIFEST_URL: t.StringUrl = 'http://localhost:8080/dist.json';
 const PACKAGE_ROOT = Fs.resolve(import.meta.dirname ?? '.', '../..');
@@ -8,7 +8,7 @@ const DIST_DIR = Fs.join(PACKAGE_ROOT, 'dist');
 
 export const EVIDENCE = Object.freeze({
   packageName: pkg.name,
-  kind: 'local GUI',
+  kind: 'local GUI rehearsal',
   state: 'bound',
   outputPath: 'src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts',
   commitMessage: 'chore(driver-pi): bind rebuilt local GUI evidence',
@@ -53,25 +53,32 @@ export async function main(): Promise<void> {
     );
   }
 
-  await writeEvidenceWith(
-    renderEvidence({
-      manifestUrl: MANIFEST_URL,
-      integrity: verified.evidence.integrity,
-      expectedPkg: pkg,
-    }),
-    DEFAULT_WRITE_DEPENDENCIES,
-  );
+  const evidence = {
+    manifestUrl: MANIFEST_URL,
+    integrity: verified.evidence.integrity,
+    expectedPkg: pkg,
+  };
+  const source = renderEvidence(evidence);
+  const output = renderEvidenceBoundOutput(evidence);
+  await writeEvidenceWith(source, DEFAULT_WRITE_DEPENDENCIES);
+
   console.info();
-  console.info(renderEvidenceBoundOutput());
+  console.info(output);
   console.info();
 }
 
 /** Render the successful binding result and its data-only commit suggestion. */
 export function renderEvidenceBoundOutput(
+  input: RenderEvidenceInput,
   options: RenderEvidenceBoundOutputOptions = {},
 ): string {
-  const labels = ['package:', 'evidence:', 'state:', 'output:'] as const;
+  const labels = ['package', 'evidence', 'state', 'output'] as const;
   const reserve = Fmt.Text.Width.max([...labels]) + Table.cellGap;
+  const contentWidth = Fmt.Text.Width.fit({
+    width: options.width,
+    reserve,
+    terminal: options.terminal,
+  });
   const outputPath = Fmt.Path.tty(EVIDENCE.outputPath, {
     min: 1,
     relative: 'bare',
@@ -79,11 +86,32 @@ export function renderEvidenceBoundOutput(
     terminal: options.terminal,
     width: options.width,
   });
+  const detailLabels = ['manifest', 'integrity', 'expects'] as const;
+  const detailValues = [
+    [input.manifestUrl, c.cyan],
+    [input.integrity, c.cyan],
+    [Pkg.toString(input.expectedPkg), c.white],
+  ] as const;
+  const detailLabelWidth = Fmt.Text.Width.max([...detailLabels]);
+  const detailRows = detailLabels.map((label, index) => {
+    const [value, color] = detailValues[index];
+    const branch = c.gray(Fmt.Tree.branch([index, detailLabels]));
+    const detailLabel = c.gray(Fmt.Text.Width.padEnd(label, detailLabelWidth));
+    const prefix = `${branch} ${detailLabel}${' '.repeat(Table.cellGap)}`;
+    const valueWidth = Fmt.Text.Width.fit({
+      width: contentWidth,
+      reserve: Fmt.Text.Width.measure(prefix),
+      terminal: false,
+    });
+    return `${prefix}${formatDetail(value, valueWidth, color)}`;
+  });
+  const output = [outputPath, ...detailRows].join('\n');
+
   const table = Table.create();
   table.push([c.gray(labels[0]), c.white(EVIDENCE.packageName)]);
-  table.push([c.gray(labels[1]), c.white(EVIDENCE.kind)]);
+  table.push([c.gray(labels[1]), c.magenta(EVIDENCE.kind)]);
   table.push([c.gray(labels[2]), c.green(EVIDENCE.state)]);
-  table.push([c.gray(labels[3]), outputPath]);
+  table.push([c.gray(labels[3]), output]);
 
   const tableText = String(table).split('\n').map((line) => line.trimEnd()).join('\n');
   const rule = options.width === undefined
@@ -126,6 +154,15 @@ export async function writeEvidenceWith(
   } catch (cause) {
     throw new Error(OUTPUT_WRITE_FAILURE, { cause });
   }
+}
+
+function formatDetail(value: string, width: number, color: (text: string) => string): string {
+  if (Fmt.Text.Width.measure(value) <= width) return color(value);
+  return Fmt.Text.ellipsize(value, width, {
+    render: ({ head, ellipsis, tail }) => {
+      return `${color(head)}${Fmt.omission(ellipsis)}${color(tail)}`;
+    },
+  });
 }
 
 function admitManifestUrl(input: unknown): t.StringUrl {

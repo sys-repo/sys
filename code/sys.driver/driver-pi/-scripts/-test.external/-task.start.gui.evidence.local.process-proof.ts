@@ -1,5 +1,6 @@
 import { Fs, Is, Json, stripAnsi, type t } from '../m.start.gui.evidence.local/common.ts';
-import { EVIDENCE } from '../m.start.gui.evidence.local/mod.ts';
+import { EVIDENCE, renderEvidenceBoundOutput } from '../m.start.gui.evidence.local/mod.ts';
+import { START_GUI_RELEASE_EVIDENCE } from '../../src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts';
 
 const PACKAGE_ROOT = Fs.resolve(import.meta.dirname ?? '.', '../..') as t.StringAbsoluteDir;
 const EVIDENCE_PATH = Fs.join(
@@ -47,6 +48,12 @@ try {
   assert(
     settledOutput.includes(EVIDENCE.commitMessage),
     'The primed-cache generator did not report the data-only commit suggestion.',
+  );
+  assert(
+    settledOutput.includes(
+      stripAnsi(renderEvidenceBoundOutput(START_GUI_RELEASE_EVIDENCE, { terminal: false })),
+    ),
+    'The primed-cache generator did not report the bound evidence details.',
   );
   assert(
     await evidenceEquals(expected),
