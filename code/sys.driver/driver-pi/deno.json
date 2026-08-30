@@ -70,7 +70,14 @@
       "read": ["./dist"],
       "net": ["127.0.0.1:8080"],
       "env": ["FORCE_COLOR", "NODE_DISABLE_COLORS", "NO_COLOR", "TERM", "TERM_PROGRAM"],
-      "run": ["open", "wslview", "xdg-open", "powershell.exe", "cmd.exe", "explorer.exe"]
+      "run": [
+        "/usr/bin/open",
+        "/usr/bin/wslview",
+        "/usr/bin/xdg-open",
+        "/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe",
+        "/mnt/c/Windows/System32/cmd.exe",
+        "C:/Windows/explorer.exe"
+      ]
     },
     "serve-process": {
       "read": ["./dist"],

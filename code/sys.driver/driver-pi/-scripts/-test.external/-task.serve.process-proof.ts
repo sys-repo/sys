@@ -15,6 +15,7 @@ const ORIGIN = 'http://localhost:8080';
 const MANIFEST_URL = `${ORIGIN}/dist.json`;
 const PACKAGE_ROOT: t.StringAbsoluteDir = Fs.resolve(import.meta.dirname ?? '.', '../..');
 const DIST_DIR: t.StringAbsoluteDir = Fs.join(PACKAGE_ROOT, 'dist');
+const OPENER_PATHS = deno.permissions.serve.run;
 const SERVE_ARGS = [
   'run',
   '--frozen',
@@ -27,6 +28,13 @@ const SERVE_ARGS = [
 ] as const;
 const SERVE_TASK = `FORCE_COLOR=0 deno ${SERVE_ARGS.join(' ')}`;
 const EXIT_TIMEOUT = 15_000;
+const SERVE_IN_USE_BODY = Str.dedent(`
+  package    @sys/driver-pi@${deno.version}
+  service    local dist server
+  listener   127.0.0.1:8080
+  state      IN USE (not started)
+  retry      deno task serve
+`);
 
 const PREVIEW_LIMITS = Object.freeze({
   manifestBytes: 16 * 1024 * 1024,
@@ -48,12 +56,21 @@ type ServeProcess = Readonly<{
   output: Promise<Deno.CommandOutput>;
 }>;
 
+type ServeProofListener =
+  | Readonly<{ kind: 'acquired'; listener: Deno.Listener }>
+  | Readonly<{ kind: 'in-use' }>;
+
 try {
   assert(deno.tasks.serve === SERVE_TASK, 'Serve process vector differs from the configured task.');
   const candidate = await requirePreparedDist();
-  await proveOccupiedPortRefusal();
-  await proveLiveServe(candidate);
-  printSummary(candidate);
+  const portOwnership = await proveOccupiedPortRefusal();
+  if (portOwnership === 'acquired') {
+    await proveLiveServe(candidate);
+    printSummary(candidate);
+  } else {
+    console.error(`Cannot complete live serve proof: ${HOSTNAME}:${PORT} is externally owned.`);
+    Deno.exitCode = 1;
+  }
 } catch (cause) {
   printTitle('fail');
   throw cause;
@@ -92,20 +109,30 @@ async function requirePreparedDist(): Promise<Candidate> {
   });
 }
 
-async function proveOccupiedPortRefusal(): Promise<void> {
-  const blocker = Deno.listen({ hostname: HOSTNAME, port: PORT });
+async function proveOccupiedPortRefusal(): Promise<'acquired' | 'in-use'> {
+  const acquired = acquireServeProofListener();
+
   try {
     const process = spawnServe();
     const output = await exitWithin(process, 'occupied-port serve');
-    const terminal = `${decode(output.stdout)}\n${decode(output.stderr)}`;
+    const stdout = decode(output.stdout);
+    const stderr = decode(output.stderr);
+    const terminal = `${stdout}\n${stderr}`;
+    const normalized = Str.trimEdgeNewlines(stdout);
+    const table = `${SERVE_IN_USE_BODY}\n\n`;
+    const rule = normalized.slice(table.length);
 
-    assert(!output.success, 'Expected occupied-port serve failure.');
-    assert(
-      terminal.includes('DistServer.start: address is unavailable.'),
-      'Expected visible fixed-port refusal.',
-    );
+    assert(output.code === 1, 'Expected occupied-port serve to exit with code 1.');
+    assert(normalized.startsWith(table), 'Expected the occupied-port table as sole stdout.');
+    assert(rule.length > 0 && rule === '━'.repeat(rule.length), 'Expected one heavy outcome rule.');
+    assert(stdout === `${normalized}\n`, 'Expected exactly one trailing stdout newline.');
+    assert(!terminal.includes('Usage:'), 'Unexpected duplicate serve usage block.');
+    assert(!terminal.includes('DistServer.start:'), 'Unexpected raw Dist server failure.');
+    assert(!terminal.includes('Failed to resolve'), 'Unexpected opener-resolution diagnostic.');
+    assert(!terminal.includes('Uncaught'), 'Unexpected occupied-port serve stack.');
+    return acquired.kind;
   } finally {
-    blocker.close();
+    if (acquired.kind === 'acquired') acquired.listener.close();
   }
 }
 
@@ -131,6 +158,8 @@ async function proveLiveServe(candidate: Candidate): Promise<void> {
   }
 
   const terminal = `${decode(output.stdout)}\n${decode(output.stderr)}`;
+  assert(!terminal.includes('Usage:'), 'Unexpected duplicate serve usage block.');
+  assert(!terminal.includes('Failed to resolve'), 'Unexpected opener-resolution diagnostic.');
   assert(!terminal.includes('PermissionDenied'), 'Unexpected serve permission failure.');
   assert(!terminal.includes('NotCapable'), 'Unexpected serve capability failure.');
   assert(!terminal.includes('Uncaught'), 'Unexpected serve shutdown stack.');
@@ -142,7 +171,7 @@ function printSummary(candidate: Candidate): void {
   const serveEvidence = [
     c.cyan('--frozen'),
     c.cyan('--cached-only'),
-    c.cyan('-P=serve'),
+    c.cyan(`--allow-run=${OPENER_PATHS.length} absolute paths`),
     c.cyan(endpoint),
   ].join(' · ');
   const manifestEvidence = [
@@ -157,7 +186,7 @@ function printSummary(candidate: Candidate): void {
   ].join(' · ');
   const rows = [
     { check: 'serve vector', evidence: serveEvidence },
-    { check: 'occupied port', evidence: `refusal observed at ${c.cyan(endpoint)}` },
+    { check: 'occupied port', evidence: `IN USE outcome observed at ${c.cyan(endpoint)}` },
     { check: 'manifest', evidence: manifestEvidence },
     { check: 'representative part', evidence: partEvidence },
     { check: 'lifecycle', evidence: 'running → SIGINT delivered → settled' },
@@ -270,6 +299,20 @@ function signalChild(child: Deno.ChildProcess, signal: Deno.Signal): boolean {
     if (cause instanceof Deno.errors.NotFound) return false;
     if (cause instanceof TypeError && cause.message === 'Child process has already terminated') {
       return false;
+    }
+    throw cause;
+  }
+}
+
+function acquireServeProofListener(): ServeProofListener {
+  try {
+    return Object.freeze({
+      kind: 'acquired' as const,
+      listener: Deno.listen({ hostname: HOSTNAME, port: PORT }),
+    });
+  } catch (cause) {
+    if (cause instanceof Deno.errors.AddrInUse) {
+      return Object.freeze({ kind: 'in-use' as const });
     }
     throw cause;
   }

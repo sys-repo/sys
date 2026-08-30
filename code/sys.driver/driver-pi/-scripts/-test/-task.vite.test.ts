@@ -1,6 +1,8 @@
+import { stripAnsi } from '@sys/cli/fmt';
 import { describe, expect, it } from '../../src/-test.ts';
+import { Str } from '../common.ts';
 import { default as deno } from '../../deno.json' with { type: 'json' };
-import { mainWith, PKG_SUBPATH } from '../task.vite.u.ts';
+import { mainWith, PKG_SUBPATH, renderServeInUse } from '../task.vite.u.ts';
 
 describe('driver-pi/scripts/task.vite', () => {
   it('wires the fixed local Dist serve task through finite permissions', () => {
@@ -17,7 +19,14 @@ describe('driver-pi/scripts/task.vite', () => {
       read: ['./dist'],
       net: ['127.0.0.1:8080'],
       env: ['FORCE_COLOR', 'NODE_DISABLE_COLORS', 'NO_COLOR', 'TERM', 'TERM_PROGRAM'],
-      run: ['open', 'wslview', 'xdg-open', 'powershell.exe', 'cmd.exe', 'explorer.exe'],
+      run: [
+        '/usr/bin/open',
+        '/usr/bin/wslview',
+        '/usr/bin/xdg-open',
+        '/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe',
+        '/mnt/c/Windows/System32/cmd.exe',
+        'C:/Windows/explorer.exe',
+      ],
     });
     expect(permissions['serve-process']).to.eql({
       read: ['./dist'],
@@ -25,6 +34,21 @@ describe('driver-pi/scripts/task.vite', () => {
       env: ['FORCE_COLOR'],
       run: ['deno'],
     });
+  });
+
+  it('renders fixed-listener refusal as the standard outcome table', () => {
+    const output = stripAnsi(
+      renderServeInUse({ port: 8080, task: 'deno task serve', width: 32 }),
+    );
+    expect(output).to.eql(Str.dedent(`
+      package    @sys/driver-pi@${deno.version}
+      service    local dist server
+      listener   127.0.0.1:8080
+      state      IN USE (not started)
+      retry      deno task serve
+
+      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    `));
   });
 
   it('injects the package-owned ui identity into dev and serve', async () => {
