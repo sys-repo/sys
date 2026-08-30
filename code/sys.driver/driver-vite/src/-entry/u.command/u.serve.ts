@@ -38,20 +38,15 @@ export async function serveWith(
   });
 }
 
-/** Present and run the selected verified-Dist serve command. */
+/** Run the selected verified-Dist serve command. */
 export async function dispatch(args: t.ViteEntry.Args.Serve): Promise<void> {
   await dispatchWith(args, serve);
 }
 
-/** Internal command-runner seam for presentation tests. */
+/** Internal command-runner seam for orchestration tests. */
 export async function dispatchWith(
   args: t.ViteEntry.Args.Serve,
   run: (args: t.ViteEntry.Args.Serve) => Promise<void>,
 ): Promise<void> {
-  if (!args.silent) {
-    const { Tasks } = await import('../../m.fmt/u.Tasks.ts');
-    Tasks.log({ cmd: 'serve' });
-    console.info();
-  }
   await run(args);
 }

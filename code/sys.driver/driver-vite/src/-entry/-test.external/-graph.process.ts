@@ -69,7 +69,7 @@ const COMMANDS = [
     loader: new URL('../u.command/u.load/u.serve.ts', import.meta.url).href,
     loaderDynamic: '../u.serve.ts',
     command: new URL('../u.command/u.serve.ts', import.meta.url).href,
-    dynamic: ['../../m.fmt/u.Tasks.ts'],
+    dynamic: [] as const,
     forbidden: [
       '/src/-entry/u.command/u.build.ts',
       '/src/-entry/u.command/u.dev.ts',

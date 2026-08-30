@@ -93,7 +93,7 @@ describe('ViteEntry.main', () => {
     }
   });
 
-  it('keeps production serve dispatch silent', async () => {
+  it('leaves serve presentation solely to the server screen', async () => {
     const calls: string[] = [];
     const original = Object.getOwnPropertyDescriptor(console, 'info');
     {
@@ -103,14 +103,18 @@ describe('ViteEntry.main', () => {
         descriptor: { value: (..._args: unknown[]) => calls.push('console') },
       }]);
 
-      await dispatchServeWith(
-        { cmd: 'serve', silent: true, pkgSubpath: 'ui' },
-        () => {
+      for (
+        const args of [
+          { cmd: 'serve', pkgSubpath: 'ui' },
+          { cmd: 'serve', silent: true, pkgSubpath: 'ui' },
+        ] as const
+      ) {
+        await dispatchServeWith(args, () => {
           calls.push('serve');
           return Promise.resolve();
-        },
-      );
-      expect(calls).to.eql(['serve']);
+        });
+      }
+      expect(calls).to.eql(['serve', 'serve']);
     }
     expect(Object.getOwnPropertyDescriptor(console, 'info')).to.eql(original);
   });
