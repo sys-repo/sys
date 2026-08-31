@@ -14,8 +14,8 @@ export const CAPABILITY = (() => {
   });
 })();
 export const APPLICATION = Object.freeze({
-  URL: 'http://127.0.0.1:51261' as t.StringUrl,
-  DISPLAY: 'http://localhost:51261',
+  URL: 'http://127.0.0.1:51789' as t.StringUrl,
+  DISPLAY: 'http://localhost:51789',
 });
 export const DEVELOPMENT_ROOT =
   '/private/var/folders/ab/cdef/T/@sys-driver-pi.start-gui-preview.0123456789abcdef' as t.StringAbsoluteDir;

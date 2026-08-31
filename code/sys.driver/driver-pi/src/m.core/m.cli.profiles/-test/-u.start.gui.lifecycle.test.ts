@@ -21,7 +21,7 @@ const APPLICATION_EXPECTATION = Object.freeze({
 });
 
 describe('@sys/driver-pi start:gui terminal arbiter', () => {
-  it('requires one concrete canonical IPv4 status listener and a 25-character capability', () => {
+  it('requires one canonical IPv4 bootstrap-status listener and a 25-character observation capability', () => {
     const suffix = `/${'a'.repeat(25)}`;
     const shortSuffix = `/${'a'.repeat(24)}`;
     const cases: readonly Readonly<{ url: t.StringUrl; admitted: boolean }>[] = [

@@ -47,7 +47,9 @@ start-ui-release-evidence.plan.md
 - [x] 82b510a0f fix(driver-pi): make start:gui back reopen profile menu
 - [x] b0ef3401c chore(driver-pi): bind rebuilt local GUI evidence
 - [x] 255498c88 fix(server): bind pinned Dist hosts to one absolute root
-- [ ] fix(server): right-size bootstrap capability paths
+- [x] f33eb684b fix(server): right-size bootstrap capability paths
+- [ ] fix(driver-pi): clarify bootstrap capability status
+- [ ] fix(driver-pi): dock start:gui footer at viewport bottom
 - [ ] plan(snapshot): verified-package-ui-release.plan.md
 - [ ] [verified-package-ui-release.plan.md](verified-package-ui-release.plan.md)
 - [ ] GATE release owner selects immutable artifact provider/path, public HTTPS proof origin, browser/filesystem floors, and prior-local-worker migration
