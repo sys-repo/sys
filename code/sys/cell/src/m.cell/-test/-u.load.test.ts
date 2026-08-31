@@ -2,6 +2,13 @@ import { describe, expect, Fs, it, Str, Testing } from '../../-test.ts';
 import { Cell } from '../mod.ts';
 import { CellPaths } from '../u/paths.ts';
 import { catchLoad, sampleRoot, tempCell, tempLegacyCell } from './u.fixture.ts';
+import { DeploySampleProof } from './u.sample.deploy.proof.ts';
+
+describe('Cell Deploy sample', () => {
+  it('runs the actual provider-neutral sample task', async () => {
+    DeploySampleProof.assert(await DeploySampleProof.run());
+  });
+});
 
 describe('Cell.load', () => {
   it('loads and validates the Stripe sample descriptor', async () => {
@@ -28,18 +35,6 @@ describe('Cell.load', () => {
     expect(error?.message).to.contain('Cell.load: failed to find descriptor.');
     expect(error?.message).to.contain(canonical);
     expect(error?.message).to.contain(legacy);
-  });
-
-  it('loads and validates the Deploy sample descriptor', async () => {
-    const root = new URL('../../../-sample/cell.deploy', import.meta.url).pathname;
-    const cell = await Cell.load(root);
-
-    expect(cell.root).to.eql(Fs.resolve(root));
-    expect(cell.paths.descriptor).to.eql(Fs.join(cell.root, CellPaths.descriptor));
-    expect(cell.descriptor.kind).to.eql('cell');
-    expect(cell.descriptor.version).to.eql(1);
-    expect(cell.descriptor.name).to.eql('sample:deploy');
-    expect(cell.descriptor.services?.map((service) => service.name)).to.eql(['deploy:view']);
   });
 
   it('loads canonical descriptors before legacy fallback is needed', async () => {
@@ -75,7 +70,9 @@ describe('Cell.load', () => {
 
   it('fails clearly when canonical and legacy descriptors both exist', async () => {
     const root = await tempCell('ambiguous-descriptor', `kind: cell\nversion: 1\n`);
-    await Fs.write(Fs.join(root, CellPaths.legacy.descriptor), `kind: cell\nversion: 1\n`, { force: true });
+    await Fs.write(Fs.join(root, CellPaths.legacy.descriptor), `kind: cell\nversion: 1\n`, {
+      force: true,
+    });
 
     const error = await catchLoad(root);
 

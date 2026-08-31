@@ -1,0 +1,14 @@
+# Provider-neutral local staging endpoint for the Cell deploy sample.
+
+source:
+  dir: .
+
+staging:
+  dir: ./.tmp/staging
+  clear: true
+
+mappings:
+  - mode: copy
+    dir:
+      source: view/.pulled/ui.components
+      staging: ui.components

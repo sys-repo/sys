@@ -11,21 +11,11 @@ services:
     config: ./-config/@sys.tools.serve/view.yaml
 
 tasks:
-  - name: deploy:prep
-    use: DeployPrepTask
+  - name: deploy:stage
+    use: DeployStageTask
     from: ./-scripts/deploy.ts
-    config: ./-config/@sys.tools.deploy/orbiter.yaml
-
-  - name: deploy:push
-    use: DeployPushTask
-    from: ./-scripts/deploy.ts
-    config: ./-config/@sys.tools.deploy/orbiter.yaml
-
-  - name: sample:deploy:prep
-    steps:
-      - task: deploy:prep
+    config: ./-config/@sys.tools.deploy/stage.yaml
 
   - name: sample:deploy
     steps:
-      - task: sample:deploy:prep
-      - task: deploy:push
+      - task: deploy:stage

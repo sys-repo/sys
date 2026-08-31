@@ -71,16 +71,16 @@ describe(`@sys/cell/cli info`, () => {
                 config: ./-config/@sys.tools.serve/view.dev.yaml
 
         tasks:
-          - name: sample:deploy:prep
-            use: PrepTask
-            from: ./missing-prep.ts
-          - name: sample:publish
-            use: PublishTask
-            from: ./missing-publish.ts
-          - name: sample:deploy
+          - name: sample:stage
+            use: StageTask
+            from: ./missing-stage.ts
+          - name: sample:verify
+            use: VerifyTask
+            from: ./missing-verify.ts
+          - name: sample:workflow
             steps:
-              - task: sample:deploy:prep
-              - task: sample:publish
+              - task: sample:stage
+              - task: sample:verify
       `).trimStart(),
     );
 
@@ -100,12 +100,12 @@ describe(`@sys/cell/cli info`, () => {
     expect(text).to.contain('-config/@sys.tools.serve/view.yaml');
     expect(text).to.contain('modes');
     expect(text).to.contain('dev');
-    expect(text).to.contain('sample:deploy:prep');
-    expect(text).to.contain('PrepTask');
-    expect(text).to.contain('./missing-prep.ts');
-    expect(text).to.contain('sample:deploy');
+    expect(text).to.contain('sample:stage');
+    expect(text).to.contain('StageTask');
+    expect(text).to.contain('./missing-stage.ts');
+    expect(text).to.contain('sample:workflow');
     expect(text).to.contain('steps');
-    expect(text).to.contain('sample:deploy:prep → sample:publish');
+    expect(text).to.contain('sample:stage → sample:verify');
     expect(taskEvents()).to.eql([]);
   });
 
@@ -141,7 +141,7 @@ describe(`@sys/cell/cli info`, () => {
         from: 'jsr:@sys/tools/serve',
         config: './-config/@sys.tools.serve/view.yaml' as t.Cell.Path,
       }],
-      tasks: [{ name: 'sample:deploy', steps: [{ task: 'sample:publish' as t.Cell.Id }] }],
+      tasks: [{ name: 'sample:workflow', steps: [{ task: 'sample:stage' as t.Cell.Id }] }],
     }));
 
     const descriptorColumn = valueColumn(text, 'descriptor');
@@ -183,13 +183,13 @@ describe(`@sys/cell/cli info`, () => {
         name: 'sample:deploy',
         steps: [
           { task: 'pull:view' as t.Cell.Id },
-          { task: 'deploy:prep' as t.Cell.Id },
+          { task: 'deploy:stage' as t.Cell.Id },
         ],
       }],
     });
 
     expect(rendered).to.contain(c.cyan('→'));
-    expect(stripAnsi(rendered)).to.contain('pull:view → deploy:prep');
+    expect(stripAnsi(rendered)).to.contain('pull:view → deploy:stage');
   });
 
   it('formatter → breaks overflowing task steps into a value-aligned chain', () => {
@@ -202,9 +202,9 @@ describe(`@sys/cell/cli info`, () => {
       tasks: [{
         name: 'sample:deploy',
         steps: [
-          { task: 'sample:deploy:prep' as t.Cell.Id },
-          { task: 'sample:publish:assets' as t.Cell.Id },
-          { task: 'sample:publish:cdn' as t.Cell.Id },
+          { task: 'workflow:stage:prepared-output' as t.Cell.Id },
+          { task: 'workflow:verify:assets' as t.Cell.Id },
+          { task: 'workflow:verify:cdn' as t.Cell.Id },
         ],
       }],
     });

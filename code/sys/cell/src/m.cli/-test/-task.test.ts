@@ -91,13 +91,14 @@ describe(`@sys/cell/cli task`, () => {
     expect(text).to.contain('  root');
     expect(text).to.contain('  task');
     expect(text).to.contain('  steps');
-    expect(text).to.contain('  sample:deploy');
-    expect(text).to.contain('  ├─ sample:deploy:prep');
+    expect(text).to.contain('  workflow:deploy');
+    expect(text).to.contain('  ├─ sample:deploy');
     expect(text).to.contain('  │  ├─ pull:view');
     expect(text).to.contain('  │  │  use     PullViewTask');
     expect(text).to.contain('  │  │  from    ./-scripts/deploy.ts');
     expect(text).to.contain('  │  │  config  ./-config/@sys.tools.pull/view.yaml');
-    expect(text).to.contain('  └─ deploy:push');
+    expect(text).to.contain('  │  └─ deploy:stage');
+    expect(text).to.contain('  └─ validate:output');
   });
 
   it('task --plan formatter → fits summary and tree values to narrow terminals', () => {
@@ -105,9 +106,9 @@ describe(`@sys/cell/cli task`, () => {
       { terminal: true, width: 46 },
       taskPlanFixture({
         root: '/sample/workspace/cell.deploy/with/a/very/long/root',
-        use: 'VeryLongDeployPushTaskNameThatShouldCollapse',
+        use: 'VeryLongDeployStageTaskNameThatShouldCollapse',
         from: './-scripts/deploy/with/a/very/long/module/path.ts',
-        config: './-config/@sys.tools.deploy/orbiter/with/a/very/long/config.yaml',
+        config: './-config/@sys.tools.deploy/stage/with/a/very/long/config.yaml',
       }),
     );
     const text = stripAnsi(rendered);
@@ -131,33 +132,28 @@ function taskPlanFixture(options: {
     './-scripts/deploy.ts',
     './-config/@sys.tools.pull/view.yaml',
   );
-  const prep = leaf(
-    'deploy:prep',
-    'DeployPrepTask',
-    './-scripts/deploy.ts',
-    './-config/@sys.tools.deploy/orbiter.yaml',
-  );
-  const push = leaf(
-    'deploy:push',
-    options.use ?? 'DeployPushTask',
+  const stage = leaf(
+    'deploy:stage',
+    options.use ?? 'DeployStageTask',
     options.from ?? './-scripts/deploy.ts',
-    options.config ?? './-config/@sys.tools.deploy/orbiter.yaml',
+    options.config ?? './-config/@sys.tools.deploy/stage.yaml',
   );
-  const composite: t.Cell.Task.PlanComposite = {
+  const validate = leaf('validate:output', 'ValidateOutputTask', './-scripts/validate.ts');
+  const deploy: t.Cell.Task.PlanComposite = {
     kind: 'composite',
     task: {
-      name: 'sample:deploy:prep' as t.Cell.Id,
-      steps: [{ task: 'pull:view' as t.Cell.Id }, { task: 'deploy:prep' as t.Cell.Id }],
+      name: 'sample:deploy' as t.Cell.Id,
+      steps: [{ task: 'pull:view' as t.Cell.Id }, { task: 'deploy:stage' as t.Cell.Id }],
     },
-    steps: [pull, prep],
+    steps: [pull, stage],
   };
   const tree: t.Cell.Task.PlanComposite = {
     kind: 'composite',
     task: {
-      name: 'sample:deploy' as t.Cell.Id,
-      steps: [{ task: 'sample:deploy:prep' as t.Cell.Id }, { task: 'deploy:push' as t.Cell.Id }],
+      name: 'workflow:deploy' as t.Cell.Id,
+      steps: [{ task: 'sample:deploy' as t.Cell.Id }, { task: 'validate:output' as t.Cell.Id }],
     },
-    steps: [composite, push],
+    steps: [deploy, validate],
   };
 
   return {
@@ -166,7 +162,7 @@ function taskPlanFixture(options: {
       root: root as t.StringDir,
       task: tree.task,
       tree,
-      leaves: [pull, prep, push],
+      leaves: [pull, stage, validate],
     },
   };
 }
