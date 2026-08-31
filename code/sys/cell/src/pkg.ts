@@ -13,4 +13,7 @@ import type { Pkg } from '@sys/types';
  *    - DO check this file in to source control.
  *    - Do NOT manually alter this file.
  */
-export const pkg: Pkg = { name: '@sys/cell', version: '0.0.79' };
+export const pkg: Readonly<Pkg> = Object.freeze({
+  name: '@sys/cell',
+  version: '0.0.79',
+});
