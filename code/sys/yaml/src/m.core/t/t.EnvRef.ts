@@ -1,9 +1,13 @@
 import type { t } from '../common.ts';
 
-/** Pure YAML env-ref types. */
+/**
+ * Pure YAML env-ref types.
+ */
 export namespace YamlEnvRef {
-  /** Resolver API for whole-scalar YAML env refs. */
+  /** Inspection and resolution API for whole-scalar YAML env refs. */
   export type Lib = {
+    /** Inspect whole-scalar `${env:NAME}` references without resolving or mutating the AST. */
+    inspectAst(ast: t.YamlAst): Inspect.Result;
     /** Resolve whole-scalar `${env:NAME}` references in a parsed YAML AST. */
     resolveAst(ast: t.YamlAst, options: Resolve.Options): Resolve.Result;
   };
@@ -16,7 +20,28 @@ export namespace YamlEnvRef {
     readonly name: string;
   };
 
-  /** Env-ref resolution types. */
+  /**
+   * Env-ref inspection types.
+   */
+  export namespace Inspect {
+    /** Result of inspecting env refs without resolving values. */
+    export type Result =
+      | {
+        readonly ok: true;
+        readonly ast: t.YamlAst;
+        readonly refs: readonly Ref[];
+      }
+      | {
+        readonly ok: false;
+        readonly ast: t.YamlAst;
+        readonly errors: readonly t.Yaml.Error[];
+        readonly refs: readonly Ref[];
+      };
+  }
+
+  /**
+   * Env-ref resolution types.
+   */
   export namespace Resolve {
     /** Resolver options for pure YAML env-ref resolution. */
     export type Options = {

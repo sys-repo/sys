@@ -1,7 +1,9 @@
 import type * as Y from 'yaml';
 import type { t } from '../common.ts';
 
-/** Public YAML type namespace. */
+/**
+ * Public YAML type namespace.
+ */
 export namespace Yaml {
   // Errors:
   /** YAML parser or resolver error. */
@@ -10,14 +12,26 @@ export namespace Yaml {
   export type Diagnostic = t.YamlDiagnostic;
 
   // Env refs:
-  /** Pure YAML scalar environment-reference contracts. */
+  /**
+   * Pure YAML scalar environment-reference contracts.
+   */
   export namespace EnvRef {
     /** AST scalar env-ref parser/resolver API. */
     export type Lib = t.YamlEnvRef.Lib;
     /** Env reference discovered in a scalar value. */
     export type Ref = t.YamlEnvRef.Ref;
 
-    /** Env-ref resolution contracts. */
+    /**
+     * Env-ref inspection contracts.
+     */
+    export namespace Inspect {
+      /** Env-ref inspection result. */
+      export type Result = t.YamlEnvRef.Inspect.Result;
+    }
+
+    /**
+     * Env-ref resolution contracts.
+     */
     export namespace Resolve {
       /** Env-ref resolver options. */
       export type Options = t.YamlEnvRef.Resolve.Options;

@@ -19,56 +19,75 @@ type ResolvedRef = FoundRef & {
 
 /** Pure YAML env-ref helpers. */
 export const EnvRef: t.Yaml.EnvRef.Lib = Object.freeze({
+  inspectAst(ast) {
+    const inspected = scanAst(ast);
+    const refs = inspected.refs.map((item) => item.ref);
+    if (inspected.errors.length > 0) {
+      return { ok: false, ast, errors: inspected.errors, refs };
+    }
+    return { ok: true, ast, refs };
+  },
+
   resolveAst(ast, options) {
-    const refs: FoundRef[] = [];
-    const errors: t.Yaml.Error[] = [];
-
-    walk(ast, (e) => {
-      if (!YamlIs.scalar(e.node)) return;
-      if (!Is.string(e.node.value)) return;
-
-      const scalar = e.node.value;
-      if (!scalar.includes(REF_PREFIX)) return;
-
-      const match = WHOLE_REF.exec(scalar);
-      if (!match) {
-        errors.push(syntaxError(e.path, e.node, scalar));
-        return;
-      }
-
-      const name = match[1] ?? '';
-      if (!ENV_NAME.test(name)) {
-        errors.push(nameError(e.path, e.node, name));
-        return;
-      }
-
-      refs.push({
-        node: e.node,
-        ref: { path: e.path, name },
-      });
-    });
-
+    const inspected = scanAst(ast);
+    const { errors } = inspected;
     const resolved: ResolvedRef[] = [];
+
     if (errors.length === 0) {
-      for (const item of refs) {
+      for (const item of inspected.refs) {
         const value = resolveValue(item, options, errors);
         if (value === undefined) continue;
         resolved.push({ ...item, value });
       }
     }
 
-    const refRecords = refs.map((item) => item.ref);
+    const refs = inspected.refs.map((item) => item.ref);
     if (errors.length > 0) {
-      return { ok: false, ast, errors, refs: refRecords };
+      return { ok: false, ast, errors, refs };
     }
 
     for (const item of resolved) {
       item.node.value = item.value;
     }
 
-    return { ok: true, ast, refs: refRecords };
+    return { ok: true, ast, refs };
   },
 });
+
+function scanAst(ast: t.Yaml.Ast): {
+  readonly refs: FoundRef[];
+  readonly errors: t.Yaml.Error[];
+} {
+  const refs: FoundRef[] = [];
+  const errors: t.Yaml.Error[] = [];
+
+  walk(ast, (e) => {
+    if (!YamlIs.scalar(e.node)) return;
+    if (!Is.string(e.node.value)) return;
+
+    const scalar = e.node.value;
+    if (!scalar.includes(REF_PREFIX)) return;
+
+    const match = WHOLE_REF.exec(scalar);
+    if (!match) {
+      errors.push(syntaxError(e.path, e.node, scalar));
+      return;
+    }
+
+    const name = match[1] ?? '';
+    if (!ENV_NAME.test(name)) {
+      errors.push(nameError(e.path, e.node, name));
+      return;
+    }
+
+    refs.push({
+      node: e.node,
+      ref: { path: e.path, name },
+    });
+  });
+
+  return { refs, errors };
+}
 
 function resolveValue(
   item: FoundRef,

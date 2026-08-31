@@ -8,6 +8,38 @@ const docOf = <T = Record<string, unknown>>(ast: t.YamlAst): T => {
 };
 
 describe('Yaml.EnvRef', () => {
+  it('inspects refs without resolving or mutating the AST', () => {
+    const ast = Yaml.parseAst(`
+plain: value
+secret: \${env:SECRET_VALUE}
+`);
+
+    const res = Yaml.EnvRef.inspectAst(ast);
+
+    expect(res.ok).to.eql(true);
+    expect(res.refs).to.eql<t.Yaml.EnvRef.Ref[]>([
+      { path: ['secret'], name: 'SECRET_VALUE' },
+    ]);
+    expect(docOf<{ plain: string; secret: string }>(ast)).to.eql({
+      plain: 'value',
+      secret: '${env:SECRET_VALUE}',
+    });
+  });
+
+  it('reports malformed refs during inspection without resolving values', () => {
+    const ast = Yaml.parseAst('url: https://${env:HOST}/path\n');
+
+    const res = Yaml.EnvRef.inspectAst(ast);
+
+    expect(res.ok).to.eql(false);
+    if (!res.ok) {
+      expect(res.errors[0]?.message).to.eql(
+        'url contains unsupported env ref syntax: https://${env:HOST}/path',
+      );
+    }
+    expect(docOf<{ url: string }>(ast)).to.eql({ url: 'https://${env:HOST}/path' });
+  });
+
   it('resolves whole-scalar `${env:NAME}` values with an injected resolver', () => {
     const ast = Yaml.parseAst(`
 provider:

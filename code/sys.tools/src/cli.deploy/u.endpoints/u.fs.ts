@@ -1,8 +1,9 @@
-import { Fs, Is, Obj, Path, pkg, Schema, type t, Yaml } from '../common.ts';
+import { Err, Fs, Is, Obj, Path, pkg, Schema, type t, Yaml } from '../common.ts';
 import { YamlConfig } from '@sys/yaml/cli';
+import { resolveEndpointEnvRefs } from './u.env.ts';
 import { EndpointYamlErrorCode, validateEndpointYamlAst } from './u.validate.ts';
 import { ensureInitialYaml, initialYaml } from './u.yaml.ts';
-import { resolveBases, resolvePath } from './u.resolve.ts';
+import { isHomePath, resolveBases, resolvePath } from './u.resolve.ts';
 import { expandShardTemplatePaths, shouldRequireAllShards } from '../u.shardTemplate.ts';
 
 const ROOT = YamlConfig.File.fromPkg('-config', pkg).dir.name;
@@ -24,7 +25,7 @@ export const EndpointsFs = {
    *
    * - Missing file → YAML error
    * - Read failure → YAML error
-   * - Env refs → resolved at the FS boundary before schema/semantic validation
+   * - Env refs → inspected purely, then resolved only when present
    * - Content validation → delegated to `validateEndpointYamlAst`
    *
    * No throwing. Always returns a YamlCheck.
@@ -56,51 +57,23 @@ export const EndpointsFs = {
     if (ast.errors?.length) return validateEndpointYamlAst(ast);
 
     const cwd = options.cwd ?? resolveCwdFromYamlPath(path);
-    const resolved = await YamlConfig.Env.resolveAst(ast, { cwd, search: 'upward' });
+    const resolved = await resolveEndpointEnvRefs(ast, { cwd });
     if (!resolved.ok) return { ok: false, errors: Schema.Error.fromYaml([...resolved.errors]) };
 
     const checked = validateEndpointYamlAst(ast);
     if (!checked.ok) return checked;
-
-    const bases = resolveBases(cwd, checked.doc);
 
     const errors: t.Yaml.Error[] = [];
     const providerShards = checked.doc.provider?.kind === 'orbiter'
       ? checked.doc.provider?.shards
       : undefined;
     const mappings = mappingChecksOf(checked.doc);
-
-    {
-      const stagingRaw = String(checked.doc.staging?.dir ?? '').trim();
-      const stagingEffective = stagingRaw || './staging';
-      const stagingExpanded = Fs.Tilde.expand(stagingEffective);
-
-      if (Path.Is.absolute(stagingExpanded)) {
-        errors.push(
-          Yaml.Error.synthetic({
-            message: `staging.dir must be relative (or '.'): ${stagingRaw || stagingEffective}`,
-            code: EndpointYamlErrorCode,
-            pos: [0, 0],
-          }),
-        );
-      }
-
-      if (stagingExpanded.includes('..')) {
-        errors.push(
-          Yaml.Error.synthetic({
-            message: `staging.dir must not contain '..': ${stagingRaw || stagingEffective}`,
-            code: EndpointYamlErrorCode,
-            pos: [0, 0],
-          }),
-        );
-      }
-    }
-
+    const stagingRaw = String(checked.doc.staging?.dir ?? '').trim();
+    validateStagingPath(stagingRaw || './staging', 'staging.dir', errors);
     validateProviderShards(providerShards, errors);
 
     for (const entry of mappings) {
       const sourceRaw = String(entry.mapping?.dir?.source ?? '').trim();
-
       if (!sourceRaw) {
         errors.push(
           Yaml.Error.synthetic({
@@ -109,27 +82,59 @@ export const EndpointsFs = {
             pos: [0, 0],
           }),
         );
-        continue;
       }
 
-      const stagingRaw = String(entry.mapping?.dir?.staging ?? '').trim();
+      const mappingStaging = String(entry.mapping?.dir?.staging ?? '').trim();
+      validateStagingPath(mappingStaging, `${entry.label}.dir.staging`, errors);
+    }
+
+    if (errors.length) {
+      return { ok: false, errors: Schema.Error.fromYaml(errors) };
+    }
+
+    let bases: ReturnType<typeof resolveBases>;
+    try {
+      bases = resolveBases(cwd, checked.doc);
+    } catch (error) {
+      errors.push(
+        pathResolutionError('source.dir', String(checked.doc.source?.dir ?? '.').trim(), error),
+      );
+      return { ok: false, errors: Schema.Error.fromYaml(errors) };
+    }
+
+    for (const entry of mappings) {
+      const sourceRaw = String(entry.mapping?.dir?.source ?? '').trim();
+      const mappingStaging = String(entry.mapping?.dir?.staging ?? '').trim();
       const shards = resolveShardConfig(entry.mapping, providerShards);
       const expanded = expandShardTemplatePaths({
         source: sourceRaw,
-        staging: stagingRaw,
+        staging: mappingStaging,
         total: shards.total,
         requireAll: shards.requireAll,
       });
       const requireAll = shouldRequireAllShards({
         source: sourceRaw,
-        staging: stagingRaw,
+        staging: mappingStaging,
         total: shards.total,
         requireAll: shards.requireAll,
       });
 
       let found = 0;
+      let resolutionFailed = false;
+      let firstResolved: { readonly input: string; readonly absolute: string } | undefined;
       for (const expandedPath of expanded) {
-        const sourceAbs = resolvePath(bases.sourceBaseAbs, expandedPath.source);
+        let sourceAbs: string;
+        try {
+          sourceAbs = resolvePath(bases.sourceBaseAbs, expandedPath.source);
+        } catch (error) {
+          errors.push(
+            pathResolutionError(`${entry.label}.dir.source`, expandedPath.source, error),
+          );
+          resolutionFailed = true;
+          break;
+        }
+
+        firstResolved ??= { input: expandedPath.source, absolute: sourceAbs };
         if (await Fs.exists(sourceAbs)) {
           found += 1;
           continue;
@@ -148,41 +153,15 @@ export const EndpointsFs = {
         }
       }
 
-      if (!requireAll && expanded.length > 0 && found === 0) {
-        const sourceAbs = resolvePath(bases.sourceBaseAbs, expanded[0]!.source);
+      if (!requireAll && !resolutionFailed && firstResolved && found === 0) {
         errors.push(
           Yaml.Error.synthetic({
-            message: `${entry.label}.dir.source does not exist: ${
-              expanded[0]!.source
-            }\nresolved: ${sourceAbs}`,
+            message:
+              `${entry.label}.dir.source does not exist: ${firstResolved.input}\nresolved: ${firstResolved.absolute}`,
             code: EndpointYamlErrorCode,
             pos: [0, 0],
           }),
         );
-      }
-
-      {
-        const stagingExpanded = Fs.Tilde.expand(stagingRaw);
-
-        if (Path.Is.absolute(stagingExpanded)) {
-          errors.push(
-            Yaml.Error.synthetic({
-              message: `${entry.label}.dir.staging must be relative (or '.'): ${stagingRaw}`,
-              code: EndpointYamlErrorCode,
-              pos: [0, 0],
-            }),
-          );
-        }
-
-        if (stagingExpanded.includes('..')) {
-          errors.push(
-            Yaml.Error.synthetic({
-              message: `${entry.label}.dir.staging must not contain '..': ${stagingRaw}`,
-              code: EndpointYamlErrorCode,
-              pos: [0, 0],
-            }),
-          );
-        }
       }
     }
 
@@ -193,6 +172,37 @@ export const EndpointsFs = {
     return checked;
   },
 } as const;
+
+function validateStagingPath(input: string, label: string, errors: t.Yaml.Error[]): void {
+  if (isHomePath(input) || Path.Is.absolute(input)) {
+    errors.push(
+      Yaml.Error.synthetic({
+        message: `${label} must be relative (or '.'): ${input}`,
+        code: EndpointYamlErrorCode,
+        pos: [0, 0],
+      }),
+    );
+  }
+
+  if (input.includes('..')) {
+    errors.push(
+      Yaml.Error.synthetic({
+        message: `${label} must not contain '..': ${input}`,
+        code: EndpointYamlErrorCode,
+        pos: [0, 0],
+      }),
+    );
+  }
+}
+
+function pathResolutionError(label: string, input: string, error: unknown): t.Yaml.Error {
+  const detail = Err.summary(error, { cause: true, stack: false });
+  return Yaml.Error.synthetic({
+    message: `${label} could not be resolved: ${input}\n${detail}`,
+    code: EndpointYamlErrorCode,
+    pos: [0, 0],
+  });
+}
 
 function mappingChecksOf(
   doc: t.DeployTool.Config.EndpointYaml.Doc,
