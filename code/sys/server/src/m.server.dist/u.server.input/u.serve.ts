@@ -16,6 +16,7 @@ const LOCAL_SERVE_KEYS = [...LOCAL_START_KEYS, 'pkgSubpath'] as const;
 
 export type ServeSnapshot = {
   readonly start: StartSnapshot;
+  readonly displayDir: t.StringDir;
   readonly pkgSubpath?: string;
 };
 
@@ -55,6 +56,7 @@ export function snapshotServeInput(input: unknown): ServePreparation {
       ok: true,
       value: Object.freeze({
         start: start.value,
+        displayDir: source.dir as t.StringDir,
         ...(parsed.kind === 'valid' ? { pkgSubpath: parsed.value } : {}),
       }),
     };

@@ -58,7 +58,7 @@ const DEFAULT_SERVE_EFFECTS: ServeEffects = Object.freeze({
   bindKeyboard: Cli.Keyboard.bind,
   createScreen: DistServeScreen.create,
   isInteractive: Cli.Is.interactive,
-  open: (origin) => Open.invokeDetached(Deno.cwd(), origin, { silent: true }),
+  open: (origin) => Open.invokeDetached(Path.cwd(), origin, { silent: true }),
   now: () => Time.now.timestamp,
 });
 
@@ -78,7 +78,7 @@ export async function serveWith(
 ): Promise<void> {
   const prepared = snapshotServeInput(input);
   if (!prepared.ok) throw startError(prepared.reason);
-  const { pkgSubpath, start: value } = prepared.value;
+  const { displayDir, pkgSubpath, start: value } = prepared.value;
   const source = wrangle.serveSource(
     value.dir,
     wrangle.serveMode(value.silent, effects.isInteractive),
@@ -99,7 +99,7 @@ export async function serveWith(
     },
   );
   await serveLoop(started, source, {
-    dir: value.dir,
+    dir: displayDir,
     keyboard,
     ...(pkgSubpath === undefined ? {} : { pkgSubpath }),
   }, effects);

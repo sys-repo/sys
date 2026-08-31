@@ -19,13 +19,15 @@ describe('DistServer.serve', () => {
   describe('startup and presentation authority', () => {
     it('uses raw terminal metadata for pinned startup', async () => {
       const fixture = await setup();
+      const relativeDir = Fs.Path.relative(Fs.cwd(), fixture.source) as t.StringDir;
       let captured: CapturedStartInput = {};
+      let verificationDir: t.StringDir | undefined;
       let started: StartedController | undefined;
 
       try {
         const running = serveWith(
           {
-            dir: fixture.source as t.StringDir,
+            dir: relativeDir,
             integrity: fixture.integrity,
             limits: fixture.policy.verification,
             port: 49152,
@@ -34,7 +36,10 @@ describe('DistServer.serve', () => {
           },
           {
             ...DEFAULT_DEPENDENCIES,
-            verify: () => Promise.resolve(verified(fixture)),
+            verify: (input) => {
+              verificationDir = input.dir;
+              return Promise.resolve(verified(fixture));
+            },
             startHttp: (_app, input) => {
               captured = capture(input);
               started = createStarted(49152);
@@ -49,6 +54,7 @@ describe('DistServer.serve', () => {
         started?.release();
         await running;
 
+        expect(verificationDir).to.eql(Fs.Path.resolve(relativeDir));
         expect(captured.silent).to.eql(false);
         expect(captured.keyboard).to.eql(true);
         expect(captured.strictPort).to.eql(true);
@@ -328,7 +334,7 @@ describe('DistServer.serve', () => {
     it('owns interactive keyboard and screen against the actual listener origin', async () => {
       const fixture = await setup();
       const dist = fixture.cloneDist();
-      const relativeDir = Fs.Path.relative(Deno.cwd(), fixture.source) as t.StringDir;
+      const relativeDir = Fs.Path.relative(Fs.cwd(), fixture.source) as t.StringDir;
       let captured: CapturedStartInput = {};
       let verificationDir: t.StringDir | undefined;
       let started: StartedController | undefined;
@@ -628,11 +634,12 @@ describe('DistServer.serve', () => {
         },
       };
       const subpath = '/ui//preview/';
+      const relativeDir = Fs.Path.relative(Fs.cwd(), fixture.source) as t.StringDir;
 
       try {
         const pinned = serveWith(
           {
-            dir: fixture.source as t.StringDir,
+            dir: relativeDir,
             integrity: fixture.integrity,
             limits: fixture.policy.verification,
             silent: false,
@@ -662,6 +669,10 @@ describe('DistServer.serve', () => {
         await local;
 
         expect(screens).to.have.length(2);
+        expect(screens[0]?.dir).to.eql(relativeDir);
+        expect(screens[0]?.manifestHref?.href).to.eql(
+          Fs.Path.toFileUrl(Fs.Path.join(Fs.Path.resolve(relativeDir), 'dist.json')).href,
+        );
         for (const screen of screens) {
           const identity = screen.identity;
           if (!identity || !('root' in identity)) throw new Error('compound identity not provided');

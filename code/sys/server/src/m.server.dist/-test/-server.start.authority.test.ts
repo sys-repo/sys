@@ -1,4 +1,4 @@
-import { describe, expect, Files, it, Json, type t, Time } from '../../-test.ts';
+import { describe, expect, Files, Fs, it, Json, type t, Time, WebFixture } from '../../-test.ts';
 import { setup, teardown } from '../../-test/u.fixture.dist.ts';
 import { Dist, DistServer } from '../mod.ts';
 import { acceptedAuthorities } from '../../u.server.request.ts';
@@ -129,6 +129,57 @@ describe('DistServer.start', () => {
         until: observed?.until,
       });
       expect(Object.isFrozen(observed?.limits)).to.eql(true);
+    });
+
+    it('reuses one absolute pinned root when the invocation CWD later changes', async () => {
+      const fixture = await setup();
+      const invocationCwd = Fs.cwd();
+      const relativeDir = Fs.Path.relative(invocationCwd, fixture.source) as t.StringDir;
+      const expectedDir = Fs.Path.resolve(invocationCwd, relativeDir) as t.StringAbsoluteDir;
+      const readDirs: t.StringDir[] = [];
+      let verifiedDir: t.StringDir | undefined;
+      let server: t.DistServer.Started | undefined;
+
+      try {
+        const pending = startWith(
+          {
+            dir: relativeDir,
+            integrity: fixture.integrity,
+            limits: fixture.policy.verification,
+            silent: true,
+          },
+          {
+            ...DEFAULT_DEPENDENCIES,
+            verify(args) {
+              verifiedDir = args.dir;
+              return DEFAULT_DEPENDENCIES.verify(args);
+            },
+            readPart(args) {
+              readDirs.push(args.dir);
+              return DEFAULT_DEPENDENCIES.readPart(args);
+            },
+          },
+        );
+
+        {
+          using _cwd = WebFixture.Property.mock([{
+            target: Deno,
+            key: 'cwd',
+            descriptor: { value: () => fixture.storeDir },
+          }]);
+
+          server = await pending;
+          const index = await fetch(server.origin);
+          expect(index.status).to.eql(200);
+          expect(await index.text()).to.eql('<h1>verified</h1>');
+        }
+
+        expect(verifiedDir).to.eql(expectedDir);
+        expect(readDirs).to.eql([expectedDir]);
+      } finally {
+        await server?.close('test.cleanup');
+        await teardown(fixture);
+      }
     });
 
     it('latches pre-cancellation before verification and sanitizes its reason', async () => {

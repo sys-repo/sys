@@ -91,7 +91,8 @@ export function snapshotStartInput(input: unknown): StartPreparation {
     const integrity = snapshotIntegrity(source.integrity);
     if (!integrity) return rejected('invalid-input');
 
-    const shared = snapshotSharedStart(source, limits, source.dir as t.StringDir);
+    const dir = Path.resolve(Path.cwd(), source.dir) as t.StringAbsoluteDir;
+    const shared = snapshotSharedStart(source, limits, dir);
     if (!shared.ok) return rejected(shared.reason);
 
     return {
@@ -112,7 +113,7 @@ export function snapshotStartLocalInput(input: unknown): StartLocalPreparation {
     const limits = snapshotLimits(source.limits);
     if (!validDir(source.dir) || !limits) return rejectedLocal('invalid-input');
 
-    const dir = Path.resolve(Deno.cwd(), source.dir) as t.StringAbsoluteDir;
+    const dir = Path.resolve(Path.cwd(), source.dir) as t.StringAbsoluteDir;
     const shared = snapshotSharedStart(source, limits, dir);
     if (!shared.ok) return rejectedLocal(shared.reason);
 
