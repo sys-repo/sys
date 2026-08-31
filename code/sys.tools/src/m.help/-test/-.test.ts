@@ -39,11 +39,12 @@ describe('Tools Help', () => {
     expect(chapter.path).to.eql(['deploy']);
     expect(chapter.title).to.eql('Deploy DSL');
     expect(chapter.summary).to.eql(
-      'Deploy snapshot replacement, provider push, R2 Files publishing, and force repair mode.',
+      'Deploy staging, snapshot replacement, R2 Files publishing, and force repair mode.',
     );
     expect(labelsOf(chapter)).to.eql([
       'Rule',
       'Stage/push',
+      'Config and staging authority',
       'Snapshot',
       'Provider boundaries',
       'R2 Files publishing',
@@ -56,10 +57,25 @@ describe('Tools Help', () => {
     expect(textOf(chapter, 'Rule')).to.contain('Deploy is snapshot replacement');
     expect(textOf(chapter, 'Rule')).to.contain('not incremental remote filesystem copy');
 
+    const authority = textOf(chapter, 'Config and staging authority');
+    expect(authority).to.contain('`${env:NAME}` requests environment');
+    expect(authority).to.contain('Ordinary paths request neither environment nor HOME authority');
+    expect(authority).to.contain('Environment authority never grants HOME');
+    expect(authority).to.contain('`~user` remains literal path text');
+    expect(authority).to.contain('Environment resolution is all-or-nothing and config-local');
+    expect(authority).to.contain(
+      'Sparse sources stage the existing shards unless `requireAll` is true',
+    );
+    expect(authority).to.contain('indexes use local relative navigation from their destination');
+
     const snapshot = textOf(chapter, 'Snapshot');
     expect(snapshot).to.contain('stale deploy drift');
     expect(snapshot).to.contain('prune stale remote files by default');
     expect(snapshot).to.contain('Do not add a `publish.stale` deploy schema option');
+
+    const provider = textOf(chapter, 'Provider boundaries');
+    expect(provider).to.contain('Noop is inert and resolves no publication target');
+    expect(provider).to.contain('Providerless endpoints stage locally');
 
     const r2 = textOf(chapter, 'R2 Files publishing');
     expect(r2).to.contain('Files.Client.writeBytes');

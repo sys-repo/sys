@@ -205,8 +205,8 @@ describe('YamlConfig.menu', () => {
     let seen: string[] = [];
     try {
       await Fs.ensureDir(dir);
-      await Fs.write(Fs.join(dir, 'cdn.yaml'), 'provider:\n  kind: orbiter\n');
-      await Fs.write(Fs.join(dir, 'assets.yaml'), 'provider:\n  kind: r2\n');
+      await Fs.write(Fs.join(dir, 'cdn.yaml'), 'provider:\n  kind: alpha\n');
+      await Fs.write(Fs.join(dir, 'assets.yaml'), 'provider:\n  kind: beta\n');
 
       const res = await menuWith<{ readonly provider?: { readonly kind?: string } }>(
         {
@@ -228,8 +228,8 @@ describe('YamlConfig.menu', () => {
       );
 
       expect(res).to.eql({ kind: 'exit' });
-      expect(seen.some((name) => name.startsWith(' orbiter: '))).to.eql(true);
-      expect(seen.some((name) => name.startsWith('      r2: '))).to.eql(true);
+      expect(seen.some((name) => name.startsWith(' alpha: '))).to.eql(true);
+      expect(seen.some((name) => name.startsWith('  beta: '))).to.eql(true);
     } finally {
       await Fs.remove(cwd.absolute);
     }

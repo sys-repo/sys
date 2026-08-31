@@ -1,4 +1,4 @@
-import { Fs, Is, Path, type t } from '../common.ts';
+import { Fs, Is, Num, Path, type t } from '../common.ts';
 import { resolveBases, resolvePath } from '../u.endpoints/u.resolve.ts';
 import {
   expandShardTemplatePaths,
@@ -13,12 +13,12 @@ type ResolveMappingsResult =
 /**
  * Resolve endpoint mappings into concrete staging mappings.
  *
- * Returns ok:false when YAML read fails and no already-validated YAML is provided.
+ * Returns ok:false when YAML read or explicit shard validation fails.
  */
 export async function resolveMappingsForStaging(args: {
-  readonly cwd: t.StringDir;
-  readonly yamlPath: t.StringRelativeDir;
-  readonly yaml?: t.DeployTool.Config.EndpointYaml.Doc;
+  cwd: t.StringDir;
+  yamlPath: t.StringPath;
+  yaml?: t.DeployTool.Config.EndpointYaml.Doc;
 }): Promise<ResolveMappingsResult> {
   const { cwd } = args;
   const yamlAbs = Path.resolve(cwd, args.yamlPath);
@@ -27,46 +27,57 @@ export async function resolveMappingsForStaging(args: {
     ? { ok: true as const, data: args.yaml }
     : await Fs.readYaml<t.DeployTool.Config.EndpointYaml.Doc>(String(yamlAbs));
 
-  const raw = res.ok ? res.data?.mappings ?? [] : [];
-  const provider = res.ok ? res.data?.provider : undefined;
-  const providerShards = provider?.kind === 'orbiter' ? provider.shards : undefined;
-  const bases = res.ok ? resolveBases(cwd, res.data ?? {}) : undefined;
-  const resolved: t.DeployTool.Staging.Mapping[] = [];
+  if (!res.ok) return { ok: false, mappings: [] };
 
+  const raw = res.data?.mappings ?? [];
   for (const mapping of raw) {
-    const expanded = await expandShardMappings(mapping, providerShards, bases);
+    if (mapping.shards !== undefined && !isValidShardConfig(mapping.shards)) {
+      return { ok: false, mappings: [] };
+    }
+  }
+
+  const bases = resolveBases(cwd, res.data ?? {});
+  const resolved: t.DeployTool.Staging.Mapping[] = [];
+  for (const mapping of raw) {
+    const expanded = await expandShardMappings(mapping, bases);
     resolved.push(...expanded);
   }
 
-  return res.ok ? { ok: true, mappings: resolved } : { ok: false, mappings: resolved };
+  return { ok: true, mappings: resolved };
+}
+
+function isValidShardConfig(value: unknown): boolean {
+  if (!Is.record(value)) return false;
+
+  const { total, requireAll } = value;
+  return Num.Is.safeInt(total) && total > 0 && (requireAll === undefined || Is.bool(requireAll));
 }
 
 async function expandShardMappings(
   mapping: t.DeployTool.Config.EndpointYaml.Mapping,
-  providerShards: t.OrbiterProvider['shards'] | undefined,
   bases?: ReturnType<typeof resolveBases>,
 ): Promise<t.DeployTool.Staging.Mapping[]> {
   const source = String(mapping.dir.source ?? '').trim();
   const staging = String(mapping.dir.staging ?? '').trim();
-  const shards = resolveShardConfig(mapping, providerShards);
+  const total = mapping.shards?.total;
+  const configuredRequireAll = mapping.shards?.requireAll;
   const expanded = expandShardTemplatePaths({
     source,
     staging,
-    total: shards.total,
-    requireAll: shards.requireAll,
+    total,
+    requireAll: configuredRequireAll,
   });
 
   const hasTemplate = includesShardTemplate(source) || includesShardTemplate(staging);
-  const total = shards.total;
   const requireAll = shouldRequireAllShards({
     source,
     staging,
     total,
-    requireAll: shards.requireAll,
+    requireAll: configuredRequireAll,
   });
 
   if (
-    !bases || !hasTemplate || requireAll || !Is.num(total) || !Number.isFinite(total) || total <= 0
+    !bases || !hasTemplate || requireAll || !Num.Is.safeInt(total) || total < 1
   ) {
     return expanded.map((dir) => ({ mode: mapping.mode, dir }));
   }
@@ -77,14 +88,4 @@ async function expandShardMappings(
     if (await Fs.exists(sourceAbs)) filtered.push({ mode: mapping.mode, dir });
   }
   return filtered;
-}
-
-function resolveShardConfig(
-  mapping: t.DeployTool.Config.EndpointYaml.Mapping,
-  providerShards: t.OrbiterProvider['shards'] | undefined,
-): { readonly total?: number; readonly requireAll?: boolean } {
-  if (Is.num(mapping.shards?.total)) {
-    return { total: mapping.shards?.total, requireAll: mapping.shards?.requireAll };
-  }
-  return { total: providerShards?.total, requireAll: undefined };
 }

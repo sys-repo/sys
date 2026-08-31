@@ -1,4 +1,4 @@
-import { type t, Fs, Pkg, Str } from '../common.ts';
+import { Fs, Path, Pkg, Str, type t } from '../common.ts';
 import { TEMPLATE } from './u.generateHtml.tmpl.ts';
 import { ensureBuildResetMeta, withBuildResetMeta } from './u.buildReset.ts';
 
@@ -14,21 +14,23 @@ type TDir = {
 };
 
 /**
- * Ensure an `index.html` exists inside a staging root.
+ * Ensure an `index.html` exists, with scan-root links relative to its destination.
  */
 export async function ensureIndexHtml(
   cwd: t.StringDir,
   options: {
-    readonly force?: boolean;
-    readonly baseDomain?: string;
-    readonly buildResetToken?: string;
+    /** Destination directory for the generated index; defaults to the scan root. */
+    targetDir?: t.StringDir;
+    force?: boolean;
+    buildResetToken?: string;
   } = {},
 ): Promise<void> {
   const raw = String(cwd ?? '').trim();
   if (!raw) return;
 
   const root = Fs.Path.resolve(raw);
-  const target = Fs.join(root, 'index.html');
+  const targetRoot = Fs.Path.resolve(options.targetDir ?? root);
+  const target = Fs.join(targetRoot, 'index.html');
   const exists = await Fs.exists(target);
   if (exists) {
     const ok = await shouldOverwrite(target, options.force === true);
@@ -37,12 +39,9 @@ export async function ensureIndexHtml(
       return;
     }
   }
-  if (!exists && !options.force) {
-    // no-op: only create when missing unless force is requested
-  }
-
   const dirs = await directories(root);
-  const html = renderHtml(dirs, options.baseDomain, options.buildResetToken);
+  const html = renderHtml(dirs, targetRoot, options.buildResetToken);
+  await Fs.ensureDir(targetRoot);
   await Fs.write(target, html);
 }
 
@@ -57,7 +56,6 @@ async function directories(root: t.StringDir) {
   for (const entry of entries.filter((entry) => entry.isDirectory)) {
     const abs = entry.path;
     const rel = Str.trimSlashes(abs.startsWith(root) ? abs.slice(root.length) : abs);
-    if (rel === '-root') continue;
     const dist = (await Pkg.Dist.load(abs)).dist;
     const hasIndex = await Fs.exists(Fs.join(abs, 'index.html'));
     const hasDistJson = await Fs.exists(Fs.join(abs, 'dist.json'));
@@ -68,28 +66,19 @@ async function directories(root: t.StringDir) {
   return res.toSorted((a, b) => compareDirName(compare, a.rel, b.rel));
 }
 
-function renderHtml(dirs: TDir[], baseDomain?: string, buildResetToken?: string): string {
+function renderHtml(dirs: TDir[], targetRoot: t.StringDir, buildResetToken?: string): string {
   const indent = ' '.repeat(8);
-  const domain = String(baseDomain ?? '').trim();
   const items = dirs
     .map((dir) => {
+      const href = relativeHref(targetRoot, dir.abs);
+      const target = dir.hasIndex ? `${href}/` : dir.hasDistJson ? `${href}/dist.json` : `${href}/`;
       const trimmed = Str.trimLeadingDotSlash(dir.rel);
-      const shardIndex = parseShardIndex(trimmed);
-      const absolute =
-        shardIndex !== undefined && domain ? `https://${shardIndex}.${domain}/` : undefined;
-      const href =
-        absolute ??
-        (dir.hasIndex
-          ? `./${trimmed}/`
-          : dir.hasDistJson
-            ? `./${trimmed}/dist.json`
-            : `./${trimmed}/`);
       let label = trimmed;
       if (dir.dist) {
         const hash = dir.dist.hash.digest;
         label = `<span class="version" title="${hash}">#${hash.slice(-5)}</span> ${label}`;
       }
-      return `${indent}<li><a href="${href}">${label}</a></li>`;
+      return `${indent}<li><a href="${target}">${label}</a></li>`;
     })
     .join('\n');
 
@@ -98,11 +87,9 @@ function renderHtml(dirs: TDir[], baseDomain?: string, buildResetToken?: string)
   return buildResetToken ? withBuildResetMeta(html, buildResetToken) : html;
 }
 
-function parseShardIndex(input: string): number | undefined {
-  const m = /^shard\.(\d+)$/.exec(input);
-  if (!m) return undefined;
-  const value = Number.parseInt(m[1]!, 10);
-  return Number.isFinite(value) ? value : undefined;
+function relativeHref(from: t.StringDir, to: t.StringDir): string {
+  const relative = Path.relative(from, to).replaceAll('\\', '/');
+  return relative.startsWith('.') ? relative : `./${relative}`;
 }
 
 function compareDirName(compare: (a: string, b: string) => number, a: string, b: string): number {

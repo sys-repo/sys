@@ -33,7 +33,6 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
   let ranOk = false;
   let pushedOk = false;
   let pushElapsed: string | undefined;
-  let pushShards: number | undefined;
   let pushBytes: number | undefined;
   let demarkNextRender = false;
 
@@ -54,7 +53,6 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       yamlPath: yamlRel,
       checkOk: check.ok,
       yaml,
-      probe: false,
     });
 
     const provider = yaml?.provider;
@@ -90,11 +88,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
     const servePort = Is.num(yaml?.staging?.serve?.port)
       ? yaml.staging.serve.port
       : ServeDefaults.port;
-    const pushUrl = provider?.kind === 'orbiter'
-      ? String(provider.domain ?? '').trim()
-        ? `https://${String(provider.domain ?? '').trim()}`
-        : undefined
-      : provider?.kind === 'r2'
+    const pushUrl = provider?.kind === 'r2'
       ? String(provider.readOrigin ?? '').trim() || undefined
       : undefined;
 
@@ -127,7 +121,6 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       servePort,
       pushedOk,
       pushElapsed,
-      pushShards,
       pushBytes,
       hashPrefix,
       stageAge,
@@ -155,7 +148,6 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       if (res.push?.ok) {
         pushedOk = true;
         pushElapsed = res.push.elapsed;
-        pushShards = res.push.shards;
         pushBytes = res.push.bytes;
       }
       demarkNextRender = true;
@@ -175,7 +167,6 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       if (res.push?.ok) {
         pushedOk = true;
         pushElapsed = res.push.elapsed;
-        pushShards = res.push.shards;
         pushBytes = res.push.bytes;
       }
       demarkNextRender = true;
@@ -227,7 +218,6 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       ranOk = false;
       pushedOk = false;
       pushElapsed = undefined;
-      pushShards = undefined;
       pushBytes = undefined;
       demarkNextRender = true;
       continue;

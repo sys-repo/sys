@@ -34,6 +34,30 @@ describe('@sys/tools/deploy programmatic push', () => {
     });
   });
 
+  it('Deploy.push(...) keeps noop inert with no push targets', async () => {
+    await withTmpDir(async (cwd) => {
+      const config = `${cwd}/noop.yaml`;
+      await Fs.write(
+        config,
+        'provider:\n  kind: noop\nstaging:\n  dir: ./stage\nmappings: []\n',
+      );
+
+      let error: unknown;
+      try {
+        await Deploy.push({ cwd, config: './noop.yaml' });
+      } catch (cause) {
+        error = cause;
+      }
+
+      expect(String(error)).to.include('reason: no-push-targets');
+      expect(String(error)).to.include('No deploy targets resolved for this provider.');
+      const result = (error as { readonly cause?: t.DeployTool.PushOperation.Failure }).cause;
+      expect(result?.ok).to.eql(false);
+      if (!result || result.ok) throw new Error('expected structured push failure cause');
+      expect(result.reason).to.eql('no-push-targets');
+    });
+  });
+
   it('Deploy.push(...) accepts owner config refs from paths.config', async () => {
     await withTmpDir(async (cwd) => {
       const config = await writeProviderlessPushEndpoint(cwd);

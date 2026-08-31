@@ -23,7 +23,7 @@ export async function resolveNonInteractive(
     throw new Error('Missing required flag: --action (required with --non-interactive).');
   }
 
-  const yamlPath = Fs.resolve(cwd, config) as t.StringPath;
+  const yamlPath: t.StringPath = Fs.resolve(cwd, config);
   const check = await EndpointsFs.validateYaml(yamlPath, { cwd });
   if (!check.ok) {
     const details = errorMessagesOf(check) || Fmt.endpointValidation(check);

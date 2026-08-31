@@ -256,14 +256,14 @@ describe('Staging: executeStaging', () => {
     });
   });
 
-  it('index: includes hash labels and excludes -root entry', async () => {
+  it('index: includes hash labels and every staging directory', async () => {
     await withTmpDir(async (tmp) => {
       await Fs.ensureDir(`${tmp}/stage/shard.1`);
       await Fs.write(`${tmp}/stage/shard.1/a.txt`, 'x');
       await Pkg.Dist.compute({ dir: `${tmp}/stage/shard.1`, save: true });
 
-      await Fs.ensureDir(`${tmp}/stage/-root`);
-      await Fs.write(`${tmp}/stage/-root/index.html`, '<!doctype html>');
+      await Fs.ensureDir(`${tmp}/stage/landing`);
+      await Fs.write(`${tmp}/stage/landing/index.html`, '<!doctype html>');
 
       const dir = { source: '.', staging: 'dist/root' };
       await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'index', dir }] });
@@ -272,7 +272,7 @@ describe('Staging: executeStaging', () => {
       const html = String(index.data ?? '');
       expect(html.includes('shard.1')).to.eql(true);
       expect(html.includes('version')).to.eql(true);
-      expect(html.includes('-root')).to.eql(false);
+      expect(html.includes('href="../../landing/"')).to.eql(true);
     });
   });
 
@@ -287,9 +287,9 @@ describe('Staging: executeStaging', () => {
 
       const index = await Fs.readText(`${tmp}/stage/dist/root/index.html`);
       const html = String(index.data ?? '');
-      const a = html.indexOf('href="./shard.1/"');
-      const b = html.indexOf('href="./shard.2/"');
-      const c = html.indexOf('href="./shard.11/"');
+      const a = html.indexOf('href="../../shard.1/"');
+      const b = html.indexOf('href="../../shard.2/"');
+      const c = html.indexOf('href="../../shard.11/"');
       expect(a < b).to.eql(true);
       expect(b < c).to.eql(true);
     });
@@ -313,22 +313,26 @@ describe('Staging: executeStaging', () => {
     });
   });
 
-  it('index: renders absolute shard links when base domain provided', async () => {
+  it('index: keeps shard navigation local and relative', async () => {
     await withTmpDir(async (tmp) => {
       await Fs.ensureDir(`${tmp}/stage/shard.1`);
       await Fs.write(`${tmp}/stage/shard.1/a.txt`, 'x');
       await Pkg.Dist.compute({ dir: `${tmp}/stage/shard.1`, save: true });
 
       const dir = { source: '.', staging: 'dist/root' };
-      await executeStaging({
-        ...stageOptions(tmp),
-        mappings: [{ mode: 'index', dir }],
-        indexBaseDomain: 'video.cdn.example',
-      });
+      await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'index', dir }] });
 
-      const index = await Fs.readText(`${tmp}/stage/dist/root/index.html`);
+      const indexPath = `${tmp}/stage/dist/root/index.html`;
+      const index = await Fs.readText(indexPath);
       const html = String(index.data ?? '');
-      expect(html.includes('https://1.video.cdn.example/')).to.eql(true);
+      const hrefs = Array.from(html.matchAll(/href="([^"]+)"/g), (match) => match[1]!);
+
+      expect(hrefs).to.include('../../shard.1/dist.json');
+      expect(hrefs.every((href) => !href.startsWith('http'))).to.eql(true);
+      for (const href of hrefs) {
+        const target = Path.fromFileUrl(new URL(href, Path.toFileUrl(indexPath)));
+        expect(await Fs.exists(target)).to.eql(true);
+      }
     });
   });
 
@@ -726,7 +730,7 @@ describe('Staging: executeStaging', () => {
     await withTmpDir(async (tmp) => {
       await Fs.ensureDir(`${tmp}/src-base`);
 
-      const absoluteSource = (`${tmp}/absolute-source`) as t.StringDir;
+      const absoluteSource: t.StringDir = `${tmp}/absolute-source`;
       await Fs.ensureDir(absoluteSource);
       await Fs.write(`${absoluteSource}/abs.txt`, 'absolute');
 
@@ -751,7 +755,7 @@ describe('Staging: executeStaging', () => {
   it('tilde base paths expand before rebasing', async () => {
     await withTmpDir(async (tmp) => {
       const home = tmp;
-      const tildeDir = (`${tmp}/tilde-root`) as t.StringDir;
+      const tildeDir: t.StringDir = `${tmp}/tilde-root`;
       await Fs.ensureDir(tildeDir);
       const relative = Path.relative(home, tildeDir);
       await Fs.write(`${tildeDir}/tilde.txt`, 'home');

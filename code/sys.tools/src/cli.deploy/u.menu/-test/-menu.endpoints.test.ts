@@ -11,7 +11,7 @@ describe('Deploy: endpointsMenu', () => {
       const itemLabel = args.itemLabel;
       if (typeof itemLabel === 'function') {
         seen = [
-          itemLabel({ doc: { provider: { kind: 'orbiter' } } } as never),
+          itemLabel({ doc: { provider: { kind: 'noop' } } } as never),
           itemLabel({ doc: { provider: { kind: 'r2' } } } as never),
         ];
       }
@@ -22,6 +22,6 @@ describe('Deploy: endpointsMenu', () => {
 
     expect(res).to.eql({ kind: 'exit' });
     expect(label).to.eql('endpoints');
-    expect(seen).to.eql(['orbiter', 'r2']);
+    expect(seen).to.eql(['noop', 'r2']);
   });
 });

@@ -4,9 +4,9 @@ import { resolveStagingRoot } from './u.resolveStagingRoot.ts';
 
 /** Resolve mapping output names whose staging dirs do not have dist metadata yet. */
 export async function resolveMissingStagingOutputs(args: {
-  readonly cwd: t.StringDir;
-  readonly yamlPath: t.StringRelativeDir;
-  readonly yaml: t.DeployTool.Config.EndpointYaml.Doc;
+  cwd: t.StringDir;
+  yamlPath: t.StringPath;
+  yaml: t.DeployTool.Config.EndpointYaml.Doc;
 }): Promise<readonly string[]> {
   const resolved = await resolveMappingsForStaging(args);
   if (!resolved.ok) return [];

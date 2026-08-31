@@ -1,13 +1,12 @@
-import { type t, Fs, Path, Pkg, Str } from '../common.ts';
+import { Fs, Path, Pkg, Str, type t } from '../common.ts';
 import { ensureIndexHtml } from './u.generateHtml.ts';
 
 type Args = {
-  readonly dir: t.StringAbsoluteDir;
-  readonly filter?: (path: t.StringPath) => boolean;
-  readonly pkg?: t.Pkg;
-  readonly builder?: t.Pkg;
-  readonly baseDomain?: string;
-  readonly buildResetToken?: string;
+  dir: t.StringAbsoluteDir;
+  filter?: (path: t.StringPath) => boolean;
+  pkg?: t.Pkg;
+  builder?: t.Pkg;
+  buildResetToken?: string;
 };
 
 /**
@@ -23,10 +22,7 @@ export async function finalizeDistTree(args: Args): Promise<void> {
 
   const directories = await collectDirectories(root);
   for (const dir of directories) {
-    await ensureIndexHtml(dir, {
-      baseDomain: args.baseDomain,
-      buildResetToken: args.buildResetToken,
-    });
+    await ensureIndexHtml(dir, { buildResetToken: args.buildResetToken });
 
     await Pkg.Dist.compute({
       dir,
@@ -41,7 +37,6 @@ export async function finalizeDistTree(args: Args): Promise<void> {
   // Re-finalize root after child dist coverage exists to avoid first/second-run drift.
   await ensureIndexHtml(root, {
     force: true,
-    baseDomain: args.baseDomain,
     buildResetToken: args.buildResetToken,
   });
   await Pkg.Dist.compute({

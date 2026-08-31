@@ -1,14 +1,11 @@
 import { startServing } from '../cli.serve/m.server/mod.ts';
-import { c, Cli, Is, Path, Pkg, Str, type t, Time, Url } from './common.ts';
+import { c, Cli, Is, Path, Pkg, Str, type t, Time } from './common.ts';
 import { EndpointsFs } from './u.endpoints/mod.ts';
 import { loadStagePlan } from './u.stage.ts';
 
 import { runPushWithSpinner } from './u.menu/run.pushWithSpinner.ts';
 import { runStagingWithSpinner } from './u.menu/run.stagingWithSpinner.ts';
-import { checkUpToDate } from './u.menu/u/u.checkUpToDate.ts';
 import { pushCapabilityOf } from './u.menu/u/u.pushCapability.ts';
-import { resolveOrbiterPushTargets } from './u.menu/u/u.resolveOrbiterPushTargets.ts';
-import { resolvePushTargets } from './u.menu/u/u.resolvePushTargets.ts';
 import { PushPublishStats } from './u.push/u.publishStats.ts';
 import { PushPruneStats } from './u.push/u.pruneStats.ts';
 import { resolveMissingStagingOutputs, resolveStagingRoot } from './u.staging/mod.ts';
@@ -54,32 +51,25 @@ async function runPushAction(args: {
   const freshYaml = freshCheck.ok ? freshCheck.doc : undefined;
   const freshCapability = await pushCapabilityOf({
     cwd,
-    yamlPath: yamlDisplay as t.StringRelativeDir,
+    yamlPath: yamlDisplay,
     checkOk: freshCheck.ok,
     yaml: freshYaml,
   });
-  const freshProvider = freshYaml?.provider;
   const freshStagingRootRel = String(freshYaml?.staging?.dir ?? '').trim() || '.';
 
   if (!freshCapability.show) {
-    printPushUnavailable(freshCapability.reason ?? 'probe-failed', freshCapability.hint);
+    printPushUnavailable(freshCapability.reason, freshCapability.hint);
     return { ok: false, push: { ok: false } };
   }
 
-  const freshCanPush = freshCapability.enabled && !!freshStagingRootRel;
-  if (!freshCanPush) {
-    printPushUnavailable(freshCapability.reason ?? 'probe-failed', freshCapability.hint);
-    return { ok: false, push: { ok: false } };
-  }
+  if (!freshYaml) return { ok: false, push: { ok: false } };
 
-  if (!freshProvider || !freshYaml) return { ok: false, push: { ok: false } };
-
-  const plan = await resolvePushTargets({ cwd, yaml: freshYaml });
-  const targets = plan.targets;
+  const freshProvider = freshCapability.provider;
+  const targets = freshCapability.targets;
   if (!targets.length) {
     const b = Str.builder()
       .line(c.yellow('Push skipped'))
-      .line(c.gray(c.dim('No deploy targets (missing provider.shards.siteIds).')));
+      .line(c.gray(c.dim('No deploy targets resolved for this provider.')));
     console.info(String(b));
     return { ok: false, push: { ok: false } };
   }
@@ -90,29 +80,10 @@ async function runPushAction(args: {
   const pushStarted = Time.now.timestamp;
   let okCount = 0;
   let bytesTotal = 0;
-  let skippedTargets = 0;
   const publishStats: t.PushPublishStats[] = [];
   const pruneStats: t.PushPruneStats[] = [];
 
   for (const target of targets) {
-    const providerDomain = target.provider.kind === 'orbiter'
-      ? String(target.provider.domain ?? '').trim()
-      : target.provider.kind === 'r2'
-      ? String(target.provider.readOrigin ?? '').trim()
-      : '';
-    const domainRaw = String(target.domain ?? providerDomain ?? '').trim();
-    const domain = toHttpsUrl(domainRaw);
-
-    if (!force && target.provider.kind === 'orbiter' && domain && target.stagingDir) {
-      const res = await checkUpToDate({ stagingDir: target.stagingDir, domain });
-      if (res.ok) {
-        console.info(`${c.gray('push skipped (up-to-date)')} ${c.white(domain)} ${c.gray('✔')}`);
-        okCount += 1;
-        skippedTargets += 1;
-        continue;
-      }
-    }
-
     const res = await runPushWithSpinner({ cwd, target, force });
     if (!res.ok) {
       const hint = String(res.hint ?? '').trim();
@@ -139,31 +110,20 @@ async function runPushAction(args: {
     if (res.prune) pruneStats.push(res.prune);
   }
 
-  if (okCount !== targets.length || targets.length === 0) {
-    return { ok: false, push: { ok: false } };
-  }
+  if (okCount !== targets.length) return { ok: false, push: { ok: false } };
 
   const elapsed = Time.elapsed(pushStarted).toString();
-  const shards = targets.filter((t) => Is.num(t.shard)).length || undefined;
   const bytes = bytesTotal || undefined;
-  const orbiterPlan = freshProvider.kind === 'orbiter'
-    ? await resolveOrbiterPushTargets({ cwd, yaml: freshYaml })
-    : undefined;
   const publish = PushPublishStats.merge(publishStats);
   const publishSummary = PushPublishStats.summary(publish);
   const prune = PushPruneStats.merge(pruneStats);
   const pruneSummary = PushPruneStats.summary(prune);
-  const totalCount = orbiterPlan?.stats.total ?? plan.stats.total;
-  const totalTargets = totalCount > 0 ? String(totalCount) : totalCount;
   const table = Cli.table();
-  table.push([c.gray('  targets'), totalTargets, c.italic(c.gray('total push targets'))]);
-  if (skippedTargets) {
-    table.push([
-      c.yellow('  skipped'),
-      c.yellow(String(skippedTargets)),
-      c.italic(c.gray('up-to-date')),
-    ]);
-  }
+  table.push([
+    c.gray('  targets'),
+    String(targets.length),
+    c.italic(c.gray('total push targets')),
+  ]);
   if (publishSummary.total > 0) {
     table.push([c.gray('  files'), publishSummary.total, c.italic(c.gray('total publish files'))]);
     table.push([
@@ -186,22 +146,6 @@ async function runPushAction(args: {
       c.italic(c.gray('stale files')),
     ]);
   }
-  if (orbiterPlan) {
-    const stats = orbiterPlan.stats;
-    table.push([c.gray('  root index'), stats.root, c.italic(c.gray('root index target'))]);
-    table.push([c.gray('  shards'), stats.shard, c.italic(c.gray('shard targets'))]);
-    if (stats.base) {
-      table.push([c.gray('  non-shards'), stats.base, c.italic(c.gray('non-shard targets'))]);
-    }
-    if (stats.skippedShards) {
-      table.push([
-        c.yellow('  skipped'),
-        c.yellow(String(stats.skippedShards)),
-        c.italic(c.gray('missing shard output')),
-      ]);
-    }
-  }
-
   const reportHash = `#${hashSuffix ?? '00000'}`;
   const reportSuffix = c.gray(c.dim(`for ${reportHash}`));
   console.info(c.white(`\nPush report ${reportSuffix}`));
@@ -210,7 +154,7 @@ async function runPushAction(args: {
 
   return {
     ok: true,
-    push: { ok: true, elapsed, shards, bytes, publish, prune },
+    push: { ok: true, elapsed, bytes, publish, prune },
   };
 }
 
@@ -244,7 +188,7 @@ async function runServeAction(args: {
   if (!freshDist?.hash?.digest) {
     const missing = await resolveMissingStagingOutputs({
       cwd,
-      yamlPath: displayYamlPath(cwd, yamlPath) as t.StringRelativeDir,
+      yamlPath: displayYamlPath(cwd, yamlPath),
       yaml: freshYaml,
     });
     const suffix = missing.length ? `: ${missing.join(', ')}` : '';
@@ -299,13 +243,4 @@ function printPushUnavailable(reason: string, hint?: string) {
     .line(c.gray(c.dim(`reason: ${reason}`)));
   if (text) b.line(c.gray(text));
   console.info(String(b));
-}
-
-function toHttpsUrl(input: string): string {
-  const raw = String(input ?? '').trim();
-  if (!raw) return '';
-  if (Is.urlString(raw)) return Url.normalize(raw);
-  const noScheme = Str.trimHttpScheme(raw);
-  const cleaned = Str.trimLeadingSlashes(noScheme);
-  return Url.normalize(`https://${cleaned}`);
 }

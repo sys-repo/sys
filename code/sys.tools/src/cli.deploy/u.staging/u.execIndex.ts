@@ -1,4 +1,4 @@
-import { type t, Fs, Path, Pkg } from '../common.ts';
+import { Fs, Path, Pkg, type t } from '../common.ts';
 import { ensureIndexHtml } from './u.generateHtml.ts';
 
 /**
@@ -9,7 +9,6 @@ export async function execIndex(
   dir: t.DeployTool.Staging.Dir,
   report?: (e: t.DeployTool.Staging.ProgressReport<'mapping:step'>) => void,
   stagingRoot?: t.StringDir,
-  baseDomain?: string,
   buildResetToken?: string,
 ): Promise<void> {
   const sourceRaw = String(dir.source ?? '');
@@ -21,8 +20,7 @@ export async function execIndex(
 
   report?.({ kind: 'mapping:step', label: 'index.html' });
   await Fs.ensureDir(dst);
-  await ensureIndexHtml(src, { force: true, baseDomain, buildResetToken });
-  await Fs.copy(Fs.join(src, 'index.html'), Fs.join(dst, 'index.html'), { force: true });
+  await ensureIndexHtml(src, { targetDir: dst, force: true, buildResetToken });
 
   report?.({ kind: 'mapping:step', label: 'dist.json' });
   await Pkg.Dist.compute({ dir: dst, save: true });

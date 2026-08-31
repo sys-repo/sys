@@ -1,69 +1,38 @@
-import { type t, Schema } from '../common.ts';
-import { NoopProvider, OrbiterProvider, R2Provider } from '../u.providers/mod.ts';
+import { Schema, type t } from '../common.ts';
+import { NoopProvider, R2Provider } from '../u.providers/mod.ts';
 import { EndpointSchemaParts } from './u.schema.parts.ts';
 
-const GenericDocSchema = Schema.Type.Object(
+const ProviderSchema = Schema.Type.Union([
+  NoopProvider.Schema.schema,
+  R2Provider.Schema.schema,
+]);
+
+const DocumentSchema = Schema.Type.Object(
   {
+    provider: Schema.Type.Optional(ProviderSchema),
     source: EndpointSchemaParts.source,
     staging: EndpointSchemaParts.staging,
-    mappings: Schema.Type.Optional(
-      Schema.Type.Array(
-        Schema.Type.Object(
-          {
-            dir: EndpointSchemaParts.dir,
-            mode: Schema.Type.Union([
-              Schema.Type.Literal('copy'),
-              Schema.Type.Literal('build+copy'),
-              Schema.Type.Literal('index'),
-            ]),
-            shards: Schema.Type.Optional(
-              Schema.Type.Object(
-                {
-                  total: Schema.Type.Number(),
-                  requireAll: Schema.Type.Optional(Schema.Type.Boolean()),
-                },
-                { additionalProperties: false },
-              ),
-            ),
-          },
-          { additionalProperties: false },
-        ),
-        { minItems: 0 },
-      ),
-    ),
+    mappings: Schema.Type.Optional(EndpointSchemaParts.mappings),
   },
   { additionalProperties: false },
 );
 
 /**
- * Endpoint YAML schema (authoritative config).
- * Runtime validated via JsonSchema (typebox) Value.Check/Errors.
+ * Validate and construct authoritative endpoint YAML documents.
  */
 export const EndpointYamlSchema = {
-  /**
-   * Typed initial document.
-   * (YAML can omit optionals; but having explicit defaults is fine.)
-   */
+  /** Construct the canonical providerless initial document. */
   initial(): t.DeployTool.Config.EndpointYaml.Doc {
     return { staging: { dir: './staging' }, mappings: [] };
   },
 
-  /**
-   * Runtime validation (strict, no coercion).
-   */
+  /** Validate strictly without coercion. */
   validate(value: unknown) {
     const ok = Schema.Value.Check(EndpointYamlSchema.schema, value);
     const errors = ok ? [] : [...Schema.Value.Errors(EndpointYamlSchema.schema, value)];
     return { ok, errors } as const;
   },
 
-  /**
-   * JsonSchema.
-   */
-  schema: Schema.Type.Union([
-    GenericDocSchema,
-    OrbiterProvider.EndpointSchema.doc,
-    NoopProvider.EndpointSchema.doc,
-    R2Provider.EndpointSchema.doc,
-  ]),
+  /** Authoritative endpoint JsonSchema. */
+  schema: DocumentSchema,
 } as const;

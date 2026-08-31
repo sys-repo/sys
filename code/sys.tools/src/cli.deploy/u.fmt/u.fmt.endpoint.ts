@@ -1,11 +1,10 @@
-import { c, Cli, Fmt, Fs, Is, Num, Pkg, Str, type t } from '../common.ts';
-import { Provider } from '../u.providers/mod.ts';
+import { c, Cli, Fmt, Fs, Is, Pkg, Str, type t } from '../common.ts';
 import { fmtProvider } from './u.fmt.provider.ts';
 
 export async function endpointTable(
   cwd: t.StringDir,
   ref: t.DeployTool.Config.EndpointRef,
-  options: { readonly yaml?: t.EndpointYamlFile } = {},
+  options: { yaml?: t.EndpointYamlFile } = {},
 ) {
   const table = Cli.table();
 
@@ -30,26 +29,11 @@ export async function endpointTable(
   }
 
   const mappingsCount = yaml?.mappings?.length ?? 0;
-  const shardTotal = yaml?.provider?.kind === 'orbiter' ? yaml?.provider?.shards?.total : undefined;
-  const mappingsLabel = Num.Is.finite(shardTotal) && shardTotal > 0
-    ? `${mappingsCount} ${Str.plural(mappingsCount, 'bundle')} over ${
-      c.white(`${shardTotal}-shards`)
-    }`
-    : `${String(mappingsCount)} ${Str.plural(mappingsCount, 'bundle')}`;
+  const mappingsLabel = `${String(mappingsCount)} ${Str.plural(mappingsCount, 'bundle')}`;
   const providerFmt = fmtProvider(yaml?.provider);
-  const providerDomain = yaml?.provider?.kind === 'orbiter'
-    ? String(yaml.provider.domain ?? '').trim()
-    : yaml?.provider?.kind === 'r2'
+  const providerDomain = yaml?.provider?.kind === 'r2'
     ? String(yaml.provider.readOrigin ?? '').trim()
     : '';
-
-  let providerProbe: t.PushProbe | undefined;
-  try {
-    const provider = options.yaml?.provider;
-    if (provider) providerProbe = await Provider.probe(cwd, provider);
-  } catch {
-    providerProbe = undefined;
-  }
 
   // Align mapping "second column" under the endpoint value column.
   const baseLabels = [
@@ -58,9 +42,6 @@ export async function endpointTable(
     childText('mappings'),
     ...(providerFmt ? [childText(providerFmt.label)] : []),
     ...(providerDomain ? [childText('domain')] : []),
-    ...(providerFmt && providerProbe && !providerProbe.ok
-      ? [childText('provider probe', true)]
-      : []),
   ];
   const valuesIndent = baseLabels.reduce((m, s) => Math.max(m, s.length), 0) + 2;
 
@@ -81,24 +62,9 @@ export async function endpointTable(
   const body: Array<[string, string]> = [[c.gray('endpoint'), c.cyan(name)]];
 
   rows.forEach((row, index) => {
-    const isLast = index === rows.length - 1 &&
-      !(providerFmt && providerProbe && !providerProbe.ok);
+    const isLast = index === rows.length - 1;
     body.push([child(row.label, isLast), row.value]);
   });
-
-  if (providerFmt && providerProbe && !providerProbe.ok) {
-    const reason = String(providerProbe.reason ?? 'unavailable');
-    const hint = String(providerProbe.hint ?? '').trim();
-
-    // 1) main row: only the reason (yellow)
-    body.push([child('provider probe', true), c.yellow(reason)]);
-
-    // 2) second line: install hint (dim), drawn as a nested tree line
-    if (hint) {
-      const tree = ` ${c.dim(Fmt.Tree.vert)}  `;
-      body.push([c.gray(`${tree}`), c.gray(c.dim(c.italic(hint)))]);
-    }
-  }
 
   table.body(body);
 

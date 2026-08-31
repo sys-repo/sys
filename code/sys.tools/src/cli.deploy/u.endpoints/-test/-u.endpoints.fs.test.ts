@@ -15,7 +15,7 @@ describe('EndpointsFs', () => {
     const yaml = EndpointsFs.initialYaml();
     expect(yaml.includes('mappings: []')).to.eql(true);
     expect(yaml.includes('# deploy endpoint: alpha')).to.eql(false);
-    expect(yaml.includes('siteId: SITE_ID_HERE')).to.eql(true);
+    expect(yaml.includes('# provider:')).to.eql(false);
     expect(yaml.includes('app: APP_NAME_HERE')).to.eql(false);
     expect(yaml.includes('tokenEnv: TOKEN_ENV_HERE')).to.eql(false);
     expect(yaml.includes('source: ./my-public')).to.eql(true);
@@ -29,7 +29,7 @@ describe('EndpointsFs', () => {
 
       const text = (await Fs.readText(path)).data!;
       expect(text.includes('mappings: []')).to.eql(true);
-      expect(text.includes('siteId: SITE_ID_HERE')).to.eql(true);
+      expect(text.includes('# provider:')).to.eql(false);
     });
   });
 
@@ -170,20 +170,24 @@ describe('EndpointsFs', () => {
     });
   });
 
-  it('validateYaml: resolves orbiter provider env refs before validation', async () => {
+  it('validateYaml: resolves r2 provider env refs before validation', async () => {
     await withTmpDir(async (tmp) => {
-      const yamlPath = `${tmp}/${EndpointsFs.fileOf('env-orbiter')}`;
+      const yamlPath = `${tmp}/${EndpointsFs.fileOf('env-r2')}`;
       await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
       await Fs.write(
         `${tmp}/.env`,
-        'SAMPLE_DEPLOY_ORBITER_SITE_ID="site-123"\nSAMPLE_DEPLOY_ORBITER_DOMAIN="example.com"\n',
+        'SAMPLE_DEPLOY_R2_ACCOUNT_ID="account-1"\nSAMPLE_DEPLOY_R2_BUCKET="deploy-bucket"\n',
       );
 
       const yaml = Str.dedent(`
         provider:
-          kind: orbiter
-          siteId: \${env:SAMPLE_DEPLOY_ORBITER_SITE_ID}
-          domain: \${env:SAMPLE_DEPLOY_ORBITER_DOMAIN}
+          kind: r2
+          accountId: \${env:SAMPLE_DEPLOY_R2_ACCOUNT_ID}
+          bucket: \${env:SAMPLE_DEPLOY_R2_BUCKET}
+          prefix: deploy/site
+          credentials:
+            accessKeyId: key-1
+            secretAccessKey: secret-1
         staging:
           dir: ./staging
         mappings: []
@@ -193,26 +197,29 @@ describe('EndpointsFs', () => {
       const res = await EndpointsFs.validateYaml(yamlPath);
 
       expect(res.ok).to.eql(true);
-      if (res.ok && res.doc.provider?.kind === 'orbiter') {
-        expect(res.doc.provider.siteId).to.eql('site-123');
-        expect(res.doc.provider.domain).to.eql('example.com');
+      if (res.ok && res.doc.provider?.kind === 'r2') {
+        expect(res.doc.provider.accountId).to.eql('account-1');
+        expect(res.doc.provider.bucket).to.eql('deploy-bucket');
       }
     });
   });
 
   it('validateYaml: missing env ref fails before schema/provider validation', async () => {
-    const key = 'SAMPLE_DEPLOY_MISSING_SITE_ID';
+    const key = 'SAMPLE_DEPLOY_MISSING_ACCOUNT_ID';
     await withoutProcessEnv(key, async () => {
       await withTmpDir(async (tmp) => {
         const yamlPath = `${tmp}/${EndpointsFs.fileOf('env-missing')}`;
         await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
-        await Fs.write(`${tmp}/.env`, 'SAMPLE_DEPLOY_ORBITER_DOMAIN="example.com"\n');
 
         const yaml = Str.dedent(`
           provider:
-            kind: orbiter
-            siteId: \${env:${key}}
-            domain: \${env:SAMPLE_DEPLOY_ORBITER_DOMAIN}
+            kind: r2
+            accountId: \${env:${key}}
+            bucket: deploy-bucket
+            prefix: deploy/site
+            credentials:
+              accessKeyId: key-1
+              secretAccessKey: secret-1
           staging:
             dir: ./staging
           mappings: []
@@ -224,7 +231,7 @@ describe('EndpointsFs', () => {
         expect(res.ok).to.eql(false);
         if (!res.ok) {
           const rendered = JSON.stringify(res.errors, null, 2);
-          expect(rendered.includes(`provider.siteId references missing env var: ${key}`)).to.eql(
+          expect(rendered.includes(`provider.accountId references missing env var: ${key}`)).to.eql(
             true,
           );
         }
@@ -256,111 +263,6 @@ describe('EndpointsFs', () => {
       await Fs.write(yamlPath, yaml);
       const res = await EndpointsFs.validateYaml(yamlPath);
       expect(res.ok).to.eql(true);
-    });
-  });
-
-  it('validateYaml: shard templates use provider.shards.total → ok:true', async () => {
-    await withTmpDir(async (tmp) => {
-      const yamlPath = `${tmp}/${EndpointsFs.fileOf('provider-shards')}`;
-      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
-
-      await Fs.ensureDir(`${tmp}/code/video/partition-0`);
-      await Fs.ensureDir(`${tmp}/code/video/partition-1`);
-
-      const yaml = Str.dedent(`
-        provider:
-          kind: orbiter
-          siteId: 123abc
-          domain: example.com
-          shards: { total: 2 }
-        source:
-          dir: ./code
-        staging:
-          dir: ./staging
-        mappings:
-          - mode: copy
-            dir:
-              source: ./video/partition-<shard>
-              staging: ./<shard>.video.cdn.example
-        `);
-
-      await Fs.write(yamlPath, yaml);
-      const res = await EndpointsFs.validateYaml(yamlPath);
-      expect(res.ok).to.eql(true);
-    });
-  });
-
-  it('validateYaml: rejects provider.shards.only out of range', async () => {
-    await withTmpDir(async (tmp) => {
-      const yamlPath = `${tmp}/${EndpointsFs.fileOf('provider-shards-bad')}`;
-      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
-
-      const yaml = Str.dedent(`
-        provider:
-          kind: orbiter
-          siteId: 123abc
-          domain: example.com
-          shards:
-            total: 2
-            only: [3]
-        staging:
-          dir: ./staging
-        mappings: []
-        `);
-
-      await Fs.write(yamlPath, yaml);
-      const res = await EndpointsFs.validateYaml(yamlPath);
-      expect(res.ok).to.eql(false);
-    });
-  });
-
-  it('validateYaml: rejects provider.shards.siteIds invalid key', async () => {
-    await withTmpDir(async (tmp) => {
-      const yamlPath = `${tmp}/${EndpointsFs.fileOf('provider-shards-bad-key')}`;
-      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
-
-      const yaml = Str.dedent(`
-        provider:
-          kind: orbiter
-          siteId: 123abc
-          domain: example.com
-          shards:
-            total: 2
-            siteIds:
-              x: 11111111-1111-1111-1111-111111111111
-        staging:
-          dir: ./staging
-        mappings: []
-        `);
-
-      await Fs.write(yamlPath, yaml);
-      const res = await EndpointsFs.validateYaml(yamlPath);
-      expect(res.ok).to.eql(false);
-    });
-  });
-
-  it('validateYaml: rejects provider.shards.siteIds empty value', async () => {
-    await withTmpDir(async (tmp) => {
-      const yamlPath = `${tmp}/${EndpointsFs.fileOf('provider-shards-bad-value')}`;
-      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
-
-      const yaml = Str.dedent(`
-        provider:
-          kind: orbiter
-          siteId: 123abc
-          domain: example.com
-          shards:
-            total: 2
-            siteIds:
-              1: ''
-        staging:
-          dir: ./staging
-        mappings: []
-        `);
-
-      await Fs.write(yamlPath, yaml);
-      const res = await EndpointsFs.validateYaml(yamlPath);
-      expect(res.ok).to.eql(false);
     });
   });
 

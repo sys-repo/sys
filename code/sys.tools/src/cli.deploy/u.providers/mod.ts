@@ -1,9 +1,2 @@
 export { NoopProvider } from './provider.noop/mod.ts';
-export { OrbiterProvider } from './provider.orbiter/mod.ts';
 export { R2Provider } from './provider.r2/mod.ts';
-import { probe } from './u.probe.ts';
-
-/**
- * Common provider tools.
- */
-export const Provider = { probe } as const;

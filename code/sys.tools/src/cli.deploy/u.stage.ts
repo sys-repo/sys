@@ -41,11 +41,11 @@ export async function stage(args: t.DeployTool.StageArgs): Promise<t.DeployTool.
 
 /** Load and resolve a deploy endpoint stage plan without executing it. */
 export async function loadStagePlan(args: {
-  readonly cwd: t.StringDir;
-  readonly config: t.StringPath;
+  cwd: t.StringDir;
+  config: t.StringPath;
 }): Promise<StagePlanLoadResult> {
   const { cwd } = args;
-  const config = Fs.resolve(cwd, args.config) as t.StringPath;
+  const config: t.StringPath = Fs.resolve(cwd, args.config);
   const check = await EndpointsFs.validateYaml(config, { cwd });
 
   if (!check.ok) {
@@ -54,11 +54,11 @@ export async function loadStagePlan(args: {
 
   const yaml = check.doc;
   const bases = resolveBases(cwd, yaml);
-  const stagingRoot = bases.stagingBaseAbs as t.StringDir;
+  const stagingRoot: t.StringDir = bases.stagingBaseAbs;
 
   const resolved = await resolveMappingsForStaging({
     cwd,
-    yamlPath: displayConfigPath(cwd, config) as t.StringRelativeDir,
+    yamlPath: displayConfigPath(cwd, config),
     yaml,
   });
   if (!resolved.ok) {
@@ -80,11 +80,8 @@ export async function loadStagePlan(args: {
         cwd,
         mappings: resolved.mappings,
         sourceRoot: bases.sourceRoot,
-        stagingRoot: bases.stagingRoot as t.StringRelativeDir,
+        stagingRoot: bases.stagingRoot,
         clear: yaml.staging?.clear === true,
-        indexBaseDomain: yaml.provider?.kind === 'orbiter'
-          ? String(yaml.provider.domain ?? '').trim()
-          : undefined,
         buildResetHtml: yaml.staging?.html?.buildReset === true,
       },
     },
@@ -94,7 +91,7 @@ export async function loadStagePlan(args: {
 /** Stage a loaded endpoint plan without presentation side-effects. */
 export async function stagePlan(
   plan: StagePlan,
-  options: { readonly onProgress?: StageMappingsArgs['onProgress'] } = {},
+  options: { onProgress?: StageMappingsArgs['onProgress'] } = {},
 ): Promise<t.DeployTool.StageOperation.Result> {
   try {
     const stage = options.onProgress
@@ -109,8 +106,8 @@ export async function stagePlan(
 
 /** Stage a deploy endpoint from owner YAML without throwing on expected failures. */
 export async function stageEndpoint(args: {
-  readonly cwd: t.StringDir;
-  readonly config: t.StringPath;
+  cwd: t.StringDir;
+  config: t.StringPath;
 }): Promise<t.DeployTool.StageOperation.Result> {
   const loaded = await loadStagePlan(args);
   if (!loaded.ok) return loaded;

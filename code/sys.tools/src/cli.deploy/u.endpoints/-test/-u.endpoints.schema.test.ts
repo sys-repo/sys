@@ -1,4 +1,4 @@
-import { describe, expect, expectTypeOf, it } from '../../../-test.ts';
+import { describe, expect, it } from '../../../-test.ts';
 import { providerlessPrebuiltStageDoc } from '../../-test/u.fixture.ts';
 import { EndpointYamlSchema } from '../mod.ts';
 
@@ -35,8 +35,8 @@ describe('Schema: endpoint', () => {
     });
 
     describe('provider', () => {
-      it('accepts provider.orbiter', () => {
-        const value = {
+      it('rejects discontinued provider.orbiter', () => {
+        const res = EndpointYamlSchema.validate({
           staging: { dir: './staging' },
           provider: {
             kind: 'orbiter',
@@ -44,38 +44,10 @@ describe('Schema: endpoint', () => {
             domain: 'example.com',
           },
           mappings: [],
-        };
-
-        const res = EndpointYamlSchema.validate(value);
-        expect(res.ok).to.eql(true);
-        expect(res.errors).to.eql([]);
-
-        // type guard sanity: shape should be compatible with endpoint YAML doc surface
-        expectTypeOf(value).toMatchTypeOf<{
-          readonly provider?: unknown;
-          readonly mappings?: unknown;
-          readonly staging: unknown;
-        }>();
-      });
-
-      it('accepts provider.orbiter shards', () => {
-        const res = EndpointYamlSchema.validate({
-          staging: { dir: './staging' },
-          provider: {
-            kind: 'orbiter',
-            siteId: 'fs',
-            domain: 'fs',
-            shards: {
-              total: 64,
-              only: [1, 2],
-              siteIds: { 1: 'a', 2: 'b' },
-            },
-          },
-          mappings: [],
         });
 
-        expect(res.ok).to.eql(true);
-        expect(res.errors).to.eql([]);
+        expect(res.ok).to.eql(false);
+        expect(res.errors.length).to.be.greaterThan(0);
       });
 
       it('accepts provider.r2', () => {
@@ -142,35 +114,6 @@ describe('Schema: endpoint', () => {
             app: 'my-app',
           },
           mappings: [],
-        });
-
-        expect(res.ok).to.eql(false);
-        expect(res.errors.length).to.be.greaterThan(0);
-      });
-
-      it('rejects provider.orbiter unknown keys', () => {
-        const res = EndpointYamlSchema.validate({
-          staging: { dir: './staging' },
-          provider: {
-            kind: 'orbiter',
-            siteId: 'fs',
-            domain: 'fs',
-            extra: true,
-          },
-        });
-
-        expect(res.ok).to.eql(false);
-        expect(res.errors.length).to.be.greaterThan(0);
-      });
-
-      it('rejects provider.orbiter missing required keys', () => {
-        const res = EndpointYamlSchema.validate({
-          staging: { dir: './staging' },
-          provider: {
-            kind: 'orbiter',
-            siteId: 'fs',
-            // domain missing
-          },
         });
 
         expect(res.ok).to.eql(false);
@@ -260,6 +203,24 @@ describe('Schema: endpoint', () => {
 
         expect(res.ok).to.eql(true);
         expect(res.errors).to.eql([]);
+      });
+
+      it('rejects non-positive, fractional, and unsafe shard totals', () => {
+        for (const total of [0, -1, 1.5, Number.MAX_SAFE_INTEGER + 1]) {
+          const res = EndpointYamlSchema.validate({
+            staging: { dir: './staging' },
+            mappings: [
+              {
+                mode: 'copy',
+                dir: { source: './source-<shard>', staging: './target-<shard>' },
+                shards: { total },
+              },
+            ],
+          });
+
+          expect(res.ok).to.eql(false);
+          expect(res.errors.length).to.be.greaterThan(0);
+        }
       });
 
       it('rejects unknown keys inside dir', () => {

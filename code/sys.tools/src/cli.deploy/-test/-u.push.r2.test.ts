@@ -35,6 +35,37 @@ describe('@sys/tools/deploy programmatic push: r2', () => {
         );
       });
     });
+
+    it('returns r2 target context when provider push fails', async () => {
+      await withTmpDir(async (cwd) => {
+        const config = `${cwd}/deploy.r2.yaml`;
+        const staging = Path.resolve(cwd, './stage');
+        await writeSourceSite(cwd, 'source');
+        await writeStagedSite(staging, 'staged');
+        await Fs.write(config, r2Yaml({ staging: './stage' }));
+
+        await withMockedR2Push(
+          async () => ({ ok: false, reason: 'failed', hint: 'r2 down' }),
+          async () => {
+            const result = await pushEndpoint({ cwd, config });
+
+            expect(result.ok).to.eql(false);
+            if (result.ok) throw new Error('expected push failure');
+            expect(result.reason).to.eql('failed');
+            expect(result.hint).to.eql('r2 down');
+            expect(result.target).to.eql({
+              index: 0,
+              provider: 'r2',
+              sourceDir: Path.resolve(cwd, './src'),
+              stagingDir: staging,
+              domain: 'https://cdn.example.com',
+              bucket: 'deploy-bucket',
+              prefix: 'deploy/site',
+            });
+          },
+        );
+      });
+    });
   });
 
   describe('Deploy.push', () => {

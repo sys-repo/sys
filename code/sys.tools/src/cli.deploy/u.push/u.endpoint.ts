@@ -2,7 +2,7 @@ import { ConfigRef, Err, Fs, Is, Pkg, Str, type t, Time } from '../common.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
 import { PushPublishStats } from './u.publishStats.ts';
 import { PushPruneStats } from './u.pruneStats.ts';
-import { pushProvider } from './u.push.ts';
+import { pushTarget } from './u.push.ts';
 import { resolvePushTargets } from './u.resolvePushTargets.ts';
 
 type StagingOutputCheck =
@@ -30,7 +30,7 @@ export async function pushEndpoint(args: {
   force?: boolean;
 }): Promise<t.DeployTool.PushOperation.Result> {
   const { cwd } = args;
-  const config = Fs.resolve(cwd, args.config) as t.StringPath;
+  const config: t.StringPath = Fs.resolve(cwd, args.config);
   const check = await EndpointsFs.validateYaml(config, { cwd });
 
   if (!check.ok) {
@@ -82,10 +82,8 @@ export async function pushEndpoint(args: {
     return failure({
       cwd,
       config,
-      reason: provider.kind === 'orbiter' ? 'no-staging-output' : 'no-push-targets',
-      hint: provider.kind === 'orbiter'
-        ? 'Run staging first (no staging output found).'
-        : 'No deploy targets resolved for this provider.',
+      reason: 'no-push-targets',
+      hint: 'No deploy targets resolved for this provider.',
     });
   }
 
@@ -109,7 +107,7 @@ export async function pushEndpoint(args: {
   for (const [index, target] of targets.entries()) {
     const context = targetContext(target, index);
     try {
-      const result = await pushProvider({ cwd, target, force: args.force });
+      const result = await pushTarget({ cwd, target, force: args.force });
       if (!result.ok) {
         return failure({
           cwd,
@@ -134,7 +132,6 @@ export async function pushEndpoint(args: {
     }
   }
 
-  const shards = targets.filter((target) => Is.num(target.shard)).length || undefined;
   const bytes = bytesTotal || undefined;
   const publish = PushPublishStats.merge(publishStats);
   const prune = PushPruneStats.merge(pruneStats);
@@ -144,7 +141,6 @@ export async function pushEndpoint(args: {
     config,
     targets: targets.length,
     elapsed: Time.elapsed(started).toString(),
-    shards,
     bytes,
     publish,
     prune,
@@ -221,8 +217,6 @@ function formatTargetContext(context?: t.PushTargetContext): string {
   const parts: string[] = [];
   if (Is.num(context.index)) parts.push(`#${context.index + 1}`);
   parts.push(`provider=${context.provider}`);
-  if (Is.num(context.shard)) parts.push(`shard=${context.shard}`);
-  if (context.siteId) parts.push(`siteId=${context.siteId}`);
   if (context.bucket) parts.push(`bucket=${context.bucket}`);
   if (context.prefix) parts.push(`prefix=${context.prefix}`);
   if (context.domain) parts.push(`domain=${context.domain}`);
@@ -276,27 +270,17 @@ function missingOutput(
 function targetContext(target: t.PushTarget, index: number): t.PushTargetContext {
   const provider = target.provider;
   const providerKind = String(provider.kind ?? '').trim() || 'unknown';
-  const providerDomain = provider.kind === 'orbiter'
-    ? trimText(provider.domain)
-    : provider.kind === 'r2'
-    ? trimText(provider.readOrigin)
-    : undefined;
-  const siteId = provider.kind === 'orbiter' ? trimText(provider.siteId) : undefined;
-  const bucket = provider.kind === 'r2' ? trimText(provider.bucket) : undefined;
-  const prefix = provider.kind === 'r2' ? trimText(provider.prefix) : undefined;
-  const domain = trimText(target.domain) ?? providerDomain;
-  const stagingDir = trimText(target.stagingDir) as t.StringDir | undefined;
+  const domain = trimText(target.domain) ?? trimText(provider.readOrigin);
+  const stagingDir: t.StringDir | undefined = trimText(target.stagingDir);
 
   return {
     index,
     provider: providerKind,
     sourceDir: target.sourceDir,
     stagingDir,
-    shard: Is.num(target.shard) ? target.shard : undefined,
     domain,
-    siteId,
-    bucket,
-    prefix,
+    bucket: trimText(provider.bucket),
+    prefix: trimText(provider.prefix),
   };
 }
 

@@ -98,19 +98,22 @@ describe('@sys/tools/deploy non-interactive resolution', () => {
   });
 
   it('fails clearly for missing env refs', async () => {
-    const key = 'SAMPLE_DEPLOY_MISSING_SITE_ID';
+    const key = 'SAMPLE_DEPLOY_MISSING_ACCOUNT_ID';
     await withoutProcessEnv(key, async () => {
       const cwd = (await Fs.makeTempDir({ prefix: 'sys.tools.deploy.resolve.' })).absolute;
       const yamlRel = '-config/@sys.tools.deploy/env-missing.yaml';
       await Fs.ensureDir(`${cwd}/-config/@sys.tools.deploy`);
-      await Fs.write(`${cwd}/.env`, 'SAMPLE_DEPLOY_ORBITER_DOMAIN="example.com"\n');
       await Fs.write(
         `${cwd}/${yamlRel}`,
         Str.dedent(`
           provider:
-            kind: orbiter
-            siteId: \${env:${key}}
-            domain: \${env:SAMPLE_DEPLOY_ORBITER_DOMAIN}
+            kind: r2
+            accountId: \${env:${key}}
+            bucket: deploy-bucket
+            prefix: deploy/site
+            credentials:
+              accessKeyId: key-1
+              secretAccessKey: secret-1
           staging:
             dir: ./stage
           mappings: []
@@ -126,7 +129,7 @@ describe('@sys/tools/deploy non-interactive resolution', () => {
       ]);
       await expectError(
         () => resolveNonInteractive(cwd, args),
-        `provider.siteId references missing env var: ${key}`,
+        `provider.accountId references missing env var: ${key}`,
       );
     });
   });

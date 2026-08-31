@@ -1,4 +1,4 @@
-import { type t, Fs, Is, Path } from '../common.ts';
+import { Fs, Is, Path, type t } from '../common.ts';
 import { createBuildResetToken } from './u.buildReset.ts';
 import { execBuildCopy } from './u.execBuildCopy.ts';
 import { execCopy } from './u.execCopy.ts';
@@ -14,7 +14,6 @@ type Args = {
   concurrency?: number;
   onProgress?: (e: StagingProgressEvent) => void;
   sourceRoot?: string;
-  indexBaseDomain?: string;
 
   /**
    * Optional single staging root dir for deterministic lifecycle operations.
@@ -51,8 +50,9 @@ export async function executeStaging(options: Args): Promise<void> {
   const buildResetToken = options.buildResetHtml ? createBuildResetToken() : undefined;
 
   if (options.cleanStagingRoot) {
-    if (!options.stagingRoot)
+    if (!options.stagingRoot) {
       throw new Error('executeStaging: cleanStagingRoot requires options.stagingRoot');
+    }
     const rootAbs = stagingBaseAbs;
     const cwdAbs = Path.resolve(cwd, '.');
 
@@ -85,7 +85,6 @@ export async function executeStaging(options: Args): Promise<void> {
     emit,
     total,
     indexOffset: 0,
-    indexBaseDomain: options.indexBaseDomain,
     buildResetToken,
   });
 
@@ -99,21 +98,17 @@ export async function executeStaging(options: Args): Promise<void> {
     emit,
     total,
     indexOffset: standard.length,
-    indexBaseDomain: options.indexBaseDomain,
     buildResetToken,
   });
 
   const rootAbs = stagingBaseAbs;
   // Always refresh the root index after successful staging (safe: only overwrites if marker present).
-  await ensureIndexHtml(rootAbs, {
-    force: true,
-    baseDomain: options.indexBaseDomain,
-    buildResetToken,
-  });
+  await ensureIndexHtml(rootAbs, { force: true, buildResetToken });
 
   if (options.writeDistJson) {
-    if (!options.stagingRoot)
+    if (!options.stagingRoot) {
       throw new Error('executeStaging: writeDistJson requires options.stagingRoot');
+    }
 
     const write = options.onWriteDistJson;
     if (!write) throw new Error('executeStaging: writeDistJson requires options.onWriteDistJson');
@@ -131,7 +126,6 @@ async function runPhase(args: {
   emit: (e: StagingProgressEvent) => void;
   total: number;
   indexOffset: number;
-  indexBaseDomain?: string;
   buildResetToken?: string;
 }): Promise<void> {
   const {
@@ -144,7 +138,6 @@ async function runPhase(args: {
     emit,
     total,
     indexOffset,
-    indexBaseDomain,
     buildResetToken,
   } = args;
   const phaseTotal = mappings.length;
@@ -165,14 +158,12 @@ async function runPhase(args: {
       const m = mappings[localIndex]!;
       const index = indexOffset + localIndex;
       const staging = resolvePath(stagingBaseAbs, m.dir.staging);
-      const source =
-        m.mode === 'index'
-          ? resolvePath(stagingBaseAbs, m.dir.source)
-          : resolvePath(sourceBaseAbs, m.dir.source);
-      const dir: t.DeployTool.Staging.Dir =
-        m.mode === 'index'
-          ? { ...m.dir, staging }
-          : { ...m.dir, source, staging };
+      const source = m.mode === 'index'
+        ? resolvePath(stagingBaseAbs, m.dir.source)
+        : resolvePath(sourceBaseAbs, m.dir.source);
+      const dir: t.DeployTool.Staging.Dir = m.mode === 'index'
+        ? { ...m.dir, staging }
+        : { ...m.dir, source, staging };
 
       emit({ kind: 'mapping:start', index, total, mode: m.mode, source, staging });
 
@@ -204,7 +195,6 @@ async function runPhase(args: {
               { ...dir, source: m.dir.source },
               reportStep,
               stagingBaseAbs,
-              indexBaseDomain,
               buildResetToken,
             );
             break;

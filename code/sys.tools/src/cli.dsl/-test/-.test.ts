@@ -23,7 +23,11 @@ describe('@sys/tools dsl', () => {
     expect(serve).to.contain('Base path check');
 
     expect(deploy).to.contain('@sys/tools dsl deploy');
-    expect(deploy).to.contain('Deploy snapshot replacement, provider push');
+    expect(deploy).to.contain('Deploy staging, snapshot replacement, R2 Files publishing');
+    expect(deploy).to.contain('Environment authority never grants HOME');
+    expect(deploy).to.contain('`~user` remains literal path text');
+    expect(deploy).to.contain('all-or-nothing and config-local');
+    expect(deploy).to.contain('requireAll');
     expect(deploy).to.contain('Snapshot');
     expect(deploy).to.contain('Force repair mode');
   });
@@ -43,7 +47,7 @@ describe('@sys/tools dsl', () => {
 
     expect(text).to.contain('name: "sys-tools-dsl-deploy"');
     expect(text).to.contain(
-      'description: "Guides @sys/tools DSL work; use when you need to deploy snapshot replacement, provider push, R2 Files publishing, and force repair mode."',
+      'description: "Guides @sys/tools DSL work; use when you need to deploy staging, snapshot replacement, R2 Files publishing, and force repair mode."',
     );
     expect(text).to.contain('# Deploy DSL');
   });

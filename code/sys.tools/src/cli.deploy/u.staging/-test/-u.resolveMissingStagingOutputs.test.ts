@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it, Pkg, type t } from '../../../-test.ts';
+import { describe, expect, Fs, it, Pkg } from '../../../-test.ts';
 import { withTmpDir } from '../../-test/u.fixture.ts';
 import { resolveMissingStagingOutputs } from '../u.resolveMissingStagingOutputs.ts';
 
@@ -15,8 +15,8 @@ describe('Deploy: resolveMissingStagingOutputs', () => {
       });
 
       const missing = await resolveMissingStagingOutputs({
-        cwd: tmp as t.StringDir,
-        yamlPath: './noop.yaml' as t.StringRelativeDir,
+        cwd: tmp,
+        yamlPath: './noop.yaml',
         yaml: {
           staging: { dir: './stage' },
           mappings: [
@@ -39,8 +39,8 @@ describe('Deploy: resolveMissingStagingOutputs', () => {
   it('returns all missing mapping names in mapping order', async () => {
     await withTmpDir(async (tmp) => {
       const missing = await resolveMissingStagingOutputs({
-        cwd: tmp as t.StringDir,
-        yamlPath: './noop.yaml' as t.StringRelativeDir,
+        cwd: tmp,
+        yamlPath: './noop.yaml',
         yaml: {
           staging: { dir: './stage' },
           mappings: [
@@ -63,8 +63,8 @@ describe('Deploy: resolveMissingStagingOutputs', () => {
   it('preserves nested staging-relative paths in missing output names', async () => {
     await withTmpDir(async (tmp) => {
       const missing = await resolveMissingStagingOutputs({
-        cwd: tmp as t.StringDir,
-        yamlPath: './noop.yaml' as t.StringRelativeDir,
+        cwd: tmp,
+        yamlPath: './noop.yaml',
         yaml: {
           staging: { dir: './stage' },
           mappings: [

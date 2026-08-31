@@ -1,5 +1,4 @@
-import { type t, describe, expect, Fs, it, Str } from '../../../-test.ts';
-import { Provider } from '../../u.providers/mod.ts';
+import { describe, expect, Fs, it, Str } from '../../../-test.ts';
 import { pushCapabilityOf } from '../u/u.pushCapability.ts';
 import { withTmpDir } from '../../-test/u.fixture.ts';
 
@@ -28,65 +27,61 @@ describe('Deploy: pushCapabilityOf', () => {
         `),
       );
 
-      const res = await pushCapabilityOf({
-        cwd: tmp as t.StringDir,
-        yamlPath: yamlPath as t.StringRelativeDir,
-        checkOk: true,
-        probe: false,
-      });
+      const res = await pushCapabilityOf({ cwd: tmp, yamlPath, checkOk: true });
 
       expect(res.show).to.eql(true);
       if (!res.show) throw new Error('expected push capability to be shown');
-      expect(res.enabled).to.eql(true);
       expect(res.provider.kind).to.eql('r2');
       expect(res.targets.length).to.eql(1);
     });
   });
 
-  it('skips provider probe when render-time probe is disabled', async () => {
+  it('keeps noop push capability hidden', async () => {
     await withTmpDir(async (tmp) => {
-      const yamlPath = './-config/deploy/foo.yaml';
+      const yamlPath = './-config/deploy/noop.yaml';
       await Fs.ensureDir(`${tmp}/-config/deploy`);
-      await Fs.ensureDir(`${tmp}/stage`);
       await Fs.write(
         Fs.join(tmp, yamlPath),
-        Str.dedent(`
-        provider:
-          kind: orbiter
-          siteId: site-1
-          domain: example.com
-        source:
-          dir: .
-        staging:
-          dir: ./stage
-        mappings: []
-        `),
+        'provider:\n  kind: noop\nstaging:\n  dir: ./stage\nmappings: []\n',
       );
 
-      let probeCalls = 0;
-      const originalProbe = Provider.probe;
-      const mutable = Provider as { probe: typeof Provider.probe };
+      const res = await pushCapabilityOf({ cwd: tmp, yamlPath, checkOk: true });
 
-      try {
-        mutable.probe = async () => {
-          probeCalls += 1;
-          return { ok: false, reason: 'failed' };
-        };
-
-        const res = await pushCapabilityOf({
-          cwd: tmp as t.StringDir,
-          yamlPath: yamlPath as t.StringRelativeDir,
-          checkOk: true,
-          probe: false,
-        });
-
-        expect(res.show).to.eql(true);
-        if (!res.show) throw new Error('expected push capability to be shown');
-        expect(res.enabled).to.eql(true);
-        expect(probeCalls).to.eql(0);
-      } finally {
-        mutable.probe = originalProbe;
-      }
+      expect(res).to.eql({ show: false, reason: 'noop-provider' });
     });
+  });
+
+  it('returns an unavailable capability when target resolution throws', async () => {
+    const oldHome = Deno.env.get('HOME');
+    Deno.env.delete('HOME');
+
+    try {
+      const res = await pushCapabilityOf({
+        cwd: '/tmp',
+        yamlPath: './unused.yaml',
+        checkOk: true,
+        yaml: {
+          provider: {
+            kind: 'r2',
+            accountId: 'account-1',
+            bucket: 'deploy-bucket',
+            prefix: 'deploy/site',
+            credentials: { accessKeyId: 'key-1', secretAccessKey: 'secret-1' },
+          },
+          source: { dir: '~' },
+          staging: { dir: './stage' },
+          mappings: [],
+        },
+      });
+
+      expect(res).to.eql({
+        show: false,
+        reason: 'target-resolution-failed',
+        hint: 'Unable to resolve deploy targets.',
+      });
+    } finally {
+      if (oldHome === undefined) Deno.env.delete('HOME');
+      else Deno.env.set('HOME', oldHome);
+    }
   });
 });

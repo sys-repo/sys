@@ -44,14 +44,18 @@ describe('Endpoints: validateEndpointYamlText', () => {
     if (!res.ok) expect(res.errors.length > 0).to.eql(true);
   });
 
-  it('valid YAML with orbiter provider → ok:true', () => {
+  it('valid YAML with r2 provider → ok:true', () => {
     const yaml = Str.dedent(`
       staging:
         dir: ./staging
       provider:
-        kind: orbiter
-        siteId: site-123
-        domain: fs
+        kind: r2
+        accountId: account-1
+        bucket: deploy-bucket
+        prefix: deploy/site
+        credentials:
+          accessKeyId: key-1
+          secretAccessKey: secret-1
       mappings: []
     `);
 
@@ -59,7 +63,7 @@ describe('Endpoints: validateEndpointYamlText', () => {
     expect(res.ok).to.eql(true);
 
     if (res.ok) {
-      expect(res.doc.provider?.kind).to.eql('orbiter');
+      expect(res.doc.provider?.kind).to.eql('r2');
       expect(res.doc.mappings ?? []).to.eql([]);
     }
   });
@@ -79,13 +83,14 @@ describe('Endpoints: validateEndpointYamlText', () => {
     if (!res.ok) expect(res.errors.length > 0).to.eql(true);
   });
 
-  it('schema-invalid orbiter provider → ok:false', () => {
+  it('discontinued orbiter provider → ok:false', () => {
     const yaml = Str.dedent(`
       staging:
         dir: ./staging
       provider:
         kind: orbiter
-        domain: fs
+        siteId: site-123
+        domain: example.com
       mappings: []
     `);
 

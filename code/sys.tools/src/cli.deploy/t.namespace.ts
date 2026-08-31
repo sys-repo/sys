@@ -34,16 +34,19 @@ export namespace DeployTool {
     push(args: PushArgs): Promise<PushResult>;
   };
 
+  /** Inputs accepted by `Deploy.stage`. */
   export type StageArgs = {
-    readonly cwd?: t.StringDir;
+    cwd?: t.StringDir;
   } & t.Tools.ConfigRefArgs;
 
+  /** Inputs accepted by `Deploy.push`. */
   export type PushArgs = {
-    readonly cwd?: t.StringDir;
+    cwd?: t.StringDir;
     /** Rewrite staged publish files even when the remote manifest says they are unchanged. */
-    readonly force?: boolean;
+    force?: boolean;
   } & t.Tools.ConfigRefArgs;
 
+  /** Successful staging result. */
   export type StageResult = {
     readonly ok: true;
     readonly config: t.StringPath;
@@ -51,13 +54,13 @@ export namespace DeployTool {
     readonly stagingRoot: t.StringDir;
   };
 
+  /** Successful publication result. */
   export type PushResult = {
     readonly ok: true;
     readonly cwd: t.StringDir;
     readonly config: t.StringPath;
     readonly targets: number;
     readonly elapsed?: string;
-    readonly shards?: number;
     readonly bytes?: number;
     /** Provider-reported per-file publish details when available. */
     readonly publish?: t.PushPublishStats;
@@ -65,9 +68,14 @@ export namespace DeployTool {
     readonly prune?: t.PushPruneStats;
   };
 
+  /**
+   * Non-throwing staging operation results.
+   */
   export namespace StageOperation {
+    /** Staging success or expected failure. */
     export type Result = StageResult | Failure;
 
+    /** Expected staging failure. */
     export type Failure = {
       readonly ok: false;
       readonly config: t.StringPath;
@@ -77,9 +85,14 @@ export namespace DeployTool {
     };
   }
 
+  /**
+   * Non-throwing publication operation results.
+   */
   export namespace PushOperation {
+    /** Publication success or expected failure. */
     export type Result = PushResult | Failure;
 
+    /** Expected publication failure. */
     export type Failure = {
       readonly ok: false;
       readonly cwd: t.StringDir;
@@ -89,9 +102,6 @@ export namespace DeployTool {
         | 'no-provider'
         | 'no-push-targets'
         | 'no-staging-output'
-        | 'probe-failed'
-        | 'unsupported-provider'
-        | 'not-implemented'
         | 'failed';
       readonly hint?: string;
       readonly target?: t.PushTargetContext;
@@ -147,7 +157,12 @@ export namespace DeployTool {
          * Optional shard expansion for template paths.
          * When provided and templates are present, mappings are expanded per shard.
          */
-        shards?: { total: number; requireAll?: boolean };
+        shards?: {
+          /** Positive safe-integer number of template expansions. */
+          total: number;
+          /** Require every expanded source path to exist. */
+          requireAll?: boolean;
+        };
       };
 
       /**
@@ -196,30 +211,21 @@ export namespace DeployTool {
     }
 
     /**
-     * Deployment provider configuration.
+     * Strict provider configuration authored inside endpoint YAML.
      *
-     * A DeployProvider describes the *remote system* an endpoint is published to.
-     * It is intentionally a tagged union (`kind`) so:
-     * - schemas can discriminate cleanly
-     * - validation errors are precise
-     * - new providers can be added without breaking existing configs
-     *
-     * Provider objects are authored inside endpoint YAML files and validated
-     * strictly at runtime. Unknown providers fail validation.
-     *
-     * Current providers:
-     * - `orbiter`
-     * - `noop`
-     * - `r2`
+     * Supported providers:
+     * - `noop` → inert, with no publication target
+     * - `r2` → Cloudflare R2 publication
      */
     export namespace Provider {
       /**
        * Tagged union of all supported provider configs.
        * Add new providers here (and in u.providers schemas) as they land.
        */
-      export type All = Orbiter | Noop | R2;
-      export type Orbiter = t.OrbiterProvider;
+      export type All = Noop | R2;
+      /** Inert provider configuration. */
       export type Noop = t.NoopProvider;
+      /** Cloudflare R2 provider configuration. */
       export type R2 = t.R2Provider;
     }
   }
@@ -260,7 +266,6 @@ export namespace DeployTool {
       readonly push?: {
         readonly ok: boolean;
         readonly elapsed?: string;
-        readonly shards?: number;
         readonly bytes?: number;
         /** Provider-reported per-file publish details when available. */
         readonly publish?: t.PushPublishStats;

@@ -1,5 +1,4 @@
-import { type t, c } from '../common.ts';
-import { fmtProviderOrbiter } from '../u.providers/provider.orbiter/u.fmt.ts';
+import { c, type t } from '../common.ts';
 import { fmtProviderR2 } from '../u.providers/provider.r2/u.fmt.ts';
 
 export function fmtProvider(
@@ -9,9 +8,6 @@ export function fmtProvider(
   if (!provider) return { label, value: c.gray('-') };
 
   switch (provider.kind) {
-    case 'orbiter':
-      return fmtProviderOrbiter(provider);
-
     case 'noop':
       return { label: 'provider', value: c.white('noop') };
 
@@ -25,4 +21,3 @@ export function fmtProvider(
     }
   }
 }
-

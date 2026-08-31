@@ -53,16 +53,4 @@ describe('Deploy: promptEndpointAction', () => {
       '  #81960  pushed ✔ - https://example.com (in 507ms, 284 B)',
     );
   });
-
-  it('formats pushed action shard count and size symmetrically', () => {
-    const res = formatPushActionName({
-      pushedOk: true,
-      hashPrefix: '#81960',
-      pushElapsed: '2s',
-      pushShards: 2,
-      pushBytes: 284,
-    });
-
-    expect(Cli.stripAnsi(res)).to.eql('  #81960  pushed ✔ (in 2s, 2 shards, 284 B)');
-  });
 });

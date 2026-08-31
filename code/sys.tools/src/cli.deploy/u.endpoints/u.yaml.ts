@@ -1,4 +1,4 @@
-import { type t, Fs, Str } from '../common.ts';
+import { Fs, Str, type t } from '../common.ts';
 
 /**
  * Canonical starting YAML for a new endpoint.
@@ -12,11 +12,6 @@ export function initialYaml(): string {
       # - source.dir   → optional source base
       # - staging.dir  → local staging root
       # - mappings     → staged filesystem layout
-
-      # provider:
-      #   kind: orbiter
-      #   siteId: SITE_ID_HERE
-      #   domain: foo
 
       # source:
       #   dir: .

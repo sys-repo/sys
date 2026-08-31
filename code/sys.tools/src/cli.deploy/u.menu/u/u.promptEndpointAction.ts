@@ -7,22 +7,16 @@ export function formatServeActionName(port: number): string {
 }
 
 export function formatPushActionName(args: {
-  readonly pushedOk: boolean;
-  readonly hashPrefix: string;
-  readonly pushElapsed?: string;
-  readonly pushShards?: number;
-  readonly pushBytes?: number;
-  readonly pushUrl?: string;
+  pushedOk: boolean;
+  hashPrefix: string;
+  pushElapsed?: string;
+  pushBytes?: number;
+  pushUrl?: string;
 }): string {
-  const { pushedOk, hashPrefix, pushElapsed, pushShards, pushBytes, pushUrl } = args;
+  const { pushedOk, hashPrefix, pushElapsed, pushBytes, pushUrl } = args;
   const pushUrlMeta = pushedOk && pushUrl ? ` ${c.gray(c.dim('-'))} ${c.cyan(pushUrl)}` : '';
-  const shardPart = pushedOk && pushShards
-    ? `, ${pushShards} ${Str.plural(pushShards, 'shard')}`
-    : '';
   const bytesPart = pushedOk && Is.num(pushBytes) ? `, ${Str.bytes(pushBytes)}` : '';
-  const elapsedPart = pushedOk && pushElapsed
-    ? `${pushElapsed}${shardPart}${bytesPart}`
-    : undefined;
+  const elapsedPart = pushedOk && pushElapsed ? `${pushElapsed}${bytesPart}` : undefined;
   const pushElapsedMeta = pushedOk && elapsedPart ? ` ${c.gray(c.dim(`(in ${elapsedPart})`))}` : '';
   const pushMeta = `${pushUrlMeta}${pushElapsedMeta}`;
   const pushPrefix = `  ${hashPrefix}  pushed ✔`;
@@ -42,7 +36,6 @@ type PromptEndpointActionArgs = {
   servePort: number;
   pushedOk: boolean;
   pushElapsed?: string;
-  pushShards?: number;
   pushBytes?: number;
   hashPrefix: string;
   stageAge?: string;
@@ -52,9 +45,9 @@ type PromptEndpointActionArgs = {
 };
 
 type SelectPrompt = (args: {
-  readonly message: string;
-  readonly options: { readonly name: string; readonly value: A }[];
-  readonly hideDefault: boolean;
+  message: string;
+  options: { name: string; value: A }[];
+  hideDefault: boolean;
 }) => Promise<A>;
 
 export function promptEndpointAction(args: PromptEndpointActionArgs): Promise<A> {
@@ -82,7 +75,6 @@ export async function promptEndpointActionWith(
     stageSize,
     pushUrl,
     hasStageMeta,
-    pushShards,
     pushBytes,
   } = args;
   const stageAgeText = stageAge
@@ -96,7 +88,6 @@ export async function promptEndpointActionWith(
     pushedOk,
     hashPrefix,
     pushElapsed: args.pushElapsed,
-    pushShards,
     pushBytes,
     pushUrl,
   });

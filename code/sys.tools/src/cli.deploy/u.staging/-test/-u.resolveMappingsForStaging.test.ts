@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it, type t } from '../../../-test.ts';
+import { describe, expect, Fs, it } from '../../../-test.ts';
 import { withTmpDir } from '../../-test/u.fixture.ts';
 import { resolveMappingsForStaging } from '../u.resolveMappingsForStaging.ts';
 
@@ -10,7 +10,7 @@ describe('Deploy: resolveMappingsForStaging', () => {
       await Fs.ensureDir(`${tmp}/src/video/partition-2`);
 
       const res = await resolveMappingsForStaging({
-        cwd: tmp as t.StringDir,
+        cwd: tmp,
         yamlPath: './noop.yaml',
         yaml: {
           source: { dir: './src' },
@@ -61,39 +61,65 @@ describe('Deploy: resolveMappingsForStaging', () => {
     expect(res.mappings[0]?.dir.staging).to.eql('./<shard>.video.cdn.example');
   });
 
-  it('expands templates using provider.shards when mapping shards are absent', async () => {
-    await withTmpDir(async (tmp) => {
-      await Fs.ensureDir(`${tmp}/src/video/partition-0`);
-      await Fs.ensureDir(`${tmp}/src/video/partition-1`);
+  it('rejects invalid configured numeric shard totals', async () => {
+    const invalid = [0, -1, 1.5, Number.MAX_SAFE_INTEGER + 1, NaN, Infinity];
 
+    for (const total of invalid) {
       const res = await resolveMappingsForStaging({
-        cwd: tmp as t.StringDir,
+        cwd: '/tmp',
         yamlPath: './noop.yaml',
         yaml: {
-          provider: {
-            kind: 'orbiter',
-            siteId: 'site',
-            domain: 'example.com',
-            shards: { total: 2 },
-          },
-          source: { dir: './src' },
           staging: { dir: './staging' },
           mappings: [
             {
               mode: 'copy',
+              shards: { total },
               dir: {
-                source: './video/partition-<shard>',
-                staging: './<shard>.video.cdn.example',
+                source: './source-<shard>',
+                staging: './target-<shard>',
               },
             },
           ],
         },
       });
 
-      expect(res.ok).to.eql(true);
-      expect(res.mappings.length).to.eql(2);
-      expect(res.mappings[0]?.dir.source).to.eql('./video/partition-0');
-      expect(res.mappings[1]?.dir.source).to.eql('./video/partition-1');
+      expect(res.ok).to.eql(false);
+      expect(res.mappings).to.eql([]);
+    }
+  });
+
+  it('rejects missing and malformed shard totals read from YAML', async () => {
+    await withTmpDir(async (tmp) => {
+      const fixtures = {
+        missing: [
+          'staging:\n  dir: ./staging',
+          'mappings:',
+          '  - mode: copy',
+          '    shards: {}',
+          '    dir:',
+          '      source: ./source-<shard>',
+          '      staging: ./target-<shard>',
+        ].join('\n'),
+        string: [
+          'staging:\n  dir: ./staging',
+          'mappings:',
+          '  - mode: copy',
+          '    shards:',
+          '      total: three',
+          '    dir:',
+          '      source: ./source-<shard>',
+          '      staging: ./target-<shard>',
+        ].join('\n'),
+      };
+
+      for (const [name, yaml] of Object.entries(fixtures)) {
+        const yamlPath = `./${name}.yaml`;
+        await Fs.write(`${tmp}/${name}.yaml`, yaml);
+
+        const res = await resolveMappingsForStaging({ cwd: tmp, yamlPath });
+        expect(res.ok).to.eql(false);
+        expect(res.mappings).to.eql([]);
+      }
     });
   });
 
@@ -129,7 +155,7 @@ describe('Deploy: resolveMappingsForStaging', () => {
       await Fs.ensureDir(`${src}/video/partition-2`);
 
       const res = await resolveMappingsForStaging({
-        cwd: tmp as t.StringDir,
+        cwd: tmp,
         yamlPath: './noop.yaml',
         yaml: {
           source: { dir: './src' },

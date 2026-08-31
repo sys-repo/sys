@@ -14,11 +14,11 @@ export type { Yaml, YamlConfig } from '@sys/yaml/t';
 /** Minimal root-tool vocabulary used by deploy. */
 export namespace Tools {
   export type CliArgs = { help: boolean; debug?: boolean };
-  export type ConfigRefPaths = { readonly config: StringPath };
-  export type ConfigRefPathsInput = { readonly config?: StringPath };
+  export type ConfigRefPaths = { config: StringPath };
+  export type ConfigRefPathsInput = { config?: StringPath };
   export type ConfigRefArgs =
-    | { readonly config: StringPath; readonly paths?: ConfigRefPathsInput }
-    | { readonly config?: never; readonly paths: ConfigRefPaths };
+    | { config: StringPath; paths?: ConfigRefPathsInput }
+    | { config?: never; paths: ConfigRefPaths };
   export type Recency = {
     readonly createdAt?: UnixTimestamp;
     readonly lastUsedAt?: UnixTimestamp;
