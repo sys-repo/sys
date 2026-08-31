@@ -171,7 +171,7 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
     expect(disposals).to.eql([FIRST_DIR]);
   });
 
-  it('captures package-owner expectation before a hostile build callback', async () => {
+  it('preserves generated package identity through a hostile build callback', async () => {
     const starts: t.PreviewStartInput[] = [];
     const disposals: t.StringAbsoluteDir[] = [];
     let mutated = true;

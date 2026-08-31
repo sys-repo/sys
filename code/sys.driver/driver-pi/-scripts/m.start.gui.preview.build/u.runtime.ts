@@ -11,12 +11,7 @@ type PreviewFailure = {
 export const PACKAGE_ROOT: t.StringAbsoluteDir = Fs.resolve(import.meta.dirname ?? '.', '../..');
 export const WORKSPACE_ROOT: t.StringDir = Fs.resolve(PACKAGE_ROOT, '../../..');
 
-/** Copy generated metadata into finite immutable authority before dependency callbacks run. */
-const EXPECTED_PKG: t.PreviewPackageIdentity = Object.freeze({
-  name: pkg.name,
-  version: pkg.version,
-});
-const TEMP_OWNER = Str.replaceAll(EXPECTED_PKG.name, '/', '-').after;
+const TEMP_OWNER = Str.replaceAll(pkg.name, '/', '-').after;
 const BUILD_CHILD = Fs.Path.fromFileUrl(new URL('./-entry.build.ts', import.meta.url));
 const GUI: t.PreviewGui = Object.freeze({
   async start(input) {
@@ -62,7 +57,7 @@ export async function mainWith(deps: t.PreviewDependencies): Promise<void> {
     const build = await deps.build(Object.freeze({
       cwd: PACKAGE_ROOT,
       paths,
-      pkg: EXPECTED_PKG,
+      pkg,
       exitOnError: false,
     }));
     if (!build.ok) throw new Error('start:gui:preview build failed.');
@@ -76,7 +71,7 @@ export async function mainWith(deps: t.PreviewDependencies): Promise<void> {
       kind: 'development',
       dir,
       integrity: build.manifest.integrity,
-      expectedPkg: EXPECTED_PKG,
+      expectedPkg: pkg,
     });
     guiInvoked = true;
     await deps.GUI.start(Object.freeze({

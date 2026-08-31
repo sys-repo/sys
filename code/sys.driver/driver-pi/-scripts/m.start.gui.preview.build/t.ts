@@ -3,10 +3,7 @@ import type { t } from '../../src/common.ts';
 
 export type PreviewBuildPaths = DriverViteConfig.Paths;
 
-export type PreviewPackageIdentity = {
-  readonly name: t.StringPkgName;
-  readonly version: t.StringSemver;
-};
+export type PreviewPackageIdentity = Readonly<t.Pkg>;
 
 export type PreviewDevelopmentSource = {
   readonly kind: 'development';
