@@ -10,14 +10,19 @@ describe('BootstrapStatus.start/startup authority', () => {
       return DEFAULT_DEPENDENCIES.startHttp(...args);
     };
 
-    const invalid = await catchError(() =>
-      startWith(input(), {
-        ...DEFAULT_DEPENDENCIES,
-        capability: () => 'caller-selected',
-        startHttp,
-      })
-    );
-    expect(invalid?.message).to.eql('BootstrapStatus.start failed.');
+    for (const capability of ['caller-selected', 'a'.repeat(24), 'a'.repeat(26)]) {
+      const invalid = await catchError(() =>
+        startWith(input(), {
+          ...DEFAULT_DEPENDENCIES,
+          capability: () => capability,
+          startHttp,
+        })
+      );
+      expect({ capability, message: invalid?.message }).to.eql({
+        capability,
+        message: 'BootstrapStatus.start failed.',
+      });
+    }
 
     let coercions = 0;
     const hostile = {

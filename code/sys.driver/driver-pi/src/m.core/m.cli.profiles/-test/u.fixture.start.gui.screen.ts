@@ -4,7 +4,7 @@ export const SERVICE = 'sys.ui:pi';
 export const CAPABILITY = (() => {
   const ORIGIN = 'http://127.0.0.1:51260';
   const DISPLAY_ORIGIN = 'http://localhost:51260';
-  const SUFFIX = '/0123456789abcdefghijklmnopqrstuvwxyzabcdefghijkl';
+  const SUFFIX = '/0123456789abcdefghijklmno';
   return Object.freeze({
     ORIGIN,
     DISPLAY_ORIGIN,

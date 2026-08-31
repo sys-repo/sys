@@ -14,17 +14,19 @@ import {
   startedFixture,
 } from './u.fixture.start.gui.ts';
 
-const STATUS_URL = 'http://127.0.0.1:45000/0123456789abcdefghijklmnopqrstuvwxyzabcd' as t.StringUrl;
+const STATUS_URL = `http://127.0.0.1:45000/${'a'.repeat(25)}` as t.StringUrl;
 const APPLICATION_EXPECTATION = Object.freeze({
   integrity: START_GUI_SERVICE.source.integrity,
   expectedPkg: START_GUI_SERVICE.source.expectedPkg,
 });
 
 describe('@sys/driver-pi start:gui terminal arbiter', () => {
-  it('requires one concrete canonical IPv4 status listener port', () => {
-    const suffix = '/0123456789abcdefghijklmnopqrstuvwxyzabcd';
+  it('requires one concrete canonical IPv4 status listener and a 25-character capability', () => {
+    const suffix = `/${'a'.repeat(25)}`;
+    const shortSuffix = `/${'a'.repeat(24)}`;
     const cases: readonly Readonly<{ url: t.StringUrl; admitted: boolean }>[] = [
       { url: `http://127.0.0.1:45000${suffix}` as t.StringUrl, admitted: true },
+      { url: `http://127.0.0.1:45000${shortSuffix}` as t.StringUrl, admitted: false },
       { url: `http://127.0.0.1:0${suffix}` as t.StringUrl, admitted: false },
       { url: `http://127.0.0.1${suffix}` as t.StringUrl, admitted: false },
       { url: `http://[::1]:45000${suffix}` as t.StringUrl, admitted: false },

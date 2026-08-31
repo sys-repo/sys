@@ -61,7 +61,7 @@ describe('BootstrapStatus.start/startup', () => {
     try {
       const url = new URL(started.url);
       expect(url.origin).to.eql(internal.origin);
-      expect(url.pathname).to.match(/^\/[0-9a-z]{48}$/);
+      expect(url.pathname).to.match(/^\/[0-9a-z]{25}$/);
       expect(url.search).to.eql('');
       expect(url.hash).to.eql('');
       expect(internal.status().urls).to.eql([{ href: `${url.origin}/` }]);

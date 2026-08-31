@@ -26,7 +26,7 @@ describe('BootstrapStatus.start/request', () => {
     try {
       const host = hostOf(started);
       const path = new URL(started.url).pathname;
-      const accepted = await direct(app, '/a'.padEnd(49, 'a'), host);
+      const accepted = await direct(app, '/a'.padEnd(26, 'a'), host);
       expect(accepted.status).to.eql(200);
       assertPolicy(accepted);
       await accepted.body?.cancel();
@@ -40,7 +40,7 @@ describe('BootstrapStatus.start/request', () => {
       assertPolicy(unknown);
       expect(await unknown.text()).to.eql(NOT_FOUND_HTML);
 
-      for (const target of [`${path}?token=ignored`, `${path}?`, `/%61${'a'.repeat(47)}`]) {
+      for (const target of [`${path}?token=ignored`, `${path}?`, `/%61${'a'.repeat(24)}`]) {
         const response = await direct(app, target, host);
         expect([target, response.status]).to.eql([target, 404]);
         await response.body?.cancel();
@@ -88,7 +88,7 @@ describe('BootstrapStatus.start/request', () => {
       resolve: () => projection,
     }, {
       ...DEFAULT_DEPENDENCIES,
-      capability: () => 'b'.repeat(48),
+      capability: () => 'b'.repeat(25),
     });
 
     try {

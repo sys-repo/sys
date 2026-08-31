@@ -529,21 +529,21 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
         viewport: { width, height: 12 },
       }).split('\n').find((row) => Cli.stripAnsi(row).trimStart().startsWith('open')) ?? '';
 
-    const exact = openRow(87);
+    const exact = openRow(64);
     expect(Cli.stripAnsi(exact)).to.contain(CAPABILITY.DISPLAY);
-    expect(Cli.Fmt.Text.Width.measure(exact)).to.eql(85);
+    expect(Cli.Fmt.Text.Width.measure(exact)).to.eql(62);
 
-    const clippedHead = '/0123456789abcdefghijklm';
-    const clippedTail = 'pqrstuvwxyzabcdefghijkl';
+    const clippedHead = '/0123456789a';
+    const clippedTail = 'defghijklmno';
     const clippedSuffix = `${clippedHead}…${clippedTail}`;
-    const clipped = openRow(86);
+    const clipped = openRow(63);
     expect(Cli.stripAnsi(clipped)).to.contain(`${CAPABILITY.DISPLAY_ORIGIN}${clippedSuffix}`);
     expect(Cli.stripAnsi(clipped)).to.not.contain(CAPABILITY.DISPLAY);
     expect(clipped).to.contain(c.gray(clippedHead));
     expect(clipped).to.contain(Cli.Fmt.omission());
     expect(clipped).to.contain(c.gray(clippedTail));
     expect(clipped).to.contain(CAPABILITY.URL);
-    expect(Cli.Fmt.Text.Width.measure(clipped)).to.eql(84);
+    expect(Cli.Fmt.Text.Width.measure(clipped)).to.eql(61);
   });
 
   it('reserves the repaint cursor row at every viewport height', () => {

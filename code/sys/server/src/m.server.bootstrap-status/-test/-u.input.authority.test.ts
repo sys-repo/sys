@@ -8,7 +8,7 @@ describe('BootstrapStatus.start/input authority', () => {
     let starts = 0;
     const deps: StartDependencies = {
       ...DEFAULT_DEPENDENCIES,
-      capability: () => 'c'.repeat(48),
+      capability: () => 'c'.repeat(25),
       startHttp(...args) {
         starts++;
         return DEFAULT_DEPENDENCIES.startHttp(...args);

@@ -36,7 +36,7 @@ export async function deterministicStart<K extends string>(
   let app: t.HttpServer.App | undefined;
   const started = await startWith(options, {
     ...DEFAULT_DEPENDENCIES,
-    capability: () => character.repeat(48),
+    capability: () => character.repeat(25),
     createApp(...args) {
       app = DEFAULT_DEPENDENCIES.createApp(...args);
       return app;

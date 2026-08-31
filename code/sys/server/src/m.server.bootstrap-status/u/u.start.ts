@@ -30,12 +30,12 @@ export type StartDependencies = {
 };
 
 export const DEFAULT_DEPENDENCIES: StartDependencies = Object.freeze({
-  capability: () => Random.base36(48),
+  capability: () => Random.base36(25),
   createApp: HttpServer.create,
   startHttp: HttpServer.start,
 });
 
-const CAPABILITY_PATTERN = /^[0-9a-z]{48}$/;
+const CAPABILITY_PATTERN = /^[0-9a-z]{25}$/;
 const freeze = Object.freeze;
 
 /**

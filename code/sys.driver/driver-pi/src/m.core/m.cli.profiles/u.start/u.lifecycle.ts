@@ -349,7 +349,7 @@ function isStatusUrl(input: unknown): input is t.StringUrl {
 
 function isStatusCapabilityPath(input: string): boolean {
   if (
-    input.length < 33 || input.length > 129 ||
+    input.length < 26 || input.length > 129 ||
     StartGuiIntrinsic.stringCharCodeAt(input, 0) !== 0x2f
   ) return false;
   for (let index = 1; index < input.length; index += 1) {
