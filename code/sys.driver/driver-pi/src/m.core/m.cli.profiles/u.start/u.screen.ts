@@ -369,12 +369,6 @@ export const StartGuiScreen = {
         { kind: 'path', root },
       ]);
     }
-    if (input.state.kind === 'ready') {
-      StartGuiIntrinsic.arrayPush(facts, [
-        'app',
-        { kind: 'url', text: input.state.origin },
-      ]);
-    }
     if (input.state.kind === 'failed') {
       StartGuiIntrinsic.arrayPush(facts, [
         'evidence',
@@ -402,7 +396,13 @@ export const StartGuiScreen = {
         { kind: 'warning', text: 'browser did not open; use launch URL' },
       ]);
     }
-    StartGuiIntrinsic.arrayPush(facts, ['open', { kind: 'url', text: input.url }]);
+    StartGuiIntrinsic.arrayPush(facts, ['open', { kind: 'capability', text: input.url }]);
+    if (input.state.kind === 'ready') {
+      StartGuiIntrinsic.arrayPush(facts, [
+        'app',
+        { kind: 'url', text: input.state.origin },
+      ]);
+    }
     const serviceRows: string[] = [];
     for (const [label, value] of facts) {
       const rendered = StartGuiIntrinsic.arrayMap(
@@ -419,13 +419,8 @@ export const StartGuiScreen = {
     StartGuiIntrinsic.arrayPush(rows, '');
     StartGuiIntrinsic.arrayAppend(rows, serviceRows);
     const capacity = numericMax(0, viewport.height - FRAME_CURSOR_ROWS);
-    const candidateControls = input.keyboard
-      ? keyboardRows(viewport.width, allowsBack(input.state))
-      : [];
-    const controls = rows.length + candidateControls.length <= capacity ? candidateControls : [];
-    const available = numericMax(0, capacity - controls.length);
-    const visible = StartGuiIntrinsic.arraySlice(rows, 0, available);
-    StartGuiIntrinsic.arrayAppend(visible, controls);
+    const footer = input.keyboard ? keyboardRows(viewport.width, allowsBack(input.state)) : [];
+    const visible = Cli.Screen.Dock.bottom({ capacity, flow: rows, footer });
     return StartGuiIntrinsic.stringTrimEnd(StartGuiIntrinsic.arrayJoin(
       StartGuiIntrinsic.arrayMap(visible, (row) => fitRow(row, viewport.width)),
       '\n',
@@ -446,6 +441,7 @@ type ServiceValue =
     readonly directoryHref?: t.StringUrl;
     readonly href?: t.StringUrl;
   }
+  | { readonly kind: 'capability'; readonly text: t.StringUrl }
   | { readonly kind: 'path'; readonly root: CapturedRootLink }
   | { readonly kind: 'state'; readonly state: BootState }
   | { readonly kind: 'url'; readonly text: t.StringUrl };
@@ -456,6 +452,7 @@ const FRAME_CURSOR_ROWS = 1;
 const SERVICE_LEFT_INSET = 2;
 const SERVICE_RIGHT_GUTTER = 2;
 const SERVICE_GAP = '   ';
+const CAPABILITY_HINT = '(capability)';
 const DIST_PATH = 'dist/';
 
 function insetServiceRow(row: string, width: number) {
@@ -506,13 +503,20 @@ function serviceValue(value: SingleLineServiceValue, width: number) {
     });
     return Cli.Fmt.hyperlink(display, value.root.url);
   }
-  if (value.kind === 'url') {
+  if (value.kind === 'url' || value.kind === 'capability') {
     const part = captureServiceUrl(value.text);
     if (!part) return '';
     const href = stableNativeUrl(part.href);
     if (!href) return '';
-    const display = fitServiceUrl(part, width);
-    return Cli.Fmt.hyperlink(display, href);
+    const origin = formatServiceOrigin(part);
+    const full = formatServiceUrl(part, origin);
+    if (
+      value.kind === 'capability' &&
+      Cli.Fmt.Text.Width.measure(`${full} ${CAPABILITY_HINT}`) <= width
+    ) {
+      return `${Cli.Fmt.hyperlink(full, href)} ${fieldLabelColor(CAPABILITY_HINT)}`;
+    }
+    return Cli.Fmt.hyperlink(fitServiceUrl(part, width, origin), href);
   }
   if (value.kind === 'state') {
     return fitValue(stateText(value.state), width, stateColor(value.state));
@@ -628,9 +632,12 @@ function captureServiceUrl(input: t.StringUrl): t.Cli.Fmt.ServiceUrl.Part | unde
   });
 }
 
-function fitServiceUrl(part: t.Cli.Fmt.ServiceUrl.Part, width: number) {
-  const origin = formatServiceOrigin(part);
-  const formatted = `${origin}${part.suffix === '/' ? c.cyan(part.suffix) : c.gray(part.suffix)}`;
+function formatServiceUrl(part: t.Cli.Fmt.ServiceUrl.Part, origin: string) {
+  return `${origin}${part.suffix === '/' ? c.cyan(part.suffix) : c.gray(part.suffix)}`;
+}
+
+function fitServiceUrl(part: t.Cli.Fmt.ServiceUrl.Part, width: number, origin: string) {
+  const formatted = formatServiceUrl(part, origin);
   if (width <= 0) return '';
   if (Cli.Fmt.Text.Width.measure(formatted) <= width) return formatted;
 
@@ -781,7 +788,7 @@ function keyboardRows(width: number, backEnabled: boolean): readonly string[] {
       ? [{ left: `${c.cyan('←')} ${c.gray('ctrl')}`, right: quit }]
       : [{ right: quit }],
   });
-  return row ? ['', c.gray(Cli.Fmt.hr({ width, weight: 'dashed' })), row] : [];
+  return row ? [c.gray(Cli.Fmt.hr({ width, weight: 'dashed' })), row] : [];
 }
 
 function fitRow(row: string, width: number) {

@@ -91,10 +91,16 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
     ).split('\n');
     const stateIndex = ready.findIndex((row) => row.trimStart().startsWith('state'));
     const manifestIndex = ready.findIndex((row) => row.trimStart().startsWith('manifest'));
+    const openIndex = ready.findIndex((row) => row.trimStart().startsWith('open'));
+    const appIndex = ready.findIndex((row) => row.trimStart().startsWith('app'));
     expect(ready[manifestIndex].trimStart().slice('manifest'.length).trim()).to.eql(
       `dist/ ← digest:sha256:#${DIST_DIGEST.slice(-5)}`,
     );
-    expect(manifestIndex).to.eql(stateIndex + 1);
+    expect([manifestIndex, openIndex, appIndex]).to.eql([
+      stateIndex + 1,
+      stateIndex + 2,
+      stateIndex + 3,
+    ]);
   });
 
   it('links the Dist directory and digest to their separate admitted targets', () => {
@@ -336,8 +342,8 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
       }));
 
     expect(frame(7)).to.contain('open');
-    expect(frame(9)).to.not.contain('quit:');
-    expect(frame(10)).to.contain('quit: q');
+    expect(frame(8)).to.not.contain('quit:');
+    expect(frame(9)).to.contain('quit: q');
   });
 
   it('omits complete keyboard rows at the exact navigable and stopping boundaries', () => {
@@ -398,17 +404,23 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
     }
   });
 
-  it('renders consistent modifier and key footer grammar', () => {
+  it('bottom-docks consistent modifier and key footer grammar', () => {
+    const width = 80;
+    const height = 12;
     const frame = StartGuiScreen.toString({
       service: SERVICE,
       url: CAPABILITY.URL,
       state: Boot.preparing,
       keyboard: true,
       openWarning: false,
-      viewport: { width: 80, height: 12 },
+      viewport: { width, height },
     });
-    const footer = frame.split('\n').find((row) => Cli.stripAnsi(row).includes('quit:')) ?? '';
+    const rows = frame.split('\n');
+    const divider = rows.at(-2) ?? '';
+    const footer = rows.at(-1) ?? '';
 
+    expect(rows).to.have.length(height - 1);
+    expect(divider).to.eql(c.gray(Cli.Fmt.hr({ width, weight: 'dashed' })));
     expect(footer).to.contain(c.cyan('←'));
     expect(footer).to.contain(c.gray('ctrl'));
     expect(footer).to.contain(c.dim(c.gray('quit:')));
@@ -416,7 +428,7 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
     const text = Cli.stripAnsi(footer);
     expect(text.startsWith('← ctrl')).to.eql(true);
     expect(text.endsWith('quit: q')).to.eql(true);
-    expect(Cli.Fmt.Text.Width.measure(text)).to.eql(80);
+    expect(Cli.Fmt.Text.Width.measure(text)).to.eql(width);
   });
 
   it('advertises back only while a clean boot can navigate', () => {
@@ -518,7 +530,7 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
     }
   });
 
-  it('fits a production capability by row and origin offsets while retaining its full link', () => {
+  it('fits a production capability and drops its annotation before clipping', () => {
     const openRow = (width: number) =>
       StartGuiScreen.toString({
         service: SERVICE,
@@ -529,8 +541,15 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
         viewport: { width, height: 12 },
       }).split('\n').find((row) => Cli.stripAnsi(row).trimStart().startsWith('open')) ?? '';
 
+    const labeled = openRow(77);
+    expect(Cli.stripAnsi(labeled)).to.contain(`${CAPABILITY.DISPLAY} (capability)`);
+    expect(labeled).to.contain(c.dim(c.gray('(capability)')));
+    expect(labeled).to.contain(CAPABILITY.URL);
+    expect(Cli.Fmt.Text.Width.measure(labeled)).to.eql(75);
+
     const exact = openRow(64);
     expect(Cli.stripAnsi(exact)).to.contain(CAPABILITY.DISPLAY);
+    expect(Cli.stripAnsi(exact)).to.not.contain('(capability)');
     expect(Cli.Fmt.Text.Width.measure(exact)).to.eql(62);
 
     const clippedHead = '/0123456789a';
