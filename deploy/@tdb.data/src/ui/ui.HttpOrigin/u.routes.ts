@@ -9,7 +9,6 @@ export const Routes = {
     },
     production: {
       proxy: 'https://socialleancanvas.com/data/',
-      cdn: 'https://data-slc.orbiter.website/',
     },
   } satisfies t.HttpOrigin.SpecMap,
 } as const;

@@ -15,9 +15,6 @@ dist
 dist.*
 node_modules
 
-# Deployment config from https://docs.orbiter.host/cli
-orbiter.json
-
 # Local root runtime/config:
 /-config/
 

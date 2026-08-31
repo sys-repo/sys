@@ -7,7 +7,6 @@
     "test": "echo no-op",
     "build": "deno run -P=build ./-scripts/-build.ts && deno task info",
     "serve": "deno run -P=serve ./-scripts/-serve.ts",
-    "deploy": "deno task build && orbiter deploy && deno task info",
     "clean": "deno run -P=clean ./-scripts/-clean.ts",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
@@ -40,4 +39,3 @@
     }
   }
 }
-
